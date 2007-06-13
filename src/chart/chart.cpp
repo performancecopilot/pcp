@@ -138,14 +138,19 @@ Chart::~Chart(void)
     }
 }
 
+#if DESPERATE
+#define verbose_updates (_tab->isArchiveMode())
+#else
+#define verbose_updates	FALSE
+#endif
+
 void Chart::update(bool forward, bool visible)
 {
     int	vh = _tab->visibleHist();
 
-//#if DESPERATE
-    fprintf(stderr, "Chart::update(forward=%d,visible=%d) (%d plots)\n",
+    if (verbose_updates)
+	fprintf(stderr, "Chart::update(forward=%d,visible=%d) (%d plots)\n",
 		    forward, visible, (int)_metrics.length());
-//#endif
 
     if ((int)_metrics.length() < 1) {
 	fprintf(stderr, "Error in setting up this chart, nothing plotted\n");
@@ -161,11 +166,13 @@ void Chart::update(bool forward, bool visible)
 	else
 	    sz = max(0, (int)((_plots[m].dataCount - 1) * sizeof(double)));
 
-extern char *timestring(double);
-fprintf(stderr, "BEFORE Chart::update (%s) 0-%d (sz=%d,v=%.2f):\n", _metrics[m]->name().ptr(), _plots[m].dataCount, sz, value);
-for (int i = 0; i < _plots[m].dataCount; i++) {
-fprintf(stderr, "\t[%d] data=%.2f\n", i, _plots[m].data[i]);
-}
+	if (verbose_updates) {
+	    extern char *timestring(double);
+	    fprintf(stderr, "BEFORE Chart::update (%s) 0-%d (sz=%d,v=%.2f):\n",
+		    _metrics[m]->name().ptr(), _plots[m].dataCount, sz, value);
+	    for (int i = 0; i < _plots[m].dataCount; i++)
+		fprintf(stderr, "\t[%d] data=%.2f\n", i, _plots[m].data[i]);
+	}
 
 	if (forward) {
 	    memmove(&_plots[m].data[1], &_plots[m].data[0], sz);
@@ -180,10 +187,13 @@ fprintf(stderr, "\t[%d] data=%.2f\n", i, _plots[m].data[i]);
 	if (_plots[m].dataCount < vh)
 	    _plots[m].dataCount++;
 
-fprintf(stderr, "AFTER  Chart::update (%s) 0-%d:\n", _metrics[m]->name().ptr(), _plots[m].dataCount);
-for (int i = 0; i < _plots[m].dataCount; i++) {
-fprintf(stderr, "\t[%d] data=%.2f time=%s\n", i, _plots[m].data[i], timestring(_tab->timeData()[i]));
-}
+	if (verbose_updates) {
+	    fprintf(stderr, "AFTER  Chart::update (%s) 0-%d:\n",
+		    _metrics[m]->name().ptr(), _plots[m].dataCount);
+	    for (int i = 0; i < _plots[m].dataCount; i++)
+		fprintf(stderr, "\t[%d] data=%.2f time=%s\n",
+			i, _plots[m].data[i], timestring(_tab->timeData()[i]));
+	}
     }
 
     if (_style == Bar || _style == Area) {
@@ -266,12 +276,11 @@ fprintf(stderr, "\t[%d] data=%.2f time=%s\n", i, _plots[m].data[i], timestring(_
 		_tab->timeData(), _plots[m].plot_data, _plots[m].dataCount);
     }
 
-//#if DESPERATE
-    for (int m = 0; m < (int)_metrics.length(); m++) {
-	fprintf(stderr, "metric[%d] value %f plot %f\n", m,
-	    _metrics[m]->value(0), _plots[m].plot_data[0]);
+    if (verbose_updates) {
+	for (int m = 0; m < (int)_metrics.length(); m++)
+	    fprintf(stderr, "metric[%d] value %f plot %f\n", m,
+		    _metrics[m]->value(0), _plots[m].plot_data[0]);
     }
-//#endif
 
     if (visible)
 	replot();

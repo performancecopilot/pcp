@@ -281,7 +281,6 @@ void Tab::updateTimeAxis(void)
     if (_group->numContexts() > 0) {
 	_group->useTZ();
 	_group->defaultTZ(label, tz);
-fprintf(stderr, "%s: using %s TZ (%s), final time is %.3f (%s)\n", __func__, tz.ptr(), label.ptr(), _timeData[0], timestring(_timeData[0]));
 	kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom,
 			_timeData[_visible-1], _timeData[0], _interval * 5.0);
     } else {
@@ -290,6 +289,11 @@ fprintf(stderr, "%s: using %s TZ (%s), final time is %.3f (%s)\n", __func__, tz.
     }
     kmchart->timeAxis()->replot();
     kmchart->setDateLabel(_lastkmposition.tv_sec, tz.ptr());
+
+#ifdef DESPERATE
+    fprintf(stderr, "%s: used %s TZ (%s), final time is %.3f (%s)\n", __func__,
+		tz.ptr(), label.ptr(), _timeData[0], timestring(_timeData[0]));
+#endif
 }
 
 void Tab::updateTimeButton(void)

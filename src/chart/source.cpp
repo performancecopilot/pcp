@@ -172,19 +172,15 @@ void Source::add(PMC_Context *ctx)
 {
     source_t	*sp;
     source_t	*lastsp;
-    bool	send_bounds = FALSE;
+    bool	send_bounds = (ctx->source().type() == PM_CONTEXT_ARCHIVE);
 
     sp = (source_t *)malloc(sizeof(*sp));	// TODO - error check?
     sp->root = NULL;
     sp->ctx = ctx;
     sp->next = NULL;
     currentSource = sp;
-    for (lastsp = NULL, sp = firstSource; sp; sp = sp->next) {
-	const PMC_Source *source = &sp->ctx->source();
-	if (source->type() == PM_CONTEXT_ARCHIVE)
-	    send_bounds = TRUE;
+    for (lastsp = NULL, sp = firstSource; sp; sp = sp->next)
 	lastsp = sp;
-    }
     if (lastsp == NULL)
 	firstSource = currentSource;
     else
@@ -197,16 +193,14 @@ void Source::add(PMC_Context *ctx)
     // This is already done if we're the first, so don't do it again;
     // we also don't have a kmtime connection yet if processing args.
     
-    if (send_bounds) {
+    if (kmtime && send_bounds) {
 	const PMC_Source *source = &ctx->source();
-	if (source->type() == PM_CONTEXT_ARCHIVE) {
-	    PMC_String tz = source->timezone();
-	    PMC_String host = source->host();
-	    struct timeval logStartTime = source->start();
-	    struct timeval logEndTime = source->end();
-	    kmtime->addArchive(&logStartTime, &logEndTime, tz.ptr(),
+	PMC_String tz = source->timezone();
+	PMC_String host = source->host();
+	struct timeval logStartTime = source->start();
+	struct timeval logEndTime = source->end();
+	kmtime->addArchive(&logStartTime, &logEndTime, tz.ptr(),
 				tz.length(), host.ptr(), host.length());
-	}
     }
 }
 

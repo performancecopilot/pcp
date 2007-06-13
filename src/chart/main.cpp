@@ -281,7 +281,6 @@ main(int argc, char ** argv)
     pmProgname = basename(argv[0]);
     readSettings();
 
-    kmtime = new TimeControl();
     liveGroup = new PMC_Group();
     liveSources = new Source(liveGroup);
     archiveGroup = new PMC_Group();
@@ -487,6 +486,7 @@ fprintf(stderr, "%s\n", timestring(tosec(position)));
     }
 
     kmchart = new KmChart();
+    kmtime = new TimeControl();
 
     // Start kmtime process for time management
     kmtime->init(port, archives.length() == 0,
