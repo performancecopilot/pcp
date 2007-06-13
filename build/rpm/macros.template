@@ -1,0 +1,30 @@
+#
+# rpmrc.template
+#
+# Template to fudge rpm directory structure inside IRIX-like build
+# environment
+
+# Force 386 build on all platforms
+%_target i386-pc-linux
+%_target_cpu i386
+%_target_os linux
+
+# topdir == $(WORKAREA)
+%_topdir %topdir%
+
+# Following directories are specific to the topdir
+# This is where build is done. In our case it's the same as $WORKAREA
+%_builddir %topdir%
+
+# This is where foo.1.99.tar.gz is living in the real world.
+# Be careful not to run full rpm build as it will override the sources 
+%_sourcedir %topdir%/build
+
+# This is where binary RPM and source RPM would end up
+%_rpmdir    %topdir%/build/rpm
+%_srcrpmdir %topdir%/build/rpm
+%_specdir   %topdir%/build/rpm
+
+# Leave RPM files in the same directory - we're not building for 
+# multiple architectures
+%_rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm

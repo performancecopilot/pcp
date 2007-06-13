@@ -1,0 +1,86 @@
+#
+# Copyright (c) 1999, 2001-2003 Silicon Graphics, Inc.  All Rights Reserved.
+#
+ifndef _BUILDRULES_INCLUDED_
+_BUILDRULES_INCLUDED_ = 1
+
+include $(TOPDIR)/src/include/builddefs
+
+clean clobber : $(SUBDIRS)
+	rm -f $(DIRT)
+	@rm -fr .libs .obj .ui .moc
+	$(SUBDIRS_MAKERULE)
+
+# Never blow away subdirs
+ifdef SUBDIRS
+.PRECIOUS: $(SUBDIRS)
+$(SUBDIRS):
+	$(SUBDIRS_MAKERULE)
+endif
+
+#
+# Standard targets
+#
+
+ifdef LTCOMMAND
+$(LTCOMMAND) : $(SUBDIRS) $(OBJECTS) $(LTDEPENDENCIES)
+	$(LTLINK) -o $@ $(LDFLAGS) $(OBJECTS) $(LDLIBS)
+endif
+
+ifdef LTLIBRARY
+$(LTLIBRARY) : $(SUBDIRS) $(LTOBJECTS)
+	$(LTLINK) $(LTLDFLAGS) -o $(LTLIBRARY) $(LTOBJECTS) $(LTLIBS)
+
+%.lo: %.c
+	$(LTCOMPILE) -c $<
+endif
+
+ifdef POTHEAD
+%.pot: $(XGETTEXTFILES)
+	$(XGETTEXT) --language=C --keyword=_ -o $@ $(XGETTEXTFILES)
+
+# Generate temp .po files, to check whether translations need updating.
+# Not by default, due to gettext output differences between versions.
+%.po: $(POTHEAD)
+#	$(MSGMERGE) -o $@.tmpo $@ $(POTHEAD)
+#	if ! diff $@.tmpo $@ >/dev/null; then echo "$@ dated, see $@.tmpo"; fi
+
+%.mo: %.po
+	$(MSGFMT) -o $@ $<
+endif
+
+source :
+	$(SOURCE_MAKERULE)
+
+endif # _BUILDRULES_INCLUDED_
+
+$(_FORCE):
+
+.PHONY : depend
+
+DEPENDSCRIPT := $(MAKEDEPEND) $(DEPENDFLAGS) -f - -- $(CFLAGS) -- $(CFILES) | \
+	$(SED) \
+	    -e 's,`pwd`,$(TOPDIR),g' \
+	    -e 's,  */[^ ]*,,g' \
+	    -e '/^[^ ]*: *$$/d' \
+	    -e '/^ *$$/d'
+
+ifdef LTLIBRARY
+DEPENDSCRIPT := $(DEPENDSCRIPT) | $(SED) -e 's,^\([^:]*\)\.o,\1.lo,'
+endif
+
+depend : $(CFILES) $(HFILES)
+	$(SUBDIRS_MAKERULE)
+	$(DEPENDSCRIPT) > .dep
+	test -s .dep || rm -f .dep
+
+# Include dep, but only if it exists
+ifeq ($(shell test -f .dep && echo .dep), .dep)
+include .dep
+else
+ifdef LTLIBRARY
+$(LTOBJECTS): $(HFILES)
+else
+$(OBJECTS): $(HFILES)
+endif
+endif

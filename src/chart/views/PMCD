@@ -1,0 +1,16 @@
+#kmchart
+version 1
+
+chart title "Packets for PMCD [%h]" style stacking
+	plot legend "In" metric pmcd.pdu_in.total
+	plot legend "Out" metric pmcd.pdu_out.total
+
+chart title "CPU Time for PMCD and DSO PMDAs [%h]" style stacking
+	optional-plot legend "User" color #2d2de2 metric proc.psinfo.utime matching "/usr/share/pcp/bin/pmcd"
+	optional-plot legend "Sys" color #e71717 metric proc.psinfo.stime matching "/usr/share/pcp/bin/pmcd"
+
+chart title "CPU Time for Other PMDAs [%h]" style stacking legend off
+	optional-plot color #2d2de2 metric proc.psinfo.utime matching "/pmda"
+	optional-plot color #e71717 metric proc.psinfo.stime matching "/pmda"
+
+# $Id$

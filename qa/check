@@ -1,0 +1,178 @@
+#! /bin/sh
+#
+# Control script for running kmchart QA tests
+# ... stolen from PCP QA
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2006 Ken McDonell.  All Rights Reserved.
+#
+# $Id: check,v 1.1 2006/01/20 18:38:28 kenj Exp $
+#
+
+mypid=$$
+tmp=/tmp/$mypid
+status=0
+needwrap=true
+try=0
+n_bad=0
+bad=""
+notrun=""
+interrupt=true
+myname=`basename $0`
+iam=$myname  #  a synonym
+
+_wallclock()
+{
+    date "+%H %M %S" | $PCP_AWK_PROG '{ print $1*3600 + $2*60 + $3 }'
+}
+
+_timestamp()
+{
+    now=`date "+%D-%T"` 
+    echo -n " [$now]"
+}
+
+_wrapup()
+{
+    if $showme
+    then
+	:
+    elif $needwrap
+    then
+	if [ -f check.time -a -f $tmp.time ]
+	then
+	    cat check.time $tmp.time \
+	    | $PCP_AWK_PROG '
+	{ t[$1] = $2 }
+END	{ if (NR > 0) {
+	    for (i in t) print i " " t[i]
+	  }
+	}' \
+	    | sort -n >$tmp.out
+	    mv $tmp.out check.time
+	fi
+
+	echo "" >>check.log
+	date >>check.log
+	echo $list | fmt | sed -e 's/^/    /' >>check.log
+	$interrupt && echo "Interrupted!" >>check.log
+
+	if [ ! -z "$notrun" ]
+	then
+	    echo "Not run:$notrun"
+	    echo "Not run:$notrun" | fmt >>check.log
+	fi
+        if [ ! -z "$n_bad" -a "$n_bad" != 0 ]
+	then
+	    echo "Failures:$bad"
+	    echo "Failed $n_bad of $try tests"
+	    echo "Failures:$bad" | fmt >>check.log
+	    echo "Failed $n_bad of $try tests" >>check.log
+	else
+	    if [ $try != 0 ]
+	    then
+		echo "Passed all $try tests"
+		echo "Passed all $try tests" >>check.log
+	    fi
+	fi
+	needwrap=false
+    fi
+
+    rm -f $tmp.*
+}
+
+trap "_wrapup; exit \$status" 0 1 2 3 15
+
+# by default don't output timestamps
+timestamp=false
+
+. ./common.cmd
+
+[ -f check.time ] || touch check.time
+
+for seq in $list
+do
+    err=false
+    echo -n "$seq"
+    if $showme
+    then
+	echo
+	continue
+    elif [ ! -f $seq ]
+    then
+	echo " - no such test?"
+	err=true
+    else
+	# really going to try and run this one
+	#
+	rm -f $seq.out.bad
+	lasttime=`sed -n -e "/^$seq /s/.* //p" <check.time`
+	[ "X$lasttime" != X ] && echo -n " ${lasttime}s ..."
+	rm -f core $seq.notrun
+
+	start=`_wallclock`
+	$timestamp && _timestamp
+
+	sh $seq >$tmp.out 2>&1
+	sts=$?
+	$timestamp && _timestamp
+	stop=`_wallclock`
+
+	if [ -f core ]
+	then
+	    echo -n " [dumped core]"
+	    mv core $seq.core
+	    err=true
+	fi
+
+	if [ -f $seq.notrun ]
+	then
+	    echo " [not run] `cat $seq.notrun`"
+	    rm -f $seq.notrun
+	    notrun="$notrun $seq"
+	else
+	    if [ $sts -ne 0 ]
+	    then
+		echo -n " [failed, exit status $sts]"
+		err=true
+	    fi
+	    if [ ! -f $seq.out ]
+	    then
+		echo " - no qualified output"
+		mv $tmp.out $seq.out.bad
+		err=true
+	    else
+		if diff $seq.out $tmp.out >/dev/null 2>&1
+		then
+		    echo ""
+		    if $err
+		    then
+			:
+		    else
+			echo "$seq `expr $stop - $start`" >>$tmp.time
+		    fi
+		else
+		    echo " - output mismatch (see $seq.out.bad)"
+		    mv $tmp.out $seq.out.bad
+		    $diff $seq.out $seq.out.bad
+		    err=true
+		fi
+	    fi
+	fi
+    fi
+
+    # come here for each test, except when $showme is true
+    #
+    if $err
+    then
+	bad="$bad $seq"
+	n_bad=`expr $n_bad + 1`
+	quick=false
+	echo "Check local PMCD is still alive ..."
+    fi
+    [ -f $seq.notrun ] || try=`expr $try + 1`
+done
+
+interrupt=false
+status=$n_bad
+exit

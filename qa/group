@@ -1,0 +1,23 @@
+# QA groups control
+#
+# $Id: group,v 1.2 2006/01/22 20:10:54 kenj Exp $
+#
+# define groups and default owners
+# do not start group name with a digit
+#
+
+# catch-all
+#
+other
+
+# view configs
+#
+config
+
+# test-group association ... one line per test
+#
+001 config
+002 config
+003 config
+004 config
+005 config

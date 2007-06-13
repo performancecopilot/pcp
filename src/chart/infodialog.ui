@@ -1,0 +1,291 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>InfoDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>InfoDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>413</width>
+            <height>330</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Metric Information</string>
+    </property>
+    <property name="icon">
+        <pixmap>kmchart.png</pixmap>
+    </property>
+    <property name="sizeGripEnabled">
+        <bool>true</bool>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QLayoutWidget" row="0" column="0">
+            <property name="name">
+                <cstring>layout13</cstring>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget" row="1" column="0">
+                    <property name="name">
+                        <cstring>buttonsLayout</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>buttonHelp</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Help</string>
+                            </property>
+                            <property name="accel">
+                                <string>F1</string>
+                            </property>
+                            <property name="autoDefault">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>Horizontal Spacing2</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>20</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>buttonOk</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;OK</string>
+                            </property>
+                            <property name="accel">
+                                <string></string>
+                            </property>
+                            <property name="autoDefault">
+                                <bool>true</bool>
+                            </property>
+                            <property name="default">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QTabWidget" row="0" column="0">
+                    <property name="name">
+                        <cstring>infoTab</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>3</hsizetype>
+                            <vsizetype>3</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>250</width>
+                            <height>150</height>
+                        </size>
+                    </property>
+                    <widget class="QWidget">
+                        <property name="name">
+                            <cstring>pminfoTab</cstring>
+                        </property>
+                        <attribute name="title">
+                            <string>pminfo</string>
+                        </attribute>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QTextEdit" row="0" column="0">
+                                <property name="name">
+                                    <cstring>pminfoTextEdit</cstring>
+                                </property>
+                                <property name="paletteForegroundColor">
+                                    <color>
+                                        <red>1</red>
+                                        <green>0</green>
+                                        <blue>0</blue>
+                                    </color>
+                                </property>
+                                <property name="paletteBackgroundColor">
+                                    <color>
+                                        <red>255</red>
+                                        <green>255</green>
+                                        <blue>255</blue>
+                                    </color>
+                                </property>
+                                <property name="font">
+                                    <font>
+                                        <family>Monospace</family>
+                                        <pointsize>8</pointsize>
+                                    </font>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>Box</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                                <property name="lineWidth">
+                                    <number>1</number>
+                                </property>
+                                <property name="textFormat">
+                                    <enum>PlainText</enum>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="linkUnderline">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="wordWrap">
+                                    <enum>NoWrap</enum>
+                                </property>
+                                <property name="undoDepth">
+                                    <number>0</number>
+                                </property>
+                                <property name="undoRedoEnabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="autoFormatting">
+                                    <set>AutoNone</set>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <widget class="QWidget">
+                        <property name="name">
+                            <cstring>pmvalTab</cstring>
+                        </property>
+                        <attribute name="title">
+                            <string>pmval</string>
+                        </attribute>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QTextEdit" row="0" column="0">
+                                <property name="name">
+                                    <cstring>pmvalTextEdit</cstring>
+                                </property>
+                                <property name="paletteBackgroundColor">
+                                    <color>
+                                        <red>255</red>
+                                        <green>255</green>
+                                        <blue>255</blue>
+                                    </color>
+                                </property>
+                                <property name="font">
+                                    <font>
+                                        <family>Monospace</family>
+                                        <pointsize>8</pointsize>
+                                    </font>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>Box</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                                <property name="lineWidth">
+                                    <number>1</number>
+                                </property>
+                                <property name="textFormat">
+                                    <enum>PlainText</enum>
+                                </property>
+                                <property name="linkUnderline">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="wordWrap">
+                                    <enum>NoWrap</enum>
+                                </property>
+                                <property name="undoDepth">
+                                    <number>0</number>
+                                </property>
+                                <property name="undoRedoEnabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="autoFormatting">
+                                    <set>AutoNone</set>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                </widget>
+            </grid>
+        </widget>
+    </grid>
+</widget>
+<connections>
+    <connection>
+        <sender>buttonOk</sender>
+        <signal>clicked()</signal>
+        <receiver>InfoDialog</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>infoTab</sender>
+        <signal>currentChanged(QWidget*)</signal>
+        <receiver>InfoDialog</receiver>
+        <slot>infoTabCurrentChanged(QWidget*)</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in declaration">qprocess.h</include>
+    <include location="local" impldecl="in implementation">infodialog.ui.h</include>
+</includes>
+<variables>
+    <variable access="private">bool pminfoStarted;</variable>
+    <variable access="private">bool pmvalStarted;</variable>
+    <variable access="private">bool isArchive;</variable>
+    <variable access="private">QString source;</variable>
+    <variable access="private">QString metric;</variable>
+    <variable access="private">QString instance;</variable>
+    <variable access="private">QProcess *pminfoProc;</variable>
+    <variable access="private">QProcess *pmvalProc;</variable>
+</variables>
+<slots>
+    <slot>pminfoStdout()</slot>
+    <slot>pminfoStderr()</slot>
+    <slot>pmvalStdout()</slot>
+    <slot>pmvalStderr()</slot>
+    <slot>infoTabCurrentChanged( QWidget * )</slot>
+</slots>
+<functions>
+    <function>reset( QString, QString, QString, bool )</function>
+    <function>pminfo()</function>
+    <function>pmval()</function>
+</functions>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

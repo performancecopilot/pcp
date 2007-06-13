@@ -1,0 +1,12 @@
+Source: kmchart
+Section: admin
+Priority: optional
+Maintainer: Nathan Scott <nathans@debian.org>
+Build-Depends: autoconf, debhelper (>= 5)
+Standards-Version: 3.5.9
+
+Package: kmchart
+Depends: ${shlibs:Depends}
+Architecture: any
+Description: Stripchart tool for Performance Co-Pilot
+ A stripchart tool for plotting metric values from the Performance Co-Pilot.

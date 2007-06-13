@@ -1,0 +1,8 @@
+#kmchart
+version 1
+
+chart title "Network Interface Bytes [%h]" style stacking
+	plot legend "in %i" metric network.interface.in.bytes not-matching "^lo|^sl|^ppp|^sit"
+	plot legend "out %i" metric network.interface.out.bytes not-matching "^lo|^sl|^ppp|^sit"
+
+# $Id$

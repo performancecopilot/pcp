@@ -1,0 +1,298 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>ShowBounds</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>ShowBounds</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>299</width>
+            <height>201</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Archive Time Bounds</string>
+    </property>
+    <property name="icon">
+        <pixmap>kmtime.png</pixmap>
+    </property>
+    <property name="acceptDrops">
+        <bool>false</bool>
+    </property>
+    <property name="sizeGripEnabled">
+        <bool>false</bool>
+    </property>
+    <property name="modal">
+        <bool>false</bool>
+    </property>
+    <property name="whatsThis" stdset="0">
+        <string>The Archive Bounds dialog displays and allows modifications
+to the start and end time of a (set of) PCP data archive(s).
+This effectively restricts all kmtime clients (e.g. pmval, kmchart)
+to a subset of the available performance data.</string>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>startLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>20</y>
+                <width>40</width>
+                <height>31</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Start</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>endLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>90</y>
+                <width>40</width>
+                <height>31</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>End</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>lineEditStart</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>70</x>
+                <y>20</y>
+                <width>210</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="whatsThis" stdset="0">
+            <string>Modify the archive start time as seen by all&lt;br&gt;
+kmtime clients (e.g. pmval, kmchart).&lt;br&gt;&lt;br&gt;
+This cannot be set before the start time of the&lt;br&gt;
+archive with the earliest start time, nor beyond&lt;br&gt;
+of the archive with the latest end time.&lt;br&gt;
+It also cannot be greater than the current end&lt;br&gt;
+time.</string>
+        </property>
+    </widget>
+    <widget class="QwtSlider">
+        <property name="name">
+            <cstring>sliderStart</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>50</y>
+                <width>261</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <property name="orientation">
+            <enum>Horizontal</enum>
+        </property>
+        <property name="bgStyle">
+            <enum>QwtSlider::BgBoth</enum>
+        </property>
+        <property name="whatsThis" stdset="0">
+            <string>Modify the archive start time as seen by all&lt;br&gt;
+kmtime clients (e.g. pmval, kmchart).&lt;br&gt;&lt;br&gt;
+This cannot be set before the start time of the&lt;br&gt;
+archive with the earliest start time, nor beyond&lt;br&gt;
+of the archive with the latest end time.&lt;br&gt;
+It also cannot be greater than the current end&lt;br&gt;
+time.</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>lineEditEnd</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>70</x>
+                <y>90</y>
+                <width>211</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="whatsThis" stdset="0">
+            <string>Modify the archive end time as seen by all&lt;br&gt;
+kmtime clients (e.g. pmval, kmchart).&lt;br&gt;&lt;br&gt;
+This cannot be set before the start time of the&lt;br&gt;
+archive with the earliest start time, nor beyond&lt;br&gt;
+of the archive with the latest end time.&lt;br&gt;
+It also cannot be less than the current start&lt;br&gt;
+time.</string>
+        </property>
+    </widget>
+    <widget class="QwtSlider">
+        <property name="name">
+            <cstring>sliderEnd</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>120</y>
+                <width>261</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <property name="orientation">
+            <enum>Horizontal</enum>
+        </property>
+        <property name="bgStyle">
+            <enum>QwtSlider::BgBoth</enum>
+        </property>
+        <property name="whatsThis" stdset="0">
+            <string>Modify the archive end time as seen by all&lt;br&gt;
+kmtime clients (e.g. pmval, kmchart).&lt;br&gt;&lt;br&gt;
+This cannot be set before the start time of the&lt;br&gt;
+archive with the earliest start time, nor beyond&lt;br&gt;
+of the archive with the latest end time.&lt;br&gt;
+It also cannot be less than the current start&lt;br&gt;
+time.</string>
+        </property>
+    </widget>
+    <widget class="QLayoutWidget">
+        <property name="name">
+            <cstring>Layout1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>160</y>
+                <width>270</width>
+                <height>36</height>
+            </rect>
+        </property>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <property name="margin">
+                <number>0</number>
+            </property>
+            <property name="spacing">
+                <number>6</number>
+            </property>
+            <spacer>
+                <property name="name">
+                    <cstring>Horizontal Spacing2</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>20</width>
+                        <height>20</height>
+                    </size>
+                </property>
+            </spacer>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>buttonOK</cstring>
+                </property>
+                <property name="text">
+                    <string>&amp;OK</string>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>buttonCancel</cstring>
+                </property>
+                <property name="text">
+                    <string>&amp;Cancel</string>
+                </property>
+                <property name="accel">
+                    <string></string>
+                </property>
+                <property name="autoDefault">
+                    <bool>true</bool>
+                </property>
+                <property name="default">
+                    <bool>true</bool>
+                </property>
+            </widget>
+        </hbox>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>buttonOK</sender>
+        <signal>clicked()</signal>
+        <receiver>ShowBounds</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>buttonCancel</sender>
+        <signal>clicked()</signal>
+        <receiver>ShowBounds</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>sliderStart</sender>
+        <signal>valueChanged(double)</signal>
+        <receiver>ShowBounds</receiver>
+        <slot>changedStart(double)</slot>
+    </connection>
+    <connection>
+        <sender>sliderEnd</sender>
+        <signal>valueChanged(double)</signal>
+        <receiver>ShowBounds</receiver>
+        <slot>changedEnd(double)</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in declaration">console.h</include>
+</includes>
+<variables>
+    <variable access="private">Console *_console;</variable>
+    <variable access="private">double _localCurrentStart;</variable>
+    <variable access="private">double _localCurrentEnd;</variable>
+    <variable access="private">double _localAbsoluteStart;</variable>
+    <variable access="private">double _localAbsoluteEnd;</variable>
+    <variable access="private">struct timeval *_currentStart;</variable>
+    <variable access="private">struct timeval *_currentEnd;</variable>
+    <variable access="private">struct timeval *_absoluteStart;</variable>
+    <variable access="private">struct timeval *_absoluteEnd;</variable>
+</variables>
+<slots>
+    <slot>changedStart( double value )</slot>
+    <slot>changedEnd( double value )</slot>
+    <slot>accept()</slot>
+    <slot>reject()</slot>
+</slots>
+<signals>
+    <signal>boundsChanged()</signal>
+</signals>
+<functions>
+    <function>init(Console *, struct timeval *, struct timeval *, struct timeval *, struct timeval *)</function>
+    <function>reset()</function>
+    <function>flush()</function>
+    <function>displayStartText()</function>
+    <function>displayEndText()</function>
+    <function>displayStartSlider()</function>
+    <function>displayEndSlider()</function>
+</functions>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+<includehints>
+    <includehint>qwt_slider.h</includehint>
+</includehints>
+</UI>

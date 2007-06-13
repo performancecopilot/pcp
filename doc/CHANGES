@@ -1,0 +1,130 @@
+TODO:
+    - kmtime integration with QtAssistant (help system)
+    - kmchart integration with QtAssistant (help system)
+    - kmchart tooltip text
+    - kmchart whats-this text
+    - autoconf and packaging support (rpm, tar, deb)
+    - record mode needs code
+    - clean up tatty edges to some icons (bad conversion from scalable)
+    - bug fixes:
+	- archive mode scrolling
+	- kmtime not adjusting time window when new archives added
+	- setting a title from Edit Chart
+	- bad archive cmd line arg causes SIGSEGV (PMC_List::remove)
+
+kmchart 0.6
+    - kmtime support added
+    - unified time axis introduced
+    - support for tabs added to kmchart
+    - support for simultaneous live and archive mode tabs
+    - reworked metric selection dialog _completely_
+    - shiny new icons added all over the shop
+    - merged Load System View and Load User View dialogs
+
+kmchart 0.5
+[released ??? 2006 on http://sourceforge.net/projects/pcpaddons]
+    - fixed segv from "legend off" in view config
+    - new tool - pm2km to convert pmchart views into kmchart views
+    - added view configs for: Apache, CPU, Loadavg, NFS2, NFS3, Disk,
+      Filesys, PMCD, Syscalls, Paging, Overview, Sockets, Cisco,
+      ShpingCPU, ShpingElapsed
+    - new GNUmakefile wrappers to work around Makefile being rebuilt
+      by Qt Designer
+    - File->Open System View now looks for system views in
+      $(PCP_VAR_LIB)/config/kmchart
+    - added support for plotting all instances of metrics with
+      instance domains (see the Filesys view)
+    - %i expands to instance name in plot legend
+    - time counters are rate converted and scaled, so plotted in the range
+      0.0 to 1.0
+    - saving of configuration through File->Save User View now works
+
+kmchart 0.4.1
+[released 28 Feb 2006 on http://sourceforge.net/projects/pcpaddons]
+    - fix small botch in 0.4 release
+
+kmchart 0.4
+[released 28 Feb 2006 on http://sourceforge.net/projects/pcpaddons]
+    - view (config) parser added, so can now load user and systems views,
+      supporting both the old pmchart syntax and some kmchart improvements
+    - QA suite created (more pcpqa for the fans)
+    - small PCP 2.5.0 patch with just the required libpmc changes
+    - better handling of minimum size and resizing
+    - for New->Plot, default style is always Line (inheriting the
+      default from the previous chart was just plain wrong)
+    - handle pmchart syntax for instance or pattern in view config
+      file (no quotes, use text to end of line), as well as kmchart syntax
+      (instance identifiers enclosed in quotes)
+    - %h expands to hostname in chart title
+    - one timer for all charts (as opposed to one time for each chart), so
+      all time axes are temporally correlated (reduced memory footprint as
+      a side effect)
+    - plot color shown as a block in the legend for improved usability
+    - Edit->Delete->chart implemented
+    - current chart highlighted with color change for axes and titles
+      (black->red)
+    - improved top-level re-sizing logic
+    - File->New Plot is now a modeless dialog, so plots appear in the main
+      window as they are created
+    - File->Print implemented, although it only prints the current chart
+      at this stage
+    - Help->About implemented
+    - Edit->Colors implemented
+    - Autoscaling logic fixed up so it actually works now
+    - Loadavg and CPU as first views
+
+kmchart 0.3
+[released 17 Jan 2006 on http://sourceforge.net/projects/pcpaddons]
+    - move Qwt base from 4.2 to 5.0 beta (20050831 at this stage)
+    - add to current and create new chart both functional in MetricSelection
+      dialog
+    - metrics really being fetched using libpcp_pmc methods ... real data
+      values being used for plots
+    - complete overhaul for the APIs to the Chart and Plot classes
+    - fixed y-axis scaling dialog behaviour
+    - Edit->Colors ... implemented
+    - plot data arrays allocated dynamically (in preparation for *History
+      changes on command line and via UI)
+    - common x-axis time data across all charts and single timer thread
+      so all charts updated at the same time
+    - initial support for left-mouse selection of "current" chart in a
+      multi-chart configuration ... and some visible feedback (title and
+      y-axis label appear in red)
+    - update interval specified via -t on command line
+    - initial view loading support through -c config on command line (hack
+      to load hard-coded CPU view, i.e. no view config file parser,
+      at the moment to demonstrate completeness of API into the Chart
+      and Plot classes
+    - initial #-cycle support for default color rotation for plots within
+      a chart
+    - pale blue rather than grey for the plot canvas background
+    - rudimentary chart resizing with outer window resizing
+    - full support for Stack, Util, Area and Line plots, including changing
+      style on the fly via the UI
+    - add support for Legend labels as alternative to the default metric
+      specification being used (enhancement over pmchart) 
+    - make MetricSelection dialog modeless
+    - added File->Print support
+    - added Help->About support
+    - graph Title and Legend manipulation in the UI works now
+    - changing host/archive source in MetricSelection does not keep adding
+      the same hosts/archives to the selection list ... and the PMNS
+      transition now appears to be correct
+    - instance domains for archive contexts are loaded using
+      pmGetIndomArchive() rather than pmGetIndom() to remove any temporal
+      dependency in the possible instances
+
+kmchart 0.2 [mailed out 4 Jan 2006]
+    - added plot legend handling (a la the Qwt bode example with some
+      enhancements)
+    - fix Edit->Chart Title and Legend so that it really controls the
+      show/hide function of the plot Legend
+    - rework Graph::addPlot() to get metric spec into the Graph class
+    - remove the last vestiages of the global currentChart struct, moving
+      the associated data into the Graph class
+    - make changes in Edit->Y Axis Scaling stick after dialog done
+    - ensure consistent handling of Chart Style changes
+    - improve resizing of main window after a new Chart is added
+
+kmchart 0.1 [mailed out 2 Jan 2006]
+    -  initial version

@@ -1,0 +1,5 @@
+# pmafm support for kmchart
+
+MULTI="kmchart" 
+REPLAY="kmchart"
+

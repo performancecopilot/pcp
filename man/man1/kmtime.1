@@ -1,0 +1,95 @@
+.\" Copyright (c) 2007, Nathan Scott.  All Rights Reserved.
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH KMTIME 1 "" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} KMTIME 1 "" "Performance Co-Pilot"
+.if \nX=1 .ds x} KMTIME 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} KMTIME 1 "" "\&"
+.if \nX=3 .ds x} KMTIME "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3kmtime\f1 \- time control server for Performance Co-Pilot
+.SH SYNOPSIS
+\f3kmtime\f1
+[\f3\-a\f1]
+[\f3\-h\f1]
+[\f3\-p\f1 \f2port\f1]
+.SH DESCRIPTION
+.B kmtime
+is a graphical user interface for performance monitoring applications
+using the PCP infrastructure and requiring interactive time control.
+.B kmtime
+is a replacement for SGI's
+.B pmtime
+tool.
+.PP
+.B kmtime
+is not normally invoked directly by users.  Rather, it is more
+typical for it to be started by client applications (e.g.
+.BR kmchart (1)
+and
+.BR pmval (1)).
+.PP
+The arguments to
+.B kmtime
+are as follows:
+.TP 5
+.B \-a
+Use archive mode.
+This instructs
+.B kmtime
+to create a dialog window with time controls suitable for manipulating
+the archive position, allowing full VCR control to move forwards
+and backwards in time at configurable rates and intervals.
+.TP
+.B \-h
+Use live mode.
+This instructs
+.B kmtime
+to create a dialog window with the simpler time controls suitable for
+live monitoring.
+.TP
+.B \-p
+.I port
+is the port number which
+.B kmtime
+will use for communication with its clients (monitoring applications).
+.PP
+The
+.B \-a
+and
+.B \-h
+arguments are mutually exclusive, and if neither is specified
+.B kmtime
+defaults to using archive mode.
+.BR -a .
+.PP
+Note that the
+.kmtime
+window is only made visible when explicitly requested.
+Multiple client applications can be connected to a single
+.B kmtime
+server \- when the final client application exits,
+.B kmtime
+will also exit.
+.SH ENVIRONMENT
+When a port number is not explicitly requested on the command line
+via the
+.B \-p
+option, the environment variable
+.I KMTIME_PORT
+can be set to specify the port number from which available port
+probing will commence when
+.B kmtime
+is searching for a port number to use.
+.PP
+The default starting port number is 43334.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR kmchart (1),
+and
+.BR pmval (1).

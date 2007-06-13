@@ -1,0 +1,42 @@
+Summary: Performance Co-Pilot Stripchart utility
+Name: @pkg_name@
+Version: @pkg_version@
+Release: @pkg_release@
+Distribution: @pkg_distribution@
+BuildRoot: @build_root@ 
+Prereq: /sbin/ldconfig
+Source: @pkg_name@-@pkg_version@.src.tar.gz
+License: GPL
+URL: http://oss.sgi.com/projects/pcp
+Group: System Environment/Base
+
+%description
+Stripchart tool for plotting Performance Co-Pilot framework metric values.
+
+%prep
+if [ -f .census ] ; then
+   if [ ! -d ${RPM_PACKAGE_NAME}-${RPM_PACKAGE_VERSION} ] ; then
+      ln -s . ${RPM_PACKAGE_NAME}-${RPM_PACKAGE_VERSION}
+   fi
+else
+%setup
+INSTALL_USER=root
+INSTALL_GROUP=root
+export INSTALL_USER INSTALL_GROUP
+@make@ configure
+fi
+
+%build
+@make@
+
+%install
+DIST_ROOT="$RPM_BUILD_ROOT"
+DIST_INSTALL=`pwd`/install.manifest
+export DIST_ROOT DIST_INSTALL
+@make@ install DIST_MANIFEST="$DIST_INSTALL"
+@make@ -C build/rpm rpmfiles DIST_MANIFEST="$DIST_INSTALL"
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files -f build/rpm/rpmfiles

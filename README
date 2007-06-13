@@ -1,0 +1,124 @@
+kmtools Source Guide and TODO List
+
+kmchart and kmtime are replacements for SGI's pmchart and pmtime.
+kmchart is designed to produce stripcharts from Performance Co-Pilot (PCP)
+performance metrics fetched from either a live source (one or more hosts)
+or from one or more PCP archives.  kmtime is a graphical time controller
+utility that coordinates time updates and VCR-like playback for other
+utilities, such as kmchart and pmval.
+
+The SGI documentation for PCP tools in general is here
+http://techpubs.sgi.com/library/tpl/cgi-bin/browse.cgi?\
+    coll=0650&db=bks&cmd=toc&pth=/SGI_Admin/PCP_UAG
+and, in particular, pmchart is documented in Chapter 4.
+Further information can be gleaned from the pmchart man page at
+http://techpubs.sgi.com/library/tpl/cgi-bin/getdoc.cgi?\
+    coll=linux&db=man&fname=/usr/share/catman/man1/pmchart.1.html
+
+Building kmchart
+
+    Refer to ./INSTALL
+
+Running kmchart
+
+    At this stage, kmchart is only being made available as source
+    code, so you'll need to build it from source first.
+
+TODO
+
+    Refer to the TODO comments in the source code, else run
+    tools/what-todo for the full chapter and verse details.
+
+    kmchart TODO list:
+    - Try building and running with QT4 (currently only QT3 tried)
+    - Try building and running with more recent QWT library/headers.
+    - User customization via QSettings
+	o selected chart highlight color (currently navy)
+	o chart background color (currently sky blue)
+	o default visible history points (currently 10)
+    - Ability to move charts up/down vertically within a Tab
+	(use up/down arrow keys? - ideal cos thats just one change
+	 at a time then - nice&easy code & dwiinterface wise).
+	QVBoxLayout::remove and QVBoxLayout::insertWidget look like
+	the Qt mechanism for implementing this.
+    - Unified time axis, still to do:
+	o Scaling of the tick marks on the Y-axis is far from correct,
+	  and causes mis-alignment on the unified X-axis.  The disk
+	  thoughput (bytes) show this up clearly, for example.
+	o The time values displayed on the unified time axis (X) need
+	  to be enhanced to a/ ensure at least one timestamp is always
+	  displayed and b/ ensure as many timestamps as possible (but
+	  without overlap) are displayed at all times.
+    - Resolve what to do about plot legends
+	o Better to have them at the top of the chart below title?
+	o Would be good to get rid of the pushbutton shading around
+	  each, and instead rely solely on the Box<->Line transition
+	  to show state (i.e. plot displayed or not).
+	o Probably need to take QwtLegend and modify it alot, I
+	  doubt whether ideal behaviour can be achieved by workaround
+	  or subclassing.
+	o Plot labels (displayed in legend, supported in the kmchart
+	  View file format) need to be supported in the New/Edit
+	  Chart dialog - need to preserve existing ones, and need to
+	  be able to create/modify existing labels.
+    - Rethink searching in New/Edit Chart dialogs - could be done by
+	making the (gray background) text box double as a search text
+	entry point.  Something like vi's /<pattern> key sequence to
+	initiate new/next searches, with wrap-around to the top.
+	The Firefox mechanism is kinda similar - take another look at
+	that and see if anything can be learned from that.
+    - Destructors and memory leak plugging
+    - Online Help support
+    - Incorporate a Tutorial into Help too, useful for talks
+    - Visible/sample History config changes
+    - Dumps core on changing Visible Plots - undiagnosed
+    - Timezone support not completely working
+    - All the usual PCP tool options need to be introduced, such
+      as -S, -O, -T, etc.
+    - Auto-update the version string in the About dialog.
+    - The System/User buttons on the Open View dialog are smaller
+      than the other toolbox buttons alongside them.
+    - StatusBar causing pain still - see "make fix" - need a better
+      solution but QtDesigner really seems to ve getting in the way
+      here.
+	o Note: with the StatusBar, adding Charts correctly scales the
+	  main application window.  Without, its broken.  Argh!
+    - Tooltips need to be added across the board.
+    - File->Record support - sorta working, needs lots more testing and
+      better error handling.  Should also try find more unique filenames
+      for each successive run, even just a simple in-memory counter would
+      be a big help (then append this to the default record file names).
+    - In Record mode we currently implement the old pmchart behaviour,
+      which is to display a message about using pmafm when recording is
+      stopped.  We could do much better by opening a new Tab (maybe have
+      an option as to which path is taken), such that the replay is all
+      ready to go immediately, "in-line" in the current kmchart.  A third
+      option would be to start a new kmchart instance (can be attached to
+      the current kmtime already, as both live and archive mode supported
+      together now) with the archive+view ready to go.
+    - Also wrt record mode configuration, we may want a QSession setting
+      to allow a different default record interval, so that theres no need
+      to set it to something else on each record invocation.
+
+    kmtime TODO list:
+    - Finished, perfect, no bugs exist.  (yeah, right)
+    - Needs online help ala kmchart
+    - See "make fix" in Makefile - needs a QtDesigner fix?
+      (may be able to workaround by not dynamically adding the UTC
+	entry in the Timezone dropdown menu?)
+
+    PCP extensions
+    - The pmSetMode(3) API needs a replacement that takes a timeval
+      structure for a delta, instead of an integer.  The extended
+      time base code should be factored out (into the old, backward
+      compatible pmSetMode) and deprecated - used in pmval(1) atm.
+    - This timeval delta change needs to be pushed all the way down
+      into the PCP context structure, which fortunately isn't exposed
+      outside of impl.h (AFAICT) - this would be an issue if it was,
+      as the size of that structure will change due to relacing the
+      current integer delta with a timeval.
+    - Not much uses the integer delta however, its mainly interp.c in
+      libpcp that uses it.  Note: libpcp_pmc also has an API that's
+      affected here - PMC_Group::setArchiveMode
+
+-- Ken McDonell & Nathan Scott

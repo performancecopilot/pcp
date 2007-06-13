@@ -1,0 +1,63 @@
+#!/usr/bin/make -f
+
+package=kmchart
+
+dirme  = debian/$(package)
+pkgme  = DIST_ROOT=`pwd`/$(dirme); export DIST_ROOT;
+stdenv = @GZIP=-q; export GZIP;
+
+options = export DEBUG=-DNDEBUG DISTRIBUTION=debian \
+	  INSTALL_USER=root INSTALL_GROUP=root ;
+checkdir = test -f debian/rules
+checkver = rm -f debian/compat && echo 5 > debian/compat
+
+build: built
+built: config
+	@echo "== dpkg-buildpackage: build" 1>&2
+	$(MAKE) default
+	touch built
+
+config: .census
+.census:
+	@echo "== dpkg-buildpackage: configure" 1>&2
+	$(checkdir)
+	$(options) $(MAKE) configure
+	touch .census
+
+clean:
+	@echo "== dpkg-buildpackage: clean" 1>&2
+	$(checkdir)
+	-rm -f built .census
+	$(MAKE) distclean
+	-rm -rf $(dirme)
+	-rm -f debian/*substvars debian/files* debian/*.debhelper debian/compat
+
+binary-indep:
+
+binary-arch: checkroot built
+	@echo "== dpkg-buildpackage: binary-arch" 1>&2
+	$(checkdir)
+	$(checkver)
+	-rm -rf $(dirme)
+	$(pkgme) $(MAKE) -C . install
+	$(pkgme) $(MAKE) -C build src-manifest
+
+	dh_installdocs
+	dh_installchangelogs
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+
+checkroot:
+	test 0 -eq `id -u`
+
+.PHONY: binary binary-arch binary-indep clean checkroot

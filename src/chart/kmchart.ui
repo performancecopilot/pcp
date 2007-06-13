@@ -1,0 +1,1123 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>KmChart</class>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>KmChart</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>336</width>
+            <height>267</height>
+        </rect>
+    </property>
+    <property name="minimumSize">
+        <size>
+            <width>182</width>
+            <height>196</height>
+        </size>
+    </property>
+    <property name="caption">
+        <string>PCP Chart</string>
+    </property>
+    <property name="icon">
+        <pixmap>kmchart.png</pixmap>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout14</cstring>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>0</number>
+                </property>
+                <widget class="QTabWidget">
+                    <property name="name">
+                        <cstring>chartTab</cstring>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>NoFocus</enum>
+                    </property>
+                    <property name="tabShape">
+                        <enum>Rounded</enum>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout9</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>2</number>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>timePushButton</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>54</width>
+                                    <height>54</height>
+                                </size>
+                            </property>
+                            <property name="maximumSize">
+                                <size>
+                                    <width>54</width>
+                                    <height>54</height>
+                                </size>
+                            </property>
+                            <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>170</red>
+                                    <green>170</green>
+                                    <blue>170</blue>
+                                </color>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>NoFocus</enum>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                        </widget>
+                        <widget class="QFrame">
+                            <property name="name">
+                                <cstring>frame21</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>7</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>120</width>
+                                    <height>54</height>
+                                </size>
+                            </property>
+                            <property name="maximumSize">
+                                <size>
+                                    <width>32767</width>
+                                    <height>54</height>
+                                </size>
+                            </property>
+                            <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>170</red>
+                                    <green>170</green>
+                                    <blue>170</blue>
+                                </color>
+                            </property>
+                            <property name="frameShape">
+                                <enum>StyledPanel</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Raised</enum>
+                            </property>
+                            <property name="lineWidth">
+                                <number>2</number>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed23</cstring>
+                                </property>
+                                <property name="margin">
+                                    <number>2</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>0</number>
+                                </property>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout3</cstring>
+                                    </property>
+                                    <vbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QwtPlot">
+                                            <property name="name">
+                                                <cstring>timeAxisPlot</cstring>
+                                            </property>
+                                            <property name="sizePolicy">
+                                                <sizepolicy>
+                                                    <hsizetype>7</hsizetype>
+                                                    <vsizetype>0</vsizetype>
+                                                    <horstretch>0</horstretch>
+                                                    <verstretch>0</verstretch>
+                                                </sizepolicy>
+                                            </property>
+                                            <property name="minimumSize">
+                                                <size>
+                                                    <width>90</width>
+                                                    <height>20</height>
+                                                </size>
+                                            </property>
+                                            <property name="maximumSize">
+                                                <size>
+                                                    <width>32767</width>
+                                                    <height>22</height>
+                                                </size>
+                                            </property>
+                                            <property name="font">
+                                                <font>
+                                                    <family>Sans Serif</family>
+                                                    <pointsize>8</pointsize>
+                                                </font>
+                                            </property>
+                                        </widget>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>dateLabel</cstring>
+                                            </property>
+                                            <property name="sizePolicy">
+                                                <sizepolicy>
+                                                    <hsizetype>7</hsizetype>
+                                                    <vsizetype>0</vsizetype>
+                                                    <horstretch>0</horstretch>
+                                                    <verstretch>0</verstretch>
+                                                </sizepolicy>
+                                            </property>
+                                            <property name="minimumSize">
+                                                <size>
+                                                    <width>90</width>
+                                                    <height>20</height>
+                                                </size>
+                                            </property>
+                                            <property name="font">
+                                                <font>
+                                                    <family>Sans Serif</family>
+                                                    <pointsize>8</pointsize>
+                                                </font>
+                                            </property>
+                                            <property name="text">
+                                                <string>Sat Jan  1 2000 UTC</string>
+                                            </property>
+                                            <property name="alignment">
+                                                <set>AlignVCenter|AlignRight</set>
+                                            </property>
+                                        </widget>
+                                    </vbox>
+                                </widget>
+                            </vbox>
+                        </widget>
+                    </hbox>
+                </widget>
+            </vbox>
+        </widget>
+    </vbox>
+</widget>
+<menubar>
+    <property name="name">
+        <cstring>MenuBar</cstring>
+    </property>
+    <item text="&amp;File" name="fileMenu">
+        <action name="fileNewChartAction"/>
+        <item text="&amp;New Chart" name="popupMenu" accel="">
+            <action name="fileNewLinePlotAction"/>
+            <action name="fileNewBarPlotAction"/>
+            <action name="fileNewStackedBarAction"/>
+            <action name="fileNewAreaPlotAction"/>
+            <action name="fileNewUtilizationAction"/>
+        </item>
+        <action name="addTabAction"/>
+        <item text="Add Tab" name="popupMenu_7" accel="">
+            <action name="addLiveTabAction"/>
+            <action name="addArchiveTabAction"/>
+        </item>
+        <action name="closeTabAction"/>
+        <separator/>
+        <action name="fileOpenViewAction"/>
+        <action name="fileSaveViewAction"/>
+        <separator/>
+        <action name="fileRecordAction"/>
+        <action name="filePrintAction"/>
+        <separator/>
+        <action name="fileQuitAction"/>
+    </item>
+    <item text="&amp;Edit" name="Edit">
+        <action name="editChartAction"/>
+        <action name="deleteChartAction"/>
+        <separator/>
+        <action name="editTabAction"/>
+        <separator/>
+        <action name="editSettingsAction"/>
+    </item>
+    <item text="&amp;Time" name="Time">
+        <action name="timeShowLiveTimeControlAction"/>
+        <action name="timeHideLiveTimeControlAction"/>
+        <separator/>
+        <action name="timeNewKmchartAction"/>
+    </item>
+    <separator/>
+    <item text="&amp;Help" name="Help">
+        <action name="helpContentsAction"/>
+        <action name="helpManualAction"/>
+        <separator/>
+        <action name="helpAboutAction"/>
+        <action name="helpAboutPCPAction"/>
+        <separator/>
+        <action name="helpWhatsThisAction"/>
+    </item>
+</menubar>
+<toolbars>
+</toolbars>
+<customwidgets>
+</customwidgets>
+<actions>
+    <action>
+        <property name="name">
+            <cstring>fileNewChartAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>document-new.png</iconset>
+        </property>
+        <property name="text">
+            <string>New Chart</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;New Chart</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileOpenViewAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>document-open.png</iconset>
+        </property>
+        <property name="text">
+            <string>Open View...</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Open View...</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+O</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveViewAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>document-save-as.png</iconset>
+        </property>
+        <property name="text">
+            <string>Save View ...</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Save View ...</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+S</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>filePrintAction</cstring>
+        </property>
+        <property name="on">
+            <bool>false</bool>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>document-print.png</iconset>
+        </property>
+        <property name="text">
+            <string>Print</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Print...</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+P</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileQuitAction</cstring>
+        </property>
+        <property name="text">
+            <string>Quit</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Quit</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+Q</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileRecordAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>media-record.png</iconset>
+        </property>
+        <property name="text">
+            <string>Record ...</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Record ...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>timeShowLiveTimeControlAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>kmtime.png</iconset>
+        </property>
+        <property name="text">
+            <string>Show Time Control</string>
+        </property>
+        <property name="menuText">
+            <string>Show Time Control</string>
+        </property>
+        <property name="toolTip">
+            <string>Show Time Control window</string>
+        </property>
+        <property name="statusTip">
+            <string>Show Time Control window</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>timeHideLiveTimeControlAction</cstring>
+        </property>
+        <property name="on">
+            <bool>false</bool>
+        </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>edit-clear.png</iconset>
+        </property>
+        <property name="text">
+            <string>Hide Time Control</string>
+        </property>
+        <property name="menuText">
+            <string>Hide Time Control</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editDeleteAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>&amp;Delete</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Delete</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editColorsAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Colors ...</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Colors ...</string>
+        </property>
+        <property name="toolTip">
+            <string>Change Colors of Plots</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>timeNewKmchartAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>kmchart.png</iconset>
+        </property>
+        <property name="text">
+            <string>Launch New kmchart</string>
+        </property>
+        <property name="menuText">
+            <string>Launch New kmchart</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>optionsShowArchiveAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>false</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>kmtime.png</iconset>
+        </property>
+        <property name="text">
+            <string>Show Archive Time Control</string>
+        </property>
+        <property name="menuText">
+            <string>Show &amp;Archive Time Control</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>hideArchiveTimeControlAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>edit-clear.png</iconset>
+        </property>
+        <property name="text">
+            <string>Hide Archive Time Control</string>
+        </property>
+        <property name="menuText">
+            <string>Hide Archive Time Control</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>Action</cstring>
+        </property>
+        <property name="text">
+            <string>Unnamed</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editChartAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>document-properties.png</iconset>
+        </property>
+        <property name="text">
+            <string>Chart...</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Chart...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>addTabAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>false</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>tab-new.png</iconset>
+        </property>
+        <property name="text">
+            <string>Add Tab</string>
+        </property>
+        <property name="menuText">
+            <string>Add Tab</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>newTabAction</cstring>
+        </property>
+        <property name="text">
+            <string>New Tab</string>
+        </property>
+        <property name="menuText">
+            <string>New Tab</string>
+        </property>
+    </action>
+    <actiongroup>
+        <property name="name">
+            <cstring>ActionGroup</cstring>
+        </property>
+        <property name="text">
+            <string>ActionGroup</string>
+        </property>
+        <property name="usesDropDown">
+            <bool>true</bool>
+        </property>
+    </actiongroup>
+    <action>
+        <property name="name">
+            <cstring>editTabAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>tab-edit.png</iconset>
+        </property>
+        <property name="text">
+            <string>Tab...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editSettingsAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>settings.png</iconset>
+        </property>
+        <property name="text">
+            <string>Settings...</string>
+        </property>
+        <property name="menuText">
+            <string>Settings...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>Action_3</cstring>
+        </property>
+        <property name="text">
+            <string>Unnamed</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>Action_4</cstring>
+        </property>
+        <property name="text">
+            <string>Action_4</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>Action_5</cstring>
+        </property>
+        <property name="text">
+            <string>Action_5</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>Action_6</cstring>
+        </property>
+        <property name="text">
+            <string>Unnamed</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>timenew_itemAction_2</cstring>
+        </property>
+        <property name="text">
+            <string>new item</string>
+        </property>
+        <property name="menuText">
+            <string>new item</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>addLiveTabAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>computer.png</iconset>
+        </property>
+        <property name="text">
+            <string>Live...</string>
+        </property>
+        <property name="menuText">
+            <string>Live...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>addArchiveTabAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>archive.png</iconset>
+        </property>
+        <property name="text">
+            <string>Archive...</string>
+        </property>
+        <property name="menuText">
+            <string>Archive...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileNewLinePlotAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset></iconset>
+        </property>
+        <property name="text">
+            <string>Line Plot...</string>
+        </property>
+        <property name="menuText">
+            <string>Line Plot...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileNewBarPlotAction</cstring>
+        </property>
+        <property name="text">
+            <string>Bar Plot...</string>
+        </property>
+        <property name="menuText">
+            <string>Bar Plot...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileNewStackedBarAction</cstring>
+        </property>
+        <property name="text">
+            <string>Stacked Bar...</string>
+        </property>
+        <property name="menuText">
+            <string>Stacked Bar...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileNewAreaPlotAction</cstring>
+        </property>
+        <property name="text">
+            <string>Area Plot...</string>
+        </property>
+        <property name="menuText">
+            <string>Area Plot...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileNewUtilizationAction</cstring>
+        </property>
+        <property name="text">
+            <string>Utilization...</string>
+        </property>
+        <property name="menuText">
+            <string>Utilization...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>deleteChartAction</cstring>
+        </property>
+        <property name="text">
+            <string>Delete Chart</string>
+        </property>
+        <property name="menuText">
+            <string>Delete Chart</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>closeTabAction</cstring>
+        </property>
+        <property name="text">
+            <string>Close Tab</string>
+        </property>
+        <property name="menuText">
+            <string>Close Tab</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>Action_2</cstring>
+        </property>
+        <property name="text">
+            <string>Unnamed</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpManualAction</cstring>
+        </property>
+        <property name="text">
+            <string>Manual</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Manual</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+M</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpContentsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Contents</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Contents</string>
+        </property>
+        <property name="accel">
+            <string>F1</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpAboutAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>kmchart.png</iconset>
+        </property>
+        <property name="text">
+            <string>About</string>
+        </property>
+        <property name="menuText">
+            <string>About</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpAboutPCPAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>menupcp.png</iconset>
+        </property>
+        <property name="text">
+            <string>About PCP</string>
+        </property>
+        <property name="menuText">
+            <string>About PCP</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpWhatsThisAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>whatsthis.png</iconset>
+        </property>
+        <property name="text">
+            <string>What's This</string>
+        </property>
+        <property name="menuText">
+            <string>What's This</string>
+        </property>
+        <property name="accel">
+            <string>Shift+F1</string>
+        </property>
+    </action>
+</actions>
+<connections>
+    <connection>
+        <sender>fileOpenViewAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>fileOpenView()</slot>
+    </connection>
+    <connection>
+        <sender>fileSaveViewAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>fileSaveView()</slot>
+    </connection>
+    <connection>
+        <sender>filePrintAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>filePrint()</slot>
+    </connection>
+    <connection>
+        <sender>fileQuitAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>fileQuit()</slot>
+    </connection>
+    <connection>
+        <sender>helpContentsAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>helpContents()</slot>
+    </connection>
+    <connection>
+        <sender>helpAboutAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>helpAbout()</slot>
+    </connection>
+    <connection>
+        <sender>helpAboutPCPAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>helpAboutPCP()</slot>
+    </connection>
+    <connection>
+        <sender>helpWhatsThisAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>whatsThis()</slot>
+    </connection>
+    <connection>
+        <sender>fileRecordAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>fileRecord()</slot>
+    </connection>
+    <connection>
+        <sender>timeShowLiveTimeControlAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>optionsShowTimeControl()</slot>
+    </connection>
+    <connection>
+        <sender>timeHideLiveTimeControlAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>optionsHideTimeControl()</slot>
+    </connection>
+    <connection>
+        <sender>timeNewKmchartAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>optionsLaunchNewKmchart()</slot>
+    </connection>
+    <connection>
+        <sender>closeTabAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>closeTab()</slot>
+    </connection>
+    <connection>
+        <sender>editSettingsAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>editSettings()</slot>
+    </connection>
+    <connection>
+        <sender>chartTab</sender>
+        <signal>currentChanged(QWidget*)</signal>
+        <receiver>KmChart</receiver>
+        <slot>activeTabChanged(QWidget*)</slot>
+    </connection>
+    <connection>
+        <sender>timePushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>KmChart</receiver>
+        <slot>showTimeControl()</slot>
+    </connection>
+    <connection>
+        <sender>fileNewLinePlotAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>fileNewLinePlot()</slot>
+    </connection>
+    <connection>
+        <sender>fileNewBarPlotAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>fileNewBarPlot()</slot>
+    </connection>
+    <connection>
+        <sender>fileNewAreaPlotAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>fileNewAreaPlot()</slot>
+    </connection>
+    <connection>
+        <sender>fileNewStackedBarAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>fileNewStackedBar()</slot>
+    </connection>
+    <connection>
+        <sender>fileNewUtilizationAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>fileNewUtilization()</slot>
+    </connection>
+    <connection>
+        <sender>editChartAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>editChart()</slot>
+    </connection>
+    <connection>
+        <sender>deleteChartAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>deleteChart()</slot>
+    </connection>
+    <connection>
+        <sender>editTabAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>editTab()</slot>
+    </connection>
+    <connection>
+        <sender>addLiveTabAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>addLiveTab()</slot>
+    </connection>
+    <connection>
+        <sender>addArchiveTabAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>addArchiveTab()</slot>
+    </connection>
+    <connection>
+        <sender>helpManualAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>helpManual()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in declaration">main.h</include>
+    <include location="local" impldecl="in declaration">kmtime.h</include>
+    <include location="local" impldecl="in declaration">tabdialog.h</include>
+    <include location="local" impldecl="in declaration">infodialog.h</include>
+    <include location="local" impldecl="in declaration">chartdialog.h</include>
+    <include location="local" impldecl="in declaration">settingsdialog.h</include>
+    <include location="local" impldecl="in declaration">qprinter.h</include>
+    <include location="local" impldecl="in declaration">qfiledialog.h</include>
+    <include location="local" impldecl="in declaration">qassistantclient.h</include>
+    <include location="local" impldecl="in declaration">qwt/qwt_plot.h</include>
+    <include location="local" impldecl="in declaration">qwt/qwt_scale_widget.h</include>
+    <include location="local" impldecl="in implementation">stdlib.h</include>
+    <include location="local" impldecl="in implementation">qapplication.h</include>
+    <include location="local" impldecl="in implementation">qdir.h</include>
+    <include location="global" impldecl="in implementation">pcp/pmapi.h</include>
+    <include location="local" impldecl="in implementation">qspinbox.h</include>
+    <include location="local" impldecl="in implementation">qradiobutton.h</include>
+    <include location="local" impldecl="in implementation">qlistbox.h</include>
+    <include location="local" impldecl="in implementation">qslider.h</include>
+    <include location="local" impldecl="in implementation">qlineedit.h</include>
+    <include location="local" impldecl="in implementation">qsplitter.h</include>
+    <include location="local" impldecl="in implementation">qlistview.h</include>
+    <include location="local" impldecl="in implementation">qpushbutton.h</include>
+    <include location="local" impldecl="in implementation">qvbox.h</include>
+    <include location="local" impldecl="in implementation">qcombobox.h</include>
+    <include location="local" impldecl="in implementation">qpainter.h</include>
+    <include location="local" impldecl="in implementation">qlabel.h</include>
+    <include location="local" impldecl="in implementation">qmessagebox.h</include>
+    <include location="local" impldecl="in implementation">kmchart.ui.h</include>
+</includes>
+<variables>
+    <variable access="private">int _line;</variable>
+    <variable access="private">const char *_fname;</variable>
+    <variable access="private">QPrinter *_printer;</variable>
+    <variable access="private">QwtPlot *_timeAxis;</variable>
+    <variable access="private">QPixmap *_timeplaylive_pixmap;</variable>
+    <variable access="private">QPixmap *_timestoplive_pixmap;</variable>
+    <variable access="private">QPixmap *_timeplayrecord_pixmap;</variable>
+    <variable access="private">QPixmap *_timestoprecord_pixmap;</variable>
+    <variable access="private">QPixmap *_timeplayarchive_pixmap;</variable>
+    <variable access="private">QPixmap *_timestoparchive_pixmap;</variable>
+    <variable access="private">QPixmap *_timebackarchive_pixmap;</variable>
+    <variable access="private">QPixmap *_timestepfwdarchive_pixmap;</variable>
+    <variable access="private">QPixmap *_timestepbackarchive_pixmap;</variable>
+    <variable access="private">QPixmap *_timefastfwdarchive_pixmap;</variable>
+    <variable access="private">QPixmap *_timefastbackarchive_pixmap;</variable>
+    <variable access="private">TabDialog *_newtab;</variable>
+    <variable access="private">TabDialog *_edittab;</variable>
+    <variable access="private">InfoDialog *_info;</variable>
+    <variable access="private">ChartDialog *_newchart;</variable>
+    <variable access="private">ChartDialog *_editchart;</variable>
+    <variable access="private">OpenViewDialog *_openview;</variable>
+    <variable access="private">SaveViewDialog *_saveview;</variable>
+    <variable access="private">SettingsDialog *_settings;</variable>
+    <variable access="private">QAssistantClient *_assistant;</variable>
+</variables>
+<slots>
+    <slot>init( void )</slot>
+    <slot>destroy( void )</slot>
+    <slot>enableUI( void )</slot>
+    <slot>showTimeControl()</slot>
+    <slot>fileOpenView()</slot>
+    <slot>fileSaveView()</slot>
+    <slot>fileRecord()</slot>
+    <slot>filePrint()</slot>
+    <slot>fileQuit()</slot>
+    <slot>assistantError( const QString &amp; )</slot>
+    <slot>helpManual()</slot>
+    <slot>helpContents()</slot>
+    <slot>helpAbout()</slot>
+    <slot>helpAboutPCP()</slot>
+    <slot>whatsThis()</slot>
+    <slot>optionsShowTimeControl()</slot>
+    <slot>optionsHideTimeControl()</slot>
+    <slot>optionsLaunchNewKmchart()</slot>
+    <slot>acceptNewChart()</slot>
+    <slot>fileNewLinePlot()</slot>
+    <slot>fileNewBarPlot()</slot>
+    <slot>fileNewAreaPlot()</slot>
+    <slot>fileNewStackedBar()</slot>
+    <slot>fileNewUtilization()</slot>
+    <slot>editChart()</slot>
+    <slot>acceptEditChart()</slot>
+    <slot>deleteChart()</slot>
+    <slot>editTab()</slot>
+    <slot>acceptEditTab()</slot>
+    <slot>acceptNewTab()</slot>
+    <slot>addLiveTab()</slot>
+    <slot>addArchiveTab()</slot>
+    <slot>closeTab()</slot>
+    <slot>activeTabChanged( QWidget * )</slot>
+    <slot>editSettings()</slot>
+    <slot>acceptSettings()</slot>
+    <slot>revertSettings()</slot>
+</slots>
+<functions>
+    <function returnType="QwtPlot *">timeAxis( void )</function>
+    <function>step( bool livemode, kmTime * kmtime )</function>
+    <function>vcrmode( bool livemode, kmTime * kmtime, bool drag )</function>
+    <function>timezone( bool livemode, char * tzdata )</function>
+    <function>setStyle( char * style )</function>
+    <function>setupAssistant()</function>
+    <function>myresize()</function>
+    <function>createNewChart( chartStyle style )</function>
+    <function>metricInfo(QString src, QString m, QString inst, bool archive)</function>
+    <function>createNewTab( bool liveMode )</function>
+    <function returnType="QTabWidget *">tabWidget()</function>
+    <function>setActiveTab( int index, bool redisplay )</function>
+    <function>setDateLabel( time_t seconds, const char * tz )</function>
+    <function>setButtonState(enum KmButtonState newstate)</function>
+</functions>
+<pixmapinproject/>
+<layoutdefaults spacing="0" margin="0"/>
+</UI>

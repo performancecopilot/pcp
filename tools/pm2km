@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+# convert a pmchart view configuration to a kmchart version
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp; exit 0" 0 1 2 3 15
+
+if [ $# -eq 0 ]
+then
+    cat >$tmp
+    set -- $tmp
+    name="[stdin]"
+elif [ $# -eq 1 ]
+then
+    if [ ! -f "$1" ]
+    then
+	echo "Error: cannot find input file \"$1\""
+	exit 1
+    fi
+    name="$1"
+else
+    echo "Usage: $0 [view]"
+    exit 1
+fi
+
+if grep -q -i '#pmchart' "$1"
+then
+    sed <$1 \
+	-e '1s/#pmchart/#kmchart/' \
+	-e '/^[Vv]ersion/s/.*/version 1/' \
+	-e '/^[Cc]hart/{
+s/^Chart/chart/
+s/ Title/ title/
+s/ Style/ style/
+}' \
+	-e '/^[ 	]*[Pp]lot/s/^/xxx/' \
+	-e '/^[ 	]*[Oo]ptional-[Pp]lot/s/^/xxx/' \
+	-e '/^xxx/{
+s/^xxx//
+s/^\([ 	]*\)Optional-Plot/\1optional-plot/
+s/^\([ 	]*\)Plot/\1plot/
+s/ Color/ color/
+s/ color #-cycle//
+s/ Host \*//
+s/ Metric/ metric/
+s/ Instance/ instance/
+s/ instance  */ instance "/
+s/\( instance.*\) */\1"/
+s/ Matching/ matching/
+s/ matching  */ matching "/
+s/\( matching.*\) */\1"/
+s/ Not-Matching/ not-matching/
+s/ not-matching  */ not-matching "/
+s/\( not-matching.*\) */\1"/
+s/ Scale/ scale/
+s/ scale from / scale /
+s/\( scale [^ ][^ ]*\) to /\1 /
+}' \
+	-e '/\$Id.*/s//$Id$/'
+
+else
+    echo "Error: $name is not a pmchart view configuration file"
+fi
+
+exit
+
+	Plot Color #-cycle Host * Metric nfs3.client.calls
+	Plot Color #-cycle Host * Metric nfs3.server.calls
+
+#
+# $Id: NFS3,v 1.1 2000/07/06 18:54:58 kenmcd Exp $
+	plot legend "client" color #-cycle metric nfs.client.calls
+	plot legend "server" color #-cycle metric nfs.server.calls
+
+# $Id$

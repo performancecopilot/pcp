@@ -1,0 +1,10 @@
+QA output created by 001
+=== bad firt line ===
+Load View: stdin
+Error: stdin[1] Syntax error: expecting "#pmchart" or "#kmchart", found "#bad"
+
+=== lexicon too long ===
+Load View: stdin
+Error: stdin[2] Word truncated after 255 characters!
+"aaaaaaaaaaaaaaaaaaaa ... cccccccccccccccccccc"
+Error: stdin[2] Syntax error: expecting "version", found "aaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccc"

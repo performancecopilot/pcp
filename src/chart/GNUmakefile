@@ -1,0 +1,31 @@
+#
+# Copyright (c) 2007 Nathan Scott.  All Rights Reserved.
+#
+
+TOPDIR = ../..
+include $(TOPDIR)/src/include/builddefs
+
+UIFILES = aboutdialog.ui aboutpcpdialog.ui \
+	chartdialog.ui hostdialog.ui infodialog.ui \
+	kmchart.ui recorddialog.ui settingsdialog.ui tabdialog.ui
+UIHFILES = $(UIFILES:.ui=.ui.h)
+CPPFILES = chart.cpp main.cpp namespace.cpp qcolorpicker.cpp \
+	source.cpp tab.cpp timecontrol.cpp view.cpp
+HPPFILES = $(CPPFILES:.cpp=.h)
+SUBDIRS = views pmafm
+LSRCFILES = kmchart.pro $(UIFILES) $(UIHFILES) $(CPPFILES) $(HPPFILES)
+LDIRT = kmchart Makefile
+
+default:
+	qmake
+	@perl -i -pe 's/ -Wall / -Wall -Wno-deprecated /g' Makefile
+	make -f Makefile
+
+include $(BUILDRULES)
+
+install: default
+	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
+	$(INSTALL) -m 755 kmchart $(PKG_BIN_DIR)
+
+fix:	# ugh!  -- TODO: remove need for this, somehow..
+	perl -i -pe 's/.*statusBar.*//g' .ui/kmchart.cpp

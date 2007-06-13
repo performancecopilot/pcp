@@ -1,0 +1,180 @@
+#! /bin/sh
+#
+# Make a new kmchart QA test
+# ... stolen from PCP QA
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2006 Ken McDonell.  All Rights Reserved.
+#
+# $Id: new,v 1.1 2006/01/20 18:38:28 kenj Exp $
+#
+# Usage: new [group ...]
+#
+
+# generic initialization
+. ./common.sh
+
+trap "rm -f /tmp/$$.*; exit" 0 1 2 3 15
+
+_cleanup()
+{
+    :
+}
+
+if [ ! -f group ]
+then
+    echo "Creating the group index ..."
+    cat <<'End-of-File' >group
+# QA groups control
+#
+# $Id: new,v 1.1 2006/01/20 18:38:28 kenj Exp $
+#
+# define groups and default owners
+# do not start group name with a digit
+#
+
+# catch-all
+#
+other
+
+# view configs
+#
+config
+
+# test-group association ... one line per test
+#
+End-of-File
+fi
+
+if [ ! -w group ]
+then
+    echo "Error: cannot write group index file"
+    _cleanup
+    exit 1
+fi
+
+if make >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Warning: make failed -- some tests may be missing"
+fi
+
+try=0
+# pick first hole after $try, provided the test does not already exist
+# (second condition needed for lagging owner updates after test checked
+# in).
+#
+while true
+do
+    id=`grep '^[0-9][0-9]* ' group \
+	| LC_COLLATE=POSIX sort -n \
+	| $PCP_AWK_PROG '
+BEGIN		{ last = '$try' }
+$1 > '$try'	{ if ($1 != last+1) {
+			exit
+		   }
+		   last = $1
+		}
+END		{ printf "%03d\n",last+1 }'`
+    [ ! -f $id ] && break
+    # already exists, move on ...
+    #
+    try=`expr $id + 1`
+done
+
+echo "Next test is $id"
+
+if [ -f $id ]
+then
+    echo "Error: test $id already exists!"
+    _cleanup
+    exit 1
+fi
+
+echo -n "Creating skeletal script for you to edit ..."
+
+cat <<End-of-File | sed -e '/revision/s//Revision: 1.1 /' >$id
+#! /bin/sh
+# kmchart QA Test No. $id
+# \$revision\$
+#
+# what am I here for?
+#
+# Copyright (c) `date +%Y` Ken McDonell.  All Rights Reserved.
+
+seq=\`basename \$0\`
+echo "QA output created by \$seq"
+
+# get standard environment, filters and checks
+. ./common.test
+
+tmp=/tmp/\$\$
+here=\`pwd\`
+sudo=''
+[ -x sudo ] && sudo=\$here/sudo
+\$sudo rm -rf \$tmp.*
+status=0	# success is the default!
+trap "rm -f \$tmp.*; exit \\\$status" 0 1 2 3 15
+
+# real QA test starts here
+
+# if error
+exit
+
+# optional stuff if your test has verbose output to help resolve problems
+#echo
+#echo "If failure, check \$seq.full (this) and \$seq.full.ok (reference)"
+status=1
+exit
+
+# success, all done
+exit
+End-of-File
+
+sleep 2		# latency to read messages to this point
+echo ""
+
+chmod 755 $id
+${EDITOR-vi} $id
+
+if [ $# -eq 0 ]
+then
+    while true
+    do
+	echo -n "Add to group(s) [other] (? for list): "
+	read ans
+	[ -z "$ans" ] && ans=other
+	if [ "X$ans" = "X?" ]
+	then
+	    $PCP_AWK_PROG <group '
+BEGIN		{ text = "# ???" }
+/^[a-zA-Z]/	{ printf "%-16.16s %s\n",$1,text; text = "# ???"; next }
+NF < 2		{ next }
+		{ text = $0 }' \
+	    | LC_COLLATE=POSIX sort
+	else
+	    break
+	fi
+    done
+else
+    # expert mode, groups are on the command line
+    #
+    for g in $*
+    do
+	if grep "^$g[ 	]" group >/dev/null
+	then
+	    :
+	else
+	    echo "Warning: group \"$g\" not defined in ./group"
+	fi
+    done
+    ans="$*"
+fi
+
+echo -n "Adding $id to group index ..."
+echo "$id $ans" >>group
+echo " done."
+
+exit 0

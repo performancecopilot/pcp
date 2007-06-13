@@ -1,0 +1,8 @@
+#kmchart
+version 1
+
+chart title "Network Interface Packets [%h]" style stacking
+	optional-plot legend "in %i" metric network.interface.in.packets not-matching "^lo|^sl|^ppp"
+	optional-plot legend "out %i" metric network.interface.out.packets not-matching "^lo|^sl|^ppp"
+
+# $Id$

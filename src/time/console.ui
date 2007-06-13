@@ -1,0 +1,100 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>Console</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>Console</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>499</width>
+            <height>339</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>kmtime Console</string>
+    </property>
+    <property name="icon">
+        <pixmap>kmtime.png</pixmap>
+    </property>
+    <property name="sizeGripEnabled">
+        <bool>true</bool>
+    </property>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>buttonHide</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>300</y>
+                <width>85</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;Hide</string>
+        </property>
+        <property name="accel">
+            <string>Alt+H</string>
+        </property>
+        <property name="autoDefault">
+            <bool>true</bool>
+        </property>
+        <property name="default">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QTextEdit">
+        <property name="name">
+            <cstring>text</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>474</width>
+                <height>280</height>
+            </rect>
+        </property>
+        <property name="sizePolicy">
+            <sizepolicy>
+                <hsizetype>4</hsizetype>
+                <vsizetype>4</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+        <property name="textFormat">
+            <enum>PlainText</enum>
+        </property>
+        <property name="readOnly">
+            <bool>true</bool>
+        </property>
+        <property name="autoFormatting">
+            <set>AutoNone</set>
+        </property>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>buttonHide</sender>
+        <signal>clicked()</signal>
+        <receiver>Console</receiver>
+        <slot>accept()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">console.ui.h</include>
+</includes>
+<variables>
+    <variable access="private">int _level;</variable>
+</variables>
+<functions>
+    <function>init( int level )</function>
+    <function>post( int level, char * p, ... )</function>
+</functions>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
