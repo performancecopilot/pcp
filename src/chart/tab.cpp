@@ -290,7 +290,7 @@ void Tab::updateTimeAxis(void)
     kmchart->timeAxis()->replot();
     kmchart->setDateLabel(_lastkmposition.tv_sec, tz.ptr());
 
-#ifdef DESPERATE
+#if DESPERATE
     fprintf(stderr, "%s: used %s TZ (%s), final time is %.3f (%s)\n", __func__,
 		tz.ptr(), label.ptr(), _timeData[0], timestring(_timeData[0]));
 #endif

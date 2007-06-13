@@ -36,6 +36,8 @@
 #include <sys/types.h>
 #include <regex.h>
 
+#define DESPERATE 0
+
 FileIconProvider::FileIconProvider(QObject *parent, const char *name)
     : QFileIconProvider(parent, name)
 {
@@ -55,7 +57,7 @@ FileIconProvider::FileIconProvider(QObject *parent, const char *name)
 
 const QPixmap *FileIconProvider::pixmap(const QFileInfo &fi)
 {
-#ifdef DESPERATE
+#if DESPERATE
     fprintf(stderr, "%s: file %s\n", __FUNCTION__, fi.filePath().ascii());
 #endif
 
@@ -76,7 +78,7 @@ const QPixmap *FileIconProvider::pixmap(const QFileInfo &fi)
 	    if (memcmp(archmagic, block, sizeof(block)-1) == 0)
 		return &fileArchive;
 	}
-#ifdef DESPERATE
+#if DESPERATE
 	fprintf(stderr, "%s: Got %d bytes from %s: \"%c%c%c%c%c%c%c%c\"\n",
 		__FUNCTION__, count, fi.filePath().ascii(), block[0], block[1],
 		block[2], block[3], block[4], block[5], block[6], block[7]);
