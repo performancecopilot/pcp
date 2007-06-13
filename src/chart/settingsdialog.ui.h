@@ -73,6 +73,14 @@ void SettingsDialog::reset()
     macintoshRadioButton->setChecked(settings.styleName == "Macintosh");
     aquaRadioButton->setChecked(settings.styleName == "Aqua");
     windowsXPRadioButton->setChecked(settings.styleName == "WindowsXP");
+
+#if !defined(__APPLE__)
+    macintoshRadioButton->setEnabled(FALSE);
+    aquaRadioButton->setEnabled(FALSE);
+#endif
+#if !defined(__WINDOWS__)
+    windowsXPRadioButton->setEnabled(FALSE);
+#endif
 }
 
 void SettingsDialog::revert()
