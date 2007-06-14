@@ -49,11 +49,11 @@ TOPDIR = .
 -include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-DOCFILES = LSM README INSTALL CHANGELOG VERSION.pcp COPYING
+DOCFILES = README INSTALL CHANGELOG VERSION.pcp COPYING
 LSRCFILES = configure configure.in Makepkgs install-sh $(DOCFILES) \
-	    config.guess config.sub sgiReleaseNumber
+	    config.guess config.sub sgiReleaseNumber pcp.lsm.in
 LDIRT = config.cache autom4te.cache config.status config.log config.done \
-	files.rpm pro_files.rpm pcp.spec \
+	files.rpm pro_files.rpm pcp.spec pcp.lsm \
 	pcp-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
 	pcp-pro-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
 	pcp-sgi-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
@@ -116,7 +116,7 @@ install_pcp :  default_pcp
 		$(MAKE) -C $$d $@ || exit $$?; \
 	    fi; \
 	done
-	$(INSTALL) -m 644 $(DOCFILES) $(PCP_DOC_DIR)
+	$(INSTALL) -m 644 pcp.lsm $(DOCFILES) $(PCP_DOC_DIR)
 
 ifdef BUILDRULES
 include $(BUILDRULES)

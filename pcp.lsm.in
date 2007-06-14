@@ -1,10 +1,10 @@
-Begin3
-Title:          pcp - Performance Co-Pilot
-Version:        2.5.0
-Entered-date:   7th Sept 2005
+Begin4
+Title:          Performance Co-Pilot
+Version:        @PACKAGE_VERSION@
+Entered-date:   @PACKAGE_BUILD_DATE@
 Description:    A system performance monitoring infrastructure that is
 		distributed and extensible.
-		
+
 		Performance Co-Pilot (PCP) is a framework and services
 		to support system-level performance monitoring and
 		performance management.
@@ -31,7 +31,7 @@ Description:    A system performance monitoring infrastructure that is
 
 		The open source release of PCP provides a subset of the
 		features of SGI's Performance Co-Pilot products for
-		IRIX (see http://www.sgi.com/software/co-pilot/).
+		IRIX (see http://www.sgi.com/products/software/co-pilot/).
 
 		The architecture and services of the base PCP
 		infrastructure are especially attractive for those
@@ -43,6 +43,6 @@ Maintained-by:  pcp@oss.sgi.com (SGI Performance Co-Pilot Engineers)
 Primary-site:   ftp://oss.sgi.com/www/projects/pcp/download/
 Alternate-site:
 Original-site:  ftp://oss.sgi.com/www/projects/pcp/download/
-Platforms:      Linux 2.4.19 or later, all 2.6.x kernels (i386, IA64, Alpha or PowerPC) or IRIX
+Platforms:      Linux, MacOSX, IRIX, Solaris, FreeBSD, Cygwin
 Copying-policy: GPL (libraries are LGPL)
 End

@@ -122,6 +122,11 @@ AC_SUBST(PACKAGE_MINOR)
 AC_SUBST(PACKAGE_REVISION)
 AC_SUBST(PACKAGE_BUILD)
 
+if test -z "$PACKAGE_BUILD_DATE" ; then
+    PACKAGE_BUILD_DATE=`date +%Y-%m-%d`
+fi
+AC_SUBST(PACKAGE_BUILD_DATE)
+
 if test -z "$PACKAGE_BUILDER"
 then
     case "$target_os"
@@ -1584,4 +1589,6 @@ dnl   Build definitions for use in Makefiles
     src/include/builddefs \
 dnl   PCP paths and other defs
     src/include/pcp.conf \
+dnl   Linux Software Map entry
+    pcp.lsm
 )
