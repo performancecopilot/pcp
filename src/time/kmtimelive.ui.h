@@ -126,7 +126,7 @@ void KmTimeLive::play()
     if (!_timer->isActive())
 	_timer->start((_kmtime.delta.tv_sec * 1000) +
 		      (_kmtime.delta.tv_usec / 1000));
-    _console->post(DBG_APP, "%s pressed", __FUNCTION__);
+    _console->post(DBG_APP, "%s pressed", __func__);
 }
 
 void KmTimeLive::stopClicked()
@@ -140,7 +140,7 @@ void KmTimeLive::stop()
     setControl(KM_STATE_STOP);
     _timer->stop();
     emit vcrModePulse(&_kmtime, 0);
-    _console->post(DBG_APP, "%s halted progression of time", __FUNCTION__);
+    _console->post(DBG_APP, "%s halted progression of time", __func__);
 }
 
 void KmTimeLive::updateTime()
@@ -258,7 +258,7 @@ void KmTimeLive::setTimezone(QAction *action)
 {
     TimeZone *tz;
 
-    _console->post(DBG_APP, "%s entered (menu choice)\n", __FUNCTION__);
+    _console->post(DBG_APP, "%s entered (menu choice)\n", __func__);
     for (tz = _tzlist.first(); tz; tz = _tzlist.next()) {
 	if (tz->action() == action) {
 	    pmUseZone(tz->handle());
@@ -266,7 +266,7 @@ void KmTimeLive::setTimezone(QAction *action)
 				tz->tzlabel(), strlen(tz->tzlabel()) + 1);
 	    setTime(&_kmtime, NULL);	// re-display the time, no messages
 	    _console->post(DBG_APP, "%s sent timezone %s (%s) to clients\n",
-			__FUNCTION__, tz->tz(), tz->tzlabel());
+			__func__, tz->tz(), tz->tzlabel());
 	    break;
 	}
     }
@@ -318,7 +318,7 @@ void KmTimeLive::addTimezone(char *string)
     }
     _tzActions->add(tzAction);
     _tzActions->addTo(Timezone);
-    _console->post(DBG_APP, "%s added tz=%s label=%s", __FUNCTION__, tz, label);
+    _console->post(DBG_APP, "%s added tz=%s label=%s", __func__, tz, label);
 }
 
 void KmTimeLive::setTime(kmTime *k, char *tzdata)

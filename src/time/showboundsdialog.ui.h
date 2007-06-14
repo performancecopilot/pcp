@@ -35,10 +35,24 @@ void ShowBounds::reset()
     _localAbsoluteEnd = secondsFromTV(_absoluteEnd);
     _localCurrentEnd = secondsFromTV(_currentEnd);
 
+    _console->post(DBG_PROTO,
+	"%s START: end=%u.%u(%.3f) start=%u.%u(%.3f) lend=%u.%u(%.3f) lstart=%u.%u(%.3f)", __func__,
+    	_absoluteEnd->tv_sec, _absoluteEnd->tv_usec, _localAbsoluteEnd,
+    	_absoluteStart->tv_sec, _absoluteStart->tv_usec, _localAbsoluteStart,
+    	_currentEnd->tv_sec, _currentEnd->tv_usec, _localCurrentEnd,
+    	_currentStart->tv_sec, _currentStart->tv_usec, _localCurrentStart);
+
     displayStartSlider();
     displayEndSlider();
     displayStartText();
     displayEndText();
+
+    _console->post(DBG_PROTO,
+	"%s ENDED: end=%u.%u(%.3f) start=%u.%u(%.3f) lend=%u.%u(%.3f) lstart=%u.%u(%.3f)", __func__,
+    	_absoluteEnd->tv_sec, _absoluteEnd->tv_usec, _localAbsoluteEnd,
+    	_absoluteStart->tv_sec, _absoluteStart->tv_usec, _localAbsoluteStart,
+    	_currentEnd->tv_sec, _currentEnd->tv_usec, _localCurrentEnd,
+    	_currentStart->tv_sec, _currentStart->tv_usec, _localCurrentStart);
 }
 
 void ShowBounds::displayStartSlider()
@@ -64,6 +78,9 @@ void ShowBounds::displayStartText()
 
     pmCtime(&clock, ctimebuf);
     lineEditStart->setText(tr(ctimebuf).stripWhiteSpace());
+
+    _console->post(DBG_APP, "%s: clock=%.3f - %s", __func__,
+		   _localCurrentStart, lineEditStart->text().ascii());
 }
 
 void ShowBounds::displayEndText()
@@ -78,6 +95,8 @@ void ShowBounds::displayEndText()
 void ShowBounds::changedStart(double value)
 {
     if (value != _localCurrentStart) {
+	_console->post(DBG_APP, "%s: %.3f -> %.3f", __func__,
+			_localCurrentStart, value);
 	_localCurrentStart = value;
 	displayStartSlider();
 	displayStartText();
@@ -89,6 +108,8 @@ void ShowBounds::changedStart(double value)
 void ShowBounds::changedEnd(double value)
 {
     if (value != _localCurrentEnd) {
+	_console->post(DBG_APP, "%s: %.3f -> %.3f", __func__,
+			_localCurrentEnd, value);
 	_localCurrentEnd = value;
 	displayEndSlider();
 	displayEndText();

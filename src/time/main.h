@@ -35,7 +35,7 @@ typedef enum { DBG_APP = 0x1, DBG_PROTO = 0x2 } debug_options;
 
 extern void tadd(struct timeval *a, struct timeval *b);
 extern void tsub(struct timeval *a, struct timeval *b);
-extern int tzero(struct timeval *a);
+extern int tnonzero(struct timeval *a);
 extern int tcmp(struct timeval *a, struct timeval *b);
 
 extern void secondsToTV(double value, struct timeval *tv);

@@ -195,9 +195,9 @@ void KmTimeArch::play()
 				 (_kmtime.delta.tv_usec / 1000)) / _speed));
 	else if (_kmtime.mode == KM_MODE_FAST)
 	    _timer->start(KM_FASTMODE_DELAY);
-	_console->post(DBG_APP, "%s moved time forward", __FUNCTION__);
+	_console->post(DBG_APP, "%s moved time forward", __func__);
     } else {
-	_console->post(DBG_APP, "%s reached archive end", __FUNCTION__);
+	_console->post(DBG_APP, "%s reached archive end", __func__);
 	emit boundsPulse(&_kmtime);
 	stop();
     }
@@ -223,9 +223,9 @@ void KmTimeArch::back()
 				 (_kmtime.delta.tv_usec / 1000)) / _speed));
 	else if (_kmtime.mode == KM_MODE_FAST)
 	    _timer->start(KM_FASTMODE_DELAY);
-	_console->post(DBG_APP, "%s moved time backward", __FUNCTION__);
+	_console->post(DBG_APP, "%s moved time backward", __func__);
     } else {
-	_console->post(DBG_APP, "%s reached archive end", __FUNCTION__);
+	_console->post(DBG_APP, "%s reached archive end", __func__);
 	emit boundsPulse(&_kmtime);
 	stop();
     }
@@ -242,7 +242,7 @@ void KmTimeArch::stop()
     setControl(KM_STATE_STOP, _kmtime.mode);
     _timer->stop();
     emit vcrModePulse(&_kmtime, 0);
-    _console->post(DBG_APP, "%s halted progression of time", __FUNCTION__);
+    _console->post(DBG_APP, "%s halted progression of time", __func__);
 }
 
 void KmTimeArch::timerTick()
@@ -252,19 +252,22 @@ void KmTimeArch::timerTick()
     else if (_kmtime.state == KM_STATE_BACKWARD)
 	back();
     else
-	_console->post(DBG_APP, "%s -- hmm?  bad state?", __FUNCTION__);
+	_console->post(DBG_APP, "%s -- hmm?  bad state?", __func__);
 }
 
 int KmTimeArch::addDelta()
 {
     struct timeval current = _kmtime.position;
 
+#ifdef DESPERATE
     _console->post(DBG_PROTO,
 	"%s: now=%u.%u end=%u.%u start=%u.%u delta=%u.%u speed=%.3e",
-    	__FUNCTION__, _kmtime.position.tv_sec, _kmtime.position.tv_usec,
+    	__func__, _kmtime.position.tv_sec, _kmtime.position.tv_usec,
     	_kmtime.end.tv_sec, _kmtime.end.tv_usec, _kmtime.start.tv_sec,
 	_kmtime.start.tv_usec, _kmtime.delta.tv_sec, _kmtime.delta.tv_usec,
 	_speed);
+#endif
+
     tadd(&current, &_kmtime.delta);
     if (tcmp(&current, &_kmtime.end) > 0 || tcmp(&current, &_kmtime.start) < 0)
 	return 0;
@@ -559,9 +562,9 @@ void KmTimeArch::setTimezone(QAction *action)
 	    pmUseZone(tz->handle());
 	    emit timeZonePulse(&_kmtime, tz->tz(), strlen(tz->tz()) + 1,
 				tz->tzlabel(), strlen(tz->tzlabel()) + 1);
-	    setTime(&_kmtime, NULL);	// re-display the time, no messages
 	    _console->post(DBG_APP, "%s sent timezone %s (%s) to clients",
-			__FUNCTION__, tz->tz(), tz->tzlabel());
+			__func__, tz->tz(), tz->tzlabel());
+	    setTime(&_kmtime, NULL);	// re-display the time, no messages
 	    break;
 	}
     }
@@ -613,11 +616,19 @@ void KmTimeArch::addTimezone(char *string)
     }
     _tzActions->add(tzAction);
     _tzActions->addTo(Timezone);
-    _console->post(DBG_APP, "%s added tz=%s label=%s", __FUNCTION__, tz, label);
+    _console->post(DBG_APP, "%s added tz=%s label=%s", __func__, tz, label);
 }
 
 void KmTimeArch::setTime(kmTime *k, char *tzdata)
 {
+#ifdef DESPERATE
+    _console->post(DBG_PROTO,
+	"%s START: 1st=%d now=%u.%u end=%u.%u start=%u.%u delta=%u.%u",
+    	__func__, _first, _kmtime.position.tv_sec, _kmtime.position.tv_usec,
+    	_kmtime.end.tv_sec, _kmtime.end.tv_usec, _kmtime.start.tv_sec,
+	_kmtime.start.tv_usec, _kmtime.delta.tv_sec, _kmtime.delta.tv_usec);
+#endif
+
     if (_first == true) {
 	_first = false;
 	if (tzdata != NULL)
@@ -633,9 +644,18 @@ void KmTimeArch::setTime(kmTime *k, char *tzdata)
 	displayDeltaText();
 	displayPositionText();
 	displayPositionSlide();
+	_bounds->reset();
     } else {
 	addBound(k, tzdata);
     }
+
+#ifdef DESPERATE
+    _console->post(DBG_PROTO,
+	"%s ENDED: 1st=%d now=%u.%u end=%u.%u start=%u.%u delta=%u.%u",
+	__func__, _first, _kmtime.position.tv_sec, _kmtime.position.tv_usec,
+	_kmtime.end.tv_sec, _kmtime.end.tv_usec, _kmtime.start.tv_sec,
+	_kmtime.start.tv_usec, _kmtime.delta.tv_sec, _kmtime.delta.tv_usec);
+#endif
 }
 
 void KmTimeArch::addBound(kmTime *k, char *tzdata)
@@ -643,7 +663,12 @@ void KmTimeArch::addBound(kmTime *k, char *tzdata)
     // Note: kmchart can start kmtime up without an archive
     // so, we need to explicitly initialise some fields now
     // that one might otherwise have expected to be setup.
-    bool need_pulse = (tzero(&_kmtime.position) != 0);
+    bool need_pulse = tnonzero(&_kmtime.position);
+
+    _console->post(DBG_PROTO, "%s START: p?=%d now=%u.%u end=%u.%u start=%u.%u",
+	__func__, need_pulse,
+	_kmtime.position.tv_sec, _kmtime.position.tv_usec, _kmtime.end.tv_sec,
+	_kmtime.end.tv_usec, _kmtime.start.tv_sec, _kmtime.start.tv_usec);
 
     if (tzdata != NULL)
 	addTimezone(tzdata);
@@ -652,8 +677,9 @@ void KmTimeArch::addBound(kmTime *k, char *tzdata)
 	absoluteStart = k->start;
     if (tcmp(&k->end, &absoluteEnd) > 0 || need_pulse)
 	absoluteEnd = k->end;
-    if (need_pulse) {
-	_kmtime.position = _kmtime.start = k->start;
+    if (!need_pulse) {	// first-time archive initialisation
+	_kmtime.position = k->position;
+	_kmtime.start = k->start;
 	_kmtime.end = k->end;
     }
 
@@ -662,6 +688,11 @@ void KmTimeArch::addBound(kmTime *k, char *tzdata)
 
     if (need_pulse)
 	emit vcrModePulse(&_kmtime, 0);
+
+    _console->post(DBG_PROTO, "%s START: p?=%d now=%u.%u end=%u.%u start=%u.%u",
+	__func__, need_pulse,
+	_kmtime.position.tv_sec, _kmtime.position.tv_usec, _kmtime.end.tv_sec,
+	_kmtime.end.tv_usec, _kmtime.start.tv_sec, _kmtime.start.tv_usec);
 }
 
 void KmTimeArch::setupAssistant()

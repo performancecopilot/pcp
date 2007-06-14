@@ -128,39 +128,39 @@ public:
 		break;
 	    _console->post(DBG_PROTO,
 			   "%s skipped STEP pos=%u.%u, client %p in NEED_ACK",
-			   __FUNCTION__,
+			   __func__,
 			   k->position.tv_sec, k->position.tv_usec, this);
 	    return;
 	}
 	len = writeBlock((const char *)k, sizeof(kmTime));
 	if (len != sizeof(kmTime)) {
 	    _console->post(DBG_PROTO, "%s wrote %d bytes not %d (%x command)",
-			   __FUNCTION__, len, k->length, k->command);
+			   __func__, len, k->length, k->command);
 	    _state = DISCONNECTED_STATE;
 	    endConnect(this);
 	} else {
 	    _console->post(DBG_PROTO, "%s wrote %d bytes command=%x state=%u",
-			   __FUNCTION__, len, k->command, _state);
+			   __func__, len, k->command, _state);
 	}
 	if (tzlen > 0 && len > 0 &&
 	    (len = writeBlock(tz, tzlen)) != tzlen) {
 	    _console->post(DBG_PROTO, "%s wrote %d bytes not %d (timezone)",
-			   __FUNCTION__, len, tzlen);
+			   __func__, len, tzlen);
 	    _state = DISCONNECTED_STATE;
 	    endConnect(this);
 	} else if (tzlen) {
 	    _console->post(DBG_PROTO, "%s wrote %d bytes of timezone",
-			   __FUNCTION__, len);
+			   __func__, len);
 	}
 	if (llen > 0 && len > 0 &&
 	    (len = writeBlock(label, llen)) != llen) {
 	    _console->post(DBG_PROTO, "%s wrote %d bytes not %d (tz label)",
-			   __FUNCTION__, len, llen);
+			   __func__, len, llen);
 	    _state = DISCONNECTED_STATE;
 	    endConnect(this);
 	} else if (llen) {
 	    _console->post(DBG_PROTO, "%s wrote %d bytes of tz label",
-			   __FUNCTION__, len);
+			   __func__, len);
 	}
 	if (newstate == SERVER_NEED_ACK_STATE)
 	    _acktime = k->position;
@@ -215,7 +215,7 @@ private slots:
 	    case DISCONNECTED_STATE:
 		if (packet.command == KM_TCTL_SET)
 		    _console->post(DBG_PROTO, "%s got new SET from client %p",
-				    __FUNCTION__, this);
+				    __func__, this);
 		if (packet.source == KM_SOURCE_HOST) {
 		    _source = KM_SOURCE_HOST;
 		    _hc->setTime(&packet, tzdata);
@@ -232,7 +232,7 @@ private slots:
 	    case CLIENT_CONN_SET_STATE:
 		_console->post(DBG_PROTO,
 				"%s bad client %p command %d in CONN_SET",
-				__FUNCTION__, this, packet.command);
+				__func__, this, packet.command);
 		break;
 
 	    case SERVER_CONN_ACK_STATE:
@@ -246,14 +246,14 @@ private slots:
 		if (packet.position.tv_sec == _acktime.tv_sec &&
 		    packet.position.tv_usec == _acktime.tv_usec) {
 		    _console->post(DBG_PROTO, "%s good ACK client %p (%u.%u)",
-				   __FUNCTION__, this,
+				   __func__, this,
 				   _acktime.tv_sec, _acktime.tv_usec);
 		    _state = CLIENT_READY_STATE;
 		    break;
 		}
 		_console->post(DBG_PROTO,
 				"%s BAD ACK client %p (got %u.%u vs %u.%u)",
-				__FUNCTION__, this, packet.position.tv_sec,
+				__func__, this, packet.position.tv_sec,
 				packet.position.tv_usec, _acktime.tv_sec,
 				_acktime.tv_usec);
 		endConnect(this);
@@ -263,7 +263,7 @@ private slots:
 		if (packet.command == KM_TCTL_ACK)
 		    _console->post(DBG_PROTO,
 				   "%s unexpected client %p ACK in READY",
-				   __FUNCTION__, this);
+				   __func__, this);
 		break;
 	    }
 
@@ -271,7 +271,7 @@ private slots:
 	    case KM_TCTL_GUIHIDE:
 	    case KM_TCTL_GUISHOW:
 		_console->post(DBG_PROTO, "%s: HIDE/SHOW from client %p",
-					__FUNCTION__, this);
+					__func__, this);
 		if (_source == KM_SOURCE_HOST)
 		    _hc->popup(packet.command == KM_TCTL_GUISHOW);
 		if (_source == KM_SOURCE_ARCHIVE)
@@ -279,21 +279,21 @@ private slots:
 		break;
 	    case KM_TCTL_BOUNDS:
 		_console->post(DBG_PROTO, "%s: BOUNDS update from client %p",
-					__FUNCTION__, this);
+					__func__, this);
 		_ac->addBound(&packet, tzdata);
 		break;
 	    case KM_TCTL_ACK:
 		break;
 	    case KM_TCTL_GUISTYLE:
 		_console->post(DBG_PROTO, "%s: set STYLE from client %p",
-					__FUNCTION__, this);
+					__func__, this);
 		_console->post(DBG_PROTO, "%s: data=%s", __func__, tzdata);
 		QApplication::setStyle(tr(tzdata));
 		_hc->style(tzdata, this);
 		break;
 	    default:
 		_console->post(DBG_PROTO, "%s: bad command %d from client %p",
-				__FUNCTION__, packet.command, this);
+				__func__, packet.command, this);
 		endConnect(this);
 	    }
 	} else {
@@ -419,7 +419,7 @@ private slots:
     void timePulse(kmTime *kmtime)
     {
 	TimeClient *c;
-	_console->post(DBG_PROTO, "%s (%d clients)", __FUNCTION__,
+	_console->post(DBG_PROTO, "%s (%d clients)", __func__,
 			_clientlist.count());
 	kmtime->magic = KMTIME_MAGIC;
 	kmtime->length = sizeof(kmTime);
@@ -431,7 +431,7 @@ private slots:
     void boundsPulse(kmTime *kmtime)
     {
 	TimeClient *c;
-	_console->post(DBG_PROTO, "%s (%d clients)", __FUNCTION__,
+	_console->post(DBG_PROTO, "%s (%d clients)", __func__,
 			_clientlist.count());
 	kmtime->magic = KMTIME_MAGIC;
 	kmtime->length = sizeof(kmTime);
@@ -443,7 +443,7 @@ private slots:
     void vcrModePulse(kmTime *kmtime, int drag)
     {
 	TimeClient *c;
-	_console->post(DBG_PROTO, "%s - %d (%d clients)", __FUNCTION__,
+	_console->post(DBG_PROTO, "%s - %d (%d clients)", __func__,
 			drag, _clientlist.count());
 	kmtime->magic = KMTIME_MAGIC;
 	kmtime->length = sizeof(kmTime);
@@ -456,7 +456,7 @@ private slots:
     {
 	TimeClient *c;
 
-	_console->post(DBG_PROTO, "%s - %s/%d/%d (%d clients)", __FUNCTION__,
+	_console->post(DBG_PROTO, "%s - %s/%d/%d (%d clients)", __func__,
 			tz, tzlen, llen, _clientlist.count());
 	kmtime->magic = KMTIME_MAGIC;
 	kmtime->length = sizeof(kmTime) + tzlen + llen;
@@ -469,7 +469,7 @@ private slots:
     {
 	TimeClient *c;
 
-	_console->post(DBG_PROTO, "%s - %s (%d clients)", __FUNCTION__,
+	_console->post(DBG_PROTO, "%s - %s (%d clients)", __func__,
 			style, len, _clientlist.count() - 1);
 	kmtime->magic = KMTIME_MAGIC;
 	kmtime->length = sizeof(kmTime) + len;
@@ -480,8 +480,8 @@ private slots:
     }
 
 private:
-    Console	*_console;
-    TimeServer	*_server;
+    Console		*_console;
+    TimeServer		*_server;
     QPtrList<TimeClient> _clientlist;
 };
 

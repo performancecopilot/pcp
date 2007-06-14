@@ -35,10 +35,10 @@
 #include "timelord.h"
 #include "main.h"
 
-// test for zeroed timeval
-int tzero(struct timeval *a)
+// test for not-zeroed timeval
+int tnonzero(struct timeval *a)
 {
-    return (a->tv_sec == 0 && a->tv_usec == 0);
+    return (a->tv_sec != 0 || a->tv_usec != 0);
 }
 
 // a := a + b for struct timevals
@@ -80,7 +80,7 @@ int tcmp(struct timeval *a, struct timeval *b)
 // conversion from seconds (double precision) to struct timeval
 void secondsToTV(double value, struct timeval *tv)
 {
-    double usec = (value - (unsigned int)value) / 1000.0;
+    double usec = (value - (unsigned int)value) / 1000000.0;
     tv->tv_sec = (unsigned int)value;
     tv->tv_usec = (unsigned int)usec;
 }
@@ -88,7 +88,7 @@ void secondsToTV(double value, struct timeval *tv)
 // conversion from struct timeval to seconds (double precision)
 double secondsFromTV(struct timeval *tv)
 {
-    return (double)tv->tv_sec + ((double)tv->tv_usec / 1000.0);
+    return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
 }
 
 // conversion from other time units into seconds
