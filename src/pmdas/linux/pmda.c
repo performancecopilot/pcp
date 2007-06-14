@@ -1,8 +1,9 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) International Business Machines Corp., 2002
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Portions Copyright (c) International Business Machines Corp., 2002
+ * Portions Copyright (c) 2007 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2685,7 +2686,10 @@ static pmdaMetric metrictab[] = {
     {PMDA_PMID(28,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* mem.vmstat.nr_slab */
+    /*
+     * mem.vmstat.nr_slab - replaced by nr_slab_reclaimable and
+     * nr_slab_unreclaimable in 2.6.18 kernels
+     */
     { &proc_vmstat.nr_slab,
     {PMDA_PMID(28,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
@@ -2843,6 +2847,36 @@ static pmdaMetric metrictab[] = {
     /* mem.vmstat.pgrotated */
     { &proc_vmstat.pgrotated,
     {PMDA_PMID(28,36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_slab_reclaimable */
+    { &proc_vmstat.nr_slab_reclaimable,
+    {PMDA_PMID(28,37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* mem.vmstat.nr_slab_unreclaimable */
+    { &proc_vmstat.nr_slab_unreclaimable,
+    {PMDA_PMID(28,38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* mem.vmstat.nr_anon_pages */
+    { &proc_vmstat.nr_anon_pages,
+    {PMDA_PMID(28,39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* mem.vmstat.nr_bounce */
+    { &proc_vmstat.nr_bounce,
+    {PMDA_PMID(28,40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* mem.vmstat.nr_file_pages */
+    { &proc_vmstat.nr_file_pages,
+    {PMDA_PMID(28,41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* mem.vmstat.nr_vmscan_write */
+    { &proc_vmstat.nr_vmscan_write,
+    {PMDA_PMID(28,42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /*
