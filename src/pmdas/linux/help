@@ -828,6 +828,14 @@ Instantaneous number of processes with virtual size of zero (kernel threads)
 @ network.udp.noports count of udp noports
 @ network.udp.inerrors count of udp inerrors
 @ network.udp.outdatagrams count of udp outdatagrams
+@ network.udp.recvbuferrors count of udp receive buffer errors
+@ network.udp.sndbuferrors count of udp send buffer errors
+@ network.udplite.indatagrams count of udplite indatagrams
+@ network.udplite.noports count of udplite noports
+@ network.udplite.inerrors count of udplite inerrors
+@ network.udplite.outdatagrams count of udplite outdatagrams
+@ network.udplite.recvbuferrors count of udplite receive buffer errors
+@ network.udplite.sndbuferrors count of udplite send buffer errors
 @ xfs.allocs.alloc_extent XFS extents allocated
 Number of file system extents allocated over all XFS filesystems
 @ xfs.allocs.alloc_block XFS blocks allocated

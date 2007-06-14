@@ -270,6 +270,7 @@ network {
     icmp
     tcp
     udp
+    udplite
     tcpconn
     ib
 }
@@ -407,6 +408,17 @@ network.udp {
     noports		60:14:71
     inerrors		60:14:72
     outdatagrams	60:14:74
+    recvbuferrors	60:14:75
+    sndbuferrors	60:14:76
+}
+
+network.udplite {
+    indatagrams		60:14:77
+    noports		60:14:78
+    inerrors		60:14:79
+    outdatagrams	60:14:80
+    recvbuferrors	60:14:81
+    sndbuferrors	60:14:82
 }
 
 filesys {

@@ -2044,7 +2044,6 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_SNMP,63), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-
 /* network.udp.indatagrams */
   { &proc_net_snmp.udp[_PM_SNMP_UDP_INDATAGRAMS], 
     { PMDA_PMID(CLUSTER_NET_SNMP,70), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -2063,6 +2062,46 @@ static pmdaMetric metrictab[] = {
 /* network.udp.outdatagrams */
   { &proc_net_snmp.udp[_PM_SNMP_UDP_OUTDATAGRAMS], 
     { PMDA_PMID(CLUSTER_NET_SNMP,74), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp.recvbuferrors */
+  { &proc_net_snmp.udp[_PM_SNMP_UDP_RECVBUFERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,75), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp.sndbuferrors */
+  { &proc_net_snmp.udp[_PM_SNMP_UDP_SNDBUFERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,76), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite.indatagrams */
+  { &proc_net_snmp.udplite[_PM_SNMP_UDPLITE_INDATAGRAMS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,77), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite.noports */
+  { &proc_net_snmp.udplite[_PM_SNMP_UDPLITE_NOPORTS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,78), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite.inerrors */
+  { &proc_net_snmp.udplite[_PM_SNMP_UDPLITE_INERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,79), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite.outdatagrams */
+  { &proc_net_snmp.udplite[_PM_SNMP_UDPLITE_OUTDATAGRAMS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,80), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite.recvbuferrors */
+  { &proc_net_snmp.udplite[_PM_SNMP_UDPLITE_RECVBUFERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,81), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite.sndbuferrors */
+  { &proc_net_snmp.udplite[_PM_SNMP_UDPLITE_SNDBUFERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,82), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* hinv.map.scsi */
