@@ -52,6 +52,8 @@ public:
     struct timeval *livePosition(void) { return &_livekmtime->position; }
     struct timeval *archiveInterval(void) { return &_archivekmtime->delta; }
     struct timeval *archivePosition(void) { return &_archivekmtime->position; }
+    struct timeval *archiveStart(void) { return &_archivekmtime->start; }
+    struct timeval *archiveEnd(void) { return &_archivekmtime->end; }
 
     void liveConnect() { _livesocket->connectToHost("localhost", _port); }
     void archiveConnect() { _archivesocket->connectToHost("localhost", _port);}

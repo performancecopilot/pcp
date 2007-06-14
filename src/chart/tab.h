@@ -96,6 +96,7 @@ public:
 
     PMC_Group	*group(void);		// metric fetchgroup
 
+    void setupWorldView(void);
     void step(kmTime *);
     void vcrmode(kmTime *, bool);
     void setTimezone(char *);
@@ -139,8 +140,9 @@ private:
     void refresh_charts(void);
     void adjustWorldView(kmTime *);
     void adjustLiveWorldView(kmTime *);
-    void adjustArchiveWorldViewForward(kmTime *);
-    void adjustArchiveWorldViewBackward(kmTime *);
+    void adjustArchiveWorldView(kmTime *, bool);
+    void adjustArchiveWorldViewForward(kmTime *, bool);
+    void adjustArchiveWorldViewBackward(kmTime *, bool);
     void adjustArchiveWorldViewStop(kmTime *);
 };
 

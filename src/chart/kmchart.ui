@@ -163,7 +163,7 @@
                                         <property name="name">
                                             <cstring>unnamed</cstring>
                                         </property>
-                                        <widget class="QwtPlot">
+                                        <widget class="TimeAxis">
                                             <property name="name">
                                                 <cstring>timeAxisPlot</cstring>
                                             </property>
@@ -1016,8 +1016,7 @@
     <include location="local" impldecl="in declaration">qprinter.h</include>
     <include location="local" impldecl="in declaration">qfiledialog.h</include>
     <include location="local" impldecl="in declaration">qassistantclient.h</include>
-    <include location="local" impldecl="in declaration">qwt/qwt_plot.h</include>
-    <include location="local" impldecl="in declaration">qwt/qwt_scale_widget.h</include>
+    <include location="local" impldecl="in declaration">timeaxis.h</include>
     <include location="local" impldecl="in implementation">stdlib.h</include>
     <include location="local" impldecl="in implementation">qapplication.h</include>
     <include location="local" impldecl="in implementation">qdir.h</include>
@@ -1041,7 +1040,7 @@
     <variable access="private">int _line;</variable>
     <variable access="private">const char *_fname;</variable>
     <variable access="private">QPrinter *_printer;</variable>
-    <variable access="private">QwtPlot *_timeAxis;</variable>
+    <variable access="private">TimeAxis *_timeAxis;</variable>
     <variable access="private">QPixmap *_timeplaylive_pixmap;</variable>
     <variable access="private">QPixmap *_timestoplive_pixmap;</variable>
     <variable access="private">QPixmap *_timeplayrecord_pixmap;</variable>
@@ -1103,13 +1102,12 @@
     <slot>revertSettings()</slot>
 </slots>
 <functions>
-    <function returnType="QwtPlot *">timeAxis( void )</function>
+    <function returnType="TimeAxis *">timeAxis( void )</function>
     <function>step( bool livemode, kmTime * kmtime )</function>
     <function>vcrmode( bool livemode, kmTime * kmtime, bool drag )</function>
     <function>timezone( bool livemode, char * tzdata )</function>
     <function>setStyle( char * style )</function>
     <function>setupAssistant()</function>
-    <function>myresize()</function>
     <function>createNewChart( chartStyle style )</function>
     <function>metricInfo(QString src, QString m, QString inst, bool archive)</function>
     <function>createNewTab( bool liveMode )</function>

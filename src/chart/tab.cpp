@@ -149,8 +149,8 @@ void Tab::init(QTabWidget *chartTab, int vh,
 	_timeData[i] = position - i * _interval;
 
     kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom,
-				_timeData[_visible-1], _timeData[0],
-				_interval * 5.0);
+			_timeData[_visible-1], _timeData[0],
+			kmchart->timeAxis()->scaleValue(_interval, _visible));
     kmchart->setButtonState(_buttonstate);
 }
 
@@ -282,10 +282,12 @@ void Tab::updateTimeAxis(void)
 	_group->useTZ();
 	_group->defaultTZ(label, tz);
 	kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom,
-			_timeData[_visible-1], _timeData[0], _interval * 5.0);
+			_timeData[_visible-1], _timeData[0],
+			kmchart->timeAxis()->scaleValue(_interval, _visible));
     } else {
 	tz = tr("UTC");
-	kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom, 0, 0, 0);
+	kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom, 0, 0,
+			kmchart->timeAxis()->scaleValue(_interval, _visible));
     }
     kmchart->timeAxis()->replot();
     kmchart->setDateLabel(_lastkmposition.tv_sec, tz.ptr());
@@ -301,7 +303,6 @@ void Tab::updateTimeButton(void)
     kmchart->setButtonState(_buttonstate);
 }
 
-int verbose;
 //
 // Drive all updates into each chart (refresh the display)
 //
@@ -318,7 +319,8 @@ void Tab::refresh_charts(void)
 
     for (i = 0; i < _num; i++) {
 	_charts[i].cp->setAxisScale(QwtPlot::xBottom, 
-			_timeData[_visible-1], _timeData[0], _interval * 5.0);
+			_timeData[_visible-1], _timeData[0],
+			kmchart->timeAxis()->scaleValue(_interval, _visible));
 	_charts[i].cp->update(_timestate != BACKWARD_STATE, true);
 	_charts[i].cp->fixLegendPen();
     }
@@ -334,22 +336,48 @@ void Tab::refresh_charts(void)
 }
 
 //
+// Create the initial scene on opening a view, and show it.
+// Most of the work is in archive mode, in live mode we've
+// got no historical data that we can display yet.
+//
+void Tab::setupWorldView(void)
+{
+    if (isArchiveMode()) {
+	kmTime k;
+	k.source = KM_SOURCE_ARCHIVE;
+	k.state = KM_STATE_FORWARD;
+	k.mode = KM_MODE_NORMAL;
+	memcpy(&k.delta, kmtime->archiveInterval(), sizeof(k.delta));
+	memcpy(&k.position, kmtime->archivePosition(), sizeof(k.position));
+	memcpy(&k.start, kmtime->archiveStart(), sizeof(k.start));
+	memcpy(&k.end, kmtime->archiveEnd(), sizeof(k.end));
+	adjustArchiveWorldView(&k, TRUE);
+    }
+    for (int m = 0; m < _num; m++)
+	_charts[m].cp->show();
+}
+
+//
 // Received a set or a vcrmode requiring us to adjust our state
 // and possibly rethink everything.  This can result from a time
 // control position change, delta change, direction change, etc.
 //
 void Tab::adjustWorldView(kmTime *kmtime)
 {
-    if (isArchiveMode()) {
-	if (kmtime->state == KM_STATE_FORWARD)
-	    adjustArchiveWorldViewForward(kmtime);
-	else if (kmtime->state == KM_STATE_BACKWARD)
-	    adjustArchiveWorldViewBackward(kmtime);
-	else
-	    adjustArchiveWorldViewStop(kmtime);
-    }
+    if (isArchiveMode())
+	adjustArchiveWorldView(kmtime, FALSE);
     else
 	adjustLiveWorldView(kmtime);
+}
+
+void Tab::adjustArchiveWorldView(kmTime *kmtime, bool need_fetch)
+{
+    if (kmtime->state == KM_STATE_FORWARD)
+	adjustArchiveWorldViewForward(kmtime, need_fetch);
+    else if (kmtime->state == KM_STATE_BACKWARD)
+	adjustArchiveWorldViewBackward(kmtime, need_fetch);
+    else
+	adjustArchiveWorldViewStop(kmtime);
 }
 
 void Tab::adjustLiveWorldView(kmTime *kmtime)
@@ -401,7 +429,7 @@ fprintf(stderr, "%s: live mode TODO case, position[%d]\n", __func__, i);
     refresh_charts();
 }
 
-void Tab::adjustArchiveWorldViewForward(kmTime *kmtime)
+void Tab::adjustArchiveWorldViewForward(kmTime *kmtime, bool setup)
 {
     struct timeval timeval;
     double interval, position;
@@ -436,7 +464,8 @@ void Tab::adjustArchiveWorldViewForward(kmTime *kmtime)
     //
     position -= (interval * last);
     for (i = last; i >= 0; i--, position += interval) {
-	if (_timeData[i] == position) {
+	// TODO: fuzzy position match needed here
+	if (setup == FALSE && _timeData[i] == position) {
 fprintf(stderr, "%s: skip fetch, position[%d] matches existing\n", __func__, i);
 	    continue;
 	}
@@ -453,11 +482,13 @@ fprintf(stderr, "%s: setting a time position[%d]=%.2f (%s), state=%s\n", __func_
 	}
     }
 
+    if (setup)
+	kmtime->state = KM_STATE_STOP;
     newButtonState(kmtime->state, kmtime->mode, _group->mode(), _recording);
     refresh_charts();
 }
 
-void Tab::adjustArchiveWorldViewBackward(kmTime *kmtime)
+void Tab::adjustArchiveWorldViewBackward(kmTime *kmtime, bool setup)
 {
     struct timeval timeval;
     double interval, position;
@@ -491,7 +522,8 @@ void Tab::adjustArchiveWorldViewBackward(kmTime *kmtime)
     // Rest of (following) time window filled in using kmtime->delta.
     //
     for (i = 0; i <= last; i++, position -= interval) {
-	if (_timeData[i] == position) {	// TODO: fuzzy match
+	// TODO: fuzzy position match needed here
+	if (setup == FALSE && _timeData[i] == position) {
 fprintf(stderr, "%s: skip fetch, position[%d] matches existing\n", __func__, i);
 	    continue;
 	}
@@ -509,6 +541,8 @@ fprintf(stderr, "%s: setting a time position[%d]=%.2f (%s), state=%s\n", __func_
 	}
     }
 
+    if (setup)
+	kmtime->state = KM_STATE_STOP;
     newButtonState(kmtime->state, kmtime->mode, _group->mode(), _recording);
     refresh_charts();
 }

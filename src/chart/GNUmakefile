@@ -10,7 +10,7 @@ UIFILES = aboutdialog.ui aboutpcpdialog.ui \
 	kmchart.ui recorddialog.ui settingsdialog.ui tabdialog.ui
 UIHFILES = $(UIFILES:.ui=.ui.h)
 CPPFILES = chart.cpp main.cpp namespace.cpp qcolorpicker.cpp \
-	source.cpp tab.cpp timecontrol.cpp view.cpp
+	source.cpp tab.cpp timeaxis.cpp timecontrol.cpp view.cpp
 HPPFILES = $(CPPFILES:.cpp=.h)
 SUBDIRS = views pmafm
 LSRCFILES = kmchart.pro $(UIFILES) $(UIHFILES) $(CPPFILES) $(HPPFILES)

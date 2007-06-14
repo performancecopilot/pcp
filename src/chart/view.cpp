@@ -1234,13 +1234,8 @@ abandon:
     if (_errors)
 	return;
 
-    if (Cflag == 0 && cp != NULL) {
-	for (m = 0; m < activeTab->numChart(); m++)
-	    activeTab->chart(m)->show();
-	kmchart->myresize();
-	//kmchart->enableUI();		// TODO - nathans: done elsewhere
-					// (at least, on startup it is).
-    }
+    if (Cflag == 0 && cp != NULL)
+	activeTab->setupWorldView();
 }
 
 void SaveViewDialog::saveView(const char *path, bool dynamic)

@@ -13,6 +13,7 @@ HEADERS	+= main.h \
 	qcolorpicker.h \
 	source.h \
 	tab.h \
+	timeaxis.h \
 	timecontrol.h \
 	view.h
 
@@ -22,6 +23,7 @@ SOURCES	+= main.cpp \
 	qcolorpicker.cpp \
 	source.cpp \
 	tab.cpp \
+	timeaxis.cpp \
 	timecontrol.cpp \
 	view.cpp
 

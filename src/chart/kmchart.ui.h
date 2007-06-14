@@ -40,10 +40,6 @@
 #include <qwt/qwt_double_rect.h>
 #include <qwt/qwt_legend.h>
 #include <qwt/qwt_legend_item.h>
-#include <qwt/qwt_scale_draw.h>
-#include <qwt/qwt_scale_widget.h>
-#include <qwt/qwt_text.h>
-#include <qwt/qwt_text_label.h>
 #include <qwt/qwt_counter.h>
 #include "aboutdialog.h"
 #include "aboutpcpdialog.h"
@@ -67,37 +63,9 @@ char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
 #define stylestr(x) _style[(int)x]
 #endif
 
-class TimeScaleDraw: public QwtScaleDraw
-{
-public:
-    TimeScaleDraw(void) { }
-    virtual QwtText label(double v) const
-    {
-	struct tm tm;
-	QString string;
-	time_t seconds = (time_t)v;
-
-	pmLocaltime(&seconds, &tm);
-	string.sprintf("%02d:%02d:%02d", tm.tm_hour, tm.tm_min, tm.tm_sec);
-	return string;
-    }
-};
-
 void KmChart::init(void)
 {
-    timeAxisPlot->enableXBottomAxis(true);
-    timeAxisPlot->enableXTopAxis(false);
-    timeAxisPlot->enableYRightAxis(false);
-    timeAxisPlot->enableYLeftAxis(false);
-    timeAxisPlot->setFixedHeight(30);
-    timeAxisPlot->setAutoReplot(false);
-    timeAxisPlot->plotLayout()->setAlignCanvasToScales(true);
-    timeAxisPlot->canvas()->hide();
-    timeAxisPlot->setMargin(1);
-    timeAxisPlot->setAxisScaleDraw(QwtPlot::xBottom, new TimeScaleDraw());
-    timeAxisPlot->setAxisLabelAlignment(QwtPlot::xBottom,
-					Qt::AlignHCenter | Qt::AlignBottom);
-    timeAxisPlot->setAxisFont(QwtPlot::xBottom, QFont("Sans", 6));
+    timeAxisPlot->init();
 
     _timeplaylive_pixmap = new QPixmap(play_live_xpm);
     _timestoplive_pixmap = new QPixmap(stop_live_xpm);
@@ -143,7 +111,7 @@ void KmChart::destroy(void)
 {
 }
 
-QwtPlot *KmChart::timeAxis(void)
+TimeAxis *KmChart::timeAxis(void)
 {
     return timeAxisPlot;
 }
@@ -405,36 +373,6 @@ void KmChart::optionsLaunchNewKmchart()
     }
 }
 
-void KmChart::myresize()
-{
-    // TODO -- hack ... don't know how/where to get this resizing
-    // right ... inititively it should be in the Tab class someplace
-    // as Charts are added/deleted
-#if 0
-    int	h = _chartArea->height();
-    int	w = _chartArea->width();
-
-    // TODO -- min height and min width are arbitrary ...
-    // and should be an QSettings?
-#define MIN_CHART_HEIGHT 250
-#define MIN_CHART_WIDTH 500
-    if (activeTab->numChart() < 1)
-	h = MIN_CHART_HEIGHT;
-    else {
-	if (activeTab->numChart()*MIN_CHART_HEIGHT > h)
-	    h = activeTab->numChart()*MIN_CHART_HEIGHT;
-    }
-    if (w < MIN_CHART_WIDTH)
-	w = MIN_CHART_WIDTH;
-    // TODO -- this part is not correct
-    // chartArea->resize(w, h);
-    // chartArea->show();
-    // graphFrame->adjustSize();
-    // resize(graphFrame->width()+20, graphFrame->height()+MenuBar->height()+60);
-    // updateGeometry();
-#endif
-}
-
 void KmChart::createNewChart(chartStyle style)
 {
     _newchart->reset(NULL, (int)style - 1);
@@ -462,7 +400,6 @@ void KmChart::acceptNewChart()
     // TODO: might be an idea to keep available once its built, to optimise
     // subsequent accesses to the metric selection process...
 
-    myresize();
     enableUI();
 }
 
@@ -535,7 +472,6 @@ void KmChart::acceptEditChart()
     // TODO: might be an idea to keep available once its built, to optimise
     // subsequent accesses to the metric selection process...
 
-    myresize();
     enableUI();
 }
 
