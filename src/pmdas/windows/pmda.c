@@ -678,6 +678,41 @@ fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 1;
 		/*NOTREACHED*/
 
+	    case 111:	/* kernel.uname.version */
+		myatom.cp = shm->build;
+		*atom = myatom;
+		return 1;
+		/*NOTREACHED*/
+
+	    case 112:	/* kernel.uname.sysname */
+		myatom.cp = "Windows";
+		*atom = myatom;
+		return 1;
+		/*NOTREACHED*/
+
+	    case 113:	/* kernel.uname.machine */
+		myatom.cp = "?";
+		*atom = myatom;
+		return 1;
+		/*NOTREACHED*/
+
+	    case 114:	/* kernel.uname.nodename */
+		myatom.cp = "?";
+		*atom = myatom;
+		return 1;
+		/*NOTREACHED*/
+
+	    case 115:	/* pmda.uname */
+		myatom.cp = shm->uname;
+		*atom = myatom;
+		return 1;
+		/*NOTREACHED*/
+
+	    case 116:	/* pmda.version */
+		myatom.cp = pmGetConfig("PCP_VERSION");
+		*atom = myatom;
+		return 1;
+		/*NOTREACHED*/
 	}
     }
 
