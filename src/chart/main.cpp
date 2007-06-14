@@ -21,6 +21,7 @@
  */
 
 #include <qapplication.h>
+#include <qstatusbar.h>
 #include <qsettings.h>
 #include "main.h"
 
@@ -513,6 +514,7 @@ fprintf(stderr, "%s\n", timestring(tosec(position)));
     if (Cflag)	// done with -c config, quit
 	return 0;
 
+    delete kmchart->statusBar();
     kmchart->show();
     a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
 

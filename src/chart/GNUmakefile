@@ -26,6 +26,3 @@ include $(BUILDRULES)
 install: default
 	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
 	$(INSTALL) -m 755 kmchart $(PKG_BIN_DIR)
-
-fix:	# ugh!  -- TODO: remove need for this, somehow..
-	perl -i -pe 's/.*statusBar.*//g' .ui/kmchart.cpp
