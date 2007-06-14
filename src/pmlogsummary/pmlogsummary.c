@@ -65,6 +65,7 @@ typedef struct {
     double		timeave;	/* time average */
     double		min;		/* minimum value */
     double		max;		/* maximum value */
+    double		sum;		/* sum of all values */
     double		lastval;	/* value from previous sample */
     struct timeval	firsttime;	/* time of first sample */
     struct timeval	lasttime;	/* time of previous sample */
@@ -94,6 +95,7 @@ static unsigned int	stocaveflag = 0;	/* no stochastic counter ave */
 static unsigned int	timeaveflag = 1;	/* use time counter ave */
 static unsigned int	maxflag = 0;		/* no maximum */
 static unsigned int	minflag = 0;		/* no minimum */
+static unsigned int	sumflag = 0;		/* no sum */
 static unsigned int	maxtimeflag = 0;	/* no timestamp for maximum */
 static unsigned int	mintimeflag = 0;	/* no timestamp for minimum */
 static unsigned int	countflag = 0;		/* no count */
@@ -275,6 +277,8 @@ printsummary(const char *name)
 		printf("%c%.*f", delimiter, (int)precision, instdata->stocave);
 	    if (timeaveflag)
 		printf("%c%.*f", delimiter, (int)precision, instdata->timeave);
+	    if (sumflag)
+		printf("%c%.*f", delimiter, (int)precision, instdata->sum);
 	    if (minflag)
 		printf("%c%.*f", delimiter, (int)precision, instdata->min);
 	    if (mintimeflag)
@@ -377,6 +381,7 @@ newHashInst(pmValue *vp,
     if (avedata->desc.sem == PM_SEM_COUNTER) {
 	instdata->min = 0.0;
 	instdata->max = 0.0;
+	instdata->sum = 0.0;
 	instdata->mintime = *timestamp;
 	instdata->maxtime = *timestamp;
 	instdata->stocave = 0.0;
@@ -386,6 +391,7 @@ newHashInst(pmValue *vp,
     else {	/* for the other semantics */
 	instdata->min = av.d;
 	instdata->max = av.d;
+	instdata->sum = av.d;
 	instdata->mintime = *timestamp;
 	instdata->maxtime = *timestamp;
 	instdata->stocave = av.d;
@@ -769,7 +775,7 @@ calcaverage(pmResult *result)
 			    tsub(&instdata->firsttime, &instdata->lasttime);
 			}
 			if (instdata->count == 0)		/* 1st time */
-			    instdata->min = instdata->max = rate;
+			    instdata->min = instdata->max = instdata->sum = rate;
 			else {
 #ifdef PCP_DEBUG
 			    if (pmDebug & DBG_TRACE_APPL2) {
@@ -806,11 +812,13 @@ calcaverage(pmResult *result)
 				instdata->max = rate;
 				instdata->maxtime = result->timestamp;
 			    }
+			    instdata->sum += rate;
 			}
 		    }
 		}
 		else {	/* for the other semantics - discrete & instantaneous */
 		    val = av.d;
+		    instdata->sum += val;
 		    instdata->stocave += val;
 		    if (val < instdata->min) {
 			instdata->min = val;
@@ -845,19 +853,23 @@ calcaverage(pmResult *result)
 
 			if (avedata->desc.sem == PM_SEM_COUNTER) {
 			    fprintf(stderr, "++ %s timedelta=%f count=%d\n"
-					    "min=%f max=%f stocsum=%f\n"
+					    "sum=%f min=%f max=%f stocsum=%f\n"
 					    "rate=%f timesum=%f (+%f) timespan=%f\n",
-				    name, diff, instdata->count, instdata->min,
-				    instdata->max, instdata->stocave, rate, instdata->timeave,
-				    diff * (val - instdata->lastval) / 2, metricspan);
+				    name, diff, instdata->count, instdata->sum,
+				    instdata->min, instdata->max,
+				    instdata->stocave, rate, instdata->timeave,
+				    diff * (val - instdata->lastval) / 2,
+				    metricspan);
 			}
 			else {	/* non-counters */
 			    fprintf(stderr, "++ %s timedelta=%f count=%d\n"
-					    "min=%f max=%f stocsum=%f\n"
+					    "sum=%f min=%f max=%f stocsum=%f\n"
 					    "lastval=%f timesum=%f (+%f) timespan=%f\n",
-				    name, diff, instdata->count, instdata->min,
-				    instdata->max, instdata->stocave, instdata->lastval,
-				    instdata->timeave, instdata->lastval*diff, metricspan);
+				    name, diff, instdata->count, instdata->sum,
+				    instdata->min, instdata->max,
+				    instdata->stocave, instdata->lastval,
+				    instdata->timeave, instdata->lastval*diff,
+				    metricspan);
 			}
 			if (name)
 			    free(name);
@@ -897,7 +909,7 @@ main(int argc, char *argv[])
 	if (*p == '/')
 	    pmProgname = p+1;
 
-    while ((c = getopt(argc, argv, "abB:D:fFiIlmMNn:p:rS:T:xyzZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, "abB:D:fFiIlmMNn:p:rsS:T:xyzZ:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* provide all information */
@@ -972,6 +984,10 @@ main(int argc, char *argv[])
 		fprintf(stderr, "%s: -p requires numeric argument\n", pmProgname);
 		errflag++;
 	    }
+	    break;
+
+	case 's':	/* print sums */
+	    sumflag = 1;
 	    break;
 
 	case 'S':
