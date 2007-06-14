@@ -43,8 +43,8 @@ LSRCFILES	= $(SHIM_CFILES) $(CYGWIN_CFILES) pmcygrunsrv \
 		    match-counters show-all-ctrs.c show-all-ctrs.save \
 		    all-on-tower
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
-DDKROOT		= C:\WINDDK\3790
-SDKROOT		= C:\Program Files\Microsoft SDK
+DDKROOT		= C:\WINDDK\3790.1830
+SDKROOT		= C:\Program Files\Microsoft Platform SDK
 # correct for Windows 2003 server on Intel 386
 # I don't know what the other options are
 MSPLATFORM	= wnet
