@@ -36,13 +36,13 @@ rm -f $tmp.*
 errors=0
 prog=`basename $0`
 host=`pmhostname`
-for var in unknown version numagents numclients simabi ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone status license
+for var in unknown version build numagents numclients simabi ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone status license
 do
     eval $var="unknown?"
 done
 
 # metrics
-metrics="pmcd.numagents pmcd.numclients pmcd.simabi pmcd.version pmcd.license pmcd.timezone pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules"
+metrics="pmcd.numagents pmcd.numclients pmcd.simabi pmcd.version pmcd.build pmcd.license pmcd.timezone pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules"
 pmiemetrics="pmcd.pmie.actions pmcd.pmie.eval.true pmcd.pmie.eval.false pmcd.pmie.eval.unknown pmcd.pmie.eval.expected"
 
 _usage()
@@ -187,6 +187,7 @@ mode == 1		{ quoted(); mode = 0; next }
 mode == 2		{ inst(); next }
 mode == 3		{ inst(); next }
 /pmcd.version/		{ mode = 1; quote="version"; next }
+/pmcd.build/		{ mode = 1; quote="build"; next }
 /pmcd.numagents/	{ mode = 1; quote="numagents"; next }
 /pmcd.numclients/	{ mode = 1; quote="numclients"; next }
 /pmcd.simabi/		{ mode = 1; quote="simabi"; next }
@@ -242,6 +243,7 @@ then
     version="Version unknown"
 else
     version="Version $version"
+    [ "$build" != $unknown ] && version="$version-$build"
 fi
 
 if [ "$mem" = $unknown -o "$mem" = 0 ]
