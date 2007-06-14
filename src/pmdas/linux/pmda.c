@@ -3642,14 +3642,19 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    }
 
 	    switch (idp->item) {
+	    __uint64_t	ull, used;
+
 	    case 1: /* filesys.capacity */
-	    	atom->ull = ((__uint64_t)sbuf->f_blocks) * sbuf->f_bsize / 1024;
+	    	ull = (__uint64_t)sbuf->f_blocks;
+	    	atom->ull = ull * sbuf->f_bsize / 1024;
 		break;
 	    case 2: /* filesys.used */
-	    	atom->ull = ((__uint64_t)(sbuf->f_blocks - sbuf->f_bfree)) * sbuf->f_bsize / 1024;
+	    	used = (__uint64_t)(sbuf->f_blocks - sbuf->f_bfree);
+	    	atom->ull = used * sbuf->f_bsize / 1024;
 		break;
 	    case 3: /* filesys.free */
-	    	atom->ull = ((__uint64_t)(sbuf->f_bfree)) * sbuf->f_bsize / 1024;
+	    	ull = (__uint64_t)sbuf->f_bfree;
+	    	atom->ull = ull * sbuf->f_bsize / 1024;
 		break;
 	    case 4: /* filesys.maxfiles */
 	    	atom->ul = sbuf->f_files;
@@ -3664,14 +3669,17 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	atom->cp = filesys.mounts[i].path;
 		break;
 	    case 8: /* filesys.full */
-	    	atom->d = 100.0 - 100.0 * (double)sbuf->f_bfree / (double)sbuf->f_blocks;
+		used = (__uint64_t)(sbuf->f_blocks - sbuf->f_bfree);
+		ull = used + (__uint64_t)sbuf->f_bavail;
+		atom->d = (100.0 * (double)used) / (double)ull;
 		break;
-		case 9: /* filesys.blocksize -- added by Mike Mason <mmlnx@us.ibm.com> */
-			atom->ul = sbuf->f_bsize;
-			break;
-		case 10: /* filesys.avail --  added by Mike Mason <mmlnx@us.ibm.com> */
-			atom->ull = ((__uint64_t)(sbuf->f_bavail)) * sbuf->f_bsize / 1024;
-			break;
+	    case 9: /* filesys.blocksize -- added by Mike Mason <mmlnx@us.ibm.com> */
+		atom->ul = sbuf->f_bsize;
+		break;
+	    case 10: /* filesys.avail -- added by Mike Mason <mmlnx@us.ibm.com> */
+		ull = (__uint64_t)sbuf->f_bavail;
+		atom->ull = ull * sbuf->f_bsize / 1024;
+		break;
 	    default:
 		return PM_ERR_PMID;
 	    }

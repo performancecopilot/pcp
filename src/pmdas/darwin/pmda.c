@@ -830,6 +830,8 @@ fetch_uname(unsigned int item, pmAtomValue *atom)
 static inline int
 fetch_filesys(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
+    __uint64_t	ull, used;
+
     if (mach_fs_error)
 	return mach_fs_error;
     if (item == 31) {	/* hinv.nfilesys */
@@ -842,16 +844,16 @@ fetch_filesys(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	return PM_ERR_INST;
     switch (item) {
     case 32: /* filesys.capacity */
-	atom->ull = ((__uint64_t)mach_fs[inst].f_blocks) *
-			mach_fs[inst].f_bsize >> 10;
+	ull = (__uint64_t)mach_fs[inst].f_blocks;
+	atom->ull = ull * mach_fs[inst].f_bsize >> 10;
 	return 1;
     case 33: /* filesys.used */
-	atom->ull = ((__uint64_t)(mach_fs[inst].f_blocks -
-			mach_fs[inst].f_bfree)) * mach_fs[inst].f_bsize >> 10;
+	used = (__uint64_t)(mach_fs[inst].f_blocks - mach_fs[inst].f_bfree);
+	atom->ull = used * mach_fs[inst].f_bsize >> 10;
 	return 1;
     case 34: /* filesys.free */
-	atom->ull = ((__uint64_t)(mach_fs[inst].f_bfree)) *
-			mach_fs[inst].f_bsize >> 10;
+	ull = (__uint64_t)mach_fs[inst].f_bfree;
+	atom->ull = ull * mach_fs[inst].f_bsize >> 10;
 	return 1;
     case 35: /* filesys.usedfiles */
 	atom->ul = mach_fs[inst].f_files;
@@ -863,16 +865,16 @@ fetch_filesys(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	atom->cp = mach_fs[inst].f_mntonname;
 	return 1;
     case 38: /* filesys.full */
-	atom->d = (!mach_fs[inst].f_blocks) ? 0 :
-			(100.0 - (100.0 * (double)mach_fs[inst].f_bfree /
-					(double)mach_fs[inst].f_blocks));
+	used = (__uint64_t)(mach_fs[inst].f_blocks - mach_fs[inst].f_bfree);
+	ull = used + (__uint64_t)mach_fs[inst].f_bavail;
+	atom->d = (100.0 * (double)used) / (double)ull;
 	return 1;
     case 39: /* filesys.blocksize */
 	atom->ul = mach_fs[inst].f_bsize;
 	return 1;
     case 40: /* filesys.avail */
-	atom->ull = ((__uint64_t)mach_fs[inst].f_bavail) *
-			mach_fs[inst].f_bsize >> 10;
+	ull = (__uint64_t)mach_fs[inst].f_bavail;
+	atom->ull = ull * mach_fs[inst].f_bsize >> 10;
 	return 1;
     case 41: /* filesys.type */
 	atom->cp = mach_fs[inst].f_fstypename;
