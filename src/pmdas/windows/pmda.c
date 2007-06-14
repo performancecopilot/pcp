@@ -708,7 +708,7 @@ fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (count != 2)	/* we need both "dummy" metric values below */
 	    return 0;
 
-	used_space = free_space * (1.0 - free_percent);
+	used_space = (free_space / free_percent) - free_space;
 	used = 1024 * (unsigned long long)used_space;	/* MB to KB */
 	avail = 1024 * (unsigned long long)free_space;	/* MB to KB */
 	capacity = used + avail;
