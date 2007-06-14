@@ -1163,22 +1163,22 @@ static pmdaMetric metrictab[] = {
 /* proc.psinfo.minflt */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STAT,9), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER,
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* proc.psinfo.cmin_flt */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STAT,10), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER, 
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* proc.psinfo.maj_flt */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STAT,11), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER, 
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* proc.psinfo.cmaj_flt */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STAT,12), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER, 
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* proc.psinfo.utime */
   { NULL,
@@ -1303,12 +1303,12 @@ static pmdaMetric metrictab[] = {
 /* proc.psinfo.nswap */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STAT,35), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER, 
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* proc.psinfo.cnswap */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STAT,36), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER, 
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* proc.psinfo.exit_signal */
   { NULL,
