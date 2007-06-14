@@ -686,6 +686,51 @@ static struct {
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Access Methods\\Page Splits/sec"
     },
+/* network.tcp.activeopens */
+    { { PMDA_PMID(0,123), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Connections Active"
+    },
+/* network.tcp.passiveopens */
+    { { PMDA_PMID(0,124), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Connections Passive"
+    },
+/* network.tcp.attemptfails */
+    { { PMDA_PMID(0,125), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Connection Failures"
+    },
+/* network.tcp.estabresets */
+    { { PMDA_PMID(0,126), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Connections Reset"
+    },
+/* network.tcp.currestab */
+    { { PMDA_PMID(0,127), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Connections Established"
+    },
+/* network.tcp.insegs */
+    { { PMDA_PMID(0,128), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Segments Received/sec"
+    },
+/* network.tcp.outsegs */
+    { { PMDA_PMID(0,129), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Segments Sent/sec"
+    },
+/* network.tcp.totalsegs */
+    { { PMDA_PMID(0,130), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Segments/sec"
+    },
+/* network.tcp.retranssegs */
+    { { PMDA_PMID(0,131), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Segments Retransmitted/sec"
+    },
 };
 
 int metrictab_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);
