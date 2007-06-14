@@ -71,7 +71,10 @@ double TimeAxis::scaleValue(double delta, int count)
 {
     double scale;
 
-    scale = min(1.0 / (width() / 32.0) * 10.0, count);
+    scale = (1.0 / (width() / (count * 8.0))) * 8.0;
+#if DESPERATE
+    fprintf(stderr, "%s: scale=%.2f x delta=%.2f\n", __func__, scale, delta);
+#endif
     scale *= delta;
     return scale;
 }

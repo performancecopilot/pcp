@@ -38,11 +38,10 @@
 #define min(a,b)	((a)<(b)?(a):(b))
 #define max(a,b)	((a)>(b)?(a):(b))
 
-//#define DEFAULT_VISIBLE_POINTS	24
-#define DEFAULT_VISIBLE_POINTS		6
-#define DEFAULT_TOTAL_POINTS		6
-#define MAXIMUM_VISIBLE_POINTS		300
-#define MAXIMUM_TOTAL_POINTS		300
+#define DEFAULT_VISIBLE_POINTS	24
+#define DEFAULT_TOTAL_POINTS	24
+#define MAXIMUM_VISIBLE_POINTS	300
+#define MAXIMUM_TOTAL_POINTS	300
 
 typedef struct {
 	// Samples
