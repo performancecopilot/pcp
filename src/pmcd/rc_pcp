@@ -397,6 +397,8 @@ _shutdown()
     then
        kill -TERM `cat $PCP_RUN_DIR/pmcd.pid`
        rm -f $PCP_RUN_DIR/pmcd.pid
+    else
+	$PCP_KILLALL_PROG -TERM pmcd > /dev/null 2>&1
     fi
     $ECHO $PCP_ECHO_N "Waiting for PMCD to terminate ...""$PCP_ECHO_C"
     gone=0
@@ -510,6 +512,7 @@ case "$1" in
 Error: PMCD control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start PMCD.'
 		exit
 	    fi
+	    [ ! -d $PCP_RUN_DIR ] && mkdir -p $PCP_RUN_DIR
 	    [ ! -d $RUNDIR ] && mkdir -p $RUNDIR
 	    cd $RUNDIR
 
