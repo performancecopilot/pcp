@@ -581,7 +581,7 @@ static pmdaMetric metrictab[] = {
 
 /* hinv.physmem */
     { NULL, 
-      { PMDA_PMID(CLUSTER_MEMINFO,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_MEMINFO,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
       PMDA_PMUNITS(1,0,0,PM_SPACE_MBYTE,0,0) }, },
 
 /* mem.freemem */
@@ -807,7 +807,7 @@ static pmdaMetric metrictab[] = {
 
 /* filesys.capacity */
   { NULL,
-    { PMDA_PMID(CLUSTER_FILESYS,1), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_INSTANT,
+    { PMDA_PMID(CLUSTER_FILESYS,1), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_DISCRETE,
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
 
 /* filesys.used */
@@ -822,7 +822,7 @@ static pmdaMetric metrictab[] = {
 
 /* filesys.maxfiles */
   { NULL,
-     { PMDA_PMID(CLUSTER_FILESYS,4), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_INSTANT,
+     { PMDA_PMID(CLUSTER_FILESYS,4), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_DISCRETE,
      PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* filesys.usedfiles */
@@ -870,17 +870,17 @@ static pmdaMetric metrictab[] = {
 
 /* swapdev.length */
   { NULL,
-    { PMDA_PMID(CLUSTER_SWAPDEV,1), PM_TYPE_U32, SWAPDEV_INDOM, PM_SEM_INSTANT,
+    { PMDA_PMID(CLUSTER_SWAPDEV,1), PM_TYPE_U32, SWAPDEV_INDOM, PM_SEM_DISCRETE,
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
 
 /* swapdev.maxswap */
   { NULL,
-    { PMDA_PMID(CLUSTER_SWAPDEV,2), PM_TYPE_U32, SWAPDEV_INDOM, PM_SEM_INSTANT,
+    { PMDA_PMID(CLUSTER_SWAPDEV,2), PM_TYPE_U32, SWAPDEV_INDOM, PM_SEM_DISCRETE,
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
 
 /* swapdev.vlength */
   { NULL,
-    { PMDA_PMID(CLUSTER_SWAPDEV,3), PM_TYPE_U32, SWAPDEV_INDOM, PM_SEM_INSTANT,
+    { PMDA_PMID(CLUSTER_SWAPDEV,3), PM_TYPE_U32, SWAPDEV_INDOM, PM_SEM_DISCRETE,
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
 
 /* swapdev.priority */
@@ -2487,7 +2487,7 @@ static pmdaMetric metrictab[] = {
 
 /* hinv.machine */
   { NULL,
-    { PMDA_PMID(CLUSTER_CPUINFO, 7), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { PMDA_PMID(CLUSTER_CPUINFO, 7), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /*

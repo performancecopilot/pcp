@@ -176,11 +176,11 @@ static pmdaMetric metrictab[] = {
 /* hinv.physmem */
   { NULL, 
     { PMDA_PMID(CLUSTER_VMSTAT,2), PM_TYPE_U32, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_MBYTE,0,0) }, },
+      PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_MBYTE,0,0) }, },
 /* mem.physmem */
   { NULL,
     { PMDA_PMID(CLUSTER_VMSTAT,3), PM_TYPE_U64, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+      PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 /* mem.freemem */
   { NULL,
     { PMDA_PMID(CLUSTER_VMSTAT,4), PM_TYPE_U64, PM_INDOM_NULL,
@@ -299,7 +299,7 @@ static pmdaMetric metrictab[] = {
 /* filesys.capacity */ 
   { NULL,
     { PMDA_PMID(CLUSTER_FILESYS,32), PM_TYPE_U64, FILESYS_INDOM,
-      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+      PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 /* filesys.used */
   { NULL,
     { PMDA_PMID(CLUSTER_FILESYS,33), PM_TYPE_U64, FILESYS_INDOM,

@@ -657,7 +657,7 @@ static struct {
     },
 
 /* filesys.capacity */
-    { { PMDA_PMID(0,117), PM_TYPE_U64, LDISK_INDOM, PM_SEM_INSTANT,
+    { { PMDA_PMID(0,117), PM_TYPE_U64, LDISK_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)
       }, Q_LDISK, M_NONE, ""
     },
