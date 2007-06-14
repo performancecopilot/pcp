@@ -90,6 +90,14 @@ TODO
     - Fix up build to generate the pixmaps (PNG) from the SVG files,
       as is done in the Tango-Desktop-Icons package builds (ImageMagick).
       This should fix up the ordinary look to some of the current icons.
+    - pmproxy support is far from complete:
+      o Need to spilt host selection combobox and dialog into separate
+	host/proxy widgets
+      o Need a LineEdit for port numbers (list of) too on each dialog
+      o Need libpcp changes (new interfaces) to abstract out the code
+        which has a one-trip guard on testing/setting PMPROXY_HOST env
+	variable during connect (so multiple contexts can have different
+	proxies).
 
     kmtime TODO list:
     - Finished, perfect, no bugs exist.  (yeah, right)
