@@ -731,6 +731,18 @@ static struct {
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
       }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Segments Retransmitted/sec"
     },
+
+/* disk.all.split_io */
+    { { PMDA_PMID(0,132), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_DISK_ALL, M_NONE,  "\\PhysicalDisk(_Total)\\Split IO/Sec"
+    },
+/* disk.dev.split_io */
+    { { PMDA_PMID(0,133), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_DISK_DEV, M_NONE,  "\\PhysicalDisk(*/*#*)\\Split IO/Sec"
+    },
+
 };
 
 int metrictab_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);

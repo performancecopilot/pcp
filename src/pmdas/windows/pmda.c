@@ -519,7 +519,15 @@ prefetch(int numpmid, pmID pmidlist[])
     }
 #endif
 
-    /* we have derived filesys metrics, so may need to fetch more... ugh */
+    /*
+     * we have derived filesys metrics, so may need to fetch more... ugh
+     * depends on pmids for these metrics
+     * 		117 filesys.capacity
+     *		118 filesys.used
+     *		119 filesys.free
+     *		120 dummy metric, rtab holds FreeMB
+     *		121 dummy metric, rtab holds %Free
+     */
     for (i = 0; i < numpmid; i++) {
 	pmidp = (__pmID_int *)&pmidlist[i];
 	if ((pmidp->cluster == 0) &&
@@ -682,6 +690,13 @@ fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      * special case the filesystem metrics at this point -
      * mapping the PDH services semantics for these to the
      * saner metrics from other platforms is not pretty...
+     * depends on pmids for these metrics
+     *		 67 filesys.full
+     * 		117 filesys.capacity
+     *		118 filesys.used
+     *		119 filesys.free
+     *		120 dummy metric, rtab holds FreeMB
+     *		121 dummy metric, rtab holds %Free
      */
     if ((pmidp->cluster == 0) &&
 	(pmidp->item == 67 || (pmidp->item >= 117 && pmidp->item <= 119))) {

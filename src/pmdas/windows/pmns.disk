@@ -7,6 +7,7 @@ disk.all {
     read		WINDOWS:0:15
     write		WINDOWS:0:16
     total		WINDOWS:0:17
+    split_io		WINDOWS:0:132
     read_bytes		WINDOWS:0:18
     write_bytes		WINDOWS:0:19
     total_bytes		WINDOWS:0:20
@@ -16,6 +17,7 @@ disk.dev {
     read		WINDOWS:0:21
     write		WINDOWS:0:22
     total		WINDOWS:0:23
+    split_io		WINDOWS:0:133
     read_bytes		WINDOWS:0:24
     write_bytes		WINDOWS:0:25
     total_bytes		WINDOWS:0:26
