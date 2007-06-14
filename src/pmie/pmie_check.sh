@@ -38,7 +38,7 @@ _unsymlink_path()
 {
     [ -z "$1" ] && return
     __d=`dirname $1`
-    __real_d=`cd $__d 2>/dev/null && /bin/pwd`
+    __real_d=`cd $__d 2>/dev/null && $PWDCMND`
     if [ -z "$__real_d" ]
     then
 	echo $1
@@ -73,10 +73,21 @@ CONTROL=$PCP_VAR_DIR/config/pmie/control
 
 # determine real name for localhost
 LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
-if [ -z "$LOCALHOSTNAME" ]
+[ -z "$LOCALHOSTNAME" ] && LOCALHOSTNAME=localhost
+
+# determine path for pwd command to override shell built-in
+# (see BugWorks ID #595416).
+PWDCMND=`which pwd 2>/dev/null | $PCP_AWK_PROG '
+BEGIN	    	{ i = 0 }
+/ not in /  	{ i = 1 }
+/ aliased to /  { i = 1 }
+ 	    	{ if ( i == 0 ) print }
+'`
+if [ -z "$PWDCMND" ]
 then
-    echo "$prog: Error: cannot determine hostname, giving up"
-    exit 1
+    #  Looks like we have no choice here...
+    #  force it to a known IRIX location
+    PWDCMND=/bin/pwd
 fi
 
 # determine whether SGI Embedded Support Partner events need to be used
@@ -93,11 +104,12 @@ MV=mv
 RM=rm
 CP=cp
 KILL=kill
+TERSE=false
 VERBOSE=false
 VERY_VERBOSE=false
 START_PMIE=true
-usage="Usage: $prog [-NsV] [-c control]"
-while getopts c:NsV? c
+usage="Usage: $prog [-NsTV] [-c control]"
+while getopts c:NsTV? c
 do
     case $c
     in
@@ -110,6 +122,8 @@ do
 		KILL="echo + kill"
 		;;
 	s)	START_PMIE=false
+		;;
+	T)	TERSE=true
 		;;
 	V)	if $VERBOSE
 		then
@@ -212,9 +226,14 @@ _check_logfile()
     if [ ! -f $logfile ]
     then
 	echo "$prog: Error: cannot find pmie output file at \"$logfile\""
-	logdir=`dirname $logfile`
-	echo "Directory (`cd $logdir; pwd`) contents:"
-	ls -la $logdir
+	if $TERSE
+	then
+	    :
+	else
+	    logdir=`dirname $logfile`
+	    echo "Directory (`cd $logdir; $PWDCMND`) contents:"
+	    LC_TIME=POSIX ls -la $logdir
+	fi
     else
 	echo "Contents of pmie output file \"$logfile\" ..."
 	cat $logfile
@@ -308,24 +327,35 @@ _check_pmie()
 		    return 0
 		fi
 	    fi
-	    case "$PCP_PLATFORM"
-	    in
-		irix)
-		    ps -e | grep "^ *$1 " >/dev/null
-		    ;;
-		linux)
-		    test -e /proc/$1 
-		    ;;
-	    esac
 
-	    if [ $? -ne 0 ] 
+	    _plist=`_get_pids_by_name pmie`
+	    _found=false
+	    for _p in `echo $_plist`
+	    do
+		[ $_p -eq $1 ] && _found=true
+	    done
+
+	    if $_found
 	    then
+		# process still here, just hasn't created its status file
+		# yet, try again
+		:
+	    else
 		$VERBOSE || _message restart
 		echo " process exited!"
-		echo "$prog: Error: failed to restart pmie"
-		echo "Current pmie processes:"
-		ps $PCP_PS_ALL_FLAGS | sed -n -e 1p -e "/$PMIE/p"
-		echo
+		if $TERSE
+		then
+		    :
+		else
+		    echo "$prog: Error: failed to restart pmie"
+		    echo "Current pmie processes:"
+		    ps $PCP_PS_ALL_FLAGS | tee $tmp.tmp | sed -n -e 1p
+		    for _p in `echo $_plist`
+		    do
+			sed -n -e "/^[ ]*[^ ]* [ ]*$_p /p" < $tmp.tmp
+		    done
+		    echo
+		fi
 		_check_logfile
 		return 1
 	    fi
@@ -335,7 +365,12 @@ _check_pmie()
     done
     $VERBOSE || _message restart
     echo " timed out waiting!"
-    sed -e 's/^/	/' $tmp.out
+    if $TERSE
+    then
+	:
+    else
+	sed -e 's/^/	/' $tmp.out
+    fi
     _check_logfile
     return 1
 }
@@ -444,7 +479,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     [ ! -d $dir ] && continue
 
     cd $dir
-    dir=`pwd`
+    dir=`$PWDCMND`
     $SHOWME && echo "+ cd $dir"
 
     if [ ! -w $dir ]
@@ -458,51 +493,38 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     # match $logfile and $fqdn from control file to running pmies
     pid=""
     fqdn=`pmhostname $host`
-    for file in `ls $PCP_TMP_DIR/pmie`
+    for file in $PCP_TMP_DIR/pmie/[0-9]*
     do
-	p_id=$file
-	file="$PCP_TMP_DIR/pmie/$file"
+	[ "$file" = "$PCP_TMP_DIR/pmie/[0-9]*" ] && continue
+	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $file: ""$PCP_ECHO_C"
+
+	p_id=`echo $file | sed -e 's,.*/,,'`
 	p_logfile=""
 	p_pmcd_host=""
 
-	case "$PCP_PLATFORM"
-	in 
-	    irix)
-		test -f /proc/pinfo/$p_id 
-		;;
-	    linux)
-		test -e /proc/$p_id
-		;;
-	esac
-	if [ $? -eq 0 ]
-	then
-	    eval `tr '\0' '\012' < $file | sed -e '/^$/d' | sed -e 3q | $PCP_AWK_PROG '
+	# throw away stderr in case $file has been removed by now
+	eval `tr '\0' '\012' < $file 2>/dev/null | sed -e '/^$/d' | sed -e 3q \
+	| $PCP_AWK_PROG '
 NR == 2	{ printf "p_logfile=\"%s\"\n", $0; next }
 NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	{ next }'`
-	    p_logfile=`_unsymlink_path $p_logfile`
-	    if [ "$p_logfile" = $logfile -a "$p_pmcd_host" = "$fqdn" ]
-	    then
-		pid=$p_id
-		break
-	    fi
+
+	p_logfile=`_unsymlink_path $p_logfile`
+	if [ "$p_logfile" != $logfile ]
+	then
+	    $VERY_VERBOSE && echo "different logfile, skip"
+	elif [ "$p_pmcd_host" != "$fqdn" ]
+	then
+	    $VERY_VERBOSE && echo "different host, skip"
+	elif _get_pids_by_name pmie | grep "^$pid\$" >/dev/null
+	then
+	    $VERY_VERBOSE && echo "pmie process $p_id identified, OK"
+	    pid=$p_id
+	    break
 	else
-	    # ignore, its not a running process
-	    eval $RM -f $file
+	    $VERY_VERBOSE && echo "pmie process $p_id not running, skip"
 	fi
     done
-
-    if $VERY_VERBOSE
-    then
-	if [ -z "$pid" ]
-	then
-	    echo "No current pmie process exists for:"
-	else
-	    echo "Found pmie process $pid monitoring:"
-	fi
-	echo "    host = $fqdn"
-echo "    log file = $logfile"
-    fi
 
     if [ -z "$pid" -a $START_PMIE = true ]
     then
