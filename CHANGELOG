@@ -1,0 +1,704 @@
+pcp-2.1.1 (released 7 Dec 1999)
+    - initial pcp-2.1.1 open source release
+
+pcp-2.1.2 (released with 2.1.4)
+    - released with SGI ACE 1.0
+    - fixed date field in LSM
+    - install pmiestats.h for pmieconf
+    - renamed /var/pcp/config/pmafm/pcp-col to
+      /var/pcp/config/pmafm/pcp
+    - added network.{ip,icmp,tcp,udp} metrics
+      extracted from /proc/net/snmp
+    - fixed shell syntax error in pmlogger_daily(1)
+      (changed test -l to test -f)
+    - fixed problem with definition of __psint_t on 64bit machines
+    - fixed timezone problem with daylight saving
+
+pcp-2.1.3 (released with 2.1.4)
+    - released with ISE 1.0 (MR 1 Mar 2000)
+    - added hinv.map.scsi metric as a map of SCSI devices (if any)
+    - added disk.dev.{read,write,total}_bytes
+    - filter devpts from filesys.* metrics to avoid FPE errors
+    - added support for new style Apache configuration file and
+      "silent" install to weblog scripts
+
+pcp-2.1.4 (released 15 Feb 2000)
+    - fix for segfault src/pmdas/linux/pmda.c on linuxppc, found by
+      Dale F. Brantly <dale.brantly@sgi.com>
+    - fix build error in src/pmclient, was trying to use pmgenmap
+      without /etc/pcp.env, also found by Dale.
+    - setlinebuf(stdout) for all clients that loop
+      (fixes a buffering problem on alpha-linux).
+    - fixed some missing "{" in conditional variable assignments
+      in src/pmie/etc_init.d_pmie (found by lstep@free.fr)
+    - changed use of pmgenmap in build for pmclient and
+      pmkstat to be consistent (found by lstep@free.fr)
+    - don't assume clock tick rate is 100/second. Use the CLK_TCK macro
+      instead. Rearrange arithmetic in src/pmdas/linux/pmda.c where we
+      divide by CLK_TCK to avoid truncation in conversions from jiffies
+      to milliseconds.
+    - return "no values available" rather than PM_ERR_APPVERSION for
+      the metrics disk.{all,dev}.{read,write,total}_bytes since these
+      are not available on systems without the "sard disk patch".  This
+      is now consistent with requests for disk.partitions.* metrics.
+
+pcp-2.1.5 (released 12 April 2000)
+    - released with SGI ACE 1.2 (MR 19 Apr 200)
+    - fix bug #786743 filesys metrics are wrong
+    - fix potential segfault bug in timezone handling
+    - tolerate SUSE's location of magic file different to Redhat's
+    - tolerate no chkconfig on SUSE (use %postinstall create rc symlinks)
+
+pcp-2.1.6 (released 3 May 2000)
+    - released with ISE 1.2 (MR 25 May 2000)
+    - released with ISEMAIL 1.0 (MR 24 May 2000)
+    - this is the version shipped with SGI ProPack1.3
+    - change use of __clone to pthread_create for portability
+    - add support for raid disk stats (previously ignored)
+    - fix for bug #789425 pmie suspect behaviour with "delta" keyword
+    - add support for devfs style scsi disk names
+    - fixed a problem where nfs stats were always showing NFSv3 stats
+      rather than NFSv2 stats. We are not (yet) supporting NFSv3 stats.
+
+pcp-2.1.7-1 (internal release for testing)
+    - merged changes from IRIX for multiple namespace support in
+      pmdaproc.sh
+    - parameterized path to pmcd.conf and pmcd.options to avoid
+      having to move these files in IRIX. Use PCP_PMCDCONF_PATH and
+      PCP_PMCDOPTIONS_PATH respectfully.
+    - add new error define PM_ERR_LOGFILE (reconciled from IRIX)
+    - conditional pragma for pmGetConfig (not used in linux)
+    - use if defined(HAVE_OBJECT_STYLE) to guard __pmCheckObjectStyle
+      since it's not used in linux (reconciled with irix code)
+    - correct logic used to scan for pmlogger pid in pmlogger_check
+      in case where pmlogger exits prematurely, part of #789025
+    - added -Wall to default CFLAGS and LDFLAGS
+    - added xfs metrics (needs kernel support else no values available)
+      extracted from /proc/fs/xfs/stat
+    - added nfs (version 3) metrics, same names as on irix, bug #789669
+    - fix instance domain for kernel.percpu.interrupts, bug #790372
+
+pcp-2.1.7-2 (released 15 June 2000)
+    - bumped build number ..
+    - fixed annoying warning messages about directory not empty
+      when doing an upgrade
+
+pcp-2.1.8-2 (released 30 June 2000)
+    - fix for bug #793871 pmlogger_check fails after redhat upgrade
+      (because PCP entries in /usr/share/magic were clobbered)
+    - also install /var/pcp/pmdas/linux/pmdalinux (as a non-DSO
+      agent for debugging and profiling purposes).
+    - added pmda.uname (uname -a) and pmda.version (linux pmda version)
+      metrics. The pmda.uname metric is needed by the "pcp" command.
+    - fix for #789025 fix to ensure rpm --verify succeeds immediately
+      after an install, and other errors in pmlogger_check
+    - released with ACE 1.3 (MR 19 Jul 2000)
+
+pcp-2.1.9-6 (released 2 Aug 2000 for propack1.4 - alpha, not final)
+    - install /usr/share/pcp/lib/rc-proc.sh containing common
+      shell functions for use by rc scripts - these functions
+      are tolerant of the chkconfig command missing (as in SUSE).
+    - update all rc scripts and {pmlogger,pmie}_{check,daily} scripts
+      to use the new rc-proc.sh functions. Remove the /etc/sysconfig
+      stuff entirely (it was not being used anyway).
+    - fix for #795934 : after rpm -U, pcp is chkconfig off. It turned
+      out that an upgrade executes the %post _and_ the %preun scripts,
+      which resulted in pcp being chkconfig'd on then off again.
+    - fix pmie rc scripts so they work, are chkconfig friendly,
+      and cope with _and_ without pmieconf (which is in pcp-pro).
+      Also install /var/pcp/config/pmie/config.default as a simple example
+      to monitor the load average and report to syslog. The pmie
+      daemon is chkconfig off by default.
+    - default run levels for pmcd and pmie (daemon) are now 2345, for SUSE
+    - reconcile troff and groff differences in man page sources
+    - fix for bug #797049 use strftime(%z) to determine timezone offsets
+      w.r.t. daylight savings
+    - portability surgery on src/libpcp_trace, and add new pmtracecounter()
+      function, see pmtracebegin(3) for details.
+    - reconcile pcp.env and pmcd.options from IRIX
+    - fix for bug #797048 update-magic does not fully remove old entries
+      before adding new, hence the magic file would grow after each upgrade
+    - other minor reconciliation work with IRIX
+    - fix build environment to allow proper handling of compressed man pages
+    - add support for RPM version 4.
+    - add support for add kernel.{all,percpu}.syscall metrics
+      (requires kernel patch)
+    - fixed for bug #797164: potential SEGV due to calling realloc on a 
+      misused pointer - src/pmdas/weblog/weblog.c
+    - use realpath(3) to resolve devices in /proc/mounts for filesys.* metrics
+
+pcp-2.1.9-11 (unreleased)
+    - add pagebuf metrics (Daniel and Nathan)
+    - fixes so the build works if pcp is not already installed
+    - minor security fix to pcp.spec.in (force mode 644 for .NeedRebuild)
+    - make sure the src RPM builds correctly (LSRCFILE issues from LinuxWorld)
+    - fix for bug #797756, upgrade from pcp2.1.6 to any newer version leaves
+      pcp chkconfig off and the name space does not get rebuilt.
+    - extended the weblogs PCP agent so it can report proxy/squid
+      http servers, and added assorted http cache statistics.
+    - fixed the Cisco router PCP agent (it was broken in pp1.3).
+    - add support for disk stats in 2.4.x kernels with "disk_io" field
+      in /proc/stat (only used when sard patch is not installed)
+    - if the pcp-pro package (SGI proprietary) is installed, all libpcp
+      clients on linux are now "authorized" to monitor IRIX systems that
+      do not have a pmcd collector license.
+
+pcp-2.1.9-12 (released circa Sept 13 2000, with SGI Propack1.4)
+    - for 2.4 without sard, correctly match disk numbers in /proc/stat
+      with major,minor numbers in /proc/partitions.
+
+pcp-2.1.10-8 (released circa Oct 18 2000, with SGI ACE1.4)
+    - guard against DOS attack by restring incoming PDU size to 64K.
+    - add hinv.map.cpu and hinv.cpu metrics exported by /proc/cpuinfo
+    - fix small error in INSTALL_MAN rule in src/include/builddefs.in
+    - fix for bug #793427 - correct symlinks for man pages with multiple
+      entries in the .SH NAME section.
+    - add network.tcpconn metrics to export counts of tcp connections in each
+      state. Code contributed by Michal Kara (lemming@arthur.plbohnice.cz)
+    - few minor fixes for build on ia64
+
+pcp-2.2.0-15 (released 23 May 2001)
+    - don't include linux/kernel_stat.h and avoid __sparc__ conditional code 
+    - from Michal Kara: rc will rebuild PMNS if root_* files newer than root
+    - add the roomtemp PMDA for measuring temperatures using the 1-Wire
+      serial network ans sensor technology from Dallas Semiconductor
+    - zero network.tcpconn values before counting them in /proc/net/tcp
+      (Michal Kara's original code was correct - markgw busted it!)
+    - add new LGPL library libpcp_http. Used by permission of the author,
+      Laurent Demailly <L@Demailly.com>
+    - minor surgery on apache PMDA to link with -lpcp_http
+    - minor fix diagnostic from __pmLogRead
+    - as reported by Alexander L. Belikoff <abel@vallinor4.com>, it was
+      not possible to disable the primary logger via changes to the
+      /var/pcp/config/pmlogger/control file ... this has been fixed
+    - as reported by Alan Bailey <bailey@mcs.anl.gov>, the assumption
+      that /var/pcp/config/pmlogger/control was version 1.1 was implicit 
+      ... this is now documented and the pmlogger_* scripts will warn
+      if the deprecated version 1.0 format is used accidently
+    - from Michal Kara: fix mem leak in apache PMDA
+    - from Michal Kara: install /var/pcp/config/pmlogger/Makefile
+      (src is in src/pmlogctl/Makefile.install). This provides pre-processing
+      of pmlogger config files with cpp.
+    - reintroduction of "impl.h" header, deprecate "pmapi_dev.h" and major
+      makefile surgery to reintegrate the IRIX and Linux PCP source trees
+    - add ia64 support infrastructure.
+    - use -fno-strict-aliasing for correct ia64 compilation
+    - use -fpic to avoid gprel errors linking shlibs on ia64
+    - don't use -P with cpp, thus preserve line numbers
+    - post-process help text to reformat long lines
+    - pv:789819 fixes to mailq and sendmail PMDAs
+    - fix endian-sensitive IP addr construction in cisco PMDA
+    - fix sscanf unaligned access warnings on ia64 for cisco PMDA
+    - support v1 help text again, conditional on HAVE_NDBM
+    - fix pmval's qsort compare routine for instances
+    - surgery on almost all man pages, merge with IRIX PCP man pages
+    - promote shping to open-source status
+    - fix bug #814989 where disk.all.* not summed correctly (if the sard
+      patch has been applied to running kernel)
+    - with the sard patch applied to the kernel, disk.all metrics were
+      being summed as the total of disk.partitions and disk.dev metrics,
+      resulting in approximately twice the rate of disk I/O for the
+      disk.all metrics
+    - added more disk metrics and update help text
+    - the "cpu" instance domain is now dynamic and supports any number of CPUs
+    - fixed pmie rc and pmie_{check,daily} scripts
+    - a bunch of places were using $PCP_VAR_DIR/config/pmcd/pmcd.conf
+      as the path to pmcd.conf (which is correct). Others were using
+      /etc/pmcd.conf (which is only correct on IRIX).
+    - merged IRIX/Linux versions of pmsocks
+    - mimic the IRIX xconfirm behaviour more closely, pv 817289
+    - pv:817367 Handle SIGCHLD from xconfirm problem on Linux
+    - minor changes in error messages to make them less IRIX-centric
+      and hence more sensible for Linux
+    - fix weblog link in doc dir logic and old netscape should be
+      detected as CERN not NS_PROXY.
+    - fix weblog so regex in the configuration file is recognized
+      correctly on all platforms
+    - only run weblogconv.sh on linux
+    - conversion to more simple copyright in numerous places
+    - avoid grep -q usage: not supported on early IRIX
+    - pv:803341 Change Creator: for mkaf from mkaf to pmchart to assist
+      with pmafm replay when pcp also installed.
+    - updated man page text for platform-agnostic descriptions.
+    - fix 817880 pmafm remove does not list all files
+    - src/pmie/GNUmakefile Fix busted sed translation of the control
+      file so the logfiles (and hence directories) are ...pmie/<hostname>
+      rather than pmie<hostname>
+    - renamed all Makefiles to GNUmakefile
+    - makefile surgery to allow multiple RPMs to be built from one src tree
+    - fixes to src/pmcd/pmdaproc.sh to not use test -e
+    - pv:815326 fix pcp linux /usr/share/magic doesn't detect pmie config
+    - pv:818381 fix pmie_check fails esp integration
+    - man page for pmlogsummary was in both pcp and pcp-pro
+    - fix to src/pmie/pmie_check.sh, improve pattern to match No such
+      file or directory for linux
+    - fix all linux specs to install root,root rather than root,bin
+      (needed to avoid warnings when installing on redhat7.1)
+    - add GNUmakefile.install for all PMDAs, installed in each PMDA dir
+    - fix src/pmdas/weblog/server.sh to use quotes on -d that was breaking
+      when parameter empty.
+    - pv:807561 change pmprobe -i and -I semantics to call pmGetInDom
+      rather than using the returned indom from pmFetch
+    - add hinv.machine for oview to use
+    - change the cpu instance domain to use the numa names if they are
+      present on the machine, else revert to cpuX syntax
+    - numerous fixes so the src RPM builds on all platforms
+    - pv:824382 - xfs block metrics were scaled incorrectly
+    - add support for /proc/slabinfo metrics (mem.slabinfo.*)
+    - add new "process" and "mounts" PMDAs, contributed by Alan Baily
+    - added GPL copyrights to process and mounts src, fixed makefiles
+      to extract domain number from stdpmid and added install targets,
+      and small change to ignore comments in conf files.
+    - added hinv.pagesize (uses the getpagesize(2) system call)
+    - fixed bug #825229 where rpm upgrade would clobber root pmns for PMDAs
+
+pcp-2.2.1-3 (released 21 June 2001)
+    - remove unwanted *.rpmorig files after upgrade 
+    - fixed bug #827972, pcp root exploit with pmpost
+    - fixed assorted other security issues.
+
+pcp-2.2.2-9 (released 11 December 2001)
+    - fixed mangle-src to catch all copyrights in the open source package
+    - fixes from gilly@exanet.com for /proc/cpuinfo on alpha platform.
+    - change configure.in to work with autoconf version 2.50
+    - fix configure.in to work when ps gives warnings on stderr;
+      (eg. System.map doesn't match running kernel)
+    - added lmsensors PMDA, contributed by Troy Dawson <dawson@fnal.gov>
+    - added kernel.all.uptime, contributed by Gilly <gilly@exanet.com>
+    - fixed int overflow with kernel.*.cpu.* metrics. Fix contributed
+      by Gilly <gilly@exanet.com>
+    - use sysconf(_SC_CLK_TCK) to determine HZ
+    - fix sapic scanning for sn-ia64 in proc_cpuinfo.c
+    - fix from gilly@exanet.com for scanning 2.4.x /proc/stat disk stats
+    - bug 826904 Ensure atomicity of PMNS updates as seen by PMNS readers,
+      and add transactional-level locking to ensure mutual exclusion
+      between PMNS updaters
+    - bug 817376 pmlogger makes too many round trips to pmcd
+    - bug 828416 - pmlogger access control will not accept hostnames
+      containing hyphens
+    - bug 820891 More robust mapping of system error codes to strings to
+      accommodate the growing range of errno values in IRIX and differences
+      between IRIX and Linux
+    - bug 826681 - Having $MAGIC set screws up Linux file(1) with consequent
+      havoc for PCP scripts. Fixes to mkaf and pmie_check.
+    - fix from Brian Harvell <harvell@aol.net> to allow pcp.conf.in to be
+      configured with the following cmdline options to the configure script:
+      --datadir --sbindir --localstatedir --libdir --mandir --bindir
+      --includedir and --prefix
+    - fixes from Brian Harvell <harvell@aol.net> for incorrectly
+      configured paths in src/pmie/src/pmie.c src/pmns/pmnsdel.c 
+      and src/pmns/pmnsmerge.c
+    - from Thomas Graichen <tgr@spoiled.org>, support for bzip2 compressed
+      man pages (such as used in Mandrake 8.x)
+    - from Martin Knoblauch <Martin.Knoblauch@TeraPort.de>, fix for a problem
+      where if LANG is not "C", the is_chkconfig_on() shell function in
+      rc-proc.sh does not work, causing problems with the rc scripts.
+      src/libpcp/src/pdu.c - 1.3
+    - bug 836236 in libpcp: better handling of piggy-back PDU in the boundary
+      case where the second PDU is so short that it does not contain even a
+      full PDU header.
+    - fix src RPM build on Turbo Linux. If /usr/lib/rpm/brp-compress
+      exists then always use gzipped man pages.
+    - fix buglet where file-3.35 in RH7.2 uses a compiled magic file
+    - fix buglet where gawk complained about "\{" on Mandrake linux
+    - on SGI SNIA systems, map node number from sapic to cnode in /dev/hw/nodenum
+    - bug 843215, fix pmie's sprintf looking for it's config file
+    - bug 842905, when /var/log/pcp is a symbolic link, pmie_check fails
+
+pcp-2.3.0-10 (released 16 December 2002)
+    - Changes to pmlogconf to improve usability
+    - pmie_check fails when log files relocated via symlink
+      reported by Micah Altman <Micah_Altman@harvard.edu>
+    - fix linux pcp upgrade saves pmns but doesn't save pmcd.conf
+    - fix pmlc logic error in handling descriptor fetch failures
+    - pmdumplog reports incorrect sizes for PDUs on ia64
+    - fix /proc scanning for newer 2.4.x kernels and for 2.5.x
+    - pmproxy support in libpcp
+    - change the units of kernel.all.uptime from hours to seconds
+      contributed by Mike Mason <mmlnx@us.ibm.com>
+    - fix pmafm remove does not list all files
+    - Units wrong for proc.psinfo.rss_rlim, Mike Mason <mmlnx@us.ibm.com>
+    - in build/rpm/GNUmakefile, remove '=' from --target since rpm v4
+      doesn't seem to like it Todd Davis <todd.c.davis@intel.com>
+    - fix rpm upgrade post install processing for pmieconf rules
+    - large number of new metrics and bug fixes from Mike Mason
+      <mmlnx@us.ibm.com> to support metrics required by libgtop. These
+      include the following:
+
+      (new) Total idle time since boot
+            kernel.all.idletime
+      
+      (new) current # of user sessions
+            kernel.all.nusers
+      
+      (new) Last pid used
+            kernel.all.lastpid
+      
+      (new) Filesystem blocksize from statfs()
+            filesys.blocksize
+      
+      (new) Filesystem free space available to non-superusers from statfs()
+            filesys.avail
+      
+      (modified) Per process command name
+            proc.psinfo.cmd
+      
+      (new) Per process command line from /proc/<pid>/cmdline
+            proc.psinfo.psargs
+      
+      (new) Per process CPU number from /proc/<pid>/stat
+            proc.psinfo.processor
+      
+      (new) Per process wait channel symbol name
+            proc.psinfo.wchan_s
+      
+      (new) Per process signal info from /proc/<pid>/status
+            proc.psinfo.signal_s
+            proc.psinfo.blocked_s
+            proc.psinfo.sigignore_s
+            proc.psinfo.sigcatch_s
+      
+      (new) Per process map info from /proc/<pid>/maps
+            proc.memory.maps
+      
+      (new) Per process memory info from /proc/<pid>/status
+            proc.memory.vmsize
+            proc.memory.vmlock
+            proc.memory.vmrss
+            proc.memory.vmdata
+            proc.memory.vmstack
+            proc.memory.vmexe
+            proc.memory.vmlib
+      
+      (new) Per process user and group ids from /proc/<pid>/status
+            proc.id.uid
+            proc.id.euid
+            proc.id.suid
+            proc.id.fsuid
+            proc.id.gid
+            proc.id.egid
+            proc.id.sgid
+            proc.id.fsgid
+      
+      (new) Per process user and group ids converted to names
+            proc.id.uid_nm
+            proc.id.euid_nm
+            proc.id.suid_nm
+            proc.id.fsuid_nm
+            proc.id.gid_nm
+            proc.id.egid_nm
+            proc.id.sgid_nm
+            proc.id.fsgid_nm
+      
+      (new) Semaphore limits from semctl()(needed by libgtop)
+            ipc.sem.max_semmap
+            ipc.sem.max_semid
+            ipc.sem.max_sem
+            ipc.sem.num_undo
+            ipc.sem.max_perid
+            ipc.sem.max_ops
+            ipc.sem.max_undoent
+            ipc.sem.sz_semundo
+            ipc.sem.max_semval
+            ipc.sem.max_exit
+      
+      (new) Message queue limits from msgctl()(needed by libgtop)
+            ipc.msg.sz_pool
+            ipc.msg.mapent
+            ipc.msg.max_msgsz
+            ipc.msg.max_defmsgq
+            ipc.msg.max_msgqid
+            ipc.msg.max_msgseg
+            ipc.msg.num_smsghdr
+            ipc.msg.max_seg
+      
+      (new) Shared memory limits from shmctl() (needed by libgtop)
+            ipc.shm.max_segsz
+            ipc.shm.min_segsz
+            ipc.shm.max_seg
+            ipc.shm.max_segproc
+            ipc.shm.max_shmsys
+
+    - fix libpcp_trace stub library does not build on ia64
+    - fix make clean doesn't remove all that it should
+    - fix pmlogger gram.y syntax error for newer bison
+    - fix pmstore value "too big" test does not work on 64bit platforms
+    - fix memory leak in pmlogger on 64bit platforms
+    - fix update-magic to recompile the magic file after install
+    - fix pmie alarm actions, suggested by Todd Davis <todd.c.davis@intel.com>
+    - fix man pages to be compatible with khelpcenter and man2html
+    - use rpmbuild rather than rpm --rebuild for RH8, contributed by
+      Todd Davis <todd.c.davis@intel.com>
+    - use rpm instead of rpmbuild if rpmbuild isn't available, contributed
+      my Mike Mason <mmlnx@us.ibm.com>
+    - in pmdas/linux/ksyms.c, use __psint and %p format for for address
+      scanning, contributed my Mike Mason <mmlnx@us.ibm.com>
+    - use "make" by default in Makepkgs rather than explicitly gmake
+    - Add top level GNUmakefile check for gmake (stolen from glibc)
+    - Correctly check status in rule for pcp.src in build/GNUmakefile
+    - correctly check rpmbuild exit status in Installpkgs.
+    - fix NULL ptr deref in src/pmdas/linuyx/proc_pid.c for the
+      case where a process exits while we're reading /proc/<pid>/status
+
+pcp-2.3.0-11 (released 12 Feb 2003)
+    - patch from Anas Nashif <nashif@planux.com> to work with glibc 2.3.1
+    - fix - pmlogger_check failure messages are too verbose
+    - fix - pmclient sometimes reports bad Busy CPU (#) on MP systems
+    - fix - Piggy-back PDU and endian conversion error
+    - fix - Minor problem with error-handling in pmlc-pmlogger
+      connection protocol
+    - fix - cleanup handling of children's exit status for pmie
+    - fix - need better diagnostics to debug trace PMDA
+    - fix - Minor cleanup of PCP man pages
+    - fix - command buffer too small in pmnsdel
+    - Solaris portability changes from Alan Hoyt <ahoyt@moser-inc.com>
+      (qa only so far)
+    - fix - minor warnings and build cleanup
+    - fix - serialize the pcp build
+
+pcp-2.3.0-12 (released 17 Feb 2003)
+    - fix segfault for kernels which do not have CONFIG_MODULES
+      reported by David Douthitt <DDouthitt@cuna.coop>
+
+pcp-2.3.0-13 (released 21 Feb 2003)
+    - portablility changes to enable building the PCP infrastructure on
+      Solaris, based on contributions from Alan Hoyt <ahoyt@moser-inc.com>
+
+pcp-2.3.0-14 (released 27 Feb 2003)
+    - Fix for 882525: Linux pmda fails with openafs module at Fermilab
+      problem in symbol table management, correction also involved
+      removing the regexp() use and cleanup resulting in a 60% speed-up.
+      Thanks to Troy Dawson <dawson@fnal.gov> for helping to track this down.
+
+pcp-2.3.0-15 (released 21 May 2003)
+    - fix - pmdampi name space issue issue, bug 891599
+
+pcp-2.3.0-17 (released for dev testing)
+    - fix - compilation warnings in the mount PMDA.
+    - fix - pmie builds with recent versions of bison.
+    - fix - several XFS metrics to work with the current/previous XFS versions.
+    - fix - build on Redhat 9 wrt errno.h changes.
+    - added several new XFS metrics.
+    - remove inclusion of some kernel headers from the Linux PMDA code.
+    - fix - sginap() macro platform_defs.h overflows causing pmie, pmval and
+      assorted qa tests to hang, bug 891861
+    - fix - repair fallout from autoconf-2.57 changes in Redhat 9 (broke
+      "echo without newline" detection for pcp.conf), bug 892029
+    - fix - under rare conditions, pmFetchArchive() may return with
+      a bogus return value, bug 892037
+    - fix - make pmlogger_check tolerant of hostname(1) returning the fully
+      qualified domain name, bug 892079
+    - fix race in pmTimeConnect (for pcp-pro only), bug 892827
+
+pcp-2.3.1-4 (released 16 July 2003)
+    - fix - repair Linux fallout from TRIX changes
+    - Makepkgs now extracts src tarball from srpm and includes build version
+      in the tar filename
+    - fix - make pmtrace and libpcp_trace endian safe, bug 893884
+    - fix - don't sum non-disk entries from /proc/partitions in disk.all
+      metrics, and add new SGI XVM metrics below disk.xvm, bug 895611
+    - minor help text changes in the linux PMDA
+
+pcp-2.3.2-4 (released 6th October 2003)
+    - fix - on SGI Altix systems, scan topology from /hw rather than /dev/hw
+    - fix - bug #896808 kernel.{all,percpu}.cpu.idle is unsigned long and is
+      hence exported as a 64bit ascii number in /proc/stat on 64bit kernels.
+      Same fix for the per-process cpu metrics in /proc/*/stat affecting
+      proc.psinfo.{utime,stime,cutime,cstime}
+    - (proprietary) pcp-pro now obsoletes pcp-snia for the Altix platform
+    - deprecate the PCP_LIB_COMPAT_DIR variable in /etc/pcp.conf
+    - add Linux memory metric (mem.util.other) and memory metrics help text
+    - add lockstat PMDA identifier into stdpmid list
+    - add Linux vfs metrics (files, inodes, dentries)
+    - fix - bug #900363 in linux PMDA to handle > 128 CPUs in /proc/stat
+    - minor cleanup in libpcp, bug #901776
+
+pcp-2.3.2-13 (SGI Internal release)
+    - fix bug 902034 for pcp-sgi proprietary package. Added topdisk,
+      topsys and man pages. Fixed shubstats and enhanced pmshub.
+    - support for 2.6 style /proc/diskstats
+    - support 2.6 /proc/stat cpu stats, new metrics:
+      kernel.percpu.cpu.{intr,wait.total}
+    - bug #905010 some minor man page tweaking
+    - bug 907846: pcp cpu.idle metrics wrap prematurely on 2.6 kernels
+    - bug 907673: linux swap.{pagesin,pagesout} metrics are wrong
+    - bug 909111 hinv.machine was wrong for Altix. Also, changed several
+      hinv metrics from instant to discrete.  
+    - bug 909141: /etc/init.d/pcp now supports "restart"
+    - bug 911201: PCP network.udp statistics are incorrect
+    - bug:912971: install rc script to /etc/init.d, works on both RH and SuSE
+    - bug:912972: promote network.interface metrics to 64bit unsigned,
+      detect and handle 32bit wraps
+    - bug:914790 parameterize /var/pcp paths, use /var/lib/pcp by default
+    - bug:914555: not all mem.util.* metrics available on all kernels
+    - bug:904478: pcp slabinfo metrics broken for 2.6.x kernels
+
+pcp-2.4.0-1 (released 5 Aug 2004)
+    - Installation layout changed to conform to FHS on platforms
+      where this is appropriate:
+	    Old		New
+	    /var/pcp	/var/lib/pcp
+	    /usr/doc	/usr/share/doc/pcp
+    - bug:916484: %post script to migrate /var/pcp to /var/lib/pcp
+      and bump to PCP 2.4.0.
+    - bug:916657 mem.util.* metrics were incorrectly exported when zero
+    - add demo program procmemstat to report per-process memory usage
+    - Add Mac OS X support - port libraries, collection and logging
+      infrastructure, provide Mac OS X PMDA.  Target is Mac OS X 10.3.
+    - Add Windows support - port libraries, collection and logging
+      infrastructure, provide Windows PMDA using the PDH (Performance
+      Data Helper) APIs.  Target is Windows 98 or later, but must have
+      either Cygwin or SFU (aka Interix) run-time installation.
+    - Enhance Solaris support - provide Solaris PMDA using the kstat()
+      APIs. Target is SunOS 5.8.
+    - Add AIX support - port libraries, collection and logging
+      infrastructure, provide AIX PMDA using ther perfstat() APIs.
+      Target is AIX 5.2.
+    - rfe:916189 Improvements to archive interpolation diagnostics
+      under -Dinterp
+    - bug:916189 use snprintf in preference to sprintf to harden defences
+      against possible buffer overrun issues
+    - bug:918878 avoid using file(1) in pmafm and mkaf due to problems
+      with "magic" extensions for PCP file typing on some platforms
+    - Linux "rc" scripts enhanced to support both the SuSE and RedHat
+      regimes
+    - bug:916354 set SO_KEEPALIVE on the pmcd connection socket to stop fd
+      leaks with noisy networks
+    - bug:916189 Fix up handling of tty name (from command line) for
+      roomtemp PMDA
+
+pcp-2.4.0-7 (released with ProPack4/SP0)
+    - bug:919901 cisco PMDA confused by Description: line containing '>'
+    - bug:920140 inapppropriate glob expansion of "disallow * : all;"
+      in pmcd.conf after PCP upgrade from pcp-2.3.2 to version 2.4.0
+    - bug:913157 "proc.runq.swapped shows 0 in this state" - updated help
+      text for linux PMDA to indicate that kernel threads are not
+      counted in the "swapped" tally.
+    - bug:918205 fix build issues in SuSE, disallow install-sh ambiguity
+    - bug:921103 correct build issues for SuSE
+    - bug:923770 ProPack 4 pmieconf on Oct 22 image wont start
+    - bug:923777 reconcile changes made to PCP in SLES9 by SuSE
+    - bug:924714 remove disk.xvm metrics. Now handled by xvm PMDA.
+    - bug:923732 added new mem.util metrics from /proc/meminfo for 2.6 kernels
+    - bug:925627 instance domain for proc metrics now includes PNTL threads
+    - bug:924909 excise all references to file(1) and the "magic" file
+    - bug:925865 cleanup makefiles for more consistent modes and remove
+      replicated or questionable directory creations
+    - assorted rework to support SLES9 and RH Fedora Core 2 Linux
+      distributions
+    - clean up of Mac OS X port, including additional O/S metrics
+    - bug:923773: new metrics mem.vmstat from /proc/vmstat for 2.6 kernels
+      This also fixes swap.{pagesin,pagesout,in,out}, which have been
+      deleted from /proc/stat
+    - rfe:926192 add -u option for pmlogger(1) to force unbuffered writes
+      (useful when applications monitoring a growing archive)
+    - rfe:912895 Add pmlogreduce(1) to perform statistical reduction
+      of PCP archives over the temporal domain by increasing the sample
+      interval and greatly reducing the size of long-term archives
+
+pcp-2.4.1-2 (ProPack4/SP2)
+    - bug:928986 support slabinfo v2.1 and earlier for recent 2.6.11 kernels
+    - bug:930708 fix linkstats bandwidth measurements (in pcp-sgi package)
+    - rfe:924904 add fixed format support for numbers reported by pmval
+    - bug:928021 correct handling of -S and -T options when resultant time
+      window is empty
+    - bug:929411 tighten integrity checking in libpcp routine
+      pmGetArchiveEnd() to avoid possible segv
+    - bug:930467 fix fd leak on error path in __pmLogFindLocalPorts()
+      within libpcp
+    - rfe:932180 document pmval -i option syntax
+    - bug:925858 add disk.{dev,all}.{read_merges,write_merges}
+    - bug:931699 added mem.util.other back in, see help text for details
+    - bug:931698 added mem.util.cache_clean, see help text for details
+    - bug:933668 support netif names longer than 6 characters 
+    - bug:935490 fix pmcd exposure to attack from malformed PDUs
+    - bug:924909 excise all usage of file(1) and reliance on its "magic"
+      control file ... the old way cannot be made reliable in on all
+      platforms
+    - bug:929411 tighten tests for valid but truncated archives so
+      pmGetArchiveEnd() no longer dumps core
+    - add pmdumptext (and the metric class library libpcp_pmc) to
+      the open source release
+    - bug:935071 fix metrics broken by bug:925858, deprecate support
+      for disk stats collected from /proc/stat (linux 2.2 kernels).
+    - bug:934913 pmdumptext and libpcp_pmc migrated to open source
+    - bug:934332 change save/free profile logic in __pmdaMainPDU() to
+      avoid memory leaks
+    - bug:934333 fix memory leak in __pmdaMainPDU() associated with
+      instance names
+    - bug:936975 merge pmcd.conf with pmcd.conf.rpm{new,old,save} so that
+      foreign (non-pcp) PMDAs will continue to be configured correctly.
+    - bug:937241 update toplevel GNUmakefile to work with modern autoconf.
+    - bug:937243: tg3 pmda doesn't see unconfigured interfaces on sles9
+    - bug:936506: added new cache functions to libpcp_pmda to make it
+      much easier to implement persistent instance domains. Rolled from
+      libpcp_pmda.so.2 to libpcp_pmda.so.3, retained symlink for v2.
+      Converted proc_net_dev and proc_partitions in the linux PMDA to
+      use the new pmdaCache functionality, see pmdacache(3).
+    - refine pmcd's handling of SIGINT and SIGTERM to use sigaction() and
+      try to report the details of the process terminating pmcd
+    - added the summary PMDA to the open source distribution, to provide
+      high-level summary of system activity for large machines or large
+      clusters of machines.
+    - bug:939275 pmstat output format does not scale for large systems
+    - bug:939284 correct man page source and packaging to ensure all of
+      the man pages are in the correct package, and will be correctly
+      indexed once installed
+    - bug:861705 add pmproxy to support pmcd protocol proxying for
+      clusters with head nodes and for monitoring through a firewall
+    - rfe:919678 added new tool (pmie2col) to convert pmie -v output
+      into pretty multi-column format
+    - bug:939467 pcp needs to explicitly provide libpcp_pmda.so.2
+    - 940865 - network security probe crashes pmcd
+
+pcp-2.5.0-1 (ProPack4/SP3)
+    - 942325 - bump to version 2.5.0-1
+    - 936279 - pminfo -f hinv.machine gives 'linux'. Now scans for the
+      SGI hardware IP number from /proc/sgi_prominfo/node0/version
+      and exports that if found.
+    - 936795 - tool to aid PMDA development, see genpmda(1)
+    - 941663 - pmdaInstance broken for name == NULL and inst != PM_IN_NUL
+    - 939448 - pcp rc script needs better handling of .NeedInstall
+    - 857601 - pmview-args uses long lines in value/instance caches
+    - 942030 - Improve efficiency of instance cache in libpcp_pmda
+
+pcp-2.5.0-2 (15 Jan 2006)
+    - 947602 - pmdas/aix/common.h is missing from the tarball
+
+
+pcp-2.7.0 (7 Feb 2007)
+    This log has been allowed to lapse for some time. Blanket catch-up..
+    the following PVs describe changes made in that time:
+    - 947510 - UNIX95 patches break pcp tools
+    - 948548 - [SUSE#182852] Buffer overflow in linux proc_pmda
+    - 948551 - Update pcp configure and build infrastructure
+    - 948799 - Move telnet-probe to oss part of pcp
+    - 948958 - *nodeid conversions have inconsistent naming
+    - 952623 - possible use-after-free of pmProfile objects used by pmda
+    - 952932 - pcp-open RPM requires libpcp.so.2 but doesn't provide it
+    - 953015 - Promote libpcp_pmc to DSO
+    - 953301 - Update irix pcp bits
+    - 953876 - Use swap.pagesin/pagesout instead of swap.in/.out in pmstat
+    - 954035 - Update macosx build infrastructure
+    - 954165 - pmdumptext reports wrong time with sub-second intervals
+    - 954173 - pmReceiveNamesOfChildren returns bogus value
+    - 954203 - pmnscomp generates bogus binary pmns files
+    - 954342 - Add support for FreeBSD
+    - 954343 - Update windows pmda
+    - 954432 - Use a pidfile to stop pcp
+    - 954652 - telnet-probe ate my arguments
+    - 954842 - Update qa on sles10 for pcp 2.5 and 2.6
+    - 956190 - add IB traffic stats to linux PMDA
+    - 956199 - pmlogsummary double free causes graph failures
+    - 957598 - add debuginfo to pcp-open build in mangrove
+    - 957758 - valgrind finds "invalid read of size 8" etc in __pmStuffValue
+    - 957884 - need network.ib.status for per-port IB status and description
+    - 958273 - If OFED is installed but no ports are found, return PM_ERR_VALUE from refresh_ib
+    - 958379 - IB PMDA broken (port num appearing twice in perfquery calls)
+    - 958476 - path to pmie_check binary incorrect in pmie crontab config file
+
+pcp-2.7.1 (20 Feb 2007)
+    - 958413 	open 	3 	kimbrr 	Series of small PCP fixups from nscott@aconex.com
+    - 958951 	open 	3 	kimbrr 	pmie support for stomp messages
+    - 960909 	open 	2 	kimbrr 	dev version => 2.7.1 and QA test pun in preparation for releases
+    - 958414 	open 	1 	kimbrr 	pcp in pp5sp1 for rhel5	

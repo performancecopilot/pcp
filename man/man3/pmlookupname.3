@@ -1,0 +1,127 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmlookupname.3,v 2.14 2006/06/19 09:53:58 makc Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMLOOKUPNAME 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMLOOKUPNAME 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMLOOKUPNAME 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMLOOKUPNAME 3 "" "\&"
+.if \nX=3 .ds x} PMLOOKUPNAME "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmLookupName\f1,
+\f3pmRequestNames\f1,
+\f3pmReceiveNames\f1 \- translate performance metric names into PMIDs
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmLookupName(int numpmid, char **namelist, pmID *pmidlist)
+int pmRequestNames(int ctx, int numpmid, char **namelist)
+int pmReceiveNames(int ctx, pmID *pmidlist)
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.PP
+Given a list in
+.I namelist
+containing
+.I numpmid
+full pathnames for performance metrics from a Performance Metrics Name
+Space (PMNS),
+.B pmLookupName
+returns the list of associated
+Performance Metric Identifiers (PMIDs) via 
+.IR pmidlist .
+.PP
+The result from
+.B pmLookupName
+will be the number of names translated in the absence of errors, else 
+an error code less than zero.
+When errors are encountered, the corresponding value in
+.I pmidlist 
+will be PM_ID_NULL.
+.PP
+Note that the error protocol guarantees there is a 1:1 relationship
+between the elements of
+.I namelist
+and
+.IR pmidlist ,
+hence both lists contain exactly
+.I numpmid
+elements.
+For this reason, the caller is expected to have pre-allocated a suitably
+sized array for
+.I pmidlist .
+.PP
+\f3pmRequestNames\fP and \f3pmReceiveNames\fP are used by applications
+which must  communicate with the PMCD asynchronously.  These functions
+take explict context handle \f2ctx\fP which must refer to a host
+context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
+\f3pmNewContext\fP). \f3pmRequestNames\fP sends request to translate names
+to PMIDs to PMCD and returns without waiting for the response,
+\f3pmReceiveNames\fP reads reply from PMCD. It is the responsibility of 
+the application to make sure the data are ready before calling 
+\f3pmReceiveNames\f1 to avoid blocking.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetChildren (3),
+.BR pmGetChildrenStatus (3),
+.BR pmGetConfig (3),
+.BR pmLoadNameSpace (3),
+.BR pmNameID (3),
+.BR pmNewContext (3),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_TOOSMALL\f1
+.I numpmid
+must be at least 1
+.IP \f3PM_ERR_NOPMNS\f1
+Failed to access a PMNS for operation.
+Note that if the application hasn't a priori called 
+.BR pmLoadNameSpace (3)
+and wants to use the distributed PMNS, then a call to
+.B pmLookupName
+must be made after the creation of a context (see 
+.BR pmNewContext (3)).
+.IP \f3PM_ERR_NAME\f1
+One or more of the elements of
+.I namelist
+does not correspond to a valid metric name in the PMNS.
+.IP \f3PM_ERR_NONLEAF\f1
+A name referred to a node in the PMNS but it was
+not a leaf node.
+.IP \f3PM_ERR_*\f1
+Other diagnostics are for protocol failures when
+accessing the distributed PMNS.
+.IP \f3PM_ERR_CTXBUSY\f1
+Context is currently in use by another asynchronous call.

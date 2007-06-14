@@ -1,0 +1,10 @@
+#pmchart
+Version 1.2 host dynamic
+
+Chart Style plot
+	Plot Color #-cycle Host * Metric sample.drift
+Chart Style plot
+	Plot Color #-cycle Host * Metric sample.step
+
+#
+# Created by pmchart Mon Jul 15 08:52:18 1996

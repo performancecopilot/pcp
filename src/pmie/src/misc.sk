@@ -1,0 +1,103 @@
+/*
+ * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ * 
+ * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+ * Mountain View, CA 94043, USA, or: http://www.sgi.com
+ */
+
+/***********************************************************************
+ * skeleton: misc.sk
+ ***********************************************************************/
+/* $Id: misc.sk,v 1.2 2002/08/20 06:46:48 markgw Exp $ */
+
+/*
+ * operator RULE
+ */
+
+void
+rule(Expr *x)
+{
+    Expr        *arg1 = x->arg1;
+    Expr        *arg2 = x->arg2;
+    int		sts;
+
+    EVALARG(arg1)
+    if ((x->valid = arg1->valid) > 0) {
+	sts = (*(Truth *)x->ring = *(Truth *)arg1->ring);
+	if (sts == FALSE)
+	    perf->eval_false++;
+	else if (sts == TRUE) {
+	    perf->eval_true++;
+	    EVALARG(arg2)
+	}
+	else
+	    perf->eval_unknown++;
+    }
+    else
+	perf->eval_unknown++;
+}
+
+
+/*
+ *  operator: cndDelay
+ */
+
+void
+cndDelay_n(Expr *x)
+{
+    Expr	*arg1 = x->arg1;
+    int		n = arg1->tdom;
+    Sample	*is = &arg1->smpls[n - 1];
+    Sample	*os = &x->smpls[0];
+    @ITYPE	*ip;
+    @OTYPE	*op;
+    int         i;
+
+    EVALARG(arg1)
+    ROTATE(x)
+
+    if (arg1->valid >= n) {
+	ip = (@ITYPE *)is->ptr;
+	op = (@OTYPE *)os->ptr;
+	for (i = 0; i < x->tspan; i++)
+	    *op++ = *ip++;
+	os->stamp = is->stamp;
+	x->valid++;
+    }
+    else x->valid = 0;
+}
+
+void
+cndDelay_1(Expr *x)
+{
+    Expr	*arg1 = x->arg1;
+    int		n = arg1->tdom;
+    Sample	*is = &arg1->smpls[n - 1];
+    Sample	*os = &x->smpls[0];
+
+    EVALARG(arg1)
+    ROTATE(x)
+
+    if (arg1->valid >= n) {
+	*(@OTYPE *)os->ptr = *(@ITYPE *)is->ptr;
+	os->stamp = is->stamp;
+	x->valid++;
+    }
+    else x->valid = 0;
+}
+
+

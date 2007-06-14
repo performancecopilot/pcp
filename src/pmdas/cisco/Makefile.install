@@ -1,0 +1,15 @@
+#!make
+#
+# $Id: Makefile.install,v 2.5 1996/07/15 21:10:20 kenmcd Exp $
+
+SHELL	= /bin/sh
+IAM	= cisco
+TARGETS	=
+LDIRT	= help.dir help.pag *.log
+
+default: $(TARGETS)
+
+install:	default
+
+clobber:
+	rm -f $(LDIRT) $(TARGETS)

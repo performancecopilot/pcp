@@ -1,0 +1,11 @@
+#
+# Sample STOMP configuration file, parameters affecting connection
+# between pmie and a JMS server for the "stomp" rule action.
+#
+
+host=foo.bar.com        # this is the JMS server (required)
+port=61616              # and its listening here (required)
+timeout=2               # seconds to wait for server (optional)
+topic=PMIE              # JMS topic for pmie messages (optional)
+username=joe            # required
+password=j03ST0MP       # required

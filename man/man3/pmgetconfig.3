@@ -1,0 +1,123 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmgetconfig.3,v 1.3 2002/11/12 23:30:09 kenmcd Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMGETCONFIG 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMGETCONFIG 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMGETCONFIG 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMGETCONFIG 3 "" "\&"
+.if \nX=3 .ds x} PMGETCONFIG 3 "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmGetConfig\f1 \- return Performance Co-Pilot configuration variable
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+char *pmGetConfig(const char *variable)
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+The
+.B pmGetConfig
+function searches for
+.I variable
+first in the environment and then, if not found, in
+the Performance Co-Pilot (PCP) configuration file
+and returns the string result.
+If
+.I variable
+is not already in the environment,
+it is added with a call to
+.BR putenv (3)
+before returning.
+.PP
+The default location of the PCP configuration file is
+.B /etc/pcp.conf
+but this may be changed by setting
+.B PCP_CONF
+in the environment to a new location,
+as described in
+.BR pcp.conf (4).
+.PP
+.SH "RETURN VALUE"
+If
+.I variable
+is not found in either the environment nor the PCP configuration file (or the
+PCP configuration file is not found and
+.B PCP_CONF
+is not set in the environment),
+then a fatal error message is printed and the process will
+.BR exit (2).
+Although this sounds drastic, it is the only course of action available
+because the PCP configuration/installation is fatally flawed.
+.PP
+If this function returns,
+the returned value points to a string in the environment and so changing
+it is a bad idea.
+This function returns the same type as the 
+.BR getenv (3)
+function (which should probably be a
+.IR "const char *" ).
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+Values for these variables may be obtained programatically
+using the
+.BR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR exit (2),
+.BR PMAPI (3),
+.BR getenv (3C),
+.BR putenv (3C),
+.BR pcp.conf (4),
+.BR pcp.env (4)
+and
+.BR environ (5).
+.SH DOCUMENTATION CAVEAT
+This manual page originated from an earlier release of PCP for
+.BR IRIX .
+Although some porting effort has been made, there may be some remaining
+inconsistencies with PCP for 
+.B Linux
+(and for other operating systems).
+When this documentation is updated, this caveat will be removed.
+.\" finish caveat

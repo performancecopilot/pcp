@@ -1,0 +1,9 @@
+#pmchart
+Version 2.0 host dynamic
+
+Chart Title "Elapsed Time for shping Commands" Style plot
+	Plot Color #-cycle Host * Metric shping.time.real Matching .*
+
+#
+# Elapsed time (or real time, or response time) for commands run by the
+# shping PMDA

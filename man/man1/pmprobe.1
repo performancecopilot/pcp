@@ -1,0 +1,209 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmprobe.1,v 1.15 2004/06/24 06:15:36 kenmcd Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMPROBE 1 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMPROBE 1 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMPROBE 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMPROBE 1 "" "\&"
+.if \nX=3 .ds x} PMPROBE "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmprobe\f1 \- lightweight probe for performance metrics
+.SH SYNOPSIS
+\f3pmprobe\f1
+[\f3\-fIiVv\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-h\f1 \f2hostname\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f2metricname\f1 ...]
+.SH DESCRIPTION
+.B pmprobe
+determines the availability of performance metrics
+exported through the facilities of the Performance Co-Pilot (PCP).
+.PP
+The metrics of interest are named in the
+.I metricname
+arguments.
+If
+.I metricname
+is a non-leaf node in the Performance Metrics Name Space (\c
+.BR pmns (4)),
+then
+.B pmprobe
+will recursively descend the PMNS and report on all leaf nodes.
+If no
+.I metricname
+argument is given, the root of the namespace is used.
+.PP
+The output format is spartan and intended for use in wrapper
+scripts creating configuration files for other PCP tools.
+By default, there is one line of output per metric, with the
+metric name followed by a count of the number of available values.
+Error conditions are encoded as a negative value count (as
+per the
+.BR PMAPI (3)
+protocols, but may be decoded using
+.BR pmerr (1))
+and followed by a textual description of the error.
+.PP
+Unless directed to another host by the
+.B \-h
+option,
+.B pmprobe
+will contact the Performance Metrics Collector Daemon
+(PMCD) on the local host.
+.PP
+The
+.B \-a
+option causes
+.B pmprobe
+to use the specified archive rather than connecting to a PMCD.  The
+.B \-a
+and
+.B \-h
+options are mutually exclusive.
+.PP
+Normally
+.B pmprobe
+operates on the distributed Performance Metrics Name Space (PMNS),
+however, if the
+.B \-n
+option is specified an alternative local PMNS file is loaded
+from the file
+.IR pmnsfile .
+.PP
+Other options control the output of additional information when
+one or more values is available.
+.TP 5
+.B \-f
+When used with
+.B \-i
+or
+.B \-I
+the set of instances reported will be all of those known at the
+source of the performance data.  By default the set of reported
+instances are those for which values are currently available, which
+may be smaller than the set reported with
+.BR \-f .
+.TP
+.B \-I
+Report the external identifiers for each instance.  The literal string
+.B PM_IN_NULL
+is reported for singular metrics.
+.TP
+.B \-i
+Report the internal identifiers for each instance.  The values are
+in decimal and prefixed by ``?''.  As a special case, the literal
+string
+.B PM_IN_NULL
+is reported for singular metrics.
+.TP
+.B \-v
+Report the value for each instance, as per the formatting
+rules of
+.BR pmPrintValue (3).
+.PP
+The
+.B \-v
+option is mutually exclusive with either the
+.B \-I
+or
+.B \-i
+options.
+.PP
+The
+.B \-V
+option provides a cryptic summary of the number of messages sent
+and received across the PMAPI interface.
+.SH EXAMPLES
+.nf
+.ft CW
+$ pmprobe disk.dev
+.ft CW
+disk.dev.read 2
+disk.dev.write 2
+disk.dev.total 2
+disk.dev.blkread 2
+disk.dev.blkwrite 2
+disk.dev.blktotal 2
+disk.dev.active 2
+disk.dev.response 2
+.sp
+.ft CW
+$ pmprobe -I disk.dev.read disk.dev.write disk.all.total
+.ft CW
+disk.dev.read 2 "dks0d1" "dks0d2"
+disk.dev.write 2 "dks0d1" "dks0d2"
+disk.all.total 1 PM_IN_NULL
+.sp
+.ft CW
+$ pmprobe -v pmcd.numagents pmcd.version pmcd.control.timeout
+.ft CW
+pmcd.numagents 1 9
+pmcd.version 1 "2.0 beta-1"
+pmcd.control.timeout 1 5
+.sp
+.ft CW
+$ pmprobe -v disk.dev.total disk.all.total
+.ft CW
+disk.dev.total -1012 Unknown metric name
+disk.all.total 1 4992466
+.fi
+.ft R
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/pmns/ *
+default PMNS specification files
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmchart (1),
+.BR pmdumplog (1),
+.BR pminfo (1),
+.BR PMAPI (3),
+.BR pmErrStr (3),
+.BR pcp.conf (4),
+.BR pcp.env (4)
+and
+.BR pmns (4).

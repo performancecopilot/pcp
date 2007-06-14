@@ -1,0 +1,108 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMFINDPMDA 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMFINDPMDA 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMFINDPMDA 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMFINDPMDA 3 "" "\&"
+.if \nX=3 .ds x} PMFINDPMDA "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3__pmFindPMDA\f1 \- search for the filename of a PMDA
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+char *__pmFindPMDA(const char *name)
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+Given the
+.I name
+of a PMDA (may be a DSO PMDA or a daemon PMDA), search for a
+file of that name in a number of well known places.
+.PP
+If
+.I name
+exists,
+.B __pmFindPMDA
+returns immediately.
+Otherwise, a search is conducted.
+.PP
+If
+.I name
+is an absolute path (i.e. begins with ``/''), then the only searching
+involves the equivalence of
+.I /usr/pcp/lib
+and
+.IR /var/pcp/lib .
+If
+.I name
+begins with either of these prefixes,
+then the name formed by translating
+.I name
+to use the other prefix is checked.
+.PP
+If
+.I name
+is a relative path (i.e. does
+.B not
+begin with ``/''), then searching involves scanning each directory
+in the colon ``:'' separated list defined by the value of the environment
+variable
+.BR PMDA_PATH .
+If
+.B PMDA_PATH
+is not set, the default search path is ``/var/pcp/lib:/usr/pcp/lib''.
+.PP
+The return value is NULL if the search fails, otherwise the path
+to the PMDA file is returned.  For success without searching, the
+return value is
+.IR name ,
+otherwise, the return value is the address of a static buffer
+within
+.BR __pmFindPMDA .
+.SH SEE ALSO
+.BR pmcd (1),
+.BR PMAPI (3)
+and
+.BR pmNewContext (3).
+.SH CAVEAT
+.B __pmFindPMDA
+searches for a file base on the supplied
+.IR name .
+Success is defined by existence of a file with the matching
+name, according to the search algorithm.  In the case of a
+successful search, the resultant file may not be a PMDA at all,
+and a subsequent attempt to
+.BR dlopen (3)
+or
+.BR exec (2)
+this file may well fail.

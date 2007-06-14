@@ -1,0 +1,155 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMLOGCHECK 1 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMLOGCHECK 1 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMLOGCHECK 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMLOGCHECK 1 "" "\&"
+.if \nX=3 .ds x} PMLOGCHECK "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmlogcheck\f1 \- checks for invalid data in a PCP archive
+.SH SYNOPSIS
+\f3pmlogcheck\f1
+[\f3\-lz\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-S\f1 \f2start\f1]
+[\f3\-T\f1 \f2finish\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+\f2archive\f1
+.SH DESCRIPTION
+.B pmlogcheck
+prints information about the nature of any invalid data which it detects
+in a PCP archive.  Of particular interest are wrapped values for metrics
+which are expected to have monotonically increasing values.
+The archive has the base name
+.I archive
+and must have been previously created using
+.BR pmlogger (1).
+.PP
+Normally
+.B pmlogcheck
+operates on the default Performance Metrics Namespace (\c
+.BR pmns (4)),
+however if the
+.B \-n
+option is specified an alternative namespace is loaded
+from the file
+.IR pmnsfile .
+.PP
+The command line options
+.B \-S
+and
+.B \-T
+can be used to specify a time window over which metrics should be summarized.
+These options are common to many Performance Co-Pilot tools and are fully
+described in
+.BR PCPIntro (1).
+.PP
+The
+.B \-l
+option prints the archive label, showing the log format version,
+the time and date for the start and (current) end of the archive, and
+the host from which the performance metrics values were collected.
+.PP
+By default,
+.B pmlogcheck
+reports the time of day according to the local timezone on the
+system where
+.B pmlogcheck
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (5).
+The
+.B \-z
+option changes the timezone to the local timezone at the
+host that is the source of the performance metrics, as specified in
+the label record of the archive log.
+.SH OUTPUT FORMAT
+For each metric having ``counter'' semantics (i.e. the metric is expected to
+increase monotonically) which has been detected as having wrapped at some
+point in the archive,
+.B pmlogcheck
+produces output describing the metric name (with instance identifiers where
+appropriate), the internal storage type for the metric, the value of the
+metric before the counter wrap (with its associated timestamp), and the value of
+the metric after the wrap (also with a timestamp).
+.PP
+.B pmlogcheck
+produces two different timestamp formats, depending on the interval over
+which it is run.  For an interval greater than 24 hours, the date is displayed
+in addition to the time at which the counter wrap occurred.
+If the extent of the data being checked is less than 24 hours, a more
+precise format is used (time is displayed with millisecond precision, but
+without the date).
+.PP
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/pmns/ *
+default PMNS specification files
+.TP
+.BI $PCP_LOG_DIR/pmlogger hostname
+default directory for PCP archives containing performance data collected
+from the host
+.IR hostname .
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmdumplog (1),
+.BR pmlogextract (1),
+.BR pmlogger (1),
+.BR pmlogmerge (1),
+.BR pmlogsummary (1),
+.BR pmval (1),
+.BR pcp.conf (4),
+.BR pcp.env (4)
+and
+.BR pmns (4).
+.SH DIAGNOSTICS
+All are generated on standard error and are intended to be self-
+explanatory.

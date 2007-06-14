@@ -1,0 +1,175 @@
+#
+# Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# Common build rules for gmake
+#
+ifndef _BUILDRULES_INCLUDED_
+_BUILDRULES_INCLUDED_ = 1
+
+include $(TOPDIR)/src/include/builddefs
+
+#
+# Standard targets
+#
+ifdef CMDTARGET
+$(CMDTARGET) : $(SUBDIRS) $(OBJECTS)
+	$(CCF) -o $(CMDTARGET) $(LDFLAGS) $(OBJECTS) $(LDLIBS)
+endif
+
+ifdef LIBTARGET
+ifeq ($(TARGET_OS), irix)
+_SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
+endif
+ifeq ($(TARGET_OS), linux)
+_SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
+endif
+ifeq ($(TARGET_OS), solaris)
+_SHAREDOPTS	= -shared -fpic
+endif
+ifeq ($(TARGET_OS), darwin)
+# libtool doesnt understand -dynamiclib so we need both
+_SHAREDOPTS	= -fPIC -dynamic -dynamiclib -flat_namespace -undefined suppress -headerpad_max_install_names 
+endif
+ifeq ($(TARGET_OS), cygwin)
+_SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
+endif
+ifeq ($(TARGET_OS), interix)
+_SHAREDOPTS	= -shared -Wl'-soname $(LIBTARGET)'
+endif
+ifeq ($(TARGET_OS), aix)
+_SHAREDOPTS	= -qmkshrobj
+endif
+ifeq ($(TARGET_OS), freebsd)
+_SHAREDOPTS	= -shared -Wl'-soname $(LIBTARGET)'
+endif
+$(LIBTARGET) : $(SUBDIRS) $(OBJECTS)
+	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $(LIBTARGET) \
+		$(OBJECTS) $(LDLIBS) $(LIB_FOR_DLOPEN) $(LIB_FOR_BASENAME)
+endif
+
+ifdef STATICLIBTARGET
+$(STATICLIBTARGET) : $(SUBDIRS) $(OBJECTS)
+ifeq ($(TARGET_OS), darwin)
+	libtool -static -o $(STATICLIBTARGET) $?
+else
+	$(AR) cr $(STATICLIBTARGET) $?
+endif
+endif
+
+# Suffix rule to support transition for YFILES to OBJECTS
+%.tab.h : %.y
+	$(YACC) -d -b `basename $< .y` $<
+
+%.tab.c : %.y
+	$(YACC) -d -b `basename $< .y` $<
+
+#
+# Rule for C++ files
+#
+%.o: %.cxx
+	$(CXX) $(CXXFLAGS) -c $<
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $<
+
+%.o: %.c++
+	$(CXX) $(CXXFLAGS) -c $<
+
+ifeq ($(TARGET_OS), cygwin)
+#
+# .exe rule for Cygwin
+#
+.SUFFIXES:	.exe
+.o.exe:
+	$(CCF) -o $* $(LDFLAGS) $(OBJECTS) $(LDLIBS)
+endif
+
+clean clobber :: $(SUBDIRS) $(PRO_SUBDIRS) $(SNIA_SUBDIRS)
+	rm -rf $(DIRT)
+	$(SUBDIRS_MAKERULE)
+
+clean-lbs clean-sgi realclean: clean
+	rm -f $(TOPDIR)/src/include/builddefs $(TOPDIR)/src/include/pcp.conf
+
+#
+# Never blow away subdirs
+#
+ifdef SUBDIRS
+.PRECIOUS: $(SUBDIRS)
+endif
+
+src-pcp : $(SRCFILES) $(SUBDIRS)
+	@test ! -z "$$SRC_ROOT" || ( echo '$$SRC_ROOT not set ... bozo!' ; echo "... generally unsafe to run make src-pcp outside the Makepkgs script"; exit 1 )
+	@test -z "$$DIR" && DIR="."; \
+	for f in `echo $^`; do \
+	    if test -d $$f ; then \
+		$(MAKEF) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
+	    else \
+		if [ -x $(TOPDIR)/tools/mangle-src ] ; then \
+		    $(TOPDIR)/tools/mangle-src $(TOPDIR)/$$SRC_ROOT $$DIR/$$f \
+			|| exit $$?; \
+		fi; \
+		$(ECHO) $$DIR/$$f; \
+	    fi; \
+	done
+
+endif
+
+$(_FORCE):
+
+# The depend target does not depend on any other targets (even though it
+# actually depends on CFILES and HFILES). This is because there are several
+# places where we generate header files (e.g. domain.h is generated for each
+# subdir below src/pmdas, and domain.h in turn depends on src/pmns/stdpmid,
+# which itself a generated file ...). As a result, you can't run make
+# depend after make clobber, because the generated files will be missing.
+# 
+# So running makedepend is for development use when you change a header
+# somewhere and you need to be sure everything that depends on that header
+# will be remade properly.
+
+.PHONY : depend $(_FORCE)
+
+depend : $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+	touch dep
+	$(MAKEDEPEND) -fdep -- $(CFLAGS) -- $(CFILES)
+
+#
+# include dep, but only if it exists
+-include dep
+
+# Support for bulding multiple versions of the same library
+ifneq ($(PCP_ALTLIBS),)
+$(PCP_ALTLIBS): 
+	rm -rf $@
+	mkdir $@
+	cp GNUlocaldefs.$@ $@/GNUlocaldefs
+	make -C src SLDEST=../$@ SLSRC=../src libsrc_symlinks
+endif
+
+libsrc_symlinks:
+	test -n "$(SLDEST)" -a -d $(SLDEST)
+	for f in $(SRCFILES); do \
+	    if [ -e $(SLDEST)/$$f -a ! -L $(SLDEST)/$$f ] ; then \
+		echo "$$f exists in $(SLDEST) and not a symlink"; exit 1; \
+	    fi; \
+	    rm -f $(SLDEST)/$$f; $(LN_S) $(SLSRC)/$$f $(SLDEST)/$$f || exit 1; \
+	done

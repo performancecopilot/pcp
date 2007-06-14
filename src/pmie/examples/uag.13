@@ -1,0 +1,51 @@
+// Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+// 
+// This program is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the
+// Free Software Foundation; either version 2 of the License, or (at your
+// option) any later version.
+// 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+// or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+// for more details.
+// 
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// 
+// Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+// Mountain View, CA 94043, USA, or: http://www.sgi.com
+//
+// nested quantification
+//
+
+Servers = ":moomba :gonzo";		// change as desired
+
+// read and write rate per disk per host
+//
+rd = disk.dev.read $Servers;
+wr = disk.dev.write $Servers;
+
+// one value per host, true if 20% or more of the disks are doing
+// significant reading or writing
+//
+rd_20 = 20%_inst disk.dev.read $Servers > 40;
+wr_20 = 20%_inst disk.dev.write $Servers > 40;
+
+// single truth value: more than 20% of the disks busy reading or writing
+//			on all hosts?
+//
+summary = all_host ( 
+		20%_inst disk.dev.read $Servers > 40 || 
+		20%_inst disk.dev.write $Servers > 40
+	    );
+
+// alternate form
+//
+summary2 = all_host (
+		20%_inst (
+		    disk.dev.read $Servers > 40 ||
+		    disk.dev.write $Servers > 40
+		)
+	  );

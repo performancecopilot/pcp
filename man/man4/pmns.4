@@ -1,0 +1,291 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmns.4,v 2.14 2004/06/24 07:16:01 kenmcd Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMNS 4 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMNS 4 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMNS 4 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMNS 4 "" "\&"
+.if \nX=3 .ds x} PMNS "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmns\f1 \- the performance metrics name space
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+.I $PCP_VAR_DIR/pmns
+.SH DESCRIPTION
+When using the Performance Metrics Programming Interface (PMAPI)
+of the Performance Co-Pilot (PCP),
+performance metrics are identified by an external name in a
+hierarchic Performance Metrics Name Space (PMNS), and an
+internal identifier, the Performance Metric Identifier (PMID).
+.PP
+A PMNS specifies the association between a metric's name and its PMID.
+.PP
+A PMNS is defined on one or more ASCII source files, that may be
+compiled using
+.BR pmnscomp (1)
+to produce a binary PMNS.
+Note that
+.BR pmnscomp (1)
+is normally invoked from the
+.I $PCP_VAR_DIR/pmns/Rebuild
+script if necessary when
+.BR pmcd (1)
+is started.
+.PP
+Loading of a PMNS is done by calling
+.BR pmLoadNameSpace (3)
+which silently tolerates either the ASCII or binary formats.
+Alternatively,
+.BR pmLoadASCIINameSpace (3)
+may be used to load just the ASCII format.
+.PP
+If the binary format is used, no checking is performed for aliasing
+in which multiple names in the PMNS are associated with a single
+PMID.
+If the ASCII format is to be used, duplicate PMIDs are not allowed,
+although
+.BR pmLoadASCIINameSpace (3)
+provides an alternative interface with user-defined control
+over the processing of duplicate PMIDs in an ASCII format PMNS.
+The external ASCII format for a PMNS conforms to the syntax
+and semantics described in the following sections.
+.PP
+There is one default PMNS in the files below
+.IR $PCP_VAR_DIR/pmns ,
+although users and application developers are free to
+create and use alternate PMNS's.
+For an example of this, see
+the PCP Tutorial in
+.IR $PCP_DEMOS_DIR/Tutorial .
+.PP
+Although an application can call 
+.BR pmLoadNameSpace (3),
+normally this is only done directly for the 
+.B \-n
+command line option where an explicit root PMNS file is specified.
+Since PCP version 2 uses a distributed PMNS (see below), 
+an application can extract PMNS information from a
+host's PMCD or an archive.  If the PMNS source
+(pmcd or archive) is version 1 (see
+.BR PCPIntro (1)),
+however, 
+then the local PMNS will be loaded using the path specified by the 
+environment variable
+.BR PMNS_DEFAULT .
+.SH DISTRIBUTED PMNS
+In PCP version 1, the PMNS functions in the API all operated on
+a PMNS loaded locally from a file. Since PCP version 2, however,
+PMNS functions may get the PMNS information remotely from a PMCD
+or directly from the meta data of an archive. We call this a
+distributed PMNS. It has the advantage
+that the PMNS should always match the source of the metrics.
+For example, in PCP version 1, if one wanted to access a remote PMCD 
+which had an agent
+installed which one didn't have installed locally, then the local
+PMNS had to be updated just for that agent. This is no longer the case.
+.PP
+In order to be compatible with version 1 PMCDs and version 1 archives
+(see
+.BR PCPIntro (1)),
+the local PMNS (\c
+.BR PMNS_DEFAULT )
+is automatically loaded as was done previously in PCP version 1.
+.PP
+From an API level, there has been minimal changes.
+The main change is that if an application wants to use the distributed PMNS
+then it should \f3not\f1 call
+.BR pmLoadNameSpace (3) 
+or
+.BR pmLoadASCIINameSpace (3).
+Doing so will load the local PMNS as specified above. Not calling these
+functions would previously (in PCP version 1) cause an error when trying
+to access the PMNS but now
+(in PCP version 2) it will force the PMNS functions to look at the metrics source for
+their information.
+.SH PROCESSING FRAMEWORK
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+The PMNS specification is initially passed through
+.BR cpp (1).
+This means the following facilities may be used in the specification
+.IP + 3n
+C-style comments
+.IP + 3n
+.CW #include
+directives
+.IP + 3n 
+.CW #define
+directives and macro substitution
+.IP + 3n 
+conditional processing via 
+.CW #if
+\&...
+.CW #endif ,
+etc.
+.PP
+When
+.BR cpp (1)
+is executed, the ``standard'' include directories are the current directory and
+.IR $PCP_VAR_DIR/pmns .
+.SH SYNTAX
+The general syntax for a non-leaf node in the PMNS is as follows
+.PP
+.ft CW
+.nf
+pathanme {
+	name      [pmid]
+	...
+}
+.fi
+.ft R
+.PP
+Where
+.CW pathname
+is the full pathname from the root of the PMNS to this non-leaf node,
+with each
+component in the pathname separated by a ``.''.
+The root node for the PMNS must have the special 
+name ``root'', but the common prefix ``root.'' must be omitted from
+all pathnames.
+Each component in the pathname must begin with an alphabetic character,
+and be followed by zero
+more characters drawn from the alphabetics, the digits and the underscore
+``_'') character.
+For alphabetic characters in a pathname component, upper and lower case are distinguished.
+.PP
+Non-leaf nodes in the PMNS may be defined in any order.
+.PP
+The descendent nodes are defined by the set of
+.CW names ,
+relative to the
+.CW pathname
+of their parent non-leaf node.  For the descendent nodes, leaf
+nodes have a
+.CW pmid
+specification, non-leaf nodes do not.  The syntax for
+the
+.CW pmid
+specification has been chosen to help manage the allocation of
+PMIDs across disjoint and autonomous domains
+of administration and implementation.  Each
+.CW pmid
+consists of 3 integer
+parts, separated by colons, e.g. 14:27:11.  This hierarchic numbering
+scheme is intended to mirror the implementation hierarchy of
+performance metric domain, metrics cluster (data structure or
+operational similarity) and individual metric.  In practice, the
+two leading components are likely to be macros in the PMNS specification
+source, and
+.BR cpp (1)
+will convert the macros to integers.  These macros for
+the initial components of the
+.CW pmid
+are likely to be defined either in
+a standard include file, e.g. \c
+.IR $PCP_VAR_DIR/pmns/stdpmid ,
+or in the current source file.
+.PP
+The current allocation of the high-order (PMD or domain) component
+of PMIDs is as follows.
+.TS
+box,center;
+c | c
+n | l.
+Range	Allocation
+_
+0	reserved
+_
+1-31	SGI internal
+_
+32-39	Oracle
+_
+40-47	Sybase
+_
+48-55	Informix
+_
+60	Linux
+_
+56-127	ISV Performance Metrics
+_
+128-254	End-user applications
+.TE
+.SH EXAMPLE
+.ft CW
+.nf
+#define IRIX 1
+root {
+    network
+    cpu
+}
+
+#define NETWORK 26
+network {
+    intrate	IRIX:NETWORK:1
+    packetrate
+}
+
+network.packetrate {
+    in		IRIX:NETWORK:35
+    out		IRIX:NETWORK:36
+}
+
+#define CPU 10
+cpu {
+    syscallrate	IRIX:CPU:10
+    util
+}
+
+#define USER 20
+#define KERNEL 21
+#define IDLE 22
+
+cpu.util {
+    user	IRIX:CPU:USER
+    sys		IRIX:CPU:KERNEL
+    idle	IRIX:CPU:IDLE
+}
+.fi
+.ft R
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmnscomp (1),
+.BR PCPIntro (3),
+.BR PMAPI (3),
+.BR pmErrStr (3),
+.BR pmGetConfig (3),
+.BR pmLoadASCIINameSpace (3),
+.BR pmLoadNameSpace (3),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).

@@ -1,0 +1,9 @@
+#pmchart
+Version 2.0 host dynamic
+
+Chart Title "Apache Hit Rate" Style plot
+	Plot Color #-cycle Host * Metric apache.requests_per_sec
+Chart Title "Apache Data Rate" Style plot
+	Plot Color #-cycle Host * Metric apache.bytes_per_sec
+#
+# Created Fri Jun 10 05:16:55 2005

@@ -1,0 +1,345 @@
+/*
+ * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ * 
+ * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+ * Mountain View, CA 94043, USA, or: http://www.sgi.com
+ */
+
+/***********************************************************************
+ * skeleton: act.sk - actions
+ *
+ ***********************************************************************/
+/* $Id: act.sk,v 1.8 2007/02/20 00:13:43 kimbrr Exp $ */
+
+/*
+ *  operator: actAnd
+ */
+void
+actAnd(Expr *x)
+{
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+
+    EVALARG(arg1)
+    EVALARG(arg2)
+    *(Truth *)x->ring = (*(Truth *)arg1->ring == TRUE) && (*(Truth *)arg2->ring == TRUE);
+}
+
+
+/*
+ *  operator: actOr
+ */
+void
+actOr(Expr *x)
+{
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+
+    EVALARG(arg1)
+    if (*(Truth *)arg1->ring == FALSE) {
+	EVALARG(arg2)
+	*(Truth *)x->ring = *(Truth *)arg2->ring;
+    }
+    else *(Truth *)x->ring = TRUE;
+}
+
+
+/*
+ *  operator: actShell
+ */
+void
+actShell(Expr *x)
+{
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+    pid_t   pid;
+    int	    sts;
+
+    if ((arg2 == NULL) ||
+	(x->smpls[0].stamp == 0) ||
+	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
+    {
+	EVALARG(arg1)
+	fflush(stdout);
+	fflush(stderr);
+	pid = fork();
+	if (pid == 0) {
+	    /* child, run the command */
+	    setsid();
+	    putenv("PATH=/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin");
+	    putenv("IFS=\t\n");
+	    sts = system((char *)arg1->ring);
+	    _exit(WEXITSTATUS(sts));	/* avoid atexit() handler */
+	}
+	else if (pid > 0) {
+	    /* parent, wait for child to exit to catch status */
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "actShell: fork: pid=%d\n", (int)pid);
+	    }
+#endif
+	    sts = waitpid(pid, &x->valid, 0);
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "actShell: wait: pid=%d status=0x%x", (int)pid, x->valid);
+		if (WIFEXITED(x->valid))
+		    fprintf(stderr, " exit=%d", WEXITSTATUS(x->valid));
+		if (WIFSIGNALED(x->valid))
+		    fprintf(stderr, " signal=%d", WTERMSIG(x->valid));
+		fprintf(stderr, " (wait returns %d)\n", sts);
+	    }
+#endif
+	    if (WIFEXITED(x->valid))
+		x->valid = WEXITSTATUS(x->valid);
+	    else
+		/* if no exit, then assume non-zero exit, hence failure! */
+		x->valid = 1;
+	    if (sts < 0 || x->valid != 0)
+		*(Truth *)x->ring = FALSE;
+	    else
+		*(Truth *)x->ring = TRUE;
+	    x->smpls[0].stamp = now;
+	}
+	else {
+	    __pmNotifyErr(LOG_ERR, "fork for shell failed\n");
+	    *(Truth *)x->ring = FALSE;
+	}
+	perf->actions++;
+    }
+}
+
+
+/*
+ *  operator: actAlarm
+ */
+void
+actAlarm(Expr *x)
+{
+    static char *alarmv[] = {
+	NULL,			/* need path to xconfirm(1) here */
+	    "-header", "Performance Co-Pilot Alarm",
+	    "-b", "Cancel",
+	    "-icon", "warning",
+	    "-t", NULL,
+	    "-t", NULL,
+	    NULL};
+
+    char    ctime[26];
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+    time_t  clock;
+    int     sts;
+
+    if (alarmv[0] == NULL) {
+	    /*
+	     * one trip to get path for xconfirm(1)
+	     */
+	    alarmv[0] = pmGetConfig("PCP_XCONFIRM_PROG");
+	    if (strcmp(alarmv[0], "") == 0) {
+		__pmNotifyErr(LOG_ERR, "path to xconfirm(1) for alarm not found, using echo(1)\n");
+		alarmv[0] = "/bin/echo";
+	    }
+    }
+
+    /* if old alarm still active, don't post new one */
+    if (x->valid != 0) {
+	pid_t   pid;
+	pid = waitpid((pid_t)x->valid, &sts, WNOHANG);
+	if (pid <= 0) {
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "actAlarm: wait: pid=%d not done (wait returns %d)\n", x->valid, (int)pid);
+	    }
+#endif
+	    return;
+	}
+#if PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL2) {
+	    fprintf(stderr, "actAlarm: wait: pid=%d done status=0x%x", x->valid, sts);
+	    if (WIFEXITED(sts))
+		fprintf(stderr, " exit=%d", WEXITSTATUS(sts));
+	    if (WIFSIGNALED(sts))
+		fprintf(stderr, " signal=%d", WTERMSIG(sts));
+	    fprintf(stderr, " (wait returns %d)\n", (int)pid);
+	}
+#endif
+	x->valid = 0;
+    }
+
+    if ((arg2 == NULL) ||
+	(x->smpls[0].stamp == 0) ||
+	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
+    {
+	EVALARG(arg1)
+	clock = (time_t)(now+0.5);
+	pmCtime(&clock, ctime);
+	sts = fork();
+	if (sts == 0) {
+	    alarmv[8] = ctime;
+	    alarmv[10] = (char *)arg1->ring;
+	    setsid();
+	    if (strcmp(alarmv[0], "/bin/echo") != 0) {
+		/* only echo needs stdio, when xconfirm cannot be found */
+		fclose(stdin);
+		fclose(stdout);
+		fclose(stderr);
+	    }
+	    execvp(alarmv[0], alarmv);
+	    _exit(1);	/* avoid atexit() handler */
+	}
+	else if (sts > 0) {
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "actAlarm: fork: pid=%d\n", sts);
+	    }
+#endif
+	    x->valid = sts;
+	    *(Truth *)x->ring = TRUE;
+	    x->smpls[0].stamp = now;
+	    perf->actions++;
+	}
+	else {
+	    __pmNotifyErr(LOG_ERR, "fork for alarm failed\n");
+	    *(Truth *)x->ring = FALSE;
+	}
+    }
+}
+
+
+/*
+ *  operator: actSyslog
+ */
+void
+actSyslog(Expr *x)
+{
+    Expr	*arg1 = x->arg1;
+    Expr	*arg2 = x->arg2;
+    int		*pri;
+    char	*tag;
+
+    if ((arg2 == NULL) ||
+	(x->smpls[0].stamp == 0) ||
+	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
+    {
+	pri = (int *)arg1->arg2->ring;
+	tag = &((char *)arg1->arg2->ring)[sizeof(int)];
+	EVALARG(arg1)
+	openlog(tag, LOG_PID|LOG_CONS, LOG_DAEMON);
+	if (arg1->ring == NULL)
+	    syslog(*pri, "%s",  "");
+	else
+	    syslog(*pri, "%s", (char *)arg1->ring);
+	closelog();
+	*(Truth *)x->ring = TRUE;
+	x->smpls[0].stamp = now;
+	perf->actions++;
+    }
+}
+
+
+/*
+ *  operator: actPrint
+ */
+void
+actPrint(Expr *x)
+{
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+    time_t  clock = (time_t)now;
+    char    bfr[26];
+
+    if ((arg2 == NULL) ||
+	(x->smpls[0].stamp == 0) ||
+	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
+    {
+	EVALARG(arg1)
+	*(Truth *)x->ring = TRUE;
+	x->smpls[0].stamp = now;
+	pmCtime(&clock, bfr);
+	bfr[24] = '\0';
+	printf("%s: %s\n", bfr, (char *)arg1->ring);
+	fflush(stdout);
+	perf->actions++;
+    }
+}
+
+
+/*
+ * fake actions for archive mode
+ */
+void
+actArg(Expr *x)
+{
+    Expr    *sp = x->arg1;
+    char    *string = (char *)0;
+    size_t  length = 0;
+
+    for (sp = x->arg1; sp != NULL; sp = sp->arg1)
+	length = formatSatisfyingValue((char *)sp->ring, length, &string);
+
+    newStringBfr(x, length, string);
+}
+
+
+/*
+ *  operator: actStomp
+ */
+void
+actStomp(Expr *x)
+{
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+
+    if ((arg2 == NULL) ||
+	(x->smpls[0].stamp == 0) ||
+	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
+    {
+	EVALARG(arg1)
+	x->smpls[0].stamp = now;
+	if (stompSend((const char *)arg1->ring) != 0)
+	    *(Truth *)x->ring = FALSE;
+	else
+	    *(Truth *)x->ring = TRUE;
+	perf->actions++;
+    }
+}
+
+
+/*
+ * fake actions for archive mode
+ */
+void
+actFake(Expr *x)
+{
+    Expr    *arg1 = x->arg1;
+    Expr    *arg2 = x->arg2;
+    time_t  clock = (time_t)now;
+    char    bfr[26];
+
+    if ((arg2 == NULL) ||
+	(x->smpls[0].stamp == 0) ||
+	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
+    {
+	EVALARG(arg1)
+	*(Truth *)x->ring = TRUE;
+	x->smpls[0].stamp = now;
+	pmCtime(&clock, bfr);
+	bfr[24] = '\0';
+	printf("%s %s: %s\n", opStrings(x->op), bfr, (char *)arg1->ring);
+    }
+}
+

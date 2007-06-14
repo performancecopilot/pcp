@@ -1,0 +1,78 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMDADESC 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMDADESC 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMDADESC 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMDADESC 3 "" "\&"
+.if \nX=3 .ds x} PMDADESC "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmdaDesc\f1 \- get the description of a metric from a PMDA
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+int pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmdaDesc
+uses the standard 
+.BR PMDA (3)
+data structures to return the
+.B pmDesc
+description in
+.I desc
+for the metric identified by
+.IR pmid .
+.SH DIAGNOSTICS
+If the 
+.I pmid
+does not correspond to any metric supported by this PMDA,
+.B pmdaDesc
+returns 
+.BR PM_ERR_PMID .
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_INTERFACE_2 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3)
+and
+.BR pmLookupDesc (3).

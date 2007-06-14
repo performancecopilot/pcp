@@ -1,0 +1,389 @@
+/*
+ * Mailq PMDA
+ *
+ * Copyright (c) 1997-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ * 
+ * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+ * Mountain View, CA 94043, USA, or: http://www.sgi.com
+ */
+
+#ident "$Id: mailq.c,v 1.16 2006/06/30 05:47:11 makc Exp $"
+
+#include <stdio.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/times.h>
+#include <sys/stat.h>
+#include <syslog.h>
+#include "pmapi.h"
+#include "impl.h"
+#include "pmda.h"
+#include "./domain.h"
+
+#ifdef IS_SOLARIS
+#if defined(HAVE_CONST_DIRENT)
+#define MYDIRENT const struct dirent
+#else
+#define MYDIRENT struct dirent
+#endif
+extern int scandir(const char *, struct dirent ***, int(*)(MYDIRENT *), int(*)(MYDIRENT **, MYDIRENT **)); 
+#endif
+
+/*
+ * histogram for binning messages based on queue time
+ */
+typedef struct {
+    long	count;		/* number in this bin */
+    time_t	delay;		/* in queue for at least this long (seconds) */
+} histo_t;
+
+static histo_t	*histo = NULL;
+static int	numhisto = 0;
+static int	queue;
+
+/*
+ * list of instances - indexes must match histo[] above
+ */
+static pmdaInstid *_delay;
+
+static char	*queuedir = "/var/spool/mqueue";
+
+/*
+ * list of instance domains
+ */
+static pmdaIndom indomtab[] = {
+#define DELAY_INDOM	0
+    { DELAY_INDOM, 0, NULL },
+};
+
+/*
+ * all metrics supported in this PMDA - one table entry for each
+ */
+static pmdaMetric metrictab[] = {
+/* length */
+    { NULL, 
+      { PMDA_PMID(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* deferred */
+    { NULL, 
+      { PMDA_PMID(0,1), PM_TYPE_U32, DELAY_INDOM, PM_SEM_INSTANT, 
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+};
+
+static int compar(const void *a, const void *b)
+{
+    histo_t	*ha = (histo_t *)a;
+    histo_t	*hb = (histo_t *)b;
+
+    return hb->delay - ha->delay;
+}
+
+/*
+ * callback provided to pmdaFetch
+ */
+static int
+mailq_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
+{
+    __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    int		b;
+
+    if (idp->cluster == 0) {
+	if (idp->item == 0) {			/* mailq.length */
+	    if (inst == PM_IN_NULL)
+		atom->ul = queue;
+	    else
+		return PM_ERR_INST;
+	}
+	else if (idp->item == 1) {		/* mailq.deferred */
+	    /* inst is unsigned, so always >= 0 */
+	    for (b = 0; b < numhisto; b++) {
+		if (histo[b].delay == inst) break;
+	    }
+	    if (b < numhisto)
+	    	atom->ul = histo[b].count;
+	    else
+		return PM_ERR_INST;
+	}
+	else
+	    return PM_ERR_PMID;
+    }
+    else
+	return PM_ERR_PMID;
+
+    return 0;
+}
+
+/*
+ * wrapper for pmdaFetch which refreshes the metrics
+ */
+static int
+mailq_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+{
+    static int		warn = 0;
+    int			num;
+    int			i;
+    int			b;
+    struct stat		sbuf;
+    time_t		now;
+    static time_t	last_refresh = 0;
+    time_t		waiting;
+    char		*p;
+    struct dirent 	**list;
+    extern int		errno;
+
+    time(&now);
+
+    /* clip refresh rate to at most once per 30 seconds */
+    if (now - last_refresh > 30) {
+	last_refresh = now;
+
+	queue = 0;
+	for (b = 0; b < numhisto; b++)
+	    histo[b].count = 0;
+
+	if (chdir(queuedir) < 0) {
+	    if (warn == 0) {
+		__pmNotifyErr(LOG_ERR, "chdir(\"%s\") failed: %s\n",
+		    queuedir, strerror(errno));
+		warn = 1;
+	    }
+	}
+	else {
+	    if (warn == 1) {
+		__pmNotifyErr(LOG_INFO, "chdir(\"%s\") success\n", queuedir);
+		warn = 0;
+	    }
+
+	    num = scandir(".", &list, NULL, NULL);
+
+	    for (i = 0; i < num; i++) {
+		p = list[i]->d_name;
+		if (*p == 'd' && *(p+1) == 'f') {
+		    if (stat(p, &sbuf) != 0) {
+			/*
+			 * ENOENT expected sometimes if sendmail is doing its job
+			 */
+			if (errno != ENOENT)
+			    fprintf(stderr, "stat(\"%s\"): %s\n", p, strerror(errno));
+		    }
+		    else if (sbuf.st_size > 0) {
+			/* really in the queue */
+#if defined(HAVE_ST_MTIME_WITH_E)
+			waiting = now - sbuf.st_mtime;
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
+			waiting = now - sbuf.st_mtimespec.tv_sec;
+#else
+			waiting = now - sbuf.st_mtim.tv_sec;
+#endif
+			for (b = 0; b < numhisto; b++) {
+			    if (waiting >= histo[b].delay) {
+				histo[b].count++;
+				break;
+			    }
+			}
+			queue++;
+		    }
+		}
+		free(list[i]);
+	    }
+	    free(list);
+	}
+    }
+
+    return pmdaFetch(numpmid, pmidlist, resp, pmda);
+}
+
+/*
+ * Initialise the agent (daemon only).
+ */
+void 
+mailq_init(pmdaInterface *dp)
+{
+    if (dp->status != 0)
+	return;
+
+    dp->version.two.fetch = mailq_fetch;
+
+    pmdaSetFetchCallBack(dp, mailq_fetchCallBack);
+
+    pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), metrictab,
+	     sizeof(metrictab)/sizeof(metrictab[0]));
+}
+
+static void
+usage(void)
+{
+    fprintf(stderr, "Usage: %s [options] [queuedir]\n\n", pmProgname);
+    fputs("Options:\n"
+	  "  -b binlist   times to be used for histogram bins as comma\n"
+	  "               separated values in pmParseInterval(3) format\n"
+	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
+	  "  -l logfile   write log into logfile rather than using default log name\n",
+	  stderr);		
+    exit(1);
+}
+
+/*
+ * Set up the agent if running as a daemon.
+ */
+int
+main(int argc, char **argv)
+{
+    int			err = 0;
+    int			c;
+    int			sts;
+    int			i;
+    time_t		tmp;
+    pmdaInterface	dispatch;
+    char		*p;
+    char		*q;
+    char		*errmsg;
+    char		namebuf[30];
+    struct timeval	tv;
+    char		mypath[MAXPATHLEN];
+    extern int		optind;
+
+    /* trim cmd name of leading directory components */
+    pmProgname = argv[0];
+    for (p = pmProgname; *p; p++) {
+	if (*p == '/')
+	    pmProgname = p+1;
+    }
+
+    snprintf(mypath, sizeof(mypath),
+		"%s/mailq/help", pmGetConfig("PCP_PMDAS_DIR"));
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, MAILQ,
+		"mailq.log", mypath);
+
+    while ((c = pmdaGetOpt(argc, argv, "b:D:d:l:?", &dispatch, &err)) != EOF) {
+	switch (c) {
+	    case 'b':
+			q = strtok(optarg, ",");
+			while (q != NULL) {
+			    sts = pmParseInterval((const char *)q, &tv, &errmsg);
+			    if (sts < 0) {
+				fprintf(stderr, "%s: bad -b argument:\n%s\n",
+				    pmProgname, errmsg);
+				err++;
+			    }
+			    numhisto++;
+			    histo = (histo_t *)realloc(histo, numhisto * sizeof(histo[0]));
+			    if (histo == NULL) {
+				 __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
+				 /*NOTREACHED*/
+			    }
+			    histo[numhisto-1].delay = tv.tv_sec;
+			    q = strtok(NULL, ",");
+			}
+			break;
+	    default:
+			err++;
+			break;
+	}
+    }
+
+    if (optind == argc-1)
+	queuedir = argv[optind];
+    else if (optind != argc)
+	err++;
+
+    if (err) {
+    	usage();
+	/*NOTREACHED*/
+    }
+
+    if (histo == NULL) {
+	/* default histo bins, if not already done above ... */
+	numhisto = 7;
+	histo = (histo_t *)malloc(numhisto * sizeof(histo[0]));
+	if (histo == NULL) {
+	     __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
+	     /*NOTREACHED*/
+	}
+	histo[0].delay = 7 * 24 * 3600;
+	histo[1].delay = 3 * 24 * 3600;
+	histo[2].delay = 24 * 3600;
+	histo[3].delay = 8 * 3600;
+	histo[4].delay = 4 * 3600;
+	histo[5].delay = 1 * 3600;
+	histo[6].delay = 0;
+    }
+    else {
+	/* need to add last one and sort on descending time */
+	numhisto++;
+	histo = (histo_t *)realloc(histo, numhisto * sizeof(histo[0]));
+	if (histo == NULL) {
+	     __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
+	     /*NOTREACHED*/
+	}
+	histo[numhisto-1].delay = 0;
+	qsort(histo, numhisto, sizeof(histo[0]), compar);
+    }
+
+    _delay = (pmdaInstid *)malloc(numhisto * sizeof(_delay[0]));
+    if (_delay == NULL) {
+	 __pmNoMem("_delay", numhisto * sizeof(_delay[0]), PM_FATAL_ERR);
+	 /*NOTREACHED*/
+    }
+    for (i = 0; i < numhisto; i++) {
+	_delay[i].i_inst = histo[i].delay;
+	histo[i].count = 0;
+	if (histo[i].delay == 0)
+	    sprintf(namebuf, "recent");
+	else if (histo[i].delay < 60)
+	    sprintf(namebuf, "%d-secs", (int)histo[i].delay);
+	else if (histo[i].delay < 60 * 60) {
+	    tmp = histo[i].delay / 60;
+	    if (tmp <= 1)
+		sprintf(namebuf, "1-min");
+	    else
+		sprintf(namebuf, "%d-mins", (int)tmp);
+	}
+	else if (histo[i].delay < 24 * 60 * 60) {
+	    tmp = histo[i].delay / (60 * 60);
+	    if (tmp <= 1)
+		sprintf(namebuf, "1-hour");
+	    else
+		sprintf(namebuf, "%d-hours", (int)tmp);
+	}
+	else {
+	    tmp = histo[i].delay / (24 * 60 * 60);
+	    if (tmp <= 1)
+		sprintf(namebuf, "1-day");
+	    else
+		sprintf(namebuf, "%d-days", (int)tmp);
+	}
+	_delay[i].i_name = strdup(namebuf);
+	if (_delay[i].i_name == NULL) {
+	     __pmNoMem("_delay[i].i_name", strlen(namebuf), PM_FATAL_ERR);
+	     /*NOTREACHED*/
+	}
+    }
+
+    indomtab[DELAY_INDOM].it_numinst = numhisto;
+    indomtab[DELAY_INDOM].it_set = _delay;
+
+    pmdaOpenLog(&dispatch);
+    mailq_init(&dispatch);
+    pmdaConnect(&dispatch);
+    pmdaMain(&dispatch);
+
+    exit(0);
+    /*NOTREACHED*/
+}

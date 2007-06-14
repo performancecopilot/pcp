@@ -1,0 +1,158 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMDAINSTANCE 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMDAINSTANCE 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMDAINSTANCE 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMDAINSTANCE 3 "" "\&"
+.if \nX=3 .ds x} PMDAINSTANCE "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmdaInstance\f1 \- return instance descriptions for a PMDA
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+int pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmdaInstance
+uses the standard
+.BR PMDA (3)
+data structures to return information concerning the instance domain
+.IR indom .
+.PP
+The
+.I result
+structure is constructed by
+.B pmdaInstance
+and will contain one or more instance names and/or identifiers as specified by
+the 
+.I inst
+and
+.I name
+arguments.
+.PP
+If 
+.I inst
+has the value 
+.B PM_IN_NULL
+and 
+.I name
+is a null string,
+.I result
+will contain all the instances names and identifiers in the instance domain.
+.PP
+If
+.I inst
+is 
+.B PM_IN_NULL
+but
+.I name
+is the name of an instance in the instance domain
+.IR indom ,
+then
+.I result
+will contain the instance identifier for instance
+.IR name .
+Note that if 
+.I name 
+contains no spaces, partial matching up to the first space in the
+instance name is performed, i.e. 
+.RB `` 1 ''
+will match instance name 
+.RB `` 1
+.BR minute ''.
+If 
+.I name
+contains an embedded space, then no partical matching is performed and 
+.I name
+should match one of the instance names exactly.
+.PP
+If 
+.I name
+is a null string but
+.I inst
+is an instance identifier in the instance domain
+.IR indom ,
+then
+.I result
+will contain the name for instance
+.IR inst .
+The
+.I result
+structure is allocated with
+.BR malloc (3)
+and should be released by the caller with
+.BR free (3).
+.SH DIAGNOSTICS
+If any errors occur during the execution of
+.BR pmdaInstance ,
+the
+.I result
+structure is deallocated.  If the instance domain
+.I indom
+is not supported by the PMDA, 
+.B pmdaInstance
+will return
+.BR PM_ERR_INDOM .
+.PP
+If the
+.I inst
+or
+.I name
+does not correspond to any instances in the 
+.I indom
+domain, 
+.B pmdaInstance
+will return
+.BR PM_ERR_INST .
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_INTERFACE_2 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.PP
+Because of optional partial matching up to the first space in the instance 
+name, the
+.B PMDA
+developer should ensure that if instance names are allowed to have
+spaces, the names are unique up to the first space.
+.SH SEE ALSO
+.BR malloc (3),
+.BR PMAPI (3),
+.BR PMDA (3)
+and
+.BR pmGetInDom (3).

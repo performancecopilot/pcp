@@ -1,0 +1,90 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMOPENLOG 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMOPENLOG 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMOPENLOG 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMOPENLOG 3 "" "\&"
+.if \nX=3 .ds x} PMOPENLOG "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3__pmOpenLog\f1 \- create a log file for diagnostics and debug output
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+FILE *__pmOpenLog(const char *progname, const char *logname, FILE *oldstream, int *status)
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B __pmOpenLog
+reassigns the standard I/O stream
+.I oldstream
+to be associated with the file
+.IR logname .
+If it already exists,
+.I logname
+will be removed and recreated if possible (to ensure correct ownership
+and permissions from the caller to
+.BR __pmOpenLog ).
+.PP
+On return, the function value is the new standard I/O stream.  In the
+event of an error, this will be
+.I oldstream
+unchanged and
+.I status
+will be 1.
+.PP
+For success,
+.I status
+is 0, a standard preamble is written to
+.I logname
+.ti +0.5i
+.ft B
+Log for \fIprogname\fB on \fIhostname\fB started \fIdate and time\fB
+.ft R
+.br
+and an
+.BR atexit (3)
+handler is installed to write the postscript message to
+.I logname
+.ti +0.5i
+.ft B
+Log finished \fIdate and time\fB
+.ft R
+.br
+when the processes exits.
+.PP
+.I progname
+is only used to annotate messages.
+.SH SEE ALSO
+.BR atexit (3)
+and
+.BR freopen (3).

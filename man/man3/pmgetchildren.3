@@ -1,0 +1,171 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmgetchildren.3,v 2.13 2006/06/23 10:41:28 makc Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMGETCHILDREN 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMGETCHILDREN 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMGETCHILDREN 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMGETCHILDREN 3 "" "\&"
+.if \nX=3 .ds x} PMGETCHILDREN "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmGetChildren\f1,
+\f3pmRequestNamesOfChildren\f1,
+\f3pmReceiveNamesOfChildren\f1 \- return the descendent nodes of a PMNS node
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmGetChildren(const char *name, char ***offspring)
+int pmRequestNamesOfChildren(int ctx, const char *name, int wantstatus)
+int pmReceiveNamesOfChildren(int ctx, char ***offspring, int **status)
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+Given a fully qualified pathname to a node in the current Performance
+Metrics Name Space (PMNS), as identified by
+.IR name ,
+.B pmGetChildren
+returns via
+.I offspring
+a list of the relative names of
+all of the immediate descendent nodes of
+.I name
+in the current PMNS.
+.PP
+As a
+special case, if
+.I name
+is an empty string (i.e.\f3""\f1), the immediate descendents of
+the root node in the PMNS will be returned.
+.PP 
+Normally,
+.B pmGetChildren
+will return the number of descendent names discovered, else a value
+less than zero for an error.
+The value zero indicates that
+.I name
+is a valid metric name, i.e. is associated with a leaf node in the PMNS.
+.PP
+The resulting list of pointers
+.I offspring
+.B and
+the values
+(the relative names) that the pointers reference will have been
+allocated by
+.B pmGetChildren
+with a single call to
+.BR malloc (3C),
+and it is the
+responsibility of the
+.B pmGetChildren
+caller to
+.BR free (\c
+.IR offspring )
+to release the space
+when it is no longer required.
+.PP
+When an error occurs, or
+.I name 
+is a leaf node (i.e. the result of
+.B pmGetChildren
+is less than one),
+.I offspring
+is undefined (no space will have been
+allocated, and so calling
+.BR free (3C)
+is a singularly bad idea).
+.PP
+\f3pmRequestNamesOfChildren\fP and \f3pmReceiveNamesOfChildren\fP are used
+by applications which must  communicate with the PMCD asynchronously.
+These functions take explict context handle \f2ctx\fP which must refer
+to a host context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
+\f3pmNewContext\fP). \f3pmRequestNamesOfChildren\fP sends request to PMCD
+to enumerate names of the children of PMNS node and returns without 
+waiting for the response, \f3pmReceiveNamesOfChildren\fP reads reply from PMCD.
+It is the responsibility of the application to make sure the data are
+ready before calling \f3pmReceiveNamesOfChildren\f1 to avoid blocking.
+.PP
+If in the call to \f3pmRequestNamesOfChildren\fP \f2wantstatus\fP was set
+to non-zero value then \f3pmReceiveNamesOfChildren\fP will return the
+status of each child via \f2status\fP. The status will refer to either
+a leaf node (with  value \f3PMNS_LEAF_STATUS\fP) or a non-leaf node
+(with   value \f3PMNS_NONLEAF_STATUS\fP), otherwise the \f2status\fP is
+undefined and should not be referenced.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+Values for these variables may be obtained programatically
+using the
+.BR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetChildrenStatus (3),
+.BR pmGetConfig (3),
+.BR pmLoadASCIINameSpace (3),
+.BR pmLoadNameSpace (3),
+.BR pmLookupName (3),
+.BR pmNameID (3),
+.BR pcp.conf (4),
+.BR pcp.env (4)
+and
+.BR pmns (4).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOPMNS\f1
+Failed to access a PMNS for operation.
+Note that if the application hasn't a priori called pmLoadNameSpace(3)
+and wants to use the distributed PMNS, then a call to
+.B pmGetChildren
+must be made inside a current context.
+.IP \f3PM_ERR_NAME\f1
+The pathname
+.I name
+is not valid in the current PMNS
+.IP \f3PM_ERR_*\f1
+Other diagnostics are for protocol failures when
+accessing the distributed PMNS.
+.IP \f3PM_ERR_CTXBUSY\f1
+Context is currently in use by another asynchronous call.

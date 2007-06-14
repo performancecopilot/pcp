@@ -1,0 +1,288 @@
+#
+# Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+
+# Common gmake macros for building
+#
+# @configure_input@
+#
+ifndef _BUILDDEFS_INCLUDED_
+_BUILDDEFS_INCLUDED_ = 1
+
+ifndef _PCP_CONF_INCLUDED_
+_PCP_CONF_INCLUDED_ = 1
+include $(TOPDIR)/src/include/pcp.conf
+endif
+
+# General package information
+PACKAGE_VERSION ?= @PACKAGE_VERSION@
+PACKAGE_MAJOR ?= @PACKAGE_MAJOR@
+PACKAGE_MINOR ?= @PACKAGE_MINOR@
+PACKAGE_REVISION ?= @PACKAGE_REVISION@
+PACKAGE_BUILD ?= @PACKAGE_BUILD@
+PACKAGE_NAME ?= pcp
+PACKAGE_DISTRIBUTION ?= None
+SGI_ISSP_BUILD ?= 0
+
+BUILDRULES=$(TOPDIR)/src/include/buildrules
+
+TARGET_OS = @target_os@
+TARGET_VENDOR = @target_vendor@
+TARGET_CPU = @target_cpu@
+
+BUILD_OS = @build_os@
+BUILD_VENDOR = @build_vendor@
+BUILD_CPU = @build_cpu@
+
+PACKAGE_BUILDER = @package_builder@
+
+# LCFLAGS, LLDFLAGS, LLDLIBS, LSRCFILES and LDIRT may be specified in
+# user Makefiles. Note: LSRCFILES is anything other than Makefile, $(CFILES)
+# $(CXXFILES), or $(HFILES) and is used to construct the manifest list
+# during the "dist" phase (packaging).
+
+# turn on all warnings by default
+WARN_OFF = -Wall
+
+PTHREAD_LIB=@ac_cv_pthread_lib@
+LIBPCP_ABIDIR ?= src
+PCP_LIBS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
+	   -L$(TOPDIR)/src/libpcp_pmda/$(LIBPCP_ABIDIR)
+
+# platform-specific CFLAGS, LDLIBS, and shared library extension
+PCFLAGS = -fpic -fno-strict-aliasing
+DSOSUFFIX = so
+EXECSUFFIX =
+PLDFLAGS =
+
+ifeq "$(TARGET_OS)" "irix"
+PCFLAGS =
+WARN_OFF =
+endif
+ifeq "$(TARGET_OS)" "darwin"
+PCFLAGS = -fPIC -no-cpp-precomp -fno-strict-aliasing 
+DSOSUFFIX = dylib
+CASE_INSENSITIVE_FS=1
+endif
+ifeq "$(TARGET_OS)" "cygwin"
+PCFLAGS = -fno-strict-aliasing
+DSOSUFFIX = dll
+EXECSUFFIX = .exe
+endif
+ifeq "$(TARGET_OS)" "interix"
+PCFLAGS = -fno-strict-aliasing -D_ALL_SOURCE
+endif
+ifeq "$(TARGET_OS)" "solaris"
+PLDLIBS = @solaris_libs@
+endif
+ifeq "$(TARGET_OS)" "aix"
+# -qsuppress=1506-218
+#	ignore #ident lines in the source
+# -qcpluscmt
+#	allow C++-style // as comment preamble
+# -brtl
+#       use run-time linker
+# -bnoipath
+#       do not use path to DSOs from the build, use default search path
+#       rules
+WARN_OFF = -qsuppress=1506-218
+PCFLAGS = -qcpluscmt
+PLDFLAGS = -brtl -bnoipath
+endif
+
+CFLAGS += $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -g -DPCP_DEBUG \
+	-DPCP_VERSION=\"$(PCP_VERSION)\" -D_GNU_SOURCE -I$(TOPDIR)/src/include 
+
+CXXFLAGS += $(PCFLAGS) $(LCXXFLAGS) $(LCPPFLAGS) \
+	    -g -DPCP_DEBUG -DPCP_VERSION=\"$(PCP_VERSION)\" \
+	    -Wno-deprecated -I$(TOPDIR)/src/include 
+
+LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
+
+SRCFILES= GNUmakefile $(HFILES) $(CFILES) $(CXXFILES) $(MFILES) \
+	$(LSRCFILES) $(LFILES) $(YFILES)
+
+LDLIBS = $(LLDLIBS) $(PLDLIBS)
+MAKEOPTS = --no-print-directory
+DIRT = $(LDIRT) dep dep.bak $(OBJECTS) $(CMDTARGET) $(LIBTARGET) \
+	$(STATICLIBTARGET) *.[1-9].gz
+
+OBJECTS = $(ASFILES:.s=.o) \
+          $(CXXFILES:.c++=.o) \
+          $(CFILES:.c=.o) \
+          $(FFILES:.f=.o) \
+          $(LFILES:.l=.o) \
+          $(YFILES:%.y=%.tab.o)
+
+MAKE	= @make@
+CC	= @cc@
+CXX	= @cxx@
+LD	= @ld@
+AWK	= @awk@
+SED	= @sed@
+CPP	= @cpp@
+INSTALL	= $(TOPDIR)/install-sh -o @pcp_owner@ -g @pcp_group@
+LEX	= @lex@
+YACC	= @yacc@
+ECHO	= @echo@
+LN_S	= @LN_S@
+GREP    = @grep@
+
+CCF	= $(CC) $(CFLAGS)
+MAKEF	= $(MAKE) $(MAKEOPTS)
+CXXF	= $(CXX) $(CXXFLAGS)
+LDF	= $(LD) $(LDFLAGS)
+MAKEDEPEND= @makedepend@
+
+ZIP	= @gzip@
+BZIP2	= @bzip2@
+TAR	= @tar@
+RPMPROG	= @rpmprog@
+PACKAGE_MAKER= @package_maker@
+RPMBUILD= @rpmbuild@
+RPM	= @rpm@
+RPM_VERSION = @rpm_version@
+GENDIST	= @gendist@
+DPKG	= @dpkg@
+GENPMDA	= $(TOPDIR)/src/genpmda/genpmda
+
+HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
+HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
+CPP_SIMPLE = @cpp_simple@
+CPP_SIMPLE_ARGS = @cpp_simple_args@
+ifeq "$(TARGET_OS)" "aix"
+CPP_SIMPLE_ARGS += -P
+endif
+RDYNAMIC_FLAG = @rdynamic_flag@
+
+#
+#
+# additional libraries needed for particular functions
+LIB_FOR_BASENAME = @lib_for_basename@
+LIB_FOR_DLOPEN = @lib_for_dlopen@
+LIB_FOR_MATH = @lib_for_math@
+
+SHELL = /bin/sh
+IMAGES_DIR = $(TOPDIR)/all-images
+DIST_DIR = $(TOPDIR)/dist
+
+# env vars to be set before you can run a PCP binary in the build
+# environment ... needed for tools like newhelp
+#
+# default, then special case for different platforms
+#
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LD_LIBRARY_PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LD_LIBRARY_PATH
+ifeq "$(TARGET_OS)" "darwin"
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf DYLD_LIBRARY_PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$DYLD_LIBRARY_PATH
+endif
+ifeq "$(TARGET_OS)" "aix"
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LIBPATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LIBPATH
+endif
+
+SUBDIRS_MAKERULE = \
+	@for d in `echo $^ `; do \
+	    if test -d "$$d" -a -f "$$d/GNUmakefile"; then \
+		$(ECHO) === $$d ===; \
+		$(MAKEF) -C $$d $@ || exit $$?; \
+	    fi; \
+	done
+
+MAN_MAKERULE = \
+    @for f in *.[12345678] ""; do \
+	if test ! -z "$$f"; then \
+	    $(ZIP) -c < $$f > $$f.gz; \
+	fi; \
+    done
+
+INSTALL_MAN = \
+    test -z "$$MAN_PAGES" && MAN_PAGES="$(MAN_PAGES)"; \
+    for d in `echo $$MAN_PAGES`; do \
+	first=true; \
+	base=`echo $$d | sed -e 's/\.[0-9]//g'`; \
+        cat $$d | $(AWK) ' \
+	    BEGIN			{ do_print=0; print "'"$$base"'"; } \
+	    $$1 == ".ds"		{ ds["\\\\\\*\\("$$2] = $$3; } \
+	    /^\.SH NAME/		{ do_print=1; next } \
+	    $$1 == ".SH" && do_print	{ do_print=0; next } \
+	    do_print			{ if (match($$0, "^\\\\f3.*\\\\f1")) { \
+					    gsub ("\\\\f3", "", $$0); \
+					    gsub ("\\\\f1.*", "", $$0); \
+					    for ( d in ds ) { \
+						sub (d, ds[d], $$0); \
+					    } \
+					    print; } }' | sort -u | \
+	while read m; do \
+	    [ -z "$$m" -o "$$m" = "\\" ] && continue; \
+	    t=$(MAN_DEST)/$$m.$(MAN_SECTION); \
+	    if $$first; then \
+		if $(HAVE_GZIPPED_MANPAGES) ; then \
+		    $(ZIP) -c $$d > $$d.gz; _sfx=.gz; \
+		fi; \
+		if $(HAVE_BZIP2ED_MANPAGES) ; then \
+		    $(BZIP2) -c $$d > $$d.bz2; _sfx=.bz2; \
+		fi; \
+		u=$$m.$(MAN_SECTION)$$_sfx; \
+		echo $(INSTALL) -m 644 $${d}$$_sfx $${t}$$_sfx; \
+		$(INSTALL) -m 644 $${d}$$_sfx $${t}$$_sfx; \
+	    else \
+		if test ! -z $(CASE_INSENSITIVE_FS) -a $(CASE_INSENSITIVE_FS); then \
+		    if test "`echo $$u | tr 'a-z' 'A-Z'`" != "`basename $${t}$$_sfx | tr 'a-z' 'A-Z'`"; then \
+			echo $(INSTALL) -S $$u $${t}$$_sfx; \
+			$(INSTALL) -S $$u $${t}$$_sfx; \
+		    fi \
+		else \
+		    echo $(INSTALL) -S $$u $${t}$$_sfx; \
+		    $(INSTALL) -S $$u $${t}$$_sfx; \
+		fi \
+	    fi; \
+	    first=false; \
+	done; \
+    done
+
+DIST_MAKERULE = \
+	$(MAKEF) -C build dist
+
+#
+# For tagets that should always be rebuilt,
+# define a target that is never up-to-date.
+# Targets needing this should depend on $(_FORCE)
+_FORCE = __force_build
+
+PCP_OWNER = @pcp_owner@
+PCP_GROUP = @pcp_group@
+
+ifdef PCP_ALTLIBS
+ifeq ($(PCP_LIB_DIR),$(PCP_LIB32_DIR))
+PCP_ALTLIBS =
+else
+ifneq "$(findstring $(MAKECMDGOALS),clean clobber src-pcp)" ""
+PCP_ALTLIBS = 
+endif
+endif
+endif
+
+
+PCP_X11_CFLAGS = @pcp_x11_incflags@
+PCP_X11_LDFLAGS = @pcp_x11_libflags@
+PCP_X11_EXTRALIBS = @pcp_x11_extra@
+PCP_X11_PRELIBS = @pcp_x11_pre@
+PCP_X11_APPDEFS_DIR = @pcp_x11_appdefs_dir@
+
+endif # _BUILDDEFS_INCLUDED_

@@ -1,0 +1,111 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\" 
+.\" $Id: pmatomstr.3,v 2.5 2002/11/12 23:30:09 kenmcd Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMATOMSTR 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMATOMSTR 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMATOMSTR 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMATOMSTR 3 "" "\&"
+.if \nX=3 .ds x} PMATOMSTR "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmAtomStr\f1 \- convert a performance metric value into a string
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+const char *pmAtomStr(const pmAtomValue *avp, int type)
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+All performance metric values may be encoded in a
+.CW pmAtomValue
+union, defined as follows;
+.PP
+.ft CW
+.nf
+.in +0.5i
+typedef union {
+    __int32_t    l;     /* 32-bit signed */
+    __uint32_t   ul;    /* 32-bit unsigned */
+    __int64_t    ll;    /* 64-bit signed */
+    __uint64_t   ull;   /* 64-bit unsigned */
+    float        f;     /* 32-bit floating point */
+    double       d;     /* 64-bit floating point */
+    char         *cp;   /* char ptr */
+    void         *vp;   /* void ptr */
+} pmAtomValue;
+.in
+.fi
+.ft 1
+.PP
+Given the performance metric value pointed to by
+.IR avp ,
+and a performance metric type defined by
+.IR type ,
+generate the corresponding metric value as a string,
+suitable for diagnostic or report output.
+.PP
+The value for
+.I type
+is typically extracted from a
+.CW pmDesc
+structure, following a call to
+.BR pmLookupDesc (3)
+for a particular performance metric.
+.PP
+If the
+.I type
+is
+.B PM_TYPE_STRING
+values longer than 38 characters will be truncated after 34 characters,
+and truncation shown with ellipsis ``...'' at the end of the value.
+.PP
+If the
+.I type
+is
+.B PM_TYPE_AGGREGATE
+only the first three 32-bit words are displayed as hexadecimal values.
+.PP
+The string value is held in a single static buffer, so
+the returned value is only valid until the next call
+to
+.BR pmAtomStr .
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmConvScale (3),
+.BR pmExtractValue (3),
+.BR pmLookupDesc (3),
+.BR pmPrintValue (3),
+.BR pmTypeStr (3)
+and
+.BR pmUnitsStr (3).

@@ -1,0 +1,28 @@
+# $Id: pmcd.options,v 1.1 2000/12/05 03:42:25 max Exp $
+# command-line options to pmcd, uncomment/edit lines as required
+
+# longer timeout delay for slow agents
+# -t 10
+
+# supress timeouts
+# -t 0
+
+# make log go someplace else
+# -l /some/place/else
+
+# debugging knobs, see pmdbg(1)
+# -D N
+# -f
+
+# Restricting incomming PDU size to prevent DOS attacks
+# -L 16384 
+
+# enable event tracing bit fields
+#   1	trace connections
+#   2	trace PDUs
+# 256	unbuffered tracing
+# -T 3
+
+# setting of environment variables for pmcd and
+# the PCP rc scripts. See pmcd(1) and PMAPI(3).
+# PMCD_WAIT_TIMEOUT=120

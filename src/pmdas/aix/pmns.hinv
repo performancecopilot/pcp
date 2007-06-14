@@ -1,0 +1,6 @@
+hinv {
+    ncpu	AIX:0:56
+    ncpu_cfg	AIX:0:38
+    ndisk	AIX:0:57
+    nnetif	AIX:0:58
+}

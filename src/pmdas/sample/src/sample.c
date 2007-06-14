@@ -1,0 +1,2120 @@
+/*
+ * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ * 
+ * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+ * Mountain View, CA 94043, USA, or: http://www.sgi.com
+ * 
+ */
+
+#ident "$Id: sample.c,v 2.63 2006/06/30 05:47:11 makc Exp $"
+
+#include <unistd.h>
+#include <stdio.h>
+#include <syslog.h>
+#include <errno.h>
+#include <sys/param.h>
+#include <sys/types.h>
+#include <time.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <limits.h>
+#include "pmapi.h"
+#include "impl.h"
+#include "pmda.h"
+#include "../domain.h"
+
+#ifdef HAVE_SYSINFO
+#if defined(sgi)
+#include <sys/sysmp.h>
+#include <sys/sysinfo.h>
+#elif defined(linux)
+#include <sys/sysinfo.h>
+#else
+bozo!  ... you claim to have sysinfo(), where is the .h file?
+#endif
+#else
+static struct sysinfo {
+    char	dummy[64];
+} si = { {
+'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 
+'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 
+'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 
+'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '9', '[', ']', '.' 
+} };
+#endif
+
+int	sample_done=0;	/* pending request to terminate, see sample_store() */
+int	need_mirage=0;	/* only do mirage glop is someone asks for it */
+int	need_dynamic=0;	/* only do dynamic glop is someone asks for it */
+
+extern int	errno;
+
+/* from pmda.c: simulate PMDA busy */
+extern int	limbo(void);
+
+/*
+ * all metrics supported in this PMD - one table entry for each
+ */
+
+static pmDesc	desctab[] = {
+/* control */
+    { PMDA_PMID(0,0), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* daemon-pid */
+    { PMDA_PMID(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* seconds */
+    { PMDA_PMID(0,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) },
+/* milliseconds */
+    { PMDA_PMID(0,3), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) },
+/* load */
+    { PMDA_PMID(0,4), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* colour */
+    { PMDA_PMID(0,5), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* bin */
+    { PMDA_PMID(0,6), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* drift */
+    { PMDA_PMID(0,7), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* step */
+    { PMDA_PMID(0,8), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* noinst */
+    { PMDA_PMID(0,9), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* long.one */
+    { PMDA_PMID(0,10), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* long.ten */
+    { PMDA_PMID(0,11), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* long.hundred */
+    { PMDA_PMID(0,12), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* long.million */
+    { PMDA_PMID(0,13), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* long.write_me */
+    { PMDA_PMID(0,14), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* float.one */
+    { PMDA_PMID(0,15), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* float.ten */
+    { PMDA_PMID(0,16), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* float.hundred */
+    { PMDA_PMID(0,17), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* float.million */
+    { PMDA_PMID(0,18), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* float.write_me */
+    { PMDA_PMID(0,19), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* longlong.one */
+    { PMDA_PMID(0,20), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* longlong.ten */
+    { PMDA_PMID(0,21), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* longlong.hundred */
+    { PMDA_PMID(0,22), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* longlong.million */
+    { PMDA_PMID(0,23), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* longlong.write_me */
+    { PMDA_PMID(0,24), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* double.one */
+    { PMDA_PMID(0,25), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* double.ten */
+    { PMDA_PMID(0,26), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* double.hundred */
+    { PMDA_PMID(0,27), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* double.million */
+    { PMDA_PMID(0,28), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* double.write_me */
+    { PMDA_PMID(0,29), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* string.null */
+    { PMDA_PMID(0,30), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* string.hullo */
+    { PMDA_PMID(0,31), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* string.write_me */
+    { PMDA_PMID(0,32), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* aggregate.null */
+    { PMDA_PMID(0,33), PM_TYPE_AGGREGATE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* aggregate.hullo */
+    { PMDA_PMID(0,34), PM_TYPE_AGGREGATE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* aggregate.write_me */
+    { PMDA_PMID(0,35), PM_TYPE_AGGREGATE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* write_me */
+    { PMDA_PMID(0,36), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,-1,1,0,PM_TIME_SEC,PM_COUNT_ONE) },
+/* mirage */
+    { PMDA_PMID(0,37), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,-1,0,PM_SPACE_KBYTE,PM_TIME_SEC,0) },
+/* mirage-longlong */
+    { PMDA_PMID(0,38), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_MSEC,0) },
+/* sysinfo */
+    { PMDA_PMID(0,39), PM_TYPE_AGGREGATE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pdu */
+    { PMDA_PMID(0,40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* recv-pdu */
+    { PMDA_PMID(0,41), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* xmit-pdu */
+    { PMDA_PMID(0,42), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* UNUSED  */
+    { PMDA_PMID(0,43), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* UNUSED */
+    { PMDA_PMID(0,44), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* UNUSED */
+    { PMDA_PMID(0,45), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* lights */
+    { PMDA_PMID(0,46), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* magnitude */
+    { PMDA_PMID(0,47), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* bucket - alias for bin, but different PMID */
+    { PMDA_PMID(0,48), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* needprofile - need explicit instance profile */
+    { PMDA_PMID(0,49), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* part_bin - bin, minus an instance or two */
+    { PMDA_PMID(0,50), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* bogus_bin - bin, plus an instance or two */
+    { PMDA_PMID(0,51), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* hordes.one */
+    { PMDA_PMID(0,52), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* hordes.two */
+    { PMDA_PMID(0,53), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* bad.unknown */
+    { PMDA_PMID(0,54), 0, 0, 0, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* bad.nosupport */
+    { PMDA_PMID(0,55), PM_TYPE_NOSUPPORT, PM_INDOM_NULL, 0, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* not_ready */
+    { PMDA_PMID(0,56), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* wrap.long */
+    { PMDA_PMID(0,57), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* wrap.ulong */
+    { PMDA_PMID(0,58), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* wrap.longlong */
+    { PMDA_PMID(0,59), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* wrap.ulonglong */
+    { PMDA_PMID(0,60), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* dodgey.control */
+    { PMDA_PMID(0,61), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* dodgey.value */
+    { PMDA_PMID(0,62), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* step_counter */
+    { PMDA_PMID(0,63), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* rapid */
+    { PMDA_PMID(0,64), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* scale_step.bytes_up */
+    { PMDA_PMID(0,65), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) },
+/* scale_step.bytes_down */
+    { PMDA_PMID(0,66), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) },
+/* scale_step.count_up */
+    { PMDA_PMID(0,67), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,-1,1,0,PM_TIME_SEC,PM_COUNT_ONE) },
+/* scale_step.count_down */
+    { PMDA_PMID(0,68), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* scale_step.time_up_secs */
+    { PMDA_PMID(0,69), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) },
+/* scale_step.time_up_nanosecs */
+    { PMDA_PMID(0,70), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) },
+/* scale_step.none_up */
+    { PMDA_PMID(0,71), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* const_rate.value */
+    { PMDA_PMID(0,72), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* const_rate.gradient */
+    { PMDA_PMID(0,73), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* error_code */
+    { PMDA_PMID(0,74), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* error_check */
+    { PMDA_PMID(0,75), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.dynamic.counter */
+    { PMDA_PMID(0,76), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* sample.dynamic.discrete */
+    { PMDA_PMID(0,77), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* sample.dynamic.instant */
+    { PMDA_PMID(0,78), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* sample.many.count */
+    { PMDA_PMID(0,79), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,0) },
+/* sample.many.int */
+    { PMDA_PMID(0,80), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,0) },
+/* sample.byte_ctr */
+    { PMDA_PMID(0,81), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) },
+/* sample.byte_rate */
+    { PMDA_PMID(0,82), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) },
+/* sample.kbyte_ctr */
+    { PMDA_PMID(0,83), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* sample.kbyte_rate */
+    { PMDA_PMID(0,84), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,-1,0,PM_SPACE_KBYTE,PM_TIME_SEC,0) },
+/* sample.byte_rate_per_hour */
+    { PMDA_PMID(0,85), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_HOUR,0) },
+/* sample.dynamic.meta.metric - pmDesc here is a fake, use magic */
+    { PMDA_PMID(0,86), 0, 0, 0, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.dynamic.meta.pmdesc.type */
+    { PMDA_PMID(0,87), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* sample.dynamic.meta.pmdesc.indom */
+    { PMDA_PMID(0,88), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* sample.dynamic.meta.pmdesc.sem */
+    { PMDA_PMID(0,89), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* sample.dynamic.meta.pmdesc.units */
+    { PMDA_PMID(0,90), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/* sample.datasize */
+    { PMDA_PMID(0,91), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* sample.bigid */
+    { PMDA_PMID(0,1023), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+
+/* End-of-List */
+    { PM_ID_NULL, 0, 0, 0, { 0, 0, 0, 0, 0, 0 } }
+};
+static int	direct_map = 1;
+static int	ndesc = sizeof(desctab)/sizeof(desctab[0]);
+
+static pmDesc magic = 
+    { PMDA_PMID(0,86), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) };
+
+typedef struct {
+    int		i_inst;
+    char	*i_name;
+} instid_t;
+
+typedef struct {
+    pmInDom	it_indom;
+    int		it_numinst;
+    instid_t	*it_set;
+} indom_t;
+
+static instid_t	_colour[] = {
+    { 0, "red" }, { 1, "green"}, { 2, "blue" }
+};
+
+static instid_t	_bin[] = {
+    { 100, "bin-100" }, { 200, "bin-200"}, { 300, "bin-300"},
+    { 400, "bin-400" }, { 500, "bin-500"}, { 600, "bin-600"},
+    { 700, "bin-700" }, { 800, "bin-800"}, { 900, "bin-900"}
+};
+
+static instid_t	_family[] = {
+    { 0, "colleen" }, { 1, "terry"}, { 2, "emma" }, { 3, "cathy" }, { 4, "fat bald bastard" }
+};
+
+static instid_t	_dodgey[] = {
+    { 1, NULL}, { 2, NULL }, { 3, NULL }, { 4, NULL }, { 5, NULL }
+};
+
+static instid_t _hordes[] = {
+    {  0, "0"}, {  1, "1"}, {  2, "2"}, {  3, "3"}, {  4, "4"},
+    {  5, "5"}, {  6, "6"}, {  7, "7"}, {  8, "8"}, {  9, "9"},
+    { 10, "10"}, { 11, "11"}, { 12, "12"}, { 13, "13"}, { 14, "14"},
+    { 15, "15"}, { 16, "16"}, { 17, "17"}, { 18, "18"}, { 19, "19"},
+    { 20, "20"}, { 21, "21"}, { 22, "22"}, { 23, "23"}, { 24, "24"},
+    { 25, "25"}, { 26, "26"}, { 27, "27"}, { 28, "28"}, { 29, "29"},
+    { 30, "30"}, { 31, "31"}, { 32, "32"}, { 33, "33"}, { 34, "34"},
+    { 35, "35"}, { 36, "36"}, { 37, "37"}, { 38, "38"}, { 39, "39"},
+    { 40, "40"}, { 41, "41"}, { 42, "42"}, { 43, "43"}, { 44, "44"},
+    { 45, "45"}, { 46, "46"}, { 47, "47"}, { 48, "48"}, { 49, "49"},
+    { 50, "50"}, { 51, "51"}, { 52, "52"}, { 53, "53"}, { 54, "54"},
+    { 55, "55"}, { 56, "56"}, { 57, "57"}, { 58, "58"}, { 59, "59"},
+    { 60, "60"}, { 61, "61"}, { 62, "62"}, { 63, "63"}, { 64, "64"},
+    { 65, "65"}, { 66, "66"}, { 67, "67"}, { 68, "68"}, { 69, "69"},
+    { 70, "70"}, { 71, "71"}, { 72, "72"}, { 73, "73"}, { 74, "74"},
+    { 75, "75"}, { 76, "76"}, { 77, "77"}, { 78, "78"}, { 79, "79"},
+    { 80, "80"}, { 81, "81"}, { 82, "82"}, { 83, "83"}, { 84, "84"},
+    { 85, "85"}, { 86, "86"}, { 87, "87"}, { 88, "88"}, { 89, "89"},
+    { 90, "90"}, { 91, "91"}, { 92, "92"}, { 93, "93"}, { 94, "94"},
+    { 95, "95"}, { 96, "96"}, { 97, "97"}, { 98, "98"}, { 99, "99"},
+    {100, "100"}, {101, "101"}, {102, "102"}, {103, "103"}, {104, "104"},
+    {105, "105"}, {106, "106"}, {107, "107"}, {108, "108"}, {109, "109"},
+    {110, "110"}, {111, "111"}, {112, "112"}, {113, "113"}, {114, "114"},
+    {115, "115"}, {116, "116"}, {117, "117"}, {118, "118"}, {119, "119"},
+    {120, "120"}, {121, "121"}, {122, "122"}, {123, "123"}, {124, "124"},
+    {125, "125"}, {126, "126"}, {127, "127"}, {128, "128"}, {129, "129"},
+    {130, "130"}, {131, "131"}, {132, "132"}, {133, "133"}, {134, "134"},
+    {135, "135"}, {136, "136"}, {137, "137"}, {138, "138"}, {139, "139"},
+    {140, "140"}, {141, "141"}, {142, "142"}, {143, "143"}, {144, "144"},
+    {145, "145"}, {146, "146"}, {147, "147"}, {148, "148"}, {149, "149"},
+    {150, "150"}, {151, "151"}, {152, "152"}, {153, "153"}, {154, "154"},
+    {155, "155"}, {156, "156"}, {157, "157"}, {158, "158"}, {159, "159"},
+    {160, "160"}, {161, "161"}, {162, "162"}, {163, "163"}, {164, "164"},
+    {165, "165"}, {166, "166"}, {167, "167"}, {168, "168"}, {169, "169"},
+    {170, "170"}, {171, "171"}, {172, "172"}, {173, "173"}, {174, "174"},
+    {175, "175"}, {176, "176"}, {177, "177"}, {178, "178"}, {179, "179"},
+    {180, "180"}, {181, "181"}, {182, "182"}, {183, "183"}, {184, "184"},
+    {185, "185"}, {186, "186"}, {187, "187"}, {188, "188"}, {189, "189"},
+    {190, "190"}, {191, "191"}, {192, "192"}, {193, "193"}, {194, "194"},
+    {195, "195"}, {196, "196"}, {197, "197"}, {198, "198"}, {199, "199"},
+    {200, "200"}, {201, "201"}, {202, "202"}, {203, "203"}, {204, "204"},
+    {205, "205"}, {206, "206"}, {207, "207"}, {208, "208"}, {209, "209"},
+    {210, "210"}, {211, "211"}, {212, "212"}, {213, "213"}, {214, "214"},
+    {215, "215"}, {216, "216"}, {217, "217"}, {218, "218"}, {219, "219"},
+    {220, "220"}, {221, "221"}, {222, "222"}, {223, "223"}, {224, "224"},
+    {225, "225"}, {226, "226"}, {227, "227"}, {228, "228"}, {229, "229"},
+    {230, "230"}, {231, "231"}, {232, "232"}, {233, "233"}, {234, "234"},
+    {235, "235"}, {236, "236"}, {237, "237"}, {238, "238"}, {239, "239"},
+    {240, "240"}, {241, "241"}, {242, "242"}, {243, "243"}, {244, "244"},
+    {245, "245"}, {246, "246"}, {247, "247"}, {248, "248"}, {249, "249"},
+    {250, "250"}, {251, "251"}, {252, "252"}, {253, "253"}, {254, "254"},
+    {255, "255"}, {256, "256"}, {257, "257"}, {258, "258"}, {259, "259"},
+    {260, "260"}, {261, "261"}, {262, "262"}, {263, "263"}, {264, "264"},
+    {265, "265"}, {266, "266"}, {267, "267"}, {268, "268"}, {269, "269"},
+    {270, "270"}, {271, "271"}, {272, "272"}, {273, "273"}, {274, "274"},
+    {275, "275"}, {276, "276"}, {277, "277"}, {278, "278"}, {279, "279"},
+    {280, "280"}, {281, "281"}, {282, "282"}, {283, "283"}, {284, "284"},
+    {285, "285"}, {286, "286"}, {287, "287"}, {288, "288"}, {289, "289"},
+    {290, "290"}, {291, "291"}, {292, "292"}, {293, "293"}, {294, "294"},
+    {295, "295"}, {296, "296"}, {297, "297"}, {298, "298"}, {299, "299"},
+    {300, "300"}, {301, "301"}, {302, "302"}, {303, "303"}, {304, "304"},
+    {305, "305"}, {306, "306"}, {307, "307"}, {308, "308"}, {309, "309"},
+    {310, "310"}, {311, "311"}, {312, "312"}, {313, "313"}, {314, "314"},
+    {315, "315"}, {316, "316"}, {317, "317"}, {318, "318"}, {319, "319"},
+    {320, "320"}, {321, "321"}, {322, "322"}, {323, "323"}, {324, "324"},
+    {325, "325"}, {326, "326"}, {327, "327"}, {328, "328"}, {329, "329"},
+    {330, "330"}, {331, "331"}, {332, "332"}, {333, "333"}, {334, "334"},
+    {335, "335"}, {336, "336"}, {337, "337"}, {338, "338"}, {339, "339"},
+    {340, "340"}, {341, "341"}, {342, "342"}, {343, "343"}, {344, "344"},
+    {345, "345"}, {346, "346"}, {347, "347"}, {348, "348"}, {349, "349"},
+    {350, "350"}, {351, "351"}, {352, "352"}, {353, "353"}, {354, "354"},
+    {355, "355"}, {356, "356"}, {357, "357"}, {358, "358"}, {359, "359"},
+    {360, "360"}, {361, "361"}, {362, "362"}, {363, "363"}, {364, "364"},
+    {365, "365"}, {366, "366"}, {367, "367"}, {368, "368"}, {369, "369"},
+    {370, "370"}, {371, "371"}, {372, "372"}, {373, "373"}, {374, "374"},
+    {375, "375"}, {376, "376"}, {377, "377"}, {378, "378"}, {379, "379"},
+    {380, "380"}, {381, "381"}, {382, "382"}, {383, "383"}, {384, "384"},
+    {385, "385"}, {386, "386"}, {387, "387"}, {388, "388"}, {389, "389"},
+    {390, "390"}, {391, "391"}, {392, "392"}, {393, "393"}, {394, "394"},
+    {395, "395"}, {396, "396"}, {397, "397"}, {398, "398"}, {399, "399"},
+    {400, "400"}, {401, "401"}, {402, "402"}, {403, "403"}, {404, "404"},
+    {405, "405"}, {406, "406"}, {407, "407"}, {408, "408"}, {409, "409"},
+    {410, "410"}, {411, "411"}, {412, "412"}, {413, "413"}, {414, "414"},
+    {415, "415"}, {416, "416"}, {417, "417"}, {418, "418"}, {419, "419"},
+    {420, "420"}, {421, "421"}, {422, "422"}, {423, "423"}, {424, "424"},
+    {425, "425"}, {426, "426"}, {427, "427"}, {428, "428"}, {429, "429"},
+    {430, "430"}, {431, "431"}, {432, "432"}, {433, "433"}, {434, "434"},
+    {435, "435"}, {436, "436"}, {437, "437"}, {438, "438"}, {439, "439"},
+    {440, "440"}, {441, "441"}, {442, "442"}, {443, "443"}, {444, "444"},
+    {445, "445"}, {446, "446"}, {447, "447"}, {448, "448"}, {449, "449"},
+    {450, "450"}, {451, "451"}, {452, "452"}, {453, "453"}, {454, "454"},
+    {455, "455"}, {456, "456"}, {457, "457"}, {458, "458"}, {459, "459"},
+    {460, "460"}, {461, "461"}, {462, "462"}, {463, "463"}, {464, "464"},
+    {465, "465"}, {466, "466"}, {467, "467"}, {468, "468"}, {469, "469"},
+    {470, "470"}, {471, "471"}, {472, "472"}, {473, "473"}, {474, "474"},
+    {475, "475"}, {476, "476"}, {477, "477"}, {478, "478"}, {479, "479"},
+    {480, "480"}, {481, "481"}, {482, "482"}, {483, "483"}, {484, "484"},
+    {485, "485"}, {486, "486"}, {487, "487"}, {488, "488"}, {489, "489"},
+    {490, "490"}, {491, "491"}, {492, "492"}, {493, "493"}, {494, "494"},
+    {495, "495"}, {496, "496"}, {497, "497"}, {498, "498"}, {499, "499"}
+};
+
+/* all domains supported in this PMD - one entry each */
+static indom_t	indomtab[] = {
+#define COLOUR_INDOM	0
+    { 0, 3, _colour },
+#define BIN_INDOM	1
+    { 0, 9, _bin },
+#define MIRAGE_INDOM	2
+    { 0, 0, NULL },
+#define FAMILY_INDOM	3
+    { 0, 5, _family },
+#define HORDES_INDOM	4
+    { 0, 500, _hordes },
+#define DODGEY_INDOM	5
+    { 0, 5, _dodgey },
+#define DYNAMIC_INDOM	6
+    { 0, 0, NULL },
+#define MANY_INDOM	7
+    { 0, 5, NULL },
+
+    { PM_INDOM_NULL, 0, 0 }
+};
+
+static struct timeval	_then;		/* time we started */
+static time_t		_start;		/* ditto */
+static __pmProfile	*_profile;	/* last received profile */
+static int		_x;
+static indom_t		*_idp;
+static int		_singular = -1;	/* =0 for singular values */
+static int		_ordinal = -1;	/* >=0 for non-singular values */
+static int		_control;	/* the control variable */
+static int		_mypid;
+static int		_drift = 200;	/* starting value for drift */
+static int		_sign = -1;	/* up/down for drift */
+static int		_step = 20;	/* magnitude of step */
+static int		_write_me = 2;	/* constant, but modifiable */
+static __int32_t	_long = 13;	/* long.write_me */
+static __int64_t	_longlong = 13;	/* longlong.write_me */
+static float		_float = 13;	/* float.write_me */
+static double		_double = 13;	/* double.write_me */
+static char		*_string;	/* string.write_me */
+static void		*_aggr33;	/* aggregate.null */
+static int		_len33;
+static void		*_aggr34;	/* aggregate.hullo */
+static int		_len34;
+static void		*_aggr35;	/* aggregate.write_me */
+static int		_len35;
+static long		_recv_pdu;	/* # pdus recv */
+static long		_xmit_pdu;	/* # pdus out */
+static long		_col46;		/* lights */
+static int		_n46;		/* sample count for lights */
+static long		_mag47;		/* magnitude */
+static int		_n47;		/* sample count for magnitude */
+static __uint32_t	_rapid;		/* counts @ 8x10^8 per fetch */
+static int		_dyn_max = -1;
+static int		*_dyn_ctr;
+static int		many_count = 5;
+
+static pmValueBlock	*sivb=NULL;
+
+static __int32_t	_wrap = 0;	/* wrap.long */
+static __uint32_t	_u_wrap = 0;	/* wrap.ulong */
+static __int64_t	_ll_wrap = 0;	/* wrap.longlong */
+static __uint64_t	_ull_wrap = 0;	/* wrap.ulonglong */
+
+static int		_error_code = 0;/* return this! */
+
+static int		dodgey = 5;	/* dodgey.control */
+static int		tmp_dodgey = 5;
+static int		new_dodgey = 0;
+
+static double		scale_step_bytes_up = 1;
+static double		scale_step_bytes_down = 1;
+static double		scale_step_count_up = 1;
+static double		scale_step_count_down = 1;
+static double		scale_step_time_up_secs = 1;
+static double		scale_step_time_up_nanosecs = 1;
+static double		scale_step_none_up = 1;
+static int		scale_step_number[7] = {0,0,0,0,0,0,0};
+
+static __uint32_t	const_rate_gradient = 0;
+static __uint32_t	const_rate_value = 10485760;
+static struct timeval	const_rate_timestamp = {0,0};
+
+static char		*pmda_data;
+
+/* this needs to be visible in pmda.c */
+int			not_ready = 0;	/* sleep interval in seconds */
+
+int			_isDSO = 1;	/* =0 I am a daemon */
+
+static int
+redo_dynamic(void)
+{
+    int			i;
+    static struct stat	lastsbuf;
+    struct stat		statbuf;
+    indom_t		*idp = &indomtab[DYNAMIC_INDOM];
+    char		mypath[MAXPATHLEN];
+
+    snprintf(mypath, sizeof(mypath),
+		"%s/sample/dynamic.indom", pmGetConfig("PCP_PMDAS_DIR"));
+
+    if (stat(mypath, &statbuf) == 0) {
+#if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
+	if (statbuf.st_mtime != lastsbuf.st_mtime)
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
+	if ((statbuf.st_mtimespec.tv_sec != lastsbuf.st_mtimespec.tv_sec) ||
+	    (statbuf.st_mtimespec.tv_nsec != lastsbuf.st_mtimespec.tv_nsec))
+#elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
+	if ((statbuf.st_mtim.tv_sec != lastsbuf.st_mtim.tv_sec) ||
+	    (statbuf.st_mtim.tv_nsec != lastsbuf.st_mtim.tv_nsec))
+#else
+!bozo!
+#endif
+								    {
+	    FILE	*fspec;
+	    int		newinst;
+	    char	newname[100];	/* hack, secret max */
+	    int		numinst;
+
+	    lastsbuf = statbuf;
+	    if ((fspec = fopen(mypath, "r")) != NULL) {
+		for (i = 0; i < idp->it_numinst; i++) {
+		    free(idp->it_set[i].i_name);
+		}
+		for (i = 0; i <= _dyn_max; i++) {
+		    _dyn_ctr[i] = -_dyn_ctr[i];
+		}
+		free(idp->it_set);
+		idp->it_numinst = 0;
+		idp->it_set = NULL;
+		numinst = 0;
+		for ( ; ; ) {
+		    if (fscanf(fspec, "%d %s", &newinst, newname) != 2)
+			break;
+		    numinst++;
+		    if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL)
+			return -errno;
+		    idp->it_set[numinst-1].i_inst = newinst;
+		    if ((idp->it_set[numinst-1].i_name = strdup(newname)) == NULL) {
+			free(idp->it_set);
+			idp->it_set = NULL;
+			return -errno;
+		    }
+		    if (newinst > _dyn_max) {
+			if ((_dyn_ctr = (int *)realloc(_dyn_ctr, (newinst+1)*sizeof(_dyn_ctr[0]))) == NULL) {
+			    free(idp->it_set);
+			    idp->it_set = NULL;
+			    return -errno;
+			}
+			for (i = _dyn_max+1; i <= newinst; i++)
+			    _dyn_ctr[i] = 0;
+			_dyn_max = newinst;
+		    }
+		    _dyn_ctr[newinst] = -_dyn_ctr[newinst];
+		}
+		fclose(fspec);
+		idp->it_numinst = numinst;
+
+		for (i = 0; i <= _dyn_max; i++) {
+		    if (_dyn_ctr[i] < 0)
+			_dyn_ctr[i] = 0;
+		}
+
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_APPL0) {
+		    fprintf(stderr, "redo instance domain for dynamic: numinst: %d\n", idp->it_numinst);
+		    for (i = 0; i < idp->it_numinst; i++) {
+			fprintf(stderr, " %d \"%s\"", idp->it_set[i].i_inst, idp->it_set[i].i_name);
+		    }
+		    fputc('\n', stderr);
+		}
+#endif
+	    }
+	}
+    }
+    else {
+	/* control file is not present, empty indom if not already so */
+	if (idp->it_set != NULL) {
+	    for (i = 0; i < idp->it_numinst; i++) {
+		free(idp->it_set[i].i_name);
+	    }
+	    free(idp->it_set);
+	    idp->it_set = NULL;
+	    idp->it_numinst = 0;
+	    for (i = 0; i <= _dyn_max; i++) {
+		_dyn_ctr[i] = 0;
+	    }
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL0)
+		fprintf(stderr, "redo instance domain for dynamic: numinst: 0 (no control file)\n");
+#endif
+	}
+    }
+
+    for (i = 0; i < idp->it_numinst; i++) {
+	_dyn_ctr[idp->it_set[i].i_inst]++;
+    }
+
+    return 0;
+}
+
+#define MANY_MAX_LEN 10
+
+static int
+redo_many(void)
+{
+    indom_t     	*idp;
+    int			a;
+    static char		*tags=NULL;
+    char		*tag;
+
+    /* sanity check, range clip */
+
+    if (many_count<0) many_count=0;
+    if (many_count>999999) many_count=999999;
+
+    idp = &indomtab[MANY_INDOM];
+
+    /* realloc instances buffer */
+
+    idp->it_set=realloc(idp->it_set,many_count*sizeof(instid_t));
+    if (!idp->it_set) {
+	idp->it_numinst=0;
+	many_count=0;
+	return -errno;
+    }
+
+    /* realloc string buffer */
+
+    tags=realloc(tags,many_count*MANY_MAX_LEN);
+    if (!idp->it_set) {
+	idp->it_numinst=0;
+	many_count=0;
+	return -errno;
+    }
+
+    /* set number of instances */
+
+    idp->it_numinst=many_count;
+
+    /* generate instances */
+
+    tag=tags;
+    for (a=0;a<many_count;a++) {
+	idp->it_set[a].i_inst=a;
+	idp->it_set[a].i_name=tag;
+	tag+=sprintf(tag,"i-%d",a)+1;
+    }
+
+    return 0;
+}
+
+static int
+redo_mirage(void)
+{
+    static time_t	doit = 0;
+    time_t		now;
+    int			i;
+    int			j;
+    static int		newinst = 0;
+    indom_t		*idp;
+
+    now = time(NULL);
+    if (now < doit)
+	return 0;
+
+    idp = &indomtab[MIRAGE_INDOM];
+    if (idp->it_set == NULL) {
+	/* first time */
+	if ((idp->it_set = (instid_t *)malloc(sizeof(instid_t))) == NULL)
+	    return -errno;
+	if ((idp->it_set[0].i_name = (char *)malloc(5)) == NULL) {
+	    idp->it_set = NULL;
+	    return -errno;
+	}
+	idp->it_numinst = 1;
+	idp->it_set[0].i_inst = 0;
+	sprintf(idp->it_set[0].i_name, "m-%02d", 0);
+    }
+    else {
+	int	numinst;
+	int	cull;
+
+	numinst = 1;
+	cull = idp->it_numinst > 12 ? idp->it_numinst/2 : idp->it_numinst;
+	for (i = 1; i < idp->it_numinst; i++) {
+	    if (lrand48() % 1000 < 1000 / cull) {
+		/* delete this one */
+		free(idp->it_set[i].i_name);
+		continue;
+	    }
+	    idp->it_set[numinst++] = idp->it_set[i];
+	}
+	if (numinst != idp->it_numinst) {
+	    if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL) {
+		idp->it_set = NULL;
+		idp->it_numinst = 0;
+		return -errno;
+	    }
+	    idp->it_numinst = numinst;
+	}
+	for (i = 0; i < 2; i++) {
+	    if (lrand48() % 1000 < 500) {
+		/* add a new one */
+		numinst++;
+		if ((idp->it_set = (instid_t *)realloc(idp->it_set, numinst * sizeof(instid_t))) == NULL) {
+		    idp->it_set = NULL;
+		    idp->it_numinst = 0;
+		    return -errno;
+		}
+		if ((idp->it_set[numinst-1].i_name = (char *)malloc(5)) == NULL) {
+		    idp->it_set = NULL;
+		    return -errno;
+		}
+		for ( ; ; ) {
+		    newinst = (newinst + 1) % 50;
+		    for (j = 0; j < idp->it_numinst; j++) {
+			if (idp->it_set[j].i_inst == newinst)
+			    break;
+		    }
+		    if (j == idp->it_numinst)
+			break;
+		}
+		idp->it_numinst = numinst;
+		idp->it_set[numinst-1].i_inst = newinst;
+		sprintf(idp->it_set[numinst-1].i_name, "m-%02d", newinst);
+	    }
+	}
+    }
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL0) {
+	fprintf(stderr, "redo instance domain for mirage: numinst: %d\n", idp->it_numinst);
+	for (i = 0; i < idp->it_numinst; i++) {
+	    fprintf(stderr, " %d \"%s\"", idp->it_set[i].i_inst, idp->it_set[i].i_name);
+	}
+	fputc('\n', stderr);
+    }
+#endif
+
+    doit = now + 10;	/* no more than once every 10 seconds */
+    return 0;
+}
+
+static void
+redo_dodgey(void)
+{
+    int		j;
+    int		k;
+
+    if (dodgey <= 5) {
+	tmp_dodgey = dodgey;
+	new_dodgey = 0;
+	/* re-build full instance table */
+	for (j = 0; j < 5; j++) {
+	    _dodgey[j].i_inst = j+1;
+	    _dodgey[j].i_name[1] = '0' + j+1;
+	}
+	indomtab[DODGEY_INDOM].it_numinst = 5;
+    }
+    else {
+	j = (int)(lrand48() % 1000);
+	if (j < 33)
+	    tmp_dodgey = PM_ERR_NOAGENT;
+	else if (j < 66)
+	    tmp_dodgey = PM_ERR_AGAIN;
+	else if (j < 99)
+	    tmp_dodgey = PM_ERR_APPVERSION;
+	else {
+	    /*
+	     * create partial instance table, instances appear
+	     * at random with prob = 0.5
+	     */
+	    k = 0;
+	    for (j = 0; j < 5; j++) {
+		if (lrand48() % 100 < 49) {
+		    _dodgey[k].i_inst = j+1;
+		    _dodgey[k].i_name[1] = '0' + j+1;
+		    k++;
+		}
+	    }
+	    tmp_dodgey = indomtab[DODGEY_INDOM].it_numinst = k;
+	}
+	/* fetches before re-setting */
+	new_dodgey = (int)(lrand48() % dodgey);
+    }
+}
+
+/*
+ * count the number of instances in an instance domain
+ */
+static int
+cntinst(pmInDom indom)
+{
+    indom_t	*idp;
+
+    if (indom == PM_INDOM_NULL)
+	return 1;
+    for (idp = indomtab; idp->it_indom != PM_INDOM_NULL; idp++) {
+	if (idp->it_indom == indom)
+	    return idp->it_numinst;
+    }
+    __pmNotifyErr(LOG_WARNING, "cntinst: unknown pmInDom 0x%x", indom);
+    return 0;
+}
+
+/*
+ * commence a new round of instance selection
+ */
+static void
+startinst(pmInDom indom)
+{
+    _ordinal = _singular = -1;
+    if (indom == PM_INDOM_NULL) {
+	/* singular value */
+	_singular = 0;
+	return;
+    }
+    for (_idp = indomtab; _idp->it_indom != PM_INDOM_NULL; _idp++) {
+	if (_idp->it_indom == indom) {
+	    /* multiple values are possible */
+	    _ordinal = 0;
+	    break;
+	}
+    }
+}
+
+/*
+ * find next selected instance, if any
+ *
+ * EXCEPTION PCP 2.1.1: make use of __pmProfile much smarter, particularly when state for
+ *	this indom is PM_PROFILE_EXCLUDE, then only need to consider inst
+ *      values in the profile - this is a performance enhancement, and
+ *      the simple method is functionally complete, particularly for
+ *	stable (non-varying) instance domains
+ */
+static int
+nextinst(int *inst)
+{
+    int		j;
+
+    if (_singular == 0) {
+	/* PM_INDOM_NULL ... just the one value */
+	*inst = 0;
+	_singular = -1;
+	return 1;
+    }
+    if (_ordinal >= 0) {
+	/* scan for next value in the profile */
+	for (j = _ordinal; j < _idp->it_numinst; j++) {
+	    if (__pmInProfile(_idp->it_indom, _profile, _idp->it_set[j].i_inst)) {
+		*inst = _idp->it_set[j].i_inst;
+		_ordinal = j+1;
+		return 1;
+	    }
+	}
+	_ordinal = -1;
+    }
+    return 0;
+}
+
+/*
+ * this routine is called at initialization to patch up any parts of the
+ * desctab that cannot be statically initialized, and to optionally
+ * modify our Performance Metrics Domain Id (dom)
+ */
+static void
+init_tables(int dom)
+{
+    int		i;
+    __pmInDom_int	b_indom;
+    __pmInDom_int	*indomp;
+    __pmID_int	*pmidp;
+    pmDesc	*dp;
+
+    /* serial numbering is arbitrary, but must be unique in this PMD */
+    b_indom.pad = 0;
+    b_indom.domain = dom;
+    b_indom.serial = 1;
+    indomp = (__pmInDom_int *)&indomtab[COLOUR_INDOM].it_indom;
+    *indomp = b_indom;
+    b_indom.serial++;
+    indomp = (__pmInDom_int *)&indomtab[BIN_INDOM].it_indom;
+    *indomp = b_indom;
+    b_indom.serial++;
+    indomp = (__pmInDom_int *)&indomtab[MIRAGE_INDOM].it_indom;
+    *indomp = b_indom;
+    b_indom.serial++;
+    indomp = (__pmInDom_int *)&indomtab[FAMILY_INDOM].it_indom;
+    *indomp = b_indom;
+    b_indom.serial++;
+    indomp = (__pmInDom_int *)&indomtab[HORDES_INDOM].it_indom;
+    *indomp = b_indom;
+    b_indom.serial++;
+    indomp = (__pmInDom_int *)&indomtab[DODGEY_INDOM].it_indom;
+    *indomp = b_indom;
+    b_indom.serial++;
+    indomp = (__pmInDom_int *)&indomtab[DYNAMIC_INDOM].it_indom;
+    *indomp = b_indom;
+    b_indom.serial++;
+    indomp = (__pmInDom_int *)&indomtab[MANY_INDOM].it_indom;
+    *indomp = b_indom;
+
+    for (dp = desctab; dp->pmid != PM_ID_NULL; dp++) {
+	switch (dp->pmid) {
+	    case PMDA_PMID(0,5):	/* colour */
+		dp->indom = indomtab[COLOUR_INDOM].it_indom;
+		break;
+	    case PMDA_PMID(0,6):	/* bin */
+	    case PMDA_PMID(0,48):	/* bucket */
+	    case PMDA_PMID(0,50):	/* part_bin */
+	    case PMDA_PMID(0,51):	/* bogus_bin */
+		dp->indom = indomtab[BIN_INDOM].it_indom;
+		break;
+	    case PMDA_PMID(0,37):	/* mirage */
+		dp->indom = indomtab[MIRAGE_INDOM].it_indom;
+		break;
+	    case PMDA_PMID(0,38):	/* mirage-longlong */
+		dp->indom = indomtab[MIRAGE_INDOM].it_indom;
+		break;
+	    case PMDA_PMID(0,49):	/* needprofile */
+		dp->indom = indomtab[FAMILY_INDOM].it_indom;
+		break;
+	    case PMDA_PMID(0,52):	/* hordes.one */
+	    case PMDA_PMID(0,53):	/* hordes.two */
+		dp->indom = indomtab[HORDES_INDOM].it_indom;
+		break;
+	    case PMDA_PMID(0,62):	/* dodgey.value */
+		dp->indom = indomtab[DODGEY_INDOM].it_indom;
+		break;
+    	    case PMDA_PMID(0,76):	/* sample.dynamic.counter */
+    	    case PMDA_PMID(0,77): 	/* sample.dynamic.discrete */
+    	    case PMDA_PMID(0,78):	/* sample.dynamic.instant */
+		dp->indom = indomtab[DYNAMIC_INDOM].it_indom;
+		break;
+	    case PMDA_PMID(0,80):	/* many.int */
+		dp->indom = indomtab[MANY_INDOM].it_indom;
+		break;
+	}
+    }
+
+    /* merge performance domain id part into PMIDs in pmDesc table */
+    for (i = 0; desctab[i].pmid != PM_ID_NULL; i++) {
+	pmidp = (__pmID_int *)&desctab[i].pmid;
+	pmidp->domain = dom;
+	if (direct_map && pmidp->item != i) {
+	    direct_map = 0;
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL0) {
+		__pmNotifyErr(LOG_WARNING, "sample_init: direct map disabled @ desctab[%d]", i);
+	    }
+#endif
+	}
+    }
+    ndesc--;
+    pmidp = (__pmID_int *)&magic.pmid;
+    pmidp->domain = dom;
+
+    /* local hacks */
+    _string = (char *)malloc(3);
+    strcpy(_string, "13");
+    _len33 = 0;
+    _aggr33 = "";
+    _len34 = 12;
+    _aggr34 = (char *)malloc(_len34);
+    memcpy(_aggr34, "hullo world!", _len34);
+    _len35 = 2;
+    _aggr35 = (char *)malloc(_len35);
+    memcpy(_aggr35, "13", _len35);
+#ifdef MALLOC_AUDIT
+    _persistent_(_string);
+    _persistent_(_aggr34);
+    _persistent_(_aggr35);
+#endif
+	(void)redo_many();
+}
+
+/*ARGSUSED2*/
+static int
+sample_profile(__pmProfile *prof, pmdaExt *ep)
+{
+    _recv_pdu++;
+    _profile = prof;	
+    return 0;
+}
+
+/*ARGSUSED5*/
+static int
+sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *ep)
+{
+    int		i;
+    __pmInResult  *res;
+    indom_t	*idp;
+    int		err = 0;
+
+    _recv_pdu++;
+    _xmit_pdu++;
+
+    if (not_ready > 0) {
+	_xmit_pdu++;
+	return limbo();
+    }
+
+    if (need_mirage && (i = redo_mirage()) < 0)
+	return i;
+    if (need_dynamic && (i = redo_dynamic()) < 0)
+	return i;
+
+    /*
+     * check this is an instance domain we know about -- code below
+     * assumes this test is complete
+     */
+    for (idp = indomtab; idp->it_indom != PM_INDOM_NULL; idp++) {
+	if (idp->it_indom == indom)
+	    break;
+    }
+    if (idp->it_indom == PM_INDOM_NULL)
+	return PM_ERR_INDOM;
+
+    if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
+        return -errno;
+    res->indom = indom;
+
+    if (name == NULL && inst == PM_IN_NULL)
+	res->numinst = cntinst(indom);
+    else
+	res->numinst = 1;
+
+    if (inst == PM_IN_NULL) {
+	if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
+	    free(res);
+	    return -errno;
+	}
+    }
+    else
+	res->instlist = NULL;
+
+    if (name == NULL) {
+	if ((res->namelist = (char **)malloc(res->numinst * sizeof(res->namelist[0]))) == NULL) {
+	    __pmFreeInResult(res);
+	    return -errno;
+	}
+	for (i = 0; i < res->numinst; i++)
+	    res->namelist[0] = NULL;
+    }
+    else
+	res->namelist = NULL;
+
+    if (name == NULL && inst == PM_IN_NULL) {
+	/* return inst and name for everything */
+	for (i = 0; i < res->numinst; i++) {
+	    res->instlist[i] = idp->it_set[i].i_inst;
+	    if ((res->namelist[i] = strdup(idp->it_set[i].i_name)) == NULL) {
+		__pmFreeInResult(res);
+		return -errno;
+	    }
+	}
+    }
+    else if (name == NULL) {
+	/* given an inst, return the name */
+	for (i = 0; i < idp->it_numinst; i++) {
+	    char	*p;
+	    if (inst == idp->it_set[i].i_inst) {
+		if ((res->namelist[0] = strdup(idp->it_set[i].i_name)) == NULL) {
+		    __pmFreeInResult(res);
+		    return -errno;
+		}
+		for (p = res->namelist[0]; *p; p++) {
+		    if (*p == ' ') {
+			*p = '\0';
+			break;
+		    }
+		}
+		break;
+	    }
+	}
+	if (i == idp->it_numinst)
+	    err = 1;
+    }
+    else if (inst == PM_IN_NULL) {
+	/* given a name, return an inst */
+	char	*p;
+	long		len;
+	for (p = name; *p; p++) {
+	    if (*p == ' ')
+		break;
+	}
+	len = p - name;
+	for (i = 0; i < idp->it_numinst; i++) {
+	    if (strncmp(name, idp->it_set[i].i_name, len) == 0 &&
+		strlen(idp->it_set[i].i_name) >= len &&
+		(idp->it_set[i].i_name[len] == '\0' || idp->it_set[i].i_name[len] == ' ')) {
+		res->instlist[0] = idp->it_set[i].i_inst;
+		break;
+	    }
+	}
+	if (i == idp->it_numinst)
+	    err = 1;
+    }
+    else
+	err = 1;
+    if (err == 1) {
+	/* bogus arguments or instance id/name */
+	__pmFreeInResult(res);
+	return PM_ERR_INST;
+    }
+
+    *result = res;
+    return 0;
+}
+
+#if defined(sgi)
+#include <sgidefs.h>
+#endif
+
+/*
+ * high precision counter
+ */
+typedef union {
+    __uint32_t	half[2];
+    __uint64_t	full;
+} pmHPC_t;
+
+#ifdef HAVE_NETWORK_BYTEORDER
+#define PM_HPC_TOP	0
+#define PM_HPC_BOTTOM	1
+#else
+#define PM_HPC_TOP	1
+#define PM_HPC_BOTTOM	0
+#endif
+
+void
+_pmHPCincr(pmHPC_t *ctr, __uint32_t val)
+{
+    if (val < ctr->half[PM_HPC_BOTTOM])
+	/* assume single overflow */
+	ctr->half[PM_HPC_TOP]++;
+    ctr->half[PM_HPC_BOTTOM] = val;
+}
+
+static pmHPC_t	rapid_ctr;
+
+/*ARGSUSED4*/
+static int
+sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
+{
+    int		i;		/* over pmidlist[] */
+    int		j;		/* over vset->vlist[] */
+    int		sts;
+    int		need;
+    int		inst;
+    int		numval;
+    int		aggregate_len = 0;
+    static pmResult	*res = NULL;
+    static int		maxnpmids = 0;
+    pmValueSet	*vset;
+    pmDesc	*dp;
+    __pmID_int	*pmidp;
+    __uint32_t	*ulp;
+    pmAtomValue	atom;
+    int		type;
+    struct timeval	now;
+    static int	nbyte = 0;
+
+    _recv_pdu++;
+    _xmit_pdu++;
+
+    if (not_ready > 0) {
+	_xmit_pdu++;
+	return limbo();
+    }
+
+    if (numpmid > maxnpmids) {
+	if (res != NULL)
+	    free(res);
+	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
+	need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
+	if ((res = (pmResult *) malloc(need)) == NULL)
+	    return -errno;
+	maxnpmids = numpmid;
+    }
+    res->timestamp.tv_sec = 0;
+    res->timestamp.tv_usec = 0;
+    res->numpmid = numpmid;
+
+    if (need_mirage && (j = redo_mirage()) < 0)
+	return j;
+    if (need_dynamic && (j = redo_dynamic()) < 0)
+	return j;
+
+    if (new_dodgey < 0)
+	redo_dodgey();
+
+    for (i = 0; i < numpmid; i++) {
+	pmidp = (__pmID_int *)&pmidlist[i];
+
+	if (direct_map) {
+	    __pmID_int	*pmidp = (__pmID_int *)&pmidlist[i];
+	    j = pmidp->item;
+	    if (j < ndesc && desctab[j].pmid == pmidlist[i]) {
+		dp = &desctab[j];
+		goto doit;
+	    }
+	}
+	for (dp = desctab; dp->pmid != PM_ID_NULL; dp++) {
+	    if (dp->pmid == pmidlist[i])
+		break;
+	}
+doit:
+
+	if (dp->pmid != PM_ID_NULL) {
+	    /* the special cases */
+	    if (pmidp->item == 86)
+		dp = &magic;
+	    if (pmidp->item == 54)
+		numval = PM_ERR_PMID;
+	    else if (dp->type == PM_TYPE_NOSUPPORT)
+		numval = PM_ERR_APPVERSION;
+	    else if (dp->indom != PM_INDOM_NULL) {
+		/* count instances in the profile */
+		numval = 0;
+		/* special case(s) */
+		if (pmidp->item == 49) {
+		    int		kp;
+		    /* needprofile - explict instances required */
+
+		    numval = PM_ERR_PROFILE;
+		    for (kp = 0; kp < _profile->profile_len; kp++) {
+			if (_profile->profile[kp].indom != dp->indom)
+			    continue;
+			if (_profile->profile[kp].state == PM_PROFILE_EXCLUDE &&
+			    _profile->profile[kp].instances_len != 0)
+				numval = 0;
+			break;
+		    }
+		}
+		else if (pmidp->item == 76 || pmidp->item == 77 || pmidp->item == 78) {
+		    /*
+		     * if $(PCP_VAR_DIR)/pmdas/sample/dynamic.indom is not present,
+		     * then numinst will be zero after the redo_dynamic() call
+		     * in sample_init(), which makes zero loops through the
+		     * fetch loop, so cannot set need_dynamic there ...
+		     * do it here if not already turned on
+		     */
+		    if (need_dynamic == 0) {
+			need_dynamic = 1;
+			if ((j = redo_dynamic()) < 0)
+			    return j;
+		    }
+		}
+		if (numval == 0) {
+		    /* count instances in indom */
+		    startinst(dp->indom);
+		    while (nextinst(&inst)) {
+			/* special case ... not all here for part_bin */
+			if (pmidp->item == 50 && inst % 200 == 0)
+			    continue;
+			numval++;
+		    }
+		}
+	    }
+	    else {
+		/* special case(s) for singular instance domains */
+		if (pmidp->item == 9) {
+		    /* surprise! no value available */
+		    numval = 0;
+		}
+		else
+		    numval = 1;
+	    }
+	}
+	else
+	    numval = 0;
+
+	/* Must use individual malloc()s because of pmFreeResult() */
+	if (numval == 1)
+	    res->vset[i] = vset = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
+	else if (numval > 1)
+	    res->vset[i] = vset = (pmValueSet *)malloc(sizeof(pmValueSet) + 
+					    (numval - 1)*sizeof(pmValue));
+	else
+	    res->vset[i] = vset = (pmValueSet *)malloc(sizeof(pmValueSet) - 
+					    sizeof(pmValue));
+	if (vset == NULL) {
+	    if (i) {
+		res->numpmid = i;
+		__pmFreeResultValues(res);
+	    }
+	    return -errno;
+	}
+	vset->pmid = pmidlist[i];
+	vset->numval = numval;
+	vset->valfmt = PM_VAL_INSITU;
+	if (vset->numval <= 0)
+	    continue;
+
+	if (dp->indom == PM_INDOM_NULL)
+	    inst = PM_IN_NULL;
+	else {
+	    startinst(dp->indom);
+	    nextinst(&inst);
+	}
+	type = dp->type;
+	j = 0;
+	do {
+	    if (pmidp->item == 50 && inst % 200 == 0)
+		goto skip;
+	    if (pmidp->item == 51 && inst % 200 == 0)
+		inst += 50;
+	    if (j == numval) {
+		/* more instances than expected! */
+		numval++;
+		res->vset[i] = vset = (pmValueSet *)realloc(vset,
+			    sizeof(pmValueSet) + (numval - 1)*sizeof(pmValue));
+		if (vset == NULL) {
+		    if (i) {
+			res->numpmid = i;
+			__pmFreeResultValues(res);
+		    }
+		    return -errno;
+		}
+	    }
+	    vset->vlist[j].inst = inst;
+	    /*
+	     * we only have cluster 0, metric already found in desctab[],
+	     * so no checking needed nor outer case on pmidp->cluster
+	     */
+	    switch (pmidp->item) {
+		case 0:
+		    atom.l = _control;
+		    break;
+		case 1:
+		    if (_mypid == 0) _mypid = getpid();
+		    atom.ul = _mypid;
+		    break;
+		case 2:
+		    atom.ul = time(NULL) - _start;
+		    break;
+		case 3:
+		    gettimeofday(&now, NULL);
+		    atom.d = 1000 * __pmtimevalSub(&now, &_then);
+		    break;
+		case 4:
+		    atom.l = 42;
+		    break;
+		case 5:
+		    switch (inst) {
+			case 0:		/* "red" */
+			    _x = (_x + 1) % 100;
+			    atom.l = _x + 100;
+			    break;
+			case 1:		/* "green" */
+			    _x = (_x + 1) % 100;
+			    atom.l = _x + 200;
+			    break;
+			case 2:		/* "blue" */
+			    _x = (_x + 1) % 100;
+			    atom.l = _x + 300;
+			    break;
+		    }
+		    break;
+		case 6:
+		case 48:
+		case 50:
+		case 51:
+		    /* the value is the instance identifier (sic) */
+		    atom.l = inst;
+		    break;
+		case 7:
+		    /* drift */
+		    _drift = _drift + _sign * (int)(lrand48() % 50);
+		    if (_drift < 0) _drift = 0;
+		    atom.l = _drift;
+		    if ((lrand48() % 100) < 20) {
+			if (_sign == 1)
+			    _sign = -1;
+			else
+			    _sign = 1;
+		    }
+		    break;
+		case 63:	/* step_counter */
+		case 8:		/* step every 30 seconds */
+		    atom.l = (1 + (time(NULL) - _start) / 30) * _step;
+		    break;
+		case 40:
+		    /* total pdu count */
+		    atom.ll = (__int64_t)_recv_pdu + (__int64_t)_xmit_pdu;
+		    break;
+		case 41:
+		    /* recv pdu count */
+		    atom.l = (__int32_t)_recv_pdu;
+		    break;
+		case 42:
+		    /* xmit pdu count */
+		    atom.l = (__int32_t)_xmit_pdu;
+		    break;
+		case 37:
+		    /* mirage */
+		    _x = (_x + 1) % 100;
+		    atom.l = (inst + 1) * 100 - _x;
+		    need_mirage = 1;
+		    break;
+		case 36:
+		    /* write_me */
+		    atom.l = _write_me;
+		    break;
+		case 39:
+		    /* sysinfo */
+		    if (!sivb) {
+			/* malloc and init the pmValueBlock for
+                         * sysinfo first type around */
+
+			int size = sizeof(pmValueBlock) - sizeof(int) + 
+			    sizeof (struct sysinfo);
+
+			if ((sivb = calloc(1, size)) == NULL ) 
+			    return PM_ERR_GENERIC;
+
+			sivb->vlen = size;
+			sivb->vtype = PM_TYPE_AGGREGATE;
+		    }
+
+
+#ifdef HAVE_SYSINFO
+#ifdef sgi
+		    sysmp(MP_SAGET, MPSA_SINFO, (struct sysinfo *)sivb->vbuf, 
+			  sizeof(struct sysinfo));
+#else
+                    sysinfo((struct sysinfo *)sivb->vbuf);
+#endif
+#else
+		    strncpy((char *)sivb->vbuf, si.dummy, sizeof(struct sysinfo));
+#endif
+		    atom.vp = (void *)sivb;
+
+		    /*
+		     * pv:782029 The actual type must be PM_TYPE_AGGREGATE, 
+		     *           but we have to tell pmStuffValue it's a
+		     *           PM_TYPE_AGGREGATE_STATIC
+		     */
+		    type = PM_TYPE_AGGREGATE_STATIC;
+		    break;
+		case 46:
+		    if (_n46 == 0) {
+			_col46 = lrand48() % 3;
+			_n46 = 1 + (int)(lrand48() % 10);
+		    }
+		    _n46--;
+		    switch (_col46) {
+			case 0:
+			    atom.cp = "red";
+			    break;
+			case 1:
+			    atom.cp = "yellow";
+			    break;
+			case 2:
+			    atom.cp = "green";
+			    break;
+		    }
+		    break;
+		case 47:
+		    if (_n47 == 0) {
+			_mag47 = 1 << (1 + (int)(lrand48() % 6));
+			_n47 = 1 + (int)(lrand48() % 5);
+		    }
+		    _n47--;
+		    atom.l = (__int32_t)_mag47;
+		    break;
+		case 38:
+		    /* mirage-longlong */
+		    _x = (_x + 1) % 100;
+		    atom.ll = (inst + 1) * 100 - _x;
+		    atom.ll *= 1000000;
+		    need_mirage = 1;
+		    break;
+		case 49:
+		    /* need profile */
+		    switch (inst) {
+			case 0:		/* "colleen" */
+			    atom.f = 3.05;
+			    break;
+			case 1:		/* "terry" */
+			    atom.f = 12.05;
+			    break;
+			case 2:		/* "emma" */
+			case 3:		/* "cathy" */
+			    atom.f = 11.09;
+			    break;
+			case 4:		/* "alexi" */
+			    atom.f = 5.26;
+			    break;
+		    }
+		    break;
+		case 10:
+		    atom.l = 1;
+		    break;
+		case 11:
+		    atom.l = 10;
+		    break;
+		case 12:
+		    atom.l = 100;
+		    break;
+		case 13:
+		    atom.l = 1000000;
+		    break;
+		case 14:
+		    atom.l = (__int32_t)_long;
+		    break;
+		case 20:
+#if !defined(HAVE_CONST_LONGLONG)
+		    atom.ll = 1;
+#else
+		    atom.ll = 1LL;
+#endif
+		    break;
+		case 21:
+#if !defined(HAVE_CONST_LONGLONG)
+		    atom.ll = 10;
+#else
+		    atom.ll = 10LL;
+#endif
+		    break;
+		case 22:
+#if !defined(HAVE_CONST_LONGLONG)
+		    atom.ll = 100;
+#else
+		    atom.ll = 100LL;
+#endif
+		    break;
+		case 23:
+#if !defined(HAVE_CONST_LONGLONG)
+		    atom.ll = 1000000;
+#else
+		    atom.ll = 1000000LL;
+#endif
+		    break;
+		case 24:
+		    atom.ll = _longlong;
+		    break;
+		case 15:
+		    atom.f = 1;
+		    break;
+		case 16:
+		    atom.f = 10;
+		    break;
+		case 17:
+		    atom.f = 100;
+		    break;
+		case 18:
+		    atom.f = 1000000;
+		    break;
+		case 19:
+		    atom.f = _float;
+		    break;
+		case 25:
+		    atom.d = 1;
+		    break;
+		case 26:
+		    atom.d = 10;
+		    break;
+		case 27:
+		    atom.d = 100;
+		    break;
+		case 28:
+		    atom.d = 1000000;
+		    break;
+		case 29:
+		    atom.d = _double;
+		    break;
+		case 30:
+		    atom.cp = "";
+		    break;
+		case 31:
+		    atom.cp = "hullo world!";
+		    break;
+		case 32:
+		    atom.cp = _string;
+		    break;
+		case 33:
+		    atom.vp = _aggr33;
+		    aggregate_len = _len33;
+		    break;
+		case 34:
+		    atom.vp = _aggr34;
+		    aggregate_len = _len34;
+		    break;
+		case 35:
+		    atom.vp = _aggr35;
+		    aggregate_len = _len35;
+		    break;
+		case 52:
+		    atom.l = inst;
+		    break;
+		case 53:
+		    atom.l = 499 - inst;
+		    break;
+		case 56:
+		    atom.l = not_ready;
+		    break;
+		case 57:
+		    _wrap += INT_MAX / 2 - 1;
+		    atom.l = _wrap;
+		    break;
+		case 58:
+		    _u_wrap += UINT_MAX / 2 - 1;
+		    atom.ul = _u_wrap;
+		    break;
+		case 59:
+		    _ll_wrap += LONGLONG_MAX / 2 - 1;
+		    atom.ll = _ll_wrap;
+		    break;
+		case 60:
+		    _ull_wrap += ULONGLONG_MAX / 2 - 1;
+		    atom.ull = _ull_wrap;
+		    break;
+		case 61:
+		    atom.l = dodgey;
+		    break;
+		case 62:
+		    if (dodgey > 5 && j == 0)
+			new_dodgey--;
+		    if (tmp_dodgey <= 0) {
+			j = tmp_dodgey;
+			goto done;
+		    }
+		    else if (tmp_dodgey <= 5) {
+			if (inst > tmp_dodgey)
+			    goto skip;
+		    }
+		    atom.l = (int)(lrand48() % 101);
+		    break;
+		case 64:
+		    _rapid += 80000000;
+		    _pmHPCincr(&rapid_ctr, _rapid);
+		    atom.ul = (__uint32_t)(rapid_ctr.full * 10);
+		    break;
+		case 65: /* scale_step.bytes_up */
+		    atom.d = scale_step_bytes_up;
+		    if (++scale_step_number[0] % 5 == 0) {
+			if (scale_step_bytes_up < 1024.0*1024.0*1024.0*1024.0)
+			    scale_step_bytes_up *= 2;
+			else
+			    scale_step_bytes_up = 1;
+		    }
+		    break;
+		case 66: /* scale_step.bytes_down */
+		    atom.d = scale_step_bytes_down;
+		    if (++scale_step_number[1] % 5 == 0) {
+			if (scale_step_bytes_down > 1)
+			    scale_step_bytes_down /= 2;
+			else
+			    scale_step_bytes_down = 1024.0*1024.0*1024.0*1024.0;
+		    }
+		    break;
+		case 67: /* scale_step.count_up */
+		    atom.d = scale_step_count_up;
+		    if (++scale_step_number[2] % 5 == 0) {
+			if (scale_step_count_up < 1.0e12)
+			    scale_step_count_up *= 10;
+			else
+			    scale_step_count_up = 1;
+		    }
+		    break;
+		case 68: /* scale_step.count_down */
+		    atom.d = scale_step_count_down;
+		    if (++scale_step_number[3] % 5 == 0) {
+			if (scale_step_count_down > 1)
+			    scale_step_count_down /= 10;
+			else
+			    scale_step_count_down = 1.0e12;
+		    }
+		    break;
+		case 69: /* scale_step.time_up_secs */
+		    atom.d = scale_step_time_up_secs;
+		    if (++scale_step_number[4] % 5 == 0) {
+			if (scale_step_time_up_secs < 60*60*24)
+			    scale_step_time_up_secs *= 10;
+			else
+			    scale_step_time_up_secs = 1;
+		    }
+		    break;
+		case 70: /* scale_step.time_up_nanosecs */
+		    atom.d = scale_step_time_up_nanosecs;
+		    if (++scale_step_number[5] % 5 == 0) {
+			if (scale_step_time_up_nanosecs < 1e9*60*60*24)
+			    scale_step_time_up_nanosecs *= 10;
+			else
+			    scale_step_time_up_nanosecs = 1;
+		    }
+		    break;
+		case 71: /* scale_step.none_up */
+		    atom.d = scale_step_none_up;
+		    if (++scale_step_number[6] % 5 == 0) {
+			if (scale_step_none_up < 10000000)
+			    scale_step_none_up *= 10;
+			else
+			    scale_step_none_up = 1;
+		    }
+		    break;
+		case 72: /* const_rate.value */
+		    gettimeofday(&now, NULL);
+		    atom.ul = const_rate_value + const_rate_gradient * __pmtimevalSub(&now, &const_rate_timestamp);
+		    const_rate_timestamp = now;
+		    const_rate_value = atom.ul;
+		    break;
+		case 73: /* const_rate.gradient */
+		    atom.ul = const_rate_gradient;
+		    break;
+		case 74: /* error_code */
+		    atom.l = _error_code;
+		    break;
+		case 75: /* error_check */
+		    if (_error_code < 0)
+			return _error_code;
+		    atom.l = 0;
+		    break;
+		case 76:	/* sample.dynamic.counter */
+		case 77: 	/* sample.dynamic.discrete */
+		case 78:	/* sample.dynamic.instant */
+		    if (inst > _dyn_max) {
+			/* bad instance! */
+			goto done;
+		    }
+		    atom.l = _dyn_ctr[inst];
+		    break;
+		case 79:	/* sample.many.count */
+		    atom.l=many_count;
+		    break;
+		case 80:	/* sample.many.int */
+		    atom.l = inst;
+		    break;
+		case 81:	/* sample.byte_ctr */
+		    nbyte += lrand48() % 1024;
+		    atom.l = nbyte;
+		    break;
+		case 82:	/* sample.byte_rate */
+		    atom.l = (int)(lrand48() % 1024);
+		    break;
+		case 83:	/* sample.kbyte_ctr */
+		    nbyte += lrand48() % 1024;
+		    atom.l = nbyte;
+		    break;
+		case 84:	/* sample.kbyte_rate */
+		    atom.l = (int)(lrand48() % 1024);
+		    break;
+		case 85:	/* sample.byte_rate_per_hour */
+		    atom.l = (int)(lrand48() % 1024);
+		    break;
+		case 86:	/* sample.dynamic.meta.metric */
+		    switch (magic.type) {
+			case PM_TYPE_32:
+			    atom.l = 42;
+			    break;
+			case PM_TYPE_U32:
+			    atom.ul = 42;
+			    break;
+			case PM_TYPE_64:
+			    atom.ll = 42;
+			    break;
+			case PM_TYPE_U64:
+			    atom.ull = 42;
+			    break;
+			case PM_TYPE_FLOAT:
+			    atom.f = 42;
+			    break;
+			case PM_TYPE_DOUBLE:
+			    atom.d = 42;
+			    break;
+			default:
+			    /* do nothing in other cases ... return garbage */
+			    break;
+		    }
+		    break;
+		case 87:	/* sample.dynamic.meta.pmdesc.type */
+		    atom.ul = magic.type;
+		    break;
+		case 88:	/* sample.dynamic.meta.pmdesc.indom */
+		    atom.ul = magic.indom;
+		    break;
+		case 89:	/* sample.dynamic.meta.pmdesc.sem */
+		    atom.ul = magic.sem;
+		    break;
+		case 90:	/* sample.dynamic.meta.pmdesc.units */
+		    ulp = (__uint32_t *)&magic.units;
+		    atom.ul = *ulp;
+		    break;
+		case 91:	/* sample.datasize */
+		    atom.ul = (int)((__psint_t)sbrk(0) - (__psint_t)pmda_data) / 1024;
+		    break;
+		case 1023: /* bigid */
+		    atom.l = 4194303;
+		    break;
+	    }
+
+	    if ((sts = __pmStuffValue(&atom, aggregate_len, &vset->vlist[j], type)) < 0) {
+		__pmFreeResultValues(res);
+		return sts;
+	    }
+	    vset->valfmt = sts;
+	    j++;	/* next element in vlist[] for next instance */
+
+skip:
+	    ;
+	} while (dp->indom != PM_INDOM_NULL && nextinst(&inst));
+done:
+	vset->numval = j;
+    }
+    *resp = res;
+    return 0;
+}
+
+/*ARGSUSED3*/
+static int
+sample_desc(pmID pmid, pmDesc *desc, pmdaExt *ep)
+{
+    int		i;
+    __pmID_int	*pmidp = (__pmID_int *)&pmid;
+
+    _recv_pdu++;
+    _xmit_pdu++;
+
+    if (not_ready > 0) {
+	_xmit_pdu++;
+	return limbo();
+    }
+
+    if (direct_map) {
+	i = pmidp->item;
+	if (i < ndesc && desctab[i].pmid == pmid)
+	    goto doit;
+    }
+    for (i = 0; desctab[i].pmid != PM_ID_NULL; i++) {
+	if (desctab[i].pmid == pmid) {
+doit:
+	    /* the special cases */
+	    if (pmidp->item == 54)
+		return PM_ERR_PMID;
+	    else if (pmidp->item == 75 && _error_code < 0)
+		/* error_check and error_code armed */
+		return _error_code;
+	    else if (pmidp->item == 86)
+		*desc = magic;
+	    else
+		*desc = desctab[i];
+	    return 0;
+	}
+    }
+    return PM_ERR_PMID;
+}
+
+/*ARGSUSED4*/
+static int
+sample_text(int ident, int type, char **buffer, pmdaExt *ep)
+{
+    int sts;
+
+    _recv_pdu++;
+    _xmit_pdu++;
+
+    if (not_ready > 0) {
+	_xmit_pdu++;
+	return limbo();
+    }
+
+    if (ident & PM_TEXT_PMID) {
+	__pmID_int	*pmidp = (__pmID_int *)&ident;
+	int		i;
+
+	if (direct_map) {
+	    i = pmidp->item;
+	    if (i < ndesc && desctab[i].pmid == (pmID)ident)
+		goto doit;
+	}
+	for (i = 0; desctab[i].pmid != PM_ID_NULL; i++) {
+	    if (desctab[i].pmid == (pmID)ident) {
+doit:
+		/* the special cases */
+		if (pmidp->item == 75 && _error_code < 0)
+		    /* error_check and error_code armed */
+		    return _error_code;
+		break;
+	    }
+	}
+    }
+
+    sts = pmdaText(ident, type, buffer, ep);
+
+    return sts;
+}
+
+/*ARGSUSED2*/
+static int
+sample_store(pmResult *result, pmdaExt *ep)
+{
+    int		i;
+    pmValueSet	*vsp;
+    pmDesc	*dp;
+    __pmID_int	*pmidp;
+    int		sts = 0;
+    __int32_t	*lp;
+    pmAtomValue	av;
+
+    _recv_pdu++;
+    _xmit_pdu++;
+
+    if (not_ready > 0) {
+	_xmit_pdu++;
+	return limbo();
+    }
+
+    for (i = 0; i < result->numpmid; i++) {
+	vsp = result->vset[i];
+	for (dp = desctab; dp->pmid != PM_ID_NULL; dp++) {
+	    if (dp->pmid == vsp->pmid)
+		break;
+	}
+	if (dp->pmid == PM_ID_NULL) {
+	    /* not one of our metrics */
+	    sts = PM_ERR_PMID;
+	    break;
+	}
+	pmidp = (__pmID_int *)&vsp->pmid;
+
+	/*
+	 * for this PMD, the metrics that support modification
+	 * via pmStore() mostly demand a single value, encoded in
+	 * the result structure as PM_VAL_INSITU format
+	 */
+	switch (pmidp->item) {
+	    case 24:	/* longlong.write_me */
+	    case 29:	/* double.write_me */
+	    case 32:	/* string.write_me */
+	    case 35:	/* aggregate.write_me */
+		if (vsp->numval != 1 || vsp->valfmt == PM_VAL_INSITU)
+		    sts = PM_ERR_CONV;
+		break;
+
+	    case 74:    /* error_code */
+	    case 73:    /* const_rate.gradient */
+	    case 61:	/* dodgey.control */
+	    case 56:	/* not_ready */
+	    case 36:
+	    case 42:
+	    case 41:
+	    case 40:	/* pdu */
+	    case 14:	/* long.write_me */
+	    case 8:	/* step */
+	    case 7:	/* drift */
+	    case 0:	/* control */
+	    case 79:    /* many.count */
+	    case 87:	/* sample.dynamic.meta.pmdesc.type */
+	    case 88:	/* sample.dynamic.meta.pmdesc.indom */
+	    case 89:	/* sample.dynamic.meta.pmdesc.sem */
+	    case 90:	/* sample.dynamic.meta.pmdesc.units */
+		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
+		    sts = PM_ERR_CONV;
+		break;
+
+	    case 19:	/* float.write_me */
+		if (vsp->numval != 1)
+		    sts = PM_ERR_CONV;
+		/* accommodate both old and new encoding styles for floats */
+		break;
+
+	    default:
+		sts = -EACCES;
+		break;
+
+	}
+	if (sts != 0)
+	    break;
+
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0], dp->type, &av, dp->type)) < 0)
+	    break;
+
+	/*
+	 * we only have cluster 0, metric already found in desctab[],
+	 * so no checking needed nor outer case on pmidp->cluster
+	 */
+	switch (pmidp->item) {
+	    case 0:	/* control */
+		_control = av.l;
+		switch (_control) {
+		    case -1:
+			/* terminate, if we are not a DSO implementation */
+			sample_done = 1;
+			break;
+		    default:
+			pmDebug = _control;
+			break;
+		}
+		break;
+	    case 7:	/* drift */
+		_drift = av.l;
+		break;
+	    case 8:	/* step */
+		_step = av.l;
+		break;
+	    case 14:	/* long.write_me */
+		_long = av.l;
+		break;
+	    case 24:	/* longlong.write_me */
+		_longlong = av.ll;
+		break;
+	    case 19:	/* float.write_me */
+		_float = av.f;
+		break;
+	    case 40:	/* pdu */
+		/*
+		 * for the pdu group, the value is ignored, and the only
+		 * operation is to reset the counter(s)
+		 */
+		_xmit_pdu = _recv_pdu = 0;
+		break;
+	    case 41:
+		_recv_pdu = 0;
+		break;
+	    case 42:
+		_xmit_pdu = 0;
+		break;
+	    case 36:
+		_write_me = av.l;
+		break;
+	    case 29:	/* double.write_me */
+		_double = av.d;
+		break;
+	    case 32:	/* string.write_me */
+		free(_string);
+		_string = av.cp;
+		break;
+	    case 35:	/* aggregate.write_me */
+		_len35 = vsp->vlist[0].value.pval->vlen - PM_VAL_HDR_SIZE;
+		free(_aggr35);
+		_aggr35 = av.vp;
+		break;
+	    case 56:	/* not_ready */
+		not_ready = av.l;
+		break;
+	    case 61:	/* dodgey.control */
+		dodgey = av.l;
+		redo_dodgey();
+		break;
+	    case 73:	/* const_rate.gradient */
+		const_rate_gradient = av.ul;
+		break;
+	    case 74:	/* error_code */
+		_error_code = av.l;
+		break;
+	    case 79:	/* many.count */
+		many_count = av.l;
+		/* change the size of the many instance domain */
+		_error_code = redo_many();
+		break;
+	    case 87:	/* sample.dynamic.meta.pmdesc.type */
+		magic.type = av.l;
+		break;
+	    case 88:	/* sample.dynamic.meta.pmdesc.indom */
+		magic.indom = av.l;
+		break;
+	    case 89:	/* sample.dynamic.meta.pmdesc.sem */
+		magic.sem = av.l;
+		break;
+	    case 90:	/* sample.dynamic.meta.pmdesc.units */
+		lp = (__int32_t *)&magic.units;
+		*lp = av.l;
+	    default:
+		sts = -EACCES;
+		break;
+	}
+    }
+
+    return sts;
+}
+
+void sample_init(pmdaInterface *dp)
+{
+
+    char	helppath[MAXPATHLEN];
+
+    /* base of data segment */
+    pmda_data = sbrk(0);
+
+    if (_isDSO) {
+	snprintf(helppath, sizeof(helppath), "%s/pmdas/sample/dsohelp", pmGetConfig("PCP_VAR_DIR"));
+	pmdaDSO(dp, PMDA_INTERFACE_2, "sample DSO", helppath);
+    }
+
+    if (dp->status != 0)
+	return;
+
+    dp->version.two.fetch = sample_fetch;
+    dp->version.two.desc = sample_desc;
+    dp->version.two.instance = sample_instance;
+    dp->version.two.text = sample_text;
+    dp->version.two.store = sample_store;
+    dp->version.two.profile = sample_profile;
+
+    pmdaInit(dp, NULL, 0, NULL, 0);	/* don't use indomtab or metrictab */
+
+    gettimeofday(&_then, NULL);
+    _start = time(NULL);
+    init_tables(dp->domain);
+    redo_mirage();
+    redo_dynamic();
+
+    /*
+     * for gcc/egcs, statically initializing these cased the strings
+     * to be read-only, causing SEGV in redo_dynamic ... so do the
+     * initialization dynamically here.
+     */
+    _dodgey[0].i_name = strdup("d1");
+    _dodgey[1].i_name = strdup("d2");
+    _dodgey[2].i_name = strdup("d3");
+    _dodgey[3].i_name = strdup("d4");
+    _dodgey[4].i_name = strdup("d5");
+
+    return;
+}

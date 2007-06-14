@@ -1,0 +1,69 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmerrstr.3,v 2.6 2004/06/24 06:15:36 kenmcd Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMERRSTR 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMERRSTR 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMERRSTR 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMERRSTR 3 "" "\&"
+.if \nX=3 .ds x} PMERRSTR "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmErrStr\f1 \- convert a PMAPI error code into a string
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+const char *pmErrStr(int code)
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+Translate an error code into a text string, suitable for generating a
+diagnostic message.
+By convention, all error codes are negative.
+The small
+values are assumed to be negated versions of the Unix error codes as defined
+in
+.B <errno.h>
+and the strings returned are as per
+.BR strerror (3C).
+The larger, negative error codes are
+Performance Metrics Application Programming Interface (PMAPI)
+error conditions and
+.BR pmErrStr (3)
+returns an appropriate PMAPI error string, as determined by
+.IR code .
+.PP
+The string value is held in a single static buffer, so the returned value is
+only valid until the next call to
+.BR pmErrStr .
+.SH SEE ALSO
+.BR pmerr (1),
+.BR PMAPI (3)
+and
+.BR perror (3C).

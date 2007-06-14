@@ -1,0 +1,63 @@
+Sample PMDA
+===========
+
+This PMDA supports a synthetic collection of metrics that are designed
+to exercise various facilities of the Performance Co-Pilot.  The most
+common reasons for installing this PMDA are
+    a. for internal product QA, or
+    b. as part of one of the animated tutorials or demonstrations that
+       accompany the PCP
+
+Two variants of the PMDA are installed, namely "sample" as a daemon
+with an IPC channel to PMCD, and "sampledso" that is attached as a
+Dynamic Shared Object (DSO) by PMCD and called directly.
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT sample sampledso
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/sample
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+    Note that sampledso uses the next domain number after the one in
+    ./domain.h, so you must check for its uniqueness as well.
+
+ +  Then simply use
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options.
+
+    You will be prompted to choose the IPC channel for the daemon
+    implementation of the sample PMDA -- everything else is automated
+
+De-installation
+===============
+
+ +  Simply use
+
+	# cd $PCP_PMDAS_DIR/sample
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/sample.log) should be checked for any warnings
+    or errors.

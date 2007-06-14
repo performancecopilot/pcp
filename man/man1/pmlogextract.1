@@ -1,0 +1,327 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmlogextract.1,v 1.18 2005/07/10 05:26:01 kenmcd Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMLOGEXTRACT 1 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMLOGEXTRACT 1 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMLOGEXTRACT 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMLOGEXTRACT 1 "" "\&"
+.if \nX=3 .ds x} PMLOGEXTRACT "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmlogextract\f1 \- reduce, extract, concatenate
+and merge Performance Co-Pilot archives
+.SH SYNOPSIS
+\f3$PCP_BINADM_DIR/pmlogextract\f1
+[\f3\-wz\f1]
+[\f3\-c\f1 \f2configfile\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-v\f1 \f2volsamples\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+\f2input\f1 [...] \f2output\f1 
+
+On IRIX:
+
+\f3$PCP_BINADM_DIR/pmlogmerge\f1
+[\f3\-z\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-v\f1 \f2volsamples\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+\f2input\f1 [...] \f2output\f1
+.SH DESCRIPTION
+.B pmlogextract
+reads one or more Performance Co-Pilot (PCP) archive logs
+identified by
+.I input
+and creates a temporally merged and/or reduced PCP archive log in
+.IR output .
+The nature of merging is controlled by the number of input
+archive logs, while the nature of data reduction is controlled by
+the command line arguments.  The input(s) must be PCP archive logs
+created by
+.BR pmlogger (1).
+.PP
+.B pmlogmerge
+provides a subset of the capabilities of
+.BR pmlogextract ,
+namely reading one or more PCP archive logs identified by
+.I input
+and creating a temporally merged PCP archive log in
+.IR output .
+.B pmlogmerge 
+is deprecated and is provided on Irix for backwards-compatibility.
+.PP
+If only one
+.I input
+is specified, then the default behavior simply copies the input
+PCP archive log, into the output PCP archive log.  When two or
+more PCP archive logs are specified as
+.IR input ,
+the logs are merged (or concatenated) and written to
+.IR output .
+.SH COMMAND LINE OPTIONS
+The command line options for
+.B pmlogextract
+are as follows:
+.PP
+.TP 7
+.BI \-c " configfile"
+Extract only the metrics specified in
+.I configfile
+from the
+.I input
+PCP archive log(s).  The
+.I configfile
+syntax accepted by
+.B pmlogextract
+is explained in more detail in the
+.B Configuration File Syntax
+section.
+.PP
+.TP 7
+.BI \-n " pmnsfile"
+Normally
+.B pmlogextract
+operates on the Performance Metrics Name Space (PMNS) from
+.IR input ,
+however if the
+.B -n
+option is specified an alternative
+local PMNS is loaded from the file
+.IR pmnsfile .
+.PP
+.TP 7
+.BI \-S " starttime"
+Define the start of a time window to restrict the samples retrieved
+or specify a ``natural'' alignment of the output sample times; refer
+to
+.BR PCPIntro (1).
+See also the
+.B \-w
+option.
+.PP
+.TP 7
+.BI \-s " samples"
+The argument
+.I samples
+defines the number of samples to be written to
+.IR output .
+If
+.I samples
+is 0 or
+.B -s
+is not specified,
+.B pmlogextract
+will sample until the end of the PCP archive,
+or the end of the time window as specified by
+.BR -T ,
+whichever comes first.  The
+.B -s
+option will override the
+.B -T
+option if it occurs sooner.
+.PP
+.TP 7
+.BI \-T " endtime"
+Define the termination of a time window to restrict the samples
+retrieved or specify a ``natural'' alignment of the output sample
+times; refer to
+.BR PCPIntro (1).
+See also the
+.B \-w
+option.
+.PP
+The
+.I output
+archive log is potentially a multi-volume data set, and the
+.B \-v
+option causes
+.B pmlogextract
+to start a new volume after
+.I volsamples
+log records have been written to the archive.
+.PP
+.TP 7
+.B \-w
+Where
+.B \-S
+and
+.B \-T
+specify a time window within the same day, the
+.B \-w
+flag will cause the data within the time window to be extracted,
+for every day in the archive.
+For example, the options
+.B \-w \-S "@11:00" \-T "@15:00"
+specify that
+.B pmlogextract
+should include archive log records only for the periods from 11am
+to 3pm on each day.  When
+.B \-w
+is used, the
+.I output
+archive log will contain ``mark'' records to indicate the temporal
+discontinuity between the end of one time window and the start of
+the next.
+.PP
+.TP 7
+.BI \-Z " timezone"
+Use
+.I timezone
+when displaying the date and time.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (5).
+.PP
+.TP 7
+.B \-z
+Use the local timezone of the host from the input archive logs.
+The default is to initially use the timezone of the local host.
+.SH CONFIGURATION FILE SYNTAX
+The
+.I configfile
+contains metrics of interest, listed one per line.  Instances
+may also be specified, but they are optional.  The format for
+each metric name is
+
+        metric [[instance[,instance...]]]
+
+where
+.I metric
+may be a leaf or a non-leaf node in the Performance Metrics
+Namespace (PMNS, see
+.BR pmns (4)).
+If a metric refers to a non-leaf node in the PMNS,
+.B pmlogextract
+will recursively descend the PMNS and include all metrics
+corresponding to descendent leaf nodes.  Instances are
+optional, and may be specified as a list of one or more
+space (or comma) separated names, numbers or strings.
+Elements in the list that are numbers are assumed to be external
+instance identifiers - see
+.BR pmGetInDom (3)
+for more information.
+If no instances are given, then the logging specification is applied
+to all instances of the associated metric(s).
+.SH CONFIGURATION FILE EXAMPLE
+This is an example of a valid
+.IR configfile :
+.PP
+        #
+        # config file for pmlogextract
+        #
+
+        kernel.all.cpu
+        kernel.percpu.cpu.sys ["cpu0","cpu1"]
+        disk.dev ["dks0d1"]
+.SH FILES
+.PD 0
+For each of the
+.I input
+and
+.I output
+archives, several physical files are used.
+.TP 10
+\f2archive\f3.meta
+metadata (metric descriptions, instance domains, etc.) for the archive log
+.TP
+\f2archive\f3.0
+initial volume of metrics values (subsequent volumes have suffixes
+.BR 1 ,
+.BR 2 ,
+\&...)
+.TP
+\f2archive\f3.index
+temporal index to support rapid random access to the other files in the
+archive log.
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmdumplog (1),
+.BR pmlc (1),
+.BR pmlogger (1),
+.BR pmlogreduce (1),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).
+.SH DIAGNOSTICS
+All error conditions detected by
+.B pmlogextract
+are reported on
+.I stderr
+with textual (if sometimes terse) explanation.
+.PP
+Should one of the input archive logs be corrupted (this can happen
+if the
+.B pmlogger
+instance writing the log suddenly dies), then
+.B pmlogextract
+will detect and report the position of the corruption in the file,
+and any subsequent information from that archive log will not be processed.
+.PP
+If any error is detected,
+.B pmlogextract
+will exit with a non-zero status.
+.SH CAVEATS
+.B pmlogmerge
+has been retained on Irix to provide backwards compatibility
+with earlier PCP releases, however, use of
+.B pmlogextract
+is encouraged in preference to
+.BR pmlogmerge ,
+and 
+.B pmlogmerge
+may not be supported in future PCP releases.
+.PP
+The preamble metrics (pmcd.pmlogger.archive, pmcd.pmlogger.host,
+and pmcd.pmlogger.port), which are automatically recorded by
+.B pmlogger
+at the start of the archive, may not be present in the archive output by
+.BR pmlogextract .
+These metrics are only relevant while the archive is being created,
+and have no significance once recording has finished.

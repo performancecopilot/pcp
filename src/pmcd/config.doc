@@ -1,0 +1,126 @@
+		      The Configuration File Format for
+		    Performance Monitor Collector Daemons
+
+			Jonathan Knispel, Ken McDonell
+			 Performance Tools Group, SGI
+				   Apr 1994
+
+
+Each line of the config file contains details of how to connect a
+Performance Monitor Collector Daemon (PMCD) to one of the Performance
+Monitor Domain Agents (PMDAs) that it deals with.  A PMDA may be
+attached to the daemon via:
+
+	1. a Dynamically Shared Object (DSO), or
+	2. a socket, or
+	3. a pair of pipes.
+
+The config file also serves to identify which domain a domain agent is
+the authority for.
+
+
+Config File Parsing
+===================
+
+The parser is insensitive to the case of the reserved words ("dso",
+"socket", "pipe", "unix", "inet", "text" and "binary").  Otherwise case
+is preserved.  Lexical elements are separated by whitespace characters,
+however a single PMDA specification may not be broken across lines
+(i.e. newline is special).
+
+Blank lines and comments are permitted in the config file.  A comment
+begins with a '#' character (which must be the first non-white
+character of a line) and finishes at the end of the line.  Each line of
+the config file must be either PMDA specification, a comment, or a
+blank line.
+
+
+Performance Monitor Domain Agent Specifications
+===============================================
+
+Each PMDA specification must start with a textual label (string)
+followed by an unsigned integer.  The label is a tag used to refer to
+the PMDA and the integer specifies the domain for which the agent
+supplies data.  This domain identifier corresponds to the domain
+portion of the PMIDs handled by the agent.  Each agent should have a
+unique label and domain identifier.
+
+
+Specifying DSO Agents
+~~~~~~~~~~~~~~~~~~~~~
+
+For DSO agents a line of the form:
+
+	<label>  <domain-no>  dso  <path>  <entry-point>
+
+should appear.  Where,
+
+	<label>	is a string identifying the agent
+	<domain-no> is the unsigned integer specifying the agent's domain;
+	<path>	designates the location of the DSO and
+	<entry-point> is the name of an initialisation function which will be
+		called when the DSO is loaded.  [We need to specify a
+		prototype for this function.  It should probably return a
+		pointer to the dispatch table for the DSO ---JK]
+
+Specifying Socket-based Agents
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For PMDA's providing socket connections, a line of the form
+
+	<label>  <domain-no>  socket  <addr-family>  <address>  [ <command> ]
+
+should appear.  Where,
+
+	<label>	is a string identifying the agent
+	<domain-no> is the unsigned integer specifying the agent's domain.
+	<addr-family> designates whether the socket is in the AF_INET or
+		AF_UNIX domain.  The two valid values for this parameter are
+		"unix" and "inet".
+	<address> specifies the address of the socket within the previously
+		specified <addr-family>.
+		For "unix" sockets, the address should be the name of a PMDA's
+		socket on the local host (a valid address for the UNIX
+		domain).
+		For "inet" sockets, the address may be either a port number or
+		a port name which may be used to connect to a PMDA on the
+		local host.  There is no syntax for specifying a PMDA on a
+		remote host as a PMCD deals only with PMDAs on the same
+		machine.
+	<command> is an optional parameter used to specify a command line to
+		start the agent when the PMCD initialises.  If <command> is
+		not present, the PMCD assumes that the specified agent has
+		already been created.  The <command> is considered to start
+		from the first non-white character after the socket address
+		and finish at the first newline encountered after that.  The
+		<command> is passed unmodified to the system(3S) call to
+		instantiate the agent.
+
+Specifying Pipe-based Agents
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For PMDA's interacting with the PMCD via stdin/stdout, a line of the form:
+
+	<label>  <domain-no>  pipe  <protocol> <command>
+
+should appear.  Where,
+
+	<label>	is a string identifying the agent
+	<domain-no> is the unsigned integer specifying the agent's domain;
+	<protocol> specifies whether a text-based or a binary protocol should
+		be used over the pipes.  The two valid values for this
+		parameter are "text" and "binary".
+	<command> specifies a command line to start the agent when the PMCD
+		initialises.  Note that <command> is mandatory for pipe-based
+		agents.  The <command> is considered to start from the first
+		 non-white character after the <protocol> parameter and finish
+		at the first newline encountered after that.  The <command> is
+		passed unmodified to the system(3S) call to instantiate the
+		agent.
+
+Limitations
+===========
+
+At present the length of a single token or a command line for a pipe-
+or socket-based agent may not exceed LINEBUF_SIZE-1 characters.  The
+default value for LINEBUF_SIZE is 200.

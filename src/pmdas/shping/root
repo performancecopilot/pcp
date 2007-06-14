@@ -1,0 +1,13 @@
+/*
+ * fake "root" for validating the local PMNS subtree
+ */
+
+#include "domain.h"
+
+#ifndef SHPING
+#define SHPING 19
+#endif
+
+root { shping }
+
+#include "pmns"

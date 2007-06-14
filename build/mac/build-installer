@@ -1,0 +1,99 @@
+#! /bin/sh
+
+if [ ! -d "$1" -o ! -x "$2" -o -z "$3" -o ! -f "$4" ]; then
+    if [ ! -d "$1" ]; then
+	echo "DIST_ROOT doesnt exist"
+    fi
+    if [ ! -x "$2" ]; then
+	echo PackageMaker not executable
+    fi
+    if [ -z "$3" ]; then
+	echo Must supply a package name
+    fi
+    if [ ! -f "$4" ]; then
+	echo idb file not found
+    fi
+    echo "Usage: $0 /path/to/DIST_ROOT /path/to/PackageMaker package_name idb_file"
+    exit 1
+fi
+
+DIST_ROOT=$1
+IFDIR="installer-files"
+IRDIR="installer-resources"
+PKGMKR=$2
+PKG="$3.pkg"
+IDB=$4
+HERE=`pwd`
+
+prog=`basename $0`
+tmp=/tmp/$$
+status=1
+trap "rm -f $tmp.* exit \$status" 0 1 2 15
+
+_do()
+{
+    if ! $* > $tmp.out 2>&1
+    then
+	echo "$prog: Error: $*"
+	cat $tmp.out
+	exit 1
+    fi
+}
+
+echo "Verifying IDB file is valid"
+_do ./install-pcp -R $DIST_ROOT -p $IDB
+
+echo "Gathering files from the source tree using install-pcp"
+_do rm -rf $IFDIR
+_do mkdir $IFDIR
+cd $IFDIR
+_do ../install-pcp -R $DIST_ROOT -c ../idb
+cd $HERE
+
+pwd
+
+#for i in ReadMe.html Welcome.txt License.html
+#do
+#    _do rm -f $IRDIR/$i
+#    _do cp $WA_MAC/docs/$i $IRDIR/$i
+#done
+
+#_do rm -f census census.gz
+
+echo "Updating version information..."
+MACOSX_VERSION=`expr \`uname -r | cut -d. -f1\` - 4`
+MACOSX_NEXT=`expr $MACOSX_VERSION + 1`
+BUILD_DATE=`date +'%Y%m%d'`
+
+for f in installer-info installer-description; do
+	nf=`echo $f | cut -c11-`
+	sed -e"s/@package_version@/$PACKAGE_VERSION/g" \
+	    -e"s/@package_major@/$PACKAGE_MAJOR/g" \
+	    -e"s/@package_minor@/$PACKAGE_MINOR/g" \
+	    -e"s/@macosx_version@/$MACOSX_VERSION/g" \
+	    -e"s/@macosx_next_version@/$MACOSX_NEXT/g" \
+	    -e"s/@build_date@/$BUILD_DATE/g" \
+	    < $f > $nf || exit 1
+done
+
+echo "Launching PackageMaker..."
+
+_do rm -rf $PKG
+
+# PackageMaker returns non-zero value even if it succeeds.
+# PackageMaker must be run by the user logged into the localhost desktop.
+#
+echo "$PKGMKR -build -p $HERE/$PKG -f $HERE/installer-files -r $HERE/installer-resources -i $HERE/info -d $HERE/description"
+
+$PKGMKR -build -p $HERE/$PKG -f $HERE/installer-files -r $HERE/installer-resources \
+-i $HERE/info -d $HERE/description &
+
+wait
+
+if [ ! -d $HERE/$PKG ]
+then
+    echo "$prog: Package generation failed"
+    exit 1
+fi
+
+status=0

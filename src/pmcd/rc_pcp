@@ -1,0 +1,601 @@
+#! /bin/sh
+#
+# Copyright (c) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+# 
+# Start or Stop the Performance Co-Pilot Daemon(s)
+#
+# $Id: rc_pcp,v 1.40 2007/01/16 06:50:10 kimbrr Exp $
+#
+# The following is for chkconfig on RedHat based systems
+# chkconfig: 2345 95 05
+# description: PCP is a system level performance monitoring package
+#
+# The following is for insserv(1) based systems,
+# e.g. SuSE, where chkconfig is a perl script.
+### BEGIN INIT INFO
+# Provides:       pcp
+# Required-Start: $network
+# Required-Stop:
+# Default-Start:  2 3 5
+# Default-Stop:
+# Description:    Configure the Performance Co-Pilot and starts logging.
+### END INIT INFO
+
+ 
+# Determine the base and follow a runlevel link name.
+base=${0##*/}
+link=${base#*[SK][0-9][0-9]}
+ 
+# Get standard environment
+. /etc/pcp.env
+
+# Get the portable PCP rc script functions
+. $PCP_SHARE_DIR/lib/rc-proc.sh
+
+PMCD=$PCP_BINADM_DIR/pmcd
+PMCDOPTS=$PCP_PMCDOPTIONS_PATH
+PCPLOCAL=$PCP_VAR_DIR/config/pmcd/rc.local
+PMLOGOPTS=$PCP_VAR_DIR/config/pmlogger/pmlogger.options
+PMLOGCTRL=$PCP_VAR_DIR/config/pmlogger/control
+RUNDIR=$PCP_LOG_DIR/pmcd
+DKPROBE=$PCP_BINADM_DIR/dkprobe
+PMLOGGER=$PCP_BINADM_DIR/pmlogger
+prog=$PCP_RC_DIR/`basename $0`
+
+# search for your mail agent of choice ...
+#
+MAIL=''
+for try in Mail mail email
+do
+    if which $try >/dev/null 2>&1
+    then
+	MAIL=$try
+	break
+    fi
+done
+
+tmp=/var/tmp/$$
+status=1
+trap "rm -f $tmp.* ; exit \$status" 0 1 2 3 15
+
+# determine real name for localhost
+#
+LOCALHOSTNAME="localhost"
+which hostname >/dev/null 2>&1 && LOCALHOSTNAME=`hostname`
+LOGDIR=$PCP_LOG_DIR/pmlogger/$LOCALHOSTNAME
+
+# defaults
+#
+if is_chkconfig_on pcp
+then
+    PMLOGGER_CTL=on
+else
+    PMLOGGER_CTL=off
+fi
+
+# on linux there is no flag for chkconfig "verbose"
+VERBOSE_CTL=on
+
+case "$PCP_PLATFORM"
+in
+    cygwin|interix)
+	# nothing we can usefully do here, skip the test
+	#
+	IAM=0
+	;;
+
+    *)
+	# standard Unix/Linux style test
+	#
+	ID=id
+	test -f /usr/xpg4/bin/id && ID=/usr/xpg4/bin/id
+
+	IAM=`$ID -u 2>/dev/null`
+	if [ -z "$IAM" ]
+	then
+	    # do it the hardway
+	    #
+	    IAM=`$ID | sed -e 's/.*uid=//' -e 's/(.*//'`
+	fi
+	;;
+esac
+
+_pmcd_logfile()
+{
+default=$RUNDIR/pmcd.log
+$PCP_AWK_PROG <$PMCDOPTS '
+BEGIN		{ logf = "'$default'" }
+$1 == "-l"	{ if (NF > 1) logf = $2 }
+END		{ print logf }'
+}
+
+_no_libirixpmda()
+{
+    logger -p user.alert -t PCP "pmcd: $1 missing"
+    echo \
+'Error: Cannot find '"$1"'
+       PMCD will start but will not export any IRIX metrics.'
+}
+
+_no_lib64_pcp()
+{
+    logger -p user.alert -t PCP "pmcd: /usr/lib64/libpcp.so.2 missing"
+    echo \
+'Error: Cannot find /usr/lib64/libpcp.so.2 , cannot start PMCD.
+
+       You should use inst(1)/swmgr(1) to ensure that the pcp_eoe.sw64.lib
+       subsystem is installed.'
+    exit
+}
+
+_reboot_setup()
+{
+    if [ "$PCP_PLATFORM" = irix ]
+    then
+	# Set up libirixpmda link so that pmcd will find it
+	# Only needed for 5.3, but removed for all OSs first as previous
+	# releases created it
+	#
+	rm -f /var/pcp/lib/libirixpmda.so /var/pcp/lib/mips_*.libirixpmda.so
+
+	irix_version=`/sbin/uname -r`
+	irix_obj=`pmobjstyle`
+
+	if [ "$irix_obj" = mips_64 -a ! -f /usr/lib64/libpcp.so.2 ]
+	then
+	    _no_lib64_pcp
+	fi
+
+	case $irix_version
+	in
+	    5.3)	if [ ! -f /usr/lib/pcp/libirixpmda.so ]
+		    then
+			_no_libirixpmda /usr/lib/pcp/libirixpmda.so
+			echo \
+'       To obtain an appropriate libirixpmda you should use inst(1)/swmgr(1)
+       to ensure that IRIX patch 2825 (or a successor) is installed.
+'
+		    else
+			ln -s /usr/lib/pcp/libirixpmda.so /var/pcp/lib/mips_o32.libirixpmda.so
+		    fi
+		    ;;
+	    6.2)
+		    if [ ! -f /usr/pcp/lib/$irix_obj.libirixpmda.so ]
+		    then
+			_no_libirixpmda /usr/pcp/lib/$irix_obj.libirixpmda.so
+			echo \
+'       To obtain an appropriate libirixpmda you should use inst(1)/swmgr(1)
+       to ensure that IRIX patch 2826 (or a successor) is installed.
+'
+		    fi
+		    ;;
+	    6.3)
+		    if [ ! -f /usr/pcp/lib/$irix_obj.libirixpmda.so ]
+		    then
+			_no_libirixpmda /usr/pcp/lib/$irix_obj.libirixpmda.so
+			echo \
+'       To obtain an appropriate libirixpmda you should use inst(1)/swmgr(1)
+       to ensure that IRIX patch 2827 (or a successor) is installed.
+'
+		    fi
+		    ;;
+	    6.4)
+		    if [ ! -f /usr/pcp/lib/$irix_obj.libirixpmda.so ]
+		    then
+			_no_libirixpmda /usr/pcp/lib/$irix_obj.libirixpmda.so
+			echo \
+'       To obtain an appropriate libirixpmda you should use inst(1)/swmgr(1)
+       to ensure that IRIX patch 2828 (or a successor) is installed.
+'
+		    fi
+		    ;;
+	    6.5)
+		    if [ ! -f /usr/pcp/lib/$irix_obj.libirixpmda.so ]
+		    then
+			_no_libirixpmda /usr/pcp/lib/$irix_obj.libirixpmda.so
+			echo \
+'       To obtain an appropriate libirixpmda you should use inst(1)/swmgr(1)
+       to ensure that the pcp_eoe.sw.eoe subsystem from the IRIX 6.5 CD set
+       is installed.
+'
+		    fi
+		    ;;
+	esac
+    fi
+
+    # base directories and house-keeping for pmlogger instances
+    #
+    if [ ! -d $PCP_TMP_DIR/pmlogger ]
+    then
+	mkdir -p $PCP_TMP_DIR/pmlogger
+    else
+	rm -rf $tmp.ent $tmp.pid
+	here=`pwd`
+	cd $PCP_TMP_DIR/pmlogger
+	rm -f primary vcr
+	_get_pids_by_name pmlogger >$tmp.pid
+	ls [0-9]* 2>&1 | sed -e '/\[0-9]\*/d' \
+	| sed -e 's/[ 	][ 	]*//g' | sort >$tmp.ent
+	# remove entries without a pmlogger process
+	rm -f `comm -23 $tmp.ent $tmp.pid`
+	rm -f $tmp.ent $tmp.pid
+	cd $here
+    fi
+    chmod 1777 $PCP_TMP_DIR/pmlogger
+
+    [ ! -d $LOGDIR ] && mkdir -p $LOGDIR
+
+    # Rebuild PMNS?
+    #
+    PMNSDIR=$PCP_VAR_DIR/pmns
+
+    rebuild=false
+    if [ -d $PMNSDIR -a \( -f $PMNSDIR/.NeedRebuild -o ! -f $PMNSDIR/root \) ]
+    then
+	rebuild=true
+    else
+	num=`find $PMNSDIR -newer $PMNSDIR/root -iname 'root_*' 2>/dev/null | wc -l`
+	[ "$num" -gt 0 ] && rebuild=true
+    fi
+
+    if $rebuild
+    then
+	if [ -x $PMNSDIR/Rebuild ]
+	then
+	    $ECHO $PCP_ECHO_N "Performance Co-Pilot rebuilding PMNS ..." "$PCP_ECHO_C"
+	    here=`pwd`
+	    cd $PMNSDIR
+	    ./Rebuild -du $REBUILDOPT
+	    $RC_STATUS -v
+	    # The 'root' file does not get updated when data did not change,
+	    # so we must touch it to update date.
+	    [ $? -eq 0 ] && { rm -f .NeedRebuild; touch root; }
+	    cd $here
+	fi
+    fi
+}
+
+_pmda_setup()
+{
+    # Auto-Install PMDAs?
+    #
+    if [ -d $PCP_PMDAS_DIR ]
+    then
+	here=`pwd`
+	cd $PCP_PMDAS_DIR
+	for file in */.NeedInstall
+	do
+	    [ "$file" = '*/.NeedInstall' ] && break
+	    pmda=`dirname $file`
+	    if [ -d "$pmda" -a -f "$pmda/.NeedInstall" ]
+	    then
+		cd $pmda
+		$PCP_ECHO_PROG "Performance Co-Pilot installing $pmda PMDA ..."
+
+		# rename .NeedInstall _before_ calling Install because
+		# Install can call this start script (recursively) and
+		# we don't want to get stuck in an infinite loop.
+		# 
+		rm -f .NeedInstall.sav
+		mv .NeedInstall .NeedInstall.sav
+		if ./Install </dev/null >/dev/null
+		then
+		    # success
+		    pmpost "PMDA setup: automated install: $pmda"
+		    rm -f .NeedInstall.sav
+		else
+		    # put the file back, maybe we'll be luckier next time
+		    pmpost "PMDA setup: automated install FAILED (exit=$?): $pmda"
+		    mv .NeedInstall.sav .NeedInstall
+		fi
+
+		cd $PCP_PMDAS_DIR
+	    fi
+	done
+	cd $here
+    fi
+}
+
+_start_pmcheck()
+{
+    if [ ! -z "$PMCD_WAIT_TIMEOUT" ]
+    then
+	wait_option="-t $PMCD_WAIT_TIMEOUT" 
+    else 
+	wait_option=''
+    fi
+
+    if pmcd_wait -h localhost $wait_option
+    then
+	pmlogger_check >$tmp.pmcheck 2>&1
+	if [ -s $tmp.pmcheck ]
+	then
+	    pmpost "pmlogger_check failed in $PCP_RC_DIR/pcp, mailing output to root"
+	    if [ ! -z "$MAIL" ]
+	    then
+		$MAIL -s "pmlogger_check failed in $PCP_RC_DIR/pcp" root <$tmp.pmcheck 
+	    else
+		echo "$prog: pmlogger_check failed ..."
+		cat $tmp.pmcheck 
+	    fi
+	fi
+	rm -f $tmp.pmcheck
+    else
+	status=$?
+	pmpost "pmcd_wait failed in $PCP_RC_DIR/pcp: exit status: $status" 
+	if [ ! -z "$MAIL" ]
+	then
+	    echo "pmcd_wait exit status: $status" | $MAIL -s "pmcd_wait failed in $prog" root
+	else
+	    echo "$prog: pmcd_wait failed: exit status: $status"
+	fi
+    fi
+}
+
+_start_pmlogger()
+{
+    [ ! -d $PCP_TMP_DIR/pmlogger ] && mkdir $PCP_TMP_DIR/pmlogger
+    chmod 1777 $PCP_TMP_DIR/pmlogger
+
+    if which pmlogger_check >/dev/null 2>&1
+    then
+	# pmlogger_check uses $PCP_VAR_DIR/config/pmlogger/control
+	# and so can start everything that is needed
+	#
+	$ECHO $PCP_ECHO_N "Performance Co-Pilot starting archive loggers ..." "$PCP_ECHO_C"
+	if [ ! -f $PMLOGCTRL ]
+	then
+	    echo "$prog:"'
+Error: PCP archive logger control file '$PMLOGCTRL'
+       is missing!  Cannot start any Performance Co-Pilot archive logger(s).'
+	    # failure
+	    false
+	else
+	    # really start the pmlogger instances based on the control file.
+	    # done in the background to avoid delaying the init script,
+	    # failures are notified by mail
+	    #
+	    _start_pmcheck &
+	    # success
+	    true
+	fi
+    else
+	echo "$prog:"'
+Warning: Performance Co-Pilot installation is incomplete (at least the
+         script "pmlogger_check" is missing) and the PCP archive logger(s)
+	 cannot be started.'
+	# failure
+	false
+    fi
+    $RC_STATUS -v
+}
+
+_shutdown()
+{
+    # Send pmcd a SIGTERM, which is noted as a pending shutdown.
+    # When finished the currently active request, pmcd will close any
+    # connections, wait for any agents, and then exit.
+    #
+    if [ -f $PCP_RUN_DIR/pmcd.pid ]
+    then
+       kill -TERM `cat $PCP_RUN_DIR/pmcd.pid`
+       rm -f $PCP_RUN_DIR/pmcd.pid
+    fi
+    $ECHO $PCP_ECHO_N "Waiting for PMCD to terminate ...""$PCP_ECHO_C"
+    gone=0
+    for i in 1 2 3 4 5 6
+    do
+	sleep 3
+	_get_pids_by_name pmcd >$tmp.tmp
+	if [ ! -s $tmp.tmp ]
+	then
+	    gone=1
+	    break
+	fi
+	$ECHO $PCP_ECHO_N ".""$PCP_ECHO_C"
+    done
+    if [ $gone != 1 ]	# It just WON'T DIE, give up.
+    then
+	echo "Process ..."
+	cat $tmp.tmp
+	echo "$prog: Warning: PMCD won't die!"
+	exit
+    fi
+     $RC_STATUS -v
+    pmpost "stop pmcd from $PCP_RC_DIR/pcp"
+}
+
+_usage()
+{
+    echo "Usage: $PCP_RC_DIR/pcp [-v] {start|restart|stop|status}"
+}
+
+while getopts v c
+do
+    case $c
+    in
+	v)  # force verbose
+	    VERBOSE_CTL=on
+	    ;;
+	
+	*)
+	    _usage
+	    exit 1
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $VERBOSE_CTL = on ]
+then				# For a verbose startup and shutdown
+    ECHO=$PCP_ECHO_PROG
+    REBUILDOPT=''
+    VFLAG='-v'
+else				# For a quiet startup and shutdown
+    ECHO=:
+    REBUILDOPT=-s
+    VFLAG=
+fi
+
+if [ "$IAM" != 0 -a "$1" != "status" ]
+then
+    echo "$prog:"'
+Error: You must be root (uid 0) to start or stop the Performance Co-Pilot PMCD.'
+    exit
+fi
+
+# First reset status of this service
+$RC_RESET
+ 
+# Return values acc. to LSB for all commands but status:
+# 0 - success
+# 1 - misc error
+# 2 - invalid or excess args
+# 3 - unimplemented feature (e.g. reload)
+# 4 - insufficient privilege
+# 5 - program not installed
+# 6 - program not configured
+#
+# Note that starting an already running service, stopping
+# or restarting a not-running service as well as the restart
+# with force-reload (in case signalling is not supported) are
+# considered a success.
+case "$1" in
+
+  'start'|'restart')
+	_get_pids_by_name pmcd >$tmp.tmp
+	[ -s $tmp.tmp ] && _shutdown
+
+	# PMCD and PMDA messages should go to stderr, not the GUI notifiers
+	#
+	unset PCP_STDERR
+
+	_reboot_setup
+
+	if [ "$PCP_PLATFORM" = irix ]
+	then
+	    if [ -d /hw/rdisk ]
+	    then
+		# assume this is a system with the hardware graph support,
+		# so dkprobe is not required
+		:
+	    else
+		# touch all the disks so that libirixpmda sees them
+		which dkprobe >/dev/null 2>&1 && dkprobe
+	    fi
+	fi
+
+	if [ -x $PMCD ]
+	then
+	    if [ ! -f $PCP_PMCDCONF_PATH ]
+	    then
+		echo "$prog:"'
+Error: PMCD control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start PMCD.'
+		exit
+	    fi
+	    [ ! -d $RUNDIR ] && mkdir -p $RUNDIR
+	    cd $RUNDIR
+
+	    # salvage the previous versions of any PMCD and PMDA logfiles
+	    #
+	    for log in pmcd `sed -e '/^#/d' -e '/\[access\]/q' -e 's/[ 	].*//' <$PCP_PMCDCONF_PATH`
+	    do
+		if [ -f $log.log ]
+		then
+		    rm -f $log.log.prev
+		    mv $log.log $log.log.prev
+		fi
+	    done
+
+	    $ECHO $PCP_ECHO_N "Performance Co-Pilot starting PMCD (logfile is `_pmcd_logfile`) ..." "$PCP_ECHO_C"
+
+	    # only consider lines which start with a hyphen
+	    # get rid of the -f option
+	    # ensure multiple lines concat onto 1 line
+	    OPTS=`sed <$PMCDOPTS 2>/dev/null \
+			    -e '/^[^-]/d' \
+			    -e 's/^/ /' \
+			    -e 's/$/ /' \
+			    -e 's/ -f / /g' \
+			    -e 's/^ //' \
+			    -e 's/ $//' \
+		    | tr '\012' ' ' `
+
+	    $PMCD $OPTS
+	    $RC_STATUS -v
+
+	    pmpost "start pmcd from $PCP_RC_DIR/pcp"
+
+	    _pmda_setup
+
+	    if [ -x $PMLOGGER ]
+	    then
+		if [ "$PMLOGGER_CTL" = on ]
+		then
+		    _start_pmlogger
+		else
+		    # forced removal of primary symlink
+		    rm -f $PCP_TMP_DIR/pmlogger/primary
+		fi
+	    fi
+
+	    # site-local customisations after PCP startup
+	    #
+	    [ -x $PCPLOCAL ] && $PCPLOCAL $VFLAG start
+	    
+	fi
+	status=0
+        ;;
+
+  'stop')
+	# site-local customisations before PCP shutdown
+	#
+	[ -x $PCPLOCAL ] && $PCPLOCAL $VFLAG stop
+	_shutdown
+	status=0
+        ;;
+
+  'status')
+	# NOTE: $RC_CHECKPROC returns LSB compliant status values.
+	$ECHO $PCP_ECHO_N "Checking for PCP:" "$PCP_ECHO_C"
+        if [ -r /etc/rc.status ]
+        then
+            # SuSE
+            $RC_CHECKPROC $PMCD
+            $RC_STATUS -v
+            status=$?
+        else
+            # not SuSE
+            $RC_CHECKPROC $PMCD
+            status=$?
+            if [ $status -eq 0 ]
+            then
+                $ECHO running
+            else
+                $ECHO stopped
+            fi
+        fi
+	;;
+
+  *)
+	_usage
+        ;;
+esac
+

@@ -1,0 +1,26 @@
+network {
+    interface
+}
+
+network.interface {
+    in
+    out
+    total
+}
+
+network.interface.in {
+    packets		AIX:0:59
+    bytes		AIX:0:60
+    errors		AIX:0:61
+}
+
+network.interface.out {
+    packets		AIX:0:62
+    bytes		AIX:0:63
+    errors		AIX:0:64
+}
+
+network.interface.total {
+    packets		AIX:0:65
+    bytes		AIX:0:66
+}

@@ -1,0 +1,137 @@
+This document describes how to configure and build the open source PCP
+("pcp") package from source, and how to install and run it.
+
+0. If you have the binary rpm, simply install it and skip to step 2 (below).
+   The rpm command to do this is
+	# rpm -i RPMFILE
+	# (where RPMFILE is the name of the pcp binary RPM file)
+
+1. Configure, build and install the package
+
+   The pcp package uses autoconf/configure and expects a GNU build
+   environment (your platform must at least have both autoconf and gmake). 
+   
+   If you just want to spin an RPM and/or tar file, use the Makepkgs
+   script in the top level directory. This will configure and build
+   the package and leave binary and src RPMs in the build/rpm
+   directory.  It will also leave a tar file in the build/tar
+   directory.
+
+       # ./Makepkgs -verbose
+
+   If you want to build the package and install it manually, use the
+   following steps :
+
+       # make configure  (or run autoconf; ./configure)
+       # make
+       # su root
+       # make install
+
+   Note that there are so many "install" variants out there that we
+   wrote our own script (see "install-sh" in the top level directory).
+
+2. Post-install steps
+
+   You will need to start the PCP Collection Daemon (PMCD)
+   # su root
+   # /etc/rc.d/init.d/pcp start
+
+   This assumes your startup scripts are in /etc/rc.d/init.d
+   (which is the Redhat default). On Debian systems, it is /etc/rc.d
+   so you should run /etc/rc.d/pcp start.
+
+   By default, PMCD will start automatically at reboot. However
+   if you have previously installed PCP, you may need to
+
+   # su root
+   # chkconfig pcp on
+
+   Once you have started the PMCD daemon, you can list all performance
+   metrics using the pminfo(1) command, E.g.
+
+   # pminfo -fmdt   (you don't have to be root for this, but you may need to
+		     type rehash so your shell finds the pminfo command).
+
+   If you are writing scripts, you may find the output from pmprobe(1)
+   easier to parse than that for pminfo(1). There are numerous other
+   PCP client tools included. Look in /usr/bin and /usr/share/pcp/bin.
+
+   PCP can be configured to automatically log certain performance metrics
+   for one or more hosts. The scripts to do this are documented in
+   pmlogger_check(1). By default this facility is not enabled. If you want
+   to use it, you need to
+
+   # determine which metrics to log and how often you need them
+   # edit /var/pcp/config/pmlogger/control
+   # edit /var/pcp/config/pmlogger/config.default  (and any others in same dir)
+   # as root, crontab -e  and add something like:
+
+   # -- typical PCP log management crontab entries
+   # daily processing of archive logs
+   10      0       *       *       *       /usr/share/pcp/bin/pmlogger_daily
+   #
+   # every 30 minutes, check pmlogger instances are running
+   25,40   *       *       *       *       /usr/share/pcp/bin/pmlogger_check
+   #
+   # every 30 minutes, check pmie instances are running
+   5,55    *       *       *       *       /usr/share/pcp/bin/pmie_check
+
+
+   The pmie (Performance Metrics Interfence Engine) daemon is _not_
+   configured to start by default. To enable it, you may want to
+
+   # su root
+   # chkconfig pmie on
+   # edit /var/pcp/config/pmie/control
+   # edit /var/pcp/config/pmie/config.default
+   # set up cron scripts similar to those for pmlogger (see above)
+
+3. Configure some optional Performance Metrics Domain Agents (PMDAs)
+
+   The default installation gives you the metrics for cpu, per-process,
+   file system, swap, network, disk, memory, interrupts, nfs/rpc and
+   others. These metrics are handled using the platform PMDA (which
+   is pmda_linux.so on linux systems). It also gives you the PMCD PMDA,
+   which contains metrics that monitor PCP itself.
+
+   There are many other optional PMDAs that you can configure, depending
+   on which performance metrics you need to monitor, as follows:
+   Note: $PCP_PMDAS_DIR is normally /var/pcp/pmdas, see pcp.conf(4).
+
+   Web Server metrics
+
+   # su root
+   # cd $PCP_PMDAS_DIR/weblog  (i.e. cd /var/pcp/pmdas/weblog)
+   # ./Install   (default answers to all questions will generally work
+                  for Apache httpd on Linux systems)
+   # Check everything is working OK
+   # pminfo -fmdt web
+
+   Other PMDAs in the pcp package include:
+
+     apache - monitor apache web server stats
+     cisco - monitor Cisco router stats
+     mailq - monitor the mail queue
+     mounts - keep track of mounted file systems
+     news - experimental ascii protocol
+     process - keep an eye on critical processes/daemons
+     roomtemp - monitor room temp (needs suitable probe)
+     sendmail - monitor sendmail statistics
+     shping - ping critical system services
+     trace - for instrumenting arbitrary applications, see pmtrace(1)
+     txmon - transaction and QOS monitoring
+     news - monitor news traffic
+     sample - for testing
+     simple - example src code if you want to write a new PMDA
+     trivial - even easier src code for a new PMDA.
+
+   The procedure for configuring all of these is to change to the
+   directory for the PMDA (usually below /var/pcp/pmdas), and then
+   run the Install script found therein. None of these PMDAs are
+   configured by default - you choose the PMDAs you need and run the
+   Install script.
+
+4. How to Contribute
+
+   See the README file in this directory for details about how to
+   contribute to the PCP project.

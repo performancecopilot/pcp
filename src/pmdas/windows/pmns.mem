@@ -1,0 +1,25 @@
+mem {
+    page_faults		WINDOWS:0:27
+    available		WINDOWS:0:28
+    committed_bytes	WINDOWS:0:29
+    pool
+    cache
+}
+
+mem.pool {
+    paged_bytes		WINDOWS:0:30
+    non_paged_bytes	WINDOWS:0:31
+}
+
+mem.cache {
+    read_ahead		WINDOWS:0:35
+    lazy_writes		WINDOWS:0:32
+    lazy_write_pages	WINDOWS:0:33
+    mdl
+}
+
+mem.cache.mdl {
+    read		WINDOWS:0:34
+    sync_read		WINDOWS:0:36
+    async_read		WINDOWS:0:37
+}

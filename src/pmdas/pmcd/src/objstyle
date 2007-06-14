@@ -1,0 +1,59 @@
+#! /bin/sh
+#
+# $Id: objstyle,v 1.4 2004/12/03 19:32:18 kenmcd Exp $
+# Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# identify the objstyle of linux platforms other than ia32 and ia64.
+
+echo 'int main(){return 0;}' >dummy.c
+cc -c dummy.c
+
+# we've had bad experience with file(1) and compiled "magic" files
+# on assorted Linux versions ... try to use the uncompiled magic
+# file if possible
+#
+# if you need to modify this, make consistent changes in
+#	src/pmdas/pmcd/src/objstyle
+#	qa/605
+#
+if [ -f /usr/share/misc/magic ]
+then
+    appstyle=`file -m /usr/share/misc/magic dummy.o`
+elif [ -f /usr/share/magic ]
+then
+    appstyle=`file -m /usr/share/magic dummy.o`
+elif [ -f /etc/magic]
+then
+    appstyle=`file -m /etc/magic dummy.o`
+else
+    appstyle=`file dummy.o`
+fi
+
+# sample appstyle
+#
+# ia32 laptop
+# dummy.o: ELF 32-bit LSB relocatable, Intel 80386, version 1 (SYSV), not stripped
+#
+
+echo "$appstyle" \
+| awk -F, '{print $2}' \
+| sed -e 's/[ ,]//g' -e 's/(.*$//'
+
+rm -f dummy.[co]

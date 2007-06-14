@@ -1,0 +1,127 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmtraversepmns.3,v 2.13 2006/06/19 09:53:58 makc Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMTRAVERSEPMNS 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMTRAVERSEPMNS 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMTRAVERSEPMNS 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMTRAVERSEPMNS 3 "" "\&"
+.if \nX=3 .ds x} PMTRAVERSEPMNS "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmTraversePMNS\f1,
+\f3pmRequestTraversePMNS\f1,
+\f3pmReceiveTraversePMNS\f1 \- traverse the performance metrics name space
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmTraversePMNS(const char *name, void (*dometric)(const char *))
+int pmRequestTraversePMNS(int ctx, const char *name)
+int pmReceiveTraversePMNS(int ctx, void (*dometric)(const char *))
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+.PP
+The routine
+.B pmTraversePMNS
+may be used to perform a depth-first traversal of the Performance
+Metrics Name Space (PMNS).
+.PP
+The traversal starts at the node identified by
+.I name
+\- if
+.I name
+is an empty string (i.e.\f3""\f1), the traversal starts at the
+root of the PMNS.
+Usually
+.I name
+would be the pathname of a non-leaf node in the PMNS.
+.PP
+For each leaf node (i.e. performance metric) found in the traversal,
+the user-supplied routine
+.I dometric
+is called with the full pathname of that metric in the PMNS as
+the single argument.
+This argument is null-byte terminated, and is
+constructed from a buffer that is managed internally to
+.BR pmTraversePMNS .
+Consequently the value is only valid during the call to
+.I dometric
+\- if the pathname needs to be retained, it should be copied using
+.BR strdup (3C)
+before returning from
+.IR dometric .
+.PP
+On success
+.B pmtraversePMNS
+returns the number of children of
+.IR name ,
+which may be zero.
+.PP
+\f3pmRequestTraversePMNS\fP and \f3pmReceiveTraversePMNS\fP are used
+by applications which must  communicate with the PMCD asynchronously.
+These functions take explict context handle \f2ctx\fP which must refer
+to a host context (i.e. created by passing \f3PM_CONTEXT_HOST\fP
+to \f3pmNewContext\fP). \f3pmRequestTraversePMNS\fP sends request
+to PMCD to return sub-tree of PMNS and returns without waiting for the response,
+\f3pmReceiveTraversePMNS\fP reads reply from PMCD and executes
+depth-first traversal over returned sub-tree. It is the responsibility
+of the application to make sure the data are ready before calling
+\f3pmReceiveTraversePMNS\f1.
+.PP
+Unlike its synchronous counterpart \f3pmTraversePMNS\fP,
+\f3pmReceiveTraversePMNS\fP does not perform any additional queries
+to provide compatibility with older versions of PCP,
+it is the responsibility of an application to implement additional traversals.
+.SH SEE ALSO
+.BR PMAPI (3)
+and
+.BR pmGetChildren (3).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOPMNS\f1
+Failed to access a PMNS for operation.
+Note that if the application hasn't a priori called pmLoadNameSpace(3)
+and wants to use the distributed PMNS, then a call to
+.B pmTraversePMNS
+must be made inside a current context.
+.IP \f3PM_ERR_NAME\f1
+The initial pathname
+.I name
+is not valid in the current PMNS.
+.IP \f3PM_ERR_*\f1
+Other diagnostics are for protocol failures when
+accessing the distributed PMNS.
+.IP \f3PM_ERR_CTXBUSY\f1
+Context is currently in use by another asynchronous call.

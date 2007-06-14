@@ -1,0 +1,91 @@
+#! gmake
+#
+# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+#*************************************************************************
+#
+# Makefile - Darwin PMDA (dynamic library)
+#
+#*************************************************************************
+#
+# $Id: GNUmakefile,v 1.5 2004/11/26 04:24:50 kenmcd Exp $
+#
+
+TOPDIR = ../../..
+include $(TOPDIR)/src/include/builddefs
+
+IAM		= darwin
+DOMAIN		= DARWIN
+PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
+CONF_LINE	= "darwin	78	dso	darwin_init	$(PCP_PMDAS_DIR)/darwin/pmda_darwin.dylib"
+
+ifeq "$(TARGET_OS)" "darwin" 
+LIBTARGET	= pmda_darwin.dylib
+CMDTARGET	= pmdadarwin
+endif
+
+CFILES		= pmda.c kernel.c disk.c network.c
+HFILES		= disk.h network.h
+
+LSRCFILES	= help root pmns
+
+FRAMEWORKS	= -framework CoreFoundation -framework IOKit
+LLDLIBS		= -lpcp -lpcp_pmda $(FRAMEWORKS)
+
+LDIRT		= *.log *.dir *.pag root_darwin domain.h
+
+default:	build-me
+
+include $(BUILDRULES)
+
+ifeq "$(TARGET_OS)" "darwin" 
+build-me:	root_darwin domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
+	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	fi
+
+install: build-me
+	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help.dir help.pag $(PMDADIR)
+	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
+	$(INSTALL) -m 644 root_darwin $(PCP_VAR_DIR)/pmns/root_darwin
+else
+build-me:
+install:
+endif
+
+help.dir help.pag : help
+	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_darwin -v 2 -o help < help
+
+default_pcp : default
+
+install_pcp : install
+
+root_darwin: ../../pmns/stdpmid
+	rm -f root_darwin
+	cpp -I../../pmns -fno-show-column < root | sed -e '/^#/d' > root_darwin
+
+domain.h: ../../pmns/stdpmid
+	rm -f domain.h
+	echo "/*" >domain.h
+	echo " * built from $(PCP_VAR_DIR)/pmns/stdpmid" >>domain.h
+	echo " */" >>domain.h
+	$(PCP_AWK_PROG) <../../pmns/stdpmid >>domain.h \
+	    '/#define[  ][	]*$(DOMAIN)[ 	]/ { print "#define $(DOMAIN) " $$3 }'

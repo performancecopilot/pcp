@@ -1,0 +1,92 @@
+#! /bin/sh
+#
+# Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# Install the sample PMDA and/or PMNS
+#
+# $Id: Install,v 2.12 2000/12/28 07:37:59 max Exp $
+#
+
+# source the PCP configuration environment variables
+. /etc/pcp.env
+
+# Get the common procedures and variable assignments
+#
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+# The name of the PMDA for sample
+#
+iam=sample
+
+# Using libpcp_pmda.so.2 and PMDA_INTERFACE_2
+#
+pmda_interface=2
+
+# Do it for sample
+#
+pmdaSetup
+
+echo "======================"
+echo "= sample daemon PMDA ="
+echo "======================"
+
+daemon_opt=true		# can install as daemon
+dso_opt=false
+pipe_opt=true		# supports pipe IPC
+socket_opt=true		# supports socket IPC
+socket_inet_def=2077	# default TCP port for Internet socket IPC
+
+pmdaInstall
+
+# The name of the PMDA for sampledso
+#
+iam=sampledso
+
+# Do it for sampledso ... no pmdaSetup
+#
+
+echo "======================"
+echo "= sampledso DSO PMDA ="
+echo "======================"
+
+domain=30
+SYMDOM=SAMPLEDSO
+sed -e 's/sample/sampledso/' -e 's/SAMPLE/SAMPLEDSO/' <pmns >$tmp.pmns
+pmns_source=$tmp.pmns
+pmns_name=sampledso
+
+if $do_pmda
+then
+    sed -e 's/sample/sampledso/' -e 's/SAMPLE/SAMPLEDSO/' <help >dsohelp
+    help_source=dsohelp
+fi
+
+dso_opt=true
+daemon_opt=false
+if [ "$PCP_PLATFORM" = "irix" ] ; then
+    dso_name=pmda_sample.so
+else
+    dso_name=$PCP_PMDAS_DIR/sample/pmda_sample.so
+fi
+dso_entry=sample_init
+
+pmdaInstall
+
+exit 0

@@ -1,0 +1,101 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmfetcharchive.3,v 2.5 2004/06/24 06:15:36 kenmcd Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMFETCHARCHIVE 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMFETCHARCHIVE 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMFETCHARCHIVE 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMFETCHARCHIVE 3 "" "\&"
+.if \nX=3 .ds x} PMFETCHARCHIVE "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmFetchArchive\f1 \- get performance metrics directly from an archive log
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmFetchArchive(pmResult **result)
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmFetchArchive
+is a variant of 
+.BR pmFetch (3)
+that may only be used when the current
+Performance Metrics Application Programming Interface (PMAPI)
+context
+is associated with an archive log.
+.PP
+The
+.I result
+is instantiated with all of the metrics (and instances)
+from the next archive record,
+consequently there is no notion of a list of desired metrics,
+and the instance profile of the PMAPI context is ignored.
+.PP
+It is expected that 
+.B pmFetchArchive
+would be used to create utilities that scan archive logs,
+while the more common access to the archives would be via the 
+.BR pmFetch (3)
+interface.
+.PP
+To skip records within the archive log, use
+.BR pmSetMode (3)
+to change the collection time within the current
+PMAPI context, then call
+.BR pmFetchArchive.
+.PP
+Note that the
+.I result
+returned by
+.B pmFetchArchive
+is dynamically allocated, and
+must be released using
+.BR pmFreeResult (3),
+not
+.BR free (3C).
+See
+.BR pmFetch (3)
+and
+.BR pmFreeResult (3)
+for further details.
+.PP
+.B pmFetchArchive
+returns zero on success.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmFetch (3),
+.BR pmFreeResult (3),
+.BR pmNewContext (3),
+.BR pmSetMode (3)
+and
+.BR pmTrimNameSpace (3).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOTARCHIVE\f1
+the current PMAPI context is not associated with an archive log

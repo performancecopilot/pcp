@@ -1,0 +1,53 @@
+#!/bin/sh -x
+#
+# Copyright (c) 2003-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# Post installation/upgrade script for PCP
+#
+
+prog=`basename $0`
+status=1
+trap "exit \$status" 0 1 2 15
+
+echo "$prog: PCP for MacOSX Install"
+
+echo "$prog: Writing install log to /var/log/pcp_inst.log"
+echo "$prog: Writing install log to /var/log/pcp_inst.log"  > /var/log/pcp_inst.log
+
+if [ ! -d $2 ]
+then
+    echo "$prog: Unable to open directory of new files ($2)"
+    echo "$prog: Unable to open directory of new files ($2)" >> /var/log/pcp_inst.log
+    exit 1
+fi
+
+cd $2
+
+# TODO: Remove -v flag once stable
+if ./install-pcp -v -i -l /var/log/pcp_inst.log idb
+then
+    :
+else
+    echo "$prog: Install Failed"
+    echo "$prog: Install Failed" >> /var/log/pcp_inst.log
+    exit 1
+fi
+
+status=0

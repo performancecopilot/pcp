@@ -1,0 +1,128 @@
+#! /bin/sh
+#
+# Copyright (c) 1997-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+# 
+# Install the mailq PMDA and/or PMNS
+#
+# $Id: Install,v 1.9 2003/02/20 05:28:13 kenmcd Exp $
+#
+
+# Get standard environment
+. /etc/pcp.env
+
+# Get the common procedures and variable assignments
+#
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+# The name of the PMDA
+#
+iam=mailq
+
+# Using libpcp_pmda.so.2 and PMDA_INTERFACE_2
+#
+pmda_interface=2
+
+# Do it
+#
+pmdaSetup
+
+if $do_pmda
+then
+
+    dso_opt=false
+    socket_opt=false
+    pipe_opt=true
+
+    mqueue=""
+    chk=""
+
+    if [ -f /etc/sendmail.cf ]
+    then
+	chk=`sed -n '/^O *QueueDirectory *= */s///p' /etc/sendmail.cf`
+	[ -z "$chk" ] && chk=`sed -n '/^O *Q *\//s//\//p' /etc/sendmail.cf`
+    fi
+
+    if [ ! -z "$chk" -a -d "$chk" ]
+    then
+	mqueue="$chk"
+    else
+	mqueue=/var/spool/mqueue
+    fi
+
+    while true
+    do
+	$PCP_ECHO_PROG $PCP_ECHO_N 'Mail queue directory ['"$mqueue"'] '"$PCP_ECHO_C"
+	read ans
+	[ -z "$ans" ] && break
+	if [ -d "$ans" ]
+	then
+	    mqueue="$ans"
+	    break
+	fi
+	echo "Error: \"$ans\" is not a directory"
+    done
+
+    echo
+    args="$args $mqueue"
+
+    while true
+    do
+	echo 'The default delay thresholds for grouping the pending mail items are:'
+	echo '    1 hour, 4 hours, 8 hours, 1 day, 3 days and 7 days'
+	echo
+	$PCP_ECHO_PROG $PCP_ECHO_N 'Do you wish to use the default delay thresholds [y]? '"$PCP_ECHO_C"
+	read ans
+	if [ -z "$ans" -o "$ans" = "y" -o "$ans" = "Y" ]
+	then
+	    break
+	else
+	    bucketlist=''
+	    while true
+	    do
+		$PCP_ECHO_PROG $PCP_ECHO_N 'Threshold? [return if no more] '"$PCP_ECHO_C"
+		read ans
+		[ -z "$ans" ] && break
+		# strip blanks so args in pmcd.conf get passed correctly to
+		# the mailqpmda binary
+		#
+		ans=`echo "$ans" | sed -e 's/ //g'`
+		if [ -z "$bucketlist" ]
+		then
+		    bucketlist="$ans"
+		else
+		    bucketlist="$bucketlist,$ans"
+		fi
+	    done
+	    if [ ! -z "$bucketlist" ]
+	    then
+		args="$args -b $bucketlist"
+		break
+	    fi
+	    echo
+	    echo 'Error: you must specify at least one threshold'
+	    echo
+	fi
+    done
+    echo
+fi
+
+pmdaInstall
+
+exit 0

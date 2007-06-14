@@ -1,0 +1,514 @@
+/*
+ * Copyright (c) 2003 Moser, Inc. All Rights Reserved.
+ * Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ * 
+ * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+ * Mountain View, CA 94043, USA, or: http://www.sgi.com
+ *
+ * $Id: platform_defs.h.in,v 1.46 2007/02/20 00:08:32 kimbrr Exp $
+ * 
+ * @configure_input@
+ */
+
+#ifndef _PLATFORM_DEFS_H
+#define _PLATFORM_DEFS_H
+
+#ifdef __cplusplus      
+extern "C" {
+#endif
+
+#include <time.h>
+
+/*
+ * The type of timestamps in struct stat: either HAVE_STAT_TIMESPEC,
+ * HAVE_STAT_TIMESPEC_T, HAVE_STAT_TIMESTRUC or HAVE_STAT_TIME_T
+ */
+#undef HAVE_STAT_TIMESPEC_T
+#undef HAVE_STAT_TIMESTRUC
+#undef HAVE_STAT_TIMESPEC
+#undef HAVE_STAT_TIME_T
+
+/* HAVE_ST_MTIME if stat.st_mtime has a ``spec'' on the end */
+#undef HAVE_ST_MTIME_WITH_SPEC
+
+/* HAVE_ST_MTIME if stat.st_mtime has an ``e'' on the end */
+#undef HAVE_ST_MTIME_WITH_E
+
+/* if your compiler supports LL sufix on 64 bit int constants */
+#undef HAVE_CONST_LONGLONG 
+
+/*
+ * HAVE_UNDERBAR_ENVIRON if extern char **_environ is defined
+ * (else extern char **environ will be used)
+ */
+#undef HAVE_UNDERBAR_ENVIRON
+
+/*
+ * If the pointer-to-function arguments to scandir()
+ * are (*scanfn)(const struct dirent *dep)
+ * Otherwise ``const'' will be omitted.
+ */
+#undef HAVE_CONST_DIRENT
+
+/*
+ * If getopt() needs $POSIXLY_CORRECT set in the environment to work
+ * correctly, specifically to not treat -x as an option when foo is
+ * invoked with the arguments "arg -x"
+ */
+#undef HAVE_GETOPT_NEEDS_POSIXLY_CORRECT
+
+/* Defined if printf %p -> 0x prefix for value */
+#undef HAVE_PRINTF_P_PFX
+#ifdef HAVE_PRINTF_P_PFX
+#define PRINTF_P_PFX ""
+#else
+#define PRINTF_P_PFX "0x"
+#endif
+
+/* Defined if bit fields are allocated left-to-right within a word */
+#undef HAVE_BITFIELDS_LTOR
+
+/* if compiler can cast __uint64_t to double */
+#undef HAVE_CAST_U64_DOUBLE
+
+/* long and pointer must be either 32 bit or 64 bit */
+#undef HAVE_64BIT_LONG
+#undef HAVE_32BIT_LONG
+#undef HAVE_32BIT_PTR
+#undef HAVE_64BIT_PTR
+
+/* Define if header file is available */
+#undef HAVE_FCNTL_H
+#undef HAVE_LIMITS_H
+#undef HAVE_MALLOC_H
+#undef HAVE_STRINGS_H
+#undef HAVE_SYS_TIME_H
+#undef HAVE_SYSLOG_H
+#undef HAVE_UNISTD_H
+#undef HAVE_SCHED_H
+#undef HAVE_TERMIOS_H
+#undef HAVE_DLFCN_H
+#undef HAVE_DL_H
+#undef HAVE_IEEEFP_H
+#undef HAVE_ENDIAN_H
+#undef HAVE_STANDARDS_H
+#undef HAVE_SYS_BYTEORDER_H
+#undef HAVE_PTHREAD_H
+#undef HAVE_GETOPT_H
+#undef HAVE_VALUES_H
+#undef HAVE_LIBGEN_H
+#undef HAVE_SGIDEFS_H
+#undef HAVE_ABI_MUTEX_H
+#undef HAVE_SYS_PARAM_H
+#undef HAVE_NETDB_H
+#undef HAVE_SYS_TERMIOS_H
+#undef HAVE_STDINT_H
+
+#undef HAVE_SYS_ENDIAN_H
+#undef HAVE_SYS_MACHINE_H
+#undef HAVE_PPC_ENDIAN_H
+
+#if defined(HAVE_MALLOC_H)
+#include <malloc.h>
+#else
+#undef ptrdiff_t
+#define ptrdiff_t	long
+#endif
+
+/* HAVE_NETWORK_BYTEORDER for big endian systems (not Intel) */
+#if defined(HAVE_ENDIAN_H)
+#include <endian.h>
+#elif defined(HAVE_SYS_ENDIAN_H)
+#include <sys/endian.h>
+#elif defined(HAVE_PPC_ENDIAN_H)
+#include <ppc/endian.h>
+#endif
+#if defined(HAVE_ENDIAN_H) || defined(HAVE_SYS_ENDIAN_H) || defined(HAVE_PPC_ENDIAN_H)
+#if defined(BYTE_ORDER) && BYTE_ORDER == BIG_ENDIAN
+#define HAVE_NETWORK_BYTEORDER
+#endif
+#endif
+
+#if defined(HAVE_SYS_BYTEORDER_H)
+#include <sys/byteorder.h>
+#if defined(_BIG_ENDIAN)
+#define HAVE_NETWORK_BYTEORDER
+#endif
+#endif
+
+#if defined(HAVE_SYS_MACHINE_H)
+#include <sys/machine.h>
+#if defined(BYTE_ORDER) && BYTE_ORDER == BIG_ENDIAN
+#define HAVE_NETWORK_BYTEORDER
+#endif
+#endif
+
+
+
+/* define if libc functions are available */
+#undef HAVE_GETCWD
+#undef HAVE_GETHOSTNAME
+#undef HAVE_GETTIMEOFDAY
+#undef HAVE_MKTIME
+#undef HAVE_PUTENV
+#undef HAVE_SELECT
+#undef HAVE_SOCKET
+#undef HAVE_STRDUP
+#undef HAVE_STRERROR
+#undef HAVE_STRTOD
+#undef HAVE_STRTOL
+#undef HAVE_UNAME
+#undef HAVE_WAITPID
+#undef HAVE_ATEXIT
+#undef HAVE_READDIR64
+#undef HAVE_WAIT3
+#undef HAVE_SBRK
+#undef HAVE_BRK
+#undef HAVE___CLONE
+#undef HAVE_SPROC 
+#undef HAVE_SIGNAL 
+#undef HAVE_TCGETATTR
+#undef HAVE_HSTRERROR
+#undef HAVE_DLOPEN
+#undef SHL_LOAD
+#undef HAVE_ISNANF
+#undef HAVE_ISNAND
+#undef HAVE_SHL
+#undef HAVE_SGINAP
+#undef HAVE_USLEEP
+#undef HAVE_OSERROR
+#undef HAVE_SETOSERROR
+#undef HAVE_FLOG10
+#undef HAVE_SIGHOLD
+#undef HAVE_SIGRELSE
+#undef HAVE_PRCTL
+#undef HAVE_REGEX
+#undef HAVE_REGCMP
+#undef HAVE_REGEXEC
+#undef HAVE_REGCOMP
+#undef HAVE_FLOCK
+#undef HAVE_FCNTL
+#undef HAVE_CFMAKERAW
+#undef HAVE_DIRNAME
+#undef HAVE_BASENAME
+#undef HAVE_UNSETENV
+#undef HAVE_VALLOC
+#undef HAVE_MEMALIGN
+#undef HAVE_STRTOLL
+#undef HAVE_STRTOULL
+#undef HAVE_NANOSLEEP
+#undef HAVE_MKSTEMP
+
+#undef HAVE_SYSINFO
+
+/* if termio signals are supported */
+#ifdef HAVE_TERMIOS_H
+#ifdef HAVE_TCGETATTR
+#define HAVE_TERMIO_SIGNALS
+#endif
+#endif
+
+/* if the /proc pseudo filesystem exists */
+#undef HAVE_PROCFS
+
+/* if the /proc/pinfo/<pid> should be used (IRIX only?) */
+#undef HAVE_PROCFS_PINFO
+
+#ifndef ULONGLONG_MAX 
+#define ULONGLONG_MAX (__uint64_t)18446744073709551615ULL
+#endif
+
+#ifndef LONGLONG_MAX 
+#define LONGLONG_MAX (__int64_t)9223372036854775807LL
+#endif
+
+/* some types only known by some compilers */
+#undef uint_t
+#undef __int32_t
+#undef __uint32_t
+#undef __int64_t
+#undef __uint64_t
+
+/* Check is __psint_t is set to smth meaningful */
+#undef HAVE___PSINT_T
+#ifndef HAVE___PSINT_T 
+#ifdef HAVE_32BIT_PTR
+typedef int __psint_t;
+#elif defined HAVE_64BIT_PTR
+#ifdef HAVE_64BIT_LONG
+typedef long __psint_t;
+#else
+/* This is a very strange architecture, which has 64 bit pointers but
+ * not 64 bit longs. So, I'd just punt here and assume long long is Ok */
+typedef long long __psint_t;
+#endif
+#else
+#error Unknown pointer size
+#endif
+#endif
+
+/*
+ * socklen_t is not always defined, so use mysocklen_t as abstraction
+ */
+#undef HAVE_SOCKLEN_T
+#ifdef HAVE_SOCKLEN_T
+#include <sys/types.h>
+#include <sys/socket.h>
+typedef socklen_t mysocklen_t;
+#else
+typedef int mysocklen_t;
+#endif
+
+/*
+ * MAXNAMELEN hides in may places and may have alias names ...
+ */
+#ifndef MAXNAMELEN
+#include <stdio.h>
+#ifdef HAVE_SYS_PARAM_H
+#include <sys/param.h>
+#endif
+#if !defined(MAXNAMELEN) && defined(FILENAME_MAX)
+/* posix version of the bsd MAXNAMELEN macro */
+#define MAXNAMELEN FILENAME_MAX
+#endif
+#endif
+#ifndef MAXNAMELEN
+bozo! need to find where MAXNAMELEN is defined for this platform
+#endif
+
+/*
+ * MAXPATHLEN hides in may places and may have alias names ...
+ */
+#ifndef MAXPATHLEN
+#ifdef HAVE_SYS_PARAM_H
+#include <sys/param.h>
+#endif
+#ifdef HAVE_LIMITS_H
+#include <limits.h>
+#endif
+#if !defined(MAXPATHLEN) && defined(PATH_MAX)
+/* posix version of the bsd MAXPATHLEN macro */
+#define MAXPATHLEN PATH_MAX
+#endif
+#endif
+#ifndef MAXPATHLEN
+bozo! need to find where MAXPATHLEN is defined for this platform
+#endif
+
+/*
+ * MAXHOSTNAMELEN hides in may places ...
+ */
+#ifndef MAXHOSTNAMELEN
+#ifdef HAVE_SYS_PARAM_H
+#include <sys/param.h>
+#endif
+#endif
+#ifndef MAXHOSTNAMELEN
+#ifdef HAVE_LIMITS_H
+#include <limits.h>
+#endif
+#endif
+#ifndef MAXHOSTNAMELEN
+#ifdef HAVE_NETDB_H
+#include <netdb.h>
+#endif
+#endif
+#ifndef MAXHOSTNAMELEN
+bozo! need to find where MAXHOSTNAMELEN is defined for this platform
+#endif
+
+#ifndef CLK_TCK
+#ifdef CLOCKS_PER_SEC
+#define CLK_TCK CLOCKS_PER_SEC
+#else
+#error neither CLK_TCK or CLOCKS_PER_SEC are defined on this platform
+#endif
+#endif
+
+/* cast of result to (long) removed to avoid gcc warnings (PV 958413).
+ * Only semantics guaranteed of the result is that zero means ok;
+ * also use of usleep will fail for intervals >=1sec (PV 958949)
+ */
+#ifndef HAVE_SGINAP
+#ifdef HAVE_USLEEP
+#define sginap(x) (usleep((long)((double)1000000.0 * x / CLK_TCK)),0)
+#else
+#define sginap(x) sleep(x/CLK_TCK)
+#endif
+#endif
+
+#ifndef HAVE_OSERROR
+#define oserror() errno
+#endif
+
+#ifndef HAVE_SETOSERROR
+#define setoserror(e) errno = e
+#endif
+
+#ifndef HAVE_FLOG10
+#if !defined(flog10)
+#define flog10(x) (float)log10((double)x)
+#endif
+#endif
+
+#if !defined(WORD_BIT)
+#define WORD_BIT 32
+#endif
+
+#undef RETSIGTYPE
+#ifndef RETSIGTYPE
+#define RETSIGTYPE void
+#endif
+
+#undef HAVE_SIGPF
+#ifndef HAVE_SIGPF
+/* The return type of signal() */
+typedef void (*SIG_PF) (int);
+#endif
+
+#undef HAVE_SA_SIGINFO
+
+#undef HAVE_WAIT_INCLUDES_SIGNAL
+#ifndef HAVE_WAIT_INCLUDES_SIGNAL
+#include <signal.h>
+#endif
+
+#undef HAVE_PR_TERMCHILD
+#undef HAVE_PR_SET_PDEATHSIG
+
+#undef HAVE_PTHREAD_MUTEX_T
+
+#undef HAVE_FNDELAY
+#if !defined(HAVE_FNDELAY)
+/* Only Solaris is known to need this so far */
+#ifndef FNDELAY
+#define FNDELAY O_NDELAY
+#endif
+#endif
+
+#undef HAVE_ALTZONE
+#undef HAVE_STRFTIME_z
+
+#ifndef HAVE_VALLOC
+#define valloc(x) malloc(x)
+#endif
+
+/* Determine if we are on an IRIX box */
+#undef IS_IRIX
+#ifdef IS_IRIX
+/*
+ * Parts of pmapi.h and impl.h were moved to the pmapi_mon.h and
+ * impl_mon.h to facilitate OpenSource management. This macro controls
+ * the inclusion of those files on irix, where they are always present.
+ */
+#define HAVE_SEPARATE_MONS_H 1
+
+/*
+ * still building the V1 versions of the libraries and APIs for IRIX
+ * backwards compatibility
+ */
+#define HAVE_V1_SUPPORT 1
+
+/*
+ * do license checking for IRIX
+ */
+#define HAVE_LICENSE_CHECK 1
+#define HAVE_FLEXLM 1
+
+/* we have the *objectStyle functions in libpcp */
+#define HAVE_OBJECT_STYLE 1
+
+/* Location of pcplog */
+#define PCPLOGDIR "/var/adm/pcplog"
+#else	/* ! IS_IRIX */
+/*
+ * In the Open Source, stuff from libpcp_dev has been moved to libpcp
+ * so this is always true
+ */
+#define HAVE_DEV_IN_LIBPCP 1
+#endif	/* IS_IRIX */
+
+/* Determine if we are on a Solaris box */
+#undef IS_SOLARIS
+#ifdef IS_SOLARIS
+#define FLEX_SCANNER	/* Solaris lex needs gram.tab.h */
+#endif
+
+/* Determine if we are on a Mac OS X box */
+#undef IS_DARWIN
+#ifdef IS_DARWIN
+#define DLOPEN_NO_WARN
+#define st_atim st_atimespec    /* workaround */
+#define st_mtim st_mtimespec    /* workaround */
+#define st_ctim st_ctimespec    /* workaround */
+#define isnand	isnan	/* isnan is a type-independent macro */
+#define isnanf	isnan	/* isnan is a type-independent macro */
+#endif
+
+/* Determine if we are on a Cygwin box */
+#undef IS_CYGWIN
+
+/*
+ * Determine if we are on an Interix (aka Windows Services for Unix) box
+ *
+ * sometimes we have no choice other than to make platform-specific
+ * choices at compile time ... sigh
+ */
+#undef IS_INTERIX
+#ifdef IS_INTERIX
+/*
+ * On Interix, the standard headers are incomplete ...
+ */
+extern int unsetenv(char *);
+#endif
+
+/* Determine if we are on an AIX box */
+#undef IS_AIX
+
+/* Determine if we are on an FreeBSD box */
+#undef IS_FREEBSD
+
+#ifdef HAVE_LIBGEN_H
+#include <libgen.h>
+#endif
+
+/*
+ * run-time environment that is in libc for most platforms, but for some
+ * we need to provide our own implementation
+ */
+#ifndef HAVE_DIRNAME
+char *dirname(char *);
+#endif
+#ifndef HAVE_BASENAME
+char *basename(char *);
+#endif
+#ifndef HAVE_ISNAND
+int isnand (double);
+#endif
+
+#ifndef __cplusplus      
+#undef inline
+#endif
+
+#undef HAVE_WAIT_DEFINES_RUSAGE
+#undef HAVE_NQNFS_LEASES
+
+#ifdef __cplusplus      
+}
+#endif
+
+#endif /* _PLATFORM_DEFS_H */

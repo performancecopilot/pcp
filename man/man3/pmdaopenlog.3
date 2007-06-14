@@ -1,0 +1,104 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMDAOPENLOG 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMDAOPENLOG 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMDAOPENLOG 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMDAOPENLOG 3 "" "\&"
+.if \nX=3 .ds x} PMDAOPENLOG "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmdaOpenLog\f1 \- redirect stderr to a logfile
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+void pmdaOpenLog(pmdaInterface * dispatch);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmdaOpenLog
+redirects
+.I stderr
+to the logfile specified in the 
+.I dispatch
+structure, set by the previous call to
+.BR pmdaDaemon (3)
+or
+.BR pmdaGetOpt (3).
+The first line of the log file will detail the name of the calling process,
+the host the process is running on, and the current time.  In addition, the 
+log is appended with the exit time of the process by
+a routine registered with 
+.BR atexit (3C).
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_PROTOCOL_2 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.PP
+A
+.BR PMDA (3)
+which uses at least one
+.BR sproc (2)
+may dump core on exit due to a race condition with
+.BR atexit (2)
+in some versions of IRIX.
+There is no known solution for this problem at this time.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+Values for these variables may be obtained programatically
+using the
+.IR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR atexit (2),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3)
+and
+.BR pmdaGetOpt (3).

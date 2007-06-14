@@ -1,0 +1,8 @@
+# Domain numbers for Linux PMDAs
+#
+# PMDA Name	Domain Number
+#
+LOCKSTAT	59
+LINUX		60
+MYRINET		61
+SNIA		63

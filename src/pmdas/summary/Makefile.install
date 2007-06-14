@@ -1,0 +1,15 @@
+#!make
+#
+# $Id: Makefile.install,v 2.7 1996/07/15 21:10:23 kenmcd Exp $
+
+SHELL	= /bin/sh
+IAM	= summary
+TARGETS	=
+LDIRT	= help.dir help.pag *.log
+
+default: $(TARGETS)
+
+install:	default
+
+clobber:
+	rm -f $(LDIRT) $(TARGETS)

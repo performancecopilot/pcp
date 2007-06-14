@@ -1,0 +1,67 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmsortinstances.3,v 2.6 2004/06/24 06:15:36 kenmcd Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMSORTINSTANCES 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMSORTINSTANCES 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMSORTINSTANCES 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMSORTINSTANCES 3 "" "\&"
+.if \nX=3 .ds x} PMSORTINSTANCES "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmSortInstances\f1 \- sort performance metric values on instance identifier
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+void pmSortInstances(pmResult *result)
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+.PP
+The routine
+.B pmSortInstances
+may be used to guarantee that for each performance metric in the
+.I result
+from
+.BR pmFetch (3),
+the instances are in ascending instance identifier sequence.
+.PP
+This is most useful when trying to compute rates from two consecutive
+.BR pmFetch (3)
+results.
+.SH SEE ALSO
+.BR PMAPI (3)
+and
+.BR pmFetch (3).
+.SH DIAGNOSTICS
+None.

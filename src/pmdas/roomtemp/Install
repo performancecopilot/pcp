@@ -1,0 +1,75 @@
+#! /bin/sh
+#
+# Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# Install the roomtemp PMDA and/or PMNS
+#
+# $Id: Install,v 1.5 2004/06/24 06:15:36 kenmcd Exp $
+#
+
+# source the PCP configuration environment variables
+. /etc/pcp.env
+
+# Get the common procedures and variable assignments
+#
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+# The name of the PMDA
+#
+iam=roomtemp
+
+# Using libpcp_pmda.so.2 and PMDA_INTERFACE_2
+#
+pmda_interface=2
+
+# Do it
+#
+pmdaSetup
+
+if $do_pmda
+then
+    if [ -c /dev/ttyf1 ]
+    then
+	# reasonable first guess for IRIX
+	#
+	tty=/dev/ttyf1
+    elif [ -c /dev/ttyS0 ]
+    then
+	# reasonable first guess for COM port on a Linux laptop
+	#
+	tty=/dev/ttyS0
+    fi
+
+    while true
+    do
+	$PCP_ECHO_PROG $PCP_ECHO_N "Serial line for Dallas device?  ""$PCP_ECHO_C"
+	[ ! -z "$tty" ] && $PCP_ECHO_PROG $PCP_ECHO_N "[$tty] ""$PCP_ECHO_C"
+	read ans
+	[ ! -z "$ans" ] && tty="$ans"
+	[ ! -z "$tty" ] && break
+	echo
+	echo "Ahem, you must answer the question ..."
+    done
+    args="$tty"
+fi
+
+pmdaInstall
+
+exit 0

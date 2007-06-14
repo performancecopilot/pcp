@@ -1,0 +1,79 @@
+#! /bin/sh
+#
+# Copyright (c) 1997,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# Install the txmon PMDA and/or PMNS
+#
+# $Id: Install,v 2.7 2003/02/20 05:28:13 kenmcd Exp $
+#
+
+# Get standard environment
+. /etc/pcp.env
+
+# Get the common procedures and variable assignments
+#
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+# The name of the PMDA
+#
+iam=txmon
+
+# Using libpcp_pmda.so.2 and PMDA_INTERFACE_2
+#
+pmda_interface=2
+
+# Do it
+#
+pmdaSetup
+
+if $do_pmda
+then
+    # special txmon PMDA args
+    #
+    echo 'Welcome to the Install script for the demonstration "txmon" PMDA.
+This PMDA will establish a shared memory segment with one statistics
+structure per transaction type.
+
+You must define the names of the transaction types (the names are
+arbitrary strings with no embedded white space, e.g. mytx#1).
+'
+
+    args=""
+    while [ -z "$args" ]
+    do
+	while true
+	do
+	    $PCP_ECHO_PROG $PCP_ECHO_N "Name for transaction type? [return if no more] ""$PCP_ECHO_C"
+	    read ans
+	    [ -z "$ans" ] && break
+	    args="$args $ans"
+	done
+	if [ -z "$args" ]
+	then
+	    echo "You need to specify at least one transaction type name!"
+	    echo "Please try again"
+	    echo
+	fi
+    done
+fi
+
+pmdaInstall
+
+exit 0

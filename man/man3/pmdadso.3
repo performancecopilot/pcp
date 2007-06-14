@@ -1,0 +1,123 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMDADSO 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMDADSO 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMDADSO 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMDADSO 3 "" "\&"
+.if \nX=3 .ds x} PMDADSO "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmdaDSO\f1 \- initialize the PMDA to run as a DSO
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+int pmdaDSO(pmdaInterface *dispatch, int interface, char *name, char *helptext);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmdaDSO
+initializes the
+.B pmdaInterface
+structure to use the
+.I interface
+extensions,
+assuming the 
+.BR PMDA (3)
+is to be run as a DSO.  The
+.B pmdaInterface
+structure is initialized with:
+.TP 15
+.I name
+The name of the agent.
+.TP
+.I helptext
+The default path to the help text (see 
+.BR pmdaText (3).
+If no help text is installed, or you are not using
+.BR pmdaText (3),
+then this should be set to NULL.
+.PP
+The callbacks are initialized to 
+.BR pmdaProfile (3),
+.BR pmdaFetch (3),
+.BR pmdaDesc (3),
+.BR pmdaText (3),
+.BR pmdaInstance (3)
+and
+.BR pmdaStore (3).
+.PP
+The
+.I interface
+structure also contains the 
+.I domain
+of the
+.BR PMDA (3),
+which is defined in the
+.BR pmcd (1)
+configuration file. The
+.I domain
+is used to initialize the metric and instance descriptors (see 
+.BR pmdaInit (3)).
+.SH DIAGNOSTICS
+.TP 15
+.B Incompatible version of pmcd detected
+When
+.BR pmcd (1)
+creates the
+.B pmdaInterface
+structure, the
+.I dispatch.comm.version
+field is set to the highest protocol that
+.BR pmcd (1)
+understands.  This message indicates that the
+.BR pmcd (1)
+process does not understand the protocol used by
+.BR pmdaDSO .
+.TP
+.B Unable to allocate memory for pmdaExt structure
+In addition, 
+.I dispatch->status
+is set to a value less than zero.
+.SH CAVEAT
+The PMDA must be using
+.B PMDA_INTERFACE_2
+or later.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaInit (3)
+and
+.BR pmdaText (3).

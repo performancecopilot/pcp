@@ -1,0 +1,76 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMDAPROFILE 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMDAPROFILE 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMDAPROFILE 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMDAPROFILE 3 "" "\&"
+.if \nX=3 .ds x} PMDAPROFILE "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmdaProfile\f1 \- update instance profile for PMDA in preparation for the next fetch from PMCD
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+int pmdaProfile(__pmProfile *prof, pmdaExt *pmda);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Metrics Domain Agent (PMDA) API (see
+.BR PMDA (3)),
+.B pmdaProfile
+is the default callback which handles the receipt of a 
+.B __pmProfile
+from 
+.BR pmcd (1).
+A profile describes the instances that 
+.B pmcd
+requires in the 
+.B pmResult
+structure returned by the next fetch.
+.B pmdaProfile
+simply stores the new profile.
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_PROTOCOL_2 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3)
+and
+.BR pmdaFetch (3).

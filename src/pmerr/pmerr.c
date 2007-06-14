@@ -1,0 +1,88 @@
+/*
+ * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ * 
+ * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+ * Mountain View, CA 94043, USA, or: http://www.sgi.com
+ */
+
+#ident "$Id: pmerr.c,v 1.3 2003/02/20 19:20:25 kenmcd Exp $"
+
+#include <stdio.h>
+#include <ctype.h>
+#include "pmapi.h"
+#include <ctype.h>
+
+extern void __pmDumpErrTab(FILE *);
+
+int
+main(int argc, char **argv)
+{
+    int		code;
+    int		sts;
+    char	*p;
+    char	*q;
+
+    if (argc > 1 && strcmp(argv[1], "-l") == 0) {
+	__pmDumpErrTab(stdout); 
+	exit(1);
+    }
+    else if (argc > 1 && strcmp(argv[1], "-?") == 0) {
+	argc = 0;
+    }
+    else if (argc > 1 && argv[1][0] == '-' && !isxdigit((int)argv[1][1])) { 
+	fprintf(stderr, "Illegal option -- %s\n", &argv[1][1]);
+	argc = 0;
+    }
+
+    if (argc == 0) {
+	fprintf(stderr,
+"Usage: pmerr [options] [code]\n\n"
+"  -l   causes all known error codes to be listed\n");
+	exit(1);
+    }
+
+    while (argc > 1) {
+	sts = 0;
+	p = argv[1];
+	if (*p == '0' && (p[1] == 'x' || p[1] == 'X')) {
+	    p = &p[2];
+	    for (q = p; isxdigit((int)*q); q++)
+		;
+	    if (*q == '\0')
+		sts = sscanf(p, "%x", &code);
+	}
+	if (sts < 1)
+	    sts = sscanf(argv[1], "%d", &code);
+	if (sts != 1) {
+	    printf("Cannot decode \"%s\" - neither decimal nor hexadecimal\n", argv[1]);
+	    goto next;
+	}
+
+	if (code > 0) {
+	    code = -code;
+	    printf("Code is positive, assume you mean %d\n", code);
+	}
+
+	printf("Code: %d 0x%x Text: %s\n", code, code, pmErrStr(code));
+
+next:
+	argc--;
+	argv++;
+    }
+
+    return 0;
+}

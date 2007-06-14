@@ -1,0 +1,1587 @@
+dnl
+dnl Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+dnl 
+dnl This program is free software; you can redistribute it and/or modify it
+dnl under the terms of the GNU General Public License as published by the
+dnl Free Software Foundation; either version 2 of the License, or (at your
+dnl option) any later version.
+dnl 
+dnl This program is distributed in the hope that it will be useful, but
+dnl WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+dnl or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+dnl for more details.
+dnl 
+dnl You should have received a copy of the GNU General Public License along
+dnl with this program; if not, write to the Free Software Foundation, Inc.,
+dnl 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+dnl 
+dnl Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+dnl Mountain View, CA 94043, USA, or: http://www.sgi.com
+dnl 
+
+dnl unpacking check - this file must exist
+AC_INIT(src/include/pmapi.h)
+
+dnl Irix build issue ... use the tools from the local filesystems
+unset ROOT TOOLROOT
+
+#
+# Note: the following environment variables may be
+# set to override the defaults.
+#
+# MAKE CC CXX CPP LD LEX YACC INSTALL AWK SED ECHO
+#
+
+dnl Guess target platfrom
+AC_CANONICAL_SYSTEM
+if test -z "$target"
+then
+    echo
+    echo '
+FATAL ERROR: Cannot guess your target, try explicit specication
+             using --target or, if that fails, add it to config.guess and 
+	     send a copy to pcp@oss.sgi.com.'
+    exit 1
+else
+    dnl Remove 4th name component, if present, from target, target_os,
+    dnl  build and build_os. Squash all x86 cpus into one LCD form - i386
+    target=`echo $target | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
+    target_os=`echo $target_os | sed '[s/irix6\..*/irix/]'`
+    target_os=`echo $target_os | sed '[s/solaris2\..*/solaris/]'`
+    target_os=`echo $target_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]' | sed '[s/[\.0-9]*//g]'`
+    target_cpu=`echo $target_cpu | sed '[s/i[3-6]86/i386/]'`
+
+    build=`echo $build | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
+    build_os=`echo $build_os | sed '[s/irix6\..*/irix/]'`
+    build_os=`echo $build_os | sed '[s/solaris2\..*/solaris/]'`
+    build_os=`echo $build_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]'`
+    build_cpu=`echo $build_cpu | sed '[s/i[3-6]86/i386/]'`
+fi
+
+echo Building on $build for $target 
+echo "Build: os=$build_os cpu=$build_cpu"
+echo "Target: os=$target_os cpu=$target_cpu"
+
+if test $target_os = linux
+then
+    :
+elif test $target_os = irix
+then
+    AC_DEFINE(IS_IRIX)
+    dnl for IRIX, use the MIPS C Compiler, not gcc
+    CC=cc
+elif test $target_os = solaris
+then
+    AC_DEFINE(IS_SOLARIS)
+elif test $target_os = darwin
+then
+    AC_DEFINE(IS_DARWIN)
+elif test $target_os = cygwin
+then
+    AC_DEFINE(IS_CYGWIN)
+elif test $target_os = interix
+then
+    dnl Windows Services for Unix (SFU)
+    AC_DEFINE(IS_INTERIX)
+    CFLAGS=-D_ALL_SOURCE
+    export CFLAGS
+elif test $target_os = aix
+then
+    AC_DEFINE(IS_AIX)
+elif test $target_os = freebsd
+then
+    AC_DEFINE(IS_FREEBSD)
+else
+    echo
+    echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
+    exit 1
+fi
+
+dnl default prefix
+AC_PREFIX_DEFAULT(/usr)
+
+if test -f VERSION.pcp
+then
+    . ./VERSION.pcp
+fi
+
+if test -z "$PACKAGE_MAJOR" ; then
+    PACKAGE_MAJOR=1
+fi
+
+for V in MINOR REVISION BUILD; do
+	P=`eval echo \\$PACKAGE_$i`
+	if test -z "$P"; then
+		eval PACKAGE_${i}=0
+	fi
+done
+PACKAGE_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+AC_SUBST(PACKAGE_VERSION)
+AC_SUBST(PACKAGE_MAJOR)
+AC_SUBST(PACKAGE_MINOR)
+AC_SUBST(PACKAGE_REVISION)
+AC_SUBST(PACKAGE_BUILD)
+
+if test -z "$PACKAGE_BUILDER"
+then
+    case "$target_os"
+    in
+	solaris)
+	    if test -x /usr/xpg4/bin/id
+	    then
+		package_builder=`/usr/xpg4/bin/id -u -n`@`hostname`
+	    else
+		package_builder=`whoami`@`hostname`
+	    fi
+	    ;;
+	*)
+	    package_builder=`id -u -n`@`hostname | sed -e 's/\..*//'`
+	    ;;
+    esac
+else
+    package_builder="$PACKAGE_BUILDER"
+fi
+AC_SUBST(package_builder)
+
+dnl output header with cpp defs HAVE_*, etc
+AC_CONFIG_HEADER(src/include/platform_defs.h)
+
+dnl check if user wants their own C compiler
+test -z "$CC" && AC_PROG_CC
+cc=$CC
+AC_SUBST(cc)
+
+dnl check if user wants their own make program
+dnl note: all makefiles in this package use the gmake syntax
+if test -z "$MAKE" 
+then
+    AC_PATH_PROG(MAKE, gmake)
+    if test -z "$MAKE" 
+    then
+	# look elsewhere ...
+	AC_MSG_CHECKING([for GNU make elsewhere])
+	for f in /usr/local/bin/gmake /usr/freeware/bin/gmake /usr/local/bin/make /opt/sfw/bin/gmake nowhere
+	do
+	    if test -x $f
+	    then
+		MAKE=$f
+		break
+	    fi
+	done
+	if test $f = nowhere
+	then
+	    # Check if /usr/bin/make is any good
+            mver=`/usr/bin/make --version 2>/dev/null | sed -n -e1p | cut -c1-8`
+	    if test "$mver" != "GNU Make"
+	    then
+		echo
+		echo "FATAL ERROR: could not find GNU make anywhere"
+		echo "You need to set \$MAKE as the full path to GNU make "
+		echo "in the environment."
+		exit 1
+	    else
+		MAKE=/usr/bin/make
+	    fi
+	fi
+	AC_MSG_RESULT($MAKE)
+    fi            
+fi
+make=$MAKE
+AC_SUBST(make)
+
+dnl check if user wants their own C++ compiler
+test -z "$CXX" && AC_PROG_CXX
+cxx=$CXX
+AC_SUBST(cxx)
+
+dnl check if users wants their own CPP
+test -z "$CPP" && AC_PROG_CPP
+cpp=$CPP
+AC_SUBST(cpp)
+
+dnl check for simple cpp usage
+dnl use -P during the configure test but don't use it for real stuff...
+AC_MSG_CHECKING([for simple cpp args])
+if test $target_os = cygwin
+then
+    test -z "$CPP_SIMPLE" && CPP_SIMPLE=$CPP
+else
+    test -z "$CPP_SIMPLE" && CPP_SIMPLE="/lib/cpp"
+    test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/usr/bin/cpp
+fi
+cpp_simple="$CPP_SIMPLE"
+cpp_simple_args=""
+for arg in -traditional -undef
+do
+    if $cpp_simple -P $cpp_simple_args $arg /dev/null >conftest.out 2>&1 && test ! -s conftest.out
+    then
+	cpp_simple_args="$cpp_simple_args $arg"
+    fi 
+done
+rm -f conftest.out
+
+dnl add to this list for evil words that you don't want cpp to re-write
+for word in sgi irix unix linux mips intel
+do
+    echo $word >conftest.c
+    $cpp_simple $cpp_simple_args conftest.c >conftest.out
+    if test "`grep $word <conftest.out`" != "$word"
+    then
+	cpp_simple_args="$cpp_simple_args -U$word"
+    fi
+done
+rm -f conftest.c conftest.out
+
+AC_SUBST(cpp_simple)
+AC_SUBST(cpp_simple_args)
+AC_MSG_RESULT($cpp_simple $cpp_simple_args)
+
+dnl check if users wants their own linker
+test -z "$LD" && AC_PATH_PROG(LD, ld, /usr/bin/ld)
+ld=$LD
+AC_SUBST(ld)
+
+dnl Provide ways to override owner and group for installed files
+if test -z "$PCP_OWNER" ; then
+    pcp_owner=root
+else
+    pcp_owner="$PCP_OWNER"
+fi
+if test -z "$PCP_GROUP" ; then
+    case "$target_os" in
+    darwin) pcp_group=wheel;;
+    *)	pcp_group=bin;;
+    esac
+else
+    pcp_group="$PCP_GROUP"
+fi
+AC_SUBST(pcp_owner pcp_group)
+
+dnl check if the tar program is available
+test -z "$TAR" && AC_PATH_PROG(TAR, tar)
+if test $target_os = irix -a -x /usr/freeware/bin/tar
+then
+    TAR=/usr/freeware/bin/tar
+elif test $target_os = darwin -a -x /usr/bin/gnutar
+then
+    TAR=/usr/bin/gnutar
+fi
+tar=$TAR
+AC_SUBST(tar)
+
+dnl check if xmessage is available on solaris
+AC_PATH_PROG(XMESSAGE, xmessage, NULL)
+if test $XMESSAGE = NULL -a $target_os = solaris
+then
+	AC_MSG_WARN(xmessage had not been installed)
+fi
+xmessage=$XMESSAGE
+AC_SUBST(xmessage)
+
+dnl check if the gzip program is available
+dnl (needed to gzip man pages on some platforms)
+test -z "$ZIP" && AC_PATH_PROG(ZIP, gzip, /bin/gzip)
+test ! -x "$ZIP" && ZIP=/usr/local/bin/gzip
+test ! -x "$ZIP" && ZIP=/usr/freeware/bin/gzip
+test ! -x "$ZIP" && ZIP=/usr/bin/gzip
+gzip=$ZIP
+AC_SUBST(gzip)
+
+dnl check if the bzip2 program is available
+dnl (needed to bzip2 man pages on some platforms)
+test -z "$BZIP2" && AC_PATH_PROG(BZIP2, bzip2, /bin/bzip2)
+test ! -x "$BZIP2" && BZIP2=/usr/local/bin/bzip2
+test ! -x "$BZIP2" && BZIP2=/usr/freeware/bin/bzip2
+test ! -x "$BZIP2" && BZIP2=/usr/bin/bzip2
+bzip2=$BZIP2
+AC_SUBST(bzip2)
+
+dnl Check for mac PackageMaker
+AC_MSG_CHECKING([for PackageMaker])
+if test -z "$PACKAGE_MAKER"
+then
+    if test $target_os = darwin
+    then
+	if test -x /Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	then # Darwin 6.x
+	    package_maker=/Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	    AC_MSG_RESULT([ yes (darwin 6.x)])
+	elif test -x /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker
+	then # Darwin 7.x
+	    AC_MSG_RESULT([ yes (darwin 7.x)])
+	    package_maker=/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker
+	else
+	    AC_MSG_RESULT([ not found!])
+	    AC_MSG_WARN([PackageMaker not found, mac packages will not be made])
+	fi
+    else
+	AC_MSG_RESULT([ no])	
+    fi
+else
+    package_maker="$PACKAGE_MAKER"
+fi
+AC_SUBST(package_maker)
+
+dnl check if the rpmbuild program is available
+test -z "$RPMBUILD" && AC_PATH_PROG(RPMBUILD, rpmbuild)
+rpmbuild=$RPMBUILD
+AC_SUBST(rpmbuild)
+
+dnl check if the rpm program is available
+test -z "$RPM" && AC_PATH_PROG(RPM, rpm)
+rpm=$RPM
+AC_SUBST(rpm)
+
+dnl if rpmbuild exists, use it, otherwise use rpm
+if test -x "$RPMBUILD"
+then
+    rpmprog=$RPMBUILD
+else
+    rpmprog=$RPM
+fi
+AC_SUBST(rpmprog)
+
+dnl .. and what version is rpm
+if test ! -z "$RPM" && test -x $RPM
+then
+    rpm_version=`$RPM --version | awk '{print $NF}' | awk -F. '{print $1}'`
+else
+    rpm_version=0
+fi
+AC_SUBST(rpm_version)
+
+dnl check if the gendist program is available
+if test -z "$GENDIST" 
+then 
+   AC_PATH_PROG(GENDIST, gendist) 
+fi
+gendist=$GENDIST
+AC_SUBST(gendist)
+
+dnl check if the makedepend program is available
+test -z "$MAKEDEPEND" && AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
+makedepend=$MAKEDEPEND
+AC_SUBST(makedepend)
+
+dnl check if the dpkg program is available
+if test -z "$DPKG" 
+then
+   AC_PATH_PROG(DPKG, dpkg)
+fi
+dpkg=$DKPG
+AC_SUBST(dpkg)
+
+dnl check if symbolic links are supported
+AC_PROG_LN_S
+
+dnl check if user wants their own lex, yacc
+test -z "$YACC" && AC_PROG_YACC
+if test "$YACC" = "yacc" -a $target_os = irix -a `uname -a | awk '{print $3}'` = "6.2"
+then
+    dnl yacc on IRIX 6.2 or earlier does not support -b flag
+    YACC=bison
+fi
+yacc=$YACC
+AC_SUBST(yacc)
+test -z "$LEX" && AC_PROG_LEX
+lex=$LEX
+AC_SUBST(lex)
+
+dnl check if user wants their own awk, sed and echo
+test -z "$AWK" && AC_PROG_AWK
+if test $target_os = irix -a "$AWK" = "gawk"
+then
+    dnl always use nawk on IRIX
+    AWK=nawk
+fi
+dnl Use /usr/bin/awk in preference to mawk or
+dnl some other abomination since mawk isn't always
+dnl installed on linux.
+test "$AWK" = "mawk" -a -x /usr/bin/awk && AWK=awk
+awk=$AWK
+AC_SUBST(awk)
+
+test -z "$SED" && AC_PATH_PROG(SED, sed, /bin/sed)
+sed=$SED
+AC_SUBST(sed)
+test -z "$ECHO" && AC_PATH_PROG(ECHO, echo, /bin/echo)
+echo=$ECHO
+AC_SUBST(echo)
+
+dnl echo_n set to -n if echo understands -n to supress newline
+dnl echo_c set to \c if echo understands \c to supress newline
+AC_MSG_CHECKING([if echo uses -n or backslash-c to supress newlines])
+if ( $echo "testing\c"; $echo 1,2,3 ) | grep c >/dev/null
+then
+  if ( $echo -n testing; $echo 1,2,3 ) | sed s/-n/xn/ | grep xn >/dev/null
+  then
+    echo_n= echo_c=
+    AC_MSG_RESULT([neither?])
+  else
+    echo_n=-n echo_c=
+    AC_MSG_RESULT([ -n])
+  fi
+else
+  echo_n= echo_c='\c'
+  AC_MSG_RESULT([backslash-c])
+fi
+AC_SUBST(echo_n)
+AC_SUBST(echo_c)
+
+dnl if /proc is not mounted, try and mount it
+dnl before trying to run the ps style test below
+test -f /proc/stat || mount /proc >/dev/null 2>&1
+
+dnl ps variants, need $awk from above
+dnl want user in col 1, pid in col 2, and command+ps args at the end
+AC_MSG_CHECKING([for ps style])
+pcp_ps_all_flags=''
+if ps -ef >conftest.out 2>/dev/null
+then
+    ans=`$awk <conftest.out '
+NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
+			  if ($2 != "PID") exit
+			}
+# Unix variants
+$2 == 1 && / init/	{ print "OK"; exit }
+$2 == 1 && / \/etc\/init/ { print "OK"; exit }
+# Interix (aka SFU)
+$2 == 0 && /IdleProcess/{ print "OK"; exit }
+# Cygwin
+/ \/usr\/bin\/bash/	{  print "OK"; exit }
+/ \/usr\/sbin\/inetd/	{  print "OK"; exit }'`
+    if test "$ans" = OK
+    then
+	pcp_ps_have_bsd=false
+	pcp_ps_all_flags=-ef
+	AC_MSG_RESULT(SysV)
+    fi
+fi
+if test -z "$pcp_ps_all_flags" && ps auxww >conftest.out 2>/dev/null
+then
+    ans=`$awk <conftest.out '
+NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
+			  if ($2 != "PID") exit
+			}
+$2 == 1 && / init/	{ print "OK"; exit }
+$2 == 1 && / \/sbin\/init/ { print "OK"; exit }
+$2 == 1 && / \/sbin\/launchd/ { print "OK"; exit }
+$2 == 1 && / \/init/	{ print "OK"; exit }'`
+    if test "$ans" = OK
+    then
+	pcp_ps_have_bsd=true
+	pcp_ps_all_flags=auxww
+	AC_MSG_RESULT(BSD)
+    fi
+fi
+if test -z "$pcp_ps_all_flags"
+then
+    dnl this is bad ... need to expand the cases or relax the tests
+    AC_MSG_RESULT(unknown)
+    echo "FATAL ERROR: could not determine how to get the \"all processes with arguments\""
+    echo "format output from your ps(1)."
+    rm -f conftest.out
+    exit 1
+fi
+dnl checking for w(ide) option so more psargs chars
+if ps ${pcp_ps_all_flags}w >/dev/null 2>&1
+then
+    if test $target_os != solaris
+    then
+	pcp_ps_all_flags=${pcp_ps_all_flags}w
+    fi
+fi
+AC_SUBST(pcp_ps_have_bsd)
+AC_SUBST(pcp_ps_all_flags)
+
+dnl set platform specific killall
+if test $target_os = solaris -o $target_os = cygwin
+then
+    pcp_killall_prog=pkill
+elif test $target_os = interix
+then
+    dnl neither killall nor pkill in SFU 3.5
+    pcp_killall_prog=pmkillall
+else
+    pcp_killall_prog=killall
+fi
+AC_SUBST(pcp_killall_prog)
+
+grep=grep
+if test $target_os = solaris
+then
+    test -f /usr/xpg4/bin/grep && grep=/usr/xpg4/bin/grep
+fi
+AC_SUBST(grep)
+
+dnl checks for /proc pseudo file system and /proc/pinfo
+AC_MSG_CHECKING([for /proc ])
+if test -d /proc
+then
+    AC_DEFINE(HAVE_PROCFS)
+    AC_MSG_RESULT(yes)
+else
+    AC_MSG_RESULT(no)
+fi
+AC_MSG_CHECKING([for /proc/pinfo ])
+if test -d /proc/pinfo
+then
+    AC_DEFINE(HAVE_PROCFS_PINFO)
+    AC_MSG_RESULT(yes)
+else
+    AC_MSG_RESULT(no)
+fi
+
+dnl Checks for header files.
+AC_HEADER_DIRENT
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h sys/time.h syslog.h)
+AC_CHECK_HEADERS(unistd.h sched.h termios.h dlfcn.h dl.h ieeefp.h)
+AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h pthread.h getopt.h)
+AC_CHECK_HEADERS(values.h libgen.h sgidefs.h abi_mutex.h sys/param.h)
+AC_CHECK_HEADERS(netdb.h sys/termios.h stdint.h)
+
+dnl Check if we have <sys/endian.h> ... standard way
+AC_MSG_CHECKING([for sys/endian.h ])
+AC_TRY_COMPILE(
+[  
+    #include <sys/endian.h> 
+],
+[
+], AC_DEFINE(HAVE_SYS_ENDIAN_H) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
+dnl Check if we have <ppc/endian.h> ... standard way
+AC_MSG_CHECKING([for ppc/endian.h ])
+AC_TRY_COMPILE(
+[  
+    #include <ppc/endian.h> 
+],
+[
+], AC_DEFINE(HAVE_PPC_ENDIAN_H) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
+dnl Check if we have <sys/endian.h> ... IRIX strangeness
+AC_MSG_CHECKING([for sys/endian.h (IRIX variant) ])
+AC_TRY_COMPILE(
+[  
+    #include <standards.h>
+    #include <sys/endian.h> 
+],
+[
+], AC_DEFINE(HAVE_SYS_ENDIAN_H) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_OFF_T
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_HEADER_TIME
+AC_STRUCT_TM
+AC_C_INLINE
+
+dnl check is hstrerror is available in libresolve
+AC_CHECK_LIB(resolv, hstrerror)
+
+dnl Checks for library functions.
+AC_TYPE_SIGNAL
+AC_FUNC_WAIT3
+AC_FUNC_VPRINTF
+AC_CHECK_FUNCS(getcwd gethostname gettimeofday mktime putenv select socket)
+AC_CHECK_FUNCS(strdup strerror strtod strtol uname waitpid atexit brk sbrk)
+AC_CHECK_FUNCS(__clone sproc tcgetattr signal hstrerror)
+AC_CHECK_FUNCS(shl_load sginap usleep oserror setoserror sighold sigrelse)
+AC_CHECK_FUNCS(prctl regex regcmp regexec regcomp unsetenv valloc memalign)
+AC_CHECK_FUNCS(strtoll strtoull nanosleep mkstemp)
+
+if test $target_os = interix
+then
+    dnl despite the checks above, hstrerror() is actually a synonym
+    dnl via #define for strerror(), so we don't want a private version
+    dnl in libpcp
+    dnl
+    AC_DEFINE(HAVE_HSTRERROR)
+    AC_MSG_WARN(Force hstrerror() to be defined for interix)
+fi
+
+dnl sysinfo() is not everywhere, and not necessarily useful even when
+dnl it is there
+if test $target_os != solaris
+then
+    AC_CHECK_FUNCS(sysinfo)
+fi
+
+dnl only define readdir64 on non-linux platforms that support it
+test $target_os != linux && AC_CHECK_FUNCS(readdir64)
+
+dnl typedefs missing from sys/types.h, stdlib.h or stddef.h
+if test $target_os = solaris
+then
+   AC_CHECK_TYPE(__int32_t, int32_t)
+   AC_CHECK_TYPE(__uint32_t, uint32_t)
+   AC_CHECK_TYPE(__int64_t, int64_t)
+   AC_CHECK_TYPE(__uint64_t, uint64_t)
+   AC_CHECK_TYPE(uint_t, u_int32_t)
+else
+    AC_CHECK_TYPE(__int32_t, int)
+    AC_CHECK_TYPE(__uint32_t, unsigned int)
+    AC_CHECK_TYPE(__int64_t, long long)
+    AC_CHECK_TYPE(__uint64_t, unsigned long long)
+    AC_CHECK_TYPE(uint_t, unsigned int)
+fi
+
+dnl Check if we have a type for the pointer's size integer (__psint_t)
+AC_MSG_CHECKING([for __psint_t ])
+AC_TRY_COMPILE(
+[  
+    #include <sys/types.h>
+    #include <stdlib.h> 
+    #include <stddef.h>
+],
+[
+    __psint_t  psint;
+], AC_DEFINE(HAVE___PSINT_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
+dnl Check if we have a type for socklen_t
+AC_MSG_CHECKING([for socklen_t ])
+AC_TRY_COMPILE(
+[  
+    #include <sys/types.h>
+    #include <sys/socket.h>
+],
+[
+    socklen_t  len;
+], AC_DEFINE(HAVE_SOCKLEN_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
+dnl check if LL suffix on constants is supported
+AC_TRY_COMPILE(
+[
+    #include <stdio.h>
+],
+[
+    long long x = 0LL;
+], AC_DEFINE(HAVE_CONST_LONGLONG))
+
+dnl check if __environ is declared globally
+AC_TRY_LINK(
+[
+    #include <stdlib.h>
+    #include <unistd.h>
+],
+[
+    char **x = __environ;
+], AC_DEFINE(HAVE_UNDERBAR_ENVIRON))
+
+dnl check for PR_TERMCHILD and PR_SET_PDEATHSIG in prctl
+dnl since autconf like to be unreasonable, it's going to be cut&paste
+dnl programming
+if test "$ac_cv_func_prctl" = "yes"
+then
+AC_MSG_CHECKING([for PR_TERMCHILD constants in sys/prctl.h])
+AC_TRY_COMPILE(
+[
+    #include <sys/prctl.h>
+],
+[
+    int i = PR_TERMCHILD;
+], AC_DEFINE(HAVE_PR_TERMCHILD) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_MSG_CHECKING([for PR_SET_PDEATHSIG constants in sys/prctl.h])
+AC_TRY_COMPILE(
+[
+    #include <sys/prctl.h>
+],
+[
+    int i = PR_SET_PDEATHSIG;
+], AC_DEFINE(HAVE_PR_SET_PDEATHSIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+fi
+
+dnl check if linker needs -rdynamic for dynamically loaded shared
+dnl libraries to see the symbols in the process loading them.
+AC_MSG_CHECKING([if linker supports -rdynamic])
+cat <<End-of-File >conftest.c
+main() {;}
+End-of-File
+rdynamic_flag=
+$CC -o conftest -rdynamic conftest.c 2>conftest.out
+test -s conftest.out || rdynamic_flag=-rdynamic
+AC_SUBST(rdynamic_flag)
+if test -z "$rdynamic_flag"
+then
+   AC_MSG_RESULT(no)
+else
+   AC_MSG_RESULT(yes)
+fi
+rm -f conftest.c conftest.o conftest
+
+dnl check if argument to user's select() method in scandir call is const
+AC_MSG_CHECKING([whether const arg for scandir() select method])
+cat <<End-of-File >conftest.c
+#include <stdlib.h>
+#include <unistd.h>
+#include <dirent.h>
+static int
+my_select(const struct dirent *foo) { return 0; }
+int main() { return scandir(NULL, NULL, my_select, NULL); }
+End-of-File
+(eval $ac_compile) 2>conftest.out
+cat conftest.out >&5
+if test -s conftest.out
+then
+    AC_MSG_RESULT(no)
+else
+    AC_DEFINE(HAVE_CONST_DIRENT)
+    AC_MSG_RESULT(yes)
+fi
+rm -f conftest.*
+
+dnl check if getopt() needs $POSIXLY_CORRECT
+AC_MSG_CHECKING([if getopt() needs \$POSIXLY_CORRECT])
+cat <<End-of-File >conftest.c
+#include <stdio.h>
+#include <unistd.h>
+main(int argc, char **argv) {
+    int c;
+    c = getopt(argc, argv, "x");
+    if (c == 'x') putchar('n');
+    if (c == EOF) putchar('y');
+    putchar('\n');
+}
+End-of-File
+(eval $ac_compile) 2>&5
+(eval $ac_link) 2>&5
+unset POSIXLY_CORRECT
+ans=`./conftest arg -x`
+echo "./conftest arg -x -> \"$ans\"" >&5
+if test "$ans" = n
+then
+    POSIXLY_CORRECT=
+    export POSIXLY_CORRECT
+    ans=`./conftest arg -x`
+    echo "POSIXLY_CORRECT= ./conftest arg -x -> \"$ans\"" >&5
+    unset POSIXLY_CORRECT
+    if test "$ans" = y
+    then
+	AC_DEFINE(HAVE_GETOPT_NEEDS_POSIXLY_CORRECT)
+	AC_MSG_RESULT(yes)
+    else
+	AC_MSG_RESULT(unknown)
+	echo "FATAL ERROR: could not coerce your getopt() work correctly"
+	rm -f conftest conftest.*
+	exit 1
+    fi
+elif test "$ans" = y
+then
+    AC_MSG_RESULT(no)
+else
+    AC_MSG_RESULT(unknown)
+    echo "FATAL ERROR: could not make your getopt() work at all"
+    rm -f conftest conftest.*
+    exit 1
+fi
+rm -f conftest conftest.*
+
+dnl check if printf %p has 0x prefix
+AC_MSG_CHECKING([if printf %p produces 0x prefix])
+cat <<End-of-File >conftest.c
+#include <stdio.h>
+main(int argc,  char **argv) { printf("%p\n", argv); exit(0); }
+End-of-File
+(eval $ac_compile) 2>&5
+(eval $ac_link) 2>&5
+ans=`./conftest`
+echo "./conftest -> \"$ans\"" >&5
+case $ans
+in
+    0x*)
+	AC_DEFINE(HAVE_PRINTF_P_PFX)
+	AC_MSG_RESULT(yes)
+	;;
+    *)
+	AC_MSG_RESULT(no)
+	;;
+esac
+rm -f conftest conftest.*
+
+dnl check sizeof long
+AC_MSG_CHECKING([sizeof long])
+cat <<End-of-File >conftest.c
+#include <stdio.h>
+main() { printf("%d\n", sizeof(long)); }
+End-of-File
+(eval $ac_compile) 2>&5
+(eval $ac_link) 2>&5
+ans=`./conftest`
+echo "./conftest -> \"$ans\"" >&5
+AC_MSG_RESULT($ans)
+test $ans -eq 4 && AC_DEFINE(HAVE_32BIT_LONG)
+test $ans -eq 8 && AC_DEFINE(HAVE_64BIT_LONG)
+rm -f conftest conftest.*
+
+dnl check sizeof pointer
+AC_MSG_CHECKING([sizeof pointer])
+cat <<End-of-File >conftest.c
+#include <stdio.h>
+main() { printf("%d\n", sizeof(char *)); }
+End-of-File
+(eval $ac_compile) 2>&5
+(eval $ac_link) 2>&5
+ans=`./conftest`
+echo "./conftest -> \"$ans\"" >&5
+AC_MSG_RESULT($ans)
+test $ans -eq 4 && AC_DEFINE(HAVE_32BIT_PTR)
+test $ans -eq 8 && AC_DEFINE(HAVE_64BIT_PTR)
+rm -f conftest conftest.*
+
+dnl check sizeof int. If not 32, we die
+AC_MSG_CHECKING([sizeof int])
+cat <<End-of-File >conftest.c
+#include <stdio.h>
+main() { printf("%d\n", sizeof(int)); }
+End-of-File
+(eval $ac_compile) 2>&5
+(eval $ac_link) 2>&5
+ans=`./conftest`
+echo "./conftest -> \"$ans\"" >&5
+AC_MSG_RESULT($ans)
+if test $ans -ne 4
+then
+    echo
+    echo "FATAL ERROR: sizeof(int) is not 32 bits, cannot proceed."
+    exit 1
+fi
+
+dnl check bit field allocation order within a word
+AC_MSG_CHECKING([if bit fields allocated left-to-right])
+cat <<End-of-File >conftest.c
+union { struct { unsigned int b:4; unsigned int c:4; } a; int p; } u;
+main() { u.a.b = 1; u.a.c = 2; printf("%0*x\n", 2*sizeof(int), u.p); }
+End-of-File
+(eval $ac_compile) 2>&5
+(eval $ac_link) 2>&5
+ans=`./conftest`
+echo "./conftest -> \"$ans\"" >&5
+case $ans
+in
+    1200*|*0012)
+	# left-to-right starting from MSB (SGI cc on MIPS), or
+	# left-to-right ending at LSB
+	AC_DEFINE(HAVE_BITFIELDS_LTOR)
+	AC_MSG_RESULT(yes)
+	;;
+    2100*|*0021)
+	# right-to-left ending at MSB, or
+	# right-to-left starting from LSB (gcc in Intel)
+	AC_MSG_RESULT(no)
+	;;
+    *)
+	AC_MSG_RESULT(unknown)
+	echo "FATAL ERROR: could not fathom your compiler's bit field allocation scheme"
+	rm -f conftest conftest.*
+	exit 1
+	;;
+esac
+rm -f conftest conftest.*
+
+dnl check if compile can cast __uint64_t to double
+AC_TRY_LINK(
+[
+    #include <stdlib.h>
+    #include <unistd.h>
+],
+[
+    __uint64_t x = 0;
+    double y = (double)x;
+], AC_DEFINE(HAVE_CAST_U64_DOUBLE))
+
+solaris_libs=""
+if test $target_os = solaris
+then
+    solaris_libs="-lnsl -lsocket -lresolv -ldl -lposix4"
+fi
+AC_SUBST(solaris_libs)
+
+dnl check if basename and dirname need -lgen, -lpcp or nothing to work
+dnl (assume both go together)
+AC_CHECK_FUNCS(basename)
+if test $ac_cv_func_basename = yes
+then
+    AC_DEFINE(HAVE_BASENAME)
+    AC_DEFINE(HAVE_DIRNAME)
+    lib_for_basename=""
+else
+    AC_CHECK_LIB(gen, basename)
+    if test $ac_cv_lib_gen_basename = yes
+    then
+	AC_DEFINE(HAVE_BASENAME)
+	AC_DEFINE(HAVE_DIRNAME)
+	lib_for_basename="-lgen"
+    else
+	lib_for_basename="-lpcp"
+    fi
+fi
+AC_SUBST(lib_for_basename)
+
+dnl check if dlopen et al need -ldl to work
+lib_for_dlopen=
+AC_CHECK_FUNCS(dlopen)
+if test $ac_cv_func_dlopen = no
+then
+    AC_CHECK_LIB(dl, dlopen)
+    if test $ac_cv_lib_dl_dlopen = yes
+    then
+	AC_DEFINE(HAVE_DLOPEN)
+	lib_for_dlopen=-ldl
+    fi
+fi
+AC_SUBST(lib_for_dlopen)
+
+dnl for HP-UX shl_load() and friends are like dlopen() and friends
+AC_CHECK_FUNCS(shl_load)
+
+dnl check if flog10 and isnanf are available in the maths library
+lib_for_math=
+AC_CHECK_FUNCS(flog10)
+if test $ac_cv_func_flog10 = no
+then
+    AC_CHECK_LIB(m, flog10)
+    if test $ac_cv_lib_m_flog10 = yes
+    then
+	AC_DEFINE(HAVE_FLOG10)
+	lib_for_math=-lm
+    fi
+fi
+
+if test $target_os != darwin
+then
+    AC_CHECK_FUNCS(isnanf)
+    if test $ac_cv_func_isnanf = no
+    then
+	AC_CHECK_LIB(m, isnanf)
+	if test $ac_cv_lib_m_isnanf = yes
+	then
+	    AC_DEFINE(HAVE_ISNANF)
+	    lib_for_math=-lm
+	fi
+    fi
+    AC_CHECK_FUNCS(isnand)
+    if test $ac_cv_func_isnand = no
+    then
+	AC_CHECK_LIB(m, isnand)
+	if test $ac_cv_lib_m_isnand = yes
+	then
+	    AC_DEFINE(HAVE_ISNAND)
+	    lib_for_math=-lm
+	fi
+    fi
+else
+    dnl circumvent tests for darwin
+    AC_DEFINE(HAVE_ISNANF)
+    AC_DEFINE(HAVE_ISNAND)
+fi
+AC_SUBST(lib_for_math)
+
+dnl check if we have the SIG_PF typedef
+AC_TRY_LINK(
+[
+    #include <signal.h>
+],
+[
+    SIG_PF x;
+], AC_DEFINE(HAVE_SIGPF))
+
+dnl check if we have the SA_SIGINFO #define
+AC_TRY_LINK(
+[
+    #include <signal.h>
+],
+[
+    int x = SA_SIGINFO;
+], AC_DEFINE(HAVE_SA_SIGINFO))
+
+dnl check if we need to explicitly include signal.h
+AC_TRY_LINK(
+[
+    #include <sys/wait.h>
+],
+[
+    typedef void (*SIGRET)(int);
+    SIGRET x = SIG_IGN;
+], AC_DEFINE(HAVE_WAIT_INCLUDES_SIGNAL))
+
+AC_TRY_COMPILE(
+[
+	#include <sys/wait.h>
+],
+[
+	struct rusage ru;
+], AC_DEFINE(HAVE_WAIT_DEFINES_RUSAGE))
+
+dnl check for type of fields in struct stat
+dnl IRIX example	timespec_t st_mtim;	
+dnl Linux example 	struct timespec st_mtim;
+dnl Darwin example 	struct timespec st_mtimespec;
+dnl Solaris example	timestruc_t st_mtim;
+dnl FreeBSD (6.1)	struct timespec st_mtimespec;
+dnl			struct timespec {
+dnl				time_t tv_sec;
+dnl				long tv_nsec;
+dnl			};
+dnl
+dnl cygwin just cannot work this out correctly ... too many different
+dnl headers, and the AC_EGREP_HEADER() macro gets confused ... be
+dnl autocratic!
+if test $target_os = cygwin
+then
+    AC_DEFINE(HAVE_STAT_TIMESPEC_T)
+elif test $target_os = freebsd
+then
+    # just too hard to work out for FreeBSD
+    AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC)
+    AC_DEFINE(HAVE_STAT_TIMESPEC)
+else
+    AC_EGREP_HEADER(
+    changequote(<<, >>)<<[ 	]st_mtimespec>>changequote([, ]),
+    sys/stat.h, AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC))
+
+    if test $target_os != darwin
+    then
+	AC_EGREP_HEADER(
+	changequote(<<, >>)<<[ 	]st_mtime>>changequote([, ]),
+	sys/stat.h, AC_DEFINE(HAVE_ST_MTIME_WITH_E))
+    fi
+
+    AC_EGREP_HEADER(
+    changequote(<<, >>)<<timestruc_t[ 	][ 	]*st_mtim>>changequote([, ]),
+    sys/stat.h, AC_DEFINE(HAVE_STAT_TIMESTRUC))
+
+    AC_EGREP_HEADER(
+    changequote(<<, >>)<<timespec_t[ 	][ 	]*st_mtim>>changequote([, ]),
+    sys/stat.h, AC_DEFINE(HAVE_STAT_TIMESPEC_T))
+
+    AC_EGREP_HEADER(
+    changequote(<<, >>)<<timespec[ 	][ 	]*st_mtim>>changequote([, ]),
+    sys/stat.h, AC_DEFINE(HAVE_STAT_TIMESPEC))
+
+    AC_EGREP_HEADER(
+    changequote(<<, >>)<<time_t[ 	][ 	]*st_mtim>>changequote([, ]),
+    sys/stat.h, AC_DEFINE(HAVE_STAT_TIME_T))
+fi
+
+dnl
+dnl Work out where to install stuff for this package
+dnl (and where to find stuff at run-time for add-on packages).
+dnl
+
+dnl
+dnl Predictable directory containing pcp.conf, or overridden
+dnl by the $PCP_CONF environment variable. If this is not set
+dnl (default /etc/pcp.conf), then $PCP_CONF must be set in
+dnl the environment.
+dnl
+if test ! -z "$PCP_ETC_DIR"
+then
+    pcp_etc_dir=$PCP_ETC_DIR
+else
+    if test -d /etc
+    then
+	pcp_etc_dir=/etc
+    else
+	echo "FATAL ERROR: could not find /etc directory."
+	echo "You need to set \$PCP_ETC_DIR in the environment"
+	echo "as the path to the directory containing \"pcp.conf\"."
+	exit 1
+    fi
+fi
+AC_SUBST(pcp_etc_dir)
+
+test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
+
+dnl shared PCP files (shareable for diskless)
+if test "`eval echo $datadir | sed 's;/[[^/]]*\$;;'`" = NONE
+then
+   if test $target_os = irix
+   then
+       pcp_share_dir=/usr/pcp
+   else
+       if test -d /usr/share
+       then
+	   pcp_share_dir=/usr/share/pcp
+       elif test -d /usr/local
+       then
+	   pcp_share_dir=/usr/local/pcp
+       else
+	   pcp_share_dir=/usr/pcp
+       fi
+   fi
+else
+   pcp_share_dir=`eval echo $datadir`
+fi
+AC_SUBST(pcp_share_dir)
+
+dnl private PCP executables
+if test "`eval echo $sbindir | sed 's;/[[^/]]*\$;;'`" = NONE
+then
+   if test $target_os = irix
+   then
+       pcp_binadm_dir=/usr/pcp/bin
+   else
+       pcp_binadm_dir=$pcp_share_dir/bin
+   fi
+else
+   pcp_binadm_dir=`eval echo $sbindir`
+fi
+AC_SUBST(pcp_binadm_dir)
+
+dnl non-shared (i.e. system local) PCP files
+if test $target_os = irix
+then
+    pcp_var_dir=/var/pcp
+else
+    if test "`eval echo $localstatedir | sed 's;/[[^/]]*\$;;'`" = NONE
+    then
+       if test -d /var/lib
+       then
+	   pcp_var_dir=/var/lib/pcp
+       elif test -d /var
+       then
+	   pcp_var_dir=/var/pcp
+       elif test -d /usr/local
+       then
+	   pcp_var_dir=/usr/local/pcp
+       else
+	   pcp_var_dir=/usr
+       fi
+    else
+       pcp_var_dir=`eval echo $localstatedir`
+    fi
+fi
+AC_SUBST(pcp_var_dir)
+
+dnl pmcd control and options files
+if test $target_os = irix
+then
+    pcp_pmcdconf_path=/etc/pmcd.conf
+    pcp_pmcdoptions_path=/etc/config/pmcd.options
+    pcp_pmproxyoptions_path=/etc/config/pmproxy.options
+else
+    pcp_pmcdconf_path=$pcp_var_dir/config/pmcd/pmcd.conf
+    pcp_pmcdoptions_path=$pcp_var_dir/config/pmcd/pmcd.options
+    pcp_pmproxyoptions_path=$pcp_var_dir/config/pmproxy/pmproxy.options
+fi
+AC_SUBST(pcp_pmcdconf_path)
+AC_SUBST(pcp_pmcdoptions_path)
+AC_SUBST(pcp_pmproxyoptions_path)
+
+pcp_pmdas_dir=$pcp_var_dir/pmdas
+AC_SUBST(pcp_pmdas_dir)
+
+dnl runtime shared libraries
+if test $target_os = irix
+then
+    pcp_lib_dir=/usr/lib32
+elif test $target_os = cygwin
+then
+    pcp_lib_dir=/cygdrive/c/WINDOWS/system32
+elif test $target_os = linux -a $target_cpu = x86_64
+then
+    # Linux on x86_64 puts libraries in .../lib64 (and rpmbuild
+    # enforces that convention) but $libdir lies about it.
+    pcp_lib_dir=/usr/lib64
+    pcp_lib32_dir=/usr/lib
+else
+    if test "`eval echo $libdir | sed 's;/[[^/]]*\$;;'`" = NONE
+    then
+       if test -d /usr/lib
+       then
+	   pcp_lib_dir=/usr/lib
+       elif test -d /usr/local/lib
+       then
+	   pcp_lib_dir=/usr/local/lib
+       else
+	   pcp_lib_dir=/lib
+       fi
+    else
+       pcp_lib_dir=`eval echo $libdir`
+    fi
+fi
+if test -z "$pcp_lib32_dir" ; then
+	pcp_lib32_dir=$pcp_lib_dir
+fi
+AC_SUBST(pcp_lib_dir)
+AC_SUBST(pcp_lib32_dir)
+
+AC_PATH_XTRA
+pcp_x11_incflags=$X_CFLAGS
+pcp_x11_libflags=$X_LIBS
+pcp_x11_extra=$X_EXTRA_LIBS
+pcp_x11_pre=$X_PRE_LIBS
+AC_SUBST(pcp_x11_incflags pcp_x11_libflags pcp_x11_extra pcp_x11_pre)
+
+dnl Where is X11 app-defaults should go
+pcp_x11_appdefs_dir=
+if test "$with_x" != "no" ; then
+    ac_appdefs_dirs="/usrt/lib/X11 /usr/X11/lib /usr/X11/lib/X11"
+    if test -n "$x_includes" ; then
+	d=`dirname $x_includes`
+	ac_appdefs_dirs="$d/lib $d/lib/X11 $ac_appdefs_dirs"
+    fi
+    if test -n "$x_libraries" ; then
+	d=`dirname $x_libraries`
+	ac_appdefs_dirs="$d/lib $d/lib/X11 $ac_appdefs_dirs"
+    fi
+    AC_MSG_CHECKING([for X11 app-defaults directory])
+    for d in $ac_appdefs_dirs; do
+	dd=$d/app-defaults
+	if test -d $dd ; then
+		pcp_x11_appdefs_dir=$dd
+		break;
+	fi
+    done
+    AC_MSG_RESULT($pcp_x11_appdefs_dir)
+fi
+AC_SUBST(pcp_x11_appdefs_dir)
+
+dnl man pages (source)
+have_gzipped_manpages=false
+have_bzip2ed_manpages=false
+if test "`eval echo $mandir | sed 's;/[[^/]]*\$;;'`" = NONE
+then
+    dnl some low risk defaults
+    if test -d /usr/share/man
+    then
+	pcp_man_dir=/usr/share/man
+    elif test -d /usr/local/man 
+    then
+	pcp_man_dir=/usr/local/man
+    else
+	pcp_man_dir=/usr/man
+    fi
+    dnl some more guided guesses
+    if test $target_os = irix
+    then
+	pcp_man_dir=/usr/share/catman/u_man
+    else
+	for d in /usr/man /usr/share/man $pcp_share_dir/man
+	do
+	    if test -f $d/man1/man.1.gz
+	    then
+		have_gzipped_manpages=true
+		pcp_man_dir=$d
+		break
+	    elif test -f $d/man1/man.1.bz2
+	    then
+		have_bzip2ed_manpages=true
+		pcp_man_dir=$d
+		break
+	    elif test -f $d/man1/man.1
+	    then
+		pcp_man_dir=$d
+		break
+	    elif test -f $d/sman1/man.1.gz
+	    then
+		have_gzipped_manpages=true
+		pcp_man_dir=$d
+		break
+	    elif test -f $d/sman1/man.1.bz2
+	    then
+		have_bzip2ed_manpages=true
+		pcp_man_dir=$d
+		break
+	    elif test -f $d/sman1/man.1
+	    then
+		pcp_man_dir=$d
+		break
+	    elif test -f $d/cat1/man.1
+	    then
+		pcp_man_dir=$d
+		break
+	    fi
+	done
+	if test -x /usr/lib/rpm/brp-compress
+	then
+	    have_gzipped_manpages=true
+	    have_bzip2ed_manpages=false
+	fi
+    fi
+else
+   pcp_man_dir=`eval echo $mandir`
+fi
+if test -z "$pcp_man_dir"
+then
+    echo "FATAL ERROR: could not find find pcp_man_dir directory."
+    exit 1
+fi
+AC_SUBST(pcp_man_dir)
+AC_SUBST(have_gzipped_manpages)
+AC_SUBST(have_bzip2ed_manpages)
+
+dnl public binaries
+if test $target_os = irix
+then
+    pcp_bin_dir=/usr/sbin
+else
+    if test "`eval echo $bindir | sed 's;/[[^/]]*\$;;'`" = NONE
+    then
+       if test -d /usr/bin
+       then
+	   pcp_bin_dir=/usr/bin
+       else
+	   pcp_bin_dir=/bin
+       fi
+    else
+       pcp_bin_dir=`eval echo $bindir`
+    fi
+fi
+AC_SUBST(pcp_bin_dir)
+
+dnl include files
+if test "`eval echo $includedir | sed 's;/[[^/]]*\$;;'`" = NONE
+then
+   if test -d /usr/include
+   then
+       pcp_inc_dir=/usr/include/pcp
+   else
+       pcp_inc_dir=$pcp_share_dir/include
+   fi
+else
+   pcp_inc_dir=`eval echo $includedir`
+fi
+AC_SUBST(pcp_inc_dir)
+
+dnl rc/startup files
+if test $target_os != darwin
+then
+    for d in /etc/init.d /etc/rc.d/init.d /sbin/init.d ; do
+	if test -d $d
+	then
+	    pcp_rc_dir=$d
+	    break;
+	fi
+    done
+    if test -z "$pcp_rc_dir"
+    then
+	pcp_rc_dir=/etc
+    fi
+else
+    pcp_rc_dir=/Library/StartupItems/pcp
+fi
+AC_SUBST(pcp_rc_dir)
+
+dnl rc sysconfig dir
+if test -d /etc/sysconfig
+then
+    pcp_sysconfig_dir=/etc/sysconfig
+else
+    dnl we are _not_ going to use the sysconfig control mechanism to
+    dnl enable/disable pmcd, pmlogger, pmie, ... during the "rc" start
+    dnl and stop scripts
+    pcp_sysconfig_dir=
+fi
+AC_SUBST(pcp_sysconfig_dir)
+
+dnl logs
+if test -d /var/log
+then
+    pcp_log_dir=/var/log/pcp
+elif test -d /var/adm
+then
+    pcp_log_dir=/var/adm/pcplog
+else
+    pcp_log_dir=$pcp_var_dir/pcplog
+fi
+AC_SUBST(pcp_log_dir)
+
+dnl pid files
+if test -d /var/run
+then
+    pcp_run_dir=/var/run/pcp
+else
+    pcp_run_dir=$pcp_var_dir/pcprun
+fi
+AC_SUBST(pcp_run_dir)
+
+dnl temp files
+if test -d /var/tmp
+then
+    pcp_tmp_dir=/var/tmp
+else
+    pcp_tmp_dir=/tmp
+fi
+AC_SUBST(pcp_tmp_dir)
+
+dnl doc directory
+if test "`eval echo $prefix | sed 's;/[[^/]]*\$;;'`" = NONE
+then
+   if test $target_os = irix
+   then
+       pcp_doc_dir=/usr/pcp/doc
+   else
+       if test -d /usr/share/doc/packages
+       then
+	   pcp_doc_dir=/usr/share/doc/packages/pcp-${PACKAGE_VERSION}
+       elif test -d /usr/share/doc
+       then
+	   pcp_doc_dir=/usr/share/doc/pcp-${PACKAGE_VERSION}
+       elif test -d /usr/doc
+       then
+	   pcp_doc_dir=/usr/doc/pcp-${PACKAGE_VERSION}
+       else
+	   pcp_doc_dir=/usr/share/pcp/doc
+       fi
+   fi
+else
+   pcp_doc_dir=`eval echo $prefix/doc`
+fi
+AC_SUBST(pcp_doc_dir)
+
+dnl demos directory
+if test "`eval echo $prefix | sed 's;/[[^/]]*\$;;'`" = NONE
+then
+   if test $target_os = irix
+   then
+       pcp_demos_dir=/var/pcp/demos
+   else
+       if test -d /usr/share/demos
+       then
+	   pcp_demos_dir=/usr/share/demos/pcp
+       else
+	   pcp_demos_dir=/usr/share/pcp/demos
+       fi
+   fi
+else
+   pcp_demos_dir=`eval echo $pcp_doc_dir/demos`
+fi
+AC_SUBST(pcp_demos_dir)
+
+dnl Check for xconfirm
+dnl If found, use it, otherwise one would be installed in the "secret"
+dnl place.
+if test -z "$XCONFIRM" 
+then
+    AC_PATH_PROG(ac_xconfirm_prog, xconfirm, ${pcp_share_dir}/lib/xconfirm)
+else
+    ac_xconfirm_prog=$XCONFIRM
+fi
+AC_SUBST(ac_xconfirm_prog)
+
+dnl Check for FNDELAY defined in <fcntl.h>
+if test "$ac_cv_header_fcntl_h" = "yes"
+then
+    AC_MSG_CHECKING([for FNDELAY in fcntl.h])
+        AC_TRY_COMPILE(
+	[
+	    #include <fcntl.h>
+	],
+	[
+	    int i = FNDELAY;
+	], AC_DEFINE(HAVE_FNDELAY) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+fi
+
+dnl Check if pthread_mutex_t is defined in pthread.h
+if test "$ac_cv_header_pthread_h" = "yes"
+then
+    AC_MSG_CHECKING([for pthread_mutex_t in pthread.h])
+    AC_TRY_COMPILE(
+    [
+	#include <pthread.h>
+    ],
+    [
+	pthread_mutex_t mymutex;
+    ], AC_DEFINE(HAVE_PTHREAD_MUTEX_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
+dnl Check which library provide pthread stuff
+
+    AC_MSG_CHECKING([where pthread_create() is defined])
+    for cand in "" pthreads pthread ; do
+	savedLIBS=$LIBS
+	if test -n "$cand" 
+	then
+	    LIBS=`echo $LIBS -l$cand`
+	fi
+	AC_TRY_LINK(
+	[
+	    #include <pthread.h>
+	],
+	[
+	    pthread_create(NULL, NULL, NULL, NULL);
+	],  AC_MSG_RESULT(lib${cand:-c})
+	    if test -z "$cand"
+	    then
+		ac_cv_pthread_lib="$cand"
+	    else
+		ac_cv_pthread_lib="-l$cand"
+	    fi
+	    LIBS=$savedLIBS
+	    break )
+	LIBS=$savedLIBS
+    done
+    AC_SUBST(ac_cv_pthread_lib)
+fi
+
+dnl check for array sessions
+if test -f /usr/include/sn/arsess.h
+then
+    pcp_mpi_dirs=libpcp_mpi\ libpcp_mpiread
+else
+    pcp_mpi_dirs=
+fi
+AC_SUBST(pcp_mpi_dirs)
+
+dnl Check if we have IRIX style altzone 
+AC_MSG_CHECKING([for altzone in time.h])
+AC_TRY_COMPILE(
+[
+    #include <time.h>
+],
+[
+    time_t az = altzone;
+], AC_DEFINE(HAVE_ALTZONE) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
+dnl If there is no altzone, check if strftime can handle %z
+AC_MSG_CHECKING([if strftime knows about %z])
+AC_TRY_RUN(
+[
+#include <time.h>
+int main () {
+    char b[32]="";
+    time_t t = time(NULL);
+    struct tm * t1 = localtime (&t);
+    if (strftime (b, 32, "%z", t1) < 3)
+       return (1);
+    if (strcmp(b, "%z") == 0)
+       return(1);
+    return (0);
+}
+], AC_DEFINE(HAVE_STRFTIME_z) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no),  0)
+
+dnl
+dnl On MacOSX 10.3 there is information about leases which is missing
+dnl on 10.4
+dnl
+if test "$target_os" = "darwin" ; then 
+AC_MSG_CHECKING([if there are data about NFS leases])
+AC_TRY_COMPILE(
+[
+#include <sys/types.h>
+#include <sys/time.h>
+#include <mach/mach.h>
+#include <sys/mount.h>
+#include <nfs/rpcv2.h>
+#include <nfs/nfsproto.h>
+#include <nfs/nfs.h>
+],
+[
+struct nfsstats         mach_nfs = { 0 };
+void *p = &mach_nfs.srvnqnfs_leases;
+], AC_DEFINE(HAVE_NQNFS_LEASES) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+fi
+
+dnl
+dnl output files
+dnl
+
+AC_OUTPUT( \
+dnl   Build definitions for use in Makefiles
+    src/include/builddefs \
+dnl   PCP paths and other defs
+    src/include/pcp.conf \
+)

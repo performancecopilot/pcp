@@ -1,0 +1,74 @@
+Roomtemp PMDA
+=============
+
+This PMDA exports the temperature from one or more sensors built using
+the DS2480 and DS1280 chipsets and MicroLAN (aka 1-Wire) technology
+from Dallas Semiconductor Corporation.  See http://www.dalsemi.com/
+
+You'll need the following hardware:
+
+DS2480	Serial 1-Wire Line Driver
+	http://www.dalsemi.com/datasheets/pdfs/2480.pdf
+
+	Not needed if you obtain one of the integrated packages like the
+	DS9097U.
+
+DS9097U	Universal 1-Wire COM Port Adapter
+	http://www.dalsemi.com/datasheets/pdfs/9097u.pdf
+
+	This includes the DS2480 and I have the DS9097U-S09 variant that
+	is a standard DB-9 female package.
+
+DS1820	1-Wire Digital Thermometer
+	http://www.dalsemi.com/datasheets/pdfs/1820.pdf
+
+After you've got at least one DS9097U and one DS1820 you'll need a
+spare serial port on the host running PMCD, a soldering iron and some
+cable (telco or similar) with an RJ-11 male plug attached at one end.
+
+Use the ./probe application to exercise all of the hardware before
+you try and install the PMDA.
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT roomtemp
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/roomtemp
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+ +  Then simply use
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options.
+
+De-installation
+===============
+
+ +  Simply use
+
+	# cd $PCP_PMDAS_DIR/roomtemp
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/roomtemp.log) should be checked for any warnings
+    or errors.

@@ -1,0 +1,62 @@
+Trace PMDA
+==========
+
+This PMDA exports application-level transaction and event statistics.
+
+The PMDA needs to be used in conjunction with the pcp_trace library,
+which provides the pmtracebegin, pmtraceend, pmtracepoint, ... functions
+to user-level programs.
+
+For information about the use of the pcp_trace dynamic library and its
+function call interface, see pmdatrace(1) and pmdatrace(3).  Also, the
+example programs - $PCP_VAR_DIR/demos/trace/*.c are useful as starting
+points.
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT trace
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/trace
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+ +  Then simply use
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options.
+
+    If you choose the "default" installation, appropriate values will
+    be assigned to those parameters that control the customization of
+    the PMDA.  Otherwise consult the pmdatrace(1) man page for a
+    description of the customization parameters.
+
+De-installation
+===============
+
+ +  Simply use
+
+        # cd $PCP_PMDAS_DIR/trace
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/trace.log) should be checked for any warnings
+    or errors.

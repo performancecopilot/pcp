@@ -1,0 +1,70 @@
+#!gmake
+#
+# Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# $Id: GNUmakefile,v 2.33 2006/07/04 06:34:17 makc Exp $
+
+TOPDIR = ../../../..
+include $(TOPDIR)/src/include/builddefs
+
+ifeq "$(TARGET_OS)" "cygwin"
+# unresolved symbols from dso pmda back to pmcd binary is an unsolved
+# problem for Cygwin at this stage
+LIBTARGET =
+else
+LIBTARGET = pmda_pmcd.$(DSOSUFFIX)
+endif
+
+CFILES	= pmcd.c
+LSRCFILES = objstyle
+
+# Add to CFLAGS to find files in pmcd/src...
+LCFLAGS = -I$(TOPDIR)/src
+ifeq "$(TARGET_OS)" "linux"
+ABI = $(shell ./objstyle)
+LCFLAGS += -DSIM_ABI=\"$(ABI)\"
+endif
+ifdef PACKAGE_BUILD
+BUILD = $(PACKAGE_BUILD)
+else
+BUILD = unknown
+endif
+
+LCFLAGS += -DBUILD=\"$(BUILD)\"
+LLDLIBS = -lpcp_pmda -lpcp
+ifeq "$(TARGET_OS)" "aix"
+# need to allow unresolved symbols (back into pmcd)
+LLDFLAGS	= -berok
+endif
+
+default: $(LIBTARGET)
+
+install: default
+ifneq "$(TARGET_OS)" "cygwin"
+	$(INSTALL) -m 755 -d $(PCP_PMDAS_DIR)/pmcd
+	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_PMDAS_DIR)/pmcd/$(LIBTARGET)
+endif
+
+include $(BUILDRULES)
+
+
+default_pcp : default
+
+install_pcp : install

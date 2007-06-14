@@ -1,0 +1,271 @@
+/*
+ * Copyright (c) 1995-2000 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ * 
+ * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+ * Mountain View, CA 94043, USA, or: http://www.sgi.com
+ */
+
+#ident "$Id: cisco.c,v 2.29 2001/03/14 15:51:10 kenmcd Exp $"
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <signal.h>
+#include <sys/socket.h>
+#include <sys/wait.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <netdb.h>
+#include <fcntl.h>
+#include <syslog.h>
+#include <errno.h>
+#include "./cisco.h"
+
+#include <sys/resource.h>
+
+extern int	errno;
+extern int	refreshdelay;
+
+#ifdef HAVE_SPROC
+#ifdef HAVE_PRCTL
+#include <sys/prctl.h>
+#endif
+
+static pid_t	sproc_pid = 0;
+
+#elif defined (HAVE_PTHREAD_H)
+#include <pthread.h>
+
+static pthread_t sproc_pid;
+
+#else
+#error "Need sproc of pthreads here!"
+#endif
+
+/*
+ * all metrics supported in this PMD - one table entry for each
+ */
+static pmdaMetric	metrictab[] = {
+    /* 0,0 ... for direct map, sigh */
+    { NULL, { PMDA_PMID(0,0), 0, 0, 0, PMDA_PMUNITS(0,0,0,0,0,0) } },
+    /* bytes-in */
+    { NULL, { PMDA_PMID(0,1), PM_TYPE_U32, CISCO_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* bytes-out */
+    { NULL, { PMDA_PMID(0,2), PM_TYPE_U32, CISCO_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* rate-in */
+    { NULL, { PMDA_PMID(0,3), PM_TYPE_U32, CISCO_INDOM, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) } },
+    /* rate-out */
+    { NULL, { PMDA_PMID(0,4), PM_TYPE_U32, CISCO_INDOM, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) } },
+    /* bandwidth */
+    { NULL, { PMDA_PMID(0,5), PM_TYPE_U32, CISCO_INDOM, PM_SEM_DISCRETE, 
+	PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) } },
+    /* bytes_out_bcast */
+    { NULL, { PMDA_PMID(0,6), PM_TYPE_U32, CISCO_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+
+    };
+
+/* filled in from command line args in main() ... */
+pmdaIndom	indomtab[] = {
+    { 0, 0, 0 },
+};
+
+#ifdef HAVE_SPROC
+/*ARGSUSED*/
+static RETSIGTYPE
+onhup(int s)
+{
+    signal(SIGHUP, onhup);
+    exit(0);
+}
+#endif
+
+/*
+ * the sproc starts here to refresh the metric values periodically
+ */
+/*ARGSUSED*/
+void
+refresh(void *dummy)
+{
+    int		i;
+
+#ifdef HAVE_SPROC
+#if HAVE_PRCTL
+    signal(SIGHUP, onhup);
+#if HAVE_PR_TERMCHILD
+    prctl(PR_TERMCHILD);          	/* SIGHUP when the parent dies */
+#elif HAVE_PR_SET_PDEATHSIG
+    prctl(PR_SET_PDEATHSIG, SIGHUP);
+#endif
+#endif
+#endif
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL0) {
+	fprintf(stderr, "Starting sproc ...\n");
+	for (i = 0; i < n_cisco; i++) {
+	    int	j;
+
+	    fprintf(stderr, "cisco[%d] host: %s passwd: %s intf:",
+		    i, cisco[i].host, cisco[i].passwd);
+
+	    for (j = 0; j < n_intf; j++) {
+	        if (intf[j].cp == (cisco+i))
+		    fprintf(stderr, " %d-%s", j, intf[j].interface);
+	    }
+	    fputc('\n', stderr);
+	}
+    }
+#endif
+
+    for ( ; ; ) {
+	for (i = 0; i < n_intf; i++) {
+	    if (grab_cisco(intf+i) != -1) {
+		intf[i].fetched = 1;
+	    }
+	    else
+		intf[i].fetched = 0;
+	}
+
+	for (i = 0; i < n_cisco; i++) {
+	    if (cisco[i].fout != NULL) {
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_APPL0)
+		    fprintf(stderr, "... %s voluntary disconnect\n", cisco[i].host);
+#endif
+
+		/* close CISCO telnet session */
+		fprintf(cisco[i].fout, "exit\n");
+		fclose(cisco[i].fout);
+		cisco[i].fout = NULL;
+	    }
+	    if (cisco[i].fin != NULL) {
+		fclose(cisco[i].fin);
+		cisco[i].fin = NULL;
+	    }
+	}
+
+	sleep(refreshdelay);
+    }
+}
+
+static int
+cisco_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
+{
+    __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+
+#ifndef HAVE_SPROC
+    /* Check is refresh thread is still with us */
+    int err;
+
+    if ( (err = pthread_kill (sproc_pid, 0)) != 0 ) {
+        exit (1);
+    }
+#endif
+
+    if (!intf[inst].fetched)
+	return PM_ERR_AGAIN;
+
+    switch (idp->item) {
+
+	case 1:		/* bytes_in */
+		if (intf[inst].bytes_in == -1) return 0;
+		avp->ul = intf[inst].bytes_in;
+		break;
+
+	case 2:		/* bytes_out */
+		if (intf[inst].bytes_out == -1) return 0;
+		avp->ul = intf[inst].bytes_out;
+		break;
+
+	case 3:		/* rate_in */
+		if (intf[inst].rate_in == -1) return 0;
+		avp->ul = intf[inst].rate_in;
+		break;
+
+	case 4:		/* rate_out */
+		if (intf[inst].rate_out == -1) return 0;
+		avp->ul = intf[inst].rate_out;
+		break;
+
+	case 5:		/* bandwidth */
+		if (intf[inst].bandwidth == -1) return 0;
+		avp->ul = intf[inst].bandwidth;
+		break;
+
+	case 6:		/* bytes_out_bcast */
+		if (intf[inst].bytes_out_bcast == -1) return 0;
+		avp->ul = intf[inst].bytes_out_bcast;
+		break;
+
+	default:
+		return PM_ERR_PMID;
+    }
+
+    return 1;
+}
+
+void
+cisco_init(pmdaInterface *dp)
+{
+    int		i;
+
+    pmdaSetFetchCallBack(dp, cisco_fetchCallBack);
+
+    pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), metrictab,
+	sizeof(metrictab)/sizeof(metrictab[0]));
+
+    for (i = 0; i < n_intf; i++)
+	intf[i].fetched = 0;
+
+    /* start the sproc for async fetches */
+#ifdef HAVE_SPROC
+    sproc_pid = sproc(refresh, PR_SADDR);
+#elif defined (HAVE_PTHREAD_H)
+    if ((i = pthread_create(&sproc_pid, NULL, (void (*))refresh, NULL)) != 0) {
+	sproc_pid = i;
+    }
+#else
+#error "Need sproc or pthread here!"
+#endif
+
+    if (sproc_pid < 0)
+	dp->status = sproc_pid;
+    else
+	dp->status = 0;
+
+    return;
+}
+
+void
+cisco_done(void)
+{
+    int		i;
+
+    if (sproc_pid > 0) {
+	kill(sproc_pid, SIGHUP);
+	while (wait(&i) >= 0)
+	    ;
+    }
+}
+

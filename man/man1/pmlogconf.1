@@ -1,0 +1,142 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMLOGCONF 1 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMLOGCONF 1 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMLOGCONF 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMLOGCONF 1 "" "\&"
+.if \nX=3 .ds x} PMLOGCONF "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmlogconf\f1 \- create/edit a pmlogger configuration file
+.SH SYNOPSIS
+\f3$PCP_BINADM_DIR/pmlogconf\f1
+[\f3\-q\f1]
+\f2configfile\f1
+.SH DESCRIPTION
+.B pmlogconf
+may be used to create and modify a generic configuration file for
+the PCP archive logger,
+.BR pmlogger (1).
+.PP
+.I configfile
+may be used with the
+.B \-c
+option to
+.BR pmlogger (1)
+to select performance metrics and specify
+logging frequencies for a PCP archive.
+.PP
+If
+.I configfile
+does not exist,
+.B pmlogconf
+will create a generic configuration file with the
+default set of enabled metrics and logging frequencies.
+.PP
+If
+.I configfile
+does exist,
+.B pmlogconf
+will prompt for input from the user to enable or disable groups
+of related performance metrics, and to control the logging frequency
+for each enabled group.
+.PP
+Group selection requires a simple
+.B y
+(yes)
+or
+.B n
+(no) response to the prompt
+.BR "Log this group?" .
+.PP
+Other responses are supported at this point to select
+additional control functions as follows:
+.IP \fBm\fP
+Report the names of the metrics in the current group.
+.IP \fBq\fP
+Finish with group selection (quit), and make no further changes to
+this group or any subsequent group.
+.IP \fB/\fIpattern\fP
+.br
+Make no change to this group, but search for a group containing
+.I pattern
+in the description of the group, or the names
+of the associated metrics.
+.PP
+Logging frequency is specified by responding to the
+.B "Logging interval?"
+prompt with the keywords
+.B once
+or
+.B default
+or a valid
+.BR pmlogger (1)
+interval specification of the form ``\c
+.B every
+.IR "N timeunits" ''
+or simply ``\c
+.IR "N timeunits" '',
+where
+.B every
+is optional,
+.I N
+is an unsigned integer, and
+.I timeunits
+is one of the keywords
+.BR msec ,
+.BR millisecond ,
+.BR sec ,
+.BR second ,
+.BR min ,
+.BR minute ,
+.BR hour
+or the plural form of one of the above.
+.PP
+The
+.B \-q
+option supresses the logging interval dialog and uses the
+current or the default interval.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR pmlogger (1),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).

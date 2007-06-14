@@ -1,0 +1,51 @@
+# $Id: GNUmakefile.install,v 1.2 2003/02/20 19:20:25 kenmcd Exp $
+#
+# Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+# 
+
+IAM	= txmon
+CFILES	= $(IAM).c
+OBJECTS	= $(CFILES:.c=.o)
+TARGETS	= pmda$(IAM) txrecord
+DEBUG   = -DDEBUG
+CFLAGS	= $(DEBUG)
+LDOPTS	=
+LDLIBS	= -lpcp_pmda -lpcp
+LDIRT	= so_locations *.log help.dir help.pag *.pmda_$(IAM).so
+
+CC	= $(PCP_CC_PROG)
+
+default: $(TARGETS)
+
+install:	default
+
+pmda$(IAM):	txmon.h domain.h $(CFILES)
+	@[ -x `which $(CC)` ] || ( echo "No C compiler? ... skip remaking $@" ; exit 1)
+	rm -f $@
+	$(CC) $(CFLAGS) -o $@ txmon.c $(LDOPTS) $(LDLIBS)
+
+txrecord:	txmon.h txrecord.c
+	@[ -x `which $(CC)` ] || ( echo "No C compiler? ... skip remaking $@" ; exit 1)
+	rm -f $@
+	$(CC) $(CFLAGS) -o $@ txrecord.c
+
+clobber:
+	@[ -x `which $(CC)` ] || ( echo "No C compiler? ... skip clobber" ; exit 1)
+	rm -f $(LDIRT) $(TARGETS)

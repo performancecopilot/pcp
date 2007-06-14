@@ -1,0 +1,124 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2006 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMCONTEXTCONNECTTO 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMCONTEXTCONNECTTO 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMCONTEXTCONNECTTO 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMCONTEXTCONNECTTO 3 "" "\&"
+.if \nX=3 .ds x} PMCONTEXTCONNECTTO "" "" "\&"
+.\" $Id: pmcontextconnectto.3,v 1.1 2006/06/19 09:53:58 makc Exp $
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmContextConnectTo\f1,
+\f3pmContextChangeState\f1 \- connect to a PMCD 
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmContextConnectTo(int ctx, const struct sockaddr *addr)
+int pmContextChangeState(int ctx)
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+A host context, created by passing \f3PM_CTXFLAG_SHALLOW\fP to
+\f3pmNewContext\fP, must be connected to a source of performance metrics,
+i.e. \c 
+.BR pmcd (1),
+on some host before it can be used to retrieve data.
+.PP
+The connection process can block for several tens of seconds
+while waiting for a reply from either 
+.BR pmcd (1)
+or from a TCP/IP stack on the remote host. To avoid blocking, applications
+which must communicate to 
+.B pmcd
+asynchronously should use these functions
+to work the state machine associated with the context creation.
+.PP
+Calling
+.B pmContextConnectTo
+starts the process of establishing connection to a
+.BR pmcd (1)
+on a host identified by the \f2addr\fP. Usually \f2addr\fP will be an
+IPv4 socket address, in which case the value of \f2sin_port\fP is ignored.
+.PP
+Following the call to \f3pmContextConnectTo\fP an application is expected
+to wait until the file descriptor associated with the context \f2ctx\fP becomes
+ready to accept data, i.e. \f3write\fP(2) is not going to block, then
+the application should call \f3pmContextChangeState\fP. If it returns
+\f3PM_ERR_AGAIN\fP then the application must wait until data are available
+on the file descriptor associated with context \f2ctx\fP and call
+\f3pmContextChangeState\fP again until it returns 0 to indicate success
+or a negative value to indicate failure.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmNewContext (3)
+and
+.BR pmGetContextFD (3).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOCONTEXT\f1
+.I ctx
+does not identify a valid PMAPI context.
+.IP \f3PM_ERR_NOTHOST\f1
+The context is not associated with PMCD.
+.IP \f3PM_ERR_NOTCONN\f1
+The connection to PMCD is not yet established.
+.IP \f3PM_ERR_ISCONN\f1
+The connection to PMCD is already established.
+.SH EXAMPLE
+.nf
+int ctx = pmNewContext(PM_CONTEXT_HOST|PM_CTXFLAG_SHALLOW, "localhost");
+int fd = pmGetContextFD(ctx);
+struct sockaddr_in sin;
+
+memset (&sin, 0, sizeof(sin));
+sin.sin_family = AF_INET;
+sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+if (pmContextConnectTo(ctx, (struct sockaddr *)&sin) >= 0) {
+    struct pollfd pfd;
+
+    pfd.fd = fd;
+    pfd.events = POLLOUT;
+
+    while (1) {
+        int tout = pmGetContextTimeout(ctx);
+        if (poll (&pfd, 1, tout) <= 0) {
+            break;
+	}
+        if (pmContextChangeState (ctx) != PM_ERR_AGAIN) {
+            break;
+        }
+        pfd.events = POLLIN;
+    }
+    /* We're now connected and can use the context */
+}
+.fi
+

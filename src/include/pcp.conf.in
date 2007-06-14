@@ -1,0 +1,160 @@
+#
+# Copyright (c) 2000-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# $Id: pcp.conf.in,v 1.29 2007/03/30 09:30:06 kimbrr.bonnie.engr.sgi.com Exp $
+#
+# This file defines the directories and paths used by PCP
+# and is installed as the file /etc/pcp.conf for use at run-time.
+#
+# Note:	the syntax of this file must allow processing to generate
+#	correct variable assignments for both sh and make,
+#	hence there should be no spaces immediately before or after
+#	the equals in each assignment, no quoting on the right of the
+#	equals although the value may contain embedded spaces.
+#
+# Shell scripts should never source this file directly, rather they
+# should use this file indirectly by sourcing /etc/pcp.env, i.e.
+#   . /etc/pcp.env
+# this will handle the quoting and white space issues and set all
+# "variables" beginning with PCP_ in this file into the environment.
+# The defaults may be over-ridden by setting $PCP_CONF in the environment
+# as the full path to an alternate version of this file.
+#
+# The "standard paths" reflect the directory structure that is used by
+# default on the platform on which this file is installed.
+#
+
+# directory for rc/startup scripts
+# Standard path: /etc/init.d
+PCP_RC_DIR=@pcp_rc_dir@
+
+# directory for sysconfig controls
+# Standard path: /etc/sysconf (Redhat-specific)
+#		 <empty> if no sysconfig support
+PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
+
+# directory for public binaries
+# Standard path: /usr/bin
+PCP_BIN_DIR=@pcp_bin_dir@
+
+# directory for private PCP binaries
+# Standard path: /usr/share/pcp/bin
+PCP_BINADM_DIR=@pcp_binadm_dir@
+
+# directory for runtime shared libraries, libpcp.so, etc.
+# Standard path: /usr/lib
+PCP_LIB_DIR=@pcp_lib_dir@
+PCP_LIB32_DIR=@pcp_lib32_dir@
+
+# directory for shared PCP files (shareable for diskless)
+# Standard path: /usr/share/pcp
+# Subdirectories: bin lib
+PCP_SHARE_DIR=@pcp_share_dir@
+
+# directory for headers
+# Standard path: /usr/include/pcp
+PCP_INC_DIR=@pcp_inc_dir@
+
+# parent directory of man pages
+# Standard path: /usr/man
+# Subdirectories: man1 man3 man4
+PCP_MAN_DIR=@pcp_man_dir@
+
+# directory for non-shared (i.e. system local) PCP files
+# Standard path: /var/lib/pcp
+# Subdirectories: config pmns (note see $PCP_PMDAS_DIR) for pmdas
+PCP_VAR_DIR=@pcp_var_dir@
+
+# path to pmcd config file
+# Standard path (linux): $PCP_VAR_DIR/config/pmcd/pmcd.conf
+# Standard path (irix): /etc/pmcd.conf
+PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
+
+# path to pmcd options file
+# Standard path (linux): $PCP_VAR_DIR/config/pmcd/pmcd.options
+# Standard path (irix): /etc/config/pmcd.options
+PCP_PMCDOPTIONS_PATH=@pcp_pmcdoptions_path@
+
+# path to pmproxy options file
+# Standard path (linux): $PCP_VAR_DIR/config/pmproxy/pmproxy.options
+# Standard path (irix): /etc/config/pmproxy.options
+PCP_PMPROXYOPTIONS_PATH=@pcp_pmproxyoptions_path@
+
+# directory for PCP PMDAs
+# Standard path: /var/lib/pcp/pmdas
+# Subdirectories: one per PMDA
+PCP_PMDAS_DIR=@pcp_pmdas_dir@
+
+# directory for PCP pid files
+# Standard path: /var/run/pcp
+PCP_RUN_DIR=@pcp_run_dir@
+
+# directory for PCP logs
+# Standard path: /var/log/pcp
+# Subdirectories: pmcd pmlogger pmie
+PCP_LOG_DIR=@pcp_log_dir@
+
+# directory for PCP temp files
+# Standard path: /var/tmp
+# Subdirectories: pmie pmlogger
+PCP_TMP_DIR=@pcp_tmp_dir@
+
+# directory for PCP documentation
+# Standard path: /usr/share/doc/pcp
+# Subdirectories: Tutorial pcpweb ...
+PCP_DOC_DIR=@pcp_doc_dir@
+
+# directory for PCP demos and examples
+# Standard path: /usr/share/pcp/demos
+# Subdirectories: assorted
+PCP_DEMOS_DIR=@pcp_demos_dir@
+
+# awk
+PCP_AWK_PROG=@awk@
+
+# tools needed to rebuild things on the target platform
+PCP_MAKE_PROG=@make@
+PCP_CC_PROG=@cc@
+
+# echo
+# for lines without newline, use
+#	$PCP_ECHO_PROG $PCP_ECHO_N "string""$PCP_ECHO_C"
+PCP_ECHO_PROG=@echo@
+PCP_ECHO_N=@echo_n@
+PCP_ECHO_C=@echo_c@
+
+# killall
+PCP_KILLALL_PROG=@pcp_killall_prog@
+
+# ps
+PCP_PS_HAVE_BSD=@pcp_ps_have_bsd@
+PCP_PS_ALL_FLAGS=@pcp_ps_all_flags@
+
+# host os
+PCP_PLATFORM=@target_os@
+
+# PCP version
+PCP_VERSION=@PACKAGE_VERSION@
+
+# xconfirm
+PCP_XCONFIRM_PROG=@ac_xconfirm_prog@
+
+# mpi
+PCP_MPI_DIRS=@pcp_mpi_dirs@

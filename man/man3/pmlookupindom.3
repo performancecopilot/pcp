@@ -1,0 +1,111 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmlookupindom.3,v 2.7 2006/06/19 09:53:58 makc Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMLOOKUPINDOM 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMLOOKUPINDOM 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMLOOKUPINDOM 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMLOOKUPINDOM 3 "" "\&"
+.if \nX=3 .ds x} PMLOOKUPINDOM "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmLookupInDom\f1,
+\f3pmRequestInDomInst\f1,
+\f3pmReceiveInDomInst\f1 \- translate an instance name into an instance identifier
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmLookupInDom(pmInDom indom, const char *name)
+int pmRequestInDomInst(int ctx, pmInDom indom, const char *name)
+int pmReceiveInDomInst(int ctx)
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+For the instance domain
+.IR indom ,
+in the current
+Performance Metrics Application Programming Interface (PMAPI)
+context,
+locate the instance with the external identification given by
+.IR name ,
+and return the internal instance identifier. 
+.PP
+Only the leading
+non-space characters of
+.I name
+will be used to identify the instance.
+.PP
+The value for the instance domain
+.I indom
+is typically extracted from a
+.CW pmDesc
+structure, following a call to
+.BR pmLookupDesc (3)
+for a particular performance metric.
+.PP
+.B pmLookupInDom
+will return a positive instance identifier on success.
+.PP
+\f3pmRequestInDomInst\fP and \f3pmReceiveInDomInst\fP are used by applications
+which must  communicate with the PMCD asynchronously.  These functions
+take explict context handle \f2ctx\fP which must refer to a host
+context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
+\f3pmNewContext\fP). \f3pmRequestInDomInst\fP sends request to translate
+external instance name to internal instance identifier to 
+PMCD and returns without waiting for the response, \f3pmReceiveInDomInst\fP
+reads reply from PMCD. It is the responsibility of the application
+to make sure the data are ready before calling \f3pmReceiveInDomInst\f1 to
+avoid blocking.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetConfig (3),
+.BR pmGetInDom (3),
+.BR pmLookupDesc (3),
+.BR pmNameInDom (3),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_INDOM\f1
+.I indom
+is not a valid instance domain identifier
+.IP \f3PM_ERR_INST\f1
+The external instance
+.I name
+is not known for the instance domain
+.I indom
+in the current PMAPI context
+.IP \f3PM_ERR_CTXBUSY\f1
+Context is currently in use by another asynchronous call.

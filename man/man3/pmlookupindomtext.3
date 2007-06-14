@@ -1,0 +1,117 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmlookupindomtext.3,v 2.7 2006/06/19 09:53:58 makc Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMLOOKUPINDOMTEXT 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMLOOKUPINDOMTEXT 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMLOOKUPINDOMTEXT 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMLOOKUPINDOMTEXT 3 "" "\&"
+.if \nX=3 .ds x} PMLOOKUPINDOMTEXT "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmLookupInDomText\f1,
+\f3pmRequestInDomText\f1 \- return text describing a performance metrics instance domain
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmLookupInDomText(pmInDom indom, int level, char **buffer)
+int pmRequestInDomText(int ctx, pmInDom indom, int level)
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+Provided the source of metrics from
+the current
+Performance Metrics Application Programming Interface (PMAPI)
+context is a host,
+retrieve descriptive text about the performance
+metrics instance domain identified by
+.IR indom .
+.PP
+The value for the instance domain
+.I indom
+is typically extracted from a
+.CW pmDesc
+structure, following a call to
+.BR pmLookupDesc (3)
+for a particular performance metric.
+.PP
+The argument
+.I level
+should be 
+.BR PM_TEXT_ONELINE
+for a one-line summary, else
+.BR PM_TEXT_HELP
+for a more verbose description, suited to a help dialog. 
+.PP
+The space pointed to by
+.I buffer
+will have been allocated in
+.B pmLookupInDomText
+with
+.BR malloc (3C),
+and it is the responsibility of the caller to
+.BR free (3C)
+the space when it is no longer required.
+.PP
+.B pmLookupInDomText
+returns zero on success.
+.PP
+\f3pmRequestInDomText\fP and \f3pmReceiveText\fP are used by
+applications which must  communicate with the PMCD asynchronously.
+These functions take explict context handle \f2ctx\fP which must refer
+to a host context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
+\f3pmNewContext\fP). \f3pmRequestInDomText\fP sends request to PMCD
+to provide descriptive text about performance metrics instance domain
+identified by \f2indom\f1 and returns without waiting for the response,
+\f3pmReceiveText\fP reads reply from PMCD. It is the responsibility
+of the application to make sure the data are ready before calling
+\f3pmReceiveText\fP to avoid blocking.
+.SH SEE ALSO
+.BR chkhelp (1),
+.BR newhelp (1),
+.BR PMAPI (3),
+.BR pmGetConfig (3),
+.BR pmLookupDesc (3),
+.BR pmLookupText (3),
+.BR pmReceiveText (3),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOTHOST\f1
+if the current PMAPI context is an archive log
+(help and one-line text is not maintained in the archive logs)
+.IP \f3PM_ERR_CTXBUSY\f1
+Context is currently in use by another asynchronous call.

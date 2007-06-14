@@ -1,0 +1,121 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmtrimnamespace.3,v 2.8 2004/06/24 06:15:36 kenmcd Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMTRIMNAMESPACE 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMTRIMNAMESPACE 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMTRIMNAMESPACE 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMTRIMNAMESPACE 3 "" "\&"
+.if \nX=3 .ds x} PMTRIMNAMESPACE "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmTrimNameSpace\f1 \- prune a performance metrics name space
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmTrimNameSpace()
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+If the current
+Performance Metrics Application Programming Interface (PMAPI)
+context
+corresponds to a version 1 archive log of Performance Co-Pilot (PCP)
+performance metrics (as collected
+by
+.BR pmlogger (1)
+.BR -V1 ),
+then the currently loaded
+Performance Metrics Name Space (PMNS), is trimmed to exclude
+metrics for which no description can
+be found in the archive.
+The PMNS is further trimmed to remove empty subtrees that do not contain any
+performance metric.
+.PP
+Since PCP archives usually contain some subset
+of all metrics named in the default PMNS,
+.B pmTrimNameSpace
+effectively trims the application's PMNS to contain only the
+names of the metrics in the archive.
+.PP
+Since PCP 2.0, 
+.B pmTrimNameSpace 
+is only needed for dealing with version 1 archives.
+Version 2 archives actually store the "trimmed" PMNS. 
+.PP
+Prior to any trimming,
+the PMNS is restored to the state as of the completion of the last
+.BR pmLoadASCIINameSpace (3)
+or
+.BR pmLoadNameSpace (3)
+or
+implicit load (in the case of a host with a version 1
+Performance Metric Collector Daemon (PMCD))
+operation, so the effects of consecutive calls to
+.B pmTrimNameSpace
+with archive contexts are
+.B not
+additive.
+.PP
+If the current PMAPI context
+corresponds to a host, rather than an archive, 
+and the host has a version 1 pmcd or a 
+.BR pmLoadASCIINameSpace (3) 
+or
+.BR pmLoadNameSpace (3) 
+call was made,
+then the PMNS reverts to all names loaded into the PMNS
+at the completion of the last
+.BR pmLoadASCIINameSpace (3)
+or
+.BR pmLoadNameSpace (3)
+or implicit load operation, i.e. any trimming is undone.
+.PP
+On success,
+.B pmTrimNameSpace
+returns zero.
+.SH SEE ALSO
+.BR pmlogger (1),
+.BR PMAPI (3),
+.BR pmLoadASCIINameSpace (3),
+.BR pmLoadNameSpace (3),
+.BR pmNewContext (3)
+and
+.BR pmns (4).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOPMNS\f1
+you must have loaded a PMNS using
+.BR pmLoadASCIINameSpace (3)
+or
+.BR pmLoadNameSpace (3)
+before calling
+.B pmTrimNameSpace
+.IP \f3PM_ERR_NOCONTEXT\f1
+the current PMAPI context
+is invalid

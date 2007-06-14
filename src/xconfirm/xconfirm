@@ -1,0 +1,162 @@
+#! /bin/sh
+#
+# Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# Cheap and nasty wrapper to emulate xconfirm(1) from IRIX using
+# xmessage(1)
+#
+# $Revision: 1.6 $
+
+# Get standard environment
+. /etc/pcp.env
+PATH=$PATH:/usr/bin/X11:/usr/X11R6/bin
+
+prog=`basename $0`
+
+if [ -z "$DISPLAY" ]
+then
+    echo "$prog: cannot connect to display" >&2
+    exit 255
+fi
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp; exit 0" 0 1 2 3 15
+
+_usage()
+{
+    # IRIX usage
+    #
+    echo "Usage: $prog [ -c ] [ -b button-name ] [ -B default-button-name ]\n\
+		[ -t string ] [ -file filename ] [ -icon icontype ]\n\
+		[ -font font ] [ -header titlebar-string ] [ -useslider ]\n\
+		[ -geometry geometry-string ] [ -noframe ] [ -exclusive ]"
+    exit 1
+}
+
+xargs=""
+args=""
+while [ $# -gt 0 ]
+do
+    case $1
+    in
+
+	-geometry|-font|-file)
+		    if [ $# -lt 2 ]
+		    then
+			echo "$prog: $1 requires argument"
+			exit 1
+		    fi
+		    xargs="$xargs $1 $2"
+		    shift
+		    ;;
+
+	-header)
+		    if [ $# -lt 2 ]
+		    then
+			echo "$prog: $1 requires argument"
+			exit 1
+		    fi
+		    xargs="$xargs -title \"$2\""
+		    shift
+		    ;;
+
+	-icon)
+		    # no support
+		    if [ $# -lt 2 ]
+		    then
+			echo "$prog: $1 requires argument"
+			exit 1
+		    fi
+		    shift
+		    ;;
+
+	-noframe|-exclusive|-useslider)
+		    # not supported
+		    ;;
+
+	*)
+		    args="$args \"$1\""
+		    ;;
+    esac
+    shift
+done
+
+eval set -- $args
+
+first_t=true
+bopt=""
+default="Continue"
+while getopts ":cb:B:t:" c
+do
+    case $c
+    in
+
+	c)
+	    	xargs="$xargs -center"
+		;;
+
+	b)
+		if [ -z "$bopt" ]
+		then
+		    bopt="$OPTARG"
+		else
+		    bopt="$OPTARG,$bopt"
+		fi
+		;;
+
+	B)
+		if [ -z "$bopt" ]
+		then
+		    bopt="$OPTARG"
+		else
+		    bopt="$OPTARG,$bopt"
+		fi
+		xargs="$xargs -default $OPTARG"
+		default="$OPTARG"
+		;;
+
+	t)
+		if $first_t
+		then
+		    first_t=false
+		    xargs="$xargs -file $tmp"
+		fi
+		echo "$OPTARG" >>$tmp
+		;;
+
+	\?)
+		[ "$OPTARG" != "?" ] && echo "$prog: Invalid option: $OPTARG"
+		_usage
+		;;
+
+    esac
+done
+shift `expr $OPTIND - 1`
+
+[ -z "$xargs" ] && xargs="''"
+[ -z "$bopt" ] && bopt="Continue"
+bopt="-buttons \"$bopt\""
+
+#DEBUG echo "+ xmessage -print $bopt $xargs"
+ans=`eval xmessage -print $bopt $xargs`
+
+[ -z "$ans" ] && ans="$default"
+echo $ans
+

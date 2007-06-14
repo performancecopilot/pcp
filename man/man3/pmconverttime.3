@@ -1,0 +1,91 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMCONVERTTIME 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMCONVERTTIME 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMCONVERTTIME 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMCONVERTTIME 3 "" "\&"
+.if \nX=3 .ds x} PMCONVERTTIME "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3__pmConvertTime\f1 \- convert \fBtm\fR structure to \fBtimeval\fR structure
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.sp
+int __pmConvertTime(struct tm *tmin, struct timeval *origin, struct timeval *rslt)
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B __pmConvertTime
+accepts a
+.B tm
+structure that has been filled in by
+.BR __pmParseCtime (3)
+and a reference time point
+.BR origin ,
+and fills in the given
+.B rslt
+structure with the time the user meant when he specified a partial
+.B ctime
+or positive or negative time
+.BR interval .
+.PP
+Typically, the argument
+.B origin
+is the start time for a PCP archive log, unless the user specified
+a negative
+.B interval
+offset, in which case it is the end
+time of the log.
+.PP
+.B __pmConvertTime
+returns 0 if succesful.  
+It returns -1 and writes an error message to
+.BR stderr ,
+if an error is detected.
+.PP
+Use
+.BR pmNewZone (3),
+.BR pmNewContextZone (3)
+or
+.BR pmUseZone (3)
+to establish a new current timezone that will effect
+.BR __pmConvertTime .
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmNewContextZone (3),
+.BR pmNewZone (3),
+.BR pmParseInterval (3),
+.BR pmParseTimeWindow (3),
+.BR pmUseZone (3),
+.BR __pmParseCtime (3)
+and
+.BR __pmParseTime (3).

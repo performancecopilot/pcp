@@ -1,0 +1,91 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmdbg.1,v 1.6 2002/11/12 23:30:09 kenmcd Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMDBG 1 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMDBG 1 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMDBG 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMDBG 1 "" "\&"
+.if \nX=3 .ds x} PMDBG "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmdbg\f1 \- translate Performance Co-Pilot debug control flags
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3pmdbg\f1
+\f2code\f1 ...
+.br
+\f3pmdbg\f1
+\f3\-l\f1
+.SH DESCRIPTION
+The components of the Performance Co-Pilot (PCP) use
+a global vector of bit-fields
+to control diagnostic and debug output.
+.PP
+.B pmdbg
+with a
+.B \-l
+argument prints out the mnemonic and decimal values of all
+the bit-fields in the debug control vector.
+.PP
+In the alternative usage, the
+.I code
+arguments are values for the debug vector, and the bit-fields that
+are enabled by each of these values is listed.
+.PP
+Each
+.I code
+may be an integer, a hexadecimal value or a hexadecimal value prefixed
+by either ``0x'' or ``0X''.
+.PP
+Most applications using the facilities of the PCP support
+a
+.BI \-D N
+command-line syntax to enable debug control.
+.B pmdbg
+is designed to help choose an appropriate value for
+.IR N .
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Performance Co-Pilot</string>
+	<key>OrderPreference</key>
+	<string>Late</string>
+	<key>Provides</key>
+	<array>
+		<string>PCP</string>
+	</array>
+<!--
+	<key>Requires</key>
+	<array>
+		<string>Disks</string>
+		<string>DirectoryServices</string>
+	</array>
+	<key>Uses</key>
+	<array>
+		<string>Network Time</string>
+	</array>
+-->
+</dict>
+</plist>

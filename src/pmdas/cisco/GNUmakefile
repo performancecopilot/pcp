@@ -1,0 +1,86 @@
+#!gmake
+#
+# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# $Id: GNUmakefile,v 2.44 2006/06/22 03:29:44 makc Exp $
+#
+
+TOPDIR = ../../..
+include $(TOPDIR)/src/include/builddefs
+
+IAM	= cisco
+DOMAIN	= CISCO
+TARGETS	= $(IAM)$(EXECSUFFIX) probe$(EXECSUFFIX) parse$(EXECSUFFIX)
+CFILES	= cisco.c pmda.c interface.c telnet.c
+HFILES	= cisco.h 
+DFILES	= README
+LSRCFILES=Install Remove root pmns Cisco.pmchart help Samples Tested $(DFILES) \
+	cisco.in_util.pmie cisco.out_util.pmie probe.c Makefile.install
+
+LLDLIBS	= -lpcp_pmda -lpcp $(PTHREAD_LIB)
+
+PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
+PMCHART	= $(PCP_VAR_DIR)/config/pmchart
+PMIE	= $(PCP_VAR_DIR)/config/pmie/$(IAM)
+
+LDIRT	= domain.h *.log *.dir *.pag so_locations a.out parse.? probe.o \
+	$(TARGETS)
+
+default:	$(TARGETS)
+
+include $(BUILDRULES)
+
+install:	default
+	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM) 
+	$(INSTALL) -m 755 probe parse Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
+	$(INSTALL) -m 644 Makefile.install $(PMDADIR)/Makefile
+	$(INSTALL) -m 644 Cisco.pmchart $(PMCHART)/Cisco
+	$(INSTALL) -m 755 -d $(PMIE)
+	$(INSTALL) -m 644 cisco.in_util.pmie $(PMIE)/in_util
+	$(INSTALL) -m 644 cisco.out_util.pmie $(PMIE)/out_util
+
+$(IAM)$(EXECSUFFIX):	$(OBJECTS)
+
+parse$(EXECSUFFIX):	parse.o cisco.o interface.o telnet.o
+	$(CCF) -o $@ $(LDFLAGS) parse.o cisco.o interface.o telnet.o $(LDLIBS)
+
+parse.c:	pmda.c
+	ln -s pmda.c parse.c
+
+parse.o:	parse.c
+	$(CCF) -c -DPARSE_ONLY parse.c
+
+probe$(EXECSUFFIX):	probe.o interface.o telnet.o
+	$(CCF) -o $@ $(LDFLAGS) probe.o interface.o telnet.o $(LDLIBS)
+
+cisco.o:	domain.h
+
+domain.h:	../../pmns/stdpmid
+	rm -f domain.h
+	echo "/*" >domain.h
+	echo " * built from $(TOPDIR)/src/pmns/stdpmid" >>domain.h
+	echo " */" >>domain.h
+	$(PCP_AWK_PROG) <$< >>$@ '$$1="#define" && $$2=="$(DOMAIN)" { print "#define $(DOMAIN) " $$3 }'
+
+default_pcp:	default
+
+install_pcp:	install

@@ -1,0 +1,46 @@
+// Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+// 
+// This program is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the
+// Free Software Foundation; either version 2 of the License, or (at your
+// option) any later version.
+// 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+// or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+// for more details.
+// 
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// 
+// Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+// Mountain View, CA 94043, USA, or: http://www.sgi.com
+//
+// Any disk performing more than 40 I/Os per second, sustained over
+// at least 30 seconds is probably busy
+//
+delta = 30 seconds;
+disk_busy =
+    some_inst (
+	$disk.dev.total > 40 count/sec
+    )
+    -> shell 15 mins "Mail -s 'Heavy sustained disk traffic' sysadm </dev/null";
+
+// Try and catch bursts of activity ... more than 60 I/Os per second
+// for at least 25% of 8 consecutive 3 second samples
+//
+delta = 3 sec;
+disk_burst =
+    some_inst (
+	25%_sample (
+	    $disk.dev.total @0..7 > 60 count/sec
+	)
+    )
+    -> alarm 5 mins "Disk Burst? " "%i ";
+
+// any SCSI disk controller performing more than 3 Mbytes per sec is busy
+//
+some_inst $disk.ctl.blktotal * 0.5 > 3 Mbyte/sec
+    -> alarm "Busy Disk Controller: " "%i ";
+

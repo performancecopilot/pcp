@@ -1,0 +1,1175 @@
+#
+# Copyright (c) International Business Machines Corp., 2002
+# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# $Revision: 1.41 $
+#
+# Linux PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@ kernel.uname.release release level of the running kernel
+Release level of the running kernel as reported via the release[]
+value returned from uname(2) or uname -r.
+
+See also pmda.uname.
+
+@ kernel.uname.version version level (build number) and build date of the running kernel
+Version level of the running kernel as reported by the version[]
+value returned from uname(2) or uname -v.  Usually a build number
+followed by a build date.
+
+See also pmda.uname.
+
+@ kernel.uname.sysname name of the implementation of the operating system
+Name of the implementation of the running operating system as reported
+by the sysname[] value returned from uname(2) or uname -s.  Usually
+"Linux".
+
+See also pmda.uname.
+
+@ kernel.uname.machine name of the hardware type the system is running on
+Name of the hardware type the system is running on as reported by the machine[]
+value returned from uname(2) or uname -m, e.g. "i686".
+
+See also pmda.uname.
+
+@ kernel.uname.nodename host name of this node on the network
+Name of this node on the network as reported by the nodename[]
+value returned from uname(2) or uname -n.  Usually a synonym for
+the host name.
+
+See also pmda.uname.
+
+@ kernel.uname.distro Linux distribution name
+The Linux distribution name, as determined by a number of heuristics.
+For example:
++ on Fedora, the contents of /etc/fedora-release
++ on RedHat, the contents of /etc/redhat-release
+
+@ kernel.percpu.cpu.user percpu user CPU time metric from /proc/stat
+@ kernel.percpu.cpu.nice percpu nice user CPU time metric from /proc/stat
+@ kernel.percpu.cpu.sys percpu sys CPU time metric from /proc/stat
+@ kernel.percpu.cpu.idle percpu idle CPU time metric from /proc/stat
+@ kernel.percpu.cpu.wait.total percpu wait CPU time
+Percpu i/o wait CPU time. This is available on 2.6 kernels and
+some 2.4 kernels. If it is not available it will be zero rather than
+"unavailable", for compatibility with monitoring tools running
+on IRIX.
+
+@ kernel.percpu.cpu.intr percpu interrupts CPU time 
+Percpu interrupts CPU time.  This is available on 2.6 kernels and
+some 2.4 kernels. If it is not available it will be zero rather than
+"unavailable", for compatibility with monitoring tools running
+on IRIX.
+
+@ kernel.percpu.interrupts per-CPU interrupt counters from /proc/interrupts
+This provides one counter (normally converted to a count/second)
+for each type of interrupt, for each CPU in the system.
+
+@ kernel.all.syscall total system calls counter from /proc/interrupts
+This provides a counter (normally converted to a count/second)
+of the total number of system calls executed across all CPUs.
+
+A kernel patch is required for the instrumentation to use this metric
+(contact markgw@sgi.com).
+
+@ kernel.percpu.syscall per-CPU system call counters from /proc/interrupts
+This provides a counter (normally converted to a count/second)
+of the total number of system calls executed per-CPU.
+
+A kernel patch is required for the instrumentation to use this metric
+(contact markgw@sgi.com).
+
+@ disk.dev.read per-disk read operations
+Cummulative number of disk read operations since system boot time (subject
+to counter wrap).
+
+If the "sard" patch has been applied, the values are obtained from
+/proc/partitions, otherwise they are obtained from /proc/stat. In the
+latter case, (a) some metric values may be shared by multiple disks
+(this may happen if both scsi and ide disks are present in the system),
+in which case the disk instance name will show multiple device names
+separated by "+", and (b) metric values may not be available at all for
+some disks - this only happens if there are more than four disk devices
+installed in the system, and is the unfortunate end result of a
+limitation in the kernel's I/O accounting.
+
+@ disk.dev.write per-disk write operations
+Cummulative number of disk write operations since system boot time (subject
+to counter wrap).
+
+If the "sard" patch has been applied, the values are obtained from
+/proc/partitions, otherwise they are obtained from /proc/stat. In the
+latter case, (a) some metric values may be shared by multiple disks
+(this may happen if both scsi and ide disks are present in the system),
+in which case the disk instance name will show multiple device names
+separated by "+", and (b) metric values may not be available at all for
+some disks - this only happens if there are more than four disk devices
+installed in the system, and is the unfortunate end result of a
+limitation in the kernel's I/O accounting.
+
+@ disk.dev.total per-disk total (read+write) operations
+Cummulative number of disk read and write operations since system boot
+time (subject to counter wrap).
+
+If the "sard" patch has been applied, the values are obtained from
+/proc/partitions, otherwise they are obtained from /proc/stat. In the
+latter case, (a) some metric values may be shared by multiple disks
+(this may happen if both scsi and ide disks are present in the system),
+in which case the disk instance name will show multiple device names
+separated by "+", and (b) metric values may not be available at all for
+some disks - this only happens if there are more than four disk devices
+installed in the system, and is the unfortunate end result of a
+limitation in the kernel's I/O accounting.
+
+@ disk.dev.blkread per-disk block read operations
+Cummulative number of disk block read operations since system boot time
+(subject to counter wrap).
+
+If the "sard" patch has been applied, the values are obtained from
+/proc/partitions, otherwise they are obtained from /proc/stat. In the
+latter case, (a) some metric values may be shared by multiple disks
+(this may happen if both scsi and ide disks are present in the system),
+in which case the disk instance name will show multiple device names
+separated by "+", and (b) metric values may not be available at all for
+some disks - this only happens if there are more than four disk devices
+installed in the system, and is the unfortunate end result of a
+limitation in the kernel's I/O accounting.
+
+@ disk.dev.blkwrite per-disk block write operations
+Cummulative number of disk block write operations since system boot time
+(subject to counter wrap).
+
+If the "sard" patch has been applied, the values are obtained from
+/proc/partitions, otherwise they are obtained from /proc/stat. In the
+latter case, (a) some metric values may be shared by multiple disks
+(this may happen if both scsi and ide disks are present in the system),
+in which case the disk instance name will show multiple device names
+separated by "+", and (b) metric values may not be available at all for
+some disks - this only happens if there are more than four disk devices
+installed in the system, and is the unfortunate end result of a
+limitation in the kernel's I/O accounting.
+
+@ disk.dev.blktotal per-disk total (read+write) block operations
+Cummulative number of disk block read and write operations since system
+boot time (subject to counter wrap).
+
+If the "sard" patch has been applied, the values are obtained from
+/proc/partitions, otherwise they are obtained from /proc/stat. In the
+latter case, (a) some metric values may be shared by multiple disks
+(this may happen if both scsi and ide disks are present in the system),
+in which case the disk instance name will show multiple device names
+separated by "+", and (b) metric values may not be available at all for
+some disks - this only happens if there are more than four disk devices
+installed in the system, and is the unfortunate end result of a
+limitation in the kernel's I/O accounting.
+
+@ disk.dev.read_bytes per-disk count of bytes read
+This metric is not available if the "sard" patch has not been applied.
+See disk.dev.read for further details.
+
+@ disk.dev.write_bytes per-disk count of bytes written
+This metric is not available if the "sard" patch has not been applied.
+See disk.dev.write for further details.
+
+@ disk.dev.total_bytes per-disk count of total bytes read and written
+This metric is not available if the "sard" patch has not been applied.
+See disk.dev.total for further details.
+
+@ disk.dev.avactive per-disk count of active time
+When converted to a rate, this metric represents the average utilization of
+the disk during the sampling interval.  A value of 0.5 (or 50%) means the
+disk was active (i.e. busy) half the time.
+
+@ disk.dev.aveq per-disk time averaged count of request queue length
+When converted to a rate, this metric represents the time averaged disk
+request queue length during the sampling interval.  A value of 2.5 (or 250%)
+represents a time averaged queue length of 2.5 requests during the sampling
+interval.
+
+@ disk.dev.read_merge per-disk count of merged read requests
+Count of read requests that were merged with an already queued read request.
+
+@ disk.dev.write_merge per-disk count of merged write requests
+Count of write requests that were merged with an already queued write request.
+
+@ disk.all.read_merge total count of merged read requests, summed for all disks
+Total count of read requests that were merged with an already queued read request.
+
+@ disk.all.write_merge total count of merged write requests, summed for all disks
+Total count of write requests that were merged with an already queued write request.
+
+@ disk.all.avactive total count of active time, summed for all disks
+When converted to a rate, this metric represents the average utilization of
+all disks during the sampling interval.  A value of 0.25 (or 25%) means that
+on average every disk was active (i.e. busy) one quarter of the time.
+
+@ disk.all.aveq total time averaged count of request queue length, summed for all disks
+When converted to a rate, this metric represents the average across all disks
+of the time averaged request queue length during the sampling interval.  A
+value of 1.5 (or 150%) suggests that (on average) each all disk experienced a
+time averaged queue length of 1.5 requests during the sampling interval.
+
+@ disk.all.read total read operations, summed for all disks
+Cummulative number of disk read operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+
+@ disk.all.write total write operations, summed for all disks
+Cummulative number of disk read operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+
+@ disk.all.total total (read+write) operations, summed for all disks
+Cummulative number of disk read and write operations since system boot
+time (subject to counter wrap), summed over all disk devices.
+
+@ disk.all.blkread block read operations, summed for all disks
+Cummulative number of disk block read operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+
+@ disk.all.blkwrite block write operations, summed for all disks
+Cummulative number of disk block write operations since system boot time
+(subject to counter wrap), summed over all disk devices.
+
+@ disk.all.blktotal total (read+write) block operations, summed for all disks
+Cummulative number of disk block read and write operations since system
+boot time (subject to counter wrap), summed over all disk devices.
+
+@ disk.partitions.read read operations metric from /proc/partitions
+Cummulative number of disk read operations since system boot time
+(subject to counter wrap) for individual disk partitions.
+
+If the "sard" patch has not been applied, the values for this metric
+are unavailable.
+
+@ disk.all.read_bytes count of bytes read for all disk devices
+This metric is not available if the "sard" patch has not been applied.
+See disk.all.read for further details.
+
+@ disk.all.write_bytes count of bytes written for all disk devices
+This metric is not available if the "sard" patch has not been applied.
+See disk.all.write for further details.
+
+@ disk.all.total_bytes total count of bytes read and written for all disk devices
+This metric is not available if the "sard" patch has not been applied.
+See disk.all.total for further details.
+
+@ disk.partitions.write write operations metric from /proc/partitions
+Cummulative number of disk write operations since system boot time
+(subject to counter wrap) for individual disk partitions.
+
+If the "sard" patch has not been applied, the values for this metric
+are unavailable.
+
+@ disk.partitions.total total (read+write) I/O operations metric from /proc/partitions
+Cummulative number of disk read and write operations since system boot
+time (subject to counter wrap) for individual disk partitions.
+
+If the "sard" patch has not been applied, the values for this metric
+are unavailable.
+
+@ disk.partitions.blkread block read operations metric from /proc/partitions
+Cummulative number of disk block read operations since system boot time
+(subject to counter wrap) for individual disk partitions.
+
+If the "sard" patch has not been applied, the values for this metric
+are unavailable.
+
+@ disk.partitions.blkwrite block write operations metric from /proc/partitions
+Cummulative number of disk block write operations since system boot time
+(subject to counter wrap) for individual disk partitions.
+
+If the "sard" patch has not been applied, the values for this metric
+are unavailable.
+
+@ disk.partitions.blktotal total (read+write) block operations metric from /proc/partitions
+Cummulative number of disk block read and write operations since system
+boot time (subject to counter wrap) for individual disk partitions.
+
+If the "sard" patch has not been applied, the values for this metric
+are unavailable.
+
+@ disk.partitions.read_bytes number of bytes read, from /proc/partitions
+Cummulative number of bytes read since system boot time (subject to
+counter wrap) for individual disk partitions.
+
+If the "sard" patch has not been applied, the values for this metric
+are unavailable.
+
+@ disk.partitions.write_bytes number of bytes written, from /proc/partitions
+Cummulative number of bytes written since system boot time (subject to
+counter wrap) for individual disk partitions.
+
+If the "sard" patch has not been applied, the values for this metric
+are unavailable.
+
+@ disk.partitions.total_bytes total number of bytes read and written, from /proc/partitions
+Cummulative number of bytes read and written since system boot time
+(subject to counter wrap) for individual disk partitions.
+
+If the "sard" patch has not been applied, the values for this metric
+are unavailable.
+
+@ swap.pagesin pages read from swap devices due to demand for physical memory
+@ swap.pagesout pages written to swap devices due to demand for physical memory
+@ swap.in pages read into the buffer cache from block devices
+@ swap.out pages written to block devices from the buffer cache
+@ kernel.all.pswitch context switches metric from /proc/stat
+@ kernel.all.sysfork fork rate metric from /proc/stat
+@ kernel.all.intr intrrupt rate metric from /proc/stat
+The value is the first value from the intr field in /proc/stat,
+which is a counter of the total number of interrupts processed.
+The value is normally converted to a rate (count/second).
+This counter usually increases by at least HZ/second,
+i.e. the clock interrupt rate, wehich is usually 100/second.
+
+See also kernel.percpu.interrupts to get a breakdown
+of interrupt rates by interrupt type and which CPU
+processed each one.
+
+@ mem.physmem total system memory metric reported by /proc/meminfo
+The value of this metric corresponds to the "MemTotal" field
+reported by /proc/meminfo. Note that this does not necessarily
+correspond to actual installed physical memory - there may
+be areas of the physical address space mapped as ROM in
+various peripheral devices and the bios may be mirroring
+certain ROMs in RAM.
+@ mem.freemem free system memory metric from /proc/meminfo
+@ mem.util.used used memory metric from /proc/meminfo
+Used memory is the difference between mem.physmem and mem.freemem.
+@ mem.util.free free memory metric from /proc/meminfo
+Alias for mem.freemem.
+@ mem.util.shared shared memory metric from /proc/meminfo
+Shared memory metric. Currently always zero on linux 2.4 kernels
+and has been removed from 2.6 kernels.
+@ mem.util.bufmem I/O buffers metric from /proc/meminfo
+Memory allocated for buffer_heads.
+@ mem.util.cached page cache metric from /proc/meminfo
+Memory used by the page cache, including buffered file data.
+This is in-memory cache for files read from the disk (the pagecache)
+but doesn't include SwapCached.
+@ mem.util.other unaccounted memory
+Memory that is not free (i.e. has been referenced) and is not cached.
+mem.physmem - mem.util.free - mem.util.cached - mem.util.buffers
+@ mem.util.active Kbytes on the active page list (recently referenced pages)
+Memory that has been used more recently and usually not reclaimed unless
+absolutely necessary.
+@ mem.util.inactive Kbytes on the inactive page list (candidates for discarding)
+Memory which has been less recently used.  It is more eligible to be
+reclaimed for other purposes
+@ mem.util.swapCached Kbytes in swap cache, from /proc/meminfo
+Memory that once was swapped out, is swapped back in but still also
+is in the swapfile (if memory is needed it doesn't need to be swapped
+out AGAIN because it is already in the swapfile. This saves I/O)
+@ mem.util.highTotal Kbytes in high memory, from /proc/meminfo
+This is apparently an i386 specific metric, and seems to be always zero
+on ia64 architecture (and possibly others). On i386 arch (at least),
+highmem is all memory above ~860MB of physical memory. Highmem areas
+are for use by userspace programs, or for the pagecache. The kernel
+must use tricks to access this memory, making it slower to access
+than lowmem.
+@ mem.util.highFree Kbytes free high memory, from /proc/meminfo
+See mem.util.highTotal. Not used on ia64 arch (and possibly others).
+@ mem.util.lowTotal Kbytes in low memory total, from /proc/meminfo
+Lowmem is memory which can be used for everything that highmem can be
+used for, but it is also availble for the kernel's use for its own
+data structures. Among many other things, it is where everything
+from the Slab is allocated.  Bad things happen when you're out of lowmem.
+(this may only be true on i386 architectures).
+@ mem.util.lowFree Kbytes free low memory, from /proc/meminfo
+See mem.util.lowTotal
+@ mem.util.swapTotal Kbytes swap, from /proc/meminfo
+total amount of swap space available
+@ mem.util.swapFree Kbytes free swap, from /proc/meminfo
+Memory which has been evicted from RAM, and is temporarily on the disk
+@ mem.util.dirty Kbytes in dirty pages, from /proc/meminfo
+Memory which is waiting to get written back to the disk
+@ mem.util.writeback Kbytes in writeback pages, from /proc/meminfo
+Memory which is actively being written back to the disk
+@ mem.util.mapped Kbytes in mapped pages, from /proc/meminfo
+files which have been mmaped, such as libraries
+@ mem.util.slab Kbytes in slab memory, from /proc/meminfo
+in-kernel data structures cache
+@ mem.util.committed_AS Kbytes see extended help text, from /proc/meminfo
+An estimate of how much RAM you would need to make a 99.99% guarantee
+that there never is OOM (out of memory) for this workload. Normally
+the kernel will overcommit memory. That means, say you do a 1GB malloc,
+nothing happens, really. Only when you start USING that malloc memory
+you will get real memory on demand, and just as much as you use.
+
+@ mem.util.pageTables Kbytes in kernel page tables, from /proc/meminfo
+@ mem.util.reverseMaps Kbytes in reverse mapped pages, from /proc/meminfo
+@ mem.util.cache_clean Kbytes cached and not dirty or writeback, derived from /proc/meminfo
+@ mem.vmstat.nr_dirty number of pages in dirty state
+Instantaneous number of pages in dirty state, from /proc/vmstat
+@ mem.vmstat.nr_writeback number of pages in writeback state
+Instantaneous number of pages in writeback state, from /proc/vmstat
+@ mem.vmstat.nr_unstable number of pages in unstable state
+Instantaneous number of pages in unstable state, from /proc/vmstat
+@ mem.vmstat.nr_page_table_pages number of page table pages
+Instantaneous number of page table pages, from /proc/vmstat
+@ mem.vmstat.nr_mapped number of mapped pages
+Instantaneous number of mapped pages, from /proc/vmstat
+@ mem.vmstat.nr_slab number of slab pages
+Instantaneous number of slab pages, from /proc/vmstat
+@ mem.vmstat.pgpgin page in operations
+Count of page in operations since boot, from /proc/vmstat
+@ mem.vmstat.pgpgout page out operations
+Count of page out operations since boot, from /proc/vmstat
+@ mem.vmstat.pswpin pages swapped in
+Count of pages swapped in since boot, from /proc/vmstat
+@ mem.vmstat.pswpout pages swapped out
+Count of pages swapped out since boot, from /proc/vmstat
+@ mem.vmstat.pgalloc_high high mem page allocations
+Count of high mem page allocations since boot, from /proc/vmstat
+@ mem.vmstat.pgalloc_normal normal mem page allocations
+Count of normal mem page allocations since boot, from /proc/vmstat
+@ mem.vmstat.pgalloc_dma dma mem page allocations
+Count of dma mem page allocations since boot, from /proc/vmstat
+@ mem.vmstat.pgfree page free operations
+Count of page free operations since boot, from /proc/vmstat
+@ mem.vmstat.pgactivate pages moved from inactive to active
+Count of pages moved from inactive to active since boot, from /proc/vmstat
+@ mem.vmstat.pgdeactivate pages moved from active to inactive
+Count of pages moved from active to inactive since boot, from /proc/vmstat
+@ mem.vmstat.pgfault page major and minor fault operations
+Count of page major and minor fault operations since boot, from /proc/vmstat
+@ mem.vmstat.pgmajfault major page fault operations
+Count of major page fault operations since boot, from /proc/vmstat
+@ mem.vmstat.pgrefill_high high mem pages inspected in refill_inactive_zone
+Count of high mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+@ mem.vmstat.pgrefill_normal normal mem pages inspected in refill_inactive_zone
+Count of normal mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+@ mem.vmstat.pgrefill_dma dma mem pages inspected in refill_inactive_zone
+Count of dma mem pages inspected in refill_inactive_zone since boot,
+from /proc/vmstat
+@ mem.vmstat.pgsteal_high high mem pages reclaimed
+Count of high mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgsteal_normal normal mem pages reclaimed
+Count of normal mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgsteal_dma dma mem pages reclaimed
+Count of dma mem pages reclaimed since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_kswapd_high high mem pages scanned by kswapd
+Count of high mem pages scanned by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_kswapd_normal normal mem pages scanned by kswapd
+Count of normal mem pages scanned by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_kswapd_dma dma mem pages scanned by kswapd
+Count of dma mem pages scanned by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_direct_high high mem pages scanned
+Count of high mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_direct_normal normal mem pages scanned
+Count of normal mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pgscan_direct_dma dma mem pages scanned
+Count of dma mem pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.pginodesteal pages reclaimed via inode freeing
+Count of pages reclaimed via inode freeing since boot, from /proc/vmstat
+@ mem.vmstat.slabs_scanned slab pages scanned
+Count of slab pages scanned since boot, from /proc/vmstat
+@ mem.vmstat.kswapd_steal pages reclaimed by kswapd
+Count of pages reclaimed by kswapd since boot, from /proc/vmstat
+@ mem.vmstat.kswapd_inodesteal pages reclaimed via kswapd inode freeing
+Count of pages reclaimed via kswapd inode freeing since boot, from
+/proc/vmstat
+@ mem.vmstat.pageoutrun kswapd calls to page reclaim
+Count of kswapd calls to page reclaim since boot, from /proc/vmstat
+@ mem.vmstat.allocstall direct reclaim calls
+Count of direct reclaim calls since boot, from /proc/vmstat
+@ mem.vmstat.pgrotated pages rotated to tail of the LRU
+Count of pages rotated to tail of the LRU since boot, from /proc/vmstat
+@ swap.length total swap available metric from /proc/meminfo
+@ swap.used swap used metric from /proc/meminfo
+@ swap.free swap free metric from /proc/meminfo
+@ kernel.all.load 1, 5 and 15 minute load average
+@ kernel.all.cpu.user total user CPU time metric from /proc/stat for all CPUs
+@ kernel.all.cpu.intr total interrupts CPU time (currently always zero on linux)
+Total interrupts CPU time (currently always zero on linux).
+
+This metric is retained on Linux for interoperability with PCP monitor
+tools running on IRIX.
+
+@ kernel.all.cpu.wait.total total wait CPU time (currently always zero on linux)
+Total wait CPU time (currently always zero on linux).
+
+This metric is retained on Linux for interoperability with PCP monitor
+tools running on IRIX.
+
+@ kernel.all.cpu.nice total nice user CPU time metric from /proc/stat for all CPUs
+@ kernel.all.cpu.sys total sys CPU time metric from /proc/stat for all CPUs
+@ kernel.all.cpu.idle total idle CPU time metric from /proc/stat for all CPUs
+@ kernel.all.nusers number of user sessions on system
+@ network.interface.in.bytes network recv read bytes from /proc/net/dev per network interface
+@ network.interface.in.packets network recv read packets from /proc/net/dev per network interface
+@ network.interface.in.errors network recv read errors from /proc/net/dev per network interface
+@ network.interface.in.drops network recv read drops from /proc/net/dev per network interface
+@ network.interface.in.mcasts network recv compressed from /proc/net/dev per network interface
+@ network.interface.in.fifo network recv read fifos from /proc/net/dev per network interface
+@ network.interface.in.frame network recv read frames from /proc/net/dev per network interface
+@ network.interface.in.compressed network recv compressed from /proc/net/dev per network interface
+@ network.interface.out.bytes network send bytes from /proc/net/dev per network interface
+@ network.interface.out.packets network send packets from /proc/net/dev per network interface
+@ network.interface.out.errors network send errors from /proc/net/dev per network interface
+@ network.interface.out.drops network send drops from /proc/net/dev per network interface
+@ network.interface.out.fifo network send fifos from /proc/net/dev per network interface
+@ network.interface.collisions network send collisions from /proc/net/dev per network interface
+@ network.interface.out.carrier network send carrier from /proc/net/dev per network interface
+@ network.interface.out.compressed network send compressed from /proc/net/dev per network interface
+@ network.interface.total.bytes network total (in+out) bytes from /proc/net/dev per network interface
+@ network.interface.total.packets network total (in+out) packets from /proc/net/dev per network interface
+@ network.interface.total.errors network total (in+out) errors from /proc/net/dev per network interface
+@ network.interface.total.drops network total (in+out) drops from /proc/net/dev per network interface
+@ network.interface.total.mcasts network total (in+out) mcasts from /proc/net/dev per network interface
+@ network.sockstat.tcp.inuse instantaneous number of tcp sockets currently in use
+@ network.sockstat.tcp.highest highest number of tcp sockets in use at any one time since boot
+@ network.sockstat.tcp.util instantaneous tcp socket utilization (100 * inuse/highest)
+@ network.sockstat.udp.inuse instantaneous number of udp sockets currently in use
+@ network.sockstat.udp.highest highest number of udp sockets in use at any one time since boot
+@ network.sockstat.udp.util instantaneous udp socket utilization (100 * inuse/highest)
+@ network.sockstat.raw.inuse instantaneous number of raw sockets currently in use
+@ network.sockstat.raw.highest highest number of raw sockets in use at any one time since boot
+@ network.sockstat.raw.util instantaneous raw socket utilization (100 * inuse/highest)
+@ hinv.physmem total system memory metric from /proc/meminfo
+@ hinv.pagesize Memory page size
+The memory page size of the running kernel in bytes.
+@ hinv.ncpu number of CPUs in the system
+@ hinv.ndisk number of disks in the syste (excluding floppy drives)
+@ hinv.nfilesys number of (local) file systems currently mounted
+@ hinv.map.scsi list of active SCSI devices
+There is one string value for each SCSI device active in the system,
+as extracted from /proc/scsi/scsi. The external instance name
+for each device is in the format scsiD:C:I:L where
+D is controller number, C is channel number, I is device ID
+and L is the SCSI LUN number for the device. The values for this
+metric are the actual device names (sd[a-z] are SCSI disks, st[0-9]
+are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
+@ filesys.capacity Total capacity of mounted filesystem (Kbytes)
+@ filesys.used Total space used on mounted filesystem (Kbytes)
+@ filesys.free Total space free on mounted filesystem (Kbytes)
+@ filesys.maxfiles Inodes capacity of mounted filesystem
+@ filesys.usedfiles Number of inodes allocated on mounted filesystem
+@ filesys.freefiles Number of unallocated inodes on mounted filesystem
+@ filesys.mountdir file system mount point
+@ filesys.full percentage of filesystem in use
+@ filesys.blocksize Size of each block on mounted filesystem (Bytes)
+@ filesys.avail Total space free to non-superusers on mounted filesystem (Kbytes)
+@ swapdev.free physical swap free space
+@ swapdev.length physical swap size
+@ swapdev.maxswap maximum swap length (same as swapdev.length on linux)
+@ swapdev.vlength virtual swap size (always zero on linux)
+Virtual swap size (always zero on linux since linux does not support
+virtual swap).
+
+This metric is retained on Linux for interoperability with PCP monitor
+tools running on IRIX.
+
+@ swapdev.priority swap resource priority
+@ nfs.client.calls cumulative total of client NFSv2 requests
+@ nfs.client.reqs cumulative total of client NFSv2 requests by request type
+@ nfs.server.calls cumulative total of server NFSv2 requests
+@ nfs.server.reqs cumulative total of client NFSv2 requests by request type
+@ nfs3.client.calls cumulative total of client NFSv3 requests
+@ nfs3.client.reqs cumulative total of client NFSv3 requests by request type
+@ nfs3.server.calls cumulative total of server NFSv3 requests
+@ nfs3.server.reqs cumulative total of client NFSv3 requests by request type
+@ rpc.client.rpccnt cumulative total of client RPC requests
+@ rpc.client.rpcretrans cumulative total of client RPC retransmissions
+@ rpc.client.rpcauthrefresh cumulative total of client RPC auth refreshes
+@ rpc.client.netcnt cumulative total of client RPC network layer requests
+@ rpc.client.netudpcnt cumulative total of client RPC UDP network layer requests
+@ rpc.client.nettcpcnt cumulative total of client RPC TCP network layer requests
+@ rpc.client.nettcpconn cumulative total of client RPC TCP network layer connection requests
+@ rpc.server.rpccnt cumulative total of server RPC requests
+@ rpc.server.rpcerr cumulative total of server RPC errors
+@ rpc.server.rpcbadfmt cumulative total of server RPC bad format errors
+@ rpc.server.rpcbadauth cumulative total of server RPC bad auth errors
+@ rpc.server.rpcbadclnt cumulative total of server RPC bad client errors
+@ rpc.server.rchits cumulative total of request-reply-cache hits
+@ rpc.server.rcmisses cumulative total of request-reply-cache misses
+@ rpc.server.rcnocache cumulative total of uncached request-reply-cache requests
+@ rpc.server.fh_cached cumulative total of file handle cache requests
+@ rpc.server.fh_valid cumulative total of file handle cache validations
+@ rpc.server.fh_fixup cumulative total of file handle cache fixup validations
+@ rpc.server.fh_lookup cumulative total of file handle cache new lookups
+@ rpc.server.fh_stale cumulative total of stale file handle cache errors
+@ rpc.server.fh_concurrent cumulative total of concurrent file handle cache requests
+@ rpc.server.netcnt cumulative total of server RPC network layer requests
+@ rpc.server.netudpcnt cumulative total of server RPC UDP network layer requests
+@ rpc.server.nettcpcnt cumulative total of server RPC TCP network layer requests
+@ rpc.server.nettcpconn cumulative total of server RPC TCP network layer connection requests
+@ proc.nprocs instantaneous number of processes
+@ proc.psinfo.pid process identifier
+@ proc.psinfo.psargs full command string
+@ proc.psinfo.cmd command name
+@ proc.psinfo.sname process state identifier (see ps(1)). See also proc.runq metrics.
+@ proc.psinfo.ppid parent process identifier
+@ proc.psinfo.pgrp process group identifier
+@ proc.psinfo.session process session identifier
+@ proc.psinfo.tty controlling tty device number (zero if none)
+@ proc.psinfo.tty_pgrp controlling tty process group identifier
+@ proc.psinfo.flags process state flags, as a bitmap
+@ proc.psinfo.minflt count of minor page faults (i.e. reclaims)
+@ proc.psinfo.cmin_flt count of minor page faults (i.e. reclaims) of all exited children
+@ proc.psinfo.maj_flt count of page faults other than reclaims
+@ proc.psinfo.cmaj_flt count of page faults other than reclaims of all exited children
+@ proc.psinfo.utime time (in ms) spent executing user code since process started
+@ proc.psinfo.stime time (in ms) spent executing system code (calls) since process started
+@ proc.psinfo.cutime time (in ms) spent executing user code of all exited children
+@ proc.psinfo.cstime time (in ms) spent executing system code of all exited children
+@ proc.psinfo.priority priority value
+@ proc.psinfo.nice process nice value (negative nice values are lower priority)
+@ proc.psinfo.it_real_value current interval timer value (zero if none)
+@ proc.psinfo.start_time start time of the process relative to system boot time in seconds
+@ proc.psinfo.vsize virtual size of the process in Kbytes
+@ proc.psinfo.rss resident set size (i.e. physical memory) of the process
+@ proc.psinfo.rss_rlim limit on resident set size of process
+@ proc.psinfo.start_code address of the start of the code segment for the process
+@ proc.psinfo.end_code address of the end of the code segment for the process
+@ proc.psinfo.start_stack address of the stack segment for the process
+@ proc.psinfo.esp the value in the esp field of struct task_struct for the process
+@ proc.psinfo.eip the value in the eip field of struct task_struct for the process
+@ proc.psinfo.signal the value in the signal field of struct task_struct for the process
+@ proc.psinfo.blocked the value in the blocked field of struct task_struct for the process
+@ proc.psinfo.sigignore the value in the sigignore field of struct task_struct for the process
+@ proc.psinfo.sigcatch the value in the sigcatch field of struct task_struct for the process
+@ proc.psinfo.wchan wait channel, kernel address this process is blocked or sleeping on
+@ proc.psinfo.nswap count of page swap operations
+@ proc.psinfo.cnswap count of page swap operations of all exited children
+@ proc.psinfo.exit_signal the value in the exit_signal field of struct task_struct for the process
+@ proc.psinfo.ttyname name of controlling tty device, or "?" if none. See also proc.psinfo.tty.
+@ proc.psinfo.processor last CPU the process was running on
+@ proc.psinfo.wchan_s name of an event for which the process is sleeping (if blank, the process is running).
+This field needs access to a namelist file for proper 
+address-to-symbol name translation. If no namelist file
+is available, the address is printed instead. The namelist
+file must match the current Linux kernel exactly.
+The search path for the namelist file is as follows:
+	/boot/System.map-`uname -r`
+	/boot/System.map
+	/lib/modules/`uname -r`/System.map
+	/usr/src/linux/System.map
+	/System.map
+@ proc.psinfo.signal_s pending signals mask in string form (from /proc/<pid>/status)
+@ proc.psinfo.blocked_s blocked signals mask in string form (from /proc/<pid>/status)
+@ proc.psinfo.sigignore_s ignored signals mask in string form (from /proc/<pid>/status)
+@ proc.psinfo.sigcatch_s caught signals mask in string form (from /proc/<pid>/status)
+@ proc.memory.size instantaneous virtual size of process, excluding page table and task structure.
+@ proc.memory.rss instantaneous resident size of process, excluding page table and task structure.
+@ proc.memory.share instantaneous amount of memory shared by this process with other processes 
+@ proc.memory.textrss instantaneous resident size of process code segment in Kbytes
+@ proc.memory.librss instantaneous resident size of library code mapped by the process, in Kbytes
+@ proc.memory.datrss instantaneous resident size of process data segment, in Kbytes
+@ proc.memory.dirty instantaneous amount of memory that has been modified by the process, in Kbytes
+@ proc.memory.maps table of memory mapped by process in string form from /proc/<pid>/maps
+@ proc.memory.vmsize total virtual memory (from /proc/<pid>/status)
+@ proc.memory.vmlock locked virtual memory (from /proc/<pid>/status)
+@ proc.memory.vmrss resident virtual memory (from /proc/<pid>/status)
+@ proc.memory.vmdata virtual memory used for data (from /proc/<pid>/status)
+@ proc.memory.vmstack virtual memory used for stack (from /proc/<pid>/status)
+@ proc.memory.vmexe virtual memory used for non-library executable code (from /proc/<pid>/status)
+@ proc.memory.vmlib virtual memory used for libraries (from /proc/<pid>/status)
+@ proc.id.uid real user ID from /proc/<pid>/status
+@ proc.id.euid effective user ID from /proc/<pid>/status
+@ proc.id.suid saved user ID from /proc/<pid>/status
+@ proc.id.fsuid filesystem user ID from /proc/<pid>/status
+@ proc.id.gid real group ID from /proc/<pid>/status
+@ proc.id.egid effective group ID from /proc/<pid>/status
+@ proc.id.sgid saved group ID from /proc/<pid>/status
+@ proc.id.fsgid filesystem group ID from /proc/<pid>/status
+@ proc.id.uid_nm real user name based on real user ID from /proc/<pid>/status
+@ proc.id.euid_nm effective user name based on effective user ID from /proc/<pid>/status
+@ proc.id.suid_nm saved user name based on saved user ID from /proc/<pid>/status
+@ proc.id.fsuid_nm filesystem user name based on filesystem user ID from /proc/<pid>/status
+@ proc.id.gid_nm real group name based on real group ID from /proc/<pid>/status
+@ proc.id.egid_nm effective group name based on effective group ID from /proc/<pid>/status
+@ proc.id.sgid_nm saved group name based on saved group ID from /proc/<pid>/status
+@ proc.id.fsgid_nm filesystem group name based on filesystem group ID from /proc/<pid>/status
+
+@ proc.runq.runnable number of runnable (on run queue) processes
+Instantaneous number of runnable (on run queue) processes, state 'R' in ps
+@ proc.runq.blocked number of processes in uninterruptible sleep
+Instantaneous number of processes in uninterruptible sleep, state 'D' in ps
+@ proc.runq.sleeping number of processes sleeping
+Instantaneous number of processes sleeping, state 'S' in ps
+@ proc.runq.stopped number of traced, stopped or suspended processes
+Instantaneous number of traced, stopped or suspended processes, state
+'T' in ps
+@ proc.runq.swapped number of processes that are swapped
+Instantaneous number of processes (excluding kernel threads) that are
+swapped, state 'SW' in ps
+@ proc.runq.defunct number of defunct/zombie processes
+Instantaneous number of defunct/zombie processes, state 'Z' in ps
+@ proc.runq.unknown number of processes is an unknown state
+Instantaneous number of processes is an unknown state, including all
+kernel threads
+@ proc.runq.kernel number of kernel threads
+Instantaneous number of processes with virtual size of zero (kernel threads)
+@ network.ip.forwarding count of ip forwarding
+@ network.ip.defaultttl count of ip defaultttl
+@ network.ip.inreceives count of ip inreceives
+@ network.ip.inhdrerrors count of ip inhdrerrors
+@ network.ip.inaddrerrors count of ip inaddrerrors
+@ network.ip.forwdatagrams count of ip forwdatagrams
+@ network.ip.inunknownprotos count of ip inunknownprotos
+@ network.ip.indiscards count of ip indiscards
+@ network.ip.indelivers count of ip indelivers
+@ network.ip.outrequests count of ip outrequests
+@ network.ip.outdiscards count of ip outdiscards
+@ network.ip.outnoroutes count of ip outnoroutes
+@ network.ip.reasmtimeout count of ip reasmtimeout
+@ network.ip.reasmreqds count of ip reasmreqds
+@ network.ip.reasmoks count of ip reasmoks
+@ network.ip.reasmfails count of ip reasmfails
+@ network.ip.fragoks count of ip fragoks
+@ network.ip.fragfails count of ip fragfails
+@ network.ip.fragcreates count of ip fragcreates
+@ network.icmp.inmsgs count of icmp inmsgs
+@ network.icmp.inerrors count of icmp inerrors
+@ network.icmp.indestunreachs count of icmp indestunreachs
+@ network.icmp.intimeexcds count of icmp intimeexcds
+@ network.icmp.inparmprobs count of icmp inparmprobs
+@ network.icmp.insrcquenchs count of icmp insrcquenchs
+@ network.icmp.inredirects count of icmp inredirects
+@ network.icmp.inechos count of icmp inechos
+@ network.icmp.inechoreps count of icmp inechoreps
+@ network.icmp.intimestamps count of icmp intimestamps
+@ network.icmp.intimestampreps count of icmp intimestampreps
+@ network.icmp.inaddrmasks count of icmp inaddrmasks
+@ network.icmp.inaddrmaskreps count of icmp inaddrmaskreps
+@ network.icmp.outmsgs count of icmp outmsgs
+@ network.icmp.outerrors count of icmp outerrors
+@ network.icmp.outdestunreachs count of icmp outdestunreachs
+@ network.icmp.outtimeexcds count of icmp outtimeexcds
+@ network.icmp.outparmprobs count of icmp outparmprobs
+@ network.icmp.outsrcquenchs count of icmp outsrcquenchs
+@ network.icmp.outredirects count of icmp outredirects
+@ network.icmp.outechos count of icmp outechos
+@ network.icmp.outechoreps count of icmp outechoreps
+@ network.icmp.outtimestamps count of icmp outtimestamps
+@ network.icmp.outtimestampreps count of icmp outtimestampreps
+@ network.icmp.outaddrmasks count of icmp outaddrmasks
+@ network.icmp.outaddrmaskreps count of icmp outaddrmaskreps
+@ network.tcp.rtoalgorithm count of tcp rtoalgorithm
+@ network.tcp.rtomin count of tcp rtomin
+@ network.tcp.rtomax count of tcp rtomax
+@ network.tcp.maxconn count of tcp maxconn
+@ network.tcp.activeopens count of tcp activeopens
+@ network.tcp.passiveopens count of tcp passiveopens
+@ network.tcp.attemptfails count of tcp attemptfails
+@ network.tcp.estabresets count of tcp estabresets
+@ network.tcp.currestab count of tcp currestab
+@ network.tcp.insegs count of tcp insegs
+@ network.tcp.outsegs count of tcp outsegs
+@ network.tcp.retranssegs count of tcp retranssegs
+@ network.tcp.inerrs count of tcp inerrs
+@ network.tcp.outrsts count of tcp outrsts
+@ network.tcpconn.established Number of established connections
+@ network.tcpconn.syn_sent Number of SYN_SENT connections
+@ network.tcpconn.syn_recv Number of SYN_RECV connections
+@ network.tcpconn.fin_wait1 Number of FIN_WAIT1 connections
+@ network.tcpconn.fin_wait2 Number of FIN_WAIT2 connections
+@ network.tcpconn.time_wait Number of TIME_WAIT connections
+@ network.tcpconn.close Number of CLOSE connections
+@ network.tcpconn.close_wait Number of CLOSE_WAIT connections
+@ network.tcpconn.last_ack Number of LAST_ACK connections
+@ network.tcpconn.listen Number of LISTEN connections
+@ network.tcpconn.closing Number of CLOSING connections
+@ network.udp.indatagrams count of udp indatagrams
+@ network.udp.noports count of udp noports
+@ network.udp.inerrors count of udp inerrors
+@ network.udp.outdatagrams count of udp outdatagrams
+@ xfs.allocs.alloc_extent XFS extents allocated
+Number of file system extents allocated over all XFS filesystems
+@ xfs.allocs.alloc_block XFS blocks allocated
+Number of file system blocks allocated over all XFS filesystems
+@ xfs.allocs.free_extent XFS extents freed
+Number of file system extents freed over all XFS filesystems
+@ xfs.allocs.free_block XFS blocks freed
+Number of file system blocks freed over all XFS filesystems
+
+@ xfs.alloc_btree.lookup lookups in XFS alloc btrees
+Number of lookup operations in XFS filesystem allocation btrees
+@ xfs.alloc_btree.compare compares in XFS alloc btrees
+Number of compares in XFS filesystem allocation btree lookups
+@ xfs.alloc_btree.insrec insertions in XFS alloc btrees
+Number of extent records inserted into XFS filesystem allocation btrees
+@ xfs.alloc_btree.delrec deletions in XFS alloc btrees
+Number of extent records deleted from XFS filesystem allocation btrees
+
+@ xfs.block_map.read_ops block map read ops in XFS
+Number of block map for read operations performed on XFS files
+@ xfs.block_map.write_ops block map write ops in XFS
+Number of block map for write operations performed on XFS files
+@ xfs.block_map.unmap block unmap ops in XFS
+Number of block unmap (delete) operations performed on XFS files
+@ xfs.block_map.add_exlist extent list add ops in XFS
+Number of extent list insertion operations for XFS files
+@ xfs.block_map.del_exlist extent list delete ops in XFS
+Number of extent list deletion operations for XFS files
+@ xfs.block_map.look_exlist extent list lookup ops in XFS
+Number of extent list lookup operations for XFS files
+@ xfs.block_map.cmp_exlist extent list compare ops in XFS
+Number of extent list comparisons in XFS extent list lookups
+
+@ xfs.bmap_btree.lookup block map btree lookup ops in XFS
+Number of block map btree lookup operations on XFS files
+@ xfs.bmap_btree.compare block map btree compare ops in XFS
+Number of block map btree compare operations in XFS block map lookups
+@ xfs.bmap_btree.insrec block map btree insert ops in XFS
+Number of block map btree records inserted for XFS files
+@ xfs.bmap_btree.delrec block map btree delete ops in XFS
+Number of block map btree records deleted for XFS files
+
+@ xfs.dir_ops.lookup number of file name directory lookups
+This is a count of the number of file name directory lookups in XFS
+filesystems. It counts only those lookups which miss in the operating
+system's directory name lookup cache and must search the real directory
+structure for the name in question.  The count is incremented once for
+each level of a pathname search that results in a directory lookup.
+
+@ xfs.dir_ops.create number of directory entry creation operations
+This is the number of times a new directory entry was created in XFS
+filesystems. Each time that a new file, directory, link, symbolic link,
+or special file is created in the directory hierarchy the count is
+incremented.
+
+@ xfs.dir_ops.remove number of directory entry remove operations
+This is the number of times an existing directory entry was removed in
+XFS filesystems. Each time that a file, directory, link, symbolic link,
+or special file is removed from the directory hierarchy the count is
+incremented.
+
+@ xfs.dir_ops.getdents number of times the getdents operation is performed
+This is the number of times the XFS directory getdents operation was
+performed. The getdents operation is used by programs to read the
+contents of directories in a file system independent fashion.  This
+count corresponds exactly to the number of times the getdents(2) system
+call was successfully used on an XFS directory.
+
+@ xfs.transactions.sync number of synchronous meta-data transactions performed
+This is the number of meta-data transactions which waited to be
+committed to the on-disk log before allowing the process performing the
+transaction to continue. These transactions are slower and more
+expensive than asynchronous transactions, because they force the in
+memory log buffers to be forced to disk more often and they wait for
+the completion of the log buffer writes. Synchronous transactions
+include file truncations and all directory updates when the file system
+is mounted with the 'wsync' option.
+
+@ xfs.transactions.async number of synchronous meta-data transactions performed
+This is the number of meta-data transactions which did not wait to be
+committed to the on-disk log before allowing the process performing the
+transaction to continue. These transactions are faster and more
+efficient than synchronous transactions, because they commit their data
+to the in memory log buffers without forcing those buffers to be
+written to disk. This allows multiple asynchronous transactions to be
+committed to disk in a single log buffer write. Most transactions used
+in XFS file systems are asynchronous.
+
+@ xfs.transactions.empty number of meta-data transactions which committed without changing anything
+This is the number of meta-data transactions which did not actually
+change anything. These are transactions which were started for some
+purpose, but in the end it turned out that no change was necessary.
+
+@ xfs.inode_ops.ig_attempts number of in memory inode lookup operations
+This is the number of times the operating system looked for an XFS
+inode in the inode cache. Whether the inode was found in the cache or
+needed to be read in from the disk is not indicated here, but this can
+be computed from the ig_found and ig_missed counts.
+
+@ xfs.inode_ops.ig_found number of successful in memory inode lookup operations
+This is the number of times the operating system looked for an XFS
+inode in the inode cache and found it. The closer this count is to the
+ig_attempts count the better the inode cache is performing.
+
+@ xfs.inode_ops.ig_frecycle number of just missed in memory inode lookup operations
+This is the number of times the operating system looked for an XFS
+inode in the inode cache and saw that it was there but was unable to
+use the in memory inode because it was being recycled by another
+process.
+
+@ xfs.inode_ops.ig_missed number of failed in memory inode lookup operations
+This is the number of times the operating system looked for an XFS
+inode in the inode cache and the inode was not there. The further this
+count is from the ig_attempts count the better.
+
+@ xfs.inode_ops.ig_dup number of inode cache insertions that fail because the inode is there
+This is the number of times the operating system looked for an XFS
+inode in the inode cache and found that it was not there but upon
+attempting to add the inode to the cache found that another process had
+already inserted it.
+
+@ xfs.inode_ops.ig_reclaims number of in memory inode recycle operations
+This is the number of times the operating system recycled an XFS inode
+from the inode cache in order to use the memory for that inode for
+another purpose. Inodes are recycled in order to keep the inode cache
+from growing without bound. If the reclaim rate is high it may be
+beneficial to raise the vnode_free_ratio kernel tunable variable to
+increase the size of inode cache.
+
+@ xfs.inode_ops.ig_attrchg number of inode attribute change operations
+This is the number of times the operating system explicitly changed the
+attributes of an XFS inode. For example, this could be to change the
+inode's owner, the inode's size, or the inode's timestamps.
+
+@ xfs.log.writes number of buffer writes going to the disk from the log
+This variable counts the number of log buffer writes going to the
+physical log partitions of all XFS filesystems. Log data traffic is
+proportional to the level of meta-data updating. Log buffer writes get
+generated when they fill up or external syncs occur.
+
+@ xfs.log.blocks write throughput to the physical XFS log
+This variable counts the number of Kbytes of information being written
+to the physical log partitions of all XFS filesystems. Log data traffic
+is proportional to the level of meta-data updating. The rate with which
+log data gets written depends on the size of internal log buffers and
+disk write speed. Therefore, filesystems with very high meta-data
+updating may need to stripe the log partition or put the log partition
+on a separate drive.
+
+@ xfs.log.write_ratio ratio of count of XFS log blocks written to log writes
+The ratio of log blocks written to log writes.  If block count isn't a
+"reasonable" multiple of writes, then many small log writes are being
+performed - this is suboptimal.  Perfection is 64.  Fine-grain control
+can be obtained when this metric is used in conjuntion with pmstore(1)
+and the xfs.control.reset metric.
+
+@ xfs.log.noiclogs count of failures for immediate get of buffered/internal
+This variable keeps track of times when a logged transaction can not
+get any log buffer space. When this occurs, all of the internal log
+buffers are busy flushing their data to the physical on-disk log.
+
+@ xfs.log.force value from xs_log_force field of struct xfsstats
+The number of times the in-core log is forced to disk.  It is
+equivalent to the number of successful calls to the function
+xfs_log_force().
+
+@ xfs.log.force_sleep value from xs_log_force_sleep field of struct xfsstats
+This metric is exported from the xs_log_force_sleep field of struct xfsstats
+
+@ xfs.log_tail.try_logspace value from xs_try_logspace field of struct xfsstats
+This metric is exported from the xs_try_logspace field of struct xfsstats
+
+@ xfs.log_tail.sleep_logspace value from xs_sleep_logspace field of struct xfsstats
+This metric is exported from the xs_sleep_logspace field of struct xfsstats
+
+@ xfs.log_tail.push_ail.pushes number of times the AIL tail is moved forward
+The number of times the tail of the AIL is moved forward.  It is
+equivalent to the number of successful calls to the function
+xfs_trans_push_ail().
+
+@ xfs.log_tail.push_ail.success value from xs_push_ail_success field of struct xfsstats
+@ xfs.log_tail.push_ail.pushbuf value from xs_push_ail_pushbuf field of struct xfsstats
+@ xfs.log_tail.push_ail.pinned value from xs_push_ail_pinned field of struct xfsstats
+@ xfs.log_tail.push_ail.locked value from xs_push_ail_locked field of struct xfsstats
+@ xfs.log_tail.push_ail.flushing value from xs_push_ail_flushing field of struct xfsstats
+@ xfs.log_tail.push_ail.restarts value from xs_push_ail_restarts field of struct xfsstats
+@ xfs.log_tail.push_ail.flush value from xs_push_ail_flush field of struct xfsstats
+
+@ xfs.xstrat.bytes number of bytes of data processed by the XFS daemons
+This is the number of bytes of file data flushed out by the XFS
+flushing daemons.
+
+@ xfs.xstrat.quick number of buffers processed by the XFS daemons written to contiguous space on disk
+This is the number of buffers flushed out by the XFS flushing daemons
+which are written to contiguous space on disk. The buffers handled by
+the XFS daemons are delayed allocation buffers, so this count gives an
+indication of the success of the XFS daemons in allocating contiguous
+disk space for the data being flushed to disk.
+
+@ xfs.xstrat.split number of buffers processed by the XFS daemons written to non-contiguous space on disk
+This is the number of buffers flushed out by the XFS flushing daemons
+which are written to non-contiguous space on disk. The buffers handled
+by the XFS daemons are delayed allocation buffers, so this count gives
+an indication of the failure of the XFS daemons in allocating
+contiguous disk space for the data being flushed to disk. Large values
+in this counter indicate that the file system has become fragmented.
+
+@ xfs.write number of XFS file system write operations
+This is the number of write(2) system calls made to files in
+XFS file systems.
+
+@ xfs.write_bytes number of bytes written in XFS file system write operations
+This is the number of bytes written via write(2) system calls to files
+in XFS file systems. It can be used in conjunction with the write_calls
+count to calculate the average size of the write operations to files in
+XFS file systems.
+
+@ xfs.read number of XFS file system read operations
+This is the number of read(2) system calls made to files in XFS file
+systems.
+
+@ xfs.read_bytes number of bytes read in XFS file system read operations
+This is the number of bytes read via read(2) system calls to files in
+XFS file systems. It can be used in conjunction with the read_calls
+count to calculate the average size of the read operations to files in
+XFS file systems.
+
+@ xfs.attr.get number of "get" operations on XFS extended file attributes
+The number of "get" operations performed on extended file attributes
+within XFS filesystems.  The "get" operation retrieves the value of an
+extended attribute.
+
+@ xfs.attr.set number of "set" operations on XFS extended file attributes
+The number of "set" operations performed on extended file attributes
+within XFS filesystems.  The "set" operation creates and sets the value
+of an extended attribute.
+
+@ xfs.attr.remove number of "remove" operations on XFS extended file attributes
+The number of "remove" operations performed on extended file attributes
+within XFS filesystems.  The "remove" operation deletes an extended
+attribute.
+
+@ xfs.attr.list number of "list" operations on XFS extended file attributes
+The number of "list" operations performed on extended file attributes
+within XFS filesystems.  The "list" operation retrieves the set of
+extended attributes associated with a file.
+
+@ xfs.quota.reclaims value from xs_qm_dqreclaims field of struct xfsstats
+@ xfs.quota.reclaim_misses value from xs_qm_dqreclaim_misses field of struct xfsstats
+@ xfs.quota.dquot_dups value from xs_qm_dquot_dups field of struct xfsstats
+@ xfs.quota.cachemisses value from xs_qm_dqcachemisses field of struct xfsstats
+@ xfs.quota.cachehits value from xs_qm_dqcachehits field of struct xfsstats
+@ xfs.quota.wants value from xs_qm_dqwants field of struct xfsstats
+@ xfs.quota.shake_reclaims value from xs_qm_dqshake_reclaims field of struct xfsstats
+@ xfs.quota.inact_reclaims value from xs_qm_dqinact_reclaims field of struct xfsstats
+
+@ xfs.iflush_count the number of calls to xfs_iflush
+This is the number of calls to xfs_iflush which gets called when an
+inode is being flushed (such as by bdflush or tail pushing).
+xfs_iflush searches for other inodes in the same cluster which are
+dirty and flushable.
+
+@ xfs.icluster_flushcnt value from xs_icluster_flushcnt field of struct xfsstats
+
+@ xfs.icluster_flushinode number of flushes of only one inode in cluster
+This is the number of times that the inode clustering was not able to
+flush anything but the one inode it was called with.
+
+@ xfs.buffer.get number of request buffer calls
+@ xfs.buffer.create number of buffers created
+@ xfs.buffer.get_locked number of requests for a locked buffer which succeeded
+@ xfs.buffer.get_locked_waited number of requests for a locked buffer which waited
+@ xfs.buffer.miss_locked number of requests for a locked buffer which failed due to no buffer
+@ xfs.buffer.busy_locked number of non-blocking requests for a locked buffer which failed
+@ xfs.buffer.page_retries number of retry attempts when allocating a page for insertion in a buffer
+@ xfs.buffer.page_found number of hits in the page cache when looking for a page
+@ xfs.buffer.get_read number of buffer get calls requiring immediate device reads
+@ xfs.vnodes.active number of vnodes not on free lists
+@ xfs.vnodes.alloc number of times vn_alloc called
+@ xfs.vnodes.get number of times vn_get called
+@ xfs.vnodes.hold number of times vn_hold called
+@ xfs.vnodes.rele number of times vn_rele called
+@ xfs.vnodes.reclaim number of times vn_reclaim called
+@ xfs.vnodes.remove number of times vn_remove called
+@ xfs.vnodes.free number of times vn_free called
+@ xfs.control.reset reset the values of all XFS metrics to zero
+
+@ pmda.uname identity and type of current system
+Identity and type of current system.  The concatenation of the values
+returned from utsname(2), also similar to uname -a.
+
+See also the kernel.uname.* metrics
+
+@ pmda.version build version of linux PMDA
+@ hinv.map.cpu_num logical to physical CPU mapping for each CPU
+@ hinv.machine machine name, IP35 if SGI SNIA, else simply linux
+@ hinv.cpu.clock clock rate in Mhz for each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.vendor manafacturer of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.model model name of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.stepping stepping of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.cache primary cache size of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.bogomips bogo mips rating for each CPU as reported by /proc/cpuinfo
+@ kernel.all.hz value of HZ (jiffies/second) for the currently running kernel
+@ kernel.all.uptime time the current kernel has been running
+@ kernel.all.idletime time the current kernel has been idle since boot
+@ kernel.all.lastpid most recently allocated process id
+@ mem.slabinfo.objects.active number of active objects in each cache
+@ mem.slabinfo.objects.total total number of objects in each cache
+@ mem.slabinfo.objects.size size of individual objects of each cache
+@ mem.slabinfo.slabs.active number of active slabs comprising each cache
+@ mem.slabinfo.slabs.total total number of slabs comprising each cache
+@ mem.slabinfo.slabs.pages_per_slab number of pages in each slab
+@ mem.slabinfo.slabs.objects_per_slab number of objects in each slab
+@ mem.slabinfo.slabs.total_size total number of bytes allocated for active objects in each slab
+@ ipc.sem.max_semmap  maximum number of entries in a semaphore map (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_semid maximum number of semaphore identifiers (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_sem maximum number of semaphores in system (from semctl(..,IPC_INFO,..))
+@ ipc.sem.num_undo number of undo structures in system (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_perid maximum number of semaphores per identifier (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_ops maximum number of operations per semop call (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_undoent maximum number of undo entries per process (from semctl(..,IPC_INFO,..))
+@ ipc.sem.sz_semundo size of struct sem_undo (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_semval semaphore maximum value (from semctl(..,IPC_INFO,..))
+@ ipc.sem.max_exit adjust on exit maximum value (from semctl(..,IPC_INFO,..))
+@ ipc.msg.sz_pool size of message pool in kilobytes (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.mapent number of entries in a message map (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.max_msgsz maximum size of a message in bytes (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.max_defmsgq default maximum size of a message queue (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.max_msgqid maximum number of message queue identifiers (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.max_msgseg message segment size (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.num_smsghdr number of system message headers (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.max_seg maximum number of message segments (from msgctl(..,IPC_INFO,..))
+@ ipc.shm.max_segsz maximum shared segment size in bytes (from shmctl(..,IPC_INFO,..))
+@ ipc.shm.min_segsz minimum shared segment size in bytes (from shmctl(..,IPC_INFO,..))
+@ ipc.shm.max_seg maximum number of shared segments in system (from shmctl(..,IPC_INFO,..))
+@ ipc.shm.max_segproc maximum number of shared segments per process (from shmctl(..,IPC_INFO,..))
+@ ipc.shm.max_shmsys maximum amount of shared memory in system in pages (from shmctl(..,IPC_INFO,..))
+
+@ vfs.files.count number of in-use file structures
+@ vfs.files.free number of available file structures
+@ vfs.files.max hard maximum on number of file structures
+@ vfs.inodes.count number of in-use inode structures
+@ vfs.inodes.free number of available inode structures
+@ vfs.dentry.count number of in-use dentry structures
+@ vfs.dentry.free number of available dentry structures
+
+@ network.ib.status IB status and description from ibstatus
+@ network.ib.in.bytes network recv read bytes from perfquery
+@ network.ib.in.packets network recv read packets from perfquery
+@ network.ib.in.errors.drop network recv read drops from perfquery
+@ network.ib.in.errors.filter network recv filtered packets from perfquery
+@ network.ib.in.errors.local network recv error packets from perfquery
+@ network.ib.in.errors.remote remote physical error packets recv with EBP delimiter from perfquery
+@ network.ib.out.bytes network send bytes from perfquery
+@ network.ib.out.packets network send packets from perfquery
+@ network.ib.out.errors.drop network send drops from perfquery
+@ network.ib.out.errors.filter network send filtered packets from perfquery
+@ network.ib.total.bytes network total (in+out) bytes from perfquery
+@ network.ib.total.packets network total (in+out) packets from perfquery
+@ network.ib.total.errors.drop network drops (in+out) from perfquery
+@ network.ib.total.errors.filter network filtered packets (in+out) from perfquery
+@ network.ib.total.errors.link network link drops from perfquery
+@ network.ib.total.errors.recover network link recoveries from perfquery
+@ network.ib.total.errors.integrity local link integrity errors from perfquery
+@ network.ib.total.errors.vl15 VL15 packets dropped from perfquery
+@ network.ib.total.errors.overrun excessive buffer overrun errors from perfquery
+@ network.ib.total.errors.symbol minor link errors from perfquery

@@ -1,0 +1,178 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pcp.1,v 1.20 2003/02/08 20:44:59 kenmcd Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PCP 1 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PCP 1 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PCP 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PCP 1 "" "\&"
+.if \nX=3 .ds x} PCP "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pcp\f1 \- summarize a Performance Co-Pilot (PCP) installation
+.SH SYNOPSIS
+\f3pcp\f1
+[\f3\-p\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f2host\f1]
+.SH DESCRIPTION
+The
+.B pcp
+command summarizes the status of a Performance Co-Pilot (PCP) installation.
+The report includes: the OS version, a summary of the hardware inventory,
+the local timezone, details of valid PCP licenses, the PCP software version,
+the state of the
+.BR pmcd (1)
+process and associated Performance Metrics Domain Agents
+(PMDAs), as well as information about any PCP archive loggers (\c
+.BR pmlogger (1))
+and PCP inference engines (\c
+.BR pmie (1))
+that are running.
+.PP
+For more general information about PCP, refer to
+.BR PCPIntro (1).
+.PP
+With no arguments,
+.B pcp
+reports on the local host, however the
+following options are accepted:
+.IP \f3\-a\f1 \f2archive\f1
+Report the PCP
+configuration as described in the PCP archive log
+.IR archive .
+.IP \f3\-h\f1 \f2host\f1
+Report the PCP configuration on 
+.I host
+rather than the localhost.
+.IP \f3\-n\f1 \f2pmnsfile\f1
+Load an alternative Performance Metrics Name Space
+.RB ( pmns (4))
+from the file
+.IR pmnsfile .
+.IP \f3\-p\f1
+Display
+.B pmie
+performance information \- counts of rules evaluating to true, false, or
+indeterminate, as well as the expected rate of rule calculation, for each
+.B pmie
+process running on the default host.
+Refer to the individual metric help text for full details on these values.
+.PP
+All of the displayed values are performance
+.I metric
+values and further information for each can be obtained using the command:
+.in 1.0i
+.ft CW
+.nf
+
+$ pminfo -dtT \f2metric\f1
+
+.fi
+.ft R
+.in
+The complete set of
+.IR metric s
+required by
+.B pcp
+to produce its output is contained in
+.BR $PCP_VAR_DIR/config/pmlogger/config.pcp .
+.PP
+When displaying running
+.B pmlogger
+instances, as a space-saving measure
+.B pcp
+will display a relative path to the archive being created if that archive
+is located below a
+.I pcplog
+subdirectory, otherwise the full pathname is displayed
+(the PCP log rotation and periodic
+.B pmlogger
+checking facilities support the
+creation of archives below
+.BR $PCP_LOG_DIR/pmlogger/ <hostname>).
+.PP
+A similar convention is used for trimming the amount of information
+displayed for running
+.B pmie
+instances, where configuration files below
+.B $PCP_VAR_DIR/config
+will be displayed in truncated form.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_VAR_DIR/config/pmlogger/config.pcp
+.B pmlogger
+configuration file for collecting all of the metrics required by
+.BR pcp .
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmie (1),
+.BR pmlogger (1),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).
+.PP
+Relevant information is also available from the on-line PCP
+Tutorial.  Provided the
+.B pcp.man.tutorial
+subsystem from the PCP images has been installed, access the URL
+.B file:$PCP_DOC_DIR/Tutorial/index.html
+from your web browser.
+.SH INDIGO MAGIC DESKTOP
+.PP
+Many PCP applications can be launched from the
+.B PerfTools
+page of the IRIX Interactive Desktop\(tm Icon Catalog.
+.SH DIAGNOSTICS
+.B pcp 
+will terminate with an exit status of 
+.B 1
+if 
+.B pmcd
+on the target host could not be reached or the archive could not be opened, 
+or
+.B 2
+for any other error.

@@ -1,0 +1,123 @@
+'\"macro stdmacro
+.\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\" $Id: pmc_metric.3,v 1.8 2005/05/10 02:04:28 kenmcd Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMC_METRIC 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMC_METRIC 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMC_METRIC 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMC_METRIC 3 "" "\&"
+.if \nX=3 .ds x} PMC_METRIC "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3PMC_Metric\f1 \- container for a metric and all its values
+.SH "C++ SYNOPSIS"
+.ft 3
+#include <pcp/pmc/Metric.h>
+.sp
+CC ... \-lpcp_pmc \-lpcp 
+.ft 1
+.SH DESCRIPTION
+A
+.B PMC_Metric
+object is a container for a single metric and all its values.
+.PP
+The
+.B PMC_MetricValue
+structure is used to hold the instance index, values and errors of each
+instance.  In the case of a singular metric, a single
+.B PMC_MetricValue
+object is used.
+.PP
+A
+.B PMC_Metric
+object consists of a list of
+.B PMC_MetricValue
+objects, indexes to the descriptors in the metric's
+.B PMC_Group
+and
+.B PMC_Context
+and flags to indicate if the instances are explicit or implicit, and if
+only active metrics are required after 
+.B PMC_Metric::updateIndom
+is called.
+.SH "CONSTRUCTORS"
+Metrics should be constructed through the
+.B PMC_Group::addMetric
+methods as this will ensure that the references to the metric's context,
+descriptor and instance domain are correctly initialized.
+.SH INSTANCES
+For metrics with an instance domain it is possible to add and remove any
+instance, and also update the instance list to reflect changes in a dynamic
+instance domain.
+.TP 4
+.B "PMC_Bool updateIndom();"
+Update the metric to include new instances.  This method will first call
+.B PMC_Context::update
+to update the instance domain.  If the
+.I active
+flag is set in the
+.B PMC_Group::addMetric
+call, only instances will exported by the metric, otherwise the metric will
+export all instances listed in the domain.
+
+The ordering of instances may change as a result of this call.  Instances
+that already existed will keep their current and previous values and errors,
+even if they are in a different order.
+.TP
+.B "int addInst(PMC_String const& name);"
+Add the instance
+.B name
+to the metric.  If the instance does not exist in the instance domain,
+a 
+.BR PMAPI (3)
+error will be returned.  This method ignores the value of the
+.I active
+flag set in the
+.B PMC_Metric
+constructor.
+.TP
+.B "void removeInst(uint_t index);"
+Remove the instance at position
+.I index 
+from the metric.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR PMC (3),
+.BR PMC_Context (3),
+.BR PMC_Group (3),
+.BR pmflush (3)
+and
+.BR pmprintf (3).
+.SH DIAGNOSTICS
+Error messages are generated using
+.BR pmprintf (3)
+but are not flushed. It is the responsibility of the user to call
+.BR pmflush (3)
+to output any messages.
+.PP
+Additional diagnostics may be activated by adding 
+.B DBG_TRACE_PMC
+to the global
+.IR pmDebug .

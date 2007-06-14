@@ -1,0 +1,308 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmie_check.1,v 1.9 2006/12/14 03:09:48 kimbrr Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMIE_CHECK 1 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMIE_CHECK 1 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMIE_CHECK 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMIE_CHECK 1 "" "\&"
+.if \nX=3 .ds x} PMIE_CHECK "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmie_check\f1
+\- administration of the Performance Co-Pilot inference engine
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmie_check
+[\f3\-NsV\f1]
+[\f3\-c\f1 \f2control\f1]
+.SH DESCRIPTION
+This shell script and associated control file may be used to
+create a customized regime of administration and management for the
+Performance Co-Pilot (see
+.BR PCPintro (1))
+inference engine,
+.BR pmie (1).
+.PP
+.B pmie_check
+may be run at any time, and is intended to check that the desired set
+of
+.BR pmie (1)
+processes are running, and if not to re-launch any failed inference engines.
+Use of the
+.B \-s
+option provides the reverse functionality, allowing the set of
+.B pmie
+processes to be cleanly shutdown.
+.PP
+.B pmie_check
+is controlled by a PCP inference engine control file that specifies the
+.B pmie
+instances to be managed.  The default control file is
+.B $PCP_VAR_DIR/config/pmie/control
+but an alternate may be specified using the
+.B \-c
+option.
+.PP
+The control file should be customized according to the following rules.
+.IP 1.
+Lines beginning with a ``#'' are comments.
+.PD 0 parameters of the
+.IP 2.
+Lines beginning with a ``$'' are assumed to be
+assignments to environment variables in the style of
+.BR sh (1),
+and all text following the ``$'' will be
+.BR eval 'ed
+by the script reading the control file,
+and the corresponding variable exported into the environment.
+This is particularly
+useful to set and export variables into the environment of
+the administrative script, e.g.
+.br
+.in +4n
+.ft CW
+.nf
+$ PMCD_CONNECT_TIMEOUT=20
+.fi
+.ft R
+.in -4n
+.br
+.BR Warning :
+The
+.B $PCP_VAR_DIR/config/pmie/control
+file is a potential security risk if it is writable by any user other
+than root.
+.br
+.IP 3.
+There should be one line in the control file
+for each
+.B pmie
+instance of the form:
+
+.in +4n
+.ft CW
+.nf
+\f2host\f1 \f3y\f1|\f3n\f1 \f2logfile\f1 \f2args\f1
+.fi
+.ft R
+.in -4n
+
+.IP 4.
+Fields within a line of the control file
+are separated by one or more spaces or tabs.
+.IP 5.
+The
+.I first
+field is the name of the host that is the default source of the
+performance metrics for this
+.B pmie
+instance.
+.IP 6.
+The
+.I second
+field indicates whether this
+.B pmie
+instance needs to be started under the control of
+.BR pmsocks (1)
+to connect to a
+.B pmcd
+through a firewall (\c
+.B y
+or
+.BR n ).
+Note that
+.B pmsocks
+is part of the
+.I pcp
+product distribution, rather than the
+.I pcp_eoe
+distribution, and as such may not be installed on your system.  Refer to
+.B PCPintro (1)
+for full details.
+.IP 8.
+The
+.I third
+field is the name of the
+.B pmie
+activity log file.  
+A useful convention is that
+.B pmie
+instances monitoring the local host
+with hostname
+.I myhost
+are maintained in the directory
+.BI $PCP_LOG_DIR/pmie/ myhost\fR,
+while activity logs for the remote host
+.I mumble
+are maintained in
+.BI $PCP_LOG_DIR/pmie/ mumble\fR.
+This is consistent with the way
+.BR pmlogger (1)
+maintains its activity logs and archive files.
+.IP 9.
+All other fields are interpreted as arguments to be passed to
+.BR pmie (1).
+Most typically this would be the
+.B \-c
+option.
+.PD
+.PP
+The following sample control lines specify one
+.B pmie
+instance monitoring the local host (\c
+.IR wobbly ),
+and another monitoring performance metrics from the host
+.IR splat .
+.PP
+.nf
+.ft CW
+wobbly  n  $PCP_LOG_DIR/pmie/wobbly  -c $PCP_VAR_DIR/config/pmie/config.default
+splat   n  $PCP_LOG_DIR/pmie/splat   -c $PCP_LOG_DIR/pmie/splat/cpu.conf
+.ft 1
+.fi
+.PP
+A typical
+.BR crontab (5)
+entry for periodic execution of
+.B pmie_check
+is given in
+.BR $PCP_VAR_DIR/config/pmie/crontab
+and shown below.
+.PP
+.nf
+.ft CW
+# every 30 minutes, check pmie instances are running
+25,55   *       *       *       *       $PCP_BINADM_DIR/pmie_check
+.ft 1
+.fi
+.PP
+Alternate redirection of the output from the
+.BR cron (1)
+execution of the script may be controlled as follows:
+.IP (1) 4n
+The
+.B \-V
+option to the script will enable verbose tracing of their activity.
+By default the script generates no output unless some error or warning
+condition is encountered.
+.IP (2)
+To redirect the e-mail from
+.BR cron (1)
+away from the root login,
+.RS +4n
+.IP + 2n
+Instead of using the ``root'' login,
+create a special account with uid equal to 0, e.g. \c
+.BR su_pcp .
+The password may be locked and/or the shell invalid to prevent login
+or
+.B su (1),
+but the home directory should exist.
+For example the following entry in
+.BR /etc/passwd :
+
+.ti +4n
+.ft CW
+.nf
+su_pcp:x:0:0:PCP Housekeeping:/usr/people/su_pcp:/dev/null
+.fi
+.IP +
+.ft R
+Create a
+.B $HOME/.forward
+for
+.BR su_pcp ,
+else an entry in
+.B /usr/lib/aliases
+for
+.BR su_pcp ,
+redirecting the e-mail to a real user or user(s).
+.IP +
+Add the ``crontab'' entries above to the crontab file for
+.B su_pcp
+not
+.BR root ,
+e.g. in the file
+.B /usr/spool/cron/crontabs/su_pcp
+.RE
+.PP
+The
+.B \-N
+option enables a ``show me'' mode, where the actions are echoed,
+but not executed, in the style of ``make \-n''.
+Using
+.B \-N
+in conjunction with
+.B \-V
+maximizes the diagnostic capabilities for debugging.
+.SH FILES
+.TP 10
+.B $PCP_VAR_DIR/config/pmie/control
+the default PCP inference engine control file
+.br
+.BR Warning :
+this file is a potential security risk if it is writable by any user
+other than root.
+.TP
+.B $PCP_VAR_DIR/config/pmie/crontab
+sample crontab for automated script execution by root
+.TP
+.BI logfile .lock
+transient lock file which is named using the control-specified
+.B pmie
+.I logfile
+names, and is used to guarantee mutual exclusion during
+.B pmie_check
+execution \- if present, can be safely removed if
+.B pmie_check
+is not running
+.TP
+.B $PCP_LOG_DIR/NOTICES
+PCP ``notices'' file used by
+.BR pmie (1)
+and friends
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR chkconfig (1),
+.BR cron (1),
+.BR PCPintro (1),
+.BR pmie (1)
+and
+.BR pmsocks (1).

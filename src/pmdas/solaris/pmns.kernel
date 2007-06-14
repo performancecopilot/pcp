@@ -1,0 +1,78 @@
+kernel {
+    all
+    percpu
+}
+
+kernel.all {
+    cpu
+    io
+    trap		SOLARIS:0:32
+    pswitch		SOLARIS:0:23
+    syscall		SOLARIS:0:22
+    sysexec		SOLARIS:0:33
+    sysfork		SOLARIS:0:34
+    sysvfork		SOLARIS:0:35
+    sysread		SOLARIS:0:36
+    syswrite		SOLARIS:0:37
+}
+
+kernel.all.cpu {
+    idle		SOLARIS:0:0
+    user		SOLARIS:0:1
+    sys			SOLARIS:0:2
+    wait
+}
+
+kernel.all.cpu.wait {
+    total		SOLARIS:0:3
+    io			SOLARIS:0:8
+    pio			SOLARIS:0:9
+    swap		SOLARIS:0:10
+}
+
+kernel.all.io {
+    bread		SOLARIS:0:14
+    bwrite		SOLARIS:0:15
+    lread		SOLARIS:0:16
+    lwrite		SOLARIS:0:17
+    phread		SOLARIS:0:26
+    phwrite		SOLARIS:0:27
+    intr		SOLARIS:0:28
+}
+
+kernel.percpu {
+    cpu
+    io
+    trap		SOLARIS:0:38
+    pswitch		SOLARIS:0:25
+    syscall		SOLARIS:0:24
+    sysexec		SOLARIS:0:39
+    sysfork		SOLARIS:0:40
+    sysvfork		SOLARIS:0:41
+    sysread		SOLARIS:0:42
+    syswrite		SOLARIS:0:43
+}
+
+kernel.percpu.cpu {
+    idle		SOLARIS:0:4
+    user		SOLARIS:0:5
+    sys			SOLARIS:0:6
+    wait
+}
+
+kernel.percpu.cpu.wait {
+    total		SOLARIS:0:7
+    io			SOLARIS:0:11
+    pio			SOLARIS:0:12
+    swap		SOLARIS:0:13
+}
+
+kernel.percpu.io {
+    bread		SOLARIS:0:18
+    bwrite		SOLARIS:0:19
+    lread		SOLARIS:0:20
+    lwrite		SOLARIS:0:21
+    phread		SOLARIS:0:29
+    phwrite		SOLARIS:0:30
+    intr		SOLARIS:0:31
+}

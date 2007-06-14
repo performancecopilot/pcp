@@ -1,0 +1,149 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMRECONNECTCONTEXT 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMRECONNECTCONTEXT 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMRECONNECTCONTEXT 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMRECONNECTCONTEXT 3 "" "\&"
+.if \nX=3 .ds x} PMRECONNECTCONTEXT "" "" "\&"
+.\" $Id: pmreconnectcontext.3,v 2.10 2004/06/24 06:15:36 kenmcd Exp $
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmReconnectContext\f1 \- reconnect to a PMAPI context
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmReconnectContext(int handle)
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+As a consequence of network, host or
+Performance Metrics Collector Daemon (PMCD) failures, an applications
+connection to a PMCD may be established and then subsequently lost.
+.PP
+The routine
+.B pmReconnectContext
+allows an application to request that the context identified by 
+.I handle
+should be re-established, provided the associated PMCD is accessible.
+.PP
+To avoid flooding the system with reconnect requests,
+.B pmReconnectContext
+will only attempt a reconnection after a suitable delay from the previous
+unsuccessful attempt to reconnect this context. This imposed restriction on
+the reconnect re-try time interval uses an exponential back-off so that the 
+initial delay is 5 seconds after the first unsuccessful attempt, then 10
+seconds, then 20 seconds, then 40 seconds and then 80 seconds thereafter.
+.PP
+The environment variable
+.B PMCD_RECONNECT_TIMEOUT
+may be used to redefine the back-off intervals, see
+.BR PMAPI (3).
+.PP
+If the reconnection succeeds,
+.B pmReconnectContext
+returns
+.IR handle .
+.PP
+If
+.I handle
+identifies a context associated with an archive source of metrics,
+.B pmReconnectContext
+does nothing and returns
+.IR handle .
+.PP
+Calling
+.B pmReconnectContext
+with a handle identifying a currently connected context will cause the
+connection to be broken before any reconnection is attempted.
+.PP
+Note that even in the case of a successful reconnection,
+.B pmReconnectContext
+does not change the current
+Performance Metrics Application Programming Interface (PMAPI)
+context.
+.PP
+When attempting to connect to a remote
+.BR pmcd (1)
+on a machine that is booting,
+.B pmReconnectContext
+could potentially block for a long time until the remote machine
+finishes its initialization.
+.B pmReconnectContext
+will abort and return an error if the connection has not been established after
+some specified interval has elapsed.  The default interval is 5
+seconds.  This may be modified by setting
+.B PMCD_CONNECT_TIMEOUT
+in the environment to a real number of seconds for the
+desired timeout.
+This is most useful in cases where the remote host is at
+the end of a slow network, requiring longer latencies to
+establish the connection correctly.
+.SH ENVIRONMENT
+.TP
+.B PMCD_CONNECT_TIMEOUT
+Timeout period (in seconds) for
+.BR pmcd (1)
+connection attempts.
+.TP
+.B PMCD_RECONNECT_TIMEOUT
+Redefines the back-off intervals - refer to
+.BR PMAPI (3).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR PMAPI (3),
+.BR pmNewContext (3)
+and
+.BR pmUseContext (3).
+.SH DIAGNOSTICS
+.P
+.B PM_ERR_NOCONTEXT
+.IP
+.I handle
+does not identify a valid PMAPI context
+.P
+.B \-ETIMEDOUT
+.IP
+The re-try time has not elapsed, or the reconnection is attempted and fails.
+.SH CAVEAT
+.P
+Applications that use
+.BR gethostbyname (3)
+should exercise caution because the static fields in
+.I "struct hostent"
+may not be preserved across some
+.BR PMAPI (4)
+calls.
+In particular,
+.BR pmNewContext (3)
+and
+.BR pmReconnectContext (3)
+both may call
+.BR gethostbyname (3)
+internally.

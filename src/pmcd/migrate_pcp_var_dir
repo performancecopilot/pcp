@@ -1,0 +1,131 @@
+#! /bin/sh
+#
+# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# $Id: migrate_pcp_var_dir,v 1.4 2004/12/03 19:32:18 kenmcd Exp $
+#
+# Migrate from /var/pcp to new $PCP_VAR_DIR
+#
+
+# standard environment
+. /etc/pcp.env
+
+iam=${0##*/}
+debug=false
+[ "$1" = "-d" ] && debug=true
+
+if [ ! -d /var/pcp -o "$PCP_VAR_DIR" = /var/pcp ]
+then
+    # nothing to do
+    $debug && echo $iam has nothing to do
+    exit 0
+fi
+
+#
+# merge pmcd.conf
+if [ -f /var/pcp/config/pmcd/pmcd.conf ]
+then
+    grep -v '^#' /var/pcp/config/pmcd/pmcd.conf | \
+    while read name eol
+    do
+    	notfound=`awk '$1 == "'$name'" {
+	    print "false"; exit
+	} END {
+	    print "true"
+	}' $PCP_VAR_DIR/config/pmcd/pmcd.conf`
+	if $notfound
+	then
+	    echo "$name $eol" >>$PCP_VAR_DIR/config/pmcd/pmcd.conf
+	fi
+    done
+    rm -f /var/pcp/config/pmcd/pmcd.conf
+    $debug && echo $iam merged and migrated pmcd.conf
+fi
+
+#
+# migrate other critical config files
+cd /var/pcp
+for f in \
+	config/pmcd/pmcd.options \
+	config/pmlogger/{control,config.default} \
+	config/pmie/{control,config.default} \
+	pmns/root
+do
+	[ ! -f $f ] && continue
+	mv -f $f $PCP_VAR_DIR/$f
+	$debug && echo $iam migrated $PCP_VAR_DIR/$f
+done
+
+#
+# Find whole directories (or individual files) in /var/pcp that do
+# not exist below $PCP_VAR_DIR and migrate them into $PCP_VAR_DIR.
+#
+cd /var/pcp
+find . -type f -print | \
+sed -e 's/\.\///g' | \
+while read f
+do
+    d=`dirname $f`
+    if [ ! -d "$PCP_VAR_DIR/$d" ]
+    then
+	$debug && echo $iam migrating directory /var/pcp/$d to $PCP_VAR_DIR/$d
+	mv $d $PCP_VAR_DIR/$d
+    elif [ ! -f "$PCP_VAR_DIR/$f" ]
+    then
+	$debug && echo $iam migrating file /var/pcp/$f to $PCP_VAR_DIR/$f
+    	mv $f "$PCP_VAR_DIR/$f"
+    fi
+done
+
+#
+# Restore rpm save files
+#
+find /var/pcp $PCP_VAR_DIR -type f -name \*.rpmsave -print | \
+while read f
+do
+    t=`echo $f | sed -e 's/\.rpmsave//' -e 's;/var/pcp;'$PCP_VAR_DIR';g'`
+    if diff $f $t >/dev/null 2>&1
+    then
+    	:
+    else
+	$debug && echo $iam restoring file $f to $t
+	mv $f $t
+    fi
+done
+
+#
+# Substitute /var/pcp with $PCP_VAR_DIR.
+#
+find $PCP_VAR_DIR -print |\
+egrep '*.conf|control|*.options' | \
+while read f
+do
+    if fgrep /var/pcp $f >/dev/null 2>&1
+    then
+    	sed -e 's;/var/pcp;'$PCP_VAR_DIR';g' <$f >/tmp/$$
+	mv /tmp/$$ $f
+	$debug && echo $iam in $f, substituted /var/pcp with $PCP_VAR_DIR
+    fi
+done
+
+[ -f /var/pcp/pmns/.NeedRebuild ] && touch $PCP_VAR_DIR/pmns/.NeedRebuild
+rm -f /var/pcp/pmns/.NeedRebuild
+
+exit 0

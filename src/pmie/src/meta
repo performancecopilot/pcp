@@ -1,0 +1,304 @@
+#!/bin/sh
+#
+# Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# Generate evaluator functions from skeletons.
+#
+# $Id: meta,v 1.2 2002/08/20 06:46:48 markgw Exp $
+
+##############
+# procedures #
+##############
+
+CULLCOPYRIGHT="/^ \* Copyright.* Silicon Graphics.*$/d"
+
+_fetch()
+{
+fin=fetch.sk
+sed -e "$CULLCOPYRIGHT" $fin >> $fout
+}
+
+_misc()
+{
+fin=misc.sk
+sed -e "$CULLCOPYRIGHT" \
+    -e "s/@ITYPE/$itype/g" \
+    -e "s/@OTYPE/$otype/g" \
+    $fin >> $fout
+}
+
+_aggr()
+{
+fin=aggregate.sk
+sed -e "$CULLCOPYRIGHT" \
+    -e "s/@FUN/$fun/g" \
+    -e "s/@ITYPE/$itype/g" \
+    -e "s/@OTYPE/$otype/g" \
+    -e "s/@TOP/$top/g" \
+    -e "s/@LOOP/$loop/g" \
+    -e "s/@BOT/$bot/g" \
+    -e "s/@NOTVALID/$notvalid/g" \
+    $fin >> $fout
+}
+
+_unary()
+{
+fin=unary.sk
+sed -e "$CULLCOPYRIGHT" \
+    -e "s/@FUN/$fun/g" \
+    -e "s/@ITYPE/$itype/g" \
+    -e "s/@OTYPE/$otype/g" \
+    -e "s/@OP/$op/g" \
+    $fin >> $fout
+}
+
+_binary()
+{
+fin=binary.sk
+sed -e "$CULLCOPYRIGHT" \
+    -e "s/@FUN/$fun/g" \
+    -e "s/@ITYPE/$itype/g" \
+    -e "s/@OTYPE/$otype/g" \
+    -e "s/@OP/$op/g" \
+    $fin >> $fout
+}
+
+_merge()
+{
+fin=merge.sk
+if [ -z "$scale" ]
+then
+    sed -e '/RealTime/d' $fin
+else
+    cat $fin
+fi \
+| sed -e "$CULLCOPYRIGHT" \
+    -e "s/@FUN/$fun/g" \
+    -e "s/@ITYPE/$itype/g" \
+    -e "s/@OTYPE/$otype/g" \
+    -e "s/@OP/$op/g" \
+    -e "s/@DELTA/$delta/g" \
+    -e "s/@SCALE/$scale/g" \
+    >> $fout
+}
+
+_act()
+{
+fin=act.sk
+sed -e "$CULLCOPYRIGHT" $fin >> $fout
+}
+
+
+
+########
+# main #
+########
+
+fout=fun.c
+rm -f $fout
+cat hdr.sk > $fout
+
+
+#
+# fetch
+#
+_fetch
+
+#
+# rule and delay
+#
+itype=double
+otype=double
+
+_misc
+
+#
+# aggregation operators
+#
+itype=double
+otype=double
+notvalid="x->valid = 0;"
+
+fun=cndSum
+top="a = *ip;"
+loop="a += *ip;"
+bot="*op++ = a;"
+_aggr
+
+fun=cndAvg
+top="a = *ip;"
+loop="a += *ip;"
+bot="*op++ = a \/ n;"
+_aggr
+
+fun=cndMax
+top="a = *ip;"
+loop="if (*ip > a) a = *ip;"
+bot="*op++ = a;"
+_aggr
+
+fun=cndMin
+top="a = *ip;"
+loop="if (*ip < a) a = *ip;"
+bot="*op++ = a;"
+_aggr
+
+#
+# arithmetic operators
+#
+itype=double
+otype=double
+
+fun=cndNeg
+op="OP(x) -(x)"
+_unary
+
+fun=cndAdd
+op="OP(x,y) ((x) + (y))"
+_binary
+
+fun=cndSub
+op="OP(x,y) ((x) - (y))"
+_binary
+
+fun=cndMul
+op="OP(x,y) ((x) * (y))"
+_binary
+
+fun=cndDiv
+op="OP(x,y) ((x) \/ (y))"
+_binary
+
+fun=cndRate
+delta="delta = is1->stamp - is2->stamp;"
+op="-"
+scale="*op = *op \\/ delta;"
+_merge
+
+#
+# relational operators
+#
+itype=double
+otype=Truth
+
+fun=cndEq
+op="OP(x,y) ((x) == (y))"
+_binary
+
+fun=cndNeq
+op="OP(x,y) ((x) != (y))"
+_binary
+
+fun=cndLt
+op="OP(x,y) ((x) < (y))"
+_binary
+
+fun=cndLte
+op="OP(x,y) ((x) <= (y))"
+_binary
+
+fun=cndGt
+op="OP(x,y) ((x) > (y))"
+_binary
+
+fun=cndGte
+op="OP(x,y) ((x) >= (y))"
+_binary
+
+#
+# boolean connectives
+#
+itype=Truth
+otype=Truth
+
+fun=cndNot
+op="OP(x) (((x) == TRUE || (x) == FALSE) ? !(x) : DUNNO)"
+_unary
+
+fun=cndAnd
+op="OP(x,y) (((x) == TRUE \\&\\& (y) == TRUE) ? TRUE : (((x) == FALSE || (y) == FALSE) ?  FALSE : DUNNO))"
+_binary
+
+fun=cndOr
+op="OP(x,y) (((x) == TRUE || (y) == TRUE) ? TRUE : (((x) == FALSE \\&\\& (y) == FALSE) ?  FALSE : DUNNO))"
+_binary
+
+fun=cndRise
+delta=""
+op=">"
+scale=""
+_merge
+
+fun=cndFall
+delta=""
+op="<"
+scale=""
+_merge
+
+#
+# quantifiers
+#
+itype=Truth
+otype=Truth
+
+fun=cndAll
+top="a = *ip;"
+loop="if (*ip == FALSE) a = FALSE;\\
+		else if (*ip == DUNNO \\&\\& a != DUNNO) a = DUNNO;"
+bot="*op++ = a;"
+notvalid="*op++ = DUNNO; os->stamp = is->stamp; x->valid++;"
+_aggr
+
+fun=cndSome
+top="a = *ip;"
+loop="if (*ip == TRUE) a = TRUE;\\
+		else if (*ip == DUNNO \\&\\& a != DUNNO) a = DUNNO;"
+bot="*op++ = a;"
+notvalid="*op++ = DUNNO; os->stamp = is->stamp; x->valid++;"
+_aggr
+
+fun=cndPcnt
+top="a = *ip;"
+loop="a += *ip;"
+bot="*op++ = (a >= *(double *)x->arg2->ring * n) ? TRUE : FALSE;"
+notvalid="*op++ = DUNNO; os->stamp = is->stamp; x->valid++;"
+_aggr
+
+#
+# truth counter
+#
+itype=Truth
+otype=double
+notvalid="x->valid = 0;"
+
+fun=cndCount
+top="a = *ip;"
+loop="a += *ip;"
+bot="*op++ = a;"
+_aggr
+
+#
+# actions
+#
+_act
+
+# discourage changes to fun.c
+#
+chmod 444 $fout

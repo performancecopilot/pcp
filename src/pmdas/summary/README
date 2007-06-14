@@ -1,0 +1,255 @@
+Performance Co-Pilot PMDA for Exporting Metric Summaries
+========================================================
+
+This Performance Metrics Domain Agent (PMDA) is capable of collecting
+performance metrics values from other PMDAs, computing derived
+(summary) values, and exporting these derived values as performance
+metrics.
+
+This agent uses the Performance Metrics Inference Engine pmie(1) to
+periodically collect the data and compute the summary values.  These
+derived values are typically computed by expressions that aggregate a
+number of base performance values, perhaps from a number of subsystems
+on the one host or even from multiple hosts, and perhaps over an
+extended period of time.
+
+All of the exported metrics have a singular instance and the values are
+"instantaneous", i.e. the exported value is the value as of the last
+time the summary was computed.  Refer to the PMAPI(3) man page for more
+information about these terms.
+
+Metrics
+=======
+
+See the file ./help, or install the agent and execute the command
+
+	$ pminfo -fT summary
+
+Note that customization of the metrics made available by the summary
+PMDA is possible, as described below.
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/summary
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+ +  This PMDA caches the most recent value for the performance metrics
+    computed by pmie(1).  The cached values are the ones returned via
+    the Performance Metrics Collection Demon pmcd(1) to clients.  By
+    default pmie(1) evaluates the expressions once every 10 seconds.
+    The installation procedure will offer you the option to change this
+    interval.
+
+ +  Then simply use
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options.
+
+    You will be prompted for the necessary information to set up
+    the summary agent.
+
+De-installation
+===============
+
+ +  Simply use
+
+	# cd $PCP_PMDAS_DIR/summary
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/summary.log) should be checked for any warnings
+    or errors.
+
+Customization
+=============
+
+New summary metrics may be added as follows.
+
+ +  Choose new Performance Metric Name Space (PMNS) names for the new
+    metrics.  These must begin with "summary." and follow the rules
+    described in pmns(4).
+
+    For example summary.fs.wr_cache_hit and summary.fs.rd_cache_hit
+
+ +  Edit the file ./pmns to add the new PMNS names in the format
+    described in pmns(4).  You must choose a unique Performance Metric
+    Id (PMID) for each metric ... in the ./pmns file these will appear
+    as SYSSUMMARY:0:x for some x that is arbitrary in the range 0 to
+    1023 and unique in this file.
+
+    For example
+ 
+    summary {
+ 	    cpu
+ 	    disk
+ 	    netif
+    /*new*/ fs
+    }
+ 
+    ...
+ 
+    summary.fs {
+	    wr_cache_hit     SYSSUMMARY:0:10
+	    rd_cache_hit     SYSSUMMARY:0:11
+    }
+
+ +  Use the local fake PMNS ./root and validate that the PMNS changes
+    are correct.
+
+    For example
+
+    $ pminfo -n root -m summary.fs
+    summary.fs.wr_cache_hit PMID: 27.0.10
+    summary.fs.rd_cache_hit PMID: 27.0.11
+
+ +  Create a file (./expr.pmie in the examples below) containing the
+    new expressions.  If the name to the left of the assignment
+    operator (=) is one of the PMNS names, then the pmie(1) expression
+    to the right will be evaluated and returned by the summary PMDA.
+    The expression must return a numeric value, which is exported as a
+    double precision floating point number.
+
+    If the expression has a set value, then only the first value is
+    exported (in most cases, the pmie aggregate operators should be used
+    to produce a scalar sum or average from a set of numeric values).
+
+    The exported metric has the dimension (space, time and count) of
+    the expression, and the scale is the canonical scale used by
+    pmie(1), namely bytes, seconds and counts.
+
+    For example
+
+    // filesystem buffer cache hit percentages
+    prefix = "kernel.all.io";          // variable, not exported
+    summary.fs.wr_cache_hit =
+	   100 - 100 * $prefix.bwrite / $prefix.lwrite;
+    summary.fs.rd_cache_hit =
+	   100 - 100 * $prefix.bread / $prefix.lread;
+
+ +  Run pmie in debug mode to verify the expressions are being
+    evaluated correctly, and the values make sense.
+
+    For example
+
+    $ pmie -t2 -v expr.pmie
+    summary.fs.wr_cache_hit:      ?
+    summary.fs.rd_cache_hit:      ?
+ 
+    summary.fs.wr_cache_hit:  45.83
+    summary.fs.rd_cache_hit:   83.2
+ 
+    summary.fs.wr_cache_hit:  39.22
+    summary.fs.rd_cache_hit:  84.51
+
+    Once you are happy with the new expressions, add them to the existing
+    expressions in the file ./summary.pmie.
+
+ +  Edit the ./help file to add help text for the new metrics ... see
+    newhelp(1) for a description of the syntax.
+
+    For example
+
+    @ summary.fs.wr_cache_hit Filesystem cache read hit ratio
+    Percentage of filesystem block writes that involve a block currently
+    found in the filesystem cache.
+
+    @ summary.fs.rd_cache_hit Filesystem cache write hit ratio
+    Percentage of filesystem block reads that involve a block currently
+    found in the filesystem cache, and thereby avoid a physical read.
+
+ +  Install the new PMDA
+
+    For example
+
+    # ./Install
+
+    You will need to choose an appropriate configuration for installation of
+    the "summary" Performance Metrics Domain Agent (PMDA).
+
+      collector     collect performance statistics on this system
+      monitor       allow this system to monitor local and/or remote systems
+      both          collector and monitor configuration for this system
+    Please enter c(ollector) or m(onitor) or b(oth) [b] 
+
+    Updating the Performance Metrics Name Space ...
+    Installing pmchart view(s) ...
+
+    Interval between summary expression evaluation (seconds)? [10] 
+    Terminate PMDA if already installed ...
+    Installing files ..
+	    rm -f help.pag help.dir
+	    /usr/pcp/bin/newhelp help
+    Updating the PMCD control file, and notifying PMCD ...
+    Wait 15 seconds for the agent to initialize ...
+    Check summary metrics have appeared ... 8 metrics and 8 values
+
+ +  Check the metrics ...
+
+    For example
+
+    $ pminfo -fT summary.fs
+
+    summary.fs.wr_cache_hit
+    Help:
+    Percentage of filesystem block writes that involve a block currently
+    found in the filesystem cache.
+	value 11.97916666666666
+
+    summary.fs.rd_cache_hit
+    Help:
+    Percentage of filesystem block reads that involve a block currently
+    found in the filesystem cache, and thereby avoid a physical read.
+	value 74.31192660550458
+
+    $ pmval -t5 -s4 summary.fs.wr_cache_hit
+
+    metric:    summary.fs.wr_cache_hit
+    host:      localhost
+    semantics: instantaneous value
+    units:     none
+    samples:   8
+    interval:  5.00 sec
+
+	63.60132158590308
+	62.71878646441073
+	62.71878646441073
+	58.73968492123031
+	58.73968492123031
+	65.33822758259046
+	65.33822758259046
+	 72.6099706744868
+
+    Note the values are being sampled here by pmval(1) every 5 seconds,
+    but pmie(1) is only passing new values to the sample PMDA every
+    10 seconds.  Both rates could be changed to suit the dynamics of
+    your new metrics.
+
+ +  Create pmchart(1) views, pmview(1) scenes and pmlogger(1)
+    configurations to monitor and archive your new performance
+    metrics.
+
+    For example, a pmchart view could be created using pmchart and
+    the View->Save Configuration menu option.  Copy the view from
+    $HOME/.pcp/pmchart into $PCP_PMDAS_DIR/summary and rename it to have
+    the suffix ".pmchart", and a prefix that identifies the view and
+    is unique amongst the view names in $PCP_VAR_DIR/config/pmchart,
+    e.g. Summary.FScache.pmchart
+
+    Then
+	# cp Summary.FScache.pmchart $PCP_VAR_DIR/config/pmchart/Summary.FScache
+
+    will install the view in a place where pmchart(1) will be able
+    to find it.  Provided the name of the file ends in ".pmchart" in
+    $PCP_PMDAS_DIR/summary the view will be re-installed as a side-effect
+    of any subsequent ./Install of the summary PMDA.

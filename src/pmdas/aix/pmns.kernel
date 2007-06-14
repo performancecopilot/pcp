@@ -1,0 +1,77 @@
+kernel {
+    all
+    percpu
+}
+
+kernel.all {
+    cpu
+    io
+    trap		AIX:0:32
+    pswitch		AIX:0:23
+    syscall		AIX:0:22
+    sysexec		AIX:0:33
+    sysfork		AIX:0:34
+    sysread		AIX:0:36
+    syswrite		AIX:0:37
+    readch		AIX:0:8
+    writech		AIX:0:9
+}
+
+kernel.all.cpu {
+    idle		AIX:0:0
+    user		AIX:0:1
+    sys			AIX:0:2
+    intr		AIX:0:31
+    wait
+}
+
+kernel.all.cpu.wait {
+    total		AIX:0:3
+}
+
+kernel.all.io {
+    bread		AIX:0:14
+    bwrite		AIX:0:15
+    lread		AIX:0:16
+    lwrite		AIX:0:17
+    phread		AIX:0:26
+    phwrite		AIX:0:27
+    devintrs		AIX:0:28
+    softintrs		AIX:0:10
+    namei		AIX:0:35
+}
+
+kernel.percpu {
+    cpu
+    io
+    pswitch		AIX:0:25
+    syscall		AIX:0:24
+    sysexec		AIX:0:39
+    sysfork		AIX:0:40
+    sysread		AIX:0:42
+    syswrite		AIX:0:43
+    readch		AIX:0:11
+    writech		AIX:0:12
+}
+
+kernel.percpu.cpu {
+    idle		AIX:0:4
+    user		AIX:0:5
+    sys			AIX:0:6
+    intr		AIX:0:13
+    wait
+}
+
+kernel.percpu.cpu.wait {
+    total		AIX:0:7
+}
+
+kernel.percpu.io {
+    bread		AIX:0:18
+    bwrite		AIX:0:19
+    lread		AIX:0:20
+    lwrite		AIX:0:21
+    phread		AIX:0:29
+    phwrite		AIX:0:30
+    namei		AIX:0:41
+}

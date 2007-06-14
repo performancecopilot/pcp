@@ -1,0 +1,315 @@
+#! /bin/sh
+#
+# Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+# Start or Stop the Performance Co-Pilot Inference Engine
+#
+# $Id: etc_init.d_pmie,v 1.9 2004/09/14 01:28:55 markgw Exp $
+#
+# The following is for chkconfig on RedHat based systems
+# chkconfig: 2345 95 05
+# description: pmie is a performance monitoring inference engine
+#
+# The following is for insserv(1) based systems,
+# e.g. SuSE, where chkconfig is a perl script.
+### BEGIN INIT INFO
+# Provides:       pmie
+# Required-Start: $network
+# Required-Stop:
+# Default-Start:  2 3 5
+# Default-Stop:
+# Description:   pmie is a performance monitoring inference engine
+### END INIT INFO
+
+# If a TRIX MAC label is defined, run pcp stuff at that MAC label
+#
+if [ -x /usr/sbin/sysconf ] && [ `/usr/sbin/sysconf MAC` = "1" ]
+then
+    if [ ! -n "$PCP_MAC_LABEL" ]
+    then
+        if [ -f /etc/pcp.maclabel ]
+        then
+            . /etc/pcp.maclabel
+        else
+            PCP_MAC_LABEL=dbadmin
+        fi
+    fi
+
+    _label=` id -M | cut -d' ' -f3 | sed -e 's/.*(//' -e 's/)$//'`
+
+
+    if [ "$PCP_MAC_LABEL" != "$_label" ]
+    then
+        if [ "$2" == "trixbox" ]
+        then
+            echo "$0 : Failed to launch with correct label"
+            exit 1
+        fi
+
+        /sbin/suattr -M $PCP_MAC_LABEL -c "$0 $1 trixbox > /var/pcp/etc/init.d_pmie.out 2>&1"
+        /sbin/suattr -C CAP_MAC_READ+ep -c "cat /var/pcp/etc/init.d_pmie.out"
+        exit 0
+    fi
+fi
+
+# source the PCP configuration environment variables
+. /etc/pcp.env
+
+# Get the portable PCP rc script functions
+if [ -f $PCP_SHARE_DIR/lib/rc-proc.sh ] ; then
+    . $PCP_SHARE_DIR/lib/rc-proc.sh
+fi
+
+PMIE=pmie
+PMIECTRL=$PCP_VAR_DIR/config/pmie/control
+prog=$PCP_RC_DIR/`basename $0`
+MAIL=Mail
+
+tmp=/var/tmp/$$
+status=1
+trap "rm -f $tmp.* ; exit \$status" 0 1 2 3 15
+
+if [ "$PCP_PLATFORM" = "linux" ]
+then
+    ECHO=$PCP_ECHO_PROG			# Linux does not have verbose flags
+    IS_ON=is_chkconfig_on
+    RUNDIR=$PCP_LOG_DIR/pmie
+elif [ "$PCP_PLATFORM" = "darwin" ]
+then
+    # OS X has no concept of chkconfig... so it will require manual tweaking to enable this
+    IS_ON=/usr/bin/true
+else
+    IS_ON=/sbin/chkconfig
+    RUNDIR=${PCP_LOGDIR:-/var/adm/pmielog}
+    if $IS_ON verbose
+    then			# For a verbose startup and shutdown
+	ECHO=$PCP_ECHO_PROG
+    else			# For a quiet startup and shutdown
+	ECHO=:
+    fi
+
+    # life support for platforms without rc-proc.sh (e.g. IRIX)
+    if [ -z "$RC_STATUS" ]
+    then
+	RC_STATUS=_RC_STATUS
+	_RC_STATUS()
+	{
+	    _rc_status=$?
+	    if [ "$1" = "-v" ]
+	    then
+		if [ $_rc_status -eq 0 ]
+		then $ECHO
+		else
+		    $ECHO "failed (status=$_rc_status)"
+		fi
+	    fi
+	    return $_rc_status
+	}
+
+	RC_CHECKPROC=_RC_CHECKPROC
+	_RC_CHECKPROC()
+	{
+	    _b=`basename $1`
+	    _n=`_get_pids_by_name $_b | wc -l`
+	    [ $_n -eq 1 ] && return 0
+	    return 3
+	}
+    fi
+fi
+
+# determine real name for localhost
+#
+LOCALHOSTNAME=`hostname`
+if [ -z "$LOCALHOSTNAME" ] ; then
+    LOCALHOSTNAME="localhost"
+    [ -x /usr/bsd/hostname ] && LOCALHOSTNAME=`/usr/bsd/hostname`
+fi
+LOGDIR=$RUNDIR/$LOCALHOSTNAME
+
+id=`id | sed -e "s/(.*//" -e "s/.*=//"`
+if [ "$id" != 0 -a "$1" != "status" ]
+then
+    echo "$prog:"'
+Error: You must be root (uid 0) to start or stop pmie.'
+    exit
+fi
+
+_usage()
+{
+    echo "Usage: $PCP_RC_DIR/pmie {start|restart|stop|status}"
+}
+
+_reboot_setup()
+{
+    # base directories and house-keeping for pmie instances
+    #
+    if [ ! -d $PCP_TMP_DIR/pmie ]
+    then
+	mkdir -p $PCP_TMP_DIR/pmie
+    else
+	rm -rf $tmp.ent $tmp.pid
+	here=`pwd`
+	cd $PCP_TMP_DIR/pmie
+	_get_pids_by_name pmie | sort >$tmp.pid
+	ls [0-9]* 2>&1 | sed -e '/\[0-9]\*/d' \
+	    | sed -e 's/[ 	][ 	]*//g' | sort >$tmp.ent
+	# remove entries without a pmie process
+	rm -f `comm -23 $tmp.ent $tmp.pid`
+	rm -f $tmp.ent $tmp.pid
+	cd $here
+    fi
+    chmod 1777 $PCP_TMP_DIR/pmie
+
+    if [ -x /sbin/suattr ]
+    then
+    # Obtain capabilities since /var/adm is labeled dblow and owned by adm under TRIX
+        [ ! -d $LOGDIR ] && /sbin/suattr -C CAP_MAC_WRITE,CAP_DAC_WRITE+ep -c "mkdir -p $LOGDIR"
+    else
+        [ ! -d $LOGDIR ] && mkdir -p $LOGDIR
+    fi
+
+}
+
+_start_pmie()
+{
+    wait_option=''
+    [ ! -z "$PMCD_WAIT_TIMEOUT" ] && wait_option="-t $PMCD_WAIT_TIMEOUT" 
+
+    if pmcd_wait $wait_option
+    then
+	pmie_check >$tmp.pmie 2>&1
+	if [ -s $tmp.pmie ]
+	then
+	    pmpost "pmie_check start failed in $prog, mailing output to root"
+	    $MAIL -s "pmie_check start failed in $prog" root <$tmp.pmie >/dev/null 2>&1
+	fi
+	rm -f $tmp.pmie
+    else
+	status=$?
+	pmpost "pmcd_wait failed in $prog: exit status: $status" 
+	echo "pmcd_wait: exit status: $status" | $MAIL -s "pmcd_wait failed in $prog" root
+    fi
+}
+
+_stop_pmie()
+{
+    $ECHO $PCP_ECHO_N "Waiting for pmie process(es) to terminate ..." "$PCP_ECHO_C"
+
+    pmie_check -s >$tmp.pmie 2>&1
+    if [ -s $tmp.pmie ]
+    then
+	pmpost "pmie_check stop failed in $prog, mailing output to root"
+	$MAIL -s "pmie_check stop failed in $prog" root <$tmp.pmie
+    fi
+
+    true
+    $RC_STATUS -v
+    rm -fr $tmp.pmie $PCP_TMP_DIR/pmie
+}
+
+
+case "$1" in
+  'start'|'restart')
+	_get_pids_by_name "$PMIE" >$tmp.pmies 2>&1
+	[ -s $tmp.pmies ] && _stop_pmie
+
+	# messages should go to stderr, not the GUI notifiers
+	#
+	unset PCP_STDERR
+
+	_reboot_setup
+
+	if which $PMIE >/dev/null 2>&1
+	then
+	    if $IS_ON pmie
+	    then
+		[ ! -d "$RUNDIR" ] && mkdir -p "$RUNDIR"
+		cd $RUNDIR
+		if which pmie_check >/dev/null 2>&1
+		then
+		    if [ ! -f $PMIECTRL ]
+		    then
+			echo "$prog:"'
+Error: PCP inference engine control file '$PMIECTRL'
+       is missing!  Cannot start any Performance Co-Pilot inference engine(s).'
+		    else
+			$ECHO $PCP_ECHO_N "Performance Co-Pilot starting inference engine(s) ..." "$PCP_ECHO_C"
+			_start_pmie &
+			$RC_STATUS -v
+		    fi
+		elif [ $PCP_PLATFORM = "irix" ]
+		then
+		    PMIECHECK=/usr/pcp/bin/pmie_check
+		    echo "$prog:"'
+Warning: Performance Co-Pilot installation is incomplete (at least the
+	 script '$PMIECHECK' is missing) and the PCP Inference
+	 Engine(s) cannot be started.
+	 You should re-install the pcp_eoe.sw.eoe subsystem from the IRIX
+	 distribution and consult pmie_check(1), else
+		# /sbin/chkconfig pmie off'
+		fi
+	    else
+		if [ "$0" = "$PCP_RC_DIR/pmie" ]
+		then
+		    if [ "$PCP_PLATFORM" = "irix" ]
+		    then
+			echo "$prog:"'
+Warning: Performance Co-Pilot Inference Engine (pmie) is disabled.  To enable:
+	 # /sbin/chkconfig pmie on'
+		    else
+			echo "$prog: Warning: Performance Co-Pilot Inference Engine (pmie) is disabled."
+			chkconfig_on_msg pmie
+		    fi
+		fi
+	    fi
+	fi
+	status=0
+        ;;
+
+  'stop')
+	_stop_pmie
+	status=0
+        ;;
+
+  'status')
+        # NOTE: $RC_CHECKPROC returns LSB compliant status values.
+	$ECHO $PCP_ECHO_N "Checking for pmie:" "$PCP_ECHO_C"
+        if [ -r /etc/rc.status ]
+        then
+            # SuSE
+            $RC_CHECKPROC $PMIE
+            $RC_STATUS -v
+            status=$?
+        else
+            # not SuSE
+            $RC_CHECKPROC $PMIE
+            status=$?
+            if [ $status -eq 0 ]
+            then
+                $ECHO running
+            else
+                $ECHO stopped
+            fi
+        fi
+        ;;
+  *)
+	_usage
+        ;;
+esac
+

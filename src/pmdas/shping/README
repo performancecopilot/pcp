@@ -1,0 +1,91 @@
+Performance Co-Pilot shping PMDA for General Performance Monitoring
+===================================================================
+
+This PMDA is designed to be configurable to monitor elapsed time and
+CPU time (user and system) for arbitrary applications that can be run
+from the Bourne shell.  Each application is assumed to run to completion
+to probe or ping a particular service or dimension of system performance.
+
+The metrics exported from the shping PMDA may be used to quantify of
+service or service availability for both critical system services and
+tasks that well correlated to performance as perceived by end-users.
+
+The sample configuration file includes examples to "ping":
+
+    + sh(1) start up and exit
+    + a simple task, date(1)
+    + sum(1) for some simple user-mode computation
+    + compilation and execution of an antipodean variant of the
+      generic "hullo world" C program
+    + DNS (default server, trivial and error cases)
+    + yp service via ypcat(1)
+    + rpcinfo(1) for RPC registration from portmap/rpcbind
+    + mail delivery (telnet tcp port 25)
+    + Usenet news from nntp (telnet tcp port 119)
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT shping
+
+Installation of the shping PMDA
+===============================
+
+ +  # cd $PCP_PMDAS_DIR/shping
+
+ +  Check that there is no clash with the Performance Metrics Domain
+    number defined in ./domain.h and the other PMDAs currently in use
+    (see $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h and choose
+    another domain number.
+
+ +  Then run the Install script (as root)
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options.
+
+    Answer the questions, which include the option to specify new or
+    alternate commands to be run.  See $PCP_PMDAS_DIR/shping/sample.conf
+    for example specifications of commands.
+
+De-installation
+===============
+
+ +  Simply use
+
+	# cd $PCP_PMDAS_DIR/shping
+	# ./Remove
+
+Changing the settings
+=====================
+
+The cycle time and timeout period can be dynamically modified using
+pmstore(1) for the metrics shping.control.cycletime and
+shping.control.timeout respectively.
+
+To make permanent changes, re-run the Install script.
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/shping.log) should be checked for any warnings
+    or errors.
+
+ +  If the Install script reports some warnings when checking the
+    metrics, the problem should be listed in one of the log files.
+
+ +  Additional information can be logged if there appears to be
+    problems.  The PCP application debug flags will cause the PMDA to
+    report additional information in $PCP_LOG_DIR/pmcd/shping.log.  For
+    details about the agent's debug flags, use the comand
+
+	$ pminfo -T shping.control.debug

@@ -1,0 +1,752 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmda.3,v 2.14 2004/06/24 06:15:36 kenmcd Exp $
+.\" add in the -me strings for super and subscripts
+.ie n \{\
+.       ds [ \u\x'-0.25v'
+.       ds ] \d
+.       ds { \d\x'0.25v'
+.       ds } \u
+.\}
+.el \{\
+.       ds [ \v'-0.4m'\x'-0.2m'\s-3
+.       ds ] \s0\v'0.4m'
+.       ds { \v'0.4m'\x'0.2m'\s-3
+.       ds } \s0\v'-0.4m'
+.\}
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMDA 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMDA 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMDA 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMDA 3 "" "\&"
+.if \nX=3 .ds x} PMDA "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3PMDA\f1 \- introduction to the Performance Metrics Domain Agent support library
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+To assist in the development of Performance Metric Domain Agents 
+.RB ( PMDA s)
+for the Performance Co-Pilot (PCP),
+a procedural interface is provided that extends the Performance Metrics
+Application Programming Interface (
+.BR PMAPI (3)) 
+library.  These procedures are designed to enable a programmer to quickly 
+build a 
+.B PMDA
+which can then be tested and refined.  However, this also 
+implies that a 
+.B PMDA
+has a particular structure which may not be suitable for 
+all applications.
+.PP
+Once you are familiar with the PCP and
+.B PMDA
+frameworks, you can quickly implement a new 
+.B PMDA
+with only a few data structures and functions.  This is covered in far greater
+detail in the
+.IR "Performance Co-Pilot Programmer's Guide" .
+.PP
+A
+.B PMDA
+is responsible for a set of performance metrics, in the sense that it must
+respond to requests from
+.BR pmcd(1)
+for information about performance metrics, instance domains, and instantiated
+values.  The
+.BR pmcd (1)
+process generates requests on behalf of performance tools that make requests
+using 
+.BR PMAPI (3)
+routines.
+.PP
+This man page contains sections of the 
+.B simple PMDA
+which is located at
+.IR $PCP_PMDAS_DIR/simple .
+.SH COMMUNICATING WITH PMCD
+Two approaches may be used for connecting a
+.B PMDA 
+to a 
+.BR pmcd (1)
+process.  A Dynamic Shared Object (DSO) can be attached by
+.BR pmcd (1)
+using
+.BR dlopen (3)
+when the
+.BR pmcd (1)
+process is started.  A procedural interface referenced through a shared data
+structure is used to handle requests from
+.BR pmcd (1)
+to the
+.BR PMDA .
+.PP
+The preferred approach is for a separate process (daemon) to communicate with 
+.BR pmcd (1)
+using the Performance Data Units (PDU) Inter-Process Communication (IPC)
+protocol.
+.PP
+All
+.BR PMDA s
+are launched and controlled by the
+.BR pmcd (1)
+process on the local host.  The requests from the clients are received by
+.BR pmcd (1)
+and forwarded to the appropriate
+.BR PMDA s.
+Responses, when required, are returned through 
+.BR pmcd (1)
+to the clients.  The requests (PDUs) that may be sent to a
+.B PMDA
+from
+.BR pmcd (1)
+are
+.BR PDU_FETCH ,
+.BR PDU_PROFILE ,
+.BR PDU_INSTANCE_REQ ,
+.BR PDU_DESC_REQ ,
+.BR PDU_TEXT_REQ 
+and
+.BR PDU_RESULT .
+.SH DEFAULT CALLBACKS FOR HANDLING PDUs
+To allow a consistent framework,
+.BR pmdaMain (3)
+can be used by a daemon
+.B PMDA
+to handle the communication protocol using the same callbacks as a DSO
+.BR PMDA .
+The structure
+.B pmdaInterface
+is used to convey the common procedural interface and state information that is
+used by 
+.BR pmcd (1)
+and a
+.BR PMDA .
+This state information includes tables describing the supported metrics and
+instance domains.
+.PP
+As most of the
+procedural interface is identical for all 
+.BR PMDA s,
+they are provided as part of
+this support library
+.RB ( pmdaProfile (3),
+.BR pmdaFetch (3),
+.BR pmdaInstance (3),
+.BR pmdaDesc (3),
+.BR pmdaText (3)
+and
+.BR pmdaStore (3)). 
+However, these routines require access to the 
+.B pmdaInterface
+state information so it must be correctly initialized using 
+.BR pmdaConnect (3),
+.BR pmdaDaemon (3),
+.BR pmdaOpenLog (3),
+.BR pmdaDSO (3),
+.BR pmdaGetOpt (3)
+and
+.BR pmdaInit (3).
+.SH INSTANCES AND INSTANCE DOMAINS
+Three structures are declared in
+.I /usr/include/pcp/pmda.h
+which provide a framework for declaring the metrics and instances supported by
+the 
+.BR PMDA .
+.PP
+Every instance requires a unique integer identifier and a unique name, as defined by
+the structure
+.BR pmdaInstid :
+.PP
+.nf
+.ft CW
+.in +0.5i
+/*
+ * Instance description: index and name
+ */
+
+typedef struct {
+    int         i_inst;        /* internal instance identifier */
+    char        *i_name;       /* external instance identifier */
+} pmdaInstid;
+.in
+.fi
+.PP
+An instance domain requires its own unique identification
+.RB ( pmInDom ),
+the number of instances the domain represents, and a pointer to an array of
+instance descriptions.  This is defined in the structure 
+.BR pmdaIndom :
+.PP
+.nf
+.ft CW
+.in +0.5i
+/*
+ * Instance domain description: unique instance id, 
+ * number of instances in this domain, and the list of 
+ * instances (not null terminated).
+ */
+
+typedef struct {
+    pmInDom     it_indom;       /* indom, filled in */
+    int         it_numinst;     /* number of instances */
+    pmdaInstid  *it_set;        /* instance identifiers */
+} pmdaIndom;
+.in
+.fi
+.ft 1
+.PP
+The
+.B simple PMDA 
+has one instance domain for 
+.IR simple . color
+with three instances
+.RI ( red ,
+.I green 
+and
+.IR blue ),
+and a second instance domain for
+.IR simple . now
+with instances which can be specified at run-time.
+These instance domains are defined as:
+.PP
+.nf
+.ft CW
+.in +0.5i
+static pmdaInstid _color[] = {
+    { 0, "red" }, { 1, "green" }, { 2, "blue" }
+};
+static pmdaInstid *_timenow = NULL;
+
+static pmdaIndom indomtab[] = {
+#define COLOR_INDOM	0
+    { COLOR_INDOM, 3, _color },
+#define NOW_INDOM 1
+    { NOW_INDOM, 0, NULL },
+};
+.in
+.fi
+.PP
+The preprocessor macros
+.B COLOR_INDOM
+and
+.B NOW_INDOM
+are used in the metric description table to identify the instance domains of
+individual metrics.  These correspond to the
+.I serial
+value in the instance domain 
+.B pmInDom
+structure (the 
+.I domain
+field is set by
+.BR pmdaInit (3)
+at run-time).  The serial value must be unique for each instance domain
+within the
+.BR PMDA . 
+.PP
+The indom table shown above which is usually passed to 
+.BR pmdaInit (3)
+does not need to be created 
+if one wants to write one's own Fetch and Instance functions.
+See 
+.BR pmdaInit (3)
+for more details.
+.SH NAMESPACE
+Every 
+.B PMDA
+has its own unique 
+.B namespace 
+using the format defined in 
+.BR pmns (4). 
+In summary, the namespace matches the names of the metrics to the unique
+identifier.  The
+.B simple PMDA
+defines five metrics:
+.IR simple . numfetch ,
+.IR simple . color ,
+.IR simple . time . user,
+.IR simple . time . sys
+and
+.IR simple . now .
+The namespace for these metrics is defined in
+.I $PCP_PMDAS_DIR/simple/pmns
+and is installed as:
+.PP
+.nf
+.ft CW
+.in +0.5in
+simple {
+    numfetch    253:0:0
+    color       253:0:1
+    time
+    now         253:2:4
+}
+
+simple.time {
+    user        253:1:2
+    sys         253:1:3
+}
+.in
+.fi
+.PP
+The domain number of
+.I 253
+is obtained from
+.IR $PCP_VAR_DIR/pmns/stdpmid .
+New 
+.BR PMDA s
+should specify a unique domain number in this file, and obtain the
+number during installation.  This allows the domain number to change by
+modifying only the file
+.IR $PCP_VAR_DIR/pmns/stdpmid .
+.PP
+The
+.I simple.time
+and
+.I simple.now
+metrics are defined in separate clusters to the other metrics which allows a
+.B PMDA
+to support more than 1024 metrics, as well as grouping similar metrics 
+together.  Therefore, the item numbers for a new cluster may be identical to 
+the item numbers in other clusters.  The 
+.B simple PMDA 
+continues to increment the item numbers to permit direct mapping (see
+.BR pmdaInit (3)).
+.PP
+The namespace file should be installed and removed with the agent using 
+.BR pmnsadd (1)
+and
+.BR pmnsdel (1).
+See the later sections on INSTALLATION and REMOVAL.
+.PP
+A simple ASCII namespace can be constructed by creating a file similar to
+.IR $PCP_PMDAS_DIR/simple/root :
+.PP
+.nf
+.ft CW
+.in +0.5i
+/*
+ * fake "root" for validating the local PMNS subtree
+ */
+
+#include "$PCP_VAR_DIR/pmns/stdpmid"
+
+root { simple }
+
+#include "pmns"
+
+.in
+.fi
+.PP
+and can be referred to with the
+.B \-n
+option in most PCP tools.
+.SH METRIC DESCRIPTIONS
+Each metric requires a description
+.RB ( pmDesc ), 
+which contains its PMID, data type specification, instance domain, semantics 
+and units (see 
+.BR pmLookupDesc (3)).
+A handle is also provided for application specific information in the
+.B pmdaMetric
+structure:
+.PP
+.nf
+.ft CW
+.in +0.5i
+/*
+ * Metric description: handle for extending description, 
+ * and the description.
+ */
+
+typedef struct {
+    void*       m_user;         /* for users external use */
+    pmDesc      m_desc;         /* metric description */
+} pmdaMetric;
+.in
+.fi
+.PP
+The 
+.B simple PMDA
+defines the metrics as:
+.PP
+.nf
+.ft CW
+.in +0.5i
+static pmdaMetric metrictab[] = {
+/* numfetch */
+    { (void *)0, 
+      { PMDA_PMID(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+        { 0,0,0,0,0,0} }, },
+/* color */
+    { (void *)0, 
+      { PMDA_PMID(0,1), PM_TYPE_32, COLOR_INDOM, PM_SEM_INSTANT, 
+        { 0,0,0,0,0,0} }, },
+/* time.user */
+    { (void*)0,
+      { PMDA_PMID(1,2), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
+      	{ 0, 1, 0, 0, PM_TIME_SEC, 0 } }, },
+/* time.sys */
+    { (void*)0,
+      { PMDA_PMID(1,3), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
+      	{ 0, 1, 0, 0, PM_TIME_SEC, 0 } }, },
+/* now */
+    { NULL,
+      { PMDA_PMID(2,4), PM_TYPE_U32, NOW_INDOM, PM_SEM_INSTANT,
+        { 0,0,0,0,0,0 } }, },
+};
+.in
+.fi
+.PP
+The macro
+.B PMDA_PMID
+(defined in
+.IR /usr/include/pcp/pmda.h )
+is used to specify each metric's
+.I cluster
+and
+.I unit 
+number in the 
+.B __pmID_int
+structure defined in
+.IR /usr/include/pcp/impl.h .
+As with instance domains, the
+.I domain
+field is set by
+.BR pmdaInit (3)
+at run-time, however, the default domain is assumed to be defined by the
+.B PMDA 
+in the macro
+.BR MYDOMAIN .
+.PP
+The metric table shown above which is usually passed to 
+.BR pmdaInit (3)
+does not need to be created 
+if one wants to write one's own Fetch and Descriptor functions.
+See 
+.BR pmdaInit (3)
+for more details.
+.SH DSO PMDA
+A 
+.B PMDA
+that is run as a DSO is opened by 
+.BR pmcd (1)
+with
+.BR dlopen (3).
+.B pmcd
+will call the 
+.BR PMDA "'s"
+initialization function that is specified in
+.IR $PCP_PMCDCONF_PATH. 
+This function is passed a pointer to a
+.B pmdaInterface 
+structure which must be completed.  Any callbacks which are
+.I not
+the default 
+.B PMDA
+support library callbacks must be specified in the
+.B pmdaInterface
+structure. 
+.PP
+The
+.B simple PMDA 
+uses its own store and fetch callback.  
+.BR simple_fetch ()
+calls 
+.BR pmdaFetch (3)
+which requires a callback to be set with
+.BR pmdaSetFetchCallBack (3)
+as can be seen in
+.IR $PCP_PMDAS_DIR/simple/simple.c .
+.PP
+The flag
+.B _isDSO
+is used to determine if the 
+.B PMDA
+is a daemon or a DSO so that the correct initialization
+routine,
+.BR pmdaDaemon (3)
+or
+.BR pmdaDSO (3),
+is called.
+.SH DAEMON PMDA
+A 
+.B PMDA
+that is run as a daemon is forked and executed by 
+.BR pmcd (1).
+Therefore, unlike a DSO 
+.BR PMDA ,
+the starting point for a daemon 
+.B PMDA 
+is
+.BR main ().
+The agent should parse the command line arguments, create
+a log file and initialize some data structures that 
+.B pmcd
+would initialize for a DSO agent.
+.PP
+The
+.B pmdaInterface
+structure must be completely defined by the daemon
+.BR PMDA .
+The function
+.BR pmdaDaemon (3)
+can be called at the start of 
+.BR main ()
+to set most of these fields.  Command line parsing can be simplified by using
+.BR pmdaGetOpt (3),
+which is similar to 
+.BR getopt (2),
+but extracts a common set of options into the 
+.B pmdaInterface
+structure.
+.I stderr 
+can be mapped to a log file using 
+.BR pmdaOpenLog (3)
+to simplify debugging and error messages.  The connection to 
+.B pmcd
+can be made with
+.BR pmdaConnect (3)
+and the loop which handles the incoming PDUs,
+.BR pmdaMain (3),
+should be the last function called.  This can be seen in
+.IR $PCP_PMDAS_DIR/simple/simple.c .
+.PP
+The
+.BR simple_init ()
+routine is common to an agent that can be run as both a Daemon and DSO
+.BR PMDA .
+.SH HELP TEXT
+Each 
+.B PMDA
+must be able to provide 
+.B pmcd
+with the help text for each metric.  Most 
+.BR PMDA s
+use specially created files with indexes to support
+efficient retrieval of the help text.
+Tools are provided with PCP to
+create the help text files of appropriate format. See 
+.BR newhelp (1).
+.SH INSTALLATION AND REMOVAL
+A series of shell procedures are defined in 
+.I $PCP_SHARE_DIR/lib/pmdaproc.sh 
+which greatly simplify the installation and removal of a
+.BR PMDA .
+The
+.I Install
+scripts for most
+.BR PMDAs
+should only need to specify the name of the
+.B PMDA
+in
+.BR iam ,
+call
+.B _setup
+which check licenses and whether the 
+.B PMDA
+has been previously installed,
+specify the communication protocols,
+and finally call
+.BR _install .
+The 
+.I Remove
+scripts are even simpler as the communication protocols are not required.
+Further information is contained in the
+.I $PCP_SHARE_DIR/lib/pmdaproc.sh
+file.
+.SH DIAGNOSTICS
+Any 
+.B PMDA
+which uses this library can set
+.BR PMAPI (3)
+debug control variable
+.B pmDebug
+(with -D on the command line) to 
+.B DBG_TRACE_LIBPMDA
+to enable the display of debugging information which may be useful during
+development
+(see
+.BR pmdbg (1)).
+.PP
+The
+.I status 
+field of the 
+.B pmdaInterface
+structure should be zero after 
+.BR pmdaDaemon ,
+.BR pmdaDSO ,
+.BR pmdaGetOpt ,
+.BR pmdaConnect
+and
+.B pmdaInit
+are called.  A value less than zero indicates that initialization has failed.
+.PP
+Some error messages that are common to most functions in this library are:
+.TP 15
+.BI "PMDA interface version " interface " not supported"
+Most of the functions require that the
+.I comm.version
+field of the
+.B pmdaInterface
+structure be set to
+.B PMDA_INTERFACE_2
+or later.
+This implies that the 
+.I version.two
+fields are correctly initialized (see
+.BR pmdaDaemon (3)
+and
+.BR pmdaDSO (3)).
+.SH CAVEAT
+Failing to complete any of the data structures or calling any of the library
+routines out of order may cause unexpected behavior in the
+.BR PMDA .
+.PP
+Due to changes to the
+.BR PMAPI (3)
+and
+.BR PMDA (3)
+API in the PCP 2.0 release, as described in the product release notes, 
+.BR PMDA s
+built using PCP 2.0 must specify 
+.B PMDA_INTERFACE_2
+or later and link with
+.I libpcp_pmda.so.2
+and
+.IR libpcp.so.2 .
+Pre-existing Daemon PMDAs specifying 
+.B PMDA_PROTOCOL_1
+will continue to function using the backwards compatible 
+.I libpcp_pmda.so.1
+and
+.I libpcp.so.1
+libraries and may be recompiled using the headers installed in
+.I "/usr/include/pcp1.x/"
+without any modification.  These backwards compatible headers and libraries
+are contained in the
+.I pcp.sw.compat
+subsystem.
+.SH FILES
+.TP 10
+.I /usr/include/pcp/pmda.h
+Header file for the 
+.B PMDA
+support library.
+.TP
+.I /usr/lib/libpcp_pmda.so
+Dynamic library containing 
+.B PMDA 
+support library routines.
+.TP
+.I $PCP_PMDAS_DIR/trivial
+The source of the
+.BR "trivial PMDA" .
+.TP
+.I $PCP_PMDAS_DIR/simple
+The source of the
+.BR "simple PMDA" .
+.TP
+.I $PCP_PMDAS_DIR/txmon
+The source of the
+.BR "txmon PMDA" .
+.TP
+.I $PCP_PMCDCONF_PATH
+Configuration file for
+.BR pmcd (1).
+.TP
+.I $PCP_VAR_DIR/pmns
+Location of namespace descriptions for every
+.BR PMDA .
+.TP
+.I $PCP_VAR_DIR/pmns/stdpmid
+The unique domain identifiers for each
+.BR PMDA .
+.TP
+.I $PCP_SHARE_DIR/lib/pmdaproc.sh
+Shell procedures for installing and removing a
+.BR PMDA .
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+Values for these variables may be obtained programatically
+using the
+.IR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR dbpmda (1),
+.BR newhelp (1),
+.BR pmcd (1),
+.BR pmnsadd (1),
+.BR pmnsdel (1),
+.BR PMAPI (3),
+.BR pmdaConnect (3),
+.BR pmdaDaemon (3),
+.BR pmdaDesc (3),
+.BR pmdaDSO (3),
+.BR pmdaFetch (3),
+.BR pmdaGetOpt (3),
+.BR pmdaInit (3),
+.BR pmdaInstance (3),
+.BR pmdaMain (3),
+.BR pmdaOpenLog (3),
+.BR pmdaProfile (3),
+.BR pmdaStore (3),
+.BR pmdaText (3),
+.BR pmLookupDesc (3)
+and
+.BR pmns (4).
+.PP
+For a complete description of the
+.I pcp_pmda
+library and the PMDA development process, refer to the Insight book
+.IR "Performance Co-Pilot Programmer's Guide" .

@@ -1,0 +1,4 @@
+hinv {
+    ncpu	SOLARIS:0:56
+    ndisk	SOLARIS:0:57
+}

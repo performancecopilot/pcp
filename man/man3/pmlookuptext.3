@@ -1,0 +1,110 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmlookuptext.3,v 2.7 2006/06/19 09:53:58 makc Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMLOOKUPTEXT 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMLOOKUPTEXT 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMLOOKUPTEXT 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMLOOKUPTEXT 3 "" "\&"
+.if \nX=3 .ds x} PMLOOKUPTEXT "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmLookupText\f1,
+\f3pmRequestText\f1,
+\f3pmReceiveText\f1 \- return text describing a performance metric
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmLookupText(pmID pmid, int level, char **buffer)
+int pmRequestText(int ctx, pmID pmid, int level)
+int pmReceiveText(int ctx, char **buffer)
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+Provided the source of metrics from
+the current
+Performance Metrics Application Programming Interface (PMAPI)
+context is a host,
+retrieve descriptive text about the performance
+metric identified by
+.IR pmid .
+.PP
+The argument
+.I level
+should be 
+.BR PM_TEXT_ONELINE
+for a one-line summary, else
+.BR PM_TEXT_HELP
+for a more verbose description, suited to a help dialog. 
+.PP
+The space pointed to by
+.I buffer
+will have been allocated in
+.B pmLookupText
+with
+.BR malloc (3C),
+and it is the responsibility of the caller to
+.BR free (3C)
+the space when it is no longer required.
+.PP
+.B pmLookupText
+returns zero on success.
+.PP
+\f3pmRequestText\fP and \f3pmReceiveText\fP are used by applications
+which must  communicate with the PMCD asynchronously.  These functions
+take explict context handle \f2ctx\fP which must refer to a host
+context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
+\f3pmNewContext\fP). \f3pmRequestText\fP sends request to
+PMCD to provide descriptive text about a metric identified by a PMID and 
+returns without waiting for the response, \f3pmReceiveText\fP reads reply from
+PMCD. It is the responsibility of the application
+to make sure the data are ready before calling \f3pmReceiveText\f1 to
+avoid blocking.
+.PP
+\f3pmReceiveText\fP can be used to receive replies from either
+\f3pmRequestText\fP or \f3pmRequestInDomText\fP.
+.SH SEE ALSO
+.BR chkhelp (1),
+.BR newhelp (1),
+.BR PMAPI (3),
+.BR pmGetConfig (3),
+.BR pmLookupDesc (3),
+.BR pmLookupInDomText (3),
+.BR pmRequestInDomText (3),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOTHOST\f1
+if the current PMAPI context is an archive log
+(help and one-line text is not maintained in the archive logs)
+.IP \f3PM_ERR_CTXBUSY\f1
+Context is currently in use by another asynchronous call

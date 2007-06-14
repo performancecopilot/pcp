@@ -1,0 +1,73 @@
+#!gmake
+#
+# Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+# 
+# $Id: GNUmakefile,v 2.35 2005/07/10 06:57:52 kenmcd Exp $
+#
+
+TOPDIR = ../../..
+include $(TOPDIR)/src/include/builddefs
+
+IAM	= summary
+TARGETS	= $(IAM)$(EXECSUFFIX)
+
+HFILES	= summary.h
+CFILES	= summary.c pmda.c mainloop.c
+
+LSRCFILES = Install README Remove help pmns root summary.pmie Makefile.install
+LLDFLAGS= -L$(TOPDIR)/src/libpcp/src -L$(TOPDIR)/src/libpcp_pmda/src
+LLDLIBS	= -lpcp_pmda -lpcp
+LDIRT	= domain.h *.log *.dir *.pag  $(TARGETS)
+
+IAM	= summary
+PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+
+default:	$(TARGETS) 
+
+include $(TOPDIR)/src/include/buildrules
+
+install:	default
+	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
+	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 root README help pmns domain.h $(PMDADIR)
+	$(INSTALL) -m 644 Makefile.install $(PMDADIR)/Makefile
+	$(INSTALL) -m 644 summary.pmie $(PMDADIR)/expr.pmie
+
+$(IAM)$(EXECSUFFIX):	$(OBJECTS)
+
+mainloop.o summary.o pmda.o:	summary.h
+summary.o pmda.o:	domain.h
+
+domain.h:	../../pmns/stdpmid
+	rm -f $@
+	echo "/*" >$@
+	echo " * Default domain for $(IAM) PMDA." >>$@
+	echo " * Change as required, but avoid clashes (duplicate usage) with" >>$@
+	echo " * other PMDA domains in $(PCP_PMCDCONF_PATH) and" >> $@
+	echo " * $(PCP_VAR_DIR)/pmns/stdpmid" >>$@
+	echo " */" >> $@
+	grep SYSSUMMARY  $< >> $@
+
+default_%:	default
+	@true
+
+install_%:	install
+	@true

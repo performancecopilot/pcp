@@ -1,0 +1,200 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMDAGETOPT 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMDAGETOPT 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMDAGETOPT 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMDAGETOPT 3 "" "\&"
+.if \nX=3 .ds x} PMDAGETOPT "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmdaGetOpt\f1 \- get options from argument vector, trapping generic PMDA options
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+int pmdaGetOpt(int argc, char *const *argv, const char *optstring, pmdaInterface *dispatch, int *err)
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+This function is a wrapper for
+.BR getopt (3).
+The behavior of the function is identical except that certain options are
+assumed to have a predefined behavior which initializes several fields in the
+.B pmdaInterface
+structure.
+.PP
+The options that
+.B pmdaGetOpt
+will trap are:
+.TP 15
+.BI \-D trace
+Set the 
+.BR PMAPI (3)
+debug control variable
+.RB ( pmDebug )
+to 
+.IR trace . 
+Used for controlling levels of trace output while debugging.
+.TP
+.BI \-d domain
+Set the 
+.I domain
+number of this agent.
+.TP
+.BI \-h helpfile
+Obtain the help text (see
+.BR pmdaText (3))
+for the metrics from this file rather than from the path specified with
+.BR pmdaDSO (3)
+or
+.BR pmdaDaemon (3).
+.TP
+.BI \-i port
+Expect PMCD to connect on inet 
+.I port
+(number or name).
+.TP
+.BI \-l logfile
+Redirect diagnostics and trace output to 
+.IR logfile .
+.TP
+.B \-p
+Expect PMCD to supply stdin/stdout pipe.
+.TP
+.BI \-u socket
+Expect PMCD to connect on unix domain 
+.IR socket .
+.PP
+Only one of 
+.BR \-i ,
+.BR \-p 
+and
+.B \-u
+may be specified.  If none of these three options is given, a pipe 
+.RB ( \-p )
+is assumed.  When these options are encountered by
+.BR pmdaGetOpt ,
+the option is processed and the next option is examined.  Therefore,
+.B pmdaGetOpt
+will only return when an option other than those listed above is found, or the
+end of the list is reached.  The returned value will be the argument or
+EOF, respectively.
+.PP
+A PMDA can control which of these options the program will accept with the
+.I optstring
+argument.  To accept all the options, the PMDA should call 
+.B pmdaGetOpt
+with the option string "D:d:h:i:l:pu:".  Any PMDA specific options should be 
+added to this string in the style of
+.BR getopt (3), 
+and returned by
+.B pmdaGetOpt
+if encountered.  However, the PMDA cannot reuse any of the options specified
+above.
+.PP
+.B pmdaGetOpt
+takes a pointer to an int,
+.IR err ,
+which is used as an error count.  This variable should be initialized to zero
+before 
+.B pmdaGetOpt 
+is first called, and tested when
+.B pmdaGetOpt
+returns EOF.
+.PP
+.B pmdaGetOpt
+does not modify
+.I argc
+or
+.IR argv .
+.SH EXAMPLE
+A PMDA which takes the additional argument 
+.B \-n
+and does not use
+.B pmDebug 
+might call 
+.B pmdaGetOpt
+like this:
+.PP
+.nf
+.ft CW
+.in +0.5i
+    pmdaInterface dispatch;
+    int           err = 0;
+    int           c = 0;
+
+    while ((c = pmdaGetOpt(argv, argc, "d:h:i:l:pu:n:", 
+                           dispatch &err)) != EOF) {
+        /* process argument 'n', may use optarg etc. */
+    }
+
+    if (err)
+        usage(argv[0]);
+.in
+.fi
+.PP
+The global variables used by
+.B getopt (3)
+may be used by the caller of
+.B pmdaGetOpt
+within the argument parsing loop.
+.SH DIAGNOSTICS
+.B pmdaGetOpt
+will display the same error messages as 
+.BR getopt .
+.SH CAVEAT
+The options 
+.BR \-D ,
+.BR \-d ,
+.BR \-i ,
+.BR \-l ,
+.BR \-p
+and
+.B \-u
+cannot be reused for other purposes by the PMDA.
+.PP
+The PMDA must be using 
+.B PMDA_INTERFACE_2 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR pmdbg (1),
+.BR getopt (3),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3)
+and
+.BR pmdaText (3).

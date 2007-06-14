@@ -1,0 +1,32 @@
+Using the APAC management node as the pmproxy host.
+
+Testing on Sat Jul 9 2005
+
+These work correctly.
+
+    pcp -h ac1
+    pmdumptext -h ac5 kernel.all.load
+    pminfo -d -h ac8 pmcd.agent
+    pminfo -f -h ac10 hinv.ncpu
+    pmprobe -h ac3 -v disk.dev.total
+    echo "kernel.all.load;" | pmie -v -h ac2
+    echo "kernel.percpu.cpu.user :ac4;" | pmie -v
+    pmdumptext ac5:kernel.all.load
+    pmdumptext 'ac5:kernel.all.load["1 minute"]' \
+    	'ac6:kernel.all.load["1 minute"]' 'ac7:kernel.all.load["1 minute"]' \
+	'ac8:kernel.all.load["1 minute"]' 'ac9:kernel.all.load["1 minute"]' \
+	'ac10:kernel.all.load["1 minute"]'
+    dkvis -t 10 -h ac11
+    mpvis -t 10 -h ac12
+    pmkstat -h ac13
+    pmstat -h ac14
+    pmlogger -c /var/lib/pcp/config/pmlogger/config.pmstat -t 10sec -s 4 \
+	-h ac15 /tmp/eek
+    pmstat -a /tmp/eek
+    pmgsys -cpudelta 10 -t 10 -h ac16
+
+Problems
+    pmchart -h ac5
+	dumps core in pmGetPMNSLocation() calling __pmNotifyErr()
+	... sprintf arg mismatch, but pmchart links libpcp statically
+	and I cannot rebuild pmchart at the moment

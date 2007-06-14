@@ -1,0 +1,289 @@
+'\"macro stdmacro
+.\" $Id: pmloop.3,v 1.1 2006/06/19 09:53:58 makc Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMLOOP 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMLOOP 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMLOOP 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMLOOP 3 "" "\&"
+.if \nX=3 .ds x} PMLOOP "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmLoopRegisterChild\f1,
+\f3pmLoopRegisterIdle\f1,
+\f3pmLoopRegisterInput\f1,
+\f3pmLoopRegisterSignal\f1,
+\f3pmLoopRegisterTimeout\f1,
+\f3pmLoopUnregisterChild\f1,
+\f3pmLoopUnregisterIdle\f1,
+\f3pmLoopUnregisterInput\f1,
+\f3pmLoopUnregisterSignal\f1,
+\f3pmLoopUnregisterTimeout\f1,
+\f3pmLoopStop\f1,
+\f3pmLoopMain\f1 \- PMAPI functions for implementing application main loop
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmLoopRegisterChild(pid_t pid,
+    int (*callback)(pid_t pid, int status, const struct rusage *rusage, void *closure),
+    void *closure);
+int pmLoopRegisterIdle(
+    int (*callback)(void *closure),
+    void *closure);
+int pmLoopRegisterInput(int fd, int flags,
+    int (*callback)(int fd, int flags, void *closure),
+    void *closure, int priority);
+int pmLoopRegisterSignal(int sig,
+    int (*callback)(int sig, void *closure),
+    void *closure);
+int pmLoopRegisterTimeout(int delay_msec,
+    int (*callback)(void *closure),
+    void *closure);
+
+int pmLoopUnregisterChild(int tag);
+int pmLoopUnregisterIdle(int tag);
+int pmLoopUnregisterInput(int tag);
+int pmLoopUnregisterSignal(int tag);
+int pmLoopUnregisterTimeout(int tag);
+
+void pmLoopStop(void);
+void pmLoopMain(void);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.P
+These functions implement a generic UNIX main \f3poll\fP(2) loop which 
+can be found at the heart of many UNIX daemon processes and a number
+of the associated features which the UNIX process model requires
+the same code to handle, for example timers and safe delivery of
+signals.  Inspiration for this module came from (in chronological order)
+the SunView notifier library, the X Intrinsics Toolkit main loop,
+and the GTK+/libglib main loop feature.
+.P
+The module supports the following features:
+.IP *
+callback to application code from main loop when
+input or output is possible on a file descriptor
+.IP *
+callback when a (catchable) signal is delivered
+.IP *
+callback on a timeout, including recurring timeouts
+.IP *
+callback when a child process has died (or its status
+is otherwise notified via \f3wait3\fP(2)).
+.IP *
+callback when the main loop is idle
+.IP *
+all callbacks occur at safe times, e.g. signal callback
+occurs when main loop is idle and not partway through
+another callback.
+.IP *
+a callback is automatically unregisted if the callback's function returns 
+non-zero value.
+.IP *
+application code can call a subsidiary main loop, to
+handle and dispatch all registered callbacks for
+some time without returning to the main loop.
+.PP
+.ft 3
+.nf
+int pmLoopRegisterInput(int fd, int flags,
+	int (*callback)(int fd, int flags, void *closure),
+	void *closure, int priority);
+.fi
+.ft 1
+.IP
+Register \f2callback\fP to be called when input or output becomes
+possible on file descriptor \f2fd\fP.  The \f2flags\fP are a bitmask of
+\f3poll\fP(2) flags, e.g. POLLIN will cause the callback to be called
+when input is available on the file descriptor and POLLOUT is
+for when output becomes possible.  The \f2closure\fP pointer is
+not interpreted in any way, but is passed to the callback; the
+application may use this to pass around a pointer to any data
+it needs.  \f2Priority\fP may be used to force the order of dispatch
+of callbacks when multiple file descriptors become available
+at the same time; callbacks are dispatched in increasing order
+of their priority number.  The return value is a tag which is
+unique amongst all registered callbacks (e.g. registering the
+same callback twice gives two different tags) and which can be
+used to remove the callback using \f3pmLoopUnregisterInput\fP().
+.PP
+.ft 3
+.nf
+void pmLoopUnregisterInput(int tag);
+.fi
+.ft 1
+.IP
+Unregisters a file descriptor input callback previously registered
+with \f3pmLoopRegisterInput\fP().  This can safely be called from within
+the callback being deregistered.
+.PP
+.ft 3
+.nf
+int pmLoopRegisterSignal(int sig,
+    int (*callback)(int sig, void *closure),
+    void *closure);
+.fi
+.ft 1
+.IP
+Register \f2callback\fP to be called when signal \f2sig\fP is
+delivered to the process.  Some signals cannot be caught,
+see the \f3signal\fP(7) manpage for details.  Catching SIGCHLD is
+not recommended, see \f3pmLoopRegisterChild\fP() for a better way to
+detect child process status changes.  The \f2closure\fP pointer is
+not interpreted in any way, but is passed to the callback; the
+application may use this to pass around a pointer to any data
+it needs.  The return value is a tag which is unique amongst
+all registered callbacks (e.g. registering the same callback
+twice gives two different tags) and which can be used to remove
+the callback using \f3pmLoopUnregisterSignal\fP().  Once registered,
+a callback stays registered unless explicitly unregistered with
+\f3pmLoopUnregisterSignal\fP(), and does not need to be re-registered
+after a signal is delivered.  Note that two or more callbacks
+can be registered for the same signal; they are dispatched in
+the reverse of the order in which they were registered.
+.PP
+.ft 3
+.nf
+void pmLoopUnregisterSignal(int tag);
+.fi
+.ft 1
+.IP
+Unregisters a signal callback previously registered with
+\f3pmLoopRegisterSignal\fP().  This can safely be called from within
+the callback being deregistered.
+.PP
+.ft 3
+.nf
+int pmLoopRegisterTimeout(int delay_msec,
+    int (*callback)(void *closure),
+    void *closure);
+.fi
+.ft 1
+.IP
+Register \f2callback\fP to be called after \f2delay_msec\fP milliseconds
+have elapsed.  If \f2delay\fP is 0, the callback is called immediately.
+The \f2closure\fP pointer is not interpreted in any way, but is passed
+to the callback; the application may use this to pass around a pointer
+to any data it needs.  The return value is a tag which is unique amongst
+all registered callbacks (e.g. registering the same callback twice gives
+two different tags) and which can be used to remove the callback using
+\f3pmLoopUnregisterTimeout\fP().  Once registered, a callback stays registered
+until it is either explictly unregisterd or the callback function returns
+non-zero value.
+.PP
+.ft 3
+.nf
+void pmLoopUnregisterTimeout(int tag);
+.fi
+.ft 1
+.IP
+Unregisters a timeout callback previously registered with
+\f3pmLoopRegisterTimeout\fP().  This can safely be called from within
+the callback being deregistered.
+.PP
+.ft 3
+.nf
+int pmLoopRegisterChild(pid_t pid,
+    int (*callback)(pid_t pid, int status, const struct rusage *rusage, void * closure),
+    void *closure);
+.fi
+.ft 1
+.IP
+Register \f2callback\fP to be called when the child process \f2pid\fP
+changes status in a way which triggers a \f3wait3\fP(2) notification.
+Normally, this means the process has called exit() or died in
+some other manner, but see the \f3wait3\fP(2) manpage.  Waiting on a
+process group (e.g. by passing a negative pid) is not supported.
+All descendant processes started by the process will be reaped by
+the module, regardless of whether a child process callback
+has been registered for them or not.  The \f2status\fP and \f2rusage\fP
+argument to the callback are from the \f3wait3\fP(2) system call, see
+the \f3wait3\fP(2) manpage for how to use the macros WIFSTOPPED() et al
+to interpret these.  The \f2closure\fP pointer is not interpreted
+in any way, but is passed to the callback; the application
+may use this to pass around a pointer to any data it needs.
+The return value is a tag which is unique amongst all registered
+callbacks (e.g. registering the same callback twice gives two
+different tags) and which can be used to remove the callback
+using \f3pmLoopUnregisterChild\fP().  Once registered, a callback is
+automatically unregistered if \f2status\fP indicates that the process
+has died (this is the usual case), otherwise it stays registered.
+.PP
+.ft 3
+.nf
+void pmLoopUnregisterChild(int tag);
+.fi
+.ft 1
+.IP
+Unregisters a child process callback previously registered with
+\f3pmLoopRegisterChild\fP().  This can safely be called from within
+the callback being deregistered.
+.PP
+.ft 3
+.nf
+int pmLoopRegisterIdle(
+    int (*callback)(void *closure),
+    void *closure);
+.fi
+.ft 1
+.IP
+Register \f2callback\fP to be called whenever the loop module is idle,
+i.e. no other callbacks are pending.  This is useful for doing
+background processing while still responding to other events.
+Note that the callback function can be called many thousands
+of times per second, so this feature should be used with care.
+The \f2closure\fP pointer is not interpreted in any way, but is passed
+to the callback; the application may use this to pass around a
+pointer to any data it needs.  The return value is a tag which
+is unique amongst all registered callbacks (e.g. registering
+the same callback twice gives two different tags) and which can
+be used to remove the callback using \f3pmLoopUnregisterIdle\fP().
+Once registered, a callback stays registered.
+.PP
+.ft 3
+.nf
+void pmLoopUnregisterIdle(int tag);
+.fi
+.ft 1
+.IP
+Unregisters a child process callback previously registered with
+\f3pmLoopRegisterIdle\fP().  This can safely be called from within
+the callback being deregistered.
+.PP
+.ft 3
+.nf
+void pmLoopMain(void);
+.fi
+.ft 1
+.IP
+This function starts the main loop of an application.  It handles
+various UNIX events and dispatches registered callbacks, not
+returning until \f3pmLoopStop\fP() is called.
+.IP
+Note that \f3pmLoopMain\fP() may be called in an callback, which
+has the effect of running a subsidiary loop, i.e. loop for a
+while handling events and dispatching callbacks as the main
+loop would do, but without returning control to the main loop.
+Such subsidiary loops can be nested.
+.PP
+.ft 3
+.nf
+void pmLoopStop(void);
+.fi
+.ft 1
+.IP
+Causes the innermost \f3pmLoopMain\fP() to return when it is next idle,
+i.e. as soon as the current callback has returned.
+.SH SEE ALSO
+.BR poll (2),
+.BR wait3 (2),
+.BR signal (7)

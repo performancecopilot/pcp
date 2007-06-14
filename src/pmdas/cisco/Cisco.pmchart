@@ -1,0 +1,11 @@
+#pmchart
+Version 1.2 host dynamic
+
+Chart Style plot
+	Plot Color #-cycle Host * Metric cisco.rate_in
+
+Chart Style plot
+	Plot Color #-cycle Host * Metric cisco.rate_out
+
+#
+# Created Mon Sep  1 11:34:14 1997

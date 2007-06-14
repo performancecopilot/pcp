@@ -1,0 +1,5 @@
+hinv {
+    physmem		WINDOWS:0:106
+    ncpu		WINDOWS:0:107
+    ndisk		WINDOWS:0:108
+}

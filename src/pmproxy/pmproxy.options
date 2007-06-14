@@ -1,0 +1,29 @@
+# $Id: pmproxy.options,v 1.2 2005/07/10 05:45:35 kenmcd Exp $
+# command-line options and environment variables for pmproxy
+# uncomment/edit lines as required
+
+# run in the foreground
+# -f
+
+# restrict PCP monitoring client connections to these interfaces
+# -i gateway-public-0.foo.bar.com
+# -i gateway-public-1.foo.bar.com
+
+# make log go someplace else
+# -l /some/place/else
+
+# restricting incomming PDU size to prevent DOS attacks
+# -L 16384 
+
+# emergency messages before logfile created
+# -x /tmp/desperate.log
+
+# setting of environment variables for pmproxy
+
+# port for incomining connections from PCP monitoring clients
+# PMPROXY_PORT=44322
+
+# timeouts for interactions with pmcd on behalf of clients
+# PMCD_CONNECT_TIMEOUT=10
+# PMCD_RECONNECT_TIMEOUT=10,20,30
+# PMCD_REQUEST_TIMEOUT=10

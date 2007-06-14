@@ -1,0 +1,238 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMDAFETCH 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMDAFETCH 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMDAFETCH 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMDAFETCH 3 "" "\&"
+.if \nX=3 .ds x} PMDAFETCH "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmdaFetch\f1,
+\f3pmdaSetFetchCallBack\f1 \- fill a pmResult structure with the requested metric values
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+int pmdaFetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda);
+.sp
+void pmdaSetFetchCallBack(pmdaInterface *dispatch, pmdaFetchCallBack callback);
+.sp
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmdaFetch
+is a generic callback used by a 
+.BR PMDA (3)
+to process a fetch request from
+.BR pmcd (1).
+The request from
+.B pmcd
+is initiated by a client calling
+.BR pmFetch (3).
+.PP
+This is the only generic callback (see
+.BR PMDA (3))
+that is incomplete, requiring
+a callback of it's own.  The additional callback should be registered using
+.BR pmdaSetFetchCallBack.
+.PP
+.B pmdaFetch
+will allocate and resize the
+.I resp
+result structure, to store values for the
+.I numpmid 
+metrics listed in
+.IR pmidlist .
+.PP
+For each instance listed in the profile (see
+.BR pmdaProfile (3))
+of each metric listed in 
+.IR pmidlist ,
+the registered callback is required to fill a 
+.B pmAtomValue
+structure with the metric's value.  This value is then copied into the
+.B pmResult
+structure.
+.PP
+For example, a PMDA has two metrics (A and B) and an instance domain (X) with
+two instances (X1 and X2).  The instance domain and metrics description tables
+(see 
+.BR pmdaInit (3))
+could be defined as:
+.PP
+.nf
+.ft CW
+.in +0.5i
+static pmdaInstid _X[] = {
+    { 0, "X1" }, { 1, "X2" }
+};
+
+static pmdaIndom indomtab[] = {
+#define X_INDOM	0
+    { 0, 2, _X },
+};
+
+static pmdaMetric metrictab[] = {
+/* A */
+    { (void *)0, 
+      { PMDA_PMID(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+        { 0,0,0,0,0,0} }, },
+/* B */
+    { (void *)0, 
+      { PMDA_PMID(0,1), PM_TYPE_DOUBLE, X_INDOM, PM_SEM_INSTANT, 
+        { 0,1,0,0,PM_TIME_SEC,0} }, },
+};
+.in
+.fi
+.PP
+A callback for
+.B pmdaFetch
+could be defined as:
+.PP
+.nf
+.ft CW
+.in +0.5i
+static int
+myFetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmdaAtomValue *atom)
+{
+    __pmID_int    *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+
+    switch (idp->item) {
+        case 0:
+            atom->l = /* assign some value for metric A */;
+            break;
+        case 1:
+            switch (inst) {
+                case 0:
+                    atom->d = /* assign a value for metric B, instance X1 */;
+                    break;
+                case 1:
+                    atom->d = /* assign a value for metric B, instance X2 */;
+                    break;
+                default:
+                    return PM_ERR_INST;
+            }
+        default:
+            return PM_ERR_PMID;
+    }
+    return 1;
+}
+.in
+.fi
+.PP
+The metric description
+.I mdesc
+and the instance identifier
+.I inst
+are used to determine which metric and instance is required.  The callback
+should return
+.B 1
+on success, 
+.B 0 
+if the metric value is not currently available, or if
+the PMID or the instance are not supported then
+.B PM_ERR_PMID
+or
+.B PM_ERR_INST
+should be returned, respectively.
+.SH DIAGNOSTICS
+The following error messages indicate that there is discrepancy between the
+namespace, 
+.B pmdaMetric
+and
+.B pmdaIndom
+tables passed to
+.BR pmdaInit (3),
+and the registered fetch callback:
+.TP 15
+.BI "pmdaFetch: Requested metric " metric " is not defined"
+A requested metric
+.I metric
+is not listed in the 
+.B pmdaMetric
+table.  The namespace for this 
+.BR PMDA (3)
+may contain additional metrics.
+.TP
+.BI "pmdaFetch: PMID " pmid " not handled by fetch callback"
+The fetch callback has returned
+.BR PM_ERR_PMID .
+This indicates that a metric may be listed in the
+.B pmdaMetric
+table, but is not supported by the callback.
+.TP
+.BI "pmdaFetch: Instance " inst " of PMID " pmid " not handled by fetch callback"
+The fetch callback has returned
+.BR PM_ERR_INST .
+This indicates that an instance of metric is listed in the
+.B pmdaIndom
+table, but is not supported by the callback.
+.TP
+.B pmdaFetch: Fetch callback error:
+The fetch callback returned a result other than 
+.BR 0 ,
+.B PM_ERR_PMID
+or
+.BR PM_ERR_INST .
+.TP
+.BI "pmdaFetch: Descriptor type (" type ") for metric " pmid " is bad"
+The data type 
+.I type
+specified for the metric
+.I pmid
+in the
+.B pmdaMetric
+table is illegal.
+.PP
+.B pmdaFetch
+will return
+.B \-errno
+if an error occurred while allocating the
+.B pmResult
+structure or copying the value from the
+.BR pmAtomValue .
+.SH CAVEAT
+The PMDA must be using 
+.B PMDA_INTERFACE_2 
+or later, as specified in the call to 
+.BR pmdaDSO (3)
+or 
+.BR pmdaDaemon (3).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3),
+.BR pmdaDSO (3),
+.BR pmdaInit (3)
+and
+.BR pmFetch (3).

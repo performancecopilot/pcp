@@ -1,0 +1,10 @@
+#pmchart
+Version 2.0 host dynamic
+
+Chart Style plot
+	Plot Color #137bfe Host * Metric sendmail.total.bytes_from
+	Plot Color #fefa1a Host * Metric sendmail.total.bytes_to
+Chart Style plot
+	Plot Color #1e1cfe Host * Metric sendmail.total.msgs_from
+	Plot Color #fe9913 Host * Metric sendmail.total.msgs_to
+

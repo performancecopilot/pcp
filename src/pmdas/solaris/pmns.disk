@@ -1,0 +1,22 @@
+disk {
+	all
+	dev
+}
+
+disk.all {
+    read		SOLARIS:0:44
+    write		SOLARIS:0:45
+    total		SOLARIS:0:46
+    read_bytes		SOLARIS:0:47
+    write_bytes		SOLARIS:0:48
+    total_bytes		SOLARIS:0:49
+}
+
+disk.dev {
+    read		SOLARIS:0:50
+    write		SOLARIS:0:51
+    total		SOLARIS:0:52
+    read_bytes		SOLARIS:0:53
+    write_bytes		SOLARIS:0:54
+    total_bytes		SOLARIS:0:55
+}

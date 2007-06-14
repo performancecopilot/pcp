@@ -1,0 +1,70 @@
+// Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+// 
+// This program is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the
+// Free Software Foundation; either version 2 of the License, or (at your
+// option) any later version.
+// 
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+// or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+// for more details.
+// 
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// 
+// Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+// Mountain View, CA 94043, USA, or: http://www.sgi.com
+//
+// perverse example to show all possible choices of units for numeric
+// constants
+//
+mem.freemem > 1 byte;
+mem.freemem > 1 Kbyte; 
+mem.freemem > 1 Mbyte;
+mem.freemem > 1 Gbyte;
+mem.freemem > 1 Tbyte;
+
+disk.dev.blktotal > 1 Mbyte / nsec;
+disk.dev.blktotal > 1 Mbyte / nanosecond;
+disk.dev.blktotal > 1 Mbyte / usec;
+disk.dev.blktotal > 1 Mbyte / microsecond;
+disk.dev.blktotal > 1 Mbyte / msec;
+disk.dev.blktotal > 1 Mbyte / millisecond;
+disk.dev.blktotal > 1 Mbyte / sec;
+disk.dev.blktotal > 1 Mbyte / second;
+disk.dev.blktotal > 1 Mbyte / min;
+disk.dev.blktotal > 1 Mbyte / minute;
+disk.dev.blktotal > 1 Mbyte / hour;
+
+hinv.ncpu > 1 count;
+hinv.ncpu > 1 Kcount;
+hinv.ncpu > 1 count;
+hinv.ncpu > 1 Gcount;
+hinv.ncpu > 1 Tcount;
+
+mem.freemem > 1 bytes;
+mem.freemem > 1 Kbytes; 
+mem.freemem > 1 Mbytes;
+mem.freemem > 1 Gbytes;
+mem.freemem > 1 Tbytes;
+
+disk.dev.blktotal > 1 Mbyte / nsecs;
+disk.dev.blktotal > 1 Mbyte / nanoseconds;
+disk.dev.blktotal > 1 Mbyte / usecs;
+disk.dev.blktotal > 1 Mbyte / microseconds;
+disk.dev.blktotal > 1 Mbyte / msecs;
+disk.dev.blktotal > 1 Mbyte / milliseconds;
+disk.dev.blktotal > 1 Mbyte / secs;
+disk.dev.blktotal > 1 Mbyte / seconds;
+disk.dev.blktotal > 1 Mbyte / mins;
+disk.dev.blktotal > 1 Mbyte / minutes;
+disk.dev.blktotal > 1 Mbyte / hours;
+
+hinv.ncpu > 1 counts;
+hinv.ncpu > 1 Kcounts;
+hinv.ncpu > 1 counts;
+hinv.ncpu > 1 Gcounts;
+hinv.ncpu > 1 Tcounts;
+

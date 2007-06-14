@@ -1,0 +1,264 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmkstat.1,v 2.21 2002/11/12 23:30:09 kenmcd Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMKSTAT 1 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMKSTAT 1 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMKSTAT 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMKSTAT 1 "" "\&"
+.if \nX=3 .ds x} PMKSTAT "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmkstat\f1 \- high-level system performance overview
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3pmkstat\f1
+[\f3\-A\f1 \f2align\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-d\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-L\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-O\f1 \f2offset\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+[\f3\-z\f1]
+.SH DESCRIPTION
+.B pmkstat
+provides a one line summary of system performance every
+.I interval
+unit of time (the default is 5 seconds).
+.B pmkstat
+is intended to monitor system performance at the highest level,
+after which other tools may be used to examine subsystems in which
+potential performance problems may be observed in greater detail.
+.P
+The
+.B \-t
+option may be used to change the default reporting
+.IR interval .
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied
+units in this case are seconds).
+.PP
+By default,
+.B pmkstat
+fetches metrics by connecting to the Performance Metrics Collector
+Daemon (PMCD) on the local host.  If the
+.B \-L
+option is specified, then
+.BR pmcd (1)
+is bypassed and root privileges are required
+to retrieve the required metrics directly.
+In this case, metrics are fetched from the local host
+using the standalone
+.B PM_CONTEXT_LOCAL
+variant of
+.BR pmNewContext (3).
+When the
+.B \-h
+option is specified,
+.B pmkstat
+connects to the
+.BR pmcd (1)
+on
+.I host
+and fetches metrics from there.
+.PP
+Alternatively, if the
+.B \-a
+option is used, the metrics are retrieved from the Performance Co-Pilot
+archive log files identified by the base name
+.IR archive .
+.PP
+Standalone mode can only connect to the local host, using an archive implies
+a host name, and nominating a host precludes using an archive, so the options
+.BR \-L ,
+.B \-a 
+and
+.B \-h
+are mutually exclusive.
+.PP
+Normally
+.B pmkstat
+operates on the default Performance Metrics Name Space (PMNS), however
+if the
+.B \-n
+option is specified an alternative namespace is loaded
+from the file
+.IR pmnsfile .
+.PP
+If the
+.B \-s
+the option is specified, 
+.I samples
+defines the number of samples to be retrieved and reported.
+If
+.I samples
+is 0 or
+.B \-s
+is not specified, 
+.B pmkstat
+will sample and report continuously \- this is the default behavior.
+.PP
+The
+.BR \-S ,
+.BR \-T ,
+.BR \-O
+and
+.B \-A
+options may be used to define a time window to restrict the
+samples retrieved, set an initial origin within the time window,
+or specify a ``natural'' alignment of the sample times; refer to
+.BR PCPIntro (1)
+for a complete description of these options.
+.P
+Also when using archives, the
+.B \-d
+option requests that the prevailing real-time delay be applied between
+samples (see
+.BR \-t )
+to effect a pause,
+rather than the default behavior of replaying at full speed.
+.PP
+The output from
+.B pmkstat
+is directed to standard output, and the columns
+in the report are interpreted as follows:
+.PP
+.TP 10
+.B runq
+Average number of runnable processes in main memory (\f3run\fP)
+and in swap memory (\f3swp\fP) during the interval.
+.TP
+.B memory
+The \f3free\fP column indicates average free memory during the interval,
+in Kbytes.
+The \f3page\fP column is the average number of page out operations
+per second during the interval.
+I/Os caused by these page out operations are included in the write I/O rate
+(see \f3disks\fP, below).
+.TP
+.B system
+System call rate (\f3scall\fP),
+context switch rate (\f3ctxsw\fP)
+and interrupt rate (\f3intr\fP).
+Rates are expressed as average operations per second during the interval.
+.TP
+.B disks
+Aggregated physical read (\f3rd\fP) and write (\f3wr\fP) rates
+over all disks,
+expressed as physical I/Os issued per second during the interval.
+.TP
+.B cpu
+Percentage of CPU time spent executing user code (\f3usr\fP),
+system and interrupt code (\f3sys\fP), idle loop (\f3idl\fP)
+and idle waiting for resources, typically disk I/O (\f3wt\fP).
+.IP
+The meanings of \f3idl\f1 and \f3wt\f1 changed in the IRIX 6.5.13 release.
+For details, see the \f3-U\f1 section of the
+\f3sar\f1(1)
+man page.
+.PP
+If any values for the associated performance metrics are unavailable,
+the value appears as ``?'' in the output.
+.PP
+By default,
+.B pmkstat
+reports the time of day according to the local timezone on the
+system where
+.B pmkstat
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (5).
+The
+.B \-z
+option changes the timezone to the local timezone at the
+host that is the source of the performance metrics, as identified via
+either the
+.B \-h
+or
+.B \-a
+options.
+.SH NOTES
+The interrupt (\f3intr\fP) rate includes the
+high frequency clock (and possibly some video-related and/or audio-related
+interrupts),
+and differs widely, even on idle systems, depending upon the
+hardware configuration.
+A more useful measure would be the delta above the quiescent
+interrupt rate on
+an idle system, but we have no way of measuring this.
+.SH FILES
+.PD 0
+.TP 10
+.BI $PCP_VAR_DIR/pmns/ *
+default PMNS specification files
+.TP
+.BI $PCP_VAR_DIR/config/pmlogger/config.pmkstat
+.BR pmlogger (1)
+configuration for creating an archive suitable for replay with
+.B pmkstat
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmchart (1),
+.BR pmclient (1),
+.BR PMAPI (3),
+.BR pmNewContext (3),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).
+.SH DIAGNOSTICS
+All are generated on standard error, and are intended to be self-explanatory.

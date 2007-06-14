@@ -1,0 +1,776 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMLOGGER 1 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMLOGGER 1 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMLOGGER 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMLOGGER 1 "" "\&"
+.if \nX=3 .ds x} PMLOGGER "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmlogger\f1 \- create archive log for performance metrics
+.SH SYNOPSIS
+\f3$PCP_BINADM_DIR/pmlogger\f1
+[\f3\-c\f1 \f2configfile\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-L\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-P\f1]
+[\f3\-r\f1]
+[\f3\-s\f1 \f2endsize\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-u\f1]
+[\f3\-v\f1 \f2volsize\f1]
+[\f3\-V\f1 \f2version\f1]
+[\f3\-x\f1 \f2fd\f1]
+\f2archive\f1
+.SH DESCRIPTION
+.B pmlogger
+creates the archive logs of performance metric values
+that may be ``played back'' by other Performance Co-Pilot (see
+.BR PCPIntro (1))
+tools.  These logs form the basis of the VCR paradigm and retrospective
+performance analysis services common to the PCP toolkit.
+.PP
+The mandatory argument
+.I archive
+is the base name for the physical files that constitute
+an archive log.
+.PP
+The 
+.B \-V
+option specifies whether a version 1 or version 2 archive is generated.
+A version 2 archive also stores the associated Performance Metrics 
+Name Space (PMNS). By default a version 2 archive is generated.
+.PP
+Unless directed to another host by the
+.B \-h
+option,
+.B pmlogger
+will contact the Performance Metrics Collector Daemon
+(PMCD) on the local host and use that as the source of the metric
+values to be logged.
+.PP
+To support the required flexibility and control over what is logged and 
+when,
+.B pmlogger
+maintains an independent two level logging state for each instance 
+of each performance metric.
+At the first (mandatory) level, logging is 
+allowed to be
+.B on
+(with an associated interval between samples), or
+.B off
+or
+.BR maybe .
+In the latter case, the second (advisory) level logging is allowed 
+to be
+.B on
+(with an associated interval between samples), or
+.BR off .
+.PP
+The 
+mandatory level allows universal specification that some metrics must be 
+logged, or must
+.B not
+be logged.  The default state for all instances of all metrics when 
+.B pmlogger
+starts is mandatory maybe and advisory off.
+.PP
+Use
+.BR pmlc (1)
+to interrogate and change the logging state once
+.B pmlogger
+is running.
+.PP
+If a metric's state is mandatory (on or off) and a request is made to change it
+to mandatory maybe, the new state is mandatory maybe and advisory off.  If a
+metric's state is already advisory (on or off) and a request is made to change
+it to mandatory maybe, the current state is retained.
+.PP
+It is not possible for
+.B pmlogger
+to log specific instances of a metric and all instances of the same metric
+concurrently.  If specific instances are being logged and a request to log all
+instances is made, then all instances of the metric will be logged according to
+the new request, superseding any prior logging request for the metric.  A
+request to log all instances of a metric will supersede any previous request to
+log all instances.  A request to log specific instances of a metric when all
+instances are already being logged is refused.  To do this one must turn off
+logging for all instances of the metric first.  In each case, the validity of
+the request is checked first; for example a request to change a metric's
+logging state to advisory on when it is currently mandatory off is never
+permitted (it is necessary to change the state to mandatory maybe first).
+.PP
+Optionally, each system running
+.BR pmcd (1)
+may also be configured to run a ``primary''
+.B pmlogger
+instance.
+Like
+.BR pmcd (1),
+this
+.B pmlogger
+instance is launched by 
+.BR $PCP_RC_DIR/pcp ,
+and is affected by the files
+.I /etc/config/pmlogger
+(use
+.BR chkconfig (1M)
+to activate or disable the primary
+.B pmlogger 
+instance),
+.I /etc/config/pmlogger.options
+(command line options passed to the primary
+.BR pmlogger )
+and
+.I $PCP_VAR_DIR/config/pmlogger/config.default
+(the default initial configuration file for the primary
+.BR pmlogger ).
+.PP
+The primary
+.B pmlogger
+instance is identified by the
+.B \-P
+option.  There may be at most one ``primary''
+.B pmlogger
+instance on each system with an active
+.BR pmcd (1).
+The primary
+.B pmlogger
+instance (if any)
+must be running on the same host as the
+.BR pmcd (1)
+to which it connects, so the
+.B \-h
+and
+.B \-P
+options are mutually exclusive.
+.PP
+When launched as a non-primary instance,
+.B pmlogger
+will exit immediately if the configuration
+file causes no metric logging to be scheduled.  The
+.B \-L
+option overrides this behavior, and causes a non-primary
+.B pmlogger
+instance to ``linger'', presumably pending some future
+dynamic re-configuration and state change via
+.BR pmlc (1).
+.B pmlogger
+will also linger without the 
+.B \-L
+option being used if all the metrics to be logged are logged
+as once only metrics. When the once only metrics have been
+logged, a warning message will be generated stating
+that the event queue is empty and no more events will be scheduled.
+.PP
+By default all diagnostics and errors from
+.B pmlogger
+are written to the file
+.I pmlogger.log
+in the directory where
+.B pmlogger
+is launched.
+The
+.B \-l
+option may be used to override the default behavior.
+If the log file cannot be created or is not writable, output is
+written to standard error instead.
+.PP
+If specified, the
+.B \-s
+option instructs
+.B pmlogger
+to terminate after a certain size in records, bytes or time units
+has been accumulated. 
+If 
+.IR endsize
+is an integer then
+.IR endsize
+records will be written to the log.
+If 
+.IR endsize
+is suffixed by  
+.B b 
+or
+.B bytes
+then 
+.IR endsize
+bytes of the archive data will be written out
+(note, however, that archive log record boundaries will not be broken and
+so this limit may be slightly surpassed).
+Other viable file size units include:
+.BR K ,
+.BR Kb ,
+.BR Kilobyte
+for kilobytes and
+.BR M ,
+.BR Mb ,
+.BR Megabyte
+for megabytes.
+These units may be optionally suffixed by an 
+.B s 
+and may be of mixed case.
+Alternatively
+.IR endsize
+may be suffixed using a time unit
+as described in
+.BR PCPIntro (1) 
+for the
+.I interval
+argument (to the standard PCP tool option
+.BR \-t ).
+.nf
+Some examples of different formats:
+.in 1i
+.B \-s 100 
+.B \-s 100bytes
+.B \-s 100K 
+.B \-s 100Mb
+.B \-s 10mins
+.B \-s 10hours
+.in
+.fi
+The default is for
+.B pmlogger
+to run forever.
+.PP
+The
+.B \-r
+option causes the size of the physical record(s) for each
+group of metrics and the expected contribution of
+the group to the size of the PCP archive for one full day
+of collection to be reported in the log file.  This
+information is reported
+the first time each group is successfully written
+to the archive.
+.PP
+The log file is potentially a multi-volume data set, and the
+.B \-v
+option causes
+.B pmlogger
+to start a new volume after a certain size in records, bytes,
+or time units has been accumulated for the current volume.
+The format of this size specification is identical to that
+of the
+.B \-s
+option (see above).
+The default is for
+.B pmlogger
+to create a single volume log.
+Additional volume switches can also be forced asynchronously by
+either using
+.BR pmlc (1)
+or sending
+.B pmlogger
+a SIGHUP signal (see below). Note, if a scheduled volume
+switch is in operation due to the 
+.B \-v
+option, then its counters will be reset after an 
+asynchronous switch.  
+.PP
+Normally
+.B pmlogger
+operates on the distributed Performance Metrics Name Space (PMNS),
+however if the
+.B \-n
+option is specified an alternative local PMNS is loaded
+from the file
+.IR pmnsfile.
+.PP
+Under normal circumstances,
+.B pmlogger
+will run forever (except for a 
+.B \-s 
+option or a termination signal).
+The
+.B \-T
+option may be used to limit the execution time using the format
+of time as prescribed by 
+.BR PCPIntro (1). 
+.nf
+Some examples of different formats:
+.in 1i
+.B \-T 10mins 
+.B \-T '@ 11:30' 
+.in
+.fi
+From this it can be seen that 
+.B \-T 10mins
+and
+.B \-s 10mins
+perform identical actions. 
+.PP
+When
+.B pmlogger
+receives a SIGHUP signal, the current volume of the log is closed, and
+a new volume is opened.  This mechanism (or the alternative mechanism
+via
+.BR pmlc (1))
+may be used to manage the growth of the log files \- once a log volume
+is closed, that file may be archived without ill-effect on the
+continued operation of
+.BR pmlogger .
+See also the
+.B \-v
+option above.
+.PP
+The buffers for the current log may be flushed to disk using the
+\f3flush\f1 command of
+.BR pmlc (1),
+or by sending
+.B pmlogger
+a SIGUSR1 signal
+or by using the
+.B \-u
+option (the latter forces every log write to be unbuffered).
+This is useful when the log needs to be read while
+.B pmlogger
+is still running.
+.P
+When launched with the 
+.B -x 
+option, pmlogger will accept asynchronous
+control requests on the file descriptor \f2fd\f1.  This option is only
+expected to be used internally by PCP applications that support ``live
+record mode'' via 
+.BR pmRecordControl (3).
+.SH CONFIGURATION FILE SYNTAX
+The configuration file may be specified with the
+.B \-c
+option.  If it is not, configuration specifications are read from standard
+input.
+.PP
+If
+.I configfile
+does not exist, then a search is made in the directory
+.I $PCP_VAR_DIR/config/pmlogger
+for a file of the same name, and if found that file is used,
+e.g. if 
+.I config.mumble
+does not exist in the current directory and
+the file
+.I $PCP_VAR_DIR/config/pmlogger/config.mumble
+does exist, then
+.B "\-c config.mumble"
+and
+.B "\-c $PCP_VAR_DIR/config/pmlogger/config.mumble"
+are equivalent.
+.PP
+The syntax for the configuration file is as follows.
+.IP 1.
+Words are separated by white space (space, tab or newline).
+.IP 2.
+The symbol ``#'' (hash) introduces a comment, and all text up
+to the next newline
+is ignored.
+.IP 3.
+Keywords (shown in
+.B bold
+below) must appear literally (i.e. in lower case).
+.IP 4.
+Each specification begins with the optional keyword
+.BR log ,
+followed by one of the states
+.BR "mandatory on" ,
+.BR "mandatory off" ,
+.BR "mandatory maybe" ,
+.BR "advisory on"
+or
+.BR "advisory off" .
+.IP 5.
+For the
+.B on
+states, a logging interval must follow using the syntax ``\c
+.BR once '',
+or ``\c
+.BR default '',
+or ``\c
+.B every
+.IR "N timeunits" '',
+or simply ``\c
+.IR "N timeunits" ''
+\-
+.I N
+is an unsigned integer, and
+.I timeunits
+is one of the keywords
+.BR msec ,
+.BR millisecond ,
+.BR sec ,
+.BR second ,
+.BR min ,
+.BR minute ,
+.BR hour
+or the plural form of one of the above.
+.sp 0.5v
+Internal limitations require the
+interval
+to be smaller than (approximately)
+74 hours.  An
+interval
+value of zero is a synonym for
+.BR once .
+An interval of
+.B default
+means to use the default logging interval of
+60 seconds; this default value may be changed to
+.I interval
+with the
+.B \-t
+command line option.
+.IP ""
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied
+units in this case are seconds).
+.IP 6.
+Following the state and possible interval specifications comes
+a ``{'', followed by a list of one or more metric specifications
+and a closing ``}''.
+The list is white space (or comma) separated.
+If there is only one metric specification in the list, the braces are optional.
+.IP 7.
+A metric specification consists of a metric name optionally
+followed by a set of instance names.
+The metric name follows the standard PCP naming conventions, see
+.BR pmns (4),
+and if the metric name
+is a non-leaf node in the PMNS (see \c
+.BR pmns (4)),
+then
+.B pmlogger
+will recursively descend the PMNS and apply the logging specification
+to all descendent metric names that are leaf nodes in the PMNS.
+The set of instance names
+is a ``['', followed by a list
+of one or more space (or comma) separated
+names, numbers or strings, and a closing ``]''.
+Elements in the list that are numbers are assumed to be
+internal instance identifiers, other elements are assumed to
+be external instance identifiers \- see
+.BR pmGetInDom (3)
+for more information.
+.RS
+.PP
+If no instances are given, then the logging specification
+is applied to all instances of the associated metric.
+.RE
+.IP 8.
+There may be an arbitrary number of logging specifications.
+.IP 9.
+Following all of the logging specifications, there may be an optional
+access control section, introduced by the literal token
+.BR [access] .
+Thereafter come access control rules of the form ``\c
+.B allow
+.I hostlist
+.B :
+.I operation
+.BR ; ''
+and ``\c
+.B disallow
+.I hostlist
+.B :
+.I operation
+.BR ; ''.
+
+The base
+.I operations
+are
+.BR advisory ,
+.BR mandatory
+and
+.BR enquire .
+In all other aspects, these access control statements follow the syntactic
+and semantic rules defined for the access control mechanisms used
+by PMCD
+and are fully documented in
+.BR pmcd (1).
+.SH EXAMPLES
+For each PCP utility, there is a sample
+.B pmlogger
+configuration file that could be used to create an archive log suitable
+for replaying with that tool (i.e. includes all of the performance
+metrics used by the tool).
+For a tool named
+.I foo
+this configuration file is located in
+.IR $PCP_VAR_DIR/config/pmlogger/config.foo .
+.PP
+The following is a simple default configuration file for a primary
+.B pmlogger
+instance, and demonstrates most of the capabilities of the
+configuration specification language.
+.PP
+.in +0.5i
+.nf
+.ft CW
+log mandatory on once { hinv.ncpu hinv.ndisk }
+log mandatory on every 10 minutes {
+    disk.all.write
+    disk.all.read
+    network.interface.in.packets [ "et0" ]
+    network.interface.out.packets [ "et0" ]
+    nfs.server.reqs [ "lookup" "getattr" "read" "write" ]
+}
+
+log advisory on every 30 minutes {
+    environ.temp
+    pmcd.pdu_in.total
+    pmcd.pdu_out.total
+}
+
+[access]
+disallow * : all except enquire;
+allow localhost : mandatory, advisory;
+.ft R
+.fi
+.in
+.SH AUTOMATIC RESTART
+It is often useful for
+.B pmlogger
+processes (other than the primary instance)
+to be started and stopped when the local host is booted
+or shutdown.
+The script
+.I $PCP_RC_DIR/pcplocal
+and the necessary soft-links are provided,
+and can be modified by
+.B root
+to run PCP tools automatically.
+If you want to find
+out more before starting, read the manual pages for
+.BR rc2 (1),
+.BR rc0 (1),
+.BR shutdown (1)
+and the file
+.IR /etc/init.d/README .
+.P
+For example, changing
+.I $PCP_RC_DIR/pcplocal
+so that it contains:
+.P
+.ft CW
+.in +4n
+.nf
+'start') 
+# Add startup actions here 
+($PCP_BINADM_DIR/pmlogger_check &) 
+;; 
+
+'stop')
+# Add shutdown actions here
+killall -INT pmlogger
+;;
+.ft
+.in
+.fi
+.P
+will start
+.B pmlogger
+instances at boot time and terminate them in an orderly
+fashion at system shutdown.
+.P
+This script runs as
+.BR root ,
+so any
+.I pmlogger
+instances it launches are also run as
+.BR root .
+To run some
+.B pmlogger
+instances as a
+particular user, create your own archive logger control file (see
+.BR pmlogger_check (1))
+and use the
+.BR su (1)
+command. e.g.
+.P
+.ft CW
+.in +4n
+.nf
+'start') 
+# Add startup actions here 
+(su tanya -c "$PCP_BINADM_DIR/pmlogger_check -c /usr/people/tanya/ctl" &) 
+;; 
+.ft
+.in
+.fi
+.P
+at boot time
+will start the
+.B pmlogger
+instances described in
+.IR /usr/people/tanya/ctl ,
+running as user
+.BR tanya .
+.SH FILES
+.PD 0
+.TP 10
+\f2archive\f3.meta
+metadata (metric descriptions, instance domains, etc.) for the archive log
+.TP
+\f2archive\f3.0
+initial volume of metrics values (subsequent volumes have suffixes
+.BR 1 ,
+.BR 2 ,
+\&...)
+.TP
+\f2archive\f3.index
+temporal index to support rapid random access to the other files in the
+archive log
+.TP
+.B $PCP_TMP_DIR/pmlogger
+.B pmlogger
+maintains the files in this directory as the map between the
+process id of the
+.B pmlogger
+instance and the
+IPC port that may be used to control
+each
+.B pmlogger
+instance (as used by
+.BR pmlc (1))
+.TP
+.B /etc/config/pmlogger
+.BR chkconfig (1M)
+control flag, to control launching of
+.B pmlogger
+from
+.B $PCP_RC_DIR/pcp
+.TP
+.B /etc/config/pmlogger.options
+command line options to
+.B pmlogger
+when launched from
+.B $PCP_RC_DIR/pcp
+.TP
+.B $PCP_VAR_DIR/config/pmlogger/config.default
+default configuration file for the primary logger instance
+launched from
+.B $PCP_RC_DIR/pcp
+.TP
+.BR $PCP_VAR_DIR/config/pmlogger/config. *
+assorted configuration files suitable for creating logs that may
+be subsequently replayed with the PCP visualization and monitoring
+tools
+.TP
+.BI $PCP_LOG_DIR/pmlogger hostname
+Default directory for PCP archive files for performance
+metric values collected from the host
+.IR hostname .
+.TP
+.I \&./pmlogger.log
+(or
+.B $PCP_LOG_DIR/pmlogger/\fIhostname\fB/pmlogger.log
+when started automatically by either
+.B $PCP_RC_DIR/pcp
+or one of the
+.BR pmlogger (1)
+monitoring scripts such as
+.BR pmlogger_check (1))
+.br
+all messages and diagnostics are directed here
+.TP
+.B $PCP_RC_DIR/pcplocal
+contains ``hooks'' to enable automatic restart at system boot time
+.PD
+.SH ENVIRONMENT
+Normally
+.B pmlogger
+creates a socket to receive control messages from
+.BR pmlc (1)
+on the first available TCP/IP port numbered 4330 or higher.  The environment
+variable
+.B PMLOGGER_PORT
+may be used to specify an alternative starting port number.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmdumplog (1),
+.BR pmlc (1),
+.BR pmlogger_check (1),
+.BR pcp.conf (4),
+.BR pcp.env (4)
+and
+.BR pmns (4).
+.PP
+If you have the PCP product,
+relevant information is also available from the on-line PCP
+Tutorial.  Provided the
+.B pcp.man.tutorial
+subsystem from the PCP images has been installed, access the URL
+.B file:$PCP_DOC_DIR/Tutorial/archive.html
+from your web browser.
+.SH DIAGNOSTICS
+The archive logs are sufficiently precious that
+.B pmlogger
+will not truncate an existing physical file.  A message of the form
+.br
+.in +0.5v
+__pmLogNewFile: "foo.index" already exists, not over-written
+.br
+__pmLogCreate: File exists
+.in
+indicates this situation has arisen.  You must explicitly remove
+the files and launch
+.B pmlogger
+again.
+.PP
+There may be at most one primary
+.B pmlogger
+instance per monitored host; attempting to bend this rule produces the error:
+.br
+.in +0.5v
+pmlogger: there is already a primary pmlogger running
+.in
+.PP
+Various other messages relating to the creation and/or deletion of
+files in
+.I $PCP_TMP_DIR/pmlogger
+suggest a permission problem on this directory, or some feral
+files have appeared therein.

@@ -1,0 +1,132 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmnameall.3,v 2.11 2006/06/19 09:53:58 makc Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMNAMEALL 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMNAMEALL 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMNAMEALL 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMNAMEALL 3 "" "\&"
+.if \nX=3 .ds x} PMNAMEALL "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmNameAll\f1,
+\f3pmRequestNameAll\f1,
+\f3pmReceiveNameAll\f1 \- translate a PMID to a set of performance metric names
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmNameAll(pmID pmid, char ***nameset)
+int pmRequestNameAll(int ctx, pmID pmid)
+int pmReceiveNameAll(int ctx, char ***nameset)
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+Given a
+Performance Metric ID (PMID) via 
+.IR pmid ,
+.B pmNameAll
+will
+determine all the corresponding metric names, if any, in the 
+Performance Metrics Name Space (PMNS), and return these via
+.IR nameset .
+.PP
+The resulting list of pointers
+.I nameset
+.B and
+the values
+(the relative names) that the pointers reference will have been
+allocated by
+.B pmNameAll
+with a single call to
+.BR malloc (3C),
+and it is the
+responsibility of the
+.B pmNameAll
+caller to
+.CW free(nameset)
+to release the space
+when it is no longer required.
+.PP
+In the absence of errors,
+.B pmNameAll
+returns the number of names in
+.IR nameset .
+.PP
+For many examples of a PMNS, there will be a 1:1 mapping between
+a name and a PMID, and under these circumstances,
+.BR pmNameID (3)
+provides a slightly simpler interface in the absence of duplicate
+names for a particular PMID.
+.PP
+\f3pmRequestNameAll\fP and \f3pmReceiveNameAll\fP are used by
+applications which must  communicate with the PMCD asynchronously.
+These functions take explict context handle \f2ctx\fP which must refer
+to a host context (i.e. created by passing \f3PM_CONTEXT_HOST\fP to
+\f3pmNewContext\fP). \f3pmRequestNameAll\fP sends request to PMCD to
+return names of all metrics matching a PMID and returns without waiting
+for the response, \f3pmReceiveNameAll\fP reads reply from PMCD. It is
+the responsibility of the application to make sure the data are ready
+before calling \f3pmReceiveNameAll\f1 to avoid blocking.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmGetChildren (3),
+.BR pmGetChildrenStatus (3),
+.BR pmGetConfig (3),
+.BR pmLoadASCIINameSpace (3),
+.BR pmLoadNameSpace (3),
+.BR pmLookupName (3),
+.BR pmNameID (3),
+.BR pmNewContext (3),
+.BR pcp.conf (4),
+.BR pcp.env (4)
+and
+.BR pmns (4).
+.SH DIAGNOSTICS
+.IP \f3PM_ERR_NOPMNS\f1
+Failed to access a PMNS for operation.
+Note that if the application hasn't a priori called 
+.BR pmLoadNameSpace (3)
+and wants to use the distributed PMNS, then a call to
+.B pmNameAll
+must be made after the creation of a context (see 
+.BR pmNewContext (3)).
+.IP \f3PM_ERR_PMID\f1
+.I pmid
+does not correspond to a defined PMID in the PMNS.
+.IP \f3PM_ERR_*\f1
+Other diagnostics are for protocol failures when
+accessing the distributed PMNS.
+.IP \f3PM_ERR_CTXBUSY\f1
+Context is currently in use by another asynchronous call.

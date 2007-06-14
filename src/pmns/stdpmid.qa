@@ -1,0 +1,6 @@
+# PMDA domain numbers for PCP QA
+#
+# PMDA Name	Domain Number
+#
+BROKEN		249
+DYNAMIC		247

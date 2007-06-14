@@ -1,0 +1,26 @@
+network {
+    interface
+}
+
+network.interface {
+    in
+    out
+    total
+}
+
+network.interface.in {
+    packets		WINDOWS:0:38
+    bytes		WINDOWS:0:39
+    errors		WINDOWS:0:40
+}
+
+network.interface.out {
+    packets		WINDOWS:0:41
+    bytes		WINDOWS:0:42
+    errors		WINDOWS:0:43
+}
+
+network.interface.total {
+    packets		WINDOWS:0:44
+    bytes		WINDOWS:0:45
+}

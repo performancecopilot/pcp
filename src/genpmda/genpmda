@@ -1,0 +1,108 @@
+#! /bin/sh
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
+# \$Id: genpmda,v 1.7 2005/08/02 01:26:50 markgw Exp $
+#
+IAM	= $iam
+CONFIG  = $config
+DOMAIN	= $domain
+
+include /etc/pcp.conf
+INSTALL ?= ./install-generic
+GENPMDA ?= /usr/bin/genpmda
+CMDTARGET= pmda\$(IAM)
+LIBTARGET= pmda_\$(IAM).so
+TARGETS	= \$(CMDTARGET) \$(LIBTARGET)
+
+CFILES	= `cat CFILES`
+
+GCFILES = $oflag/metrictab.c $oflag/pmda.c
+GHFILES = $oflag/domain.h $oflag/metrictab.h
+GSRCFILES = $oflag/help $oflag/root $oflag/pmns \
+            $oflag/Makefile.install $oflag/Install \
+	    $oflag/Remove $oflag/clusters.h
+
+OBJECTS	= \$(CFILES:.c=.o) \$(GCFILES:.c=.o)
+CFLAGS = -I/usr/include/pcp
+LLDLIBS	= -lpcp_pmda -lpcp
+
+PMDADIR = \$(PCP_PMDAS_DIR)/\$(IAM)
+LDIRT	= generated *.o \$(TARGETS) *.log *.dir *.pag *.o
+
+default: help.pag help.dir \$(TARGETS)
+
+install: default
+	\$(INSTALL) -m 755 -d \$(PCP_VAR_DIR)
+	\$(INSTALL) -m 755 -d \$(PCP_VAR_DIR)/pmdas
+	\$(INSTALL) -m 755 -d \$(PMDADIR)
+	\$(INSTALL) -m 755 -f \$(CMDTARGET) \$(PMDADIR)/\$(CMDTARGET)
+	\$(INSTALL) -m 755 -f \$(LIBTARGET) \$(PMDADIR)/\$(LIBTARGET)
+	\$(INSTALL) -m 755 -f $oflag/Install \$(PMDADIR)/Install
+	\$(INSTALL) -m 755 -f $oflag/Remove \$(PMDADIR)/Remove
+	\$(INSTALL) -m 644 -f $oflag/Makefile.install \$(PMDADIR)/Makefile
+	\$(INSTALL) -m 644 -f $oflag/pmns \$(PMDADIR)/pmns
+	\$(INSTALL) -m 644 -f $oflag/root \$(PMDADIR)/root
+	\$(INSTALL) -m 644 -f $oflag/domain.h \$(PMDADIR)/domain.h
+	\$(INSTALL) -m 644 -f $oflag/clusters.h \$(PMDADIR)/clusters.h
+	\$(INSTALL) -m 644 -f $oflag/help \$(PMDADIR)/help
+	\$(INSTALL) -m 644 -f help.pag \$(PMDADIR)/help.pag
+	\$(INSTALL) -m 644 -f help.dir \$(PMDADIR)/help.dir
+
+help.dir help.pag : $oflag/help
+	\$(PCP_BINADM_DIR)/newhelp -n $oflag/root -v 2 -o help < $oflag/help
+
+\$(GCFILES) \$(GHFILES) \$(GSRCFILES) : \$(CONFIG)
+	\$(GENPMDA) -s \$(PCP_VAR_DIR)/pmns/stdpmid -D \$(DOMAIN) -d -v -i \$(IAM) -c \$(CONFIG)
+
+\$(CMDTARGET): \$(OBJECTS)
+	cc -o \$(CMDTARGET) \$(OBJECTS) \$(LLDLIBS)
+
+\$(LIBTARGET): \$(OBJECTS)
+	cc  -shared -Wl,-soname,\$(LIBTARGET) -o \$(LIBTARGET) \$(OBJECTS) \$(LLDLIBS) -ldl
+
+clean clobber:
+	rm -rf \$(LDIRT)
+EOFEOF
+
+
+#
+# What needs to be merged?
+#
+for f in *.new
+do
+    b=`basename $f .new`
+    if [ -f "$b" ]
+    then
+        if diff "$b" "$f" >/dev/null 2>&1
+	then
+	    rm -f $f
+	    $verbose && echo "Unchanged $b"
+	else
+	    echo "MERGE required, gdiff $b $f"
+	fi
+    else
+	mv $f $b
+	$verbose && echo "Wrote $b"
+    fi
+done
+
+rm -f CFILES
+exit 0
