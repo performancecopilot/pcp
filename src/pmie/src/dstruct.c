@@ -182,12 +182,29 @@ reflectTime(RealTime d)
 }
 
 
+/* convert RealTime to timeval */
+void
+unrealize(RealTime rt, struct timeval *tv)
+{
+    tv->tv_sec = (time_t)rt;
+    tv->tv_usec = (int)(1000000 * (rt - tv->tv_sec));
+}
+
+
+/* convert RealTime to timespec */
+void
+unrealizenano(RealTime rt, struct timespec *ts)
+{
+    ts->tv_sec = (time_t)rt;
+    ts->tv_nsec = (int)(1000000000 * (rt - ts->tv_sec));
+}
+
+
 /* sleep until given RealTime */
 void
 sleepTight(RealTime sched)
 {
-    RealTime	curr;	/* current time */
-    long	delay;	/* interval to sleep */
+    RealTime	delay;	/* interval to sleep */
     int		sts;
     pid_t	pid;
 
@@ -207,24 +224,18 @@ sleepTight(RealTime sched)
 	;
     }
 
-    if (archives)
-	return;
+    if (!archives) {
+	struct timespec ts, tleft;
 
-    for (;;) {		/* loop to catch early wakeup from sginap */
-	curr = getReal();
-	delay = CLK_TCK * (long)(sched - curr);
-	if (delay < 1) return;
-	sginap(delay);
+	delay = sched - getReal();
+	unrealizenano(delay, &ts);
+	for (;;) {	/* loop to catch early wakeup from nanosleep */
+	    sts = nanosleep(&ts, &tleft);
+	    if (sts == 0 || (sts < 0 && errno != EINTR))
+		break;
+	    ts = tleft;
+	}
     }
-}
-
-
-/* convert RealTime to timeval */
-void
-unrealize(RealTime rt, struct timeval *tv)
-{
-    tv->tv_sec = (time_t)rt;
-    tv->tv_usec = (int)(1000000 * (rt - tv->tv_sec));
 }
 
 

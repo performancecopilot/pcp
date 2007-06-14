@@ -174,44 +174,6 @@ tsub(struct timeval t1, struct timeval t2)
     return t1;
 }
 
-/* first timeval has reached second timeval to within 1 tick */
-static int
-reached(struct timeval t1, struct timeval t2)
-{
-    static struct timeval	tick = { 0, 0 };
-    
-    if (tick.tv_usec == 0) 
-	/* one trip, usec per tick */
-	tick.tv_usec = 1000000 / CLK_TCK;
-
-    t1 = tadd(t1, tick);
-
-    return (t1.tv_sec > t2.tv_sec) ||
-           (t1.tv_sec == t2.tv_sec && t1.tv_usec >= t2.tv_usec);
-    
-}
-
-
-/* convert timeval to ticks
-    - positive time only
-    - accurate to 1 tick */
-static long
-toticks(struct timeval t)
-{
-    static int	ticks_per_sec = 0;
-    long	ticks;
-
-    if (ticks_per_sec == 0)
-	ticks_per_sec = CLK_TCK;
-
-    ticks = ticks_per_sec * t.tv_sec + ticks_per_sec * t.tv_usec/1000000;
-
-    if (ticks > 0)
-	return ticks;
-    else
-	return 1L;
-}
-
 /* convert timeval to seconds */
 static double
 tosec(struct timeval t)
@@ -219,18 +181,32 @@ tosec(struct timeval t)
     return t.tv_sec + (t.tv_usec / 1000000.0);
 }
 
+/* convert timeval to timespec */
+static struct timespec *
+tospec(struct timeval tv, struct timespec *ts)
+{
+    ts->tv_nsec = tv.tv_usec * 1000;
+    ts->tv_sec = tv.tv_sec;
+    return ts;
+}
+
+
 /* sleep until given timeval */
 static void
 sleeptill(struct timeval sched)
 {
+    int sts;
     struct timeval curr;	/* current time */
-    struct timeval delay;	/* interval to sleep */
+    struct timespec delay;	/* interval to sleep */
+    struct timespec left;	/* remaining sleep time */
 
-    for (;;) {		/* loop to catch early wakeup by sginap */
-        gettimeofday(&curr, NULL);
-        if (reached(curr,sched)) return;
-        delay = tsub(sched, curr);
-        sginap(toticks(delay));
+    gettimeofday(&curr, NULL);
+    tospec(tsub(sched, curr), &delay);
+    for (;;) {		/* loop to catch early wakeup by nanosleep */
+	sts = nanosleep(&delay, &left);
+	if (sts == 0 || (sts < 0 && errno != EINTR))
+	    break;
+	delay = left;
     }
 }
 
@@ -1441,6 +1417,8 @@ int
 main(int argc, char *argv[])
 {
     struct timeval  delta;		/* sample interval */
+    struct timespec delay;		/* nanosleep interval */
+    struct timespec left;		/* nanosleep remainder */
     long	    smpls;		/* number of samples */
     int             cols;		/* width of output column */
     struct timeval  now;		/* current task start time */
@@ -1628,7 +1606,7 @@ main(int argc, char *argv[])
 
 	/* wait till time for sample */
 	if (pauseFlag) {
-	    sginap(toticks(delta));
+	    nanosleep(tospec(delta, &delay), &left);
 	}
 	else if (archive == NULL) {
 	    sched = tadd(now,delta);
