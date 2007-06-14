@@ -72,7 +72,7 @@ prog=`basename $0`
 CONTROL=$PCP_VAR_DIR/config/pmie/control
 
 # determine real name for localhost
-LOCALHOSTNAME=`hostname`
+LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
 if [ -z "$LOCALHOSTNAME" ]
 then
     echo "$prog: Error: cannot determine hostname, giving up"
@@ -152,7 +152,7 @@ _message()
     case $1
     in
 	'restart')
-	    echo -n "Restarting pmie for host \"$host\" ..."
+	    $PCP_ECHO_PROG $PCP_ECHO_N "Restarting pmie for host \"$host\" ..."
 	    ;;
     esac
 }

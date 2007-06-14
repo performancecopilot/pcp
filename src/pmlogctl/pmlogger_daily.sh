@@ -58,9 +58,9 @@ CULLAFTER=14
 
 # default compression program
 # 
-COMPRESS=compress
+COMPRESS=bzip2
 COMPRESSAFTER=""
-COMPRESSREGEX=".meta$|.index$|.Z$|.gz$"
+COMPRESSREGEX=".meta$|.index$|.Z$|.gz$|.bz2$|.zip$"
 
 # threshold size to roll $PCP_LOG_DIR/NOTICES
 #
@@ -417,7 +417,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     then
 	pflag=''
 	[ $primary = y ] && pflag=' -P'
-	echo "Check pmlogger$flag -h $host ... in $dir ..."
+	echo "Check pmlogger$pflag -h $host ... in $dir ..."
     fi
 
     if [ ! -d $dir ]
