@@ -3248,7 +3248,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    _pm_assign_utype(_pm_intr_size, atom, proc_stat.intr);
 	    break;
 	case 13: /* ctxt */
-	    _pm_assign_utype(_pm_ctxt_size, atom, proc_stat.intr);
+	    _pm_assign_utype(_pm_ctxt_size, atom, proc_stat.ctxt);
 	    break;
 	case 14: /* processes */
 	    _pm_assign_ulong(atom, proc_stat.processes);
