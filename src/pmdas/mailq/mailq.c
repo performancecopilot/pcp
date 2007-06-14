@@ -31,6 +31,7 @@
 #include <sys/times.h>
 #include <sys/stat.h>
 #include <syslog.h>
+#include <regex.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
@@ -63,6 +64,9 @@ static int	queue;
 static pmdaInstid *_delay;
 
 static char	*queuedir = "/var/spool/mqueue";
+
+static char	*regexstring;
+static regex_t	regex;
 
 /*
  * list of instance domains
@@ -174,32 +178,38 @@ mailq_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 	    for (i = 0; i < num; i++) {
 		p = list[i]->d_name;
-		if (*p == 'd' && *(p+1) == 'f') {
-		    if (stat(p, &sbuf) != 0) {
-			/*
-			 * ENOENT expected sometimes if sendmail is doing its job
-			 */
-			if (errno != ENOENT)
-			    fprintf(stderr, "stat(\"%s\"): %s\n", p, strerror(errno));
-		    }
-		    else if (sbuf.st_size > 0) {
-			/* really in the queue */
-#if defined(HAVE_ST_MTIME_WITH_E)
-			waiting = now - sbuf.st_mtime;
-#elif defined(HAVE_ST_MTIME_WITH_SPEC)
-			waiting = now - sbuf.st_mtimespec.tv_sec;
-#else
-			waiting = now - sbuf.st_mtim.tv_sec;
-#endif
-			for (b = 0; b < numhisto; b++) {
-			    if (waiting >= histo[b].delay) {
-				histo[b].count++;
-				break;
-			    }
-			}
-			queue++;
-		    }
+		/* only file names that match the regular expression */
+		if (regexstring && regexec(&regex, list[i]->d_name, 0, NULL, 0))
+		    goto next;
+		else if (!regexstring && (*p != 'd' || *(p+1) != 'f'))
+		    goto next;
+		if (stat(p, &sbuf) != 0) {
+		    /*
+		     * ENOENT expected sometimes if sendmail is doing its job
+		     */
+		    if (errno == ENOENT)
+			goto next;
+		    fprintf(stderr, "stat(\"%s\"): %s\n", p, strerror(errno));
+		    goto next;
 		}
+		if (sbuf.st_size > 0 && S_ISREG(sbuf.st_mode)) {
+		    /* really in the queue */
+#if defined(HAVE_ST_MTIME_WITH_E)
+		    waiting = now - sbuf.st_mtime;
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
+		    waiting = now - sbuf.st_mtimespec.tv_sec;
+#else
+		    waiting = now - sbuf.st_mtim.tv_sec;
+#endif
+		    for (b = 0; b < numhisto; b++) {
+			if (waiting >= histo[b].delay) {
+			    histo[b].count++;
+			    break;
+			}
+		    }
+		    queue++;
+		}
+next:
 		free(list[i]);
 	    }
 	    free(list);
@@ -234,7 +244,8 @@ usage(void)
 	  "  -b binlist   times to be used for histogram bins as comma\n"
 	  "               separated values in pmParseInterval(3) format\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n",
+	  "  -l logfile   write log into logfile rather than using default log name\n"
+	  "  -r regex     regular expression for matching mail file names\n",
 	  stderr);		
     exit(1);
 }
@@ -271,30 +282,42 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, MAILQ,
 		"mailq.log", mypath);
 
-    while ((c = pmdaGetOpt(argc, argv, "b:D:d:l:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "b:D:d:l:r:?", &dispatch, &err)) != EOF) {
 	switch (c) {
 	    case 'b':
-			q = strtok(optarg, ",");
-			while (q != NULL) {
-			    sts = pmParseInterval((const char *)q, &tv, &errmsg);
-			    if (sts < 0) {
-				fprintf(stderr, "%s: bad -b argument:\n%s\n",
-				    pmProgname, errmsg);
-				err++;
-			    }
-			    numhisto++;
-			    histo = (histo_t *)realloc(histo, numhisto * sizeof(histo[0]));
-			    if (histo == NULL) {
-				 __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
-				 /*NOTREACHED*/
-			    }
-			    histo[numhisto-1].delay = tv.tv_sec;
-			    q = strtok(NULL, ",");
-			}
-			break;
-	    default:
+		q = strtok(optarg, ",");
+		while (q != NULL) {
+		    sts = pmParseInterval((const char *)q, &tv, &errmsg);
+		    if (sts < 0) {
+			fprintf(stderr, "%s: bad -b argument:\n%s\n",
+			    pmProgname, errmsg);
 			err++;
-			break;
+		    }
+		    numhisto++;
+		    histo = (histo_t *)realloc(histo, numhisto * sizeof(histo[0]));
+		    if (histo == NULL) {
+			 __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
+			 /*NOTREACHED*/
+		    }
+		    histo[numhisto-1].delay = tv.tv_sec;
+		    q = strtok(NULL, ",");
+		}
+		break;
+
+	    case 'r':
+		regexstring = optarg;
+		c = regcomp(&regex, regexstring, REG_EXTENDED | REG_NOSUB);
+		if (c != 0) {
+		    regerror(c, &regex, mypath, sizeof(mypath));
+		    fprintf(stderr, "Cannot compile regular expression: %s\n",
+				    mypath);
+		    exit(1);
+		}
+		break;
+
+	    default:
+		err++;
+		break;
 	}
     }
 

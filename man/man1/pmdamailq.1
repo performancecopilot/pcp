@@ -39,13 +39,15 @@
 [\f3\-b\f1 \f2binlist\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
+[\f3\-r\f1 \f2regex\f1]
 [\f2queuedir\f1]
 .SH DESCRIPTION
 .B pmdamailq
 is a Performance Metrics Domain Agent (PMDA) which extracts
 performance metrics describing the state of the e-mail queues
 managed by
-.BR sendmail (1).
+.BR sendmail (1)
+and other mail transfer agents.
 .PP
 The
 .B mailq
@@ -101,6 +103,18 @@ is started, i.e.
 .B $PCP_LOG_DIR/pmcd .
 If the log file cannot
 be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-r
+Use an extended regular expression to match file names in the mail queue
+directory, rather than assuming all "df"-prefixed files in the directory
+are mail files (the "df" prefix is the
+.B sendmail
+convention, but this convention is not followed by other mail daemons).
+The
+.I regex
+pattern specified should conform to the POSIX format described in
+.BR regex (3),
+and it describes file names that should be considered mail.
 .PP
 The optional
 .I queuedir
