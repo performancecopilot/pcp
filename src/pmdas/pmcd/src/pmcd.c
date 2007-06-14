@@ -471,6 +471,13 @@ refresh_pmie_indom(void)
 	    closedir(pmiedir);
 	}
     }
+    else {
+	if (pmies) {
+	    free(pmies);
+	    pmies = NULL;
+	}
+	npmies = 0;
+    }
     setoserror(0);
     return npmies;
 }
