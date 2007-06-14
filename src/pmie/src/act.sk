@@ -279,23 +279,6 @@ actPrint(Expr *x)
 
 
 /*
- * fake actions for archive mode
- */
-void
-actArg(Expr *x)
-{
-    Expr    *sp = x->arg1;
-    char    *string = (char *)0;
-    size_t  length = 0;
-
-    for (sp = x->arg1; sp != NULL; sp = sp->arg1)
-	length = formatSatisfyingValue((char *)sp->ring, length, &string);
-
-    newStringBfr(x, length, string);
-}
-
-
-/*
  *  operator: actStomp
  */
 void
@@ -316,6 +299,23 @@ actStomp(Expr *x)
 	    *(Truth *)x->ring = TRUE;
 	perf->actions++;
     }
+}
+
+
+/*
+ * fake actions for archive mode
+ */
+void
+actArg(Expr *x)
+{
+    Expr    *sp = x->arg1;
+    char    *string = (char *)0;
+    size_t  length = 0;
+
+    for (sp = x->arg1; sp != NULL; sp = sp->arg1)
+	length = formatSatisfyingValue((char *)sp->ring, length, &string);
+
+    newStringBfr(x, length, string);
 }
 
 
