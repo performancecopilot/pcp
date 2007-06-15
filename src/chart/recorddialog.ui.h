@@ -232,6 +232,7 @@ void PmLogger::exited()
 	QString msg = tr("Recording process (pmlogger) exited unexpectedly\n");
 	msg.append(tr("for host "));
 	msg.append(_host);
+	msg.append(tr(".\n\n"));
 	msg.append(tr("Additional diagnostics may be available in the log:\n"));
 	msg.append(_logfile);
 	QMessageBox::warning(kmchart, pmProgname, msg);
