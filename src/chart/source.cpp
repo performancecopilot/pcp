@@ -306,7 +306,7 @@ ArchiveDialog::ArchiveDialog(QWidget *parent)
     : QFileDialog(parent, "archiveDialog", true)
 {
     logButton = new QToolButton(this, "logButton");
-    logButton->setPixmap(QPixmap::fromMimeSource("filearchive.png"));
+    logButton->setPixmap(QPixmap::fromMimeSource("toolarchive.png"));
     logButton->setToggleButton(FALSE);
     logButton->setFixedSize(20, 20);
     QToolTip::add(logButton, tr("System Archives"));

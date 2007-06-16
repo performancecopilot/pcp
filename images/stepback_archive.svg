@@ -14,9 +14,9 @@
    id="svg1307"
    sodipodi:version="0.32"
    inkscape:version="0.44.1"
-   sodipodi:docbase="/source/tar/kmtools/images"
+   sodipodi:docbase="/source/git/kmchart/images"
    sodipodi:docname="stepback_archive.svg"
-   inkscape:export-filename="/source/tar/kmtools/images/stepback_archive.png"
+   inkscape:export-filename="/source/git/kmchart/images/stepback_archive.png"
    inkscape:export-xdpi="93.506149"
    inkscape:export-ydpi="93.506149"
    version="1.0">
@@ -621,7 +621,7 @@
       <path
          inkscape:export-ydpi="88.615387"
          inkscape:export-xdpi="88.615387"
-         inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+         inkscape:export-filename="/source/git/kmchart/images/play_on.png"
          inkscape:r_cy="true"
          inkscape:r_cx="true"
          style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2322);stroke-width:1.99999833;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
@@ -638,7 +638,7 @@
            d="M 53.33947,38.18649 L 53.33947,10.375005 L 77.44276,24.280748 L 53.33947,38.18649 z "
            id="path2107"
            sodipodi:nodetypes="cccc"
-           inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+           inkscape:export-filename="/source/git/kmchart/images/play_on.png"
            inkscape:export-xdpi="88.615387"
            inkscape:export-ydpi="88.615387" />
         <path
@@ -648,7 +648,7 @@
            d="M 53.33947,38.18649 L 53.33947,10.375005 L 77.44276,24.280748 L 53.33947,38.18649 z "
            id="path2109"
            sodipodi:nodetypes="cccc"
-           inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+           inkscape:export-filename="/source/git/kmchart/images/play_on.png"
            inkscape:export-xdpi="88.615387"
            inkscape:export-ydpi="88.615387" />
         <path
@@ -658,7 +658,7 @@
            d="M 53.83947,11.24949 L 53.83947,37.31199 L 76.43322,24.28074 L 53.83947,11.24949 z M 54.83947,12.99949 L 74.40197,24.28074 L 54.83947,35.56199 L 54.83947,12.99949 z "
            id="path2111"
            sodipodi:nodetypes="cccccccc"
-           inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+           inkscape:export-filename="/source/git/kmchart/images/play_on.png"
            inkscape:export-xdpi="88.615387"
            inkscape:export-ydpi="88.615387" />
         <path
@@ -668,7 +668,7 @@
            inkscape:r_cx="true"
            inkscape:r_cy="true"
            sodipodi:nodetypes="cccc"
-           inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+           inkscape:export-filename="/source/git/kmchart/images/play_on.png"
            inkscape:export-xdpi="88.615387"
            inkscape:export-ydpi="88.615387" />
       </g>

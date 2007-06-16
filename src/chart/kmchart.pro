@@ -64,7 +64,6 @@ IMAGES	= ../../images/aboutpcp.png \
 	../../images/filespreadsheet.png \
 	../../images/fileview.png \
 	../../images/filewordprocessor.png \
-	../../images/fileusers.png \
 	../../images/tab-new.png \
 	../../images/settings.png \
 	../../images/folio.png \
@@ -72,7 +71,10 @@ IMAGES	= ../../images/aboutpcp.png \
 	../../images/view.png \
 	../../images/logfile.png \
 	../../images/document-properties.png \
-	../../images/tab-edit.png
+	../../images/tab-edit.png \
+	../../images/toolarchive.png \
+	../../images/toolusers.png \
+	../../images/toolview.png
 
 #CONFIG	+= qt warn_on release
 CONFIG	+= qt warn_on debug

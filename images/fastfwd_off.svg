@@ -14,9 +14,9 @@
    id="svg1307"
    sodipodi:version="0.32"
    inkscape:version="0.44.1"
-   sodipodi:docbase="/source/tar/kmtools/images"
+   sodipodi:docbase="/source/git/kmchart/images"
    sodipodi:docname="fastfwd_off.svg"
-   inkscape:export-filename="/source/tar/kmtools/images/fastfwd_off.png"
+   inkscape:export-filename="/source/git/kmchart/images/fastfwd_off.png"
    inkscape:export-xdpi="87.652229"
    inkscape:export-ydpi="87.652229">
   <defs
@@ -273,7 +273,7 @@
        style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2690);stroke-width:1.99999833;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
        inkscape:r_cx="true"
        inkscape:r_cy="true"
-       inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -283,7 +283,7 @@
        d="M 0.49946,37.81149 L 0.49946,10.000005 L 24.602747,23.905748 L 0.49946,37.81149 z "
        id="path3375"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -293,7 +293,7 @@
        d="M 0.49946,37.81149 L 0.49946,10.000005 L 24.602747,23.905748 L 0.49946,37.81149 z "
        id="path2479"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -303,7 +303,7 @@
        d="M 0.99946,10.87449 L 0.99946,36.93699 L 23.59321,23.90574 L 0.99946,10.87449 z M 1.99946,12.62449 L 21.56196,23.90574 L 1.99946,35.18699 L 1.99946,12.62449 z "
        id="path2481"
        sodipodi:nodetypes="cccccccc"
-       inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -313,7 +313,7 @@
        inkscape:r_cx="true"
        inkscape:r_cy="true"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -323,7 +323,7 @@
        style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient1917);stroke-width:1.99999833;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
        inkscape:r_cx="true"
        inkscape:r_cy="true"
-       inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -333,7 +333,7 @@
        d="M 24.404661,37.454365 L 24.404661,9.64288 L 48.507952,23.548623 L 24.404661,37.454365 z "
        id="path1909"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -343,7 +343,7 @@
        d="M 24.404661,37.454365 L 24.404661,9.64288 L 48.507952,23.548623 L 24.404661,37.454365 z "
        id="path1911"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -353,7 +353,7 @@
        d="M 24.904661,10.517365 L 24.904661,36.579865 L 47.498415,23.548615 L 24.904661,10.517365 z M 25.904661,12.267365 L 45.467165,23.548615 L 25.904661,34.829865 L 25.904661,12.267365 z "
        id="path1913"
        sodipodi:nodetypes="cccccccc"
-       inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -363,7 +363,7 @@
        inkscape:r_cx="true"
        inkscape:r_cy="true"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/tar/kmtools/images/play_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
   </g>

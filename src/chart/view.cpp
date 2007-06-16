@@ -113,8 +113,8 @@ OpenViewDialog::OpenViewDialog(QWidget *parent)
 
     usrButton = new QToolButton(this, "usrButton");
     sysButton = new QToolButton(this, "sysButton");
-    usrButton->setPixmap(QPixmap::fromMimeSource("fileusers.png"));
-    sysButton->setPixmap(QPixmap::fromMimeSource("fileview.png"));
+    usrButton->setPixmap(QPixmap::fromMimeSource("toolusers.png"));
+    sysButton->setPixmap(QPixmap::fromMimeSource("toolview.png"));
     usrButton->setToggleButton(TRUE);
     sysButton->setToggleButton(TRUE);
     QToolTip::add(usrButton, tr("User Views"));

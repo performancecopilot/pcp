@@ -14,9 +14,9 @@
    id="svg1307"
    sodipodi:version="0.32"
    inkscape:version="0.44.1"
-   sodipodi:docbase="/source/tar/kmtools/images"
+   sodipodi:docbase="/source/git/kmchart/images"
    sodipodi:docname="back_off.svg"
-   inkscape:export-filename="/source/tar/kmtools/images/back_off.png"
+   inkscape:export-filename="/source/git/kmchart/images/back_off.png"
    inkscape:export-xdpi="88.615387"
    inkscape:export-ydpi="88.615387">
   <defs
@@ -253,7 +253,7 @@
        style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2690);stroke-width:1.99999833;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
        inkscape:r_cx="true"
        inkscape:r_cy="true"
-       inkscape:export-filename="/source/tar/kmtools/images/back_off.png"
+       inkscape:export-filename="/source/git/kmchart/images/back_off.png"
        inkscape:export-xdpi="89.775627"
        inkscape:export-ydpi="89.775627" />
     <path
@@ -263,7 +263,7 @@
        d="M 37.57052,37.81149 L 37.57052,10.000005 L 13.467233,23.905748 L 37.57052,37.81149 z "
        id="path3375"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/tar/kmtools/images/back_off.png"
+       inkscape:export-filename="/source/git/kmchart/images/back_off.png"
        inkscape:export-xdpi="89.775627"
        inkscape:export-ydpi="89.775627" />
     <path
@@ -273,7 +273,7 @@
        d="M 37.57052,37.81149 L 37.57052,10.000005 L 13.467233,23.905748 L 37.57052,37.81149 z "
        id="path2479"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/tar/kmtools/images/back_off.png"
+       inkscape:export-filename="/source/git/kmchart/images/back_off.png"
        inkscape:export-xdpi="89.775627"
        inkscape:export-ydpi="89.775627" />
     <path
@@ -283,7 +283,7 @@
        d="M 37.07052,10.87449 L 37.07052,36.93699 L 14.47677,23.90574 L 37.07052,10.87449 z M 36.07052,12.62449 L 16.50802,23.90574 L 36.07052,35.18699 L 36.07052,12.62449 z "
        id="path2481"
        sodipodi:nodetypes="cccccccc"
-       inkscape:export-filename="/source/tar/kmtools/images/back_off.png"
+       inkscape:export-filename="/source/git/kmchart/images/back_off.png"
        inkscape:export-xdpi="89.775627"
        inkscape:export-ydpi="89.775627" />
     <path
@@ -293,7 +293,7 @@
        inkscape:r_cx="true"
        inkscape:r_cy="true"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/tar/kmtools/images/back_off.png"
+       inkscape:export-filename="/source/git/kmchart/images/back_off.png"
        inkscape:export-xdpi="89.775627"
        inkscape:export-ydpi="89.775627" />
   </g>

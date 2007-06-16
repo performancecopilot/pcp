@@ -14,9 +14,9 @@
    id="svg1307"
    sodipodi:version="0.32"
    inkscape:version="0.44.1"
-   sodipodi:docbase="/source/tar/kmtools/images"
+   sodipodi:docbase="/source/git/kmchart/images"
    sodipodi:docname="stop_off.svg"
-   inkscape:export-filename="/source/tar/kmtools/images/stop_off.png"
+   inkscape:export-filename="/source/git/kmchart/images/stop_off.png"
    inkscape:export-xdpi="125.67177"
    inkscape:export-ydpi="125.67177"
    version="1.0"
@@ -599,7 +599,7 @@
        id="path2815"
        inkscape:r_cx="true"
        inkscape:r_cy="true"
-       inkscape:export-filename="/source/tar/kmtools/images/stop_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/stop_on.png"
        inkscape:export-xdpi="124.7153"
        inkscape:export-ydpi="124.7153" />
     <path
@@ -608,7 +608,7 @@
        style="color:black;fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
        d="M 14.606602,13.482603 L 14.606602,34.482603 L 34.16466,34.482603 L 34.16466,13.482603 L 14.606602,13.482603 z "
        id="path5625"
-       inkscape:export-filename="/source/tar/kmtools/images/stop_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/stop_on.png"
        inkscape:export-xdpi="124.7153"
        inkscape:export-ydpi="124.7153" />
     <path
@@ -617,7 +617,7 @@
        style="color:black;fill:#aaa;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
        d="M 15.881281,15.046576 L 15.881281,32.952984 L 33.052855,32.952984 L 33.052855,15.046576 L 15.881281,15.046576 z "
        id="path2827"
-       inkscape:export-filename="/source/tar/kmtools/images/stop_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/stop_on.png"
        inkscape:export-xdpi="124.7153"
        inkscape:export-ydpi="124.7153" />
     <path
@@ -626,7 +626,7 @@
        id="path2762"
        d="M 14.144719,13.232704 L 14.144719,34.498475 L 34.66305,34.498475 L 34.66305,13.232704 L 14.144719,13.232704 z "
        style="color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient3424);stroke-width:0.70270872;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-       inkscape:export-filename="/source/tar/kmtools/images/stop_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/stop_on.png"
        inkscape:export-xdpi="124.7153"
        inkscape:export-ydpi="124.7153" />
     <path
@@ -636,7 +636,7 @@
        inkscape:r_cx="true"
        inkscape:r_cy="true"
        sodipodi:nodetypes="ccccc"
-       inkscape:export-filename="/source/tar/kmtools/images/stop_on.png"
+       inkscape:export-filename="/source/git/kmchart/images/stop_on.png"
        inkscape:export-xdpi="124.7153"
        inkscape:export-ydpi="124.7153" />
   </g>
