@@ -44,13 +44,6 @@
 
 #define DESPERATE 0
 
-static void
-nomem(void)
-{
-    // no point trying to report anything ... dump core is the best bet
-    abort();
-}
-
 // default colors for #-cycle in views and metric selection
 QColor Chart::defaultColor(int seq)
 {
@@ -146,22 +139,25 @@ Chart::~Chart(void)
 
 void Chart::update(bool forward, bool visible)
 {
-    int	vh = _tab->visibleHist();
+    int	sh = _tab->sampleHistory();
+    int	vh = _tab->visibleHistory();
+    int	idx, i, m;
 
     if (verbose_updates)
-	fprintf(stderr, "Chart::update(forward=%d,visible=%d) (%d plots)\n",
-		    forward, visible, (int)_metrics.length());
+	fprintf(stderr,
+		"Chart::update(forward=%d,visible=%d) sh=%d vh=%d (%d plots)\n",
+		    forward, visible, sh, vh, (int)_metrics.length());
 
     if ((int)_metrics.length() < 1) {
 	fprintf(stderr, "Error in setting up this chart, nothing plotted\n");
 	return;
     }
 
-    for (int m = 0; m < (int)_metrics.length(); m++) {
+    for (m = 0; m < (int)_metrics.length(); m++) {
 	double	value = _metrics[m]->value(0) * _plots[m].scale;
 	int	sz;
 
-	if (_plots[m].dataCount < vh)
+	if (_plots[m].dataCount < sh)
 	    sz = max(0, (int)(_plots[m].dataCount * sizeof(double)));
 	else
 	    sz = max(0, (int)((_plots[m].dataCount - 1) * sizeof(double)));
@@ -170,7 +166,7 @@ void Chart::update(bool forward, bool visible)
 	    extern char *timestring(double);
 	    fprintf(stderr, "BEFORE Chart::update (%s) 0-%d (sz=%d,v=%.2f):\n",
 		    _metrics[m]->name().ptr(), _plots[m].dataCount, sz, value);
-	    for (int i = 0; i < _plots[m].dataCount; i++)
+	    for (i = 0; i < _plots[m].dataCount; i++)
 		fprintf(stderr, "\t[%d] data=%.2f\n", i, _plots[m].data[i]);
 	}
 
@@ -184,13 +180,13 @@ void Chart::update(bool forward, bool visible)
 	    memmove(&_plots[m].plot_data[0], &_plots[m].plot_data[1], sz);
 	    _plots[m].data[_plots[m].dataCount - 1] = value;
 	}
-	if (_plots[m].dataCount < vh)
+	if (_plots[m].dataCount < sh)
 	    _plots[m].dataCount++;
 
 	if (verbose_updates) {
 	    fprintf(stderr, "AFTER  Chart::update (%s) 0-%d:\n",
 		    _metrics[m]->name().ptr(), _plots[m].dataCount);
-	    for (int i = 0; i < _plots[m].dataCount; i++)
+	    for (i = 0; i < _plots[m].dataCount; i++)
 		fprintf(stderr, "\t[%d] data=%.2f time=%s\n",
 			i, _plots[m].data[i], timestring(_tab->timeData()[i]));
 	}
@@ -198,11 +194,11 @@ void Chart::update(bool forward, bool visible)
 
     if (_style == Bar || _style == Area) {
 	if (forward)
-	    for (int m = 0; m < (int)_metrics.length(); m++)
+	    for (m = 0; m < (int)_metrics.length(); m++)
 		_plots[m].plot_data[0] = _plots[m].data[0];
 	else
-	    for (int m = 0; m < (int)_metrics.length(); m++) {
-		int idx = _plots[m].dataCount - 1;
+	    for (m = 0; m < (int)_metrics.length(); m++) {
+		idx = _plots[m].dataCount - 1;
 		_plots[m].plot_data[idx] = _plots[m].data[idx];
 	    }
     }
@@ -210,41 +206,41 @@ void Chart::update(bool forward, bool visible)
 	// like Stack, but normalize value to a percentage (0,100)
 	double	sum = 0;
 	if (forward) {
-	    for (int m = 0; m < (int)_metrics.length(); m++)
+	    for (m = 0; m < (int)_metrics.length(); m++)
 		sum += _plots[m].data[0];
 	    if (sum)
-		for (int m = 0; m < (int)_metrics.length(); m++)
+		for (m = 0; m < (int)_metrics.length(); m++)
 		    _plots[m].plot_data[0] = 100 * _plots[m].data[0] / sum;
 	    else	// avoid divide-by-zero
-		for (int m = 0; m < (int)_metrics.length(); m++)
+		for (m = 0; m < (int)_metrics.length(); m++)
 		    _plots[m].plot_data[0] = 0;
-	    for (int m = 1; m < (int)_metrics.length(); m++)
+	    for (m = 1; m < (int)_metrics.length(); m++)
 		_plots[m].plot_data[0] += _plots[m-1].plot_data[0];
 	}
 	else {
-	    for (int m = 0; m < (int)_metrics.length(); m++)
+	    for (m = 0; m < (int)_metrics.length(); m++)
 		sum += _plots[m].data[_plots[m].dataCount - 1];
 	    if (sum)
-		for (int m = 0; m < (int)_metrics.length(); m++) {
-		    int idx = _plots[m].dataCount - 1;
+		for (m = 0; m < (int)_metrics.length(); m++) {
+		    idx = _plots[m].dataCount - 1;
 		    _plots[m].plot_data[idx] = 100 * _plots[m].data[idx] / sum;
 		}
 	    else	// avoid divide-by-zero
-		for (int m = 0; m < (int)_metrics.length(); m++)
+		for (m = 0; m < (int)_metrics.length(); m++)
 		    _plots[m].plot_data[_plots[m].dataCount - 1] = 0;
-	    for (int m = 1; m < (int)_metrics.length(); m++) {
-		int idx = _plots[m].dataCount - 1;
+	    for (m = 1; m < (int)_metrics.length(); m++) {
+		idx = _plots[m].dataCount - 1;
 		_plots[m].plot_data[idx] += _plots[m-1].plot_data[idx];
 	    }
 	}
     }
     else if (_style == Line) {
 	if (forward)
-	    for (int m = 0; m < (int)_metrics.length(); m++)
+	    for (m = 0; m < (int)_metrics.length(); m++)
 		_plots[m].plot_data[0] = _plots[m].data[0];
 	else
-	    for (int m = 0; m < (int)_metrics.length(); m++) {
-		int idx = _plots[m].dataCount - 1;
+	    for (m = 0; m < (int)_metrics.length(); m++) {
+		idx = _plots[m].dataCount - 1;
 		_plots[m].plot_data[idx] = _plots[m].data[idx];
 	    }
     }
@@ -256,14 +252,14 @@ void Chart::update(bool forward, bool visible)
 
 	if (forward) {
 	    _plots[0].plot_data[0] = _plots[0].data[0];
-	    for (int m = 1; m < (int)_metrics.length(); m++)
+	    for (m = 1; m < (int)_metrics.length(); m++)
 		_plots[m].plot_data[0] =
 			_plots[m].data[0] + _plots[m-1].plot_data[0];
 	}
 	else {
-	    int idx = _plots[0].dataCount - 1;
+	    idx = _plots[0].dataCount - 1;
 	    _plots[0].plot_data[idx] = _plots[0].data[idx];
-	    for (int m = 1; m < (int)_metrics.length(); m++) {
+	    for (m = 1; m < (int)_metrics.length(); m++) {
 		idx = _plots[m].dataCount - 1;
 		_plots[m].plot_data[idx] =
 			_plots[m].data[idx] + _plots[m-1].plot_data[idx];
@@ -271,13 +267,14 @@ void Chart::update(bool forward, bool visible)
 	}
     }
 
-    for (int m = 0; m < (int)_metrics.length(); m++) {
-	_plots[m].curve->setRawData(
-		_tab->timeData(), _plots[m].plot_data, _plots[m].dataCount);
+    for (m = 0; m < (int)_metrics.length(); m++) {
+	if (_plots[m].dataCount < vh)
+	    vh = _plots[m].dataCount;
+	_plots[m].curve->setRawData(_tab->timeData(), _plots[m].plot_data, vh);
     }
 
     if (verbose_updates) {
-	for (int m = 0; m < (int)_metrics.length(); m++)
+	for (m = 0; m < (int)_metrics.length(); m++)
 	    fprintf(stderr, "metric[%d] value %f plot %f\n", m,
 		    _metrics[m]->value(0), _plots[m].plot_data[0]);
     }
@@ -325,6 +322,21 @@ void Chart::fixLegendPen(void)
     }
 }
 
+void Chart::resetDataArrays(int m, int v)
+{
+    // Reset sizes of pcp data array, the plot data array, and the time array
+    _plots[m].data = (double *)realloc(_plots[m].data,
+					v * sizeof(_plots[m].data[0]));
+    if (_plots[m].data == NULL)
+	nomem();
+    _plots[m].plot_data = (double *)realloc(_plots[m].plot_data,
+					v * sizeof(_plots[m].plot_data[0]));
+    if (_plots[m].plot_data == NULL)
+	nomem();
+    if (_plots[m].dataCount > v)
+	_plots[m].dataCount = v;
+}
+
 // add a new plot
 // the pmMetricSpec has been filled in, and ninst is always 0
 // (PM_INDOM_NULL) or 1 (one instance at a time)
@@ -365,7 +377,6 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
     _plots = (plot_t *)realloc(_plots, _metrics.length()*sizeof(_plots[0]));
     if (_plots == NULL) nomem();
     m = _metrics.length() - 1;
-    _plots[m].dataCount = 0;
     _plots[m].name = new PMC_String(pmsp->metric);
 fprintf(stderr, "%s: NINST=%d\n", __func__, pmsp->ninst);
     if (pmsp->ninst == 1) {
@@ -396,14 +407,10 @@ fprintf(stderr, "%s: NAME=%s\n", __func__, _plots[m].name->ptr());
     }
 
     // initialize the pcp data and plot data arrays
-    _plots[m].data = (double *)malloc(
-			_tab->visibleHist() * sizeof(_plots[m].data[0]));
-    if (_plots[m].data == NULL)
-	nomem();
-    _plots[m].plot_data = (double *)malloc(
-			_tab->visibleHist() * sizeof(_plots[m].plot_data[0]));
-    if (_plots[m].plot_data == NULL)
-	nomem();
+    _plots[m].dataCount = 0;
+    _plots[m].data = NULL;
+    _plots[m].plot_data = NULL;
+    resetDataArrays(m, _tab->sampleHistory());
 
     // create and attach the plot right here
     _plots[m].curve = new QwtPlotCurve(_plots[m].legend_label->ptr());

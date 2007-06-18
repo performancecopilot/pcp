@@ -390,13 +390,6 @@ err(int severity, int do_where, QString msg)
     _errors++;
 }
 
-static void
-nomem(void)
-{
-    // no point trying to report anything ... dump core is the best bet
-    abort();
-}
-
 static char *
 getwd(FILE *f)
 {

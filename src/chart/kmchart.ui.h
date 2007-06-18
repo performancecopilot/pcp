@@ -489,20 +489,23 @@ void KmChart::metricInfo(QString src, QString m, QString inst, bool archive)
 
 void KmChart::editTab()
 {
-    _edittab->reset(chartTab->tabLabel(chartTab->currentPage()),
-		    activeTab->isArchiveMode(), activeTab->visibleHist());
+    QWidget *which = chartTab->currentPage();
+    _edittab->reset(chartTab->tabLabel(which), activeTab->isArchiveMode(),
+		    activeTab->sampleHistory(), activeTab->visibleHistory());
     _edittab->show();
 }
 
 void KmChart::acceptEditTab()
 {
     chartTab->changeTab(activeTab->widget(), _edittab->labelLineEdit->text());
-    activeTab->setVisibleHist((int)_edittab->visiblePointsCounter->value());
+    activeTab->setSampleHistory((int)_edittab->samplePointsCounter->value());
+    activeTab->setVisibleHistory((int)_edittab->visiblePointsCounter->value());
 }
 
 void KmChart::createNewTab(bool liveMode)
 {
-    _newtab->reset(tr(""), liveMode, settings.visibleHistory);
+    _newtab->reset(tr(""), liveMode,
+		    settings.sampleHistory, settings.visibleHistory);
     _newtab->show();
 }
 
@@ -512,13 +515,17 @@ void KmChart::acceptNewTab()
     tabs[ntabs] = new Tab();
     if (_newtab->isArchiveMode())
 	tabs[ntabs]->init(kmchart->tabWidget(),
-		(int)_newtab->visiblePointsCounter->value(), archiveGroup,
-		KM_SOURCE_ARCHIVE, _newtab->labelLineEdit->text().ascii(),
+		(int)_newtab->samplePointsCounter->value(),
+		(int)_newtab->visiblePointsCounter->value(),
+		archiveGroup, KM_SOURCE_ARCHIVE,
+		_newtab->labelLineEdit->text().stripWhiteSpace().ascii(),
 		kmtime->archiveInterval(), kmtime->archivePosition());
     else
 	tabs[ntabs]->init(kmchart->tabWidget(),
-		(int)_newtab->visiblePointsCounter->value(), liveGroup,
-		KM_SOURCE_HOST, _newtab->labelLineEdit->text().ascii(),
+		(int)_newtab->samplePointsCounter->value(),
+		(int)_newtab->visiblePointsCounter->value(),
+		 liveGroup, KM_SOURCE_HOST,
+		_newtab->labelLineEdit->text().stripWhiteSpace().ascii(),
 		kmtime->liveInterval(), kmtime->livePosition());
     ntabs++;
     enableUI();

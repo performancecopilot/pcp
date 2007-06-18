@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>294</width>
-            <height>199</height>
+            <width>332</width>
+            <height>227</height>
         </rect>
     </property>
     <property name="caption">
@@ -24,69 +24,21 @@
     <property name="sizeGripEnabled">
         <bool>false</bool>
     </property>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>tabTextLabel</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>12</x>
-                <y>13</y>
-                <width>43</width>
-                <height>25</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Label</string>
-        </property>
-    </widget>
     <widget class="QGroupBox">
         <property name="name">
             <cstring>groupBox3</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>11</x>
-                <y>45</y>
-                <width>272</width>
-                <height>99</height>
+                <x>10</x>
+                <y>42</y>
+                <width>310</width>
+                <height>138</height>
             </rect>
         </property>
         <property name="title">
-            <string>X-Axis</string>
+            <string>Samples</string>
         </property>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>visiblePointsTextLabel</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>15</x>
-                    <y>31</y>
-                    <width>100</width>
-                    <height>25</height>
-                </rect>
-            </property>
-            <property name="text">
-                <string>Visible Points</string>
-            </property>
-        </widget>
-        <widget class="QwtCounter">
-            <property name="name">
-                <cstring>visiblePointsCounter</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>121</x>
-                    <y>31</y>
-                    <width>138</width>
-                    <height>27</height>
-                </rect>
-            </property>
-            <property name="basicstep" stdset="0">
-                <number>1</number>
-            </property>
-        </widget>
         <widget class="QwtSlider">
             <property name="name">
                 <cstring>visiblePointsSlider</cstring>
@@ -95,7 +47,7 @@
                 <rect>
                     <x>15</x>
                     <y>63</y>
-                    <width>243</width>
+                    <width>290</width>
                     <height>20</height>
                 </rect>
             </property>
@@ -109,6 +61,92 @@
                 <number>14</number>
             </property>
         </widget>
+        <widget class="QwtCounter">
+            <property name="name">
+                <cstring>visiblePointsCounter</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>91</x>
+                    <y>31</y>
+                    <width>210</width>
+                    <height>27</height>
+                </rect>
+            </property>
+            <property name="basicstep" stdset="0">
+                <number>1</number>
+            </property>
+        </widget>
+        <widget class="QwtSlider">
+            <property name="name">
+                <cstring>samplePointsSlider</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>15</x>
+                    <y>113</y>
+                    <width>290</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="bgStyle">
+                <enum>BgSlot</enum>
+            </property>
+            <property name="thumbLength">
+                <number>30</number>
+            </property>
+            <property name="thumbWidth">
+                <number>14</number>
+            </property>
+        </widget>
+        <widget class="QwtCounter">
+            <property name="name">
+                <cstring>samplePointsCounter</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>91</x>
+                    <y>81</y>
+                    <width>210</width>
+                    <height>27</height>
+                </rect>
+            </property>
+            <property name="basicstep" stdset="0">
+                <number>1</number>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>samplePointsTextLabel</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>15</x>
+                    <y>81</y>
+                    <width>70</width>
+                    <height>25</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Total:</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>visiblePointsTextLabel</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>15</x>
+                    <y>31</y>
+                    <width>70</width>
+                    <height>25</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Visible:</string>
+            </property>
+        </widget>
     </widget>
     <widget class="QLayoutWidget">
         <property name="name">
@@ -117,8 +155,8 @@
         <property name="geometry">
             <rect>
                 <x>10</x>
-                <y>153</y>
-                <width>272</width>
+                <y>183</y>
+                <width>311</width>
                 <height>36</height>
             </rect>
         </property>
@@ -182,18 +220,53 @@
             </widget>
         </hbox>
     </widget>
-    <widget class="QLineEdit">
+    <widget class="QLayoutWidget">
         <property name="name">
-            <cstring>labelLineEdit</cstring>
+            <cstring>layout35</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>61</x>
-                <y>13</y>
-                <width>219</width>
-                <height>25</height>
+                <x>13</x>
+                <y>14</y>
+                <width>306</width>
+                <height>27</height>
             </rect>
         </property>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>tabTextLabel</cstring>
+                </property>
+                <property name="text">
+                    <string>Label:</string>
+                </property>
+            </widget>
+            <spacer>
+                <property name="name">
+                    <cstring>spacer6</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Fixed</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>21</width>
+                        <height>20</height>
+                    </size>
+                </property>
+            </spacer>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>labelLineEdit</cstring>
+                </property>
+            </widget>
+        </hbox>
     </widget>
 </widget>
 <customwidgets>
@@ -212,34 +285,51 @@
         <slot>reject()</slot>
     </connection>
     <connection>
+        <sender>samplePointsCounter</sender>
+        <signal>valueChanged(double)</signal>
+        <receiver>TabDialog</receiver>
+        <slot>samplePointsValueChanged(double)</slot>
+    </connection>
+    <connection>
+        <sender>samplePointsSlider</sender>
+        <signal>valueChanged(double)</signal>
+        <receiver>TabDialog</receiver>
+        <slot>samplePointsValueChanged(double)</slot>
+    </connection>
+    <connection>
         <sender>visiblePointsCounter</sender>
         <signal>valueChanged(double)</signal>
         <receiver>TabDialog</receiver>
-        <slot>visiblePointsCounterValueChanged(double)</slot>
+        <slot>visiblePointsValueChanged(double)</slot>
     </connection>
     <connection>
         <sender>visiblePointsSlider</sender>
         <signal>valueChanged(double)</signal>
         <receiver>TabDialog</receiver>
-        <slot>visiblePointsSliderValueChanged(double)</slot>
+        <slot>visiblePointsValueChanged(double)</slot>
     </connection>
 </connections>
 <includes>
-    <include location="local" impldecl="in implementation">tabdialog.ui.h</include>
     <include location="local" impldecl="in declaration">qwt/qwt_slider.h</include>
     <include location="local" impldecl="in declaration">qwt/qwt_counter.h</include>
+    <include location="local" impldecl="in implementation">tabdialog.ui.h</include>
 </includes>
 <variables>
     <variable access="private">bool archiveMode;</variable>
-    <variable access="private">int visibleHistory;</variable>
+    <variable access="private">double sampleHistory;</variable>
+    <variable access="private">double visibleHistory;</variable>
 </variables>
 <slots>
-    <slot>visiblePointsCounterValueChanged( double )</slot>
-    <slot>visiblePointsSliderValueChanged( double )</slot>
+    <slot>samplePointsValueChanged( double )</slot>
+    <slot>visiblePointsValueChanged( double )</slot>
 </slots>
 <functions>
-    <function>reset( QString, bool, int )</function>
+    <function>reset( QString, bool, int, int )</function>
     <function returnType="bool">isArchiveMode()</function>
+    <function>displaySamplePointsSlider()</function>
+    <function>displaySamplePointsCounter()</function>
+    <function>displayVisiblePointsSlider()</function>
+    <function>displayVisiblePointsCounter()</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

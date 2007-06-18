@@ -55,13 +55,15 @@ static void usage(void)
 "  -n pmnsfile   use an alternative PMNS\n"
 "  -O offset     initial offset into the time window\n"
 "  -p port       port name for connection to existing time control\n"
+"  -s samples    sample history [default: %d points]\n"
 "  -S starttime  start of the time window\n"
 "  -T endtime    end of the time window\n"
-"  -t interval   sample interval [default 3 seconds]\n"
-"  -v samples    visible points [default 60]\n"
+"  -t interval   sample interval [default: %d seconds]\n"
+"  -v samples    visible history [default: %d points]\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time of metrics source\n",
-	pmProgname);
+	pmProgname,
+	DEFAULT_SAMPLE_POINTS, DEFAULT_SAMPLE_INTERVAL, DEFAULT_VISIBLE_POINTS);
     pmflush();
     exit(1);
 }
@@ -131,6 +133,12 @@ char *timestring(double seconds)
     return s;
 }
 
+void nomem(void)
+{
+    // no point trying to report anything ... dump core is the best bet
+    abort();
+}
+
 void writeSettings(void)
 {
     QSettings userSettings;
@@ -143,10 +151,10 @@ void writeSettings(void)
 
     userSettings.beginGroup(QApplication::tr("kmchart"));
     if (settings.sampleHistoryModified)
-	userSettings.writeEntry(QApplication::tr("total_samples"), 
+	userSettings.writeEntry(QApplication::tr("sample_points"), 
 				settings.sampleHistory);
     if (settings.visibleHistoryModified)
-	userSettings.writeEntry(QApplication::tr("visible_samples"),
+	userSettings.writeEntry(QApplication::tr("visible_points"),
 				settings.visibleHistory);
     if (settings.defaultColorsModified)
 	userSettings.writeEntry(QApplication::tr("plot_default_colors"),
@@ -160,6 +168,31 @@ void writeSettings(void)
     if (settings.styleModified)
 	userSettings.writeEntry(QApplication::tr("style"), settings.styleName);
     userSettings.endGroup();
+}
+
+void checkHistory(int samples, int visible)
+{
+    // sanity checking on sample sizes
+    if (samples < visible) {
+	settings.sampleHistory = settings.visibleHistory;
+	settings.sampleHistoryModified = 1;
+    }
+    if (samples < 1) {
+	settings.sampleHistory = 1;
+	settings.sampleHistoryModified = 1;
+    }
+    if (samples > MAXIMUM_POINTS) {
+	settings.sampleHistory = MAXIMUM_POINTS;
+	settings.sampleHistoryModified = 1;
+    }
+    if (visible < 1) {
+	settings.visibleHistory = 1;
+	settings.visibleHistoryModified = 1;
+    }
+    if (visible > MAXIMUM_POINTS) {
+	settings.visibleHistory = MAXIMUM_POINTS;
+	settings.visibleHistoryModified = 1;
+    }
 }
 
 void readSettings(void)
@@ -179,37 +212,15 @@ void readSettings(void)
     // Parameters related to numbers of samples
     //
     settings.sampleHistory = userSettings.readNumEntry(
-	QApplication::tr("total_samples"), DEFAULT_TOTAL_POINTS);
+	QApplication::tr("sample_points"), DEFAULT_SAMPLE_POINTS);
     settings.visibleHistory = userSettings.readNumEntry(
-	QApplication::tr("visible_samples"), DEFAULT_VISIBLE_POINTS);
-
-    // sanity checking on sample sizes
-    if (settings.sampleHistory < settings.visibleHistory) {
-	settings.sampleHistory = settings.visibleHistory;
-	settings.sampleHistoryModified = 1;
-    }
-    if (settings.sampleHistory < 1) {
-	settings.sampleHistory = 1;
-	settings.sampleHistoryModified = 1;
-    }
-    if (settings.sampleHistory > MAXIMUM_TOTAL_POINTS) {
-	settings.sampleHistory = MAXIMUM_TOTAL_POINTS;
-	settings.sampleHistoryModified = 1;
-    }
-    if (settings.visibleHistory < 1) {
-	settings.visibleHistory = 1;
-	settings.visibleHistoryModified = 1;
-    }
-    if (settings.visibleHistory > MAXIMUM_VISIBLE_POINTS) {
-	settings.visibleHistory = MAXIMUM_VISIBLE_POINTS;
-	settings.visibleHistoryModified = 1;
-    }
-
+	QApplication::tr("visible_points"), DEFAULT_VISIBLE_POINTS);
+    checkHistory(settings.sampleHistory, settings.visibleHistory);
     if (settings.sampleHistoryModified)
-	userSettings.writeEntry(QApplication::tr("total_samples"), 
+	userSettings.writeEntry(QApplication::tr("sample_points"), 
 				settings.sampleHistory);
     if (settings.visibleHistoryModified)
-	userSettings.writeEntry(QApplication::tr("visible_samples"), 
+	userSettings.writeEntry(QApplication::tr("visible_points"), 
 				settings.visibleHistory);
 
     //
@@ -264,9 +275,10 @@ main(int argc, char ** argv)
     char		*Oflag = NULL;		/* argument of -O flag */
     int			zflag = 0;		/* for -z */
     char		*tz = NULL;		/* for -Z timezone */
-    int			vh = -1;		/* vertical history length */
+    int			sh = -1;		/* sample history length */
+    int			vh = -1;		/* visible history length */
     int			port = -1;		/* kmtime port number */
-    struct timeval	delta = { 2, 0 };
+    struct timeval	delta = { DEFAULT_SAMPLE_INTERVAL, 0 };
     struct timeval	logStartTime;
     struct timeval	logEndTime;
     struct timeval	realStartTime;
@@ -290,7 +302,7 @@ main(int argc, char ** argv)
     tabs[0] = new Tab();
     tabs[1] = new Tab();
 
-    while ((c = getopt(argc, argv, "A:a:Cc:D:h:n:O:p:S:T:t:v:zZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, "A:a:Cc:D:h:n:O:p:s:S:T:t:v:zZ:?")) != EOF) {
 	switch (c) {
 
 	case 'A':	/* sample alignment */
@@ -335,6 +347,15 @@ main(int argc, char ** argv)
 	    port = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0' || c < 0) {
 		pmprintf("%s: -p requires a numeric argument\n", pmProgname);
+		errflg++;
+	    }
+	    break;
+
+	case 's':		/* sample history */
+	    sh = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0' || sh < 1) {
+		pmprintf("%s: -s requires a numeric argument, larger than 1\n",
+			 pmProgname);
 		errflg++;
 	    }
 	    break;
@@ -394,6 +415,27 @@ main(int argc, char ** argv)
 	/* NOTREACHED */
     }
 
+    //
+    // Deal with user requested sample/visible points settings.  These
+    // (command line) override the QSettings values, for this instance
+    // of kmchart.  They should not be written though, unless requested
+    // later via the Settings dialog.
+    //
+    if (vh != -1 || sh != -1) {
+	if (sh == -1)
+	    sh = settings.sampleHistory;
+	if (vh == -1)
+	    vh = settings.visibleHistory;
+	checkHistory(sh, vh);
+	if (settings.sampleHistoryModified || settings.visibleHistoryModified) {
+	    pmprintf("%s: invalid sample/visible history\n", pmProgname);
+	    pmflush();
+	    exit(1);
+	}
+	settings.sampleHistory = sh;
+	settings.visibleHistory = vh;
+    }
+
     if (pmnsfile && (sts = pmLoadNameSpace(pmnsfile)) < 0) {
 	pmprintf("%s: %s\n", pmProgname, pmErrStr(sts));
 	pmflush();
@@ -440,9 +482,6 @@ main(int argc, char ** argv)
 	}
     }
 
-    if (vh < 1)
-	vh = DEFAULT_VISIBLE_POINTS;
-
     //
     // Choose which Tab will be displayed initially - archive/live.
     // If any archives given on command line, we go Archive mode;
@@ -467,7 +506,7 @@ main(int argc, char ** argv)
 	// move position to account for initial visible points
 	// TODO: pmchart had an option to start at archive end
 fprintf(stderr, "RESET position from %s to ", timestring(tosec(position)));
-	for (c = 0; c < vh - 2; c++)
+	for (c = 0; c < settings.sampleHistory - 2; c++)
 	    tadd(&position, &delta);
 fprintf(stderr, "%s\n", timestring(tosec(position)));
     }
@@ -496,10 +535,12 @@ fprintf(stderr, "%s\n", timestring(tosec(position)));
 		 tzLabel.ptr(), tzLabel.length());
 
     kmchart->init();
-    tabs[0]->init(kmchart->tabWidget(), vh,
+    tabs[0]->init(kmchart->tabWidget(),
+			settings.sampleHistory, settings.visibleHistory,
 			liveGroup, KM_SOURCE_HOST, "Live",
 			kmtime->liveInterval(), kmtime->livePosition());
-    tabs[1]->init(kmchart->tabWidget(), vh,
+    tabs[1]->init(kmchart->tabWidget(),
+			settings.sampleHistory, settings.visibleHistory,
 			archiveGroup, KM_SOURCE_ARCHIVE, "Archive",
 			kmtime->archiveInterval(), kmtime->archivePosition());
     kmchart->setActiveTab(archives.length() > 0 ? 1 : 0, true);

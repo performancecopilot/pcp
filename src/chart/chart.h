@@ -46,6 +46,7 @@ class Chart : public QwtPlot
 public:
     Chart(Tab *, QWidget * = 0);
     ~Chart(void);
+    void	resetDataArrays(int m, int v);
     int		addPlot(pmMetricSpec *, char *);
     int		numPlot(void);
     void	delPlot(int);

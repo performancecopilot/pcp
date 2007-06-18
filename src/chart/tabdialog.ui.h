@@ -12,16 +12,22 @@
 
 #include "main.h"
 
-void TabDialog::reset(QString label, bool liveMode, int value)
+void TabDialog::reset(QString label, bool liveMode, int samples, int visible)
 {
     archiveMode = !liveMode;
     labelLineEdit->setText(label);
 
-    visibleHistory = value;
-    visiblePointsCounter->setValue(value);
-    visiblePointsCounter->setRange(1, settings.sampleHistory);
-    visiblePointsSlider->setValue(value);
-    visiblePointsSlider->setRange(1, settings.sampleHistory);
+    sampleHistory = samples;
+    samplePointsCounter->setRange(1, MAXIMUM_POINTS);
+    samplePointsSlider->setRange(1, MAXIMUM_POINTS);
+    displaySamplePointsCounter();
+    displaySamplePointsSlider();
+
+    visibleHistory = visible;
+    visiblePointsCounter->setRange(1, MAXIMUM_POINTS);
+    visiblePointsSlider->setRange(1, MAXIMUM_POINTS);
+    displayVisiblePointsCounter();
+    displayVisiblePointsSlider();
 }
 
 bool TabDialog::isArchiveMode()
@@ -29,20 +35,52 @@ bool TabDialog::isArchiveMode()
     return archiveMode;
 }
 
-void TabDialog::visiblePointsCounterValueChanged(double value)
+void TabDialog::samplePointsValueChanged(double value)
 {
-fprintf(stderr, "%s: value=%.2f, vh=%d\n", __func__, value, visibleHistory);
-    if (visibleHistory == (int)value)
-	return;
-    visibleHistory = (int)value;
-    visiblePointsSlider->setValue((double)(int)value);
+    if (sampleHistory != value) {
+	sampleHistory = (double)(int)value;
+	displaySamplePointsCounter();
+	displaySamplePointsSlider();
+	if (visibleHistory > sampleHistory)
+	    visiblePointsSlider->setValue(value);
+    }
 }
 
-void TabDialog::visiblePointsSliderValueChanged(double value)
+void TabDialog::visiblePointsValueChanged(double value)
 {
-fprintf(stderr, "%s: value=%.2f, vh=%d\n", __func__, value, visibleHistory);
-    if (visibleHistory == (int)value)
-	return;
-    visibleHistory = (int)value;
-    visiblePointsCounter->setValue((double)(int)value);
+    if (visibleHistory != value) {
+	visibleHistory = (double)(int)value;
+	displayVisiblePointsCounter();
+	displayVisiblePointsSlider();
+	if (visibleHistory > sampleHistory)
+	    samplePointsSlider->setValue(value);
+    }
+}
+
+void TabDialog::displaySamplePointsSlider()
+{
+    samplePointsSlider->blockSignals(TRUE);
+    samplePointsSlider->setValue(sampleHistory);
+    samplePointsSlider->blockSignals(FALSE);
+}
+
+void TabDialog::displayVisiblePointsSlider()
+{
+    visiblePointsSlider->blockSignals(TRUE);
+    visiblePointsSlider->setValue(visibleHistory);
+    visiblePointsSlider->blockSignals(FALSE);
+}
+
+void TabDialog::displaySamplePointsCounter()
+{
+    samplePointsCounter->blockSignals(TRUE);
+    samplePointsCounter->setValue(sampleHistory);
+    samplePointsCounter->blockSignals(FALSE);
+}
+
+void TabDialog::displayVisiblePointsCounter()
+{
+    visiblePointsCounter->blockSignals(TRUE);
+    visiblePointsCounter->setValue(visibleHistory);
+    visiblePointsCounter->blockSignals(FALSE);
 }

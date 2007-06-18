@@ -34,14 +34,15 @@
 #include "kmchart.h"
 #include "source.h"
 
-#define VERSION		"0.6.0"
+#define VERSION		"0.5.0"
 #define min(a,b)	((a)<(b)?(a):(b))
 #define max(a,b)	((a)>(b)?(a):(b))
 
+#define DEFAULT_SAMPLE_INTERVAL	2 /* seconds */
+
 #define DEFAULT_VISIBLE_POINTS	24
-#define DEFAULT_TOTAL_POINTS	24
-#define MAXIMUM_VISIBLE_POINTS	300
-#define MAXIMUM_TOTAL_POINTS	300
+#define DEFAULT_SAMPLE_POINTS	24
+#define MAXIMUM_POINTS		300
 
 typedef struct {
 	// Samples
@@ -98,5 +99,7 @@ extern double tosec(struct timeval);
 extern double torange(struct timeval, int);
 extern void fromsec(double, struct timeval *);
 extern char *timestring(double);
+
+extern void nomem(void);
 
 #endif	/* MAIN_H */

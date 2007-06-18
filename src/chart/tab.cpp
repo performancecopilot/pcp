@@ -98,7 +98,8 @@ Tab::Tab(QWidget *parent): QWidget(parent)
     _current = -1;
     _charts = NULL;
     _group = NULL;
-    _visible = DEFAULT_VISIBLE_POINTS;
+    _samples = settings.sampleHistory;
+    _visible = settings.visibleHistory;
     _interval = 0;
     _recording = false;
     _showdate = true;
@@ -118,7 +119,7 @@ void Tab::showTimeControl(void)
 	kmtime->showArchiveTimeControl();
 }
 
-void Tab::init(QTabWidget *chartTab, int vh,
+void Tab::init(QTabWidget *chartTab, int samples, int visible,
 		PMC_Group *group, km_tctl_source mode, const char *label,
 		struct timeval *ip, struct timeval *sp)
 {
@@ -138,15 +139,16 @@ void Tab::init(QTabWidget *chartTab, int vh,
     _mode = mode;
     _buttonstate = mode==KM_SOURCE_HOST ? BUTTON_PLAYLIVE : BUTTON_STOPARCHIVE;
 
-    _visible = (vh > 1) ? vh : DEFAULT_VISIBLE_POINTS;
+    _samples = samples;
+    _visible = visible;
     _interval = tosec(*ip);
     _lastkmdelta = *ip;
     _lastkmposition = *sp;
 
     double position = tosec(_lastkmposition);
-    _timeData = (double *)malloc(_visible * sizeof(_timeData[0]));
-    for (i = 0; i < _visible; i++)
-	_timeData[i] = position - i * _interval;
+    _timeData = (double *)malloc(_samples * sizeof(_timeData[0]));
+    for (i = 0; i < _samples; i++)
+	_timeData[i] = position - (i * _interval);
 
     kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom,
 			_timeData[_visible-1], _timeData[0],
@@ -311,7 +313,7 @@ void Tab::refresh_charts(void)
     int i;
 
 #if DESPERATE
-    for (i = 0; i < _visible; i++)
+    for (i = 0; i < _samples; i++)
 	fprintf(stderr, "%s: timeData[%2d] is %.2f (%s)\n",
 		__FUNCTION__, i, _timeData[i], timestring(_timeData[i]));
     fprintf(stderr, "%s: state=%s\n", __FUNCTION__, timestate(_timestate));
@@ -384,7 +386,7 @@ void Tab::adjustLiveWorldView(kmTime *kmtime)
 {
     int i, j, delta, setmode;
     double interval, position;
-    int last = _visible - 1;
+    int last = _samples - 1;
 
     delta = kmtime->delta.tv_sec;
     setmode = PM_MODE_LIVE;
@@ -418,7 +420,7 @@ fprintf(stderr, "%s: skip fetch, position[%d] matches existing\n", __func__, i);
 	    _group->fetch();
 	    break;
 	} else {
-	    // TODO: nuke old data that we're now overwriting? (new delta)
+	    // TODO: nuke old data that we're now overwriting? (new start/delta)
 fprintf(stderr, "%s: live mode TODO case, position[%d]\n", __func__, i);
 	}
 	for (j = 0; j < _num; j++)
@@ -434,7 +436,7 @@ void Tab::adjustArchiveWorldViewForward(kmTime *kmtime, bool setup)
     struct timeval timeval;
     double interval, position;
     int i, j, delta, setmode;
-    int last = _visible - 1;
+    int last = _samples - 1;
 
     _timestate = FORWARD_STATE;
 
@@ -453,9 +455,9 @@ void Tab::adjustArchiveWorldViewForward(kmTime *kmtime, bool setup)
     position = tosec(kmtime->position);
 
 //#if DESPERATE
-    fprintf(stderr, "%s: vh=%d interval=%.2f position=%.2f (%s) state=%s\n",
-		__func__, _visible, interval, position, timestring(position),
-		timestate(_timestate));
+    fprintf(stderr, "%s: sh=%d vh=%d delta=%.2f position=%.2f (%s) state=%s\n",
+		__func__, _samples, _visible, interval, position,
+		timestring(position), timestate(_timestate));
 //#endif
 
     //
@@ -471,12 +473,14 @@ fprintf(stderr, "%s: skip fetch, position[%d] matches existing\n", __func__, i);
 	}
 	_timeData[i] = position;
 	fromsec(position, &timeval);
-	if (_group->setArchiveMode(setmode, &timeval, delta) < 0)
+	if (_group->setArchiveMode(setmode, &timeval, delta) < 0) {
+fprintf(stderr, "%s: eh? bailed on setArchiveMode?\n", __func__);
 	    continue;
+	}
 	_group->fetch();
 	if (i == 0)		// refresh_charts() finishes up last one
 	    break;
-fprintf(stderr, "%s: setting a time position[%d]=%.2f (%s), state=%s\n", __func__, i, position, timestring(position), timestate(_timestate));
+fprintf(stderr, "%s: setting a time position[%d]=%.2f (%s), state=%s num=%d\n", __func__, i, position, timestring(position), timestate(_timestate), _num);
 	for (j = 0; j < _num; j++) {
 	    _charts[j].cp->update(_timestate != BACKWARD_STATE, false);
 	}
@@ -493,7 +497,7 @@ void Tab::adjustArchiveWorldViewBackward(kmTime *kmtime, bool setup)
     struct timeval timeval;
     double interval, position;
     int i, j, delta, setmode;
-    int last = _visible - 1;
+    int last = _samples - 1;
 
     _timestate = BACKWARD_STATE;
 
@@ -512,9 +516,9 @@ void Tab::adjustArchiveWorldViewBackward(kmTime *kmtime, bool setup)
     position = tosec(kmtime->position);
 
 //#if DESPERATE
-    fprintf(stderr, "%s: vh=%d interval=%.2f position=%.2f (%s) state=%s\n",
-		__func__, _visible, interval, position, timestring(position),
-		timestate(_timestate));
+    fprintf(stderr, "%s: sh=%d vh=%d delta=%.2f position=%.2f (%s) state=%s\n",
+		__func__, _samples, _visible, interval, position,
+		timestring(position), timestate(_timestate));
 //#endif
 
     //
@@ -535,7 +539,7 @@ fprintf(stderr, "%s: fetching for position[%d] at %s\n", __func__, i, timestring
 	_group->fetch();
 	if (i == last)		// refresh_charts() finishes up last one
 	    break;
-fprintf(stderr, "%s: setting a time position[%d]=%.2f (%s), state=%s\n", __func__, i, position, timestring(position), timestate(_timestate));
+fprintf(stderr, "%s: setting a time position[%d]=%.2f (%s), state=%s num=%d\n", __func__, i, position, timestring(position), timestate(_timestate), _num);
 	for (j = 0; j < _num; j++) {
 	    _charts[j].cp->update(_timestate != BACKWARD_STATE, false);
 	}
@@ -573,18 +577,18 @@ void Tab::step(kmTime *kmtime)
 	 (kmtime->state == KM_STATE_BACKWARD && _timestate != BACKWARD_STATE)))
 	return adjustWorldView(kmtime);
 
-    last = _visible - 1;
+    last = _samples - 1;
     _lastkmstate = kmtime->state;
     _lastkmdelta = kmtime->delta;
     _lastkmposition = kmtime->position;
 
     if (kmtime->state == KM_STATE_FORWARD) {	// left-to-right (all but 1st)
-	if (_visible > 1)
+	if (_samples > 1)
 	    memmove(&_timeData[1], &_timeData[0], sizeof(double) * last);
 	_timeData[0] = tosec(kmtime->position);
     }
     else if (kmtime->state == KM_STATE_BACKWARD) {	// right-to-left
-	if (_visible > 1)
+	if (_samples > 1)
 	    memmove(&_timeData[0], &_timeData[1], sizeof(double) * last);
 	_timeData[last] = tosec(_lastkmposition) - torange(_lastkmdelta, last);
     }
@@ -595,8 +599,6 @@ void Tab::step(kmTime *kmtime)
 
 void Tab::vcrmode(kmTime *kmtime, bool dragmode)
 {
-fprintf(stderr, "%s: dragmode=%d\n", __FUNCTION__, dragmode);
-
     if (dragmode)	// TODO
 	return;
     adjustWorldView(kmtime);
@@ -604,18 +606,43 @@ fprintf(stderr, "%s: dragmode=%d\n", __FUNCTION__, dragmode);
 
 void Tab::setTimezone(char *tz)
 {
+#ifdef DESPERATE
     fprintf(stderr, "%s (%s)\n", __func__, tz);
+#endif
     _group->useTZ(PMC_String(tz));
 }
 
-void Tab::setVisibleHist(int v)
+void Tab::setSampleHistory(int v)
 {
-    _visible = v;
-    // TODO - visible hard work goes here!
-    fprintf(stderr, "setVisibleHist(%d)\n", v);
+    if (_samples != v) {
+	_samples = v;
+	for (int i = 0; i < _num; i++)
+	    for (int m = 0; m < _charts[i].cp->numPlot(); m++)
+		_charts[i].cp->resetDataArrays(m, _samples);
+	_timeData = (double *)malloc(_samples * sizeof(_timeData[0]));
+	if (_timeData == NULL)
+	    nomem();
+	double position = tosec(_lastkmposition);
+	for (int i = 0; i < _samples; i++)
+	    _timeData[i] = position - (i * _interval);
+    }
 }
 
-int Tab::visibleHist(void)
+int Tab::sampleHistory(void)
+{
+    return _samples;
+}
+
+void Tab::setVisibleHistory(int v)
+{
+    if (_visible != v) {
+	_visible = v;
+	for (int i = 0; i < _num; i++)
+	    _charts[i].cp->replot();
+    }
+}
+
+int Tab::visibleHistory(void)
 {
     return _visible;
 }

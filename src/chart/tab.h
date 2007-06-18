@@ -66,7 +66,7 @@ class Tab : public QWidget
     Q_OBJECT
 public:
     Tab(QWidget * = 0);
-    void	init(QTabWidget *, int, PMC_Group *, km_tctl_source,
+    void	init(QTabWidget *, int, int, PMC_Group *, km_tctl_source,
 			const char *, struct timeval *, struct timeval *);
     bool	isArchiveMode(void);	// query if tab is for archives
 
@@ -86,8 +86,10 @@ public:
     void	setFolio(QString);
     void	addLogger(PmLogger *);
 
-    void	setVisibleHist(int);
-    int		visibleHist(void);
+    void	setVisibleHistory(int);
+    int		visibleHistory(void);
+    void	setSampleHistory(int);
+    int		sampleHistory(void);
 
     void	setConfig(char *);
     char	*config(void);		// config filename from -c
@@ -125,6 +127,7 @@ private:
     struct timeval	_lastkmdelta;	// last delta from kmtime
     struct timeval	_lastkmposition;// last position from kmtime
     int			_visible;	// -v visible points
+    int			_samples;	// -s total number of samples
     double		*_timeData;	// time array (intervals)
     KmTimeState		_timestate;
     KmButtonState	_buttonstate;
