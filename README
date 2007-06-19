@@ -87,6 +87,9 @@ TODO
     - Also wrt record mode configuration, we may want a QSession setting
       to allow a different default record interval, so that theres no need
       to set it to something else on each record invocation.
+    - D'oh - when implementing record mode, I forgot about the code inside
+      pmlogger to support "detach" functionality (pmlogger.c -x option);
+      should go back and make use of those control-fd functions.
     - Fix up build to generate the pixmaps (PNG) from the SVG files,
       as is done in the Tango-Desktop-Icons package builds (ImageMagick).
       This should fix up the ordinary look to some of the current icons.
