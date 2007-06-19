@@ -26,10 +26,11 @@ typedef enum {
     KM_TCTL_TZ		= (1<<2),	// server -> clients
     KM_TCTL_VCRMODE	= (1<<3),	// server -> clients
     KM_TCTL_VCRMODE_DRAG= (1<<4),	// server -> clients
-    KM_TCTL_SHOWDIALOG	= (1<<5),	// client -> server
-    KM_TCTL_HIDEDIALOG	= (1<<6),	// client -> server
+    KM_TCTL_GUISHOW	= (1<<5),	// client -> server
+    KM_TCTL_GUIHIDE	= (1<<6),	// client -> server
     KM_TCTL_BOUNDS	= (1<<7),	// client -> server
     KM_TCTL_ACK		= (1<<8),	// client -> server (except handshake)
+    KM_TCTL_GUISTYLE	= (1<<9),	// client <-> server (both ways)
 } km_tctl_command;
 
 typedef enum {
@@ -45,6 +46,7 @@ typedef enum {
 } km_tctl_mode;
 
 typedef enum {
+    KM_SOURCE_NONE	= -1,
     KM_SOURCE_HOST	= 0,
     KM_SOURCE_ARCHIVE	= 1,
 } km_tctl_source;
@@ -62,7 +64,7 @@ typedef struct {
     struct timeval	position;
     struct timeval	start;		/* archive only */
     struct timeval	end;		/* archive only */
-    char		tzdata[0];	/* arbitrary length $TZ info */
+    char		data[0];	/* arbitrary length info ($TZ/style) */
 } kmTime;
 
 extern int kmTimeSendAck(int, struct timeval *);

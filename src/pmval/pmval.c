@@ -1496,8 +1496,8 @@ getargs(int		argc,		/* in - command line argument count */
 	    fprintf(stderr, "%s: realloc: %s\n", pmProgname, strerror(errno));
 	    exit(EXIT_FAILURE);
 	}
-	strcpy(kmtime->tzdata, rpt_tz);
-	strcpy(kmtime->tzdata + tzh, rpt_tz_label);
+	strcpy(kmtime->data, rpt_tz);
+	strcpy(kmtime->data + tzh, rpt_tz_label);
 	if ((control_fd = kmTimeConnect(kmport, kmtime)) < 0) {
 	    fprintf(stderr, "%s: kmTimeConnect: %s\n",
 		    pmProgname, pmErrStr(control_fd));
@@ -1850,13 +1850,13 @@ static void talk_to_kmtime(int *first)
 		break;
 
 	    case KM_TCTL_TZ:
-		if ((sts = pmNewZone(kmtime->tzdata)) < 0) {
+		if ((sts = pmNewZone(kmtime->data)) < 0) {
 		    fprintf(stderr,
 			"%s: Warning: cannot set timezone to \"%s\": %s\n",
-			pmProgname, kmtime->tzdata, pmErrStr(sts));
+			pmProgname, kmtime->data, pmErrStr(sts));
 		} else {
-		    printf("new timezone: %s (%s)\n", kmtime->tzdata,
-			    kmtime->tzdata+ strlen(kmtime->tzdata) + 1);
+		    printf("new timezone: %s (%s)\n", kmtime->data,
+			    kmtime->data + strlen(kmtime->data) + 1);
 		}
 		break;
 
@@ -1872,7 +1872,9 @@ static void talk_to_kmtime(int *first)
 	    /*
 	     * safely and silently ignore these
 	     */
-	    case KM_TCTL_SHOWDIALOG:
+	    case KM_TCTL_GUISTYLE:
+	    case KM_TCTL_GUISHOW:
+	    case KM_TCTL_GUIHIDE:
 	    case KM_TCTL_BOUNDS:
 	    case KM_TCTL_ACK:
 		break;

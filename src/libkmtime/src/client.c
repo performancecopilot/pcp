@@ -175,7 +175,7 @@ int kmTimeShowDialog(int fd, int show)
     memset(&data, 0, sizeof(data));
     data.magic = KMTIME_MAGIC;
     data.length = sizeof(data);
-    data.command = show ? KM_TCTL_SHOWDIALOG : KM_TCTL_HIDEDIALOG;
+    data.command = show ? KM_TCTL_GUISHOW : KM_TCTL_GUIHIDE;
     sts = write(fd, &data, sizeof(data));
     if (sts >= 0 && sts != sizeof(data)) {
 	errno = ENODATA;
