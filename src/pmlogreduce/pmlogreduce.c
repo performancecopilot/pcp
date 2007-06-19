@@ -362,7 +362,8 @@ main(int argc, char **argv)
 	    /* check for mem leaks from orp et al */
 	    char	*xbase;
 	    xbase = (char *)sbrk(0);
-	    fprintf(stderr, "memusage: %d (delta %d)\n", xbase-base, xbase-lbase);
+	    fprintf(stderr, "memusage: %ld (delta %ld)\n",
+		    (long)(xbase-base), (long)(xbase-lbase));
 	    lbase = xbase;
 	}
 #endif

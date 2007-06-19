@@ -55,10 +55,10 @@ pmAtomStr(const pmAtomValue *avp, int type)
 	    snprintf(buf, sizeof(buf), "%u", av.ul);
 	    break;
 	case PM_TYPE_64:
-	    snprintf(buf, sizeof(buf), "%lld", av.ll);
+	    snprintf(buf, sizeof(buf), "%lld", (long long)av.ll);
 	    break;
 	case PM_TYPE_U64:
-	    snprintf(buf, sizeof(buf), "%llu", av.ull);
+	    snprintf(buf, sizeof(buf), "%llu", (unsigned long long)av.ull);
 	    break;
 	case PM_TYPE_FLOAT:
 	    snprintf(buf, sizeof(buf), "%e", (double)av.f);
