@@ -24,11 +24,11 @@
 
 #define KMTIME_PORT_BASE	43334
 
-#define KM_FASTMODE_DELAY	20	/* msecs */
-#define KM_DEFAULT_DELTA	2	/* secs */
-#define KM_DEFAULT_SPEED	1.0
-#define KM_MINIMUM_SPEED	0.1
-#define KM_MAXIMUM_SPEED	1000.0
+#define KM_FASTMODE_DELAY	200	/* milliseconds */
+#define KM_DEFAULT_DELTA	2	/* seconds */
+#define KM_DEFAULT_SPEED(d)	(2.0 * (d))	/* num deltas per second */
+#define KM_MINIMUM_SPEED(d)	(0.1 * (d))	/* min deltas per second */
+#define KM_MAXIMUM_SPEED(d)	(100.0 * (d))	/* max deltas per second */
 
 typedef enum { Msec, Sec, Min, Hour, Day, Week } delta_units;
 typedef enum { DBG_APP = 0x1, DBG_PROTO = 0x2 } debug_options;

@@ -10,7 +10,7 @@ UIFILES = aboutdialog.ui aboutpcpdialog.ui console.ui \
 UIHFILES = $(UIFILES:.ui=.ui.h)
 CPPFILES = main.cpp
 HPPFILES = $(CPPFILES:.cpp=.h)
-HEADERS = timelord.h timezone.h constants.h
+HEADERS = timelord.h timezone.h
 
 LSRCFILES = kmtime.pro $(UIFILES) $(UIHFILES) $(CPPFILES) $(HPPFILES)
 LDIRT = kmtime Makefile

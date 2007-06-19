@@ -136,16 +136,17 @@ void KmTimeArch::init(Console *cp)
     addTimezone(utc);
     displayDeltaText();
     setControl(KM_STATE_STOP, KM_MODE_NORMAL);
-    changeSpeed(KM_DEFAULT_SPEED);
 
-    wheelSpeed->setRange(KM_MINIMUM_SPEED, KM_MAXIMUM_SPEED, 0.1);
-    wheelSpeed->setValue(KM_DEFAULT_SPEED);
+    double delta = secondsFromTV(&_kmtime.delta);
+    changeSpeed(KM_DEFAULT_SPEED(delta));
+    wheelSpeed->setRange(KM_MINIMUM_SPEED(delta), KM_MAXIMUM_SPEED(delta), 0.1);
+    wheelSpeed->setValue(KM_DEFAULT_SPEED(delta));
     lineEditDelta->setAlignment(Qt::AlignRight);
-    lineEditDelta->setValidator(new QDoubleValidator
-		(0.001, ULONG_MAX, 3, lineEditDelta));
+    lineEditDelta->setValidator(
+		new QDoubleValidator(0.001, ULONG_MAX, 3, lineEditDelta));
     lineEditSpeed->setAlignment(Qt::AlignRight);
-    lineEditSpeed->setValidator(new QDoubleValidator
-		(KM_MINIMUM_SPEED, KM_MAXIMUM_SPEED, 1, lineEditSpeed));
+    lineEditSpeed->setValidator(
+		new QDoubleValidator(0.001, UINT_MAX, 1, lineEditSpeed));
 
     _bounds = new ShowBounds(this);
     _bounds->init(_console, &absoluteStart, &_kmtime.start,
@@ -394,18 +395,23 @@ void KmTimeArch::clickShowYear()
 
 void KmTimeArch::resetSpeed()
 {
-    changeSpeed(KM_DEFAULT_SPEED);
+    changeSpeed(KM_DEFAULT_SPEED(secondsFromTV(&_kmtime.delta)));
 }
 
 void KmTimeArch::changeSpeed(double value)
 {
     QString 	text;
     int		reset = _timer->isActive();
+    double	upper, lower, delta = secondsFromTV(&_kmtime.delta);
 
     _timer->stop();
 
-    if (value > KM_MAXIMUM_SPEED) value = KM_MAXIMUM_SPEED;
-    else if (value < KM_MINIMUM_SPEED) value = KM_MINIMUM_SPEED;
+    upper = KM_MAXIMUM_SPEED(delta);
+    lower = KM_MINIMUM_SPEED(delta);
+    if (value > upper)
+	value = upper;
+    else if (value < lower)
+	value = lower;
     text.sprintf("%.1f", value);
     lineEditSpeed->setText(text);
     if (wheelSpeed->value() != value)
@@ -415,6 +421,9 @@ void KmTimeArch::changeSpeed(double value)
     if (reset)
 	_timer->start((int)(((_kmtime.delta.tv_sec * 1000) +
 			     (_kmtime.delta.tv_usec / 1000)) / _speed));
+
+    _console->post(DBG_APP, "%s changed delta to %d.%d (%.2fs)", __func__,
+			_kmtime.delta.tv_sec, _kmtime.delta.tv_usec, value);
 }
 
 void KmTimeArch::showBounds()
@@ -535,11 +544,13 @@ void KmTimeArch::lineEditCtime_validate()
 
 void KmTimeArch::lineEditSpeed_validate()
 {
-    double speed;
+    double speed, upper, lower, delta = secondsFromTV(&_kmtime.delta);
     bool ok, reset = _timer->isActive();
 
+    lower = KM_MINIMUM_SPEED(delta);
+    upper = KM_MAXIMUM_SPEED(delta);
     speed = lineEditSpeed->text().toDouble(&ok);
-    if (!ok || speed < KM_MINIMUM_SPEED || speed > KM_MAXIMUM_SPEED) {
+    if (!ok || speed < lower || speed > upper) {
 	wheelSpeed->setValue(_speed);	// reset to previous, known-good speed
     } else {
 	_speed = speed;
@@ -645,6 +656,7 @@ void KmTimeArch::setTime(kmTime *k, char *tzdata)
 	displayPositionText();
 	displayPositionSlide();
 	_bounds->reset();
+	changeSpeed(KM_DEFAULT_SPEED(secondsFromTV(&k->delta)));
     } else {
 	addBound(k, tzdata);
     }
