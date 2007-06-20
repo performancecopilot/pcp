@@ -42,6 +42,7 @@
 
 #define DEFAULT_VISIBLE_POINTS	24
 #define DEFAULT_SAMPLE_POINTS	24
+#define MINIMUM_POINTS		2
 #define MAXIMUM_POINTS		300
 
 typedef struct {

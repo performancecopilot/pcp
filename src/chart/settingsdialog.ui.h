@@ -46,10 +46,10 @@ void SettingsDialog::reset()
 
     visibleCounter->setValue(settings.visibleHistory);
     visibleSlider->setValue(settings.visibleHistory);
-    visibleSlider->setRange(1, MAXIMUM_POINTS);
+    visibleSlider->setRange(MINIMUM_POINTS, MAXIMUM_POINTS);
     totalCounter->setValue(settings.sampleHistory);
     totalSlider->setValue(settings.sampleHistory);
-    totalSlider->setRange(1, MAXIMUM_POINTS);
+    totalSlider->setRange(MINIMUM_POINTS, MAXIMUM_POINTS);
 
     chartBackgroundPushButton->setPaletteBackgroundColor(
 						settings.chartBackground);

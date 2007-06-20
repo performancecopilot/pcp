@@ -18,14 +18,14 @@ void TabDialog::reset(QString label, bool liveMode, int samples, int visible)
     labelLineEdit->setText(label);
 
     sampleHistory = samples;
-    samplePointsCounter->setRange(1, MAXIMUM_POINTS);
-    samplePointsSlider->setRange(1, MAXIMUM_POINTS);
+    samplePointsCounter->setRange(MINIMUM_POINTS, MAXIMUM_POINTS);
+    samplePointsSlider->setRange(MINIMUM_POINTS, MAXIMUM_POINTS);
     displaySamplePointsCounter();
     displaySamplePointsSlider();
 
     visibleHistory = visible;
-    visiblePointsCounter->setRange(1, MAXIMUM_POINTS);
-    visiblePointsSlider->setRange(1, MAXIMUM_POINTS);
+    visiblePointsCounter->setRange(MINIMUM_POINTS, MAXIMUM_POINTS);
+    visiblePointsSlider->setRange(MINIMUM_POINTS, MAXIMUM_POINTS);
     displayVisiblePointsCounter();
     displayVisiblePointsSlider();
 }

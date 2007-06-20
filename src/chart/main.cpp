@@ -177,16 +177,16 @@ void checkHistory(int samples, int visible)
 	settings.sampleHistory = settings.visibleHistory;
 	settings.sampleHistoryModified = 1;
     }
-    if (samples < 1) {
-	settings.sampleHistory = 1;
+    if (samples < MINIMUM_POINTS) {
+	settings.sampleHistory = MINIMUM_POINTS;
 	settings.sampleHistoryModified = 1;
     }
     if (samples > MAXIMUM_POINTS) {
 	settings.sampleHistory = MAXIMUM_POINTS;
 	settings.sampleHistoryModified = 1;
     }
-    if (visible < 1) {
-	settings.visibleHistory = 1;
+    if (visible < MINIMUM_POINTS) {
+	settings.visibleHistory = MINIMUM_POINTS;
 	settings.visibleHistoryModified = 1;
     }
     if (visible > MAXIMUM_POINTS) {
