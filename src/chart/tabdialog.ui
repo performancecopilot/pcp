@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>332</width>
-            <height>227</height>
+            <width>343</width>
+            <height>238</height>
         </rect>
     </property>
     <property name="caption">
@@ -24,250 +24,252 @@
     <property name="sizeGripEnabled">
         <bool>false</bool>
     </property>
-    <widget class="QGroupBox">
+    <grid>
         <property name="name">
-            <cstring>groupBox3</cstring>
+            <cstring>unnamed</cstring>
         </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>42</y>
-                <width>310</width>
-                <height>138</height>
-            </rect>
-        </property>
-        <property name="title">
-            <string>Samples</string>
-        </property>
-        <widget class="QwtSlider">
+        <widget class="QLayoutWidget" row="0" column="0">
             <property name="name">
-                <cstring>visiblePointsSlider</cstring>
+                <cstring>layout9</cstring>
             </property>
-            <property name="geometry">
-                <rect>
-                    <x>15</x>
-                    <y>63</y>
-                    <width>290</width>
-                    <height>20</height>
-                </rect>
-            </property>
-            <property name="bgStyle">
-                <enum>BgSlot</enum>
-            </property>
-            <property name="thumbLength">
-                <number>30</number>
-            </property>
-            <property name="thumbWidth">
-                <number>14</number>
-            </property>
-        </widget>
-        <widget class="QwtCounter">
-            <property name="name">
-                <cstring>visiblePointsCounter</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>91</x>
-                    <y>31</y>
-                    <width>210</width>
-                    <height>27</height>
-                </rect>
-            </property>
-            <property name="basicstep" stdset="0">
-                <number>1</number>
-            </property>
-        </widget>
-        <widget class="QwtSlider">
-            <property name="name">
-                <cstring>samplePointsSlider</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>15</x>
-                    <y>113</y>
-                    <width>290</width>
-                    <height>20</height>
-                </rect>
-            </property>
-            <property name="bgStyle">
-                <enum>BgSlot</enum>
-            </property>
-            <property name="thumbLength">
-                <number>30</number>
-            </property>
-            <property name="thumbWidth">
-                <number>14</number>
-            </property>
-        </widget>
-        <widget class="QwtCounter">
-            <property name="name">
-                <cstring>samplePointsCounter</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>91</x>
-                    <y>81</y>
-                    <width>210</width>
-                    <height>27</height>
-                </rect>
-            </property>
-            <property name="basicstep" stdset="0">
-                <number>1</number>
-            </property>
-        </widget>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>samplePointsTextLabel</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>15</x>
-                    <y>81</y>
-                    <width>70</width>
-                    <height>25</height>
-                </rect>
-            </property>
-            <property name="text">
-                <string>Total:</string>
-            </property>
-        </widget>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>visiblePointsTextLabel</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>15</x>
-                    <y>31</y>
-                    <width>70</width>
-                    <height>25</height>
-                </rect>
-            </property>
-            <property name="text">
-                <string>Visible:</string>
-            </property>
-        </widget>
-    </widget>
-    <widget class="QLayoutWidget">
-        <property name="name">
-            <cstring>Layout1</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>183</y>
-                <width>311</width>
-                <height>36</height>
-            </rect>
-        </property>
-        <hbox>
-            <property name="name">
-                <cstring>unnamed</cstring>
-            </property>
-            <property name="margin">
-                <number>0</number>
-            </property>
-            <property name="spacing">
-                <number>6</number>
-            </property>
-            <spacer>
+            <grid>
                 <property name="name">
-                    <cstring>Horizontal Spacing2</cstring>
+                    <cstring>unnamed</cstring>
                 </property>
-                <property name="orientation">
-                    <enum>Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                    <enum>Expanding</enum>
-                </property>
-                <property name="sizeHint">
-                    <size>
-                        <width>20</width>
-                        <height>20</height>
-                    </size>
-                </property>
-            </spacer>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>buttonOk</cstring>
-                </property>
-                <property name="text">
-                    <string>&amp;OK</string>
-                </property>
-                <property name="accel">
-                    <string></string>
-                </property>
-                <property name="autoDefault">
-                    <bool>true</bool>
-                </property>
-                <property name="default">
-                    <bool>true</bool>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>buttonCancel</cstring>
-                </property>
-                <property name="text">
-                    <string>&amp;Cancel</string>
-                </property>
-                <property name="accel">
-                    <string></string>
-                </property>
-                <property name="autoDefault">
-                    <bool>true</bool>
-                </property>
-            </widget>
-        </hbox>
-    </widget>
-    <widget class="QLayoutWidget">
-        <property name="name">
-            <cstring>layout35</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>13</x>
-                <y>14</y>
-                <width>306</width>
-                <height>27</height>
-            </rect>
-        </property>
-        <hbox>
-            <property name="name">
-                <cstring>unnamed</cstring>
-            </property>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>tabTextLabel</cstring>
-                </property>
-                <property name="text">
-                    <string>Label:</string>
-                </property>
-            </widget>
-            <spacer>
-                <property name="name">
-                    <cstring>spacer6</cstring>
-                </property>
-                <property name="orientation">
-                    <enum>Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                    <enum>Fixed</enum>
-                </property>
-                <property name="sizeHint">
-                    <size>
-                        <width>21</width>
-                        <height>20</height>
-                    </size>
-                </property>
-            </spacer>
-            <widget class="QLineEdit">
-                <property name="name">
-                    <cstring>labelLineEdit</cstring>
-                </property>
-            </widget>
-        </hbox>
-    </widget>
+                <widget class="QGroupBox" row="1" column="0">
+                    <property name="name">
+                        <cstring>groupBox3</cstring>
+                    </property>
+                    <property name="title">
+                        <string>Samples</string>
+                    </property>
+                    <grid>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QwtSlider" row="1" column="0">
+                            <property name="name">
+                                <cstring>visiblePointsSlider</cstring>
+                            </property>
+                            <property name="bgStyle">
+                                <enum>BgSlot</enum>
+                            </property>
+                            <property name="thumbLength">
+                                <number>30</number>
+                            </property>
+                            <property name="thumbWidth">
+                                <number>14</number>
+                            </property>
+                        </widget>
+                        <widget class="QwtSlider" row="3" column="0">
+                            <property name="name">
+                                <cstring>samplePointsSlider</cstring>
+                            </property>
+                            <property name="bgStyle">
+                                <enum>BgSlot</enum>
+                            </property>
+                            <property name="thumbLength">
+                                <number>30</number>
+                            </property>
+                            <property name="thumbWidth">
+                                <number>14</number>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget" row="0" column="0">
+                            <property name="name">
+                                <cstring>layout7</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>visiblePointsTextLabel</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Visible:</string>
+                                    </property>
+                                </widget>
+                                <spacer>
+                                    <property name="name">
+                                        <cstring>spacer3</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Preferred</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>26</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                                <widget class="QwtCounter">
+                                    <property name="name">
+                                        <cstring>visiblePointsCounter</cstring>
+                                    </property>
+                                    <property name="basicstep" stdset="0">
+                                        <number>1</number>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                        <widget class="QLayoutWidget" row="2" column="0">
+                            <property name="name">
+                                <cstring>layout8</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>samplePointsTextLabel</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Total:</string>
+                                    </property>
+                                </widget>
+                                <spacer>
+                                    <property name="name">
+                                        <cstring>spacer4</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Preferred</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>40</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                                <widget class="QwtCounter">
+                                    <property name="name">
+                                        <cstring>samplePointsCounter</cstring>
+                                    </property>
+                                    <property name="basicstep" stdset="0">
+                                        <number>1</number>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                    </grid>
+                </widget>
+                <widget class="QLayoutWidget" row="0" column="0">
+                    <property name="name">
+                        <cstring>layout35</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>tabTextLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Label:</string>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer6</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Fixed</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>21</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                        <widget class="QLineEdit">
+                            <property name="name">
+                                <cstring>labelLineEdit</cstring>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget" row="2" column="0">
+                    <property name="name">
+                        <cstring>Layout1</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <spacer>
+                            <property name="name">
+                                <cstring>Horizontal Spacing2</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>20</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>buttonOk</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;OK</string>
+                            </property>
+                            <property name="accel">
+                                <string></string>
+                            </property>
+                            <property name="autoDefault">
+                                <bool>true</bool>
+                            </property>
+                            <property name="default">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>buttonCancel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Cancel</string>
+                            </property>
+                            <property name="accel">
+                                <string></string>
+                            </property>
+                            <property name="autoDefault">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+            </grid>
+        </widget>
+    </grid>
 </widget>
 <customwidgets>
 </customwidgets>
@@ -327,10 +329,16 @@
     <function>reset( QString, bool, int, int )</function>
     <function returnType="bool">isArchiveMode()</function>
     <function>displaySamplePointsSlider()</function>
-    <function>displaySamplePointsCounter()</function>
     <function>displayVisiblePointsSlider()</function>
+    <function>displaySamplePointsCounter()</function>
     <function>displayVisiblePointsCounter()</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
+<includehints>
+    <includehint>qwt_slider.h</includehint>
+    <includehint>qwt_slider.h</includehint>
+    <includehint>qwt_counter.h</includehint>
+    <includehint>qwt_counter.h</includehint>
+</includehints>
 </UI>
