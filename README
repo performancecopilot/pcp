@@ -122,5 +122,12 @@ TODO
     - Not much uses the integer delta however, its mainly interp.c in
       libpcp that uses it.  Note: libpcp_pmc also has an API that's
       affected here - PMC_Group::setArchiveMode
+    - Some pmproxy changes are required to libpcp (see kmchart above).
+      which will also require some new PMAPI interfaces.  The reason
+      for these changes is to separate out the current behaviour that
+      allows only one PMPROXY_HOST setting to be used for the life of
+      a PCP client program, and instead allow the user to choose (and
+      choose differently for differnt hosts), the pmproxy host that's
+      associated with any pmcd host.
 
 -- Ken McDonell & Nathan Scott
