@@ -33,6 +33,7 @@
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qpixmap.h>
+#include <qsplitter.h>
 #include <qtabwidget.h>
 #include <qpushbutton.h>
 #include <qwt/qwt_plot.h>
@@ -111,8 +112,7 @@ public:
     km_tctl_state kmtimeState(void);
     void newButtonState(km_tctl_state s, km_tctl_mode m, int mode, bool record);
 
-    QWidget	*widget() { return _widget; }
-    QVBoxLayout	*layout() { return _vboxlayout; }
+    QWidget	*splitter() { return _splitter; }
 
 private:
     typedef struct chart {
@@ -135,8 +135,7 @@ private:
     km_tctl_state	_lastkmstate;
     PMC_Group		*_group;	// metric fetchgroup
     QString		_datelabel;
-    QWidget        	*_widget;
-    QVBoxLayout		*_vboxlayout;
+    QSplitter		*_splitter;
     QString		_folio;		// archive folio, if logging
     QPtrList<PmLogger>	_loglist;	// list of pmloggers for this Tab
 

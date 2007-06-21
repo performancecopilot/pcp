@@ -497,7 +497,7 @@ void KmChart::editTab()
 
 void KmChart::acceptEditTab()
 {
-    chartTab->changeTab(activeTab->widget(), _edittab->labelLineEdit->text());
+    chartTab->changeTab(activeTab->splitter(), _edittab->labelLineEdit->text());
     activeTab->setSampleHistory((int)_edittab->samplePointsCounter->value());
     activeTab->setVisibleHistory((int)_edittab->visiblePointsCounter->value());
 }

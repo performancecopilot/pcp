@@ -93,8 +93,7 @@ static char *timestate(int state)
 Tab::Tab(QWidget *parent): QWidget(parent)
 {
     _num = 0;
-    _widget = NULL;
-    _vboxlayout = NULL;
+    _splitter = NULL;
     _current = -1;
     _charts = NULL;
     _group = NULL;
@@ -125,15 +124,15 @@ void Tab::init(QTabWidget *chartTab, int samples, int visible,
 {
     int i;
 
-    _widget = new QWidget(chartTab);
-    _widget->setMinimumSize(QSize( 80, 80 ));
-    _widget->setMaximumSize(QSize( 32767, 32767 ));
-    _widget->setSizePolicy(QSizePolicy((QSizePolicy::SizeType)7,
+    _splitter = new QSplitter(chartTab);
+    _splitter->setOrientation(QSplitter::Vertical);
+    _splitter->setMinimumSize(QSize(80, 80));
+    _splitter->setMaximumSize(QSize(32767, 32767));
+    _splitter->setSizePolicy(QSizePolicy((QSizePolicy::SizeType)7,
 				(QSizePolicy::SizeType)7, 0, 0,
-				_widget->sizePolicy().hasHeightForWidth()));
-    _vboxlayout = new QVBoxLayout(_widget, 0, 0);
+				_splitter->sizePolicy().hasHeightForWidth()));
     _loglist.setAutoDelete(TRUE);
-    chartTab->insertTab(_widget, tr(label));	// TODO: why not just addTab()?
+    chartTab->insertTab(_splitter, tr(label));	// TODO: why not just addTab()?
 
     _group = group;
     _mode = mode;
@@ -169,8 +168,7 @@ Chart *Tab::addChart(void)
 
     _num++;
     _charts = (chart_t *)realloc(_charts, _num * sizeof(_charts[0]));
-    cp = new Chart(this, activeTab->widget());
-    activeTab->layout()->addWidget(cp);
+    cp = new Chart(this, activeTab->splitter());
     _charts[_num-1].cp = cp;
     setCurrent(cp);
     _current = _num-1;
