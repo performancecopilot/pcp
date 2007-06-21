@@ -123,6 +123,7 @@ void KmChart::enableUI(void)
     bool	haveLiveHosts = (!activeTab->isArchiveMode());
 
     closeTabAction->setEnabled(haveTabs);
+    deleteTabAction->setEnabled(haveTabs);
     fileSaveViewAction->setEnabled(haveCharts);
     fileRecordAction->setEnabled(haveCharts && haveLiveHosts);
     filePrintAction->setEnabled(haveCharts);
@@ -504,7 +505,7 @@ void KmChart::acceptEditTab()
 
 void KmChart::createNewTab(bool liveMode)
 {
-    _newtab->reset(tr(""), liveMode,
+    _newtab->reset(QString::null, liveMode,
 		    settings.sampleHistory, settings.visibleHistory);
     _newtab->show();
 }

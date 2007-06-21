@@ -14,20 +14,19 @@
 
 void TabDialog::reset(QString label, bool liveMode, int samples, int visible)
 {
-    archiveMode = !liveMode;
+    if (label == QString::null)
+	setCaption(tr("Add Tab"));
     labelLineEdit->setText(label);
 
-    sampleHistory = samples;
-    samplePointsCounter->setRange(MINIMUM_POINTS, MAXIMUM_POINTS);
-    samplePointsSlider->setRange(MINIMUM_POINTS, MAXIMUM_POINTS);
-    displaySamplePointsCounter();
-    displaySamplePointsSlider();
+    archiveMode = !liveMode;
+    sampleHistory = visibleHistory = 0;
 
-    visibleHistory = visible;
-    visiblePointsCounter->setRange(MINIMUM_POINTS, MAXIMUM_POINTS);
+    samplePointsCounter->setValue(samples);
+    samplePointsSlider->setValue(samples);
+    samplePointsSlider->setRange(MINIMUM_POINTS, MAXIMUM_POINTS);
+    visiblePointsCounter->setValue(visible);
+    visiblePointsSlider->setValue(visible);
     visiblePointsSlider->setRange(MINIMUM_POINTS, MAXIMUM_POINTS);
-    displayVisiblePointsCounter();
-    displayVisiblePointsSlider();
 }
 
 bool TabDialog::isArchiveMode()

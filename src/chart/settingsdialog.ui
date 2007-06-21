@@ -191,13 +191,10 @@
                                         <number>1</number>
                                     </property>
                                     <property name="minValue">
-                                        <number>1</number>
+                                        <number>2</number>
                                     </property>
                                     <property name="maxValue">
                                         <number>300</number>
-                                    </property>
-                                    <property name="value">
-                                        <number>10</number>
                                     </property>
                                 </widget>
                             </hbox>
@@ -243,13 +240,10 @@
                                         <number>1</number>
                                     </property>
                                     <property name="minValue">
-                                        <number>1</number>
+                                        <number>2</number>
                                     </property>
                                     <property name="maxValue">
                                         <number>300</number>
-                                    </property>
-                                    <property name="value">
-                                        <number>10</number>
                                     </property>
                                 </widget>
                             </hbox>
@@ -1446,8 +1440,8 @@
 <functions>
     <function returnType="int">defaultColorArray( QPushButton * * * array )</function>
     <function>reset()</function>
-    <function>flush()</function>
     <function>revert()</function>
+    <function>flush()</function>
     <function>displayTotalSlider()</function>
     <function>displayVisibleSlider()</function>
     <function>displayTotalCounter()</function>

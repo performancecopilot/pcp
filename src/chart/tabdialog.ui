@@ -115,6 +115,12 @@
                                     <property name="basicstep" stdset="0">
                                         <number>1</number>
                                     </property>
+                                    <property name="minValue">
+                                        <number>2</number>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>300</number>
+                                    </property>
                                 </widget>
                             </hbox>
                         </widget>
@@ -157,6 +163,12 @@
                                     </property>
                                     <property name="basicstep" stdset="0">
                                         <number>1</number>
+                                    </property>
+                                    <property name="minValue">
+                                        <number>2</number>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>300</number>
                                     </property>
                                 </widget>
                             </hbox>

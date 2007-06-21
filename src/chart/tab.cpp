@@ -604,7 +604,7 @@ void Tab::vcrmode(kmTime *kmtime, bool dragmode)
 
 void Tab::setTimezone(char *tz)
 {
-#ifdef DESPERATE
+#if DESPERATE
     fprintf(stderr, "%s (%s)\n", __func__, tz);
 #endif
     _group->useTZ(PMC_String(tz));
@@ -612,6 +612,9 @@ void Tab::setTimezone(char *tz)
 
 void Tab::setSampleHistory(int v)
 {
+#if DESPERATE
+    fprintf(stderr, "%s (%d->%d)\n", __func__, _samples, v);
+#endif
     if (_samples != v) {
 	_samples = v;
 	for (int i = 0; i < _num; i++)
@@ -633,6 +636,9 @@ int Tab::sampleHistory(void)
 
 void Tab::setVisibleHistory(int v)
 {
+#if DESPERATE
+    fprintf(stderr, "%s (%d->%d)\n", __func__, _visible, v);
+#endif
     if (_visible != v) {
 	_visible = v;
 	for (int i = 0; i < _num; i++)

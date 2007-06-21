@@ -268,6 +268,7 @@
         <action name="deleteChartAction"/>
         <separator/>
         <action name="editTabAction"/>
+        <action name="deleteTabAction"/>
         <separator/>
         <action name="editSettingsAction"/>
     </item>
@@ -608,49 +609,6 @@
     </action>
     <action>
         <property name="name">
-            <cstring>Action_3</cstring>
-        </property>
-        <property name="text">
-            <string>Unnamed</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>Action_4</cstring>
-        </property>
-        <property name="text">
-            <string>Action_4</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>Action_5</cstring>
-        </property>
-        <property name="text">
-            <string>Action_5</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>Action_6</cstring>
-        </property>
-        <property name="text">
-            <string>Unnamed</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>timenew_itemAction_2</cstring>
-        </property>
-        <property name="text">
-            <string>new item</string>
-        </property>
-        <property name="menuText">
-            <string>new item</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
             <cstring>addLiveTabAction</cstring>
         </property>
         <property name="iconSet">
@@ -675,6 +633,17 @@
         </property>
         <property name="menuText">
             <string>Archive...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>closeTabAction</cstring>
+        </property>
+        <property name="text">
+            <string>Close Tab</string>
+        </property>
+        <property name="menuText">
+            <string>Close Tab</string>
         </property>
     </action>
     <action>
@@ -748,21 +717,13 @@
     </action>
     <action>
         <property name="name">
-            <cstring>closeTabAction</cstring>
+            <cstring>deleteTabAction</cstring>
         </property>
         <property name="text">
-            <string>Close Tab</string>
+            <string>Delete Tab</string>
         </property>
         <property name="menuText">
-            <string>Close Tab</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>Action_2</cstring>
-        </property>
-        <property name="text">
-            <string>Unnamed</string>
+            <string>Delete Tab</string>
         </property>
     </action>
     <action>
@@ -986,6 +947,12 @@
         <signal>activated()</signal>
         <receiver>KmChart</receiver>
         <slot>editTab()</slot>
+    </connection>
+    <connection>
+        <sender>deleteTabAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>closeTab()</slot>
     </connection>
     <connection>
         <sender>addLiveTabAction</sender>
