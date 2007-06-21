@@ -61,8 +61,7 @@ Chart::Chart(Tab *tab, QWidget *parent):
     _tab = tab;
 
     setFocusPolicy(QWidget::NoFocus);
-    setSizePolicy(QSizePolicy::MinimumExpanding,
-		  QSizePolicy::MinimumExpanding, false);
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     setMinimumSize(256, 128);
     setMaximumSize(32767, 32767);
     plotLayout()->setAlignCanvasToScales(true);

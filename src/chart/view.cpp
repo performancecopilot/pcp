@@ -132,7 +132,7 @@ OpenViewDialog::OpenViewDialog(QWidget *parent)
     srcButton->setFixedSize(80, 32);
     connect(srcButton, SIGNAL(clicked()), this, SLOT(sourceAdd()));
     srcCombo = new QComboBox(FALSE, this, "srcCombo");
-    srcCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed, FALSE);
+    srcCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     connect(srcCombo, SIGNAL(activated(int)), this, SLOT(sourceChange(int)));
 
     connect(this, SIGNAL(filesSelected(const QStringList&)), this,

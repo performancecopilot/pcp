@@ -128,11 +128,11 @@ void Tab::init(QTabWidget *chartTab, int samples, int visible,
     _splitter->setOrientation(QSplitter::Vertical);
     _splitter->setMinimumSize(QSize(80, 80));
     _splitter->setMaximumSize(QSize(32767, 32767));
-    _splitter->setSizePolicy(QSizePolicy((QSizePolicy::SizeType)7,
-				(QSizePolicy::SizeType)7, 0, 0,
-				_splitter->sizePolicy().hasHeightForWidth()));
-    _loglist.setAutoDelete(TRUE);
+    _splitter->setSizePolicy(QSizePolicy::MinimumExpanding,
+				QSizePolicy::MinimumExpanding);
     chartTab->insertTab(_splitter, tr(label));	// TODO: why not just addTab()?
+
+    _loglist.setAutoDelete(TRUE);
 
     _group = group;
     _mode = mode;
