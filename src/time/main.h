@@ -24,7 +24,7 @@
 
 #define KMTIME_PORT_BASE	43334
 
-#define KM_FASTMODE_DELAY	200	/* milliseconds */
+#define KM_FASTMODE_DELAY	100	/* milliseconds */
 #define KM_DEFAULT_DELTA	2	/* seconds */
 #define KM_DEFAULT_SPEED(d)	(2.0 * (d))	/* num deltas per second */
 #define KM_MINIMUM_SPEED(d)	(0.1 * (d))	/* min deltas per second */
