@@ -267,9 +267,8 @@ void Chart::update(bool forward, bool visible)
     }
 
     for (m = 0; m < (int)_metrics.length(); m++) {
-	if (_plots[m].dataCount < vh)
-	    vh = _plots[m].dataCount;
-	_plots[m].curve->setRawData(_tab->timeData(), _plots[m].plot_data, vh);
+	_plots[m].curve->setRawData(_tab->timeData(), _plots[m].plot_data,
+				    min(vh, _plots[m].dataCount));
     }
 
     if (verbose_updates) {
