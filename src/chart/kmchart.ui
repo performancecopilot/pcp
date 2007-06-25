@@ -292,6 +292,22 @@
 <toolbars>
 </toolbars>
 <customwidgets>
+    <customwidget>
+        <class>TimeAxis</class>
+        <header location="local">timeaxis.h</header>
+        <sizehint>
+            <width>90</width>
+            <height>20</height>
+        </sizehint>
+        <container>0</container>
+        <sizepolicy>
+            <hordata>7</hordata>
+            <verdata>0</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+        <pixmap>image0</pixmap>
+    </customwidget>
 </customwidgets>
 <actions>
     <action>
@@ -803,6 +819,11 @@
         </property>
     </action>
 </actions>
+<images>
+    <image name="image0">
+        <data format="PNG" length="974">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000039549444154388db5954b4c9c5518869ff35f6698290cc28416db5a6db008d4d2268660c054116c34adad4643528d2eac0b131726f5b272514d1ac3c218b74dd4448a0b82c458c70b346ad264883188523bb65a0b03c3ad33c2c0fc33ff3fffd545e3c020831b7c37e7e47cdf79bff7bce7e43b221a8d02d0d6d6e645a351c11641fa8774edb815106b15577457200525dc15177bc2461fd3597b8a8e573a3c81c0c980ab5938098752a754d62a0d3cbc8d406b006bca421b5c411fd38b922b9e0851fd6c186fcec518d6090f5495542c01c5553d0f5c0fdc8d373879875c328796d448a5529b136fa5b745c4ff0794cd82a167421cffee84e72c3a58d326ea6edf86794d478e7a00b1a148c1d24d89fd07fd04bab661c72da47199fc5519eda28739233027a1ce760aa46b0bfc27318e0fe98b1750af3460ed7c1fd3ae42f23f86a5c6e9b8f92dc7cc89925b1580caea97c969df2032e59075114b7eb6cf35f1485ca3321823327b92f0b57769af388dfac724dbafdfc0b13c3ef3ab1cfa7250ac571b1b8a0851d7a87900b63587a83150abd3d48b8b1c487cc27e354dbde9f2b5f93c1f7b6ff346ae1bb7493078e72e4613098263bfd03f3050f0f5b953cd057251d7a8798bc9b3e85a84ae661f414590b397194f2fa09ff251737f90c0cf3e56ce5d020cac9786b9995dc01af981ca9fa2288133f84517782a8a5c5bb0428e7c7eecadb31f9d3ef3144bdcb8a79eef9f7e925ff7ddcbf2629eb2ba05bc061f2b5e1e6b56454e3e84b3504b6eef657cd7c2f81a6ec3f7601a6ebf829119624f6099ac7e80de0fc6850230e53a28082e1971ccafce135cce61cca6a073f532f2cdefa15c3f899c0a118c1dc2cb2d6168165955c5b1a6319746a87147e8fd70bf00509a8e1cf590647a4c9dd75fbccae1c33035057d7df0a9a8297e24ca5fc8a2024fb1d04351d865e2bbab1dcf95908297415bed2d0ac03b799d1ecba017b02c308c5b63665822376ae3a64ddca44575f99b9457eda66c21caf25c92f49ec74b3fb7d850449c007a36e817de8e4e686b4524933031c9f1f0795e7b5526f69bc3850b704e2ffd2f14b5cdf5e856fb69a19f195bf07b0ebc7071fcd1742f0d7ff6313bebf2a3e900fb0ab1a2b6994c423c0ed3d3904ec3de3b6c5aefb3693968d178b7c5d2228c8ec2f8382412d05067d3f980497b8bc9ce1d4e51d1a21f64bde2b2329065b0ed5b6dda34a1b6b6965c368b2ccb08494296246cdbc6711c2a4321a6676656ad2805c3f8f7dafcfc7cc9fc954ca630ff1b0c27a215cbad4dbf0000000049454e44ae426082</data>
+    </image>
+</images>
 <connections>
     <connection>
         <sender>fileOpenViewAction</sender>
@@ -1085,4 +1106,7 @@
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="0" margin="0"/>
+<includehints>
+    <includehint>timeaxis.h</includehint>
+</includehints>
 </UI>
