@@ -1,4 +1,5 @@
-kmtools Source Guide and TODO List
+Known Bugs and TODO List
+========================
 
 kmchart and kmtime are replacements for SGI's pmchart and pmtime.
 kmchart is designed to produce stripcharts from Performance Co-Pilot (PCP)
@@ -32,13 +33,6 @@ TODO
     kmchart TODO list:
     - Try building and running with QT4 (currently only QT3 tried)
     - Try building and running with QWT5 library/headers.
-    - Visible/sample History config changes
-    - Dumps core on changing Visible Plots - undiagnosed
-    - Ability to move charts up/down vertically within a Tab
-	(use up/down arrow keys? - ideal cos thats just one change
-	 at a time then - nice&easy code & dwiinterface wise).
-	QVBoxLayout::remove and QVBoxLayout::insertWidget look like
-	the Qt mechanism for implementing this.
     - Unified time axis, still to do:
 	o Scaling of the tick marks on the Y-axis is far from correct,
 	  and causes mis-alignment on the unified X-axis.  The disk
@@ -70,8 +64,6 @@ TODO
     - All the usual PCP tool options need to be introduced, such
       as -S, -O, -T, etc.
     - Auto-update the version string in the About dialog.
-    - The System/User buttons on the Open View dialog are smaller
-      than the other toolbox buttons alongside them.
     - File->Record support - mostly working, needs lots more testing and
       better error handling.  Should also try find more unique filenames
       for each successive run, even just a simple in-memory counter would
