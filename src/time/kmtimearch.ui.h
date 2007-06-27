@@ -21,7 +21,7 @@
 #include <pcp/impl.h>
 #include "main.h"
 #include "aboutdialog.h"
-#include "aboutpcpdialog.h"
+#include "seealsodialog.h"
 #include "../../images/stop_on.xpm"
 #include "../../images/stop_off.xpm"
 #include "../../images/play_on.xpm"
@@ -161,13 +161,13 @@ void KmTimeArch::init(Console *cp)
 
 void KmTimeArch::helpAbout()
 {
-    About about;
+    AboutDialog about;
     about.exec();
 }
 
-void KmTimeArch::helpAboutPCP()
+void KmTimeArch::helpSeeAlso()
 {
-    AboutPCP about;
+    SeeAlsoDialog about;
     about.exec();
 }
 

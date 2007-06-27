@@ -10,8 +10,7 @@
 ** destructor.
 *****************************************************************************/
 
-
-void About::aboutOKButton_clicked()
+void AboutDialog::aboutOKButton_clicked()
 {
     done(0);
 }

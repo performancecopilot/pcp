@@ -589,7 +589,7 @@ right (faster).  This only affects normal play/back modes.</string>
         <action name="helpManualAction"/>
         <separator/>
         <action name="helpAboutAction"/>
-        <action name="helpAboutPCPAction"/>
+        <action name="helpSeeAlsoAction"/>
         <separator/>
         <action name="helpWhats_ThisAction"/>
     </item>
@@ -785,20 +785,17 @@ level of runtime verbosity to be configured (default is "none").</string>
     </action>
     <action>
         <property name="name">
-            <cstring>helpAboutPCPAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>menupcp.png</iconset>
+            <cstring>helpSeeAlsoAction</cstring>
         </property>
         <property name="text">
-            <string>About Performance Co-Pilot</string>
+            <string>See Also</string>
         </property>
         <property name="menuText">
-            <string>About &amp;PCP</string>
+            <string>See Also</string>
         </property>
         <property name="whatsThis">
-            <string>&lt;b&gt;Help|About PCP&lt;/b&gt;&lt;br&gt;
-Click on this menu option to bring up the About &lt;i&gt;Performance Co-Pilot&lt;/i&gt; dialog, with author and licensing information about PCP.</string>
+            <string>&lt;b&gt;Help|See Also&lt;/b&gt;&lt;br&gt;
+Click on this menu option to bring up the See Also dialog, with author and website information about PCP, Qwt, and Qt - all of which provide software infrastructure on which this tool was built.</string>
         </property>
     </action>
     <action>
@@ -873,10 +870,10 @@ Click this menu option to invoke a small question mark that is attached to the m
         <slot>helpAbout()</slot>
     </connection>
     <connection>
-        <sender>helpAboutPCPAction</sender>
+        <sender>helpSeeAlsoAction</sender>
         <signal>activated()</signal>
         <receiver>KmTimeArch</receiver>
-        <slot>helpAboutPCP()</slot>
+        <slot>helpSeeAlso()</slot>
     </connection>
     <connection>
         <sender>pushButtonBack</sender>
@@ -1053,7 +1050,7 @@ Click this menu option to invoke a small question mark that is attached to the m
     <slot>setControl( km_tctl_state newstate, km_tctl_mode newmode )</slot>
     <slot>init( Console * cp )</slot>
     <slot>helpAbout()</slot>
-    <slot>helpAboutPCP()</slot>
+    <slot>helpSeeAlso()</slot>
     <slot>whatsThis()</slot>
     <slot>playClicked()</slot>
     <slot>backClicked()</slot>

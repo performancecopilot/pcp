@@ -18,7 +18,7 @@
 #include <pcp/impl.h>
 #include "main.h"
 #include "aboutdialog.h"
-#include "aboutpcpdialog.h"
+#include "seealsodialog.h"
 #include "../../images/stop_on.xpm"
 #include "../../images/stop_off.xpm"
 #include "../../images/play_on.xpm"
@@ -96,13 +96,13 @@ void KmTimeLive::init(Console *cp)
 
 void KmTimeLive::helpAbout()
 {
-    About about;
+    AboutDialog about;
     about.exec();
 }
 
-void KmTimeLive::helpAboutPCP()
+void KmTimeLive::helpSeeAlso()
 {
-    AboutPCP about;
+    SeeAlsoDialog about;
     about.exec();
 }
 

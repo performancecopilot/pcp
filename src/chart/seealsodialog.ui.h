@@ -10,8 +10,7 @@
 ** destructor.
 *****************************************************************************/
 
-
-void AboutPCP::aboutPCPOKButton_clicked()
+void SeeAlsoDialog::seeAlsoOKButton_clicked()
 {
     done(0);
 }

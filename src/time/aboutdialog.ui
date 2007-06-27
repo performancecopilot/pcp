@@ -1,8 +1,8 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>About</class>
+<class>AboutDialog</class>
 <widget class="QDialog">
     <property name="name">
-        <cstring>About</cstring>
+        <cstring>AboutDialog</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -33,31 +33,6 @@
     <property name="modal">
         <bool>true</bool>
     </property>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>aboutOKButton</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>170</x>
-                <y>170</y>
-                <width>60</width>
-                <height>34</height>
-            </rect>
-        </property>
-        <property name="focusPolicy">
-            <enum>TabFocus</enum>
-        </property>
-        <property name="text">
-            <string>OK</string>
-        </property>
-        <property name="on">
-            <bool>false</bool>
-        </property>
-        <property name="default">
-            <bool>true</bool>
-        </property>
-    </widget>
     <widget class="QLabel">
         <property name="name">
             <cstring>versionTextLabel</cstring>
@@ -130,12 +105,37 @@ All rights reserved.&lt;br&gt;
             <bool>true</bool>
         </property>
     </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>aboutOKButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>170</x>
+                <y>170</y>
+                <width>60</width>
+                <height>34</height>
+            </rect>
+        </property>
+        <property name="focusPolicy">
+            <enum>TabFocus</enum>
+        </property>
+        <property name="text">
+            <string>OK</string>
+        </property>
+        <property name="on">
+            <bool>false</bool>
+        </property>
+        <property name="default">
+            <bool>true</bool>
+        </property>
+    </widget>
 </widget>
 <connections>
     <connection>
         <sender>aboutOKButton</sender>
         <signal>clicked()</signal>
-        <receiver>About</receiver>
+        <receiver>AboutDialog</receiver>
         <slot>aboutOKButton_clicked()</slot>
     </connection>
 </connections>

@@ -1,0 +1,203 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>SeeAlsoDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>SeeAlsoDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>410</width>
+            <height>265</height>
+        </rect>
+    </property>
+    <property name="sizePolicy">
+        <sizepolicy>
+            <hsizetype>0</hsizetype>
+            <vsizetype>0</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+    </property>
+    <property name="minimumSize">
+        <size>
+            <width>410</width>
+            <height>265</height>
+        </size>
+    </property>
+    <property name="caption">
+        <string>Acknowlegdements</string>
+    </property>
+    <property name="icon">
+        <pixmap>kmchart.png</pixmap>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>seeAlsoPCPPixmapLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>16</x>
+                <y>10</y>
+                <width>76</width>
+                <height>101</height>
+            </rect>
+        </property>
+        <property name="pixmap">
+            <pixmap>aboutpcp.png</pixmap>
+        </property>
+        <property name="scaledContents">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>versionQwtTextLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>92</x>
+                <y>76</y>
+                <width>293</width>
+                <height>79</height>
+            </rect>
+        </property>
+        <property name="sizePolicy">
+            <sizepolicy>
+                <hsizetype>3</hsizetype>
+                <vsizetype>3</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+        <property name="text">
+            <string>&lt;b&gt;&lt;i&gt;Qt Widgets for Technical Apps (Qwt)&lt;/i&gt;&lt;/b&gt;&lt;br&gt;
+Copyright (c) 1997   Josef Wilgen&lt;br&gt;
+Copyright (c) 2002   Uwe Rathmann&lt;br&gt;
+&lt;i&gt;http://sourceforge.net/qwt&lt;/i&gt;</string>
+        </property>
+        <property name="alignment">
+            <set>WordBreak|AlignCenter</set>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>seeAlsoOKButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>180</x>
+                <y>223</y>
+                <width>60</width>
+                <height>34</height>
+            </rect>
+        </property>
+        <property name="focusPolicy">
+            <enum>TabFocus</enum>
+        </property>
+        <property name="text">
+            <string>OK</string>
+        </property>
+        <property name="on">
+            <bool>false</bool>
+        </property>
+        <property name="default">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>versionQtTextLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>91</x>
+                <y>158</y>
+                <width>295</width>
+                <height>61</height>
+            </rect>
+        </property>
+        <property name="sizePolicy">
+            <sizepolicy>
+                <hsizetype>3</hsizetype>
+                <vsizetype>3</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+        <property name="text">
+            <string>&lt;b&gt;&lt;i&gt;Qt Cross-Platform GUI Toolkit&lt;/i&gt;&lt;/b&gt;&lt;br&gt;
+Copyright (c) 1994-2007 Trolltech&lt;br&gt;
+&lt;i&gt;http://www.trolltech.com/qt&lt;/i&gt;</string>
+        </property>
+        <property name="alignment">
+            <set>WordBreak|AlignCenter</set>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>versionPCPTextLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>95</x>
+                <y>5</y>
+                <width>299</width>
+                <height>75</height>
+            </rect>
+        </property>
+        <property name="sizePolicy">
+            <sizepolicy>
+                <hsizetype>3</hsizetype>
+                <vsizetype>3</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+        <property name="text">
+            <string>&lt;b&gt;&lt;i&gt;Performance Co-Pilot (PCP)&lt;/i&gt;&lt;/b&gt;&lt;br&gt;
+Copyright (c) 1995-2007 Silicon Graphics&lt;br&gt;
+&lt;i&gt;http://oss.sgi.com/projects/pcp&lt;/i&gt;</string>
+        </property>
+        <property name="alignment">
+            <set>WordBreak|AlignCenter</set>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>seeAlsoQtPixmapLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>22</x>
+                <y>150</y>
+                <width>58</width>
+                <height>56</height>
+            </rect>
+        </property>
+        <property name="pixmap">
+            <pixmap>aboutqt.png</pixmap>
+        </property>
+        <property name="scaledContents">
+            <bool>true</bool>
+        </property>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>seeAlsoOKButton</sender>
+        <signal>clicked()</signal>
+        <receiver>SeeAlsoDialog</receiver>
+        <slot>seeAlsoOKButton_clicked()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">seealsodialog.ui.h</include>
+</includes>
+<slots>
+    <slot>seeAlsoOKButton_clicked()</slot>
+</slots>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

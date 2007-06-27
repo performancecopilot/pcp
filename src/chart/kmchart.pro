@@ -1,6 +1,7 @@
 TEMPLATE	= app
 LANGUAGE	= C++
 
+#CONFIG	+= qt warn_on release
 CONFIG	+= qt warn_on debug
 
 LIBS	+= -lpcp_pmc -lpcp -lqwt -lqassistantclient
@@ -32,12 +33,14 @@ FORMS	= kmchart.ui \
 	tabdialog.ui \
 	hostdialog.ui \
 	aboutdialog.ui \
-	aboutpcpdialog.ui \
+	seealsodialog.ui \
 	settingsdialog.ui \
 	infodialog.ui \
 	recorddialog.ui
 
 IMAGES	= ../../images/aboutpcp.png \
+	../../images/aboutqt.png \
+	../../images/aboutkmchart.png \
 	../../images/document-new.png \
 	../../images/document-open.png \
 	../../images/document-print.png \
@@ -45,7 +48,6 @@ IMAGES	= ../../images/aboutpcp.png \
 	../../images/document-save-as.png \
 	../../images/kmtime.png \
 	../../images/edit-clear.png \
-	../../images/menupcp.png \
 	../../images/whatsthis.png \
 	../../images/computer.png \
 	../../images/process-stop.png \
@@ -55,7 +57,6 @@ IMAGES	= ../../images/aboutpcp.png \
 	../../images/go-jump.png \
 	../../images/kmchart.png \
 	../../images/archive.png \
-	../../images/aboutkmchart.png \
 	../../images/filearchive.png \
 	../../images/filegeneric.png \
 	../../images/filehtml.png \
@@ -75,9 +76,6 @@ IMAGES	= ../../images/aboutpcp.png \
 	../../images/toolarchive.png \
 	../../images/toolusers.png \
 	../../images/toolview.png
-
-#CONFIG	+= qt warn_on release
-CONFIG	+= qt warn_on debug
 
 unix {
   UI_DIR = .ui

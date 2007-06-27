@@ -5,7 +5,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-UIFILES = aboutdialog.ui aboutpcpdialog.ui \
+UIFILES = aboutdialog.ui seealsodialog.ui \
 	chartdialog.ui hostdialog.ui infodialog.ui \
 	kmchart.ui recorddialog.ui settingsdialog.ui tabdialog.ui
 UIHFILES = $(UIFILES:.ui=.ui.h)

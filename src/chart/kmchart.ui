@@ -284,7 +284,7 @@
         <action name="helpManualAction"/>
         <separator/>
         <action name="helpAboutAction"/>
-        <action name="helpAboutPCPAction"/>
+        <action name="helpSeeAlsoAction"/>
         <separator/>
         <action name="helpWhatsThisAction"/>
     </item>
@@ -789,16 +789,13 @@
     </action>
     <action>
         <property name="name">
-            <cstring>helpAboutPCPAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>menupcp.png</iconset>
+            <cstring>helpSeeAlsoAction</cstring>
         </property>
         <property name="text">
-            <string>About PCP</string>
+            <string>See Also</string>
         </property>
         <property name="menuText">
-            <string>About PCP</string>
+            <string>See Also</string>
         </property>
     </action>
     <action>
@@ -862,10 +859,10 @@
         <slot>helpAbout()</slot>
     </connection>
     <connection>
-        <sender>helpAboutPCPAction</sender>
+        <sender>helpSeeAlsoAction</sender>
         <signal>activated()</signal>
         <receiver>KmChart</receiver>
-        <slot>helpAboutPCP()</slot>
+        <slot>helpSeeAlso()</slot>
     </connection>
     <connection>
         <sender>helpWhatsThisAction</sender>
@@ -1064,7 +1061,7 @@
     <slot>helpManual()</slot>
     <slot>helpContents()</slot>
     <slot>helpAbout()</slot>
-    <slot>helpAboutPCP()</slot>
+    <slot>helpSeeAlso()</slot>
     <slot>whatsThis()</slot>
     <slot>optionsShowTimeControl()</slot>
     <slot>optionsHideTimeControl()</slot>

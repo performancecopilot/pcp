@@ -1,8 +1,8 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>About</class>
+<class>AboutDialog</class>
 <widget class="QDialog">
     <property name="name">
-        <cstring>About</cstring>
+        <cstring>AboutDialog</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -12,11 +12,26 @@
             <height>247</height>
         </rect>
     </property>
+    <property name="minimumSize">
+        <size>
+            <width>375</width>
+            <height>247</height>
+        </size>
+    </property>
+    <property name="maximumSize">
+        <size>
+            <width>375</width>
+            <height>247</height>
+        </size>
+    </property>
     <property name="caption">
         <string>About</string>
     </property>
     <property name="icon">
         <pixmap>kmchart.png</pixmap>
+    </property>
+    <property name="modal">
+        <bool>true</bool>
     </property>
     <widget class="QLabel">
         <property name="name">
@@ -71,6 +86,25 @@ All rights reserved.&lt;br&gt;
             <set>WordBreak|AlignCenter</set>
         </property>
     </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>aboutPixmapLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>100</x>
+                <y>20</y>
+                <width>64</width>
+                <height>64</height>
+            </rect>
+        </property>
+        <property name="pixmap">
+            <pixmap>aboutkmchart.png</pixmap>
+        </property>
+        <property name="scaledContents">
+            <bool>true</bool>
+        </property>
+    </widget>
     <widget class="QPushButton">
         <property name="name">
             <cstring>aboutOKButton</cstring>
@@ -96,31 +130,12 @@ All rights reserved.&lt;br&gt;
             <bool>true</bool>
         </property>
     </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>aboutPixmapLabel</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>100</x>
-                <y>20</y>
-                <width>64</width>
-                <height>64</height>
-            </rect>
-        </property>
-        <property name="pixmap">
-            <pixmap>aboutkmchart.png</pixmap>
-        </property>
-        <property name="scaledContents">
-            <bool>true</bool>
-        </property>
-    </widget>
 </widget>
 <connections>
     <connection>
         <sender>aboutOKButton</sender>
         <signal>clicked()</signal>
-        <receiver>About</receiver>
+        <receiver>AboutDialog</receiver>
         <slot>aboutOKButton_clicked()</slot>
     </connection>
 </connections>

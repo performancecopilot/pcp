@@ -42,7 +42,7 @@
 #include <qwt/qwt_legend_item.h>
 #include <qwt/qwt_counter.h>
 #include "aboutdialog.h"
-#include "aboutpcpdialog.h"
+#include "seealsodialog.h"
 
 #include "../../images/play_live.xpm"
 #include "../../images/stop_live.xpm"
@@ -327,13 +327,13 @@ void KmChart::helpContents()
 
 void KmChart::helpAbout()
 {
-    About about;
+    AboutDialog about;
     about.exec();
 }
 
-void KmChart::helpAboutPCP()
+void KmChart::helpSeeAlso()
 {
-    AboutPCP about;
+    SeeAlsoDialog about;
     about.exec();
 }
 
