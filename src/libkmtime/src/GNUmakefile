@@ -33,6 +33,7 @@ endif
 
 CFILES = client.c
 HFILES = kmtime.h
+LDIRT += $(SYMTARGET)
 
 default: $(LIBTARGET) $(SYMTARGET)
 
