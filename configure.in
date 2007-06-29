@@ -1101,7 +1101,9 @@ AC_SUBST(pcp_etc_dir)
 test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
 
 dnl shared PCP files (shareable for diskless)
-if test "`eval echo $datadir | sed 's;/[[^/]]*\$;;'`" = NONE
+pcp_share_dir=`eval echo $datadir`
+pcp_share_dir=`eval echo $pcp_share_dir`
+if test "`echo $pcp_share_dir | sed 's;/.*\$;;'`" = NONE
 then
    if test $target_os = irix
    then
@@ -1117,13 +1119,13 @@ then
 	   pcp_share_dir=/usr/pcp
        fi
    fi
-else
-   pcp_share_dir=`eval echo $datadir`
 fi
 AC_SUBST(pcp_share_dir)
 
 dnl private PCP executables
-if test "`eval echo $sbindir | sed 's;/[[^/]]*\$;;'`" = NONE
+pcp_binadm_dir=`eval echo $sbindir`
+pcp_binadm_dir=`eval echo $pcp_binadm_dir`
+if test "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`" = NONE
 then
    if test $target_os = irix
    then
@@ -1131,8 +1133,6 @@ then
    else
        pcp_binadm_dir=$pcp_share_dir/bin
    fi
-else
-   pcp_binadm_dir=`eval echo $sbindir`
 fi
 AC_SUBST(pcp_binadm_dir)
 
@@ -1141,7 +1141,9 @@ if test $target_os = irix
 then
     pcp_var_dir=/var/pcp
 else
-    if test "`eval echo $localstatedir | sed 's;/[[^/]]*\$;;'`" = NONE
+    pcp_var_dir=`eval echo $localstatedir`
+    pcp_var_dir=`eval echo $pcp_var_dir`
+    if test "`echo $pcp_var_dir | sed 's;/.*\$;;'`" = NONE
     then
        if test -d /var/lib
        then
@@ -1155,8 +1157,6 @@ else
        else
 	   pcp_var_dir=/usr
        fi
-    else
-       pcp_var_dir=`eval echo $localstatedir`
     fi
 fi
 AC_SUBST(pcp_var_dir)
@@ -1193,7 +1193,9 @@ then
     pcp_lib_dir=/usr/lib64
     pcp_lib32_dir=/usr/lib
 else
-    if test "`eval echo $libdir | sed 's;/[[^/]]*\$;;'`" = NONE
+    pcp_lib_dir=`eval echo $libdir`
+    pcp_lib_dir=`eval echo $pcp_lib_dir`
+    if test "`echo $pcp_lib_dir | sed 's;/.*\$;;'`" = NONE
     then
        if test -d /usr/lib
        then
@@ -1204,8 +1206,6 @@ else
        else
 	   pcp_lib_dir=/lib
        fi
-    else
-       pcp_lib_dir=`eval echo $libdir`
     fi
 fi
 if test -z "$pcp_lib32_dir" ; then
@@ -1248,7 +1248,9 @@ AC_SUBST(pcp_x11_appdefs_dir)
 dnl man pages (source)
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
-if test "`eval echo $mandir | sed 's;/[[^/]]*\$;;'`" = NONE
+pcp_man_dir=`eval echo $mandir`
+pcp_man_dir=`eval echo $pcp_man_dir`
+if test "`echo $pcp_man_dir | sed 's;/.*\$;;'`" = NONE
 then
     dnl some low risk defaults
     if test -d /usr/share/man
@@ -1307,8 +1309,6 @@ then
 	    have_bzip2ed_manpages=false
 	fi
     fi
-else
-   pcp_man_dir=`eval echo $mandir`
 fi
 if test -z "$pcp_man_dir"
 then
@@ -1324,7 +1324,9 @@ if test $target_os = irix
 then
     pcp_bin_dir=/usr/sbin
 else
-    if test "`eval echo $bindir | sed 's;/[[^/]]*\$;;'`" = NONE
+    pcp_bin_dir=`eval echo $bindir`
+    pcp_bin_dir=`eval echo $pcp_bin_dir`
+    if test "`echo $pcp_bin_dir | sed 's;/.*\$;;'`" = NONE
     then
        if test -d /usr/bin
        then
@@ -1332,14 +1334,14 @@ else
        else
 	   pcp_bin_dir=/bin
        fi
-    else
-       pcp_bin_dir=`eval echo $bindir`
     fi
 fi
 AC_SUBST(pcp_bin_dir)
 
 dnl include files
-if test "`eval echo $includedir | sed 's;/[[^/]]*\$;;'`" = NONE
+pcp_inc_dir=`eval echo $includedir`
+pcp_inc_dir=`eval echo $pcp_inc_dir`
+if test "`echo $pcp_inc_dir | sed 's;/.*\$;;'`" = NONE
 then
    if test -d /usr/include
    then
@@ -1347,8 +1349,6 @@ then
    else
        pcp_inc_dir=$pcp_share_dir/include
    fi
-else
-   pcp_inc_dir=`eval echo $includedir`
 fi
 AC_SUBST(pcp_inc_dir)
 
@@ -1414,7 +1414,7 @@ fi
 AC_SUBST(pcp_tmp_dir)
 
 dnl doc directory
-if test "`eval echo $prefix | sed 's;/[[^/]]*\$;;'`" = NONE
+if test "`eval echo $prefix | sed 's;/.*\$;;'`" = NONE
 then
    if test $target_os = irix
    then
@@ -1435,11 +1435,12 @@ then
    fi
 else
    pcp_doc_dir=`eval echo $prefix/doc`
+   pcp_doc_dir=`eval echo $pcp_doc_dir`
 fi
 AC_SUBST(pcp_doc_dir)
 
 dnl demos directory
-if test "`eval echo $prefix | sed 's;/[[^/]]*\$;;'`" = NONE
+if test "`eval echo $prefix | sed 's;/.*\$;;'`" = NONE
 then
    if test $target_os = irix
    then
@@ -1454,6 +1455,7 @@ then
    fi
 else
    pcp_demos_dir=`eval echo $pcp_doc_dir/demos`
+   pcp_demos_dir=`eval echo $pcp_demos_dir`
 fi
 AC_SUBST(pcp_demos_dir)
 
