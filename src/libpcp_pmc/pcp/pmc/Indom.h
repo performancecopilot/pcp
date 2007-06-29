@@ -26,8 +26,8 @@
 
 #include <iostream.h>
 #include <assert.h>
-#include "PMC.h"
-#include "String.h"
+#include <pcp/pmc/PMC.h>
+#include <pcp/pmc/String.h>
 
 struct PMC_Instance
 {

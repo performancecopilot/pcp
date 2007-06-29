@@ -21,7 +21,7 @@
 
 #ident "$Id: Source.c++,v 1.5 2005/05/10 01:59:58 kenmcd Exp $"
 
-#include "Source.h"
+#include <pcp/pmc/Source.h>
 
 #ifdef __sgi
 #pragma instantiate PMC_List<PMC_Source*>

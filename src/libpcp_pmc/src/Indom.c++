@@ -23,8 +23,8 @@
 
 #include <iostream.h>
 #include <ctype.h>
-#include "Indom.h"
-#include "Desc.h"
+#include <pcp/pmc/Indom.h>
+#include <pcp/pmc/Desc.h>
 
 #ifdef __sgi
 #pragma instantiate PMC_Vector<PMC_Instance>

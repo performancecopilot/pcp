@@ -23,8 +23,8 @@
 
 #include <iostream.h>
 #include <limits.h>
-#include "Context.h"
-#include "Metric.h"
+#include <pcp/pmc/Context.h>
+#include <pcp/pmc/Metric.h>
 
 #ifdef __sgi
 #pragma instantiate PMC_Vector<PMC_String>

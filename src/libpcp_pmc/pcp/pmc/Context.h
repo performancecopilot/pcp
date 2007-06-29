@@ -34,13 +34,13 @@
 
 #include <iostream.h>
 
-#include "PMC.h"
-#include "Vector.h"
-#include "String.h"
-#include "Hash.h"
-#include "Desc.h"
-#include "Indom.h"
-#include "Source.h"
+#include <pcp/pmc/PMC.h>
+#include <pcp/pmc/Vector.h>
+#include <pcp/pmc/String.h>
+#include <pcp/pmc/Hash.h>
+#include <pcp/pmc/Desc.h>
+#include <pcp/pmc/Indom.h>
+#include <pcp/pmc/Source.h>
 
 struct PMC_NameToId
 {

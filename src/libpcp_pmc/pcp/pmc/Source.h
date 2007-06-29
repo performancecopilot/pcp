@@ -27,9 +27,9 @@
 #ident "$Id: Source.h,v 1.3 2005/05/10 00:46:37 kenmcd Exp $"
 
 #include <iostream.h>
-#include "PMC.h"
-#include "String.h"
-#include "List.h"
+#include <pcp/pmc/PMC.h>
+#include <pcp/pmc/String.h>
+#include <pcp/pmc/List.h>
 
 typedef PMC_List<PMC_Source*> PMC_SourceList;
 

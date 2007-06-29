@@ -21,9 +21,9 @@
 
 #ident "$Id: String.c++,v 1.2 2005/05/10 00:46:37 kenmcd Exp $"
 
+#include <pcp/pmc/String.h>
+#include <pcp/pmc/Bool.h>
 #include <stdio.h>
-#include "String.h"
-#include "Bool.h"
 
 PMC_String::PMC_String(char const* str)
 : _len((str == NULL ? 0 : strlen(str))), _str(_len + 1)

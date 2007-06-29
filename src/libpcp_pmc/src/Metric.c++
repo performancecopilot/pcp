@@ -23,8 +23,8 @@
 
 #include <iostream.h>
 #include <strings.h>
-#include "Metric.h"
-#include "Group.h"
+#include <pcp/pmc/Metric.h>
+#include <pcp/pmc/Group.h>
 
 #ifdef __sgi
 #pragma instantiate PMC_Vector<PMC_MetricValue>

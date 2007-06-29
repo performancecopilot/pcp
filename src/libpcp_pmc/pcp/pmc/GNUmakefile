@@ -21,48 +21,23 @@
 #
 # $Id: GNUmakefile,v 1.7 2006/05/18 06:48:48 makc Exp $
 
-TOPDIR = ../../..
+TOPDIR = ../../../..
 include	$(TOPDIR)/src/include/builddefs
 
-DSOVERSION = 1
-LIBTARGET = libpcp_pmc.$(DSOSUFFIX).$(DSOVERSION)
-SYMTARGET = libpcp_pmc.$(DSOSUFFIX)
-ifeq "$(TARGET_OS)" "darwin"
-LIBTARGET = libpcp_pmc.$(DSOVERSION).$(DSOSUFFIX)
-endif
-ifeq "$(TARGET_OS)" "cygwin"
-LIBTARGET = libpcp_pmc.$(DSOSUFFIX)
-SYMTARGET =
-endif
+HFILES = Bool.h	 Desc.h Hash.h List.h PMC.h String.h Context.h \
+	 Group.h Indom.h Metric.h Source.h Vector.h
+LDIRT = pcp
 
-CXXFILES	= String.c++ Desc.c++ Indom.c++ Source.c++ Context.c++ \
-		  Group.c++ Metric.c++ 
+default: pcp
 
-LCXXFLAGS += -I..
-LOBJECTS=${CXXFILES:%.c++=%.o}
-
-LDIRT	= $(SYMTARGET) pcp
-
-default: $(LIBTARGET) $(SYMTARGET)
-
-ifneq "$(SYMTARGET)" ""
-$(SYMTARGET):
-	$(LN_S) -f $(LIBTARGET) $(SYMTARGET)
-endif
+pcp:
+	$(LN_S) $(TOPDIR)/src/include pcp
 
 include $(BUILDRULES)
 
-$(LIBTARGET) : $(LOBJECTS)
-
 install: default
-	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
-ifneq "$(SYMTARGET)" ""
-	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET)
-endif
-
-$(LOBJECTS): pcp
-pcp:
-	$(LN_S) $(TOPDIR)/src/include pcp
+	$(INSTALL) -m 755 -d $(PCP_INC_DIR)/pmc
+	$(INSTALL) -m 644 $(HFILES) $(PCP_INC_DIR)/pmc
 
 default_pcp:	default
 

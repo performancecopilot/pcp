@@ -25,14 +25,14 @@
 #include <float.h>
 #include <math.h>
 // g++ barfs when parsing cstdio if other includes occur before String.h!
-#include "String.h"
+#include <pcp/pmc/String.h>
 #include "pmapi.h"
 #include "impl.h"
-#include "Hash.h"
-#include "Group.h"
-#include "Source.h"
-#include "Context.h"
-#include "Metric.h"
+#include <pcp/pmc/Hash.h>
+#include <pcp/pmc/Group.h>
+#include <pcp/pmc/Source.h>
+#include <pcp/pmc/Context.h>
+#include <pcp/pmc/Metric.h>
 
 #if defined(IRIX6_5)
 #include <optional_sym.h>
