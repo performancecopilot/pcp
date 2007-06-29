@@ -87,7 +87,6 @@ update_network_indom(struct netstats *all, int count, pmdaIndom *indom)
 int
 refresh_network(struct netstats *stats, pmdaIndom *indom)
 {
-    char		ifname[IFNAMEMAX+1];
     int			i = 0, status = 0;
 
    size_t n;
