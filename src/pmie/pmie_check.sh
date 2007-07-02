@@ -516,7 +516,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	elif [ "$p_pmcd_host" != "$fqdn" ]
 	then
 	    $VERY_VERBOSE && echo "different host, skip"
-	elif _get_pids_by_name pmie | grep "^$pid\$" >/dev/null
+	elif _get_pids_by_name pmie | grep "^$p_id\$" >/dev/null
 	then
 	    $VERY_VERBOSE && echo "pmie process $p_id identified, OK"
 	    pid=$p_id
