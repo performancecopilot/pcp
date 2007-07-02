@@ -68,8 +68,6 @@ then
     PWDCMND=/bin/pwd
 fi
 
-SLEEPCMND="$PCP_BINADM_DIR/pmsleep 0.1"
-
 # default location
 #
 logfile=pmlogger.log
@@ -211,10 +209,8 @@ _check_logger()
 
     # wait for maximum time of a connection and 20 requests
     #
-    delay=`expr $delay + 20 \* $x`
-    i=0
-    j=0
-    while :
+    delay=`expr \( $delay + 20 \* $x \) \* 10`	# tenths of a second
+    while [ $delay -gt 0 ]
     do
 	if [ -f $logfile ]
 	then
@@ -226,7 +222,7 @@ _check_logger()
 	    then
 		:
 	    else
-		$SLEEPCMND
+		pmsleep 0.1
 		$VERBOSE && echo " done"
 		return 0
 	    fi
@@ -263,15 +259,10 @@ _check_logger()
 		return 1
 	    fi
 	fi
-	i=`expr $i + 1`
-	if [ $i -ge 10 ]
-	then
-	    i=0
-	    [ $j -ge $delay ] && break
-	    j=`expr $j + 1`
-	    $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
-	fi
-	$SLEEPCMND
+	pmsleep 0.1
+	delay=`expr $delay - 1`
+	$VERBOSE && [ `expr $delay % 10` -eq 0 ] && \
+			$PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
     done
     $VERBOSE || _message restart
     echo " timed out waiting!"
@@ -403,10 +394,9 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     else
 	# demand mutual exclusion
 	#
-	fail=true
 	rm -f $tmp.stamp
-	i=0
-	while :
+	delay=200	# tenths of a second
+	while [ $delay -gt 0 ]
 	do
 	    if pmlock -v lock >$tmp.out
 	    then
@@ -434,12 +424,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		    rm -f lock
 		fi
 	    fi
-	    [ $i -ge 200 ] && break #tenths of a sec
-	    $SLEEPCMND
-	    i=`expr $i + 1`
+	    pmsleep 0.1
+	    delay=`expr $delay - 1`
 	done
 
-	if $fail
+	if [ $delay -eq 0 ]
 	then
 	    # failed to gain mutex lock
 	    #
