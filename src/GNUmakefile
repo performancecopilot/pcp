@@ -42,7 +42,7 @@ SUBDIRS = $(IRIX_SUBDIRS) \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmlogctl \
 	  pmlogconf pmlogsummary pmclient pmkstat pcp pmlc dbpmda \
 	  xconfirm pmtrace pmstat pmsocks pmdas pmafm procmemstat \
-	  pmlogreduce genpmda pmproxy telnet-probe
+	  pmlogreduce genpmda pmproxy telnet-probe pmsleep
 
 ifneq ($(TARGET_OS), cygwin)
 SUBDIRS += libpcp_pmc pmdumptext autofsd-probe

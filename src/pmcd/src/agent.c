@@ -183,7 +183,7 @@ HarvestAgents(unsigned int total)
 	found = 0;
 	for ( i = 0; i < nAgents; i++) {
 	    ap = &agent[i];
-	    if (!ap->status.connected)
+	    if (!ap->status.connected || ap->ipcType == AGENT_DSO)
 		continue;
 
 	    found = 1;

@@ -31,6 +31,8 @@
 
 PMIE=pmie
 
+SLEEPCMND="$PCP_BINADM_DIR/pmsleep 0.1"
+
 # added to handle problem when /var/log/pcp is a symlink, as first
 # reported by Micah_Altman@harvard.edu in Nov 2001
 #
@@ -177,7 +179,8 @@ _lock()
     #
     fail=true
     rm -f $tmp.stamp
-    for try in 1 2 3 4
+    i=0
+    while :
     do
 	if pmlock -v $logfile.lock >$tmp.out
 	then
@@ -196,7 +199,9 @@ _lock()
 		rm -f $logfile.lock
 	    fi
 	fi
-	sleep 5
+	[ $i -ge 200 ] && break #tenths of a sec
+	$SLEEPCMND
+	i=`expr $i + 1`
     done
 
     if $fail
@@ -308,9 +313,9 @@ _check_pmie()
     #
     delay=`expr $delay + 20 \* $x`
     i=0
-    while [ $i -lt $delay ]
+    j=0
+    while :
     do
-	$VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
 	if [ -f $logfile ]
 	then
 	    # $logfile was previously removed, if it has appeared again then
@@ -322,7 +327,7 @@ _check_pmie()
 		then
 		    :
 		else
-		    sleep 5
+		    $SLEEPCMND
 		    $VERBOSE && echo " done"
 		    return 0
 		fi
@@ -360,8 +365,15 @@ _check_pmie()
 		return 1
 	    fi
 	fi
-	sleep 5
-	i=`expr $i + 5`
+	i=`expr $i + 1`
+	if [ $i -ge 10 ]
+	then
+	    i=0
+	    [ $j -ge $delay ] && break
+	    j=`expr $j + 1`
+	    $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
+	fi
+	$SLEEPCMND
     done
     $VERBOSE || _message restart
     echo " timed out waiting!"
@@ -669,13 +681,20 @@ then
     then
 	$VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ $KILL -KILL `cat $tmp.pmies` ...""$PCP_ECHO_C" )
 	eval $KILL -KILL $pmielist >/dev/null 2>&1
-	sleep 3		# give them a chance to go
-	if ps -f -p "$pmielist" >$tmp.alive 2>&1
-	then
+	i=0
+	while ps -f -p "$pmielist" >$tmp.alive 2>&1
+	do
+	    if [ $i -lt 30 ]
+	    then
+	        $SLEEPCMND
+		i=`expr $i + 1`
+		continue;
+	    fi
 	    echo "$prog: Error: pmie process(es) will not die"
 	    cat $tmp.alive
 	    status=1
-	fi
+	    break
+	done
     fi
 fi
 

@@ -117,6 +117,8 @@ in
 	;;
 esac
 
+SLEEPCMND="$PCP_BINADM_DIR/pmsleep 0.1"
+
 _pmcd_logfile()
 {
 default=$RUNDIR/pmcd.log
@@ -402,16 +404,25 @@ _shutdown()
     fi
     $ECHO $PCP_ECHO_N "Waiting for PMCD to terminate ...""$PCP_ECHO_C"
     gone=0
-    for i in 1 2 3 4 5 6
+    i=0
+    j=0
+    while :
     do
-	sleep 3
 	_get_pids_by_name pmcd >$tmp.tmp
 	if [ ! -s $tmp.tmp ]
 	then
 	    gone=1
 	    break
 	fi
-	$ECHO $PCP_ECHO_N ".""$PCP_ECHO_C"
+	i=`expr $i + 1`
+	if [ $i -ge 10 ]
+	then
+	    i=0
+	    [ $j -ge $delay ] && break
+	    j=`expr $j + 1`
+	    $ECHO $PCP_ECHO_N ".""$PCP_ECHO_C"
+	fi
+	$SLEEPCMND
     done
     if [ $gone != 1 ]	# It just WON'T DIE, give up.
     then
