@@ -237,14 +237,6 @@ fun=cndNot
 op="OP(x) (((x) == TRUE || (x) == FALSE) ? !(x) : DUNNO)"
 _unary
 
-fun=cndAnd
-op="OP(x,y) (((x) == TRUE \\&\\& (y) == TRUE) ? TRUE : (((x) == FALSE || (y) == FALSE) ?  FALSE : DUNNO))"
-_binary
-
-fun=cndOr
-op="OP(x,y) (((x) == TRUE || (y) == TRUE) ? TRUE : (((x) == FALSE \\&\\& (y) == FALSE) ?  FALSE : DUNNO))"
-_binary
-
 fun=cndRise
 delta=""
 op=">"

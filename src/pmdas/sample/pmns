@@ -23,6 +23,9 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
+ *
+ * Next pmid SAMPLE:0:93
+ * (SAMPLE:0:1023 is taken)
  */
 
 sample {
@@ -32,6 +35,7 @@ sample {
     milliseconds	SAMPLE:0:3
     load	SAMPLE:0:4
     colour	SAMPLE:0:5
+    darkness	SAMPLE:0:92
     bin		SAMPLE:0:6
     bucket	SAMPLE:0:48
     part_bin	SAMPLE:0:50

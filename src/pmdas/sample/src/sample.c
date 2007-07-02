@@ -224,39 +224,41 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,74), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* error_check */
     { PMDA_PMID(0,75), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* sample.dynamic.counter */
+/* dynamic.counter */
     { PMDA_PMID(0,76), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* sample.dynamic.discrete */
+/* dynamic.discrete */
     { PMDA_PMID(0,77), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* sample.dynamic.instant */
+/* dynamic.instant */
     { PMDA_PMID(0,78), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* sample.many.count */
+/* many.count */
     { PMDA_PMID(0,79), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,0) },
-/* sample.many.int */
+/* many.int */
     { PMDA_PMID(0,80), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,0) },
-/* sample.byte_ctr */
+/* byte_ctr */
     { PMDA_PMID(0,81), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) },
-/* sample.byte_rate */
+/* byte_rate */
     { PMDA_PMID(0,82), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) },
-/* sample.kbyte_ctr */
+/* kbyte_ctr */
     { PMDA_PMID(0,83), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
-/* sample.kbyte_rate */
+/* kbyte_rate */
     { PMDA_PMID(0,84), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,-1,0,PM_SPACE_KBYTE,PM_TIME_SEC,0) },
-/* sample.byte_rate_per_hour */
+/* byte_rate_per_hour */
     { PMDA_PMID(0,85), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_HOUR,0) },
-/* sample.dynamic.meta.metric - pmDesc here is a fake, use magic */
+/* dynamic.meta.metric - pmDesc here is a fake, use magic */
     { PMDA_PMID(0,86), 0, 0, 0, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* sample.dynamic.meta.pmdesc.type */
+/* dynamic.meta.pmdesc.type */
     { PMDA_PMID(0,87), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* sample.dynamic.meta.pmdesc.indom */
+/* dynamic.meta.pmdesc.indom */
     { PMDA_PMID(0,88), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* sample.dynamic.meta.pmdesc.sem */
+/* dynamic.meta.pmdesc.sem */
     { PMDA_PMID(0,89), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* sample.dynamic.meta.pmdesc.units */
+/* dynamic.meta.pmdesc.units */
     { PMDA_PMID(0,90), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* sample.datasize */
+/* datasize */
     { PMDA_PMID(0,91), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
-/* sample.bigid */
+/* darkness */
+    { PMDA_PMID(0,92), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* bigid */
     { PMDA_PMID(0,1023), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
 /* End-of-List */
@@ -906,6 +908,7 @@ init_tables(int dom)
     for (dp = desctab; dp->pmid != PM_ID_NULL; dp++) {
 	switch (dp->pmid) {
 	    case PMDA_PMID(0,5):	/* colour */
+	    case PMDA_PMID(0,92):	/* darkness */
 		dp->indom = indomtab[COLOUR_INDOM].it_indom;
 		break;
 	    case PMDA_PMID(0,6):	/* bin */
@@ -930,9 +933,9 @@ init_tables(int dom)
 	    case PMDA_PMID(0,62):	/* dodgey.value */
 		dp->indom = indomtab[DODGEY_INDOM].it_indom;
 		break;
-    	    case PMDA_PMID(0,76):	/* sample.dynamic.counter */
-    	    case PMDA_PMID(0,77): 	/* sample.dynamic.discrete */
-    	    case PMDA_PMID(0,78):	/* sample.dynamic.instant */
+    	    case PMDA_PMID(0,76):	/* dynamic.counter */
+    	    case PMDA_PMID(0,77): 	/* dynamic.discrete */
+    	    case PMDA_PMID(0,78):	/* dynamic.instant */
 		dp->indom = indomtab[DYNAMIC_INDOM].it_indom;
 		break;
 	    case PMDA_PMID(0,80):	/* many.int */
@@ -1214,8 +1217,10 @@ doit:
 	    /* the special cases */
 	    if (pmidp->item == 86)
 		dp = &magic;
-	    if (pmidp->item == 54)
+	    else if (pmidp->item == 54)
 		numval = PM_ERR_PMID;
+	    else if (pmidp->item == 92)	/* darkness */
+		numval = 0;
 	    else if (dp->type == PM_TYPE_NOSUPPORT)
 		numval = PM_ERR_APPVERSION;
 	    else if (dp->indom != PM_INDOM_NULL) {
@@ -1716,39 +1721,39 @@ doit:
 			return _error_code;
 		    atom.l = 0;
 		    break;
-		case 76:	/* sample.dynamic.counter */
-		case 77: 	/* sample.dynamic.discrete */
-		case 78:	/* sample.dynamic.instant */
+		case 76:	/* dynamic.counter */
+		case 77: 	/* dynamic.discrete */
+		case 78:	/* dynamic.instant */
 		    if (inst > _dyn_max) {
 			/* bad instance! */
 			goto done;
 		    }
 		    atom.l = _dyn_ctr[inst];
 		    break;
-		case 79:	/* sample.many.count */
+		case 79:	/* many.count */
 		    atom.l=many_count;
 		    break;
-		case 80:	/* sample.many.int */
+		case 80:	/* many.int */
 		    atom.l = inst;
 		    break;
-		case 81:	/* sample.byte_ctr */
+		case 81:	/* byte_ctr */
 		    nbyte += lrand48() % 1024;
 		    atom.l = nbyte;
 		    break;
-		case 82:	/* sample.byte_rate */
+		case 82:	/* byte_rate */
 		    atom.l = (int)(lrand48() % 1024);
 		    break;
-		case 83:	/* sample.kbyte_ctr */
+		case 83:	/* kbyte_ctr */
 		    nbyte += lrand48() % 1024;
 		    atom.l = nbyte;
 		    break;
-		case 84:	/* sample.kbyte_rate */
+		case 84:	/* kbyte_rate */
 		    atom.l = (int)(lrand48() % 1024);
 		    break;
-		case 85:	/* sample.byte_rate_per_hour */
+		case 85:	/* byte_rate_per_hour */
 		    atom.l = (int)(lrand48() % 1024);
 		    break;
-		case 86:	/* sample.dynamic.meta.metric */
+		case 86:	/* dynamic.meta.metric */
 		    switch (magic.type) {
 			case PM_TYPE_32:
 			    atom.l = 42;
@@ -1773,20 +1778,20 @@ doit:
 			    break;
 		    }
 		    break;
-		case 87:	/* sample.dynamic.meta.pmdesc.type */
+		case 87:	/* dynamic.meta.pmdesc.type */
 		    atom.ul = magic.type;
 		    break;
-		case 88:	/* sample.dynamic.meta.pmdesc.indom */
+		case 88:	/* dynamic.meta.pmdesc.indom */
 		    atom.ul = magic.indom;
 		    break;
-		case 89:	/* sample.dynamic.meta.pmdesc.sem */
+		case 89:	/* dynamic.meta.pmdesc.sem */
 		    atom.ul = magic.sem;
 		    break;
-		case 90:	/* sample.dynamic.meta.pmdesc.units */
+		case 90:	/* dynamic.meta.pmdesc.units */
 		    ulp = (__uint32_t *)&magic.units;
 		    atom.ul = *ulp;
 		    break;
-		case 91:	/* sample.datasize */
+		case 91:	/* datasize */
 		    atom.ul = (int)((__psint_t)sbrk(0) - (__psint_t)pmda_data) / 1024;
 		    break;
 		case 1023: /* bigid */
@@ -1950,10 +1955,10 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 7:	/* drift */
 	    case 0:	/* control */
 	    case 79:    /* many.count */
-	    case 87:	/* sample.dynamic.meta.pmdesc.type */
-	    case 88:	/* sample.dynamic.meta.pmdesc.indom */
-	    case 89:	/* sample.dynamic.meta.pmdesc.sem */
-	    case 90:	/* sample.dynamic.meta.pmdesc.units */
+	    case 87:	/* dynamic.meta.pmdesc.type */
+	    case 88:	/* dynamic.meta.pmdesc.indom */
+	    case 89:	/* dynamic.meta.pmdesc.sem */
+	    case 90:	/* dynamic.meta.pmdesc.units */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		    sts = PM_ERR_CONV;
 		break;
@@ -2053,16 +2058,16 @@ sample_store(pmResult *result, pmdaExt *ep)
 		/* change the size of the many instance domain */
 		_error_code = redo_many();
 		break;
-	    case 87:	/* sample.dynamic.meta.pmdesc.type */
+	    case 87:	/* dynamic.meta.pmdesc.type */
 		magic.type = av.l;
 		break;
-	    case 88:	/* sample.dynamic.meta.pmdesc.indom */
+	    case 88:	/* dynamic.meta.pmdesc.indom */
 		magic.indom = av.l;
 		break;
-	    case 89:	/* sample.dynamic.meta.pmdesc.sem */
+	    case 89:	/* dynamic.meta.pmdesc.sem */
 		magic.sem = av.l;
 		break;
-	    case 90:	/* sample.dynamic.meta.pmdesc.units */
+	    case 90:	/* dynamic.meta.pmdesc.units */
 		lp = (__int32_t *)&magic.units;
 		*lp = av.l;
 	    default:
