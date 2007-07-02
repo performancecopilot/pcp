@@ -220,9 +220,8 @@ _check_logger()
 	    #
 	    if echo "connect $1" | pmlc 2>&1 | grep "Unable to connect" >/dev/null
 	    then
-		:
-	    else
 		pmsleep 0.1
+	    else
 		$VERBOSE && echo " done"
 		return 0
 	    fi
