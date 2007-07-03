@@ -220,7 +220,7 @@ _check_logger()
 	    #
 	    if echo "connect $1" | pmlc 2>&1 | grep "Unable to connect" >/dev/null
 	    then
-		pmsleep 0.1
+		:
 	    else
 		$VERBOSE && echo " done"
 		return 0
@@ -400,24 +400,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    if pmlock -v lock >$tmp.out
 	    then
 		echo $dir/lock >$tmp.lock
-		fail=false
 		break
 	    else
-		if [ ! -f $tmp.stamp ]
+		[ -f $tmp.stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp.stamp
+		if [ -z "`find lock -newer $tmp.stamp -print 2>/dev/null`" ]
 		then
-		    if uname -r | grep '^5\.3' >/dev/null
-		    then
-			# IRIX 5.3 does not support -t for touch(1)
-			#
-			touch `pmdate -30M %m%d%H%M%y` $tmp.stamp
-		    else
-			touch -t `pmdate -30M %Y%m%d%H%M` $tmp.stamp
-		    fi
-		fi
-		if [ ! -z "`find lock -newer $tmp.stamp -print 2>/dev/null`" ]
-		then
-		    :
-		else
 		    echo "$prog: Warning: removing lock file older than 30 minutes"
 		    LC_TIME=POSIX ls -l $dir/lock
 		    rm -f lock

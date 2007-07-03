@@ -318,7 +318,7 @@ _check_pmie()
 	    then
 		if grep "No such file or directory" $tmp.out >/dev/null
 		then
-		    pmsleep 0.1
+		    :
 		else
 		    $VERBOSE && echo " done"
 		    return 0
