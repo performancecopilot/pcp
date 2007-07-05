@@ -15,7 +15,7 @@ LSRCFILES = configure configure.in Makepkgs aclocal.m4 install-sh README VERSION
 LDIRT = config.log .dep config.status config.cache confdefs.h conftest* \
 	Logs/* built .census install.* install-dev.* *.gz
 
-SUBDIRS = src m4 doc man debian build
+SUBDIRS = src m4 images doc man debian build
 
 default: $(CONFIGURE)
 ifeq ($(HAVE_BUILDDEFS), no)
