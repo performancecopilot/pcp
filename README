@@ -86,13 +86,23 @@ TODO
       as is done in the Tango-Desktop-Icons package builds (ImageMagick).
       This should fix up the ordinary look to some of the current icons.
     - pmproxy support is far from complete:
-      o Need to spilt host selection combobox and dialog into separate
+      o Need to split host selection combobox and dialog into separate
 	host/proxy widgets
       o Need a LineEdit for port numbers (list of) too on each dialog
       o Need libpcp changes (new interfaces) to abstract out the code
-        which has a one-trip guard on testing/setting PMPROXY_HOST env
+	which has a one-trip guard on testing/setting PMPROXY_HOST env
 	variable during connect (so multiple contexts can have different
 	proxies).
+    - Wierd PMC context/fetchgroup(?) bug in archive mode - running with
+      two different archive views (e.g. CPU and Loadavg), the chart for
+      the second view is not updated.  Running with -Dfetch, it seems we
+      get No Values for kernel.all.load (even though they exist in the
+      archive).  Stranger still, if you seek some way into the archive
+      and then play in reverse, the load chart is updated, but now the
+      CPU metrics see No Values returned and the chart isn't updated.
+    - Live mode stop/start doesn't quite work right (there's a TODO in
+      the chart.cpp code) - on stop, the last observed value is plotted
+      for all time points (on start it rectifies itself).
 
     kmtime TODO list:
     - Finished, perfect, no bugs exist.  (yeah, right)
