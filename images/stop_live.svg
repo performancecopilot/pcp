@@ -397,7 +397,7 @@
        xlink:href="#linearGradient2697"
        id="linearGradient2136"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.70605,0,0,1.471656,-284.5945,-118.1163)"
+       gradientTransform="matrix(1.70605,0,0,-1.471656,-284.5945,161.4981)"
        x1="169"
        y1="110.33805"
        x2="169"
@@ -407,7 +407,7 @@
        xlink:href="#linearGradient2817"
        id="linearGradient2140"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.866774,0,0,1.633625,-312.7531,-133.0758)"
+       gradientTransform="matrix(1.875699,0,0,1.517132,-314.3193,-122.5177)"
        x1="174.83363"
        y1="84.263489"
        x2="174.74524"
@@ -417,7 +417,7 @@
        xlink:href="#linearGradient5075"
        id="linearGradient2145"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.047557,0,0,1.122987,-35.72834,-84.88665)"
+       gradientTransform="matrix(1.047557,0,0,-1.122987,-35.72834,128.4808)"
        x1="71.288956"
        y1="124.11652"
        x2="70.826942"
@@ -427,7 +427,7 @@
        xlink:href="#linearGradient2684"
        id="linearGradient2149"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.181834,0,0,1.266932,-45.14871,-98.66102)"
+       gradientTransform="matrix(1.141972,0,0,1.217539,-42.85644,-93.94965)"
        x1="70.913956"
        y1="101.74152"
        x2="70.951942"
@@ -531,9 +531,9 @@
      borderopacity="0.19607843"
      inkscape:pageopacity="0.0000000"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
+     inkscape:zoom="4"
      inkscape:cx="31.287217"
-     inkscape:cy="17.07884"
+     inkscape:cy="16.725286"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:grid-bbox="false"
@@ -704,8 +704,8 @@
     <path
        sodipodi:nodetypes="cccc"
        id="path2064"
-       d="M 23.982824,39.309185 L 23.982824,5.0581444 L 51.292584,21.697501 L 23.982824,39.309185 z "
-       style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2149);stroke-width:2.16922832;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 23.943386,38.641516 L 23.943386,5.7258131 L 50.332022,21.716456 L 23.943386,38.641516 z "
+       style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2149);stroke-width:2.0903523;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
        inkscape:r_cx="true"
        inkscape:r_cy="true"
        inkscape:export-filename="/source/git/kmchart/images/play_on.png"
@@ -724,8 +724,8 @@
     <path
        inkscape:r_cy="true"
        inkscape:r_cx="true"
-       style="color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2145);stroke-width:1.08461535;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;opacity:0.75"
-       d="M 24.506034,37.413012 L 24.506034,6.1811347 L 49.755574,21.797074 L 24.506034,37.413012 z "
+       style="opacity:0.75;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2145);stroke-width:1.08461535;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 24.506034,6.1811347 L 24.506034,37.413012 L 49.755574,21.797073 L 24.506034,6.1811347 z "
        id="path2068"
        sodipodi:nodetypes="cccc"
        inkscape:export-filename="/source/git/kmchart/images/play_on.png"
@@ -752,8 +752,8 @@
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
-       style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2140);stroke-width:2.09902143;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-       d="M 7.3982944,4.9655094 L 7.3982944,39.271614 L 22.332444,39.271614 L 22.332444,4.9655094 L 7.3982944,4.9655094 z "
+       style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2140);stroke-width:2.02762604;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 7.3625968,5.6798118 L 7.3625968,37.539545 L 22.368142,37.539545 L 22.368142,5.6798118 L 7.3625968,5.6798118 z "
        id="path2074"
        inkscape:r_cx="true"
        inkscape:r_cy="true" />
@@ -770,7 +770,7 @@
        inkscape:r_cy="true"
        inkscape:r_cx="true"
        id="path2078"
-       d="M 7.9931975,6.2385646 L 7.9931975,37.143283 L 21.641588,37.143283 L 21.641588,6.2385646 L 7.9931975,6.2385646 z "
+       d="M 7.9931975,37.143283 L 7.9931975,6.2385646 L 21.641588,6.2385646 L 21.641588,37.143283 L 7.9931975,37.143283 z "
        style="color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2136);stroke-width:1.18023717;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
     <path
        inkscape:r_cy="true"
@@ -789,7 +789,7 @@
        inkscape:r_cy="true"
        sodipodi:nodetypes="ccccc" />
     <path
-       transform="matrix(0.481367,0,0,-0.456982,4.149352,54.45496)"
+       transform="matrix(0.481367,0,0,0.456982,4.149352,34.34775)"
        d="M 36.5 22 A 14 13 0 1 1  8.5,22 A 14 13 0 1 1  36.5 22 z"
        sodipodi:ry="13"
        sodipodi:rx="14"
