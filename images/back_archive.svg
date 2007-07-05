@@ -191,7 +191,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="5.6568542"
      inkscape:cx="21.759215"
-     inkscape:cy="38.408919"
+     inkscape:cy="38.320531"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:grid-bbox="false"
@@ -345,6 +345,20 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      style="display:inline">
+    <text
+       sodipodi:linespacing="125%"
+       id="text5940"
+       y="45.348843"
+       x="5.0182452"
+       style="font-size:10.00000286px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:white;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Sans"
+       xml:space="preserve"
+       transform="scale(0.91394,1.094164)"
+       inkscape:export-xdpi="105.10821"
+       inkscape:export-ydpi="105.10821"><tspan
+         y="45.348843"
+         x="5.0182452"
+         id="tspan5942"
+         sodipodi:role="line">ARCHIVE</tspan></text>
     <path
        sodipodi:nodetypes="cccc"
        id="path2682"

@@ -191,7 +191,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="5.6568542"
      inkscape:cx="21.759215"
-     inkscape:cy="33.588975"
+     inkscape:cy="33.500587"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:grid-bbox="false"
@@ -207,8 +207,8 @@
      stroke="#555753"
      inkscape:window-width="906"
      inkscape:window-height="611"
-     inkscape:window-x="17"
-     inkscape:window-y="54"
+     inkscape:window-x="42"
+     inkscape:window-y="43"
      showborder="true"
      inkscape:showpageshadow="false"
      width="52px"
@@ -345,6 +345,20 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      style="display:inline">
+    <text
+       sodipodi:linespacing="125%"
+       id="text2384"
+       y="45.348843"
+       x="5.0182452"
+       style="font-size:10.00000286px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:white;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Sans"
+       xml:space="preserve"
+       transform="scale(0.91394,1.094164)"
+       inkscape:export-xdpi="105.10821"
+       inkscape:export-ydpi="105.10821"><tspan
+         y="45.348843"
+         x="5.0182452"
+         id="tspan2386"
+         sodipodi:role="line">ARCHIVE</tspan></text>
     <path
        style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient12006);stroke-width:1.49523258;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
        d="M 41.537931,4.9995212 L 41.537931,37.962935 L 49.424782,37.962935 L 49.424782,4.9995212 L 41.537931,4.9995212 z "
