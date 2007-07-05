@@ -93,12 +93,12 @@ extern TimeControl	*kmtime;
 
 typedef enum { Msec, Sec, Min, Hour, Day, Week } delta_units;
 
-extern double secondsFromTV(struct timeval *tv);
+extern double secondsFromTV(struct timeval *tv);// __pmtimevalFromReal?
 extern double secondsToUnits(double value, delta_units units);
 
-extern double tosec(struct timeval);
-extern double torange(struct timeval, int);
-extern void fromsec(double, struct timeval *);
+extern double tosec(struct timeval);		// __pmtimevalToReal
+extern double torange(struct timeval, int);	// ?
+extern void fromsec(double, struct timeval *);	// __pmtimevalFromReal?
 extern char *timestring(double);
 
 extern void nomem(void);

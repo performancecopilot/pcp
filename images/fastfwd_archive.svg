@@ -23,46 +23,6 @@
   <defs
      id="defs1309">
     <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient2684"
-       id="linearGradient2690"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.128181,0,0,1.128181,-65.0259,-88.2947)"
-       x1="70.913956"
-       y1="101.74152"
-       x2="70.951942"
-       y2="88.923729" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient5075"
-       id="linearGradient2306"
-       gradientUnits="userSpaceOnUse"
-       x1="71.288956"
-       y1="124.11652"
-       x2="70.826942"
-       y2="95"
-       gradientTransform="translate(-56.0332,-76.0289)" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient2684"
-       id="linearGradient1917"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.128181,0,0,1.128181,-41.1207,-88.6519)"
-       x1="70.913956"
-       y1="101.74152"
-       x2="70.951942"
-       y2="88.923729" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient5075"
-       id="linearGradient1919"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-32.128,-76.3861)"
-       x1="71.288956"
-       y1="124.11652"
-       x2="70.826942"
-       y2="95" />
-    <linearGradient
        id="linearGradient10086">
       <stop
          style="stop-color:white;stop-opacity:1;"
@@ -166,7 +126,7 @@
        xlink:href="#linearGradient2697"
        id="linearGradient12002"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.5741,0,0,1.383967,-266.4513,-113.1585)"
+       gradientTransform="matrix(0.867494,0,0,1.54091,-144.5557,-124.5948)"
        x1="169"
        y1="110.33805"
        x2="169"
@@ -176,7 +136,7 @@
        xlink:href="#linearGradient2817"
        id="linearGradient12006"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.791648,0,0,1.373511,-304.3662,-112.8156)"
+       gradientTransform="matrix(0.985854,0,0,1.569686,-165.1827,-127.639)"
        x1="174.83363"
        y1="84.263489"
        x2="174.74524"
@@ -186,7 +146,7 @@
        xlink:href="#linearGradient5075"
        id="linearGradient12011"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-37.58621,-76.7407)"
+       gradientTransform="matrix(0.757417,0,0,1.158603,-29.29214,-88.25294)"
        x1="71.288956"
        y1="124.11652"
        x2="70.826942"
@@ -196,7 +156,7 @@
        xlink:href="#linearGradient2684"
        id="linearGradient12015"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.128181,0,0,1.128181,-46.57893,-89.00654)"
+       gradientTransform="matrix(0.854503,0,0,1.307113,-36.10338,-102.4642)"
        x1="70.913956"
        y1="101.74152"
        x2="70.951942"
@@ -204,39 +164,19 @@
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient2684"
+       id="linearGradient2025"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.854503,0,0,1.307113,-18.47085,-102.1055)"
+       x1="70.913956"
+       y1="101.74152"
+       x2="70.951942"
+       y2="88.923729" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5075"
        id="linearGradient2027"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.128181,0,0,1.128181,-65.0259,-88.2947)"
-       x1="70.913956"
-       y1="101.74152"
-       x2="70.951942"
-       y2="88.923729" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient2684"
-       id="linearGradient2029"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.128181,0,0,1.128181,-41.1207,-88.6519)"
-       x1="70.913956"
-       y1="101.74152"
-       x2="70.951942"
-       y2="88.923729" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient5075"
-       id="linearGradient2031"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-56.0332,-76.0289)"
-       x1="71.288956"
-       y1="124.11652"
-       x2="70.826942"
-       y2="95" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient5075"
-       id="linearGradient2033"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-32.128,-76.3861)"
+       gradientTransform="matrix(0.757417,0,0,1.158603,-11.65961,-87.89425)"
        x1="71.288956"
        y1="124.11652"
        x2="70.826942"
@@ -249,30 +189,31 @@
      borderopacity="0.19607843"
      inkscape:pageopacity="0.0000000"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="35.265313"
-     inkscape:cy="29.699341"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="21.759215"
+     inkscape:cy="38.320531"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:grid-bbox="true"
+     inkscape:grid-bbox="false"
      inkscape:document-units="px"
      gridspacingx="0.5px"
      gridspacingy="0.5px"
      gridempspacing="2"
-     inkscape:grid-points="true"
+     inkscape:grid-points="false"
      fill="#555753"
      showguides="false"
-     inkscape:guide-bbox="true"
+     inkscape:guide-bbox="false"
      guidetolerance="1px"
      stroke="#555753"
-     inkscape:window-width="906"
-     inkscape:window-height="611"
-     inkscape:window-x="268"
-     inkscape:window-y="177"
+     inkscape:window-width="1014"
+     inkscape:window-height="689"
+     inkscape:window-x="-22"
+     inkscape:window-y="37"
      showborder="true"
      inkscape:showpageshadow="false"
      width="52px"
-     height="52px">
+     height="52px"
+     inkscape:object-paths="false">
     <sodipodi:guide
        orientation="horizontal"
        position="38.996647"
@@ -404,126 +345,156 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      style="display:inline">
+    <path
+       sodipodi:nodetypes="cccc"
+       id="path2682"
+       d="M 13.880948,39.881824 L 13.880948,4.5444737 L 33.626806,21.711566 L 13.880948,39.881824 z "
+       style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient12015);stroke-width:1.87354589;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       inkscape:r_cx="true"
+       inkscape:r_cy="true"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
+       inkscape:export-xdpi="88.615387"
+       inkscape:export-ydpi="88.615387" />
+    <path
+       inkscape:r_cy="true"
+       inkscape:r_cx="true"
+       style="color:black;fill:#2a2aff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.00000036;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 14.259248,37.925514 L 14.259248,5.7030815 L 32.515498,21.814298 L 14.259248,37.925514 z "
+       id="path3375"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
+       inkscape:export-xdpi="88.615387"
+       inkscape:export-ydpi="88.615387" />
+    <path
+       inkscape:r_cy="true"
+       inkscape:r_cx="true"
+       style="color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient12011);stroke-width:0.93677419;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 14.259248,37.925514 L 14.259248,5.7030815 L 32.515498,21.814298 L 14.259248,37.925514 z "
+       id="path2479"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
+       inkscape:export-xdpi="88.615387"
+       inkscape:export-ydpi="88.615387" />
+    <path
+       inkscape:r_cy="true"
+       inkscape:r_cx="true"
+       style="color:black;fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 14.637958,6.7162606 L 14.637958,36.912317 L 31.750857,21.81429 L 14.637958,6.7162606 z M 15.395374,8.7438139 L 30.212354,21.81429 L 15.395374,34.884765 L 15.395374,8.7438139 z "
+       id="path2481"
+       sodipodi:nodetypes="cccccccc"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
+       inkscape:export-xdpi="88.615387"
+       inkscape:export-ydpi="88.615387" />
+    <path
+       style="opacity:0.5;color:black;fill:white;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:block;overflow:visible"
+       d="M 15.348444,8.6719919 L 15.348444,22.213149 C 18.582009,22.16126 22.289536,21.812778 28.27188,20.040771 L 15.348444,8.6719919 z "
+       id="path2339"
+       inkscape:r_cx="true"
+       inkscape:r_cy="true"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
+       inkscape:export-xdpi="88.615387"
+       inkscape:export-ydpi="88.615387" />
+    <path
+       style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient12006);stroke-width:1.49523258;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 3.8914846,4.9995212 L 3.8914846,37.962935 L 11.778336,37.962935 L 11.778336,4.9995212 L 3.8914846,4.9995212 z "
+       id="path2815"
+       inkscape:r_cx="true"
+       inkscape:r_cy="true" />
+    <path
+       inkscape:r_cy="true"
+       inkscape:r_cx="true"
+       style="color:black;fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 4.1485676,5.7633031 L 4.1485676,37.618358 L 11.353425,37.618358 L 11.353425,5.7633031 L 4.1485676,5.7633031 z "
+       id="path5625"
+       inkscape:export-filename="/source/git/kmchart/images/stop_on.png"
+       inkscape:export-xdpi="77.538467"
+       inkscape:export-ydpi="77.538467" />
+    <path
+       inkscape:r_cy="true"
+       inkscape:r_cx="true"
+       id="path2762"
+       d="M 4.2192416,5.6121373 L 4.2192416,37.971227 L 11.159196,37.971227 L 11.159196,5.6121373 L 4.2192416,5.6121373 z "
+       style="color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient12002);stroke-width:0.8611775;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
+    <path
+       inkscape:r_cy="true"
+       inkscape:r_cx="true"
+       style="color:black;fill:#aaa;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 5.4915346,7.0290956 L 5.4915346,36.413789 L 9.8746226,36.413789 L 9.8746226,7.0290956 L 5.4915346,7.0290956 z "
+       id="path2827"
+       inkscape:export-filename="/source/git/kmchart/images/stop_on.png"
+       inkscape:export-xdpi="77.538467"
+       inkscape:export-ydpi="77.538467" />
+    <path
+       style="opacity:0.5;color:black;fill:white;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:block;overflow:visible"
+       d="M 5.1208056,7.0772978 L 4.8754786,22.973082 L 10.189406,22.476061 L 10.238107,6.9924233 L 5.1208056,7.0772978 z "
+       id="path2171"
+       inkscape:r_cx="true"
+       inkscape:r_cy="true"
+       sodipodi:nodetypes="ccccc" />
     <text
        sodipodi:linespacing="125%"
        id="text5046"
-       y="38.379173"
-       x="8.6588669"
-       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Sans"
+       y="44.665203"
+       x="3.9678133"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Sans"
        xml:space="preserve"
-       transform="scale(0.866408,1.154191)"
+       transform="scale(0.91394,1.094164)"
        inkscape:export-xdpi="105.10821"
        inkscape:export-ydpi="105.10821"><tspan
-         y="38.379173"
-         x="8.6588669"
+         y="44.665203"
+         x="3.9678133"
          id="tspan5048"
          sodipodi:role="line">ARCHIVE</tspan></text>
-    <g
-       id="g2014"
-       transform="matrix(0.734905,0,0,0.828853,7.632793,6.596566)">
-      <path
-         inkscape:export-ydpi="88.615387"
-         inkscape:export-xdpi="88.615387"
-         inkscape:export-filename="/source/git/kmchart/images/play_on.png"
-         inkscape:r_cy="true"
-         inkscape:r_cx="true"
-         style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2027);stroke-width:1.99999833;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-         d="M 0.9672,34.56534 L 0.9672,4.06534 L 27.037185,18.882419 L 0.9672,34.56534 z "
-         id="path1985"
-         sodipodi:nodetypes="cccc" />
-      <path
-         inkscape:export-ydpi="88.615387"
-         inkscape:export-xdpi="88.615387"
-         inkscape:export-filename="/source/git/kmchart/images/play_on.png"
-         inkscape:r_cy="true"
-         inkscape:r_cx="true"
-         style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2029);stroke-width:1.99999833;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-         d="M 24.872406,34.208215 L 24.872406,3.708215 L 50.94239,18.525294 L 24.872406,34.208215 z "
-         id="path1907"
-         sodipodi:nodetypes="cccc" />
-      <g
-         id="g2000">
-        <path
-           inkscape:r_cy="true"
-           inkscape:r_cx="true"
-           style="color:black;fill:#2a2aff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.00000036;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-           d="M 1.46666,32.87683 L 1.46666,5.065345 L 25.569952,18.971088 L 1.46666,32.87683 z "
-           id="path1987"
-           sodipodi:nodetypes="cccc"
-           inkscape:export-filename="/source/git/kmchart/images/play_on.png"
-           inkscape:export-xdpi="88.615387"
-           inkscape:export-ydpi="88.615387" />
-        <path
-           inkscape:r_cy="true"
-           inkscape:r_cx="true"
-           style="color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2031);stroke-width:1.00000036;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-           d="M 1.46666,32.87683 L 1.46666,5.065345 L 25.569952,18.971088 L 1.46666,32.87683 z "
-           id="path1989"
-           sodipodi:nodetypes="cccc"
-           inkscape:export-filename="/source/git/kmchart/images/play_on.png"
-           inkscape:export-xdpi="88.615387"
-           inkscape:export-ydpi="88.615387" />
-        <path
-           inkscape:r_cy="true"
-           inkscape:r_cx="true"
-           style="color:black;fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-           d="M 1.96666,5.93983 L 1.96666,32.00233 L 24.560415,18.97108 L 1.96666,5.93983 z M 2.96666,7.68983 L 22.529165,18.97108 L 2.96666,30.25233 L 2.96666,7.68983 z "
-           id="path1991"
-           sodipodi:nodetypes="cccccccc"
-           inkscape:export-filename="/source/git/kmchart/images/play_on.png"
-           inkscape:export-xdpi="88.615387"
-           inkscape:export-ydpi="88.615387" />
-        <path
-           style="opacity:0.5;color:black;fill:white;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:block;overflow:visible"
-           d="M 2.9047,7.62784 L 2.9047,19.31534 C 7.1739,19.270555 12.06886,18.969776 19.9672,17.44034 L 2.9047,7.62784 z "
-           id="path1993"
-           inkscape:r_cx="true"
-           inkscape:r_cy="true"
-           sodipodi:nodetypes="cccc"
-           inkscape:export-filename="/source/git/kmchart/images/play_on.png"
-           inkscape:export-xdpi="88.615387"
-           inkscape:export-ydpi="88.615387" />
-        <path
-           inkscape:r_cy="true"
-           inkscape:r_cx="true"
-           style="color:black;fill:#2a2aff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.00000036;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-           d="M 25.371866,32.519705 L 25.371866,4.70822 L 49.475157,18.613963 L 25.371866,32.519705 z "
-           id="path1909"
-           sodipodi:nodetypes="cccc"
-           inkscape:export-filename="/source/git/kmchart/images/play_on.png"
-           inkscape:export-xdpi="88.615387"
-           inkscape:export-ydpi="88.615387" />
-        <path
-           inkscape:r_cy="true"
-           inkscape:r_cx="true"
-           style="color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2033);stroke-width:1.00000036;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-           d="M 25.371866,32.519705 L 25.371866,4.70822 L 49.475157,18.613963 L 25.371866,32.519705 z "
-           id="path1911"
-           sodipodi:nodetypes="cccc"
-           inkscape:export-filename="/source/git/kmchart/images/play_on.png"
-           inkscape:export-xdpi="88.615387"
-           inkscape:export-ydpi="88.615387" />
-        <path
-           inkscape:r_cy="true"
-           inkscape:r_cx="true"
-           style="color:black;fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-           d="M 25.871866,5.582705 L 25.871866,31.645205 L 48.46562,18.613955 L 25.871866,5.582705 z M 26.871866,7.332705 L 46.43437,18.613955 L 26.871866,29.895205 L 26.871866,7.332705 z "
-           id="path1913"
-           sodipodi:nodetypes="cccccccc"
-           inkscape:export-filename="/source/git/kmchart/images/play_on.png"
-           inkscape:export-xdpi="88.615387"
-           inkscape:export-ydpi="88.615387" />
-        <path
-           style="opacity:0.5;color:black;fill:white;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:block;overflow:visible"
-           d="M 26.809906,7.270715 L 26.809906,15.511069 C 31.079106,15.466284 29.87527,15.077117 37.773614,13.547681 L 26.809906,7.270715 z "
-           id="path1915"
-           inkscape:r_cx="true"
-           inkscape:r_cy="true"
-           sodipodi:nodetypes="cccc"
-           inkscape:export-filename="/source/git/kmchart/images/play_on.png"
-           inkscape:export-xdpi="88.615387"
-           inkscape:export-ydpi="88.615387" />
-      </g>
-    </g>
+    <path
+       sodipodi:nodetypes="cccc"
+       id="path2015"
+       d="M 31.513479,40.240482 L 31.513479,4.9031316 L 51.259337,22.070224 L 31.513479,40.240482 z "
+       style="opacity:0.15;color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2025);stroke-width:1.87354589;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       inkscape:r_cx="true"
+       inkscape:r_cy="true"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
+       inkscape:export-xdpi="88.615387"
+       inkscape:export-ydpi="88.615387" />
+    <path
+       inkscape:r_cy="true"
+       inkscape:r_cx="true"
+       style="color:black;fill:#2a2aff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.00000036;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 31.891779,38.284172 L 31.891779,6.0617396 L 50.148029,22.172956 L 31.891779,38.284172 z "
+       id="path2017"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
+       inkscape:export-xdpi="88.615387"
+       inkscape:export-ydpi="88.615387" />
+    <path
+       inkscape:r_cy="true"
+       inkscape:r_cx="true"
+       style="color:black;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2027);stroke-width:0.93677419;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 31.891779,38.284172 L 31.891779,6.0617396 L 50.148029,22.172956 L 31.891779,38.284172 z "
+       id="path2019"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
+       inkscape:export-xdpi="88.615387"
+       inkscape:export-ydpi="88.615387" />
+    <path
+       inkscape:r_cy="true"
+       inkscape:r_cx="true"
+       style="color:black;fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 32.270489,7.0749186 L 32.270489,37.270975 L 49.383388,22.172948 L 32.270489,7.0749186 z M 33.027905,9.1024716 L 47.844885,22.172948 L 33.027905,35.243423 L 33.027905,9.1024716 z "
+       id="path2021"
+       sodipodi:nodetypes="cccccccc"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
+       inkscape:export-xdpi="88.615387"
+       inkscape:export-ydpi="88.615387" />
+    <path
+       style="opacity:0.5;color:black;fill:white;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:block;overflow:visible"
+       d="M 32.980975,9.0306496 L 32.980975,18.68272 C 35.285685,18.645733 37.92821,18.397337 42.1921,17.134259 L 32.980975,9.0306496 z "
+       id="path2023"
+       inkscape:r_cx="true"
+       inkscape:r_cy="true"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
+       inkscape:export-xdpi="88.615387"
+       inkscape:export-ydpi="88.615387" />
   </g>
 </svg>

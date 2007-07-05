@@ -29,6 +29,7 @@
 #include "view.h"
 #include "chart.h"
 #include "kmtime.h"
+#include "timebutton.h"
 #include <qobject.h>
 #include <qlabel.h>
 #include <qlayout.h>
@@ -39,22 +40,7 @@
 #include <qwt/qwt_plot.h>
 #include <qwt/qwt_scale_draw.h>
 
-enum KmButtonState {
-    BUTTON_TIMELESS = 1,
-    BUTTON_PLAYLIVE = 2,
-    BUTTON_STOPLIVE = 3,
-    BUTTON_PLAYRECORD = 4,
-    BUTTON_STOPRECORD = 5,
-    BUTTON_PLAYARCHIVE = 6,
-    BUTTON_STOPARCHIVE = 7,
-    BUTTON_BACKARCHIVE = 8,
-    BUTTON_STEPFWDARCHIVE = 9,
-    BUTTON_STEPBACKARCHIVE = 10,
-    BUTTON_FASTFWDARCHIVE = 11,
-    BUTTON_FASTBACKARCHIVE = 12,
-};
-
-enum KmTimeState {
+enum TimeState {
     START_STATE,
     FORWARD_STATE,
     BACKWARD_STATE,
@@ -108,7 +94,7 @@ public:
     void updateTimeAxis(void);
     void updateTimeAxis(time_t secs);
 
-    KmButtonState buttonState(void);
+    enum TimeButtonState buttonState(void);
     km_tctl_state kmtimeState(void);
     void newButtonState(km_tctl_state s, km_tctl_mode m, int mode, bool record);
 
@@ -129,8 +115,8 @@ private:
     int			_visible;	// -v visible points
     int			_samples;	// -s total number of samples
     double		*_timeData;	// time array (intervals)
-    KmTimeState		_timestate;
-    KmButtonState	_buttonstate;
+    TimeState		_timestate;
+    TimeButtonState	_buttonstate;
     km_tctl_source	_mode;		// reliable archive/host test
     km_tctl_state	_lastkmstate;
     PMC_Group		*_group;	// metric fetchgroup
@@ -140,12 +126,12 @@ private:
     QPtrList<PmLogger>	_loglist;	// list of pmloggers for this Tab
 
     void refresh_charts(void);
-    void adjustWorldView(kmTime *);
+    void adjustWorldView(kmTime *, bool);
     void adjustLiveWorldView(kmTime *);
     void adjustArchiveWorldView(kmTime *, bool);
     void adjustArchiveWorldViewForward(kmTime *, bool);
     void adjustArchiveWorldViewBackward(kmTime *, bool);
-    void adjustArchiveWorldViewStop(kmTime *);
+    void adjustArchiveWorldViewStop(kmTime *, bool);
 };
 
 #endif	/* TAB_H */

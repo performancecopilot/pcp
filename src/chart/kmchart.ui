@@ -67,9 +67,9 @@
                         <property name="spacing">
                             <number>2</number>
                         </property>
-                        <widget class="QPushButton">
+                        <widget class="TimeButton">
                             <property name="name">
-                                <cstring>timePushButton</cstring>
+                                <cstring>timeButton</cstring>
                             </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
@@ -292,6 +292,22 @@
 <toolbars>
 </toolbars>
 <customwidgets>
+    <customwidget>
+        <class>TimeButton</class>
+        <header location="local">timebutton.h</header>
+        <sizehint>
+            <width>54</width>
+            <height>54</height>
+        </sizehint>
+        <container>0</container>
+        <sizepolicy>
+            <hordata>7</hordata>
+            <verdata>0</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+        <pixmap>image0</pixmap>
+    </customwidget>
     <customwidget>
         <class>TimeAxis</class>
         <header location="local">timeaxis.h</header>
@@ -913,7 +929,7 @@
         <slot>activeTabChanged(QWidget*)</slot>
     </connection>
     <connection>
-        <sender>timePushButton</sender>
+        <sender>timeButton</sender>
         <signal>clicked()</signal>
         <receiver>KmChart</receiver>
         <slot>showTimeControl()</slot>
@@ -1002,6 +1018,7 @@
     <include location="local" impldecl="in declaration">qfiledialog.h</include>
     <include location="local" impldecl="in declaration">qassistantclient.h</include>
     <include location="local" impldecl="in declaration">timeaxis.h</include>
+    <include location="local" impldecl="in declaration">timebutton.h</include>
     <include location="local" impldecl="in implementation">stdlib.h</include>
     <include location="local" impldecl="in implementation">qapplication.h</include>
     <include location="local" impldecl="in implementation">qdir.h</include>
@@ -1022,21 +1039,9 @@
     <include location="local" impldecl="in implementation">kmchart.ui.h</include>
 </includes>
 <variables>
-    <variable access="private">int _line;</variable>
     <variable access="private">const char *_fname;</variable>
     <variable access="private">QPrinter *_printer;</variable>
     <variable access="private">TimeAxis *_timeAxis;</variable>
-    <variable access="private">QPixmap *_timeplaylive_pixmap;</variable>
-    <variable access="private">QPixmap *_timestoplive_pixmap;</variable>
-    <variable access="private">QPixmap *_timeplayrecord_pixmap;</variable>
-    <variable access="private">QPixmap *_timestoprecord_pixmap;</variable>
-    <variable access="private">QPixmap *_timeplayarchive_pixmap;</variable>
-    <variable access="private">QPixmap *_timestoparchive_pixmap;</variable>
-    <variable access="private">QPixmap *_timebackarchive_pixmap;</variable>
-    <variable access="private">QPixmap *_timestepfwdarchive_pixmap;</variable>
-    <variable access="private">QPixmap *_timestepbackarchive_pixmap;</variable>
-    <variable access="private">QPixmap *_timefastfwdarchive_pixmap;</variable>
-    <variable access="private">QPixmap *_timefastbackarchive_pixmap;</variable>
     <variable access="private">TabDialog *_newtab;</variable>
     <variable access="private">TabDialog *_edittab;</variable>
     <variable access="private">InfoDialog *_info;</variable>
@@ -1099,7 +1104,7 @@
     <function returnType="QTabWidget *">tabWidget()</function>
     <function>setActiveTab( int index, bool redisplay )</function>
     <function>setDateLabel( time_t seconds, const char * tz )</function>
-    <function>setButtonState(enum KmButtonState newstate)</function>
+    <function>setButtonState(enum TimeButtonState newstate)</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="0" margin="0"/>

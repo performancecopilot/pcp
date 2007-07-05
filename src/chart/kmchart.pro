@@ -1,9 +1,6 @@
 TEMPLATE	= app
 LANGUAGE	= C++
 
-#CONFIG	+= qt warn_on release
-CONFIG	+= qt warn_on debug
-
 LIBS	+= -lpcp_pmc -lpcp -lqwt -lqassistantclient
 
 INCLUDEPATH	+= /usr/include/qwt ../include
@@ -15,6 +12,7 @@ HEADERS	+= main.h \
 	source.h \
 	tab.h \
 	timeaxis.h \
+	timebutton.h \
 	timecontrol.h \
 	view.h
 
@@ -25,6 +23,7 @@ SOURCES	+= main.cpp \
 	source.cpp \
 	tab.cpp \
 	timeaxis.cpp \
+	timebutton.cpp \
 	timecontrol.cpp \
 	view.cpp
 
@@ -75,7 +74,21 @@ IMAGES	= ../../images/aboutpcp.png \
 	../../images/tab-edit.png \
 	../../images/toolarchive.png \
 	../../images/toolusers.png \
-	../../images/toolview.png
+	../../images/toolview.png \
+	../../images/play_live.png \
+	../../images/stop_live.png \
+	../../images/play_record.png \
+	../../images/stop_record.png \
+	../../images/play_archive.png \
+	../../images/stop_archive.png \
+	../../images/back_archive.png \
+	../../images/stepfwd_archive.png \
+	../../images/stepback_archive.png \
+	../../images/fastfwd_archive.png \
+	../../images/fastback_archive.png
+
+#CONFIG	+= qt warn_on release
+CONFIG	+= qt warn_on debug
 
 unix {
   UI_DIR = .ui

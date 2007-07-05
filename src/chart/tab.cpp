@@ -362,10 +362,10 @@ void Tab::setupWorldView(void)
 // and possibly rethink everything.  This can result from a time
 // control position change, delta change, direction change, etc.
 //
-void Tab::adjustWorldView(kmTime *kmtime)
+void Tab::adjustWorldView(kmTime *kmtime, bool vcrmode)
 {
     if (isArchiveMode())
-	adjustArchiveWorldView(kmtime, FALSE);
+	adjustArchiveWorldView(kmtime, vcrmode);
     else
 	adjustLiveWorldView(kmtime);
 }
@@ -377,7 +377,7 @@ void Tab::adjustArchiveWorldView(kmTime *kmtime, bool need_fetch)
     else if (kmtime->state == KM_STATE_BACKWARD)
 	adjustArchiveWorldViewBackward(kmtime, need_fetch);
     else
-	adjustArchiveWorldViewStop(kmtime);
+	adjustArchiveWorldViewStop(kmtime, need_fetch);
 }
 
 void Tab::adjustLiveWorldView(kmTime *kmtime)
@@ -549,11 +549,16 @@ fprintf(stderr, "%s: setting a time position[%d]=%.2f (%s), state=%s num=%d\n", 
     refresh_charts();
 }
 
-void Tab::adjustArchiveWorldViewStop(kmTime *kmtime)
+void Tab::adjustArchiveWorldViewStop(kmTime *kmtime, bool need_fetch)
 {
-    _timestate = STANDBY_STATE;
-    newButtonState(kmtime->state, kmtime->mode, _group->mode(), _recording);
-    refresh_charts();
+    if (need_fetch)	// stopped, but VCR reposition event occurred
+	adjustArchiveWorldViewForward(kmtime, need_fetch);
+    else {
+	_timestate = STANDBY_STATE;
+	kmtime->state = KM_STATE_STOP;
+	newButtonState(kmtime->state, kmtime->mode, _group->mode(), _recording);
+	updateTimeButton();
+    }
 }
 
 //
@@ -573,7 +578,7 @@ void Tab::step(kmTime *kmtime)
     if (kmtime->source == KM_SOURCE_ARCHIVE &&
 	((kmtime->state == KM_STATE_FORWARD && _timestate != FORWARD_STATE) ||
 	 (kmtime->state == KM_STATE_BACKWARD && _timestate != BACKWARD_STATE)))
-	return adjustWorldView(kmtime);
+	return adjustWorldView(kmtime, FALSE);
 
     last = _samples - 1;
     _lastkmstate = kmtime->state;
@@ -592,14 +597,14 @@ void Tab::step(kmTime *kmtime)
     }
 
     _group->fetch();
+    newButtonState(kmtime->state, kmtime->mode, _group->mode(), _recording);
     refresh_charts();
 }
 
 void Tab::vcrmode(kmTime *kmtime, bool dragmode)
 {
-    if (dragmode)	// TODO
-	return;
-    adjustWorldView(kmtime);
+    if (!dragmode)
+	adjustWorldView(kmtime, TRUE);
 }
 
 void Tab::setTimezone(char *tz)
@@ -709,7 +714,7 @@ void Tab::addLogger(PmLogger *pmlogger)
     _loglist.append(pmlogger);
 }
 
-KmButtonState Tab::buttonState(void)
+TimeButtonState Tab::buttonState(void)
 {
     return _buttonstate;
 }

@@ -44,18 +44,6 @@
 #include "aboutdialog.h"
 #include "seealsodialog.h"
 
-#include "../../images/play_live.xpm"
-#include "../../images/stop_live.xpm"
-#include "../../images/play_record.xpm"
-#include "../../images/stop_record.xpm"
-#include "../../images/play_archive.xpm"
-#include "../../images/stop_archive.xpm"
-#include "../../images/back_archive.xpm"
-#include "../../images/stepback_archive.xpm"
-#include "../../images/stepfwd_archive.xpm"
-#include "../../images/fastback_archive.xpm"
-#include "../../images/fastfwd_archive.xpm"
-
 #define DESPERATE 0
 
 #if DESPERATE
@@ -66,18 +54,6 @@ char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
 void KmChart::init(void)
 {
     timeAxisPlot->init();
-
-    _timeplaylive_pixmap = new QPixmap(play_live_xpm);
-    _timestoplive_pixmap = new QPixmap(stop_live_xpm);
-    _timeplayrecord_pixmap = new QPixmap(play_record_xpm);
-    _timestoprecord_pixmap = new QPixmap(stop_record_xpm);
-    _timeplayarchive_pixmap = new QPixmap(play_archive_xpm);
-    _timestoparchive_pixmap = new QPixmap(stop_archive_xpm);
-    _timebackarchive_pixmap = new QPixmap(back_archive_xpm);
-    _timestepfwdarchive_pixmap = new QPixmap(stepfwd_archive_xpm);
-    _timefastfwdarchive_pixmap = new QPixmap(fastfwd_archive_xpm);
-    _timestepbackarchive_pixmap = new QPixmap(stepback_archive_xpm);
-    _timefastbackarchive_pixmap = new QPixmap(fastback_archive_xpm);
 
     _info = new InfoDialog(this);
     _newtab = new TabDialog(this);
@@ -131,45 +107,9 @@ void KmChart::enableUI(void)
     deleteChartAction->setEnabled(haveCharts);
 }
 
-void KmChart::setButtonState(enum KmButtonState newstate)
+void KmChart::setButtonState(enum TimeButtonState newstate)
 {
-    switch(newstate) {
-    case BUTTON_PLAYLIVE:
-	timePushButton->setPixmap(*_timeplaylive_pixmap);
-	break;
-    case BUTTON_STOPLIVE:
-	timePushButton->setPixmap(*_timestoplive_pixmap);
-	break;
-    case BUTTON_PLAYRECORD:
-	timePushButton->setPixmap(*_timeplayrecord_pixmap);
-	break;
-    case BUTTON_STOPRECORD:
-	timePushButton->setPixmap(*_timestoprecord_pixmap);
-	break;
-    case BUTTON_PLAYARCHIVE:
-	timePushButton->setPixmap(*_timeplayarchive_pixmap);
-	break;
-    case BUTTON_STOPARCHIVE:
-	timePushButton->setPixmap(*_timestoparchive_pixmap);
-	break;
-    case BUTTON_BACKARCHIVE:
-	timePushButton->setPixmap(*_timebackarchive_pixmap);
-	break;
-    case BUTTON_STEPFWDARCHIVE:
-	timePushButton->setPixmap(*_timestepfwdarchive_pixmap);
-	break;
-    case BUTTON_STEPBACKARCHIVE:
-	timePushButton->setPixmap(*_timestepbackarchive_pixmap);
-	break;
-    case BUTTON_FASTFWDARCHIVE:
-	timePushButton->setPixmap(*_timefastfwdarchive_pixmap);
-	break;
-    case BUTTON_FASTBACKARCHIVE:
-	timePushButton->setPixmap(*_timefastbackarchive_pixmap);
-	break;
-    default:
-	abort();
-    }
+    timeButton->setButtonState(newstate);
 }
 
 void KmChart::step(bool livemode, kmTime *kmtime)
