@@ -19,39 +19,37 @@
 #include "main.h"
 #include "aboutdialog.h"
 #include "seealsodialog.h"
-#include "../../images/stop_on.xpm"
-#include "../../images/stop_off.xpm"
-#include "../../images/play_on.xpm"
-#include "../../images/play_off.xpm"
-
-extern void QTimeFromTimeval(QTime *qt, struct timeval *tv);
 
 typedef struct {
     km_tctl_state	state;
-    const char		**stop_xpm;
-    QPixmap 		*stop_pixmap;
-    const char		**play_xpm;
-    QPixmap 		*play_pixmap;
+    QPixmap 		*stop;
+    QPixmap 		*play;
 } tctl_h;
 
-static tctl_h tctl[] = {
-    { KM_STATE_STOP, stop_on_xpm, NULL, play_off_xpm, NULL },
-    { KM_STATE_FORWARD, stop_off_xpm, NULL, play_on_xpm, NULL }
-};
-
-static int nctl = sizeof(tctl) / sizeof(tctl[0]);
+static void setup(tctl_h *t, km_tctl_state state, QPixmap *stop, QPixmap *play)
+{
+    t->state = state;
+    t->stop = stop;
+    t->play = play;
+}
 
 void KmTimeLive::setControl(km_tctl_state newstate)
 {
+    static tctl_h tctl[2];
+    static int nctl;
+
+    if (!nctl) {
+	nctl = sizeof(tctl) / sizeof(tctl[0]);
+	setup(&tctl[0], KM_STATE_STOP, pixmap(STOP_ON), pixmap(PLAY_OFF));
+	setup(&tctl[1], KM_STATE_FORWARD, pixmap(STOP_OFF), pixmap(PLAY_ON));
+    }
+
     if (_kmtime.state != newstate) {
 	for (int i = 0; i < nctl; i++) {
 	    if (tctl[i].state == newstate) {
-		if (tctl[i].stop_pixmap == NULL)
-		    tctl[i].stop_pixmap = new QPixmap(tctl[i].stop_xpm);
-		pushButtonStop->setPixmap(*tctl[i].stop_pixmap);
-		if (tctl[i].play_pixmap == NULL)
-		    tctl[i].play_pixmap = new QPixmap(tctl[i].play_xpm);
-		pushButtonPlay->setPixmap(*tctl[i].play_pixmap);
+		pushButtonStop->setPixmap(*tctl[i].stop);
+		pushButtonPlay->setPixmap(*tctl[i].play);
+		break;
 	    }
 	}
 	_kmtime.state = newstate;

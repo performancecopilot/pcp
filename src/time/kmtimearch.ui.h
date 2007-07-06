@@ -22,70 +22,59 @@
 #include "main.h"
 #include "aboutdialog.h"
 #include "seealsodialog.h"
-#include "../../images/stop_on.xpm"
-#include "../../images/stop_off.xpm"
-#include "../../images/play_on.xpm"
-#include "../../images/play_off.xpm"
-#include "../../images/back_on.xpm"
-#include "../../images/back_off.xpm"
-#include "../../images/fastfwd_on.xpm"
-#include "../../images/fastfwd_off.xpm"
-#include "../../images/fastback_on.xpm"
-#include "../../images/fastback_off.xpm"
-#include "../../images/stepfwd_on.xpm"
-#include "../../images/stepfwd_off.xpm"
-#include "../../images/stepback_on.xpm"
-#include "../../images/stepback_off.xpm"
 
 typedef struct {
     km_tctl_state	state;
     km_tctl_mode	mode;
-    const char		**back_xpm;
-    QPixmap 		*back_pixmap;
-    const char		**stop_xpm;
-    QPixmap 		*stop_pixmap;
-    const char		**play_xpm;
-    QPixmap 		*play_pixmap;
+    QPixmap 		*back;
+    QPixmap 		*stop;
+    QPixmap 		*play;
 } tctl_h;
 
-static tctl_h tctl[] = {
-    { KM_STATE_STOP, KM_MODE_NORMAL,
-	back_off_xpm, NULL, stop_on_xpm, NULL, play_off_xpm, NULL },
-    { KM_STATE_FORWARD, KM_MODE_NORMAL,
-	back_off_xpm, NULL, stop_off_xpm, NULL, play_on_xpm, NULL },
-    { KM_STATE_BACKWARD, KM_MODE_NORMAL,
-	back_on_xpm, NULL, stop_off_xpm, NULL, play_off_xpm, NULL },
-    { KM_STATE_STOP, KM_MODE_FAST,
-	fastback_off_xpm, NULL, stop_on_xpm, NULL, fastfwd_off_xpm, NULL },
-    { KM_STATE_FORWARD, KM_MODE_FAST,
-	fastback_off_xpm, NULL, stop_off_xpm, NULL, fastfwd_on_xpm, NULL },
-    { KM_STATE_BACKWARD, KM_MODE_FAST,
-	fastback_on_xpm, NULL, stop_off_xpm, NULL, fastfwd_off_xpm, NULL },
-    { KM_STATE_STOP, KM_MODE_STEP,
-	stepback_off_xpm, NULL, stop_on_xpm, NULL, stepfwd_off_xpm, NULL },
-    { KM_STATE_FORWARD, KM_MODE_STEP,
-	stepback_off_xpm, NULL, stop_off_xpm, NULL, stepfwd_on_xpm, NULL },
-    { KM_STATE_BACKWARD, KM_MODE_STEP,
-	stepback_on_xpm, NULL, stop_off_xpm, NULL, stepfwd_off_xpm, NULL },
-};
-
-static int nctl = sizeof(tctl) / sizeof(tctl[0]);
+static void setup(tctl_h *t, km_tctl_state state, km_tctl_mode mode,
+		  QPixmap *back, QPixmap *stop, QPixmap *play)
+{
+    t->state = state;
+    t->mode = mode;
+    t->back = back;
+    t->stop = stop;
+    t->play = play;
+}
 
 void KmTimeArch::setControl(km_tctl_state newstate, km_tctl_mode newmode)
 {
+    static tctl_h tctl[3 * 3];
+    static int nctl;
+
+    if (!nctl) {
+	nctl = sizeof(tctl) / sizeof(tctl[0]);
+	setup(&tctl[0], KM_STATE_STOP, KM_MODE_NORMAL,
+	      pixmap(BACK_OFF), pixmap(STOP_ON), pixmap(PLAY_OFF));
+	setup(&tctl[1], KM_STATE_FORWARD, KM_MODE_NORMAL,
+	      pixmap(BACK_OFF), pixmap(STOP_OFF), pixmap(PLAY_ON));
+	setup(&tctl[2], KM_STATE_BACKWARD, KM_MODE_NORMAL,
+	      pixmap(BACK_ON), pixmap(STOP_OFF), pixmap(PLAY_OFF));
+	setup(&tctl[3], KM_STATE_STOP, KM_MODE_FAST,
+	      pixmap(FASTBACK_OFF), pixmap(STOP_ON), pixmap(FASTFWD_OFF));
+	setup(&tctl[4], KM_STATE_FORWARD, KM_MODE_FAST,
+	      pixmap(FASTBACK_OFF), pixmap(STOP_OFF), pixmap(FASTFWD_ON));
+	setup(&tctl[5], KM_STATE_BACKWARD, KM_MODE_FAST,
+	      pixmap(FASTBACK_ON), pixmap(STOP_OFF), pixmap(FASTFWD_OFF));
+	setup(&tctl[6], KM_STATE_STOP, KM_MODE_STEP,
+	      pixmap(STEPBACK_OFF), pixmap(STOP_ON), pixmap(STEPFWD_OFF));
+	setup(&tctl[7], KM_STATE_FORWARD, KM_MODE_STEP,
+	      pixmap(STEPBACK_OFF), pixmap(STOP_OFF), pixmap(STEPFWD_ON));
+	setup(&tctl[8], KM_STATE_BACKWARD, KM_MODE_STEP,
+	      pixmap(STEPBACK_ON), pixmap(STOP_OFF), pixmap(STEPFWD_OFF));
+    }
+
     if (_kmtime.state != newstate || _kmtime.mode != newmode) {
 	for (int i = 0; i < nctl; i++) {
 	    if (tctl[i].state == newstate && tctl[i].mode == newmode) {
-		if (tctl[i].back_pixmap == NULL)
-		    tctl[i].back_pixmap = new QPixmap(tctl[i].back_xpm);
-		pushButtonBack->setPixmap(*tctl[i].back_pixmap);
-		if (tctl[i].stop_pixmap == NULL)
-		    tctl[i].stop_pixmap = new QPixmap(tctl[i].stop_xpm);
-		pushButtonStop->setPixmap(*tctl[i].stop_pixmap);
-		if (tctl[i].play_pixmap == NULL)
-		    tctl[i].play_pixmap = new QPixmap(tctl[i].play_xpm);
-		pushButtonPlay->setPixmap(*tctl[i].play_pixmap);
-		
+		pushButtonBack->setPixmap(*tctl[i].back);
+		pushButtonStop->setPixmap(*tctl[i].stop);
+		pushButtonPlay->setPixmap(*tctl[i].play);
+		break;
 	    }
 	}
 	_kmtime.state = newstate;
@@ -362,7 +351,6 @@ void KmTimeArch::releasedPosition()
 
 void KmTimeArch::changedPosition(double value)
 {
-#define DESPERATE 1
 #ifdef DESPERATE
     _console->post(DBG_APP, "%s changing pos from %d.%d", __func__,
     			_kmtime.position.tv_sec, _kmtime.position.tv_usec);

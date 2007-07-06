@@ -1,9 +1,6 @@
 TEMPLATE	= app
 LANGUAGE	= C++
 
-#CONFIG	+= qt warn_on release
-CONFIG	+= qt warn_on debug
-
 LIBS	+= -lpcp -lqwt -lqassistantclient
 
 INCLUDEPATH	+= /usr/include/qwt ../include
@@ -24,24 +21,27 @@ FORMS	= kmtimelive.ui \
 IMAGES	= ../../images/aboutpcp.png \
 	../../images/aboutqt.png \
 	../../images/aboutkmtime.png \
-	../../images/play_off.xpm \
-	../../images/play_on.xpm \
-	../../images/fastfwd_off.xpm \
-	../../images/fastfwd_on.xpm \
-	../../images/fastback_off.xpm \
-	../../images/fastback_on.xpm \
-	../../images/back_off.xpm \
-	../../images/back_on.xpm \
-	../../images/stepfwd_off.xpm \
-	../../images/stepfwd_on.xpm \
-	../../images/stepback_off.xpm \
-	../../images/stepback_on.xpm \
-	../../images/stop_off.xpm \
-	../../images/stop_on.xpm \
+	../../images/play_off.png \
+	../../images/play_on.png \
+	../../images/fastfwd_off.png \
+	../../images/fastfwd_on.png \
+	../../images/fastback_off.png \
+	../../images/fastback_on.png \
+	../../images/back_off.png \
+	../../images/back_on.png \
+	../../images/stepfwd_off.png \
+	../../images/stepfwd_on.png \
+	../../images/stepback_off.png \
+	../../images/stepback_on.png \
+	../../images/stop_off.png \
+	../../images/stop_on.png \
 	../../images/whatsthis.png \
 	../../images/kmtime.png \
 	../../images/edit-clear.png \
 	../../images/internet-web-browser.png
+
+#CONFIG	+= qt warn_on release
+CONFIG	+= qt warn_on debug
 
 unix {
   UI_DIR = .ui

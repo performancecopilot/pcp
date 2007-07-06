@@ -44,4 +44,25 @@ extern double secondsFromTV(struct timeval *tv);
 extern double unitsToSeconds(double value, delta_units units);
 extern double secondsToUnits(double value, delta_units units);
 
+enum PixmapType {
+	PLAY_ON,
+	PLAY_OFF,
+	STOP_ON,
+	STOP_OFF,
+	BACK_ON,
+	BACK_OFF,
+	FASTFWD_ON,
+	FASTFWD_OFF,
+	FASTBACK_ON,
+	FASTBACK_OFF,
+	STEPFWD_ON,
+	STEPFWD_OFF,
+	STEPBACK_ON,
+	STEPBACK_OFF,
+	PIXMAP_COUNT
+};
+
+class QPixmap;
+extern QPixmap *pixmap(enum PixmapType);
+
 #endif	/* MAIN_H */

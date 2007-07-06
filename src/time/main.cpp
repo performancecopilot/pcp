@@ -22,8 +22,10 @@
 
 #include <qapplication.h>
 #include <qsocketnotifier.h>
+#include <qstatusbar.h>
 #include <qeventloop.h>
 #include <qdatetime.h>
+#include <qpixmap.h>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -121,6 +123,31 @@ double secondsToUnits(double value, delta_units units)
     else if (units == Week)
 	return value / (60.0 * 60.0 * 24.0 * 7.0);
     return value;
+}
+
+extern QPixmap *pixmap(enum PixmapType type)
+{
+    static QPixmap pixmaps[PIXMAP_COUNT];
+    static int setup;
+
+    if (!setup) {
+	setup = 1;
+	pixmaps[PLAY_ON] = QPixmap::fromMimeSource("play_on.png");
+	pixmaps[PLAY_OFF] = QPixmap::fromMimeSource("play_off.png");
+	pixmaps[STOP_ON] = QPixmap::fromMimeSource("stop_on.png");
+	pixmaps[STOP_OFF] = QPixmap::fromMimeSource("stop_off.png");
+	pixmaps[BACK_ON] = QPixmap::fromMimeSource("back_on.png");
+	pixmaps[BACK_OFF] = QPixmap::fromMimeSource("back_off.png");
+	pixmaps[FASTFWD_ON] = QPixmap::fromMimeSource("fastfwd_on.png");
+	pixmaps[FASTFWD_OFF] = QPixmap::fromMimeSource("fastfwd_off.png");
+	pixmaps[FASTBACK_ON] = QPixmap::fromMimeSource("fastback_on.png");
+	pixmaps[FASTBACK_OFF] = QPixmap::fromMimeSource("fastback_off.png");
+	pixmaps[STEPFWD_ON] = QPixmap::fromMimeSource("stepfwd_on.png");
+	pixmaps[STEPFWD_OFF] = QPixmap::fromMimeSource("stepfwd_off.png");
+	pixmaps[STEPBACK_ON] = QPixmap::fromMimeSource("stepback_on.png");
+	pixmaps[STEPBACK_OFF] = QPixmap::fromMimeSource("stepback_off.png");
+    }
+    return &pixmaps[type];
 }
 
 int main(int argc, char ** argv)
@@ -227,10 +254,13 @@ int main(int argc, char ** argv)
     tl->setContext(&hc, &ac);
 
     hc.init(&cons);
+    ac.init(&cons);
+
+    delete hc.statusBar();
     if (!pmDebug) hc.disableConsole();
     else hc.popup(1);
 
-    ac.init(&cons);
+    delete ac.statusBar();
     if (!pmDebug) ac.disableConsole();
     else ac.popup(1);
 
