@@ -31,6 +31,7 @@ LIBPCP_PMDA = @libpcp_pmda@
 
 prefix = @prefix@
 datarootdir = @datarootdir@
+exec_prefix = @exec_prefix@
 
 PKG_NAME	= @pkg_name@
 PKG_USER	= @pkg_user@

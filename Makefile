@@ -32,7 +32,9 @@ endif
 
 $(CONFIGURE):
 	autoconf
-	./configure $$LOCAL_CONFIGURE_OPTIONS
+	./configure \
+		--prefix=/usr \
+		$$LOCAL_CONFIGURE_OPTIONS
 	touch .census
 
 aclocal.m4::
