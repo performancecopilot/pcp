@@ -17,9 +17,9 @@ LSRCFILES = kmchart.pro $(UIFILES) $(UIHFILES) $(CPPFILES) $(HPPFILES)
 LDIRT = kmchart Makefile
 
 default:
-	qmake
+	$(QMAKE)
 	@perl -i -pe 's/ -Wall / -Wall -Wno-deprecated /g' Makefile
-	make -f Makefile
+	$(MAKE) -f Makefile
 
 include $(BUILDRULES)
 

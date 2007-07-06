@@ -21,11 +21,6 @@ ifndef _BUILDDEFS_INCLUDED_
 _BUILDDEFS_INCLUDED_ = 1
 include /etc/pcp.conf
 
-DEBUG = @debug_build@
-OPTIMIZER = @opt_build@
-MALLOCLIB = @malloc_lib@
-LOADERFLAGS = @LDFLAGS@
-
 LIBPCP = @libpcp@
 LIBPCP_PMDA = @libpcp_pmda@
 
@@ -44,6 +39,7 @@ PKG_BIN_DIR	= @bindir@
 PKG_MAN_DIR	= @mandir@
 PKG_DOC_DIR	= @datadir@/doc/@pkg_name@
 
+QMAKE		= @qmake@
 CC		= @cc@
 AWK		= @awk@
 SED		= @sed@
@@ -53,50 +49,12 @@ MAKE		= @make@
 ECHO		= @echo@
 SORT		= @sort@
 LN_S		= @LN_S@
-LIBTOOL		= @LIBTOOL@
-MAKEDEPEND	= @makedepend@
-
-MSGFMT		= @msgfmt@
-MSGMERGE	= @msgmerge@
-XGETTEXT	= @xgettext@
 
 RPM		= @rpm@
 RPMBUILD	= @rpmbuild@
 RPM_VERSION	= @rpm_version@
 
-ENABLE_SHARED	= @enable_shared@
-ENABLE_GETTEXT	= @enable_gettext@
-ENABLE_EDITLINE	= @enable_editline@
-ENABLE_READLINE	= @enable_readline@
-
 HAVE_ZIPPED_MANPAGES = @have_zipped_manpages@
-
-GCCFLAGS = -funsigned-char -fno-strict-aliasing -Wall
-
-ifeq ($(PKG_PLATFORM),linux)
-PCFLAGS = -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 $(GCCFLAGS)
-DEPENDFLAGS = -D__linux__
-endif
-ifeq ($(PKG_PLATFORM),darwin)
-PCFLAGS = -traditional-cpp $(GCCFLAGS)
-DEPENDFLAGS = -D__APPLE__
-endif
-ifeq ($(PKG_PLATFORM),irix)
-PLDLIBS = -ldisk -lgen
-DEPENDFLAGS = -D__sgi__
-endif
-ifeq ($(PKG_PLATFORM),freebsd)
-PLDLIBS = -L/usr/local/lib -lintl
-PCFLAGS = -I/usr/local/include $(GCCFLAGS)
-DEPENDFLAGS = -D__FreeBSD__
-endif
-
-GCFLAGS = $(OPTIMIZER) $(DEBUG) \
-	  -DVERSION=\"$(PKG_VERSION)\" -DLOCALEDIR=\"$(PKG_LOCALE_DIR)\"  \
-	  -DPACKAGE=\"$(PKG_NAME)\" -I$(TOPDIR)/src/include
-
-# First, Global, Platform, Local CFLAGS
-CFLAGS += $(FCFLAGS) $(GCFLAGS) $(PCFLAGS) $(LCFLAGS)
 
 include $(TOPDIR)/src/include/buildmacros
 

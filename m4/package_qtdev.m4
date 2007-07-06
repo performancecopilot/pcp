@@ -4,6 +4,7 @@ AC_DEFUN([AC_PACKAGE_NEED_QT_QMAKE],
     fi
     qmake=$QMAKE
     AC_SUBST(qmake)
+    AC_PACKAGE_NEED_UTILITY($1, "$qmake", qmake, [Qt make])
   ])
 
 AC_DEFUN([AC_PACKAGE_NEED_QT_UIC],
@@ -12,6 +13,7 @@ AC_DEFUN([AC_PACKAGE_NEED_QT_UIC],
     fi
     uic=$UIC
     AC_SUBST(uic)
+    AC_PACKAGE_NEED_UTILITY($1, "$uic", uic, [Qt User Interface Compiler])
   ])
 
 AC_DEFUN([AC_PACKAGE_NEED_QT_MOC],
@@ -20,4 +22,5 @@ AC_DEFUN([AC_PACKAGE_NEED_QT_MOC],
     fi
     moc=$MOC
     AC_SUBST(moc)
+    AC_PACKAGE_NEED_UTILITY($1, "$uic", uic, [Qt Meta-Object Compiler])
   ])

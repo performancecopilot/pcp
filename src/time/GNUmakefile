@@ -16,8 +16,8 @@ LSRCFILES = kmtime.pro $(UIFILES) $(UIHFILES) $(CPPFILES) $(HPPFILES)
 LDIRT = kmtime Makefile
 
 default:
-	qmake
-	make -f Makefile
+	$(QMAKE)
+	$(MAKE) -f Makefile
 
 include $(BUILDRULES)
 

@@ -154,6 +154,7 @@ AC_DEFUN([AC_PACKAGE_NEED_QT_QMAKE],
     fi
     qmake=$QMAKE
     AC_SUBST(qmake)
+    AC_PACKAGE_NEED_UTILITY($1, "$qmake", qmake, [Qt make])
   ])
 
 AC_DEFUN([AC_PACKAGE_NEED_QT_UIC],
@@ -162,6 +163,7 @@ AC_DEFUN([AC_PACKAGE_NEED_QT_UIC],
     fi
     uic=$UIC
     AC_SUBST(uic)
+    AC_PACKAGE_NEED_UTILITY($1, "$uic", uic, [Qt User Interface Compiler])
   ])
 
 AC_DEFUN([AC_PACKAGE_NEED_QT_MOC],
@@ -170,52 +172,7 @@ AC_DEFUN([AC_PACKAGE_NEED_QT_MOC],
     fi
     moc=$MOC
     AC_SUBST(moc)
-  ])
-
-AC_DEFUN([AC_PACKAGE_NEED_QT_QT_H],
-  [ AC_LANG_PUSH(C++)
-    AC_CHECK_HEADERS([qt/qt.h qt3/qt.h])
-    if test $ac_cv_header_qt_qt_h = no -a $ac_cv_header_qt3_qt_h = no; then
-	echo
-	echo 'FATAL ERROR: could not find a valid QT header.'
-	exit 1
-    fi
-    AC_LANG_POP(C++)
-  ])
-
-AC_DEFUN([AC_PACKAGE_NEED_QWT_QWT_H],
-  [ AC_LANG_PUSH(C++)
-    AC_CHECK_HEADERS([qwt/qwt.h])
-    if test $ac_cv_header_qwt_qwt_h = no; then
-	echo
-	echo 'FATAL ERROR: could not find a valid QWT header.'
-	exit 1
-    fi
-    AC_LANG_POP(C++)
-  ])
-
-AC_DEFUN([AC_PACKAGE_NEED_LIBQT],
-  [ AC_LANG_PUSH(C++)
-    AC_CHECK_LIB(qt, QApplication::exit,, [
-	echo
-	echo 'FATAL ERROR: could not find a valid QT library.'
-	exit 1
-    ])
-    libqt=-lqt
-    AC_SUBST(libqt)
-    AC_LANG_POP(C++)
-  ])
-
-AC_DEFUN([AC_PACKAGE_NEED_LIBQWT],
-  [ AC_LANG_PUSH(C++)
-    AC_CHECK_LIB(qwt, QwtPlot::axisValid,, [
-	echo
-	echo 'FATAL ERROR: could not find a valid QWT library.'
-	exit 1
-    ])
-    libqwt=-lqwt
-    AC_SUBST(libqwt)
-    AC_LANG_POP(C++)
+    AC_PACKAGE_NEED_UTILITY($1, "$uic", uic, [Qt Meta-Object Compiler])
   ])
 
 #
