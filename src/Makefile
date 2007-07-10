@@ -1,11 +1,11 @@
 #
-# Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2007 Nathan Scott.  All Rights Reserved.
 #
 
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS = include chart time
+SUBDIRS = include chart query time
 
 default install : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
