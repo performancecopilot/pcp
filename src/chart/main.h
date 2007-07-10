@@ -34,7 +34,7 @@
 #include "kmchart.h"
 #include "source.h"
 
-#define VERSION		"0.5.0"
+#define VERSION		"0.7.0"
 #define min(a,b)	((a)<(b)?(a):(b))
 #define max(a,b)	((a)>(b)?(a):(b))
 

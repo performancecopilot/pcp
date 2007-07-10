@@ -1,16 +1,9 @@
-TODO:
-    - kmtime integration with QtAssistant (help system)
-    - kmchart integration with QtAssistant (help system)
-    - kmchart tooltip text
-    - kmchart whats-this text
-    - autoconf and packaging support (rpm, tar, deb)
-    - record mode needs code
-    - clean up tatty edges to some icons (bad conversion from scalable)
-    - bug fixes:
-	- archive mode scrolling
-	- kmtime not adjusting time window when new archives added
-	- setting a title from Edit Chart
-	- bad archive cmd line arg causes SIGSEGV (PMC_List::remove)
+kmchart 0.7 (11 July 2007)
+    - first git-based release of kmchart
+    - numerous kmchart fixes and features
+    - added kmquery, a Qt-based xconfirm and xmessage replacement that
+      provides a consistent look to kmchart (needed particularly for a
+      planned revamp to Record mode).
 
 kmchart 0.6
     - kmtime support added

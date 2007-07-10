@@ -55,7 +55,7 @@
         </property>
         <property name="text">
             <string>&lt;b&gt;&lt;i&gt;kmtime&lt;/i&gt;&lt;/b&gt;&lt;br&gt;
-&lt;b&gt;&lt;i&gt;Version 0.0.1&lt;/i&gt;&lt;/b&gt;</string>
+&lt;b&gt;&lt;i&gt;Version 0.7.0&lt;/i&gt;&lt;/b&gt;</string>
         </property>
         <property name="alignment">
             <set>WordBreak|AlignCenter</set>
