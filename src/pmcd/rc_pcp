@@ -389,6 +389,16 @@ Warning: Performance Co-Pilot installation is incomplete (at least the
 
 _shutdown()
 {
+    # Is pmcd running?
+    #
+    _get_pids_by_name pmcd >$tmp.tmp
+    if [ ! -s $tmp.tmp ]
+    then
+	echo "$prog: PMCD not running"
+	rm -f $PCP_RUN_DIR/pmcd.pid
+	return 0
+    fi
+
     # Send pmcd a SIGTERM, which is noted as a pending shutdown.
     # When finished the currently active request, pmcd will close any
     # connections, wait for any agents, and then exit.
