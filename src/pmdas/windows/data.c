@@ -743,6 +743,16 @@ static struct {
       }, Q_DISK_DEV, M_NONE,  "\\PhysicalDisk(*/*#*)\\Split IO/Sec"
     },
 
+/* sqlserver.databases.all.active_transactions */
+    { { PMDA_PMID(0,134), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\SQLServer:Databases(_Total)\\Active Transactions"
+    },
+/* sqlserver.databases.db.active_transactions */
+    { { PMDA_PMID(0,135), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\SQLServer:Databases(*/*#*)\\Active Transactions"
+    },
 };
 
 int metrictab_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);
