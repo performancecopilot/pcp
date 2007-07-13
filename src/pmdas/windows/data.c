@@ -395,7 +395,7 @@ static struct {
     },
 /* sqlserver.buf_mgr.page_life_expectancy */
     { { PMDA_PMID(0,66), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Buffer Manager\\Page life expectancy"
     },
 /* filesys.full */
