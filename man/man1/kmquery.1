@@ -216,7 +216,7 @@ input until a button is pressed.
 Exit with status 0 after \fIsecs\fP seconds if the user has not
 clicked on a button yet.
 The corresponding resource is \fBtimeout\fP.
-.SH EXAMPLE
+.SH EXAMPLES
 The following shell script will display a window with an information icon,
 asking the user a yes or no question with "Yes" as the default.
 .PP
@@ -227,6 +227,17 @@ asking the user a yes or no question with "Yes" as the default.
    Yes) shutdown;;
    No) ;;
  esac
+.fi
+.PP
+A second example, which prompts for a hostname then starts a
+terminal with an ssh session connected to the requested host.
+.PP
+.nf
+ #! /bin/sh
+ host=`kmquery -input -icon host -b Cancel -B OK \\
+               -header "Remote Terminal - Secure Shell"
+ [ "$host" = "Cancel" -o -z "$host" ] && exit
+ gnome-terminal -e "ssh $host"
 .fi
 .SH ENVIRONMENT
 .B kmquery

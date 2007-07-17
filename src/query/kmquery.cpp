@@ -25,6 +25,8 @@
 #include <qlabel.h>
 
 #define max(a,b) ((a)>(b)?(a):(b))
+#define DEFAULT_EDIT_WIDTH	240	/* in units of pixels */
+#define DEFAULT_EDIT_HEIGHT	160	/* only for usesliderflag */
 
 enum icontypes {
     INFO_ICON,
@@ -150,22 +152,24 @@ void KmQuery::timerEvent(QTimerEvent *e)
     done(1);
 }
 
+// Currently we set default edit size to hardcoded values, until
+// better ways are found to interact with any geometry requests.
+// Note: the +4 pixels for height ensure te auto-scroll does not
+// kick in, seems to be required.
+
 KmQuery::KmQuery(bool cflag, bool mouseflag, bool inputflag, bool printflag,
 		 bool noframeflag, bool nosliderflag, bool usesliderflag,
 		 bool exclusiveflag)
     : QDialog(NULL, NULL, FALSE, 0)
 {
+    int height;
+    int width = DEFAULT_EDIT_WIDTH; 
     QPixmap pixmap;
 
     // TODO: currently unimplemented options ...
     (void)cflag; // center of display
     (void)mouseflag;
-    (void)nosliderflag;
-    (void)usesliderflag;
     (void)exclusiveflag;
-    // TODO: also add a vertical spacer beneath the icon, so that it
-    // stays in the centre of the text box (so that buttons do not
-    // contribute to its location) - but only for non-lineedit cases.
 
     if (iconic == HOST_ICON)
 	pixmap = QPixmap::fromMimeSource("dialog-host.png");
@@ -198,10 +202,6 @@ KmQuery::KmQuery(bool cflag, bool mouseflag, bool inputflag, bool printflag,
     QVBoxLayout* layout2;
     layout2 = new QVBoxLayout(0, 0, 6, "layout2"); 
 
-    int textheight = (max(font().pointSize(), 6) + 10);
-    if (messagecount > 1)
-	textheight *= messagecount;
-
     QLineEdit* lineEdit = NULL;
     QTextEdit* textEdit = NULL;
     if (inputflag && messagecount <= 1) {
@@ -209,17 +209,27 @@ KmQuery::KmQuery(bool cflag, bool mouseflag, bool inputflag, bool printflag,
 	lineEdit->setSizePolicy(QSizePolicy((QSizePolicy::SizeType)3,
 				(QSizePolicy::SizeType)3, 0, 0,
 				lineEdit->sizePolicy().hasHeightForWidth()));
-	lineEdit->setMinimumSize(QSize(240, 12));
 	if (messagecount == 1)
 	    lineEdit->setText(tr(messages[0]));
+	height = usesliderflag ? DEFAULT_EDIT_HEIGHT :
+				 lineEdit->heightForWidth(width) + 4;
+	lineEdit->setMinimumSize(QSize(width, height));
 	layout2->addWidget(lineEdit);
     }
     else {
 	textEdit = new QTextEdit(this, "textEdit");
-	textEdit->setSizePolicy(QSizePolicy((QSizePolicy::SizeType)3,
-				(QSizePolicy::SizeType)3, 0, 0,
+	textEdit->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,
+				QSizePolicy::MinimumExpanding, 0, 0,
 				textEdit->sizePolicy().hasHeightForWidth()));
-	textEdit->setMinimumSize(QSize(240, textheight));
+	textEdit->setWordWrap(QTextEdit::FixedColumnWidth);
+	textEdit->setWrapColumnOrWidth(80);
+	textEdit->setHScrollBarMode(QScrollView::AlwaysOff);
+	if (nosliderflag)
+	    textEdit->setVScrollBarMode(QScrollView::AlwaysOff);
+	else if (usesliderflag)
+	    textEdit->setVScrollBarMode(QScrollView::AlwaysOn);
+	else
+	    textEdit->setVScrollBarMode(QScrollView::Auto);
 	for (int m = 0; m < messagecount; m++)
 	    textEdit->append(tr(messages[m]));
 	if (inputflag) {
@@ -232,6 +242,9 @@ KmQuery::KmQuery(bool cflag, bool mouseflag, bool inputflag, bool printflag,
 	    textEdit->setPaletteBackgroundColor(paletteBackgroundColor());
 	    textEdit->setReadOnly(TRUE);
 	}
+	height = usesliderflag ? DEFAULT_EDIT_HEIGHT :
+				 textEdit->heightForWidth(width) + 4;
+	textEdit->setMinimumSize(QSize(width, height));
 	layout2->addWidget(textEdit);
     }
 
