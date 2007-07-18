@@ -399,14 +399,42 @@ _shutdown()
 	return 0
     fi
 
+    # if pmcd is running but we can't find a pidfile, or a logfile at the
+    # configured or default location, assume chroot
+    #
+    logf=`_pmcd_logfile`
+    [ -f $logf ] || logf=$RUNDIR/pmcd.log
+    if [ ! -f $PCP_RUN_DIR/pmcd.pid -a ! -f $logf ]
+    then
+	echo "Process ..."
+	cat $tmp.tmp
+	echo "$prog:
+Warning: found no $PCP_RUN_DIR/pmcd.pid
+	 and no $logf.
+	 Assuming an uninstall from a chroot: PMCD not killed.
+	 If this is incorrect, kill -TERM can be applied to the above PID."
+	exit
+
     # Send pmcd a SIGTERM, which is noted as a pending shutdown.
     # When finished the currently active request, pmcd will close any
     # connections, wait for any agents, and then exit.
     #
-    if [ -f $PCP_RUN_DIR/pmcd.pid ]
+    elif [ -f $PCP_RUN_DIR/pmcd.pid ]
     then
-       kill -TERM `cat $PCP_RUN_DIR/pmcd.pid`
-       rm -f $PCP_RUN_DIR/pmcd.pid
+	TOKILL=`cat $PCP_RUN_DIR/pmcd.pid`
+	if grep "^$TOKILL$" $tmp.tmp >/dev/null
+	then
+	    kill -TERM $TOKILL >/dev/null 2>&1
+	    rm -f $PCP_RUN_DIR/pmcd.pid
+	else
+	    echo "Process ..."
+	    cat $tmp.tmp
+	    echo "$prog:
+Warning: process ID in $PCP_RUN_DIR/pmcd.pid is $TOKILL.
+	 Check logfile $logf. When you are ready to proceed, remove
+	 $PCP_RUN_DIR/pmcd.pid before retrying."
+	    exit
+	fi
     else
 	$PCP_KILLALL_PROG -TERM pmcd > /dev/null 2>&1
     fi
@@ -490,7 +518,7 @@ case "$1" in
 
   'start'|'restart')
 	_get_pids_by_name pmcd >$tmp.tmp
-	[ -s $tmp.tmp ] && _shutdown
+	[ -f $PCP_RUN_DIR/pmcd.pid  -o -s $tmp.tmp ] && _shutdown
 
 	# PMCD and PMDA messages should go to stderr, not the GUI notifiers
 	#
