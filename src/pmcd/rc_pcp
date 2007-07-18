@@ -407,7 +407,7 @@ _shutdown()
     [ -f $logf ] || logf=$RUNDIR/pmcd.log
     if [ ! -f $PCP_RUN_DIR/pmcd.pid -a ! -f $logf ]
     then
-	$ECHO $PCP_ECHO_N "PMCD process ... "`cat $tmp.tmp`
+	echo "PMCD process ... "`cat $tmp.tmp`
 	echo "$prog:
 Warning: found no $PCP_RUN_DIR/pmcd.pid
 	 and no $logf.
@@ -427,7 +427,7 @@ Warning: found no $PCP_RUN_DIR/pmcd.pid
 	    kill -TERM $TOKILL >/dev/null 2>&1
 	    rm -f $PCP_RUN_DIR/pmcd.pid
 	else
-	    $ECHO $PCP_ECHO_N "PMCD process ... "`cat $tmp.tmp`
+	    echo "PMCD process ... "`cat $tmp.tmp`
 	    echo "$prog:
 Warning: process ID in $PCP_RUN_DIR/pmcd.pid is $TOKILL.
 	 Check logfile $logf. When you are ready to proceed, remove
@@ -449,7 +449,7 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid is $TOKILL.
     done
     if [ $delay -eq 0 ]	# It just WON'T DIE, give up.
     then
-	$ECHO $PCP_ECHO_N "PMCD process ... "`cat $tmp.tmp`
+	echo "PMCD process ... "`cat $tmp.tmp`
 	echo "$prog: Warning: PMCD won't die!"
 	exit
     fi
