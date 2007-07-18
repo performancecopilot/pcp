@@ -28,7 +28,7 @@ CXXFILES	= pmdumptext.c++
 
 TARGETS		= pmdumptext
 
-LCXXFLAGS	= -I$(TOPDIR)/src/libpcp_pmc/src
+LCXXFLAGS	= -I$(TOPDIR)/src/libpcp_pmc
 
 LLDFLAGS	= -fexternal-templates \
 		  -L/usr/X11R6/lib -L$(ROOT)/lib -L$(TOPDIR)/src/libpcp/src
