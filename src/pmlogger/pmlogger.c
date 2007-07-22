@@ -31,6 +31,7 @@
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <syslog.h>
 #if defined(sgi)
 #include <bstring.h>
@@ -406,14 +407,18 @@ do_dialog(char cmd)
 
     if (nchar > 0) {
 	char * xconfirm = pmGetConfig("PCP_XCONFIRM_PROG");
+	int fd = -1;
 
 	if ((msg = tmpnam(NULL)) == NULL ||
-	    (msgf = fopen(msg, "w")) == NULL) {
+	    (fd = open(msg, O_WRONLY | O_EXCL, 0600)) < 0 ||
+	    (msgf = fdopen(fd, "w")) == NULL) {
 	    fprintf(stderr, "\nError: failed create temporary message file for recording session dialog\n");
 	    fprintf(stderr, "Reason? %s\n", strerror(errno));
+	    if (fd != -1)
+		close(fd);
 	    goto failed;
 	}
-	    
+
 	fputs(p, msgf);
 	fclose(msgf);
 
