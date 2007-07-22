@@ -556,14 +556,14 @@ AC_TRY_COMPILE(
 [
 ], AC_DEFINE(HAVE_SYS_ENDIAN_H) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
-dnl Check if we have <ppc/endian.h> ... standard way
-AC_MSG_CHECKING([for ppc/endian.h ])
+dnl Check if we have <machine/endian.h> ... MacOSX way
+AC_MSG_CHECKING([for machine/endian.h ])
 AC_TRY_COMPILE(
 [  
-    #include <ppc/endian.h> 
+    #include <machine/endian.h> 
 ],
 [
-], AC_DEFINE(HAVE_PPC_ENDIAN_H) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+], AC_DEFINE(HAVE_MACHINE_ENDIAN_H) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
 dnl Check if we have <sys/endian.h> ... IRIX strangeness
 AC_MSG_CHECKING([for sys/endian.h (IRIX variant) ])
