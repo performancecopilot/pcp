@@ -106,7 +106,6 @@ refresh_proc_pid(proc_pid_t *proc_pid)
     __pmHashNode *node, *next, *prev;
     proc_pid_entry_t *ep;
     pmdaIndom *indomp = proc_pid->indom;
-    static int started = 0;
 
     if (refresh_pidlist() <= 0)
     	return -errno;
@@ -117,15 +116,9 @@ refresh_proc_pid(proc_pid_t *proc_pid)
     }
 #endif
 
-    if (!started) {
-	started = 1;
-	indomp->it_set = NULL;
-	indomp->it_numinst = 0;
-    }
-
     if (indomp->it_numinst < npidlist)
-	indomp->it_set = (pmdaInstid *)realloc(indomp->it_set, npidlist * sizeof(pmdaInstid));
-
+	indomp->it_set = (pmdaInstid *)realloc(indomp->it_set,
+						npidlist * sizeof(pmdaInstid));
     indomp->it_numinst = npidlist;
 
     /*
