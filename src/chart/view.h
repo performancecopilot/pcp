@@ -103,6 +103,13 @@ public:
     void setFileName(QString);
 };
 
+class ExportFileDialog : public QFileDialog
+{
+    Q_OBJECT
+public:
+    ExportFileDialog(QWidget *);
+};
+
 class Chart;
 
 class PmLogger : public QProcess

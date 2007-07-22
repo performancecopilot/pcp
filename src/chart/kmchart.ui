@@ -259,6 +259,7 @@
         <action name="fileSaveViewAction"/>
         <separator/>
         <action name="fileRecordAction"/>
+        <action name="fileExportAction"/>
         <action name="filePrintAction"/>
         <separator/>
         <action name="fileQuitAction"/>
@@ -364,9 +365,6 @@
         <property name="enabled">
             <bool>false</bool>
         </property>
-        <property name="iconSet">
-            <iconset>document-save-as.png</iconset>
-        </property>
         <property name="text">
             <string>Save View ...</string>
         </property>
@@ -375,6 +373,29 @@
         </property>
         <property name="accel">
             <string>Ctrl+S</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileExportAction</cstring>
+        </property>
+        <property name="on">
+            <bool>false</bool>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Export</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Export...</string>
+        </property>
+        <property name="iconSet">
+            <iconset>document-export.png</iconset>
+        </property>
+        <property name="accel">
+            <string>Ctrl+E</string>
         </property>
     </action>
     <action>
@@ -851,6 +872,12 @@
         <slot>fileSaveView()</slot>
     </connection>
     <connection>
+        <sender>fileExportAction</sender>
+        <signal>activated()</signal>
+        <receiver>KmChart</receiver>
+        <slot>fileExport()</slot>
+    </connection>
+    <connection>
         <sender>filePrintAction</sender>
         <signal>activated()</signal>
         <receiver>KmChart</receiver>
@@ -1013,6 +1040,8 @@
     <include location="local" impldecl="in declaration">tabdialog.h</include>
     <include location="local" impldecl="in declaration">infodialog.h</include>
     <include location="local" impldecl="in declaration">chartdialog.h</include>
+    <include location="local" impldecl="in declaration">exportdialog.h</include>
+    <include location="local" impldecl="in declaration">recorddialog.h</include>
     <include location="local" impldecl="in declaration">settingsdialog.h</include>
     <include location="local" impldecl="in declaration">qprinter.h</include>
     <include location="local" impldecl="in declaration">qfiledialog.h</include>
@@ -1047,6 +1076,7 @@
     <variable access="private">InfoDialog *_info;</variable>
     <variable access="private">ChartDialog *_newchart;</variable>
     <variable access="private">ChartDialog *_editchart;</variable>
+    <variable access="private">ExportDialog *_export;</variable>
     <variable access="private">OpenViewDialog *_openview;</variable>
     <variable access="private">SaveViewDialog *_saveview;</variable>
     <variable access="private">SettingsDialog *_settings;</variable>
@@ -1060,6 +1090,7 @@
     <slot>fileOpenView()</slot>
     <slot>fileSaveView()</slot>
     <slot>fileRecord()</slot>
+    <slot>fileExport()</slot>
     <slot>filePrint()</slot>
     <slot>fileQuit()</slot>
     <slot>assistantError( const QString &amp; )</slot>
@@ -1083,6 +1114,7 @@
     <slot>editTab()</slot>
     <slot>acceptEditTab()</slot>
     <slot>acceptNewTab()</slot>
+    <slot>acceptExport()</slot>
     <slot>addLiveTab()</slot>
     <slot>addArchiveTab()</slot>
     <slot>closeTab()</slot>

@@ -105,22 +105,6 @@ double secondsFromTV(struct timeval *tv)
     return (double)tv->tv_sec + ((double)tv->tv_usec / 1000.0);
 }
 
-// conversion from seconds into other time units
-double secondsToUnits(double value, delta_units units)
-{
-    if (units == Msec)
-	return value * 1000.0;
-    else if (units == Min)
-	return value / 60.0;
-    else if (units == Hour)
-	return value / (60.0 * 60.0);
-    else if (units == Day)
-	return value / (60.0 * 60.0 * 24.0);
-    else if (units == Week)
-	return value / (60.0 * 60.0 * 24.0 * 7.0);
-    return value;
-}
-
 // debugging, display seconds-since-epoch in human readable format
 char *timestring(double seconds)
 {
@@ -505,10 +489,8 @@ main(int argc, char ** argv)
 	}
 	// move position to account for initial visible points
 	// TODO: pmchart had an option to start at archive end
-fprintf(stderr, "RESET position from %s to ", timestring(tosec(position)));
 	for (c = 0; c < settings.sampleHistory - 2; c++)
 	    tadd(&position, &delta);
-fprintf(stderr, "%s\n", timestring(tosec(position)));
     }
     else {
 	liveGroup->defaultTZ(tzLabel, tzString);

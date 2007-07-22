@@ -307,6 +307,12 @@ void RecordViewDialog::setFileName(QString path)
     setSelection(path);
 }
 
+ExportFileDialog::ExportFileDialog(QWidget *parent)
+    : QFileDialog(parent, "exportFileDialog", false)
+{
+    setMode(QFileDialog::AnyFile);
+}
+
 
 /*
  * View file parsing routines and global variables follow.  These are

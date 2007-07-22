@@ -1,6 +1,9 @@
 TEMPLATE	= app
 LANGUAGE	= C++
 
+CONFIG	+= qt warn_on debug
+#CONFIG	+= qt warn_on release
+
 LIBS	+= -lpcp_pmc -lpcp -lqwt -lqassistantclient
 
 INCLUDEPATH	+= /usr/include/qwt ../include
@@ -32,6 +35,7 @@ FORMS	= kmchart.ui \
 	tabdialog.ui \
 	hostdialog.ui \
 	aboutdialog.ui \
+	exportdialog.ui \
 	seealsodialog.ui \
 	settingsdialog.ui \
 	infodialog.ui \
@@ -43,8 +47,8 @@ IMAGES	= ../../images/aboutpcp.png \
 	../../images/document-new.png \
 	../../images/document-open.png \
 	../../images/document-print.png \
+	../../images/document-export.png \
 	../../images/media-record.png \
-	../../images/document-save-as.png \
 	../../images/kmtime.png \
 	../../images/edit-clear.png \
 	../../images/whatsthis.png \
@@ -86,9 +90,6 @@ IMAGES	= ../../images/aboutpcp.png \
 	../../images/stepback_archive.png \
 	../../images/fastfwd_archive.png \
 	../../images/fastback_archive.png
-
-#CONFIG	+= qt warn_on release
-CONFIG	+= qt warn_on debug
 
 unix {
   UI_DIR = .ui

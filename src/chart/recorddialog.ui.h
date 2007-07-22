@@ -10,8 +10,27 @@
 ** destructor.
 *****************************************************************************/
 
-#include "view.h"
+#include "main.h"
 #include <qmessagebox.h>
+
+typedef enum { Msec, Sec, Min, Hour, Day, Week } delta_units;
+
+// conversion from seconds into other time units
+static double secondsToUnits(double value, delta_units units)
+{
+    if (units == Msec)
+	return value * 1000.0;
+    else if (units == Min)
+	return value / 60.0;
+    else if (units == Hour)
+	return value / (60.0 * 60.0);
+    else if (units == Day)
+	return value / (60.0 * 60.0 * 24.0);
+    else if (units == Week)
+	return value / (60.0 * 60.0 * 24.0 * 7.0);
+    return value;
+}
+
 
 void RecordDialog::init()
 {
@@ -59,7 +78,7 @@ void RecordDialog::displayDeltaText()
     QString	text;
     double	delta = secondsFromTV(kmtime->liveInterval());
 
-    delta = secondsToUnits(delta, _units);
+    delta = secondsToUnits(delta, (delta_units)_units);
     if ((double)(int)delta == delta)
 	text.sprintf("%.2f", delta);
     else
@@ -153,15 +172,6 @@ int RecordDialog::saveConfig(QString configfile, QString configdata)
     QTextStream stream(&config);
     stream << configdata;
     return 0;
-}
-
-void RecordDialog::extractChartHostnames(Chart *cp)
-{
-    for (int m = 0; m < cp->numPlot(); m++) {
-	QString host = tr(cp->metricContext(m)->source().host().ptr());
-	if (!_hosts.contains(host))
-	    _hosts.append(host);
-    }
 }
 
 void RecordDialog::extractDeltaString()
@@ -305,11 +315,16 @@ fprintf(stderr, "%s view=%s folio=%s\n", __func__, folio.ascii(), view.ascii());
 
     extractDeltaString();
 
-    if (selectedRadioButton->isChecked())
-	extractChartHostnames(activeTab->currentChart());
-    else
-	for (int c = 0; c < activeTab->numChart(); c++)
-	    extractChartHostnames(activeTab->chart(c));
+    for (int c = 0; c < activeTab->numChart(); c++) {
+	Chart *cp = activeTab->chart(c);
+	if (selectedRadioButton->isChecked() && cp != activeTab->currentChart())
+	    continue;
+	for (int m = 0; m < cp->numPlot(); m++) {
+	    QString host = tr(cp->metricContext(m)->source().host().ptr());
+	    if (!_hosts.contains(host))
+		_hosts.append(host);
+	}
+    }
 
     SaveViewDialog::saveView(view.ascii(), true);
     saveFolio(folio, view);

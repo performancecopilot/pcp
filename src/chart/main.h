@@ -91,10 +91,7 @@ class TimeControl;
 extern KmChart		*kmchart;
 extern TimeControl	*kmtime;
 
-typedef enum { Msec, Sec, Min, Hour, Day, Week } delta_units;
-
 extern double secondsFromTV(struct timeval *tv);// __pmtimevalFromReal?
-extern double secondsToUnits(double value, delta_units units);
 
 extern double tosec(struct timeval);		// __pmtimevalToReal
 extern double torange(struct timeval, int);	// ?

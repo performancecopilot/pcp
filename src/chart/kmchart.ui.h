@@ -58,6 +58,7 @@ void KmChart::init(void)
     _info = new InfoDialog(this);
     _newtab = new TabDialog(this);
     _edittab = new TabDialog(this);
+    _export = new ExportDialog(this);
     _newchart = new ChartDialog(this);
     _editchart = new ChartDialog(this);
     _openview = new OpenViewDialog(this);
@@ -66,15 +67,13 @@ void KmChart::init(void)
 
     _assistant = new QAssistantClient(tr(""), this);
 
-    _newchart->init();
-    _editchart->init();
-
     connect(_newtab->buttonOk, SIGNAL(clicked()), this, SLOT(acceptNewTab()));
     connect(_edittab->buttonOk, SIGNAL(clicked()), this, SLOT(acceptEditTab()));
     connect(_newchart->buttonOk, SIGNAL(clicked()), this,
 					SLOT(acceptNewChart()));
     connect(_editchart->buttonOk, SIGNAL(clicked()), this,
 					SLOT(acceptEditChart()));
+    connect(_export->buttonOk, SIGNAL(clicked()), this, SLOT(acceptExport()));
     connect(_settings->buttonOk, SIGNAL(clicked()), this,
 					SLOT(acceptSettings()));
     connect(_settings->buttonCancel, SIGNAL(clicked()), this,
@@ -102,6 +101,7 @@ void KmChart::enableUI(void)
     deleteTabAction->setEnabled(haveTabs);
     fileSaveViewAction->setEnabled(haveCharts);
     fileRecordAction->setEnabled(haveCharts && haveLiveHosts);
+    fileExportAction->setEnabled(haveCharts);
     filePrintAction->setEnabled(haveCharts);
     editChartAction->setEnabled(haveCharts);
     deleteChartAction->setEnabled(haveCharts);
@@ -195,6 +195,16 @@ void KmChart::fileRecord()
     }
 }
 
+void KmChart::fileExport()
+{
+    _export->show();
+}
+
+void KmChart::acceptExport()
+{
+    _export->flush();
+}
+
 void KmChart::filePrint()
 {
     // TODO - this only prints the current chart
@@ -203,7 +213,7 @@ void KmChart::filePrint()
     creator.append(VERSION);
     printer.setCreator(creator);
     printer.setOrientation(QPrinter::Landscape);
-    printer.setDocName("foo");
+    printer.setDocName("print.ps");	// TODO
     if (printer.setup()) {
 	Chart 	*cp = activeTab->currentChart();
 	QwtPlotPrintFilter	filter;
