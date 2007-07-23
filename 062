@@ -1,0 +1,41 @@
+#!/bin/sh
+# PCP QA Test No. 062
+# $Revision: 2.9 $
+# Test pmcd's ability to supress multiple access control warnings from the same
+# host
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+# real QA test starts here
+
+rm -f $seq.out
+if [ $PCP_PLATFORM = "linux" ]
+then
+    ln $seq.out.linux $seq.out
+else
+    ln $seq.out.irix $seq.out
+fi
+
+echo "testing single op for all ops..."
+echo "may dump core for IRIX 6.1 ... bug in gethostbyname()"
+src-oss/chkacc1
+echo
+
+echo "testing all except one op for all ops..."
+echo "may dump core for IRIX 6.1 ... bug in gethostbyname()"
+src-oss/chkacc2
+echo
+
+echo "testing all combinations of ops in a range..."
+echo "may dump core for IRIX 6.1 ... bug in gethostbyname()"
+src-oss/chkacc3

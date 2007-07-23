@@ -1,0 +1,5 @@
+QA output created by 129
+disk.all.total OK
+kernel.all.cpu.idle OK
+disk.dev.total OK
+kernel.percpu.cpu.user OK

@@ -1,0 +1,126 @@
+QA output created by 143
+=== PMNS from pminfo ===
+x.x.x.y
+x.x.y
+x.y
+=== remove x.x.x ===
+Compiled PMNS contains
+	    1 hash table entries
+	    2 leaf nodes
+	    3 non-leaf nodes
+	   13 bytes of symbol table
+----------
+  root
+----------
+root {
+	x
+}
+
+x {
+	x
+	y	1:1:1
+}
+
+x.x {
+	y	2:2:2
+}
+----------
+  x
+----------
+x {
+    x
+    y	1:1:1
+}
+#include "x.x"
+----------
+  x.x
+----------
+x.x {
+    x
+    y	2:2:2
+}
+#include "x.x.x"
+----------
+  x.x.x
+----------
+x.x.x {
+    y	3:3:3
+}
+=== PMNS from pminfo ===
+x.x.y
+x.y
+=== remove x.x ===
+Compiled PMNS contains
+	    1 hash table entries
+	    1 leaf nodes
+	    2 non-leaf nodes
+	    9 bytes of symbol table
+----------
+  root
+----------
+root {
+	x
+}
+
+x {
+	y	1:1:1
+}
+----------
+  x
+----------
+x {
+    x
+    y	1:1:1
+}
+#include "x.x"
+----------
+  x.x
+----------
+x.x {
+    x
+    y	2:2:2
+}
+#include "x.x.x"
+----------
+  x.x.x
+----------
+x.x.x {
+    y	3:3:3
+}
+=== PMNS from pminfo ===
+x.y
+=== remove x ===
+Compiled PMNS contains
+	    1 hash table entries
+	    0 leaf nodes
+	    1 non-leaf nodes
+	    5 bytes of symbol table
+----------
+  root
+----------
+root {
+}
+----------
+  x
+----------
+x {
+    x
+    y	1:1:1
+}
+#include "x.x"
+----------
+  x.x
+----------
+x.x {
+    x
+    y	2:2:2
+}
+#include "x.x.x"
+----------
+  x.x.x
+----------
+x.x.x {
+    y	3:3:3
+}
+=== PMNS from pminfo ===
+PMNS appears to be empty!

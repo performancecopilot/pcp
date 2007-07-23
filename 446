@@ -1,0 +1,71 @@
+#! /bin/sh
+# PCP QA Test No. 446
+# $Revision: 1.7 $
+# checks contents of trace stub library
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=nathans
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./localconfig
+if [ $PCP_PLATFORM = "linux" ] ; then
+    libmajor=2
+else
+    libmajor=1
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+get_syms()
+{
+    # gets all code symbols, prints the name, & strips internal names
+    nm -B $1 | grep " T " | $PCP_AWK_PROG '{print $3}' | grep -v "_" | grep -v "^.MIPS."
+}
+
+# real QA test starts here
+cd $PCP_DEMOS_DIR/trace
+unset ROOT TOOLROOT
+$sudo make -f Makefile.stub clobber 2>&1 >/dev/null
+$sudo "( make -f Makefile.stub lib/libpcp_trace.so.$libmajor 2>&1 >$tmp.make
+if [ $? -ne 0 ]
+then
+    echo Stub library make failed.  Heres the make output ...
+    cat $tmp.make
+else
+    echo make succeeded.
+fi)" 2>&1 | fgrep -v "up to date"
+
+get_syms /usr/lib/libpcp_trace.so.$libmajor > $tmp.actual
+get_syms $PCP_DEMOS_DIR/trace/lib/libpcp_trace.so.$libmajor > $tmp.stub
+
+diff $tmp.actual $tmp.stub >/dev/null
+status=$?
+
+echo -n "checking for actual/stub lib symbol differences ... "
+if [ $status -ne 0 ]
+then
+    echo files differ.
+    echo "--- Symbols from /usr/lib/libpcp_trace.so ---"
+    cat $tmp.actual
+    echo
+    echo "--- Symbols from demos libpcp_trace.so ---"
+    cat $tmp.stub
+else
+     echo none found.
+fi
+
+exit

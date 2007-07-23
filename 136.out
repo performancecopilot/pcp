@@ -1,0 +1,19 @@
+QA output created by 136
+MYLOG.0 700-800 bytes
+MYLOG.1 600-700 bytes
+MYLOG.2 600-700 bytes
+MYLOG.3 600-700 bytes
+MYLOG.4 600-700 bytes
+
+
+Temporal Index
+             month-day end(meta)     end(log)
+TIMESTAMP-0            0       OFFSET       OFFSET
+TIMESTAMP-1            1       OFFSET       OFFSET
+TIMESTAMP-2            2       OFFSET       OFFSET
+TIMESTAMP-3            3       OFFSET       OFFSET
+TIMESTAMP-4            4       OFFSET       OFFSET
+TIMESTAMP-5            4       OFFSET       OFFSET
+
+=== samples, expect 50 + 3 for preamble ===
+53

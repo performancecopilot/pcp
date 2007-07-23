@@ -1,0 +1,42 @@
+#! /bin/sh
+# PCP QA Test No. 081
+# $Revision: 2.12 $
+# exercise new instance domain functions for archives
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+tmp=/tmp/$$
+status=1
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e '/Note: timezone set to local timezone of host/d'
+}
+
+host=`./getpmcdhosts -p single -n 1 -v pcp=2`
+if [ "X$host" = X ]
+then
+    echo "Unable to get a single CPU host running PMCD using:"
+    echo "  ./getpmcdhosts -p single -n 1"
+    exit
+fi
+
+# real QA test starts here
+echo "From pmcd ..."
+src-oss/archinst -h $host kernel.all.load kernel.percpu.cpu.user
+
+echo ""
+echo "From archive on bozo ..."
+pmdumplog -z -i src-oss/bozo.client | _filter
+src-oss/archinst -n src-oss/root_irix -a src-oss/bozo.client kernel.all.load kernel.percpu.cpu.user
+
+status=0

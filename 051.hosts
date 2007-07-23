@@ -1,0 +1,14 @@
+# Need to customize this for the local environment
+#
+# Each $remote_x must be assigned to a valid hostname that can be
+# looked up using the local DNS ... they do _not_ have to have PCP
+# installed nor pmcd(1) running ... but they _do_ need to map to five
+# unique IP addresses
+#
+# Used in 051.setup and 051.
+#
+remote_1=wobbly.melbourne.sgi.com
+remote_2=omen.melbourne.sgi.com
+remote_3=gonzo.melbourne.sgi.com
+remote_4=sandpit.melbourne.sgi.com
+remote_5=moomba.melbourne.sgi.com

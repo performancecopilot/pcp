@@ -1,0 +1,16 @@
+/* $Id: tiny.pmns,v 1.1 2002/10/21 11:20:04 kenmcd Exp $ */
+
+root {
+	one	0:0:1
+	two	0:0:2
+	buckle
+}
+
+buckle {
+	my
+}
+
+buckle.my {
+	shoe	0:0:3
+}
+

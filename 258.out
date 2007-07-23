@@ -1,0 +1,20 @@
+QA output created by 258
+make succeeded.
+Waiting for PMCD to terminate ...
+Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) ...
+Performance Co-Pilot starting archive loggers ...
+Reconnect succeeded.
+
+
+=== Checking observed value matches latest call ===
+
+trace.observe.count
+    inst [1 or "simple"] value 2
+    inst [2 or "test"] value 1
+
+trace.observe.value
+    inst [1 or "simple"] value 76
+    inst [2 or "test"] value 888888.8888
+Waiting for PMCD to terminate ...
+Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) ...
+Performance Co-Pilot starting archive loggers ...

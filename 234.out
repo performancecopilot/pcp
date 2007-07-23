@@ -1,0 +1,43 @@
+QA output created by 234
+Creating log files ...
+Filtering ...
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+Merging ...
+Skip mark @ byte N into input
+
+Checking non-counter stochastic average (sample.drift) ...
+Pass
+
+Checking non-counter time average (sample.drift) ...
+Pass
+
+Checking counter stochastic average (sample.xmit_pdu) ...
+Pass
+
+Checking counter time averaging (sample.xmit_pdu) ...
+Pass
+
+Checking minimum & maximum ...
+Minimum test passed.
+Maximum test passed.
+
+Checking overflow (sample.rapid) ...
+Pass
+
+Checking PCP 1.x style overflow (sample.rapid) ...
+Pass

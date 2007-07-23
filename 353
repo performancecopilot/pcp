@@ -1,0 +1,54 @@
+#!/bin/sh
+# PCP QA Test No. 353
+# $Revision: 1.13 $
+# check pmsocks for o32, n32, 64 object styles
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=markgw
+
+seq=`basename $0`
+
+if [ "`pmsocks echo ok 2>&1`" != ok ]
+then
+    echo "pmsocks is not installed and/or not configured" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.config
+
+_filter() {
+    sed -e '/not QAing/d'
+}
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "expect no output"
+
+EXTERNAL_HOST=estore.sgi.com
+SOCKS_SERVER=$PCPQA_SOCKS_SERVER
+PMCD_CONNECT_TIMEOUT=30
+PMCD_REQUEST_TIMEOUT=30
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT SOCKS_SERVER
+pmsocks src-oss/pmsocks_objstyle -h $EXTERNAL_HOST | _filter
+if [ "$PCP_PLATFORM" != "linux" ]
+then
+    pmsocks src-oss/pmsocks_objstyle_32 -h $EXTERNAL_HOST | _filter
+    pmsocks src-oss/pmsocks_objstyle_n32 -h $EXTERNAL_HOST | _filter
+    pmsocks src-oss/pmsocks_objstyle_64 -h $EXTERNAL_HOST | _filter
+fi
+
+exit

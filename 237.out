@@ -1,0 +1,107 @@
+QA output created by 237
+Compiled PMNS contains
+	    7 hash table entries
+	   16 leaf nodes
+	    5 non-leaf nodes
+	  105 bytes of symbol table
+root {
+	foo
+	r111	1:1:1
+	r112	1:1:2
+	r113	1:1:3
+	r114	1:1:4
+	r115	1:1:5
+	r116	1:1:6
+	urk
+	r118	1:1:8
+}
+
+foo {
+	f121	1:2:1
+	bar
+	f122	1:2:2
+	f123	1:2:3
+	eek
+}
+
+foo.bar {
+	fb131	1:3:1
+	fb132	1:3:2
+	fb133	1:3:3
+}
+
+foo.eek {
+	fe141	1:4:1
+}
+
+urk {
+	u151	1:5:1
+	u152	1:5:2
+}
+foo.f121
+foo.bar.fb131
+foo.bar.fb132
+foo.bar.fb133
+foo.f122
+foo.f123
+foo.eek.fe141
+r111
+r112
+r113
+r114
+r115
+r116
+urk.u151
+urk.u152
+r118
+root {
+    mine       1:1:1
+    foo
+    yours      1:1:2
+}
+foo {
+    fumble     1:2:1
+    stumble    1:2:2
+}
+root {
+    surprise   1:1:3
+    mine       1:1:1
+    foo
+    yawn
+}
+foo {
+    mumble     1:2:3
+    stumble    1:2:2
+}
+yawn {
+    sleepy     1:3:1
+}
+Compiled PMNS contains
+	    7 hash table entries
+	    7 leaf nodes
+	    3 non-leaf nodes
+	   63 bytes of symbol table
+root {
+	mine	1:1:1
+	foo
+	yours	1:1:2
+	surprise	1:1:3
+	yawn
+}
+
+foo {
+	fumble	1:2:1
+	stumble	1:2:2
+	mumble	1:2:3
+}
+
+yawn {
+	sleepy	1:3:1
+}
+mine
+foo.fumble
+foo.stumble
+foo.mumble
+yours
+surprise
+yawn.sleepy

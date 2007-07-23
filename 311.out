@@ -1,0 +1,47 @@
+QA output created by 311
+== pminfo preamble and no values ==
+Note: timezone set to local timezone of host "splat"
+pmcd.pmlogger.archive
+    inst [14737 or "14737"] value "/tmp/err_v1"
+pmcd.pmlogger.host
+    inst [14737 or "14737"] value "splat.melbourne.sgi.com"
+pmcd.pmlogger.port
+    inst [14737 or "14737"] value 4332
+proc.psusage.utime
+Error: Explicit instance identifier(s) required
+sample.bad.nosupport
+Error: Metric not supported by this version of monitored application
+sample.needprofile
+Error: Explicit instance identifier(s) required
+sample.noinst
+No value(s) available!
+
+== pminfo skip preamble and errors instead of values ==
+Note: timezone set to local timezone of host "splat"
+pmcd.pmlogger.archive: pmFetch: End of PCP archive log
+pmcd.pmlogger.host: pmFetch: End of PCP archive log
+pmcd.pmlogger.port: pmFetch: End of PCP archive log
+proc.psusage.utime
+Error: Explicit instance identifier(s) required
+sample.bad.nosupport
+Error: Metric not supported by this version of monitored application
+sample.needprofile
+Error: Explicit instance identifier(s) required
+sample.noinst
+No value(s) available!
+
+== pmdumplog for 1 metric (expect error) ===
+Note: timezone set to local timezone of host "splat" from archive
+
+
+04:48:42.584  29.0.55 (sample.bad.nosupport): Metric not supported by this version of monitored application
+
+04:48:43.547  29.0.55 (sample.bad.nosupport): Metric not supported by this version of monitored application
+
+04:48:44.557  29.0.55 (sample.bad.nosupport): Metric not supported by this version of monitored application
+
+04:48:45.557  29.0.55 (sample.bad.nosupport): Metric not supported by this version of monitored application
+
+04:48:46.557  29.0.55 (sample.bad.nosupport): Metric not supported by this version of monitored application
+
+== diffs for pmdumplog all metrics compared to PCP 1.x output (expect none) ==

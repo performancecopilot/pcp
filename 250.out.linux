@@ -1,0 +1,23 @@
+QA output created by 250
+Initial files inventory ...
+after
+before
+irix-pmns
+irix-root
+ref
+root
+
+Without root.bin ...
+File state differences ...
+6a7
+> root.bin
+PMNS differences ...
+
+With root.bin ...
+Compiled PMNS contains
+	    7 hash table entries
+	    6 leaf nodes
+	    6 non-leaf nodes
+	   61 bytes of symbol table
+File state differences ...
+PMNS differences ...

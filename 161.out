@@ -1,0 +1,20 @@
+QA output created by 161
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+*.meta: sizes within 5 bytes
+*.index: sizes match
+*.0: sizes match

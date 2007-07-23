@@ -1,0 +1,168 @@
+#! /bin/sh
+# PCP QA Test No. 156
+# $Revision: 2.24 $
+# check out sample PMDA
+#
+# Note: this test is for PCP2.1 or later.
+# The dual for PCP2.0 is test #537.
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+sudo=`pwd`/sudo
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd 240
+_wait_for_pmlogger
+
+_filter()
+{
+    sed -e 's/ 1090 / 1090+ /' \
+	-e 's/ 109[1-9] / 1090+ /' \
+	-e 's/ 11[0-1][0-9] / 1090+ /' \
+	-e 's/ [7-9][0-9] metrics/ 76+ metrics/' \
+	-e 's/.* \(hash table entries\)/  NNN \1/' \
+	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
+	-e '/^Performance/d' \
+	-e '/make: Nothing to be done/d'
+
+}
+
+_filter_rem()
+{
+    sed \
+	-e '/mips_64/d' \
+	-e '/mips_o32/d' \
+	-e '/mips_n32/d'
+}
+
+_check_pmda_gone()
+{
+    sleep 2
+    pminfo -v $1 && echo "Error: pminfo -v found some \"$1\" metrics"
+    ps $PCP_PS_ALL_FLAGS | grep pmda$1 >$tmp.tmp
+    if [ ! -z "`grep -v grep <$tmp.tmp`" ]
+    then
+	echo "Error: some \"$1\" PMDAs still present"
+	cat $tmp.tmp
+    fi
+    rm -f $tmp.tmp
+}
+
+tmp=/tmp/$$
+status=1
+
+# save pmcd.conf and restore it after the test
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+here=`pwd`
+home=$PCP_PMDAS_DIR
+iam=sample
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT
+
+if [ ! -f dynamic.indom ]
+then
+    echo "1 one" >$tmp.indom
+    echo "2 two" >>$tmp.indom
+    $sudo cp $tmp.indom dynamic.indom
+fi
+
+# make sure sample agent is running again at the end, so other QA tests
+# continue to work
+#
+trap "echo; echo 'Reinstall PMDA ...'; $here/sudo ./Install </dev/null >$tmp.out; _filter <$tmp.out; $here/sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+if $here/sudo make clobber 2>&1 >$tmp.out
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make clobber failed"
+    exit
+fi
+
+echo
+echo "=== remove agent ==="
+$here/sudo ./Remove >$tmp.out 2>&1
+_filter_rem <$tmp.out
+_check_pmda_gone $iam
+
+echo
+echo "=== pipe agent ==="
+echo 'both
+pipe' | $here/sudo ./Install >$tmp.out 2>&1
+_filter <$tmp.out
+pminfo -v sample || echo "... failed!"
+echo 'both
+pipe' | $here/sudo ./Install >$tmp.out 2>&1
+_filter <$tmp.out
+pminfo -v sample || echo "... failed!"
+
+echo
+echo "=== socket Internet agent ==="
+
+# pick a tcp port that is not in use
+#
+port=`_get_port tcp 5670 5689`
+if [ -z "$port" ]
+then
+    echo "Arrgh ... no free TCP port in the range 5670 ... 5689"
+    exit 1
+fi
+
+echo 'both
+socket
+Internet
+'$port | $here/sudo ./Install >$tmp.out 2>&1
+_filter <$tmp.out
+pminfo -v sample || echo "... failed!"
+
+# use next port this time
+port=`expr $port + 1`
+
+echo 'both
+socket
+Internet
+'$port | $here/sudo ./Install >$tmp.out 2>&1
+_filter <$tmp.out
+pminfo -v sample || echo "... failed!"
+
+echo
+echo "=== socket Unix agent ==="
+echo 'both
+socket
+Unix
+'"$tmp.fifo" | $here/sudo ./Install >$tmp.out 2>&1
+_filter <$tmp.out
+pminfo -v sample || echo "... failed!"
+echo 'both
+socket
+Unix
+'"$tmp.fifo" | $here/sudo ./Install >$tmp.out 2>&1
+_filter <$tmp.out
+pminfo -v sample || echo "... failed!"
+
+$here/sudo ./Remove >$tmp.out 2>&1
+_filter_rem <$tmp.out
+_check_pmda_gone $iam
+
+status=0
+exit

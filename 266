@@ -1,0 +1,125 @@
+#! /bin/sh
+# PCP QA Test No. 266
+# $Revision: 1.10 $
+#
+# pmlogextract interactions between -S and -T and the timezone
+# Bug #466346
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.filter
+
+_merge_filter()
+{
+    sed -e "s/.tmp.$$/TMP/"
+}
+
+_dump_filter()
+{
+    # temp file name, but also this archive is V1 and hence not endian
+    # safe ... so the strange value mappings!
+    #
+    sed -e "s/.tmp.$$/TMP/" \
+	-e "s/2928894505887203328/159819048/" \
+	-e "s/8135338249615835136/159901296/" \
+    | $PCP_AWK_PROG '
+NF==0		{ skip = 0 }
+skip == 1	{ next }
+		{ print }
+/^[0-9]/	{ print "..."; skip = 1 }'
+}
+
+tmp=/tmp/$$
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+TZ=EST-10; export TZ
+
+echo "=== input archive ==="
+pmdumplog -L -n src-oss/root_irix src-oss/960624.08.17 | ./xlate_2_new_pmns
+echo
+pmdumplog -z -L -n src-oss/root_irix src-oss/960624.08.17 | ./xlate_2_new_pmns
+
+echo
+echo "=== before start, local TZ=$TZ ==="
+rm -f $tmp.*
+pmlogextract -S@08:00:00 -T@08:01:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
+pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== before start, timezone of archive ==="
+rm -f $tmp.*
+pmlogextract -z -S@15:00:00 -T@15:01:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
+pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== before start, UTC timezone ==="
+rm -f $tmp.*
+pmlogextract -Z UTC -S@22:00:00 -T@22:00:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
+pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== empty window in archive, local TZ=$TZ ==="
+rm -f $tmp.*
+pmlogextract -S@08:35:00 -T@08:35:01 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
+pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== empty window in archive, timezone of archive ==="
+rm -f $tmp.*
+pmlogextract -z -S@15:35:00 -T@15:35:01 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
+pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== empty window in archive, UTC timezone ==="
+rm -f $tmp.*
+pmlogextract -Z UTC -S@22:35:00 -T@22:35:01 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
+pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== window in archive, local TZ=$TZ ==="
+rm -f $tmp.*
+pmlogextract -S@08:35:00 -T@08:36:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
+pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== window in archive, timezone of archive ==="
+rm -f $tmp.*
+pmlogextract -z -S@15:35:00 -T@15:36:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
+pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== window in archive, UTC timezone ==="
+rm -f $tmp.*
+pmlogextract -Z UTC -S@22:35:00 -T@22:36:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
+pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== after end, local TZ=$TZ ==="
+rm -f $tmp.*
+pmlogextract -S@09:00:00 -T@09:01:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
+pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== after end, timezone of archive ==="
+rm -f $tmp.*
+pmlogextract -z -S@16:00:00 -T@16:01:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
+pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+echo
+echo "=== after end, UTC timezone ==="
+rm -f $tmp.*
+pmlogextract -Z UTC -S@23:00:00 -T@23:01:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
+pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,61 @@
+#! /bin/sh
+# PCP QA Test No. 232
+# $Revision: 1.14 $
+#
+# exercise instance API functions for PM_CONTEXT_LOCAL
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./localconfig
+if [ $PCP_PLATFORM = irix ]
+then
+  if [ $PCP_EOE_VER = 2000 -o $PCP_EOE_VER = 6500 ]
+  then
+    echo "Requires PCP > 2.0 or IRIX > 6.5" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+  fi
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+tmp=/tmp/$$
+status=0
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+PMDA_LOCAL_SAMPLE=yes
+export PMDA_LOCAL_SAMPLE
+
+for metric in \
+    kernel.percpu.cpu.idle \
+    disk.dev.read \
+    sampledso.colour \
+    kernel.all.load \
+    network.interface.in.bytes \
+    sampledso.bucket \
+    filesys.used \
+    swapdev.length \
+    nfs.server.reqs \
+    sampledso.hordes.one
+do
+    ./sudo src-oss/torture_indom $metric >$tmp.out 2>&1
+    status=$?
+    sed -e '/using .* kmem interface/d' $tmp.out \
+    | _filter_pmcd_log \
+    | _filter_bogus_disks
+    if [ $status != 0 ]
+    then
+	echo torture_indom failed for $metric
+    fi
+done
+
+# all done
+exit

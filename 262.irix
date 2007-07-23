@@ -1,0 +1,45 @@
+QA output created by 262
+
+=== pmkstat + PM_CONTEXT_HOST ===
+# ...
+ queue |      memory |     system       |  disks  |      cpu
+run swp|    free page| scall ctxsw  intr|  rd   wr|usr sys idl  wt
+NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER
+
+=== pmkstat + PM_CONTEXT_LOCAL ===
+# ...
+ queue |      memory |     system       |  disks  |      cpu
+run swp|    free page| scall ctxsw  intr|  rd   wr|usr sys idl  wt
+NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER
+
+=== pmkstat + PM_CONTEXT_HOST + pmsocks ===
+# ...
+ queue |      memory |     system       |  disks  |      cpu
+run swp|    free page| scall ctxsw  intr|  rd   wr|usr sys idl  wt
+NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER
+
+=== pmkstat + PM_CONTEXT_LOCAL + pmsocks ===
+# ...
+ queue |      memory |     system       |  disks  |      cpu
+run swp|    free page| scall ctxsw  intr|  rd   wr|usr sys idl  wt
+NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER
+
+Expect no error messages or ?'s from pmie
+
+=== pmie + PM_CONTEXT_HOST ===
+expr_1: NUMBER NUMBER NUMBER
+expr_2: NUMBER
+expr_1: NUMBER NUMBER NUMBER
+expr_2: NUMBER
+expr_1: NUMBER NUMBER NUMBER
+expr_2: NUMBER
+pmie: note - evaluator exiting
+
+=== pmie + PM_CONTEXT_HOST + pmsocks ===
+expr_1: NUMBER NUMBER NUMBER
+expr_2: NUMBER
+expr_1: NUMBER NUMBER NUMBER
+expr_2: NUMBER
+expr_1: NUMBER NUMBER NUMBER
+expr_2: NUMBER
+pmie: note - evaluator exiting

@@ -1,0 +1,64 @@
+#!/bin/sh
+# PCP QA Test No. 557
+# $Revision: 1.9 $
+# pmie problems where metrics not initially available and later become
+# available
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. /etc/pcp.env
+
+. ./common.product
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f core
+DEBUG="-v -Dappl1,appl2"
+DEBUG=
+HOST=`hostname`
+
+# real QA test starts here
+
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+pmie -t 1sec $DEBUG << End-of-File >$tmp.log 2>&1 &
+pmcd.numclients > 0
+    -> print "PMCD is up and clients are in";
+End-of-File
+
+sleep 3
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+pmcd_wait
+sleep 10
+kill -INT $!
+
+_filter_pmie_log <$tmp.log \
+| sed -e "s/$HOST/HOST/g" > $tmp.flog
+
+grep "Cannot connect" $tmp.flog | uniq
+grep "Re-established connection" $tmp.flog | sort | uniq
+grep "PMCD is up" $tmp.flog | uniq 
+
+if [ -f core ]
+then
+    echo "pmie dumped core!"
+    status=1
+else
+    # success, all done
+    status=0
+fi
+
+exit

@@ -1,0 +1,21 @@
+QA output created by 028
+Load ascii ...
+me
+you
+level_one.us
+level_one.them
+level_one.aliens
+
+Compile ...
+Compiled PMNS contains
+	    7 hash table entries
+	    5 leaf nodes
+	    5 non-leaf nodes
+	   59 bytes of symbol table
+
+Load binary ...
+me
+you
+level_one.us
+level_one.them
+level_one.aliens

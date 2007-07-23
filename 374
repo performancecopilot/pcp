@@ -1,0 +1,156 @@
+#! /bin/sh
+# PCP QA Test No. 374
+# $Revision: 1.13 $
+# pmlogger (assorted) and pmlc (PCP 2.0) version compatibility
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    _filter_pmdumplog \
+    | sed \
+	-e '/^pmlogger .* on host .* is logging metrics from host .*/d' \
+	-e '/^PMCD host/d' \
+	-e '/^TIMESTAMP started/d' \
+    | $PCP_AWK_PROG '
+$1 == "log" && $2 == "size"	{ if ($3 > 100 && $3 <= 200) $3 = "more than 100"
+				  else if ($3 > 200 && $3 <= 300) $3 = "more than 200"
+				}
+				{ print }'
+}
+
+_speak_to_me()
+{
+    host=$1
+    eval `cat <<'End-of-File' | rsh $host -l pcpqa sh
+rm -f /tmp/$$.*
+( pmlogger -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
+echo pid=$! base=$$
+End-of-File`
+
+    if [ -z "$pid" ]
+    then
+	echo "Arrgh ... failed to get remote pmlogger pid for host $host"
+	exit
+    fi
+
+    if [ -z "$base" ]
+    then
+	echo "Arrgh ... failed to get remote archive basename for host $host"
+	exit
+    fi
+
+    _wait_for_pmlogger "-h $host $pid" /hosts/$host/tmp/$base.log
+
+    # the success cases
+    #
+    cat <<End-of-File | pmlc 2>&1 | _filter
+connect $pid@$host
+status
+new volume
+status
+flush
+# singular, all instances
+query { pmcd.simabi pmcd.control.register }
+# some instances
+query pmcd.agent.type ["sample" "pmcd" "sampledso"]
+# non-leaf
+query pmcd.pdu_in
+# logging
+log mandatory on once pmcd.agent.type ["sample" "pmcd"]
+End-of-File
+
+    # stopping and starting again should be enough to allow pmlogger
+    # to have logged the metrics from the last request ... except the
+    # pmlc control port socket may not have been ripped down, so
+    # sleep some
+    #
+    sleep 2
+
+    cat <<End-of-File | pmlc 2>&1 | _filter
+connect $pid@$host
+log mandatory off pmcd.agent.type ["sampledso"]
+query pmcd.agent.type ["sample" "pmcd" "sampledso"]
+End-of-File
+
+    # the failures
+    #
+    # echo "log mandatory on once proc" | pmlc -h $host $pid -D1
+    echo "connect 0@$host" | pmlc 2>&1 | _filter
+
+    # cleanup
+    #
+    if [ ! -z "$host" ]
+    then
+	rsh $host -n -l pcpqa sh -c "kill -INT $pid; sleep 1; kill -KILL $pid; rm -f /tmp/$base.*" >/dev/null 2>&1
+	pid=''
+	base=''
+    fi
+
+}
+
+_cleanup()
+{
+    if $need_clean
+    then
+	if [ ! -z "$pid" -a ! -z "$base" -a ! -z "$host" ]
+	then
+	    rsh $host -n -l pcpqa sh -c "kill -INT $pid; sleep 1; kill -KILL $pid; rm -f /tmp/$base.*" >/dev/null 2>&1
+	    pid=''
+	    base=''
+	fi
+	need_clean=false
+    fi
+    rm -f $tmp.*
+    exit
+}
+
+tmp=/tmp/$$
+need_clean=true
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+host=''
+pid=''
+base=''
+
+# the v1 host may be on the other side of the planet
+#
+PMCD_CONNECT_TIMEOUT=30
+PMCD_REQUEST_TIMEOUT=30
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
+
+rm -f $seq.full
+
+# real QA test starts here
+
+for type in "-b 32 -v pcp=2" "-b 64 -v pcp=2"
+do
+    echo
+    echo "=== pmlogger host type: $type ==="
+    host=`./getpmcdhosts -L -n 1 $type`
+    if [ -z "$host" ]
+    then
+	echo "Arrgh, cannot find a suitable pmlogger host"
+    else
+	echo "$type => $host" >>$seq.full
+	_speak_to_me $host
+    fi
+done
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,54 @@
+QA output created by 008
+Disks:
+	[0]: 50 dks0d1
+	[1]: 61 dks0d4
+all drives should be included here
+pmResult ... numpmid: 1
+  1.80.1 (disk.dev.read): numval: 2 valfmt: 0 vlist[]:
+    inst [50 or "dks0d1"] value ...
+    inst [61 or "dks0d4"] value ...
+
+no drives should be included here
+pmResult ... numpmid: 1
+  1.80.1 (disk.dev.read): No values returned!
+
+only the first and last drive should be included here
+pmResult ... numpmid: 1
+  1.80.1 (disk.dev.read): numval: 2 valfmt: 0 vlist[]:
+    inst [50 or "dks0d1"] value ...
+    inst [61 or "dks0d4"] value ...
+
+all except drive zero should be included here
+pmResult ... numpmid: 1
+  1.80.1 (disk.dev.read): numval: 1 valfmt: 0 vlist[]:
+    inst [61 or "dks0d4"] value ...
+
+drive zero ONLY should be included here
+pmResult ... numpmid: 1
+  1.80.1 (disk.dev.read): numval: 1 valfmt: 0 vlist[]:
+    inst [50 or "dks0d1"] value ...
+all drives should be included here
+pmResult ... numpmid: 1
+  1.80.1 (disk.dev.read): numval: 2 valfmt: 0 vlist[]:
+    inst [50 or "dks0d1"] value ...
+    inst [61 or "dks0d4"] value ...
+
+no drives should be included here
+pmResult ... numpmid: 1
+  1.80.1 (disk.dev.read): No values returned!
+
+only the first and last drive should be included here
+pmResult ... numpmid: 1
+  1.80.1 (disk.dev.read): numval: 2 valfmt: 0 vlist[]:
+    inst [50 or "dks0d1"] value ...
+    inst [61 or "dks0d4"] value ...
+
+all except drive zero should be included here
+pmResult ... numpmid: 1
+  1.80.1 (disk.dev.read): numval: 1 valfmt: 0 vlist[]:
+    inst [61 or "dks0d4"] value ...
+
+drive zero ONLY should be included here
+pmResult ... numpmid: 1
+  1.80.1 (disk.dev.read): numval: 1 valfmt: 0 vlist[]:
+    inst [50 or "dks0d1"] value ...

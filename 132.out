@@ -1,0 +1,22 @@
+QA output created by 132
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+DATE
+pmlc request from HOST: mandatory on 0.0 sec
+  metric: sample.bin
+    instance: bin-100
+    instance: bin-200
+    instance: bin-300
+    instance: bin-400
+    instance: bin-500
+    instance: bin-600
+    instance: bin-700
+    instance: bin-800
+    instance: bin-900
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE

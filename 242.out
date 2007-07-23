@@ -1,0 +1,42 @@
+QA output created by 242
+sample.long.hundred ...
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: End of run time, exiting
+
+Log finished DATE
+pmcd.pmlogger.archive
+pmcd.pmlogger.host
+pmcd.pmlogger.port
+sample.long.hundred
+
+kernel.all.load [1 minute] ...
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: End of run time, exiting
+
+Log finished DATE
+kernel.all.load
+pmcd.pmlogger.archive
+pmcd.pmlogger.host
+pmcd.pmlogger.port
+
+kernel.all.load ...
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: End of run time, exiting
+
+Log finished DATE
+kernel.all.load
+pmcd.pmlogger.archive
+pmcd.pmlogger.host
+pmcd.pmlogger.port

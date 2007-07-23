@@ -1,0 +1,233 @@
+#! /bin/sh
+# PCP QA Test No. 110
+# $Revision: 2.25 $
+# check out simple PMDA
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+. ./localconfig
+
+# COMPILER_73:  0 yes, 1 no
+if [ $PCP_PLATFORM = irix ]
+then
+    versions -n compiler_dev.sw | grep '7\.3' >/dev/null
+    COMPILER_73=$?
+else
+    COMPILER_73=1
+fi
+
+if [ $PCP_VER -eq 2100 -a $COMPILER_73 -eq 0 ]
+then
+    echo "[expect compiler warnings with PCP 2.1]"
+    rm -f $seq.out; ln $seq.out.2 $seq.out
+else
+    echo "[expect no compiler warnings]"
+    rm -f $seq.out; ln $seq.out.1 $seq.out
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+tmp=/tmp/$$
+status=1
+
+unset ROOT TOOLROOT
+
+_cleanup()
+{
+	[ -f $tmp.conf.bak ] && $here/sudo cp $tmp.conf.bak $home/$iam/$iam.conf
+	if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+	then
+	    :
+	else
+
+# do a default install which ensures the pmns and any views are installed
+
+	    $here/sudo ./Install < /dev/null > /dev/null 2>&1
+
+# PMDA may have been installed differently to default. As everything is
+# installed we can use the old pmcd.conf file to restore state.
+
+	    if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+	    then
+		:
+	    else
+	    	[ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+		$here/sudo killall -HUP pmcd
+	    fi
+	fi
+	$here/sudo rm -f $tmp.*
+	exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+_failed()
+{
+    echo
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+    echo
+    echo "... and the tail of the pmcd log ..."
+    tail -20 $PCP_PMCDLOG_PATH
+    echo
+    echo "...and the PMDA log ..."
+    if [ -d $PCP_LOG_DIR/pmcd ]
+    then
+	cat $PCP_LOG_DIR/pmcd/simple.log
+    else
+	cat $PCP_LOG_DIR/simple.log
+    fi
+}
+
+_filter()
+{
+    sed \
+	-e '/^	- /d' \
+	-e '/^[ 	]*rm /d' \
+	-e '/^[ 	]*mv /d' \
+	-e '/^[ 	]*cp /d' \
+	-e '/^[ 	]*.*cc /d' \
+	-e '/^[ 	]*.*install /d' \
+	-e '/^[ 	]*.*tag /d' \
+	-e '/^pmda.c:$/d' \
+	-e '/^simple.c:$/d' \
+	-e '/make: Nothing to be done/d' \
+	-e 's/.* \(hash table entries\)/  NNN \1/' \
+	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(bytes of symbol table\)/  NNN \1/'
+}
+
+# real QA test starts here
+here=`pwd`
+home=$PCP_PMDAS_DIR
+iam=simple
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+if $here/sudo make clobber >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make clobber failed"
+    exit
+fi
+
+# start from a known starting point
+$here/sudo ./Remove >/dev/null 2>&1
+
+echo
+echo "=== pipe daemon agent ==="
+$here/sudo ./Remove >$tmp.out 2>&1
+echo 'both
+daemon
+pipe' | $here/sudo ./Install >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v simple
+then
+    :
+else
+    _failed
+fi
+
+echo
+echo "=== Unix socket daemon agent ==="
+$here/sudo ./Remove >$tmp.out 2>&1
+echo 'both
+daemon
+socket
+Unix
+'"$tmp.fifo-1" | $here/sudo ./Install >>$tmp.out 2>&1
+echo 'both
+daemon
+socket
+Unix
+'"$tmp.fifo-2" | $here/sudo ./Install >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v simple
+then
+    :
+else
+    _failed
+fi
+
+echo
+echo "=== Internet socket daemon agent ==="
+$here/sudo ./Remove >$tmp.out 2>&1
+
+# pick a tcp port that is not in use
+#
+port=`_get_port tcp 5670 5689`
+if [ -z "$port" ]
+then
+    echo "Arrgh ... no free TCP port in the range 5670 ... 5689"
+    exit 1
+fi
+
+echo 'both
+daemon
+socket
+Internet
+'$port | $here/sudo ./Install >>$tmp.out 2>&1
+
+# use next port this time
+port=`expr $port + 1`
+
+echo 'both
+daemon
+socket
+Internet
+'$port | $here/sudo ./Install >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v simple
+then
+    :
+else
+    _failed
+fi
+
+echo
+echo "=== dso agent ==="
+$here/sudo ./Remove >$tmp.out 2>&1
+echo 'both
+dso' | $here/sudo ./Install >>$tmp.out 2>&1
+echo 'both
+dso' | $here/sudo ./Install >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v simple
+then
+    :
+else
+    _failed
+fi
+
+$here/sudo ./Remove >$tmp.out 2>&1
+_filter <$tmp.out
+
+status=0
+exit

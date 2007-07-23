@@ -1,0 +1,8 @@
+QA output created by 377
+=== read external format ===
+sizeof(bits_t): 8
+read:  deadbeef cafe0000
+
+=== write external format ===
+sizeof(bits_t): 8
+write:  deadbeef cafe0000

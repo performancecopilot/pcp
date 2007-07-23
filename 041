@@ -1,0 +1,145 @@
+#! /bin/sh
+# PCP QA Test No. 041
+# $Revision: 2.17 $
+# Test $PCP_RC_DIR/pcp start 
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    _filter_pmcd_log \
+    | sed \
+	-e '/^ *$/d' \
+	-e 's/ -t [0-9][0-9]* / /' \
+	-e '/UID/d' \
+	-e '/UNAME/d' \
+	-e '/host/s/host "[^"]*"/host SOMEHOST/' \
+	-e 's/ *root[^/]*\//    root ... \//' \
+	-e 's/pmcd -.*/pmcd/' \
+    | _filter_pcp_start
+}
+
+_expect()
+{
+    echo ""
+    echo "### Expect: $* ###"
+    echo ""
+}
+
+tmp=/var/tmp/qa041.$$
+sudo=./sudo
+_needclean=true
+TAG=000666000magic
+status=1
+
+if [ ! -x $sudo ]
+then
+    echo "Couldn't find $sudo"
+    exit 1
+fi
+
+trap "_cleanup" 0 1 2 3 15
+
+_cleanup()
+{
+    if $_needclean
+    then
+	[ -f $tmp.control ] && \
+	    $sudo cp $tmp.control $PCP_VAR_DIR/config/pmlogger/control
+	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+# real QA test starts here
+
+# disable all pmloggers ... Linux does not have "chkconfig pmlogger off"
+#
+$sudo cp $PCP_VAR_DIR/config/pmlogger/control $tmp.control
+cat <<End-of-File >$tmp.tmp
+# dummy file created by qa/$seq on `date`
+# the goal here is to have a controlled primary logger that does
+# not make requests to pmcd!
+\$version=1.1
+LOCALHOSTNAME y n $LOGGING_DIR/LOCALHOSTNAME -c /dev/null
+End-of-File
+$sudo cp $tmp.tmp $PCP_VAR_DIR/config/pmlogger/control
+
+# I have no idea why this is required, but this test run
+# after 040 sometimes produces garbled messages unless
+# this is done!
+$sudo $PCP_RC_DIR/pcp stop >$tmp.out 2>$tmp.err
+_filter_pcp_stop <$tmp.out
+cat $tmp.err
+rm -f $tmp.out $tmp.err
+_expect "connection refused"
+pminfo -f sample.long.million 2>&1 | _filter
+
+$sudo $PCP_RC_DIR/pcp start >$tmp.one 2>&1
+
+_wait_for_pmcd
+_expect "one million retrieved OK from sample.long.million"
+pminfo -f sample.long.million
+
+sleep 3		# make sure pmlogger is not clobbered
+
+pid=`_get_pids_by_name pmcd`
+if [ -z "$pid" ]
+then
+    echo "Arrgh ... cannot find PID for pmcd!"
+    ps $PCP_PS_ALL_FLAGS
+    exit
+fi
+#DEBUG# ps $PCP_PS_ALL_FLAGS
+
+$sudo kill -STOP $pid
+
+sleep 3		# make sure pmcd gets the SIGSTOP
+
+# this will hang, and then see an IPC failure when PMCD is
+# killed off
+$sudo rm -f $tmp.tmp
+PMCD_CONNECT_TIMEOUT=1000
+export PMCD_CONNECT_TIMEOUT
+pminfo -f sample.long.million >$tmp.tmp 2>&1 &
+
+_expect "Starting, Waiting, Forcing termination and Starting again"
+$sudo $PCP_RC_DIR/pcp start >$tmp.two 2>&1
+
+_wait_for_pmcd
+wait
+
+_filter_pcp_start <$tmp.one | _filter
+_filter <$tmp.two
+rm -f $tmp.out $tmp.err
+
+_expect "IPC protocol failure"
+_filter <$tmp.tmp
+rm -f $tmp.tmp
+
+_expect "one million again"
+pminfo -f sample.long.million
+
+# all OK
+status=0
+exit

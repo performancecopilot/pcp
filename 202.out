@@ -1,0 +1,16 @@
+QA output created by 202
+
+log.A
+5 records
+
+log.B
+7 records
+
+log.C == pmlogextract log.A log.B
+12 records, and 1 marks
+
+mismatch timestamps
+	timestamp-mark
+
+pmval [no interpolate] ...
+8 records, and 1 marks

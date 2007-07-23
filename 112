@@ -1,0 +1,65 @@
+#! /bin/sh
+# PCP QA Test No. 112
+# $Revision: 2.18 $
+# new PMNS exercises
+#
+# see also 701 for 64-bit version
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./localconfig
+
+status=1
+
+tmp=/tmp/$$
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    _filter_pmcd_log \
+    | _filter_torture_api
+}
+
+_cmp()
+{
+    echo "differences relative to 031.out ..."
+
+    diff $1 031.out.${PCP_PLATFORM}
+}
+
+_failok()
+{
+    sed <$1 \
+	-e 's/pcp\[[0-9]*]/pcp[PID]/' \
+	-e "s;$tmp;TEMPFILE;g"
+}
+
+
+# real QA test starts here
+rm -f $tmp.*
+
+# test out compilation stat values
+# use a fixed namespace
+pmnscomp -n src-oss/root_pmns $tmp.bin.fixed
+
+cp $PCP_VAR_DIR/pmns/root $tmp.ascii
+pmnscomp -n $tmp.ascii $tmp.bin >/dev/null 2>&1
+
+echo "=== pmapi v2, 32-bit app, ascii format pmns ==="
+src-oss/torture_api -v -n $tmp.ascii 2>&1 | _filter >$tmp.out
+_cmp $tmp.out
+
+echo ""
+echo "=== pmapi v2, 32-bit app, binary format pmns ==="
+src-oss/torture_api -v -n $tmp.bin 2>&1 | _filter >$tmp.out
+_cmp $tmp.out
+
+status=0
+exit

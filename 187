@@ -1,0 +1,113 @@
+#! /bin/sh
+# PCP QA Test No. 187
+# $Revision: 2.11 $
+# for bug #327288 - $PCP_RC_DIR/pcp blows away $PCP_TMP_DIR/pmlogger entries
+#
+# Note ... this will be a "sometimes" failure ... requires special
+# combinations of pids such that sort != sort -n and comm gets confused
+#  $PCP_RC_DIR/pcp
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+here=`pwd`
+sudo=`pwd`/sudo
+
+_burn_pids()
+{
+    # burn off 1024 pids
+    #
+    for i in 1 2 3 4 5 6 7 8
+    do
+	for j in 1 2 3 4 5 6 7 8
+	do
+	    for k in 1 2 3 4 5 6 7 8
+	    do
+		for l in 1 2
+		do
+		    true
+		done
+	    done
+	done
+    done
+}
+
+_check()
+{
+    ( echo "this" $this_pid;
+      echo "other" $other_pid;
+      echo "other-fqdn" $otherfqdn_pid; ) \
+    | while read tag pid
+    do
+	echo -n "map file for $tag host"
+	if [ -f $PCP_TMP_DIR/pmlogger/$pid ]
+	then
+	    echo " present"
+	else
+	    echo -n " missing ... "
+	    if [ "$tag" = this ]
+	    then
+		echo "expected for this host when PMCD killed"
+	    else
+		echo "NOT EXPECTED"
+		echo "pid=$pid, $PCP_TMP_DIR/pmlogger contains"
+		ls -l $PCP_TMP_DIR/pmlogger
+		echo "pmlogger processes ..."
+		ps $PCP_PS_ALL_FLAGS | grep pmlogger
+		echo "pmlogger log file for missing one ..."
+		cat $tmp.$pid
+	    fi
+	fi
+    done
+}
+
+# real QA test starts here
+pmlogger -L -c /dev/null -l $tmp.log1 -s1 $tmp.this >/dev/null 2>&1 &
+this_pid=$!
+_wait_for_pmlogger $this_pid $tmp.log1
+mv $tmp.log1 $tmp.$this_pid
+
+trap "killall -INT pmlogger >/dev/null 2>&1; wait; rm -f $tmp.*; exit" 0 1 2 3 15
+
+_burn_pids
+
+otherhost=`./getpmcdhosts -L -n 1`
+if [ -z "$otherhost" ]
+then
+    echo "Arrgh, cannot find a suitable remote pmcd host"
+    exit
+fi
+otherip=`_host_to_ipaddr $otherhost`
+
+pmlogger -h $otherhost -L -c /dev/null -l $tmp.log2 -s1 $tmp.other >/dev/null 2>&1 &
+other_pid=$!
+_wait_for_pmlogger $other_pid $tmp.log2
+mv $tmp.log2 $tmp.$other_pid
+
+_burn_pids
+
+pmlogger -h $otherip -L -c /dev/null -l $tmp.log3 -s1 $tmp.other.fqdn >/dev/null 2>&1 &
+otherfqdn_pid=$!
+_wait_for_pmlogger $otherfqdn_pid $tmp.log3
+mv $tmp.log3 $tmp.$otherfqdn_pid
+
+# check entries
+_check
+
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
+
+# check again
+_check
+

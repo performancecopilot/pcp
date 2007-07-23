@@ -1,0 +1,164 @@
+#! /bin/sh
+# PCP QA Test No. 067
+# $Revision: 2.28 $
+# Test PMCD's ability to detect and cleanup agents it didn't create when they
+# terminate
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+
+sudo=./sudo
+config=$PCP_PMCDCONF_PATH
+oconfig=$tmp.pmcd.config
+log=$PCP_PMCDLOG_PATH
+LOCALHOST=`hostname`
+
+_filter_log()
+{
+    sleep 1
+    _filter_pmcd_log <$log \
+    | sed \
+	-e '/^$/d' \
+	-e 's/ *$//' \
+	-e 's/^$//' \
+	-e '/^->/d' \
+	-e '/^00[08]:/d' \
+	-e '/^irix/s/\/var\//\/usr\//' \
+	-e '/^sample/s/.*/sample agent.../' \
+	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
+	-e 's/fd=[0-9][0-9]*/fd=<n>/g' \
+	-e 's/^  ok    [0-9]*/  ok  <n>/g' \
+	-e '/^irix/s/... ... ... dso/<n> <n> <n> dso/' \
+	-e '/^test/s/... ... ... bin/<n> <n> <n> bin/' \
+	-e '/Resource busy/d' \
+	-e 's/0x[^ ]*\([^ ][^ ][^ ]\)/ADDR...\1/' \
+	-e '/client connection from/,/^$/d' \
+	-e '/Cleanup/d' \
+	-e '/Info: spindle_stats_init/d'
+}
+
+interrupt()
+{
+    echo "Interrupted"
+    exit
+}
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+cleanup()
+{
+    if [ -f $oconfig ]
+    then
+	$sudo "mv $oconfig $config"
+    fi
+    pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+    && $sudo "sh $tmp.cmd"
+    echo "Restarting pmcd"
+    $sudo "$PCP_RC_DIR/pcp start" | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    rm -f $tmp.*
+}
+
+trap interrupt 1 2 3 15
+trap cleanup 0
+
+if [ $PCP_PLATFORM = linux ]
+then
+cat >$tmp  <<End-of-file
+linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+test	3	socket	inet 2222
+End-of-file
+else
+cat >$tmp  <<End-of-file
+irix	1	dso	irix_init	libirixpmda.so
+pmcd	2	dso	pmcd_init	pmda_pmcd.so
+test	3	socket	inet 2222
+End-of-file
+fi
+
+# netstat -an formats
+#
+# IRIX
+# tcp      0      0  *.1024                 *.*                    LISTEN
+#
+# Redhat 7.3 and 9
+# tcp        0      0 0.0.0.0:2222            0.0.0.0:*               LISTEN
+#
+
+$sudo killall pmgadgets pmchart pmview >/dev/null 2>&1
+src-oss/pmdashutdown 2222 >$tmp.pmdalog 2>&1 &
+pid=$!
+sleep 1
+echo
+echo "port 2222 should be listening"
+netstat -an \
+| tee $seq.full \
+| grep '[.:]2222 ' \
+| sed \
+    -e 's/0\.0\.0\.0/*/g' \
+    -e 's/  */ /g' \
+    -e 's/ *$//' \
+    -e 's/:/./g'
+echo
+
+cp $config $oconfig
+$sudo "mv $tmp $config"
+pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+&& $sudo "sh $tmp.cmd"
+$sudo "$PCP_RC_DIR/pcp start" | _filter_pcp_start
+_wait_for_pmcd
+# echo "config:"
+# cat $config | sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;"
+echo
+
+# wait for pmdashutdown to finish
+#
+for t in 1 2 3 4 5
+do
+    if ps $PCP_PS_ALL_FLAGS | cut -f1 | grep $pid >/dev/null 2>&1
+    then
+	sleep 2
+    else
+	break
+    fi
+done
+
+echo
+echo "pmda log (should have terminated):"
+cat $tmp.pmdalog
+echo
+
+$sudo "killall -HUP pmcd"
+
+# wait for PMCD to finish writing log (or 5 seconds)
+for t in 1 2 3 4 5
+do
+    if egrep '^Cleanup "test" agent' $log >/dev/null 2>&1
+    then
+	break
+    fi
+    sleep 1
+done
+
+_filter_log

@@ -1,0 +1,187 @@
+QA output created by 029
+
+Descriptions for Metrics in the Log ...
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 29.0.6 (sample.bin)
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+PMID: 29.0.5 (sample.colour)
+    Data Type: 32-bit int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
+PMID: 29.0.7 (sample.drift)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.46 (sample.lights)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 29.0.2 (sample.seconds)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+
+0 NameSpace for host context ...
+0 sample.aggregate.hullo
+0 sample.aggregate.null
+0 sample.aggregate.write_me
+0 sample.bad.nosupport
+0 sample.bad.unknown
+0 sample.bin
+0 sample.bogus_bin
+0 sample.bucket
+0 sample.colour
+0 sample.const_rate.gradient
+0 sample.const_rate.value
+0 sample.control
+0 sample.daemon_pid
+0 sample.dodgey.control
+0 sample.dodgey.value
+0 sample.double.hundred
+0 sample.double.million
+0 sample.double.one
+0 sample.double.ten
+0 sample.double.write_me
+0 sample.drift
+0 sample.error_check
+0 sample.error_code
+0 sample.float.hundred
+0 sample.float.million
+0 sample.float.one
+0 sample.float.ten
+0 sample.float.write_me
+0 sample.hordes.one
+0 sample.hordes.two
+0 sample.lights
+0 sample.load
+0 sample.long.hundred
+0 sample.long.million
+0 sample.long.one
+0 sample.long.ten
+0 sample.long.write_me
+0 sample.longlong.hundred
+0 sample.longlong.million
+0 sample.longlong.one
+0 sample.longlong.ten
+0 sample.longlong.write_me
+0 sample.magnitude
+0 sample.milliseconds
+0 sample.mirage
+0 sample.mirage_longlong
+0 sample.needprofile
+0 sample.noinst
+0 sample.not_ready
+0 sample.part_bin
+0 sample.pdu
+0 sample.rapid
+0 sample.recv_pdu
+0 sample.scale_step.bytes_down
+0 sample.scale_step.bytes_up
+0 sample.scale_step.count_down
+0 sample.scale_step.count_up
+0 sample.scale_step.none_up
+0 sample.scale_step.time_up_nanosecs
+0 sample.scale_step.time_up_secs
+0 sample.seconds
+0 sample.step
+0 sample.step_counter
+0 sample.string.hullo
+0 sample.string.null
+0 sample.string.write_me
+0 sample.sysinfo
+0 sample.wrap.long
+0 sample.wrap.longlong
+0 sample.wrap.ulong
+0 sample.wrap.ulonglong
+0 sample.write_me
+0 sample.xmit_pdu
+1
+1 Trimmed NameSpace for archive context ...
+1 pmcd.pmlogger.archive
+1 pmcd.pmlogger.host
+1 pmcd.pmlogger.port
+1 sample.bin
+1 sample.colour
+1 sample.drift
+1 sample.lights
+1 sample.seconds
+2
+2 Trimmed NameSpace for host context ...
+2 sample.aggregate.hullo
+2 sample.aggregate.null
+2 sample.aggregate.write_me
+2 sample.bad.nosupport
+2 sample.bad.unknown
+2 sample.bin
+2 sample.bogus_bin
+2 sample.bucket
+2 sample.colour
+2 sample.const_rate.gradient
+2 sample.const_rate.value
+2 sample.control
+2 sample.daemon_pid
+2 sample.dodgey.control
+2 sample.dodgey.value
+2 sample.double.hundred
+2 sample.double.million
+2 sample.double.one
+2 sample.double.ten
+2 sample.double.write_me
+2 sample.drift
+2 sample.error_check
+2 sample.error_code
+2 sample.float.hundred
+2 sample.float.million
+2 sample.float.one
+2 sample.float.ten
+2 sample.float.write_me
+2 sample.hordes.one
+2 sample.hordes.two
+2 sample.lights
+2 sample.load
+2 sample.long.hundred
+2 sample.long.million
+2 sample.long.one
+2 sample.long.ten
+2 sample.long.write_me
+2 sample.longlong.hundred
+2 sample.longlong.million
+2 sample.longlong.one
+2 sample.longlong.ten
+2 sample.longlong.write_me
+2 sample.magnitude
+2 sample.milliseconds
+2 sample.mirage
+2 sample.mirage_longlong
+2 sample.needprofile
+2 sample.noinst
+2 sample.not_ready
+2 sample.part_bin
+2 sample.pdu
+2 sample.rapid
+2 sample.recv_pdu
+2 sample.scale_step.bytes_down
+2 sample.scale_step.bytes_up
+2 sample.scale_step.count_down
+2 sample.scale_step.count_up
+2 sample.scale_step.none_up
+2 sample.scale_step.time_up_nanosecs
+2 sample.scale_step.time_up_secs
+2 sample.seconds
+2 sample.step
+2 sample.step_counter
+2 sample.string.hullo
+2 sample.string.null
+2 sample.string.write_me
+2 sample.sysinfo
+2 sample.wrap.long
+2 sample.wrap.longlong
+2 sample.wrap.ulong
+2 sample.wrap.ulonglong
+2 sample.write_me
+2 sample.xmit_pdu

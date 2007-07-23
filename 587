@@ -1,0 +1,125 @@
+#! /bin/sh
+# PCP QA Test No. 587
+# $Revision: 1.12 $
+# pmcd long line handling error
+# #754795 - pmcd botches handling of long lines in pmcd.conf
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./localconfig
+if [ $PCP_EOE_VER -eq 2000 -o \
+    \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -le 6505 \) ] ; then
+    echo "This test is applicable on PCP 2.0 or Irix 6.5[0-5]" > $seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    if [ -f $PCP_PMCDCONF_PATH.$seq ]
+    then
+	echo
+	$sudo rm -f $PCP_PMCDCONF_PATH
+	$sudo mv $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH
+	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	_wait_for_pmcd
+    fi
+    rm -f $tmp.*
+    if [ -d $PCP_LOG_DIR/pmcd ]
+    then
+	$sudo rm -f $PCP_LOG_DIR/pmcd/this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-*-bytes*
+    else
+	$sudo rm -f $PCP_LOG_DIR/this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-*-bytes*
+    fi
+}
+
+case "$PCP_PLATFORM" in
+irix)
+    PMCDLOG=$PCP_LOG_DIR/pmcd.log
+    cat <<End-of-File >$tmp.conf
+# for QA $seq
+#
+irix	1	dso	irix_init	libirixpmda.so
+pmcd	2	dso	pmcd_init	pmda_pmcd.so
+proc	3	dso	proc_init	pmda_proc.so
+End-of-File
+    ;;
+
+linux)
+    PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
+    cat >> $tmp.conf << EOF
+# Name  Id      IPC     IPC Params      File/Cmd
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+linux   60      dso     linux_init      $PCP_PMDAS_DIR/linux/pmda_linux.so
+EOF
+    ;;
+*)
+    echo "Unknown platfrom $PCP_PLATFORM"
+    exit 1
+esac
+
+$sudo mv $PCP_PMCDCONF_PATH $PCP_PMCDCONF_PATH.$seq
+$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+
+unset ROOT
+cd $PCP_PMDAS_DIR/trivial
+$sudo ./Install </dev/null >/dev/null
+cd $here
+
+echo 'bogus	249	pipe	binary 		'"$PCP_PMDAS_DIR/trivial/pmdatrivial"' -d 250 -l "this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-200-bytes-------------------------------------------------------------------"' >>$tmp.conf
+
+echo 'fungus	248	pipe	binary 		'"$PCP_PMDAS_DIR/trivial/pmdatrivial"' -d 250 -l "this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-400-bytes-------------------------------------------------------------------fungus    248     pipe    binary          '"$PCP_PMDAS_DIR/trivial/pmdatrivial"' -d 250 -l this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-500-bytes-------------------------------------------------------------------0123456768901234567689012345676890123456768901234567689012345676890123456768901234567689"' >>$tmp.conf
+
+echo 'humus	247	pipe	binary 		'"$PCP_PMDAS_DIR/trivial/pmdatrivial"' -d 250 -l "this-is-not-a-filename-but-is-arbitrary-filler-to-make-the-lines-longer-than-2000-bytes------------------------------------------------------------------- 012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"' >>$tmp.conf
+
+cp $tmp.conf $tmp.conf+trivial
+grep '^trivial' $PCP_PMCDCONF_PATH >>$tmp.conf+trivial
+
+# real QA test starts here
+for i in 1 2 3 4 5 6
+do
+    echo
+    echo "=== Cycle $i ==="
+    echo "add trivial PMDA ..."
+    $sudo cp $tmp.conf+trivial $PCP_PMCDCONF_PATH
+    $sudo touch $PCP_PMCDCONF_PATH
+    $sudo killall -HUP pmcd
+    _wait_for_pmcd
+    pminfo -f pmcd.agent.type
+    echo "cull trivial PMDA ..."
+    $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+    $sudo touch $PCP_PMCDCONF_PATH
+    $sudo killall -HUP pmcd
+    _wait_for_pmcd
+    pminfo -f pmcd.agent.type
+done
+
+grep ridiculous $PMCDLOG
+
+cd $PCP_PMDAS_DIR/trivial; $sudo ./Remove >/dev/null 2>&1
+
+# success, all done
+status=0
+exit

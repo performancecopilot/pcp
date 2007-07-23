@@ -1,0 +1,168 @@
+#! /bin/sh
+# PCP QA Test No. 151
+# $Revision: 2.13 $
+#
+# check the new behaviour of pmlogger_daily to collect archives
+# from longer ago than just yesterday
+#
+# Based on qa/532.
+#
+# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+
+# check for new version ... may need -o to force "old style" behaviour
+#
+if pmlogger_daily -\? 2>&1 | grep '^.*-o.*(old style)' >/dev/null
+then
+    :
+else
+    echo "No -o option to pmlogger_daily (old version installed)" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+# Because pmlogger_daily is way too clever to use the same criteria
+# for deciding which logs to merge and which to cull, we have to have
+# QA output in 2 different times of the day
+
+case "`date +%H`" in
+00)
+    # just after midnight
+    rm -f $seq.out && ln $seq.out.00-01 $seq.out || exit 1
+    ;;
+*)
+    # any other time
+    rm -f $seq.out && ln $seq.out.01-24 $seq.out || exit 1
+    ;;
+esac
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed -f $tmp/sed \
+    | sed \
+	-e "s;$tmp;TMP;g" \
+	-e "s/`hostname`/HOST/g" \
+	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
+	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
+    | $PCP_AWK_PROG '
+/-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
+		{ print }' \
+    | _filter_cron_scripts
+}
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "cd /; rm -rf $tmp $tmp.*; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
+
+# take explicit control of the umask
+#
+umask 022
+
+$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$$
+rm -f $seq.full
+rm -rf $tmp $tmp.*
+mkdir $tmp
+mkdir $tmp/foo
+
+# real QA test starts here
+verbose=-V
+echo >$tmp/sed
+for day in 0 1 2 3 4 5
+do
+    fmt=%Y%m%d
+
+    for hour in 1 4 16
+    do
+	[ $day -gt 0 -a $hour -gt 1 ] && continue
+
+	namea=`pmdate -${day}d -${hour}H $fmt.%H.%M`
+	nameb=`pmdate -${day}d -${hour}H -1M $fmt.%H.%M`
+	namec=`pmdate -${day}d -${hour}H -2M $fmt.%H.%M`
+	stampa=`echo $namea | sed -e 's/\.//g'`
+	stampb=`echo $nameb | sed -e 's/\.//g'`
+	stampc=`echo $namec | sed -e 's/\.//g'`
+	nameb=${namea}-00
+	namec=${namea}-01
+	echo "s/$namea/TODAY-$day.-${hour}H.MM/g" >>$tmp/sed
+	echo "s/$nameb/TODAY-$day.-${hour}H.MM-00/g" >>$tmp/sed
+	echo "s/$namec/TODAY-$day.-${hour}H.MM-01/g" >>$tmp/sed
+
+	for ext in 0 index meta
+	do
+	    if [ $hour -ne 4 ]
+	    then
+		cp src-oss/arch_a.$ext $tmp/$namea.$ext
+		touch -t $stampa $tmp/$namea.$ext
+	    fi
+	    cp src-oss/arch_b.$ext $tmp/$nameb.$ext
+	    touch -t $stampb $tmp/$nameb.$ext
+	    cp src-oss/arch_b.$ext $tmp/$namec.$ext
+	    touch -t $stampc $tmp/$namec.$ext
+	done
+    done
+done
+
+( cd $tmp; tar cf - *.0 *.meta *.index ) | ( cd $tmp/foo; tar xpf - )
+
+echo "s/TODAY-0/TODAY/g" >>$tmp/sed
+echo "s/`pmdate %Y%m%d`/TODAY/g" >>$tmp/sed
+echo "s/`pmdate -1d %Y%m%d`/TODAY-1/g" >>$tmp/sed
+echo "s/`pmdate -2d %Y%m%d`/TODAY-2/g" >>$tmp/sed
+echo "s/`pmdate -3d %Y%m%d`/TODAY-3/g" >>$tmp/sed
+echo "s/`pmdate -4d %Y%m%d`/TODAY-4/g" >>$tmp/sed
+echo "s/`pmdate -5d %Y%m%d`/TODAY-5/g" >>$tmp/sed
+
+echo >$tmp/control '$version=1.1
+LOCALHOSTNAME	n   n	'"$tmp"'	./config'
+
+echo
+echo "Before ..."
+ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort | tee $tmp.before
+ls -l $tmp >>$seq.full
+
+# list of culled files is in directory order, hence the cut and sort
+# complexity at the end of this pipeline
+#
+echo
+pmlogger_daily -c $tmp/control -k 4 $verbose 2>&1 \
+| _filter \
+| $PCP_AWK_PROG '
+state == 0		{ print >"'$tmp.out.0'"
+			  if ($0 ~ /older than 4 days/) state = 1
+			  next
+			}
+state == 1 && NF == 0	{ state = 2 }
+state == 1		{ for (i = 1; i <= NF; i++) print $i >"'$tmp.out.1'" }'
+cat $tmp.out.0
+LC_COLLATE=POSIX sort $tmp.out.1
+
+echo "out.0 ..." >>$seq.full
+cat $tmp.out.0 >>$seq.full
+echo "out.1 ..." >>$seq.full
+cat $tmp.out.1 >>$seq.full
+
+echo
+echo "After ..."
+ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort | tee $tmp.after
+
+echo
+echo "Differences ..."
+diff $tmp.before $tmp.after
+
+rm -rf $tmp/* $tmp.*
+
+# all done
+status=0
+exit

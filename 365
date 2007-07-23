@@ -1,0 +1,132 @@
+#!/bin/sh
+# PCP QA Test No. 365
+# $Revision: 1.14 $
+# Errors in pmcd.conf [acccess] that should not prevent pmcd starting
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+
+#  Requires common.product:
+if [ "$PCP_PLATFORM" = linux ]
+then
+    echo "[test configuration for Linux]"
+    rm -f $seq.out ; ln $seq-linux.out $seq.out
+else
+    echo "[test configuration for IRIX]"
+    rm -f $seq.out ; ln $seq-irix.out $seq.out
+fi
+
+tmp=/tmp/$$
+status=1
+done_clean=false
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	[ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	rm -f $tmp.*
+	$here/sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_clean=true
+    fi
+    exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+localhost=`hostname | sed -e 's/\..*//'`
+eval `./getpmcdhosts -L -n 2 2>$tmp.out | sed -e 's/^/other1=/' -e 's/ / other2=/'`
+if [ -z "$other1" ]
+then
+    echo "Error: cannot find first remote host running pmcd"
+    cat $tmp.out
+    status=1
+    exit
+fi
+if [ -z "$other2" ]
+then
+    echo "Error: cannot find second remote host running pmcd"
+    cat $tmp.out
+    status=1
+    exit
+fi
+rm -f $seq.full
+echo "other1=$other1" >$seq.full
+echo "other2=$other2" >>$seq.full
+echo "localhost=$localhost" >>$seq.full
+
+# real QA test starts here
+here=`pwd`
+home=$PCP_PMDAS_DIR
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+echo "# from qa/$seq" >$tmp.tmp
+echo "#" >>$tmp.tmp
+
+if [ $PCP_PLATFORM = linux ]
+then
+    echo "linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so" >>$tmp.tmp
+    echo "pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so" >>$tmp.tmp
+    echo "" >>$tmp.tmp
+elif [ $PCP_PLATFORM = irix ]
+then
+    echo "irix	1	dso	irix_init	libirixpmda.so" >>$tmp.tmp
+    echo "pmcd	2	dso	pmcd_init	pmda_pmcd.so" >>$tmp.tmp
+    echo "proc	3	dso	proc_init	pmda_proc.so" >>$tmp.tmp
+else
+    bozo!
+fi
+
+cat <<End-of-File >>$tmp.tmp
+
+[access]
+allow not.a.real.host : all;
+allow nohost.engr.sgi.com, $localhost : all;
+allow $other1, not.a.real.host, localhost : fetch;
+allow localhost, $other2, nohost.melbourne.sgi.com : store;
+End-of-File
+
+$here/sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+$here/sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+
+_filter_pmcd_log <$PCP_PMCDLOG_PATH \
+| _filter_isa \
+| sed \
+    -e '/^irix/{
+s/     [12] dso/1-or-2 dso/
+s/lib=\/usr\//lib=\/usr-or-var\//
+s/lib=\/var\//lib=\/usr-or-var\//
+}' \
+    -e '/^linux/{
+s/     [12] dso/1-or-2 dso/
+s/lib=\/usr\//lib=\/usr-or-var\//
+s/lib=\/var\//lib=\/usr-or-var\//
+}' \
+    -e '/gethostbyname(/s/ Unknown host/ No address associated with name/' \
+    -e '/gethostbyname(/s/ Host name lookup failure/ No address associated with name/' \
+    -e "s/$localhost/LOCALHOST/g" \
+    -e "s/$other1/OTHERHOST1/g" \
+    -e "s/$other2/OTHERHOST2/g" \
+    -e "s/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/<hexnum>/"
+
+status=0
+exit

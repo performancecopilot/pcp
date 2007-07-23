@@ -1,0 +1,122 @@
+#! /bin/sh
+# PCP QA Test No. 597
+# $Revision: 1.6 $
+# Install/Remove of shping PMDA
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+
+. ./localconfig
+if [ $PCP_VER -le 2100 ]
+then
+    echo "needs new shping with telnet-probe" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+status=1
+
+_cleanup()
+{
+    [ -f $tmp.shping.conf ] && $here/sudo mv $tmp.shping.conf $PCP_VAR_DIR/config/shping/shping.conf
+
+    if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+    then
+	:
+    else
+# do a default install which ensures the pmns and any views are installed
+
+	$here/sudo ./Install < /dev/null > /dev/null 2>&1
+
+# PMDA may have been installed differently to default. As everything is
+# installed we can use the old pmcd.conf file to restore state.
+
+	if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+	then
+	    :
+	else
+	    [ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    $here/sudo killall -HUP pmcd
+	fi
+    fi
+    rm -f $tmp.*
+    exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+_filter()
+{
+    _filter_pmda_install | \
+    sed \
+	-e 's/\$Id.*\$/[RCSID]/' \
+	-e '/Removing files/d' \
+	-e '/Updating the PMCD control file/c\
+Updating the PMCD control file, and notifying PMCD ...\
+[...removing files...]'
+}
+
+
+# real QA test starts here
+here=`pwd`
+home=$PCP_PMDAS_DIR
+iam=shping
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+if [ -f Makefile -o -f GNUmakefile ] ; then
+    if $here/sudo make clobber >$tmp.out 2>&1 ; then
+	:
+    else
+	cat $tmp.out
+	echo "Arrgh, make clobber failed"
+	exit
+    fi
+fi
+
+# start from a known starting point
+$here/sudo ./Remove >/dev/null 2>&1
+[ -f $PCP_VAR_DIR/config/shping/shping.conf ] && $here/sudo mv $PCP_VAR_DIR/config/shping/shping.conf $tmp.shping.conf
+
+echo
+echo "=== default $iam agent installation ==="
+$here/sudo ./Remove > $tmp.out 2>&1
+$here/sudo ./Install </dev/null >>$tmp.out 2>&1
+_filter <$tmp.out
+
+if pminfo -v $iam
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== remove $iam agent ==="
+$here/sudo ./Remove >$tmp.out 2>&1
+_filter <$tmp.out
+
+status=0
+exit

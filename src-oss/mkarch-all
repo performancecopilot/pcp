@@ -1,0 +1,48 @@
+#!/bin/sh
+
+if [ $# -ne 2 ]
+then
+    echo "Usage: mkarch-all hostname archive"
+    exit 1
+fi
+
+rm -f $2.0 $2.meta $2.index $2.log
+
+cat <<End-of-File | pmlogger -l $2.log -t 3 -T 10s -h $1 $2
+log mandatory on once hinv
+log mandatory on once hw
+
+log mandatory on default buffer_cache
+log mandatory on default cihb
+log mandatory on default cms
+log mandatory on default cxfs
+log mandatory on default disk
+log mandatory on default espping
+log mandatory on default filesys
+log mandatory on default gfx
+log mandatory on default ipc
+log mandatory on default kaio
+log mandatory on default kernel
+log mandatory on default mem
+log mandatory on default name_cache
+log mandatory on default network
+log mandatory on default nfs
+log mandatory on default nfs3
+log mandatory on default numa
+log mandatory on default origin
+log mandatory on default pmcd
+log mandatory on default pmda
+log mandatory on default resource
+log mandatory on default rpc
+log mandatory on default stream
+log mandatory on default swap
+log mandatory on default swapdev
+log mandatory on default udf
+log mandatory on default vfs
+log mandatory on default vnodes
+log mandatory on default xbow
+log mandatory on default xfs
+log mandatory on default xlv
+End-of-File
+
+echo "Archive $2 created, log in $2.log"

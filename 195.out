@@ -1,0 +1,147 @@
+QA output created by 195
+
+=== src-oss/mv-bigbin ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/foo ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/null ===
+pmdumplog: Cannot locate end of archive: Corrupted record in a PCP archive log
+
+WARNING: This archive is sufficiently damaged that it may not be possible to
+         produce complete information.  Continuing and hoping for the best.
+
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     UNKNOWN
+
+=== src-oss/mv-bigbin.0 ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/mv-bigbin.1 ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/mv-bigbin.2 ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/mv-bigbin.3 ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/mv-bigbin.4 ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/mv-bigbin.5 ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/mv-bigbin.6 ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/mv-bigbin.7 ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/mv-bigbin.8 ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/mv-bigbin.9 ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/mv-bigbin.index ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/mv-bigbin.meta ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/foo.0 ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/foo.index ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/foo.meta ===
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+=== src-oss/null.0 ===
+pmdumplog: Cannot locate end of archive: Corrupted record in a PCP archive log
+
+WARNING: This archive is sufficiently damaged that it may not be possible to
+         produce complete information.  Continuing and hoping for the best.
+
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     UNKNOWN
+
+=== src-oss/null.index ===
+pmdumplog: Cannot locate end of archive: Corrupted record in a PCP archive log
+
+WARNING: This archive is sufficiently damaged that it may not be possible to
+         produce complete information.  Continuing and hoping for the best.
+
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     UNKNOWN
+
+=== src-oss/null.meta ===
+pmdumplog: Cannot locate end of archive: Corrupted record in a PCP archive log
+
+WARNING: This archive is sufficiently damaged that it may not be possible to
+         produce complete information.  Continuing and hoping for the best.
+
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     UNKNOWN

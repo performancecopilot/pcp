@@ -1,0 +1,130 @@
+#!/bin/sh
+# PCP QA Test No. 323
+# $Revision: 1.11 $
+# validate some values for pmdashping
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+tmp=/tmp/$$
+status=1
+
+_cleanup()
+{
+    [ -f $tmp.shping.conf ] && $here/sudo mv $tmp.shping.conf $PCP_VAR_DIR/config/shping/shping.conf
+
+    if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+    then
+	:
+    else
+# do a default install which ensures the pmns and any views are installed
+
+	$here/sudo ./Install < /dev/null > /dev/null 2>&1
+
+# PMDA may have been installed differently to default. As everything is
+# installed we can use the old pmcd.conf file to restore state.
+
+	if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+	then
+	    :
+	else
+	    [ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    $here/sudo killall -HUP pmcd
+	fi
+    fi
+    rm -f $tmp.*
+    exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+    	-e 's/\/usr\/bsd\/hostname/hostname/' \
+	-e 's/.* \(hash table entries\)/  NNN \1/' \
+	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
+	-e '/Nothing to be done/d' \
+    	-e '/^Installing files ...$/d' \
+    	-e '/^Removing files ...$/d'
+}
+
+_filter_info()
+{
+    sed \
+	-e 's/value -[0-9][0-9]*\.[0-9]*/value NEGATIVE NUMBER/' \
+	-e 's/value -[0-9][0-9]*/value NEGATIVE NUMBER/' \
+	-e 's/value [0-9][0-9]*\.[0-9]*/value NUMBER/' \
+	-e 's/value [0-9][0-9]*/value NUMBER/'
+}
+
+# real QA test starts here
+here=`pwd`
+home=$PCP_PMDAS_DIR
+iam=shping
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# start from a known starting point
+$here/sudo ./Remove >/dev/null 2>&1
+[ -f $PCP_VAR_DIR/config/$iam/$iam.conf ] && $here/sudo mv $PCP_VAR_DIR/config/$iam/$iam.conf $tmp.$iam.conf
+
+echo
+echo "=== install $iam agent ==="
+echo 'b
+3
+y
+null exit 0
+slow sleep 3
+timeout sleep 10
+
+60
+6' \
+| $here/sudo ./Install >$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v $iam
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== check values ==="
+pminfo -f shping.status shping.error shping.cmd
+
+pminfo -f shping.control.cycletime shping.control.timeout
+
+pminfo -f shping.time.real shping.time.cpu_usr shping.time.cpu_sys 2>&1 \
+| _filter_info
+
+echo
+echo "=== remove $iam agent ==="
+$here/sudo ./Remove >$tmp.out 2>&1
+_filter <$tmp.out
+
+status=0
+exit

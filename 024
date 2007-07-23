@@ -1,0 +1,81 @@
+#! /bin/sh
+# PCP QA Test No. 024
+# $Revision: 2.22 $
+# juggling with contexts, including the default one
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+PMCD_CONNECT_TIMEOUT=120
+PMCD_REQUEST_TIMEOUT=120
+export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
+
+_filter()
+{
+    # unfortunatley, -D16 maps to an internal libirixpmda debug flag
+    # for nodes et al
+    # filter for __pmDecodeXtendError diag, added in rev 2.23 of
+    # libpcp/src/p_error.c ... not always present
+    #
+    sed \
+	-e '/using .* kmem interface/d' \
+	-e 's/localhost/<&>/' \
+	-e "s/`hostname`/<localhost>/" \
+	-e "s/$remote/<remotehost>/" \
+	-e 's/fd=[0-9][0-9]*/fd=<n>/g' \
+	-e '/ Debug: reload_nodes: /d'\
+	-e '/ Debug: reload_nodeinfo: /d'\
+	-e '/ Debug: node_init: /d' \
+	-e '/ Debug: reload_hubs: /d' \
+	-e '/ Debug: handle_entry: /d' \
+	-e '/^__pmDecodeXtendError: got error PDU/d' \
+	-e '/__pmSendCreds: #0/s/= 201/= 1020000/' \
+	-e 's/ [0-9][0-9]*(?)//g' \
+        -e '/IPC table/{
+s/ [0-9][0-9]*(?)//g
+s/ [0-9][0-9]*(2)/ <n>(2)/g
+}'
+
+}
+
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+. ./common.filter
+
+remote=`./getpmcdhosts -L -n 1 2>$tmp.out`
+if [ -z "$remote" ]
+then
+    cat $tmp.out
+    echo "Arrgh, cannot find a suitable remote pmcd host"
+    exit
+fi
+
+# real QA test starts here
+echo "=== expected to pass ==="
+src-oss/chkctx2 -D16 2>&1 | _filter | _filter_bogus_disks
+echo ""
+src-oss/chkctx2 -D16 -h localhost 2>&1 | _filter
+echo ""
+src-oss/chkctx2 -D16 -h `hostname` 2>&1 | _filter
+echo ""
+src-oss/chkctx2 -D16 -h $remote 2>&1 | _filter
+echo ""
+
+PCP_LITE_SAMPLE=yes
+export PCP_LITE_SAMPLE
+
+echo "=== try CONTEXT_LOCAL ==="
+./sudo src-oss/chkctx2_lite -D16 -L 2>&1 \
+| _filter \
+| _filter_pmcd_log \
+| _filter_bogus_disks
+echo ""

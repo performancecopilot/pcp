@@ -1,0 +1,406 @@
+QA output created by 154
+
+bad dbf
+chkhelp bad-helpfile
+pmdaOpenHelp: failed to open "TMP": Bad format, not version 2 PCP help text
+status=1
+chkhelp -p bad-helpfile
+pmdaOpenHelp: failed to open "TMP": Bad format, not version 2 PCP help text
+status=1
+chkhelp bad-helpfile cisco.rate_in
+pmdaOpenHelp: failed to open "TMP": Bad format, not version 2 PCP help text
+status=0
+
+some usage failures ...
+chkhelp -i $PCP_PMDAS_DIR/cisco/help cisco.rate_in
+chkhelp: metric-name arguments cannot be used with -i or -p
+
+Usage: chkhelp helpfile
+       chkhelp [options] helpfile [metricname ...]
+
+Options:
+  -H           display verbose help text
+  -i           process all the instance domains
+  -n pmnsfile  use an alternative PMNS
+  -O           display the one line help summary
+  -p           process all the metrics (PMIDs)
+
+No options implies silently check internal integrity of the helpfile.
+chkhelp -p $PCP_PMDAS_DIR/cisco/help cisco.rate_in
+chkhelp: metric-name arguments cannot be used with -i or -p
+
+Usage: chkhelp helpfile
+       chkhelp [options] helpfile [metricname ...]
+
+Options:
+  -H           display verbose help text
+  -i           process all the instance domains
+  -n pmnsfile  use an alternative PMNS
+  -O           display the one line help summary
+  -p           process all the metrics (PMIDs)
+
+No options implies silently check internal integrity of the helpfile.
+chkhelp -ip $PCP_PMDAS_DIR/cisco/help cisco.rate_in
+chkhelp: metric-name arguments cannot be used with -i or -p
+
+Usage: chkhelp helpfile
+       chkhelp [options] helpfile [metricname ...]
+
+Options:
+  -H           display verbose help text
+  -i           process all the instance domains
+  -n pmnsfile  use an alternative PMNS
+  -O           display the one line help summary
+  -p           process all the metrics (PMIDs)
+
+No options implies silently check internal integrity of the helpfile.
+
+debug trace ...
+chkhelp -D 2048 $PCP_PMDAS_DIR/cisco/help
+next_type=1 id=0x1400001
+next_type=1 id=0x1400002
+next_type=1 id=0x1400003
+next_type=1 id=0x1400004
+next_type=1 id=0x1400005
+next_type=2 id=0x1400001
+
+exercise options ...
+
+args:     
+status=0
+
+args:     cisco.rate_in
+
+PMID 5.0.3 cisco.rate_in: 5 minutes average input rate in bytes (not bits!) per second
+status=0
+
+args:     cisco.rate_in cisco.rate_out
+
+PMID 5.0.3 cisco.rate_in: 5 minutes average input rate in bytes (not bits!) per second
+
+PMID 5.0.4 cisco.rate_out: 5 minutes average output rate in bytes (not bits!) per second
+status=0
+
+args:    -p 
+
+PMID 5.0.1 cisco.bytes_in: Total Kbytes input to the Cisco
+
+PMID 5.0.2 cisco.bytes_out: Total Kbytes output from the Cisco
+
+PMID 5.0.3 cisco.rate_in: 5 minutes average input rate in bytes (not bits!) per second
+
+PMID 5.0.4 cisco.rate_out: 5 minutes average output rate in bytes (not bits!) per second
+
+PMID 5.0.5 cisco.bandwidth: peak interface bandwidth in bytes per second
+status=0
+
+args:   -i  
+
+InDom 5.1: Interfaces on Cisco router
+status=0
+
+args:   -i -p 
+
+PMID 5.0.1 cisco.bytes_in: Total Kbytes input to the Cisco
+
+PMID 5.0.2 cisco.bytes_out: Total Kbytes output from the Cisco
+
+PMID 5.0.3 cisco.rate_in: 5 minutes average input rate in bytes (not bits!) per second
+
+PMID 5.0.4 cisco.rate_out: 5 minutes average output rate in bytes (not bits!) per second
+
+PMID 5.0.5 cisco.bandwidth: peak interface bandwidth in bytes per second
+
+InDom 5.1: Interfaces on Cisco router
+status=0
+
+args:  -O   
+chkhelp: -O or -H require metric-name arguments or -i or -p
+
+Usage: chkhelp helpfile
+       chkhelp [options] helpfile [metricname ...]
+
+Options:
+  -H           display verbose help text
+  -i           process all the instance domains
+  -n pmnsfile  use an alternative PMNS
+  -O           display the one line help summary
+  -p           process all the metrics (PMIDs)
+
+No options implies silently check internal integrity of the helpfile.
+status=1
+
+args:  -O   cisco.rate_in
+
+PMID 5.0.3 cisco.rate_in: 5 minutes average input rate in bytes (not bits!) per second
+status=0
+
+args:  -O   cisco.rate_in cisco.rate_out
+
+PMID 5.0.3 cisco.rate_in: 5 minutes average input rate in bytes (not bits!) per second
+
+PMID 5.0.4 cisco.rate_out: 5 minutes average output rate in bytes (not bits!) per second
+status=0
+
+args:  -O  -p 
+
+PMID 5.0.1 cisco.bytes_in: Total Kbytes input to the Cisco
+
+PMID 5.0.2 cisco.bytes_out: Total Kbytes output from the Cisco
+
+PMID 5.0.3 cisco.rate_in: 5 minutes average input rate in bytes (not bits!) per second
+
+PMID 5.0.4 cisco.rate_out: 5 minutes average output rate in bytes (not bits!) per second
+
+PMID 5.0.5 cisco.bandwidth: peak interface bandwidth in bytes per second
+status=0
+
+args:  -O -i  
+
+InDom 5.1: Interfaces on Cisco router
+status=0
+
+args:  -O -i -p 
+
+PMID 5.0.1 cisco.bytes_in: Total Kbytes input to the Cisco
+
+PMID 5.0.2 cisco.bytes_out: Total Kbytes output from the Cisco
+
+PMID 5.0.3 cisco.rate_in: 5 minutes average input rate in bytes (not bits!) per second
+
+PMID 5.0.4 cisco.rate_out: 5 minutes average output rate in bytes (not bits!) per second
+
+PMID 5.0.5 cisco.bandwidth: peak interface bandwidth in bytes per second
+
+InDom 5.1: Interfaces on Cisco router
+status=0
+
+args: -H    
+chkhelp: -O or -H require metric-name arguments or -i or -p
+
+Usage: chkhelp helpfile
+       chkhelp [options] helpfile [metricname ...]
+
+Options:
+  -H           display verbose help text
+  -i           process all the instance domains
+  -n pmnsfile  use an alternative PMNS
+  -O           display the one line help summary
+  -p           process all the metrics (PMIDs)
+
+No options implies silently check internal integrity of the helpfile.
+status=1
+
+args: -H    cisco.rate_in
+
+PMID 5.0.3 cisco.rate_in:
+Cisco's compute average input rate in bytes per second, over the last
+five minutes, for this interface.
+status=0
+
+args: -H    cisco.rate_in cisco.rate_out
+
+PMID 5.0.3 cisco.rate_in:
+Cisco's compute average input rate in bytes per second, over the last
+five minutes, for this interface.
+
+PMID 5.0.4 cisco.rate_out:
+Cisco's compute average output rate in bytes per second, over the last
+five minutes, for this interface.
+status=0
+
+args: -H   -p 
+
+PMID 5.0.1 cisco.bytes_in:
+Total number of Kbytes input to the Cisco on this interface.
+
+Note that due to network delays in extracting the metrics from the
+Cisco routers, any rate computed from this metric over small deltas in
+time are likely to be subject to wide variance.
+
+PMID 5.0.2 cisco.bytes_out:
+Total number of Kbytes input to the Cisco on this interface.
+
+Note that due to network delays in extracting the metrics from the
+Cisco routers, any rate computed from this metric over small deltas in
+time are likely to be subject to wide variance.
+
+PMID 5.0.3 cisco.rate_in:
+Cisco's compute average input rate in bytes per second, over the last
+five minutes, for this interface.
+
+PMID 5.0.4 cisco.rate_out:
+Cisco's compute average output rate in bytes per second, over the last
+five minutes, for this interface.
+
+PMID 5.0.5 cisco.bandwidth:
+status=0
+
+args: -H  -i  
+
+InDom 5.1:
+There is one instance in this domain for each interface on a Cisco
+router that the Cisco PMDA (Performance Metrics Domain Agent) has been
+told about when the PMDA is started.
+
+The names of the instances are of the form hostname:tX where "t" is one
+of "a" for ATM, "B" for ISDN BRI, "e" for Ethernet, "E" (FastEthernet),
+"f" for Fddi, "h" for HSSC, or "s" for Serial.  The "X" is the
+interface identifier which is either an integer (e.g. 4000 Series
+routers) or two integers separated by a slash (e.g. 7000 Series
+routers).
+status=0
+
+args: -H  -i -p 
+
+PMID 5.0.1 cisco.bytes_in:
+Total number of Kbytes input to the Cisco on this interface.
+
+Note that due to network delays in extracting the metrics from the
+Cisco routers, any rate computed from this metric over small deltas in
+time are likely to be subject to wide variance.
+
+PMID 5.0.2 cisco.bytes_out:
+Total number of Kbytes input to the Cisco on this interface.
+
+Note that due to network delays in extracting the metrics from the
+Cisco routers, any rate computed from this metric over small deltas in
+time are likely to be subject to wide variance.
+
+PMID 5.0.3 cisco.rate_in:
+Cisco's compute average input rate in bytes per second, over the last
+five minutes, for this interface.
+
+PMID 5.0.4 cisco.rate_out:
+Cisco's compute average output rate in bytes per second, over the last
+five minutes, for this interface.
+
+PMID 5.0.5 cisco.bandwidth:
+
+InDom 5.1:
+There is one instance in this domain for each interface on a Cisco
+router that the Cisco PMDA (Performance Metrics Domain Agent) has been
+told about when the PMDA is started.
+
+The names of the instances are of the form hostname:tX where "t" is one
+of "a" for ATM, "B" for ISDN BRI, "e" for Ethernet, "E" (FastEthernet),
+"f" for Fddi, "h" for HSSC, or "s" for Serial.  The "X" is the
+interface identifier which is either an integer (e.g. 4000 Series
+routers) or two integers separated by a slash (e.g. 7000 Series
+routers).
+status=0
+
+args: -H -O   
+chkhelp: -O or -H require metric-name arguments or -i or -p
+
+Usage: chkhelp helpfile
+       chkhelp [options] helpfile [metricname ...]
+
+Options:
+  -H           display verbose help text
+  -i           process all the instance domains
+  -n pmnsfile  use an alternative PMNS
+  -O           display the one line help summary
+  -p           process all the metrics (PMIDs)
+
+No options implies silently check internal integrity of the helpfile.
+status=1
+
+args: -H -O   cisco.rate_in
+
+PMID 5.0.3 cisco.rate_in: 5 minutes average input rate in bytes (not bits!) per second
+Cisco's compute average input rate in bytes per second, over the last
+five minutes, for this interface.
+status=0
+
+args: -H -O   cisco.rate_in cisco.rate_out
+
+PMID 5.0.3 cisco.rate_in: 5 minutes average input rate in bytes (not bits!) per second
+Cisco's compute average input rate in bytes per second, over the last
+five minutes, for this interface.
+
+PMID 5.0.4 cisco.rate_out: 5 minutes average output rate in bytes (not bits!) per second
+Cisco's compute average output rate in bytes per second, over the last
+five minutes, for this interface.
+status=0
+
+args: -H -O  -p 
+
+PMID 5.0.1 cisco.bytes_in: Total Kbytes input to the Cisco
+Total number of Kbytes input to the Cisco on this interface.
+
+Note that due to network delays in extracting the metrics from the
+Cisco routers, any rate computed from this metric over small deltas in
+time are likely to be subject to wide variance.
+
+PMID 5.0.2 cisco.bytes_out: Total Kbytes output from the Cisco
+Total number of Kbytes input to the Cisco on this interface.
+
+Note that due to network delays in extracting the metrics from the
+Cisco routers, any rate computed from this metric over small deltas in
+time are likely to be subject to wide variance.
+
+PMID 5.0.3 cisco.rate_in: 5 minutes average input rate in bytes (not bits!) per second
+Cisco's compute average input rate in bytes per second, over the last
+five minutes, for this interface.
+
+PMID 5.0.4 cisco.rate_out: 5 minutes average output rate in bytes (not bits!) per second
+Cisco's compute average output rate in bytes per second, over the last
+five minutes, for this interface.
+
+PMID 5.0.5 cisco.bandwidth: peak interface bandwidth in bytes per second
+status=0
+
+args: -H -O -i  
+
+InDom 5.1: Interfaces on Cisco router
+There is one instance in this domain for each interface on a Cisco
+router that the Cisco PMDA (Performance Metrics Domain Agent) has been
+told about when the PMDA is started.
+
+The names of the instances are of the form hostname:tX where "t" is one
+of "a" for ATM, "B" for ISDN BRI, "e" for Ethernet, "E" (FastEthernet),
+"f" for Fddi, "h" for HSSC, or "s" for Serial.  The "X" is the
+interface identifier which is either an integer (e.g. 4000 Series
+routers) or two integers separated by a slash (e.g. 7000 Series
+routers).
+status=0
+
+args: -H -O -i -p 
+
+PMID 5.0.1 cisco.bytes_in: Total Kbytes input to the Cisco
+Total number of Kbytes input to the Cisco on this interface.
+
+Note that due to network delays in extracting the metrics from the
+Cisco routers, any rate computed from this metric over small deltas in
+time are likely to be subject to wide variance.
+
+PMID 5.0.2 cisco.bytes_out: Total Kbytes output from the Cisco
+Total number of Kbytes input to the Cisco on this interface.
+
+Note that due to network delays in extracting the metrics from the
+Cisco routers, any rate computed from this metric over small deltas in
+time are likely to be subject to wide variance.
+
+PMID 5.0.3 cisco.rate_in: 5 minutes average input rate in bytes (not bits!) per second
+Cisco's compute average input rate in bytes per second, over the last
+five minutes, for this interface.
+
+PMID 5.0.4 cisco.rate_out: 5 minutes average output rate in bytes (not bits!) per second
+Cisco's compute average output rate in bytes per second, over the last
+five minutes, for this interface.
+
+PMID 5.0.5 cisco.bandwidth: peak interface bandwidth in bytes per second
+
+InDom 5.1: Interfaces on Cisco router
+There is one instance in this domain for each interface on a Cisco
+router that the Cisco PMDA (Performance Metrics Domain Agent) has been
+told about when the PMDA is started.
+
+The names of the instances are of the form hostname:tX where "t" is one
+of "a" for ATM, "B" for ISDN BRI, "e" for Ethernet, "E" (FastEthernet),
+"f" for Fddi, "h" for HSSC, or "s" for Serial.  The "X" is the
+interface identifier which is either an integer (e.g. 4000 Series
+routers) or two integers separated by a slash (e.g. 7000 Series
+routers).
+status=0

@@ -1,0 +1,191 @@
+#! /bin/sh
+#
+# re-create localconfig and localconfig.h if need be
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# $Id: mk.localconfig,v 1.21 2004/06/23 18:07:37 kenmcd Exp $
+#
+
+# generic initialization
+. ./common.rc
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_getversion()
+{
+    # output from versions looks like ...
+    # I  pcp.sw               1287046800  PCP Software, 2.2 beta-3
+    # I  pcp_eoe_noship       1276478200  Performance Co-Pilot NOSHIP EOE for IRIX 6.5, 2.2 beta-1
+    # I  pcp_eoe_noship.sw    1276478200  PCP EOE Software, 2.2 beta-1
+    # I  pcp_eoe_noship.sw.eoe  1276478200  PCP EOE, 2.2 beta-1
+    # I  pcp_eoe_noship.sw.monitor  1276478200  PCP EOE Monitor, 2.2 beta-1
+    versions -n $1 \
+    | grep '^I  ' \
+    | sed \
+	-e 's/.* \([1-9][0-9]*\) .*, */\1 /' \
+	-e 's/ beta-.*//' \
+	-e 's/ baobab//' \
+	-e '/ [^.]*\.[^.]*$/s/$/.0/' \
+	-e 's/\.\([0-9]\)$/.0\1/' \
+	-e 's/\.//g' \
+    | LC_COLLATE=POSIX sort -u \
+    | $PCP_AWK_PROG '{ print $2 }' >$tmp.tmp
+    if [ `wc -l <$tmp.tmp` -gt 1 ]
+    then
+	echo "mk.localconfig: Warning: multiple versions of $1 installed?"
+	versions -n $1
+	echo "... using the first one, hope that's OK"
+	sed 1q $tmp.tmp >$tmp.eek
+	mv $tmp.eek $tmp.tmp
+    fi
+}
+
+if [ "$PCP_PLATFORM" = irix ]
+then
+
+    _getversion pcp.sw
+    PCP_VER=`cat $tmp.tmp`
+    [ -z "$PCP_VER" ] && PCP_VER=0
+
+    _getversion pcp_eoe_noship.sw
+    PCP_EOE_NOSHIP_VER=`cat $tmp.tmp`
+    
+    case `uname -r`
+    in
+	6.5|6.5-*)
+	    # Use KudzuNumbers for 6.5 - pcp_eoe does not necesseraly
+	    # match kernel ....
+	    _pcp10d=`versions -n pcp_eoe | grep '^I *pcp_eoe.sw ' \
+		    | sort -u | awk '{print $3}'`
+	    if [ -z "$_pcp10d" ] ; then
+	       echo "Cannot find version number for your pcp_eoe. "
+	       echo "Is it installed?"
+	       versions -n pcp_eoe
+	       exit 1
+	    fi
+	    if [ "$_pcp10d" -lt 1270000000 ] ; then
+	       echo "pcp_eoe installation is incorrect - expecting PCP_EOE"
+	       echo "from Irix 6.5"
+	       exit 1
+	    fi
+	    (echo "$_pcp10d 00-00 MyVersion"; 
+	     grep "^`echo $_pcp10d | cut -c1-3`" KudzuNumbers) | sort \
+	    | $PCP_AWK_PROG '
+$3 == "MyVersion" { real_after=after; next }
+	      { if ( real_after ) {
+		    if ( before ) { before = $3; }
+		} else {
+		    after = $3;
+		}
+	      }
+END		  { if ( real_after ) {
+		    if ( before ) { 
+			print before;
+		    } else {
+			print real_after + 1;
+		    } 
+		} else {
+		    print before;
+		}
+	      }' | read PCP_EOE_VER
+	    if [ "$PCP_EOE_VER" -eq 0 ] ; then
+		echo "Cannot decide about version for your pcp_eoe..."
+		exit 1
+	    fi
+	    ;;
+
+	*)
+	    PCP_EOE_VER=$PCP_VER
+	    ;;
+    esac
+
+    [ -z "$PCP_VER" ] && PCP_VER=0
+    [ -z "$PCP_EOE_VER" -a ! -z "$PCP_EOE_NOSHIP_VER" ] && PCP_EOE_VER=$PCP_EOE_NOSHIP_VER
+    [ -z "$PCP_EOE_VER" ] && PCP_EOE_VER=$PCP_VER
+    [ -z "$PCP_EOE_NOSHIP_VER" ] && PCP_EOE_NOSHIP_VER=$PCP_EOE_VER
+    PCP_PRO_VER=0
+
+elif [ "$PCP_PLATFORM" = linux ]
+then
+    PCP_VER=`echo $PCP_VERSION \
+	     | sed \
+		 -e '/^[^.]*\.[^.]*$/s/$/.0/' \
+		 -e 's/\.\([0-9]\)$/.0\1/' \
+		 -e 's/\.//g'`
+    [ -z "$PCP_VER" ] && PCP_VER=0
+    PCP_EOE_VER=$PCP_VER
+    PCP_EOE_NOSHIP_VER=0
+    if which rpm >/dev/null 2>&1
+    then
+	PCP_PRO_VER=0
+	rpm -q pcp-pro >/dev/null 2>&1
+	[ $? = 0 ] && {
+            PCP_PRO_VER=`rpm -q pcp-pro \
+                         | sed -e 's/pcp-pro-//' \
+                               -e 's/\.//g' \
+                               -e 's/-.*//' \
+                               -e 's/^\(..\)\(.\)$/\10\2/'`
+	}
+    else
+        PCP_PRO_VER=$PCP_VER
+    fi
+elif [ "$PCP_PLATFORM" = solaris ]
+then
+    PCP_VER=`echo $PCP_VERSION \
+             | sed \
+                 -e '/^[^.]*\.[^.]*$/s/$/.0/' \
+                 -e 's/\.\([0-9]\)$/.0\1/' \
+                 -e 's/\.//g'`
+    [ -z "$PCP_VER" ] && PCP_VER=0
+    PCP_EOE_VER=$PCP_VER
+    PCP_EOE_NOSHIP_VER=0
+    PCP_PRO_VER=0
+
+else
+    echo "$0: Error: I don't understand your \$PCP_PLATFORM=\"$PCP_PLATFORM\""
+    exit 1
+fi
+
+cat <<End-of-File >$tmp.out
+#define PCP_PLATFORM $PCP_PLATFORM
+#define PCP_VER	$PCP_VER
+#define PCP_EOE_VER $PCP_EOE_VER
+#define PCP_PRO_VER $PCP_PRO_VER
+#define PCP_EOE_NOSHIP_VER $PCP_EOE_NOSHIP_VER
+End-of-File
+
+if [ ! -f localconfig.h ]
+then
+    echo "Installing \"localconfig.h\""
+    mv $tmp.out localconfig.h
+elif diff $tmp.out localconfig.h >/dev/null
+then
+    :
+else
+    echo "Updating \"localconfig.h\""
+    rm -f localconfig.h
+    mv $tmp.out localconfig.h
+fi
+
+cat <<End-of-File >$tmp.out
+PCP_PLATFORM=$PCP_PLATFORM
+PCP_VER=$PCP_VER
+PCP_EOE_VER=$PCP_EOE_VER
+PCP_PRO_VER=$PCP_PRO_VER
+PCP_EOE_NOSHIP_VER=$PCP_EOE_NOSHIP_VER
+End-of-File
+
+if [ ! -f localconfig ]
+then
+    echo "Installing \"localconfig\""
+    mv $tmp.out localconfig
+elif diff $tmp.out localconfig >/dev/null
+then
+    :
+else
+    echo "Updating \"localconfig\""
+    rm -f localconfig
+    mv $tmp.out localconfig
+fi

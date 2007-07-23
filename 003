@@ -1,0 +1,275 @@
+#! /bin/sh
+# PCP QA Test No. 003
+# $Revision: 2.56 $
+# Check that we get the expected metrics failing for each OS
+# Will need to be updated with every libirixpmda change
+# Assumes that and hw.r10kevctr are not active
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+irix6_2=false
+irix6_5=false
+linux=false
+
+version=`uname -sr`
+case "$version"
+in
+    IRIX*6.2)
+	irix6_2=true
+	;;
+    IRIX*6.5|IRIX*6.5-ALPHA-*|IRIX*6.5-BETA-*)
+    	irix6_5=true
+	;;
+    Linux*)
+	linux=true
+	;;
+    *)
+	echo "Need to hand-craft the exceptions list in ./003 for IRIX $version"
+	exit 1
+	;;
+esac
+
+# Expected error messages
+#
+nosupport="pmFetch: Metric not supported"
+unknown="pmLookupDesc: Unknown or illegal metric identifier"
+unavailable="pmFetch: no value available"
+explicit="pmFetch: Explicit instance identifier(s) required"
+missing="pmFetch: Missing metric value(s)"
+nyi="pmFetch: Functionality not yet implemented"
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+pmie_filter()
+{
+    sed -e "/pmcd.pmie.actions: $unavailable/d" \
+    	-e "/pmcd.pmie.configfile: $unavailable/d" \
+    	-e "/pmcd.pmie.eval.actual: $unavailable/d" \
+    	-e "/pmcd.pmie.eval.expected: $unavailable/d" \
+    	-e "/pmcd.pmie.eval.false: $unavailable/d" \
+    	-e "/pmcd.pmie.eval.true: $unavailable/d" \
+    	-e "/pmcd.pmie.eval.unknown: $unavailable/d" \
+    	-e "/pmcd.pmie.logfile: $unavailable/d" \
+    	-e "/pmcd.pmie.numrules: $unavailable/d" \
+    	-e "/pmcd.pmie.pmcd_host: $unavailable/d"
+}
+
+sample_filter()
+{
+    sed -e "/sample.bad.nosupport: $nosupport/d" \
+    	-e "/sample.bad.unknown: $unknown/d" \
+	-e "/sample.needprofile: $explicit/d" \
+	-e "/sample.noinst: $unavailable/d" \
+	-e "/sample.dynamic.counter: $unavailable/d" \
+	-e "/sample.dynamic.discrete: $unavailable/d" \
+	-e "/sample.dynamic.instant: $unavailable/d" \
+	-e "/sampledso.bad.nosupport: $nosupport/d" \
+	-e "/sampledso.bad.unknown: $unknown/d" \
+	-e "/sampledso.needprofile: $explicit/d" \
+	-e "/sampledso.noinst: $unavailable/d" \
+	-e "/sampledso.dynamic.counter: $unavailable/d" \
+	-e "/sampledso.dynamic.discrete: $unavailable/d" \
+	-e "/sampledso.dynamic.instant: $unavailable/d"
+}
+
+count_filter()
+{
+    sed -e '/[0-9][0-9]* metrics, [0-9][0-9]* getindom, [0-9][0-9]* insitu, [0-9][0-9]* ptr/d'
+}
+
+echo "=== no output is good news ==="
+
+for root in \
+	sample sampledso \
+	buffer_cache disk filesys hinv hw ipc kernel mem name_cache network \
+	nfs nfs3 resource rpc stream swap swapdev vnodes xfs \
+	pmcd
+do
+    src-oss/exercise -i 5 $root \
+    | LC_COLLATE=POSIX sort \
+    | sample_filter \
+    | pmie_filter \
+    | count_filter >$tmp.tmp
+
+    if [ $irix6_2 = true ]
+    then
+	  sed <$tmp.tmp \
+	    -e "/irix\.kernel\..*\.sysother: $unknown/d" \
+	    -e "/network.ip.badvers: $unknown/d" \
+	    -e "/network.ip.rawout: $unknown/d" \
+	    -e "/nfs3\..*: $unknown/d" \
+	    -e "/resource.syssegsz: $nosupport/d" \
+	    -e "/resource.vnodes.vnodes: $nosupport/d" \
+	    -e "/mem.emptymem: $nosupport/d" \
+	    -e "/network.socket.type: $nosupport/d" \
+	    -e "/network.socket.state: $nosupport/d" \
+	    -e "/network.tcp.badsyn: $nosupport/d" \
+	    -e "/network.tcp.listendrop: $nosupport/d" \
+	    -e "/network.tcp.persistdrop: $nosupport/d" \
+	    -e "/network.tcp.synpurge: $nosupport/d" \
+	    -e "/xfs.attr_get: $unknown/d" \
+	    -e "/xfs.attr_set: $unknown/d" \
+	    -e "/xfs.attr_remove: $unknown/d" \
+	    -e "/xfs.attr_list: $unknown/d" \
+	    -e "/swap.alloc: $unknown/d" \
+	    -e "/swap.reserve: $unknown/d" \
+	    -e "/swap.used: $unknown/d" \
+	    -e "/swap.unused: $unknown/d" \
+	    -e "/ipc.msg.cbytes: $missing/d" \
+	    -e "/ipc.msg.cbytes: $explicit/d" \
+	    -e "/ipc.msg.qbytes: $missing/d" \
+	    -e "/ipc.msg.qbytes: $explicit/d" \
+	    -e "/ipc.msg.qnum: $missing/d" \
+	    -e "/ipc.msg.qnum: $explicit/d" \
+	    -e "/ipc.sem.ncnt: $explicit/d" \
+	    -e "/ipc.sem.nsems: $missing/d" \
+	    -e "/ipc.sem.nsems: $explicit/d" \
+	    -e "/ipc.sem.zcnt: $explicit/d" \
+	    -e "/ipc.shm.nattch: $explicit/d" \
+	    -e "/ipc.shm.nattch: $missing/d" \
+	    -e "/ipc.shm.segsz: $explicit/d" \
+	    -e "/ipc.shm.segsz: $missing/d" \
+	    -e "/hinv.disk_sn: $nosupport/d" \
+	    -e "/hinv.interconnect: $nosupport/d" \
+	    -e "/hinv.map./d" \
+	    -e "/hinv.nxbow: $nosupport/d" \
+	    -e "/hw./d" \
+	    -e "/mem\.lpage/d" \
+	    -e "/network\.mcr/d" \
+	    -e "/vnodes\.vnodes: $nosupport/d" \
+	    -e 's/748 metrics, 150 getindom, 526 insitu, 79 ptr/... expected irix counts, see .\/003/' \
+	    -e 's/748 metrics, 150 getindom, 520 insitu, 85 ptr/... expected irix counts, see .\/003/' \
+	    -e 's/59 metrics, 0 getindom, 1 insitu, 1 ptr/... expected hw counts, see .\/003/' \
+	    -e 's/59 metrics, 7 getindom, 53 insitu, 6 ptr/... expected pmcd counts, see .\/003/' \
+	    -e 's/30 metrics, 7 getindom, 20 insitu, 3 ptr/... expected hinv counts, see .\/003/'
+
+	    # note above, irix count repeated because 6 metrics are 32-bit or 
+	    # 64-bit depending on the booted kernel, hence insitu and ptr 
+	    # are +/ 6
+
+    elif $irix6_5
+    then
+	  # two irix sets, due to n32 vs 464 differences in libirixpmda
+	  # and differences in metric availability on the different
+	  # platforms
+	  # ditto for the hw and hinv metrics
+	  #
+	  sed <$tmp.tmp \
+	    -e "/irix\.kernel\..*\.sysother: $unknown/d" \
+	    -e "/network.ip.badvers: $unknown/d" \
+	    -e "/network.ip.rawout: $unknown/d" \
+	    -e "/nfs3\..*: $unknown/d" \
+	    -e "/resource.syssegsz: $nosupport/d" \
+	    -e "/resource.vnodes.vnodes: $nosupport/d" \
+	    -e "/mem.emptymem: $nosupport/d" \
+	    -e "/xfs.attr_get: $unknown/d" \
+	    -e "/xfs.attr_set: $unknown/d" \
+	    -e "/xfs.attr_remove: $unknown/d" \
+	    -e "/xfs.attr_list: $unknown/d" \
+	    -e "/swap.alloc: $unknown/d" \
+	    -e "/swap.reserve: $unknown/d" \
+	    -e "/swap.used: $unknown/d" \
+	    -e "/swap.unused: $unknown/d" \
+	    -e "/ipc.msg.cbytes: $missing/d" \
+	    -e "/ipc.msg.cbytes: $explicit/d" \
+	    -e "/ipc.msg.qbytes: $missing/d" \
+	    -e "/ipc.msg.qbytes: $explicit/d" \
+	    -e "/ipc.msg.qnum: $missing/d" \
+	    -e "/ipc.msg.qnum: $explicit/d" \
+	    -e "/ipc.sem.ncnt: $explicit/d" \
+	    -e "/ipc.sem.nsems: $missing/d" \
+	    -e "/ipc.sem.nsems: $explicit/d" \
+	    -e "/ipc.sem.zcnt: $explicit/d" \
+	    -e "/ipc.shm.nattch: $explicit/d" \
+	    -e "/ipc.shm.segsz: $explicit/d" \
+	    -e "/ipc.shm.nattch: $missing/d" \
+	    -e "/ipc.shm.segsz: $missing/d" \
+	    -e "/mem.zfree: $nosupport/d" \
+	    -e "/mem.zonemem: $nosupport/d" \
+	    -e "/mem.zreq: $nosupport/d" \
+	    -e "/network.tcp.pcbcachemiss: $nosupport/d" \
+	    -e "/network.udp.pcbcachemiss: $nosupport/d" \
+	    -e "/hw\.router\..*: $unavailable/d" \
+	    -e "/hw\.hub\..*: $unavailable/d" \
+	    -e "/hinv.disk_sn: $nosupport/d" \
+	    -e "/hinv.node_distance: $unavailable/d" \
+	    -e "/hinv.ntape: $unavailable/d" \
+	    -e "/hinv.interconnect: $unavailable/d" \
+	    -e "/hinv.map.node: $unavailable/d" \
+	    -e "/hinv.map.router: $unavailable/d" \
+	    -e "/hinv.map.routerport: $unavailable/d" \
+	    -e "/hinv.map.cpu: $unavailable/d" \
+	    -e "/hinv.map.xbow: $unavailable/d" \
+            -e "/hinv.xvm.ve_tree: $unavailable/d" \
+	    -e "/hw.r10kevctr.*: pmFetch: Try again. Information/d" \
+	    -e "/hw.r10kevctr.*: $nosupport/d" \
+	    -e "/hw.evctr.*: pmFetch: Try again. Information/d" \
+	    -e "/hw.evctr.*: $nosupport/d" \
+	    -e "/mem\.lpage/d" \
+	    -e "/vnodes\.vnodes: $nosupport/d" \
+	    -e 's/748 metrics, 234 getindom, 391 insitu, 251 ptr/... expected irix counts, see .\/003/' \
+	    -e 's/748 metrics, 234 getindom, 447 insitu, 255 ptr/... expected irix counts, see .\/003/' \
+	    -e 's/59 metrics, 26 getindom, 1 insitu, 1 ptr/... expected hw counts, see .\/003/' \
+	    -e 's/59 metrics, 26 getindom, 18 insitu, 10 ptr/... expected hw counts, see .\/003/' \
+	    -e 's/30 metrics, 12 getindom, 20 insitu, 4 ptr/... expected hinv counts, see .\/003/' \
+	    -e 's/30 metrics, 12 getindom, 20 insitu, 10 ptr/... expected hinv counts, see .\/003/' \
+	    -e 's/59 metrics, 7 getindom, 53 insitu, 6 ptr/... expected pmcd counts, see .\/003/'
+
+    elif $linux
+    then
+	  sed <$tmp.tmp \
+	    -e "/disk\.all\.avactive: $unavailable/d" \
+	    -e "/disk\.all\.aveq: $unavailable/d" \
+	    -e "/disk\.all\..*_bytes: $unavailable/d" \
+	    -e "/disk\.dev\.avactive: $unavailable/d" \
+	    -e "/disk\.dev\.aveq: $unavailable/d" \
+	    -e "/disk\.dev\..*_bytes: $unavailable/d" \
+	    -e "/disk\.partitions\./d" \
+	    -e "/disk\.xvm\..*: $unavailable/d" \
+	    -e "/hinv\.interconnect: $unavailable/d" \
+	    -e "/hinv\.map\.cpu: $unavailable/d" \
+	    -e "/hinv\.map\.disk: $unavailable/d" \
+	    -e "/hinv\.map\.node: $unavailable/d" \
+	    -e "/hinv\.map\.routerport: $unavailable/d" \
+	    -e "/hinv\.map\.router: $unavailable/d" \
+	    -e "/hinv\.map\.scsi: $unavailable/d" \
+	    -e "/hinv\.map\.xbow: $unavailable/d" \
+	    -e "/hinv\.nxbow: $nyi/d" \
+	    -e "/hw\.hub\..*: $missing/d" \
+	    -e "/hw\.hub\..*: $unavailable/d" \
+	    -e "/hw\.router\..*: $unavailable/d" \
+	    -e "/kernel\..*\.syscall: $unavailable/d" \
+	    -e "/mem\.slabinfo\.objects\.active: $unavailable/d" \
+	    -e "/mem\.slabinfo\.objects\.size: $unavailable/d" \
+	    -e "/mem\.slabinfo\.objects\.total: $unavailable/d" \
+	    -e "/mem\.slabinfo\.slabs\.active: $unavailable/d" \
+	    -e "/mem\.slabinfo\.slabs\.objects_per_slab: $unavailable/d" \
+	    -e "/mem\.slabinfo\.slabs\.pages_per_slab: $unavailable/d" \
+	    -e "/mem\.slabinfo\.slabs\.total: $unavailable/d" \
+	    -e "/mem.\util\.shared: $unavailable/d" \
+	    -e "/nfs3\.server\..*: $unavailable/d" \
+	    -e "/nfs.*\.client\.calls: $unavailable/d" \
+	    -e "/nfs.*\.client\.reqs: $unavailable/d" \
+	    -e "/nfs\.server\..*: $unavailable/d" \
+	    -e '/pmcd\.simabi/d' \
+	    -e "/rpc\.client\..*: $unavailable/d" \
+	    -e "/rpc\.server\..*: $unavailable/d" \
+	    -e "/sampledso\.sysinfo: $nosupport/d" \
+	    -e "/sample\.sysinfo: $nosupport/d" \
+	    -e "/xfs\..*: $unavailable/d" \
+
+    else
+	echo "Arrgh ... need filter for your OS!"
+	exit 1
+
+    fi
+done

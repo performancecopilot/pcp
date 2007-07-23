@@ -1,0 +1,7 @@
+QA output created by 204
+
+pmlogger with no -h
+Performance metrics from host REALHOSTNAME
+
+pmlogger -h localhost
+Performance metrics from host REALHOSTNAME

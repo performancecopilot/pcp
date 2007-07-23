@@ -1,0 +1,90 @@
+#! /bin/sh
+# PCP QA Test No. 044
+# $Revision: 2.6 $
+# check pmval and pminfo for numval == 0 and < 0
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+_filter()
+{
+    sed -e '/Warning.*license/d'
+}
+
+_doit()
+{
+    rm -f core
+    pmval -s 1 $m 2>$tmp.err | _filter
+    _filter <$tmp.err
+    case $1
+    in
+	proc.*)
+	    # impossible pid
+	    pmval -s 1 -i 123456789 $m 2>$tmp.err | _filter
+	    _filter <$tmp.err
+	    ;;
+    esac
+    if [ -f core ]
+    then
+	echo "Arrgh, pmval dumped core"
+	ls -l core
+	file core
+    fi
+
+    rm -f core
+    pminfo -f $m
+    if [ -f core ]
+    then
+	echo "Arrgh, pminfo dumped core"
+	ls -l core
+	file core
+    fi
+
+}
+
+seq=`basename $0`
+
+rm -f $seq.out
+. ./localconfig
+if [ $PCP_PLATFORM = linux ]
+then
+    ln $seq.linux $seq.out
+elif [ $PCP_PLATFORM = irix ]
+then
+    ln $seq.irix $seq.out
+else
+    echo "Warning: no validated output for $PCP_PLATFORM"
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+
+for m in sample.noinst sampledso.needprofile \
+	proc.psinfo.pid proc.pstatus.syscall proc.pscred.ngroups \
+	proc.psusage.starttime proc.memory.physical.stack
+do
+    case $m
+    in
+	proc.*)
+	    [ $PCP_PLATFORM = linux ] && continue
+	    ;;
+    esac
+    _doit $m
+done
+
+if [ $PCP_PLATFORM = linux ]
+then
+    # impossible pid
+    echo
+    pmval -s 1 -i 123456789 proc.psinfo.utime 2>$tmp.err | _filter
+    _filter <$tmp.err
+    echo
+fi

@@ -1,0 +1,29 @@
+QA output created by 026
+
+Default Context
+
+Oneline Text: Metrics with a "saw-tooth" trend over time
+
+Oneline InDomText: Instance domain "colour" for sample PMDA
+
+Help Text: This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range N to
+N+100, then back to N.  The different instances have different N values,
+namely 100 (red), 200 (green) and 300 (blue).
+
+Help InDomText: Universally 3 instances, "red" (0), "green" (1) and "blue" (3).
+
+New Context
+
+Oneline Text: Metrics with a "saw-tooth" trend over time
+
+Oneline InDomText: Instance domain "colour" for sample PMDA
+
+Help Text: This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range N to
+N+100, then back to N.  The different instances have different N values,
+namely 100 (red), 200 (green) and 300 (blue).
+
+Help InDomText: Universally 3 instances, "red" (0), "green" (1) and "blue" (3).

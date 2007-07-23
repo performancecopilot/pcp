@@ -1,0 +1,25 @@
+QA output created by 150
+=== input archive ===
+
+pmval: pmFetchArchive: End of PCP archive log
+
+metric: hinv.ncpu
+host: snort
+start: Thu Apr 8 15:11:09 2004
+end: Thu Apr 8 15:21:25 2004
+semantics: discrete instantaneous value
+units: none
+samples: all
+15:11:10.106 10
+=== reduced archive ===
+
+pmval: pmFetchArchive: End of PCP archive log
+
+metric: hinv.ncpu
+host: snort
+start: Thu Apr 8 15:11:30 2004
+end: Thu Apr 8 15:21:00 2004
+semantics: discrete instantaneous value
+units: none
+samples: all
+15:11:30.000 10

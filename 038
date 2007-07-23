@@ -1,0 +1,202 @@
+#! /bin/sh
+# PCP QA Test No. 038
+# $Revision: 2.14 $
+# pmlogger would die with horrible errors when diagnostics enabled, due
+# to early timer events
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+os=bozoix.
+case `uname`
+in
+    *IRIX*|*Linux)
+	os=''
+	;;
+    *HP*)
+	os=hpux.
+	;;
+esac
+
+_filter_dumplog()
+{
+    _filter_dumpresult_os | sed \
+	-e '/inst /{
+s;inst \[[0-9][0-9]* or ".*/dbs/.*\.dbf"];inst [FILE];
+}'
+
+}
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+rm -f $tmp.*
+cat <<End-of-File >$tmp.config
+log mandatory on 1 sec {
+    sample.control
+    sample.milliseconds
+    sample.load
+    sample.colour
+    sample.bin
+    sample.bucket
+    sample.drift
+    sample.step
+    sample.write_me
+    sample.lights
+    sample.magnitude
+    sample.sysinfo
+    sample.pdu
+    sample.recv_pdu
+    sample.xmit_pdu
+    sample.noinst
+    ${os}disk.all.read
+    ${os}disk.all.write
+    ${os}disk.all.total
+    ${os}disk.all.blkread
+    ${os}disk.all.blkwrite
+    ${os}disk.all.blktotal
+    ${os}disk.all.active
+    ${os}disk.all.response
+    ${os}disk.all.bytes
+    ${os}disk.all.read_bytes
+    ${os}disk.all.write_bytes
+    ${os}disk.all.avg_disk.active
+    ${os}disk.all.avg_disk.response
+    ${os}kernel.all.cpu.idle
+    ${os}kernel.all.cpu.intr
+    ${os}kernel.all.cpu.sys
+    ${os}kernel.all.cpu.sxbrk
+    ${os}kernel.all.cpu.user
+    ${os}kernel.all.cpu.wait.total
+    ${os}kernel.all.cpu.wait.gfxc
+    ${os}kernel.all.cpu.wait.gfxf
+    ${os}kernel.all.cpu.wait.io
+    ${os}kernel.all.cpu.wait.pio
+    ${os}kernel.all.cpu.wait.swap
+    ${os}kernel.all.io.iget
+    ${os}kernel.all.io.bread
+    ${os}kernel.all.io.bwrite
+    ${os}kernel.all.io.lread
+    ${os}kernel.all.io.lwrite
+    ${os}kernel.all.io.phread
+    ${os}kernel.all.io.phwrite
+    ${os}kernel.all.io.wcancel
+    ${os}kernel.all.io.namei
+    ${os}kernel.all.io.dirblk
+    ${os}kernel.all.swap.swpocc
+    ${os}kernel.all.swap.swpque
+    ${os}kernel.all.load
+    ${os}kernel.all.users
+    ${os}kernel.all.pswitch
+    ${os}kernel.all.readch
+    ${os}kernel.all.runocc
+    ${os}kernel.all.runque
+    ${os}kernel.all.syscall
+    ${os}kernel.all.sysexec
+    ${os}kernel.all.sysfork
+    ${os}kernel.all.sysread
+    ${os}kernel.all.syswrite
+    ${os}kernel.all.writech
+    ${os}kernel.all.tty.recvintr
+    ${os}kernel.all.tty.xmitintr
+    ${os}kernel.all.tty.mdmintr
+    ${os}kernel.all.tty.out
+    ${os}kernel.all.tty.raw
+    ${os}kernel.all.tty.canon
+    ${os}kernel.all.intr.vme
+    ${os}kernel.all.intr.non_vme
+    ${os}kernel.all.ipc.msg
+    ${os}kernel.all.ipc.sema
+    ${os}kernel.all.pty.masterch
+    ${os}kernel.all.pty.slavech
+    ${os}kernel.all.flock.alloc
+    ${os}kernel.all.flock.inuse
+    hinv.ncpu
+    hinv.dcache
+    hinv.icache
+    hinv.physmem
+    hinv.pmeminterleave
+    hinv.ndisk
+}
+End-of-File
+
+rm -f core
+# -D 511 is all of the PMAPI debug flags, excluding PM_TRACE_AF (the
+# latter is non-deterministic, unfortunately)
+pmlogger -D 511 -c $tmp.config -s 2 -l $tmp.log $tmp >$tmp.out 2>&1 &
+logger_pid=$!
+
+wait
+
+if [ -f core ]
+then
+    echo "Arrgh ... pmlogger dumped core?"
+    ls -l core
+    file core
+else
+    echo "OK, pmlogger survived"
+fi
+
+# The traces and the list of metrics depend on which operating
+# system you're running on.  There is no real point in generating all
+# this output (filtered diagnostics and verbose pmdumplog) because
+# I expect to be different.
+# -Ken 1 June 2001
+#
+# Simple sanity check on the number of pmResults in the archive ...
+
+echo
+echo "count records in archive (expect 1 for preamble + 2) ..."
+pmdumplog $tmp 2>&1 \
+| _filter_dumplog \
+| sed -n -e '/TIMESTAMP/s/STAMP.*/STAMP/p'
+
+# and truncate the test here!
+#
+exit
+
+# enable this to see what is really happening!
+echo "=== out ===" >038.full
+cat $tmp.out >>038.full
+echo >>038.full
+echo "=== log ===" >>038.full
+cat $tmp.log >>038.full
+
+# may need this yet...
+# 
+# filter output and sum by diagnostic type
+cat $tmp.out $tmp.log \
+| sed \
+    -e '/success*/d' \
+    -e 's/Log f.*/Log/g' \
+    -e 's/searchindom/__localLogGetInDom/g' \
+| _filter_dumpresult_os \
+| sed \
+    -e 's/^\[[0-9][0-9]*]//' \
+    -e '/^[0-9][0-9][0-9]:/d' \
+    -e 's/^  *//' \
+    -e 's/After loading config/After_loading_config/' \
+    -e 's/Dump Contexts/Dump_Contexts/' \
+    -e 's/Dump Instance Profile/Dump_Instance_Profile/' \
+    -e 's/Dump optfetch/Dump_optfetch/' \
+    -e 's/free pdubuf/free_pdubuf/' \
+    -e '/__pmDecodeXtendError/d' \
+    -e '/__pmFdLookupIPC/d' \
+    -e 's/[(: =].*//'
+
+# now, what is in the log? ...
+pmdumplog $tmp 2>&1 \
+| _filter_dumplog \
+| sed \
+	-e "/\"$logger_pid\"/s/$logger_pid/LOGGER_PID/g" \
+	-e '/pmcd.pmlogger.port/s/value .*/value PORT/' \
+	-e '/pmcd.pmlogger.host/s/value ".*/value "HOST"/' \
+| ./xlate_2_new_pmns

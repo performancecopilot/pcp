@@ -1,0 +1,50 @@
+#! /bin/sh
+# PCP QA Test No. 377
+# $Revision: 1.8 $
+# Prototype bit-field swizzling for endian support
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+
+if [ ! -f /usr/include/pcp/platform_defs.h ]
+then
+    echo "No /usr/include/pcp/platform_defs.h?" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+elif grep '#define HAVE_BITFIELDS_LTOR' /usr/include/pcp/platform_defs.h >/dev/null 2>&1
+then
+    : OK, run it
+else
+    echo "HAVE_BITFIELDS_LTOR is false" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== read external format ==="
+src-oss/read-bf <src-oss/sgi.bf
+
+echo
+echo "=== write external format ==="
+src-oss/write-bf >$tmp.out
+cmp src-oss/sgi.bf $tmp.out
+
+# success, all done
+status=0
+exit

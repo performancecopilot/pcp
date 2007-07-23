@@ -1,0 +1,121 @@
+#! /bin/sh
+# PCP QA Test No. 501
+# COPY of PCP QA Test No. 413 with different 2.0/2.0+ output ...
+# $Revision: 1.12 $
+# #552517 pmie dumps core with bad metric and -V or -W
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=nathans
+
+seq=`basename $0`
+host=`hostname`
+echo "QA output created by $seq"
+
+rm -f $seq.out
+if [ $PCP_PLATFORM = linux ]
+then
+    ln $seq-linux.out $seq.out
+else
+    ln $seq-irix.out $seq.out
+fi
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    _filter_pmie_log \
+    | sed \
+        -e 's/:  *[0-9][0-9]*\.[0-9]*e[-+][0-9][0-9]*/: NUMBER/' \
+        -e 's/:  *[0-9][0-9]*e[-+][0-9][0-9]*/: NUMBER/' \
+        -e 's/:  *[0-9][0-9]*\.[0-9]*/: NUMBER/' \
+        -e 's/:  *[0-9][0-9]*/: NUMBER/' \
+        -e "s/$host/HOST/"
+}
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1        # failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+./sudo rm -f core $seq.core
+
+# real QA test starts here
+
+for arg in -v -V -W
+do
+    echo
+    echo "=== pmie $arg ... ==="
+    cat <<End-of-File | pmie -l $tmp.log $arg -t 2sec -T 3sec >$tmp.out
+// arithmetic expressions
+valid_a = hinv.ncpu;
+alone_a = no.such.metric;
+sum1_a = irix.mem.physmem + no.such.metric;
+sum2_a = no.such.metric + irix.mem.physmem;
+product_a = no.such.metric * hinv.physmem;
+compound1_a = irix.mem.physmem + no.such.metric * hinv.ncpu;
+compound2_a = (no.such.metric + irix.mem.physmem) * hinv.ncpu;
+
+// boolean expressions
+valid_b = 0 < hinv.ncpu;
+alone_b = 0 < no.such.metric;
+sum1_b = 0 < irix.mem.physmem + no.such.metric;
+sum2_b = 0 < no.such.metric + irix.mem.physmem;
+product_b = 0 < no.such.metric * hinv.physmem;
+compound1_b = 0 < irix.mem.physmem + no.such.metric * hinv.ncpu;
+compound2_b = 0 < (no.such.metric + irix.mem.physmem) * hinv.ncpu;
+
+// existential expressions
+valid_s = some_inst 500 < sample.bin;
+alone_s = some_inst 0 < no.such.metric;
+sum1_s = some_inst 0 < sample.bin + no.such.metric;
+sum2_s = some_inst 0 < no.such.metric + sample;
+product_s = some_inst 0 < no.such.metric * sample.bin;
+compound1_s = some_inst 0 < sample.bin + no.such.metric * sample.bin;
+compound2_s = some_inst 0 < (no.such.metric + irix.mem.physmem) * hinv.ncpu;
+
+// no support
+one = sample.long.one;
+no1 = sample.bad.nosupport;
+no2 = sample.long.one + sample.bad.nosupport;
+mill = -1 * (sample.long.one - (sample.long.one + sample.long.ten + sample.long.million)) / sample.long.one;
+no3 = (sample.long.one - (sample.long.one + sample.long.ten + sample.bad.nosupport)) / sample.long.one;
+no4 = (sample.long.one - (sample.long.one + sample.long.ten + sample.long.million)) / sample.bad.nosupport;
+
+// not-numeric
+notnum1 = sample.string.hullo;
+notnum2 = 1 != sample.string.hullo;
+notnum3 = (sample.long.one - (sample.long.one + sample.long.ten + sample.string.hullo)) / sample.long.one;
+notnum4 = (sample.long.one - (sample.long.one + sample.long.ten + sample.long.million)) / sample.string.hullo;
+
+
+End-of-File
+
+    cat $tmp.out $tmp.log | _filter
+
+    echo
+    if [ -f core ]
+    then
+        echo -n "Arrgh, pmie dumped core ... "
+        if [ ! -f $seq.core ]
+        then
+            echo "saved as $seq.core"
+            mv core $seq.core
+        else
+            echo
+        fi
+    fi
+done
+
+if [ ! -f $seq.core ]
+then
+    # success, all done
+    status=0
+fi
+
+exit

@@ -1,0 +1,114 @@
+#! /bin/sh
+# PCP QA Test No. 304
+# $Revision: 1.11 $
+# exercise recording session control in pmlooger
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+LOCALHOST=`hostname`
+
+_do()
+{
+    rm -f $tmp.0 $tmp.index $tmp.meta
+    cat $tmp.ctl \
+    | pmlogger -L -x 0 -c /dev/null -l $tmp.log -D appl2 $tmp &
+    logger_pid=$!
+    sleep 3
+    alive=`ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == '"$logger_pid"' { print }'`
+    if [ ! -z "$alive" ]
+    then
+	if [ $1 = "alive" ]
+	then
+	    echo "As expected, pmlogger is still running ... kill it off"
+	else
+	    echo "$alive"
+	    echo "-----------------"
+	    echo "- Error: pmlogger is still running, kill it off"
+	    echo "-----------------"
+	fi
+	kill -INT $!
+	sleep 2
+    else
+	if [ $1 = "alive" ]
+	then
+	    echo "-----------------"
+	    echo "- Error: pmlogger has died prematurely"
+	    echo "-----------------"
+	fi
+    fi
+
+    sed <$tmp.log \
+	-e "s/$LOCALHOST/HOST/g" \
+	-e 's/[0-9][^ ]* [kmKM]*bytes/SOME bytes/g' \
+	-e 's/[0-9][^ ]* seconds/SOME seconds/g' \
+	-e 's/-INT [0-9][0-9]*/-INT PID/' \
+	-e '/xconfirm: Not found/d' \
+    | _filter_pmlogger_log
+
+}
+# no xconfim(1), please
+#
+unset DISPLAY
+
+# real QA test starts here
+
+echo
+echo "=== end-of-file, launcher exited =="
+echo 'V0
+Fmyfolio' >$tmp.ctl
+_do die
+
+echo
+echo "=== Quit =="
+echo 'V0
+Fmyfolio
+Q' >$tmp.ctl
+_do die
+
+echo
+echo "=== Quit + can replay =="
+echo 'V0
+Fmyfolio
+R
+Q' >$tmp.ctl
+_do die
+
+echo
+echo "=== Detach =="
+echo 'V0
+Fmyfolio
+D' >$tmp.ctl
+_do alive
+
+echo
+echo "=== Status =="
+echo 'V0
+Fmyfolio
+?' >$tmp.ctl
+_do die
+
+echo
+echo "=== Bad control =="
+echo 'V0
+Fmyfolio
+Junk' >$tmp.ctl
+_do die
+
+# success, all done
+status=0
+exit

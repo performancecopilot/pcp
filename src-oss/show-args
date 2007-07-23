@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# quick and dirty "show me your arguments" tool
+
+echo $0 called
+i=1
+for arg
+do
+    echo "arg[$i] $arg"
+    i=`expr $i + 1`
+done

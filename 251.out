@@ -1,0 +1,227 @@
+QA output created by 251
+
+All volumes present ... bin-100 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 2
+
+metric:    sampledso.bin
+archive:   mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100 
+TIMESTAMP           100 
+TIMESTAMP           100 
+
+First volume missing ... bin-100 ...
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 2
+
+metric:    sampledso.bin
+archive:   mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100 
+TIMESTAMP           100 
+TIMESTAMP           100 
+
+Last volume missing ... bin-100 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 2
+
+metric:    sampledso.bin
+archive:   mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100 
+TIMESTAMP           100 
+TIMESTAMP           100 
+
+Second volume missing ... bin-100 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 2
+
+metric:    sampledso.bin
+archive:   mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100 
+TIMESTAMP           100 
+TIMESTAMP           100 
+
+Second last volume missing ... bin-100 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 3
+
+metric:    sampledso.bin
+archive:   mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100 
+TIMESTAMP           100 
+TIMESTAMP           100 
+
+All volumes but second missing ... bin-100 ...
+__pmLogChangeVol: change to volume 1
+
+metric:    sampledso.bin
+archive:   mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  2.00 sec
+
+                bin-100 
+TIMESTAMP           100 
+
+All volumes present ... bin-100,bin-500,bin-900 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 2
+
+metric:    sampledso.bin
+archive:   mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100     bin-500     bin-900 
+TIMESTAMP           100         500         900 
+TIMESTAMP           100         500         900 
+
+First volume missing ... bin-100,bin-500,bin-900 ...
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 2
+
+metric:    sampledso.bin
+archive:   mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100     bin-500     bin-900 
+TIMESTAMP           100         500         900 
+TIMESTAMP           100         500         900 
+
+Last volume missing ... bin-100,bin-500,bin-900 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 2
+
+metric:    sampledso.bin
+archive:   mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100     bin-500     bin-900 
+TIMESTAMP           100         500         900 
+TIMESTAMP           100         500         900 
+
+Second volume missing ... bin-100,bin-500,bin-900 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 2
+
+metric:    sampledso.bin
+archive:   mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100     bin-500     bin-900 
+TIMESTAMP           100         500         900 
+TIMESTAMP           100         500         900 
+
+Second last volume missing ... bin-100,bin-500,bin-900 ...
+__pmLogChangeVol: change to volume 0
+__pmLogChangeVol: change to volume 1
+__pmLogChangeVol: change to volume 3
+
+metric:    sampledso.bin
+archive:   mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  2.00 sec
+
+                bin-100     bin-500     bin-900 
+TIMESTAMP           100         500         900 
+TIMESTAMP           100         500         900 
+
+All volumes but second missing ... bin-100,bin-500,bin-900 ...
+__pmLogChangeVol: change to volume 1
+
+metric:    sampledso.bin
+archive:   mv-bar
+host:      HOST
+start:     DATE
+end:       DATE
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  2.00 sec
+
+                bin-100     bin-500     bin-900 
+TIMESTAMP           100         500         900 

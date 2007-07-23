@@ -1,0 +1,80 @@
+QA output created by 428
+----------------------------
+Raw data (pmval -U)
+----------------------------
+
+Unique values for sample.long.write_me ...
+1024
+16
+256
+4096
+
+Unique values for sample.longlong.write_me ...
+1024
+16
+256
+4096
+
+Unique values for sample.float.write_me ...
+1024.
+16.00
+256.0
+4096.
+
+Unique values for sample.double.write_me ...
+1024.
+16.00
+256.0
+4096.
+
+Unique values for sample.string.write_me ...
+"1024"
+"16"
+"256"
+"4096"
+
+Unique values for sample.aggregate.write_me ...
+[00000010]
+[00000100]
+[00000400]
+[00001000]
+
+----------------------------
+Interpolated data (pmval -a)
+----------------------------
+
+Unique values for sample.long.write_me ...
+1024
+16
+256
+4096
+
+Unique values for sample.longlong.write_me ...
+1024
+16
+256
+4096
+
+Unique values for sample.float.write_me ...
+1024.
+16.00
+256.0
+4096.
+
+Unique values for sample.double.write_me ...
+1024.
+16.00
+256.0
+4096.
+
+Unique values for sample.string.write_me ...
+"1024"
+"16"
+"256"
+"4096"
+
+Unique values for sample.aggregate.write_me ...
+[00000010]
+[00000100]
+[00000400]
+[00001000]

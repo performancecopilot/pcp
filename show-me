@@ -1,0 +1,162 @@
+#!/bin/sh
+#
+# Show me the QA tests that did not pass
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# $Id: show-me,v 2.34 2004/06/15 18:38:14 kenmcd Exp $
+#
+
+# generic initialization
+iam=show-me
+. ./common.rc
+
+HOST=`hostname`
+QA_HOST=
+QA_USER=
+QA_DIR=
+
+tmp=/tmp/$$
+trap "cd /; rm -rf $tmp; exit" 0 1 2 3 15
+rm -rf $tmp
+mkdir $tmp
+
+not_me=false
+local=true
+keep=false
+while getopts d:h:ku: c
+do
+   case $c in
+   d)       QA_DIR=$OPTARG
+	    not_me=true
+	    ;;
+
+   h)       QA_HOST=$OPTARG
+	    local=false
+	    ;;
+
+   k)	    keep=true
+   	    ;;
+
+   u)       QA_USER=$OPTARG
+	    not_me=true
+	    ;;
+
+   \?)      echo "Usage: show-me [-k] [-d dir] [-h host] [-u user] [test ...]"
+	    exit 2;;
+   esac
+done
+shift `expr $OPTIND - 1`
+
+if [ -z "$QA_DIR" ]
+then
+    if [ -z "$QA_HOST" -o "$QA_HOST" = localhost -o "$QA_HOST" = "`hostname`" ]
+    then
+	if [ -z "$QA_USER" -o "$QA_USER" = "$LOGNAME" ]
+	then
+	    # local and really me
+	    QA_DIR_DEFAULT=`pwd`
+	else
+	    QA_DIR_DEFAULT=`rsh -l "$QA_USER" "$QA_HOST" "/bin/ls -d isms/pcp[1-9]*/qa" 2>/dev/null | grep '^isms/' | tail -1`
+	fi
+    else
+	QA_DIR_DEFAULT=`rsh -l "$QA_USER" "$QA_HOST" "/bin/ls -d isms/pcp[1-9]*/qa" 2>/dev/null | grep '^isms/' | tail -1`
+    fi
+    if [ "$QA_DIR_DEFAULT" = "" ]
+    then
+        QA_DIR_DEFAULT=isms/pcp/qa
+    fi
+    QA_DIR="$QA_DIR_DEFAULT"
+fi
+
+if [ $# -eq -0 ]
+then
+    if $local
+    then
+	set - `echo *.out.bad \
+	       | tr ' ' '\012' \
+	       | sed -e 's/\.out\.bad//' \
+	       | LC_COLLATE=POSIX sort -n`
+    else
+	x=`rsh $QA_HOST -l $QA_USER echo $QA_DIR/\[0-9]*.out.bad 2>$tmp.err`
+	if [ -z "$x" ]
+	then
+	    if [ -s $tmp.err ]
+	    then
+		echo "rsh failed?"
+		cat $tmp.err
+	    else
+		echo "No failing tests!"
+	    fi
+	    exit
+	fi
+	set - `echo "$x" \
+	       | tr ' ' '\012' \
+	       | sed -e 's/.*\///' -e 's/.out.bad//' \
+	       | LC_COLLATE=POSIX sort -n`
+	echo "Failing tests: $*"
+    fi
+fi
+
+unset ROOT TOOLROOT
+quick=true
+check=false
+. ./common
+
+here=`pwd`
+
+for id
+do
+    if [ "$QA_HOST" != $HOST ]
+    then
+	echo "Fetch files from $QA_USER@$QA_HOST:$QA_DIR ..."
+	rm -f $tmp/$id.out.bad $tmp/$id.out
+	rcp $QA_USER@$QA_HOST:$QA_DIR/$id.out.bad $tmp
+	rcp $QA_USER@$QA_HOST:$QA_DIR/$id.out $tmp
+	cd $tmp
+    elif $not_me
+    then
+	if [ -d $QA_DIR ]
+	then
+	    cd $QA_DIR
+	else
+	    echo "$id: No directory: $QA_DIR"
+	    exit 1
+	fi
+    fi
+    echo -n "$id: "
+    if [ ! -f $id.out ]
+    then
+	echo "Could not find $id.out in `pwd`"
+    elif [ ! -f $id.out.bad ]
+    then
+	echo "Could not find $id.out.bad in `pwd`"
+    else
+	echo
+	if [ "$diff" = diff ]
+	then
+	    $diff -u $id.out $id.out.bad
+	else
+	    $diff $id.out $id.out.bad >/dev/null 2>&1
+	fi
+    fi
+    if $keep
+    then
+	if [ -f $here/$id.out.bad ]
+	then
+	    if diff -u $here/$id.out.bad $id.out.bad >diff.tmp
+	    then
+		# same
+		:
+	    else
+		echo "Warning: overwriting $id.out.bad ... diffs"
+		cat diff.tmp
+		rm -f $here/$id.out.bad
+		mv $id.out.bad $here
+	    fi
+	else
+	    mv $id.out.bad $here
+	fi
+    fi
+    cd $here
+done

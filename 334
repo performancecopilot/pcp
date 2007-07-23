@@ -1,0 +1,71 @@
+#! /bin/sh
+# PCP QA Test No. 334
+# $Revision: 1.10 $
+# Interp mode (similar to qa/313, but with purify)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN			{ skip = 1 }
+/^===/			{ print; next }
+/ Purify /		{ skip = 0 }
+/^FIU/			{ skip = 2; next }
+/^[^ 	]/ && skip == 2	{ skip = 0 }
+skip == 0		{ print }'
+}
+
+_check_purify src-oss/pmval
+
+echo "QA output created by $seq"
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+status=1	# failure is the default!
+trap "cd /; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+offset=`_arch_start src-oss/changeinst -0.25`
+_setup_purify src-oss/pmval
+
+for delta in 1sec 0.5sec
+do
+
+    echo "=== delta=$delta counter in each non-preamble result in all 3 sections ==="
+    _run_purify -O $offset -t $delta -z -a src-oss/changeinst sample.seconds | _filter
+
+    echo "=== delta=$delta counter in the 2nd section only ==="
+    _run_purify -O $offset -t $delta -z -a src-oss/changeinst sample.milliseconds | _filter
+
+    echo "=== delta=$delta instantaneous in 1st and 3rd sections ==="
+    _run_purify -O $offset -t $delta -z -a src-oss/changeinst sample.drift | _filter
+
+    echo "=== delta=$delta discrete and logged once in the 1st and 3rd sections ==="
+    _run_purify -O $offset -t $delta -z -a src-oss/changeinst hinv.ncpu | _filter
+
+    echo "=== delta=$delta counter and indom all over the place ==="
+    _run_purify -O $offset -t $delta -z -a src-oss/changeinst -i ec0,ec2,lo0 irix.network.interface.total.packets | _filter
+
+    echo "=== delta=$delta instantaneous and indom all over the place ==="
+    _run_purify -O $offset -t $delta -z -a src-oss/changeinst -i bin-100,bin-200,bin-300,bin-400,bin-500 sample.bin | _filter
+
+    echo "=== delta=$delta discrete logged once, different indom in each section ==="
+    _run_purify -O $offset -t $delta -z -a src-oss/changeinst pmcd.pmlogger.port | _filter
+
+done
+
+# all done
+status=0
+exit

@@ -1,0 +1,54 @@
+QA output created by 147
+Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29
+PMID(s): 29.0.6
+pmResult ... numpmid: 1
+  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+    inst [200 or ???] value 200
+    inst [300 or ???] value 300
+    inst [400 or ???] value 400
+    inst [500 or ???] value 500
+    inst [600 or ???] value 600
+    inst [700 or ???] value 700
+    inst [800 or ???] value 800
+    inst [900 or ???] value 900
+PMID(s): 29.0.6
+pmResult ... numpmid: 1
+  29.0.6 (sample.bin): numval: 4 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+    inst [400 or ???] value 400
+    inst [600 or ???] value 600
+    inst [800 or ???] value 800
+PMID(s): 29.0.6
+pmResult ... numpmid: 1
+  29.0.6 (sample.bin): numval: 4 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+    inst [400 or ???] value 400
+    inst [600 or ???] value 600
+    inst [800 or ???] value 800
+PMID(s): 30.0.6
+pmResult ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or ???] value 100
+    inst [200 or ???] value 200
+    inst [300 or ???] value 300
+    inst [400 or ???] value 400
+    inst [500 or ???] value 500
+    inst [600 or ???] value 600
+    inst [700 or ???] value 700
+    inst [800 or ???] value 800
+    inst [900 or ???] value 900
+PMID(s): 30.0.6
+pmResult ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 4 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+    inst [400 or ???] value 400
+    inst [600 or ???] value 600
+    inst [800 or ???] value 800
+PMID(s): 30.0.6
+pmResult ... numpmid: 1
+  30.0.6 (sampledso.bin): numval: 4 valfmt: 0 vlist[]:
+    inst [200 or ???] value 200
+    inst [400 or ???] value 400
+    inst [600 or ???] value 600
+    inst [800 or ???] value 800

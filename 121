@@ -1,0 +1,94 @@
+#! /bin/sh
+# PCP QA Test No. 121
+# $Revision: 2.9 $
+#
+# check that pmlogconf finds new groups, pv 893249
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+
+# need fix for pv 893249
+#
+. ./localconfig
+if [ $PCP_PLATFORM = linux -a $PCP_VER -ge 2310 ]
+then
+    # fix is in pcp-2.3.1-1
+    :
+elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -ge 6522 ]
+then
+    # IRIX 6.5.22 or later
+    :
+else
+    echo "need fix for pv #893249" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+rm -f $seq.full
+
+# real QA test starts here
+pmlogconf $tmp.in >/dev/null 2>&1
+echo "--- default config ---" >>$seq.full
+cat $tmp.in >>$seq.full
+
+# strip comments, empty lines and then strip the groups:
+#	D2
+#	K6 to M3
+sed <$tmp.in >$tmp.ref \
+    -e '/^#$/d' \
+    -e '/^# /d' \
+    -e '/^[ 	]*$/d'
+cat <<End-of-File >>$tmp.ref
+
+# DO NOT UPDATE THE FILE ABOVE THIS LINE
+# Otherwise any changes may be lost the next time pmlogconf is
+# used on this file.
+#
+# It is safe to make additions from here on ...
+#
+End-of-File
+
+$PCP_AWK_PROG <$tmp.ref >$tmp.tmp '
+/^\#\+ D2/		{ state = 1; next }
+state == 1 && /^\#----/	{ state = 0; next }
+/^\#\+ K6/		{ state = 2; next }
+state == 2 && /^\#\+ M3/{ state = 1; next }
+state == 0		{ print }'
+cp $tmp.tmp $tmp.in
+echo >>$seq.full
+echo "--- culled and stripped config ---" >>$seq.full
+cat $tmp.in >>$seq.full
+
+# now process again ... the diffs should be small
+#
+echo >>$seq.full
+echo "--- pmlogconf ---" >>$seq.full
+( echo q; echo y ) | pmlogconf $tmp.in >>$seq.full 2>&1
+
+echo >>$seq.full
+echo "--- final config ---" >>$seq.full
+cat $tmp.in >>$seq.full
+
+echo "Expect few differences ..."
+diff $tmp.ref $tmp.in
+
+# success, all done
+exit

@@ -1,0 +1,94 @@
+#! /bin/sh
+# PCP QA Test No. 325
+# $Revision: 1.13 $
+# pmprintf checks
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=nathans
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.product
+. ./common.check
+. ./common.config
+
+_cleanup()
+{
+    killall xconfirm xmessage pmprintf
+    rm -f $tmp.*
+}
+
+tmp=/tmp/$$
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+OLDXCONFIRMCNT=`ps $PCP_PS_ALL_FLAGS | fgrep xconfirm | fgrep -v fgrep | wc -l | tr -d ' '`
+[ "X$OLDXCONFIRMCNT" = X ] && OLDXCONFIRMCNT=0
+
+# Save state for restoration later
+OLDDISPLAY=$DISPLAY
+OLDSTDERR=$PCP_STDERR
+
+
+# Expect something on stderr
+unset PCP_STDERR
+src-oss/pmprintf foo bee doo
+
+
+# Expect something in an xconfirm
+DISPLAY=$PCPQA_CLOSE_X_SERVER
+export DISPLAY
+
+PCP_STDERR=DISPLAY
+export PCP_STDERR
+
+(src-oss/pmprintf some invisible text &)2>$tmp.err
+# wait for dialog to fire up
+sleep 3
+rm -f $tmp.out
+ps $PCP_PS_ALL_FLAGS | fgrep xconfirm | fgrep -v fgrep > $tmp.out
+XCONFIRMCNT=`cat $tmp.out | wc -l | tr -d ' '`
+[ "X$XCONFIRMCNT" = X ] && XCONFIRMCNT=0
+
+if [ $XCONFIRMCNT -gt $OLDXCONFIRMCNT ]
+then
+     echo "=== xconfirm started OK ==="
+else
+     echo "=== Urk, no change in number of xconfirms - $XCONFIRMCNT ==="
+     cat $tmp.out
+     echo
+     echo "Errors from src-oss/pmprintf?"
+     cat $tmp.err
+fi
+
+
+# Expect something in file
+[ -f  $tmp.pmprintf ] && rm -f $tmp.pmprintf
+PCP_STDERR=$tmp.pmprintf
+export PCP_STDERR
+src-oss/pmprintf sent all this text to a file
+src-oss/pmprintf and this too
+cat $tmp.pmprintf
+rm -f $tmp.pmprintf
+
+
+# Reset things for following QA tests
+DISPLAY=$OLDDISPLAY
+export DISPLAY
+if [ X = "X$OLDSTDERR" ]
+then
+    unset PCP_STDERR
+else
+    PCP_STDERR=$OLDSTDERR
+    export PCP_STDERR
+fi
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,242 @@
+QA output created by 299
+=== No instance and no error cases ===
+
+pmParseMetricSpec("sample", 1, "default_arch", ...)
+isarch:   1
+source:   "default_arch"
+metric:   "sample"
+
+pmParseMetricSpec("sample", 0, "default_host", ...)
+isarch:   0
+source:   "default_host"
+metric:   "sample"
+
+pmParseMetricSpec("my_arch/sample", 1, "default_arch", ...)
+isarch:   1
+source:   "my_arch"
+metric:   "sample"
+
+pmParseMetricSpec("my_host:sample", 0, "default_host", ...)
+isarch:   0
+source:   "my_host"
+metric:   "sample"
+
+pmParseMetricSpec("other_host:sample", 1, "default_arch", ...)
+isarch:   0
+source:   "other_host"
+metric:   "sample"
+
+pmParseMetricSpec("/other/arch/sample", 0, "default_host", ...)
+isarch:   1
+source:   "/other/arch"
+metric:   "sample"
+
+=== One instance and no error cases ===
+
+pmParseMetricSpec("sample[singular]", 1, "default_arch", ...)
+isarch:   1
+source:   "default_arch"
+metric:   "sample"
+inst[0]:  "singular"
+
+pmParseMetricSpec("sample[singular]", 0, "default_host", ...)
+isarch:   0
+source:   "default_host"
+metric:   "sample"
+inst[0]:  "singular"
+
+pmParseMetricSpec("my_arch/sample[singular]", 1, "default_arch", ...)
+isarch:   1
+source:   "my_arch"
+metric:   "sample"
+inst[0]:  "singular"
+
+pmParseMetricSpec("my_host:sample[singular]", 0, "default_host", ...)
+isarch:   0
+source:   "my_host"
+metric:   "sample"
+inst[0]:  "singular"
+
+pmParseMetricSpec("other_host:sample[singular]", 1, "default_arch", ...)
+isarch:   0
+source:   "other_host"
+metric:   "sample"
+inst[0]:  "singular"
+
+pmParseMetricSpec("/other/arch/sample[singular]", 0, "default_host", ...)
+isarch:   1
+source:   "/other/arch"
+metric:   "sample"
+inst[0]:  "singular"
+
+=== Multiple instances and no error cases ===
+
+pmParseMetricSpec("sample[one,two,three]", 1, "default_arch", ...)
+isarch:   1
+source:   "default_arch"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+pmParseMetricSpec("sample[one,two,three]", 0, "default_host", ...)
+isarch:   0
+source:   "default_host"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+pmParseMetricSpec("my_arch/sample[one,two,three]", 1, "default_arch", ...)
+isarch:   1
+source:   "my_arch"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+pmParseMetricSpec("my_host:sample[one,two,three]", 0, "default_host", ...)
+isarch:   0
+source:   "my_host"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+pmParseMetricSpec("other_host:sample[one,two,three]", 1, "default_arch", ...)
+isarch:   0
+source:   "other_host"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+pmParseMetricSpec("/other/arch/sample[one,two,three]", 0, "default_host", ...)
+isarch:   1
+source:   "/other/arch"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+=== Some whitespace cases ===
+
+pmParseMetricSpec(" my_host : sample [ one , two , three ] ", 0, "default_host", ...)
+isarch:   0
+source:   "my_host"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+pmParseMetricSpec("my_arch   /   sample  [singular]", 1, "default_arch", ...)
+isarch:   1
+source:   "my_arch   "
+metric:   "sample"
+inst[0]:  "singular"
+
+=== Miscellaneous cases ===
+
+pmParseMetricSpec("../../relative/pathname/myarch/metric", 0, "default_host", ...)
+isarch:   1
+source:   "../../relative/pathname/myarch"
+metric:   "metric"
+
+pmParseMetricSpec("metric.a.b.c.d[]", 0, "default_host", ...)
+isarch:   0
+source:   "default_host"
+metric:   "metric.a.b.c.d"
+
+pmParseMetricSpec("/full/pathname/myarch/metric[fumble mumble]", 0, "default_host", ...)
+isarch:   1
+source:   "/full/pathname/myarch"
+metric:   "metric"
+inst[0]:  "fumble"
+inst[1]:  "mumble"
+
+pmParseMetricSpec("./myarch/metric[fumble,,mumble]", 0, "default_host", ...)
+isarch:   1
+source:   "./myarch"
+metric:   "metric"
+inst[0]:  "fumble"
+inst[1]:  "mumble"
+
+pmParseMetricSpec("foo["instance with strange chars :/,[]\""]", 0, "default_host", ...)
+pmParseMetricSpec Error:
+foo["instance with strange chars :/,[]\""]
+                                      ^ -- unexpected extra characters
+
+
+=== Some error cases ===
+
+pmParseMetricSpec("one:two:three", 0, "default_host", ...)
+pmParseMetricSpec Error:
+one:two:three
+       ^ -- unexpected character in metric name
+
+
+pmParseMetricSpec("foo/bar[fumble]mumble", 0, "default_host", ...)
+pmParseMetricSpec Error:
+foo/bar[fumble]mumble
+               ^ -- unexpected extra characters
+
+
+pmParseMetricSpec("foo:bar:fumble[mumble]", 0, "default_host", ...)
+pmParseMetricSpec Error:
+foo:bar:fumble[mumble]
+       ^ -- unexpected character in metric name
+
+
+pmParseMetricSpec("foo:", 0, "default_host", ...)
+pmParseMetricSpec Error:
+foo:
+    ^ -- performance metric name expected
+
+
+pmParseMetricSpec("bad/arch/", 0, "default_host", ...)
+pmParseMetricSpec Error:
+bad/arch/
+         ^ -- performance metric name expected
+
+
+pmParseMetricSpec("/bad/arch/[", 0, "default_host", ...)
+pmParseMetricSpec Error:
+/bad/arch/[
+          ^ -- performance metric name expected
+
+
+pmParseMetricSpec("norsqb[", 0, "default_host", ...)
+pmParseMetricSpec Error:
+norsqb[
+       ^ -- closing ] expected
+
+
+pmParseMetricSpec("nolsqb-instance]", 0, "default_host", ...)
+pmParseMetricSpec Error:
+nolsqb-instance]
+               ^ -- unexpected character in metric name
+
+
+pmParseMetricSpec("metric["noclosingquote", 0, "default_host", ...)
+pmParseMetricSpec Error:
+metric["noclosingquote
+                      ^ -- closing ] expected
+
+
+pmParseMetricSpec("metric["noclosingquote]", 0, "default_host", ...)
+pmParseMetricSpec Error:
+metric["noclosingquote]
+                      ^ -- closing " expected
+
+
+pmParseMetricSpec("metric["noclosing]"", 0, "default_host", ...)
+pmParseMetricSpec Error:
+metric["noclosing]"
+                  ^ -- unexpected extra characters
+
+
+pmParseMetricSpec("metric["ends in backslash\", 0, "default_host", ...)
+pmParseMetricSpec Error:
+metric["ends in backslash\
+                          ^ -- closing ] expected
+

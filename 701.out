@@ -1,0 +1,10 @@
+QA output created by 701
+=== pmapi v2, 64-bit app, ascii format pmns ===
+differences relative to 031.out ...
+0a1
+> QA output created by 031
+
+=== pmapi v2, 64-bit app, binary format pmns ===
+differences relative to 031.out ...
+0a1
+> QA output created by 031

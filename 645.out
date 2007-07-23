@@ -1,0 +1,13 @@
+QA output created by 645
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Error: gethostbyname(nosuchhost), Unknown host
+error was on line 4
+
+Log finished DATE
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Error: gethostbyname(no-such-host), Unknown host
+error was on line 4
+
+Log finished DATE

@@ -1,0 +1,66 @@
+QA output created by 127
+
+Descriptions for Metrics in the Log ...
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 60.0.0 (kernel.percpu.cpu.user)
+    Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
+    Semantics: counter  Units: millisec
+PMID: 60.0.1 (kernel.percpu.cpu.nice)
+    Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
+    Semantics: counter  Units: millisec
+PMID: 60.0.2 (kernel.percpu.cpu.sys)
+    Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
+    Semantics: counter  Units: millisec
+PMID: 60.0.20 (kernel.all.cpu.user)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+PMID: 60.0.21 (kernel.all.cpu.nice)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+PMID: 60.0.22 (kernel.all.cpu.sys)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+PMID: 60.0.23 (kernel.all.cpu.idle)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+PMID: 60.0.28 (disk.dev.total)
+    Data Type: 64-bit unsigned int  InDom: 60.1 0xf000001
+    Semantics: counter  Units: count
+PMID: 60.0.29 (disk.all.total)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+PMID: 60.0.3 (kernel.percpu.cpu.idle)
+    Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
+    Semantics: counter  Units: millisec
+PMID: 60.0.30 (kernel.percpu.cpu.wait.total)
+    Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
+    Semantics: counter  Units: millisec
+PMID: 60.0.31 (kernel.percpu.cpu.intr)
+    Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
+    Semantics: counter  Units: millisec
+PMID: 60.0.32 (hinv.ncpu)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 60.0.34 (kernel.all.cpu.intr)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+PMID: 60.0.35 (kernel.all.cpu.wait.total)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+PMID: 60.1.1 (mem.util.used)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+PMID: 60.18.0 (hinv.cpu.clock)
+    Data Type: float  InDom: 60.0 0xf000000
+    Semantics: discrete  Units: count
+PMID: 60.2.0 (kernel.all.load)
+    Data Type: float  InDom: 60.2 0xf000002
+    Semantics: instant  Units: none

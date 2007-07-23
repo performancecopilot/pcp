@@ -1,0 +1,10 @@
+QA output created by 187
+map file for this host present
+map file for other host present
+map file for other-fqdn host present
+Waiting for PMCD to terminate ...
+Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) ...
+Performance Co-Pilot starting archive loggers ...
+map file for this host missing ... expected for this host when PMCD killed
+map file for other host present
+map file for other-fqdn host present

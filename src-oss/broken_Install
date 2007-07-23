@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# Install the broken PMDA and/or PMNS
+#
+# $Id: broken_Install,v 1.1 2002/10/25 01:33:55 kenmcd Exp $
+#
+
+# source the PCP configuration environment variables
+. /etc/pcp.env
+
+# Get the common procedures and variable assignments
+#
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+# The name of the PMDA
+#
+iam=broken
+
+# Do it
+#
+_setup
+
+dso_opt=false
+daemon_opt=false
+pmns_source=broken_pmns
+help_source=broken_help
+
+_install
+
+exit 0

@@ -1,0 +1,73 @@
+#!/bin/sh
+# PCP QA Test No. 560
+# $Revision: 1.10 $
+# #681487 error handling in pmdaproc.sh dialogs
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./localconfig
+if [ $PCP_EOE_VER -eq 2000 -o \
+    \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -le 6504 \) ] ; then
+    echo "This test is applicable on PCP 2.0 or Irix 6.5[0-4]" > $seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
+
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cd $PCP_PMDAS_DIR/simple
+
+$sudo make clobber >/dev/null 2>&1
+$sudo make >/dev/null 2>&1
+
+unset ROOT
+
+cat <<End-of-File | $sudo ./Install >$tmp.out 2>&1
+foo
+both
+foo
+daemon
+foo
+socket
+foo
+Unix
+
+Internet
+
+End-of-File
+
+sed <$tmp.out \
+    -e '/.[0-9][0-9]* hash table entries/d' \
+    -e '/.[0-9][0-9]* leaf nodes/d' \
+    -e '/.[0-9][0-9]* non-leaf nodes/d' \
+    -e '/.[0-9][0-9]* bytes of symbol table/d' \
+    -e '/Compiled PMNS contains/d' \
+    -e '/make: Nothing to be done/d'
+
+echo "in \$PCP_PMCDCONF_PATH ..."
+sed -n "/^simple/s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;p" <$PCP_PMCDCONF_PATH
+
+$sudo ./Remove
+
+# success, all done
+status=0
+exit

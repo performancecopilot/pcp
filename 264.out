@@ -1,0 +1,51 @@
+QA output created by 264
+pmnsinarchives: _pmGetChildren: Unknown metric name
+
+*** Build up the PMNS from metrics... ***
+Number of metrics = 5
+Adding node: "abc.def.ghi"[100]
+Adding node: "abc.def.jkl"[200]
+Adding node: "abc.mno"[300]
+Adding node: "pqr.rst.uvw"[400]
+Adding node: "pqr.xyz"[500]
+
+*** Check PMNS is ok ***
+
+--- Dump out PMNS ---
+ root            
+     pqr             
+         xyz              500 0.0.500 0x000001f4
+         rst             
+             uvw              400 0.0.400 0x00000190
+     abc             
+         mno              300 0.0.300 0x0000012c
+         def             
+             jkl              200 0.0.200 0x000000c8
+             ghi              100 0.0.100 0x00000064
+
+--- Test out pmLookupName ---
+100 matches for name lookup
+200 matches for name lookup
+300 matches for name lookup
+400 matches for name lookup
+500 matches for name lookup
+
+--- Test out pmNameID for matches ---
+abc.def.ghi matches for id lookup
+abc.def.jkl matches for id lookup
+abc.mno matches for id lookup
+pqr.rst.uvw matches for id lookup
+pqr.xyz matches for id lookup
+
+--- Test out pmGetChildren ---
+Children of abc:
+  mno
+  def
+Children of pqr:
+  xyz
+  rst
+Children of abc.def:
+  jkl
+  ghi
+Children of def:
+Children of abc.def.ghi:

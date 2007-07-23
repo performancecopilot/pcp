@@ -1,0 +1,13 @@
+QA output created by 123
+         1.0 Ebyte / sec ->       1024.0 Pbyte / sec
+         2.0 Pbyte / sec ->       2048.0 Tbyte / sec
+         4.0 Tbyte / sec ->       4096.0 Gbyte / sec
+         8.0 Gbyte / sec ->       8192.0 Mbyte / sec
+        16.0 Mbyte / sec ->      16384.0 Kbyte / sec
+        32.0 Kbyte / sec ->      32768.0 byte / sec
+     32768.0 byte / sec ->         32.0 Kbyte / sec
+     16384.0 Kbyte / sec ->         16.0 Mbyte / sec
+      8192.0 Mbyte / sec ->          8.0 Gbyte / sec
+      4096.0 Gbyte / sec ->          4.0 Tbyte / sec
+      2048.0 Tbyte / sec ->          2.0 Pbyte / sec
+      1024.0 Pbyte / sec ->          1.0 Ebyte / sec

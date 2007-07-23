@@ -1,0 +1,22 @@
+QA output created by 052
+ASCII
+one
+two
+buckle.my.shoe
+
+Compiled PMNS contains
+	    1 hash table entries
+	    3 leaf nodes
+	    3 non-leaf nodes
+	   28 bytes of symbol table
+
+Binary, default
+one
+two
+buckle.my.shoe
+
+Binary, explicit
+one
+two
+buckle.my.shoe
+

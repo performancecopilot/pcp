@@ -1,0 +1,153 @@
+#! /bin/sh
+# PCP QA Test No. 119
+# $Revision: 2.18 $
+#
+# pmlogger_check failure produces way too many lines of output
+# pv 877570
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+
+# need fix for pv 877570
+#
+. ./localconfig
+if [ $PCP_PLATFORM = linux -a $PCP_VER -ge 2300 ]
+then
+    # fix is in pcp-2.3.0-11
+    :
+elif [ $PCP_PLATFORM = irix -a $PCP_VER -ge 2400 ]
+then
+    # PCP 2.4 or later
+    :
+else
+    echo "need fix for pv #877570" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out
+if pmlogger_check -x 2>&1 | grep NTV >/dev/null
+then
+    # new version with -T option
+    #
+    have_T=true
+    ln $seq.new.out $seq.out
+else
+    # old version
+    #
+    have_T=false
+    ln $seq.old.out $seq.out
+fi
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+$sudo rm -rf $tmp.*
+status=1	# failure is the default!
+_needclean=true
+
+trap "_cleanup" 0 1 2 3 15
+
+_cleanup()
+{
+    if $_needclean
+    then
+	[ -f $tmp.control ] && \
+	    $sudo cp $tmp.control $PCP_VAR_DIR/config/pmlogger/control
+	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    $sudo rm -f $tmp.*
+    $sudo rm -rf $LOGGING_DIR/`hostname`-one
+    $sudo rm -rf $LOGGING_DIR/`hostname`-two
+    $sudo rm -rf $LOGGING_DIR/no.such.host
+    exit $status
+}
+
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+
+_filter()
+{
+    sed \
+	-e "s/`hostname`/LOCALHOST/g" \
+	-e "/UID.*PID/d" \
+	-e "s/.* pmlogger .*-c .*/<pmlogger process>/" \
+	-e "/Warning: creating directory/s/(.*\/\([^/][^/]*\))/(...\/\1)/" \
+    | _filter_pmlogger_log \
+    | $PCP_AWK_PROG '
+/pmlogger_check: Error: archive file .* missing/ {
+		    $5 = "FILE"
+		    print
+		    skip = 1
+		    next
+		}
+skip == 1	{ next }
+		{ print }'
+}
+
+$sudo cp $PCP_VAR_DIR/config/pmlogger/control $tmp.control
+cat <<End-of-File >$tmp.tmp
+# dummy file created by qa/$seq on `date`
+# the goal here is to have just two pmlogger instances running and
+# a third one that will never run ...
+#
+\$version=1.1
+LOCALHOSTNAME	y n $LOGGING_DIR/LOCALHOSTNAME-one -c /dev/null
+LOCALHOSTNAME	n n $LOGGING_DIR/LOCALHOSTNAME-two -c /dev/null -L
+no.such.host	n n $LOGGING_DIR/no.such.host -c /dev/null
+End-of-File
+$sudo cp $tmp.tmp $PCP_VAR_DIR/config/pmlogger/control
+
+# stop pmcd, create the archive directories, start pmcd ...
+#
+$sudo $PCP_RC_DIR/pcp stop >$tmp.out 2>&1
+cat $tmp.out >$seq.full
+$sudo mkdir -p $LOGGING_DIR/`hostname`-one >/dev/null 2>&1
+$sudo mkdir -p $LOGGING_DIR/`hostname`-two >/dev/null 2>&1
+$sudo mkdir -p $LOGGING_DIR/no.such.host >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pcp start >$tmp.out 2>&1
+cat $tmp.out >>$seq.full
+_wait_for_pmcd
+
+# real QA test starts here
+
+echo
+echo "=== pmlogger_check ==="
+echo >>$seq.full
+echo "=== pmlogger_check ===" >>$seq.full
+$sudo pmlogger_check >$tmp.out 2>&1
+_filter <$tmp.out
+cat $tmp.out >>$seq.full
+
+if $have_T
+then
+    echo
+    echo "=== pmlogger_check -T ==="
+    echo >>$seq.full
+    echo "=== pmlogger_check -T ===" >>$seq.full
+    $sudo pmlogger_check -T >$tmp.out 2>&1
+    _filter <$tmp.out
+    cat $tmp.out >>$seq.full
+fi
+
+# all OK
+status=0
+exit

@@ -1,0 +1,114 @@
+#!/bin/sh
+# PCP QA Test No. 555
+# $Revision: 1.13 $
+# pmie syslog(3) changes and parsing -t tag and -p pri arguments in
+# a syslog action
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
+echo "QA output created by $seq"
+
+. ./localconfig
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+# syslog	logger -p
+# 5D		daemon.notice		<--- default
+# 6D		daemon.info
+# 4D		daemon.warning
+# 5B		user.notice
+# 6B		user.info
+# 4B		user.warning
+# 5Q		local0.notice
+# 6Q		local0.info
+# 4Q		local0.warning
+
+cat <<'End-of-File' >$tmp.conf
+// errors
+hinv.ncpu > 0 -> syslog "-t";
+hinv.ncpu > 0 -> syslog "-ttag extra";
+hinv.ncpu > 0 -> syslog "-t" "tag extra";
+hinv.ncpu > 0 -> syslog "-p";
+hinv.ncpu > 0 -> syslog "-pinfo extra" "-pinfo [6D]" "{1}";
+hinv.ncpu > 0 -> syslog "-p" "info extra" "-pinfo [6D]" "{2}";
+hinv.ncpu > 0 -> syslog "-p" "evil" "-t" "bogus" "bad -p evil and -t" "{3}";
+hinv.ncpu > 0 -> syslog "-p" "evil.info" "bad facil for -p evil.info [6D]" "{4}";
+hinv.ncpu > 0 -> syslog "-p" "user.evil" "bad pri for -p user.evil [5B]" "{5}";
+
+// OK
+hinv.ncpu > 0 -> syslog "-t" "foo" "-p" "user.notice" "-t & -pinfo, 4 args [5B]" "{6}";
+hinv.ncpu > 0 -> syslog "-t" "foo" "-puser.notice" "-t & -pinfo, 3 args [5B]" "{7}";
+hinv.ncpu > 0 -> syslog "-tfoo" "-pinfo" "-t & -pinfo, 2 args [6D]" "{8}";
+hinv.ncpu > 0 -> syslog "-p" "user.info" "-p user.info, 2 args [6B]" "{9}";
+hinv.ncpu > 0 -> syslog "-pdaemon.info" "-pdaemon.info, 1 arg [6D]" "{10}";
+hinv.ncpu > 0 -> syslog "-t" "foo" "-t 2 args" "{11}";
+hinv.ncpu > 0 -> syslog "-tfoo" "-t 1 arg" "{12}";
+hinv.ncpu > 0 -> syslog "no -t or -p args" "{13}";
+
+
+// OK + holdoff
+hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-p" "local0.notice" "-t & -pinfo, 4 args [5Q] + holdoff" "{14}";
+hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-plocal0.notice" "-t & -pinfo, 3 args [5Q] + holdoff" "{14}";
+hinv.ncpu > 0 -> syslog 1 min "-tfoo" "-pinfo" "-t & -pinfo, 2 args [6D] + holdoff" "{15}";
+hinv.ncpu > 0 -> syslog 1 min "-p" "local0.info" "-p user.info, 2 args [6Q] + holdoff" "{16}";
+hinv.ncpu > 0 -> syslog 1 min "-pdaemon.info" "-pdaemon.info, 1 arg [6D] + holdoff" "{17}";
+hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-t 2 args + holdoff" "{18}";
+hinv.ncpu > 0 -> syslog 1 min "-tfoo" "-t 1 arg + holdoff" "{19}";
+hinv.ncpu > 0 -> syslog 1 min "no -t or -p args + holdoff" "{20}";
+
+End-of-File
+
+pmie -t 2sec -T 5sec >$tmp.log 2>&1 -c $tmp.conf &
+wait
+
+sed <$tmp.log \
+    -e "/Info: evaluator exiting/d" \
+    -e "s;$tmp;TMP;;"
+
+sleep 5
+echo
+
+case "$PCP_PLATFORM" in
+irix)
+    SYSLOG=/var/adm/SYSLOG
+    ;;
+linux)
+    SYSLOG=/var/log/messages
+    ;;
+*)
+    echo "Unkown platfrom $PCP_PLATFORM"
+    exit 1
+    ;;
+esac
+
+# note - runpriv lines noticed on krelly with SGIconsole 2.0
+# note - agetty lines noticed on canary with SLES9 SP1 beta2
+#
+$sudo grep "\\\\[$!\\\\]:" $SYSLOG \
+| sed \
+    -e 's/^[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+    -e "s/\\[$!]/[PID]/" \
+    -e "s/`hostname | sed -e 's/\..*//'` /HOST /" \
+    -e 's/[0-9][A-Z]:HOST/HOST/' \
+    -e '/runpriv\[PID]:/d' \
+    -e '/agetty\[PID]:/d' \
+
+# success, all done
+status=0
+exit

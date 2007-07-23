@@ -1,0 +1,26 @@
+QA output created by 529
+=== checking unknown, numrules, actions, expected, true
+
+first pmie instance ...
+configfile	"TMP.conf"
+logfile	"TMP.out1"
+pmcd_host	"HOST"
+numrules	4
+actions	7
+eval.true	7
+eval.false	7
+eval.unknown	6
+eval.expected	4
+eval.actual	20
+
+second pmie instance ...
+configfile	"<stdin>"
+logfile	"TMP.out2"
+pmcd_host	"HOST"
+numrules	4
+actions	7
+eval.true	7
+eval.false	7
+eval.unknown	6
+eval.expected	4
+eval.actual	20

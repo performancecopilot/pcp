@@ -1,0 +1,351 @@
+QA output created by 501
+
+=== pmie -v ... ===
+valid_a: NUMBER
+alone_a: ?
+sum1_a: ?
+sum2_a: ?
+product_a: ?
+compound1_a: ?
+compound2_a: ?
+valid_b: true
+alone_b: ?
+sum1_b: ?
+sum2_b: ?
+product_b: ?
+compound1_b: ?
+compound2_b: ?
+valid_s: true
+alone_s: ?
+sum1_s: ?
+sum2_s: ?
+product_s: ?
+compound1_s: ?
+compound2_s: ?
+one: NUMBER
+no1: ?
+no2: ?
+mill: NUMBER
+no3: ?
+no4: ?
+
+valid_a: NUMBER
+alone_a: ?
+sum1_a: ?
+sum2_a: ?
+product_a: ?
+compound1_a: ?
+compound2_a: ?
+valid_b: true
+alone_b: ?
+sum1_b: ?
+sum2_b: ?
+product_b: ?
+compound1_b: ?
+compound2_b: ?
+valid_s: true
+alone_s: ?
+sum1_s: ?
+sum2_s: ?
+product_s: ?
+compound1_s: ?
+compound2_s: ?
+one: NUMBER
+no1: ?
+no2: ?
+mill: NUMBER
+no3: ?
+no4: ?
+
+Log for pmie on HOST started DATE
+
+pmie: PID,HOST
+
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric sample not in namespace for host HOST
+pmLookupName failed: Metric name is not a leaf in PMNS
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric sample.string.hullo has non-numeric type
+pmie: metric sample.string.hullo has non-numeric type
+pmie: metric sample.string.hullo has non-numeric type
+pmie: metric sample.string.hullo has non-numeric type
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+
+Log finished DATE
+
+
+=== pmie -V ... ===
+valid_a: 
+    HOST: NUMBER
+alone_a: ?
+sum1_a: ?
+sum2_a: ?
+product_a: ?
+compound1_a: ?
+compound2_a: ?
+valid_b: 
+    HOST: true
+alone_b: ?
+sum1_b: ?
+sum2_b: ?
+product_b: ?
+compound1_b: ?
+compound2_b: ?
+valid_s: 
+    HOST: true
+alone_s: ?
+sum1_s: ?
+sum2_s: ?
+product_s: ?
+compound1_s: ?
+compound2_s: ?
+one: 
+    HOST: NUMBER
+no1: ?
+no2: ?
+mill: 
+    HOST: NUMBER
+no3: ?
+no4: ?
+
+valid_a: 
+    HOST: NUMBER
+alone_a: ?
+sum1_a: ?
+sum2_a: ?
+product_a: ?
+compound1_a: ?
+compound2_a: ?
+valid_b: 
+    HOST: true
+alone_b: ?
+sum1_b: ?
+sum2_b: ?
+product_b: ?
+compound1_b: ?
+compound2_b: ?
+valid_s: 
+    HOST: true
+alone_s: ?
+sum1_s: ?
+sum2_s: ?
+product_s: ?
+compound1_s: ?
+compound2_s: ?
+one: 
+    HOST: NUMBER
+no1: ?
+no2: ?
+mill: 
+    HOST: NUMBER
+no3: ?
+no4: ?
+
+Log for pmie on HOST started DATE
+
+pmie: PID,HOST
+
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric sample not in namespace for host HOST
+pmLookupName failed: Metric name is not a leaf in PMNS
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric sample.string.hullo has non-numeric type
+pmie: metric sample.string.hullo has non-numeric type
+pmie: metric sample.string.hullo has non-numeric type
+pmie: metric sample.string.hullo has non-numeric type
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+
+Log finished DATE
+
+
+=== pmie -W ... ===
+valid_a: 
+    HOST: NUMBER
+alone_a: ?
+sum1_a: ?
+sum2_a: ?
+product_a: ?
+compound1_a: ?
+compound2_a: ?
+valid_b: 
+    HOST: NUMBER
+alone_b: ?
+sum1_b: ?
+sum2_b: ?
+product_b: ?
+compound1_b: ?
+compound2_b: ?
+valid_s: 
+    HOST: [bin-600] 600
+    HOST: [bin-700] 700
+    HOST: [bin-800] 800
+    HOST: [bin-900] 900
+alone_s: ?
+sum1_s: ?
+sum2_s: ?
+product_s: ?
+compound1_s: ?
+compound2_s: ?
+one: 
+    HOST: NUMBER
+no1: ?
+no2: ?
+mill: 
+    HOST: NUMBER
+no3: ?
+no4: ?
+
+valid_a: 
+    HOST: NUMBER
+alone_a: ?
+sum1_a: ?
+sum2_a: ?
+product_a: ?
+compound1_a: ?
+compound2_a: ?
+valid_b: 
+    HOST: NUMBER
+alone_b: ?
+sum1_b: ?
+sum2_b: ?
+product_b: ?
+compound1_b: ?
+compound2_b: ?
+valid_s: 
+    HOST: [bin-600] 600
+    HOST: [bin-700] 700
+    HOST: [bin-800] 800
+    HOST: [bin-900] 900
+alone_s: ?
+sum1_s: ?
+sum2_s: ?
+product_s: ?
+compound1_s: ?
+compound2_s: ?
+one: 
+    HOST: NUMBER
+no1: ?
+no2: ?
+mill: 
+    HOST: NUMBER
+no3: ?
+no4: ?
+
+Log for pmie on HOST started DATE
+
+pmie: PID,HOST
+
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric sample not in namespace for host HOST
+pmLookupName failed: Metric name is not a leaf in PMNS
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric no.such.metric not in namespace for host HOST
+pmLookupName failed: Unknown metric name
+pmie: metric sample.string.hullo has non-numeric type
+pmie: metric sample.string.hullo has non-numeric type
+pmie: metric sample.string.hullo has non-numeric type
+pmie: metric sample.string.hullo has non-numeric type
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+
+Log finished DATE
+

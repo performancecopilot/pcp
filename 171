@@ -1,0 +1,41 @@
+#! /bin/sh
+# PCP QA Test No. 171
+# $Revision: 2.9 $
+# demonstrate interpolate mode bug
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# deal with an annoying libc error ... using TZ=:Australia/Melbourne
+# causes the -z option to report the wrong time, at least for some
+# times of the year
+#
+TZ=EST-10
+export TZ
+
+# real QA test starts here
+
+# need -n src-oss/root_irix 'cause app looks up some metrics not in the
+# archive
+#
+src-oss/interp_bug -n src-oss/root_irix -t 2.0 -a src-oss/bug
+status=$?
+
+if [ $status != 0 ]
+then
+    echo
+    echo "Error ... here is the log"
+    pmdumplog -n src-oss/root_irix -a src-oss/bug
+fi
+
+exit $status

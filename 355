@@ -1,0 +1,93 @@
+#! /bin/sh
+# PCP QA Test No. 355
+# $Revision: 1.13 $
+# try to reproduce bug #517713
+#
+owner=nathans
+seq=`basename $0`
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+. ./localconfig
+if [ $PCP_VER -ge 2200 ]
+then
+    rm -f $seq.out && ln $seq.${PCP_PLATFORM}.2 $seq.out || exit 1
+else
+    rm -f $seq.out && ln $seq.${PCP_PLATFORM}.1 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    if [ -n "$savedtracehost" ]
+    then
+	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
+    fi
+    rm -f $tmp.*
+    exit $status
+}
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+status=1	# failure is the default!
+trap "_cleanup" 0 1 2 3 15
+
+if [ -n "$PCP_TRACE_HOST" ]
+then
+    savedtracehost=$PCP_TRACE_HOST; unset PCP_TRACE_HOST
+fi
+
+_countinst()
+{
+    fgrep ' value ' | sed -e 's/.* value //g' | $PCP_AWK_PROG '
+BEGIN   { sum = 0 }
+        { if (NF == 1) sum = sum + $1 }
+END     { printf "%d\n",sum }'
+}
+
+pminfo trace >/dev/null 2>&1
+remove=$?
+
+cd $PCP_PMDAS_DIR/trace
+
+$here/sudo ./Install -R / </dev/null 2>&1 | sed \
+        -e '/.[0-9][0-9]* hash table entries/d' \
+        -e '/.[0-9][0-9]* leaf nodes/d' \
+        -e '/.[0-9][0-9]* non-leaf nodes/d' \
+        -e '/.[0-9][0-9]* bytes of symbol table/d' \
+        -e '/Compiled PMNS contains/d' \
+	-e '/Nothing to be done/d' \
+    	-e '/^Installing files ...$/d' \
+    	-e '/^Removing files ...$/d'
+
+_wait_for_pmcd
+
+
+# real QA test starts here
+$here/src-oss/torture_trace
+
+sleep 2
+
+echo "QA test counters:"
+echo -n "    pmtraceobs      "
+pminfo -f trace.observe.count | _countinst
+
+echo -n "    pmtracepoint    "
+pminfo -f trace.point.count | _countinst
+
+echo -n "    pmtracetransact "
+pminfo -f trace.transact.count | _countinst
+
+
+[ $remove -eq 1 ] && $here/sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,19 @@
+# define product-specific macros for QA tests
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# $Id: common.product,v 1.5 2002/10/18 22:30:50 kenmcd Exp $
+#
+
+# set up, in case QA test is run stand alone (not from check or remake)
+#
+. ./common.setup
+
+. ./localconfig
+
+if [ $PCP_PLATFORM = irix ]
+then
+    PCP_PMCD_PATH=/usr/etc/pmcd
+else
+    PCP_PMCD_PATH=$PCP_BINADM_DIR/pmcd
+fi

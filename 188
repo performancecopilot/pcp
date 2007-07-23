@@ -1,0 +1,46 @@
+#! /bin/sh
+# PCP QA Test No. 188
+# $Revision: 2.11 $
+# exercise __pmMktime
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+rm -f $seq.out
+if [ $PCP_PLATFORM = irix ] ; then
+    ln $seq.irix $seq.out
+elif [ $PCP_PLATFORM = linux ] ; then
+    # More modern Linuxes (or more correctly glibc) seem to get the
+    # right answer here
+    #
+    case `rpm -q glibc`
+    in
+	# History
+	# 	glibc-2.3.3-98.3	SuSE SLES9 beta4
+	#
+	glibc-1.*|glibc-2.[01].*|glibc-2.2.[0-4]-*|glibc-2.3.3-*)
+	    ln $seq.linux $seq.out
+	    ;;
+	*)
+	    ln $seq.irix $seq.out
+	    ;;
+    esac
+fi
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+# real QA test starts here
+
+# dodge daylight saving nonsense
+#
+TZ=EST-11; export TZ
+
+src-oss/xmktime

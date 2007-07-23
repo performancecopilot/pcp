@@ -1,0 +1,124 @@
+#! /bin/sh
+# PCP QA Test No. 324
+# $Revision: 1.9 $
+# Install/Remove for txmon pmda
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+tmp=/tmp/$$
+status=1
+done_clean=false
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	[ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	rm -f $tmp.*
+	$here/sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_clean=true
+    fi
+    exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+_filter()
+{
+    _filter_pmda_install
+}
+
+_filter_info()
+{
+    sed \
+	-e 's/value -[0-9][0-9]*\.[0-9]*/value NEGATIVE NUMBER/' \
+	-e 's/value -[0-9][0-9]*/value NEGATIVE NUMBER/' \
+	-e 's/value [0-9][0-9]*\.[0-9]*/value NUMBER/' \
+	-e 's/value [0-9][0-9]*/value NUMBER/'
+}
+
+# real QA test starts here
+here=`pwd`
+home=$PCP_PMDAS_DIR
+iam=txmon
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# start from a known starting point
+$here/sudo ./Remove >/dev/null 2>&1
+
+if $here/sudo make clobber >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make clobber failed"
+    exit
+fi
+
+if $here/sudo make >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make failed"
+    exit
+fi
+
+echo
+echo "=== default $iam agent installation ==="
+$here/sudo ./Remove >$tmp.out 2>&1
+echo 'b
+pigs
+can
+fly
+' \
+| $here/sudo ./Install >>$tmp.out 2>&1
+
+_filter <$tmp.out
+
+if pminfo -v $iam
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== validate values ==="
+$here/sudo make txrecord >/dev/null 2>&1
+./genload -n 20 | sed -e 's/[0-9][0-9]*\.[0-9][0-9]*/NUMBER/'
+pminfo -f $iam | _filter_info
+
+echo
+echo "=== remove $iam agent ==="
+$here/sudo ./Remove >$tmp.out 2>&1
+_filter <$tmp.out
+
+status=0
+exit

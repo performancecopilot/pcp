@@ -1,0 +1,108 @@
+#! /bin/sh
+# PCP QA Test No. 411
+# $Revision: 1.14 $
+# exercising the simple pmdas dynamic instance domain
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=nathans
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+status=1	# failure is the default!
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+unset ROOT TOOLROOT
+
+_filter()
+{
+    _filter_pmda_install \
+    | _filter_isa
+}
+
+_time_filter()
+{
+    sed \
+	-e 's/[0-9][0-9]*/[NUMBER]/g'
+}
+
+# real QA test starts here
+home=$PCP_PMDAS_DIR
+iam=simple
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+$sudo "echo sec,min,hour > $home/$iam/$iam.conf"
+
+if $here/sudo make clobber >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make clobber failed"
+    exit
+fi
+
+# start from a known starting point
+$here/sudo ./Remove >/dev/null 2>&1
+
+$here/sudo ./Install </dev/null >$tmp.out 2>&1
+_filter <$tmp.out
+
+# exercise various configuration file entries (updated on the fly) ...
+# check all together
+cat > $tmp.test1 << EOF
+sec,min,hour
+EOF
+# should just get min
+cat > $tmp.test2 << EOF
+min, hour
+EOF
+# empty file (should fall back to previous config)
+cat > $tmp.test3 << EOF
+EOF
+# should just get hour
+cat > $tmp.test4 << EOF
+sdj, min,hour,df
+mday
+EOF
+# multiple entries the same
+cat > $tmp.test5 << EOF
+sec,sec,sec
+EOF
+
+# cp over prev config and then filter pminfo calls for each test
+for test in $tmp.test1 $tmp.test2 $tmp.test3 $tmp.test4 $tmp.test5
+do
+    $sudo "cp $test $home/$iam/$iam.conf"
+    sync
+    sleep 3
+    pminfo -f simple.now | _time_filter
+    $sudo "rm -f $home/$iam/$iam.conf"
+done
+$sudo "echo sec,min,hour > $home/$iam/$iam.conf"
+
+# remove the agent
+$here/sudo ./Remove >$tmp.out 2>&1
+_filter <$tmp.out
+
+status=0
+exit

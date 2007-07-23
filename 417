@@ -1,0 +1,133 @@
+#! /bin/sh
+# PCP QA Test No. 417
+# $Revision: 1.12 $
+# Exercise tools with a corrupted archive
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "cd /; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+rm -rf $tmp
+mkdir $tmp
+cd $tmp
+
+# make the corrupted archive
+#
+cp $here/src-oss/bigace.meta bad.meta
+dd ibs=1 count=512 if=$here/src-oss/bigace.index of=bad.index 2>/dev/null
+dd ibs=1 count=512 if=$here/src-oss/bigace.index >>bad.index 2>/dev/null
+dd if=$here/src-oss/bigace.0 ibs=1 count=2052 of=bad.0 2>/dev/null
+dd if=/dev/zero ibs=1 count=1024 >>bad.0 2>/dev/null
+
+# deal with an annoying libc error ... using TZ=:Australia/Melbourne
+# causes the -z option to report the wrong time, at least for some
+# times of the year
+#
+TZ=EST-10
+export TZ
+
+# real QA test starts here
+
+echo
+echo "=== pminfo ==="
+pminfo -n $here/src-oss/bigace.pmns -a bad 2>&1
+if [ -f core ]
+then
+    echo "Arrggh ... dumped core!"
+    cp core $here/$seq.core
+    exit
+fi
+
+echo
+echo "=== pminfo -f irix ==="
+pminfo -n $here/src-oss/bigace.pmns -a bad -f irix
+if [ -f core ]
+then
+    echo "Arrggh ... dumped core!"
+    cp core $here/$seq.core
+    exit
+fi
+
+echo
+echo "=== pmdumplog -t ==="
+pmdumplog -n $here/src-oss/bigace.pmns -z -t bad
+if [ -f core ]
+then
+    echo "Arrggh ... dumped core!"
+    cp core $here/$seq.core
+    exit
+fi
+
+echo
+echo "=== pmdumplog -t, no index ==="
+mv bad.index save.index
+pmdumplog -n $here/src-oss/bigace.pmns -z -t bad
+mv save.index bad.index
+if [ -f core ]
+then
+    echo "Arrggh ... dumped core!"
+    cp core $here/$seq.core
+    exit
+fi
+
+echo
+echo "=== pmdumplog -l ==="
+pmdumplog -n $here/src-oss/bigace.pmns -z -l bad
+if [ -f core ]
+then
+    echo "Arrggh ... dumped core!"
+    cp core $here/$seq.core
+    exit
+fi
+
+echo
+echo "=== pmdumplog -L ==="
+pmdumplog -n $here/src-oss/bigace.pmns -z -L bad
+if [ -f core ]
+then
+    echo "Arrggh ... dumped core!"
+    cp core $here/$seq.core
+    exit
+fi
+
+echo
+echo "=== pmdumplog -m ==="
+pmdumplog -n $here/src-oss/bigace.pmns -z -m bad 2>&1
+if [ -f core ]
+then
+    echo "Arrggh ... dumped core!"
+    cp core $here/$seq.core
+    exit
+fi
+
+echo
+echo "=== pmlogsummary ==="
+pmlogsummary -n $here/src-oss/bigace.pmns bad 2>&1
+if [ -f core ]
+then
+    echo "Arrggh ... dumped core!"
+    cp core $here/$seq.core
+    exit
+fi
+
+# success, all done
+status=0
+exit

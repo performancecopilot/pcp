@@ -1,0 +1,48 @@
+#! /bin/sh
+# PCP QA Test No. 160
+# $Revision: 1.1 $
+#
+# -S and -T values that are _both_ before the start, or after the end
+# of an archive ... for cmds in the proprietary PCP release (see also
+# 158)
+#
+# PV 928021
+#
+# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+#
+# the archive src-oss/rattle
+# Performance metrics from host rattle
+#   commencing Sat May 17 21:22:42.025 1997
+#   ending     Mon May 19 10:22:42.021 1997
+
+# -S and -T before the start of the archive
+#
+pmdumptext -S '@Sat May 10 01:00:00 1997' -T '@Sat May 10 01:00:00 1997' -a src-oss/rattle kernel.all.load
+
+# -S and -T after the end of the archive
+#
+echo
+pmdumptext -S '@Sat May 24 01:00:00 1997' -T '@Sat May 24 01:00:00 1997' -a src-oss/rattle kernel.all.load
+
+# success, all done
+exit
