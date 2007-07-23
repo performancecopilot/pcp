@@ -857,8 +857,8 @@ vpmprintf(const char *msg, va_list arg)
 	int	fd = -1;
 
 	if ((fname = tmpnam(NULL)) == NULL ||
-	    (fd = open(fname, O_WRONLY | O_APPEND | O_EXCL, 0600)) < 0 ||
-	    (fptr = fdopen(fd, "a+")) == NULL) {
+	    (fd = open(fname, O_WRONLY|O_APPEND|O_CREAT|O_EXCL, 0600)) < 0 ||
+	    (fptr = fdopen(fd, "a")) == NULL) {
 	    fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
 		pmProgname, fname, strerror(errno));
 	    fprintf(stderr, "vpmprintf msg:\n");
