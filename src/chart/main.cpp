@@ -179,6 +179,14 @@ void checkHistory(int samples, int visible)
     }
 }
 
+void setupEnvironment(void)
+{
+    QString confirm = pmGetConfig("PCP_BIN_DIR");
+    confirm.append("/kmquery");
+    setenv("PCP_XCONFIRM_PROG", confirm.ascii(), 1);
+    setenv("PCP_STDERR", "DISPLAY", 1);
+}
+
 void readSettings(void)
 {
     QSettings	userSettings;
@@ -276,6 +284,7 @@ main(int argc, char ** argv)
 
     QApplication a(argc, argv);
     pmProgname = basename(argv[0]);
+    setupEnvironment();
     readSettings();
 
     liveGroup = new PMC_Group();

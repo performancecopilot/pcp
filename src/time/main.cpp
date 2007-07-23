@@ -150,6 +150,14 @@ extern QPixmap *pixmap(enum PixmapType type)
     return &pixmaps[type];
 }
 
+void setupEnvironment(void)
+{
+    QString confirm = pmGetConfig("PCP_BIN_DIR");
+    confirm.append("/kmquery");
+    setenv("PCP_XCONFIRM_PROG", confirm.ascii(), 1);
+    setenv("PCP_STDERR", "DISPLAY", 1);
+}
+
 int main(int argc, char ** argv)
 {
     int			c;
@@ -161,6 +169,7 @@ int main(int argc, char ** argv)
 
     QApplication a(argc, argv);
     pmProgname = basename(argv[0]);
+    setupEnvironment();
 
     while ((c = getopt(argc, argv, "ahp:D:?")) != EOF) {
 	switch (c) {
