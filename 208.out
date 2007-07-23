@@ -1,0 +1,52 @@
+QA output created by 208
+PMC_IntVector v1();
+[0, 1, 2, 3]
+
+PMC_IntVector v2(5);
+[0, 1, 2, 3, 4]
+
+PMC_IntVector v3(3, 3);
+[3, 3, 3]
+
+PMC_IntVector v4(4, numbers);
+[2, 4, 6, 8]
+
+PMC_IntVector v5(v3);
+[3, 3, 3]
+
+PMC_IntVector v6 = v3;
+[3, 3, 3]
+
+PMC_IntVector v7(3); v7 = v4;
+[2, 4, 6, 8]
+
+v7[2] = 1;
+[2, 4, 1, 8]
+
+v7.last() = 2;
+[2, 4, 1, 2]
+
+v2.resize(2);
+[0, 1]
+
+v6.resize(6, 6);
+[3, 3, 3, 6, 6, 6]
+
+
+****  Purify instrumented TMP/pmc_vector.pure (pid PID)  ****
+Current file descriptors in use: 5
+FIU: file descriptor 0: <stdin>
+FIU: file descriptor 1: <stdout>
+FIU: file descriptor 2: <stderr>
+
+****  Purify instrumented TMP/pmc_vector.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/pmc_vector.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...

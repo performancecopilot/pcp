@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 617
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 # exercise PCP dbpmda interface
 #
 #
@@ -50,7 +50,11 @@ _filter()
 	-e 's/syntax error/Syntax error/' \
 	-e '/^dbpmda> $/d' \
 	-e '/pmResult/s/0x[^ ]*/ADDR/g' \
-	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]/TIMEZONE/g'
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]/TIMEZONE/g' \
+        -e '/Error PDU/s/One-line/Oneline/'
+
+# last sed substitution thanks to pv:937345 which changed the wording
+# ... preserving the old form so QA passes
 }
 
 # real QA test starts here

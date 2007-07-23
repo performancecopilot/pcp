@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 281
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 # Exercise pmNewContext() for archives close to the NOFILE max fd limit.
 # For incident: 504616
 #
@@ -37,9 +37,10 @@ $1 == "max"	{ if (maxctx == "") maxctx = $NF
 		}
 		{ print }'
 
-if [ -f core ]
+if [ "`echo core*`" != "core*" ]
 then
     echo "$here/src-oss/arch_maxfd dumped core!"
+    ls -l core*
     unset TOOLROOT
     echo where | dbx $here/src-oss/arch_maxfd
     exit

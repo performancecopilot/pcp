@@ -1,0 +1,51 @@
+#! /bin/sh
+# PCP QA Test No. 273 (formerly 273, 416)
+# $Revision: 1.18 $
+# test unit scale conversion in pmdumptext
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=chatz
+
+seq=`basename $0`
+
+if which pmdumptext >/dev/null 2>&1
+then
+    :
+else
+    echo "No pmdumptext binary installed" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+host=`hostname`
+
+_filter()
+{
+    $PCP_AWK_PROG '
+$1 == "TIME-STAMP" && $2 != "?"	{ val = $2;
+			  	  if (val < 1.05 && val > 0.95) $2 = 1.0;
+			  	  printf("%s	 %5.2f\n", $1, $2); next }
+				{ print }'
+}
+
+# real QA test starts here
+
+pmdumptext -imu -w 7 -s 3 -f 'TIME-STAMP' sample.milliseconds | _filter 2>&1
+
+# success, all done
+status=0
+exit

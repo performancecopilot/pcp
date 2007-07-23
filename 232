@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 232
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 #
 # exercise instance API functions for PM_CONTEXT_LOCAL
 #
@@ -43,7 +43,10 @@ for metric in \
     sampledso.bucket \
     filesys.used \
     swapdev.length \
+    nfs.client.reqs \
     nfs.server.reqs \
+    nfs3.client.reqs \
+    nfs3.server.reqs \
     sampledso.hordes.one
 do
     ./sudo src-oss/torture_indom $metric >$tmp.out 2>&1

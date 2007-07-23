@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 188
-# $Revision: 2.11 $
+# $Revision: 2.13 $
 # exercise __pmMktime
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -17,21 +17,46 @@ rm -f $seq.out
 if [ $PCP_PLATFORM = irix ] ; then
     ln $seq.irix $seq.out
 elif [ $PCP_PLATFORM = linux ] ; then
-    # More modern Linuxes (or more correctly glibc) seem to get the
-    # right answer here
+    # Linux is all over the shop here!
     #
-    case `rpm -q glibc`
-    in
-	# History
-	# 	glibc-2.3.3-98.3	SuSE SLES9 beta4
+    # History (linux version of $seq.out)
+    # 	glibc-2.3.3-98.*	SuSE SLES9
+    #
+    # History (irix version of $seq.out)
+    #	glibc-2.3.3-27		RedHat Fedora Core 2
+    #
+    if [ -f /etc/SuSE-release ]
+    then
+	case `cat /etc/SuSE-release`
+	in
+	    'SUSE LINUX Enterprise Server 9 '*|'SUSE Linux Enterprise Server 10 '*)
+		ln $seq.linux $seq.out
+		;;
+	esac
+    elif [ -f /etc/redhat-release ]
+    then
+	case `cat /etc/redhat-release`
+	in
+	    'Fedora Core release 2 '*)
+		ln $seq.irix $seq.out
+		;;
+	esac
+    fi
+    if [ ! -f $seq.out ]
+    then
+	# this is some old folklore ... better to handle in the explicit
+	# case above if possible
 	#
-	glibc-1.*|glibc-2.[01].*|glibc-2.2.[0-4]-*|glibc-2.3.3-*)
-	    ln $seq.linux $seq.out
-	    ;;
-	*)
-	    ln $seq.irix $seq.out
-	    ;;
-    esac
+	case `rpm -q glibc`
+	in
+	    glibc-1.*|glibc-2.[01].*|glibc-2.2.[0-4]-*|glibc-2.3.3-*)
+		ln $seq.linux $seq.out
+		;;
+	    *)
+		ln $seq.irix $seq.out
+		;;
+	esac
+    fi
 fi
 
 tmp=/tmp/$$

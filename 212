@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 212
-# $Revision: 2.15 $
+# $Revision: 2.16 $
 # can I make pmdacisco dump core during exit()?
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -33,7 +33,10 @@ _cleanup()
 {
     if $_needclean
     then
-	[ -f $PMCD_LOG_DIR/core ] && file $PMCD_LOG_DIR/core
+	if [ "`echo $PMCD_LOG_DIR/core*`" != "$PMCD_LOG_DIR/core*" ]
+	then
+	    file $PMCD_LOG_DIR/core*
+	fi
 	rm -f $tmp.*
 	./sudo ex - $PCP_PMCDCONF_PATH <<End-of-File
 g/^#$seq#.*pmdacisco/s/^#$seq#//
@@ -50,7 +53,7 @@ End-of-File
 
 # real QA test starts here
 status=1
-./sudo rm -f $PMCD_LOG_DIR/core
+./sudo rm -f $PMCD_LOG_DIR/core*
 
 echo "SIGINT to pmdacisco parent ..."
 for i in 1 2 3
@@ -81,7 +84,7 @@ do
     fi
     ./sudo kill -INT $pid
     sleep 5
-    [ -f $PMCD_LOG_DIR/core ] && _cleanup
+    [ "`echo core*`" != "core*" ] && _cleanup
     echo "Restart with SIGHUP"
     ./sudo killall -HUP pmcd
     sleep 5
@@ -115,7 +118,7 @@ END	{ for (p in pid) {
     fi
     $sudo kill -INT $pid
     sleep 5
-    [ -f $PMCD_LOG_DIR/core ] && _cleanup
+    [ "`echo $PMCD_LOG_DIR/core*`" != "$PMCD_LOG_DIR/core*" ] && _cleanup
     echo "Restart with SIGHUP"
     $sudo killall -HUP pmcd
     sleep 5
@@ -125,10 +128,10 @@ echo
 echo "start pmcd ..."
 for i in 1 2 3
 do
-    rm -f $PMCD_LOG_DIR/core
+    rm -f $PMCD_LOG_DIR/core*
     $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
     _wait_for_pmcd
-    [ -f $PMCD_LOG_DIR/core ] && _cleanup
+    [ "`echo $PMCD_LOG_DIR/core*`" != "$PMCD_LOG_DIR/core*" ] && _cleanup
 done
 
 echo
@@ -137,9 +140,9 @@ for i in 1 2 3
 do
     $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
     _wait_for_pmcd
-    rm -f $PMCD_LOG_DIR/core
+    rm -f $PMCD_LOG_DIR/core*
     $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
-    [ -f $PMCD_LOG_DIR/core ] && _cleanup
+    [ "`echo $PMCD_LOG_DIR/core*`" != "$PMCD_LOG_DIR/core*" ] && _cleanup
 done
 $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
@@ -162,9 +165,9 @@ g/^[^#].*pmdacisco/s/^/#$seq#/
 w!
 q
 End-of-File
-    rm -f $PMCD_LOG_DIR/core
+    rm -f $PMCD_LOG_DIR/core*
     $sudo killall -HUP pmcd
-    [ -f $PMCD_LOG_DIR/core ] && _cleanup
+    [ "`echo $PMCD_LOG_DIR/core*`" != "$PMCD_LOG_DIR/core*" ] && _cleanup
 done
 
 echo

@@ -16,7 +16,7 @@ pmcd.control.timeout old value=5 new value=5
 Expect dummyproc to fail (IPC protocol failure):
 dummyproc: pmLookupDesc: IPC protocol failure
 
-pmcd terminated dummy sed agent as desired
+pmcd terminated dummy the dumb_pmda agent as desired
 
 
 *** pmcd agent timeout > app timeout ***
@@ -29,11 +29,11 @@ pmcd.control.timeout old value=5 new value=10
 Expect dummyproc to fail (timeout for pmcd failure):
 dummyproc: pmLookupDesc: Timeout waiting for a response from PMCD
 
-pmcd did NOT terminate dummy sed agent as desired
+pmcd did NOT terminate the dumb_pmda agent as desired
 
 Now wait for pmcd to timeout...
 
-pmcd terminated dummy sed agent as desired
+pmcd terminated the dumb_pmda agent as desired
 
 Waiting for PMCD to terminate [dots]
 Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) [dots]

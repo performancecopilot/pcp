@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 274
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 # Throw a broken PMDA at PCP 2.0 libpcp_pmda and dbpmda
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -30,7 +30,11 @@ _filter()
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
 	-e 's/ [0-9\.]*e-[0-9]* 0x/ REAL 0x/g' \
 	-e 's/ 0 0x/ REAL 0x/g' \
-        -e '/dbpmda> $/d'
+        -e '/dbpmda> $/d' \
+	-e '/Error PDU:/s/One-line/Oneline/'
+
+# last sed substitution thanks to pv:937345 which changed the wording
+# ... preserving the old form so QA passes
 }
 
 _filter2()

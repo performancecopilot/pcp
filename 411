@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 411
-# $Revision: 1.14 $
+# $Revision: 1.16 $
 # exercising the simple pmdas dynamic instance domain
 #
 #
@@ -16,6 +16,16 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.check
 . ./common.filter
+
+rm -f $seq.out
+if pminfo -f simple.now | grep '3600 or "hour"' >/dev/null
+then
+    # old simple with indom 1, 60, 3600
+    ln $seq.out.0 $seq.out
+else
+    # new simple with indom 0, 1, 2
+    ln $seq.out.1 $seq.out
+fi
 
 tmp=/tmp/$$
 here=`pwd`
@@ -84,7 +94,7 @@ cat > $tmp.test4 << EOF
 sdj, min,hour,df
 mday
 EOF
-# multiple entries the same
+# multiple entries the same ... should get just one instance returned
 cat > $tmp.test5 << EOF
 sec,sec,sec
 EOF

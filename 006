@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 006
-# $Revision: 2.11 $
+# $Revision: 2.12 $
 # Check error codes ... 
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -28,5 +28,8 @@ do
 done \
 | sed -e 's/0x........ //' \
       -e 's/Code: //' \
-      -e 's/Text: //'
+      -e 's/Text: //' \
+      -e '/-12349/s/One-line/Oneline/'
 
+# last sed substitution thanks to pv:937345 which changed the wording
+# ... preserving the old form so QA passes

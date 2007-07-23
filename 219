@@ -1,0 +1,129 @@
+#! /bin/sh
+# PCP QA Test No. 219 (formerly 1174, 447)
+# $Revision: 2.23 $
+#
+# Test functionality of PMC_Metric
+#
+# Copyright (c) 1995-2002,2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=chatz
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ ! -f src-oss/pmc_metric ]
+then
+    echo "Not run: no src-oss/pmc_metric executable" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+rm -f $seq.out
+if pminfo -f simple.now | grep '3600 or "hour"' >/dev/null
+then
+    # old simple with indom 1, 60, 3600
+    ln $seq.out.0 $seq.out
+else
+    # new simple with indom 0, 1, 2
+    ln $seq.out.1 $seq.out
+fi
+
+unset ROOT TOOLROOT
+
+tmp=/tmp/$$
+SIMPLE_CONF=$PCP_PMDAS_DIR/simple/simple.conf
+sudo=`pwd`/sudo
+here=`pwd`
+status=1	# failure is the default!
+rm -f src-oss/core*
+rm -f $seq.full
+
+_cleanup()
+{
+    cd $here
+    if [ "`echo core*`" != "core*" ]
+    then
+	echo -n "$seq: dumped core! (saved in $here as"
+	for c in core*
+	do
+	    $sudo mv $c $here/$seq.$c
+	    echo -n " $seq.$c"
+	done
+	echo ")"
+    fi
+    [ -f $tmp.conf ] && $sudo cp $tmp.conf $PCP_PMDAS_DIR/simple/simple.conf
+    [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+    $sudo killall -HUP pmcd
+    _wait_for_pmcd
+    rm -f $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+host=`hostname`
+
+_filter()
+{
+    tee $here/$seq.full |\
+    sed \
+	-e "s/$host/HOST/g" \
+	-e "/^sample\.seconds/s/= 0.9[0-9]*/= 1/g" \
+	-e "/^sample\.seconds/s/= 1.0[0-9]*/= 1/g" \
+	-e "/^sample\.seconds/s/= 1 /= NUMBER /g" \
+	-e "/^sample\.seconds/s/= 0 /= NUMBER /g" \
+	-e "s/= [0-9][0-9]*\.[0-9]*/= NUMBER/g" \
+	-e "s/ptr = 0x[1-9a-f][0-9a-f]*/ptr = 0x########/g" \
+	-e '/"sec"/{
+s/[0-9][0-9]* none/VALUE none/
+s/\[[0-9][0-9]*]/[I]/
+}' \
+	-e '/"min"/{
+s/[0-9][0-9]* none/VALUE none/
+s/\[[0-9][0-9]*]/[J]/
+}' \
+	-e '/"hour"/{
+s/[0-9][0-9]* none/VALUE none/
+s/\[[0-9][0-9]*]/[K]/
+}' \
+	-e "/hinv\.ncpu =/s/[0-9][0-9]* none/VALUE none/" \
+	-e "/lookupDesc:/s/1\.18\.2$/<pmid for hinv.ncpu>/" \
+	-e "/lookupDesc:/s/60\.0\.32$/<pmid for hinv.ncpu>/" \
+	-e "/lookupDesc:/s/1\.18\.3$/<pmid for kernel.all.load>/" \
+	-e "/lookupDesc:/s/60\.2\.0$/<pmid for kernel.all.load>/" \
+	-e "/lookupDesc:/s/1\.5$/<indom for kernel.all.load>/" \
+	-e "/lookupDesc:/s/60\.2$/<indom for kernel.all.load>/" \
+	-e "/::genProfile/s/id = [0-9]*,/id = NNN,/" \
+	-e "/::genProfile/s/ptr = 0$/ptr = 0x0/"
+
+}
+
+cp $SIMPLE_CONF $tmp.conf
+echo "sec" > $tmp.newconf
+$sudo rm -f $SIMPLE_CONF
+$sudo cp $tmp.newconf $SIMPLE_CONF
+
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+cd $PCP_PMDAS_DIR/simple
+$here/sudo ./Install </dev/null >$tmp.install 2>&1
+_check_metric simple.now
+
+cd $here/src-oss
+$sudo ./pmc_metric -DPMC,OPTFETCH 2>&1 | _filter
+
+cd $PCP_PMDAS_DIR/simple
+$here/sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+$here/sudo cp $tmp.conf $SIMPLE_CONF
+rm -f $tmp.pmcd.conf $tmp.conf
+$here/sudo ./Remove </dev/null >$tmp.remove 2>&1
+
+# success, all done
+status=0
+exit

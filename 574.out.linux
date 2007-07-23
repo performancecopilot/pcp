@@ -6,6 +6,7 @@ pmid: 0xffffffff name: pmcd
 children of "pmcd" ...
     agent               <s = 1>
     buf                 <s = 1>
+    build               <s = 0>
     control             <s = 1>
     datasize            <s = 0>
     license             <s = 0>
@@ -76,11 +77,11 @@ pmResult ... numpmid: 1
    value NUMBER
 Fetch of kernel.all.cpu.user:
 pmResult ... numpmid: 1
-  60.0.20 (kernel.all.cpu.user): numval: 1 valfmt: 0 vlist[]:
+  60.0.20 (kernel.all.cpu.user): numval: 1 valfmt: 1 vlist[]:
    value NUMBER
 Fetch of kernel.all.cpu.wait.total:
 pmResult ... numpmid: 1
-  60.0.35 (kernel.all.cpu.wait.total): numval: 1 valfmt: 0 vlist[]:
+  60.0.35 (kernel.all.cpu.wait.total): numval: 1 valfmt: 1 vlist[]:
    value NUMBER
 Fetch of hinv.ncpu:
 pmResult ... numpmid: 1

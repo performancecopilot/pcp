@@ -1,0 +1,17 @@
+QA output created by 295
+all clients started
+expect 4 connects and 1 disconnect, thanks to pmie
+4 connects
+1 disconnects
+
+kill off a client ...
+4 connects
+2 disconnects
+
+kill off a client ...
+4 connects
+3 disconnects
+
+kill off a client ...
+4 connects
+4 disconnects

@@ -1,0 +1,8 @@
+QA output created by 275
+pmdumpmineset: Some metrics are not available:
+
+pmdumptext: Error: /tmp/PID.archive/proc.psusage.utime: Instance domain identifier not defined in the PCP archive log
+
+pmdumpmineset: Continuing with valid metrics
+
+Should be nothing after this:

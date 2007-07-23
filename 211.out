@@ -1,0 +1,131 @@
+QA output created by 211
+PMC_String s1;
+Size = 16, Length = 0: ""
+
+PMC_String s2(12);
+Size = 12, Length = 0: ""
+
+PMC_String s3((const char *)0);
+Size = 1, Length = 0: ""
+
+PMC_String s4("Hello there");
+Size = 12, Length = 11: "Hello there"
+
+PMC_String s5(s4);
+Size = 12, Length = 11: "Hello there"
+
+PMC_String s6 = s5;
+Size = 12, Length = 11: "Hello there"
+
+PMC_String s7(4); s7 = s4;
+Size = 12, Length = 11: "Hello there"
+
+PMC_String s8(32); s8 = "Yes you bozo";
+Size = 32, Length = 12: "Yes you bozo"
+
+s7 = (char *)0;
+Size = 12, Length = 0: ""
+
+s6[5] = '-';
+Size = 12, Length = 11: "Hello-there"
+
+s4 == s5: 1
+s4 != s5: 0
+s4 == s8: 0
+s4 != s8: 1
+s4 == (const char *)0: 0
+s4 != (const char *)0: 1
+
+s8.prepend('!');
+Size = 32, Length = 13: "!Yes you bozo"
+
+s5.prepend('!');
+Size = 22, Length = 12: "!Hello there"
+
+s1.prepend('a');
+Size = 16, Length = 1: "a"
+
+s5.prepend("just testing");
+Size = 25, Length = 24: "just testing!Hello there"
+
+s5.prepend((const char *)0);
+Size = 25, Length = 24: "just testing!Hello there"
+
+s3.prepend(s5);
+Size = 25, Length = 24: "just testing!Hello there"
+
+s8.append('!');
+Size = 32, Length = 14: "!Yes you bozo!"
+
+s4.append('!');
+Size = 22, Length = 12: "Hello there!"
+
+s2.append('a');
+Size = 12, Length = 1: "a"
+
+s5.append(", just testing");
+Size = 48, Length = 38: "just testing!Hello there, just testing"
+
+s5.append((const char *)0);
+Size = 48, Length = 38: "just testing!Hello there, just testing"
+
+s6.append(s2);
+Size = 22, Length = 12: "Hello-therea"
+
+s2.appendInt(42, 10);
+Size = 12, Length = 11: "a        42"
+
+s2.appendReal(3.14, 4);
+Size = 22, Length = 17: "a        423.1400"
+
+s5.truncate(10);
+Size = 48, Length = 10: "just testi"
+
+s6.truncate(12);
+Size = 22, Length = 12: "Hello-therea"
+
+s6.truncate(0);
+Size = 22, Length = 0: ""
+
+s4 = s3.substr(3, 7);
+Size = 22, Length = 7: "t testi"
+
+s3.remove(3, 7);
+Size = 25, Length = 17: "jusng!Hello there"
+
+s3.remove(0, s3.length());
+Size = 25, Length = 0: ""
+
+s4.resize(s4.length() + 1);
+Size = 8, Length = 7: "t testi"
+
+s4.resize(s4.length() * 2);
+Size = 14, Length = 7: "t testi"
+
+s4.resize(s4.length());
+Size = 7, Length = 6: "t test"
+
+s4.resize(1);
+Size = 1, Length = 0: ""
+
+s5.sync();
+Size = 11, Length = 10: "just testi"
+
+
+****  Purify instrumented TMP/pmc_string.pure (pid PID)  ****
+Current file descriptors in use: 5
+FIU: file descriptor 0: <stdin>
+FIU: file descriptor 1: <stdout>
+FIU: file descriptor 2: <stderr>
+
+****  Purify instrumented TMP/pmc_string.pure (pid PID)  ****
+Purify: Searching for all memory leaks...
+
+Memory leaked: 0 bytes (0%); potentially leaked: 0 bytes (0%)
+
+Purify Heap Analysis (combining suppressed and unsuppressed blocks)
+...
+****  Purify instrumented TMP/pmc_string.pure (pid PID)  ****
+  * Program exited with status code 0.
+  * 0 access errors, 0 total occurrences.
+...

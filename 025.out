@@ -1,6 +1,5 @@
 QA output created by 025
 .Text: This metric has 3 instances, designated "red", "green" and "blue".
-
 The value of the metric is monotonic increasing in the range N to
 N+100, then back to N.  The different instances have different N values,
 namely 100 (red), 200 (green) and 300 (blue).
@@ -157,7 +156,6 @@ pmFetch: IPC protocol failure -- error expected
 pmStore: IPC protocol failure -- error expected
 Reconnect to pmcd context 1 ...
 .Text: This metric has 3 instances, designated "red", "green" and "blue".
-
 The value of the metric is monotonic increasing in the range N to
 N+100, then back to N.  The different instances have different N values,
 namely 100 (red), 200 (green) and 300 (blue).

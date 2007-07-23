@@ -2,7 +2,7 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: pmcdgone.c,v 1.1 2002/10/21 00:59:56 kenmcd Exp $"
+#ident "$Id: pmcdgone.c,v 1.2 2005/01/19 02:22:26 kenmcd Exp $"
 
 /*
  * ping pmcd 4 times, kill off pmcd, ping 4 more times, restart pmcd,
@@ -406,7 +406,7 @@ Options:\n\
      * than returning -ETIMEDOUT immediately ... but sleep(1) is unreliable,
      * hence ...
      */
-    sleep(2);
+    sleep(3);
 
     for (j = 0; j < 2; j++) {
 	if (j == 0)

@@ -1,14 +1,14 @@
 #! /bin/sh
 # PCP QA Test No. 008
-# $Revision: 2.13 $
+# $Revision: 2.14 $
 # exercise disk statistics on localhost
 #
 # NOTE
 #	This test depends on the the local hostname and the disk configuration.
 #	To generate a new validated output file ...
-#		$ touch 008.out.`hostname`
+#		$ touch 008.out.`hostname | sed -e 's/\..*//'`
 #		$ remake 008
-#		$ mv 008.out 008.out.`hostname`
+#		$ mv 008.out 008.out.`hostname | sed -e 's/\..*//'`
 #	and check that the comments and the output match up.
 #
 owner=ania
@@ -20,7 +20,7 @@ seq=`basename $0`
 
 # need per-host checked in results
 #
-host=`hostname`
+host=`hostname | sed -e 's/\..*//'`
 rm -f $seq.out
 if [ -f $seq.out.$host ]
 then

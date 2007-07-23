@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 013
-# $Revision: 2.12 $
+# $Revision: 2.13 $
 # pmdumplog dumps core when fed a metadata file instead of a basename?
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -48,7 +48,7 @@ do
     else
 	echo "=== $bad: does not exist ==="
     fi
-    rm -f core
+    ./sudo rm -f core*
     pmdumplog -D 128 -l $bad 2>$tmp.err >$tmp.out
 
     _filter_pmdumplog <$tmp.out
@@ -58,5 +58,5 @@ do
 	echo "[filtered and sorted stderr]"
 	_filter_trace <$tmp.err | LC_COLLATE=POSIX sort
     fi
-    $here/my_ls -l core
+    $here/my_ls -l core*
 done

@@ -4,7 +4,7 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: new,v 2.39 2004/08/06 02:38:23 kenmcd Exp $
+# $Id: new,v 2.40 2005/02/21 22:33:43 kenmcd Exp $
 #
 # Usage: new [base-seq-no group ...]
 #
@@ -49,7 +49,7 @@ then
     cat <<'End-of-File' >group
 # QA groups control
 #
-# $Id: new,v 2.39 2004/08/06 02:38:23 kenmcd Exp $
+# $Id: new,v 2.40 2005/02/21 22:33:43 kenmcd Exp $
 #
 # define groups and default owners
 # do not start group name with a digit
@@ -137,7 +137,7 @@ cat <<End-of-File | sed -e '/revision/s//Revision: 1.1 /' >$id
 #
 # what am I here for?
 #
-# Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) `date +%Y` Silicon Graphics, Inc.  All Rights Reserved.
 
 # creator
 owner=$USER

@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 075
-# $Revision: 2.12 $
+# $Revision: 2.15 $
 # tests for proper handling of white spaces in pmval and pmstore 
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -47,16 +47,27 @@ _cmd()
 }
 
 . ./localconfig
+rm -f $seq.out
 if [ $PCP_PLATFORM = linux ]
 then
-    if [ $PCP_VER -ge 2400 ]
+    if [ $PCP_VER -ge 2401 ]
     then
-	rm -f $seq.out; ln $seq.out.3 $seq.out
+	ln $seq.out.4 $seq.out
+    elif [ $PCP_VER -eq 2400 ]
+    then
+	ln $seq.out.3 $seq.out
     else
-	rm -f $seq.out; ln $seq.out.2 $seq.out
+	ln $seq.out.2 $seq.out
     fi
 else
-    rm -f $seq.out; ln $seq.out.1 $seq.out
+    # assume IRIX
+    #
+    if [ $PCP_EOE_VER -ge 6528 ]
+    then
+	ln $seq.out.5 $seq.out
+    else
+	ln $seq.out.1 $seq.out
+    fi
 fi
 
 # get standard filters

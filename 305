@@ -1,0 +1,78 @@
+#! /bin/sh
+# PCP QA Test No. 305
+# $Revision: 1.16 $
+#
+# PV 939998 affecting pmgadgets instance cache
+#
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+
+# creator
+owner=markgw
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+
+src/matchInstanceName "" ""
+src/matchInstanceName "" "a"
+src/matchInstanceName "" "ab"
+src/matchInstanceName "" "ab cd"
+src/matchInstanceName "" "ab de"
+
+echo
+
+src/matchInstanceName "a" ""
+src/matchInstanceName "a" "a"
+src/matchInstanceName "a" "ab"
+src/matchInstanceName "a" "ab cd"
+src/matchInstanceName "a" "ab de"
+
+echo
+
+src/matchInstanceName "ab" ""
+src/matchInstanceName "ab" "a"
+src/matchInstanceName "ab" "ab"
+src/matchInstanceName "ab" "ab cd"
+src/matchInstanceName "ab" "ab de"
+
+echo
+
+src/matchInstanceName "ab cd" ""
+src/matchInstanceName "ab cd" "a"
+src/matchInstanceName "ab cd" "ab"
+src/matchInstanceName "ab cd" "ab cd"
+src/matchInstanceName "ab cd" "ab de"
+
+echo 
+
+src/matchInstanceName "ab de" ""
+src/matchInstanceName "ab de" "a"
+src/matchInstanceName "ab de" "ab"
+src/matchInstanceName "ab de" "ab cd"
+src/matchInstanceName "ab de" "ab de"
+# if error
+exit
+
+# optional stuff if your test has verbose output to help resolve problems
+#echo
+#echo "If failure, check $seq.full (this) and $seq.full.ok (reference)"
+status=1
+exit
+
+# success, all done
+exit

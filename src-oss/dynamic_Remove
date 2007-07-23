@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# Remove the broken PMDA
+#
+# $Id: dynamic_Remove,v 1.1 2005/05/26 06:38:49 kenmcd Exp $
+#
+
+# source the PCP configuration environment variables
+. /etc/pcp.env
+
+# Get the common procedures and variable assignments
+#
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+# The name of the PMDA
+#
+iam=dynamic
+
+# Do it
+#
+pmdaSetup
+pmdaRemove
+
+exit 0

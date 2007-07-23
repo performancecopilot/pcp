@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 177
-# $Revision: 2.12 $
+# $Revision: 2.13 $
 # interp.c and excessive reading
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -47,15 +47,15 @@ _filter_err()
     | $PCP_AWK_PROG '
 BEGIN           {
 		  min["0.1-back"] = 1; max["0.1-back"] = 5
-		  min["0.1-forw"] = 51; max["0.1-forw"] = 55
+		  min["0.1-forw"] = 51; max["0.1-forw"] = 56
 		  min["0.1-peek"] = 1; max["0.1-peek"] = 1
 
 		  min["0.2-back"] = 1; max["0.2-back"] = 5
-		  min["0.2-forw"] = 51; max["0.2-forw"] = 55
+		  min["0.2-forw"] = 51; max["0.2-forw"] = 56
 		  min["0.2-peek"] = 1; max["0.2-peek"] = 1
 
 		  min["0.4-back"] = 5; max["0.4-back"] = 20
-		  min["0.4-forw"] = 51; max["0.4-forw"] = 55
+		  min["0.4-forw"] = 51; max["0.4-forw"] = 56
 		  min["0.4-peek"] = 1; max["0.4-peek"] = 1
 		  xx = "'$1'"
 		}

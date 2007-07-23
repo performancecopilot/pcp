@@ -96,6 +96,6 @@ QA output created by 006
 -12439 No such PMAPI error code (-12439)
 -12440 No such PMAPI error code (-12440)
 -12441 No such PMAPI error code (-12441)
--12442 No such PMAPI error code (-12442)
+-12442 Current context is used by asynchronous operation
 -12443 Insufficient elements in list
 -12444 Result size exceeded

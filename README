@@ -1,10 +1,11 @@
-Open Source Release of the PCP QA Suite - Version 1.2
-=====================================================
+Open Source Release of the PCP QA Suite - Version 1.4 - July 2007
+====================================================================
 
 Preliminaries
 -------------
 
     PCP needs to be installed on the local host, with pmcd operational.
+    The sample PMDA needs to be installed.
 
 Basic getting started
 ---------------------

@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 398
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 # checks pmcd handling empty $PCP_PMCDCONF_PATH
 #
 #
@@ -30,7 +30,7 @@ _cleanup()
     _wait_for_pmlogger
 }
 
-_check_core()
+_check()
 {
     # try to provoke a core
     pminfo -v irix >/dev/null 2>&1
@@ -39,7 +39,7 @@ _check_core()
     $sudo touch $PCP_PMCDLOG_PATH
     grep -i "dumping to core" $PCP_PMCDLOG_PATH
     sts=$?
-    if [ -f $PCP_LOG_DIR/core -o -f $PCP_LOG_DIR/pmcd/core -o $sts -eq 0 ]
+    if [ "`echo $PCP_LOG_DIR/core*`" != "$PCP_LOG_DIR/core*" -o "`echo $PCP_LOG_DIR/pmcd/core*`" != "$PCP_LOG_DIR/pmcd/core*" -o $sts -eq 0 ]
     then
 	echo "=== core found or logfile claims dumping to core! ==="
 	echo '=== Here is $PCP_PMCDLOG_PATH ==='
@@ -57,9 +57,9 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # kill off any pmcds and get rid of core file to get to a sane starting place
 $sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
-$sudo rm -f $PCP_LOG_DIR/core $PCP_LOG_DIR/pmcd/core $PCP_PMCDLOG_PATH
+$sudo rm -f $PCP_LOG_DIR/core* $PCP_LOG_DIR/pmcd/core* $PCP_PMCDLOG_PATH
 
-_check_core
+_check
 
 # empty pmcd.conf
 $sudo cp $PCP_PMCDCONF_PATH $tmp.conf
@@ -80,7 +80,7 @@ else
 fi
 
 echo "Checking for core file ..."
-_check_core
+_check
 
 # success, all done
 status=0

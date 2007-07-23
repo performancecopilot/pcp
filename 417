@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 417
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 # Exercise tools with a corrupted archive
 #
 #
@@ -24,6 +24,20 @@ here=`pwd`
 sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "cd /; rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+_check_core()
+{
+    if [ "`echo core*`" != "core*" ]
+    then
+	echo -n "Dumped core! (saved in $here as"
+	for c in core*
+	do
+	    $sudo mv $c $here/$seq.$c
+	    echo -n " $seq.$c"
+	done
+	echo ")"
+    fi
+}
 
 rm -rf $tmp
 mkdir $tmp
@@ -49,84 +63,44 @@ export TZ
 echo
 echo "=== pminfo ==="
 pminfo -n $here/src-oss/bigace.pmns -a bad 2>&1
-if [ -f core ]
-then
-    echo "Arrggh ... dumped core!"
-    cp core $here/$seq.core
-    exit
-fi
+_check_core
 
 echo
 echo "=== pminfo -f irix ==="
 pminfo -n $here/src-oss/bigace.pmns -a bad -f irix
-if [ -f core ]
-then
-    echo "Arrggh ... dumped core!"
-    cp core $here/$seq.core
-    exit
-fi
+_check_core
 
 echo
 echo "=== pmdumplog -t ==="
 pmdumplog -n $here/src-oss/bigace.pmns -z -t bad
-if [ -f core ]
-then
-    echo "Arrggh ... dumped core!"
-    cp core $here/$seq.core
-    exit
-fi
+_check_core
 
 echo
 echo "=== pmdumplog -t, no index ==="
 mv bad.index save.index
 pmdumplog -n $here/src-oss/bigace.pmns -z -t bad
 mv save.index bad.index
-if [ -f core ]
-then
-    echo "Arrggh ... dumped core!"
-    cp core $here/$seq.core
-    exit
-fi
+_check_core
 
 echo
 echo "=== pmdumplog -l ==="
 pmdumplog -n $here/src-oss/bigace.pmns -z -l bad
-if [ -f core ]
-then
-    echo "Arrggh ... dumped core!"
-    cp core $here/$seq.core
-    exit
-fi
+_check_core
 
 echo
 echo "=== pmdumplog -L ==="
 pmdumplog -n $here/src-oss/bigace.pmns -z -L bad
-if [ -f core ]
-then
-    echo "Arrggh ... dumped core!"
-    cp core $here/$seq.core
-    exit
-fi
+_check_core
 
 echo
 echo "=== pmdumplog -m ==="
 pmdumplog -n $here/src-oss/bigace.pmns -z -m bad 2>&1
-if [ -f core ]
-then
-    echo "Arrggh ... dumped core!"
-    cp core $here/$seq.core
-    exit
-fi
+_check_core
 
 echo
 echo "=== pmlogsummary ==="
 pmlogsummary -n $here/src-oss/bigace.pmns bad 2>&1
-if [ -f core ]
-then
-    echo "Arrggh ... dumped core!"
-    cp core $here/$seq.core
-    exit
-fi
+_check_core
 
 # success, all done
 status=0

@@ -2,7 +2,7 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: Makefile,v 1.23 2004/04/13 08:59:30 kenmcd Exp $
+# $Id: Makefile,v 1.34 2005/07/08 23:39:52 kenmcd Exp $
 #
 
 include versiondefs
@@ -23,17 +23,22 @@ GLDOPTS	= $(DEF_GLDOPTS)
 LIBPCP2 = /usr/lib/libpcp.so.2
 LIBPMDA2 = /usr/lib/libpcp_pmda.so.2
 LIBTRACE = /usr/lib/libpcp_trace.so.1
+LIBPMC = /usr/lib/libpcp_pmc.a
 OPTS_32 = -o32 -mips2
 #else
 LIBPCP2 = /usr/lib32/libpcp.so.2
 LIBPMDA2 = /usr/lib32/libpcp_pmda.so.2
 LIBTRACE = /usr/lib32/libpcp_trace.so.1
+LIBPMC = /usr/lib32/libpcp_pmc.a
 OPTS_32 = -n32 -mips3
 #endif
+
+INCPMC	= -I/usr/include/pcp/pmc
 
 MIPSPROVERS	!= cc -version 2>&1 | sed -e 's/MIPSpro Compilers: Version //'
 PID		!= sh -c 'echo $$$$'
 HAVE_DYNAMIC	!= grep DYNAMIC /var/pcp/pmns/stdpmid >/dev/null && echo 1; exit 0
+HAVE_PMC	!= [ -f $(LIBPMC) ] && echo 1; exit 0
 
 MPI_HEADER 	= /usr/include/mpi.h
 MPI_PCP_HEADER	= /usr/include/pcp/mpi_pcp.h
@@ -68,12 +73,15 @@ SRCARCH = mirage.0 moomba.client.0 babylon.percpu.0 omen.client.0 \
 	bigace.0 960624.08.17.0 rattle.0 mark-bug.0 arch_a.0 arch_b.0 \
 	err_v1.0 changeinst.0 19970807.09.54.0 19970807.09.59.0 \
 	binning.0 wrap.0 573184.0 xbug1.0 pcpcmd.0 markmerge.0 \
-	sample-secs.0 gmt-boring.0 kenj-pc-1.0 kenj-pc-2.0
+	sample-secs.0 gmt-boring.0 kenj-pc-1.0 kenj-pc-2.0 \
+	reduce-1.0 reduce-2.0 kenj-pc-diskstat.0 snort-disks.0 \
+	vldb-disks.0 oview-short.0 moomba.pmkstat.0 fcsw_indom.0 \
+	uwrap.0 20041125.0 ac15.0
 
 MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
 	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 null.0 \
 	interp.0 mv-interp.0 noti-interp.0 noti-ok-foo.0 gap.0 gap2.0 \
-	dodgey-some.0 dodgey-all.0 dodgey-mixed.0
+	dodgey-some.0 dodgey-all.0 dodgey-mixed.0 reduce-gap.0
 
 ARCH	= $(SRCARCH) $(MKARCH)
 
@@ -81,7 +89,7 @@ ARCH	= $(SRCARCH) $(MKARCH)
 # and GNUmakefile for all common apps that are used in both IRIX
 # and Linux
 
-CFILES	= pducheck.c disk_test.c exercise.c chkoptfetch.c \
+CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	ipc.c xval.c xxx.c chkopenlog.c chkconnect.c t_fetch.c \
 	proc_test.c hp-mib.c agenttimeout.c chkctx2.c pmcdgone.c chkhelp.c \
 	scale.c chktrim.c store.c torture_api.c logcontrol.c xlog.c \
@@ -97,15 +105,22 @@ CFILES	= pducheck.c disk_test.c exercise.c chkoptfetch.c \
 	pmnsunload.c parsemetricspec.c pdu-server.c parseinterval.c \
 	pmprintf.c pmsocks_objstyle.c torture_trace.c numberstr.c tstate.c \
 	read-bf.c write-bf.c slow_af.c tabort.c indom.c 779246.c tztest.c \
-	pmpost-exploit.c multifetch.c context_test.c
+	pmpost-exploit.c multifetch.c pmconvscale.c torture-eol.c \
+	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c
 
 #if !empty(HAVE_DYNAMIC)
-# rest of original list from ../src for reference
-#CFILES	+= dynamic_pmda.c
+CFILES	+= dynamic_pmda.c
+#endif
+
+#if !empty(HAVE_PMC)
+C++FILES	+= pmc_context.c++ pmc_context.c++  \
+		pmc_format.c++ pmc_vector.c++ pmc_string.c++ \
+		pmc_source.c++ pmc_desc.c++ pmc_indom.c++ \
+		pmc_metric.c++ pmc_group.c++ pmc_dynamic.c++ pmc_hosts.c++
 #endif
 
 TARGETS	= \
-	$(CFILES:R:S/broken_pmda//) \
+	$(CFILES:R:S/broken_pmda//) $(C++FILES:R) \
 	pminfo_lite chkctx2_lite torture_api.64 pmclient template \
 	fetchrate_lite pv pv64 pmval \
 	broken_pmda_2_0 broken_pmda_2_1 broken_pmda_2_2 \
@@ -116,6 +131,12 @@ TARGETS	= \
 #if $(HAVE_COMPAT)
 TARGETS	+= broken_pmda_1_0 broken_pmda_1_1 broken_pmda_1_2 \
 	broken_pmda_1_3 broken_pmda_1_4 broken_pmda_1_5
+#endif
+
+#if !empty(HAVE_PMC)
+TARGETS	+= pmc_list pmc_context pmc_format pmc_vector pmc_string \
+	pmc_source pmc_desc pmc_indom pmc_metric pmc_group \
+	pmc_dynamic pmc_hosts
 #endif
 
 LCOPTS	= -fullwarn $(DIAG_SUPPRESS) -I/usr/include/pcp -MDupdate Makedepend
@@ -143,7 +164,8 @@ LDIRT	= *.log domain.h help.pag help.dir mv-foo.? mv-bar.? mv-bigbin.? \
 	broken_v2.dir broken_v2.pag \
 	broken_pmda_*.c broken.dir broken.pag broken_pmda_? real_broken_pmns \
 	pv64.c pmsocks_objstyle_n32.c pmsocks_objstyle_64.c \
-	localconfig.h
+	real_dynamic_pmns localconfig.h \
+	dynamic.dir dynamic.pag getpid.o
 
 #if $(IRIX) != "IRIX6_2"
 #LDIRT += libfake_mpi.c
@@ -291,6 +313,9 @@ stripmark: stripmark.c
 tohex: tohex.c
 	$(CC) $(LCDEFS) $(LCOPTS) -o $@ tohex.c
 
+wrap_int: wrap_int.c
+	$(CC) $(LCDEFS) $(LCOPTS) -o $@ wrap_int.c
+
 # --- need libpcp
 #
 
@@ -412,6 +437,23 @@ domain.h:	/var/pcp/pmns/stdpmid
 	sed -n -e 's/[ 	]*$$//' -e '/define[ 	]BROKEN[ 	]/s/.*[ 	]/#define BROKEN /p' /var/pcp/pmns/stdpmid >>domain.h
 	sed -n -e 's/[ 	]*$$//' -e '/define[ 	]DYNAMIC[ 	]/s/.*[ 	]/#define DYNAMIC /p' /var/pcp/pmns/stdpmid >>domain.h
 
+real_dynamic_pmns:	domain.h dynamic_pmns
+	cat domain.h >real_dynamic_pmns
+	echo >>real_dynamic_pmns
+	echo 'root {' >>real_dynamic_pmns
+	echo '  broken' >>real_dynamic_pmns
+	echo '}' >>real_dynamic_pmns
+	echo >>real_dynamic_pmns
+	cat dynamic_pmns >>real_dynamic_pmns
+
+dynamic.dir:	dynamic_help real_dynamic_pmns
+	rm -f dynamic.pag dynamic.dir
+	/usr/pcp/bin/newhelp -n real_dynamic_pmns -v 2 -o dynamic dynamic_help
+
+dynamic_pmda: dynamic_pmda.c domain.h real_dynamic_pmns
+	rm -f $@
+	$(CC) $(LCDEFS) $(LCOPTS) -DVERSION_2 -o $@ $@.c $(LLDOPTS) -lpcp_pmda $(LLDLIBS)
+
 broken_v2.dir:	broken_help real_broken_pmns
 	rm -f broken_v2.pag broken_v2.dir
 	/usr/pcp/bin/newhelp -n real_broken_pmns -v 2 -o broken_v2 broken_help
@@ -485,22 +527,12 @@ broken_pmda_2_5: broken_pmda.c domain.h
 	ln -s broken_pmda.c $@.c
 	$(CC) $(LCDEFS) $(LCOPTS) -DVERSION_2 -DBUG_5 -o $@ $@.c $(LLDOPTS) -lpcp_pmda $(LLDLIBS)
 
-real_dynamic_pmns:	domain.h dynamic_pmns
-	cat domain.h >real_dynamic_pmns
-	echo >>real_dynamic_pmns
-	echo 'root {' >>real_dynamic_pmns
-	echo '  broken' >>real_dynamic_pmns
-	echo '}' >>real_dynamic_pmns
-	echo >>real_dynamic_pmns
-	cat dynamic_pmns >>real_dynamic_pmns
+dumb_pmda: dumb_pmda.c
+	$(CC) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LLDOPTS) -lpcp_pmda $(LLDLIBS)
 
-dynamic.dir:	dynamic_help real_dynamic_pmns
-	rm -f dynamic.pag dynamic.dir
-	/usr/pcp/bin/newhelp -n real_dynamic_pmns -v 2 -o dynamic dynamic_help
-
-dynamic_pmda: dynamic_pmda.c domain.h real_dynamic_pmns
+pmdashutdown:	pmdashutdown.c
 	rm -f $@
-	$(CC) $(LCDEFS) $(LCOPTS) -DVERSION_2 -o $@ $@.c $(LLDOPTS) -lpcp_pmda $(LLDLIBS)
+	$(CC) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LLDOPTS) -lpcp_pmda $(LLDLIBS)
 
 # --- special cases - hand-crafted libraries required
 #
@@ -545,6 +577,10 @@ pducheck:	pducheck.c
 pdu-server:	pdu-server.c
 	rm -f $@
 	$(CC) $(LCDEFS) $(LCOPTS) -o $@ pdu-server.c -lpcp_dev -lpcp_trace $(LLDLIBS)
+
+torture_cache:	torture_cache.o 
+	rm -f $@
+	$(CC) $(CDEFS) $(COPTS) -o $@ torture_cache.o -lpcp_pmda $(LDLIBS)
 
 obs:	obs.c
 	rm -f $@
@@ -739,6 +775,10 @@ gap.0 gap2.0:
 	/usr/pcp/bin/pmlogextract tmp/A tmp/B tmp/C gap2
 	rm -rf tmp
 
+reduce-gap.0:	reduce-1.0 reduce-2.0
+	rm -f reduce-gap.*
+	pmlogextract reduce-1 reduce-2 reduce-gap
+
 pmclient:	pmclient_src
 	rm -f pmclient pmclient_src/pmclient
 	cd pmclient_src ; make pmclient
@@ -753,6 +793,68 @@ pmclient_src: /var/pcp/demos/pmclient
 torture_indom: torture_indom.c
 	rm -f $@
 	$(CC) $(IRIX_OBJECT) $(LCDEFS) $(LCOPTS) -o $@ torture_indom.c $(LLDOPTS) $(LLDLIBS)
+
+# --- libpcp_pmc
+#
+pmc_format.o	:	pmc_format.c++
+	$(C++) -c pmc_format.c++ $(LC++OPTS) $(LC++DEFS) $(INCPMC)
+pmc_format	:	pmc_format.o $(LIBPMC)
+	$(C++) -o $@ $@.o $(LC++OPTS) $(LC++DEFS) $(LIBPMC) $(LIBPCP2) -lgen
+
+pmc_vector.o	:	pmc_vector.c++
+	$(C++) -c pmc_vector.c++ $(LC++OPTS) $(LC++DEFS) $(INCPMC)
+pmc_vector	:	pmc_vector.o $(LIBPMC)
+	$(C++) -o $@ $@.o $(LC++OPTS) $(LC++DEFS) $(LIBPCP2) -lgen
+
+pmc_list.o	:	pmc_list.c++
+	$(C++) -c pmc_list.c++ $(LC++OPTS) $(LC++DEFS) $(INCPMC)
+pmc_list	:	pmc_list.o $(LIBPMC)
+	$(C++) -o $@ $@.o $(LC++OPTS) $(LC++DEFS) $(LIBPCP2) -lgen
+
+pmc_string.o	:	pmc_string.c++
+	$(C++) -c pmc_string.c++ $(LC++OPTS) $(LC++DEFS) $(INCPMC)
+pmc_string	:	pmc_string.o $(LIBPMC)
+	$(C++) -o $@ $@.o $(LC++OPTS) $(LC++DEFS) $(LIBPMC) $(LIBPCP2) -lgen
+
+pmc_source.o	:	pmc_source.c++
+	$(C++) -c pmc_source.c++ $(LC++OPTS) $(LC++DEFS) $(INCPMC)
+pmc_source	:	pmc_source.o $(LIBPMC)
+	$(C++) -o $@ $@.o $(LC++OPTS) $(LC++DEFS) $(LIBPMC) $(LIBPCP2) -lgen
+
+pmc_desc.o	:	pmc_desc.c++
+	$(C++) -c pmc_desc.c++ $(LC++OPTS) $(LC++DEFS) $(INCPMC)
+pmc_desc	:	pmc_desc.o $(LIBPMC)
+	$(C++) -o $@ $@.o $(LC++OPTS) $(LC++DEFS) $(LIBPMC) $(LIBPCP2) -lgen
+
+pmc_indom.o	:	pmc_indom.c++
+	$(C++) -c pmc_indom.c++ $(LC++OPTS) $(LC++DEFS) $(INCPMC)
+pmc_indom	:	pmc_indom.o $(LIBPMC)
+	$(C++) -o $@ $@.o $(LC++OPTS) $(LC++DEFS) $(LIBPMC) $(LIBPCP2) -lgen
+
+pmc_context.o	:	pmc_context.c++
+	$(C++) -c pmc_context.c++ $(LC++OPTS) $(LC++DEFS) $(INCPMC)
+pmc_context	:	pmc_context.o $(LIBPMC)
+	$(C++) -o $@ $@.o $(LC++OPTS) $(LC++DEFS) $(LIBPMC) $(LIBPCP2) -lgen
+
+pmc_metric.o	:	pmc_metric.c++
+	$(C++) -c pmc_metric.c++ $(LC++OPTS) $(LC++DEFS) $(INCPMC)
+pmc_metric	:	pmc_metric.o $(LIBPMC)
+	$(C++) -o $@ $@.o $(LC++OPTS) $(LC++DEFS) $(LIBPMC) $(LIBPCP2) -lgen
+
+pmc_group.o	:	pmc_group.c++
+	$(C++) -c pmc_group.c++ $(LC++OPTS) $(LC++DEFS) $(INCPMC)
+pmc_group	:	pmc_group.o $(LIBPMC)
+	$(C++) -o $@ $@.o $(LC++OPTS) $(LC++DEFS) $(LIBPMC) $(LIBPCP2) -lgen
+
+pmc_dynamic.o	:	pmc_dynamic.c++
+	$(C++) -c pmc_dynamic.c++ $(LC++OPTS) $(LC++DEFS) $(INCPMC)
+pmc_dynamic	:	pmc_dynamic.o $(LIBPMC)
+	$(C++) -o $@ $@.o $(LC++OPTS) $(LC++DEFS) $(LIBPMC) $(LIBPCP2) -lgen
+
+pmc_hosts.o	:	pmc_hosts.c++
+	$(C++) -c pmc_hosts.c++ $(LC++OPTS) $(LC++DEFS) $(INCPMC)
+pmc_hosts	:	pmc_hosts.o $(LIBPMC)
+	$(C++) -o $@ $@.o $(LC++OPTS) $(LC++DEFS) $(LIBPMC) $(LIBPCP2) -lgen
 
 # --- miscellaneous
 #

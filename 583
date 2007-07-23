@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 583
-# $Revision: 1.19 $
+# $Revision: 1.20 $
 # based on 519, caused pmie to dump core initially
 # also #698718
 #
@@ -41,7 +41,7 @@ _filter()
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
-status=1	# failure is the default!
+status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 PMCD_CONNECT_TIMEOUT=60
@@ -65,7 +65,7 @@ then
 fi
 
 # real QA test starts here
-$sudo rm -f core
+$sudo rm -f core* $seq.core*
 
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 sleep 3
@@ -145,13 +145,6 @@ echo >>$seq.full
 echo "=== tail SYSLOG ===" >>$seq.full
 $sudo tail -100 $SYSLOG >>$seq.full
 
-if [ -f core ]
-then
-    echo
-    echo "pmie dumped core!"
-    file core
-else
-    status=0
-fi
+_check_core
 
 exit

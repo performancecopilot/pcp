@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 113
-# $Revision: 2.13 $
+# $Revision: 2.14 $
 #
 # check filesys metrics against df and mount
 # markgw. 

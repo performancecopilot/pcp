@@ -1,0 +1,41 @@
+#! /bin/sh
+# PCP QA Test No. 213 (formerly 1171, 442)
+# $Revision: 2.19 $
+#
+# Test functionality of PMC_Desc
+#
+# Copyright (c) 1995-2002,2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=chatz
+
+seq=`basename $0`
+
+if [ -x src-oss/pmc_desc ]
+then
+    :
+else
+    echo "Can't execute src-oss/pmc_desc" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+cd src-oss
+./pmc_desc
+
+# success, all done
+status=0
+exit

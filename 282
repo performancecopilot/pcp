@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 282
-# $Revision: 1.37 $
+# $Revision: 1.39 $
 # Error handling in $PCP_RC_DIR/pcp
 #
 #
@@ -17,8 +17,14 @@ sudo=./sudo
 $sudo rm -f $seq.out
 if [ $PCP_PLATFORM = linux ]
 then
-
-    ln $seq.linux $seq.out
+    if [ -f /etc/fedora-release ]
+    then
+	# $seq.out.4 works for Fedora2
+	ln $seq.out.4 $seq.out
+    else
+	# $seq.out.3 is the old Linux one
+	ln $seq.out.3 $seq.out
+    fi
     PCP_PMLOGGEROPTIONS_PATH=$PCP_VAR_DIR/config/pmcd/pmlogger.options
     SYSPMDA=$PCP_PMDAS_DIR/linux/pmda_linux.so
 elif [ $PCP_PLATFORM = irix ]
@@ -86,7 +92,8 @@ _poke_pmcd()
     | sed \
 	-e 's/\(install the pcp.sw.base\) .*/\1 ... PCP 2.0 or later .../' \
 	-e 's/.*\(consult PMLOGGER.CHECK(1), else\)/        ... \1/' \
-	-e '/root.*.PCP_BINADM_DIR.pmcd/s/.*/-- ps output line --/'
+	-e '/root.*.PCP_BINADM_DIR.pmcd/s/.*/-- ps output line --/' \
+	-e '/^$/d'
 
     can_wait=5
     i=0

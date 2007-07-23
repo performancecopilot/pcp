@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 365
-# $Revision: 1.14 $
+# $Revision: 1.16 $
 # Errors in pmcd.conf [acccess] that should not prevent pmcd starting
 #
 #
@@ -12,21 +12,28 @@ owner=kenmcd
 seq=`basename $0`
 echo "QA output created by $seq"
 
+. ./localconfig
+
+rm -f $seq.out
+if [ "$PCP_PLATFORM" = linux ]
+then
+    echo "[test configuration for Linux]"
+    if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
+    then
+	ln $seq.out.2 $seq.out
+    else
+	ln $seq.out.1 $seq.out
+    fi
+else
+    echo "[test configuration for IRIX]"
+    ln $seq.out.0 $seq.out
+fi
+
 # get standard filters
 . ./common.product
 . ./common.check
 . ./common.filter
 
-
-#  Requires common.product:
-if [ "$PCP_PLATFORM" = linux ]
-then
-    echo "[test configuration for Linux]"
-    rm -f $seq.out ; ln $seq-linux.out $seq.out
-else
-    echo "[test configuration for IRIX]"
-    rm -f $seq.out ; ln $seq-irix.out $seq.out
-fi
 
 tmp=/tmp/$$
 status=1

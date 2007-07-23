@@ -4,7 +4,7 @@ sum of src-oss/omen.client ...
 24558 src-oss/omen.client.index
 04838 src-oss/omen.client.meta
 
-----
+-- -t 0.2 -s 4 --
 
 metric:    sample.milliseconds
 host:      localhost
@@ -17,7 +17,7 @@ close to one
 close to one
 close to one
 
-----
+-- -r -t 0.2 -s 4 --
 
 metric:    sample.milliseconds
 host:      localhost
@@ -30,7 +30,7 @@ number, not one
 number, not one
 number, not one
 
-----
+-- -z -U ... --
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load
@@ -56,7 +56,7 @@ samples:   all
 
 pmval: pmFetchArchive: End of PCP archive log
 
-----
+-- -z -S @16:49:20 -T @16:49:40 -a ... --
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load
@@ -92,7 +92,7 @@ interval:  1.00 sec
 16:49:39.000    5.176E-02             ?     1.953E-03 
 16:49:40.000    4.785E-02             ?     9.766E-04 
 
-----
+-- -z -S @16:49:20 -T 20sec -a ... --
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load
@@ -128,7 +128,7 @@ interval:  1.00 sec
 16:49:39.000    5.176E-02             ?     1.953E-03 
 16:49:40.000    4.785E-02             ?     9.766E-04 
 
-----
+-- -z -S +15s -T -10s -a ... --
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load
@@ -169,7 +169,7 @@ interval:  1.00 sec
 16:49:53.035    3.809E-02             ?        0.0    
 16:49:54.035    3.809E-02             ?        0.0    
 
-----
+-- -Z UTC -S +15s -T -10s -a ... --
 Note: timezone set to "TZ=UTC"
 
 metric:    kernel.all.load
@@ -210,7 +210,7 @@ interval:  1.00 sec
 05:49:53.035    3.809E-02             ?        0.0    
 05:49:54.035    3.809E-02             ?        0.0    
 
-----
+-- -z -S @16:49:20 -T 10 arch/... --
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load
@@ -236,7 +236,7 @@ interval:  1.00 sec
 16:49:29.000    5.957E-02             ?     3.906E-03 
 16:49:30.000    5.566E-02             ?     2.930E-03 
 
-----
+-- -z -S @16:49:20 -T 10 arch/...[...] --
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load
@@ -262,7 +262,7 @@ interval:  1.00 sec
 16:49:29.000    5.957E-02     3.906E-03 
 16:49:30.000    5.566E-02     2.930E-03 
 
-----
+-- -z -S 15 -A 1 -T10 -a ... --
 Note: timezone set to local timezone of host "omen" from archive
 
 metric:    kernel.all.load

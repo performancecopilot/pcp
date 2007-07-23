@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 149
-# $Revision: 2.14 $
+# $Revision: 2.15 $
 # check inst in pmResult for metrics with indom of PM_INDOM_NULL
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -44,6 +44,7 @@ then
 	-e '/disk.*bytes:/d' \
 	-e '/disk.all.avactive/d' \
 	-e '/disk.all.aveq/d' \
+	-e '/irix.mem.util/d' \
 	-e '/rpc.client/d' \
 	-e '/rpc.server/d' \
 	-e '/nfs3*.client.calls:/d' \

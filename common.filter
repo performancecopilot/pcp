@@ -2,7 +2,7 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: common.filter,v 2.110 2004/11/10 03:59:43 pcpqa Exp $
+# $Id: common.filter,v 2.114 2007/02/26 06:06:46 kimbrr Exp $
 #
 
 # pmcd log file
@@ -27,9 +27,11 @@ _filter_pmcd_log()
 	-e '/started PMDA/s/=.*/= PID/' \
 	-e 's/ \[0x[0-9a-f]*]//' \
 	-e '/^->/s/->[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/->        /' \
+	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
 	-e '/get_scsi_sn:/d' \
 	-e '/Info: CleanupAgent/d' \
 	-e '/using .* kmem interface/d' \
+	-e '/pmcd caught SIG.* from pid=/s/=[0-9][0-9]*/=N/g' \
 	-e '/^irix.*libirixpmda/{
 s/irix/[OS]/
 s/ 1/??/
@@ -81,6 +83,9 @@ s/entry=[^ ]*/entry=[OS]_init/
 	-e '/Warning: proc.psinfo.wchan_s symbol names cannot be derived!/d' \
 	-e '/Warning: Addresses will be returned for proc.psinfo.wchan_s instead!/d' \
 	-e '/NOTICE: using ".*" for kernel symbols map/d' \
+        -e '/NOTICE: using kernel 2\.4 or earlier CPU types/d' \
+        -e '/NOTICE: using kernel 2\.6\.0 to 2\.6\.4 CPU types/d' \
+        -e '/NOTICE: using 64 bit CPU time types/d' \
     | sed \
 	-e '/Connected from.*Operations denied/{
 P
@@ -197,6 +202,7 @@ _filter_optional_pmdas()
 	-e '/pmdammv/d' \
 	-e '/pmdamounts/d' \
 	-e '/pmdampi/d' \
+	-e '/pmdanasavg/d' \
 	-e '/pmdanetprobe/d' \
 	-e '/pmdanews/d' \
 	-e '/pmdaoracle/d' \
@@ -413,6 +419,8 @@ _filter_pcp_start()
 	-e '/^Performance Co-Pilot/s/\.\.\. *$/.../' \
         -e '/^\.[. ]*done$/d' \
         -e '/^\.[. ]*failed$/d' \
+	-e 's/^\(Performance Co-Pilot starting .*\.\.\.\) *\(\$PCP_RC_DIR\)/\1\
+\2/' \
 	-e '/^Waiting for PMCD/s/\.\.\.[. ]*done/.../' \
 	-e 's/^\(Waiting .*\.\.\.\)\(\$PCP_RC_DIR\)/\1\
 \2/' \
@@ -588,6 +596,7 @@ _filter_torture_api()
 	-e '/^    kswitch /d' \
 	-e '/^    mounts /d' \
 	-e '/^    mt /d' \
+	-e '/^    nasavg /d' \
 	-e '/^    numa /d' \
 	-e '/^    origin /d' \
 	-e '/^    p76 /d' \

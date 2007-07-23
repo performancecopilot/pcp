@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 635
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 #
 # Check network.interface metrics
 # This is the Linux version.  qa/123 is the IRIX version.

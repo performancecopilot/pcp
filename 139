@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 139
-# $Revision: 2.13 $
+# $Revision: 2.14 $
 # Illegal/unknown metrics to pmlc
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -24,7 +24,9 @@ _filter()
 	-e '/sample\.many\./d'\
 	-e '/sample\.bigid/d' \
 	-e '/sample\.byte_/d' \
-	-e '/sample\.kbyte_/d'
+	-e '/sample\.kbyte_/d' \
+	-e '/sample\.datasize/d' \
+
 }
 
 tmp=/tmp/$$

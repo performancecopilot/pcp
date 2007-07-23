@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 119
-# $Revision: 2.18 $
+# $Revision: 2.19 $
 #
 # pmlogger_check failure produces way too many lines of output
 # pv 877570
@@ -71,8 +71,8 @@ _cleanup()
 	_needclean=false
     fi
     $sudo rm -f $tmp.*
-    $sudo rm -rf $LOGGING_DIR/`hostname`-one
-    $sudo rm -rf $LOGGING_DIR/`hostname`-two
+    $sudo rm -rf $LOGGING_DIR/`hostname | sed -e 's/\..*//'`-one
+    $sudo rm -rf $LOGGING_DIR/`hostname | sed -e 's/\..*//'`-two
     $sudo rm -rf $LOGGING_DIR/no.such.host
     exit $status
 }
@@ -87,7 +87,7 @@ fi
 _filter()
 {
     sed \
-	-e "s/`hostname`/LOCALHOST/g" \
+	-e "s/`hostname | sed -e 's/\..*//'`/LOCALHOST/g" \
 	-e "/UID.*PID/d" \
 	-e "s/.* pmlogger .*-c .*/<pmlogger process>/" \
 	-e "/Warning: creating directory/s/(.*\/\([^/][^/]*\))/(...\/\1)/" \
@@ -120,8 +120,8 @@ $sudo cp $tmp.tmp $PCP_VAR_DIR/config/pmlogger/control
 #
 $sudo $PCP_RC_DIR/pcp stop >$tmp.out 2>&1
 cat $tmp.out >$seq.full
-$sudo mkdir -p $LOGGING_DIR/`hostname`-one >/dev/null 2>&1
-$sudo mkdir -p $LOGGING_DIR/`hostname`-two >/dev/null 2>&1
+$sudo mkdir -p $LOGGING_DIR/`hostname | sed -e 's/\..*//'`-one >/dev/null 2>&1
+$sudo mkdir -p $LOGGING_DIR/`hostname | sed -e 's/\..*//'`-two >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/no.such.host >/dev/null 2>&1
 $sudo $PCP_RC_DIR/pcp start >$tmp.out 2>&1
 cat $tmp.out >>$seq.full

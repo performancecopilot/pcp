@@ -70,8 +70,8 @@ Most likely this pmlogger instance is inactive.
 Sorry, but this is fatal.  No new pmlogger instance has been started.
 
 === wrong uid to kill pmlogger ===
-/usr/share/pcp/bin/pmnewlog: kill: (PID) - Operation not permitted
-/usr/share/pcp/bin/pmnewlog: kill: (PID) - Operation not permitted
-/usr/share/pcp/bin/pmnewlog: kill: (PID) - Operation not permitted
+PCP_BINADM_DIR/pmnewlog: kill: (PID) - Operation not permitted
+PCP_BINADM_DIR/pmnewlog: kill: (PID) - Operation not permitted
+PCP_BINADM_DIR/pmnewlog: kill: (PID) - Operation not permitted
  failed!
 Sorry, but this is fatal.  No new pmlogger instance has been started.

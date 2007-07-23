@@ -1,12 +1,22 @@
 #! /bin/sh
 # PCP QA Test No. 023
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 # Multiple PMCDs test
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
+
+. ./localconfig
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
+then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
 echo "QA output created by $seq"
 
 # get standard filters

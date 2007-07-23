@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 003
-# $Revision: 2.56 $
+# $Revision: 2.59 $
 # Check that we get the expected metrics failing for each OS
 # Will need to be updated with every libirixpmda change
 # Assumes that and hw.r10kevctr are not active
@@ -255,7 +255,10 @@ do
 	    -e "/mem\.slabinfo\.slabs\.objects_per_slab: $unavailable/d" \
 	    -e "/mem\.slabinfo\.slabs\.pages_per_slab: $unavailable/d" \
 	    -e "/mem\.slabinfo\.slabs\.total: $unavailable/d" \
-	    -e "/mem.\util\.shared: $unavailable/d" \
+	    -e "/mem\.util\.other: $unavailable/d" \
+	    -e "/mem\.util\.reverseMaps: $unavailable/d" \
+	    -e "/mem\.util\.shared: $unavailable/d" \
+	    -e "/network\.ib\..*/d" \
 	    -e "/nfs3\.server\..*: $unavailable/d" \
 	    -e "/nfs.*\.client\.calls: $unavailable/d" \
 	    -e "/nfs.*\.client\.reqs: $unavailable/d" \

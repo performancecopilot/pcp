@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 308
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 # pmlogger and pmlc for proc metrics ... indom problems
 # pv #452417
 #
@@ -91,7 +91,7 @@ fi
 
 echo
 echo "pmlc local, pmcd and pmlogger remote ..."
-eval `./getpmcdhosts -L -n 2 -s IRIX64 | sed -e 's/ / host2=/' -e 's/^/host1=/'`
+eval `./getpmcdhosts -L -n 2 | sed -e 's/ / host2=/' -e 's/^/host1=/'`
 inst=`pminfo -F -h $host1 proc.psinfo.ppid \
       | sed -n -e '/inst \[1 /{
 s/^[^"]*"/"/
@@ -145,7 +145,7 @@ rsh $host1 -n -l pcpqa "rm -f /tmp/$rem_tmp.*"
 
 echo
 echo "pmlc local, pmcd remote on one host, pmlogger remote on a different host ..."
-eval `./getpmcdhosts -L -n 2 -s IRIX64 | sed -e 's/ / host2=/' -e 's/^/host1=/'`
+eval `./getpmcdhosts -L -n 2 | sed -e 's/ / host2=/' -e 's/^/host1=/'`
 # need this in the format of the pmcd that pmlogger is connected to
 #
 inst=`pminfo -F -h $host2 proc.psinfo.ppid \

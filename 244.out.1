@@ -1,0 +1,109 @@
+QA output created by 244
+Waiting for PMCD to terminate ...
+$PCP_PMCDCONF_PATH contains:
+<BEGIN>
+fake_irix 1 pipe binary dumb_pmda -d 1 000000660066
+fake_sampledso 30 pipe binary sleep 000000660066
+fake_cisco 5 pipe binary sed /000000660066/p
+fake_linux 60 pipe binary sleep 000000660066
+pmcd 2 dso pmcd_init ...pmda_pmcd.so
+[access]
+allow localhost : all;
+disallow * : all;
+<END>
+Expect "IPC protocol failure" ...
+hinv.ncpu: pmLookupDesc: IPC protocol failure
+$PCP_PMCDCONF_PATH now contains:
+<BEGIN>
+fake_irix 1 pipe binary dumb_pmda -d 1 000000660066
+sample 29 pipe binary ...pmdasample -d 29
+fake_cisco 5 pipe binary sed /000000660066/p
+fake_linux 60 pipe binary sleep 000000660066
+pmcd 2 dso pmcd_init ...pmda_pmcd.so
+[access]
+allow localhost : all;
+disallow * : all;
+<END>
+Expect "Unknown or illegal metric identifier" ...
+sampledso.control: pmLookupDesc: Unknown or illegal metric identifier
+Expect "IPC protocol failure" ...
+hinv.ncpu: pmLookupDesc: IPC protocol failure
+Expect 9 values available ...
+sample.bin 9 100 200 300 400 500 600 700 800 900
+
+Deleting, adding and keeping agents test
+Getting a desriptor from domain 30 (fake_sampledso agent had this domain)
+
+sampledso.control PMID: 30.0.0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Log for pmcd on HOST started DATE
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+fake_irix 1 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 1 000000660066
+pmcd 2 A_PID dso i:2 lib=...pmda_pmcd.so entry=pmcd_init
+fake_cisco 5 A_PID FD FD 1 bin pipe cmd=sed /000000660066/p
+fake_sampledso 30 A_PID FD FD 1 bin pipe cmd=sleep 000000660066
+fake_linux 60 A_PID FD FD 1 bin pipe cmd=sleep 000000660066
+
+Host access list:
+00 01 Cur/MaxCons host-spec host-mask lvl host-name
+== == =========== ========= ========= === ==============
+y y A_PID 0 MYIPADDR ffffffff 0 localhost
+n n A_PID 0 00000000 00000000 4 *
+
+
+pmcd: PID = PID
+pmcd request port(s):
+  sts fd  IP addr
+  === === ========
+ok FD A_PID INADDR_ANY
+[DATE] pmcd(PID) Warning: pduread: timeout (after 2.000 sec) while attempting to read 12 bytes out of 12 in mode -1 on fd=FD
+Cleanup "fake_irix" agent (dom 1): protocol failure for fd=FD, exit(0)
+[DATE] pmcd(PID) Info: 
+
+pmcd RESTARTED at DATE
+
+
+Current PMCD clients ...
+     fd  client connection from                    ipc ver  operations denied
+     ==  ========================================  =======  =================
+
+Cleanup "fake_sampledso" agent (dom 30): unconfigured
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+fake_irix 1 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 1 000000660066
+pmcd 2 A_PID dso i:2 lib=...pmda_pmcd.so entry=pmcd_init
+fake_cisco 5 A_PID FD FD 1 bin pipe cmd=sed /000000660066/p
+sample 29 A_PID FD FD 2 bin pipe cmd=...pmdasample -d 29
+fake_linux 60 A_PID FD FD 1 bin pipe cmd=sleep 000000660066
+
+Host access list:
+00 01 Cur/MaxCons host-spec host-mask lvl host-name
+== == =========== ========= ========= === ==============
+y y A_PID 0 MYIPADDR ffffffff 0 localhost
+n n A_PID 0 00000000 00000000 4 *
+
+[DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
+[DATE] pmcd(PID) Warning: pduread: timeout (after 2.000 sec) while attempting to read 12 bytes out of 12 in mode -1 on fd=FD
+Cleanup "fake_irix" agent (dom 1): protocol failure for fd=FD, exit(0)
+[DATE] pmcd(PID) Info: 
+
+pmcd RESTARTED at DATE
+
+
+Current PMCD clients ...
+     fd  client connection from                    ipc ver  operations denied
+     ==  ========================================  =======  =================
+
+Cleanup "fake_cisco" agent (dom 5): unconfigured
+Cleanup "fake_linux" agent (dom 60): unconfigured
+
+...
+Restart and ping pmcd ...
+Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) ...
+Performance Co-Pilot starting archive loggers ...
+pmcd.control.debug 1

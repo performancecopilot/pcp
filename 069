@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 069
-# $Revision: 2.32 $
+# $Revision: 2.33 $
 # Test pmcd's ability to supress multiple access control warnings from the same
 # host
 #
@@ -8,6 +8,16 @@
 #
 
 seq=`basename $0`
+
+. ./localconfig
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
+then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
 echo "QA output created by $seq"
 
 # get standard filters

@@ -1,0 +1,303 @@
+#! /bin/sh
+# PCP QA Test No. 269 (formerly 269, 406)
+# $Revision: 1.9 $
+# To test out wrapping.
+# For pmval, pmdumptext, pmkstat.
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=tes
+
+seq=`basename $0`
+
+if which pmdumptext >/dev/null 2>&1
+then
+    :
+else
+    echo "No pmdumptext binary installed" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+
+rm -f $seq.full
+
+_reset()
+{
+pmstore sample.control -1 > /dev/null
+$sudo killall -HUP pmcd
+_wait_for_pmcd
+}
+
+
+_check_wrap_off()
+{
+tee -a $seq.full |\
+$PCP_AWK_PROG -v expected=$tmp.expected -v debug=$debug -v tolerance=$tolerance  -v num_samples=$num_samples -v mismatch_limit=$mismatch_limit '
+    BEGIN {
+	if (debug == "true")
+	    debug=1;
+	else
+	    debug = 0;
+    }
+    NF == 1 {
+	i++;
+	sts = getline val < expected;
+	if (debug)
+	    print "Read expected value:", val;
+	if (sts < 0)
+	    print "Error: error in  reading expected value";
+	if (sts == 0)
+	    print "Error: eof encountered in  reading expected value";
+
+	if (i == 1) {
+	    # ignore the first one
+	    next;
+        }
+
+	if (debug)
+	    print "Comparing:", val, $1
+        if (val == $1) {
+	    if (debug) print "match";
+        }
+	else if ((val-tolerance) <= $1 && $1 <= (val+tolerance)) {
+	    if (debug) print "match";
+	}
+	else if (val < 0) {
+	    if  ($1 == "?" ){
+		if (debug) print "match";
+	    }
+	    else {
+		print "Missing wrap !";
+		print "Got ", $1, " instead";
+		mismatch++;
+	    }
+	}
+	else {
+	    mismatch++;
+	    if (debug || mismatch_limit==0)
+		print "mismatch: ", $1, val;
+	}
+   }
+   END {
+        if (i < num_samples) {
+	    print "Did not process enough samples";
+	    print "Processed:", i, "expected:", num_samples;
+	}
+	if (mismatch > mismatch_limit) {
+	    print "Too many mismatches";
+	    print "Number of mismatches = ", mismatch;
+	}
+	else {
+	    print "Enough Matched ok";
+	}
+   }
+'
+}
+
+
+
+_check_wrap_on()
+{
+tee -a $seq.full |\
+$PCP_AWK_PROG -v expected=$tmp.expected -v debug=$debug -v tolerance=$tolerance -v num_samples=$num_samples -v mismatch_limit=$mismatch_limit '
+    BEGIN {
+	if (debug == "true")
+	    debug=1;
+	else
+	    debug = 0;
+	# just use 1st value
+	sts = getline val < expected;
+	if (debug)
+	    print "Read expected value:", val;
+	if (sts < 0)
+	    print "Error: error in  reading expected value";
+	if (sts == 0)
+	    print "Error: eof encountered in  reading expected value";
+    }
+    NF == 1 {
+	i++;
+	if (i == 1) {
+	    # ignore the first one
+	    next;
+        }
+	if (debug)
+	    print "Comparing:", val, $1
+        if (val == $1) {
+	    if (debug) print "match";
+        }
+	else if ((val-tolerance) <= $1 && $1 <= (val+tolerance)) {
+	    if (debug) print "match";
+	}
+	else if ($1 == "?" ){
+	    print "Error: no wrapping allowed";
+	    mismatch++;
+	}
+	else {
+	    mismatch++;
+	    if (debug || mismatch_limit == 0)
+		print "mismatch: ", $1, val;
+	}
+   }
+   END {
+        if (i < num_samples) {
+	    print "Did not process enough samples";
+	    print "Processed:", i, "expected:", num_samples;
+	}
+	if (mismatch > mismatch_limit) {
+	    print "Too many mismatches";
+	    print "Number of mismatches = ", mismatch;
+	}
+	else {
+	    print "Enough Matched ok";
+	}
+   }
+'
+}
+
+_test_pmval()
+{
+    _metric=$1
+    pmval -s$num_samples sample.wrap.$_metric |
+    sed -e 's/!/?/' 
+}
+
+
+_test_pmdumptext()
+{
+    _metric=$1
+    num_1=`expr $num_samples + 1` 
+    pmdumptext -f '' -g -w 5 -t 1 -s $num_1 sample.wrap.$_metric |\
+    tail +2
+}
+
+_test_pmkstat()
+{
+    _metric_name="ulong"
+    _metric_pmid="29:0:58"
+
+    # pmkstat calculates rates for some predefined metrics.
+    # So to test it, I will change the PMNS that it uses and 
+    # map the kernel metric in question onto sample.wrap.ulong.
+    # Can only do this for one metric at a time in order to get 
+    # easily predictable results.
+
+    $PCP_AWK_PROG -v metric_name=$_metric_name -v metric_pmid=$_metric_pmid \
+         < $PCP_VAR_DIR/pmns/root > $tmp.pmns '
+      $1 == "kernel.all" || $1 == "irix.kernel.all" {
+	kernel_all = 1;
+	print;
+	next;
+      }
+
+      $1 == "sample.wrap" {
+	sample_wrap = 1;
+	print;
+	next;
+      }
+
+      $1 == "syscall" && kernel_all {
+	printf"\t%s\t%s\n", $1, metric_pmid;
+	kernel_all = 0;
+	next;
+      }
+
+      $1 == metric_name && sample_wrap {
+	printf"\t%s\t1:10:19\n", $1; # kernel.all.syscall
+	sample_wrap = 0;
+	next;
+      }
+
+      {print;}
+    '
+    pmkstat -s $num_samples -t 1sec -n $tmp.pmns | tail +4 | $PCP_AWK_PROG '{print $5}'
+}
+
+_wrap_off()
+{
+    unset PCP_COUNTER_WRAP
+    echo "--- Wrapping OFF ---"
+}
+
+_wrap_on()
+{
+    PCP_COUNTER_WRAP=
+    export PCP_COUNTER_WRAP
+    echo "--- Wrapping ON ---"
+}
+
+# real QA test starts here
+
+debug=false
+num_samples=10
+tolerance="0.15e+09" # implies error of about 0.15 second
+mismatch_limit=1 # allow 1 mismatch
+
+src-oss/wrap_int -n $num_samples >$tmp.expected
+metric="long"
+
+echo "--- Testing pmval ---"
+echo "--- Testing pmval ---" >> $seq.full
+_reset
+_wrap_off
+_test_pmval $metric | _check_wrap_off 
+_wrap_on
+echo "-----------------------" >> $seq.full
+_test_pmval $metric | _check_wrap_on
+
+echo "--- Testing pmdumptext ---"
+echo "--- Testing pmdumptext ---" >> $seq.full
+_reset
+_wrap_off
+_test_pmdumptext $metric | _check_wrap_off
+_wrap_on
+echo "-----------------------" >> $seq.full
+_test_pmdumptext $metric | _check_wrap_on
+
+echo "--- Testing pmkstat ---"
+echo "--- Testing pmkstat ---" >> $seq.full
+src-oss/wrap_int -n $num_samples -u >$tmp.expected
+_reset
+_wrap_off
+if [ "$PCP_PLATFORM" = "linux" ]
+then
+    #  Used to match the test output
+    echo "Enough Matched ok"
+    echo "[Enough Matched ok]: message emitted for Linux" >> $seq.full
+    echo "WARNING: Test should be modified to use $PCP_VAR_DIR/pmns/root" >> $seq.full
+    echo "         provided for Linux.  $PCP_VAR_DIR/pmns/root between" >> $seq.full
+    echo "         IRIX and Linux do not match." >> $seq.full
+else
+    _test_pmkstat | _check_wrap_off
+fi
+_wrap_on
+echo "-----------------------" >> $seq.full
+if [ "$PCP_PLATFORM" = "linux" ]
+then
+    #  Used to match the test output
+    echo "Enough Matched ok"
+    echo "[Enough Matched ok]: message emitted for Linux" >> $seq.full
+    echo "WARNING: Test should be modified to use $PCP_VAR_DIR/pmns/root" >> $seq.full
+    echo "         provided for Linux.  $PCP_VAR_DIR/pmns/root between" >> $seq.full
+    echo "         IRIX and Linux do not match." >> $seq.full
+else
+    _test_pmkstat | _check_wrap_on
+fi
+
+# success, all done
+status=0
+exit

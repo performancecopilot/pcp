@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 255
-# $Revision: 1.43 $
+# $Revision: 1.45 $
 # exercise pmcd <-> pmda version exchange
 # Bug #508731
 # 
@@ -11,6 +11,16 @@
 owner=nathans
 
 seq=`basename $0`
+
+. ./localconfig
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
+then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
 echo "QA output created by $seq"
 
 # get standard filters
@@ -64,7 +74,6 @@ _filter_pmcd()
     	-e "/^broken.*bin/s/$broken_domain[ 	]*[0-9]*[ 	]*[0-9]*[ 	]*[0-9]*/BROKEN PID FD FD/" \
 	-e "s/[1-2][ 	]dso.*irix_init/LIBIRIXPMDA DSO/" \
 	-e "s/[1-2][ 	]dso.*linux_init/LINUX DSO/" \
-	-e "s;$PCP_PMCDCONF_PATH;PCP_PMCDCONF_PATH;g" \
 	-e "s;$PCP_PMDAS_DIR;PCP_PMDAS_DIR;g" \
 	-e "s/ISA\.//g" \
 	-e "s/ \[(nil)]//g" \

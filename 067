@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 067
-# $Revision: 2.28 $
+# $Revision: 2.30 $
 # Test PMCD's ability to detect and cleanup agents it didn't create when they
 # terminate
 #
@@ -8,6 +8,16 @@
 #
 
 seq=`basename $0`
+
+. ./localconfig
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
+then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
 echo "QA output created by $seq"
 
 # get standard filters
@@ -49,6 +59,13 @@ _filter_log()
 	-e '/client connection from/,/^$/d' \
 	-e '/Cleanup/d' \
 	-e '/Info: spindle_stats_init/d'
+}
+
+_filter_pmda_log()
+{
+    sed \
+	-e 's/^\(Log for pmda[^ ]* on\) .*/\1 HOST .../' \
+	-e 's/^\(Log finished\) .*/\1 .../'
 }
 
 interrupt()
@@ -107,13 +124,14 @@ fi
 #
 
 $sudo killall pmgadgets pmchart pmview >/dev/null 2>&1
-src-oss/pmdashutdown 2222 >$tmp.pmdalog 2>&1 &
+src-oss/pmdashutdown -i 2222 -d 3 -l $tmp.pmdalog &
 pid=$!
+echo "pmdashutdown pid: $pid" >$seq.full
 sleep 1
 echo
 echo "port 2222 should be listening"
 netstat -an \
-| tee $seq.full \
+| tee -a $seq.full \
 | grep '[.:]2222 ' \
 | sed \
     -e 's/0\.0\.0\.0/*/g' \
@@ -134,9 +152,11 @@ echo
 
 # wait for pmdashutdown to finish
 #
-for t in 1 2 3 4 5
+for t in 1 2 3 4 5 6
 do
-    if ps $PCP_PS_ALL_FLAGS | cut -f1 | grep $pid >/dev/null 2>&1
+    echo >>$seq.full
+    echo "wait for pmdashutdown to finish ... cycle $t" >>$seq.full
+    if ps $PCP_PS_ALL_FLAGS | tee -a $seq.full | cut -f1 | grep $pid >/dev/null 2>&1
     then
 	sleep 2
     else
@@ -144,9 +164,11 @@ do
     fi
 done
 
+echo >>$seq.full
+cat $tmp.pmdalog >>$seq.full
 echo
 echo "pmda log (should have terminated):"
-cat $tmp.pmdalog
+_filter_pmda_log <$tmp.pmdalog
 echo
 
 $sudo "killall -HUP pmcd"

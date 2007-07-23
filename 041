@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 041
-# $Revision: 2.17 $
+# $Revision: 2.18 $
 # Test $PCP_RC_DIR/pcp start 
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -25,6 +25,7 @@ _filter()
 	-e '/host/s/host "[^"]*"/host SOMEHOST/' \
 	-e 's/ *root[^/]*\//    root ... \//' \
 	-e 's/pmcd -.*/pmcd/' \
+	-e '/__pmGetPDU:.*illegal PDU len=0/d' \
     | _filter_pcp_start
 }
 

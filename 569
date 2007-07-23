@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 569
-# $Revision: 1.15 $
+# $Revision: 1.18 $
 # exercise pmprobe, and pv 679693 in particular
 #
 #
@@ -11,14 +11,26 @@ owner=kenmcd
 
 seq=`basename $0`
 . ./localconfig
-if [ \( $PCP_EOE_VER -lt 6500 -a $PCP_EOE_VER -ge 2200 \) -o \
-      $PCP_EOE_VER -ge 6513 ] ; then
-    rm -f $seq.out && ln $seq.out.2 $seq.out || exit 1
-    echo "Pmprobe with changes from pv. 807561"
+if [ "$PCP_PLATFORM" = irix ]
+then
+    if [ $PCP_EOE_VER -ge 6513 ]
+    then
+	rm -f $seq.out && ln $seq.out.2 $seq.out || exit 1
+	echo "Pmprobe with changes from pv. 807561"
+    else
+	rm -f $seq.out && ln $seq.out.1 $seq.out || exit 1
+    fi
 else
-    rm -f $seq.out && ln $seq.out.1 $seq.out || exit 1
+    # open source
+    if [ $PCP_EOE_VER -ge 2402 ]
+    then
+	rm -f $seq.out && ln $seq.out.2 $seq.out || exit 1
+	echo "Pmprobe with changes from pv. 807561"
+    else
+	rm -f $seq.out && ln $seq.out.1 $seq.out || exit 1
+    fi
 fi
-     
+	 
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
@@ -38,6 +50,8 @@ _filter()
 	-e '/^sample\.bigid/d' \
 	-e '/sample\.byte_/d' \
 	-e '/sample\.kbyte_/d' \
+	-e '/sample\.dynamic\.meta/d' \
+	-e '/sample\.datasize/d' \
 	-e '/^sample\.mirage/s/ [0-9].*/ NUMVAL VAL or INST .../' \
 	-e '/^sample\.dynamic\./s/ [0-9].*/ NUMVAL VAL or INST .../' \
 	-e '/sample\.wrap\./{

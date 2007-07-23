@@ -7,10 +7,10 @@ QA output created by 282
 === expect error: no $PCP_PMCDCONF_PATH ===
 Waiting for PMCD to terminate ...
 $PCP_RC_DIR/pcp:
-Warning: PMCD control file "$PCP_PMCDCONF_PATH" is missing, cannot identify PMDAs
+Warning: PMCD control file /etc/pmcd.conf is missing, cannot identify PMDAs
 	 to be terminated.
 $PCP_RC_DIR/pcp:
-Error: PMCD control file "$PCP_PMCDCONF_PATH" is missing, cannot start PMCD.
+Error: PMCD control file /etc/pmcd.conf is missing, cannot start PMCD.
 === probe pmcd: pmprobe: Cannot connect to PMCD on host "HOST": Connection refused
 
 === simple case, no frills, no errors ===
@@ -46,7 +46,6 @@ Waiting for PMCD to terminate .......
 Process ...
 -- ps output line --
 $PCP_RC_DIR/pcp: Warning: Forcing PMCD to terminate!
-
 Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) ...
 Performance Co-Pilot starting archive loggers ...
 === probe pmcd: OK

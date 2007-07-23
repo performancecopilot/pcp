@@ -1,0 +1,90 @@
+#! /bin/sh
+# PCP QA Test No. 249 (formerly 249, 293)
+# $Revision: 1.10 $
+# check pmdumpmineset (and hence pmdumptext)
+# Bug #482374
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=kenmcd
+
+seq=`basename $0`
+. ./localconfig
+if [ $PCP_PLATFORM = linux ]
+then
+    echo "No pmdumpmindset on Linux" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+status=0	# success is the default!
+trap "cd; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s/$$/PID/g" \
+	-e "s/[A-Z][a-z][a-z]	[0-6]	[0-5][0-9]	[A-Z][a-z][a-z]	[0-1][0-9]	[0-3][0-9]	[0-2][0-9]	[0-5][0-9]	[0-5][0-9]	[AP]M	[1-9][0-9][0-9][0-9]/DATE/g" \
+	-e "s/[0-9][0-9]*\.[0-9][0-9]*/VALUE/g"
+}
+
+$sudo rm -f core* $seq.core*
+
+# real QA test starts here
+echo > $tmp.root '
+root {
+    irix
+    proc
+    sample
+}
+
+irix { 
+    kernel
+}
+
+irix.kernel {
+    all
+}
+
+irix.kernel.all {
+    syscall 1:10:19
+    sysexec 1:10:20
+    sysfork 1:10:21
+}
+
+proc {
+    nprocs 3:0:0
+}
+
+sample {
+    bin 29:0:6
+    long
+}
+
+sample.long {
+    one 29:0:10
+}'
+
+pmdumpmineset -n $tmp.root -t 5 -a src-oss/bug $tmp
+
+echo "=== schema ==="
+cat $tmp.schema | _filter
+
+echo
+echo "=== data ==="
+cat $tmp.data | _filter
+
+_check_core
+
+exit

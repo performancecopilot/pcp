@@ -1,0 +1,21 @@
+QA output created by 297
+killing pmproxy ...
+re-starting pmproxy ...
+killing pmcd ...
+re-starting pmcd ...
+__pmConnectPMCD(MY_HOST): proxy connection host=localhost port=N fd=N version=N
+pmNewContext(1, MY_HOST) -> 0
+Dump Contexts: current context = 0
+Context[N] host MY_HOST: pmcd=CONNECTED profile=NOT_SENT fd=N refcnt=N origin=N.N delta=N
+Dump Instance Profile state=INCLUDE, 0 profiles
+DATE	N	N	N	N	N	N	N	N	N
+DATE	?	?	?	?	?	?	?	?	?
+__pmConnectPMCD(MY_HOST): proxy connection host=localhost port=N fd=N version=N
+pmReconnectContext(0), done
+pmReconnectContext(0) -> 0
+DATE	N	N	N	N	N	N	N	N	N
+DATE	?	?	?	?	?	?	?	?	?
+__pmConnectPMCD(MY_HOST): proxy connection host=localhost port=N fd=N version=N
+pmReconnectContext(0), done
+pmReconnectContext(0) -> 0
+DATE	N	N	N	N	N	N	N	N	N

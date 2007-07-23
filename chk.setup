@@ -4,7 +4,7 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: chk.setup,v 1.6 2004/04/01 08:37:50 kenmcd Exp $
+# $Id: chk.setup,v 1.8 2005/06/23 07:38:16 pcpqa Exp $
 #
 
 tmp=/var/tmp/$$
@@ -190,7 +190,7 @@ done
 # these ones should be in /etc/pcp.conf but are not currently used in
 # the QA scripts, but are tested here for completeness
 #
-xtra="PCP_SYSCONFIG_DIR PCP_LIB_DIR PCP_INC_DIR PCP_MAN_DIR"
+xtra="PCP_LIB_DIR PCP_INC_DIR PCP_MAN_DIR"
 #
 for var in PCP_RC_DIR PCP_PMDAS_DIR PCP_VAR_DIR PCP_DEMOS_DIR PCP_LOG_DIR \
 	PCP_BIN_DIR PCP_BINADM_DIR PCP_TMP_DIR PCP_SHARE_DIR PCP_DOC_DIR \

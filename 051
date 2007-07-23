@@ -1,12 +1,22 @@
 #! /bin/sh
 # PCP QA Test No. 051
-# $Revision: 2.16 $
+# $Revision: 2.18 $
 # Check pmcd access control parsing
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
+
+. ./localconfig
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
+then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
 echo "QA output created by $seq"
 
 # get standard filters
@@ -20,11 +30,14 @@ echo "QA output created by $seq"
 
 # Remember that we cd into 051.work
 #
-sudo=../sudo
+here=`pwd`
+sudo=$here/sudo
 config=$PCP_PMCDCONF_PATH
 oconfig=$config.O
 log=./pmcd.log
 me=`hostname`
+
+rm -f $here/$seq.full
 
 _filter_hostnames()
 {
@@ -125,6 +138,8 @@ do
     rm -f pmcd.log
     echo
     echo -n "$t================"
+    echo "$t================" >>$here/$seq.full
+    cat $t >>$here/$seq.full
     case $t
     in
 	die.029|die.035|die.036|die.043)
@@ -142,6 +157,8 @@ do
     fi
     $PCP_PMCD_PROG -f -x /no/such/file
     echo "$t logfile----------------"
+    echo "$t logfile----------------" >>$here/$seq.full
+    cat $log >>$here/$seq.full
     if [ -x filter.$t ]
     then
 	./filter.$t <$log
@@ -162,12 +179,16 @@ do
     $sudo "cp $t $config"
     rm -f pmcd.log
     echo "$t================"
+    echo "$t================" >>$here/$seq.full
+    cat $t >>$here/$seq.full
     _filter_hostnames <$config \
     | sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;g"
     # Give pmcd 3 seconds to run
     ((sleep 3; killall -INT pmcd)&) >/dev/null 2>&1
     $PCP_PMCD_PROG -f
     echo "$t logfile----------------"
+    echo "$t logfile----------------" >>$here/$seq.full
+    cat $log >>$here/$seq.full
     if [ -x filter.$t ]
     then
 	./filter.$t <$log

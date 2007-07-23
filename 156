@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 156
-# $Revision: 2.24 $
+# $Revision: 2.25 $
 # check out sample PMDA
 #
 # Note: this test is for PCP2.1 or later.
@@ -27,7 +27,7 @@ _filter()
 {
     sed -e 's/ 1090 / 1090+ /' \
 	-e 's/ 109[1-9] / 1090+ /' \
-	-e 's/ 11[0-1][0-9] / 1090+ /' \
+	-e 's/ 11[0-2][0-9] / 1090+ /' \
 	-e 's/ [7-9][0-9] metrics/ 76+ metrics/' \
 	-e 's/.* \(hash table entries\)/  NNN \1/' \
 	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \

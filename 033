@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 033
-# $Revision: 2.12 $
+# $Revision: 2.13 $
 # check filesys metrics for root fs
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -10,11 +10,18 @@ seq=`basename $0`
 
 . ./localconfig
 rm -f $seq.out
-if [ $PCP_PLATFORM = linux -a $PCP_EOE_VER -ge 2300 ]
+if [ $PCP_PLATFORM = irix ]
 then
-    ln $seq.out.1 $seq.out
+    ln $seq.out.2 $seq.out
 else
-    ln $seq.out.0 $seq.out
+    # assume linux-like
+    #
+    if [ $PCP_EOE_VER -ge 2300 ]
+    then
+	ln $seq.out.1 $seq.out
+    else
+	ln $seq.out.0 $seq.out
+    fi
 fi
 
 echo "QA output created by $seq"

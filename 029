@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 029
-# $Revision: 2.12 $
+# $Revision: 2.13 $
 # pmTrimNameSpace() exerciser
 #
 # Note that pmTrimNameSpace would not be used much any
@@ -36,7 +36,9 @@ _filter()
 	-e '/sample\.many/d' \
 	-e '/sample\.bigid/d' \
 	-e '/sample\.byte_/d' \
-	-e '/sample\.kbyte_/d'
+	-e '/sample\.kbyte_/d' \
+	-e '/sample\.datasize/d' \
+
 }
 
 

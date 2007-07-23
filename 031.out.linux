@@ -6,6 +6,7 @@ pmid: 0xffffffff name: pmcd
 children of "pmcd" ...
     agent               <s = 1>
     buf                 <s = 1>
+    build               <s = 0>
     control             <s = 1>
     datasize            <s = 0>
     license             <s = 0>
@@ -83,9 +84,9 @@ pmResult ... numpmid: 12
   PM_ID_NULL (<noname>): No PMDA, no values [filtered]
   60.0.13 (kernel.all.pswitch): numval: 1 valfmt: 0-or-1 vlist[]:
    value NUMBER
-  60.0.20 (kernel.all.cpu.user): numval: 1 valfmt: 0 vlist[]:
+  60.0.20 (kernel.all.cpu.user): numval: 1 valfmt: 1 vlist[]:
    value NUMBER
-  60.0.35 (kernel.all.cpu.wait.total): numval: 1 valfmt: 0 vlist[]:
+  60.0.35 (kernel.all.cpu.wait.total): numval: 1 valfmt: 1 vlist[]:
    value NUMBER
   60.0.32 (hinv.ncpu): numval: 1 valfmt: 0 vlist[]:
    value NUMBER

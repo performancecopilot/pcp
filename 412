@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 412
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 # Test out wrapping on libpcp/interp
 #
 #  Test the creation and reading of an archive created using pmlogger(1) and
@@ -92,7 +92,7 @@ _setTimeZone () {
 #
 _reset()
 {
-pmstore sample.control -1 > /dev/null
+pmstore sample.control -1 >/dev/null
 $sudo killall -HUP pmcd
 _wait_for_pmcd
 }
@@ -130,12 +130,12 @@ _process_log()
 
 		    if (x > maxuint) x -= maxuint; # wrap back if necessary
 		}
-		print x; 
+		printf "%15.0d\n",x; 
 	    }
 	    prev_time = curr_time;
 	    prev_value = curr_value;
       }
-    ' < $tmp.dump
+    ' <$tmp.dump
 }
 
 #
@@ -148,7 +148,7 @@ _set_starttime()
 		printf("starttime=%s\n", $1);
 	        exit 0;
       }
-    ' < $tmp.dump > $tmp.starttime
+    ' <$tmp.dump >$tmp.starttime
     eval `cat $tmp.starttime`
 }
 
@@ -157,11 +157,15 @@ _set_starttime()
 #
 _pmval_log()
 {
-    pmval -r -a $tmp.archive -S "@$starttime" -O $half_delta -t $delta \
+    echo >>$seq.full
+    echo "--- pmval ---" >>$seq.full
+    pmval -w 15 -f 0 -r -a $tmp.archive -S "@$starttime" -O $half_delta -t $delta \
       sample.wrap.ulong \
     | tee -a $seq.full \
-    | sed -e '/metric/,/interval/d' -e '/^[ 	]*$/d' \
-    | cut -f 2 -d' '
+    | sed \
+	-e '/metric/,/interval/d' \
+	-e '/^[ 	]*$/d' \
+	-e 's/^[^ ][^ ]*  *//'
 }
 
 #
@@ -169,9 +173,12 @@ _pmval_log()
 #
 _compare_results()
 {
-    error=0.05e+09
-    paste $tmp.1 $tmp.2 |\
-    $PCP_AWK_PROG -v error=$error ' {
+    echo >>$seq.full
+    echo "--- paste ---" >>$seq.full
+    error=1e+08
+    paste $tmp.1 $tmp.2 \
+    | tee -a $seq.full \
+    | $PCP_AWK_PROG -v error=$error ' {
 	    diff = $1-$2; 
 	    if (diff < 0) diff *= -1; 
 	    if (diff > error) 
@@ -196,7 +203,7 @@ then
 fi
 
 _reset
-cat << EOF > $tmp.config
+cat <<EOF >$tmp.config
 log advisory on $delta second {
     sample.wrap.ulong
 } 
@@ -207,18 +214,33 @@ then
     echo "Archive failed to be created !"
     cat $tmp.log
     exit 1
-fi
-pmdumplog $tmp.archive > $tmp.dump
+    fi
+pmdumplog $tmp.archive >$tmp.dump
+echo >>$seq.full
+echo "--- pmdumplog ---" >>$seq.full
+cat $tmp.dump >>$seq.full
 _set_starttime
 
 _wrap_off
-_process_log > $tmp.1
-_pmval_log > $tmp.2
+_process_log >$tmp.1
+echo >>$seq.full
+echo "--- process_log wrap_off ---" >>$seq.full
+cat $tmp.1 >>$seq.full
+_pmval_log >$tmp.2
+echo >>$seq.full
+echo "--- process pmval ---" >>$seq.full
+cat $tmp.2 >>$seq.full
 _compare_results
 
 _wrap_on
-_process_log > $tmp.1
-_pmval_log > $tmp.2
+_process_log >$tmp.1
+echo >>$seq.full
+echo "--- process_log wrap_on ---" >>$seq.full
+cat $tmp.1 >>$seq.full
+_pmval_log >$tmp.2
+echo >>$seq.full
+echo "--- process pmval ---" >>$seq.full
+cat $tmp.2 >>$seq.full
 _compare_results
 
 # success, all done

@@ -3,7 +3,7 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: common.check,v 2.62 2004/08/06 02:57:32 kenmcd Exp $
+# $Id: common.check,v 2.66 2007/02/26 06:06:46 kimbrr Exp $
 #
 
 # host(1) examples
@@ -685,7 +685,12 @@ END						{ print "End-of-List" }' \
 _all_ipaddrs()
 {
     touch $tmp._addr
-    rsh </dev/null $1 -l pcpqa netstat -in 2>/dev/null >$tmp._tmp
+    if [ "$1" = "localhost" ]
+    then 
+	netstat -in 2>/dev/null >$tmp._tmp
+    else
+	rsh </dev/null $1 -l pcpqa netstat -in 2>/dev/null >$tmp._tmp
+    fi
     if grep 'Network.*Address' $tmp._tmp >/dev/null
     then
 	# this is the IRIX version of netstat -in, get IP addr from the
@@ -697,7 +702,12 @@ NF >= 4 && $4 ~ /^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/ 	{ print 
 NF == 1 && $1 ~ /^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/	{ print $1 }
 END									{ print "End-of-List" }'
     else
-	rsh </dev/null $1 -l pcpqa /sbin/ifconfig 2>/dev/null >$tmp._tmp
+        if [ "$1" = "localhost" ]
+	then 
+	    /sbin/ifconfig 2>/dev/null >$tmp._tmp
+	else
+	    rsh </dev/null $1 -l pcpqa /sbin/ifconfig 2>/dev/null >$tmp._tmp
+	fi
 	if grep 'UP.*RUNNING' $tmp._tmp >/dev/null
 	then
 	    # This is the Linux version of ifconfig, get IP addr from the
@@ -760,9 +770,9 @@ _change_config()
 	    #
 	    case $1 
 	    in
-		pmlogger)	pat=""
+		pmcd)		pat=""
 				;;
-		pmcd)		pat=pcp
+		pmlogger)	pat=pcp
 				;;
 		pmie)		pat=pmie
 				;;
@@ -954,4 +964,37 @@ _restore_loggers()
 {
     [ -f $tmp.control ] && \
 	$sudo cp $tmp.control $PCP_VAR_DIR/config/pmlogger/control
+}
+
+# _check_core [dir]
+# checks for core files in dir (defaults to .)
+#
+_check_core()
+{
+    if [ -z "$1" ]
+    then
+	dir=""
+    else
+	if [ -d $1 ]
+	then
+	    dir=$1/
+	else
+	    echo "_check_core: aaargh $1 is not a directory!"
+	    return
+	fi
+    fi
+    if [ "`echo ${dir}core*`" != "${dir}core*" ]
+    then
+	[ -z "$here" ] && here=/tmp
+	[ -z "$seq" ] && seq=9999
+	echo -n "Dumped core! (saved in $here as"
+	for c in ${dir}core*
+	do
+	    d=`basename $c`
+	    $sudo mv $c $here/$seq.$d
+	    echo -n " $seq.$d"
+	done
+	echo ")"
+	status=1
+    fi
 }

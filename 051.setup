@@ -612,6 +612,7 @@ sed -e '/No such file/s/^cat:/Cannot open/' \
 	-e '/pmcd([0-9][0-9]*)/s//pmcd(PID)/' \
 	-e '/pcp\[[0-9][0-9]*]/s//pcp[PID]/' \
         -e '/^pmcd: PID/s/= .*/= PID/' \
+	-e '/pmcd caught SIG.* from pid=/s/=[0-9][0-9]*/=N/g' \
 | $PCP_AWK_PROG '
 /pipe cmd=/		{ $4 = "FD"; $5 = "FD" }
 /ok .* INADDR_ANY/	{ $2 = "FD" }

@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 558
-# $Revision: 1.19 $
+# $Revision: 1.20 $
 # pmie problems where metrics initially available and later become
 # unavailable
 #
@@ -30,11 +30,12 @@ echo "QA output created by $seq"
 . ./common.check
 
 tmp=/tmp/$$
-sudo=`pwd`/sudo
-status=1	# failure is the default!
+here=`pwd`
+sudo=$here/sudo
+status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-rm -f core
+$sudo rm -f core
 DEBUG="-v -Dappl1,appl2"
 DEBUG=
 HOST=`hostname`
@@ -86,13 +87,6 @@ $1 == "DATE:" && $2 == "singular"	{ if (state > 0) skip = 1
 $1 != "DATE:"		{ skip = 0; state = 0 }
 skip == 0		{ print }'
 
-if [ -f core ]
-then
-    echo "pmie dumped core!"
-    status=1
-else
-    # success, all done
-    status=0
-fi
+_check_core
 
 exit

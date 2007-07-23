@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 399
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 # pmie core dumps
 #
 #
@@ -18,11 +18,12 @@ echo "QA output created by $seq"
 . ./common.filter
 
 tmp=/tmp/$$
-sudo=`pwd`/sudo
-status=1	# failure is the default!
+here=`pwd`
+sudo=$here/sudo
+status=0	# success is the default!
 
 # real QA test starts here
-./sudo rm -f core
+$sudo rm -f core* $seq.core*
 
 echo
 echo "Test 1"
@@ -56,11 +57,7 @@ pmie -vv -t 1 -T 1 <$tmp.conf >/dev/null 2>$tmp.err
 echo "Stderr output ..."
 cat $tmp.err | _show_pmie_errors
 
-if [ -f core ]
-then
-    echo "Dumped core! (saved as 399.core.1)"
-    mv core 399.core.1
-fi
+_check_core
 
 echo
 echo "Test 2"
@@ -96,12 +93,6 @@ pmie -vv -t 1 -T 1 <$tmp.conf >/dev/null 2>$tmp.err
 echo "Stderr output ..."
 cat $tmp.err | _show_pmie_errors
 
-if [ -f core ]
-then
-    echo "Dumped core! (saved as 399.core.2)"
-    mv core 399.core.2
-fi
+_check_core
 
-# success, all done
-status=0
 exit

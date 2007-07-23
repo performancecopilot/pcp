@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 340
-# $Revision: 1.22 $
+# $Revision: 1.23 $
 # PMCD denies all access?
 #
 #
@@ -30,6 +30,12 @@ tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
 status=1	# failure is the default!
+
+_filter_pminfo()
+{
+    sed \
+      -e 's/Connection reset by peer/No permission to perform requested operation/'
+}
 
 # real QA test starts here
 
@@ -163,7 +169,8 @@ $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
 
 echo "    checking default access for this host ..."
-pminfo -f sample.long.million
+pminfo -f sample.long.million \
+| _filter_pminfo
 pmstore sample.write_me 111
 
 if $dov1hosts

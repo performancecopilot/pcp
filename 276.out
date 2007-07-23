@@ -1,0 +1,9 @@
+QA output created by 276
+pmie OK
+pmval OK
+pmdumptext (simple) OK
+pmdumptext (extended) OK
+pmchart OK
+pmview OK
+pmgadgets skipped, source is an archive
+pmlogger skipped, source is an archive

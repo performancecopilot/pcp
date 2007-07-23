@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 433
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 # Test pmie bug #573184
 #
 #
@@ -18,7 +18,8 @@ echo "QA output created by $seq"
 . ./common.check
 
 tmp=/tmp/$$
-sudo=`pwd`/sudo
+here=`pwd`
+sudo=$here/sudo
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -27,9 +28,23 @@ _filter()
     _show_pmie_errors | sort | sed -e 's/"//g' -e 's/note - //g'
 }
 
+_check_core()
+{
+    if [ "`echo core*`" != "core*" ]
+    then
+	echo -n "Dumped core! (saved in $here as"
+	for c in core*
+	do
+	    $sudo mv $c $here/$seq.$c
+	    echo -n " $seq.$c"
+	done
+	echo ")"
+    fi
+}
+
 # real QA test starts here
 
-[ -f core ] && ./sudo rm -f core
+$sudo rm -f core*
     
 cat << end-of-file > $tmp.conf
 delta = 1 sec;
@@ -42,12 +57,7 @@ end-of-file
 pmie -z -a src-oss/573184 $tmp.conf >$tmp.out 2>$tmp.err
 cat $tmp.out $tmp.err | _filter
 
-if [ -f core ]
-then
-    mv core $seq.core
-    echo "core file moved to $seq.core"
-    exit
-fi
+_check_core
 
 # success, all done
 status=0

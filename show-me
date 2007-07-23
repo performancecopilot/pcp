@@ -4,7 +4,7 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: show-me,v 2.34 2004/06/15 18:38:14 kenmcd Exp $
+# $Id: show-me,v 2.36 2005/07/09 01:57:56 kenmcd Exp $
 #
 
 # generic initialization
@@ -16,6 +16,19 @@ QA_HOST=
 QA_USER=
 QA_DIR=
 
+if which gdiff >/dev/null 2>&1
+then
+    DIFF=gdiff
+else
+    if which xxdiff >/dev/null 2>&1
+    then
+	DIFF=xxdiff
+    else
+	DIFF="diff -c"
+    fi
+fi
+
+
 tmp=/tmp/$$
 trap "cd /; rm -rf $tmp; exit" 0 1 2 3 15
 rm -rf $tmp
@@ -24,7 +37,7 @@ mkdir $tmp
 not_me=false
 local=true
 keep=false
-while getopts d:h:ku: c
+while getopts d:h:klu: c
 do
    case $c in
    d)       QA_DIR=$OPTARG
@@ -38,11 +51,14 @@ do
    k)	    keep=true
    	    ;;
 
+   l)	    DIFF="diff -c"
+	    ;;
+
    u)       QA_USER=$OPTARG
 	    not_me=true
 	    ;;
 
-   \?)      echo "Usage: show-me [-k] [-d dir] [-h host] [-u user] [test ...]"
+   \?)      echo "Usage: show-me [-l] [-k] [-d dir] [-h host] [-u user] [test ...]"
 	    exit 2;;
    esac
 done
@@ -133,18 +149,18 @@ do
 	echo "Could not find $id.out.bad in `pwd`"
     else
 	echo
-	if [ "$diff" = diff ]
+	if [ "$DIFF" = xxdiff ]
 	then
-	    $diff -u $id.out $id.out.bad
+	    $DIFF $id.out $id.out.bad >/dev/null 2>&1
 	else
-	    $diff $id.out $id.out.bad >/dev/null 2>&1
+	    $DIFF $id.out $id.out.bad
 	fi
     fi
     if $keep
     then
 	if [ -f $here/$id.out.bad ]
 	then
-	    if diff -u $here/$id.out.bad $id.out.bad >diff.tmp
+	    if diff $here/$id.out.bad $id.out.bad >diff.tmp
 	    then
 		# same
 		:

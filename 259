@@ -1,0 +1,104 @@
+#!/bin/sh
+# PCP QA Test No. 259 (formerly 259, 358)
+# $Revision: 1.14 $
+# Test out handling of > MAXHOSTNAMELEN (64) hostnames
+#
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=tes
+
+seq=`basename $0`
+
+if which pmdumptext >/dev/null 2>&1
+then
+    :
+else
+    echo "No pmdumptext binary installed" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+hostsfile="/etc/hosts"
+
+_cleanup()
+{
+   if [ -f $tmp.etc.hosts.bak ]
+   then
+       $sudo cp $tmp.etc.hosts.bak $hostsfile
+   fi
+   $sudo rm -f $tmp.*
+}
+
+_update_hostsfile()
+{
+    # save old hosts file
+    $sudo cp $hostsfile $tmp.etc.hosts.bak
+
+    # 65 char fname
+    bighostname="abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcde"
+    realhost=`pmhostname`
+
+    # update /etc/hosts
+    # add an entry for bighostname
+    $PCP_AWK_PROG < $hostsfile -v realhost=$realhost -v bighostname=$bighostname '
+	$2 == realhost && gotit == 0 && $1 !~ /#/ {  
+			   print; 
+			   printf("%s\t%s\n", $1, bighostname);
+			   gotit = 1;
+			   next;
+			}
+	{ print; }
+    ' > $tmp.etc.hosts 
+
+    # extra check
+    # we only want to add one line
+    diff $tmp.etc.hosts $hostsfile > $tmp.diff
+    len=`wc -l $tmp.diff | $PCP_AWK_PROG '{print $1}' `
+    if [ $len -ne 2 ]
+    then
+	echo "Diff is not what was expected:"
+	cat $tmp.diff
+	exit 1
+    fi
+
+    # create new hosts file
+    $sudo cp $tmp.etc.hosts $hostsfile
+}
+
+# real QA test starts here
+
+rm -f $seq.full
+
+_update_hostsfile
+
+metric="sample.control"
+cat <<EOF >$tmp.config
+log mandatory on 1 sec {
+    $metric
+}
+EOF
+
+pmlogger -s1 -h $bighostname -c $tmp.config -l $tmp.log $tmp.arch 1>$tmp.out 2>&1
+cat $tmp.log >> $seq.full
+
+pmdumplog -l $tmp.arch | sed -e '/commencing/d' -e '/ending/d'
+
+pmdumptext -C -a $tmp.arch $bighostname:$metric
+
+# success, all done
+status=0
+exit

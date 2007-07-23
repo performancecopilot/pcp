@@ -1,12 +1,22 @@
 #! /bin/sh
 # PCP QA Test No. 023
-# $Revision: 2.27 $
+# $Revision: 2.29 $
 # Test PMCD's PMDA timeout behaviour
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
+
+. ./localconfig
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
+then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
 echo "QA output created by $seq"
 
 # get standard filters
@@ -109,6 +119,8 @@ cleanup()
 
 trap "cleanup; exit \$status" 0 1 2 3 15
 
+rm -f $here/$seq.full
+
 # real QA test starts here
 
 # Get a domain number for the 'fake_kernel' pmda
@@ -149,7 +161,7 @@ TAG=000000660066
 #
 cat <<EOF >$TMP_CONFIG
 # Created by QA $seq
-fake_irix 1 pipe binary sleep $TAG
+fake_irix 1 pipe binary dumb_pmda -d 1 -l dumb_pmda.log  $TAG
 fake_proc 3 pipe binary sed /$TAG/p
 fake_cisco 5 pipe binary sleep $TAG
 fake_six 6 pipe binary sleep $TAG
@@ -164,6 +176,11 @@ EOF
 $sudo mv $CONFIG $SAVE_CONFIG
 $sudo mv $TMP_CONFIG $CONFIG
 
+# very odd inode update problem on kenj-pc with one variant of the Linux
+# 2.6.11 kernel ... this should be 100% benign for everyone else
+#
+sync
+
 echo '$PCP_PMCDCONF_PATH contains:' | sed -e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;"
 echo '<BEGIN>'
 sed -e "s;$PCP_PMDAS_DIR/pmcd/;;" $CONFIG
@@ -172,7 +189,8 @@ echo '<END>'
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 #
 PMCD_PORT=$port
-export PMCD_PORT
+PATH=$PATH:$here/src-oss
+export PMCD_PORT PATH
 $PCP_PMCD_PROG -f -t 2 &
 pmcd=$!
 
@@ -180,6 +198,8 @@ pmcd=$!
 sleep 15 
 _wait_for_pmcd
 _filter_log
+echo "pmcd.log after pmcd first started" >>$here/$seq.full
+cat pmcd.log >>$here/$seq.full
 
 # Get pmcd to kill the fake_kernel PMDA by asking for a metric from it.
 # Sleep won't do anything, so it'll be timed out returning an IPC protocol
@@ -222,6 +242,9 @@ kill -HUP $pmcd
 sleep 15
 _wait_for_pmcd
 _filter_log
+echo >>$here/$seq.full
+echo "pmcd.log after pmcd SIGHUP" >>$here/$seq.full
+cat pmcd.log >>$here/$seq.full
 
 pminfo -f pmcd.agent.status
 echo

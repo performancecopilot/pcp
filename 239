@@ -47,7 +47,7 @@ cat <<End-of-File >irix-pmns
 /*
  * libirixpmda Performance Metrics Name Space Definition
  *
- * $Header: /plroot/eoe/pcp-1.0/.RCS/PL/qa/RCS/239,v 1.6 2002/10/22 18:12:29 kenmcd Exp $
+ * $Header: /plroot/eoe/pcp-1.0-melb/.RCS/PL/qa/RCS/239,v 1.6 2002/10/22 18:12:29 kenmcd Exp $
  */
 
 hinv {

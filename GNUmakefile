@@ -2,7 +2,7 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id$
+# $Id: GNUmakefile,v 1.10 2005/07/10 23:46:11 kenmcd Exp $
 #
 
 -include ./GNUlocaldefs
@@ -22,19 +22,25 @@ default:	new remake check qa_hosts $(OTHERS)
 
 install:
 
-default_pcp default_pro :
+default_pcp default_pro:
 
-install_pcp install_pro :
+install_pcp install_pro:
+
+src-pcp:
 
 exports install:
 
 clobber cleanup:
 	rm -rf 051.work
-	rm -f *.bak *.bad *.core *.full *.raw *.o core a.out 
-	rm -f *.log eek* urk* so_locations
+	rm -f *.bak *.bad *.core *.full *.raw *.o core a.out core.*
+	rm -f *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz
+	rm -f *.full.ok *.new rc_cron_check.clean
 	rm -f sudo make.out qa_hosts localconfig localconfig.h check.time
 	if [ -d src ]; then cd src; $(MAKE) clobber; else exit 0; fi
 	if [ -d src-oss ]; then cd src-oss; $(MAKE) clobber; else exit 0; fi
+	find ???.out ????.out -type f -links +1 | xargs rm -f
+	rm -f 605.out
+	rm -f 134.full.*
 
 # 051 depends on this rule being here
 051.work/die.001: 051.setup

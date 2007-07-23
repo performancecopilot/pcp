@@ -16,36 +16,24 @@ Performance metrics from host brutus.corp
 Archive timezone: PST8PDT
 PID for pmlogger: 22213
 
-=== before start, local TZ=EST-10 ===
-Log Label (Log Format Version 1)
-Performance metrics from host brutus.corp
-  commencing Mon Jun 24 08:23:46.349 1996
-  ending     Mon Jun 24 08:23:46.349 1996
+=== window before archive start, local TZ=EST-10 ===
+pmlogextract: Warning: no qualifying records found.
+Archive "TMP" not created.
+pmdumplog: Cannot open archive "TMP": No such file or directory
 
-08:23:46.349  1.82.11 (disk.all.write): value 159819048
-...
-
-=== before start, timezone of archive ===
+=== window before archive start, timezone of archive ===
+pmlogextract: Warning: no qualifying records found.
+Archive "TMP" not created.
 Note: timezone set to local timezone of host "brutus.corp" from archive
 
-Log Label (Log Format Version 1)
-Performance metrics from host brutus.corp
-  commencing Mon Jun 24 08:23:46.349 1996
-  ending     Mon Jun 24 08:23:46.349 1996
+pmdumplog: Cannot open archive "TMP": No such file or directory
 
-08:23:46.349  1.82.11 (disk.all.write): value 159819048
-...
-
-=== before start, UTC timezone ===
+=== window before archive start, UTC timezone ===
+pmlogextract: Warning: no qualifying records found.
+Archive "TMP" not created.
 Note: timezone set to "TZ=UTC"
 
-Log Label (Log Format Version 1)
-Performance metrics from host brutus.corp
-  commencing Mon Jun 24 08:23:46.349 1996
-  ending     Mon Jun 24 08:23:46.349 1996
-
-08:23:46.349  1.82.11 (disk.all.write): value 159819048
-...
+pmdumplog: Cannot open archive "TMP": No such file or directory
 
 === empty window in archive, local TZ=EST-10 ===
 pmlogextract: Warning: no qualifying records found.
@@ -97,33 +85,21 @@ Performance metrics from host brutus.corp
 08:35:46.591  1.82.11 (disk.all.write): value 159901296
 ...
 
-=== after end, local TZ=EST-10 ===
-Log Label (Log Format Version 1)
-Performance metrics from host brutus.corp
-  commencing Mon Jun 24 08:43:26.742 1996
-  ending     Mon Jun 24 08:43:26.742 1996
+=== window after archive end, local TZ=EST-10 ===
+pmlogextract: Warning: no qualifying records found.
+Archive "TMP" not created.
+pmdumplog: Cannot open archive "TMP": No such file or directory
 
-08:43:26.742  1.80.8 (disk.dev.response):
-...
-
-=== after end, timezone of archive ===
+=== window after archive end, timezone of archive ===
+pmlogextract: Warning: no qualifying records found.
+Archive "TMP" not created.
 Note: timezone set to local timezone of host "brutus.corp" from archive
 
-Log Label (Log Format Version 1)
-Performance metrics from host brutus.corp
-  commencing Mon Jun 24 08:43:26.742 1996
-  ending     Mon Jun 24 08:43:26.742 1996
+pmdumplog: Cannot open archive "TMP": No such file or directory
 
-08:43:26.742  1.80.8 (disk.dev.response):
-...
-
-=== after end, UTC timezone ===
+=== window after archive end, UTC timezone ===
+pmlogextract: Warning: no qualifying records found.
+Archive "TMP" not created.
 Note: timezone set to "TZ=UTC"
 
-Log Label (Log Format Version 1)
-Performance metrics from host brutus.corp
-  commencing Mon Jun 24 08:43:26.742 1996
-  ending     Mon Jun 24 08:43:26.742 1996
-
-08:43:26.742  1.80.8 (disk.dev.response):
-...
+pmdumplog: Cannot open archive "TMP": No such file or directory

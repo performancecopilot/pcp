@@ -36,6 +36,8 @@ folio		pcpqa
 pmval		pcpqa
 # pmkstat app
 pmkstat		pcpqa
+# pmstat app
+pmstat		pcpqa
 # pmem app
 pmem		pcpqa
 # pminfo app
@@ -44,6 +46,8 @@ pminfo		pcpqa
 pmprobe		pcpqa
 # routervis
 routervis	pcpqa
+# diskstat
+diskstat	pcpqa
 
 # general PDU encode/decode
 #
@@ -349,7 +353,7 @@ dmf		pcpqa
 119 logutil local #877570
 120 libirixpmda local
 121 pmlogconf #893249 local
-121 pmlogconf 893249 local
+121 pmlogconf #893249 local
 122 pmtrace local #893884 remote
 123 libpcp local
 124 pmie local #870661
@@ -384,10 +388,18 @@ dmf		pcpqa
 154 pmda.cisco help local
 155 pmcd pmda.sample local
 156 pmda.sample pmda.proc local pmcd_wait pmda.install
+157 pmlogger local
+158 pmval pmie local
 159 pmda.cisco pmda.proc remote pmda.install
+160 pmdumptext local
 161 pmlogger local
 162 pmda pmda.proc local pmda.shping pmda.install
+163 archive local
+164 diskstat local
+165 pmval local
+166 pmlogreduce local
 167 pmda.pmcd pmval local
+168 pmlogextract #933456 local
 169 pmcd local
 170 other local
 171 archive local
@@ -409,31 +421,47 @@ dmf		pcpqa
 187 pmcd pmlogger #327288 remote
 188 libpcp local
 189 pmie local
+190 libpcp local
 191 pmie local
 192 pdu local
+193 libpcp pmcd #935490 local
+194 libpcp pmcd #935490 local
 195 archive local
 196 pmcd remote
 197 context local
+198 libpcp_pmda profile #934332 local
 199 pmda.trivial pmda.proc local pmda.install
 200 context local
+201 libpcp_pmda local
 202 logutil pmval local pmlogextract
 203 logutil archive pmval local pmlogextract
 204 pmlogger local
 205 pdu local
 206 archive pmval local
+207 libpcp_pmc local
+208 libpcp_pmc local purify
 209 pmval local
+210 libpcp_pmc local purify
+211 libpcp_pmc local purify
 212 pmda pmda.cisco local
+213 libpcp_pmc local
+214 libpcp_pmc local
 215 other pmsocks pmval remote
+216 libpcp_pmc local
 217 folio local
 218 archive logutil local pmlogextract
+219 libpcp_pmc local pmda.install pmda.simple
 220 pmlogger local
 221 pmlogger local
 222 other local
 223 pmns local
 224 pmcd local
+225 libpcp_pmc local pmda.install
+226 pmda libpcp_pmc local pmda.install
 227 folio local
 228 pmie local
 229 pmie local
+230 libpcp_pmc local
 231 pmie #421411 local
 232 libpcp local
 233 context_local local
@@ -444,29 +472,42 @@ dmf		pcpqa
 238 pmns local
 239 pmns local
 240 pmns local
+241 libpcp_pmc local pmprobe
 242 pmlogger local
 243 pmcd local pmprobe
 244 pmcd local pmprobe
 245 pmns local
+246 pmdumptext local
+247 libpcp_pmc pmdumptext pmprobe remote
 248 pmlogger local
+249 pmdumptext #482374 patch2140 patch2141 local
 250 pmns local
 251 archive pmval local
 252 pmlogger local
+253 pmdumptext #505832 patch2140 patch2141 local
 254 libpcp pmns local
 255 compat pmda #508731 #509091 pmda.proc help pmda.install local pmda.simple
+256 pmdumptext local
 257 libpcp pmns compat remote
 258 trace local pmda.install
+259 pmdumptext archive local
+260 pmdumptext #529509 #581372 #581449 remote
 261 logutil pmdumplog pmval local pmlogextract
-262 context_local pmie pmsocks remote
+262 context_local pmie pmsocks remote pmstat
+263 libirixpmda pmdumptext pmval local
 264 pmns local
 265 util_lib local
 266 logutil #466346 patch2140 patch2141 local pmlogextract
 267 pmlogger local
 268 interop local
+269 wrap pmval pmie pmdumptext pmkstat local
 270 logutil local
 271 archive local
 272 pmcd pmval pmprobe remote
+273 pmdumptext local
 274 pmda help local pmda.install
+275 pmdumptext #529506 local
+276 pmval pmdumptext pmie pmchart pmgadgets pmlogger local pmview
 277 libpcp pdu interop local
 278 other help local
 279 pmcd local
@@ -625,7 +666,6 @@ dmf		pcpqa
 1000 pmda.shping dkvis mpvis nfsvis nodevis osvis oview pmchart pmdumpmineset pmdumptext pmgadgets pmgevctr pmgirix pmgshping pmgcisco pmie pminfo pmkstat pmlogcheck pmlogextract pmlogger pmlogmerge pmlogsummary pmprobe pmval pmview psmon routervis xbowvis local OSS-CONFLICT
 1001 pmchart libpcp pmtime local
 1002 pmchart local
-1003 libpcp pmchart local
 1004 pmchart #617237 local
 1005 pmchart local
 1006 other local license pmchart pmview pmgadgets
@@ -641,7 +681,6 @@ dmf		pcpqa
 1016 pmview pmprobe routervis dkvis mpvis remote
 1017 pmview pmprobe routervis dkvis mpvis remote
 1018 pmview local dkvis
-1019 libpcp_omc pmdumptext pmview oview pmprobe remote
 1020 pmview local dkvis
 1021 pmview pmprobe routervis dkvis mpvis remote
 1022 pmview #575042 remote
@@ -683,20 +722,11 @@ dmf		pcpqa
 1058 oview local
 1059 oview local
 1060 oview local
-1061 other remote pmdumptext pmview pmgadgets
+1061 other remote pmview pmgadgets
 1062 pmgadgets #610227 local
 1063 pmgadgets remote
 1064 pmgadgets local #526784
-1065 pmdumptext #482374 patch2140 patch2141 local
-1066 pmdumptext #505832 patch2140 patch2141 local
-1067 pmdumptext local
-1068 pmdumptext archive local
-1069 pmdumptext #529509 #581372 #581449 remote
-1070 libirixpmda pmdumptext pmval local OSS-CONFLICT
-1071 wrap pmval pmie pmdumptext pmkstat local OSS-CONFLICT
-1072 pmdumptext local
-1073 pmdumplog pmval pmdumplog local OSS-CONFLICT
-1074 pmdumptext #529506 local
+1073 pmval pmdumplog local OSS-CONFLICT
 1075 libpcp_omc local
 1076 libpcp_omc local purify
 1077 libpcp_omc local purify
@@ -788,18 +818,6 @@ dmf		pcpqa
 1163 pmda.hotproc #657775 local
 1164 pmie #676246 pmda.hotproc local pmda.install
 1165 other local
-1166 libpcp_pmc local
-1167 libpcp_pmc local purify
-1168 libpcp_pmc local purify
-1169 libpcp_pmc local purify
-1170 libpcp_pmc local pmprobe
-1171 libpcp_pmc local
-1172 libpcp_pmc local
-1173 libpcp_pmc local
-1174 libpcp_pmc local pmda.install
-1175 libpcp_pmc local pmda.install
-1176 pmda libpcp_pmc local pmda.install
-1177 libpcp_pmc local
 1178 trace local pmda.install
 1179 trace pmda.install remote
 1180 pmda.proc pmem local pmval
@@ -857,7 +875,18 @@ dmf		pcpqa
 1232 libpcp ostest remote
 1233 pmsnap local
 1234 pmchart local
-1235 pmval pmdumptext pmie pmchart pmview pmgadgets pmlogger local
-157 pmlogger local
-158 pmval pmie local
-160 pmdumptext local
+1236 #935639 pmchart local
+283 context pmcd local
+286 pmproxy pmcd context local
+287 pmlogreduce local
+288 archive local
+293 pmstat #939275 local
+294 pmproxy local
+295 pmproxy local
+297 pmproxy local
+298 pmie local
+300 pmcd local
+305 pmgadgets local
+1166 pmview mpvis local
+307 pmlc #936084 local
+309 libpcp pmcd pmda.linux pmda.simple local

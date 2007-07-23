@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 169
-# $Revision: 2.23 $
+# $Revision: 2.25 $
 #
 # Test pmcd timeouts with the pmcd PMDA's pmcd.control.timeout
 #
@@ -21,7 +21,8 @@ echo ""
 
 tmp=/tmp/$$
 LOCALHOST=`hostname`
-sudo=./sudo
+here=`pwd`
+sudo=$here/sudo
 
 if [ -d $PCP_LOG_DIR/pmlogger ]
 then
@@ -42,11 +43,12 @@ _cleanup()
     _wait_for_pmcd
     _wait_for_pmlogger
 
-    rm -f $tmp.*
+#    rm -f $tmp.*
 }
 
 status=1	# failure is the default!
-trap "_cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 25
+rm -f $seq.full
 
 # real QA test starts here
 
@@ -70,7 +72,7 @@ _check_pmcd_procs()
 	echo "Expected $1 pmcd processes but found $n_pmcd:"
 	cat $tmp.pmcd
 	cat $PCP_PMCDLOG_PATH
-	file $PCP_LOG_DIR/core $PCP_LOG_DIR/pmcd/core
+	file $PCP_LOG_DIR/core* $PCP_LOG_DIR/pmcd/core*
 	return 1
     else
 	return 0
@@ -102,8 +104,8 @@ root {
 }
 EOF
 
-# pmcd will run a sed, masquerading as the IRIX agent.  This will not respond
-# to PDUs from PMCD, which should then time it out.
+# pmcd will run a dumb_pmda, masquerading as the IRIX agent.  This will
+# not respond to PDUs from PMCD, which should then time it out.
 # The pmcd PMDA is required so that pmcd.control.timeout can be modified.
 # Save the current pmcd.conf so it can be restored afterwards.
 
@@ -111,13 +113,14 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 cat >$tmp.tmp <<End-Of-File
 # QA test 169 dummy pmcd.conf (blame Jonathan if you find this!)
 #
-# $Id: 169,v 2.23 2004/05/18 23:15:00 pcpqa Exp $
+# $Id: 169,v 2.25 2007/02/26 06:06:46 kimbrr Exp $
 #
-dummyproc	$dummy_domain	pipe	binary 		sed /$TAG/p
+dummyproc	$dummy_domain	pipe	binary 	$here/src-oss/dumb_pmda -d $dummy_domain $TAG
 End-Of-File
 
 $PCP_AWK_PROG <$PCP_PMCDCONF_PATH >>$tmp.tmp '
     $3 == "dso" && $4 == "irix_init"	{ print }
+    $3 == "dso" && $4 == "linux_init"	{ print }
     $3 == "dso" && $4 == "pmcd_init"	{ print }
 					{ next }'
 
@@ -137,11 +140,11 @@ else
     exit 1
 fi
 
-if ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "sed /$TAG/p" >/dev/null
+if ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "dumb_pmda" >/dev/null
 then
     :
 else
-    echo "pmcd didn't create the dummy sed agent"
+    echo "pmcd didn't create the dumb_pmda agent"
     echo ""
     cat $pmcdlog
     exit 1
@@ -161,20 +164,26 @@ echo "*** pmcd will killoff agent ***"
 echo ""
 _set_timeouts 5 10
 
-# Fetch from dummy domain.  This should cause the sed agent to be timed-out by
-# pmcd, resulting in its termination.
+# Fetch from dummy domain.  This should cause the dumb_pmda agent to be
+# timed-out by pmcd, resulting in its termination.
 #
 echo ""
 echo "Expect dummyproc to fail (IPC protocol failure):"
 pminfo -n $pmns -d dummyproc
 echo ""
+# make sure pmcd has had a chance to wait() on the pmda process
+#
+sleep 2
+pminfo -n $pmns -d dummyproc >/dev/null 2>&1
 
-if ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "sed /$TAG/p" >/dev/null
+if ps $PCP_PS_ALL_FLAGS | tee -a $seq.full | grep "[d]umb_pmda" >/dev/null
 then
-    echo "Error: pmcd didn't terminate dummy sed agent"
+    echo "Error: pmcd didn't terminate the dumb_pmda agent"
+    cat $pmcdlog
+    ps $PCP_PS_ALL_FLAGS | grep "[d]umb_pmda"
     exit 1
 else
-    echo "pmcd terminated dummy sed agent as desired"
+    echo "pmcd terminated dummy the dumb_pmda agent as desired"
 fi
 
 # Restart pmcd and its agents
@@ -192,19 +201,19 @@ else
     exit 1
 fi
 
-if ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "sed /$TAG/p" >/dev/null
+if ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "dumb_pmda" >/dev/null
 then
-    psline=`ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "sed /$TAG/p"`
+    psline=`ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "dumb_pmda"`
     old_dummy_pid=`echo $psline | cut -d ' ' -f 2`
 else
-    echo "pmcd SIGHUP didn't restart the dummy sed agent"
+    echo "pmcd SIGHUP didn't restart the dumb_pmda agent"
     echo ""
     cat $pmcdlog
     exit 1
 fi
 
 #
-# pmcd agent timeout < application time out
+# pmcd agent timeout > application time out
 #
 echo ""
 echo "*** pmcd agent timeout > app timeout ***"
@@ -212,29 +221,29 @@ echo "*** pmcd will not killoff agent until later ***"
 echo ""
 _set_timeouts 10 5
 
-# Fetch from dummy domain.  This should cause the sed agent to be timed-out by
-# pmcd, resulting in its termination.
+# Fetch from dummy domain.  This should cause the dumb_pmda agent to be
+# timed-out by pmcd, resulting in its termination.
 #
 echo ""
 echo "Expect dummyproc to fail (timeout for pmcd failure):"
 pminfo -n $pmns -d dummyproc
 echo ""
 
-if ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "sed /$TAG/p" >/dev/null
+if ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "dumb_pmda" >/dev/null
 then 
-    echo "pmcd did NOT terminate dummy sed agent as desired"
+    echo "pmcd did NOT terminate the dumb_pmda agent as desired"
 
     # make sure it is really the same process - check pid
-    psline=`ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "sed /$TAG/p"`
+    psline=`ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "dumb_pmda"`
     new_dummy_pid=`echo $psline | cut -d ' ' -f 2`
     if [ $old_dummy_pid -ne $new_dummy_pid ]
     then
-	echo "Error: dummy sed proc has been recreated"
+	echo "Error: dumb_pmda proc has been recreated"
 	echo "pid mismatch: $old_dummy_pid versus $new_dummy_pid"
 	exit 1
     fi
 else
-    echo "Error: pmcd terminated dummy sed agent"
+    echo "Error: pmcd terminated the dumb_pmda agent"
     exit 1
 fi
 
@@ -243,12 +252,12 @@ echo "Now wait for pmcd to timeout..."
 echo ""
 sleep 6
 
-if ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "sed /$TAG/p" >/dev/null
+if ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "dumb_pmda" >/dev/null
 then
-    echo "Error: pmcd didn't terminate dummy sed agent"
+    echo "Error: pmcd didn't terminate the dumb_pmda agent"
     exit 1
 else
-    echo "pmcd terminated dummy sed agent as desired"
+    echo "pmcd terminated the dumb_pmda agent as desired"
 fi
 
 echo ""

@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 272
-# $Revision: 1.33 $
+# $Revision: 1.34 $
 # pmcd access control tests (used to be the second half of 051)
 #
 #
@@ -243,13 +243,6 @@ echo "================"
 echo "pmcd.log ..." >>$seq.full
 cat $PCP_PMCDLOG_PATH >>$seq.full
 
-myip=`_host_to_ipaddr $me`
-if [ -z "$myip" ]
-then
-    echo "QA Error: cannot translate hostname \"$me\" to ip addr"
-    status=3
-    exit
-fi
 iplist1=`_all_ipaddrs $other1`
 if [ -z "$iplist1" ]
 then
@@ -264,16 +257,16 @@ then
     status=3
     exit
 fi
-iplist3=`_all_ipaddrs $myip`
+iplist3=`_all_ipaddrs localhost`
 if [ -z "$iplist3" ]
 then
-    echo "QA Error: cannot generate all ip addrs from \"$myip\""
+    echo "QA Error: cannot generate all ip addrs from localhost"
     status=3
     exit
 fi
 echo "other1=$other1 iplist1=$iplist1" >>$seq.full
 echo "other2=$other2 iplist2=$iplist2" >>$seq.full
-echo "myip=$myip iplist3=$iplist3" >>$seq.full
+echo "localhost iplist3=$iplist3" >>$seq.full
 
 netlist2=`echo $iplist2,$iplist3 | sed -e 's/$/,/' -e 's/[0-9][0-9]*\.[0-9][0-9]*,/*,/g' -e 's/,$//'`
 

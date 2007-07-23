@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 542
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 # pmdate buffer overflow ... #666344
 #
 #
@@ -18,7 +18,8 @@ echo "QA output created by $seq"
 . ./common.check
 
 tmp=/tmp/$$
-sudo=`pwd`/sudo
+here=`pwd`
+sudo=$here/sudo
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -86,12 +87,8 @@ done
 echo
 echo "=== error checks ==="
 
-$sudo rm -f core
+$sudo rm -f core* $seq.core*
 pmdate "%A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B %A%B"
-if [ -f core ]
-then
-    echo "pmdate dumped core ... saved as core.$seq"
-    mv core core.$seq
-fi
+_check_core
 
 exit

@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 066
-# $Revision: 2.17 $
+# $Revision: 2.18 $
 # Test PMCD correctly restores original access control list after
 # reconfiguration with a bad config file.
 #
@@ -8,6 +8,16 @@
 #
 
 seq=`basename $0`
+
+. ./localconfig
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
+then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
 echo "QA output created by $seq"
 
 # get standard filters

@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 183
-# $Revision: 2.23 $
+# $Revision: 2.24 $
 # pmnewlog error handling
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -45,6 +45,7 @@ _filter_ls()
 _filter()
 {
     sed \
+        -e "s|${PCP_BINADM_DIR}|PCP_BINADM_DIR|" \
 	-e 's/process [0-9][0-9]*/process PID/' \
 	-e "s/ at $hostname:/ at HOST:/" \
 	-e "s/ port [0-9][0-9]*/ port PORT/" \
@@ -198,6 +199,7 @@ pmnewlog -p $pid $tmp 2>&1 \
 | sed \
     -e "/\.save/s/.*/-- ps line removed --/" \
     -e "s/$pid/PID/" \
+    -e '/kill/s/: line [0-9][0-9]*:/:/' \
     -e '/^kill:.*Not owner/s/Not owner/Operation not permitted/' \
     -e '/.*: kill:.*Not owner/s/Not owner/Operation not permitted/' \
     -e '/to get logging state/d' \

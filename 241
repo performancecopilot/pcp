@@ -1,0 +1,67 @@
+#! /bin/sh
+# PCP QA Test No. 241 (formerly 1170, 441)
+# $Revision: 1.18 $
+#
+# Test functionality of PMC_Source
+#
+# Copyright (c) 1995-2002,2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=chatz
+
+seq=`basename $0`
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ ! -f src-oss/pmc_source ]
+then
+    echo "Not run: no src-oss/pmc_source executable" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+host=`hostname`
+tz=`pmprobe -v pmcd.timezone | sed -e 's/.* "//' -e 's/"//'`
+
+_filter()
+{
+    sed \
+    	-e "s/$host/HOST/g" \
+	-e 's/sts = -146,/sts = ECONNREFUSED,/' \
+	-e 's/sts = -111,/sts = ECONNREFUSED,/' \
+	-e "s/snort/HOST/g" \
+	-e "s#EST-11EST-10,89/2:00,299/2:00#TZ#g" \
+	-e "s#$tz#TZ#g" \
+    | _filter_pmcd_log
+
+    #  The sed(1) command "s#EST-11EST-10,89/2:00,299/2:00#TZ#g" is required
+    #  for when pmc_source uses the archive oview-short.  oview-short
+    #  contains this timezone, so is required to be masked when pmc_source
+    #  spits its output.
+}
+
+cd src-oss
+../sudo ./pmc_source -DPMC 2>&1 | _filter
+
+# What happens if we stop pmcd
+../sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+../sudo ./pmc_source -DPMC 2>&1 | _filter
+
+../sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+
+# success, all done
+status=0
+exit

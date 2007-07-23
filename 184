@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 184
-# $Revision: 2.24 $
+# $Revision: 2.25 $
 # simplest possible case for pmnewlog
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -87,12 +87,13 @@ pmlogger -L -c $tmp.config -l $tmp.log $tmp.arch >$tmp.err 2>&1 &
 logger_pid=$!
 _wait_for_pmlogger $logger_pid $tmp.log
 
-echo "=== old log ==="
-pmdumplog -a $tmp.arch | _filter_dumplog
+echo "=== old log ===" | tee $seq.full
+pmdumplog -a $tmp.arch | tee -a $seq.full | _filter_dumplog
 
-echo
-echo "=== pmnewlog =="
+echo | tee -a $seq.full
+echo "=== pmnewlog ==" | tee -a $seq.full
 pmnewlog -V -p $logger_pid -l $tmp.log $tmp.newarch 2>&1 >$tmp.out
+cat $tmp.out >>$seq.full
 _filter_newlog <$tmp.out | _filter_dumplog
 
 # Cleanup after youself
@@ -102,7 +103,7 @@ echo
 echo "=== check old pmlogger has gone ==="
 ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == '$logger_pid' { print }'
 
-echo
-echo "=== check what's in the new log ==="
+echo | tee -a $seq.full
+echo "=== check what's in the new log ===" | tee -a $seq.full
 sleep 1
-pmdumplog -a $tmp.newarch | _filter_dumplog
+pmdumplog -a $tmp.newarch | tee -a $seq.full | _filter_dumplog

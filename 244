@@ -1,12 +1,22 @@
 #! /bin/sh
 # PCP QA Test No. 244
-# $Revision: 1.17 $
+# $Revision: 1.20 $
 # PMCD SIGHUP processing tests with $PCP_PMCDCONF_PATH changes
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
+
+. ./localconfig
+rm -f $seq.out
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
+then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
 echo "QA output created by $seq"
 
 # get standard filters
@@ -55,7 +65,7 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
 	-e '/access violation from host/d' \
 	-e '/endclient client.* No permission/d' \
-	-e '/localhost/s/[0-9a-f][0-9a-f][0-9a-f]*/MYIPADDR/' \
+	-e '/localhost/s/ [0-9a-f][0-9a-f][0-9a-f]* / MYIPADDR /' \
 	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
     | $PCP_AWK_PROG '
 $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
@@ -144,7 +154,7 @@ TAG=000000660066
 # NOTE: none of the domains should clash with the pmcd PMDA (domain 2) or the
 # sample agent (domain 254).  These agents will be appended to the file.
 #
-$sudo "echo \"fake_irix 1 pipe binary sleep $TAG\" >$CONFIG"
+$sudo "echo \"fake_irix 1 pipe binary dumb_pmda -d 1 $TAG\" >$CONFIG"
 $sudo "echo \"fake_sampledso 30 pipe binary sleep $TAG\" >>$CONFIG"
 $sudo "echo \"fake_cisco 5 pipe binary sed /$TAG/p\" >>$CONFIG"
 $sudo "echo \"fake_linux 60 pipe binary sleep $TAG\" >>$CONFIG"
@@ -161,6 +171,8 @@ echo '<END>'
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 # Sleep briefly to allow it time to start
 #
+PATH=$here/src-oss:$PATH
+export PATH
 $PCP_PMCD_PROG -f -t 2 &
 pmcd=$!
 # complete V1 PMDA timeouts, then wait for pmcd

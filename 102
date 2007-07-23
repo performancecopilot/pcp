@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 102
-# $Revision: 2.15 $
+# $Revision: 2.16 $
 # pmlc parser/scanner/error handling
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -69,9 +69,9 @@ do
     cat <<End-of-File >$tmp.config
 log advisory on $delta sample.bin [100]
 End-of-File
-    # pmlogger -c $tmp.config -T 3 $tmp
+    # pmlogger -c $tmp.config -T 4 $tmp
     rm -f $tmp.*
-    pmlogger -L -c /dev/null -l $tmp.log -T 3 $tmp &
+    pmlogger -L -c /dev/null -l $tmp.log -T 4 $tmp &
     pid=$!
     sleep 2
     pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err

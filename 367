@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 367
-# $Revision: 1.22 $
+# $Revision: 1.23 $
 # pdu encode-decode
 #
 #
@@ -91,7 +91,7 @@ s/PM_ID_NULL/0xffffffff &/
 }' \
     -e '/pmGetPDU:/{
 s/\['$server'\]/[SERVER]/
-s/from='$client' /from=CLIENT /
+s/from='$client'/from=CLIENT/
 }' \
     -e '/pmXmitPDU:/s/\['$server'\]/[SERVER]/' \
     -e '/__pmtracexmitPDU:/s/\['$server'\]/[SERVER]/' \

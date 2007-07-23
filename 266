@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 266
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 #
 # pmlogextract interactions between -S and -T and the timezone
 # Bug #466346
@@ -49,19 +49,19 @@ echo
 pmdumplog -z -L -n src-oss/root_irix src-oss/960624.08.17 | ./xlate_2_new_pmns
 
 echo
-echo "=== before start, local TZ=$TZ ==="
+echo "=== window before archive start, local TZ=$TZ ==="
 rm -f $tmp.*
 pmlogextract -S@08:00:00 -T@08:01:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
 pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
 
 echo
-echo "=== before start, timezone of archive ==="
+echo "=== window before archive start, timezone of archive ==="
 rm -f $tmp.*
 pmlogextract -z -S@15:00:00 -T@15:01:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
 pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
 
 echo
-echo "=== before start, UTC timezone ==="
+echo "=== window before archive start, UTC timezone ==="
 rm -f $tmp.*
 pmlogextract -Z UTC -S@22:00:00 -T@22:00:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
 pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
@@ -103,19 +103,19 @@ pmlogextract -Z UTC -S@22:35:00 -T@22:36:00 src-oss/960624.08.17 $tmp 2>&1 | _me
 pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
 
 echo
-echo "=== after end, local TZ=$TZ ==="
+echo "=== window after archive end, local TZ=$TZ ==="
 rm -f $tmp.*
 pmlogextract -S@09:00:00 -T@09:01:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
 pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
 
 echo
-echo "=== after end, timezone of archive ==="
+echo "=== window after archive end, timezone of archive ==="
 rm -f $tmp.*
 pmlogextract -z -S@16:00:00 -T@16:01:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
 pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns
 
 echo
-echo "=== after end, UTC timezone ==="
+echo "=== window after archive end, UTC timezone ==="
 rm -f $tmp.*
 pmlogextract -Z UTC -S@23:00:00 -T@23:01:00 src-oss/960624.08.17 $tmp 2>&1 | _merge_filter
 pmdumplog -lm -n src-oss/root_irix $tmp 2>&1 | _dump_filter | ./xlate_2_new_pmns

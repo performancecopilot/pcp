@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 158
-# $Revision: 1.1 $
+# $Revision: 2.12 $
 #
 # -S and -T values that are _both_ before the start, or after the end
 # of an archive ... for cmds in the open source PCP release (see also
@@ -14,6 +14,22 @@
 owner=kenmcd
 
 seq=`basename $0`
+
+# output depends on fix for pv 928021
+#
+rm -f $seq.out
+. ./localconfig
+if [ $PCP_PLATFORM = linux -a $PCP_VER -gt 2400 ]
+then
+    # fix is in pcp-2.4.1-1
+    ln $seq.out.2 $seq.out
+elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -gt 2400 ]
+then
+    # after PCP 2.4 
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
@@ -37,17 +53,17 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # -S and -T before the start of the archive
 #
-pmval -S '@Sat May 10 01:00:00 1997' -T '@Sat May 10 01:00:00 1997' -a src-oss/rattle kernel.all.load
+pmval -z -S '@Sat May 10 01:00:00 1997' -T '@Sat May 10 01:00:00 1997' -a src-oss/rattle kernel.all.load
 
 echo
 echo "kernel.all.load;" \
-| pmie -v -S '@Sat May 10 01:00:00 1997' -T '@Sat May 10 01:00:00 1997' -a src-oss/rattle 2>&1 \
+| pmie -z -v -S '@Sat May 10 01:00:00 1997' -T '@Sat May 10 01:00:00 1997' -a src-oss/rattle 2>&1 \
 | grep -v 'evaluator exiting'
 
 # -S and -T after the end of the archive
 #
 echo
-pmval -S '@Sat May 24 01:00:00 1997' -T '@Sat May 24 01:00:00 1997' -a src-oss/rattle kernel.all.load
+pmval -z -S '@Sat May 24 01:00:00 1997' -T '@Sat May 24 01:00:00 1997' -a src-oss/rattle kernel.all.load
 
 echo
 echo "kernel.all.load;" \

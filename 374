@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 374
-# $Revision: 1.13 $
+# $Revision: 1.16 $
 # pmlogger (assorted) and pmlc (PCP 2.0) version compatibility
 #
 #
@@ -34,11 +34,26 @@ $1 == "log" && $2 == "size"	{ if ($3 > 100 && $3 <= 200) $3 = "more than 100"
 _speak_to_me()
 {
     host=$1
-    eval `cat <<'End-of-File' | rsh $host -l pcpqa sh
+    pid=''
+    base=''
+    cat <<'End-of-File' | rsh $host -l pcpqa sh >$tmp.tmp 2>&1
+if [ -r /etc/pcp.env ]
+then
+    . /etc/pcp.env
+else
+    echo "Error: unable to read /etc/pcp.env!" >&2
+    exit 1
+fi
 rm -f /tmp/$$.*
 ( pmlogger -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
 echo pid=$! base=$$
-End-of-File`
+End-of-File
+
+    echo >>$seq.full
+    echo "From rsh to $host ..." >>$seq.full
+    cat $tmp.tmp >>$seq.full
+
+    eval `cat $tmp.tmp`
 
     if [ -z "$pid" ]
     then
@@ -52,7 +67,20 @@ End-of-File`
 	exit
     fi
 
-    _wait_for_pmlogger "-h $host $pid" /hosts/$host/tmp/$base.log
+    for i in 1 2 3 4 5 6 7 8 9 10
+    do
+	if echo quit | pmlc -h $host $pid 2>&1 | grep 'Connected to' >/dev/null
+	then
+	    break
+	else
+	    if [ $i = 10 ]
+	    then
+		echo "Arrgh ... pmlogger (pid=$pid) on host $host failed to start after 20 seconds"
+		exit 1
+	    fi
+	fi
+	sleep 2
+    done
 
     # the success cases
     #

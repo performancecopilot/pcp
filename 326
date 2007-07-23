@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 326
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 # Check PMCD state change notification, aka PMCD reset
 #
 #
@@ -79,6 +79,12 @@ pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
 sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+
+# very odd inode update problem on kenj-pc with one variant of the Linux
+# 2.6.11 kernel ... this should be 100% benign for everyone else
+#
+sync
+
 $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
 if [ -d $PCP_LOG_DIR/pmlogger ]

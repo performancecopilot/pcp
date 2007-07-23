@@ -1,0 +1,51 @@
+#! /bin/sh
+# PCP QA Test No. 207 (formerly 1166, 437)
+# $Revision: 2.9 $
+#
+# test PMC_Metric::formatNumber
+#
+# Copyright (c) 1995-2002,2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=chatz
+
+seq=`basename $0`
+
+if [ -x src-oss/pmc_format ]
+then
+    :
+else
+    echo "Can't execute src-oss/pmc_format" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.filter
+. ./common.check
+
+tmp=/tmp/$$
+sudo=`pwd`/sudo
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+for i in \
+	0 \
+	0.00001 0.0001 0.001 0.01 0.1 1.0 10.0 100.0 1000.0 10000.0 \
+	1000000.0 10000000.0 100000000.0 1000000000.0 10000000000.0 \
+	100000000000.0 1000000000000.0 10000000000000.0 \
+	0.005 0.0051 9.995 9.9951 99.95 99.951 99950.0 99951.0 \
+	99950000.0 99951000.0 99950000000.0 99951000000.0 \
+	99950000000000.0 99951000000000.0
+do
+    echo $i | $PCP_AWK_PROG '{printf("%17s = ", $1); }'
+    src-oss/pmc_format $i
+    echo -$i | $PCP_AWK_PROG '{printf("%17s = ", $1); }'
+    src-oss/pmc_format -$i
+done
+
+# success, all done
+status=0
+exit

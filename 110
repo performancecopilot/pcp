@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 110
-# $Revision: 2.25 $
+# $Revision: 2.26 $
 # check out simple PMDA
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -39,6 +39,8 @@ tmp=/tmp/$$
 status=1
 
 unset ROOT TOOLROOT
+
+PMDA_LOG_PATH=`echo $PCP_PMCDLOG_PATH | sed -e 's/pmcd.log/simple.log/'`
 
 _cleanup()
 {
@@ -79,12 +81,7 @@ _failed()
     tail -20 $PCP_PMCDLOG_PATH
     echo
     echo "...and the PMDA log ..."
-    if [ -d $PCP_LOG_DIR/pmcd ]
-    then
-	cat $PCP_LOG_DIR/pmcd/simple.log
-    else
-	cat $PCP_LOG_DIR/simple.log
-    fi
+    cat $PMDA_LOG_PATH
 }
 
 _filter()
@@ -105,6 +102,19 @@ _filter()
 	-e 's/.* \(leaf nodes\)/  NNN \1/' \
 	-e 's/.* \(bytes of symbol table\)/  NNN \1/'
 }
+
+_full()
+{
+    echo "--- pmcd.conf ---" >>$here/$seq.full
+    cat $PCP_PMCDCONF_PATH >>$here/$seq.full
+    echo "--- pmcd.log ---" >>$here/$seq.full
+    cat $PCP_PMCDLOG_PATH >>$here/$seq.full
+    echo "--- simple.log ---" >>$here/$seq.full
+    cat $PMDA_LOG_PATH >>$here/$seq.full
+    echo >>$here/$seq.full
+}
+
+rm -f $seq.full
 
 # real QA test starts here
 here=`pwd`
@@ -135,10 +145,12 @@ $here/sudo ./Remove >/dev/null 2>&1
 
 echo
 echo "=== pipe daemon agent ==="
+echo "=== pipe daemon agent ===" >>$here/$seq.full
 $here/sudo ./Remove >$tmp.out 2>&1
 echo 'both
 daemon
 pipe' | $here/sudo ./Install >>$tmp.out 2>&1
+_full
 
 _filter <$tmp.out
 
@@ -151,6 +163,7 @@ fi
 
 echo
 echo "=== Unix socket daemon agent ==="
+echo "=== Unix socket daemon agent ===" >>$here/$seq.full
 $here/sudo ./Remove >$tmp.out 2>&1
 echo 'both
 daemon
@@ -162,6 +175,7 @@ daemon
 socket
 Unix
 '"$tmp.fifo-2" | $here/sudo ./Install >>$tmp.out 2>&1
+_full
 
 _filter <$tmp.out
 
@@ -174,6 +188,7 @@ fi
 
 echo
 echo "=== Internet socket daemon agent ==="
+echo "=== Internet socket daemon agent ===" >>$here/$seq.full
 $here/sudo ./Remove >$tmp.out 2>&1
 
 # pick a tcp port that is not in use
@@ -199,6 +214,7 @@ daemon
 socket
 Internet
 '$port | $here/sudo ./Install >>$tmp.out 2>&1
+_full
 
 _filter <$tmp.out
 
@@ -211,11 +227,13 @@ fi
 
 echo
 echo "=== dso agent ==="
+echo "=== dso agent ===" >>$here/$seq.full
 $here/sudo ./Remove >$tmp.out 2>&1
 echo 'both
 dso' | $here/sudo ./Install >>$tmp.out 2>&1
 echo 'both
 dso' | $here/sudo ./Install >>$tmp.out 2>&1
+_full
 
 _filter <$tmp.out
 

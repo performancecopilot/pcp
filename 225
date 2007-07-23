@@ -1,0 +1,156 @@
+#! /bin/sh
+# PCP QA Test No. 225 (formerly 1175, 455)
+# $Revision: 2.14 $
+#
+# exercise PMC_Group while illustrating pmjd-like clients and protocols
+#
+# Copyright (c) 1995-2002,2005 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# creator
+owner=chatz
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ ! -f src-oss/pmc_group ]
+then
+    echo "Not run: no src-oss/pmc_group executable" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=`pwd`/sudo
+unset ROOT
+
+status=0	# success is the default!
+
+_setup()
+{
+    cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+    $sudo rm -f core* $seq.core*
+
+    mkdir $tmp.pmda
+    cp src-oss/dynamic_pmda $tmp.pmda/pmdadynamic
+    cp src-oss/dynamic_pmns $tmp.pmda/pmns
+    cp src-oss/dynamic_help $tmp.pmda/help
+    cp src-oss/dynamic_Install $tmp.pmda/Install
+    cp src-oss/dynamic_Remove $tmp.pmda/Remove
+    grep DYNAMIC src-oss/domain.h > $tmp.pmda/domain.h
+
+    echo > $tmp.pmda/Makefile '
+all:
+
+install:
+
+clobber:
+'
+
+    cd $tmp.pmda
+    $sudo ./Install < /dev/null 2>&1 | _filter_pmda_install
+    cd $here
+}
+
+_cleanup()
+{
+    echo
+    echo "*** Cleanup ***"
+    cd $tmp.pmda
+    $sudo ./Remove < /dev/null
+    cd $here
+
+    _check_core
+    _check_core $tmp.pmda
+
+    if [ -f $tmp.pmcd.conf ]
+    then
+    	if diff $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+    	then
+	    :
+	else
+ 	    echo "Remove failed to return pmcd to original state"
+	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    $sudo killall -HUP pmcd
+	    _wait_for_pmcd
+	fi
+    fi
+
+    rm -rf $tmp.pmda
+    rm -f $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+host=`hostname`
+
+_filter1()
+{
+    sed \
+	-e "s/$host [:A-Z][A-Z]*[-A-Za-z0-9,/:\.]*/HOST TIMEZONE/" \
+	-e "s/localhost [:A-Z][A-Z]*[-A-Za-z0-9,/:\.]*/LOCALHOST TIMEZONE/" \
+	-e "s/^\- [0-9][0-9]*\.[0-9][0-9]*$/- NUM/" \
+	-e "s/^\- [0-9][0-9]*$/- NUM/" \
+	-e "s/: Line [0-9][0-9]* /: Line <N> /" \
+    | $PCP_AWK_PROG '
+BEGIN		{ mode = 0 }
+/Client1/	{ mode = 1; print; next }
+/Client2/	{ mode = 1; print; next }
+$1 == "FETCH" && mode == 1			{ mode = 2; print; next }
+$1 == "CONTEXT" && $2 == "0" && mode == 2	{ printf("CONTEXT 0 DELTA SEC USEC\n"); next }
+		{ mode = 0; print; next }'
+}
+
+_filter2()
+{
+    sed -n \
+	-e '/^\*\*\*/p' \
+	-e '/pmGetPDU/p' \
+	-e '/pmXmitPDU/p' \
+	-e '/^PMC_/p' \
+    | sed \
+	-e "s/^\[[0-9]*\]//" \
+	-e "s/fd=[0-9]/fd=#/" \
+	-e "s/from=[0-9]*/from=###/" \
+	-e "s/$host/HOST/" \
+	-e "s/id = [0-9]*/id = ##########/" \
+	-e "s/ptr = 0x0/ptr = NULL/" \
+	-e "s/ptr = 0x[0-9a-f]*/ptr = 0x########/" \
+    > $tmp.filtered
+
+    echo
+    echo "*** PDUs ***"
+    sed -n < $tmp.filtered \
+	-e '/pmGetPDU/p' \
+	-e '/pmXmitPDU/p' \
+    | sed \
+	-e "s/ fd=.*//" \
+    | sort \
+    | uniq -c \
+    | sed -e 's/  */ /g'
+
+    echo "*** Transactions ***" > $seq.full
+    echo >> $seq.full
+    cat $tmp.filtered >> $seq.full
+}
+
+_setup
+
+_check_metric dynamic.numinsts
+
+pmstore dynamic.control.del "-1"
+
+cd src-oss
+./pmc_group -DPDU,PMC 2>$tmp.stderr | _filter1
+cd $here
+
+cat $tmp.stderr | _filter2
+
+exit
