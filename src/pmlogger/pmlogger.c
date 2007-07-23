@@ -410,7 +410,7 @@ do_dialog(char cmd)
 	int fd = -1;
 
 	if ((msg = tmpnam(NULL)) == NULL ||
-	    (fd = open(msg, O_WRONLY | O_EXCL, 0600)) < 0 ||
+	    (fd = open(msg, O_WRONLY|O_CREAT|O_EXCL, 0600)) < 0 ||
 	    (msgf = fdopen(fd, "w")) == NULL) {
 	    fprintf(stderr, "\nError: failed create temporary message file for recording session dialog\n");
 	    fprintf(stderr, "Reason? %s\n", strerror(errno));
