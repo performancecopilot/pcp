@@ -156,6 +156,7 @@ BZIP2	= @bzip2@
 TAR	= @tar@
 RPMPROG	= @rpmprog@
 PACKAGE_MAKER= @package_maker@
+HDIUTIL = @hdiutil@
 RPMBUILD= @rpmbuild@
 RPM	= @rpm@
 RPM_VERSION = @rpm_version@

@@ -24,7 +24,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-LDIRT = $(wildcard pcp*.pkg) idb installer-files
+LDIRT = $(wildcard pcp*.pkg) $(wildcard pcp*.dmg) idb installer-files
 
 INSTFILES = idb install-pcp uninstall-pcp English.lproj/Localizable.strings\
 	    StartupParameters.plist
@@ -51,13 +51,14 @@ pack_pcp : extrabits
 	@PACKAGE_VERSION=${PACKAGE_VERSION} \
 	 PACKAGE_MAJOR=${PACKAGE_MAJOR} \
 	 PACKAGE_MINOR=${PACKAGE_MINOR} \
-	./build-installer $$DIST_ROOT $(PACKAGE_MAKER) ${PACKAGE_NAME} idb 
+	./build-installer $(PACKAGE_MAKER) $(HDIUTIL) \
+			  $$DIST_ROOT ${PACKAGE_NAME} idb 
 
 idb: $(DIST_MANIFEST)
 # We need to do a fair bit of munging here
 # Firstly, add a version number
 # then swap source and destination
-# ensure there is a mode and user/groupd for EVERY entry
+# ensure there is a mode and user/group for EVERY entry
 # Add a 'rule' (eg replace)
 # make destination relative 
 # make source relative to DIST_ROOT

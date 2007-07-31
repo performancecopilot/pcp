@@ -327,6 +327,11 @@ else
 fi
 AC_SUBST(package_maker)
 
+dnl check if the hdiutil program is available
+test -z "$HDIUTIL" && AC_PATH_PROG(HDIUTIL, hdiutil)
+hdiutil=$HDIUTIL
+AC_SUBST(hdiutil)
+
 dnl check if the rpmbuild program is available
 test -z "$RPMBUILD" && AC_PATH_PROG(RPMBUILD, rpmbuild)
 rpmbuild=$RPMBUILD
