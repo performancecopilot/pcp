@@ -358,7 +358,8 @@ newHashInst(pmValue *vp,
 
     if ((sts = pmExtractValue(valfmt, vp, avedata->desc.type, &av, PM_TYPE_DOUBLE)) < 0) {
 	pmiderr(avedata->desc.pmid, "failed to extract value: %s\n", pmErrStr(sts));
-	return;
+	fprintf(stderr, "%s: possibly corrupt archive?\n", pmProgname);
+	exit(1);
     }
     size = (pos+1) * sizeof(instData *);
     avedata->instlist = (instData **) realloc(avedata->instlist, size);
