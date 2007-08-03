@@ -526,9 +526,10 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
     static char	buf[60];
 
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_VALUE)
+    if (pmDebug & DBG_TRACE_VALUE) {
 	fprintf(stderr, "pmExtractValue: ");
 	vp = "???";
+    }
 #endif
 
     oval->ll = 0;
