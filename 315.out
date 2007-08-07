@@ -1,0 +1,27 @@
+QA output created by 315
+# $version=1.1   
++ export version; version=1.1   
++ cd TMP/PID.distdir
+
+=== daily maintenance of pmie log files for host dist.engr ===
+
+pmie_daily: Error: no pmie instance running for host "dist.engr"
+[TMP/PID.ctl:3] ... inference engine for host "dist.engr" unchanged
+Log files older than 14 days being removed ...
+    pmie.log.FIVEMONTHS
++ rm -f pmie.log.FIVEMONTHS
+Log files older than 3 days being compressed ...
+    pmie.log.FIVEMONTHS pmie.log.FIVEDAYS
++ compress pmie.log.FIVEMONTHS pmie.log.FIVEDAYS
++ cd TMP/PID.relaydir
+
+=== daily maintenance of pmie log files for host relay.engr ===
+
+pmie_daily: Error: no pmie instance running for host "relay.engr"
+[TMP/PID.ctl:4] ... inference engine for host "relay.engr" unchanged
+Log files older than 14 days being removed ...
+    pmie.log.FIVEMONTHS
++ rm -f pmie.log.FIVEMONTHS
+Log files older than 3 days being compressed ...
+    pmie.log.FIVEMONTHS pmie.log.FIVEDAYS
++ compress pmie.log.FIVEMONTHS pmie.log.FIVEDAYS
