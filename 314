@@ -1,0 +1,68 @@
+#! /bin/sh
+# PCP QA Test No. 314
+# Exercise pmie_daily functionality - log rotation
+#
+# Copyright (c) 2007 Aconex.  All Rights Reserved.
+#
+# creator
+owner=nathans
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+status=1	# failure is the default!
+trap "rm -fr $tmp.* /tmp/$seq; exit \$status" 0 1 2 3 15
+
+# create a pmie config file, causing frequent output (to log)
+cat > $tmp.config << EOF1
+delta = 0.2 seconds;
+fetched = simple.numfetch;
+EOF1
+
+# create pmie control files and test out various good/bad conditions
+
+cat > $tmp.control << EOF2
+\$version=1.0
+LOCALHOSTNAME n /tmp/$seq/1.good.log -v -c $tmp.config
+EOF2
+
+# real QA test starts here
+$sudo killall -TERM pmie 2>/dev/null
+rm -fr /tmp/$seq && mkdir /tmp/$seq || exit 1
+pmstore simple.numfetch 0 >/dev/null
+
+# fire em all up
+echo "Starting pmie process"
+pmie_check -c $tmp.control
+sleep 2		# fill original log a bit
+
+echo "Rotate, rotate..."
+previous=`pmdate -1d %Y%m%d`
+pmie_daily -c $tmp.control
+sleep 2		# fill rotated log a bit
+
+grep rotated /tmp/$seq/1.good.log >/dev/null \
+	|| echo "First log not rotated?"
+grep rotated /tmp/$seq/1.good.log.$previous >/dev/null \
+	|| echo "New log not started?"
+
+echo "Shutdown pmie process"
+pmie_check -c $tmp.control -s
+
+# look for data in each log file, checking rotation actually did something
+oldlines=`wc -l < /tmp/$seq/1.good.log.$previous 2>/dev/null || echo 0`
+newlines=`wc -l < /tmp/$seq/1.good.log 2>/dev/null || echo 0`
+_within_tolerance "Old logfile line count" "$oldlines" 70 %20 -v
+_within_tolerance "New logfile line count" "$newlines" 30 %20 -v
+
+# success, all done
+status=0
+exit
