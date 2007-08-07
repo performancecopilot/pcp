@@ -533,6 +533,7 @@ dmf		pcpqa
 312 pmie local
 313 pmval archive local
 314 pmie local
+315 pmie local
 316 libpcp local
 320 local folio
 323 pmda.shping pmda.proc local pmda.install
