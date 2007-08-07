@@ -16,4 +16,4 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
-pminfo -v sample | egrep -v 'sample.dynamic|sample.sysinfo'
+pminfo -v sample 2>&1 | egrep -v 'sample.dynamic|sample.sysinfo|sample.darkness'

@@ -60,25 +60,35 @@ pmie_filter()
     	-e "/pmcd.pmie.eval.unknown: $unavailable/d" \
     	-e "/pmcd.pmie.logfile: $unavailable/d" \
     	-e "/pmcd.pmie.numrules: $unavailable/d" \
-    	-e "/pmcd.pmie.pmcd_host: $unavailable/d"
+    	-e "/pmcd.pmie.pmcd_host: $unavailable/d" \
+    	-e "/pmcd.pmie.host: $unavailable/d"
+}
+
+linux_filter()
+{
+    sed -e "/mem.vmstat.nr_slab_reclaimable: $unavailable/d" \
+	-e "/mem.vmstat.nr_slab_unreclaimable: $unavailable/d" \
+	-e "/mem.vmstat.nr_vmscan_write: $unavailable/d"
 }
 
 sample_filter()
 {
     sed -e "/sample.bad.nosupport: $nosupport/d" \
-    	-e "/sample.bad.unknown: $unknown/d" \
+	-e "/sample.bad.unknown: $unknown/d" \
 	-e "/sample.needprofile: $explicit/d" \
 	-e "/sample.noinst: $unavailable/d" \
 	-e "/sample.dynamic.counter: $unavailable/d" \
 	-e "/sample.dynamic.discrete: $unavailable/d" \
 	-e "/sample.dynamic.instant: $unavailable/d" \
+	-e "/sample.darkness: $unavailable/d" \
 	-e "/sampledso.bad.nosupport: $nosupport/d" \
 	-e "/sampledso.bad.unknown: $unknown/d" \
 	-e "/sampledso.needprofile: $explicit/d" \
 	-e "/sampledso.noinst: $unavailable/d" \
 	-e "/sampledso.dynamic.counter: $unavailable/d" \
 	-e "/sampledso.dynamic.discrete: $unavailable/d" \
-	-e "/sampledso.dynamic.instant: $unavailable/d"
+	-e "/sampledso.dynamic.instant: $unavailable/d" \
+	-e "/sampledso.darkness: $unavailable/d"
 }
 
 count_filter()
@@ -97,6 +107,7 @@ do
     src-oss/exercise -i 5 $root \
     | LC_COLLATE=POSIX sort \
     | sample_filter \
+    | linux_filter \
     | pmie_filter \
     | count_filter >$tmp.tmp
 
