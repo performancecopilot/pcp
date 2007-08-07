@@ -58,12 +58,8 @@ endif
 else
 # not IRIX
 
-# libpcp_pmc is included in the open source version, but does not
-# get installed ... need the headers and the static library to live
-# in this directory
-#
-INCPMC	= -I../../src/libpcp_pmc/src
-LIBPMC = ../../src/libpcp_pmc/src/libpcp_pmc.so.1
+INCPMC	= -I/usr/include/pcp/pmc
+LIBPMC = /usr/lib/libpcp_pmc.so.1
 
 ifeq ($(PCP_PLATFORM), solaris)
 LIBSOL = -lsocket
