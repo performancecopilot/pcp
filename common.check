@@ -782,6 +782,28 @@ _change_config()
 				;;
 	    esac
 	    [ ! -z "$pat" ] && $sudo chkconfig $pat $2
+	elif which update-rc.d >/dev/null 2>&1
+	then
+	    # Try the Debian way ..
+	    #
+	    case $1
+	    in
+		pmcd)		pat=""
+				;;
+		pmlogger)	pat=pcp
+				;;
+		pmie)		pat=pmie
+				;;
+		verbose)	pat=""
+				;;
+		*)		pat=$1
+				;;
+	    esac
+	    if [ ! -z "$pat" ]
+	    then
+		[ $2 = on ] && $sudo update-rc.d -f $pat remove >/dev/null
+		[ $2 = off ] && $sudo update-rc.d -f $pat default >/dev/null
+	    fi
 	else
 	    # I have no clue!
 	    #
