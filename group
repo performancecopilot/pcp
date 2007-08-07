@@ -532,6 +532,7 @@ dmf		pcpqa
 311 archive compat pmlogger #509592 pminfo local
 312 pmie local
 313 pmval archive local
+314 pmie local
 316 libpcp local
 320 local folio
 323 pmda.shping pmda.proc local pmda.install
