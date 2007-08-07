@@ -1,0 +1,13 @@
+QA output created by 317
+
+Verify no pmlogsummary coredump...
+Note: timezone set to local timezone of host "nas1" from archive
+
+pmlogsummary: kernel.all.cpu.wait.total(60.0.35) - failed to extract value: Impossible value or scale conversion
+pmlogsummary: possibly corrupt archive?
+
+Verify no pmlogcheck coredump...
+Note: timezone set to local timezone of host "nas1" from archive
+
+[00:11:08.712] kernel.all.cpu.wait.total: pmExtractValue failed: Impossible value or scale conversion
+pmlogcheck: possibly corrupt archive?

@@ -535,6 +535,7 @@ dmf		pcpqa
 314 pmie local
 315 pmie local
 316 libpcp local
+317 logutil pmlogsummary local
 320 local folio
 323 pmda.shping pmda.proc local pmda.install
 324 pmda.txmon pmda.proc local pmda.install

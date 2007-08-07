@@ -114,7 +114,7 @@ SRCARCH	= mirage.0 moomba.client.0 babylon.percpu.0 omen.client.0 \
 	sample-secs.0 gmt-boring.0 kenj-pc-1.0 kenj-pc-2.0 \
 	reduce-1.0 reduce-2.0 kenj-pc-diskstat.0 snort-disks.0 \
 	vldb-disks.0 oview-short.0 moomba.pmkstat.0 fcsw_indom.0 \
-	uwrap.0 20041125.0 ac15.0
+	uwrap.0 20041125.0 ac15.0 logsummary-bug.0
 
 MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
 	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 null.0 \
