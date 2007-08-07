@@ -104,6 +104,9 @@ then
     if [ -f /usr/share/misc/magic ]
     then
 	appstyle=`file -m /usr/share/misc/magic $PCP_DEMOS_DIR/trace/app1`
+    elif [ -f /usr/share/file/magic ]
+    then
+	appstyle=`file -m /usr/share/file/magic $PCP_DEMOS_DIR/trace/app1`
     elif [ -f /usr/share/magic ]
     then
 	appstyle=`file -m /usr/share/magic $PCP_DEMOS_DIR/trace/app1`
