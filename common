@@ -102,20 +102,6 @@ _haveagents()
     # PMDAs than need to be here for QA
     #
     COMMON_PMDAS="sample sampledso simple"
-    [ -d $PCP_PMDAS_DIR/weblog ] && COMMON_PMDAS="$COMMON_PMDAS weblog"
-    if [ -d $PCP_PMDAS_DIR/cisco ]
-    then
-	# cisco PMDA requires that you can reach a router
-	#
-	if which ping >/dev/null 2>&1
-	then
-	    #  Note: PCP_QA_CISCOROUTER needs to be defined in common.rc
-	    if ping -c 1 $PCP_QA_CISCOROUTER >/dev/null 2>&1
-	    then
-		COMMON_PMDAS="$COMMON_PMDAS cisco"
-	    fi
-	fi
-    fi
 
     for agent in $COMMON_PMDAS
     do
