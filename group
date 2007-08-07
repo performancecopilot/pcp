@@ -530,6 +530,7 @@ dmf		pcpqa
 308 pmlc pmlogger #452417 remote
 310 pmie local
 311 archive compat pmlogger #509592 pminfo local
+312 pmie local
 313 pmval archive local
 316 libpcp local
 320 local folio
