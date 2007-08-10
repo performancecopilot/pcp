@@ -14,7 +14,7 @@ if [ $PCP_PLATFORM = linux ]
 then
     case `uname -m`
     in
-	i?86|ia64)
+	i?86|ia64|x86_64)
 		ln $seq.linux.x86 $seq.out
 		;;
 	*)
