@@ -764,46 +764,29 @@ _change_config()
 {
     if [ $PCP_PLATFORM = linux ]
     then
+	case $1 
+	in
+	    pmcd)	pat=""
+			;;
+	    pmlogger)	pat=pcp
+			;;
+	    pmie)	pat=pmie
+			;;
+	    verbose)	pat=""
+			;;
+	    *)		pat=$1
+			;;
+	esac
 	if which chkconfig >/dev/null 2>&1
 	then
 	    # Try the RedHat and SuSE way ..
 	    #
-	    case $1 
-	    in
-		pmcd)		pat=""
-				;;
-		pmlogger)	pat=pcp
-				;;
-		pmie)		pat=pmie
-				;;
-		verbose)	pat=""
-				;;
-		*)		pat=$1
-				;;
-	    esac
 	    [ ! -z "$pat" ] && $sudo chkconfig $pat $2
-	elif which update-rc.d >/dev/null 2>&1
+	elif [ -x /usr/sbin/sysv-rc-conf ]
 	then
-	    # Try the Debian way ..
+	    # Try the Debian and Ubuntu way ..
 	    #
-	    case $1
-	    in
-		pmcd)		pat=""
-				;;
-		pmlogger)	pat=pcp
-				;;
-		pmie)		pat=pmie
-				;;
-		verbose)	pat=""
-				;;
-		*)		pat=$1
-				;;
-	    esac
-	    if [ ! -z "$pat" ]
-	    then
-		[ $2 = on ] && $sudo update-rc.d -f $pat remove >/dev/null
-		[ $2 = off ] && $sudo update-rc.d -f $pat default >/dev/null
-	    fi
+	    [ ! -z "$pat" ] && $sudo /usr/sbin/sysv-rc-conf $pat $2
 	else
 	    # I have no clue!
 	    #
