@@ -1223,21 +1223,23 @@ main(int argc, char *argv[])
 	/*NOTREACHED*/
     }
 
-    run_dir = pmGetConfig("PCP_RUN_DIR");
-    i = strlen(run_dir);
-    pidpath = malloc(i + strlen(PIDFILE) + 1);
-    memcpy(pidpath, run_dir, i);
-    strcpy(pidpath + i, PIDFILE);
-    pidfile = fopen(pidpath, "w");
-    if (pidfile == NULL) {
-	fprintf(stderr, "Error: Cant open pidfile %s\n", pidpath);
-	DontStart();
-	/*NOTREACHED*/	
+    if (run_daemon) {
+	run_dir = pmGetConfig("PCP_RUN_DIR");
+	i = strlen(run_dir);
+	pidpath = malloc(i + strlen(PIDFILE) + 1);
+	memcpy(pidpath, run_dir, i);
+	strcpy(pidpath + i, PIDFILE);
+	pidfile = fopen(pidpath, "w");
+	if (pidfile == NULL) {
+		fprintf(stderr, "Error: Cant open pidfile %s\n", pidpath);
+		DontStart();
+		/*NOTREACHED*/	
+	}
+	fprintf(pidfile, "%d", getpid());
+	fflush(pidfile);
+	fclose(pidfile);
+	free(pidpath);
     }
-    fprintf(pidfile, "%d", getpid());
-    fflush(pidfile);
-    fclose(pidfile);
-    free(pidpath);
 
     PrintAgentInfo(stderr);
     __pmAccDumpHosts(stderr);
