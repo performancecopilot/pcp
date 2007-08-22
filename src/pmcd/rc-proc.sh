@@ -44,6 +44,7 @@ _cmds_exist()
     _have_flag=false
     _have_runlevel=false
     _have_chkconfig=false
+    _have_sysvrcconf=false
 
     [ -f $PCP_RC_DIR/$1 ] && _have_flag=true
 
@@ -74,6 +75,21 @@ _cmds_exist()
 	    fi
 	else
 	    _have_chkconfig=true
+	fi
+    fi
+
+    if which sysv-rc-conf >/dev/null 2>&1
+    then
+	if [ "$PCP_PLATFORM" = solaris -o "$PCP_PLATFORM" = darwin ]
+	then
+	    if which sysv-rc-conf | grep "no sysv-rc-conf" >/dev/null
+	    then
+		:
+	    else
+		_have_sysvrcconf=true
+	    fi
+	else
+	    _have_sysvrcconf=true
 	fi
     fi
 }
@@ -141,6 +157,12 @@ is_chkconfig_on()
 	then
 	    _ret=0 # on
 	fi
+    elif $_have_sysvrcconf
+    then
+	if sysv-rc-conf --list "$_flag" 2>&1 | grep $_rl":on" >/dev/null 2>&1
+	then
+	    _ret=0 # on
+	fi
     else
 	#
 	# don't have chkconfig, so use the existence of the symlink
@@ -187,6 +209,10 @@ chkconfig_on()
     then
 	# enable default run levels
 	chkconfig "$_flag" on >/dev/null 2>&1
+    elif $_have_sysvrcconf
+    then
+	# enable default run levels
+	sysv-rc-conf "$_flag" on >/dev/null 2>&1
     else
 	_start=`_runlevel_start $_flag`
 	_stop=`_runlevel_stop $_flag`
@@ -231,6 +257,9 @@ chkconfig_off()
     elif $_have_chkconfig
     then
 	chkconfig --level 2345 "$_flag" off >/dev/null 2>&1
+    elif $_have_sysvrcconf
+    then
+	sysv-rc-conf --level 2345 "$_flag" off >/dev/null 2>&1
     else
 	# remove the symlinks
 	if [ -f /etc/debian_version ]; then
@@ -265,6 +294,10 @@ chkconfig_on_msg()
 	if $_have_chkconfig
 	then
 	    _cmd=`which chkconfig`
+	    echo "    # $_cmd $_flag on"
+	elif $_have_sysvrcconf
+	then
+	    _cmd=`which sysv-rc-conf`
 	    echo "    # $_cmd $_flag on"
 	else
 	    if [ -f /etc/debian_version ]; then
