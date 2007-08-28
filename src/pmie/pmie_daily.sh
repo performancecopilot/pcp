@@ -115,6 +115,8 @@ EOF
 # option parsing
 #
 SHOWME=false
+RM=rm
+KILL=kill
 VERBOSE=false
 VERY_VERBOSE=false
 MYARGS=""
@@ -135,6 +137,8 @@ do
 		fi
 		;;
 	N)	SHOWME=true
+		RM="echo + rm"
+		KILL="echo + kill"
 		MYARGS="$MYARGS -N"
 		;;
 	V)	if $VERBOSE
@@ -419,7 +423,8 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	$SHOWME && echo "+ mv $logfile ${logfile}.{SUMMARY_LOGNAME}"
 	if mv $logfile ${logfile}.${SUMMARY_LOGNAME}
 	then
-	    kill -HUP $pid
+	    $VERY_VERBOSE && echo "+ $KILL -HUP $pid"
+	    eval $KILL -HUP $pid
 	else
 	    _error "problems moving logfile \"$logfile\" for host \"$host\""
 	    touch $tmp.err
