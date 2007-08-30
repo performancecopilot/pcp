@@ -9,6 +9,7 @@
 
 seq=`basename $0`
 
+sudo=
 . ./localconfig
 if [ $PCP_PLATFORM = irix ]
 then
@@ -18,6 +19,7 @@ then
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
   fi
+  sudo=./sudo
 fi
 
 echo "QA output created by $seq"
@@ -49,7 +51,7 @@ for metric in \
     nfs3.server.reqs \
     sampledso.hordes.one
 do
-    ./sudo src-oss/torture_indom $metric >$tmp.out 2>&1
+    $sudo src-oss/torture_indom $metric >$tmp.out 2>&1
     status=$?
     sed -e '/using .* kmem interface/d' $tmp.out \
     | _filter_pmcd_log \
