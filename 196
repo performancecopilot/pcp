@@ -46,7 +46,7 @@ host=`hostname`
 if [ X$host != "Xgonzo" ]
 then
     # if this isn't gonzo, fake it!
-    tail +2 196.out
+    tail -n +2 196.out
     status=0
     exit
 fi

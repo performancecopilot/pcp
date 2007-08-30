@@ -182,7 +182,7 @@ _test_pmdumptext()
     _metric=$1
     num_1=`expr $num_samples + 1` 
     pmdumptext -f '' -g -w 5 -t 1 -s $num_1 sample.wrap.$_metric |\
-    tail +2
+    tail -n +2
 }
 
 _test_pmkstat()
@@ -224,7 +224,7 @@ _test_pmkstat()
 
       {print;}
     '
-    pmkstat -s $num_samples -t 1sec -n $tmp.pmns | tail +4 | $PCP_AWK_PROG '{print $5}'
+    pmkstat -s $num_samples -t 1sec -n $tmp.pmns | tail -n +4 | $PCP_AWK_PROG '{print $5}'
 }
 
 _wrap_off()

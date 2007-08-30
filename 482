@@ -29,7 +29,7 @@ $1 == "pmResult"                { state=1; time=$7; stamp=$6; next }
 state == 1 && /\('"$1"'\)/      { state=2; next }
 state == 2                      { state=0; print time,stamp,$2; next }
 NF==0                           { state=0; next }' \
-    | sort -u +1n -2
+    | LC_COLLATE=POSIX _POSIX2_VERSION=0 sort -u +1n -2
 }
 
 # usage: _filterbins nbins < pmlogsummary output (with args=-ymMB nbins)

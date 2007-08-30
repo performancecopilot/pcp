@@ -100,7 +100,7 @@ state == 2 && NF == 0	{ state = 0 }
 state == 2		{ print base,$0; next }
 			{ print NR,$0 }
 state == 1 && /^=====/	{ state = 2; base = NR+1 }' \
-    | LC_COLLATE=POSIX sort +0n -1 +2n -3 \
+    | LC_COLLATE=POSIX _POSIX2_VERSION=0 sort +0n -1 +2n -3 \
     | sed -e 's/^[^ ]* //'
 }
 
@@ -457,7 +457,7 @@ NF == 0			{ next }
 $1 == "PMID:"		{ printf "%s|",$0; next }
 $1 == "Data"		{ printf "%s|",$0; next }
 			{ print }' \
-    | LC_COLLATE=POSIX sort -t'(' +1 -2 \
+    | LC_COLLATE=POSIX _POSIX2_VERSION=0 sort -t'(' +1 -2 \
     | tr '|' '\012' \
     | src-oss/hex2nbo
 }
