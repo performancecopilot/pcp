@@ -53,13 +53,12 @@ in
 	;;
 esac
 
-# fint the trace PMDA running somewhere else with tho other endianess
+# find the trace PMDA running somewhere else with tho other endianess
 #
 host=`./getpmcdhosts -L -n 1 -a trace -e $want`
 if [ -z "$host" ]
 then
-    echo "Arrgh, I give up!"
-    status=1
+    echo "Cannot find $want endian host running pmdatrace" >$seq.notrun
     exit
 fi
 echo "remote host: $host" >>$seq.full
