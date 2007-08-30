@@ -9,6 +9,14 @@
 seq=`basename $0`
 # New cisco metrics in pcp2.2 
 . ./localconfig
+
+if [ -z "$PCP_CISCO_ROUTER" ]
+then
+    echo "No cisco router set via PCP_CISCO_ROUTER" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
 if [ $PCP_VER -ge 2300 ]
 then
     rm -f $seq.out && ln $seq.out.3 $seq.out
@@ -130,7 +138,7 @@ pmpost "end watching for qa/159"
 
 cat <<End-of-File >$tmp.in
 both
-melbourne-l0.wan.sgi.com
+$PCP_CISCO_ROUTER
 
 End-of-File
 if [ $PCP_VER -gt 2200 ]
@@ -141,7 +149,7 @@ cat <<End-of-File >>$tmp.in
 s2/3
 e1/0
 quit
-melbourne-l0.wan.sgi.com
+$PCP_CISCO_ROUTER
 
 End-of-File
 if [ $PCP_VER -gt 2200 ]
