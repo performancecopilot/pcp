@@ -28,6 +28,7 @@ _filter()
     sed -e 's/ 1090 / 1090+ /' \
 	-e 's/ 109[1-9] / 1090+ /' \
 	-e 's/ 11[0-2][0-9] / 1090+ /' \
+	-e 's/ [8-9] warnings/ 8+ metrics/' \
 	-e 's/ [7-9][0-9] metrics/ 76+ metrics/' \
 	-e 's/.* \(hash table entries\)/  NNN \1/' \
 	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \

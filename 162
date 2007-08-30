@@ -51,6 +51,7 @@ _filter()
     sed \
 	-e '/sample\.dynamic\.meta/d' \
 	-e '/sample\.datasize/d' \
+	-e '/sample\.darkness/d' \
 
 }
 
