@@ -48,9 +48,12 @@ _cmd()
 
 . ./localconfig
 rm -f $seq.out
-if [ $PCP_PLATFORM = linux ]
+if [ $PCP_PLATFORM != irix ]
 then
-    if [ $PCP_VER -ge 2401 ]
+    if [ $PCP_VER -ge 2701 ]
+    then
+	ln $seq.out.6 $seq.out
+    elif [ $PCP_VER -ge 2401 ]
     then
 	ln $seq.out.4 $seq.out
     elif [ $PCP_VER -eq 2400 ]
@@ -60,8 +63,6 @@ then
 	ln $seq.out.2 $seq.out
     fi
 else
-    # assume IRIX
-    #
     if [ $PCP_EOE_VER -ge 6528 ]
     then
 	ln $seq.out.5 $seq.out
