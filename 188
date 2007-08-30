@@ -41,6 +41,9 @@ elif [ $PCP_PLATFORM = linux ] ; then
 		ln $seq.irix $seq.out
 		;;
 	esac
+    elif [ -f /etc/debian_version ]
+    then
+	ln $seq.linux $seq.out
     fi
     if [ ! -f $seq.out ]
     then

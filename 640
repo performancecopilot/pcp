@@ -31,7 +31,8 @@ _filter()
     # multiple *.out files
     #
     sed \
-	-e 's;Unknown user id: r00t;/bin/su: user r00t does not exist;'
+	-e 's;Unknown user id: r00t;/bin/su: user r00t does not exist;' \
+	-e 's;Unknown id: r00t;/bin/su: user r00t does not exist;'
 }
 
 # real QA test starts here
