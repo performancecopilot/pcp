@@ -87,7 +87,7 @@ else
 fi
 
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-&& $sudo "sh $tmp.cmd"
+&& $sudo sh $tmp.cmd
 [ "$PCP_PLATFORM" != "linux" ] && _change_config pmlogger off
   #  disabling on Linux means diabling pcp altogether!
 

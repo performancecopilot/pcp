@@ -42,7 +42,7 @@ _cleanup()
     if $_needclean
     then
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-	&& $sudo "sh $tmp.cmd"
+	&& $sudo sh $tmp.cmd
 	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -77,7 +77,7 @@ $sudo ./Install -R / </dev/null >/dev/null 2>&1
 cd $here
 
 cd $PCP_DEMOS_DIR/trace
-$sudo "( make app2 2>&1 >$tmp.make
+$sudo sh -c "( make app2 2>&1 >$tmp.make
 if [ $? -ne 0 ]
 then
     echo app2 programs make failed.  Heres the make output ...

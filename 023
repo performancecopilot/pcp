@@ -100,7 +100,7 @@ cleanup()
     if $_needclean
     then
 	_needclean=false
-	$sudo "killall -TERM pmcd"
+	$sudo killall -TERM pmcd
 
         [ -f $SAVE_CONFIG ] && $sudo mv $SAVE_CONFIG $CONFIG
 	[ -f $SAVE_LOGCONTROL ] && $sudo mv $SAVE_LOGCONTROL $LOGCONTROL

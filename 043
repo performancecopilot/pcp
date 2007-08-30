@@ -29,7 +29,7 @@ trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 # real QA test starts here
 _change_config pmcd on
 _change_config pmlogger on
-$sudo "$PCP_RC_DIR/pcp start >/dev/null 2>&1"
+$sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
 _wait_for_pmlogger
 
 src-oss/chknumval | _filter

@@ -38,7 +38,7 @@ _cleanup()
 	unset PMCD_PORT
 	unset PMLOGGER_PORT
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-	&& $sudo "sh $tmp.cmd"
+	&& $sudo sh $tmp.cmd
 	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -49,7 +49,7 @@ _cleanup()
 }
 
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-&& $sudo "sh $tmp.cmd"
+&& $sudo sh $tmp.cmd
 
 trap "_cleanup" 0
 trap "_interrupt; _cleanup" 1 2 3 15

@@ -171,7 +171,7 @@ allow $other2: all;
 ddiissallow misspelt: all;
 End-of-File
 
-$sudo "cat $tmp >>$config"
+$sudo sh -c "cat $tmp >>$config"
 echo "second config:"
 _myfilter_config <$config
 

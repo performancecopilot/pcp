@@ -85,12 +85,12 @@ cleanup()
 {
     if [ -f $oconfig ]
     then
-	$sudo "mv $oconfig $config"
+	$sudo mv $oconfig $config
     fi
     pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-    && $sudo "sh $tmp.cmd"
+    && $sudo sh $tmp.cmd
     echo "Restarting pmcd"
-    $sudo "$PCP_RC_DIR/pcp start" | _filter_pcp_start
+    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
     rm -f $tmp.*
@@ -141,10 +141,10 @@ netstat -an \
 echo
 
 cp $config $oconfig
-$sudo "mv $tmp $config"
+$sudo mv $tmp $config
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-&& $sudo "sh $tmp.cmd"
-$sudo "$PCP_RC_DIR/pcp start" | _filter_pcp_start
+&& $sudo sh $tmp.cmd
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
 # echo "config:"
 # cat $config | sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;"
@@ -171,7 +171,7 @@ echo "pmda log (should have terminated):"
 _filter_pmda_log <$tmp.pmdalog
 echo
 
-$sudo "killall -HUP pmcd"
+$sudo killall -HUP pmcd
 
 # wait for PMCD to finish writing log (or 5 seconds)
 for t in 1 2 3 4 5

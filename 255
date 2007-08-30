@@ -179,7 +179,7 @@ cd $PCP_PMDAS_DIR/simple
 # get rid of warnings from simple if no config exists
 #
 [ -f simple.conf ] && $sudo mv simple.conf simple.conf.$seq
-$sudo "echo sec,min,hour >simple.conf"
+$sudo sh -c "echo sec,min,hour >simple.conf"
 
 # Install the simple namespace, I don't bother to remove it again
 #

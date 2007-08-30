@@ -87,13 +87,13 @@ cleanup()
         _needclean=false
 	if [ -f $oconfig ]
 	then
-	    $sudo "mv $oconfig $config"
+	    $sudo mv $oconfig $config
 	fi
 	unset PMCD_PORT # don't worry about preserving just get rid of it
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-	&& $sudo "sh $tmp.cmd"
+	&& $sudo sh $tmp.cmd
 	echo "Restarting pmcd"
-	$sudo "$PCP_RC_DIR/pcp start" >/dev/null
+	$sudo $PCP_RC_DIR/pcp start >/dev/null
 	_wait_for_pmcd
 	_wait_for_pmlogger
     fi
@@ -135,7 +135,7 @@ _get_hex_addr()
 }
 
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-&& $sudo "sh $tmp.cmd"
+&& $sudo sh $tmp.cmd
 
 # ideally want a host with only 1 network interface ... getpmcdhosts
 # cannot express this, so go for 1 CPU as a likely co-condition
@@ -184,11 +184,11 @@ egrep '^(linux|irix)' $config >>$nconfig
 grep '^pmcd' $config >>$nconfig
 
 cp $config $oconfig
-$sudo "mv $nconfig $config"
+$sudo mv $nconfig $config
 PMCD_CONNECT_TIMEOUT=30
 PMCD_PORT=$port
 export PMCD_CONNECT_TIMEOUT PMCD_PORT
-$sudo "$PCP_RC_DIR/pcp start" | sed '/Wait/d' | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp start | sed '/Wait/d' | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

@@ -72,7 +72,7 @@ fi
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf.save
 _disable_loggers
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-&& $sudo "sh $tmp.cmd"
+&& $sudo sh $tmp.cmd
 
 trap "_cleanup" 0
 trap "_interrupt; _cleanup" 1 2 3 15
@@ -130,8 +130,8 @@ rm -f $PCP_PMCDCONF_PATH.prev
 __pmda_cull fungus 222
 End-of-File
 
-$sudo "echo 'bogus 111     pipe    binary          killall pmcd' >>$PCP_PMCDCONF_PATH"
-$sudo "echo 'fungus 222     pipe    binary         killall pmcd' >>$PCP_PMCDCONF_PATH"
+$sudo sh -c "echo 'bogus 111     pipe    binary          killall pmcd' >>$PCP_PMCDCONF_PATH"
+$sudo sh -c "echo 'fungus 222     pipe    binary         killall pmcd' >>$PCP_PMCDCONF_PATH"
 
 echo
 echo "__pmda_cull test: expect this to fail and restoration to fail ..."

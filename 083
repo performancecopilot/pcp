@@ -113,7 +113,7 @@ cleanup()
     cd $here
     rm -rf $tmp $tmp.*
     echo "Restarting pmcd and friends..."
-    $sudo "$PCP_RC_DIR/pcp start" | _filter_pcp_start
+    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
 }
@@ -129,7 +129,7 @@ echo "Running the access tests"
 # ideally want a host with only 1 network interface ... getpmcdhosts
 # cannot express this, so go for 1 CPU as a likely co-condition
 #
-eval `./getpmcdhosts -L -n2 -v pcp=2 -p single | sed -e 's/^/other1=/' -e 's/ / other2=/'`
+eval `./getpmcdhosts -L -n2 -v pcp=2 | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 if [ -z "$other1" ]
 then
     echo "Error: cannot find first remote host running pmcd v2.x"
@@ -147,7 +147,7 @@ echo "other2=$other2" >>$seq.full
 
 # kill off any existing primary pmlogger
 #
-$sudo "killall -INT pmlogger"
+$sudo killall -INT pmlogger
 _await_logger false
 
 if mkdir $tmp

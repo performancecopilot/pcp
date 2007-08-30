@@ -40,7 +40,7 @@ get_syms()
 cd $PCP_DEMOS_DIR/trace
 unset ROOT TOOLROOT
 $sudo make -f Makefile.stub clobber 2>&1 >/dev/null
-$sudo "( make -f Makefile.stub lib/libpcp_trace.so.$libmajor 2>&1 >$tmp.make
+$sudo sh -c "( make -f Makefile.stub lib/libpcp_trace.so.$libmajor 2>&1 >$tmp.make
 if [ $? -ne 0 ]
 then
     echo Stub library make failed.  Heres the make output ...

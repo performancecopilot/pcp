@@ -125,7 +125,7 @@ _poke_pmcd()
 _poke_pmcd_n_logger()
 {
     pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-    && $sudo "sh $tmp.cmd"
+    && $sudo sh $tmp.cmd
     _poke_pmcd
 
     can_wait=5
@@ -190,7 +190,7 @@ _cleanup()
 	done
 
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-	&& $sudo "sh $tmp.cmd"
+	&& $sudo sh $tmp.cmd
         if [ $PCP_PLATFORM = irix ]; then
 	    _change_config verbose on
         fi

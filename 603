@@ -154,7 +154,7 @@ grep trace $PCP_PMCDCONF_PATH >>$here/$seq.full
 
 echo '=== Building demo program (app2) ==='
 cd $PCP_DEMOS_DIR/trace
-$here/sudo "( make app2 >$tmp.make 2>&1
+$here/sudo sh -c "( make app2 >$tmp.make 2>&1
 if [ $? -ne 0 ]
 then
     echo app2 make failed.  Heres the make output ...

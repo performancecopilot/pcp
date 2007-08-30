@@ -157,8 +157,8 @@ disallow $list2 : all;
 allow * :	   all;
 End-Of-File
 fi
-$sudo "sed -e '/\[access]/q' $oconfig | sed -e '/\[access]/d' >$config"
-$sudo "cat $tmp.access >>$config"
+$sudo sh -c "sed -e '/\[access]/q' $oconfig | sed -e '/\[access]/d' >$config"
+$sudo sh -c "cat $tmp.access >>$config"
 
 echo >>$seq.full
 echo "---- start pmcd.conf ----" >>$seq.full
@@ -235,8 +235,8 @@ allow * :	   all;
 End-Of-File
 fi
 
-./sudo "sed -e '/\[access]/q' $oconfig | sed -e '/\[access]/d' >$config"
-./sudo "cat $tmp.access >>$config"
+./sudo sh -c "sed -e '/\[access]/q' $oconfig | sed -e '/\[access]/d' >$config"
+./sudo sh -c "cat $tmp.access >>$config"
 
 echo >>$seq.full
 echo "---- start pmcd.conf ----" >>$seq.full

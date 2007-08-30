@@ -30,7 +30,7 @@ cleanup()
     if $_needclean
     then
         _needclean=false
-        $sudo "killall -TERM pmcd"
+        $sudo killall -TERM pmcd
         echo "Restart and ping pmcd ..."
         $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd

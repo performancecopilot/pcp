@@ -60,7 +60,7 @@ unset ROOT
 
 # copy the pmcd config file to restore state later.
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
-$sudo "echo sec,min,hour > $home/$iam/$iam.conf"
+$sudo sh -c "echo sec,min,hour > $home/$iam/$iam.conf"
 
 if $here/sudo make clobber >$tmp.out 2>&1
 then
@@ -102,13 +102,13 @@ EOF
 # cp over prev config and then filter pminfo calls for each test
 for test in $tmp.test1 $tmp.test2 $tmp.test3 $tmp.test4 $tmp.test5
 do
-    $sudo "cp $test $home/$iam/$iam.conf"
+    $sudo cp $test $home/$iam/$iam.conf
     sync
     sleep 3
     pminfo -f simple.now | _time_filter
-    $sudo "rm -f $home/$iam/$iam.conf"
+    $sudo rm -f $home/$iam/$iam.conf
 done
-$sudo "echo sec,min,hour > $home/$iam/$iam.conf"
+$sudo sh -c "echo sec,min,hour > $home/$iam/$iam.conf"
 
 # remove the agent
 $here/sudo ./Remove >$tmp.out 2>&1

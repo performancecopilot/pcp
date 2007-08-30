@@ -154,14 +154,14 @@ TAG=000000660066
 # NOTE: none of the domains should clash with the pmcd PMDA (domain 2) or the
 # sample agent (domain 254).  These agents will be appended to the file.
 #
-$sudo "echo \"fake_irix 1 pipe binary dumb_pmda -d 1 $TAG\" >$CONFIG"
-$sudo "echo \"fake_sampledso 30 pipe binary sleep $TAG\" >>$CONFIG"
-$sudo "echo \"fake_cisco 5 pipe binary sed /$TAG/p\" >>$CONFIG"
-$sudo "echo \"fake_linux 60 pipe binary sleep $TAG\" >>$CONFIG"
-$sudo "echo \`grep pmda_pmcd $CONFIGSAVE\` >>$CONFIG"
-$sudo "echo \"[access]\" >>$CONFIG"
-$sudo "echo \"allow localhost : all;\" >>$CONFIG"
-$sudo "echo \"disallow * : all;\" >>$CONFIG"
+$sudo sh -c "echo \"fake_irix 1 pipe binary dumb_pmda -d 1 $TAG\" >$CONFIG"
+$sudo sh -c "echo \"fake_sampledso 30 pipe binary sleep $TAG\" >>$CONFIG"
+$sudo sh -c "echo \"fake_cisco 5 pipe binary sed /$TAG/p\" >>$CONFIG"
+$sudo sh -c "echo \"fake_linux 60 pipe binary sleep $TAG\" >>$CONFIG"
+$sudo sh -c "echo \`grep pmda_pmcd $CONFIGSAVE\` >>$CONFIG"
+$sudo sh -c "echo \"[access]\" >>$CONFIG"
+$sudo sh -c "echo \"allow localhost : all;\" >>$CONFIG"
+$sudo sh -c "echo \"disallow * : all;\" >>$CONFIG"
 
 echo '$PCP_PMCDCONF_PATH contains:'
 echo '<BEGIN>'
@@ -189,7 +189,7 @@ pminfo $NAMESPACE -d hinv.ncpu
 # original config file and restart PMCD.
 # The config file has changed and there is also a dead agent to restart.
 #
-$sudo "echo \`grep pmdasample $CONFIGSAVE\` >>$CONFIG"
+$sudo sh -c "echo \`grep pmdasample $CONFIGSAVE\` >>$CONFIG"
 $sudo ed - $CONFIG <<'End-of-File'
 $m2
 /fake_sampledso/d

@@ -27,7 +27,7 @@ _reset()
 	:
     else
 	_restore_loggers
-	$sudo "$PCP_RC_DIR/pcp start" \
+	$sudo $PCP_RC_DIR/pcp start \
 	| _filter_pcp_start \
 	| sed -e 's/\.\.\.*/[dots]/'
 	_wait_for_pmcd
