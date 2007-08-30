@@ -26,10 +26,7 @@ CC	= cc
 TARGETS	= lib/libpcp_trace.so.2 lib/libpcp_trace.so 
 CFILES	= stub.c
 CFLAGS += -DPMTRACE_DEBUG
-HAVE_64	= $(shell test `uname -m` = "ia64" && echo 1 || echo 0)
-ifeq ($(HAVE_64), 1)
-CFLAGS += -fpic -fno-strict-aliasing
-endif
+CFLAGS += -fPIC -fno-strict-aliasing
 LDIRT	= lib lib32 lib64
 
 default: $(TARGETS)
