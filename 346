@@ -43,6 +43,7 @@ _filter()
 {
     sed \
 	-e '/Mail queue directory/d' \
+	-e '/Mail basename regex/d' \
 	-e 's/.* \(hash table entries\)/  NNN \1/' \
 	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
 	-e 's/.* \(leaf nodes\)/  NNN \1/' \
