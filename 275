@@ -20,9 +20,9 @@ echo "QA output created by $seq"
 . ./common.check
 
 #  Requires common.product:
-if [ "$PCP_PLATFORM" = linux ]
+if [ "$PCP_PLATFORM" != irix ]
 then
-    echo "No dkprobe in Linux" >$seq.notrun
+    echo "No dkprobe on this platform" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi

@@ -9,9 +9,9 @@
 seq=`basename $0`
 
 . ./localconfig
-if [ $PCP_PLATFORM = linux ]
+if [ $PCP_PLATFORM != irix ]
 then
-    echo "No ipc/shm/sem metrics in Linux" >$seq.notrun
+    echo "No ipc/shm/sem metrics in $PCP_PLATFORM" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi

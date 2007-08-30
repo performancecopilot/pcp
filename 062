@@ -19,11 +19,11 @@ echo "QA output created by $seq"
 # real QA test starts here
 
 rm -f $seq.out
-if [ $PCP_PLATFORM = "linux" ]
+if [ $PCP_PLATFORM = "irix" ]
 then
-    ln $seq.out.linux $seq.out
-else
     ln $seq.out.irix $seq.out
+else
+    ln $seq.out.linux $seq.out
 fi
 
 echo "testing single op for all ops..."

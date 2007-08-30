@@ -12,9 +12,9 @@ owner=kenmcd
 
 seq=`basename $0`
 . ./localconfig
-if [ $PCP_PLATFORM = linux ]
+if [ $PCP_PLATFORM != irix ]
 then
-    echo "No pmdumpmindset on Linux" >$seq.notrun
+    echo "No pmdumpmindset on this platform" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi

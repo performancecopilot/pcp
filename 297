@@ -21,7 +21,7 @@ if which pmproxy >/dev/null 2>&1
 then
     :
 else
-    echo "No pmproxy mview binary installed" >$seq.notrun
+    echo "No pmproxy binary installed" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi
@@ -32,12 +32,9 @@ case "$PCP_PLATFORM" in
 irix)
     PMCDLOG=$PCP_LOG_DIR/pmcd.log
     ;;
-linux)
+*)
     PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
     ;;
-*)
-    echo "Unknown platfrom $PCP_PLATFORM"
-    exit 1
 esac
 
 tmp=/tmp/$$
