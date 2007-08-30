@@ -117,12 +117,12 @@ then
 	appstyle=`file $PCP_DEMOS_DIR/trace/app1`
     fi
     case "$appstyle" in
-    *"ELF 32-bit LSB executable, Intel"*)
+    *"ELF 32-bit LSB executable"*)
 	    $here/sudo make -f Makefile.stub lib/libpcp_trace.so >/dev/null 2>&1
 	    LD_PRELOAD=$PCP_DEMOS_DIR/trace/lib/libpcp_trace.so.2
 	    export LD_PRELOAD
 	    ;;
-    *"ELF 64-bit LSB executable, IA-64"*)
+    *"ELF 64-bit LSB executable"*)
 	    $here/sudo make -f Makefile.stub lib/libpcp_trace.so >/dev/null 2>&1
 	    LD_PRELOAD=$PCP_DEMOS_DIR/trace/lib/libpcp_trace.so.2
 	    export LD_PRELOAD
