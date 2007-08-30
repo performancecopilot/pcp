@@ -1,14 +1,6 @@
 QA output created by 363
 
 === Sanity checks ===
-pmlogsummary: (cannot find metric name) (40.0.8) - no values available
-pmlogsummary: (cannot find metric name) (40.0.7) - no values available
-pmlogsummary: (cannot find metric name) (40.0.5) - no values available
-pmlogsummary: (cannot find metric name) (40.0.4) - no values available
-pmlogsummary: (cannot find metric name) (40.0.3) - no values available
-pmlogsummary: (cannot find metric name) (40.0.2) - no values available
-pmlogsummary: (cannot find metric name) (40.0.1) - no values available
-pmlogsummary: (cannot find metric name) (40.0.0) - no values available
 pmlogsummary: fetch failed: Corrupted record in a PCP archive log
 
 disk.dev.read ["dks1d1"] 0.083 0.090 0.000 0.498 6 count / sec
@@ -66,7 +58,6 @@ Note: timezone set to local timezone of host "moomba" from archive
 === Down-rev error check ===
 pmlogsummary: sample.bad.nosupport(29.0.55) - failed in archive value fetch: Metric not supported by this version of monitored application
 pmlogsummary: sample.needprofile(29.0.49) - failed in archive value fetch: Explicit instance identifier(s) required
-pmlogsummary: sample.noinst(29.0.9) - no values available
 pmlogsummary: proc.psusage.utime(3.4.2) - failed in archive value fetch: Explicit instance identifier(s) required
 Note: timezone set to local timezone of host "splat" from archive
 
