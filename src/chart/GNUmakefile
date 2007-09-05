@@ -6,10 +6,10 @@ COMMAND = kmchart
 UIFILES = aboutdialog.ui chartdialog.ui hostdialog.ui infodialog.ui \
 	  kmchart.ui recorddialog.ui seealsodialog.ui settingsdialog.ui \
 	  tabdialog.ui
-HEADERS = aboutdialog.cpp chartdialog.cpp hostdialog.cpp infodialog.cpp \
-	  kmchart.cpp recorddialog.cpp seealsodialog.cpp settingsdialog.cpp \
-	  tabdialog.cpp chart.cpp main.cpp namespace.cpp qcolorpicker.cpp \
-	  source.cpp tab.cpp timeaxis.cpp timecontrol.cpp
+HEADERS = aboutdialog.h chartdialog.h hostdialog.h infodialog.h \
+	  kmchart.h recorddialog.h seealsodialog.h settingsdialog.h \
+	  tabdialog.h chart.h main.h namespace.h qcolorpicker.h \
+	  source.h tab.h timeaxis.h timecontrol.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
 
 SUBDIRS = views pmafm
