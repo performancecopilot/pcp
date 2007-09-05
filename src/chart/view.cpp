@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2007, Nathan Scott.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,308 +10,16 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Ken McDonell, kenj At internode DoT on DoT net
- *                      Nathan Scott, nathans At debian DoT org
  */
+#include <QtCore/QString>
+#include <QtGui/QMessageBox>
+#include <QtGui/QColor>
 
-#define PCP_DEBUG 1
-
-#include "main.h"
-#include "hostdialog.h"
-#include <qcolor.h>
-#include <qlabel.h>
-#include <qstring.h>
-#include <qlistbox.h>
-#include <qtooltip.h>
-#include <qlineedit.h>
-#include <qmessagebox.h>
 #include <string.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <regex.h>
-
-#define DESPERATE 0
-
-FileIconProvider::FileIconProvider(QObject *parent, const char *name)
-    : QFileIconProvider(parent, name)
-{
-    // kmchart/PCP-specific images
-    fileView = QPixmap::fromMimeSource("fileview.png");
-    fileFolio = QPixmap::fromMimeSource("filefolio.png");
-    fileArchive = QPixmap::fromMimeSource("filearchive.png");
-
-    // images for several other common file types
-    fileHtml = QPixmap::fromMimeSource("filehtml.png");
-    fileImage = QPixmap::fromMimeSource("fileimage.png");
-    fileGeneric = QPixmap::fromMimeSource("filegeneric.png");
-    filePackage = QPixmap::fromMimeSource("filepackage.png");
-    fileSpreadSheet = QPixmap::fromMimeSource("filespreadsheet.png");
-    fileWordProcessor = QPixmap::fromMimeSource("filewordprocessor.png");
-}
-
-const QPixmap *FileIconProvider::pixmap(const QFileInfo &fi)
-{
-#if DESPERATE
-    fprintf(stderr, "%s: file %s\n", __FUNCTION__, fi.filePath().ascii());
-#endif
-
-    if (fi.isFile()) {
-	QFile file(fi.filePath());
-	file.open(IO_ReadOnly);
-	char block[9];
-	int count = file.readBlock(block, sizeof(block)-1);
-	if (count == sizeof(block)-1) {
-	    static char viewmagic[] = "#kmchart";
-	    static char foliomagic[] = "PCPFolio";
-	    static char archmagic[] = "\0\0\0\204\120\5\46\2"; //PM_LOG_MAGIC|V2
-
-	    if (memcmp(viewmagic, block, sizeof(block)-1) == 0)
-		return &fileView;
-	    if (memcmp(foliomagic, block, sizeof(block)-1) == 0)
-		return &fileFolio;
-	    if (memcmp(archmagic, block, sizeof(block)-1) == 0)
-		return &fileArchive;
-	}
-#if DESPERATE
-	fprintf(stderr, "%s: Got %d bytes from %s: \"%c%c%c%c%c%c%c%c\"\n",
-		__FUNCTION__, count, fi.filePath().ascii(), block[0], block[1],
-		block[2], block[3], block[4], block[5], block[6], block[7]);
-#endif
-	QString ext = fi.extension();
-	if (ext == "htm" || ext == "html")
-	    return &fileHtml;
-	if (ext == "png" || ext == "gif" || ext == "jpg" || ext == "jpeg" ||
-	    ext == "xpm" || ext == "odg" /* ... */ )
-	    return &fileImage;
-	if (ext == "tar" || ext == "tgz" || ext == "deb" || ext == "rpm" ||
-	    ext == "zip" || ext == "bz2" || ext == "gz")
-	    return &filePackage;
-	if (ext == "ods" || ext == "xls")
-	    return &fileSpreadSheet;
-	if (ext == "odp" || ext == "doc")
-	    return &fileWordProcessor;
-	return &fileGeneric;	// catch-all for every other regular file
-    }
-    return QFileIconProvider::pixmap(fi);
-}
-
-OpenViewDialog::OpenViewDialog(QWidget *parent)
-    : QFileDialog(parent, "openViewDialog", false)
-{
-    setMode(QFileDialog::ExistingFiles);
-
-    usrDir = QDir::homeDirPath();
-    usrDir.append("/.pcp/kmchart");
-    sysDir = tr(pmGetConfig("PCP_VAR_DIR"));
-    sysDir.append("/config/kmchart");
-
-    usrButton = new QToolButton(this, "usrButton");
-    sysButton = new QToolButton(this, "sysButton");
-    usrButton->setPixmap(QPixmap::fromMimeSource("toolusers.png"));
-    sysButton->setPixmap(QPixmap::fromMimeSource("toolview.png"));
-    usrButton->setToggleButton(TRUE);
-    sysButton->setToggleButton(TRUE);
-    QToolTip::add(usrButton, tr("User Views"));
-    QToolTip::add(sysButton, tr("System Views"));
-    connect(usrButton, SIGNAL(clicked()), this, SLOT(usrDirClicked()));
-    connect(sysButton, SIGNAL(clicked()), this, SLOT(sysDirClicked()));
-    connect(usrButton, SIGNAL(toggled(bool)), this, SLOT(usrDirToggled(bool)));
-    connect(sysButton, SIGNAL(toggled(bool)), this, SLOT(sysDirToggled(bool)));
-    addToolButton(usrButton, FALSE);
-    addToolButton(sysButton, FALSE);
-
-    srcLabel = new QLabel(this, "srcLabel");
-    srcLabel->setFixedWidth(75);
-    srcButton = new QPushButton(this, "srcButton");
-    srcButton->setFixedSize(80, 32);
-    connect(srcButton, SIGNAL(clicked()), this, SLOT(sourceAdd()));
-    srcCombo = new QComboBox(FALSE, this, "srcCombo");
-    srcCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    connect(srcCombo, SIGNAL(activated(int)), this, SLOT(sourceChange(int)));
-
-    connect(this, SIGNAL(filesSelected(const QStringList&)), this,
-		  SLOT(openViewFiles(const QStringList&)));
-    connect(this, SIGNAL(dirEntered(const QString&)), this,
-		  SLOT(viewDirEntered(const QString&)));
-
-    addWidgets(srcLabel, srcCombo, srcButton);
-}
-
-void OpenViewDialog::reset()
-{
-    if ((archiveMode = activeTab->isArchiveMode())) {
-	srcLabel->setText(tr("Archive:"));
-	srcButton->setPixmap(QPixmap::fromMimeSource("archive.png"));
-    } else {
-	srcLabel->setText(tr("Host:"));
-	srcButton->setPixmap(QPixmap::fromMimeSource("computer.png"));
-    }
-    activeSources->setupCombo(srcCombo);
-    setDir(sysDir);
-}
-
-void OpenViewDialog::usrDirClicked()
-{
-   if (dirPath() == usrDir) {
-	usrButton->setOn(TRUE);
-	sysButton->setOn(FALSE);
-    }
-}
-
-void OpenViewDialog::sysDirClicked()
-{
-   if (dirPath() == sysDir) {
-	sysButton->setOn(TRUE);
-	usrButton->setOn(FALSE);
-   }
-}
-
-void OpenViewDialog::usrDirToggled(bool on)
-{
-    if (!on)
-	return;
-    QDir dir;
-    if (!dir.exists(usrDir))
-	dir.mkdir(usrDir);
-    setDir(usrDir);
-}
-
-void OpenViewDialog::sysDirToggled(bool on)
-{
-    if (on)
-	setDir(sysDir);
-}
-
-void OpenViewDialog::viewDirEntered(const QString &dir)
-{
-    usrButton->setOn(dir == usrDir);
-    sysButton->setOn(dir == sysDir);
-}
-
-void OpenViewDialog::sourceAdd()
-{
-    int	sts;
-
-    if (activeTab->isArchiveMode()) {
-	ArchiveDialog *a = new ArchiveDialog(this);
-	QStringList al;
-
-	if (a->exec() == QDialog::Accepted)
-	    al = a->selectedFiles();
-	for (QStringList::Iterator it = al.begin(); it != al.end(); ++it) {
-	    QString ar = (*it).ascii();
-	    if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, ar.ascii())) < 0) {
-		ar.prepend(tr("Cannot open PCP archive: "));
-		ar.append(tr("\n"));
-		ar.append(tr(pmErrStr(sts)));
-		QMessageBox::warning(this, pmProgname, ar,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    QMessageBox::NoButton, QMessageBox::NoButton);
-	    } else {
-		archiveSources->add(archiveGroup->which());
-		archiveSources->setupCombo(srcCombo);
-		archiveGroup->updateBounds();
-	    }
-	}
-	delete a;
-    } else {
-	HostDialog *h = new HostDialog(this);
-
-	if (h->exec() == QDialog::Accepted) {
-	    QString proxy = h->proxyLineEdit->text().stripWhiteSpace();
-	    if (proxy.isEmpty())
-		unsetenv("PMPROXY_HOST");
-	    else
-		setenv("PMPROXY_HOST", proxy.ascii(), 1);
-	    QString host = h->hostLineEdit->text().stripWhiteSpace();
-	    if ((sts = liveGroup->use(PM_CONTEXT_HOST, host.ascii())) < 0) {
-		host.prepend(tr("Cannot connect to host: "));
-		host.append(tr("\n"));
-		host.append(tr(pmErrStr(sts)));
-		QMessageBox::warning(this, pmProgname, host,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    QMessageBox::NoButton, QMessageBox::NoButton);
-	    } else {
-		liveSources->add(liveGroup->which());
-		liveSources->setupCombo(srcCombo);
-	    }
-	}
-	delete h;
-    }
-}
-
-void OpenViewDialog::sourceChange(int idx)
-{
-    (void)idx;	// using currentText()
-    Source::useComboContext(this, srcCombo);
-}
-
-void OpenViewDialog::openViewFiles(const QStringList &fl)
-{
-    if (activeTab->isArchiveMode() != archiveMode) {
-	QString msg;
-
-	if (activeTab->isArchiveMode())
-	    msg = tr("Cannot open Host View(s) in an Archive Tab\n");
-	else
-	    msg = tr("Cannot open Archive View(s) in a Host Tab\n");
-	QMessageBox::warning(this, pmProgname, msg,
-	    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-	    QMessageBox::NoButton, QMessageBox::NoButton);
-    } else {
-	QStringList files = fl;
-	for (QStringList::Iterator it = files.begin(); it != files.end(); ++it)
-	    openView((*it).ascii());
-	kmchart->enableUI();
-    }
-}
-
-SaveViewDialog::SaveViewDialog(QWidget *parent)
-    : QFileDialog(parent, "saveViewDialog", false)
-{
-    setMode(QFileDialog::AnyFile);
-    usrDir = QDir::homeDirPath();
-    usrDir.append("/.pcp/kmchart");
-    connect(this, SIGNAL(fileSelected(const QString&)), this,
-		  SLOT(saveViewFile(const QString&)));
-}
-
-void SaveViewDialog::reset()
-{
-    QDir d;
-    if (!d.exists(usrDir))
-	d.mkdir(usrDir);
-    setDir(usrDir);
-    hostDynamic = TRUE;
-}
-
-void SaveViewDialog::saveViewFile(const QString &filename)
-{
-    saveView(filename.ascii(), hostDynamic);
-}
-
-RecordViewDialog::RecordViewDialog(QWidget *parent)
-    : QFileDialog(parent, "recordViewDialog", false)
-{
-    setMode(QFileDialog::AnyFile);
-}
-
-void RecordViewDialog::setFileName(QString path)
-{
-    setSelection(path);
-}
-
-ExportFileDialog::ExportFileDialog(QWidget *parent)
-    : QFileDialog(parent, "exportFileDialog", false)
-{
-    setMode(QFileDialog::AnyFile);
-}
-
+#include "main.h"
 
 /*
  * View file parsing routines and global variables follow.  These are
@@ -382,7 +89,7 @@ err(int severity, int do_where, QString msg)
 	    ;
 	msg.append("\n");
 	fflush(stderr);
-	pmprintf(msg.ascii());
+	pmprintf((const char *)msg.toAscii());
 	pmflush();
     }
     else {
@@ -447,11 +154,10 @@ eol:
 	QString	msg = QString();
 	p[-1] = '\0';
 	msg.sprintf("Word truncated after %d characters!\n\"%20.20s ... %20.20s\"", (int)sizeof(buf)-1, buf, &p[-21]);
-	err(E_CRIT, TRUE, msg);
+	err(E_CRIT, true, msg);
     }
     else
 	*p = '\0';
-
 
 done:
 #ifdef PCP_DEBUG
@@ -480,7 +186,7 @@ rgbi2qcolor(char *str)
     else {
 	QString	msg;
 	msg.sprintf("rgbi2qcolor: botch scanf->%d not 3 from \"%s\"\n", sts, str);
-	err(E_CRIT, TRUE, msg);
+	err(E_CRIT, true, msg);
 	// fallthrough to return "white"
     }
 
@@ -496,7 +202,7 @@ eol(FILE *f)
 	QString	msg = QString("Syntax error: unexpected word \"");
 	msg.append(w);
 	msg.append("\"");
-	err(E_CRIT, TRUE, msg);
+	err(E_CRIT, true, msg);
     }
 }
 
@@ -525,10 +231,10 @@ xpect(char *want, char *got)
 	msg.append(got);
 	msg.append("\"");
     }
-    err(E_CRIT, TRUE, msg);
+    err(E_CRIT, true, msg);
 }
 
-void OpenViewDialog::openView(const char *path)
+bool OpenViewDialog::openView(const char *path)
 {
     Chart		*cp = NULL;
     pmMetricSpec	pms;
@@ -577,8 +283,8 @@ void OpenViewDialog::openView(const char *path)
 			    msg.append(_fname);
 			    msg.append("\"\n");
 			    msg.append(strerror(errno));
-			    err(E_CRIT, FALSE, msg);
-			    return;
+			    err(E_CRIT, false, msg);
+			    return false;
 			}
 		    }
 		}
@@ -593,8 +299,8 @@ void OpenViewDialog::openView(const char *path)
 	    if ((f = popen(cmd, "r")) == NULL) {
 		QString	msg;
 		msg.sprintf("Cannot execute \"%s\"\n%s", _fname, strerror(errno));
-		err(E_CRIT, FALSE, msg);
-		return;
+		err(E_CRIT, false, msg);
+		return false;
 	    }
 	    is_popen = 1;
 	}
@@ -605,7 +311,7 @@ void OpenViewDialog::openView(const char *path)
 
     _line = 1;
     _errors = 0;
-    fprintf(stderr, "Load View: %s\n", _fname);
+    console->post("Load View: %s\n", _fname);
 
     while ((w = getwd(f)) != NULL) {
 	if (state == S_BEGIN) {
@@ -699,11 +405,11 @@ void OpenViewDialog::openView(const char *path)
 new_chart:
 	    if (strcasecmp(w, "chart") == 0) {
 		char		*title = NULL;
-		chartStyle	style = None;	// pander to g++
+		Chart::Style	style = Chart::NoStyle;
 		int		autoscale = 1;
 		char		*endnum;
-		double		ymin = 0;	// pander to g++
-		double		ymax = 0;	// pander to g++
+		double		ymin = 0;
+		double		ymax = 0;
 		int		legend = 1;
 
 		if ((w = getwd(f)) == NULL || w[0] == '\n') {
@@ -728,15 +434,15 @@ new_chart:
 			goto abort_chart;
 		    }
 		    if (strcasecmp(w, "plot") == 0)
-			style = Line;
+			style = Chart::LineStyle;
 		    else if (strcasecmp(w, "bar") == 0)
-			style = Bar;
+			style = Chart::BarStyle;
 		    else if (strcasecmp(w, "stacking") == 0)
-			style = Stack;
+			style = Chart::StackStyle;
 		    else if (strcasecmp(w, "area") == 0)
-			style = Area;
+			style = Chart::AreaStyle;
 		    else if (strcasecmp(w, "utilization") == 0)
-			style = Util;
+			style = Chart::UtilisationStyle;
 		    else {
 			xpect("<chart style>", w);
 			goto abort_chart;
@@ -822,7 +528,7 @@ done_chart:
 		    if (title != NULL)
 			cp->changeTitle(title, mode == M_KMCHART);
 		    if (legend == 0)
-			cp->setLegendVisible(FALSE);
+			cp->setLegendVisible(false);
 		}
 		state = S_CHART;
 		if (title != NULL) free(title);
@@ -1029,7 +735,7 @@ abort_chart:
 	    }
 #endif
 	    if (Cflag == 0) {
-		pms.isarch = activeTab->isArchiveMode();
+		pms.isarch = activeTab->isArchiveSource();
 		if (host != NULL) {
 		    // TODO -- literal host ... anything more to be done?
 		    pms.source = host;
@@ -1207,7 +913,7 @@ skip:
 	else {
 	    QString	msg = QString();
 	    msg.sprintf("Botch, state=%d", state);
-	    err(E_CRIT, TRUE, msg);
+	    err(E_CRIT, true, msg);
 	    goto abandon;
 	}
 
@@ -1220,7 +926,7 @@ abandon:
     }
 
     if (!errmsg.isEmpty()) {
-	err(E_CRIT, TRUE, errmsg);
+	err(E_CRIT, true, errmsg);
     }
 
     if (f != stdin) {
@@ -1231,13 +937,14 @@ abandon:
     }
 
     if (_errors)
-	return;
+	return false;
 
     if (Cflag == 0 && cp != NULL)
 	activeTab->setupWorldView();
+    return true;
 }
 
-void SaveViewDialog::saveView(const char *path, bool dynamic)
+bool SaveViewDialog::saveView(QString filename, bool dynamic)
 {
     FILE	*f;
     int		c;
@@ -1249,16 +956,16 @@ void SaveViewDialog::saveView(const char *path, bool dynamic)
     bool	autoscale;
     double	ymin;
     double	ymax;
+    const char	*path = (const char *)filename.toAscii();
 
-    // TODO - dialog to confirm over writing an existing file
     // TODO - host dynamic vs literal - needs more code here.
     (void)dynamic;
 
     if ((f = fopen(path, "w")) == NULL) {
 	QString	msg;
 	msg.sprintf("Cannot open \"%s\" for writing\n%s", path, strerror(errno));
-	err(E_CRIT, FALSE, msg);
-	return;
+	err(E_CRIT, false, msg);
+	return false;
     }
     fprintf(f, "#kmchart\nversion %d\n\n", K1);
     for (c = 0; c < activeTab->numChart(); c++) {
@@ -1268,27 +975,27 @@ void SaveViewDialog::saveView(const char *path, bool dynamic)
 	if (p != NULL)
 	    fprintf(f, " title \"%s\"", p);
 	switch (cp->style()) {
-	    case None:
+	    case Chart::NoStyle:
 		p = "none - botched in Save!";
 	    	break;
-	    case Line:
+	    case Chart::LineStyle:
 		p = "plot";
 		break;
-	    case Bar:
+	    case Chart::BarStyle:
 		p = "bar";
 		break;
-	    case Stack:
+	    case Chart::StackStyle:
 		p ="stacking";
 		break;
-	    case Area:
+	    case Chart::AreaStyle:
 		p = "area";
 		break;
-	    case Util:
+	    case Chart::UtilisationStyle:
 		p = "utilization";
 		break;
 	}
 	fprintf(f, " style %s", p);
-	if (cp->style() != Util) {
+	if (cp->style() != Chart::UtilisationStyle) {
 	    cp->scale(&autoscale, &ymin, &ymax);
 	    if (!autoscale)
 		fprintf(f, " scale %f %f", ymin, ymax);
@@ -1298,17 +1005,17 @@ void SaveViewDialog::saveView(const char *path, bool dynamic)
 	fputc('\n', f);
 	for (m = 0; m < cp->numPlot(); m++) {
 	    fprintf(f, "\tplot");
-	    p = cp->legend_spec(m);
+	    p = cp->legendSpec(m);
 	    if (p != NULL)
 		fprintf(f, " legend \"%s\"", p);
-	    fprintf(f, " color %s", cp->color(m).name().ascii());
+	    fprintf(f, " color %s", (const char *)cp->color(m).name().toAscii());
 	    p = cp->name(m)->ptr();
 	    if ((q = strstr(p, "[")) != NULL) {
 		// metric with an instance
 		if ((qend = strstr(q, "]")) == NULL) {
 		    QString	msg;
 		    msg.sprintf("Botch @ metric name: \"%s\"", p);
-		    err(E_CRIT, FALSE, msg);
+		    err(E_CRIT, false, msg);
 		}
 		else {
 		    *q++ = '\0';
@@ -1324,4 +1031,5 @@ void SaveViewDialog::saveView(const char *path, bool dynamic)
     }
 
     fclose(f);
+    return true;
 }

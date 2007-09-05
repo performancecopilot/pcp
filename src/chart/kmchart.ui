@@ -1,1146 +1,1066 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>KmChart</class>
-<widget class="QMainWindow">
-    <property name="name">
-        <cstring>KmChart</cstring>
+<ui version="4.0" >
+ <class>KmChart</class>
+ <widget class="QMainWindow" name="KmChart" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>336</width>
+    <height>267</height>
+   </rect>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>182</width>
+    <height>196</height>
+   </size>
+  </property>
+  <property name="windowTitle" >
+   <string>PCP Chart</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
+  </property>
+  <widget class="QWidget" name="widget" >
+   <layout class="QVBoxLayout" >
+    <property name="margin" >
+     <number>0</number>
     </property>
-    <property name="geometry">
-        <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>336</width>
-            <height>267</height>
-        </rect>
+    <property name="spacing" >
+     <number>0</number>
     </property>
-    <property name="minimumSize">
-        <size>
-            <width>182</width>
-            <height>196</height>
-        </size>
-    </property>
-    <property name="caption">
-        <string>PCP Chart</string>
-    </property>
-    <property name="icon">
-        <pixmap>kmchart.png</pixmap>
-    </property>
-    <vbox>
-        <property name="name">
-            <cstring>unnamed</cstring>
+    <item>
+     <layout class="QVBoxLayout" >
+      <property name="margin" >
+       <number>0</number>
+      </property>
+      <property name="spacing" >
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QTabWidget" name="chartTab" >
+        <property name="focusPolicy" >
+         <enum>Qt::NoFocus</enum>
         </property>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout14</cstring>
-            </property>
-            <vbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>0</number>
-                </property>
-                <property name="spacing">
-                    <number>0</number>
-                </property>
-                <widget class="QTabWidget">
-                    <property name="name">
-                        <cstring>chartTab</cstring>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="tabShape">
-                        <enum>Rounded</enum>
-                    </property>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout9</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <property name="margin">
-                            <number>0</number>
-                        </property>
-                        <property name="spacing">
-                            <number>2</number>
-                        </property>
-                        <widget class="TimeButton">
-                            <property name="name">
-                                <cstring>timeButton</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>0</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                                <size>
-                                    <width>54</width>
-                                    <height>54</height>
-                                </size>
-                            </property>
-                            <property name="maximumSize">
-                                <size>
-                                    <width>54</width>
-                                    <height>54</height>
-                                </size>
-                            </property>
-                            <property name="paletteBackgroundColor">
-                                <color>
-                                    <red>170</red>
-                                    <green>170</green>
-                                    <blue>170</blue>
-                                </color>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>NoFocus</enum>
-                            </property>
-                            <property name="text">
-                                <string></string>
-                            </property>
-                        </widget>
-                        <widget class="QFrame">
-                            <property name="name">
-                                <cstring>frame21</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>7</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                                <size>
-                                    <width>120</width>
-                                    <height>54</height>
-                                </size>
-                            </property>
-                            <property name="maximumSize">
-                                <size>
-                                    <width>32767</width>
-                                    <height>54</height>
-                                </size>
-                            </property>
-                            <property name="paletteBackgroundColor">
-                                <color>
-                                    <red>170</red>
-                                    <green>170</green>
-                                    <blue>170</blue>
-                                </color>
-                            </property>
-                            <property name="frameShape">
-                                <enum>StyledPanel</enum>
-                            </property>
-                            <property name="frameShadow">
-                                <enum>Raised</enum>
-                            </property>
-                            <property name="lineWidth">
-                                <number>2</number>
-                            </property>
-                            <vbox>
-                                <property name="name">
-                                    <cstring>unnamed23</cstring>
-                                </property>
-                                <property name="margin">
-                                    <number>2</number>
-                                </property>
-                                <property name="spacing">
-                                    <number>0</number>
-                                </property>
-                                <widget class="QLayoutWidget">
-                                    <property name="name">
-                                        <cstring>layout3</cstring>
-                                    </property>
-                                    <vbox>
-                                        <property name="name">
-                                            <cstring>unnamed</cstring>
-                                        </property>
-                                        <widget class="TimeAxis">
-                                            <property name="name">
-                                                <cstring>timeAxisPlot</cstring>
-                                            </property>
-                                            <property name="sizePolicy">
-                                                <sizepolicy>
-                                                    <hsizetype>7</hsizetype>
-                                                    <vsizetype>0</vsizetype>
-                                                    <horstretch>0</horstretch>
-                                                    <verstretch>0</verstretch>
-                                                </sizepolicy>
-                                            </property>
-                                            <property name="minimumSize">
-                                                <size>
-                                                    <width>90</width>
-                                                    <height>20</height>
-                                                </size>
-                                            </property>
-                                            <property name="maximumSize">
-                                                <size>
-                                                    <width>32767</width>
-                                                    <height>22</height>
-                                                </size>
-                                            </property>
-                                            <property name="font">
-                                                <font>
-                                                    <family>Sans Serif</family>
-                                                    <pointsize>8</pointsize>
-                                                </font>
-                                            </property>
-                                        </widget>
-                                        <widget class="QLabel">
-                                            <property name="name">
-                                                <cstring>dateLabel</cstring>
-                                            </property>
-                                            <property name="sizePolicy">
-                                                <sizepolicy>
-                                                    <hsizetype>7</hsizetype>
-                                                    <vsizetype>0</vsizetype>
-                                                    <horstretch>0</horstretch>
-                                                    <verstretch>0</verstretch>
-                                                </sizepolicy>
-                                            </property>
-                                            <property name="minimumSize">
-                                                <size>
-                                                    <width>90</width>
-                                                    <height>20</height>
-                                                </size>
-                                            </property>
-                                            <property name="font">
-                                                <font>
-                                                    <family>Sans Serif</family>
-                                                    <pointsize>8</pointsize>
-                                                </font>
-                                            </property>
-                                            <property name="text">
-                                                <string>Sat Jan  1 2000 UTC</string>
-                                            </property>
-                                            <property name="alignment">
-                                                <set>AlignVCenter|AlignRight</set>
-                                            </property>
-                                        </widget>
-                                    </vbox>
-                                </widget>
-                            </vbox>
-                        </widget>
-                    </hbox>
-                </widget>
-            </vbox>
-        </widget>
-    </vbox>
-</widget>
-<menubar>
-    <property name="name">
-        <cstring>MenuBar</cstring>
-    </property>
-    <item text="&amp;File" name="fileMenu">
-        <action name="fileNewChartAction"/>
-        <item text="&amp;New Chart" name="popupMenu" accel="">
-            <action name="fileNewLinePlotAction"/>
-            <action name="fileNewBarPlotAction"/>
-            <action name="fileNewStackedBarAction"/>
-            <action name="fileNewAreaPlotAction"/>
-            <action name="fileNewUtilizationAction"/>
-        </item>
-        <action name="addTabAction"/>
-        <item text="Add Tab" name="popupMenu_7" accel="">
-            <action name="addLiveTabAction"/>
-            <action name="addArchiveTabAction"/>
-        </item>
-        <action name="closeTabAction"/>
-        <separator/>
-        <action name="fileOpenViewAction"/>
-        <action name="fileSaveViewAction"/>
-        <separator/>
-        <action name="fileRecordAction"/>
-        <action name="fileExportAction"/>
-        <action name="filePrintAction"/>
-        <separator/>
-        <action name="fileQuitAction"/>
-    </item>
-    <item text="&amp;Edit" name="Edit">
-        <action name="editChartAction"/>
-        <action name="deleteChartAction"/>
-        <separator/>
-        <action name="editTabAction"/>
-        <action name="deleteTabAction"/>
-        <separator/>
-        <action name="editSettingsAction"/>
-    </item>
-    <item text="&amp;Time" name="Time">
-        <action name="timeShowLiveTimeControlAction"/>
-        <action name="timeHideLiveTimeControlAction"/>
-        <separator/>
-        <action name="timeNewKmchartAction"/>
-    </item>
-    <separator/>
-    <item text="&amp;Help" name="Help">
-        <action name="helpContentsAction"/>
-        <action name="helpManualAction"/>
-        <separator/>
-        <action name="helpAboutAction"/>
-        <action name="helpSeeAlsoAction"/>
-        <separator/>
-        <action name="helpWhatsThisAction"/>
-    </item>
-</menubar>
-<toolbars>
-</toolbars>
-<customwidgets>
-    <customwidget>
-        <class>TimeButton</class>
-        <header location="local">timebutton.h</header>
-        <sizehint>
-            <width>54</width>
-            <height>54</height>
-        </sizehint>
-        <container>0</container>
-        <sizepolicy>
-            <hordata>7</hordata>
-            <verdata>0</verdata>
+        <property name="tabShape" >
+         <enum>QTabWidget::Rounded</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>2</number>
+        </property>
+        <item>
+         <widget class="TimeButton" name="timeButton" >
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>0</hsizetype>
+            <vsizetype>0</vsizetype>
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
-        </sizepolicy>
-        <pixmap>image0</pixmap>
-    </customwidget>
-    <customwidget>
-        <class>TimeAxis</class>
-        <header location="local">timeaxis.h</header>
-        <sizehint>
-            <width>90</width>
-            <height>20</height>
-        </sizehint>
-        <container>0</container>
-        <sizepolicy>
-            <hordata>7</hordata>
-            <verdata>0</verdata>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>53</width>
+            <height>53</height>
+           </size>
+          </property>
+          <property name="maximumSize" >
+           <size>
+            <width>53</width>
+            <height>53</height>
+           </size>
+          </property>
+          <property name="focusPolicy" >
+           <enum>Qt::NoFocus</enum>
+          </property>
+          <property name="text" >
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="frame21" >
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>7</hsizetype>
+            <vsizetype>0</vsizetype>
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
-        </sizepolicy>
-        <pixmap>image0</pixmap>
-    </customwidget>
-</customwidgets>
-<actions>
-    <action>
-        <property name="name">
-            <cstring>fileNewChartAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>document-new.png</iconset>
-        </property>
-        <property name="text">
-            <string>New Chart</string>
-        </property>
-        <property name="menuText">
-            <string>&amp;New Chart</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>fileOpenViewAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>document-open.png</iconset>
-        </property>
-        <property name="text">
-            <string>Open View...</string>
-        </property>
-        <property name="menuText">
-            <string>&amp;Open View...</string>
-        </property>
-        <property name="accel">
-            <string>Ctrl+O</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>fileSaveViewAction</cstring>
-        </property>
-        <property name="enabled">
-            <bool>false</bool>
-        </property>
-        <property name="text">
-            <string>Save View ...</string>
-        </property>
-        <property name="menuText">
-            <string>&amp;Save View ...</string>
-        </property>
-        <property name="accel">
-            <string>Ctrl+S</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>fileExportAction</cstring>
-        </property>
-        <property name="on">
-            <bool>false</bool>
-        </property>
-        <property name="enabled">
-            <bool>false</bool>
-        </property>
-        <property name="text">
-            <string>Export</string>
-        </property>
-        <property name="menuText">
-            <string>&amp;Export...</string>
-        </property>
-        <property name="iconSet">
-            <iconset>document-export.png</iconset>
-        </property>
-        <property name="accel">
-            <string>Ctrl+E</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>filePrintAction</cstring>
-        </property>
-        <property name="on">
-            <bool>false</bool>
-        </property>
-        <property name="enabled">
-            <bool>false</bool>
-        </property>
-        <property name="iconSet">
-            <iconset>document-print.png</iconset>
-        </property>
-        <property name="text">
-            <string>Print</string>
-        </property>
-        <property name="menuText">
-            <string>&amp;Print...</string>
-        </property>
-        <property name="accel">
-            <string>Ctrl+P</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>fileQuitAction</cstring>
-        </property>
-        <property name="text">
-            <string>Quit</string>
-        </property>
-        <property name="menuText">
-            <string>&amp;Quit</string>
-        </property>
-        <property name="accel">
-            <string>Ctrl+Q</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>fileRecordAction</cstring>
-        </property>
-        <property name="enabled">
-            <bool>false</bool>
-        </property>
-        <property name="iconSet">
-            <iconset>media-record.png</iconset>
-        </property>
-        <property name="text">
-            <string>Record ...</string>
-        </property>
-        <property name="menuText">
-            <string>&amp;Record ...</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>timeShowLiveTimeControlAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>kmtime.png</iconset>
-        </property>
-        <property name="text">
-            <string>Show Time Control</string>
-        </property>
-        <property name="menuText">
-            <string>Show Time Control</string>
-        </property>
-        <property name="toolTip">
-            <string>Show Time Control window</string>
-        </property>
-        <property name="statusTip">
-            <string>Show Time Control window</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>timeHideLiveTimeControlAction</cstring>
-        </property>
-        <property name="on">
-            <bool>false</bool>
-        </property>
-        <property name="enabled">
-            <bool>true</bool>
-        </property>
-        <property name="iconSet">
-            <iconset>edit-clear.png</iconset>
-        </property>
-        <property name="text">
-            <string>Hide Time Control</string>
-        </property>
-        <property name="menuText">
-            <string>Hide Time Control</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>editDeleteAction</cstring>
-        </property>
-        <property name="enabled">
-            <bool>false</bool>
-        </property>
-        <property name="text">
-            <string>&amp;Delete</string>
-        </property>
-        <property name="menuText">
-            <string>&amp;Delete</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>editColorsAction</cstring>
-        </property>
-        <property name="enabled">
-            <bool>false</bool>
-        </property>
-        <property name="text">
-            <string>Colors ...</string>
-        </property>
-        <property name="menuText">
-            <string>&amp;Colors ...</string>
-        </property>
-        <property name="toolTip">
-            <string>Change Colors of Plots</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>timeNewKmchartAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>kmchart.png</iconset>
-        </property>
-        <property name="text">
-            <string>Launch New kmchart</string>
-        </property>
-        <property name="menuText">
-            <string>Launch New kmchart</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>optionsShowArchiveAction</cstring>
-        </property>
-        <property name="toggleAction">
-            <bool>false</bool>
-        </property>
-        <property name="iconSet">
-            <iconset>kmtime.png</iconset>
-        </property>
-        <property name="text">
-            <string>Show Archive Time Control</string>
-        </property>
-        <property name="menuText">
-            <string>Show &amp;Archive Time Control</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>hideArchiveTimeControlAction</cstring>
-        </property>
-        <property name="enabled">
-            <bool>false</bool>
-        </property>
-        <property name="iconSet">
-            <iconset>edit-clear.png</iconset>
-        </property>
-        <property name="text">
-            <string>Hide Archive Time Control</string>
-        </property>
-        <property name="menuText">
-            <string>Hide Archive Time Control</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>Action</cstring>
-        </property>
-        <property name="text">
-            <string>Unnamed</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>editChartAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>document-properties.png</iconset>
-        </property>
-        <property name="text">
-            <string>Chart...</string>
-        </property>
-        <property name="menuText">
-            <string>&amp;Chart...</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>addTabAction</cstring>
-        </property>
-        <property name="toggleAction">
-            <bool>false</bool>
-        </property>
-        <property name="iconSet">
-            <iconset>tab-new.png</iconset>
-        </property>
-        <property name="text">
-            <string>Add Tab</string>
-        </property>
-        <property name="menuText">
-            <string>Add Tab</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>newTabAction</cstring>
-        </property>
-        <property name="text">
-            <string>New Tab</string>
-        </property>
-        <property name="menuText">
-            <string>New Tab</string>
-        </property>
-    </action>
-    <actiongroup>
-        <property name="name">
-            <cstring>ActionGroup</cstring>
-        </property>
-        <property name="text">
-            <string>ActionGroup</string>
-        </property>
-        <property name="usesDropDown">
-            <bool>true</bool>
-        </property>
-    </actiongroup>
-    <action>
-        <property name="name">
-            <cstring>editTabAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>tab-edit.png</iconset>
-        </property>
-        <property name="text">
-            <string>Tab...</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>editSettingsAction</cstring>
-        </property>
-        <property name="enabled">
-            <bool>true</bool>
-        </property>
-        <property name="iconSet">
-            <iconset>settings.png</iconset>
-        </property>
-        <property name="text">
-            <string>Settings...</string>
-        </property>
-        <property name="menuText">
-            <string>Settings...</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>addLiveTabAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>computer.png</iconset>
-        </property>
-        <property name="text">
-            <string>Live...</string>
-        </property>
-        <property name="menuText">
-            <string>Live...</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>addArchiveTabAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>archive.png</iconset>
-        </property>
-        <property name="text">
-            <string>Archive...</string>
-        </property>
-        <property name="menuText">
-            <string>Archive...</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>closeTabAction</cstring>
-        </property>
-        <property name="text">
-            <string>Close Tab</string>
-        </property>
-        <property name="menuText">
-            <string>Close Tab</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>fileNewLinePlotAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset></iconset>
-        </property>
-        <property name="text">
-            <string>Line Plot...</string>
-        </property>
-        <property name="menuText">
-            <string>Line Plot...</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>fileNewBarPlotAction</cstring>
-        </property>
-        <property name="text">
-            <string>Bar Plot...</string>
-        </property>
-        <property name="menuText">
-            <string>Bar Plot...</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>fileNewStackedBarAction</cstring>
-        </property>
-        <property name="text">
-            <string>Stacked Bar...</string>
-        </property>
-        <property name="menuText">
-            <string>Stacked Bar...</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>fileNewAreaPlotAction</cstring>
-        </property>
-        <property name="text">
-            <string>Area Plot...</string>
-        </property>
-        <property name="menuText">
-            <string>Area Plot...</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>fileNewUtilizationAction</cstring>
-        </property>
-        <property name="text">
-            <string>Utilization...</string>
-        </property>
-        <property name="menuText">
-            <string>Utilization...</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>deleteChartAction</cstring>
-        </property>
-        <property name="text">
-            <string>Delete Chart</string>
-        </property>
-        <property name="menuText">
-            <string>Delete Chart</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>deleteTabAction</cstring>
-        </property>
-        <property name="text">
-            <string>Delete Tab</string>
-        </property>
-        <property name="menuText">
-            <string>Delete Tab</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>helpManualAction</cstring>
-        </property>
-        <property name="text">
-            <string>Manual</string>
-        </property>
-        <property name="menuText">
-            <string>&amp;Manual</string>
-        </property>
-        <property name="accel">
-            <string>Ctrl+M</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>helpContentsAction</cstring>
-        </property>
-        <property name="text">
-            <string>Contents</string>
-        </property>
-        <property name="menuText">
-            <string>&amp;Contents</string>
-        </property>
-        <property name="accel">
-            <string>F1</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>helpAboutAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>kmchart.png</iconset>
-        </property>
-        <property name="text">
-            <string>About</string>
-        </property>
-        <property name="menuText">
-            <string>About</string>
-        </property>
-        <property name="accel">
-            <string></string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>helpSeeAlsoAction</cstring>
-        </property>
-        <property name="text">
-            <string>See Also</string>
-        </property>
-        <property name="menuText">
-            <string>See Also</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>helpWhatsThisAction</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>whatsthis.png</iconset>
-        </property>
-        <property name="text">
-            <string>What's This</string>
-        </property>
-        <property name="menuText">
-            <string>What's This</string>
-        </property>
-        <property name="accel">
-            <string>Shift+F1</string>
-        </property>
-    </action>
-</actions>
-<images>
-    <image name="image0">
-        <data format="PNG" length="974">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000039549444154388db5954b4c9c5518869ff35f6698290cc28416db5a6db008d4d2268660c054116c34adad4643528d2eac0b131726f5b272514d1ac3c218b74dd4448a0b82c458c70b346ad264883188523bb65a0b03c3ad33c2c0fc33ff3fffd545e3c020831b7c37e7e47cdf79bff7bce7e43b221a8d02d0d6d6e645a351c11641fa8774edb815106b15577457200525dc15177bc2461fd3597b8a8e573a3c81c0c980ab5938098752a754d62a0d3cbc8d406b006bca421b5c411fd38b922b9e0851fd6c186fcec518d6090f5495542c01c5553d0f5c0fdc8d373879875c328796d448a5529b136fa5b745c4ff0794cd82a167421cffee84e72c3a58d326ea6edf86794d478e7a00b1a148c1d24d89fd07fd04bab661c72da47199fc5519eda28739233027a1ce760aa46b0bfc27318e0fe98b1750af3460ed7c1fd3ae42f23f86a5c6e9b8f92dc7cc89925b1580caea97c969df2032e59075114b7eb6cf35f1485ca3321823327b92f0b57769af388dfac724dbafdfc0b13c3ef3ab1cfa7250ac571b1b8a0851d7a87900b63587a83150abd3d48b8b1c487cc27e354dbde9f2b5f93c1f7b6ff346ae1bb7493078e72e4613098263bfd03f3050f0f5b953cd057251d7a8798bc9b3e85a84ae661f414590b397194f2fa09ff251737f90c0cf3e56ce5d020cac9786b9995dc01af981ca9fa2288133f84517782a8a5c5bb0428e7c7eecadb31f9d3ef3144bdcb8a79eef9f7e925ff7ddcbf2629eb2ba05bc061f2b5e1e6b56454e3e84b3504b6eef657cd7c2f81a6ec3f7601a6ebf829119624f6099ac7e80de0fc6850230e53a28082e1971ccafce135cce61cca6a073f532f2cdefa15c3f899c0a118c1dc2cb2d6168165955c5b1a6319746a87147e8fd70bf00509a8e1cf590647a4c9dd75fbccae1c33035057d7df0a9a8297e24ca5fc8a2024fb1d04351d865e2bbab1dcf95908297415bed2d0ac03b799d1ecba017b02c308c5b63665822376ae3a64ddca44575f99b9457eda66c21caf25c92f49ec74b3fb7d850449c007a36e817de8e4e686b4524933031c9f1f0795e7b5526f69bc3850b704e2ffd2f14b5cdf5e856fb69a19f195bf07b0ebc7071fcd1742f0d7ff6313bebf2a3e900fb0ab1a2b6994c423c0ed3d3904ec3de3b6c5aefb3693968d178b7c5d2228c8ec2f8382412d05067d3f980497b8bc9ce1d4e51d1a21f64bde2b2329065b0ed5b6dda34a1b6b6965c368b2ccb08494296246cdbc6711c2a4321a6676656ad2805c3f8f7dafcfc7cc9fc954ca630ff1b0c27a215cbad4dbf0000000049454e44ae426082</data>
-    </image>
-</images>
-<connections>
-    <connection>
-        <sender>fileOpenViewAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>fileOpenView()</slot>
-    </connection>
-    <connection>
-        <sender>fileSaveViewAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>fileSaveView()</slot>
-    </connection>
-    <connection>
-        <sender>fileExportAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>fileExport()</slot>
-    </connection>
-    <connection>
-        <sender>filePrintAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>filePrint()</slot>
-    </connection>
-    <connection>
-        <sender>fileQuitAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>fileQuit()</slot>
-    </connection>
-    <connection>
-        <sender>helpContentsAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>helpContents()</slot>
-    </connection>
-    <connection>
-        <sender>helpAboutAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>helpAbout()</slot>
-    </connection>
-    <connection>
-        <sender>helpSeeAlsoAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>helpSeeAlso()</slot>
-    </connection>
-    <connection>
-        <sender>helpWhatsThisAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>whatsThis()</slot>
-    </connection>
-    <connection>
-        <sender>fileRecordAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>fileRecord()</slot>
-    </connection>
-    <connection>
-        <sender>timeShowLiveTimeControlAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>optionsShowTimeControl()</slot>
-    </connection>
-    <connection>
-        <sender>timeHideLiveTimeControlAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>optionsHideTimeControl()</slot>
-    </connection>
-    <connection>
-        <sender>timeNewKmchartAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>optionsLaunchNewKmchart()</slot>
-    </connection>
-    <connection>
-        <sender>closeTabAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>closeTab()</slot>
-    </connection>
-    <connection>
-        <sender>editSettingsAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>editSettings()</slot>
-    </connection>
-    <connection>
-        <sender>chartTab</sender>
-        <signal>currentChanged(QWidget*)</signal>
-        <receiver>KmChart</receiver>
-        <slot>activeTabChanged(QWidget*)</slot>
-    </connection>
-    <connection>
-        <sender>timeButton</sender>
-        <signal>clicked()</signal>
-        <receiver>KmChart</receiver>
-        <slot>showTimeControl()</slot>
-    </connection>
-    <connection>
-        <sender>fileNewLinePlotAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>fileNewLinePlot()</slot>
-    </connection>
-    <connection>
-        <sender>fileNewBarPlotAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>fileNewBarPlot()</slot>
-    </connection>
-    <connection>
-        <sender>fileNewAreaPlotAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>fileNewAreaPlot()</slot>
-    </connection>
-    <connection>
-        <sender>fileNewStackedBarAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>fileNewStackedBar()</slot>
-    </connection>
-    <connection>
-        <sender>fileNewUtilizationAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>fileNewUtilization()</slot>
-    </connection>
-    <connection>
-        <sender>editChartAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>editChart()</slot>
-    </connection>
-    <connection>
-        <sender>deleteChartAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>deleteChart()</slot>
-    </connection>
-    <connection>
-        <sender>editTabAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>editTab()</slot>
-    </connection>
-    <connection>
-        <sender>deleteTabAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>closeTab()</slot>
-    </connection>
-    <connection>
-        <sender>addLiveTabAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>addLiveTab()</slot>
-    </connection>
-    <connection>
-        <sender>addArchiveTabAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>addArchiveTab()</slot>
-    </connection>
-    <connection>
-        <sender>helpManualAction</sender>
-        <signal>activated()</signal>
-        <receiver>KmChart</receiver>
-        <slot>helpManual()</slot>
-    </connection>
-</connections>
-<includes>
-    <include location="local" impldecl="in declaration">main.h</include>
-    <include location="local" impldecl="in declaration">kmtime.h</include>
-    <include location="local" impldecl="in declaration">tabdialog.h</include>
-    <include location="local" impldecl="in declaration">infodialog.h</include>
-    <include location="local" impldecl="in declaration">chartdialog.h</include>
-    <include location="local" impldecl="in declaration">exportdialog.h</include>
-    <include location="local" impldecl="in declaration">recorddialog.h</include>
-    <include location="local" impldecl="in declaration">settingsdialog.h</include>
-    <include location="local" impldecl="in declaration">qprinter.h</include>
-    <include location="local" impldecl="in declaration">qfiledialog.h</include>
-    <include location="local" impldecl="in declaration">qassistantclient.h</include>
-    <include location="local" impldecl="in declaration">timeaxis.h</include>
-    <include location="local" impldecl="in declaration">timebutton.h</include>
-    <include location="local" impldecl="in implementation">stdlib.h</include>
-    <include location="local" impldecl="in implementation">qapplication.h</include>
-    <include location="local" impldecl="in implementation">qdir.h</include>
-    <include location="global" impldecl="in implementation">pcp/pmapi.h</include>
-    <include location="local" impldecl="in implementation">qspinbox.h</include>
-    <include location="local" impldecl="in implementation">qradiobutton.h</include>
-    <include location="local" impldecl="in implementation">qlistbox.h</include>
-    <include location="local" impldecl="in implementation">qslider.h</include>
-    <include location="local" impldecl="in implementation">qlineedit.h</include>
-    <include location="local" impldecl="in implementation">qsplitter.h</include>
-    <include location="local" impldecl="in implementation">qlistview.h</include>
-    <include location="local" impldecl="in implementation">qpushbutton.h</include>
-    <include location="local" impldecl="in implementation">qvbox.h</include>
-    <include location="local" impldecl="in implementation">qcombobox.h</include>
-    <include location="local" impldecl="in implementation">qpainter.h</include>
-    <include location="local" impldecl="in implementation">qlabel.h</include>
-    <include location="local" impldecl="in implementation">qmessagebox.h</include>
-    <include location="local" impldecl="in implementation">kmchart.ui.h</include>
-</includes>
-<variables>
-    <variable access="private">const char *_fname;</variable>
-    <variable access="private">QPrinter *_printer;</variable>
-    <variable access="private">TimeAxis *_timeAxis;</variable>
-    <variable access="private">TabDialog *_newtab;</variable>
-    <variable access="private">TabDialog *_edittab;</variable>
-    <variable access="private">InfoDialog *_info;</variable>
-    <variable access="private">ChartDialog *_newchart;</variable>
-    <variable access="private">ChartDialog *_editchart;</variable>
-    <variable access="private">ExportDialog *_export;</variable>
-    <variable access="private">OpenViewDialog *_openview;</variable>
-    <variable access="private">SaveViewDialog *_saveview;</variable>
-    <variable access="private">SettingsDialog *_settings;</variable>
-    <variable access="private">QAssistantClient *_assistant;</variable>
-</variables>
-<slots>
-    <slot>init( void )</slot>
-    <slot>destroy( void )</slot>
-    <slot>enableUI( void )</slot>
-    <slot>showTimeControl()</slot>
-    <slot>fileOpenView()</slot>
-    <slot>fileSaveView()</slot>
-    <slot>fileRecord()</slot>
-    <slot>fileExport()</slot>
-    <slot>filePrint()</slot>
-    <slot>fileQuit()</slot>
-    <slot>assistantError( const QString &amp; )</slot>
-    <slot>helpManual()</slot>
-    <slot>helpContents()</slot>
-    <slot>helpAbout()</slot>
-    <slot>helpSeeAlso()</slot>
-    <slot>whatsThis()</slot>
-    <slot>optionsShowTimeControl()</slot>
-    <slot>optionsHideTimeControl()</slot>
-    <slot>optionsLaunchNewKmchart()</slot>
-    <slot>acceptNewChart()</slot>
-    <slot>fileNewLinePlot()</slot>
-    <slot>fileNewBarPlot()</slot>
-    <slot>fileNewAreaPlot()</slot>
-    <slot>fileNewStackedBar()</slot>
-    <slot>fileNewUtilization()</slot>
-    <slot>editChart()</slot>
-    <slot>acceptEditChart()</slot>
-    <slot>deleteChart()</slot>
-    <slot>editTab()</slot>
-    <slot>acceptEditTab()</slot>
-    <slot>acceptNewTab()</slot>
-    <slot>acceptExport()</slot>
-    <slot>addLiveTab()</slot>
-    <slot>addArchiveTab()</slot>
-    <slot>closeTab()</slot>
-    <slot>activeTabChanged( QWidget * )</slot>
-    <slot>editSettings()</slot>
-    <slot>acceptSettings()</slot>
-    <slot>revertSettings()</slot>
-</slots>
-<functions>
-    <function returnType="TimeAxis *">timeAxis( void )</function>
-    <function>step( bool livemode, kmTime * kmtime )</function>
-    <function>vcrmode( bool livemode, kmTime * kmtime, bool drag )</function>
-    <function>timezone( bool livemode, char * tzdata )</function>
-    <function>setStyle( char * style )</function>
-    <function>setupAssistant()</function>
-    <function>createNewChart( chartStyle style )</function>
-    <function>metricInfo(QString src, QString m, QString inst, bool archive)</function>
-    <function>createNewTab( bool liveMode )</function>
-    <function returnType="QTabWidget *">tabWidget()</function>
-    <function>setActiveTab( int index, bool redisplay )</function>
-    <function>setDateLabel( time_t seconds, const char * tz )</function>
-    <function>setButtonState(enum TimeButtonState newstate)</function>
-</functions>
-<pixmapinproject/>
-<layoutdefaults spacing="0" margin="0"/>
-<includehints>
-    <includehint>timeaxis.h</includehint>
-</includehints>
-</UI>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>120</width>
+            <height>53</height>
+           </size>
+          </property>
+          <property name="maximumSize" >
+           <size>
+            <width>32767</width>
+            <height>53</height>
+           </size>
+          </property>
+          <property name="frameShape" >
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow" >
+           <enum>QFrame::Raised</enum>
+          </property>
+          <property name="lineWidth" >
+           <number>2</number>
+          </property>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>2</number>
+           </property>
+           <property name="spacing" >
+            <number>0</number>
+           </property>
+           <item>
+            <layout class="QVBoxLayout" >
+             <property name="margin" >
+              <number>0</number>
+             </property>
+             <property name="spacing" >
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="TimeAxis" name="timeAxisPlot" >
+               <property name="sizePolicy" >
+                <sizepolicy>
+                 <hsizetype>7</hsizetype>
+                 <vsizetype>0</vsizetype>
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize" >
+                <size>
+                 <width>90</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="maximumSize" >
+                <size>
+                 <width>32767</width>
+                 <height>22</height>
+                </size>
+               </property>
+               <property name="font" >
+                <font>
+                 <family>Sans Serif</family>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="dateLabel" >
+               <property name="sizePolicy" >
+                <sizepolicy>
+                 <hsizetype>7</hsizetype>
+                 <vsizetype>0</vsizetype>
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize" >
+                <size>
+                 <width>90</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="font" >
+                <font>
+                 <family>Sans Serif</family>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
+               <property name="text" >
+                <string>Sat Jan  1 2000 UTC</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="MenuBar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>336</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="Edit" >
+    <property name="title" >
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="editChartAction" />
+    <addaction name="deleteChartAction" />
+    <addaction name="separator" />
+    <addaction name="editTabAction" />
+    <addaction name="deleteTabAction" />
+    <addaction name="separator" />
+    <addaction name="editSettingsAction" />
+   </widget>
+   <widget class="QMenu" name="Help" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="helpContentsAction" />
+    <addaction name="helpManualAction" />
+    <addaction name="separator" />
+    <addaction name="helpAboutAction" />
+    <addaction name="helpSeeAlsoAction" />
+    <addaction name="separator" />
+    <addaction name="helpWhatsThisAction" />
+   </widget>
+   <widget class="QMenu" name="Time" >
+    <property name="title" >
+     <string>&amp;Options</string>
+    </property>
+    <addaction name="timeShowLiveTimeControlAction" />
+    <addaction name="timeHideLiveTimeControlAction" />
+    <addaction name="separator" />
+    <addaction name="timeNewKmchartAction" />
+   </widget>
+   <widget class="QMenu" name="fileMenu" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <widget class="QMenu" name="addTabAction" >
+     <property name="title" >
+      <string>Add Tab</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="kmchart.qrc" >:/tab-new.png</iconset>
+     </property>
+     <addaction name="addLiveTabAction" />
+     <addaction name="addArchiveTabAction" />
+    </widget>
+    <addaction name="fileNewChartAction" />
+    <addaction name="addTabAction" />
+    <addaction name="closeTabAction" />
+    <addaction name="separator" />
+    <addaction name="fileOpenViewAction" />
+    <addaction name="fileSaveViewAction" />
+    <addaction name="separator" />
+    <addaction name="fileRecordAction" />
+    <addaction name="fileExportAction" />
+    <addaction name="filePrintAction" />
+    <addaction name="separator" />
+    <addaction name="fileQuitAction" />
+   </widget>
+   <addaction name="fileMenu" />
+   <addaction name="Edit" />
+   <addaction name="Time" />
+   <addaction name="separator" />
+   <addaction name="Help" />
+  </widget>
+  <action name="fileOpenViewAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/view.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Open View...</string>
+   </property>
+   <property name="iconText" >
+    <string>Open View...</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="fileSaveViewAction" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Save View ...</string>
+   </property>
+   <property name="iconText" >
+    <string>Save View ...</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="fileExportAction" >
+   <property name="checked" >
+    <bool>false</bool>
+   </property>
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/document-export.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Export...</string>
+   </property>
+   <property name="iconText" >
+    <string>Export</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="filePrintAction" >
+   <property name="checked" >
+    <bool>false</bool>
+   </property>
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/document-print.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Print...</string>
+   </property>
+   <property name="iconText" >
+    <string>Print</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="fileQuitAction" >
+   <property name="text" >
+    <string>&amp;Quit</string>
+   </property>
+   <property name="iconText" >
+    <string>Quit</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="fileRecordAction" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Record ...</string>
+   </property>
+   <property name="iconText" >
+    <string>Record ...</string>
+   </property>
+  </action>
+  <action name="timeShowLiveTimeControlAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/kmtime.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Show Time Control</string>
+   </property>
+   <property name="iconText" >
+    <string>Show Time Control</string>
+   </property>
+   <property name="toolTip" >
+    <string>Show Time Control window</string>
+   </property>
+   <property name="statusTip" >
+    <string>Show Time Control window</string>
+   </property>
+  </action>
+  <action name="timeHideLiveTimeControlAction" >
+   <property name="checked" >
+    <bool>false</bool>
+   </property>
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/edit-clear.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Hide Time Control</string>
+   </property>
+   <property name="iconText" >
+    <string>Hide Time Control</string>
+   </property>
+  </action>
+  <action name="editDeleteAction" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Delete</string>
+   </property>
+   <property name="iconText" >
+    <string>&amp;Delete</string>
+   </property>
+  </action>
+  <action name="editColorsAction" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Colors ...</string>
+   </property>
+   <property name="iconText" >
+    <string>Colors ...</string>
+   </property>
+   <property name="toolTip" >
+    <string>Change Colors of Plots</string>
+   </property>
+  </action>
+  <action name="timeNewKmchartAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Launch New kmchart</string>
+   </property>
+   <property name="iconText" >
+    <string>Launch New kmchart</string>
+   </property>
+  </action>
+  <action name="optionsShowArchiveAction" >
+   <property name="checkable" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/kmtime.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Show &amp;Archive Time Control</string>
+   </property>
+   <property name="iconText" >
+    <string>Show Archive Time Control</string>
+   </property>
+  </action>
+  <action name="hideArchiveTimeControlAction" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/edit-clear.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Hide Archive Time Control</string>
+   </property>
+   <property name="iconText" >
+    <string>Hide Archive Time Control</string>
+   </property>
+  </action>
+  <action name="editChartAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/document-properties.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Chart...</string>
+   </property>
+   <property name="iconText" >
+    <string>Chart...</string>
+   </property>
+  </action>
+  <action name="newTabAction" >
+   <property name="text" >
+    <string>New Tab</string>
+   </property>
+   <property name="iconText" >
+    <string>New Tab</string>
+   </property>
+  </action>
+  <action name="editTabAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/tab-edit.png</iconset>
+   </property>
+   <property name="iconText" >
+    <string>Tab...</string>
+   </property>
+  </action>
+  <action name="editSettingsAction" >
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/settings.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Settings...</string>
+   </property>
+   <property name="iconText" >
+    <string>Settings...</string>
+   </property>
+  </action>
+  <action name="addLiveTabAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/computer.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Live...</string>
+   </property>
+   <property name="iconText" >
+    <string>Live...</string>
+   </property>
+  </action>
+  <action name="addArchiveTabAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/archive.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Archive...</string>
+   </property>
+   <property name="iconText" >
+    <string>Archive...</string>
+   </property>
+  </action>
+  <action name="closeTabAction" >
+   <property name="text" >
+    <string>Close Tab</string>
+   </property>
+   <property name="iconText" >
+    <string>Close Tab</string>
+   </property>
+  </action>
+  <action name="fileNewChartAction" >
+   <property name="text" >
+    <string>&amp;New Chart...</string>
+   </property>
+   <property name="iconText" >
+    <string>New Chart...</string>
+   </property>
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/document-new.png</iconset>
+   </property>
+  </action>
+  <action name="deleteChartAction" >
+   <property name="text" >
+    <string>Delete Chart</string>
+   </property>
+   <property name="iconText" >
+    <string>Delete Chart</string>
+   </property>
+  </action>
+  <action name="deleteTabAction" >
+   <property name="text" >
+    <string>Delete Tab</string>
+   </property>
+   <property name="iconText" >
+    <string>Delete Tab</string>
+   </property>
+  </action>
+  <action name="helpManualAction" >
+   <property name="text" >
+    <string>&amp;Manual</string>
+   </property>
+   <property name="iconText" >
+    <string>Manual</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="helpContentsAction" >
+   <property name="text" >
+    <string>&amp;Contents</string>
+   </property>
+   <property name="iconText" >
+    <string>Contents</string>
+   </property>
+   <property name="shortcut" >
+    <string>F1</string>
+   </property>
+  </action>
+  <action name="helpAboutAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
+   </property>
+   <property name="text" >
+    <string>About</string>
+   </property>
+   <property name="iconText" >
+    <string>About</string>
+   </property>
+   <property name="shortcut" >
+    <string/>
+   </property>
+  </action>
+  <action name="helpSeeAlsoAction" >
+   <property name="text" >
+    <string>See Also</string>
+   </property>
+   <property name="iconText" >
+    <string>See Also</string>
+   </property>
+  </action>
+  <action name="helpWhatsThisAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/whatsthis.png</iconset>
+   </property>
+   <property name="text" >
+    <string>What's This</string>
+   </property>
+   <property name="iconText" >
+    <string>What's This</string>
+   </property>
+   <property name="shortcut" >
+    <string>Shift+F1</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="0" margin="0" />
+ <customwidgets>
+  <customwidget>
+   <class>QwtPlot</class>
+   <extends>QFrame</extends>
+   <header>qwt_plot.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TimeButton</class>
+   <extends>QToolButton</extends>
+   <header>timebutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TimeAxis</class>
+   <extends>QwtPlot</extends>
+   <header>timeaxis.h</header>
+  </customwidget>
+ </customwidgets>
+ <includes>
+  <include location="local" >kmtime.h</include>
+  <include location="local" >tabdialog.h</include>
+  <include location="local" >infodialog.h</include>
+  <include location="local" >chartdialog.h</include>
+  <include location="local" >exportdialog.h</include>
+  <include location="local" >recorddialog.h</include>
+  <include location="local" >settingsdialog.h</include>
+  <include location="local" >qprinter.h</include>
+  <include location="local" >qfiledialog.h</include>
+  <include location="local" >qassistantclient.h</include>
+  <include location="local" >timeaxis.h</include>
+  <include location="local" >timebutton.h</include>
+  <include location="local" >timeaxis.h</include>
+ </includes>
+ <resources>
+  <include location="kmchart.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>fileNewChartAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>fileNewChart()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileOpenViewAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>fileOpenView()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileSaveViewAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>fileSaveView()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileExportAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>fileExport()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>filePrintAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>filePrint()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileQuitAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>fileQuit()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpContentsAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>helpContents()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpAboutAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>helpAbout()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpSeeAlsoAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>helpSeeAlso()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpWhatsThisAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>whatsThis()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileRecordAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>fileRecord()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>timeShowLiveTimeControlAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>optionsShowTimeControl()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>timeHideLiveTimeControlAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>optionsHideTimeControl()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>timeNewKmchartAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>optionsLaunchNewKmchart()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>closeTabAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>closeTab()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editSettingsAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>editSettings()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chartTab</sender>
+   <signal>currentChanged(QWidget*)</signal>
+   <receiver>KmChart</receiver>
+   <slot>activeTabChanged(QWidget*)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>timeButton</sender>
+   <signal>clicked()</signal>
+   <receiver>KmChart</receiver>
+   <slot>showTimeControl()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editChartAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>editChart()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>deleteChartAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>deleteChart()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editTabAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>editTab()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>deleteTabAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>closeTab()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addLiveTabAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>addLiveTab()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addArchiveTabAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>addArchiveTab()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpManualAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>helpManual()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

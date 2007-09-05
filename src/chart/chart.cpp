@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2006-2007, Nathan Scott.  All Rights Reserved.
+ * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,25 +11,15 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Ken McDonell, kenj At internode DoT on DoT net
- *                      Nathan Scott, nathans At debian DoT org
  */
-
 #include <pcp/pmc/Desc.h>
 #include "main.h"
-#include <assert.h>
 
-#include <qapplication.h>
-#include <qvbox.h>
-#include <qlabel.h>
-#include <qpoint.h>
-#include <qpainter.h>
-#include <qregexp.h>
+#include <QtCore/QPoint>
+#include <QtCore/QRegExp>
+#include <QtGui/QApplication>
+#include <QtGui/QPainter>
+#include <QtGui/QLabel>
 #include <qwt/qwt_plot_layout.h>
 #include <qwt/qwt_plot_canvas.h>
 #include <qwt/qwt_plot_curve.h>
@@ -51,25 +41,21 @@ QColor Chart::defaultColor(int seq)
 
     if (seq < 0)
 	seq = count++;
-    seq %= settings.defaultColors.count();
-    return settings.defaultColors[seq];
+    seq %= globalSettings.defaultColors.count();
+    return globalSettings.defaultColors[seq];
 }
 
-Chart::Chart(Tab *tab, QWidget *parent):
-    QwtPlot(parent)
+Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent)
 {
-    _tab = tab;
-
-    setFocusPolicy(QWidget::NoFocus);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     setMinimumSize(256, 128);
     setMaximumSize(32767, 32767);
     plotLayout()->setAlignCanvasToScales(true);
     setAutoReplot(false);
     setMargin(1);
-    setCanvasBackground(settings.chartBackground);
+    setCanvasBackground(globalSettings.chartBackground);
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, true);
-    enableXBottomAxis(false);
+    enableAxis(xBottom, false);
     setLegendVisible(true);
     legend()->contentsWidget()->setFont(QFont("Sans", 8));
     connect(this, SIGNAL(legendChecked(QwtPlotItem *, bool)),
@@ -79,210 +65,188 @@ Chart::Chart(Tab *tab, QWidget *parent):
     setAxisAutoScale(QwtPlot::yLeft);
     setAxisFont(QwtPlot::yLeft, QFont("Sans", 8));
 
+    my.tab = chartTab;
+    my.plots = NULL;
+    my.title = NULL;
+    my.autoScale = true;
+    my.style = NoStyle;
+    my.yMin = -1;
+    my.yMax = -1;
+    my.picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
+			QwtPicker::PointSelection | QwtPicker::DragSelection,
+			QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOff,
+			canvas());
+    my.picker->setRubberBandPen(QColor(Qt::green));
+    my.picker->setRubberBand(QwtPicker::CrossRubberBand);
+    my.picker->setTrackerPen(QColor(Qt::white));
+    connect(my.picker, SIGNAL(selected(const QwtDoublePoint &)),
+			 SLOT(selected(const QwtDoublePoint &)));
+    connect(my.picker, SIGNAL(moved(const QwtDoublePoint &)),
+			 SLOT(moved(const QwtDoublePoint &)));
+
     replot();
-
-    _plots = NULL;
-    _title = NULL;
-    _autoscale = TRUE;
-    _style = None;
-    _ymin = -1;
-    _ymax = -1;
-    _picker = new QwtPlotPicker(
-	    QwtPlot::xBottom, QwtPlot::yLeft,
-            QwtPicker::PointSelection,
-	    QwtPlotPicker::CrossRubberBand,
-	    QwtPicker::AlwaysOff,
-	    canvas());
-    _picker->setRubberBandPen(Qt::green);
-
-    connect(_picker, SIGNAL(selected(const QwtDoublePoint &)),
-	    SLOT(selected(const QwtDoublePoint &)));
-
-    // TODO -- pmchart has right mouse events to expose the Metric
-    // Value Information dialog ... need some alternative UI mechanism
-    // to launch this
-
-    // TODO -- not sure if the moved() signal is going to be useful
-    // ... bode uses the window info area to provide a limited version
-    // of pmchart's Metric Value Information
-    connect(_picker, SIGNAL(moved(const QwtDoublePoint &)),
-	    SLOT(moved(const QwtDoublePoint &)));
-
 }
 
-Chart::~Chart(void)
+Chart::~Chart()
 {
-#if DESPERATE
-    fprintf(stderr, "~Chart() called for this=%p\n", this);
-#endif
+    console->post("Chart::~Chart() for chart %p\n", this);
 
-    if (_plots != NULL) {
-	// free() alloc'd memory
-	unsigned int	m;
-	
-	for (m = 0; m < _metrics.length(); m++) {
-	    if (_plots[m].data != NULL)
-		free(_plots[m].data);
-	    if (_plots[m].plot_data != NULL)
-		free(_plots[m].plot_data);
+    if (my.plots != NULL) {
+	for (int m = 0; m < (int)my.metrics.length(); m++) {
+	    if (my.plots[m].data != NULL)
+		free(my.plots[m].data);
+	    if (my.plots[m].plotData != NULL)
+		free(my.plots[m].plotData);
 	}
-	free(_plots);
+	free(my.plots);
+	my.plots = NULL;
     }
 }
-
-#if DESPERATE
-#define verbose_updates (_tab->isArchiveMode())
-#else
-#define verbose_updates	FALSE
-#endif
 
 void Chart::update(bool forward, bool visible)
 {
-    int	sh = _tab->sampleHistory();
-    int	vh = _tab->visibleHistory();
-    int	idx, i, m;
+    int	sh = my.tab->sampleHistory();
+    int	vh = my.tab->visibleHistory();
+    int	idx, m;
 
-    if (verbose_updates)
-	fprintf(stderr,
-		"Chart::update(forward=%d,visible=%d) sh=%d vh=%d (%d plots)\n",
-		    forward, visible, sh, vh, (int)_metrics.length());
+#if DESPERATE
+    console->post("Chart::update(forward=%d,vis=%d) sh=%d vh=%d (%d plots)\n",
+			forward, visible, sh, vh, (int)my.metrics.length());
+#endif
 
-    if ((int)_metrics.length() < 1) {
-	fprintf(stderr, "Error in setting up this chart, nothing plotted\n");
+    if ((int)my.metrics.length() < 1)
 	return;
-    }
 
-    for (m = 0; m < (int)_metrics.length(); m++) {
-	double	value = _metrics[m]->value(0) * _plots[m].scale;
-	int	sz;
+    for (m = 0; m < (int)my.metrics.length(); m++) {
+	double value = my.metrics[m]->value(0) * my.plots[m].scale;
+	int sz;
 
-	if (_plots[m].dataCount < sh)
-	    sz = max(0, (int)(_plots[m].dataCount * sizeof(double)));
+	if (my.plots[m].dataCount < sh)
+	    sz = qMax(0, (int)(my.plots[m].dataCount * sizeof(double)));
 	else
-	    sz = max(0, (int)((_plots[m].dataCount - 1) * sizeof(double)));
+	    sz = qMax(0, (int)((my.plots[m].dataCount - 1) * sizeof(double)));
 
-	if (verbose_updates) {
-	    extern char *timestring(double);
-	    fprintf(stderr, "BEFORE Chart::update (%s) 0-%d (sz=%d,v=%.2f):\n",
-		    _metrics[m]->name().ptr(), _plots[m].dataCount, sz, value);
-	    for (i = 0; i < _plots[m].dataCount; i++)
-		fprintf(stderr, "\t[%d] data=%.2f\n", i, _plots[m].data[i]);
-	}
+#if DESPERATE
+	console->post("BEFORE Chart::update (%s) 0-%d (sz=%d,v=%.2f):\n",
+		my.metrics[m]->name().ptr(), my.plots[m].dataCount, sz, value);
+	for (i = 0; i < my.plots[m].dataCount; i++)
+	    console->post("\t[%d] data=%.2f\n", i, my.plots[m].data[i]);
+#endif
 
 	if (forward) {
-	    memmove(&_plots[m].data[1], &_plots[m].data[0], sz);
-	    memmove(&_plots[m].plot_data[1], &_plots[m].plot_data[0], sz);
-	    _plots[m].data[0] = value;
+	    memmove(&my.plots[m].data[1], &my.plots[m].data[0], sz);
+	    memmove(&my.plots[m].plotData[1], &my.plots[m].plotData[0], sz);
+	    my.plots[m].data[0] = value;
 	}
 	else {
-	    memmove(&_plots[m].data[0], &_plots[m].data[1], sz);
-	    memmove(&_plots[m].plot_data[0], &_plots[m].plot_data[1], sz);
-	    _plots[m].data[_plots[m].dataCount - 1] = value;
+	    memmove(&my.plots[m].data[0], &my.plots[m].data[1], sz);
+	    memmove(&my.plots[m].plotData[0], &my.plots[m].plotData[1], sz);
+	    my.plots[m].data[my.plots[m].dataCount - 1] = value;
 	}
-	if (_plots[m].dataCount < sh)
-	    _plots[m].dataCount++;
+	if (my.plots[m].dataCount < sh)
+	    my.plots[m].dataCount++;
 
-	if (verbose_updates) {
-	    fprintf(stderr, "AFTER  Chart::update (%s) 0-%d:\n",
-		    _metrics[m]->name().ptr(), _plots[m].dataCount);
-	    for (i = 0; i < _plots[m].dataCount; i++)
-		fprintf(stderr, "\t[%d] data=%.2f time=%s\n",
-			i, _plots[m].data[i], timestring(_tab->timeData()[i]));
-	}
+#if DESPERATE
+	console->post(KmChart::DebugApp, "AFTER Chart::update (%s) 0-%d:\n",
+			my.metrics[m]->name().ptr(), my.plots[m].dataCount);
+	for (int i = 0; i < plots[m].dataCount; i++)
+	    console->post(KmChart::DebugApp, "\t[%d] data=%.2f time=%s\n",
+				i, my.plots[m].data[i],
+				timeString(my.tab->timeData()[i]));
+#endif
     }
 
-    if (_style == Bar || _style == Area) {
+    if (my.style == BarStyle || my.style == AreaStyle) {
 	if (forward)
-	    for (m = 0; m < (int)_metrics.length(); m++)
-		_plots[m].plot_data[0] = _plots[m].data[0];
+	    for (m = 0; m < (int)my.metrics.length(); m++)
+		my.plots[m].plotData[0] = my.plots[m].data[0];
 	else
-	    for (m = 0; m < (int)_metrics.length(); m++) {
-		idx = _plots[m].dataCount - 1;
-		_plots[m].plot_data[idx] = _plots[m].data[idx];
+	    for (m = 0; m < (int)my.metrics.length(); m++) {
+		idx = my.plots[m].dataCount - 1;
+		my.plots[m].plotData[idx] = my.plots[m].data[idx];
 	    }
     }
-    else if (_style == Util) {
+    else if (my.style == UtilisationStyle) {
 	// like Stack, but normalize value to a percentage (0,100)
-	double	sum = 0;
+	double sum = 0;
 	if (forward) {
-	    for (m = 0; m < (int)_metrics.length(); m++)
-		sum += _plots[m].data[0];
+	    for (m = 0; m < (int)my.metrics.length(); m++)
+		sum += my.plots[m].data[0];
 	    if (sum)
-		for (m = 0; m < (int)_metrics.length(); m++)
-		    _plots[m].plot_data[0] = 100 * _plots[m].data[0] / sum;
+		for (m = 0; m < (int)my.metrics.length(); m++)
+		    my.plots[m].plotData[0] = 100 * my.plots[m].data[0] / sum;
 	    else	// avoid divide-by-zero
-		for (m = 0; m < (int)_metrics.length(); m++)
-		    _plots[m].plot_data[0] = 0;
-	    for (m = 1; m < (int)_metrics.length(); m++)
-		_plots[m].plot_data[0] += _plots[m-1].plot_data[0];
+		for (m = 0; m < (int)my.metrics.length(); m++)
+		    my.plots[m].plotData[0] = 0;
+	    for (m = 1; m < (int)my.metrics.length(); m++)
+		my.plots[m].plotData[0] += my.plots[m-1].plotData[0];
 	}
 	else {
-	    for (m = 0; m < (int)_metrics.length(); m++)
-		sum += _plots[m].data[_plots[m].dataCount - 1];
+	    for (m = 0; m < (int)my.metrics.length(); m++)
+		sum += my.plots[m].data[my.plots[m].dataCount - 1];
 	    if (sum)
-		for (m = 0; m < (int)_metrics.length(); m++) {
-		    idx = _plots[m].dataCount - 1;
-		    _plots[m].plot_data[idx] = 100 * _plots[m].data[idx] / sum;
+		for (m = 0; m < (int)my.metrics.length(); m++) {
+		    idx = my.plots[m].dataCount - 1;
+		    my.plots[m].plotData[idx] =
+					(100 * my.plots[m].data[idx] / sum);
 		}
 	    else	// avoid divide-by-zero
-		for (m = 0; m < (int)_metrics.length(); m++)
-		    _plots[m].plot_data[_plots[m].dataCount - 1] = 0;
-	    for (m = 1; m < (int)_metrics.length(); m++) {
-		idx = _plots[m].dataCount - 1;
-		_plots[m].plot_data[idx] += _plots[m-1].plot_data[idx];
+		for (m = 0; m < (int)my.metrics.length(); m++)
+		    my.plots[m].plotData[my.plots[m].dataCount - 1] = 0;
+	    for (m = 1; m < (int)my.metrics.length(); m++) {
+		idx = my.plots[m].dataCount - 1;
+		my.plots[m].plotData[idx] += my.plots[m-1].plotData[idx];
 	    }
 	}
     }
-    else if (_style == Line) {
+    else if (my.style == LineStyle) {
 	if (forward)
-	    for (m = 0; m < (int)_metrics.length(); m++)
-		_plots[m].plot_data[0] = _plots[m].data[0];
+	    for (m = 0; m < (int)my.metrics.length(); m++)
+		my.plots[m].plotData[0] = my.plots[m].data[0];
 	else
-	    for (m = 0; m < (int)_metrics.length(); m++) {
-		idx = _plots[m].dataCount - 1;
-		_plots[m].plot_data[idx] = _plots[m].data[idx];
+	    for (m = 0; m < (int)my.metrics.length(); m++) {
+		idx = my.plots[m].dataCount - 1;
+		my.plots[m].plotData[idx] = my.plots[m].data[idx];
 	    }
     }
-    else if (_style == Stack) {
+    else if (my.style == StackStyle) {
 	// Stack, by adding values cummulatively
 	// TODO -- here and everywhere else we stack (but not Util)
 	// need to _skip_ any plots that are currently being hidden
 	// due to legend pushbutton activity
 
 	if (forward) {
-	    _plots[0].plot_data[0] = _plots[0].data[0];
-	    for (m = 1; m < (int)_metrics.length(); m++)
-		_plots[m].plot_data[0] =
-			_plots[m].data[0] + _plots[m-1].plot_data[0];
+	    my.plots[0].plotData[0] = my.plots[0].data[0];
+	    for (m = 1; m < (int)my.metrics.length(); m++)
+		my.plots[m].plotData[0] =
+			my.plots[m].data[0] + my.plots[m-1].plotData[0];
 	}
 	else {
-	    idx = _plots[0].dataCount - 1;
-	    _plots[0].plot_data[idx] = _plots[0].data[idx];
-	    for (m = 1; m < (int)_metrics.length(); m++) {
-		idx = _plots[m].dataCount - 1;
-		_plots[m].plot_data[idx] =
-			_plots[m].data[idx] + _plots[m-1].plot_data[idx];
+	    idx = my.plots[0].dataCount - 1;
+	    my.plots[0].plotData[idx] = my.plots[0].data[idx];
+	    for (m = 1; m < (int)my.metrics.length(); m++) {
+		idx = my.plots[m].dataCount - 1;
+		my.plots[m].plotData[idx] =
+			my.plots[m].data[idx] + my.plots[m-1].plotData[idx];
 	    }
 	}
     }
 
-    for (m = 0; m < (int)_metrics.length(); m++) {
-	_plots[m].curve->setRawData(_tab->timeData(), _plots[m].plot_data,
-				    min(vh, _plots[m].dataCount));
+    for (m = 0; m < (int)my.metrics.length(); m++) {
+	my.plots[m].curve->setRawData(my.tab->timeAxisData(),
+			my.plots[m].plotData, qMin(vh, my.plots[m].dataCount));
     }
 
-    if (verbose_updates) {
-	for (m = 0; m < (int)_metrics.length(); m++)
-	    fprintf(stderr, "metric[%d] value %f plot %f\n", m,
-		    _metrics[m]->value(0), _plots[m].plot_data[0]);
-    }
+#if DESPERATE
+    for (m = 0; m < (int)my.metrics.length(); m++)
+	console->post(KmChart::DebugApp, "metric[%d] value %f plot %f\n", m,
+			my.metrics[m]->value(0), my.plots[m].plotData[0]);
+#endif
 
     if (visible)
 	replot();
 }
 
-// same as cpuplot Qwt example
-//
 void Chart::showCurve(QwtPlotItem *item, bool on)
 {
     item->setVisible(on);
@@ -294,7 +258,7 @@ void Chart::showCurve(QwtPlotItem *item, bool on)
     replot();
 }
 
-void Chart::fixLegendPen(void)
+void Chart::fixLegendPen()
 {
     // Need to force the pen width in the legend back to 10 pixels
     // for every chart after every legend update ... Qwt provides
@@ -303,18 +267,15 @@ void Chart::fixLegendPen(void)
     // Ditto for the alignment and other visual effects for legend
     // buttons
     if (legendVisible()) {
-	for (int m = 0; m < (int)_metrics.length(); m++) {
-	    QWidget *w = legend()->find(_plots[m].curve);
+	for (int m = 0; m < (int)my.metrics.length(); m++) {
+	    QWidget *w = legend()->find(my.plots[m].curve);
 	    if (w && w->inherits("QwtLegendItem")) {
 		QwtLegendItem	*lip;
 		QPen p;
-		p = _plots[m].curve->pen();
+		p = my.plots[m].curve->pen();
 		p.setWidth(10);
 		lip = (QwtLegendItem *)w;
 		lip->setCurvePen(p);
-#ifdef HACKED_QWT
-		lip->setSunken(false);
-#endif
 	    }
 	}
     }
@@ -323,16 +284,16 @@ void Chart::fixLegendPen(void)
 void Chart::resetDataArrays(int m, int v)
 {
     // Reset sizes of pcp data array, the plot data array, and the time array
-    _plots[m].data = (double *)realloc(_plots[m].data,
-					v * sizeof(_plots[m].data[0]));
-    if (_plots[m].data == NULL)
+    my.plots[m].data = (double *)realloc(my.plots[m].data,
+					(v * sizeof(my.plots[m].data[0])));
+    if (my.plots[m].data == NULL)
 	nomem();
-    _plots[m].plot_data = (double *)realloc(_plots[m].plot_data,
-					v * sizeof(_plots[m].plot_data[0]));
-    if (_plots[m].plot_data == NULL)
+    my.plots[m].plotData = (double *)realloc(my.plots[m].plotData,
+					(v * sizeof(my.plots[m].plotData[0])));
+    if (my.plots[m].plotData == NULL)
 	nomem();
-    if (_plots[m].dataCount > v)
-	_plots[m].dataCount = v;
+    if (my.plots[m].dataCount > v)
+	my.plots[m].dataCount = v;
 }
 
 // add a new plot
@@ -341,110 +302,105 @@ void Chart::resetDataArrays(int m, int v)
 //
 int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
 {
-    int			maxCount;
-    PMC_Metric		*mp;
-    pmDesc		desc;
-    int			m;
+    int maxCount;
+    PMC_Metric *mp;
+    pmDesc desc;
+    int m, size;
 
-#if DESPERATE
-    fprintf(stderr, "Chart::addPlot(s)");
-    if (pmsp->isarch)
-	fprintf(stderr, " archive %s/", pmsp->source);
-    else
-	fprintf(stderr, " host %s:", pmsp->source);
+    console->post("Chart::addPlot src=%s", pmsp->source);
     if (pmsp->ninst == 0)
-	fprintf(stderr, "%s\n", pmsp->metric);
+	console->post("addPlot metric=%s", pmsp->metric);
     else
-	fprintf(stderr, "%s[%s]\n", pmsp->metric, pmsp->inst[0]);
-#endif
+	console->post("addPlot instance %s[%s]\n", pmsp->metric, pmsp->inst[0]);
 
-    mp = _tab->group()->addMetric(pmsp, 0.0, PMC_true);
+    mp = my.tab->group()->addMetric(pmsp, 0.0, PMC_true);
     if (mp->status() < 0)
 	return mp->status();
     desc = mp->desc().desc();
 
     maxCount = 0;
-    for (m = 0; m < (int)_metrics.length(); m++) {
-	if (_plots[m].dataCount > maxCount)
-	    maxCount = _plots[m].dataCount;
+    for (m = 0; m < (int)my.metrics.length(); m++) {
+	if (my.plots[m].dataCount > maxCount)
+	    maxCount = my.plots[m].dataCount;
     }
-    _metrics.append(mp);
-#if DESPERATE
-    fprintf(stderr, "_metrics.length = %d\n", (int)_metrics.length());
-#endif
-    _plots = (plot_t *)realloc(_plots, _metrics.length()*sizeof(_plots[0]));
-    if (_plots == NULL) nomem();
-    m = _metrics.length() - 1;
-    _plots[m].name = new PMC_String(pmsp->metric);
-fprintf(stderr, "%s: NINST=%d\n", __func__, pmsp->ninst);
+    my.metrics.append(mp);
+    size = my.metrics.length() * sizeof(my.plots[0]);
+    console->post("addPlot metrics.length = %d (new size=%d)\n",
+			(int)my.metrics.length(), size);
+    my.plots = (Plot *)realloc(my.plots, size);
+    if (my.plots == NULL)
+	nomem();
+    m = my.metrics.length() - 1;
+    my.plots[m].name = new PMC_String(pmsp->metric);
     if (pmsp->ninst == 1) {
-	_plots[m].name->append("[");
-	_plots[m].name->append(pmsp->inst[0]);
-	_plots[m].name->append("]");
+	my.plots[m].name->append("[");
+	my.plots[m].name->append(pmsp->inst[0]);
+	my.plots[m].name->append("]");
     }
-fprintf(stderr, "%s: NAME=%s\n", __func__, _plots[m].name->ptr());
-    // build the legend label string, even if the chart is declared
+    //
+    // Build the legend label string, even if the chart is declared
     // "legend off" so that subsequent Edit->Chart Title and Legend
     // changes can turn the legend on and off dynamically
+    //
     if (legend != NULL) {
-	_plots[m].legend = strdup(legend);
-	_plots[m].legend_label = new PMC_String(legend);
+	my.plots[m].legend = strdup(legend);
+	my.plots[m].legendLabel = new PMC_String(legend);
     }
     else {
-	_plots[m].legend = NULL;
-#define MAX_LEGEND_LEN 20
-	if (_plots[m].name->length() > MAX_LEGEND_LEN) {
+	my.plots[m].legend = NULL;
+	if ((int)my.plots[m].name->length() > KmChart::maximumLegendLength) {
 	    // show name as ...[end of name]
-	    char	*q = _plots[m].name->ptr();
-	    _plots[m].legend_label = new PMC_String("...");
-	    q = &q[_plots[m].name->length() - MAX_LEGEND_LEN - 3];
-	    _plots[m].legend_label->append(q);
+	    char *q = my.plots[m].name->ptr();
+	    my.plots[m].legendLabel = new PMC_String("...");
+	    size = my.plots[m].name->length() - KmChart::maximumLegendLength -3;
+	    q = &q[size];
+	    my.plots[m].legendLabel->append(q);
 	}
 	else
-	    _plots[m].legend_label = new PMC_String(_plots[m].name->ptr());
+	    my.plots[m].legendLabel = new PMC_String(my.plots[m].name->ptr());
     }
 
     // initialize the pcp data and plot data arrays
-    _plots[m].dataCount = 0;
-    _plots[m].data = NULL;
-    _plots[m].plot_data = NULL;
-    resetDataArrays(m, _tab->sampleHistory());
+    my.plots[m].dataCount = 0;
+    my.plots[m].data = NULL;
+    my.plots[m].plotData = NULL;
+    resetDataArrays(m, my.tab->sampleHistory());
 
     // create and attach the plot right here
-    _plots[m].curve = new QwtPlotCurve(_plots[m].legend_label->ptr());
-    _plots[m].curve->attach(this);
+    my.plots[m].curve = new QwtPlotCurve(my.plots[m].legendLabel->ptr());
+    my.plots[m].curve->attach(this);
 
     // the 1000 is arbitrary ... just want numbers to be monotonic
     // decreasing as plots are added
-    _plots[m].curve->setZ(1000-m);
+    my.plots[m].curve->setZ(1000-m);
 
     // force plot to be visible, legend visibility is controlled by
     // legend() to a state matching the initial state
-    showCurve(_plots[m].curve, TRUE);
-    _plots[m].removed = FALSE;
+    showCurve(my.plots[m].curve, true);
+    my.plots[m].removed = false;
 
     // set default color ... may call setColor to change subsequently
     setColor(m, defaultColor(m));
 
     // set the prevailing chart style
-    setStyle(_style);
+    setStyle(my.style);
 
     fixLegendPen();
 
     // Set all the values for all plots from dataCount to maxCount to zero
     // so that the Stack <--> Line transitions work correctly
-    for (int m = 0; m < (int)_metrics.length(); m++) {
-	for (int i = _plots[m].dataCount+1; i < maxCount; i++)
-	    _plots[m].data[i] = 0;
+    for (int m = 0; m < (int)my.metrics.length(); m++) {
+	for (int i = my.plots[m].dataCount+1; i < maxCount; i++)
+	    my.plots[m].data[i] = 0;
 	// don't re-set dataCount ... so we don't plot these values,
 	// we just want them to count 0 towards any Stack aggregation
     }
 
-    if (_metrics.length() == 1) {
+    if (my.metrics.length() == 1) {
 	// first plot, set y-axis title
 	if (desc.sem == PM_SEM_COUNTER) {
 	    if (desc.units.dimTime == 0) {
-		if (_style == Util)
+		if (my.style == UtilisationStyle)
 		    setYAxisTitle("% utilization");
 		else {
 		    desc.units.dimTime = -1;
@@ -453,7 +409,7 @@ fprintf(stderr, "%s: NAME=%s\n", __func__, _plots[m].name->ptr());
 		}
 	    }
 	    else if (desc.units.dimTime == 1) {
-		if (_style == Util)
+		if (my.style == UtilisationStyle)
 		    setYAxisTitle("% time utilization");
 		else
 		    setYAxisTitle("time utilization");
@@ -462,81 +418,81 @@ fprintf(stderr, "%s: NAME=%s\n", __func__, _plots[m].name->ptr());
 		// TODO -- rate conversion when units.dimTime != 0 ...
 		// check what libpcp_pmc does with this, then make the
 		// y axis label match
-		if (_style == Util)
+		if (my.style == UtilisationStyle)
 		    setYAxisTitle("% utilization");
 		else
 		    setYAxisTitle((char *)pmUnitsStr(&desc.units));
 	    }
 	}
 	else {
-	    if (_style == Util)
+	    if (my.style == UtilisationStyle)
 		setYAxisTitle("% utilization");
 	    else
 		setYAxisTitle((char *)pmUnitsStr(&desc.units));
 	}
     }
 
-    _plots[m].scale = 1;
+    my.plots[m].scale = 1;
     if (desc.sem == PM_SEM_COUNTER && desc.units.dimTime == 1 &&
-	_style != Util) {
+	my.style != UtilisationStyle) {
 	// value to plot is time / time ... set scale
 	if (desc.units.scaleTime == PM_TIME_USEC)
-	    _plots[m].scale = 0.000001;
+	    my.plots[m].scale = 0.000001;
 	else if (desc.units.scaleTime == PM_TIME_MSEC)
-	    _plots[m].scale = 0.001;
+	    my.plots[m].scale = 0.001;
     }
 
-    return(_metrics.length()-1);
+    return my.metrics.length() - 1;
 }
 
 void Chart::delPlot(int m)
 {
-fprintf(stderr, "%s: needs verification (plot %d)\n", __func__, m);
+    console->post("Chart::delPlot plot=%d\n", m);
 
-    showCurve(_plots[m].curve, FALSE);
-    legend()->remove(_plots[m].curve);
-    _plots[m].removed = TRUE;
+    showCurve(my.plots[m].curve, false);
+    legend()->remove(my.plots[m].curve);
+    my.plots[m].removed = true;
 
     // We can't really do this properly (free memory, etc) - working around
     // libpcp_pmc limits (its using an ordinal index for metrics, remove any
-    // and we'll get problems.  Which means the _plots array must also remain
+    // and we'll get problems.  Which means the plots array must also remain
     // unchanged, as we drive things via the metriclist at times.  D'oh.
     // This blows - it means we have to continue to fetch metrics for those
-    // metrics that have been removed from the chart.
+    // metrics that have been removed from the chart, which may be remote
+    // hosts, hosts which are down (introducing retry issues...).  Bother.
 
-    //delete _plots[m].curve;
-    //delete _plots[m].legend_label;
-    //free(_plots[m].legend);
-    //_metrics.remove(m);
+    //delete my.plots[m].curve;
+    //delete my.plots[m].legendLabel;
+    //free(my.plots[m].legend);
+    //my.metrics.remove(m);
 }
 
-int Chart::numPlot(void)
+int Chart::numPlot()
 {
-    return _metrics.length();
+    return my.metrics.length();
 }
 
-char *Chart::title(void)
+char *Chart::title()
 {
-    return _title;
+    return my.title;
 }
 
 // expand is true to expand %h to host name in title
 //
 void Chart::changeTitle(char *title, int expand)
 {
-    if (_title) {
-	free(_title);
-	_title = NULL;
+    if (my.title) {
+	free(my.title);
+	my.title = NULL;
     }
     if (title != NULL) {
-	QwtText		t;
-	char		*w;
-
-	t = titleLabel()->text();
+	QwtText t = titleLabel()->text();
 	t.setFont(QFont("Sans", 8));
 	setTitle(t);
-	_title = strdup(title);
+	my.title = strdup(title);
 
+	// TODO: rewrite this using QString API, waay simpler
+	char *w;
 	if (expand && (w = strstr(title, "%h")) != NULL) {
 	    // expand %h -> (short) hostname in title
 	    char	*tmp;
@@ -544,7 +500,8 @@ void Chart::changeTitle(char *title, int expand)
 	    char	*host;
 
 	    tmp = (char *)malloc(MAXHOSTNAMELEN+strlen(title));
-	    if (tmp == NULL) nomem();
+	    if (tmp == NULL)
+		nomem();
 	    *w = '\0';	// copy up to (but not including) the %
 	    strcpy(tmp, title);
 	    host = strdup((char *)activeSources->source());
@@ -558,196 +515,186 @@ void Chart::changeTitle(char *title, int expand)
 	    free(tmp);
 	}
 	else 
-	    setTitle(title);
-
+	    setTitle(my.title);
     }
     else
 	setTitle(NULL);
-
 }
 
-chartStyle Chart::style(void)
+void Chart::changeTitle(QString title, int expand)
 {
-    return _style;
+    changeTitle((char *)(const char *)title.toAscii(), expand);
 }
 
-int Chart::setStyle(chartStyle style)
+Chart::Style Chart::style()
 {
-    int			maxCount;
-    double		sum;
-#if DESPERATE
-    fprintf(stderr, "Chart::setStyle(%d) [was %d]\n", style, _style);
-#endif
-    maxCount = 0;
-    for (int m = 0; m < (int)_metrics.length(); m++) {
-	if (_plots[m].dataCount > maxCount)
-	    maxCount = _plots[m].dataCount;
-    }
+    return my.style;
+}
+
+int Chart::setStyle(Style style)
+{
+    console->post("Chart::setStyle(%d) [was %d]\n", style, my.style);
+
+    int maxCount = 0;
+    for (int m = 0; m < (int)my.metrics.length(); m++)
+	maxCount = qMax(maxCount, my.plots[m].dataCount);
 
     switch (style) {
-	case None:
-	    fprintf(stderr, "Chart::setStyle: plot style None botch!\n");
+	case BarStyle:
+	    for (int m = 0; m < (int)my.metrics.length(); m++) {
+		my.plots[m].curve->setStyle(QwtPlotCurve::Sticks);
+		my.plots[m].curve->setBrush(Qt::NoBrush);
+	    }
+	    break;
+
+	case AreaStyle:
+	    for (int m = 0; m < (int)my.metrics.length(); m++) {
+		my.plots[m].curve->setStyle(QwtPlotCurve::Lines);
+		my.plots[m].curve->setBrush(QBrush(QColor(), Qt::SolidPattern));
+	    }
+	    break;
+
+	case UtilisationStyle:
+	    for (int m = 0; m < (int)my.metrics.length(); m++) {
+		my.plots[m].curve->setStyle(QwtPlotCurve::Steps);
+		my.plots[m].curve->setBrush(QBrush(QColor(), Qt::SolidPattern));
+	    }
+	    setScale(false, 0.0, 100.0);
+	    if (my.style != UtilisationStyle) {
+		// Need to redo the munging of plotData[]
+		for (int i = maxCount-1; i >= 0; i--) {
+		    double sum = 0;
+		    for (int m = 0; m < (int)my.metrics.length(); m++) {
+			if (my.plots[m].dataCount > i)
+			    sum += my.plots[m].data[i];
+		    }
+		    for (int m = 0; m < (int)my.metrics.length(); m++) {
+			if (sum != 0 && my.plots[m].dataCount > i)
+			    my.plots[m].plotData[i] = 
+						100 * my.plots[m].data[i] / sum;
+			else
+			    my.plots[m].plotData[i] = 0;
+		    }
+#ifdef STACK_BOTTOM_2_TOP
+		    for (int m = 1; m < (int)my.metrics.length(); m++) {
+			if (sum != 0 && my.plots[m].dataCount > i)
+			    my.plots[m].plotData[i] +=
+						my.plots[m-1].plotData[i];
+		    }
+#else
+		    for (int m = (int)my.metrics.length()-2; m >= 0; m--) {
+			if (sum != 0 && my.plots[m].dataCount > i)
+			    my.plots[m].plotData[i] +=
+						my.plots[m+1].plotData[i];
+		    }
+#endif
+		}
+	    }
+	    break;
+
+	case LineStyle:
+	    for (int m = 0; m < (int)my.metrics.length(); m++) {
+		my.plots[m].curve->setStyle(QwtPlotCurve::Lines);
+		my.plots[m].curve->setBrush(Qt::NoBrush);
+	    }
+	    if (my.style != LineStyle) {
+		// Need to undo any munging of plotData[]
+		for (int m = 0; m < (int)my.metrics.length(); m++) {
+		    for (int i = my.plots[m].dataCount-1; i >= 0; i--) {
+			my.plots[m].plotData[i] = my.plots[m].data[i];
+		    }
+		}
+	    }
+	    break;
+
+	case StackStyle:
+	    for (int m = 0; m < (int)my.metrics.length(); m++) {
+		my.plots[m].curve->setStyle(QwtPlotCurve::Steps);
+		my.plots[m].curve->setBrush(QBrush(QColor(), Qt::SolidPattern));
+	    }
+	    if (my.style != StackStyle) {
+		// Need to redo the munging of plotData[]
+		for (int i = maxCount-1; i >= 0; i--) {
+#ifdef STACK_BOTTOM_2_TOP
+		    if (my.plots[0].dataCount > i)
+			my.plots[0].plotData[i] = my.plots[0].data[i];
+		    else
+			my.plots[0].plotData[i] = 0;
+		    for (int m = 1; m < (int)my.metrics.length(); m++) {
+			if (my.plots[m].dataCount > i)
+			    my.plots[m].plotData[i] = 
+				my.plots[m].data[i] + my.plots[m-1].plotData[i];
+			else
+			    my.plots[m].plotData[i] = my.plots[m-1].plotData[i];
+		    }
+#else
+		    if (my.plots[(int)my.metrics.length()-1].dataCount > i)
+			my.plots[(int)my.metrics.length()-1].plotData[i] =
+			    my.plots[(int)my.metrics.length()-1].data[i];
+		    else
+			my.plots[(int)my.metrics.length()-1].plotData[i] = 0;
+		    for (int m = (int)my.metrics.length()-2; m >= 0; m--) {
+			if (my.plots[m].dataCount > i)
+			    my.plots[m].plotData[i] = 
+				my.plots[m].data[i] + my.plots[m+1].plotData[i];
+			else
+			    my.plots[m].plotData[i] = my.plots[m+1].plotData[i];
+		    }
+#endif
+		}
+	    }
+	    break;
+
+	case NoStyle:
+	default:
 	    abort();
-	    /*NOTREACHED*/
-
-	case Bar:
-	    // TODO -- not supported yet ... error status?
-	    for (int m = 0; m < (int)_metrics.length(); m++) {
-		_plots[m].curve->setStyle(QwtPlotCurve::Sticks);
-		_plots[m].curve->setBrush(QBrush::NoBrush);
-	    }
-	    break;
-
-	case Area:
-	    for (int m = 0; m < (int)_metrics.length(); m++) {
-		_plots[m].curve->setStyle(QwtPlotCurve::Lines);
-		_plots[m].curve->setBrush(QBrush(QColor(), Qt::SolidPattern));
-	    }
-	    break;
-
-	case Util:
-	    for (int m = 0; m < (int)_metrics.length(); m++) {
-		_plots[m].curve->setStyle(QwtPlotCurve::Steps);
-		_plots[m].curve->setBrush(QBrush(QColor(), Qt::SolidPattern));
-	    }
-	    setScale(FALSE, 0.0, 100.0);
-	    if (_style != Util) {
-		// Need to redo the munging of plot_data[]
-		for (int i = maxCount-1; i >= 0; i--) {
-		    sum = 0;
-		    for (int m = 0; m < (int)_metrics.length(); m++) {
-			if (_plots[m].dataCount > i)
-			    sum += _plots[m].data[i];
-		    }
-		    for (int m = 0; m < (int)_metrics.length(); m++) {
-			if (sum != 0 && _plots[m].dataCount > i)
-			    _plots[m].plot_data[i] = 100 * _plots[m].data[i] / sum;
-			else
-			    _plots[m].plot_data[i] = 0;
-		    }
-#ifdef STACK_BOTTOM_2_TOP
-		    for (int m = 1; m < (int)_metrics.length(); m++) {
-			if (sum != 0 && _plots[m].dataCount > i)
-			    _plots[m].plot_data[i] += _plots[m-1].plot_data[i];
-		    }
-#else
-		    for (int m = (int)_metrics.length()-2; m >= 0; m--) {
-			if (sum != 0 && _plots[m].dataCount > i)
-			    _plots[m].plot_data[i] += _plots[m+1].plot_data[i];
-		    }
-#endif
-		}
-	    }
-	    break;
-
-	case Line:
-	    for (int m = 0; m < (int)_metrics.length(); m++) {
-		_plots[m].curve->setStyle(QwtPlotCurve::Lines);
-		_plots[m].curve->setBrush(QBrush::NoBrush);
-	    }
-	    if (_style != Line) {
-		// Need to undo any munging of plot_data[]
-		for (int m = 0; m < (int)_metrics.length(); m++) {
-		    for (int i = _plots[m].dataCount-1; i >= 0; i--) {
-			_plots[m].plot_data[i] = _plots[m].data[i];
-		    }
-		}
-	    }
-	    break;
-
-	case Stack:
-	    for (int m = 0; m < (int)_metrics.length(); m++) {
-		_plots[m].curve->setStyle(QwtPlotCurve::Steps);
-		_plots[m].curve->setBrush(QBrush(QColor(), Qt::SolidPattern));
-	    }
-	    if (_style != Stack) {
-		// Need to redo the munging of plot_data[]
-		for (int i = maxCount-1; i >= 0; i--) {
-#ifdef STACK_BOTTOM_2_TOP
-		    if (_plots[0].dataCount > i)
-			_plots[0].plot_data[i] = _plots[0].data[i];
-		    else
-			_plots[0].plot_data[i] = 0;
-		    for (int m = 1; m < (int)_metrics.length(); m++) {
-			if (_plots[m].dataCount > i)
-			    _plots[m].plot_data[i] = 
-				_plots[m].data[i] + _plots[m-1].plot_data[i];
-			else
-			    _plots[m].plot_data[i] = _plots[m-1].plot_data[i];
-		    }
-#else
-		    if (_plots[(int)_metrics.length()-1].dataCount > i)
-			_plots[(int)_metrics.length()-1].plot_data[i] =
-			    _plots[(int)_metrics.length()-1].data[i];
-		    else
-			_plots[(int)_metrics.length()-1].plot_data[i] = 0;
-		    for (int m = (int)_metrics.length()-2; m >= 0; m--) {
-			if (_plots[m].dataCount > i)
-			    _plots[m].plot_data[i] = 
-				_plots[m].data[i] + _plots[m+1].plot_data[i];
-			else
-			    _plots[m].plot_data[i] = _plots[m+1].plot_data[i];
-		    }
-#endif
-		}
-	    }
-	    break;
-
     }
-    _style = style;
-
-    return(0);
+    my.style = style;
+    return 0;
 }
 
 QColor Chart::color(int m)
 {
-    if (m >= 0 && m < (int)_metrics.length())
-	return _plots[m].color;
-    else
-	return QColor("white");
-    /*NOTREACHED*/
+    if (m >= 0 && m < (int)my.metrics.length())
+	return my.plots[m].color;
+    return QColor("white");
 }
 
 int Chart::setColor(int m, QColor c)
 {
-    if (m >= 0 && m < (int)_metrics.length()) {
-#if DESPERATE
-	fprintf(stderr, "Chart::setColor(%d, r=%02x g=%02x b=%02x)\n", m, c.red(), c.green(), c.blue());
-#endif
-	_plots[m].color = c;
-	_plots[m].curve->setPen(QPen(c));
-	return(0);
+    console->post("Chart::setColor(%d, r=%02x g=%02x b=%02x)\n",
+			m, Qt::red, Qt::green, Qt::blue);
+    if (m >= 0 && m < (int)my.metrics.length()) {
+	my.plots[m].color = c;
+	my.plots[m].curve->setPen(c);
+	my.plots[m].curve->setBrush(c);
+	return 0;
     }
-    else {
-#if DESPERATE
-	fprintf(stderr, "Chart::setColor(%d, r=%02x g=%02x b=%02x) BAD m=%d length()=%d\n", m, c.red(), c.green(), c.blue(), m, _metrics.length());
-#endif
-	// TODO - error status?
-	return(-1);
-    }
+    console->post("Chart::setColor - BAD metric index specified (%d)?\n", m);
+    return -1;
 }
 
-void Chart::scale(bool *autoscale, double *ymin, double *ymax)
+void Chart::scale(bool *autoScale, double *yMin, double *yMax)
 {
-    *autoscale = _autoscale;
-    *ymin = _ymin;
-    *ymax = _ymax;
+    *autoScale = my.autoScale;
+    *yMin = my.yMin;
+    *yMax = my.yMax;
 }
 
-void Chart::setScale(bool autoscale, double ymin, double ymax)
+void Chart::setScale(bool autoScale, double yMin, double yMax)
 {
-    _autoscale = autoscale;
-    _ymin = ymin;
-    _ymax = ymax;
-    if (autoscale)
+    my.yMin = yMin;
+    my.yMax = yMax;
+    my.autoScale = autoScale;
+    if (my.autoScale)
 	setAxisAutoScale(QwtPlot::yLeft);
     else
-	setAxisScale(QwtPlot::yLeft, ymin, ymax);
+	setAxisScale(QwtPlot::yLeft, yMin, yMax);
 }
 
 void Chart::setYAxisTitle(char *p)
 {
-    QwtText	*t;
+    QwtText *t;
 
     if (!p || *p == '\0')
 	t = new QwtText(" ");	// for y-axis alignment (space is invisible)
@@ -760,32 +707,23 @@ void Chart::setYAxisTitle(char *p)
 
 void Chart::selected(const QwtDoublePoint &p)
 {
-    (void)p;
-#if DESPERATE
-    fprintf(stderr, "Chart::selected(...) this=%p x=%f y=%f\n", this, (float)p.x(), (float)p.y());
-#endif
-    _tab->setCurrent(this);
+    console->post("Chart::selected chart=%p x=%f y=%f\n",
+			this, (float)p.x(), (float)p.y());
+    my.tab->setCurrent(this);
 }
 
-// TODO -- see comments above about usefuleness of moved() signal
-// handling
 void Chart::moved(const QwtDoublePoint &p)
 {
-    (void)p;
-#if DESPERATE
-    fprintf(stderr, "Chart::moved(...) this=%p x=%f y=%f\n", this, (float)p.x(), (float)p.y());
-#endif
+    console->post("Chart::moved chart=%p x=%f y=%f\n",
+			this, (float)p.x(), (float)p.y());
 }
 
 bool Chart::legendVisible()
 {
-    // Legend is on or off for all plots, only need to test the first
-    // plot
-    if (_metrics.length() > 0)
+    // Legend is on or off for all plots, only need to test the first plot
+    if (my.metrics.length() > 0)
 	return legend() != NULL;
-    else
-	return FALSE;
-    /*NOTREACHED*/
+    return false;
 }
 
 // Clickable legend styled after the Qwt cpuplot demo.
@@ -795,9 +733,8 @@ bool Chart::legendVisible()
 //
 void Chart::setLegendVisible(bool on)
 {
-#if DESPERATE
-    fprintf(stderr, "Chart::setLegendVisible(%d) legend()=%p\n", on, legend());
-#endif
+    console->post("Chart::setLegendVisible(%d) legend()=%p\n", on, legend());
+
     if (on) {
 	if (legend() == NULL) {
 	    // currently disabled, enable it
@@ -810,8 +747,8 @@ void Chart::setLegendVisible(bool on)
 	    insertLegend(l, QwtPlot::BottomLegend);
 	    // force each Legend item to "checked" state matching
 	    // the initial plotting state
-	    for (int m = 0; m < (int)_metrics.length(); m++) {
-		showCurve(_plots[m].curve, !_plots[m].removed);
+	    for (int m = 0; m < (int)my.metrics.length(); m++) {
+		showCurve(my.plots[m].curve, !my.plots[m].removed);
 	    }
 	}
     }
@@ -820,39 +757,40 @@ void Chart::setLegendVisible(bool on)
 	if (l != NULL) {
 	    // currently enabled, disable it
 	    insertLegend(NULL, QwtPlot::BottomLegend);
-	    delete l;
+	    // TODO: this can cause a core dump - needs investigating [memleak]
+	    // delete l;
 	}
     }
 }
 
 PMC_String *Chart::name(int m)
 {
-    return _plots[m].name;
+    return my.plots[m].name;
 }
 
-char *Chart::legend_spec(int m)
+char *Chart::legendSpec(int m)
 {
-    return _plots[m].legend;
+    return my.plots[m].legend;
 }
 
 PMC_Desc *Chart::metricDesc(int m)
 {
-    return (PMC_Desc *)&_metrics[m]->desc();
+    return (PMC_Desc *)&my.metrics[m]->desc();
 }
 
 PMC_String *Chart::metricName(int m)
 {
-    return (PMC_String *)&_metrics[m]->name();
+    return (PMC_String *)&my.metrics[m]->name();
 }
 
 PMC_Context *Chart::metricContext(int m)
 {
-    return (PMC_Context *)&_metrics[m]->context();
+    return (PMC_Context *)&my.metrics[m]->context();
 }
 
 QString Chart::pmloggerMetricSyntax(int m)
 {
-    PMC_Metric *metric = _metrics[m];
+    PMC_Metric *metric = my.metrics[m];
     QString syntax = metric->name().ptr();
 
     if (metric->numInst() == 1) {
@@ -873,78 +811,75 @@ QSize Chart::sizeHint() const
     return QSize(150,100);	// TODO: hmm, seems pretty random?
 }
 
-void Chart::setupListView(QListView *listview)
+void Chart::setupTree(QTreeWidget *tree)
 {
-    uint	i;
-    QString	src;
-
-    listview->clear();
-    for (i = 0; i < _metrics.length(); i++) {
-	if (!_plots[i].removed)
-	    addToList(listview, tr(_plots[i].name->ptr()),
-		      &_metrics[i]->context(), _metrics[i]->hasInstances(), 
-		      _tab->isArchiveMode(), _plots[i].color);
+    tree->clear();
+    for (uint i = 0; i < my.metrics.length(); i++) {
+	if (!my.plots[i].removed)
+	    addToTree(tree, tr(my.plots[i].name->ptr()),
+		      &my.metrics[i]->context(), my.metrics[i]->hasInstances(), 
+		      my.tab->isArchiveSource(), my.plots[i].color);
     }
 }
 
-void Chart::addToList(QListView *listview, QString metric,
+void Chart::addToTree(QTreeWidget *treeview, QString metric,
 	const PMC_Context *context, bool isInst, bool isArch, QColor &color)
 {
     QRegExp regex(tr("\\.|\\[|\\]"));
     QString source = Source::makeSourceAnnotatedName(context);
     QStringList	baselist;
 
-fprintf(stderr, "%s: src='%s' metric=%s, isInst=%d isArch=%d\n",
-	__FUNCTION__, source.ascii(), metric.ascii(), isInst, isArch);
+    console->post("Chart::addToTree src=%s metric=%s, isInst=%d isArch=%d\n",
+		(const char *)source.toAscii(), (const char *)metric.toAscii(),
+		isInst, isArch);
 
-    baselist = QStringList::split(regex, metric);
+    baselist = metric.split(regex);
     baselist.prepend(source);	// add the host/archive root as well.
 
     // Walk through each component of this name, creating them in the
-    // target listview (if not there already), right down to the leaf.
+    // target tree (if not there already), right down to the leaf.
 
-    NameSpace *n, *tree = NULL;
-    QListViewItem *last = listview->firstChild();
+    NameSpace *tree = (NameSpace *)treeview->invisibleRootItem();
+    QTreeWidgetItem *item = NULL;
     QStringList::Iterator blit;
     for (blit = baselist.begin(); blit != baselist.end(); ++blit) {
-	do {
-	    if (last && *blit == last->text(1)) {
+	QString text = *blit;
+	for (int i = 0; i < tree->childCount(); i++) {
+	    item = tree->child(i);
+	    if (text == item->text(1)) {
 		// no insert at this level necessary, move down a level
-		if (*blit != baselist.last()) {	// non-leaf
-		    tree = (NameSpace *)last;
-		    last = last->firstChild();
-		}
+		tree = (NameSpace *)item;
 		break;
 	    }
-	    // else keep scanning the direct children.
-	} while (last && (last = last->nextSibling()) != NULL);
+	}
 
 	/* when no more children and no match so far, we create & insert */
-	if (!last) {
-	    if (*blit == baselist.first()) {
-		n = new NameSpace(listview, context, isArch);
-		n->setSelectable(FALSE);
-		n->setExpandable(TRUE);
-	        n->setExpanded(TRUE);
-		n->setOpen(TRUE);
+	if (!item) {
+	    NameSpace *n;
+	    if (blit == baselist.begin()) {
+		n = new NameSpace(treeview, context, isArch);
+		n->setExpandable(true);
+		n->setSelectable(false);
+	        n->setExpanded(true);
+		n->setOpen(true);
 	    }
 	    else {
-		bool isLeaf = (*blit == baselist.last());
-		n = new NameSpace(tree, (*blit).ascii(), isLeaf&isInst, isArch);
+		bool isLeaf = (blit == baselist.end());
+		n = new NameSpace(tree, text, isLeaf && isInst, isArch);
 		if (isLeaf) {
 		    n->setOriginalColor(color);
 		    n->setCurrentColor(color, NULL);
 		}
 		n->setExpandable(!isLeaf);
 		n->setSelectable(isLeaf);
-	        n->setExpanded(TRUE);
+	        n->setExpanded(true);
 		n->setOpen(!isLeaf);
 		if (!isLeaf)
-		    n->setType(NONLEAF_NAME);
-		else if (isInst)	// constructor sets INSTANCE_TYPE
-		    tree->setType(LEAF_WITH_INDOM);
+		    n->setType(NameSpace::NonLeafName);
+		else if (isInst)	// constructor sets Instance type
+		    tree->setType(NameSpace::LeafWithIndom);
 		else
-		    n->setType(LEAF_NULL_INDOM);
+		    n->setType(NameSpace::LeafNullIndom);
 	    }
 	    tree = n;
 	}

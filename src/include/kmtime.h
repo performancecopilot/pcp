@@ -1,75 +1,107 @@
-/*
- * Copyright (C) 2006-2007 Nathan Scott.  All Rights Reserved.
- *
- * This library is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
- * License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
- */
 #ifndef KMTIME_H
 #define KMTIME_H
 
 #include <sys/time.h>
 
-typedef enum {
-    KM_TCTL_SET		= (1<<0),	// client -> server
-    KM_TCTL_STEP	= (1<<1),	// server -> clients
-    KM_TCTL_TZ		= (1<<2),	// server -> clients
-    KM_TCTL_VCRMODE	= (1<<3),	// server -> clients
-    KM_TCTL_VCRMODE_DRAG= (1<<4),	// server -> clients
-    KM_TCTL_GUISHOW	= (1<<5),	// client -> server
-    KM_TCTL_GUIHIDE	= (1<<6),	// client -> server
-    KM_TCTL_BOUNDS	= (1<<7),	// client -> server
-    KM_TCTL_ACK		= (1<<8),	// client -> server (except handshake)
-    KM_TCTL_GUISTYLE	= (1<<9),	// client <-> server (both ways)
-} km_tctl_command;
+class QIcon;
 
-typedef enum {
-    KM_STATE_STOP	= 0,
-    KM_STATE_FORWARD	= 1,
-    KM_STATE_BACKWARD	= 2,
-} km_tctl_state;
+class KmTime
+{
+public:
+    typedef enum {
+	StoppedState	= 0,
+	ForwardState	= 1,
+	BackwardState	= 2,
+    } State;
 
-typedef enum {
-    KM_MODE_STEP	= 0,
-    KM_MODE_NORMAL	= 1,
-    KM_MODE_FAST	= 2,
-} km_tctl_mode;
+    typedef enum {
+	StepMode	= 0,
+	NormalMode	= 1,
+	FastMode	= 2,
+    } Mode;
 
-typedef enum {
-    KM_SOURCE_NONE	= -1,
-    KM_SOURCE_HOST	= 0,
-    KM_SOURCE_ARCHIVE	= 1,
-} km_tctl_source;
+    typedef enum {
+	NoSource	= -1,
+	HostSource	= 0,
+	ArchiveSource	= 1,
+    } Source;
 
-#define KMTIME_MAGIC	0x54494D45	/* "TIME" */
+    typedef enum {
+	Set		= (1<<0),	// client -> server
+	Step		= (1<<1),	// server -> clients
+	TZ		= (1<<2),	// server -> clients
+	VCRMode		= (1<<3),	// server -> clients
+	VCRModeDrag	= (1<<4),	// server -> clients
+	GUIShow		= (1<<5),	// client -> server
+	GUIHide		= (1<<6),	// client -> server
+	Bounds		= (1<<7),	// client -> server
+	ACK		= (1<<8),	// client -> server (except handshake)
+	GUIStyle	= (1<<9),	// client <-> server (both ways)
+    } Command;
 
-typedef struct {
-    unsigned int	magic;
-    unsigned int	length;
-    km_tctl_command	command;
-    km_tctl_source	source;
-    km_tctl_state	state;
-    km_tctl_mode	mode;
-    struct timeval	delta;
-    struct timeval	position;
-    struct timeval	start;		/* archive only */
-    struct timeval	end;		/* archive only */
-    char		data[0];	/* arbitrary length info ($TZ/style) */
-} kmTime;
+    static const unsigned int Magic = 0x54494D45;	// "TIME"
 
-extern int kmTimeSendAck(int, struct timeval *);
-extern int kmTimeConnect(int, kmTime *);
-extern int kmTimeShowDialog(int, int);
-extern int kmTimeRecv(int, kmTime **);
+    typedef struct {
+	unsigned int	magic;
+	unsigned int	length;
+	KmTime::Command	command;
+	KmTime::Source	source;
+	KmTime::State	state;
+	KmTime::Mode	mode;
+	struct timeval	delta;
+	struct timeval	position;
+	struct timeval	start;		// archive only
+	struct timeval	end;		// archive only
+	unsigned char	data[0];	// arbitrary length ($TZ/style)
+    } Packet;
 
-#endif	/* KMTIME_H */
+    typedef enum {
+	ForwardOn,		ForwardOff,
+	StoppedOn,		StoppedOff,
+	BackwardOn,		BackwardOff,
+	FastForwardOn,		FastForwardOff,
+	FastBackwardOn,		FastBackwardOff,
+	StepForwardOn,		StepForwardOff,
+	StepBackwardOn,		StepBackwardOff,
+	IconCount
+    } Icon;
+
+    typedef enum {
+	Milliseconds,
+	Seconds,
+	Minutes,
+	Hours,
+	Days,
+	Weeks,
+    } DeltaUnits;
+
+    typedef enum {
+	DebugApp	= 0x1,
+	DebugProtocol 	= 0x2,
+    } DebugOptions;
+
+    static const int BasePort = 43334;
+    static const int FastModeDelay = 100;	// milliseconds
+    static const int DefaultDelta = 2;		// seconds
+
+    static QIcon *icon(KmTime::Icon);
+    static double defaultSpeed(double delta)
+	{ return 2.0 * delta; }		// num deltas per second
+    static double minimumSpeed(double delta)
+	{ return 0.1 * delta; }		// min deltas per second
+    static double maximumSpeed(double delta)
+	{ return 100.0 * delta; }	// max deltas per second
+
+    static void timevalAdd(struct timeval *a, struct timeval *b);
+    static void timevalSub(struct timeval *a, struct timeval *b);
+    static int timevalNonZero(struct timeval *a);
+    static int timevalCompare(struct timeval *a, struct timeval *b);
+
+    static void secondsToTimeval(double value, struct timeval *tv);
+    static double secondsFromTimeval(struct timeval *tv);
+
+    static double unitsToSeconds(double value, DeltaUnits units);
+    static double secondsToUnits(double value, DeltaUnits units);
+};
+
+#endif	// KMTIME_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Nathan Scott.  All Rights Reserved.
+ * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,52 +10,50 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Nathan Scott, nathans At debian DoT org
  */
 #ifndef TIMEBUTTON_H
 #define TIMEBUTTON_H
 
-#include <qpushbutton.h>
+#include <QtGui/QIcon>
+#include <QtGui/QToolButton>
 
-enum TimeButtonState {
-    BUTTON_TIMELESS = 1,
-    BUTTON_PLAYLIVE = 2,
-    BUTTON_STOPLIVE = 3,
-    BUTTON_PLAYRECORD = 4,
-    BUTTON_STOPRECORD = 5,
-    BUTTON_PLAYARCHIVE = 6,
-    BUTTON_STOPARCHIVE = 7,
-    BUTTON_BACKARCHIVE = 8,
-    BUTTON_STEPFWDARCHIVE = 9,
-    BUTTON_STEPBACKARCHIVE = 10,
-    BUTTON_FASTFWDARCHIVE = 11,
-    BUTTON_FASTBACKARCHIVE = 12,
-};
-
-class TimeButton : public QPushButton
+class TimeButton : public QToolButton
 {
     Q_OBJECT
+
 public:
-    TimeButton(QWidget * = 0, const char *name = 0);
-    void setButtonState(enum TimeButtonState newstate);
+    typedef enum {
+	Timeless = 1,
+	ForwardLive = 2,
+	StoppedLive = 3,
+	ForwardRecord = 4,
+	StoppedRecord = 5,
+	ForwardArchive = 6,
+	StoppedArchive = 7,
+	BackwardArchive = 8,
+	StepForwardArchive = 9,
+	StepBackwardArchive = 10,
+	FastForwardArchive = 11,
+	FastBackwardArchive = 12,
+    } State;
+
+    TimeButton(QWidget *);
+    void setButtonState(State state);
 
 private:
-    QPixmap playlive_pixmap;
-    QPixmap stoplive_pixmap;
-    QPixmap playrecord_pixmap;
-    QPixmap stoprecord_pixmap;
-    QPixmap playarchive_pixmap;
-    QPixmap stoparchive_pixmap;
-    QPixmap backarchive_pixmap;
-    QPixmap stepfwdarchive_pixmap;
-    QPixmap stepbackarchive_pixmap;
-    QPixmap fastfwdarchive_pixmap;
-    QPixmap fastbackarchive_pixmap;
+    struct {
+	QIcon forwardLiveIcon;
+	QIcon stoppedLiveIcon;
+	QIcon forwardRecordIcon;
+	QIcon stoppedRecordIcon;
+	QIcon forwardArchiveIcon;
+	QIcon stoppedArchiveIcon;
+	QIcon backwardArchiveIcon;
+	QIcon stepForwardArchiveIcon;
+	QIcon stepBackwardArchiveIcon;
+	QIcon fastForwardArchiveIcon;
+	QIcon fastBackwardArchiveIcon;
+    } my;
 };
 
-#endif	/* TIMEBUTTON_H */
+#endif	// TIMEBUTTON_H

@@ -31,14 +31,23 @@ TODO
     tools/what-todo for the full chapter and verse details.
 
     kmchart TODO list:
-    - Try building and running with QT4 (currently only QT3 tried)
-    - Try building and running with QWT5 library/headers.
+    - QT4 issues:
+	- Metric selection lists are completely hosed
+	- Settings dialog is busted wrt Styles
+    - QWT5 issues:
+	- Creating charts via view selection is hosed (but -c works!?)
+	- All uses of qwt counters/sliders need to be replaced since
+	  they dont follow style at all (look awful).  QT4 has a double
+	  spinbox to replace the counter, but the slider will need to
+	  be built on top of the integer based one (mouse movement is
+	  in pixels anyway, so... just need to divy up the double range
+	  and need to track slider pixel width to do so, of course)
     - Unified time axis, still to do:
 	o Scaling of the tick marks on the Y-axis is far from correct,
 	  and causes mis-alignment on the unified X-axis.  The disk
-	  thoughput (bytes) show this up clearly, for example.
+	  throughput (bytes) show this up clearly, for example.
 	o Respond to changes in the sampling interval from kmtime.
-    - Resolve what to do about plot legends (try out Qwt5+ first..)
+    - Resolve what to do about plot legends
 	o Better to have them at the top of the chart below title?
 	o Would be good to get rid of the pushbutton shading around
 	  each, and instead rely solely on the Box<->Line transition
@@ -61,8 +70,6 @@ TODO
     - Incorporate a Tutorial into Help too, useful for talks
     - Tooltips need to be added across the board.
     - Timezone support not completely working
-    - All the usual PCP tool options need to be introduced, such
-      as -S, -O, -T, etc.
     - Auto-update the version string in the About dialog.
     - File->Record support - mostly working, needs lots more testing and
       better error handling.  Should also try find more unique filenames
@@ -103,13 +110,16 @@ TODO
     - Live mode stop/start doesn't quite work right (there's a TODO in
       the chart.cpp code) - on stop, the last observed value is plotted
       for all time points (on start it rectifies itself).
+    - Make a Qmc? (Qt Metrics Class) from PMC (replace string, vector,
+      hash, etc therein) - add support for pmproxy, use a hash for metric
+      instance values instead of an array (to support delete)
+    - Make a model (ala. QDirModel) for metric namespace (QmcMetricModel?)
+    - Use QCompleter class in all file dialog file name line edits.
+    - Use QCompleter class on QmcMetricModel?  (for metric selector)
 
     kmtime TODO list:
     - Finished, perfect, no bugs exist.  (yeah, right)
     - Needs online help ala kmchart
-    - See "make fix" in Makefile - needs a QtDesigner fix?
-      (may be able to workaround by not dynamically adding the UTC
-	entry in the Timezone dropdown menu?)
 
     PCP extensions
     - The pmSetMode(3) API needs a replacement that takes a timeval

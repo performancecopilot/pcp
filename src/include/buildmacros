@@ -22,6 +22,7 @@ CDIRT = $(OBJECTS) $(LTOBJECTS) $(LTCOMMAND) $(LTLIBRARY)
 DIRT = $(LDIRT) $(DEPDIRT) $(MANDIRT) $(PODIRT) $(CDIRT)
 
 OBJECTS = $(ASFILES:.s=.o) \
+	  $(CPPFILES:.c=.o) \
 	  $(CFILES:.c=.o) \
 	  $(LFILES:.l=.o) \
 	  $(YFILES:%.y=%.tab.o)

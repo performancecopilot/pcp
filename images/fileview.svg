@@ -9,14 +9,14 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="22"
-   height="22"
+   width="16px"
+   height="16px"
    id="svg97"
    sodipodi:version="0.32"
    inkscape:version="0.44.1"
    sodipodi:docbase="/source/git/kmchart/images"
-   sodipodi:docname="view.svg"
-   inkscape:export-filename="/source/git/kmchart/images/view.png"
+   sodipodi:docname="fileview.svg"
+   inkscape:export-filename="/source/git/kmchart/images/fileview.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
    version="1.0">
@@ -318,7 +318,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="7.9999999"
      inkscape:cx="14.181863"
-     inkscape:cy="3.405275"
+     inkscape:cy="3.342775"
      inkscape:current-layer="layer3"
      showgrid="true"
      inkscape:grid-bbox="true"
@@ -382,7 +382,7 @@
      inkscape:groupmode="layer">
     <g
        id="g4144"
-       transform="matrix(1.353566,0,0,1.408167,-3.630988e-7,-0.405685)">
+       transform="matrix(0.984379,0,0,0.999905,1.60424e-8,1.523652e-3)">
       <path
          transform="matrix(0.398046,0,0,0.362296,-2.075774,-0.749727)"
          d="M 43.487068 41.591846 A 19.136078 4.6403885 0 1 1  5.2149124,41.591846 A 19.136078 4.6403885 0 1 1  43.487068 41.591846 z"

@@ -1,1456 +1,1438 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>SettingsDialog</class>
-<widget class="QDialog">
-    <property name="name">
-        <cstring>SettingsDialog</cstring>
-    </property>
-    <property name="geometry">
-        <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>330</width>
-            <height>260</height>
-        </rect>
-    </property>
-    <property name="sizePolicy">
-        <sizepolicy>
-            <hsizetype>0</hsizetype>
-            <vsizetype>0</vsizetype>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-        </sizepolicy>
-    </property>
-    <property name="minimumSize">
-        <size>
-            <width>330</width>
-            <height>260</height>
-        </size>
-    </property>
-    <property name="maximumSize">
-        <size>
-            <width>330</width>
-            <height>260</height>
-        </size>
-    </property>
-    <property name="caption">
-        <string>Settings</string>
-    </property>
-    <property name="icon">
-        <pixmap>settings.png</pixmap>
-    </property>
-    <property name="sizeGripEnabled">
-        <bool>false</bool>
-    </property>
-    <property name="modal">
-        <bool>true</bool>
-    </property>
-    <widget class="QLayoutWidget">
-        <property name="name">
-            <cstring>Layout1</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>11</x>
-                <y>213</y>
-                <width>308</width>
-                <height>36</height>
-            </rect>
-        </property>
-        <hbox>
-            <property name="name">
-                <cstring>unnamed</cstring>
-            </property>
-            <property name="margin">
+<ui version="4.0" >
+ <class>SettingsDialog</class>
+ <widget class="QDialog" name="SettingsDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>330</width>
+    <height>260</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy>
+    <hsizetype>0</hsizetype>
+    <vsizetype>0</vsizetype>
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>330</width>
+    <height>260</height>
+   </size>
+  </property>
+  <property name="maximumSize" >
+   <size>
+    <width>330</width>
+    <height>260</height>
+   </size>
+  </property>
+  <property name="windowTitle" >
+   <string>Settings</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="kmchart.qrc" >:/settings.png</iconset>
+  </property>
+  <property name="sizeGripEnabled" >
+   <bool>false</bool>
+  </property>
+  <property name="modal" >
+   <bool>true</bool>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item row="0" column="0" >
+    <layout class="QVBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QTabWidget" name="settingsTab" >
+       <property name="currentIndex" >
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="samplesTab" >
+        <attribute name="title" >
+         <string>Samples</string>
+        </attribute>
+        <layout class="QGridLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item row="0" column="0" >
+          <layout class="QGridLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item row="1" column="0" >
+            <widget class="QwtSlider" name="visibleSlider" >
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="bgStyle" >
+              <enum>QwtSlider::BgSlot</enum>
+             </property>
+             <property name="thumbLength" >
+              <number>8</number>
+             </property>
+             <property name="thumbWidth" >
+              <number>16</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" >
+            <layout class="QHBoxLayout" >
+             <property name="margin" >
+              <number>0</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="totalTextLabel" >
+               <property name="text" >
+                <string>Total:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QwtCounter" name="totalCounter" >
+               <property name="basicstep" stdset="0" >
+                <double>1.000000000000000</double>
+               </property>
+               <property name="minValue" >
+                <double>2.000000000000000</double>
+               </property>
+               <property name="maxValue" >
+                <double>300.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>121</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="3" column="0" >
+            <widget class="QwtSlider" name="totalSlider" >
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="bgStyle" >
+              <enum>QwtSlider::BgSlot</enum>
+             </property>
+             <property name="thumbLength" >
+              <number>8</number>
+             </property>
+             <property name="thumbWidth" >
+              <number>16</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" >
+            <layout class="QHBoxLayout" >
+             <property name="margin" >
+              <number>0</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="visibleTextLabel" >
+               <property name="text" >
+                <string>Visible:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QwtCounter" name="visibleCounter" >
+               <property name="basicstep" stdset="0" >
+                <double>1.000000000000000</double>
+               </property>
+               <property name="minValue" >
+                <double>2.000000000000000</double>
+               </property>
+               <property name="maxValue" >
+                <double>300.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="colorTab" >
+        <attribute name="title" >
+         <string>Colors</string>
+        </attribute>
+        <layout class="QGridLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item row="2" column="0" >
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="defaultColorsTextLabel" >
+             <property name="text" >
+              <string>Default Plot Colors:</string>
+             </property>
+             <property name="wordWrap" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" >
+             <property name="margin" >
+              <number>0</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item>
+              <layout class="QHBoxLayout" >
+               <property name="margin" >
                 <number>0</number>
-            </property>
-            <property name="spacing">
-                <number>6</number>
-            </property>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>buttonHelp</cstring>
-                </property>
-                <property name="text">
-                    <string>&amp;Help</string>
-                </property>
-                <property name="accel">
-                    <string>F1</string>
-                </property>
-                <property name="autoDefault">
-                    <bool>true</bool>
-                </property>
-            </widget>
-            <spacer>
-                <property name="name">
-                    <cstring>Horizontal Spacing2</cstring>
-                </property>
-                <property name="orientation">
-                    <enum>Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                    <enum>Expanding</enum>
-                </property>
-                <property name="sizeHint">
-                    <size>
-                        <width>20</width>
-                        <height>20</height>
-                    </size>
-                </property>
-            </spacer>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>buttonOk</cstring>
-                </property>
-                <property name="text">
-                    <string>&amp;OK</string>
-                </property>
-                <property name="accel">
-                    <string></string>
-                </property>
-                <property name="autoDefault">
-                    <bool>true</bool>
-                </property>
-                <property name="default">
-                    <bool>true</bool>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>buttonCancel</cstring>
-                </property>
-                <property name="text">
-                    <string>&amp;Cancel</string>
-                </property>
-                <property name="accel">
-                    <string></string>
-                </property>
-                <property name="autoDefault">
-                    <bool>true</bool>
-                </property>
-            </widget>
-        </hbox>
-    </widget>
-    <widget class="QTabWidget">
-        <property name="name">
-            <cstring>settingsTab</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>10</y>
-                <width>311</width>
-                <height>199</height>
-            </rect>
-        </property>
-        <widget class="QWidget">
-            <property name="name">
-                <cstring>samplesTab</cstring>
-            </property>
-            <attribute name="title">
-                <string>Samples</string>
-            </attribute>
-            <grid>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLayoutWidget" row="0" column="0">
-                    <property name="name">
-                        <cstring>samplesLayout</cstring>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <property name="spacing">
-                            <number>14</number>
-                        </property>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>visibleLayout</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <property name="spacing">
-                                    <number>20</number>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>visibleTextLabel</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Visible:</string>
-                                    </property>
-                                </widget>
-                                <widget class="QwtCounter">
-                                    <property name="name">
-                                        <cstring>visibleCounter</cstring>
-                                    </property>
-                                    <property name="basicstep" stdset="0">
-                                        <number>1</number>
-                                    </property>
-                                    <property name="minValue">
-                                        <number>2</number>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>300</number>
-                                    </property>
-                                </widget>
-                            </hbox>
-                        </widget>
-                        <widget class="QwtSlider">
-                            <property name="name">
-                                <cstring>visibleSlider</cstring>
-                            </property>
-                            <property name="bgStyle">
-                                <enum>BgSlot</enum>
-                            </property>
-                            <property name="thumbLength">
-                                <number>30</number>
-                            </property>
-                            <property name="thumbWidth">
-                                <number>16</number>
-                            </property>
-                        </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>totalLayout</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <property name="spacing">
-                                    <number>30</number>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>totalTextLabel</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Total:</string>
-                                    </property>
-                                </widget>
-                                <widget class="QwtCounter">
-                                    <property name="name">
-                                        <cstring>totalCounter</cstring>
-                                    </property>
-                                    <property name="basicstep" stdset="0">
-                                        <number>1</number>
-                                    </property>
-                                    <property name="minValue">
-                                        <number>2</number>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>300</number>
-                                    </property>
-                                </widget>
-                            </hbox>
-                        </widget>
-                        <widget class="QwtSlider">
-                            <property name="name">
-                                <cstring>totalSlider</cstring>
-                            </property>
-                            <property name="bgStyle">
-                                <enum>BgSlot</enum>
-                            </property>
-                            <property name="thumbLength">
-                                <number>30</number>
-                            </property>
-                            <property name="thumbWidth">
-                                <number>16</number>
-                            </property>
-                        </widget>
-                    </vbox>
+               </property>
+               <property name="spacing" >
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton1" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
                 </widget>
-            </grid>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton2" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton3" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton4" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton5" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton6" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton7" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton8" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton9" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" >
+               <property name="margin" >
+                <number>0</number>
+               </property>
+               <property name="spacing" >
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton10" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton11" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton12" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton13" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton14" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton15" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton16" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton17" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultColorsPushButton18" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0" >
+          <widget class="Line" name="colorLine" >
+           <property name="frameShape" >
+            <enum>QFrame::HLine</enum>
+           </property>
+           <property name="frameShadow" >
+            <enum>QFrame::Sunken</enum>
+           </property>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" >
+          <layout class="QGridLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="chartBackgroundTextLabel" >
+             <property name="text" >
+              <string>Canvas Background:</string>
+             </property>
+             <property name="wordWrap" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" >
+            <widget class="QLabel" name="chartHighlightTextLabel" >
+             <property name="text" >
+              <string>Selected Chart Highlight:</string>
+             </property>
+             <property name="wordWrap" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" >
+            <widget class="QPushButton" name="chartHighlightPushButton" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>0</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>30</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="maximumSize" >
+              <size>
+               <width>30</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text" >
+              <string/>
+             </property>
+             <property name="autoDefault" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" >
+            <widget class="QPushButton" name="chartBackgroundPushButton" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>0</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>30</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="maximumSize" >
+              <size>
+               <width>30</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text" >
+              <string/>
+             </property>
+             <property name="autoDefault" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="TabPage" >
+        <attribute name="title" >
+         <string>Styles</string>
+        </attribute>
+        <layout class="QGridLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item row="0" column="0" >
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="systemStyleLabel" >
+             <property name="text" >
+              <string>System Styles:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" >
+             <property name="margin" >
+              <number>0</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item>
+              <widget class="QComboBox" name="systemStyleComboBox" />
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>71</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="userStyleLabel" >
+             <property name="text" >
+              <string>User Styles:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="userStylesLineEdit" />
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="buttonHelp" >
+         <property name="text" >
+          <string>&amp;Help</string>
+         </property>
+         <property name="shortcut" >
+          <string>F1</string>
+         </property>
+         <property name="autoDefault" >
+          <bool>true</bool>
+         </property>
         </widget>
-        <widget class="QWidget">
-            <property name="name">
-                <cstring>colorTab</cstring>
-            </property>
-            <attribute name="title">
-                <string>Colors</string>
-            </attribute>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>chartHighlightTextLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>21</x>
-                        <y>11</y>
-                        <width>234</width>
-                        <height>30</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Selected Chart Highlight:</string>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>chartBackgroundTextLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>21</x>
-                        <y>41</y>
-                        <width>234</width>
-                        <height>30</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Canvas Background:</string>
-                </property>
-            </widget>
-            <widget class="QLayoutWidget">
-                <property name="name">
-                    <cstring>layout10</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>13</x>
-                        <y>103</y>
-                        <width>282</width>
-                        <height>60</height>
-                    </rect>
-                </property>
-                <vbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>defaultColorsLayout</cstring>
-                        </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <property name="spacing">
-                                <number>0</number>
-                            </property>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton1</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>247</red>
-                                        <green>255</green>
-                                        <blue>0</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton2</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>11</red>
-                                        <green>15</green>
-                                        <blue>255</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton3</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>11</green>
-                                        <blue>39</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton4</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>46</red>
-                                        <green>223</green>
-                                        <blue>6</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton5</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>225</red>
-                                        <green>22</green>
-                                        <blue>211</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton6</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>170</green>
-                                        <blue>0</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton7</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>255</green>
-                                        <blue>255</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton8</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>255</green>
-                                        <blue>255</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton9</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>255</green>
-                                        <blue>255</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                        </hbox>
-                    </widget>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>defaultColorsLayout_2</cstring>
-                        </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <property name="spacing">
-                                <number>0</number>
-                            </property>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton10</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>255</green>
-                                        <blue>255</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton11</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>255</green>
-                                        <blue>255</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton12</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>255</green>
-                                        <blue>255</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton13</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>255</green>
-                                        <blue>255</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton14</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>255</green>
-                                        <blue>255</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton15</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>255</green>
-                                        <blue>255</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton16</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>255</green>
-                                        <blue>255</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton17</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>255</green>
-                                        <blue>255</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>defaultColorsPushButton18</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>30</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                                <property name="paletteBackgroundColor">
-                                    <color>
-                                        <red>255</red>
-                                        <green>255</green>
-                                        <blue>255</blue>
-                                    </color>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                        </hbox>
-                    </widget>
-                </vbox>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>defaultColorsTextLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>21</x>
-                        <y>83</y>
-                        <width>264</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Default Plot Colors:</string>
-                </property>
-            </widget>
-            <widget class="Line">
-                <property name="name">
-                    <cstring>colorLine</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>-2</x>
-                        <y>65</y>
-                        <width>310</width>
-                        <height>15</height>
-                    </rect>
-                </property>
-                <property name="frameShape">
-                    <enum>HLine</enum>
-                </property>
-                <property name="frameShadow">
-                    <enum>Sunken</enum>
-                </property>
-                <property name="orientation">
-                    <enum>Horizontal</enum>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>chartHighlightPushButton</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>261</x>
-                        <y>11</y>
-                        <width>30</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="sizePolicy">
-                    <sizepolicy>
-                        <hsizetype>0</hsizetype>
-                        <vsizetype>0</vsizetype>
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                    </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                    <size>
-                        <width>30</width>
-                        <height>20</height>
-                    </size>
-                </property>
-                <property name="maximumSize">
-                    <size>
-                        <width>30</width>
-                        <height>20</height>
-                    </size>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>38</red>
-                        <green>5</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="autoDefault">
-                    <bool>true</bool>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>chartBackgroundPushButton</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>261</x>
-                        <y>41</y>
-                        <width>30</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="sizePolicy">
-                    <sizepolicy>
-                        <hsizetype>0</hsizetype>
-                        <vsizetype>0</vsizetype>
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                    </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                    <size>
-                        <width>30</width>
-                        <height>20</height>
-                    </size>
-                </property>
-                <property name="maximumSize">
-                    <size>
-                        <width>30</width>
-                        <height>20</height>
-                    </size>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>86</red>
-                        <green>210</green>
-                        <blue>216</blue>
-                    </color>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="autoDefault">
-                    <bool>true</bool>
-                </property>
-            </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType" >
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="buttonOk" >
+         <property name="text" >
+          <string>&amp;OK</string>
+         </property>
+         <property name="shortcut" >
+          <string/>
+         </property>
+         <property name="autoDefault" >
+          <bool>true</bool>
+         </property>
+         <property name="default" >
+          <bool>true</bool>
+         </property>
         </widget>
-        <widget class="QWidget">
-            <property name="name">
-                <cstring>TabPage</cstring>
-            </property>
-            <attribute name="title">
-                <string>Styles</string>
-            </attribute>
-            <widget class="QLayoutWidget">
-                <property name="name">
-                    <cstring>layout24</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>18</x>
-                        <y>10</y>
-                        <width>270</width>
-                        <height>150</height>
-                    </rect>
-                </property>
-                <grid>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <widget class="QRadioButton" row="2" column="1">
-                        <property name="name">
-                            <cstring>sgiStyleRadioButton</cstring>
-                        </property>
-                        <property name="text">
-                            <string>SGI</string>
-                        </property>
-                    </widget>
-                    <widget class="QRadioButton" row="0" column="1">
-                        <property name="name">
-                            <cstring>motifStyleRadioButton</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Motif</string>
-                        </property>
-                    </widget>
-                    <widget class="QRadioButton" row="4" column="0">
-                        <property name="name">
-                            <cstring>windowsXPRadioButton</cstring>
-                        </property>
-                        <property name="text">
-                            <string>WindowsXP</string>
-                        </property>
-                    </widget>
-                    <widget class="QRadioButton" row="2" column="0">
-                        <property name="name">
-                            <cstring>platinumStyleRadioButton</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Platinum</string>
-                        </property>
-                    </widget>
-                    <widget class="QRadioButton" row="0" column="0">
-                        <property name="name">
-                            <cstring>windowsStyleRadioButton</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Windows</string>
-                        </property>
-                    </widget>
-                    <widget class="QRadioButton" row="3" column="0">
-                        <property name="name">
-                            <cstring>macintoshRadioButton</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Macintosh</string>
-                        </property>
-                    </widget>
-                    <widget class="QRadioButton" row="1" column="1">
-                        <property name="name">
-                            <cstring>motifPlusStyleRadioButton</cstring>
-                        </property>
-                        <property name="text">
-                            <string>MotifPlus</string>
-                        </property>
-                    </widget>
-                    <widget class="QRadioButton" row="1" column="0">
-                        <property name="name">
-                            <cstring>cdeStyleRadioButton</cstring>
-                        </property>
-                        <property name="text">
-                            <string>CDE</string>
-                        </property>
-                    </widget>
-                    <widget class="QRadioButton" row="3" column="1">
-                        <property name="name">
-                            <cstring>aquaRadioButton</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Aqua</string>
-                        </property>
-                    </widget>
-                </grid>
-            </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="buttonCancel" >
+         <property name="text" >
+          <string>&amp;Cancel</string>
+         </property>
+         <property name="shortcut" >
+          <string/>
+         </property>
+         <property name="autoDefault" >
+          <bool>true</bool>
+         </property>
         </widget>
-    </widget>
-</widget>
-<customwidgets>
-</customwidgets>
-<connections>
-    <connection>
-        <sender>buttonCancel</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>reject()</slot>
-    </connection>
-    <connection>
-        <sender>buttonOk</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>accept()</slot>
-    </connection>
-    <connection>
-        <sender>chartHighlightPushButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>chartHighlightPushButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>chartBackgroundPushButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>chartBackgroundPushButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton1</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton1Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton2</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton2Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton3</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton3Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton4</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton4Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton5</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton5Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton6</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton6Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton7</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton7Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton8</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton8Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton9</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton9Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton10</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton10Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton11</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton11Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton12</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton12Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton13</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton13Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton14</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton14Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton15</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton15Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton16</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton16Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton17</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton17Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>defaultColorsPushButton18</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>defaultColorsPushButton18Clicked()</slot>
-    </connection>
-    <connection>
-        <sender>totalCounter</sender>
-        <signal>valueChanged(double)</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>totalValueChanged(double)</slot>
-    </connection>
-    <connection>
-        <sender>totalSlider</sender>
-        <signal>valueChanged(double)</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>totalValueChanged(double)</slot>
-    </connection>
-    <connection>
-        <sender>visibleCounter</sender>
-        <signal>valueChanged(double)</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>visibleValueChanged(double)</slot>
-    </connection>
-    <connection>
-        <sender>visibleSlider</sender>
-        <signal>valueChanged(double)</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>visibleValueChanged(double)</slot>
-    </connection>
-    <connection>
-        <sender>windowsStyleRadioButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>windowsStyleRadioButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>motifStyleRadioButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>motifStyleRadioButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>cdeStyleRadioButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>cdeStyleRadioButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>motifPlusStyleRadioButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>motifPlusStyleRadioButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>platinumStyleRadioButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>platinumStyleRadioButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>sgiStyleRadioButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>sgiStyleRadioButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>macintoshRadioButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>macintoshRadioButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>aquaRadioButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>aquaRadioButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>windowsXPRadioButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialog</receiver>
-        <slot>windowsXPRadioButtonClicked()</slot>
-    </connection>
-</connections>
-<tabstops>
-    <tabstop>buttonHelp</tabstop>
-    <tabstop>buttonOk</tabstop>
-    <tabstop>buttonCancel</tabstop>
-</tabstops>
-<includes>
-    <include location="local" impldecl="in declaration">qwt/qwt_slider.h</include>
-    <include location="local" impldecl="in declaration">qwt/qwt_counter.h</include>
-    <include location="local" impldecl="in implementation">settingsdialog.ui.h</include>
-</includes>
-<variables>
-    <variable>double _localVisible;</variable>
-    <variable>double _localTotal;</variable>
-    <variable>QStyle *_savedStyle;</variable>
-    <variable>QString _savedStyleName;</variable>
-</variables>
-<slots>
-    <slot>visibleValueChanged( double value )</slot>
-    <slot>totalValueChanged( double value )</slot>
-    <slot>chartHighlightPushButtonClicked()</slot>
-    <slot>chartBackgroundPushButtonClicked()</slot>
-    <slot>defaultColorsPushButton1Clicked()</slot>
-    <slot>defaultColorsPushButton2Clicked()</slot>
-    <slot>defaultColorsPushButton3Clicked()</slot>
-    <slot>defaultColorsPushButton4Clicked()</slot>
-    <slot>defaultColorsPushButton5Clicked()</slot>
-    <slot>defaultColorsPushButton6Clicked()</slot>
-    <slot>defaultColorsPushButton7Clicked()</slot>
-    <slot>defaultColorsPushButton8Clicked()</slot>
-    <slot>defaultColorsPushButton9Clicked()</slot>
-    <slot>defaultColorsPushButton10Clicked()</slot>
-    <slot>defaultColorsPushButton11Clicked()</slot>
-    <slot>defaultColorsPushButton12Clicked()</slot>
-    <slot>defaultColorsPushButton13Clicked()</slot>
-    <slot>defaultColorsPushButton14Clicked()</slot>
-    <slot>defaultColorsPushButton15Clicked()</slot>
-    <slot>defaultColorsPushButton16Clicked()</slot>
-    <slot>defaultColorsPushButton17Clicked()</slot>
-    <slot>defaultColorsPushButton18Clicked()</slot>
-    <slot>windowsStyleRadioButtonClicked()</slot>
-    <slot>motifStyleRadioButtonClicked()</slot>
-    <slot>cdeStyleRadioButtonClicked()</slot>
-    <slot>motifPlusStyleRadioButtonClicked()</slot>
-    <slot>platinumStyleRadioButtonClicked()</slot>
-    <slot>sgiStyleRadioButtonClicked()</slot>
-    <slot>macintoshRadioButtonClicked()</slot>
-    <slot>aquaRadioButtonClicked()</slot>
-    <slot>windowsXPRadioButtonClicked()</slot>
-</slots>
-<functions>
-    <function returnType="int">defaultColorArray( QPushButton * * * array )</function>
-    <function>reset()</function>
-    <function>revert()</function>
-    <function>flush()</function>
-    <function>displayTotalSlider()</function>
-    <function>displayVisibleSlider()</function>
-    <function>displayTotalCounter()</function>
-    <function>displayVisibleCounter()</function>
-</functions>
-<pixmapinproject/>
-<layoutdefaults spacing="6" margin="11"/>
-<includehints>
-    <includehint>qwt_counter.h</includehint>
-    <includehint>qwt_slider.h</includehint>
-</includehints>
-</UI>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <customwidgets>
+  <customwidget>
+   <class>QwtSlider</class>
+   <extends>QWidget</extends>
+   <header>qwt_slider.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwtCounter</class>
+   <extends>QWidget</extends>
+   <header>qwt_counter.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>buttonHelp</tabstop>
+  <tabstop>buttonOk</tabstop>
+  <tabstop>buttonCancel</tabstop>
+ </tabstops>
+ <includes>
+  <include location="local" >qwt/qwt_slider.h</include>
+  <include location="local" >qwt/qwt_counter.h</include>
+  <include location="local" >qwt_counter.h</include>
+  <include location="local" >qwt_slider.h</include>
+ </includes>
+ <resources>
+  <include location="kmchart.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonCancel</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonOk</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chartHighlightPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>chartHighlightPushButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chartBackgroundPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>chartBackgroundPushButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton1</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton1Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton2</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton2Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton3</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton3Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton4</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton4Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton5</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton5Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton6</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton6Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton7</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton7Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton8</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton8Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton9</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton9Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton10</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton10Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton11</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton11Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton12</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton12Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton13</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton13Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton14</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton14Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton15</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton15Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton16</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton16Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton17</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton17Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>defaultColorsPushButton18</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>defaultColorsPushButton18Clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>totalCounter</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>totalValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>totalSlider</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>totalValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>visibleCounter</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>visibleValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>visibleSlider</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>visibleValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2006-2007, Nathan Scott.  All Rights Reserved.
+ * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,127 +11,123 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Ken McDonell, kenj At internode DoT on DoT net
- *                      Nathan Scott, nathans At debian DoT orrg
  */
 #ifndef TAB_H
 #define TAB_H
 
-//
-// Top level control - one instance of this class for all visible charts
-//
-
-#include "view.h"
-#include "chart.h"
-#include "kmtime.h"
-#include "timebutton.h"
-#include <qobject.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <qpixmap.h>
-#include <qsplitter.h>
-#include <qtabwidget.h>
-#include <qpushbutton.h>
+#include <QtCore/QObject>
+#include <QtCore/QList>
+#include <QtGui/QLabel>
+#include <QtGui/QLayout>
+#include <QtGui/QPixmap>
+#include <QtGui/QSplitter>
+#include <QtGui/QTabWidget>
+#include <QtGui/QPushButton>
 #include <qwt/qwt_plot.h>
 #include <qwt/qwt_scale_draw.h>
+#include <kmtime.h>
+#include "chart.h"
+#include "timebutton.h"
 
-enum TimeState {
-    START_STATE,
-    FORWARD_STATE,
-    BACKWARD_STATE,
-    ENDLOG_STATE,
-    STANDBY_STATE,
-};
+class PmLogger;
 
 class Tab : public QWidget
 {
     Q_OBJECT
+
 public:
-    Tab(QWidget * = 0);
-    void	init(QTabWidget *, int, int, PMC_Group *, km_tctl_source,
-			const char *, struct timeval *, struct timeval *);
-    bool	isArchiveMode(void);	// query if tab is for archives
+    Tab();
+    void init(QTabWidget *, int, int, PMC_Group *, KmTime::Source,
+			QString, struct timeval *, struct timeval *);
 
-    Chart	*chart(int);		// ith chart
-    Chart	*currentChart(void);	// current chart (can be NULL)
-    Chart	*addChart(void);	// append a new chart to tab area
-    					// and becomes the current chart
-    int		deleteChart(int);	// remove ith chart, return current
-    int		deleteChart(Chart *);	// remove given chart, return current
-    int		deleteCurrent(void);	// remove current chart, return current
-    int		numChart(void);		// number of charts
-    int		setCurrent(Chart *);	// set current chart based on choice
+    QWidget *splitter() { return my.splitter; }
+    int index() { return my.tab->indexOf(my.splitter); }
 
-    bool	isRecording(void);
-    int		startRecording(void);
-    void	stopRecording(void);
-    void	setFolio(QString);
-    void	addLogger(PmLogger *);
+    Chart *chart(int);		// Nth chart
+    Chart *currentChart();	// current chart (can be NULL)
+    Chart *addChart();		// append a new chart to tab, make it current
+    int deleteChart(int);	// remove Nth chart, return current
+    int deleteChart(Chart *);	// remove given chart, return current
+    int deleteCurrent(void);	// remove current chart, return current
+    int numChart(void);		// number of charts
+    int setCurrent(Chart *);	// set current chart based on choice
 
-    void	setVisibleHistory(int);
-    int		visibleHistory(void);
-    void	setSampleHistory(int);
-    int		sampleHistory(void);
+    bool isArchiveSource();	// query if tab is for archives
+    PMC_Group *group();
 
-    void	setConfig(char *);
-    char	*config(void);		// config filename from -c
-    double	*timeData(void);	// base addr of time axis data
-    // TODO: end nuke.
+    bool isRecording(void);
+    bool setRecording(bool);
+    void setFolio(QString);
+    void addLogger(PmLogger *);
 
-    PMC_Group	*group(void);		// metric fetchgroup
+    void setVisibleHistory(int);
+    int visibleHistory(void);
+    void setSampleHistory(int);
+    int sampleHistory(void);
 
-    void setupWorldView(void);
-    void step(kmTime *);
-    void vcrmode(kmTime *, bool);
+    void setConfig(char *);
+    char *config(void);		// config filename from -c
+    double *timeAxisData(void);
+
+    void step(KmTime::Packet *);
+    void VCRMode(KmTime::Packet *, bool);
     void setTimezone(char *);
-    void showTimeControl(void);
-    void updateTimeButton(void);
+
+    void setupWorldView();
+    void showTimeControl();
+    void updateTimeButton();
     void updateTimeAxis(void);
     void updateTimeAxis(time_t secs);
 
-    enum TimeButtonState buttonState(void);
-    km_tctl_state kmtimeState(void);
-    void newButtonState(km_tctl_state s, km_tctl_mode m, int mode, bool record);
-
-    QWidget	*splitter() { return _splitter; }
+    TimeButton::State buttonState();
+    KmTime::State kmtimeState();
+    void newButtonState(KmTime::State s, KmTime::Mode m, int mode, bool record);
 
 private:
-    typedef struct chart {
-	Chart		*cp;
-    } chart_t;
-    chart_t		*_charts;
-    int			_num;		// total number of charts
-    int			_current;	// currently selected chart
-    bool		_recording;	// running any pmlogger's?
-    bool		_showdate;	// display date in time axis?
-    double		_interval;	// current update interval
-    struct timeval	_lastkmdelta;	// last delta from kmtime
-    struct timeval	_lastkmposition;// last position from kmtime
-    int			_visible;	// -v visible points
-    int			_samples;	// -s total number of samples
-    double		*_timeData;	// time array (intervals)
-    TimeState		_timestate;
-    TimeButtonState	_buttonstate;
-    km_tctl_source	_mode;		// reliable archive/host test
-    km_tctl_state	_lastkmstate;
-    PMC_Group		*_group;	// metric fetchgroup
-    QString		_datelabel;
-    QSplitter		*_splitter;
-    QString		_folio;		// archive folio, if logging
-    QPtrList<PmLogger>	_loglist;	// list of pmloggers for this Tab
+    typedef enum {
+	StartState,
+	ForwardState,
+	BackwardState,
+	EndLogState,
+	StandbyState,
+    } State;
 
-    void refresh_charts(void);
-    void adjustWorldView(kmTime *, bool);
-    void adjustLiveWorldView(kmTime *);
-    void adjustArchiveWorldView(kmTime *, bool);
-    void adjustArchiveWorldViewForward(kmTime *, bool);
-    void adjustArchiveWorldViewBackward(kmTime *, bool);
-    void adjustArchiveWorldViewStop(kmTime *, bool);
+    char *timeState();
+    void refreshCharts();
+    void adjustWorldView(KmTime::Packet *, bool);
+    void adjustLiveWorldView(KmTime::Packet *);
+    void adjustArchiveWorldView(KmTime::Packet *, bool);
+    void adjustArchiveWorldViewForward(KmTime::Packet *, bool);
+    void adjustArchiveWorldViewBackward(KmTime::Packet *, bool);
+    void adjustArchiveWorldViewStop(KmTime::Packet *, bool);
+
+    struct {
+	Chart **charts;
+	int count;			// total number of charts
+	int current;			// currently selected chart
+
+	double interval;		// current update interval
+	struct timeval previousDelta;
+	struct timeval previousPosition;
+
+	int visible;			// -v visible points
+	int samples;			// -s total number of samples
+	double *timeData;		// time array (intervals)
+
+	Tab::State timeState;
+	TimeButton::State buttonState;
+	KmTime::Source source;		// reliable archive/host test
+	KmTime::State previousState;
+
+	PMC_Group *group;
+
+	bool recording;			// running any pmlogger's?
+	QString folio;			// archive folio, if logging
+	QList<PmLogger*> loggerList;	// list of pmloggers for our Tab
+
+	QTabWidget *tab;		// the parent widget
+	QSplitter *splitter;		// dynamically divides charts
+    } my;
 };
 
-#endif	/* TAB_H */
+#endif	// TAB_H

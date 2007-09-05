@@ -1,0 +1,25 @@
+# good
+kmquery -icon archive -b One -b Two -b Three
+kmquery -icon info -b One -b Two -B Three 
+kmquery -icon error -b Cancel -B OK
+kmquery -icon question -button OK,Cancel
+kmquery -icon question -button OK:1,Cancel,201:201
+
+# bad?
+kmquery -icon question -button OK:
+kmquery -icon question -button OK:,,
+
+# input
+kmquery -icon host -input -t default.local
+
+#output
+kmquery -icon critical -file -
+kmquery -icon critical -file /dev/null
+kmquery -icon critical -file /tmp/message
+kmquery -icon critical -B OK -print
+kmquery -icon critical -B OK -noprint
+kmquery -icon critical -B OK -timeout 2
+kmquery -icon critical -file /tmp/message -useslider
+kmquery -icon critical -file /tmp/message -noslider
+kmquery -icon critical -file /tmp/message -useslider
+kmquery -icon critical -t one -t two -t three -header Eek

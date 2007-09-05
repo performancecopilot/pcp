@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Nathan Scott.  All Rights Reserved.
+ * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,16 +10,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Nathan Scott, nathans At debian DoT org
  */
-
-#include <qevent.h>
-#include <qdatetime.h>
+#include <QtCore/QEvent>
+#include <QtCore/QDateTime>
+#include <QtGui/QResizeEvent>
 #include <qwt/qwt_scale_draw.h>
 #include <qwt/qwt_scale_widget.h>
 #include <qwt/qwt_text.h>
@@ -46,18 +40,18 @@ public:
     }
 };
 
-TimeAxis::TimeAxis(QWidget *parent, const char *name): QwtPlot(parent, name)
+TimeAxis::TimeAxis(QWidget *parent) : QwtPlot(parent)
 {
     setFixedHeight(30);
-    setFocusPolicy(QWidget::NoFocus);
+    setFocusPolicy(Qt::NoFocus);
 }
 
 void TimeAxis::init()
 {
-    enableXBottomAxis(true);
-    enableXTopAxis(false);
-    enableYRightAxis(false);
-    enableYLeftAxis(false);
+    enableAxis(xBottom, true);
+    enableAxis(xTop, false);
+    enableAxis(yLeft, false);
+    enableAxis(yRight, false);
     setAutoReplot(false);
     plotLayout()->setAlignCanvasToScales(true);
     canvas()->hide();
@@ -73,7 +67,8 @@ double TimeAxis::scaleValue(double delta, int count)
 
     scale = (1.0 / (width() / (count * 8.0))) * 8.0;
 #if DESPERATE
-    fprintf(stderr, "%s: scale=%.2f x delta=%.2f\n", __func__, scale, delta);
+    console->post("TimeAxis::scaleValue scale=%.2f x delta=%.2f\n",
+			scale, delta);
 #endif
     scale *= delta;
     return scale;

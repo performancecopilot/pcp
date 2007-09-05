@@ -1,1293 +1,1208 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>ChartDialog</class>
-<widget class="QDialog">
-    <property name="name">
-        <cstring>ChartDialog</cstring>
+<ui version="4.0" >
+ <class>ChartDialog</class>
+ <widget class="QDialog" name="ChartDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>481</width>
+    <height>363</height>
+   </rect>
+  </property>
+  <property name="focusPolicy" >
+   <enum>Qt::WheelFocus</enum>
+  </property>
+  <property name="windowTitle" >
+   <string>New Chart</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
+  </property>
+  <property name="sizeGripEnabled" >
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="Layout1" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>320</y>
+     <width>460</width>
+     <height>36</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" >
+    <property name="margin" >
+     <number>0</number>
     </property>
-    <property name="geometry">
-        <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>481</width>
-            <height>363</height>
-        </rect>
+    <property name="spacing" >
+     <number>6</number>
     </property>
-    <property name="caption">
-        <string>New Chart</string>
+    <item>
+     <spacer>
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeType" >
+       <enum>QSizePolicy::Expanding</enum>
+      </property>
+      <property name="sizeHint" >
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QPushButton" name="buttonOk" >
+      <property name="text" >
+       <string>&amp;OK</string>
+      </property>
+      <property name="shortcut" >
+       <string/>
+      </property>
+      <property name="autoDefault" >
+       <bool>true</bool>
+      </property>
+      <property name="default" >
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="buttonCancel" >
+      <property name="text" >
+       <string>&amp;Cancel</string>
+      </property>
+      <property name="shortcut" >
+       <string/>
+      </property>
+      <property name="autoDefault" >
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="chartPlotsTextLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>15</y>
+     <width>100</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Chart Plots:</string>
+   </property>
+   <property name="wordWrap" >
+    <bool>false</bool>
+   </property>
+  </widget>
+  <widget class="QFrame" name="chartMetricFrame" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>280</y>
+     <width>200</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="frameShape" >
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow" >
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QLineEdit" name="chartMetricLineEdit" >
+    <property name="geometry" >
+     <rect>
+      <x>2</x>
+      <y>2</y>
+      <width>196</width>
+      <height>26</height>
+     </rect>
     </property>
-    <property name="icon">
-        <pixmap>kmchart.png</pixmap>
+    <property name="font" >
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
     </property>
-    <property name="focusPolicy">
-        <enum>WheelFocus</enum>
+    <property name="text" >
+     <string/>
     </property>
-    <property name="sizeGripEnabled">
-        <bool>true</bool>
-    </property>
-    <widget class="QLayoutWidget">
-        <property name="name">
-            <cstring>Layout1</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>320</y>
-                <width>460</width>
-                <height>36</height>
-            </rect>
-        </property>
-        <hbox>
-            <property name="name">
-                <cstring>unnamed</cstring>
-            </property>
-            <property name="margin">
-                <number>0</number>
-            </property>
-            <property name="spacing">
-                <number>6</number>
-            </property>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>buttonHelp</cstring>
-                </property>
-                <property name="text">
-                    <string>&amp;Help</string>
-                </property>
-                <property name="accel">
-                    <string>F1</string>
-                </property>
-                <property name="autoDefault">
-                    <bool>true</bool>
-                </property>
-            </widget>
-            <spacer>
-                <property name="name">
-                    <cstring>Horizontal Spacing2</cstring>
-                </property>
-                <property name="orientation">
-                    <enum>Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                    <enum>Expanding</enum>
-                </property>
-                <property name="sizeHint">
-                    <size>
-                        <width>20</width>
-                        <height>20</height>
-                    </size>
-                </property>
-            </spacer>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>buttonOk</cstring>
-                </property>
-                <property name="text">
-                    <string>&amp;OK</string>
-                </property>
-                <property name="accel">
-                    <string></string>
-                </property>
-                <property name="autoDefault">
-                    <bool>true</bool>
-                </property>
-                <property name="default">
-                    <bool>true</bool>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>buttonCancel</cstring>
-                </property>
-                <property name="text">
-                    <string>&amp;Cancel</string>
-                </property>
-                <property name="accel">
-                    <string></string>
-                </property>
-                <property name="autoDefault">
-                    <bool>true</bool>
-                </property>
-            </widget>
-        </hbox>
+   </widget>
+  </widget>
+  <widget class="QTabWidget" name="tabWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>210</x>
+     <y>10</y>
+     <width>260</width>
+     <height>302</height>
+    </rect>
+   </property>
+   <property name="currentIndex" >
+    <number>1</number>
+   </property>
+   <widget class="QWidget" name="Widget2" >
+    <attribute name="title" >
+     <string>Chart</string>
+    </attribute>
+    <widget class="QLabel" name="titleTextLabel" >
+     <property name="geometry" >
+      <rect>
+       <x>28</x>
+       <y>12</y>
+       <width>40</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Title:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
     </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>chartPlotsTextLabel</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>15</y>
-                <width>100</width>
-                <height>20</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Chart Plots:</string>
-        </property>
+    <widget class="QLabel" name="styleLabel" >
+     <property name="geometry" >
+      <rect>
+       <x>18</x>
+       <y>42</y>
+       <width>50</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Style:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
     </widget>
-    <widget class="QFrame">
-        <property name="name">
-            <cstring>chartMetricFrame</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>280</y>
-                <width>200</width>
-                <height>30</height>
-            </rect>
-        </property>
-        <property name="frameShape">
-            <enum>StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-            <enum>Raised</enum>
-        </property>
-        <widget class="QLineEdit">
-            <property name="name">
-                <cstring>chartMetricLineEdit</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>2</x>
-                    <y>2</y>
-                    <width>196</width>
-                    <height>26</height>
-                </rect>
-            </property>
-            <property name="font">
-                <font>
-                    <bold>true</bold>
-                    <pointsize>10</pointsize>
-                </font>
-            </property>
-            <property name="paletteForegroundColor">
-                <color>
-                    <red>255</red>
-                    <green>255</green>
-                    <blue>255</blue>
-                </color>
-            </property>
-            <property name="paletteBackgroundColor">
-                <color>
-                    <red>140</red>
-                    <green>140</green>
-                    <blue>140</blue>
-                </color>
-            </property>
-            <property name="frameShape">
-                <enum>PopupPanel</enum>
-            </property>
-            <property name="frameShadow">
-                <enum>Sunken</enum>
-            </property>
-            <property name="text">
-                <string></string>
-            </property>
-        </widget>
+    <widget class="QComboBox" name="typeComboBox" >
+     <property name="geometry" >
+      <rect>
+       <x>78</x>
+       <y>42</y>
+       <width>160</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text" >
+       <string>Line Plot</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>Bar Plot</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>Stacked Bar</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>Area Plot</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>Utilization</string>
+      </property>
+     </item>
     </widget>
-    <widget class="QListView">
-        <property name="font">
-            <font>
-                <pointsize>10</pointsize>
-            </font>
-        </property>
-        <column>
-            <property name="text">
-                <string>Chart Metrics</string>
-            </property>
-            <property name="clickable">
-                <bool>false</bool>
-            </property>
-            <property name="resizable">
-                <bool>false</bool>
-            </property>
-        </column>
-        <property name="name">
-            <cstring>chartMetricsListView</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>37</y>
-                <width>200</width>
-                <height>243</height>
-            </rect>
-        </property>
-        <property name="cursor">
-            <cursor>0</cursor>
-        </property>
-        <property name="mouseTracking">
-            <bool>true</bool>
-        </property>
-        <property name="frameShape">
-            <enum>StyledPanel</enum>
-        </property>
-        <property name="selectionMode">
-            <enum>Extended</enum>
-        </property>
-        <property name="showSortIndicator">
-            <bool>false</bool>
-        </property>
-        <property name="itemMargin">
-            <number>1</number>
-        </property>
+    <widget class="QLineEdit" name="titleLineEdit" >
+     <property name="geometry" >
+      <rect>
+       <x>78</x>
+       <y>10</y>
+       <width>159</width>
+       <height>25</height>
+      </rect>
+     </property>
     </widget>
-    <widget class="QTabWidget">
-        <property name="name">
-            <cstring>tabWidget</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>210</x>
-                <y>10</y>
-                <width>260</width>
-                <height>302</height>
-            </rect>
-        </property>
-        <widget class="QWidget">
-            <property name="name">
-                <cstring>Widget2</cstring>
-            </property>
-            <attribute name="title">
-                <string>Chart</string>
-            </attribute>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>titleTextLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>28</x>
-                        <y>12</y>
-                        <width>40</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Title:</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>styleLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>18</x>
-                        <y>42</y>
-                        <width>50</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Style:</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-            </widget>
-            <widget class="QComboBox">
-                <item>
-                    <property name="text">
-                        <string>Line Plot</string>
-                    </property>
-                </item>
-                <item>
-                    <property name="text">
-                        <string>Bar Plot</string>
-                    </property>
-                </item>
-                <item>
-                    <property name="text">
-                        <string>Stacked Bar</string>
-                    </property>
-                </item>
-                <item>
-                    <property name="text">
-                        <string>Area Plot</string>
-                    </property>
-                </item>
-                <item>
-                    <property name="text">
-                        <string>Utilization</string>
-                    </property>
-                </item>
-                <property name="name">
-                    <cstring>typeComboBox</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>78</x>
-                        <y>42</y>
-                        <width>160</width>
-                        <height>25</height>
-                    </rect>
-                </property>
-            </widget>
-            <widget class="QLineEdit">
-                <property name="name">
-                    <cstring>titleLineEdit</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>78</x>
-                        <y>10</y>
-                        <width>159</width>
-                        <height>25</height>
-                    </rect>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>legendTextLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>10</x>
-                        <y>80</y>
-                        <width>60</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Legend:</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-            </widget>
-            <widget class="QGroupBox">
-                <property name="name">
-                    <cstring>yAxisGroupBox</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>8</x>
-                        <y>112</y>
-                        <width>240</width>
-                        <height>150</height>
-                    </rect>
-                </property>
-                <property name="title">
-                    <string>Y-Axis</string>
-                </property>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>autoScale</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>10</x>
-                            <y>30</y>
-                            <width>83</width>
-                            <height>20</height>
-                        </rect>
-                    </property>
-                    <property name="text">
-                        <string>Auto-Scale:</string>
-                    </property>
-                </widget>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>maxTextLabel</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>false</bool>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>10</x>
-                            <y>110</y>
-                            <width>40</width>
-                            <height>20</height>
-                        </rect>
-                    </property>
-                    <property name="text">
-                        <string>Max:</string>
-                    </property>
-                </widget>
-                <widget class="QRadioButton">
-                    <property name="name">
-                        <cstring>autoScaleOn</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>110</x>
-                            <y>22</y>
-                            <width>50</width>
-                            <height>30</height>
-                        </rect>
-                    </property>
-                    <property name="text">
-                        <string>On</string>
-                    </property>
-                    <property name="checked">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-                <widget class="QRadioButton">
-                    <property name="name">
-                        <cstring>autoScaleOff</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>170</x>
-                            <y>22</y>
-                            <width>50</width>
-                            <height>30</height>
-                        </rect>
-                    </property>
-                    <property name="text">
-                        <string>Off</string>
-                    </property>
-                </widget>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>minTextLabel</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>false</bool>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>10</x>
-                            <y>70</y>
-                            <width>40</width>
-                            <height>20</height>
-                        </rect>
-                    </property>
-                    <property name="text">
-                        <string>Min:</string>
-                    </property>
-                </widget>
-                <widget class="QwtCounter">
-                    <property name="name">
-                        <cstring>yAxisMinimum</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>false</bool>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>50</x>
-                            <y>70</y>
-                            <width>180</width>
-                            <height>27</height>
-                        </rect>
-                    </property>
-                    <property name="basicstep" stdset="0">
-                        <number>1</number>
-                    </property>
-                    <property name="maxValue">
-                        <number>1e+10</number>
-                    </property>
-                </widget>
-                <widget class="QwtCounter">
-                    <property name="name">
-                        <cstring>yAxisMaximum</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>false</bool>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>50</x>
-                            <y>110</y>
-                            <width>180</width>
-                            <height>27</height>
-                        </rect>
-                    </property>
-                    <property name="basicstep" stdset="0">
-                        <number>1</number>
-                    </property>
-                    <property name="maxValue">
-                        <number>1e+10</number>
-                    </property>
-                    <property name="value">
-                        <number>1</number>
-                    </property>
-                </widget>
-            </widget>
-            <widget class="QRadioButton">
-                <property name="name">
-                    <cstring>legendOn</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>90</x>
-                        <y>80</y>
-                        <width>60</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>On</string>
-                </property>
-                <property name="checked">
-                    <bool>true</bool>
-                </property>
-            </widget>
-            <widget class="QRadioButton">
-                <property name="name">
-                    <cstring>legendOff</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>150</x>
-                        <y>80</y>
-                        <width>60</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Off</string>
-                </property>
-            </widget>
-        </widget>
-        <widget class="QWidget">
-            <property name="name">
-                <cstring>Widget3</cstring>
-            </property>
-            <attribute name="title">
-                <string>Plots</string>
-            </attribute>
-            <widget class="QFrame">
-                <property name="name">
-                    <cstring>availableMetricFrame</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>50</x>
-                        <y>230</y>
-                        <width>200</width>
-                        <height>30</height>
-                    </rect>
-                </property>
-                <property name="frameShape">
-                    <enum>StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                    <enum>Raised</enum>
-                </property>
-                <widget class="QLineEdit">
-                    <property name="name">
-                        <cstring>availableMetricLineEdit</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>2</x>
-                            <y>2</y>
-                            <width>196</width>
-                            <height>26</height>
-                        </rect>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <bold>true</bold>
-                            <pointsize>10</pointsize>
-                        </font>
-                    </property>
-                    <property name="paletteForegroundColor">
-                        <color>
-                            <red>255</red>
-                            <green>255</green>
-                            <blue>255</blue>
-                        </color>
-                    </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>140</red>
-                            <green>140</green>
-                            <blue>140</blue>
-                        </color>
-                    </property>
-                    <property name="frameShape">
-                        <enum>PopupPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Sunken</enum>
-                    </property>
-                    <property name="text">
-                        <string></string>
-                    </property>
-                </widget>
-            </widget>
-            <widget class="QListView">
-                <property name="font">
-                    <font>
-                        <pointsize>10</pointsize>
-                    </font>
-                </property>
-                <column>
-                    <property name="text">
-                        <string>Available Metrics</string>
-                    </property>
-                    <property name="clickable">
-                        <bool>false</bool>
-                    </property>
-                    <property name="resizable">
-                        <bool>false</bool>
-                    </property>
-                </column>
-                <property name="name">
-                    <cstring>availableMetricsListView</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>50</x>
-                        <y>10</y>
-                        <width>200</width>
-                        <height>220</height>
-                    </rect>
-                </property>
-                <property name="cursor">
-                    <cursor>0</cursor>
-                </property>
-                <property name="mouseTracking">
-                    <bool>true</bool>
-                </property>
-                <property name="frameShape">
-                    <enum>StyledPanel</enum>
-                </property>
-                <property name="selectionMode">
-                    <enum>Extended</enum>
-                </property>
-                <property name="showSortIndicator">
-                    <bool>false</bool>
-                </property>
-                <property name="itemMargin">
-                    <number>1</number>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>metricInfoButton</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>0</x>
-                        <y>10</y>
-                        <width>50</width>
-                        <height>34</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="iconSet">
-                    <iconset>help-browser.png</iconset>
-                </property>
-                <property name="toolTip" stdset="0">
-                    <string>Metric Info</string>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>metricDeleteButton</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>0</x>
-                        <y>85</y>
-                        <width>50</width>
-                        <height>34</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="iconSet">
-                    <iconset>process-stop.png</iconset>
-                </property>
-                <property name="toolTip" stdset="0">
-                    <string>Remove plot from chart</string>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>metricAddButton</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>0</x>
-                        <y>118</y>
-                        <width>50</width>
-                        <height>34</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="iconSet">
-                    <iconset>go-previous.png</iconset>
-                </property>
-                <property name="toolTip" stdset="0">
-                    <string>Insert plot into chart</string>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>sourceButton</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>0</x>
-                        <y>196</y>
-                        <width>50</width>
-                        <height>34</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="toolTip" stdset="0">
-                    <string>Add new host</string>
-                </property>
-            </widget>
-        </widget>
-        <widget class="QWidget">
-            <property name="name">
-                <cstring>TabPage</cstring>
-            </property>
-            <attribute name="title">
-                <string>Colors</string>
-            </attribute>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>revertColorLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>5</x>
-                        <y>43</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>255</red>
-                        <green>255</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="frameShape">
-                    <enum>Panel</enum>
-                </property>
-                <property name="frameShadow">
-                    <enum>Sunken</enum>
-                </property>
-                <property name="lineWidth">
-                    <number>2</number>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>revertColorButton</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>0</x>
-                        <y>10</y>
-                        <width>50</width>
-                        <height>34</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="iconSet">
-                    <iconset>go-jump.png</iconset>
-                </property>
-                <property name="toolTip" stdset="0">
-                    <string>Insert plot into chart</string>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>applyColorButton</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>0</x>
-                        <y>150</y>
-                        <width>50</width>
-                        <height>34</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string></string>
-                </property>
-                <property name="iconSet">
-                    <iconset>go-previous.png</iconset>
-                </property>
-                <property name="toolTip" stdset="0">
-                    <string>Insert plot into chart</string>
-                </property>
-            </widget>
-            <widget class="QColorShowLabel">
-                <property name="name">
-                    <cstring>applyColorLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>5</x>
-                        <y>112</y>
-                        <width>40</width>
-                        <height>40</height>
-                    </rect>
-                </property>
-                <property name="frameShape">
-                    <enum>Panel</enum>
-                </property>
-                <property name="frameShadow">
-                    <enum>Sunken</enum>
-                </property>
-                <property name="lineWidth">
-                    <number>2</number>
-                </property>
-            </widget>
-            <widget class="QColorPicker">
-                <property name="name">
-                    <cstring>colorPicker</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>50</x>
-                        <y>10</y>
-                        <width>176</width>
-                        <height>176</height>
-                    </rect>
-                </property>
-                <property name="frameShape">
-                    <enum>Panel</enum>
-                </property>
-                <property name="frameShadow">
-                    <enum>Sunken</enum>
-                </property>
-                <property name="lineWidth">
-                    <number>2</number>
-                </property>
-            </widget>
-            <widget class="QColorLuminancePicker">
-                <property name="name">
-                    <cstring>luminancePicker</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>228</x>
-                        <y>7</y>
-                        <width>24</width>
-                        <height>182</height>
-                    </rect>
-                </property>
-            </widget>
-            <widget class="QColNumLineEdit">
-                <property name="name">
-                    <cstring>hEd</cstring>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>45</x>
-                        <y>197</y>
-                        <width>35</width>
-                        <height>25</height>
-                    </rect>
-                </property>
-            </widget>
-            <widget class="QColNumLineEdit">
-                <property name="name">
-                    <cstring>sEd</cstring>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>128</x>
-                        <y>197</y>
-                        <width>35</width>
-                        <height>25</height>
-                    </rect>
-                </property>
-            </widget>
-            <widget class="QColNumLineEdit">
-                <property name="name">
-                    <cstring>vEd</cstring>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>215</x>
-                        <y>197</y>
-                        <width>35</width>
-                        <height>25</height>
-                    </rect>
-                </property>
-            </widget>
-            <widget class="QColNumLineEdit">
-                <property name="name">
-                    <cstring>rEd</cstring>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>45</x>
-                        <y>235</y>
-                        <width>35</width>
-                        <height>25</height>
-                    </rect>
-                </property>
-            </widget>
-            <widget class="QColNumLineEdit">
-                <property name="name">
-                    <cstring>gEd</cstring>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>128</x>
-                        <y>235</y>
-                        <width>35</width>
-                        <height>25</height>
-                    </rect>
-                </property>
-            </widget>
-            <widget class="QColNumLineEdit">
-                <property name="name">
-                    <cstring>bEd</cstring>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>215</x>
-                        <y>235</y>
-                        <width>35</width>
-                        <height>25</height>
-                    </rect>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>hueTextLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>8</x>
-                        <y>197</y>
-                        <width>35</width>
-                        <height>22</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Hue:</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-                <property name="font">
-                    <font>
-                        <pointsize>10</pointsize>
-                    </font>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>saturationTextLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>92</x>
-                        <y>197</y>
-                        <width>35</width>
-                        <height>22</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Sat:</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-                <property name="font">
-                    <font>
-                        <pointsize>10</pointsize>
-                    </font>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>valueTextLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>179</x>
-                        <y>197</y>
-                        <width>35</width>
-                        <height>22</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Val:</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-                <property name="font">
-                    <font>
-                        <pointsize>10</pointsize>
-                    </font>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>redTextLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>8</x>
-                        <y>235</y>
-                        <width>35</width>
-                        <height>22</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Red:</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-                <property name="font">
-                    <font>
-                        <pointsize>10</pointsize>
-                    </font>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>greenTextLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>85</x>
-                        <y>235</y>
-                        <width>42</width>
-                        <height>22</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Green:</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-                <property name="font">
-                    <font>
-                        <pointsize>10</pointsize>
-                    </font>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>blueTextLabel</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>179</x>
-                        <y>235</y>
-                        <width>35</width>
-                        <height>22</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Blue:</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-                <property name="font">
-                    <font>
-                        <pointsize>10</pointsize>
-                    </font>
-                </property>
-            </widget>
-        </widget>
+    <widget class="QLabel" name="legendTextLabel" >
+     <property name="geometry" >
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>60</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Legend:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
     </widget>
-</widget>
-<customwidgets>
-</customwidgets>
-<connections>
-    <connection>
-        <sender>buttonOk</sender>
-        <signal>clicked()</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>accept()</slot>
-    </connection>
-    <connection>
-        <sender>buttonCancel</sender>
-        <signal>clicked()</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>reject()</slot>
-    </connection>
-    <connection>
-        <sender>metricInfoButton</sender>
-        <signal>clicked()</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>metricInfoButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>metricDeleteButton</sender>
-        <signal>clicked()</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>metricDeleteButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>metricAddButton</sender>
-        <signal>clicked()</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>metricAddButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>sourceButton</sender>
-        <signal>clicked()</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>sourceButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>applyColorButton</sender>
-        <signal>clicked()</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>applyColorButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>revertColorButton</sender>
-        <signal>clicked()</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>revertColorButtonClicked()</slot>
-    </connection>
-    <connection>
-        <sender>legendOn</sender>
-        <signal>clicked()</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>legendOnClicked()</slot>
-    </connection>
-    <connection>
-        <sender>legendOff</sender>
-        <signal>clicked()</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>legendOffClicked()</slot>
-    </connection>
-    <connection>
-        <sender>autoScaleOn</sender>
-        <signal>clicked()</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>autoScaleOnClicked()</slot>
-    </connection>
-    <connection>
-        <sender>autoScaleOff</sender>
-        <signal>clicked()</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>autoScaleOffClicked()</slot>
-    </connection>
-    <connection>
-        <sender>yAxisMinimum</sender>
-        <signal>valueChanged(double)</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>yAxisMinimumValueChanged(double)</slot>
-    </connection>
-    <connection>
-        <sender>yAxisMaximum</sender>
-        <signal>valueChanged(double)</signal>
-        <receiver>ChartDialog</receiver>
-        <slot>yAxisMaximumValueChanged(double)</slot>
-    </connection>
-</connections>
-<includes>
-    <include location="local" impldecl="in declaration">chart.h</include>
-    <include location="local" impldecl="in declaration">namespace.h</include>
-    <include location="local" impldecl="in declaration">qcolorpicker.h</include>
-    <include location="local" impldecl="in declaration">qwt/qwt_counter.h</include>
-    <include location="local" impldecl="in implementation">chartdialog.ui.h</include>
-</includes>
-<slots>
-    <slot>chartMetricsSelectionChanged()</slot>
-    <slot>availableMetricsSelectionChanged()</slot>
-    <slot>metricInfoButtonClicked()</slot>
-    <slot>metricDeleteButtonClicked()</slot>
-    <slot>metricAddButtonClicked()</slot>
-    <slot>sourceButtonClicked()</slot>
-    <slot>legendOnClicked()</slot>
-    <slot>legendOffClicked()</slot>
-    <slot>autoScaleOnClicked()</slot>
-    <slot>autoScaleOffClicked()</slot>
-    <slot>yAxisMinimumValueChanged( double )</slot>
-    <slot>yAxisMaximumValueChanged( double )</slot>
-    <slot>newColorTypedIn( QRgb )</slot>
-    <slot>applyColorButtonClicked()</slot>
-    <slot>revertColorButtonClicked()</slot>
-    <slot>newHsv( int, int, int )</slot>
-    <slot>setRgb( QRgb )</slot>
-    <slot>rgbEd()</slot>
-    <slot>hsvEd()</slot>
-</slots>
-<signals>
-    <signal>newCol( QRgb )</signal>
-</signals>
-<functions>
-    <function>init()</function>
-    <function>reset( Chart *, int )</function>
-    <function>enableUI()</function>
-    <function returnType="Chart *">chart( void )</function>
-    <function returnType="int">style( void )</function>
-    <function returnType="QString">title( void )</function>
-    <function returnType="bool">legend( void )</function>
-    <function>scale( bool *, double *, double * )</function>
-    <function>setScale( bool, double, double )</function>
-    <function>setHsv( int h, int s, int v )</function>
-    <function returnType="QRgb">currentColor()</function>
-    <function>setCurrentColor( QRgb )</function>
-    <function>showCurrentColor()</function>
-    <function>setupChartPlots( Chart * )</function>
-    <function returnType="bool">setupChartPlotsShortcut(Chart *)</function>
-    <function returnType="bool">matchChartPlot( Chart *, NameSpace *, int )</function>
-    <function returnType="bool">existsChartPlot( Chart *, NameSpace *, int * )</function>
-    <function>changeChartPlot( Chart *, NameSpace *, int )</function>
-    <function>createChartPlot( Chart *, NameSpace * )</function>
-    <function>deleteChartPlot( Chart *, int )</function>
-</functions>
-<variables>
-    <variable access="private">bool archiveMode;</variable>
-    <variable access="private">bool chartListSelected;</variable>
-    <variable access="private">bool availableListSelected;</variable>
-    <variable access="private">QListViewItem *chartListSingleSelected;</variable>
-    <variable access="private">QListViewItem *availableListSingleSelected;</variable>
-    <variable access="private">double _yAxisMin;</variable>
-    <variable access="private">double _yAxisMax;</variable>
-    <variable access="private">Chart *_chart;</variable>
-    <variable access="private">int hue;</variable>
-    <variable access="private">int sat;</variable>
-    <variable access="private">int val;</variable>
-    <variable access="private">QRgb curCol;</variable>
-</variables>
-<pixmapinproject/>
-<layoutdefaults spacing="6" margin="11"/>
-</UI>
+    <widget class="QGroupBox" name="yAxisGroupBox" >
+     <property name="geometry" >
+      <rect>
+       <x>8</x>
+       <y>112</y>
+       <width>240</width>
+       <height>150</height>
+      </rect>
+     </property>
+     <property name="title" >
+      <string>Y-Axis</string>
+     </property>
+     <widget class="QLabel" name="autoScale" >
+      <property name="geometry" >
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>83</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Auto-Scale:</string>
+      </property>
+      <property name="wordWrap" >
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="maxTextLabel" >
+      <property name="enabled" >
+       <bool>false</bool>
+      </property>
+      <property name="geometry" >
+       <rect>
+        <x>10</x>
+        <y>110</y>
+        <width>40</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Max:</string>
+      </property>
+      <property name="wordWrap" >
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="autoScaleOn" >
+      <property name="geometry" >
+       <rect>
+        <x>110</x>
+        <y>22</y>
+        <width>50</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>On</string>
+      </property>
+      <property name="checked" >
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="autoScaleOff" >
+      <property name="geometry" >
+       <rect>
+        <x>170</x>
+        <y>22</y>
+        <width>50</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Off</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="minTextLabel" >
+      <property name="enabled" >
+       <bool>false</bool>
+      </property>
+      <property name="geometry" >
+       <rect>
+        <x>10</x>
+        <y>70</y>
+        <width>40</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Min:</string>
+      </property>
+      <property name="wordWrap" >
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QwtCounter" name="yAxisMaximum" >
+      <property name="enabled" >
+       <bool>false</bool>
+      </property>
+      <property name="geometry" >
+       <rect>
+        <x>50</x>
+        <y>110</y>
+        <width>180</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="basicstep" stdset="0" >
+       <double>1.000000000000000</double>
+      </property>
+      <property name="maxValue" >
+       <double>0.000000000000000</double>
+      </property>
+      <property name="value" >
+       <double>0.000000000000000</double>
+      </property>
+     </widget>
+     <widget class="QwtCounter" name="yAxisMinimum" >
+      <property name="enabled" >
+       <bool>false</bool>
+      </property>
+      <property name="geometry" >
+       <rect>
+        <x>50</x>
+        <y>70</y>
+        <width>180</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="basicstep" stdset="0" >
+       <double>1.000000000000000</double>
+      </property>
+      <property name="maxValue" >
+       <double>0.000000000000000</double>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QRadioButton" name="legendOn" >
+     <property name="geometry" >
+      <rect>
+       <x>90</x>
+       <y>80</y>
+       <width>60</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>On</string>
+     </property>
+     <property name="checked" >
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="legendOff" >
+     <property name="geometry" >
+      <rect>
+       <x>150</x>
+       <y>80</y>
+       <width>60</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Off</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="Widget3" >
+    <attribute name="title" >
+     <string>Plots</string>
+    </attribute>
+    <widget class="QPushButton" name="metricInfoButton" >
+     <property name="geometry" >
+      <rect>
+       <x>0</x>
+       <y>10</y>
+       <width>50</width>
+       <height>34</height>
+      </rect>
+     </property>
+     <property name="toolTip" >
+      <string>Metric Info</string>
+     </property>
+     <property name="text" >
+      <string/>
+     </property>
+     <property name="icon" >
+      <iconset resource="kmchart.qrc" >:/help-browser.png</iconset>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="metricDeleteButton" >
+     <property name="geometry" >
+      <rect>
+       <x>0</x>
+       <y>85</y>
+       <width>50</width>
+       <height>34</height>
+      </rect>
+     </property>
+     <property name="toolTip" >
+      <string>Remove plot from chart</string>
+     </property>
+     <property name="text" >
+      <string/>
+     </property>
+     <property name="icon" >
+      <iconset resource="kmchart.qrc" >:/process-stop.png</iconset>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="metricAddButton" >
+     <property name="geometry" >
+      <rect>
+       <x>0</x>
+       <y>118</y>
+       <width>50</width>
+       <height>34</height>
+      </rect>
+     </property>
+     <property name="toolTip" >
+      <string>Insert plot into chart</string>
+     </property>
+     <property name="text" >
+      <string/>
+     </property>
+     <property name="icon" >
+      <iconset resource="kmchart.qrc" >:/go-previous.png</iconset>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="sourceButton" >
+     <property name="geometry" >
+      <rect>
+       <x>0</x>
+       <y>196</y>
+       <width>50</width>
+       <height>34</height>
+      </rect>
+     </property>
+     <property name="toolTip" >
+      <string>Add new host</string>
+     </property>
+     <property name="text" >
+      <string/>
+     </property>
+    </widget>
+    <widget class="QFrame" name="availableMetricFrame" >
+     <property name="geometry" >
+      <rect>
+       <x>50</x>
+       <y>230</y>
+       <width>200</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Raised</enum>
+     </property>
+     <widget class="QLineEdit" name="availableMetricLineEdit" >
+      <property name="geometry" >
+       <rect>
+        <x>2</x>
+        <y>2</y>
+        <width>196</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="font" >
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text" >
+       <string/>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QTreeWidget" name="availableMetricsTreeWidget" >
+     <property name="geometry" >
+      <rect>
+       <x>50</x>
+       <y>10</y>
+       <width>200</width>
+       <height>220</height>
+      </rect>
+     </property>
+     <property name="font" >
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="cursor" >
+      <cursor>0</cursor>
+     </property>
+     <property name="mouseTracking" >
+      <bool>true</bool>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="alternatingRowColors" >
+      <bool>true</bool>
+     </property>
+     <property name="selectionMode" >
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
+     <property name="rootIsDecorated" >
+      <bool>false</bool>
+     </property>
+     <property name="uniformRowHeights" >
+      <bool>true</bool>
+     </property>
+     <property name="columnCount" >
+      <number>1</number>
+     </property>
+     <column>
+      <property name="text" >
+       <string>Available Metrics</string>
+      </property>
+     </column>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="TabPage" >
+    <attribute name="title" >
+     <string>Colors</string>
+    </attribute>
+    <widget class="QColorShowLabel" name="revertColorLabel" >
+     <property name="geometry" >
+      <rect>
+       <x>5</x>
+       <y>43</y>
+       <width>40</width>
+       <height>40</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="revertColorButton" >
+     <property name="geometry" >
+      <rect>
+       <x>0</x>
+       <y>10</y>
+       <width>50</width>
+       <height>34</height>
+      </rect>
+     </property>
+     <property name="toolTip" >
+      <string>Insert plot into chart</string>
+     </property>
+     <property name="text" >
+      <string/>
+     </property>
+     <property name="icon" >
+      <iconset resource="kmchart.qrc" >:/go-jump.png</iconset>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="applyColorButton" >
+     <property name="geometry" >
+      <rect>
+       <x>0</x>
+       <y>150</y>
+       <width>50</width>
+       <height>34</height>
+      </rect>
+     </property>
+     <property name="toolTip" >
+      <string>Insert plot into chart</string>
+     </property>
+     <property name="text" >
+      <string/>
+     </property>
+     <property name="icon" >
+      <iconset resource="kmchart.qrc" >:/go-previous.png</iconset>
+     </property>
+    </widget>
+    <widget class="QColorShowLabel" name="applyColorLabel" >
+     <property name="geometry" >
+      <rect>
+       <x>5</x>
+       <y>112</y>
+       <width>40</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::Panel</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="lineWidth" >
+      <number>2</number>
+     </property>
+    </widget>
+    <widget class="QColorPicker" name="colorPicker" >
+     <property name="geometry" >
+      <rect>
+       <x>50</x>
+       <y>10</y>
+       <width>176</width>
+       <height>176</height>
+      </rect>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::Panel</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="lineWidth" >
+      <number>2</number>
+     </property>
+    </widget>
+    <widget class="QColorLuminancePicker" native="1" name="luminancePicker" >
+     <property name="geometry" >
+      <rect>
+       <x>228</x>
+       <y>7</y>
+       <width>24</width>
+       <height>182</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QColSpinBox" name="sEd" >
+     <property name="geometry" >
+      <rect>
+       <x>128</x>
+       <y>197</y>
+       <width>35</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight</set>
+     </property>
+    </widget>
+    <widget class="QColSpinBox" name="vEd" >
+     <property name="geometry" >
+      <rect>
+       <x>215</x>
+       <y>197</y>
+       <width>35</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight</set>
+     </property>
+    </widget>
+    <widget class="QColSpinBox" name="rEd" >
+     <property name="geometry" >
+      <rect>
+       <x>45</x>
+       <y>235</y>
+       <width>35</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight</set>
+     </property>
+    </widget>
+    <widget class="QColSpinBox" name="gEd" >
+     <property name="geometry" >
+      <rect>
+       <x>128</x>
+       <y>235</y>
+       <width>35</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight</set>
+     </property>
+    </widget>
+    <widget class="QColSpinBox" name="bEd" >
+     <property name="geometry" >
+      <rect>
+       <x>215</x>
+       <y>235</y>
+       <width>35</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="saturationTextLabel" >
+     <property name="geometry" >
+      <rect>
+       <x>92</x>
+       <y>197</y>
+       <width>35</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font" >
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text" >
+      <string>Sat:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="valueTextLabel" >
+     <property name="geometry" >
+      <rect>
+       <x>179</x>
+       <y>197</y>
+       <width>35</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font" >
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text" >
+      <string>Val:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="redTextLabel" >
+     <property name="geometry" >
+      <rect>
+       <x>8</x>
+       <y>235</y>
+       <width>35</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font" >
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text" >
+      <string>Red:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="greenTextLabel" >
+     <property name="geometry" >
+      <rect>
+       <x>85</x>
+       <y>235</y>
+       <width>42</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font" >
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text" >
+      <string>Green:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="blueTextLabel" >
+     <property name="geometry" >
+      <rect>
+       <x>179</x>
+       <y>235</y>
+       <width>35</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font" >
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text" >
+      <string>Blue:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QColSpinBox" name="hEd" >
+     <property name="geometry" >
+      <rect>
+       <x>45</x>
+       <y>197</y>
+       <width>35</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="hueTextLabel" >
+     <property name="geometry" >
+      <rect>
+       <x>8</x>
+       <y>197</y>
+       <width>35</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font" >
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text" >
+      <string>Hue:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QTreeWidget" name="chartMetricsTreeWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>37</y>
+     <width>200</width>
+     <height>243</height>
+    </rect>
+   </property>
+   <property name="font" >
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="cursor" >
+    <cursor>0</cursor>
+   </property>
+   <property name="mouseTracking" >
+    <bool>true</bool>
+   </property>
+   <property name="frameShape" >
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="alternatingRowColors" >
+    <bool>true</bool>
+   </property>
+   <property name="selectionMode" >
+    <enum>QAbstractItemView::ExtendedSelection</enum>
+   </property>
+   <property name="rootIsDecorated" >
+    <bool>false</bool>
+   </property>
+   <column>
+    <property name="text" >
+     <string>Chart Metrics</string>
+    </property>
+   </column>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <customwidgets>
+  <customwidget>
+   <class>QColorLuminancePicker</class>
+   <extends>QWidget</extends>
+   <header>qcolorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwtCounter</class>
+   <extends>QWidget</extends>
+   <header>qwt_counter.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QColorShowLabel</class>
+   <extends>QFrame</extends>
+   <header>qcolorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QColSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>qcolorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QColorPicker</class>
+   <extends>QFrame</extends>
+   <header>qcolorpicker.h</header>
+  </customwidget>
+ </customwidgets>
+ <includes>
+  <include location="local" >chart.h</include>
+  <include location="local" >namespace.h</include>
+  <include location="local" >qcolorpicker.h</include>
+  <include location="local" >qwt/qwt_counter.h</include>
+ </includes>
+ <resources>
+  <include location="kmchart.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonOk</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonCancel</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>metricInfoButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>metricInfoButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>metricDeleteButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>metricDeleteButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>metricAddButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>metricAddButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sourceButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>sourceButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>applyColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>applyColorButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>revertColorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>revertColorButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>legendOn</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>legendOnClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>legendOff</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>legendOffClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>autoScaleOn</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>autoScaleOnClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>autoScaleOff</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>autoScaleOffClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>yAxisMinimum</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>yAxisMinimumValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>yAxisMaximum</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>yAxisMaximumValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

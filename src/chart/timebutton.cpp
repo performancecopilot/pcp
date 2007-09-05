@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Nathan Scott.  All Rights Reserved.
+ * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,68 +10,75 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Nathan Scott, nathans At debian DoT org
  */
-
 #include "timebutton.h"
+#include "console.h"
+#include "kmchart.h"
 
-TimeButton::TimeButton(QWidget *parent, const char *name)
-	: QPushButton(parent, name)
+TimeButton::TimeButton(QWidget *parent) : QToolButton(parent)
 {
-    setFocusPolicy(QWidget::NoFocus);
-    playlive_pixmap = QPixmap::fromMimeSource("play_live.png");
-    stoplive_pixmap = QPixmap::fromMimeSource("stop_live.png");
-    playrecord_pixmap = QPixmap::fromMimeSource("play_record.png");
-    stoprecord_pixmap = QPixmap::fromMimeSource("stop_record.png");
-    playarchive_pixmap = QPixmap::fromMimeSource("play_archive.png");
-    stoparchive_pixmap = QPixmap::fromMimeSource("stop_archive.png");
-    backarchive_pixmap = QPixmap::fromMimeSource("back_archive.png");
-    stepfwdarchive_pixmap = QPixmap::fromMimeSource("stepfwd_archive.png");
-    stepbackarchive_pixmap = QPixmap::fromMimeSource("stepback_archive.png");
-    fastfwdarchive_pixmap = QPixmap::fromMimeSource("fastfwd_archive.png");
-    fastbackarchive_pixmap = QPixmap::fromMimeSource("fastback_archive.png");
+    setIconSize(QSize(48, 48));
+    setFocusPolicy(Qt::NoFocus);
+    console->post(KmChart::DebugGUI, "Loading resource :/play_live.png");
+    my.forwardLiveIcon = QIcon(":/play_live.png");
+    console->post(KmChart::DebugGUI, "Loading resource :/stop_live.png");
+    my.stoppedLiveIcon = QIcon(":/stop_live.png");
+    console->post(KmChart::DebugGUI, "Loading resource :/play_record.png");
+    my.forwardRecordIcon = QIcon(":/play_record.png");
+    console->post(KmChart::DebugGUI, "Loading resource :/stop_record.png");
+    my.stoppedRecordIcon = QIcon(":/stop_record.png");
+    console->post(KmChart::DebugGUI, "Loading resource :/play_archive.png");
+    my.forwardArchiveIcon = QIcon(":/play_archive.png");
+    console->post(KmChart::DebugGUI, "Loading resource :/stop_archive.png");
+    my.stoppedArchiveIcon = QIcon(":/stop_archive.png");
+    console->post(KmChart::DebugGUI, "Loading resource :/back_archive.png");
+    my.backwardArchiveIcon = QIcon(":/back_archive.png");
+    console->post(KmChart::DebugGUI, "Loading resource :/stepfwd_archive.png");
+    my.stepForwardArchiveIcon = QIcon(":/stepfwd_archive.png");
+    console->post(KmChart::DebugGUI, "Loading resource :/stepback_archive.png");
+    my.stepBackwardArchiveIcon = QIcon(":/stepback_archive.png");
+    console->post(KmChart::DebugGUI, "Loading resource :/fastfwd_archive.png");
+    my.fastForwardArchiveIcon = QIcon(":/fastfwd_archive.png");
+    console->post(KmChart::DebugGUI, "Loading resource :/fastback_archive.png");
+    my.fastBackwardArchiveIcon = QIcon(":/fastback_archive.png");
+    console->post(KmChart::DebugGUI, "Time button resources loaded");
 }
 
-void TimeButton::setButtonState(enum TimeButtonState newstate)
+void TimeButton::setButtonState(TimeButton::State state)
 {
-    switch(newstate) {
-    case BUTTON_PLAYLIVE:
-	setPixmap(playlive_pixmap);
+    switch (state) {
+    case TimeButton::ForwardLive:
+	setIcon(my.forwardLiveIcon);
 	break;
-    case BUTTON_STOPLIVE:
-	setPixmap(stoplive_pixmap);
+    case TimeButton::StoppedLive:
+	setIcon(my.stoppedLiveIcon);
 	break;
-    case BUTTON_PLAYRECORD:
-	setPixmap(playrecord_pixmap);
+    case TimeButton::ForwardRecord:
+	setIcon(my.forwardRecordIcon);
 	break;
-    case BUTTON_STOPRECORD:
-	setPixmap(stoprecord_pixmap);
+    case TimeButton::StoppedRecord:
+	setIcon(my.stoppedRecordIcon);
 	break;
-    case BUTTON_PLAYARCHIVE:
-	setPixmap(playarchive_pixmap);
+    case TimeButton::ForwardArchive:
+	setIcon(my.forwardArchiveIcon);
 	break;
-    case BUTTON_STOPARCHIVE:
-	setPixmap(stoparchive_pixmap);
+    case TimeButton::StoppedArchive:
+	setIcon(my.stoppedArchiveIcon);
 	break;
-    case BUTTON_BACKARCHIVE:
-	setPixmap(backarchive_pixmap);
+    case TimeButton::BackwardArchive:
+	setIcon(my.backwardArchiveIcon);
 	break;
-    case BUTTON_STEPFWDARCHIVE:
-	setPixmap(stepfwdarchive_pixmap);
+    case TimeButton::StepForwardArchive:
+	setIcon(my.stepForwardArchiveIcon);
 	break;
-    case BUTTON_STEPBACKARCHIVE:
-	setPixmap(stepbackarchive_pixmap);
+    case TimeButton::StepBackwardArchive:
+	setIcon(my.stepBackwardArchiveIcon);
 	break;
-    case BUTTON_FASTFWDARCHIVE:
-	setPixmap(fastfwdarchive_pixmap);
+    case TimeButton::FastForwardArchive:
+	setIcon(my.fastForwardArchiveIcon);
 	break;
-    case BUTTON_FASTBACKARCHIVE:
-	setPixmap(fastbackarchive_pixmap);
+    case TimeButton::FastBackwardArchive:
+	setIcon(my.fastBackwardArchiveIcon);
 	break;
     default:
 	abort();

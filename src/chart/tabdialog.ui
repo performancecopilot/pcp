@@ -1,356 +1,433 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>TabDialog</class>
-<widget class="QDialog">
-    <property name="name">
-        <cstring>TabDialog</cstring>
+<ui version="4.0" >
+ <class>TabDialog</class>
+ <widget class="QDialog" name="TabDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>343</width>
+    <height>248</height>
+   </rect>
+  </property>
+  <property name="focusPolicy" >
+   <enum>Qt::WheelFocus</enum>
+  </property>
+  <property name="windowTitle" >
+   <string>Edit Tab</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="kmchart.qrc" >:/tab-edit.png</iconset>
+  </property>
+  <property name="sizeGripEnabled" >
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="" >
+   <property name="geometry" >
+    <rect>
+     <x>12</x>
+     <y>12</y>
+     <width>321</width>
+     <height>232</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" >
+    <property name="margin" >
+     <number>0</number>
     </property>
-    <property name="geometry">
-        <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>343</width>
-            <height>238</height>
-        </rect>
+    <property name="spacing" >
+     <number>6</number>
     </property>
-    <property name="caption">
-        <string>Edit Tab</string>
-    </property>
-    <property name="icon">
-        <pixmap>kmchart.png</pixmap>
-    </property>
-    <property name="focusPolicy">
-        <enum>WheelFocus</enum>
-    </property>
-    <property name="sizeGripEnabled">
-        <bool>false</bool>
-    </property>
-    <grid>
-        <property name="name">
-            <cstring>unnamed</cstring>
+    <item>
+     <layout class="QHBoxLayout" >
+      <property name="margin" >
+       <number>0</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="tabTextLabel" >
+        <property name="text" >
+         <string>Label:</string>
         </property>
-        <widget class="QLayoutWidget" row="0" column="0">
-            <property name="name">
-                <cstring>layout9</cstring>
-            </property>
-            <grid>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QGroupBox" row="1" column="0">
-                    <property name="name">
-                        <cstring>groupBox3</cstring>
-                    </property>
-                    <property name="title">
-                        <string>Samples</string>
-                    </property>
-                    <grid>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QwtSlider" row="1" column="0">
-                            <property name="name">
-                                <cstring>visiblePointsSlider</cstring>
-                            </property>
-                            <property name="bgStyle">
-                                <enum>BgSlot</enum>
-                            </property>
-                            <property name="thumbLength">
-                                <number>30</number>
-                            </property>
-                            <property name="thumbWidth">
-                                <number>14</number>
-                            </property>
-                        </widget>
-                        <widget class="QwtSlider" row="3" column="0">
-                            <property name="name">
-                                <cstring>samplePointsSlider</cstring>
-                            </property>
-                            <property name="bgStyle">
-                                <enum>BgSlot</enum>
-                            </property>
-                            <property name="thumbLength">
-                                <number>30</number>
-                            </property>
-                            <property name="thumbWidth">
-                                <number>14</number>
-                            </property>
-                        </widget>
-                        <widget class="QLayoutWidget" row="0" column="0">
-                            <property name="name">
-                                <cstring>layout7</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>visiblePointsTextLabel</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Visible:</string>
-                                    </property>
-                                </widget>
-                                <spacer>
-                                    <property name="name">
-                                        <cstring>spacer3</cstring>
-                                    </property>
-                                    <property name="orientation">
-                                        <enum>Horizontal</enum>
-                                    </property>
-                                    <property name="sizeType">
-                                        <enum>Preferred</enum>
-                                    </property>
-                                    <property name="sizeHint">
-                                        <size>
-                                            <width>26</width>
-                                            <height>20</height>
-                                        </size>
-                                    </property>
-                                </spacer>
-                                <widget class="QwtCounter">
-                                    <property name="name">
-                                        <cstring>visiblePointsCounter</cstring>
-                                    </property>
-                                    <property name="basicstep" stdset="0">
-                                        <number>1</number>
-                                    </property>
-                                    <property name="minValue">
-                                        <number>2</number>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>300</number>
-                                    </property>
-                                </widget>
-                            </hbox>
-                        </widget>
-                        <widget class="QLayoutWidget" row="2" column="0">
-                            <property name="name">
-                                <cstring>layout8</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>samplePointsTextLabel</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Total:</string>
-                                    </property>
-                                </widget>
-                                <spacer>
-                                    <property name="name">
-                                        <cstring>spacer4</cstring>
-                                    </property>
-                                    <property name="orientation">
-                                        <enum>Horizontal</enum>
-                                    </property>
-                                    <property name="sizeType">
-                                        <enum>Preferred</enum>
-                                    </property>
-                                    <property name="sizeHint">
-                                        <size>
-                                            <width>40</width>
-                                            <height>20</height>
-                                        </size>
-                                    </property>
-                                </spacer>
-                                <widget class="QwtCounter">
-                                    <property name="name">
-                                        <cstring>samplePointsCounter</cstring>
-                                    </property>
-                                    <property name="basicstep" stdset="0">
-                                        <number>1</number>
-                                    </property>
-                                    <property name="minValue">
-                                        <number>2</number>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>300</number>
-                                    </property>
-                                </widget>
-                            </hbox>
-                        </widget>
-                    </grid>
-                </widget>
-                <widget class="QLayoutWidget" row="0" column="0">
-                    <property name="name">
-                        <cstring>layout35</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>tabTextLabel</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Label:</string>
-                            </property>
-                        </widget>
-                        <spacer>
-                            <property name="name">
-                                <cstring>spacer6</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Fixed</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>21</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                        <widget class="QLineEdit">
-                            <property name="name">
-                                <cstring>labelLineEdit</cstring>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-                <widget class="QLayoutWidget" row="2" column="0">
-                    <property name="name">
-                        <cstring>Layout1</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <property name="margin">
-                            <number>0</number>
-                        </property>
-                        <property name="spacing">
-                            <number>6</number>
-                        </property>
-                        <spacer>
-                            <property name="name">
-                                <cstring>Horizontal Spacing2</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>20</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                        <widget class="QPushButton">
-                            <property name="name">
-                                <cstring>buttonOk</cstring>
-                            </property>
-                            <property name="text">
-                                <string>&amp;OK</string>
-                            </property>
-                            <property name="accel">
-                                <string></string>
-                            </property>
-                            <property name="autoDefault">
-                                <bool>true</bool>
-                            </property>
-                            <property name="default">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                        <widget class="QPushButton">
-                            <property name="name">
-                                <cstring>buttonCancel</cstring>
-                            </property>
-                            <property name="text">
-                                <string>&amp;Cancel</string>
-                            </property>
-                            <property name="accel">
-                                <string></string>
-                            </property>
-                            <property name="autoDefault">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-            </grid>
-        </widget>
-    </grid>
-</widget>
-<customwidgets>
-</customwidgets>
-<connections>
-    <connection>
-        <sender>buttonOk</sender>
-        <signal>clicked()</signal>
-        <receiver>TabDialog</receiver>
-        <slot>accept()</slot>
-    </connection>
-    <connection>
-        <sender>buttonCancel</sender>
-        <signal>clicked()</signal>
-        <receiver>TabDialog</receiver>
-        <slot>reject()</slot>
-    </connection>
-    <connection>
-        <sender>samplePointsCounter</sender>
-        <signal>valueChanged(double)</signal>
-        <receiver>TabDialog</receiver>
-        <slot>samplePointsValueChanged(double)</slot>
-    </connection>
-    <connection>
-        <sender>samplePointsSlider</sender>
-        <signal>valueChanged(double)</signal>
-        <receiver>TabDialog</receiver>
-        <slot>samplePointsValueChanged(double)</slot>
-    </connection>
-    <connection>
-        <sender>visiblePointsCounter</sender>
-        <signal>valueChanged(double)</signal>
-        <receiver>TabDialog</receiver>
-        <slot>visiblePointsValueChanged(double)</slot>
-    </connection>
-    <connection>
-        <sender>visiblePointsSlider</sender>
-        <signal>valueChanged(double)</signal>
-        <receiver>TabDialog</receiver>
-        <slot>visiblePointsValueChanged(double)</slot>
-    </connection>
-</connections>
-<includes>
-    <include location="local" impldecl="in declaration">qwt/qwt_slider.h</include>
-    <include location="local" impldecl="in declaration">qwt/qwt_counter.h</include>
-    <include location="local" impldecl="in implementation">tabdialog.ui.h</include>
-</includes>
-<variables>
-    <variable access="private">bool archiveMode;</variable>
-    <variable access="private">double sampleHistory;</variable>
-    <variable access="private">double visibleHistory;</variable>
-</variables>
-<slots>
-    <slot>samplePointsValueChanged( double )</slot>
-    <slot>visiblePointsValueChanged( double )</slot>
-</slots>
-<functions>
-    <function>reset( QString, bool, int, int )</function>
-    <function returnType="bool">isArchiveMode()</function>
-    <function>displaySamplePointsSlider()</function>
-    <function>displayVisiblePointsSlider()</function>
-    <function>displaySamplePointsCounter()</function>
-    <function>displayVisiblePointsCounter()</function>
-</functions>
-<pixmapinproject/>
-<layoutdefaults spacing="6" margin="11"/>
-<includehints>
-    <includehint>qwt_slider.h</includehint>
-    <includehint>qwt_slider.h</includehint>
-    <includehint>qwt_counter.h</includehint>
-    <includehint>qwt_counter.h</includehint>
-</includehints>
-</UI>
+        <property name="wordWrap" >
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer>
+        <property name="sizeType" >
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>21</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="labelLineEdit" />
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBox3" >
+      <property name="title" >
+       <string>Samples</string>
+      </property>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>0</number>
+       </property>
+       <item row="0" column="0" >
+        <layout class="QGridLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item row="3" column="0" >
+          <widget class="QwtSlider" name="samplePointsSlider" >
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="bgStyle" >
+            <enum>QwtSlider::BgSlot</enum>
+           </property>
+           <property name="thumbLength" >
+            <number>8</number>
+           </property>
+           <property name="thumbWidth" >
+            <number>16</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" >
+          <layout class="QHBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="visiblePointsTextLabel" >
+             <property name="text" >
+              <string>Visible:</string>
+             </property>
+             <property name="wordWrap" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType" >
+              <enum>QSizePolicy::Preferred</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>26</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QwtCounter" name="visiblePointsCounter" >
+             <property name="basicstep" stdset="0" >
+              <double>1.000000000000000</double>
+             </property>
+             <property name="minValue" >
+              <double>2.000000000000000</double>
+             </property>
+             <property name="maxValue" >
+              <double>300.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="0" >
+          <layout class="QHBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="samplePointsTextLabel" >
+             <property name="text" >
+              <string>Total:</string>
+             </property>
+             <property name="wordWrap" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType" >
+              <enum>QSizePolicy::Preferred</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QwtCounter" name="samplePointsCounter" >
+             <property name="basicstep" stdset="0" >
+              <double>1.000000000000000</double>
+             </property>
+             <property name="minValue" >
+              <double>2.000000000000000</double>
+             </property>
+             <property name="maxValue" >
+              <double>300.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0" >
+          <widget class="QwtSlider" name="visiblePointsSlider" >
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="bgStyle" >
+            <enum>QwtSlider::BgSlot</enum>
+           </property>
+           <property name="thumbLength" >
+            <number>8</number>
+           </property>
+           <property name="thumbWidth" >
+            <number>16</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" >
+      <property name="margin" >
+       <number>0</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType" >
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonOk" >
+        <property name="text" >
+         <string>&amp;OK</string>
+        </property>
+        <property name="shortcut" >
+         <string/>
+        </property>
+        <property name="autoDefault" >
+         <bool>true</bool>
+        </property>
+        <property name="default" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonCancel" >
+        <property name="text" >
+         <string>&amp;Cancel</string>
+        </property>
+        <property name="shortcut" >
+         <string/>
+        </property>
+        <property name="autoDefault" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <customwidgets>
+  <customwidget>
+   <class>QwtSlider</class>
+   <extends>QWidget</extends>
+   <header>qwt_slider.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwtCounter</class>
+   <extends>QWidget</extends>
+   <header>qwt_counter.h</header>
+  </customwidget>
+ </customwidgets>
+ <includes>
+  <include location="local" >qwt/qwt_slider.h</include>
+  <include location="local" >qwt/qwt_counter.h</include>
+ </includes>
+ <resources>
+  <include location="kmchart.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonOk</sender>
+   <signal>clicked()</signal>
+   <receiver>TabDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonCancel</sender>
+   <signal>clicked()</signal>
+   <receiver>TabDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>samplePointsCounter</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>TabDialog</receiver>
+   <slot>samplePointsValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>samplePointsSlider</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>TabDialog</receiver>
+   <slot>samplePointsValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>visiblePointsCounter</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>TabDialog</receiver>
+   <slot>visiblePointsValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>visiblePointsSlider</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>TabDialog</receiver>
+   <slot>visiblePointsValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2007, Nathan Scott.  All Rights Reserved.
+ * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,91 +15,96 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Ken McDonell, kenj At internode DoT on DoT net
- *                      Nathan Scott, nathans At debian DoT org
  */
 
-#include <qapplication.h>
-#include <qmessagebox.h>
-#include <qlistview.h>
-#include <qstring.h>
+#include <QtCore/QList>
+#include <QtCore/QString>
+#include <QtGui/QApplication>
+#include <QtGui/QMessageBox>
+#include <QtGui/QListView>
 #include "namespace.h"
+#include "console.h"
 #include "source.h"
 #include "chart.h"
 
-NameSpace::NameSpace(NameSpace *parent, const char *name, bool inst, bool arch)
-    : QListViewItem(parent),
-      expanded(false),
-      pixelmap(NULL)
+NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
+    : QTreeWidgetItem(parent, QTreeWidgetItem::UserType)
 {
-    back = parent;
-    context = parent->context;
-    basename = QApplication::tr(name);
-    type = inst ? INSTANCE_NAME : UNKNOWN;
-    isArchive = arch;
+    my.expanded = false;
+    my.back = parent;
+    my.context = parent->my.context;
+    my.basename = name;
+    my.type = inst ? InstanceName : NoType;
+    my.isArchive = arch;
+
+    console->post("Added non-root namespace node %s",
+		  (const char *)my.basename.toAscii());
+    setText(0, my.basename);
 }
 
-NameSpace::NameSpace(QListView *list, const PMC_Context *ctxt, bool arch)
-    : QListViewItem(list, "root"),
-      expanded(false)
+NameSpace::NameSpace(QTreeWidget *list, const PMC_Context *ctxt, bool arch)
+    : QTreeWidgetItem(list, QTreeWidgetItem::UserType)
 {
-    back = this;
-    context = (PMC_Context *)ctxt;
-    basename = Source::makeComboText(ctxt);
-    if ((isArchive = arch) == TRUE) {
-	pixelmap = QPixmap::fromMimeSource("archive.png");
-	type = ARCHIVE_ROOT;
+    my.expanded = false;
+    my.back = this;
+    my.context = (PMC_Context *)ctxt;
+    my.basename = Source::makeComboText(ctxt);
+    if ((my.isArchive = arch) == true) {
+	my.iconic = QIcon(":/archive.png");
+	my.type = ArchiveRoot;
     }
     else {
-	pixelmap = QPixmap::fromMimeSource("computer.png");
-	type = HOST_ROOT;
+	my.iconic = QIcon(":/computer.png");
+	my.type = HostRoot;
     }
+    console->post("Added root %s namespace node %s", my.isArchive ?
+		  "archive" : "host", (const char *)my.basename.toAscii());
+    setText(0, my.basename);
+    setIcon(0, my.iconic);
 }
 
-QString NameSpace::sourceName(void)
+QString NameSpace::sourceName()
 {
-    return Source::makeSourceBaseName(context);
+    return Source::makeSourceBaseName(my.context);
 }
 
-QString NameSpace::metricName(void)
+QString NameSpace::metricName()
 {
     QString s;
 
-    if (back->isRoot())
+    if (my.back->isRoot())
 	s = text(1);
-    else if (type == INSTANCE_NAME)
-	s = back->metricName();
+    else if (my.type == InstanceName)
+	s = my.back->metricName();
     else {
-	s = back->metricName();
+	s = my.back->metricName();
 	s.append(".");
 	s.append(text(1));
     }
     return s;
 }
 
-QString NameSpace::instanceName(void)
+QString NameSpace::instanceName()
 {
-    if (type == INSTANCE_NAME)
+    if (my.type == InstanceName)
 	return text(1);
     return QString(NULL);
 }
 
 void NameSpace::setOpen(bool o)
 {
-    fprintf(stderr, "NameSpace::setOpen on %p %s (expanded=%s, open=%s)\n",
-	    this, metricName().ascii(), expanded ? "y" : "n", o ? "y" : "n");
-
-    if (!expanded) {
-	pmUseContext(context->hndl());
-	listView()->setUpdatesEnabled(FALSE);
-	if (type == LEAF_WITH_INDOM)
+    console->post("NameSpace::setOpen on %p %s (expanded=%s, open=%s)",
+			this, (const char *)metricName().toAscii(),
+			my.expanded ? "y" : "n", o ? "y" : "n");
+    if (!my.expanded) {
+	pmUseContext(my.context->hndl());
+	if (my.type == LeafWithIndom)
 	    expandInstanceNames();
-	else if (type != INSTANCE_NAME)
-	    expandMetricNames(isRoot() ? "" : metricName().ascii());
-	listView()->setUpdatesEnabled(TRUE);
+	else if (my.type != InstanceName)
+	    expandMetricNames(isRoot() ? "" : metricName());
     }
-    QListViewItem::setOpen(o);
+// TODO?
+    QTreeWidgetItem::setExpanded(o);
 }
 
 static char *namedup(const char *name, const char *suffix)
@@ -111,7 +116,7 @@ static char *namedup(const char *name, const char *suffix)
     return n;
 }
 
-void NameSpace::expandMetricNames(const char *name)
+void NameSpace::expandMetricNames(QString parent)
 {
     char	**offspring = NULL;
     int		*status = NULL;
@@ -119,13 +124,14 @@ void NameSpace::expandMetricNames(const char *name)
     int		i, nleaf = 0;
     int		sts, noffspring;
     NameSpace	*m, **leaflist = NULL;
+    const char	*name = (const char *)parent.toAscii();
 
     sts = pmGetChildrenStatus(name, &offspring, &status);
     if (sts < 0) {
 	QString msg = QString();
 	if (isRoot())
 	    msg.sprintf("Cannot get metric names from source\n%s: %s.\n\n",
-		basename.ascii(), pmErrStr(sts));
+		(const char *)my.basename.toAscii(), pmErrStr(sts));
 	else
 	    msg.sprintf("Cannot get children of node\n\"%s\".\n%s.\n\n",
 		name, pmErrStr(sts));
@@ -139,15 +145,15 @@ void NameSpace::expandMetricNames(const char *name)
     }
 
     for (i = 0; i < noffspring; i++) {
-	m = new NameSpace(this, offspring[i], false, isArchive);
+	m = new NameSpace(this, offspring[i], false, my.isArchive);
 
 	if (status[i] == PMNS_NONLEAF_STATUS) {
-	    m->setSelectable(FALSE);
-	    m->setExpandable(TRUE);
-	    m->type = NONLEAF_NAME;
+	    m->setSelectable(false);
+	    m->setExpandable(true);
+	    m->my.type = NonLeafName;
 	}
 	else {
-	    // type still UNKNOWN, could be LEAF_NULL_INDOM or LEAF_WITH_INDOM
+	    // type still not set, could be LEAF_NULL_INDOM or LEAF_WITH_INDOM
 	    // here we add this NameSpace pointer to the leaf list, and also
 	    // modify the offspring list to only contain names (when done).
 	    leaflist = (NameSpace **)realloc(leaflist,
@@ -159,7 +165,7 @@ void NameSpace::expandMetricNames(const char *name)
     }
 
     if (nleaf == 0) {
-	expanded = TRUE;
+	my.expanded = true;
 	goto done;
     }
 
@@ -176,7 +182,7 @@ void NameSpace::expandMetricNames(const char *name)
     else {
 	for (i = 0; i < nleaf; i++) {
 	    m = leaflist[i];
-	    sts = pmLookupDesc(pmidlist[i], &m->desc);
+	    sts = pmLookupDesc(pmidlist[i], &m->my.desc);
 	    if (sts < 0) {
 		QString msg = QString();
 		msg.sprintf("Cannot find metric descriptor at \"%s\".\n%s.\n\n",
@@ -187,18 +193,18 @@ void NameSpace::expandMetricNames(const char *name)
 			QMessageBox::NoButton, QMessageBox::NoButton);
 		return;
 	    }
-	    if (m->desc.indom == PM_INDOM_NULL) {
-		m->type = LEAF_NULL_INDOM;
-		m->setExpandable(FALSE);
-		m->setSelectable(TRUE);
+	    if (m->my.desc.indom == PM_INDOM_NULL) {
+		m->my.type = LeafNullIndom;
+		m->setExpandable(false);
+		m->setSelectable(true);
 	    }
 	    else {
-		m->type = LEAF_WITH_INDOM;
-		m->setExpandable(TRUE);
-		m->setSelectable(FALSE);
+		m->my.type = LeafWithIndom;
+		m->setExpandable(true);
+		m->setSelectable(false);
 	    }
 	}
-	expanded = TRUE;
+	my.expanded = true;
     }
     for (i = 0; i < nleaf; i++)
 	free(offspring[i]);
@@ -214,19 +220,19 @@ done:
 	free(status);
 }
 
-void NameSpace::expandInstanceNames(void)
+void NameSpace::expandInstanceNames()
 {
     int		sts, i;
     int		ninst = 0;
     int		*instlist = NULL;
     char	**namelist = NULL;
 
-    sts = !isArchive ? pmGetInDom(desc.indom, &instlist, &namelist) :
-		pmGetInDomArchive(desc.indom, &instlist, &namelist);
+    sts = !my.isArchive ? pmGetInDom(my.desc.indom, &instlist, &namelist) :
+		pmGetInDomArchive(my.desc.indom, &instlist, &namelist);
     if (sts < 0) {
 	QString msg = QString();
 	msg.sprintf("Error fetching instance domain at node \"%s\".\n%s.\n\n",
-		metricName().ascii(), pmErrStr(sts));
+		(const char *)metricName().toAscii(), pmErrStr(sts));
 	QMessageBox::warning(NULL, pmProgname, msg,
 		QMessageBox::Ok | QMessageBox::Default |
 			QMessageBox::Escape,
@@ -234,16 +240,16 @@ void NameSpace::expandInstanceNames(void)
     }
     else {
 	ninst = sts;
-	expanded = TRUE;
+	my.expanded = true;
     }
 
     for (i = 0; i < ninst; i++) {
-	NameSpace *m = new NameSpace(this, namelist[i], true, isArchive);
+	NameSpace *m = new NameSpace(this, namelist[i], true, my.isArchive);
 
-	m->setExpandable(FALSE);
-	m->setSelectable(TRUE);
-	m->instid = instlist[i];
-	m->type = INSTANCE_NAME;
+	m->setExpandable(false);
+	m->setSelectable(true);
+	m->my.instid = instlist[i];
+	m->my.type = InstanceName;
     }
 
     if (instlist)
@@ -252,60 +258,52 @@ void NameSpace::expandInstanceNames(void)
 	free(namelist);
 }
 
-void NameSpace::setup()
-{
-    QListViewItem::setup();
-}
-
 QString NameSpace::text(int column) const
 {
     if (column > 1)
 	return "";
-    return basename;
+    return my.basename;
 }
 
-const QPixmap *NameSpace::pixmap(int column) const
+QIcon NameSpace::icon(int) const
 {
-    if (column > 1)
-	return NULL;
-    return &pixelmap;
+    return my.iconic;
 }
 
-void NameSpace::setPixmap(int column, const QPixmap & pm)
+void NameSpace::setIcon(int i, const QIcon &ic)
 {
-    if (column > 1)
-	return;
-    pixelmap = pm;
+    my.iconic = ic;
+    QTreeWidgetItem::setIcon(i, ic);
 }
 
-NameSpace *NameSpace::dup(QListView *list)
+NameSpace *NameSpace::dup(QTreeWidget *list)
 {
     NameSpace *n;
 
-    n = new NameSpace(list, context, type == ARCHIVE_ROOT);
-    n->expanded = TRUE;
-    n->setExpandable(TRUE);
-    n->setSelectable(FALSE);
+    n = new NameSpace(list, my.context, my.type == ArchiveRoot);
+    n->my.expanded = true;
+    n->setExpandable(true);
+    n->setSelectable(false);
     return n;
 }
 
-NameSpace *NameSpace::dup(QListView *target, NameSpace *tree)
+NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
 {
     NameSpace *n;
 
-    n = new NameSpace(tree, basename.ascii(), type == INSTANCE_NAME, isArchive);
-    n->expanded = TRUE;
-    n->context = context;
-    n->instid = instid;
-    n->desc = desc;
-    n->type = type;
+    n = new NameSpace(tree, my.basename, my.type == InstanceName, my.isArchive);
+    n->my.expanded = true;
+    n->my.context = my.context;
+    n->my.instid = my.instid;
+    n->my.desc = my.desc;
+    n->my.type = my.type;
     if (!isLeaf()) {
-	n->setExpandable(TRUE);
-	n->setSelectable(FALSE);
+	n->setExpandable(true);
+	n->setSelectable(false);
     }
     else {
-	n->setExpandable(FALSE);
-	n->setSelectable(TRUE);
+	n->setExpandable(false);
+	n->setSelectable(true);
 
 	QColor c = Chart::defaultColor(-1);
 	n->setOriginalColor(c);
@@ -313,56 +311,58 @@ NameSpace *NameSpace::dup(QListView *target, NameSpace *tree)
 
 	// this is a leaf so walk back up to the root, opening each node up
 	NameSpace *up;
-	for (up = tree; up->back != up; up = up->back)
-	    up->setOpen(TRUE);
-	up->setOpen(TRUE);	// add the host/archive root as well.
+	for (up = tree; up->my.back != up; up = up->my.back)
+	    up->setOpen(true);
+	up->setOpen(true);	// add the host/archive root as well.
 
-	target->setSelected(n, TRUE);
+	n->setSelected(true);
     }
     return n;
 }
 
-bool NameSpace::cmp(QListViewItem *item)
+bool NameSpace::cmp(QTreeWidgetItem *item)
 {
     if (!item)	// empty list
-	return FALSE;
-    return (item->text(1) == basename);
+	return false;
+    return (item->text(1) == my.basename);
 }
 
-void NameSpace::addToList(QListView *target)
+void NameSpace::addToTree(QTreeWidget *target)
 {
-    QListViewItem *last;
-    QPtrList<NameSpace> nodelist;
-    NameSpace *node, *tree = NULL;
+    QList<NameSpace *> nodelist;
+    NameSpace *node;
 
     // Walk through each component of this name, creating them in the
     // target list (if not there already), right down to the leaf.
     // We hold everything in a temporary list since we need to add to
     // the target in root-to-leaf order but we're currently at a leaf.
 
-    for (node = this; node->back != node; node = node->back)
+    for (node = this; node->my.back != node; node = node->my.back)
 	nodelist.prepend(node);
     nodelist.prepend(node);	// add the host/archive root as well.
 
-    last = target->firstChild();
-    for (node = nodelist.first(); node; node = nodelist.next()) {
-	do {
-	    if (node->cmp(last)) {
+    NameSpace *tree = (NameSpace *)target->invisibleRootItem();
+    QTreeWidgetItem *item = NULL;
+
+    for (int n = 0; n < nodelist.size(); n++) {
+	node = nodelist.at(n);
+	for (int i = 0; i < tree->childCount(); i++) {
+	    item = tree->child(i);
+	    if (node->cmp(item)) {
 		// no insert at this level necessary, move down a level
 		if (!node->isLeaf()) {
-		    tree = (NameSpace *)last;
-		    last = last->firstChild();
+		    tree = (NameSpace *)item;
+		    item = item->child(0);
 		}
 		else {	// already there, just select the existing name
-		    target->setSelected(last, TRUE);
+		    item->setSelected(true);
 		}
 		break;
 	    }
-	    // else keep scanning the direct children.
-	} while (last && (last = last->nextSibling()) != NULL);
+	}
 
-	/* when no more children and no match so far, we dup & insert */
-	if (!last) {
+	// When no more children and no match so far, we dup & insert
+	if (!item) {
 	    if (node->isRoot())
 		tree = node->dup(target);
 	    else if (tree)
@@ -371,41 +371,41 @@ void NameSpace::addToList(QListView *target)
     }
 }
 
-void NameSpace::removeFromList(QListView *target)
+void NameSpace::removeFromTree(QTreeWidget *)
 {
     NameSpace *self, *tree, *node = this;
 
-    target->setSelected(this, FALSE);
+    this->setSelected(false);
     do {
 	self = node;
-	tree = node->back;
+	tree = node->my.back;
 	if (node->childCount() == 0)
 	    delete node;
 	node = tree;
     } while (self != tree);
 }
 
-void NameSpace::setCurrentColor(QColor color, QListView *listview)
+void NameSpace::setCurrentColor(QColor color, QTreeWidget *treeview)
 {
     QPixmap pix(8, 8);
 
     // Set the current metric color, and (optionally) move on to the next
-    // leaf node in the view (if given listview parameter is non-NULL).
+    // leaf node in the view (if given treeview parameter is non-NULL).
     // We're taking a punt here that the user will move down through the
     // metrics just added, and set their prefered color on each one; so,
     // by doing the next selection automatically, we save some clicks.
 
-    current = color;
+    my.current = color;
     pix.fill(color);
-    setPixmap(1, pix);
+    setIcon(1, QIcon(pix));
 
-    if (listview) {
-	QListViewItemIterator it(this, QListViewItemIterator::Selectable);
-	if ((++it).current()) {
-	    listview->setSelected(it.current(), TRUE);
-	    listview->setSelected(this, FALSE);
-	} else
-	    repaint();
-    } else
-	repaint();
+    if (treeview) {
+	QTreeWidgetItemIterator it(this, QTreeWidgetItemIterator::Selectable);
+	if (*it) {
+	    (*it)->setSelected(true);
+	    this->setSelected(false);
+	} // else - TODO
+	  //repaint();
+    } // else - TODO
+      // repaint();
 }

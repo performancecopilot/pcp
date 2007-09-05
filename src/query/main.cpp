@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Nathan Scott.  All Rights Reserved.
+ * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,20 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Nathan Scott, nathans At debian DoT org
  */
-
-#include <qapplication.h>
-#include <qlayout.h>
-#include <qframe.h>
-#include <qlabel.h>
-#include <qfile.h>
-#include <errno.h>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
+#include <QtGui/QDesktopWidget>
+#include <QtGui/QCursor>
 #include "kmquery.h"
 
 static char usage[] =
@@ -72,7 +63,8 @@ char *catoption(char *prefix, char *option, int total)
 char *getoptions(int argc, char **argv, char *arg)
 {
     int length = strlen(arg) + 1;
-    char *string = strndup(arg, length);
+    char *string = (char *)malloc(length);
+    strncpy(string, arg, length);
     while (string && (arg = getoption(argc, argv)) != NULL) {
 	length += 1 + strlen(arg) + 1;
 	string = catoption(string, arg, length);
@@ -239,18 +231,18 @@ int main(int argc, char ** argv)
 	QFile *file = NULL;
 
 	if (strcmp(filename, "-") == 0)
-	    stream = new QTextStream(stdin, IO_ReadOnly);
+	    stream = new QTextStream(stdin, QIODevice::ReadOnly);
 	else {
 	    file = new QFile(filename);
-	    if (!file->open(IO_ReadOnly)) {
+	    if (!file->open(QIODevice::ReadOnly)) {
 		fprintf(stderr, "Cannot open %s: %s\n", filename,
-			strerror(errno));
+			(char *)file->errorString().toAscii().data());
 		exit(1);
 	    }
 	    stream = new QTextStream(file);
 	}
 	while (!stream->atEnd()) {
-	    if ((option = strdup(stream->readLine().ascii())) == NULL) {
+	    if ((option = strdup(stream->readLine().toAscii())) == NULL) {
 		fputs("Insufficient memory reading message stream\n", stderr);
 		exit(1);
 	    }
@@ -264,7 +256,16 @@ int main(int argc, char ** argv)
     if (!KmQuery::buttonCount())
 	KmQuery::addButton("Continue", TRUE, 0);
 
-    KmQuery q(centerflag, nearmouseflag, inputflag, printflag, noframeflag,
+    KmQuery q(inputflag, printflag, noframeflag,
 	      nosliderflag, usesliderflag, exclusiveflag);
+
+    if (nearmouseflag)
+	q.move(QCursor::pos());
+    else if (centerflag) {
+	int x = (a.desktop()->screenGeometry().width() / 2) - (q.width() / 2);
+	int y = (a.desktop()->screenGeometry().height() / 2) - (q.height() / 2);
+	q.move(x > 0 ? x : 0, y > 0 ? y : 0);
+    }
+
     return q.exec();
 }

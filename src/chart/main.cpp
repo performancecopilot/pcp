@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2007, Nathan Scott.  All Rights Reserved.
+ * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,20 +15,16 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Ken McDonell, kenj At internode DoT on DoT net
- *                      Nathan Scott, nathans At debian DoT org
  */
-
-#include <qapplication.h>
-#include <qstatusbar.h>
-#include <qsettings.h>
+#include <QtCore/QSettings>
+#include <QtGui/QApplication>
+#include <QtGui/QStatusBar>
 #include "main.h"
 
 #define DESPERATE 0
 
 int		Cflag;
-Settings	settings;
+Settings	globalSettings;
 
 // Globals used to provide single instances of classes used across kmchart
 Tab 		*activeTab;	// currently active Tab
@@ -62,8 +58,8 @@ static void usage(void)
 "  -v samples    visible history [default: %d points]\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time of metrics source\n",
-	pmProgname,
-	DEFAULT_SAMPLE_POINTS, DEFAULT_SAMPLE_INTERVAL, DEFAULT_VISIBLE_POINTS);
+	pmProgname, KmChart::defaultSamplePoints,
+	KmChart::defaultSampleInterval, KmChart::defaultVisiblePoints);
     pmflush();
     exit(1);
 }
@@ -99,14 +95,8 @@ void fromsec(double value, struct timeval *tv)
     tv->tv_usec = (unsigned int)usec;
 }
 
-// conversion from struct timeval to seconds (double precision)
-double secondsFromTV(struct timeval *tv)
-{
-    return (double)tv->tv_sec + ((double)tv->tv_usec / 1000.0);
-}
-
 // debugging, display seconds-since-epoch in human readable format
-char *timestring(double seconds)
+char *timeString(double seconds)
 {
     static char string[32];
     time_t secs = (time_t)seconds;
@@ -125,57 +115,52 @@ void nomem(void)
 
 void writeSettings(void)
 {
+    QString path = QDir::homePath();
+    path.append("/.pcp/kmchart");
+    QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, path);
+
     QSettings userSettings;
-    QString userHomeDir;
-
-    userHomeDir = QDir::homeDirPath();
-    userHomeDir.append("/.pcp/kmchart");
-    userSettings.setPath(QApplication::tr("PCP"), QApplication::tr("kmchart"));
-    userSettings.insertSearchPath(QSettings::Unix, userHomeDir);
-
-    userSettings.beginGroup(QApplication::tr("kmchart"));
-    if (settings.sampleHistoryModified)
-	userSettings.writeEntry(QApplication::tr("sample_points"), 
-				settings.sampleHistory);
-    if (settings.visibleHistoryModified)
-	userSettings.writeEntry(QApplication::tr("visible_points"),
-				settings.visibleHistory);
-    if (settings.defaultColorsModified)
-	userSettings.writeEntry(QApplication::tr("plot_default_colors"),
-				settings.defaultColorNames);
-    if (settings.chartBackgroundModified)
-	userSettings.writeEntry(QApplication::tr("chart_background_color"),
-				settings.chartBackgroundName);
-    if (settings.chartHighlightModified)
-	userSettings.writeEntry(QApplication::tr("chart_highlight_color"),
-				settings.chartHighlightName);
-    if (settings.styleModified)
-	userSettings.writeEntry(QApplication::tr("style"), settings.styleName);
+    userSettings.beginGroup("kmchart");
+    if (globalSettings.sampleHistoryModified)
+	userSettings.setValue("sample_points", globalSettings.sampleHistory);
+    if (globalSettings.visibleHistoryModified)
+	userSettings.setValue("visible_points", globalSettings.visibleHistory);
+    if (globalSettings.defaultColorsModified)
+	userSettings.setValue("plot_default_colors",
+				globalSettings.defaultColorNames);
+    if (globalSettings.chartBackgroundModified)
+	userSettings.setValue("chart_background_color",
+				globalSettings.chartBackgroundName);
+    if (globalSettings.chartHighlightModified)
+	userSettings.setValue("chart_highlight_color",
+				globalSettings.chartHighlightName);
+    if (globalSettings.styleModified)
+	userSettings.setValue("style", globalSettings.styleName);
     userSettings.endGroup();
 }
 
 void checkHistory(int samples, int visible)
 {
     // sanity checking on sample sizes
+    if (samples < KmChart::minimumPoints) {
+	globalSettings.sampleHistory = KmChart::minimumPoints;
+	globalSettings.sampleHistoryModified = 1;
+    }
+    if (samples > KmChart::maximumPoints) {
+	globalSettings.sampleHistory = KmChart::maximumPoints;
+	globalSettings.sampleHistoryModified = 1;
+    }
+    if (visible < KmChart::minimumPoints) {
+	globalSettings.visibleHistory = KmChart::minimumPoints;
+	globalSettings.visibleHistoryModified = 1;
+    }
+    if (visible > KmChart::maximumPoints) {
+	globalSettings.visibleHistory = KmChart::maximumPoints;
+	globalSettings.visibleHistoryModified = 1;
+    }
     if (samples < visible) {
-	settings.sampleHistory = settings.visibleHistory;
-	settings.sampleHistoryModified = 1;
-    }
-    if (samples < MINIMUM_POINTS) {
-	settings.sampleHistory = MINIMUM_POINTS;
-	settings.sampleHistoryModified = 1;
-    }
-    if (samples > MAXIMUM_POINTS) {
-	settings.sampleHistory = MAXIMUM_POINTS;
-	settings.sampleHistoryModified = 1;
-    }
-    if (visible < MINIMUM_POINTS) {
-	settings.visibleHistory = MINIMUM_POINTS;
-	settings.visibleHistoryModified = 1;
-    }
-    if (visible > MAXIMUM_POINTS) {
-	settings.visibleHistory = MAXIMUM_POINTS;
-	settings.visibleHistoryModified = 1;
+	globalSettings.sampleHistory = globalSettings.visibleHistory;
+	globalSettings.sampleHistoryModified = 1;
     }
 }
 
@@ -183,73 +168,69 @@ void setupEnvironment(void)
 {
     QString confirm = pmGetConfig("PCP_BIN_DIR");
     confirm.append("/kmquery");
-    setenv("PCP_XCONFIRM_PROG", confirm.ascii(), 1);
+    setenv("PCP_XCONFIRM_PROG", (const char *)confirm.toAscii(), 1);
     setenv("PCP_STDERR", "DISPLAY", 1);
+
+    QCoreApplication::setOrganizationName("PCP");
+    QCoreApplication::setApplicationName("kmchart");
 }
 
 void readSettings(void)
 {
-    QSettings	userSettings;
-    QString	userHomeDir;
-    bool	ok;
+    QString home = QDir::homePath();
+    home.append("/.pcp/kmchart");
+    QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, home);
 
-    userHomeDir = QDir::homeDirPath();
-    userHomeDir.append("/.pcp/kmchart");
-    userSettings.setPath(QApplication::tr("PCP"), QApplication::tr("kmchart"));
-    userSettings.insertSearchPath(QSettings::Unix, userHomeDir);
-
+    QSettings userSettings;
     userSettings.beginGroup(QApplication::tr("kmchart"));
 
     //
     // Parameters related to numbers of samples
     //
-    settings.sampleHistory = userSettings.readNumEntry(
-	QApplication::tr("sample_points"), DEFAULT_SAMPLE_POINTS);
-    settings.visibleHistory = userSettings.readNumEntry(
-	QApplication::tr("visible_points"), DEFAULT_VISIBLE_POINTS);
-    checkHistory(settings.sampleHistory, settings.visibleHistory);
-    if (settings.sampleHistoryModified)
-	userSettings.writeEntry(QApplication::tr("sample_points"), 
-				settings.sampleHistory);
-    if (settings.visibleHistoryModified)
-	userSettings.writeEntry(QApplication::tr("visible_points"), 
-				settings.visibleHistory);
+    globalSettings.sampleHistory = userSettings.value("sample_points",
+					KmChart::defaultSamplePoints).toInt();
+    globalSettings.visibleHistory = userSettings.value("visible_points",
+					KmChart::defaultVisiblePoints).toInt();
+    checkHistory(globalSettings.sampleHistory, globalSettings.visibleHistory);
+    if (globalSettings.sampleHistoryModified)
+	userSettings.setValue("sample_points", globalSettings.sampleHistory);
+    if (globalSettings.visibleHistoryModified)
+	userSettings.setValue("visible_points", globalSettings.visibleHistory);
 
     //
     // Everything colour related
     //
-    QStringList colorList = userSettings.readListEntry(
-		QApplication::tr("plot_default_colors"), &ok);
-    if (!ok)
+    QStringList colorList;
+    if (userSettings.contains("plot_default_colors") == true)
+	colorList = userSettings.value("plot_default_colors").toStringList();
+    else
 	colorList << QApplication::tr("yellow") << QApplication::tr("blue") <<
 			QApplication::tr("red") << QApplication::tr("green") <<
 			QApplication::tr("violet");
-    settings.defaultColorNames = colorList;
+    globalSettings.defaultColorNames = colorList;
 
     QStringList::Iterator it = colorList.begin();
     while (it != colorList.end()) {
-	settings.defaultColors << QColor(*it);
+	globalSettings.defaultColors << QColor(*it);
 	++it;
     }
 
-    settings.chartBackgroundName = userSettings.readEntry(
-		QApplication::tr("chart_background_color"),
-		QApplication::tr("light steel blue"));
-    settings.chartBackground = QColor(settings.chartBackgroundName);
+    globalSettings.chartBackgroundName = userSettings.value(
+		"chart_background_color", "light steel blue").toString();
+    globalSettings.chartBackground = QColor(globalSettings.chartBackgroundName);
 
-    settings.chartHighlightName = userSettings.readEntry(
-		QApplication::tr("chart_highlight_color"),
-		QApplication::tr("blue"));
-    settings.chartHighlight = QColor(settings.chartHighlightName);
+    globalSettings.chartHighlightName = userSettings.value(
+		"chart_highlight_color", "blue").toString();
+    globalSettings.chartHighlight = QColor(globalSettings.chartHighlightName);
 
     //
     // Application GUI Styles
     //
-    settings.defaultStyle = settings.style = &QApplication::style();
-    settings.styleName = userSettings.readEntry(QApplication::tr("style"),
-						QString::null, &ok);
-    if (ok)
-	QApplication::setStyle(settings.styleName);
+    globalSettings.defaultStyle = globalSettings.style = QApplication::style();
+    if (userSettings.contains("style") == true) {
+	globalSettings.styleName = userSettings.value("style").toString();
+	QApplication::setStyle(globalSettings.styleName);
+    }
 
     userSettings.endGroup();
 }
@@ -270,7 +251,7 @@ main(int argc, char ** argv)
     int			sh = -1;		/* sample history length */
     int			vh = -1;		/* visible history length */
     int			port = -1;		/* kmtime port number */
-    struct timeval	delta = { DEFAULT_SAMPLE_INTERVAL, 0 };
+    struct timeval	delta = { KmChart::defaultSampleInterval, 0 };
     struct timeval	logStartTime;
     struct timeval	logEndTime;
     struct timeval	realStartTime;
@@ -409,24 +390,25 @@ main(int argc, char ** argv)
     }
 
     //
-    // Deal with user requested sample/visible points settings.  These
+    // Deal with user requested sample/visible points globalSettings.  These
     // (command line) override the QSettings values, for this instance
     // of kmchart.  They should not be written though, unless requested
     // later via the Settings dialog.
     //
     if (vh != -1 || sh != -1) {
 	if (sh == -1)
-	    sh = settings.sampleHistory;
+	    sh = globalSettings.sampleHistory;
 	if (vh == -1)
-	    vh = settings.visibleHistory;
+	    vh = globalSettings.visibleHistory;
 	checkHistory(sh, vh);
-	if (settings.sampleHistoryModified || settings.visibleHistoryModified) {
+	if (globalSettings.sampleHistoryModified ||
+	    globalSettings.visibleHistoryModified) {
 	    pmprintf("%s: invalid sample/visible history\n", pmProgname);
 	    pmflush();
 	    exit(1);
 	}
-	settings.sampleHistory = sh;
-	settings.visibleHistory = vh;
+	globalSettings.sampleHistory = sh;
+	globalSettings.visibleHistory = vh;
     }
 
     if (pmnsfile && (sts = pmLoadNameSpace(pmnsfile)) < 0) {
@@ -497,8 +479,7 @@ main(int argc, char ** argv)
 	    /*NOTREACHED*/
 	}
 	// move position to account for initial visible points
-	// TODO: pmchart had an option to start at archive end
-	for (c = 0; c < settings.sampleHistory - 2; c++)
+	for (c = 0; c < globalSettings.sampleHistory - 2; c++)
 	    tadd(&position, &delta);
     }
     else {
@@ -516,8 +497,11 @@ main(int argc, char ** argv)
 	}
     }
 
-    kmchart = new KmChart();
-    kmtime = new TimeControl();
+    console = new Console();
+    fileIconProvider = new FileIconProvider();
+
+    kmchart = new KmChart;
+    kmtime = new TimeControl;
 
     // Start kmtime process for time management
     kmtime->init(port, archives.length() == 0,
@@ -527,12 +511,14 @@ main(int argc, char ** argv)
 
     kmchart->init();
     tabs[0]->init(kmchart->tabWidget(),
-			settings.sampleHistory, settings.visibleHistory,
-			liveGroup, KM_SOURCE_HOST, "Live",
+			globalSettings.sampleHistory,
+			globalSettings.visibleHistory,
+			liveGroup, KmTime::HostSource, "Live",
 			kmtime->liveInterval(), kmtime->livePosition());
     tabs[1]->init(kmchart->tabWidget(),
-			settings.sampleHistory, settings.visibleHistory,
-			archiveGroup, KM_SOURCE_ARCHIVE, "Archive",
+			globalSettings.sampleHistory,
+			globalSettings.visibleHistory,
+			archiveGroup, KmTime::ArchiveSource, "Archive",
 			kmtime->archiveInterval(), kmtime->archivePosition());
     kmchart->setActiveTab(archives.length() > 0 ? 1 : 0, true);
 
@@ -541,17 +527,13 @@ main(int argc, char ** argv)
 
     ntabs = 2;	// last, so we don't react to kmtime step messages until now
 
-    kmchart->enableUI();
+    kmchart->enableUi();
 
     if (Cflag)	// done with -c config, quit
 	return 0;
 
-    delete kmchart->statusBar();
     kmchart->show();
     a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
-
-    FileIconProvider *provider = new FileIconProvider(kmchart, "fileIcons");
-    QFileDialog::setIconProvider(provider);
 
     return a.exec();
 }

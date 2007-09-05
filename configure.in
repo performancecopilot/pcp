@@ -14,4 +14,4 @@ AC_PACKAGE_NEED_PTHREADMUTEXINIT
 
 AC_MANUAL_FORMAT
 
-AC_OUTPUT(src/include/builddefs)
+AC_OUTPUT(src/include/builddefs src/include/version.h)

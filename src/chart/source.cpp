@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,12 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Ken McDonell, kenj At internode DoT on DoT net
  */
 
 //
@@ -23,24 +18,19 @@
 //
 // manipulate one or more PMAPI contexts
 
-#include <qtooltip.h>
-#include <qmessagebox.h>
+#include <QtGui/QMessageBox>
 #include "namespace.h"
 #include "main.h"
 
 #define DESPERATE 1
 
-typedef struct source {
-    struct source	*next;
-    PMC_Context		*ctx;
-    NameSpace		*root;
-} source_t;
+QList<PMC_Context *>contextList;
+PMC_Context *currentContext;
 
 Source::Source(PMC_Group *group)
 {
-    currentSource = NULL;
-    firstSource = NULL;
-    fetchGroup = group;
+    my.fetchGroup = group;
+    my.context = NULL;
 }
 
 QString Source::makeSourceBaseName(const PMC_Context *cp)
@@ -52,7 +42,7 @@ QString Source::makeSourceBaseName(const PMC_Context *cp)
 
 QString Source::makeSourceAnnotatedName(const PMC_Context *cp)
 {
-    QString	t;
+    QString t;
 
     if (cp->source().type() == PM_CONTEXT_HOST) {
 	t = QString(cp->source().host().ptr());
@@ -75,11 +65,11 @@ QString Source::makeComboText(const PMC_Context *ctx)
 
 int useSourceContext(QWidget *parent, QString &source)
 {
-    int		sts;
-    PMC_Group	*group = activeTab->group();
-    uint_t	ctxcount = group->numContexts();
-    const char	*src = source.ascii();
-    char	*end, *proxy, *host = strdup(src);
+    int sts;
+    PMC_Group *group = activeTab->group();
+    uint_t ctxcount = group->numContexts();
+    const char *src = source.toAscii();
+    char *end, *proxy, *host = strdup(src);
 
     // TODO: proxy support needed (we toss proxy hostname atm)
     end = host;
@@ -87,14 +77,14 @@ int useSourceContext(QWidget *parent, QString &source)
     proxy = strsep(&end, ")") + 1;
     *end = '\0';
 
-    fprintf(stderr, "%s: trying new source: %s; host=%s proxy=%s\n",
-	    __FUNCTION__, src, host, proxy);
+    console->post("useSourceContext trying new source: %s; host=%s proxy=%s\n",
+			src, host, proxy);
 
     if (strcmp(proxy, "no proxy") == 0)
 	unsetenv("PMPROXY_HOST");
     else
 	setenv("PMPROXY_HOST", proxy, 1);
-    if ((sts = group->use(activeSources->type(), src)) < 0) {
+    if ((sts = group->use(activeSources->type(), host)) < 0) {
 	QString msg = QString();
 	msg.sprintf("Failed to %s \"%s\".\n%s.\n\n",
 		    (activeSources->type() == PM_CONTEXT_HOST) ?
@@ -120,71 +110,40 @@ int Source::useComboContext(QWidget *parent, QComboBox *combo)
 
 int Source::type()
 {
-    return currentSource == NULL ? -1 : currentSource->ctx->source().type();
+    return currentContext ? currentContext->source().type() : -1;
 }
 
 QString Source::host()
 {
-    // TODO: nathans - these aint QString's, theyre char* ... hmm.
-    return currentSource == NULL ?
-		NULL : currentSource->ctx->source().host().ptr();
+    // TODO: nathans - these aint QString's, theyre char* ... hmm?
+    return my.context ? my.context->source().host().ptr() : NULL;
 }
 
 const char *Source::source()
 {
 #if DESPERATE
-    fprintf(stderr, "Source::source(): currentSource=%p", currentSource);
-    if (currentSource != NULL)
-	fprintf(stderr, " ctx=%d", currentSource->ctx->hndl());
-    else
-	fputc('\n', stderr);
+    console->post("Source::source(): currentContext=%p", currentContext);
 #endif
-    if (currentSource == NULL)
-    	return  NULL;
-    else {
-	PMC_Context	*cp = currentSource->ctx;
+
+    if (!currentContext)
+    	return NULL;
+
 #if DESPERATE
-	fprintf(stderr, " source=%s\n", cp->source().source().ptr());
+    console->post("  currentContext hndl=%d source=%s", currentContext->hndl(),
+		currentContext->source().source().ptr());
 #endif
-	return cp->source().source().ptr();
-    }
+
+    return currentContext->source().source().ptr();
 }
 
-NameSpace *Source::root(void)
+void Source::add(PMC_Context *context)
 {
-    if (currentSource == NULL)
-	return NULL;
-    else
-	return currentSource->root;
-}
+    bool send_bounds = (context->source().type() == PM_CONTEXT_ARCHIVE);
 
-void Source::setRoot(NameSpace *root)
-{
-    if (currentSource != NULL)
-	currentSource->root = root;
-    else {
-	fprintf(stderr, "Source::setRoot: botch currentSource is NULL\n");
-	dump(stderr);
-    }
-}
+    contextList.append(context);
+    currentContext = context;
+    my.context = context;
 
-void Source::add(PMC_Context *ctx)
-{
-    source_t	*sp;
-    source_t	*lastsp;
-    bool	send_bounds = (ctx->source().type() == PM_CONTEXT_ARCHIVE);
-
-    sp = (source_t *)malloc(sizeof(*sp));	// TODO - error check?
-    sp->root = NULL;
-    sp->ctx = ctx;
-    sp->next = NULL;
-    currentSource = sp;
-    for (lastsp = NULL, sp = firstSource; sp; sp = sp->next)
-	lastsp = sp;
-    if (lastsp == NULL)
-	firstSource = currentSource;
-    else
-	lastsp->next = currentSource;
 #if DESPERATE
     dump(stderr);
 #endif
@@ -194,7 +153,7 @@ void Source::add(PMC_Context *ctx)
     // we also don't have a kmtime connection yet if processing args.
     
     if (kmtime && send_bounds) {
-	const PMC_Source *source = &ctx->source();
+	const PMC_Source *source = &context->source();
 	PMC_String tz = source->timezone();
 	PMC_String host = source->host();
 	struct timeval logStartTime = source->start();
@@ -206,123 +165,72 @@ void Source::add(PMC_Context *ctx)
 
 void Source::dump(FILE *f)
 {
-    int		i;
-    source_t	*sp;
-
-    fprintf(f, "Source::dump: current=%p\n", currentSource);
-    for (i = 0, sp = firstSource; sp; i++, sp = sp->next) {
-	fprintf(f, "fetchGroup=%p\n", fetchGroup);
-	fprintf(f, "whichIndex=%d\n", fetchGroup->whichIndex());
-	fprintf(f, "numContexts=%d\n", fetchGroup->numContexts());
-	fprintf(f, "ctxp=%p\n", sp->ctx);
-	fprintf(f, "[%d]%p: type=%d source=%s host=%s ctx=%d root=%p\n",
-		i, sp, sp->ctx->source().type(),
-		sp->ctx->source().source().ptr(),
-		sp->ctx->source().host().ptr(), sp->ctx->hndl(), sp->root);
+    fprintf(f, "Source::dump: current=%p\n", currentContext);
+    for (int i = 0; i < contextList.size(); i++) {
+	PMC_Context *cp = contextList.at(i);
+	fprintf(f, "context=%p\n", cp);
+	fprintf(f, "  [%d] type=%d source=%s host=%s ctxt=%d\n", i,
+		cp->source().type(), cp->source().source().ptr(),
+		cp->source().host().ptr(), cp->hndl());
     }
 }
 
 void Source::setupCombo(QComboBox *combo)
 {
-    int		i;
-    source_t	*sp;
-    QString	src;
-
     combo->clear();
-    for (i = 0, sp = firstSource; sp; i++, sp = sp->next) {
-	src = makeComboText(sp->ctx);
-	combo->insertItem(src);
-	if (sp == currentSource)
-	    combo->setCurrentItem(i);
+    for (int i = 0; i < contextList.size(); i++) {
+	PMC_Context *cp = contextList.at(i);
+	QString source = makeComboText(cp);
+	combo->insertItem(i, source);
+	if (cp == currentContext)
+	    combo->setCurrentIndex(i);
     }
 }
 
-#if 1	// TODO: nuke:
 void Source::setCurrentInCombo(QComboBox *combo)
 {
-    QString cn;
-
-    if (currentSource == NULL) {
-	fprintf(stderr, "Source::setCurrentCombo: botch currentSource is NULL\n");
-	dump(stderr);
+    if (!currentContext)
 	return;
-    }
 
-    cn = makeComboText(currentSource->ctx);
+    QString source = makeComboText(currentContext);
     for (int i = 0; i < combo->count(); i++) {
-	if (combo->text(i) == cn) {
-	    combo->setCurrentItem(i);
+	if (combo->itemText(i) == source) {
+	    combo->setCurrentIndex(i);
 	    return;
 	}
     }
-
-    fprintf(stderr, "Source::setCurrentInCombo: botch failed to find name=%s\n", cn.ascii());
-    dump(stderr);
-    fprintf(stderr, "Combo list ...\n");
-    for (int i = 0; i < combo->count(); i++) {
-	fprintf(stderr, "[%d] %s", i, combo->text(i).ascii());
-	if (combo->currentItem() == i)
-	    fprintf(stderr, " [current]");
-	fputc('\n', stderr);
-    }
 }
 
-// only called from a QComboBox widget, where the text() has been
-// constructed by Source::setupCombo
+// Called from a QComboBox widget, where name is setup by Source::setupCombo
 //
 void Source::setCurrentFromCombo(const QString name)
 {
-    source_t	*sp;
-
-    fprintf(stderr, "Source::setCurrentFromCombo(%s) called\n", name.ascii());
-    for (sp = firstSource; sp; sp = sp->next) {
-	if (name == makeComboText(sp->ctx)) {
-	    currentSource = sp;
+    for (int i = 0; i < contextList.size(); i++) {
+	PMC_Context *cp = contextList.at(i);
+	if (name == makeComboText(cp)) {
+	    currentContext = cp;
 	    return;
 	}
     }
-    fprintf(stderr, "Source::setCurrentSource: botch failed to find name=%s\n", name.ascii());
-    dump(stderr);
 }
-#endif
 
-void Source::setupListView(QListView *listview)
+void Source::setupTree(QTreeWidget *tree)
 {
-    source_t	*source;
-    QString	string;
+    NameSpace *current = NULL;
+    QList<QTreeWidgetItem*> items;
 
-    listview->clear();
-    for (source = firstSource; source; source = source->next) {
-	NameSpace *name = new NameSpace(listview, source->ctx,
-					activeTab->isArchiveMode());
-	name->setOpen(TRUE);
-	name->setSelectable(FALSE);
-	if (source == currentSource)
-	    listview->setCurrentItem(name);
+    tree->clear();
+    for (int i = 0; i < contextList.size(); i++) {
+	PMC_Context *cp = contextList.at(i);
+	NameSpace *name = new NameSpace(tree, cp, activeTab->isArchiveSource());
+	name->setOpen(true);
+	name->setSelectable(false);
+	tree->addTopLevelItem(name);
+	if (cp == currentContext)
+	    current = name;
+	items.append(name);
     }
-}
-
-ArchiveDialog::ArchiveDialog(QWidget *parent)
-    : QFileDialog(parent, "archiveDialog", true)
-{
-    logButton = new QToolButton(this, "logButton");
-    logButton->setPixmap(QPixmap::fromMimeSource("toolarchive.png"));
-    logButton->setToggleButton(FALSE);
-    logButton->setFixedSize(20, 20);
-    QToolTip::add(logButton, tr("System Archives"));
-    connect(logButton, SIGNAL(clicked()), this, SLOT(logDirClicked()));
-    addToolButton(logButton, TRUE);
-    setMode(QFileDialog::ExistingFiles);
-}
-
-ArchiveDialog::~ArchiveDialog()
-{
-    delete logButton;
-}
-
-void ArchiveDialog::logDirClicked()
-{
-    QString dir = tr(pmGetConfig("PCP_LOG_DIR"));
-    dir.append("/pmlogger");
-    setDir(dir);
+    tree->insertTopLevelItems(0, items);
+    if (current)
+    	tree->setCurrentItem(current);
 }

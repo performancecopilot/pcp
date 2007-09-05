@@ -1,30 +1,30 @@
-#
-# Copyright (c) 2007 Nathan Scott.  All Rights Reserved.
-#
-
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-UIFILES = aboutdialog.ui aboutpcpdialog.ui console.ui \
-	kmtimearch.ui kmtimelive.ui showboundsdialog.ui
-UIHFILES = $(UIFILES:.ui=.ui.h)
-CPPFILES = main.cpp
-HPPFILES = $(CPPFILES:.cpp=.h)
-HEADERS = timelord.h timezone.h
+COMMAND = kmtime
 
-LSRCFILES = kmtime.pro $(UIFILES) $(UIHFILES) $(CPPFILES) $(HPPFILES)
-LDIRT = kmtime Makefile
+UIFILES = aboutdialog.ui console.ui kmtimearch.ui kmtimelive.ui \
+	  seealsodialog.ui showboundsdialog.ui
+SOURCES = aboutdialog.cpp console.cpp kmtimearch.cpp kmtimelive.cpp \
+	  seealsodialog.cpp showboundsdialog.cpp timelord.cpp main.cpp
+HEADERS = aboutdialog.cpp console.cpp kmtimearch.cpp kmtimelive.cpp \
+	  seealsodialog.cpp showboundsdialog.cpp timelord.cpp timezone.h
 
-default:
-	$(QMAKE)
-	$(MAKE) -f Makefile
+LSRCFILES = kmtime.pro kmtime.qrc $(UIFILES) $(HEADERS) $(SOURCES)
+
+ICONLINKS = play_off.png play_on.png fastfwd_off.png fastfwd_on.png \
+	fastback_off.png fastback_on.png back_off.png back_on.png \
+	stepfwd_off.png stepfwd_on.png stepback_off.png stepback_on.png \
+	stop_off.png stop_on.png aboutpcp.png aboutqt.png aboutkmtime.png \
+	whatsthis.png edit-clear.png internet-web-browser.png kmtime.png
+
+LDIRT = Makefile $(COMMAND) $(ICONLINKS)
+
+default: iconlinks
+	$(QTMAKE)
 
 include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
-	$(INSTALL) -m 755 kmtime $(PKG_BIN_DIR)
-
-fix:	# ugh!  -- TODO: remove need for this, somehow..
-	perl -i -pe 's,<action name="optionsTimezoneAction"/>,<action name="optionsTimezoneAction"/>\n\t<item text="&amp;Timezone" name="Timezone" accel="">\n\t</item>,g' kmtimearch.ui
-	perl -i -pe 's,<action name="optionsTimezoneAction"/>,<action name="optionsTimezoneAction"/>\n\t<item text="&amp;Timezone" name="Timezone" accel="">\n\t</item>,g' kmtimelive.ui
+	$(INSTALL) -m 755 $(COMMAND) $(PKG_BIN_DIR)

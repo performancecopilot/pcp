@@ -1,100 +1,139 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>Console</class>
-<widget class="QDialog">
-    <property name="name">
-        <cstring>Console</cstring>
-    </property>
-    <property name="geometry">
-        <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>499</width>
-            <height>339</height>
-        </rect>
-    </property>
-    <property name="caption">
-        <string>kmtime Console</string>
-    </property>
-    <property name="icon">
-        <pixmap>kmtime.png</pixmap>
-    </property>
-    <property name="sizeGripEnabled">
+<ui version="4.0" >
+ <class>Console</class>
+ <widget class="QDialog" name="Console" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>493</width>
+    <height>326</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>kmtime Console</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="kmtime.qrc" >:/kmtime.png</iconset>
+  </property>
+  <property name="sizeGripEnabled" >
+   <bool>true</bool>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item row="0" column="0" >
+    <layout class="QVBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QTextEdit" name="text" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>3</hsizetype>
+         <vsizetype>3</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="autoFormatting" >
+        <set>QTextEdit::AutoNone</set>
+       </property>
+       <property name="readOnly" >
         <bool>true</bool>
-    </property>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>buttonHide</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>300</y>
-                <width>85</width>
-                <height>30</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>&amp;Hide</string>
-        </property>
-        <property name="accel">
-            <string>Alt+H</string>
-        </property>
-        <property name="autoDefault">
-            <bool>true</bool>
-        </property>
-        <property name="default">
-            <bool>true</bool>
-        </property>
-    </widget>
-    <widget class="QTextEdit">
-        <property name="name">
-            <cstring>text</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>10</y>
-                <width>474</width>
-                <height>280</height>
-            </rect>
-        </property>
-        <property name="sizePolicy">
-            <sizepolicy>
-                <hsizetype>4</hsizetype>
-                <vsizetype>4</vsizetype>
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-            </sizepolicy>
-        </property>
-        <property name="textFormat">
-            <enum>PlainText</enum>
-        </property>
-        <property name="readOnly">
-            <bool>true</bool>
-        </property>
-        <property name="autoFormatting">
-            <set>AutoNone</set>
-        </property>
-    </widget>
-</widget>
-<connections>
-    <connection>
-        <sender>buttonHide</sender>
-        <signal>clicked()</signal>
-        <receiver>Console</receiver>
-        <slot>accept()</slot>
-    </connection>
-</connections>
-<includes>
-    <include location="local" impldecl="in implementation">console.ui.h</include>
-</includes>
-<variables>
-    <variable access="private">int _level;</variable>
-</variables>
-<functions>
-    <function>init( int level )</function>
-    <function>post( int level, char * p, ... )</function>
-</functions>
-<pixmapinproject/>
-<layoutdefaults spacing="6" margin="11"/>
-</UI>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="buttonHide" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>0</hsizetype>
+           <vsizetype>0</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize" >
+          <size>
+           <width>85</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize" >
+          <size>
+           <width>85</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text" >
+          <string>&amp;Hide</string>
+         </property>
+         <property name="shortcut" >
+          <string>Alt+H</string>
+         </property>
+         <property name="autoDefault" >
+          <bool>true</bool>
+         </property>
+         <property name="default" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <resources>
+  <include location="kmtime.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonHide</sender>
+   <signal>clicked()</signal>
+   <receiver>Console</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

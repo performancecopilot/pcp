@@ -1,0 +1,527 @@
+<ui version="4.0" >
+ <class>SaveViewDialog</class>
+ <widget class="QDialog" name="SaveViewDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>406</width>
+    <height>241</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Save View</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="kmchart.qrc" >:/view.png</iconset>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item row="2" column="0" >
+    <layout class="QGridLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item row="1" column="0" colspan="3" >
+      <widget class="QCheckBox" name="preserveHostCheckBox" >
+       <property name="layoutDirection" >
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text" >
+        <string>Preserve hostname in View</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3" >
+      <widget class="QPushButton" name="cancelButton" >
+       <property name="text" >
+        <string>Cancel</string>
+       </property>
+       <property name="default" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" >
+      <widget class="QLineEdit" name="fileNameLineEdit" />
+     </item>
+     <item row="0" column="0" >
+      <widget class="QLabel" name="fileNameLabel" >
+       <property name="text" >
+        <string>File name:</string>
+       </property>
+       <property name="alignment" >
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3" >
+      <widget class="QPushButton" name="savePushButton" >
+       <property name="text" >
+        <string>Save</string>
+       </property>
+       <property name="autoDefault" >
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="0" >
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="pathLabel" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>0</hsizetype>
+         <vsizetype>0</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize" >
+        <size>
+         <width>60</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="text" >
+        <string>Path:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="pathComboBox" />
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>8</width>
+         <height>26</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="parentToolButton" >
+       <property name="minimumSize" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="toolTip" >
+        <string>Parent</string>
+       </property>
+       <property name="statusTip" >
+        <string/>
+       </property>
+       <property name="whatsThis" >
+        <string>Open the parent directory</string>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+       <property name="icon" >
+        <iconset resource="kmchart.qrc" >:/go-previous.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="checkable" >
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>8</width>
+         <height>26</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="dirViewIconToolButton" >
+       <property name="minimumSize" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="toolTip" >
+        <string>Icon View</string>
+       </property>
+       <property name="whatsThis" >
+        <string>Display files using icons</string>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+       <property name="icon" >
+        <iconset resource="kmchart.qrc" >:/tooliconview.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="checkable" >
+        <bool>true</bool>
+       </property>
+       <property name="checked" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="dirViewListToolButton" >
+       <property name="minimumSize" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="toolTip" >
+        <string>List View</string>
+       </property>
+       <property name="whatsThis" >
+        <string>Display files in a list</string>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+       <property name="icon" >
+        <iconset resource="kmchart.qrc" >:/toollistview.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="checkable" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>8</width>
+         <height>26</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="userToolButton" >
+       <property name="minimumSize" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+       <property name="icon" >
+        <iconset resource="kmchart.qrc" >:/toolusers.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QListView" name="dirListView" >
+     <property name="font" >
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="selectionMode" >
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="iconSize" >
+      <size>
+       <width>16</width>
+       <height>16</height>
+      </size>
+     </property>
+     <property name="movement" >
+      <enum>QListView::Free</enum>
+     </property>
+     <property name="flow" >
+      <enum>QListView::TopToBottom</enum>
+     </property>
+     <property name="resizeMode" >
+      <enum>QListView::Adjust</enum>
+     </property>
+     <property name="layoutMode" >
+      <enum>QListView::Batched</enum>
+     </property>
+     <property name="spacing" >
+      <number>0</number>
+     </property>
+     <property name="viewMode" >
+      <enum>QListView::IconMode</enum>
+     </property>
+     <property name="uniformItemSizes" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="kmchart.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>savePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SaveViewDialog</receiver>
+   <slot>savePushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileNameLineEdit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>savePushButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>181</x>
+     <y>182</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>355</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SaveViewDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>355</x>
+     <y>217</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>202</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>preserveHostCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>SaveViewDialog</receiver>
+   <slot>preserveHostCheckBox_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>159</x>
+     <y>217</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>202</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>parentToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SaveViewDialog</receiver>
+   <slot>parentToolButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>309</x>
+     <y>22</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>202</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>userToolButton</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>SaveViewDialog</receiver>
+   <slot>userToolButton_clicked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>385</x>
+     <y>22</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>202</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pathComboBox</sender>
+   <signal>currentIndexChanged(QString)</signal>
+   <receiver>SaveViewDialog</receiver>
+   <slot>pathComboBox_currentIndexChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>180</x>
+     <y>22</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>202</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dirViewIconToolButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>SaveViewDialog</receiver>
+   <slot>dirViewIconToolButton_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>337</x>
+     <y>22</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>202</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dirViewListToolButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>SaveViewDialog</receiver>
+   <slot>dirViewListToolButton_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>357</x>
+     <y>22</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>202</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dirListView</sender>
+   <signal>activated(QModelIndex)</signal>
+   <receiver>SaveViewDialog</receiver>
+   <slot>dirListView_activated(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>202</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>202</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dirListView</sender>
+   <signal>clicked(QModelIndex)</signal>
+   <receiver>SaveViewDialog</receiver>
+   <slot>dirListView_clicked(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>202</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>202</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

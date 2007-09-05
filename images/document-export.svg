@@ -7,16 +7,19 @@
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="48.000000px"
    height="48.000000px"
    xml:space="preserve"
    id="svg16168"
    sodipodi:version="0.32"
-   inkscape:version="0.42+devel"
+   inkscape:version="0.44.1"
    sodipodi:docname="document-export.svg"
-   sodipodi:docbase="/source/git/kmchart/images"><metadata
+   sodipodi:docbase="/source/git/kmchart/images"
+   inkscape:export-filename="/source/git/kmchart/images/document-export.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90"><metadata
    id="metadata16236">
   <rdf:RDF>
     <cc:Work

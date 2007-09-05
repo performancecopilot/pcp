@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2007, Nathan Scott.  All Rights Reserved.
+ * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,13 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Ken McDonell, kenj At internode DoT on DoT net
- *                      Nathan Scott, nathans At debian DoT org
  */
 #ifndef MAIN_H
 #define MAIN_H
@@ -25,25 +18,14 @@
 #include <stdio.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#include <qvbox.h>
-#include <qhbox.h>
 
 #include "tab.h"
-#include "view.h"
+#include "console.h"
 #include "timecontrol.h"
+#include "fileiconprovider.h"
 #include "kmchart.h"
+#include "version.h"
 #include "source.h"
-
-#define VERSION		"0.7.0"
-#define min(a,b)	((a)<(b)?(a):(b))
-#define max(a,b)	((a)>(b)?(a):(b))
-
-#define DEFAULT_SAMPLE_INTERVAL	2 /* seconds */
-
-#define DEFAULT_VISIBLE_POINTS	24
-#define DEFAULT_SAMPLE_POINTS	24
-#define MINIMUM_POINTS		2
-#define MAXIMUM_POINTS		300
 
 typedef struct {
 	// Samples
@@ -52,7 +34,7 @@ typedef struct {
 	int		visibleHistory;
 	bool		visibleHistoryModified;
 	// Colors
-	QValueList<QColor> defaultColors;
+	QList<QColor>	defaultColors;
 	QStringList	defaultColorNames;
 	bool		defaultColorsModified;
 	QColor		chartBackground;
@@ -68,7 +50,7 @@ typedef struct {
 	bool		styleModified;
 } Settings;
 
-extern Settings		settings;
+extern Settings		globalSettings;
 extern void		readSettings();
 extern void		writeSettings();
 
@@ -87,17 +69,16 @@ extern PMC_Group	*liveGroup;
 extern PMC_Group	*archiveGroup;
 
 class KmChart;
-class TimeControl;
 extern KmChart		*kmchart;
+
+class TimeControl;
 extern TimeControl	*kmtime;
 
-extern double secondsFromTV(struct timeval *tv);// __pmtimevalFromReal?
-
-extern double tosec(struct timeval);		// __pmtimevalToReal
-extern double torange(struct timeval, int);	// ?
-extern void fromsec(double, struct timeval *);	// __pmtimevalFromReal?
-extern char *timestring(double);
+extern double tosec(struct timeval);
+extern double torange(struct timeval, int);
+extern void fromsec(double, struct timeval *);
+extern char *timeString(double);
 
 extern void nomem(void);
 
-#endif	/* MAIN_H */
+#endif	// MAIN_H
