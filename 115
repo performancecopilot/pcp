@@ -58,6 +58,7 @@ _filter_pmie_start()
 	-e '/(pmie) is disabled/d' \
 	-e '/To enable/d' \
 	-e '/\/sbin\/chkconfig pmie on/d' \
+	-e '/\/usr\/sbin\/sysv-rc-conf pmie on/d' \
 	-e '/ln -sf \.\.\/init.d\/pmie \/etc\/rc\.d\//d' \
 	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;" \
         -e '/^\.\.*done$/d' \
