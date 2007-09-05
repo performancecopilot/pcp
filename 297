@@ -40,12 +40,14 @@ esac
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+killpid=""
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _cleanup()
 {
+    [ -n "$killpid" ] && kill $killpid
     $sudo killall pmproxy >/dev/null 2>&1
     $sudo /etc/init.d/pmproxy start >/dev/null 2>&1
 }
@@ -103,6 +105,7 @@ export PMPROXY_HOST
 
 # real QA test starts here
 pmdumptext -Dcontext -t 0.5 sample.bin >$tmp.out 2>&1 &
+killpid=$!
 
 # don't need to confuse pmproxy or pmcd ...
 #
