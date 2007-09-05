@@ -194,7 +194,7 @@ _wait_for_pmlogger()
     done
     if $_dead
     then
-	echo "Arrgghhh ... pmlogger (pid=$_pid) failed to start after $_maxdelay seconds"
+	echo "Arrgghhh ... pmlogger ($_pid) failed to start after $_maxdelay seconds"
 	echo "at `date`."
 	echo "pmlogger log ($_logfile) ..."
 	cat $_logfile

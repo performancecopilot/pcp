@@ -54,7 +54,7 @@ do
 	    | $PCP_AWK_PROG '
 BEGIN	{ srand('$$') }
 	{ print 100*rand(),$0 }' \
-	    | sort +0n -1 \
+	    | LC_COLLATE=POSIX _POSIX2_VERSION=0 sort +0n -1 \
 	    | cut -d' ' -f2 >>qa_hosts
 	done
 
