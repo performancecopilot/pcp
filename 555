@@ -11,10 +11,9 @@
 owner=kenmcd
 
 seq=`basename $0`
+. ./localconfig
 rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
 echo "QA output created by $seq"
-
-. ./localconfig
 
 # get standard environment, filters and checks
 . ./common.product
@@ -24,9 +23,30 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 sudo=`pwd`/sudo
 status=1	# failure is the default!
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cleanup()
+{
+    if [ -f /etc/syslog.conf.$seq ]; then
+	sudo mv /etc/syslog.conf.$seq /etc/syslog.conf
+	sudo killall -HUP syslogd
+    fi
+    rm -f $tmp.* /tmp/syslog
+}
+trap "cleanup; exit \$status" 0 1 2 3 15
+
+# move aside the current syslog configuration, as we have NFI
+# what kind of setup is in use and where our messages will go
+#
+setup()
+{
+    sudo cp /dev/null /tmp/syslog || exit
+    sudo mv /etc/syslog.conf /etc/syslog.conf.$seq || exit
+    sudo sh -c "echo '*.*  /tmp/syslog' > /etc/syslog.conf" || exit
+    sudo killall -HUP syslogd || exit
+}
 
 # real QA test starts here
+setup
 
 # syslog	logger -p
 # 5D		daemon.notice		<--- default
@@ -84,23 +104,10 @@ sed <$tmp.log \
 sleep 5
 echo
 
-case "$PCP_PLATFORM" in
-irix)
-    SYSLOG=/var/adm/SYSLOG
-    ;;
-linux)
-    SYSLOG=/var/log/messages
-    ;;
-*)
-    echo "Unkown platfrom $PCP_PLATFORM"
-    exit 1
-    ;;
-esac
-
 # note - runpriv lines noticed on krelly with SGIconsole 2.0
 # note - agetty lines noticed on canary with SLES9 SP1 beta2
 #
-$sudo grep "\\\\[$!\\\\]:" $SYSLOG \
+$sudo grep "\\[$!\\]:" /tmp/syslog \
 | sed \
     -e 's/^[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
     -e "s/\\[$!]/[PID]/" \
