@@ -5,7 +5,7 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS = include chart query time
+SUBDIRS = include libqmc libqwt chart query time
 
 default install : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
