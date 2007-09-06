@@ -19,16 +19,16 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# Post installation/upgrade script for CXFS
+# Post installation/upgrade script for PCP
 #
 
 prog=`basename $0`
 status=1
 trap "exit \$status" 0 1 2 15
 
-echo "$prog: CXFS for MacOSX Upgrade"
+echo "$prog: PCP for MacOSX Upgrade"
 
-echo "$prog: Stopping CXFS Client"
+echo "$prog: Stopping PCP"
 /Library/StartupItems/pcp/pcp stop
 
 echo "$prog: Writing install log to /var/log/pcp_inst.log"
