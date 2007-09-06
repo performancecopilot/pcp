@@ -89,13 +89,13 @@ public:
     // Are only active instances referenced
     bool activeInsts() const { return my.active; }
 
-    uint numInst() const
+    int numInst() const
 	{ return (my.status >= 0 && my.indomIndex < UINT_MAX) ?
 	  my.values.size() : 0; }
 
     // How many values does it have (will not equal number of instances
     // if singular)
-    uint numValues() const { return (my.status >= 0) ? my.values.size() : 0; }
+    int numValues() const { return (my.status >= 0) ? my.values.size() : 0; }
 
     // The metric indom
     QmcIndom const* indom() const
@@ -212,7 +212,7 @@ private:
     void setup(QmcGroup *group, pmMetricSpec *theMetric);
     void setupDesc(QmcGroup *group, pmMetricSpec *theMetric);
     void setupIndom(pmMetricSpec *theMetric);
-    void setupValues(uint num);
+    void setupValues(int num);
 
     void setIdIndex(uint index) { my.idIndex = index; }
     QmcContext &contextRef() { return my.group->context(my.contextIndex); }

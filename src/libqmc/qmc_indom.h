@@ -59,12 +59,12 @@ public:
     int status() const { return my.status; }
     int id() const { return my.id; }
 
-    uint numInsts() const { return my.instances.size() - my.nullCount; }
-    uint numActiveInsts() const { return my.numActive; }
+    int numInsts() const { return my.instances.size() - my.nullCount; }
+    int numActiveInsts() const { return my.numActive; }
 
     // Length of instance list - some of the instances may be NULL hence
     // this may be larger than numInsts()
-    uint listLen() const { return my.instances.size(); }
+    int listLen() const { return my.instances.size(); }
 
     // Internal instance id for instance <index>
     int inst(uint index) const { return my.instances[index].inst(); }

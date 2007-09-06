@@ -29,7 +29,7 @@ QmcContext::QmcContext(QmcSource* source)
 
 QmcContext::~QmcContext()
 {
-    uint i;
+    int i;
 
     for (i = 0; i < my.metrics.size(); i++)
 	if (my.metrics[i])
@@ -48,7 +48,7 @@ int
 QmcContext::lookupDesc(const char *name, pmID& id)
 {
     int sts = 0;
-    uint i, len = strlen(name);
+    int i, len = strlen(name);
 
     for (i = 0; i < my.names.size(); i++) {
 	const QmcNameToId &item = my.names[i];
@@ -90,8 +90,7 @@ QmcContext::lookupDesc(const char *name, uint_t& desc, uint_t& indom)
 int
 QmcContext::lookupDesc(pmID pmid, uint_t& desc, uint_t& indom)
 {
-    int sts = 0;
-    uint i;
+    int i, sts = 0;
     QmcDesc *descPtr;
     QmcIndom *indomPtr;
 
@@ -186,7 +185,7 @@ QmcContext::dump(QTextStream &stream)
 void
 QmcContext::dumpMetrics(QTextStream &stream)
 {
-    for (uint i = 0; i < my.metrics.size(); i++)
+    for (int i = 0; i < my.metrics.size(); i++)
 	stream << "        [" << i << "] "
 	       << my.metrics[i]->spec(false, true) << endl;
 }
@@ -195,7 +194,7 @@ void
 QmcContext::addMetric(QmcMetric *metric)
 {
     pmID id;
-    uint i;
+    int i;
 
     my.metrics.append(metric);
     if (metric->status() >= 0) {
@@ -212,9 +211,8 @@ QmcContext::addMetric(QmcMetric *metric)
 int
 QmcContext::fetch(bool update)
 {
-    int sts;
+    int i, sts;
     pmResult *result;
-    uint i;
 
     for (i = 0; i < my.metrics.size(); i++) {
 	QmcMetric *metric = my.metrics[i];

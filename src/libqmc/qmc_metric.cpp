@@ -101,7 +101,7 @@ QmcMetric::setup(QmcGroup* group, pmMetricSpec *metricSpec)
 QmcMetric::~QmcMetric()
 {
     if (hasInstances())
-	for (uint i = 0; i < my.values.size(); i++)
+	for (int i = 0; i < my.values.size(); i++)
 	    indomRef()->removeRef(my.values[i].instance());
 }
 
@@ -159,8 +159,7 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 void
 QmcMetric::setupIndom(pmMetricSpec *metricSpec)
 {
-    uint i;
-    int j;
+    int i, j;
     QmcIndom *indomPtr = indomRef();
     
     if (desc().desc().indom == PM_INDOM_NULL) {
@@ -175,7 +174,7 @@ QmcMetric::setupIndom(pmMetricSpec *metricSpec)
 	assert(hasInstances());
 	setupValues(metricSpec->ninst);
 
-	for (i = 0 ; i < (uint)metricSpec->ninst && my.status >= 0; i++) {
+	for (i = 0 ; i < metricSpec->ninst && my.status >= 0; i++) {
 	    j = indomPtr->lookup(metricSpec->inst[i]);
 	    if (j >= 0)
 		my.values[i].setInstance(j);
@@ -210,13 +209,12 @@ QmcMetric::setupIndom(pmMetricSpec *metricSpec)
 }
 
 void
-QmcMetric::setupValues(uint num)
+QmcMetric::setupValues(int num)
 {
-    uint i, oldLen = my.values.size();
+    int i, oldLen = my.values.size();
 
-    if (num == 0) {
+    if (num == 0)
 	my.values.clear();
-    }
     else {
 	if (my.values.size() > num)
 	    for (i = num; i < my.values.size(); i++)
@@ -230,7 +228,7 @@ QString
 QmcMetric::spec(bool srcFlag, bool instFlag, uint instance) const
 {
     QString str;
-    uint i, len = 4;
+    int i, len = 4;
 
     if (srcFlag)
 	len += context().source().source().size();
@@ -316,7 +314,7 @@ QmcMetric::dump(QTextStream &stream, bool srcFlag, uint instance) const
 		stream << " (indom has changed)";
 	    stream << endl;
 
-	    for (uint i = 0; i < numInst(); i++) {
+	    for (int i = 0; i < numInst(); i++) {
 		stream << "  [" << instID(i) << " or \"" << instName(i)
 		       << "\" (" << my.values[i].instance() << ")] = ";
 		dumpValue(stream, i);
@@ -567,14 +565,14 @@ QmcMetric::formatNumber(double value)
 void
 QmcMetric::shiftValues()
 {
-    for (uint i = 0; i < my.values.size(); i++)
+    for (int i = 0; i < my.values.size(); i++)
 	my.values[i].shiftValues();
 }
 
 void
 QmcMetric::setError(int sts)
 {
-    for (uint i = 0; i < numValues(); i++) {
+    for (int i = 0; i < numValues(); i++) {
 	QmcMetricValue &value = my.values[i];
 	value.setCurrentError(sts);
 	if (real())
@@ -587,8 +585,7 @@ QmcMetric::setError(int sts)
 void
 QmcMetric::extractValues(pmValueSet const* set)
 {
-    uint i, j;
-    int index, inst, sts;
+    int i, j, index, inst, sts;
     pmValue const *value = NULL;
     pmAtomValue result;
     bool found;
@@ -627,7 +624,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 		}
 
 		// Search for it from the top
-		for (j = 0; found == false && j < (uint)set->numval; j++) {
+		for (j = 0; found == false && j < set->numval; j++) {
 		    if (set->vlist[j].inst == indomPtr->inst(inst)) {
 			value = &(set->vlist[j]);
 			indomPtr->setIndex(inst, j);
@@ -754,9 +751,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 bool
 QmcMetric::updateIndom(void)
 {
-    uint i = 0, j;
-    uint oldNum = numInst(), newNum;
-    int newInst;
+    int i = 0, j, oldNum = numInst(), newNum, newInst;
     QmcIndom *indomPtr = indomRef();
 
     if (status() < 0 || !hasInstances())

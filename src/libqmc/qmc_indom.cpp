@@ -109,7 +109,7 @@ QmcIndom::QmcIndom(int type, QmcDesc &desc)
 int
 QmcIndom::lookup(QString const &name)
 {
-    uint i;
+    int i;
     char *p = NULL;
     const char *q = NULL;
 
@@ -207,7 +207,7 @@ QmcIndom::refAll(bool active)
 {
     my.numActiveRef = 0;
 
-    for (uint i = 0; i < my.instances.size(); i++) {
+    for (int i = 0; i < my.instances.size(); i++) {
 	if (my.instances[i].null() || (active && !my.instances[i].active()))
 	    continue;
 
@@ -238,7 +238,7 @@ QmcIndom::removeRef(uint index)
 int
 QmcIndom::genProfile()
 {
-    uint i, j;
+    int i, j;
     int sts = 0;
     int *ptr = NULL;
     QVector<int> list;
@@ -302,7 +302,7 @@ QmcIndom::dump(QTextStream &os) const
 {
     os << pmInDomStr(my.id) << ": " << numInsts() << " instances ("
        << my.nullCount << " NULL)" << endl;
-    for (uint i = 0; i < my.instances.size(); i++)
+    for (int i = 0; i < my.instances.size(); i++)
 	if (!my.instances[i].null())
 	    os << "  [" << my.instances[i].inst() << "] = \""
 	       << my.instances[i].name() << "\" ("
@@ -317,10 +317,10 @@ QmcIndom::update()
 {
     int *instList;
     char **nameList;
-    uint i, j, count;
-    uint oldLen = my.instances.size();
+    int i, j, count;
+    int oldLen = my.instances.size();
     uint oldNullCount = my.nullCount;
-    int sts;
+    int sts = 0;
 
     // If the indom has already been updated, just check that all instances
     // are referenced and remove any that have gone away.

@@ -65,7 +65,7 @@ QmcGroup::QmcGroup(bool restrictArchives)
 
 QmcGroup::~QmcGroup()
 {
-    for (unsigned int i = 0; i < my.contexts.size(); i++)
+    for (int i = 0; i < my.contexts.size(); i++)
 	if (my.contexts[i])
 	    delete my.contexts[i];
 }

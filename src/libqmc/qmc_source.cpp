@@ -148,7 +148,7 @@ QmcSource::retryConnect(int type, const char *source)
 
 QmcSource::~QmcSource()
 {
-    uint i;
+    int i;
 
     for (i = 0; i < sourceList.size(); i++)
 	if (sourceList[i] == this)
@@ -160,7 +160,7 @@ QmcSource::~QmcSource()
 QmcSource*
 QmcSource::getSource(int type, char const* source, bool matchHosts)
 {
-    uint i;
+    int i;
     QmcSource *src = NULL;
 
     for (i = 0; i < sourceList.size(); i++) {
@@ -284,7 +284,7 @@ QmcSource::dupContext()
 int
 QmcSource::delContext(int handle)
 {
-    uint i;
+    int i;
     int sts;
 
     for (i = 0; i < my.handles.size(); i++)
@@ -337,7 +337,7 @@ QmcSource::dump(QTextStream &stream)
 	       << __pmtimevalToReal(&my.end) << ", dupFlag = "
 	       << (my.dupFlag == true ? "true" : "false") << endl << "  " 
 	       << my.handles.size() << " contexts: ";
-    for (uint i = 0; i < my.handles.size(); i++)
+    for (int i = 0; i < my.handles.size(); i++)
 	stream << my.handles[i] << ' ';
     stream << endl;
 }
@@ -346,7 +346,7 @@ void
 QmcSource::dumpList(QTextStream &stream)
 {
     stream << sourceList.size() << " sources:" << endl;
-    for (uint i = 0; i < sourceList.size(); i++) {
+    for (int i = 0; i < sourceList.size(); i++) {
 	stream << '[' << i << "] " << *(sourceList[i]) << endl;
 	sourceList[i]->dump(stream);
     }

@@ -75,6 +75,7 @@ QmcDesc::shortUnitsString(pmUnits *pu)
     static char buf[60];
     char *p;
 
+    spaceString = timeString = countString = NULL;
     buf[0] = '\0';
 
     if (pu->dimSpace) {
