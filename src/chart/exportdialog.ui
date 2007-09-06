@@ -292,7 +292,7 @@
   </customwidget>
  </customwidgets>
  <includes>
-  <include location="local" >qwt/qwt_counter.h</include>
+  <include location="local" >qwt_counter.h</include>
  </includes>
  <resources>
   <include location="kmchart.qrc" />

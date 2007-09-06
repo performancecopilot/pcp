@@ -20,7 +20,9 @@ FORMS		= aboutdialog.ui chartdialog.ui console.ui exportdialog.ui \
 		  recorddialog.ui saveviewdialog.ui seealsodialog.ui \
 		  settingsdialog.ui tabdialog.ui
 RESOURCES	= kmchart.qrc
-LIBS		+= -lpcp_pmc -lpcp -lqwt -lqassistantclient
-INCLUDEPATH	+= /usr/include/qwt ../include
-CONFIG		+= qt warn_on release
+INCLUDEPATH	+= ../include ../libqmc ../libqwt
+LIBS		= -lpcp -lqmc -lqwt
+LIBS		+= -L../libqmc -L../libqmc/build/Default
+LIBS		+= -L../libqwt -L../libqwt/build/Default
 QT		+= assistant network
+CONFIG		+= qt warn_on debug #release

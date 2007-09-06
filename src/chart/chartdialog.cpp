@@ -186,7 +186,7 @@ void ChartDialog::metricAddButtonClicked()
         list.append((NameSpace *)(*iterator));
     availableMetricsTreeWidget->clearSelection();
     chartMetricsTreeWidget->clearSelection();	// selection(s) made below
-    for (int i; i < list.size(); i++) {
+    for (int i = 0; i < list.size(); i++) {
 	list.at(i)->addToTree(chartMetricsTreeWidget);
     }
 }
@@ -500,8 +500,7 @@ bool ChartDialog::setupChartPlotsShortcut(Chart *cp)
 bool ChartDialog::matchChartPlot(Chart *cp, NameSpace *name, int m)
 {
     // compare: name, source, proxy
-    if (strcmp(cp->metricName(m)->ptr(),
-	(const char *)name->metricName().toAscii()) != 0)
+    if (cp->metricName(m) != name->metricName())
 	return false;
     if (cp->metricContext(m) != name->metricContext())
 	return false;

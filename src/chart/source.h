@@ -22,17 +22,17 @@
 #include <QtGui/QToolButton>
 #include "namespace.h"
 #include "fileiconprovider.h"
-#include <pcp/pmc/Group.h>
-#include <pcp/pmc/Context.h>
+#include <qmc_group.h>
+#include <qmc_context.h>
 
 class Source
 {
 public:
-    Source(PMC_Group *);
+    Source(QmcGroup *);
     int type();
     QString host();
     const char *source();
-    void add(PMC_Context *);
+    void add(QmcContext *);
 //    NameSpace *root(void);
 //    void setRoot(NameSpace *);
     void setupTree(QTreeWidget *);
@@ -40,19 +40,19 @@ public:
     void setCurrentFromCombo(const QString);
     void setCurrentInCombo(QComboBox *);
 
-    static QString makeSourceBaseName(const PMC_Context *);
-    static QString makeSourceAnnotatedName(const PMC_Context *);
+    static QString makeSourceBaseName(const QmcContext *);
+    static QString makeSourceAnnotatedName(const QmcContext *);
     static int useSourceName(QWidget *, QString &);
 
-    static QString makeComboText(const PMC_Context *);
+    static QString makeComboText(const QmcContext *);
     static int useComboContext(QWidget *parent, QComboBox *combo);
 
 private:
-    static void dump(FILE *);
+    void dump();
 
     struct {
-	PMC_Group *fetchGroup;
-	PMC_Context *context;
+	QmcGroup *fetchGroup;
+	QmcContext *context;
     } my;
 };
 

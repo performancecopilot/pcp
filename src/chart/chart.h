@@ -19,15 +19,15 @@
 // Chart class ... multiple plots per chart, multiple charts per tab
 //
 
+#include <QtCore/QString>
 #include <QtCore/QDateTime>
 #include <QtGui/QColor>
 #include <QtGui/QTreeWidget>
-#include <qwt/qwt_plot.h>
-#include <qwt/qwt_plot_curve.h>
-#include <qwt/qwt_plot_picker.h>
-#include <qwt/qwt_double_rect.h>
-#include <pcp/pmc/Metric.h>
-#include <pcp/pmc/String.h>
+#include <qwt_plot.h>
+#include <qwt_plot_curve.h>
+#include <qwt_plot_picker.h>
+#include <qwt_double_rect.h>
+#include <qmc_metric.h>
 
 class Tab;
 
@@ -69,11 +69,11 @@ public:
 
     void update(bool, bool);
 
-    PMC_String *name(int);
+    QString name(int);
     char *legendSpec(int);
-    PMC_Desc *metricDesc(int);
-    PMC_String *metricName(int);
-    PMC_Context *metricContext(int);
+    QString metricName(int);
+    QmcDesc *metricDesc(int);
+    QmcContext *metricContext(int);
 
     QString pmloggerMetricSyntax(int);
 
@@ -82,7 +82,7 @@ public:
     void fixLegendPen(void);
 
     void setupTree(QTreeWidget *);
-    void addToTree(QTreeWidget *, QString, const PMC_Context *,
+    void addToTree(QTreeWidget *, QString, const QmcContext *,
 			  bool, bool, QColor&);
 
     static QColor defaultColor(int);
@@ -94,28 +94,31 @@ private slots:
 
 private:
     typedef struct {
-	QwtPlotCurve	*curve;
-	PMC_String	*name;
-	char		*legend;	// from config
-	PMC_String	*legendLabel;	// as appears in plot
-	QColor		color;
-	double		scale;
-	double		*data;
-	double		*plotData;
-	int		dataCount;
-	bool		removed;
+	QmcMetric *metric;
+	QwtPlotCurve *curve;
+	QString name;
+	char *legend;	// from config
+	QString legendLabel;	// as appears in plot
+	QColor color;
+	double scale;
+	double *data;
+	double *plotData;
+	int dataCount;
+	bool removed;
     } Plot;
 
+    void setColor(Plot *plot, QColor c);
+    void resetDataArrays(Plot *plot, int v);
+
     struct {
-	Plot		*plots;
-	PMC_MetricList	metrics;
-	char		*title;
-	Style		style;
-	bool		autoScale;
-	double		yMin;
-	double		yMax;
-	QwtPlotPicker	*picker;
-	Tab		*tab;
+	Tab *tab;
+	QList<Plot*> plots;
+	char *title;
+	Style style;
+	bool autoScale;
+	double yMin;
+	double yMax;
+	QwtPlotPicker *picker;
     } my;
 };
 

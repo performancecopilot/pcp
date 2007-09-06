@@ -2,19 +2,28 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 COMMAND = kmchart
-
-UIFILES = aboutdialog.ui chartdialog.ui hostdialog.ui infodialog.ui \
-	  kmchart.ui recorddialog.ui seealsodialog.ui settingsdialog.ui \
-	  tabdialog.ui
+PROJECT = $(COMMAND).pro
+QRCFILE = $(COMMAND).qrc
+UIFILES = $(shell echo *.ui)
 HEADERS = aboutdialog.h chartdialog.h hostdialog.h infodialog.h \
 	  kmchart.h recorddialog.h seealsodialog.h settingsdialog.h \
 	  tabdialog.h chart.h main.h namespace.h qcolorpicker.h \
 	  source.h tab.h timeaxis.h timecontrol.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
 
-SUBDIRS = views pmafm
-LSRCFILES = kmchart.pro kmchart.qrc $(UIFILES) $(SOURCES) $(HEADERS)
-LDIRT = Makefile $(COMMAND) $(ICONLINKS)
+LSRCFILES = $(PROJECT) $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES)
+LDIRDIRT = build $(COMMAND).xcodeproj
+LDIRT = $(COMMAND) $(ICONLINKS)
+
+LCFLAGS = -I$(TOPDIR)/libqmc -I$(TOPDIR)/libqwt
+
+ifeq ($(PKG_PLATFORM),darwin)
+BINARY =  build/Default/$(COMMAND).app/Contents/MacOS/$(COMMAND)
+LLDFLAGS = -L$(TOPDIR)/libqmc -L$(TOPDIR)/libqwt
+else
+BINARY =  $(COMMAND)
+LLDFLAGS = -L$(TOPDIR)/libqmc/build/Default -L$(TOPDIR)/libqwt/build/Default
+endif
 
 ICONLINKS = aboutpcp.png aboutqt.png aboutkmchart.png \
 	    document-new.png document-open.png document-print.png \
@@ -32,11 +41,15 @@ ICONLINKS = aboutpcp.png aboutqt.png aboutkmchart.png \
 	    stepfwd_archive.png stepback_archive.png fastfwd_archive.png \
 	    fastback_archive.png
 
+SUBDIRS = views pmafm
+
 default: iconlinks
+	$(SUBDIRS_MAKERULE)
 	$(QTMAKE)
 
 include $(BUILDRULES)
 
 install: default
+	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
-	$(INSTALL) -m 755 $(COMMAND) $(PKG_BIN_DIR)
+	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)

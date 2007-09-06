@@ -125,7 +125,7 @@
         <string>Copyright 2006, Ken McDonell.&lt;br>
 Copyright 2006-2007, Aconex.&lt;br>
 All rights reserved.&lt;br>
-&lt;i>This program is licensed under version 2.1 of the GNU General Public License.&lt;/i></string>
+&lt;i>This program is licensed under the GNU General Public License.&lt;/i></string>
        </property>
        <property name="alignment" >
         <set>Qt::AlignCenter</set>

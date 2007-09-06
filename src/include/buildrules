@@ -7,9 +7,8 @@ _BUILDRULES_INCLUDED_ = 1
 include $(TOPDIR)/src/include/builddefs
 
 clean clobber : $(SUBDIRS)
-	rm -f $(DIRT)
-	@rm -f *.o ui_* moc_* qrc_*
-	@rm -fr .obj .ui .moc .qrc
+	@rm -f $(DIRT)
+	@rm -fr $(DIRDIRT)
 	$(SUBDIRS_MAKERULE)
 
 # Never blow away subdirs

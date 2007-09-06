@@ -55,9 +55,10 @@ TimeControl::TimeControl() : QProcess(NULL)
 void TimeControl::init(int port, bool live,
 		struct timeval *interval, struct timeval *position,
 		struct timeval *starttime, struct timeval *endtime,
-		char *tzstring, int tzlen, char *tzlabel, int lablen)
+		QString tzstring, QString tzlabel)
 {
     struct timeval now;
+    int tzlen = tzstring.length(), lablen = tzlabel.length();
 
     my.tzLength = tzlen+1 + lablen+1;
     my.tzData = (char *)realloc(my.tzData, my.tzLength);
@@ -84,8 +85,8 @@ void TimeControl::init(int port, bool live,
 	my.livePacket->start = now;
 	my.livePacket->end = now;
     }
-    strncpy(my.tzData, tzstring, tzlen + 1);
-    strncpy(my.tzData + tzlen + 1, tzlabel, lablen + 1);
+    strncpy(my.tzData, (const char *)tzstring.toAscii(), tzlen+1);
+    strncpy(my.tzData + tzlen+1, (const char *)tzlabel.toAscii(), lablen+1);
 
     if (port < 0) {
 	startTimeServer();
@@ -98,9 +99,10 @@ void TimeControl::init(int port, bool live,
 
 void TimeControl::addArchive(
 		struct timeval *starttime, struct timeval *endtime,
-		char *tzstring, int tzlen, char *tzlabel, int lablen)
+		QString tzstring, QString tzlabel)
 {
     KmTime::Packet *message;
+    int tzlen = tzstring.length(), lablen = tzlabel.length();
     int sz = sizeof(KmTime::Packet) + tzlen + 1 + lablen + 1;
 
     if ((message = (KmTime::Packet *)malloc(sz)) == NULL)
@@ -110,8 +112,9 @@ void TimeControl::addArchive(
     message->length = sz;
     message->start = *starttime;
     message->end = *endtime;
-    strncpy((char *)message->data, tzstring, tzlen + 1);
-    strncpy((char *)message->data + tzlen + 1, tzlabel, lablen + 1);
+    strncpy((char *)message->data, (const char *)tzstring.toAscii(), tzlen+1);
+    strncpy((char *)message->data + tzlen+1,
+				(const char *)tzlabel.toAscii(), lablen+1);
     if (my.archiveSocket->write((const char *)message, sz) < 0)
 	QMessageBox::warning(0,
 		QApplication::tr("Error"),

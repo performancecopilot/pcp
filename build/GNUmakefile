@@ -13,6 +13,8 @@ LDIRT = *-manifest *.gz $(TOPDIR)/$(PKG_NAME)-*
 # for clean and clobber
 SUBDIRS = tar rpm
 
+LSRCFILES = mac
+
 # nothing to build here (it's all packaging)
 default install install-dev install-lib:
 
@@ -40,10 +42,13 @@ dist : default $(MANIFEST)
 	export DIST_MANIFEST DIST_ROOT; \
 	rm -f $$DIST_MANIFEST; \
 	echo === install === && $(MAKE) -C $(TOPDIR) install || exit $$?; \
-	if [ -x $(TAR) ]; then \
+	if test ! -z "$(TAR)"; then \
 	    ( echo "=== tar ===" && $(MAKEF) -C tar $@ || exit $$? ); \
 	fi; \
-	if [ -x $(RPMBUILD) ]; then \
+	if test ! -z "$(RPMBUILD)"; then \
 	    ( echo "=== rpm ===" && $(MAKEF) -C rpm $@ || exit $$? ); \
+	fi; \
+	if test ! -z "$(PACKAGE_MAKER)"; then \
+	    echo === mac === && $(MAKEF) -j 1 -C mac $@ || exit $$?; \
 	fi; \
 	test -z "$$KEEP_DIST_ROOT" || rm -rf $$DIST_ROOT; echo Done

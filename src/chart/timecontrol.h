@@ -30,9 +30,9 @@ public:
     void init(int port, bool livemode,
 	      struct timeval *interval, struct timeval *position,
 	      struct timeval *starttime, struct timeval *endtime,
-	      char *tzstring, int tzlen, char *tzlabel, int lablen);
+	      QString tzstring, QString tzlabel);
     void addArchive(struct timeval *starttime, struct timeval *endtime,
-		    char *tzstring, int tzlen, char *tzlabel, int lablen);
+		    QString tzstring, QString tzlabel);
 
     void liveConnect();
     void archiveConnect();

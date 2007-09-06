@@ -23,8 +23,8 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QTabWidget>
 #include <QtGui/QPushButton>
-#include <qwt/qwt_plot.h>
-#include <qwt/qwt_scale_draw.h>
+#include <qwt_plot.h>
+#include <qwt_scale_draw.h>
 #include <kmtime.h>
 #include "chart.h"
 #include "timebutton.h"
@@ -37,7 +37,7 @@ class Tab : public QWidget
 
 public:
     Tab();
-    void init(QTabWidget *, int, int, PMC_Group *, KmTime::Source,
+    void init(QTabWidget *, int, int, QmcGroup *, KmTime::Source,
 			QString, struct timeval *, struct timeval *);
 
     QWidget *splitter() { return my.splitter; }
@@ -53,7 +53,7 @@ public:
     int setCurrent(Chart *);	// set current chart based on choice
 
     bool isArchiveSource();	// query if tab is for archives
-    PMC_Group *group();
+    QmcGroup *group();
 
     bool isRecording(void);
     bool setRecording(bool);
@@ -119,7 +119,7 @@ private:
 	KmTime::Source source;		// reliable archive/host test
 	KmTime::State previousState;
 
-	PMC_Group *group;
+	QmcGroup *group;
 
 	bool recording;			// running any pmlogger's?
 	QString folio;			// archive folio, if logging

@@ -42,12 +42,12 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
     setText(0, my.basename);
 }
 
-NameSpace::NameSpace(QTreeWidget *list, const PMC_Context *ctxt, bool arch)
+NameSpace::NameSpace(QTreeWidget *list, const QmcContext *ctxt, bool arch)
     : QTreeWidgetItem(list, QTreeWidgetItem::UserType)
 {
     my.expanded = false;
     my.back = this;
-    my.context = (PMC_Context *)ctxt;
+    my.context = (QmcContext *)ctxt;
     my.basename = Source::makeComboText(ctxt);
     if ((my.isArchive = arch) == true) {
 	my.iconic = QIcon(":/archive.png");
@@ -97,7 +97,7 @@ void NameSpace::setOpen(bool o)
 			this, (const char *)metricName().toAscii(),
 			my.expanded ? "y" : "n", o ? "y" : "n");
     if (!my.expanded) {
-	pmUseContext(my.context->hndl());
+	pmUseContext(my.context->handle());
 	if (my.type == LeafWithIndom)
 	    expandInstanceNames();
 	else if (my.type != InstanceName)

@@ -14,9 +14,9 @@
 #ifndef TIMEAXIS_H
 #define TIMEAXIS_H
 
-#include <qwt/qwt_plot_canvas.h>
-#include <qwt/qwt_plot_layout.h>
-#include <qwt/qwt_plot.h>
+#include <qwt_plot_canvas.h>
+#include <qwt_plot_layout.h>
+#include <qwt_plot.h>
 #include <QResizeEvent>
 
 class Tab;

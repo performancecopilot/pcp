@@ -16,12 +16,12 @@
 #include <QtCore/QTimer>
 #include <QtGui/QLayout>
 #include <QtGui/QMessageBox>
-#include <qwt/qwt_plot.h>
-#include <qwt/qwt_plot_layout.h>
-#include <qwt/qwt_scale_draw.h>
-#include <qwt/qwt_scale_widget.h>
-#include <qwt/qwt_text.h>
-#include <qwt/qwt_text_label.h>
+#include <qwt_plot.h>
+#include <qwt_plot_layout.h>
+#include <qwt_scale_draw.h>
+#include <qwt_scale_widget.h>
+#include <qwt_text.h>
+#include <qwt_text_label.h>
 #include "recorddialog.h"
 
 #define DESPERATE 0
@@ -70,7 +70,7 @@ void Tab::showTimeControl(void)
 }
 
 void Tab::init(QTabWidget *tab, int samples, int visible,
-		PMC_Group *group, KmTime::Source source, QString label,
+		QmcGroup *group, KmTime::Source source, QString label,
 		struct timeval *interval, struct timeval *position)
 {
     my.tab = tab;
@@ -209,7 +209,7 @@ int Tab::setCurrent(Chart *cp)
     return -1;
 }
 
-PMC_Group *Tab::group()
+QmcGroup *Tab::group()
 {
     return my.group;
 }
@@ -219,11 +219,11 @@ void Tab::updateTimeAxis(void)
     QString tz;
 
     if (my.group->numContexts() > 0) {
-	PMC_String olabel, otz;
+	QString olabel, otz;
 
 	my.group->useTZ();
 	my.group->defaultTZ(olabel, otz);
-	tz = tr(otz.ptr());
+	tz = otz;
 	kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom,
 		my.timeData[my.visible - 1], my.timeData[0],
 		kmchart->timeAxis()->scaleValue(my.interval, my.visible));
@@ -569,7 +569,7 @@ void Tab::VCRMode(KmTime::Packet *packet, bool dragMode)
 void Tab::setTimezone(char *tz)
 {
     console->post(KmChart::DebugProtocol, "Tab::setTimezone - %s", tz);
-    my.group->useTZ(PMC_String(tz));
+    my.group->useTZ(QString(tz));
 }
 
 void Tab::setSampleHistory(int v)

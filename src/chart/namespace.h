@@ -20,7 +20,7 @@
 #include <QtGui/QTreeWidgetItem>
 #include <pcp/pmapi.h>
 
-class PMC_Context;
+class QmcContext;
 
 class NameSpace : public QTreeWidgetItem
 {
@@ -35,7 +35,7 @@ public:
 	InstanceName,
     } Type;
 
-    NameSpace(QTreeWidget *, const PMC_Context *, bool);// for root nodes only
+    NameSpace(QTreeWidget *, const QmcContext *, bool);// for root nodes only
     NameSpace(NameSpace *, QString, bool, bool);	// for all other nodes
 
     QString text(int) const;
@@ -48,7 +48,7 @@ public:
     QString sourceName();
     QString metricName();
     QString instanceName();
-    PMC_Context *metricContext() { return my.context; }
+    QmcContext *metricContext() { return my.context; }
     void setType(Type type) { my.type = type; }
     bool isRoot() { return my.type == HostRoot || my.type == ArchiveRoot; }
     bool isLeaf() { return my.type == InstanceName||my.type == LeafNullIndom; }
@@ -84,7 +84,7 @@ private:
 	bool expanded;		// pmGet{ChildrenStatus,Indom} done
 	pmDesc desc;		// metric descriptor for metric leaves
 	int instid;		// for instance names only
-	PMC_Context *context;	// PMC metric context
+	QmcContext *context;	// metrics class metric context
 	QIcon iconic;
 	QColor current;		// color we'll use if OK'd
 	QColor original;	// color we started with

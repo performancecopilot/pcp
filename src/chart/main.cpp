@@ -30,9 +30,9 @@ Settings	globalSettings;
 Tab 		*activeTab;	// currently active Tab
 Tab 		**tabs;		// array of Tabs
 int		ntabs;		// number of Tabs
-PMC_Group	 *liveGroup;	// one libpcp_pmc group for all hosts
-PMC_Group	 *archiveGroup;	// one libpcp_pmc group for all archives
-PMC_Group	*activeGroup;	// currently active metric fetchgroup
+QmcGroup	*liveGroup;	// one metrics class group for all hosts
+QmcGroup	*archiveGroup;	// one metrics class group for all archives
+QmcGroup	*activeGroup;	// currently active metric fetchgroup
 Source 		*liveSources;	// one source class for all host sources
 Source		*archiveSources;// one source class for all archive sources
 Source		*activeSources;	// currently active list of sources
@@ -216,7 +216,7 @@ void readSettings(void)
     }
 
     globalSettings.chartBackgroundName = userSettings.value(
-		"chart_background_color", "light steel blue").toString();
+		"chart_background_color", "black").toString();
     globalSettings.chartBackground = QColor(globalSettings.chartBackgroundName);
 
     globalSettings.chartHighlightName = userSettings.value(
@@ -257,20 +257,20 @@ main(int argc, char ** argv)
     struct timeval	realStartTime;
     struct timeval	realEndTime;
     struct timeval	position;
-    PMC_StrList		hosts;
-    PMC_StrList		archives;
-    PMC_StrList		configs;
-    PMC_String		tzLabel;
-    PMC_String		tzString;
+    QStringList		hosts;
+    QStringList		archives;
+    QStringList		configs;
+    QString		tzLabel;
+    QString		tzString;
 
     QApplication a(argc, argv);
     pmProgname = basename(argv[0]);
     setupEnvironment();
     readSettings();
 
-    liveGroup = new PMC_Group();
+    liveGroup = new QmcGroup();
     liveSources = new Source(liveGroup);
-    archiveGroup = new PMC_Group();
+    archiveGroup = new QmcGroup();
     archiveSources = new Source(archiveGroup);
     tabs = (Tab **)calloc(2, sizeof(Tab *));
     tabs[0] = new Tab();
@@ -419,35 +419,37 @@ main(int argc, char ** argv)
     }
 
     // Create all of the sources
-    for (c = 0; c < (int)hosts.length(); c++) {
-	if (liveGroup->use(PM_CONTEXT_HOST, hosts[c].ptr()) < 0)
-	    hosts.remove(c);
+    for (c = 0; c < hosts.size(); c++) {
+	const char *hostname = (const char *)hosts[c].toAscii();
+	if (liveGroup->use(PM_CONTEXT_HOST, hostname) < 0)
+	    hosts.removeAt(c);
 	else
 	    liveSources->add(liveGroup->which());
     }
-    for (c = 0; c < (int)archives.length(); c++) {
-	if (archiveGroup->use(PM_CONTEXT_ARCHIVE, archives[c].ptr()) < 0)
-	    hosts.remove(c);
+    for (c = 0; c < archives.size(); c++) {
+	const char *archive = (const char *)archives[c].toAscii();
+	if (archiveGroup->use(PM_CONTEXT_ARCHIVE, archive) < 0)
+	    hosts.removeAt(c);
 	else
 	    archiveSources->add(archiveGroup->which());
     }
-    if (hosts.length() == 0 && archives.length() == 0) {
+    if (hosts.size() == 0 && archives.size() == 0) {
 	liveGroup->createLocalContext();
 	liveSources->add(liveGroup->which());
     }
     pmflush();
 
     if (zflag) {
-	if (archives.length() > 0)
+	if (archives.size() > 0)
 	    archiveGroup->useTZ();
 	else
 	    liveGroup->useTZ();
     }
     else if (Tflag) {
-	if (archives.length() > 0)
-	    archiveGroup->useTZ(PMC_String(tz));
+	if (archives.size() > 0)
+	    archiveGroup->useTZ(QString(tz));
 	else
-	    liveGroup->useTZ(PMC_String(tz));
+	    liveGroup->useTZ(QString(tz));
 	if ((sts = pmNewZone(tz)) < 0) {
 	    pmprintf("%s: cannot set timezone to \"%s\": %s\n",
 		    pmProgname, (char *)tz, pmErrStr(sts));
@@ -464,7 +466,7 @@ main(int argc, char ** argv)
     // set in that mode too.  Later we'll make a second connection
     // in the other mode (and only "on-demand").
     //
-    if (archives.length() > 0) {
+    if (archives.size() > 0) {
 	archiveGroup->defaultTZ(tzLabel, tzString);
 	archiveGroup->updateBounds();
 	logStartTime = archiveGroup->logStart();
@@ -504,10 +506,8 @@ main(int argc, char ** argv)
     kmtime = new TimeControl;
 
     // Start kmtime process for time management
-    kmtime->init(port, archives.length() == 0,
-		 &delta, &position, &realStartTime, &realEndTime,
-		 tzString.ptr(), tzString.length(),
-		 tzLabel.ptr(), tzLabel.length());
+    kmtime->init(port, archives.size() == 0, &delta, &position,
+		 &realStartTime, &realEndTime, tzString, tzLabel);
 
     kmchart->init();
     tabs[0]->init(kmchart->tabWidget(),
@@ -520,10 +520,10 @@ main(int argc, char ** argv)
 			globalSettings.visibleHistory,
 			archiveGroup, KmTime::ArchiveSource, "Archive",
 			kmtime->archiveInterval(), kmtime->archivePosition());
-    kmchart->setActiveTab(archives.length() > 0 ? 1 : 0, true);
+    kmchart->setActiveTab(archives.size() > 0 ? 1 : 0, true);
 
-    for (c = 0; c < (int)configs.length(); c++)
-	OpenViewDialog::openView(configs[c].ptr());
+    for (c = 0; c < configs.size(); c++)
+	OpenViewDialog::openView((const char *)configs[c].toAscii());
 
     ntabs = 2;	// last, so we don't react to kmtime step messages until now
 

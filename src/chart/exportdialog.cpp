@@ -14,7 +14,7 @@
 #include <QtCore/QDir>
 #include <QtGui/QMessageBox>
 #include <QtGui/QImageWriter>
-#include <qwt/qwt_plot_printfilter.h>
+#include <qwt_plot_printfilter.h>
 #include "main.h"
 #include "exportdialog.h"
 

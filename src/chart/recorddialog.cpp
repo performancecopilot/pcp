@@ -321,7 +321,7 @@ void RecordDialog::startLoggers()
 	if (selectedRadioButton->isChecked() && cp != activeTab->currentChart())
 	    continue;
 	for (int m = 0; m < cp->numPlot(); m++) {
-	    QString host = tr(cp->metricContext(m)->source().host().ptr());
+	    QString host = cp->metricContext(m)->source().host();
 	    if (!my.hosts.contains(host))
 		my.hosts.append(host);
 	}

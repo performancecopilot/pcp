@@ -14,10 +14,10 @@
 #include <QtCore/QEvent>
 #include <QtCore/QDateTime>
 #include <QtGui/QResizeEvent>
-#include <qwt/qwt_scale_draw.h>
-#include <qwt/qwt_scale_widget.h>
-#include <qwt/qwt_text.h>
-#include <qwt/qwt_text_label.h>
+#include <qwt_scale_draw.h>
+#include <qwt_scale_widget.h>
+#include <qwt_text.h>
+#include <qwt_text_label.h>
 #include <pcp/pmapi.h>
 #include "timeaxis.h"
 #include "main.h"

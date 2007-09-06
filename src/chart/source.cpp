@@ -24,41 +24,41 @@
 
 #define DESPERATE 1
 
-QList<PMC_Context *>contextList;
-PMC_Context *currentContext;
+QList<QmcContext *>contextList;
+QmcContext *currentContext;
 
-Source::Source(PMC_Group *group)
+Source::Source(QmcGroup *group)
 {
     my.fetchGroup = group;
     my.context = NULL;
 }
 
-QString Source::makeSourceBaseName(const PMC_Context *cp)
+QString Source::makeSourceBaseName(const QmcContext *cp)
 {
     if (cp->source().type() == PM_CONTEXT_ARCHIVE)
-	return QString(cp->source().source().ptr());
-    return QString(cp->source().host().ptr());
+	return cp->source().source();
+    return cp->source().host();
 }
 
-QString Source::makeSourceAnnotatedName(const PMC_Context *cp)
+QString Source::makeSourceAnnotatedName(const QmcContext *cp)
 {
     QString t;
 
     if (cp->source().type() == PM_CONTEXT_HOST) {
-	t = QString(cp->source().host().ptr());
+	t = cp->source().host();
 	// TODO - pmproxy host support needed here.
 	t.append(" (no proxy)");
     }
     else {
-	t = QString(cp->source().source().ptr());
+	t = cp->source().source();
 	t.append(" (");
-	t.append(cp->source().host().ptr());
+	t.append(cp->source().host());
 	t.append(")");
     }
     return t;
 }
 
-QString Source::makeComboText(const PMC_Context *ctx)
+QString Source::makeComboText(const QmcContext *ctx)
 {
     return makeSourceAnnotatedName(ctx);
 }
@@ -66,7 +66,7 @@ QString Source::makeComboText(const PMC_Context *ctx)
 int useSourceContext(QWidget *parent, QString &source)
 {
     int sts;
-    PMC_Group *group = activeTab->group();
+    QmcGroup *group = activeTab->group();
     uint_t ctxcount = group->numContexts();
     const char *src = source.toAscii();
     char *end, *proxy, *host = strdup(src);
@@ -116,7 +116,7 @@ int Source::type()
 QString Source::host()
 {
     // TODO: nathans - these aint QString's, theyre char* ... hmm?
-    return my.context ? my.context->source().host().ptr() : NULL;
+    return my.context ? my.context->source().host() : NULL;
 }
 
 const char *Source::source()
@@ -129,14 +129,15 @@ const char *Source::source()
     	return NULL;
 
 #if DESPERATE
-    console->post("  currentContext hndl=%d source=%s", currentContext->hndl(),
-		currentContext->source().source().ptr());
+    console->post("  currentContext handle=%d source=%s",
+		  currentContext->handle(),
+		  currentContext->source().sourceAscii());
 #endif
 
-    return currentContext->source().source().ptr();
+    return currentContext->source().sourceAscii();
 }
 
-void Source::add(PMC_Context *context)
+void Source::add(QmcContext *context)
 {
     bool send_bounds = (context->source().type() == PM_CONTEXT_ARCHIVE);
 
@@ -145,7 +146,7 @@ void Source::add(PMC_Context *context)
     my.context = context;
 
 #if DESPERATE
-    dump(stderr);
+    dump();
 #endif
 
     // For archives, send a message to kmtime to grow its time window.
@@ -153,25 +154,22 @@ void Source::add(PMC_Context *context)
     // we also don't have a kmtime connection yet if processing args.
     
     if (kmtime && send_bounds) {
-	const PMC_Source *source = &context->source();
-	PMC_String tz = source->timezone();
-	PMC_String host = source->host();
+	const QmcSource *source = &context->source();
+	QString tz = source->timezone();
+	QString host = source->host();
 	struct timeval logStartTime = source->start();
 	struct timeval logEndTime = source->end();
-	kmtime->addArchive(&logStartTime, &logEndTime, tz.ptr(),
-				tz.length(), host.ptr(), host.length());
+	kmtime->addArchive(&logStartTime, &logEndTime, tz, host);
     }
 }
 
-void Source::dump(FILE *f)
+void Source::dump()
 {
-    fprintf(f, "Source::dump: current=%p\n", currentContext);
+    QTextStream cerr(stderr);
+    cerr << "Source::dump: current: " << currentContext;
     for (int i = 0; i < contextList.size(); i++) {
-	PMC_Context *cp = contextList.at(i);
-	fprintf(f, "context=%p\n", cp);
-	fprintf(f, "  [%d] type=%d source=%s host=%s ctxt=%d\n", i,
-		cp->source().type(), cp->source().source().ptr(),
-		cp->source().host().ptr(), cp->hndl());
+	contextList.at(i)->dump(cerr);
+	contextList.at(i)->dumpMetrics(cerr);
     }
 }
 
@@ -179,7 +177,7 @@ void Source::setupCombo(QComboBox *combo)
 {
     combo->clear();
     for (int i = 0; i < contextList.size(); i++) {
-	PMC_Context *cp = contextList.at(i);
+	QmcContext *cp = contextList.at(i);
 	QString source = makeComboText(cp);
 	combo->insertItem(i, source);
 	if (cp == currentContext)
@@ -206,7 +204,7 @@ void Source::setCurrentInCombo(QComboBox *combo)
 void Source::setCurrentFromCombo(const QString name)
 {
     for (int i = 0; i < contextList.size(); i++) {
-	PMC_Context *cp = contextList.at(i);
+	QmcContext *cp = contextList.at(i);
 	if (name == makeComboText(cp)) {
 	    currentContext = cp;
 	    return;
@@ -221,7 +219,7 @@ void Source::setupTree(QTreeWidget *tree)
 
     tree->clear();
     for (int i = 0; i < contextList.size(); i++) {
-	PMC_Context *cp = contextList.at(i);
+	QmcContext *cp = contextList.at(i);
 	NameSpace *name = new NameSpace(tree, cp, activeTab->isArchiveSource());
 	name->setOpen(true);
 	name->setSelectable(false);

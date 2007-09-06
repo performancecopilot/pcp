@@ -50,29 +50,29 @@ typedef struct {
 	bool		styleModified;
 } Settings;
 
-extern Settings		globalSettings;
-extern void		readSettings();
-extern void		writeSettings();
+extern Settings globalSettings;
+extern void readSettings();
+extern void writeSettings();
 
-extern int		Cflag;
+extern int Cflag;
 
-extern Tab		*activeTab;
-extern Tab		**tabs;
-extern int		ntabs;
+extern Tab *activeTab;
+extern Tab **tabs;
+extern int ntabs;
 
-extern Source		*activeSources;
-extern Source		*liveSources;
-extern Source		*archiveSources;
+extern Source *activeSources;
+extern Source *liveSources;
+extern Source *archiveSources;
 
-extern PMC_Group	*activeGroup;
-extern PMC_Group	*liveGroup;
-extern PMC_Group	*archiveGroup;
+extern QmcGroup	*activeGroup;
+extern QmcGroup *liveGroup;
+extern QmcGroup *archiveGroup;
 
 class KmChart;
-extern KmChart		*kmchart;
+extern KmChart *kmchart;
 
 class TimeControl;
-extern TimeControl	*kmtime;
+extern TimeControl *kmtime;
 
 extern double tosec(struct timeval);
 extern double torange(struct timeval, int);

@@ -1009,7 +1009,7 @@ bool SaveViewDialog::saveView(QString filename, bool dynamic)
 	    if (p != NULL)
 		fprintf(f, " legend \"%s\"", p);
 	    fprintf(f, " color %s", (const char *)cp->color(m).name().toAscii());
-	    p = cp->name(m)->ptr();
+	    p = (char *)(const char *)cp->name(m).toAscii();
 	    if ((q = strstr(p, "[")) != NULL) {
 		// metric with an instance
 		if ((qend = strstr(q, "]")) == NULL) {
