@@ -25,8 +25,7 @@ endif
 ifeq ($(PKG_PLATFORM),darwin)
 PLATFORM_BUILD = xcodebuild
 else
-PLATFORM_BUILD = perl -i -pe 's/ -Wall / -Wall -Wno-deprecated /g' Makefile \
-		 && $(MAKE) -f Makefile
+PLATFORM_BUILD = $(MAKE) -f Makefile
 endif
 
 QTMAKE = $(QMAKE) && $(PLATFORM_BUILD)
