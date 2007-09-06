@@ -1,0 +1,11 @@
+#!/bin/sh
+
+OS_VER=`/usr/bin/uname -r`
+OS_MAJ=`/usr/bin/uname -r | cut -f 1 -d .`
+
+if [ "$OS_VER" = "6.8" -o "$OS_VER" = "6.8.5" -o "$OS_MAJ" = "7" ]; then
+	exit 0
+fi
+
+# Refuse to install, giving standard error message
+exit 96
