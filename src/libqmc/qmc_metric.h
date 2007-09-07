@@ -128,7 +128,7 @@ public:
     double scale() const { return my.scale; }
 
     // Metric has real values (as opposed to string values)
-    bool real() const { return (desc().desc().type == PM_TYPE_STRING); }
+    bool real() const { return (desc().desc().type != PM_TYPE_STRING); }
 
     // Current rate-converted and scaled real value
     double value(int index) const { return my.values[index].value(); }
