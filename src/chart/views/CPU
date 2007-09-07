@@ -8,5 +8,3 @@ chart title "CPU Utilization [%h]" style utilization
 	optional-plot legend "Intr" color #cdcd00 metric kernel.all.cpu.intr
 	optional-plot legend "Wait" color #00cdcd metric kernel.all.cpu.wait.total
 	plot legend "Idle" color #168e16 metric kernel.all.cpu.idle
-
-# $Id: CPU,v 1.2 2006/02/28 09:36:29 kenj Exp $

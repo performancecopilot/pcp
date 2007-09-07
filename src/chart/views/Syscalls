@@ -7,6 +7,3 @@ chart title "System Calls [%h]" style plot
 	optional-plot legend "fork" metric kernel.all.sysfork
 	optional-plot legend "read" metric kernel.all.sysread
 	optional-plot legend "write" metric kernel.all.syswrite
-
-# $Id$
-

@@ -6,5 +6,3 @@ chart title "User CPU Time for shping Commands [%h]" style plot
 
 chart title "System CPU Time for shping Commands [%h]" style plot
 	plot legend "%i" metric shping.time.cpu_sys
-
-# $Id$

@@ -12,5 +12,3 @@ chart title "CPU Time for PMCD and DSO PMDAs [%h]" style stacking
 chart title "CPU Time for Other PMDAs [%h]" style stacking legend off
 	optional-plot color #2d2de2 metric proc.psinfo.utime matching "/pmda"
 	optional-plot color #e71717 metric proc.psinfo.stime matching "/pmda"
-
-# $Id$

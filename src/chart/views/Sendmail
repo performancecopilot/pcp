@@ -8,4 +8,3 @@ chart title "Sendmail Bytes [%h]" style plot
 chart title "Sendmail Mail Items [%h]" style plot
 	plot legend "Recv" color #1e1cfe metric sendmail.total.msgs_from
 	plot legend "Sent" color #fe9913 metric sendmail.total.msgs_to
-
