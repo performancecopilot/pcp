@@ -349,7 +349,7 @@
        <bool>false</bool>
       </property>
      </widget>
-     <widget class="QwtCounter" name="yAxisMaximum" >
+     <widget class="QDoubleSpinBox" name="yAxisMaximum" >
       <property name="enabled" >
        <bool>false</bool>
       </property>
@@ -361,17 +361,8 @@
         <height>27</height>
        </rect>
       </property>
-      <property name="basicstep" stdset="0" >
-       <double>1.000000000000000</double>
-      </property>
-      <property name="maxValue" >
-       <double>0.000000000000000</double>
-      </property>
-      <property name="value" >
-       <double>0.000000000000000</double>
-      </property>
      </widget>
-     <widget class="QwtCounter" name="yAxisMinimum" >
+     <widget class="QDoubleSpinBox" name="yAxisMinimum" >
       <property name="enabled" >
        <bool>false</bool>
       </property>
@@ -382,12 +373,6 @@
         <width>180</width>
         <height>27</height>
        </rect>
-      </property>
-      <property name="basicstep" stdset="0" >
-       <double>1.000000000000000</double>
-      </property>
-      <property name="maxValue" >
-       <double>0.000000000000000</double>
       </property>
      </widget>
     </widget>
@@ -948,11 +933,6 @@
    <class>QColorLuminancePicker</class>
    <extends>QWidget</extends>
    <header>qcolorpicker.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QwtCounter</class>
-   <extends>QWidget</extends>
-   <header>qwt_counter.h</header>
   </customwidget>
   <customwidget>
    <class>QColorShowLabel</class>

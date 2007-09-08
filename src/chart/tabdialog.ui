@@ -144,16 +144,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QwtCounter" name="visiblePointsCounter" >
-             <property name="basicstep" stdset="0" >
-              <double>1.000000000000000</double>
-             </property>
-             <property name="minValue" >
-              <double>2.000000000000000</double>
-             </property>
-             <property name="maxValue" >
-              <double>300.000000000000000</double>
-             </property>
+            <widget class="QDoubleSpinBox" name="visiblePointsCounter" >
             </widget>
            </item>
            <item>
@@ -206,16 +197,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QwtCounter" name="samplePointsCounter" >
-             <property name="basicstep" stdset="0" >
-              <double>1.000000000000000</double>
-             </property>
-             <property name="minValue" >
-              <double>2.000000000000000</double>
-             </property>
-             <property name="maxValue" >
-              <double>300.000000000000000</double>
-             </property>
+            <widget class="QDoubleSpinBox" name="samplePointsCounter" >
             </widget>
            </item>
            <item>
@@ -318,11 +300,6 @@
    <class>QwtSlider</class>
    <extends>QWidget</extends>
    <header>qwt_slider.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QwtCounter</class>
-   <extends>QWidget</extends>
-   <header>qwt_counter.h</header>
   </customwidget>
  </customwidgets>
  <includes>
