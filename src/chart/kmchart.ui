@@ -23,23 +23,17 @@
   </property>
   <widget class="QWidget" name="widget" >
    <layout class="QVBoxLayout" >
+    <property name="margin" >
+     <number>0</number>
+    </property>
     <property name="spacing" >
-     <number>0</number>
-    </property>
-    <property name="leftMargin" >
-     <number>0</number>
-    </property>
-    <property name="topMargin" >
-     <number>0</number>
-    </property>
-    <property name="rightMargin" >
-     <number>0</number>
-    </property>
-    <property name="bottomMargin" >
      <number>0</number>
     </property>
     <item>
      <layout class="QVBoxLayout" >
+      <property name="margin" >
+       <number>0</number>
+      </property>
       <property name="spacing" >
        <number>0</number>
       </property>
@@ -55,13 +49,18 @@
       </item>
       <item>
        <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
         <property name="spacing" >
          <number>2</number>
         </property>
         <item>
          <widget class="TimeButton" name="timeButton" >
           <property name="sizePolicy" >
-           <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+           <sizepolicy>
+            <hsizetype>0</hsizetype>
+            <vsizetype>0</vsizetype>
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -89,7 +88,9 @@
         <item>
          <widget class="QFrame" name="frame21" >
           <property name="sizePolicy" >
-           <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+           <sizepolicy>
+            <hsizetype>7</hsizetype>
+            <vsizetype>0</vsizetype>
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -116,30 +117,26 @@
            <number>2</number>
           </property>
           <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>2</number>
+           </property>
            <property name="spacing" >
             <number>0</number>
            </property>
-           <property name="leftMargin" >
-            <number>2</number>
-           </property>
-           <property name="topMargin" >
-            <number>2</number>
-           </property>
-           <property name="rightMargin" >
-            <number>2</number>
-           </property>
-           <property name="bottomMargin" >
-            <number>2</number>
-           </property>
            <item>
             <layout class="QVBoxLayout" >
+             <property name="margin" >
+              <number>0</number>
+             </property>
              <property name="spacing" >
               <number>0</number>
              </property>
              <item>
               <widget class="TimeAxis" name="timeAxisPlot" >
                <property name="sizePolicy" >
-                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                <sizepolicy>
+                 <hsizetype>7</hsizetype>
+                 <vsizetype>0</vsizetype>
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -167,7 +164,9 @@
              <item>
               <widget class="QLabel" name="dateLabel" >
                <property name="sizePolicy" >
-                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                <sizepolicy>
+                 <hsizetype>7</hsizetype>
+                 <vsizetype>0</vsizetype>
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -182,7 +181,6 @@
                 <font>
                  <family>Sans Serif</family>
                  <pointsize>9</pointsize>
-                 <stylestrategy>PreferAntialias</stylestrategy>
                 </font>
                </property>
                <property name="text" >
@@ -213,7 +211,7 @@
      <x>0</x>
      <y>0</y>
      <width>336</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="Edit" >
