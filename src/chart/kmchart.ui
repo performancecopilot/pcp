@@ -23,17 +23,23 @@
   </property>
   <widget class="QWidget" name="widget" >
    <layout class="QVBoxLayout" >
-    <property name="margin" >
+    <property name="spacing" >
      <number>0</number>
     </property>
-    <property name="spacing" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
      <number>0</number>
     </property>
     <item>
      <layout class="QVBoxLayout" >
-      <property name="margin" >
-       <number>0</number>
-      </property>
       <property name="spacing" >
        <number>0</number>
       </property>
@@ -49,18 +55,13 @@
       </item>
       <item>
        <layout class="QHBoxLayout" >
-        <property name="margin" >
-         <number>0</number>
-        </property>
         <property name="spacing" >
          <number>2</number>
         </property>
         <item>
          <widget class="TimeButton" name="timeButton" >
           <property name="sizePolicy" >
-           <sizepolicy>
-            <hsizetype>0</hsizetype>
-            <vsizetype>0</vsizetype>
+           <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -88,9 +89,7 @@
         <item>
          <widget class="QFrame" name="frame21" >
           <property name="sizePolicy" >
-           <sizepolicy>
-            <hsizetype>7</hsizetype>
-            <vsizetype>0</vsizetype>
+           <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -117,26 +116,30 @@
            <number>2</number>
           </property>
           <layout class="QVBoxLayout" >
-           <property name="margin" >
-            <number>2</number>
-           </property>
            <property name="spacing" >
             <number>0</number>
            </property>
+           <property name="leftMargin" >
+            <number>2</number>
+           </property>
+           <property name="topMargin" >
+            <number>2</number>
+           </property>
+           <property name="rightMargin" >
+            <number>2</number>
+           </property>
+           <property name="bottomMargin" >
+            <number>2</number>
+           </property>
            <item>
             <layout class="QVBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
              <property name="spacing" >
               <number>0</number>
              </property>
              <item>
               <widget class="TimeAxis" name="timeAxisPlot" >
                <property name="sizePolicy" >
-                <sizepolicy>
-                 <hsizetype>7</hsizetype>
-                 <vsizetype>0</vsizetype>
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -156,7 +159,7 @@
                <property name="font" >
                 <font>
                  <family>Sans Serif</family>
-                 <pointsize>8</pointsize>
+                 <pointsize>9</pointsize>
                 </font>
                </property>
               </widget>
@@ -164,9 +167,7 @@
              <item>
               <widget class="QLabel" name="dateLabel" >
                <property name="sizePolicy" >
-                <sizepolicy>
-                 <hsizetype>7</hsizetype>
-                 <vsizetype>0</vsizetype>
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -180,7 +181,8 @@
                <property name="font" >
                 <font>
                  <family>Sans Serif</family>
-                 <pointsize>8</pointsize>
+                 <pointsize>9</pointsize>
+                 <stylestrategy>PreferAntialias</stylestrategy>
                 </font>
                </property>
                <property name="text" >
@@ -211,7 +213,7 @@
      <x>0</x>
      <y>0</y>
      <width>336</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="Edit" >
@@ -540,14 +542,14 @@
    </property>
   </action>
   <action name="fileNewChartAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/document-new.png</iconset>
+   </property>
    <property name="text" >
     <string>&amp;New Chart...</string>
    </property>
    <property name="iconText" >
     <string>New Chart...</string>
-   </property>
-   <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/document-new.png</iconset>
    </property>
   </action>
   <action name="deleteChartAction" >
@@ -628,11 +630,6 @@
  <layoutdefault spacing="0" margin="0" />
  <customwidgets>
   <customwidget>
-   <class>QwtPlot</class>
-   <extends>QFrame</extends>
-   <header>qwt_plot.h</header>
-  </customwidget>
-  <customwidget>
    <class>TimeButton</class>
    <extends>QToolButton</extends>
    <header>timebutton.h</header>
@@ -641,6 +638,7 @@
    <class>TimeAxis</class>
    <extends>QwtPlot</extends>
    <header>timeaxis.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <includes>
