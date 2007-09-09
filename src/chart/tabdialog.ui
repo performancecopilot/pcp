@@ -144,8 +144,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QDoubleSpinBox" name="visiblePointsCounter" >
-            </widget>
+            <widget class="QDoubleSpinBox" name="visiblePointsCounter" />
            </item>
            <item>
             <spacer>
@@ -197,8 +196,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QDoubleSpinBox" name="samplePointsCounter" >
-            </widget>
+            <widget class="QDoubleSpinBox" name="samplePointsCounter" />
            </item>
            <item>
             <spacer>

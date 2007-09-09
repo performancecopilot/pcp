@@ -128,8 +128,7 @@
               </spacer>
              </item>
              <item>
-              <widget class="QDoubleSpinBox" name="totalCounter" >
-              </widget>
+              <widget class="QDoubleSpinBox" name="totalCounter" />
              </item>
              <item>
               <spacer>
@@ -194,8 +193,7 @@
               </spacer>
              </item>
              <item>
-              <widget class="QDoubleSpinBox" name="visibleCounter" >
-              </widget>
+              <widget class="QDoubleSpinBox" name="visibleCounter" />
              </item>
              <item>
               <spacer>

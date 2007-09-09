@@ -106,7 +106,7 @@
          <item>
           <widget class="QLabel" name="formatTextLabel" >
            <property name="text" >
-            <string>File Format</string>
+            <string>File Format:</string>
            </property>
            <property name="wordWrap" >
             <bool>false</bool>
@@ -205,8 +205,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="qualityCounter" >
-        </widget>
+        <widget class="QDoubleSpinBox" name="qualityCounter" />
        </item>
       </layout>
      </item>
@@ -275,11 +274,6 @@
    <class>QwtSlider</class>
    <extends>QWidget</extends>
    <header>qwt_slider.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QDoubleSpinBox</class>
-   <extends>QWidget</extends>
-   <header>qwt_counter.h</header>
   </customwidget>
  </customwidgets>
  <includes>
