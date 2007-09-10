@@ -29,8 +29,6 @@
 
 #include "proc_fs_xfs.h"
 
-static int err_reported = 0;
-
 int
 refresh_proc_fs_xfs(proc_fs_xfs_t *proc_fs_xfs)
 {
@@ -42,9 +40,6 @@ refresh_proc_fs_xfs(proc_fs_xfs_t *proc_fs_xfs)
 
     if ((fp = fopen("/proc/fs/xfs/stat", "r")) == (FILE *)NULL) {
     	proc_fs_xfs->errcode = -errno;
-	if (err_reported == 0)
-	    fprintf(stderr, "Warning: xfs metrics are not available : %s\n",
-		    strerror(errno));
     }
     else {
     	proc_fs_xfs->errcode = 0;
@@ -234,8 +229,6 @@ refresh_proc_fs_xfs(proc_fs_xfs_t *proc_fs_xfs)
 	    fclose(fp);
 	}
     }
-    if (err_reported == 0)
-	err_reported = 1;
 
     if (proc_fs_xfs->errcode == 0)
 	return 0;
