@@ -44,7 +44,7 @@ public:
     static const int defaultVisiblePoints = 24;
     static const int defaultSamplePoints = 24;
     static const int minimumPoints = 2;
-    static const int maximumPoints = 300;
+    static const int maximumPoints = 360;
     static const int maximumLegendLength = 20;
 
     virtual TimeAxis *timeAxis();
