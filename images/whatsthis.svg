@@ -14,11 +14,12 @@
    inkscape:version="0.44.1"
    sodipodi:version="0.32"
    id="svg11300"
-   height="48px"
-   width="48px"
+   height="22"
+   width="22"
    inkscape:export-filename="/source/git/kmchart/images/whatsthis.png"
    inkscape:export-xdpi="90.000000"
-   inkscape:export-ydpi="90.000000">
+   inkscape:export-ydpi="90.000000"
+   version="1.0">
   <defs
      id="defs3">
     <linearGradient
@@ -59,12 +60,12 @@
        xlink:href="#linearGradient2304"
        id="radialGradient1899"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(-0.383464,-0.64461,-0.803746,0.45037,45.47147,32.02086)"
+       gradientTransform="matrix(-0.240676,-0.335448,-0.504459,0.234367,25.37296,13.20804)"
        cx="11.319205"
        cy="22.454971"
        fx="11.319205"
        fy="22.454971"
-       r="16.956199" />
+       r="16.9562" />
   </defs>
   <sodipodi:namedview
      inkscape:window-y="25"
@@ -76,7 +77,7 @@
      inkscape:grid-bbox="true"
      showgrid="false"
      inkscape:current-layer="layer1"
-     inkscape:cy="25.58209"
+     inkscape:cy="25.365508"
      inkscape:cx="22.042915"
      inkscape:zoom="2.3085937"
      inkscape:pageshadow="2"
@@ -86,7 +87,9 @@
      pagecolor="#ffffff"
      id="base"
      fill="#73d216"
-     stroke="#73d216" />
+     stroke="#73d216"
+     width="22px"
+     height="22px" />
   <metadata
      id="metadata4">
     <rdf:RDF>
@@ -142,7 +145,7 @@
      inkscape:label="Layer 1"
      id="layer1">
     <path
-       transform="matrix(-1.214466,0,0,0.595458,54.16384,22.31275)"
+       transform="matrix(-0.762241,0,0,0.309869,30.82858,8.156048)"
        d="M 40.481863 36.421127 A 15.644737 8.3968935 0 1 1  9.1923885,36.421127 A 15.644737 8.3968935 0 1 1  40.481863 36.421127 z"
        sodipodi:ry="8.3968935"
        sodipodi:rx="15.644737"
@@ -154,20 +157,20 @@
     <path
        sodipodi:nodetypes="cccccccc"
        id="path8643"
-       d="M 32.673161,35.026339 L 18.509323,42.962887 L 12.617598,33.05881 L 6.2906969,36.604018 L 10.663568,13.714096 L 33.028955,21.562436 L 26.781045,25.130967 L 32.673161,35.026339 z "
-       style="color:black;fill:url(#radialGradient1899);fill-opacity:1;fill-rule:evenodd;stroke:#3a7304;stroke-width:0.89623594;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
+       d="M 17.340278,14.772053 L 8.4505578,18.902141 L 4.752705,13.748174 L 0.78172031,15.593059 L 3.5262874,3.6814081 L 17.563588,7.7655936 L 13.642181,9.6226159 L 17.340278,14.772053 z "
+       style="color:black;fill:url(#radialGradient1899);fill-opacity:1;fill-rule:evenodd;stroke:#3a7304;stroke-width:0.51220024;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
     <text
        xml:space="preserve"
-       style="font-size:50.82533264px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#0000a3;fill-opacity:0.87431694;stroke:black;stroke-width:0.96635163px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:URW Palladio L"
-       x="11.731842"
-       y="50.522472"
+       style="font-size:28.11376953px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#0000a3;fill-opacity:0.87431694;stroke:black;stroke-width:0.53453243px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:URW Palladio L"
+       x="4.5323687"
+       y="23.513401"
        id="text1905"
        sodipodi:linespacing="100%"
-       transform="scale(1.203737,0.830746)"><tspan
+       transform="scale(1.278331,0.78227)"><tspan
          sodipodi:role="line"
          id="tspan1907"
-         x="11.731842"
-         y="50.522472"
-         style="font-size:50.82533264px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#0000a3;fill-opacity:0.87431694;stroke-width:0.96635163;font-family:URW Palladio L">?</tspan></text>
+         x="4.5323687"
+         y="23.513401"
+         style="font-size:28.11376953px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#0000a3;fill-opacity:0.87431694;stroke-width:0.53453243;font-family:URW Palladio L">?</tspan></text>
   </g>
 </svg>
