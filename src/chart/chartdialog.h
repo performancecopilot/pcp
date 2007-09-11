@@ -50,6 +50,8 @@ public slots:
     virtual void metricInfoButtonClicked();
     virtual void metricDeleteButtonClicked();
     virtual void metricAddButtonClicked();
+    virtual void archiveButtonClicked();
+    virtual void hostButtonClicked();
     virtual void sourceButtonClicked();
     virtual void legendOnClicked();
     virtual void legendOffClicked();

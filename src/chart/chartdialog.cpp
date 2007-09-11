@@ -38,8 +38,6 @@ void ChartDialog::init()
     my.availableTreeSelected = false;
     my.chartTreeSingleSelected = NULL;
     my.availableTreeSingleSelected = NULL;
-//    chartMetricsTreeWidget->header()->hideSection(0);
-//    availableMetricsTreeWidget->header()->hideSection(0);
     connect(chartMetricsTreeWidget, SIGNAL(itemSelectionChanged()),
 		this, SLOT(chartMetricsSelectionChanged()));
     connect(availableMetricsTreeWidget, SIGNAL(itemSelectionChanged()),
@@ -191,61 +189,69 @@ void ChartDialog::metricAddButtonClicked()
     }
 }
 
-void ChartDialog::sourceButtonClicked()
+void ChartDialog::archiveButtonClicked()
 {
+    ArchiveDialog *a = new ArchiveDialog(this);
+    QStringList al;
     int sts;
 
-    if (my.archiveSource) {
-	ArchiveDialog *a = new ArchiveDialog(this);
-	QStringList al;
-
-	if (a->exec() == QDialog::Accepted)
-	    al = a->selectedFiles();
-	for (QStringList::Iterator it = al.begin(); it != al.end(); ++it) {
-	    QString ar = *it;
-	    if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE,
-					 (const char *)ar.toAscii())) < 0) {
-		ar.prepend(tr("Cannot open PCP archive: "));
-		ar.append(tr("\n"));
-		ar.append(tr(pmErrStr(sts)));
-		QMessageBox::warning(this, pmProgname, ar,
+    if (a->exec() == QDialog::Accepted)
+	al = a->selectedFiles();
+    for (QStringList::Iterator it = al.begin(); it != al.end(); ++it) {
+	QString archive = *it;
+	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {
+	    archive.prepend(tr("Cannot open PCP archive: "));
+	    archive.append(tr("\n"));
+	    archive.append(tr(pmErrStr(sts)));
+	    QMessageBox::warning(this, pmProgname, archive,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
-	    } else {
-		archiveSources->add(archiveGroup->which());
-		archiveSources->setupTree(availableMetricsTreeWidget);
-		archiveGroup->updateBounds();
-	    }
+	} else {
+	    archiveSources->add(archiveGroup->which());
+	    archiveSources->setupTree(availableMetricsTreeWidget);
+	    archiveGroup->updateBounds();
 	}
-	delete a;
-    } else {
-	HostDialog *h = new HostDialog(this);
-
-	h->portLabel->setEnabled(false);
-	h->portLineEdit->setEnabled(false);
-	if (h->exec() == QDialog::Accepted) {
-	    QString proxy = h->portLineEdit->text().trimmed();
-	    QString host = h->hostLineEdit->text().trimmed();
-	    if ((sts = liveGroup->use(PM_CONTEXT_HOST,
-					(const char *)host.toAscii())) < 0) {
-		host.prepend(tr("Cannot connect to host: "));
-		host.append(tr("\n"));
-		if (!proxy.isEmpty()) {
-			host.append(tr(" proxy: "));
-			host.append(proxy);
-			host.append("\n");
-		}
-		host.append(tr(pmErrStr(sts)));
-		QMessageBox::warning(this, pmProgname, host,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    Qt::NoButton, Qt::NoButton);
-	    } else {
-		liveSources->add(liveGroup->which());
-		liveSources->setupTree(availableMetricsTreeWidget);
-	    }
-	}
-	delete h;
     }
+    delete a;
+}
+
+void ChartDialog::hostButtonClicked()
+{
+    HostDialog *h = new HostDialog(this);
+    int sts;
+
+    h->portLabel->setEnabled(false);	// TODO
+    h->portLineEdit->setEnabled(false);	// TODO
+
+    if (h->exec() == QDialog::Accepted) {
+	QString proxy = h->portLineEdit->text().trimmed();
+	QString host = h->hostLineEdit->text().trimmed();
+	if ((sts = liveGroup->use(PM_CONTEXT_HOST, host)) < 0) {
+	    host.prepend(tr("Cannot connect to host: "));
+	    host.append(tr("\n"));
+	    if (!proxy.isEmpty()) {
+		host.append(tr(" proxy: "));
+		host.append(proxy);
+		host.append("\n");
+	    }
+	    host.append(tr(pmErrStr(sts)));
+	    QMessageBox::warning(this, pmProgname, host,
+		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
+		    Qt::NoButton, Qt::NoButton);
+	} else {
+	    liveSources->add(liveGroup->which());
+	    liveSources->setupTree(availableMetricsTreeWidget);
+	}
+    }
+    delete h;
+}
+
+void ChartDialog::sourceButtonClicked()
+{
+    if (my.archiveSource)
+	archiveButtonClicked();
+    else
+	hostButtonClicked();
 }
 
 int ChartDialog::style(void)
