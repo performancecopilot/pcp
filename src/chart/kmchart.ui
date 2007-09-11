@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>336</width>
+    <width>344</width>
     <height>267</height>
    </rect>
   </property>
@@ -20,6 +20,12 @@
   </property>
   <property name="windowIcon" >
    <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
+  </property>
+  <property name="iconSize" >
+   <size>
+    <width>22</width>
+    <height>22</height>
+   </size>
   </property>
   <widget class="QWidget" name="widget" >
    <layout class="QVBoxLayout" >
@@ -153,11 +159,11 @@
                  <height>22</height>
                 </size>
                </property>
-               <property name="font" >
-                <font>
-                 <family>Sans Serif</family>
-                 <pointsize>9</pointsize>
-                </font>
+               <property name="lineWidth" >
+                <number>1</number>
+               </property>
+               <property name="midLineWidth" >
+                <number>0</number>
                </property>
               </widget>
              </item>
@@ -176,12 +182,6 @@
                  <width>90</width>
                  <height>20</height>
                 </size>
-               </property>
-               <property name="font" >
-                <font>
-                 <family>Sans Serif</family>
-                 <pointsize>9</pointsize>
-                </font>
                </property>
                <property name="text" >
                 <string>Sat Jan  1 2000 UTC</string>
@@ -210,22 +210,10 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>336</width>
+     <width>344</width>
      <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="Edit" >
-    <property name="title" >
-     <string>&amp;Edit</string>
-    </property>
-    <addaction name="editChartAction" />
-    <addaction name="deleteChartAction" />
-    <addaction name="separator" />
-    <addaction name="editTabAction" />
-    <addaction name="deleteTabAction" />
-    <addaction name="separator" />
-    <addaction name="editSettingsAction" />
-   </widget>
    <widget class="QMenu" name="Help" >
     <property name="title" >
      <string>&amp;Help</string>
@@ -274,11 +262,51 @@
     <addaction name="separator" />
     <addaction name="fileQuitAction" />
    </widget>
+   <widget class="QMenu" name="Edit" >
+    <property name="title" >
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="editChartAction" />
+    <addaction name="deleteChartAction" />
+    <addaction name="separator" />
+    <addaction name="editTabAction" />
+    <addaction name="deleteTabAction" />
+    <addaction name="separator" />
+    <addaction name="editSettingsAction" />
+   </widget>
    <addaction name="fileMenu" />
    <addaction name="Edit" />
    <addaction name="Time" />
    <addaction name="separator" />
    <addaction name="Help" />
+  </widget>
+  <widget class="QToolBar" name="toolBar" >
+   <property name="sizePolicy" >
+    <sizepolicy>
+     <hsizetype>3</hsizetype>
+     <vsizetype>0</vsizetype>
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize" >
+    <size>
+     <width>48</width>
+     <height>36</height>
+    </size>
+   </property>
+   <property name="orientation" >
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <attribute name="toolBarArea" >
+    <number>4</number>
+   </attribute>
+   <addaction name="fileNewChartAction" />
+   <addaction name="newTabAction" />
+   <addaction name="fileOpenViewAction" />
+   <addaction name="fileExportAction" />
+   <addaction name="separator" />
+   <addaction name="helpWhatsThisAction" />
   </widget>
   <action name="fileOpenViewAction" >
    <property name="icon" >
@@ -480,6 +508,9 @@
    </property>
   </action>
   <action name="newTabAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/tab-new.png</iconset>
+   </property>
    <property name="text" >
     <string>New Tab</string>
    </property>
@@ -637,6 +668,11 @@
    <extends>QwtPlot</extends>
    <header>timeaxis.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QwtPlot</class>
+   <extends>QFrame</extends>
+   <header>qwt_plot.h</header>
   </customwidget>
  </customwidgets>
  <includes>

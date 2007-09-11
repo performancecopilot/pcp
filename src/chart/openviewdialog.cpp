@@ -195,14 +195,12 @@ void OpenViewDialog::archiveAdd()
     if (a->exec() == QDialog::Accepted)
 	al = a->selectedFiles();
     for (QStringList::Iterator it = al.begin(); it != al.end(); ++it) {
-	QString arch = *it;
-	const char *archive = (const char *)arch.toAscii();
-
+	QString archive = *it;
 	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {
-	    arch.prepend(tr("Cannot open PCP archive: "));
-	    arch.append(tr("\n"));
-	    arch.append(tr(pmErrStr(sts)));
-	    QMessageBox::warning(this, pmProgname, arch,
+	    archive.prepend(tr("Cannot open PCP archive: "));
+	    archive.append(tr("\n"));
+	    archive.append(tr(pmErrStr(sts)));
+	    QMessageBox::warning(this, pmProgname, archive,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    QMessageBox::NoButton, QMessageBox::NoButton);
 	} else {
@@ -222,11 +220,9 @@ void OpenViewDialog::hostAdd()
     h->portLabel->setEnabled(false);
     h->portLineEdit->setEnabled(false);
     if (h->exec() == QDialog::Accepted) {
-	QString port = h->portLineEdit->text().trimmed();
+	QString port = h->portLineEdit->text().trimmed();	// TODO
 	QString host = h->hostLineEdit->text().trimmed();
-
-	const char *hostname = (const char *)host.toAscii();
-	if ((sts = liveGroup->use(PM_CONTEXT_HOST, hostname)) < 0) {
+	if ((sts = liveGroup->use(PM_CONTEXT_HOST, host)) < 0) {
 	    host.prepend(tr("Cannot connect to host: "));
 	    host.append(tr("\n"));
 	    host.append(tr(pmErrStr(sts)));

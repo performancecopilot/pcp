@@ -57,13 +57,13 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent)
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, true);
     enableAxis(xBottom, false);
     setLegendVisible(true);
-    legend()->contentsWidget()->setFont(QFont("Sans Serif", 9));
+    legend()->contentsWidget()->setFont(globalFont);
     connect(this, SIGNAL(legendChecked(QwtPlotItem *, bool)),
 	    SLOT(showCurve(QwtPlotItem *, bool)));
 
     // start with autoscale y axis
     setAxisAutoScale(QwtPlot::yLeft);
-    setAxisFont(QwtPlot::yLeft, QFont("Sans Serif", 9));
+    setAxisFont(QwtPlot::yLeft, globalFont);
 
     my.tab = chartTab;
     my.title = NULL;
@@ -490,7 +490,7 @@ void Chart::changeTitle(char *title, int expand)
     }
     if (title != NULL) {
 	QwtText t = titleLabel()->text();
-	t.setFont(QFont("Sans Serif", 9));
+	t.setFont(globalFont);
 	setTitle(t);
 	my.title = strdup(title);
 
@@ -709,7 +709,7 @@ void Chart::setYAxisTitle(char *p)
 	t = new QwtText(" ");	// for y-axis alignment (space is invisible)
     else
 	t = new QwtText(p);
-    t->setFont(QFont("Sans Serif", 9));
+    t->setFont(globalFont);
     t->setColor("blue");
     setAxisTitle(QwtPlot::yLeft, *t);
 }

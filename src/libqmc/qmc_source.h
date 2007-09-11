@@ -19,7 +19,7 @@
 class QmcSource
 {
 public:
-    QmcSource(int type, const char* source);
+    QmcSource(int type, QString &source);
     ~QmcSource();
 
     // Get the source description by searching the list of existing sources
@@ -27,11 +27,11 @@ public:
     // If matchHosts is true, then it will attempt to map a live context
     // to an archive source. If no matching archive context is found,
     // a NULL pointer is returned.
-    static QmcSource* getSource(int type, const char* source, 
+    static QmcSource* getSource(int type, QString &source, 
 				 bool matchHosts = false);
 
     // retry context/connection (e.g. if it failed in the constructor)
-    void retryConnect(int type, const char *source);
+    void retryConnect(int type, QString &source);
 
     int status() const { return my.status; }
     int type() const { return my.type; }

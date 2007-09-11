@@ -116,7 +116,8 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	    contextType = PM_CONTEXT_ARCHIVE;
     }
 
-    my.status = group->use(contextType, metricSpec->source);
+    QString source = QString(metricSpec->source);
+    my.status = group->use(contextType, source);
     my.contextIndex = group->whichIndex();
 
     if (my.status >= 0) {

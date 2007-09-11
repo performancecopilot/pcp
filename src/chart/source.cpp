@@ -68,34 +68,23 @@ int useSourceContext(QWidget *parent, QString &source)
     int sts;
     QmcGroup *group = activeTab->group();
     uint_t ctxcount = group->numContexts();
-    const char *src = source.toAscii();
-    char *end, *proxy, *host = strdup(src);
 
     // TODO: proxy support needed (we toss proxy hostname atm)
-    end = host;
-    strsep(&end, " ");
-    proxy = strsep(&end, ")") + 1;
-    *end = '\0';
+    console->post("useSourceContext trying new source: host=%s proxy=%s\n",
+			(const char *)source.toAscii(), "none");
 
-    console->post("useSourceContext trying new source: %s; host=%s proxy=%s\n",
-			src, host, proxy);
-
-    if (strcmp(proxy, "no proxy") == 0)
-	unsetenv("PMPROXY_HOST");
-    else
-	setenv("PMPROXY_HOST", proxy, 1);
-    if ((sts = group->use(activeSources->type(), host)) < 0) {
-	QString msg = QString();
+    if ((sts = group->use(activeSources->type(), source)) < 0) {
+	QString msg;
 	msg.sprintf("Failed to %s \"%s\".\n%s.\n\n",
 		    (activeSources->type() == PM_CONTEXT_HOST) ?
-		    "connect to pmcd on" : "open archive", host, pmErrStr(sts));
+		    "connect to pmcd on" : "open archive",
+		    (const char *)source.toAscii(), pmErrStr(sts));
 	QMessageBox::warning(parent, pmProgname, msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
     }
     else if (group->numContexts() > ctxcount)
 	activeSources->add(group->which());
-    free(host);
     return sts;
 }
 

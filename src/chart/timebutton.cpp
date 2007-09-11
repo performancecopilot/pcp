@@ -17,7 +17,7 @@
 
 TimeButton::TimeButton(QWidget *parent) : QToolButton(parent)
 {
-    setIconSize(QSize(48, 48));
+    setIconSize(QSize(52, 52));
     setFocusPolicy(Qt::NoFocus);
     console->post(KmChart::DebugGUI, "Loading resource :/play_live.png");
     my.forwardLiveIcon = QIcon(":/play_live.png");

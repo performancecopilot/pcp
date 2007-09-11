@@ -36,7 +36,8 @@ char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
 KmChart::KmChart() : QMainWindow(NULL)
 {
     setupUi(this);
-    setIconSize(QSize(52, 52));
+    setIconSize(QSize(22, 22));
+    dateLabel->setFont(globalFont);
 }
 
 void KmChart::languageChange()

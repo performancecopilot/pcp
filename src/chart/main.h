@@ -55,6 +55,7 @@ extern void readSettings();
 extern void writeSettings();
 
 extern int Cflag;
+extern QFont globalFont;
 
 extern Tab *activeTab;
 extern Tab **tabs;

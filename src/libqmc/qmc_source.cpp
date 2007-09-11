@@ -12,7 +12,7 @@
 QString QmcSource::localHost;
 QList<QmcSource*> QmcSource::sourceList;
 
-QmcSource::QmcSource(int type, const char* source)
+QmcSource::QmcSource(int type, QString &source)
 {
     my.status = -1;
     my.type = type;
@@ -21,7 +21,7 @@ QmcSource::QmcSource(int type, const char* source)
 }
 
 void
-QmcSource::retryConnect(int type, const char *source)
+QmcSource::retryConnect(int type, QString &source)
 {
     int oldTZ;
     int oldContext;
@@ -43,7 +43,7 @@ QmcSource::retryConnect(int type, const char *source)
 	my.host = my.source = localHost;
 	break;
     case PM_CONTEXT_HOST:
-	description = QString("host \"");
+	description = "host \"";
 	description.append(source);
 	description.append(QChar('\"'));
 	my.desc = description;
@@ -60,7 +60,7 @@ QmcSource::retryConnect(int type, const char *source)
 
     oldContext = pmWhichContext();
 
-    my.status = pmNewContext(type, source);
+    my.status = pmNewContext(type, (const char *)source.toAscii());
     if (my.status >= 0) {
 	my.handles.append(my.status);
 
@@ -158,7 +158,7 @@ QmcSource::~QmcSource()
 }
 
 QmcSource*
-QmcSource::getSource(int type, char const* source, bool matchHosts)
+QmcSource::getSource(int type, QString &source, bool matchHosts)
 {
     int i;
     QmcSource *src = NULL;

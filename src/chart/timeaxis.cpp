@@ -58,7 +58,7 @@ void TimeAxis::init()
     setMargin(1);
     setAxisScaleDraw(QwtPlot::xBottom, new TimeScaleDraw());
     setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignHCenter | Qt::AlignBottom);
-    setAxisFont(QwtPlot::xBottom, QFont("Sans Serif", 9));
+    setAxisFont(QwtPlot::xBottom, globalFont);
 }
 
 double TimeAxis::scaleValue(double delta, int count)

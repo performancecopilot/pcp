@@ -24,6 +24,7 @@
 #define DESPERATE 0
 
 int		Cflag;
+QFont		globalFont;
 Settings	globalSettings;
 
 // Globals used to provide single instances of classes used across kmchart
@@ -420,15 +421,13 @@ main(int argc, char ** argv)
 
     // Create all of the sources
     for (c = 0; c < hosts.size(); c++) {
-	const char *hostname = (const char *)hosts[c].toAscii();
-	if (liveGroup->use(PM_CONTEXT_HOST, hostname) < 0)
+	if (liveGroup->use(PM_CONTEXT_HOST, hosts[c]) < 0)
 	    hosts.removeAt(c);
 	else
 	    liveSources->add(liveGroup->which());
     }
     for (c = 0; c < archives.size(); c++) {
-	const char *archive = (const char *)archives[c].toAscii();
-	if (archiveGroup->use(PM_CONTEXT_ARCHIVE, archive) < 0)
+	if (archiveGroup->use(PM_CONTEXT_ARCHIVE, archives[c]) < 0)
 	    hosts.removeAt(c);
 	else
 	    archiveSources->add(archiveGroup->which());
@@ -500,6 +499,12 @@ main(int argc, char ** argv)
     }
 
     console = new Console();
+#ifdef __DARWIN__
+    c = 9;
+#else
+    c = 7;
+#endif
+    globalFont = QFont("Sans Serif", c);
     fileIconProvider = new FileIconProvider();
 
     kmchart = new KmChart;

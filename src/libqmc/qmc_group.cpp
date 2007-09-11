@@ -71,7 +71,7 @@ QmcGroup::~QmcGroup()
 }
 
 int
-QmcGroup::use(int type, char const* source)
+QmcGroup::use(int type, QString &source)
 {
     int sts = 0;
     unsigned int i;
@@ -82,7 +82,7 @@ QmcGroup::use(int type, char const* source)
 		break;
     }
     else {
-	if (source == NULL) {
+	if (source == QString::null) {
 	    if (type == PM_CONTEXT_ARCHIVE) {
 		pmprintf("%s: Error: Archive context requires archive path\n",
 			 pmProgname);
@@ -100,16 +100,18 @@ QmcGroup::use(int type, char const* source)
 			/*NOTREACHED*/
 		    }
 		}
-		source = my.contexts[0]->source().source().toAscii();
+		source = my.contexts[0]->source().source();
 	    }
 	}
 
 	// Search contexts in this group for an existing match
+	// Note: Archive hostnames may be truncated, so we only
+	// compare up to PM_LOG_MAXHOSTLEN-1 characters.
+	QString chop1 = source.remove(PM_LOG_MAXHOSTLEN-1, INT_MAX);
 	for (i = 0; i < numContexts(); i++) {
-	    // Archive hostnames may be truncated,
-	    // so only compare up to PM_LOG_MAXHOSTLEN-1.
-	    if (strncmp(my.contexts[i]->source().source().toAscii(), source, 
-			PM_LOG_MAXHOSTLEN - 1) == 0)
+	    QString chop2 = my.contexts[i]->source().source();
+	    chop2.remove(PM_LOG_MAXHOSTLEN-1, INT_MAX);
+	    if (chop1 == chop2)
 		break;
 	}
     }
@@ -137,20 +139,25 @@ QmcGroup::use(int type, char const* source)
 	    }
 	    else if (type == PM_CONTEXT_ARCHIVE) {
 		pmprintf("%s: Error: Archive \"%s\" requested "
-			 "after live mode was assumed.\n", pmProgname, source);
+			 "after live mode was assumed.\n", pmProgname,
+			 (const char *)source.toAscii());
 		return PM_ERR_NOCONTEXT;
 	    }
 
 	    // If we are in archive mode, map hosts to archives of same host
 	    if (my.mode == PM_CONTEXT_ARCHIVE && type == PM_CONTEXT_HOST) {
-		for (i = 0; i < numContexts(); i++)
-		    if (strncmp(my.contexts[i]->source().host().toAscii(), source, 
-				PM_LOG_MAXHOSTLEN - 1) == 0)
+		QString chop1 = source.remove(PM_LOG_MAXHOSTLEN-1, INT_MAX);
+		for (i = 0; i < numContexts(); i++) {
+		    QString chop2 = my.contexts[i]->source().source();
+		    chop2.remove(PM_LOG_MAXHOSTLEN-1, INT_MAX);
+		    if (chop1 == chop2)
 			break;
+		}
 
 		if (i == numContexts()) {
 		    pmprintf("%s: Error: No archives were specified "
-			     "for host \"%s\"\n", pmProgname, source);
+			     "for host \"%s\"\n", pmProgname,
+			     (const char *)source.toAscii());
 		    return PM_ERR_NOTARCHIVE;
 		}
 	    }
@@ -167,7 +174,7 @@ QmcGroup::use(int type, char const* source)
 	QmcSource *src = QmcSource::getSource(type, source, false);
 	if (src == NULL) {
 	    pmprintf("%s: Error: No archives were specified for host \"%s\"\n",
-		     pmProgname, source);
+		     pmProgname, (const char *)source.toAscii());
 	    return PM_ERR_NOTARCHIVE;
 	}
 
@@ -215,8 +222,7 @@ QmcGroup::use(int type, char const* source)
 	sts = useContext();
 	if (sts < 0) {
 	    pmprintf("%s: Error: Unable to use context to %s: %s\n", pmProgname,
-		     (const char *)which()->source().descAscii(), 
-		     pmErrStr(sts));
+		     which()->source().descAscii(), pmErrStr(sts));
 	    return sts;
 	}
 
@@ -336,7 +342,7 @@ QmcGroup::createLocalContext()
     if (numContexts() == 0) {
 	QTextStream cerr(stderr);
 	QmcSource *localSource = QmcSource::getSource(PM_CONTEXT_HOST,
-				(const char *)localHost.toAscii(), false);
+							localHost, false);
 	// This should never happen
 	assert(localSource != NULL);
 
