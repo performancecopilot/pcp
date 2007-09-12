@@ -452,14 +452,9 @@ void KmChart::acceptNewTab()
     enableUi();
 }
 
-void KmChart::addLiveTab()
+void KmChart::addTab()
 {
-    createNewTab(true);
-}
-
-void KmChart::addArchiveTab()
-{
-    createNewTab(false);
+    createNewTab(activeTab->isArchiveSource() == false);
 }
 
 void KmChart::closeTab()

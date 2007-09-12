@@ -33,6 +33,8 @@ public:
 public slots:
     virtual void samplePointsValueChanged(double);
     virtual void visiblePointsValueChanged(double);
+    virtual void liveHostRadioButtonClicked();
+    virtual void archivesRadioButtonClicked();
 
 protected slots:
     virtual void languageChange();

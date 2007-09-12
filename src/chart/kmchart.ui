@@ -251,16 +251,6 @@
     <property name="title" >
      <string>&amp;File</string>
     </property>
-    <widget class="QMenu" name="addTabAction" >
-     <property name="title" >
-      <string>Add Tab</string>
-     </property>
-     <property name="icon" >
-      <iconset resource="kmchart.qrc" >:/tab-new.png</iconset>
-     </property>
-     <addaction name="addLiveTabAction" />
-     <addaction name="addArchiveTabAction" />
-    </widget>
     <addaction name="fileNewChartAction" />
     <addaction name="addTabAction" />
     <addaction name="closeTabAction" />
@@ -302,7 +292,7 @@
     <number>4</number>
    </attribute>
    <addaction name="fileNewChartAction" />
-   <addaction name="newTabAction" />
+   <addaction name="addTabAction" />
    <addaction name="fileOpenViewAction" />
    <addaction name="separator" />
    <addaction name="fileExportAction" />
@@ -509,17 +499,6 @@
     <string>Chart...</string>
    </property>
   </action>
-  <action name="newTabAction" >
-   <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/tab-new.png</iconset>
-   </property>
-   <property name="text" >
-    <string>New Tab</string>
-   </property>
-   <property name="iconText" >
-    <string>New Tab</string>
-   </property>
-  </action>
   <action name="editTabAction" >
    <property name="icon" >
     <iconset resource="kmchart.qrc" >:/tab-edit.png</iconset>
@@ -542,28 +521,6 @@
     <string>Settings...</string>
    </property>
   </action>
-  <action name="addLiveTabAction" >
-   <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/computer.png</iconset>
-   </property>
-   <property name="text" >
-    <string>Live...</string>
-   </property>
-   <property name="iconText" >
-    <string>Live...</string>
-   </property>
-  </action>
-  <action name="addArchiveTabAction" >
-   <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/archive.png</iconset>
-   </property>
-   <property name="text" >
-    <string>Archive...</string>
-   </property>
-   <property name="iconText" >
-    <string>Archive...</string>
-   </property>
-  </action>
   <action name="closeTabAction" >
    <property name="text" >
     <string>Close Tab</string>
@@ -581,6 +538,28 @@
    </property>
    <property name="iconText" >
     <string>New Chart...</string>
+   </property>
+  </action>
+  <action name="fileNewTabAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/document-new.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;New Chart...</string>
+   </property>
+   <property name="iconText" >
+    <string>New Chart</string>
+   </property>
+  </action>
+  <action name="addTabAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/tab-new.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Add Tab...</string>
+   </property>
+   <property name="iconText" >
+    <string>Add Tab</string>
    </property>
   </action>
   <action name="deleteChartAction" >
@@ -1049,26 +1028,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>addLiveTabAction</sender>
+   <sender>addTabAction</sender>
    <signal>activated()</signal>
    <receiver>KmChart</receiver>
-   <slot>addLiveTab()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>addArchiveTabAction</sender>
-   <signal>activated()</signal>
-   <receiver>KmChart</receiver>
-   <slot>addArchiveTab()</slot>
+   <slot>addTab()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>

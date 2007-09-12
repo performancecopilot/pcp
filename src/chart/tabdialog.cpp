@@ -26,9 +26,17 @@ void TabDialog::languageChange()
 
 void TabDialog::reset(QString label, bool live, int samples, int visible)
 {
+    labelLineEdit->setText(label);
     if (label == QString::null)
 	setWindowTitle(tr("Add Tab"));
-    labelLineEdit->setText(label);
+    else {
+	setWindowTitle(tr("Edit Tab"));
+	liveHostRadioButton->setEnabled(false);
+	archivesRadioButton->setEnabled(false);
+    }
+
+    liveHostRadioButton->setChecked(live);
+    archivesRadioButton->setChecked(!live);
 
     my.archiveSource = !live;
     my.samples = my.visible = 0;
@@ -39,11 +47,36 @@ void TabDialog::reset(QString label, bool live, int samples, int visible)
     visiblePointsCounter->setValue(visible);
     visiblePointsSlider->setValue(visible);
     visiblePointsSlider->setRange(KmChart::minimumPoints, KmChart::maximumPoints);
+
+    console->post(KmChart::DebugGUI, "TabDialog::reset archive=%s",
+					my.archiveSource?"true":"false");
 }
 
 bool TabDialog::isArchiveSource()
 {
+    console->post(KmChart::DebugGUI, "TabDialog::isArchiveSource archive=%s",
+		  my.archiveSource?"true":"false");
     return my.archiveSource;
+}
+
+void TabDialog::liveHostRadioButtonClicked()
+{
+    liveHostRadioButton->setChecked(true);
+    archivesRadioButton->setChecked(false);
+    my.archiveSource = false;
+    console->post(KmChart::DebugGUI,
+		  "TabDialog::liveHostRadioButtonClicked archive=%s",
+		  my.archiveSource?"true":"false");
+}
+
+void TabDialog::archivesRadioButtonClicked()
+{
+    liveHostRadioButton->setChecked(false);
+    archivesRadioButton->setChecked(true);
+    my.archiveSource = true;
+    console->post(KmChart::DebugGUI,
+		  "TabDialog::archivesRadioButtonClicked archive=%s",
+		  my.archiveSource?"true":"false");
 }
 
 void TabDialog::samplePointsValueChanged(double value)

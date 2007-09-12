@@ -89,8 +89,7 @@ public slots:
     virtual void acceptEditTab();
     virtual void acceptNewTab();
     virtual void acceptExport();
-    virtual void addLiveTab();
-    virtual void addArchiveTab();
+    virtual void addTab();
     virtual void closeTab();
     virtual void activeTabChanged(QWidget *);
     virtual void editSettings();
