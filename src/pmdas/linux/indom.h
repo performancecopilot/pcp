@@ -39,6 +39,7 @@
 #define SCSI_INDOM		11
 #define SLAB_INDOM		12
 #define IB_INDOM		13
+#define NET_INET_INDOM		14
 
 #define INDOM(x) (indomtab[x].it_indom)
 extern pmdaIndom indomtab[];

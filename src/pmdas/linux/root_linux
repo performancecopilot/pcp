@@ -280,6 +280,12 @@ network.interface {
     in
     out
     total
+    mtu			60:3:21
+    speed		60:3:22
+    baudrate		60:3:23
+    duplex		60:3:24
+    up			60:3:25
+    inet_addr		60:30:0
 }
 
 network.interface.in {

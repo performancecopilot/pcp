@@ -570,6 +570,15 @@ tools running on IRIX.
 @ network.interface.total.errors network total (in+out) errors from /proc/net/dev per network interface
 @ network.interface.total.drops network total (in+out) drops from /proc/net/dev per network interface
 @ network.interface.total.mcasts network total (in+out) mcasts from /proc/net/dev per network interface
+@ network.interface.mtu maximum transmission unit on network interface
+@ network.interface.speed interface speed in megabytes per second
+@ network.interface.baudrate linespeed on network interface
+The linespeed on the network interface, as reported by the kernel,
+divided by 10 for approximate conversion from bits/second to
+bytes/second.
+@ network.interface.duplex value one for half or two for full duplex interface
+@ network.interface.up boolean for whether interface is currently up or down
+@ network.interface.inet_addr string INET interface address (ifconfig style)
 @ network.sockstat.tcp.inuse instantaneous number of tcp sockets currently in use
 @ network.sockstat.tcp.highest highest number of tcp sockets in use at any one time since boot
 @ network.sockstat.tcp.util instantaneous tcp socket utilization (100 * inuse/highest)
@@ -1142,6 +1151,8 @@ See also the kernel.uname.* metrics
 @ kernel.all.uptime time the current kernel has been running
 @ kernel.all.idletime time the current kernel has been idle since boot
 @ kernel.all.lastpid most recently allocated process id
+@ kernel.all.runnable total number of processes in the (per-CPU) run queues
+@ kernel.all.nprocs total number of processes
 @ mem.slabinfo.objects.active number of active objects in each cache
 @ mem.slabinfo.objects.total total number of objects in each cache
 @ mem.slabinfo.objects.size size of individual objects of each cache

@@ -58,6 +58,7 @@ enum {
 	CLUSTER_VFS,		/* 27 /proc/sys/fs */
 	CLUSTER_VMSTAT,		/* 28 /proc/vmstat */
 	CLUSTER_IB,		/* 29 /sys/class/infiniband */
+	CLUSTER_NET_INET,	/* 30 /proc/net/dev and ioctl(SIOCGIFCONF) */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
