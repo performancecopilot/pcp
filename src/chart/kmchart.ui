@@ -235,6 +235,18 @@
     <addaction name="separator" />
     <addaction name="timeNewKmchartAction" />
    </widget>
+   <widget class="QMenu" name="Edit" >
+    <property name="title" >
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="editChartAction" />
+    <addaction name="deleteChartAction" />
+    <addaction name="separator" />
+    <addaction name="editTabAction" />
+    <addaction name="deleteTabAction" />
+    <addaction name="separator" />
+    <addaction name="editSettingsAction" />
+   </widget>
    <widget class="QMenu" name="fileMenu" >
     <property name="title" >
      <string>&amp;File</string>
@@ -261,18 +273,6 @@
     <addaction name="filePrintAction" />
     <addaction name="separator" />
     <addaction name="fileQuitAction" />
-   </widget>
-   <widget class="QMenu" name="Edit" >
-    <property name="title" >
-     <string>&amp;Edit</string>
-    </property>
-    <addaction name="editChartAction" />
-    <addaction name="deleteChartAction" />
-    <addaction name="separator" />
-    <addaction name="editTabAction" />
-    <addaction name="deleteTabAction" />
-    <addaction name="separator" />
-    <addaction name="editSettingsAction" />
    </widget>
    <addaction name="fileMenu" />
    <addaction name="Edit" />
@@ -304,7 +304,9 @@
    <addaction name="fileNewChartAction" />
    <addaction name="newTabAction" />
    <addaction name="fileOpenViewAction" />
+   <addaction name="separator" />
    <addaction name="fileExportAction" />
+   <addaction name="filePrintAction" />
    <addaction name="separator" />
    <addaction name="helpWhatsThisAction" />
   </widget>
@@ -664,15 +666,15 @@
    <header>timebutton.h</header>
   </customwidget>
   <customwidget>
+   <class>QwtPlot</class>
+   <extends>QFrame</extends>
+   <header>qwt_plot.h</header>
+  </customwidget>
+  <customwidget>
    <class>TimeAxis</class>
    <extends>QwtPlot</extends>
    <header>timeaxis.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QwtPlot</class>
-   <extends>QFrame</extends>
-   <header>qwt_plot.h</header>
   </customwidget>
  </customwidgets>
  <includes>
