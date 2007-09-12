@@ -81,8 +81,10 @@ kernel.all {
     hz			60:0:48
     uptime		60:26:0
     idletime		60:26:1
-    nusers              60:25:0
-    lastpid             60:2:1
+    nusers		60:25:0
+    lastpid		60:2:1
+    runnable		60:2:2
+    nprocs		60:2:3
 }
 
 kernel.all.cpu {
@@ -280,6 +282,12 @@ network.interface {
     in
     out
     total
+    mtu			60:3:21
+    speed		60:3:22
+    baudrate		60:3:23
+    duplex		60:3:24
+    up			60:3:25
+    inet_addr		60:30:0
 }
 
 network.interface.in {

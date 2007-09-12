@@ -42,16 +42,14 @@ refresh_proc_loadavg(proc_loadavg_t *proc_loadavg)
     char fmt[64];
     int fd;
     int n;
-    int runnable, nprocs; /* read, but not used */
 
     if (!started) {
-    	started = 1;
-	    memset(proc_loadavg, 0, sizeof(proc_loadavg_t));
+	started = 1;
+	memset(proc_loadavg, 0, sizeof(proc_loadavg_t));
     }
 
-    if ((fd = open("/proc/loadavg", O_RDONLY)) < 0) {
-    	return -errno;
-    }
+    if ((fd = open("/proc/loadavg", O_RDONLY)) < 0)
+	return -errno;
 
     n = read(fd, buf, sizeof(buf));
     close(fd);
@@ -60,13 +58,13 @@ refresh_proc_loadavg(proc_loadavg_t *proc_loadavg)
 
     /*
      * 0.00 0.00 0.05 1/67 17563
-	 * Lastpid added by Mike Mason <mmlnx@us.ibm.com>
+     * Lastpid added by Mike Mason <mmlnx@us.ibm.com>
      */
-    strcpy(fmt, "%f %f %f %d/%d %u");
+    strcpy(fmt, "%f %f %f %u/%u %u");
     sscanf((const char *)buf, fmt,
-           &proc_loadavg->loadavg[0], &proc_loadavg->loadavg[1], 
-           &proc_loadavg->loadavg[2], &runnable, &nprocs, 
-           &proc_loadavg->lastpid);
+	   &proc_loadavg->loadavg[0], &proc_loadavg->loadavg[1], 
+	   &proc_loadavg->loadavg[2], &proc_loadavg->runnable,
+	   &proc_loadavg->nprocs, &proc_loadavg->lastpid);
 
     /* success */
     return 0;

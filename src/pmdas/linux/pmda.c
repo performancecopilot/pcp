@@ -206,6 +206,7 @@ pmdaIndom indomtab[] = {
     { SCSI_INDOM, 0,  NULL},
     { SLAB_INDOM, 0,  NULL},
     { IB_INDOM, 0, NULL },
+    { NET_INET_INDOM, 0, NULL },
 };
 
 
@@ -668,6 +669,16 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_LOADAVG, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,0,0,0,0) } },
 
+    /* kernel.all.runnable */
+    { NULL,
+      { PMDA_PMID(CLUSTER_LOADAVG, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+    /* kernel.all.nprocs */
+    { NULL,
+      { PMDA_PMID(CLUSTER_LOADAVG, 3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+
 /*
  * /proc/net/dev cluster
  */
@@ -777,6 +788,35 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_NET_DEV,20), PM_TYPE_U64, NET_DEV_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* network.interface.mtu */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_DEV,21), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(1,0,0,0,PM_SPACE_BYTE,0) }, },
+
+/* network.interface.speed */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_DEV,22), PM_TYPE_FLOAT, NET_DEV_INDOM, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_MBYTE,0,0) }, },
+
+/* network.interface.baudrate */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_DEV,23), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(1,0,0,0,PM_SPACE_BYTE,0) }, },
+
+/* network.interface.duplex */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_DEV,24), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* network.interface.up */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_DEV,25), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* network.interface.ipaddr */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_INET,0), PM_TYPE_STRING, NET_INET_INDOM, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
  * /proc/interrupts cluster
@@ -3054,8 +3094,11 @@ linux_refresh(int *need_refresh)
     if (need_refresh[CLUSTER_NET_DEV])
 	refresh_proc_net_dev(INDOM(NET_DEV_INDOM));
 
+    if (need_refresh[CLUSTER_NET_INET])
+	refresh_net_dev_inet(INDOM(NET_INET_INDOM));
+
     if (need_refresh[CLUSTER_FILESYS])
-    	refresh_filesys(&filesys);
+	refresh_filesys(&filesys);
 
     if (need_refresh[CLUSTER_SWAPDEV])
 	refresh_swapdev(&swapdev);
@@ -3200,6 +3243,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     long		sl;
     unsigned long	ul;
     proc_pid_entry_t	*entry;
+    net_inet_t		*inetp;
     net_interface_t	*netip;
     ib_port_t		*ibportp;
 
@@ -3589,7 +3633,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PMID;
 	}
 	break;
-    
+
     case CLUSTER_LOADAVG: 
 	switch(idp->item) {
 	case 0:  /* kernel.all.loadavg */
@@ -3607,11 +3651,17 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 1: /* kernel.all.lastpid -- added by "Mike Mason" <mmlnx@us.ibm.com> */
 		atom->ul = proc_loadavg.lastpid;
 		break;
+	case 2: /* kernel.all.runnable */
+		atom->ul = proc_loadavg.runnable;
+		break;
+	case 3: /* kernel.all.nprocs */
+		atom->ul = proc_loadavg.nprocs;
+		break;
 	default:
 	    return PM_ERR_PMID;
 	}
 	break;
-    
+
     case CLUSTER_NET_DEV: /* network.interface */
 	sts = pmdaCacheLookup(indomtab[NET_DEV_INDOM].it_indom, inst, NULL, (void **)&netip);
 	if (sts < 0)
@@ -3621,31 +3671,70 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ull = netip->counters[idp->item];
 	}
 	else
-	switch (idp->item) { /* network.interface.total.* */
-	case 16: /* bytes */
+	switch (idp->item) {
+	case 16: /* network.interface.total.bytes */
 	    atom->ull = netip->counters[0] + netip->counters[8];
 	    break;
-	case 17: /* packets */
+	case 17: /* network.interface.total.packets */
 	    atom->ull = netip->counters[1] + netip->counters[9];
 	    break;
-	case 18: /* errors */
+	case 18: /* network.interface.total.errors */
 	    atom->ull = netip->counters[2] + netip->counters[10];
 	    break;
-	case 19: /* drops */
+	case 19: /* network.interface.total.drops */
 	    atom->ull = netip->counters[3] + netip->counters[11];
 	    break;
-	case 20: /* mcasts */
+	case 20: /* network.interface.total.mcasts */
 	    /*
 	     * NOTE: there is no network.interface.out.mcasts metric
 	     * so this total only includes network.interface.in.mcasts
 	     */
 	    atom->ull = netip->counters[7];
 	    break;
+	case 21: /* network.interface.mtu */
+	    if (!netip->ioc.mtu)
+		return 0;
+	    atom->ul = netip->ioc.mtu;
+	    break;
+	case 22: /* network.interface.speed */
+	    if (!netip->ioc.speed)
+		return 0;
+	    atom->f = ((float)netip->ioc.speed * 1000000) / 1024 / 1024;
+	    break;
+	case 23: /* network.interface.baudrate */
+	    if (!netip->ioc.speed)
+		return 0;
+	    atom->ul = ((long long)netip->ioc.speed * 1024 * 1024 / 10);
+	    break;
+	case 24: /* network.interface.duplex */
+	    if (!netip->ioc.duplex)
+		return 0;
+	    atom->ul = netip->ioc.duplex;
+	    break;
+	case 25: /* network.interface.up */
+	    atom->ul = netip->ioc.linkup;
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
 	break;
-    
+
+    case CLUSTER_NET_INET:
+	sts = pmdaCacheLookup(indomtab[NET_INET_INDOM].it_indom, inst, NULL, (void **)&inetp);
+	if (sts < 0)
+	    return sts;
+	switch (idp->item) {
+	case 0: /* network.interface.inet_addr */
+	    if (!inetp->hasip)
+		return 0;
+	    if ((atom->cp = inet_ntoa(inetp->addr)) == NULL)
+		return 0;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
     case CLUSTER_INTERRUPTS:
 	switch (idp->item) {
 	case 0: /* kernel.percpu.interrupts */
