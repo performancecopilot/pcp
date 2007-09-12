@@ -669,6 +669,16 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_LOADAVG, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,0,0,0,0) } },
 
+    /* kernel.all.runnable */
+    { NULL,
+      { PMDA_PMID(CLUSTER_LOADAVG, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+    /* kernel.all.nprocs */
+    { NULL,
+      { PMDA_PMID(CLUSTER_LOADAVG, 3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+
 /*
  * /proc/net/dev cluster
  */
@@ -3640,6 +3650,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 1: /* kernel.all.lastpid -- added by "Mike Mason" <mmlnx@us.ibm.com> */
 		atom->ul = proc_loadavg.lastpid;
+		break;
+	case 2: /* kernel.all.runnable */
+		atom->ul = proc_loadavg.runnable;
+		break;
+	case 3: /* kernel.all.nprocs */
+		atom->ul = proc_loadavg.nprocs;
 		break;
 	default:
 	    return PM_ERR_PMID;

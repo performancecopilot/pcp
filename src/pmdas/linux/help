@@ -1152,7 +1152,7 @@ See also the kernel.uname.* metrics
 @ kernel.all.idletime time the current kernel has been idle since boot
 @ kernel.all.lastpid most recently allocated process id
 @ kernel.all.runnable total number of processes in the (per-CPU) run queues
-@ kernel.all.nprocs total number of processes
+@ kernel.all.nprocs total number of processes (lightweight)
 @ mem.slabinfo.objects.active number of active objects in each cache
 @ mem.slabinfo.objects.total total number of objects in each cache
 @ mem.slabinfo.objects.size size of individual objects of each cache
