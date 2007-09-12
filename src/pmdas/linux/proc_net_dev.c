@@ -234,7 +234,6 @@ refresh_net_dev_inet(pmInDom indom)
     for (n = 0, ifr = ifc.ifc_req;
 	 n < ifc.ifc_len;
 	 n += sizeof(struct ifreq), ifr++) {
-fprintf(stderr, "found %s\n", ifr->ifr_name);
 	sts = pmdaCacheLookupName(indom, ifr->ifr_name, NULL, (void **)&netip);
 	if (sts == PM_ERR_INST || (sts >= 0 && netip == NULL)) {
 	    /* first time since re-loaded, else new one */
