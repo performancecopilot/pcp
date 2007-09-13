@@ -88,7 +88,7 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent)
 
 Chart::~Chart()
 {
-    console->post("Chart::~Chart() for chart %p\n", this);
+    console->post("Chart::~Chart() for chart %p", this);
 
     for (int m = 0; m < my.plots.size(); m++) {
 	Plot *plot = my.plots[m];
@@ -107,7 +107,7 @@ void Chart::update(bool forward, bool visible)
     int	idx, m;
 
 #if DESPERATE
-    console->post("Chart::update(forward=%d,vis=%d) sh=%d vh=%d (%d plots)\n",
+    console->post("Chart::update(forward=%d,vis=%d) sh=%d vh=%d (%d plots)",
 			forward, visible, sh, vh, my.plots.size());
 #endif
 
@@ -125,11 +125,11 @@ void Chart::update(bool forward, bool visible)
 	    sz = qMax(0, (int)((plot->dataCount - 1) * sizeof(double)));
 
 #if DESPERATE
-	console->post("BEFORE Chart::update (%s) 0-%d (sz=%d,v=%.2f):\n",
+	console->post("BEFORE Chart::update (%s) 0-%d (sz=%d,v=%.2f):",
 		(const char *)plot->metric->name().toAscii(),
 		plot->dataCount, sz, value);
 	for (i = 0; i < plot->dataCount; i++)
-	    console->post("\t[%d] data=%.2f\n", i, plot->data[i]);
+	    console->post("\t[%d] data=%.2f", i, plot->data[i]);
 #endif
 
 	if (forward) {
@@ -146,10 +146,10 @@ void Chart::update(bool forward, bool visible)
 	    plot->dataCount++;
 
 #if DESPERATE
-	console->post(KmChart::DebugApp, "AFTER Chart::update (%s) 0-%d:\n",
+	console->post(KmChart::DebugApp, "AFTER Chart::update (%s) 0-%d:",
 			plot->name().ptr(), plot->dataCount);
 	for (int i = 0; i < plot->dataCount; i++)
-	    console->post(KmChart::DebugApp, "\t[%d] data=%.2f time=%s\n",
+	    console->post(KmChart::DebugApp, "\t[%d] data=%.2f time=%s",
 				i, plot->data[i],
 				timeString(my.tab->timeData()[i]));
 #endif
@@ -239,7 +239,7 @@ void Chart::update(bool forward, bool visible)
 
 #if DESPERATE
     for (m = 0; m < my.plots.size(); m++)
-	console->post(KmChart::DebugApp, "metric[%d] value %f plot %f\n", m,
+	console->post(KmChart::DebugApp, "metric[%d] value %f plot %f", m,
 		my.plots[m]->metric->value(0), my.plots[m]->plotData[0]);
 #endif
 
@@ -332,7 +332,7 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
 
     Plot *plot = new Plot;
     my.plots.append(plot);
-    console->post("addPlot plot=%p nplots=%d\n", plot, my.plots.size());
+    console->post("addPlot plot=%p nplots=%d", plot, my.plots.size());
 
     plot->metric = mp;
     plot->name = QString(pmsp->metric);
@@ -450,7 +450,7 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
 
 void Chart::delPlot(int m)
 {
-    console->post("Chart::delPlot plot=%d\n", m);
+    console->post("Chart::delPlot plot=%d", m);
 
     showCurve(my.plots[m]->curve, false);
     legend()->remove(my.plots[m]->curve);
@@ -507,7 +507,7 @@ void Chart::changeTitle(char *title, int expand)
 		nomem();
 	    *w = '\0';	// copy up to (but not including) the %
 	    strcpy(tmp, title);
-	    host = strdup((char *)activeSources->source());
+	    host = strdup((char *)activeSources->sourceAscii());
 	    if ((p = strchr(host, '.')) != NULL)
 		*p = '\0';
 	    strcat(tmp, host);
@@ -536,7 +536,7 @@ Chart::Style Chart::style()
 
 int Chart::setStyle(Style style)
 {
-    console->post("Chart::setStyle(%d) [was %d]\n", style, my.style);
+    console->post("Chart::setStyle(%d) [was %d]", style, my.style);
 
     int maxCount = 0;
     for (int m = 0; m < my.plots.size(); m++)
@@ -673,13 +673,13 @@ void Chart::setColor(Plot *plot, QColor c)
 
 int Chart::setColor(int m, QColor c)
 {
-    console->post("Chart::setColor(%d, r=%02x g=%02x b=%02x)\n",
+    console->post("Chart::setColor(%d, r=%02x g=%02x b=%02x)",
 			m, Qt::red, Qt::green, Qt::blue);
     if (m >= 0 && m < my.plots.size()) {
 	setColor(my.plots[m], c);
 	return 0;
     }
-    console->post("Chart::setColor - BAD metric index specified (%d)?\n", m);
+    console->post("Chart::setColor - BAD metric index specified (%d)?", m);
     return -1;
 }
 
@@ -716,14 +716,14 @@ void Chart::setYAxisTitle(char *p)
 
 void Chart::selected(const QwtDoublePoint &p)
 {
-    console->post("Chart::selected chart=%p x=%f y=%f\n",
+    console->post("Chart::selected chart=%p x=%f y=%f",
 			this, (float)p.x(), (float)p.y());
     my.tab->setCurrent(this);
 }
 
 void Chart::moved(const QwtDoublePoint &p)
 {
-    console->post("Chart::moved chart=%p x=%f y=%f\n",
+    console->post("Chart::moved chart=%p x=%f y=%f",
 			this, (float)p.x(), (float)p.y());
 }
 
@@ -742,7 +742,7 @@ bool Chart::legendVisible()
 //
 void Chart::setLegendVisible(bool on)
 {
-    console->post("Chart::setLegendVisible(%d) legend()=%p\n", on, legend());
+    console->post("Chart::setLegendVisible(%d) legend()=%p", on, legend());
 
     if (on) {
 	if (legend() == NULL) {
@@ -839,7 +839,7 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
     QString source = Source::makeSourceAnnotatedName(context);
     QStringList	baselist;
 
-    console->post("Chart::addToTree src=%s metric=%s, isInst=%d isArch=%d\n",
+    console->post("Chart::addToTree src=%s metric=%s, isInst=%d isArch=%d",
 		(const char *)source.toAscii(), (const char *)metric.toAscii(),
 		isInst, isArch);
 

@@ -108,10 +108,10 @@ QString Source::host()
     return my.context ? my.context->source().host() : NULL;
 }
 
-const char *Source::source()
+const char *Source::sourceAscii()
 {
 #if DESPERATE
-    console->post("Source::source(): currentContext=%p", currentContext);
+    console->post("Source::sourceAscii(): currentContext=%p", currentContext);
 #endif
 
     if (!currentContext)

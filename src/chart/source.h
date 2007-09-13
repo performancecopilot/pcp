@@ -31,7 +31,7 @@ public:
     Source(QmcGroup *);
     int type();
     QString host();
-    const char *source();
+    const char *sourceAscii();
     void add(QmcContext *);
 //    NameSpace *root(void);
 //    void setRoot(NameSpace *);

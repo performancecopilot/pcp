@@ -66,10 +66,8 @@ static int	_errors;
 #define IM_MATCH	2
 #define IM_NOT_MATCH	3
 
-#ifdef PCP_DEBUG
 char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
 #define stylestr(x) _style[(int)x]
-#endif
 
 static void
 err(int severity, int do_where, QString msg)
@@ -160,14 +158,12 @@ eol:
 	*p = '\0';
 
 done:
-#ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_APPL0) && (pmDebug & DBG_TRACE_APPL2)) {
 	if (buf[0] == '\n')
-	    fprintf(stderr, "loadView getwd=EOL\n");
+	    fprintf(stderr, "openView getwd=EOL\n");
 	else
-	    fprintf(stderr, "loadView getwd=\"%s\"\n", buf);
+	    fprintf(stderr, "openView getwd=\"%s\"\n", buf);
     }
-#endif
 
     return buf;
 }
@@ -311,7 +307,7 @@ bool OpenViewDialog::openView(const char *path)
 
     _line = 1;
     _errors = 0;
-    console->post("Load View: %s\n", _fname);
+    console->post("Load View: %s", _fname);
 
     while ((w = getwd(f)) != NULL) {
 	if (state == S_BEGIN) {
@@ -508,9 +504,8 @@ new_chart:
 			goto done_chart;
 		}
 done_chart:
-#ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL2) {
-		    fprintf(stderr, "loadView: new chart: style=%s", stylestr(style));
+		    fprintf(stderr, "openView: new chart: style=%s", stylestr(style));
 		    if (title != NULL)
 			fprintf(stderr, " title=\"%s\"", title);
 		    if (autoscale)
@@ -521,7 +516,6 @@ done_chart:
 			fprintf(stderr, " legend=yes");
 		    fputc('\n', stderr);
 		}
-#endif
 		if (Cflag == 0) {
 		    cp = activeTab->addChart();
 		    cp->setStyle(style);
@@ -713,9 +707,8 @@ abort_chart:
 	    }
 
 	    abort = 0;
-#ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL2) {
-		fprintf(stderr, "loadView: new %s", optional ? "optional-plot" : "plot");
+		fprintf(stderr, "openView: new %s", optional ? "optional-plot" : "plot");
 		if (legend != NULL) fprintf(stderr, " legend=\"%s\"", legend);
 		if (color != NULL) fprintf(stderr, " color=%s", color);
 		if (host != NULL) fprintf(stderr, " host=%s", host);
@@ -733,18 +726,17 @@ abort_chart:
 		}
 		fputc('\n', stderr);
 	    }
-#endif
 	    if (Cflag == 0) {
 		pms.isarch = activeTab->isArchiveSource();
 		if (host != NULL) {
 		    // TODO -- literal host ... anything more to be done?
-		    pms.source = host;
+		    pms.source = strdup(host);
 		    // TODO -- need to get host into Sources if not already
 		    // there
 		}
 		else {
 		    // no explicit host, use current default source
-		    pms.source = (char *) activeSources->source();
+		    pms.source = strdup(activeSources->sourceAscii());
 		}
 		// expand instances when not specified for metrics
 		// with instance domains and all instances required,
@@ -900,6 +892,7 @@ skip:
 	    if (host != NULL) free(host);
 	    if (instlist != NULL) free(instlist);
 	    if (namelist != NULL) free(namelist);
+	    if (pms.source != NULL) free(pms.source);
 	    if (pms.metric != NULL) free(pms.metric);
 	    if (pms.inst[0] != NULL) free(pms.inst[0]);
 	    if (done_regex) regfree(&preg);
