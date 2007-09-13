@@ -193,17 +193,13 @@ traverse(const char *str, double scale)
 	    sts = -1;
     }
     else {
-
 	doMetricType = PM_CONTEXT_HOST;
 	if (theMetric->source && strlen(theMetric->source) > 0) {
 	    if (theMetric->isarch)
 		doMetricType = PM_CONTEXT_ARCHIVE;
 	}
-
 	doMetricSource = theMetric->source;
-
-	sts = group->use(doMetricType, theMetric->source);
-	
+	sts = group->use(doMetricType, doMetricSource);
 	if (sts >= 0) {
 	    doMetricScale = scale;
 	    sts = pmTraversePMNS(theMetric->metric, dometric);
@@ -213,8 +209,8 @@ traverse(const char *str, double scale)
 		pmprintf("%s: Error: %s%c%s: %s\n",
 			 pmProgname, 
 			 group->which()->source().sourceAscii(),
-			 (group->which()->source().type() == PM_CONTEXT_ARCHIVE ?
-			  '/' : ':'),
+			 group->which()->source().type() == PM_CONTEXT_ARCHIVE ?
+			  '/' : ':',
 			 theMetric->metric,
 			 pmErrStr(sts));
 	}
@@ -1067,13 +1063,13 @@ main(int argc, char *argv[])
     //
     if (archives.size() > 0) {
 	for (c = 0; c < archives.size(); c++)
-	    if (group->use(PM_CONTEXT_ARCHIVE, (const char *)archives[c].toAscii()) < 0)
+	    if (group->use(PM_CONTEXT_ARCHIVE, archives[c]) < 0)
 		errflag++;
     }
     // Create live context
     //
     else if (host.length() > 0) {
-	if (group->use(PM_CONTEXT_HOST, (const char *)host.toAscii()) < 0)
+	if (group->use(PM_CONTEXT_HOST, host) < 0)
 	    errflag++;
     }
 
