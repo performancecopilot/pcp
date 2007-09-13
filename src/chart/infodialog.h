@@ -23,13 +23,12 @@ class InfoDialog : public QDialog, public Ui::InfoDialog
 
 public:
     InfoDialog(QWidget* parent);
-
-    virtual void reset( QString, QString, QString, bool );
-    virtual void pminfo();
-    virtual void pmval();
+    void reset(QString, QString, QString, bool);
+    void pminfo();
+    void pmval();
+    void quit();
 
 public slots:
-    virtual void finished();
     virtual void pminfoStdout();
     virtual void pminfoStderr();
     virtual void pmvalStdout();

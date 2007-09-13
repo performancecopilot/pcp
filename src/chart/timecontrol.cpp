@@ -13,7 +13,6 @@
  */
 #include "main.h"
 #include <kmtime.h>
-#include "timecontrol.h"
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QApplication>
@@ -50,6 +49,13 @@ TimeControl::TimeControl() : QProcess(NULL)
 				SLOT(archiveCloseConnection()));
     connect(my.archiveSocket, SIGNAL(readyRead()),
 				SLOT(archiveProtocolMessage()));
+}
+
+void TimeControl::quit()
+{
+    liveCloseConnection();
+    archiveCloseConnection();
+    terminate();
 }
 
 void TimeControl::init(int port, bool live,

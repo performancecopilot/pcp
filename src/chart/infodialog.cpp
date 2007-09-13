@@ -93,11 +93,11 @@ void InfoDialog::pmval(void)
 		    this, SLOT(pmvalStdout()));
     connect(my.pmvalProc, SIGNAL(readyReadStderr()),
 		    this, SLOT(pmvalStderr()));
-    connect(this, SIGNAL(finished(int)), this, SLOT(finished()));
+    connect(this, SIGNAL(finished(int)), this, SLOT(quit()));
     my.pmvalProc->start("pmval", arguments);
 }
 
-void InfoDialog::finished()
+void InfoDialog::quit()
 {
     if (my.pmvalStarted && my.pmvalProc)
 	my.pmvalProc->terminate();

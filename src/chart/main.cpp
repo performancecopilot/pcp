@@ -499,7 +499,7 @@ main(int argc, char ** argv)
     }
 
     console = new Console();
-#ifdef __DARWIN__
+#ifdef IS_DARWIN
     c = 9;
 #else
     c = 7;
@@ -538,7 +538,7 @@ main(int argc, char ** argv)
 	return 0;
 
     kmchart->show();
-    a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
 
+    a.connect(&a, SIGNAL(lastWindowClosed()), kmchart, SLOT(quit()));
     return a.exec();
 }

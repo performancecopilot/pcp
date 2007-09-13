@@ -35,6 +35,7 @@ char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
 
 KmChart::KmChart() : QMainWindow(NULL)
 {
+    my.initDone = false;
     setupUi(this);
     setIconSize(QSize(22, 22));
     dateLabel->setFont(globalFont);
@@ -77,6 +78,17 @@ void KmChart::init(void)
 				this, SLOT(revertSettings()));
     // connect(my.assistant, SIGNAL(error(const QString &)),
     //				this, SLOT(assistantError(const QString &)));
+
+    my.initDone = true;
+}
+
+void KmChart::quit()
+{
+    if (my.initDone) {
+	// End any processes we may have started
+	my.info->quit();
+	kmtime->quit();
+    }
 }
 
 TimeAxis *KmChart::timeAxis(void)

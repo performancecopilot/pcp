@@ -63,6 +63,7 @@ public:
 
 public slots:
     virtual void init();
+    virtual void quit();
     virtual void enableUi();
     virtual void showTimeControl();
     virtual void fileOpenView();
@@ -101,6 +102,7 @@ protected slots:
 
 private:
     struct {
+	bool initDone;
 	QPrinter *printer;
 	TimeAxis *timeaxis;
 	TabDialog *newtab;
