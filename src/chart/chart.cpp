@@ -317,7 +317,7 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
     if (pmsp->ninst == 0)
 	console->post("addPlot metric=%s", pmsp->metric);
     else
-	console->post("addPlot instance %s[%s]\n", pmsp->metric, pmsp->inst[0]);
+	console->post("addPlot instance %s[%s]", pmsp->metric, pmsp->inst[0]);
 
     mp = my.tab->group()->addMetric(pmsp, 0.0, true);
     if (mp->status() < 0)

@@ -131,13 +131,13 @@ void TimeControl::addArchive(
 
 void TimeControl::liveConnect()
 {
-    console->post("Connecting to kmtime, live source\n");
+    console->post("Connecting to kmtime, live source");
     my.liveSocket->connectToHost(QHostAddress::LocalHost, my.tcpPort);
 }
 
 void TimeControl::archiveConnect()
 {
-    console->post("Connecting to kmtime, archive source\n");
+    console->post("Connecting to kmtime, archive source");
     my.archiveSocket->connectToHost(QHostAddress::LocalHost, my.tcpPort);
 }
 
@@ -340,7 +340,7 @@ void TimeControl::protocolMessage(bool live,
     switch (*state) {
     case TimeControl::AwaitingACK:
 	if (!live)
-	    console->post("TimeControl::protocolMessage: sent arch pos=%s\n",
+	    console->post("TimeControl::protocolMessage: sent arch pos=%s",
 			timeString(tosec(packet->position)));
 	if (msg->command != KmTime::ACK) {
 	    QMessageBox::critical(0,
@@ -368,7 +368,7 @@ void TimeControl::protocolMessage(bool live,
 	//
 	memcpy(packet, msg, msg->length);
 	if (!live)
-	    console->post("TimeControl::protocolMessage: recv arch pos=%s\n",
+	    console->post("TimeControl::protocolMessage: recv arch pos=%s",
 			timeString(tosec(packet->position)));
 	kmchart->VCRMode(live, msg, true);
 	break;

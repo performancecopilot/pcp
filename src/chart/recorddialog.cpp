@@ -311,7 +311,7 @@ void RecordDialog::startLoggers()
     folio.replace(QRegExp("\\[date\\]"), datetoday);
     folio.replace(QRegExp("\\[host\\]"), localhost);
 
-    console->post("RecordDialog::startLoggers view=%s folio=%s\n",
+    console->post("RecordDialog::startLoggers view=%s folio=%s",
 	(const char *)folio.toAscii(), (const char *)view.toAscii());
 
     extractDeltaString();

@@ -67,7 +67,7 @@ double TimeAxis::scaleValue(double delta, int count)
 
     scale = (1.0 / (width() / (count * 8.0))) * 8.0;
 #if DESPERATE
-    console->post("TimeAxis::scaleValue scale=%.2f x delta=%.2f\n",
+    console->post("TimeAxis::scaleValue scale=%.2f x delta=%.2f",
 			scale, delta);
 #endif
     scale *= delta;

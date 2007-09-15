@@ -87,7 +87,7 @@ QString FileIconProvider::type(const QFileInfo &fi) const
 QIcon FileIconProvider::icon(const QFileInfo &fi) const
 {
 #if DESPERATE
-    console->post("FileIconProvider::icon - %s\n",
+    console->post("FileIconProvider::icon - %s",
 			(const char *)fi.filePath().toAscii());
 #endif
 
@@ -109,7 +109,7 @@ QIcon FileIconProvider::icon(const QFileInfo &fi) const
 		return my.fileArchive;
 	}
 #if DESPERATE
-	console->post("  Got %d bytes from %s: \"%c%c%c%c%c%c%c%c\"\n", count,
+	console->post("  Got %d bytes from %s: \"%c%c%c%c%c%c%c%c\"", count,
 		(const char *) fi.filePath().toAscii(), block[0], block[1],
 		block[2], block[3], block[4], block[5], block[6], block[7]);
 #endif

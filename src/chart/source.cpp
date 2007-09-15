@@ -70,7 +70,7 @@ int useSourceContext(QWidget *parent, QString &source)
     uint_t ctxcount = group->numContexts();
 
     // TODO: proxy support needed (we toss proxy hostname atm)
-    console->post("useSourceContext trying new source: host=%s proxy=%s\n",
+    console->post("useSourceContext trying new source: host=%s proxy=%s",
 			(const char *)source.toAscii(), "none");
 
     if ((sts = group->use(activeSources->type(), source)) < 0) {
