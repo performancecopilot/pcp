@@ -23,14 +23,14 @@
   <defs
      id="defs1309">
     <linearGradient
-       id="linearGradientStoppedOff">
+       id="linearGradientOff">
       <stop
          style="stop-color:#c8c8c8;stop-opacity:1;"
          offset="0"
          id="stop2896" />
       <stop
          id="stop2900"
-         offset="0.15000001"
+         offset="0.46875"
          style="stop-color:#8c8c8c;stop-opacity:1;" />
       <stop
          style="stop-color:#646464;stop-opacity:1;"
@@ -38,74 +38,23 @@
          id="stop2898" />
     </linearGradient>
     <linearGradient
-       id="linearGradientForwardOn">
-      <stop
-         id="stop2906"
-         offset="0"
-         style="stop-color:#2a2aff;stop-opacity:1;" />
-      <stop
-         id="stop2892"
-         offset="0.47999999"
-         style="stop-color:#2a2a91;stop-opacity:1;" />
-      <stop
-         style="stop-color:#000000;stop-opacity:1;"
-         offset="1"
-         id="stop2888" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradientForwardOff">
-      <stop
-         id="stop2824"
-         offset="0"
-         style="stop-color:#646464;stop-opacity:0.78431374;" />
-      <stop
-         style="stop-color:#505050;stop-opacity:0.89019608;"
-         offset="0.375"
-         id="stop2826" />
-      <stop
-         id="stop2829"
-         offset="1"
-         style="stop-color:black;stop-opacity:1;" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradientBackwardOn">
-      <stop
-         id="stop17"
-         offset="0"
-         style="stop-color:black;stop-opacity:1;" />
-      <stop
-         id="stop19"
-         offset="0.5"
-         style="stop-color:#2a2a91;stop-opacity:1;" />
-      <stop
-         style="stop-color:#2a2aff;stop-opacity:1;"
-         offset="1"
-         id="stop21" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradientBackwardOff">
-      <stop
-         style="stop-color:#000000;stop-opacity:1;"
-         offset="0"
-         id="stop3839" />
-      <stop
-         id="stop2828"
-         offset="0.625"
-         style="stop-color:#505050;stop-opacity:0.89019608;" />
-      <stop
-         style="stop-color:#646464;stop-opacity:0.78431374;"
-         offset="1"
-         id="stop3841" />
-    </linearGradient>
-    <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradientBackwardOff"
-       id="linearGradient3134"
-       x1="6.5284147"
+       xlink:href="#linearGradientOff"
+       id="linearGradient4795"
+       x1="6.3241467"
        y1="16.095163"
-       x2="27.216284"
+       x2="27.012014"
        y2="16.095163"
        gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradientOff"
+       id="linearGradient1935"
+       gradientUnits="userSpaceOnUse"
+       x1="6.3241467"
+       y1="16.095163"
+       x2="27.012014"
+       y2="16.095163" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -114,9 +63,9 @@
      borderopacity="0.15294118"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4"
+     inkscape:zoom="5.6568542"
      inkscape:cx="38.438011"
-     inkscape:cy="7.8505267"
+     inkscape:cy="7.6737501"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:grid-bbox="false"
@@ -132,7 +81,7 @@
      stroke="#729fcf"
      inkscape:window-width="906"
      inkscape:window-height="689"
-     inkscape:window-x="36"
+     inkscape:window-x="65"
      inkscape:window-y="25"
      showborder="true"
      inkscape:showpageshadow="false"
@@ -225,7 +174,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
         <dc:creator>
           <cc:Agent>
             <dc:title>Nathan Scott</dc:title>
@@ -235,7 +184,7 @@
            rdf:resource="http://creativecommons.org/licenses/LGPL/2.1/" />
         <dc:contributor>
           <cc:Agent>
-            <dc:title></dc:title>
+            <dc:title />
           </cc:Agent>
         </dc:contributor>
       </cc:Work>
@@ -261,25 +210,29 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      style="display:inline">
-    <path
-       inkscape:r_cy="true"
-       inkscape:r_cx="true"
-       style="color:black;fill:url(#linearGradient3134);fill-opacity:1.0;fill-rule:evenodd;stroke:#505050;stroke-width:1.00000036;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-       d="M 26.716283,28.76378 L 26.716283,3.4265473 L 7.028415,16.095164 L 26.716283,28.76378 z "
-       id="path3375"
-       sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
-       inkscape:export-xdpi="88.615387"
-       inkscape:export-ydpi="88.615387" />
-    <path
-       style="opacity:0.5;color:black;fill:white;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:block;overflow:visible"
-       d="M 26.24878,4.346856 L 26.24878,16.320402 C 22.363565,16.274518 17.908874,15.966378 10.720927,14.39951 L 26.24878,4.346856 z "
-       id="path2339"
-       inkscape:r_cx="true"
-       inkscape:r_cy="true"
-       sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
-       inkscape:export-xdpi="88.615387"
-       inkscape:export-ydpi="88.615387" />
+    <g
+       id="g1931"
+       transform="matrix(-1.555658,0,0,1.208734,41.92984,-3.452814)">
+      <path
+         inkscape:export-ydpi="88.615387"
+         inkscape:export-xdpi="88.615387"
+         inkscape:export-filename="/source/git/kmchart/images/back_off.png"
+         sodipodi:nodetypes="cccc"
+         id="path3375"
+         d="M 6.824147,28.76378 L 6.824147,3.4265473 L 26.512015,16.095164 L 6.824147,28.76378 z "
+         style="color:black;fill:url(#linearGradient1935);fill-opacity:1;fill-rule:evenodd;stroke:#505050;stroke-width:1.00000036;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+         inkscape:r_cx="true"
+         inkscape:r_cy="true" />
+      <path
+         inkscape:export-ydpi="88.615387"
+         inkscape:export-xdpi="88.615387"
+         inkscape:export-filename="/source/git/kmchart/images/back_off.png"
+         sodipodi:nodetypes="cccc"
+         inkscape:r_cy="true"
+         inkscape:r_cx="true"
+         id="path2339"
+         d="M 7.248756,4.1360696 L 7.248756,15.90879 C 11.017377,15.863677 15.338383,15.560705 22.310619,14.020118 L 7.248756,4.1360696 z "
+         style="opacity:0.5;color:black;fill:white;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:block;overflow:visible" />
+    </g>
   </g>
 </svg>
