@@ -393,7 +393,7 @@ void Tab::adjustArchiveWorldViewForward(KmTime::Packet *packet, bool setup)
 
     my.timeState = Tab::ForwardState;
 
-    setmode = PM_MODE_FORW;
+    setmode = PM_MODE_INTERP;
     delta = packet->delta.tv_sec;
     if (packet->delta.tv_usec == 0) {
 	setmode |= PM_XTB_SET(PM_TIME_SEC);
@@ -456,7 +456,7 @@ void Tab::adjustArchiveWorldViewBackward(KmTime::Packet *packet, bool setup)
 
     my.timeState = Tab::BackwardState;
 
-    setmode = PM_MODE_BACK;
+    setmode = PM_MODE_INTERP;
     delta = packet->delta.tv_sec;
     if (packet->delta.tv_usec == 0) {
 	setmode |= PM_XTB_SET(PM_TIME_SEC);
@@ -486,8 +486,8 @@ void Tab::adjustArchiveWorldViewBackward(KmTime::Packet *packet, bool setup)
 	}
 	my.timeData[i] = position;
 	fromsec(position, &timeval);
-	if (my.group->setArchiveMode(setmode, &timeval, delta) < 0) {
-	    console->post("Tab::adjustArchiveWorldViewForward: setArchiveMode");
+	if (my.group->setArchiveMode(setmode, &timeval, -delta) < 0) {
+	    console->post("Tab::adjustArchiveWorldViewBackward: setArchiveMode");
 	    continue;
 	}
 	console->post("Fetching values for position[%d] at %s",
