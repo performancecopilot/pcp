@@ -31,20 +31,25 @@ void ExportDialog::languageChange()
 
 void ExportDialog::init()
 {
-    QString	imgfile = QDir::homePath();
+    QString imgfile = QDir::homePath();
 
     // TODO: update the filename to display the file extension
     // when the combobox entry is updated?
 
     my.quality = 0.0;
-    imgfile.append("/export");
+    imgfile.append("/export.png");
     fileLineEdit->setText(imgfile);
 
+    int png = 0;
     QStringList formats;
     QList<QByteArray> array = QImageWriter::supportedImageFormats();
-    for (int i = 0; i < array.size(); i++)
+    for (int i = 0; i < array.size(); i++) {
+	if (array.at(i) == "png")
+	    png = i;
 	formats << QString(array.at(i));
+    }
     formatComboBox->addItems(formats);
+    formatComboBox->setCurrentIndex(png);
 
     selectedRadioButton->setChecked(true);
     allChartsRadioButton->setChecked(false);
