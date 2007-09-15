@@ -18,6 +18,8 @@
 InfoDialog::InfoDialog(QWidget* parent) : QDialog(parent)
 {
     setupUi(this);
+    my.pminfoStarted = false;
+    my.pmvalStarted = false;
 }
 
 void InfoDialog::languageChange()
@@ -99,10 +101,14 @@ void InfoDialog::pmval(void)
 
 void InfoDialog::quit()
 {
-    if (my.pmvalStarted && my.pmvalProc)
+    if (my.pmvalStarted) {
 	my.pmvalProc->terminate();
-    if (my.pminfoStarted && my.pminfoProc)
+	my.pmvalStarted = false;
+    }
+    if (my.pminfoStarted) {
 	my.pminfoProc->terminate();
+	my.pminfoStarted = false;
+    }
 }
 
 void InfoDialog::pmvalStdout()
@@ -125,14 +131,14 @@ void InfoDialog::infoTabCurrentChanged(QWidget *current)
 {
     if (current == pminfoTab) {
 	if (!my.pminfoStarted) {
-	    my.pminfoStarted = true;
 	    pminfo();
+	    my.pminfoStarted = true;
 	}
     }
     else if (current == pmvalTab) {
 	if (!my.pmvalStarted) {
-	    my.pmvalStarted = true;
 	    pmval();
+	    my.pmvalStarted = true;
 	}
     }
 }
