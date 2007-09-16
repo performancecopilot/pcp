@@ -381,6 +381,12 @@ time Interval.</string>
           <property name="text" >
            <string/>
           </property>
+          <property name="iconSize" >
+           <size>
+            <width>52</width>
+            <height>32</height>
+           </size>
+          </property>
          </widget>
         </item>
         <item>
@@ -408,6 +414,12 @@ increments of the current Interval.</string>
           </property>
           <property name="text" >
            <string/>
+          </property>
+          <property name="iconSize" >
+           <size>
+            <width>52</width>
+            <height>32</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -439,6 +451,12 @@ time Interval.</string>
           </property>
           <property name="text" >
            <string/>
+          </property>
+          <property name="iconSize" >
+           <size>
+            <width>52</width>
+            <height>32</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -817,14 +835,14 @@ Click this menu option to invoke a small question mark that is attached to the m
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
-   <class>QwtWheel</class>
-   <extends>QWidget</extends>
-   <header>qwt_wheel.h</header>
-  </customwidget>
-  <customwidget>
    <class>QwtSlider</class>
    <extends>QWidget</extends>
    <header>qwt_slider.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwtWheel</class>
+   <extends>QWidget</extends>
+   <header>qwt_wheel.h</header>
   </customwidget>
  </customwidgets>
  <includes>

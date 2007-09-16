@@ -183,15 +183,15 @@ samples in Time Control client programs (e.g. kmchart, pmval, etc).</string>
           </item>
           <item>
            <widget class="QComboBox" name="comboBoxDelta" >
-            <property name="currentIndex" >
-             <number>1</number>
-            </property>
             <property name="whatsThis" >
              <string>&lt;b>Sampling interval units&lt;/b>&lt;br>
 Displays the units in which the sampling interval is entered.
 Metric values can be sampled in days, hours, minutes, seconds
 or milliseconds in Time Control client programs (e.g. kmchart,
 pmval, etc).</string>
+            </property>
+            <property name="currentIndex" >
+             <number>1</number>
             </property>
             <item>
              <property name="text" >
@@ -301,6 +301,12 @@ current Interval.</string>
             <property name="text" >
              <string/>
             </property>
+            <property name="iconSize" >
+             <size>
+              <width>52</width>
+              <height>32</height>
+             </size>
+            </property>
             <property name="shortcut" >
              <string/>
             </property>
@@ -331,6 +337,12 @@ Interval.</string>
             </property>
             <property name="text" >
              <string/>
+            </property>
+            <property name="iconSize" >
+             <size>
+              <width>52</width>
+              <height>32</height>
+             </size>
             </property>
             <property name="shortcut" >
              <string/>
