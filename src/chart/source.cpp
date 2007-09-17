@@ -22,7 +22,7 @@
 #include "namespace.h"
 #include "main.h"
 
-#define DESPERATE 1
+#define DESPERATE 0
 
 QList<QmcContext *>contextList;
 QmcContext *currentContext;
@@ -157,7 +157,7 @@ void Source::add(QmcContext *context)
 void Source::dump()
 {
     QTextStream cerr(stderr);
-    cerr << "Source::dump: current: " << currentContext;
+    cerr << "Source::dump: current: " << currentContext << endl;
     for (int i = 0; i < contextList.size(); i++) {
 	contextList.at(i)->dump(cerr);
 	contextList.at(i)->dumpMetrics(cerr);
