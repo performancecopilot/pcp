@@ -26,14 +26,14 @@ public:
     void reset(QString, QString, QString, bool);
     void pminfo();
     void pmval();
-    void quit();
 
 public slots:
     virtual void pminfoStdout();
     virtual void pminfoStderr();
     virtual void pmvalStdout();
     virtual void pmvalStderr();
-    virtual void infoTabCurrentChanged( QWidget * );
+    virtual void infoTabCurrentChanged(QWidget *);
+    virtual void quit();
 
 protected slots:
     virtual void languageChange();

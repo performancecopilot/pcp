@@ -38,6 +38,9 @@ void InfoDialog::reset(QString source, QString metric, QString instance,
     my.metric = metric;
     my.source = source;
     my.instance = instance;
+
+    infoTab->setCurrentWidget(pminfoTab);
+    infoTabCurrentChanged(pminfoTab);
 }
 
 void InfoDialog::pminfo(void)
@@ -57,9 +60,9 @@ void InfoDialog::pminfo(void)
     }
     arguments << my.metric;
 
-    connect(my.pminfoProc, SIGNAL(readyReadStdout()),
+    connect(my.pminfoProc, SIGNAL(readyReadStandardOutput()),
 	    this, SLOT(pminfoStdout()));
-    connect(my.pminfoProc, SIGNAL(readyReadStderr()),
+    connect(my.pminfoProc, SIGNAL(readyReadStandardError()),
 	    this, SLOT(pminfoStderr()));
 
     my.pminfoProc->start("pminfo", arguments);
@@ -91,9 +94,9 @@ void InfoDialog::pmval(void)
 	arguments << "-h" << my.source;
     arguments << my.metric;
 
-    connect(my.pmvalProc, SIGNAL(readyReadStdout()),
+    connect(my.pmvalProc, SIGNAL(readyReadStandardOutput()),
 		    this, SLOT(pmvalStdout()));
-    connect(my.pmvalProc, SIGNAL(readyReadStderr()),
+    connect(my.pmvalProc, SIGNAL(readyReadStandardError()),
 		    this, SLOT(pmvalStderr()));
     connect(this, SIGNAL(finished(int)), this, SLOT(quit()));
     my.pmvalProc->start("pmval", arguments);
