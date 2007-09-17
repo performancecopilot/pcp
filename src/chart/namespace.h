@@ -41,9 +41,7 @@ public:
     QString text(int) const;
     QIcon icon(int) const;
     void setIcon(int, const QIcon &);
-    void setOpen(bool);
-    void setExpanded(bool expanded)
-	{ my.expanded = expanded; setOpen(expanded); }
+    void setExpanded(bool expanded);
 
     QString sourceName();
     QString metricName();
@@ -63,14 +61,8 @@ public:
     QColor originalColor() { return my.original; }
     void setOriginalColor(QColor original) { my.original = original; }
 
-    void setSelectable(bool selectable)
-	{
-	    if (selectable)
-		setFlags(flags() | Qt::ItemIsSelectable);
-	    else
-		setFlags(flags() & ~Qt::ItemIsSelectable);
-	}
-    void setExpandable(bool expandable) { (void)expandable; /*TODO*/ }
+    void setSelectable(bool selectable);
+    void setExpandable(bool expandable);
 
 private:
     void expandMetricNames(QString);

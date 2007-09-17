@@ -42,6 +42,12 @@ void ChartDialog::init()
 		this, SLOT(chartMetricsSelectionChanged()));
     connect(availableMetricsTreeWidget, SIGNAL(itemSelectionChanged()),
 		this, SLOT(availableMetricsSelectionChanged()));
+    connect(availableMetricsTreeWidget,
+		SIGNAL(itemActivated(QTreeWidgetItem *, int)), this,
+		SLOT(availableMetricsItemActivated(QTreeWidgetItem *, int)));
+    connect(availableMetricsTreeWidget,
+		SIGNAL(itemExpanded(QTreeWidgetItem *)), this,
+		SLOT(availableMetricsItemExpanded(QTreeWidgetItem *)));
 
     my.currentColor = qRgb( -1, -1, -1 );
     hEd->setRange(0, 359);
@@ -155,6 +161,22 @@ void ChartDialog::availableMetricsSelectionChanged()
 	if (*(++iterator) != NULL)
 	    my.availableTreeSingleSelected = NULL;	// multiple selections
     enableUI();
+}
+
+void ChartDialog::availableMetricsItemActivated(QTreeWidgetItem *item, int col)
+{
+    console->post(KmChart::DebugGUI,
+		 "ChartDialog::availableMetricsItemActivated %p %d", item, col);
+    NameSpace *metricName = (NameSpace *)item;
+    metricName->setExpanded(true);
+}
+
+void ChartDialog::availableMetricsItemExpanded(QTreeWidgetItem *item)
+{
+    console->post(KmChart::DebugGUI,
+		 "ChartDialog::availableMetricsItemExpanded %p", item);
+    NameSpace *metricName = (NameSpace *)item;
+    metricName->setExpanded(true);
 }
 
 void ChartDialog::metricInfoButtonClicked()

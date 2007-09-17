@@ -23,6 +23,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QListView>
 #include "namespace.h"
+#include "kmchart.h"
 #include "console.h"
 #include "source.h"
 #include "chart.h"
@@ -37,7 +38,7 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
     my.type = inst ? InstanceName : NoType;
     my.isArchive = arch;
 
-    console->post("Added non-root namespace node %s",
+    console->post(KmChart::DebugGUI, "Added non-root namespace node %s",
 		  (const char *)my.basename.toAscii());
     setText(0, my.basename);
 }
@@ -57,7 +58,8 @@ NameSpace::NameSpace(QTreeWidget *list, const QmcContext *ctxt, bool arch)
 	my.iconic = QIcon(":/computer.png");
 	my.type = HostRoot;
     }
-    console->post("Added root %s namespace node %s", my.isArchive ?
+    console->post(KmChart::DebugGUI,
+		  "Added root %s namespace node %s", my.isArchive ?
 		  "archive" : "host", (const char *)my.basename.toAscii());
     setText(0, my.basename);
     setIcon(0, my.iconic);
@@ -91,20 +93,39 @@ QString NameSpace::instanceName()
     return QString(NULL);
 }
 
-void NameSpace::setOpen(bool o)
+void NameSpace::setExpanded(bool expand)
 {
-    console->post("NameSpace::setOpen on %p %s (expanded=%s, open=%s)",
-			this, (const char *)metricName().toAscii(),
-			my.expanded ? "y" : "n", o ? "y" : "n");
-    if (!my.expanded) {
+    console->post(KmChart::DebugGUI,
+		  "NameSpace::setExpanded on %p %s (expanded=%s, expand=%s)",
+		  this, (const char *)metricName().toAscii(),
+		  my.expanded ? "y" : "n", expand ? "y" : "n");
+
+    if (expand && !my.expanded) {
+	my.expanded = true;
 	pmUseContext(my.context->handle());
 	if (my.type == LeafWithIndom)
 	    expandInstanceNames();
 	else if (my.type != InstanceName)
 	    expandMetricNames(isRoot() ? "" : metricName());
     }
-// TODO?
-    QTreeWidgetItem::setExpanded(o);
+
+    QTreeWidgetItem::setExpanded(expand);
+}
+
+void NameSpace::setSelectable(bool selectable)
+{
+    if (selectable)
+	setFlags(flags() | Qt::ItemIsSelectable);
+    else
+	setFlags(flags() & ~Qt::ItemIsSelectable);
+}
+
+void NameSpace::setExpandable(bool expandable)
+{
+    if (expandable)
+	setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
+    else
+	setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicator);
 }
 
 static char *namedup(const char *name, const char *suffix)
@@ -312,8 +333,8 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
 	// this is a leaf so walk back up to the root, opening each node up
 	NameSpace *up;
 	for (up = tree; up->my.back != up; up = up->my.back)
-	    up->setOpen(true);
-	up->setOpen(true);	// add the host/archive root as well.
+	    up->setExpanded(true);
+	up->setExpanded(true);	// add the host/archive root as well.
 
 	n->setSelected(true);
     }

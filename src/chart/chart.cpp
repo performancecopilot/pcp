@@ -871,7 +871,6 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 		n->setExpandable(true);
 		n->setSelectable(false);
 	        n->setExpanded(true);
-		n->setOpen(true);
 	    }
 	    else {
 		bool isLeaf = (blit == baselist.end());
@@ -882,8 +881,7 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 		}
 		n->setExpandable(!isLeaf);
 		n->setSelectable(isLeaf);
-	        n->setExpanded(true);
-		n->setOpen(!isLeaf);
+	        n->setExpanded(!isLeaf);
 		if (!isLeaf)
 		    n->setType(NameSpace::NonLeafName);
 		else if (isInst)	// constructor sets Instance type

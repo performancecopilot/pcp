@@ -47,6 +47,8 @@ public:
 public slots:
     virtual void chartMetricsSelectionChanged();
     virtual void availableMetricsSelectionChanged();
+    virtual void availableMetricsItemActivated(QTreeWidgetItem *, int);
+    virtual void availableMetricsItemExpanded(QTreeWidgetItem *);
     virtual void metricInfoButtonClicked();
     virtual void metricDeleteButtonClicked();
     virtual void metricAddButtonClicked();

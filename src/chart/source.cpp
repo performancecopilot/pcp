@@ -210,7 +210,7 @@ void Source::setupTree(QTreeWidget *tree)
     for (int i = 0; i < contextList.size(); i++) {
 	QmcContext *cp = contextList.at(i);
 	NameSpace *name = new NameSpace(tree, cp, activeTab->isArchiveSource());
-	name->setOpen(true);
+	name->setExpanded(true);
 	name->setSelectable(false);
 	tree->addTopLevelItem(name);
 	if (cp == currentContext)
