@@ -79,10 +79,10 @@ void TabDialog::archivesRadioButtonClicked()
 		  my.archiveSource?"true":"false");
 }
 
-void TabDialog::samplePointsValueChanged(double value)
+void TabDialog::samplePointsValueChanged(int value)
 {
     if (my.samples != value) {
-	my.samples = (double)(int)value;
+	my.samples = value;
 	displaySamplePointsCounter();
 	displaySamplePointsSlider();
 	if (my.visible > my.samples)
@@ -90,10 +90,10 @@ void TabDialog::samplePointsValueChanged(double value)
     }
 }
 
-void TabDialog::visiblePointsValueChanged(double value)
+void TabDialog::visiblePointsValueChanged(int value)
 {
     if (my.visible != value) {
-	my.visible = (double)(int)value;
+	my.visible = value;
 	displayVisiblePointsCounter();
 	displayVisiblePointsSlider();
 	if (my.visible > my.samples)

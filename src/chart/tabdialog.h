@@ -31,8 +31,8 @@ public:
     virtual void displayVisiblePointsCounter();
 
 public slots:
-    virtual void samplePointsValueChanged(double);
-    virtual void visiblePointsValueChanged(double);
+    virtual void samplePointsValueChanged(int);
+    virtual void visiblePointsValueChanged(int);
     virtual void liveHostRadioButtonClicked();
     virtual void archivesRadioButtonClicked();
 
@@ -42,8 +42,8 @@ protected slots:
 private:
     struct {
 	bool archiveSource;
-	double samples;
-	double visible;
+	int samples;
+	int visible;
     } my;
 };
 

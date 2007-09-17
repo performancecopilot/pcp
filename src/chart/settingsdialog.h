@@ -33,8 +33,8 @@ public:
     virtual void displayVisibleCounter();
 
 public slots:
-    virtual void visibleValueChanged( double value );
-    virtual void totalValueChanged( double value );
+    virtual void visibleValueChanged(int value);
+    virtual void totalValueChanged(int value);
     virtual void chartHighlightPushButtonClicked();
     virtual void chartBackgroundPushButtonClicked();
     virtual void defaultColorsPushButton1Clicked();
@@ -58,8 +58,8 @@ public slots:
 
 protected:
     struct {
-	double visible;
-	double total;
+	int visible;
+	int total;
 	QStyle *savedStyle;
 	QString savedStyleName;
     } my;

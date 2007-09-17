@@ -139,34 +139,16 @@
            <number>6</number>
           </property>
           <item row="3" column="0" >
-           <widget class="QwtSlider" name="samplePointsSlider" >
+           <widget class="QSlider" name="samplePointsSlider" >
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="bgStyle" >
-             <enum>QwtSlider::BgSlot</enum>
-            </property>
-            <property name="thumbLength" >
-             <number>8</number>
-            </property>
-            <property name="thumbWidth" >
-             <number>16</number>
             </property>
            </widget>
           </item>
           <item row="1" column="0" >
-           <widget class="QwtSlider" name="visiblePointsSlider" >
+           <widget class="QSlider" name="visiblePointsSlider" >
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="bgStyle" >
-             <enum>QwtSlider::BgSlot</enum>
-            </property>
-            <property name="thumbLength" >
-             <number>8</number>
-            </property>
-            <property name="thumbWidth" >
-             <number>16</number>
             </property>
            </widget>
           </item>
@@ -205,7 +187,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QDoubleSpinBox" name="samplePointsCounter" />
+             <widget class="QSpinBox" name="samplePointsCounter" />
             </item>
             <item>
              <spacer>
@@ -257,7 +239,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QDoubleSpinBox" name="visiblePointsCounter" />
+             <widget class="QSpinBox" name="visiblePointsCounter" />
             </item>
             <item>
              <spacer>
@@ -342,17 +324,6 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11" />
- <customwidgets>
-  <customwidget>
-   <class>QwtSlider</class>
-   <extends>QWidget</extends>
-   <header>qwt_slider.h</header>
-  </customwidget>
- </customwidgets>
- <includes>
-  <include location="local" >qwt_slider.h</include>
-  <include location="local" >qwt_counter.h</include>
- </includes>
  <resources>
   <include location="kmchart.qrc" />
  </resources>
@@ -423,9 +394,9 @@
   </connection>
   <connection>
    <sender>samplePointsCounter</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>TabDialog</receiver>
-   <slot>samplePointsValueChanged(double)</slot>
+   <slot>samplePointsValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -439,9 +410,9 @@
   </connection>
   <connection>
    <sender>samplePointsSlider</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>TabDialog</receiver>
-   <slot>samplePointsValueChanged(double)</slot>
+   <slot>samplePointsValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -455,9 +426,9 @@
   </connection>
   <connection>
    <sender>visiblePointsCounter</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>TabDialog</receiver>
-   <slot>visiblePointsValueChanged(double)</slot>
+   <slot>visiblePointsValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -471,9 +442,9 @@
   </connection>
   <connection>
    <sender>visiblePointsSlider</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>TabDialog</receiver>
-   <slot>visiblePointsValueChanged(double)</slot>
+   <slot>visiblePointsValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>

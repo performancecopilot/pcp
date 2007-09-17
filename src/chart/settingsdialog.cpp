@@ -149,10 +149,10 @@ void SettingsDialog::flush()
     }
 }
 
-void SettingsDialog::visibleValueChanged(double value)
+void SettingsDialog::visibleValueChanged(int value)
 {
     if (value != my.visible) {
-	my.visible = (double)(int)value;
+	my.visible = value;
 	displayVisibleCounter();
 	displayVisibleSlider();
 	if (my.visible > my.total)
@@ -161,10 +161,10 @@ void SettingsDialog::visibleValueChanged(double value)
     }
 }
 
-void SettingsDialog::totalValueChanged(double value)
+void SettingsDialog::totalValueChanged(int value)
 {
     if (value != my.total) {
-	my.total = (double)(int)value;
+	my.total = value;
 	displayTotalCounter();
 	displayTotalSlider();
 	if (my.visible > my.total)

@@ -81,18 +81,9 @@
             <number>6</number>
            </property>
            <item row="1" column="0" >
-            <widget class="QwtSlider" name="visibleSlider" >
+            <widget class="QSlider" name="visibleSlider" >
              <property name="orientation" >
               <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="bgStyle" >
-              <enum>QwtSlider::BgSlot</enum>
-             </property>
-             <property name="thumbLength" >
-              <number>8</number>
-             </property>
-             <property name="thumbWidth" >
-              <number>16</number>
              </property>
             </widget>
            </item>
@@ -128,7 +119,7 @@
               </spacer>
              </item>
              <item>
-              <widget class="QDoubleSpinBox" name="totalCounter" />
+              <widget class="QSpinBox" name="totalCounter" />
              </item>
              <item>
               <spacer>
@@ -146,18 +137,9 @@
             </layout>
            </item>
            <item row="3" column="0" >
-            <widget class="QwtSlider" name="totalSlider" >
+            <widget class="QSlider" name="totalSlider" >
              <property name="orientation" >
               <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="bgStyle" >
-              <enum>QwtSlider::BgSlot</enum>
-             </property>
-             <property name="thumbLength" >
-              <number>8</number>
-             </property>
-             <property name="thumbWidth" >
-              <number>16</number>
              </property>
             </widget>
            </item>
@@ -193,7 +175,7 @@
               </spacer>
              </item>
              <item>
-              <widget class="QDoubleSpinBox" name="visibleCounter" />
+              <widget class="QSpinBox" name="visibleCounter" />
              </item>
              <item>
               <spacer>
@@ -971,22 +953,11 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11" />
- <customwidgets>
-  <customwidget>
-   <class>QwtSlider</class>
-   <extends>QWidget</extends>
-   <header>qwt_slider.h</header>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>buttonHelp</tabstop>
   <tabstop>buttonOk</tabstop>
   <tabstop>buttonCancel</tabstop>
  </tabstops>
- <includes>
-  <include location="local" >qwt_slider.h</include>
-  <include location="local" >qwt_counter.h</include>
- </includes>
  <resources>
   <include location="kmchart.qrc" />
  </resources>
@@ -1345,9 +1316,9 @@
   </connection>
   <connection>
    <sender>totalCounter</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>totalValueChanged(double)</slot>
+   <slot>totalValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1361,9 +1332,9 @@
   </connection>
   <connection>
    <sender>totalSlider</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>totalValueChanged(double)</slot>
+   <slot>totalValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1377,9 +1348,9 @@
   </connection>
   <connection>
    <sender>visibleCounter</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>visibleValueChanged(double)</slot>
+   <slot>visibleValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1393,9 +1364,9 @@
   </connection>
   <connection>
    <sender>visibleSlider</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>visibleValueChanged(double)</slot>
+   <slot>visibleValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
