@@ -145,7 +145,7 @@ void NameSpace::expandMetricNames(QString parent)
     int		i, nleaf = 0;
     int		sts, noffspring;
     NameSpace	*m, **leaflist = NULL;
-    const char	*name = (const char *)parent.toAscii();
+    char	*name = strdup(parent.toAscii());
 
     sts = pmGetChildrenStatus(name, &offspring, &status);
     if (sts < 0) {
@@ -159,7 +159,7 @@ void NameSpace::expandMetricNames(QString parent)
 	QMessageBox::warning(NULL, pmProgname, msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
-	return;
+	goto done;
     }
     else {
 	noffspring = sts;
@@ -198,7 +198,7 @@ void NameSpace::expandMetricNames(QString parent)
 	QMessageBox::warning(NULL, pmProgname, msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
-	return;
+	goto done;
     }
     else {
 	for (i = 0; i < nleaf; i++) {
@@ -212,7 +212,7 @@ void NameSpace::expandMetricNames(QString parent)
 			QMessageBox::Ok | QMessageBox::Default |
 				QMessageBox::Escape,
 			QMessageBox::NoButton, QMessageBox::NoButton);
-		return;
+		goto done;
 	    }
 	    if (m->my.desc.indom == PM_INDOM_NULL) {
 		m->my.type = LeafNullIndom;
@@ -239,6 +239,7 @@ done:
 	free(offspring);
     if (status)
 	free(status);
+    free(name);
 }
 
 void NameSpace::expandInstanceNames()
@@ -318,7 +319,11 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
     n->my.instid = my.instid;
     n->my.desc = my.desc;
     n->my.type = my.type;
-    if (!isLeaf()) {
+
+    if (my.type == NoType) {
+	abort();
+    }
+    else if (!isLeaf()) {
 	n->setExpandable(true);
 	n->setSelectable(false);
     }
