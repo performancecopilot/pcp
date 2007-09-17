@@ -122,10 +122,12 @@ void NameSpace::setSelectable(bool selectable)
 
 void NameSpace::setExpandable(bool expandable)
 {
+#if 0 // TODO: added in QT4.3 only (find another way to do this?)
     if (expandable)
 	setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
     else
 	setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicator);
+#endif
 }
 
 static char *namedup(const char *name, const char *suffix)
