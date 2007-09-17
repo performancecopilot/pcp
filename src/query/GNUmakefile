@@ -5,7 +5,7 @@ COMMAND = kmquery
 PROJECT = $(COMMAND).pro
 QRCFILE = $(COMMAND).qrc
 
-HEADERS = main.h kmquery.h
+HEADERS = kmquery.h
 SOURCES = $(HEADERS:.h=.cpp)
 SCRIPTS = kmconfirm.sh kmmessage.sh
 

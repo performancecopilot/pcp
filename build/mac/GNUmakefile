@@ -47,8 +47,8 @@ LSRCFILES = English.lproj/Localizable.strings build-installer \
 
 default install :
 
-.PHONY: pack_kmchart
-pack_kmchart : extrabits
+.PHONY: dist
+dist: extrabits
 	@PACKAGE_VERSION=${PACKAGE_VERSION} \
 	 PACKAGE_MAJOR=${PACKAGE_MAJOR} \
 	 PACKAGE_MINOR=${PACKAGE_MINOR} \
@@ -89,14 +89,15 @@ idb-kmchart: $(DIST_MANIFEST)
 		} \
 		' $$DIST_MANIFEST \
 	| sed -e 's# '$$WA'/# #g' -e 's# /# #g' >> idb-kmchart
-	@(bdir=`echo $$PCP_BINADM_DIR | cut -c2-`; \
+	@(bdir=`echo $(PCP_BINADM_DIR) | cut -c2-`; \
 	  echo "f 644 root wheel $$bdir/idb-kmchart idb-kmchart replace"; \
 	  echo "f 755 root wheel $$bdir/install-kmchart install-kmchart replace"; \
 	  echo "f 755 root wheel $$bdir/uninstall-kmchart uninstall-kmchart replace") >> idb-kmchart
 	@echo idb-kmchart created
 
 extrabits: idb-kmchart
-	DIST_MANIFEST= $(INSTALL) -m 755 idb-kmchart install-kmchart uninstall-kmchart \
-		$$PCP_BINADM_DIR
+	DIST_MANIFEST= $(INSTALL) -m 755 idb-kmchart $(PCP_BINADM_DIR)
+	DIST_MANIFEST= $(INSTALL) -m 755 install-kmchart $(PCP_BINADM_DIR)
+	DIST_MANIFEST= $(INSTALL) -m 755 uninstall-kmchart $(PCP_BINADM_DIR)
 
 include $(BUILDRULES)

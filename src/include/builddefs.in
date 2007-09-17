@@ -45,6 +45,7 @@ AWK		= @awk@
 SED		= @sed@
 TAR		= @tar@
 ZIP		= @zip@
+BZIP2		= @bzip2@
 MAKE		= @make@
 ECHO		= @echo@
 SORT		= @sort@
@@ -53,6 +54,9 @@ LN_S		= @LN_S@
 RPM		= @rpm@
 RPMBUILD	= @rpmbuild@
 RPM_VERSION	= @rpm_version@
+PACKAGE_MAKER	= @package_maker@
+HDIUTIL		= @hdiutil@
+DPKG		= @dpkg@
 
 HAVE_ZIPPED_MANPAGES = @have_zipped_manpages@
 

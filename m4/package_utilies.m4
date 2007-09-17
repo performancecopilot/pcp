@@ -54,6 +54,9 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     zip=$ZIP
     AC_SUBST(zip)
 
+    bzip2=$BZIP2
+    AC_SUBST(bzip2)
+
     if test -z "$MAKEDEPEND"; then
         AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
     fi
@@ -131,4 +134,37 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
         rpmbuild=$RPM
     fi
     AC_SUBST(rpmbuild)
+
+    dnl check if the dpkg program is available
+    if test -z "$DPKG"
+    then
+	AC_PATH_PROG(DPKG, dpkg)
+    fi
+    dpkg=$DKPG
+    AC_SUBST(dpkg)
+
+    dnl Check for mac PackageMaker
+    AC_MSG_CHECKING([for PackageMaker])
+    if test -z "$PACKAGE_MAKER"
+    then
+	if test -x /Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker       
+	then # Darwin 6.x
+	    package_maker=/Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	    AC_MSG_RESULT([ yes (darwin 6.x)])
+	elif test -x /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker
+	then # Darwin 7.x
+	    AC_MSG_RESULT([ yes (darwin 7.x)])
+	    package_maker=/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker
+	else
+	    AC_MSG_RESULT([ no])
+	fi
+    else
+	package_maker="$PACKAGE_MAKER"
+    fi
+    AC_SUBST(package_maker)
+
+    dnl check if the hdiutil program is available
+    test -z "$HDIUTIL" && AC_PATH_PROG(HDIUTIL, hdiutil)
+    hdiutil=$HDIUTIL
+    AC_SUBST(hdiutil)
   ])
