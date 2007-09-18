@@ -422,7 +422,7 @@ void KmChart::metricInfo(QString src, QString m, QString inst, bool archive)
 void KmChart::editTab()
 {
     my.edittab->reset(chartTab->tabText(activeTab->index()),
-		   activeTab->isArchiveSource(),
+		   activeTab->isArchiveSource() == false,
 		   activeTab->sampleHistory(),
 		   activeTab->visibleHistory());
     my.edittab->show();
