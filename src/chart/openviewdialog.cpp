@@ -67,7 +67,7 @@ void OpenViewDialog::reset()
 	proxyComboBox->setHidden(false);
 	proxyPushButton->setHidden(false);
     }
-    activeSources->setupCombo(sourceComboBox);
+    activeSources->setupCombo(sourceComboBox, my.archiveSource);
     setPath(my.systemDir);
 }
 
@@ -205,7 +205,7 @@ void OpenViewDialog::archiveAdd()
 		    QMessageBox::NoButton, QMessageBox::NoButton);
 	} else {
 	    archiveSources->add(archiveGroup->which());
-	    archiveSources->setupCombo(sourceComboBox);
+	    archiveSources->setupCombo(sourceComboBox, true);
 	    archiveGroup->updateBounds();
 	}
     }
@@ -231,7 +231,7 @@ void OpenViewDialog::hostAdd()
 		    QMessageBox::NoButton, QMessageBox::NoButton);
 	} else {
 	    liveSources->add(liveGroup->which());
-	    liveSources->setupCombo(sourceComboBox);
+	    liveSources->setupCombo(sourceComboBox, false);
 	}
     }
     delete h;
@@ -243,16 +243,21 @@ void OpenViewDialog::proxyAdd()
 
 void OpenViewDialog::proxyPushButton_clicked()
 {
-    if (!activeTab->isArchiveSource())
+    if (my.archiveSource == false)
 	proxyAdd();
 }
 
 void OpenViewDialog::sourcePushButton_clicked()
 {
-    if (activeTab->isArchiveSource())
+    if (my.archiveSource)
 	archiveAdd();
     else
 	hostAdd();
+}
+
+void OpenViewDialog::sourceComboBox_currentIndexChanged(QString name)
+{
+    Source::setCurrentFromCombo(name, my.archiveSource);
 }
 
 bool OpenViewDialog::openViewFiles(const QStringList &fl)
@@ -270,7 +275,7 @@ bool OpenViewDialog::openViewFiles(const QStringList &fl)
 	    QMessageBox::NoButton, QMessageBox::NoButton);
 	return false;
     }
-    if (Source::useComboContext(this, sourceComboBox) < 0)
+    if (Source::useComboContext(this, sourceComboBox, my.archiveSource) < 0)
 	return false;
     QStringList files = fl;
     for (QStringList::Iterator it = files.begin(); it != files.end(); ++it)

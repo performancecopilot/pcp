@@ -35,6 +35,7 @@ public:
 
     int status() const { return my.status; }
     int type() const { return my.type; }
+    bool isArchive() const { return my.type == PM_CONTEXT_ARCHIVE; }
     QString source() const { return my.source; }
     const char *sourceAscii() const { return (const char*)my.source.toAscii(); }
     QString host() const { return my.host; }

@@ -25,7 +25,8 @@
 #define DESPERATE 0
 
 QList<QmcContext *>contextList;
-QmcContext *currentContext;
+QmcContext *currentLiveContext;
+QmcContext *currentArchiveContext;
 
 Source::Source(QmcGroup *group)
 {
@@ -46,7 +47,6 @@ QString Source::makeSourceAnnotatedName(const QmcContext *cp)
 
     if (cp->source().type() == PM_CONTEXT_HOST) {
 	t = cp->source().host();
-	// TODO - pmproxy host support needed here.
 	t.append(" (no proxy)");
     }
     else {
@@ -60,25 +60,22 @@ QString Source::makeSourceAnnotatedName(const QmcContext *cp)
 
 QString Source::makeComboText(const QmcContext *ctx)
 {
+    if (ctx->source().isArchive() == false)
+	return ctx->source().host();
     return makeSourceAnnotatedName(ctx);
 }
 
-int useSourceContext(QWidget *parent, QString &source)
+int useSourceContext(QWidget *parent, QString &source, bool arch)
 {
-    int sts;
-    QmcGroup *group = activeTab->group();
+    int sts, type = arch ? PM_CONTEXT_ARCHIVE : PM_CONTEXT_HOST;
+    QmcGroup *group = arch ? archiveGroup : liveGroup;
+    Source *sources = arch ? archiveSources : liveSources;
     uint_t ctxcount = group->numContexts();
 
-    // TODO: proxy support needed (we toss proxy hostname atm)
-    source = source.section(QChar(' '), 0, 0);
-
-    console->post("useSourceContext trying new source: host=%s proxy=%s",
-			(const char *)source.toAscii(), "none");
-
-    if ((sts = group->use(activeSources->type(), source)) < 0) {
+    if ((sts = group->use(type, source)) < 0) {
 	QString msg;
 	msg.sprintf("Failed to %s \"%s\".\n%s.\n\n",
-		    (activeSources->type() == PM_CONTEXT_HOST) ?
+		    (type == PM_CONTEXT_HOST) ?
 		    "connect to pmcd on" : "open archive",
 		    (const char *)source.toAscii(), pmErrStr(sts));
 	QMessageBox::warning(parent, pmProgname, msg,
@@ -86,54 +83,40 @@ int useSourceContext(QWidget *parent, QString &source)
 		QMessageBox::NoButton, QMessageBox::NoButton);
     }
     else if (group->numContexts() > ctxcount)
-	activeSources->add(group->which());
+	sources->add(group->which());
     return sts;
 }
 
-int Source::useComboContext(QWidget *parent, QComboBox *combo)
+int Source::useComboContext(QWidget *parent, QComboBox *combo, bool arch)
 {
-    QString source = combo->currentText();
-    int sts = useSourceContext(parent, source);
-    if (sts < 0)
-	combo->removeItem(0);
-    return sts;
+    QString source = combo->currentText().section(QChar(' '), 0, 0);;
+    return useSourceContext(parent, source, arch);
 }
 
 int Source::type()
 {
-    return currentContext ? currentContext->source().type() : -1;
+    return my.context ? my.context->source().type() : -1;
 }
 
 QString Source::host()
 {
-    // TODO: nathans - these aint QString's, theyre char* ... hmm?
-    return my.context ? my.context->source().host() : NULL;
+    return my.context ? my.context->source().host() : QString::null;
 }
 
 const char *Source::sourceAscii()
 {
-#if DESPERATE
-    console->post("Source::sourceAscii(): currentContext=%p", currentContext);
-#endif
-
-    if (!currentContext)
-    	return NULL;
-
-#if DESPERATE
-    console->post("  currentContext handle=%d source=%s",
-		  currentContext->handle(),
-		  currentContext->source().sourceAscii());
-#endif
-
-    return currentContext->source().sourceAscii();
+    return my.context ? my.context->source().sourceAscii() : NULL;
 }
 
 void Source::add(QmcContext *context)
 {
-    bool send_bounds = (context->source().type() == PM_CONTEXT_ARCHIVE);
+    bool arch = (context->source().type() == PM_CONTEXT_ARCHIVE);
 
     contextList.append(context);
-    currentContext = context;
+    if (arch)
+	currentArchiveContext = context;
+    else
+	currentLiveContext = context;
     my.context = context;
 
 #if DESPERATE
@@ -144,7 +127,7 @@ void Source::add(QmcContext *context)
     // This is already done if we're the first, so don't do it again;
     // we also don't have a kmtime connection yet if processing args.
     
-    if (kmtime && send_bounds) {
+    if (kmtime && arch) {
 	const QmcSource *source = &context->source();
 	QString tz = source->timezone();
 	QString host = source->host();
@@ -157,53 +140,48 @@ void Source::add(QmcContext *context)
 void Source::dump()
 {
     QTextStream cerr(stderr);
-    cerr << "Source::dump: current: " << currentContext << endl;
+    cerr << "Source::dump: currentLive: " << currentLiveContext << endl;
+    cerr << "Source::dump: currentArchive: " << currentArchiveContext << endl;
     for (int i = 0; i < contextList.size(); i++) {
 	contextList.at(i)->dump(cerr);
 	contextList.at(i)->dumpMetrics(cerr);
     }
 }
 
-void Source::setupCombo(QComboBox *combo)
+void Source::setupCombo(QComboBox *combo, bool arch)
 {
     combo->clear();
     for (int i = 0; i < contextList.size(); i++) {
 	QmcContext *cp = contextList.at(i);
+	if (cp->source().isArchive() != arch)
+	    continue;
 	QString source = makeComboText(cp);
 	combo->insertItem(i, source);
-	if (cp == currentContext)
+	if (arch && cp == currentArchiveContext)
+	    combo->setCurrentIndex(i);
+	if (!arch && cp == currentLiveContext)
 	    combo->setCurrentIndex(i);
     }
 }
 
-void Source::setCurrentInCombo(QComboBox *combo)
-{
-    if (!currentContext)
-	return;
-
-    QString source = makeComboText(currentContext);
-    for (int i = 0; i < combo->count(); i++) {
-	if (combo->itemText(i) == source) {
-	    combo->setCurrentIndex(i);
-	    return;
-	}
-    }
-}
-
-// Called from a QComboBox widget, where name is setup by Source::setupCombo
-//
-void Source::setCurrentFromCombo(const QString name)
+void Source::setCurrentFromCombo(const QString name, bool arch)
 {
     for (int i = 0; i < contextList.size(); i++) {
 	QmcContext *cp = contextList.at(i);
-	if (name == makeComboText(cp)) {
-	    currentContext = cp;
-	    return;
-	}
+	if (cp->source().isArchive() != arch)
+	    continue;
+	QString cname = makeComboText(cp);
+	if (arch && name == cname)
+	    currentArchiveContext = cp;
+	else if (!arch && name == cname)
+	    currentLiveContext = cp;
+	else
+	    continue;
+	break;
     }
 }
 
-void Source::setupTree(QTreeWidget *tree)
+void Source::setupTree(QTreeWidget *tree, bool arch)
 {
     NameSpace *current = NULL;
     QList<QTreeWidgetItem*> items;
@@ -211,11 +189,14 @@ void Source::setupTree(QTreeWidget *tree)
     tree->clear();
     for (int i = 0; i < contextList.size(); i++) {
 	QmcContext *cp = contextList.at(i);
-	NameSpace *name = new NameSpace(tree, cp, activeTab->isArchiveSource());
+	if (cp->source().isArchive() != arch)
+	    continue;
+	NameSpace *name = new NameSpace(tree, cp, arch);
 	name->setExpanded(true);
 	name->setSelectable(false);
 	tree->addTopLevelItem(name);
-	if (cp == currentContext)
+	if ((arch && cp == currentArchiveContext) ||
+	   (!arch && cp == currentLiveContext))
 	    current = name;
 	items.append(name);
     }

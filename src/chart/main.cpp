@@ -441,14 +441,12 @@ main(int argc, char ** argv)
     if (zflag) {
 	if (archives.size() > 0)
 	    archiveGroup->useTZ();
-	else
-	    liveGroup->useTZ();
+	liveGroup->useTZ();
     }
     else if (Tflag) {
 	if (archives.size() > 0)
 	    archiveGroup->useTZ(QString(tz));
-	else
-	    liveGroup->useTZ(QString(tz));
+	liveGroup->useTZ(QString(tz));
 	if ((sts = pmNewZone(tz)) < 0) {
 	    pmprintf("%s: cannot set timezone to \"%s\": %s\n",
 		    pmProgname, (char *)tz, pmErrStr(sts));
@@ -483,19 +481,17 @@ main(int argc, char ** argv)
 	for (c = 0; c < globalSettings.sampleHistory - 2; c++)
 	    tadd(&position, &delta);
     }
-    else {
-	liveGroup->defaultTZ(tzLabel, tzString);
-	gettimeofday(&logStartTime, NULL);
-	logEndTime.tv_sec = logEndTime.tv_usec = INT_MAX;
-	if ((sts = pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag,
+    liveGroup->defaultTZ(tzLabel, tzString);
+    gettimeofday(&logStartTime, NULL);
+    logEndTime.tv_sec = logEndTime.tv_usec = INT_MAX;
+    if ((sts = pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag,
 					&logStartTime, &logEndTime,
 					&realStartTime, &realEndTime,
 					&position, &msg)) < 0) {
-	    pmprintf("Cannot parse live time window\n%s\n", msg);
-	    free(msg);
-	    usage();
-	    /*NOTREACHED*/
-	}
+	pmprintf("Cannot parse live time window\n%s\n", msg);
+	free(msg);
+	usage();
+	/*NOTREACHED*/
     }
 
     console = new Console();

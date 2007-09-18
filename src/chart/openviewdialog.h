@@ -37,10 +37,10 @@ public slots:
     virtual void dirViewListToolButton_toggled(bool);
     virtual void dirViewIconToolButton_toggled(bool);
     virtual void pathComboBox_currentIndexChanged(QString);
-
     virtual void dirListView_clicked(const QModelIndex &);
     virtual void dirListView_activated(const QModelIndex &);
 
+    virtual void sourceComboBox_currentIndexChanged(QString);
     virtual void sourcePushButton_clicked();
     virtual void proxyPushButton_clicked();
     virtual void openPushButton_clicked();

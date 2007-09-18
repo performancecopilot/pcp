@@ -96,7 +96,7 @@ void ChartDialog::reset(Chart *chart, int style)
     typeComboBox->setCurrentIndex(style);
     legendOn->setChecked(true);
     legendOff->setChecked(false);
-    activeSources->setupTree(availableMetricsTreeWidget);
+    activeSources->setupTree(availableMetricsTreeWidget, my.archiveSource);
     my.yMin = yAxisMinimum->value();
     my.yMax = yAxisMaximum->value();
 
@@ -230,7 +230,7 @@ void ChartDialog::archiveButtonClicked()
 		    Qt::NoButton, Qt::NoButton);
 	} else {
 	    archiveSources->add(archiveGroup->which());
-	    archiveSources->setupTree(availableMetricsTreeWidget);
+	    archiveSources->setupTree(availableMetricsTreeWidget, true);
 	    archiveGroup->updateBounds();
 	}
     }
@@ -262,7 +262,7 @@ void ChartDialog::hostButtonClicked()
 		    Qt::NoButton, Qt::NoButton);
 	} else {
 	    liveSources->add(liveGroup->which());
-	    liveSources->setupTree(availableMetricsTreeWidget);
+	    liveSources->setupTree(availableMetricsTreeWidget, false);
 	}
     }
     delete h;

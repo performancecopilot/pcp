@@ -33,19 +33,16 @@ public:
     QString host();
     const char *sourceAscii();
     void add(QmcContext *);
-//    NameSpace *root(void);
-//    void setRoot(NameSpace *);
-    void setupTree(QTreeWidget *);
-    void setupCombo(QComboBox *);
-    void setCurrentFromCombo(const QString);
-    void setCurrentInCombo(QComboBox *);
+    void setupTree(QTreeWidget *, bool);
+    void setupCombo(QComboBox *, bool);
 
     static QString makeSourceBaseName(const QmcContext *);
     static QString makeSourceAnnotatedName(const QmcContext *);
     static int useSourceName(QWidget *, QString &);
 
+    static void setCurrentFromCombo(const QString, bool);
     static QString makeComboText(const QmcContext *);
-    static int useComboContext(QWidget *parent, QComboBox *combo);
+    static int useComboContext(QWidget *parent, QComboBox *combo, bool);
 
 private:
     void dump();

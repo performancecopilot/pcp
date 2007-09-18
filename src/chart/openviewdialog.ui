@@ -694,5 +694,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>sourceComboBox</sender>
+   <signal>currentIndexChanged(QString)</signal>
+   <receiver>OpenViewDialog</receiver>
+   <slot>sourceComboBox_currentIndexChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>185</x>
+     <y>206</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>211</x>
+     <y>145</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>
