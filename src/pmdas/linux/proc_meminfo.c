@@ -21,7 +21,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_meminfo.c,v 1.8 2004/12/15 06:50:50 markgw Exp $"
+#ident "$Id: proc_meminfo.c,v 1.9 2007/08/23 05:58:15 kimbrr Exp $"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -63,6 +63,7 @@ static struct {
     { "Committed_AS",	&moff.Committed_AS },
     { "PageTables",	&moff.PageTables },
     { "ReverseMaps",	&moff.ReverseMaps },
+    { "AnonPages",	&moff.AnonPages },
     { NULL, NULL }
 };
 

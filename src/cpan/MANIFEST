@@ -1,0 +1,14 @@
+Changes
+COPYING
+cvalue.c
+dbprobe.pl
+Makefile.PL
+MANIFEST
+pmdadbping.pl
+pmdanews.pl
+PMDA.pm
+pmdasimple.pl
+PMDA.xs
+test.pl
+TODO
+typemap

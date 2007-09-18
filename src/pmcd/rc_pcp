@@ -21,7 +21,7 @@
 # 
 # Start or Stop the Performance Co-Pilot Daemon(s)
 #
-# $Id: rc_pcp,v 1.40 2007/01/16 06:50:10 kimbrr Exp $
+# $Id: rc_pcp,v 1.43 2007/07/12 01:30:21 kimbrr Exp $
 #
 # The following is for chkconfig on RedHat based systems
 # chkconfig: 2345 95 05
@@ -387,6 +387,46 @@ Warning: Performance Co-Pilot installation is incomplete (at least the
     $RC_STATUS -v
 }
 
+# Use $PCP_PMCDCONF_PATH to find and kill pipe/socket PMDAs created by PMCD.
+# (First join up continued lines in config file)
+#
+_killpmdas()
+{
+    if [ ! -f $PCP_PMCDCONF_PATH ]
+    then
+	echo "$prog:"'
+Warning: PMCD control file '"$PCP_PMCDCONF_PATH"' is missing, cannot identify PMDAs
+         to be terminated.'
+	return
+    fi
+    # Give each PMDA 2 seconds after a SIGTERM to die, then SIGKILL
+    for pmda in `$PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
+/\\\\$/		{ printf "%s ", substr($0, 0, length($0) - 1); next }
+		{ print }' \
+| $PCP_AWK_PROG '
+$1 ~ /^#/				{ next }
+tolower($3) == "pipe" && NF > 4		{ print $5; next }
+tolower($3) == "socket" && NF > 5	{ print $6; next }' \
+| sort -u`
+    do
+	$PCP_KILLALL_PROG -TERM `basename $pmda` > /dev/null 2>&1 &
+    done
+    sleep 2
+    for pmda in `$PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
+/\\\\$/		{ printf "%s ", substr($0, 0, length($0) - 1); next }
+		{ print }' \
+| $PCP_AWK_PROG '
+$1 ~ /^#/				{ next }
+tolower($3) == "pipe" && NF > 4		{ print $5; next }
+tolower($3) == "socket" && NF > 5	{ print $6; next }' \
+| sort -u`
+    do
+	$PCP_KILLALL_PROG -KILL `basename $pmda` > /dev/null 2>&1 &
+    done
+
+    wait
+}
+
 _shutdown()
 {
     # Is pmcd running?
@@ -394,7 +434,7 @@ _shutdown()
     _get_pids_by_name pmcd >$tmp.tmp
     if [ ! -s $tmp.tmp ]
     then
-	[ "$1" = verbose ] && echo "$prog: PMCD not running"
+ 	[ "$1" = verbose ] && echo "$prog: PMCD not running"
 	rm -f $PCP_RUN_DIR/pmcd.pid
 	return 0
     fi
@@ -408,52 +448,75 @@ _shutdown()
     if [ ! -f $PCP_RUN_DIR/pmcd.pid -a ! -f $logf ]
     then
 	echo "PMCD process ... "`cat $tmp.tmp`
-	echo "$prog:
+        echo "$prog:
 Warning: found no $PCP_RUN_DIR/pmcd.pid
-	 and no $logf.
-	 Assuming an uninstall from a chroot: PMCD not killed.
-	 If this is incorrect, kill -TERM can be applied to the above PID."
-	exit
-
-    # Send pmcd a SIGTERM, which is noted as a pending shutdown.
-    # When finished the currently active request, pmcd will close any
-    # connections, wait for any agents, and then exit.
-    #
+         and no $logf.
+         Assuming an uninstall from a chroot: PMCD not killed.
+         If this is incorrect, kill -TERM can be applied to the above PID."
+        exit
     elif [ -f $PCP_RUN_DIR/pmcd.pid ]
     then
 	TOKILL=`cat $PCP_RUN_DIR/pmcd.pid`
 	if grep "^$TOKILL$" $tmp.tmp >/dev/null
 	then
-	    kill -TERM $TOKILL >/dev/null 2>&1
-	    rm -f $PCP_RUN_DIR/pmcd.pid
+	    :
 	else
 	    echo "PMCD process ... "`cat $tmp.tmp`
 	    echo "$prog:
 Warning: process ID in $PCP_RUN_DIR/pmcd.pid is $TOKILL.
-	 Check logfile $logf. When you are ready to proceed, remove
-	 $PCP_RUN_DIR/pmcd.pid before retrying."
+         Check logfile $logf. When you are ready to proceed, remove 
+         $PCP_RUN_DIR/pmcd.pid before retrying."
 	    exit
 	fi
     else
-	$PCP_KILLALL_PROG -TERM pmcd > /dev/null 2>&1
+	TOKILL=
     fi
+
+    # Send pmcd a SIGTERM, which is noted as a pending shutdown.
+    # When finished the currently active request, pmcd will close any
+    # connections, wait for any agents, and then exit.
+    # On failure, resort to SIGKILL.
+    #
     $ECHO $PCP_ECHO_N "Waiting for PMCD to terminate ...""$PCP_ECHO_C"
-    delay=200	# tenths of a second
-    while [ $delay -gt 0 ]
+    delay=80	# tenths of a second
+    for SIG in TERM KILL
     do
-	_get_pids_by_name pmcd >$tmp.tmp
-	[ ! -s $tmp.tmp ] && break
-	pmsleep 0.1
-	delay=`expr $delay - 1`
-	[ `expr $delay % 10` -ne 0 ] || $ECHO $PCP_ECHO_N ".""$PCP_ECHO_C"
+	if [ "x$TOKILL" == "x" ]
+	then
+	    $PCP_KILLALL_PROG -$SIG pmcd > /dev/null 2>&1
+	else
+	    kill -$SIG $TOKILL >/dev/null 2>&1
+	    rm -f $PCP_RUN_DIR/pmcd.pid
+	fi
+	while [ $delay -gt 0 ]
+	do
+	    _get_pids_by_name pmcd >$tmp.tmp
+	    [ ! -s $tmp.tmp ] && break 2
+	    pmsleep 0.1
+	    delay=`expr $delay - 1`
+	    [ "$SIG" == "TERM" ] && [ `expr $delay % 10` -eq 0 ] \
+		&& $ECHO $PCP_ECHO_N ".""$PCP_ECHO_C"
+	done
+	echo
+	echo "Process ..."
+	if [ "$SIG" == "TERM" ]
+	then
+	    ps $PCP_PS_ALL_FLAGS >$tmp.ps
+	    sed 1q $tmp.ps
+	    for pid in `cat $tmp.tmp`
+	    do
+	        $PCP_AWK_PROG <$tmp.ps "\$2 == $pid { print }"
+	    done
+	    echo "$prog: Warning: Forcing PMCD to terminate!"
+	    delay=20
+	else
+	    cat $tmp.tmp
+	    echo "$prog: Warning: PMCD won't die!"
+	    exit
+	fi
     done
-    if [ $delay -eq 0 ]	# It just WON'T DIE, give up.
-    then
-	echo "PMCD process ... "`cat $tmp.tmp`
-	echo "$prog: Warning: PMCD won't die!"
-	exit
-    fi
-     $RC_STATUS -v
+    _killpmdas
+    $RC_STATUS -v
     pmpost "stop pmcd from $PCP_RC_DIR/pcp"
 }
 
