@@ -41,8 +41,8 @@ public:
     } DebugOptions;
 
     static const int defaultSampleInterval = 2;	// seconds
-    static const int defaultVisiblePoints = 24;
-    static const int defaultSamplePoints = 24;
+    static const int defaultVisiblePoints = 60;
+    static const int defaultSamplePoints = 180;
     static const int minimumPoints = 2;
     static const int maximumPoints = 360;
     static const int maximumLegendLength = 20;
