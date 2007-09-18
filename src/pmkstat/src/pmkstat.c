@@ -384,9 +384,6 @@ Options:\n\
 	}
 	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
     }
-    else
-	/* save this one */
-	tzh = pmNewContextZone();
 
     if (pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag,
 			   &first, &last,
