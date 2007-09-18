@@ -253,6 +253,7 @@ mem.util {
     pageTables		60:1:27
     reverseMaps		60:1:28
     cache_clean		60:1:29
+    anonpages		60:1:30
 }
 
 swap {
@@ -881,6 +882,7 @@ vfs.dentry {
 
 network.ib {
     status		60:29:20
+    control		60:29:21
     in
     out
     total

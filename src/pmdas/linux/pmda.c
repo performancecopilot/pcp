@@ -21,10 +21,9 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
- *
  */
 
-#ident "$Id: pmda.c,v 1.73 2007/02/20 00:08:32 kimbrr Exp $"
+#ident "$Id: pmda.c,v 1.77 2007/08/24 00:22:08 kimbrr Exp $"
 
 #include <stdio.h>
 #include <limits.h>
@@ -440,12 +439,12 @@ static pmdaMetric metrictab[] = {
 /* kernel.all.uptime */
     { NULL,
       { PMDA_PMID(CLUSTER_UPTIME,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-      PMDA_PMUNITS(0,1,1,0,PM_TIME_SEC,PM_COUNT_ONE) }, },
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
 
 /* kernel.all.idletime */
     { NULL,
       { PMDA_PMID(CLUSTER_UPTIME,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-      PMDA_PMUNITS(0,1,1,0,PM_TIME_SEC,PM_COUNT_ONE) }, },
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
 
 /*
  * /proc/meminfo cluster
@@ -564,6 +563,11 @@ static pmdaMetric metrictab[] = {
 /* mem.util.cache_clean */
     { NULL,
       { PMDA_PMID(CLUSTER_MEMINFO,29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.anonpages */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* swap.length */
@@ -3065,8 +3069,10 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_IB,20), PM_TYPE_STRING, IB_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-#define IB_COUNTERS_IN   6
-#define IB_COUNTERS_ALL  20  /* includes synthetic counters */
+/* network.ib.control */
+    { NULL,
+      { PMDA_PMID(CLUSTER_IB,21), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 };
 
@@ -3629,6 +3635,11 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	 proc_meminfo.Writeback) >> 10;
 	    atom->ull = sl >= 0 ? sl : 0;
 	    break;
+	case 30: /* mem.util.anonpages */
+	   if (!VALID_VALUE(proc_meminfo.AnonPages))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.AnonPages >> 10;
+	   break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -4552,27 +4563,35 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 
     case CLUSTER_IB: /* network.ib */
-	sts = pmdaCacheLookup(indomtab[IB_INDOM].it_indom, inst, NULL, (void **)&ibportp);
-	if (sts < 0) return sts;
-
+	if (idp->item == IB_COUNTERS_ALL + 1) { /* control */
+	    atom->ul = get_control_ib();
+	    break;
+	} else if (idp->item > IB_COUNTERS_ALL + 1) {
+            return PM_ERR_PMID;
+	} else if (idp->item != IB_COUNTERS_ALL && (0 != (sts = track_ib()))) {
+	    return sts;
+	}
+	if (0 > (sts = pmdaCacheLookup(indomtab[IB_INDOM].it_indom, inst, NULL, (void **)&ibportp))) {
+	    return sts;
+	}
+	if (idp->item == IB_COUNTERS_ALL) { /* status */
+	    sts = status_ib(ibportp);
+	    if (sts != 0) return sts;
+	    atom->cp = ibportp->status;
+	    break;
+	}
 	/* network.ib.{in,out}.bytes: convert to bytes */
-	if (idp->item == 0 || idp->item == IB_COUNTERS_IN) {
+	if (idp->item == RcvData || idp->item == XmtData) {
 	    atom->ull = ibportp->counters[idp->item] << 2;
 	} else if (idp->item < IB_COUNTERS) {
 	    /* other non-synthetic in/out counter */
 	    atom->ull = ibportp->counters[idp->item];
 	} else if (idp->item == IB_COUNTERS) {
 	    /* network.ib.total.bytes (synthetic) */
-	    atom->ull = (ibportp->counters[0] + ibportp->counters[IB_COUNTERS_IN]) << 2;
+	    atom->ull = (ibportp->counters[RcvData] + ibportp->counters[XmtData]) << 2;
 	} else if (idp->item < IB_COUNTERS_ALL) { /* other total counter */
 	    pmID base = idp->item - IB_COUNTERS;
 	    atom->ull = ibportp->counters[base] + ibportp->counters[IB_COUNTERS_IN + base];
-	} else if (idp->item == IB_COUNTERS_ALL) { /* status */
-	    sts = status_ib(ibportp);
-	    if (sts != 0) return sts;
-	    atom->cp = ibportp->status;
-	} else { /* idp->item >  IB_COUNTERS_ALL */
-            return PM_ERR_PMID;
 	}
 	break;
     default: /* unknown cluster */
@@ -4645,10 +4664,15 @@ linux_store(pmResult *result, pmdaExt *pmda)
 	vsp = result->vset[i];
 	pmidp = (__pmID_int *)&vsp->pmid;
 
-	if (pmidp->cluster == CLUSTER_XFS && pmidp->item == 79)
+	if (pmidp->cluster == CLUSTER_XFS && pmidp->item == 79) {
 	    sts = procfs_zero("/proc/sys/fs/xfs/stats_clear", vsp);
-	else
+	} 
+	else if (pmidp->cluster == CLUSTER_IB && pmidp->item == IB_COUNTERS_ALL + 1) {
+	    set_control_ib(vsp->vlist[0].value.lval);
+	} 
+	else {
 	    sts = -EACCES;
+	}
     }
     return sts;
 }
