@@ -36,14 +36,14 @@ void
     Sample      *os = &x->smpls[0];
     @ITYPE      *ip;
     @OTYPE      *op;
-    @OTYPE	a;
+    @TTYPE	a;
     int		n;
     int		i;
 
     EVALARG(arg1)
     ROTATE(x)
 
-    if (arg1->valid) {
+    if (arg1->valid && arg1->hdom > 0) {
 	ip = (@ITYPE *)is->ptr;
 	op = (@OTYPE *)os->ptr;
 	n = arg1->hdom;
@@ -76,7 +76,7 @@ void
     Sample      *os = &x->smpls[0];
     @ITYPE      *ip;
     @OTYPE      *op;
-    @OTYPE	a;
+    @TTYPE	a;
     Metric	*m;
     int		n;
     int		i, j;
@@ -84,12 +84,12 @@ void
     EVALARG(arg1)
     ROTATE(x)
 
-    if (arg1->valid) {
+    if (arg1->valid && x->hdom != 0) {
 	ip = (@ITYPE *)is->ptr;
 	op = (@OTYPE *)os->ptr;
 	if (abs(x->hdom) == 1) {
 	    n = arg1->e_idom;
-	    if (n == 0) {
+	    if (n < 1) {
 		@NOTVALID
 		goto done;
 	    }
@@ -104,7 +104,7 @@ void
 	    m = x->metrics;
 	    for (i = 0; i < x->hdom; i++) {
 		n = m->m_idom;
-		if (n == 0) {
+		if (n < 1) {
 		    @NOTVALID
 		    goto done;
 		}
@@ -143,7 +143,7 @@ void
     @ITYPE	*ring = (@ITYPE *)arg1->ring;
     @ITYPE      *ip;
     @OTYPE      *op;
-    @OTYPE	a;
+    @TTYPE	a;
     int		n = arg1->tdom;
     int		tspan;
     int		i, j;
@@ -151,7 +151,7 @@ void
     EVALARG(arg1)
     ROTATE(x)
 
-    if (arg1->valid >= n) {
+    if (arg1->valid >= n && x->tspan > 0 && arg1->tdom > 0) {
 	op = (@OTYPE *)os->ptr;
 	tspan = x->tspan;
 	for (i = 0; i < tspan; i++) {

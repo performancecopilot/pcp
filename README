@@ -23,7 +23,7 @@ the scope of performance monitoring to be extended at all levels.
 
 The open source release of PCP provides a subset of the features of
 SGI's Performance Co-Pilot products for IRIX (see
-http://www.sgi.com/software/co-pilot/).
+http://www.sgi.com/products/software/co-pilot/).
 
 The architecture and services of the base PCP infrastructure are
 especially attractive for those tackling the harder system-level

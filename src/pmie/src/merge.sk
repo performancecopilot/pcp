@@ -45,7 +45,7 @@ void
     EVALARG(arg1)
     ROTATE(x)
 
-    if (arg1->valid >= 2) {
+    if (arg1->valid >= 2 && x->tspan > 0) {
 	ip1 = (@ITYPE *)is1->ptr;
 	ip2 = (@ITYPE *)is2->ptr;
 	op = (@OTYPE *)os->ptr;

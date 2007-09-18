@@ -26,8 +26,8 @@
 
 #ident "$Id: Desc.h,v 1.2 2005/05/10 00:46:37 kenmcd Exp $"
 
-#include "PMC.h"
-#include "String.h"
+#include <pcp/pmc/PMC.h>
+#include <pcp/pmc/String.h>
 
 class PMC_Desc
 {

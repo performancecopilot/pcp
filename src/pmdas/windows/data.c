@@ -395,7 +395,7 @@ static struct {
     },
 /* sqlserver.buf_mgr.page_life_expectancy */
     { { PMDA_PMID(0,66), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Buffer Manager\\Page life expectancy"
     },
 /* filesys.full */
@@ -657,7 +657,7 @@ static struct {
     },
 
 /* filesys.capacity */
-    { { PMDA_PMID(0,117), PM_TYPE_U64, LDISK_INDOM, PM_SEM_INSTANT,
+    { { PMDA_PMID(0,117), PM_TYPE_U64, LDISK_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)
       }, Q_LDISK, M_NONE, ""
     },
@@ -685,6 +685,73 @@ static struct {
     { { PMDA_PMID(0,122), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Access Methods\\Page Splits/sec"
+    },
+/* network.tcp.activeopens */
+    { { PMDA_PMID(0,123), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Connections Active"
+    },
+/* network.tcp.passiveopens */
+    { { PMDA_PMID(0,124), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Connections Passive"
+    },
+/* network.tcp.attemptfails */
+    { { PMDA_PMID(0,125), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Connection Failures"
+    },
+/* network.tcp.estabresets */
+    { { PMDA_PMID(0,126), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Connections Reset"
+    },
+/* network.tcp.currestab */
+    { { PMDA_PMID(0,127), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Connections Established"
+    },
+/* network.tcp.insegs */
+    { { PMDA_PMID(0,128), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Segments Received/sec"
+    },
+/* network.tcp.outsegs */
+    { { PMDA_PMID(0,129), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Segments Sent/sec"
+    },
+/* network.tcp.totalsegs */
+    { { PMDA_PMID(0,130), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Segments/sec"
+    },
+/* network.tcp.retranssegs */
+    { { PMDA_PMID(0,131), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\TCPv4\\Segments Retransmitted/sec"
+    },
+
+/* disk.all.split_io */
+    { { PMDA_PMID(0,132), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_DISK_ALL, M_NONE,  "\\PhysicalDisk(_Total)\\Split IO/Sec"
+    },
+/* disk.dev.split_io */
+    { { PMDA_PMID(0,133), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_DISK_DEV, M_NONE,  "\\PhysicalDisk(*/*#*)\\Split IO/Sec"
+    },
+
+/* sqlserver.databases.all.active_transactions */
+    { { PMDA_PMID(0,134), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\SQLServer:Databases(_Total)\\Active Transactions"
+    },
+/* sqlserver.databases.db.active_transactions */
+    { { PMDA_PMID(0,135), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\SQLServer:Databases(*/*#*)\\Active Transactions"
     },
 };
 

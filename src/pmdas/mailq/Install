@@ -80,6 +80,12 @@ then
     done
 
     echo
+    regex=""
+    $PCP_ECHO_PROG $PCP_ECHO_N 'Mail basename regex ['"$regex"'] '"$PCP_ECHO_C"
+    read regex
+    [ -z "$regex" ] || args="$args -r $regex"
+
+    echo
     args="$args $mqueue"
 
     while true

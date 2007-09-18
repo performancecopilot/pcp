@@ -6,8 +6,8 @@ include	$(TOPDIR)/src/include/builddefs
 
 CXXFILES	= fixed.c++ hotproc.c++
 TARGETS		= fixed hotproc
-LCXXFLAGS	= -I../src
 LCXXDEFS	= $(DEBUG)
+LCXXFLAGS	+= -I..
 LLDLIBS		= -L../src -lpcp_pmc -lpcp $(LIB_FOR_BASENAME)
 LDIRT		= $(TARGETS)
 

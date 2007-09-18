@@ -30,6 +30,11 @@ CMDTARGET = pmval$(EXECSUFFIX)
 LLDLIBS	= -lpcp -lm
 LDIRT = $(TARGET)
 
+# enable kmtime for GNUmakefile platforms...
+TIMEDIR = $(TOPDIR)/src/libkmtime/src
+LCFLAGS = -DHAVE_KMTIME -I$(TIMEDIR) -L$(TIMEDIR)
+LLDLIBS += -lkmtime
+
 default:	$(CMDTARGET)
 
 include $(BUILDRULES)

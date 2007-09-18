@@ -70,7 +70,7 @@ cndDelay_n(Expr *x)
     EVALARG(arg1)
     ROTATE(x)
 
-    if (arg1->valid >= n) {
+    if (arg1->valid >= n && x->tspan > 0) {
 	ip = (@ITYPE *)is->ptr;
 	op = (@OTYPE *)os->ptr;
 	for (i = 0; i < x->tspan; i++)

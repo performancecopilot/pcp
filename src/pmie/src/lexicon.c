@@ -263,8 +263,21 @@ varDeref(char *name)
     }
 
     /* numeric valued macro */
-    yylval.x = x;
-    return 3;
+    if (x->sem == SEM_NUM) {
+	/*
+	 * need to copy the Expr as the one returned here may be freed
+	 * later after constant folding, and we need the real macro's
+	 * value to be available for use in later rules
+	 */
+	yylval.x = newExpr(NOP, NULL, NULL, -1, -1, -1, 1, SEM_NUM);
+	yylval.x->smpls[0].ptr = x->smpls[0].ptr;
+	yylval.x->valid = 1;
+	return 3;
+    }
+
+    fprintf(stderr, "varDeref(%s): internal botch sem=%d?\n", name, x->sem);
+    dumpExpr(x);
+    exit(1);
 }
 
 

@@ -490,3 +490,8 @@ The file to which each instance of pmie is writting events.  No two pmie
 instances can share the same log file.  If no logfile was specified when
 pmie was started, this metrics has the value "<none>".  All daemon pmie
 instances started through pmie_check(1) must have an associated log file.
+
+@ pmcd.build build version for installed PCP package
+Minor part of the PCP build version numbering.  For example on Linux
+with RPM packaging, if the PCP RPM version is pcp-2.5.99-20070323 then
+pmcd.build returns the string "20070323".

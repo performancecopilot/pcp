@@ -36,9 +36,9 @@
 #include <assert.h>
 #include <string.h>
 #include <iostream.h>
-#include "Vector.h"
-#include "List.h"
-#include "Bool.h"
+#include <pcp/pmc/Vector.h>
+#include <pcp/pmc/List.h>
+#include <pcp/pmc/Bool.h>
 
 typedef PMC_Vector<char> PMC_CharVector;
 

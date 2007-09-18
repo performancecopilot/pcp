@@ -184,7 +184,7 @@ pmtracebegin(const char *tag)
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_API)
 	    fprintf(stderr, "pmtracebegin: new transaction '%s' (id=0x%llx)\n",
-		    tag, hash.id);
+		    tag, (unsigned long long)hash.id);
 #endif
 	hash.pad = 0;
 	if ((hash.tag = strdup(tag)) == NULL)
@@ -206,7 +206,7 @@ pmtracebegin(const char *tag)
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_API)
 	fprintf(stderr, "pmtracebegin: updating transaction '%s' (id=0x%llx)\n",
-		tag, hash.id);
+		tag, (unsigned long long)hash.id);
 #endif
 	if (gettimeofday(&hptr->start, NULL) < 0)
 	    b_sts = -TRACE_ERRNO;
@@ -259,7 +259,7 @@ pmtraceend(const char *tag)
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_API)
 	fprintf(stderr, "pmtraceend: sending transaction data '%s' (id=0x%llx)\n",
-		tag, hash.id);
+		tag, (unsigned long long)hash.id);
 #endif
 	hptr->inprogress = 0;
 	hptr->data = __pmtracetvsub(&now, &hptr->start);
@@ -321,7 +321,7 @@ pmtraceabort(const char *tag)
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_API)
 	fprintf(stderr, "pmtraceabort: aborting transaction '%s' (id=0x%llx)\n",
-		tag, hash.id);
+		tag, (unsigned long long)hash.id);
 #endif
 	hptr->inprogress = 0;
     }

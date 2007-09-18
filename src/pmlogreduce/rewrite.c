@@ -41,8 +41,9 @@ rewrite(pmResult *rp)
 				need*sizeof(pmValue));
 	if (ovsp == NULL) {
 	    fprintf(stderr,
-		"%s: rewrite: Arrgh, cannot malloc %d bytes for osvp\n",
-		    pmProgname, sizeof(pmValueSet) + need * sizeof(pmValue));
+		"%s: rewrite: Arrgh, cannot malloc %lld bytes for osvp\n",
+		    pmProgname,
+		    (long long)(sizeof(pmValueSet) + need * sizeof(pmValue)));
 	    exit(1);
 	    /*NOTREACHED*/
 	}

@@ -37,7 +37,7 @@
 \f3pmlogsummary\f1 \- calculate averages of metrics stored in a PCP archive
 .SH SYNOPSIS
 \f3pmlogsummary\f1
-[\f3\-abfFiIlmMNxyz\f1]
+[\f3\-abfFiIlmMNsxyz\f1]
 [\f3\-B\f1 \f2nbins\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-p\f1 \f2precision\f1]
@@ -141,6 +141,9 @@ Also print the minimum logged value for each metric.
 .TP
 .B \-M
 Also print the maximum logged value for each metric.
+.TP
+.B \-s
+Also print the sum of all logged values for each metric.
 .TP
 .B \-N
 Suppress any warnings resulting from individual archive fetches.

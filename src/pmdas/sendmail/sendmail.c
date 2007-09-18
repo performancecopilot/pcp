@@ -141,8 +141,8 @@ map_stats(void)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
     	fprintf(stderr, "%s: map_stats: Entering:\n", pmProgname);
-    	fprintf(stderr, "%s: map_stats:   Check: ptr       = 0x%x\n", pmProgname, (int)ptr);
-    	fprintf(stderr, "%s: map_stats:   Check: statsfile = 0x%x\n", pmProgname, (int)statsfile);
+    	fprintf(stderr, "%s: map_stats:   Check: ptr       = " PRINTF_P_PFX "%p\n", pmProgname, ptr);
+    	fprintf(stderr, "%s: map_stats:   Check: statsfile = " PRINTF_P_PFX "%p\n", pmProgname, statsfile);
     	if (statsfile != NULL)
     	    fprintf(stderr, "%s: map_stats:                    = %s\n", pmProgname, statsfile);
     }

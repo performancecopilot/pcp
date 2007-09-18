@@ -1,0 +1,62 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2007 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
+.\"
+.\" $Id: pmsleep.1,v 1.1 2007/07/04 04:53:53 kimbrr Exp $
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMSLEEP 1 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMSLEEP 1 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMSLEEP 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMSLEEP 1 "" "\&"
+.if \nX=3 .ds x} PMSLEEP "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmsleep\f1 \- portable subsecond-capable sleep
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmsleep
+.I interval
+.SH DESCRIPTION
+.B pmsleep
+sleeps for 
+.I interval.
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1)
+for 
+.B \-t,
+and in the simplest form may be an unsigned integer 
+or floating point constant 
+(the implied units in this case are seconds).
+.SH DIAGNOSTICS
+The exit status is 0 for success, or 1 for a malformed command line.
+If the underlying
+.B nanosleep (2)
+system call fails, an errno is returned.
+.SH SEE ALSO
+.BR sleep (1),
+.BR nanosleep (3).

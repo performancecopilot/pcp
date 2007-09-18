@@ -616,10 +616,12 @@ label_01:
 			    ctr_type, pmIDStr(sp->m_desc.pmid), _typestr(sp->m_desc.type));
 			sp->m_desc.type = PM_TYPE_U32;
 		    }
-		    if (sp->m_desc.sem != PM_SEM_INSTANT && sp->m_desc.sem != PM_SEM_DISCRETE) {
-			fprintf(stderr, "shim_init: Warning: %s: metric %s: semantics %s (expected %s)\n",
-			    ctr_type, pmIDStr(sp->m_desc.pmid), _semstr(sp->m_desc.sem), _semstr(PM_SEM_INSTANT));
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_APPL0) {
+			fprintf(stderr, "shim_init: INFO: %s: metric %s: semantics %s\n",
+			    ctr_type, pmIDStr(sp->m_desc.pmid), _semstr(sp->m_desc.sem));
 		    }
+#endif
 		    break;
 
 		/*
@@ -684,11 +686,12 @@ label_02:
 			    pmIDStr(sp->m_desc.pmid), _typestr(sp->m_desc.type));
 			sp->m_desc.type = PM_TYPE_U64;
 		    }
-		    if (sp->m_desc.sem != PM_SEM_INSTANT && sp->m_desc.sem != PM_SEM_DISCRETE) {
-			fprintf(stderr, "shim_init: Warning: PERF_COUNTER_RAWCOUNT: metric %s: semantics %s (expected %s)\n",
-			    pmIDStr(sp->m_desc.pmid), _semstr(sp->m_desc.sem), _semstr(PM_SEM_INSTANT));
-			sp->m_desc.sem = PM_SEM_INSTANT;
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_APPL0) {
+			fprintf(stderr, "shim_init: INFO: PERF_COUNTER_RAWCOUNT: metric %s: semantics %s\n",
+			    pmIDStr(sp->m_desc.pmid), _semstr(sp->m_desc.sem));
 		    }
+#endif
 		    break;
 
 		case PERF_RAW_FRACTION:
@@ -698,11 +701,12 @@ label_02:
 			    pmIDStr(sp->m_desc.pmid), _typestr(sp->m_desc.type));
 			sp->m_desc.type = PM_TYPE_FLOAT;
 		    }
-		    if (sp->m_desc.sem != PM_SEM_INSTANT && sp->m_desc.sem != PM_SEM_DISCRETE) {
-			fprintf(stderr, "shim_init: Warning: PERF_RAW_FRACTION: metric %s: semantics %s (expected %s)\n",
-			    pmIDStr(sp->m_desc.pmid), _semstr(sp->m_desc.sem), _semstr(PM_SEM_INSTANT));
-			sp->m_desc.sem = PM_SEM_INSTANT;
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_APPL0) {
+			fprintf(stderr, "shim_init: INFO: PERF_RAW_FRACTION: metric %s: semantics %s\n",
+			    pmIDStr(sp->m_desc.pmid), _semstr(sp->m_desc.sem));
 		    }
+#endif
 		    break;
 
 

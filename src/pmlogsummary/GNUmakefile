@@ -33,13 +33,13 @@ LLDLIBS	= -lpcp -lm
 
 LDIRT += $(TARGETS)
 
+default:	$(TARGETS)
+
 pmlogcheck$(EXECSUFFIX):	pmlogcheck.o
 	$(CCF) -o $@ $(LDFLAGS) pmlogcheck.o $(LDLIBS)
 
 pmlogsummary$(EXECSUFFIX):	pmlogsummary.o
 	$(CCF) -o $@ $(LDFLAGS) pmlogsummary.o $(LDLIBS)
-
-default:	$(TARGETS)
 
 include $(BUILDRULES)
 

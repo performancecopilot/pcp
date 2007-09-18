@@ -3,7 +3,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS = src examples
+SUBDIRS = pcp src examples
 
 default install : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

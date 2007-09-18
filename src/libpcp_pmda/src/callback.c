@@ -534,6 +534,24 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    }
 #endif
 		}
+		else if (sts == PM_ERR_APPVERSION) {
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_LIBPMDA) {
+			__pmNotifyErr(LOG_ERR,
+				 "pmdaFetch: Unsupported metric PMID %s\n",
+				 pmIDStr(dp->pmid));
+		    }
+#endif
+		}
+		else if (sts == PM_ERR_APPVERSION) {
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_LIBPMDA) {
+			__pmNotifyErr(LOG_ERR,
+				 "pmdaFetch: Unsupported metric PMID %s\n",
+				 pmIDStr(dp->pmid));
+		    }
+#endif
+		}
 		else
 		    __pmNotifyErr(LOG_ERR,
 				 "pmdaFetch: Fetch callback error: %s\n",

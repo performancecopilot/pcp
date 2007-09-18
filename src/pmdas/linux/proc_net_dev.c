@@ -45,7 +45,7 @@ refresh_proc_net_dev(pmInDom indom)
     char		buf[1024];
     FILE		*fp;
     int			j;
-    uint64_t		llval;
+    unsigned long long	llval;
     char		*p;
     int			sts;
     static uint64_t	gen = 0;	/* refresh generation number */

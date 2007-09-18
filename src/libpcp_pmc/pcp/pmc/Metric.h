@@ -24,13 +24,13 @@
 
 #ident "$Id: Metric.h,v 1.11 2005/05/10 00:46:37 kenmcd Exp $"
 
-#include "PMC.h"
-#include "Vector.h"
-#include "String.h"
-#include "Bool.h"
-#include "Context.h"
-#include "Desc.h"
-#include "Group.h"
+#include <pcp/pmc/PMC.h>
+#include <pcp/pmc/Vector.h>
+#include <pcp/pmc/String.h>
+#include <pcp/pmc/Bool.h>
+#include <pcp/pmc/Context.h>
+#include <pcp/pmc/Desc.h>
+#include <pcp/pmc/Group.h>
 
 struct PMC_MetricValue
 {

@@ -20,8 +20,8 @@
  */
 
 #include <iostream.h>
-#include "Group.h"
-#include "Metric.h"
+#include <pcp/pmc/Group.h>
+#include <pcp/pmc/Metric.h>
 
 int
 main(int argc, char* argv[])

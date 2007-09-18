@@ -471,6 +471,13 @@ refresh_pmie_indom(void)
 	    closedir(pmiedir);
 	}
     }
+    else {
+	if (pmies) {
+	    free(pmies);
+	    pmies = NULL;
+	}
+	npmies = 0;
+    }
     setoserror(0);
     return npmies;
 }
@@ -981,16 +988,14 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.ul = _pmcd_timeout;
 				break;
 			case 5:		/* timezone $TZ */
-				if (tz == NULL) {
 #if defined(IRIX6_5)
-                                    if (_MIPS_SYMBOL_PRESENT(__pmTimezone))
-                                        tz = __pmTimezone();
-                                    else
-                                        tz = getenv("TZ");
+				if (_MIPS_SYMBOL_PRESENT(__pmTimezone))
+				    tz = __pmTimezone();
+				else
+				    tz = getenv("TZ");
 #else
-                                    tz = __pmTimezone();
+				tz = __pmTimezone();
 #endif
-                                }
 				atom.cp = tz;
 				break;
 			case 6:		/* simabi (pmcd calling convention) */

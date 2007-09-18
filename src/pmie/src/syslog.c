@@ -33,7 +33,7 @@
 #include "syslog.h"
 #include "pmapi.h"
 
-#if defined(IS_SOLARIS) || defined(IS_AIX) || defined(IS_CYGWIN)
+#if defined(IS_SOLARIS) || defined(IS_AIX)
 #include "syslog_solaris.h"
 #endif
 

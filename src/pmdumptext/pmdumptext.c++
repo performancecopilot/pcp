@@ -33,9 +33,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "Group.h"
-#include "Metric.h"
-#include "Context.h"
+#include <pcp/pmc/Group.h>
+#include <pcp/pmc/Metric.h>
+#include <pcp/pmc/Context.h>
 
 // Temporary buffer
 char		buffer[256];

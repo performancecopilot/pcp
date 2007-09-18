@@ -51,13 +51,12 @@ refresh_proc_net_snmp(proc_net_snmp_t *proc_net_snmp)
     FILE *fp;
 
     if (!started) {
-    	started = 1;
+	started = 1;
 	memset(proc_net_snmp, 0, sizeof(proc_net_snmp));
     }
 
-    if ((fp = fopen("/proc/net/snmp", "r")) == NULL) {
-    	return -errno;
-    }
+    if ((fp = fopen("/proc/net/snmp", "r")) == NULL)
+	return -errno;
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if (fgets(buf, sizeof(buf), fp) != NULL) {
@@ -72,9 +71,12 @@ refresh_proc_net_snmp(proc_net_snmp_t *proc_net_snmp)
 	    else
 	    if (strncmp(buf, "Udp:", 4) == 0)
 		get_fields(proc_net_snmp->udp, buf, _PM_SNMP_UDP_NFIELDS);
-	    else {
-	    	fprintf(stderr, "Error: /proc/net/snmp fetch failed\n");
-	    }
+	    else
+	    if (strncmp(buf, "UdpLite:", 8) == 0)
+		get_fields(proc_net_snmp->udplite, buf, _PM_SNMP_UDPLITE_NFIELDS);
+	    else
+	    	fprintf(stderr, "Error: /proc/net/snmp fetch failed: buf: %s",
+			buf);
 	}
     }
 

@@ -1,5 +1,6 @@
 network {
     interface
+    tcp
 }
 
 network.interface {
@@ -23,4 +24,16 @@ network.interface.out {
 network.interface.total {
     packets		WINDOWS:0:44
     bytes		WINDOWS:0:45
+}
+
+network.tcp {
+    activeopens		WINDOWS:0:123
+    passiveopens	WINDOWS:0:124
+    attemptfails	WINDOWS:0:125
+    estabresets		WINDOWS:0:126
+    currestab		WINDOWS:0:127
+    insegs		WINDOWS:0:128
+    outsegs		WINDOWS:0:129
+    totalsegs		WINDOWS:0:130
+    retranssegs		WINDOWS:0:131
 }
