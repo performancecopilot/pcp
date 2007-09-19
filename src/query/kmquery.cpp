@@ -14,7 +14,7 @@
 #include "kmquery.h"
 
 #define max(a,b) ((a)>(b)?(a):(b))
-#define DEFAULT_EDIT_WIDTH	240	/* in units of pixels */
+#define DEFAULT_EDIT_WIDTH	400	/* in units of pixels */
 #define DEFAULT_EDIT_HEIGHT	160	/* only for usesliderflag */
 
 enum icontypes {
