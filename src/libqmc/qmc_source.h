@@ -65,6 +65,9 @@ public:
     // Dump list of known sources
     static void dumpList(QTextStream &os);
 
+    // Local host name (from gethostname(2))
+    static QString localHost;
+
 private:
     struct {
 	int status;
@@ -81,7 +84,6 @@ private:
     } my;
 
     static QList<QmcSource*> sourceList;
-    static QString localHost;
 };
 
 #endif	// QMC_SOURCE_H

@@ -17,6 +17,14 @@ QmcSource::QmcSource(int type, QString &source)
     my.status = -1;
     my.type = type;
     my.dupFlag = false;
+
+    if (localHost.length() == 0) {
+	char buf[MAXHOSTNAMELEN];
+	gethostname(buf, MAXHOSTNAMELEN);
+	buf[MAXHOSTNAMELEN-1] = '\0';
+	localHost = buf;
+    }
+
     this->retryConnect(type, source);
 }
 
@@ -28,13 +36,6 @@ QmcSource::retryConnect(int type, QString &source)
     int sts;
     char *tzs;
     QString description;
-
-    if (localHost.length() == 0) {
-	char buf[MAXHOSTNAMELEN];
-	gethostname(buf, MAXHOSTNAMELEN);
-	buf[MAXHOSTNAMELEN-1] = '\0';
-	localHost = buf;
-    }
 
     switch(type) {
     case PM_CONTEXT_LOCAL:
