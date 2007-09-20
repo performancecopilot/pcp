@@ -90,7 +90,7 @@ public:
     static double minimumSpeed(double delta)
 	{ return 0.1 * delta; }		// min deltas per second
     static double maximumSpeed(double delta)
-	{ return 100.0 * delta; }	// max deltas per second
+	{ return 1000.0 * delta; }	// max deltas per second
 
     static void timevalAdd(struct timeval *a, struct timeval *b);
     static void timevalSub(struct timeval *a, struct timeval *b);
