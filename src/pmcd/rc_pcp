@@ -478,7 +478,7 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid is $TOKILL.
     # On failure, resort to SIGKILL.
     #
     $ECHO $PCP_ECHO_N "Waiting for PMCD to terminate ...""$PCP_ECHO_C"
-    delay=80	# tenths of a second
+    delay=200	# tenths of a second
     for SIG in TERM KILL
     do
 	if [ "x$TOKILL" == "x" ]
