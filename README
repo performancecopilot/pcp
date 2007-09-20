@@ -68,16 +68,16 @@ TODO
     - Timezone support not completely working
     - Auto-update the version string in the About dialog.
     - File->Record support
-      o Needs error handling in time interval specification (on "OK")
-      o Need shorter folio names, kmquery looks odd with long ones.
       o In Record mode we currently implement the old pmchart behaviour,
 	which is to display a message about using pmafm when recording is
 	stopped.  We could do much better by opening a new Tab such that
 	the replay is all ready to go immediately, "in-line" in the current
 	kmchart.  See the TODO comment in recorddialog.cpp.
-      o We may want a QSession setting to allow a different default record
+      o We may want a QSetting to allow a different default record
 	interval, so that theres no need to set it to something else on
 	each record invocation.
+      o Same for the default folio/archive path dirname
+    - Add a QSetting for default kmchart update interval too
     - Qmc (Qt Metrics Class) needs to: support pmproxy, use a hash for
       metric instance values instead of an array (to support delete,
       and better support dynamic indoms down the track)

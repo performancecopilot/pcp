@@ -1,0 +1,66 @@
+- Click on kmchart icon
+	- Walk through:
+	  - blank canvas
+	  - time axis
+	  - live/archive time control button
+	  - come back to menu/toolbar/tabs/etc
+
+- Click on toolbar Open View icon
+	- Select CPU and Disk views and open it up
+	- Go back to Open View dialog and explain
+	- Whats a view?
+	   - one or more charts
+	   - chart style (bar/line/util/...),
+	   - plot colours (preset or auto-selected),
+	   - legend labels, vertical scaling, titles, etc
+	   - user views vs system views
+	   - explicit hostname vs dynamic
+
+- Click on Record menu open, and Start recording
+	- Sets up a recording of the currently displayed view(s)
+	  (all charts in current Tab)
+	- Creates pmlogger configuration file, kmchart View,
+	  and pmafm configuration file (logger, chart configs +
+	  archives for all hosts logged)
+	- Creates an archive folio, starts up pmlogger(s)
+
+- Click on Save View
+	- Save view as /tmp/ExampleView
+	- edit /tmp/ExampleView and run through each chart/plot
+
+- Click on New Chart
+	- Explain right side = available, left side = chart
+	- Mention: tree view not fully working at the moment
+	- Select kernel.all.pswitch metric
+	- Show Metric Info dialog for this metric
+	- Explain disable "Delete" button
+	- Click on left arrow to add to Chart
+
+- Click on New Tab
+
+- Discuss: Edit Chart, Edit Tab - basically same dialogs as New, but
+	 now for editing.
+
+- Click on Settings dialog
+	- Discuss samples (visible vs actual)
+	- Discuss color settings
+
+- Click on Record -> Stop
+	- Walk through the dialog from pmlogger
+	- Discuss Query and Detach menu options
+	- Note red light goes off
+
+<end kmchart session>
+
+- run pmafm ~/.pcp/pmlogger/XXX.folio replay
+	- Click on Archive Time Control push button to show kmtime
+	- Show VCR controls
+	- Show Time Bounds
+	- Press Play
+	- Increase Speed
+	- Press Stop
+	- Scroll to somewhere else in the archive
+	- Press Back
+	- Press Stop
+
+
