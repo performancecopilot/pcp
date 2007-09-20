@@ -100,16 +100,20 @@ void KmChart::enableUi(void)
 {
     bool haveTabs = (ntabs > 1);
     bool haveCharts = (activeTab->numChart() > 0);
+    bool haveLoggers = (activeTab->isRecording());
     bool haveLiveHosts = (!activeTab->isArchiveSource());
 
     closeTabAction->setEnabled(haveTabs);
     deleteTabAction->setEnabled(haveTabs);
     fileSaveViewAction->setEnabled(haveCharts);
-    fileRecordAction->setEnabled(haveCharts && haveLiveHosts);
     fileExportAction->setEnabled(haveCharts);
     filePrintAction->setEnabled(haveCharts);
     editChartAction->setEnabled(haveCharts);
     deleteChartAction->setEnabled(haveCharts);
+    recordStartAction->setEnabled(haveCharts && haveLiveHosts && !haveLoggers);
+    recordQueryAction->setEnabled(haveLoggers);
+    recordStopAction->setEnabled(haveLoggers);
+    recordDetachAction->setEnabled(haveLoggers);
 }
 
 void KmChart::setButtonState(TimeButton::State state)
@@ -172,24 +176,6 @@ void KmChart::fileSaveView()
 {
     my.saveview->reset();
     my.saveview->show();
-}
-
-void KmChart::fileRecord()
-{
-    if (!activeTab->isRecording()) {
-	if (activeTab->setRecording(true)) {
-	    fileRecordAction->setText(tr("Stop &Recording ..."));
-	    activeTab->newButtonState(activeTab->kmtimeState(),
-			KmTime::NormalMode, PM_CONTEXT_HOST, true);
-	    setButtonState(activeTab->buttonState());
-	}
-    } else {
-	activeTab->setRecording(false);
-	fileRecordAction->setText(tr("&Record ..."));
-	activeTab->newButtonState(activeTab->kmtimeState(),
-			KmTime::NormalMode, PM_CONTEXT_HOST, false);
-	setButtonState(activeTab->buttonState());
-    }
 }
 
 void KmChart::fileExport()
@@ -545,4 +531,33 @@ void KmChart::setDateLabel(time_t seconds, QString tz)
 	label = tr("");
     }
     dateLabel->setText(label);
+}
+
+void KmChart::setRecordState(Tab *tab, bool recording)
+{
+    tab->newButtonState(tab->kmtimeState(),
+			KmTime::NormalMode, PM_CONTEXT_HOST, recording);
+    setButtonState(tab->buttonState());
+    enableUi();
+}
+
+void KmChart::recordStart()
+{
+    if (activeTab->startRecording())
+	setRecordState(activeTab, true);
+}
+
+void KmChart::recordStop()
+{
+    activeTab->stopRecording();
+}
+
+void KmChart::recordQuery()
+{
+    activeTab->queryRecording();
+}
+
+void KmChart::recordDetach()
+{
+    activeTab->detachLoggers();
 }

@@ -31,91 +31,75 @@ TODO
     tools/what-todo for the full chapter and verse details.
 
     kmchart TODO list:
+    - No values available is not the same as zero! (plots need to display
+      broken lines - see Qwt mailing list post)
     - QT4 issues:
-	- Metric selection lists are completely hosed
+	- Metric selection lists are still quite hosed
 	- Settings dialog is busted wrt Styles
     - QWT5 issues:
-	- Creating charts via view selection is hosed (but -c works!?)
-	- All uses of qwt counters/sliders need to be replaced since
-	  they dont follow style at all (look awful).  QT4 has a double
-	  spinbox to replace the counter, but the slider will need to
-	  be built on top of the integer based one (mouse movement is
-	  in pixels anyway, so... just need to divy up the double range
-	  and need to track slider pixel width to do so, of course)
+      o All uses of qwt counters/sliders need to be replaced since
+	they dont follow style at all (look awful).  QT4 has a double
+	spinbox to replace the counter (done), but sliders will need
+	to be built on top of the integer based one (mouse movement is
+	in pixels anyway, so... just need to divy up the double range
+	and need to track slider pixel width to do so, of course)
     - Unified time axis, still to do:
-	o Scaling of the tick marks on the Y-axis is far from correct,
-	  and causes mis-alignment on the unified X-axis.  The disk
-	  throughput (bytes) show this up clearly, for example.
-	o Respond to changes in the sampling interval from kmtime.
-    - Resolve what to do about plot legends
-	o Better to have them at the top of the chart below title?
-	o Would be good to get rid of the pushbutton shading around
+      o Scaling of the tick marks on the Y-axis is not yet correct,
+	and causes mis-alignment on the unified X-axis.  The disk
+	throughput (bytes) show this up clearly, for example.
+      o Respond to changes in the sampling interval from kmtime.
+      o Resolve what to do about plot legends
+	. Better to have them at the top of the chart below title?
+	. Would be good to get rid of the pushbutton shading around
 	  each, and instead rely solely on the Box<->Line transition
 	  to show state (i.e. plot displayed or not).
-	o Probably need to take QwtLegend and modify it alot, I
-	  doubt whether ideal behaviour can be achieved by workaround
-	  or subclassing.
-	o Plot labels (displayed in legend, supported in the kmchart
+	. Probably need to take QwtLegend and modify it alot...?
+	. Plot labels (displayed in legend, supported in the kmchart
 	  View file format) need to be supported in the New/Edit
 	  Chart dialog - need to preserve existing ones, and need to
 	  be able to create/modify existing labels.
+    - Live mode stop/start doesn't quite work right (there's a TODO in
+      the chart.cpp code) - on stop, the last observed value is plotted
+      for all time points (on start it rectifies itself).
+    - Destructors and memory leak plugging
+    - Online Help support
+    - Incorporate a Tutorial into online Help
+    - Tooltips need to be added across the board.
+    - Timezone support not completely working
+    - Auto-update the version string in the About dialog.
+    - File->Record support
+      o Needs error handling in time interval specification (on "OK")
+      o Need shorter folio names, kmquery looks odd with long ones.
+      o In Record mode we currently implement the old pmchart behaviour,
+	which is to display a message about using pmafm when recording is
+	stopped.  We could do much better by opening a new Tab such that
+	the replay is all ready to go immediately, "in-line" in the current
+	kmchart.  See the TODO comment in recorddialog.cpp.
+      o We may want a QSession setting to allow a different default record
+	interval, so that theres no need to set it to something else on
+	each record invocation.
+    - Qmc (Qt Metrics Class) needs to: support pmproxy, use a hash for
+      metric instance values instead of an array (to support delete,
+      and better support dynamic indoms down the track)
+    - Make a model (ala. QDirModel) for metric namespace (QmcMetricModel
+      or QmcNameSpaceModel?).  Maybe add an (editable) column for labels
+      then (and colors, and...?)
+    - Use QCompleter class in all file dialog file name line edits.
+    - Use QCompleter class on QmcMetricModel?  (for metric selector)
+    - Merge chart/source.* and libqmc/qmc_* code.
+    - pmproxy support is far from complete:
+      o Need libpcp changes (new interfaces) to abstract out the code
+	which has a one-trip guard on testing/setting PMPROXY_HOST env
+	variable during connect (so multiple contexts can have different
+	proxies).
+      o Need Qmc support for these interfaces instead of existing code.
+      o Need to audit kmchart, see all PMPROXY TODOs in the code.
     - Rethink searching in New/Edit Chart dialogs - could be done by
 	making the (gray background) text box double as a search text
 	entry point.  Something like vi's /<pattern> key sequence to
 	initiate new/next searches, with wrap-around to the top.
 	The Firefox mechanism is kinda similar - take another look at
 	that and see if anything can be learned from that.
-    - Destructors and memory leak plugging
-    - Online Help support
-    - Incorporate a Tutorial into Help too, useful for talks
-    - Tooltips need to be added across the board.
-    - Timezone support not completely working
-    - Auto-update the version string in the About dialog.
-    - File->Record support - mostly working, needs lots more testing and
-      better error handling.  Should also try find more unique filenames
-      for each successive run, even just a simple in-memory counter would
-      be a big help (then append this to the default record file names).
-    - In Record mode we currently implement the old pmchart behaviour,
-      which is to display a message about using pmafm when recording is
-      stopped.  We could do much better by opening a new Tab (maybe have
-      an option as to which path is taken), such that the replay is all
-      ready to go immediately, "in-line" in the current kmchart.  A third
-      option would be to start a new kmchart instance (can be attached to
-      the current kmtime already, as both live and archive mode supported
-      together now) with the archive+view ready to go.
-    - Also wrt record mode configuration, we may want a QSession setting
-      to allow a different default record interval, so that theres no need
-      to set it to something else on each record invocation.
-    - D'oh - when implementing record mode, I forgot about the code inside
-      pmlogger to support "detach" functionality (pmlogger.c -x option);
-      should go back and make use of those control-fd functions.
-    - Fix up build to generate the pixmaps (PNG) from the SVG files,
-      as is done in the Tango-Desktop-Icons package builds (ImageMagick).
-      This should fix up the ordinary look to some of the current icons.
-    - pmproxy support is far from complete:
-      o Need to split host selection combobox and dialog into separate
-	host/proxy widgets
-      o Need a LineEdit for port numbers (list of) too on each dialog
-      o Need libpcp changes (new interfaces) to abstract out the code
-	which has a one-trip guard on testing/setting PMPROXY_HOST env
-	variable during connect (so multiple contexts can have different
-	proxies).
-    - Wierd PMC context/fetchgroup(?) bug in archive mode - running with
-      two different archive views (e.g. CPU and Loadavg), the chart for
-      the second view is not updated.  Running with -Dfetch, it seems we
-      get No Values for kernel.all.load (even though they exist in the
-      archive).  Stranger still, if you seek some way into the archive
-      and then play in reverse, the load chart is updated, but now the
-      CPU metrics see No Values returned and the chart isn't updated.
-    - Live mode stop/start doesn't quite work right (there's a TODO in
-      the chart.cpp code) - on stop, the last observed value is plotted
-      for all time points (on start it rectifies itself).
-    - Make a Qmc? (Qt Metrics Class) from PMC (replace string, vector,
-      hash, etc therein) - add support for pmproxy, use a hash for metric
-      instance values instead of an array (to support delete)
-    - Make a model (ala. QDirModel) for metric namespace (QmcMetricModel?)
-    - Use QCompleter class in all file dialog file name line edits.
-    - Use QCompleter class on QmcMetricModel?  (for metric selector)
 
     kmtime TODO list:
     - Finished, perfect, no bugs exist.  (yeah, right)

@@ -60,6 +60,7 @@ public:
     virtual void setActiveTab(int index, bool redisplay);
     virtual void setDateLabel(time_t seconds, QString tz);
     virtual void setButtonState(TimeButton::State state);
+    virtual void setRecordState(Tab *tab, bool recording);
 
 public slots:
     virtual void init();
@@ -68,7 +69,6 @@ public slots:
     virtual void showTimeControl();
     virtual void fileOpenView();
     virtual void fileSaveView();
-    virtual void fileRecord();
     virtual void fileExport();
     virtual void filePrint();
     virtual void fileQuit();
@@ -96,6 +96,10 @@ public slots:
     virtual void editSettings();
     virtual void acceptSettings();
     virtual void revertSettings();
+    virtual void recordStart();
+    virtual void recordQuery();
+    virtual void recordStop();
+    virtual void recordDetach();
 
 protected slots:
     virtual void languageChange();

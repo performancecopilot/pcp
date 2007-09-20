@@ -619,34 +619,64 @@ bool Tab::isRecording(void)
     return my.recording;
 }
 
-bool Tab::setRecording(bool on)
+bool Tab::startRecording(void)
 {
-    if (on) {
-	RecordDialog record(this);
-	record.init();
-	if (record.exec() != QDialog::Accepted) {
-	    my.recording = false;
-	}
-	else {
-	    // write pmlogger/kmchart/pmafm configs, then start up loggers.
-	    record.startLoggers();
-	    my.recording = true;
-	}
-    }
-    else {
-	// TODO: make use of pmlogger control file descriptor (-x fd) here
-	for (int i = 0; i < my.loggerList.size(); i++)
-	    my.loggerList.at(i)->terminate();
-	QString msg = tr("Recording process(es) complete.  To replay, run:\n");
-	msg.append("  $ pmafm ");
-	msg.append(my.folio);
-	msg.append(" replay\n");
-	QMessageBox::information(kmchart, pmProgname, msg);
-	my.loggerList.clear();
-	my.folio = QString::null;
+    RecordDialog record(this);
+
+    console->post("Tab::startRecording");
+    record.init(this);
+    if (record.exec() != QDialog::Accepted)
 	my.recording = false;
+    else {	// write pmlogger/kmchart/pmafm configs and start up loggers.
+	console->post("Tab::startRecording starting loggers");
+	record.startLoggers();
+	my.recording = true;
     }
     return my.recording;
+}
+
+void Tab::stopRecording(void)
+{
+    QString msg = "Q\n";
+    int count = my.loggerList.size();
+
+    console->post("Tab::stopRecording stopping %d logger(s)", count);
+    for (int i = 0; i < count; i++) {
+	my.loggerList.at(i)->write(msg.toAscii());
+	my.loggerList.at(i)->terminate();
+    }
+
+    // TODO: open a tab and show it all...
+
+    my.loggerList.clear();
+    my.folio = QString::null;
+    my.recording = false;
+    kmchart->setRecordState(this, my.recording);
+}
+
+void Tab::queryRecording(void)
+{
+    QString msg = "?\n";
+    int count = my.loggerList.size();
+
+    console->post("Tab::stopRecording querying %d logger(s)", count);
+    for (int i = 0; i < count; i++)
+	my.loggerList.at(i)->write(msg.toAscii());
+}
+
+void Tab::detachLoggers(void)
+{
+    QString msg = "D\n";
+    int count = my.loggerList.size();
+
+    console->post("Tab::detachLoggers detaching %d logger(s)", count);
+    for (int i = 0; i < count; i++)
+	my.loggerList.at(i)->write(msg.toAscii());
+
+    my.loggerList.clear();
+    my.folio = QString::null;
+    my.recording = false;
+    kmchart->setRecordState(this, my.recording);
 }
 
 void Tab::setFolio(QString folio)

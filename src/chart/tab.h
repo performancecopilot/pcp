@@ -48,17 +48,20 @@ public:
     Chart *addChart();		// append a new chart to tab, make it current
     int deleteChart(int);	// remove Nth chart, return current
     int deleteChart(Chart *);	// remove given chart, return current
-    int deleteCurrent(void);	// remove current chart, return current
-    int numChart(void);		// number of charts
+    int deleteCurrent();	// remove current chart, return current
+    int numChart();		// number of charts
     int setCurrent(Chart *);	// set current chart based on choice
 
     bool isArchiveSource();	// query if tab is for archives
     QmcGroup *group();
 
-    bool isRecording(void);
-    bool setRecording(bool);
+    bool isRecording();
     void setFolio(QString);
     void addLogger(PmLogger *);
+    bool startRecording();
+    void queryRecording();
+    void stopRecording();
+    void detachLoggers();
 
     void setVisibleHistory(int);
     int visibleHistory(void);

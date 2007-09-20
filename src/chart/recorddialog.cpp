@@ -15,11 +15,11 @@
 #include <QtGui/QMessageBox>
 #include <QtCore/QTextStream>
 #include "main.h"
+#include "tab.h"
 
 RecordDialog::RecordDialog(QWidget* parent) : QDialog(parent)
 {
     setupUi(this);
-    init();
 }
 
 void RecordDialog::languageChange()
@@ -48,7 +48,7 @@ double RecordDialog::secondsToUnits(double value)
     return value;
 }
 
-void RecordDialog::init()
+void RecordDialog::init(Tab *tab)
 {
     QDir	pmloggerDir;
     QString	pmlogger = QDir::homePath().append("/.pcp/pmlogger/");
@@ -64,11 +64,12 @@ void RecordDialog::init()
     archive.append(tr("[host]/[date]"));
     archiveLineEdit->setText(archive);
 
+    my.tab = tab;
     my.units = Seconds;
     displayDeltaText();
 
-    selectedRadioButton->setChecked(true);
-    allChartsRadioButton->setChecked(false);
+    selectedRadioButton->setChecked(false);
+    allChartsRadioButton->setChecked(true);
 }
 
 void RecordDialog::deltaUnitsComboBoxActivated(int value)
@@ -129,14 +130,6 @@ void RecordDialog::archivePushButtonClicked()
 	archiveLineEdit->setText(archive.selectedFiles().at(0));
 }
 
-static char *localhostname()
-{
-    static char name[256];
-
-    gethostname(name, sizeof(name));
-    return name;
-}
-
 int RecordDialog::saveFolio(QString folioname, QString viewname)
 {
     QFile folio(folioname);
@@ -157,10 +150,11 @@ int RecordDialog::saveFolio(QString folioname, QString viewname)
     stream << "PCPFolio\n";
     stream << "Version: 1\n";
     stream << "# use pmafm(1) to process this PCP archive folio\n" << "#\n";
-    stream << "Created: on " << localhostname() << " at " << datetime << "\n";
+    stream << "Created: on " << QmcSource::localHost;
+    stream << " at " << datetime << "\n";
     stream << "Creator: kmchart " << viewname << "\n";
     stream << "#\t\tHost\t\tBasename\n";
-    datetime = QDateTime::currentDateTime().toString("yyyyMMdd");
+    datetime = QDateTime::currentDateTime().toString("yyyyMMdd.hh.mm.ss");
     QStringList::Iterator it;
     for (it = my.hosts.begin(); it != my.hosts.end(); it++) {
 	QDir logDir;
@@ -228,23 +222,33 @@ PmLogger::PmLogger(QObject *parent) : QProcess(parent)
 	    this, SLOT(finished(int, QProcess::ExitStatus)));
 }
 
-void PmLogger::init(QString host, QString logfile)
+void PmLogger::init(Tab *tab, QString host, QString logfile)
 {
+    my.tab = tab;
     my.host = host;
     my.logfile = logfile;
     my.terminating = false;
 }
 
+void PmLogger::terminate()
+{
+    my.terminating = true;
+}
+
 void PmLogger::finished(int, QProcess::ExitStatus)
 {
-// TODO - this needs to be handled via -x option to pmlogger
-
     if (my.terminating == false) {
-	QString msg = tr("Recording process (pmlogger) exited unexpectedly\n");
-	msg.append(tr("for host "));
+	my.terminating = true;
+	my.tab->stopRecording();
+
+	QString msg;
+	msg.setNum(pid());
+	msg.prepend("Recording process ");
+	msg.append(" exited unexpectedly\n");
+	msg.append("for host ");
 	msg.append(my.host);
-	msg.append(tr(".\n\n"));
-	msg.append(tr("Additional diagnostics may be available in the log:\n"));
+	msg.append(".\n\n");
+	msg.append("Additional diagnostics may be available in the log:\n");
 	msg.append(my.logfile);
 	QMessageBox::warning(kmchart, pmProgname, msg);
     }
@@ -300,16 +304,15 @@ QString PmLogger::configure(Chart *cp)
 //
 void RecordDialog::startLoggers()
 {
-    QString localhost = localhostname();
-    QString datetoday = QDateTime::currentDateTime().toString("yyyyMMdd");
+    QString today = QDateTime::currentDateTime().toString("yyyyMMdd.hh.mm.ss");
     QString folio = folioLineEdit->text().trimmed();
     QString view = viewLineEdit->text().trimmed();
 
     // TODO: mkdir of all path components
-    view.replace(QRegExp("\\[date\\]"), datetoday);
-    view.replace(QRegExp("\\[host\\]"), localhost);
-    folio.replace(QRegExp("\\[date\\]"), datetoday);
-    folio.replace(QRegExp("\\[host\\]"), localhost);
+    view.replace(QRegExp("\\[date\\]"), today);
+    view.replace(QRegExp("\\[host\\]"), QmcSource::localHost);
+    folio.replace(QRegExp("\\[date\\]"), today);
+    folio.replace(QRegExp("\\[host\\]"), QmcSource::localHost);
 
     console->post("RecordDialog::startLoggers view=%s folio=%s",
 	(const char *)folio.toAscii(), (const char *)view.toAscii());
@@ -341,14 +344,14 @@ void RecordDialog::startLoggers()
 	QString logfile, configfile;
 
 	archive.replace(QRegExp("\\[host\\]"), *it);
-	archive.replace(QRegExp("\\[date\\]"), datetoday);
+	archive.replace(QRegExp("\\[date\\]"), today);
 	configfile = logfile = archive;
 	configfile.append(".config");
 	logfile.append(".log");
-	process->init(*it, logfile);
+	process->init(my.tab, *it, logfile);
 
 	QStringList arguments;
-	arguments << "-r" << "-c" << configfile << "-h" << *it;
+	arguments << "-r" << "-c" << configfile << "-h" << *it << "-x0";
 	arguments << "-l" << logfile << "-t" << my.deltaString << archive;
 
 	QString configdata;
@@ -362,6 +365,12 @@ void RecordDialog::startLoggers()
 	// TODO: PMPROXY_HOST support needed here, too
 	process->start(pmlogger, arguments);
 	activeTab->addLogger(process);
+
+	// send initial control messages to pmlogger
+	QStringList control;
+	control << "V0\n" << "F" << folio << "\n" << "Pkmchart\n" << "R\n";
+	for (int i = 0; i < control.size(); i++)
+	    process->write(control.at(i).toAscii());
     }
 }
 

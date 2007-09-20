@@ -25,7 +25,7 @@ BINARY =  $(COMMAND)
 LLDFLAGS = -L$(TOPDIR)/libqmc/build/Default -L$(TOPDIR)/libqwt/build/Default
 endif
 
-ICONLINKS = aboutpcp.png aboutqt.png aboutkmchart.png \
+ICONLINKS = aboutpcp.png aboutqt.png aboutkmchart.png camera-video.png \
 	    document-new.png document-open.png document-print.png \
 	    document-export.png kmtime.png edit-clear.png filefolder.png \
 	    whatsthis.png computer.png process-stop.png go-previous.png \

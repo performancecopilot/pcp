@@ -18,6 +18,8 @@
 #include <QtCore/QProcess>
 #include <QtGui/QFileDialog>
 
+class Tab;
+
 class RecordDialog : public QDialog, public Ui::RecordDialog
 {
     Q_OBJECT
@@ -25,7 +27,7 @@ class RecordDialog : public QDialog, public Ui::RecordDialog
 public:
     RecordDialog(QWidget* parent);
 
-    virtual void init();
+    virtual void init(Tab *tab);
     virtual void displayDeltaText();
     virtual int saveFolio(QString, QString);
     virtual int saveConfig(QString, QString);
@@ -53,6 +55,7 @@ private:
     double secondsToUnits(double value);
 
     struct {
+	Tab *tab;
 	DeltaUnits units;
 	QStringList hosts;
 	QString deltaString;
@@ -67,15 +70,16 @@ class PmLogger : public QProcess
 
 public:
     PmLogger(QObject *parent);
-    void init(QString host, QString log);
+    void init(Tab *tab, QString host, QString log);
     QString configure(Chart *cp);
-    void setTerminating() { my.terminating = true; }
 
-private slots:
+public slots:
+    void terminate();
     void finished(int, QProcess::ExitStatus);
 
 private:
     struct {
+	Tab *tab;
 	QString host;
 	QString logfile;
 	bool terminating;

@@ -226,15 +226,6 @@
     <addaction name="separator" />
     <addaction name="helpWhatsThisAction" />
    </widget>
-   <widget class="QMenu" name="Time" >
-    <property name="title" >
-     <string>&amp;Options</string>
-    </property>
-    <addaction name="timeShowLiveTimeControlAction" />
-    <addaction name="timeHideLiveTimeControlAction" />
-    <addaction name="separator" />
-    <addaction name="timeNewKmchartAction" />
-   </widget>
    <widget class="QMenu" name="Edit" >
     <property name="title" >
      <string>&amp;Edit</string>
@@ -247,7 +238,7 @@
     <addaction name="separator" />
     <addaction name="editSettingsAction" />
    </widget>
-   <widget class="QMenu" name="fileMenu" >
+   <widget class="QMenu" name="File" >
     <property name="title" >
      <string>&amp;File</string>
     </property>
@@ -258,14 +249,33 @@
     <addaction name="fileOpenViewAction" />
     <addaction name="fileSaveViewAction" />
     <addaction name="separator" />
-    <addaction name="fileRecordAction" />
     <addaction name="fileExportAction" />
     <addaction name="filePrintAction" />
     <addaction name="separator" />
     <addaction name="fileQuitAction" />
    </widget>
-   <addaction name="fileMenu" />
+   <widget class="QMenu" name="Time" >
+    <property name="title" >
+     <string>&amp;Options</string>
+    </property>
+    <addaction name="timeShowLiveTimeControlAction" />
+    <addaction name="timeHideLiveTimeControlAction" />
+    <addaction name="separator" />
+    <addaction name="timeNewKmchartAction" />
+   </widget>
+   <widget class="QMenu" name="Record" >
+    <property name="title" >
+     <string>&amp;Record</string>
+    </property>
+    <addaction name="recordStartAction" />
+    <addaction name="recordQueryAction" />
+    <addaction name="recordStopAction" />
+    <addaction name="separator" />
+    <addaction name="recordDetachAction" />
+   </widget>
+   <addaction name="File" />
    <addaction name="Edit" />
+   <addaction name="Record" />
    <addaction name="Time" />
    <addaction name="separator" />
    <addaction name="Help" />
@@ -315,9 +325,6 @@
    </property>
   </action>
   <action name="fileSaveViewAction" >
-   <property name="enabled" >
-    <bool>false</bool>
-   </property>
    <property name="text" >
     <string>&amp;Save View ...</string>
    </property>
@@ -330,9 +337,6 @@
   </action>
   <action name="fileExportAction" >
    <property name="checked" >
-    <bool>false</bool>
-   </property>
-   <property name="enabled" >
     <bool>false</bool>
    </property>
    <property name="icon" >
@@ -350,9 +354,6 @@
   </action>
   <action name="filePrintAction" >
    <property name="checked" >
-    <bool>false</bool>
-   </property>
-   <property name="enabled" >
     <bool>false</bool>
    </property>
    <property name="icon" >
@@ -379,17 +380,6 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="fileRecordAction" >
-   <property name="enabled" >
-    <bool>false</bool>
-   </property>
-   <property name="text" >
-    <string>&amp;Record ...</string>
-   </property>
-   <property name="iconText" >
-    <string>Record ...</string>
-   </property>
-  </action>
   <action name="timeShowLiveTimeControlAction" >
    <property name="icon" >
     <iconset resource="kmchart.qrc" >:/kmtime.png</iconset>
@@ -411,9 +401,6 @@
    <property name="checked" >
     <bool>false</bool>
    </property>
-   <property name="enabled" >
-    <bool>true</bool>
-   </property>
    <property name="icon" >
     <iconset resource="kmchart.qrc" >:/edit-clear.png</iconset>
    </property>
@@ -425,9 +412,6 @@
    </property>
   </action>
   <action name="editDeleteAction" >
-   <property name="enabled" >
-    <bool>false</bool>
-   </property>
    <property name="text" >
     <string>&amp;Delete</string>
    </property>
@@ -436,9 +420,6 @@
    </property>
   </action>
   <action name="editColorsAction" >
-   <property name="enabled" >
-    <bool>false</bool>
-   </property>
    <property name="text" >
     <string>&amp;Colors ...</string>
    </property>
@@ -475,9 +456,6 @@
    </property>
   </action>
   <action name="hideArchiveTimeControlAction" >
-   <property name="enabled" >
-    <bool>false</bool>
-   </property>
    <property name="icon" >
     <iconset resource="kmchart.qrc" >:/edit-clear.png</iconset>
    </property>
@@ -508,9 +486,6 @@
    </property>
   </action>
   <action name="editSettingsAction" >
-   <property name="enabled" >
-    <bool>true</bool>
-   </property>
    <property name="icon" >
     <iconset resource="kmchart.qrc" >:/settings.png</iconset>
    </property>
@@ -636,9 +611,38 @@
     <string>Shift+F1</string>
    </property>
   </action>
+  <action name="recordStartAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/camera-video.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Start...</string>
+   </property>
+  </action>
+  <action name="recordQueryAction" >
+   <property name="text" >
+    <string>Query</string>
+   </property>
+  </action>
+  <action name="recordStopAction" >
+   <property name="text" >
+    <string>Stop</string>
+   </property>
+  </action>
+  <action name="recordDetachAction" >
+   <property name="text" >
+    <string>Detach</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="0" margin="0" />
  <customwidgets>
+  <customwidget>
+   <class>TimeAxis</class>
+   <extends>QwtPlot</extends>
+   <header>timeaxis.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>TimeButton</class>
    <extends>QToolButton</extends>
@@ -648,12 +652,6 @@
    <class>QwtPlot</class>
    <extends>QFrame</extends>
    <header>qwt_plot.h</header>
-  </customwidget>
-  <customwidget>
-   <class>TimeAxis</class>
-   <extends>QwtPlot</extends>
-   <header>timeaxis.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <includes>
@@ -824,22 +822,6 @@
    <signal>activated()</signal>
    <receiver>KmChart</receiver>
    <slot>whatsThis()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>fileRecordAction</sender>
-   <signal>activated()</signal>
-   <receiver>KmChart</receiver>
-   <slot>fileRecord()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>
@@ -1056,6 +1038,70 @@
     <hint type="destinationlabel" >
      <x>20</x>
      <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>recordStartAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>recordStart()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>171</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>recordQueryAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>recordQuery()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>171</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>recordStopAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>recordStop()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>171</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>recordDetachAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>recordDetach()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>171</x>
+     <y>133</y>
     </hint>
    </hints>
   </connection>
