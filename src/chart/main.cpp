@@ -55,7 +55,7 @@ static void usage(void)
 "  -s samples    sample history [default: %d points]\n"
 "  -S starttime  start of the time window\n"
 "  -T endtime    end of the time window\n"
-"  -t interval   sample interval [default: %d seconds]\n"
+"  -t interval   sample interval [default: %.2f seconds]\n"
 "  -v samples    visible history [default: %d points]\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time of metrics source\n",
@@ -252,7 +252,7 @@ main(int argc, char ** argv)
     int			sh = -1;		/* sample history length */
     int			vh = -1;		/* visible history length */
     int			port = -1;		/* kmtime port number */
-    struct timeval	delta = { KmChart::defaultSampleInterval, 0 };
+    struct timeval	delta;
     struct timeval	logStartTime;
     struct timeval	logEndTime;
     struct timeval	realStartTime;
@@ -263,6 +263,8 @@ main(int argc, char ** argv)
     QStringList		configs;
     QString		tzLabel;
     QString		tzString;
+
+    fromsec(KmChart::defaultSampleInterval, &delta);	// TODO: QSetting
 
     QApplication a(argc, argv);
     pmProgname = basename(argv[0]);
@@ -481,17 +483,19 @@ main(int argc, char ** argv)
 	for (c = 0; c < globalSettings.sampleHistory - 2; c++)
 	    tadd(&position, &delta);
     }
-    liveGroup->defaultTZ(tzLabel, tzString);
-    gettimeofday(&logStartTime, NULL);
-    logEndTime.tv_sec = logEndTime.tv_usec = INT_MAX;
-    if ((sts = pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag,
+    else {
+	liveGroup->defaultTZ(tzLabel, tzString);
+	gettimeofday(&logStartTime, NULL);
+	logEndTime.tv_sec = logEndTime.tv_usec = INT_MAX;
+	if ((sts = pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag,
 					&logStartTime, &logEndTime,
 					&realStartTime, &realEndTime,
 					&position, &msg)) < 0) {
-	pmprintf("Cannot parse live time window\n%s\n", msg);
-	free(msg);
-	usage();
-	/*NOTREACHED*/
+	    pmprintf("Cannot parse live time window\n%s\n", msg);
+	    free(msg);
+	    usage();
+	    /*NOTREACHED*/
+	}
     }
 
     console = new Console();

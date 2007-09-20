@@ -40,7 +40,7 @@ public:
 	DebugGUI = 0x4,
     } DebugOptions;
 
-    static const int defaultSampleInterval = 2;	// seconds
+    static const double defaultSampleInterval = 2.0;	// seconds
     static const int defaultVisiblePoints = 60;
     static const int defaultSamplePoints = 180;
     static const int minimumPoints = 2;
