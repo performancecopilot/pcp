@@ -29,18 +29,18 @@ public:
 
     virtual void init(Tab *tab);
     virtual void displayDeltaText();
-    virtual int saveFolio(QString, QString);
-    virtual int saveConfig(QString, QString);
-    virtual void extractDeltaString();
+    virtual bool saveFolio(QString, QString);
+    virtual bool saveConfig(QString, QString);
     virtual void startLoggers();
 
 public slots:
-    virtual void deltaUnitsComboBoxActivated(int);
-    virtual void selectedRadioButtonClicked();
-    virtual void allChartsRadioButtonClicked();
-    virtual void viewPushButtonClicked();
-    virtual void folioPushButtonClicked();
-    virtual void archivePushButtonClicked();
+    virtual void deltaUnitsComboBox_activated(int);
+    virtual void selectedRadioButton_clicked();
+    virtual void allChartsRadioButton_clicked();
+    virtual void viewPushButton_clicked();
+    virtual void folioPushButton_clicked();
+    virtual void archivePushButton_clicked();
+    virtual void buttonOk_clicked();
 
 protected slots:
     virtual void languageChange();
@@ -53,12 +53,15 @@ private:
     } DeltaUnits;
 
     double secondsToUnits(double value);
+    QString extractDeltaString();
 
     struct {
 	Tab *tab;
 	DeltaUnits units;
+	QString delta;
+	QString folio;
 	QStringList hosts;
-	QString deltaString;
+	QStringList archives;
     } my;
 };
 

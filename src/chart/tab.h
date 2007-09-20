@@ -55,9 +55,8 @@ public:
     bool isArchiveSource();	// query if tab is for archives
     QmcGroup *group();
 
-    bool isRecording();
-    void setFolio(QString);
     void addLogger(PmLogger *);
+    bool isRecording();
     bool startRecording();
     void queryRecording();
     void stopRecording();
@@ -125,7 +124,6 @@ private:
 	QmcGroup *group;
 
 	bool recording;			// running any pmlogger's?
-	QString folio;			// archive folio, if logging
 	QList<PmLogger*> loggerList;	// list of pmloggers for our Tab
 
 	QTabWidget *tab;		// the parent widget

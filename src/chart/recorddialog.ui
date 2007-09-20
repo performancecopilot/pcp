@@ -85,6 +85,9 @@
            <property name="text" >
             <string>All Charts in Tab</string>
            </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
@@ -93,7 +96,7 @@
             <string>Selected Chart Only</string>
            </property>
            <property name="checked" >
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -407,7 +410,7 @@
    <sender>buttonOk</sender>
    <signal>clicked()</signal>
    <receiver>RecordDialog</receiver>
-   <slot>accept()</slot>
+   <slot>buttonOk_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -439,7 +442,7 @@
    <sender>selectedRadioButton</sender>
    <signal>clicked()</signal>
    <receiver>RecordDialog</receiver>
-   <slot>selectedRadioButtonClicked()</slot>
+   <slot>selectedRadioButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -455,7 +458,7 @@
    <sender>allChartsRadioButton</sender>
    <signal>clicked()</signal>
    <receiver>RecordDialog</receiver>
-   <slot>allChartsRadioButtonClicked()</slot>
+   <slot>allChartsRadioButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -471,7 +474,7 @@
    <sender>deltaUnitsComboBox</sender>
    <signal>activated(int)</signal>
    <receiver>RecordDialog</receiver>
-   <slot>deltaUnitsComboBoxActivated(int)</slot>
+   <slot>deltaUnitsComboBox_activated(int)</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -487,7 +490,7 @@
    <sender>viewPushButton</sender>
    <signal>clicked()</signal>
    <receiver>RecordDialog</receiver>
-   <slot>viewPushButtonClicked()</slot>
+   <slot>viewPushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -503,7 +506,7 @@
    <sender>folioPushButton</sender>
    <signal>clicked()</signal>
    <receiver>RecordDialog</receiver>
-   <slot>folioPushButtonClicked()</slot>
+   <slot>folioPushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -519,7 +522,7 @@
    <sender>archivePushButton</sender>
    <signal>clicked()</signal>
    <receiver>RecordDialog</receiver>
-   <slot>archivePushButtonClicked()</slot>
+   <slot>archivePushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>

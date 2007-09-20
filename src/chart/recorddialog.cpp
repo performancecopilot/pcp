@@ -12,14 +12,17 @@
  * for more details.
  */
 #include "recorddialog.h"
-#include <QtGui/QMessageBox>
 #include <QtCore/QTextStream>
+#include <QtGui/QMessageBox>
+#include <QtGui/QDoubleValidator>
 #include "main.h"
 #include "tab.h"
 
 RecordDialog::RecordDialog(QWidget* parent) : QDialog(parent)
 {
     setupUi(this);
+    deltaLineEdit->setValidator(
+		new QDoubleValidator(0.001, ULONG_MAX, 3, deltaLineEdit));
 }
 
 void RecordDialog::languageChange()
@@ -51,11 +54,11 @@ double RecordDialog::secondsToUnits(double value)
 void RecordDialog::init(Tab *tab)
 {
     QDir	pmloggerDir;
-    QString	pmlogger = QDir::homePath().append("/.pcp/pmlogger/");
+    QString	pmlogger = "~/.pcp/pmlogger/";
     QString	view, folio, archive;
 
     view = folio = archive = pmlogger;
-    pmloggerDir.mkdir(pmlogger);
+    pmloggerDir.mkpath(pmlogger);
 
     view.append(tr("[date].view"));
     viewLineEdit->setText(view);
@@ -72,19 +75,19 @@ void RecordDialog::init(Tab *tab)
     allChartsRadioButton->setChecked(true);
 }
 
-void RecordDialog::deltaUnitsComboBoxActivated(int value)
+void RecordDialog::deltaUnitsComboBox_activated(int value)
 {
     my.units = (DeltaUnits)value;
     displayDeltaText();
 }
 
-void RecordDialog::selectedRadioButtonClicked()
+void RecordDialog::selectedRadioButton_clicked()
 {
     selectedRadioButton->setChecked(true);
     allChartsRadioButton->setChecked(false);
 }
 
-void RecordDialog::allChartsRadioButtonClicked()
+void RecordDialog::allChartsRadioButton_clicked()
 {
     selectedRadioButton->setChecked(false);
     allChartsRadioButton->setChecked(true);
@@ -103,7 +106,7 @@ void RecordDialog::displayDeltaText()
     deltaLineEdit->setText(text);
 }
 
-void RecordDialog::viewPushButtonClicked()
+void RecordDialog::viewPushButton_clicked()
 {
     RecordFileDialog view(this);
 
@@ -112,7 +115,7 @@ void RecordDialog::viewPushButtonClicked()
 	viewLineEdit->setText(view.selectedFiles().at(0));
 }
 
-void RecordDialog::folioPushButtonClicked()
+void RecordDialog::folioPushButton_clicked()
 {
     RecordFileDialog folio(this);
 
@@ -121,7 +124,7 @@ void RecordDialog::folioPushButtonClicked()
 	folioLineEdit->setText(folio.selectedFiles().at(0));
 }
 
-void RecordDialog::archivePushButtonClicked()
+void RecordDialog::archivePushButton_clicked()
 {
     RecordFileDialog archive(this);
 
@@ -130,7 +133,7 @@ void RecordDialog::archivePushButtonClicked()
 	archiveLineEdit->setText(archive.selectedFiles().at(0));
 }
 
-int RecordDialog::saveFolio(QString folioname, QString viewname)
+bool RecordDialog::saveFolio(QString folioname, QString viewname)
 {
     QFile folio(folioname);
 
@@ -140,7 +143,7 @@ int RecordDialog::saveFolio(QString folioname, QString viewname)
 	msg.append("\n");
 	msg.append(folio.errorString());
 	QMessageBox::warning(this, pmProgname, msg);
-	return -1;
+	return false;
     }
 
     QTextStream stream(&folio);
@@ -154,20 +157,19 @@ int RecordDialog::saveFolio(QString folioname, QString viewname)
     stream << " at " << datetime << "\n";
     stream << "Creator: kmchart " << viewname << "\n";
     stream << "#\t\tHost\t\tBasename\n";
-    datetime = QDateTime::currentDateTime().toString("yyyyMMdd.hh.mm.ss");
-    QStringList::Iterator it;
-    for (it = my.hosts.begin(); it != my.hosts.end(); it++) {
-	QDir logDir;
-	QString	logDirName = QDir::homePath().append("/.pcp/pmlogger/");
-	logDirName.append(*it);
-	logDir.mkdir(logDirName);
-	stream << "Archive:\t" << *it << "\t\t";
-	stream << logDirName << "/" << datetime << "\n";
+
+    for (int i = 0; i < my.hosts.size(); i++) {
+	QString host = my.hosts.at(i);
+	QString archive = my.archives.at(i);
+	QFileInfo logFile(archive);
+	QDir logDir = logFile.dir();
+	logDir.mkpath(logDir.absolutePath());
+	stream << "Archive:\t" << my.hosts.at(i) << "\t\t" << archive << "\n";
     }
-    return 0;
+    return true;
 }
 
-int RecordDialog::saveConfig(QString configfile, QString configdata)
+bool RecordDialog::saveConfig(QString configfile, QString configdata)
 {
     QFile config(configfile);
 
@@ -177,43 +179,43 @@ int RecordDialog::saveConfig(QString configfile, QString configdata)
 	msg.append("\n");
 	msg.append(config.errorString());
 	QMessageBox::warning(this, pmProgname, msg);
-	return -1;
+	return false;
     }
 
     QTextStream stream(&config);
     stream << configdata;
-    return 0;
+    return true;
 }
 
-void RecordDialog::extractDeltaString()
+QString RecordDialog::extractDeltaString()
 {
     double value = deltaLineEdit->text().trimmed().toDouble();
+    QString deltaString;
 
     switch (my.units) {
     case Milliseconds:
-	my.deltaString.append("sec");
+	deltaString.append("sec");
 	value *= 1000;
 	break;
     default:
     case Seconds:
-	my.deltaString.append("sec");
+	deltaString.append("sec");
 	break;
     case Minutes:
-	my.deltaString.append("min");
+	deltaString.append("min");
 	break;
     case Hours:
-	my.deltaString.append("hour");
+	deltaString.append("hour");
 	break;
     case Days:
-	my.deltaString.append("day");
+	deltaString.append("day");
 	break;
     case Weeks:
-	my.deltaString.append("day");
+	deltaString.append("day");
 	value *= 7;
 	break;
     }
-    my.deltaString.setNum(value, 'f');
-    // TODO: pmparseinterval and error reporting
+    return deltaString.setNum(value, 'f');
 }
 
 PmLogger::PmLogger(QObject *parent) : QProcess(parent)
@@ -241,10 +243,7 @@ void PmLogger::finished(int, QProcess::ExitStatus)
 	my.terminating = true;
 	my.tab->stopRecording();
 
-	QString msg;
-	msg.setNum(pid());
-	msg.prepend("Recording process ");
-	msg.append(" exited unexpectedly\n");
+	QString msg = "Recording process (pmlogger) exited unexpectedly\n";
 	msg.append("for host ");
 	msg.append(my.host);
 	msg.append(".\n\n");
@@ -293,31 +292,43 @@ QString PmLogger::configure(Chart *cp)
     return input;
 }
 
-// TODO: need an OK pressed callback which can abort dismissal of the
-// dialog - it needs to validate the deltaLineEdit contents, check if
-// we'll be overwriting any folio/view files, etc.  It should also do
-// the first part of startLoggers() - saving files, so that problems
-// like ENOSPC/EEXISTS can be dealt with before dialog is gone.
-
-//
-// write pmlogger, kmchart and pmafm configs, then start pmloggers.
-//
-void RecordDialog::startLoggers()
+void RecordDialog::buttonOk_clicked()
 {
-    QString today = QDateTime::currentDateTime().toString("yyyyMMdd.hh.mm.ss");
-    QString folio = folioLineEdit->text().trimmed();
-    QString view = viewLineEdit->text().trimmed();
+    QString today = QDateTime::currentDateTime().toString("yyyyMMdd.hh:mm:ss");
 
-    // TODO: mkdir of all path components
+    QString view = viewLineEdit->text().trimmed();
+    view.replace(QRegExp("^~"), QDir::homePath());
     view.replace(QRegExp("\\[date\\]"), today);
     view.replace(QRegExp("\\[host\\]"), QmcSource::localHost);
+    QFileInfo viewFile(view);
+    QDir viewDir = viewFile.dir();
+    if (viewDir.mkpath(viewDir.absolutePath()) == false) {
+	QString msg = tr("Failed to create path for view:\n");
+	msg.append(view);
+	msg.append("\n");
+	QMessageBox::warning(this, pmProgname, msg);
+	return;
+    }
+
+    QString folio = folioLineEdit->text().trimmed();
+    folio.replace(QRegExp("^~"), QDir::homePath());
     folio.replace(QRegExp("\\[date\\]"), today);
     folio.replace(QRegExp("\\[host\\]"), QmcSource::localHost);
+    QFileInfo folioFile(folio);
+    QDir folioDir = folioFile.dir();
+    if (folioDir.mkpath(folioDir.absolutePath()) == false) {
+	QString msg = tr("Failed to create path for folio:\n");
+	msg.append(folio);
+	msg.append("\n");
+	QMessageBox::warning(this, pmProgname, msg);
+	return;
+    }
 
-    console->post("RecordDialog::startLoggers view=%s folio=%s",
+    console->post("RecordDialog verifying paths view=%s folio=%s",
 	(const char *)folio.toAscii(), (const char *)view.toAscii());
 
-    extractDeltaString();
+    my.folio = folio;
+    my.delta = extractDeltaString();
 
     for (int c = 0; c < activeTab->numChart(); c++) {
 	Chart *cp = activeTab->chart(c);
@@ -325,34 +336,53 @@ void RecordDialog::startLoggers()
 	    continue;
 	for (int m = 0; m < cp->numPlot(); m++) {
 	    QString host = cp->metricContext(m)->source().host();
-	    if (!my.hosts.contains(host))
+	    if (!my.hosts.contains(host)) {
+		QString archive = archiveLineEdit->text().trimmed();
+		archive.replace(QRegExp("^~"), QDir::homePath());
+		archive.replace(QRegExp("\\[host\\]"), host);
+		archive.replace(QRegExp("\\[date\\]"), today);
+		my.archives.append(archive);
 		my.hosts.append(host);
+	    }
 	}
     }
 
-    SaveViewDialog::saveView(view, true);
-    saveFolio(folio, view);
-    activeTab->setFolio(folio);
+    if (SaveViewDialog::saveView(view, true) == false)
+	return;
+    if (saveFolio(folio, view) == false)
+	return;
+    QDialog::accept();
+}
 
-    QString pmlogger = tr(pmGetConfig("PCP_BINADM_DIR"));
+//
+// write pmlogger, kmchart and pmafm configs, then start pmloggers.
+//
+void RecordDialog::startLoggers()
+{
+    QString pmlogger = pmGetConfig("PCP_BINADM_DIR");
     pmlogger.append("/pmlogger");
 
-    QStringList::Iterator it;
-    for (it = my.hosts.begin(); it != my.hosts.end(); it++) {
+    QString folio = my.folio;
+    QString regex = "^";
+    regex.append(QDir::homePath());
+    folio.replace(QRegExp(regex), "~"); 
+
+    for (int i = 0; i < my.hosts.size(); i++) {
 	PmLogger *process = new PmLogger(kmchart);
-	QString archive = archiveLineEdit->text().trimmed();
+	QString archive = my.archives.at(i);
+	QString host = my.hosts.at(i);
 	QString logfile, configfile;
 
-	archive.replace(QRegExp("\\[host\\]"), *it);
-	archive.replace(QRegExp("\\[date\\]"), today);
-	configfile = logfile = archive;
+	configfile = archive;
 	configfile.append(".config");
+	logfile = archive;
 	logfile.append(".log");
-	process->init(my.tab, *it, logfile);
+
+	process->init(my.tab, host, logfile);
 
 	QStringList arguments;
-	arguments << "-r" << "-c" << configfile << "-h" << *it << "-x0";
-	arguments << "-l" << logfile << "-t" << my.deltaString << archive;
+	arguments << "-r" << "-c" << configfile << "-h" << host << "-x0";
+	arguments << "-l" << logfile << "-t" << my.delta << archive;
 
 	QString configdata;
 	if (selectedRadioButton->isChecked())
@@ -366,9 +396,11 @@ void RecordDialog::startLoggers()
 	process->start(pmlogger, arguments);
 	activeTab->addLogger(process);
 
-	// send initial control messages to pmlogger
+	// Send initial control messages to pmlogger
 	QStringList control;
-	control << "V0\n" << "F" << folio << "\n" << "Pkmchart\n" << "R\n";
+	control << "V0\n";
+	control << "F" << folio << "\n";
+	control << "Pkmchart\n" << "R\n";
 	for (int i = 0; i < control.size(); i++)
 	    process->write(control.at(i).toAscii());
     }

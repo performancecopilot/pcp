@@ -649,7 +649,6 @@ void Tab::stopRecording(void)
     // TODO: open a tab and show it all...
 
     my.loggerList.clear();
-    my.folio = QString::null;
     my.recording = false;
     kmchart->setRecordState(this, my.recording);
 }
@@ -674,20 +673,13 @@ void Tab::detachLoggers(void)
 	my.loggerList.at(i)->write(msg.toAscii());
 
     my.loggerList.clear();
-    my.folio = QString::null;
     my.recording = false;
     kmchart->setRecordState(this, my.recording);
 }
 
-void Tab::setFolio(QString folio)
-{
-    my.folio = folio;
-}
-
 void Tab::addLogger(PmLogger *pmlogger)
 {
-    console->post("Tab::addLogger: log=0x%p folio=%s",
-			pmlogger, (const char *)my.folio.toAscii());
+    console->post("Tab::addLogger: logger=%p", pmlogger);
     my.loggerList.append(pmlogger);
 }
 
