@@ -3357,13 +3357,13 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 10: /* in */
 	    if (_pm_have_proc_vmstat)
-		atom->ul = proc_vmstat.pgpgin;
+		return PM_ERR_APPVERSION; /* no swap operation counts in 2.6 */
 	    else
 		atom->ul = proc_stat.page[0];
 	    break;
 	case 11: /* out */
 	    if (_pm_have_proc_vmstat)
-		atom->ul = proc_vmstat.pgpgout;
+		return PM_ERR_APPVERSION; /* no swap operation counts in 2.6 */
 	    else
 		atom->ul = proc_stat.page[1];
 	    break;
