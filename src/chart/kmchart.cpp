@@ -98,7 +98,7 @@ TimeAxis *KmChart::timeAxis(void)
 
 void KmChart::enableUi(void)
 {
-    bool haveTabs = (ntabs > 1);
+    bool haveTabs = (tabs.size() > 1);
     bool haveCharts = (activeTab->numChart() > 0);
     bool haveLoggers = (activeTab->isRecording());
     bool haveLiveHosts = (!activeTab->isArchiveSource());
@@ -123,36 +123,36 @@ void KmChart::setButtonState(TimeButton::State state)
 
 void KmChart::step(bool live, KmTime::Packet *packet)
 {
-    for (int i = 0; i < ntabs; i++) {
-	if (tabs[i]->isArchiveSource()) {
+    for (int i = 0; i < tabs.size(); i++) {
+	if (tabs.at(i)->isArchiveSource()) {
 	    if (!live)
-		tabs[i]->step(packet);
+		tabs.at(i)->step(packet);
 	}
 	else if (live)
-	    tabs[i]->step(packet);
+	    tabs.at(i)->step(packet);
     }
 }
 
 void KmChart::VCRMode(bool live, KmTime::Packet *packet, bool drag)
 {
-    for (int i = 0; i < ntabs; i++) {
-	if (tabs[i]->isArchiveSource()) {
+    for (int i = 0; i < tabs.size(); i++) {
+	if (tabs.at(i)->isArchiveSource()) {
 	    if (!live)
-		tabs[i]->VCRMode(packet, drag);
+		tabs.at(i)->VCRMode(packet, drag);
 	} else if (live)
-	    tabs[i]->VCRMode(packet, drag);
+	    tabs.at(i)->VCRMode(packet, drag);
     }
 }
 
 void KmChart::timeZone(bool live, char *tzdata)
 {
-    for (int i = 0; i < ntabs; i++) {
-	if (tabs[i]->isArchiveSource()) {
+    for (int i = 0; i < tabs.size(); i++) {
+	if (tabs.at(i)->isArchiveSource()) {
 	    if (!live)
-		tabs[i]->setTimezone(tzdata);
+		tabs.at(i)->setTimezone(tzdata);
 	}
 	else if (live)
-	    tabs[i]->setTimezone(tzdata);
+	    tabs.at(i)->setTimezone(tzdata);
     }
 }
 
@@ -430,23 +430,23 @@ void KmChart::createNewTab(bool live)
 
 void KmChart::acceptNewTab()
 {
-    tabs = (Tab **)realloc(tabs, (ntabs+1) * sizeof(Tab *));	// TODO: NULL
-    tabs[ntabs] = new Tab();
+    Tab *tab = new Tab;
+
     if (my.newtab->isArchiveSource())
-	tabs[ntabs]->init(kmchart->tabWidget(),
-		(int)my.newtab->samplePointsCounter->value(),
-		(int)my.newtab->visiblePointsCounter->value(),
+	tab->init(kmchart->tabWidget(),
+		my.newtab->samplePointsCounter->value(),
+		my.newtab->visiblePointsCounter->value(),
 		archiveGroup, KmTime::ArchiveSource, (const char *)
 		my.newtab->labelLineEdit->text().trimmed().toAscii(),
 		kmtime->archiveInterval(), kmtime->archivePosition());
     else
-	tabs[ntabs]->init(kmchart->tabWidget(),
-		(int)my.newtab->samplePointsCounter->value(),
-		(int)my.newtab->visiblePointsCounter->value(),
+	tab->init(kmchart->tabWidget(),
+		my.newtab->samplePointsCounter->value(),
+		my.newtab->visiblePointsCounter->value(),
 		liveGroup, KmTime::HostSource, (const char *)
 		my.newtab->labelLineEdit->text().trimmed().toAscii(),
 		kmtime->liveInterval(), kmtime->livePosition());
-    ntabs++;
+    tabs.append(tab);
     enableUi();
 }
 
@@ -460,9 +460,7 @@ void KmChart::closeTab()
     int	index = chartTab->currentIndex();
 
     chartTab->removeTab(index);
-    if (index < ntabs - 1)
-	memmove(&tabs[index], &tabs[index+1], sizeof(Tab *));
-    ntabs--;
+    tabs.removeAt(index);
     setActiveTab(chartTab->currentIndex(), false);
     enableUi();
 }
@@ -474,8 +472,8 @@ QTabWidget *KmChart::tabWidget()
 
 void KmChart::setActiveTab(int index, bool redisplay)
 {
-    activeTab = tabs[index];
-    if (tabs[index]->isArchiveSource()) {
+    activeTab = tabs.at(index);
+    if (tabs.at(index)->isArchiveSource()) {
 	activeGroup = archiveGroup;
 	activeSources = archiveSources;
     } else {
@@ -493,7 +491,7 @@ void KmChart::activeTabChanged(QWidget *)
 {
     int index = chartTab->currentIndex();
 
-    if (index < ntabs)
+    if (index < tabs.size())
 	setActiveTab(index, false);
     enableUi();
 }

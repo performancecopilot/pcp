@@ -58,8 +58,7 @@ extern int Cflag;
 extern QFont globalFont;
 
 extern Tab *activeTab;
-extern Tab **tabs;
-extern int ntabs;
+extern QList<Tab*> tabs;
 
 extern Source *activeSources;
 extern Source *liveSources;

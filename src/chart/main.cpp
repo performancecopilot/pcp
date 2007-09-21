@@ -29,8 +29,7 @@ Settings	globalSettings;
 
 // Globals used to provide single instances of classes used across kmchart
 Tab 		*activeTab;	// currently active Tab
-Tab 		**tabs;		// array of Tabs
-int		ntabs;		// number of Tabs
+QList<Tab *>	tabs;		// list of Tabs (pages)
 QmcGroup	*liveGroup;	// one metrics class group for all hosts
 QmcGroup	*archiveGroup;	// one metrics class group for all archives
 QmcGroup	*activeGroup;	// currently active metric fetchgroup
@@ -258,6 +257,7 @@ main(int argc, char ** argv)
     struct timeval	realStartTime;
     struct timeval	realEndTime;
     struct timeval	position;
+    QList<Tab *>	defaultTabs;
     QStringList		hosts;
     QStringList		archives;
     QStringList		configs;
@@ -275,9 +275,8 @@ main(int argc, char ** argv)
     liveSources = new Source(liveGroup);
     archiveGroup = new QmcGroup();
     archiveSources = new Source(archiveGroup);
-    tabs = (Tab **)calloc(2, sizeof(Tab *));
-    tabs[0] = new Tab();
-    tabs[1] = new Tab();
+    defaultTabs.append(new Tab);	// default Live Tab
+    defaultTabs.append(new Tab);	// default Archive Tab
 
     while ((c = getopt(argc, argv, "A:a:Cc:D:h:n:O:p:s:S:T:t:v:zZ:?")) != EOF) {
 	switch (c) {
@@ -383,14 +382,11 @@ main(int argc, char ** argv)
 	case '?':
 	default:
 	    usage();
-	    /* NOTREACHED */
 	}
     }
 
-    if (errflg) {
+    if (errflg)
 	usage();
-	/* NOTREACHED */
-    }
 
     //
     // Deal with user requested sample/visible points globalSettings.  These
@@ -418,7 +414,6 @@ main(int argc, char ** argv)
 	pmprintf("%s: %s\n", pmProgname, pmErrStr(sts));
 	pmflush();
 	exit(1);
-	/*NOTREACHED*/
     }
 
     // Create all of the sources
@@ -454,7 +449,6 @@ main(int argc, char ** argv)
 		    pmProgname, (char *)tz, pmErrStr(sts));
 	    pmflush();
 	    exit(1);
-	    /*NOTREACHED*/
 	}
     }
 
@@ -477,7 +471,6 @@ main(int argc, char ** argv)
 	    pmprintf("Cannot parse archive time window\n%s\n", msg);
 	    free(msg);
 	    usage();
-	    /*NOTREACHED*/
 	}
 	// move position to account for initial visible points
 	for (c = 0; c < globalSettings.sampleHistory - 2; c++)
@@ -494,7 +487,6 @@ main(int argc, char ** argv)
 	    pmprintf("Cannot parse live time window\n%s\n", msg);
 	    free(msg);
 	    usage();
-	    /*NOTREACHED*/
 	}
     }
 
@@ -515,28 +507,29 @@ main(int argc, char ** argv)
 		 &realStartTime, &realEndTime, tzString, tzLabel);
 
     kmchart->init();
-    tabs[0]->init(kmchart->tabWidget(),
-			globalSettings.sampleHistory,
-			globalSettings.visibleHistory,
-			liveGroup, KmTime::HostSource, "Live",
-			kmtime->liveInterval(), kmtime->livePosition());
-    tabs[1]->init(kmchart->tabWidget(),
-			globalSettings.sampleHistory,
-			globalSettings.visibleHistory,
-			archiveGroup, KmTime::ArchiveSource, "Archive",
-			kmtime->archiveInterval(), kmtime->archivePosition());
+    defaultTabs.at(0)->init(kmchart->tabWidget(),
+		globalSettings.sampleHistory, globalSettings.visibleHistory,
+		liveGroup, KmTime::HostSource, "Live",
+		kmtime->liveInterval(), kmtime->livePosition());
+    defaultTabs.at(1)->init(kmchart->tabWidget(),
+		globalSettings.sampleHistory, globalSettings.visibleHistory,
+		archiveGroup, KmTime::ArchiveSource, "Archive",
+		kmtime->archiveInterval(), kmtime->archivePosition());
+
+    //
+    // We setup the global tabs list late, so we don't have to deal
+    // with kmtime messages reaching the Tabs until we're all setup.
+    //
+    tabs = defaultTabs;
     kmchart->setActiveTab(archives.size() > 0 ? 1 : 0, true);
 
     for (c = 0; c < configs.size(); c++)
 	OpenViewDialog::openView((const char *)configs[c].toAscii());
 
-    ntabs = 2;	// last, so we don't react to kmtime step messages until now
-
-    kmchart->enableUi();
-
     if (Cflag)	// done with -c config, quit
 	return 0;
 
+    kmchart->enableUi();
     kmchart->show();
 
     a.connect(&a, SIGNAL(lastWindowClosed()), kmchart, SLOT(quit()));
