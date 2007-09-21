@@ -1,45 +1,14 @@
 Rebuilding kmchart
 
-1. get the open source version of pcp 2.5.0 from oss.sgi.com/projects/pcp
+1. Fetch the latest open source version of PCP from:
+	git clone git://oss.sgi.com:8090/nathans/pcp.git pcp
 
-2. apply patch.libpcp_pmc from the kmchart tarball
-	- exports libpcp_pmc and the associated headers as a real library
+2. Install the open source Qt run-time and developer software.
+   This is available for MacOSX from the Trolltech site, and is
+   included with the install media of all major Linux distros.
 
-3. go to the top of the patched pcp source
-	$ make
-	$ cd src/libpcp_pmc
-	$ su
-	# make install
+3. See doc/PORTING for additional information on the GNU tools
+   used for building kmchart, but the quick-start guide is:
 
-   this will install libpcp_pmc and the associated headers
+4. ./Makepkgs verbose
 
-4. install the open source Qt run-time and developer pieces ... I'm using
-	- qt-3.3.4
-	- qt-devel-3.3.4
-	- qt-designer-3.3.4
-
-5. install the Qwt run-time and developer pieces ... I started with
-	- qwt-4.2.0
-	- qwt-devel-4.2.0
-   but have since moved to the early access version of Qwt5.0
-	- qwt-devel-20060125
-	- qwt-20060125
-   (for my build environment, Fedora Core 4, there were no RPMS I could
-   find, so I rebuild them from source without drama after editing the
-   qwt.spec file to _not_ make the designer plugin, remaking the tar ball
-   and running rpmbuild ... source is available from the qwt project on
-   sourceforge.net, http://qwt.sourceforge.net/snapshot/
-
-6. go to the top of the kmchart source
-	$ make
-
-7. if you want/need to change UI components using Qt Designer, you may
-   have to make some of Makefile, kmchart.pro, *.ui, *.ui.h and/or *.cpp
-   writeable before changes from Designer can be saved and the
-   application rebuilt.
-
-8. play
-	$ kmchart -c views/CPU
-	$ kmchart -c views/Loadavg
-
-Ken McDonell

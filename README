@@ -1,86 +1,103 @@
-Known Bugs and TODO List
-========================
-
-kmchart and kmtime are replacements for SGI's pmchart and pmtime.
 kmchart is designed to produce stripcharts from Performance Co-Pilot (PCP)
-performance metrics fetched from either a live source (one or more hosts)
-or from one or more PCP archives.  kmtime is a graphical time controller
-utility that coordinates time updates and VCR-like playback for other
-utilities, such as kmchart and pmval.
+performance metrics fetched from live sources (one or more pmcd hosts) and
+also historical sources (one or more PCP archives).
 
-The SGI documentation for PCP tools in general is here
-http://techpubs.sgi.com/library/tpl/cgi-bin/browse.cgi?\
-    coll=0650&db=bks&cmd=toc&pth=/SGI_Admin/PCP_UAG
-and, in particular, pmchart is documented in Chapter 4.
-Further information can be gleaned from the pmchart man page at
-http://techpubs.sgi.com/library/tpl/cgi-bin/getdoc.cgi?\
-    coll=linux&db=man&fname=/usr/share/catman/man1/pmchart.1.html
+kmtime is a graphical time controller utility that coordinates time updates
+and VCR-like playback for other utilities, such as kmchart and pmval.
 
-Building kmchart
+Refer to doc/INSTALL for instructions on building these tools.
 
-    Refer to ./INSTALL
 
-Running kmchart
+=== 1.0 TODO list ===
 
-    At this stage, kmchart is only being made available as source
-    code, so you'll need to build it from source first.
+  kmchart
 
-TODO
+    - NB: Write QA testcases as each is fixed, e.g. qa/record-testcases
 
-    Refer to the TODO comments in the source code, else run
-    tools/what-todo for the full chapter and verse details.
+    - Metric selection
+      o "Available Metrics" Tree
+	. Needs one-level of namespace "read-ahead" to resolve the
+	  tree expansion issue in a way that works for all QT4 versions.
+	. Double click on compresses name is not expanding, though Enter
+	  actually does.
+      o "Chart Metrics" Tree
+	. Only allowing one metric to be added in New Chart dialog
+	. Not displaying plot colour
+	. Displaying "Available Metrics" in Selected list on Edit Chart.
+      o "Colours" page
+	. Selected colour label not updating
+	. RGB spinners need to be wider
+	. Revert-colour label not updating
+      o Resizing the window needs work
 
-    kmchart TODO list:
-    - No values available is not the same as zero! (plots need to display
-      broken lines - see Qwt mailing list post)
-    - QT4 issues:
-	- Metric selection lists are still quite hosed
-	- Settings dialog is busted wrt Styles
-    - QWT5 issues:
-      o All uses of qwt counters/sliders need to be replaced since
-	they dont follow style at all (look awful).  QT4 has a double
-	spinbox to replace the counter (done), but sliders will need
-	to be built on top of the integer based one (mouse movement is
-	in pixels anyway, so... just need to divy up the double range
-	and need to track slider pixel width to do so, of course)
-    - Unified time axis, still to do:
+    - Settings dialog
+      o default kmchart update interval
+      o default pmlogger record interval
+      o default folio/archive path dirname to be set
+      o remove style setting code
+
+    - Charting issues
+      o No values available is not the same as zero! (plots need to
+	display broken lines - see Qwt mailing list posts)
       o Scaling of the tick marks on the Y-axis is not yet correct,
 	and causes mis-alignment on the unified X-axis.  The disk
 	throughput (bytes) show this up clearly, for example.
-      o Respond to changes in the sampling interval from kmtime.
+      o Fix up QPen/QBrush so black outline shown on bar plots
       o Resolve what to do about plot legends
-	. Better to have them at the top of the chart below title?
-	. Would be good to get rid of the pushbutton shading around
-	  each, and instead rely solely on the Box<->Line transition
-	  to show state (i.e. plot displayed or not).
-	. Probably need to take QwtLegend and modify it alot...?
 	. Plot labels (displayed in legend, supported in the kmchart
 	  View file format) need to be supported in the New/Edit
 	  Chart dialog - need to preserve existing ones, and need to
 	  be able to create/modify existing labels.
-    - Live mode stop/start doesn't quite work right (there's a TODO in
-      the chart.cpp code) - on stop, the last observed value is plotted
-      for all time points (on start it rectifies itself).
-    - Destructors and memory leak plugging
+    - Respond to changes in the sampling interval from kmtime.
+    - Timezone support has stopped working
+    - Live mode stop/start doesn't quite work right
+      o See the TODO comment in the chart.cpp code
+      o On stop, the last observed value is plotted repeatedly
+    - Archive time control issues
+      o seems to need multiple presses currently to move backward
+	(this may be more visible due to increased sample sizes now)
+      o Fast forward mode frequently causes kmchart to hang.
+      o Fast forward mode can cause Time Axis confusion.
+      o Bounds broken sometimes - thinks range is 1970-2038 (min-max)
+
     - Online Help support
     - Incorporate a Tutorial into online Help
     - Tooltips need to be added across the board.
-    - Timezone support not completely working
     - Auto-update the version string in the About dialog.
-    - File->Record support
-      o In Record mode we currently implement the old pmchart behaviour,
-	which is to display a message about using pmafm when recording is
-	stopped.  We could do much better by opening a new Tab such that
-	the replay is all ready to go immediately, "in-line" in the current
-	kmchart.  See the TODO comment in recorddialog.cpp.
-      o We may want a QSetting to allow a different default record
-	interval, so that theres no need to set it to something else on
-	each record invocation.
-      o Same for the default folio/archive path dirname
-    - Add a QSetting for default kmchart update interval too
-    - Qmc (Qt Metrics Class) needs to: support pmproxy, use a hash for
-      metric instance values instead of an array (to support delete,
-      and better support dynamic indoms down the track)
+
+    - Destructors and memory leak plugging
+    - Code audit for TODOs, either fix, exception or add to wishlist.
+    - Open View dialog not auto-selecting a newly opened source in the
+      Source ComboBox.
+    - Save View dialog needs "Preserve Hostname" checkbox code (this
+      work should be isolated inside view.cpp now, I think).
+
+    - Print mode needs to understand time axis and multiple charts
+    - Export mode needs to understand time axis and multiple charts
+
+  kmtime
+
+    - Needs online help ala kmchart
+    - Archive mode Play Back icon has too-dark shading when On.
+
+  kmquery
+
+    - Argument -button is not working correctly anymore (Qt4)
+    - Window initial sizing and resizing still needs work.
+
+
+=== Wishlist TODO items ===
+
+    - All uses of Qwt counters/sliders should be replaced since they
+      dont follow style at all (hence look ordinary).  Could try to
+      build on top of the integer based one - mouse movement is going
+      to be in pixels anyway (today, with Qwt), so... can we divy up
+      the time range (double) and map that to pixels.  Would need to
+      track slider width changes to do so, of course (i.e. resize).
+    - The Qt-based metrics class needs:
+      o Per-context support for pmproxy
+      o A hash for metric instance values instead of an array
+	(to support delete, and better support of dynamic indoms)
     - Make a model (ala. QDirModel) for metric namespace (QmcMetricModel
       or QmcNameSpaceModel?).  Maybe add an (editable) column for labels
       then (and colors, and...?)
@@ -88,24 +105,29 @@ TODO
     - Use QCompleter class on QmcMetricModel?  (for metric selector)
     - Merge chart/source.* and libqmc/qmc_* code.
     - pmproxy support is far from complete:
-      o Need libpcp changes (new interfaces) to abstract out the code
+      . Need libpcp changes (new interfaces) to abstract out the code
 	which has a one-trip guard on testing/setting PMPROXY_HOST env
 	variable during connect (so multiple contexts can have different
 	proxies).
-      o Need Qmc support for these interfaces instead of existing code.
-      o Need to audit kmchart, see all PMPROXY TODOs in the code.
+      . Need Qmc support for these interfaces instead of existing code.
+      . Need to audit kmchart, see all PMPROXY TODOs in the code.
     - Rethink searching in New/Edit Chart dialogs - could be done by
-	making the (gray background) text box double as a search text
-	entry point.  Something like vi's /<pattern> key sequence to
-	initiate new/next searches, with wrap-around to the top.
-	The Firefox mechanism is kinda similar - take another look at
-	that and see if anything can be learned from that.
+      making the (gray background) text box double as a search text
+      entry point.  Something like vi's /<pattern> key sequence to
+      initiate new/next searches, with wrap-around to the top.
+      The Firefox mechanism is kinda similar - maybe take a closer
+      look at that and see if anything can be borrowed from that.
 
-    kmtime TODO list:
-    - Finished, perfect, no bugs exist.  (yeah, right)
-    - Needs online help ala kmchart
 
-    PCP extensions
+=== PCP extensions ===
+
+    - Some pmproxy changes are required in libpcp (see wishlist above)
+      which will also require some new PMAPI interfaces.  The reason
+      for these changes is to separate out the current behaviour that
+      allows only one PMPROXY_HOST setting to be used for the life of
+      a PCP client program, and instead allow the user to choose (and
+      choose differently for differnt hosts), the pmproxy host that's
+      associated with any pmcd host.
     - The pmSetMode(3) API needs a replacement that takes a timeval
       structure for a delta, instead of an integer.  The extended
       time base code should be factored out (into the old, backward
@@ -118,12 +140,4 @@ TODO
     - Not much uses the integer delta however, its mainly interp.c in
       libpcp that uses it.  Note: libpcp_pmc also has an API that's
       affected here - PMC_Group::setArchiveMode
-    - Some pmproxy changes are required to libpcp (see kmchart above).
-      which will also require some new PMAPI interfaces.  The reason
-      for these changes is to separate out the current behaviour that
-      allows only one PMPROXY_HOST setting to be used for the life of
-      a PCP client program, and instead allow the user to choose (and
-      choose differently for differnt hosts), the pmproxy host that's
-      associated with any pmcd host.
 
--- Ken McDonell & Nathan Scott
