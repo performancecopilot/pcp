@@ -327,6 +327,7 @@ void RecordDialog::buttonOk_clicked()
     console->post("RecordDialog verifying paths view=%s folio=%s",
 	(const char *)folio.toAscii(), (const char *)view.toAscii());
 
+    my.view  = view;
     my.folio = folio;
     my.delta = extractDeltaString();
 
@@ -347,7 +348,7 @@ void RecordDialog::buttonOk_clicked()
 	}
     }
 
-    if (SaveViewDialog::saveView(view, true) == false)
+    if (SaveViewDialog::saveView(view, false) == false)
 	return;
     if (saveFolio(folio, view) == false)
 	return;
@@ -362,10 +363,11 @@ void RecordDialog::startLoggers()
     QString pmlogger = pmGetConfig("PCP_BINADM_DIR");
     pmlogger.append("/pmlogger");
 
-    QString folio = my.folio;
     QString regex = "^";
     regex.append(QDir::homePath());
-    folio.replace(QRegExp(regex), "~"); 
+    my.folio.replace(QRegExp(regex), "~"); 
+
+    activeTab->addFolio(my.folio, my.view);
 
     for (int i = 0; i < my.hosts.size(); i++) {
 	PmLogger *process = new PmLogger(kmchart);
@@ -392,14 +394,14 @@ void RecordDialog::startLoggers()
 		configdata.append(process->configure(activeTab->chart(c)));
 	saveConfig(configfile, configdata);
 
-	// TODO: PMPROXY_HOST support needed here, too
+	// PMPROXY_HOST support needed here
 	process->start(pmlogger, arguments);
-	activeTab->addLogger(process);
+	activeTab->addLogger(process, archive);
 
 	// Send initial control messages to pmlogger
 	QStringList control;
 	control << "V0\n";
-	control << "F" << folio << "\n";
+	control << "F" << my.folio << "\n";
 	control << "Pkmchart\n" << "R\n";
 	for (int i = 0; i < control.size(); i++)
 	    process->write(control.at(i).toAscii());

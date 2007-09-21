@@ -638,7 +638,7 @@ bool Tab::startRecording(void)
 void Tab::stopRecording(void)
 {
     QString msg = "Q\n";
-    int count = my.loggerList.size();
+    int i, sts, count = my.loggerList.size();
 
     console->post("Tab::stopRecording stopping %d logger(s)", count);
     for (int i = 0; i < count; i++) {
@@ -646,11 +646,44 @@ void Tab::stopRecording(void)
 	my.loggerList.at(i)->terminate();
     }
 
-    // TODO: open a tab and show it all...
+    for (i = 0; i < my.archiveList.size(); i++) {
+	QString archive = my.archiveList.at(i);
+	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {
+	    archive.prepend(tr("Cannot open PCP archive: "));
+	    archive.append(tr("\n"));
+	    archive.append(tr(pmErrStr(sts)));
+	    QMessageBox::warning(this, pmProgname, archive,
+		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
+		    QMessageBox::NoButton, QMessageBox::NoButton);
+	    break;
+	}
+	archiveSources->add(archiveGroup->which());
+	archiveGroup->updateBounds();
+    }
 
-    my.loggerList.clear();
+    // If all is well, we can now create the new Tab
+    if (i == my.archiveList.size()) {
+	Tab *tab = new Tab;
+	tab->init(kmchart->tabWidget(), my.visible, my.samples,
+			archiveGroup, KmTime::ArchiveSource,
+			QFileInfo(my.folio).completeBaseName(),
+			kmtime->archiveInterval(), kmtime->archivePosition());
+	tabs.append(tab);
+	kmchart->setActiveTab(tabs.size() - 1, false);
+	OpenViewDialog::openView((const char *)my.view.toAscii());
+    }
+
+    cleanupRecording();
+}
+
+void Tab::cleanupRecording(void)
+{
     my.recording = false;
-    kmchart->setRecordState(this, my.recording);
+    my.loggerList.clear();
+    my.archiveList.clear();
+    my.view = QString::null;
+    my.folio = QString::null;
+    kmchart->setRecordState(this, false);
 }
 
 void Tab::queryRecording(void)
@@ -671,19 +704,22 @@ void Tab::detachLoggers(void)
     console->post("Tab::detachLoggers detaching %d logger(s)", count);
     for (int i = 0; i < count; i++)
 	my.loggerList.at(i)->write(msg.toAscii());
-
-    my.loggerList.clear();
-    my.recording = false;
-    kmchart->setRecordState(this, my.recording);
+    cleanupRecording();
 }
 
-void Tab::addLogger(PmLogger *pmlogger)
+void Tab::addFolio(QString folio, QString view)
 {
-    console->post("Tab::addLogger: logger=%p", pmlogger);
-    my.loggerList.append(pmlogger);
+    my.view = view;
+    my.folio = folio;
 }
 
-TimeButton::State Tab::buttonState()
+void Tab::addLogger(PmLogger *pmlogger, QString archive)
+{
+    my.loggerList.append(pmlogger);
+    my.archiveList.append(archive);
+}
+
+TimeButton::State Tab::buttonState(void)
 {
     return my.buttonState;
 }

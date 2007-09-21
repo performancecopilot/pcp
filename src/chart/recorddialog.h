@@ -59,6 +59,7 @@ private:
 	Tab *tab;
 	DeltaUnits units;
 	QString delta;
+	QString view;
 	QString folio;
 	QStringList hosts;
 	QStringList archives;

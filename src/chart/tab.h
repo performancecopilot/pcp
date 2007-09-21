@@ -55,7 +55,9 @@ public:
     bool isArchiveSource();	// query if tab is for archives
     QmcGroup *group();
 
-    void addLogger(PmLogger *);
+    void addFolio(QString, QString);
+    void addLogger(PmLogger *, QString);
+
     bool isRecording();
     bool startRecording();
     void queryRecording();
@@ -96,6 +98,7 @@ private:
 
     char *timeState();
     void refreshCharts();
+    void cleanupRecording();
     void adjustWorldView(KmTime::Packet *, bool);
     void adjustLiveWorldView(KmTime::Packet *);
     void adjustArchiveWorldView(KmTime::Packet *, bool);
@@ -124,6 +127,9 @@ private:
 	QmcGroup *group;
 
 	bool recording;			// running any pmlogger's?
+	QString view;
+	QString folio;
+	QList<QString> archiveList;	// list of archive names
 	QList<PmLogger*> loggerList;	// list of pmloggers for our Tab
 
 	QTabWidget *tab;		// the parent widget
