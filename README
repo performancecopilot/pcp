@@ -10,9 +10,19 @@ Refer to doc/INSTALL for instructions on building these tools.
 
 === 1.0 TODO list ===
 
-  kmchart
+    - Write QA testcases as each area is completed.
+	[x] qa/record-testcases
+	[x] qa/settings-testcases
+	[ ] qa/create-save-view-testcases
+	[ ] qa/create-edit-chart-testcases
+	[ ] qa/create-edit-tab-testcase
+	[ ] qa/chart-testcases
+	[ ] qa/time-control-testcases
+	[ ] qa/timezone-testcases
+	[ ] qa/help-system-testcases
+	[ ] qa/query-testcases
 
-    - NB: Write QA testcases as each is fixed, e.g. qa/record-testcases
+  kmchart
 
     - Metric selection
       o "Available Metrics" Tree
@@ -29,12 +39,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 	. RGB spinners need to be wider
 	. Revert-colour label not updating
       o Resizing the window needs work
-
-    - Settings dialog
-      o default kmchart update interval
-      o default pmlogger record interval
-      o default folio/archive path dirname to be set
-      o remove style setting code
 
     - Charting issues
       o No values available is not the same as zero! (plots need to
@@ -60,20 +64,23 @@ Refer to doc/INSTALL for instructions on building these tools.
       o Fast forward mode can cause Time Axis confusion.
       o Bounds broken sometimes - thinks range is 1970-2038 (min-max)
 
+    - Print mode needs to understand time axis and multiple charts
+    - Export mode needs to understand time axis and multiple charts
+
     - Online Help support
     - Incorporate a Tutorial into online Help
     - Tooltips need to be added across the board.
     - Auto-update the version string in the About dialog.
 
     - Destructors and memory leak plugging
-    - Code audit for TODOs, either fix, exception or add to wishlist.
+    - Code audit for TODOs; either fix, exception or add to wishlist.
     - Open View dialog not auto-selecting a newly opened source in the
       Source ComboBox.
     - Save View dialog needs "Preserve Hostname" checkbox code (this
       work should be isolated inside view.cpp now, I think).
-
-    - Print mode needs to understand time axis and multiple charts
-    - Export mode needs to understand time axis and multiple charts
+    - Path traversal oddities in Open/Save View dialogs (should be able
+      to type full paths into File name lineEdit, not just basename)
+    - File icon/name display oddities in Open/Save View dialogs.
 
   kmtime
 
@@ -117,6 +124,14 @@ Refer to doc/INSTALL for instructions on building these tools.
       initiate new/next searches, with wrap-around to the top.
       The Firefox mechanism is kinda similar - maybe take a closer
       look at that and see if anything can be borrowed from that.
+    - Possibly some Settings dialog entries for Paths
+      o default folio/archive path dirname
+      o default user kmchart config file dirname
+    - Zooming in and out would be handy.  Not too tricky too either, as
+      we have all the necessary infrastructure - Qwt supports a range
+      picker thing (click and drag), and we have a visible history vs
+      sample history split already.
+    - Add default folio/archive path dirname to Settings dialog
 
 
 === PCP extensions ===

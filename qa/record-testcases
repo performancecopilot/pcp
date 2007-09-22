@@ -9,8 +9,14 @@ Phase A:
     enabled (Query/Stop/Detach) and disabled (Start)
 [ ] Click Record -> Query, check contents of 2 pmlogger popups
 [ ] Click Record -> Stop, check contents of 2 pmlogger popups.
-[ ] Verify red light is now disabled and Record . menu items:
-    disabled (Query/Stop/Detach) and enabled (Start)
+[ ] Verify red light is now disabled and Record menu items are
+    disabled (Query/Stop/Detach) and enabled (Start).
+[ ] Click on newly created Tab, click on Archive Time Control
+    push button in bottom left corner, in kmtime select Options
+    -> Boundaries and verify the time window matches up with
+    the timeframe recorded.
+[ ] Fast forward through the archive, then Fast Back to start,
+    checking the charts for both hosts matches expectations.
 [ ] Verify no additional pmlogger processes are running.
 [ ] Run: pmafm ~/.pcp/pmlogger/[timenow].folio replay
     Verify a kmchart starts up with appropriate archive view
@@ -34,7 +40,7 @@ Phase C:
 [ ] Set the time units to minutes and the interval to 0.001.
 [ ] Push folio button, set folio to "/tmp/folio" from popup
 [ ] Push logfile button, try set log to "/tmp" from popup
-    (verify this isnt possible), then "/var/tmp/pmlogger.log"
+    (verify this isn't possible), then "/var/tmp/pmlogger.log"
     from the popup.
 [ ] Push archive button, set name to "/tmp/archive/record"
 [ ] Click OK
