@@ -102,7 +102,7 @@ void KmTimeLive::init()
     my.timer->start(timerInterval());
     lineEditDelta->setAlignment(Qt::AlignRight);
     lineEditDelta->setValidator(new QDoubleValidator
-		(0.001, ULONG_MAX, 3, lineEditDelta));
+		(0.001, INT_MAX, 3, lineEditDelta));
 
 //  my.assistant = new QAssistantClient(tr(""), this);	// TODO make global
 }

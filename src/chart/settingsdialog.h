@@ -33,6 +33,7 @@ public:
     virtual void displayVisibleCounter();
 
 public slots:
+    virtual void buttonOk_clicked();
     virtual void chartDeltaUnitsComboBox_activated(int value);
     virtual void loggerDeltaUnitsComboBox_activated(int value);
     virtual void visible_valueChanged(int value);

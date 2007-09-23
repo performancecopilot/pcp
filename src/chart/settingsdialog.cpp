@@ -12,6 +12,7 @@
  * for more details.
  */
 #include "settingsdialog.h"
+#include <QtGui/QMessageBox>
 #include "qcolordialog.h"
 #include "main.h"
 
@@ -19,9 +20,9 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent)
 {
     setupUi(this);
     chartDeltaLineEdit->setValidator(
-		new QDoubleValidator(0.001, ULONG_MAX, 3, chartDeltaLineEdit));
+		new QDoubleValidator(0.001, INT_MAX, 3, chartDeltaLineEdit));
     loggerDeltaLineEdit->setValidator(
-		new QDoubleValidator(0.001, ULONG_MAX, 3, loggerDeltaLineEdit));
+		new QDoubleValidator(0.001, INT_MAX, 3, loggerDeltaLineEdit));
 }
 
 void SettingsDialog::languageChange()
@@ -150,6 +151,38 @@ void SettingsDialog::flush()
 	globalSettings.chartHighlightName =
 			globalSettings.chartHighlight.name();
     }
+}
+
+void SettingsDialog::buttonOk_clicked()
+{
+    bool inputValid = true;
+    double input;
+
+    if (chartDeltaLineEdit->isModified()) {
+	// convert to seconds, make sure its still in range 0.001-INT_MAX
+	input = KmTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
+	if (input < 0.001 || input > INT_MAX) {
+	    QString msg = tr("Default Chart Sampling Interval is invalid.\n");
+	    msg.append(chartDeltaLineEdit->text());
+	    msg.append(" is out of range (0.001 to 0x7fffffff seconds)\n");
+	    QMessageBox::warning(this, pmProgname, msg);
+	    inputValid = false;
+	}
+    }
+    if (loggerDeltaLineEdit->isModified() && inputValid) {
+	// convert to seconds, make sure its still in range 0.001-INT_MAX
+	input = KmTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
+	if (input < 0.001 || input > INT_MAX) {
+	    QString msg = tr("Default Record Sampling Interval is invalid.\n");
+	    msg.append(loggerDeltaLineEdit->text());
+	    msg.append(" is out of range (0.001 to 0x7fffffff seconds)\n");
+	    QMessageBox::warning(this, pmProgname, msg);
+	    inputValid = false;
+	}
+    }
+
+    if (inputValid)
+	QDialog::accept();
 }
 
 void SettingsDialog::chartDeltaUnitsComboBox_activated(int value)

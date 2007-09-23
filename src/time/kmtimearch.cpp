@@ -158,10 +158,10 @@ void KmTimeArch::init()
     wheelSpeed->setValue(KmTime::defaultSpeed(delta));
     lineEditDelta->setAlignment(Qt::AlignRight);
     lineEditDelta->setValidator(
-		new QDoubleValidator(0.001, ULONG_MAX, 3, lineEditDelta));
+		new QDoubleValidator(0.001, INT_MAX, 3, lineEditDelta));
     lineEditSpeed->setAlignment(Qt::AlignRight);
     lineEditSpeed->setValidator(
-		new QDoubleValidator(0.001, UINT_MAX, 1, lineEditSpeed));
+		new QDoubleValidator(0.001, INT_MAX, 1, lineEditSpeed));
 
     my.bounds = new ShowBounds(this);
     my.bounds->init(&my.absoluteStart, &my.kmtime.start,

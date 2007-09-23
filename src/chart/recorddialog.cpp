@@ -22,7 +22,7 @@ RecordDialog::RecordDialog(QWidget* parent) : QDialog(parent)
 {
     setupUi(this);
     deltaLineEdit->setValidator(
-		new QDoubleValidator(0.001, ULONG_MAX, 3, deltaLineEdit));
+		new QDoubleValidator(0.001, INT_MAX, 3, deltaLineEdit));
 }
 
 void RecordDialog::languageChange()
@@ -231,6 +231,18 @@ QString PmLogger::configure(Chart *cp)
 
 void RecordDialog::buttonOk_clicked()
 {
+    if (deltaLineEdit->isModified()) {
+	// convert to seconds, make sure its still in range 0.001-INT_MAX
+	double input = KmTime::deltaValue(deltaLineEdit->text(), my.units);
+	if (input < 0.001 || input > INT_MAX) {
+	    QString msg = tr("Record Sampling Interval is invalid.\n");
+	    msg.append(deltaLineEdit->text());
+	    msg.append(" is out of range (0.001 to 0x7fffffff seconds)\n");
+	    QMessageBox::warning(this, pmProgname, msg);
+	    return;
+	}
+    }
+
     QString today = QDateTime::currentDateTime().toString("yyyyMMdd.hh:mm:ss");
 
     QString view = viewLineEdit->text().trimmed();
