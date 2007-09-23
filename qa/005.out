@@ -1,0 +1,3 @@
+QA output created by 005
+Load View: stdin
+Error: stdin[2] Syntax error: expecting "metric", found "01"
