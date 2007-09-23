@@ -233,7 +233,6 @@ xpect(char *want, char *got)
 bool OpenViewDialog::openView(const char *path)
 {
     Chart		*cp = NULL;
-    pmMetricSpec	pms;
     int			m;
     QColor		*c;
     FILE		*f;
@@ -559,10 +558,12 @@ abort_chart:
 	    int		nextinst = -1;
 	    int		*instlist = NULL;
 	    char	**namelist = NULL;
+	    pmMetricSpec pms;
 	    regex_t	preg;
 	    int		done_regex = 0;
 	    int		abort = 1;	// default @ skip
 
+	    memset(&pms, 0, sizeof(pms));
 	    if (strcasecmp(w, "chart") == 0) {
 		// new chart
 		state = S_TOP;
