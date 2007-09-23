@@ -37,12 +37,14 @@ public:
     typedef enum {
 	DebugApp = 0x1,
 	DebugProtocol = 0x2,
-	DebugGUI = 0x4,
+	DebugUi = 0x4,
+	DebugGUI = 0x4,		// TODO: remove this one (cleanup)
     } DebugOptions;
 
-    static const double defaultSampleInterval = 2.0;	// seconds
-    static const int defaultVisiblePoints = 60;
-    static const int defaultSamplePoints = 180;
+    static const double defaultChartDelta = 2.0;	// seconds
+    static const double defaultLoggerDelta = 2.0;
+    static const int defaultVisibleHistory = 60;	// points
+    static const int defaultSampleHistory = 180;
     static const int minimumPoints = 2;
     static const int maximumPoints = 360;
     static const int maximumLegendLength = 20;
@@ -95,7 +97,6 @@ public slots:
     virtual void activeTabChanged(QWidget *);
     virtual void editSettings();
     virtual void acceptSettings();
-    virtual void revertSettings();
     virtual void recordStart();
     virtual void recordQuery();
     virtual void recordStop();

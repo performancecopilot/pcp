@@ -17,6 +17,7 @@
 #include "ui_recorddialog.h"
 #include <QtCore/QProcess>
 #include <QtGui/QFileDialog>
+#include "kmtime.h"
 
 class Tab;
 
@@ -28,7 +29,6 @@ public:
     RecordDialog(QWidget* parent);
 
     virtual void init(Tab *tab);
-    virtual void displayDeltaText();
     virtual bool saveFolio(QString, QString);
     virtual bool saveConfig(QString, QString);
     virtual void startLoggers();
@@ -46,19 +46,11 @@ protected slots:
     virtual void languageChange();
 
 private:
-    typedef enum {
-	Milliseconds,	Seconds,
-	Minutes,	Hours,
-	Days,		Weeks,
-    } DeltaUnits;
-
-    double secondsToUnits(double value);
-    QString extractDeltaString();
-
     struct {
 	Tab *tab;
-	DeltaUnits units;
 	QString delta;
+	KmTime::DeltaUnits units;
+
 	QString view;
 	QString folio;
 	QStringList hosts;

@@ -28,26 +28,26 @@
 #include "source.h"
 
 typedef struct {
-	// Samples
-	int		sampleHistory;
-	bool		sampleHistoryModified;
-	int		visibleHistory;
-	bool		visibleHistoryModified;
+	// Sampling
+	double chartDelta;
+	bool chartDeltaModified;
+	double loggerDelta;
+	bool loggerDeltaModified;
+	int sampleHistory;
+	bool sampleHistoryModified;
+	int visibleHistory;
+	bool visibleHistoryModified;
+
 	// Colors
-	QList<QColor>	defaultColors;
-	QStringList	defaultColorNames;
-	bool		defaultColorsModified;
-	QColor		chartBackground;
-	QString		chartBackgroundName;
-	bool		chartBackgroundModified;
-	QColor		chartHighlight;
-	QString		chartHighlightName;
-	bool		chartHighlightModified;
-	// Styles
-	QString		styleName;
-	QStyle		*style;
-	QStyle		*defaultStyle;
-	bool		styleModified;
+	QList<QColor> defaultColors;
+	QStringList defaultColorNames;
+	bool defaultColorsModified;
+	QColor chartBackground;
+	QString chartBackgroundName;
+	bool chartBackgroundModified;
+	QColor chartHighlight;
+	QString chartHighlightName;
+	bool chartHighlightModified;
 } Settings;
 
 extern Settings globalSettings;

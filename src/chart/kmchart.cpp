@@ -74,8 +74,6 @@ void KmChart::init(void)
 				this, SLOT(acceptExport()));
     connect(my.settings->buttonOk, SIGNAL(clicked()),
 				this, SLOT(acceptSettings()));
-    connect(my.settings->buttonCancel, SIGNAL(clicked()),
-				this, SLOT(revertSettings()));
     // connect(my.assistant, SIGNAL(error(const QString &)),
     //				this, SLOT(assistantError(const QString &)));
 
@@ -158,7 +156,7 @@ void KmChart::timeZone(bool live, char *tzdata)
 
 void KmChart::setStyle(char *newlook)
 {
-    globalSettings.style = QApplication::setStyle(tr(newlook));
+    QApplication::setStyle(newlook);
 }
 
 void KmChart::showTimeControl()
@@ -506,11 +504,6 @@ void KmChart::acceptSettings()
 {
     my.settings->flush();
     writeSettings();
-}
-
-void KmChart::revertSettings()
-{
-    my.settings->revert();
 }
 
 void KmChart::setDateLabel(time_t seconds, QString tz)

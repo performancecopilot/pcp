@@ -102,6 +102,8 @@ public:
 
     static double unitsToSeconds(double value, DeltaUnits units);
     static double secondsToUnits(double value, DeltaUnits units);
+    static QString deltaString(double value, DeltaUnits units);
+    static double deltaValue(QString delta, DeltaUnits units);
 };
 
 #endif	// KMTIME_H

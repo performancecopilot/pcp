@@ -15,6 +15,7 @@
 #define SETTINGSDIALOG_H
 
 #include "ui_settingsdialog.h"
+#include "kmtime.h"
 
 class SettingsDialog : public QDialog, public Ui::SettingsDialog
 {
@@ -25,7 +26,6 @@ public:
 
     virtual int defaultColorArray(QPushButton *** array);
     virtual void reset();
-    virtual void revert();
     virtual void flush();
     virtual void displayTotalSlider();
     virtual void displayVisibleSlider();
@@ -33,38 +33,46 @@ public:
     virtual void displayVisibleCounter();
 
 public slots:
-    virtual void visibleValueChanged(int value);
-    virtual void totalValueChanged(int value);
-    virtual void chartHighlightPushButtonClicked();
-    virtual void chartBackgroundPushButtonClicked();
-    virtual void defaultColorsPushButton1Clicked();
-    virtual void defaultColorsPushButton2Clicked();
-    virtual void defaultColorsPushButton3Clicked();
-    virtual void defaultColorsPushButton4Clicked();
-    virtual void defaultColorsPushButton5Clicked();
-    virtual void defaultColorsPushButton6Clicked();
-    virtual void defaultColorsPushButton7Clicked();
-    virtual void defaultColorsPushButton8Clicked();
-    virtual void defaultColorsPushButton9Clicked();
-    virtual void defaultColorsPushButton10Clicked();
-    virtual void defaultColorsPushButton11Clicked();
-    virtual void defaultColorsPushButton12Clicked();
-    virtual void defaultColorsPushButton13Clicked();
-    virtual void defaultColorsPushButton14Clicked();
-    virtual void defaultColorsPushButton15Clicked();
-    virtual void defaultColorsPushButton16Clicked();
-    virtual void defaultColorsPushButton17Clicked();
-    virtual void defaultColorsPushButton18Clicked();
+    virtual void chartDeltaUnitsComboBox_activated(int value);
+    virtual void loggerDeltaUnitsComboBox_activated(int value);
+    virtual void visible_valueChanged(int value);
+    virtual void sample_valueChanged(int value);
+    virtual void chartHighlightPushButton_clicked();
+    virtual void chartBackgroundPushButton_clicked();
+    virtual void defaultColorsPushButton1_clicked();
+    virtual void defaultColorsPushButton2_clicked();
+    virtual void defaultColorsPushButton3_clicked();
+    virtual void defaultColorsPushButton4_clicked();
+    virtual void defaultColorsPushButton5_clicked();
+    virtual void defaultColorsPushButton6_clicked();
+    virtual void defaultColorsPushButton7_clicked();
+    virtual void defaultColorsPushButton8_clicked();
+    virtual void defaultColorsPushButton9_clicked();
+    virtual void defaultColorsPushButton10_clicked();
+    virtual void defaultColorsPushButton11_clicked();
+    virtual void defaultColorsPushButton12_clicked();
+    virtual void defaultColorsPushButton13_clicked();
+    virtual void defaultColorsPushButton14_clicked();
+    virtual void defaultColorsPushButton15_clicked();
+    virtual void defaultColorsPushButton16_clicked();
+    virtual void defaultColorsPushButton17_clicked();
+    virtual void defaultColorsPushButton18_clicked();
+    virtual void defaultColorsPushButton19_clicked();
+    virtual void defaultColorsPushButton20_clicked();
+    virtual void defaultColorsPushButton21_clicked();
+    virtual void defaultColorsPushButton22_clicked();
+    virtual void defaultColorsPushButton23_clicked();
+    virtual void defaultColorsPushButton24_clicked();
 
 protected:
     struct {
-	int visible;
-	int total;
-	QStyle *savedStyle;
-	QString savedStyleName;
+	KmTime::DeltaUnits chartUnits;
+	KmTime::DeltaUnits loggerUnits;
+	int visibleHistory;
+	int sampleHistory;
     } my;
 
-    void defaultColorsPushButtonNClicked(int);
+    void defaultColorsPushButtonClicked(int);
 
 protected slots:
     virtual void languageChange();

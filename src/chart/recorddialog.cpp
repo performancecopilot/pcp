@@ -30,27 +30,6 @@ void RecordDialog::languageChange()
     retranslateUi(this);
 }
 
-// Conversion from seconds into other time units
-double RecordDialog::secondsToUnits(double value)
-{
-    switch (my.units) {
-    case Milliseconds:
-	return value * 1000.0;
-    case Minutes:
-	return value / 60.0;
-    case Hours:
-	return value / (60.0 * 60.0);
-    case Days:
-	return value / (60.0 * 60.0 * 24.0);
-    case Weeks:
-	return value / (60.0 * 60.0 * 24.0 * 7.0);
-    case Seconds:
-    default:
-	break;
-    }
-    return value;
-}
-
 void RecordDialog::init(Tab *tab)
 {
     QDir	pmloggerDir;
@@ -68,17 +47,12 @@ void RecordDialog::init(Tab *tab)
     archiveLineEdit->setText(archive);
 
     my.tab = tab;
-    my.units = Seconds;
-    displayDeltaText();
+    my.units = KmTime::Seconds;
+    deltaLineEdit->setText(
+		KmTime::deltaString(globalSettings.loggerDelta, my.units));
 
     selectedRadioButton->setChecked(false);
     allChartsRadioButton->setChecked(true);
-}
-
-void RecordDialog::deltaUnitsComboBox_activated(int value)
-{
-    my.units = (DeltaUnits)value;
-    displayDeltaText();
 }
 
 void RecordDialog::selectedRadioButton_clicked()
@@ -93,17 +67,11 @@ void RecordDialog::allChartsRadioButton_clicked()
     allChartsRadioButton->setChecked(true);
 }
 
-void RecordDialog::displayDeltaText()
+void RecordDialog::deltaUnitsComboBox_activated(int value)
 {
-    QString	text;
-    double	delta = tosec(*(kmtime->liveInterval()));
-
-    delta = secondsToUnits(delta);
-    if ((double)(int)delta == delta)
-	text.sprintf("%.2f", delta);
-    else
-	text.sprintf("%.6f", delta);
-    deltaLineEdit->setText(text);
+    double delta = tosec(*(kmtime->liveInterval()));
+    my.units = (KmTime::DeltaUnits)value;
+    deltaLineEdit->setText(KmTime::deltaString(delta, my.units));
 }
 
 void RecordDialog::viewPushButton_clicked()
@@ -185,37 +153,6 @@ bool RecordDialog::saveConfig(QString configfile, QString configdata)
     QTextStream stream(&config);
     stream << configdata;
     return true;
-}
-
-QString RecordDialog::extractDeltaString()
-{
-    double value = deltaLineEdit->text().trimmed().toDouble();
-    QString deltaString;
-
-    switch (my.units) {
-    case Milliseconds:
-	deltaString.append("sec");
-	value *= 1000;
-	break;
-    default:
-    case Seconds:
-	deltaString.append("sec");
-	break;
-    case Minutes:
-	deltaString.append("min");
-	break;
-    case Hours:
-	deltaString.append("hour");
-	break;
-    case Days:
-	deltaString.append("day");
-	break;
-    case Weeks:
-	deltaString.append("day");
-	value *= 7;
-	break;
-    }
-    return deltaString.setNum(value, 'f');
 }
 
 PmLogger::PmLogger(QObject *parent) : QProcess(parent)
@@ -329,7 +266,7 @@ void RecordDialog::buttonOk_clicked()
 
     my.view  = view;
     my.folio = folio;
-    my.delta = extractDeltaString();
+    my.delta.setNum(KmTime::deltaValue(deltaLineEdit->text(), my.units), 'f');
 
     for (int c = 0; c < activeTab->numChart(); c++) {
 	Chart *cp = activeTab->chart(c);

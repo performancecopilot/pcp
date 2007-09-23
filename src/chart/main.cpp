@@ -23,21 +23,21 @@
 
 #define DESPERATE 0
 
-int		Cflag;
-QFont		globalFont;
-Settings	globalSettings;
+int Cflag;
+QFont globalFont;
+Settings globalSettings;
 
 // Globals used to provide single instances of classes used across kmchart
-Tab 		*activeTab;	// currently active Tab
-QList<Tab *>	tabs;		// list of Tabs (pages)
-QmcGroup	*liveGroup;	// one metrics class group for all hosts
-QmcGroup	*archiveGroup;	// one metrics class group for all archives
-QmcGroup	*activeGroup;	// currently active metric fetchgroup
-Source 		*liveSources;	// one source class for all host sources
-Source		*archiveSources;// one source class for all archive sources
-Source		*activeSources;	// currently active list of sources
-TimeControl	*kmtime;	// one timecontrol class for kmtime
-KmChart		*kmchart;
+Tab *activeTab;		// currently active Tab
+QList<Tab*> tabs;	// list of Tabs (pages)
+QmcGroup *liveGroup;	// one metrics class group for all hosts
+QmcGroup *archiveGroup;	// one metrics class group for all archives
+QmcGroup *activeGroup;	// currently active metric fetchgroup
+Source *liveSources;	// one source class for all host sources
+Source *archiveSources;	// one source class for all archive sources
+Source *activeSources;	// currently active list of sources
+TimeControl *kmtime;	// one timecontrol class for kmtime
+KmChart *kmchart;
 
 static void usage(void)
 {
@@ -58,8 +58,8 @@ static void usage(void)
 "  -v samples    visible history [default: %d points]\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time of metrics source\n",
-	pmProgname, KmChart::defaultSamplePoints,
-	KmChart::defaultSampleInterval, KmChart::defaultVisiblePoints);
+	pmProgname, globalSettings.sampleHistory, globalSettings.chartDelta,
+	globalSettings.visibleHistory);
     pmflush();
     exit(1);
 }
@@ -107,10 +107,63 @@ char *timeString(double seconds)
     return s;
 }
 
+double KmTime::secondsToUnits(double value, KmTime::DeltaUnits units)
+{
+    switch (units) {
+    case Milliseconds:
+	value = value * 1000.0;
+	break;
+    case Minutes:
+	value = value / 60.0;
+	break;
+    case Hours:
+	value = value / (60.0 * 60.0);
+	break;
+    case Days:
+	value = value / (60.0 * 60.0 * 24.0);
+	break;
+    case Weeks:
+	value = value / (60.0 * 60.0 * 24.0 * 7.0);
+	break;
+    case Seconds:
+    default:
+	break;
+    }
+    return value;
+}
+
+double KmTime::deltaValue(QString delta, KmTime::DeltaUnits units)
+{
+    return KmTime::secondsToUnits(delta.trimmed().toDouble(), units);
+}
+
+QString KmTime::deltaString(double value, KmTime::DeltaUnits units)
+{
+    QString delta;
+
+    value = KmTime::secondsToUnits(value, units);
+    if ((double)(int)value == value)
+	delta.sprintf("%.2f", value);
+    else
+	delta.sprintf("%.6f", value);
+    return delta;
+}
+
 void nomem(void)
 {
     // no point trying to report anything ... dump core is the best bet
     abort();
+}
+
+void setupEnvironment(void)
+{
+    QString confirm = pmGetConfig("PCP_BIN_DIR");
+    confirm.append("/kmquery");
+    setenv("PCP_XCONFIRM_PROG", (const char *)confirm.toAscii(), 1);
+    setenv("PCP_STDERR", "DISPLAY", 1);
+
+    QCoreApplication::setOrganizationName("PCP");
+    QCoreApplication::setApplicationName("kmchart");
 }
 
 void writeSettings(void)
@@ -121,21 +174,23 @@ void writeSettings(void)
 
     QSettings userSettings;
     userSettings.beginGroup("kmchart");
+    if (globalSettings.chartDeltaModified)
+	userSettings.setValue("chartDelta", globalSettings.chartDelta);
+    if (globalSettings.loggerDeltaModified)
+	userSettings.setValue("loggerDelta", globalSettings.loggerDelta);
     if (globalSettings.sampleHistoryModified)
-	userSettings.setValue("sample_points", globalSettings.sampleHistory);
+	userSettings.setValue("sampleHistory", globalSettings.sampleHistory);
     if (globalSettings.visibleHistoryModified)
-	userSettings.setValue("visible_points", globalSettings.visibleHistory);
+	userSettings.setValue("visibleHistory", globalSettings.visibleHistory);
     if (globalSettings.defaultColorsModified)
-	userSettings.setValue("plot_default_colors",
+	userSettings.setValue("plotDefaultColors",
 				globalSettings.defaultColorNames);
     if (globalSettings.chartBackgroundModified)
-	userSettings.setValue("chart_background_color",
+	userSettings.setValue("chartBackgroundColor",
 				globalSettings.chartBackgroundName);
     if (globalSettings.chartHighlightModified)
-	userSettings.setValue("chart_highlight_color",
+	userSettings.setValue("chartHighlightColor",
 				globalSettings.chartHighlightName);
-    if (globalSettings.styleModified)
-	userSettings.setValue("style", globalSettings.styleName);
     userSettings.endGroup();
 }
 
@@ -164,17 +219,6 @@ void checkHistory(int samples, int visible)
     }
 }
 
-void setupEnvironment(void)
-{
-    QString confirm = pmGetConfig("PCP_BIN_DIR");
-    confirm.append("/kmquery");
-    setenv("PCP_XCONFIRM_PROG", (const char *)confirm.toAscii(), 1);
-    setenv("PCP_STDERR", "DISPLAY", 1);
-
-    QCoreApplication::setOrganizationName("PCP");
-    QCoreApplication::setApplicationName("kmchart");
-}
-
 void readSettings(void)
 {
     QString home = QDir::homePath();
@@ -182,55 +226,43 @@ void readSettings(void)
     QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, home);
 
     QSettings userSettings;
-    userSettings.beginGroup(QApplication::tr("kmchart"));
+    userSettings.beginGroup("kmchart");
 
     //
-    // Parameters related to numbers of samples
+    // Parameters related to sampling
     //
-    globalSettings.sampleHistory = userSettings.value("sample_points",
-					KmChart::defaultSamplePoints).toInt();
-    globalSettings.visibleHistory = userSettings.value("visible_points",
-					KmChart::defaultVisiblePoints).toInt();
+    globalSettings.chartDelta = userSettings.value("chartDelta",
+					KmChart::defaultChartDelta).toDouble();
+    globalSettings.loggerDelta = userSettings.value("loggerDelta",
+					KmChart::defaultLoggerDelta).toDouble();
+    globalSettings.sampleHistory = userSettings.value("sampleHistory",
+					KmChart::defaultSampleHistory).toInt();
+    globalSettings.visibleHistory = userSettings.value("visibleHistory",
+					KmChart::defaultVisibleHistory).toInt();
     checkHistory(globalSettings.sampleHistory, globalSettings.visibleHistory);
     if (globalSettings.sampleHistoryModified)
-	userSettings.setValue("sample_points", globalSettings.sampleHistory);
+	userSettings.setValue("samplePoints", globalSettings.sampleHistory);
     if (globalSettings.visibleHistoryModified)
-	userSettings.setValue("visible_points", globalSettings.visibleHistory);
+	userSettings.setValue("visiblePoints", globalSettings.visibleHistory);
 
     //
     // Everything colour related
     //
     QStringList colorList;
-    if (userSettings.contains("plot_default_colors") == true)
-	colorList = userSettings.value("plot_default_colors").toStringList();
+    if (userSettings.contains("plotDefaultColors") == true)
+	colorList = userSettings.value("plotDefaultColors").toStringList();
     else
-	colorList << QApplication::tr("yellow") << QApplication::tr("blue") <<
-			QApplication::tr("red") << QApplication::tr("green") <<
-			QApplication::tr("violet");
+	colorList << "yellow" << "blue" << "red" << "green" << "violet";
     globalSettings.defaultColorNames = colorList;
-
-    QStringList::Iterator it = colorList.begin();
-    while (it != colorList.end()) {
-	globalSettings.defaultColors << QColor(*it);
-	++it;
-    }
-
+    for (int i = 0; i < colorList.size(); i++)
+	globalSettings.defaultColors << QColor(colorList.at(i));
     globalSettings.chartBackgroundName = userSettings.value(
-		"chart_background_color", "black").toString();
+		"chartBackgroundColor", "black").toString();
     globalSettings.chartBackground = QColor(globalSettings.chartBackgroundName);
 
     globalSettings.chartHighlightName = userSettings.value(
-		"chart_highlight_color", "blue").toString();
+		"chartHighlightColor", "blue").toString();
     globalSettings.chartHighlight = QColor(globalSettings.chartHighlightName);
-
-    //
-    // Application GUI Styles
-    //
-    globalSettings.defaultStyle = globalSettings.style = QApplication::style();
-    if (userSettings.contains("style") == true) {
-	globalSettings.styleName = userSettings.value("style").toString();
-	QApplication::setStyle(globalSettings.styleName);
-    }
 
     userSettings.endGroup();
 }
@@ -264,12 +296,12 @@ main(int argc, char ** argv)
     QString		tzLabel;
     QString		tzString;
 
-    fromsec(KmChart::defaultSampleInterval, &delta);	// TODO: QSetting
-
     QApplication a(argc, argv);
     pmProgname = basename(argv[0]);
     setupEnvironment();
     readSettings();
+
+    fromsec(globalSettings.chartDelta, &delta);
 
     liveGroup = new QmcGroup();
     liveSources = new Source(liveGroup);

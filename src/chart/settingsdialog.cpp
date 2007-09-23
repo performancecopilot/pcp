@@ -18,6 +18,10 @@
 SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent)
 {
     setupUi(this);
+    chartDeltaLineEdit->setValidator(
+		new QDoubleValidator(0.001, ULONG_MAX, 3, chartDeltaLineEdit));
+    loggerDeltaLineEdit->setValidator(
+		new QDoubleValidator(0.001, ULONG_MAX, 3, loggerDeltaLineEdit));
 }
 
 void SettingsDialog::languageChange()
@@ -37,6 +41,9 @@ int SettingsDialog::defaultColorArray(QPushButton ***array)
 	defaultColorsPushButton13, defaultColorsPushButton14,
 	defaultColorsPushButton15, defaultColorsPushButton16,
 	defaultColorsPushButton17, defaultColorsPushButton18,
+	defaultColorsPushButton19, defaultColorsPushButton20,
+	defaultColorsPushButton21, defaultColorsPushButton22,
+	defaultColorsPushButton23, defaultColorsPushButton24,
     };
     *array = &buttons[0];
     return sizeof(buttons) / sizeof(buttons[0]);
@@ -48,20 +55,20 @@ void SettingsDialog::reset()
     QPalette palette;
     int i, colorCount;
 
-    my.visible = my.total = 0;
-    globalSettings.sampleHistoryModified = false;
-    globalSettings.visibleHistoryModified = false;
-    globalSettings.defaultColorsModified = false;
-    globalSettings.chartBackgroundModified = false;
-    globalSettings.chartHighlightModified = false;
-    globalSettings.styleModified = false;
+    my.chartUnits = KmTime::Seconds;
+    chartDeltaLineEdit->setText(
+	KmTime::deltaString(globalSettings.chartDelta, my.chartUnits));
+    my.loggerUnits = KmTime::Seconds;
+    loggerDeltaLineEdit->setText(
+	KmTime::deltaString(globalSettings.loggerDelta, my.loggerUnits));
 
+    my.visibleHistory = my.sampleHistory = 0;
     visibleCounter->setValue(globalSettings.visibleHistory);
     visibleSlider->setValue(globalSettings.visibleHistory);
     visibleSlider->setRange(KmChart::minimumPoints, KmChart::maximumPoints);
-    totalCounter->setValue(globalSettings.sampleHistory);
-    totalSlider->setValue(globalSettings.sampleHistory);
-    totalSlider->setRange(KmChart::minimumPoints, KmChart::maximumPoints);
+    sampleCounter->setValue(globalSettings.sampleHistory);
+    sampleSlider->setValue(globalSettings.sampleHistory);
+    sampleSlider->setRange(KmChart::minimumPoints, KmChart::maximumPoints);
 
     palette.setBrush(chartBackgroundPushButton->backgroundRole(),
 					globalSettings.chartBackground);
@@ -82,37 +89,31 @@ void SettingsDialog::reset()
 	buttons[i]->setPalette(palette);
     }
 
-    my.savedStyle = globalSettings.style;
-    my.savedStyleName = globalSettings.styleName;
-    for (i = 0; i < systemStyleComboBox->count(); i++)
-	if (systemStyleComboBox->itemText(i) == my.savedStyleName)
-	    break;
-    systemStyleComboBox->setCurrentIndex(i);
-}
-
-void SettingsDialog::revert()
-{
-    // Style is special - we make immediate changes for instant feedback
-    // TODO: this doesn't work.  Problem is the default case where we do
-    // not have a known style name to fallback to...
-    // TODO: make visible/sample points "special" too.
-
-    if (globalSettings.styleModified) {
-	if (my.savedStyleName == QString::null)
-	    my.savedStyleName = tr("");
-	globalSettings.styleName = my.savedStyleName;
-	globalSettings.style = QApplication::setStyle(my.savedStyleName);
-	kmtime->styleTimeControl((char *)(const char *)
-					my.savedStyleName.toAscii());
-    }
+    globalSettings.chartDeltaModified = false;
+    globalSettings.loggerDeltaModified = false;
+    globalSettings.sampleHistoryModified = false;
+    globalSettings.visibleHistoryModified = false;
+    globalSettings.defaultColorsModified = false;
+    globalSettings.chartBackgroundModified = false;
+    globalSettings.chartHighlightModified = false;
 }
 
 void SettingsDialog::flush()
 {
+    globalSettings.chartDeltaModified = chartDeltaLineEdit->isModified();
+    globalSettings.loggerDeltaModified = loggerDeltaLineEdit->isModified();
+
+    if (globalSettings.chartDeltaModified)
+	globalSettings.chartDelta =
+		KmTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
+    if (globalSettings.loggerDeltaModified)
+	globalSettings.loggerDelta =
+		KmTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
+
     if (globalSettings.visibleHistoryModified)
-	globalSettings.visibleHistory = (int)my.visible;
+	globalSettings.visibleHistory = my.visibleHistory;
     if (globalSettings.sampleHistoryModified)
-	globalSettings.sampleHistory = (int)my.total;
+	globalSettings.sampleHistory = my.sampleHistory;
 
     if (globalSettings.defaultColorsModified) {
 	QPushButton **buttons;
@@ -149,25 +150,39 @@ void SettingsDialog::flush()
     }
 }
 
-void SettingsDialog::visibleValueChanged(int value)
+void SettingsDialog::chartDeltaUnitsComboBox_activated(int value)
 {
-    if (value != my.visible) {
-	my.visible = value;
+    double v = KmTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
+    my.chartUnits = (KmTime::DeltaUnits)value;
+    chartDeltaLineEdit->setText(KmTime::deltaString(v, my.chartUnits));
+}
+
+void SettingsDialog::loggerDeltaUnitsComboBox_activated(int value)
+{
+    double v = KmTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
+    my.loggerUnits = (KmTime::DeltaUnits)value;
+    loggerDeltaLineEdit->setText(KmTime::deltaString(v, my.loggerUnits));
+}
+
+void SettingsDialog::visible_valueChanged(int value)
+{
+    if (value != my.visibleHistory) {
+	my.visibleHistory = value;
 	displayVisibleCounter();
 	displayVisibleSlider();
-	if (my.visible > my.total)
-	    totalSlider->setValue(value);
+	if (my.visibleHistory > my.sampleHistory)
+	    sampleSlider->setValue(value);
 	globalSettings.visibleHistoryModified = true;
     }
 }
 
-void SettingsDialog::totalValueChanged(int value)
+void SettingsDialog::sample_valueChanged(int value)
 {
-    if (value != my.total) {
-	my.total = value;
+    if (value != my.sampleHistory) {
+	my.sampleHistory = value;
 	displayTotalCounter();
 	displayTotalSlider();
-	if (my.visible > my.total)
+	if (my.visibleHistory > my.sampleHistory)
 	    visibleSlider->setValue(value);
 	globalSettings.sampleHistoryModified = true;
     }
@@ -175,33 +190,33 @@ void SettingsDialog::totalValueChanged(int value)
 
 void SettingsDialog::displayTotalSlider()
 {
-    totalSlider->blockSignals(true);
-    totalSlider->setValue(my.total);
-    totalSlider->blockSignals(false);
+    sampleSlider->blockSignals(true);
+    sampleSlider->setValue(my.sampleHistory);
+    sampleSlider->blockSignals(false);
 }
 
 void SettingsDialog::displayVisibleSlider()
 {
     visibleSlider->blockSignals(true);
-    visibleSlider->setValue(my.visible);
+    visibleSlider->setValue(my.visibleHistory);
     visibleSlider->blockSignals(false);
 }
 
 void SettingsDialog::displayTotalCounter()
 {
-    totalCounter->blockSignals(true);
-    totalCounter->setValue(my.total);
-    totalCounter->blockSignals(false);
+    sampleCounter->blockSignals(true);
+    sampleCounter->setValue(my.sampleHistory);
+    sampleCounter->blockSignals(false);
 }
 
 void SettingsDialog::displayVisibleCounter()
 {
     visibleCounter->blockSignals(true);
-    visibleCounter->setValue(my.visible);
+    visibleCounter->setValue(my.visibleHistory);
     visibleCounter->blockSignals(false);
 }
 
-void SettingsDialog::chartHighlightPushButtonClicked()
+void SettingsDialog::chartHighlightPushButton_clicked()
 {
     QPalette palette = chartHighlightPushButton->palette();
     QColor newColor = QColorDialog::getColor(
@@ -213,7 +228,7 @@ void SettingsDialog::chartHighlightPushButtonClicked()
     }
 }
 
-void SettingsDialog::chartBackgroundPushButtonClicked()
+void SettingsDialog::chartBackgroundPushButton_clicked()
 {
     QPalette palette = chartBackgroundPushButton->palette();
     QColor newColor = QColorDialog::getColor(
@@ -225,7 +240,7 @@ void SettingsDialog::chartBackgroundPushButtonClicked()
     }
 }
 
-void SettingsDialog::defaultColorsPushButtonNClicked(int n)
+void SettingsDialog::defaultColorsPushButtonClicked(int n)
 {
     QPushButton **buttons;
 
@@ -243,92 +258,122 @@ void SettingsDialog::defaultColorsPushButtonNClicked(int n)
     }
 }
 
-void SettingsDialog::defaultColorsPushButton1Clicked()
+void SettingsDialog::defaultColorsPushButton1_clicked()
 {
-    defaultColorsPushButtonNClicked(1);
+    defaultColorsPushButtonClicked(1);
 }
 
-void SettingsDialog::defaultColorsPushButton2Clicked()
+void SettingsDialog::defaultColorsPushButton2_clicked()
 {
-    defaultColorsPushButtonNClicked(2);
+    defaultColorsPushButtonClicked(2);
 }
 
-void SettingsDialog::defaultColorsPushButton3Clicked()
+void SettingsDialog::defaultColorsPushButton3_clicked()
 {
-    defaultColorsPushButtonNClicked(3);
+    defaultColorsPushButtonClicked(3);
 }
 
-void SettingsDialog::defaultColorsPushButton4Clicked()
+void SettingsDialog::defaultColorsPushButton4_clicked()
 {
-    defaultColorsPushButtonNClicked(4);
+    defaultColorsPushButtonClicked(4);
 }
 
-void SettingsDialog::defaultColorsPushButton5Clicked()
+void SettingsDialog::defaultColorsPushButton5_clicked()
 {
-    defaultColorsPushButtonNClicked(5);
+    defaultColorsPushButtonClicked(5);
 }
 
-void SettingsDialog::defaultColorsPushButton6Clicked()
+void SettingsDialog::defaultColorsPushButton6_clicked()
 {
-    defaultColorsPushButtonNClicked(6);
+    defaultColorsPushButtonClicked(6);
 }
 
-void SettingsDialog::defaultColorsPushButton7Clicked()
+void SettingsDialog::defaultColorsPushButton7_clicked()
 {
-    defaultColorsPushButtonNClicked(7);
+    defaultColorsPushButtonClicked(7);
 }
 
-void SettingsDialog::defaultColorsPushButton8Clicked()
+void SettingsDialog::defaultColorsPushButton8_clicked()
 {
-    defaultColorsPushButtonNClicked(8);
+    defaultColorsPushButtonClicked(8);
 }
 
-void SettingsDialog::defaultColorsPushButton9Clicked()
+void SettingsDialog::defaultColorsPushButton9_clicked()
 {
-    defaultColorsPushButtonNClicked(9);
+    defaultColorsPushButtonClicked(9);
 }
 
-void SettingsDialog::defaultColorsPushButton10Clicked()
+void SettingsDialog::defaultColorsPushButton10_clicked()
 {
-    defaultColorsPushButtonNClicked(10);
+    defaultColorsPushButtonClicked(10);
 }
 
-void SettingsDialog::defaultColorsPushButton11Clicked()
+void SettingsDialog::defaultColorsPushButton11_clicked()
 {
-    defaultColorsPushButtonNClicked(11);
+    defaultColorsPushButtonClicked(11);
 }
 
-void SettingsDialog::defaultColorsPushButton12Clicked()
+void SettingsDialog::defaultColorsPushButton12_clicked()
 {
-    defaultColorsPushButtonNClicked(12);
+    defaultColorsPushButtonClicked(12);
 }
 
-void SettingsDialog::defaultColorsPushButton13Clicked()
+void SettingsDialog::defaultColorsPushButton13_clicked()
 {
-    defaultColorsPushButtonNClicked(13);
+    defaultColorsPushButtonClicked(13);
 }
 
-void SettingsDialog::defaultColorsPushButton14Clicked()
+void SettingsDialog::defaultColorsPushButton14_clicked()
 {
-    defaultColorsPushButtonNClicked(14);
+    defaultColorsPushButtonClicked(14);
 }
 
-void SettingsDialog::defaultColorsPushButton15Clicked()
+void SettingsDialog::defaultColorsPushButton15_clicked()
 {
-    defaultColorsPushButtonNClicked(15);
+    defaultColorsPushButtonClicked(15);
 }
 
-void SettingsDialog::defaultColorsPushButton16Clicked()
+void SettingsDialog::defaultColorsPushButton16_clicked()
 {
-    defaultColorsPushButtonNClicked(16);
+    defaultColorsPushButtonClicked(16);
 }
 
-void SettingsDialog::defaultColorsPushButton17Clicked()
+void SettingsDialog::defaultColorsPushButton17_clicked()
 {
-    defaultColorsPushButtonNClicked(17);
+    defaultColorsPushButtonClicked(17);
 }
 
-void SettingsDialog::defaultColorsPushButton18Clicked()
+void SettingsDialog::defaultColorsPushButton18_clicked()
 {
-    defaultColorsPushButtonNClicked(18);
+    defaultColorsPushButtonClicked(18);
+}
+
+void SettingsDialog::defaultColorsPushButton19_clicked()
+{
+    defaultColorsPushButtonClicked(19);
+}
+
+void SettingsDialog::defaultColorsPushButton20_clicked()
+{
+    defaultColorsPushButtonClicked(20);
+}
+
+void SettingsDialog::defaultColorsPushButton21_clicked()
+{
+    defaultColorsPushButtonClicked(21);
+}
+
+void SettingsDialog::defaultColorsPushButton22_clicked()
+{
+    defaultColorsPushButtonClicked(22);
+}
+
+void SettingsDialog::defaultColorsPushButton23_clicked()
+{
+    defaultColorsPushButtonClicked(23);
+}
+
+void SettingsDialog::defaultColorsPushButton24_clicked()
+{
+    defaultColorsPushButtonClicked(24);
 }
