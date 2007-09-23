@@ -1,5 +1,7 @@
 . /etc/pcp.env
 
+export PCP_STDERR=""
+
 case `pwd`
 in
     */qa)
