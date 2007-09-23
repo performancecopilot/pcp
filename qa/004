@@ -14,9 +14,6 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 here=`pwd`
-sudo=''
-[ -x sudo ] && sudo=$here/sudo
-$sudo rm -rf $tmp.*
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
