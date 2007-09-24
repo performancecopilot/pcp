@@ -504,7 +504,8 @@ new_chart:
 		}
 done_chart:
 		if (pmDebug & DBG_TRACE_APPL2) {
-		    fprintf(stderr, "openView: new chart: style=%s", stylestr(style));
+		    fprintf(stderr, "openView: new chart: style=%s",
+				    stylestr(style));
 		    if (title != NULL)
 			fprintf(stderr, " title=\"%s\"", title);
 		    if (autoscale)
@@ -532,18 +533,32 @@ abort_chart:
 		// specification, abandon this one
 		if (title != NULL) free(title);
 		goto abandon;
-
 	    }
 	    else if (strcasecmp(w, "global") == 0) {
+		//
+		// *** KMCHART 1.0 EXCEPTION: ***
 		// TODO -- global is an alternative clause to Chart at
 		// this point in the config file ... no support for global
-		// options to set window height, window width, number of
-		// visible points, ...
+		// options to set: "width", "height", "points" (visible)
+		//
 		err(E_WARN, true, QString("global clause not supported yet"));
 		skip2eol(f);
 	    }
+	    else if (strcasecmp(w, "scheme") == 0) {
+		//
+		// *** KMCHART 1.0 EXCEPTION: ***
+		// TODO -- scheme <name> <color> <color>...
+		// provides finer-grained control over the color selections
+		// for an individual chart.  The default color scheme is
+		// named #-cycle.  A scheme can be used in place of a direct
+		// color name specification, and the color for a plot is
+		// then defined as the next unused color from that scheme.
+		//
+		err(E_WARN, true, QString("scheme clause not supported yet"));
+		skip2eol(f);
+	    }
 	    else {
-		xpect("chart\" or \"global", w);
+		xpect("chart\", \"global\", or \"scheme", w);
 		goto abandon;
 	    }
 	}
@@ -730,10 +745,11 @@ abort_chart:
 	    if (Cflag == 0) {
 		pms.isarch = activeTab->isArchiveSource();
 		if (host != NULL) {
-		    // TODO -- literal host ... anything more to be done?
+		    // host literal, add to the list of sources
 		    pms.source = strdup(host);
-		    // TODO -- need to get host into Sources if not already
-		    // there
+		    activeSources->add(activeGroup->which());
+		    if (activeGroup == archiveGroup)
+			activeGroup->updateBounds();
 		}
 		else {
 		    // no explicit host, use current default source

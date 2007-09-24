@@ -97,6 +97,8 @@ Refer to doc/INSTALL for instructions on building these tools.
 
 === Wishlist TODO items ===
 
+    - Add the last two missing pieces of functionality from the pmchart
+      configuration language - i.e. the "global" and "scheme" keywords.
     - All uses of Qwt counters/sliders should be replaced since they
       dont follow style at all (hence look ordinary).  Could try to
       build on top of the integer based one - mouse movement is going
