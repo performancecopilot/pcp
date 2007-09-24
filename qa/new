@@ -1,12 +1,10 @@
 #! /bin/sh
 #
-# Make a new kmchart QA test
-# ... stolen from PCP QA
+# Make a new kmchart QA test ... stolen from PCP QA
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2006 Ken McDonell.  All Rights Reserved.
-#
-# $Id: new,v 1.1 2006/01/20 18:38:28 kenj Exp $
+# Copyright (c) 2007 Aconex.  All Rights Reserved.
 #
 # Usage: new [group ...]
 #
@@ -26,8 +24,6 @@ then
     echo "Creating the group index ..."
     cat <<'End-of-File' >group
 # QA groups control
-#
-# $Id: new,v 1.1 2006/01/20 18:38:28 kenj Exp $
 #
 # define groups and default owners
 # do not start group name with a digit
@@ -100,9 +96,10 @@ cat <<End-of-File | sed -e '/revision/s//Revision: 1.1 /' >$id
 # kmchart QA Test No. $id
 # \$revision\$
 #
-# what am I here for?
+# (what am I here for?)
 #
-# Copyright (c) `date +%Y` Ken McDonell.  All Rights Reserved.
+# Copyright (c) `date +%Y` (who wrote me?).  All Rights Reserved.
+#
 
 seq=\`basename \$0\`
 echo "QA output created by \$seq"
