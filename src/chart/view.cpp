@@ -952,9 +952,6 @@ bool SaveViewDialog::saveView(QString filename, bool dynamic)
     double	ymax;
     const char	*path = (const char *)filename.toAscii();
 
-    // TODO - host dynamic vs literal - needs more code here.
-    (void)dynamic;
-
     if ((f = fopen(path, "w")) == NULL) {
 	QString	msg;
 	msg.sprintf("Cannot open \"%s\" for writing\n%s", path, strerror(errno));
@@ -1003,6 +1000,9 @@ bool SaveViewDialog::saveView(QString filename, bool dynamic)
 	    if (p != NULL)
 		fprintf(f, " legend \"%s\"", p);
 	    fprintf(f, " color %s", (const char *)cp->color(m).name().toAscii());
+	    if (!dynamic)
+		fprintf(f, " host %s", (const char *)
+			cp->metricContext(m)->source().host().toAscii());
 	    p = (char *)(const char *)cp->name(m).toAscii();
 	    if ((q = strstr(p, "[")) != NULL) {
 		// metric with an instance
