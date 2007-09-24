@@ -10,7 +10,7 @@ Refer to doc/INSTALL for instructions on building these tools.
 
 === 1.0 TODO list ===
 
-    - Write QA testcases as each area is completed.
+    - Write interactive QA testcases as each area is checked:
 	[x] qa/record-testcases
 	[x] qa/settings-testcases
 	[ ] qa/create-save-view-testcases
@@ -21,6 +21,8 @@ Refer to doc/INSTALL for instructions on building these tools.
 	[ ] qa/timezone-testcases
 	[ ] qa/help-system-testcases
 	[ ] qa/query-testcases
+    - Write automated QA for Save View (need a new command line option),
+      then with -C and -c, open (multiple) views, save, then verify.
 
   kmchart
 

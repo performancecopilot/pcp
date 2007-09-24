@@ -36,9 +36,11 @@ public:
 
     typedef enum {
 	DebugApp = 0x1,
+	DebugUi = 0x1,
+	DebugGUI = 0x1,	// TODO: remove this name
 	DebugProtocol = 0x2,
-	DebugUi = 0x4,
-	DebugGUI = 0x4,		// TODO: remove this one (cleanup)
+	DebugView = 0x4,
+	DebugTimeless = 0x8,
     } DebugOptions;
 
     static const double defaultChartDelta = 2.0;	// seconds

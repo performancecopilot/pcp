@@ -160,7 +160,7 @@ void setupEnvironment(void)
     QString confirm = pmGetConfig("PCP_BIN_DIR");
     confirm.append("/kmquery");
     setenv("PCP_XCONFIRM_PROG", (const char *)confirm.toAscii(), 1);
-    setenv("PCP_STDERR", "DISPLAY", 1);
+    setenv("PCP_STDERR", "DISPLAY", 0);	// do not overwrite, for QA
 
     QCoreApplication::setOrganizationName("PCP");
     QCoreApplication::setApplicationName("kmchart");

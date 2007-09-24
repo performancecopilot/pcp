@@ -306,7 +306,7 @@ bool OpenViewDialog::openView(const char *path)
 
     _line = 1;
     _errors = 0;
-    console->post("Load View: %s", _fname);
+    console->post(KmChart::DebugView, "Load View: %s", _fname);
 
     while ((w = getwd(f)) != NULL) {
 	if (state == S_BEGIN) {
@@ -539,7 +539,7 @@ abort_chart:
 		// this point in the config file ... no support for global
 		// options to set window height, window width, number of
 		// visible points, ...
-		errmsg.append(QString("global clause not supported yet"));
+		err(E_WARN, true, QString("global clause not supported yet"));
 		skip2eol(f);
 	    }
 	    else {

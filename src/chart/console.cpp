@@ -25,12 +25,17 @@ Console::Console() : QDialog()
     struct timeval now;
 
     my.level = 0;
-    if (pmDebug & DBG_TRACE_APPL0)
-	my.level |= KmChart::DebugApp;	// kmtime apps internals
+    if (pmDebug & DBG_TRACE_APPL0) {
+	my.level |= KmChart::DebugApp;		// general and UI tracing
+	my.level |= KmChart::DebugUi;
+	my.level |= KmChart::DebugGUI;		// TODO: remove this name
+    }
     if (pmDebug & DBG_TRACE_APPL1)
-	my.level |= KmChart::DebugProtocol;// trace time protocol
-    if (pmDebug & DBG_TRACE_APPL2)
-	my.level |= KmChart::DebugGUI;	// interesting GUI events
+	my.level |= KmChart::DebugProtocol;	// trace time protocol
+    if (pmDebug & DBG_TRACE_APPL2) {
+	my.level |= KmChart::DebugView;		// config files, for QA
+	my.level |= KmChart::DebugTimeless;
+    }
     setupUi(this);
 
     gettimeofday(&now, NULL);
@@ -42,15 +47,19 @@ void Console::post(char *fmt, ...)
     static char buffer[4096];
     struct timeval now;
     va_list ap;
+    int offset = 0;
 
     if (!(my.level & KmChart::DebugApp))
 	return;
 
-    gettimeofday(&now, NULL);
-    sprintf(buffer, "%6.2f: ", tosec(now) - my.origin);
+    if (!(my.level & KmChart::DebugTimeless)) {
+	gettimeofday(&now, NULL);
+	sprintf(buffer, "%6.2f: ", tosec(now) - my.origin);
+	offset = 8;
+    }
 
     va_start(ap, fmt);
-    vsnprintf(buffer+8, sizeof(buffer)-8, fmt, ap);
+    vsnprintf(buffer+offset, sizeof(buffer)-offset, fmt, ap);
     va_end(ap);
 
     fputs(buffer, stderr);
@@ -63,15 +72,19 @@ void Console::post(int level, char *fmt, ...)
     static char buffer[4096];
     struct timeval now;
     va_list ap;
+    int offset = 0;
 
     if (!(my.level & level))
 	return;
 
-    gettimeofday(&now, NULL);
-    sprintf(buffer, "%6.2f: ", tosec(now) - my.origin);
+    if (!(my.level & KmChart::DebugTimeless)) {
+	gettimeofday(&now, NULL);
+	sprintf(buffer, "%6.2f: ", tosec(now) - my.origin);
+	offset = 8;
+    }
 
     va_start(ap, fmt);
-    vsnprintf(buffer+8, sizeof(buffer)-8, fmt, ap);
+    vsnprintf(buffer+offset, sizeof(buffer)-offset, fmt, ap);
     va_end(ap);
 
     fputs(buffer, stderr);

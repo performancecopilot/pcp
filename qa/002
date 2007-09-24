@@ -18,52 +18,52 @@ status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-cat <<End-of-File | kmchart -c - -C
+cat <<End-of-File | kmchart -Dappl2 -c - -C
 #pmchart
 Fluff
 End-of-File
 
-cat <<End-of-File | kmchart -c - -C
+cat <<End-of-File | kmchart -Dappl2 -c - -C
 #pmchart
 Version
 End-of-File
 
-cat <<End-of-File | kmchart -c - -C
+cat <<End-of-File | kmchart -Dappl2 -c - -C
 #pmchart
 Version xxx
 End-of-File
 
-cat <<End-of-File | kmchart -c - -C
+cat <<End-of-File | kmchart -Dappl2 -c - -C
 #pmchart
 Version 1.0
 End-of-File
 
-cat <<End-of-File | kmchart -c - -C
+cat <<End-of-File | kmchart -Dappl2 -c - -C
 #pmchart
 Version 2.0 foo
 End-of-File
 
-cat <<End-of-File | kmchart -c - -C
+cat <<End-of-File | kmchart -Dappl2 -c - -C
 #kmchart
 Version 1 foo
 End-of-File
 
-cat <<End-of-File | kmchart -c - -C
+cat <<End-of-File | kmchart -Dappl2 -c - -C
 #kmchart
 Version 1 HOST
 End-of-File
 
-cat <<End-of-File | kmchart -c - -C
+cat <<End-of-File | kmchart -Dappl2 -c - -C
 #kmchart
 Version 1 HOST fluff
 End-of-File
 
-cat <<End-of-File | kmchart -c - -C
+cat <<End-of-File | kmchart -Dappl2 -c - -C
 #kmchart
 VERSION 1 HOST DYNAMIC fluff
 End-of-File
 
-cat <<End-of-File | kmchart -c - -C
+cat <<End-of-File | kmchart -Dappl2 -c - -C
 #kmchart
 version 1 host literal fluff
 End-of-File

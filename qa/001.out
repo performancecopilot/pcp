@@ -1,5 +1,5 @@
 QA output created by 001
-=== bad firt line ===
+=== bad first line ===
 Load View: stdin
 Error: stdin[1] Syntax error: expecting "#pmchart" or "#kmchart", found "#bad"
 
