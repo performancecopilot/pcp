@@ -284,6 +284,7 @@ main(int argc, char ** argv)
     int			vh = -1;		/* visible history length */
     int			port = -1;		/* kmtime port number */
     struct timeval	delta;
+    struct timeval	origin;
     struct timeval	logStartTime;
     struct timeval	logEndTime;
     struct timeval	realStartTime;
@@ -296,6 +297,7 @@ main(int argc, char ** argv)
     QString		tzLabel;
     QString		tzString;
 
+    gettimeofday(&origin, NULL);
     QApplication a(argc, argv);
     pmProgname = basename(argv[0]);
     setupEnvironment();
@@ -420,6 +422,8 @@ main(int argc, char ** argv)
     if (errflg)
 	usage();
 
+    console = new Console(origin);
+
     //
     // Deal with user requested sample/visible points globalSettings.  These
     // (command line) override the QSettings values, for this instance
@@ -441,6 +445,7 @@ main(int argc, char ** argv)
 	globalSettings.sampleHistory = sh;
 	globalSettings.visibleHistory = vh;
     }
+    console->post("Global settings setup complete");
 
     if (pmnsfile && (sts = pmLoadNameSpace(pmnsfile)) < 0) {
 	pmprintf("%s: %s\n", pmProgname, pmErrStr(sts));
@@ -466,6 +471,8 @@ main(int argc, char ** argv)
 	liveSources->add(liveGroup->which());
     }
     pmflush();
+    console->post("Sources setup complete (%d hosts, %d archives)",
+			hosts.size(), archives.size());
 
     if (zflag) {
 	if (archives.size() > 0)
@@ -521,8 +528,8 @@ main(int argc, char ** argv)
 	    usage();
 	}
     }
+    console->post("Timezones and time window setup complete");
 
-    console = new Console();
 #ifdef IS_DARWIN
     c = 9;
 #else
@@ -530,9 +537,9 @@ main(int argc, char ** argv)
 #endif
     globalFont = QFont("Sans Serif", c);
     fileIconProvider = new FileIconProvider();
-
     kmchart = new KmChart;
     kmtime = new TimeControl;
+    console->post("Phase1 user interface constructors complete");
 
     // Start kmtime process for time management
     kmtime->init(port, archives.size() == 0, &delta, &position,
@@ -554,6 +561,7 @@ main(int argc, char ** argv)
     //
     tabs = defaultTabs;
     kmchart->setActiveTab(archives.size() > 0 ? 1 : 0, true);
+    console->post("Phase2 user interface setup complete");
 
     for (c = 0; c < configs.size(); c++)
 	OpenViewDialog::openView((const char *)configs[c].toAscii());
@@ -563,6 +571,7 @@ main(int argc, char ** argv)
 
     kmchart->enableUi();
     kmchart->show();
+    console->post("Top level window shown");
 
     a.connect(&a, SIGNAL(lastWindowClosed()), kmchart, SLOT(quit()));
     return a.exec();

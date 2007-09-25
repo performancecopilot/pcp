@@ -22,9 +22,9 @@ class Console : public QDialog, public Ui::Console
     Q_OBJECT
 
 public:
-    Console();
-    virtual void post(char * p, ...);
-    virtual void post(int level, char * p, ...);
+    Console(struct timeval);
+    virtual void post(char *p, ...);
+    virtual void post(int level, char *p, ...);
 
 private:
     struct {

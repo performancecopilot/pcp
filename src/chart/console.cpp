@@ -20,10 +20,8 @@
 
 Console *console;
 
-Console::Console() : QDialog()
+Console::Console(struct timeval origin) : QDialog()
 {
-    struct timeval now;
-
     my.level = 0;
     if (pmDebug & DBG_TRACE_APPL0) {
 	my.level |= KmChart::DebugApp;		// general and UI tracing
@@ -38,8 +36,8 @@ Console::Console() : QDialog()
     }
     setupUi(this);
 
-    gettimeofday(&now, NULL);
-    my.origin = tosec(now);
+    my.origin = tosec(origin);
+    post("Console available");
 }
 
 void Console::post(char *fmt, ...)
