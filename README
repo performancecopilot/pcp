@@ -15,7 +15,7 @@ Refer to doc/INSTALL for instructions on building these tools.
 	[x] qa/settings-testcases
 	[ ] qa/create-save-view-testcases
 	[ ] qa/create-edit-chart-testcases
-	[ ] qa/create-edit-tab-testcase
+	[ ] qa/create-edit-tab-testcases
 	[ ] qa/chart-testcases
 	[ ] qa/time-control-testcases
 	[ ] qa/timezone-testcases
