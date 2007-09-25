@@ -13,7 +13,7 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Write interactive QA testcases as each area is checked:
 	[x] qa/record-testcases
 	[x] qa/settings-testcases
-	[ ] qa/create-save-view-testcases
+	[x] qa/create-save-view-testcases
 	[ ] qa/create-edit-chart-testcases
 	[ ] qa/create-edit-tab-testcases
 	[ ] qa/chart-testcases
@@ -69,6 +69,9 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Print mode needs to understand time axis and multiple charts
     - Export mode needs to understand time axis and multiple charts
 
+    - Options menu entry for Console (with pmDebug set only)
+    - Options menu checkbox entry for showing/hiding the toolbar.
+
     - Online Help support
     - Incorporate a Tutorial into online Help
     - Tooltips need to be added across the board.
@@ -76,15 +79,7 @@ Refer to doc/INSTALL for instructions on building these tools.
 
     - Destructors and memory leak plugging
     - Code audit for TODOs; either fix, exception or add to wishlist.
-    - Open View dialog not auto-selecting a newly opened source in the
-      Source ComboBox.
-    - Save View dialog needs "Preserve Hostname" checkbox code (this
-      work should be isolated inside view.cpp now, I think).
-    - Path traversal oddities in Open/Save View dialogs (should be able
-      to type full paths into File name lineEdit, not just basename)
-    - File icon/name display oddities in Open/Save View dialogs.
-    - Options menu entry for Console (with pmDebug set only)
-    - Options menu checkbox entry for showing/hiding the toolbar.
+    - QA test audit for TODOs; either fix, exception or add to wishlist.
 
   kmtime
 
