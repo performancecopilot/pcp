@@ -78,7 +78,6 @@ public:
     void setTimezone(char *);
 
     void setupWorldView();
-    void showTimeControl();
     void updateTimeButton();
     void updateTimeAxis(void);
     void updateTimeAxis(time_t secs);

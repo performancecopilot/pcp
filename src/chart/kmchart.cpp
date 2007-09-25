@@ -48,6 +48,16 @@ KmChart::KmChart() : QMainWindow(NULL)
 {
     my.initDone = false;
     setupUi(this);
+
+    my.liveHidden = true;
+    my.archiveHidden = true;
+    my.toolbarHidden = false;
+    if (!my.toolbarHidden)
+	toolbarAction->setChecked(true);
+    my.consoleHidden = true;
+    if (!pmDebug)
+	consoleAction->setVisible(false);
+
     setIconSize(QSize(22, 22));
     dateLabel->setFont(globalFont);
 }
@@ -170,11 +180,6 @@ void KmChart::setStyle(char *newlook)
     QApplication::setStyle(newlook);
 }
 
-void KmChart::showTimeControl()
-{
-    activeTab->showTimeControl();
-}
-
 void KmChart::fileOpenView()
 {
     my.openview->reset();
@@ -291,23 +296,45 @@ void KmChart::whatsThis()
     QWhatsThis::enterWhatsThisMode();
 }
 
-void KmChart::optionsShowTimeControl()
+void KmChart::optionsTimeControl()
 {
-    if (activeTab->isArchiveSource())
-	kmtime->showArchiveTimeControl();
-    else
-	kmtime->showLiveTimeControl();
+    if (activeTab->isArchiveSource()) {
+	if (my.archiveHidden)
+	    kmtime->showArchiveTimeControl();
+	else
+	    kmtime->hideArchiveTimeControl();
+	my.archiveHidden = !my.archiveHidden;
+    }
+    else {
+	if (my.liveHidden)
+	    kmtime->showLiveTimeControl();
+	else
+	    kmtime->hideLiveTimeControl();
+	my.liveHidden = !my.liveHidden;
+    }
 }
 
-void KmChart::optionsHideTimeControl()
+void KmChart::optionsToolbar()
 {
-    if (activeTab->isArchiveSource())
-	kmtime->hideArchiveTimeControl();
+    if (my.toolbarHidden)
+	toolBar->show();
     else
-	kmtime->hideLiveTimeControl();
+	toolBar->hide();
+    my.toolbarHidden = !my.toolbarHidden;
 }
 
-void KmChart::optionsLaunchNewKmchart()
+void KmChart::optionsConsole()
+{
+    if (pmDebug) {
+	if (my.consoleHidden)
+	    console->show();
+	else
+	    console->hide();
+	my.consoleHidden = !my.consoleHidden;
+    }
+}
+
+void KmChart::optionsNewKmchart()
 {
     QProcess *buddy = new QProcess(this);
     QStringList arguments;

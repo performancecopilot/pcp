@@ -47,29 +47,6 @@ Tab::Tab(): QWidget(NULL)
     memset(&my.previousPosition, 0, sizeof(my.previousPosition));
 }
 
-char *Tab::timeState()
-{
-    static char buf[16];
-
-    switch (my.timeState) {
-    case StartState:	strcpy(buf, "Start"); break;
-    case ForwardState:	strcpy(buf, "Forward"); break;
-    case BackwardState:	strcpy(buf, "Backward"); break;
-    case EndLogState:	strcpy(buf, "EndLog"); break;
-    case StandbyState:	strcpy(buf, "Standby"); break;
-    default:		strcpy(buf, "Dodgey"); break;
-    }
-    return buf;
-}
-
-void Tab::showTimeControl(void)
-{
-    if (my.source == KmTime::HostSource)
-	kmtime->showLiveTimeControl();
-    else
-	kmtime->showArchiveTimeControl();
-}
-
 void Tab::init(QTabWidget *tab, int samples, int visible,
 		QmcGroup *group, KmTime::Source source, QString label,
 		struct timeval *interval, struct timeval *position)
@@ -250,6 +227,21 @@ void Tab::updateTimeButton(void)
 KmTime::State Tab::kmtimeState(void)
 {
     return my.previousState;
+}
+
+char *Tab::timeState()
+{
+    static char buf[16];
+
+    switch (my.timeState) {
+    case StartState:	strcpy(buf, "Start"); break;
+    case ForwardState:	strcpy(buf, "Forward"); break;
+    case BackwardState:	strcpy(buf, "Backward"); break;
+    case EndLogState:	strcpy(buf, "EndLog"); break;
+    case StandbyState:	strcpy(buf, "Standby"); break;
+    default:		strcpy(buf, "Dodgey"); break;
+    }
+    return buf;
 }
 
 //

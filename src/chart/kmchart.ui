@@ -214,18 +214,6 @@
      <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="Help" >
-    <property name="title" >
-     <string>&amp;Help</string>
-    </property>
-    <addaction name="helpContentsAction" />
-    <addaction name="helpManualAction" />
-    <addaction name="separator" />
-    <addaction name="helpAboutAction" />
-    <addaction name="helpSeeAlsoAction" />
-    <addaction name="separator" />
-    <addaction name="helpWhatsThisAction" />
-   </widget>
    <widget class="QMenu" name="Edit" >
     <property name="title" >
      <string>&amp;Edit</string>
@@ -237,6 +225,16 @@
     <addaction name="deleteTabAction" />
     <addaction name="separator" />
     <addaction name="editSettingsAction" />
+   </widget>
+   <widget class="QMenu" name="Record" >
+    <property name="title" >
+     <string>&amp;Record</string>
+    </property>
+    <addaction name="recordStartAction" />
+    <addaction name="recordQueryAction" />
+    <addaction name="recordStopAction" />
+    <addaction name="separator" />
+    <addaction name="recordDetachAction" />
    </widget>
    <widget class="QMenu" name="File" >
     <property name="title" >
@@ -254,24 +252,27 @@
     <addaction name="separator" />
     <addaction name="fileQuitAction" />
    </widget>
+   <widget class="QMenu" name="Help" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="helpContentsAction" />
+    <addaction name="helpManualAction" />
+    <addaction name="separator" />
+    <addaction name="helpAboutAction" />
+    <addaction name="helpSeeAlsoAction" />
+    <addaction name="separator" />
+    <addaction name="helpWhatsThisAction" />
+   </widget>
    <widget class="QMenu" name="Time" >
     <property name="title" >
      <string>&amp;Options</string>
     </property>
-    <addaction name="timeShowLiveTimeControlAction" />
-    <addaction name="timeHideLiveTimeControlAction" />
+    <addaction name="timeControlAction" />
+    <addaction name="toolbarAction" />
+    <addaction name="consoleAction" />
     <addaction name="separator" />
-    <addaction name="timeNewKmchartAction" />
-   </widget>
-   <widget class="QMenu" name="Record" >
-    <property name="title" >
-     <string>&amp;Record</string>
-    </property>
-    <addaction name="recordStartAction" />
-    <addaction name="recordQueryAction" />
-    <addaction name="recordStopAction" />
-    <addaction name="separator" />
-    <addaction name="recordDetachAction" />
+    <addaction name="newKmchartAction" />
    </widget>
    <addaction name="File" />
    <addaction name="Edit" />
@@ -336,9 +337,6 @@
    </property>
   </action>
   <action name="fileExportAction" >
-   <property name="checked" >
-    <bool>false</bool>
-   </property>
    <property name="icon" >
     <iconset resource="kmchart.qrc" >:/document-export.png</iconset>
    </property>
@@ -353,9 +351,6 @@
    </property>
   </action>
   <action name="filePrintAction" >
-   <property name="checked" >
-    <bool>false</bool>
-   </property>
    <property name="icon" >
     <iconset resource="kmchart.qrc" >:/document-print.png</iconset>
    </property>
@@ -380,37 +375,6 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="timeShowLiveTimeControlAction" >
-   <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/kmtime.png</iconset>
-   </property>
-   <property name="text" >
-    <string>Show Time Control</string>
-   </property>
-   <property name="iconText" >
-    <string>Show Time Control</string>
-   </property>
-   <property name="toolTip" >
-    <string>Show Time Control window</string>
-   </property>
-   <property name="statusTip" >
-    <string>Show Time Control window</string>
-   </property>
-  </action>
-  <action name="timeHideLiveTimeControlAction" >
-   <property name="checked" >
-    <bool>false</bool>
-   </property>
-   <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/edit-clear.png</iconset>
-   </property>
-   <property name="text" >
-    <string>Hide Time Control</string>
-   </property>
-   <property name="iconText" >
-    <string>Hide Time Control</string>
-   </property>
-  </action>
   <action name="editDeleteAction" >
    <property name="text" >
     <string>&amp;Delete</string>
@@ -430,40 +394,42 @@
     <string>Change Colors of Plots</string>
    </property>
   </action>
-  <action name="timeNewKmchartAction" >
+  <action name="newKmchartAction" >
    <property name="icon" >
     <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
    </property>
    <property name="text" >
-    <string>Launch New kmchart</string>
+    <string>New kmchart</string>
    </property>
    <property name="iconText" >
-    <string>Launch New kmchart</string>
+    <string>New kmchart</string>
    </property>
   </action>
-  <action name="optionsShowArchiveAction" >
+  <action name="timeControlAction" >
    <property name="checkable" >
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="icon" >
     <iconset resource="kmchart.qrc" >:/kmtime.png</iconset>
    </property>
    <property name="text" >
-    <string>Show &amp;Archive Time Control</string>
-   </property>
-   <property name="iconText" >
-    <string>Show Archive Time Control</string>
+    <string>Time Controls</string>
    </property>
   </action>
-  <action name="hideArchiveTimeControlAction" >
-   <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/edit-clear.png</iconset>
+  <action name="toolbarAction" >
+   <property name="checkable" >
+    <bool>true</bool>
    </property>
    <property name="text" >
-    <string>Hide Archive Time Control</string>
+    <string>Toolbar</string>
    </property>
-   <property name="iconText" >
-    <string>Hide Archive Time Control</string>
+  </action>
+  <action name="consoleAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Console</string>
    </property>
   </action>
   <action name="editChartAction" >
@@ -632,6 +598,16 @@
   <action name="recordDetachAction" >
    <property name="text" >
     <string>Detach</string>
+   </property>
+  </action>
+  <action name="actionConsole" >
+   <property name="text" >
+    <string>Console</string>
+   </property>
+  </action>
+  <action name="actionToolbar" >
+   <property name="text" >
+    <string>Toolbar</string>
    </property>
   </action>
  </widget>
@@ -834,10 +810,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>timeShowLiveTimeControlAction</sender>
+   <sender>timeControlAction</sender>
    <signal>activated()</signal>
    <receiver>KmChart</receiver>
-   <slot>optionsShowTimeControl()</slot>
+   <slot>optionsTimeControl()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>
@@ -850,10 +826,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>timeHideLiveTimeControlAction</sender>
+   <sender>toolbarAction</sender>
    <signal>activated()</signal>
    <receiver>KmChart</receiver>
-   <slot>optionsHideTimeControl()</slot>
+   <slot>optionsToolbar()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>
@@ -866,10 +842,26 @@
    </hints>
   </connection>
   <connection>
-   <sender>timeNewKmchartAction</sender>
+   <sender>consoleAction</sender>
    <signal>activated()</signal>
    <receiver>KmChart</receiver>
-   <slot>optionsLaunchNewKmchart()</slot>
+   <slot>optionsConsole()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>newKmchartAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>optionsNewKmchart()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>
@@ -933,7 +925,7 @@
    <sender>timeButton</sender>
    <signal>clicked()</signal>
    <receiver>KmChart</receiver>
-   <slot>showTimeControl()</slot>
+   <slot>optionsTimeControl()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>

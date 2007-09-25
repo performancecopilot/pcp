@@ -69,7 +69,6 @@ public slots:
     virtual void init();
     virtual void quit();
     virtual void enableUi();
-    virtual void showTimeControl();
     virtual void fileOpenView();
     virtual void fileSaveView();
     virtual void fileExport();
@@ -81,9 +80,10 @@ public slots:
     virtual void helpAbout();
     virtual void helpSeeAlso();
     virtual void whatsThis();
-    virtual void optionsShowTimeControl();
-    virtual void optionsHideTimeControl();
-    virtual void optionsLaunchNewKmchart();
+    virtual void optionsTimeControl();
+    virtual void optionsToolbar();
+    virtual void optionsConsole();
+    virtual void optionsNewKmchart();
     virtual void acceptNewChart();
     virtual void fileNewChart();
     virtual void editChart();
@@ -109,6 +109,10 @@ protected slots:
 private:
     struct {
 	bool initDone;
+	bool liveHidden;
+	bool archiveHidden;
+	bool toolbarHidden;
+	bool consoleHidden;
 	QPrinter *printer;
 	TimeAxis *timeaxis;
 	TabDialog *newtab;

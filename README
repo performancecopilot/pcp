@@ -69,9 +69,6 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Print mode needs to understand time axis and multiple charts
     - Export mode needs to understand time axis and multiple charts
 
-    - Options menu entry for Console (with pmDebug set only)
-    - Options menu checkbox entry for showing/hiding the toolbar.
-
     - Online Help support
     - Incorporate a Tutorial into online Help
     - Tooltips need to be added across the board.
