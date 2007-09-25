@@ -83,6 +83,8 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Path traversal oddities in Open/Save View dialogs (should be able
       to type full paths into File name lineEdit, not just basename)
     - File icon/name display oddities in Open/Save View dialogs.
+    - Options menu entry for Console (with pmDebug set only)
+    - Options menu checkbox entry for showing/hiding the toolbar.
 
   kmtime
 
