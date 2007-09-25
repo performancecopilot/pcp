@@ -129,17 +129,41 @@ Archive Open
 
 [ ] Click on the Archive Tab.  Click on the Open View toolbutton.  Click
     on the Archive push button, and open up kmchart/qa/archives/viewqa1,
-    qa/archives/viewqa2, qa/archives/viewqa3, and qa/archives/viewqa4.
+    kmchart/qa/archives/viewqa2 and kmchart/qa/archives/viewqa3.
 
 [ ] Verify that the hosts "edge" and "leaf" are displayed alongside each
     archive in the Archive combo box, and that "edge" is highlighted.
     Verify also that the Time Axis in the main window has been updated
     to display a timeframe in September 2007, EST.
  
-[ ] Navigate to qa/views/NoSuchHost, and press the Open push button.
-    Verify that a error dialog is displayed regarding no.such.host, and
-    that no view is opened.
+[ ] Navigate to kmchart/qa/views/NoSuchHost, and press the Open button.
+    Verify that an error dialog is displayed regarding no.such.host, and
+    that the main kmchart window is unchanged.
 
 [ ] Click on the User Views tool button, and open up the DynamicQA view.
     Verify that this view is successfully opened for the host "edge".
 
+Archive Save
+
+[ ] Bring up the Save View dialog, enter "DynamicQA2" into the File text
+    box, and press the Save button.
+
+[ ] Bring up the Save View dialog, check the "Preserve hostname in View"
+    box, enter the view name "LiteralQA2" in the file text box, and press
+    the Save button.
+
+[ ] Bring up the Save View dialog, click on the User Views toolbutton
+    (near top right corner).  Enter "LiteralQA2" into the File text box,
+    and press the Save button.
+
+[ ] Quit out of kmchart.
+    Run:	$ kmchart -c LiteralQA2 -a kmchart/qa/archives/viewqa1
+    Verify that this fails and no changes are made to the kmchart window.
+    Run:	$ kmchart -c LiteralQA2 -a kmchart/qa/archives/viewqa2
+    Verify that this successfully opens up an archive view.
+    Run:	$ kmchart -c DynamicQA2 -h <remote>
+    Verify that this succeeds and opens up a live view.
+    Run:	$ kmchart -c DynamicQA2 -a kmchart/qa/archives/viewqa1
+    Verify that this successfully opens up an archive view.
+    Run:	$ kmchart -c DynamicQA2 -a kmchart/qa/archives/viewqa2
+    Verify that this successfully opens up an archive view.
