@@ -86,7 +86,6 @@ void SettingsDialog::reset()
 					 globalSettings.defaultColors[i]);
 	buttons[i]->setPalette(palette);
     }
-    colorCount -= i;
     for (; i < colorCount; i++) {
 	palette.setBrush(buttons[i]->backgroundRole(), QColor(Qt::white));
 	buttons[i]->setPalette(palette);
