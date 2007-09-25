@@ -16,7 +16,10 @@
    inkscape:version="0.44.1"
    sodipodi:docbase="/source/git/kmchart/images"
    sodipodi:docname="tab-new.svg"
-   version="1.0">
+   version="1.0"
+   inkscape:export-filename="/source/git/kmchart/images/tab-new.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs1308">
     <linearGradient
@@ -135,7 +138,7 @@
        x2="29.267735"
        y2="45.015282"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.477465,0,0,0.586088,-0.46662,-4.27896)" />
+       gradientTransform="matrix(0.478363,0,0,0.502752,-0.488193,0.993215)" />
     <radialGradient
        inkscape:collect="always"
        xlink:href="#linearGradient2218"
@@ -157,7 +160,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="8"
      inkscape:cx="23.449398"
-     inkscape:cy="18.5856"
+     inkscape:cy="18.5231"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:grid-bbox="true"
@@ -237,8 +240,8 @@
        id="rect1316"
        sodipodi:nodetypes="ccccccccccccccc" />
     <path
-       style="opacity:1;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2206);stroke-width:0.52899551;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       d="M 3.7724072,4.8037504 C 3.2199343,4.8037504 2.6440733,5.3684882 2.6440733,6.2909215 L 2.6157051,16.009261 L 0.74518584,15.968707 L 0.78939772,19.477147 L 21.266505,19.477147 L 21.211525,16.00353 L 18.855621,15.968464 L 18.855621,7.2606379 C 18.836421,6.1989163 18.264213,4.8211618 17.396371,4.8211618 L 3.7724072,4.8037504 z "
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient2206);stroke-width:0.49040568;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 3.7588049,8.7844555 C 3.2052931,8.7844555 2.6283492,9.2688932 2.6283492,10.060165 L 2.5999277,18.396655 L 0.72589093,18.361867 L 0.77018595,21.371442 L 21.2858,21.371442 L 21.230717,18.391738 L 18.870382,18.361659 L 18.870382,10.891998 C 18.851146,9.9812425 18.277862,8.7993912 17.408388,8.7993912 L 3.7588049,8.7844555 z "
        id="path1331"
        sodipodi:nodetypes="ccccccccccc" />
     <path
