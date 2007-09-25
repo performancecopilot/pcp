@@ -204,6 +204,9 @@ QString PmLogger::configure(Chart *cp)
 	    nonDiscrete = true;
     }
 
+    // pmlogger header for file(1)
+    input.append("#pmlogger Version 1\n");
+
     if (beDiscrete) {
 	input.append("log mandatory on once {\n");
 	for (int m = 0; m < cp->numPlot(); m++) {
