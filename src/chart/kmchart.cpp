@@ -21,10 +21,21 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QWhatsThis>
 #include <pcp/pmapi.h>
+
 #include "main.h"
 #include "kmchart.h"
 #include "aboutdialog.h"
+#include "chartdialog.h"
+#include "exportdialog.h"
+#include "infodialog.h"
+#include "openviewdialog.h"
+#include "recorddialog.h"
+#include "saveviewdialog.h"
 #include "seealsodialog.h"
+#include "settingsdialog.h"
+#include "tabdialog.h"
+#include "timeaxis.h"
+#include "timebutton.h"
 
 #define DESPERATE 0
 

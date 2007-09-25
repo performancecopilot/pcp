@@ -17,6 +17,7 @@
 #include <QtGui/QDoubleValidator>
 #include "main.h"
 #include "tab.h"
+#include "saveviewdialog.h"
 
 RecordDialog::RecordDialog(QWidget* parent) : QDialog(parent)
 {

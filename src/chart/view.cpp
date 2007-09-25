@@ -20,6 +20,8 @@
 #include <sys/types.h>
 #include <regex.h>
 #include "main.h"
+#include "openviewdialog.h"
+#include "saveviewdialog.h"
 
 /*
  * View file parsing routines and global variables follow.  These are

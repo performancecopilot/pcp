@@ -156,7 +156,10 @@ void Source::setupCombo(QComboBox *combo, bool arch)
 	if (cp->source().isArchive() != arch)
 	    continue;
 	QString source = makeComboText(cp);
-	combo->insertItem(i, source);
+	combo->insertItem(i, arch ?
+			  fileIconProvider->icon(FileIconProvider::Archive) :
+			  fileIconProvider->icon(QFileIconProvider::Computer),
+			  source);
 	if (arch && cp == currentArchiveContext)
 	    combo->setCurrentIndex(i);
 	if (!arch && cp == currentLiveContext)

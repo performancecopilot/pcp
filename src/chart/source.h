@@ -63,6 +63,8 @@ public:
 	    setFileMode(QFileDialog::ExistingFiles);
 	    setAcceptMode(QFileDialog::AcceptOpen);
 	    setIconProvider(fileIconProvider);
+	    setDirectory(QDir::homePath());
+	    setWindowTitle(tr("Add Archive"));
 	}
 };
 

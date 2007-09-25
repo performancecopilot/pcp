@@ -96,6 +96,7 @@ void OpenViewDialog::setPath(const QModelIndex &index)
     console->post("OpenViewDialog::setPath QModelIndex path=%s",
 			(const char *)my.dirModel->filePath(index).toAscii());
     my.dirIndex = index;
+    my.dirModel->refresh(index);
     dirListView->setRootIndex(index);
     setPathUi(my.dirModel->filePath(index));
 }
@@ -105,6 +106,7 @@ void OpenViewDialog::setPath(const QString &path)
     console->post("OpenViewDialog::setPath QString path=%s",
 			(const char *)path.toAscii());
     my.dirIndex = my.dirModel->index(path);
+    my.dirModel->refresh(my.dirIndex);
     dirListView->setRootIndex(my.dirIndex);
     setPathUi(path);
 }
@@ -135,24 +137,6 @@ void OpenViewDialog::systemToolButton_clicked(bool enabled)
 {
     if (enabled)
 	setPath(my.systemDir);
-}
-
-void OpenViewDialog::dirViewListToolButton_toggled(bool enabled)
-{
-    if (enabled) {
-	dirListView->setAlternatingRowColors(true);
-	dirListView->setViewMode(QListView::ListMode);
-	dirViewIconToolButton->setChecked(false);
-    }
-}
-
-void OpenViewDialog::dirViewIconToolButton_toggled(bool enabled)
-{
-    if (enabled) {
-	dirListView->setAlternatingRowColors(false);
-	dirListView->setViewMode(QListView::IconMode);
-	dirViewListToolButton->setChecked(false);
-    }
 }
 
 void OpenViewDialog::dirListView_clicked(const QModelIndex &)

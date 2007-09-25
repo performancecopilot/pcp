@@ -1,31 +1,17 @@
 Open View BUGS/TODO:
-- Create checked-in archives/views for this interactive QA (below).
-- Remove icon/list view mode tool buttons - always go icon mode.
-- View icon list needs to display names without any truncation.
 - File line edit needs to handle full paths, not just assume the
   entered text is a view name in the current working directory.
-- File name line edit needs a drop-down completer, like in Save.
-- Host, proxy and archive combo boxes could show icons (like Path)
 - Add Host dialog needs to stay on-screen when an invalid hostname
   is entered.
 - Hostname entered via Add Host needs to become the default.
-- Parent toolbutton needs the left-arrow not the revert icon.
-- File/Host/Proxy labels need separators between themselves and
-   their associated lineedit/comboboxes.
 - Seem to be able to get selection state out of sync with File line
   edit - missing a select/deselect event?  Not sure exactly how to
   reproduce though at this stage - oh, wait - if you select a new
   path from the Path combo, and then switch back, we get into this
   funny state (assuming there was an initial selection, of course).
-- Newly saved views not showing up in the list of User Views.
 Save View BUGS/TODO:
-- User View toolbutton not pressed when in user view directory
-- User View toolbutton not working at all, actually.
-- Remove icon/list view mode tool buttons - always go icon mode.
-- View icon list needs to display names without any truncation.
 - File line edit needs to handle full paths, not just assume the
   entered text is a view name in the current working directory.
-- Newly saved views not showing up in the list of User Views.
 - Archive mode window looks odd due to "missing" proxy - maybe add
   a Host combo box there?  (driven from archive contents).
 

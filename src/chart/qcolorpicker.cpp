@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 1999-2005 Trolltech AS.  All rights reserved.
  *
- * This file was derived from the QT QApplication class
+ * This file was derived from the QT QColorDialog class
  *
  * This file may be distributed under the terms of the Q Public License
  * as defined by Trolltech AS of Norway and appearing in the file

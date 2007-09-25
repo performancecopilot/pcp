@@ -72,6 +72,8 @@ QIcon FileIconProvider::icon(IconType type) const
 	return my.file;
     case Folder:
 	return my.folder;
+    case Computer:
+	return my.computer;
     default:
 	break;
     }

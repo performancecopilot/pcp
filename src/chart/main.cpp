@@ -20,6 +20,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QStatusBar>
 #include "main.h"
+#include "openviewdialog.h"
 
 #define DESPERATE 0
 

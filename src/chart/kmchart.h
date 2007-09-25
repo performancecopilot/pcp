@@ -16,16 +16,15 @@
 
 #include "ui_kmchart.h"
 #include <kmtime.h>
-#include "infodialog.h"
-#include "chartdialog.h"
-#include "exportdialog.h"
-#include "recorddialog.h"
-#include "settingsdialog.h"
-#include "openviewdialog.h"
-#include "saveviewdialog.h"
-#include "tabdialog.h"
-#include "timeaxis.h"
-#include "timebutton.h"
+class TimeAxis;
+class TabDialog;
+class InfoDialog;
+class ChartDialog;
+class ExportDialog;
+class OpenViewDialog;
+class SaveViewDialog;
+class SettingsDialog;
+class QAssistantClient;
 
 class KmChart : public QMainWindow, public Ui::KmChart
 {

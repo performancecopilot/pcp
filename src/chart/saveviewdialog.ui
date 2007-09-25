@@ -15,6 +15,9 @@
   <property name="windowIcon" >
    <iconset resource="kmchart.qrc" >:/view.png</iconset>
   </property>
+  <property name="sizeGripEnabled" >
+   <bool>true</bool>
+  </property>
   <layout class="QGridLayout" >
    <property name="margin" >
     <number>9</number>
@@ -56,7 +59,7 @@
      <item row="0" column="0" >
       <widget class="QLabel" name="fileNameLabel" >
        <property name="text" >
-        <string>File name:</string>
+        <string>File:</string>
        </property>
        <property name="alignment" >
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -180,99 +183,6 @@
       </spacer>
      </item>
      <item>
-      <widget class="QToolButton" name="dirViewIconToolButton" >
-       <property name="minimumSize" >
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="maximumSize" >
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="toolTip" >
-        <string>Icon View</string>
-       </property>
-       <property name="whatsThis" >
-        <string>Display files using icons</string>
-       </property>
-       <property name="text" >
-        <string/>
-       </property>
-       <property name="icon" >
-        <iconset resource="kmchart.qrc" >:/tooliconview.png</iconset>
-       </property>
-       <property name="iconSize" >
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-       <property name="checkable" >
-        <bool>true</bool>
-       </property>
-       <property name="checked" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="dirViewListToolButton" >
-       <property name="minimumSize" >
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="maximumSize" >
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="toolTip" >
-        <string>List View</string>
-       </property>
-       <property name="whatsThis" >
-        <string>Display files in a list</string>
-       </property>
-       <property name="text" >
-        <string/>
-       </property>
-       <property name="icon" >
-        <iconset resource="kmchart.qrc" >:/toollistview.png</iconset>
-       </property>
-       <property name="iconSize" >
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-       <property name="checkable" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer>
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType" >
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" >
-        <size>
-         <width>8</width>
-         <height>26</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
       <widget class="QToolButton" name="userToolButton" >
        <property name="minimumSize" >
         <size>
@@ -298,6 +208,9 @@
          <height>16</height>
         </size>
        </property>
+       <property name="checkable" >
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
     </layout>
@@ -314,27 +227,24 @@
      </property>
      <property name="iconSize" >
       <size>
-       <width>16</width>
-       <height>16</height>
+       <width>20</width>
+       <height>20</height>
       </size>
-     </property>
-     <property name="movement" >
-      <enum>QListView::Free</enum>
      </property>
      <property name="flow" >
       <enum>QListView::TopToBottom</enum>
      </property>
+     <property name="isWrapping" stdset="0" >
+      <bool>true</bool>
+     </property>
      <property name="resizeMode" >
       <enum>QListView::Adjust</enum>
      </property>
-     <property name="layoutMode" >
-      <enum>QListView::Batched</enum>
-     </property>
-     <property name="spacing" >
-      <number>0</number>
-     </property>
-     <property name="viewMode" >
-      <enum>QListView::IconMode</enum>
+     <property name="gridSize" >
+      <size>
+       <width>150</width>
+       <height>20</height>
+      </size>
      </property>
      <property name="uniformItemSizes" >
       <bool>true</bool>
@@ -451,38 +361,6 @@
    <hints>
     <hint type="sourcelabel" >
      <x>180</x>
-     <y>22</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>202</x>
-     <y>120</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dirViewIconToolButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>SaveViewDialog</receiver>
-   <slot>dirViewIconToolButton_toggled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>337</x>
-     <y>22</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>202</x>
-     <y>120</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dirViewListToolButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>SaveViewDialog</receiver>
-   <slot>dirViewListToolButton_toggled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>357</x>
      <y>22</y>
     </hint>
     <hint type="destinationlabel" >

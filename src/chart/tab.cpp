@@ -22,6 +22,7 @@
 #include <qwt_scale_widget.h>
 #include <qwt_text.h>
 #include <qwt_text_label.h>
+#include "openviewdialog.h"
 #include "recorddialog.h"
 
 #define DESPERATE 0
