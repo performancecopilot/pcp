@@ -298,7 +298,7 @@ void OpenViewDialog::openPushButton_clicked()
 	if (selectedIndexes.count() == 0)
 	    msg = tr("No View file(s) selected");
 	for (int i = 0; i < selectedIndexes.count(); i++)
-	    files << my.dirModel->fileName(selectedIndexes.at(i));
+	    files << my.dirModel->filePath(selectedIndexes.at(i));
 	if (openViewFiles(files) == true)
 	    done(0);
     }
