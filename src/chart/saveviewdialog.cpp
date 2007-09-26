@@ -64,6 +64,7 @@ void SaveViewDialog::setPathUi(const QString &path)
 	index = pathComboBox->count() - 1;
     }
     pathComboBox->setCurrentIndex(index);
+    dirListView->selectionModel()->clear();
 
     userToolButton->setChecked(path == my.userDir);
 
@@ -136,9 +137,15 @@ void SaveViewDialog::dirListView_activated(const QModelIndex &index)
     if (fi.isDir()) {
 	setPath(index);
     }
-    else if (fi.isFile()) {
-	if (saveViewFile(fi.absoluteFilePath()) == true)
-	    done(0);
+    else {
+	QString msg = fi.fileName();
+	msg.prepend(tr("View file "));
+	msg.append(tr(" exists.  Overwrite?\n"));
+	if (QMessageBox::question(this, pmProgname, msg,
+	    QMessageBox::Cancel|QMessageBox::Default|QMessageBox::Escape,
+	    QMessageBox::Ok, QMessageBox::NoButton) == QMessageBox::Ok)
+	    if (saveViewFile(fi.absoluteFilePath()) == true)
+		done(0);
     }
 }
 
@@ -171,7 +178,9 @@ void SaveViewDialog::savePushButton_clicked()
 	msg = tr("No View file specified");
     else {
 	QFileInfo f(filename);
-	if (f.exists()) {
+	if (f.isDir())
+	    setPath(filename);
+	else if (f.exists()) {
 	    msg = filename;
 	    msg.prepend(tr("View file "));
 	    msg.append(tr(" exists.  Overwrite?\n"));

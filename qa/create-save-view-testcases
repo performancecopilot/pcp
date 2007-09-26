@@ -1,17 +1,6 @@
 Open View BUGS/TODO:
-- File line edit needs to handle full paths, not just assume the
-  entered text is a view name in the current working directory.
-- Add Host dialog needs to stay on-screen when an invalid hostname
-  is entered.
-- Hostname entered via Add Host needs to become the default.
-- Seem to be able to get selection state out of sync with File line
-  edit - missing a select/deselect event?  Not sure exactly how to
-  reproduce though at this stage - oh, wait - if you select a new
-  path from the Path combo, and then switch back, we get into this
-  funny state (assuming there was an initial selection, of course).
+- Hostname entered via Add Host needs to become the default context.
 Save View BUGS/TODO:
-- File line edit needs to handle full paths, not just assume the
-  entered text is a view name in the current working directory.
 - Archive mode window looks odd due to "missing" proxy - maybe add
   a Host combo box there?  (driven from archive contents).
 
@@ -24,9 +13,12 @@ Live Open
     Verify that the initial view displays the System views (CPU, Disk,
     Loadavg, NFS, etc).  All View names should be fully visible with a
     (light blue folder) View icon associated with each.
+[ ] Resize the window, down to its minimum size and up to a larger size
+    than the initial window.  Verify the child widget layout remains as
+    sensible sensible as possible for the window size.
 [ ] Before selecting anything click on the Open push button, and verify
-    that a warning dialog is display (No views specified) and that the
-    Open View dialog remains on screen.
+    that a warning dialog is displayed (No views specified) and that
+    the Open View dialog remains on screen.
 
 [ ] Verify the filesystem traversal functionality - select your home
     directory from the Path combo box.  The list of displayed files
@@ -61,6 +53,9 @@ Live Open
 Live Save
 
 [ ] Select the Save View option from the File menu.  
+[ ] Resize the window, down to its minimum size and up to a larger size
+    than the initial window.  Verify the child widget layout remains as
+    sensible sensible as possible for the window size.
 [ ] Verify the filesystem traversal functionality - select your home
     directory from the Path combo box.  The list of displayed files
     should be updated to match, and the User View toolbutton (top-

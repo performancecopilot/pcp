@@ -83,6 +83,7 @@ void OpenViewDialog::setPathUi(const QString &path)
 	index = pathComboBox->count() - 1;
     }
     pathComboBox->setCurrentIndex(index);
+    dirListView->selectionModel()->clear();
 
     userToolButton->setChecked(path == my.userDir);
     systemToolButton->setChecked(path == my.systemDir);
@@ -159,9 +160,8 @@ void OpenViewDialog::dirListView_activated(const QModelIndex &index)
 
     console->post("OpenViewDialog::dirListView_activated");
 
-    if (fi.isDir()) {
+    if (fi.isDir())
 	setPath(index);
-    }
     else if (fi.isFile()) {
 	QStringList files;
 	files << fi.absoluteFilePath();
@@ -280,7 +280,10 @@ void OpenViewDialog::openPushButton_clicked()
 	    msg = tr("No View file(s) specified");
 	else {
 	    QFileInfo f(filename);
-	    if (f.exists()) {
+	    if (f.isDir()) {
+		setPath(filename);
+	    }
+	    else if (f.exists()) {
 		files << filename;
 		if (openViewFiles(files) == true)
 		    done(0);
@@ -297,10 +300,18 @@ void OpenViewDialog::openPushButton_clicked()
 
 	if (selectedIndexes.count() == 0)
 	    msg = tr("No View file(s) selected");
-	for (int i = 0; i < selectedIndexes.count(); i++)
-	    files << my.dirModel->filePath(selectedIndexes.at(i));
-	if (openViewFiles(files) == true)
-	    done(0);
+	else {
+	    for (int i = 0; i < selectedIndexes.count(); i++) {
+		QString filename = my.dirModel->filePath(selectedIndexes.at(i));
+		QFileInfo f(filename);
+		if (f.isDir())
+		    continue;
+		files << filename;
+	    }
+	    if (files.size() > 0)
+		if (openViewFiles(files) == true)
+		    done(0);
+	}
     }
 
     if (msg.isEmpty() == false) {

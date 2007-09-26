@@ -120,7 +120,10 @@
         <string>Open</string>
        </property>
        <property name="autoDefault" >
-        <bool>false</bool>
+        <bool>true</bool>
+       </property>
+       <property name="default" >
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -128,9 +131,6 @@
       <widget class="QPushButton" name="cancelPushButton" >
        <property name="text" >
         <string>Cancel</string>
-       </property>
-       <property name="default" >
-        <bool>true</bool>
        </property>
       </widget>
      </item>
