@@ -42,13 +42,13 @@ public:
 	DebugTimeless = 0x8,
     } DebugOptions;
 
-    static const double defaultChartDelta = 2.0;	// seconds
-    static const double defaultLoggerDelta = 2.0;
+    static const int defaultChartDelta = 1;		// seconds
+    static const int defaultLoggerDelta = 1;
     static const int defaultVisibleHistory = 60;	// points
     static const int defaultSampleHistory = 180;
     static const int minimumPoints = 2;
     static const int maximumPoints = 360;
-    static const int maximumLegendLength = 20;
+    static const int maximumLegendLength = 20;		// chars
 
     virtual TimeAxis *timeAxis();
     virtual void step(bool livemode, KmTime::Packet *kmtime);

@@ -55,7 +55,7 @@ static void usage(void)
 "  -s samples    sample history [default: %d points]\n"
 "  -S starttime  start of the time window\n"
 "  -T endtime    end of the time window\n"
-"  -t interval   sample interval [default: %.2f seconds]\n"
+"  -t interval   sample interval [default: %d seconds]\n"
 "  -v samples    visible history [default: %d points]\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time of metrics source\n",
@@ -233,9 +233,9 @@ void readSettings(void)
     // Parameters related to sampling
     //
     globalSettings.chartDelta = userSettings.value("chartDelta",
-					KmChart::defaultChartDelta).toDouble();
+					KmChart::defaultChartDelta).toInt();
     globalSettings.loggerDelta = userSettings.value("loggerDelta",
-					KmChart::defaultLoggerDelta).toDouble();
+					KmChart::defaultLoggerDelta).toInt();
     globalSettings.sampleHistory = userSettings.value("sampleHistory",
 					KmChart::defaultSampleHistory).toInt();
     globalSettings.visibleHistory = userSettings.value("visibleHistory",

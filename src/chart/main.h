@@ -29,9 +29,9 @@
 
 typedef struct {
 	// Sampling
-	double chartDelta;
+	int chartDelta;
 	bool chartDeltaModified;
-	double loggerDelta;
+	int loggerDelta;
 	bool loggerDeltaModified;
 	int sampleHistory;
 	bool sampleHistoryModified;
