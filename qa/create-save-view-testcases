@@ -15,7 +15,7 @@ Live Open
     (light blue folder) View icon associated with each.
 [ ] Resize the window, down to its minimum size and up to a larger size
     than the initial window.  Verify the child widget layout remains as
-    sensible sensible as possible for the window size.
+    sensible as possible for the window size.
 [ ] Before selecting anything click on the Open push button, and verify
     that a warning dialog is displayed (No views specified) and that
     the Open View dialog remains on screen.

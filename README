@@ -14,12 +14,13 @@ Refer to doc/INSTALL for instructions on building these tools.
 	[x] qa/record-testcases
 	[x] qa/settings-testcases
 	[x] qa/create-save-view-testcases
-	[ ] qa/create-edit-chart-testcases
+	[x] qa/create-edit-chart-testcases
 	[ ] qa/create-edit-tab-testcases
 	[ ] qa/chart-testcases
 	[ ] qa/time-control-testcases
 	[ ] qa/timezone-testcases
 	[ ] qa/help-system-testcases
+	[ ] qa/export-print-testcases
 	[ ] qa/query-testcases
     - Write automated QA for Save View (need a new command line option),
       then with -C and -c, open (multiple) views, save, then verify.
@@ -122,9 +123,13 @@ Refer to doc/INSTALL for instructions on building these tools.
       initiate new/next searches, with wrap-around to the top.
       The Firefox mechanism is kinda similar - maybe take a closer
       look at that and see if anything can be borrowed from that.
-    - Possibly some Settings dialog entries for Paths
+    - A Settings dialog entry for Paths:
       o default folio/archive path dirname
       o default user kmchart config file dirname
+    - A Settings dialog entry for Toolbar:
+      o on/off altogether (check box)
+      o top/right location (combo box)
+      o contents (scrolling, drag/drop action icons + "New separator")
     - Zooming in and out would be handy.  Not too tricky too either, as
       we have all the necessary infrastructure - Qwt supports a range
       picker thing (click and drag), and we have a visible history vs
@@ -135,6 +140,9 @@ Refer to doc/INSTALL for instructions on building these tools.
       o MacOSX icon artwork needs further touch-ups to look good;
       o Refer to "Setting the Application Icon" page in QtAssistant.
       o Entry should be created in the Application menu/list/folder.
+      o kmchart should be started (with -c) when a View is clicked.
+	Might be enough (or best we can do) to just document how this
+	is achieved for each supported platform.
 
 
 === PCP extensions ===

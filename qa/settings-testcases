@@ -3,6 +3,8 @@ Global Settings
 
 Sampling
 
+[ ] Open the Settings dialog.  This is available from the Edit
+    menu (Linux) or from the kmchart Preferences menu on a Mac.
 [ ] Type some invalid chart intervals into the one-line editor
     (try: abc, 0.1.1, -1 - none should be possible)
 [ ] Set the chart interval to zero and press OK - should block
