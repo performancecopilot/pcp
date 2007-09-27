@@ -35,7 +35,12 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
     my.back = parent;
     my.context = parent->my.context;
     my.basename = name;
-    my.type = inst ? InstanceName : NoType;
+    if (name == QString::null)
+	my.type = ChildMinder;
+    else if (!inst)
+	my.type = NoType;
+    else
+	my.type = InstanceName;
     my.isArchive = arch;
 
     console->post(KmChart::DebugGUI, "Added non-root namespace node %s",
@@ -51,18 +56,18 @@ NameSpace::NameSpace(QTreeWidget *list, const QmcContext *ctxt, bool arch)
     my.context = (QmcContext *)ctxt;
     my.basename = Source::makeComboText(ctxt);
     if ((my.isArchive = arch) == true) {
-	my.iconic = QIcon(":/archive.png");
+	my.icon = QIcon(":/archive.png");
 	my.type = ArchiveRoot;
     }
     else {
-	my.iconic = QIcon(":/computer.png");
+	my.icon = QIcon(":/computer.png");
 	my.type = HostRoot;
     }
     console->post(KmChart::DebugGUI,
 		  "Added root %s namespace node %s", my.isArchive ?
 		  "archive" : "host", (const char *)my.basename.toAscii());
     setText(0, my.basename);
-    setIcon(0, my.iconic);
+    setIcon(0, my.icon);
 }
 
 QString NameSpace::sourceName()
@@ -101,8 +106,15 @@ void NameSpace::setExpanded(bool expand)
 		  my.expanded ? "y" : "n", expand ? "y" : "n");
 
     if (expand && !my.expanded) {
+	NameSpace *kid = (NameSpace *)child(0);
+
+	if (kid && kid->isChildMinder()) {
+	    takeChild(0);
+	    delete kid;
+	}
 	my.expanded = true;
 	pmUseContext(my.context->handle());
+	    
 	if (my.type == LeafWithIndom)
 	    expandInstanceNames();
 	else if (my.type != InstanceName)
@@ -122,12 +134,19 @@ void NameSpace::setSelectable(bool selectable)
 
 void NameSpace::setExpandable(bool expandable)
 {
-#if 0 // TODO: added in QT4.3 only (find another way to do this?)
+    console->post(KmChart::DebugGUI, "NameSpace::setExpandable on %p %s (expanded=%s, expandable=%s)",
+		  this, (const char *)metricName().toAscii(),
+		  my.expanded ? "y" : "n", expandable ? "y" : "n");
+
+    // NOTE: QT4.3 has setChildIndicatorPolicy for this workaround, but we want
+    // to work on QT4.2 as well (this is used on Debian 4.0 - i.e. my laptop!).
+    // This is the ChildMinder workaround - we insert a "dummy" child into items
+    // that we know have children (since we have no way to explicitly set it and
+    // we want to delay finding the actual children as late as possible).
+    // When we later do fill in the real kids, we first delete the ChildMinder.
+
     if (expandable)
-	setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
-    else
-	setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicator);
-#endif
+	addChild(new NameSpace(this, QString::null, false, my.isArchive));
 }
 
 static char *namedup(const char *name, const char *suffix)
@@ -273,7 +292,6 @@ void NameSpace::expandInstanceNames()
 	m->setExpandable(false);
 	m->setSelectable(true);
 	m->my.instid = instlist[i];
-	m->my.type = InstanceName;
     }
 
     if (instlist)
@@ -291,13 +309,13 @@ QString NameSpace::text(int column) const
 
 QIcon NameSpace::icon(int) const
 {
-    return my.iconic;
+    return my.icon;
 }
 
-void NameSpace::setIcon(int i, const QIcon &ic)
+void NameSpace::setIcon(int i, const QIcon &icon)
 {
-    my.iconic = ic;
-    QTreeWidgetItem::setIcon(i, ic);
+    my.icon = icon;
+    QTreeWidgetItem::setIcon(i, icon);
 }
 
 NameSpace *NameSpace::dup(QTreeWidget *list)
@@ -322,7 +340,9 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
     n->my.desc = my.desc;
     n->my.type = my.type;
 
-    if (my.type == NoType) {
+    if (my.type == NoType || my.type == ChildMinder) {
+	console->post("NameSpace::dup bad type=%d on %p %s)",
+		  my.type, this, (const char *)metricName().toAscii());
 	abort();
     }
     else if (!isLeaf()) {

@@ -27,6 +27,7 @@ class NameSpace : public QTreeWidgetItem
 public:
     typedef enum {
 	NoType,
+	ChildMinder,
 	ArchiveRoot,
 	HostRoot,
 	NonLeafName,
@@ -51,6 +52,7 @@ public:
     bool isRoot() { return my.type == HostRoot || my.type == ArchiveRoot; }
     bool isLeaf() { return my.type == InstanceName||my.type == LeafNullIndom; }
     bool isInst() { return my.type == InstanceName; }
+    bool isChildMinder() { return my.type == ChildMinder; }
     bool isArchiveMode() { return my.isArchive; }
 
     void addToTree(QTreeWidget *);	// add (leaf) node into Selected set
@@ -77,7 +79,7 @@ private:
 	pmDesc desc;		// metric descriptor for metric leaves
 	int instid;		// for instance names only
 	QmcContext *context;	// metrics class metric context
-	QIcon iconic;
+	QIcon icon;
 	QColor current;		// color we'll use if OK'd
 	QColor original;	// color we started with
 	QString basename;
