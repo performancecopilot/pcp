@@ -51,12 +51,13 @@ KmChart::KmChart() : QMainWindow(NULL)
 
     my.liveHidden = true;
     my.archiveHidden = true;
+    timeControlAction->setChecked(false);
     my.toolbarHidden = false;
-    if (!my.toolbarHidden)
-	toolbarAction->setChecked(true);
+    toolbarAction->setChecked(true);
     my.consoleHidden = true;
     if (!pmDebug)
 	consoleAction->setVisible(false);
+    consoleAction->setChecked(false);
 
     setIconSize(QSize(22, 22));
     dateLabel->setFont(globalFont);
@@ -304,6 +305,7 @@ void KmChart::optionsTimeControl()
 	else
 	    kmtime->hideArchiveTimeControl();
 	my.archiveHidden = !my.archiveHidden;
+	timeControlAction->setChecked(!my.archiveHidden);
     }
     else {
 	if (my.liveHidden)
@@ -311,6 +313,7 @@ void KmChart::optionsTimeControl()
 	else
 	    kmtime->hideLiveTimeControl();
 	my.liveHidden = !my.liveHidden;
+	timeControlAction->setChecked(!my.liveHidden);
     }
 }
 
@@ -512,9 +515,11 @@ void KmChart::setActiveTab(int index, bool redisplay)
     if (tabs.at(index)->isArchiveSource()) {
 	activeGroup = archiveGroup;
 	activeSources = archiveSources;
+	timeControlAction->setChecked(!my.archiveHidden);
     } else {
 	activeGroup = liveGroup;
 	activeSources = liveSources;
+	timeControlAction->setChecked(!my.liveHidden);
     }
     activeTab->updateTimeButton();
     activeTab->updateTimeAxis();
