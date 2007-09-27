@@ -4,8 +4,9 @@ include $(TOPDIR)/src/include/builddefs
 INKSCAPE = inkscape
 SVGFILES = $(shell echo *.svg)
 PNGFILES = $(shell echo *.svg | sed -e 's/\.svg/.png/g')
+ICNFILES = $(shell echo *.icns)
 
-LSRCFILES = $(SVGFILES) $(PNGFILES)
+LSRCFILES = $(SVGFILES) $(PNGFILES) $(ICNFILES)
 
 # use checked in files by default, so no default build rule
 default:

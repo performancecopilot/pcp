@@ -19,6 +19,7 @@ FORMS		= aboutdialog.ui chartdialog.ui console.ui exportdialog.ui \
 		  hostdialog.ui infodialog.ui kmchart.ui openviewdialog.ui \
 		  recorddialog.ui saveviewdialog.ui seealsodialog.ui \
 		  settingsdialog.ui tabdialog.ui
+ICON		= kmchart.icns
 RESOURCES	= kmchart.qrc
 INCLUDEPATH	+= ../include ../libqmc ../libqwt
 LIBS		= -lpcp -lqmc -lqwt

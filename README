@@ -130,6 +130,11 @@ Refer to doc/INSTALL for instructions on building these tools.
       picker thing (click and drag), and we have a visible history vs
       sample history split already.
     - Add default folio/archive path dirname to Settings dialog
+    - Desktop integration details - basics are done, but:
+      o Gnome/KDE icon files need to be installed correctly;
+      o MacOSX icon artwork needs further touch-ups to look good;
+      o Refer to "Setting the Application Icon" page in QtAssistant.
+      o Entry should be created in the Application menu/list/folder.
 
 
 === PCP extensions ===

@@ -29,7 +29,8 @@ ICONLINKS = play_off.png play_on.png fastfwd_off.png fastfwd_on.png \
 	fastback_off.png fastback_on.png back_off.png back_on.png \
 	stepfwd_off.png stepfwd_on.png stepback_off.png stepback_on.png \
 	stop_off.png stop_on.png aboutpcp.png aboutqt.png aboutkmtime.png \
-	whatsthis.png edit-clear.png internet-web-browser.png kmtime.png
+	whatsthis.png edit-clear.png internet-web-browser.png kmtime.png \
+	kmtime.icns
 
 default: iconlinks
 	$(QTMAKE)

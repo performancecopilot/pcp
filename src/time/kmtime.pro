@@ -8,6 +8,7 @@ SOURCES		= aboutdialog.cpp console.cpp kmtimearch.cpp kmtimelive.cpp \
 		  timelord.cpp main.cpp
 FORMS		= aboutdialog.ui console.ui kmtimelive.ui kmtimearch.ui \
 		  seealsodialog.ui showboundsdialog.ui
+ICON		= kmtime.icns
 RESOURCES	= kmtime.qrc
 INCLUDEPATH	+= ../include ../libqwt
 LIBS		= -lpcp -lqwt
