@@ -29,14 +29,10 @@ Refer to doc/INSTALL for instructions on building these tools.
 
     - Metric selection
       o "Available Metrics" Tree
-	. Needs one-level of namespace "read-ahead" to resolve the
-	  tree expansion issue in a way that works for all QT4 versions.
-	. Double click on compresses name is not expanding, though Enter
-	  actually does.
+	. Double click on compressed tree name is not expanding, though
+	  Enter actually does (on Linux, on MacOSX thats no workaround).
       o "Chart Metrics" Tree
-	. Only allowing one metric to be added in New Chart dialog
-	. Not displaying plot colour
-	. Displaying "Available Metrics" in Selected list on Edit Chart.
+	. Displaying "Available Metrics" in "Chart Plots" on Edit Chart.
       o "Colours" page
 	. Selected colour label not updating
 	. RGB spinners need to be wider
@@ -143,6 +139,11 @@ Refer to doc/INSTALL for instructions on building these tools.
       o kmchart should be started (with -c) when a View is clicked.
 	Might be enough (or best we can do) to just document how this
 	is achieved for each supported platform.
+    - kmtime should send a message to all clients on show/hide (except
+      for the client that explicitly requested the show/hide, if there
+      was one) - this would let the clients correctly track whether it
+      is visible/not (kmchart displays this state in the Options menu,
+      and uses that state to decide whether a hide/show is needed).
 
 
 === PCP extensions ===
