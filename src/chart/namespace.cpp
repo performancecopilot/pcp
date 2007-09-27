@@ -84,13 +84,13 @@ QString NameSpace::metricName()
     QString s;
 
     if (my.back->isRoot())
-	s = text(1);
+	s = text(0);
     else if (my.type == InstanceName)
 	s = my.back->metricName();
     else {
 	s = my.back->metricName();
 	s.append(".");
-	s.append(text(1));
+	s.append(text(0));
     }
     return s;
 }
@@ -98,8 +98,8 @@ QString NameSpace::metricName()
 QString NameSpace::instanceName()
 {
     if (my.type == InstanceName)
-	return text(1);
-    return QString(NULL);
+	return text(0);
+    return QString::null;
 }
 
 void NameSpace::setExpanded(bool expand)
@@ -306,8 +306,8 @@ void NameSpace::expandInstanceNames()
 
 QString NameSpace::text(int column) const
 {
-    if (column > 1)
-	return "";
+    if (column > 0)
+	return QString::null;
     return my.basename;
 }
 
@@ -328,7 +328,6 @@ NameSpace *NameSpace::dup(QTreeWidget *list)
 
     n = new NameSpace(list, my.context, my.type == ArchiveRoot);
     n->my.expanded = true;
-    n->setExpandable(true);
     n->setSelectable(false);
     return n;
 }
@@ -350,11 +349,9 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
 	abort();
     }
     else if (!isLeaf()) {
-	n->setExpandable(true);
 	n->setSelectable(false);
     }
     else {
-	n->setExpandable(false);
 	n->setSelectable(true);
 
 	QColor c = Chart::defaultColor(-1);
@@ -376,7 +373,7 @@ bool NameSpace::cmp(QTreeWidgetItem *item)
 {
     if (!item)	// empty list
 	return false;
-    return (item->text(1) == my.basename);
+    return (item->text(0) == my.basename);
 }
 
 void NameSpace::addToTree(QTreeWidget *target)
@@ -396,10 +393,10 @@ void NameSpace::addToTree(QTreeWidget *target)
     NameSpace *tree = (NameSpace *)target->invisibleRootItem();
     QTreeWidgetItem *item = NULL;
 
-    for (int n = 0; n < nodelist.size(); n++) {
+    for (int i, n = 0; n < nodelist.size(); n++) {
 	node = nodelist.at(n);
-	for (int i = 0; i < tree->childCount(); i++) {
-	    item = tree->child(i);
+	for (i = 0; i < tree->childCount(); i++) {
+	    item = (NameSpace *)tree->child(i);
 	    if (node->cmp(item)) {
 		// no insert at this level necessary, move down a level
 		if (!node->isLeaf()) {
@@ -414,11 +411,13 @@ void NameSpace::addToTree(QTreeWidget *target)
 	}
 
 	// When no more children and no match so far, we dup & insert
-	if (!item) {
-	    if (node->isRoot())
+	if (i == tree->childCount()) {
+	    if (node->isRoot()) {
 		tree = node->dup(target);
-	    else if (tree)
+	    }
+	    else if (tree) {
 		tree = node->dup(target, tree);
+	    }
 	}
     }
 }
@@ -449,15 +448,13 @@ void NameSpace::setCurrentColor(QColor color, QTreeWidget *treeview)
 
     my.current = color;
     pix.fill(color);
-    setIcon(1, QIcon(pix));
+    setIcon(0, QIcon(pix));
 
     if (treeview) {
 	QTreeWidgetItemIterator it(this, QTreeWidgetItemIterator::Selectable);
 	if (*it) {
 	    (*it)->setSelected(true);
 	    this->setSelected(false);
-	} // else - TODO
-	  //repaint();
-    } // else - TODO
-      // repaint();
+	}
+    }
 }

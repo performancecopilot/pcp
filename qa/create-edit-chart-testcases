@@ -1,9 +1,7 @@
 BUGS/TODO
-- Available Metrics list not displaying depth indicators correctly
 - New Chart always created as an Area Plot?
-- Resizing is not functional (min should be default, allow larger)
+- Resizing is not functional (min should be default & allow larger)
 - Color not displayed with selected metrics
-- Can instance names be displayed in italics?
 - Verify metric plots are valid: at all (strings, aggregates), and
   together (compatible units, etc).
 - Settings dialog should not be modal.
