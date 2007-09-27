@@ -39,8 +39,12 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
 	my.type = ChildMinder;
     else if (!inst)
 	my.type = NoType;
-    else
+    else {
 	my.type = InstanceName;
+	QFont font = QTreeWidgetItem::font(0);
+	font.setItalic(true);
+	setFont(0, font);
+    }
     my.isArchive = arch;
 
     console->post(KmChart::DebugGUI, "Added non-root namespace node %s",
