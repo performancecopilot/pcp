@@ -106,10 +106,10 @@ void SettingsDialog::flush()
     globalSettings.loggerDeltaModified = loggerDeltaLineEdit->isModified();
 
     if (globalSettings.chartDeltaModified)
-	globalSettings.chartDelta =
+	globalSettings.chartDelta = (int)
 		KmTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
     if (globalSettings.loggerDeltaModified)
-	globalSettings.loggerDelta =
+	globalSettings.loggerDelta = (int)
 		KmTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
 
     if (globalSettings.visibleHistoryModified)
