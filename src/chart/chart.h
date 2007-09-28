@@ -56,9 +56,11 @@ public:
     void changeTitle(char *, int);	// NULL to clear
     void changeTitle(QString, int);
     Style style(void);			// return chart style
-    int setStyle(Style);		// set chart style
+    void setStyle(Style);		// set chart style
+    QString label(int);			// return legend label for ith plot
+    void setLabel(int, QString);	// set plot legend label
     QColor color(int);			// return color for ith plot
-    int setColor(int, QColor);		// set plot color
+    void setColor(int, QColor);		// set plot color
     void scale(bool *, double *, double *);
 			// return autoscale state and fixed scale parameters
     void setScale(bool, double, double);
@@ -83,7 +85,7 @@ public:
 
     void setupTree(QTreeWidget *);
     void addToTree(QTreeWidget *, QString, const QmcContext *,
-			  bool, bool, QColor&);
+			  bool, bool, QColor&, QString&);
 
     static QColor defaultColor(int);
 
@@ -98,7 +100,7 @@ private:
 	QwtPlotCurve *curve;
 	QString name;
 	char *legend;	// from config
-	QString legendLabel;	// as appears in plot
+	QString label;	// as appears in plot legend
 	QColor color;
 	double scale;
 	double *data;
@@ -108,6 +110,7 @@ private:
     } Plot;
 
     void setColor(Plot *plot, QColor c);
+    void setLabel(Plot *plot, QString s);
     void resetDataArrays(Plot *plot, int v);
 
     struct {

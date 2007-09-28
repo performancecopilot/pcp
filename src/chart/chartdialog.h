@@ -68,6 +68,7 @@ public slots:
     virtual void setRgb(QRgb);
     virtual void rgbEd();
     virtual void hsvEd();
+    virtual void plotLabelLineEdit_editingFinished();
 
 signals:
     void newCol(QRgb);

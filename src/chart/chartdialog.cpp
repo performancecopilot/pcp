@@ -111,8 +111,6 @@ void ChartDialog::enableUI()
 {
     // TODO: if Utilisation mode, set Y-axis to 0-100 and disable change?
 
-    // TODO: if (no) entries in chartMetricList, enable/disable OK button
-
     chartMetricLineEdit->setText(my.chartTreeSingleSelected ?
 	((NameSpace *)my.chartTreeSingleSelected)->metricName() : tr(""));
     availableMetricLineEdit->setText(my.availableTreeSingleSelected ?
@@ -125,14 +123,17 @@ void ChartDialog::enableUI()
 
     revertColorButton->setEnabled(my.chartTreeSingleSelected != NULL);
     applyColorButton->setEnabled(my.chartTreeSingleSelected != NULL);
+    plotLabelLineEdit->setEnabled(my.chartTreeSingleSelected != NULL);
     if (my.chartTreeSingleSelected != NULL) {
 	NameSpace *n = (NameSpace *)my.chartTreeSingleSelected;
 	revertColorLabel->setColor(n->originalColor());
 	setCurrentColor(n->currentColor().rgb());
+	plotLabelLineEdit->setText(n->label());
     }
     else {
 	revertColorLabel->setColor(QColor(0xff, 0xff, 0xff));
 	setCurrentColor(QColor(0x00, 0x00, 0x00).rgb());
+	plotLabelLineEdit->setText("");
     }
 }
 
@@ -456,6 +457,12 @@ void ChartDialog::revertColorButtonClicked()
     ns->setCurrentColor(ns->originalColor(), NULL);
 }
 
+void ChartDialog::plotLabelLineEdit_editingFinished()
+{
+    NameSpace *ns = (NameSpace *)my.chartTreeSingleSelected;
+    ns->setLabel(plotLabelLineEdit->text().trimmed());
+}
+
 void ChartDialog::setupChartPlots(Chart *cp)
 {
     // First iterate over the current Charts metrics, removing any
@@ -551,7 +558,7 @@ bool ChartDialog::existsChartPlot(Chart *cp, NameSpace *name, int *m)
 void ChartDialog::changeChartPlot(Chart *cp, NameSpace *name, int m)
 {
     cp->setColor(m, name->currentColor());
-    // TODO: support for plot legend labels (at least preserve 'em!)
+    cp->setLabel(m, name->label());
 }
 
 void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
@@ -572,6 +579,7 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
     }
     int m = cp->addPlot(&pms, NULL);	// TODO: legend label support here
     cp->setColor(m, name->currentColor());
+    cp->setLabel(m, name->label());
 }
 
 void ChartDialog::deleteChartPlot(Chart *cp, int m)

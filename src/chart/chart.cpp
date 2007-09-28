@@ -349,18 +349,18 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
     //
     if (legend != NULL) {
 	plot->legend = strdup(legend);
-	plot->legendLabel = QString(legend);
+	plot->label = QString(legend);
     }
     else {
 	plot->legend = NULL;
 	if (plot->name.size() > KmChart::maximumLegendLength) {
 	    // show name as ...[end of name]
-	    plot->legendLabel = QString("...");
+	    plot->label = QString("...");
 	    size = plot->name.size() - KmChart::maximumLegendLength - 3;
-	    plot->legendLabel.append(plot->name.right(size));
+	    plot->label.append(plot->name.right(size));
 	}
 	else
-	    plot->legendLabel = plot->name;
+	    plot->label = plot->name;
     }
 
     // initialize the pcp data and plot data arrays
@@ -370,7 +370,7 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
     resetDataArrays(plot, my.tab->sampleHistory());
 
     // create and attach the plot right here
-    plot->curve = new QwtPlotCurve(plot->legendLabel);
+    plot->curve = new QwtPlotCurve(plot->label);
     plot->curve->attach(this);
 
     // the 1000 is arbitrary ... just want numbers to be monotonic
@@ -465,7 +465,7 @@ void Chart::delPlot(int m)
     // hosts, hosts which are down (introducing retry issues...).  Bother.
 
     //delete my.plots[m]->curve;
-    //delete my.plots[m]->legendLabel;
+    //delete my.plots[m]->label;
     //free(my.plots[m]->legend);
     //my.plots.removeAt(m);
 }
@@ -534,7 +534,7 @@ Chart::Style Chart::style()
     return my.style;
 }
 
-int Chart::setStyle(Style style)
+void Chart::setStyle(Style style)
 {
     console->post("Chart::setStyle(%d) [was %d]", style, my.style);
 
@@ -654,7 +654,6 @@ int Chart::setStyle(Style style)
 	    abort();
     }
     my.style = style;
-    return 0;
 }
 
 QColor Chart::color(int m)
@@ -671,16 +670,21 @@ void Chart::setColor(Plot *plot, QColor c)
     plot->curve->setBrush(c);
 }
 
-int Chart::setColor(int m, QColor c)
+void Chart::setColor(int m, QColor c)
 {
-    console->post("Chart::setColor(%d, r=%02x g=%02x b=%02x)",
-			m, Qt::red, Qt::green, Qt::blue);
-    if (m >= 0 && m < my.plots.size()) {
+    if (m >= 0 && m < my.plots.size())
 	setColor(my.plots[m], c);
-	return 0;
-    }
-    console->post("Chart::setColor - BAD metric index specified (%d)?", m);
-    return -1;
+}
+
+void Chart::setLabel(Plot *plot, QString s)
+{
+    plot->label = s;
+}
+
+void Chart::setLabel(int m, QString s)
+{
+    if (m >= 0 && m < my.plots.size())
+	setLabel(my.plots[m], s);
 }
 
 void Chart::scale(bool *autoScale, double *yMin, double *yMax)
@@ -828,12 +832,13 @@ void Chart::setupTree(QTreeWidget *tree)
 	if (!plot->removed)
 	    addToTree(tree, plot->name,
 		      &plot->metric->context(), plot->metric->hasInstances(), 
-		      my.tab->isArchiveSource(), plot->color);
+		      my.tab->isArchiveSource(), plot->color, plot->label);
     }
 }
 
 void Chart::addToTree(QTreeWidget *treeview, QString metric,
-	const QmcContext *context, bool isInst, bool isArch, QColor &color)
+	const QmcContext *context, bool isInst, bool isArch,
+	QColor &color, QString &label)
 {
     QRegExp regex(tr("\\.|\\[|\\]"));
     QString source = Source::makeSourceAnnotatedName(context);
@@ -871,11 +876,13 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 		n->expand();
 	        n->setExpanded(true);
 		n->setSelectable(false);
+		//n->setLabel(label); - TODO: set live proxy or archive host
 	    }
 	    else {
 		bool isLeaf = (b == baselist.size()-1);
 		n = new NameSpace(tree, text, isLeaf && isInst, isArch);
 		if (isLeaf) {
+		    n->setLabel(label);
 		    n->setOriginalColor(color);
 		    n->setCurrentColor(color, NULL);
 		}

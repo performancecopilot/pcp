@@ -1,5 +1,8 @@
 BUGS/TODO
 - New Chart always created as an Area Plot?
+- Need resolution on the proxy(live) and host(archive) display issue.
+- Double click on compressed Available Metric tree name not expanding
+  (but works fine for Chart Plots tree).
 - Verify metric plots are valid: at all (strings, aggregates), and
   together (compatible units, etc).
 - Settings dialog should not be modal.
@@ -7,8 +10,6 @@ BUGS/TODO
 - Should not allow min/max to be equal in Y-Axis auto-scale.
 - Maximum Y-Axis setting not enforced (still auto-scales if limit is
   reached)?
-- Selecting color via cursor needs to update the current selection,
-  currently its sporadic (eg. when selecting an HSV input after move?)
 
 Creating and Editing Charts
 ===========================
@@ -121,8 +122,9 @@ Live Edit
 [ ] Verify the color selection Tab
     - Select a new (different) colour and press the left-arrow button to
       Apply the change.
+    - Enter a plot label of "Drifter".
     - Press OK, and verify that the chart changes to using the new colour
-      for its sample.drift plot.
+      and new legend label for its sample.drift plot.
 
 [ ] Verify changing each piece of chart metadata
     - Click on the Edit Chart action, and modify the following attributes:

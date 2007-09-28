@@ -27,12 +27,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 
   kmchart
 
-    - Metric selection
-      o "Available Metrics" Tree
-	. Double click on compressed tree name is not expanding.
-      o "Plot" page
-	. Support for plot Labels
-
     - Charting issues
       o No values available is not the same as zero! (plots need to
 	display broken lines - see Qwt mailing list posts)

@@ -64,6 +64,9 @@ public:
     QColor originalColor() { return my.original; }
     void setOriginalColor(QColor original) { my.original = original; }
 
+    QString label() { return my.label; }
+    void setLabel(QString label) { my.label = label; }
+
     void setSelectable(bool selectable);
     void setExpandable(bool expandable);
 
@@ -84,6 +87,7 @@ private:
 	QColor current;		// color we'll use if OK'd
 	QColor original;	// color we started with
 	QString basename;
+	QString label;		// proxy (live), host (archive), legend label
 	NameSpace *back;
 	NameSpace::Type type;
     } my;
