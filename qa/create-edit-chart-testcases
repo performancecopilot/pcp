@@ -1,17 +1,14 @@
 BUGS/TODO
 - New Chart always created as an Area Plot?
-- Resizing is not functional (min should be default & allow larger)
-- Color not displayed with selected metrics
 - Verify metric plots are valid: at all (strings, aggregates), and
   together (compatible units, etc).
 - Settings dialog should not be modal.
 - Colors in Settings dialog are not displaying at all under MaxOSX.
+- Should not allows min/max to be equal in Y-Axis auto-scale.
 - Maximum Y-Axis setting not enforced (still auto-scales if limit is
   reached)?
-- Colors tab needs space between buttons, more room for HSV/RGB.
 - Selecting color via cursor needs to update the current selection,
   currently its sporadic (eg. when selecting an HSV input after move?)
-- Should not allows min/max to be equal in Y-Axis auto-scale.
 
 Creating and Editing Charts
 ===========================

@@ -29,15 +29,13 @@ Refer to doc/INSTALL for instructions on building these tools.
 
     - Metric selection
       o "Available Metrics" Tree
-	. Double click on compressed tree name is not expanding, though
-	  Enter actually does (on Linux, on MacOSX thats no workaround).
+	. Double click on compressed tree name is not expanding.
       o "Chart Metrics" Tree
 	. Displaying "Available Metrics" in "Chart Plots" on Edit Chart.
-      o "Colours" page
-	. Selected colour label not updating
-	. RGB spinners need to be wider
-	. Revert-colour label not updating
-      o Resizing the window needs work
+      o "Plot" page
+	. Selected colour label not updating correctly (need refresh?)
+	. Revert-colour label not updating correctly (need refresh?)
+	. Support for plot Labels
 
     - Charting issues
       o No values available is not the same as zero! (plots need to

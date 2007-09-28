@@ -118,11 +118,13 @@ void NameSpace::setExpanded(bool expand)
 	}
 	my.expanded = true;
 	pmUseContext(my.context->handle());
-	    
+ 
 	if (my.type == LeafWithIndom)
 	    expandInstanceNames();
-	else if (my.type != InstanceName)
+	else if (my.type != InstanceName) {
 	    expandMetricNames(isRoot() ? "" : metricName());
+	    sortChildren(0, Qt::AscendingOrder);
+	}
     }
 
     QTreeWidgetItem::setExpanded(expand);
@@ -138,7 +140,8 @@ void NameSpace::setSelectable(bool selectable)
 
 void NameSpace::setExpandable(bool expandable)
 {
-    console->post(KmChart::DebugGUI, "NameSpace::setExpandable on %p %s (expanded=%s, expandable=%s)",
+    console->post(KmChart::DebugGUI, "NameSpace::setExpandable "
+		  "on %p %s (expanded=%s, expandable=%s)",
 		  this, (const char *)metricName().toAscii(),
 		  my.expanded ? "y" : "n", expandable ? "y" : "n");
 
@@ -360,8 +363,11 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
 
 	// this is a leaf so walk back up to the root, opening each node up
 	NameSpace *up;
-	for (up = tree; up->my.back != up; up = up->my.back)
+	for (up = tree; up->my.back != up; up = up->my.back) {
+	    up->my.expanded = true;
 	    up->setExpanded(true);
+	}
+	up->my.expanded = true;
 	up->setExpanded(true);	// add the host/archive root as well.
 
 	n->setSelected(true);
