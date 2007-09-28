@@ -33,12 +33,10 @@ void RecordDialog::languageChange()
 
 void RecordDialog::init(Tab *tab)
 {
-    QDir	pmloggerDir;
     QString	pmlogger = "~/.pcp/pmlogger/";
     QString	view, folio, archive;
 
     view = folio = archive = pmlogger;
-    pmloggerDir.mkpath(pmlogger);
 
     view.append(tr("[date].view"));
     viewLineEdit->setText(view);
