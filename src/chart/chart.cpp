@@ -850,41 +850,41 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
     // target tree (if not there already), right down to the leaf.
 
     NameSpace *tree = (NameSpace *)treeview->invisibleRootItem();
-    QTreeWidgetItem *item = NULL;
-    QStringList::Iterator blit;
-    for (blit = baselist.begin(); blit != baselist.end(); ++blit) {
-	QString text = *blit;
-	for (int i = 0; i < tree->childCount(); i++) {
-	    item = tree->child(i);
-	    if (text == item->text(1)) {
-		// no insert at this level necessary, move down a level
-		tree = (NameSpace *)item;
+    NameSpace *item = NULL;
+
+    for (int i, b = 0; b < baselist.size(); b++) {
+	QString text = baselist.at(b);
+	for (i = 0; i < tree->childCount(); i++) {
+	    item = (NameSpace *)tree->child(i);
+	    if (text == item->text(0)) {
+		// No insert at this level necessary, move down a level
+		tree = item;
 		break;
 	    }
 	}
 
-	/* when no more children and no match so far, we create & insert */
-	if (!item) {
+	// When no more children and no match so far, we create & insert
+	if (i == tree->childCount()) {
 	    NameSpace *n;
-	    if (blit == baselist.begin()) {
+	    if (b == 0) {
 		n = new NameSpace(treeview, context, isArch);
-		n->setExpandable(true);
-		n->setSelectable(false);
+		n->expand();
 	        n->setExpanded(true);
+		n->setSelectable(false);
 	    }
 	    else {
-		bool isLeaf = (blit == baselist.end());
+		bool isLeaf = (b == baselist.size()-1);
 		n = new NameSpace(tree, text, isLeaf && isInst, isArch);
 		if (isLeaf) {
 		    n->setOriginalColor(color);
 		    n->setCurrentColor(color, NULL);
 		}
-		n->setExpandable(!isLeaf);
-		n->setSelectable(isLeaf);
+		n->expand();
 	        n->setExpanded(!isLeaf);
+		n->setSelectable(isLeaf);
 		if (!isLeaf)
 		    n->setType(NameSpace::NonLeafName);
-		else if (isInst)	// constructor sets Instance type
+		else if (isInst)	// Constructor sets Instance type
 		    tree->setType(NameSpace::LeafWithIndom);
 		else
 		    n->setType(NameSpace::LeafNullIndom);

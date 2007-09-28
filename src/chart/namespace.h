@@ -42,6 +42,7 @@ public:
     QString text(int) const;
     QIcon icon(int) const;
     void setIcon(int, const QIcon &);
+    void expand() { my.expanded = true; }
     void setExpanded(bool expanded);
 
     QString sourceName();
@@ -69,7 +70,7 @@ public:
 private:
     void expandMetricNames(QString);
     void expandInstanceNames();
-    bool cmp(QTreeWidgetItem *);
+    bool cmp(NameSpace *);
     NameSpace *dup(QTreeWidget *);	// copies the root node in addToTree
     NameSpace *dup(QTreeWidget *, NameSpace *);	// copies nodes in addToTree
 

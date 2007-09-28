@@ -30,8 +30,6 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Metric selection
       o "Available Metrics" Tree
 	. Double click on compressed tree name is not expanding.
-      o "Chart Metrics" Tree
-	. Displaying "Available Metrics" in "Chart Plots" on Edit Chart.
       o "Plot" page
 	. Selected colour label not updating correctly (need refresh?)
 	. Revert-colour label not updating correctly (need refresh?)

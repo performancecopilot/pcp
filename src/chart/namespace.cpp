@@ -330,7 +330,7 @@ NameSpace *NameSpace::dup(QTreeWidget *list)
     NameSpace *n;
 
     n = new NameSpace(list, my.context, my.type == ArchiveRoot);
-    n->my.expanded = true;
+    n->expand();
     n->setSelectable(false);
     return n;
 }
@@ -340,7 +340,6 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
     NameSpace *n;
 
     n = new NameSpace(tree, my.basename, my.type == InstanceName, my.isArchive);
-    n->my.expanded = true;
     n->my.context = my.context;
     n->my.instid = my.instid;
     n->my.desc = my.desc;
@@ -352,9 +351,11 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
 	abort();
     }
     else if (!isLeaf()) {
+	n->expand();
 	n->setSelectable(false);
     }
     else {
+	n->expand();
 	n->setSelectable(true);
 
 	QColor c = Chart::defaultColor(-1);
@@ -364,10 +365,10 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
 	// this is a leaf so walk back up to the root, opening each node up
 	NameSpace *up;
 	for (up = tree; up->my.back != up; up = up->my.back) {
-	    up->my.expanded = true;
+	    up->expand();
 	    up->setExpanded(true);
 	}
-	up->my.expanded = true;
+	up->expand();
 	up->setExpanded(true);	// add the host/archive root as well.
 
 	n->setSelected(true);
@@ -375,7 +376,7 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
     return n;
 }
 
-bool NameSpace::cmp(QTreeWidgetItem *item)
+bool NameSpace::cmp(NameSpace *item)
 {
     if (!item)	// empty list
 	return false;
@@ -397,7 +398,7 @@ void NameSpace::addToTree(QTreeWidget *target)
     nodelist.prepend(node);	// add the host/archive root as well.
 
     NameSpace *tree = (NameSpace *)target->invisibleRootItem();
-    QTreeWidgetItem *item = NULL;
+    NameSpace *item = NULL;
 
     for (int i, n = 0; n < nodelist.size(); n++) {
 	node = nodelist.at(n);
@@ -406,10 +407,11 @@ void NameSpace::addToTree(QTreeWidget *target)
 	    if (node->cmp(item)) {
 		// no insert at this level necessary, move down a level
 		if (!node->isLeaf()) {
-		    tree = (NameSpace *)item;
-		    item = item->child(0);
+		    tree = item;
+		    item = (NameSpace *)item->child(0);
 		}
-		else {	// already there, just select the existing name
+		// already there, just select the existing name
+		else {
 		    item->setSelected(true);
 		}
 		break;

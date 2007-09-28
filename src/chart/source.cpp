@@ -47,13 +47,17 @@ QString Source::makeSourceAnnotatedName(const QmcContext *cp)
 
     if (cp->source().type() == PM_CONTEXT_HOST) {
 	t = cp->source().host();
+#if 0	// TODO - find a better way to do this - column #2 in listview maybe?
 	t.append(" (no proxy)");
+#endif
     }
     else {
 	t = cp->source().source();
+#if 0	// TODO - find a better way to do this - column #2 in listview maybe?
 	t.append(" (");
 	t.append(cp->source().host());
 	t.append(")");
+#endif
     }
     return t;
 }
@@ -205,5 +209,5 @@ void Source::setupTree(QTreeWidget *tree, bool arch)
     }
     tree->insertTopLevelItems(0, items);
     if (current)
-    	tree->setCurrentItem(current);
+	tree->setCurrentItem(current);
 }
