@@ -31,8 +31,6 @@ Refer to doc/INSTALL for instructions on building these tools.
       o "Available Metrics" Tree
 	. Double click on compressed tree name is not expanding.
       o "Plot" page
-	. Selected colour label not updating correctly (need refresh?)
-	. Revert-colour label not updating correctly (need refresh?)
 	. Support for plot Labels
 
     - Charting issues

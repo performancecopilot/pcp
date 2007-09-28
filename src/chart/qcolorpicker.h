@@ -125,7 +125,7 @@ public:
 	setAcceptDrops(true);
 	mousePressed = false;
     }
-    void setColor(QColor c) { col = c; }
+    void setColor(QColor c) { col = c; update(); }
 
 signals:
     void colorDropped(QRgb);
