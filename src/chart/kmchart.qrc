@@ -16,6 +16,7 @@
     <file>go-previous.png</file>
     <file>system-search.png</file>
     <file>help-browser.png</file>
+    <file>help-contents.png</file>
     <file>go-jump.png</file>
     <file>kmchart.png</file>
     <file>archive.png</file>
@@ -41,8 +42,8 @@
     <file>toolview.png</file>
     <file>toolforward.png</file>
     <file>toolbackward.png</file>
-    <file>tooliconview.png</file>
-    <file>toollistview.png</file>
+    <file>zoom-in.png</file>
+    <file>zoom-out.png</file>
     <file>play_live.png</file>
     <file>stop_live.png</file>
     <file>play_record.png</file>

@@ -124,12 +124,11 @@ void KmChart::enableUi(void)
     bool haveLiveHosts = (!activeTab->isArchiveSource());
 
     closeTabAction->setEnabled(haveTabs);
-    deleteTabAction->setEnabled(haveTabs);
     fileSaveViewAction->setEnabled(haveCharts);
     fileExportAction->setEnabled(haveCharts);
     filePrintAction->setEnabled(haveCharts);
     editChartAction->setEnabled(haveCharts);
-    deleteChartAction->setEnabled(haveCharts);
+    closeChartAction->setEnabled(haveCharts);
     recordStartAction->setEnabled(haveCharts && haveLiveHosts && !haveLoggers);
     recordQueryAction->setEnabled(haveLoggers);
     recordStopAction->setEnabled(haveLoggers);
@@ -271,13 +270,13 @@ void KmChart::setupAssistant()
 void KmChart::helpManual()
 {
     setupAssistant();
-    my.assistant->showPage(tr("manual.html"));
+    my.assistant->showPage("manual.html");
 }
 
-void KmChart::helpContents()
+void KmChart::helpTutorial()
 {
     setupAssistant();
-    my.assistant->showPage(tr("contents.html"));
+    my.assistant->showPage("tutorial.html");
 }
 
 void KmChart::helpAbout()
@@ -432,7 +431,7 @@ void KmChart::acceptEditChart()
     enableUi();
 }
 
-void KmChart::deleteChart()
+void KmChart::closeChart()
 {
     activeTab->deleteCurrent();
     enableUi();

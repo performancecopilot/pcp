@@ -25,22 +25,23 @@ BINARY =  $(COMMAND)
 LLDFLAGS = -L$(TOPDIR)/libqmc/build/Default -L$(TOPDIR)/libqwt/build/Default
 endif
 
-ICONLINKS = aboutpcp.png aboutqt.png aboutkmchart.png camera-video.png \
+ICONLINKS = aboutpcp.png aboutqt.png aboutkmchart.png kmchart.png kmtime.png \
 	    document-new.png document-open.png document-print.png \
-	    document-export.png kmtime.png edit-clear.png filefolder.png \
-	    whatsthis.png computer.png process-stop.png go-previous.png \
-	    system-search.png help-browser.png go-jump.png kmchart.png \
-	    archive.png filearchive.png filegeneric.png filehtml.png \
+	    document-export.png document-properties.png edit-clear.png \
+	    archive.png computer.png camera-video.png system-search.png \
+	    process-stop.png go-jump.png go-previous.png \
+	    tab-new.png tab-edit.png zoom-in.png zoom-out.png settings.png \
+	    help-contents.png help-browser.png whatsthis.png \
+	    filearchive.png filefolder.png filegeneric.png filehtml.png \
 	    fileimage.png filepackage.png filespreadsheet.png fileview.png \
-	    filewordprocessor.png tab-new.png settings.png folio.png \
-	    filefolio.png view.png logfile.png document-properties.png \
-	    tab-edit.png toolarchive.png toolusers.png toolview.png \
-	    toolbackward.png toolforward.png tooliconview.png toollistview.png \
+	    filewordprocessor.png filefolio.png folio.png view.png logfile.png \
+	    toolarchive.png toolusers.png toolview.png \
+	    toolbackward.png toolforward.png \
 	    play_live.png stop_live.png play_record.png stop_record.png \
 	    play_archive.png stop_archive.png back_archive.png \
 	    stepfwd_archive.png stepback_archive.png fastfwd_archive.png \
-	    fastback_archive.png \
-	    kmchart.icns
+	    fastback_archive.png
+ICONLINKS += kmchart.icns
 
 SUBDIRS = views pmafm
 

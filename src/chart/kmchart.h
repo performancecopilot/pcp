@@ -76,7 +76,7 @@ public slots:
     virtual void fileQuit();
     virtual void assistantError(const QString &);
     virtual void helpManual();
-    virtual void helpContents();
+    virtual void helpTutorial();
     virtual void helpAbout();
     virtual void helpSeeAlso();
     virtual void whatsThis();
@@ -88,7 +88,7 @@ public slots:
     virtual void fileNewChart();
     virtual void editChart();
     virtual void acceptEditChart();
-    virtual void deleteChart();
+    virtual void closeChart();
     virtual void editTab();
     virtual void acceptEditTab();
     virtual void acceptNewTab();

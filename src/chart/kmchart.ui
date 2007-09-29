@@ -214,17 +214,27 @@
      <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="Edit" >
+   <widget class="QMenu" name="Help" >
     <property name="title" >
-     <string>&amp;Edit</string>
+     <string>&amp;Help</string>
     </property>
-    <addaction name="editChartAction" />
-    <addaction name="deleteChartAction" />
+    <addaction name="helpManualAction" />
+    <addaction name="helpTutorialAction" />
     <addaction name="separator" />
-    <addaction name="editTabAction" />
-    <addaction name="deleteTabAction" />
+    <addaction name="helpAboutAction" />
+    <addaction name="helpSeeAlsoAction" />
     <addaction name="separator" />
-    <addaction name="editSettingsAction" />
+    <addaction name="helpWhatsThisAction" />
+   </widget>
+   <widget class="QMenu" name="Time" >
+    <property name="title" >
+     <string>&amp;Options</string>
+    </property>
+    <addaction name="timeControlAction" />
+    <addaction name="toolbarAction" />
+    <addaction name="consoleAction" />
+    <addaction name="separator" />
+    <addaction name="newKmchartAction" />
    </widget>
    <widget class="QMenu" name="Record" >
     <property name="title" >
@@ -252,27 +262,18 @@
     <addaction name="separator" />
     <addaction name="fileQuitAction" />
    </widget>
-   <widget class="QMenu" name="Help" >
+   <widget class="QMenu" name="Edit" >
     <property name="title" >
-     <string>&amp;Help</string>
+     <string>&amp;Edit</string>
     </property>
-    <addaction name="helpContentsAction" />
-    <addaction name="helpManualAction" />
+    <addaction name="editChartAction" />
+    <addaction name="closeChartAction" />
     <addaction name="separator" />
-    <addaction name="helpAboutAction" />
-    <addaction name="helpSeeAlsoAction" />
+    <addaction name="editTabAction" />
+    <addaction name="zoomInAction" />
+    <addaction name="zoomOutAction" />
     <addaction name="separator" />
-    <addaction name="helpWhatsThisAction" />
-   </widget>
-   <widget class="QMenu" name="Time" >
-    <property name="title" >
-     <string>&amp;Options</string>
-    </property>
-    <addaction name="timeControlAction" />
-    <addaction name="toolbarAction" />
-    <addaction name="consoleAction" />
-    <addaction name="separator" />
-    <addaction name="newKmchartAction" />
+    <addaction name="editSettingsAction" />
    </widget>
    <addaction name="File" />
    <addaction name="Edit" />
@@ -399,7 +400,7 @@
     <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
    </property>
    <property name="text" >
-    <string>New kmchart</string>
+    <string>New &amp;kmchart</string>
    </property>
    <property name="iconText" >
     <string>New kmchart</string>
@@ -447,6 +448,9 @@
    <property name="icon" >
     <iconset resource="kmchart.qrc" >:/tab-edit.png</iconset>
    </property>
+   <property name="text" >
+    <string>&amp;Tab...</string>
+   </property>
    <property name="iconText" >
     <string>Tab...</string>
    </property>
@@ -456,7 +460,7 @@
     <iconset resource="kmchart.qrc" >:/settings.png</iconset>
    </property>
    <property name="text" >
-    <string>Settings...</string>
+    <string>Preferences...</string>
    </property>
    <property name="iconText" >
     <string>Settings...</string>
@@ -503,23 +507,40 @@
     <string>Add Tab</string>
    </property>
   </action>
-  <action name="deleteChartAction" >
+  <action name="closeChartAction" >
    <property name="text" >
-    <string>Delete Chart</string>
+    <string>Close Chart</string>
    </property>
    <property name="iconText" >
     <string>Delete Chart</string>
    </property>
   </action>
-  <action name="deleteTabAction" >
+  <action name="zoomInAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/zoom-in.png</iconset>
+   </property>
    <property name="text" >
-    <string>Delete Tab</string>
+    <string>Zoom &amp;In</string>
    </property>
    <property name="iconText" >
-    <string>Delete Tab</string>
+    <string>Zoom In</string>
+   </property>
+  </action>
+  <action name="zoomOutAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/zoom-out.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Zoom Out</string>
+   </property>
+   <property name="iconText" >
+    <string>Zoom Out</string>
    </property>
   </action>
   <action name="helpManualAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/help-contents.png</iconset>
+   </property>
    <property name="text" >
     <string>&amp;Manual</string>
    </property>
@@ -527,18 +548,15 @@
     <string>Manual</string>
    </property>
    <property name="shortcut" >
-    <string>Ctrl+M</string>
+    <string>F1</string>
    </property>
   </action>
-  <action name="helpContentsAction" >
+  <action name="helpTutorialAction" >
    <property name="text" >
-    <string>&amp;Contents</string>
+    <string>Tutorial</string>
    </property>
    <property name="iconText" >
-    <string>Contents</string>
-   </property>
-   <property name="shortcut" >
-    <string>F1</string>
+    <string>Tutorial</string>
    </property>
   </action>
   <action name="helpAboutAction" >
@@ -608,6 +626,11 @@
   <action name="actionToolbar" >
    <property name="text" >
     <string>Toolbar</string>
+   </property>
+  </action>
+  <action name="actionZoomOut" >
+   <property name="text" >
+    <string>&amp;Zoom Out</string>
    </property>
   </action>
  </widget>
@@ -746,10 +769,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>helpContentsAction</sender>
+   <sender>helpTutorialAction</sender>
    <signal>activated()</signal>
    <receiver>KmChart</receiver>
-   <slot>helpContents()</slot>
+   <slot>helpTutorial()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>
@@ -954,10 +977,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>deleteChartAction</sender>
+   <sender>closeChartAction</sender>
    <signal>activated()</signal>
    <receiver>KmChart</receiver>
-   <slot>deleteChart()</slot>
+   <slot>closeChart()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>
@@ -986,7 +1009,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>deleteTabAction</sender>
+   <sender>closeTabAction</sender>
    <signal>activated()</signal>
    <receiver>KmChart</receiver>
    <slot>closeTab()</slot>
