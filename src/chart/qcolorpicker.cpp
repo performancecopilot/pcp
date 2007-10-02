@@ -188,10 +188,10 @@ void QColorPicker::mousePressEvent(QMouseEvent *m)
     emit newCol(hue, sat);
 }
 
-void QColorPicker::paintEvent(QPaintEvent* )
+void QColorPicker::paintEvent(QPaintEvent *e)
 {
+    QFrame::paintEvent(&e);
     QPainter p(this);
-    drawFrame(&p);
     QRect r = contentsRect();
 
     p.drawPixmap(r.topLeft(), *pix);
@@ -204,8 +204,8 @@ void QColorPicker::paintEvent(QPaintEvent* )
 
 void QColorShowLabel::paintEvent(QPaintEvent *e)
 {
+    QFrame::paintEvent(e);
     QPainter p(this);
-    drawFrame(&p);
     p.fillRect(contentsRect()&e->rect(), col);
 }
 
