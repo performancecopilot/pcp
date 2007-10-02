@@ -353,10 +353,10 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
     }
     else {
 	plot->legend = NULL;
-	if (plot->name.size() > KmChart::maximumLegendLength) {
+	if (plot->name.size() > KmChart::maximumLegendLength()) {
 	    // show name as ...[end of name]
 	    plot->label = QString("...");
-	    size = plot->name.size() - KmChart::maximumLegendLength - 3;
+	    size = plot->name.size() - KmChart::maximumLegendLength() - 3;
 	    plot->label.append(plot->name.right(size));
 	}
 	else

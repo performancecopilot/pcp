@@ -205,20 +205,20 @@ void writeSettings(void)
 void checkHistory(int samples, int visible)
 {
     // sanity checking on sample sizes
-    if (samples < KmChart::minimumPoints) {
-	globalSettings.sampleHistory = KmChart::minimumPoints;
+    if (samples < KmChart::minimumPoints()) {
+	globalSettings.sampleHistory = KmChart::minimumPoints();
 	globalSettings.sampleHistoryModified = 1;
     }
-    if (samples > KmChart::maximumPoints) {
-	globalSettings.sampleHistory = KmChart::maximumPoints;
+    if (samples > KmChart::maximumPoints()) {
+	globalSettings.sampleHistory = KmChart::maximumPoints();
 	globalSettings.sampleHistoryModified = 1;
     }
-    if (visible < KmChart::minimumPoints) {
-	globalSettings.visibleHistory = KmChart::minimumPoints;
+    if (visible < KmChart::minimumPoints()) {
+	globalSettings.visibleHistory = KmChart::minimumPoints();
 	globalSettings.visibleHistoryModified = 1;
     }
-    if (visible > KmChart::maximumPoints) {
-	globalSettings.visibleHistory = KmChart::maximumPoints;
+    if (visible > KmChart::maximumPoints()) {
+	globalSettings.visibleHistory = KmChart::maximumPoints();
 	globalSettings.visibleHistoryModified = 1;
     }
     if (samples < visible) {
@@ -240,13 +240,13 @@ void readSettings(void)
     // Parameters related to sampling
     //
     globalSettings.chartDelta = userSettings.value("chartDelta",
-					KmChart::defaultChartDelta).toInt();
+				KmChart::defaultChartDelta()).toDouble();
     globalSettings.loggerDelta = userSettings.value("loggerDelta",
-					KmChart::defaultLoggerDelta).toInt();
+				KmChart::defaultLoggerDelta()).toDouble();
     globalSettings.sampleHistory = userSettings.value("sampleHistory",
-					KmChart::defaultSampleHistory).toInt();
+				KmChart::defaultSampleHistory()).toInt();
     globalSettings.visibleHistory = userSettings.value("visibleHistory",
-					KmChart::defaultVisibleHistory).toInt();
+				KmChart::defaultVisibleHistory()).toInt();
     checkHistory(globalSettings.sampleHistory, globalSettings.visibleHistory);
     if (globalSettings.sampleHistoryModified)
 	userSettings.setValue("samplePoints", globalSettings.sampleHistory);

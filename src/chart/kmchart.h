@@ -42,13 +42,13 @@ public:
 	DebugTimeless = 0x8,
     } DebugOptions;
 
-    static const int defaultChartDelta = 1;		// seconds
-    static const int defaultLoggerDelta = 1;
-    static const int defaultVisibleHistory = 60;	// points
-    static const int defaultSampleHistory = 180;
-    static const int minimumPoints = 2;
-    static const int maximumPoints = 360;
-    static const int maximumLegendLength = 20;		// chars
+    static const double defaultChartDelta() { return 1.0; }	// seconds
+    static const double defaultLoggerDelta() { return 1.0; }
+    static const int defaultVisibleHistory() { return 60; }	// points
+    static const int defaultSampleHistory() { return 180; }
+    static const int minimumPoints() { return 2; }
+    static const int maximumPoints() { return 360; }
+    static const int maximumLegendLength() { return 20; }	// chars
 
     virtual TimeAxis *timeAxis();
     virtual void step(bool livemode, KmTime::Packet *kmtime);
@@ -109,6 +109,8 @@ public slots:
     virtual void recordQuery();
     virtual void recordStop();
     virtual void recordDetach();
+    virtual void zoomIn();
+    virtual void zoomOut();
 
 protected slots:
     virtual void languageChange();

@@ -76,13 +76,13 @@ void SettingsDialog::reset()
 
     my.visibleHistory = my.sampleHistory = 0;
     visibleCounter->setValue(globalSettings.visibleHistory);
-    visibleCounter->setRange(KmChart::minimumPoints, KmChart::maximumPoints);
+    visibleCounter->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
     visibleSlider->setValue(globalSettings.visibleHistory);
-    visibleSlider->setRange(KmChart::minimumPoints, KmChart::maximumPoints);
+    visibleSlider->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
     sampleCounter->setValue(globalSettings.sampleHistory);
-    sampleCounter->setRange(KmChart::minimumPoints, KmChart::maximumPoints);
+    sampleCounter->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
     sampleSlider->setValue(globalSettings.sampleHistory);
-    sampleSlider->setRange(KmChart::minimumPoints, KmChart::maximumPoints);
+    sampleSlider->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
 
     palette.setBrush(chartBackgroundPushButton->backgroundRole(),
 					globalSettings.chartBackground);

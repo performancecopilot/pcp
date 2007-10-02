@@ -139,6 +139,9 @@ void KmChart::enableUi(void)
     recordQueryAction->setEnabled(haveLoggers);
     recordStopAction->setEnabled(haveLoggers);
     recordDetachAction->setEnabled(haveLoggers);
+
+    zoomInAction->setEnabled(activeTab->visibleHistory() > minimumPoints());
+    zoomOutAction->setEnabled(activeTab->visibleHistory() < maximumPoints());
 }
 
 void KmChart::updateToolbarLocation()
@@ -515,6 +518,32 @@ void KmChart::closeTab()
     tabs.removeAt(index);
     setActiveTab(chartTab->currentIndex(), false);
     enableUi();
+}
+
+void KmChart::zoomIn()
+{
+    int visible = activeTab->visibleHistory();
+    int samples = activeTab->sampleHistory();
+
+    samples = qMax((int)((double)samples / 10), 1);
+    visible = qMax(visible - samples, minimumPoints());
+    activeTab->setVisibleHistory(visible);
+
+    zoomInAction->setEnabled(visible > minimumPoints());
+    zoomOutAction->setEnabled(visible < maximumPoints());
+}
+
+void KmChart::zoomOut()
+{
+    int visible = activeTab->visibleHistory();
+    int samples = activeTab->sampleHistory();
+
+    samples = qMax((int)((double)samples / 10), 1);
+    visible = qMin(visible + samples, maximumPoints());
+    activeTab->setVisibleHistory(visible);
+
+    zoomInAction->setEnabled(visible > minimumPoints());
+    zoomOutAction->setEnabled(visible < maximumPoints());
 }
 
 QTabWidget *KmChart::tabWidget()

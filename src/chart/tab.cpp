@@ -594,6 +594,7 @@ void Tab::setVisibleHistory(int v)
 	my.visible = v;
 	for (int i = 0; i < my.count; i++)
 	    my.charts[i]->replot();
+	kmchart->timeAxis()->replot();
     }
 }
 

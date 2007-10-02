@@ -595,6 +595,11 @@
  <layoutdefault spacing="0" margin="0" />
  <customwidgets>
   <customwidget>
+   <class>QwtPlot</class>
+   <extends>QFrame</extends>
+   <header>qwt_plot.h</header>
+  </customwidget>
+  <customwidget>
    <class>TimeAxis</class>
    <extends>QwtPlot</extends>
    <header>timeaxis.h</header>
@@ -604,11 +609,6 @@
    <class>TimeButton</class>
    <extends>QToolButton</extends>
    <header>timebutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QwtPlot</class>
-   <extends>QFrame</extends>
-   <header>qwt_plot.h</header>
   </customwidget>
  </customwidgets>
  <includes>
@@ -1067,6 +1067,38 @@
    <signal>activated()</signal>
    <receiver>KmChart</receiver>
    <slot>recordDetach()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>171</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoomInAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>zoomIn()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>171</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoomOutAction</sender>
+   <signal>activated()</signal>
+   <receiver>KmChart</receiver>
+   <slot>zoomOut()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>

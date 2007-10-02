@@ -42,13 +42,17 @@ void TabDialog::reset(QString label, bool live, int samples, int visible)
     my.samples = my.visible = 0;
 
     samplePointsCounter->setValue(samples);
-    samplePointsCounter->setRange(KmChart::minimumPoints, KmChart::maximumPoints);
+    samplePointsCounter->setRange(
+			KmChart::minimumPoints(), KmChart::maximumPoints());
     samplePointsSlider->setValue(samples);
-    samplePointsSlider->setRange(KmChart::minimumPoints, KmChart::maximumPoints);
+    samplePointsSlider->setRange(
+			KmChart::minimumPoints(), KmChart::maximumPoints());
     visiblePointsCounter->setValue(visible);
-    visiblePointsCounter->setRange(KmChart::minimumPoints, KmChart::maximumPoints);
+    visiblePointsCounter->setRange(
+			KmChart::minimumPoints(), KmChart::maximumPoints());
     visiblePointsSlider->setValue(visible);
-    visiblePointsSlider->setRange(KmChart::minimumPoints, KmChart::maximumPoints);
+    visiblePointsSlider->setRange(
+			KmChart::minimumPoints(), KmChart::maximumPoints());
 
     console->post(KmChart::DebugGUI, "TabDialog::reset archive=%s",
 					my.archiveSource?"true":"false");

@@ -65,9 +65,9 @@ public:
     void detachLoggers();
 
     void setVisibleHistory(int);
-    int visibleHistory(void);
+    int visibleHistory();
     void setSampleHistory(int);
-    int sampleHistory(void);
+    int sampleHistory();
 
     void setConfig(char *);
     char *config(void);		// config filename from -c
