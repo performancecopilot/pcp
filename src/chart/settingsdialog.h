@@ -24,20 +24,17 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog
 public:
     SettingsDialog(QWidget* parent);
 
-    virtual int defaultColorArray(QPushButton *** array);
     virtual void reset();
     virtual void flush();
-    virtual void displayTotalSlider();
-    virtual void displayVisibleSlider();
-    virtual void displayTotalCounter();
-    virtual void displayVisibleCounter();
 
 public slots:
     virtual void buttonOk_clicked();
+
     virtual void chartDeltaUnitsComboBox_activated(int value);
     virtual void loggerDeltaUnitsComboBox_activated(int value);
     virtual void visible_valueChanged(int value);
     virtual void sample_valueChanged(int value);
+    
     virtual void chartHighlightPushButton_clicked();
     virtual void chartBackgroundPushButton_clicked();
     virtual void defaultColorsPushButton1_clicked();
@@ -65,7 +62,19 @@ public slots:
     virtual void defaultColorsPushButton23_clicked();
     virtual void defaultColorsPushButton24_clicked();
 
-protected:
+    virtual void toolbarCheckBox_clicked();
+    virtual void toolbarAreasComboBox_currentIndexChanged(int);
+    virtual void actionListWidget_itemClicked(QListWidgetItem *);
+
+protected slots:
+    virtual void languageChange();
+
+private:
+    virtual int defaultColorArray(QPushButton *** array);
+    virtual void displayTotalSlider();
+    virtual void displayVisibleSlider();
+    virtual void displayTotalCounter();
+    virtual void displayVisibleCounter();
     struct {
 	KmTime::DeltaUnits chartUnits;
 	KmTime::DeltaUnits loggerUnits;
@@ -74,9 +83,7 @@ protected:
     } my;
 
     void defaultColorsPushButtonClicked(int);
-
-protected slots:
-    virtual void languageChange();
+    QBrush enabled, disabled; // brushes for painting action list backgrounds
 };
 
 #endif // SETTINGSDIALOG_H

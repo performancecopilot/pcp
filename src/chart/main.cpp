@@ -192,6 +192,13 @@ void writeSettings(void)
     if (globalSettings.chartHighlightModified)
 	userSettings.setValue("chartHighlightColor",
 				globalSettings.chartHighlightName);
+    if (globalSettings.initialToolbarModified)
+	userSettings.setValue("initialToolbar", globalSettings.initialToolbar);
+    if (globalSettings.toolbarLocationModified)
+	userSettings.setValue("toolbarLocation",
+				globalSettings.toolbarLocation);
+    if (globalSettings.toolbarActionsModified)
+	userSettings.setValue("toolbarActions", globalSettings.toolbarActions);
     userSettings.endGroup();
 }
 
@@ -264,6 +271,19 @@ void readSettings(void)
     globalSettings.chartHighlightName = userSettings.value(
 		"chartHighlightColor", "blue").toString();
     globalSettings.chartHighlight = QColor(globalSettings.chartHighlightName);
+
+    //
+    // Toolbar user preferences
+    //
+    globalSettings.initialToolbar = userSettings.value(
+					"initialToolbar", 1).toInt();
+    globalSettings.toolbarLocation = userSettings.value(
+					"toolbarLocation", 0).toInt();
+    QStringList actionList;
+    if (userSettings.contains("toolbarActions") == true)
+	globalSettings.toolbarActions =
+			userSettings.value("toolbarActions").toStringList();
+    // else: (defaults come from the kmchart.ui interface specification)
 
     userSettings.endGroup();
 }

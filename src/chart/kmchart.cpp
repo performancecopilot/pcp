@@ -49,11 +49,17 @@ KmChart::KmChart() : QMainWindow(NULL)
     my.initDone = false;
     setupUi(this);
 
+    toolBar->setAllowedAreas(Qt::RightToolBarArea | Qt::TopToolBarArea);
+    updateToolbarLocation();
+    setupEnabledActionsList();
+    if (!globalSettings.initialToolbar)
+	toolBar->hide();
+
     my.liveHidden = true;
     my.archiveHidden = true;
     timeControlAction->setChecked(false);
-    my.toolbarHidden = false;
     toolbarAction->setChecked(true);
+    my.toolbarHidden = !globalSettings.initialToolbar;
     my.consoleHidden = true;
     if (!pmDebug)
 	consoleAction->setVisible(false);
@@ -133,6 +139,14 @@ void KmChart::enableUi(void)
     recordQueryAction->setEnabled(haveLoggers);
     recordStopAction->setEnabled(haveLoggers);
     recordDetachAction->setEnabled(haveLoggers);
+}
+
+void KmChart::updateToolbarLocation()
+{
+    if (globalSettings.toolbarLocation)
+	addToolBar(Qt::RightToolBarArea, toolBar);
+    else
+	addToolBar(Qt::TopToolBarArea, toolBar);
 }
 
 void KmChart::setButtonState(TimeButton::State state)
@@ -593,4 +607,91 @@ void KmChart::recordQuery()
 void KmChart::recordDetach()
 {
     activeTab->detachLoggers();
+}
+
+QList<QAction*> KmChart::toolbarActionsList()
+{
+    return my.toolbarActionsList;
+}
+
+QList<QAction*> KmChart::enabledActionsList()
+{
+    return my.enabledActionsList;
+}
+
+void KmChart::setupEnabledActionsList()
+{
+    // ToolbarActionsList is a list of all Actions available.
+    // The SeparatorsList contains Actions that are group "breaks", and
+    // which must be followed by a separator (if they are not the final
+    // action in the toolbar, of course).
+    // Finally the enabledActionsList lists the default enabled Actions.
+
+    my.toolbarActionsList << fileNewChartAction
+			  << editChartAction << closeChartAction;
+    my.toolbarActionsList << fileOpenViewAction << fileSaveViewAction;
+    addSeparatorAction();	// end of chart/view group
+    my.toolbarActionsList << fileExportAction << filePrintAction;
+    addSeparatorAction();	// end exported formats
+    my.toolbarActionsList << addTabAction << editTabAction;
+    my.toolbarActionsList << zoomInAction << zoomOutAction;
+    addSeparatorAction();	// end tab group
+    my.toolbarActionsList << recordStartAction << recordQueryAction
+			  << recordStopAction;
+    addSeparatorAction();	// end recording group
+    my.toolbarActionsList << timeControlAction << newKmchartAction;
+    addSeparatorAction();	// end other processes
+    my.toolbarActionsList << helpManualAction << helpWhatsThisAction;
+
+    my.enabledActionsList << fileNewChartAction << fileOpenViewAction
+			  << addTabAction << zoomInAction << zoomOutAction
+			  << fileExportAction << filePrintAction
+			  << helpWhatsThisAction;
+
+    if (globalSettings.toolbarActions.size() > 0)
+	setEnabledActionsList(globalSettings.toolbarActions, false);
+}
+
+void KmChart::addSeparatorAction()
+{
+    int index = my.toolbarActionsList.size() - 1;
+    my.separatorsList << my.toolbarActionsList.at(index);
+}
+
+void KmChart::updateToolbarContents()
+{
+    bool needSeparator = false;
+
+    toolBar->clear();
+    for (int i = 0; i < my.toolbarActionsList.size(); i++) {
+	QAction *action = my.toolbarActionsList.at(i);
+	if (my.enabledActionsList.contains(action)) {
+	    toolBar->addAction(action);
+	    if (needSeparator) {
+		toolBar->insertSeparator(action);
+		needSeparator = false;
+	    }
+	}
+	if (my.separatorsList.contains(action))
+	    needSeparator = true;
+    }
+}
+
+void KmChart::setEnabledActionsList(QStringList tools, bool redisplay)
+{
+    my.enabledActionsList.clear();
+    for (int i = 0; i < my.toolbarActionsList.size(); i++) {
+	QAction *action = my.toolbarActionsList.at(i);
+	if (tools.contains(action->iconText()))
+	    my.enabledActionsList.append(action);
+    }
+
+    if (redisplay) {
+	my.toolbarHidden = (my.enabledActionsList.size() == 0);
+	toolbarAction->setChecked(my.toolbarHidden);
+	if (my.toolbarHidden)
+	    toolBar->hide();
+	else
+	    toolBar->show();
+    }
 }

@@ -53,6 +53,7 @@ Sampling
 
 Colors
 
+[ ] Open the Settings Dialog, click on the Colors tab.
 [ ] Click the Selected Chart Highlight button, select a different
     colour (hot pink), and click OK.  Verify that the push button
     changes colour to your selection.
@@ -77,4 +78,26 @@ Colors
 [ ] Finally, verify that the plot after the final colour specified
     originally in the Settings dialog has rotated back to the first
     colour, the next has rotated back to the second colour, etc.
+
+
+Toolbar
+
+[ ] Open the Settings Dialog, click on the Toolbar tab.
+[ ] Uncheck the "Show Toolbar on Startup" check box.
+[ ] Select "Right and Vertical" from the Location/Orientation box.
+[ ] Quit kmchart.  Restart kmchart.  Verify that the Toolbar is not
+    displayed at all.  Verify also that the Toolbar option from the
+    Options menu is not checked.
+[ ] Select the Toolbar item in the Options menu.  Verify that the
+    toolbar is now displayed on the right of the main charting area
+    instead of across the top of the main window.
+[ ] Open the Settings dialog once more, verifying that the "Show
+    Toolbar on Startup" option is not checked and that the Location/
+    Orientation combo box shows Right/Vertical.
+[ ] Make a series of selections from the Actions list (items are
+    selected and deselected simply by clicking on them).  Press the
+    OK button and verify that the main window is updated to display
+    your selected actions, instead of the defaults.
+[ ] Exit kmchart.  Restart kmchart.  Verify that your selected set of
+    actions is still displayed, in preference to the defaults.
 

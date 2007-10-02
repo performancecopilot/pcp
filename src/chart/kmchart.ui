@@ -304,8 +304,11 @@
     <number>4</number>
    </attribute>
    <addaction name="fileNewChartAction" />
-   <addaction name="addTabAction" />
    <addaction name="fileOpenViewAction" />
+   <addaction name="separator" />
+   <addaction name="addTabAction" />
+   <addaction name="zoomInAction" />
+   <addaction name="zoomOutAction" />
    <addaction name="separator" />
    <addaction name="fileExportAction" />
    <addaction name="filePrintAction" />
@@ -320,7 +323,7 @@
     <string>&amp;Open View...</string>
    </property>
    <property name="iconText" >
-    <string>Open View...</string>
+    <string>Open View</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+O</string>
@@ -331,7 +334,7 @@
     <string>&amp;Save View ...</string>
    </property>
    <property name="iconText" >
-    <string>Save View ...</string>
+    <string>Save View</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+S</string>
@@ -374,25 +377,6 @@
    </property>
    <property name="shortcut" >
     <string>Ctrl+Q</string>
-   </property>
-  </action>
-  <action name="editDeleteAction" >
-   <property name="text" >
-    <string>&amp;Delete</string>
-   </property>
-   <property name="iconText" >
-    <string>&amp;Delete</string>
-   </property>
-  </action>
-  <action name="editColorsAction" >
-   <property name="text" >
-    <string>&amp;Colors ...</string>
-   </property>
-   <property name="iconText" >
-    <string>Colors ...</string>
-   </property>
-   <property name="toolTip" >
-    <string>Change Colors of Plots</string>
    </property>
   </action>
   <action name="newKmchartAction" >
@@ -441,7 +425,7 @@
     <string>&amp;Chart...</string>
    </property>
    <property name="iconText" >
-    <string>Chart...</string>
+    <string>Edit Chart</string>
    </property>
   </action>
   <action name="editTabAction" >
@@ -452,7 +436,7 @@
     <string>&amp;Tab...</string>
    </property>
    <property name="iconText" >
-    <string>Tab...</string>
+    <string>Edit Tab</string>
    </property>
   </action>
   <action name="editSettingsAction" >
@@ -463,7 +447,7 @@
     <string>Preferences...</string>
    </property>
    <property name="iconText" >
-    <string>Settings...</string>
+    <string>Preferences</string>
    </property>
   </action>
   <action name="closeTabAction" >
@@ -475,17 +459,6 @@
    </property>
   </action>
   <action name="fileNewChartAction" >
-   <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/document-new.png</iconset>
-   </property>
-   <property name="text" >
-    <string>&amp;New Chart...</string>
-   </property>
-   <property name="iconText" >
-    <string>New Chart...</string>
-   </property>
-  </action>
-  <action name="fileNewTabAction" >
    <property name="icon" >
     <iconset resource="kmchart.qrc" >:/document-new.png</iconset>
    </property>
@@ -512,7 +485,7 @@
     <string>Close Chart</string>
    </property>
    <property name="iconText" >
-    <string>Delete Chart</string>
+    <string>Close Chart</string>
    </property>
   </action>
   <action name="zoomInAction" >
@@ -616,21 +589,6 @@
   <action name="recordDetachAction" >
    <property name="text" >
     <string>Detach</string>
-   </property>
-  </action>
-  <action name="actionConsole" >
-   <property name="text" >
-    <string>Console</string>
-   </property>
-  </action>
-  <action name="actionToolbar" >
-   <property name="text" >
-    <string>Toolbar</string>
-   </property>
-  </action>
-  <action name="actionZoomOut" >
-   <property name="text" >
-    <string>&amp;Zoom Out</string>
    </property>
   </action>
  </widget>

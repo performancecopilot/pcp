@@ -64,6 +64,13 @@ public:
     virtual void setDateLabel(time_t seconds, QString tz);
     virtual void setButtonState(TimeButton::State state);
     virtual void setRecordState(Tab *tab, bool recording);
+    virtual void updateToolbarLocation();
+    virtual void updateToolbarContents();
+    virtual QList<QAction*> toolbarActionsList();
+    virtual QList<QAction*> enabledActionsList();
+    virtual void setupEnabledActionsList();
+    virtual void addSeparatorAction();
+    virtual void setEnabledActionsList(QStringList tools, bool redisplay);
 
 public slots:
     virtual void init();
@@ -125,6 +132,9 @@ private:
 	SaveViewDialog *saveview;
 	SettingsDialog *settings;
 	QAssistantClient *assistant;
+	QList<QAction*> separatorsList;		// separator follow these
+	QList<QAction*> toolbarActionsList;	// all toolbar actions
+	QList<QAction*> enabledActionsList;	// currently visible actions
     } my;
 };
 

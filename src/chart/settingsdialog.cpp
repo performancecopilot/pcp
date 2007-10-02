@@ -13,12 +13,23 @@
  */
 #include "settingsdialog.h"
 #include <QtGui/QMessageBox>
+#include <QtGui/QListWidgetItem>
 #include "qcolordialog.h"
 #include "main.h"
 
-SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent)
+SettingsDialog::SettingsDialog(QWidget* parent)
+	: QDialog(parent), disabled(Qt::Dense4Pattern)
 {
     setupUi(this);
+
+    QList<QAction*> actionsList = kmchart->toolbarActionsList();
+    for (int i = 0; i < actionsList.size(); i++) {
+	QAction *action = actionsList.at(i);
+	actionListWidget->insertItem(i,
+		new QListWidgetItem(action->icon(), action->iconText()));
+    }
+    enabled = actionListWidget->item(0)->background();
+
     chartDeltaLineEdit->setValidator(
 		new QDoubleValidator(0.001, INT_MAX, 3, chartDeltaLineEdit));
     loggerDeltaLineEdit->setValidator(
@@ -91,6 +102,19 @@ void SettingsDialog::reset()
 	buttons[i]->setPalette(palette);
     }
 
+    QList<QAction*> actionsList = kmchart->toolbarActionsList();
+    QList<QAction*> enabledList = kmchart->enabledActionsList();
+    for (int i = 0; i < actionsList.size(); i++) {
+	QAction *action = actionsList.at(i);
+	QListWidgetItem *item = actionListWidget->item(i);
+	if (enabledList.contains(action) == false)
+	    item->setBackground(disabled);
+    }
+    toolbarCheckBox->setCheckState(
+		globalSettings.initialToolbar ? Qt::Checked : Qt::Unchecked);
+    toolbarAreasComboBox->setCurrentIndex(
+		globalSettings.toolbarLocation ? 1: 0);
+
     globalSettings.chartDeltaModified = false;
     globalSettings.loggerDeltaModified = false;
     globalSettings.sampleHistoryModified = false;
@@ -98,6 +122,9 @@ void SettingsDialog::reset()
     globalSettings.defaultColorsModified = false;
     globalSettings.chartBackgroundModified = false;
     globalSettings.chartHighlightModified = false;
+    globalSettings.initialToolbarModified = false;
+    globalSettings.toolbarLocationModified = false;
+    globalSettings.toolbarActionsModified = false;
 }
 
 void SettingsDialog::flush()
@@ -149,6 +176,26 @@ void SettingsDialog::flush()
 			chartHighlightPushButton->backgroundRole());
 	globalSettings.chartHighlightName =
 			globalSettings.chartHighlight.name();
+    }
+
+    if (globalSettings.initialToolbarModified)
+	globalSettings.initialToolbar =
+			toolbarCheckBox->checkState() == Qt::Checked;
+    if (globalSettings.toolbarLocationModified) {
+	globalSettings.toolbarLocation = toolbarAreasComboBox->currentIndex();
+	kmchart->updateToolbarLocation();
+    }
+
+    if (globalSettings.toolbarActionsModified) {
+	QStringList actions;
+	QListWidgetItem *item;
+	for (int i = 0; i < actionListWidget->count(); i++) {
+	    item = actionListWidget->item(i);
+	    if (item->background() != disabled)
+		actions.append(item->text());
+	}
+	kmchart->setEnabledActionsList(actions, true);
+	kmchart->updateToolbarContents();
     }
 }
 
@@ -410,4 +457,20 @@ void SettingsDialog::defaultColorsPushButton23_clicked()
 void SettingsDialog::defaultColorsPushButton24_clicked()
 {
     defaultColorsPushButtonClicked(24);
+}
+
+void SettingsDialog::toolbarCheckBox_clicked()
+{
+    globalSettings.initialToolbarModified = true;
+}
+
+void SettingsDialog::toolbarAreasComboBox_currentIndexChanged(int)
+{
+    globalSettings.toolbarLocationModified = true;
+}
+
+void SettingsDialog::actionListWidget_itemClicked(QListWidgetItem *item)
+{
+    globalSettings.toolbarActionsModified = true;
+    item->setBackground(item->background() == disabled ? enabled : disabled);
 }

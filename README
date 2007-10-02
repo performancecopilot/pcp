@@ -41,6 +41,10 @@ Refer to doc/INSTALL for instructions on building these tools.
 	  be able to create/modify existing labels.
     - Respond to changes in the sampling interval from kmtime.
     - Timezone support has stopped working
+    - Zooming in and out would be handy.  Not too tricky too either, as
+      we have all the necessary infrastructure - Qwt supports a range
+      picker thing (click and drag), and we have a visible history vs
+      sample history split already.
     - Live mode stop/start doesn't quite work right
       o See the TODO comment in the chart.cpp code
       o On stop, the last observed value is plotted repeatedly
@@ -50,6 +54,11 @@ Refer to doc/INSTALL for instructions on building these tools.
       o Fast forward mode frequently causes kmchart to hang.
       o Fast forward mode can cause Time Axis confusion.
       o Bounds broken sometimes - thinks range is 1970-2038 (min-max)
+
+    - A Settings dialog entry for the Toolbar:
+      o on/off altogether (check box)
+      o top/right location (combo box)
+      o contents (scrolling choice)
 
     - Print mode needs to understand time axis and multiple charts
     - Export mode needs to understand time axis and multiple charts
@@ -110,14 +119,6 @@ Refer to doc/INSTALL for instructions on building these tools.
     - A Settings dialog entry for Paths:
       o default folio/archive path dirname
       o default user kmchart config file dirname
-    - A Settings dialog entry for Toolbar:
-      o on/off altogether (check box)
-      o top/right location (combo box)
-      o contents (scrolling, drag/drop action icons + "New separator")
-    - Zooming in and out would be handy.  Not too tricky too either, as
-      we have all the necessary infrastructure - Qwt supports a range
-      picker thing (click and drag), and we have a visible history vs
-      sample history split already.
     - Add default folio/archive path dirname to Settings dialog
     - Desktop integration details - basics are done, but:
       o Gnome/KDE icon files need to be installed correctly;

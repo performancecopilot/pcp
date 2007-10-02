@@ -48,6 +48,14 @@ typedef struct {
 	QColor chartHighlight;
 	QString chartHighlightName;
 	bool chartHighlightModified;
+
+	// Toolbar
+	int initialToolbar;
+	bool initialToolbarModified;
+	int toolbarLocation;
+	int toolbarLocationModified;
+	QStringList toolbarActions;
+	bool toolbarActionsModified;
 } Settings;
 
 extern Settings globalSettings;
