@@ -18,10 +18,8 @@ LDIRT = $(COMMAND) $(ICONLINKS)
 LCFLAGS = -I$(TOPDIR)/libqwt
 
 ifeq ($(PKG_PLATFORM),darwin)
-BINARY =  build/Default/$(COMMAND).app/Contents/MacOS/$(COMMAND)
 LLDFLAGS = -L$(TOPDIR)/libqwt
 else
-BINARY =  $(COMMAND)
 LLDFLAGS = -L$(TOPDIR)/libqwt/build/Default
 endif
 
@@ -34,6 +32,7 @@ ICONLINKS = play_off.png play_on.png fastfwd_off.png fastfwd_on.png \
 
 default: iconlinks
 	$(QTMAKE)
+	$(LNMAKE)
 
 include $(BUILDRULES)
 

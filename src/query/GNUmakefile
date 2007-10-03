@@ -13,17 +13,12 @@ LSRCFILES = $(PROJECT) $(QRCFILE) $(SCRIPTS) $(HEADERS) $(SOURCES)
 LDIRDIRT = build $(COMMAND).xcodeproj
 LDIRT = $(COMMAND) $(ICONLINKS)
 
-ifeq ($(PKG_PLATFORM),darwin)
-BINARY =  build/Default/$(COMMAND).app/Contents/MacOS/$(COMMAND)
-else
-BINARY =  $(COMMAND)
-endif
-
 ICONLINKS = dialog-archive.png dialog-error.png dialog-host.png \
 	    dialog-information.png dialog-question.png dialog-warning.png
 
 default: iconlinks
 	$(QTMAKE)
+	$(LNMAKE)
 
 include $(BUILDRULES)
 

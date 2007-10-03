@@ -15,15 +15,14 @@ LDIRT = $(COMMAND)
 LCFLAGS = -I$(TOPDIR)/libqmc
 
 ifeq ($(PKG_PLATFORM),darwin)
-BINARY =  build/Default/$(COMMAND).app/Contents/MacOS/$(COMMAND)
 LLDFLAGS = -L$(TOPDIR)/libqmc
 else
-BINARY =  $(COMMAND)
 LLDFLAGS = -L$(TOPDIR)/libqmc/build/Default
 endif
 
 default:
 	$(QTMAKE)
+	$(LNMAKE)
 
 include $(BUILDRULES)
 

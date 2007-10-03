@@ -18,10 +18,8 @@ LDIRT = $(COMMAND) $(ICONLINKS)
 LCFLAGS = -I$(TOPDIR)/libqmc -I$(TOPDIR)/libqwt
 
 ifeq ($(PKG_PLATFORM),darwin)
-BINARY =  build/Default/$(COMMAND).app/Contents/MacOS/$(COMMAND)
 LLDFLAGS = -L$(TOPDIR)/libqmc -L$(TOPDIR)/libqwt
 else
-BINARY =  $(COMMAND)
 LLDFLAGS = -L$(TOPDIR)/libqmc/build/Default -L$(TOPDIR)/libqwt/build/Default
 endif
 
@@ -48,6 +46,7 @@ SUBDIRS = views pmafm
 default: iconlinks
 	$(SUBDIRS_MAKERULE)
 	$(QTMAKE)
+	$(LNMAKE)
 
 include $(BUILDRULES)
 
