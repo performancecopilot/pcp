@@ -15,6 +15,7 @@
 #define SETTINGSDIALOG_H
 
 #include "ui_settingsdialog.h"
+#include "colorbutton.h"
 #include "kmtime.h"
 
 class SettingsDialog : public QDialog, public Ui::SettingsDialog
@@ -35,32 +36,9 @@ public slots:
     virtual void visible_valueChanged(int value);
     virtual void sample_valueChanged(int value);
     
-    virtual void chartHighlightPushButton_clicked();
-    virtual void chartBackgroundPushButton_clicked();
-    virtual void defaultColorsPushButton1_clicked();
-    virtual void defaultColorsPushButton2_clicked();
-    virtual void defaultColorsPushButton3_clicked();
-    virtual void defaultColorsPushButton4_clicked();
-    virtual void defaultColorsPushButton5_clicked();
-    virtual void defaultColorsPushButton6_clicked();
-    virtual void defaultColorsPushButton7_clicked();
-    virtual void defaultColorsPushButton8_clicked();
-    virtual void defaultColorsPushButton9_clicked();
-    virtual void defaultColorsPushButton10_clicked();
-    virtual void defaultColorsPushButton11_clicked();
-    virtual void defaultColorsPushButton12_clicked();
-    virtual void defaultColorsPushButton13_clicked();
-    virtual void defaultColorsPushButton14_clicked();
-    virtual void defaultColorsPushButton15_clicked();
-    virtual void defaultColorsPushButton16_clicked();
-    virtual void defaultColorsPushButton17_clicked();
-    virtual void defaultColorsPushButton18_clicked();
-    virtual void defaultColorsPushButton19_clicked();
-    virtual void defaultColorsPushButton20_clicked();
-    virtual void defaultColorsPushButton21_clicked();
-    virtual void defaultColorsPushButton22_clicked();
-    virtual void defaultColorsPushButton23_clicked();
-    virtual void defaultColorsPushButton24_clicked();
+    virtual void chartHighlightButton_clicked();
+    virtual void chartBackgroundButton_clicked();
+    virtual void defaultColorButtonClicked(int);
 
     virtual void toolbarCheckBox_clicked();
     virtual void toolbarAreasComboBox_currentIndexChanged(int);
@@ -69,8 +47,57 @@ public slots:
 protected slots:
     virtual void languageChange();
 
+    virtual void defaultColorButton1_clicked()
+	{ defaultColorButtonClicked(1); }
+    virtual void defaultColorButton2_clicked()
+	{ defaultColorButtonClicked(2); }
+    virtual void defaultColorButton3_clicked()
+	{ defaultColorButtonClicked(3); }
+    virtual void defaultColorButton4_clicked()
+	{ defaultColorButtonClicked(4); }
+    virtual void defaultColorButton5_clicked()
+	{ defaultColorButtonClicked(5); }
+    virtual void defaultColorButton6_clicked()
+	{ defaultColorButtonClicked(6); }
+    virtual void defaultColorButton7_clicked()
+	{ defaultColorButtonClicked(7); }
+    virtual void defaultColorButton8_clicked()
+	{ defaultColorButtonClicked(8); }
+    virtual void defaultColorButton9_clicked()
+	{ defaultColorButtonClicked(9); }
+    virtual void defaultColorButton10_clicked()
+	{ defaultColorButtonClicked(10); }
+    virtual void defaultColorButton11_clicked()
+	{ defaultColorButtonClicked(11); }
+    virtual void defaultColorButton12_clicked()
+	{ defaultColorButtonClicked(12); }
+    virtual void defaultColorButton13_clicked()
+	{ defaultColorButtonClicked(13); }
+    virtual void defaultColorButton14_clicked()
+	{ defaultColorButtonClicked(14); }
+    virtual void defaultColorButton15_clicked()
+	{ defaultColorButtonClicked(15); }
+    virtual void defaultColorButton16_clicked()
+	{ defaultColorButtonClicked(16); }
+    virtual void defaultColorButton17_clicked()
+	{ defaultColorButtonClicked(17); }
+    virtual void defaultColorButton18_clicked()
+	{ defaultColorButtonClicked(18); }
+    virtual void defaultColorButton19_clicked()
+	{ defaultColorButtonClicked(19); }
+    virtual void defaultColorButton20_clicked()
+	{ defaultColorButtonClicked(20); }
+    virtual void defaultColorButton21_clicked()
+	{ defaultColorButtonClicked(21); }
+    virtual void defaultColorButton22_clicked()
+	{ defaultColorButtonClicked(22); }
+    virtual void defaultColorButton23_clicked()
+	{ defaultColorButtonClicked(23); }
+    virtual void defaultColorButton24_clicked()
+	{ defaultColorButtonClicked(24); }
+
 private:
-    virtual int defaultColorArray(QPushButton *** array);
+    virtual int defaultColorArray(ColorButton *** array);
     virtual void displayTotalSlider();
     virtual void displayVisibleSlider();
     virtual void displayTotalCounter();
@@ -82,7 +109,6 @@ private:
 	int sampleHistory;
     } my;
 
-    void defaultColorsPushButtonClicked(int);
     QBrush enabled, disabled; // brushes for painting action list backgrounds
 };
 

@@ -303,7 +303,7 @@
          <number>6</number>
         </property>
         <item row="1" column="1" >
-         <widget class="QPushButton" name="chartBackgroundPushButton" >
+         <widget class="ColorButton" name="chartBackgroundButton" >
           <property name="sizePolicy" >
            <sizepolicy>
             <hsizetype>0</hsizetype>
@@ -327,15 +327,12 @@
           <property name="text" >
            <string/>
           </property>
-          <property name="autoDefault" >
-           <bool>true</bool>
-          </property>
          </widget>
         </item>
         <item row="1" column="0" >
          <widget class="QLabel" name="chartBackgroundTextLabel" >
           <property name="text" >
-           <string>Canvas Background:</string>
+           <string>Default Canvas Background:</string>
           </property>
           <property name="wordWrap" >
            <bool>false</bool>
@@ -343,7 +340,7 @@
          </widget>
         </item>
         <item row="0" column="1" >
-         <widget class="QPushButton" name="chartHighlightPushButton" >
+         <widget class="ColorButton" name="chartHighlightButton" >
           <property name="sizePolicy" >
            <sizepolicy>
             <hsizetype>0</hsizetype>
@@ -366,9 +363,6 @@
           </property>
           <property name="text" >
            <string/>
-          </property>
-          <property name="autoDefault" >
-           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -428,7 +422,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton1" >
+           <widget class="ColorButton" name="defaultColorButton1" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -455,7 +449,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton2" >
+           <widget class="ColorButton" name="defaultColorButton2" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -476,7 +470,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton3" >
+           <widget class="ColorButton" name="defaultColorButton3" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -497,7 +491,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton4" >
+           <widget class="ColorButton" name="defaultColorButton4" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -518,34 +512,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton5" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>0</hsizetype>
-              <vsizetype>0</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize" >
-             <size>
-              <width>30</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize" >
-             <size>
-              <width>30</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text" >
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="defaultColorsPushButton6" >
+           <widget class="ColorButton" name="defaultColorButton5" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -572,7 +539,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton7" >
+           <widget class="ColorButton" name="defaultColorButton6" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -599,7 +566,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton8" >
+           <widget class="ColorButton" name="defaultColorButton7" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -626,7 +593,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton9" >
+           <widget class="ColorButton" name="defaultColorButton8" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -653,7 +620,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton10" >
+           <widget class="ColorButton" name="defaultColorButton9" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -680,7 +647,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton11" >
+           <widget class="ColorButton" name="defaultColorButton10" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -707,7 +674,34 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton12" >
+           <widget class="ColorButton" name="defaultColorButton11" >
+            <property name="sizePolicy" >
+             <sizepolicy>
+              <hsizetype>0</hsizetype>
+              <vsizetype>0</vsizetype>
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize" >
+             <size>
+              <width>30</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>30</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="ColorButton" name="defaultColorButton12" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -744,7 +738,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton13" >
+           <widget class="ColorButton" name="defaultColorButton13" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -771,7 +765,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton14" >
+           <widget class="ColorButton" name="defaultColorButton14" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -798,7 +792,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton15" >
+           <widget class="ColorButton" name="defaultColorButton15" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -825,7 +819,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton16" >
+           <widget class="ColorButton" name="defaultColorButton16" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -852,7 +846,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton17" >
+           <widget class="ColorButton" name="defaultColorButton17" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -879,7 +873,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton18" >
+           <widget class="ColorButton" name="defaultColorButton18" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -906,7 +900,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton19" >
+           <widget class="ColorButton" name="defaultColorButton19" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -933,7 +927,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton20" >
+           <widget class="ColorButton" name="defaultColorButton20" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -960,7 +954,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton21" >
+           <widget class="ColorButton" name="defaultColorButton21" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -987,7 +981,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton22" >
+           <widget class="ColorButton" name="defaultColorButton22" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -1014,7 +1008,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton23" >
+           <widget class="ColorButton" name="defaultColorButton23" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -1041,7 +1035,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="defaultColorsPushButton24" >
+           <widget class="ColorButton" name="defaultColorButton24" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>0</hsizetype>
@@ -1246,6 +1240,13 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11" />
+ <customwidgets>
+  <customwidget>
+   <class>ColorButton</class>
+   <extends>QToolButton</extends>
+   <header>colorbutton.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>buttonOk</tabstop>
   <tabstop>buttonCancel</tabstop>
@@ -1287,10 +1288,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>chartHighlightPushButton</sender>
+   <sender>chartHighlightButton</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>chartHighlightPushButton_clicked()</slot>
+   <slot>chartHighlightButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1303,10 +1304,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>chartBackgroundPushButton</sender>
+   <sender>chartBackgroundButton</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>chartBackgroundPushButton_clicked()</slot>
+   <slot>chartBackgroundButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1319,10 +1320,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton1</sender>
+   <sender>defaultColorButton1</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton1_clicked()</slot>
+   <slot>defaultColorButton1_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1335,10 +1336,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton2</sender>
+   <sender>defaultColorButton2</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton2_clicked()</slot>
+   <slot>defaultColorButton2_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1351,10 +1352,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton3</sender>
+   <sender>defaultColorButton3</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton3_clicked()</slot>
+   <slot>defaultColorButton3_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1367,10 +1368,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton4</sender>
+   <sender>defaultColorButton4</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton4_clicked()</slot>
+   <slot>defaultColorButton4_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1383,10 +1384,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton5</sender>
+   <sender>defaultColorButton5</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton5_clicked()</slot>
+   <slot>defaultColorButton5_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1399,10 +1400,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton6</sender>
+   <sender>defaultColorButton6</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton6_clicked()</slot>
+   <slot>defaultColorButton6_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1415,10 +1416,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton7</sender>
+   <sender>defaultColorButton7</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton7_clicked()</slot>
+   <slot>defaultColorButton7_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1431,10 +1432,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton8</sender>
+   <sender>defaultColorButton8</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton8_clicked()</slot>
+   <slot>defaultColorButton8_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1447,10 +1448,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton9</sender>
+   <sender>defaultColorButton9</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton9_clicked()</slot>
+   <slot>defaultColorButton9_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1463,10 +1464,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton10</sender>
+   <sender>defaultColorButton10</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton10_clicked()</slot>
+   <slot>defaultColorButton10_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1479,10 +1480,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton11</sender>
+   <sender>defaultColorButton11</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton11_clicked()</slot>
+   <slot>defaultColorButton11_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1495,10 +1496,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton12</sender>
+   <sender>defaultColorButton12</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton12_clicked()</slot>
+   <slot>defaultColorButton12_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1511,10 +1512,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton13</sender>
+   <sender>defaultColorButton13</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton13_clicked()</slot>
+   <slot>defaultColorButton13_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1527,10 +1528,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton14</sender>
+   <sender>defaultColorButton14</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton14_clicked()</slot>
+   <slot>defaultColorButton14_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1543,10 +1544,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton15</sender>
+   <sender>defaultColorButton15</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton15_clicked()</slot>
+   <slot>defaultColorButton15_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1559,10 +1560,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton16</sender>
+   <sender>defaultColorButton16</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton16_clicked()</slot>
+   <slot>defaultColorButton16_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1575,10 +1576,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton17</sender>
+   <sender>defaultColorButton17</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton17_clicked()</slot>
+   <slot>defaultColorButton17_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1591,10 +1592,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton18</sender>
+   <sender>defaultColorButton18</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton18_clicked()</slot>
+   <slot>defaultColorButton18_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1607,10 +1608,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton19</sender>
+   <sender>defaultColorButton19</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton19_clicked()</slot>
+   <slot>defaultColorButton19_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1623,10 +1624,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton20</sender>
+   <sender>defaultColorButton20</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton20_clicked()</slot>
+   <slot>defaultColorButton20_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1639,10 +1640,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton21</sender>
+   <sender>defaultColorButton21</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton21_clicked()</slot>
+   <slot>defaultColorButton21_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1655,10 +1656,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton22</sender>
+   <sender>defaultColorButton22</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton22_clicked()</slot>
+   <slot>defaultColorButton22_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1671,10 +1672,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton23</sender>
+   <sender>defaultColorButton23</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton23_clicked()</slot>
+   <slot>defaultColorButton23_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1687,10 +1688,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>defaultColorsPushButton24</sender>
+   <sender>defaultColorButton24</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>defaultColorsPushButton24_clicked()</slot>
+   <slot>defaultColorButton24_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>

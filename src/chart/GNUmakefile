@@ -5,7 +5,7 @@ COMMAND = kmchart
 PROJECT = $(COMMAND).pro
 QRCFILE = $(COMMAND).qrc
 UIFILES = $(shell echo *.ui)
-HEADERS = aboutdialog.h chartdialog.h hostdialog.h infodialog.h \
+HEADERS = aboutdialog.h chartdialog.h colorbutton.h hostdialog.h infodialog.h \
 	  kmchart.h recorddialog.h seealsodialog.h settingsdialog.h \
 	  tabdialog.h chart.h main.h namespace.h qcolorpicker.h \
 	  source.h tab.h timeaxis.h timecontrol.h

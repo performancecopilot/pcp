@@ -190,7 +190,7 @@ void QColorPicker::mousePressEvent(QMouseEvent *m)
 
 void QColorPicker::paintEvent(QPaintEvent *e)
 {
-    QFrame::paintEvent(&e);
+    QFrame::paintEvent(e);
     QPainter p(this);
     QRect r = contentsRect();
 

@@ -14,7 +14,6 @@
 #include "settingsdialog.h"
 #include <QtGui/QMessageBox>
 #include <QtGui/QListWidgetItem>
-#include "qcolordialog.h"
 #include "main.h"
 
 SettingsDialog::SettingsDialog(QWidget* parent)
@@ -41,21 +40,17 @@ void SettingsDialog::languageChange()
     retranslateUi(this);
 }
 
-int SettingsDialog::defaultColorArray(QPushButton ***array)
+int SettingsDialog::defaultColorArray(ColorButton ***array)
 {
-    static QPushButton *buttons[] = {
-	defaultColorsPushButton1,  defaultColorsPushButton2,
-	defaultColorsPushButton3,  defaultColorsPushButton4,
-	defaultColorsPushButton5,  defaultColorsPushButton6,
-	defaultColorsPushButton7,  defaultColorsPushButton8,
-	defaultColorsPushButton9,  defaultColorsPushButton10,
-	defaultColorsPushButton11, defaultColorsPushButton12,
-	defaultColorsPushButton13, defaultColorsPushButton14,
-	defaultColorsPushButton15, defaultColorsPushButton16,
-	defaultColorsPushButton17, defaultColorsPushButton18,
-	defaultColorsPushButton19, defaultColorsPushButton20,
-	defaultColorsPushButton21, defaultColorsPushButton22,
-	defaultColorsPushButton23, defaultColorsPushButton24,
+    static ColorButton *buttons[] = {
+	defaultColorButton1,	defaultColorButton2,	defaultColorButton3,
+	defaultColorButton4,	defaultColorButton5,	defaultColorButton6,
+	defaultColorButton7,	defaultColorButton8,	defaultColorButton9,
+	defaultColorButton10,	defaultColorButton11,	defaultColorButton12,
+	defaultColorButton13,	defaultColorButton14,	defaultColorButton15,
+	defaultColorButton16,	defaultColorButton17,	defaultColorButton18,
+	defaultColorButton19,	defaultColorButton20,	defaultColorButton21,
+	defaultColorButton22,	defaultColorButton23,	defaultColorButton24,
     };
     *array = &buttons[0];
     return sizeof(buttons) / sizeof(buttons[0]);
@@ -63,8 +58,7 @@ int SettingsDialog::defaultColorArray(QPushButton ***array)
 
 void SettingsDialog::reset()
 {
-    QPushButton **buttons;
-    QPalette palette;
+    ColorButton **buttons;
     int i, colorCount;
 
     my.chartUnits = KmTime::Seconds;
@@ -84,23 +78,14 @@ void SettingsDialog::reset()
     sampleSlider->setValue(globalSettings.sampleHistory);
     sampleSlider->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
 
-    palette.setBrush(chartBackgroundPushButton->backgroundRole(),
-					globalSettings.chartBackground);
-    chartBackgroundPushButton->setPalette(palette);
-    palette.setBrush(chartHighlightPushButton->backgroundRole(),
-					globalSettings.chartHighlight);
-    chartHighlightPushButton->setPalette(palette);
+    chartBackgroundButton->setColor(QColor(globalSettings.chartBackground));
+    chartHighlightButton->setColor(QColor(globalSettings.chartHighlight));
 
     colorCount = defaultColorArray(&buttons);
-    for (i = 0; i < globalSettings.defaultColorNames.count(); i++) {
-	palette.setBrush(buttons[i]->backgroundRole(),
-					 globalSettings.defaultColors[i]);
-	buttons[i]->setPalette(palette);
-    }
-    for (; i < colorCount; i++) {
-	palette.setBrush(buttons[i]->backgroundRole(), QColor(Qt::white));
-	buttons[i]->setPalette(palette);
-    }
+    for (i = 0; i < globalSettings.defaultColorNames.count(); i++)
+	buttons[i]->setColor(QColor(globalSettings.defaultColors[i]));
+    for (; i < colorCount; i++)
+	buttons[i]->setColor(QColor(Qt::white));
 
     QList<QAction*> actionsList = kmchart->toolbarActionsList();
     QList<QAction*> enabledList = kmchart->enabledActionsList();
@@ -145,14 +130,13 @@ void SettingsDialog::flush()
 	globalSettings.sampleHistory = my.sampleHistory;
 
     if (globalSettings.defaultColorsModified) {
-	QPushButton **buttons;
+	ColorButton **buttons;
 	QStringList colorNames;
 	QList<QColor> colors;
 
 	int colorCount = defaultColorArray(&buttons);
 	for (int i = 0; i < colorCount; i++) {
-	    QPalette palette = buttons[i]->palette();
-	    QColor c = palette.color(buttons[i]->backgroundRole());
+	    QColor c = buttons[i]->color();
 	    if (c == Qt::white)
 		continue;
 	    colors.append(c);
@@ -164,16 +148,12 @@ void SettingsDialog::flush()
     }
 
     if (globalSettings.chartBackgroundModified) {
-	QPalette palette = chartBackgroundPushButton->palette();
-	globalSettings.chartBackground = palette.color(
-			chartBackgroundPushButton->backgroundRole());
+	globalSettings.chartBackground = chartBackgroundButton->color();
 	globalSettings.chartBackgroundName =
 			globalSettings.chartBackground.name();
     }
     if (globalSettings.chartHighlightModified) {
-	QPalette palette = chartHighlightPushButton->palette();
-	globalSettings.chartHighlight = palette.color(
-			chartHighlightPushButton->backgroundRole());
+	globalSettings.chartHighlight = chartHighlightButton->color();
 	globalSettings.chartHighlightName =
 			globalSettings.chartHighlight.name();
     }
@@ -297,166 +277,28 @@ void SettingsDialog::displayVisibleCounter()
     visibleCounter->blockSignals(false);
 }
 
-void SettingsDialog::chartHighlightPushButton_clicked()
+void SettingsDialog::chartHighlightButton_clicked()
 {
-    QPalette palette = chartHighlightPushButton->palette();
-    QColor newColor = QColorDialog::getColor(
-		palette.color(chartHighlightPushButton->backgroundRole()));
-    if (newColor.isValid()) {
-	palette.setBrush(chartHighlightPushButton->backgroundRole(), newColor);
-	chartHighlightPushButton->setPalette(palette);
+    chartHighlightButton->clicked();
+    if (chartHighlightButton->isSet())
 	globalSettings.chartHighlightModified = true;
-    }
 }
 
-void SettingsDialog::chartBackgroundPushButton_clicked()
+void SettingsDialog::chartBackgroundButton_clicked()
 {
-    QPalette palette = chartBackgroundPushButton->palette();
-    QColor newColor = QColorDialog::getColor(
-		palette.color(chartBackgroundPushButton->backgroundRole()));
-    if (newColor.isValid()) {
-	palette.setBrush(chartBackgroundPushButton->backgroundRole(), newColor);
-	chartBackgroundPushButton->setPalette(palette);
+    chartBackgroundButton->clicked();
+    if (chartBackgroundButton->isSet())
 	globalSettings.chartBackgroundModified = true;
-    }
 }
 
-void SettingsDialog::defaultColorsPushButtonClicked(int n)
+void SettingsDialog::defaultColorButtonClicked(int n)
 {
-    QPushButton **buttons;
+    ColorButton **buttons;
 
-    if (n > defaultColorArray(&buttons))
-	return;
-
-    int i = n - 1;
-    QPalette palette = buttons[i]->palette();
-    QColor newColor = QColorDialog::getColor(
-				palette.color(buttons[i]->backgroundRole()));
-    if (newColor.isValid()) {
-	palette.setBrush(buttons[i]->backgroundRole(), newColor);
-	buttons[i]->setPalette(palette);
+    defaultColorArray(&buttons);
+    buttons[n-1]->clicked();
+    if (buttons[n-1]->isSet())
 	globalSettings.defaultColorsModified = true;
-    }
-}
-
-void SettingsDialog::defaultColorsPushButton1_clicked()
-{
-    defaultColorsPushButtonClicked(1);
-}
-
-void SettingsDialog::defaultColorsPushButton2_clicked()
-{
-    defaultColorsPushButtonClicked(2);
-}
-
-void SettingsDialog::defaultColorsPushButton3_clicked()
-{
-    defaultColorsPushButtonClicked(3);
-}
-
-void SettingsDialog::defaultColorsPushButton4_clicked()
-{
-    defaultColorsPushButtonClicked(4);
-}
-
-void SettingsDialog::defaultColorsPushButton5_clicked()
-{
-    defaultColorsPushButtonClicked(5);
-}
-
-void SettingsDialog::defaultColorsPushButton6_clicked()
-{
-    defaultColorsPushButtonClicked(6);
-}
-
-void SettingsDialog::defaultColorsPushButton7_clicked()
-{
-    defaultColorsPushButtonClicked(7);
-}
-
-void SettingsDialog::defaultColorsPushButton8_clicked()
-{
-    defaultColorsPushButtonClicked(8);
-}
-
-void SettingsDialog::defaultColorsPushButton9_clicked()
-{
-    defaultColorsPushButtonClicked(9);
-}
-
-void SettingsDialog::defaultColorsPushButton10_clicked()
-{
-    defaultColorsPushButtonClicked(10);
-}
-
-void SettingsDialog::defaultColorsPushButton11_clicked()
-{
-    defaultColorsPushButtonClicked(11);
-}
-
-void SettingsDialog::defaultColorsPushButton12_clicked()
-{
-    defaultColorsPushButtonClicked(12);
-}
-
-void SettingsDialog::defaultColorsPushButton13_clicked()
-{
-    defaultColorsPushButtonClicked(13);
-}
-
-void SettingsDialog::defaultColorsPushButton14_clicked()
-{
-    defaultColorsPushButtonClicked(14);
-}
-
-void SettingsDialog::defaultColorsPushButton15_clicked()
-{
-    defaultColorsPushButtonClicked(15);
-}
-
-void SettingsDialog::defaultColorsPushButton16_clicked()
-{
-    defaultColorsPushButtonClicked(16);
-}
-
-void SettingsDialog::defaultColorsPushButton17_clicked()
-{
-    defaultColorsPushButtonClicked(17);
-}
-
-void SettingsDialog::defaultColorsPushButton18_clicked()
-{
-    defaultColorsPushButtonClicked(18);
-}
-
-void SettingsDialog::defaultColorsPushButton19_clicked()
-{
-    defaultColorsPushButtonClicked(19);
-}
-
-void SettingsDialog::defaultColorsPushButton20_clicked()
-{
-    defaultColorsPushButtonClicked(20);
-}
-
-void SettingsDialog::defaultColorsPushButton21_clicked()
-{
-    defaultColorsPushButtonClicked(21);
-}
-
-void SettingsDialog::defaultColorsPushButton22_clicked()
-{
-    defaultColorsPushButtonClicked(22);
-}
-
-void SettingsDialog::defaultColorsPushButton23_clicked()
-{
-    defaultColorsPushButtonClicked(23);
-}
-
-void SettingsDialog::defaultColorsPushButton24_clicked()
-{
-    defaultColorsPushButtonClicked(24);
 }
 
 void SettingsDialog::toolbarCheckBox_clicked()
