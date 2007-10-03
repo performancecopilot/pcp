@@ -8,6 +8,7 @@ SOURCES = $(shell echo *.cpp)
 
 LSRCFILES = $(PROJECT) $(SOURCES) $(HEADERS)
 LDIRDIRT = build qmc.xcodeproj
+LDIRT = *.a
 
 default: $(PROJECT)
 	$(QTMAKE)
