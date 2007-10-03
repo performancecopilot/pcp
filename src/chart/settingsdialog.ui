@@ -38,9 +38,6 @@
   <property name="sizeGripEnabled" >
    <bool>false</bool>
   </property>
-  <property name="modal" >
-   <bool>true</bool>
-  </property>
   <layout class="QGridLayout" >
    <property name="margin" >
     <number>9</number>
