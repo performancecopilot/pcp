@@ -25,7 +25,7 @@ endif
 ifeq ($(PKG_PLATFORM),darwin)
 PLATFORM_BUILD = xcodebuild
 BINARY =  build/Default/$(COMMAND).app/Contents/MacOS/$(COMMAND)
-LNMAKE = test -f $(BINARY) -a ! -L $(COMMAND) && $(LN_S) $(BINARY) $(COMMAND)
+LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
 else
 PLATFORM_BUILD = $(MAKE) -f Makefile
 BINARY =  $(COMMAND)
