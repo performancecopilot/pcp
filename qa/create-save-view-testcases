@@ -1,5 +1,3 @@
-Open View BUGS/TODO:
-- Hostname entered via Add Host needs to become the default context.
 Save View BUGS/TODO:
 - Archive mode window looks odd due to "missing" proxy - maybe add
   a Host combo box there?  (driven from archive contents).
