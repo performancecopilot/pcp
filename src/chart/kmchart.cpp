@@ -403,7 +403,6 @@ void KmChart::acceptNewChart()
     double yMin, yMax;
 
     Chart *cp = activeTab->addChart();
-    cp->setStyle((Chart::Style)(my.newchart->style() + 1));
     QString newTitle = my.newchart->title().trimmed();
     if (newTitle.isEmpty() == false)
 	cp->changeTitle(newTitle, true);
@@ -447,8 +446,6 @@ void KmChart::acceptEditChart()
     double yMin, yMax;
     Chart *cp = my.editchart->chart();
 
-    if (my.editchart->style() + 1 != cp->style())
-	cp->setStyle((Chart::Style)(my.editchart->style() + 1));
     QString editTitle = my.editchart->title().trimmed();
     if (editTitle.isEmpty() == false && editTitle != cp->title())
 	cp->changeTitle(editTitle, true);

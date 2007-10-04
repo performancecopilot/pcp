@@ -320,11 +320,6 @@ void ChartDialog::sourceButtonClicked()
 	hostButtonClicked();
 }
 
-int ChartDialog::style(void)
-{
-    return typeComboBox->currentIndex();
-}
-
 QString ChartDialog::title(void)
 {
     return titleLineEdit->text();
@@ -592,16 +587,21 @@ bool ChartDialog::existsChartPlot(Chart *cp, NameSpace *name, int *m)
 
 void ChartDialog::changeChartPlot(Chart *cp, NameSpace *name, int m)
 {
-    cp->setColor(m, name->currentColor());
+    Chart::Style style = (Chart::Style)(typeComboBox->currentIndex() + 1);
+    cp->setStroke(m, style, name->currentColor());
     cp->setLabel(m, name->label());
 }
 
 void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 {
+    Chart::Style style = (Chart::Style)(typeComboBox->currentIndex() + 1);
     pmMetricSpec pms;
 
     pms.isarch = name->isArchiveMode();
-    // TODO: null, leak later?
+    // TODO: null checks, and all of these are leaked later
+    char *nlabel = NULL;
+    if (name->label().isEmpty() == false)
+	nlabel = strdup((const char *)name->label().toAscii());
     pms.source = strdup((const char *)name->sourceName().toAscii()); 
     pms.metric = strdup((const char *)name->metricName().toAscii());
     if (name->isInst()) {
@@ -612,8 +612,9 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 	pms.ninst = 0;
 	pms.inst[0] = NULL;
     }
-    int m = cp->addPlot(&pms, NULL);	// TODO: legend label support here
-    cp->setColor(m, name->currentColor());
+    cp->setStyle(style);
+    int m = cp->addPlot(&pms, nlabel);
+    cp->setStroke(m, style, name->currentColor());
     cp->setLabel(m, name->label());
 }
 

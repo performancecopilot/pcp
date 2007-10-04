@@ -896,7 +896,7 @@ try_plot:
 			    c = rgbi2qcolor(color);
 			else
 			    c->setNamedColor(QString(color));
-			cp->setColor(m, *c);
+			cp->setStroke(m, cp->style(), *c);
 		    }
 		}
 		if (numinst > 0)

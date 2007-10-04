@@ -1,5 +1,4 @@
 BUGS/TODO
-- New Chart always created as an Area Plot?
 - Need resolution on the proxy(live) and host(archive) display issue.
 - Double click on compressed Available Metric tree name not expanding
   (but works fine for Chart Plots tree).
@@ -36,7 +35,7 @@ Live Create
       current value.  Then click on the Value tab, which should cause
       the kmtime live window to be displayed and the current values
       for sample.seconds should be reported at the current interval.
-    - Click the red Delete button.  It should be disabled, so othing
+    - Click the red Delete button.  It should be disabled, so nothing
       should happen here at this stage.
     - Click the left-arrow button and verify the metric appears in the
       Chart Plots list, fully expanded, and with the default colour.

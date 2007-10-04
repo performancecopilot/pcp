@@ -277,9 +277,8 @@ void Chart::fixLegendPen()
 	    QWidget *w = legend()->find(my.plots[m]->curve);
 	    if (w && w->inherits("QwtLegendItem")) {
 		QwtLegendItem	*lip;
-		QPen p;
-		p = my.plots[m]->curve->pen();
-		p.setWidth(10);
+		QPen p(my.plots[m]->color);
+		p.setWidth(8);
 		lip = (QwtLegendItem *)w;
 		lip->setCurvePen(p);
 	    }
@@ -388,11 +387,8 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
     showCurve(plot->curve, true);
     plot->removed = false;
 
-    // set default color ... may call setColor to change subsequently
-    setColor(plot, defaultColor(my.plots.size() - 1));
-
-    // set the prevailing chart style
-    setStyle(my.style);
+    // set the prevailing chart style and the default color
+    setStroke(plot, my.style, defaultColor(my.plots.size() - 1));
 
     fixLegendPen();
 
@@ -549,36 +545,46 @@ Chart::Style Chart::style()
 
 void Chart::setStyle(Style style)
 {
-    int maxCount = 0;
-    for (int m = 0; m < my.plots.size(); m++)
-	maxCount = qMax(maxCount, my.plots[m]->dataCount);
+    my.style = style;
+}
+
+void Chart::setStroke(int m, Style style, QColor color)
+{
+    if (m < 0 || m >= my.plots.size())
+	abort();
+    setStroke(my.plots[m], style, color);
+}
+
+void Chart::setStroke(Plot *plot, Style style, QColor color)
+{
+    console->post("Chart::setStroke [style %d->%d]", my.style, style);
+
+    plot->color = color;
 
     switch (style) {
 	case BarStyle:
-	    console->post("Chart::setStyle Bar [%d->%d]", my.style, style);
-	    for (int m = 0; m < my.plots.size(); m++) {
-		my.plots[m]->curve->setStyle(QwtPlotCurve::Sticks);
-		my.plots[m]->curve->setBrush(Qt::NoBrush);
-	    }
+	    plot->curve->setPen(QColor(Qt::black));
+	    plot->curve->setBrush(QBrush(color, Qt::NoBrush));
+	    plot->curve->setStyle(QwtPlotCurve::Sticks);
 	    break;
 
 	case AreaStyle:
-	    console->post("Chart::setStyle Area [%d->%d]", my.style, style);
-	    for (int m = 0; m < my.plots.size(); m++) {
-		my.plots[m]->curve->setStyle(QwtPlotCurve::Lines);
-		my.plots[m]->curve->setBrush(QBrush(QColor(), Qt::SolidPattern));
-	    }
+	    plot->curve->setPen(color);
+	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
+	    plot->curve->setStyle(QwtPlotCurve::Lines);
 	    break;
 
 	case UtilisationStyle:
-	    console->post("Chart::setStyle Util [%d->%d]", my.style, style);
-	    for (int m = 0; m < my.plots.size(); m++) {
-		my.plots[m]->curve->setStyle(QwtPlotCurve::Steps);
-		my.plots[m]->curve->setBrush(QBrush(QColor(), Qt::SolidPattern));
-	    }
-	    setScale(false, 0.0, 100.0);
+	    plot->curve->setPen(QColor(Qt::black));
+	    plot->curve->setStyle(QwtPlotCurve::Steps);
+	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
+
 	    if (my.style != UtilisationStyle) {
+		setScale(false, 0.0, 100.0);
 		// Need to redo the munging of plotData[]
+		int maxCount = 0;
+		for (int m = 0; m < my.plots.size(); m++)
+		    maxCount = qMax(maxCount, my.plots[m]->dataCount);
 		for (int i = maxCount-1; i >= 0; i--) {
 		    double sum = 0;
 		    for (int m = 0; m < my.plots.size(); m++) {
@@ -610,11 +616,11 @@ void Chart::setStyle(Style style)
 	    break;
 
 	case LineStyle:
-	    console->post("Chart::setStyle Line [%d->%d]", my.style, style);
-	    for (int m = 0; m < my.plots.size(); m++) {
-		my.plots[m]->curve->setStyle(QwtPlotCurve::Lines);
-		my.plots[m]->curve->setBrush(Qt::NoBrush);
-	    }
+	    plot->curve->setPen(color);
+	    plot->curve->setBrush(QBrush(Qt::NoBrush));
+	    plot->curve->setStyle(QwtPlotCurve::Lines);
+	    plot->curve->setRenderHint(QwtPlotItem::RenderAntialiased);
+
 	    if (my.style != LineStyle) {
 		// Need to undo any munging of plotData[]
 		for (int m = 0; m < my.plots.size(); m++) {
@@ -626,13 +632,15 @@ void Chart::setStyle(Style style)
 	    break;
 
 	case StackStyle:
-	    console->post("Chart::setStyle Stack [%d->%d]", my.style, style);
-	    for (int m = 0; m < my.plots.size(); m++) {
-		my.plots[m]->curve->setStyle(QwtPlotCurve::Steps);
-		my.plots[m]->curve->setBrush(QBrush(QColor(), Qt::SolidPattern));
-	    }
+	    plot->curve->setPen(QColor(Qt::black));
+	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
+	    plot->curve->setStyle(QwtPlotCurve::Steps);
+
 	    if (my.style != StackStyle) {
 		// Need to redo the munging of plotData[]
+		int maxCount = 0;
+		for (int m = 0; m < my.plots.size(); m++)
+		    maxCount = qMax(maxCount, my.plots[m]->dataCount);
 		for (int i = maxCount-1; i >= 0; i--) {
 #ifdef STACK_BOTTOM_2_TOP
 		    if (my.plots[0]->dataCount > i)
@@ -679,19 +687,6 @@ QColor Chart::color(int m)
     return QColor("white");
 }
 
-void Chart::setColor(Plot *plot, QColor c)
-{
-    plot->color = c;
-    plot->curve->setPen(c);
-    plot->curve->setBrush(c);
-}
-
-void Chart::setColor(int m, QColor c)
-{
-    if (m >= 0 && m < my.plots.size())
-	setColor(my.plots[m], c);
-}
-
 void Chart::setLabel(Plot *plot, QString s)
 {
     plot->label = s;
@@ -730,7 +725,7 @@ void Chart::setYAxisTitle(char *p)
     else
 	t = new QwtText(p);
     t->setFont(globalFont);
-    t->setColor("blue");
+    t->setColor(globalSettings.chartHighlight);
     setAxisTitle(QwtPlot::yLeft, *t);
 }
 

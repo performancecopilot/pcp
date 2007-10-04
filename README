@@ -33,7 +33,6 @@ Refer to doc/INSTALL for instructions on building these tools.
       o Scaling of the tick marks on the Y-axis is not yet correct,
 	and causes mis-alignment on the unified X-axis.  The disk
 	throughput (bytes) show this up clearly, for example.
-      o Fix up QPen/QBrush so black outline shown on bar plots
       o Resolve what to do about plot legends
 	. Plot labels (displayed in legend, supported in the kmchart
 	  View file format) need to be supported in the New/Edit

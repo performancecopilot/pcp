@@ -27,7 +27,6 @@ public:
     virtual void reset(Chart *, int);
     virtual void enableUI();
     virtual Chart * chart(void);
-    virtual int style(void);
     virtual QString title(void);
     virtual bool legend(void);
     virtual void scale(bool *, double *, double *);

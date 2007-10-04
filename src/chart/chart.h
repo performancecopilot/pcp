@@ -55,12 +55,12 @@ public:
     char *title(void);			// return chart title
     void changeTitle(char *, int);	// NULL to clear
     void changeTitle(QString, int);
+    QColor color(int);			// return color for ith plot
     Style style(void);			// return chart style
-    void setStyle(Style);		// set chart style
+    void setStyle(Style);		// set default chart plot style
+    void setStroke(int, Style, QColor);	// set chart style and color
     QString label(int);			// return legend label for ith plot
     void setLabel(int, QString);	// set plot legend label
-    QColor color(int);			// return color for ith plot
-    void setColor(int, QColor);		// set plot color
     void scale(bool *, double *, double *);
 			// return autoscale state and fixed scale parameters
     void setScale(bool, double, double);
@@ -112,7 +112,7 @@ private:
 	bool removed;
     } Plot;
 
-    void setColor(Plot *plot, QColor c);
+    void setStroke(Plot *plot, Style s, QColor c);
     void setLabel(Plot *plot, QString s);
     void resetDataArrays(Plot *plot, int v);
 
