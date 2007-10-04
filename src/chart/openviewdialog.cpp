@@ -129,7 +129,7 @@ void OpenViewDialog::userToolButton_clicked(bool enabled)
     if (enabled) {
 	QDir dir;
 	if (!dir.exists(my.userDir))
-	    dir.mkdir(my.userDir);
+	    dir.mkpath(my.userDir);
 	setPath(my.userDir);
     }
 }

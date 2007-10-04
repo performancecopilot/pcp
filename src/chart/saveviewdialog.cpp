@@ -48,7 +48,7 @@ void SaveViewDialog::reset()
 {
     QDir d;
     if (!d.exists(my.userDir))
-	d.mkdir(my.userDir);
+	d.mkpath(my.userDir);
     setPath(my.userDir);
 }
 
@@ -109,7 +109,7 @@ void SaveViewDialog::userToolButton_clicked(bool enabled)
     if (enabled) {
 	QDir dir;
 	if (!dir.exists(my.userDir))
-	    dir.mkdir(my.userDir);
+	    dir.mkpath(my.userDir);
 	setPath(my.userDir);
     }
 }
