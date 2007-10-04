@@ -5,7 +5,6 @@ BUGS/TODO
   (but works fine for Chart Plots tree).
 - Verify metric plots are valid: at all (strings, aggregates), and
   together (compatible units, etc).
-- Should not allow min/max to be equal in Y-Axis auto-scale.
 - Maximum Y-Axis setting not enforced (still auto-scales if limit is
   reached)?
 

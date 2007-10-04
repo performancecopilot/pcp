@@ -386,9 +386,6 @@ void KmChart::acceptNewChart()
     bool yAutoScale;
     double yMin, yMax;
 
-    // TODO: check type of New Chart dialog matches current activeTab
-    // If not, dont allow dialog to be dismissed
-
     Chart *cp = activeTab->addChart();
     cp->setStyle((Chart::Style)(my.newchart->style() + 1));
     QString newTitle = my.newchart->title().trimmed();

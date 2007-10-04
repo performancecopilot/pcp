@@ -45,6 +45,7 @@ public:
     virtual void deleteChartPlot(Chart *, int);
 
 public slots:
+    virtual void buttonOk_clicked();
     virtual void chartMetricsSelectionChanged();
     virtual void availableMetricsSelectionChanged();
     virtual void availableMetricsItemActivated(QTreeWidgetItem *, int);

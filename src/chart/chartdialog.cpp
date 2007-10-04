@@ -137,6 +137,49 @@ void ChartDialog::enableUI()
     }
 }
 
+void ChartDialog::buttonOk_clicked()
+{
+    // Verify user input and don't dismiss the dialog if problems found.
+    // Needs to handle both cases: New Chart (!my.chart) and Edit Chart.
+    bool validInput = true;
+    QString message;
+    int index;
+
+    // Check some plots have been selected.
+    if (!my.chart && chartMetricsTreeWidget->topLevelItemCount() == 0 &&
+	my.availableTreeSelected == false) {
+	message = tr("No metrics have been selected for plotting.\n");
+	validInput = false;
+	index = 1;
+    }
+    // Validate Y-Axis scale range if not auto-scaling
+    else if (autoScaleOn->isChecked() == false && my.yMin >= my.yMax) {
+	message = tr("Y-Axis scale minimum/maximum range is invalid.");
+	validInput = false;
+	index = 0;
+    }
+    // Check the archive/live type still matches the current Tab
+    else if (!my.chart && my.archiveSource && !activeTab->isArchiveSource()) {
+	message = tr("Cannot add an archive Chart to a live Tab");
+	validInput = false;
+	index = 1;
+    }
+    else if (!my.chart && !my.archiveSource && activeTab->isArchiveSource()) {
+	message = tr("Cannot add a live host Chart to an archive Tab");
+	validInput = false;
+	index = 1;
+    }
+
+    if (validInput)
+	QDialog::accept();
+    else {
+	tabWidget->setCurrentIndex(index);
+	QMessageBox::warning(this, pmProgname, message,
+		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
+		    Qt::NoButton, Qt::NoButton);
+    }
+}
+
 Chart *ChartDialog::chart()
 {
     return my.chart;
@@ -520,14 +563,6 @@ bool ChartDialog::setupChartPlotsShortcut(Chart *cp)
 	QColor c = Chart::defaultColor(-1);
 	n->setCurrentColor(c, NULL);
 	createChartPlot(cp, n);
-    }
-    if (i == 0) {
-	QString msg;
-	msg.append(tr("No metrics were selected.\n"));
-	msg.append(tr("Cannot create a new Chart\n"));
-	QMessageBox::warning(this, pmProgname, msg,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    Qt::NoButton, Qt::NoButton);
     }
     return true;	// either way, we're finished now
 }
