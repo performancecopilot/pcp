@@ -155,6 +155,22 @@ void KmChart::enableUi(void)
     zoomOutAction->setEnabled(activeTab->visibleHistory() < maximumPoints());
 }
 
+const int KmChart::defaultFontSize()
+{
+#ifdef IS_DARWIN
+    return 9;
+#else
+    return 7;
+#endif
+}
+
+void KmChart::updateHeight(int adjustment)
+{
+    QSize newSize = size();
+    newSize.setHeight(newSize.height() + adjustment);	// may be negative
+    resize(newSize);
+}
+
 void KmChart::updateToolbarLocation()
 {
     if (globalSettings.toolbarLocation)

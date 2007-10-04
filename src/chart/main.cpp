@@ -551,12 +551,7 @@ main(int argc, char ** argv)
     }
     console->post("Timezones and time window setup complete");
 
-#ifdef IS_DARWIN
-    c = 9;
-#else
-    c = 7;
-#endif
-    globalFont = QFont("Sans Serif", c);
+    globalFont = QFont("Sans Serif", KmChart::defaultFontSize());
     fileIconProvider = new FileIconProvider();
     kmchart = new KmChart;
     kmtime = new TimeControl;

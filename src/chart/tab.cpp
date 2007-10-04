@@ -54,8 +54,6 @@ void Tab::init(QTabWidget *tab, int samples, int visible,
     my.tab = tab;
     my.splitter = new QSplitter(tab);
     my.splitter->setOrientation(Qt::Vertical);
-    my.splitter->setMinimumSize(QSize(80, 80));
-    my.splitter->setMaximumSize(QSize(32767, 32767));
     my.splitter->setSizePolicy(QSizePolicy::MinimumExpanding,
 				QSizePolicy::MinimumExpanding);
     my.tab->addTab(my.splitter, label);
@@ -91,7 +89,9 @@ Chart *Tab::chart(int i)
 
 Chart *Tab::addChart(void)
 {
-    Chart *cp = new Chart(this, activeTab->splitter());
+    if (my.count)
+	kmchart->updateHeight(KmChart::minimumChartHeight());
+    Chart *cp = new Chart(this, my.splitter);
     if (!cp)
 	nomem();
     my.count++;
@@ -118,9 +118,13 @@ int Tab::deleteChart(Chart *cp)
 
 int Tab::deleteChart(int idx)
 {
-    int	newCurrent = my.current;
+    Chart *cp = my.charts[idx];
+    int newCurrent = my.current;
 
-    my.charts[idx]->~Chart();	// TODO: use "delete" keyword?
+    if (my.count > 1)
+	kmchart->updateHeight(-(cp->height()));
+    delete cp;
+
     // shuffle left, don't bother with the realloc()
     for (int i = idx; i < my.count - 1; i++)
 	my.charts[i] = my.charts[i+1];

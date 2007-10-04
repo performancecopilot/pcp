@@ -89,6 +89,9 @@ public:
 
     static QColor defaultColor(int);
 
+public slots:
+    void replot();
+
 private slots:
     void selected(const QwtDoublePoint &);
     void moved(const QwtDoublePoint &);

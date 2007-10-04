@@ -42,6 +42,7 @@ public:
 	DebugTimeless = 0x8,
     } DebugOptions;
 
+    static const int defaultFontSize();
     static const double defaultChartDelta() { return 1.0; }	// seconds
     static const double defaultLoggerDelta() { return 1.0; }
     static const int defaultVisibleHistory() { return 60; }	// points
@@ -49,6 +50,7 @@ public:
     static const int minimumPoints() { return 2; }
     static const int maximumPoints() { return 360; }
     static const int maximumLegendLength() { return 20; }	// chars
+    static const int minimumChartHeight() { return 60; }	// pixels
 
     virtual TimeAxis *timeAxis();
     virtual void step(bool livemode, KmTime::Packet *kmtime);
@@ -56,6 +58,7 @@ public:
     virtual void timeZone(bool livemode, char *tzdata);
     virtual void setStyle(char *style);
     virtual void setupAssistant();
+    virtual void updateHeight(int);
     virtual void createNewChart(Chart::Style style);
     virtual void metricInfo(QString src, QString m, QString inst, bool archive);
     virtual void createNewTab(bool liveMode);
@@ -64,6 +67,7 @@ public:
     virtual void setDateLabel(time_t seconds, QString tz);
     virtual void setButtonState(TimeButton::State state);
     virtual void setRecordState(Tab *tab, bool recording);
+
     virtual void updateToolbarLocation();
     virtual void updateToolbarContents();
     virtual QList<QAction*> toolbarActionsList();

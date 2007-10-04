@@ -48,8 +48,6 @@ QColor Chart::defaultColor(int seq)
 Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    setMinimumSize(256, 128);
-    setMaximumSize(32767, 32767);
     plotLayout()->setAlignCanvasToScales(true);
     setAutoReplot(false);
     setMargin(1);
@@ -103,12 +101,11 @@ Chart::~Chart()
 void Chart::update(bool forward, bool visible)
 {
     int	sh = my.tab->sampleHistory();
-    int	vh = my.tab->visibleHistory();
     int	idx, m;
 
 #if DESPERATE
-    console->post("Chart::update(forward=%d,vis=%d) sh=%d vh=%d (%d plots)",
-			forward, visible, sh, vh, my.plots.size());
+    console->post("Chart::update(forward=%d,vis=%d) sh=%d (%d plots)",
+			forward, visible, sh, my.plots.size());
 #endif
 
     if (my.plots.size() < 1)
@@ -231,12 +228,6 @@ void Chart::update(bool forward, bool visible)
 	}
     }
 
-    for (m = 0; m < my.plots.size(); m++) {
-	my.plots[m]->curve->setRawData(my.tab->timeAxisData(),
-					my.plots[m]->plotData,
-					qMin(vh, my.plots[m]->dataCount));
-    }
-
 #if DESPERATE
     for (m = 0; m < my.plots.size(); m++)
 	console->post(KmChart::DebugApp, "metric[%d] value %f plot %f", m,
@@ -245,6 +236,21 @@ void Chart::update(bool forward, bool visible)
 
     if (visible)
 	replot();
+}
+
+void Chart::replot()
+{
+    int	vh = my.tab->visibleHistory();
+
+#if DESPERATE
+    console->post("Chart::replot vh=%d, %d plots)", vh, my.plots.size());
+#endif
+
+    for (int m = 0; m < my.plots.size(); m++)
+	my.plots[m]->curve->setRawData(my.tab->timeAxisData(),
+					my.plots[m]->plotData,
+					qMin(vh, my.plots[m]->dataCount));
+    QwtPlot::replot();
 }
 
 void Chart::showCurve(QwtPlotItem *item, bool on)
@@ -484,11 +490,15 @@ char *Chart::title()
 //
 void Chart::changeTitle(char *title, int expand)
 {
+    bool hadTitle = (my.title != NULL);
+
     if (my.title) {
 	free(my.title);
 	my.title = NULL;
     }
     if (title != NULL) {
+	if (hadTitle)
+	    kmchart->updateHeight(titleLabel()->height());
 	QwtText t = titleLabel()->text();
 	t.setFont(globalFont);
 	setTitle(t);
@@ -520,8 +530,11 @@ void Chart::changeTitle(char *title, int expand)
 	else 
 	    setTitle(my.title);
     }
-    else
+    else {
+	if (hadTitle)
+	    kmchart->updateHeight(-(titleLabel()->height()));
 	setTitle(NULL);
+    }
 }
 
 void Chart::changeTitle(QString title, int expand)
@@ -536,14 +549,13 @@ Chart::Style Chart::style()
 
 void Chart::setStyle(Style style)
 {
-    console->post("Chart::setStyle(%d) [was %d]", style, my.style);
-
     int maxCount = 0;
     for (int m = 0; m < my.plots.size(); m++)
 	maxCount = qMax(maxCount, my.plots[m]->dataCount);
 
     switch (style) {
 	case BarStyle:
+	    console->post("Chart::setStyle Bar [%d->%d]", my.style, style);
 	    for (int m = 0; m < my.plots.size(); m++) {
 		my.plots[m]->curve->setStyle(QwtPlotCurve::Sticks);
 		my.plots[m]->curve->setBrush(Qt::NoBrush);
@@ -551,6 +563,7 @@ void Chart::setStyle(Style style)
 	    break;
 
 	case AreaStyle:
+	    console->post("Chart::setStyle Area [%d->%d]", my.style, style);
 	    for (int m = 0; m < my.plots.size(); m++) {
 		my.plots[m]->curve->setStyle(QwtPlotCurve::Lines);
 		my.plots[m]->curve->setBrush(QBrush(QColor(), Qt::SolidPattern));
@@ -558,6 +571,7 @@ void Chart::setStyle(Style style)
 	    break;
 
 	case UtilisationStyle:
+	    console->post("Chart::setStyle Util [%d->%d]", my.style, style);
 	    for (int m = 0; m < my.plots.size(); m++) {
 		my.plots[m]->curve->setStyle(QwtPlotCurve::Steps);
 		my.plots[m]->curve->setBrush(QBrush(QColor(), Qt::SolidPattern));
@@ -596,6 +610,7 @@ void Chart::setStyle(Style style)
 	    break;
 
 	case LineStyle:
+	    console->post("Chart::setStyle Line [%d->%d]", my.style, style);
 	    for (int m = 0; m < my.plots.size(); m++) {
 		my.plots[m]->curve->setStyle(QwtPlotCurve::Lines);
 		my.plots[m]->curve->setBrush(Qt::NoBrush);
@@ -611,6 +626,7 @@ void Chart::setStyle(Style style)
 	    break;
 
 	case StackStyle:
+	    console->post("Chart::setStyle Stack [%d->%d]", my.style, style);
 	    for (int m = 0; m < my.plots.size(); m++) {
 		my.plots[m]->curve->setStyle(QwtPlotCurve::Steps);
 		my.plots[m]->curve->setBrush(QBrush(QColor(), Qt::SolidPattern));
