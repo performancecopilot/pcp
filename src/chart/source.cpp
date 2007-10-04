@@ -116,6 +116,9 @@ void Source::add(QmcContext *context)
 {
     bool arch = (context->source().type() == PM_CONTEXT_ARCHIVE);
 
+    console->post("Source::add set %s context to %p\n",
+			arch ? "archive" : "live", context);
+
     contextList.append(context);
     if (arch)
 	currentArchiveContext = context;
@@ -154,6 +157,12 @@ void Source::dump()
 
 void Source::setupCombo(QComboBox *combo, bool arch)
 {
+    // We block signals on the source ComboBox here so that we do not
+    // send spurious signals out about the list being changed.  If we
+    // did, we would keep changing the current context (and incorrect
+    // contexts end up being set to current).
+
+    combo->blockSignals(true);
     combo->clear();
     for (int i = 0; i < contextList.size(); i++) {
 	QmcContext *cp = contextList.at(i);
@@ -166,9 +175,10 @@ void Source::setupCombo(QComboBox *combo, bool arch)
 			  source);
 	if (arch && cp == currentArchiveContext)
 	    combo->setCurrentIndex(i);
-	if (!arch && cp == currentLiveContext)
+	else if (!arch && cp == currentLiveContext)
 	    combo->setCurrentIndex(i);
     }
+    combo->blockSignals(false);
 }
 
 void Source::setCurrentFromCombo(const QString name, bool arch)
@@ -178,10 +188,16 @@ void Source::setCurrentFromCombo(const QString name, bool arch)
 	if (cp->source().isArchive() != arch)
 	    continue;
 	QString cname = makeComboText(cp);
-	if (arch && name == cname)
+	if (arch && name == cname) {
+	    console->post("Source::setCurrentFromCombo"
+				" set live context to %p\n", cp);
 	    currentArchiveContext = cp;
-	else if (!arch && name == cname)
+	}
+	else if (!arch && name == cname) {
+	    console->post("Source::setCurrentFromCombo"
+				" set archive context to %p\n", cp);
 	    currentLiveContext = cp;
+	}
 	else
 	    continue;
 	break;
