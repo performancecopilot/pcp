@@ -46,7 +46,7 @@ char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
 
 KmChart::KmChart() : QMainWindow(NULL)
 {
-    my.initDone = false;
+    my.dialogsSetup = false;
     setupUi(this);
 
     toolBar->setAllowedAreas(Qt::RightToolBarArea | Qt::TopToolBarArea);
@@ -77,6 +77,18 @@ void KmChart::languageChange()
 void KmChart::init(void)
 {
     timeAxisPlot->init();
+}
+
+void KmChart::setupDialogs(void)
+{
+    // In order to speed startup times, we delay creation of these
+    // global dialogs until after the main window is displayed. We
+    // do NOT delay until the very last minute, otherwise we start
+    // to hit the same problem with the dialogs (if we create them
+    // on-demand there's a noticable delay after action selected).
+
+    if (my.dialogsSetup)
+	return;
 
     my.info = new InfoDialog(this);
     my.newtab = new TabDialog(this);
@@ -87,7 +99,6 @@ void KmChart::init(void)
     my.openview = new OpenViewDialog(this);
     my.saveview = new SaveViewDialog(this);
     my.settings = new SettingsDialog(this);
-
     // my.assistant = new QAssistantClient("");
 
     connect(my.newtab->buttonOk, SIGNAL(clicked()),
@@ -105,16 +116,16 @@ void KmChart::init(void)
     // connect(my.assistant, SIGNAL(error(const QString &)),
     //				this, SLOT(assistantError(const QString &)));
 
-    my.initDone = true;
+    my.dialogsSetup = true;
 }
 
 void KmChart::quit()
 {
-    if (my.initDone) {
-	// End any processes we may have started
+    // End any processes we may have started
+    if (my.dialogsSetup)
 	my.info->quit();
+    if (kmtime)
 	kmtime->quit();
-    }
 }
 
 TimeAxis *KmChart::timeAxis(void)

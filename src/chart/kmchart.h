@@ -76,6 +76,7 @@ public slots:
     virtual void init();
     virtual void quit();
     virtual void enableUi();
+    virtual void setupDialogs();
     virtual void fileOpenView();
     virtual void fileSaveView();
     virtual void fileExport();
@@ -117,7 +118,7 @@ protected slots:
 
 private:
     struct {
-	bool initDone;
+	bool dialogsSetup;
 	bool liveHidden;
 	bool archiveHidden;
 	bool toolbarHidden;
