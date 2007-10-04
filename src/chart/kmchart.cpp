@@ -545,26 +545,26 @@ void KmChart::zoomIn()
 {
     int visible = activeTab->visibleHistory();
     int samples = activeTab->sampleHistory();
+    int decrease = qMax((int)((double)samples / 10), 1);
 
-    samples = qMax((int)((double)samples / 10), 1);
-    visible = qMax(visible - samples, minimumPoints());
+    visible = qMax(visible - decrease, minimumPoints());
     activeTab->setVisibleHistory(visible);
 
     zoomInAction->setEnabled(visible > minimumPoints());
-    zoomOutAction->setEnabled(visible < maximumPoints());
+    zoomOutAction->setEnabled(visible < samples);
 }
 
 void KmChart::zoomOut()
 {
     int visible = activeTab->visibleHistory();
     int samples = activeTab->sampleHistory();
+    int increase = qMax((int)((double)samples / 10), 1);
 
-    samples = qMax((int)((double)samples / 10), 1);
-    visible = qMin(visible + samples, maximumPoints());
+    visible = qMin(visible + increase, samples);
     activeTab->setVisibleHistory(visible);
 
     zoomInAction->setEnabled(visible > minimumPoints());
-    zoomOutAction->setEnabled(visible < maximumPoints());
+    zoomOutAction->setEnabled(visible < samples);
 }
 
 QTabWidget *KmChart::tabWidget()
