@@ -42,6 +42,7 @@ QmcSource::retryConnect(int type, QString &source)
 	description = "localhost";
 	my.desc = "localhost";
 	my.host = my.source = localHost;
+	my.proxy = "";
 	break;
     case PM_CONTEXT_HOST:
 	description = "host \"";
@@ -50,12 +51,14 @@ QmcSource::retryConnect(int type, QString &source)
 	my.desc = description;
 	my.host = source;
 	my.source = source;
+	my.proxy = getenv("PMPROXY_HOST");
 	break;
     case PM_CONTEXT_ARCHIVE:
 	my.desc = "archive \"";
 	my.desc.append(source);
 	my.desc.append(QChar('\"'));
 	my.source = source;
+	my.proxy = "";
 	break;
     }
 

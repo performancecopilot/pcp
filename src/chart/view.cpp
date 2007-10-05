@@ -749,7 +749,7 @@ abort_chart:
 		if (host != NULL) {
 		    // host literal, add to the list of sources
 		    pms.source = strdup(host);
-		    activeSources->add(activeGroup->which());
+		    activeSources->add(activeGroup->which(), pms.isarch);
 		    if (activeGroup == archiveGroup)
 			activeGroup->updateBounds();
 		}

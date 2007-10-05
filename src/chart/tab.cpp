@@ -655,7 +655,7 @@ void Tab::stopRecording(void)
 		    QMessageBox::NoButton, QMessageBox::NoButton);
 	    break;
 	}
-	archiveSources->add(archiveGroup->which());
+	archiveSources->add(archiveGroup->which(), true);
 	archiveGroup->updateBounds();
     }
 

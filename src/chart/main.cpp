@@ -479,17 +479,17 @@ main(int argc, char ** argv)
 	if (liveGroup->use(PM_CONTEXT_HOST, hosts[c]) < 0)
 	    hosts.removeAt(c);
 	else
-	    liveSources->add(liveGroup->which());
+	    liveSources->add(liveGroup->which(), false);
     }
     for (c = 0; c < archives.size(); c++) {
 	if (archiveGroup->use(PM_CONTEXT_ARCHIVE, archives[c]) < 0)
 	    hosts.removeAt(c);
 	else
-	    archiveSources->add(archiveGroup->which());
+	    archiveSources->add(archiveGroup->which(), true);
     }
     if (hosts.size() == 0 && archives.size() == 0) {
 	liveGroup->createLocalContext();
-	liveSources->add(liveGroup->which());
+	liveSources->add(liveGroup->which(), false);
     }
     pmflush();
     console->post("Sources setup complete (%d hosts, %d archives)",

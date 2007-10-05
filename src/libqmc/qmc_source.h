@@ -40,6 +40,8 @@ public:
     const char *sourceAscii() const { return (const char*)my.source.toAscii(); }
     QString host() const { return my.host; }
     const char *hostAscii() const { return (const char *)my.host.toAscii(); }
+    QString proxy() const { return my.proxy; }
+    const char *proxyAscii() const { return (const char *)my.proxy.toAscii(); }
     int tzHandle() const { return my.tz; }
     QString timezone() const { return my.timezone; }
     struct timeval start() const { return my.start; }
@@ -73,6 +75,7 @@ private:
 	int status;
 	int type;
 	QString source;
+	QString proxy;
 	QString host;
 	QString	desc;
 	QString timezone;

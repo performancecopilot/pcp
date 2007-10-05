@@ -52,18 +52,19 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
     setText(0, my.basename);
 }
 
-NameSpace::NameSpace(QTreeWidget *list, const QmcContext *ctxt, bool arch)
+NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context, bool arch)
     : QTreeWidgetItem(list, QTreeWidgetItem::UserType)
 {
     my.expanded = false;
     my.back = this;
-    my.context = (QmcContext *)ctxt;
-    my.basename = Source::makeComboText(ctxt);
+    my.context = (QmcContext *)context;
     if ((my.isArchive = arch) == true) {
+	my.basename = context->source().source();
 	my.icon = QIcon(":/archive.png");
 	my.type = ArchiveRoot;
     }
     else {
+	my.basename = context->source().host();
 	my.icon = QIcon(":/computer.png");
 	my.type = HostRoot;
     }
@@ -76,7 +77,9 @@ NameSpace::NameSpace(QTreeWidget *list, const QmcContext *ctxt, bool arch)
 
 QString NameSpace::sourceName()
 {
-    return Source::makeSourceBaseName(my.context);
+    if (my.context->source().type() == PM_CONTEXT_ARCHIVE)
+	return my.context->source().source();
+    return my.context->source().host();
 }
 
 QString NameSpace::metricName()

@@ -11,12 +11,12 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QHeaderView>
-#include <QMessageBox>
+#include <QtGui/QHeaderView>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 #include "chartdialog.h"
 #include "qcolorpicker.h"
 #include "hostdialog.h"
-#include "source.h"
 #include "chart.h"
 #include "tab.h"
 #include "main.h"
@@ -257,12 +257,18 @@ void ChartDialog::metricAddButtonClicked()
 
 void ChartDialog::archiveButtonClicked()
 {
-    ArchiveDialog *a = new ArchiveDialog(this);
+    QFileDialog *af = new QFileDialog(this);
     QStringList al;
     int sts;
 
-    if (a->exec() == QDialog::Accepted)
-	al = a->selectedFiles();
+    af->setFileMode(QFileDialog::ExistingFiles);
+    af->setAcceptMode(QFileDialog::AcceptOpen);
+    af->setIconProvider(fileIconProvider);
+    af->setWindowTitle(tr("Add Archive"));
+    af->setDirectory(QDir::homePath());
+
+    if (af->exec() == QDialog::Accepted)
+	al = af->selectedFiles();
     for (QStringList::Iterator it = al.begin(); it != al.end(); ++it) {
 	QString archive = *it;
 	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {
@@ -273,12 +279,12 @@ void ChartDialog::archiveButtonClicked()
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
 	} else {
-	    archiveSources->add(archiveGroup->which());
+	    archiveSources->add(archiveGroup->which(), true);
 	    archiveSources->setupTree(availableMetricsTreeWidget, true);
 	    archiveGroup->updateBounds();
 	}
     }
-    delete a;
+    delete af;
 }
 
 void ChartDialog::hostButtonClicked()
@@ -305,7 +311,7 @@ void ChartDialog::hostButtonClicked()
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
 	} else {
-	    liveSources->add(liveGroup->which());
+	    liveSources->add(liveGroup->which(), false);
 	    liveSources->setupTree(availableMetricsTreeWidget, false);
 	}
     }

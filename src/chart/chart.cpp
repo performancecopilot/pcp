@@ -852,9 +852,10 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 	QColor &color, QString &label)
 {
     QRegExp regex(tr("\\.|\\[|\\]"));
-    QString source = Source::makeSourceAnnotatedName(context);
+    QString source;
     QStringList	baselist;
 
+    source = isArch ? context->source().source() : context->source().host();
     console->post("Chart::addToTree src=%s metric=%s, isInst=%d isArch=%d",
 		(const char *)source.toAscii(), (const char *)metric.toAscii(),
 		isInst, isArch);

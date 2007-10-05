@@ -15,15 +15,9 @@
 #ifndef SOURCE_H
 #define SOURCE_H
 
-#include <QtCore/QList>
 #include <QtCore/QString>
-#include <QtGui/QComboBox>
-#include <QtGui/QFileDialog>
-#include <QtGui/QToolButton>
-#include "namespace.h"
-#include "fileiconprovider.h"
-#include <qmc_group.h>
 #include <qmc_context.h>
+#include <qmc_group.h>
 
 class Source
 {
@@ -32,40 +26,26 @@ public:
     int type();
     QString host();
     const char *sourceAscii();
-    void add(QmcContext *);
+
+    void add(QmcContext *, bool);
     void setupTree(QTreeWidget *, bool);
-    void setupCombo(QComboBox *, bool);
-
-    static QString makeSourceBaseName(const QmcContext *);
-    static QString makeSourceAnnotatedName(const QmcContext *);
-    static int useSourceName(QWidget *, QString &);
-
+    void setupCombos(QComboBox *, QComboBox *, bool);
     static void setCurrentFromCombo(const QString, bool);
-    static QString makeComboText(const QmcContext *);
-    static int useComboContext(QWidget *parent, QComboBox *combo, bool);
+    static int useComboContext(QComboBox *, bool);
+
+protected:
+    void addLive(QmcContext *);
+    void addArchive(QmcContext *);
+    static int useLiveContext(QString);
+    static int useArchiveContext(QString);
+    static void setLiveFromCombo(QString);
+    static void setArchiveFromCombo(QString);
 
 private:
-    void dump();
-
     struct {
 	QmcGroup *fetchGroup;
 	QmcContext *context;
     } my;
-};
-
-class ArchiveDialog : public QFileDialog
-{
-    Q_OBJECT
-
-public:
-    ArchiveDialog(QWidget *parent) : QFileDialog(parent)
-	{
-	    setFileMode(QFileDialog::ExistingFiles);
-	    setAcceptMode(QFileDialog::AcceptOpen);
-	    setIconProvider(fileIconProvider);
-	    setDirectory(QDir::homePath());
-	    setWindowTitle(tr("Add Archive"));
-	}
 };
 
 #endif	// SOURCE_H

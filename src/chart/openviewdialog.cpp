@@ -13,6 +13,7 @@
  */
 #include "openviewdialog.h"
 #include <QtGui/QCompleter>
+#include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
@@ -57,17 +58,16 @@ void OpenViewDialog::reset()
     if ((my.archiveSource = activeTab->isArchiveSource())) {
 	sourceLabel->setText(tr("Archive:"));
 	sourcePushButton->setIcon(QIcon(":/archive.png"));
-	proxyLabel->setHidden(true);
-	proxyComboBox->setHidden(true);
-	proxyPushButton->setHidden(true);
+	proxyLabel->setText(tr("Host:"));
+	proxyPushButton->setEnabled(false);
     } else {
 	sourceLabel->setText(tr("Host:"));
 	sourcePushButton->setIcon(QIcon(":/computer.png"));
-	proxyLabel->setHidden(false);
-	proxyComboBox->setHidden(false);
-	proxyPushButton->setHidden(false);
+	proxyLabel->setText(tr("Proxy:"));
+	proxyComboBox->setEnabled(false);	// TODO: dynamic proxy support
+	proxyPushButton->setEnabled(false);	// TODO: dynamic proxy support
     }
-    activeSources->setupCombo(sourceComboBox, my.archiveSource);
+    activeSources->setupCombos(sourceComboBox, proxyComboBox, my.archiveSource);
     setPath(my.systemDir);
 }
 
@@ -172,12 +172,18 @@ void OpenViewDialog::dirListView_activated(const QModelIndex &index)
 
 void OpenViewDialog::archiveAdd()
 {
-    ArchiveDialog *a = new ArchiveDialog(this);
+    QFileDialog *af = new QFileDialog(this);
     QStringList al;
     int sts;
 
-    if (a->exec() == QDialog::Accepted)
-	al = a->selectedFiles();
+    af->setFileMode(QFileDialog::ExistingFiles);
+    af->setAcceptMode(QFileDialog::AcceptOpen);
+    af->setWindowTitle(tr("Add Archive"));
+    af->setIconProvider(fileIconProvider);
+    af->setDirectory(QDir::homePath());
+
+    if (af->exec() == QDialog::Accepted)
+	al = af->selectedFiles();
     for (QStringList::Iterator it = al.begin(); it != al.end(); ++it) {
 	QString archive = *it;
 	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {
@@ -188,12 +194,12 @@ void OpenViewDialog::archiveAdd()
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    QMessageBox::NoButton, QMessageBox::NoButton);
 	} else {
-	    archiveSources->add(archiveGroup->which());
-	    archiveSources->setupCombo(sourceComboBox, true);
+	    archiveSources->add(archiveGroup->which(), true);
+	    archiveSources->setupCombos(sourceComboBox, proxyComboBox, true);
 	    archiveGroup->updateBounds();
 	}
     }
-    delete a;
+    delete af;
 }
 
 void OpenViewDialog::hostAdd()
@@ -214,8 +220,8 @@ void OpenViewDialog::hostAdd()
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    QMessageBox::NoButton, QMessageBox::NoButton);
 	} else {
-	    liveSources->add(liveGroup->which());
-	    liveSources->setupCombo(sourceComboBox, false);
+	    liveSources->add(liveGroup->which(), false);
+	    liveSources->setupCombos(sourceComboBox, proxyComboBox, false);
 	}
     }
     delete h;
@@ -259,7 +265,7 @@ bool OpenViewDialog::openViewFiles(const QStringList &fl)
 	    QMessageBox::NoButton, QMessageBox::NoButton);
 	return false;
     }
-    if (Source::useComboContext(this, sourceComboBox, my.archiveSource) < 0)
+    if (Source::useComboContext(sourceComboBox, my.archiveSource) < 0)
 	return false;
     QStringList files = fl;
     for (QStringList::Iterator it = files.begin(); it != files.end(); ++it)

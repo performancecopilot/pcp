@@ -34,69 +34,6 @@ Source::Source(QmcGroup *group)
     my.context = NULL;
 }
 
-QString Source::makeSourceBaseName(const QmcContext *cp)
-{
-    if (cp->source().type() == PM_CONTEXT_ARCHIVE)
-	return cp->source().source();
-    return cp->source().host();
-}
-
-QString Source::makeSourceAnnotatedName(const QmcContext *cp)
-{
-    QString t;
-
-    if (cp->source().type() == PM_CONTEXT_HOST) {
-	t = cp->source().host();
-#if 0	// TODO - find a better way to do this - column #2 in listview maybe?
-	t.append(" (no proxy)");
-#endif
-    }
-    else {
-	t = cp->source().source();
-#if 0	// TODO - find a better way to do this - column #2 in listview maybe?
-	t.append(" (");
-	t.append(cp->source().host());
-	t.append(")");
-#endif
-    }
-    return t;
-}
-
-QString Source::makeComboText(const QmcContext *ctx)
-{
-    if (ctx->source().isArchive() == false)
-	return ctx->source().host();
-    return makeSourceAnnotatedName(ctx);
-}
-
-int useSourceContext(QWidget *parent, QString &source, bool arch)
-{
-    int sts, type = arch ? PM_CONTEXT_ARCHIVE : PM_CONTEXT_HOST;
-    QmcGroup *group = arch ? archiveGroup : liveGroup;
-    Source *sources = arch ? archiveSources : liveSources;
-    uint_t ctxcount = group->numContexts();
-
-    if ((sts = group->use(type, source)) < 0) {
-	QString msg;
-	msg.sprintf("Failed to %s \"%s\".\n%s.\n\n",
-		    (type == PM_CONTEXT_HOST) ?
-		    "connect to pmcd on" : "open archive",
-		    (const char *)source.toAscii(), pmErrStr(sts));
-	QMessageBox::warning(parent, pmProgname, msg,
-		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
-		QMessageBox::NoButton, QMessageBox::NoButton);
-    }
-    else if (group->numContexts() > ctxcount)
-	sources->add(group->which());
-    return sts;
-}
-
-int Source::useComboContext(QWidget *parent, QComboBox *combo, bool arch)
-{
-    QString source = combo->currentText().section(QChar(' '), 0, 0);;
-    return useSourceContext(parent, source, arch);
-}
-
 int Source::type()
 {
     return my.context ? my.context->source().type() : -1;
@@ -112,29 +49,26 @@ const char *Source::sourceAscii()
     return my.context ? my.context->source().sourceAscii() : NULL;
 }
 
-void Source::add(QmcContext *context)
+void Source::addLive(QmcContext *context)
 {
-    bool arch = (context->source().type() == PM_CONTEXT_ARCHIVE);
-
-    console->post("Source::add set %s context to %p\n",
-			arch ? "archive" : "live", context);
-
+    console->post("Source::addLive set current context to %p", context);
     contextList.append(context);
-    if (arch)
-	currentArchiveContext = context;
-    else
-	currentLiveContext = context;
+    currentLiveContext = context;
     my.context = context;
+}
 
-#if DESPERATE
-    dump();
-#endif
+void Source::addArchive(QmcContext *context)
+{
+    console->post("Source::addArchive set current context to %p", context);
+    contextList.append(context);
+    currentArchiveContext = context;
+    my.context = context;
 
     // For archives, send a message to kmtime to grow its time window.
     // This is already done if we're the first, so don't do it again;
     // we also don't have a kmtime connection yet if processing args.
     
-    if (kmtime && arch) {
+    if (kmtime) {
 	const QmcSource *source = &context->source();
 	QString tz = source->timezone();
 	QString host = source->host();
@@ -144,64 +78,140 @@ void Source::add(QmcContext *context)
     }
 }
 
-void Source::dump()
+void Source::add(QmcContext *context, bool arch)
 {
-    QTextStream cerr(stderr);
-    cerr << "Source::dump: currentLive: " << currentLiveContext << endl;
-    cerr << "Source::dump: currentArchive: " << currentArchiveContext << endl;
-    for (int i = 0; i < contextList.size(); i++) {
-	contextList.at(i)->dump(cerr);
-	contextList.at(i)->dumpMetrics(cerr);
-    }
+    if (arch == false)
+	addLive(context);
+    else
+	addArchive(context);
 }
 
-void Source::setupCombo(QComboBox *combo, bool arch)
+int Source::useLiveContext(QString source)
 {
-    // We block signals on the source ComboBox here so that we do not
-    // send spurious signals out about the list being changed.  If we
-    // did, we would keep changing the current context (and incorrect
-    // contexts end up being set to current).
+    int sts;
+    uint ctxcount = liveGroup->numContexts();
 
-    combo->blockSignals(true);
-    combo->clear();
-    for (int i = 0; i < contextList.size(); i++) {
-	QmcContext *cp = contextList.at(i);
-	if (cp->source().isArchive() != arch)
-	    continue;
-	QString source = makeComboText(cp);
-	combo->insertItem(i, arch ?
-			  fileIconProvider->icon(FileIconProvider::Archive) :
-			  fileIconProvider->icon(QFileIconProvider::Computer),
-			  source);
-	if (arch && cp == currentArchiveContext)
-	    combo->setCurrentIndex(i);
-	else if (!arch && cp == currentLiveContext)
-	    combo->setCurrentIndex(i);
+    if ((sts = liveGroup->use(PM_CONTEXT_HOST, source)) < 0) {
+	QString msg;
+	msg.sprintf("Failed to connect to pmcd on \"%s\".\n%s.\n\n",
+		    (const char *)source.toAscii(), pmErrStr(sts));
+	QMessageBox::warning(NULL, pmProgname, msg,
+		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
+		QMessageBox::NoButton, QMessageBox::NoButton);
     }
-    combo->blockSignals(false);
+    else if (liveGroup->numContexts() > ctxcount)
+	liveSources->addLive(liveGroup->which());
+    return sts;
 }
 
-void Source::setCurrentFromCombo(const QString name, bool arch)
+int Source::useArchiveContext(QString source)
+{
+    int sts;
+    uint ctxcount = archiveGroup->numContexts();
+
+    if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, source)) < 0) {
+	QString msg;
+	msg.sprintf("Failed to open archive \"%s\".\n%s.\n\n",
+		    (const char *)source.toAscii(), pmErrStr(sts));
+	QMessageBox::warning(NULL, pmProgname, msg,
+		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
+		QMessageBox::NoButton, QMessageBox::NoButton);
+    }
+    else if (archiveGroup->numContexts() > ctxcount)
+	archiveSources->addArchive(archiveGroup->which());
+    return sts;
+}
+
+int Source::useComboContext(QComboBox *combo, bool arch)
+{
+    if (arch == false)
+	return useLiveContext(combo->currentText());
+    return useArchiveContext(combo->currentText());
+}
+
+void Source::setArchiveFromCombo(QString name)
 {
     for (int i = 0; i < contextList.size(); i++) {
 	QmcContext *cp = contextList.at(i);
-	if (cp->source().isArchive() != arch)
+	if (cp->source().isArchive() == false)
 	    continue;
-	QString cname = makeComboText(cp);
-	if (arch && name == cname) {
-	    console->post("Source::setCurrentFromCombo"
-				" set live context to %p\n", cp);
-	    currentArchiveContext = cp;
-	}
-	else if (!arch && name == cname) {
-	    console->post("Source::setCurrentFromCombo"
-				" set archive context to %p\n", cp);
-	    currentLiveContext = cp;
-	}
-	else
+	if (name != cp->source().source())
 	    continue;
+	console->post("Source::setCurrentFromCombo set arch context=%p", cp);
+	currentLiveContext = cp;
 	break;
     }
+}
+
+void Source::setLiveFromCombo(QString name)
+{
+    for (int i = 0; i < contextList.size(); i++) {
+	QmcContext *cp = contextList.at(i);
+	if (cp->source().isArchive() == true)
+	    continue;
+	if (name != cp->source().host())
+	    continue;
+	console->post("Source::setCurrentFromCombo set live context=%p", cp);
+	currentLiveContext = cp;
+	break;
+    }
+}
+
+void Source::setCurrentFromCombo(QString name, bool arch)
+{
+    if (arch == false)
+	setLiveFromCombo(name);
+    setArchiveFromCombo(name);
+}
+
+void Source::setupCombos(QComboBox *combo, QComboBox *proxy, bool arch)
+{
+    QIcon archiveIcon = fileIconProvider->icon(FileIconProvider::Archive);
+    QIcon hostIcon = fileIconProvider->icon(QFileIconProvider::Computer);
+    int index = 0, count = 0;
+
+    console->post("Source::setupCombos current context=%p",
+			arch ? currentArchiveContext : currentLiveContext);
+
+    // We block signals on the target combo boxes so that we do not
+    // send spurious signals out about their lists being changed.
+    // If we did that, we would keep changing the current context.
+
+    combo->blockSignals(true);
+    proxy->blockSignals(true);
+    combo->clear();
+    proxy->clear();
+
+    if (arch) {
+	for (int i = 0; i < contextList.size(); i++) {
+	    QmcContext *cp = contextList.at(i);
+	    if (cp->source().isArchive() == false)
+		continue;
+	    combo->insertItem(count, archiveIcon, cp->source().source());
+	    proxy->insertItem(count, hostIcon, cp->source().host());
+	    if (cp == currentArchiveContext)
+		index = count;
+	    count++;
+	}
+    }
+    else {
+	for (int i = 0; i < contextList.size(); i++) {
+	    QmcContext *cp = contextList.at(i);
+	    if (cp->source().isArchive() == true)
+		continue;
+	    combo->insertItem(count, hostIcon, cp->source().host());
+	    proxy->insertItem(count, hostIcon, cp->source().proxy());
+	    if (cp == currentLiveContext)
+		index = count;
+	    count++;
+	}
+    }
+    combo->blockSignals(false);
+    proxy->blockSignals(false);
+
+    console->post("Source::setupCombos setting current index=%d", index);
+    combo->setCurrentIndex(index);
+    proxy->setCurrentIndex(index);
 }
 
 void Source::setupTree(QTreeWidget *tree, bool arch)
@@ -218,8 +228,8 @@ void Source::setupTree(QTreeWidget *tree, bool arch)
 	name->setExpanded(true);
 	name->setSelectable(false);
 	tree->addTopLevelItem(name);
-	if ((arch && cp == currentArchiveContext) ||
-	   (!arch && cp == currentLiveContext))
+	if ((arch && (cp == currentArchiveContext)) ||
+	   (!arch && (cp == currentLiveContext)))
 	    current = name;
 	items.append(name);
     }
