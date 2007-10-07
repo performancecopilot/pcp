@@ -281,7 +281,7 @@ void ChartDialog::archiveButtonClicked()
 	} else {
 	    setupAvailableMetricsTree(true);
 	    archiveGroup->updateBounds();
-	    const QmcSource source = archiveGroup->which()->source();
+	    const QmcSource source = archiveGroup->context()->source();
 	    kmtime->addArchive(source.start(), source.end(),
 				source.timezone(), source.host());
 	}
@@ -516,12 +516,12 @@ void ChartDialog::setupAvailableMetricsTree(bool arch)
 
     availableMetricsTreeWidget->clear();
     for (unsigned int i = 0; i < group->numContexts(); i++) {
-	QmcContext cp = group->context(i);
-	NameSpace *name = new NameSpace(availableMetricsTreeWidget, &cp, arch);
+	QmcContext *cp = group->context(i);
+	NameSpace *name = new NameSpace(availableMetricsTreeWidget, cp, arch);
 	name->setExpanded(true);
 	name->setSelectable(false);
 	availableMetricsTreeWidget->addTopLevelItem(name);
-	if (i == group->whichIndex())
+	if (i == group->contextIndex())
 	    current = name;
 	items.append(name);
     }

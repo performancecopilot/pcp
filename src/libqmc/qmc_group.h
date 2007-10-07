@@ -25,20 +25,16 @@ public:
     QmcGroup(bool restrictArchives = false);
     ~QmcGroup();
 
+    int mode() const { return my.mode; }
+
     unsigned int numContexts() const { return my.contexts.size(); }
 
     // Return a handle to the contexts
-    QmcContext const& context(unsigned int index) const
-	{ return *(my.contexts[index]); }
-    QmcContext& context(unsigned int index)
-	{ return *(my.contexts[index]); }
-
-    int mode() const { return my.mode; }
-
-    QmcContext* which() const { return my.contexts[my.use]; }
+    QmcContext* context() const { return my.contexts[my.use]; }
+    QmcContext* context(unsigned int index) const { return my.contexts[index]; }
 
     // Index to the active context
-    unsigned int whichIndex() const { return my.use; }
+    unsigned int contextIndex() const { return my.use; }
 
     int use(int type, QString &source);
     int use(unsigned int index) { my.use = index; return useContext(); }

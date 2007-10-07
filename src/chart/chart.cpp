@@ -514,7 +514,7 @@ void Chart::changeTitle(char *title, int expand)
 	    *w = '\0';	// copy up to (but not including) the %
 	    strcpy(tmp, title);
 	    host = strdup((const char *)
-			  activeGroup->which()->source().host().toAscii());
+			  activeGroup->context()->source().host().toAscii());
 	    if (host == NULL)
 		nomem();
 	    if ((p = strchr(host, '.')) != NULL)
@@ -812,7 +812,7 @@ QString Chart::metricName(int m)
 
 QmcContext *Chart::metricContext(int m)
 {
-    return (QmcContext *)&my.plots[m]->metric->context();
+    return my.plots[m]->metric->context();
 }
 
 QString Chart::pmloggerMetricSyntax(int m)
@@ -846,7 +846,7 @@ void Chart::setupTree(QTreeWidget *tree)
 	Plot *plot = my.plots[i];
 	if (!plot->removed)
 	    addToTree(tree, plot->name,
-		      &plot->metric->context(), plot->metric->hasInstances(), 
+		      plot->metric->context(), plot->metric->hasInstances(), 
 		      my.tab->isArchiveSource(), plot->color, plot->label);
     }
 }

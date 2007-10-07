@@ -656,7 +656,7 @@ void Tab::stopRecording(void)
 	    break;
 	}
 	archiveGroup->updateBounds();
-	QmcSource source = archiveGroup->which()->source();
+	QmcSource source = archiveGroup->context()->source();
 	kmtime->addArchive(source.start(), source.end(),
 			   source.timezone(), source.host());
     }

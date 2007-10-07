@@ -177,10 +177,10 @@ int OpenViewDialog::setupArchiveComboBoxes()
     int index = 0;
 
     for (unsigned int i = 0; i < archiveGroup->numContexts(); i++) {
-	QmcSource source = archiveGroup->context(i).source();
+	QmcSource source = archiveGroup->context(i)->source();
 	sourceComboBox->insertItem(i, archiveIcon, source.source());
 	proxyComboBox->insertItem(i, hostIcon, source.host());
-	if (i == archiveGroup->whichIndex())
+	if (i == archiveGroup->contextIndex())
 	    index = i;
     }
     return index;
@@ -192,10 +192,10 @@ int OpenViewDialog::setupLiveComboBoxes()
     int index = 0;
 
     for (unsigned int i = 0; i < liveGroup->numContexts(); i++) {
-	QmcSource source = liveGroup->context(i).source();
+	QmcSource source = liveGroup->context(i)->source();
 	sourceComboBox->insertItem(i, hostIcon, source.host());
 	proxyComboBox->insertItem(i, hostIcon, source.proxy());
-	if (i == liveGroup->whichIndex())
+	if (i == liveGroup->contextIndex())
 	    index = i;
     }
     return index;
@@ -243,7 +243,7 @@ void OpenViewDialog::archiveAdd()
 	} else {
 	    setupComboBoxes(true);
 	    archiveGroup->updateBounds();
-	    QmcSource source = archiveGroup->which()->source();
+	    QmcSource source = archiveGroup->context()->source();
 	    kmtime->addArchive(source.start(), source.end(),
 				source.timezone(), source.host());
 	}

@@ -102,7 +102,7 @@ QmcMetric::~QmcMetric()
 {
     if (hasInstances())
 	for (int i = 0; i < my.values.size(); i++)
-	    indomRef()->removeRef(my.values[i].instance());
+	    indom()->removeRef(my.values[i].instance());
 }
 
 void
@@ -118,31 +118,31 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 
     QString source = QString(metricSpec->source);
     my.status = group->use(contextType, source);
-    my.contextIndex = group->whichIndex();
+    my.contextIndex = group->contextIndex();
 
     if (my.status >= 0) {
-	contextType = context().source().type();
+	contextType = context()->source().type();
 
-	my.status = contextRef().lookupDesc(metricSpec->metric,
+	my.status = context()->lookupDesc(metricSpec->metric,
 					    my.descIndex, my.indomIndex);
 	if (my.status < 0)
 	    pmprintf("%s: Error: %s%c%s: %s\n", 
-		     pmProgname, context().source().sourceAscii(),
+		     pmProgname, context()->source().sourceAscii(),
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
 		     nameAscii(), pmErrStr(my.status));
     }
     else 
 	pmprintf("%s: Error: %s: %s\n", pmProgname,
-		 context().source().descAscii(), pmErrStr(my.status));
+		 context()->source().descAscii(), pmErrStr(my.status));
 
     if (my.status >= 0) {
 	descType = desc().desc().type;
 	if (descType == PM_TYPE_NOSUPPORT) {
 	    my.status = PM_ERR_CONV;
 	    pmprintf("%s: Error: %s%c%s is not supported on %s\n",
-		     pmProgname, context().source().sourceAscii(),
+		     pmProgname, context()->source().sourceAscii(),
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
-		     nameAscii(), context().source().hostAscii());
+		     nameAscii(), context()->source().hostAscii());
 	}
 	else if (descType == PM_TYPE_AGGREGATE ||
 		 descType == PM_TYPE_AGGREGATE_STATIC ||
@@ -150,7 +150,7 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	    my.status = PM_ERR_CONV;
 	    pmprintf("%s: Error: %s%c%s has type \"%s\","
 		     " which is not a number or a string\n",
-		     pmProgname, context().source().sourceAscii(),
+		     pmProgname, context()->source().sourceAscii(),
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
 		     nameAscii(), pmTypeStr(descType));
 	}
@@ -161,7 +161,7 @@ void
 QmcMetric::setupIndom(pmMetricSpec *metricSpec)
 {
     int i, j;
-    QmcIndom *indomPtr = indomRef();
+    QmcIndom *indomPtr = indom();
     
     if (desc().desc().indom == PM_INDOM_NULL) {
 	if (metricSpec->ninst > 0) {
@@ -232,7 +232,7 @@ QmcMetric::spec(bool srcFlag, bool instFlag, uint instance) const
     int i, len = 4;
 
     if (srcFlag)
-	len += context().source().source().size();
+	len += context()->source().source().size();
     len += name().size();
     if (hasInstances() && instFlag) {
 	if (instance != UINT_MAX)
@@ -243,8 +243,8 @@ QmcMetric::spec(bool srcFlag, bool instFlag, uint instance) const
     }
 
     if (srcFlag) {
-	str.append(context().source().source());
-	if (context().source().type() == PM_CONTEXT_ARCHIVE)
+	str.append(context()->source().source());
+	if (context()->source().type() == PM_CONTEXT_ARCHIVE)
 	    str.append(QChar('/'));
 	else
 	    str.append(QChar(':'));
@@ -271,15 +271,15 @@ QmcMetric::spec(bool srcFlag, bool instFlag, uint instance) const
 void
 QmcMetric::dumpSource(QTextStream &os) const
 {
-    switch(context().source().type()) {
+    switch(context()->source().type()) {
     case PM_CONTEXT_LOCAL:
 	os << "localhost:";
 	break;
     case PM_CONTEXT_HOST:
-	os << context().source().source() << ':';
+	os << context()->source().source() << ':';
 	break;
     case PM_CONTEXT_ARCHIVE:
-	os << context().source().source() << '/';
+	os << context()->source().source() << '/';
 	break;
     }
 }
@@ -357,7 +357,7 @@ QmcMetric::update()
     uint num = numValues();
     int sts;
     pmAtomValue ival, oval;
-    double delta = context().timeDelta();
+    double delta = context()->timeDelta();
     static int wrap = -1;
 
     if (num == 0 || my.status < 0)
@@ -500,7 +500,7 @@ void
 QmcMetric::dumpAll() const
 {
     QTextStream cerr(stderr);
-    cerr << *this << " from " << context().source().desc() 
+    cerr << *this << " from " << context()->source().desc() 
 	 << " with scale = "  << my.scale << " and units = " << desc().units() 
 	 << endl;
 }
@@ -590,7 +590,7 @@ QmcMetric::extractValues(pmValueSet const* set)
     pmValue const *value = NULL;
     pmAtomValue result;
     bool found;
-    QmcIndom *indomPtr = indomRef();
+    QmcIndom *indomPtr = indom();
 
     assert(set->pmid == desc().id());
 
@@ -753,7 +753,7 @@ bool
 QmcMetric::updateIndom(void)
 {
     int i = 0, j, oldNum = numInst(), newNum, newInst;
-    QmcIndom *indomPtr = indomRef();
+    QmcIndom *indomPtr = indom();
 
     if (status() < 0 || !hasInstances())
 	return false;
@@ -856,7 +856,7 @@ QmcMetric::addInst(QString const& name)
     if (!hasInstances())
 	return PM_ERR_INDOM;
 
-    int i = indomRef()->lookup(name);
+    int i = indom()->lookup(name);
     if (i >= 0) {
 	setupValues(my.values.size() + 1);
 	my.values.last().setInstance(i);
@@ -869,6 +869,6 @@ void
 QmcMetric::removeInst(uint index)
 {
     assert(hasInstances());
-    indomRef()->removeRef(my.values[index].instance());
+    indom()->removeRef(my.values[index].instance());
     my.values.removeAt(index);
 }

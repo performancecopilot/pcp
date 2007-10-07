@@ -745,7 +745,7 @@ abort_chart:
 		fputc('\n', stderr);
 	    }
 	    if (Cflag == 0) {
-		QmcSource source = activeGroup->which()->source();
+		QmcSource source = activeGroup->context()->source();
 		pms.isarch = source.isArchive();
 		if (host != NULL) {
 		    // host literal, add to the list of sources

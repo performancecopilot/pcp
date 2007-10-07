@@ -222,39 +222,39 @@ QmcGroup::use(int type, QString &source)
 	sts = useContext();
 	if (sts < 0) {
 	    pmprintf("%s: Error: Unable to use context to %s: %s\n", pmProgname,
-		     which()->source().descAscii(), pmErrStr(sts));
+		     context()->source().descAscii(), pmErrStr(sts));
 	    return sts;
 	}
 
 	if (pmDebug & DBG_TRACE_PMC) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::use: Using existing context " << my.use
-		 << " for " << which()->source().desc() << endl;
+		 << " for " << context()->source().desc() << endl;
 	}
     }
     else if (pmDebug & DBG_TRACE_PMC) {
 	QTextStream cerr(stderr);
 	cerr << "QmcGroup::use: Using current context " << my.use
-	     << " (handle = " << which()->handle() << ") for " 
-	     << which()->source().desc() << endl;
+	     << " (handle = " << context()->handle() << ") for " 
+	     << context()->source().desc() << endl;
     }
 
-    return which()->handle();
+    return context()->handle();
 }
 
 int
 QmcGroup::useTZ()
 {
-    int sts = which()->useTZ();
+    int sts = context()->useTZ();
 
     if (sts >= 0) {
-	my.tzDefault = which()->source().tzHandle();
+	my.tzDefault = context()->source().tzHandle();
 	my.tzFlag = groupTZ;
 	my.tzGroupIndex = my.use;
 	if (pmDebug & DBG_TRACE_PMC) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::useTZ: Using timezone of "
-		 << which()->source().desc()
+		 << context()->source().desc()
 		 << " (" << my.tzGroupIndex << ')' << endl;
 	}
     }
@@ -333,7 +333,7 @@ QmcGroup::useDefault()
     if (numContexts() == 0)
 	return my.localSource->status();
     my.use = 0;
-    return pmUseContext(which()->handle());
+    return pmUseContext(context()->handle());
 }
 
 void
@@ -403,10 +403,10 @@ QmcGroup::updateBounds()
 int
 QmcGroup::useContext()
 {
-    int sts = pmUseContext(which()->handle());
+    int sts = pmUseContext(context()->handle());
     if (sts < 0)
 	pmprintf("%s: Error: Unable to reuse context to %s: %s\n",
-		 pmProgname, which()->source().descAscii(), pmErrStr(sts));
+		 pmProgname, context()->source().descAscii(), pmErrStr(sts));
     return sts;
 }
 
@@ -415,7 +415,7 @@ QmcGroup::addMetric(char const *string, double theScale, bool active)
 {
     QmcMetric *metric = new QmcMetric(this, string, theScale, active);
     if (metric->status() >= 0)
-	metric->contextRef().addMetric(metric);
+	metric->context()->addMetric(metric);
     return metric;
 }
 
@@ -424,7 +424,7 @@ QmcGroup::addMetric(pmMetricSpec *theMetric, double theScale, bool active)
 {
     QmcMetric *metric = new QmcMetric(this, theMetric, theScale, active);
     if (metric->status() >= 0)
-	metric->contextRef().addMetric(metric);
+	metric->context()->addMetric(metric);
     return metric;
 }
 

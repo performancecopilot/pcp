@@ -76,10 +76,10 @@ public:
     int status() const { return my.status; }
     const QString name() const { return my.name; }
     const char *nameAscii() const { return (const char *)my.name.toAscii(); }
-    QmcContext const& context() const
+    QmcContext *context() const
 	{ return my.group->context(my.contextIndex); }
     const QmcDesc &desc() const
-	{ return my.group->context(my.contextIndex).desc(my.descIndex); }
+	{ return my.group->context(my.contextIndex)->desc(my.descIndex); }
     bool hasInstances() const
 	{ return (my.status >= 0 && my.indomIndex < UINT_MAX); }
 
@@ -98,17 +98,17 @@ public:
     int numValues() const { return (my.status >= 0) ? my.values.size() : 0; }
 
     // The metric indom
-    QmcIndom const* indom() const
+    QmcIndom *indom() const
 	{ return (my.indomIndex == UINT_MAX) ? NULL :
-		&(my.group->context(my.contextIndex).indom(my.indomIndex)); }
+		&(my.group->context(my.contextIndex)->indom(my.indomIndex)); }
 
     // Internal instance id for instance <index>
     int instID(int index) const
-	{ return my.group->context(my.contextIndex).indom(my.indomIndex).inst(my.values[index].instance()); }
+	{ return my.group->context(my.contextIndex)->indom(my.indomIndex).inst(my.values[index].instance()); }
 
     // External instance name for instance <index>
     const QString instName(int index) const
-	{ return my.group->context(my.contextIndex).indom(my.indomIndex).name(my.values[index].instance()); }
+	{ return my.group->context(my.contextIndex)->indom(my.indomIndex).name(my.values[index].instance()); }
 
     // Return the index for the instance in the indom list
     int instIndex(uint index) const { return my.values[index].instance(); }
@@ -215,13 +215,8 @@ private:
     void setupValues(int num);
 
     void setIdIndex(uint index) { my.idIndex = index; }
-    QmcContext &contextRef() { return my.group->context(my.contextIndex); }
     QmcDesc &descRef()
-	{ return my.group->context(my.contextIndex).desc(my.descIndex); }
-
-    QmcIndom *indomRef()
-	{ return (my.indomIndex < UINT_MAX) ? (QmcIndom *)
-	  &(my.group->context(my.contextIndex).indom(my.indomIndex)) : NULL; }
+	{ return my.group->context(my.contextIndex)->desc(my.descIndex); }
 
     // Dump error messages
     void dumpAll() const;

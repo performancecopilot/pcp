@@ -205,14 +205,13 @@ traverse(const char *str, double scale)
 	    sts = pmTraversePMNS(theMetric->metric, dometric);
 	    if (sts >= 0 && doMetricFlag == false)
 		sts = -1;
-	    else if (sts < 0)
+	    else if (sts < 0) {
+		QmcSource source = group->context()->source();
 		pmprintf("%s: Error: %s%c%s: %s\n",
-			 pmProgname, 
-			 group->which()->source().sourceAscii(),
-			 group->which()->source().type() == PM_CONTEXT_ARCHIVE ?
-			  '/' : ':',
-			 theMetric->metric,
-			 pmErrStr(sts));
+			 pmProgname, source.sourceAscii(),
+			 source.type() == PM_CONTEXT_ARCHIVE ? '/' : ':',
+			 theMetric->metric, pmErrStr(sts));
+	    }
 	}
     }
 
@@ -452,7 +451,7 @@ dumpHeader()
 	
 	for (m = 0, v = 1; m < metrics.size(); m++) {
 	    metric = metrics[m];
-	    QString const& str = metric->context().source().host();
+	    QString const& str = metric->context()->source().host();
 	    strncpy(buffer, (const char *)str.toAscii(), width);
 	    buffer[width] = '\0';
 	    for (i = 0; i < metric->numValues(); i++) {
@@ -1160,7 +1159,7 @@ main(int argc, char *argv[])
 
     group->useDefault();
 
-    if (group->which()->source().type() != PM_CONTEXT_ARCHIVE)
+    if (group->context()->source().type() != PM_CONTEXT_ARCHIVE)
 	isLive = true;
 
     if (isLive && (Aflag || Oflag || Sflag)) {
@@ -1171,7 +1170,7 @@ main(int argc, char *argv[])
     }
 
     if (pmDebug & DBG_TRACE_APPL0)
-	cerr << "main: default source is " << *(group->which()) << endl;
+	cerr << "main: default source is " << *(group->context()) << endl;
 
     if (zflag)
 	group->useTZ();
