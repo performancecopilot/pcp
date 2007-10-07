@@ -96,7 +96,7 @@ void ChartDialog::reset(Chart *chart, int style)
     typeComboBox->setCurrentIndex(style);
     legendOn->setChecked(true);
     legendOff->setChecked(false);
-    activeSources->setupTree(availableMetricsTreeWidget, my.archiveSource);
+    setupAvailableMetricsTree(my.archiveSource);
     my.yMin = yAxisMinimum->value();
     my.yMax = yAxisMaximum->value();
 
@@ -279,9 +279,11 @@ void ChartDialog::archiveButtonClicked()
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
 	} else {
-	    archiveSources->add(archiveGroup->which(), true);
-	    archiveSources->setupTree(availableMetricsTreeWidget, true);
+	    setupAvailableMetricsTree(true);
 	    archiveGroup->updateBounds();
+	    const QmcSource source = archiveGroup->which()->source();
+	    kmtime->addArchive(source.start(), source.end(),
+				source.timezone(), source.host());
 	}
     }
     delete af;
@@ -311,8 +313,7 @@ void ChartDialog::hostButtonClicked()
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    Qt::NoButton, Qt::NoButton);
 	} else {
-	    liveSources->add(liveGroup->which(), false);
-	    liveSources->setupTree(availableMetricsTreeWidget, false);
+	    setupAvailableMetricsTree(false);
 	}
     }
     delete h;
@@ -505,6 +506,28 @@ void ChartDialog::plotLabelLineEdit_editingFinished()
 {
     NameSpace *ns = (NameSpace *)my.chartTreeSingleSelected;
     ns->setLabel(plotLabelLineEdit->text().trimmed());
+}
+
+void ChartDialog::setupAvailableMetricsTree(bool arch)
+{
+    NameSpace *current = NULL;
+    QList<QTreeWidgetItem*> items;
+    QmcGroup *group = arch ? archiveGroup : liveGroup;
+
+    availableMetricsTreeWidget->clear();
+    for (unsigned int i = 0; i < group->numContexts(); i++) {
+	QmcContext cp = group->context(i);
+	NameSpace *name = new NameSpace(availableMetricsTreeWidget, &cp, arch);
+	name->setExpanded(true);
+	name->setSelectable(false);
+	availableMetricsTreeWidget->addTopLevelItem(name);
+	if (i == group->whichIndex())
+	    current = name;
+	items.append(name);
+    }
+    availableMetricsTreeWidget->insertTopLevelItems(0, items);
+    if (current)
+	availableMetricsTreeWidget->setCurrentItem(current);
 }
 
 void ChartDialog::setupChartPlots(Chart *cp)

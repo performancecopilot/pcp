@@ -32,7 +32,7 @@ public:
 	      QString tzstring, QString tzlabel);
     void quit();
 
-    void addArchive(struct timeval *starttime, struct timeval *endtime,
+    void addArchive(struct timeval starttime, struct timeval endtime,
 		    QString tzstring, QString tzlabel);
 
     void liveConnect();

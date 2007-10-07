@@ -25,7 +25,6 @@
 #include "namespace.h"
 #include "kmchart.h"
 #include "console.h"
-#include "source.h"
 #include "chart.h"
 
 NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
@@ -77,9 +76,7 @@ NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context, bool arch)
 
 QString NameSpace::sourceName()
 {
-    if (my.context->source().type() == PM_CONTEXT_ARCHIVE)
-	return my.context->source().source();
-    return my.context->source().host();
+    return my.context->source().source();
 }
 
 QString NameSpace::metricName()

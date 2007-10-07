@@ -104,7 +104,7 @@ void TimeControl::init(int port, bool live,
 }
 
 void TimeControl::addArchive(
-		struct timeval *starttime, struct timeval *endtime,
+		struct timeval starttime, struct timeval endtime,
 		QString tzstring, QString tzlabel)
 {
     KmTime::Packet *message;
@@ -116,8 +116,8 @@ void TimeControl::addArchive(
     *message = *my.archivePacket;
     message->command = KmTime::Bounds;
     message->length = sz;
-    message->start = *starttime;
-    message->end = *endtime;
+    message->start = starttime;
+    message->end = endtime;
     strncpy((char *)message->data, (const char *)tzstring.toAscii(), tzlen+1);
     strncpy((char *)message->data + tzlen+1,
 				(const char *)tzlabel.toAscii(), lablen+1);

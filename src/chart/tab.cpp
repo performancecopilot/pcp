@@ -655,8 +655,10 @@ void Tab::stopRecording(void)
 		    QMessageBox::NoButton, QMessageBox::NoButton);
 	    break;
 	}
-	archiveSources->add(archiveGroup->which(), true);
 	archiveGroup->updateBounds();
+	QmcSource source = archiveGroup->which()->source();
+	kmtime->addArchive(source.start(), source.end(),
+			   source.timezone(), source.host());
     }
 
     // If all is well, we can now create the new Tab
