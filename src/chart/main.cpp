@@ -42,7 +42,7 @@ KmChart *kmchart;
 
 static void usage(void)
 {
-    pmprintf("Usage: %s [options]\n\n"
+    pmprintf("Usage: %s [options] [sources]\n\n"
 "Options:\n"
 "  -A align      align sample times on natural boundaries\n"
 "  -a archive    add PCP log archive to metrics source list\n"
@@ -169,10 +169,6 @@ void setupEnvironment(void)
 
 void writeSettings(void)
 {
-    QString path = QDir::homePath();
-    path.append("/.pcp/kmchart");
-    QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, path);
-
     QSettings userSettings;
     userSettings.beginGroup("kmchart");
     if (globalSettings.chartDeltaModified)
@@ -229,10 +225,6 @@ void checkHistory(int samples, int visible)
 
 void readSettings(void)
 {
-    QString home = QDir::homePath();
-    home.append("/.pcp/kmchart");
-    QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, home);
-
     QSettings userSettings;
     userSettings.beginGroup("kmchart");
 
@@ -440,6 +432,15 @@ main(int argc, char ** argv)
 	}
     }
 
+    if (archives.size() > 0)
+	while (optind < argc)
+	    archives.append(argv[optind++]);
+    else
+	while (optind < argc)
+	    hosts.append(argv[optind++]);
+
+    if (optind != argc)
+	errflg++;
     if (errflg)
 	usage();
 
