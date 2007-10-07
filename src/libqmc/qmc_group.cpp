@@ -394,7 +394,7 @@ QmcGroup::updateBounds()
 
     if (pmDebug & DBG_TRACE_PMC) {
 	QTextStream cerr(stderr);
-        cerr << "QmcGroup::getTimeBounds: start = " << my.timeStart.tv_sec 
+        cerr << "QmcGroup::updateBounds: start = " << my.timeStart.tv_sec 
 	     << '.' << my.timeStart.tv_usec << ", end = "
              << my.timeEnd.tv_sec << '.' << my.timeEnd.tv_usec << endl;
     }
