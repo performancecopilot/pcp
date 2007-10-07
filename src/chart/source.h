@@ -43,7 +43,6 @@ protected:
 
 private:
     struct {
-	QmcGroup *fetchGroup;
 	QmcContext *context;
     } my;
 };

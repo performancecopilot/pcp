@@ -30,7 +30,6 @@ QmcContext *currentArchiveContext;
 
 Source::Source(QmcGroup *group)
 {
-    my.fetchGroup = group;
     my.context = NULL;
 }
 
