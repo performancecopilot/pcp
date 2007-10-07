@@ -571,9 +571,9 @@
   </connection>
   <connection>
    <sender>sourceComboBox</sender>
-   <signal>currentIndexChanged(QString)</signal>
+   <signal>currentIndexChanged(int)</signal>
    <receiver>OpenViewDialog</receiver>
-   <slot>sourceComboBox_currentIndexChanged(QString)</slot>
+   <slot>sourceComboBox_currentIndexChanged(int)</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>185</x>

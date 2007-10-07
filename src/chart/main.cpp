@@ -34,15 +34,12 @@ QList<Tab*> tabs;	// list of Tabs (pages)
 QmcGroup *liveGroup;	// one metrics class group for all hosts
 QmcGroup *archiveGroup;	// one metrics class group for all archives
 QmcGroup *activeGroup;	// currently active metric fetchgroup
-Source *liveSources;	// one source class for all host sources
-Source *archiveSources;	// one source class for all archive sources
-Source *activeSources;	// currently active list of sources
 TimeControl *kmtime;	// one timecontrol class for kmtime
 KmChart *kmchart;
 
 static void usage(void)
 {
-    pmprintf("Usage: %s [options]\n\n"
+    pmprintf("Usage: %s [options] [sources]\n\n"
 "Options:\n"
 "  -A align      align sample times on natural boundaries\n"
 "  -a archive    add PCP log archive to metrics source list\n"
@@ -169,10 +166,6 @@ void setupEnvironment(void)
 
 void writeSettings(void)
 {
-    QString path = QDir::homePath();
-    path.append("/.pcp/kmchart");
-    QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, path);
-
     QSettings userSettings;
     userSettings.beginGroup("kmchart");
     if (globalSettings.chartDeltaModified)
@@ -229,10 +222,6 @@ void checkHistory(int samples, int visible)
 
 void readSettings(void)
 {
-    QString home = QDir::homePath();
-    home.append("/.pcp/kmchart");
-    QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, home);
-
     QSettings userSettings;
     userSettings.beginGroup("kmchart");
 
@@ -327,9 +316,7 @@ main(int argc, char ** argv)
     fromsec(globalSettings.chartDelta, &delta);
 
     liveGroup = new QmcGroup();
-    liveSources = new Source(liveGroup);
     archiveGroup = new QmcGroup();
-    archiveSources = new Source(archiveGroup);
     defaultTabs.append(new Tab);	// default Live Tab
     defaultTabs.append(new Tab);	// default Archive Tab
 
@@ -440,6 +427,15 @@ main(int argc, char ** argv)
 	}
     }
 
+    if (archives.size() > 0)
+	while (optind < argc)
+	    archives.append(argv[optind++]);
+    else
+	while (optind < argc)
+	    hosts.append(argv[optind++]);
+
+    if (optind != argc)
+	errflg++;
     if (errflg)
 	usage();
 
@@ -478,21 +474,16 @@ main(int argc, char ** argv)
     for (c = 0; c < hosts.size(); c++) {
 	if (liveGroup->use(PM_CONTEXT_HOST, hosts[c]) < 0)
 	    hosts.removeAt(c);
-	else
-	    liveSources->add(liveGroup->which(), false);
     }
     for (c = 0; c < archives.size(); c++) {
 	if (archiveGroup->use(PM_CONTEXT_ARCHIVE, archives[c]) < 0)
 	    hosts.removeAt(c);
-	else
-	    archiveSources->add(archiveGroup->which(), true);
     }
     if (hosts.size() == 0 && archives.size() == 0) {
 	liveGroup->createLocalContext();
-	liveSources->add(liveGroup->which(), false);
     }
     pmflush();
-    console->post("Sources setup complete (%d hosts, %d archives)",
+    console->post("Metric group setup complete (%d hosts, %d archives)",
 			hosts.size(), archives.size());
 
     if (zflag) {

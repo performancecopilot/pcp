@@ -25,7 +25,6 @@
 #include "fileiconprovider.h"
 #include "kmchart.h"
 #include "version.h"
-#include "source.h"
 
 typedef struct {
 	// Sampling
@@ -67,10 +66,6 @@ extern QFont globalFont;
 
 extern Tab *activeTab;
 extern QList<Tab*> tabs;
-
-extern Source *activeSources;
-extern Source *liveSources;
-extern Source *archiveSources;
 
 extern QmcGroup	*activeGroup;
 extern QmcGroup *liveGroup;

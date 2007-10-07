@@ -577,11 +577,9 @@ void KmChart::setActiveTab(int index, bool redisplay)
     activeTab = tabs.at(index);
     if (tabs.at(index)->isArchiveSource()) {
 	activeGroup = archiveGroup;
-	activeSources = archiveSources;
 	timeControlAction->setChecked(!my.archiveHidden);
     } else {
 	activeGroup = liveGroup;
-	activeSources = liveSources;
 	timeControlAction->setChecked(!my.liveHidden);
     }
     activeTab->updateTimeButton();

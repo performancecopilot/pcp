@@ -38,7 +38,7 @@ public slots:
     virtual void dirListView_clicked(const QModelIndex &);
     virtual void dirListView_activated(const QModelIndex &);
 
-    virtual void sourceComboBox_currentIndexChanged(QString);
+    virtual void sourceComboBox_currentIndexChanged(int);
     virtual void sourcePushButton_clicked();
     virtual void proxyPushButton_clicked();
     virtual void openPushButton_clicked();
@@ -57,10 +57,17 @@ private:
     void setPath(const QModelIndex &);
     void setPathUi(const QString &);
 
+    void setupComboBoxes(bool);
+    int setupLiveComboBoxes();
+    int setupArchiveComboBoxes();
+
     void hostAdd();
     void proxyAdd();
     void archiveAdd();
 
+    bool useLiveContext(QString);
+    bool useArchiveContext(QString);
+    bool useComboBoxContext(bool);
     bool openViewFiles(const QStringList &);
 };
 

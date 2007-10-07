@@ -745,17 +745,21 @@ abort_chart:
 		fputc('\n', stderr);
 	    }
 	    if (Cflag == 0) {
-		pms.isarch = activeTab->isArchiveSource();
+		QmcSource source = activeGroup->which()->source();
+		pms.isarch = source.isArchive();
 		if (host != NULL) {
 		    // host literal, add to the list of sources
 		    pms.source = strdup(host);
-		    activeSources->add(activeGroup->which(), pms.isarch);
-		    if (activeGroup == archiveGroup)
-			activeGroup->updateBounds();
+		    if (activeGroup == archiveGroup) {
+			archiveGroup->updateBounds();
+			kmtime->addArchive(source.start(), source.end(),
+					source.timezone(), source.host());
+		    }
 		}
 		else {
 		    // no explicit host, use current default source
-		    pms.source = strdup(activeSources->sourceAscii());
+		    pms.source = strdup((const char *)
+					source.source().toAscii());
 		}
 		// expand instances when not specified for metrics
 		// with instance domains and all instances required,

@@ -513,7 +513,10 @@ void Chart::changeTitle(char *title, int expand)
 		nomem();
 	    *w = '\0';	// copy up to (but not including) the %
 	    strcpy(tmp, title);
-	    host = strdup((char *)activeSources->sourceAscii());
+	    host = strdup((const char *)
+			  activeGroup->which()->source().host().toAscii());
+	    if (host == NULL)
+		nomem();
 	    if ((p = strchr(host, '.')) != NULL)
 		*p = '\0';
 	    strcat(tmp, host);
@@ -835,6 +838,7 @@ QSize Chart::sizeHint() const
     return QSize(150,100);	// TODO: hmm, seems pretty random?
 }
 
+// TODO: move to chartdialog.cpp, tree is always Chart Metrics tree
 void Chart::setupTree(QTreeWidget *tree)
 {
     tree->clear();
@@ -847,15 +851,15 @@ void Chart::setupTree(QTreeWidget *tree)
     }
 }
 
+// TODO: move to chartdialog.cpp
 void Chart::addToTree(QTreeWidget *treeview, QString metric,
 	const QmcContext *context, bool isInst, bool isArch,
 	QColor &color, QString &label)
 {
     QRegExp regex(tr("\\.|\\[|\\]"));
-    QString source;
+    QString source = context->source().source();
     QStringList	baselist;
 
-    source = isArch ? context->source().source() : context->source().host();
     console->post("Chart::addToTree src=%s metric=%s, isInst=%d isArch=%d",
 		(const char *)source.toAscii(), (const char *)metric.toAscii(),
 		isInst, isArch);
