@@ -98,14 +98,14 @@ Chart::~Chart()
     }
 }
 
-void Chart::update(bool forward, bool visible)
+void Chart::update(bool forward, bool visible, bool available)
 {
     int	sh = my.tab->sampleHistory();
     int	idx, m;
 
 #if DESPERATE
-    console->post("Chart::update(forward=%d,vis=%d) sh=%d (%d plots)",
-			forward, visible, sh, my.plots.size());
+    console->post("Chart::update(forward=%d,vis=%d,avail=%d) sh=%d (%d plots)",
+			forward, visible, available, sh, my.plots.size());
 #endif
 
     if (my.plots.size() < 1)
@@ -113,7 +113,8 @@ void Chart::update(bool forward, bool visible)
 
     for (m = 0; m < my.plots.size(); m++) {
 	Plot *plot = my.plots[m];
-	double value = plot->metric->value(0) * plot->scale;
+	// TODO: 0 needs to be NaN here, and out plot class needs to grok it
+	double value = available ? plot->metric->value(0) * plot->scale : 0;
 	int sz;
 
 	if (plot->dataCount < sh)
@@ -125,7 +126,7 @@ void Chart::update(bool forward, bool visible)
 	console->post("BEFORE Chart::update (%s) 0-%d (sz=%d,v=%.2f):",
 		(const char *)plot->metric->name().toAscii(),
 		plot->dataCount, sz, value);
-	for (i = 0; i < plot->dataCount; i++)
+	for (int i = 0; i < plot->dataCount; i++)
 	    console->post("\t[%d] data=%.2f", i, plot->data[i]);
 #endif
 
@@ -144,11 +145,11 @@ void Chart::update(bool forward, bool visible)
 
 #if DESPERATE
 	console->post(KmChart::DebugApp, "AFTER Chart::update (%s) 0-%d:",
-			plot->name().ptr(), plot->dataCount);
+			(const char *)plot->name.toAscii(), plot->dataCount);
 	for (int i = 0; i < plot->dataCount; i++)
 	    console->post(KmChart::DebugApp, "\t[%d] data=%.2f time=%s",
 				i, plot->data[i],
-				timeString(my.tab->timeData()[i]));
+				timeString(my.tab->timeAxisData()[i]));
 #endif
     }
 

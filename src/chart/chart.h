@@ -69,7 +69,7 @@ public:
     bool legendVisible();
     void setLegendVisible(bool);
 
-    void update(bool, bool);
+    void update(bool, bool, bool);
 
     QString name(int);
     char *legendSpec(int);

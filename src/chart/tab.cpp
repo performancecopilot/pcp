@@ -264,7 +264,7 @@ void Tab::refreshCharts(void)
 	my.charts[i]->setAxisScale(QwtPlot::xBottom, 
 		my.timeData[my.visible - 1], my.timeData[0],
 		kmchart->timeAxis()->scaleValue(my.interval, my.visible));
-	my.charts[i]->update(my.timeState != Tab::BackwardState, true);
+	my.charts[i]->update(my.timeState != Tab::BackwardState, true, true);
 	my.charts[i]->fixLegendPen();
     }
 
@@ -328,25 +328,19 @@ static bool fuzzyTimeMatch(double a, double b, double tolerance)
 
 void Tab::adjustLiveWorldView(KmTime::Packet *packet)
 {
-    int i, j, delta, setmode;
     double interval, position;
     double tolerance;
     int last = my.samples - 1;
-
-    delta = packet->delta.tv_sec;
-    setmode = PM_MODE_LIVE;
-    if (packet->delta.tv_usec == 0) {
-	setmode |= PM_XTB_SET(PM_TIME_SEC);
-    } else {
-	delta = delta * 1000 + packet->delta.tv_usec / 1000;
-	setmode |= PM_XTB_SET(PM_TIME_MSEC);
-    }
 
     my.previousDelta = packet->delta;
     my.previousPosition = packet->position;
     interval = tosec(packet->delta);
     position = tosec(packet->position);
 
+    console->post("Tab::adjustLiveWorldViewForward: "
+		  "sh=%d vh=%d delta=%.2f position=%.2f (%s) state=%s",
+		my.samples, my.visible, interval, position,
+		timeString(position), timeState());
     //
     // X-Axis _max_ becomes packet->position.
     // Rest of (preceeding) time window filled in using packet->delta.
@@ -354,24 +348,21 @@ void Tab::adjustLiveWorldView(KmTime::Packet *packet)
     // an effort to keep old data that happens to align with the delta
     // time points that we are now interested in.
     //
-    tolerance = interval / 100.0;	// 1% of the sample interval
+    tolerance = interval / 20.0;	// 5% of the sample interval
     position -= (interval * last);
-    for (i = last; i >= 0; i--, position += interval) {
+    for (int i = last; i >= 0; i--, position += interval) {
 	if (fuzzyTimeMatch(my.timeData[i], position, tolerance)) {
 	    console->post("Tab::adjustLiveWorldView: "
-			  "skipped fetch, position[%d] matches existing", i);
+			  "skipped fetch, position[%d] matches existing time "
+			  "(%s)", i, timeString(position));
 	    continue;
 	}
 	my.timeData[i] = position;
-	if (i == 0) {	// refreshCharts() finishes up last one
+	if (i == 0)	// refreshCharts() finishes up last one
 	    my.group->fetch();
-	    break;
-	} else {
-	    // TODO: nuke old data that we're now overwriting? (new start/delta)
-	    console->post("Tab::adjustLiveWorldView: TODO case (%d)", i);
-	}
-	for (j = 0; j < my.count; j++)
-	    my.charts[j]->update(my.timeState != Tab::BackwardState, false);
+	else
+	    for (int j = 0; j < my.count; j++)
+		my.charts[j]->update(true, false, false);	// ENODATA
     }
     my.timeState = (packet->state == KmTime::StoppedState) ?
 			Tab::StandbyState : Tab::ForwardState;
@@ -410,7 +401,7 @@ void Tab::adjustArchiveWorldViewForward(KmTime::Packet *packet, bool setup)
     // X-Axis _max_ becomes packet->position.
     // Rest of (preceeding) time window filled in using packet->delta.
     //
-    tolerance = interval / 100.0;	// 1% of the sample interval
+    tolerance = interval / 20.0;	// 5% of the sample interval
     position -= (interval * last);
     for (i = last; i >= 0; i--, position += interval) {
 	if (setup == false &&
@@ -433,7 +424,7 @@ void Tab::adjustArchiveWorldViewForward(KmTime::Packet *packet, bool setup)
 			i, position, timeString(position),
 			timeState(), my.count);
 	for (j = 0; j < my.count; j++)
-	    my.charts[j]->update(my.timeState != Tab::BackwardState, false);
+	    my.charts[j]->update(true, false, true);
     }
 
     if (setup)
@@ -473,7 +464,7 @@ void Tab::adjustArchiveWorldViewBackward(KmTime::Packet *packet, bool setup)
     // X-Axis _min_ becomes packet->position.
     // Rest of (following) time window filled in using packet->delta.
     //
-    tolerance = interval / 100.0;	// 1% of the sample interval
+    tolerance = interval / 20.0;	// 5% of the sample interval
     for (i = 0; i <= last; i++, position -= interval) {
 	if (setup == false &&
 	    fuzzyTimeMatch(my.timeData[i], position, tolerance) == true) {
@@ -495,7 +486,7 @@ void Tab::adjustArchiveWorldViewBackward(KmTime::Packet *packet, bool setup)
 			i, position, timeString(position),
 			timeState(), my.count);
 	for (j = 0; j < my.count; j++)
-	    my.charts[j]->update(my.timeState != Tab::BackwardState, false);
+	    my.charts[j]->update(false, false, true);
     }
 
     if (setup)
@@ -517,6 +508,21 @@ void Tab::adjustArchiveWorldViewStop(KmTime::Packet *packet, bool needFetch)
 }
 
 //
+// Catch the situation where we get a larger than expected increase
+// in position.  This happens when we restart after a stop in live
+// mode (both with and without a change in the delta).
+//
+static bool sideStep(struct timeval n, struct timeval o, struct timeval delta)
+{
+    double interval = tosec(delta);
+    double tolerance = interval / 20.0;	// 5% of the sample interval
+    double newExpected = tosec(o) + interval;
+    double newPosition = tosec(n);
+
+    return fuzzyTimeMatch(newExpected, newPosition, tolerance) == false;
+}
+
+//
 // Fetch all metric values across all plots and all charts,
 // and also update the single time scale across the bottom.
 //
@@ -526,11 +532,12 @@ void Tab::step(KmTime::Packet *packet)
 		  "Tab::step: stepping to time %.2f, delta=%.2f, state=%s",
 		  tosec(packet->position), tosec(packet->delta), timeState());
 
-    if (packet->source == KmTime::ArchiveSource &&
+    if ((packet->source == KmTime::ArchiveSource &&
 	((packet->state == KmTime::ForwardState &&
 		my.timeState != Tab::ForwardState) ||
 	 (packet->state == KmTime::BackwardState &&
-		my.timeState != Tab::BackwardState)))
+		my.timeState != Tab::BackwardState))) ||
+	 sideStep(packet->position, my.previousPosition, my.previousDelta))
 	return adjustWorldView(packet, false);
 
     int last = my.samples - 1;
