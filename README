@@ -27,17 +27,31 @@ Refer to doc/INSTALL for instructions on building these tools.
 
   kmchart
 
+    - New/Edit Chart Dialog
+      o Double click on Available Metric tree names does not expand a
+	compressed tree (but works fine for Chart Plots tree).
+      o Check selected metrics are valid to plot together before adding
+	plots to new/existing charts; Kens algorithm:
+	1. If metrics are counters, update the semantics to reflect rate
+	   conversion (simple, unless the time dimension is not 0, which
+	   it should not be)
+	2. The dimension has to be identical ... nothing clever here,
+	   just compare all the fields
+		a.dimSpace == b.dimSpace &&
+		a.dimTime == b.dimTime &&
+		a.dimCount == b.dimCount
+	   this is the same test used in pmConvScale()
+	3. If the scales are not the same, choose one as the winner
+	   (unclear that there is a good algorithm for this) ... use
+	   pmConvScale() for the loser
+
     - Charting issues
       o No values available is not the same as zero! (plots need to
 	display broken lines - see Qwt mailing list posts)
       o Scaling of the tick marks on the Y-axis is not yet correct,
 	and causes mis-alignment on the unified X-axis.  The disk
-	throughput (bytes) show this up clearly, for example.
-      o Resolve what to do about plot legends
-	. Plot labels (displayed in legend, supported in the kmchart
-	  View file format) need to be supported in the New/Edit
-	  Chart dialog - need to preserve existing ones, and need to
-	  be able to create/modify existing labels.
+	throughput (bytes) show this up clearly, for example (for
+        vertical alignment code hints, see Qwt mailing list posts).
     - Respond to changes in the sampling interval from kmtime.
     - Timezone support has stopped working
     - Live mode stop/start doesn't quite work right

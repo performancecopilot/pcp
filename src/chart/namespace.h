@@ -45,6 +45,7 @@ public:
     void expand() { my.expanded = true; }
     void setExpanded(bool expanded);
 
+    pmDesc desc() const { return my.desc; }
     int metricInstID();
     QString sourceName();
     QString metricName();

@@ -1,9 +1,3 @@
-BUGS/TODO
-- Double click on compressed Available Metric tree name not expanding
-  (but works fine for Chart Plots tree).
-- Verify metric plots are valid: at all (strings, aggregates), and
-  together (compatible units, etc).
-
 Creating and Editing Charts
 ===========================
 

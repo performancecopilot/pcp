@@ -250,8 +250,21 @@ void ChartDialog::metricAddButtonClicked()
     QList<NameSpace *> list;
     QTreeWidgetItemIterator iterator(availableMetricsTreeWidget,
 					QTreeWidgetItemIterator::Selected);
-    for (; (*iterator); ++iterator)
-        list.append((NameSpace *)(*iterator));
+    for (; (*iterator); ++iterator) {
+	NameSpace *item = (NameSpace *)(*iterator);
+
+	if (QmcMetric::real(item->desc().type) == true)
+            list.append(item);
+	else {
+	    QString message = item->metricName();
+	    message.prepend(tr("Cannot plot metric: "));
+	    message.append(tr("\nThis metric does not have a numeric type."));
+	    QMessageBox::warning(this, pmProgname, message,
+		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
+		    Qt::NoButton, Qt::NoButton);
+	}
+    }
+
     availableMetricsTreeWidget->clearSelection();
     chartMetricsTreeWidget->clearSelection();	// selection(s) made below
     for (int i = 0; i < list.size(); i++) {

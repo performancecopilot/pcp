@@ -127,8 +127,10 @@ public:
     // Scaling modifier applied to metric values
     double scale() const { return my.scale; }
 
-    // Metric has real values (as opposed to string values)
-    bool real() const { return (desc().desc().type != PM_TYPE_STRING); }
+    // Metric has real values (as opposed to string/other values)
+    bool real() const { return real(desc().desc().type); }
+    static bool real(int type)
+	{ return type > PM_TYPE_NOSUPPORT && type < PM_TYPE_STRING; }
 
     // Current rate-converted and scaled real value
     double value(int index) const { return my.values[index].value(); }
