@@ -73,6 +73,8 @@ public:
 private:
     void expandMetricNames(QString);
     void expandInstanceNames();
+    QString sourceTip();
+
     bool cmp(NameSpace *);
     NameSpace *dup(QTreeWidget *);	// copies the root node in addToTree
     NameSpace *dup(QTreeWidget *, NameSpace *);	// copies nodes in addToTree

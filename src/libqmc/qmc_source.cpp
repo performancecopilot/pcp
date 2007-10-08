@@ -35,20 +35,17 @@ QmcSource::retryConnect(int type, QString &source)
     int oldContext;
     int sts;
     char *tzs;
-    QString description;
 
     switch(type) {
     case PM_CONTEXT_LOCAL:
-	description = "localhost";
 	my.desc = "localhost";
 	my.host = my.source = localHost;
 	my.proxy = "";
 	break;
     case PM_CONTEXT_HOST:
-	description = "host \"";
-	description.append(source);
-	description.append(QChar('\"'));
-	my.desc = description;
+	my.desc = "host \"";
+	my.desc.append(source);
+	my.desc.append(QChar('\"'));
 	my.host = source;
 	my.source = source;
 	my.proxy = getenv("PMPROXY_HOST");
@@ -159,6 +156,29 @@ QmcSource::~QmcSource()
 	    break;
     if (i < sourceList.size())
 	sourceList.removeAt(i);
+}
+
+QString
+QmcSource::timeString(struct timeval *timeval)
+{
+    QString timestring;
+    char timebuf[32], *ddmm, *year;
+    struct tm tmp;
+    time_t secs = (time_t)timeval->tv_sec;
+
+    ddmm = pmCtime(&secs, timebuf);
+    ddmm[10] = '\0';
+    year = &ddmm[20];
+    year[4] = '\0';
+    pmLocaltime(&secs, &tmp);
+
+    timestring.sprintf("%02d:%02d:%02d.%03d",
+	tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)(timeval->tv_usec/1000));
+    timestring.prepend(" ");
+    timestring.prepend(ddmm);
+    timestring.append(" ");
+    timestring.append(year);
+    return timestring;
 }
 
 QmcSource*

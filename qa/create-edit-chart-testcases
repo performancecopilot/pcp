@@ -1,11 +1,12 @@
 BUGS/TODO
-- Need resolution on the proxy(live) and host(archive) display issue.
 - Double click on compressed Available Metric tree name not expanding
   (but works fine for Chart Plots tree).
 - Verify metric plots are valid: at all (strings, aggregates), and
   together (compatible units, etc).
 - Maximum Y-Axis setting not enforced (still auto-scales if limit is
   reached)?
+- Adding multiple metrics *instances* to a new chart, only one ends
+  up being added.  Multiple (null-indom) metrics works fine though.
 
 Creating and Editing Charts
 ===========================

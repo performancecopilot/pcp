@@ -46,7 +46,7 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
     }
     my.isArchive = arch;
 
-    console->post(KmChart::DebugGUI, "Added non-root namespace node %s",
+    console->post(KmChart::DebugUi, "Added non-root namespace node %s",
 		  (const char *)my.basename.toAscii());
     setText(0, my.basename);
 }
@@ -57,21 +57,44 @@ NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context, bool arch)
     my.expanded = false;
     my.back = this;
     my.context = (QmcContext *)context;
+    my.basename = context->source().source();
     if ((my.isArchive = arch) == true) {
-	my.basename = context->source().source();
-	my.icon = QIcon(":/archive.png");
 	my.type = ArchiveRoot;
+	my.icon = QIcon(":/archive.png");
     }
     else {
-	my.basename = context->source().host();
-	my.icon = QIcon(":/computer.png");
 	my.type = HostRoot;
+	my.icon = QIcon(":/computer.png");
     }
-    console->post(KmChart::DebugGUI,
-		  "Added root %s namespace node %s", my.isArchive ?
-		  "archive" : "host", (const char *)my.basename.toAscii());
+    setToolTip(0, sourceTip());
     setText(0, my.basename);
     setIcon(0, my.icon);
+    console->post(KmChart::DebugUi,
+		  "Added root %s namespace node %s", my.isArchive ?
+		  "archive" : "host", (const char *)my.basename.toAscii());
+}
+
+QString NameSpace::sourceTip()
+{
+    QString tooltip;
+    QmcSource source = my.context->source();
+
+    tooltip = "Performance metrics from host ";
+    tooltip.append(source.host());
+
+    if (my.isArchive) {
+	tooltip.append("\n  commencing ");
+	tooltip.append(source.startTime());
+	tooltip.append("\n  ending            ");
+	tooltip.append(source.endTime());
+    }
+    else if (source.proxy().isEmpty() == false) {
+	tooltip.append("\n  proxy host: ");
+	tooltip.append(source.proxy());
+    }
+    tooltip.append("\nTimezone: ");
+    tooltip.append(source.timezone());
+    return tooltip;
 }
 
 QString NameSpace::sourceName()
@@ -104,7 +127,7 @@ QString NameSpace::instanceName()
 
 void NameSpace::setExpanded(bool expand)
 {
-    console->post(KmChart::DebugGUI,
+    console->post(KmChart::DebugUi,
 		  "NameSpace::setExpanded on %p %s (expanded=%s, expand=%s)",
 		  this, (const char *)metricName().toAscii(),
 		  my.expanded ? "y" : "n", expand ? "y" : "n");
@@ -140,7 +163,7 @@ void NameSpace::setSelectable(bool selectable)
 
 void NameSpace::setExpandable(bool expandable)
 {
-    console->post(KmChart::DebugGUI, "NameSpace::setExpandable "
+    console->post(KmChart::DebugUi, "NameSpace::setExpandable "
 		  "on %p %s (expanded=%s, expandable=%s)",
 		  this, (const char *)metricName().toAscii(),
 		  my.expanded ? "y" : "n", expandable ? "y" : "n");

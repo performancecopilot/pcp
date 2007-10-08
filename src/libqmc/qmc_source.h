@@ -45,7 +45,9 @@ public:
     int tzHandle() const { return my.tz; }
     QString timezone() const { return my.timezone; }
     struct timeval start() const { return my.start; }
+    QString startTime() { return timeString(&my.start); }
     struct timeval end() const { return my.end; }
+    QString endTime() { return timeString(&my.end); }
     QString desc() const { return my.desc; }
     const char *descAscii() const { return (const char *)my.desc.toAscii(); }
 
@@ -69,6 +71,9 @@ public:
 
     // Local host name (from gethostname(2))
     static QString localHost;
+
+    // Convert a time to a string
+    static QString timeString(struct timeval *timeval);
 
 private:
     struct {
