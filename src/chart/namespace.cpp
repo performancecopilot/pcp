@@ -45,10 +45,10 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
 	setFont(0, font);
     }
     my.isArchive = arch;
+    setText(0, my.basename);
 
     console->post(KmChart::DebugUi, "Added non-root namespace node %s",
 		  (const char *)my.basename.toAscii());
-    setText(0, my.basename);
 }
 
 NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context, bool arch)
@@ -69,6 +69,7 @@ NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context, bool arch)
     setToolTip(0, sourceTip());
     setText(0, my.basename);
     setIcon(0, my.icon);
+
     console->post(KmChart::DebugUi,
 		  "Added root %s namespace node %s", my.isArchive ?
 		  "archive" : "host", (const char *)my.basename.toAscii());
@@ -116,6 +117,13 @@ QString NameSpace::metricName()
 	s.append(text(0));
     }
     return s;
+}
+
+int NameSpace::metricInstID()
+{
+    if (my.type == InstanceName)
+	return my.instid;
+    return -1;
 }
 
 QString NameSpace::instanceName()

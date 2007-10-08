@@ -593,12 +593,12 @@ bool ChartDialog::setupChartPlotsShortcut(Chart *cp)
 
 bool ChartDialog::matchChartPlot(Chart *cp, NameSpace *name, int m)
 {
-    // compare: name, source, proxy
-    if (cp->metricName(m) != name->metricName())
-	return false;
     if (cp->metricContext(m) != name->metricContext())
 	return false;
-    // TODO: proxy support needed here (string compare on proxy name)
+    if (cp->metricName(m) != name->metricName())
+	return false;
+    if (cp->metricInstID(m) != name->metricInstID())
+	return false;
     return true;
 }
 

@@ -73,6 +73,7 @@ public:
 
     QString name(int);
     char *legendSpec(int);
+    int metricInstID(int);
     QString metricName(int);
     QmcDesc *metricDesc(int);
     QmcContext *metricContext(int);

@@ -810,6 +810,13 @@ QString Chart::metricName(int m)
     return my.plots[m]->metric->name();
 }
 
+int Chart::metricInstID(int m)
+{
+    if (my.plots[m]->metric->numInst() > 0)
+	return my.plots[m]->metric->instID(0);
+    return -1;
+}
+
 QmcContext *Chart::metricContext(int m)
 {
     return my.plots[m]->metric->context();
@@ -892,7 +899,6 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 		n->expand();
 	        n->setExpanded(true);
 		n->setSelectable(false);
-		//n->setLabel(label); - TODO: set live proxy or archive host
 	    }
 	    else {
 		bool isLeaf = (b == baselist.size()-1);

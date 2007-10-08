@@ -45,10 +45,12 @@ public:
     void expand() { my.expanded = true; }
     void setExpanded(bool expanded);
 
+    int metricInstID();
     QString sourceName();
     QString metricName();
     QString instanceName();
     QmcContext *metricContext() { return my.context; }
+
     void setType(Type type) { my.type = type; }
     bool isRoot() { return my.type == HostRoot || my.type == ArchiveRoot; }
     bool isLeaf() { return my.type == InstanceName||my.type == LeafNullIndom; }
