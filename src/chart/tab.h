@@ -50,7 +50,7 @@ public:
     int deleteChart(Chart *);	// remove given chart, return current
     int deleteCurrent();	// remove current chart, return current
     int numChart();		// number of charts
-    int setCurrent(Chart *);	// set current chart based on choice
+    void setCurrent(Chart *);	// set current chart based on choice
 
     bool isArchiveSource();	// query if tab is for archives
     QmcGroup *group();

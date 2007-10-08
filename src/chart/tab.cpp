@@ -153,42 +153,40 @@ Chart *Tab::currentChart(void)
     return my.charts[my.current];
 }
 
-int Tab::setCurrent(Chart *cp)
+void Tab::setCurrent(Chart *cp)
 {
-    for (int i = 0; i < my.count; i++) {
-	if (my.charts[i] == cp) {
-	    QwtScaleWidget *sp;
-	    QwtText t;
+    QwtScaleWidget *sp;
+    QwtText t;
+    int i;
 
-	    console->post("Tab::setCurrentChart(%p) -> %d", cp, i);
-	    if (my.current == i)
-		return my.current;
-	    if (my.current != -1) {
-		// reset highlight for old current
-		t = my.charts[my.current]->titleLabel()->text();
-		t.setColor("black");
-		my.charts[my.current]->setTitle(t);
-		sp = my.charts[my.current]->axisWidget(QwtPlot::yLeft);
-		t = sp->title();
-		t.setColor("black");
-		sp->setTitle(t);
-		sp = my.charts[my.current]->axisWidget(QwtPlot::xBottom);
-	    }
-	    my.current = i;
-	    // set highlight for new current
-	    t = cp->titleLabel()->text();
-	    t.setColor(globalSettings.chartHighlight);
-	    cp->setTitle(t);
-	    sp = cp->axisWidget(QwtPlot::yLeft);
-	    t = sp->title();
-	    t.setColor(globalSettings.chartHighlight);
-	    sp->setTitle(t);
-	    sp = cp->axisWidget(QwtPlot::xBottom);
-	    return my.current;
-	}
+    for (i = 0; i < my.count; i++)
+	if (my.charts[i] == cp)
+	    break;
+    if (i == my.count || i == my.current)
+	return;
+
+    console->post("Tab::setCurrentChart(%p) -> %d", cp, i);
+    if (my.current != -1) {
+	// reset highlight for old current
+	t = my.charts[my.current]->titleLabel()->text();
+	t.setColor("black");
+	my.charts[my.current]->setTitle(t);
+	sp = my.charts[my.current]->axisWidget(QwtPlot::yLeft);
+	t = sp->title();
+	t.setColor("black");
+	sp->setTitle(t);
+	sp = my.charts[my.current]->axisWidget(QwtPlot::xBottom);
     }
-    // TODO -- error code?
-    return -1;
+    my.current = i;
+    // set highlight for new current
+    t = cp->titleLabel()->text();
+    t.setColor(globalSettings.chartHighlight);
+    cp->setTitle(t);
+    sp = cp->axisWidget(QwtPlot::yLeft);
+    t = sp->title();
+    t.setColor(globalSettings.chartHighlight);
+    sp->setTitle(t);
+    sp = cp->axisWidget(QwtPlot::xBottom);
 }
 
 QmcGroup *Tab::group()
