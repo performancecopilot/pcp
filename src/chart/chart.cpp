@@ -882,7 +882,8 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 
     for (int i, b = 0; b < baselist.size(); b++) {
 	QString text = baselist.at(b);
-	for (i = 0; i < tree->childCount(); i++) {
+	int childCount = tree->childCount();
+	for (i = 0; i < childCount; i++) {
 	    item = (NameSpace *)tree->child(i);
 	    if (text == item->text(0)) {
 		// No insert at this level necessary, move down a level
@@ -892,7 +893,7 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 	}
 
 	// When no more children and no match so far, we create & insert
-	if (i == tree->childCount()) {
+	if (i == childCount) {
 	    NameSpace *n;
 	    if (b == 0) {
 		n = new NameSpace(treeview, context, isArch);

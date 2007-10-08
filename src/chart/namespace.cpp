@@ -433,7 +433,8 @@ void NameSpace::addToTree(QTreeWidget *target)
 
     for (int i, n = 0; n < nodelist.size(); n++) {
 	node = nodelist.at(n);
-	for (i = 0; i < tree->childCount(); i++) {
+	int childCount = tree->childCount();
+	for (i = 0; i < childCount; i++) {
 	    item = (NameSpace *)tree->child(i);
 	    if (node->cmp(item)) {
 		// no insert at this level necessary, move down a level
@@ -450,7 +451,7 @@ void NameSpace::addToTree(QTreeWidget *target)
 	}
 
 	// When no more children and no match so far, we dup & insert
-	if (i == tree->childCount()) {
+	if (i == childCount) {
 	    if (node->isRoot()) {
 		tree = node->dup(target);
 	    }

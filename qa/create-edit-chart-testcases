@@ -5,10 +5,6 @@ BUGS/TODO
   together (compatible units, etc).
 - Maximum Y-Axis setting not enforced (still auto-scales if limit is
   reached)?
-- Expand disk.dev.blkread and disk.dev.blkwrite.  Add all instances.
-  Select all again in the Available Metrics list, add all instances.
-  Somehow, disk.dev.blkwrite instance gets all confused and added as
-  disk.dev.blkwrite.blkwrite.
 
 Creating and Editing Charts
 ===========================
