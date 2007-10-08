@@ -3,8 +3,6 @@ BUGS/TODO
   (but works fine for Chart Plots tree).
 - Verify metric plots are valid: at all (strings, aggregates), and
   together (compatible units, etc).
-- Maximum Y-Axis setting not enforced (still auto-scales if limit is
-  reached)?
 
 Creating and Editing Charts
 ===========================

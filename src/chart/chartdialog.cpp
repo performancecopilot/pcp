@@ -109,7 +109,11 @@ void ChartDialog::reset(Chart *chart, int style)
 
 void ChartDialog::enableUI()
 {
-    // TODO: if Utilisation mode, set Y-axis to 0-100 and disable change?
+    bool selfScaling = autoScaleOff->isChecked();
+    minTextLabel->setEnabled(selfScaling);
+    maxTextLabel->setEnabled(selfScaling);
+    yAxisMinimum->setEnabled(selfScaling);
+    yAxisMaximum->setEnabled(selfScaling);
 
     chartMetricLineEdit->setText(my.chartTreeSingleSelected ?
 	((NameSpace *)my.chartTreeSingleSelected)->metricName() : tr(""));
@@ -360,8 +364,8 @@ void ChartDialog::setScale(bool autoScale, double yMin, double yMax)
 {
     autoScaleOn->setChecked(autoScale);
     autoScaleOff->setChecked(!autoScale);
-    my.yMin = yMin;
-    my.yMax = yMax;
+    yAxisMaximum->setValue(yMax);
+    yAxisMinimum->setValue(yMin);
 }
 
 void ChartDialog::autoScaleOnClicked()
