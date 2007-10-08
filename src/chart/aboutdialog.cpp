@@ -12,10 +12,15 @@
  * for more details.
  */
 #include "aboutdialog.h"
+#include "version.h"
 
 AboutDialog::AboutDialog(QWidget* parent) : QDialog(parent)
 {
     setupUi(this);
+    QRegExp rx("\\b(VERSION)\\b");
+    QString version = versionTextLabel->text();
+    version.replace(rx, VERSION);
+    versionTextLabel->setText(version);
 }
 
 void AboutDialog::aboutOKButton_clicked()

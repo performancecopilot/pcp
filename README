@@ -115,7 +115,6 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Online Help support
     - Incorporate a Tutorial into online Help
     - Tooltips need to be added across the board.
-    - Auto-update the version string in the About dialog.
 
     - Destructors and memory leak plugging
     - Code audit for TODOs; either fix, exception or add to wishlist.
