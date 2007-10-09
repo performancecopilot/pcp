@@ -174,6 +174,7 @@ void SettingsDialog::flush()
 	    if (item->background() != disabled)
 		actions.append(item->text());
 	}
+	globalSettings.toolbarActions = actions;
 	kmchart->setEnabledActionsList(actions, true);
 	kmchart->updateToolbarContents();
     }

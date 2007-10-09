@@ -696,8 +696,10 @@ void KmChart::setupEnabledActionsList()
 			  << fileExportAction << filePrintAction
 			  << helpWhatsThisAction;
 
-    if (globalSettings.toolbarActions.size() > 0)
+    if (globalSettings.toolbarActions.size() > 0) {
 	setEnabledActionsList(globalSettings.toolbarActions, false);
+	updateToolbarContents();
+    }
 }
 
 void KmChart::addSeparatorAction()
