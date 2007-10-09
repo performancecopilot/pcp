@@ -811,11 +811,11 @@ QString Chart::metricName(int m)
     return my.plots[m]->metric->name();
 }
 
-int Chart::metricInstID(int m)
+QString Chart::metricInstance(int m)
 {
     if (my.plots[m]->metric->numInst() > 0)
-	return my.plots[m]->metric->instID(0);
-    return -1;
+	return my.plots[m]->metric->instName(0);
+    return QString::null;
 }
 
 QmcContext *Chart::metricContext(int m)

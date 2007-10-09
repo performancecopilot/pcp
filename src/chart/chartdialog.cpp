@@ -232,7 +232,7 @@ void ChartDialog::metricInfoButtonClicked()
     NameSpace *name = (NameSpace *)(my.chartTreeSingleSelected ?
 		my.chartTreeSingleSelected : my.availableTreeSingleSelected);
     kmchart->metricInfo(name->sourceName(), name->metricName(),
-			name->instanceName(), name->isArchiveMode());
+			name->metricInstance(), name->isArchiveMode());
 }
 
 void ChartDialog::metricDeleteButtonClicked()
@@ -614,7 +614,7 @@ bool ChartDialog::matchChartPlot(Chart *cp, NameSpace *name, int m)
 	return false;
     if (cp->metricName(m) != name->metricName())
 	return false;
-    if (cp->metricInstID(m) != name->metricInstID())
+    if (cp->metricInstance(m) != name->metricInstance())
 	return false;
     return true;
 }
@@ -652,7 +652,7 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
     pms.metric = strdup((const char *)name->metricName().toAscii());
     if (name->isInst()) {
 	pms.ninst = 1;
-	pms.inst[0] = strdup((const char *)name->instanceName().toAscii());
+	pms.inst[0] = strdup((const char *)name->metricInstance().toAscii());
     }
     else {
 	pms.ninst = 0;

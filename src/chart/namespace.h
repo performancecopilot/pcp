@@ -46,10 +46,9 @@ public:
     void setExpanded(bool expanded);
 
     pmDesc desc() const { return my.desc; }
-    int metricInstID();
     QString sourceName();
     QString metricName();
-    QString instanceName();
+    QString metricInstance();
     QmcContext *metricContext() { return my.context; }
 
     void setType(Type type) { my.type = type; }
@@ -86,7 +85,6 @@ private:
 	bool isArchive;
 	bool expanded;		// pmGet{ChildrenStatus,Indom} done
 	pmDesc desc;		// metric descriptor for metric leaves
-	int instid;		// for instance names only
 	QmcContext *context;	// metrics class metric context
 	QIcon icon;
 	QColor current;		// color we'll use if OK'd

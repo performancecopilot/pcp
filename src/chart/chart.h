@@ -73,9 +73,9 @@ public:
 
     QString name(int);
     char *legendSpec(int);
-    int metricInstID(int);
     QString metricName(int);
     QmcDesc *metricDesc(int);
+    QString metricInstance(int);
     QmcContext *metricContext(int);
 
     QString pmloggerMetricSyntax(int);

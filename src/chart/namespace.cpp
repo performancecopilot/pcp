@@ -121,14 +121,7 @@ QString NameSpace::metricName()
     return s;
 }
 
-int NameSpace::metricInstID()
-{
-    if (my.type == InstanceName)
-	return my.instid;
-    return -1;
-}
-
-QString NameSpace::instanceName()
+QString NameSpace::metricInstance()
 {
     if (my.type == InstanceName)
 	return text(0);
@@ -331,7 +324,6 @@ void NameSpace::expandInstanceNames()
 
 	m->setExpandable(false);
 	m->setSelectable(true);
-	m->my.instid = instlist[i];
     }
 
     if (instlist)
@@ -374,7 +366,6 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
 
     n = new NameSpace(tree, my.basename, my.type == InstanceName, my.isArchive);
     n->my.context = my.context;
-    n->my.instid = my.instid;
     n->my.desc = my.desc;
     n->my.type = my.type;
 
