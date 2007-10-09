@@ -115,6 +115,25 @@ public:
     }
 };
 
+class QColLineEdit : public QLineEdit
+{
+    Q_OBJECT
+
+public:
+    QColLineEdit(QWidget *parent);
+
+public slots:
+    void setColor(QColor c);
+    void setCol(int h, int s, int v);
+    void textEdited(const QString &text);
+
+signals:
+    void newColor(QColor c);
+
+private:
+    QColor col;
+};
+
 class QColorShowLabel : public QFrame
 {
     Q_OBJECT

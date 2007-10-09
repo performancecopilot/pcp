@@ -272,3 +272,31 @@ void QColorShowLabel::mouseReleaseEvent( QMouseEvent * )
 	return;
     mousePressed = false;
 }
+
+QColLineEdit::QColLineEdit(QWidget *parent) : QLineEdit(parent)
+{
+    connect(this, SIGNAL(textEdited(const QString&)),
+	    this, SLOT(textEdited(const QString&)));
+}
+
+void QColLineEdit::textEdited(const QString &text)
+{
+    QColor c;
+    c.setNamedColor(text);
+    if (c.isValid()) {
+	setColor(c);
+	emit newColor(c);
+    }
+}
+
+void QColLineEdit::setColor(QColor c)
+{
+    col = c;
+    setText(col.name());
+}
+
+void QColLineEdit::setCol(int h, int s, int v)
+{
+    col.setHsv(h, s, v);
+    setText(col.name());
+}

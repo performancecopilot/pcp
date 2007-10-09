@@ -67,6 +67,8 @@ void ChartDialog::init()
 	SIGNAL(newCol(int,int)), luminancePicker, SLOT(setCol(int,int)));
     connect(luminancePicker,
 	SIGNAL(newHsv(int,int,int)), this, SLOT(newHsv(int,int,int)));
+    connect(colorLineEdit,
+	SIGNAL(newColor(QColor)), this, SLOT(newColor(QColor)));
     connect(this,
 	SIGNAL(newCol(QRgb)), this, SLOT(newColorTypedIn(QRgb)));
 }
@@ -213,7 +215,7 @@ void ChartDialog::availableMetricsSelectionChanged()
 
 void ChartDialog::availableMetricsItemActivated(QTreeWidgetItem *item, int col)
 {
-    console->post(KmChart::DebugGUI,
+    console->post(KmChart::DebugUi,
 		 "ChartDialog::availableMetricsItemActivated %p %d", item, col);
     NameSpace *metricName = (NameSpace *)item;
     metricName->setExpanded(true);
@@ -221,7 +223,7 @@ void ChartDialog::availableMetricsItemActivated(QTreeWidgetItem *item, int col)
 
 void ChartDialog::availableMetricsItemExpanded(QTreeWidgetItem *item)
 {
-    console->post(KmChart::DebugGUI,
+    console->post(KmChart::DebugUi,
 		 "ChartDialog::availableMetricsItemExpanded %p", item);
     NameSpace *metricName = (NameSpace *)item;
     metricName->setExpanded(true);
@@ -425,6 +427,7 @@ void ChartDialog::newHsv(int h, int s, int v)
     setHsv(h, s, v);
     colorPicker->setCol(h, s);
     luminancePicker->setCol(h, s, v);
+    colorLineEdit->setCol(h, s, v);
 }
 
 // Sets all widgets to display rgb
@@ -434,17 +437,31 @@ void ChartDialog::setCurrentColor(QRgb rgb)
     newColorTypedIn(rgb);
 }
 
-// Sets all widgets exept cs to display rgb
+// Sets all widgets except cle to display color
+void ChartDialog::newColor(QColor col)
+{
+    console->post(KmChart::DebugUi, "ChartDialog::newColor");
+    int h, s, v;
+    col.getHsv(&h, &s, &v);
+    colorPicker->setCol(h, s);
+    luminancePicker->setCol(h, s, v);
+    setRgb(col.rgb());
+}
+
+// Sets all widgets except cs to display rgb
 void ChartDialog::newColorTypedIn(QRgb rgb)
 {
+    console->post(KmChart::DebugUi, "ChartDialog::newColorTypedIn");
     int h, s, v;
     rgb2hsv(rgb, h, s, v);
     colorPicker->setCol(h, s);
     luminancePicker->setCol(h, s, v);
+    colorLineEdit->setCol(h, s, v);
 }
 
 void ChartDialog::setRgb(QRgb rgb)
 {
+    console->post(KmChart::DebugUi, "ChartDialog::setRgb");
     my.currentColor = rgb;
     rgb2hsv(my.currentColor, my.hue, my.sat, my.val);
     hEd->setValue(my.hue);
@@ -458,6 +475,7 @@ void ChartDialog::setRgb(QRgb rgb)
 
 void ChartDialog::setHsv(int h, int s, int v)
 {
+    console->post(KmChart::DebugUi, "ChartDialog::setHsv");
     QColor c;
     c.setHsv(h, s, v);
     my.currentColor = c.rgb();
@@ -504,7 +522,9 @@ void ChartDialog::hsvEd()
 
 void ChartDialog::showCurrentColor()
 {
+    console->post(KmChart::DebugUi, "ChartDialog::showCurrentColor");
     applyColorLabel->setColor(my.currentColor);
+    colorLineEdit->setColor(my.currentColor);
 }
 
 void ChartDialog::applyColorButtonClicked()

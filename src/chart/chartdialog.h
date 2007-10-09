@@ -62,6 +62,7 @@ public slots:
     virtual void autoScaleOffClicked();
     virtual void yAxisMinimumValueChanged(double);
     virtual void yAxisMaximumValueChanged(double);
+    virtual void newColor(QColor);
     virtual void newColorTypedIn(QRgb);
     virtual void applyColorButtonClicked();
     virtual void revertColorButtonClicked();

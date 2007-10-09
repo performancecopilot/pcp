@@ -1048,7 +1048,7 @@
             </widget>
            </item>
            <item row="0" column="1" >
-            <widget class="QLineEdit" name="colorLineEdit" >
+            <widget class="QColLineEdit" name="colorLineEdit" >
              <property name="sizePolicy" >
               <sizepolicy>
                <hsizetype>0</hsizetype>
@@ -1546,6 +1546,11 @@
   <customwidget>
    <class>QColorPicker</class>
    <extends>QFrame</extends>
+   <header>qcolorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QColLineEdit</class>
+   <extends>QLineEdit</extends>
    <header>qcolorpicker.h</header>
   </customwidget>
  </customwidgets>
