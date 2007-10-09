@@ -50,7 +50,7 @@ public:
     static const int minimumPoints() { return 2; }
     static const int maximumPoints() { return 360; }
     static const int maximumLegendLength() { return 20; }	// chars
-    static const int minimumChartHeight() { return 60; }	// pixels
+    static const int minimumChartHeight() { return 80; }	// pixels
 
     virtual TimeAxis *timeAxis();
     virtual void step(bool livemode, KmTime::Packet *kmtime);
