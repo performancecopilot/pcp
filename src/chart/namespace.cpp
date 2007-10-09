@@ -32,6 +32,7 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
 {
     my.expanded = false;
     my.back = parent;
+    my.desc = parent->my.desc;
     my.context = parent->my.context;
     my.basename = name;
     if (name == QString::null)
@@ -47,8 +48,8 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
     my.isArchive = arch;
     setText(0, my.basename);
 
-    console->post(KmChart::DebugUi, "Added non-root namespace node %s",
-		  (const char *)my.basename.toAscii());
+    console->post(KmChart::DebugUi, "Added non-root namespace node %s (inst=%d)",
+		  (const char *)my.basename.toAscii(), inst);
 }
 
 NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context, bool arch)
@@ -56,6 +57,7 @@ NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context, bool arch)
 {
     my.expanded = false;
     my.back = this;
+    memset(&my.desc, 0, sizeof(my.desc));
     my.context = (QmcContext *)context;
     my.basename = context->source().source();
     if ((my.isArchive = arch) == true) {
@@ -431,10 +433,10 @@ void NameSpace::addToTree(QTreeWidget *target)
     NameSpace *tree = (NameSpace *)target->invisibleRootItem();
     NameSpace *item = NULL;
 
-    for (int i, n = 0; n < nodelist.size(); n++) {
+    for (int n = 0; n < nodelist.size(); n++) {
 	node = nodelist.at(n);
-	int childCount = tree->childCount();
-	for (i = 0; i < childCount; i++) {
+	bool foundMatchingName = false;
+	for (int i = 0; i < tree->childCount(); i++) {
 	    item = (NameSpace *)tree->child(i);
 	    if (node->cmp(item)) {
 		// no insert at this level necessary, move down a level
@@ -446,12 +448,13 @@ void NameSpace::addToTree(QTreeWidget *target)
 		else {
 		    item->setSelected(true);
 		}
+		foundMatchingName = true;
 		break;
 	    }
 	}
 
 	// When no more children and no match so far, we dup & insert
-	if (i == childCount) {
+	if (foundMatchingName == false) {
 	    if (node->isRoot()) {
 		tree = node->dup(target);
 	    }

@@ -867,6 +867,7 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
     QRegExp regex(tr("\\.|\\[|\\]"));
     QString source = context->source().source();
     QStringList	baselist;
+    int depth;
 
     console->post("Chart::addToTree src=%s metric=%s, isInst=%d isArch=%d",
 		(const char *)source.toAscii(), (const char *)metric.toAscii(),
@@ -874,6 +875,9 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 
     baselist = metric.split(regex);
     baselist.prepend(source);	// add the host/archive root as well.
+    depth = baselist.size();
+    if (baselist.at(depth-1).isEmpty())	// regex side-effect on ']'.
+	depth--;
 
     // Walk through each component of this name, creating them in the
     // target tree (if not there already), right down to the leaf.
@@ -881,20 +885,21 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
     NameSpace *tree = (NameSpace *)treeview->invisibleRootItem();
     NameSpace *item = NULL;
 
-    for (int i, b = 0; b < baselist.size(); b++) {
+    for (int b = 0; b < depth; b++) {
 	QString text = baselist.at(b);
-	int childCount = tree->childCount();
-	for (i = 0; i < childCount; i++) {
+	bool foundMatchingName = false;
+	for (int i = 0; i < tree->childCount(); i++) {
 	    item = (NameSpace *)tree->child(i);
 	    if (text == item->text(0)) {
 		// No insert at this level necessary, move down a level
 		tree = item;
+		foundMatchingName = true;
 		break;
 	    }
 	}
 
 	// When no more children and no match so far, we create & insert
-	if (i == childCount) {
+	if (foundMatchingName == false) {
 	    NameSpace *n;
 	    if (b == 0) {
 		n = new NameSpace(treeview, context, isArch);
@@ -903,7 +908,7 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 		n->setSelectable(false);
 	    }
 	    else {
-		bool isLeaf = (b == baselist.size()-1);
+		bool isLeaf = (b == depth-1);
 		n = new NameSpace(tree, text, isLeaf && isInst, isArch);
 		if (isLeaf) {
 		    n->setLabel(label);
