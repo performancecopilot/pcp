@@ -514,12 +514,17 @@ void Tab::adjustArchiveWorldViewStop(KmTime::Packet *packet, bool needFetch)
 //
 static bool sideStep(struct timeval n, struct timeval o, struct timeval delta)
 {
+    // thinks needs deeper thought / a rework, triggering too often atm
+    // and adjustLiveWorldView isn't correct yet either, making it worse
+    return false;
+#if 0
     double interval = tosec(delta);
     double tolerance = interval / 20.0;	// 5% of the sample interval
     double newExpected = tosec(o) + interval;
     double newPosition = tosec(n);
 
     return fuzzyTimeMatch(newExpected, newPosition, tolerance) == false;
+#endif
 }
 
 //
