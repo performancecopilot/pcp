@@ -24,8 +24,8 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 include /etc/pcp.conf
 
-LDIRT = $(wildcard kmchart*.pkg) $(wildcard kmchart*.dmg) \
-	idb-kmchart installer-files
+LDIRT = $(wildcard kmchart*.pkg) $(wildcard kmchart*.dmg) idb-kmchart
+LDIRDIRT = installer-files
 
 INSTFILES = idb-kmchart install-kmchart uninstall-kmchart \
 	    English.lproj/Localizable.strings

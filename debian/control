@@ -8,5 +8,5 @@ Standards-Version: 3.5.9
 Package: kmchart
 Depends: ${shlibs:Depends}
 Architecture: any
-Description: Stripchart tool for Performance Co-Pilot
- A stripchart tool for plotting metric values from the Performance Co-Pilot.
+Description: Strip Chart tool for Performance Co-Pilot
+ A strip chart tool for plotting metric values from the Performance Co-Pilot.

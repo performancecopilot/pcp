@@ -26,7 +26,7 @@ prog=`basename $0`
 status=1
 trap "exit \$status" 0 1 2 15
 
-echo "$prog: kmchart for MacOSX Install"
+echo "$prog: PCP Charts (kmchart) for MacOSX Install"
 
 echo "$prog: Writing install log to /var/log/kmchart_inst.log"
 echo "$prog: Writing install log to /var/log/kmchart_inst.log"  > /var/log/kmchart_inst.log
@@ -40,8 +40,7 @@ fi
 
 cd $2
 
-# TODO: Remove -v flag once stable
-if ./install-kmchart -v -i -l /var/log/kmchart_inst.log idb
+if ./install-kmchart -i -l /var/log/kmchart_inst.log kmchart-idb
 then
     :
 else

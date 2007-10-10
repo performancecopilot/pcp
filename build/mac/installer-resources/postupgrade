@@ -26,7 +26,7 @@ prog=`basename $0`
 status=1
 trap "exit \$status" 0 1 2 15
 
-echo "$prog: kmchart for MacOSX Upgrade"
+echo "$prog: PCP Charts (kmchart) for MacOSX Upgrade"
 
 echo "$prog: Writing install log to /var/log/kmchart_inst.log"
 

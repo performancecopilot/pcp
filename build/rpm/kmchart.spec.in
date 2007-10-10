@@ -11,7 +11,7 @@ URL: http://oss.sgi.com/projects/pcp
 Group: System Environment/Base
 
 %description
-Stripchart tool for plotting Performance Co-Pilot framework metric values.
+Strip Chart tool for plotting Performance Co-Pilot framework metric values.
 
 %prep
 if [ -f .census ] ; then
