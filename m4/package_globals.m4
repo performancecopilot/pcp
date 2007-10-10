@@ -9,7 +9,13 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     AC_SUBST(pkg_name)
 
     . ./VERSION
+    pkg_major=$PKG_MAJOR
+    pkg_minor=$PKG_MINOR
+    pkg_revision=$PKG_REVISION
     pkg_version=${PKG_MAJOR}.${PKG_MINOR}.${PKG_REVISION}
+    AC_SUBST(pkg_major)
+    AC_SUBST(pkg_minor)
+    AC_SUBST(pkg_revision)
     AC_SUBST(pkg_version)
     pkg_release=$PKG_BUILD
     test -z "$BUILD_VERSION" || pkg_release="$BUILD_VERSION"

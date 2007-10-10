@@ -49,23 +49,19 @@ default install :
 
 .PHONY: dist
 dist: extrabits
-	@PACKAGE_VERSION=${PACKAGE_VERSION} \
-	 PACKAGE_MAJOR=${PACKAGE_MAJOR} \
-	 PACKAGE_MINOR=${PACKAGE_MINOR} \
-	 PACKAGE_BUILD=${PACKAGE_BUILD} \
+	@PKG_VERSION=${PKG_VERSION} \
+	 PKG_MAJOR=${PKG_MAJOR} \
+	 PKG_MINOR=${PKG_MINOR} \
+	 PKG_RELEASE=${PKG_RELEASE} \
 	./build-installer $(PACKAGE_MAKER) $(HDIUTIL) \
-			  $$DIST_ROOT ${PACKAGE_NAME} idb-kmchart
+			  $$DIST_ROOT ${PKG_NAME} idb-kmchart
 
+# We need to do a fair bit of munging here.  Firstly, add a version number
+# then swap source and destination.  Ensure there is a mode and user/group
+# for EVERY entry.  Add a 'rule' (eg replace).  Make destination relative.
+# Make source relative to DIST_ROOT.  Ensure that a symlink has a full path
+# for the source append the installer scripts.
 idb-kmchart: $(DIST_MANIFEST)
-# We need to do a fair bit of munging here
-# Firstly, add a version number
-# then swap source and destination
-# ensure there is a mode and user/group for EVERY entry
-# Add a 'rule' (eg replace)
-# make destination relative 
-# make source relative to DIST_ROOT
-# ensure that a symlink has a full path for the source
-# append the installer scripts
 	@echo Making idb-kmchart...
 	@echo "# Version 1" > idb-kmchart
 	@echo "# IDB for kmchart" >> idb-kmchart
@@ -75,10 +71,10 @@ idb-kmchart: $(DIST_MANIFEST)
 		$$1 == "l" { \
 			i = split($$3, a, "/"); \
 			str = ""; \
-			    for( n = 1; n < i; n++ ) { \
+			    for ( n = 1; n < i; n++ ) { \
 				    str = str a[n] "/"; \
 			    } \
-			printf "s 0 $(INSTALL_USER) $(INSTALL_GROUP) %s %s%s replace\n", $$3, str, $$2 ; \
+			printf "s 0 $(PKG_USER) $(PKG_GROUP) %s %s%s replace\n", $$3, str, $$2 ; \
 			next; \
 		} \
 		$$5 ~ "'$$DIST_ROOT'" { \
@@ -96,6 +92,7 @@ idb-kmchart: $(DIST_MANIFEST)
 	@echo idb-kmchart created
 
 extrabits: idb-kmchart
+	DIST_MANIFEST= $(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
 	DIST_MANIFEST= $(INSTALL) -m 755 idb-kmchart $(PCP_BINADM_DIR)
 	DIST_MANIFEST= $(INSTALL) -m 755 install-kmchart $(PCP_BINADM_DIR)
 	DIST_MANIFEST= $(INSTALL) -m 755 uninstall-kmchart $(PCP_BINADM_DIR)

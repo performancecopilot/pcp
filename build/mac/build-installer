@@ -25,7 +25,7 @@ IRDIR="installer-resources"
 PKGMKR=$1
 HDIUTIL=$2
 DIST_ROOT=$3
-PACKAGE=$4-$PACKAGE_VERSION-$PACKAGE_BUILD
+PACKAGE=$4-$PKG_VERSION-$PKG_RELEASE
 PKG=$PACKAGE.pkg
 DMG=$PACKAGE.dmg
 TEMPDMG=$PACKAGE.tmp.dmg
@@ -80,9 +80,9 @@ BUILD_DATE=`date +'%Y%m%d'`
 
 for f in installer-info installer-description; do
 	nf=`echo $f | cut -c11-`
-	sed -e"s/@package_version@/$PACKAGE_VERSION/g" \
-	    -e"s/@package_major@/$PACKAGE_MAJOR/g" \
-	    -e"s/@package_minor@/$PACKAGE_MINOR/g" \
+	sed -e"s/@package_version@/$PKG_VERSION/g" \
+	    -e"s/@package_major@/$PKG_MAJOR/g" \
+	    -e"s/@package_minor@/$PKG_MINOR/g" \
 	    -e"s/@macosx_version@/$MACOSX_VERSION/g" \
 	    -e"s/@macosx_next_version@/$MACOSX_NEXT/g" \
 	    -e"s/@build_date@/$BUILD_DATE/g" \
