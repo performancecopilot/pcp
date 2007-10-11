@@ -16,7 +16,7 @@ Refer to doc/INSTALL for instructions on building these tools.
 	[x] qa/create-save-view-testcases
 	[x] qa/create-edit-chart-testcases
 	[ ] qa/create-edit-tab-testcases
-	[ ] qa/chart-control-testcases
+	[x] qa/chart-control-testcases
 	[ ] qa/help-system-testcases
 	[ ] qa/export-print-testcases
 	[ ] qa/query-testcases
