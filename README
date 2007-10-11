@@ -13,11 +13,11 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Write interactive QA testcases as each area is checked:
 	[x] qa/record-testcases
 	[x] qa/settings-testcases
-	[x] qa/create-save-view-testcases
-	[x] qa/create-edit-chart-testcases
-	[ ] qa/create-edit-tab-testcases
+	[x] qa/view-create-save-testcases
+	[x] qa/chart-create-edit-testcases
+	[x] qa/tab-create-edit-testcases
 	[x] qa/chart-control-testcases
-	[ ] qa/help-system-testcases
+	[x] qa/help-system-testcases
 	[ ] qa/export-print-testcases
 	[ ] qa/query-testcases
     - Write automated QA for Save View (need a new command line option),
