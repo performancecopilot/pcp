@@ -1,7 +1,6 @@
 BUGS/TODO
 =========
 
-- Zero value used when no data available.
 - Alignment of charts vertically
 - Disabling chart auto-scale and setting limit only updates on next
   chart update (so, if Stopped, doesn't take effect until Playing).

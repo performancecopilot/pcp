@@ -30,6 +30,7 @@
 #include <qmc_metric.h>
 
 class Tab;
+class Curve;
 
 class Chart : public QwtPlot 
 {
@@ -101,7 +102,7 @@ private slots:
 private:
     typedef struct {
 	QmcMetric *metric;
-	QwtPlotCurve *curve;
+	Curve *curve;
 	QString name;
 	char *legend;	// from config
 	QString label;	// as appears in plot legend

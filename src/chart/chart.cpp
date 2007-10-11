@@ -14,6 +14,7 @@
  */
 #include <qmc_desc.h>
 #include "main.h"
+#include "curve.h"
 
 #include <QtCore/QPoint>
 #include <QtCore/QRegExp>
@@ -113,10 +114,14 @@ void Chart::update(bool forward, bool visible, bool available)
 
     for (m = 0; m < my.plots.size(); m++) {
 	Plot *plot = my.plots[m];
-	// TODO: 0 needs to be NaN here, and out plot class needs to grok it
-	double value = available ? plot->metric->value(0) * plot->scale : 0;
-	int sz;
 
+	double value;
+	if (available == false || plot->metric->error(0))
+	    value = Curve::NaN();
+	else
+	    value = plot->metric->value(0);
+
+	int sz;
 	if (plot->dataCount < sh)
 	    sz = qMax(0, (int)(plot->dataCount * sizeof(double)));
 	else
@@ -376,7 +381,7 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
     resetDataArrays(plot, my.tab->sampleHistory());
 
     // create and attach the plot right here
-    plot->curve = new QwtPlotCurve(plot->label);
+    plot->curve = new Curve(plot->label);
     plot->curve->attach(this);
 
     // the 1000 is arbitrary ... just want numbers to be monotonic

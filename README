@@ -26,8 +26,6 @@ Refer to doc/INSTALL for instructions on building these tools.
   kmchart
 
     - Charting issues
-      o No values available is not the same as zero! (plots need to
-	display broken lines - see Qwt mailing list posts)
       o Scaling of the tick marks on the Y-axis is not yet correct,
 	and causes mis-alignment on the unified X-axis.  The disk
 	throughput (bytes) show this up clearly, for example (for
