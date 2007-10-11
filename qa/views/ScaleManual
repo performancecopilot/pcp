@@ -1,0 +1,8 @@
+#kmchart
+version 1
+
+chart style plot
+	plot color #ffff00 metric sample.double.one
+	plot color #0000ff metric sample.double.ten
+chart style plot
+	plot color #ff2247 metric sample.byte_ctr
