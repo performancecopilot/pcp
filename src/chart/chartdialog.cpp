@@ -656,6 +656,7 @@ void ChartDialog::changeChartPlot(Chart *cp, NameSpace *name, int m)
     Chart::Style style = (Chart::Style)(typeComboBox->currentIndex() + 1);
     cp->setStroke(m, style, name->currentColor());
     cp->setLabel(m, name->label());
+    cp->revivePlot(m);
 }
 
 void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)

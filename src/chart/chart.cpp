@@ -456,13 +456,22 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
     return my.plots.size() - 1;
 }
 
+void Chart::revivePlot(int m)
+{
+    console->post("Chart::revivePlot=%d (%d)", m, my.plots[m]->removed);
+
+    if (my.plots[m]->removed) {
+	my.plots[m]->removed = false;
+	my.plots[m]->curve->attach(this);
+    }
+}
+
 void Chart::delPlot(int m)
 {
     console->post("Chart::delPlot plot=%d", m);
 
-    showCurve(my.plots[m]->curve, false);
-    legend()->remove(my.plots[m]->curve);
     my.plots[m]->removed = true;
+    my.plots[m]->curve->detach();
 
     // We can't really do this properly (free memory, etc) - working around
     // metrics class limit (its using an ordinal index for metrics, remove any
