@@ -16,9 +16,7 @@ Refer to doc/INSTALL for instructions on building these tools.
 	[x] qa/create-save-view-testcases
 	[x] qa/create-edit-chart-testcases
 	[ ] qa/create-edit-tab-testcases
-	[ ] qa/chart-testcases
-	[ ] qa/time-control-testcases
-	[ ] qa/timezone-testcases
+	[ ] qa/chart-control-testcases
 	[ ] qa/help-system-testcases
 	[ ] qa/export-print-testcases
 	[ ] qa/query-testcases
@@ -137,12 +135,12 @@ Refer to doc/INSTALL for instructions on building these tools.
 
     - Add the last two missing pieces of functionality from the pmchart
       configuration language - i.e. the "global" and "scheme" keywords.
-    - All uses of Qwt counters/sliders should be replaced since they
-      dont follow style at all (hence look ordinary).  Could try to
-      build on top of the integer based one - mouse movement is going
-      to be in pixels anyway (today, with Qwt), so... can we divy up
-      the time range (double) and map that to pixels.  Would need to
-      track slider width changes to do so, of course (i.e. resize).
+      o The (colour) scheme keyword should also have some additional UI
+	functionality for adding and editing schemes via Settings dialog
+	and for changing the scheme in the New/Edit Chart dialogs (add a
+	combo box on the Chart Tab, with "#-cycle" mapping to "Default").
+      o The global keyword should be accompanied by some Save View dialog
+	code to optionally "Preserve window geometry" (default to On).
     - The Qt-based metrics class needs:
       o Per-context support for pmproxy
       o A hash for metric instance values instead of an array
@@ -166,10 +164,14 @@ Refer to doc/INSTALL for instructions on building these tools.
       initiate new/next searches, with wrap-around to the top.
       The Firefox mechanism is kinda similar - maybe take a closer
       look at that and see if anything can be borrowed from that.
+      Note: Ken has started this - has a bunch of ideas, quickly hit
+      limitations of QTreeWidget (and the advantages of a metric
+      namespace model, as described above, become quite apparent).
     - A Settings dialog entry for Paths:
       o default folio/archive path dirname
-      o default user kmchart config file dirname
-    - Add default folio/archive path dirname to Settings dialog
+      o initial archives to always load?  (might get out of hand;
+	maybe a regex-driven thing to only load last week of data
+	in a pmlogger_daily style archive naming convention?)
     - Desktop integration details - basics are done, but:
       o Gnome/KDE icon files need to be installed correctly;
       o MacOSX icon artwork needs further touch-ups to look good;
