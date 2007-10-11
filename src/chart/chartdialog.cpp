@@ -43,9 +43,6 @@ void ChartDialog::init()
     connect(availableMetricsTreeWidget, SIGNAL(itemSelectionChanged()),
 		this, SLOT(availableMetricsSelectionChanged()));
     connect(availableMetricsTreeWidget,
-		SIGNAL(itemActivated(QTreeWidgetItem *, int)), this,
-		SLOT(availableMetricsItemActivated(QTreeWidgetItem *, int)));
-    connect(availableMetricsTreeWidget,
 		SIGNAL(itemExpanded(QTreeWidgetItem *)), this,
 		SLOT(availableMetricsItemExpanded(QTreeWidgetItem *)));
 
@@ -211,14 +208,6 @@ void ChartDialog::availableMetricsSelectionChanged()
 	if (*(++iterator) != NULL)
 	    my.availableTreeSingleSelected = NULL;	// multiple selections
     enableUI();
-}
-
-void ChartDialog::availableMetricsItemActivated(QTreeWidgetItem *item, int col)
-{
-    console->post(KmChart::DebugUi,
-		 "ChartDialog::availableMetricsItemActivated %p %d", item, col);
-    NameSpace *metricName = (NameSpace *)item;
-    metricName->setExpanded(true);
 }
 
 void ChartDialog::availableMetricsItemExpanded(QTreeWidgetItem *item)
