@@ -293,19 +293,16 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 	my.expanded = true;
     }
 
-    if (!show)
-	QTreeWidgetItem::setExpanded(false);
-
-    for (i = 0; i < nleaf; i++)
-	free(offspring[i]);
-
 done:
     if (pmidlist)
 	free(pmidlist);
     if (leaflist)
 	free(leaflist);
-    if (offspring)
+    if (offspring) {
+	for (i = 0; i < nleaf; i++)
+	    free(offspring[i]);
 	free(offspring);
+    }
     if (status)
 	free(status);
     free(name);
