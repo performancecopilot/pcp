@@ -1529,22 +1529,22 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
-   <class>QColorLuminancePicker</class>
-   <extends>QWidget</extends>
-   <header>qcolorpicker.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QColorShowLabel</class>
-   <extends>QFrame</extends>
-   <header>qcolorpicker.h</header>
-  </customwidget>
-  <customwidget>
    <class>QColSpinBox</class>
    <extends>QSpinBox</extends>
    <header>qcolorpicker.h</header>
   </customwidget>
   <customwidget>
+   <class>QColorLuminancePicker</class>
+   <extends>QWidget</extends>
+   <header>qcolorpicker.h</header>
+  </customwidget>
+  <customwidget>
    <class>QColorPicker</class>
+   <extends>QFrame</extends>
+   <header>qcolorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QColorShowLabel</class>
    <extends>QFrame</extends>
    <header>qcolorpicker.h</header>
   </customwidget>
@@ -1797,6 +1797,22 @@
     <hint type="sourcelabel" >
      <x>471</x>
      <y>295</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>302</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>metricSearchButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>metricSearchButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>303</x>
+     <y>118</y>
     </hint>
     <hint type="destinationlabel" >
      <x>302</x>

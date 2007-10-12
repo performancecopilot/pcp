@@ -918,7 +918,7 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 	    if (b == 0) {
 		n = new NameSpace(treeview, context, isArch);
 		n->expand();
-	        n->setExpanded(true);
+	        n->setExpanded(true, true);
 		n->setSelectable(false);
 	    }
 	    else {
@@ -930,7 +930,7 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 		    n->setCurrentColor(color, NULL);
 		}
 		n->expand();
-	        n->setExpanded(!isLeaf);
+	        n->setExpanded(!isLeaf, true);
 		n->setSelectable(isLeaf);
 		if (!isLeaf)
 		    n->setType(NameSpace::NonLeafName);

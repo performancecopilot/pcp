@@ -16,11 +16,14 @@
 
 #include "ui_kmchart.h"
 #include <kmtime.h>
+
 class TimeAxis;
+class NameSpace;
 class TabDialog;
 class InfoDialog;
 class ChartDialog;
 class ExportDialog;
+class SearchDialog;
 class OpenViewDialog;
 class SaveViewDialog;
 class SettingsDialog;
@@ -61,6 +64,7 @@ public:
     virtual void updateHeight(int);
     virtual void createNewChart(Chart::Style style);
     virtual void metricInfo(QString src, QString m, QString inst, bool archive);
+    virtual void metricSearch(QTreeWidget *pmns);
     virtual void createNewTab(bool liveMode);
     virtual QTabWidget *tabWidget();
     virtual void setActiveTab(int index, bool redisplay);
@@ -132,6 +136,7 @@ private:
 	TabDialog *newtab;
 	TabDialog *edittab;
 	InfoDialog *info;
+	SearchDialog *search;
 	ChartDialog *newchart;
 	ChartDialog *editchart;
 	ExportDialog *exporter;

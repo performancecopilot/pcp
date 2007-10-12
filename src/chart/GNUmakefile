@@ -6,9 +6,9 @@ PROJECT = $(COMMAND).pro
 QRCFILE = $(COMMAND).qrc
 UIFILES = $(shell echo *.ui)
 HEADERS = aboutdialog.h chartdialog.h colorbutton.h hostdialog.h infodialog.h \
-	  kmchart.h recorddialog.h seealsodialog.h settingsdialog.h \
-	  tabdialog.h chart.h curve.h main.h namespace.h qcolorpicker.h \
-	  tab.h timeaxis.h timecontrol.h
+	  kmchart.h recorddialog.h seealsodialog.h searchdialog.h \
+	  settingsdialog.h tabdialog.h chart.h curve.h main.h namespace.h \
+	  qcolorpicker.h tab.h timeaxis.h timecontrol.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
 
 LSRCFILES = $(PROJECT) $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES)

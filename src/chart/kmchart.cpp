@@ -30,6 +30,7 @@
 #include "infodialog.h"
 #include "openviewdialog.h"
 #include "recorddialog.h"
+#include "searchdialog.h"
 #include "saveviewdialog.h"
 #include "seealsodialog.h"
 #include "settingsdialog.h"
@@ -91,6 +92,7 @@ void KmChart::setupDialogs(void)
 	return;
 
     my.info = new InfoDialog(this);
+    my.search = new SearchDialog(this);
     my.newtab = new TabDialog(this);
     my.edittab = new TabDialog(this);
     my.exporter = new ExportDialog(this);
@@ -479,6 +481,12 @@ void KmChart::metricInfo(QString src, QString m, QString inst, bool archive)
 {
     my.info->reset(src, m, inst, archive);
     my.info->show();
+}
+
+void KmChart::metricSearch(QTreeWidget *pmns)
+{
+    my.search->reset(pmns);
+    my.search->show();
 }
 
 void KmChart::editTab()

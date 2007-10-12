@@ -27,6 +27,8 @@
 #include "console.h"
 #include "chart.h"
 
+#define DESPERATE 0
+
 NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
     : QTreeWidgetItem(parent, QTreeWidgetItem::UserType)
 {
@@ -128,12 +130,14 @@ QString NameSpace::metricInstance()
     return QString::null;
 }
 
-void NameSpace::setExpanded(bool expand)
+void NameSpace::setExpanded(bool expand, bool show)
 {
-    console->post(KmChart::DebugUi,
-		  "NameSpace::setExpanded on %p %s (expanded=%s, expand=%s)",
+#if DESPERATE
+    console->post(KmChart::DebugUi, "NameSpace::setExpanded "
+		  "on %p %s (expanded=%s, expand=%s, show=%s)",
 		  this, (const char *)metricName().toAscii(),
-		  my.expanded ? "y" : "n", expand ? "y" : "n");
+		  my.expanded? "y" : "n", expand? "y" : "n", show? "y" : "n");
+#endif
 
     if (expand && !my.expanded) {
 	NameSpace *kid = (NameSpace *)child(0);
@@ -146,14 +150,15 @@ void NameSpace::setExpanded(bool expand)
 	pmUseContext(my.context->handle());
  
 	if (my.type == LeafWithIndom)
-	    expandInstanceNames();
+	    expandInstanceNames(show);
 	else if (my.type != InstanceName) {
-	    expandMetricNames(isRoot() ? "" : metricName());
+	    expandMetricNames(isRoot() ? "" : metricName(), show);
 	    sortChildren(0, Qt::AscendingOrder);
 	}
     }
 
-    QTreeWidgetItem::setExpanded(expand);
+    if (show)
+	QTreeWidgetItem::setExpanded(expand);
 }
 
 void NameSpace::setSelectable(bool selectable)
@@ -191,7 +196,7 @@ static char *namedup(const char *name, const char *suffix)
     return n;
 }
 
-void NameSpace::expandMetricNames(QString parent)
+void NameSpace::expandMetricNames(QString parent, bool show)
 {
     char	**offspring = NULL;
     int		*status = NULL;
@@ -281,6 +286,10 @@ void NameSpace::expandMetricNames(QString parent)
 	}
 	my.expanded = true;
     }
+
+    if (!show)
+	QTreeWidgetItem::setExpanded(false);
+
     for (i = 0; i < nleaf; i++)
 	free(offspring[i]);
 
@@ -296,7 +305,7 @@ done:
     free(name);
 }
 
-void NameSpace::expandInstanceNames()
+void NameSpace::expandInstanceNames(bool show)
 {
     int		sts, i;
     int		ninst = 0;
@@ -390,10 +399,10 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
 	NameSpace *up;
 	for (up = tree; up->my.back != up; up = up->my.back) {
 	    up->expand();
-	    up->setExpanded(true);
+	    up->setExpanded(true, true);
 	}
 	up->expand();
-	up->setExpanded(true);	// add the host/archive root as well.
+	up->setExpanded(true, true);	// add the host/archive root as well.
 
 	n->setSelected(true);
     }

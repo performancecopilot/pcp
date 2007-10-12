@@ -39,9 +39,9 @@ void ChartDialog::init()
     my.chartTreeSingleSelected = NULL;
     my.availableTreeSingleSelected = NULL;
     connect(chartMetricsTreeWidget, SIGNAL(itemSelectionChanged()),
-		this, SLOT(chartMetricsSelectionChanged()));
+		this, SLOT(chartMetricsItemSelectionChanged()));
     connect(availableMetricsTreeWidget, SIGNAL(itemSelectionChanged()),
-		this, SLOT(availableMetricsSelectionChanged()));
+		this, SLOT(availableMetricsItemSelectionChanged()));
     connect(availableMetricsTreeWidget,
 		SIGNAL(itemExpanded(QTreeWidgetItem *)), this,
 		SLOT(availableMetricsItemExpanded(QTreeWidgetItem *)));
@@ -118,11 +118,12 @@ void ChartDialog::enableUI()
 	((NameSpace *)my.chartTreeSingleSelected)->metricName() : tr(""));
     availableMetricLineEdit->setText(my.availableTreeSingleSelected ?
 	((NameSpace *)my.availableTreeSingleSelected)->metricName() : tr(""));
-    metricInfoButton->setEnabled(	// there can be only one
+    metricInfoButton->setEnabled(	// there can be only one source
 	(my.availableTreeSingleSelected && !my.chartTreeSingleSelected) ||
 	(!my.availableTreeSingleSelected && my.chartTreeSingleSelected));
     metricDeleteButton->setEnabled(my.chartTreeSelected);
     metricAddButton->setEnabled(my.availableTreeSelected);
+    metricSearchButton->setEnabled(true);
 
     revertColorButton->setEnabled(my.chartTreeSingleSelected != NULL);
     applyColorButton->setEnabled(my.chartTreeSingleSelected != NULL);
@@ -188,7 +189,7 @@ Chart *ChartDialog::chart()
     return my.chart;
 }
 
-void ChartDialog::chartMetricsSelectionChanged()
+void ChartDialog::chartMetricsItemSelectionChanged()
 {
     QTreeWidgetItemIterator iterator(chartMetricsTreeWidget,
 					QTreeWidgetItemIterator::Selected);
@@ -199,7 +200,7 @@ void ChartDialog::chartMetricsSelectionChanged()
     enableUI();
 }
 
-void ChartDialog::availableMetricsSelectionChanged()
+void ChartDialog::availableMetricsItemSelectionChanged()
 {
     QTreeWidgetItemIterator iterator(availableMetricsTreeWidget,
 					QTreeWidgetItemIterator::Selected);
@@ -215,7 +216,7 @@ void ChartDialog::availableMetricsItemExpanded(QTreeWidgetItem *item)
     console->post(KmChart::DebugUi,
 		 "ChartDialog::availableMetricsItemExpanded %p", item);
     NameSpace *metricName = (NameSpace *)item;
-    metricName->setExpanded(true);
+    metricName->setExpanded(true, true);
 }
 
 void ChartDialog::metricInfoButtonClicked()
@@ -234,6 +235,11 @@ void ChartDialog::metricDeleteButtonClicked()
 	NameSpace *name = (NameSpace *)(*iterator);
 	name->removeFromTree(chartMetricsTreeWidget);
     }
+}
+
+void ChartDialog::metricSearchButtonClicked()
+{
+    kmchart->metricSearch(availableMetricsTreeWidget);
 }
 
 void ChartDialog::metricAddButtonClicked()
@@ -544,7 +550,7 @@ void ChartDialog::setupAvailableMetricsTree(bool arch)
     for (unsigned int i = 0; i < group->numContexts(); i++) {
 	QmcContext *cp = group->context(i);
 	NameSpace *name = new NameSpace(availableMetricsTreeWidget, cp, arch);
-	name->setExpanded(true);
+	name->setExpanded(true, true);
 	name->setSelectable(false);
 	availableMetricsTreeWidget->addTopLevelItem(name);
 	if (i == group->contextIndex())

@@ -43,7 +43,7 @@ public:
     QIcon icon(int) const;
     void setIcon(int, const QIcon &);
     void expand() { my.expanded = true; }
-    void setExpanded(bool expanded);
+    void setExpanded(bool expanded, bool show);
 
     pmDesc desc() const { return my.desc; }
     QString sourceName();
@@ -53,7 +53,9 @@ public:
 
     void setType(Type type) { my.type = type; }
     bool isRoot() { return my.type == HostRoot || my.type == ArchiveRoot; }
-    bool isLeaf() { return my.type == InstanceName||my.type == LeafNullIndom; }
+    bool isLeaf() { return my.type == InstanceName || my.type == LeafNullIndom; }
+    bool isMetric() { return my.type == LeafWithIndom || my.type == LeafNullIndom; }
+    bool isNonLeaf() { return my.type == HostRoot || my.type == ArchiveRoot || my.type == NonLeafName; }
     bool isInst() { return my.type == InstanceName; }
     bool isChildMinder() { return my.type == ChildMinder; }
     bool isArchiveMode() { return my.isArchive; }
@@ -73,8 +75,8 @@ public:
     void setExpandable(bool expandable);
 
 private:
-    void expandMetricNames(QString);
-    void expandInstanceNames();
+    void expandMetricNames(QString, bool);
+    void expandInstanceNames(bool);
     QString sourceTip();
 
     bool cmp(NameSpace *);
