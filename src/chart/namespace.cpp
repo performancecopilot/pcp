@@ -208,6 +208,8 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 
     sts = pmGetChildrenStatus(name, &offspring, &status);
     if (sts < 0) {
+	if (!show)
+	    goto done;
 	QString msg = QString();
 	if (isRoot())
 	    msg.sprintf("Cannot get metric names from source\n%s: %s.\n\n",
@@ -251,6 +253,8 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 
     pmidlist = (pmID *)malloc(nleaf * sizeof(*pmidlist));
     if ((sts = pmLookupName(nleaf, offspring, pmidlist)) < 0) {
+	if (!show)
+	    goto done;
 	QString msg = QString();
 	msg.sprintf("Cannot find PMIDs for \"%s\".\n%s.\n\n",
 		name, pmErrStr(sts));
@@ -264,6 +268,8 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 	    m = leaflist[i];
 	    sts = pmLookupDesc(pmidlist[i], &m->my.desc);
 	    if (sts < 0) {
+		if (!show)
+		    goto done;
 		QString msg = QString();
 		msg.sprintf("Cannot find metric descriptor at \"%s\".\n%s.\n\n",
 			offspring[i], pmErrStr(sts));
@@ -315,6 +321,8 @@ void NameSpace::expandInstanceNames(bool show)
     sts = !my.isArchive ? pmGetInDom(my.desc.indom, &instlist, &namelist) :
 		pmGetInDomArchive(my.desc.indom, &instlist, &namelist);
     if (sts < 0) {
+	if (!show)
+	    goto done;
 	QString msg = QString();
 	msg.sprintf("Error fetching instance domain at node \"%s\".\n%s.\n\n",
 		(const char *)metricName().toAscii(), pmErrStr(sts));
@@ -335,6 +343,7 @@ void NameSpace::expandInstanceNames(bool show)
 	m->setSelectable(true);
     }
 
+done:
     if (instlist)
 	free(instlist);
     if (namelist)
