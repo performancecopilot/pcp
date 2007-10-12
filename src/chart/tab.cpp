@@ -512,7 +512,7 @@ void Tab::adjustArchiveWorldViewStop(KmTime::Packet *packet, bool needFetch)
 // in position.  This happens when we restart after a stop in live
 // mode (both with and without a change in the delta).
 //
-static bool sideStep(struct timeval n, struct timeval o, struct timeval delta)
+static bool sideStep(struct timeval, struct timeval, struct timeval)
 {
     // thinks needs deeper thought / a rework, triggering too often atm
     // and adjustLiveWorldView isn't correct yet either, making it worse
