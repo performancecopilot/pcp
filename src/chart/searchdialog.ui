@@ -1,6 +1,9 @@
 <ui version="4.0" >
  <class>SearchDialog</class>
  <widget class="QDialog" name="SearchDialog" >
+  <property name="windowModality" >
+   <enum>Qt::WindowModal</enum>
+  </property>
   <property name="geometry" >
    <rect>
     <x>0</x>
