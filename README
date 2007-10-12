@@ -12,6 +12,7 @@ Refer to doc/INSTALL for instructions on building these tools.
 
     - Write interactive QA testcases as each area is checked:
 	[x] qa/record-testcases
+	[x] qa/search-testcases
 	[x] qa/settings-testcases
 	[x] qa/view-create-save-testcases
 	[x] qa/chart-create-edit-testcases
@@ -32,8 +33,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 	functionality for adding and editing schemes via Settings dialog
 	and for changing the scheme in the New/Edit Chart dialogs (add a
 	combo box on the Chart Tab, with "#-cycle" mapping to "Default").
-      o The global keyword should be accompanied by some Save View dialog
-	code to optionally "Preserve window geometry" (default to On).
 
     - Charting issues
       o Scaling of the tick marks on the Y-axis is not yet correct,
@@ -50,8 +49,6 @@ Refer to doc/INSTALL for instructions on building these tools.
       o Bounds broken sometimes - thinks range is 1970-2038 (min-max)
 
     - New/Edit Chart Dialog
-      o Double click on Available Metric tree names does not expand a
-	compressed tree (but works fine for Chart Plots tree).
       o Check selected metrics are valid to plot together before adding
 	plots to new/existing charts.
 	- Ken's algorithm:
@@ -142,15 +139,9 @@ Refer to doc/INSTALL for instructions on building these tools.
 === Wishlist TODO items ===
 
     - The Qt-based metrics class needs:
-      o Per-context support for pmproxy
       o A hash for metric instance values instead of an array
 	(to support delete, and better support of dynamic indoms)
-    - Make a model (ala. QDirModel) for metric namespace (QmcMetricModel
-      or QmcNameSpaceModel?).  Maybe add an (editable) column for labels
-      then (and colors, and...?)
-    - Use QCompleter class in all file dialog file name line edits.
-    - Use QCompleter class on QmcMetricModel?  (for metric selector)
-    - Merge chart/source.* and libqmc/qmc_* code.
+      o Per-context support for pmproxy
     - pmproxy support is far from complete:
       . Need libpcp changes (new interfaces) to abstract out the code
 	which has a one-trip guard on testing/setting PMPROXY_HOST env
@@ -158,11 +149,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 	proxies).
       . Need Qmc support for these interfaces instead of existing code.
       . Need to audit kmchart, see all PMPROXY TODOs in the code.
-    - A Settings dialog entry for Paths:
-      o default folio/archive path dirname
-      o initial archives to always load?  (might get out of hand;
-	maybe a regex-driven thing to only load last week of data
-	in a pmlogger_daily style archive naming convention?)
     - Desktop integration details - basics are done, but:
       o Gnome/KDE icon files need to be installed correctly;
       o MacOSX icon artwork needs further touch-ups to look good;
