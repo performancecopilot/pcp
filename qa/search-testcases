@@ -19,11 +19,6 @@ Search Dialog for Metric Selection
     - type Alt-S
     Results should always be the same ... sample.bigid and the 9 instances
     of the sample.bin metric
-    In live mode, the first search will see an Unknown or illegal
-    metric identifier pop up warning twice for the sample.bad.unknown
-    and sampledso.bad.unknown metrics ... this is expected as we're
-    populating the namespace and fetching descriptors behind the scenes
-    ... click OK in each case.
 
 [ ] Test the selection behaviour for the matched metrics
     - Select All button
@@ -47,9 +42,6 @@ Search Dialog for Metric Selection
     - Select All, Search and OK buttons disabled
 
 [ ] In the Instance Name Pattern, enter ^bin-[0-5]..$ then click Search.
-    For archive mode, you will see a popup warning about the instance
-    domain for the sample.dynamic.* and sample.needprofile metrics
-    ... this is expected, just click OK..
     Expect 40 matches for the instance names bin-100 to bin-500 for the
     8 metrics (.bin .bogus_bin .bucket and .part_bin for the sample and
     sampledso pmdas)
