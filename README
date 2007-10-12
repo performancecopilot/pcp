@@ -119,7 +119,8 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Incorporate a Tutorial into online Help
     - Tooltips need to be added across the board.
 
-    - Destructors and memory leak plugging
+    - We seem to leak kmtime processes sometimes.
+    - Destructors and memory leak plugging.
     - Code audit for TODOs; either fix, exception or add to wishlist.
     - QA test audit for TODOs; either fix, exception or add to wishlist.
     - Need toolbar icons for: Close Chart, Save View, Query & Stop Record,
