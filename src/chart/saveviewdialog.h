@@ -26,7 +26,7 @@ public:
     ~SaveViewDialog();
     void reset();
 
-    static bool saveView(QString, bool);
+    static bool saveView(QString, bool, bool);
 
 public slots:
     virtual void parentToolButton_clicked();
@@ -37,12 +37,14 @@ public slots:
     virtual void dirListView_activated(const QModelIndex &);
 
     virtual void preserveHostCheckBox_toggled(bool);
+    virtual void preserveSizeCheckBox_toggled(bool);
     virtual void savePushButton_clicked();
 
 private:
     struct {
 	QString userDir;
 	bool hostDynamic;	// on-the-fly or explicit-hostnames-in-view
+	bool sizeDynamic;	// on-the-fly or explicit-geometry-in-view
 	QDirModel *dirModel;
 	QModelIndex dirIndex;
 	QCompleter *completer;

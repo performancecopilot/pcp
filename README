@@ -25,6 +25,16 @@ Refer to doc/INSTALL for instructions on building these tools.
 
   kmchart
 
+    - Views
+      Add the last two missing pieces of functionality from the pmchart
+      configuration language - i.e. the "global" and "scheme" keywords:
+      o The (colour) scheme keyword should also have some additional UI
+	functionality for adding and editing schemes via Settings dialog
+	and for changing the scheme in the New/Edit Chart dialogs (add a
+	combo box on the Chart Tab, with "#-cycle" mapping to "Default").
+      o The global keyword should be accompanied by some Save View dialog
+	code to optionally "Preserve window geometry" (default to On).
+
     - Charting issues
       o Scaling of the tick marks on the Y-axis is not yet correct,
 	and causes mis-alignment on the unified X-axis.  The disk
@@ -131,14 +141,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 
 === Wishlist TODO items ===
 
-    - Add the last two missing pieces of functionality from the pmchart
-      configuration language - i.e. the "global" and "scheme" keywords.
-      o The (colour) scheme keyword should also have some additional UI
-	functionality for adding and editing schemes via Settings dialog
-	and for changing the scheme in the New/Edit Chart dialogs (add a
-	combo box on the Chart Tab, with "#-cycle" mapping to "Default").
-      o The global keyword should be accompanied by some Save View dialog
-	code to optionally "Preserve window geometry" (default to On).
     - The Qt-based metrics class needs:
       o Per-context support for pmproxy
       o A hash for metric instance values instead of an array
@@ -156,15 +158,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 	proxies).
       . Need Qmc support for these interfaces instead of existing code.
       . Need to audit kmchart, see all PMPROXY TODOs in the code.
-    - Rethink searching in New/Edit Chart dialogs - could be done by
-      making the (gray background) text box double as a search text
-      entry point.  Something like vi's /<pattern> key sequence to
-      initiate new/next searches, with wrap-around to the top.
-      The Firefox mechanism is kinda similar - maybe take a closer
-      look at that and see if anything can be borrowed from that.
-      Note: Ken has started this - has a bunch of ideas, quickly hit
-      limitations of QTreeWidget (and the advantages of a metric
-      namespace model, as described above, become quite apparent).
     - A Settings dialog entry for Paths:
       o default folio/archive path dirname
       o initial archives to always load?  (might get out of hand;

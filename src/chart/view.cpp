@@ -538,7 +538,6 @@ abort_chart:
 	    }
 	    else if (strcasecmp(w, "global") == 0) {
 		//
-		// *** KMCHART 1.0 EXCEPTION: ***
 		// TODO -- global is an alternative clause to Chart at
 		// this point in the config file ... no support for global
 		// options to set: "width", "height", "points" (visible)
@@ -548,7 +547,6 @@ abort_chart:
 	    }
 	    else if (strcasecmp(w, "scheme") == 0) {
 		//
-		// *** KMCHART 1.0 EXCEPTION: ***
 		// TODO -- scheme <name> <color> <color>...
 		// provides finer-grained control over the color selections
 		// for an individual chart.  The default color scheme is
@@ -960,7 +958,7 @@ abandon:
     return true;
 }
 
-bool SaveViewDialog::saveView(QString filename, bool dynamic)
+bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
 {
     FILE	*f;
     int		c;
@@ -972,7 +970,10 @@ bool SaveViewDialog::saveView(QString filename, bool dynamic)
     bool	autoscale;
     double	ymin;
     double	ymax;
-    const char	*path = (const char *)filename.toAscii();
+    const char	*path = (const char *)file.toAscii();
+
+    // TODO: sizeDynamic - needs "global" + "width", "height", "points"
+    (void)sizeDynamic;
 
     if ((f = fopen(path, "w")) == NULL) {
 	QString	msg;
@@ -1022,7 +1023,7 @@ bool SaveViewDialog::saveView(QString filename, bool dynamic)
 	    if (p != NULL)
 		fprintf(f, " legend \"%s\"", p);
 	    fprintf(f, " color %s", (const char *)cp->color(m).name().toAscii());
-	    if (!dynamic)
+	    if (hostDynamic == false)
 		fprintf(f, " host %s", (const char *)
 			cp->metricContext(m)->source().host().toAscii());
 	    p = (char *)(const char *)cp->name(m).toAscii();

@@ -154,9 +154,14 @@ void SaveViewDialog::preserveHostCheckBox_toggled(bool hostPreserve)
     my.hostDynamic = (hostPreserve == false);
 }
 
+void SaveViewDialog::preserveSizeCheckBox_toggled(bool sizePreserve)
+{
+    my.sizeDynamic = (sizePreserve == false);
+}
+
 bool SaveViewDialog::saveViewFile(const QString &filename)
 {
-    return saveView(filename, my.hostDynamic);
+    return saveView(filename, my.hostDynamic, my.sizeDynamic);
 }
 
 void SaveViewDialog::savePushButton_clicked()

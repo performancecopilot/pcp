@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>406</width>
-    <height>241</height>
+    <width>414</width>
+    <height>260</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -26,57 +26,66 @@
     <number>6</number>
    </property>
    <item row="2" column="0" >
-    <layout class="QGridLayout" >
+    <layout class="QHBoxLayout" >
      <property name="margin" >
       <number>0</number>
      </property>
      <property name="spacing" >
       <number>6</number>
      </property>
-     <item row="1" column="0" colspan="3" >
-      <widget class="QCheckBox" name="preserveHostCheckBox" >
-       <property name="layoutDirection" >
-        <enum>Qt::LeftToRight</enum>
+     <item>
+      <widget class="QLabel" name="fileNameLabel" >
+       <property name="minimumSize" >
+        <size>
+         <width>60</width>
+         <height>20</height>
+        </size>
        </property>
        <property name="text" >
-        <string>Preserve hostname in View</string>
+        <string>Filename:</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="3" >
-      <widget class="QPushButton" name="cancelButton" >
-       <property name="text" >
-        <string>Cancel</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" >
+     <item>
       <widget class="QLineEdit" name="fileNameLineEdit" />
      </item>
-     <item row="0" column="0" >
-      <widget class="QLabel" name="fileNameLabel" >
-       <property name="text" >
-        <string>File:</string>
-       </property>
-       <property name="alignment" >
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3" >
-      <widget class="QPushButton" name="savePushButton" >
-       <property name="text" >
-        <string>Save</string>
-       </property>
-       <property name="autoDefault" >
-        <bool>false</bool>
-       </property>
-       <property name="default" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
     </layout>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QListView" name="dirListView" >
+     <property name="font" >
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="selectionMode" >
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="iconSize" >
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="flow" >
+      <enum>QListView::TopToBottom</enum>
+     </property>
+     <property name="isWrapping" stdset="0" >
+      <bool>true</bool>
+     </property>
+     <property name="resizeMode" >
+      <enum>QListView::Adjust</enum>
+     </property>
+     <property name="gridSize" >
+      <size>
+       <width>150</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="uniformItemSizes" >
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="0" column="0" >
     <layout class="QHBoxLayout" >
@@ -88,14 +97,6 @@
      </property>
      <item>
       <widget class="QLabel" name="pathLabel" >
-       <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>0</hsizetype>
-         <vsizetype>0</vsizetype>
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="minimumSize" >
         <size>
          <width>60</width>
@@ -116,7 +117,7 @@
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeType" >
-        <enum>QSizePolicy::Fixed</enum>
+        <enum>QSizePolicy::MinimumExpanding</enum>
        </property>
        <property name="sizeHint" >
         <size>
@@ -215,41 +216,88 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0" >
-    <widget class="QListView" name="dirListView" >
-     <property name="font" >
-      <font>
-       <pointsize>10</pointsize>
-      </font>
+   <item row="3" column="0" >
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
      </property>
-     <property name="selectionMode" >
-      <enum>QAbstractItemView::SingleSelection</enum>
+     <property name="spacing" >
+      <number>6</number>
      </property>
-     <property name="iconSize" >
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="flow" >
-      <enum>QListView::TopToBottom</enum>
-     </property>
-     <property name="isWrapping" stdset="0" >
-      <bool>true</bool>
-     </property>
-     <property name="resizeMode" >
-      <enum>QListView::Adjust</enum>
-     </property>
-     <property name="gridSize" >
-      <size>
-       <width>150</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="uniformItemSizes" >
-      <bool>true</bool>
-     </property>
-    </widget>
+     <item>
+      <layout class="QVBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QCheckBox" name="preserveHostCheckBox" >
+         <property name="layoutDirection" >
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text" >
+          <string>Preserve hostname in View</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="preserveSizeCheckBox" >
+         <property name="text" >
+          <string>Preserve window size in View</string>
+         </property>
+         <property name="checked" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>101</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="savePushButton" >
+         <property name="text" >
+          <string>Save</string>
+         </property>
+         <property name="autoDefault" >
+          <bool>false</bool>
+         </property>
+         <property name="default" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="cancelButton" >
+         <property name="text" >
+          <string>Cancel</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -398,6 +446,22 @@
     <hint type="destinationlabel" >
      <x>202</x>
      <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>preserveSizeCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>SaveViewDialog</receiver>
+   <slot>preserveSizeCheckBox_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>110</x>
+     <y>233</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>206</x>
+     <y>129</y>
     </hint>
    </hints>
   </connection>
