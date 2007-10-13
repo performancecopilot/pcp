@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>606</width>
+    <width>612</width>
     <height>427</height>
    </rect>
   </property>
@@ -85,7 +85,7 @@
             <number>6</number>
            </property>
            <item row="2" column="1" >
-            <widget class="QComboBox" name="colorSchemeCbomboBox" >
+            <widget class="QComboBox" name="colorSchemeComboBox" >
              <item>
               <property name="text" >
                <string>Default Scheme</string>
@@ -405,6 +405,22 @@
                    <bool>true</bool>
                   </property>
                  </widget>
+                </item>
+                <item>
+                 <spacer>
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType" >
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" >
+                   <size>
+                    <width>16</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                 <item>
                  <widget class="QRadioButton" name="autoScaleOff" >
@@ -1484,16 +1500,6 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
-   <class>QColSpinBox</class>
-   <extends>QSpinBox</extends>
-   <header>qcolorpicker.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QColorLuminancePicker</class>
-   <extends>QWidget</extends>
-   <header>qcolorpicker.h</header>
-  </customwidget>
-  <customwidget>
    <class>QColorPicker</class>
    <extends>QFrame</extends>
    <header>qcolorpicker.h</header>
@@ -1506,6 +1512,16 @@
   <customwidget>
    <class>QColLineEdit</class>
    <extends>QLineEdit</extends>
+   <header>qcolorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QColSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>qcolorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QColorLuminancePicker</class>
+   <extends>QWidget</extends>
    <header>qcolorpicker.h</header>
   </customwidget>
  </customwidgets>
@@ -1768,6 +1784,22 @@
     <hint type="sourcelabel" >
      <x>303</x>
      <y>118</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>302</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorSchemeComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>colorSchemeComboBox_currentIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>464</x>
+     <y>131</y>
     </hint>
     <hint type="destinationlabel" >
      <x>302</x>

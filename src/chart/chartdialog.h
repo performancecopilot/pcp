@@ -71,6 +71,7 @@ public slots:
     virtual void rgbEd();
     virtual void hsvEd();
     virtual void plotLabelLineEdit_editingFinished();
+    virtual void colorSchemeComboBox_currentIndexChanged(int);
 
 signals:
     void newCol(QRgb);

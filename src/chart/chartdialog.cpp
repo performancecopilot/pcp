@@ -684,3 +684,7 @@ void ChartDialog::deleteChartPlot(Chart *cp, int m)
 {
     cp->delPlot(m);
 }
+
+void ChartDialog::colorSchemeComboBox_currentIndexChanged(int)
+{
+}
