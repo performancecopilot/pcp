@@ -244,13 +244,17 @@ bool OpenViewDialog::openView(const char *path)
     int			mode = M_UNKNOWN;
     int			h_mode;
     int			version;
-    QString		errmsg = QString();
-    int			sts = 0;	// pander to g++
+    QString		errmsg;
+    int			sts = 0;
 
     if (strcmp(path, "-") == 0) {
-	// standard input
 	f = stdin;
 	strcpy(_fname, "stdin");
+    }
+    else if (path[0] == '/') {
+	strcpy(_fname, path);
+	if ((f = fopen(_fname, "r")) == NULL)
+	    goto noview;
     }
     else {
 	strcpy(_fname, path);
@@ -275,14 +279,8 @@ bool OpenViewDialog::openView(const char *path)
 			strcpy(_fname, pmGetConfig("PCP_VAR_DIR"));
 			strcat(_fname, "/config/pmchart/");
 			strcat(_fname, path);
-			if ((f = fopen(_fname, "r")) == NULL) {
-			    QString	msg = QString("Cannot open view file \"");
-			    msg.append(_fname);
-			    msg.append("\"\n");
-			    msg.append(strerror(errno));
-			    err(E_CRIT, false, msg);
-			    return false;
-			}
+			if ((f = fopen(_fname, "r")) == NULL)
+			    goto noview;
 		    }
 		}
 	    }
@@ -293,12 +291,8 @@ bool OpenViewDialog::openView(const char *path)
 	    char	cmd[MAXPATHLEN];
 	    sprintf(cmd, "%s", _fname);
 	    fclose(f);
-	    if ((f = popen(cmd, "r")) == NULL) {
-		QString	msg;
-		msg.sprintf("Cannot execute \"%s\"\n%s", _fname, strerror(errno));
-		err(E_CRIT, false, msg);
-		return false;
-	    }
+	    if ((f = popen(cmd, "r")) == NULL)
+		goto nopipe;
 	    is_popen = 1;
 	}
 	else {
@@ -956,6 +950,19 @@ abandon:
     if (Cflag == 0 && cp != NULL)
 	activeTab->setupWorldView();
     return true;
+
+noview:
+    errmsg = QString("Cannot open view file \"");
+    errmsg.append(_fname);
+    errmsg.append("\"\n");
+    errmsg.append(strerror(errno));
+    err(E_CRIT, false, errmsg);
+    return false;
+
+nopipe:
+    errmsg.sprintf("Cannot execute \"%s\"\n%s", _fname, strerror(errno));
+    err(E_CRIT, false, errmsg);
+    return false;
 }
 
 bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
