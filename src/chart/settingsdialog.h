@@ -25,8 +25,12 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog
 public:
     SettingsDialog(QWidget* parent);
 
-    virtual void reset();
-    virtual void flush();
+    void reset();
+    void flush();
+
+    void newScheme();
+    int setScheme(int);
+    int setScheme(QString);
 
 public slots:
     virtual void buttonOk_clicked();

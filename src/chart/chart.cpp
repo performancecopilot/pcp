@@ -35,17 +35,6 @@
 
 #define DESPERATE 0
 
-// default colors for #-cycle in views and metric selection
-QColor Chart::defaultColor(int seq)
-{
-    static int count;
-
-    if (seq < 0)
-	seq = count++;
-    seq %= globalSettings.defaultColors.count();
-    return globalSettings.defaultColors[seq];
-}
-
 Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -68,6 +57,8 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent)
     my.title = NULL;
     my.autoScale = true;
     my.style = NoStyle;
+    my.scheme = QString::null;
+    my.sequence = 0;
     my.yMin = -1;
     my.yMax = -1;
     my.picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
@@ -394,7 +385,7 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
     plot->removed = false;
 
     // set the prevailing chart style and the default color
-    setStroke(plot, my.style, defaultColor(my.plots.size() - 1));
+    setStroke(plot, my.style, nextColor(my.scheme, &my.sequence));
 
     fixLegendPen();
 
@@ -554,6 +545,27 @@ void Chart::changeTitle(char *title, int expand)
 void Chart::changeTitle(QString title, int expand)
 {
     changeTitle((char *)(const char *)title.toAscii(), expand);
+}
+
+QString Chart::scheme()
+{
+    return my.scheme;
+}
+
+void Chart::setScheme(QString scheme)
+{
+    my.sequence = 0;
+    my.scheme = scheme;
+}
+
+int Chart::sequence()
+{
+    return my.sequence;
+}
+
+void Chart::setSequence(int sequence)
+{
+    my.sequence = sequence;
 }
 
 Chart::Style Chart::style()

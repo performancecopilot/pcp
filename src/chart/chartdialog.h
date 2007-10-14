@@ -24,7 +24,7 @@ public:
     ChartDialog(QWidget* parent);
 
     virtual void init();
-    virtual void reset(Chart *, int);
+    virtual void reset(Chart *, int, QString);
     virtual void enableUI();
     virtual Chart *chart(void);
     virtual QString title(void);

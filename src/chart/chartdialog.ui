@@ -91,6 +91,11 @@
                <string>Default Scheme</string>
               </property>
              </item>
+             <item>
+              <property name="text" >
+               <string>New Scheme...</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item row="1" column="1" >

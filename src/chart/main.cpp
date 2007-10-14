@@ -176,9 +176,19 @@ void writeSettings(void)
 	userSettings.setValue("sampleHistory", globalSettings.sampleHistory);
     if (globalSettings.visibleHistoryModified)
 	userSettings.setValue("visibleHistory", globalSettings.visibleHistory);
-    if (globalSettings.defaultColorsModified)
-	userSettings.setValue("plotDefaultColors",
-				globalSettings.defaultColorNames);
+    if (globalSettings.defaultSchemeModified)
+	userSettings.setValue("defaultColorScheme",
+				globalSettings.defaultScheme.colorNames);
+    if (globalSettings.colorSchemesModified) {
+	userSettings.beginWriteArray("schemes");
+	for (int i = 0; i < globalSettings.colorSchemes.size(); i++) {
+	    userSettings.setArrayIndex(i);
+	    userSettings.setValue("name", globalSettings.colorSchemes.at(i).name);
+	    userSettings.setValue("colors",
+				globalSettings.colorSchemes.at(i).colorNames);
+	}
+	userSettings.endArray();
+    }
     if (globalSettings.chartBackgroundModified)
 	userSettings.setValue("chartBackgroundColor",
 				globalSettings.chartBackgroundName);
@@ -243,16 +253,34 @@ void readSettings(void)
 	userSettings.setValue("visiblePoints", globalSettings.visibleHistory);
 
     //
-    // Everything colour related
+    // Everything colour (scheme) related
     //
     QStringList colorList;
-    if (userSettings.contains("plotDefaultColors") == true)
-	colorList = userSettings.value("plotDefaultColors").toStringList();
+    if (userSettings.contains("defaultColorScheme") == true)
+	colorList = userSettings.value("defaultColorScheme").toStringList();
     else
 	colorList << "yellow" << "blue" << "red" << "green" << "violet";
-    globalSettings.defaultColorNames = colorList;
+    globalSettings.defaultScheme.colorNames = colorList;
     for (int i = 0; i < colorList.size(); i++)
-	globalSettings.defaultColors << QColor(colorList.at(i));
+	globalSettings.defaultScheme.colors << QColor(colorList.at(i));
+
+    int size = userSettings.beginReadArray("schemes");
+    for (int i = 0; i < size; i++) {
+	userSettings.setArrayIndex(i);
+	ColorScheme scheme;
+	QString name = userSettings.value("name").toString();
+	colorList = userSettings.value("colors").toStringList();
+	for (int j = 0; j < colorList.size(); j++)
+	    scheme.colors << QColor(colorList.at(j));
+	scheme.name = name;
+	scheme.colorNames = colorList;
+	globalSettings.colorSchemes.append(scheme);
+    }
+    userSettings.endArray();
+
+    //
+    // Everything (else) colour related
+    //
     globalSettings.chartBackgroundName = userSettings.value(
 		"chartBackgroundColor", "black").toString();
     globalSettings.chartBackground = QColor(globalSettings.chartBackgroundName);
@@ -276,6 +304,28 @@ void readSettings(void)
 
     userSettings.endGroup();
 }
+
+// Get next color from given scheme or from default colors for #-cycle
+QColor nextColor(QString scheme, int *sequence)
+{
+    QList<QColor> colorList;
+    int seq = (*sequence)++;
+
+    for (int i = 0; i < globalSettings.colorSchemes.size(); i++) {
+	if (globalSettings.colorSchemes.at(i).name == scheme) {
+	    colorList = globalSettings.colorSchemes.at(i).colors;
+	    break;
+	}
+    }
+    if (colorList.size() < 2)	// common case
+	colorList = globalSettings.defaultScheme.colors;
+    if (colorList.size() < 2)	// idiot user!?
+	colorList << QColor("yellow") << QColor("blue") << QColor("red")
+		  << QColor("green") << QColor("violet");
+    seq %= colorList.size();
+    return colorList.at(seq);
+}
+
 
 int
 main(int argc, char ** argv)

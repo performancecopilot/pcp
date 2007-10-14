@@ -80,8 +80,8 @@ void SettingsDialog::reset()
     selectedHighlightButton->setColor(QColor(globalSettings.chartHighlight));
 
     colorCount = colorArray(&buttons);
-    for (i = 0; i < globalSettings.defaultColorNames.count(); i++)
-	buttons[i]->setColor(QColor(globalSettings.defaultColors[i]));
+    for (i = 0; i < globalSettings.defaultScheme.colorNames.count(); i++)
+	buttons[i]->setColor(QColor(globalSettings.defaultScheme.colors[i]));
     for (; i < colorCount; i++)
 	buttons[i]->setColor(QColor(Qt::white));
 
@@ -102,7 +102,7 @@ void SettingsDialog::reset()
     globalSettings.loggerDeltaModified = false;
     globalSettings.sampleHistoryModified = false;
     globalSettings.visibleHistoryModified = false;
-    globalSettings.defaultColorsModified = false;
+    globalSettings.defaultSchemeModified = false;
     globalSettings.chartBackgroundModified = false;
     globalSettings.chartHighlightModified = false;
     globalSettings.initialToolbarModified = false;
@@ -127,7 +127,7 @@ void SettingsDialog::flush()
     if (globalSettings.sampleHistoryModified)
 	globalSettings.sampleHistory = my.sampleHistory;
 
-    if (globalSettings.defaultColorsModified) {
+    if (globalSettings.defaultSchemeModified) {
 	ColorButton **buttons;
 	QStringList colorNames;
 	QList<QColor> colors;
@@ -141,8 +141,8 @@ void SettingsDialog::flush()
 	    colorNames.append(c.name());
 	}
 
-	globalSettings.defaultColors = colors;
-	globalSettings.defaultColorNames = colorNames;
+	globalSettings.defaultScheme.colors = colors;
+	globalSettings.defaultScheme.colorNames = colorNames;
     }
 
     if (globalSettings.chartBackgroundModified) {
@@ -297,7 +297,7 @@ void SettingsDialog::colorButtonClicked(int n)
     colorArray(&buttons);
     buttons[n-1]->clicked();
     if (buttons[n-1]->isSet())
-	globalSettings.defaultColorsModified = true;
+	globalSettings.defaultSchemeModified = true;
 }
 
 void SettingsDialog::deleteSchemeButton_clicked()
@@ -330,4 +330,18 @@ void SettingsDialog::actionListWidget_itemClicked(QListWidgetItem *item)
 {
     globalSettings.toolbarActionsModified = true;
     item->setBackground(item->background() == disabled ? enabled : disabled);
+}
+
+void SettingsDialog::newScheme()
+{
+}
+
+int SettingsDialog::setScheme(int)
+{
+    return 0;
+}
+
+int SettingsDialog::setScheme(QString)
+{
+    return 0;
 }
