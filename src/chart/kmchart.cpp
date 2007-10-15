@@ -395,7 +395,7 @@ void KmChart::optionsNewKmchart()
 
 void KmChart::createNewChart(Chart::Style style)
 {
-    my.newchart->reset(NULL, (int)style - 1);
+    my.newchart->reset(NULL, (int)style - 1, QString::null);
     my.newchart->show();
 }
 
@@ -413,6 +413,7 @@ void KmChart::acceptNewChart()
 	my.newchart->setupChartPlots(cp);
     my.newchart->scale(&yAutoScale, &yMin, &yMax);
     cp->setScale(yAutoScale, yMin, yMax);
+    cp->setSequence(cp->numPlot() - 1);
     cp->show();
 
     // TODO: teardown TreeViews and free up memory (both?  chartList only?)
@@ -433,7 +434,7 @@ void KmChart::editChart()
     double yMin, yMax;
     Chart *cp = activeTab->currentChart();
 
-    my.editchart->reset(cp, (int)activeTab->currentChart()->style() - 1);
+    my.editchart->reset(cp, (int)activeTab->currentChart()->style() - 1, cp->scheme());
     my.editchart->titleLineEdit->setText(cp->title());
     my.editchart->legendOn->setChecked(cp->legendVisible());
     my.editchart->legendOff->setChecked(!cp->legendVisible());

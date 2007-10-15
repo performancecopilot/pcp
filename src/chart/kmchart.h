@@ -72,6 +72,7 @@ public:
     virtual void setButtonState(TimeButton::State state);
     virtual void setRecordState(Tab *tab, bool recording);
 
+    virtual SettingsDialog *settings() { return my.settings; }
     virtual void updateToolbarLocation();
     virtual void updateToolbarContents();
     virtual QList<QAction*> toolbarActionsList();

@@ -70,7 +70,7 @@ void ChartDialog::init()
 	SIGNAL(newCol(QRgb)), this, SLOT(newColorTypedIn(QRgb)));
 }
 
-void ChartDialog::reset(Chart *chart, int style)
+void ChartDialog::reset(Chart *chart, int style, QString scheme)
 {
     my.chart = chart;
     if (!chart) {
@@ -93,6 +93,7 @@ void ChartDialog::reset(Chart *chart, int style)
     }
     titleLineEdit->setText(tr(""));
     typeComboBox->setCurrentIndex(style);
+    colorSchemeComboBox->setCurrentIndex(kmchart->settings()->setScheme(scheme));
     legendOn->setChecked(true);
     legendOff->setChecked(false);
     setupAvailableMetricsTree(my.archiveSource);
@@ -264,9 +265,13 @@ void ChartDialog::metricAddButtonClicked()
 
     availableMetricsTreeWidget->clearSelection();
     chartMetricsTreeWidget->clearSelection();	// selection(s) made below
-    for (int i = 0; i < list.size(); i++) {
-	list.at(i)->addToTree(chartMetricsTreeWidget);
-    }
+
+    QString scheme = my.chart ? my.chart->scheme() : QString::null;
+    int sequence = my.chart ? my.chart->sequence() : 0;
+    for (int i = 0; i < list.size(); i++)
+	list.at(i)->addToTree(chartMetricsTreeWidget, scheme, &sequence);
+    if (my.chart)
+	my.chart->setSequence(sequence);
 }
 
 void ChartDialog::archiveButtonClicked()
@@ -611,12 +616,12 @@ bool ChartDialog::setupChartPlotsShortcut(Chart *cp)
     if (chartMetricsTreeWidget->invisibleRootItem()->childCount() > 0)
 	return false;	// go do regular creation paths
 
-    int i;
+    int i, seq = 0;
     QTreeWidgetItemIterator iterator(availableMetricsTreeWidget,
 				   QTreeWidgetItemIterator::Selected);
     for (i = 0; (*iterator); ++iterator, i++) {
 	NameSpace *n = (NameSpace *)(*iterator);
-	QColor c = Chart::defaultColor(-1);
+	QColor c = nextColor(cp->scheme(), &seq);
 	n->setCurrentColor(c, NULL);
 	createChartPlot(cp, n);
     }
@@ -683,4 +688,12 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 void ChartDialog::deleteChartPlot(Chart *cp, int m)
 {
     cp->delPlot(m);
+}
+
+void ChartDialog::colorSchemeComboBox_currentIndexChanged(int index)
+{
+    if (index == 1)
+	kmchart->settings()->newScheme();
+    else
+	kmchart->settings()->setScheme(index);
 }

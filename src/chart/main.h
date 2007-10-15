@@ -27,6 +27,12 @@
 #include "version.h"
 
 typedef struct {
+	QString name;
+	QList<QColor> colors;
+	QStringList colorNames;
+} ColorScheme;
+
+typedef struct {
 	// Sampling
 	double chartDelta;
 	bool chartDeltaModified;
@@ -37,16 +43,18 @@ typedef struct {
 	int visibleHistory;
 	bool visibleHistoryModified;
 
-	// Colors
-	QList<QColor> defaultColors;
-	QStringList defaultColorNames;
-	bool defaultColorsModified;
+	// Default Colors
 	QColor chartBackground;
 	QString chartBackgroundName;
 	bool chartBackgroundModified;
 	QColor chartHighlight;
 	QString chartHighlightName;
 	bool chartHighlightModified;
+	// Color Schemes
+	ColorScheme defaultScheme;
+	bool defaultSchemeModified;
+	QList<ColorScheme> colorSchemes;
+	bool colorSchemesModified;
 
 	// Toolbar
 	int initialToolbar;
@@ -60,6 +68,7 @@ typedef struct {
 extern Settings globalSettings;
 extern void readSettings();
 extern void writeSettings();
+extern QColor nextColor(QString, int *);
 
 extern int Cflag;
 extern QFont globalFont;

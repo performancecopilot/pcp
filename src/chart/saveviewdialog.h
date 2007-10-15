@@ -27,6 +27,7 @@ public:
     void reset();
 
     static bool saveView(QString, bool, bool);
+    static void setGlobals(int w, int h, int pts, int x, int y);
 
 public slots:
     virtual void parentToolButton_clicked();

@@ -24,7 +24,7 @@ public:
     ChartDialog(QWidget* parent);
 
     virtual void init();
-    virtual void reset(Chart *, int);
+    virtual void reset(Chart *, int, QString);
     virtual void enableUI();
     virtual Chart *chart(void);
     virtual QString title(void);
@@ -71,6 +71,7 @@ public slots:
     virtual void rgbEd();
     virtual void hsvEd();
     virtual void plotLabelLineEdit_editingFinished();
+    virtual void colorSchemeComboBox_currentIndexChanged(int);
 
 signals:
     void newCol(QRgb);

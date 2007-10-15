@@ -61,6 +61,10 @@ public:
     Style style(void);			// return chart style
     void setStyle(Style);		// set default chart plot style
     void setStroke(int, Style, QColor);	// set chart style and color
+    QString scheme();			// return chart color scheme
+    void setScheme(QString);		// set the chart color scheme
+    int sequence();			// return chart color scheme position
+    void setSequence(int);		// set the chart color scheme position
     QString label(int);			// return legend label for ith plot
     void setLabel(int, QString);	// set plot legend label
     void scale(bool *, double *, double *);
@@ -90,7 +94,7 @@ public:
     void addToTree(QTreeWidget *, QString, const QmcContext *,
 			  bool, bool, QColor&, QString&);
 
-    static QColor defaultColor(int);
+    static QColor schemeColor(QString, int *);
 
 public slots:
     void replot();
@@ -124,6 +128,8 @@ private:
 	QList<Plot*> plots;
 	char *title;
 	Style style;
+	QString scheme;
+	int sequence;
 	bool autoScale;
 	double yMin;
 	double yMax;

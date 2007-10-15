@@ -25,8 +25,12 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog
 public:
     SettingsDialog(QWidget* parent);
 
-    virtual void reset();
-    virtual void flush();
+    void reset();
+    void flush();
+
+    void newScheme();
+    int setScheme(int);
+    int setScheme(QString);
 
 public slots:
     virtual void buttonOk_clicked();
@@ -36,9 +40,13 @@ public slots:
     virtual void visible_valueChanged(int value);
     virtual void sample_valueChanged(int value);
     
-    virtual void chartHighlightButton_clicked();
-    virtual void chartBackgroundButton_clicked();
-    virtual void defaultColorButtonClicked(int);
+    virtual void selectedHighlightButton_clicked();
+    virtual void defaultBackgroundButton_clicked();
+    virtual void colorButtonClicked(int);
+    virtual void deleteSchemeButton_clicked();
+    virtual void insertSchemeButton_clicked();
+    virtual void schemeLineEdit_editingFinished();
+    virtual void schemeComboBox_currentIndexChanged(int);
 
     virtual void toolbarCheckBox_clicked();
     virtual void toolbarAreasComboBox_currentIndexChanged(int);
@@ -47,57 +55,31 @@ public slots:
 protected slots:
     virtual void languageChange();
 
-    virtual void defaultColorButton1_clicked()
-	{ defaultColorButtonClicked(1); }
-    virtual void defaultColorButton2_clicked()
-	{ defaultColorButtonClicked(2); }
-    virtual void defaultColorButton3_clicked()
-	{ defaultColorButtonClicked(3); }
-    virtual void defaultColorButton4_clicked()
-	{ defaultColorButtonClicked(4); }
-    virtual void defaultColorButton5_clicked()
-	{ defaultColorButtonClicked(5); }
-    virtual void defaultColorButton6_clicked()
-	{ defaultColorButtonClicked(6); }
-    virtual void defaultColorButton7_clicked()
-	{ defaultColorButtonClicked(7); }
-    virtual void defaultColorButton8_clicked()
-	{ defaultColorButtonClicked(8); }
-    virtual void defaultColorButton9_clicked()
-	{ defaultColorButtonClicked(9); }
-    virtual void defaultColorButton10_clicked()
-	{ defaultColorButtonClicked(10); }
-    virtual void defaultColorButton11_clicked()
-	{ defaultColorButtonClicked(11); }
-    virtual void defaultColorButton12_clicked()
-	{ defaultColorButtonClicked(12); }
-    virtual void defaultColorButton13_clicked()
-	{ defaultColorButtonClicked(13); }
-    virtual void defaultColorButton14_clicked()
-	{ defaultColorButtonClicked(14); }
-    virtual void defaultColorButton15_clicked()
-	{ defaultColorButtonClicked(15); }
-    virtual void defaultColorButton16_clicked()
-	{ defaultColorButtonClicked(16); }
-    virtual void defaultColorButton17_clicked()
-	{ defaultColorButtonClicked(17); }
-    virtual void defaultColorButton18_clicked()
-	{ defaultColorButtonClicked(18); }
-    virtual void defaultColorButton19_clicked()
-	{ defaultColorButtonClicked(19); }
-    virtual void defaultColorButton20_clicked()
-	{ defaultColorButtonClicked(20); }
-    virtual void defaultColorButton21_clicked()
-	{ defaultColorButtonClicked(21); }
-    virtual void defaultColorButton22_clicked()
-	{ defaultColorButtonClicked(22); }
-    virtual void defaultColorButton23_clicked()
-	{ defaultColorButtonClicked(23); }
-    virtual void defaultColorButton24_clicked()
-	{ defaultColorButtonClicked(24); }
+    virtual void colorButton1_clicked() { colorButtonClicked(1); }
+    virtual void colorButton2_clicked() { colorButtonClicked(2); }
+    virtual void colorButton3_clicked() { colorButtonClicked(3); }
+    virtual void colorButton4_clicked() { colorButtonClicked(4); }
+    virtual void colorButton5_clicked() { colorButtonClicked(5); }
+    virtual void colorButton6_clicked() { colorButtonClicked(6); }
+    virtual void colorButton7_clicked() { colorButtonClicked(7); }
+    virtual void colorButton8_clicked() { colorButtonClicked(8); }
+    virtual void colorButton9_clicked() { colorButtonClicked(9); }
+    virtual void colorButton10_clicked() { colorButtonClicked(10); }
+    virtual void colorButton11_clicked() { colorButtonClicked(11); }
+    virtual void colorButton12_clicked() { colorButtonClicked(12); }
+    virtual void colorButton13_clicked() { colorButtonClicked(13); }
+    virtual void colorButton14_clicked() { colorButtonClicked(14); }
+    virtual void colorButton15_clicked() { colorButtonClicked(15); }
+    virtual void colorButton16_clicked() { colorButtonClicked(16); }
+    virtual void colorButton17_clicked() { colorButtonClicked(17); }
+    virtual void colorButton18_clicked() { colorButtonClicked(18); }
+    virtual void colorButton19_clicked() { colorButtonClicked(19); }
+    virtual void colorButton20_clicked() { colorButtonClicked(20); }
+    virtual void colorButton21_clicked() { colorButtonClicked(21); }
+    virtual void colorButton22_clicked() { colorButtonClicked(22); }
 
 private:
-    virtual int defaultColorArray(ColorButton *** array);
+    virtual int colorArray(ColorButton *** array);
     virtual void displayTotalSlider();
     virtual void displayVisibleSlider();
     virtual void displayTotalCounter();

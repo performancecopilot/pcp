@@ -40,17 +40,15 @@ void SettingsDialog::languageChange()
     retranslateUi(this);
 }
 
-int SettingsDialog::defaultColorArray(ColorButton ***array)
+int SettingsDialog::colorArray(ColorButton ***array)
 {
     static ColorButton *buttons[] = {
-	defaultColorButton1,	defaultColorButton2,	defaultColorButton3,
-	defaultColorButton4,	defaultColorButton5,	defaultColorButton6,
-	defaultColorButton7,	defaultColorButton8,	defaultColorButton9,
-	defaultColorButton10,	defaultColorButton11,	defaultColorButton12,
-	defaultColorButton13,	defaultColorButton14,	defaultColorButton15,
-	defaultColorButton16,	defaultColorButton17,	defaultColorButton18,
-	defaultColorButton19,	defaultColorButton20,	defaultColorButton21,
-	defaultColorButton22,	defaultColorButton23,	defaultColorButton24,
+	colorButton1,	colorButton2,	colorButton3,	colorButton4,
+	colorButton5,	colorButton6,	colorButton7,	colorButton8,
+	colorButton9,	colorButton10,	colorButton11,	colorButton12,
+	colorButton13,	colorButton14,	colorButton15,	colorButton16,
+	colorButton17,	colorButton18,	colorButton19,	colorButton20,
+	colorButton21,	colorButton22,
     };
     *array = &buttons[0];
     return sizeof(buttons) / sizeof(buttons[0]);
@@ -78,12 +76,12 @@ void SettingsDialog::reset()
     sampleSlider->setValue(globalSettings.sampleHistory);
     sampleSlider->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
 
-    chartBackgroundButton->setColor(QColor(globalSettings.chartBackground));
-    chartHighlightButton->setColor(QColor(globalSettings.chartHighlight));
+    defaultBackgroundButton->setColor(QColor(globalSettings.chartBackground));
+    selectedHighlightButton->setColor(QColor(globalSettings.chartHighlight));
 
-    colorCount = defaultColorArray(&buttons);
-    for (i = 0; i < globalSettings.defaultColorNames.count(); i++)
-	buttons[i]->setColor(QColor(globalSettings.defaultColors[i]));
+    colorCount = colorArray(&buttons);
+    for (i = 0; i < globalSettings.defaultScheme.colorNames.count(); i++)
+	buttons[i]->setColor(QColor(globalSettings.defaultScheme.colors[i]));
     for (; i < colorCount; i++)
 	buttons[i]->setColor(QColor(Qt::white));
 
@@ -104,7 +102,7 @@ void SettingsDialog::reset()
     globalSettings.loggerDeltaModified = false;
     globalSettings.sampleHistoryModified = false;
     globalSettings.visibleHistoryModified = false;
-    globalSettings.defaultColorsModified = false;
+    globalSettings.defaultSchemeModified = false;
     globalSettings.chartBackgroundModified = false;
     globalSettings.chartHighlightModified = false;
     globalSettings.initialToolbarModified = false;
@@ -129,12 +127,12 @@ void SettingsDialog::flush()
     if (globalSettings.sampleHistoryModified)
 	globalSettings.sampleHistory = my.sampleHistory;
 
-    if (globalSettings.defaultColorsModified) {
+    if (globalSettings.defaultSchemeModified) {
 	ColorButton **buttons;
 	QStringList colorNames;
 	QList<QColor> colors;
 
-	int colorCount = defaultColorArray(&buttons);
+	int colorCount = colorArray(&buttons);
 	for (int i = 0; i < colorCount; i++) {
 	    QColor c = buttons[i]->color();
 	    if (c == Qt::white)
@@ -143,17 +141,17 @@ void SettingsDialog::flush()
 	    colorNames.append(c.name());
 	}
 
-	globalSettings.defaultColors = colors;
-	globalSettings.defaultColorNames = colorNames;
+	globalSettings.defaultScheme.colors = colors;
+	globalSettings.defaultScheme.colorNames = colorNames;
     }
 
     if (globalSettings.chartBackgroundModified) {
-	globalSettings.chartBackground = chartBackgroundButton->color();
+	globalSettings.chartBackground = defaultBackgroundButton->color();
 	globalSettings.chartBackgroundName =
 			globalSettings.chartBackground.name();
     }
     if (globalSettings.chartHighlightModified) {
-	globalSettings.chartHighlight = chartHighlightButton->color();
+	globalSettings.chartHighlight = selectedHighlightButton->color();
 	globalSettings.chartHighlightName =
 			globalSettings.chartHighlight.name();
     }
@@ -278,28 +276,44 @@ void SettingsDialog::displayVisibleCounter()
     visibleCounter->blockSignals(false);
 }
 
-void SettingsDialog::chartHighlightButton_clicked()
+void SettingsDialog::selectedHighlightButton_clicked()
 {
-    chartHighlightButton->clicked();
-    if (chartHighlightButton->isSet())
+    selectedHighlightButton->clicked();
+    if (selectedHighlightButton->isSet())
 	globalSettings.chartHighlightModified = true;
 }
 
-void SettingsDialog::chartBackgroundButton_clicked()
+void SettingsDialog::defaultBackgroundButton_clicked()
 {
-    chartBackgroundButton->clicked();
-    if (chartBackgroundButton->isSet())
+    defaultBackgroundButton->clicked();
+    if (defaultBackgroundButton->isSet())
 	globalSettings.chartBackgroundModified = true;
 }
 
-void SettingsDialog::defaultColorButtonClicked(int n)
+void SettingsDialog::colorButtonClicked(int n)
 {
     ColorButton **buttons;
 
-    defaultColorArray(&buttons);
+    colorArray(&buttons);
     buttons[n-1]->clicked();
     if (buttons[n-1]->isSet())
-	globalSettings.defaultColorsModified = true;
+	globalSettings.defaultSchemeModified = true;
+}
+
+void SettingsDialog::deleteSchemeButton_clicked()
+{
+}
+
+void SettingsDialog::insertSchemeButton_clicked()
+{
+}
+
+void SettingsDialog::schemeLineEdit_editingFinished()
+{
+}
+
+void SettingsDialog::schemeComboBox_currentIndexChanged(int)
+{
 }
 
 void SettingsDialog::toolbarCheckBox_clicked()
@@ -316,4 +330,18 @@ void SettingsDialog::actionListWidget_itemClicked(QListWidgetItem *item)
 {
     globalSettings.toolbarActionsModified = true;
     item->setBackground(item->background() == disabled ? enabled : disabled);
+}
+
+void SettingsDialog::newScheme()
+{
+}
+
+int SettingsDialog::setScheme(int)
+{
+    return 0;
+}
+
+int SettingsDialog::setScheme(QString)
+{
+    return 0;
 }

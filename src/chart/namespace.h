@@ -20,6 +20,7 @@
 #include <QtGui/QTreeWidgetItem>
 #include <pcp/pmapi.h>
 
+class Chart;
 class QmcContext;
 
 class NameSpace : public QTreeWidgetItem
@@ -60,8 +61,8 @@ public:
     bool isChildMinder() { return my.type == ChildMinder; }
     bool isArchiveMode() { return my.isArchive; }
 
-    void addToTree(QTreeWidget *);	// add (leaf) node into Selected set
-    void removeFromTree(QTreeWidget *);	// take (leaf) nodes from Selected set
+    void addToTree(QTreeWidget *, QString, int *); // add leaf node to Selected
+    void removeFromTree(QTreeWidget *);	// remove leaf nodes from Selected set
 
     QColor currentColor() { return my.current; }
     void setCurrentColor(QColor, QTreeWidget *);
@@ -81,7 +82,7 @@ private:
 
     bool cmp(NameSpace *);
     NameSpace *dup(QTreeWidget *);	// copies the root node in addToTree
-    NameSpace *dup(QTreeWidget *, NameSpace *);	// copies nodes in addToTree
+    NameSpace *dup(QTreeWidget *, NameSpace *, QString, int *);	// all other nodes
 
     struct {
 	bool isArchive;
