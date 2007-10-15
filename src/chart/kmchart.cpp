@@ -261,17 +261,15 @@ void KmChart::filePrint()
 
     QPrintDialog print(&printer, (QWidget *)this);
     if (print.exec()) {
-	// TODO: needs to iterate over charts...
 	int ph = printer.height();
 	int pw = printer.width();
-	int bh = 0;
 	double scale_h = 0;
 	double scale_w = 0;
-	int h;
 	int i;
 	int nchart = activeTab->numChart();
 	QwtPlotPrintFilter filter;
 	QSize size;
+	QRect rect;	// used for print layout calculations
 
 	// if (printer.colorMode() == QPrinter::GrayScale)
 	    // background and grid not helpful for monochrome printers
@@ -298,20 +296,33 @@ void KmChart::filePrint()
 	    scale_h = ph / scale_h;
 	    scale_w = scale_h;
 	}
+	rect.setX(0);
+	rect.setY(0);
 	for (i = 0; i < nchart; i++) {
 	    Chart *cp = activeTab->chart(i);
 	    size = cp->size();
-	    h = (int)(size.height()*scale_h+0.5);
-	    QRect rect(0, bh, (int)(size.width()*scale_w+0.5), h);
+	    rect.setWidth((int)(size.width()*scale_w+0.5));
+	    rect.setHeight((int)(size.height()*scale_h+0.5));
 	    cp->print(&qp, rect, filter);
-	    bh += h;
+	    rect.setY(rect.y()+rect.height());
 	}
-	// TODO - not handling the kmtime icon at the left of the time
-	// axis, nor the ctime() date label at the right of the time axis
+	// timButton icon
+	size = timeButton->size();
+	rect.setWidth((int)(size.width()*scale_w+0.5));
+	rect.setHeight((int)(size.height()*scale_h+0.5));
+	qp.drawPixmap(rect, timeButton->icon().pixmap(size));
+	rect.setX(rect.x()+rect.width());
+	// time axis
 	size = timeAxisPlot->size();
-	h = (int)(size.height()*scale_h+0.5);
-	QRect rect(0, bh, (int)(size.width()*scale_w+0.5), h);
+	rect.setWidth((int)(size.width()*scale_w+0.5));
+	rect.setHeight((int)(size.height()*scale_h+0.5));
 	timeAxisPlot->print(&qp, rect, filter);
+	rect.setY(rect.y()+rect.height());
+	// date label below time axis
+	size = dateLabel->size();
+	rect.setWidth((int)(size.width()*scale_w+0.5));
+	rect.setHeight((int)(size.height()*scale_h+0.5));
+	qp.drawText(rect, Qt::AlignRight, dateLabel->text());
     }
 }
 
