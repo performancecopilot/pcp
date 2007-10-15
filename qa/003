@@ -2,7 +2,7 @@
 # kmchart QA Test No. 003
 # $Revision: 1.1 $
 #
-# Check that Global clause is detected and skipped (at this stage)
+# Check that Global clause is detected
 #
 # Copyright (c) 2006 Ken McDonell.  All Rights Reserved.
 

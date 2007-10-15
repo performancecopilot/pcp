@@ -330,6 +330,27 @@ QColor nextColor(QString scheme, int *sequence)
     return colorList.at(seq);
 }
 
+void setupViewGlobals()
+{
+    int w, h, points, x, y;
+
+    OpenViewDialog::globals(&w, &h, &points, &x, &y);
+    if (w || h) {
+	QSize size = kmchart->size();
+	kmchart->resize(size.expandedTo(QSize(w, h)));
+    }
+    if (x || y) {
+	QPoint pos = kmchart->pos();
+	if (x) pos.setX(x);
+	if (y) pos.setY(y);
+	kmchart->move(pos);
+    }
+    if (points) {
+	if (activeTab->sampleHistory() < points)
+	    activeTab->setSampleHistory(points);
+	activeTab->setVisibleHistory(points);
+    }
+}
 
 int
 main(int argc, char ** argv)
@@ -626,6 +647,7 @@ main(int argc, char ** argv)
 
     for (c = 0; c < configs.size(); c++)
 	OpenViewDialog::openView((const char *)configs[c].toAscii());
+    setupViewGlobals();
 
     if (Cflag)	// done with -c config, quit
 	return 0;

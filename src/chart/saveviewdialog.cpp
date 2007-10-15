@@ -31,6 +31,7 @@ SaveViewDialog::SaveViewDialog(QWidget* parent) : QDialog(parent)
     QString home = my.userDir = QDir::homePath();
     my.userDir.append("/.pcp/kmchart");
     my.hostDynamic = true;
+    my.sizeDynamic = true;
 
     pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
 			  my.userDir);
@@ -138,7 +139,7 @@ void SaveViewDialog::dirListView_activated(const QModelIndex &index)
 	setPath(index);
     }
     else {
-	QString msg = fi.fileName();
+	QString msg = fi.filePath();
 	msg.prepend(tr("View file "));
 	msg.append(tr(" exists.  Overwrite?\n"));
 	if (QMessageBox::question(this, pmProgname, msg,
@@ -161,6 +162,10 @@ void SaveViewDialog::preserveSizeCheckBox_toggled(bool sizePreserve)
 
 bool SaveViewDialog::saveViewFile(const QString &filename)
 {
+    if (my.sizeDynamic == false)
+	setGlobals(kmchart->size().width(), kmchart->size().height(),
+		   activeTab->visibleHistory(),
+		   kmchart->pos().x(), kmchart->pos().y());
     return saveView(filename, my.hostDynamic, my.sizeDynamic);
 }
 
@@ -176,27 +181,27 @@ void SaveViewDialog::savePushButton_clicked()
 	QModelIndexList selectedIndexes = selections->selectedIndexes();
 
 	if (selectedIndexes.count() == 1)
-	    filename = my.dirModel->fileName(selectedIndexes.at(0));
+	    filename = my.dirModel->filePath(selectedIndexes.at(0));
     }
 
     if (filename.isEmpty())
 	msg = tr("No View file specified");
     else {
-	QFileInfo f(filename);
-	if (f.isDir())
+	QFileInfo fi(filename);
+	if (fi.isDir())
 	    setPath(filename);
-	else if (f.exists()) {
+	else if (fi.exists()) {
 	    msg = filename;
 	    msg.prepend(tr("View file "));
 	    msg.append(tr(" exists.  Overwrite?\n"));
 	    if (QMessageBox::question(this, pmProgname, msg,
 		QMessageBox::Cancel|QMessageBox::Default|QMessageBox::Escape,
 		QMessageBox::Ok, QMessageBox::NoButton) == QMessageBox::Ok)
-		if (saveViewFile(filename) == true)
+		if (saveViewFile(fi.absoluteFilePath()) == true)
 		    done(0);
 	    msg = "";
 	}
-	else if (saveViewFile(filename) == true)
+	else if (saveViewFile(fi.absoluteFilePath()) == true)
 	    done(0);
     }
 

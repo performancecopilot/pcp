@@ -26,11 +26,16 @@
 /*
  * View file parsing routines and global variables follow.  These are
  * currently not part of any class, and may need to be reworked a bit
- * to use more portable (Qt) file IO interfaces.
+ * to use more portable (Qt) file IO interfaces (for a Windows port).
  */
 static char	_fname[MAXPATHLEN];
-static int	_line;
-static int	_errors;
+static uint	_line;
+static uint	_errors;
+static uint	_width;
+static uint	_height;
+static uint	_points;
+static uint	_xpos;
+static uint	_ypos;
 
 #define MAXWDSZ 256
 
@@ -46,6 +51,13 @@ static int	_errors;
 #define M_PMCHART	1
 #define M_KMCHART	2
 
+// global attributes
+#define G_WIDTH		1
+#define G_HEIGHT	2
+#define G_POINTS	3
+#define G_XPOS		4
+#define G_YPOS		5
+
 // host mode
 #define H_DYNAMIC	1
 #define H_LITERAL	2
@@ -55,7 +67,7 @@ static int	_errors;
 #define E_CRIT	1
 #define E_WARN	2
 
-// version numbers we're willing to support or at least acknowledge
+// version numbers we're willing and able to support
 #define P1_1	101
 #define P1_2	102
 #define P2_0	200
@@ -230,6 +242,19 @@ xpect(char *want, char *got)
 	msg.append("\"");
     }
     err(E_CRIT, true, msg);
+}
+
+void OpenViewDialog::globals(int *w, int *h, int *pts, int *x, int *y)
+{
+    // Note: we use global variables here so that all views specified
+    // on the command line get input into these values (the maximum
+    // observed value is always used), without clobbering each other.
+    //
+    *w = _width;
+    *h = _height;
+    *pts = _points;
+    *x = _xpos;
+    *y = _ypos;
 }
 
 bool OpenViewDialog::openView(const char *path)
@@ -531,13 +556,56 @@ abort_chart:
 		goto abandon;
 	    }
 	    else if (strcasecmp(w, "global") == 0) {
-		//
-		// TODO -- global is an alternative clause to Chart at
-		// this point in the config file ... no support for global
-		// options to set: "width", "height", "points" (visible)
-		//
-		err(E_WARN, true, QString("global clause not supported yet"));
-		skip2eol(f);
+		char *endnum;
+		uint value, attr;
+
+		// Global window attributes (geometry and visible points)
+		if ((w = getwd(f)) == NULL || w[0] == '\n') {
+		    xpect("width\", \"height\", \"xpos\", \"ypos\", or \"points", w);
+		    goto abandon;
+		}
+		else if (strcasecmp(w, "width") == 0)
+		    attr = G_WIDTH;
+		else if (strcasecmp(w, "height") == 0)
+		    attr = G_HEIGHT;
+		else if (strcasecmp(w, "points") == 0)
+		    attr = G_POINTS;
+		else if (strcasecmp(w, "xpos") == 0)
+		    attr = G_XPOS;
+		else if (strcasecmp(w, "ypos") == 0)
+		    attr = G_YPOS;
+		else {
+		    xpect("width\", \"height\", \"xpos\", \"ypos\", or \"points", w);
+		    goto abandon;
+		}
+		w = getwd(f);
+		if (w == NULL || w[0] == '\n') {
+		    xpect("<global attribute value>", w);
+		    goto abandon;
+		}
+		value = (uint)strtoul(w, &endnum, 0);
+		if (*endnum != '\0') {
+		    xpect("<global attribute value>", w);
+		    goto abandon;
+		}
+		switch (attr) {
+		case G_WIDTH:
+		    _width = qMax(_width, value);
+		    break;
+		case G_HEIGHT:
+		    _height = qMax(_height, value);
+		    break;
+		case G_POINTS:
+		    _points = qMax(_points, value);
+		    break;
+		case G_XPOS:
+		    _xpos = qMax(_xpos, value);
+		    break;
+		case G_YPOS:
+		    _ypos = qMax(_ypos, value);
+		    break;
+		}
+		eol(f);
 	    }
 	    else if (strcasecmp(w, "scheme") == 0) {
 		//
@@ -965,6 +1033,15 @@ nopipe:
     return false;
 }
 
+void SaveViewDialog::setGlobals(int width, int height, int points, int x, int y)
+{
+    _width = width;
+    _height = height;
+    _points = points;
+    _xpos = x;
+    _ypos = y;
+}
+
 bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
 {
     FILE	*f;
@@ -979,16 +1056,18 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
     double	ymax;
     const char	*path = (const char *)file.toAscii();
 
-    // TODO: sizeDynamic - needs "global" + "width", "height", "points"
-    (void)sizeDynamic;
+    if ((f = fopen(path, "w")) == NULL)
+	goto noview;
 
-    if ((f = fopen(path, "w")) == NULL) {
-	QString	msg;
-	msg.sprintf("Cannot open \"%s\" for writing\n%s", path, strerror(errno));
-	err(E_CRIT, false, msg);
-	return false;
-    }
     fprintf(f, "#kmchart\nversion %d\n\n", K1);
+    if (sizeDynamic == false) {
+	fprintf(f, "global width %u\n", _width);
+	fprintf(f, "global height %u\n", _height);
+	fprintf(f, "global points %u\n", _points);
+	fprintf(f, "global xpos %u\n", _xpos);
+	fprintf(f, "global ypos %u\n", _ypos);
+	fprintf(f, "\n");
+    }
     for (c = 0; c < activeTab->numChart(); c++) {
 	cp = activeTab->chart(c);
 	fprintf(f, "chart");
@@ -1054,6 +1133,13 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
 	}
     }
 
+    fflush(f);
     fclose(f);
     return true;
+
+noview:
+    QString errmsg;
+    errmsg.sprintf("Cannot open \"%s\" for writing\n%s", path, strerror(errno));
+    err(E_CRIT, false, errmsg);
+    return false;
 }

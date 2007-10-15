@@ -29,6 +29,7 @@ public:
     void sourceAdd();
 
     static bool openView(const char *);
+    static void globals(int *w, int *h, int *pts, int *x, int *y);
 
 public slots:
     virtual void parentToolButton_clicked();
