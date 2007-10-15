@@ -482,7 +482,7 @@ new_chart:
 			    goto abort_chart;
 			}
 		    }
-		    ymin = (int)strtod(w, &endnum);
+		    ymin = strtod(w, &endnum);
 		    if (*endnum != '\0') {
 			xpect("<ymin>", w);
 			goto abort_chart;
@@ -497,7 +497,7 @@ new_chart:
 			    goto abort_chart;
 			}
 		    }
-		    ymax = (int)strtod(w, &endnum);
+		    ymax = strtod(w, &endnum);
 		    if (*endnum != '\0') {
 			xpect("<ymax>", w);
 			goto abort_chart;
