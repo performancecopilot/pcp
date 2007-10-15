@@ -8,7 +8,7 @@ chart title "CPU Utilization [%h]" style utilization
 	optional-plot legend "Nice" color #c2f3c2 metric kernel.all.cpu.nice
 	optional-plot legend "Intr" color #cdcd00 metric kernel.all.cpu.intr
 	optional-plot legend "Wait" color #00cdcd metric kernel.all.cpu.wait.total
-	plot legend "Idle" color #168e16 metric kernel.all.cpu.idle
+	plot legend "Idle" color #16d816 metric kernel.all.cpu.idle
 
 chart title "Average Load [%h]" style plot
 	plot legend "1 min" metric kernel.all.load instance "1 minute"
