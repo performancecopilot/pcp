@@ -681,8 +681,23 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
     }
     cp->setStyle(style);
     int m = cp->addPlot(&pms, nlabel);
-    cp->setStroke(m, style, name->currentColor());
-    cp->setLabel(m, name->label());
+    if (m < 0) {
+	QString	msg;
+	if (pms.inst[0] != NULL)
+	    msg.sprintf("Error:\nFailed to plot metric \"%s[%s]\" for\n%s %s:\n%s",
+		pms.metric, pms.inst[0],
+		pms.isarch ? "archive" : "host",
+		pms.source, pmErrStr(m));
+	else
+	    msg.sprintf("Error:\nFailed to plot metric \"%s\" for\n%s %s:\n%s",
+		pms.metric, pms.isarch ? "archive" : "host",
+		pms.source, pmErrStr(m));
+	QMessageBox::critical(kmchart, pmProgname,  msg);
+    }
+    else {
+	cp->setStroke(m, style, name->currentColor());
+	cp->setLabel(m, name->label());
+    }
 }
 
 void ChartDialog::deleteChartPlot(Chart *cp, int m)
