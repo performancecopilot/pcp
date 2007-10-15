@@ -247,10 +247,14 @@ void readSettings(void)
     globalSettings.visibleHistory = userSettings.value("visibleHistory",
 				KmChart::defaultVisibleHistory()).toInt();
     checkHistory(globalSettings.sampleHistory, globalSettings.visibleHistory);
-    if (globalSettings.sampleHistoryModified)
+    if (globalSettings.sampleHistoryModified) {
 	userSettings.setValue("samplePoints", globalSettings.sampleHistory);
-    if (globalSettings.visibleHistoryModified)
+	globalSettings.sampleHistoryModified = false;
+    }
+    if (globalSettings.visibleHistoryModified) {
 	userSettings.setValue("visiblePoints", globalSettings.visibleHistory);
+	globalSettings.visibleHistoryModified = false;
+    }
 
     //
     // Everything colour (scheme) related
