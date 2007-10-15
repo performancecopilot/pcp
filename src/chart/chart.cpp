@@ -504,6 +504,11 @@ void Chart::changeTitle(char *title, int expand)
 	QwtText t = titleLabel()->text();
 	t.setFont(globalFont);
 	setTitle(t);
+	// have to set font for both QwtText and QwtTextLabel because of
+	// the way attributes are cached and restored when printing charts
+	QFont titleFont = globalFont;
+	titleFont.setBold(true);
+	titleLabel()->setFont(titleFont);
 	my.title = strdup(title);
 
 	// TODO: rewrite this using QString API, waay simpler
