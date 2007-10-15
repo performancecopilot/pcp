@@ -182,27 +182,6 @@ done:
     return buf;
 }
 
-static QColor *
-rgbi2qcolor(char *str)
-{
-    QColor	*c = new QColor(QString("white"));
-    float	fr, fg, fb;
-    int		sts;
-
-    if ((sts = sscanf(str, "rgbi:%f/%f/%f", &fr, &fg, &fb)) == 3) {
-#define hexval(f) ((int)(0.5 + f*256) < 256 ? (int)(0.5 + f*256) : 256)
-	c->setRgb(hexval(fr), hexval(fg), hexval(fb));
-    }
-    else {
-	QString	msg;
-	msg.sprintf("rgbi2qcolor: botch scanf->%d not 3 from \"%s\"\n", sts, str);
-	err(E_CRIT, true, msg);
-	// fallthrough to return "white"
-    }
-
-    return c;
-}
-
 static void
 eol(FILE *f)
 {
@@ -244,6 +223,44 @@ xpect(char *want, char *got)
     err(E_CRIT, true, msg);
 }
 
+int hexval(float f)
+{
+    return ((int)(0.5 + f*256) < 256 ? (int)(0.5 + f*256) : 256);
+}
+
+QColor colorSpec(QString colorName, bool searchSchemes, int *sequence)
+{
+    if (searchSchemes) {
+	if (colorName == "#-cycle")
+	    return nextColor("#-cycle", sequence);
+	for (int i = 0; i < globalSettings.colorSchemes.size(); i++)
+	    if (globalSettings.colorSchemes.at(i).colorNames.at(i) == colorName)
+		return nextColor(colorName, sequence);
+	// if no match, fallthrough...
+    }
+
+    QColor color;
+    QString errmsg, rgbi = colorName;
+    if (rgbi.left(5) == "rgbi:") {
+	float fr, fg, fb;
+	const char *s = (const char *)rgbi.toAscii();
+	if (sscanf(s, "rgbi:%f/%f/%f", &fr, &fg, &fb) == 3)
+	    color.setRgb(hexval(fr), hexval(fg), hexval(fb));
+	else
+	    errmsg = "Cannot parse color name in rgbi:-prefixed format.";
+    } else {
+	color.setNamedColor(colorName);
+    }
+    if (!color.isValid()) {
+	color = Qt::white;
+	errmsg.append("Invalid color name: ");
+	errmsg.append(colorName);
+	err(E_CRIT, true, errmsg);
+    }
+    return color;
+}
+
+
 void OpenViewDialog::globals(int *w, int *h, int *pts, int *x, int *y)
 {
     // Note: we use global variables here so that all views specified
@@ -260,8 +277,8 @@ void OpenViewDialog::globals(int *w, int *h, int *pts, int *x, int *y)
 bool OpenViewDialog::openView(const char *path)
 {
     Chart		*cp = NULL;
-    int			m;
-    QColor		*c;
+    int			m, i;
+    ColorScheme		scheme;
     FILE		*f;
     int			is_popen = 0;
     char		*w;
@@ -540,6 +557,7 @@ done_chart:
 		if (Cflag == 0) {
 		    cp = activeTab->addChart();
 		    cp->setStyle(style);
+		    cp->setScheme(scheme.name);
 		    if (title != NULL)
 			cp->changeTitle(title, mode == M_KMCHART);
 		    if (legend == 0)
@@ -609,15 +627,49 @@ abort_chart:
 	    }
 	    else if (strcasecmp(w, "scheme") == 0) {
 		//
-		// TODO -- scheme <name> <color> <color>...
+		// scheme <name> <color> <color>...
 		// provides finer-grained control over the color selections
 		// for an individual chart.  The default color scheme is
 		// named #-cycle.  A scheme can be used in place of a direct
 		// color name specification, and the color for a plot is
 		// then defined as the next unused color from that scheme.
 		//
-		err(E_WARN, true, QString("scheme clause not supported yet"));
-		skip2eol(f);
+		w = getwd(f);
+		if (w == NULL || w[0] == '\n') {
+		    xpect("<color scheme value>", w);
+		    goto abandon;
+		}
+		else if (strcmp(w, "#-cycle") == 0) {
+		    xpect("<non-default color scheme name>", w);
+		    goto abandon;
+		}
+		for (i = 0; i < globalSettings.colorSchemes.size(); i++) {
+		    if (globalSettings.colorSchemes.at(i).name == w)
+			break;
+		}
+		// duplicate, just ignore (probably using a seen view again)
+		if (i != globalSettings.colorSchemes.size()) {
+		    skip2eol(f);
+		    continue;
+		}
+		scheme.name = w;
+		scheme.colors.clear();
+		scheme.colorNames.clear();
+		w = getwd(f);
+		while (w && w[0] != '\n') {
+		    scheme.colorNames.append(QString(w));
+		    w = getwd(f);
+		}
+		if (scheme.colorNames.size() < 2) {
+		    xpect("<list of color names>", w);
+		    goto abandon;
+		}
+		for (i = 0; i < scheme.colorNames.size(); i++) {
+		    scheme.colors.append(
+			    colorSpec(scheme.colorNames.at(i), false, NULL));
+		}
+		globalSettings.colorSchemes.append(scheme);
+		eol(f);
 	    }
 	    else {
 		xpect("chart\", \"global\", or \"scheme", w);
@@ -953,15 +1005,10 @@ try_plot:
 			errmsg.append(msg);
 		    }
 		}
-		else {
-		    if (color != NULL && strcmp(color, "#-cycle") != 0) {
-			c = new QColor();
-			if (strncmp(color, "rgbi:", 5) == 0)
-			    c = rgbi2qcolor(color);
-			else
-			    c->setNamedColor(QString(color));
-			cp->setStroke(m, cp->style(), *c);
-		    }
+		else if (color != NULL && strcmp(color, "#-cycle") != 0) {
+		    int seq = cp->sequence();
+		    cp->setStroke(m, cp->style(), colorSpec(color, true, &seq));
+		    cp->setSequence(seq);
 		}
 		if (numinst > 0)
 		    // more instances to be procesed for this metric
