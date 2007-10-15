@@ -6,8 +6,10 @@
     <file>camera-video.png</file>
     <file>document-new.png</file>
     <file>document-open.png</file>
+    <file>document-close.png</file>
     <file>document-print.png</file>
     <file>document-export.png</file>
+    <file>document-properties.png</file>
     <file>kmtime.png</file>
     <file>edit-clear.png</file>
     <file>whatsthis.png</file>
@@ -29,14 +31,14 @@
     <file>filespreadsheet.png</file>
     <file>fileview.png</file>
     <file>filewordprocessor.png</file>
-    <file>tab-new.png</file>
     <file>settings.png</file>
     <file>folio.png</file>
     <file>filefolio.png</file>
     <file>view.png</file>
     <file>logfile.png</file>
-    <file>document-properties.png</file>
+    <file>tab-new.png</file>
     <file>tab-edit.png</file>
+    <file>tab-close.png</file>
     <file>toolarchive.png</file>
     <file>toolusers.png</file>
     <file>toolview.png</file>

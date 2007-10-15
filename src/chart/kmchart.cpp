@@ -690,9 +690,11 @@ void KmChart::setupEnabledActionsList()
     addSeparatorAction();	// end of chart/view group
     my.toolbarActionsList << fileExportAction << filePrintAction;
     addSeparatorAction();	// end exported formats
-    my.toolbarActionsList << addTabAction << editTabAction;
+    my.toolbarActionsList << addTabAction << editTabAction << closeTabAction;
     my.toolbarActionsList << zoomInAction << zoomOutAction;
     addSeparatorAction();	// end tab group
+    my.toolbarActionsList << editSettingsAction;
+    addSeparatorAction();	// end settings group
     my.toolbarActionsList << recordStartAction << recordQueryAction
 			  << recordStopAction;
     addSeparatorAction();	// end recording group
