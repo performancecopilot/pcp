@@ -40,7 +40,7 @@ fi
 
 cd $2
 
-if ./install-kmchart -i -l /var/log/kmchart_inst.log kmchart-idb
+if ./install-kmchart -i -l /var/log/kmchart_inst.log idb-kmchart
 then
     :
 else
