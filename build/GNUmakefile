@@ -38,7 +38,7 @@ $(MANIFEST) : $(_FORCE)
 	fi
 
 dist : default $(MANIFEST)
-	@DIST_MANIFEST=`pwd`/bin-manifest; DIST_ROOT=/tmp/$$$$; \
+	@DIST_MANIFEST=`pwd`/bin-manifest; DIST_ROOT=/tmp/kmchart-build-$$$$; \
 	export DIST_MANIFEST DIST_ROOT; \
 	rm -f $$DIST_MANIFEST; \
 	echo === install === && $(MAKE) -C $(TOPDIR) install || exit $$?; \

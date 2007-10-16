@@ -451,6 +451,9 @@
    </property>
   </action>
   <action name="closeTabAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/tab-close.png</iconset>
+   </property>
    <property name="text" >
     <string>Close Tab</string>
    </property>
@@ -481,6 +484,9 @@
    </property>
   </action>
   <action name="closeChartAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/document-close.png</iconset>
+   </property>
    <property name="text" >
     <string>Close Chart</string>
    </property>

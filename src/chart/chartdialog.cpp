@@ -70,8 +70,10 @@ void ChartDialog::init()
 	SIGNAL(newCol(QRgb)), this, SLOT(newColorTypedIn(QRgb)));
 }
 
-void ChartDialog::reset(Chart *chart, int style)
+void ChartDialog::reset(Chart *chart, int style, QString scheme)
 {
+    my.sequence = 0;
+    my.scheme = scheme;
     my.chart = chart;
     if (!chart) {
 	setWindowTitle(tr("New Chart"));
@@ -93,6 +95,7 @@ void ChartDialog::reset(Chart *chart, int style)
     }
     titleLineEdit->setText(tr(""));
     typeComboBox->setCurrentIndex(style);
+    setupSchemeComboBox();
     legendOn->setChecked(true);
     legendOff->setChecked(false);
     setupAvailableMetricsTree(my.archiveSource);
@@ -242,6 +245,11 @@ void ChartDialog::metricSearchButtonClicked()
     kmchart->metricSearch(availableMetricsTreeWidget);
 }
 
+void ChartDialog::availableMetricsTreeWidget_doubleClicked(QModelIndex)
+{
+    metricAddButtonClicked();
+}
+
 void ChartDialog::metricAddButtonClicked()
 {
     QList<NameSpace *> list;
@@ -262,11 +270,18 @@ void ChartDialog::metricAddButtonClicked()
 	}
     }
 
+    QString scheme = my.chart ? my.chart->scheme() : my.scheme;
+    int sequence = my.chart ? my.chart->sequence() : my.sequence;
+
     availableMetricsTreeWidget->clearSelection();
     chartMetricsTreeWidget->clearSelection();	// selection(s) made below
-    for (int i = 0; i < list.size(); i++) {
-	list.at(i)->addToTree(chartMetricsTreeWidget);
-    }
+    for (int i = 0; i < list.size(); i++)
+	list.at(i)->addToTree(chartMetricsTreeWidget, scheme, &sequence);
+
+    if (my.chart)
+	my.chart->setSequence(sequence);
+    else
+	my.sequence = sequence;
 }
 
 void ChartDialog::archiveButtonClicked()
@@ -611,12 +626,12 @@ bool ChartDialog::setupChartPlotsShortcut(Chart *cp)
     if (chartMetricsTreeWidget->invisibleRootItem()->childCount() > 0)
 	return false;	// go do regular creation paths
 
-    int i;
+    int i, seq = 0;
     QTreeWidgetItemIterator iterator(availableMetricsTreeWidget,
 				   QTreeWidgetItemIterator::Selected);
     for (i = 0; (*iterator); ++iterator, i++) {
 	NameSpace *n = (NameSpace *)(*iterator);
-	QColor c = Chart::defaultColor(-1);
+	QColor c = nextColor(cp->scheme(), &seq);
 	n->setCurrentColor(c, NULL);
 	createChartPlot(cp, n);
     }
@@ -683,4 +698,17 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 void ChartDialog::deleteChartPlot(Chart *cp, int m)
 {
     cp->delPlot(m);
+}
+
+void ChartDialog::setupSchemeComboBox()
+{
+    // TODO - setup & select Default/my.scheme
+}
+
+void ChartDialog::colorSchemeComboBox_currentIndexChanged(int index)
+{
+    if (index == 1)
+	kmchart->settings()->newScheme();
+    else
+	kmchart->settings()->setScheme(index);
 }

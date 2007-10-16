@@ -75,7 +75,7 @@ void SearchDialog::search()
 {
     QString	res;
     QTreeWidgetItemIterator iterator(my.pmns, QTreeWidgetItemIterator::All);
-    int		m_match;
+    int		m_match = 0;
     int		i_match;
     int		count;
     QRegExp	m_rx;

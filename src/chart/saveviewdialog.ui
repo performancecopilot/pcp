@@ -248,10 +248,7 @@
        <item>
         <widget class="QCheckBox" name="preserveSizeCheckBox" >
          <property name="text" >
-          <string>Preserve window size in View</string>
-         </property>
-         <property name="checked" >
-          <bool>true</bool>
+          <string>Preserve window geometry in View</string>
          </property>
         </widget>
        </item>

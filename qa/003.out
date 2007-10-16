@@ -1,8 +1,5 @@
 QA output created by 003
 Load View: stdin
-Warning: stdin[4] global clause not supported yet
-Warning: stdin[5] global clause not supported yet
-Warning: stdin[6] global clause not supported yet
 openView: new chart: style=Stack title="Memory Usage" autoscale=yes legend=yes
 openView: new optional-plot color=#f8ff00 metric=mem.util.kernel
 openView: new optional-plot color=#00ffff metric=mem.util.fs_ctl

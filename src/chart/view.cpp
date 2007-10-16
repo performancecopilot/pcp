@@ -26,11 +26,16 @@
 /*
  * View file parsing routines and global variables follow.  These are
  * currently not part of any class, and may need to be reworked a bit
- * to use more portable (Qt) file IO interfaces.
+ * to use more portable (Qt) file IO interfaces (for a Windows port).
  */
 static char	_fname[MAXPATHLEN];
-static int	_line;
-static int	_errors;
+static uint	_line;
+static uint	_errors;
+static uint	_width;
+static uint	_height;
+static uint	_points;
+static uint	_xpos;
+static uint	_ypos;
 
 #define MAXWDSZ 256
 
@@ -46,6 +51,13 @@ static int	_errors;
 #define M_PMCHART	1
 #define M_KMCHART	2
 
+// global attributes
+#define G_WIDTH		1
+#define G_HEIGHT	2
+#define G_POINTS	3
+#define G_XPOS		4
+#define G_YPOS		5
+
 // host mode
 #define H_DYNAMIC	1
 #define H_LITERAL	2
@@ -55,7 +67,7 @@ static int	_errors;
 #define E_CRIT	1
 #define E_WARN	2
 
-// version numbers we're willing to support or at least acknowledge
+// version numbers we're willing and able to support
 #define P1_1	101
 #define P1_2	102
 #define P2_0	200
@@ -170,27 +182,6 @@ done:
     return buf;
 }
 
-static QColor *
-rgbi2qcolor(char *str)
-{
-    QColor	*c = new QColor(QString("white"));
-    float	fr, fg, fb;
-    int		sts;
-
-    if ((sts = sscanf(str, "rgbi:%f/%f/%f", &fr, &fg, &fb)) == 3) {
-#define hexval(f) ((int)(0.5 + f*256) < 256 ? (int)(0.5 + f*256) : 256)
-	c->setRgb(hexval(fr), hexval(fg), hexval(fb));
-    }
-    else {
-	QString	msg;
-	msg.sprintf("rgbi2qcolor: botch scanf->%d not 3 from \"%s\"\n", sts, str);
-	err(E_CRIT, true, msg);
-	// fallthrough to return "white"
-    }
-
-    return c;
-}
-
 static void
 eol(FILE *f)
 {
@@ -232,11 +223,62 @@ xpect(char *want, char *got)
     err(E_CRIT, true, msg);
 }
 
+int hexval(float f)
+{
+    return ((int)(0.5 + f*256) < 256 ? (int)(0.5 + f*256) : 256);
+}
+
+QColor colorSpec(QString colorName, bool searchSchemes, int *sequence)
+{
+    if (searchSchemes) {
+	if (colorName == "#-cycle")
+	    return nextColor("#-cycle", sequence);
+	for (int i = 0; i < globalSettings.colorSchemes.size(); i++)
+	    if (globalSettings.colorSchemes.at(i).colorNames.at(i) == colorName)
+		return nextColor(colorName, sequence);
+	// if no match, fallthrough...
+    }
+
+    QColor color;
+    QString errmsg, rgbi = colorName;
+    if (rgbi.left(5) == "rgbi:") {
+	float fr, fg, fb;
+	const char *s = (const char *)rgbi.toAscii();
+	if (sscanf(s, "rgbi:%f/%f/%f", &fr, &fg, &fb) == 3)
+	    color.setRgb(hexval(fr), hexval(fg), hexval(fb));
+	else
+	    errmsg = "Cannot parse color name in rgbi:-prefixed format.";
+    } else {
+	color.setNamedColor(colorName);
+    }
+    if (!color.isValid()) {
+	color = Qt::white;
+	errmsg.append("Invalid color name: ");
+	errmsg.append(colorName);
+	err(E_CRIT, true, errmsg);
+    }
+    return color;
+}
+
+
+void OpenViewDialog::globals(int *w, int *h, int *pts, int *x, int *y)
+{
+    // Note: we use global variables here so that all views specified
+    // on the command line get input into these values (the maximum
+    // observed value is always used), without clobbering each other.
+    //
+    *w = _width;
+    *h = _height;
+    *pts = _points;
+    *x = _xpos;
+    *y = _ypos;
+}
+
 bool OpenViewDialog::openView(const char *path)
 {
     Chart		*cp = NULL;
-    int			m;
-    QColor		*c;
+    int			m, i;
+    ColorScheme		scheme;
     FILE		*f;
     int			is_popen = 0;
     char		*w;
@@ -244,13 +286,17 @@ bool OpenViewDialog::openView(const char *path)
     int			mode = M_UNKNOWN;
     int			h_mode;
     int			version;
-    QString		errmsg = QString();
-    int			sts = 0;	// pander to g++
+    QString		errmsg;
+    int			sts = 0;
 
     if (strcmp(path, "-") == 0) {
-	// standard input
 	f = stdin;
 	strcpy(_fname, "stdin");
+    }
+    else if (path[0] == '/') {
+	strcpy(_fname, path);
+	if ((f = fopen(_fname, "r")) == NULL)
+	    goto noview;
     }
     else {
 	strcpy(_fname, path);
@@ -275,14 +321,8 @@ bool OpenViewDialog::openView(const char *path)
 			strcpy(_fname, pmGetConfig("PCP_VAR_DIR"));
 			strcat(_fname, "/config/pmchart/");
 			strcat(_fname, path);
-			if ((f = fopen(_fname, "r")) == NULL) {
-			    QString	msg = QString("Cannot open view file \"");
-			    msg.append(_fname);
-			    msg.append("\"\n");
-			    msg.append(strerror(errno));
-			    err(E_CRIT, false, msg);
-			    return false;
-			}
+			if ((f = fopen(_fname, "r")) == NULL)
+			    goto noview;
 		    }
 		}
 	    }
@@ -293,12 +333,8 @@ bool OpenViewDialog::openView(const char *path)
 	    char	cmd[MAXPATHLEN];
 	    sprintf(cmd, "%s", _fname);
 	    fclose(f);
-	    if ((f = popen(cmd, "r")) == NULL) {
-		QString	msg;
-		msg.sprintf("Cannot execute \"%s\"\n%s", _fname, strerror(errno));
-		err(E_CRIT, false, msg);
-		return false;
-	    }
+	    if ((f = popen(cmd, "r")) == NULL)
+		goto nopipe;
 	    is_popen = 1;
 	}
 	else {
@@ -463,7 +499,7 @@ new_chart:
 			    goto abort_chart;
 			}
 		    }
-		    ymin = (int)strtod(w, &endnum);
+		    ymin = strtod(w, &endnum);
 		    if (*endnum != '\0') {
 			xpect("<ymin>", w);
 			goto abort_chart;
@@ -478,7 +514,7 @@ new_chart:
 			    goto abort_chart;
 			}
 		    }
-		    ymax = (int)strtod(w, &endnum);
+		    ymax = strtod(w, &endnum);
 		    if (*endnum != '\0') {
 			xpect("<ymax>", w);
 			goto abort_chart;
@@ -521,6 +557,7 @@ done_chart:
 		if (Cflag == 0) {
 		    cp = activeTab->addChart();
 		    cp->setStyle(style);
+		    cp->setScheme(scheme.name);
 		    if (title != NULL)
 			cp->changeTitle(title, mode == M_KMCHART);
 		    if (legend == 0)
@@ -537,25 +574,102 @@ abort_chart:
 		goto abandon;
 	    }
 	    else if (strcasecmp(w, "global") == 0) {
-		//
-		// TODO -- global is an alternative clause to Chart at
-		// this point in the config file ... no support for global
-		// options to set: "width", "height", "points" (visible)
-		//
-		err(E_WARN, true, QString("global clause not supported yet"));
-		skip2eol(f);
+		char *endnum;
+		uint value, attr;
+
+		// Global window attributes (geometry and visible points)
+		if ((w = getwd(f)) == NULL || w[0] == '\n') {
+		    xpect("width\", \"height\", \"xpos\", \"ypos\", or \"points", w);
+		    goto abandon;
+		}
+		else if (strcasecmp(w, "width") == 0)
+		    attr = G_WIDTH;
+		else if (strcasecmp(w, "height") == 0)
+		    attr = G_HEIGHT;
+		else if (strcasecmp(w, "points") == 0)
+		    attr = G_POINTS;
+		else if (strcasecmp(w, "xpos") == 0)
+		    attr = G_XPOS;
+		else if (strcasecmp(w, "ypos") == 0)
+		    attr = G_YPOS;
+		else {
+		    xpect("width\", \"height\", \"xpos\", \"ypos\", or \"points", w);
+		    goto abandon;
+		}
+		w = getwd(f);
+		if (w == NULL || w[0] == '\n') {
+		    xpect("<global attribute value>", w);
+		    goto abandon;
+		}
+		value = (uint)strtoul(w, &endnum, 0);
+		if (*endnum != '\0') {
+		    xpect("<global attribute value>", w);
+		    goto abandon;
+		}
+		switch (attr) {
+		case G_WIDTH:
+		    _width = qMax(_width, value);
+		    break;
+		case G_HEIGHT:
+		    _height = qMax(_height, value);
+		    break;
+		case G_POINTS:
+		    _points = qMax(_points, value);
+		    break;
+		case G_XPOS:
+		    _xpos = qMax(_xpos, value);
+		    break;
+		case G_YPOS:
+		    _ypos = qMax(_ypos, value);
+		    break;
+		}
+		eol(f);
 	    }
 	    else if (strcasecmp(w, "scheme") == 0) {
 		//
-		// TODO -- scheme <name> <color> <color>...
+		// scheme <name> <color> <color>...
 		// provides finer-grained control over the color selections
 		// for an individual chart.  The default color scheme is
 		// named #-cycle.  A scheme can be used in place of a direct
 		// color name specification, and the color for a plot is
 		// then defined as the next unused color from that scheme.
 		//
-		err(E_WARN, true, QString("scheme clause not supported yet"));
-		skip2eol(f);
+		w = getwd(f);
+		if (w == NULL || w[0] == '\n') {
+		    xpect("<color scheme value>", w);
+		    goto abandon;
+		}
+		else if (strcmp(w, "#-cycle") == 0) {
+		    xpect("<non-default color scheme name>", w);
+		    goto abandon;
+		}
+		for (i = 0; i < globalSettings.colorSchemes.size(); i++) {
+		    if (globalSettings.colorSchemes.at(i).name == w)
+			break;
+		}
+		// duplicate, just ignore (probably using a seen view again)
+		if (i != globalSettings.colorSchemes.size()) {
+		    skip2eol(f);
+		    continue;
+		}
+		scheme.name = w;
+		scheme.colors.clear();
+		scheme.colorNames.clear();
+		w = getwd(f);
+		while (w && w[0] != '\n') {
+		    scheme.colorNames.append(QString(w));
+		    w = getwd(f);
+		}
+		if (scheme.colorNames.size() < 2) {
+		    xpect("<list of color names>", w);
+		    goto abandon;
+		}
+		for (i = 0; i < scheme.colorNames.size(); i++) {
+		    scheme.colors.append(
+			    colorSpec(scheme.colorNames.at(i), false, NULL));
+		}
+		globalSettings.colorSchemes.append(scheme);
+		eol(f);
 	    }
 	    else {
 		xpect("chart\", \"global\", or \"scheme", w);
@@ -891,15 +1005,10 @@ try_plot:
 			errmsg.append(msg);
 		    }
 		}
-		else {
-		    if (color != NULL && strcmp(color, "#-cycle") != 0) {
-			c = new QColor();
-			if (strncmp(color, "rgbi:", 5) == 0)
-			    c = rgbi2qcolor(color);
-			else
-			    c->setNamedColor(QString(color));
-			cp->setStroke(m, cp->style(), *c);
-		    }
+		else if (color != NULL && strcmp(color, "#-cycle") != 0) {
+		    int seq = cp->sequence();
+		    cp->setStroke(m, cp->style(), colorSpec(color, true, &seq));
+		    cp->setSequence(seq);
 		}
 		if (numinst > 0)
 		    // more instances to be procesed for this metric
@@ -956,6 +1065,28 @@ abandon:
     if (Cflag == 0 && cp != NULL)
 	activeTab->setupWorldView();
     return true;
+
+noview:
+    errmsg = QString("Cannot open view file \"");
+    errmsg.append(_fname);
+    errmsg.append("\"\n");
+    errmsg.append(strerror(errno));
+    err(E_CRIT, false, errmsg);
+    return false;
+
+nopipe:
+    errmsg.sprintf("Cannot execute \"%s\"\n%s", _fname, strerror(errno));
+    err(E_CRIT, false, errmsg);
+    return false;
+}
+
+void SaveViewDialog::setGlobals(int width, int height, int points, int x, int y)
+{
+    _width = width;
+    _height = height;
+    _points = points;
+    _xpos = x;
+    _ypos = y;
 }
 
 bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
@@ -972,16 +1103,18 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
     double	ymax;
     const char	*path = (const char *)file.toAscii();
 
-    // TODO: sizeDynamic - needs "global" + "width", "height", "points"
-    (void)sizeDynamic;
+    if ((f = fopen(path, "w")) == NULL)
+	goto noview;
 
-    if ((f = fopen(path, "w")) == NULL) {
-	QString	msg;
-	msg.sprintf("Cannot open \"%s\" for writing\n%s", path, strerror(errno));
-	err(E_CRIT, false, msg);
-	return false;
-    }
     fprintf(f, "#kmchart\nversion %d\n\n", K1);
+    if (sizeDynamic == false) {
+	fprintf(f, "global width %u\n", _width);
+	fprintf(f, "global height %u\n", _height);
+	fprintf(f, "global points %u\n", _points);
+	fprintf(f, "global xpos %u\n", _xpos);
+	fprintf(f, "global ypos %u\n", _ypos);
+	fprintf(f, "\n");
+    }
     for (c = 0; c < activeTab->numChart(); c++) {
 	cp = activeTab->chart(c);
 	fprintf(f, "chart");
@@ -1047,6 +1180,13 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
 	}
     }
 
+    fflush(f);
     fclose(f);
     return true;
+
+noview:
+    QString errmsg;
+    errmsg.sprintf("Cannot open \"%s\" for writing\n%s", path, strerror(errno));
+    err(E_CRIT, false, errmsg);
+    return false;
 }

@@ -23,9 +23,8 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QListView>
 #include "namespace.h"
-#include "kmchart.h"
-#include "console.h"
 #include "chart.h"
+#include "main.h"
 
 #define DESPERATE 0
 
@@ -375,7 +374,8 @@ NameSpace *NameSpace::dup(QTreeWidget *list)
     return n;
 }
 
-NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
+NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree,
+			  QString scheme, int *sequence)
 {
     NameSpace *n;
 
@@ -397,7 +397,7 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree)
 	n->expand();
 	n->setSelectable(true);
 
-	QColor c = Chart::defaultColor(-1);
+	QColor c = nextColor(scheme, sequence);
 	n->setOriginalColor(c);
 	n->setCurrentColor(c, NULL);
 
@@ -422,7 +422,7 @@ bool NameSpace::cmp(NameSpace *item)
     return (item->text(0) == my.basename);
 }
 
-void NameSpace::addToTree(QTreeWidget *target)
+void NameSpace::addToTree(QTreeWidget *target, QString scheme, int *sequence)
 {
     QList<NameSpace *> nodelist;
     NameSpace *node;
@@ -465,7 +465,7 @@ void NameSpace::addToTree(QTreeWidget *target)
 		tree = node->dup(target);
 	    }
 	    else if (tree) {
-		tree = node->dup(target, tree);
+		tree = node->dup(target, tree, scheme, sequence);
 	    }
 	}
     }

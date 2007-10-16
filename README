@@ -27,12 +27,11 @@ Refer to doc/INSTALL for instructions on building these tools.
   kmchart
 
     - Views
-      Add the last two missing pieces of functionality from the pmchart
-      configuration language - i.e. the "global" and "scheme" keywords:
-      o The (colour) scheme keyword should also have some additional UI
-	functionality for adding and editing schemes via Settings dialog
-	and for changing the scheme in the New/Edit Chart dialogs (add a
-	combo box on the Chart Tab, with "#-cycle" mapping to "Default").
+      Add the last missing piece of functionality from the pmchart
+      configuration language - i.e. the "scheme" keyword.  This keyword
+      needs UI functionality for adding and editing schemes via Settings
+      dialog and for changing the scheme in the New/Edit Chart dialogs
+      (combo box on the Chart Tab, with "#-cycle" mapping to "Default").
 
     - Charting issues
       o Scaling of the tick marks on the Y-axis is not yet correct,
@@ -123,9 +122,7 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Destructors and memory leak plugging.
     - Code audit for TODOs; either fix, exception or add to wishlist.
     - QA test audit for TODOs; either fix, exception or add to wishlist.
-    - Need toolbar icons for: Close Chart, Save View, Query & Stop Record,
-      Close Tab.
-    - Cleanup icons for: Edit Tab, New Tab.
+    - Need toolbar icons for: Save View, Query & Stop Record.
 
   kmtime
 
