@@ -35,6 +35,7 @@ public:
     virtual QRgb currentColor();
     virtual void setCurrentColor(QRgb);
     virtual void showCurrentColor();
+    virtual void setupSchemeComboBox();
     virtual void setupAvailableMetricsTree(bool);
     virtual void setupChartPlots(Chart *);
     virtual bool setupChartPlotsShortcut(Chart *);
@@ -92,6 +93,8 @@ private:
 	double yMin;
 	double yMax;
 	Chart *chart;
+	int sequence;
+	QString scheme;
 
 	int hue;
 	int sat;
