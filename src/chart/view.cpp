@@ -1114,6 +1114,26 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
 	fprintf(f, "global ypos %u\n", _ypos);
 	fprintf(f, "\n");
     }
+    QStringList schemes;
+    for (c = 0; c < activeTab->numChart(); c++) {
+	cp = activeTab->chart(c);
+	if (cp->scheme() == QString::null ||
+	    schemes.contains(cp->scheme()) == true)
+	    continue;
+	schemes.append(cp->scheme());
+    }
+    for (c = 0; c < schemes.size(); c++) {
+	for (m = 0; m < globalSettings.colorSchemes.size(); m++)
+	    if (globalSettings.colorSchemes.at(m).name == schemes.at(c))
+		break;
+	if (m < globalSettings.colorSchemes.size()) {
+	    ColorScheme cs = globalSettings.colorSchemes.at(m);
+	    fprintf(f, "scheme %s", (const char *)cs.name.toAscii());
+	    for (m = 0; m < cs.colorNames.size(); m++)
+		fprintf(f, " %s", (const char *)cs.colorNames.at(m).toAscii());
+	    fprintf(f, "\n\n");
+	}
+    }
     for (c = 0; c < activeTab->numChart(); c++) {
 	cp = activeTab->chart(c);
 	fprintf(f, "chart");

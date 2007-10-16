@@ -1073,16 +1073,6 @@
         <height>26</height>
        </rect>
       </property>
-      <item>
-       <property name="text" >
-        <string>Default Scheme</string>
-       </property>
-      </item>
-      <item>
-       <property name="text" >
-        <string>New Scheme</string>
-       </property>
-      </item>
      </widget>
      <widget class="QLineEdit" name="schemeLineEdit" >
       <property name="enabled" >

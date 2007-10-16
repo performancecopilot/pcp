@@ -92,8 +92,8 @@ void SettingsDialog::reset()
     defaultBackgroundButton->setColor(QColor(globalSettings.chartBackground));
     selectedHighlightButton->setColor(QColor(globalSettings.chartHighlight));
 
-    setupSchemePalette();
     setupSchemeComboBox();
+    setupSchemePalette();
 
     QList<QAction*> actionsList = kmchart->toolbarActionsList();
     QList<QAction*> enabledList = kmchart->enabledActionsList();
@@ -385,7 +385,7 @@ void SettingsDialog::setupSchemePalette()
 {
     ColorButton **buttons;
     int colorCount = colorArray(&buttons);
-    int i, index = schemeComboBox->currentIndex();
+    int i = 0, index = schemeComboBox->currentIndex();
 
     if (index == 1)	// keep whatever is there as the starting point
 	i = colorCount;
@@ -395,7 +395,7 @@ void SettingsDialog::setupSchemePalette()
 	    buttons[i]->setColor(color);
 	}
     }
-    else {
+    else if (index > 1) {
 	int j = index - 2;
 	int count = globalSettings.colorSchemes.at(j).colors.count();
 	for (i = 0; i < count; i++) {
@@ -410,14 +410,14 @@ void SettingsDialog::setupSchemePalette()
 
 void SettingsDialog::setupSchemeComboBox()
 {
+    schemeComboBox->blockSignals(true);
     schemeComboBox->clear();
-    schemeComboBox->addItem("Default Scheme");
-    schemeComboBox->addItem("New Scheme");
+    schemeComboBox->addItem(tr("Default Scheme"));
+    schemeComboBox->addItem(tr("New Scheme"));
     for (int i = 0; i < globalSettings.colorSchemes.size(); i++) {
 	QString name = globalSettings.colorSchemes.at(i).name;
 	schemeComboBox->addItem(name);
     }
-    schemeComboBox->blockSignals(true);
     schemeComboBox->setCurrentIndex(0);
     schemeComboBox->blockSignals(false);
 }
@@ -432,6 +432,11 @@ void SettingsDialog::schemeComboBox_currentIndexChanged(int index)
     else {
 	schemeLineEdit->setText(schemeComboBox->currentText());
 	schemeLineEdit->setEnabled(true);
-	removeSchemeButton->setEnabled(index > 1);
+	if (index == 1)
+	    removeSchemeButton->setEnabled(false);
+	else {
+	    removeSchemeButton->setEnabled(true);
+	    setupSchemePalette();
+	}
     }
 }
