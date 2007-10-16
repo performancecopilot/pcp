@@ -72,14 +72,16 @@ public:
     virtual void setButtonState(TimeButton::State state);
     virtual void setRecordState(Tab *tab, bool recording);
 
-    virtual SettingsDialog *settings() { return my.settings; }
-    virtual void updateToolbarLocation();
     virtual void updateToolbarContents();
+    virtual void updateToolbarLocation();
     virtual QList<QAction*> toolbarActionsList();
     virtual QList<QAction*> enabledActionsList();
     virtual void setupEnabledActionsList();
     virtual void addSeparatorAction();
     virtual void setEnabledActionsList(QStringList tools, bool redisplay);
+
+    virtual void newScheme();	// request new scheme of settings dialog
+    virtual void newScheme(QString);	// reply back to requesting dialog(s)
 
 public slots:
     virtual void init();

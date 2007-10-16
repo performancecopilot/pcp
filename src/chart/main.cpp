@@ -264,6 +264,8 @@ void readSettings(void)
 	colorList = userSettings.value("defaultColorScheme").toStringList();
     else
 	colorList << "yellow" << "blue" << "red" << "green" << "violet";
+    globalSettings.defaultScheme.name = "#-cycle";
+    globalSettings.defaultScheme.isModified = false;
     globalSettings.defaultScheme.colorNames = colorList;
     for (int i = 0; i < colorList.size(); i++)
 	globalSettings.defaultScheme.colors << QColor(colorList.at(i));
@@ -277,6 +279,7 @@ void readSettings(void)
 	for (int j = 0; j < colorList.size(); j++)
 	    scheme.colors << QColor(colorList.at(j));
 	scheme.name = name;
+	scheme.isModified = false;
 	scheme.colorNames = colorList;
 	globalSettings.colorSchemes.append(scheme);
     }
@@ -307,6 +310,14 @@ void readSettings(void)
     // else: (defaults come from the kmchart.ui interface specification)
 
     userSettings.endGroup();
+}
+
+void readSchemes(void)
+{
+    QString schemes = pmGetConfig("PCP_VAR_DIR");
+    QFileInfo fi(schemes.append("/config/kmchart/Schemes"));
+    if (fi.exists())
+	OpenViewDialog::openView(schemes.toAscii());
 }
 
 // Get next color from given scheme or from default colors for #-cycle
@@ -645,6 +656,7 @@ main(int argc, char ** argv)
     kmchart->setActiveTab(archives.size() > 0 ? 1 : 0, true);
     console->post("Phase2 user interface setup complete");
 
+    readSchemes();
     for (c = 0; c < configs.size(); c++)
 	OpenViewDialog::openView((const char *)configs[c].toAscii());
     setupViewGlobals();

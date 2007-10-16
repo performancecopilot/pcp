@@ -807,3 +807,16 @@ void KmChart::setEnabledActionsList(QStringList tools, bool redisplay)
 	    toolBar->show();
     }
 }
+
+void KmChart::newScheme()
+{
+    my.settings->newScheme();
+}
+
+void KmChart::newScheme(QString cs)
+{
+    my.newchart->setCurrentScheme(cs);
+    my.newchart->setupSchemeComboBox();
+    my.editchart->setCurrentScheme(cs);
+    my.editchart->setupSchemeComboBox();
+}

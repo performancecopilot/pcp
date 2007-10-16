@@ -72,9 +72,6 @@ void SettingsDialog::enableUi()
 
 void SettingsDialog::reset()
 {
-    ColorButton **buttons;
-    int i, colorCount;
-
     my.chartUnits = KmTime::Seconds;
     chartDeltaLineEdit->setText(
 	KmTime::deltaString(globalSettings.chartDelta, my.chartUnits));
@@ -95,11 +92,8 @@ void SettingsDialog::reset()
     defaultBackgroundButton->setColor(QColor(globalSettings.chartBackground));
     selectedHighlightButton->setColor(QColor(globalSettings.chartHighlight));
 
-    colorCount = colorArray(&buttons);
-    for (i = 0; i < globalSettings.defaultScheme.colorNames.count(); i++)
-	buttons[i]->setColor(QColor(globalSettings.defaultScheme.colors[i]));
-    for (; i < colorCount; i++)
-	buttons[i]->setColor(QColor(Qt::white));
+    setupSchemePalette();
+    setupSchemeComboBox();
 
     QList<QAction*> actionsList = kmchart->toolbarActionsList();
     QList<QAction*> enabledList = kmchart->enabledActionsList();
@@ -229,8 +223,11 @@ void SettingsDialog::buttonOk_clicked()
 	}
     }
 
-    if (inputValid)
+    if (inputValid) {
+	if (my.newScheme != QString::null)
+	    kmchart->newScheme(my.newScheme);
 	QDialog::accept();
+    }
 }
 
 void SettingsDialog::chartDeltaUnitsComboBox_activated(int value)
@@ -342,6 +339,7 @@ void SettingsDialog::actionListWidget_itemClicked(QListWidgetItem *item)
 void SettingsDialog::newScheme()
 {
     reset();
+    my.newScheme = QString::null;
     settingsTab->setCurrentIndex(1);	// Colors Tab
 
     // Disable signals here and explicitly call the index changed
@@ -352,27 +350,7 @@ void SettingsDialog::newScheme()
     schemeComboBox_currentIndexChanged(1);
     schemeLineEdit->selectAll();
     schemeLineEdit->setFocus();
-}
-
-int SettingsDialog::setScheme(int index)
-{
-    schemeComboBox->setCurrentIndex(index);
-    fprintf(stderr, "Set scheme by index %d", index);
-    // TODO: why?
-    return 0;
-}
-
-int SettingsDialog::setScheme(QString name)
-{
-    // Skip first two (Default and New Scheme)
-    for (int i = 2; i < schemeComboBox->count(); i++) {
-	if (schemeComboBox->itemText(i) == name) {
-	    schemeComboBox->setCurrentIndex(i);
-	}
-    }
-    fprintf(stderr, "Set scheme by name to %s", (const char *)name.toAscii());
-    // TODO: why?
-    return 0;
+    show();
 }
 
 void SettingsDialog::removeSchemeButton_clicked()
@@ -395,11 +373,53 @@ void SettingsDialog::updateSchemeButton_clicked()
 	// create new scheme, as long as name doesnt conflict with
 	// another; then run through colors and setup the scheme
 	fprintf(stderr, "TODO: Create scheme %s", (const char *)name.toAscii());
+	my.newScheme = name;
     }
     else if (schemeComboBox->currentIndex() == 0) {	// Default
 	// run through default colors and update that scheme
 	fprintf(stderr, "TODO: Edit default scheme");
     }
+}
+
+void SettingsDialog::setupSchemePalette()
+{
+    ColorButton **buttons;
+    int colorCount = colorArray(&buttons);
+    int i, index = schemeComboBox->currentIndex();
+
+    if (index == 1)	// keep whatever is there as the starting point
+	i = colorCount;
+    else if (index == 0) {
+	for (i = 0; i < globalSettings.defaultScheme.colors.count(); i++) {
+	    QColor color = globalSettings.defaultScheme.colors.at(i);
+	    buttons[i]->setColor(color);
+	}
+    }
+    else {
+	int j = index - 2;
+	int count = globalSettings.colorSchemes.at(j).colors.count();
+	for (i = 0; i < count; i++) {
+	    QColor color = globalSettings.colorSchemes.at(j).colors.at(i);
+	    buttons[i]->setColor(color);
+	}
+    }
+
+    while (i < colorCount)
+	buttons[i++]->setColor(QColor(Qt::white));
+}
+
+void SettingsDialog::setupSchemeComboBox()
+{
+    schemeComboBox->clear();
+    schemeComboBox->addItem("Default Scheme");
+    schemeComboBox->addItem("New Scheme");
+    for (int i = 0; i < globalSettings.colorSchemes.size(); i++) {
+	QString name = globalSettings.colorSchemes.at(i).name;
+	schemeComboBox->addItem(name);
+    }
+    schemeComboBox->blockSignals(true);
+    schemeComboBox->setCurrentIndex(0);
+    schemeComboBox->blockSignals(false);
 }
 
 void SettingsDialog::schemeComboBox_currentIndexChanged(int index)

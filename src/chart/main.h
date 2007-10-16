@@ -28,6 +28,7 @@
 
 typedef struct {
 	QString name;
+	bool isModified;
 	QList<QColor> colors;
 	QStringList colorNames;
 } ColorScheme;
