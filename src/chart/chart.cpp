@@ -590,6 +590,12 @@ void Chart::setStroke(int m, Style style, QColor color)
     setStroke(my.plots[m], style, color);
 }
 
+bool Chart::isStepped(Plot *plot)
+{
+    int sem = plot->metric->desc().desc().sem;
+    return (sem == PM_SEM_INSTANT || sem == PM_SEM_DISCRETE);
+}
+
 void Chart::setStroke(Plot *plot, Style style, QColor color)
 {
     console->post("Chart::setStroke [style %d->%d]", my.style, style);
@@ -606,7 +612,8 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	case AreaStyle:
 	    plot->curve->setPen(color);
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
-	    plot->curve->setStyle(QwtPlotCurve::Lines);
+	    plot->curve->setStyle(isStepped(plot) ?
+				  QwtPlotCurve::Steps : QwtPlotCurve::Lines);
 	    break;
 
 	case UtilisationStyle:
@@ -653,7 +660,8 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	case LineStyle:
 	    plot->curve->setPen(color);
 	    plot->curve->setBrush(QBrush(Qt::NoBrush));
-	    plot->curve->setStyle(QwtPlotCurve::Lines);
+	    plot->curve->setStyle(isStepped(plot) ?
+				  QwtPlotCurve::Steps : QwtPlotCurve::Lines);
 	    plot->curve->setRenderHint(QwtPlotItem::RenderAntialiased);
 
 	    if (my.style != LineStyle) {
