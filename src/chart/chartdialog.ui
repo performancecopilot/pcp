@@ -1505,16 +1505,6 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
-   <class>QColorPicker</class>
-   <extends>QFrame</extends>
-   <header>qcolorpicker.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QColorShowLabel</class>
-   <extends>QFrame</extends>
-   <header>qcolorpicker.h</header>
-  </customwidget>
-  <customwidget>
    <class>QColLineEdit</class>
    <extends>QLineEdit</extends>
    <header>qcolorpicker.h</header>
@@ -1527,6 +1517,16 @@
   <customwidget>
    <class>QColorLuminancePicker</class>
    <extends>QWidget</extends>
+   <header>qcolorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QColorPicker</class>
+   <extends>QFrame</extends>
+   <header>qcolorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QColorShowLabel</class>
+   <extends>QFrame</extends>
    <header>qcolorpicker.h</header>
   </customwidget>
  </customwidgets>
@@ -1808,6 +1808,22 @@
     </hint>
     <hint type="destinationlabel" >
      <x>302</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>availableMetricsTreeWidget</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>availableMetricsTreeWidget_doubleClicked(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>334</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>305</x>
      <y>213</y>
     </hint>
    </hints>

@@ -24,11 +24,12 @@ LLDFLAGS = -L$(TOPDIR)/libqmc/build/Default -L$(TOPDIR)/libqwt/build/Default
 endif
 
 ICONLINKS = aboutpcp.png aboutqt.png aboutkmchart.png kmchart.png kmtime.png \
-	    document-new.png document-open.png document-print.png \
-	    document-export.png document-properties.png edit-clear.png \
+	    document-close.png document-new.png document-open.png \
+	    document-print.png document-export.png document-properties.png \
+	    edit-clear.png settings.png \
 	    archive.png computer.png camera-video.png system-search.png \
 	    process-stop.png go-jump.png go-previous.png \
-	    tab-new.png tab-edit.png zoom-in.png zoom-out.png settings.png \
+	    tab-close.png tab-new.png tab-edit.png zoom-in.png zoom-out.png \
 	    help-contents.png help-browser.png whatsthis.png \
 	    filearchive.png filefolder.png filegeneric.png filehtml.png \
 	    fileimage.png filepackage.png filespreadsheet.png fileview.png \

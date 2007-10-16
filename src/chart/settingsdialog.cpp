@@ -54,6 +54,22 @@ int SettingsDialog::colorArray(ColorButton ***array)
     return sizeof(buttons) / sizeof(buttons[0]);
 }
 
+void SettingsDialog::enableUi()
+{
+    bool colors = (settingsTab->currentIndex() == 1);
+    bool userScheme = (schemeComboBox->currentIndex() > 1);
+
+    if (colors) {
+	removeSchemeButton->show();
+	updateSchemeButton->show();
+    }
+    else {
+	removeSchemeButton->hide();
+	updateSchemeButton->hide();
+    }
+    removeSchemeButton->setEnabled(userScheme);
+}
+
 void SettingsDialog::reset()
 {
     ColorButton **buttons;
@@ -108,6 +124,8 @@ void SettingsDialog::reset()
     globalSettings.initialToolbarModified = false;
     globalSettings.toolbarLocationModified = false;
     globalSettings.toolbarActionsModified = false;
+
+    enableUi();
 }
 
 void SettingsDialog::flush()
@@ -176,6 +194,11 @@ void SettingsDialog::flush()
 	kmchart->setEnabledActionsList(actions, true);
 	kmchart->updateToolbarContents();
     }
+}
+
+void SettingsDialog::settingsTab_currentChanged(int)
+{
+    enableUi();
 }
 
 void SettingsDialog::buttonOk_clicked()
@@ -300,22 +323,6 @@ void SettingsDialog::colorButtonClicked(int n)
 	globalSettings.defaultSchemeModified = true;
 }
 
-void SettingsDialog::deleteSchemeButton_clicked()
-{
-}
-
-void SettingsDialog::insertSchemeButton_clicked()
-{
-}
-
-void SettingsDialog::schemeLineEdit_editingFinished()
-{
-}
-
-void SettingsDialog::schemeComboBox_currentIndexChanged(int)
-{
-}
-
 void SettingsDialog::toolbarCheckBox_clicked()
 {
     globalSettings.initialToolbarModified = true;
@@ -334,14 +341,77 @@ void SettingsDialog::actionListWidget_itemClicked(QListWidgetItem *item)
 
 void SettingsDialog::newScheme()
 {
+    reset();
+    settingsTab->setCurrentIndex(1);	// Colors Tab
+
+    // Disable signals here and explicitly call the index changed
+    // routine so that we don't race with setFocus and selectAll.
+    schemeComboBox->blockSignals(true);
+    schemeComboBox->setCurrentIndex(1);	// New Scheme
+    schemeComboBox->blockSignals(false);
+    schemeComboBox_currentIndexChanged(1);
+    schemeLineEdit->selectAll();
+    schemeLineEdit->setFocus();
 }
 
-int SettingsDialog::setScheme(int)
+int SettingsDialog::setScheme(int index)
 {
+    schemeComboBox->setCurrentIndex(index);
+    fprintf(stderr, "Set scheme by index %d", index);
+    // TODO: why?
     return 0;
 }
 
-int SettingsDialog::setScheme(QString)
+int SettingsDialog::setScheme(QString name)
 {
+    // Skip first two (Default and New Scheme)
+    for (int i = 2; i < schemeComboBox->count(); i++) {
+	if (schemeComboBox->itemText(i) == name) {
+	    schemeComboBox->setCurrentIndex(i);
+	}
+    }
+    fprintf(stderr, "Set scheme by name to %s", (const char *)name.toAscii());
+    // TODO: why?
     return 0;
+}
+
+void SettingsDialog::removeSchemeButton_clicked()
+{
+    QString name = schemeComboBox->currentText();
+    for (int i = 0; i < globalSettings.colorSchemes.size(); i++)
+	if (globalSettings.colorSchemes.at(i).name == name)
+	    globalSettings.colorSchemes.removeAt(i);
+}
+
+void SettingsDialog::updateSchemeButton_clicked()
+{
+    QString name = schemeLineEdit->text();
+    if (schemeComboBox->currentIndex() > 1) {		// Edit scheme
+	// change name, as long as it doesnt conflict with another
+	// then run through colors and update the scheme
+	fprintf(stderr, "TODO: Edit scheme %s", (const char *)name.toAscii());
+    }
+    else if (schemeComboBox->currentIndex() == 1) {	// New Scheme
+	// create new scheme, as long as name doesnt conflict with
+	// another; then run through colors and setup the scheme
+	fprintf(stderr, "TODO: Create scheme %s", (const char *)name.toAscii());
+    }
+    else if (schemeComboBox->currentIndex() == 0) {	// Default
+	// run through default colors and update that scheme
+	fprintf(stderr, "TODO: Edit default scheme");
+    }
+}
+
+void SettingsDialog::schemeComboBox_currentIndexChanged(int index)
+{
+    if (index == 0) {	// Default Scheme
+	schemeLineEdit->setEnabled(false);
+	schemeLineEdit->setText("#-cycle");
+	removeSchemeButton->setEnabled(false);
+    }
+    else {
+	schemeLineEdit->setText(schemeComboBox->currentText());
+	schemeLineEdit->setEnabled(true);
+	removeSchemeButton->setEnabled(index > 1);
+    }
 }

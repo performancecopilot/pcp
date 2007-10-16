@@ -72,6 +72,8 @@ void ChartDialog::init()
 
 void ChartDialog::reset(Chart *chart, int style, QString scheme)
 {
+    my.sequence = 0;
+    my.scheme = scheme;
     my.chart = chart;
     if (!chart) {
 	setWindowTitle(tr("New Chart"));
@@ -93,7 +95,7 @@ void ChartDialog::reset(Chart *chart, int style, QString scheme)
     }
     titleLineEdit->setText(tr(""));
     typeComboBox->setCurrentIndex(style);
-    colorSchemeComboBox->setCurrentIndex(kmchart->settings()->setScheme(scheme));
+    setupSchemeComboBox();
     legendOn->setChecked(true);
     legendOff->setChecked(false);
     setupAvailableMetricsTree(my.archiveSource);
@@ -243,6 +245,11 @@ void ChartDialog::metricSearchButtonClicked()
     kmchart->metricSearch(availableMetricsTreeWidget);
 }
 
+void ChartDialog::availableMetricsTreeWidget_doubleClicked(QModelIndex)
+{
+    metricAddButtonClicked();
+}
+
 void ChartDialog::metricAddButtonClicked()
 {
     QList<NameSpace *> list;
@@ -263,15 +270,18 @@ void ChartDialog::metricAddButtonClicked()
 	}
     }
 
+    QString scheme = my.chart ? my.chart->scheme() : my.scheme;
+    int sequence = my.chart ? my.chart->sequence() : my.sequence;
+
     availableMetricsTreeWidget->clearSelection();
     chartMetricsTreeWidget->clearSelection();	// selection(s) made below
-
-    QString scheme = my.chart ? my.chart->scheme() : QString::null;
-    int sequence = my.chart ? my.chart->sequence() : 0;
     for (int i = 0; i < list.size(); i++)
 	list.at(i)->addToTree(chartMetricsTreeWidget, scheme, &sequence);
+
     if (my.chart)
 	my.chart->setSequence(sequence);
+    else
+	my.sequence = sequence;
 }
 
 void ChartDialog::archiveButtonClicked()
@@ -703,6 +713,11 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 void ChartDialog::deleteChartPlot(Chart *cp, int m)
 {
     cp->delPlot(m);
+}
+
+void ChartDialog::setupSchemeComboBox()
+{
+    // TODO - setup & select Default/my.scheme
 }
 
 void ChartDialog::colorSchemeComboBox_currentIndexChanged(int index)

@@ -681,6 +681,7 @@ void Tab::stopRecording(void)
 			   source.timezone(), source.host());
     }
 
+#if 0
     // If all is well, we can now create the new Tab
     if (i == my.archiveList.size()) {
 	Tab *tab = new Tab;
@@ -692,6 +693,7 @@ void Tab::stopRecording(void)
 	kmchart->setActiveTab(tabs.size() - 1, false);
 	OpenViewDialog::openView((const char *)my.view.toAscii());
     }
+#endif
 
     cleanupRecording();
 }

@@ -35,6 +35,7 @@ public:
     virtual QRgb currentColor();
     virtual void setCurrentColor(QRgb);
     virtual void showCurrentColor();
+    virtual void setupSchemeComboBox();
     virtual void setupAvailableMetricsTree(bool);
     virtual void setupChartPlots(Chart *);
     virtual bool setupChartPlotsShortcut(Chart *);
@@ -49,6 +50,7 @@ public slots:
     virtual void chartMetricsItemSelectionChanged();
     virtual void availableMetricsItemSelectionChanged();
     virtual void availableMetricsItemExpanded(QTreeWidgetItem *);
+    virtual void availableMetricsTreeWidget_doubleClicked(QModelIndex);
     virtual void metricInfoButtonClicked();
     virtual void metricSearchButtonClicked();
     virtual void metricDeleteButtonClicked();
@@ -92,6 +94,8 @@ private:
 	double yMin;
 	double yMax;
 	Chart *chart;
+	int sequence;
+	QString scheme;
 
 	int hue;
 	int sat;

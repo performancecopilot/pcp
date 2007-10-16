@@ -24,7 +24,7 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog
 
 public:
     SettingsDialog(QWidget* parent);
-
+    void enableUi();
     void reset();
     void flush();
 
@@ -34,6 +34,7 @@ public:
 
 public slots:
     virtual void buttonOk_clicked();
+    virtual void settingsTab_currentChanged(int index);
 
     virtual void chartDeltaUnitsComboBox_activated(int value);
     virtual void loggerDeltaUnitsComboBox_activated(int value);
@@ -43,9 +44,8 @@ public slots:
     virtual void selectedHighlightButton_clicked();
     virtual void defaultBackgroundButton_clicked();
     virtual void colorButtonClicked(int);
-    virtual void deleteSchemeButton_clicked();
-    virtual void insertSchemeButton_clicked();
-    virtual void schemeLineEdit_editingFinished();
+    virtual void removeSchemeButton_clicked();
+    virtual void updateSchemeButton_clicked();
     virtual void schemeComboBox_currentIndexChanged(int);
 
     virtual void toolbarCheckBox_clicked();
