@@ -55,6 +55,20 @@
      <number>6</number>
     </property>
     <item>
+     <widget class="QPushButton" name="updateSchemeButton" >
+      <property name="text" >
+       <string>Update</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="removeSchemeButton" >
+      <property name="text" >
+       <string>Remove</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <spacer>
       <property name="orientation" >
        <enum>Qt::Horizontal</enum>
@@ -111,7 +125,7 @@
     </rect>
    </property>
    <property name="currentIndex" >
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="samplesTab" >
     <attribute name="title" >
@@ -1050,36 +1064,12 @@
        <string/>
       </property>
      </widget>
-     <widget class="QLineEdit" name="schemeLineEdit" >
-      <property name="enabled" >
-       <bool>false</bool>
-      </property>
-      <property name="geometry" >
-       <rect>
-        <x>191</x>
-        <y>22</y>
-        <width>110</width>
-        <height>26</height>
-       </rect>
-      </property>
-      <property name="sizePolicy" >
-       <sizepolicy>
-        <hsizetype>5</hsizetype>
-        <vsizetype>0</vsizetype>
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text" >
-       <string>#-cycle</string>
-      </property>
-     </widget>
      <widget class="QComboBox" name="schemeComboBox" >
       <property name="geometry" >
        <rect>
-        <x>51</x>
+        <x>11</x>
         <y>22</y>
-        <width>131</width>
+        <width>171</width>
         <height>26</height>
        </rect>
       </property>
@@ -1094,36 +1084,28 @@
        </property>
       </item>
      </widget>
-     <widget class="QPushButton" name="deleteSchemeButton" >
+     <widget class="QLineEdit" name="schemeLineEdit" >
+      <property name="enabled" >
+       <bool>false</bool>
+      </property>
       <property name="geometry" >
        <rect>
-        <x>10</x>
+        <x>190</x>
         <y>20</y>
-        <width>31</width>
+        <width>151</width>
         <height>29</height>
        </rect>
       </property>
-      <property name="text" >
-       <string/>
-      </property>
-      <property name="icon" >
-       <iconset resource="kmchart.qrc" >:/process-stop.png</iconset>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="insertSchemeButton" >
-      <property name="geometry" >
-       <rect>
-        <x>310</x>
-        <y>20</y>
-        <width>31</width>
-        <height>29</height>
-       </rect>
+      <property name="sizePolicy" >
+       <sizepolicy>
+        <hsizetype>5</hsizetype>
+        <vsizetype>0</vsizetype>
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
       <property name="text" >
-       <string/>
-      </property>
-      <property name="icon" >
-       <iconset resource="kmchart.qrc" >:/go-previous.png</iconset>
+       <string>#-cycle</string>
       </property>
      </widget>
     </widget>
@@ -1935,54 +1917,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>schemeLineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>SettingsDialog</receiver>
-   <slot>schemeLineEdit_editingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>282</x>
-     <y>138</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>193</x>
-     <y>129</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>deleteSchemeButton</sender>
-   <signal>clicked()</signal>
-   <receiver>SettingsDialog</receiver>
-   <slot>deleteSchemeButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>46</x>
-     <y>138</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>193</x>
-     <y>129</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>insertSchemeButton</sender>
-   <signal>clicked()</signal>
-   <receiver>SettingsDialog</receiver>
-   <slot>insertSchemeButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>346</x>
-     <y>138</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>193</x>
-     <y>129</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>selectedHighlightButton</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
@@ -1991,6 +1925,54 @@
     <hint type="sourcelabel" >
      <x>346</x>
      <y>94</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>194</x>
+     <y>129</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removeSchemeButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>removeSchemeButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>129</x>
+     <y>244</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>194</x>
+     <y>129</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>updateSchemeButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>updateSchemeButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>43</x>
+     <y>244</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>194</x>
+     <y>129</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>settingsTab</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>settingsTab_currentChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>195</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel" >
      <x>194</x>
