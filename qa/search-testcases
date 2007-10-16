@@ -41,6 +41,15 @@ Search Dialog for Metric Selection
     - Clear and Cancel buttons enabled
     - Select All, Search and OK buttons disabled
 
+[ ] Go to the New Chart dialog,
+    - in live mode, select disk.all.read and select all of the instances
+      for network.interface.total.packets.
+    - in archive mode, select sample.bigid and all of the instances for
+      pmcd.pmlogger.port
+    Click the search icon to open the Search Metric dialog.
+    The New Chart dialog should be unchanged and insensitive (Search
+    Metric is modal).
+
 [ ] In the Instance Name Pattern, enter ^bin-[0-5]..$ then click Search.
     Expect 40 matches for the instance names bin-100 to bin-500 for the
     8 metrics (.bin .bogus_bin .bucket and .part_bin for the sample and
@@ -49,14 +58,8 @@ Search Dialog for Metric Selection
     Expect just 10 matches for the .bogus_bin metrics in the sample and
     sampledso pmdas.
 
-[ ] Go to the New Chart dialog,
-    - in live mode, select disk.all.read and select all of the instances
-      for network.interface.total.packets.
-    - in archive mode, select sample.bigid and all of the instances for
-      pmcd.pmlogger.port
-    Return the the Metric Search dialog, click Select All, then click
-    OK.
-    Return to the New Chart dialog, click the Insert plot into button
+[ ] Click Select All, then click OK.
+    Back in the New Chart dialog, click the Insert plot into button
     and verify that all of metrics appear in the chart
     - disk.all.read (or sample.bigid)
     - all the instances of network.interface.total.packets (or

@@ -16,6 +16,7 @@
 #include <QtCore/QTimer>
 #include <QtGui/QLayout>
 #include <QtGui/QMessageBox>
+#include <QtGui/QPalette>
 #include <qwt_plot.h>
 #include <qwt_plot_layout.h>
 #include <qwt_scale_draw.h>
@@ -157,6 +158,7 @@ void Tab::setCurrent(Chart *cp)
 {
     QwtScaleWidget *sp;
     QwtText t;
+    QPalette palette;
     int i;
 
     for (i = 0; i < my.count; i++)
@@ -171,22 +173,30 @@ void Tab::setCurrent(Chart *cp)
 	t = my.charts[my.current]->titleLabel()->text();
 	t.setColor("black");
 	my.charts[my.current]->setTitle(t);
+	palette = my.charts[my.current]->titleLabel()->palette();
+	palette.setColor(QPalette::Active, QPalette::Text, QColor("black"));
+        my.charts[my.current]->titleLabel()->setPalette(palette);
 	sp = my.charts[my.current]->axisWidget(QwtPlot::yLeft);
 	t = sp->title();
 	t.setColor("black");
 	sp->setTitle(t);
-	sp = my.charts[my.current]->axisWidget(QwtPlot::xBottom);
     }
     my.current = i;
-    // set highlight for new current
+    // set title and y-axis highlight for new current
+    // for title, have to set both QwtText and QwtTextLabel because of
+    // the way attributes are cached and restored when printing charts
+    //
     t = cp->titleLabel()->text();
     t.setColor(globalSettings.chartHighlight);
     cp->setTitle(t);
+    my.charts[my.current]->setTitle(t);
+    palette = my.charts[my.current]->titleLabel()->palette();
+    palette.setColor(QPalette::Active, QPalette::Text, globalSettings.chartHighlight);
+    my.charts[my.current]->titleLabel()->setPalette(palette);
     sp = cp->axisWidget(QwtPlot::yLeft);
     t = sp->title();
     t.setColor(globalSettings.chartHighlight);
     sp->setTitle(t);
-    sp = cp->axisWidget(QwtPlot::xBottom);
 }
 
 QmcGroup *Tab::group()
