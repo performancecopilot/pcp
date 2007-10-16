@@ -638,7 +638,7 @@
  <connections>
   <connection>
    <sender>fileNewChartAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>fileNewChart()</slot>
    <hints>
@@ -654,7 +654,7 @@
   </connection>
   <connection>
    <sender>fileOpenViewAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>fileOpenView()</slot>
    <hints>
@@ -670,7 +670,7 @@
   </connection>
   <connection>
    <sender>fileSaveViewAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>fileSaveView()</slot>
    <hints>
@@ -686,7 +686,7 @@
   </connection>
   <connection>
    <sender>fileExportAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>fileExport()</slot>
    <hints>
@@ -702,7 +702,7 @@
   </connection>
   <connection>
    <sender>filePrintAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>filePrint()</slot>
    <hints>
@@ -718,7 +718,7 @@
   </connection>
   <connection>
    <sender>fileQuitAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>fileQuit()</slot>
    <hints>
@@ -734,7 +734,7 @@
   </connection>
   <connection>
    <sender>helpTutorialAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>helpTutorial()</slot>
    <hints>
@@ -750,7 +750,7 @@
   </connection>
   <connection>
    <sender>helpAboutAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>helpAbout()</slot>
    <hints>
@@ -766,7 +766,7 @@
   </connection>
   <connection>
    <sender>helpSeeAlsoAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>helpSeeAlso()</slot>
    <hints>
@@ -782,7 +782,7 @@
   </connection>
   <connection>
    <sender>helpWhatsThisAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>whatsThis()</slot>
    <hints>
@@ -798,7 +798,7 @@
   </connection>
   <connection>
    <sender>timeControlAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>optionsTimeControl()</slot>
    <hints>
@@ -814,7 +814,7 @@
   </connection>
   <connection>
    <sender>toolbarAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>optionsToolbar()</slot>
    <hints>
@@ -830,7 +830,7 @@
   </connection>
   <connection>
    <sender>consoleAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>optionsConsole()</slot>
    <hints>
@@ -846,7 +846,7 @@
   </connection>
   <connection>
    <sender>newKmchartAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>optionsNewKmchart()</slot>
    <hints>
@@ -862,7 +862,7 @@
   </connection>
   <connection>
    <sender>closeTabAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>closeTab()</slot>
    <hints>
@@ -878,7 +878,7 @@
   </connection>
   <connection>
    <sender>editSettingsAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>editSettings()</slot>
    <hints>
@@ -926,7 +926,7 @@
   </connection>
   <connection>
    <sender>editChartAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>editChart()</slot>
    <hints>
@@ -942,7 +942,7 @@
   </connection>
   <connection>
    <sender>closeChartAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>closeChart()</slot>
    <hints>
@@ -958,7 +958,7 @@
   </connection>
   <connection>
    <sender>editTabAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>editTab()</slot>
    <hints>
@@ -974,7 +974,7 @@
   </connection>
   <connection>
    <sender>closeTabAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>closeTab()</slot>
    <hints>
@@ -990,7 +990,7 @@
   </connection>
   <connection>
    <sender>addTabAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>addTab()</slot>
    <hints>
@@ -1006,7 +1006,7 @@
   </connection>
   <connection>
    <sender>helpManualAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>helpManual()</slot>
    <hints>
@@ -1022,7 +1022,7 @@
   </connection>
   <connection>
    <sender>recordStartAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>recordStart()</slot>
    <hints>
@@ -1038,7 +1038,7 @@
   </connection>
   <connection>
    <sender>recordQueryAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>recordQuery()</slot>
    <hints>
@@ -1054,7 +1054,7 @@
   </connection>
   <connection>
    <sender>recordStopAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>recordStop()</slot>
    <hints>
@@ -1070,7 +1070,7 @@
   </connection>
   <connection>
    <sender>recordDetachAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>recordDetach()</slot>
    <hints>
@@ -1086,7 +1086,7 @@
   </connection>
   <connection>
    <sender>zoomInAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>zoomIn()</slot>
    <hints>
@@ -1102,7 +1102,7 @@
   </connection>
   <connection>
    <sender>zoomOutAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmChart</receiver>
    <slot>zoomOut()</slot>
    <hints>
