@@ -669,7 +669,6 @@ abort_chart:
 			    colorSpec(scheme.colorNames.at(i), false, NULL));
 		}
 		globalSettings.colorSchemes.append(scheme);
-		eol(f);
 	    }
 	    else {
 		xpect("chart\", \"global\", or \"scheme", w);
