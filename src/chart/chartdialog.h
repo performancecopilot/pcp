@@ -50,6 +50,7 @@ public slots:
     virtual void chartMetricsItemSelectionChanged();
     virtual void availableMetricsItemSelectionChanged();
     virtual void availableMetricsItemExpanded(QTreeWidgetItem *);
+    virtual void availableMetricsTreeWidget_doubleClicked(QModelIndex);
     virtual void metricInfoButtonClicked();
     virtual void metricSearchButtonClicked();
     virtual void metricDeleteButtonClicked();

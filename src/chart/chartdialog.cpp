@@ -245,6 +245,11 @@ void ChartDialog::metricSearchButtonClicked()
     kmchart->metricSearch(availableMetricsTreeWidget);
 }
 
+void ChartDialog::availableMetricsTreeWidget_doubleClicked(QModelIndex)
+{
+    metricAddButtonClicked();
+}
+
 void ChartDialog::metricAddButtonClicked()
 {
     QList<NameSpace *> list;
