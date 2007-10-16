@@ -1101,6 +1101,7 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
     double	ymin;
     double	ymax;
     const char	*path = (const char *)file.toAscii();
+    QStringList	schemes;
 
     if ((f = fopen(path, "w")) == NULL)
 	goto noview;
@@ -1114,7 +1115,6 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
 	fprintf(f, "global ypos %u\n", _ypos);
 	fprintf(f, "\n");
     }
-    QStringList schemes;
     for (c = 0; c < activeTab->numChart(); c++) {
 	cp = activeTab->chart(c);
 	if (cp->scheme() == QString::null ||
