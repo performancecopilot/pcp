@@ -1,26 +1,3 @@
-BUGS/TODO
-- Inital display of Edit/new tab dialog is incorrectly modifying the
-  visible/total sample values to 100.
-- Window should only be resizable horizonally?
-- After zooming in and out a bit, the Edit Tab dialog displays a very
-  confused view of Visible vs Total (looks like Total wrong at least?)
-- On initially creating a live tab, the time axis is very confused (it
-  looks like its trying to display way too many points?).  This clears
-  itself up after a few kmtime steps though.
-- Values in CPU/Disk views opened on a new Live Tab do not match those
-  from an initial Tab.
-- Stopping recording causes time axis on the current Live Tab to go
-  haywire (changing Tabs then changing back clears it though).
-- After recording, view y-axes are not correct (views not created to
-  match originals correctly?).
-- After recording, kmtime refuses to show itself, time axis is all
-  wierd (lots of timestamps one-on-top-of-the-other).
-- New Tab after recording needs to have total/visible samples set to
-  match the original tab.  
-- Tab label of a recording Tab should be "Record" not the start time,
-  that takes too much space and is hard-to-read.
-
-
 Creating and Editing Tabs
 =========================
 
