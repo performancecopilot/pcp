@@ -33,7 +33,7 @@ OpenViewDialog::OpenViewDialog(QWidget *parent) : QDialog(parent)
 
     QString home = my.userDir = QDir::homePath();
     my.userDir.append("/.pcp/kmchart");
-    my.systemDir = tr(pmGetConfig("PCP_VAR_DIR"));
+    my.systemDir = pmGetConfig("PCP_VAR_DIR");
     my.systemDir.append("/config/kmchart");
 
     pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),

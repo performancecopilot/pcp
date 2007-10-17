@@ -174,9 +174,9 @@
     </connection>
     <connection>
       <sender>infoTab</sender>
-      <signal>currentChanged(QWidget*)</signal>
+      <signal>currentChanged(int)</signal>
       <receiver>InfoDialog</receiver>
-      <slot>infoTabCurrentChanged(QWidget*)</slot>
+      <slot>infoTabCurrentChanged(int)</slot>
     </connection>
   </connections>
 </ui>

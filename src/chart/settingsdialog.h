@@ -16,6 +16,7 @@
 
 #include "ui_settingsdialog.h"
 #include "colorbutton.h"
+#include "colorscheme.h"
 #include "kmtime.h"
 
 class SettingsDialog : public QDialog, public Ui::SettingsDialog
@@ -29,8 +30,7 @@ public:
     void flush();
 
     void newScheme();
-    int setScheme(int);
-    int setScheme(QString);
+    int colorArray(ColorButton *** array);
 
 public slots:
     virtual void buttonOk_clicked();
@@ -40,7 +40,7 @@ public slots:
     virtual void loggerDeltaUnitsComboBox_activated(int value);
     virtual void visible_valueChanged(int value);
     virtual void sample_valueChanged(int value);
-    
+
     virtual void selectedHighlightButton_clicked();
     virtual void defaultBackgroundButton_clicked();
     virtual void colorButtonClicked(int);
@@ -79,16 +79,21 @@ protected slots:
     virtual void colorButton22_clicked() { colorButtonClicked(22); }
 
 private:
-    virtual int colorArray(ColorButton *** array);
-    virtual void displayTotalSlider();
-    virtual void displayVisibleSlider();
-    virtual void displayTotalCounter();
-    virtual void displayVisibleCounter();
+    void setupSchemePalette();
+    void setupSchemeComboBox();
+    ColorScheme *lookupScheme(QString);
+    void updateSchemeColors(ColorScheme *);
+    void displayTotalSlider();
+    void displayVisibleSlider();
+    void displayTotalCounter();
+    void displayVisibleCounter();
+
     struct {
 	KmTime::DeltaUnits chartUnits;
 	KmTime::DeltaUnits loggerUnits;
 	int visibleHistory;
 	int sampleHistory;
+	QString newScheme;
     } my;
 
     QBrush enabled, disabled; // brushes for painting action list backgrounds

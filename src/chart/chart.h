@@ -119,6 +119,7 @@ private:
 	bool removed;
     } Plot;
 
+    bool isStepped(Plot *plot);
     void setStroke(Plot *plot, Style s, QColor c);
     void setLabel(Plot *plot, QString s);
     void resetDataArrays(Plot *plot, int v);

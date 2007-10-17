@@ -715,15 +715,36 @@ void ChartDialog::deleteChartPlot(Chart *cp, int m)
     cp->delPlot(m);
 }
 
+void ChartDialog::setCurrentScheme(QString scheme)
+{
+    my.scheme = scheme;
+    setupSchemeComboBox();
+}
+
 void ChartDialog::setupSchemeComboBox()
 {
-    // TODO - setup & select Default/my.scheme
+    int index = 0;
+
+    colorSchemeComboBox->clear();
+    colorSchemeComboBox->addItem("Default Scheme");
+    colorSchemeComboBox->addItem("New Scheme");
+    for (int i = 0; i < globalSettings.colorSchemes.size(); i++) {
+	QString name = globalSettings.colorSchemes[i].name();
+	if (name == my.scheme)
+	    index = i + 2;
+	colorSchemeComboBox->addItem(name);
+    }
+    colorSchemeComboBox->blockSignals(true);
+    colorSchemeComboBox->setCurrentIndex(index);
+    colorSchemeComboBox->blockSignals(false);
 }
 
 void ChartDialog::colorSchemeComboBox_currentIndexChanged(int index)
 {
-    if (index == 1)
-	kmchart->settings()->newScheme();
+    if (index == 0)
+	my.scheme = QString::null;
+    else if (index == 1)
+	kmchart->newScheme();
     else
-	kmchart->settings()->setScheme(index);
+	my.scheme = colorSchemeComboBox->itemText(index);
 }

@@ -223,43 +223,22 @@ xpect(char *want, char *got)
     err(E_CRIT, true, msg);
 }
 
-int hexval(float f)
+QColor colorSpec(QString colorName, int *sequence)
 {
-    return ((int)(0.5 + f*256) < 256 ? (int)(0.5 + f*256) : 256);
-}
-
-QColor colorSpec(QString colorName, bool searchSchemes, int *sequence)
-{
-    if (searchSchemes) {
-	if (colorName == "#-cycle")
-	    return nextColor("#-cycle", sequence);
-	for (int i = 0; i < globalSettings.colorSchemes.size(); i++)
-	    if (globalSettings.colorSchemes.at(i).colorNames.at(i) == colorName)
-		return nextColor(colorName, sequence);
-	// if no match, fallthrough...
-    }
-
-    QColor color;
-    QString errmsg, rgbi = colorName;
-    if (rgbi.left(5) == "rgbi:") {
-	float fr, fg, fb;
-	const char *s = (const char *)rgbi.toAscii();
-	if (sscanf(s, "rgbi:%f/%f/%f", &fr, &fg, &fb) == 3)
-	    color.setRgb(hexval(fr), hexval(fg), hexval(fb));
-	else
-	    errmsg = "Cannot parse color name in rgbi:-prefixed format.";
-    } else {
-	color.setNamedColor(colorName);
-    }
+    if (colorName == "#-cycle")
+	return nextColor("#-cycle", sequence);
+    if (ColorScheme::lookupScheme(colorName) == true)
+	return nextColor(colorName, sequence);
+    QColor color = ColorScheme::colorSpec(colorName);
     if (!color.isValid()) {
-	color = Qt::white;
+	QString errmsg;
 	errmsg.append("Invalid color name: ");
 	errmsg.append(colorName);
 	err(E_CRIT, true, errmsg);
+	color = Qt::white;
     }
     return color;
 }
-
 
 void OpenViewDialog::globals(int *w, int *h, int *pts, int *x, int *y)
 {
@@ -277,7 +256,7 @@ void OpenViewDialog::globals(int *w, int *h, int *pts, int *x, int *y)
 bool OpenViewDialog::openView(const char *path)
 {
     Chart		*cp = NULL;
-    int			m, i;
+    int			m;
     ColorScheme		scheme;
     FILE		*f;
     int			is_popen = 0;
@@ -557,7 +536,7 @@ done_chart:
 		if (Cflag == 0) {
 		    cp = activeTab->addChart();
 		    cp->setStyle(style);
-		    cp->setScheme(scheme.name);
+		    cp->setScheme(scheme.name());
 		    if (title != NULL)
 			cp->changeTitle(title, mode == M_KMCHART);
 		    if (legend == 0)
@@ -643,33 +622,23 @@ abort_chart:
 		    xpect("<non-default color scheme name>", w);
 		    goto abandon;
 		}
-		for (i = 0; i < globalSettings.colorSchemes.size(); i++) {
-		    if (globalSettings.colorSchemes.at(i).name == w)
-			break;
-		}
-		// duplicate, just ignore (probably using a seen view again)
-		if (i != globalSettings.colorSchemes.size()) {
+		if (ColorScheme::lookupScheme(w) == true) {
+		    // duplicate - ignore (probably using a seen view again)
 		    skip2eol(f);
 		    continue;
 		}
-		scheme.name = w;
-		scheme.colors.clear();
-		scheme.colorNames.clear();
+		scheme.setName(QString(w));
+		scheme.clear();
 		w = getwd(f);
 		while (w && w[0] != '\n') {
-		    scheme.colorNames.append(QString(w));
+		    scheme.addColor(QString(w));
 		    w = getwd(f);
 		}
-		if (scheme.colorNames.size() < 2) {
+		if (scheme.size() < 2) {
 		    xpect("<list of color names>", w);
 		    goto abandon;
 		}
-		for (i = 0; i < scheme.colorNames.size(); i++) {
-		    scheme.colors.append(
-			    colorSpec(scheme.colorNames.at(i), false, NULL));
-		}
 		globalSettings.colorSchemes.append(scheme);
-		eol(f);
 	    }
 	    else {
 		xpect("chart\", \"global\", or \"scheme", w);
@@ -1007,7 +976,7 @@ try_plot:
 		}
 		else if (color != NULL && strcmp(color, "#-cycle") != 0) {
 		    int seq = cp->sequence();
-		    cp->setStroke(m, cp->style(), colorSpec(color, true, &seq));
+		    cp->setStroke(m, cp->style(), colorSpec(color, &seq));
 		    cp->setSequence(seq);
 		}
 		if (numinst > 0)
@@ -1102,6 +1071,7 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
     double	ymin;
     double	ymax;
     const char	*path = (const char *)file.toAscii();
+    QStringList	schemes;
 
     if ((f = fopen(path, "w")) == NULL)
 	goto noview;
@@ -1114,6 +1084,22 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
 	fprintf(f, "global xpos %u\n", _xpos);
 	fprintf(f, "global ypos %u\n", _ypos);
 	fprintf(f, "\n");
+    }
+    for (c = 0; c < activeTab->numChart(); c++) {
+	cp = activeTab->chart(c);
+	if (cp->scheme() == QString::null ||
+	    schemes.contains(cp->scheme()) == true)
+	    continue;
+	schemes.append(cp->scheme());
+    }
+    for (c = 0; c < schemes.size(); c++) {
+	ColorScheme *cs = ColorScheme::findScheme(schemes.at(c));
+	if (cs) {
+	    fprintf(f, "scheme %s", (const char *)cs->name().toAscii());
+	    for (m = 0; m < cs->size(); m++)
+		fprintf(f, " %s", (const char *)cs->colorName(m).toAscii());
+	    fprintf(f, "\n\n");
+	}
     }
     for (c = 0; c < activeTab->numChart(); c++) {
 	cp = activeTab->chart(c);

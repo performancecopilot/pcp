@@ -597,7 +597,9 @@ void KmChart::closeTab()
 
     chartTab->removeTab(index);
     tabs.removeAt(index);
-    setActiveTab(chartTab->currentIndex(), false);
+    if (index > 0)
+	index--;
+    setActiveTab(index, false);
     enableUi();
 }
 
@@ -634,6 +636,8 @@ QTabWidget *KmChart::tabWidget()
 
 void KmChart::setActiveTab(int index, bool redisplay)
 {
+    if (index < 0)
+	index = 0;
     activeTab = tabs.at(index);
     if (tabs.at(index)->isArchiveSource()) {
 	activeGroup = archiveGroup;
@@ -649,10 +653,8 @@ void KmChart::setActiveTab(int index, bool redisplay)
 	chartTab->setCurrentIndex(index);
 }
 
-void KmChart::activeTabChanged(QWidget *)
+void KmChart::activeTabChanged(int index)
 {
-    int index = chartTab->currentIndex();
-
     if (index < tabs.size())
 	setActiveTab(index, false);
     enableUi();
@@ -806,4 +808,17 @@ void KmChart::setEnabledActionsList(QStringList tools, bool redisplay)
 	else
 	    toolBar->show();
     }
+}
+
+void KmChart::newScheme()
+{
+    my.settings->newScheme();
+}
+
+void KmChart::newScheme(QString cs)
+{
+    my.newchart->setCurrentScheme(cs);
+    my.newchart->setupSchemeComboBox();
+    my.editchart->setCurrentScheme(cs);
+    my.editchart->setupSchemeComboBox();
 }

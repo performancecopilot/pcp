@@ -72,9 +72,6 @@ void SettingsDialog::enableUi()
 
 void SettingsDialog::reset()
 {
-    ColorButton **buttons;
-    int i, colorCount;
-
     my.chartUnits = KmTime::Seconds;
     chartDeltaLineEdit->setText(
 	KmTime::deltaString(globalSettings.chartDelta, my.chartUnits));
@@ -95,11 +92,8 @@ void SettingsDialog::reset()
     defaultBackgroundButton->setColor(QColor(globalSettings.chartBackground));
     selectedHighlightButton->setColor(QColor(globalSettings.chartHighlight));
 
-    colorCount = colorArray(&buttons);
-    for (i = 0; i < globalSettings.defaultScheme.colorNames.count(); i++)
-	buttons[i]->setColor(QColor(globalSettings.defaultScheme.colors[i]));
-    for (; i < colorCount; i++)
-	buttons[i]->setColor(QColor(Qt::white));
+    setupSchemeComboBox();
+    setupSchemePalette();
 
     QList<QAction*> actionsList = kmchart->toolbarActionsList();
     QList<QAction*> enabledList = kmchart->enabledActionsList();
@@ -147,20 +141,14 @@ void SettingsDialog::flush()
 
     if (globalSettings.defaultSchemeModified) {
 	ColorButton **buttons;
-	QStringList colorNames;
-	QList<QColor> colors;
 
 	int colorCount = colorArray(&buttons);
 	for (int i = 0; i < colorCount; i++) {
 	    QColor c = buttons[i]->color();
 	    if (c == Qt::white)
 		continue;
-	    colors.append(c);
-	    colorNames.append(c.name());
+	    globalSettings.defaultScheme.addColor(c);
 	}
-
-	globalSettings.defaultScheme.colors = colors;
-	globalSettings.defaultScheme.colorNames = colorNames;
     }
 
     if (globalSettings.chartBackgroundModified) {
@@ -229,8 +217,11 @@ void SettingsDialog::buttonOk_clicked()
 	}
     }
 
-    if (inputValid)
+    if (inputValid) {
+	if (my.newScheme != QString::null)
+	    kmchart->newScheme(my.newScheme);
 	QDialog::accept();
+    }
 }
 
 void SettingsDialog::chartDeltaUnitsComboBox_activated(int value)
@@ -342,6 +333,7 @@ void SettingsDialog::actionListWidget_itemClicked(QListWidgetItem *item)
 void SettingsDialog::newScheme()
 {
     reset();
+    my.newScheme = QString::null;
     settingsTab->setCurrentIndex(1);	// Colors Tab
 
     // Disable signals here and explicitly call the index changed
@@ -352,54 +344,110 @@ void SettingsDialog::newScheme()
     schemeComboBox_currentIndexChanged(1);
     schemeLineEdit->selectAll();
     schemeLineEdit->setFocus();
-}
-
-int SettingsDialog::setScheme(int index)
-{
-    schemeComboBox->setCurrentIndex(index);
-    fprintf(stderr, "Set scheme by index %d", index);
-    // TODO: why?
-    return 0;
-}
-
-int SettingsDialog::setScheme(QString name)
-{
-    // Skip first two (Default and New Scheme)
-    for (int i = 2; i < schemeComboBox->count(); i++) {
-	if (schemeComboBox->itemText(i) == name) {
-	    schemeComboBox->setCurrentIndex(i);
-	}
-    }
-    fprintf(stderr, "Set scheme by name to %s", (const char *)name.toAscii());
-    // TODO: why?
-    return 0;
+    show();
 }
 
 void SettingsDialog::removeSchemeButton_clicked()
 {
-    QString name = schemeComboBox->currentText();
-    for (int i = 0; i < globalSettings.colorSchemes.size(); i++)
-	if (globalSettings.colorSchemes.at(i).name == name)
-	    globalSettings.colorSchemes.removeAt(i);
+    ColorScheme::removeScheme(schemeComboBox->currentText());
+}
+
+void SettingsDialog::updateSchemeColors(ColorScheme *scheme)
+{
+    ColorButton **buttons;
+    int colorCount = colorArray(&buttons);
+
+    scheme->clear();
+    for (int i = 0; i < colorCount; i++) {
+	QColor c = buttons[i]->color();
+	if (c == Qt::white)
+	    continue;
+	scheme->addColor(c);
+    }
+    scheme->setModified(true);
 }
 
 void SettingsDialog::updateSchemeButton_clicked()
 {
-    QString name = schemeLineEdit->text();
+    int index;
+    QString oldName = schemeComboBox->currentText();
+    QString newName = schemeLineEdit->text();
+
     if (schemeComboBox->currentIndex() > 1) {		// Edit scheme
-	// change name, as long as it doesnt conflict with another
-	// then run through colors and update the scheme
-	fprintf(stderr, "TODO: Edit scheme %s", (const char *)name.toAscii());
+	if (newName != oldName) {
+	    if (ColorScheme::lookupScheme(newName) == true)
+		goto conflict;
+	    index = schemeComboBox->currentIndex();
+	    schemeComboBox->setItemText(index, newName);
+	}
+	for (int i = 0; i < globalSettings.colorSchemes.size(); i++) {
+	    if (oldName == globalSettings.colorSchemes[i].name()) {
+		globalSettings.colorSchemes[i].setName(newName);
+		updateSchemeColors(&globalSettings.colorSchemes[i]);
+		break;
+	    }
+	}
     }
     else if (schemeComboBox->currentIndex() == 1) {	// New Scheme
-	// create new scheme, as long as name doesnt conflict with
-	// another; then run through colors and setup the scheme
-	fprintf(stderr, "TODO: Create scheme %s", (const char *)name.toAscii());
+	if (ColorScheme::lookupScheme(newName) == true)
+	    goto conflict;
+	ColorScheme scheme;
+	my.newScheme = newName;
+	scheme.setName(newName);
+	updateSchemeColors(&scheme);
+
+	index = globalSettings.colorSchemes.size();
+	globalSettings.colorSchemes.append(scheme);
+	schemeComboBox->blockSignals(true);
+	schemeComboBox->addItem(newName);
+	schemeComboBox->setCurrentIndex(index + 2);
+	schemeComboBox->blockSignals(false);
     }
     else if (schemeComboBox->currentIndex() == 0) {	// Default
-	// run through default colors and update that scheme
-	fprintf(stderr, "TODO: Edit default scheme");
+	updateSchemeColors(&globalSettings.defaultScheme);
     }
+    globalSettings.colorSchemesModified = true;
+    return;
+
+conflict:
+    QString msg = newName;
+    msg.prepend("New scheme name \"");
+    msg.append("\" conflicts with an existing name");
+    QMessageBox::warning(this, pmProgname, msg);
+}
+
+void SettingsDialog::setupSchemePalette()
+{
+    ColorButton **buttons;
+    int colorCount = colorArray(&buttons);
+    int i = 0, index = schemeComboBox->currentIndex();
+
+    if (index == 1)	// keep whatever is there as the starting point
+	i = colorCount;
+    else if (index == 0) {
+	for (i = 0; i < globalSettings.defaultScheme.size(); i++)
+	    buttons[i]->setColor(globalSettings.defaultScheme.color(i));
+    }
+    else if (index > 1) {
+	int j = index - 2;
+	for (i = 0; i < globalSettings.colorSchemes[j].size(); i++)
+	    buttons[i]->setColor(globalSettings.colorSchemes[j].color(i));
+    }
+
+    while (i < colorCount)
+	buttons[i++]->setColor(QColor(Qt::white));
+}
+
+void SettingsDialog::setupSchemeComboBox()
+{
+    schemeComboBox->blockSignals(true);
+    schemeComboBox->clear();
+    schemeComboBox->addItem(tr("Default Scheme"));
+    schemeComboBox->addItem(tr("New Scheme"));
+    for (int i = 0; i < globalSettings.colorSchemes.size(); i++)
+	schemeComboBox->addItem(globalSettings.colorSchemes[i].name());
+    schemeComboBox->setCurrentIndex(0);
+    schemeComboBox->blockSignals(false);
 }
 
 void SettingsDialog::schemeComboBox_currentIndexChanged(int index)
@@ -408,10 +456,16 @@ void SettingsDialog::schemeComboBox_currentIndexChanged(int index)
 	schemeLineEdit->setEnabled(false);
 	schemeLineEdit->setText("#-cycle");
 	removeSchemeButton->setEnabled(false);
+	setupSchemePalette();
     }
     else {
 	schemeLineEdit->setText(schemeComboBox->currentText());
 	schemeLineEdit->setEnabled(true);
-	removeSchemeButton->setEnabled(index > 1);
+	if (index == 1)
+	    removeSchemeButton->setEnabled(false);
+	else {
+	    removeSchemeButton->setEnabled(true);
+	    setupSchemePalette();
+	}
     }
 }

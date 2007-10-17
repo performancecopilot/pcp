@@ -27,7 +27,7 @@ public:
     bool isModified() { return my.modified; }
 
     QColor color() { return my.color; }
-    void setColor(QColor color) { my.color = color; }
+    void setColor(QColor color) { my.color = color; update(); }
 
 public slots:
     virtual void clicked();

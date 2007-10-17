@@ -247,20 +247,20 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 
     if (nleaf == 0) {
 	my.expanded = true;
-	goto cleanup;
+	goto done;
     }
 
     pmidlist = (pmID *)malloc(nleaf * sizeof(*pmidlist));
     if ((sts = pmLookupName(nleaf, offspring, pmidlist)) < 0) {
 	if (!show)
-	    goto cleanup;
+	    goto done;
 	QString msg = QString();
 	msg.sprintf("Cannot find PMIDs for \"%s\".\n%s.\n\n",
 		name, pmErrStr(sts));
 	QMessageBox::warning(NULL, pmProgname, msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
-	goto cleanup;
+	goto done;
     }
     else {
 	for (i = 0; i < nleaf; i++) {
@@ -268,7 +268,7 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 	    sts = pmLookupDesc(pmidlist[i], &m->my.desc);
 	    if (sts < 0) {
 		if (!show)
-		    goto cleanup;
+		    goto done;
 		QString msg = QString();
 		msg.sprintf("Cannot find metric descriptor at \"%s\".\n%s.\n\n",
 			offspring[i], pmErrStr(sts));
@@ -276,7 +276,7 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 			QMessageBox::Ok | QMessageBox::Default |
 				QMessageBox::Escape,
 			QMessageBox::NoButton, QMessageBox::NoButton);
-		goto cleanup;
+		goto done;
 	    }
 	    if (m->my.desc.indom == PM_INDOM_NULL) {
 		m->my.type = LeafNullIndom;
@@ -292,17 +292,16 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 	my.expanded = true;
     }
 
-cleanup:
-    for (i = 0; i < nleaf; i++)
-	free(offspring[i]);
-
 done:
     if (pmidlist)
 	free(pmidlist);
     if (leaflist)
 	free(leaflist);
-    if (offspring)
+    if (offspring) {
+	for (i = 0; i < nleaf; i++)
+	    free(offspring[i]);
 	free(offspring);
+    }
     if (status)
 	free(status);
     free(name);

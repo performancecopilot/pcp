@@ -35,6 +35,7 @@ public:
     virtual QRgb currentColor();
     virtual void setCurrentColor(QRgb);
     virtual void showCurrentColor();
+    virtual void setCurrentScheme(QString);
     virtual void setupSchemeComboBox();
     virtual void setupAvailableMetricsTree(bool);
     virtual void setupChartPlots(Chart *);
