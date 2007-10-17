@@ -32,7 +32,7 @@ public slots:
     virtual void pminfoStderr();
     virtual void pmvalStdout();
     virtual void pmvalStderr();
-    virtual void infoTabCurrentChanged(QWidget *);
+    virtual void infoTabCurrentChanged(int);
     virtual void quit();
 
 protected slots:

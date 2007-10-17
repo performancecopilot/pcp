@@ -40,7 +40,7 @@ void InfoDialog::reset(QString source, QString metric, QString instance,
     my.instance = instance;
 
     infoTab->setCurrentWidget(pminfoTab);
-    infoTabCurrentChanged(pminfoTab);
+    infoTabCurrentChanged(0);
 }
 
 void InfoDialog::pminfo(void)
@@ -130,15 +130,15 @@ void InfoDialog::pmvalStderr()
     pmvalTextEdit->append(s);
 }
 
-void InfoDialog::infoTabCurrentChanged(QWidget *current)
+void InfoDialog::infoTabCurrentChanged(int)
 {
-    if (current == pminfoTab) {
+    if (infoTab->currentWidget() == pminfoTab) {
 	if (!my.pminfoStarted) {
 	    pminfo();
 	    my.pminfoStarted = true;
 	}
     }
-    else if (current == pmvalTab) {
+    else if (infoTab->currentWidget() == pmvalTab) {
 	if (!my.pmvalStarted) {
 	    pmval();
 	    my.pmvalStarted = true;

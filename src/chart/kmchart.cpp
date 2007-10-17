@@ -649,9 +649,8 @@ void KmChart::setActiveTab(int index, bool redisplay)
 	chartTab->setCurrentIndex(index);
 }
 
-void KmChart::activeTabChanged(QWidget *)
+void KmChart::activeTabChanged(int index)
 {
-    int index = chartTab->currentIndex();
 
     if (index < tabs.size())
 	setActiveTab(index, false);

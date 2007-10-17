@@ -114,7 +114,7 @@ public slots:
     virtual void acceptExport();
     virtual void addTab();
     virtual void closeTab();
-    virtual void activeTabChanged(QWidget *);
+    virtual void activeTabChanged(int);
     virtual void editSettings();
     virtual void acceptSettings();
     virtual void recordStart();
