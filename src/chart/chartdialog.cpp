@@ -729,7 +729,7 @@ void ChartDialog::setupSchemeComboBox()
     colorSchemeComboBox->addItem("Default Scheme");
     colorSchemeComboBox->addItem("New Scheme");
     for (int i = 0; i < globalSettings.colorSchemes.size(); i++) {
-	QString name = globalSettings.colorSchemes.at(i).name;
+	QString name = globalSettings.colorSchemes[i].name();
 	if (name == my.scheme)
 	    index = i + 2;
 	colorSchemeComboBox->addItem(name);

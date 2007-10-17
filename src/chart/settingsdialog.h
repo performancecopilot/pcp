@@ -16,6 +16,7 @@
 
 #include "ui_settingsdialog.h"
 #include "colorbutton.h"
+#include "colorscheme.h"
 #include "kmtime.h"
 
 class SettingsDialog : public QDialog, public Ui::SettingsDialog
@@ -29,6 +30,7 @@ public:
     void flush();
 
     void newScheme();
+    int colorArray(ColorButton *** array);
 
 public slots:
     virtual void buttonOk_clicked();
@@ -77,9 +79,10 @@ protected slots:
     virtual void colorButton22_clicked() { colorButtonClicked(22); }
 
 private:
-    int colorArray(ColorButton *** array);
     void setupSchemePalette();
     void setupSchemeComboBox();
+    ColorScheme *lookupScheme(QString);
+    void updateSchemeColors(ColorScheme *);
     void displayTotalSlider();
     void displayVisibleSlider();
     void displayTotalCounter();

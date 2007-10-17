@@ -21,17 +21,11 @@
 
 #include "tab.h"
 #include "console.h"
+#include "colorscheme.h"
 #include "timecontrol.h"
 #include "fileiconprovider.h"
 #include "kmchart.h"
 #include "version.h"
-
-typedef struct {
-	QString name;
-	bool isModified;
-	QList<QColor> colors;
-	QStringList colorNames;
-} ColorScheme;
 
 typedef struct {
 	// Sampling

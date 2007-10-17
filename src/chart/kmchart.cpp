@@ -597,7 +597,9 @@ void KmChart::closeTab()
 
     chartTab->removeTab(index);
     tabs.removeAt(index);
-    setActiveTab(chartTab->currentIndex(), false);
+    if (index > 0)
+	index--;
+    setActiveTab(index, false);
     enableUi();
 }
 
@@ -634,6 +636,8 @@ QTabWidget *KmChart::tabWidget()
 
 void KmChart::setActiveTab(int index, bool redisplay)
 {
+    if (index < 0)
+	index = 0;
     activeTab = tabs.at(index);
     if (tabs.at(index)->isArchiveSource()) {
 	activeGroup = archiveGroup;
@@ -651,7 +655,6 @@ void KmChart::setActiveTab(int index, bool redisplay)
 
 void KmChart::activeTabChanged(int index)
 {
-
     if (index < tabs.size())
 	setActiveTab(index, false);
     enableUi();

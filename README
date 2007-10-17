@@ -26,13 +26,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 
   kmchart
 
-    - Views
-      Add the last missing piece of functionality from the pmchart
-      configuration language - i.e. the "scheme" keyword.  This keyword
-      needs UI functionality for adding and editing schemes via Settings
-      dialog and for changing the scheme in the New/Edit Chart dialogs
-      (combo box on the Chart Tab, with "#-cycle" mapping to "Default").
-
     - Charting issues
       o Scaling of the tick marks on the Y-axis is not yet correct,
 	and causes mis-alignment on the unified X-axis.  The disk

@@ -178,14 +178,15 @@ void writeSettings(void)
 	userSettings.setValue("visibleHistory", globalSettings.visibleHistory);
     if (globalSettings.defaultSchemeModified)
 	userSettings.setValue("defaultColorScheme",
-				globalSettings.defaultScheme.colorNames);
+				globalSettings.defaultScheme.colorNames());
     if (globalSettings.colorSchemesModified) {
 	userSettings.beginWriteArray("schemes");
 	for (int i = 0; i < globalSettings.colorSchemes.size(); i++) {
 	    userSettings.setArrayIndex(i);
-	    userSettings.setValue("name", globalSettings.colorSchemes.at(i).name);
+	    userSettings.setValue("name",
+				globalSettings.colorSchemes[i].name());
 	    userSettings.setValue("colors",
-				globalSettings.colorSchemes.at(i).colorNames);
+				globalSettings.colorSchemes[i].colorNames());
 	}
 	userSettings.endArray();
     }
@@ -264,23 +265,17 @@ void readSettings(void)
 	colorList = userSettings.value("defaultColorScheme").toStringList();
     else
 	colorList << "yellow" << "blue" << "red" << "green" << "violet";
-    globalSettings.defaultScheme.name = "#-cycle";
-    globalSettings.defaultScheme.isModified = false;
-    globalSettings.defaultScheme.colorNames = colorList;
-    for (int i = 0; i < colorList.size(); i++)
-	globalSettings.defaultScheme.colors << QColor(colorList.at(i));
+    globalSettings.defaultScheme.setName("#-cycle");
+    globalSettings.defaultScheme.setModified(false);
+    globalSettings.defaultScheme.setColorNames(colorList);
 
     int size = userSettings.beginReadArray("schemes");
     for (int i = 0; i < size; i++) {
 	userSettings.setArrayIndex(i);
 	ColorScheme scheme;
-	QString name = userSettings.value("name").toString();
-	colorList = userSettings.value("colors").toStringList();
-	for (int j = 0; j < colorList.size(); j++)
-	    scheme.colors << QColor(colorList.at(j));
-	scheme.name = name;
-	scheme.isModified = false;
-	scheme.colorNames = colorList;
+	scheme.setName(userSettings.value("name").toString());
+	scheme.setModified(false);
+	scheme.setColorNames(userSettings.value("colors").toStringList());
 	globalSettings.colorSchemes.append(scheme);
     }
     userSettings.endArray();
@@ -327,13 +322,13 @@ QColor nextColor(QString scheme, int *sequence)
     int seq = (*sequence)++;
 
     for (int i = 0; i < globalSettings.colorSchemes.size(); i++) {
-	if (globalSettings.colorSchemes.at(i).name == scheme) {
-	    colorList = globalSettings.colorSchemes.at(i).colors;
+	if (globalSettings.colorSchemes[i].name() == scheme) {
+	    colorList = globalSettings.colorSchemes[i].colors();
 	    break;
 	}
     }
     if (colorList.size() < 2)	// common case
-	colorList = globalSettings.defaultScheme.colors;
+	colorList = globalSettings.defaultScheme.colors();
     if (colorList.size() < 2)	// idiot user!?
 	colorList << QColor("yellow") << QColor("blue") << QColor("red")
 		  << QColor("green") << QColor("violet");
