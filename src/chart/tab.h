@@ -37,11 +37,9 @@ class Tab : public QWidget
 
 public:
     Tab();
-    void init(QTabWidget *, int, int, QmcGroup *, KmTime::Source,
-			QString, struct timeval *, struct timeval *);
-
+    void init(QTabWidget *, int, int, QmcGroup *, KmTime::Source, QString,
+		struct timeval *, struct timeval *);
     QWidget *splitter() { return my.splitter; }
-    int index() { return my.tab->indexOf(my.splitter); }
 
     Chart *chart(int);		// Nth chart
     Chart *currentChart();	// current chart (can be NULL)
@@ -131,7 +129,6 @@ private:
 	QList<QString> archiveList;	// list of archive names
 	QList<PmLogger*> loggerList;	// list of pmloggers for our Tab
 
-	QTabWidget *tab;		// the parent widget
 	QSplitter *splitter;		// dynamically divides charts
     } my;
 };

@@ -44,7 +44,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QTabWidget" name="chartTab" >
+       <widget class="TabWidget" name="chartTabWidget" >
         <property name="focusPolicy" >
          <enum>Qt::NoFocus</enum>
         </property>
@@ -251,10 +251,11 @@
      <string>&amp;File</string>
     </property>
     <addaction name="fileNewChartAction" />
+    <addaction name="closeChartAction" />
+    <addaction name="fileOpenViewAction" />
     <addaction name="addTabAction" />
     <addaction name="closeTabAction" />
     <addaction name="separator" />
-    <addaction name="fileOpenViewAction" />
     <addaction name="fileSaveViewAction" />
     <addaction name="separator" />
     <addaction name="fileExportAction" />
@@ -267,7 +268,6 @@
      <string>&amp;Edit</string>
     </property>
     <addaction name="editChartAction" />
-    <addaction name="closeChartAction" />
     <addaction name="separator" />
     <addaction name="editTabAction" />
     <addaction name="zoomInAction" />
@@ -588,6 +588,9 @@
    </property>
   </action>
   <action name="recordStopAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/camera-video-close.png</iconset>
+   </property>
    <property name="text" >
     <string>Stop</string>
    </property>
@@ -615,6 +618,11 @@
    <class>TimeButton</class>
    <extends>QToolButton</extends>
    <header>timebutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>tabwidget.h</header>
   </customwidget>
  </customwidgets>
  <includes>
@@ -861,22 +869,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>closeTabAction</sender>
-   <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
-   <slot>closeTab()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>editSettingsAction</sender>
    <signal>triggered()</signal>
    <receiver>KmChart</receiver>
@@ -893,7 +885,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>chartTab</sender>
+   <sender>chartTabWidget</sender>
    <signal>currentChanged(int)</signal>
    <receiver>KmChart</receiver>
    <slot>activeTabChanged(int)</slot>

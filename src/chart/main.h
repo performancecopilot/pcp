@@ -68,9 +68,6 @@ extern QColor nextColor(QString, int *);
 extern int Cflag;
 extern QFont globalFont;
 
-extern Tab *activeTab;
-extern QList<Tab*> tabs;
-
 extern QmcGroup	*activeGroup;
 extern QmcGroup *liveGroup;
 extern QmcGroup *archiveGroup;

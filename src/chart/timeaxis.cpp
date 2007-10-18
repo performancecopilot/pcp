@@ -83,5 +83,5 @@ void TimeAxis::resizeEvent(QResizeEvent *e)
 {
     QwtPlot::resizeEvent(e);
     if (e->size().width() != e->oldSize().width())
-	activeTab->updateTimeAxis();
+	kmchart->activeTab()->updateTimeAxis();
 }

@@ -534,7 +534,7 @@ done_chart:
 		    fputc('\n', stderr);
 		}
 		if (Cflag == 0 || Cflag == 2) {
-		    cp = activeTab->addChart();
+		    cp = kmchart->activeTab()->addChart();
 		    cp->setStyle(style);
 		    cp->setScheme(scheme.name());
 		    if (title != NULL)
@@ -1037,7 +1037,7 @@ abandon:
 	return false;
 
     if ((Cflag == 0 || Cflag == 2) && cp != NULL)
-	activeTab->setupWorldView();
+	kmchart->activeTab()->setupWorldView();
     return true;
 
 noview:
@@ -1090,8 +1090,8 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
 	fprintf(f, "global ypos %u\n", _ypos);
 	fprintf(f, "\n");
     }
-    for (c = 0; c < activeTab->numChart(); c++) {
-	cp = activeTab->chart(c);
+    for (c = 0; c < kmchart->activeTab()->numChart(); c++) {
+	cp = kmchart->activeTab()->chart(c);
 	if (cp->scheme() == QString::null ||
 	    schemes.contains(cp->scheme()) == true)
 	    continue;
@@ -1106,8 +1106,8 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
 	    fprintf(f, "\n\n");
 	}
     }
-    for (c = 0; c < activeTab->numChart(); c++) {
-	cp = activeTab->chart(c);
+    for (c = 0; c < kmchart->activeTab()->numChart(); c++) {
+	cp = kmchart->activeTab()->chart(c);
 	fprintf(f, "chart");
 	p = cp->title();
 	if (p != NULL)

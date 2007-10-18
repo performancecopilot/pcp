@@ -105,6 +105,7 @@ void ExportDialog::filePushButtonClicked()
 void ExportDialog::flush()
 {
     QString file = fileLineEdit->text().trimmed();
+    Tab *tab = kmchart->activeTab();
 
     QwtPlotPrintFilter filter;
     filter.setOptions(QwtPlotPrintFilter::PrintAll &
@@ -114,10 +115,9 @@ void ExportDialog::flush()
 
     // Firstly, calculate the size pixmap we'll need here.
     int height = 0, width = 0;
-    for (int i = 0; i < activeTab->numChart(); i++) {
-	Chart *cp = activeTab->chart(i);
-	if (cp != activeTab->currentChart() &&
-	    selectedRadioButton->isChecked())
+    for (int i = 0; i < tab->numChart(); i++) {
+	Chart *cp = tab->chart(i);
+	if (cp != tab->currentChart() && selectedRadioButton->isChecked())
 	    continue;
 	width = qMax(width, cp->width());
 	height += cp->height();
@@ -126,10 +126,9 @@ void ExportDialog::flush()
 
     // TODO: make this code work properly (only dumps current chart now)
     QPixmap pixmap(width, height);
-    for (int i = 0; i < activeTab->numChart(); i++) {
-	Chart *cp = activeTab->chart(i);
-	if (cp != activeTab->currentChart() &&
-	    selectedRadioButton->isChecked())
+    for (int i = 0; i < tab->numChart(); i++) {
+	Chart *cp = tab->chart(i);
+	if (cp != tab->currentChart() && selectedRadioButton->isChecked())
 	    continue;
 	cp->print(pixmap, filter);
     }

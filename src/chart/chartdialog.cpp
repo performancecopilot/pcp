@@ -85,7 +85,7 @@ void ChartDialog::reset(Chart *chart, int style, QString scheme)
 	tabWidget->setCurrentIndex(0);
 	chart->setupTree(chartMetricsTreeWidget);
     }
-    if ((my.archiveSource = activeTab->isArchiveSource()) == true) {
+    if ((my.archiveSource = kmchart->isArchiveTab()) == true) {
 	sourceButton->setToolTip(tr("Add archives"));
 	sourceButton->setIcon(QIcon(":/archive.png"));
     }
@@ -166,12 +166,12 @@ void ChartDialog::buttonOk_clicked()
 	index = 0;
     }
     // Check the archive/live type still matches the current Tab
-    else if (!my.chart && my.archiveSource && !activeTab->isArchiveSource()) {
+    else if (!my.chart && my.archiveSource && !kmchart->isArchiveTab()) {
 	message = tr("Cannot add an archive Chart to a live Tab");
 	validInput = false;
 	index = 1;
     }
-    else if (!my.chart && !my.archiveSource && activeTab->isArchiveSource()) {
+    else if (!my.chart && !my.archiveSource && kmchart->isArchiveTab()) {
 	message = tr("Cannot add a live host Chart to an archive Tab");
 	validInput = false;
 	index = 1;

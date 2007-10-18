@@ -22,7 +22,7 @@ QTDIRT = *.o ui_* moc_* qrc_* Info.plist Makefile
 CDIRT = $(OBJECTS) $(LTOBJECTS) $(LTCOMMAND) $(LTLIBRARY)
 DIRT = $(LDIRT) $(DEPDIRT) $(MANDIRT) $(PODIRT) $(QTDIRT) $(CDIRT)
 
-QTDIRDIRT = .obj .ui .moc .qrc *.xcodeproj
+QTDIRDIRT = .obj .ui .moc .qrc *.xcodeproj *.app
 DIRDIRT = $(LDIRDIRT) $(QTDIRDIRT)
 
 OBJECTS = $(ASFILES:.s=.o) \

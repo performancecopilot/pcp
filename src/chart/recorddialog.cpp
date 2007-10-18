@@ -282,9 +282,10 @@ void RecordDialog::buttonOk_clicked()
     my.folio = folio;
     my.delta.setNum(KmTime::deltaValue(deltaLineEdit->text(), my.units), 'f');
 
-    for (int c = 0; c < activeTab->numChart(); c++) {
-	Chart *cp = activeTab->chart(c);
-	if (selectedRadioButton->isChecked() && cp != activeTab->currentChart())
+    Tab *tab = kmchart->activeTab();
+    for (int c = 0; c < tab->numChart(); c++) {
+	Chart *cp = tab->chart(c);
+	if (selectedRadioButton->isChecked() && cp != tab->currentChart())
 	    continue;
 	for (int m = 0; m < cp->numPlot(); m++) {
 	    QString host = cp->metricContext(m)->source().host();
@@ -318,7 +319,8 @@ void RecordDialog::startLoggers()
     regex.append(QDir::homePath());
     my.folio.replace(QRegExp(regex), "~"); 
 
-    activeTab->addFolio(my.folio, my.view);
+    Tab *tab = kmchart->activeTab();
+    tab->addFolio(my.folio, my.view);
 
     for (int i = 0; i < my.hosts.size(); i++) {
 	PmLogger *process = new PmLogger(kmchart);
@@ -339,15 +341,15 @@ void RecordDialog::startLoggers()
 
 	QString configdata;
 	if (selectedRadioButton->isChecked())
-	    configdata.append(process->configure(activeTab->currentChart()));
+	    configdata.append(process->configure(tab->currentChart()));
 	else
-	    for (int c = 0; c < activeTab->numChart(); c++)
-		configdata.append(process->configure(activeTab->chart(c)));
+	    for (int c = 0; c < tab->numChart(); c++)
+		configdata.append(process->configure(tab->chart(c)));
 	saveConfig(configfile, configdata);
 
 	// PMPROXY_HOST support needed here
 	process->start(pmlogger, arguments);
-	activeTab->addLogger(process, archive);
+	tab->addLogger(process, archive);
 
 	// Send initial control messages to pmlogger
 	QStringList control;
