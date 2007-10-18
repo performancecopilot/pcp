@@ -41,18 +41,14 @@ void TabDialog::reset(QString label, bool live, int samples, int visible)
     my.archiveSource = !live;
     my.samples = my.visible = 0;
 
-    samplePointsCounter->setValue(samples);
-    samplePointsCounter->setRange(
-			KmChart::minimumPoints(), KmChart::maximumPoints());
-    samplePointsSlider->setValue(samples);
-    samplePointsSlider->setRange(
-			KmChart::minimumPoints(), KmChart::maximumPoints());
-    visiblePointsCounter->setValue(visible);
-    visiblePointsCounter->setRange(
-			KmChart::minimumPoints(), KmChart::maximumPoints());
-    visiblePointsSlider->setValue(visible);
-    visiblePointsSlider->setRange(
-			KmChart::minimumPoints(), KmChart::maximumPoints());
+    visibleCounter->setValue(visible);
+    visibleCounter->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
+    visibleSlider->setValue(visible);
+    visibleSlider->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
+    sampleCounter->setValue(samples);
+    sampleCounter->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
+    sampleSlider->setValue(samples);
+    sampleSlider->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
 
     console->post(KmChart::DebugGUI, "TabDialog::reset archive=%s",
 					my.archiveSource?"true":"false");
@@ -85,52 +81,52 @@ void TabDialog::archivesRadioButtonClicked()
 		  my.archiveSource?"true":"false");
 }
 
-void TabDialog::samplePointsValueChanged(int value)
+void TabDialog::sampleValueChanged(int value)
 {
     if (my.samples != value) {
 	my.samples = value;
-	displaySamplePointsCounter();
-	displaySamplePointsSlider();
+	displaySampleCounter();
+	displaySampleSlider();
 	if (my.visible > my.samples)
-	    visiblePointsSlider->setValue(value);
+	    visibleSlider->setValue(value);
     }
 }
 
-void TabDialog::visiblePointsValueChanged(int value)
+void TabDialog::visibleValueChanged(int value)
 {
     if (my.visible != value) {
 	my.visible = value;
-	displayVisiblePointsCounter();
-	displayVisiblePointsSlider();
+	displayVisibleCounter();
+	displayVisibleSlider();
 	if (my.visible > my.samples)
-	    samplePointsSlider->setValue(value);
+	    sampleSlider->setValue(value);
     }
 }
 
-void TabDialog::displaySamplePointsSlider()
+void TabDialog::displaySampleSlider()
 {
-    samplePointsSlider->blockSignals(true);
-    samplePointsSlider->setValue(my.samples);
-    samplePointsSlider->blockSignals(false);
+    sampleSlider->blockSignals(true);
+    sampleSlider->setValue(my.samples);
+    sampleSlider->blockSignals(false);
 }
 
-void TabDialog::displayVisiblePointsSlider()
+void TabDialog::displayVisibleSlider()
 {
-    visiblePointsSlider->blockSignals(true);
-    visiblePointsSlider->setValue(my.visible);
-    visiblePointsSlider->blockSignals(false);
+    visibleSlider->blockSignals(true);
+    visibleSlider->setValue(my.visible);
+    visibleSlider->blockSignals(false);
 }
 
-void TabDialog::displaySamplePointsCounter()
+void TabDialog::displaySampleCounter()
 {
-    samplePointsCounter->blockSignals(true);
-    samplePointsCounter->setValue(my.samples);
-    samplePointsCounter->blockSignals(false);
+    sampleCounter->blockSignals(true);
+    sampleCounter->setValue(my.samples);
+    sampleCounter->blockSignals(false);
 }
 
-void TabDialog::displayVisiblePointsCounter()
+void TabDialog::displayVisibleCounter()
 {
-    visiblePointsCounter->blockSignals(true);
-    visiblePointsCounter->setValue(my.visible);
-    visiblePointsCounter->blockSignals(false);
+    visibleCounter->blockSignals(true);
+    visibleCounter->setValue(my.visible);
+    visibleCounter->blockSignals(false);
 }

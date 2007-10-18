@@ -25,14 +25,14 @@ public:
 
     virtual void reset(QString, bool, int, int);
     virtual bool isArchiveSource();
-    virtual void displaySamplePointsSlider();
-    virtual void displayVisiblePointsSlider();
-    virtual void displaySamplePointsCounter();
-    virtual void displayVisiblePointsCounter();
+    virtual void displaySampleSlider();
+    virtual void displayVisibleSlider();
+    virtual void displaySampleCounter();
+    virtual void displayVisibleCounter();
 
 public slots:
-    virtual void samplePointsValueChanged(int);
-    virtual void visiblePointsValueChanged(int);
+    virtual void sampleValueChanged(int);
+    virtual void visibleValueChanged(int);
     virtual void liveHostRadioButtonClicked();
     virtual void archivesRadioButtonClicked();
 

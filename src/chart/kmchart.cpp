@@ -552,8 +552,8 @@ void KmChart::acceptEditTab()
     Tab *tab = activeTab();
     chartTabWidget->setTabText(chartTabWidget->currentIndex(),
 				my.edittab->labelLineEdit->text());
-    tab->setSampleHistory((int)my.edittab->samplePointsCounter->value());
-    tab->setVisibleHistory((int)my.edittab->visiblePointsCounter->value());
+    tab->setSampleHistory((int)my.edittab->sampleCounter->value());
+    tab->setVisibleHistory((int)my.edittab->visibleCounter->value());
 }
 
 void KmChart::createNewTab(bool live)
@@ -569,13 +569,13 @@ void KmChart::acceptNewTab()
     QString label = my.newtab->labelLineEdit->text().trimmed();
 
     if (my.newtab->isArchiveSource())
-	tab->init(kmchart->tabWidget(), my.newtab->samplePointsCounter->value(),
-		my.newtab->visiblePointsCounter->value(),
+	tab->init(kmchart->tabWidget(), my.newtab->sampleCounter->value(),
+		my.newtab->visibleCounter->value(),
 		archiveGroup, KmTime::ArchiveSource, label,
 		kmtime->archiveInterval(), kmtime->archivePosition());
     else
-	tab->init(kmchart->tabWidget(), my.newtab->samplePointsCounter->value(),
-		my.newtab->visiblePointsCounter->value(),
+	tab->init(kmchart->tabWidget(), my.newtab->sampleCounter->value(),
+		my.newtab->visibleCounter->value(),
 		liveGroup, KmTime::HostSource, label,
 		kmtime->liveInterval(), kmtime->livePosition());
     chartTabWidget->insertTab(tab);
@@ -591,7 +591,9 @@ void KmChart::zoomIn()
 {
     int visible = activeTab()->visibleHistory();
     int samples = activeTab()->sampleHistory();
-    int decrease = qMax((int)((double)samples / 10), 1);
+    int decrease = qMax(qMin((int)((double)samples / 10), visible/2), 1);
+
+    console->post("zoomIn: vis=%d s=%d dec=%d\n", visible, samples, decrease);
 
     visible = qMax(visible - decrease, minimumPoints());
     activeTab()->setVisibleHistory(visible);
@@ -604,7 +606,9 @@ void KmChart::zoomOut()
 {
     int visible = activeTab()->visibleHistory();
     int samples = activeTab()->sampleHistory();
-    int increase = qMax((int)((double)samples / 10), 1);
+    int increase = qMax(qMin((int)((double)samples / 10), visible/2), 1);
+
+    console->post("zoomOut: vis=%d s=%d dec=%d\n", visible, samples, increase);
 
     visible = qMin(visible + increase, samples);
     activeTab()->setVisibleHistory(visible);
