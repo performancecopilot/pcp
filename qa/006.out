@@ -25,6 +25,8 @@ exit=0
 <timestamp>: Loading resource :/fastback_archive.png
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
+<timestamp>: KmChart::setActiveTab index=0 r=1
+<timestamp>: Tab::updateTimeAxis: used ...
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Tab::setCurrentChart(<addr>) -> 0
@@ -66,6 +68,8 @@ exit=0
 <timestamp>: Loading resource :/fastback_archive.png
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
+<timestamp>: KmChart::setActiveTab index=0 r=1
+<timestamp>: Tab::updateTimeAxis: used ...
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Tab::setCurrentChart(<addr>) -> 0
@@ -107,6 +111,8 @@ exit=0
 <timestamp>: Loading resource :/fastback_archive.png
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
+<timestamp>: KmChart::setActiveTab index=0 r=1
+<timestamp>: Tab::updateTimeAxis: used ...
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Tab::setCurrentChart(<addr>) -> 0
@@ -122,5 +128,144 @@ exit=0
 --- post ---
 Error: qa-view-03[6] 
 Failed to plot metric "sample.step_counter" for
+host <host>:
+Units for this metric are not compatible with other plots in this chart
+=== qa-view-04 ===
+#kmchart
+version 1
+chart title "QA Units OK - inst first" style plot
+    plot metric sample.byte_rate
+    plot metric sample.byte_ctr
+chart title "QA Units OK - ctr first" style plot
+    plot metric sample.byte_ctr
+    plot metric sample.byte_rate
+chart title "QA Units OK - Kbyte/sec and byte/msec" style plot
+    plot metric sample.mirage
+    plot metric sample.mirage_longlong
+chart title "QA Units OK - count/sec and count(->count/sec)" style plot
+    plot metric sample.write_me
+    plot metric sample.pdu
+
+
+exit=0
+--- out ---
+--- err ---
+<timestamp>: Console available
+<timestamp>: Global settings setup complete
+<timestamp>: Metric group setup complete (0 hosts, 0 archives)
+<timestamp>: Timezones and time window setup complete
+<timestamp>: Loading resource :/play_live.png
+<timestamp>: Loading resource :/stop_live.png
+<timestamp>: Loading resource :/play_record.png
+<timestamp>: Loading resource :/stop_record.png
+<timestamp>: Loading resource :/play_archive.png
+<timestamp>: Loading resource :/stop_archive.png
+<timestamp>: Loading resource :/back_archive.png
+<timestamp>: Loading resource :/stepfwd_archive.png
+<timestamp>: Loading resource :/stepback_archive.png
+<timestamp>: Loading resource :/fastfwd_archive.png
+<timestamp>: Loading resource :/fastback_archive.png
+<timestamp>: Time button resources loaded
+<timestamp>: Phase1 user interface constructors complete
+<timestamp>: KmChart::setActiveTab index=0 r=1
+<timestamp>: Tab::updateTimeAxis: used ...
+<timestamp>: Phase2 user interface setup complete
+<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
+<timestamp>: Tab::setCurrentChart(<addr>) -> 0
+<timestamp>: Tab::addChart: [0]->Chart <addr>
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot metric=sample.byte_rate
+<timestamp>: Chart::addPlot initial units byte / sec
+<timestamp>: addPlot plot=<addr> nplots=1
+<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot metric=sample.byte_ctr
+<timestamp>: Chart::checkUnits plot units byte / sec
+<timestamp>: addPlot plot=<addr> nplots=2
+<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
+<timestamp>: Tab::setCurrentChart(<addr>) -> 1
+<timestamp>: Tab::addChart: [1]->Chart <addr>
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot metric=sample.byte_ctr
+<timestamp>: Chart::addPlot initial units byte / sec
+<timestamp>: addPlot plot=<addr> nplots=1
+<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot metric=sample.byte_rate
+<timestamp>: Chart::checkUnits plot units byte / sec
+<timestamp>: addPlot plot=<addr> nplots=2
+<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
+<timestamp>: Tab::setCurrentChart(<addr>) -> 2
+<timestamp>: Tab::addChart: [2]->Chart <addr>
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot instance sample.mirage[m-00]
+<timestamp>: Chart::addPlot initial units Kbyte / sec
+<timestamp>: addPlot plot=<addr> nplots=1
+<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot instance sample.mirage_longlong[m-00]
+<timestamp>: Chart::checkUnits plot units byte / millisec
+<timestamp>: addPlot plot=<addr> nplots=2
+<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
+<timestamp>: Tab::setCurrentChart(<addr>) -> 3
+<timestamp>: Tab::addChart: [3]->Chart <addr>
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot metric=sample.write_me
+<timestamp>: Chart::addPlot initial units count / sec
+<timestamp>: addPlot plot=<addr> nplots=1
+<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot metric=sample.pdu
+<timestamp>: Chart::checkUnits plot units count / sec
+<timestamp>: addPlot plot=<addr> nplots=2
+<timestamp>: Chart::setStroke [style 1->1]
+--- post ---
+=== qa-view-05 ===
+#kmchart
+version 1
+chart title "QA Units BAD - byte / msec and count/sec" style plot
+    plot metric sample.mirage_longlong
+    plot metric sample.write_me
+
+exit=0
+--- out ---
+--- err ---
+<timestamp>: Console available
+<timestamp>: Global settings setup complete
+<timestamp>: Metric group setup complete (0 hosts, 0 archives)
+<timestamp>: Timezones and time window setup complete
+<timestamp>: Loading resource :/play_live.png
+<timestamp>: Loading resource :/stop_live.png
+<timestamp>: Loading resource :/play_record.png
+<timestamp>: Loading resource :/stop_record.png
+<timestamp>: Loading resource :/play_archive.png
+<timestamp>: Loading resource :/stop_archive.png
+<timestamp>: Loading resource :/back_archive.png
+<timestamp>: Loading resource :/stepfwd_archive.png
+<timestamp>: Loading resource :/stepback_archive.png
+<timestamp>: Loading resource :/fastfwd_archive.png
+<timestamp>: Loading resource :/fastback_archive.png
+<timestamp>: Time button resources loaded
+<timestamp>: Phase1 user interface constructors complete
+<timestamp>: KmChart::setActiveTab index=0 r=1
+<timestamp>: Tab::updateTimeAxis: used ...
+<timestamp>: Phase2 user interface setup complete
+<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
+<timestamp>: Tab::setCurrentChart(<addr>) -> 0
+<timestamp>: Tab::addChart: [0]->Chart <addr>
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot instance sample.mirage_longlong[m-00]
+<timestamp>: Chart::addPlot initial units byte / millisec
+<timestamp>: addPlot plot=<addr> nplots=1
+<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot metric=sample.write_me
+<timestamp>: Chart::checkUnits plot units count / sec
+--- post ---
+Error: qa-view-05[7] 
+Failed to plot metric "sample.write_me" for
 host <host>:
 Units for this metric are not compatible with other plots in this chart

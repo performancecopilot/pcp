@@ -20,7 +20,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 PCP_STDERR=$tmp.post
-for config in qa-view-01 qa-view-02 qa-view-03
+for config in qa-view-01 qa-view-02 qa-view-03 qa-view-04 qa-view-05
 do
     echo "=== $config ==="
     cat $config
@@ -37,16 +37,6 @@ do
 	_filter_post <$tmp.post
     fi
 done
-cat <<End-of-File | kmchart -c - -C
-#kmchart
-version 1
-chart title "QA $seq OK Test" style plot
-    plot metric sample.seconds
-    plot metric sample.milliseconds
-chart title "QA $seq Fail #1" style plot
-    plot metric sample.seconds
-    plot metric sample.control.bozo
-End-of-File
 
 # success, all done
 exit

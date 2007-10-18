@@ -1,9 +1,11 @@
 QA output created by 001
 === bad first line ===
+Load View: /var/lib/pcp/config/kmchart/Schemes
 Load View: stdin
 Error: stdin[1] Syntax error: expecting "#pmchart" or "#kmchart", found "#bad"
 
 === lexicon too long ===
+Load View: /var/lib/pcp/config/kmchart/Schemes
 Load View: stdin
 Error: stdin[2] Word truncated after 255 characters!
 "aaaaaaaaaaaaaaaaaaaa ... cccccccccccccccccccc"
