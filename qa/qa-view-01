@@ -1,0 +1,5 @@
+#kmchart
+version 1
+chart title "QA Units compatible - time" style plot
+    plot metric sample.seconds
+    plot metric sample.milliseconds

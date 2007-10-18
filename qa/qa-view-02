@@ -1,0 +1,5 @@
+#kmchart
+version 1
+chart title "QA Units odd but OK - time(util) and none" style plot
+    plot metric sample.seconds
+    plot metric sample.control

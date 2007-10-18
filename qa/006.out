@@ -1,0 +1,126 @@
+QA output created by 006
+=== qa-view-01 ===
+#kmchart
+version 1
+chart title "QA Units compatible - time" style plot
+    plot metric sample.seconds
+    plot metric sample.milliseconds
+exit=0
+--- out ---
+--- err ---
+<timestamp>: Console available
+<timestamp>: Global settings setup complete
+<timestamp>: Metric group setup complete (0 hosts, 0 archives)
+<timestamp>: Timezones and time window setup complete
+<timestamp>: Loading resource :/play_live.png
+<timestamp>: Loading resource :/stop_live.png
+<timestamp>: Loading resource :/play_record.png
+<timestamp>: Loading resource :/stop_record.png
+<timestamp>: Loading resource :/play_archive.png
+<timestamp>: Loading resource :/stop_archive.png
+<timestamp>: Loading resource :/back_archive.png
+<timestamp>: Loading resource :/stepfwd_archive.png
+<timestamp>: Loading resource :/stepback_archive.png
+<timestamp>: Loading resource :/fastfwd_archive.png
+<timestamp>: Loading resource :/fastback_archive.png
+<timestamp>: Time button resources loaded
+<timestamp>: Phase1 user interface constructors complete
+<timestamp>: Phase2 user interface setup complete
+<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
+<timestamp>: Tab::setCurrentChart(<addr>) -> 0
+<timestamp>: Tab::addChart: [0]->Chart <addr>
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot metric=sample.seconds
+<timestamp>: Chart::addPlot initial units 
+<timestamp>: addPlot plot=<addr> nplots=1
+<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot metric=sample.milliseconds
+<timestamp>: Chart::checkUnits plot units 
+<timestamp>: addPlot plot=<addr> nplots=2
+<timestamp>: Chart::setStroke [style 1->1]
+--- post ---
+=== qa-view-02 ===
+#kmchart
+version 1
+chart title "QA Units odd but OK - time(util) and none" style plot
+    plot metric sample.seconds
+    plot metric sample.control
+exit=0
+--- out ---
+--- err ---
+<timestamp>: Console available
+<timestamp>: Global settings setup complete
+<timestamp>: Metric group setup complete (0 hosts, 0 archives)
+<timestamp>: Timezones and time window setup complete
+<timestamp>: Loading resource :/play_live.png
+<timestamp>: Loading resource :/stop_live.png
+<timestamp>: Loading resource :/play_record.png
+<timestamp>: Loading resource :/stop_record.png
+<timestamp>: Loading resource :/play_archive.png
+<timestamp>: Loading resource :/stop_archive.png
+<timestamp>: Loading resource :/back_archive.png
+<timestamp>: Loading resource :/stepfwd_archive.png
+<timestamp>: Loading resource :/stepback_archive.png
+<timestamp>: Loading resource :/fastfwd_archive.png
+<timestamp>: Loading resource :/fastback_archive.png
+<timestamp>: Time button resources loaded
+<timestamp>: Phase1 user interface constructors complete
+<timestamp>: Phase2 user interface setup complete
+<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
+<timestamp>: Tab::setCurrentChart(<addr>) -> 0
+<timestamp>: Tab::addChart: [0]->Chart <addr>
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot metric=sample.seconds
+<timestamp>: Chart::addPlot initial units 
+<timestamp>: addPlot plot=<addr> nplots=1
+<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot metric=sample.control
+<timestamp>: Chart::checkUnits plot units 
+<timestamp>: addPlot plot=<addr> nplots=2
+<timestamp>: Chart::setStroke [style 1->1]
+--- post ---
+=== qa-view-03 ===
+#kmchart
+version 1
+chart title "QA Units BAD - time(->time util) and count(->count/sec)" style plot
+    plot metric sample.seconds
+    plot metric sample.step_counter
+exit=0
+--- out ---
+--- err ---
+<timestamp>: Console available
+<timestamp>: Global settings setup complete
+<timestamp>: Metric group setup complete (0 hosts, 0 archives)
+<timestamp>: Timezones and time window setup complete
+<timestamp>: Loading resource :/play_live.png
+<timestamp>: Loading resource :/stop_live.png
+<timestamp>: Loading resource :/play_record.png
+<timestamp>: Loading resource :/stop_record.png
+<timestamp>: Loading resource :/play_archive.png
+<timestamp>: Loading resource :/stop_archive.png
+<timestamp>: Loading resource :/back_archive.png
+<timestamp>: Loading resource :/stepfwd_archive.png
+<timestamp>: Loading resource :/stepback_archive.png
+<timestamp>: Loading resource :/fastfwd_archive.png
+<timestamp>: Loading resource :/fastback_archive.png
+<timestamp>: Time button resources loaded
+<timestamp>: Phase1 user interface constructors complete
+<timestamp>: Phase2 user interface setup complete
+<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
+<timestamp>: Tab::setCurrentChart(<addr>) -> 0
+<timestamp>: Tab::addChart: [0]->Chart <addr>
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot metric=sample.seconds
+<timestamp>: Chart::addPlot initial units 
+<timestamp>: addPlot plot=<addr> nplots=1
+<timestamp>: Chart::setStroke [style 1->1]
+<timestamp>: Chart::addPlot src=<host>
+<timestamp>: addPlot metric=sample.step_counter
+<timestamp>: Chart::checkUnits plot units count / sec
+--- post ---
+Error: qa-view-03[6] 
+Failed to plot metric "sample.step_counter" for
+host <host>:
+Units for this metric are not compatible with other plots in this chart
