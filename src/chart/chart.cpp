@@ -325,6 +325,61 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
     if (mp->status() < 0)
 	return mp->status();
     desc = mp->desc().desc();
+    if (desc.sem == PM_SEM_COUNTER) {
+	if (desc.units.dimTime == 0) {
+	    desc.units.dimTime = -1;
+	    desc.units.scaleTime = PM_TIME_SEC;
+	}
+	else if (desc.units.dimTime == 1) {
+	    desc.units.dimTime = 0 ;
+	    // don't play with scaleTime, need native per plot scaleTime
+	    // so we can apply correct scaling via plot->scale, e.g. in
+	    // the msec -> msec/sec after rate conversion ... see the
+	    // calculation for plot->scale below
+	}
+    }
+
+    if (my.plots.size() == 0) {
+	// first plot, set y-axis title and global semantics
+	if (desc.sem == PM_SEM_COUNTER) {
+	    if (desc.units.dimTime == 0) {
+		if (my.style == UtilisationStyle)
+		    setYAxisTitle("% utilization");
+		else {
+		    setYAxisTitle((char *)pmUnitsStr(&desc.units));
+		}
+	    }
+	    else if (desc.units.dimTime == 1) {
+		if (my.style == UtilisationStyle)
+		    setYAxisTitle("% time utilization");
+		else
+		    setYAxisTitle("time utilization");
+	    }
+	    else {
+		// TODO -- rate conversion when units.dimTime != 0 or 1 ...
+		// check what metrics class does with this, then make the
+		// y axis label match
+		if (my.style == UtilisationStyle)
+		    setYAxisTitle("% utilization");
+		else
+		    setYAxisTitle((char *)pmUnitsStr(&desc.units));
+	    }
+	}
+	else {
+	    if (my.style == UtilisationStyle)
+		setYAxisTitle("% utilization");
+	    else
+		setYAxisTitle((char *)pmUnitsStr(&desc.units));
+	}
+	my.units = desc.units;
+	console->post("Chart::addPlot initial units %s", pmUnitsStr(&my.units));
+    }
+    else {
+	if (checkUnits(&desc.units) == false) {
+	    // error reporting handled in caller
+	    return PM_ERR_CONV;
+	}
+    }
 
     maxCount = 0;
     for (i = 0; i < my.plots.size(); i++) {
@@ -398,44 +453,8 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
 	// we just want them to count 0 towards any Stack aggregation
     }
 
-    if (my.plots.size() == 1) {
-	// first plot, set y-axis title
-	if (desc.sem == PM_SEM_COUNTER) {
-	    if (desc.units.dimTime == 0) {
-		if (my.style == UtilisationStyle)
-		    setYAxisTitle("% utilization");
-		else {
-		    desc.units.dimTime = -1;
-		    desc.units.scaleTime = PM_TIME_SEC;
-		    setYAxisTitle((char *)pmUnitsStr(&desc.units));
-		}
-	    }
-	    else if (desc.units.dimTime == 1) {
-		if (my.style == UtilisationStyle)
-		    setYAxisTitle("% time utilization");
-		else
-		    setYAxisTitle("time utilization");
-	    }
-	    else {
-		// TODO -- rate conversion when units.dimTime != 0 ...
-		// check what metrics class does with this, then make the
-		// y axis label match
-		if (my.style == UtilisationStyle)
-		    setYAxisTitle("% utilization");
-		else
-		    setYAxisTitle((char *)pmUnitsStr(&desc.units));
-	    }
-	}
-	else {
-	    if (my.style == UtilisationStyle)
-		setYAxisTitle("% utilization");
-	    else
-		setYAxisTitle((char *)pmUnitsStr(&desc.units));
-	}
-    }
-
     plot->scale = 1;
-    if (desc.sem == PM_SEM_COUNTER && desc.units.dimTime == 1 &&
+    if (desc.sem == PM_SEM_COUNTER && desc.units.dimTime == 0 &&
 	my.style != UtilisationStyle) {
 	// value to plot is time / time ... set scale
 	if (desc.units.scaleTime == PM_TIME_USEC)
@@ -967,4 +986,15 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 	    tree = n;
 	}
     }
+}
+
+bool Chart::checkUnits(pmUnits *newUnits)
+{
+    console->post("Chart::checkUnits plot units %s", pmUnitsStr(newUnits));
+    if (my.units.dimSpace != newUnits->dimSpace ||
+        my.units.dimTime != newUnits->dimTime ||
+        my.units.dimCount != newUnits->dimCount)
+	return false;
+    else
+	return true;
 }

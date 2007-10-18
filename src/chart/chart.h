@@ -123,6 +123,7 @@ private:
     void setStroke(Plot *plot, Style s, QColor c);
     void setLabel(Plot *plot, QString s);
     void resetDataArrays(Plot *plot, int v);
+    bool checkUnits(pmUnits *);
 
     struct {
 	Tab *tab;
@@ -135,6 +136,7 @@ private:
 	double yMin;
 	double yMax;
 	QwtPlotPicker *picker;
+	pmUnits units;
     } my;
 };
 

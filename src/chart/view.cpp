@@ -533,7 +533,7 @@ done_chart:
 			fprintf(stderr, " legend=yes");
 		    fputc('\n', stderr);
 		}
-		if (Cflag == 0) {
+		if (Cflag == 0 || Cflag == 2) {
 		    cp = activeTab->addChart();
 		    cp->setStyle(style);
 		    cp->setScheme(scheme.name());
@@ -825,7 +825,7 @@ abort_chart:
 		}
 		fputc('\n', stderr);
 	    }
-	    if (Cflag == 0) {
+	    if (Cflag == 0 || Cflag == 2) {
 		QmcSource source = activeGroup->context()->source();
 		pms.isarch = source.isArchive();
 		if (host != NULL) {
@@ -963,14 +963,19 @@ try_plot:
 		    if (!optional) {
 			QString	msg;
 			if (pms.inst[0] != NULL)
-			    msg.sprintf("\nFailed to plot metric \"%s[%s]\" for\n%s %s:\n%s",
+			    msg.sprintf("\nFailed to plot metric \"%s[%s]\" for\n%s %s:\n",
 				pms.metric, pms.inst[0],
 				pms.isarch ? "archive" : "host",
-				pms.source, pmErrStr(m));
+				pms.source);
 			else
-			    msg.sprintf("\nFailed to plot metric \"%s\" for\n%s %s:\n%s",
+			    msg.sprintf("\nFailed to plot metric \"%s\" for\n%s %s:\n",
 				pms.metric, pms.isarch ? "archive" : "host",
-				pms.source, pmErrStr(m));
+				pms.source);
+			    if (m == PM_ERR_CONV) {
+				msg.append("Units for this metric are not compatible with other plots in this chart");
+			    }
+			    else
+				msg.append(pmErrStr(m));
 			errmsg.append(msg);
 		    }
 		}
@@ -1031,7 +1036,7 @@ abandon:
     if (_errors)
 	return false;
 
-    if (Cflag == 0 && cp != NULL)
+    if ((Cflag == 0 || Cflag == 2) && cp != NULL)
 	activeTab->setupWorldView();
     return true;
 

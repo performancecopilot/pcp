@@ -45,6 +45,7 @@ static void usage(void)
 "  -a archive    add PCP log archive to metrics source list\n"
 "  -c configfile initial view to load\n"
 "  -C            with -c, parse config, report any errors and exit\n"
+"  -CC           like -C, but also connect to pmcd to check semantics\n"
 "  -h host       add host to list of live metrics sources\n"
 "  -n pmnsfile   use an alternative PMNS\n"
 "  -O offset     initial offset into the time window\n"
@@ -572,7 +573,7 @@ main(int argc, char ** argv)
 	    archiveGroup->useTZ();
 	liveGroup->useTZ();
     }
-    else if (Tflag) {
+    else if (tz != NULL) {
 	if (archives.size() > 0)
 	    archiveGroup->useTZ(QString(tz));
 	liveGroup->useTZ(QString(tz));

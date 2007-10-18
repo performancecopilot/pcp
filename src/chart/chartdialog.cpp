@@ -694,14 +694,19 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
     if (m < 0) {
 	QString	msg;
 	if (pms.inst[0] != NULL)
-	    msg.sprintf("Error:\nFailed to plot metric \"%s[%s]\" for\n%s %s:\n%s",
+	    msg.sprintf("Error:\nFailed to plot metric \"%s[%s]\" for\n%s %s:\n",
 		pms.metric, pms.inst[0],
 		pms.isarch ? "archive" : "host",
-		pms.source, pmErrStr(m));
+		pms.source);
 	else
-	    msg.sprintf("Error:\nFailed to plot metric \"%s\" for\n%s %s:\n%s",
+	    msg.sprintf("Error:\nFailed to plot metric \"%s\" for\n%s %s:\n",
 		pms.metric, pms.isarch ? "archive" : "host",
-		pms.source, pmErrStr(m));
+		pms.source);
+	if (m == PM_ERR_CONV) {
+	    msg.append("Units for this metric are not compatible with other plots in this chart");
+	}
+	else
+	    msg.append(pmErrStr(m));
 	QMessageBox::critical(kmchart, pmProgname,  msg);
     }
     else {
