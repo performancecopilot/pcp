@@ -29,7 +29,7 @@ endif
 ICONLINKS = aboutpcp.png aboutqt.png aboutkmchart.png kmchart.png kmtime.png \
 	    document-close.png document-new.png document-open.png \
 	    document-print.png document-export.png document-properties.png \
-	    edit-clear.png settings.png \
+	    edit-clear.png settings.png camera-video-close.png \
 	    archive.png computer.png camera-video.png system-search.png \
 	    process-stop.png go-jump.png go-previous.png \
 	    tab-close.png tab-new.png tab-edit.png zoom-in.png zoom-out.png \

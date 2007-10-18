@@ -742,8 +742,7 @@ void KmChart::setupEnabledActionsList()
     addSeparatorAction();	// end tab group
     my.toolbarActionsList << editSettingsAction;
     addSeparatorAction();	// end settings group
-    my.toolbarActionsList << recordStartAction << recordQueryAction
-			  << recordStopAction;
+    my.toolbarActionsList << recordStartAction << recordStopAction;
     addSeparatorAction();	// end recording group
     my.toolbarActionsList << timeControlAction << newKmchartAction;
     addSeparatorAction();	// end other processes

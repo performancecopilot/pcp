@@ -588,6 +588,9 @@
    </property>
   </action>
   <action name="recordStopAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/camera-video-close.png</iconset>
+   </property>
    <property name="text" >
     <string>Stop</string>
    </property>
