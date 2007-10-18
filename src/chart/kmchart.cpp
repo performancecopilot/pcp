@@ -635,7 +635,7 @@ void KmChart::closeTab()
 
 void KmChart::setActiveTab(int index, bool redisplay)
 {
-    console->post("KmChart::setActiveTab index=%d r=%d\n", index, redisplay);
+    console->post("KmChart::setActiveTab index=%d r=%d", index, redisplay);
     
     if (chartTabWidget->setActiveTab(index) == true) {
 	activeGroup = archiveGroup;

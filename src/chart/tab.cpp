@@ -225,7 +225,7 @@ void Tab::updateTimeAxis(void)
     //console->post(KmChart::DebugProtocol,
     int i = my.visible - 1;
     console->post(
-		  "Tab::upateTimeAxis: used %s TZ; i=%d, first time is %.3f (%s), final time is %.3f (%s)",
+		  "Tab::updateTimeAxis: used %s TZ; i=%d, first time is %.3f (%s), final time is %.3f (%s)",
 			(const char *)tz.toAscii(), i,
 			my.timeData[i], timeString(my.timeData[i]),
 			my.timeData[0], timeString(my.timeData[0]));
