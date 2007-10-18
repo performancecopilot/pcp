@@ -55,7 +55,12 @@ public:
     static const int maximumLegendLength() { return 20; }	// chars
     static const int minimumChartHeight() { return 80; }	// pixels
 
-    virtual TimeAxis *timeAxis();
+    Tab *activeTab() { return chartTabWidget->activeTab(); }
+    void setActiveTab(int index, bool redisplay);
+    bool isArchiveTab();
+    TabWidget *tabWidget() { return chartTabWidget; }
+    TimeAxis *timeAxis() { return timeAxisPlot; }
+
     virtual void step(bool livemode, KmTime::Packet *kmtime);
     virtual void VCRMode(bool livemode, KmTime::Packet *kmtime, bool drag);
     virtual void timeZone(bool livemode, char *tzdata);
@@ -66,8 +71,6 @@ public:
     virtual void metricInfo(QString src, QString m, QString inst, bool archive);
     virtual void metricSearch(QTreeWidget *pmns);
     virtual void createNewTab(bool liveMode);
-    virtual QTabWidget *tabWidget();
-    virtual void setActiveTab(int index, bool redisplay);
     virtual void setDateLabel(time_t seconds, QString tz);
     virtual void setButtonState(TimeButton::State state);
     virtual void setRecordState(Tab *tab, bool recording);
@@ -134,6 +137,7 @@ private:
 	bool archiveHidden;
 	bool toolbarHidden;
 	bool consoleHidden;
+	TabWidget *tabs;
 	QPrinter *printer;
 	TimeAxis *timeaxis;
 	TabDialog *newtab;

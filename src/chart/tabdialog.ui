@@ -101,7 +101,7 @@
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeType" >
-        <enum>QSizePolicy::Fixed</enum>
+        <enum>QSizePolicy::Expanding</enum>
        </property>
        <property name="sizeHint" >
         <size>

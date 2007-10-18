@@ -131,17 +131,12 @@ void KmChart::quit()
 	kmtime->quit();
 }
 
-TimeAxis *KmChart::timeAxis(void)
-{
-    return timeAxisPlot;
-}
-
 void KmChart::enableUi(void)
 {
-    bool haveTabs = (tabs.size() > 1);
-    bool haveCharts = (activeTab->numChart() > 0);
-    bool haveLoggers = (activeTab->isRecording());
-    bool haveLiveHosts = (!activeTab->isArchiveSource());
+    bool haveTabs = (chartTabWidget->size() > 1);
+    bool haveCharts = (activeTab()->numChart() > 0);
+    bool haveLoggers = (activeTab()->isRecording());
+    bool haveLiveHosts = (!activeTab()->isArchiveSource());
 
     closeTabAction->setEnabled(haveTabs);
     fileSaveViewAction->setEnabled(haveCharts);
@@ -154,8 +149,8 @@ void KmChart::enableUi(void)
     recordStopAction->setEnabled(haveLoggers);
     recordDetachAction->setEnabled(haveLoggers);
 
-    zoomInAction->setEnabled(activeTab->visibleHistory() > minimumPoints());
-    zoomOutAction->setEnabled(activeTab->visibleHistory() < maximumPoints());
+    zoomInAction->setEnabled(activeTab()->visibleHistory() > minimumPoints());
+    zoomOutAction->setEnabled(activeTab()->visibleHistory() < maximumPoints());
 }
 
 const int KmChart::defaultFontSize()
@@ -189,36 +184,36 @@ void KmChart::setButtonState(TimeButton::State state)
 
 void KmChart::step(bool live, KmTime::Packet *packet)
 {
-    for (int i = 0; i < tabs.size(); i++) {
-	if (tabs.at(i)->isArchiveSource()) {
+    for (int i = 0; i < chartTabWidget->size(); i++) {
+	if (chartTabWidget->at(i)->isArchiveSource()) {
 	    if (!live)
-		tabs.at(i)->step(packet);
+		chartTabWidget->at(i)->step(packet);
 	}
 	else if (live)
-	    tabs.at(i)->step(packet);
+	    chartTabWidget->at(i)->step(packet);
     }
 }
 
 void KmChart::VCRMode(bool live, KmTime::Packet *packet, bool drag)
 {
-    for (int i = 0; i < tabs.size(); i++) {
-	if (tabs.at(i)->isArchiveSource()) {
+    for (int i = 0; i < chartTabWidget->size(); i++) {
+	if (chartTabWidget->at(i)->isArchiveSource()) {
 	    if (!live)
-		tabs.at(i)->VCRMode(packet, drag);
+		chartTabWidget->at(i)->VCRMode(packet, drag);
 	} else if (live)
-	    tabs.at(i)->VCRMode(packet, drag);
+	    chartTabWidget->at(i)->VCRMode(packet, drag);
     }
 }
 
 void KmChart::timeZone(bool live, char *tzdata)
 {
-    for (int i = 0; i < tabs.size(); i++) {
-	if (tabs.at(i)->isArchiveSource()) {
+    for (int i = 0; i < chartTabWidget->size(); i++) {
+	if (chartTabWidget->at(i)->isArchiveSource()) {
 	    if (!live)
-		tabs.at(i)->setTimezone(tzdata);
+		chartTabWidget->at(i)->setTimezone(tzdata);
 	}
 	else if (live)
-	    tabs.at(i)->setTimezone(tzdata);
+	    chartTabWidget->at(i)->setTimezone(tzdata);
     }
 }
 
@@ -266,7 +261,7 @@ void KmChart::filePrint()
 	double scale_h = 0;
 	double scale_w = 0;
 	int i;
-	int nchart = activeTab->numChart();
+	int nchart = activeTab()->numChart();
 	QwtPlotPrintFilter filter;
 	QSize size;
 	QRect rect;	// used for print layout calculations
@@ -279,7 +274,7 @@ void KmChart::filePrint()
 		~QwtPlotPrintFilter::PrintGrid);
 	QPainter qp(&printer);
 	for (i = 0; i < nchart; i++) {
-	    size = activeTab->chart(i)->size();
+	    size = activeTab()->chart(i)->size();
 	    if (size.width() > scale_w) scale_w = size.width();
 	    scale_h += size.height();
 	}
@@ -299,7 +294,7 @@ void KmChart::filePrint()
 	rect.setX(0);
 	rect.setY(0);
 	for (i = 0; i < nchart; i++) {
-	    Chart *cp = activeTab->chart(i);
+	    Chart *cp = activeTab()->chart(i);
 	    size = cp->size();
 	    rect.setWidth((int)(size.width()*scale_w+0.5));
 	    rect.setHeight((int)(size.height()*scale_h+0.5));
@@ -395,7 +390,7 @@ void KmChart::whatsThis()
 
 void KmChart::optionsTimeControl()
 {
-    if (activeTab->isArchiveSource()) {
+    if (activeTab()->isArchiveSource()) {
 	if (my.archiveHidden)
 	    kmtime->showArchiveTimeControl();
 	else
@@ -455,7 +450,7 @@ void KmChart::acceptNewChart()
     bool yAutoScale;
     double yMin, yMax;
 
-    Chart *cp = activeTab->addChart();
+    Chart *cp = activeTab()->addChart();
     QString newTitle = my.newchart->title().trimmed();
     if (newTitle.isEmpty() == false)
 	cp->changeTitle(newTitle, true);
@@ -483,9 +478,10 @@ void KmChart::editChart()
 {
     bool yAutoScale;
     double yMin, yMax;
-    Chart *cp = activeTab->currentChart();
+    Chart *cp = activeTab()->currentChart();
 
-    my.editchart->reset(cp, (int)activeTab->currentChart()->style() - 1, cp->scheme());
+    my.editchart->reset(cp,
+		(int)activeTab()->currentChart()->style() - 1, cp->scheme());
     my.editchart->titleLineEdit->setText(cp->title());
     my.editchart->legendOn->setChecked(cp->legendVisible());
     my.editchart->legendOff->setChecked(!cp->legendVisible());
@@ -510,7 +506,7 @@ void KmChart::acceptEditChart()
     if (cp->numPlot() > 0)
 	cp->show();
     else
-	activeTab->deleteChart(cp);
+	activeTab()->deleteChart(cp);
 
     // TODO: need a flag on "cp" that says "currently being edited" so
     // the Chart Delete menu option doesn't shoot it down before we're
@@ -525,7 +521,7 @@ void KmChart::acceptEditChart()
 
 void KmChart::closeChart()
 {
-    activeTab->deleteCurrent();
+    activeTab()->deleteCurrent();
     enableUi();
 }
 
@@ -543,18 +539,21 @@ void KmChart::metricSearch(QTreeWidget *pmns)
 
 void KmChart::editTab()
 {
-    my.edittab->reset(chartTab->tabText(activeTab->index()),
-		   activeTab->isArchiveSource() == false,
-		   activeTab->sampleHistory(),
-		   activeTab->visibleHistory());
+    Tab *tab = activeTab();
+    my.edittab->reset(chartTabWidget->tabText(chartTabWidget->currentIndex()),
+			tab->isArchiveSource() == false,
+		   	tab->sampleHistory(),
+			tab->visibleHistory());
     my.edittab->show();
 }
 
 void KmChart::acceptEditTab()
 {
-    chartTab->setTabText(activeTab->index(), my.edittab->labelLineEdit->text());
-    activeTab->setSampleHistory((int)my.edittab->samplePointsCounter->value());
-    activeTab->setVisibleHistory((int)my.edittab->visiblePointsCounter->value());
+    Tab *tab = activeTab();
+    chartTabWidget->setTabText(chartTabWidget->currentIndex(),
+				my.edittab->labelLineEdit->text());
+    tab->setSampleHistory((int)my.edittab->samplePointsCounter->value());
+    tab->setVisibleHistory((int)my.edittab->visiblePointsCounter->value());
 }
 
 void KmChart::createNewTab(bool live)
@@ -567,50 +566,35 @@ void KmChart::createNewTab(bool live)
 void KmChart::acceptNewTab()
 {
     Tab *tab = new Tab;
+    QString label = my.newtab->labelLineEdit->text().trimmed();
 
     if (my.newtab->isArchiveSource())
-	tab->init(kmchart->tabWidget(),
-		my.newtab->samplePointsCounter->value(),
+	tab->init(kmchart->tabWidget(), my.newtab->samplePointsCounter->value(),
 		my.newtab->visiblePointsCounter->value(),
-		archiveGroup, KmTime::ArchiveSource, (const char *)
-		my.newtab->labelLineEdit->text().trimmed().toAscii(),
+		archiveGroup, KmTime::ArchiveSource, label,
 		kmtime->archiveInterval(), kmtime->archivePosition());
     else
-	tab->init(kmchart->tabWidget(),
-		my.newtab->samplePointsCounter->value(),
+	tab->init(kmchart->tabWidget(), my.newtab->samplePointsCounter->value(),
 		my.newtab->visiblePointsCounter->value(),
-		liveGroup, KmTime::HostSource, (const char *)
-		my.newtab->labelLineEdit->text().trimmed().toAscii(),
+		liveGroup, KmTime::HostSource, label,
 		kmtime->liveInterval(), kmtime->livePosition());
-    tabs.append(tab);
+    chartTabWidget->insertTab(tab);
     enableUi();
 }
 
 void KmChart::addTab()
 {
-    createNewTab(activeTab->isArchiveSource() == false);
-}
-
-void KmChart::closeTab()
-{
-    int	index = chartTab->currentIndex();
-
-    chartTab->removeTab(index);
-    tabs.removeAt(index);
-    if (index > 0)
-	index--;
-    setActiveTab(index, false);
-    enableUi();
+    createNewTab(isArchiveTab() == false);
 }
 
 void KmChart::zoomIn()
 {
-    int visible = activeTab->visibleHistory();
-    int samples = activeTab->sampleHistory();
+    int visible = activeTab()->visibleHistory();
+    int samples = activeTab()->sampleHistory();
     int decrease = qMax((int)((double)samples / 10), 1);
 
     visible = qMax(visible - decrease, minimumPoints());
-    activeTab->setVisibleHistory(visible);
+    activeTab()->setVisibleHistory(visible);
 
     zoomInAction->setEnabled(visible > minimumPoints());
     zoomOutAction->setEnabled(visible < samples);
@@ -618,44 +602,54 @@ void KmChart::zoomIn()
 
 void KmChart::zoomOut()
 {
-    int visible = activeTab->visibleHistory();
-    int samples = activeTab->sampleHistory();
+    int visible = activeTab()->visibleHistory();
+    int samples = activeTab()->sampleHistory();
     int increase = qMax((int)((double)samples / 10), 1);
 
     visible = qMin(visible + increase, samples);
-    activeTab->setVisibleHistory(visible);
+    activeTab()->setVisibleHistory(visible);
 
     zoomInAction->setEnabled(visible > minimumPoints());
     zoomOutAction->setEnabled(visible < samples);
 }
 
-QTabWidget *KmChart::tabWidget()
+bool KmChart::isArchiveTab()
 {
-    return chartTab;
+    return chartTabWidget->activeTab()->isArchiveSource();
+}
+
+void KmChart::closeTab()
+{
+    int	index = chartTabWidget->currentIndex();
+
+    chartTabWidget->removeTab(index);
+    if (index > 0)
+	index--;
+    setActiveTab(index, false);
+    enableUi();
 }
 
 void KmChart::setActiveTab(int index, bool redisplay)
 {
-    if (index < 0)
-	index = 0;
-    activeTab = tabs.at(index);
-    if (tabs.at(index)->isArchiveSource()) {
+    console->post("KmChart::setActiveTab index=%d r=%d\n", index, redisplay);
+    
+    if (chartTabWidget->setActiveTab(index) == true) {
 	activeGroup = archiveGroup;
 	timeControlAction->setChecked(!my.archiveHidden);
     } else {
 	activeGroup = liveGroup;
 	timeControlAction->setChecked(!my.liveHidden);
     }
-    activeTab->updateTimeButton();
-    activeTab->updateTimeAxis();
+    activeTab()->updateTimeButton();
+    activeTab()->updateTimeAxis();
 
     if (redisplay)
-	chartTab->setCurrentIndex(index);
+	chartTabWidget->setCurrentIndex(index);
 }
 
 void KmChart::activeTabChanged(int index)
 {
-    if (index < tabs.size())
+    if (index < chartTabWidget->size())
 	setActiveTab(index, false);
     enableUi();
 }
@@ -700,23 +694,23 @@ void KmChart::setRecordState(Tab *tab, bool recording)
 
 void KmChart::recordStart()
 {
-    if (activeTab->startRecording())
-	setRecordState(activeTab, true);
+    if (activeTab()->startRecording())
+	setRecordState(activeTab(), true);
 }
 
 void KmChart::recordStop()
 {
-    activeTab->stopRecording();
+    activeTab()->stopRecording();
 }
 
 void KmChart::recordQuery()
 {
-    activeTab->queryRecording();
+    activeTab()->queryRecording();
 }
 
 void KmChart::recordDetach()
 {
-    activeTab->detachLoggers();
+    activeTab()->detachLoggers();
 }
 
 QList<QAction*> KmChart::toolbarActionsList()

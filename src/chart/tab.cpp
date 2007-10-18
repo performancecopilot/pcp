@@ -31,7 +31,6 @@
 Tab::Tab(): QWidget(NULL)
 {
     my.count = 0;
-    my.tab = NULL;
     my.splitter = NULL;
     my.current = -1;
     my.charts = NULL;
@@ -52,13 +51,11 @@ void Tab::init(QTabWidget *tab, int samples, int visible,
 		QmcGroup *group, KmTime::Source source, QString label,
 		struct timeval *interval, struct timeval *position)
 {
-    my.tab = tab;
     my.splitter = new QSplitter(tab);
     my.splitter->setOrientation(Qt::Vertical);
     my.splitter->setSizePolicy(QSizePolicy::MinimumExpanding,
 				QSizePolicy::MinimumExpanding);
-    my.tab->addTab(my.splitter, label);
-
+    tab->addTab(my.splitter, label);
     my.group = group;
     my.source = source;
     my.buttonState = (my.source == KmTime::HostSource) ?
@@ -225,10 +222,13 @@ void Tab::updateTimeAxis(void)
     kmchart->timeAxis()->replot();
     kmchart->setDateLabel(my.previousPosition.tv_sec, tz);
 
-    console->post(KmChart::DebugProtocol,
-		  "Tab::upateTimeAxis: used %s TZ, final time is %.3f (%s)",
-			(const char *)tz.toAscii(), my.timeData[0],
-			timeString(my.timeData[0]));
+    //console->post(KmChart::DebugProtocol,
+    int i = my.visible - 1;
+    console->post(
+		  "Tab::upateTimeAxis: used %s TZ; i=%d, first time is %.3f (%s), final time is %.3f (%s)",
+			(const char *)tz.toAscii(), i,
+			my.timeData[i], timeString(my.timeData[i]),
+			my.timeData[0], timeString(my.timeData[0]));
 }
 
 void Tab::updateTimeButton(void)
@@ -278,7 +278,7 @@ void Tab::refreshCharts(void)
 	my.charts[i]->fixLegendPen();
     }
 
-    if (this == activeTab) {
+    if (this == kmchart->activeTab()) {
 	updateTimeButton();
 	updateTimeAxis();
     }
@@ -684,12 +684,12 @@ void Tab::stopRecording(void)
 #if 0
     // If all is well, we can now create the new Tab
     if (i == my.archiveList.size()) {
+	QString label = tr("Record"); // QFileInfo(my.folio).completeBaseName()
 	Tab *tab = new Tab;
-	tab->init(kmchart->tabWidget(), my.visible, my.samples,
-			archiveGroup, KmTime::ArchiveSource,
-			QFileInfo(my.folio).completeBaseName(),
-			kmtime->archiveInterval(), kmtime->archivePosition());
-	tabs.append(tab);
+
+	tab->init(my.visible, my.samples, archiveGroup, KmTime::ArchiveSource,
+		  kmtime->archiveInterval(), kmtime->archivePosition());
+	kmchart->addTab(tab, label);
 	kmchart->setActiveTab(tabs.size() - 1, false);
 	OpenViewDialog::openView((const char *)my.view.toAscii());
     }

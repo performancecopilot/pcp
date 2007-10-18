@@ -164,7 +164,7 @@ bool SaveViewDialog::saveViewFile(const QString &filename)
 {
     if (my.sizeDynamic == false)
 	setGlobals(kmchart->size().width(), kmchart->size().height(),
-		   activeTab->visibleHistory(),
+		   kmchart->activeTab()->visibleHistory(),
 		   kmchart->pos().x(), kmchart->pos().y());
     return saveView(filename, my.hostDynamic, my.sizeDynamic);
 }

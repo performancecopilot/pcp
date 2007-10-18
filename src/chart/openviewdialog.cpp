@@ -55,7 +55,7 @@ OpenViewDialog::~OpenViewDialog()
 
 void OpenViewDialog::reset()
 {
-    if ((my.archiveSource = activeTab->isArchiveSource())) {
+    if ((my.archiveSource = kmchart->isArchiveTab())) {
 	sourceLabel->setText(tr("Archive:"));
 	sourcePushButton->setIcon(QIcon(":/archive.png"));
 	proxyLabel->setText(tr("Host:"));
@@ -347,8 +347,8 @@ bool OpenViewDialog::openViewFiles(const QStringList &fl)
     QString msg;
     bool result = true;
 
-    if (activeTab->isArchiveSource() != my.archiveSource) {
-	if (activeTab->isArchiveSource())
+    if (kmchart->isArchiveTab() != my.archiveSource) {
+	if (kmchart->isArchiveTab())
 	    msg = tr("Cannot open Host View(s) in an Archive Tab\n");
 	else
 	    msg = tr("Cannot open Archive View(s) in a Host Tab\n");
