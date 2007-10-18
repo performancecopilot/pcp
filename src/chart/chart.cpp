@@ -340,37 +340,6 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
     }
 
     if (my.plots.size() == 0) {
-	// first plot, set y-axis title and global semantics
-	if (desc.sem == PM_SEM_COUNTER) {
-	    if (desc.units.dimTime == 0) {
-		if (my.style == UtilisationStyle)
-		    setYAxisTitle("% utilization");
-		else {
-		    setYAxisTitle((char *)pmUnitsStr(&desc.units));
-		}
-	    }
-	    else if (desc.units.dimTime == 1) {
-		if (my.style == UtilisationStyle)
-		    setYAxisTitle("% time utilization");
-		else
-		    setYAxisTitle("time utilization");
-	    }
-	    else {
-		// TODO -- rate conversion when units.dimTime != 0 or 1 ...
-		// check what metrics class does with this, then make the
-		// y axis label match
-		if (my.style == UtilisationStyle)
-		    setYAxisTitle("% utilization");
-		else
-		    setYAxisTitle((char *)pmUnitsStr(&desc.units));
-	    }
-	}
-	else {
-	    if (my.style == UtilisationStyle)
-		setYAxisTitle("% utilization");
-	    else
-		setYAxisTitle((char *)pmUnitsStr(&desc.units));
-	}
 	my.units = desc.units;
 	console->post("Chart::addPlot initial units %s", pmUnitsStr(&my.units));
     }
@@ -739,6 +708,25 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	default:
 	    abort();
     }
+
+    // This is really quite difficult ... a Utilization plot by definition
+    // is dimensionless and scaled to a percentage, so a label of just
+    // "% utilization" makes sense ... there has been some argument in
+    // support of "% time utilization" as a special case when the metrics
+    // involve some aspect of time, but the base metrics in the common case
+    // are counters in units of time (e.g. the CPU view), which after rate
+    // conversion is indistinguishable from instantaneous or discrete
+    // metrics of dimension time^0 which are units compatible ... so we're
+    // opting for the simplest possible interpretation of utilization or
+    // everyhing else
+    //
+    if (style == UtilisationStyle) {
+	setYAxisTitle("% utilization");
+    }
+    else {
+	setYAxisTitle((char *)pmUnitsStr(&my.units));
+    }
+
     my.style = style;
 }
 
