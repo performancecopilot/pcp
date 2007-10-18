@@ -41,9 +41,6 @@ Refer to doc/INSTALL for instructions on building these tools.
       o Bounds broken sometimes - thinks range is 1970-2038 (min-max)
 
      - Tab issues
-       o Inital display of Edit/new tab dialog is incorrectly modifying the
-       o visible/total sample values to 100.
-       o Window should only be resizable horizonally?
        o After zooming in and out a bit, the Edit Tab dialog displays a very
 	 confused view of Visible vs Total (looks like Total wrong at least?)
        o On initially creating a live tab, the time axis is very confused (it

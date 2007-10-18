@@ -263,7 +263,11 @@
            </spacer>
           </item>
           <item>
-           <widget class="QSpinBox" name="samplePointsCounter" />
+           <widget class="QSpinBox" name="samplePointsCounter" >
+            <property name="maximum" >
+             <number>999999999</number>
+            </property>
+           </widget>
           </item>
           <item>
            <spacer>
@@ -315,7 +319,11 @@
            </spacer>
           </item>
           <item>
-           <widget class="QSpinBox" name="visiblePointsCounter" />
+           <widget class="QSpinBox" name="visiblePointsCounter" >
+            <property name="maximum" >
+             <number>999999999</number>
+            </property>
+           </widget>
           </item>
           <item>
            <spacer>
