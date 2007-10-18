@@ -7,7 +7,7 @@
         <key>CFBundleIdentifier</key>
         <string>com.sgi.oss.pkg.kmchart</string>
         <key>CFBundleName</key>
-        <string>Performance Co-Pilot Strip Charts</string>
+        <string>PCP Charts</string>
         <key>CFBundleShortVersionString</key>
         <string>@package_version@</string>
 	<key>IFMajorVersion</key>
