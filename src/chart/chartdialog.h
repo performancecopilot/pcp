@@ -31,6 +31,8 @@ public:
     virtual bool legend(void);
     virtual void scale(bool *, double *, double *);
     virtual void setScale(bool, double, double);
+    virtual void scheme(QString *, int *);
+    virtual void setScheme(QString, int);
     virtual void setHsv(int h, int s, int v);
     virtual QRgb currentColor();
     virtual void setCurrentColor(QRgb);

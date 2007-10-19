@@ -561,6 +561,12 @@ void Chart::setSequence(int sequence)
     my.sequence = sequence;
 }
 
+void Chart::setScheme(QString scheme, int sequence)
+{
+    my.sequence = sequence;
+    my.scheme = scheme;
+}
+
 Chart::Style Chart::style()
 {
     return my.style;

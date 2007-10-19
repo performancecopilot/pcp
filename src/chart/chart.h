@@ -65,6 +65,7 @@ public:
     void setScheme(QString);		// set the chart color scheme
     int sequence();			// return chart color scheme position
     void setSequence(int);		// set the chart color scheme position
+    void setScheme(QString, int);	// set the chart scheme and position
     QString label(int);			// return legend label for ith plot
     void setLabel(int, QString);	// set plot legend label
     void scale(bool *, double *, double *);

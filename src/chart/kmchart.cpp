@@ -453,6 +453,8 @@ void KmChart::acceptNewChart()
 {
     bool yAutoScale;
     double yMin, yMax;
+    QString scheme;
+    int sequence;
 
     Chart *cp = activeTab()->addChart();
     QString newTitle = my.newchart->title().trimmed();
@@ -463,7 +465,8 @@ void KmChart::acceptNewChart()
 	my.newchart->setupChartPlots(cp);
     my.newchart->scale(&yAutoScale, &yMin, &yMax);
     cp->setScale(yAutoScale, yMin, yMax);
-    cp->setSequence(cp->numPlot() - 1);
+    my.newchart->scheme(&scheme, &sequence);
+    cp->setScheme(scheme, sequence);
     cp->show();
 
     // TODO: teardown TreeViews and free up memory (both?  chartList only?)
@@ -491,6 +494,7 @@ void KmChart::editChart()
     my.editchart->legendOff->setChecked(!cp->legendVisible());
     cp->scale(&yAutoScale, &yMin, &yMax);
     my.editchart->setScale(yAutoScale, yMin, yMax);
+    my.editchart->setScheme(cp->scheme(), cp->sequence());
     my.editchart->show();
 }
 
@@ -498,8 +502,10 @@ void KmChart::acceptEditChart()
 {
     bool yAutoScale;
     double yMin, yMax;
-    Chart *cp = my.editchart->chart();
+    QString scheme;
+    int sequence;
 
+    Chart *cp = my.editchart->chart();
     QString editTitle = my.editchart->title().trimmed();
     if (editTitle.isEmpty() == false && editTitle != cp->title())
 	cp->changeTitle(editTitle, true);
@@ -507,6 +513,8 @@ void KmChart::acceptEditChart()
     my.editchart->scale(&yAutoScale, &yMin, &yMax);
     cp->setScale(yAutoScale, yMin, yMax);
     my.editchart->setupChartPlots(cp);
+    my.editchart->scheme(&scheme, &sequence);
+    cp->setScheme(scheme, sequence);
     if (cp->numPlot() > 0)
 	cp->show();
     else
