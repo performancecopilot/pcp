@@ -32,7 +32,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 	throughput (bytes) show this up clearly, for example (for
         vertical alignment code hints, see Qwt mailing list posts).
     - Respond to changes in the sampling interval from kmtime.
-    - Timezone support has stopped working
     - Archive time control issues
       o seems to need multiple presses currently to move backward
 	(this may be more visible due to increased sample sizes now)
