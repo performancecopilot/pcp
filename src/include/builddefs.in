@@ -40,7 +40,7 @@ PKG_PLATFORM	= @pkg_platform@
 PKG_DISTRIBUTION= @pkg_distribution@
 PKG_BIN_DIR	= @bindir@
 PKG_MAN_DIR	= @mandir@
-PKG_DOC_DIR	= @datadir@/doc/@pkg_name@
+PKG_DOC_DIR	= @pkg_doc_dir@
 
 QMAKE		= @qmake@
 CC		= @cc@

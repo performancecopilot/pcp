@@ -11,6 +11,7 @@ LSRCFILES = \
 	package_utilies.m4 \
 	package_pthread.m4 \
 	package_pcpdev.m4 \
+	package_paths.m4 \
 	package_qtdev.m4 \
 	multilib.m4
 

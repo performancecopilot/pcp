@@ -18,14 +18,16 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-HTMLFILES = index.html manual.html
+HTMLPAGES = $(shell echo *.html)
+CONFIGURE = kmchart.adp.in kmtime.adp.in
 ASSISTANT = kmchart.adp kmtime.adp
-LSRCFILES = $(HTMLFILES) $(ASSISTANT)
+LSRCFILES = $(HTMLPAGES) $(CONFIGURE)
+LDIRT = $(ASSISTANT)
 
-default: $(HTMLFILES) $(ASSISTANT)
+default: $(HTMLPAGES) $(ASSISTANT)
 
 include $(BUILDRULES)
 
 install install-dev: default
 	$(INSTALL) -m 755 -d $(PKG_DOC_DIR)/html
-	$(INSTALL) -m 644 $(ASSISTANT) $(HTMLFILES) $(PKG_DOC_DIR)/html
+	$(INSTALL) -m 644 $(ASSISTANT) $(HTMLPAGES) $(PKG_DOC_DIR)/html

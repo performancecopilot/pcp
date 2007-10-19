@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
+#include <QtCore/QLibraryInfo>
 #include <QtGui/QApplication>
 #include <QtGui/QPrintDialog>
 #include <QtGui/QMessageBox>
@@ -38,6 +39,7 @@
 #include "tabdialog.h"
 #include "timeaxis.h"
 #include "timebutton.h"
+#include "version.h"
 
 #define DESPERATE 0
 
@@ -102,7 +104,7 @@ void KmChart::setupDialogs(void)
     my.openview = new OpenViewDialog(this);
     my.saveview = new SaveViewDialog(this);
     my.settings = new SettingsDialog(this);
-    // my.assistant = new QAssistantClient("");
+    my.assistant = NULL;
 
     connect(my.newtab->buttonOk, SIGNAL(clicked()),
 				this, SLOT(acceptNewTab()));
@@ -116,19 +118,36 @@ void KmChart::setupDialogs(void)
 				this, SLOT(acceptExport()));
     connect(my.settings->buttonOk, SIGNAL(clicked()),
 				this, SLOT(acceptSettings()));
-    // connect(my.assistant, SIGNAL(error(const QString &)),
-    //				this, SLOT(assistantError(const QString &)));
-
     my.dialogsSetup = true;
 }
 
 void KmChart::quit()
 {
-    // End any processes we may have started
-    if (my.dialogsSetup)
+     console->post("KmChart::quit");
+
+    // End any processes we may have started and close any open dialogs
+    if (my.dialogsSetup) {
 	my.info->quit();
+	my.info->reject();
+	my.search->reject();
+	my.newtab->reject();
+	my.edittab->reject();
+	my.exporter->reject();
+	my.newchart->reject();
+	my.editchart->reject();
+	my.openview->reject();
+	my.saveview->reject();
+	my.settings->reject();
+    }
+    if (my.assistant)
+	my.assistant->closeAssistant();
     if (kmtime)
 	kmtime->quit();
+}
+
+void KmChart::closeEvent(QCloseEvent *)
+{
+    quit();
 }
 
 void KmChart::enableUi(void)
@@ -333,30 +352,16 @@ void KmChart::assistantError(const QString &msg)
 
 void KmChart::setupAssistant()
 {
-#if 0
-    static char *paths[] = { "/usr/share/doc/kmchart/html", "../../man/html" };
-
-    if (!_assistant->isOpen()) {
-	QStringList args;
-	QString profile;
-	uint i;
-
-	for (i = 0; i < sizeof(paths)/sizeof(paths[0]); i++) {
-	    QDir path(tr(paths[i]));
-	    if (!path.exists())
-		continue;
-	    profile = path.absPath();
-	    break;
-	}
-
-	args << tr("-profile");
-	profile.append("/kmchart.adp");
-	args << profile;
-
-	assistant->setArguments(args);
-	assistant->openAssistant();
-    }
-#endif
+    if (my.assistant)
+	return;
+    my.assistant = new QAssistantClient(
+		QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
+    connect(my.assistant, SIGNAL(error(const QString &)),
+    		    this, SLOT(assistantError(const QString &)));
+    QStringList arguments;
+    QString documents = HTMLDIR;
+    arguments << "-profile" << documents.append("/kmchart.adp");
+    my.assistant->setArguments(arguments);
 }
 
 void KmChart::helpManual()

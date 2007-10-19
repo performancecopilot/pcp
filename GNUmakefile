@@ -9,7 +9,10 @@ ifeq ($(HAVE_BUILDDEFS), yes)
 include $(TOPDIR)/src/include/builddefs
 endif
 
-CONFIGURE = configure src/include/builddefs src/include/version.h
+CONFIGURE = src/include/builddefs src/include/version.h \
+	    man/html/kmchart.adp man/html/kmtime.adp \
+	    configure
+
 LSRCFILES = configure configure.in Makepkgs aclocal.m4 install-sh README VERSION
 
 LDIRT = config.log .dep config.status config.cache confdefs.h conftest* \

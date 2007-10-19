@@ -1,1 +1,2 @@
 #define VERSION	"@pkg_version@"
+#define HTMLDIR	"@pkg_html_dir@"

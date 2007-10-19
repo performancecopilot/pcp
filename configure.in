@@ -2,6 +2,7 @@ AC_INIT(VERSION)
 
 AC_PACKAGE_GLOBALS(kmchart)
 AC_PACKAGE_UTILITIES(kmchart)
+AC_PACKAGE_PATHS(kmchart)
 
 AC_PACKAGE_NEED_QT_QMAKE
 
@@ -14,4 +15,8 @@ AC_PACKAGE_NEED_PTHREADMUTEXINIT
 
 AC_MANUAL_FORMAT
 
-AC_OUTPUT(src/include/builddefs src/include/version.h)
+AC_OUTPUT( \
+	src/include/builddefs \
+	src/include/version.h \
+	man/html/kmchart.adp \
+	man/html/kmtime.adp)
