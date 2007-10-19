@@ -24,6 +24,7 @@ TimeClient::TimeClient(QTcpSocket *s, QObject *p) : QObject(p)
     memset(&my.acktime, 0, sizeof(my.acktime));
     console->post(KmTime::DebugProtocol, "TimeClient initialised");
     connect(my.socket, SIGNAL(readyRead()), SLOT(readClient()));
+    connect(my.socket, SIGNAL(disconnected()), SLOT(disconnectClient()));
 }
 
 TimeClient::~TimeClient()
@@ -51,6 +52,12 @@ static char *stateString(int state)
     else
 	strcpy(buffer, "Unknown State");
     return buffer;
+}
+
+void TimeClient::disconnectClient()
+{
+    console->post(KmTime::DebugProtocol, "TimeClient::disconnectClient");
+    delete this;
 }
 
 void TimeClient::writeClient(KmTime::Packet *packet,

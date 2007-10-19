@@ -15,6 +15,7 @@
 #define TIMELORD_H
 
 #include <QtCore/QVariant>
+#include <QtCore/QTimer>
 #include <QtCore/QList>
 #include <QtCore/QTextStream>
 #include <QtNetwork/QTcpSocket>
@@ -62,7 +63,8 @@ signals:
     void endConnect(TimeClient *);
 
 public slots:
-    void readClient(void);
+    void readClient();
+    void disconnectClient();
 
 private:
     struct {
