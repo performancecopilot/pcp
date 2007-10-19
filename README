@@ -132,7 +132,6 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Destructors and memory leak plugging.
     - Code audit for TODOs; either fix, exception or add to wishlist.
     - QA test audit for TODOs; either fix, exception or add to wishlist.
-    - Need toolbar icons for: Save View, Query & Stop Record.
 
   kmtime
 

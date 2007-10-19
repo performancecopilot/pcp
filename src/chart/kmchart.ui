@@ -330,6 +330,9 @@
    </property>
   </action>
   <action name="fileSaveViewAction" >
+   <property name="icon" >
+    <iconset resource="kmchart.qrc" >:/document-save.png</iconset>
+   </property>
    <property name="text" >
     <string>&amp;Save View ...</string>
    </property>
