@@ -339,6 +339,9 @@
                   <property name="enabled" >
                    <bool>false</bool>
                   </property>
+                  <property name="maximum" >
+                   <double>999999999.999999999999999</double>
+                  </property>
                  </widget>
                 </item>
                 <item>
@@ -469,6 +472,9 @@
                  <widget class="QDoubleSpinBox" name="yAxisMaximum" >
                   <property name="enabled" >
                    <bool>false</bool>
+                  </property>
+                  <property name="maximum" >
+                   <double>999999999.999999999999999</double>
                   </property>
                  </widget>
                 </item>
