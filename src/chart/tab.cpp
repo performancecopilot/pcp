@@ -207,8 +207,6 @@ void Tab::updateTimeAxis(void)
 
     if (my.group->numContexts() > 0) {
 	QString olabel, otz;
-
-	my.group->useTZ();
 	my.group->defaultTZ(olabel, otz);
 	tz = otz;
 	kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom,
@@ -222,10 +220,9 @@ void Tab::updateTimeAxis(void)
     kmchart->timeAxis()->replot();
     kmchart->setDateLabel(my.previousPosition.tv_sec, tz);
 
-    //console->post(KmChart::DebugProtocol,
     int i = my.visible - 1;
-    console->post(
-		  "Tab::updateTimeAxis: used %s TZ; i=%d, first time is %.3f (%s), final time is %.3f (%s)",
+    console->post(KmChart::DebugProtocol, "Tab::updateTimeAxis: tz=%s; pts=%d,"
+			" first time is %.3f (%s), final time is %.3f (%s)",
 			(const char *)tz.toAscii(), i,
 			my.timeData[i], timeString(my.timeData[i]),
 			my.timeData[0], timeString(my.timeData[0]));
@@ -587,6 +584,7 @@ void Tab::setTimezone(char *tz)
 {
     console->post(KmChart::DebugProtocol, "Tab::setTimezone - %s", tz);
     my.group->useTZ(QString(tz));
+    updateTimeAxis();
 }
 
 void Tab::setSampleHistory(int v)
