@@ -16,6 +16,7 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QTimer>
+#include <QtCore/QLibraryInfo>
 #include <QtGui/QValidator>
 #include <QtGui/QWhatsThis>
 #include <QtGui/QCloseEvent>
@@ -24,6 +25,7 @@
 #include <pcp/impl.h>
 #include <sys/time.h>
 #include <kmtime.h>
+#include "version.h"
 #include "aboutdialog.h"
 #include "seealsodialog.h"
 
@@ -82,6 +84,7 @@ void KmTimeLive::init()
     my.units = KmTime::Seconds;
     my.first = true;
     my.tzActions = NULL;
+    my.assistant = NULL;
 
     memset(&my.kmtime, 0, sizeof(my.kmtime));
     my.kmtime.source = KmTime::HostSource;
@@ -103,8 +106,6 @@ void KmTimeLive::init()
     lineEditDelta->setAlignment(Qt::AlignRight);
     lineEditDelta->setValidator(new QDoubleValidator
 		(0.001, INT_MAX, 3, lineEditDelta));
-
-//  my.assistant = new QAssistantClient(tr(""), this);	// TODO make global
 }
 
 void KmTimeLive::helpAbout()
@@ -252,6 +253,8 @@ void KmTimeLive::popup(bool hello_popetts)
 void KmTimeLive::closeEvent(QCloseEvent *ce)
 {
     hide();
+    my.assistant->closeAssistant();
+    my.assistant = NULL;
     ce->ignore();
 }
 
@@ -366,40 +369,28 @@ void KmTimeLive::style(char *style, void *source)
 
 void KmTimeLive::setupAssistant()
 {
-#if 0	// TODO - help text (html) and port this to Qt4 ...
-    static char *paths[] = { "/usr/share/doc/kmchart/html", "../../man/html" };
-
-    if (!assistant->isOpen()) {
-	QStringList args;
-	QString profile;
-	uint i;
-
-	for (i = 0; i < sizeof(paths)/sizeof(paths[0]); i++) {
-	    QDir path(tr(paths[i]));
-	    if (!path.exists())
-		continue;
-	    profile = path.absPath();
-	    break;
-	}
-
-	args << tr("-profile");
-	profile.append(":/kmtime.adp");
-	args << profile;
-
-	assistant->setArguments(args);
-	assistant->openAssistant();
-    }
-#endif
+    if (my.assistant)
+	return;
+    my.assistant = new QAssistantClient(
+		QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
+    connect(my.assistant, SIGNAL(error(const QString &)),
+		    this, SLOT(assistantError(const QString &)));
+    QStringList arguments;
+    QString documents = HTMLDIR;
+    arguments << "-profile" << documents.append("/kmtime.adp");
+    my.assistant->setArguments(arguments);
 }
 
 void KmTimeLive::helpManual()
 {
     setupAssistant();
-    my.assistant->showPage(tr("contents.html"));
+    QString documents = HTMLDIR;
+    my.assistant->showPage(documents.append("/contents.html"));
 }
 
 void KmTimeLive::helpContents()
 {
     setupAssistant();
-    my.assistant->showPage(tr("manual.html"));
+    QString documents = HTMLDIR;
+    my.assistant->showPage(documents.append("/manual.html"));
 }

@@ -367,13 +367,15 @@ void KmChart::setupAssistant()
 void KmChart::helpManual()
 {
     setupAssistant();
-    my.assistant->showPage("manual.html");
+    QString documents = HTMLDIR;
+    my.assistant->showPage(documents.append("/manual.html"));
 }
 
 void KmChart::helpTutorial()
 {
     setupAssistant();
-    my.assistant->showPage("tutorial.html");
+    QString documents = HTMLDIR;
+    my.assistant->showPage(documents.append("/tutorial.html"));
 }
 
 void KmChart::helpAbout()
