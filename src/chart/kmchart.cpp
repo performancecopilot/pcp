@@ -123,11 +123,8 @@ void KmChart::setupDialogs(void)
 
 void KmChart::quit()
 {
-     console->post("KmChart::quit");
-
     // End any processes we may have started and close any open dialogs
     if (my.dialogsSetup) {
-	my.info->quit();
 	my.info->reject();
 	my.search->reject();
 	my.newtab->reject();
