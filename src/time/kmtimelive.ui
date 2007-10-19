@@ -386,7 +386,6 @@ Interval.</string>
     <property name="title" >
      <string>&amp;Help</string>
     </property>
-    <addaction name="helpContentsAction" />
     <addaction name="helpManualAction" />
     <addaction name="separator" />
     <addaction name="helpAboutAction" />
@@ -576,17 +575,6 @@ Click this menu option to invoke a small question mark that is attached to the m
     <string>Shift+F1</string>
    </property>
   </action>
-  <action name="helpContentsAction" >
-   <property name="text" >
-    <string>&amp;Contents</string>
-   </property>
-   <property name="iconText" >
-    <string>Contents</string>
-   </property>
-   <property name="shortcut" >
-    <string>F1</string>
-   </property>
-  </action>
   <action name="helpManualAction" >
    <property name="text" >
     <string>&amp;Manual</string>
@@ -595,7 +583,7 @@ Click this menu option to invoke a small question mark that is attached to the m
     <string>Manual</string>
    </property>
    <property name="shortcut" >
-    <string>Ctrl+M</string>
+    <string>F1</string>
    </property>
   </action>
  </widget>
@@ -807,22 +795,6 @@ Click this menu option to invoke a small question mark that is attached to the m
    <signal>activated()</signal>
    <receiver>KmTimeLive</receiver>
    <slot>helpManual()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>helpContentsAction</sender>
-   <signal>activated()</signal>
-   <receiver>KmTimeLive</receiver>
-   <slot>helpContents()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>

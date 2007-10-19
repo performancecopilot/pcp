@@ -48,9 +48,7 @@ public:
 public slots:
     virtual void setControl(KmTime::State newstate, KmTime::Mode newmode);
     virtual void init();
-    virtual void helpAbout();
-    virtual void helpSeeAlso();
-    virtual void whatsThis();
+    virtual void quit();
     virtual void play_clicked();
     virtual void back_clicked();
     virtual void stop_clicked();
@@ -76,8 +74,11 @@ public slots:
     virtual void lineEditCtime_validate();
     virtual void lineEditSpeed_validate();
     virtual void setTimezone(QAction *action);
-    virtual void helpContents();
+    virtual void assistantError(const QString &);
     virtual void helpManual();
+    virtual void helpAbout();
+    virtual void helpSeeAlso();
+    virtual void whatsThis();
 
 signals:
     void timePulse(KmTime::Packet *);

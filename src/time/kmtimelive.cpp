@@ -19,6 +19,7 @@
 #include <QtCore/QLibraryInfo>
 #include <QtGui/QValidator>
 #include <QtGui/QWhatsThis>
+#include <QtGui/QMessageBox>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QActionGroup>
 #include <pcp/pmapi.h>
@@ -106,6 +107,13 @@ void KmTimeLive::init()
     lineEditDelta->setAlignment(Qt::AlignRight);
     lineEditDelta->setValidator(new QDoubleValidator
 		(0.001, INT_MAX, 3, lineEditDelta));
+}
+
+void KmTimeLive::quit()
+{
+    console->post("live quit!\n");
+    if (my.assistant)
+	my.assistant->closeAssistant();
 }
 
 void KmTimeLive::helpAbout()
@@ -253,8 +261,6 @@ void KmTimeLive::popup(bool hello_popetts)
 void KmTimeLive::closeEvent(QCloseEvent *ce)
 {
     hide();
-    my.assistant->closeAssistant();
-    my.assistant = NULL;
     ce->ignore();
 }
 
@@ -367,6 +373,11 @@ void KmTimeLive::style(char *style, void *source)
     emit stylePulse(&my.kmtime, style, strlen(style) + 1, source);
 }
 
+void KmTimeLive::assistantError(const QString &msg)
+{
+    QMessageBox::warning(this, pmProgname, msg);
+}
+
 void KmTimeLive::setupAssistant()
 {
     if (my.assistant)
@@ -382,13 +393,6 @@ void KmTimeLive::setupAssistant()
 }
 
 void KmTimeLive::helpManual()
-{
-    setupAssistant();
-    QString documents = HTMLDIR;
-    my.assistant->showPage(documents.append("/contents.html"));
-}
-
-void KmTimeLive::helpContents()
 {
     setupAssistant();
     QString documents = HTMLDIR;

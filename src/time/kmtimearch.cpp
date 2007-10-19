@@ -175,6 +175,12 @@ void KmTimeArch::init()
 		   &my.absoluteEnd, &my.kmtime.end);
 }
 
+void KmTimeArch::quit()
+{
+    if (my.assistant)
+	my.assistant->closeAssistant();
+}
+
 void KmTimeArch::helpAbout()
 {
     AboutDialog about(this);
@@ -510,8 +516,6 @@ void KmTimeArch::popup(bool hello_popetts)
 void KmTimeArch::closeEvent(QCloseEvent *ce)
 {
     hide();
-    my.assistant->closeAssistant();
-    my.assistant = NULL;
     ce->ignore();
 }
 
@@ -738,6 +742,11 @@ void KmTimeArch::addBound(KmTime::Packet *k, char *tzdata)
 		my.kmtime.start.tv_sec, my.kmtime.start.tv_usec);
 }
 
+void KmTimeArch::assistantError(const QString &msg)
+{
+    QMessageBox::warning(this, pmProgname, msg);
+}
+
 void KmTimeArch::setupAssistant()
 {
     if (my.assistant)
@@ -753,13 +762,6 @@ void KmTimeArch::setupAssistant()
 }
 
 void KmTimeArch::helpManual()
-{
-    setupAssistant();
-    QString documents = HTMLDIR;
-    my.assistant->showPage(documents.append("/contents.html"));
-}
-
-void KmTimeArch::helpContents()
 {
     setupAssistant();
     QString documents = HTMLDIR;

@@ -41,9 +41,7 @@ public:
 public slots:
     virtual void setControl(KmTime::State newstate);
     virtual void init();
-    virtual void helpAbout();
-    virtual void helpSeeAlso();
-    virtual void whatsThis();
+    virtual void quit();
     virtual void play_clicked();
     virtual void stop_clicked();
     virtual void updateTime();
@@ -56,8 +54,11 @@ public slots:
     virtual void lineEditDelta_changed(const QString &s);
     virtual void lineEditDelta_validate();
     virtual void setTimezone(QAction * action);
-    virtual void helpContents();
+    virtual void assistantError(const QString &);
     virtual void helpManual();
+    virtual void helpAbout();
+    virtual void helpSeeAlso();
+    virtual void whatsThis();
 
 signals:
     void timePulse(KmTime::Packet *);

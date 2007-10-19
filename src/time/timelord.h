@@ -93,10 +93,11 @@ public:
     void setContext(KmTimeLive *live, KmTimeArch *archive);
 
 signals:
-    void lastClientExit(void);
+    void lastClientExit();
 
 public slots:
-    void newConnection(void);
+    void quit();
+    void newConnection();
     void endConnect(TimeClient *client);
     void timePulse(KmTime::Packet *k);
     void boundsPulse(KmTime::Packet *k);

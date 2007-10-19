@@ -261,8 +261,17 @@ TimeLord::TimeLord(QApplication *app)
     my.ac = NULL;
     my.hc = NULL;
     connect(this, SIGNAL(lastClientExit()), app, SLOT(quit()));
+    connect(this, SIGNAL(lastClientExit()), this, SLOT(quit()));
     connect(this, SIGNAL(newConnection()), SLOT(newConnection()));
     console->post(KmTime::DebugProtocol, "TimeLord initialised");
+}
+
+void TimeLord::quit()
+{
+    if (my.ac)
+	my.ac->quit();
+    if (my.hc)
+	my.hc->quit();
 }
 
 void TimeLord::setContext(KmTimeLive *live, KmTimeArch *arch)
