@@ -6,7 +6,7 @@ LSRCFILES = $(PNGFILES) $(CONFIGURE)
 ICONLINKS = kmcharticon.png kmtimeicon.png
 LDIRT = $(ICONLINKS)
 
-default: iconlinks $(PNGFILES)
+default: iconlinks
 
 include $(BUILDRULES)
 
