@@ -314,6 +314,7 @@
                <property name="sizePolicy" >
                 <sizepolicy>
                  <hsizetype>0</hsizetype>
+                 <vsizetype>0</vsizetype>
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -1931,6 +1932,38 @@
     <hint type="destinationlabel" >
      <x>305</x>
      <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>antiAliasingOn</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>antiAliasingOnClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>425</x>
+     <y>194</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>305</x>
+     <y>228</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>antiAliasingOff</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>antiAliasingOffClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>492</x>
+     <y>194</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>305</x>
+     <y>228</y>
     </hint>
    </hints>
   </connection>
