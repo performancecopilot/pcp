@@ -1,56 +1,155 @@
-<html>
-    <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-	<title>PCP Chart Help</title>
-    </head>
-    <body style="font-size:12pt;font-family:helvetica">
-	<p><h2>PCP Chart Help</h2></p>
-
-	<p>
-	List of items for online help:
-	<ul>
-	  <li>Overview</li>
-	  <li>Tutorial</li>
-	  <li>Views, config language definition</li>
-	  <li>Print/Export</li>
-	  <li>Creating and editing charts</li>
-	    <ul>
-	    <li>Chart Styles</li>
-	    <li>Color Schemes</li>
-	    <li>Color Schemes</li>
-	    </ul>
-	  <li>Comparison to pmchart - supported features, extra stuff.</li>
-	    <ul>
-	    <li>Tabs</li>
-	    <li>Simultaneous Live and Archive support</li>
-	    <li>View specification - labels, ...</li>
-	    <li>Metric Search dialog</li>
-	    <li>User interface additions - redesigned metric selector, settings vs Xresources, schemes, cross platform, simpler zooming, configurable toolbar</li>
-	    <li>Recording - query, new tab</li>
-	    </ul>
-	  <li>Credits
-	  </ul>
-	</p>
-
-	<p>
-	In order to run Qt Assistant as a custom help tool for this
-	application properly you have to specify a profile. A profile
-	is a file format similar to the documentation content files
-	that assistant used up to Qt 3.1. Once such a profile has been
-	specified Qt Assistant can be run with the option <code>-profile</code>
-	and then the filename of the profile. The HelpDemo example does
-	this for you if you press the <i>Run Qt Assistant customized for
-	HelpDemo</i>. 
-	</p>
-
-	<p>	
-	Qt Assistant can also display arbitrary pages with the
-	<i>Display</i> button or using the context help (F1), but Qt
-	Assistant won't be customized for this example application.
-	</p>
-
-	<ul>
-	    <li><a href="manual.html">How to use this example</a></li>
-	</ul>
-    </body>
-</html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE>PCP Strip Charts Manual</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Linux)">
+	<META NAME="CREATED" CONTENT="20071020;12372700">
+	<META NAME="CHANGEDBY" CONTENT="Nathan Scott">
+	<META NAME="CHANGED" CONTENT="20071022;10225500">
+	<META NAME="qrichtext" CONTENT="1">
+	<STYLE TYPE="text/css">
+	<!--
+		TD P { color: #000060; font-family: "Sans Serif"; font-size: 15pt; font-style: normal; font-weight: medium }
+		P { color: #000060; font-family: "Lucida Grande"; font-size: 15pt; font-style: normal; font-weight: medium }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR>
+		<TD WIDTH=32>
+			<P><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/kmcharticon.png" NAME="graphics1" ALIGN=BOTTOM WIDTH=46 HEIGHT=51 BORDER=0></A></FONT></P>
+		</TD>
+		<TD WIDTH=1>
+			<P>&nbsp;&nbsp;</P>
+		</TD>
+		<TD>
+			<P><A HREF="index.html"><FONT COLOR="#ff6600">Home</FONT></A>&nbsp;&middot;
+			<A HREF="views.html"><FONT COLOR="#ff6600">Views</FONT></A>&nbsp;&middot;
+			<A HREF="charts.html"><FONT COLOR="#ff6600">Charts</FONT></A>&nbsp;&middot;
+			<A HREF="tabs.html"><FONT COLOR="#ff6600">Tabs</FONT></A>&nbsp;&middot;
+			<A HREF="timecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P>
+		</TD>
+		<TD WIDTH=230>
+			<P ALIGN=RIGHT><FONT COLOR="#000080"><A HREF="http://www.aconex.com/"><IMG SRC="images/aconex.png" NAME="graphics2" ALIGN=BOTTOM WIDTH=186 HEIGHT=51 BORDER=0></A></FONT></P>
+		</TD>
+	</TR>
+</TABLE>
+<P ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7><B>PCP
+Strip Charts</B></FONT></P>
+<TABLE WIDTH=800 BORDER=0 CELLPADDING=2 CELLSPACING=0 BGCOLOR="#e2e2e2">
+	<COL WIDTH=400>
+	<COL WIDTH=400>
+	<TR>
+		<TD WIDTH=400 HEIGHT=45 BGCOLOR="#081c59">
+			<P ALIGN=LEFT><B><FONT SIZE=5 STYLE="font-size: 20pt"><FONT COLOR="#ffffff">Getting
+			Started</FONT></FONT></B> 
+			</P>
+		</TD>
+		<TD WIDTH=400 STYLE="background: url(images/bg01.png) repeat scroll">
+			<P ALIGN=LEFT><BR>
+			</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=400>
+			<UL>
+				<LI><P STYLE="margin-bottom: 0cm"><A HREF="whatsnew.html"><B><FONT COLOR="#000060">What's
+				New in kmchart 1.0</FONT></B></A> 
+				</P>
+				<LI><P STYLE="margin-bottom: 0cm"><A HREF="overview.html"><FONT COLOR="#000060">Overview</FONT></A>
+								</P>
+				<LI><P><A HREF="installation.html"><FONT COLOR="#000060">Installation</FONT></A></P>
+			</UL>
+		</TD>
+		<TD WIDTH=400>
+			<UL>
+				<LI><P STYLE="margin-bottom: 0cm"><A HREF="tutorial.html"><FONT COLOR="#000060">Tutorial</FONT></A></P>
+				<LI><P><A HREF="pmchart.html"><FONT COLOR="#000060">Notes for
+				pmchart users</FONT></A></P>
+			</UL>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=400 HEIGHT=45 BGCOLOR="#081c59">
+			<P ALIGN=LEFT><FONT COLOR="#ffffff"><FONT SIZE=5 STYLE="font-size: 20pt"><B>General
+			Concepts</B></FONT></FONT></P>
+		</TD>
+		<TD WIDTH=400 STYLE="background: url(images/bg07.png) repeat scroll">
+			<P ALIGN=LEFT><BR>
+			</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=400>
+			<UL>
+				<LI><P STYLE="margin-bottom: 0cm"><A HREF="views.html"><FONT COLOR="#000060">Views</FONT></A></P>
+				<LI><P STYLE="margin-bottom: 0cm"><A HREF="charts.html"><FONT COLOR="#000060">Charts</FONT></A>
+								</P>
+				<LI><P><A HREF="tabs.html"><FONT COLOR="#000060">Tabs</FONT></A></P>
+			</UL>
+		</TD>
+		<TD WIDTH=400>
+			<UL>
+				<LI><P STYLE="margin-bottom: 0cm"><A HREF="timecontrol.html"><FONT COLOR="#000060">Time
+				Controls</FONT></A> 
+				</P>
+				<LI><P STYLE="margin-bottom: 0cm"><A HREF="synopsis.html"><FONT COLOR="#000060">Command
+				Line Options</FONT></A></P>
+				<LI><P><A HREF="customui.html"><FONT COLOR="#000060">Interface
+				Customisation</FONT></A> 
+				</P>
+			</UL>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=400 HEIGHT=45 BGCOLOR="#081c59">
+			<P ALIGN=LEFT><FONT COLOR="#ffffff"><FONT SIZE=5 STYLE="font-size: 20pt"><B>Licenses
+			and Credits</B></FONT></FONT></P>
+		</TD>
+		<TD WIDTH=400 STYLE="background: url(images/bg08.png) repeat scroll">
+			<P ALIGN=LEFT><BR>
+			</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=400>
+			<UL>
+				<LI><P STYLE="margin-bottom: 0cm"><A HREF="contacts.html"><FONT COLOR="#000060">Contacts</FONT></A></P>
+				<LI><P STYLE="margin-bottom: 0cm"><A HREF="reportbug.html"><FONT COLOR="#000060">Reporting
+				bugs</FONT></A></P>
+				<LI><P><A HREF="credits.html"><FONT COLOR="#000060">Credits</FONT></A></P>
+			</UL>
+		</TD>
+		<TD WIDTH=400>
+			<UL>
+				<LI><P STYLE="margin-bottom: 0cm"><A HREF="gpl.html"><FONT COLOR="#000060">GNU
+				GPL</FONT></A></P>
+				<LI><P STYLE="margin-bottom: 0cm"><A HREF="qwtlicense.html"><FONT COLOR="#000060">QWT
+				License</FONT></A><FONT COLOR="#000060"> </FONT>
+				</P>
+				<LI><P><A HREF="artisticlicense.html"><FONT COLOR="#000060">Artistic
+				License</FONT></A> 
+				</P>
+			</UL>
+		</TD>
+	</TR>
+</TABLE>
+<HR>
+<CENTER>
+	<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+		<TR>
+			<TD WIDTH=50%>
+				<P>Copyright &copy; 2007 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P>
+			</TD>
+			<TD WIDTH=50%>
+				<P ALIGN=RIGHT>kmchart</P>
+			</TD>
+		</TR>
+	</TABLE>
+</CENTER>
+<P><BR><BR>
+</P>
+</BODY>
+</HTML>
