@@ -378,6 +378,18 @@ void ChartDialog::legendOffClicked()
     legendOff->setChecked(true);
 }
 
+void ChartDialog::scheme(QString *scheme, int *sequence)
+{
+    *scheme = my.scheme;
+    *sequence = my.sequence;
+}
+
+void ChartDialog::setScheme(QString scheme, int sequence)
+{
+    my.scheme = scheme;
+    my.sequence = sequence;
+}
+
 void ChartDialog::scale(bool *autoScale, double *yMin, double *yMax)
 {
     *autoScale = autoScaleOn->isChecked();
@@ -730,6 +742,7 @@ void ChartDialog::setupSchemeComboBox()
 {
     int index = 0;
 
+    colorSchemeComboBox->blockSignals(true);
     colorSchemeComboBox->clear();
     colorSchemeComboBox->addItem("Default Scheme");
     colorSchemeComboBox->addItem("New Scheme");
@@ -739,7 +752,6 @@ void ChartDialog::setupSchemeComboBox()
 	    index = i + 2;
 	colorSchemeComboBox->addItem(name);
     }
-    colorSchemeComboBox->blockSignals(true);
     colorSchemeComboBox->setCurrentIndex(index);
     colorSchemeComboBox->blockSignals(false);
 }

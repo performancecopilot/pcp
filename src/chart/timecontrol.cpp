@@ -53,6 +53,8 @@ TimeControl::TimeControl() : QProcess(NULL)
 
 void TimeControl::quit()
 {
+    disconnect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this,
+		    SLOT(endTimeControl()));
     liveCloseConnection();
     archiveCloseConnection();
     terminate();
