@@ -105,14 +105,70 @@ void Chart::update(bool forward, bool visible, bool available)
     if (my.plots.size() < 1)
 	return;
 
-    for (m = 0; m < my.plots.size(); m++) {
+    // TODO - the 10,000 threshold is just a guess ... also need lots more
+    // logic here to handle transitions other than byte -> Kbyte, for
+    // different space scales, different dimensions and the down step
+    // scaling as well ... this is just an initial one to check it out
+    //
+    // We're assuming lBound() plays no part in this, which is OK as
+    // the upper bound of the y-axis range (hBound()) drives the choice
+    // of appropriate units scaling.
+    //
+    if (axisScaleDiv(QwtPlot::yLeft)->hBound() > 10000) {
+	bool rescale = false;
+	pmUnits oldunits;
+	if (my.units.dimSpace == 1) {
+	    if (my.units.scaleSpace == PM_SPACE_BYTE) {
+		oldunits = my.units;
+		my.units.scaleSpace = PM_SPACE_KBYTE;
+		rescale = true;
+	    }
+	}
+	if (rescale) {
+	    pmAtomValue	old_av;
+	    pmAtomValue	new_av;
+
+	    console->post("Chart::update change units %s", pmUnitsStr(&my.units));
+	    // need to rescale ... we transform all of the historical (raw)
+	    // data[] and the plotData[] ... new data will be taken care of
+	    // by changing my.units
+	    //
+	    for (m = 0; m < my.plots.size(); m++) {
+		for (int i = my.plots[m]->dataCount-1; i >= 0; i--) {
+		    if (my.plots[m]->data[i] != Curve::NaN()) {
+			old_av.d = my.plots[m]->data[i];
+			pmConvScale(PM_TYPE_DOUBLE, &old_av, &oldunits, &new_av, &my.units);
+			my.plots[m]->data[i] = new_av.d;
+		    }
+		    if (my.plots[m]->plotData[i] != Curve::NaN()) {
+			old_av.d = my.plots[m]->plotData[i];
+			pmConvScale(PM_TYPE_DOUBLE, &old_av, &oldunits, &new_av, &my.units);
+			my.plots[m]->plotData[i] = new_av.d;
+		    }
+		}
+	    }
+	    if (my.style == UtilisationStyle) {
+		setYAxisTitle("% utilization");
+	    }
+	    else {
+		setYAxisTitle((char *)pmUnitsStr(&my.units));
+	    }
+	}
+    }
+   for (m = 0; m < my.plots.size(); m++) {
 	Plot *plot = my.plots[m];
 
 	double value;
 	if (available == false || plot->metric->error(0))
 	    value = Curve::NaN();
-	else
-	    value = plot->metric->value(0);
+	else {
+	    // convert raw value to current chart scale
+	    pmAtomValue	raw;
+	    pmAtomValue	scaled;
+	    raw.d = plot->metric->value(0);
+	    pmConvScale(PM_TYPE_DOUBLE, &raw, &plot->units, &scaled, &my.units);
+	    value = scaled.d * plot->scale;
+	}
 
 	int sz;
 	if (plot->dataCount < sh)
@@ -369,6 +425,7 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
 	plot->name.append(pmsp->inst[0]);
 	plot->name.append("]");
     }
+    plot->units = desc.units;
 
     //
     // Build the legend label string, even if the chart is declared

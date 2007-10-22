@@ -120,6 +120,7 @@ private:
 	double *plotData;
 	int dataCount;
 	bool removed;
+	pmUnits units;
     } Plot;
 
     bool isStepped(Plot *plot);
