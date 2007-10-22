@@ -75,6 +75,8 @@ public:
     void setYAxisTitle(char *);
     bool legendVisible();
     void setLegendVisible(bool);
+    bool antiAliasing();
+    void setAntiAliasing(bool);
 
     void update(bool, bool, bool);
 
@@ -134,6 +136,7 @@ private:
 	QString scheme;
 	int sequence;
 	bool autoScale;
+	bool antiAliasing;
 	double yMin;
 	double yMax;
 	QwtPlotPicker *picker;

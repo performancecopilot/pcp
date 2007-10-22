@@ -423,6 +423,7 @@ new_chart:
 		double		ymin = 0;
 		double		ymax = 0;
 		int		legend = 1;
+		int		antialias = 1;
 
 		if ((w = getwd(f)) == NULL || w[0] == '\n') {
 		    xpect("title\" or \"style", w);
@@ -519,6 +520,23 @@ new_chart:
 		    if ((w = getwd(f)) == NULL || w[0] == '\n')
 			goto done_chart;
 		}
+		if (strcasecmp(w, "antialiasing") == 0) {
+		    // optional antialiasing on|off
+		    if ((w = getwd(f)) == NULL || w[0] == '\n') {
+			xpect("on\" or \"off", w);
+			goto abort_chart;
+		    }
+		    if (strcasecmp(w, "on") == 0)
+			antialias = 1;
+		    else if (strcasecmp(w, "off") == 0)
+			antialias = 0;
+		    else {
+			xpect("on\" or \"off", w);
+			goto abort_chart;
+		    }
+		    if ((w = getwd(f)) == NULL || w[0] == '\n')
+			goto done_chart;
+		}
 done_chart:
 		if (pmDebug & DBG_TRACE_APPL2) {
 		    fprintf(stderr, "openView: new chart: style=%s",
@@ -531,6 +549,8 @@ done_chart:
 			fprintf(stderr, " ymin=%.1f ymax=%.1f", ymin, ymax);
 		    if (legend)
 			fprintf(stderr, " legend=yes");
+		    if (!antialias)
+			fprintf(stderr, " antialias=no");
 		    fputc('\n', stderr);
 		}
 		if (Cflag == 0 || Cflag == 2) {
@@ -541,6 +561,8 @@ done_chart:
 			cp->changeTitle(title, mode == M_KMCHART);
 		    if (legend == 0)
 			cp->setLegendVisible(false);
+		    if (antialias == 0)
+			cp->setAntiAliasing(false);
 		}
 		state = S_CHART;
 		if (title != NULL) free(title);
@@ -1140,6 +1162,8 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
 	}
 	if (!cp->legendVisible())
 	    fprintf(f, " legend off");
+	if (!cp->antiAliasing())
+	    fprintf(f, " antialiasing off");
 	fputc('\n', f);
 	for (m = 0; m < cp->numPlot(); m++) {
 	    fprintf(f, "\tplot");

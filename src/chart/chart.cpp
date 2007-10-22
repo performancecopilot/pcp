@@ -44,6 +44,7 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent)
     setCanvasBackground(globalSettings.chartBackground);
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, true);
     enableAxis(xBottom, false);
+
     setLegendVisible(true);
     legend()->contentsWidget()->setFont(globalFont);
     connect(this, SIGNAL(legendChecked(QwtPlotItem *, bool)),
@@ -56,6 +57,7 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent)
     my.tab = chartTab;
     my.title = NULL;
     my.autoScale = true;
+    my.antiAliasing = true;
     my.style = NoStyle;
     my.scheme = QString::null;
     my.sequence = 0;
@@ -595,6 +597,7 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
     console->post("Chart::setStroke [style %d->%d]", my.style, style);
 
     plot->color = color;
+    plot->curve->setRenderHint(QwtPlotItem::RenderAntialiased, my.antiAliasing);
 
     switch (style) {
 	case BarStyle:
@@ -656,7 +659,6 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setBrush(QBrush(Qt::NoBrush));
 	    plot->curve->setStyle(isStepped(plot) ?
 				  QwtPlotCurve::Steps : QwtPlotCurve::Lines);
-	    plot->curve->setRenderHint(QwtPlotItem::RenderAntialiased);
 
 	    if (my.style != LineStyle) {
 		// Need to undo any munging of plotData[]
@@ -841,6 +843,17 @@ void Chart::setLegendVisible(bool on)
 	    // delete l;
 	}
     }
+}
+
+bool Chart::antiAliasing()
+{
+    return my.antiAliasing;
+}
+
+void Chart::setAntiAliasing(bool on)
+{
+    console->post("Chart::setAntiAliasing [%d -> %d]", my.antiAliasing, on);
+    my.antiAliasing = on;
 }
 
 QString Chart::name(int m)

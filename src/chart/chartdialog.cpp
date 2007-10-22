@@ -98,6 +98,8 @@ void ChartDialog::reset(Chart *chart, int style, QString scheme)
     setupSchemeComboBox();
     legendOn->setChecked(true);
     legendOff->setChecked(false);
+    antiAliasingOn->setChecked(true);
+    antiAliasingOff->setChecked(false);
     setupAvailableMetricsTree(my.archiveSource);
     my.yMin = yAxisMinimum->value();
     my.yMax = yAxisMaximum->value();
@@ -376,6 +378,23 @@ void ChartDialog::legendOffClicked()
 {
     legendOn->setChecked(false);
     legendOff->setChecked(true);
+}
+
+bool ChartDialog::antiAliasing(void)
+{
+    return antiAliasingOn->isChecked();
+}
+
+void ChartDialog::antiAliasingOnClicked()
+{
+    antiAliasingOn->setChecked(true);
+    antiAliasingOff->setChecked(false);
+}
+
+void ChartDialog::antiAliasingOffClicked()
+{
+    antiAliasingOn->setChecked(false);
+    antiAliasingOff->setChecked(true);
 }
 
 void ChartDialog::scheme(QString *scheme, int *sequence)

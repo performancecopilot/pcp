@@ -1,0 +1,23 @@
+#kmchart
+version 1
+
+chart title "Anti-Aliased Utilisation" style utilization antialiasing on
+	plot legend "Red" color red metric sample.colour instance "red"
+	plot legend "Green" color green metric sample.colour instance "green"
+	plot legend "Blue" color blue metric sample.colour instance "blue"
+
+chart title "Anti-Aliased Plots" style plot antialiasing on
+	plot legend "Red" color red metric sample.colour instance "red"
+	plot legend "Green" color green metric sample.colour instance "green"
+	plot legend "Blue" color blue metric sample.colour instance "blue"
+
+chart title "Non-Anti-Aliased Utilisation" style utilization antialiasing off
+	plot legend "Red" color red metric sample.colour instance "red"
+	plot legend "Green" color green metric sample.colour instance "green"
+	plot legend "Blue" color blue metric sample.colour instance "blue"
+
+chart title "Non-Anti-Aliased Plots" style plot antialiasing off
+	plot legend "Red" color red metric sample.colour instance "red"
+	plot legend "Green" color green metric sample.colour instance "green"
+	plot legend "Blue" color blue metric sample.colour instance "blue"
+

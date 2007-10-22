@@ -461,6 +461,7 @@ void KmChart::acceptNewChart()
     if (newTitle.isEmpty() == false)
 	cp->changeTitle(newTitle, true);
     cp->setLegendVisible(my.newchart->legend());
+    cp->setAntiAliasing(my.newchart->antiAliasing());
     if (my.newchart->setupChartPlotsShortcut(cp) == false)
 	my.newchart->setupChartPlots(cp);
     my.newchart->scale(&yAutoScale, &yMin, &yMax);
@@ -492,6 +493,8 @@ void KmChart::editChart()
     my.editchart->titleLineEdit->setText(cp->title());
     my.editchart->legendOn->setChecked(cp->legendVisible());
     my.editchart->legendOff->setChecked(!cp->legendVisible());
+    my.editchart->antiAliasingOn->setChecked(cp->antiAliasing());
+    my.editchart->antiAliasingOff->setChecked(!cp->antiAliasing());
     cp->scale(&yAutoScale, &yMin, &yMax);
     my.editchart->setScale(yAutoScale, yMin, yMax);
     my.editchart->setScheme(cp->scheme(), cp->sequence());
@@ -510,6 +513,7 @@ void KmChart::acceptEditChart()
     if (editTitle.isEmpty() == false && editTitle != cp->title())
 	cp->changeTitle(editTitle, true);
     cp->setLegendVisible(my.editchart->legend());
+    cp->setAntiAliasing(my.editchart->antiAliasing());
     my.editchart->scale(&yAutoScale, &yMin, &yMax);
     cp->setScale(yAutoScale, yMin, yMax);
     my.editchart->setupChartPlots(cp);

@@ -29,6 +29,7 @@ public:
     virtual Chart *chart(void);
     virtual QString title(void);
     virtual bool legend(void);
+    virtual bool antiAliasing(void);
     virtual void scale(bool *, double *, double *);
     virtual void setScale(bool, double, double);
     virtual void scheme(QString *, int *);
@@ -63,6 +64,8 @@ public slots:
     virtual void sourceButtonClicked();
     virtual void legendOnClicked();
     virtual void legendOffClicked();
+    virtual void antiAliasingOnClicked();
+    virtual void antiAliasingOffClicked();
     virtual void autoScaleOnClicked();
     virtual void autoScaleOffClicked();
     virtual void yAxisMinimumValueChanged(double);
