@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>612</width>
-    <height>427</height>
+    <height>457</height>
    </rect>
   </property>
   <property name="focusPolicy" >
@@ -177,6 +177,9 @@
                <property name="checked" >
                 <bool>true</bool>
                </property>
+               <property name="autoExclusive" >
+                <bool>false</bool>
+               </property>
               </widget>
              </item>
              <item>
@@ -207,6 +210,9 @@
                </property>
                <property name="text" >
                 <string>Off</string>
+               </property>
+               <property name="autoExclusive" >
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -291,6 +297,9 @@
                <property name="checked" >
                 <bool>true</bool>
                </property>
+               <property name="autoExclusive" >
+                <bool>false</bool>
+               </property>
               </widget>
              </item>
              <item>
@@ -321,6 +330,9 @@
                </property>
                <property name="text" >
                 <string>Off</string>
+               </property>
+               <property name="autoExclusive" >
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -441,7 +453,7 @@
                    <bool>false</bool>
                   </property>
                   <property name="maximum" >
-                   <double>999999999.999999999999999</double>
+                   <double>1000000000.000000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -575,7 +587,7 @@
                    <bool>false</bool>
                   </property>
                   <property name="maximum" >
-                   <double>999999999.999999999999999</double>
+                   <double>1000000000.000000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -1612,6 +1624,11 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
+   <class>QColorShowLabel</class>
+   <extends>QFrame</extends>
+   <header>qcolorpicker.h</header>
+  </customwidget>
+  <customwidget>
    <class>QColLineEdit</class>
    <extends>QLineEdit</extends>
    <header>qcolorpicker.h</header>
@@ -1628,11 +1645,6 @@
   </customwidget>
   <customwidget>
    <class>QColorPicker</class>
-   <extends>QFrame</extends>
-   <header>qcolorpicker.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QColorShowLabel</class>
    <extends>QFrame</extends>
    <header>qcolorpicker.h</header>
   </customwidget>
