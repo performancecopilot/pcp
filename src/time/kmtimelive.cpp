@@ -396,5 +396,5 @@ void KmTimeLive::helpManual()
 {
     setupAssistant();
     QString documents = HTMLDIR;
-    my.assistant->showPage(documents.append("/manual.html"));
+    my.assistant->showPage(documents.append("/timecontrol.html"));
 }

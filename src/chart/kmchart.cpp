@@ -365,7 +365,7 @@ void KmChart::helpManual()
 {
     setupAssistant();
     QString documents = HTMLDIR;
-    my.assistant->showPage(documents.append("/manual.html"));
+    my.assistant->showPage(documents.append("/index.html"));
 }
 
 void KmChart::helpTutorial()
