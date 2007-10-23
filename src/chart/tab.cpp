@@ -654,7 +654,7 @@ bool Tab::startRecording(void)
 void Tab::stopRecording(void)
 {
     QString msg = "Q\n";
-    int i, sts, count = my.loggerList.size();
+    int count = my.loggerList.size();
 
     console->post("Tab::stopRecording stopping %d logger(s)", count);
     for (int i = 0; i < count; i++) {
@@ -663,6 +663,7 @@ void Tab::stopRecording(void)
     }
 
 #if 0
+    int i, sts;
     for (i = 0; i < my.archiveList.size(); i++) {
 	QString archive = my.archiveList.at(i);
 	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {
