@@ -34,46 +34,39 @@ mecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P></TD>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Main Window</B></FONT></P></TD></TR>
 </TABLE>
-<P>On starting the PCP Chart (<i>kmchart</i>) tool with no command line arguments, the initial display shows a menu, toolbar, and a live time axis.  The vacant area above the time axis is the blank canvas for your charts – we'll get to this shortly, but take a moment to digest the main window.</P>
-
-<P STYLE="margin-left: 2cm">[XXX: insert kmchart images]</P>
-
+<CENTER><BR><IMG ALIGN=RIGHT SRC="images/tutorial1.png" BORDER=0></CENTER>
+<p>On starting the PCP Chart (<i>kmchart</i>) tool with no command line arguments, the initial display shows a menu, toolbar, and a live time axis.  The vacant area above the time axis is the blank canvas for your charts – we'll get to this shortly, but take a moment to digest the main window.</P><BR>
+<BR><CENTER><IMG ALIGN=LEFT SRC="images/tutorial2.png" BORDER=0></CENTER>
 <P>The time axis along the bottom of the window should be scrolling with the current time, updated every second (this is also called the <I>sample interval</I>).  To the left of the time axis is the time control status button.  The blue arrow signifies that (live) time is moving forward.  Pressing the button once will show the Time Control tool, <i>kmtime</i>, pressing it a second time hides it.  The time controls allow you to modify various aspects of the flow of time in your charts, and clearly displays the current time position.</P>
-
-<P STYLE="margin-left: 2cm">[XXX: insert kmtime images]</P>
-
+<P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Views</B></FONT></P></TD></TR>
 </TABLE>
 <P>The toolbar along the top of the window has a blue folder icon for <I>Views</I>.  Click on it, to bring up the “Open View” window.  This window initially displays a list of common performance views (these are the pre-installed <I>System Views</I>).  Select CPU and Disk from the list (Ctrl-Click allows multiple selections to be made), then press the OK button.  The main window is now filled with the two selected Views, showing several aspects of processor and disk utilisation.</P>
+<BR><CENTER><IMG SRC="images/tutorial3.png" BORDER=0></CENTER>
 <P><B>What is a view?</B></P>
 <P>A view is a complete specification of every aspect of one or more charts, each of which can contains one or more plots.  All properties of the charts and the individual plots are described - the data source behind the performance data, the color of the plots, the chart title, the style of the chart, whether the value axis (Y-Axis) should be scaled, whether there is a title, etc, etc.  Some properties are optional (e.g. the title) and some can be specified as variable (e.g. allowing any host to be the source of the data).</P>
 <P>Views are stored as plain text files in the local filesystem.  The System Views are different only in that they are installed into a fixed location.  There is a fixed place for custom views as well, below your home directory, where views you create in kmchart will be stored.  If you look into the <I>Open View</I> dialog again, you'll see two icons to the right of the Path in the Open View dialog – these indicate whether the current path points to the System View location, the User View location, or neither.  Notice how they update as you navigate through your files.</P>
-
-<P STYLE="margin-left: 2cm">[ XXX: Open View dialog images ]</P>
-
+<P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Recording</B></FONT></P></TD></TR>
 </TABLE>
 <P><B><FONT SIZE=4>Recording</FONT></B></P>
-<P>Returning to the main window now, select the <I>Record</I> menu option, and then <I>Start</I> recording.  A recording captures live performance data from the current View into an <B>archive folio</B>.  A folio is a group of one or more performance data archives (also refered to as <B>logs</B> – - an ambiguous term, so we'll refer to them as archives from here on), a copy of the current View specification, and a configuration file for the <B>pmlogger</B> process which does the actual recording.  A folio contains enough state to be able to replay the recording at any time in the future, exactly as it was recorded.</P>
+<P>Returning to the main window now, select the <I>Record</I> menu option, and then <I>Start</I> recording.  A recording captures live performance data from the current View into an <B>archive folio</B>.  A folio is a group of one or more performance data archives (also refered to as <B>logs</B> – an ambiguous term, so we'll refer to them as archives from here on), a copy of the current View specification, and a configuration file for the <B>pmlogger</B> process which does the actual recording.  A folio contains enough state to be able to replay the recording at any time in the future, exactly as it was recorded.</P>
 <P>The <I>Start Recording</I> dialog allows you to set various aspects of the recording session – we wont change these for now – just press the OK button.  You'll notice the Live Time Control button in the botton left now displays a red light, indicating that recording is in progress.  Let's leave the recording run while we investigate other parts of the tool – we'll come back to this later, when its had a chance to gather some interesting data.</P>
-
+<P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Saving Views</B></FONT></P></TD></TR>
 </TABLE>
 <P>From the <I>File</I> menu select the <I>Save View</I> option.  Save the current two charts to a View named /tmp/ExampleView.  In a terminal window, take a look through the saved View configuration.</P>
 
-<P STYLE="margin-left: 2cm">[ XXX: $ cat /tmp/ExampleView ]</P>
+<P STYLE="margin-left: 2cm">$ cat /tmp/ExampleView</P>
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Custom Charts</B></FONT></P></TD></TR>
 </TABLE>
-<P>Click on the Disk Chart to highlight it, and then opt for the <I>Edit Chart</I> menu item.  A tabbed window with every setting for the Disk chart is displayed.  In the tree view on the left side of the window are the metrics from our selected Disk chart.
-
-<P STYLE="margin-left: 2cm">[ XXX: edit chart images ]</P>
-
-The three tabs on the right side of the window show the current settings for this chart in three categories:</P>
+<P>Click on the Disk Chart to highlight it, and then opt for the <I>Edit Chart</I> menu item.  A tabbed window with every setting for the Disk chart is displayed.  In the tree view on the left side of the window are the metrics from our selected Disk chart.<BR><CENTER><IMG SRC="images/tutorial4.png" BORDER=0></CENTER></P>
+<P>The three tabs on the right side of the window show the current settings for this chart in three categories:</P>
 <UL>
 	<LI><P>Properties relating to the entire chart (Title, Legend
 	settings, Y-Axis scaling, etc);</P>
@@ -83,14 +76,8 @@ The three tabs on the right side of the window show the current settings for thi
 	label)</P>
 </UL>
 <P>Dismiss the Edit Chart dialog – instead of modifying our existing charts, we'll build one from the ground up.</P>
-<P>Click on the <I>New Chart</I> option in the toolbar to display the chart creation window – it is just like the chart editing window we've just seen, except initially we have no metrics selected in the chart, and default values for all of the chart properties.</P>
-
-<P STYLE="margin-left: 2cm">[ XXX: initial new chart dialog ]</P>
-
-<P>In the Available Metrics list on the Metrics tab, expand the <I>kernel,</I> <I>all</I>, <I>load</I> trees from your local hosts metric namespace, and then select the three load averages (<I>1, 5, 15 minutes</I>).  Since these are leaves in the namespace, and identify valid values for plotting, several buttons now become enabled – in particular the “Add Metric” button and the “Metric Info” button.</P>
-
-<P STYLE="margin-left: 2cm">[ XXX: new chart dialog with kernel.all.load.* selected ]</P>
-
+<P>Click on the <I>New Chart</I> option in the toolbar to display the chart creation window – it is just like the chart editing window we've just seen, except initially we have no metrics selected in the chart, and default values for all of the chart properties.<BR><CENTER><IMG SRC="images/tutorial5.png" BORDER=0></CENTER></P>
+<P>In the Available Metrics list on the Metrics tab, expand the <I>kernel,</I> <I>all</I>, <I>load</I> trees from your local hosts metric namespace, and then select the three load averages (<I>1, 5, 15 minutes</I>).  Since these are leaf nodes in the namespace, and identify valid values for plotting, several buttons now become enabled – in particular the “Add Metric” button and the “Metric Info” button.<BR><CENTER><IMG SRC="images/tutorial6.png" BORDER=0></CENTER></P>
 <P>Click on the “Metric Info” button to view the metric descriptor (<I>pminfo</I>) and current values (<I>pmval</I>) for <I>disk.all.total</I>.  Dismiss that dialog, and then press the “Add Metric” button, to add this metric into the list of metrics for our new chart.</P>
 <P>A default color is selected (this is chosen from the charts Color scheme, which can be set on the first tab) – this color can also be
 explicitly set by:</P>
@@ -100,26 +87,20 @@ explicitly set by:</P>
 	<LI><P>pressing the Apply color button</P>
 </UL>
 <P>This change can also be reverted by using the revert color button, which returns it to its previous color (displayed alongside that button).</P>
-
-<P STYLE="margin-left: 2cm">[ XXX: new chart with alternate color and new label ]</P>
-
+<BR><CENTER><IMG SRC="images/tutorial7.png" BORDER=0></CENTER></P>
 <P>Set the label for the plots as “1 Min”, “5 Min” and “15 Min”, then press OK.  A new chart will appear at the bottom of the main window with one plot, and on the next sample interval current values will be plotted.</P>
-
-<P STYLE="margin-left: 2cm">[ XXX: main window with kernel.all.load ]</P>
-
+<BR><CENTER><IMG SRC="images/tutorial8.png" BORDER=0></CENTER>
+<P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Playback Recording</B></FONT></P></TD></TR>
 </TABLE>
-<P>- Click on Record -&gt; Stop</P>
-<P>        - Walk through the dialog from pmlogger</P>
-<P>        - Discuss Query and Detach menu options</P>
-<P>        - Note red light goes off</P>
-<P><BR><BR>
-</P>
-<P>End kmchart session.</P>
-<P><BR><BR>
-</P>
-<P>- run pmafm ~/.pcp/pmlogger/XXX.folio replay</P>
+<P>Click on Record, then Stop.</P>
+<BR><CENTER><IMG SRC="images/tutorial9.png" BORDER=0></CENTER>
+<P>The dialog shown explains the status of your recording session (started earlier).  At any time while recording, you also have the option of querying the recording process to see the same status, and also to detach the recording from the control of <i>kmchart</i>.  But for now, we've simply ended the recording (note the red indicator light is now off on the time control button), and we're left with an archive containing the history from our recording, which we can now replay.
+<P>End your kmchart process now, and open a terminal window.</P>
+<P>Run: <b>pmafm ~/.pcp/pmlogger/XXX.folio replay</b> where XXX is the folio file name (timestamp) from your earlier recording session</P>
+<BR><CENTER><IMG SRC="images/tutorial10.png" BORDER=0></CENTER>
+<P>TODO:</P>
 <P>        - Click on Archive Time Control push button to show kmtime</P>
 <P>        - Show VCR controls</P>
 <P>        - Show Time Bounds</P>
@@ -129,6 +110,7 @@ explicitly set by:</P>
 <P>        - Scroll to somewhere else in the archive</P>
 <P>        - Press Back</P>
 <P>        - Press Stop</P>
+<BR><CENTER><IMG SRC="images/tutorial11.png" BORDER=0></CENTER>
 <P><BR><BR>
 </P>
 

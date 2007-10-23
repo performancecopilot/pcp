@@ -26,10 +26,12 @@ ifeq ($(PKG_PLATFORM),darwin)
 PLATFORM_BUILD = xcodebuild
 BINARY =  build/Default/$(COMMAND).app/Contents/MacOS/$(COMMAND)
 LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
+WINDOW = mac
 else
 PLATFORM_BUILD = $(MAKE) -f Makefile
 BINARY =  $(COMMAND)
 LNMAKE =
+WINDOW = x11
 endif
 
 QTMAKE = $(QMAKE) && $(PLATFORM_BUILD)
@@ -39,6 +41,15 @@ iconlinks:
 	@for l in $(ICONLINKS) ; do \
 	    if [ ! -L $$l ] ; then \
 		$(LN_S) $(TOPDIR)/images/$$l $$l ; \
+	    fi \
+	done
+endif
+
+ifdef WINDOWLINKS
+windowlinks:
+	@for l in $(WINDOWLINKS) ; do \
+	    if [ ! -L $$l ] ; then \
+		$(LN_S) $(WINDOW)-$$l $$l ; \
 	    fi \
 	done
 endif
