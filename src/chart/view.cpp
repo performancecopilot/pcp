@@ -848,19 +848,29 @@ abort_chart:
 		fputc('\n', stderr);
 	    }
 	    if (Cflag == 0 || Cflag == 2) {
-		QmcSource source = activeGroup->context()->source();
-		pms.isarch = source.isArchive();
+		pms.isarch = (activeGroup == archiveGroup);
 		if (host != NULL) {
 		    // host literal, add to the list of sources
-		    pms.source = strdup(host);
 		    if (activeGroup == archiveGroup) {
-			archiveGroup->updateBounds();
-			kmtime->addArchive(source.start(), source.end(),
-					source.timezone(), source.host());
+			QString hostname = host;
+			if (archiveGroup->use(PM_CONTEXT_HOST, hostname) < 0) {
+			    QString msg;
+			    msg.sprintf("\nHost \"%s\" cannot be matched to an open archive for metric %s",
+				host, pms.metric);
+			    errmsg.append(msg);
+			    goto skip;
+			}
+			QmcSource source = archiveGroup->context()->source();
+			pms.source = strdup((const char *)
+					source.source().toAscii());
+		    }
+		    else {
+			pms.source = strdup(host);
 		    }
 		}
 		else {
 		    // no explicit host, use current default source
+		    QmcSource source = activeGroup->context()->source();
 		    pms.source = strdup((const char *)
 					source.source().toAscii());
 		}

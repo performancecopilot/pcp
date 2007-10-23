@@ -148,7 +148,7 @@ QmcGroup::use(int type, QString &source)
 	    if (my.mode == PM_CONTEXT_ARCHIVE && type == PM_CONTEXT_HOST) {
 		QString chop1 = source.remove(PM_LOG_MAXHOSTLEN-1, INT_MAX);
 		for (i = 0; i < numContexts(); i++) {
-		    QString chop2 = my.contexts[i]->source().source();
+		    QString chop2 = my.contexts[i]->source().host();
 		    chop2.remove(PM_LOG_MAXHOSTLEN-1, INT_MAX);
 		    if (chop1 == chop2)
 			break;
