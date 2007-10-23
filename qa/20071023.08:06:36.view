@@ -1,0 +1,19 @@
+#kmchart
+version 1
+
+global width 0
+global height 0
+global points 0
+global xpos 0
+global ypos 0
+
+chart title "file system capacity" style plot legend off
+	plot color #ffff00 host kmcdonell-laptop.aconex.com metric filesys.capacity instance "/dev/root"
+chart style plot antialiasing off
+	plot color #ffff00 host kmcdonell-laptop.aconex.com metric sample.mirage_longlong instance "m-00"
+chart style plot antialiasing off
+	plot color #ffff00 host kmcdonell-laptop.aconex.com metric sample.scale_step.time_up_nanosecs
+chart style bar antialiasing off
+	plot color #ffff00 host kmcdonell-laptop.aconex.com metric kernel.all.cpu.user
+chart style plot antialiasing off
+	plot color #ffff00 host kmcdonell-laptop.aconex.com metric disk.dev.total_bytes instance "sda"
