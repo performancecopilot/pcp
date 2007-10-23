@@ -119,6 +119,7 @@ then
     exit 1
 fi
 
+
 echo "terminating pmcd..."
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 if [ -f $config ]

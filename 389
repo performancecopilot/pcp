@@ -22,6 +22,13 @@ tmp=/tmp/$$
 sudo=`pwd`/sudo
 host=`hostname`
 status=1	# failure is the default!
+
+_filter()
+{
+    sed -e '/myFetch: End of File: PMCD exited/d' \
+	-e '/pmlogger: Error: IPC protocol failure/d'
+}
+
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
@@ -54,7 +61,7 @@ $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
 echo "expect no pmlogger process ..."
 ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == "'$!'" { print }'
-_filter_pmlogger_log <$tmp.log | sed -e "s/$host/HOST/"
+_filter_pmlogger_log <$tmp.log | _filter | sed -e "s/$host/HOST/"
 
 # success, all done
 status=0

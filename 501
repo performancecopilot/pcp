@@ -52,7 +52,7 @@ for arg in -v -V -W
 do
     echo
     echo "=== pmie $arg ... ==="
-    cat <<End-of-File | pmie -l $tmp.log $arg -t 2sec -T 3sec >$tmp.out
+    cat <<End-of-File | pmie -f -l $tmp.log $arg -t 2sec -T 3sec >$tmp.out
 // arithmetic expressions
 valid_a = hinv.ncpu;
 alone_a = no.such.metric;

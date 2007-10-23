@@ -13,7 +13,7 @@ Archive files older than 14 days being removed ...
 + rm -f FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
 Archive files older than 3 days being compressed ...
     FIVEMONTHS.0 FIVEDAYS.0
-+ compress FIVEMONTHS.0 FIVEDAYS.0
++ bzip2 FIVEMONTHS.0 FIVEDAYS.0
 + cd TMP/PID.relaydir
 
 === daily maintenance of PCP archives for host relay.engr ===
@@ -26,4 +26,4 @@ Archive files older than 14 days being removed ...
 + rm -f FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
 Archive files older than 3 days being compressed ...
     FIVEMONTHS.0 FIVEDAYS.0 FIVEDAYS.1
-+ compress FIVEMONTHS.0 FIVEDAYS.0 FIVEDAYS.1
++ bzip2 FIVEMONTHS.0 FIVEDAYS.0 FIVEDAYS.1

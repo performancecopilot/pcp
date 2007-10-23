@@ -16,7 +16,7 @@ Waiting for PMCD to terminate [dots]
 
 pmcd_wait succeeded as expected for sleeping pmcd - under timeout
 
-Waiting for PMCD to terminate [dots]
+$PCP_RC_DIR/pcp: PMCD not running
 Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) [dots]
 Performance Co-Pilot starting archive loggers [dots]
 *** test 5 ***
