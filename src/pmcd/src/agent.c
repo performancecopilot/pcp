@@ -50,7 +50,7 @@ void
 CleanupAgent(AgentInfo* aPtr, int why, int status)
 {
     extern int	AgentDied;
-    int		exit_status;
+    int		exit_status = status;
     int		reason = 0;
 
     if (aPtr->ipcType == AGENT_DSO) {
@@ -85,50 +85,55 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
     __pmNotifyErr(LOG_INFO, "CleanupAgent ...\n");
     fprintf(stderr, "Cleanup \"%s\" agent (dom %d):", aPtr->pmDomainLabel, aPtr->pmDomainId);
 
-    if (why == AT_CONFIG) {
-	fprintf(stderr, " unconfigured");
+    if (why == AT_EXIT) {
+	/* waitpid has already been done */
+	fprintf(stderr, " terminated");
+	reason = (status << 8) | REASON_EXIT;
     }
     else {
-	if (why == AT_EXIT) {
-	    fprintf(stderr, " terminated");
-	    exit_status = status;
-	    reason = (status << 8) | REASON_EXIT;
-	}
-	else {
+	if (why == AT_CONFIG) {
+	    fprintf(stderr, " unconfigured");
+	} else {
 	    reason = REASON_PROTOCOL;
 	    fprintf(stderr, " protocol failure for fd=%d", status);
 	    exit_status = -1;
-	    if (aPtr->status.isChild == 1) {
-		pid_t	pid = -1;
-		pid_t	done;
-		int	wait_status;
-		if (aPtr->ipcType == AGENT_PIPE)
-		    pid = aPtr->ipc.pipe.agentPid;
-		else if (aPtr->ipcType == AGENT_SOCKET)
-		    pid = aPtr->ipc.socket.agentPid;
-		/*
-		 * give PMDA a chance to notice the close() and exit
-		 * before we try to wait()
-		 */
-		sleep(1);
-		for ( ; ; ) {
+	}
+	if (aPtr->status.isChild == 1) {
+	    pid_t	pid = -1;
+	    pid_t	done;
+	    int 	wait_status;
+	    int 	slept = 0;
+
+	    if (aPtr->ipcType == AGENT_PIPE)
+		pid = aPtr->ipc.pipe.agentPid;
+	    else if (aPtr->ipcType == AGENT_SOCKET)
+		pid = aPtr->ipc.socket.agentPid;
+	    for ( ; ; ) {
 
 #if defined(HAVE_WAIT3)
-		    done = wait3(&wait_status, WNOHANG, NULL);
+		done = wait3(&wait_status, WNOHANG, NULL);
 #elif defined(HAVE_WAITPID)
-		    done = waitpid((pid_t)-1, &wait_status, WNOHANG);
+		done = waitpid((pid_t)-1, &wait_status, WNOHANG);
 #else
-		    break;
+		done = 0;
 #endif
-		    if (done <= 0)
-			break;
-		    else if (done == pid)
-			exit_status = wait_status;
+		if (done == pid) {
+		    exit_status = wait_status;
+		    break;
 		}
+		if (done > 0) {
+		    continue;
+		}
+		if (slept) {
+		    break;
+		}
+		/* give PMDA a chance to notice the close() and exit */
+		sleep(1);
+		slept = 1;
 	    }
 	}
-
-	if (exit_status != -1) {
+    }
+    if (exit_status != -1) {
 	    if (WIFEXITED(exit_status)) {
 		fprintf(stderr, ", exit(%d)", WEXITSTATUS(exit_status));
 		reason = (WEXITSTATUS(exit_status) << 8) | reason;
@@ -141,7 +146,6 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 #endif
 		reason = (WTERMSIG(exit_status) << 16) | reason;
 	    }
-	}
     }
     fputc('\n', stderr);
     aPtr->reason = reason;
