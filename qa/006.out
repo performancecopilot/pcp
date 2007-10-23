@@ -1,5 +1,5 @@
 QA output created by 006
-=== qa-view-01 ===
+=== views/006-01 ===
 #kmchart
 version 1
 chart title "QA Units compatible - time" style plot
@@ -26,7 +26,6 @@ exit=0
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: KmChart::setActiveTab index=0 r=1
-<timestamp>: Tab::updateTimeAxis: used ...
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Tab::setCurrentChart(<addr>) -> 0
@@ -42,7 +41,7 @@ exit=0
 <timestamp>: addPlot plot=<addr> nplots=2
 <timestamp>: Chart::setStroke [style 1->1]
 --- post ---
-=== qa-view-02 ===
+=== views/006-02 ===
 #kmchart
 version 1
 chart title "QA Units odd but OK - time(util) and none" style plot
@@ -69,7 +68,6 @@ exit=0
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: KmChart::setActiveTab index=0 r=1
-<timestamp>: Tab::updateTimeAxis: used ...
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Tab::setCurrentChart(<addr>) -> 0
@@ -85,7 +83,7 @@ exit=0
 <timestamp>: addPlot plot=<addr> nplots=2
 <timestamp>: Chart::setStroke [style 1->1]
 --- post ---
-=== qa-view-03 ===
+=== views/006-03 ===
 #kmchart
 version 1
 chart title "QA Units BAD - time(->time util) and count(->count/sec)" style plot
@@ -112,7 +110,6 @@ exit=0
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: KmChart::setActiveTab index=0 r=1
-<timestamp>: Tab::updateTimeAxis: used ...
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Tab::setCurrentChart(<addr>) -> 0
@@ -126,11 +123,11 @@ exit=0
 <timestamp>: addPlot metric=sample.step_counter
 <timestamp>: Chart::checkUnits plot units count / sec
 --- post ---
-Error: qa-view-03[6] 
+Error: views/006-03[6] 
 Failed to plot metric "sample.step_counter" for
 host <host>:
 Units for this metric are not compatible with other plots in this chart
-=== qa-view-04 ===
+=== views/006-04 ===
 #kmchart
 version 1
 chart title "QA Units OK - inst first" style plot
@@ -168,7 +165,6 @@ exit=0
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: KmChart::setActiveTab index=0 r=1
-<timestamp>: Tab::updateTimeAxis: used ...
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Tab::setCurrentChart(<addr>) -> 0
@@ -223,7 +219,7 @@ exit=0
 <timestamp>: addPlot plot=<addr> nplots=2
 <timestamp>: Chart::setStroke [style 1->1]
 --- post ---
-=== qa-view-05 ===
+=== views/006-05 ===
 #kmchart
 version 1
 chart title "QA Units BAD - byte / msec and count/sec" style plot
@@ -251,7 +247,6 @@ exit=0
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: KmChart::setActiveTab index=0 r=1
-<timestamp>: Tab::updateTimeAxis: used ...
 <timestamp>: Phase2 user interface setup complete
 <timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Tab::setCurrentChart(<addr>) -> 0
@@ -265,7 +260,7 @@ exit=0
 <timestamp>: addPlot metric=sample.write_me
 <timestamp>: Chart::checkUnits plot units count / sec
 --- post ---
-Error: qa-view-05[7] 
+Error: views/006-05[7] 
 Failed to plot metric "sample.write_me" for
 host <host>:
 Units for this metric are not compatible with other plots in this chart
