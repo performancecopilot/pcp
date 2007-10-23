@@ -96,6 +96,8 @@ void Chart::update(bool forward, bool visible, bool available)
 {
     int	sh = my.tab->sampleHistory();
     int	idx, m;
+    bool rescale = false;
+    pmUnits oldunits = my.units;
 
 #if DESPERATE
     console->post("Chart::update(forward=%d,vis=%d,avail=%d) sh=%d (%d plots)",
@@ -105,57 +107,156 @@ void Chart::update(bool forward, bool visible, bool available)
     if (my.plots.size() < 1)
 	return;
 
-    // TODO - the 10,000 threshold is just a guess ... also need lots more
-    // logic here to handle transitions other than byte -> Kbyte, for
-    // different space scales, different dimensions and the down step
-    // scaling as well ... this is just an initial one to check it out
+    // The 1,000 and 0.1 thresholds are just a heuristic guess.
+    //
+    // TODO also need more logic here to handle different dimensions than
+    // just SPACE
     //
     // We're assuming lBound() plays no part in this, which is OK as
     // the upper bound of the y-axis range (hBound()) drives the choice
     // of appropriate units scaling.
     //
-    if (axisScaleDiv(QwtPlot::yLeft)->hBound() > 10000) {
-	bool rescale = false;
-	pmUnits oldunits;
+    if (my.autoScale && axisScaleDiv(QwtPlot::yLeft)->hBound() > 1000) {
 	if (my.units.dimSpace == 1) {
-	    if (my.units.scaleSpace == PM_SPACE_BYTE) {
-		oldunits = my.units;
-		my.units.scaleSpace = PM_SPACE_KBYTE;
-		rescale = true;
+	    switch (my.units.scaleSpace) {
+		case PM_SPACE_BYTE:
+		    my.units.scaleSpace = PM_SPACE_KBYTE;
+		    rescale = true;
+		    break;
+		case PM_SPACE_KBYTE:
+		    my.units.scaleSpace = PM_SPACE_MBYTE;
+		    rescale = true;
+		    break;
+		case PM_SPACE_MBYTE:
+		    my.units.scaleSpace = PM_SPACE_GBYTE;
+		    rescale = true;
+		    break;
+		case PM_SPACE_GBYTE:
+		    my.units.scaleSpace = PM_SPACE_TBYTE;
+		    rescale = true;
+		    break;
+		case PM_SPACE_TBYTE:
+		    my.units.scaleSpace = PM_SPACE_PBYTE;
+		    rescale = true;
+		    break;
+		case PM_SPACE_PBYTE:
+		    my.units.scaleSpace = PM_SPACE_EBYTE;
+		    rescale = true;
+		    break;
 	    }
 	}
-	if (rescale) {
-	    pmAtomValue	old_av;
-	    pmAtomValue	new_av;
-
-	    console->post("Chart::update change units %s", pmUnitsStr(&my.units));
-	    // need to rescale ... we transform all of the historical (raw)
-	    // data[] and the plotData[] ... new data will be taken care of
-	    // by changing my.units
-	    //
-	    for (m = 0; m < my.plots.size(); m++) {
-		for (int i = my.plots[m]->dataCount-1; i >= 0; i--) {
-		    if (my.plots[m]->data[i] != Curve::NaN()) {
-			old_av.d = my.plots[m]->data[i];
-			pmConvScale(PM_TYPE_DOUBLE, &old_av, &oldunits, &new_av, &my.units);
-			my.plots[m]->data[i] = new_av.d;
-		    }
-		    if (my.plots[m]->plotData[i] != Curve::NaN()) {
-			old_av.d = my.plots[m]->plotData[i];
-			pmConvScale(PM_TYPE_DOUBLE, &old_av, &oldunits, &new_av, &my.units);
-			my.plots[m]->plotData[i] = new_av.d;
-		    }
-		}
-	    }
-	    if (my.style == UtilisationStyle) {
-		setYAxisTitle("% utilization");
-	    }
-	    else {
-		setYAxisTitle((char *)pmUnitsStr(&my.units));
+	else if (my.units.dimTime == 1) {
+	    switch (my.units.scaleTime) {
+		case PM_TIME_NSEC:
+		    my.units.scaleTime = PM_TIME_USEC;
+		    rescale = true;
+		    break;
+		case PM_TIME_USEC:
+		    my.units.scaleTime = PM_TIME_MSEC;
+		    rescale = true;
+		    break;
+		case PM_TIME_MSEC:
+		    my.units.scaleTime = PM_TIME_SEC;
+		    rescale = true;
+		    break;
+		case PM_TIME_SEC:
+		    my.units.scaleTime = PM_TIME_MIN;
+		    rescale = true;
+		    break;
+		case PM_TIME_MIN:
+		    my.units.scaleTime = PM_TIME_HOUR;
+		    rescale = true;
+		    break;
 	    }
 	}
     }
-   for (m = 0; m < my.plots.size(); m++) {
+    if (rescale == false && my.autoScale && axisScaleDiv(QwtPlot::yLeft)->hBound() < 0.1) {
+	if (my.units.dimSpace == 1) {
+	    switch (my.units.scaleSpace) {
+		case PM_SPACE_KBYTE:
+		    my.units.scaleSpace = PM_SPACE_BYTE;
+		    rescale = true;
+		    break;
+		case PM_SPACE_MBYTE:
+		    my.units.scaleSpace = PM_SPACE_KBYTE;
+		    rescale = true;
+		    break;
+		case PM_SPACE_GBYTE:
+		    my.units.scaleSpace = PM_SPACE_MBYTE;
+		    rescale = true;
+		    break;
+		case PM_SPACE_TBYTE:
+		    my.units.scaleSpace = PM_SPACE_GBYTE;
+		    rescale = true;
+		    break;
+		case PM_SPACE_PBYTE:
+		    my.units.scaleSpace = PM_SPACE_TBYTE;
+		    rescale = true;
+		    break;
+		case PM_SPACE_EBYTE:
+		    my.units.scaleSpace = PM_SPACE_PBYTE;
+		    rescale = true;
+		    break;
+	    }
+	}
+	else if (my.units.dimTime == 1) {
+	    switch (my.units.scaleTime) {
+		case PM_TIME_USEC:
+		    my.units.scaleTime = PM_TIME_NSEC;
+		    rescale = true;
+		    break;
+		case PM_TIME_MSEC:
+		    my.units.scaleTime = PM_TIME_USEC;
+		    rescale = true;
+		    break;
+		case PM_TIME_SEC:
+		    my.units.scaleTime = PM_TIME_MSEC;
+		    rescale = true;
+		    break;
+		case PM_TIME_MIN:
+		    my.units.scaleTime = PM_TIME_SEC;
+		    rescale = true;
+		    break;
+		case PM_TIME_HOUR:
+		    my.units.scaleTime = PM_TIME_MIN;
+		    rescale = true;
+		    break;
+	    }
+	}
+    }
+
+    if (rescale) {
+	pmAtomValue	old_av;
+	pmAtomValue	new_av;
+
+	console->post("Chart::update change units %s", pmUnitsStr(&my.units));
+	// need to rescale ... we transform all of the historical (raw)
+	// data[] and the plotData[] ... new data will be taken care of
+	// by changing my.units
+	//
+	for (m = 0; m < my.plots.size(); m++) {
+	    for (int i = my.plots[m]->dataCount-1; i >= 0; i--) {
+		if (my.plots[m]->data[i] != Curve::NaN()) {
+		    old_av.d = my.plots[m]->data[i];
+		    pmConvScale(PM_TYPE_DOUBLE, &old_av, &oldunits, &new_av, &my.units);
+		    my.plots[m]->data[i] = new_av.d;
+		}
+		if (my.plots[m]->plotData[i] != Curve::NaN()) {
+		    old_av.d = my.plots[m]->plotData[i];
+		    pmConvScale(PM_TYPE_DOUBLE, &old_av, &oldunits, &new_av, &my.units);
+		    my.plots[m]->plotData[i] = new_av.d;
+		}
+	    }
+	}
+	if (my.style == UtilisationStyle) {
+	    setYAxisTitle("% utilization");
+	}
+	else {
+	    setYAxisTitle((char *)pmUnitsStr(&my.units));
+	}
+    }
+
+    for (m = 0; m < my.plots.size(); m++) {
 	Plot *plot = my.plots[m];
 
 	double value;
