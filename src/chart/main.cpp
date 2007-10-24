@@ -104,6 +104,21 @@ char *timeString(double seconds)
     return s;
 }
 
+// return a string containing hour and milliseconds
+char *timeHiResString(double time)
+{
+    static char s[16];
+    char m[8];
+    time_t secs = (time_t)time;
+    struct tm *t;
+
+    sprintf(m, "%.3f", time - floor(time));
+    t = localtime(&secs);
+    sprintf(s, "%02d:%02d:%02d.%s", t->tm_hour, t->tm_min, t->tm_sec, m+2);
+    s[strlen(s)-1] = '\0';
+    return s;
+}
+
 double KmTime::secondsToUnits(double value, KmTime::DeltaUnits units)
 {
     switch (units) {

@@ -71,6 +71,7 @@ KmChart::KmChart() : QMainWindow(NULL)
 
     setIconSize(QSize(22, 22));
     dateLabel->setFont(globalFont);
+    chartValueLabel->setFont(globalFont);
 }
 
 void KmChart::languageChange()
@@ -317,7 +318,7 @@ void KmChart::filePrint()
 	    cp->print(&qp, rect, filter);
 	    rect.setY(rect.y()+rect.height());
 	}
-	// timButton icon
+	// timeButton icon
 	size = timeButton->size();
 	rect.setWidth((int)(size.width()*scale_w+0.5));
 	rect.setHeight((int)(size.height()*scale_h+0.5));
