@@ -678,8 +678,6 @@ main(int argc, char ** argv)
     kmchart->enableUi();
     kmchart->show();
     console->post("Top level window shown");
-    kmchart->setupDialogs();
-    console->post("Dialog creation complete");
 
     a.connect(&a, SIGNAL(lastWindowClosed()), kmchart, SLOT(quit()));
     return a.exec();

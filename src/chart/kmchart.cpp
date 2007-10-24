@@ -51,6 +51,7 @@ char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
 
 KmChart::KmChart() : QMainWindow(NULL)
 {
+    my.assistant = NULL;
     my.dialogsSetup = false;
     setupUi(this);
 
@@ -76,6 +77,7 @@ KmChart::KmChart() : QMainWindow(NULL)
     my.timer = new QTimer(this);
     my.timer->setSingleShot(true);
     connect(my.timer, SIGNAL(timeout()), this, SLOT(timeout()));
+    resetTimer();
 }
 
 void KmChart::languageChange()
@@ -109,7 +111,6 @@ void KmChart::setupDialogs(void)
     my.openview = new OpenViewDialog(this);
     my.saveview = new SaveViewDialog(this);
     my.settings = new SettingsDialog(this);
-    my.assistant = NULL;
 
     connect(my.newtab->buttonOk, SIGNAL(clicked()),
 				this, SLOT(acceptNewTab()));
@@ -149,6 +150,7 @@ void KmChart::quit()
 
 void KmChart::timeout()
 {
+    setupDialogs();
     kmchart->chartValueLabel->clear();
 }
 
@@ -257,18 +259,21 @@ void KmChart::setStyle(char *newlook)
 
 void KmChart::fileOpenView()
 {
+    setupDialogs();
     my.openview->reset();
     my.openview->show();
 }
 
 void KmChart::fileSaveView()
 {
+    setupDialogs();
     my.saveview->reset();
     my.saveview->show();
 }
 
 void KmChart::fileExport()
 {
+    setupDialogs();
     my.exporter->show();
 }
 
@@ -462,6 +467,7 @@ void KmChart::optionsNewKmchart()
 
 void KmChart::createNewChart(Chart::Style style)
 {
+    setupDialogs();
     my.newchart->reset(NULL, (int)style - 1, QString::null);
     my.newchart->show();
 }
@@ -505,6 +511,7 @@ void KmChart::editChart()
     double yMin, yMax;
     Chart *cp = activeTab()->currentChart();
 
+    setupDialogs();
     my.editchart->reset(cp,
 		(int)activeTab()->currentChart()->style() - 1, cp->scheme());
     my.editchart->titleLineEdit->setText(cp->title());
@@ -560,18 +567,21 @@ void KmChart::closeChart()
 
 void KmChart::metricInfo(QString src, QString m, QString inst, bool archive)
 {
+    setupDialogs();
     my.info->reset(src, m, inst, archive);
     my.info->show();
 }
 
 void KmChart::metricSearch(QTreeWidget *pmns)
 {
+    setupDialogs();
     my.search->reset(pmns);
     my.search->show();
 }
 
 void KmChart::editTab()
 {
+    setupDialogs();
     Tab *tab = activeTab();
     my.edittab->reset(chartTabWidget->tabText(chartTabWidget->currentIndex()),
 			tab->isArchiveSource() == false,
@@ -591,6 +601,7 @@ void KmChart::acceptEditTab()
 
 void KmChart::createNewTab(bool live)
 {
+    setupDialogs();
     my.newtab->reset(QString::null, live,
 		globalSettings.sampleHistory, globalSettings.visibleHistory);
     my.newtab->show();
@@ -693,6 +704,7 @@ void KmChart::activeTabChanged(int index)
 
 void KmChart::editSettings()
 {
+    setupDialogs();
     my.settings->reset();
     my.settings->show();
 }
