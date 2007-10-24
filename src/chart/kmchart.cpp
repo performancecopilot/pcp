@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
+#include <QtCore/QTimer>
 #include <QtCore/QLibraryInfo>
 #include <QtGui/QApplication>
 #include <QtGui/QPrintDialog>
@@ -72,6 +73,9 @@ KmChart::KmChart() : QMainWindow(NULL)
     setIconSize(QSize(22, 22));
     dateLabel->setFont(globalFont);
     chartValueLabel->setFont(globalFont);
+    my.timer = new QTimer(this);
+    my.timer->setSingleShot(true);
+    connect(my.timer, SIGNAL(timeout()), this, SLOT(timeout()));
 }
 
 void KmChart::languageChange()
@@ -141,6 +145,18 @@ void KmChart::quit()
 	my.assistant->closeAssistant();
     if (kmtime)
 	kmtime->quit();
+}
+
+void KmChart::timeout()
+{
+    kmchart->chartValueLabel->clear();
+}
+
+void KmChart::resetTimer()
+{
+    if (my.timer->isActive())
+	my.timer->stop();
+    my.timer->start(KmChart::defaultTimerTimeout());
 }
 
 void KmChart::closeEvent(QCloseEvent *)
