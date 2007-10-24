@@ -124,9 +124,6 @@ extern "C" {
 
 #if defined(HAVE_MALLOC_H)
 #include <malloc.h>
-#else
-#undef ptrdiff_t
-#define ptrdiff_t	long
 #endif
 
 /* HAVE_NETWORK_BYTEORDER for big endian systems (not Intel) */
@@ -243,7 +240,7 @@ extern "C" {
 #undef __int64_t
 #undef __uint64_t
 
-/* Check is __psint_t is set to smth meaningful */
+/* Check if __psint_t is set to something meaningful */
 #undef HAVE___PSINT_T
 #ifndef HAVE___PSINT_T 
 #ifdef HAVE_32BIT_PTR
@@ -259,6 +256,12 @@ typedef long long __psint_t;
 #else
 #error Unknown pointer size
 #endif
+#endif
+
+/* Check if ptrdiff_t type is available */
+#undef HAVE_PTRDIFF_T
+#ifndef HAVE_PTRDIFF_T
+#define ptrdiff_t	long
 #endif
 
 /*
