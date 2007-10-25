@@ -6,7 +6,7 @@ PROJECT = $(COMMAND).pro
 QRCFILE = $(COMMAND).qrc
 
 HEADERS = kmquery.h
-SOURCES = $(HEADERS:.h=.cpp)
+SOURCES = $(HEADERS:.h=.cpp) main.cpp
 SCRIPTS = kmconfirm.sh kmmessage.sh
 
 LSRCFILES = $(PROJECT) $(QRCFILE) $(SCRIPTS) $(HEADERS) $(SOURCES)
