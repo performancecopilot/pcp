@@ -5,13 +5,14 @@ COMMAND = kmchart
 PROJECT = $(COMMAND).pro
 QRCFILE = $(COMMAND).qrc
 UIFILES = $(shell echo *.ui)
-HEADERS = aboutdialog.h chartdialog.h hostdialog.h infodialog.h \
-	  kmchart.h recorddialog.h seealsodialog.h searchdialog.h \
-	  settingsdialog.h tabdialog.h \
-	  chart.h curve.h main.h namespace.h \
+HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
+	  infodialog.h kmchart.h openviewdialog.h saveviewdialog.h \
+	  recorddialog.h seealsodialog.h searchdialog.h settingsdialog.h \
+	  tabdialog.h \
+	  chart.h curve.h console.h main.h namespace.h \
 	  colorbutton.h colorscheme.h qcolorpicker.h \
-	  tab.h tabwidget.h \
-	  timeaxis.h timecontrol.h
+	  fileiconprovider.h tab.h tabwidget.h \
+	  timeaxis.h timebutton.h timecontrol.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
 
 LSRCFILES = $(PROJECT) $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES)

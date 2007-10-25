@@ -42,6 +42,7 @@ public:
 
 TimeAxis::TimeAxis(QWidget *parent) : QwtPlot(parent)
 {
+    clearScaleCache();
     setFixedHeight(30);
     setFocusPolicy(Qt::NoFocus);
 }
@@ -61,27 +62,74 @@ void TimeAxis::init()
     setAxisFont(QwtPlot::xBottom, globalFont);
 }
 
-double TimeAxis::scaleValue(double delta, int count)
+void TimeAxis::clearScaleCache()
 {
-    double scale;
+    my.points = 0;
+    my.delta = my.scale = 0.0;
+}
 
-    scale = (1.0 / (width() / (count * 8.0))) * 8.0;
+double TimeAxis::scaleValue(double delta, int points)
+{
+    if (my.delta == delta && my.points == points)
+	return my.scale;
+
+    // divisor is the amount of space (pixels) set aside for one major label.
+    int maxMinor, maxMajor = qMax(1, width() / 54);
+
+    my.scale = (1.0 / ((double)width() / (points * 8.0))) * 8.0; // 8.0 is magic
+    my.scale *= delta;
+
 #if DESPERATE
-    console->post("TimeAxis::scaleValue scale=%.2f x delta=%.2f",
-			scale, delta);
+    console->post("TimeAxis::scaleValue"
+		  " width=%d points=%d scale=%.2f delta=%.2f mMaj=%d\n",
+		    width(), points, my.scale, delta, maxMajor);
 #endif
-    scale *= delta;
-    return scale;
+
+    // This is a sliding scale which converts arbitrary steps into more
+    // human-digestable increments - seconds, ten seconds, minutes, etc.
+    if (my.scale <= 5.0) {
+	maxMinor = 10;
+    } else if (my.scale <= 10.0) {
+	my.scale = 10.0;
+	maxMinor = 15;
+    } else if (my.scale <= 30.0) {	// ten-secondly up to half a minute
+	my.scale = floor((my.scale + 5) / 10) * 10.0;
+	maxMinor = 15;
+    } else if (my.scale <= 600.0) {	// minutely up to ten minutes
+	my.scale = floor((my.scale + 30) / 60) * 60.0;
+	maxMinor = 20;
+    } else if (my.scale < 3600.0) {	// 10 minutely up to an hour
+	my.scale = floor((my.scale + 300) / 600) * 600.0;
+	maxMinor = 20;
+    } else if (my.scale < 86400.0) {	// hourly up to a day
+	my.scale = floor((my.scale + 1800) / 3600) * 3600.0;	
+	maxMinor = 60;
+    } else {				// daily then on (60 * 60 * 24)
+	my.scale = 86400.0;
+	maxMinor = 60;
+    }
+
+#if DESPERATE
+    console->post("TimeAxis::scaleValue adjusted scale=%.2f nMin=%d\n",
+		  my.scale, maxMinor);
+#endif
+    my.delta = delta;
+    my.points = points;
+    setAxisMaxMajor(xBottom, maxMajor);
+    setAxisMaxMinor(xBottom, maxMinor);
+    return my.scale;
 }
 
 //
 // Update the time axis if width changes, idea is to display increased
 // precision as more screen real estate becomes available.  scaleValue
-// is the critical piece of code in implemting it, as it uses width().
+// is the critical piece of code in implementing it, as it uses width().
 //
 void TimeAxis::resizeEvent(QResizeEvent *e)
 {
     QwtPlot::resizeEvent(e);
-    if (e->size().width() != e->oldSize().width())
+    if (e->size().width() != e->oldSize().width()) {
+	clearScaleCache();
 	kmchart->activeTab()->updateTimeAxis();
+    }
 }

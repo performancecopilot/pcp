@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
+#include <QtCore/QTimer>
 #include <QtCore/QLibraryInfo>
 #include <QtGui/QApplication>
 #include <QtGui/QPrintDialog>
@@ -50,6 +51,7 @@ char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
 
 KmChart::KmChart() : QMainWindow(NULL)
 {
+    my.assistant = NULL;
     my.dialogsSetup = false;
     setupUi(this);
 
@@ -71,6 +73,11 @@ KmChart::KmChart() : QMainWindow(NULL)
 
     setIconSize(QSize(22, 22));
     dateLabel->setFont(globalFont);
+    chartValueLabel->setFont(globalFont);
+    my.timer = new QTimer(this);
+    my.timer->setSingleShot(true);
+    connect(my.timer, SIGNAL(timeout()), this, SLOT(timeout()));
+    resetTimer();
 }
 
 void KmChart::languageChange()
@@ -104,7 +111,6 @@ void KmChart::setupDialogs(void)
     my.openview = new OpenViewDialog(this);
     my.saveview = new SaveViewDialog(this);
     my.settings = new SettingsDialog(this);
-    my.assistant = NULL;
 
     connect(my.newtab->buttonOk, SIGNAL(clicked()),
 				this, SLOT(acceptNewTab()));
@@ -140,6 +146,19 @@ void KmChart::quit()
 	my.assistant->closeAssistant();
     if (kmtime)
 	kmtime->quit();
+}
+
+void KmChart::timeout()
+{
+    setupDialogs();
+    kmchart->chartValueLabel->clear();
+}
+
+void KmChart::resetTimer()
+{
+    if (my.timer->isActive())
+	my.timer->stop();
+    my.timer->start(KmChart::defaultTimerTimeout());
 }
 
 void KmChart::closeEvent(QCloseEvent *)
@@ -240,18 +259,21 @@ void KmChart::setStyle(char *newlook)
 
 void KmChart::fileOpenView()
 {
+    setupDialogs();
     my.openview->reset();
     my.openview->show();
 }
 
 void KmChart::fileSaveView()
 {
+    setupDialogs();
     my.saveview->reset();
     my.saveview->show();
 }
 
 void KmChart::fileExport()
 {
+    setupDialogs();
     my.exporter->show();
 }
 
@@ -317,7 +339,7 @@ void KmChart::filePrint()
 	    cp->print(&qp, rect, filter);
 	    rect.setY(rect.y()+rect.height());
 	}
-	// timButton icon
+	// timeButton icon
 	size = timeButton->size();
 	rect.setWidth((int)(size.width()*scale_w+0.5));
 	rect.setHeight((int)(size.height()*scale_h+0.5));
@@ -445,6 +467,7 @@ void KmChart::optionsNewKmchart()
 
 void KmChart::createNewChart(Chart::Style style)
 {
+    setupDialogs();
     my.newchart->reset(NULL, (int)style - 1, QString::null);
     my.newchart->show();
 }
@@ -488,6 +511,7 @@ void KmChart::editChart()
     double yMin, yMax;
     Chart *cp = activeTab()->currentChart();
 
+    setupDialogs();
     my.editchart->reset(cp,
 		(int)activeTab()->currentChart()->style() - 1, cp->scheme());
     my.editchart->titleLineEdit->setText(cp->title());
@@ -543,18 +567,21 @@ void KmChart::closeChart()
 
 void KmChart::metricInfo(QString src, QString m, QString inst, bool archive)
 {
+    setupDialogs();
     my.info->reset(src, m, inst, archive);
     my.info->show();
 }
 
 void KmChart::metricSearch(QTreeWidget *pmns)
 {
+    setupDialogs();
     my.search->reset(pmns);
     my.search->show();
 }
 
 void KmChart::editTab()
 {
+    setupDialogs();
     Tab *tab = activeTab();
     my.edittab->reset(chartTabWidget->tabText(chartTabWidget->currentIndex()),
 			tab->isArchiveSource() == false,
@@ -574,6 +601,7 @@ void KmChart::acceptEditTab()
 
 void KmChart::createNewTab(bool live)
 {
+    setupDialogs();
     my.newtab->reset(QString::null, live,
 		globalSettings.sampleHistory, globalSettings.visibleHistory);
     my.newtab->show();
@@ -676,6 +704,7 @@ void KmChart::activeTabChanged(int index)
 
 void KmChart::editSettings()
 {
+    setupDialogs();
     my.settings->reset();
     my.settings->show();
 }

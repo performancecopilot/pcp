@@ -168,31 +168,69 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="dateLabel" >
-               <property name="sizePolicy" >
-                <sizepolicy>
-                 <hsizetype>7</hsizetype>
-                 <vsizetype>0</vsizetype>
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
+              <layout class="QHBoxLayout" >
+               <property name="margin" >
+                <number>0</number>
                </property>
-               <property name="minimumSize" >
-                <size>
-                 <width>90</width>
-                 <height>20</height>
-                </size>
+               <property name="spacing" >
+                <number>0</number>
                </property>
-               <property name="text" >
-                <string>Sat Jan  1 2000 UTC</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="wordWrap" >
-                <bool>false</bool>
-               </property>
-              </widget>
+               <item>
+                <widget class="QLabel" name="chartValueLabel" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>0</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer>
+                 <property name="orientation" >
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" >
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QLabel" name="dateLabel" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>7</hsizetype>
+                   <vsizetype>0</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize" >
+                  <size>
+                   <width>90</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string>Sat Jan  1 2000 UTC</string>
+                 </property>
+                 <property name="alignment" >
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="wordWrap" >
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
             </layout>
            </item>
@@ -607,25 +645,25 @@
  <layoutdefault spacing="0" margin="0" />
  <customwidgets>
   <customwidget>
+   <class>TimeButton</class>
+   <extends>QToolButton</extends>
+   <header>timebutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>QwtPlot</class>
    <extends>QFrame</extends>
    <header>qwt_plot.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>tabwidget.h</header>
   </customwidget>
   <customwidget>
    <class>TimeAxis</class>
    <extends>QwtPlot</extends>
    <header>timeaxis.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>TimeButton</class>
-   <extends>QToolButton</extends>
-   <header>timebutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>TabWidget</class>
-   <extends>QTabWidget</extends>
-   <header>tabwidget.h</header>
   </customwidget>
  </customwidgets>
  <includes>
