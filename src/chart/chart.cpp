@@ -947,15 +947,23 @@ void Chart::setYAxisTitle(char *p)
 
 void Chart::selected(const QwtDoublePoint &p)
 {
-    console->post("Chart::selected chart=%p x=%f y=%f",
-			this, (float)p.x(), (float)p.y());
+    console->post("Chart::selected chart=%p x=%f y=%f", this, p.x(), p.y());
     my.tab->setCurrent(this);
+    QString string;
+    string.sprintf("[%.2f %s at %s]",
+		   (float)p.y(), pmUnitsStr(&my.units), timeHiResString(p.x()));
+    kmchart->chartValueLabel->setText(string);
+    kmchart->resetTimer();
 }
 
 void Chart::moved(const QwtDoublePoint &p)
 {
-    console->post("Chart::moved chart=%p x=%f y=%f",
-			this, (float)p.x(), (float)p.y());
+    console->post("Chart::moved chart=%p x=%f y=%f ", this, p.x(), p.y());
+    QString string;
+    string.sprintf("[%.2f %s at %s]",
+		   (float)p.y(), pmUnitsStr(&my.units), timeHiResString(p.x()));
+    kmchart->chartValueLabel->setText(string);
+    kmchart->resetTimer();
 }
 
 bool Chart::legendVisible()

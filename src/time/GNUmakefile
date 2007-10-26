@@ -6,8 +6,8 @@ PROJECT = $(COMMAND).pro
 QRCFILE = $(COMMAND).qrc
 
 UIFILES = $(shell echo *.ui)
-HEADERS = aboutdialog.cpp console.cpp kmtimearch.cpp kmtimelive.cpp \
-	  seealsodialog.cpp showboundsdialog.cpp timelord.cpp timezone.h
+HEADERS = aboutdialog.h console.h kmtimearch.h kmtimelive.h \
+	  seealsodialog.h showboundsdialog.h timelord.h timezone.h
 SOURCES = aboutdialog.cpp console.cpp kmtimearch.cpp kmtimelive.cpp \
 	  seealsodialog.cpp showboundsdialog.cpp timelord.cpp main.cpp
 

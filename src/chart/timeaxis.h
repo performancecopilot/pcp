@@ -28,10 +28,18 @@ public:
     TimeAxis(QWidget *);
 
     void init();
+    void clearScaleCache();
     double scaleValue(double delta, int count);
 
 protected:
-    virtual void resizeEvent(QResizeEvent *);
+    void resizeEvent(QResizeEvent *);
+
+private:
+    struct {
+	int points;
+	double delta;
+	double scale;
+    } my;
 };
 
 #endif	/* TIMEAXIS_H */

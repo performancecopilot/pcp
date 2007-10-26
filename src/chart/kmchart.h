@@ -50,6 +50,7 @@ public:
     static const double defaultLoggerDelta() { return 1.0; }
     static const int defaultVisibleHistory() { return 60; }	// points
     static const int defaultSampleHistory() { return 180; }
+    static const int defaultTimerTimeout() { return 3000; }	// milliseconds
     static const int minimumPoints() { return 2; }
     static const int maximumPoints() { return 360; }
     static const int maximumLegendLength() { return 20; }	// chars
@@ -85,6 +86,8 @@ public:
 
     virtual void newScheme();	// request new scheme of settings dialog
     virtual void newScheme(QString);	// reply back to requesting dialog(s)
+
+    virtual void resetTimer();
 
 public slots:
     virtual void init();
@@ -124,6 +127,7 @@ public slots:
     virtual void recordQuery();
     virtual void recordStop();
     virtual void recordDetach();
+    virtual void timeout();
     virtual void zoomIn();
     virtual void zoomOut();
 
@@ -133,6 +137,7 @@ protected slots:
 
 private:
     struct {
+	QTimer *timer;
 	bool dialogsSetup;
 	bool liveHidden;
 	bool archiveHidden;
