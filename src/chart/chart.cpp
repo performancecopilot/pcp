@@ -39,6 +39,7 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     plotLayout()->setAlignCanvasToScales(true);
+    plotLayout()->setFixedAxisOffset(45, QwtPlot::yLeft);
     setAutoReplot(false);
     setMargin(1);
     setCanvasBackground(globalSettings.chartBackground);
