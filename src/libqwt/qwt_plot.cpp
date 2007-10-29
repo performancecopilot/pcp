@@ -477,7 +477,8 @@ void QwtPlot::updateLayout()
     }
 
     d_data->canvas->setGeometry(d_data->layout->canvasRect());
-    d_data->canvas->show();
+    if (!d_data->canvas->isVisible())
+	d_data->canvas->show();
 }
 
 /*! 

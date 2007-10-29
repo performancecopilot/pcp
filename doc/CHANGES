@@ -1,5 +1,10 @@
+kmchart 1.0.0Beta2 (29 October 2007)
+    - Next beta images, improved time axis scaling and vertical chart
+      alignment are the biggest source changes.
+
 kmchart 1.0.0Beta1 (22 October 2007)
-    - First beta images, as we lead up to the initial kmchart release
+    - First beta images, as we lead up to the initial kmchart release.
+    - Too many changes from 0.7 to outline, all across the board.
 
 kmchart 0.7 (11 July 2007)
     - first git-based release of kmchart

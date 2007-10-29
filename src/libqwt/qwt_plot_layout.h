@@ -40,6 +40,9 @@ public:
     void setCanvasMargin(int margin, int axis = -1);
     int canvasMargin(int axis) const;
 
+    void setFixedAxisOffset(int offset, int axis = -1);
+    int fixedAxisOffset(int axis) const;
+
     void setAlignCanvasToScales(bool);
     bool alignCanvasToScales() const;
 
