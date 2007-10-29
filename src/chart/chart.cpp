@@ -110,9 +110,6 @@ void Chart::update(bool forward, bool visible, bool available)
 
     // The 1,000 and 0.1 thresholds are just a heuristic guess.
     //
-    // TODO also need more logic here to handle different dimensions than
-    // just SPACE
-    //
     // We're assuming lBound() plays no part in this, which is OK as
     // the upper bound of the y-axis range (hBound()) drives the choice
     // of appropriate units scaling.
@@ -310,57 +307,46 @@ void Chart::update(bool forward, bool visible, bool available)
     }
 
     if (my.style == BarStyle || my.style == AreaStyle) {
-	if (forward)
-	    for (m = 0; m < my.plots.size(); m++)
-		my.plots[m]->plotData[0] = my.plots[m]->data[0];
-	else
-	    for (m = 0; m < my.plots.size(); m++) {
+	idx = 0;
+	for (m = 0; m < my.plots.size(); m++) {
+	    if (!forward)
 		idx = my.plots[m]->dataCount - 1;
-		my.plots[m]->plotData[idx] = my.plots[m]->data[idx];
-	    }
+	    my.plots[m]->plotData[idx] = my.plots[m]->data[idx];
+	}
     }
     else if (my.style == UtilisationStyle) {
 	// like Stack, but normalize value to a percentage (0,100)
 	double sum = 0;
-	if (forward) {
-	    for (m = 0; m < my.plots.size(); m++)
-		sum += my.plots[m]->data[0];
-	    if (sum)
-		for (m = 0; m < my.plots.size(); m++)
-		    my.plots[m]->plotData[0] = 100 * my.plots[m]->data[0] / sum;
-	    else	// avoid divide-by-zero
-		for (m = 0; m < my.plots.size(); m++)
-		    my.plots[m]->plotData[0] = 0;
-	    for (m = 1; m < my.plots.size(); m++)
-		my.plots[m]->plotData[0] += my.plots[m-1]->plotData[0];
-	}
-	else {
-	    for (m = 0; m < my.plots.size(); m++)
-		sum += my.plots[m]->data[my.plots[m]->dataCount - 1];
-	    if (sum)
-		for (m = 0; m < my.plots.size(); m++) {
-		    idx = my.plots[m]->dataCount - 1;
-		    my.plots[m]->plotData[idx] =
-					(100 * my.plots[m]->data[idx] / sum);
-		}
-	    else	// avoid divide-by-zero
-		for (m = 0; m < my.plots.size(); m++)
-		    my.plots[m]->plotData[my.plots[m]->dataCount - 1] = 0;
-	    for (m = 1; m < my.plots.size(); m++) {
+	idx = 0;
+	// compute sum
+	for (m = 0; m < my.plots.size(); m++) {
+	    if (!forward)
 		idx = my.plots[m]->dataCount - 1;
-		my.plots[m]->plotData[idx] += my.plots[m-1]->plotData[idx];
-	    }
+	    sum += my.plots[m]->data[idx];
+	}
+	// scale all components
+	for (m = 0; m < my.plots.size(); m++) {
+	    if (!forward)
+		idx = my.plots[m]->dataCount - 1;
+	    if (sum == 0)
+		my.plots[m]->plotData[idx] = 0;
+	    else
+		my.plots[m]->plotData[idx] = 100 * my.plots[m]->data[idx] / sum;
+	}
+	// stack components
+	for (m = 1; m < my.plots.size(); m++) {
+	    if (!forward)
+		idx = my.plots[m]->dataCount - 1;
+	    my.plots[m]->plotData[idx] += my.plots[m-1]->plotData[idx];
 	}
     }
     else if (my.style == LineStyle) {
-	if (forward)
-	    for (m = 0; m < my.plots.size(); m++)
-		my.plots[m]->plotData[0] = my.plots[m]->data[0];
-	else
-	    for (m = 0; m < my.plots.size(); m++) {
+	idx = 0;
+	for (m = 0; m < my.plots.size(); m++) {
+	    if (!forward)
 		idx = my.plots[m]->dataCount - 1;
-		my.plots[m]->plotData[idx] = my.plots[m]->data[idx];
-	    }
+	    my.plots[m]->plotData[idx] = my.plots[m]->data[idx];
+	}
     }
     else if (my.style == StackStyle) {
 	// Stack, by adding values cummulatively
@@ -368,20 +354,15 @@ void Chart::update(bool forward, bool visible, bool available)
 	// need to _skip_ any plots that are currently being hidden
 	// due to legend pushbutton activity
 
-	if (forward) {
-	    my.plots[0]->plotData[0] = my.plots[0]->data[0];
-	    for (m = 1; m < my.plots.size(); m++)
-		my.plots[m]->plotData[0] =
-			my.plots[m]->data[0] + my.plots[m-1]->plotData[0];
-	}
-	else {
-	    idx = my.plots[0]->dataCount - 1;
-	    my.plots[0]->plotData[idx] = my.plots[0]->data[idx];
-	    for (m = 1; m < my.plots.size(); m++) {
-		idx = my.plots[m]->dataCount - 1;
+	idx = 0;
+	for (m = 0; m < my.plots.size(); m++) {
+	    if (!forward)
+		idx = my.plots[0]->dataCount - 1;
+	    if (m == 0)
+		my.plots[0]->plotData[idx] = my.plots[0]->data[idx];
+	    else
 		my.plots[m]->plotData[idx] =
 			my.plots[m]->data[idx] + my.plots[m-1]->plotData[idx];
-	    }
 	}
     }
 
@@ -753,6 +734,9 @@ bool Chart::isStepped(Plot *plot)
 
 void Chart::setStroke(Plot *plot, Style style, QColor color)
 {
+    int		m;
+    int		i;
+
     console->post("Chart::setStroke [style %d->%d]", my.style, style);
 
     plot->color = color;
@@ -760,9 +744,22 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 
     switch (style) {
 	case BarStyle:
-	    plot->curve->setPen(QColor(Qt::black));
-	    plot->curve->setBrush(QBrush(color, Qt::NoBrush));
+	    // TODO BarStyle is pretty lame compared to pmchart
+	    //
+	    plot->curve->setPen(color);
+	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
 	    plot->curve->setStyle(QwtPlotCurve::Sticks);
+
+	    if (my.style != BarStyle) {
+		// Need to undo any munging of plotData[]
+		for (m = 0; m < my.plots.size(); m++) {
+		    for (i = 0; i < my.plots[m]->dataCount-1; i++) {
+			my.plots[m]->plotData[i] = my.plots[m]->data[i];
+		    }
+		}
+		if (my.style == UtilisationStyle)
+		    setScale(true, my.yMin, my.yMax);
+	    }
 	    break;
 
 	case AreaStyle:
@@ -770,6 +767,17 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
 	    plot->curve->setStyle(isStepped(plot) ?
 				  QwtPlotCurve::Steps : QwtPlotCurve::Lines);
+
+	    if (my.style != BarStyle) {
+		// Need to undo any munging of plotData[]
+		for (m = 0; m < my.plots.size(); m++) {
+		    for (i = 0; i < my.plots[m]->dataCount-1; i++) {
+			my.plots[m]->plotData[i] = my.plots[m]->data[i];
+		    }
+		}
+		if (my.style == UtilisationStyle)
+		    setScale(true, my.yMin, my.yMax);
+	    }
 	    break;
 
 	case UtilisationStyle:
@@ -780,27 +788,24 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 
 	    if (my.style != UtilisationStyle) {
 		// Need to redo the munging of plotData[]
-		int maxCount = 0;
-		for (int m = 0; m < my.plots.size(); m++)
+		int	maxCount = 0;
+		for (m = 0; m < my.plots.size(); m++)
 		    maxCount = qMax(maxCount, my.plots[m]->dataCount);
-		for (int i = maxCount-1; i >= 0; i--) {
+		for (i = 0; i < maxCount; i++) {
 		    double sum = 0;
-		    for (int m = 0; m < my.plots.size(); m++) {
+		    for (m = 0; m < my.plots.size(); m++) {
 			if (my.plots[m]->dataCount > i)
 			    sum += my.plots[m]->data[i];
 		    }
-		    for (int m = 0; m < my.plots.size(); m++) {
+		    for (m = 0; m < my.plots.size(); m++) {
 			if (sum != 0 && my.plots[m]->dataCount > i)
 			    my.plots[m]->plotData[i] = 
 					100 * my.plots[m]->data[i] / sum;
 			else
 			    my.plots[m]->plotData[i] = 0;
 		    }
-		    for (int m = my.plots.size()-2; m >= 0; m--) {
-			if (sum != 0 && my.plots[m]->dataCount > i)
-			    my.plots[m]->plotData[i] +=
-						my.plots[m+1]->plotData[i];
-		    }
+		    for (m = 1; m < my.plots.size(); m++)
+			my.plots[m]->plotData[i] += my.plots[m-1]->plotData[i];
 		}
 	    }
 	    break;
@@ -813,11 +818,13 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 
 	    if (my.style != LineStyle) {
 		// Need to undo any munging of plotData[]
-		for (int m = 0; m < my.plots.size(); m++) {
-		    for (int i = my.plots[m]->dataCount-1; i >= 0; i--) {
+		for (m = 0; m < my.plots.size(); m++) {
+		    for (i = 0; i < my.plots[m]->dataCount-1; i++) {
 			my.plots[m]->plotData[i] = my.plots[m]->data[i];
 		    }
 		}
+		if (my.style == UtilisationStyle)
+		    setScale(true, my.yMin, my.yMax);
 	    }
 	    break;
 
@@ -828,15 +835,15 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 
 	    if (my.style != StackStyle) {
 		// Need to redo the munging of plotData[]
-		int maxCount = 0;
-		for (int m = 0; m < my.plots.size(); m++)
+		int	maxCount = 0;
+		for (m = 0; m < my.plots.size(); m++)
 		    maxCount = qMax(maxCount, my.plots[m]->dataCount);
-		for (int i = maxCount-1; i >= 0; i--) {
+		for (i = 0; i < maxCount; i++) {
 		    if (my.plots[0]->dataCount > i)
 			my.plots[0]->plotData[i] = my.plots[0]->data[i];
 		    else
 			my.plots[0]->plotData[i] = 0;
-		    for (int m = 1; m < my.plots.size(); m++) {
+		    for (m = 1; m < my.plots.size(); m++) {
 			if (my.plots[m]->dataCount > i)
 			    my.plots[m]->plotData[i] = my.plots[m]->data[i] +
 						my.plots[m-1]->plotData[i];

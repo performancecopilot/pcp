@@ -144,7 +144,17 @@ Live Edit
       Chart Plots and press the red Delete button.  Select sample.load in
       the Available Metrics list, add it to the Chart Plots list, and then
       press OK.  Verify that the chart is now displaying only sample.load.
-       
+
+[ ] Check the conversion of plot style in live mode
+    - $ kmchart -c CPU -c CPU 
+      (yes, the view appears twice)
+    - Edit -> Chart
+      + step through the Styles for the bottom chart, and verify that the
+        results mactch those shown in the top chart
+	Utilization -> Line Plot -> Utilization
+	Utilization -> Bar Plot -> Utilization
+	Utilization -> Stacked Bar Plot -> Utilization
+	Utilization -> Area Plot -> Utilization
 
 Archive Create
 
