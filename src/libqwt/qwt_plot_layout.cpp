@@ -172,6 +172,7 @@ public:
     double legendRatio;
     unsigned int margin;
     unsigned int spacing;
+    unsigned int fixedOffset[QwtPlot::axisCnt];
     unsigned int canvasMargin[QwtPlot::axisCnt];
     bool alignCanvasToScales;
 };
@@ -185,6 +186,7 @@ QwtPlotLayout::QwtPlotLayout()
     d_data = new PrivateData;
 
     setLegendPosition(QwtPlot::BottomLegend);
+    setFixedAxisOffset(0);
     setCanvasMargin(4);
 
     invalidate();
@@ -257,6 +259,41 @@ int QwtPlotLayout::canvasMargin(int axis) const
         return 0;
 
     return d_data->canvasMargin[axis];
+}
+
+/*!
+  Set a fixed offset for the given axis scale. The offset is the space
+  between an outer edge of the plot widget and the scale backbone.
+ 
+  \param offset New offset
+  \param axis One of QwtPlot::Axis. Specifies which axis to make fixed offset.
+              -1 means margin at all borders.
+  \sa fixedAxisOffset() 
+*/
+void QwtPlotLayout::setFixedAxisOffset(int offset, int axis)
+{
+    if ( offset < 0 )
+        offset = 0;
+
+    if ( axis == -1 )
+    {
+        for (axis = 0; axis < QwtPlot::axisCnt; axis++)
+            d_data->fixedOffset[axis] = offset;
+    }
+    else if ( axis >= 0 || axis < QwtPlot::axisCnt )
+	d_data->fixedOffset[axis] = offset;
+}
+
+/*!
+    \return Fixed offset, if any, for a given axis scale
+    \sa setFixedAxisOffset()
+*/
+int QwtPlotLayout::fixedAxisOffset(int axis) const
+{
+    if ( axis < 0 || axis >= QwtPlot::axisCnt )
+        return 0;
+
+    return d_data->fixedOffset[axis];
 }
 
 /*!
@@ -753,13 +790,13 @@ void QwtPlotLayout::expandLineBreaks(int options, const QRect &rect,
     {
         done = true;
 
-        // the size for the 4 axis depend on each other. Expanding
+        // The size for the 4 axes depend on each other. Expanding
         // the height of a horizontal axis will shrink the height
-        // for the vertical axis, shrinking the height of a vertical
-        // axis will result in a line break what will expand the
+        // of the vertical axis, shrinking the height of a vertical
+        // axis will result in a line break that will expand the
         // width and results in shrinking the width of a horizontal
-        // axis what might result in a line break of a horizontal
-        // axis ... . So we loop as long until no size changes.
+        // axis that might result in a line break of a horizontal
+        // axis ... . So we loop until no size changes.
 
         if ( !d_data->layoutData.title.text.isEmpty() )
         {
@@ -824,6 +861,12 @@ void QwtPlotLayout::expandLineBreaks(int options, const QRect &rect,
 
                     if ( dimTitle > 0 )
                         length -= dimTitle + d_data->spacing;
+                }
+
+                if (d_data->fixedOffset[axis])
+                {
+                    dimAxis[axis] = d_data->fixedOffset[axis] + backboneOffset;
+                    continue;
                 }
 
                 int d = scaleData.dimWithoutTitle;

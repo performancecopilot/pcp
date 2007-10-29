@@ -74,45 +74,42 @@ double TimeAxis::scaleValue(double delta, int points)
 	return my.scale;
 
     // divisor is the amount of space (pixels) set aside for one major label.
-    int maxMinor, maxMajor = qMax(1, width() / 54);
+    int maxMajor = qMax(1, width() / 54);
+    int maxMinor;
 
     my.scale = (1.0 / ((double)width() / (points * 8.0))) * 8.0; // 8.0 is magic
     my.scale *= delta;
 
-#if DESPERATE
-    console->post("TimeAxis::scaleValue"
-		  " width=%d points=%d scale=%.2f delta=%.2f mMaj=%d\n",
-		    width(), points, my.scale, delta, maxMajor);
-#endif
-
     // This is a sliding scale which converts arbitrary steps into more
     // human-digestable increments - seconds, ten seconds, minutes, etc.
-    if (my.scale <= 5.0) {
+    if (my.scale <= 10.0) {
 	maxMinor = 10;
-    } else if (my.scale <= 10.0) {
-	my.scale = 10.0;
-	maxMinor = 15;
-    } else if (my.scale <= 30.0) {	// ten-secondly up to half a minute
+    } else if (my.scale <= 20.0) {	// two-seconds up to 20 seconds
+	my.scale = floor((my.scale + 1) / 2) * 2.0;
+	maxMinor = 10;
+    } else if (my.scale <= 60.0) {	// ten-secondly up to a minute
 	my.scale = floor((my.scale + 5) / 10) * 10.0;
-	maxMinor = 15;
+	maxMinor = 10;
     } else if (my.scale <= 600.0) {	// minutely up to ten minutes
 	my.scale = floor((my.scale + 30) / 60) * 60.0;
-	maxMinor = 20;
+	maxMinor = 10;
     } else if (my.scale < 3600.0) {	// 10 minutely up to an hour
 	my.scale = floor((my.scale + 300) / 600) * 600.0;
-	maxMinor = 20;
+	maxMinor = 6;
     } else if (my.scale < 86400.0) {	// hourly up to a day
 	my.scale = floor((my.scale + 1800) / 3600) * 3600.0;	
-	maxMinor = 60;
+	maxMinor = 24;
     } else {				// daily then on (60 * 60 * 24)
 	my.scale = 86400.0;
-	maxMinor = 60;
+	maxMinor = 10;
     }
 
 #if DESPERATE
-    console->post("TimeAxis::scaleValue adjusted scale=%.2f nMin=%d\n",
-		  my.scale, maxMinor);
+    console->post("TimeAxis::scaleValue"
+		  " width=%d points=%d scale=%.2f delta=%.2f maj=%d min=%d\n",
+		    width(), points, my.scale, delta, maxMajor, maxMajor);
 #endif
+
     my.delta = delta;
     my.points = points;
     setAxisMaxMajor(xBottom, maxMajor);

@@ -27,11 +27,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 
   kmchart
 
-    - Charting issues
-      o Scaling of the tick marks on the Y-axis is not yet correct,
-	and causes mis-alignment on the unified X-axis.  The disk
-	throughput (bytes) show this up clearly, for example (for
-        vertical alignment code hints, see Qwt mailing list posts).
     - Respond to changes in the sampling interval from kmtime.
     - Archive time control issues
       o seems to need multiple presses currently to move backward
@@ -57,20 +52,16 @@ Refer to doc/INSTALL for instructions on building these tools.
        o Tab label of a recording Tab should be "Record" not the start time,
 	 that takes too much space and is hard-to-read.
 
-    - Print mode needs to understand time axis and multiple charts
+    - Print mode needs to render the time button correctly
     - Export mode needs to understand time axis and multiple charts
 
-    - Online Help support
-    - Incorporate a Tutorial into online Help
-    - Tooltips need to be added across the board.
+    - Online Help needs more content
+    - Tutorial is not quite complete
+    - WhatsThis markers need to be added across the board.
 
     - Destructors and memory leak plugging.
     - Code audit for TODOs; either fix, exception or add to wishlist.
     - QA test audit for TODOs; either fix, exception or add to wishlist.
-
-  kmtime
-
-    - Needs online help ala kmchart
 
   kmquery
 
