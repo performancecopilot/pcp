@@ -775,9 +775,9 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setPen(QColor(Qt::black));
 	    plot->curve->setStyle(QwtPlotCurve::Steps);
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
+	    setScale(false, 0.0, 100.0);
 
 	    if (my.style != UtilisationStyle) {
-		setScale(false, 0.0, 100.0);
 		// Need to redo the munging of plotData[]
 		int maxCount = 0;
 		for (int m = 0; m < my.plots.size(); m++)
@@ -795,19 +795,11 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 			else
 			    my.plots[m]->plotData[i] = 0;
 		    }
-#ifdef STACK_BOTTOM_2_TOP
-		    for (int m = 1; m < my.plots.size(); m++) {
-			if (sum != 0 && my.plots[m]->dataCount > i)
-			    my.plots[m]->plotData[i] +=
-						my.plots[m-1]->plotData[i];
-		    }
-#else
 		    for (int m = my.plots.size()-2; m >= 0; m--) {
 			if (sum != 0 && my.plots[m]->dataCount > i)
 			    my.plots[m]->plotData[i] +=
 						my.plots[m+1]->plotData[i];
 		    }
-#endif
 		}
 	    }
 	    break;
@@ -839,7 +831,6 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 		for (int m = 0; m < my.plots.size(); m++)
 		    maxCount = qMax(maxCount, my.plots[m]->dataCount);
 		for (int i = maxCount-1; i >= 0; i--) {
-#ifdef STACK_BOTTOM_2_TOP
 		    if (my.plots[0]->dataCount > i)
 			my.plots[0]->plotData[i] = my.plots[0]->data[i];
 		    else
@@ -852,21 +843,9 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 			    my.plots[m]->plotData[i] =
 						my.plots[m-1]->plotData[i];
 		    }
-#else
-		    if (my.plots.last()->dataCount > i)
-			my.plots.last()->plotData[i] = my.plots.last()->data[i];
-		    else
-			my.plots.last()->plotData[i] = 0;
-		    for (int m = my.plots.size()-2; m >= 0; m--) {
-			if (my.plots[m]->dataCount > i)
-			    my.plots[m]->plotData[i] = my.plots[m]->data[i] +
-						my.plots[m+1]->plotData[i];
-			else
-			    my.plots[m]->plotData[i] =
-						my.plots[m+1]->plotData[i];
-		    }
-#endif
 		}
+		if (my.style == UtilisationStyle)
+		    setScale(true, my.yMin, my.yMax);
 	    }
 	    break;
 
@@ -875,7 +854,7 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    abort();
     }
 
-    // This is really quite difficult ... a Utilization plot by definition
+    // This is really quite difficult ... a Utilisation plot by definition
     // is dimensionless and scaled to a percentage, so a label of just
     // "% utilization" makes sense ... there has been some argument in
     // support of "% time utilization" as a special case when the metrics
