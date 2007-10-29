@@ -26,11 +26,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 
   kmchart
 
-    - Charting issues
-      o Scaling of the tick marks on the Y-axis is not yet correct,
-	and causes mis-alignment on the unified X-axis.  The disk
-	throughput (bytes) show this up clearly, for example (for
-        vertical alignment code hints, see Qwt mailing list posts).
     - Respond to changes in the sampling interval from kmtime.
     - Archive time control issues
       o seems to need multiple presses currently to move backward
@@ -56,84 +51,16 @@ Refer to doc/INSTALL for instructions on building these tools.
        o Tab label of a recording Tab should be "Record" not the start time,
 	 that takes too much space and is hard-to-read.
 
-    - New/Edit Chart Dialog
-      o Check selected metrics are valid to plot together before adding
-	plots to new/existing charts.
-	- Ken's algorithm:
-	1. If metrics are counters, update the semantics to reflect rate
-	   conversion (simple, unless the time dimension is not 0, which
-	   it should not be)
-	2. The dimension has to be identical ... nothing clever here,
-	   just compare all the fields
-		a.dimSpace == b.dimSpace &&
-		a.dimTime == b.dimTime &&
-		a.dimCount == b.dimCount
-	   this is the same test used in pmConvScale()
-	3. If the scales are not the same, choose one as the winner
-	   (unclear that there is a good algorithm for this) ... use
-	   pmConvScale() for the loser
-        - Mark's notes as well:
-	/*
-	 * Add a new metric to an existing chart
-	 * "A" is the existing chart
-	 * "B" is the plot we're trying to add.
-	 */
-	If A and B have different space or count dimensions
-	then fail "incompatible in the dimensions of Space or Count"
-	/*
-	  * Time depends on the presence of rate conversion or not
-	  */
-	If A and B have the same semantics (i.e. instant, discrete or counter)
-	but different time units then fail "incompatible time units"
-	If B has instant or discrete semantics
-		 If A has instant or discrete semantics
-			 if A and B have different time dimensions
-			 then (as above) fail "incompatible time units"
-		 Else
-			 /*
-			  * B is instantaneous or discrete, A is counter
-			  * so A must have time dimension one larger so rate
-			  * conversion makes them the same. Also handle the
-			  * special case of counter in time != none
-			  */
-			 if B time dimension != A time dimension - 1 OR
-			 B time dimension is zero
-			 then fail "incompatible time units"
-	Else If A has instant or discrete semantics
-		 /*
-		  * other way round :
-		  * B is a counter, A is instantaneous or discrete
-		  * so B must have time dimension one larger so rate
-		  * conversion makes them the same. Also handle the
-		   * special case of counter in time != none
-		  */
-		 If B time dimenion -1 != A time dimension OR
-		    B has time dimension == 1
-		 then fail "incompatible time units"
-	If we haven't failed, deal with the units conversion:
-		 If B scale space units < A scale space units OR
-		    B scale count units < A scale count units
-		    ... the new plot needs rescaling to match existing
-		 Else
-		 If B scale space units > A scale space units OR
-		    B scale count units > A scale count units
-		     ... all existing plots need rescaling.
-		     Dealing with this case isn't particularly easy :)
-
-    - Print mode needs to understand time axis and multiple charts
+    - Print mode needs to render the time button correctly
     - Export mode needs to understand time axis and multiple charts
 
-    - Online Help support
-    - Incorporate a Tutorial into online Help
-    - Tooltips need to be added across the board.
+    - Online Help needs more content
+    - Tutorial is not quite complete
+    - WhatsThis markers need to be added across the board.
 
     - Destructors and memory leak plugging.
     - Code audit for TODOs; either fix, exception or add to wishlist.
     - QA test audit for TODOs; either fix, exception or add to wishlist.
-
-  kmtime
-
-    - Needs online help ala kmchart
 
   kmquery
 
