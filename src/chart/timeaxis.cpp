@@ -38,6 +38,16 @@ public:
 	string.sprintf("%02d:%02d:%02d", tm.tm_hour, tm.tm_min, tm.tm_sec);
 	return string;
     }
+    virtual void getBorderDistHint(const QFont &f, int &start, int &end) const
+    {
+	if (orientation() == Qt::Horizontal) {
+	    start = 0;
+	    end = 0;
+	}
+	else {
+	    QwtScaleDraw::getBorderDistHint(f, start, end);
+	}
+    }
 };
 
 TimeAxis::TimeAxis(QWidget *parent) : QwtPlot(parent)

@@ -177,15 +177,6 @@ void QwtScaleDraw::getBorderDistHint(const QFont &font,
         start = 0;
     if ( end < 0 )
         end = 0;
-
-    // HACK: this forces the time axis to not move the backbone start/length
-    // There must be a better/proper way of doing this, I've just not found
-    // the correct way yet.  -- nathans.
-
-    if ( orientation() == Qt::Horizontal ) {
-	start = 0;
-	end = 0;
-    }
 }
 
 /*!
