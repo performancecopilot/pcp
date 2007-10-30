@@ -156,6 +156,29 @@ Live Edit
 	Utilization -> Stacked Bar Plot -> Utilization
 	Utilization -> Area Plot -> Utilization
 
+[ ] Check the hiding of plots in archive mode
+    - $ kmchart -c CPU -c CPU -t 1 -a archives/viewqa1
+      (yes, the view appears twice)
+    - in the lower chart, go through this sequence and verify that the
+      plotted values match the values in the upper chart ... at the
+      end of each cycle the two charts should be identical
+      + click Idle off in the legend
+      + click User off in the legend
+      + click Kernel off in the legend
+      + click Nice off in the legend
+      + click Intr off in the legend
+      + click Wait off in the legend
+        (bottom chart should be blank)
+      + click Wait on in the legend
+      + click Intr on in the legend
+      + click Nice on in the legend
+      + click Kernel on in the legend
+      + click User on in the legend
+      + click Idle on in the legend
+    - Edit -> Chart and change Style to Line Plot for both charts (may need
+      to Step in the kmtime dialog to get the plots updated correctly), then
+      repeat the legend off and on sequence above
+
 Archive Create
 
 [ ] Click on the Archive Tab.  Click on the New Chart toolbutton.  Click
