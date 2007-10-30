@@ -1,10 +1,6 @@
 BUGS/TODO
 =========
 
-- Alignment of charts vertically
-- Disabling chart auto-scale and setting limit only updates on next
-  chart update (so, if Stopped, doesn't take effect until Playing).
-  Need a replot?
 - Moving backward at high speed (400?) caused (looke like) a step/
   VCR event to be missed, and kmchart got state display out of sync
   with kmtime and then no further time control possible (kmtime was
@@ -34,14 +30,14 @@ Live mode
     This should display two charts - the top one with instantaneous
     sample metrics (sample.double.one and sample.double.ten), lower
     chart with one counter metric (sample.byte_ctr).
-[ ] Select the top chart, open the Edit Chart dialog, disable Auto-
-    Scaling on the Y-Axis.  Set Minimum to zero, Maximum to 11,
-    and press OK.  Verify that the Y-Axis increases to this range.
 
+[ ] Select the top chart, open the Edit Chart dialog, disable Auto-
+    Scaling on the Y-Axis.  Set Minimum to zero, Maximum to 12,
+    and press OK.  Verify that the Y-Axis increases to this range.
 [ ] Repeat the above, except now set the Maximum to 5.  Verify that
     the Y-Axis updates to show the new maximum and that only the
     yellow chart (sample.double.one) remains visible.
-[ ] Repeat once more, now setting Minimum to 5 and Maximum to 11.
+[ ] Repeat once more, now setting Minimum to 5 and Maximum to 15.
     Verify the Y-Axis scale change and that only the blue plot
     (sample.double.ten) is now visible.
 
@@ -65,7 +61,7 @@ Live mode
 
 Archive mode
 
-[ ] Run: kmchart -c views/ManualScaleQA -t 1 -a archives/chartqa1
+[ ] Run: kmchart -c views/ScaleManual -t 1 -a archives/chartqa1
     This should display two charts - the top one with instantaneous
     sample metrics (sample.double.one and sample.double.ten), lower
     chart with one counter metric (sample.byte_ctr).  The initial

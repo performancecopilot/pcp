@@ -146,7 +146,7 @@ Live Edit
       press OK.  Verify that the chart is now displaying only sample.load.
 
 [ ] Check the conversion of plot style in live mode
-    - $ kmchart -c CPU -c CPU 
+    - Run: kmchart -c CPU -c CPU 
       (yes, the view appears twice)
     - Edit -> Chart
       + step through the Styles for the bottom chart, and verify that the
@@ -157,7 +157,7 @@ Live Edit
 	Utilization -> Area Plot -> Utilization
 
 [ ] Check the hiding of plots in archive mode
-    - $ kmchart -c CPU -c CPU -t 1 -a archives/viewqa1
+    - Run: kmchart -c CPU -c CPU -t 1 -a archives/viewqa1
       (yes, the view appears twice)
     - in the lower chart, go through this sequence and verify that the
       plotted values match the values in the upper chart ... at the
