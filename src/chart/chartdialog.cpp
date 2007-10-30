@@ -446,20 +446,12 @@ void ChartDialog::autoScaleOffClicked()
 
 void ChartDialog::yAxisMinimumValueChanged(double value)
 {
-    if (my.yMin != value) {
-	my.yMin = value;
-	if (my.yMin > my.yMax)
-	    yAxisMaximum->setValue(value);
-    }
+    my.yMin = value;
 }
 
 void ChartDialog::yAxisMaximumValueChanged(double value)
 {
-    if (my.yMax != value) {
-	my.yMax = value;
-	if (my.yMax < my.yMin)
-	    yAxisMinimum->setValue(value);
-    }	
+    my.yMax = value;
 }
 
 // Sets all widgets to display h,s,v
