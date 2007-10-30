@@ -127,6 +127,7 @@ private:
     bool isStepped(Plot *plot);
     void setStroke(Plot *plot, Style style, QColor color);
     void redoPlotData(void);
+    void redoScale(void);
     void setLabel(Plot *plot, QString s);
     void resetDataArrays(Plot *plot, int v);
     bool checkUnits(pmUnits *);

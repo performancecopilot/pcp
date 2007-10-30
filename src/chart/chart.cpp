@@ -95,10 +95,8 @@ Chart::~Chart()
 
 void Chart::update(bool forward, bool visible, bool available)
 {
-    int	sh = my.tab->sampleHistory();
-    int	idx, m;
-    bool rescale = false;
-    pmUnits oldunits = my.units;
+    int		sh = my.tab->sampleHistory();
+    int		idx, m;
 
 #if DESPERATE
     console->post("Chart::update(forward=%d,vis=%d,avail=%d) sh=%d (%d plots)",
@@ -195,11 +193,6 @@ void Chart::update(bool forward, bool visible, bool available)
 	}
     }
     else if (my.style == StackStyle) {
-	// Stack, by adding values cummulatively
-	// TODO -- here and everywhere else we stack (but not Util)
-	// need to _skip_ any plots that are currently being hidden
-	// due to legend pushbutton activity
-
 	idx = 0;
 	for (m = 0; m < my.plots.size(); m++) {
 	    if (!forward)
@@ -212,8 +205,24 @@ void Chart::update(bool forward, bool visible, bool available)
 	}
     }
 
-    if (visible)
+#if DESPERATE
+    for (m = 0; m < my.plots.size(); m++)
+	console->post(KmChart::DebugApp, "metric[%d] value %f plot %f", m,
+		my.plots[m]->metric->value(0), my.plots[m]->plotData[0]);
+#endif
+
+    if (visible) {
+	// replot() first so Y-axis range is updated
 	replot();
+	redoScale();
+    }
+}
+
+void Chart::redoScale(void)
+{
+    bool	rescale = false;
+    pmUnits	oldunits = my.units;
+    int		m;
 
     // The 1,000 and 0.1 thresholds are just a heuristic guess.
     //
@@ -275,6 +284,7 @@ void Chart::update(bool forward, bool visible, bool available)
 	    }
 	}
     }
+
     if (rescale == false && my.autoScale && axisScaleDiv(QwtPlot::yLeft)->hBound() < 0.1) {
 	if (my.units.dimSpace == 1) {
 	    switch (my.units.scaleSpace) {
@@ -360,16 +370,8 @@ void Chart::update(bool forward, bool visible, bool available)
 	    setYAxisTitle((char *)pmUnitsStr(&my.units));
 	}
 
-	if (visible)
-	    replot();
+	replot();
     }
-
-#if DESPERATE
-    for (m = 0; m < my.plots.size(); m++)
-	console->post(KmChart::DebugApp, "metric[%d] value %f plot %f", m,
-		my.plots[m]->metric->value(0), my.plots[m]->plotData[0]);
-#endif
-
 }
 
 void Chart::replot()
@@ -915,6 +917,8 @@ void Chart::setScale(bool autoScale, double yMin, double yMax)
 	setAxisAutoScale(QwtPlot::yLeft);
     else
 	setAxisScale(QwtPlot::yLeft, yMin, yMax);
+    redoScale();
+    replot();
 }
 
 void Chart::setYAxisTitle(char *p)
