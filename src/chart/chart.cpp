@@ -108,6 +108,113 @@ void Chart::update(bool forward, bool visible, bool available)
     if (my.plots.size() < 1)
 	return;
 
+    for (m = 0; m < my.plots.size(); m++) {
+	Plot *plot = my.plots[m];
+
+	double value;
+	if (available == false || plot->metric->error(0))
+	    value = Curve::NaN();
+	else {
+	    // convert raw value to current chart scale
+	    pmAtomValue	raw;
+	    pmAtomValue	scaled;
+	    raw.d = plot->metric->value(0);
+	    pmConvScale(PM_TYPE_DOUBLE, &raw, &plot->units, &scaled, &my.units);
+	    value = scaled.d * plot->scale;
+	}
+
+	int sz;
+	if (plot->dataCount < sh)
+	    sz = qMax(0, (int)(plot->dataCount * sizeof(double)));
+	else
+	    sz = qMax(0, (int)((plot->dataCount - 1) * sizeof(double)));
+
+#if DESPERATE
+	console->post("BEFORE Chart::update (%s) 0-%d (sz=%d,v=%.2f):",
+		(const char *)plot->metric->name().toAscii(),
+		plot->dataCount, sz, value);
+	for (int i = 0; i < plot->dataCount; i++)
+	    console->post("\t[%d] data=%.2f", i, plot->data[i]);
+#endif
+
+	if (forward) {
+	    memmove(&plot->data[1], &plot->data[0], sz);
+	    memmove(&plot->plotData[1], &plot->plotData[0], sz);
+	    plot->data[0] = value;
+	}
+	else {
+	    memmove(&plot->data[0], &plot->data[1], sz);
+	    memmove(&plot->plotData[0], &plot->plotData[1], sz);
+	    plot->data[plot->dataCount - 1] = value;
+	}
+	if (plot->dataCount < sh)
+	    plot->dataCount++;
+
+#if DESPERATE
+	console->post(KmChart::DebugApp, "AFTER Chart::update (%s) 0-%d:",
+			(const char *)plot->name.toAscii(), plot->dataCount);
+	for (int i = 0; i < plot->dataCount; i++)
+	    console->post(KmChart::DebugApp, "\t[%d] data=%.2f time=%s",
+				i, plot->data[i],
+				timeString(my.tab->timeAxisData()[i]));
+#endif
+    }
+
+    if (my.style == BarStyle || my.style == AreaStyle || my.style == LineStyle) {
+	idx = 0;
+	for (m = 0; m < my.plots.size(); m++) {
+	    if (!forward)
+		idx = my.plots[m]->dataCount - 1;
+	    my.plots[m]->plotData[idx] = my.plots[m]->data[idx];
+	}
+    }
+    else if (my.style == UtilisationStyle) {
+	// like Stack, but normalize value to a percentage (0,100)
+	double sum = 0;
+	idx = 0;
+	// compute sum
+	for (m = 0; m < my.plots.size(); m++) {
+	    if (!forward)
+		idx = my.plots[m]->dataCount - 1;
+	    sum += my.plots[m]->data[idx];
+	}
+	// scale all components
+	for (m = 0; m < my.plots.size(); m++) {
+	    if (!forward)
+		idx = my.plots[m]->dataCount - 1;
+	    if (sum == 0 || my.plots[m]->hidden)
+		my.plots[m]->plotData[idx] = 0;
+	    else
+		my.plots[m]->plotData[idx] = 100 * my.plots[m]->data[idx] / sum;
+	}
+	// stack components
+	for (m = 1; m < my.plots.size(); m++) {
+	    if (!forward)
+		idx = my.plots[m]->dataCount - 1;
+	    my.plots[m]->plotData[idx] += my.plots[m-1]->plotData[idx];
+	}
+    }
+    else if (my.style == StackStyle) {
+	// Stack, by adding values cummulatively
+	// TODO -- here and everywhere else we stack (but not Util)
+	// need to _skip_ any plots that are currently being hidden
+	// due to legend pushbutton activity
+
+	idx = 0;
+	for (m = 0; m < my.plots.size(); m++) {
+	    if (!forward)
+		idx = my.plots[0]->dataCount - 1;
+	    if (m == 0)
+		my.plots[0]->plotData[idx] = my.plots[0]->data[idx];
+	    else
+		my.plots[m]->plotData[idx] =
+			my.plots[m]->data[idx] + my.plots[m-1]->plotData[idx];
+	}
+    }
+
+    if (visible)
+	replot();
+
     // The 1,000 and 0.1 thresholds are just a heuristic guess.
     //
     // We're assuming lBound() plays no part in this, which is OK as
@@ -252,118 +359,9 @@ void Chart::update(bool forward, bool visible, bool available)
 	else {
 	    setYAxisTitle((char *)pmUnitsStr(&my.units));
 	}
-    }
 
-    for (m = 0; m < my.plots.size(); m++) {
-	Plot *plot = my.plots[m];
-
-	double value;
-	if (available == false || plot->metric->error(0))
-	    value = Curve::NaN();
-	else {
-	    // convert raw value to current chart scale
-	    pmAtomValue	raw;
-	    pmAtomValue	scaled;
-	    raw.d = plot->metric->value(0);
-	    pmConvScale(PM_TYPE_DOUBLE, &raw, &plot->units, &scaled, &my.units);
-	    value = scaled.d * plot->scale;
-	}
-
-	int sz;
-	if (plot->dataCount < sh)
-	    sz = qMax(0, (int)(plot->dataCount * sizeof(double)));
-	else
-	    sz = qMax(0, (int)((plot->dataCount - 1) * sizeof(double)));
-
-#if DESPERATE
-	console->post("BEFORE Chart::update (%s) 0-%d (sz=%d,v=%.2f):",
-		(const char *)plot->metric->name().toAscii(),
-		plot->dataCount, sz, value);
-	for (int i = 0; i < plot->dataCount; i++)
-	    console->post("\t[%d] data=%.2f", i, plot->data[i]);
-#endif
-
-	if (forward) {
-	    memmove(&plot->data[1], &plot->data[0], sz);
-	    memmove(&plot->plotData[1], &plot->plotData[0], sz);
-	    plot->data[0] = value;
-	}
-	else {
-	    memmove(&plot->data[0], &plot->data[1], sz);
-	    memmove(&plot->plotData[0], &plot->plotData[1], sz);
-	    plot->data[plot->dataCount - 1] = value;
-	}
-	if (plot->dataCount < sh)
-	    plot->dataCount++;
-
-#if DESPERATE
-	console->post(KmChart::DebugApp, "AFTER Chart::update (%s) 0-%d:",
-			(const char *)plot->name.toAscii(), plot->dataCount);
-	for (int i = 0; i < plot->dataCount; i++)
-	    console->post(KmChart::DebugApp, "\t[%d] data=%.2f time=%s",
-				i, plot->data[i],
-				timeString(my.tab->timeAxisData()[i]));
-#endif
-    }
-
-    if (my.style == BarStyle || my.style == AreaStyle) {
-	idx = 0;
-	for (m = 0; m < my.plots.size(); m++) {
-	    if (!forward)
-		idx = my.plots[m]->dataCount - 1;
-	    my.plots[m]->plotData[idx] = my.plots[m]->data[idx];
-	}
-    }
-    else if (my.style == UtilisationStyle) {
-	// like Stack, but normalize value to a percentage (0,100)
-	double sum = 0;
-	idx = 0;
-	// compute sum
-	for (m = 0; m < my.plots.size(); m++) {
-	    if (!forward)
-		idx = my.plots[m]->dataCount - 1;
-	    sum += my.plots[m]->data[idx];
-	}
-	// scale all components
-	for (m = 0; m < my.plots.size(); m++) {
-	    if (!forward)
-		idx = my.plots[m]->dataCount - 1;
-	    if (sum == 0)
-		my.plots[m]->plotData[idx] = 0;
-	    else
-		my.plots[m]->plotData[idx] = 100 * my.plots[m]->data[idx] / sum;
-	}
-	// stack components
-	for (m = 1; m < my.plots.size(); m++) {
-	    if (!forward)
-		idx = my.plots[m]->dataCount - 1;
-	    my.plots[m]->plotData[idx] += my.plots[m-1]->plotData[idx];
-	}
-    }
-    else if (my.style == LineStyle) {
-	idx = 0;
-	for (m = 0; m < my.plots.size(); m++) {
-	    if (!forward)
-		idx = my.plots[m]->dataCount - 1;
-	    my.plots[m]->plotData[idx] = my.plots[m]->data[idx];
-	}
-    }
-    else if (my.style == StackStyle) {
-	// Stack, by adding values cummulatively
-	// TODO -- here and everywhere else we stack (but not Util)
-	// need to _skip_ any plots that are currently being hidden
-	// due to legend pushbutton activity
-
-	idx = 0;
-	for (m = 0; m < my.plots.size(); m++) {
-	    if (!forward)
-		idx = my.plots[0]->dataCount - 1;
-	    if (m == 0)
-		my.plots[0]->plotData[idx] = my.plots[0]->data[idx];
-	    else
-		my.plots[m]->plotData[idx] =
-			my.plots[m]->data[idx] + my.plots[m-1]->plotData[idx];
-	}
+	if (visible)
+	    replot();
     }
 
 #if DESPERATE
@@ -372,8 +370,6 @@ void Chart::update(bool forward, bool visible, bool available)
 		my.plots[m]->metric->value(0), my.plots[m]->plotData[0]);
 #endif
 
-    if (visible)
-	replot();
 }
 
 void Chart::replot()
@@ -398,6 +394,17 @@ void Chart::showCurve(QwtPlotItem *item, bool on)
 	QWidget *w = legend()->find(item);
 	if (w && w->inherits("QwtLegendItem"))
 	    ((QwtLegendItem *)w)->setChecked(on);
+    }
+    // find matching plot and update hidden status if required
+    for (int m = 0; m < my.plots.size(); m++) {
+	if (item == my.plots[m]->curve) {
+	    if (my.plots[m]->hidden == on) {
+		// boolean sense is reversed here, on == true => show plot
+		my.plots[m]->hidden = !on;
+		redoPlotData();
+	    }
+	    break;
+	}
     }
     replot();
 }
@@ -451,10 +458,9 @@ void Chart::resetDataArrays(int m, int v)
 //
 int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
 {
-    int maxCount;
-    QmcMetric *mp;
-    pmDesc desc;
-    int i, size;
+    int		maxCount;
+    QmcMetric	*mp;
+    pmDesc	desc;
 
     console->post("Chart::addPlot src=%s", pmsp->source);
     if (pmsp->ninst == 0)
@@ -491,12 +497,6 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
 	}
     }
 
-    maxCount = 0;
-    for (i = 0; i < my.plots.size(); i++) {
-	if (my.plots[i]->dataCount > maxCount)
-	    maxCount = my.plots[i]->dataCount;
-    }
-
     Plot *plot = new Plot;
     my.plots.append(plot);
     console->post("addPlot plot=%p nplots=%d", plot, my.plots.size());
@@ -523,6 +523,7 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
 	plot->legend = NULL;
 	if (plot->name.size() > KmChart::maximumLegendLength()) {
 	    // show name as ...[end of name]
+	    int		size;
 	    plot->label = QString("...");
 	    size = KmChart::maximumLegendLength() - 3;
 	    plot->label.append(plot->name.right(size));
@@ -549,12 +550,16 @@ int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
     // legend() to a state matching the initial state
     showCurve(plot->curve, true);
     plot->removed = false;
+    plot->hidden = false;
 
     // set the prevailing chart style and the default color
     setStroke(plot, my.style, nextColor(my.scheme, &my.sequence));
 
     fixLegendPen();
 
+    maxCount = 0;
+    for (int m = 0; m < my.plots.size(); m++)
+	maxCount = qMax(maxCount, my.plots[m]->dataCount);
     // Set all the values for all plots from dataCount to maxCount to zero
     // so that the Stack <--> Line transitions work correctly
     for (int m = 0; m < my.plots.size(); m++) {
@@ -734,9 +739,6 @@ bool Chart::isStepped(Plot *plot)
 
 void Chart::setStroke(Plot *plot, Style style, QColor color)
 {
-    int		m;
-    int		i;
-
     console->post("Chart::setStroke [style %d->%d]", my.style, style);
 
     plot->color = color;
@@ -749,17 +751,8 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setPen(color);
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
 	    plot->curve->setStyle(QwtPlotCurve::Sticks);
-
-	    if (my.style != BarStyle) {
-		// Need to undo any munging of plotData[]
-		for (m = 0; m < my.plots.size(); m++) {
-		    for (i = 0; i < my.plots[m]->dataCount-1; i++) {
-			my.plots[m]->plotData[i] = my.plots[m]->data[i];
-		    }
-		}
-		if (my.style == UtilisationStyle)
-		    setScale(true, my.yMin, my.yMax);
-	    }
+	    if (my.style == UtilisationStyle)
+		setScale(true, my.yMin, my.yMax);
 	    break;
 
 	case AreaStyle:
@@ -767,17 +760,8 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
 	    plot->curve->setStyle(isStepped(plot) ?
 				  QwtPlotCurve::Steps : QwtPlotCurve::Lines);
-
-	    if (my.style != BarStyle) {
-		// Need to undo any munging of plotData[]
-		for (m = 0; m < my.plots.size(); m++) {
-		    for (i = 0; i < my.plots[m]->dataCount-1; i++) {
-			my.plots[m]->plotData[i] = my.plots[m]->data[i];
-		    }
-		}
-		if (my.style == UtilisationStyle)
-		    setScale(true, my.yMin, my.yMax);
-	    }
+	    if (my.style == UtilisationStyle)
+		setScale(true, my.yMin, my.yMax);
 	    break;
 
 	case UtilisationStyle:
@@ -785,29 +769,6 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setStyle(QwtPlotCurve::Steps);
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
 	    setScale(false, 0.0, 100.0);
-
-	    if (my.style != UtilisationStyle) {
-		// Need to redo the munging of plotData[]
-		int	maxCount = 0;
-		for (m = 0; m < my.plots.size(); m++)
-		    maxCount = qMax(maxCount, my.plots[m]->dataCount);
-		for (i = 0; i < maxCount; i++) {
-		    double sum = 0;
-		    for (m = 0; m < my.plots.size(); m++) {
-			if (my.plots[m]->dataCount > i)
-			    sum += my.plots[m]->data[i];
-		    }
-		    for (m = 0; m < my.plots.size(); m++) {
-			if (sum != 0 && my.plots[m]->dataCount > i)
-			    my.plots[m]->plotData[i] = 
-					100 * my.plots[m]->data[i] / sum;
-			else
-			    my.plots[m]->plotData[i] = 0;
-		    }
-		    for (m = 1; m < my.plots.size(); m++)
-			my.plots[m]->plotData[i] += my.plots[m-1]->plotData[i];
-		}
-	    }
 	    break;
 
 	case LineStyle:
@@ -815,46 +776,16 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setBrush(QBrush(Qt::NoBrush));
 	    plot->curve->setStyle(isStepped(plot) ?
 				  QwtPlotCurve::Steps : QwtPlotCurve::Lines);
-
-	    if (my.style != LineStyle) {
-		// Need to undo any munging of plotData[]
-		for (m = 0; m < my.plots.size(); m++) {
-		    for (i = 0; i < my.plots[m]->dataCount-1; i++) {
-			my.plots[m]->plotData[i] = my.plots[m]->data[i];
-		    }
-		}
-		if (my.style == UtilisationStyle)
-		    setScale(true, my.yMin, my.yMax);
-	    }
+	    if (my.style == UtilisationStyle)
+		setScale(true, my.yMin, my.yMax);
 	    break;
 
 	case StackStyle:
 	    plot->curve->setPen(QColor(Qt::black));
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
 	    plot->curve->setStyle(QwtPlotCurve::Steps);
-
-	    if (my.style != StackStyle) {
-		// Need to redo the munging of plotData[]
-		int	maxCount = 0;
-		for (m = 0; m < my.plots.size(); m++)
-		    maxCount = qMax(maxCount, my.plots[m]->dataCount);
-		for (i = 0; i < maxCount; i++) {
-		    if (my.plots[0]->dataCount > i)
-			my.plots[0]->plotData[i] = my.plots[0]->data[i];
-		    else
-			my.plots[0]->plotData[i] = 0;
-		    for (m = 1; m < my.plots.size(); m++) {
-			if (my.plots[m]->dataCount > i)
-			    my.plots[m]->plotData[i] = my.plots[m]->data[i] +
-						my.plots[m-1]->plotData[i];
-			else
-			    my.plots[m]->plotData[i] =
-						my.plots[m-1]->plotData[i];
-		    }
-		}
-		if (my.style == UtilisationStyle)
-		    setScale(true, my.yMin, my.yMax);
-	    }
+	    if (my.style == UtilisationStyle)
+		setScale(true, my.yMin, my.yMax);
 	    break;
 
 	case NoStyle:
@@ -880,7 +811,74 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	setYAxisTitle((char *)pmUnitsStr(&my.units));
     }
 
-    my.style = style;
+    if (style != my.style) {
+	my.style = style;
+	redoPlotData();
+	replot();
+    }
+
+}
+
+void Chart::redoPlotData(void)
+{
+    int		m;
+    int		i;
+    int		maxCount;
+
+    switch (my.style) {
+	case BarStyle:
+	case AreaStyle:
+	case LineStyle:
+	    for (m = 0; m < my.plots.size(); m++) {
+		for (i = 0; i < my.plots[m]->dataCount; i++) {
+		    my.plots[m]->plotData[i] = my.plots[m]->data[i];
+		}
+	    }
+	    break;
+
+	case UtilisationStyle:
+	    maxCount = 0;
+	    for (m = 0; m < my.plots.size(); m++)
+		maxCount = qMax(maxCount, my.plots[m]->dataCount);
+	    for (i = 0; i < maxCount; i++) {
+		double sum = 0;
+		for (m = 0; m < my.plots.size(); m++) {
+		    if (i < my.plots[m]->dataCount)
+			sum += my.plots[m]->data[i];
+		}
+		for (m = 0; m < my.plots.size(); m++) {
+		    if (sum == 0 || i >= my.plots[m]->dataCount || my.plots[m]->hidden)
+			my.plots[m]->plotData[i] = 0;
+		    else
+			my.plots[m]->plotData[i] = 100 * my.plots[m]->data[i] / sum;
+		}
+		for (m = 1; m < my.plots.size(); m++) {
+		    my.plots[m]->plotData[i] += my.plots[m-1]->plotData[i];
+		}
+	    }
+	    break;
+
+	case StackStyle:
+	    maxCount = 0;
+	    for (m = 0; m < my.plots.size(); m++)
+		maxCount = qMax(maxCount, my.plots[m]->dataCount);
+	    for (i = 0; i < maxCount; i++) {
+		if (i >= my.plots[0]->dataCount || my.plots[0]->hidden)
+		    my.plots[0]->plotData[i] = 0;
+		else
+		    my.plots[0]->plotData[i] = my.plots[0]->data[i];
+		for (m = 1; m < my.plots.size(); m++) {
+		    if (i >= my.plots[m]->dataCount || my.plots[m]->hidden)
+			my.plots[m]->plotData[i] = my.plots[m-1]->plotData[i];
+		    else
+			my.plots[m]->plotData[i] = my.plots[m]->data[i] + my.plots[m-1]->plotData[i];
+		}
+	    }
+	    break;
+
+	case NoStyle:
+	    break;
+    }
 }
 
 QColor Chart::color(int m)

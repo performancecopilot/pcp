@@ -25,7 +25,7 @@ See also qa 006 for automated tests.
 	Y-axis scale		Max Y-axis value
 	Gbyte			110
 	Mbyte/millisec		36
-	microsec		10000
+	millisec		10
 	<nothing>		0.18
 	Kbyte/sec		80
 

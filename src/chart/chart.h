@@ -120,11 +120,13 @@ private:
 	double *plotData;
 	int dataCount;
 	bool removed;
+	bool hidden;	// true if hidden through legend push button
 	pmUnits units;
     } Plot;
 
     bool isStepped(Plot *plot);
-    void setStroke(Plot *plot, Style s, QColor c);
+    void setStroke(Plot *plot, Style style, QColor color);
+    void redoPlotData(void);
     void setLabel(Plot *plot, QString s);
     void resetDataArrays(Plot *plot, int v);
     bool checkUnits(pmUnits *);
