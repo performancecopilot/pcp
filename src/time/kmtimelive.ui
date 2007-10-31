@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>310</width>
-    <height>155</height>
+    <height>142</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -20,13 +20,13 @@
   <property name="minimumSize" >
    <size>
     <width>310</width>
-    <height>155</height>
+    <height>142</height>
    </size>
   </property>
   <property name="maximumSize" >
    <size>
     <width>310</width>
-    <height>155</height>
+    <height>142</height>
    </size>
   </property>
   <property name="windowTitle" >
@@ -379,7 +379,7 @@ Interval.</string>
      <x>0</x>
      <y>0</y>
      <width>310</width>
-     <height>25</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="Help" >
