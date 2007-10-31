@@ -8,17 +8,15 @@ BUGS/TODO
 - kmchart time control icon is not updated to reflect Stopped state
   when we move fastfwd to end of archive, or fastback to the start.
   In fact, it doesn't get updated in normal or step mode either.
-- kmtime layout mucked up on MacOSX - in archive mode, big gap below
-  the position slider; in live mode, position line edit is stretched
-  vertically.
-- kmtime needs a Toolbar (mainly for MacOSX).  May fix above issue.
 - kmchart -a no.such.file gives a QT list assert failure.
-- kmtime Hide icon is wrong when in Live mode on MacOSX.
-- kmchart time axis not updating with timezone change.
 - When started in archive mode, why doesn't the Live tab time axis
   update at all?  Seems like it should.
 - Vice-versa, need to find a way to make the archive time axis look
-  decent when starting in Live mode too
+  decent when starting in Live mode too.  Two things needed: make
+  the canvas hidden again by default (revert qwt change, subclass
+  that function and do the canvas->show() there), and set the label
+  on the time axis to "[No open archives]" when no bounds set.  The
+  same change (the second one) should be done for kmtime Position.
 
 
 Chart Correctness and Control
