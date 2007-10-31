@@ -12,16 +12,32 @@
  * for more details.
  */
 #include <QtCore/QDir>
+#include <QtGui/QPainter>
 #include <QtGui/QMessageBox>
 #include <QtGui/QImageWriter>
 #include <qwt_plot_printfilter.h>
 #include "main.h"
 #include "exportdialog.h"
 
+// ExportFileDialog is the one which is displayed when you click on
+// the image file selection push button
+ExportFileDialog::ExportFileDialog(QWidget *parent) : QFileDialog(parent)
+{
+    setAcceptMode(QFileDialog::AcceptSave);
+    setFileMode(QFileDialog::AnyFile);
+    setIconProvider(fileIconProvider);
+    setConfirmOverwrite(true);
+}
+
 ExportDialog::ExportDialog(QWidget* parent) : QDialog(parent)
 {
     setupUi(this);
     init();
+}
+
+ExportDialog::~ExportDialog()
+{
+    free(my.format);
 }
 
 void ExportDialog::languageChange()
@@ -33,10 +49,8 @@ void ExportDialog::init()
 {
     QString imgfile = QDir::homePath();
 
-    // TODO: update the filename to display the file extension
-    // when the combobox entry is updated?
-
-    my.quality = 0.0;
+    my.quality = 0;
+    my.format = strdup("png");
     imgfile.append("/export.png");
     fileLineEdit->setText(imgfile);
 
@@ -48,42 +62,52 @@ void ExportDialog::init()
 	    png = i;
 	formats << QString(array.at(i));
     }
+    formatComboBox->blockSignals(true);
     formatComboBox->addItems(formats);
     formatComboBox->setCurrentIndex(png);
+    formatComboBox->blockSignals(false);
 
-    selectedRadioButton->setChecked(true);
-    allChartsRadioButton->setChecked(false);
-    qualityCounter->setValue(80.0);
-    qualitySlider->setValue(80.0);
-    qualitySlider->setRange(0.0, 100.0);
+    qualitySlider->setValue(100);
+    qualitySlider->setRange(0, 100);
+    qualitySpinBox->setValue(100);
+    qualitySpinBox->setRange(0, 100);
 }
 
-void ExportDialog::selectedRadioButtonClicked()
+void ExportDialog::reset()
+{
+    QSize size = imageSize();
+    widthSpinBox->setValue(size.width());
+    heightSpinBox->setValue(size.height());
+}
+
+void ExportDialog::selectedRadioButton_clicked()
 {
     selectedRadioButton->setChecked(true);
     allChartsRadioButton->setChecked(false);
+    reset();
 }
 
-void ExportDialog::allChartsRadioButtonClicked()
+void ExportDialog::allChartsRadioButton_clicked()
 {
     selectedRadioButton->setChecked(false);
     allChartsRadioButton->setChecked(true);
+    reset();
 }
 
-void ExportDialog::qualityValueChanged(double value)
+void ExportDialog::quality_valueChanged(int value)
 {
     if (value != my.quality) {
-	my.quality = (double)(int)value;
-	displayQualityCounter();
+	my.quality = value;
+	displayQualitySpinBox();
 	displayQualitySlider();
     }
 }
 
-void ExportDialog::displayQualityCounter()
+void ExportDialog::displayQualitySpinBox()
 {
-    qualityCounter->blockSignals(true);
-    qualityCounter->setValue(my.quality);
-    qualityCounter->blockSignals(false);
+    qualitySpinBox->blockSignals(true);
+    qualitySpinBox->setValue(my.quality);
+    qualitySpinBox->blockSignals(false);
 }
 
 void ExportDialog::displayQualitySlider()
@@ -93,7 +117,7 @@ void ExportDialog::displayQualitySlider()
     qualitySlider->blockSignals(false);
 }
 
-void ExportDialog::filePushButtonClicked()
+void ExportDialog::filePushButton_clicked()
 {
     ExportFileDialog file(this);
 
@@ -102,19 +126,24 @@ void ExportDialog::filePushButtonClicked()
 	fileLineEdit->setText(file.selectedFiles().at(0));
 }
 
-void ExportDialog::flush()
+void ExportDialog::formatComboBox_currentIndexChanged(QString suffix)
 {
+    char *format = strdup((const char *)suffix.toAscii());
     QString file = fileLineEdit->text().trimmed();
+    QString regex = my.format;
+
+    regex.append("$");
+    file.replace(QRegExp(regex), suffix);
+    fileLineEdit->setText(file);
+    free(my.format);
+    my.format = format;
+}
+
+QSize ExportDialog::imageSize()
+{
     Tab *tab = kmchart->activeTab();
-
-    QwtPlotPrintFilter filter;
-    filter.setOptions(QwtPlotPrintFilter::PrintAll &
-		     ~QwtPlotPrintFilter::PrintCanvasBackground &
-		     ~QwtPlotPrintFilter::PrintWidgetBackground &
-		     ~QwtPlotPrintFilter::PrintGrid);
-
-    // Firstly, calculate the size pixmap we'll need here.
     int height = 0, width = 0;
+
     for (int i = 0; i < tab->numChart(); i++) {
 	Chart *cp = tab->chart(i);
 	if (cp != tab->currentChart() && selectedRadioButton->isChecked())
@@ -124,33 +153,29 @@ void ExportDialog::flush()
     }
     height += kmchart->timeAxis()->height();
 
-    // TODO: make this code work properly (only dumps current chart now)
-    QPixmap pixmap(width, height);
-    for (int i = 0; i < tab->numChart(); i++) {
-	Chart *cp = tab->chart(i);
-	if (cp != tab->currentChart() && selectedRadioButton->isChecked())
-	    continue;
-	cp->print(pixmap, filter);
-    }
-    kmchart->timeAxis()->print(pixmap, filter);
+    return QSize(width, height);
+}
 
-    if (pixmap.save(file, (const char *)formatComboBox->currentText().toAscii(),
-		    (int)my.quality) != true) {
+void ExportDialog::flush()
+{
+    QString file = fileLineEdit->text().trimmed();
+
+    int width = widthSpinBox->value();
+    int height = heightSpinBox->value();
+
+    enum QImage::Format rgbFormat = (transparentCheckBox->isChecked()) ?
+				QImage::Format_ARGB32 : QImage::Format_RGB32;
+    QImage image(width, height, rgbFormat);
+    if (transparentCheckBox->isChecked() == false)
+	image.invertPixels();	// white background
+    QPainter qp(&image);
+    kmchart->painter(&qp, width, height, selectedRadioButton->isChecked());
+
+    if (image.save(file, my.format, my.quality) != true) {
 	QString message = tr("Failed to save image file\n");
 	message.append(file);
 	QMessageBox::warning(this, pmProgname, message,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    QMessageBox::NoButton, QMessageBox::NoButton);
     }
-}
-
-// ExportFileDialog is the one which is displayed when you click on
-// the image file selection push button
-
-ExportFileDialog::ExportFileDialog(QWidget *parent) : QFileDialog(parent)
-{
-    setAcceptMode(QFileDialog::AcceptSave);
-    setFileMode(QFileDialog::AnyFile);
-    setIconProvider(fileIconProvider);
-    setConfirmOverwrite(true);
 }

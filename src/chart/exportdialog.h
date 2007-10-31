@@ -23,24 +23,30 @@ class ExportDialog : public QDialog, public Ui::ExportDialog
 
 public:
     ExportDialog(QWidget* parent);
+    ~ExportDialog();
 
     virtual void init();
+    virtual void reset();
     virtual void flush();
-    virtual void displayQualityCounter();
+    virtual void displayQualitySpinBox();
     virtual void displayQualitySlider();
 
 public slots:
-    virtual void selectedRadioButtonClicked();
-    virtual void allChartsRadioButtonClicked();
-    virtual void filePushButtonClicked();
-    virtual void qualityValueChanged( double value );
+    virtual void selectedRadioButton_clicked();
+    virtual void allChartsRadioButton_clicked();
+    virtual void quality_valueChanged(int);
+    virtual void filePushButton_clicked();
+    virtual void formatComboBox_currentIndexChanged(QString);
 
 protected slots:
     virtual void languageChange();
 
 private:
+    QSize imageSize();
+
     struct {
-	double quality;
+	int quality;
+	char *format;
     } my;
 };
 

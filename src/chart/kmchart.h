@@ -89,6 +89,8 @@ public:
 
     virtual void resetTimer();
 
+    void painter(QPainter *, int w, int h, bool);
+
 public slots:
     virtual void init();
     virtual void quit();

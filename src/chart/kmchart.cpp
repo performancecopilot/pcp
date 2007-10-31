@@ -274,6 +274,7 @@ void KmChart::fileSaveView()
 void KmChart::fileExport()
 {
     setupDialogs();
+    my.exporter->reset();
     my.exporter->show();
 }
 
@@ -294,69 +295,76 @@ void KmChart::filePrint()
 
     QPrintDialog print(&printer, (QWidget *)this);
     if (print.exec()) {
-	int ph = printer.height();
-	int pw = printer.width();
-	double scale_h = 0;
-	double scale_w = 0;
-	int i;
-	int nchart = activeTab()->numChart();
-	QwtPlotPrintFilter filter;
-	QSize size;
-	QRect rect;	// used for print layout calculations
-
-	// if (printer.colorMode() == QPrinter::GrayScale)
-	    // background and grid not helpful for monochrome printers
-	    filter.setOptions(QwtPlotPrintFilter::PrintAll &
-		~QwtPlotPrintFilter::PrintCanvasBackground &
-		~QwtPlotPrintFilter::PrintWidgetBackground &
-		~QwtPlotPrintFilter::PrintGrid);
 	QPainter qp(&printer);
-	for (i = 0; i < nchart; i++) {
-	    size = activeTab()->chart(i)->size();
-	    if (size.width() > scale_w) scale_w = size.width();
-	    scale_h += size.height();
-	}
-	size = timeAxisPlot->size();
+	painter(&qp, printer.width(), printer.height(), false);
+    }
+}
+
+void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
+{
+    double scale_h = 0;
+    double scale_w = 0;
+    int i, nchart = activeTab()->numChart();
+    QwtPlotPrintFilter filter;
+    QSize size;
+    QRect rect;	// used for print layout calculations
+
+    filter.setOptions(QwtPlotPrintFilter::PrintAll &
+	~QwtPlotPrintFilter::PrintCanvasBackground &
+	~QwtPlotPrintFilter::PrintWidgetBackground &
+	~QwtPlotPrintFilter::PrintGrid);
+    for (i = 0; i < nchart; i++) {
+	Chart *cp = activeTab()->chart(i);
+	if (currentOnly && cp != activeTab()->currentChart())
+	    continue;
+	size = cp->size();
 	if (size.width() > scale_w) scale_w = size.width();
 	scale_h += size.height();
-	if (scale_w/pw > scale_h/ph) {
-	    // window width drives scaling
-	    scale_w = pw / scale_w;
-	    scale_h = scale_w;
-	}
-	else {
-	    // window height drives scaling
-	    scale_h = ph / scale_h;
-	    scale_w = scale_h;
-	}
-	rect.setX(0);
-	rect.setY(0);
-	for (i = 0; i < nchart; i++) {
-	    Chart *cp = activeTab()->chart(i);
-	    size = cp->size();
-	    rect.setWidth((int)(size.width()*scale_w+0.5));
-	    rect.setHeight((int)(size.height()*scale_h+0.5));
-	    cp->print(&qp, rect, filter);
-	    rect.setY(rect.y()+rect.height());
-	}
-	// timeButton icon
-	size = timeButton->size();
-	rect.setWidth((int)(size.width()*scale_w+0.5));
-	rect.setHeight((int)(size.height()*scale_h+0.5));
-	qp.drawPixmap(rect, timeButton->icon().pixmap(size));
-	rect.setX(rect.x()+rect.width());
-	// time axis
-	size = timeAxisPlot->size();
-	rect.setWidth((int)(size.width()*scale_w+0.5));
-	rect.setHeight((int)(size.height()*scale_h+0.5));
-	timeAxisPlot->print(&qp, rect, filter);
-	rect.setY(rect.y()+rect.height());
-	// date label below time axis
-	size = dateLabel->size();
-	rect.setWidth((int)(size.width()*scale_w+0.5));
-	rect.setHeight((int)(size.height()*scale_h+0.5));
-	qp.drawText(rect, Qt::AlignRight, dateLabel->text());
     }
+    size = timeAxisPlot->size();
+    if (size.width() > scale_w) scale_w = size.width();
+    scale_h += size.height();
+    if (scale_w/pw > scale_h/ph) {
+	// window width drives scaling
+	scale_w = pw / scale_w;
+	scale_h = scale_w;
+    }
+    else {
+	// window height drives scaling
+	scale_h = ph / scale_h;
+	scale_w = scale_h;
+    }
+    rect.setX(0);
+    rect.setY(0);
+    for (i = 0; i < nchart; i++) {
+	Chart *cp = activeTab()->chart(i);
+	if (currentOnly && cp != activeTab()->currentChart())
+	    continue;
+	size = cp->size();
+	rect.setWidth((int)(size.width()*scale_w+0.5));
+	rect.setHeight((int)(size.height()*scale_h+0.5));
+	cp->print(qp, rect, filter);
+	rect.setY(rect.y()+rect.height());
+    }
+
+    // timeButton icon -- not actually painted, just shift coords
+    size = timeButton->size();
+    rect.setWidth((int)(size.width()*scale_w+0.5));
+    rect.setHeight((int)(size.height()*scale_h+0.5));
+    rect.setX(rect.x()+rect.width());
+
+    // time axis
+    size = timeAxisPlot->size();
+    rect.setWidth((int)(size.width()*scale_w+0.5));
+    rect.setHeight((int)(size.height()*scale_h+0.5));
+    timeAxisPlot->print(qp, rect, filter);
+    rect.setY(rect.y()+rect.height());
+
+    // date label below time axis
+    size = dateLabel->size();
+    rect.setWidth((int)(size.width()*scale_w+0.5));
+    rect.setHeight((int)(size.height()*scale_h+0.5));
+    qp->drawText(rect, Qt::AlignRight, dateLabel->text());
 }
 
 void KmChart::fileQuit()
