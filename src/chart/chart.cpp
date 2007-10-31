@@ -917,8 +917,8 @@ void Chart::setScale(bool autoScale, double yMin, double yMax)
 	setAxisAutoScale(QwtPlot::yLeft);
     else
 	setAxisScale(QwtPlot::yLeft, yMin, yMax);
-    redoScale();
     replot();
+    redoScale();
 }
 
 void Chart::setYAxisTitle(char *p)
