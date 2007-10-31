@@ -465,7 +465,7 @@ Click this menu option to bring up the About &lt;i>kmtime&lt;/i> dialog with ver
   </action>
   <action name="fileHideAction" >
    <property name="icon" >
-    <iconset resource="kmtime.qrc" >:/kmtime.png</iconset>
+    <iconset resource="kmtime.qrc" >:/edit-clear.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Hide</string>
