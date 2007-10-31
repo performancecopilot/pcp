@@ -1,24 +1,3 @@
-BUGS/TODO
-=========
-
-- Moving backward at high speed (400?) caused (looke like) a step/
-  VCR event to be missed, and kmchart got state display out of sync
-  with kmtime and then no further time control possible (kmtime was
-  probably awaiting an ACK that didn't arrive).
-- kmchart time control icon is not updated to reflect Stopped state
-  when we move fastfwd to end of archive, or fastback to the start.
-  In fact, it doesn't get updated in normal or step mode either.
-- kmchart -a no.such.file gives a QT list assert failure.
-- When started in archive mode, why doesn't the Live tab time axis
-  update at all?  Seems like it should.
-- Vice-versa, need to find a way to make the archive time axis look
-  decent when starting in Live mode too.  Two things needed: make
-  the canvas hidden again by default (revert qwt change, subclass
-  that function and do the canvas->show() there), and set the label
-  on the time axis to "[No open archives]" when no bounds set.  The
-  same change (the second one) should be done for kmtime Position.
-
-
 Chart Correctness and Control
 =============================
 

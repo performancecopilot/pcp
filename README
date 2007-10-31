@@ -34,8 +34,23 @@ Refer to doc/INSTALL for instructions on building these tools.
       o Fast forward mode frequently causes kmchart to hang.
       o Fast forward mode can cause Time Axis confusion.
       o Bounds broken sometimes - thinks range is 1970-2038 (min-max)
+    - Moving backward at high speed (400?) caused (looke like) a step/
+      VCR event to be missed, and kmchart got state display out of sync
+      with kmtime and then no further time control possible (kmtime was
+      probably awaiting an ACK that didn't arrive).
+    - kmchart time control icon is not updated to reflect Stopped state
+      when we move fastfwd to end of archive, or fastback to the start.
+      In fact, it doesn't get updated in normal or step mode either.
+    - kmchart -a no.such.file gives a QT list assert failure.
+    - When started in archive mode, why doesn't the Live tab time axis
+      update at all?  Seems like it should.
+    - Vice-versa, need to find a way to make the archive time axis look
+      decent when starting in Live mode too.  Two things needed: make
+      the canvas hidden again by default and set the label on the time
+      axis to "[No open archives]" when no bounds set.  The same change
+      (the second one) should be done for kmtime Position.
 
-     - Tab issues
+    - Tab issues
        o On initially creating a live tab, the time axis is very confused (it
 	 looks like its trying to display way too many points?).  This clears
 	 itself up after a few kmtime steps though.
