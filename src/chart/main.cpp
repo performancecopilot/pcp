@@ -571,7 +571,7 @@ main(int argc, char ** argv)
     }
     for (c = 0; c < archives.size(); c++) {
 	if (archiveGroup->use(PM_CONTEXT_ARCHIVE, archives[c]) < 0)
-	    hosts.removeAt(c);
+	    archives.removeAt(c);
     }
     if (hosts.size() == 0 && archives.size() == 0) {
 	liveGroup->createLocalContext();
