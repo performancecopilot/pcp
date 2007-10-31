@@ -81,7 +81,7 @@ void SearchDialog::search()
     QRegExp	m_rx;
     QRegExp	i_rx;
 
-    console->post(KmChart::DebugGUI,
+    console->post(KmChart::DebugUi,
 	 "SearchDialog::search metric pat=\"%s\" instance pat=\"%s\"",
 	 (const char *)namePattern->text().toAscii(),
 	 (const char *)instancePattern->text().toAscii());
@@ -112,7 +112,7 @@ void SearchDialog::search()
 		m_match = 0;
 	    if (m_match >= 0) {
 		if (item->isLeaf() && instancePattern->text() == NULL) {
-		    console->post(KmChart::DebugGUI,
+		    console->post(KmChart::DebugUi,
 			 "SearchDialog::search metric=\"%s\" m_match=%d", (const char *)item->metricName().toAscii(), m_match);
 		    matchList->addItem(item->metricName());
 		    my.pmnsList.append(item);
@@ -139,7 +139,7 @@ void SearchDialog::search()
 		fqn.append("]");
 		matchList->addItem(fqn);
 		my.pmnsList.append(item);
-		console->post(KmChart::DebugGUI,
+		console->post(KmChart::DebugUi,
 		     "SearchDialog::search metric=\"%s\" m_match=%d inst=\"%s\" i_match=%d",
 		     (const char *)item->metricName().toAscii(), m_match,
 		     (const char *)item->metricInstance().toAscii(), i_match);

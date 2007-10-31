@@ -283,7 +283,6 @@ void TimeControl::startTimeServer()
 {
     QStringList arguments;
 
-    // TODO: arguments << "-style" << style;	// ... if kmchart given -style
     if (pmDebug & DBG_TRACE_TIMECONTROL)
 	arguments << "-D" << "all";
     connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this,

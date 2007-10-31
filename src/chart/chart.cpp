@@ -648,31 +648,15 @@ void Chart::changeTitle(char *title, int expand)
 	titleLabel()->setFont(titleFont);
 	my.title = strdup(title);
 
-	// TODO: rewrite this using QString API, waay simpler
-	char *w;
-	if (expand && (w = strstr(title, "%h")) != NULL) {
-	    // expand %h -> (short) hostname in title
-	    char	*tmp;
-	    char	*p;
-	    char	*host;
+	if (expand && (strstr(title, "%h")) != NULL) {
+	    QString titleString = title;
+	    QString shortHost = activeGroup->context()->source().host();
 
-	    tmp = (char *)malloc(MAXHOSTNAMELEN+strlen(title));
-	    if (tmp == NULL)
-		nomem();
-	    *w = '\0';	// copy up to (but not including) the %
-	    strcpy(tmp, title);
-	    host = strdup((const char *)
-			  activeGroup->context()->source().host().toAscii());
-	    if (host == NULL)
-		nomem();
-	    if ((p = strchr(host, '.')) != NULL)
-		*p = '\0';
-	    strcat(tmp, host);
-	    free(host);
-	    w += 2;	// skip %h
-	    strcat(tmp, w);
-	    setTitle(tmp);
-	    free(tmp);
+	    int dot = shortHost.indexOf(QChar('.'));
+	    if (dot != -1)
+		shortHost.remove(dot, shortHost.size());
+	    titleString.replace(QRegExp("%h"), shortHost);
+	    setTitle(titleString);
 	}
 	else 
 	    setTitle(my.title);
@@ -1066,10 +1050,8 @@ QSize Chart::sizeHint() const
     return QSize(150,100);	// TODO: hmm, seems pretty random?
 }
 
-// TODO: move to chartdialog.cpp, tree is always Chart Metrics tree
 void Chart::setupTree(QTreeWidget *tree)
 {
-    tree->clear();
     for (int i = 0; i < my.plots.size(); i++) {
 	Plot *plot = my.plots[i];
 	if (!plot->removed)
@@ -1079,7 +1061,6 @@ void Chart::setupTree(QTreeWidget *tree)
     }
 }
 
-// TODO: move to chartdialog.cpp
 void Chart::addToTree(QTreeWidget *treeview, QString metric,
 	const QmcContext *context, bool isInst, bool isArch,
 	QColor &color, QString &label)

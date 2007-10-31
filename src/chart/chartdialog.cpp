@@ -83,7 +83,7 @@ void ChartDialog::reset(Chart *chart, int style, QString scheme)
     else {
 	setWindowTitle(tr("Edit Chart"));
 	tabWidget->setCurrentIndex(0);
-	chart->setupTree(chartMetricsTreeWidget);
+	setupChartMetricsTree();
     }
     if ((my.archiveSource = kmchart->isArchiveTab()) == true) {
 	sourceButton->setToolTip(tr("Add archives"));
@@ -108,10 +108,10 @@ void ChartDialog::reset(Chart *chart, int style, QString scheme)
     my.availableTreeSelected = false;
     my.chartTreeSingleSelected = NULL;
     my.availableTreeSingleSelected = NULL;
-    enableUI();
+    enableUi();
 }
 
-void ChartDialog::enableUI()
+void ChartDialog::enableUi()
 {
     bool selfScaling = autoScaleOff->isChecked();
     minTextLabel->setEnabled(selfScaling);
@@ -202,7 +202,7 @@ void ChartDialog::chartMetricsItemSelectionChanged()
     if ((my.chartTreeSelected = (my.chartTreeSingleSelected != NULL)))
 	if (*(++iterator) != NULL)
 	    my.chartTreeSingleSelected = NULL;	// multiple selections
-    enableUI();
+    enableUi();
 }
 
 void ChartDialog::availableMetricsItemSelectionChanged()
@@ -213,7 +213,7 @@ void ChartDialog::availableMetricsItemSelectionChanged()
     if ((my.availableTreeSelected = (my.availableTreeSingleSelected != NULL)))
 	if (*(++iterator) != NULL)
 	    my.availableTreeSingleSelected = NULL;	// multiple selections
-    enableUI();
+    enableUi();
 }
 
 void ChartDialog::availableMetricsItemExpanded(QTreeWidgetItem *item)
@@ -325,8 +325,8 @@ void ChartDialog::hostButtonClicked()
     HostDialog *h = new HostDialog(this);
     int sts;
 
-    h->portLabel->setEnabled(false);	// TODO
-    h->portLineEdit->setEnabled(false);	// TODO
+    h->portLabel->setEnabled(false);	// WISHLIST
+    h->portLineEdit->setEnabled(false);	// WISHLIST
 
     if (h->exec() == QDialog::Accepted) {
 	QString proxy = h->portLineEdit->text().trimmed();
@@ -576,6 +576,12 @@ void ChartDialog::plotLabelLineEdit_editingFinished()
 {
     NameSpace *ns = (NameSpace *)my.chartTreeSingleSelected;
     ns->setLabel(plotLabelLineEdit->text().trimmed());
+}
+
+void ChartDialog::setupChartMetricsTree()
+{
+    chartMetricsTreeWidget->clear();
+    my.chart->setupTree(chartMetricsTreeWidget);
 }
 
 void ChartDialog::setupAvailableMetricsTree(bool arch)

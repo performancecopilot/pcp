@@ -26,7 +26,6 @@ Console::Console(struct timeval origin) : QDialog()
     if (pmDebug & DBG_TRACE_APPL0) {
 	my.level |= KmChart::DebugApp;		// general and UI tracing
 	my.level |= KmChart::DebugUi;
-	my.level |= KmChart::DebugGUI;		// TODO: remove this name
     }
     if (pmDebug & DBG_TRACE_APPL1)
 	my.level |= KmChart::DebugProtocol;	// trace time protocol

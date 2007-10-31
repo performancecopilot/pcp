@@ -39,7 +39,6 @@ public:
     typedef enum {
 	DebugApp = 0x1,
 	DebugUi = 0x1,
-	DebugGUI = 0x1,	// TODO: remove this name
 	DebugProtocol = 0x2,
 	DebugView = 0x4,
 	DebugTimeless = 0x8,

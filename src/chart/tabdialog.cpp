@@ -50,13 +50,13 @@ void TabDialog::reset(QString label, bool live, int samples, int visible)
     sampleSlider->setValue(samples);
     sampleSlider->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
 
-    console->post(KmChart::DebugGUI, "TabDialog::reset archive=%s",
+    console->post(KmChart::DebugUi, "TabDialog::reset archive=%s",
 					my.archiveSource?"true":"false");
 }
 
 bool TabDialog::isArchiveSource()
 {
-    console->post(KmChart::DebugGUI, "TabDialog::isArchiveSource archive=%s",
+    console->post(KmChart::DebugUi, "TabDialog::isArchiveSource archive=%s",
 		  my.archiveSource?"true":"false");
     return my.archiveSource;
 }
@@ -66,7 +66,7 @@ void TabDialog::liveHostRadioButtonClicked()
     liveHostRadioButton->setChecked(true);
     archivesRadioButton->setChecked(false);
     my.archiveSource = false;
-    console->post(KmChart::DebugGUI,
+    console->post(KmChart::DebugUi,
 		  "TabDialog::liveHostRadioButtonClicked archive=%s",
 		  my.archiveSource?"true":"false");
 }
@@ -76,7 +76,7 @@ void TabDialog::archivesRadioButtonClicked()
     liveHostRadioButton->setChecked(false);
     archivesRadioButton->setChecked(true);
     my.archiveSource = true;
-    console->post(KmChart::DebugGUI,
+    console->post(KmChart::DebugUi,
 		  "TabDialog::archivesRadioButtonClicked archive=%s",
 		  my.archiveSource?"true":"false");
 }

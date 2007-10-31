@@ -25,7 +25,7 @@ public:
 
     virtual void init();
     virtual void reset(Chart *, int, QString);
-    virtual void enableUI();
+    virtual void enableUi();
     virtual Chart *chart(void);
     virtual QString title(void);
     virtual bool legend(void);
@@ -40,6 +40,7 @@ public:
     virtual void showCurrentColor();
     virtual void setCurrentScheme(QString);
     virtual void setupSchemeComboBox();
+    virtual void setupChartMetricsTree();
     virtual void setupAvailableMetricsTree(bool);
     virtual void setupChartPlots(Chart *);
     virtual bool setupChartPlotsShortcut(Chart *);

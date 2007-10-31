@@ -64,8 +64,8 @@ void OpenViewDialog::reset()
 	sourceLabel->setText(tr("Host:"));
 	sourcePushButton->setIcon(QIcon(":/computer.png"));
 	proxyLabel->setText(tr("Proxy:"));
-	proxyComboBox->setEnabled(false);	// TODO: dynamic proxy support
-	proxyPushButton->setEnabled(false);	// TODO: dynamic proxy support
+	proxyComboBox->setEnabled(false);	// WISHLIST: dynamic proxys
+	proxyPushButton->setEnabled(false);	// WISHLIST: dynamic proxys
     }
     setupComboBoxes(my.archiveSource);
     setPath(my.systemDir);
@@ -259,7 +259,7 @@ void OpenViewDialog::hostAdd()
     h->portLabel->setEnabled(false);
     h->portLineEdit->setEnabled(false);
     if (h->exec() == QDialog::Accepted) {
-	QString port = h->portLineEdit->text().trimmed();	// TODO
+	QString port = h->portLineEdit->text().trimmed();	// WISHLIST
 	QString host = h->hostLineEdit->text().trimmed();
 	if ((sts = liveGroup->use(PM_CONTEXT_HOST, host)) < 0) {
 	    host.prepend(tr("Cannot connect to host: "));
