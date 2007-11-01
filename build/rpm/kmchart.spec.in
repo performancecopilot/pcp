@@ -9,6 +9,10 @@ Source: @pkg_name@-@pkg_version@.src.tar.gz
 License: GPL
 URL: http://oss.sgi.com/projects/pcp
 Group: System Environment/Base
+Requires: pcp >= 2.0
+Requires: qt4 >= 4.2
+BuildRequires: pcp >= 2.0
+BuildRequires: qt4-devel >= 4.2
 
 %description
 Strip Chart tool for plotting Performance Co-Pilot framework metric values.
