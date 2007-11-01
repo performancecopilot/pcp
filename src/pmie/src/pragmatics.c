@@ -718,7 +718,13 @@ initMetric(Metric *m)
 			ret = 0;
 		    }
 		}
-		free(iids);
+		if (sts > 0) {
+		    /*
+		     * pmGetInDom or pmGetInDomArchive returned some
+		     * instances above
+		     */
+		    free(iids);
+		}
 
 		/* 
 		 * if specinst != m_idom, then some not found ... move these
@@ -759,7 +765,13 @@ initMetric(Metric *m)
 		}
 	    }
 #endif
-	    free(inames);
+	    if (sts > 0) {
+		/*
+		 * pmGetInDom or pmGetInDomArchive returned some instances
+		 * above
+		 */
+		free(inames);
+	    }
 	}
     }
 
@@ -864,7 +876,13 @@ reinitMetric(Metric *m)
 			ret = 0;
 		    }
 		}
-		free(iids);
+		if (sts > 0) {
+		    /*
+		     * pmGetInDom or pmGetInDomArchive returned some
+		     * instances above
+		     */
+		    free(iids);
+		}
 
 		/* 
 		 * if specinst != m_idom, then some not found ... move these
@@ -906,7 +924,13 @@ reinitMetric(Metric *m)
 		}
 	    }
 #endif
-	    free(inames);
+	    if (sts > 0) {
+		/*
+		 * pmGetInDom or pmGetInDomArchive returned some instances
+		 * above
+		 */
+		free(inames);
+	    }
 	}
     }
 
