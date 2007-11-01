@@ -39,4 +39,5 @@ echo "pmie stderr ..."
 cat $tmp.err
 
 # success, all done
+status=0
 exit

@@ -77,11 +77,11 @@ pmResult ... numpmid: 1
    value NUMBER
 Fetch of kernel.all.cpu.user:
 pmResult ... numpmid: 1
-  60.0.20 (kernel.all.cpu.user): numval: 1 valfmt: 1 vlist[]:
+  60.0.20 (kernel.all.cpu.user): numval: 1 valfmt: 0-or-1 vlist[]:
    value NUMBER
 Fetch of kernel.all.cpu.wait.total:
 pmResult ... numpmid: 1
-  60.0.35 (kernel.all.cpu.wait.total): numval: 1 valfmt: 1 vlist[]:
+  60.0.35 (kernel.all.cpu.wait.total): numval: 1 valfmt: 0-or-1 vlist[]:
    value NUMBER
 Fetch of hinv.ncpu:
 pmResult ... numpmid: 1

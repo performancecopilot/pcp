@@ -30,7 +30,8 @@ cleanup()
 	sudo mv /etc/syslog.conf.$seq /etc/syslog.conf
 	sudo killall -HUP syslogd
     fi
-    rm -f $tmp.* /tmp/syslog
+    rm -f $tmp.*
+    sudo rm -f /tmp/syslog
 }
 trap "cleanup; exit \$status" 0 1 2 3 15
 
@@ -115,6 +116,8 @@ $sudo grep "\\[$!\\]:" /tmp/syslog \
     -e 's/[0-9][A-Z]:HOST/HOST/' \
     -e '/runpriv\[PID]:/d' \
     -e '/agetty\[PID]:/d' \
+    -e '/sudo: /d' \
+    -e '/syslogd .* restart/d' \
 
 # success, all done
 status=0

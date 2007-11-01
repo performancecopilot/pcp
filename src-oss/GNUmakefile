@@ -110,7 +110,7 @@ SRCARCH	= mirage.0 moomba.client.0 babylon.percpu.0 omen.client.0 \
 	sample-secs.0 gmt-boring.0 kenj-pc-1.0 kenj-pc-2.0 \
 	reduce-1.0 reduce-2.0 kenj-pc-diskstat.0 snort-disks.0 \
 	vldb-disks.0 oview-short.0 moomba.pmkstat.0 fcsw_indom.0 \
-	uwrap.0 20041125.0 ac15.0 logsummary-bug.0
+	uwrap.0 20041125.0 ac15.0 conn20070309.0 logsummary-bug.0
 
 MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
 	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 null.0 \
@@ -140,7 +140,8 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	pmprintf.c pmsocks_objstyle.c torture_trace.c numberstr.c tstate.c \
 	read-bf.c write-bf.c slow_af.c tabort.c indom.c 779246.c tztest.c \
 	pmpost-exploit.c multifetch.c pmconvscale.c torture-eol.c \
-	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c
+	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
+	matchInstanceName.c
 
 # TODO need re-writing for Linux?
 OLD_CFILES	= pmda_sproc.c sys5_ipc.c diowr.c pmie-lic.c \
@@ -520,8 +521,8 @@ __force_trace_dev:
 
 trace_dev.h: __force_trace_dev
 	@if [ -f ../../src/include/trace_dev.h -a -f trace_dev.h ]; \
-	 then grep -v '\$$[I]d:' <../../src/include/trace_dev.h >/tmp/$$$$.src; \
-	      grep -v '\$$[I]d:' <trace_dev.h >/tmp/$$$$.qa; \
+	 then grep -v '\$$[I]d:' <../../src/include/trace_dev.h | grep -v '^[ 	]*\* ' >/tmp/$$$$.src; \
+	      grep -v '\$$[I]d:' <trace_dev.h | grep -v '^[   ]*\* ' >/tmp/$$$$.qa; \
 	      if diff /tmp/$$$$.src /tmp/$$$$.qa >/dev/null 2>&1; \
 	      then rm -f /tmp/$$$$.*; \
 	      else echo "Error: trace_dev.h and ../../src/include/trace_dev.h are different!"; \

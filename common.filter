@@ -207,6 +207,7 @@ _filter_optional_pmdas()
 	-e '/pmdanews/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
+	-e '/pmdapmcd/d' \
 	-e '/pmdaprocess/d' \
 	-e '/pmdasendmail/d' \
 	-e '/pmdashping/d' \
@@ -411,6 +412,7 @@ _filter_pcp_start()
 	-e "s;$PCP_LOG_DIR/pmcd.log;\$PCP_LOG_DIR/pmcd.log;" \
 	-e "s;$PCP_RC_DIR/pcp;\$PCP_RC_DIR/pcp;" \
 	-e "s;$PCP_BINADM_DIR/pmcd;\$PCP_BINADM_DIR/pmcd;" \
+	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
 	-e "s;$PCP_VAR_DIR/;\$PCP_VAR_DIR/;" \
 	-e "s;/usr/etc/pmcd;\$PCP_BINADM_DIR/pmcd;" \
         -e '/^Starting PCP$/d' \
@@ -582,6 +584,7 @@ _filter_torture_api()
 /No PMCD agent for domain of request/s//No PMDA, no values [filtered]/
 }' \
 	-e '/kernel\.all\.pswitch/s/valfmt: [01]/valfmt: 0-or-1/' \
+	-e '/kernel\.all\.cpu/s/valfmt: [01]/valfmt: 0-or-1/' \
 	-e '/^    apache /d' \
 	-e '/^    cihb /d' \
 	-e '/^    cms /d' \

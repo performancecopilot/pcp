@@ -27,12 +27,18 @@ delta = 0.2 seconds;
 fetched = simple.numfetch;
 EOF1
 
+echo "=== pmie config ===" >$seq.full
+cat $tmp.config >>$seq.full
+
 # create pmie control files and test out various good/bad conditions
 
 cat > $tmp.control << EOF2
 \$version=1.0
 LOCALHOSTNAME n /tmp/$seq/1.good.log -v -c $tmp.config
 EOF2
+
+echo "=== pmie control ===" >>$seq.full
+cat $tmp.control >>$seq.full
 
 # real QA test starts here
 $sudo killall -TERM pmie 2>/dev/null
@@ -62,6 +68,11 @@ oldlines=`wc -l < /tmp/$seq/1.good.log.$previous 2>/dev/null || echo 0`
 newlines=`wc -l < /tmp/$seq/1.good.log 2>/dev/null || echo 0`
 _within_tolerance "Old logfile line count" "$oldlines" 70 %20 -v
 _within_tolerance "New logfile line count" "$newlines" 30 %20 -v
+
+echo "=== current log ($oldlines lines) ===" >>$seq.full
+cat /tmp/$seq/1.good.log >>$seq.full
+echo "=== previous log ($newlines lines) ===" >>$seq.full
+cat /tmp/$seq/1.good.log.$previous >>$seq.full
 
 # success, all done
 status=0

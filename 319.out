@@ -1,0 +1,33 @@
+QA output created by 319
+
+e1: ?
+e2: ?
+false_1F_and_1U: false
+false_1U_and_1F: false
+false_nF_and_nU: false
+prime: ?
+true_1T_or_1U: OK should always be true
+true_1T_or_1U: true
+true_1U_or_1T: OK should always be true
+true_1U_or_1T: true
+true_nT_or_nU: OK should always be true
+true_nT_or_nU: true
+true_nU_or_nT: OK should always be true
+true_nU_or_nT: true
+unknown_1F_and_nU: ?
+unknown_1F_or_1U: ?
+unknown_1F_or_nU: ?
+unknown_1T_and_1U: ?
+unknown_1T_and_nU: ?
+unknown_1T_or_nU: ?
+unknown_1U_and_1T: ?
+unknown_1U_or_1F: ?
+unknown_nF_or_nU: ?
+unknown_nT_and_nU: ?
+unknown_nU_and_1F: ?
+unknown_nU_and_1T: ?
+unknown_nU_and_nF: ?
+unknown_nU_and_nT: ?
+unknown_nU_or_1F: ?
+unknown_nU_or_1T: ?
+unknown_nU_or_nF: ?

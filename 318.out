@@ -1,0 +1,290 @@
+QA output created by 318
+pmie: timezone set to local timezone of host mortenb.oslo.sgi.com
+expr_1 (Thu Nov 25 00:11:00 2004): 11
+expr_2 (Thu Nov 25 00:11:00 2004): 0
+expr_3 (Thu Nov 25 00:11:00 2004): false
+expr_4 (Thu Nov 25 00:11:00 2004): false
+
+expr_1 (Thu Nov 25 00:12:00 2004): 12
+expr_2 (Thu Nov 25 00:12:00 2004): 0
+expr_3 (Thu Nov 25 00:12:00 2004): false
+expr_4 (Thu Nov 25 00:12:00 2004): false
+
+expr_1 (Thu Nov 25 00:13:00 2004): 13
+expr_2 (Thu Nov 25 00:13:00 2004): 0
+expr_3 (Thu Nov 25 00:13:00 2004): false
+expr_4 (Thu Nov 25 00:13:00 2004): false
+
+expr_1 (Thu Nov 25 00:14:00 2004): 14
+expr_2 (Thu Nov 25 00:14:00 2004): 0
+expr_3 (Thu Nov 25 00:14:00 2004): false
+expr_4 (Thu Nov 25 00:14:00 2004): false
+
+expr_1 (Thu Nov 25 00:15:00 2004): 15
+expr_2 (Thu Nov 25 00:15:00 2004): 0
+expr_3 (Thu Nov 25 00:15:00 2004): false
+expr_4 (Thu Nov 25 00:15:00 2004): false
+
+expr_1 (Thu Nov 25 00:16:00 2004): 16
+expr_2 (Thu Nov 25 00:16:00 2004): 0
+expr_3 (Thu Nov 25 00:16:00 2004): false
+expr_4 (Thu Nov 25 00:16:00 2004): false
+
+expr_1 (Thu Nov 25 00:17:00 2004): 17
+expr_2 (Thu Nov 25 00:17:00 2004): 0
+expr_3 (Thu Nov 25 00:17:00 2004): false
+expr_4 (Thu Nov 25 00:17:00 2004): false
+
+expr_1 (Thu Nov 25 00:18:00 2004): 18
+expr_2 (Thu Nov 25 00:18:00 2004): 0
+expr_3 (Thu Nov 25 00:18:00 2004): false
+expr_4 (Thu Nov 25 00:18:00 2004): false
+
+expr_1 (Thu Nov 25 00:19:00 2004): 19
+expr_2 (Thu Nov 25 00:19:00 2004): 0
+expr_3 (Thu Nov 25 00:19:00 2004): false
+expr_4 (Thu Nov 25 00:19:00 2004): false
+
+expr_1 (Thu Nov 25 00:20:00 2004): 20
+expr_2 (Thu Nov 25 00:20:00 2004): 0
+expr_3 (Thu Nov 25 00:20:00 2004): false
+expr_4 (Thu Nov 25 00:20:00 2004): false
+
+expr_1 (Thu Nov 25 00:21:00 2004): 21
+expr_2 (Thu Nov 25 00:21:00 2004): 0
+expr_3 (Thu Nov 25 00:21:00 2004): false
+expr_4 (Thu Nov 25 00:21:00 2004): false
+
+expr_1 (Thu Nov 25 00:22:00 2004): 22
+expr_2 (Thu Nov 25 00:22:00 2004): 0
+expr_3 (Thu Nov 25 00:22:00 2004): false
+expr_4 (Thu Nov 25 00:22:00 2004): false
+
+expr_1 (Thu Nov 25 00:23:00 2004): 23
+expr_2 (Thu Nov 25 00:23:00 2004): 0
+expr_3 (Thu Nov 25 00:23:00 2004): false
+expr_4 (Thu Nov 25 00:23:00 2004): false
+
+expr_1 (Thu Nov 25 00:24:00 2004): 24
+expr_2 (Thu Nov 25 00:24:00 2004): 0
+expr_3 (Thu Nov 25 00:24:00 2004): false
+expr_4 (Thu Nov 25 00:24:00 2004): false
+
+expr_1 (Thu Nov 25 00:25:00 2004): 25
+expr_2 (Thu Nov 25 00:25:00 2004): 0
+expr_3 (Thu Nov 25 00:25:00 2004): false
+expr_4 (Thu Nov 25 00:25:00 2004): false
+
+expr_1 (Thu Nov 25 00:26:00 2004): 26
+expr_2 (Thu Nov 25 00:26:00 2004): 0
+expr_3 (Thu Nov 25 00:26:00 2004): false
+expr_4 (Thu Nov 25 00:26:00 2004): false
+
+expr_1 (Thu Nov 25 00:27:00 2004): 27
+expr_2 (Thu Nov 25 00:27:00 2004): 0
+expr_3 (Thu Nov 25 00:27:00 2004): false
+expr_4 (Thu Nov 25 00:27:00 2004): false
+
+expr_1 (Thu Nov 25 00:28:00 2004): 28
+expr_2 (Thu Nov 25 00:28:00 2004): 0
+expr_3 (Thu Nov 25 00:28:00 2004): false
+expr_4 (Thu Nov 25 00:28:00 2004): false
+
+expr_1 (Thu Nov 25 00:29:00 2004): 29
+expr_2 (Thu Nov 25 00:29:00 2004): 0
+expr_3 (Thu Nov 25 00:29:00 2004): false
+expr_4 (Thu Nov 25 00:29:00 2004): false
+
+expr_1 (Thu Nov 25 00:30:00 2004): 30
+expr_2 (Thu Nov 25 00:30:00 2004): 0
+expr_3 (Thu Nov 25 00:30:00 2004): false
+expr_4 (Thu Nov 25 00:30:00 2004): false
+
+expr_1 (Thu Nov 25 00:31:00 2004): 31
+expr_2 (Thu Nov 25 00:31:00 2004): 0
+expr_3 (Thu Nov 25 00:31:00 2004): false
+expr_4 (Thu Nov 25 00:31:00 2004): false
+
+expr_1 (Thu Nov 25 00:32:00 2004): 32
+expr_2 (Thu Nov 25 00:32:00 2004): 0
+expr_3 (Thu Nov 25 00:32:00 2004): false
+expr_4 (Thu Nov 25 00:32:00 2004): false
+
+expr_1 (Thu Nov 25 00:33:00 2004): 33
+expr_2 (Thu Nov 25 00:33:00 2004): 0
+expr_3 (Thu Nov 25 00:33:00 2004): false
+expr_4 (Thu Nov 25 00:33:00 2004): false
+
+expr_1 (Thu Nov 25 00:34:00 2004): 34
+expr_2 (Thu Nov 25 00:34:00 2004): 0
+expr_3 (Thu Nov 25 00:34:00 2004): false
+expr_4 (Thu Nov 25 00:34:00 2004): false
+
+print Thu Nov 25 00:35:00 2004: OK1
+print Thu Nov 25 00:35:00 2004: OK2
+expr_1 (Thu Nov 25 00:35:00 2004): 35
+expr_2 (Thu Nov 25 00:35:00 2004): 0
+expr_3 (Thu Nov 25 00:35:00 2004): true
+expr_4 (Thu Nov 25 00:35:00 2004): true
+
+print Thu Nov 25 00:36:00 2004: OK1
+print Thu Nov 25 00:36:00 2004: OK2
+expr_1 (Thu Nov 25 00:36:00 2004): 36
+expr_2 (Thu Nov 25 00:36:00 2004): 0
+expr_3 (Thu Nov 25 00:36:00 2004): true
+expr_4 (Thu Nov 25 00:36:00 2004): true
+
+print Thu Nov 25 00:37:00 2004: OK1
+print Thu Nov 25 00:37:00 2004: OK2
+expr_1 (Thu Nov 25 00:37:00 2004): 37
+expr_2 (Thu Nov 25 00:37:00 2004): 0
+expr_3 (Thu Nov 25 00:37:00 2004): true
+expr_4 (Thu Nov 25 00:37:00 2004): true
+
+print Thu Nov 25 00:38:00 2004: OK1
+print Thu Nov 25 00:38:00 2004: OK2
+expr_1 (Thu Nov 25 00:38:00 2004): 38
+expr_2 (Thu Nov 25 00:38:00 2004): 0
+expr_3 (Thu Nov 25 00:38:00 2004): true
+expr_4 (Thu Nov 25 00:38:00 2004): true
+
+print Thu Nov 25 00:39:00 2004: OK1
+print Thu Nov 25 00:39:00 2004: OK2
+expr_1 (Thu Nov 25 00:39:00 2004): 39
+expr_2 (Thu Nov 25 00:39:00 2004): 0
+expr_3 (Thu Nov 25 00:39:00 2004): true
+expr_4 (Thu Nov 25 00:39:00 2004): true
+
+print Thu Nov 25 00:40:00 2004: OK1
+print Thu Nov 25 00:40:00 2004: OK2
+expr_1 (Thu Nov 25 00:40:00 2004): 40
+expr_2 (Thu Nov 25 00:40:00 2004): 0
+expr_3 (Thu Nov 25 00:40:00 2004): true
+expr_4 (Thu Nov 25 00:40:00 2004): true
+
+print Thu Nov 25 00:41:00 2004: OK1
+print Thu Nov 25 00:41:00 2004: OK2
+expr_1 (Thu Nov 25 00:41:00 2004): 41
+expr_2 (Thu Nov 25 00:41:00 2004): 0
+expr_3 (Thu Nov 25 00:41:00 2004): true
+expr_4 (Thu Nov 25 00:41:00 2004): true
+
+print Thu Nov 25 00:42:00 2004: OK1
+print Thu Nov 25 00:42:00 2004: OK2
+expr_1 (Thu Nov 25 00:42:00 2004): 42
+expr_2 (Thu Nov 25 00:42:00 2004): 0
+expr_3 (Thu Nov 25 00:42:00 2004): true
+expr_4 (Thu Nov 25 00:42:00 2004): true
+
+print Thu Nov 25 00:43:00 2004: OK1
+print Thu Nov 25 00:43:00 2004: OK2
+expr_1 (Thu Nov 25 00:43:00 2004): 43
+expr_2 (Thu Nov 25 00:43:00 2004): 0
+expr_3 (Thu Nov 25 00:43:00 2004): true
+expr_4 (Thu Nov 25 00:43:00 2004): true
+
+print Thu Nov 25 00:44:00 2004: OK1
+print Thu Nov 25 00:44:00 2004: OK2
+expr_1 (Thu Nov 25 00:44:00 2004): 44
+expr_2 (Thu Nov 25 00:44:00 2004): 0
+expr_3 (Thu Nov 25 00:44:00 2004): true
+expr_4 (Thu Nov 25 00:44:00 2004): true
+
+print Thu Nov 25 00:45:00 2004: OK1
+print Thu Nov 25 00:45:00 2004: OK2
+expr_1 (Thu Nov 25 00:45:00 2004): 45
+expr_2 (Thu Nov 25 00:45:00 2004): 0
+expr_3 (Thu Nov 25 00:45:00 2004): true
+expr_4 (Thu Nov 25 00:45:00 2004): true
+
+print Thu Nov 25 00:46:00 2004: OK1
+print Thu Nov 25 00:46:00 2004: OK2
+expr_1 (Thu Nov 25 00:46:00 2004): 46
+expr_2 (Thu Nov 25 00:46:00 2004): 0
+expr_3 (Thu Nov 25 00:46:00 2004): true
+expr_4 (Thu Nov 25 00:46:00 2004): true
+
+print Thu Nov 25 00:47:00 2004: OK1
+print Thu Nov 25 00:47:00 2004: OK2
+expr_1 (Thu Nov 25 00:47:00 2004): 47
+expr_2 (Thu Nov 25 00:47:00 2004): 0
+expr_3 (Thu Nov 25 00:47:00 2004): true
+expr_4 (Thu Nov 25 00:47:00 2004): true
+
+print Thu Nov 25 00:48:00 2004: OK1
+print Thu Nov 25 00:48:00 2004: OK2
+expr_1 (Thu Nov 25 00:48:00 2004): 48
+expr_2 (Thu Nov 25 00:48:00 2004): 0
+expr_3 (Thu Nov 25 00:48:00 2004): true
+expr_4 (Thu Nov 25 00:48:00 2004): true
+
+print Thu Nov 25 00:49:00 2004: OK1
+print Thu Nov 25 00:49:00 2004: OK2
+expr_1 (Thu Nov 25 00:49:00 2004): 49
+expr_2 (Thu Nov 25 00:49:00 2004): 0
+expr_3 (Thu Nov 25 00:49:00 2004): true
+expr_4 (Thu Nov 25 00:49:00 2004): true
+
+print Thu Nov 25 00:50:00 2004: OK1
+print Thu Nov 25 00:50:00 2004: OK2
+expr_1 (Thu Nov 25 00:50:00 2004): 50
+expr_2 (Thu Nov 25 00:50:00 2004): 0
+expr_3 (Thu Nov 25 00:50:00 2004): true
+expr_4 (Thu Nov 25 00:50:00 2004): true
+
+print Thu Nov 25 00:51:00 2004: OK1
+print Thu Nov 25 00:51:00 2004: OK2
+expr_1 (Thu Nov 25 00:51:00 2004): 51
+expr_2 (Thu Nov 25 00:51:00 2004): 0
+expr_3 (Thu Nov 25 00:51:00 2004): true
+expr_4 (Thu Nov 25 00:51:00 2004): true
+
+print Thu Nov 25 00:52:00 2004: OK1
+print Thu Nov 25 00:52:00 2004: OK2
+expr_1 (Thu Nov 25 00:52:00 2004): 52
+expr_2 (Thu Nov 25 00:52:00 2004): 0
+expr_3 (Thu Nov 25 00:52:00 2004): true
+expr_4 (Thu Nov 25 00:52:00 2004): true
+
+print Thu Nov 25 00:53:00 2004: OK1
+print Thu Nov 25 00:53:00 2004: OK2
+expr_1 (Thu Nov 25 00:53:00 2004): 53
+expr_2 (Thu Nov 25 00:53:00 2004): 0
+expr_3 (Thu Nov 25 00:53:00 2004): true
+expr_4 (Thu Nov 25 00:53:00 2004): true
+
+print Thu Nov 25 00:54:00 2004: OK1
+print Thu Nov 25 00:54:00 2004: OK2
+expr_1 (Thu Nov 25 00:54:00 2004): 54
+expr_2 (Thu Nov 25 00:54:00 2004): 0
+expr_3 (Thu Nov 25 00:54:00 2004): true
+expr_4 (Thu Nov 25 00:54:00 2004): true
+
+print Thu Nov 25 00:55:00 2004: OK1
+print Thu Nov 25 00:55:00 2004: OK2
+expr_1 (Thu Nov 25 00:55:00 2004): 55
+expr_2 (Thu Nov 25 00:55:00 2004): 0
+expr_3 (Thu Nov 25 00:55:00 2004): true
+expr_4 (Thu Nov 25 00:55:00 2004): true
+
+print Thu Nov 25 00:56:00 2004: OK1
+print Thu Nov 25 00:56:00 2004: OK2
+expr_1 (Thu Nov 25 00:56:00 2004): 56
+expr_2 (Thu Nov 25 00:56:00 2004): 0
+expr_3 (Thu Nov 25 00:56:00 2004): true
+expr_4 (Thu Nov 25 00:56:00 2004): true
+
+print Thu Nov 25 00:57:00 2004: OK1
+print Thu Nov 25 00:57:00 2004: OK2
+expr_1 (Thu Nov 25 00:57:00 2004): 57
+expr_2 (Thu Nov 25 00:57:00 2004): 0
+expr_3 (Thu Nov 25 00:57:00 2004): true
+expr_4 (Thu Nov 25 00:57:00 2004): true
+
+print Thu Nov 25 00:58:00 2004: OK1
+print Thu Nov 25 00:58:00 2004: OK2
+expr_1 (Thu Nov 25 00:58:00 2004): 58
+expr_2 (Thu Nov 25 00:58:00 2004): 0
+expr_3 (Thu Nov 25 00:58:00 2004): true
+expr_4 (Thu Nov 25 00:58:00 2004): true
+

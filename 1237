@@ -1,5 +1,5 @@
 #! /bin/sh
-# PCP QA Test No. 276 (formerly 276)
+# PCP QA Test No. 1237 (formerly 276)
 # $Revision: 1.33 $
 #
 # check tools with indoms that have bizarre instance names, e.g.
@@ -32,9 +32,10 @@ export DISPLAY
 # real QA test starts here
 src-oss/grind-tools -v -a src-oss/fcsw_indom fcsw.port.bytes_out \
 | sed \
-    -e '/pmchart/d' \
-    -e '/pmview/d' \
-    -e '/pmgadgets/d'
+    -e '/pmie/d' \
+    -e '/pmval/d' \
+    -e '/pmdumptext/d' \
+    -e '/pmlogger/d'
 
 # success, all done
 exit

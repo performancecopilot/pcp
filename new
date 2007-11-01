@@ -221,7 +221,9 @@ else
 fi
 
 echo -n "Adding $id to group index ..."
-echo "$id $ans" >>group
+dist=oss
+if [ $id -ge 1000 ] dist=sgi
+echo "$id $ans $dist" >>group
 echo " done."
 
 echo -n "Adding $id to owner index ..."
