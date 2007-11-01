@@ -4,13 +4,7 @@
 # entries are fully qualified domain names, in any order
 # the only pre-requisite is that they be running some version of PCP.
 #
-edge.scott.net.au
-leaf.scott.net.au
-croc.scott.net.au
-kenj.scott.net.au
-some-host.scott.net.au
-farawaypmcd.scott.net.au
-socksserver.scott.net.au
+# SGI Section
 babylon.engr.sgi.com
 bimini.engr.sgi.com
 #boing.melbourne.sgi.com
@@ -33,6 +27,20 @@ kao1.melbourne.sgi.com
 whirr.engr.sgi.com
 wobbly.melbourne.sgi.com
 
+# Aconex Section
+nathan.engr.acx
+herry.engr.acx
+edge.scott.net.au
+leaf.scott.net.au
+croc.scott.net.au
+kenj.scott.net.au
+some-host.scott.net.au
+farawaypmcd.scott.net.au
+socksserver.scott.net.au
+bozo.localdomain
+bozo-pc.localdomain
+kmcdonell-laptop.aconex.com
+
 # sort control lines
 # each line here is a specification that includes the keyword #order and
 # then two or more strings in the style of fgrep
@@ -43,8 +51,11 @@ wobbly.melbourne.sgi.com
 # subsequent strings select entries from the list of hosts above in order
 # of increasing preference ... any unmatched hosts are not included
 
-# tag	QA host?		1st choice		2nd choice		...
-#order	.scott.net.au		.scott.net.au
+# tag	QA host?		1st choice		2nd choice	...
+# SGI Section
 #order	.melbourne.sgi		.melbourne.sgi		.engr.sgi.com
 #order	.engr.sgi.com		.engr.sgi.com		.melbourne.sgi
-#order	.americas.sgi.com	.americas.sgi.com	.engr.sgi.com		.melbourne.sgi
+#order	.americas.sgi.com	.americas.sgi.com	.engr.sgi.com	.melbourne.sgi
+# Aconex Section
+#order	.scott.net.au		.scott.net.au
+#order	.aconex.com		.acx			.localdomain	.aconex.com

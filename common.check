@@ -82,27 +82,22 @@ p
 
 _host_to_fqdn()
 {
-    if which host >/dev/null 2>&1
+    ans=`hostname -f 2>/dev/null`
+    if [ -z "$ans" ]
     then
-	# assume linux host(1)
-	#
-	host $1 2>&1 \
-	| sed -n \
-	    -e '/ has address /s/\.* has address .*//p' \
-	    -e '/ domain name pointer /{
-s/.* domain name pointer //
-s/\.$//
-p
-}'
-    elif which nslookup >/dev/null 2>&1
+	if which nslookup >/dev/null 2>&1
+	then
+	    nslookup $1 2>&1 \
+	    | sed -n \
+		-e '1,/^$/d' \
+		-e '/^Name:  */s///p'
+	fi
+    fi
+    if [ -z "$ans" ]
     then
-	nslookup $1 2>&1 \
-	| sed -n \
-	    -e '1,/^$/d' \
-	    -e '/^Name:  */s///p'
-    else
 	echo "_host_to_fqdn: cannot find dns lookup command" >&2
     fi
+    echo "$ans"
 }
 
 _check_metric()
