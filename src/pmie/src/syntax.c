@@ -518,7 +518,7 @@ percentExpr(double pcnt, int dom, Expr *arg)
     if (arg == NULL) return NULL;
 
     x = domainExpr(CND_PCNT_HOST, dom, arg);
-    x->arg2 = newExpr(NOP, NULL, NULL, -1, -1, -1, 1, SEM_NUM);
+    x->arg2 = newExpr(NOP, NULL, NULL, -1, -1, -1, 1, SEM_NUMCONST);
     newRingBfr(x->arg2);
     *(double *)x->arg2->ring = pcnt / 100.0;
     x->arg2->valid = 1;
@@ -679,7 +679,7 @@ numConst(double v, pmUnits u)
 {
     Expr    *x;
 
-    x = newExpr(NOP, NULL, NULL, -1, -1, -1, 1, SEM_NUM);
+    x = newExpr(NOP, NULL, NULL, -1, -1, -1, 1, SEM_NUMCONST);
     newRingBfr(x);
     x->units = canon(u);
     x->valid = 1;
@@ -721,7 +721,7 @@ boolConst(Truth v)
 Expr *
 numVar(Expr *x)
 {
-    if (x->sem > SEM_NUM) {
+    if (x->sem == SEM_TRUTH || x->sem == SEM_CHAR) {
 	synerr();
 	fprintf(stderr, "numeric valued variable expected\n");
 	return NULL;
@@ -734,7 +734,7 @@ numVar(Expr *x)
 Expr *
 boolVar(Expr *x)
 {
-    if (x->sem > SEM_TRUTH) {
+    if (x->sem == SEM_CHAR) {
 	synerr();
 	fprintf(stderr, "truth valued variable expected\n");
 	return NULL;

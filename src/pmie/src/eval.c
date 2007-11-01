@@ -108,7 +108,7 @@ typedef struct hstate {
 } hstate_t;
 
 static hstate_t	*host_map = NULL;
-    
+
 int
 host_state_changed(char *host, int state)
 {
@@ -292,7 +292,12 @@ clobber(Expr *x)
 	if (x->arg2)
 	    clobber(x->arg2);
 	x->valid = 0;
-	if (x->sem <= SEM_NUM) {
+	/*
+	 * numeric variable or variable?
+	 */
+	if (x->sem == PM_SEM_COUNTER ||
+	    x->sem == PM_SEM_INSTANT || x->sem == PM_SEM_DISCRETE ||
+	    x->sem == SEM_NUMVAR) {
 	    d = (double *) x->ring;
 	    for (i = 0; i < x->nvals; i++)
 		*d++ = mynan;

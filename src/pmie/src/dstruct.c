@@ -850,39 +850,39 @@ void dstructInit(void)
 
     /* set yp inter-sample interval (delta) symbol */
     symDelta = symIntern(&vars, "delta");
-    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUM);
+    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUMVAR);
     x->smpls[0].ptr = &delta;
     x->valid = 1;
     symValue(symDelta) = x;
 
     /* set up time symbols */
     symMinute = symIntern(&vars, "minute");
-    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUM);
+    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUMVAR);
     x->smpls[0].ptr = &minute;
     x->valid = 1;
     symValue(symMinute) = x;
     symHour = symIntern(&vars, "hour");
-    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUM);
+    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUMVAR);
     x->smpls[0].ptr = &hour;
     x->valid = 1;
     symValue(symHour) = x;
     symDay = symIntern(&vars, "day");
-    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUM);
+    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUMVAR);
     x->smpls[0].ptr = &day;
     x->valid = 1;
     symValue(symDay) = x;
     symMonth = symIntern(&vars, "month");
-    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUM);
+    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUMVAR);
     x->smpls[0].ptr = &month;
     x->valid = 1;
     symValue(symMonth) = x;
     symYear = symIntern(&vars, "year");
-    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUM);
+    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUMVAR);
     x->smpls[0].ptr = &year;
     x->valid = 1;
     symValue(symYear) = x;
     symWeekday = symIntern(&vars, "day_of_week");
-    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUM);
+    x = newExpr(OP_VAR, NULL,NULL, -1, -1, -1, 1, SEM_NUMVAR);
     x->smpls[0].ptr = &weekday;
     x->valid = 1;
     symValue(symWeekday) = x;
@@ -1026,7 +1026,8 @@ static struct {
     char		*name;
 } sem_map[] = {
     { SEM_UNKNOWN,	"UNKNOWN" },
-    { SEM_NUM,		"NUM" },
+    { SEM_NUMVAR,	"NUMVAR" },
+    { SEM_NUMCONST,	"NUMCONST" },
     { SEM_TRUTH,	"TRUTH" },
     { SEM_CHAR,		"CHAR" },
     { PM_SEM_COUNTER,	"COUNTER" },
@@ -1074,7 +1075,8 @@ __dumpExpr(int level, Expr *x)
 	fprintf(stderr, "%d", x->sem);
     fprintf(stderr, " units=%s\n", pmUnitsStr(&x->units));
     if (x->valid > 0 &&
-	(x->sem == SEM_TRUTH || x->sem == SEM_CHAR || x->sem == SEM_NUM ||
+	(x->sem == SEM_TRUTH || x->sem == SEM_CHAR ||
+	 x->sem == SEM_NUMVAR || x->sem == SEM_NUMCONST ||
 	 x->sem == PM_SEM_COUNTER || x->sem == PM_SEM_INSTANT ||
 	 x->sem == PM_SEM_DISCRETE)) {
 	for (j = 0; j < x->nsmpls; j++) {
