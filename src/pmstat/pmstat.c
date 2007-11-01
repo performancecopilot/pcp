@@ -604,7 +604,12 @@ main(int argc, char *argv[])
 			    }
 			    printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
 			}
+			else {
+			    tzh = pmNewContextZone();
+			}
 		    }
+
+		    pmUseZone (tzh);
 
 		    /* If we're dealing with archives, find the one
                      * which starts first */
