@@ -24,11 +24,7 @@ then
 fi
 
 my_host=`hostname | sed -e 's/\..*//'`
-my_fqdn=`nslookup $my_host 2>/dev/null \
-	 | sed -n -e '/^Name:/{
-s/Name:  *//
-p
-}'`
+my_fqdn=`pmhostname`
 
 # default to Melbourne if no DNS
 #
