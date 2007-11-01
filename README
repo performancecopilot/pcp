@@ -3,7 +3,7 @@ performance metrics fetched from live sources (one or more pmcd hosts) and
 also historical sources (one or more PCP archives).
 
 kmtime is a graphical time controller utility that coordinates time updates
-and VCR-like playback for other utilities, such as kmchart and pmval.
+and VCR-like playback for other utilities like kmchart and pmval.
 
 Refer to doc/INSTALL for instructions on building these tools.
 
@@ -20,7 +20,7 @@ Refer to doc/INSTALL for instructions on building these tools.
 	[x] qa/chart-control-testcases
 	[x] qa/help-system-testcases
 	[x] qa/chart-scaling-testcases
-	[ ] qa/export-print-testcases
+	[x] qa/export-print-testcases
 	[ ] qa/query-testcases
     - Write automated QA for Save View (need a new command line option),
       then with -C and -c, open (multiple) views, save, then verify.
