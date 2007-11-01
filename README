@@ -38,9 +38,6 @@ Refer to doc/INSTALL for instructions on building these tools.
       VCR event to be missed, and kmchart got state display out of sync
       with kmtime and then no further time control possible (kmtime was
       probably awaiting an ACK that didn't arrive).
-    - kmchart time control icon is not updated to reflect Stopped state
-      when we move fastfwd to end of archive, or fastback to the start.
-      In fact, it doesn't get updated in normal or step mode either.
     - When started in archive mode, why doesn't the Live tab time axis
       update at all?  Seems like it should.
     - Vice-versa, need to find a way to make the archive time axis look

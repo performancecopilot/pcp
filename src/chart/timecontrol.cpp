@@ -387,8 +387,9 @@ void TimeControl::protocolMessage(bool live,
 		exit(1);
 	    }
 	} else if (msg->command == KmTime::VCRMode ||
-		   msg->command == KmTime::VCRModeDrag) {
-	    kmchart->VCRMode(live, msg, msg->command != KmTime::VCRMode);
+		   msg->command == KmTime::VCRModeDrag ||
+		   msg->command == KmTime::Bounds) {
+	    kmchart->VCRMode(live, msg, msg->command == KmTime::VCRModeDrag);
 	} else if (msg->command == KmTime::TZ) {
 	    kmchart->timeZone(live, (char *)msg->data);
 	} else if (msg->command == KmTime::GUIStyle) {
