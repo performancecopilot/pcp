@@ -26,13 +26,15 @@ void TabDialog::languageChange()
 
 void TabDialog::reset(QString label, bool live, int samples, int visible)
 {
-    labelLineEdit->setText(label);
-    if (label == QString::null)
+    if (label == QString::null) {
 	setWindowTitle(tr("Add Tab"));
+	labelLineEdit->setText(live ? tr("Live") : tr("Archive"));
+    }
     else {
 	setWindowTitle(tr("Edit Tab"));
 	liveHostRadioButton->setEnabled(false);
 	archivesRadioButton->setEnabled(false);
+	labelLineEdit->setText(label);
     }
 
     liveHostRadioButton->setChecked(live);
