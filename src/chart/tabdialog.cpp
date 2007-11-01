@@ -65,6 +65,8 @@ bool TabDialog::isArchiveSource()
 
 void TabDialog::liveHostRadioButtonClicked()
 {
+    if (labelLineEdit->text() == tr("Archive"))
+	labelLineEdit->setText(tr("Live"));
     liveHostRadioButton->setChecked(true);
     archivesRadioButton->setChecked(false);
     my.archiveSource = false;
@@ -75,6 +77,8 @@ void TabDialog::liveHostRadioButtonClicked()
 
 void TabDialog::archivesRadioButtonClicked()
 {
+    if (labelLineEdit->text() == tr("Live"))
+	labelLineEdit->setText(tr("Archive"));
     liveHostRadioButton->setChecked(false);
     archivesRadioButton->setChecked(true);
     my.archiveSource = true;
