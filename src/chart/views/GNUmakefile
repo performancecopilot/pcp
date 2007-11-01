@@ -6,6 +6,7 @@ VIEWS	= Apache CPU Disk Diskbytes Loadavg NFS2 NFS3 Filesystem \
 	  Netbytes Netpackets \
 	  PMCD Syscalls Paging Overview Sockets Swap Cisco Sendmail \
 	  ShpingCPU ShpingElapsed Schemes
+LSRCFILES = $(VIEWS)
 
 default:
 
