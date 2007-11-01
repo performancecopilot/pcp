@@ -43,61 +43,64 @@ _wait_for_pmcd
 #
 pminfo -f sample.dynamic >/dev/null 2>&1
 
-for metric in counter instant discrete
-do
-    echo
-    echo "=== sample.dynamic.$metric ==="
+echo
+echo "=== pmprobe ==="
 
-    pmprobe -I sample.dynamic.$metric
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
 
-    cat <<End-of-File | pmie -t 250msec >$tmp.out 2>&1 &
-some_inst ( sample.dynamic.$metric > 0 ) -> shell "echo $metric:" " %i:?";
+cat <<End-of-File | pmie -t 250msec >$tmp.out 2>&1 &
+some_inst ( sample.dynamic.counter > 0 ) -> shell "echo counter:" " %i:?";
+some_inst ( sample.dynamic.instant > 0 ) -> shell "echo instant:" " %i:?";
+some_inst ( sample.dynamic.discrete > 0 ) -> shell "echo discrete:" " %i:?";
 End-of-File
-    pid=$!
+pid=$!
 
-    sleep 2
+sleep 2
 
-    # initial config
-    #
-    cat >$tmp.indom <<End-of-File
+# initial config
+#
+cat >$tmp.indom <<End-of-File
 10 one
 20 two
 30 three
 200 twenty
 End-of-File
-    $sudo rm -f $control
-    $sudo cp $tmp.indom $control
-    pmprobe -I sample.dynamic.$metric
-    sleep 2
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
 
-    # add one in the middle
-    #
-    cat >$tmp.indom <<End-of-File
+# add one in the middle
+#
+cat >$tmp.indom <<End-of-File
 10 one
 20 two
 30 three
 40 four
 200 twenty
 End-of-File
-    $sudo rm -f $control
-    $sudo cp $tmp.indom $control
-    pmprobe -I sample.dynamic.$metric
-    sleep 2
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
 
-    # remove all but the first and last
-    #
-    cat >$tmp.indom <<End-of-File
+# remove all but the first and last
+#
+cat >$tmp.indom <<End-of-File
 10 one
 200 twenty
 End-of-File
-    $sudo rm -f $control
-    $sudo cp $tmp.indom $control
-    pmprobe -I sample.dynamic.$metric
-    sleep 2
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
 
-    # re-instate previous state, with new ones at each end
-    #
-    cat >$tmp.indom <<End-of-File
+# re-instate previous state, with new ones at each end
+#
+cat >$tmp.indom <<End-of-File
 00 zero
 10 one
 20 two
@@ -106,14 +109,15 @@ End-of-File
 200 twenty
 210 twenty-one
 End-of-File
-    $sudo rm -f $control
-    $sudo cp $tmp.indom $control
-    pmprobe -I sample.dynamic.$metric
-    sleep 2
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
 
-    # replace every second one
-    #
-    cat >$tmp.indom <<End-of-File
+# replace every second one
+#
+cat >$tmp.indom <<End-of-File
 05 zero+
 10 one
 25 two+
@@ -122,32 +126,37 @@ End-of-File
 200 twenty
 215 twenty-one+
 End-of-File
-    $sudo rm -f $control
-    $sudo cp $tmp.indom $control
-    pmprobe -I sample.dynamic.$metric
-    sleep 2
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
 
-    # replace every thing by one (different) instance 
-    #
-    cat >$tmp.indom <<End-of-File
+# replace every thing by one (different) instance
+#
+cat >$tmp.indom <<End-of-File
 1 singular
 End-of-File
-    $sudo rm -f $control
-    $sudo cp $tmp.indom $control
-    pmprobe -I sample.dynamic.$metric
-    sleep 2
+$sudo rm -f $control
+$sudo cp $tmp.indom $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
 
-    kill -INT $pid
-    wait
+kill -INT $pid
+wait
 
-    $sudo rm -f $control
-    pmprobe -I sample.dynamic.$metric
+$sudo rm -f $control
+sleep 1
+pmprobe -I sample.dynamic.counter sample.dynamic.instant sample.dynamic.discrete
+sleep 1
 
-    cp $tmp.out $seq.full
+echo
+echo "=== pmie ==="
 
-    LC_COLLATE=POSIX sort -u $tmp.out
+LC_COLLATE=POSIX sort -u $tmp.out
 
-done
+cp $tmp.out $seq.full
 
 # success, all done
 status=0

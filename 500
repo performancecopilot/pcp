@@ -33,6 +33,7 @@ _filter_pmnewlog()
 	-e "s/^ *$wai/   pcpqa/" \
 	-e '/^   pcpqa.*pmlogger -L.*.*-c null one/	s/.*/-- ps line removed --/' \
 	-e '/^pcpqa.*pmlogger -L.*.*-c null one/	s/.*/-- ps line removed --/' \
+	-e '/^[0-9][0-9]*.* pmlogger -L.*.*-c null one/	s/.*/-- ps line removed --/' \
 	-e '/^\/usr\/pcp\/bin\/pmlogger/		s/\/usr\/pcp\/bin\///' \
 	-e 's/ SIG.* done/ signal stuff ... done/' \
 	-e "s;$tmp;TMP;g" \

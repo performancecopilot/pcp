@@ -127,7 +127,9 @@ echo
 echo "Running the access tests"
 
 # ideally want a host with only 1 network interface ... getpmcdhosts
-# cannot express this, so go for 1 CPU as a likely co-condition
+# cannot express this, so we used to go for 1 CPU as a likely co-condition,
+# but even that has been dropped now that single CPU systems are so
+# rare
 #
 eval `./getpmcdhosts -L -n2 -v pcp=2 | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 if [ -z "$other1" ]

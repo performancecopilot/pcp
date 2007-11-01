@@ -268,6 +268,8 @@ do
 	    -e "/mem\.slabinfo\.slabs\.objects_per_slab: $unavailable/d" \
 	    -e "/mem\.slabinfo\.slabs\.pages_per_slab: $unavailable/d" \
 	    -e "/mem\.slabinfo\.slabs\.total: $unavailable/d" \
+	    -e "/mem\.slabinfo\.slabs\.total_size: $unavailable/d" \
+	    -e "/mem\.vmstat\.nr_slab: $unavailable/d" \
 	    -e "/mem\.util\.other: $unavailable/d" \
 	    -e "/mem\.util\.reverseMaps: $unavailable/d" \
 	    -e "/mem\.util\.shared: $unavailable/d" \
