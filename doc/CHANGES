@@ -1,3 +1,8 @@
+kmchart 1.0.0Beta4 (1 November 2007)
+    - Allow installs on MacOSX 10.5 as well
+    - Fix srpm build issues
+    - Resolve kmtime layout issues on Mac/Fedora
+
 kmchart 1.0.0Beta3 (31 October 2007)
     - Next beta images - fixed export-to-image-file code, and a bunch
       of fixes in the switch-chart-type area.
