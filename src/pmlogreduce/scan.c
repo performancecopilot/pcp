@@ -91,6 +91,38 @@ doscan(struct timeval *end)
 	    }
 	}
 #endif
+
+	if (rp->numpmid == 0) {
+	    /*
+	     * Mark record ... copy into the output file as we cannot
+	     * pretend there is data between the previous data record
+	     * and the next data record
+	     * Logic copied from pmlogextract.
+	     */
+	    struct {
+		__pmPDU		len;
+		__pmPDU		type;
+		__pmPDU		from;
+		__pmTimeval	timestamp;
+		int		numpmid;	/* zero PMIDs to follow */
+	    } markrec;
+	    markrec.len = sizeof(markrec);
+	    markrec.type = markrec.from = 0;
+	    markrec.timestamp.tv_sec = htonl(rp->timestamp.tv_sec);
+	    markrec.timestamp.tv_usec = htonl(rp->timestamp.tv_usec);
+	    markrec.numpmid = 0;
+	    if ((sts = __pmLogPutResult(&logctl, (__pmPDU *)&markrec)) < 0) {
+		fprintf(stderr, "%s: Error: __pmLogPutResult: mark record write: %s\n",
+			pmProgname, pmErrStr(sts));
+		exit(1);
+		/*NOTREACHED*/
+	    }
+	    /*
+	     * continue on to check the interval range ... numpmid == 0
+	     * makes the rest of the loop safe
+	     */
+	}
+
 	if (rp->timestamp.tv_sec > end->tv_sec ||
 	    (rp->timestamp.tv_sec == end->tv_sec &&
 	     rp->timestamp.tv_usec > end->tv_usec)) {
