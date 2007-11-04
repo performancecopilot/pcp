@@ -7,8 +7,8 @@
 #
 # Used in 051.setup and 051.
 #
-remote_1=wobbly.melbourne.sgi.com
-remote_2=omen.melbourne.sgi.com
-remote_3=gonzo.melbourne.sgi.com
-remote_4=sandpit.melbourne.sgi.com
-remote_5=moomba.melbourne.sgi.com
+remote_1=www.sgi.com
+remote_2=www.aconex.com
+remote_3=support.sgi.com
+remote_4=oss.sgi.com
+remote_5=sourceforge.net
