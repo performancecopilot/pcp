@@ -83,8 +83,8 @@ _filter_me()
 _do()
 {
     echo
-    echo "+++ $* +++" | _filter_me
-    eval $* 2>&1 | _filter
+    echo "+++ $* +++" | tee -a $seq.full | _filter_me
+    eval $* 2>&1 | tee -a $seq.full | _filter
     echo "`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'` connects"
     echo "`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'` disconnects"
 }
@@ -97,11 +97,13 @@ pmproxy -Dcontext -l $tmp.log
 PMPROXY_HOST=localhost
 export PMPROXY_HOST
 
+rm -f $seq.full
+
 # real QA test starts here
 _do pminfo -d pmcd.agent
 _do pminfo -f sample.hordes
 _do pmprobe -v -h localhost hinv.ncpu
-_do pmval -h `pmhostname` -t 0.5 -T 1.5 sample.bin
+_do pmval -h `pmhostname` -t 0.5 -s 3 sample.bin
 
 echo "kernel.all.load;" >$tmp.in
 _do pmie -c $tmp.in -v -t 0.5 -T 1.5 
@@ -112,7 +114,7 @@ _do pmdumptext -t 0.5 -s 2 `hostname | sed -e 's/\..*//'`:sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 `pmhostname`:kernel.all.load
 _do pmstat -t 0.5 -s 2
 _do pmlogger -c $PCP_VAR_DIR/config/pmlogger/config.pmstat -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
-_do pmstat -a $tmp.arch
+_do pmstat -t 0.5sec -a $tmp.arch
 
 # success, all done
 exit

@@ -1025,13 +1025,13 @@ hinv.ncpu 1 N
 3 connects
 3 disconnects
 
-+++ pmval -h MY_FQDN -t 0.5 -T 1.5 sample.bin +++
++++ pmval -h MY_FQDN -t 0.5 -s 3 sample.bin +++
 
 metric:    sample.bin
 host:      MY_FQDN
 semantics: instantaneous value
 units:     none
-samples:   4
+samples:   3
 interval:  0.50 sec
 
     bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
@@ -1098,7 +1098,7 @@ DATE	N	N	N
 13 connects
 13 disconnects
 
-+++ pmstat -a TMP.arch +++
++++ pmstat -t 0.5sec -a TMP.arch +++
 @ DATE
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   si   so   bi   bo   in   cs  us  sy  id
