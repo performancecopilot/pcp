@@ -26,7 +26,10 @@ _filter()
 	-e 's/ *root[^/]*\//    root ... \//' \
 	-e 's/pmcd -.*/pmcd/' \
 	-e '/__pmGetPDU:.*illegal PDU len=0/d' \
-    | _filter_pcp_start
+    | _filter_pcp_start \
+    | sed \
+	-e '/Waiting for PMCD to terminate/s/ \..*/ [dots]/'
+
 }
 
 _expect()
