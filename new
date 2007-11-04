@@ -222,7 +222,7 @@ fi
 
 echo -n "Adding $id to group index ..."
 dist=oss
-if [ $id -ge 1000 ] dist=sgi
+[ $id -ge 1000 ] dist=sgi
 echo "$id $ans $dist" >>group
 echo " done."
 

@@ -3,6 +3,9 @@
 # $Revision: 1.16 $
 # pmlogger (assorted) and pmlc (PCP 2.0) version compatibility
 #
+# 64-bit host version ... see 322 for 32-bit host version ... this
+# one is optionally not run if you can't find a 64-bit host running
+# pcp
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -165,15 +168,18 @@ rm -f $seq.full
 
 # real QA test starts here
 
-for type in "-b 32 -v pcp=2" "-b 64 -v pcp=2"
+for type in "-b 64 -v pcp=2"
 do
-    echo
-    echo "=== pmlogger host type: $type ==="
-    host=`./getpmcdhosts -L -n 1 $type`
+    host=`./getpmcdhosts -L -n 1 $type 2>/dev/null`
     if [ -z "$host" ]
     then
-	echo "Arrgh, cannot find a suitable pmlogger host"
+	echo "Cannot find a 64-bit host running PCP" >$seq.notrun
+	echo "$seq: [not run] `cat $seq.notrun`"
+	need_clean=false
+	exit 0
     else
+	echo
+	echo "=== pmlogger host type: $type ==="
 	echo "$type => $host" >>$seq.full
 	_speak_to_me $host
     fi

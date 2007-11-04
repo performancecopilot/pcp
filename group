@@ -557,6 +557,7 @@ dmf		pcpqa
 319 pmie local oss
 320 local folio oss
 321 pmie local oss
+322 pmlc pmlogger remote oss
 323 pmda.shping pmda.proc local pmda.install oss
 324 pmda.txmon pmda.proc local pmda.install oss
 325 libpcp local oss
