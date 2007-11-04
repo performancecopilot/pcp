@@ -157,13 +157,13 @@ fi
 cp $config $oconfig
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 $sudo killall pmgadgets pmchart pmview >/dev/null 2>&1
-$sudo mv $tmp $config
+$sudo cp $tmp $config
 $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 echo "first config:"
 _myfilter_config  <$config
 echo
 
-cat >$tmp  <<End-of-File
+cat >>$tmp  <<End-of-File
 
 disallow $other1: store;
 allow $other2: all;
@@ -171,7 +171,7 @@ allow $other2: all;
 ddiissallow misspelt: all;
 End-of-File
 
-$sudo sh -c "cat $tmp >>$config"
+$sudo cp $tmp $config
 echo "second config:"
 _myfilter_config <$config
 
