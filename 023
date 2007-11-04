@@ -67,13 +67,14 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e "s/$BINFMT/ISA/g" \
 	-e '/access violation from host/d' \
 	-e '/endclient client.* No permission/d' \
+	-e 's/ while attempting to read 12 bytes out of 12 in mode -1//' \
 	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
     | $PCP_AWK_PROG '
 $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
 $1 == "y" && $2 = "y" && $8 == "localhost"	{ $5 = "IP-addr-in-hex" }
 /pipe cmd=/		{ $4 = "FD"; $5 = "FD" }
-			{ print }'
-
+			{ print }' \
+    | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../'
 }
 
 tmp=/var/tmp/$$
@@ -96,6 +97,9 @@ SAVE_LOGGER=`_get_config pmlogger`
 
 cleanup()
 {
+    echo >>$here/$seq.full
+    echo "pmcd.log at cleanup" >>$here/$seq.full
+    cat pmcd.log >>$here/$seq.full
     cd $here
     if $_needclean
     then
@@ -103,11 +107,18 @@ cleanup()
 	$sudo killall -TERM pmcd
 
         [ -f $SAVE_CONFIG ] && $sudo mv $SAVE_CONFIG $CONFIG
+	echo "=== restored $CONFIG ===" >>$here/$seq.full
+	cat $CONFIG >>$here/$seq.full
 	[ -f $SAVE_LOGCONTROL ] && $sudo mv $SAVE_LOGCONTROL $LOGCONTROL
+	echo "=== restored $LOGCONTROL ===" >>$here/$seq.full
+	cat $LOGCONTROL >>$here/$seq.full
 	[ ! -z "$SAVE_LOGGER" ] && _change_config pmlogger $SAVE_LOGGER
 	echo "Restart and ping pmcd ..."
 	unset PMCD_PORT # don't worry about preserving just get rid of it
-	$sudo $PCP_RC_DIR/pcp start | _filterall_pcp_start
+	$sudo $PCP_RC_DIR/pcp start \
+	| tee -a $here/$seq.full \
+	| _filterall_pcp_start \
+	| sed -e '/Waiting for PMCD to terminate/d'
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	pmprobe pmcd.control.debug
@@ -166,7 +177,10 @@ fake_proc 3 pipe binary sed /$TAG/p
 fake_cisco 5 pipe binary sleep $TAG
 fake_six 6 pipe binary sleep $TAG
 EOF
-grep pmda_pmcd $CONFIG | sed 's/[ 	][ 	]*/ /g' >>$TMP_CONFIG
+sed -n <$CONFIG >>$TMP_CONFIG \
+    -e '/^#/d' \
+    -e '/pmda_pmcd/s/[ 	][ 	]*/ /gp' \
+    -e '/pmdapmcd/s/[ 	][ 	]*/ /gp'
 cat <<EOF >>$TMP_CONFIG
 [access]
 allow localhost : all;
@@ -183,7 +197,7 @@ sync
 
 echo '$PCP_PMCDCONF_PATH contains:' | sed -e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;"
 echo '<BEGIN>'
-sed -e "s;$PCP_PMDAS_DIR/pmcd/;;" $CONFIG
+sed -e '/^pmcd 2 /s/2 .*/2 .../' $CONFIG
 echo '<END>'
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)

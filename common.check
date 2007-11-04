@@ -165,7 +165,11 @@ _wait_for_pmlogger()
     case $# in
 	"0")
 	    _pid="-P"
-	    _logfile="$PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log" 
+	    # logic copied exactly from pmlogger_check
+	    #
+	    LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
+	    [ -z "$LOCALHOSTNAME" ] && LOCALHOSTNAME=localhost
+	    _logfile="$PCP_LOG_DIR/pmlogger/$LOCALHOSTNAME/pmlogger.log" 
 	    ;;
 	"2")
 	    _pid=$1
@@ -851,7 +855,7 @@ _change_config()
 
 _get_config()
 {
-    if [ $PCP_PLATFORM = linux ]
+    if [ "$PCP_PLATFORM" = linux ]
     then
 	if which chkconfig >/dev/null 2>&1
 	then
@@ -876,20 +880,25 @@ _get_config()
 		#
 		echo on
 	    else
-		if chkconfig $pat >$tmp.__tmp
+		if chkconfig $pat >$tmp.__tmp 2>&1
 		then
 		    # success from chkconfig is only useful if no output
 		    # was generated ... in the latter case, grep the output
 		    # for hints (this is for SuSE SLES9 in particular)
 		    #
-		    if grep ' on$' $tmp.__tmp >/dev/null
+		    if [ -s $tmp.__tmp ]
 		    then
-			echo on
-		    elif grep ' off$' $tmp.__tmp >/dev/null
-		    then
-			echo off
+			if grep ' on$' $tmp.__tmp >/dev/null
+			then
+			    echo on
+			elif grep ' off$' $tmp.__tmp >/dev/null
+			then
+			    echo off
+			else
+			    echo off
+			fi
 		    else
-			echo off
+			echo on
 		    fi
 		else
 		    echo off
