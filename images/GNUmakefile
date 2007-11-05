@@ -4,6 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 INKSCAPE = inkscape
 SVGFILES = $(shell echo *.svg)
 PNGFILES = $(shell echo *.svg | sed -e 's/\.svg/.png/g')
+PNGFILES += kmcharticon.png kmtimeicon.png
 ICNFILES = $(shell echo *.icns)
 
 LSRCFILES = $(SVGFILES) $(PNGFILES) $(ICNFILES)
