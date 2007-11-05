@@ -38,13 +38,6 @@ Refer to doc/INSTALL for instructions on building these tools.
       VCR event to be missed, and kmchart got state display out of sync
       with kmtime and then no further time control possible (kmtime was
       probably awaiting an ACK that didn't arrive).
-    - When started in archive mode, why doesn't the Live tab time axis
-      update at all?  Seems like it should.
-    - Vice-versa, need to find a way to make the archive time axis look
-      decent when starting in Live mode too.  Two things needed: make
-      the canvas hidden again by default and set the label on the time
-      axis to "[No open archives]" when no bounds set.  The same change
-      (the second one) should be done for kmtime Position.
 
     - Tab issues
        o On initially creating a live tab, the time axis is very confused (it

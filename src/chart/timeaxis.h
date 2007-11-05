@@ -30,6 +30,7 @@ public:
     void init();
     void clearScaleCache();
     double scaleValue(double delta, int count);
+    void noArchiveSources();
 
 protected:
     void resizeEvent(QResizeEvent *);

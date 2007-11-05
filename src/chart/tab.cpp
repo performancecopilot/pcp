@@ -203,22 +203,23 @@ QmcGroup *Tab::group()
 
 void Tab::updateTimeAxis(void)
 {
-    QString tz;
+    QString tz, otz, unused;
 
-    if (my.group->numContexts() > 0) {
-	QString olabel, otz;
-	my.group->defaultTZ(olabel, otz);
+    if (my.group->numContexts() > 0 || isArchiveSource() == false) {
+	if (my.group->numContexts() > 0)
+	    my.group->defaultTZ(unused, otz);
+	else
+	    otz = QmcSource::localHost;
 	tz = otz;
 	kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom,
 		my.timeData[my.visible - 1], my.timeData[0],
 		kmchart->timeAxis()->scaleValue(my.interval, my.visible));
+	kmchart->setDateLabel(my.previousPosition.tv_sec, tz);
+	kmchart->timeAxis()->replot();
     } else {
-	tz = tr("UTC");
-	kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom, 0, 0,
-		kmchart->timeAxis()->scaleValue(my.interval, my.visible));
+	kmchart->timeAxis()->noArchiveSources();
+	kmchart->setDateLabel(tr("[No open archives]"));
     }
-    kmchart->timeAxis()->replot();
-    kmchart->setDateLabel(my.previousPosition.tv_sec, tz);
 
     int i = my.visible - 1;
     console->post(KmChart::DebugProtocol, "Tab::updateTimeAxis: tz=%s; pts=%d,"

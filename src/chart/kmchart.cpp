@@ -741,6 +741,11 @@ void KmChart::setDateLabel(time_t seconds, QString tz)
     dateLabel->setText(label);
 }
 
+void KmChart::setDateLabel(QString label)
+{
+    dateLabel->setText(label);
+}
+
 void KmChart::setRecordState(Tab *tab, bool recording)
 {
     tab->newButtonState(tab->kmtimeState(),

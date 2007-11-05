@@ -44,6 +44,7 @@ public:
     QwtPlotLayout *layout;
 
     bool autoReplot;
+    bool hideCanvas;
 };
 
 /*!
@@ -106,6 +107,7 @@ void QwtPlot::initPlot(const QwtText &title)
     d_data->layout = new QwtPlotLayout;
 
     d_data->autoReplot = false;
+    d_data->hideCanvas = false;
 
     d_data->lblTitle = new QwtTextLabel(title, this);
     d_data->lblTitle->setFont(QFont(fontInfo().family(), 14, QFont::Bold));
@@ -195,6 +197,27 @@ void QwtPlot::setAutoReplot(bool tf)
 bool QwtPlot::autoReplot() const
 {
     return d_data->autoReplot; 
+}
+
+/*!
+  \brief Set or reset the hideCanvas option
+  If the hideCanvas option is set, the plot will be
+  rendered without a visible main canvas.
+
+  The hideCanvas option is set to false by default.
+  \param tf \c true or \c false. Defaults to \c true.
+*/
+void QwtPlot::setHideCanvas(bool tf)
+{
+    d_data->hideCanvas = tf;
+}
+
+/*!
+    \return true if the hideCanvas option is set.
+*/
+bool QwtPlot::hideCanvas() const
+{
+    return d_data->hideCanvas; 
 }
 
 /*!
@@ -476,9 +499,13 @@ void QwtPlot::updateLayout()
             d_data->legend->hide();
     }
 
-    d_data->canvas->setGeometry(d_data->layout->canvasRect());
-    if (!d_data->canvas->isVisible())
-	d_data->canvas->show();
+    if (d_data->hideCanvas == false) {
+	d_data->canvas->setGeometry(d_data->layout->canvasRect());
+	if (!d_data->canvas->isVisible())
+	    d_data->canvas->show();
+    }
+    else
+	d_data->canvas->hide();
 }
 
 /*! 

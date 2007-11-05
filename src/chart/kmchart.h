@@ -71,6 +71,7 @@ public:
     virtual void metricInfo(QString src, QString m, QString inst, bool archive);
     virtual void metricSearch(QTreeWidget *pmns);
     virtual void createNewTab(bool liveMode);
+    virtual void setDateLabel(QString label);
     virtual void setDateLabel(time_t seconds, QString tz);
     virtual void setButtonState(TimeButton::State state);
     virtual void setRecordState(Tab *tab, bool recording);

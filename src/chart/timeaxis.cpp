@@ -64,12 +64,19 @@ void TimeAxis::init()
     enableAxis(yLeft, false);
     enableAxis(yRight, false);
     setAutoReplot(false);
+    setHideCanvas(true);
     plotLayout()->setAlignCanvasToScales(true);
     canvas()->hide();
     setMargin(1);
     setAxisScaleDraw(QwtPlot::xBottom, new TimeScaleDraw());
     setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignHCenter | Qt::AlignBottom);
     setAxisFont(QwtPlot::xBottom, globalFont);
+}
+
+void TimeAxis::noArchiveSources()
+{
+    setAxisScale(QwtPlot::xBottom, 0, 1, 0);
+    replot();
 }
 
 void TimeAxis::clearScaleCache()

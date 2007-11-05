@@ -126,6 +126,9 @@ public:
     void setAutoReplot(bool tf = true);
     bool autoReplot() const;
 
+    void setHideCanvas(bool tf = true);
+    bool hideCanvas() const;
+
     void print(QPaintDevice &p,
         const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
     virtual void print(QPainter *, const QRect &rect,
