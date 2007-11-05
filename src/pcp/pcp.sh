@@ -42,7 +42,7 @@ do
 done
 
 # metrics
-metrics="pmcd.numagents pmcd.numclients pmcd.simabi pmcd.version pmcd.build pmcd.license pmcd.timezone pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules"
+metrics="pmcd.numagents pmcd.numclients pmcd.simabi pmcd.version pmcd.build pmcd.license pmcd.timezone pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
 pmiemetrics="pmcd.pmie.actions pmcd.pmie.eval.true pmcd.pmie.eval.false pmcd.pmie.eval.unknown pmcd.pmie.eval.expected"
 
 _usage()
@@ -197,6 +197,7 @@ mode == 3		{ inst(); next }
 /pmcd.pmlogger.archive/	{ mode = 3; count = 0; quote="log_archive"; next }
 /pmcd.pmlogger.pmcd_host/ { mode = 3; count = 0; quote="log_host"; next }
 /pmcd.pmie.pmcd_host/	{ mode = 3; count = 0; quote="ie_host"; next }
+/pmcd.pmie.logfile/	{ mode = 3; count = 0; quote="ie_log"; next }
 /pmcd.pmie.configfile/	{ mode = 3; count = 0; quote="ie_config"; next }
 /pmcd.pmie.numrules/	{ mode = 3; count = 0; quote="ie_numrules"; next }
 /pmcd.pmie.actions/	{ mode = 3; count = 0; quote="ie_actions"; next }
@@ -311,13 +312,19 @@ else
     numloggers=0
 fi
 
-if [ -f $tmp.ie_host -a -f $tmp.ie_config -a -f $tmp.ie_numrules ]
+if [ -f $tmp.ie_host -a -f $tmp.ie_config -a -f $tmp.ie_log -a -f $tmp.ie_numrules ]
 then
+    sort $tmp.ie_log -o $tmp.ie_log
     sort $tmp.ie_host -o $tmp.ie_host
     sort $tmp.ie_config -o $tmp.ie_config
     sort $tmp.ie_numrules -o $tmp.ie_numrules
-    numpmies=`join $tmp.ie_host $tmp.ie_config | join - $tmp.ie_numrules \
-	| sort -n | sed -e 's/"//g' | tee $tmp.pmie | wc -l | tr -d ' '`
+    if [ $pflag = "true" ]; then
+	numpmies=`join $tmp.ie_host $tmp.ie_config | join - $tmp.ie_numrules \
+	    | sort -n | sed -e 's/"//g' | tee $tmp.pmie | wc -l | tr -d ' '`
+    else
+	numpmies=`join $tmp.ie_host $tmp.ie_log \
+	    | sort -n | sed -e 's/"//g' | tee $tmp.pmie | wc -l | tr -d ' '`
+    fi
 
     if [ $pflag = "true" -a -f $tmp.ie_actions -a -f $tmp.ie_true -a \
 	-f $tmp.ie_false -a -f $tmp.ie_unknown -a -f $tmp.ie_expected ]
@@ -328,18 +335,20 @@ then
 	sort $tmp.ie_unknown -o $tmp.ie_unknown
 	sort $tmp.ie_expected -o $tmp.ie_expected
 	join $tmp.pmie $tmp.ie_true | join - $tmp.ie_false \
-	    | join - $tmp.ie_unknown | join - $tmp.ie_actions \
-	    | join - $tmp.ie_expected > $tmp.pmie
+		| join - $tmp.ie_unknown | join - $tmp.ie_actions \
+		| join - $tmp.ie_expected > $tmp.pmie
     fi
 
     $PCP_AWK_PROG -v pflag=$pflag < $tmp.pmie '{
-	offset = match($3, "/pcp/config/")
-	if (offset != 0)
-	    $3=substr($3, offset+12, length($3))
-	printf "%s: %s [%u]\n\n",$2,$3,$4
 	if (pflag == "true") {
+	    offset = match($3, "/pcp/config/")
+	    if (offset != 0)
+		$3=substr($3, offset+12, length($3))
+	    printf "%s: %s [%u]\n\n",$2,$3,$4
 	    printf "evaluations true=%u false=%u unknown=%u (actions=%u)",$5,$6,$7,$8
 	    printf "\n\nexpected evaluation rate=%f/sec\n\n",$9
+	} else {
+	    printf "%s: %s\n\n",$2,$3
 	}
     }' > $tmp.pmies
 else
