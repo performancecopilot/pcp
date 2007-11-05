@@ -649,7 +649,9 @@ END							{ print m }'`
 	if [ -f $SUMMARY_LOGNAME.0 -o -f $SUMMARY_LOGNAME.index -o -f $SUMMARY_LOGNAME.meta ]
 	then
 	    echo "$prog: Warning: output archive ($SUMMARY_LOGNAME) already exists"
-	    echo "[$CONTROL:$line] ... skip log merging for host \"$host\""
+	    echo "[$CONTROL:$line] ... skip log merging, culling and compressing for host \"$host\""
+	    echo "Note: Possibly a daylight saving change caused a large date jump?"
+	    continue
 	else
 	    if $SHOWME
 	    then
