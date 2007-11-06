@@ -147,7 +147,7 @@ _wait_for_pmcd()
 		ps "$PCP_PS_ALL_FLAGS" | egrep "pm|PPID"
 		;;
 	    *)
-		rsh $_host -n -l pcpqa "sh -c '. /etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | egrep \"pm|PPID\" )'" </dev/null
+		ssh pcpqa@$_host "sh -c '. /etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | egrep \"pm|PPID\" )'" </dev/null
 		;;
 	esac
 	status=2
@@ -230,11 +230,11 @@ _wait_for_pmlogger()
 	    else
 	    	if [ "`hostname | sed -e 's/\..*//'`" != $_pmcdhost ]
 	    	then
-	    	    if rcp $_pmcdhost:$PCP_LOG_DIR/pmcd/pmcd.log \
+	    	    if scp $_pmcdhost:$PCP_LOG_DIR/pmcd/pmcd.log \
 	    	      $tmp._wait_for_pmlogger.pmcdlog
 	    	    then
 	    	    	cat $tmp._wait_for_pmlogger.pmcdlog
-	    	    elif rcp $_pmcdhost:$PCP_LOG_DIR/pmcd.log \
+	    	    elif scp $_pmcdhost:$PCP_LOG_DIR/pmcd.log \
 	    	      $tmp._wait_for_pmlogger.pmcdlog
 	    	    then
 	    	    	cat $tmp._wait_for_pmlogger.pmcdlog
@@ -616,7 +616,7 @@ _get_port()
 _all_hostnames()
 {
     touch $tmp._addr
-    rsh </dev/null $1 -l pcpqa netstat -in 2>/dev/null >$tmp._tmp
+    ssh pcpqa@$1 </dev/null netstat -in 2>/dev/null >$tmp._tmp
     if grep 'Network.*Address' $tmp._tmp >/dev/null
     then
 	# This is the IRIX version of netstat -in, get IP addr from the
@@ -635,7 +635,7 @@ NF >= 4 && $4 ~ /^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/ 	{ print 
 NF == 1 && $1 ~ /^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/	{ print $1 }
 END									{ print "End-of-List" }'
     else
-	rsh </dev/null $1 -l pcpqa /sbin/ifconfig 2>/dev/null >$tmp._tmp
+	ssh pcpqa@$1 </dev/null /sbin/ifconfig 2>/dev/null >$tmp._tmp
 	if grep 'UP.*RUNNING' $tmp._tmp >/dev/null
 	then
 	    # This is the Linux version of ifconfig, get IP addr from the
@@ -701,7 +701,7 @@ _all_ipaddrs()
     then 
 	netstat -in 2>/dev/null >$tmp._tmp
     else
-	rsh </dev/null $1 -l pcpqa netstat -in 2>/dev/null >$tmp._tmp
+	ssh pcpqa@$1 </dev/null netstat -in 2>/dev/null >$tmp._tmp
     fi
     if grep 'Network.*Address' $tmp._tmp >/dev/null
     then
@@ -718,7 +718,7 @@ END									{ print "End-of-List" }'
 	then 
 	    /sbin/ifconfig 2>/dev/null >$tmp._tmp
 	else
-	    rsh </dev/null $1 -l pcpqa /sbin/ifconfig 2>/dev/null >$tmp._tmp
+	    ssh pcpqa@$1 </dev/null /sbin/ifconfig 2>/dev/null >$tmp._tmp
 	fi
 	if grep 'UP.*RUNNING' $tmp._tmp >/dev/null
 	then

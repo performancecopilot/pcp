@@ -28,6 +28,7 @@ whirr.engr.sgi.com
 wobbly.melbourne.sgi.com
 
 # Aconex Section
+ken.engr.acx
 nathan.engr.acx
 herry.engr.acx
 edge.scott.net.au
@@ -39,7 +40,6 @@ farawaypmcd.scott.net.au
 socksserver.scott.net.au
 bozo.localdomain
 bozo-pc.localdomain
-kmcdonell-laptop.aconex.com
 
 # sort control lines
 # each line here is a specification that includes the keyword #order and
@@ -58,4 +58,5 @@ kmcdonell-laptop.aconex.com
 #order	.americas.sgi.com	.americas.sgi.com	.engr.sgi.com	.melbourne.sgi
 # Aconex Section
 #order	.scott.net.au		.scott.net.au
+#order	.engr.acx		.acx			.localdomain	.aconex.com
 #order	.aconex.com		.acx			.localdomain	.aconex.com

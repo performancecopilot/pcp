@@ -73,10 +73,10 @@ then
 	    # local and really me
 	    QA_DIR_DEFAULT=`pwd`
 	else
-	    QA_DIR_DEFAULT=`rsh -l "$QA_USER" "$QA_HOST" "/bin/ls -d isms/pcp[1-9]*/qa" 2>/dev/null | grep '^isms/' | tail -1`
+	    QA_DIR_DEFAULT=`ssh $QA_USER@$QA_HOST /bin/ls -d isms/pcp[1-9]*/qa" 2>/dev/null | grep '^isms/' | tail -1`
 	fi
     else
-	QA_DIR_DEFAULT=`rsh -l "$QA_USER" "$QA_HOST" "/bin/ls -d isms/pcp[1-9]*/qa" 2>/dev/null | grep '^isms/' | tail -1`
+	QA_DIR_DEFAULT=`ssh $QA_USER@$QA_HOST /bin/ls -d isms/pcp[1-9]*/qa" 2>/dev/null | grep '^isms/' | tail -1`
     fi
     if [ "$QA_DIR_DEFAULT" = "" ]
     then
@@ -94,12 +94,12 @@ then
 	       | sed -e 's/\.out\.bad//' \
 	       | LC_COLLATE=POSIX sort -n`
     else
-	x=`rsh $QA_HOST -l $QA_USER echo $QA_DIR/\[0-9]*.out.bad 2>$tmp.err`
+	x=`ssh QA_USER@$QA_HOST echo $QA_DIR/\[0-9]*.out.bad 2>$tmp.err`
 	if [ -z "$x" ]
 	then
 	    if [ -s $tmp.err ]
 	    then
-		echo "rsh failed?"
+		echo "ssh failed?"
 		cat $tmp.err
 	    else
 		echo "No failing tests!"
@@ -127,8 +127,8 @@ do
     then
 	echo "Fetch files from $QA_USER@$QA_HOST:$QA_DIR ..."
 	rm -f $tmp/$id.out.bad $tmp/$id.out
-	rcp $QA_USER@$QA_HOST:$QA_DIR/$id.out.bad $tmp
-	rcp $QA_USER@$QA_HOST:$QA_DIR/$id.out $tmp
+	scp $QA_USER@$QA_HOST:$QA_DIR/$id.out.bad $tmp
+	scp $QA_USER@$QA_HOST:$QA_DIR/$id.out $tmp
 	cd $tmp
     elif $not_me
     then

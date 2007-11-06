@@ -21,7 +21,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 HOSTS=qa_hosts
 PROBE=pmprobe
 BRAND=pmbrand
-RSH_USER=pcpqa
+SSH_USER=pcpqa
 
 _usage()
 {
@@ -134,17 +134,17 @@ _checkpmcdhost()
 	fi
     fi
 
-    # check that rsh works for host -l user
+    # check that ssh works for user@host
     #
     if [ "$LICENSE" != "_" -o "$IRIX" != "_" ]
     then
-	if rsh $HOST -l $RSH_USER date 1>/dev/null 2>&1
+	if ssh $SSH_USER@$HOST date 1>/dev/null 2>&1
 	then
 	    :
 	else
 	    if $MSG
 	    then
-		echo "$0: WARNING: \"rsh $HOST\" -l $RSH_USER failed" >&2
+		echo "$0: WARNING: \"ssh $SSH_USER@$HOST\" failed" >&2
 		return 1
 	    fi
 	fi
@@ -154,7 +154,7 @@ _checkpmcdhost()
     #
     if [ "$SYSTEM" != "_" ]
     then
-	osname=`rsh $HOST -l $RSH_USER uname -s`
+	osname=`ssh $SSH_USER@$HOST uname -s`
         if echo $osname | grep -i $SYSTEM >/dev/null 2>&1 
         then
 	    :
@@ -169,7 +169,7 @@ _checkpmcdhost()
     #
     if [ "$IRIX" != "_" ]
     then
-	irixrev=`rsh $HOST -l $RSH_USER uname -r | sed -e 's/-ALPHA.*//' -e 's/ .*//'`
+	irixrev=`ssh $SSH_USER@$HOST uname -r | sed -e 's/-ALPHA.*//' -e 's/ .*//'`
 	if [ "$irixrev" != $IRIX ]
 	then
 	    $MSG && echo "$HOST: IRIX $IRIX != $irixrev" >&2
@@ -181,8 +181,8 @@ _checkpmcdhost()
     #
     if [ "$LICENSE" != "_" ]
     then
-	$VERBOSE && echo "+ rsh $HOST -l $RSH_USER $BRAND -l"
-	license=`rsh $HOST -l $RSH_USER "$BRAND -l" 2>&1`
+	$VERBOSE && echo "+ ssh $SSH_USER@$HOST $BRAND -l"
+	license=`ssh $SSH_USER@$HOST "$BRAND -l" 2>&1`
 	$VERBOSE && echo "-> $license"
 	if [ "$LICENSE" = "full" ]
 	then
@@ -255,8 +255,8 @@ _checkpmcdhost()
     #
     if [ "$ENDIAN" != "_" ]
     then
-	$VERBOSE && echo "+ echo a | rsh $HOST -l $RSH_USER od -x"
-	check=`echo a | rsh $HOST -l $RSH_USER "od -x" 2>&1 | sed -e 's/^0[^ ]* *//' -e '/^$/d'`
+	$VERBOSE && echo "+ echo a | ssh $SSH_USER@$HOST od -x"
+	check=`echo a | ssh $SSH_USER@$HOST "od -x" 2>&1 | sed -e 's/^0[^ ]* *//' -e '/^$/d'`
 	$VERBOSE && echo "-> $check"
 	case "$check"
 	in

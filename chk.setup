@@ -302,16 +302,16 @@ do
 	# and the installed pmdas
 	_check_pmdas $host
 	# if the host is there, then the login for pcpqa needs to be
-	# setup and and rsh/rcp working without passwords
-	echo -n "Trying rcp/rsh for login pcpqa at $host ... "
-	echo "== rsh 1st rm ==" >$tmp.out
-	rsh -l pcpqa $host rm -f chk.hullo >>$tmp.out 2>&1
-	echo "== rcp -> $host ==" >>$tmp.out
-	rcp $tmp.hullo pcpqa@$host:chk.hullo >>$tmp.out 2>&1
-	echo "== rsh cat ==" >>$tmp.out
-	rsh -l pcpqa $host cat chk.hullo >$tmp.ans 2>>$tmp.out
-	echo "== rsh 2nd rm ==" >>$tmp.out
-	rsh -l pcpqa $host rm -f chk.hullo >>$tmp.out 2>&1
+	# setup and and ssh/scp working without passwords
+	echo -n "Trying scp/ssh for login pcpqa at $host ... "
+	echo "== ssh 1st rm ==" >$tmp.out
+	ssh pcpqa@$host rm -f chk.hullo >>$tmp.out 2>&1
+	echo "== scp -> $host ==" >>$tmp.out
+	scp $tmp.hullo pcpqa@$host:chk.hullo >>$tmp.out 2>&1
+	echo "== ssh cat ==" >>$tmp.out
+	ssh pcpqa@$host cat chk.hullo >$tmp.ans 2>>$tmp.out
+	echo "== ssh 2nd rm ==" >>$tmp.out
+	ssh pcpqa@$host rm -f chk.hullo >>$tmp.out 2>&1
 	if [ "`cat $tmp.ans`" = "`cat $tmp.hullo`" ]
 	then
 	    echo "OK"
@@ -326,8 +326,8 @@ do
 	# check remote shell's path includes the PCP binary directories
 	#
 	echo -n "Trying shell's path for login pcpqa at $host ... "
-	echo "== rsh $host pmhostname ==" >$tmp.out
-	if rsh -l pcpqa $host pmhostname >>$tmp.out 2>&1
+	echo "== ssh $host pmhostname ==" >$tmp.out
+	if ssh pcpqa@$host pmhostname >>$tmp.out 2>&1
 	then
 	    echo "OK"
 	else

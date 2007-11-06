@@ -197,7 +197,7 @@ NF < 2		{ next }
 	    break
 	fi
     done
-    echo -n "Runs on QA machine alone? (local pmcd, local pmlogger, no rsh, ...) [y] "
+    echo -n "Runs on QA machine alone? (local pmcd, local pmlogger, no ssh, ...) [y] "
     read _ans
     if [ -z "$_ans" -o "$_ans" = "y" ]
     then

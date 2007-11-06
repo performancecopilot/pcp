@@ -44,10 +44,10 @@ Basic getting started
     (a) PCP installed,
     (b) pmcd(1) running,
     (c) a login for the user "pcpqa" needs to be created, and then set
-        up in such a way that rsh/rcp will work without the need for any
+        up in such a way that ssh/scp will work without the need for any
 	password, i.e. these sorts of commands
-	    $ rsh -l pcpqa pcp-qa-host some-command
-	    $ rcp some-file pcpqa@pcp-qa-host:some-dir
+	    $ ssh pcpqa@pcp-qa-host some-command
+	    $ scp some-file pcpqa@pcp-qa-host:some-dir
 	must work correctly when run from the local host.
         The "pcpqa" user's environment must also be initialized 
         so that their shell's path includes all of the PCP binary
