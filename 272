@@ -10,6 +10,16 @@
 owner=kenmcd
 
 seq=`basename $0`
+
+# preliminary check
+#
+./getpmcdhosts -n 2 -L -a sample -v pcp=2 -s IRIX64 2>$seq.notrun >/dev/null
+if [ $? -eq 1 ]; then
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit
+fi
+rm -f $seq.notrun
+
 echo "QA output created by $seq"
 
 # get standard filters
