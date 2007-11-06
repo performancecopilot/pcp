@@ -207,6 +207,11 @@ PATH=$PATH:$here/src-oss
 export PMCD_PORT PATH
 $PCP_PMCD_PROG -f -t 2 &
 pmcd=$!
+if [ -d /var/run/pcp ]
+then
+    echo "$pmcd" >$tmp.tmp
+    $sudo cp $tmp.tmp /var/run/pcp/pmcd.pid
+fi
 
 # Sleep 3 sec for each fake pmda
 sleep 15 
