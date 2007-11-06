@@ -87,6 +87,7 @@ $1 == "cisco"		{ $4 = "fd_in"; $5 = "fd_out"
 
 tmp=/var/tmp/$$
 CONFIG=$PCP_PMCDCONF_PATH
+NEWCONFIG=$tmp/pmcd.conf
 CONFIGSAVE=$tmp/pmcd.conf.save
 LOGCONTROL=$PCP_VAR_DIR/config/pmlogger/control
 SAVE_LOGCONTROL=$tmp/control.save
@@ -154,14 +155,15 @@ TAG=000000660066
 # NOTE: none of the domains should clash with the pmcd PMDA (domain 2) or the
 # sample agent (domain 254).  These agents will be appended to the file.
 #
-$sudo sh -c "echo \"fake_irix 1 pipe binary dumb_pmda -d 1 $TAG\" >$CONFIG"
-$sudo sh -c "echo \"fake_sampledso 30 pipe binary sleep $TAG\" >>$CONFIG"
-$sudo sh -c "echo \"fake_cisco 5 pipe binary sed /$TAG/p\" >>$CONFIG"
-$sudo sh -c "echo \"fake_linux 60 pipe binary sleep $TAG\" >>$CONFIG"
-$sudo sh -c "echo \`grep pmda_pmcd $CONFIGSAVE\` >>$CONFIG"
-$sudo sh -c "echo \"[access]\" >>$CONFIG"
-$sudo sh -c "echo \"allow localhost : all;\" >>$CONFIG"
-$sudo sh -c "echo \"disallow * : all;\" >>$CONFIG"
+echo "fake_irix 1 pipe binary dumb_pmda -d 1 $TAG" >$NEWCONFIG
+echo "fake_sampledso 30 pipe binary sleep $TAG" >>$NEWCONFIG
+echo "fake_cisco 5 pipe binary sed /$TAG/p" >>$NEWCONFIG
+echo "fake_linux 60 pipe binary sleep $TAG" >>$NEWCONFIG
+grep pmda_pmcd $CONFIGSAVE | sed -e 's/[ 	][ 	]*/ /g' -e 's/[ 	]*$//' >>$NEWCONFIG
+echo "[access]" >>$NEWCONFIG
+echo "allow localhost : all;" >>$NEWCONFIG
+echo "disallow * : all;" >>$NEWCONFIG
+$sudo cp $NEWCONFIG $CONFIG
 
 echo '$PCP_PMCDCONF_PATH contains:'
 echo '<BEGIN>'
@@ -189,13 +191,14 @@ pminfo $NAMESPACE -d hinv.ncpu
 # original config file and restart PMCD.
 # The config file has changed and there is also a dead agent to restart.
 #
-$sudo sh -c "echo \`grep pmdasample $CONFIGSAVE\` >>$CONFIG"
-$sudo ed - $CONFIG <<'End-of-File'
+grep pmdasample $CONFIGSAVE | sed -e 's/[ 	][ 	]*/ /g' -e 's/[ 	]*$//' >>$NEWCONFIG
+ed - $NEWCONFIG <<'End-of-File'
 $m2
 /fake_sampledso/d
 w
 q
 End-of-File
+$sudo cp $NEWCONFIG $CONFIG
 
 echo '$PCP_PMCDCONF_PATH now contains:'
 echo '<BEGIN>'
@@ -216,8 +219,9 @@ pmprobe $NAMESPACE -v sample.bin
 
 # Next, get the PID of the sample agent, copy the original config file back,
 # restart PMCD (the sample agent's config line will be unchanged) and check
-# that the sample agent has the same PID.  The bogus fake_sampledso agent should have
-# been terminated becasue it is no longer in the config file. 
+# that the sample agent has the same PID.
+# The bogus fake_sampledso agent should have been terminated because it is
+# no longer in the config file. 
 # That isn't enough to kill the sleep agent.
 #
 echo

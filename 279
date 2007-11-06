@@ -83,7 +83,7 @@ trap "_interrupt; _cleanup" 1 2 3 15
 #
 if [ $PCP_PLATFORM = irix ]
 then
-cat <<End-of-File >$tmp.out
+cat <<End-of-File >$tmp.conf
 # temporary pmcd.conf for qa/$seq
 #
 # Name	Id	IPC	IPC Params 	File/Cmd
@@ -93,7 +93,7 @@ proc	3	dso	proc_init	pmda_proc.so
 End-of-File
 elif [ $PCP_PLATFORM = linux ]
 then
-cat <<End-of-File >$tmp.out
+cat <<End-of-File >$tmp.conf
 # temporary pmcd.conf for qa/$seq
 #
 # Name	Id	IPC	IPC Params 	File/Cmd
@@ -101,7 +101,7 @@ pmcd	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
 fi
-$sudo cp $tmp.out $PCP_PMCDCONF_PATH
+$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
 $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
 
@@ -121,7 +121,7 @@ $sudo sh $tmp.cmd \
 | _filter
 
 echo "\$PCP_PMCDCONF_PATH should be put back the way it was ... diffs ..."
-diff $PCP_PMCDCONF_PATH $tmp.out
+diff $PCP_PMCDCONF_PATH $tmp.conf
 
 echo
 cat <<End-of-File >$tmp.cmd
@@ -130,8 +130,9 @@ rm -f $PCP_PMCDCONF_PATH.prev
 __pmda_cull fungus 222
 End-of-File
 
-$sudo sh -c "echo 'bogus 111     pipe    binary          killall pmcd' >>$PCP_PMCDCONF_PATH"
-$sudo sh -c "echo 'fungus 222     pipe    binary         killall pmcd' >>$PCP_PMCDCONF_PATH"
+echo 'bogus 111     pipe    binary          killall pmcd' >>$tmp.conf
+echo 'fungus 222     pipe    binary         killall pmcd' >>$tmp.conf
+$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
 
 echo
 echo "__pmda_cull test: expect this to fail and restoration to fail ..."

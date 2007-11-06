@@ -18,7 +18,7 @@ status=1
 
 _cleanup()
 {
-    [ -f $tmp.options ] && ./sudo mv $tmp.options $PCP_PMCDOPTIONS_PATH
+    [ -f $tmp.save ] && ./sudo mv $tmp.save $PCP_PMCDOPTIONS_PATH
     ./sudo rm -f $tmp.*
     ./sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
     _wait_for_pmcd
@@ -38,14 +38,15 @@ _wait_for_pmlogger
 grep 'logfile is' $tmp.out | _filter_pcp_start
 echo ""
 
+cp $PCP_PMCDOPTIONS_PATH $tmp.save
 cp $PCP_PMCDOPTIONS_PATH $tmp.options
-cat <<End-Of-File >>$tmp.extras
+cat <<End-Of-File >>$tmp.options
 # Dummy lines added by PCP QA test 170
 #
 -l $tmp.1.pmcd.log
 -l $tmp.2.pmcd.log
 End-Of-File
-./sudo sh -c "cat $tmp.extras >>$PCP_PMCDOPTIONS_PATH"
+./sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
 echo "The logfile from the hacked \$PCP_PMCDOPTIONS_PATH (pmcd.options):"
 ./sudo $PCP_RC_DIR/pcp start >$tmp.out

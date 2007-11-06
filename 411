@@ -58,9 +58,8 @@ fi
 cd $home/$iam
 unset ROOT
 
-# copy the pmcd config file to restore state later.
-cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
-$sudo sh -c "echo sec,min,hour > $home/$iam/$iam.conf"
+echo "sec,min,hour" >$tmp.conf
+$sudo cp $tmp.conf $home/$iam/$iam.conf
 
 if $here/sudo make clobber >$tmp.out 2>&1
 then
@@ -108,7 +107,7 @@ do
     pminfo -f simple.now | _time_filter
     $sudo rm -f $home/$iam/$iam.conf
 done
-$sudo sh -c "echo sec,min,hour > $home/$iam/$iam.conf"
+$sudo cp $tmp.conf $home/$iam/$iam.conf
 
 # remove the agent
 $here/sudo ./Remove >$tmp.out 2>&1

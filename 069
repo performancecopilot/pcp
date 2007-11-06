@@ -31,7 +31,7 @@ tmp=/tmp/$$
 status=0
 sudo=./sudo
 config=$PCP_PMCDCONF_PATH
-oconfig=$tmp.pmcd.conf
+oconfig=${PCP_PMCDCONF_PATH}.save.$seq
 nconfig=$tmp.pmcd.conf.new
 log=$PCP_PMCDLOG_PATH
 LOCALHOST=`hostname`
@@ -138,9 +138,11 @@ pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 
 # ideally want a host with only 1 network interface ... getpmcdhosts
-# cannot express this, so go for 1 CPU as a likely co-condition
+# cannot express this, so we used to go for 1 CPU as a likely co-condition,
+# but even that has been dropped now that single CPU systems are so
+# rare
 #
-eval `./getpmcdhosts -L -n2 -p single | sed -e 's/^/other1=/' -e 's/ / other2=/'`
+eval `./getpmcdhosts -L -n2 | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 
 if [ -z "$other1" ]
 then
@@ -183,7 +185,7 @@ echo "# from qa/$seq" >$nconfig
 egrep '^(linux|irix)' $config >>$nconfig
 grep '^pmcd' $config >>$nconfig
 
-cp $config $oconfig
+$sudo cp $config $oconfig
 $sudo mv $nconfig $config
 PMCD_CONNECT_TIMEOUT=30
 PMCD_PORT=$port
@@ -195,13 +197,15 @@ _wait_for_pmlogger
 echo "should be OK"
 pminfo -f pmcd.numclients # should be controlled now - determinate
 
-$sudo cat <<End-of-File >>$config
+cat <<End-of-File >>$nconfig
 
 [access]
 allow $other1: all except store, maximum 1 connections;
 allow $other2: all, maximum 1 connections;
 disallow *: all;
 End-of-File
+$sudo mv $nconfig $config
+
 $sudo killall -HUP pmcd
 sleep 5
 
@@ -220,7 +224,7 @@ echo
 
 echo "expect two connection limit errors:"
 cmd1='sh -c "PMCD_CONNECT_TIMEOUT=30 PMCD_PORT='$PMCD_PORT'; export PMCD_CONNECT_TIMEOUT PMCD_PORT; pmval -h '$LOCALHOST_FULL' pmcd.numclients"'
-(rsh $other1 -n -l pcpqa $cmd1  &) 1>$tmp.pmval 2>&1
+(ssh pcpqa@$other1 $cmd1  &) 1>$tmp.pmval 2>&1
 sleep 5
 
 # not sure how long it takes to get the remote pmval command started,
@@ -231,7 +235,7 @@ cnt=0
 echo >$tmp.pminfo
 for i in 1 2 3 4 5 6 7 8 9 10
 do
-    rsh $other1 -n -l pcpqa $cmd2 >$tmp.tmp 2>&1
+    ssh pcpqa@$other1 $cmd2 >$tmp.tmp 2>&1
     cat $tmp.tmp >>$tmp.pminfo
     if grep 'connection limit' $tmp.tmp >/dev/null
     then
@@ -246,7 +250,7 @@ if [ $cnt -ne 2 ]
 then
     cat $tmp.pminfo
 fi
-rsh $other1 -n -l pcpqa killall pmval > /dev/null 2>&1
+ssh pcpqa@$other1 killall pmval > /dev/null 2>&1
 echo
 echo "=== pmval output ===" >>$seq.full
 cat $tmp.pmval >>$seq.full
@@ -254,7 +258,7 @@ echo "=== pminfo output ===" >>$seq.full
 cat $tmp.pminfo >>$seq.full
 
 echo "expect two connection limit errors:"
-(rsh $other2 -n -l pcpqa $cmd1 &) > $tmp.pmval 2>&1
+(ssh pcpqa@$other2 pcpqa $cmd1 &) > $tmp.pmval 2>&1
 sleep 5
 
 # not sure how long it takes to get the remote pmval command started
@@ -264,7 +268,7 @@ found=false
 echo >$tmp.pminfo
 for i in 1 2 3 4 5 6 7 8 9 10
 do
-    rsh $other2 -n -l pcpqa $cmd2 >$tmp.tmp 2>&1
+    ssh pcpqa@$other2 $cmd2 >$tmp.tmp 2>&1
     cat $tmp.tmp >>$tmp.pminfo
     if grep 'connection limit' $tmp.tmp >/dev/null
     then
@@ -289,7 +293,7 @@ found=false
 echo >$tmp.pmstore
 for i in 1 2 3 4 5 6 7 8 9 10
 do
-    rsh $other2 -n -l pcpqa $cmd3 >$tmp.tmp 2>&1
+    ssh pcpqa@$other2 $cmd3 >$tmp.tmp 2>&1
     cat $tmp.tmp >>$tmp.pmstore
     if grep 'connection limit' $tmp.tmp >/dev/null
     then
@@ -301,7 +305,7 @@ do
     sleep 1
 done
 $found || cat $tmp.pmstore
-rsh $other2 -n -l pcpqa killall pmval > /dev/null 2>&1
+ssh pcpqa@$other2 killall pmval > /dev/null 2>&1
 echo
 echo "=== pmval output ===" >>$seq.full
 cat $tmp.pmval >>$seq.full

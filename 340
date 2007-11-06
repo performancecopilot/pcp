@@ -40,7 +40,7 @@ _filter_pminfo()
 # real QA test starts here
 
 config=$PCP_PMCDCONF_PATH
-oconfig=$tmp.config
+oconfig=$tmp.oconfig
 me=`_get_fqdn`
 _needclean=true
 
@@ -157,8 +157,10 @@ disallow $list2 : all;
 allow * :	   all;
 End-Of-File
 fi
-$sudo sh -c "sed -e '/\[access]/q' $oconfig | sed -e '/\[access]/d' >$config"
-$sudo sh -c "cat $tmp.access >>$config"
+sed -e '/\[access]/q' $oconfig  \
+| sed -e '/\[access]/d' >$tmp.config
+cat $tmp.access >>$tmp.config
+$sudo cp $tmp.config $config
 
 echo >>$seq.full
 echo "---- start pmcd.conf ----" >>$seq.full
@@ -177,12 +179,12 @@ if $dov1hosts
 then
     echo
     echo "    checking access for list1 (should fail)"
-    rsh $other1 -n -l pcpqa pminfo -h $me -f pmcd.numclients 2>&1 \
+    ssh pcpqa@$other1 pminfo -h $me -f pmcd.numclients 2>&1 \
       | sed -e 's/"'$me'"/"HOST"/g'
 fi
 echo
 echo "    checking access for list2 (should fail)"
-rsh $other2 -n -l pcpqa pminfo -h $me -f pmcd.numclients 2>&1 \
+ssh pcpqa@$other2 pminfo -h $me -f pmcd.numclients 2>&1 \
   | sed -e 's/"'$me'"/"HOST"/g'
 
 echo "pmcd.log:======="
@@ -235,15 +237,17 @@ allow * :	   all;
 End-Of-File
 fi
 
-./sudo sh -c "sed -e '/\[access]/q' $oconfig | sed -e '/\[access]/d' >$config"
-./sudo sh -c "cat $tmp.access >>$config"
+sed -e '/\[access]/q' $oconfig  \
+| sed -e '/\[access]/d' >$tmp.config
+cat $tmp.access >>$tmp.config
+$sudo cp $tmp.config $config
 
 echo >>$seq.full
 echo "---- start pmcd.conf ----" >>$seq.full
 cat $config >>$seq.full
 echo "---- end pmcd.conf ----" >>$seq.full
 
-./sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
 
 echo "    checking default access for this host ..."
@@ -254,13 +258,13 @@ if $dov1hosts
 then
     echo
     echo "    checking access for iplist1 (should fail)"
-    rsh $other1 -n -l pcpqa pminfo -h $me -f pmcd.numclients 2>&1 \
+    ssh pcpqa@$other1 pminfo -h $me -f pmcd.numclients 2>&1 \
       | sed -e 's/"'$me'"/"HOST"/g'
 fi
 
 echo
 echo "    checking access for iplist2 (should fail)"
-rsh $other2 -n -l pcpqa pminfo -h $me -f pmcd.numclients 2>&1 \
+ssh pcpqa@$other2 pminfo -h $me -f pmcd.numclients 2>&1 \
   | sed -e 's/"'$me'"/"HOST"/g'
 
 echo "pmcd.log:======="

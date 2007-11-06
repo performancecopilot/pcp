@@ -58,7 +58,7 @@ sed
 PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
 [TMP/control:2] ... logging for host "HOST" unchanged
 PMLOGGER.DAILY: Warning: output archive (YESTERDAY) already exists
-[TMP/control:2] ... skip log merging for host "HOST"
+[TMP/control:2] ... skip log merging, culling and compressing for host "HOST"
 YESTERDAY-old.-1H.MM.0
 YESTERDAY-old.-1H.MM.index
 YESTERDAY-old.-1H.MM.meta
@@ -180,7 +180,7 @@ PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
 [TMP/control:2] ... logging for host "HOST" unchanged
 
 PMLOGGER.DAILY: Warning: output archive (YESTERDAY) already exists
-[TMP/control:2] ... skip log merging for host "HOST"
+[TMP/control:2] ... skip log merging, culling and compressing for host "HOST"
 YESTERDAY-old.-1H.MM.0
 YESTERDAY-old.-1H.MM.index
 YESTERDAY-old.-1H.MM.meta

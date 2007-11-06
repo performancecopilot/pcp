@@ -27,11 +27,11 @@ status=1	# failure is the default!
 cleanup()
 {
     if [ -f /etc/syslog.conf.$seq ]; then
-	sudo mv /etc/syslog.conf.$seq /etc/syslog.conf
-	sudo killall -HUP syslogd
+	$sudo mv /etc/syslog.conf.$seq /etc/syslog.conf
+	$sudo killall -HUP syslogd
     fi
     rm -f $tmp.*
-    sudo rm -f /tmp/syslog
+    $sudo rm -f /tmp/syslog
 }
 trap "cleanup; exit \$status" 0 1 2 3 15
 
@@ -40,10 +40,11 @@ trap "cleanup; exit \$status" 0 1 2 3 15
 #
 setup()
 {
-    sudo cp /dev/null /tmp/syslog || exit
-    sudo mv /etc/syslog.conf /etc/syslog.conf.$seq || exit
-    sudo sh -c "echo '*.*  /tmp/syslog' > /etc/syslog.conf" || exit
-    sudo killall -HUP syslogd || exit
+    $sudo cp /dev/null /tmp/syslog || exit
+    $sudo mv /etc/syslog.conf /etc/syslog.conf.$seq || exit
+    echo '*.*  /tmp/syslog' >$tmp.syslog.conf
+    $sudo cp $tmp.syslog.conf /etc/syslog.conf || exit
+    $sudo killall -HUP syslogd || exit
 }
 
 # real QA test starts here

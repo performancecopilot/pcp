@@ -48,7 +48,7 @@ _speak_to_me()
 
     # the success cases
     #
-    cat <<End-of-File | rsh $host -l pcpqa "sh -c 'PMCD_CONNECT_TIMEOUT=$PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT=$PMCD_REQUEST_TIMEOUT pmlc'" >$tmp.out 2>$tmp.err
+    cat <<End-of-File | ssh pcpqa@$host "sh -c 'PMCD_CONNECT_TIMEOUT=$PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT=$PMCD_REQUEST_TIMEOUT pmlc'" >$tmp.out 2>$tmp.err
 connect $pid@$me
 status
 new volume
@@ -64,10 +64,10 @@ query pmcd.pdu_in
 log mandatory on once pmcd.agent.type ["$PCP_PLATFORM" "pmcd"]
 log mandatory off pmcd.agent.type ["sample"]
 End-of-File
-    # do rsh again is probably long enough for "once" metrics above
+    # do ssh again is probably long enough for "once" metrics above
     # to have been logged
     #
-    cat <<End-of-File | rsh $host -l pcpqa "sh -c 'PMCD_CONNECT_TIMEOUT=$PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT=$PMCD_REQUEST_TIMEOUT pmlc'" >>$tmp.out 2>>$tmp.err
+    cat <<End-of-File | ssh pcpqa@$host "sh -c 'PMCD_CONNECT_TIMEOUT=$PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT=$PMCD_REQUEST_TIMEOUT pmlc'" >>$tmp.out 2>>$tmp.err
 connect $pid@$me
 query pmcd.agent.type ["$PCP_PLATFORM" "pmcd" "sample"]
 End-of-File
@@ -76,7 +76,7 @@ End-of-File
     # the failures
     #
     # echo "log mandatory on once sample" | pmlc -h $host $pid -D1
-    echo "connect $pid@$me" | rsh $host -l pcpqa "sh -c 'PMCD_CONNECT_TIMEOUT=$PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT=$PMCD_REQUEST_TIMEOUT pmlc'" >$tmp.out 2>$tmp.err
+    echo "connect $pid@$me" | ssh pcpqa@$host "sh -c 'PMCD_CONNECT_TIMEOUT=$PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT=$PMCD_REQUEST_TIMEOUT pmlc'" >$tmp.out 2>$tmp.err
     cat $tmp.err $tmp.out | _filter
 
     # cleanup

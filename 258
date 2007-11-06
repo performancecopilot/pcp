@@ -77,14 +77,14 @@ $sudo ./Install -R / </dev/null >/dev/null 2>&1
 cd $here
 
 cd $PCP_DEMOS_DIR/trace
-$sudo sh -c "( make app2 2>&1 >$tmp.make
+$sudo make app2 2>&1 >$tmp.make
 if [ $? -ne 0 ]
 then
     echo app2 programs make failed.  Heres the make output ...
     cat $tmp.make
 else
     echo make succeeded.
-fi; rm $tmp.make)" 2>&1 | fgrep -v "up to date"
+fi
 
 # Allow app2 to reconnect asap
 #

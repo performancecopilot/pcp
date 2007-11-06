@@ -95,7 +95,7 @@ if [ $? -eq 1 ]; then
     exit
 fi
 echo "host_32_v2 = $host_32_v2" >> $seq.full
-host_32_v2_os=`rsh $host_32_v2 -n -l pcpqa uname -r`
+host_32_v2_os=`ssh pcpqa@$host_32_v2 uname -r`
 
 host_64_v2=`./getpmcdhosts -s $PCP_PLATFORM -b 64 -m "pmcd.version>2.0" -n 1 -a sample 2>&1`
 if [ $? -eq 1 ]; then
@@ -104,7 +104,7 @@ if [ $? -eq 1 ]; then
     exit
 fi
 echo "host_64_v2 = $host_64_v2" >> $seq.full
-host_64_v2_os=`rsh $host_64_v2 -n -l pcpqa uname -r`
+host_64_v2_os=`ssh pcpqa@$host_64_v2 uname -r`
 
 # make sure it's got the metrics we want for torture_api
 _check_metric sample.seconds $hosts_32_v2

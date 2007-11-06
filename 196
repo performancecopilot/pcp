@@ -91,12 +91,12 @@ echo ""
 
 echo "Test access on good port..."
 cmd='sh -c "PMCD_PORT='$PMCD_PORT'; export PMCD_PORT; pminfo -f -h '$goodif' '$metric'"'
-rsh moomba.melbourne.sgi.com -n -l pcpqa $cmd </dev/null
+ssh pcpqa@moomba.melbourne.sgi.com $cmd </dev/null
 
 echo
 echo "Test access on bad port (should fail)..."
 cmd='sh -c "PMCD_PORT='$PMCD_PORT'; export PMCD_PORT; pminfo -f -h '$badif' '$metric'"'
-rsh moomba.melbourne.sgi.com -n -l pcpqa $cmd </dev/null 2>&1 \
+ssh pcpqa@moomba.melbourne.sgi.com $cmd </dev/null 2>&1 \
 | sed -e "s/$badif/NOT-A-GOOD-IPADDR/"
 
 status=0

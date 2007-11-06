@@ -3,7 +3,7 @@
 # $Revision: 1.16 $
 # pmlogger (assorted) and pmlc (PCP 2.0) version compatibility
 #
-# 32-bit host version ... see 374 for 64-bit host version
+# any host version ... see 374 for 64-bit host version
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -37,7 +37,7 @@ _speak_to_me()
     host=$1
     pid=''
     base=''
-    cat <<'End-of-File' | rsh $host -l pcpqa sh >$tmp.tmp 2>&1
+    cat <<'End-of-File' | ssh pcpqa@$host sh >$tmp.tmp 2>&1
 if [ -r /etc/pcp.env ]
 then
     . /etc/pcp.env
@@ -51,7 +51,7 @@ echo pid=$! base=$$
 End-of-File
 
     echo >>$seq.full
-    echo "From rsh to $host ..." >>$seq.full
+    echo "From ssh to $host ..." >>$seq.full
     cat $tmp.tmp >>$seq.full
 
     eval `cat $tmp.tmp`
@@ -123,7 +123,7 @@ End-of-File
     #
     if [ ! -z "$host" ]
     then
-	rsh $host -n -l pcpqa sh -c "kill -INT $pid; sleep 1; kill -KILL $pid; rm -f /tmp/$base.*" >/dev/null 2>&1
+	ssh pcpqa@$host sh -c "kill -INT $pid; sleep 1; kill -KILL $pid; rm -f /tmp/$base.*" >/dev/null 2>&1
 	pid=''
 	base=''
     fi
@@ -136,7 +136,7 @@ _cleanup()
     then
 	if [ ! -z "$pid" -a ! -z "$base" -a ! -z "$host" ]
 	then
-	    rsh $host -n -l pcpqa sh -c "kill -INT $pid; sleep 1; kill -KILL $pid; rm -f /tmp/$base.*" >/dev/null 2>&1
+	    ssh pcpqa@$host sh -c "kill -INT $pid; sleep 1; kill -KILL $pid; rm -f /tmp/$base.*" >/dev/null 2>&1
 	    pid=''
 	    base=''
 	fi
@@ -166,7 +166,7 @@ rm -f $seq.full
 
 # real QA test starts here
 
-for type in "-b 32 -v pcp=2"
+for type in "-v pcp=2"
 do
     echo
     echo "=== pmlogger host type: $type ==="
