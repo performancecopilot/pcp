@@ -69,7 +69,7 @@ cp $tmp.ctl $tmp.relaydir/$FIVEMONTHS.meta
 cp $tmp.ctl $tmp.relaydir/$FIVEMONTHS.index
 
 # real QA test starts here
-pmlogger_daily -V -N -x 3 -X compress -c $tmp.ctl | sed \
+pmlogger_daily -V -N -x 3 -X bzip2 -c $tmp.ctl | sed \
 	-e "s/$TODAY/TODAY/g" \
 	-e "s/$FIVEDAYS/FIVEDAYS/g" \
 	-e "s/$FIVEMONTHS/FIVEMONTHS/g" \
