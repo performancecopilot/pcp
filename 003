@@ -69,6 +69,11 @@ linux_filter()
     sed -e "/mem.vmstat.nr_slab_reclaimable: $unavailable/d" \
 	-e "/mem.vmstat.nr_slab_unreclaimable: $unavailable/d" \
 	-e "/mem.vmstat.nr_vmscan_write: $unavailable/d" \
+	-e "/swapdev.free: $unavailable/d" \
+	-e "/swapdev.length: $unavailable/d" \
+	-e "/swapdev.maxswap: $unavailable/d" \
+	-e "/swapdev.vlength: $unavailable/d" \
+	-e "/swapdev.priority: $unavailable/d" \
 	-e "/swap.in: $nosupport/d" \
 	-e "/swap.out: $nosupport/d"
 }
