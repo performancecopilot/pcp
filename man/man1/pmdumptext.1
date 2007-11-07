@@ -18,7 +18,7 @@
 .\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3pmdumptext\f1
-[\f3\-CFgHilmMNoruz\f1]
+[\f3\-CFgHilmMNoruXz\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1[\f3,\f2archive\f3,\f1...]]
 [\f3\-c\f1 \f2config\f1]
@@ -295,6 +295,10 @@ Set the column width of the output.  Strings will be truncated to this width,
 and maybe postfixed by ``...'' if the
 .I width
 is greater than 5.
+.IP \f3\-X\f1
+Output the column number and complete metric names, one-per-line,
+both before dumping the first set of values and again each time the
+header is repeated.
 .IP \f3\-z\f1
 Use the local timezone of the host that is the source of the 
 performance metrics, as identified by either the
