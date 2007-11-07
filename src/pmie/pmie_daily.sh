@@ -486,7 +486,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 
 done
 
-if [ -f $tmp.mail ]
+if [ -n "$MAILME" -a -s $tmp.mail ]
 then
     logs=""
     for file in `cat $tmp.mail`
