@@ -58,6 +58,7 @@ bool precFlag = false;
 bool normFlag = false;
 bool headerFlag = false;
 bool fullFlag = false;
+bool fullXFlag = false;
 
 // Command line options
 QString errStr = "?";
@@ -513,7 +514,7 @@ dumpHeader()
     }
 
     if (instFlag) {
-	if (timeFlag)
+	if (timeFlag) {
 	    if (niceFlag) {
 		if (len < instStr.length()) {
 		    instStr.remove(len, instStr.length() - len);
@@ -522,6 +523,7 @@ dumpHeader()
 	    }
 	    else
 		cout << qSetFieldWidth(len) << errStr << delimiter;
+	}
 
 	for (m = 0, v = 1; m < metrics.size(); m++) {
 	    metric = metrics[m];
@@ -545,7 +547,7 @@ dumpHeader()
     }
 
     if (normFlag) {
-	if (timeFlag)
+	if (timeFlag) {
 	    if (niceFlag) {
 		if (len < normStr.length()) {
 		    normStr.remove(len, normStr.length() - len);
@@ -554,6 +556,7 @@ dumpHeader()
 	    }
 	    else
 		cout << errStr << delimiter;
+	}
 
 	for (m = 0, v = 1; m < metrics.size(); m++) {
 	    metric = metrics[m];
@@ -738,7 +741,7 @@ main(int argc, char *argv[])
 //
 
     while((c = getopt(argc, argv, 
-	    "A:a:c:Cd:D:f:FgGh:HilmMn:NO:op:P:rR:s:S:t:T:uU:w:Z:z?")) != EOF) {
+	   "A:a:c:Cd:D:f:FgGh:HilmMn:NO:op:P:rR:s:S:t:T:uU:w:XZ:z?")) != EOF) {
 	switch (c) {
 	case 'A':       // alignment
             if (Aflag) {
@@ -859,7 +862,7 @@ main(int argc, char *argv[])
 	    headerFlag = true;
 	    break;
 
-	case 'i':	// abrieviate metric names
+	case 'i':	// abbreviate metric names
 	    if (precFlag) {
 		pmprintf("%s: -i and -P may not be used togther\n",
 			 pmProgname);
@@ -884,6 +887,11 @@ main(int argc, char *argv[])
 
 	case 'M':	// show full metric names
 	    fullFlag = true;
+	    break;
+
+	case 'X':	// show full metric names (extended mode)
+	    fullFlag = true;
+	    fullXFlag = true;
 	    break;
 
         case 'n':       // alternative namespace
@@ -1045,6 +1053,9 @@ main(int argc, char *argv[])
 
     if (headerFlag) {
 	metricFlag = unitFlag = sourceFlag = normFlag = true;
+    }
+    if (fullXFlag) {
+	niceFlag = true;
     }
 
     // Get local namespace is requested before opening any contexts
@@ -1255,8 +1266,10 @@ main(int argc, char *argv[])
     pmflush();
     dumpHeader();
 
-    // Only dump full names once
-    fullFlag = false;
+    if (fullXFlag == false) {
+	// Only dump full names once
+	fullFlag = false;
+    }
 
     if (!dumpFlag)
 	exit(0);
