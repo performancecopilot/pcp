@@ -259,6 +259,7 @@ void usage()
   -U string               unavailable value string [default \"?\"]\n\
   -u                      show metric units\n\
   -w width                set column width\n\
+  -X                      show complete metrics names (extended form)\n\
   -Z timezone             set reporting timezone\n\
   -z                      set reporting timezone to local time of metrics source\n");
 
