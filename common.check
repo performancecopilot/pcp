@@ -857,23 +857,23 @@ _get_config()
 {
     if [ "$PCP_PLATFORM" = linux ]
     then
+	case $1 
+	in
+	    pmlogger|pmcd)
+		# both these IRIX chkconfig options map to
+		# pcp for RedHat Linux
+		pat=pcp
+		;;
+	    verbose)
+		pat=""
+		;;
+	    *)	pat=$1
+	    	;;
+	esac
 	if which chkconfig >/dev/null 2>&1
 	then
 	    # Try the RedHat and SuSE way ..
 	    #
-	    case $1 
-	    in
-		pmlogger|pmcd)
-				# both these IRIX chkconfig options map to
-				# pcp for RedHat Linux
-				pat=pcp
-				;;
-		verbose)
-				pat=""
-				;;
-		*)	    	pat=$1
-			    	;;
-	    esac
 	    if [ -z "$pat" ]
 	    then
 		# unconditionally "on", or no such option
@@ -900,6 +900,23 @@ _get_config()
 		    else
 			echo on
 		    fi
+		else
+		    echo off
+		fi
+	    fi
+	elif [ -x /usr/sbin/sysv-rc-conf ]
+	then
+	    # Try the Debian and Ubuntu way ..
+	    #
+	    if [ -z "$pat" ]
+	    then
+		# unconditionally "on", or no such option
+		#
+		echo on
+	    else
+		if $sudo /usr/sbin/sysv-rc-conf $pat
+		then
+		    echo on
 		else
 		    echo off
 		fi
