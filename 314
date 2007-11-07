@@ -48,12 +48,12 @@ pmstore simple.numfetch 0 >/dev/null
 # fire em all up
 echo "Starting pmie process"
 pmie_check -c $tmp.control
-sleep 2		# fill original log a bit
+sleep 6		# fill original log a bit
 
 echo "Rotate, rotate..."
 previous=`pmdate -1d %Y%m%d`
 pmie_daily -c $tmp.control
-sleep 2		# fill rotated log a bit
+sleep 3		# fill rotated log a bit
 
 grep rotated /tmp/$seq/1.good.log >/dev/null \
 	|| echo "First log not rotated?"
@@ -66,8 +66,8 @@ pmie_check -c $tmp.control -s
 # look for data in each log file, checking rotation actually did something
 oldlines=`wc -l < /tmp/$seq/1.good.log.$previous 2>/dev/null || echo 0`
 newlines=`wc -l < /tmp/$seq/1.good.log 2>/dev/null || echo 0`
-_within_tolerance "Old logfile line count" "$oldlines" 70 %20 -v
-_within_tolerance "New logfile line count" "$newlines" 30 %20 -v
+_within_tolerance "Old logfile line count" "$oldlines" 70 %40 -v
+_within_tolerance "New logfile line count" "$newlines" 30 %40 -v
 
 echo "=== current log ($oldlines lines) ===" >>$seq.full
 cat /tmp/$seq/1.good.log >>$seq.full
