@@ -49,7 +49,8 @@ fi
 rm -f $seq.out
 if [ $PCP_PLATFORM = "linux" ]
 then
-    if which rpm >/dev/null 2>&1
+    which rpm >/dev/null 2>&1
+    if [ $? -eq 0 -a ! -f /etc/debian_version ]
     then
 	eval `rpm -q glibc | sed -e 's/glibc-/a=/' -e 's/\./ b=/' -e 's/\./ c=/' -e 's/-.*//'`
     else
@@ -59,7 +60,7 @@ then
     if [ -z "$a" -o "$a" = "*" ]
     then
 	echo "Arrggh ... cannot get major version for libc"
-	rpm -q glibc
+	[ ! -f /etc/debian_version ] && rpm -q glibc
 	ls -l /lib/libc-*.so
 	exit 1
     fi
@@ -72,7 +73,7 @@ then
 	if [ -z "$b" -o "$b" = "*" ]
 	then
 	    echo "Arrggh ... cannot get minor version for libc"
-	    rpm -q glibc
+	    [ ! -f /etc/debian_version ] && rpm -q glibc
 	    ls -l /lib/libc-*.so
 	    exit 1
 	fi
@@ -85,7 +86,7 @@ then
 	    if [ -z "$c" -o "$c" = "*" ]
 	    then
 		echo "Arrggh ... cannot get really minor version for libc"
-		rpm -q glibc
+		[ ! -f /etc/debian_version ] && rpm -q glibc
 		ls -l /lib/libc-*.so
 		exit 1
 	    fi
