@@ -1,3 +1,11 @@
+kmchart 1.0.0Beta5 (7 November 2007)
+    - Fix the issue where, when started in archive mode, a Live tab's
+      time axis wasn't being updated at all.
+    - Fix time axis in chart export/print mechanism.
+    - Archive time axis looks sensible when started in live mode now.
+    - Fix up default new tab label when switching live/archive.
+    - Disable antialiasing for Loadavg view (all instantaneous metrics)
+
 kmchart 1.0.0Beta4 (1 November 2007)
     - Allow installs on MacOSX 10.5 as well
     - Fix srpm build issues
