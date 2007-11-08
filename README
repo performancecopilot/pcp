@@ -27,18 +27,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 
   kmchart
 
-    - Respond to changes in the sampling interval from kmtime.
-    - Archive time control issues
-      o seems to need multiple presses currently to move backward
-	(this may be more visible due to increased sample sizes now)
-      o Fast forward mode frequently causes kmchart to hang.
-      o Fast forward mode can cause Time Axis confusion.
-      o Bounds broken sometimes - thinks range is 1970-2038 (min-max)
-    - Moving backward at high speed (400?) caused (looke like) a step/
-      VCR event to be missed, and kmchart got state display out of sync
-      with kmtime and then no further time control possible (kmtime was
-      probably awaiting an ACK that didn't arrive).
-
     - Tab issues
        o On initially creating a live tab, the time axis is very confused (it
 	 looks like its trying to display way too many points?).  This clears

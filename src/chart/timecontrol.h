@@ -54,24 +54,27 @@ public slots:
     void styleTimeControl(char *);
     void endTimeControl();
 
-private slots:
     void readPortFromStdout();
 
     void liveCloseConnection();
     void liveSocketConnected();
     void liveProtocolMessage()
-	{
+    {
+	do {
 	    protocolMessage(true, my.livePacket, my.liveSocket,
-			    &my.liveState);
-	}
+				&my.liveState);
+	} while (my.liveSocket->bytesAvailable() >= sizeof(KmTime::Packet));
+    }
 
     void archiveCloseConnection();
     void archiveSocketConnected();
     void archiveProtocolMessage()
-	{
+    {
+	do {
 	    protocolMessage(false, my.archivePacket, my.archiveSocket,
-			    &my.archiveState);
-	}
+				&my.archiveState);
+	} while (my.archiveSocket->bytesAvailable() >= sizeof(KmTime::Packet));
+    }
 
 private:
     typedef enum {
@@ -88,6 +91,9 @@ private:
 	int tcpPort;
 	int tzLength;
 	char *tzData;
+
+	unsigned int bufferLength;
+	char *buffer;
 
 	QTcpSocket *liveSocket;
 	KmTime::Packet *livePacket;

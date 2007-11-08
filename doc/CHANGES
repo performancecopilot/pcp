@@ -1,3 +1,9 @@
+kmchart 1.0.0Beta6 (8 November 2007)
+    - Modification to the time interval in kmtime now does the right
+      thing in kmchart.
+    - Several difficult time control issues resolved - fast fwd and
+      high speed play now work well.
+
 kmchart 1.0.0Beta5 (7 November 2007)
     - Fix the issue where, when started in archive mode, a Live tab's
       time axis wasn't being updated at all.

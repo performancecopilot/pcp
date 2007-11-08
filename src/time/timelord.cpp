@@ -60,35 +60,43 @@ void TimeClient::disconnectClient()
     delete this;
 }
 
-void TimeClient::writeClient(KmTime::Packet *packet,
+bool TimeClient::writeClient(KmTime::Packet *packet,
 				char *tz, int tzlen, char *label, int llen)
 {
     if (packet->source != my.source)
-	return;
+	return true;
 
-    TimeClient::State state = my.state;
-    switch (state) {
+    switch (my.state) {
     case TimeClient::Disconnected:
-	return;
+	return true;
     case TimeClient::ClientConnectSET:
 	if (packet->command == KmTime::ACK) {
-	    state = TimeClient::ServerConnectACK;
+	    my.state = TimeClient::ServerConnectACK;
 	    break;
 	}
-	return;
+	return true;
     case TimeClient::ServerConnectACK:
 	break;
     case TimeClient::ClientReady:
-	if (packet->command == KmTime::Step)
-	    state = TimeClient::ServerNeedACK;
+	if (packet->command == KmTime::Step) {
+	    my.state = TimeClient::ServerNeedACK;
+	    my.acktime = packet->position;
+	}
+	else {
+	    my.state = TimeClient::ClientReady;
+	    memset(&my.acktime, 0, sizeof(my.acktime));
+	}
 	break;
     case TimeClient::ServerNeedACK:
-	if (packet->command != KmTime::Step)
+	if (packet->command != KmTime::Step) {
+	    my.state = TimeClient::ClientReady;	// clear NEED_ACK
+	    memset(&my.acktime, 0, sizeof(my.acktime));
 	    break;
+	}
 	console->post(KmTime::DebugProtocol, "TimeClient::writeClient "
-			"skipped STEP pos=%u.%u, client %p in NEED_ACK",
+			"SKIP STEP to pos=%u.%u when client %p in NEED_ACK",
 			packet->position.tv_sec,packet->position.tv_usec, this);
-	return;
+	return false;
     }
 
     int len = my.socket->write((const char *)packet, sizeof(KmTime::Packet));
@@ -96,18 +104,18 @@ void TimeClient::writeClient(KmTime::Packet *packet,
 	console->post(KmTime::DebugProtocol, "TimeCient::writeClient "
 			"wrote %d bytes not %d (%x command)",
 			len, packet->length, packet->command);
-	state = TimeClient::Disconnected;
+	my.state = TimeClient::Disconnected;
 	endConnect(this);
     } else {
 	console->post(KmTime::DebugProtocol, "TimeClient::writeClient "
 			"wrote %d bytes command=%x state=%u",
-			len, packet->command, state);
+			len, packet->command, my.state);
     }
     if (tzlen > 0 && len > 0 &&
 	(len = my.socket->write(tz, tzlen)) != tzlen) {
 	console->post(KmTime::DebugProtocol, "TimeClient::writeClient "
 			"wrote %d bytes not %d (timezone)", len, tzlen);
-	state = TimeClient::Disconnected;
+	my.state = TimeClient::Disconnected;
 	endConnect(this);
     } else if (tzlen) {
 	console->post(KmTime::DebugProtocol, "TimeClient::writeClient "
@@ -117,15 +125,13 @@ void TimeClient::writeClient(KmTime::Packet *packet,
 	(len = my.socket->write(label, llen)) != llen) {
 	console->post(KmTime::DebugProtocol, "TimeClient::writeClient "
 			"wrote %d bytes not %d (tz label)", len, llen);
-	state = TimeClient::Disconnected;
+	my.state = TimeClient::Disconnected;
 	endConnect(this);
     } else if (llen) {
 	console->post(KmTime::DebugProtocol, "TimeClient::writeClient "
 			"wrote %d bytes of tz label successfully", len);
     }
-    if (state == TimeClient::ServerNeedACK)
-	my.acktime = packet->position;
-    my.state = state;
+    return true;
 }
 
 void TimeClient::readClient(void)
@@ -218,8 +224,8 @@ void TimeClient::readClient(void)
 				"BAD ACK client=%p (got %u.%u vs %u.%u)", this,
 				packet.position.tv_sec, packet.position.tv_usec,
 				my.acktime.tv_sec, my.acktime.tv_usec);
-	    endConnect(this);
-	    return;
+	    bad = 1;
+	    break;
 
 	case TimeClient::ClientReady:
 	    if (packet.command == KmTime::ACK) {
@@ -256,11 +262,23 @@ void TimeClient::readClient(void)
 	    console->post(KmTime::DebugProtocol, "TimeClient::readClient "
 				"unknown command %d from client %p",
 				packet.command, this);
-	    endConnect(this);
+	    bad = 1;
 	}
-    } else {
-	endConnect(this);
     }
+
+    if (bad)
+	reset();
+}
+
+void TimeClient::reset()
+{
+    console->post(KmTime::DebugProtocol, "TimeClient::reset");
+#if 0
+    if (my.source == KmTime::HostSource)
+	my.hc->stop();
+    else
+	my.ac->stop();
+#endif
 }
 
 TimeLord::TimeLord(QApplication *app)
@@ -326,13 +344,28 @@ void TimeLord::endConnect(TimeClient *client)
 
 void TimeLord::timePulse(KmTime::Packet *packet)
 {
-    console->post(KmTime::DebugProtocol, "TimeLord::timePulse (%d clients)",
-					 my.clientlist.count());
+    TimeClient *overrun = NULL;
+
+#if DESPERATE
+    static int sequence;
+    int localSequence = sequence++;
+    console->post(KmTime::DebugProtocol, "TimeLord::timePulse %d (%d clients)",
+					 localSequence, my.clientlist.count());
+#endif
+
     packet->magic = KmTime::Magic;
     packet->length = sizeof(KmTime::Packet);
     packet->command = KmTime::Step;
     for (int i = 0; i < my.clientlist.size(); i++)
-	my.clientlist.at(i)->writeClient(packet);
+	if (my.clientlist.at(i)->writeClient(packet) == false)
+	    overrun = my.clientlist.at(i);
+    if (overrun == NULL)
+	overrun->reset();
+
+#if DESPERATE
+    console->post(KmTime::DebugProtocol, "TimeLord::timePulse ended %d (%d)",
+					 localSequence, overrun == NULL);
+#endif
 }
 
 void TimeLord::boundsPulse(KmTime::Packet *packet)
