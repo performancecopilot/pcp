@@ -86,7 +86,7 @@ cleanup()
 {
     if [ -f $oconfig ]
     then
-	$sudo "mv $oconfig $config"
+	$sudo mv $oconfig $config
     fi
     echo "Restarting pmcd"
     $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
@@ -124,7 +124,7 @@ echo "terminating pmcd..."
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 if [ -f $config ]
 then
-    $sudo "mv $config $oconfig"
+    $sudo mv $config $oconfig
 else
     echo "Warning: $config not found"
 fi
@@ -135,7 +135,7 @@ echo "Running the scanner/parser tests (die.\*)"
 for t in die.*
 do
     rm -f pmcd.log
-    $sudo "cp $t $config"
+    $sudo cp $t $config
     rm -f pmcd.log
     echo
     echo -n "$t================"
@@ -177,7 +177,7 @@ echo
 for t in kill.*
 do
     rm -f pmcd.log
-    $sudo "cp $t $config"
+    $sudo cp $t $config
     rm -f pmcd.log
     echo "$t================"
     echo "$t================" >>$here/$seq.full
