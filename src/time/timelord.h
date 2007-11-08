@@ -54,9 +54,10 @@ public:
 public:
     TimeClient(QTcpSocket *socket, QObject *parent);
     ~TimeClient();
+    void reset();
 
     void setContext(KmTimeArch *ac, KmTimeLive *hc) { my.ac = ac; my.hc = hc; }
-    void writeClient(KmTime::Packet *k, char *tz = NULL, int tzlen = 0,
+    bool writeClient(KmTime::Packet *k, char *tz = NULL, int tzlen = 0,
 				char *label = NULL, int llen = 0);
 
 signals:

@@ -23,10 +23,12 @@ TimeControl::TimeControl() : QProcess(NULL)
     my.tcpPort = -1;
     my.tzLength = 0;
     my.tzData = NULL;
+    my.bufferLength = sizeof(KmTime::Packet);
 
+    my.buffer = (char *)malloc(my.bufferLength);
     my.livePacket = (KmTime::Packet *)malloc(sizeof(KmTime::Packet));
     my.archivePacket = (KmTime::Packet *)malloc(sizeof(KmTime::Packet));
-    if (!my.livePacket || !my.archivePacket)
+    if (!my.buffer || !my.livePacket || !my.archivePacket)
 	nomem();
     my.livePacket->magic = KmTime::Magic;
     my.livePacket->source = KmTime::HostSource;
@@ -317,31 +319,53 @@ void TimeControl::readPortFromStdout(void)
 void TimeControl::protocolMessage(bool live,
 	KmTime::Packet *packet, QTcpSocket *socket, ProtocolState *state)
 {
-    int sts;
+    int sts, need = sizeof(KmTime::Packet), offset = 0;
     KmTime::Packet *msg;
-    char buffer[8192];	// ick, but simple (TODO: use 2 reads)
 
-    sts = socket->read(buffer, sizeof(buffer));
-    if (sts < 0) {
-	QMessageBox::critical(0,
+    // Read one kmtime packet, handling both small reads and large packets
+    for (;;) {
+	sts = socket->read(my.buffer + offset, need);
+	if (sts < 0) {
+	    QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
-		QApplication::tr("Failed socket read in kmtime negotiation."),
+		QApplication::tr("Failed socket read in kmtime transfer."),
 		QApplication::tr("Quit") );
-	exit(1);
-    }
-    msg = (KmTime::Packet *)buffer;
-    if (msg->magic != KmTime::Magic) {
-	QMessageBox::critical(0,
+	    exit(1);
+	}
+	else if (sts != need) {
+	    need -= sts;
+	    offset += sts;
+	    continue;
+	}
+
+	msg = (KmTime::Packet *)my.buffer;
+	if (msg->magic != KmTime::Magic) {
+	    QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
 		QApplication::tr("Bad client message magic number."),
 		QApplication::tr("Quit") );
-	exit(1);
+	    exit(1);
+	}
+	if (msg->length > my.bufferLength) {
+	    my.bufferLength = msg->length;
+	    my.buffer = (char *)realloc(my.buffer, my.bufferLength);
+	    if (!my.buffer)
+		nomem();
+	    offset = sizeof(KmTime::Packet);
+	    need = msg->length - offset;
+	    continue;
+	}
+	break;
     }
+
+#if DESPERATE
+    console->post(KmChart::DebugProtocol,
+		  "TimeControl::protocolMessage: recv pos=%s state=%d",
+		  timeString(tosec(packet->position)), *state);
+#endif
+
     switch (*state) {
     case TimeControl::AwaitingACK:
-	if (!live)
-	    console->post("TimeControl::protocolMessage: sent arch pos=%s",
-			timeString(tosec(packet->position)));
 	if (msg->command != KmTime::ACK) {
 	    QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
@@ -367,9 +391,6 @@ void TimeControl::protocolMessage(bool live,
 	// and _not_ from the values that we initially sent to it.
 	//
 	memcpy(packet, msg, msg->length);
-	if (!live)
-	    console->post("TimeControl::protocolMessage: recv arch pos=%s",
-			timeString(tosec(packet->position)));
 	kmchart->VCRMode(live, msg, true);
 	break;
 
