@@ -224,11 +224,12 @@ int main(int argc, char ** argv)
     }
 
     if (defaultname)
-	KmQuery::setDefaultButton(option);
+	KmQuery::setDefaultButton(defaultname);
 
     if (filename) {
 	QTextStream *stream;
 	QFile *file = NULL;
+	QString line;
 
 	if (strcmp(filename, "-") == 0)
 	    stream = new QTextStream(stdin, QIODevice::ReadOnly);
@@ -241,8 +242,11 @@ int main(int argc, char ** argv)
 	    }
 	    stream = new QTextStream(file);
 	}
-	while (!stream->atEnd()) {
-	    if ((option = strdup(stream->readLine().toAscii())) == NULL) {
+	for (;;) {
+	    QString line = stream->readLine();
+	    if (line.isNull())
+		break;
+	    if ((option = strdup(line.toAscii())) == NULL) {
 		fputs("Insufficient memory reading message stream\n", stderr);
 		exit(1);
 	    }
