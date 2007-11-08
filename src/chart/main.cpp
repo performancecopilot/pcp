@@ -298,7 +298,7 @@ void readSettings(void)
     // Everything (else) colour related
     //
     globalSettings.chartBackgroundName = userSettings.value(
-		"chartBackgroundColor", "black").toString();
+		"chartBackgroundColor", "#6ca2c9").toString();
     globalSettings.chartBackground = QColor(globalSettings.chartBackgroundName);
 
     globalSettings.chartHighlightName = userSettings.value(
