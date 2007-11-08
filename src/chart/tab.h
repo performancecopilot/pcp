@@ -108,9 +108,10 @@ private:
 	int count;			// total number of charts
 	int current;			// currently selected chart
 
-	double interval;		// current update interval
-	struct timeval previousDelta;
-	struct timeval previousPosition;
+	double realDelta;		// current update interval
+	double realPosition;		// current time position
+	struct timeval delta;
+	struct timeval position;
 
 	int visible;			// -v visible points
 	int samples;			// -s total number of samples
@@ -118,8 +119,8 @@ private:
 
 	Tab::State timeState;
 	TimeButton::State buttonState;
-	KmTime::Source source;		// reliable archive/host test
-	KmTime::State previousState;
+	KmTime::Source kmtimeSource;	// reliable archive/host test
+	KmTime::State kmtimeState;
 
 	QmcGroup *group;
 

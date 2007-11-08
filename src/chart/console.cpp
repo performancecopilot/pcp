@@ -64,6 +64,13 @@ void Console::post(char *fmt, ...)
     text->append(QString(buffer));
 }
 
+bool Console::logLevel(int level)
+{
+    if (!(my.level & level))
+	return false;
+    return true;
+}
+
 void Console::post(int level, char *fmt, ...)
 {
     static char buffer[4096];

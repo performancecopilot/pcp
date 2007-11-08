@@ -93,14 +93,28 @@ Chart::~Chart()
     }
 }
 
-void Chart::update(bool forward, bool visible, bool available)
+void Chart::updateNoLiveData(int i)
+{
+#if DESPERATE
+    console->post("Chart::updateNoLiveData=%d (%d plots)", i, my.plots.size());
+#endif
+
+    if (my.plots.size() < 1)
+	return;
+    for (int m = 0; m < my.plots.size(); m++) {
+	Plot *plot = my.plots[m];
+	plot->data[i] = Curve::NaN();
+    }
+}
+
+void Chart::update(bool forward, bool visible)
 {
     int		sh = my.tab->sampleHistory();
     int		idx, m;
 
 #if DESPERATE
-    console->post("Chart::update(forward=%d,vis=%d,avail=%d) sh=%d (%d plots)",
-			forward, visible, available, sh, my.plots.size());
+    console->post("Chart::update(forward=%d,visible=%d) sh=%d (%d plots)",
+			forward, visible, sh, my.plots.size());
 #endif
 
     if (my.plots.size() < 1)
@@ -110,7 +124,7 @@ void Chart::update(bool forward, bool visible, bool available)
 	Plot *plot = my.plots[m];
 
 	double value;
-	if (available == false || plot->metric->error(0))
+	if (plot->metric->error(0))
 	    value = Curve::NaN();
 	else {
 	    // convert raw value to current chart scale

@@ -37,14 +37,15 @@ Tab::Tab(): QWidget(NULL)
     my.group = NULL;
     my.samples = globalSettings.sampleHistory;
     my.visible = globalSettings.visibleHistory;
-    my.interval = 0;
+    my.realDelta = 0;
+    my.realPosition = 0;
     my.timeData = NULL;
     my.recording = false;
     my.timeState = Tab::StartState;
     my.buttonState = TimeButton::Timeless;
-    my.previousState = KmTime::StoppedState;
-    memset(&my.previousDelta, 0, sizeof(my.previousDelta));
-    memset(&my.previousPosition, 0, sizeof(my.previousPosition));
+    my.kmtimeState = KmTime::StoppedState;
+    memset(&my.delta, 0, sizeof(struct timeval));
+    memset(&my.position, 0, sizeof(struct timeval));
 }
 
 void Tab::init(QTabWidget *tab, int samples, int visible,
@@ -57,24 +58,31 @@ void Tab::init(QTabWidget *tab, int samples, int visible,
 				QSizePolicy::MinimumExpanding);
     tab->addTab(my.splitter, label);
     my.group = group;
-    my.source = source;
-    my.buttonState = (my.source == KmTime::HostSource) ?
-			TimeButton::ForwardLive : TimeButton::StoppedArchive;
+
+    my.kmtimeSource = source;
+    if (my.kmtimeSource == KmTime::HostSource) {
+	my.kmtimeState = KmTime::ForwardState;
+	my.buttonState = TimeButton::ForwardLive;
+    }
+    else {
+	my.kmtimeState = KmTime::StoppedState;
+	my.buttonState = TimeButton::StoppedArchive;
+    }
 
     my.samples = samples;
     my.visible = visible;
-    my.interval = tosec(*interval);
-    my.previousDelta = *interval;
-    my.previousPosition = *position;
+    my.delta = *interval;
+    my.position = *position;
+    my.realDelta = tosec(*interval);
+    my.realPosition = tosec(*position);
 
-    double startPosition = tosec(*position);
     my.timeData = (double *)malloc(samples * sizeof(double));
     for (int i = 0; i < samples; i++)
-	my.timeData[i] = startPosition - (i * my.interval);
+	my.timeData[i] = my.realPosition - (i * my.realDelta);
 
     kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom,
 		my.timeData[visible-1], my.timeData[0],
-		kmchart->timeAxis()->scaleValue(my.interval, my.visible));
+		kmchart->timeAxis()->scaleValue(my.realDelta, my.visible));
     kmchart->setButtonState(my.buttonState);
 }
 
@@ -143,7 +151,7 @@ int Tab::numChart(void)
 
 bool Tab::isArchiveSource(void)
 {
-    return my.source == KmTime::ArchiveSource;
+    return my.kmtimeSource == KmTime::ArchiveSource;
 }
 
 Chart *Tab::currentChart(void)
@@ -213,20 +221,26 @@ void Tab::updateTimeAxis(void)
 	tz = otz;
 	kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom,
 		my.timeData[my.visible - 1], my.timeData[0],
-		kmchart->timeAxis()->scaleValue(my.interval, my.visible));
-	kmchart->setDateLabel(my.previousPosition.tv_sec, tz);
+		kmchart->timeAxis()->scaleValue(my.realDelta, my.visible));
+	kmchart->setDateLabel(my.position.tv_sec, tz);
 	kmchart->timeAxis()->replot();
     } else {
 	kmchart->timeAxis()->noArchiveSources();
 	kmchart->setDateLabel(tr("[No open archives]"));
     }
 
-    int i = my.visible - 1;
-    console->post(KmChart::DebugProtocol, "Tab::updateTimeAxis: tz=%s; pts=%d,"
-			" first time is %.3f (%s), final time is %.3f (%s)",
-			(const char *)tz.toAscii(), i,
-			my.timeData[i], timeString(my.timeData[i]),
+    if (console->logLevel(KmChart::DebugProtocol)) {
+	int i = my.visible - 1;
+	console->post(KmChart::DebugProtocol,
+			"Tab::updateTimeAxis: tz=%s; visible points=%d",
+			(const char *)tz.toAscii(), i);
+	console->post(KmChart::DebugProtocol,
+			"Tab::updateTimeAxis: first time is %.3f (%s)",
+			my.timeData[i], timeString(my.timeData[i]));
+	console->post(KmChart::DebugProtocol,
+			"Tab::updateTimeAxis: final time is %.3f (%s)",
 			my.timeData[0], timeString(my.timeData[0]));
+    }
 }
 
 void Tab::updateTimeButton(void)
@@ -236,7 +250,7 @@ void Tab::updateTimeButton(void)
 
 KmTime::State Tab::kmtimeState(void)
 {
-    return my.previousState;
+    return my.kmtimeState;
 }
 
 char *Tab::timeState()
@@ -271,8 +285,8 @@ void Tab::refreshCharts(void)
     for (int i = 0; i < my.count; i++) {
 	my.charts[i]->setAxisScale(QwtPlot::xBottom, 
 		my.timeData[my.visible - 1], my.timeData[0],
-		kmchart->timeAxis()->scaleValue(my.interval, my.visible));
-	my.charts[i]->update(my.timeState != Tab::BackwardState, true, true);
+		kmchart->timeAxis()->scaleValue(my.realDelta, my.visible));
+	my.charts[i]->update(my.timeState != Tab::BackwardState, true);
 	my.charts[i]->fixLegendPen();
     }
 
@@ -299,7 +313,7 @@ void Tab::setupWorldView(void)
 						sizeof(packet.position));
 	memcpy(&packet.start, kmtime->archiveStart(), sizeof(packet.start));
 	memcpy(&packet.end, kmtime->archiveEnd(), sizeof(packet.end));
-	adjustArchiveWorldView(&packet, true);
+	adjustWorldView(&packet, true);
     }
     for (int m = 0; m < my.count; m++)
 	my.charts[m]->show();
@@ -312,6 +326,16 @@ void Tab::setupWorldView(void)
 //
 void Tab::adjustWorldView(KmTime::Packet *packet, bool vcrMode)
 {
+    my.delta = packet->delta;
+    my.position = packet->position;
+    my.realDelta = tosec(packet->delta);
+    my.realPosition = tosec(packet->position);
+
+    console->post("Tab::adjustWorldView: "
+		  "sh=%d vh=%d delta=%.2f position=%.2f (%s) state=%s",
+		my.samples, my.visible, my.realDelta, my.realPosition,
+		timeString(my.realPosition), timeState());
+
     if (isArchiveSource())
 	adjustArchiveWorldView(packet, vcrMode);
     else
@@ -336,19 +360,8 @@ static bool fuzzyTimeMatch(double a, double b, double tolerance)
 
 void Tab::adjustLiveWorldView(KmTime::Packet *packet)
 {
-    double interval, position;
-    double tolerance;
-    int last = my.samples - 1;
+    console->post("Tab::adjustLiveWorldView");
 
-    my.previousDelta = packet->delta;
-    my.previousPosition = packet->position;
-    interval = tosec(packet->delta);
-    position = tosec(packet->position);
-
-    console->post("Tab::adjustLiveWorldViewForward: "
-		  "sh=%d vh=%d delta=%.2f position=%.2f (%s) state=%s",
-		my.samples, my.visible, interval, position,
-		timeString(position), timeState());
     //
     // X-Axis _max_ becomes packet->position.
     // Rest of (preceeding) time window filled in using packet->delta.
@@ -356,21 +369,29 @@ void Tab::adjustLiveWorldView(KmTime::Packet *packet)
     // an effort to keep old data that happens to align with the delta
     // time points that we are now interested in.
     //
-    tolerance = interval / 20.0;	// 5% of the sample interval
-    position -= (interval * last);
-    for (int i = last; i >= 0; i--, position += interval) {
+    int last = my.samples - 1;
+    double tolerance = my.realDelta / 20.0;	// 5% of the sample interval
+    double position = my.realPosition - (my.realDelta * last);
+
+    for (int i = last; i >= 0; i--, position += my.realDelta) {
 	if (fuzzyTimeMatch(my.timeData[i], position, tolerance)) {
 	    console->post("Tab::adjustLiveWorldView: "
 			  "skipped fetch, position[%d] matches existing time "
 			  "(%s)", i, timeString(position));
 	    continue;
 	}
+
 	my.timeData[i] = position;
-	if (i == 0)	// refreshCharts() finishes up last one
+
+	if (i == 0) {	// refreshCharts() finishes up last one
+	    console->post("Fetching data[%d] at %s", i, timeString(position));
 	    my.group->fetch();
-	else
+	}
+	else {
+	    console->post("No live data for %s", timeString(position));
 	    for (int j = 0; j < my.count; j++)
-		my.charts[j]->update(true, false, false);	// ENODATA
+		my.charts[j]->updateNoLiveData(i);
+	}
     }
     my.timeState = (packet->state == KmTime::StoppedState) ?
 			Tab::StandbyState : Tab::ForwardState;
@@ -380,15 +401,11 @@ void Tab::adjustLiveWorldView(KmTime::Packet *packet)
 
 void Tab::adjustArchiveWorldViewForward(KmTime::Packet *packet, bool setup)
 {
-    struct timeval timeval;
-    double interval, position, tolerance;
-    int i, j, delta, setmode;
-    int last = my.samples - 1;
-
+    console->post("Tab::adjustArchiveWorldViewForward");
     my.timeState = Tab::ForwardState;
 
-    setmode = PM_MODE_INTERP;
-    delta = packet->delta.tv_sec;
+    int setmode = PM_MODE_INTERP;
+    int delta = packet->delta.tv_sec;
     if (packet->delta.tv_usec == 0) {
 	setmode |= PM_XTB_SET(PM_TIME_SEC);
     } else {
@@ -396,34 +413,26 @@ void Tab::adjustArchiveWorldViewForward(KmTime::Packet *packet, bool setup)
 	setmode |= PM_XTB_SET(PM_TIME_MSEC);
     }
 
-    my.previousDelta = packet->delta;
-    my.previousPosition = packet->position;
-    interval = tosec(packet->delta);
-    position = tosec(packet->position);
-
-    console->post("Tab::adjustArchiveWorldViewForward: "
-		  "sh=%d vh=%d delta=%.2f position=%.2f (%s) state=%s",
-		my.samples, my.visible, interval, position,
-		timeString(position), timeState());
     //
     // X-Axis _max_ becomes packet->position.
     // Rest of (preceeding) time window filled in using packet->delta.
     //
-    tolerance = interval / 20.0;	// 5% of the sample interval
-    position -= (interval * last);
-    for (i = last; i >= 0; i--, position += interval) {
+    int last = my.samples - 1;
+    double tolerance = my.realDelta / 20.0;	// 5% of the sample interval
+    double position = my.realPosition - (my.realDelta * last);
+
+    for (int i = last; i >= 0; i--, position += my.realDelta) {
 	if (setup == false &&
 	    fuzzyTimeMatch(my.timeData[i], position, tolerance) == true) {
 	    continue;
 	}
+
 	my.timeData[i] = position;
+
+	struct timeval timeval;
 	fromsec(position, &timeval);
-	if (my.group->setArchiveMode(setmode, &timeval, delta) < 0) {
-	    console->post("Tab::adjustArchiveWorldViewForward: setArchiveMode");
-	    continue;
-	}
-	console->post("Fetching values for position[%d] at %s",
-			i, timeString(position));
+	my.group->setArchiveMode(setmode, &timeval, delta);
+	console->post("Fetching data[%d] at %s", i, timeString(position));
 	my.group->fetch();
 	if (i == 0)		// refreshCharts() finishes up last one
 	    break;
@@ -431,8 +440,8 @@ void Tab::adjustArchiveWorldViewForward(KmTime::Packet *packet, bool setup)
 		      "setting time position[%d]=%.2f[%s] state=%s count=%d",
 			i, position, timeString(position),
 			timeState(), my.count);
-	for (j = 0; j < my.count; j++)
-	    my.charts[j]->update(true, false, true);
+	for (int j = 0; j < my.count; j++)
+	    my.charts[j]->update(true, false);
     }
 
     if (setup)
@@ -443,15 +452,11 @@ void Tab::adjustArchiveWorldViewForward(KmTime::Packet *packet, bool setup)
 
 void Tab::adjustArchiveWorldViewBackward(KmTime::Packet *packet, bool setup)
 {
-    struct timeval timeval;
-    double interval, position, tolerance;
-    int i, j, delta, setmode;
-    int last = my.samples - 1;
-
+    console->post("Tab::adjustArchiveWorldViewBackward");
     my.timeState = Tab::BackwardState;
 
-    setmode = PM_MODE_INTERP;
-    delta = packet->delta.tv_sec;
+    int setmode = PM_MODE_INTERP;
+    int delta = packet->delta.tv_sec;
     if (packet->delta.tv_usec == 0) {
 	setmode |= PM_XTB_SET(PM_TIME_SEC);
     } else {
@@ -459,33 +464,26 @@ void Tab::adjustArchiveWorldViewBackward(KmTime::Packet *packet, bool setup)
 	setmode |= PM_XTB_SET(PM_TIME_MSEC);
     }
 
-    my.previousDelta = packet->delta;
-    my.previousPosition = packet->position;
-    interval = tosec(packet->delta);
-    position = tosec(packet->position);
-
-    console->post("Tab::adjustArchiveWorldViewBackward: "
-		  "sh=%d vh=%d delta=%.2f position=%.2f (%s) state=%s",
-		my.samples, my.visible, interval, position,
-		timeString(position), timeState());
     //
     // X-Axis _min_ becomes packet->position.
     // Rest of (following) time window filled in using packet->delta.
     //
-    tolerance = interval / 20.0;	// 5% of the sample interval
-    for (i = 0; i <= last; i++, position -= interval) {
+    int last = my.samples - 1;
+    double tolerance = my.realDelta / 20.0;	// 5% of the sample interval
+    double position = my.realPosition;
+
+    for (int i = 0; i <= last; i++, position -= my.realDelta) {
 	if (setup == false &&
 	    fuzzyTimeMatch(my.timeData[i], position, tolerance) == true) {
 	    continue;
 	}
+
 	my.timeData[i] = position;
+
+	struct timeval timeval;
 	fromsec(position, &timeval);
-	if (my.group->setArchiveMode(setmode, &timeval, -delta) < 0) {
-	    console->post("Tab::adjustArchiveWorldViewBackward: setArchiveMode");
-	    continue;
-	}
-	console->post("Fetching values for position[%d] at %s",
-			i, timeString(position));
+	my.group->setArchiveMode(setmode, &timeval, -delta);
+	console->post("Fetching data[%d] at %s", i, timeString(position));
 	my.group->fetch();
 	if (i == last)		// refreshCharts() finishes up last one
 	    break;
@@ -493,8 +491,8 @@ void Tab::adjustArchiveWorldViewBackward(KmTime::Packet *packet, bool setup)
 		      "setting time position[%d]=%.2f[%s] state=%s count=%d",
 			i, position, timeString(position),
 			timeState(), my.count);
-	for (j = 0; j < my.count; j++)
-	    my.charts[j]->update(false, false, true);
+	for (int j = 0; j < my.count; j++)
+	    my.charts[j]->update(false, false);
     }
 
     if (setup)
@@ -550,24 +548,22 @@ void Tab::step(KmTime::Packet *packet)
 		my.timeState != Tab::ForwardState) ||
 	 (packet->state == KmTime::BackwardState &&
 		my.timeState != Tab::BackwardState))) ||
-	 sideStep(packet->position, my.previousPosition, my.previousDelta))
+	 sideStep(packet->position, my.position, my.delta))
 	return adjustWorldView(packet, false);
 
     int last = my.samples - 1;
-    my.previousState = packet->state;
-    my.previousDelta = packet->delta;
-    my.previousPosition = packet->position;
+    my.kmtimeState = packet->state;
+    my.realPosition = tosec(packet->position);
 
     if (packet->state == KmTime::ForwardState) { // left-to-right (all but 1st)
 	if (my.samples > 1)
 	    memmove(&my.timeData[1], &my.timeData[0], sizeof(double) * last);
-	my.timeData[0] = tosec(packet->position);
+	my.timeData[0] = my.realPosition;
     }
     else if (packet->state == KmTime::BackwardState) { // right-to-left
 	if (my.samples > 1)
 	    memmove(&my.timeData[0], &my.timeData[1], sizeof(double) * last);
-	my.timeData[last] = tosec(my.previousPosition) -
-				torange(my.previousDelta, last);
+	my.timeData[last] = my.realPosition - torange(my.delta, last);
     }
 
     my.group->fetch();
@@ -599,9 +595,8 @@ void Tab::setSampleHistory(int v)
 	my.timeData = (double *)malloc(my.samples * sizeof(my.timeData[0]));
 	if (my.timeData == NULL)
 	    nomem();
-	double position = tosec(my.previousPosition);
 	for (int i = 0; i < my.samples; i++)
-	    my.timeData[i] = position - (i * my.interval);
+	    my.timeData[i] = my.realPosition - (i * my.realDelta);
     }
 }
 

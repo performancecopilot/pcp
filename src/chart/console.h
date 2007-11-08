@@ -16,6 +16,7 @@
 #define CONSOLE_H
 
 #include "ui_console.h"
+#include "kmchart.h"
 
 class Console : public QDialog, public Ui::Console
 {
@@ -23,8 +24,9 @@ class Console : public QDialog, public Ui::Console
 
 public:
     Console(struct timeval);
-    virtual void post(char *p, ...);
-    virtual void post(int level, char *p, ...);
+    void post(char *p, ...);
+    void post(int level, char *p, ...);
+    bool logLevel(int level = KmChart::DebugApp);
 
 private:
     struct {
