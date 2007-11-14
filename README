@@ -10,21 +10,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 
 === 1.0 TODO list ===
 
-    - Write interactive QA testcases as each area is checked:
-	[x] qa/record-testcases
-	[x] qa/search-testcases
-	[x] qa/settings-testcases
-	[x] qa/view-create-save-testcases
-	[x] qa/chart-create-edit-testcases
-	[x] qa/tab-create-edit-testcases
-	[x] qa/chart-control-testcases
-	[x] qa/help-system-testcases
-	[x] qa/chart-scaling-testcases
-	[x] qa/export-print-testcases
-	[ ] qa/query-testcases
-    - Write automated QA for Save View (need a new command line option),
-      then with -C and -c, open (multiple) views, save, then verify.
-
   kmchart
 
     - Tab issues
@@ -50,12 +35,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 
     - Destructors and memory leak plugging.
     - Code audit for TODOs; either fix, exception or add to wishlist.
-    - QA test audit for TODOs; either fix, exception or add to wishlist.
-
-  kmquery
-
-    - Argument -button is not working correctly anymore (Qt4)
-    - Window initial sizing and resizing still needs work.
 
 
 === Wishlist TODO items ===
@@ -110,4 +89,12 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Not much uses the integer delta however, its mainly interp.c in
       libpcp that uses it.  Note: libpcp_pmc also has an API that's
       affected here - PMC_Group::setArchiveMode
+    - Extend kmdumptext to use an abstracted kmtime class for kmtime
+      VCR control.
+    - Extend kmdumptext to allow input to drive kmtime remotely (will
+      need to allow SET message from clients at any time, not just on
+      initial exchange) and use this to automate QA of kmtime.
+    - Write automated QA for Save View (need a new command line option),
+      then with -C and -c, open (multiple) views, save, then verify.
+    - kmquery window initial sizing and resizing could use improvement.
 
