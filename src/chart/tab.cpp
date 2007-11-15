@@ -79,11 +79,6 @@ void Tab::init(QTabWidget *tab, int samples, int visible,
     my.timeData = (double *)malloc(samples * sizeof(double));
     for (int i = 0; i < samples; i++)
 	my.timeData[i] = my.realPosition - (i * my.realDelta);
-
-    kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom,
-		my.timeData[visible-1], my.timeData[0],
-		kmchart->timeAxis()->scaleValue(my.realDelta, my.visible));
-    kmchart->setButtonState(my.buttonState);
 }
 
 Chart *Tab::chart(int i)
