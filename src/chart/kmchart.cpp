@@ -802,10 +802,10 @@ void KmChart::setupEnabledActionsList()
     my.toolbarActionsList << addTabAction << editTabAction << closeTabAction;
     my.toolbarActionsList << zoomInAction << zoomOutAction;
     addSeparatorAction();	// end tab group
-    my.toolbarActionsList << editSettingsAction;
-    addSeparatorAction();	// end settings group
     my.toolbarActionsList << recordStartAction << recordStopAction;
     addSeparatorAction();	// end recording group
+    my.toolbarActionsList << editSettingsAction;
+    addSeparatorAction();	// end settings group
     my.toolbarActionsList << timeControlAction << newKmchartAction;
     addSeparatorAction();	// end other processes
     my.toolbarActionsList << helpManualAction << helpWhatsThisAction;
