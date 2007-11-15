@@ -145,9 +145,6 @@ private:
 	bool archiveHidden;
 	bool toolbarHidden;
 	bool consoleHidden;
-	TabWidget *tabs;
-	QPrinter *printer;
-	TimeAxis *timeaxis;
 	TabDialog *newtab;
 	TabDialog *edittab;
 	InfoDialog *info;

@@ -621,12 +621,12 @@ void KmChart::acceptNewTab()
     QString label = my.newtab->labelLineEdit->text().trimmed();
 
     if (my.newtab->isArchiveSource())
-	tab->init(kmchart->tabWidget(), my.newtab->sampleCounter->value(),
+	tab->init(chartTabWidget, my.newtab->sampleCounter->value(),
 		my.newtab->visibleCounter->value(),
 		archiveGroup, KmTime::ArchiveSource, label,
 		kmtime->archiveInterval(), kmtime->archivePosition());
     else
-	tab->init(kmchart->tabWidget(), my.newtab->sampleCounter->value(),
+	tab->init(chartTabWidget, my.newtab->sampleCounter->value(),
 		my.newtab->visibleCounter->value(),
 		liveGroup, KmTime::HostSource, label,
 		kmtime->liveInterval(), kmtime->livePosition());
