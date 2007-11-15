@@ -576,7 +576,8 @@ void Tab::setTimezone(char *tz)
 {
     console->post(KmChart::DebugProtocol, "Tab::setTimezone - %s", tz);
     my.group->useTZ(QString(tz));
-    updateTimeAxis();
+    if (this == kmchart->activeTab())
+	updateTimeAxis();
 }
 
 void Tab::setSampleHistory(int v)
