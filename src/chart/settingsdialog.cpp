@@ -425,12 +425,12 @@ void SettingsDialog::setupSchemePalette()
     if (index == 1)	// keep whatever is there as the starting point
 	i = colorCount;
     else if (index == 0) {
-	for (i = 0; i < globalSettings.defaultScheme.size(); i++)
+	for (i = 0; i < globalSettings.defaultScheme.size() && i < colorCount; i++)
 	    buttons[i]->setColor(globalSettings.defaultScheme.color(i));
     }
     else if (index > 1) {
 	int j = index - 2;
-	for (i = 0; i < globalSettings.colorSchemes[j].size(); i++)
+	for (i = 0; i < globalSettings.colorSchemes[j].size() && i < colorCount; i++)
 	    buttons[i]->setColor(globalSettings.colorSchemes[j].color(i));
     }
 
