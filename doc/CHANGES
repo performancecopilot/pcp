@@ -1,3 +1,8 @@
+kmchart 1.0.0Beta7 (15 November 2007)
+    - Record mode work, automatic Tab creation for replay is now
+      working well.
+    - Resolve some time axis issues, although I think some remain.
+
 kmchart 1.0.0Beta6 (8 November 2007)
     - Modification to the time interval in kmtime now does the right
       thing in kmchart.
