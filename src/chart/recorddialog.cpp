@@ -245,7 +245,7 @@ void RecordDialog::buttonOk_clicked()
 	}
     }
 
-    QString today = QDateTime::currentDateTime().toString("yyyyMMdd.hh:mm:ss");
+    QString today = QDateTime::currentDateTime().toString("yyyyMMdd.hh.mm.ss");
 
     QString view = viewLineEdit->text().trimmed();
     view.replace(QRegExp("^~"), QDir::homePath());
