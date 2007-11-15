@@ -654,10 +654,12 @@ void Tab::stopRecording(void)
 	my.loggerList.at(i)->terminate();
     }
 
-#if 0
     int i, sts;
     for (i = 0; i < my.archiveList.size(); i++) {
 	QString archive = my.archiveList.at(i);
+
+	console->post("Tab::stopRecording opening archive %s",
+			(const char *)archive.toAscii());
 	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {
 	    archive.prepend(tr("Cannot open PCP archive: "));
 	    archive.append(tr("\n"));
@@ -670,21 +672,24 @@ void Tab::stopRecording(void)
 	archiveGroup->updateBounds();
 	QmcSource source = archiveGroup->context()->source();
 	kmtime->addArchive(source.start(), source.end(),
-			   source.timezone(), source.host());
+			   source.timezone(), source.host(), true);
     }
+
+    // Make the current Tab stop recording before changing Tabs
+    kmchart->setRecordState(this, false);
 
     // If all is well, we can now create the new Tab
     if (i == my.archiveList.size()) {
-	QString label = tr("Record"); // QFileInfo(my.folio).completeBaseName()
 	Tab *tab = new Tab;
-
-	tab->init(my.visible, my.samples, archiveGroup, KmTime::ArchiveSource,
+	console->post("Tab::stopRecording creating tab: delta=%.2f pos=%.2f",
+			tosec(*kmtime->archiveInterval()),
+			tosec(*kmtime->archivePosition()));
+	tab->init(kmchart->tabWidget(), my.samples, my.visible,
+		  archiveGroup, KmTime::ArchiveSource, tr("Record"),
 		  kmtime->archiveInterval(), kmtime->archivePosition());
-	kmchart->addTab(tab, label);
-	kmchart->setActiveTab(tabs.size() - 1, false);
+	kmchart->addActiveTab(tab);
 	OpenViewDialog::openView((const char *)my.view.toAscii());
     }
-#endif
 
     cleanupRecording();
 }
@@ -696,7 +701,6 @@ void Tab::cleanupRecording(void)
     my.archiveList.clear();
     my.view = QString::null;
     my.folio = QString::null;
-    kmchart->setRecordState(this, false);
 }
 
 void Tab::queryRecording(void)
@@ -717,6 +721,7 @@ void Tab::detachLoggers(void)
     console->post("Tab::detachLoggers detaching %d logger(s)", count);
     for (int i = 0; i < count; i++)
 	my.loggerList.at(i)->write(msg.toAscii());
+    kmchart->setRecordState(this, false);
     cleanupRecording();
 }
 

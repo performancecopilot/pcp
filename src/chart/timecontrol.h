@@ -33,7 +33,7 @@ public:
     void quit();
 
     void addArchive(struct timeval starttime, struct timeval endtime,
-		    QString tzstring, QString tzlabel);
+		    QString tzstring, QString tzlabel, bool atEnd);
 
     void liveConnect();
     void archiveConnect();

@@ -42,6 +42,7 @@ public:
 
 private:
     struct {
+	State state;
 	QIcon forwardLiveIcon;
 	QIcon stoppedLiveIcon;
 	QIcon forwardRecordIcon;

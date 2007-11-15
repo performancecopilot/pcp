@@ -57,6 +57,7 @@ public:
 
     Tab *activeTab() { return chartTabWidget->activeTab(); }
     void setActiveTab(int index, bool redisplay);
+    void addActiveTab(Tab *tab);
     bool isArchiveTab();
     TabWidget *tabWidget() { return chartTabWidget; }
     TimeAxis *timeAxis() { return timeAxisPlot; }

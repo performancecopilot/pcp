@@ -57,8 +57,14 @@ void TimeControl::quit()
 {
     disconnect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this,
 		    SLOT(endTimeControl()));
-    liveCloseConnection();
-    archiveCloseConnection();
+    if (my.liveSocket) {
+	my.liveSocket->close();
+	my.liveSocket = NULL;
+    }
+    if (my.archiveSocket) {
+	my.archiveSocket->close();
+	my.archiveSocket = NULL;
+    }
     terminate();
 }
 
@@ -109,11 +115,17 @@ void TimeControl::init(int port, bool live,
 
 void TimeControl::addArchive(
 		struct timeval starttime, struct timeval endtime,
-		QString tzstring, QString tzlabel)
+		QString tzstring, QString tzlabel, bool atEnd)
 {
     KmTime::Packet *message;
     int tzlen = tzstring.length(), lablen = tzlabel.length();
     int sz = sizeof(KmTime::Packet) + tzlen + 1 + lablen + 1;
+
+    if (my.archivePacket->position.tv_sec == 0) {	// first archive
+	my.archivePacket->position = atEnd ? endtime : starttime;
+	my.archivePacket->start = starttime;
+	my.archivePacket->end = endtime;
+    }
 
     if ((message = (KmTime::Packet *)malloc(sz)) == NULL)
 	nomem();
@@ -225,11 +237,17 @@ void TimeControl::endTimeControl(void)
 void TimeControl::liveCloseConnection()
 {
     my.liveSocket->close();
+    my.liveSocket = NULL;
+    kmchart->quit();
+    exit(0);
 }
 
 void TimeControl::archiveCloseConnection()
 {
     my.archiveSocket->close();
+    my.archiveSocket = NULL;
+    kmchart->quit();
+    exit(0);
 }
 
 void TimeControl::liveSocketConnected()

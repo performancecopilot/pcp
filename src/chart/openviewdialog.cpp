@@ -245,7 +245,7 @@ void OpenViewDialog::archiveAdd()
 	    archiveGroup->updateBounds();
 	    QmcSource source = archiveGroup->context()->source();
 	    kmtime->addArchive(source.start(), source.end(),
-				source.timezone(), source.host());
+				source.timezone(), source.host(), false);
 	}
     }
     delete af;

@@ -639,6 +639,13 @@ void KmChart::addTab()
     createNewTab(isArchiveTab() == false);
 }
 
+void KmChart::addActiveTab(Tab *tab)
+{
+    chartTabWidget->insertTab(tab);
+    setActiveTab(chartTabWidget->size() - 1, true);
+    enableUi();
+}
+
 void KmChart::zoomIn()
 {
     int visible = activeTab()->visibleHistory();
@@ -756,8 +763,10 @@ void KmChart::setRecordState(Tab *tab, bool recording)
 
 void KmChart::recordStart()
 {
-    if (activeTab()->startRecording())
-	setRecordState(activeTab(), true);
+    Tab *tab = activeTab();
+
+    if (tab->startRecording())
+	setRecordState(tab, true);
 }
 
 void KmChart::recordStop()

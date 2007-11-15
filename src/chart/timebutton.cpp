@@ -17,6 +17,7 @@
 
 TimeButton::TimeButton(QWidget *parent) : QToolButton(parent)
 {
+    my.state = Timeless;
     setIconSize(QSize(52, 52));
     setFocusPolicy(Qt::NoFocus);
     console->post(KmChart::DebugUi, "Loading resource :/play_live.png");
@@ -46,6 +47,8 @@ TimeButton::TimeButton(QWidget *parent) : QToolButton(parent)
 
 void TimeButton::setButtonState(TimeButton::State state)
 {
+    if (my.state == state)
+	return;
     switch (state) {
     case TimeButton::ForwardLive:
 	setIcon(my.forwardLiveIcon);
@@ -83,4 +86,5 @@ void TimeButton::setButtonState(TimeButton::State state)
     default:
 	abort();
     }
+    my.state = state;
 }

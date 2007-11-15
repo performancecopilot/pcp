@@ -482,7 +482,9 @@ void KmTimeArch::doneBounds(void)
 	my.kmtime.position = my.kmtime.end;
 	tellclients = 1;
     }
+    sliderPosition->blockSignals(true);
     setPositionSlideRange();
+    sliderPosition->blockSignals(false);
     if (tellclients)
 	emit vcrModePulse(&my.kmtime, 0);
 }
@@ -729,7 +731,11 @@ void KmTimeArch::addBound(KmTime::Packet *k, char *tzdata)
 	my.kmtime.end = k->end;
     }
 
+    sliderPosition->blockSignals(true);
     setPositionSlideRange();
+    sliderPosition->blockSignals(false);
+    displayPositionText();
+    displayPositionSlide();
     my.bounds->reset();
 
     if (needPulse)

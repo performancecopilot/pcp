@@ -12,22 +12,15 @@ Refer to doc/INSTALL for instructions on building these tools.
 
   kmchart
 
-    - Tab issues
-       o On initially creating a live tab, the time axis is very confused (it
-	 looks like its trying to display way too many points?).  This clears
-	 itself up after a few kmtime steps though.
-	 Values in CPU/Disk views opened on a new Live Tab do not match those
-	 from an initial Tab.
-       o Stopping recording causes time axis on the current Live Tab to go
-	 haywire (changing Tabs then changing back clears it though).
-       o After recording, view y-axes are not correct (views not created to
-	 match originals correctly?).
-       o After recording, kmtime refuses to show itself, time axis is all
-	 wierd (lots of timestamps one-on-top-of-the-other).
-       o New Tab after recording needs to have total/visible samples set to
-	 match the original tab.  
-       o Tab label of a recording Tab should be "Record" not the start time,
-	 that takes too much space and is hard-to-read.
+    - On initially creating a live tab, the time axis is very confused (it
+      looks like its trying to display way too many points?).  This clears
+      itself up after a few kmtime steps though.
+      Values in CPU/Disk views opened on a new Live Tab do not match those
+      from an initial Tab.
+    - Time Control stop in live mode not quite right yet, in terms of the
+      displayed sequence of values.
+    - Time Control delta change in live mode not quite right yet, in terms
+      of the displayed sequence of values.
 
     - Online Help needs more content
     - Tutorial is not quite complete
@@ -47,7 +40,7 @@ Refer to doc/INSTALL for instructions on building these tools.
       . Need libpcp changes (new interfaces) to abstract out the code
 	which has a one-trip guard on testing/setting PMPROXY_HOST env
 	variable during connect (so multiple contexts can have different
-	proxies).
+	proxies).  [Initial patch sent out for review, 15 Nov 07]
       . Need Qmc support for these interfaces instead of existing code.
       . Need to audit kmchart, see all PMPROXY TODOs in the code.
     - Desktop integration details - basics are done, but:
