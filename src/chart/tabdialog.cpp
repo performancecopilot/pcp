@@ -43,23 +43,24 @@ void TabDialog::reset(QString label, bool live, int samples, int visible)
     my.archiveSource = !live;
     my.samples = my.visible = 0;
 
-    visibleCounter->setValue(visible);
     visibleCounter->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
-    visibleSlider->setValue(visible);
     visibleSlider->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
-    sampleCounter->setValue(samples);
     sampleCounter->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
-    sampleSlider->setValue(samples);
     sampleSlider->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
+    visibleCounter->setValue(visible);
+    visibleSlider->setValue(visible);
+    sampleCounter->setValue(samples);
+    sampleSlider->setValue(samples);
 
-    console->post(KmChart::DebugUi, "TabDialog::reset archive=%s",
-					my.archiveSource?"true":"false");
+    console->post(KmChart::DebugUi, "TabDialog::reset arch=%s tot=%d/%d vis=%d/%d",
+			my.archiveSource ? "true" : "false",
+			samples, my.samples, visible, my.visible);
 }
 
 bool TabDialog::isArchiveSource()
 {
     console->post(KmChart::DebugUi, "TabDialog::isArchiveSource archive=%s",
-		  my.archiveSource?"true":"false");
+		  	my.archiveSource ? "true" : "false");
     return my.archiveSource;
 }
 
