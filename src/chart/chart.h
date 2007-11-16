@@ -50,7 +50,7 @@ public:
     } Style;
 
     void resetDataArrays(int m, int v);
-    int addPlot(pmMetricSpec *, char *);
+    int addPlot(pmMetricSpec *, const char *);
     int numPlot(void);
     void delPlot(int);
     void revivePlot(int m);

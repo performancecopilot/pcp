@@ -472,7 +472,7 @@ void Chart::resetDataArrays(int m, int v)
 // the pmMetricSpec has been filled in, and ninst is always 0
 // (PM_INDOM_NULL) or 1 (one instance at a time)
 //
-int Chart::addPlot(pmMetricSpec *pmsp, char *legend)
+int Chart::addPlot(pmMetricSpec *pmsp, const char *legend)
 {
     int		maxCount;
     QmcMetric	*mp;

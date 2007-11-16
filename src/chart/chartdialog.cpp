@@ -703,16 +703,19 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
     Chart::Style style = (Chart::Style)(typeComboBox->currentIndex() + 1);
     pmMetricSpec pms;
 
-    pms.isarch = name->isArchiveMode();
-    // TODO: null checks, and all of these are leaked later
-    char *nlabel = NULL;
+    const char *nlabel = NULL;
     if (name->label().isEmpty() == false)
-	nlabel = strdup((const char *)name->label().toAscii());
-    pms.source = strdup((const char *)name->sourceName().toAscii()); 
+	nlabel = (const char *)name->label().toAscii();
+    pms.isarch = name->isArchiveMode();
+    pms.source = strdup((const char *)name->sourceName().toAscii());
     pms.metric = strdup((const char *)name->metricName().toAscii());
+    if (!pms.source || !pms.metric)
+	nomem();
     if (name->isInst()) {
 	pms.ninst = 1;
 	pms.inst[0] = strdup((const char *)name->metricInstance().toAscii());
+	if (!pms.inst[0])
+	    nomem();
     }
     else {
 	pms.ninst = 0;
@@ -742,6 +745,11 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 	cp->setStroke(m, style, name->currentColor());
 	cp->setLabel(m, name->label());
     }
+
+    if (pms.ninst == 1)
+	free(pms.inst[0]);
+    free(pms.metric);
+    free(pms.source);
 }
 
 void ChartDialog::deleteChartPlot(Chart *cp, int m)

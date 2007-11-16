@@ -21,6 +21,8 @@ Refer to doc/INSTALL for instructions on building these tools.
       displayed sequence of values.
     - Time Control delta change in live mode not quite right yet, in terms
       of the displayed sequence of values.
+    - Time axis on a kmchart started from within kmchart (i.e. sharing the
+      same kmtime) seems to get confused a bit (too many points plotted?)
 
     - Online Help needs more content
     - Tutorial is not quite complete
