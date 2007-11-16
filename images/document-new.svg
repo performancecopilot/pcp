@@ -143,7 +143,7 @@
        fx="8.824419"
        cy="3.7561285"
        cx="8.824419"
-       gradientTransform="matrix(0.498539,0,0,0.477862,-0.972828,0.523061)"
+       gradientTransform="matrix(0.498539,0,0,0.477862,0.441386,0.523061)"
        gradientUnits="userSpaceOnUse"
        id="radialGradient15656"
        xlink:href="#linearGradient269"
@@ -154,7 +154,7 @@
        fx="33.966679"
        cy="35.736916"
        cx="33.966679"
-       gradientTransform="matrix(0.494533,0,0,0.481732,-2.699486,0.22395)"
+       gradientTransform="matrix(0.494533,0,0,0.481732,-1.285272,0.22395)"
        gradientUnits="userSpaceOnUse"
        id="radialGradient15658"
        xlink:href="#linearGradient259"
@@ -165,7 +165,7 @@
        fx="8.1435566"
        cy="7.2678967"
        cx="8.1435566"
-       gradientTransform="matrix(0.498539,0,0,0.477862,-0.972828,0.523061)"
+       gradientTransform="matrix(0.498539,0,0,0.477862,0.441386,0.523061)"
        gradientUnits="userSpaceOnUse"
        id="radialGradient15668"
        xlink:href="#linearGradient15662"
@@ -200,17 +200,17 @@
      borderopacity="0.32941176"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1"
+     inkscape:zoom="11.313708"
      inkscape:cx="11.89103"
-     inkscape:cy="18.943159"
-     inkscape:current-layer="layer6"
+     inkscape:cy="9.3736802"
+     inkscape:current-layer="layer4"
      showgrid="false"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
      inkscape:window-width="906"
      inkscape:window-height="636"
-     inkscape:window-x="108"
-     inkscape:window-y="78"
+     inkscape:window-x="71"
+     inkscape:window-y="0"
      inkscape:showpageshadow="false"
      width="22px"
      height="22px" />
@@ -262,7 +262,7 @@
        sodipodi:rx="15.821514"
        sodipodi:ry="4.5078058"
        d="M 40.128309 42.07798 A 15.821514 4.5078058 0 1 1  8.485281,42.07798 A 15.821514 4.5078058 0 1 1  40.128309 42.07798 z"
-       transform="matrix(0.601166,0,0,0.462701,-5.115523,0.51023)" />
+       transform="matrix(0.601166,0,0,0.462701,-3.701309,0.51023)" />
   </g>
   <g
      id="layer1"
@@ -272,7 +272,7 @@
     <rect
        ry="0.53166533"
        y="1.9111644"
-       x="0.70051306"
+       x="2.1147265"
        height="18.933933"
        width="17.956224"
        id="rect15391"
@@ -281,14 +281,14 @@
        rx="0.076741211"
        ry="0.068964846"
        y="2.3449466"
-       x="1.2475671"
+       x="2.6617806"
        height="18.02051"
        width="16.875448"
        id="rect15660"
        style="color:black;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:url(#radialGradient15668);stroke-width:0.48809054;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:block;overflow:visible" />
     <g
        id="g2270"
-       transform="matrix(0.514874,0,0,0.462701,-2.366645,0.206378)">
+       transform="matrix(0.514874,0,0,0.462701,-0.952431,0.206378)">
       <g
          transform="matrix(0.229703,0,0,0.229703,4.967081,4.244972)"
          style="fill:white;fill-opacity:1;fill-rule:nonzero;stroke:black;stroke-miterlimit:4"
@@ -348,12 +348,12 @@
     <path
        sodipodi:nodetypes="cc"
        id="path15672"
-       d="M 3.2245124,2.7661567 L 3.2245124,20.305555"
+       d="M 4.638726,2.7661567 L 4.638726,20.305555"
        style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:0.48250341;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:0.01754384" />
     <path
        sodipodi:nodetypes="cc"
        id="path15674"
-       d="M 3.7364396,2.5469471 L 3.7364396,20.137761"
+       d="M 5.1506532,2.5469471 L 5.1506532,20.137761"
        style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:white;stroke-width:0.48809054;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:0.20467828" />
   </g>
   <g
