@@ -20,7 +20,13 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Time Control stop in live mode not quite right yet, in terms of the
       displayed sequence of values.
     - Time Control delta change in live mode not quite right yet, in terms
-      of the displayed sequence of values.
+      of the displayed sequence of values.  Test case from Mark:
+	<markgw> Click on the VCR button to expose Live Time Controls
+	<markgw> Select Milliseconds
+	<markgw> Change the Interval to 100
+	<markgw> Press the Play button
+	<markgw> This results in the time scale compressing on the LHS
+	.. but eventually recovers and scrolls normally.
     - Time axis on a kmchart started from within kmchart (i.e. sharing the
       same kmtime) seems to get confused a bit (too many points plotted?)
 
