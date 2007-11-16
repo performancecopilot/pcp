@@ -11,6 +11,7 @@ URL: http://oss.sgi.com/projects/pcp
 Group: System Environment/Base
 Requires: pcp >= 2.0
 Requires: qt4 >= 4.2
+Requires: qt4-doc >= 4.2
 BuildRequires: pcp >= 2.0
 BuildRequires: qt4-devel >= 4.2
 
