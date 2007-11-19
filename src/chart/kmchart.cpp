@@ -470,6 +470,14 @@ void KmChart::optionsNewKmchart()
 
     port.setNum(kmtime->port());
     arguments << "-p" << port;
+    for (unsigned int i = 0; i < archiveGroup->numContexts(); i++) {
+	QmcSource source = archiveGroup->context(i)->source();
+	arguments << "-a" << source.source();
+    }
+    for (unsigned int i = 0; i < liveGroup->numContexts(); i++) {
+	QmcSource source = liveGroup->context(i)->source();
+	arguments << "-h" << source.source();
+    }
     buddy->start("kmchart", arguments);
 }
 
