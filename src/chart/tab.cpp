@@ -372,14 +372,18 @@ void Tab::adjustLiveWorldView(KmTime::Packet *packet)
     // the next iteration.
     //
     int last = my.samples - 1;
-    double tolerance = 0.5;	// .5 of a second
+    double tolerance = qMin(0.5, my.realDelta);	// .5 of a second
     double position = my.realPosition - (my.realDelta * last);
 
     for (int i = last, oi = last; i >= 0; i--, position += my.realDelta) {
 	bool preserve = false;
 
-	while (my.timeData[oi] < position + my.realDelta && oi > 0) {
+	while (i && my.timeData[oi] < position + my.realDelta && oi > 0) {
 	    if (fuzzyTimeMatch(my.timeData[oi], position, tolerance) == false) {
+	    console->post("NO fuzzyTimeMatch %.3f to %.3f (%s)",
+			my.timeData[oi], position, timeString(position));
+		if (my.timeData[oi] > position)
+		    break;
 		oi--;
 		continue;
 	    }
@@ -387,18 +391,20 @@ void Tab::adjustLiveWorldView(KmTime::Packet *packet)
 						timeString(position));
 	    for (int j = 0; j < my.count; j++)
 		my.charts[j]->preserveLiveData(i, oi);
+	    my.timeData[i] = my.timeData[oi];
 	    preserve = true;
+	    oi--;
 	    break;
 	}
 
-	my.timeData[i] = position;
-
 	if (i == 0) {	// refreshCharts() finishes up last one
 	    console->post("Fetching data[%d] at %s", i, timeString(position));
+	    my.timeData[i] = position;
 	    my.group->fetch();
 	}
 	else if (preserve == false) {
 	    console->post("No live data for %s", timeString(position));
+	    my.timeData[i] = position;
 	    for (int j = 0; j < my.count; j++)
 		my.charts[j]->punchoutLiveData(i);
 	}
@@ -577,7 +583,7 @@ void Tab::step(KmTime::Packet *packet)
 
 void Tab::VCRMode(KmTime::Packet *packet, bool dragMode)
 {
-    if (!dragMode)
+    if (!dragMode && packet->state != KmTime::StoppedState)
 	adjustWorldView(packet, true);
 }
 
