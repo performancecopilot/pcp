@@ -12,8 +12,10 @@ Refer to doc/INSTALL for instructions on building these tools.
 
   kmchart
 
-    - Time axis on a kmchart started from within kmchart (i.e. sharing the
-      same kmtime) seems to get confused a bit (too many points plotted?)
+    - A kmchart started from within kmchart seems to have trouble with
+      kmtime step events?  (Looks like they're not received?)  In fact,
+      looks like something has regressed here - pmval not working right
+      as a second client.
 
     - Online Help needs more content
     - Tutorial is not quite complete
