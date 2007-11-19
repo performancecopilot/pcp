@@ -333,7 +333,7 @@ void Tab::adjustWorldView(KmTime::Packet *packet, bool vcrMode)
 
     if (isArchiveSource())
 	adjustArchiveWorldView(packet, vcrMode);
-    else
+    else if (packet->state != KmTime::StoppedState)
 	adjustLiveWorldView(packet);
 }
 
@@ -372,7 +372,7 @@ void Tab::adjustLiveWorldView(KmTime::Packet *packet)
     // the next iteration.
     //
     int last = my.samples - 1;
-    double tolerance = qMin(0.5, my.realDelta);	// .5 of a second
+    double tolerance = my.realDelta;
     double position = my.realPosition - (my.realDelta * last);
 
     for (int i = last, oi = last; i >= 0; i--, position += my.realDelta) {
@@ -583,7 +583,7 @@ void Tab::step(KmTime::Packet *packet)
 
 void Tab::VCRMode(KmTime::Packet *packet, bool dragMode)
 {
-    if (!dragMode && packet->state != KmTime::StoppedState)
+    if (!dragMode)
 	adjustWorldView(packet, true);
 }
 
