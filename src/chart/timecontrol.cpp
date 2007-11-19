@@ -376,7 +376,7 @@ void TimeControl::protocolMessage(bool live,
 	break;
     }
 
-#if DESPERATE
+#if 1 //DESPERATE
     console->post(KmChart::DebugProtocol,
 		  "TimeControl::protocolMessage: recv pos=%s state=%d",
 		  timeString(tosec(packet->position)), *state);

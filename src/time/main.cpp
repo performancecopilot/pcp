@@ -222,9 +222,8 @@ int KmTime::timevalCompare(struct timeval *a, struct timeval *b)
 //
 void KmTime::secondsToTimeval(double value, struct timeval *tv)
 {
-    double usec = (value - (unsigned int)value) / 1000000.0;
-    tv->tv_sec = (unsigned int)value;
-    tv->tv_usec = (unsigned int)usec;
+    tv->tv_sec = (time_t)value;
+    tv->tv_usec = (long)(((value - (double)tv->tv_sec) * 1000000.0));
 }
 
 //

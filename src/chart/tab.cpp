@@ -350,7 +350,9 @@ void Tab::adjustArchiveWorldView(KmTime::Packet *packet, bool needFetch)
 static bool fuzzyTimeMatch(double a, double b, double tolerance)
 {
     // a matches b if the difference is within 1% of the delta (tolerance)
-    return (b > a && a + tolerance > b) || (b < a && a - tolerance < b);
+    return (a == b ||
+	    (b > a && a + tolerance > b) ||
+	    (b < a && a - tolerance < b));
 }
 
 void Tab::adjustLiveWorldView(KmTime::Packet *packet)
@@ -362,18 +364,31 @@ void Tab::adjustLiveWorldView(KmTime::Packet *packet)
     // Rest of (preceeding) time window filled in using packet->delta.
     // In live mode, we can only fetch current data.  However, we make
     // an effort to keep old data that happens to align with the delta
-    // time points that we are now interested in.
+    // time points (or near enough) that we are now interested in.  So,
+    // "oi" is the old index, whereas "i" is the new timeData[] index.
+    // First we try to find a fuzzy match on current old index, if it
+    // doesn't exit, we continue moving "oi" until it points at a time
+    // larger than the one we're after, and then see how that fares on
+    // the next iteration.
     //
     int last = my.samples - 1;
-    double tolerance = my.realDelta / 20.0;	// 5% of the sample interval
+    double tolerance = 0.5;	// .5 of a second
     double position = my.realPosition - (my.realDelta * last);
 
-    for (int i = last; i >= 0; i--, position += my.realDelta) {
-	if (fuzzyTimeMatch(my.timeData[i], position, tolerance)) {
-	    console->post("Tab::adjustLiveWorldView: "
-			  "skipped fetch, position[%d] matches existing time "
-			  "(%s)", i, timeString(position));
-	    continue;
+    for (int i = last, oi = last; i >= 0; i--, position += my.realDelta) {
+	bool preserve = false;
+
+	while (my.timeData[oi] < position + my.realDelta && oi > 0) {
+	    if (fuzzyTimeMatch(my.timeData[oi], position, tolerance) == false) {
+		oi--;
+		continue;
+	    }
+	    console->post("Saved live data (oi=%d/i=%d) for %s", oi, i,
+						timeString(position));
+	    for (int j = 0; j < my.count; j++)
+		my.charts[j]->preserveLiveData(i, oi);
+	    preserve = true;
+	    break;
 	}
 
 	my.timeData[i] = position;
@@ -382,10 +397,10 @@ void Tab::adjustLiveWorldView(KmTime::Packet *packet)
 	    console->post("Fetching data[%d] at %s", i, timeString(position));
 	    my.group->fetch();
 	}
-	else {
+	else if (preserve == false) {
 	    console->post("No live data for %s", timeString(position));
 	    for (int j = 0; j < my.count; j++)
-		my.charts[j]->updateNoLiveData(i);
+		my.charts[j]->punchoutLiveData(i);
 	}
     }
     my.timeState = (packet->state == KmTime::StoppedState) ?
@@ -513,19 +528,10 @@ void Tab::adjustArchiveWorldViewStop(KmTime::Packet *packet, bool needFetch)
 // in position.  This happens when we restart after a stop in live
 // mode (both with and without a change in the delta).
 //
-static bool sideStep(struct timeval, struct timeval, struct timeval)
+static bool sideStep(double n, double o, double interval)
 {
-    // thinks needs deeper thought / a rework, triggering too often atm
-    // and adjustLiveWorldView isn't correct yet either, making it worse
-    return false;
-#if 0
-    double interval = tosec(delta);
-    double tolerance = interval / 20.0;	// 5% of the sample interval
-    double newExpected = tosec(o) + interval;
-    double newPosition = tosec(n);
-
-    return fuzzyTimeMatch(newExpected, newPosition, tolerance) == false;
-#endif
+    // tolerance set to 5% of the sample interval:
+    return fuzzyTimeMatch(o + interval, n, interval/20.0) == false;
 }
 
 //
@@ -534,21 +540,24 @@ static bool sideStep(struct timeval, struct timeval, struct timeval)
 //
 void Tab::step(KmTime::Packet *packet)
 {
+    double stepPosition = tosec(packet->position);
+
     console->post(KmChart::DebugProtocol,
 		  "Tab::step: stepping to time %.2f, delta=%.2f, state=%s",
-		  tosec(packet->position), tosec(packet->delta), timeState());
+		  stepPosition, my.realDelta, timeState());
 
     if ((packet->source == KmTime::ArchiveSource &&
 	((packet->state == KmTime::ForwardState &&
 		my.timeState != Tab::ForwardState) ||
 	 (packet->state == KmTime::BackwardState &&
 		my.timeState != Tab::BackwardState))) ||
-	 sideStep(packet->position, my.position, my.delta))
+	 sideStep(stepPosition, my.realPosition, my.realDelta))
 	return adjustWorldView(packet, false);
 
     int last = my.samples - 1;
     my.kmtimeState = packet->state;
-    my.realPosition = tosec(packet->position);
+    my.position = packet->position;
+    my.realPosition = stepPosition;
 
     if (packet->state == KmTime::ForwardState) { // left-to-right (all but 1st)
 	if (my.samples > 1)

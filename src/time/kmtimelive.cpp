@@ -151,7 +151,9 @@ void KmTimeLive::play()
 {
     console->post("KmTimeLive::play");
     setControl(KmTime::ForwardState);
-    updateTime();
+    gettimeofday(&my.kmtime.position, NULL);
+    displayPosition();
+    emit vcrModePulse(&my.kmtime, 0);
     if (!my.timer->isActive())
 	my.timer->start(timerInterval());
 }
@@ -167,6 +169,7 @@ void KmTimeLive::stop()
     console->post("KmTimeLive::stop stopped time");
     setControl(KmTime::StoppedState);
     my.timer->stop();
+    gettimeofday(&my.kmtime.position, NULL);
     emit vcrModePulse(&my.kmtime, 0);
 }
 

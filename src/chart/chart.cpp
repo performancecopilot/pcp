@@ -93,17 +93,37 @@ Chart::~Chart()
     }
 }
 
-void Chart::updateNoLiveData(int i)
+void Chart::preserveLiveData(int i, int oi)
 {
 #if DESPERATE
-    console->post("Chart::updateNoLiveData=%d (%d plots)", i, my.plots.size());
+    console->post("Chart::preserveLiveData %d/%d (%d plots)",
+			i, oi, my.plots.size());
 #endif
 
     if (my.plots.size() < 1)
 	return;
     for (int m = 0; m < my.plots.size(); m++) {
 	Plot *plot = my.plots[m];
-	plot->data[i] = Curve::NaN();
+	if (plot->dataCount > oi) {
+	    plot->plotData[i] = plot->data[i] = plot->data[oi];
+	}
+	else {
+	    plot->plotData[i] = plot->data[i] = Curve::NaN();
+	}
+    }
+}
+
+void Chart::punchoutLiveData(int i)
+{
+#if DESPERATE
+    console->post("Chart::punchoutLiveData=%d (%d plots)", i, my.plots.size());
+#endif
+
+    if (my.plots.size() < 1)
+	return;
+    for (int m = 0; m < my.plots.size(); m++) {
+	Plot *plot = my.plots[m];
+	plot->data[i] = plot->plotData[i] = Curve::NaN();
     }
 }
 

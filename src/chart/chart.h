@@ -79,7 +79,8 @@ public:
     void setAntiAliasing(bool);
 
     void update(bool, bool);
-    void updateNoLiveData(int);
+    void preserveLiveData(int, int);
+    void punchoutLiveData(int);
 
     QString name(int);
     char *legendSpec(int);

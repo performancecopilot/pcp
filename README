@@ -12,21 +12,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 
   kmchart
 
-    - On initially creating a live tab, the time axis is very confused (it
-      looks like its trying to display way too many points?).  This clears
-      itself up after a few kmtime steps though.
-      Values in CPU/Disk views opened on a new Live Tab do not match those
-      from an initial Tab.
-    - Time Control stop in live mode not quite right yet, in terms of the
-      displayed sequence of values.
-    - Time Control delta change in live mode not quite right yet, in terms
-      of the displayed sequence of values.  Test case from Mark:
-	<markgw> Click on the VCR button to expose Live Time Controls
-	<markgw> Select Milliseconds
-	<markgw> Change the Interval to 100
-	<markgw> Press the Play button
-	<markgw> This results in the time scale compressing on the LHS
-	.. but eventually recovers and scrolls normally.
     - Time axis on a kmchart started from within kmchart (i.e. sharing the
       same kmtime) seems to get confused a bit (too many points plotted?)
 
