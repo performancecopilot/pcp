@@ -446,3 +446,11 @@ void TimeControl::protocolMessage(bool live,
 	exit(1);
     }
 }
+
+void TimeControl::protocolMessageLoop(bool live,
+	KmTime::Packet *packet, QTcpSocket *socket, ProtocolState *state)
+{
+    do {
+	protocolMessage(live, packet, socket, state);
+    } while (socket->bytesAvailable() >= (int)sizeof(KmTime::Packet));
+}

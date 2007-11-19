@@ -60,20 +60,15 @@ public slots:
     void liveSocketConnected();
     void liveProtocolMessage()
     {
-	do {
-	    protocolMessage(true, my.livePacket, my.liveSocket,
-				&my.liveState);
-	} while (my.liveSocket->bytesAvailable() >= sizeof(KmTime::Packet));
+	protocolMessageLoop(true, my.livePacket, my.liveSocket, &my.liveState);
     }
 
     void archiveCloseConnection();
     void archiveSocketConnected();
     void archiveProtocolMessage()
     {
-	do {
-	    protocolMessage(false, my.archivePacket, my.archiveSocket,
+	protocolMessageLoop(false, my.archivePacket, my.archiveSocket,
 				&my.archiveState);
-	} while (my.archiveSocket->bytesAvailable() >= sizeof(KmTime::Packet));
     }
 
 private:
@@ -85,6 +80,8 @@ private:
 
     void startTimeServer();
     void protocolMessage(bool live, KmTime::Packet *kmtime,
+			 QTcpSocket *socket, ProtocolState *state);
+    void protocolMessageLoop(bool live, KmTime::Packet *kmtime,
 			 QTcpSocket *socket, ProtocolState *state);
 
     struct {
