@@ -111,6 +111,8 @@ void Chart::preserveLiveData(int i, int oi)
 	    plot->plotData[i] = plot->data[i] = Curve::NaN();
 	}
     }
+    redoPlotData();
+    replot();
 }
 
 void Chart::punchoutLiveData(int i)
