@@ -1,7 +1,3 @@
-#
-# Copyright (c) 2007 Nathan Scott.  All Rights Reserved.
-#
-
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 

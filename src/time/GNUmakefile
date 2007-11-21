@@ -15,14 +15,6 @@ LSRCFILES = $(PROJECT) $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES)
 LDIRDIRT = build $(COMMAND).xcodeproj
 LDIRT = $(COMMAND) $(ICONLINKS)
 
-LCFLAGS = -I$(TOPDIR)/libqwt
-
-ifeq ($(PKG_PLATFORM),darwin)
-LLDFLAGS = -L$(TOPDIR)/libqwt
-else
-LLDFLAGS = -L$(TOPDIR)/libqwt/build/Default
-endif
-
 ICONLINKS = play_off.png play_on.png fastfwd_off.png fastfwd_on.png \
 	fastback_off.png fastback_on.png back_off.png back_on.png \
 	stepfwd_off.png stepfwd_on.png stepback_off.png stepback_on.png \

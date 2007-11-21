@@ -12,14 +12,6 @@ LSRCFILES = $(PROJECT) $(SOURCES)
 LDIRDIRT = build $(COMMAND).xcodeproj
 LDIRT = $(COMMAND)
 
-LCFLAGS = -I$(TOPDIR)/libqmc
-
-ifeq ($(PKG_PLATFORM),darwin)
-LLDFLAGS = -L$(TOPDIR)/libqmc
-else
-LLDFLAGS = -L$(TOPDIR)/libqmc/build/Default
-endif
-
 default:
 	$(QTMAKE)
 	$(LNMAKE)

@@ -1,7 +1,3 @@
-#
-# Copyright (c) 2007 Nathan Scott.  All Rights Reserved.
-#
-
 TOPDIR = .
 HAVE_BUILDDEFS = $(shell test -f $(TOPDIR)/src/include/builddefs && echo yes || echo no)
 

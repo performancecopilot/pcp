@@ -19,14 +19,6 @@ LSRCFILES = $(PROJECT) $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES)
 LDIRDIRT = build $(COMMAND).xcodeproj
 LDIRT = $(COMMAND) $(ICONLINKS)
 
-LCFLAGS = -I$(TOPDIR)/libqmc -I$(TOPDIR)/libqwt
-
-ifeq ($(PKG_PLATFORM),darwin)
-LLDFLAGS = -L$(TOPDIR)/libqmc -L$(TOPDIR)/libqwt
-else
-LLDFLAGS = -L$(TOPDIR)/libqmc/build/Default -L$(TOPDIR)/libqwt/build/Default
-endif
-
 ICONLINKS = aboutpcp.png aboutqt.png aboutkmchart.png kmchart.png kmtime.png \
 	    document-close.png document-new.png document-open.png \
 	    document-print.png document-export.png document-properties.png \
