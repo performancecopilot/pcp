@@ -1,3 +1,7 @@
+kmchart 1.0.0rc2 (22 November 2007)
+    - Two timezone related fixes.
+    - Initial work on Gnome/KDE desktop integration.
+
 kmchart 1.0.0rc1 (21 November 2007)
     - Stop/start VCR mode changes for live mode
     - Fix+re-enable the "side step" code, which detects kmtime steps
