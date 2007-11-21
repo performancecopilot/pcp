@@ -127,6 +127,14 @@ INSTALL_LINGUAS = \
 	done
 endif
 
+ifeq ($(WINDOW),x11)
+INSTALL_DESKTOP = \
+	$(INSTALL) -m 755 -d $(PKG_DESKTOP_DIR) \
+	$(INSTALL) -m 755 $(DESKTOP) $(PKG_DESKTOP_DIR) \
+else
+INSTALL_DESKTOP =
+endif
+
 SUBDIRS_MAKERULE = \
 	@for d in $(SUBDIRS) ""; do \
 		if test -d "$$d" -a ! -z "$$d"; then \

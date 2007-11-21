@@ -4,6 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 COMMAND = kmchart
 PROJECT = $(COMMAND).pro
 QRCFILE = $(COMMAND).qrc
+DESKTOP = $(COMMAND).desktop
 UIFILES = $(shell echo *.ui)
 HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
 	  infodialog.h kmchart.h openviewdialog.h saveviewdialog.h \
@@ -15,7 +16,7 @@ HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
 	  timeaxis.h timebutton.h timecontrol.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
 
-LSRCFILES = $(PROJECT) $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES)
+LSRCFILES = $(PROJECT) $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) $(DESKTOP)
 LDIRDIRT = build $(COMMAND).xcodeproj
 LDIRT = $(COMMAND) $(ICONLINKS)
 
@@ -52,3 +53,4 @@ install: default
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
+	$(INSTALL_DESKTOP)

@@ -12,11 +12,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 
   kmchart
 
-    - A kmchart started from within kmchart seems to have trouble with
-      kmtime step events?  (Looks like they're not received?)  In fact,
-      looks like something has regressed here - pmval not working right
-      as a second client.
-
     - Online Help needs more content
     - Tutorial is not quite complete
     - WhatsThis markers need to be added across the board.
@@ -39,13 +34,8 @@ Refer to doc/INSTALL for instructions on building these tools.
       . Need Qmc support for these interfaces instead of existing code.
       . Need to audit kmchart, see all PMPROXY TODOs in the code.
     - Desktop integration details - basics are done, but:
-      o Gnome/KDE icon files need to be installed correctly;
       o MacOSX icon artwork needs further touch-ups to look good;
       o Refer to "Setting the Application Icon" page in QtAssistant.
-      o Entry should be created in the Application menu/list/folder.
-      o kmchart should be started (with -c) when a View is clicked.
-	Might be enough (or best we can do) to just document how this
-	is achieved for each supported platform.
     - kmtime should send a message to all clients on show/hide (except
       for the client that explicitly requested the show/hide, if there
       was one) - this would let the clients correctly track whether it
