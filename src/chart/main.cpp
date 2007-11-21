@@ -582,12 +582,14 @@ main(int argc, char ** argv)
     if (zflag) {
 	if (archives.size() > 0)
 	    archiveGroup->useTZ();
-	liveGroup->useTZ();
+	if (hosts.size() > 0)
+	    liveGroup->useTZ();
     }
     else if (tz != NULL) {
 	if (archives.size() > 0)
 	    archiveGroup->useTZ(QString(tz));
-	liveGroup->useTZ(QString(tz));
+	if (hosts.size() > 0)
+	    liveGroup->useTZ(QString(tz));
 	if ((sts = pmNewZone(tz)) < 0) {
 	    pmprintf("%s: cannot set timezone to \"%s\": %s\n",
 		    pmProgname, (char *)tz, pmErrStr(sts));
