@@ -369,14 +369,16 @@ void TimeControl::protocolMessage(bool live,
 	    my.buffer = (char *)realloc(my.buffer, my.bufferLength);
 	    if (!my.buffer)
 		nomem();
-	    offset = sizeof(KmTime::Packet);
+	}
+	if (msg->length > (uint)offset + sts) {
+	    offset += sts;
 	    need = msg->length - offset;
 	    continue;
 	}
 	break;
     }
 
-#if 1 //DESPERATE
+#if DESPERATE
     console->post(KmChart::DebugProtocol,
 		  "TimeControl::protocolMessage: recv pos=%s state=%d",
 		  timeString(tosec(packet->position)), *state);
