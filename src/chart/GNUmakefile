@@ -53,4 +53,8 @@ install: default
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
-	$(INSTALL_DESKTOP)
+ifeq ($(WINDOW),x11)
+	$(INSTALL) -m 755 -d $(PKG_DESKTOP_DIR)
+	$(INSTALL) -m 755 $(DESKTOP) $(PKG_DESKTOP_DIR)
+endif
+
