@@ -344,7 +344,7 @@ void TimeLord::endConnect(TimeClient *client)
 
 void TimeLord::timePulse(KmTime::Packet *packet)
 {
-    TimeClient *overrun = NULL;
+    QList<TimeClient*> overrunClients;
 
 #if DESPERATE
     static int sequence;
@@ -358,13 +358,13 @@ void TimeLord::timePulse(KmTime::Packet *packet)
     packet->command = KmTime::Step;
     for (int i = 0; i < my.clientlist.size(); i++)
 	if (my.clientlist.at(i)->writeClient(packet) == false)
-	    overrun = my.clientlist.at(i);
-    if (overrun == NULL)
-	overrun->reset();
+	    overrunClients.append(my.clientlist.at(i));
+    for (int i = 0; i < overrunClients.size(); i++)
+	overrunClients.at(i)->reset();
 
 #if DESPERATE
     console->post(KmTime::DebugProtocol, "TimeLord::timePulse ended %d (%d)",
-					 localSequence, overrun == NULL);
+					 localSequence, overrunClients.size());
 #endif
 }
 
