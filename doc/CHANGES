@@ -1,3 +1,9 @@
+kmchart 1.0.0rc3 (23 November 2007)
+    - Fixed a nasty regression in the last VCR mode changes, and
+      commented out an earlier fix too - that one will need some
+      re-engineering as its too slow (see git log for details).
+    - This versions useable however, so its the first real -rc.
+
 kmchart 1.0.0rc2 (22 November 2007)
     - Two timezone related fixes.
     - Initial work on Gnome/KDE desktop integration.
