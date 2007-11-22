@@ -559,8 +559,10 @@ void KmChart::acceptEditChart()
     my.editchart->setupChartPlots(cp);
     my.editchart->scheme(&scheme, &sequence);
     cp->setScheme(scheme, sequence);
-    if (cp->numPlot() > 0)
+    if (cp->numPlot() > 0) {
+	cp->replot();
 	cp->show();
+    }
     else
 	activeTab()->deleteChart(cp);
 
