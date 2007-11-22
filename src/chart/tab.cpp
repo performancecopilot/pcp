@@ -372,11 +372,19 @@ void Tab::adjustLiveWorldView(KmTime::Packet *packet)
     // the next iteration.
     //
     int last = my.samples - 1;
-    double tolerance = my.realDelta;
+    //double tolerance = my.realDelta;
     double position = my.realPosition - (my.realDelta * last);
 
-    for (int i = last, oi = last; i >= 0; i--, position += my.realDelta) {
+    for (int i = last /*, oi = last*/; i >= 0; i--, position += my.realDelta) {
 	bool preserve = false;
+
+#if 0
+	// TODO: this code is too inefficient to use at the
+        // moment (causes delays long enough to choke kmtime steps).
+        // Maybe rewrite to find time "extents" and set chunks at a
+        // time (use a QList of these extents) via memset/memmove?
+        // But verify whether its fuzzyTimeMatch or preserveLiveData
+        // taking most time first!
 
 	while (i && my.timeData[oi] < position + my.realDelta && oi > 0) {
 	    if (fuzzyTimeMatch(my.timeData[oi], position, tolerance) == false) {
@@ -396,6 +404,7 @@ void Tab::adjustLiveWorldView(KmTime::Packet *packet)
 	    oi--;
 	    break;
 	}
+#endif
 
 	if (i == 0) {	// refreshCharts() finishes up last one
 	    console->post("Fetching data[%d] at %s", i, timeString(position));
