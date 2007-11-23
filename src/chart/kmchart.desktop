@@ -1,9 +1,9 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=PCP Charts
+Name=PCP Chart
 Comment=Strip Chart tool for plotting Performance Co-Pilot metrics.
 Exec=kmchart
-Icon=kmcharticon.png
+Icon=kmchart.png
 Terminal=false
 Type=Application
-Categories=System
+Categories=System;Utility;

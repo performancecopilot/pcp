@@ -1,7 +1,7 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
-DESKTOP_ICONS = kmcharticon.png kmtimeicon.png
+DESKTOP_ICONS = kmchart.png kmtime.png
 
 INKSCAPE = inkscape
 SVGFILES = $(shell echo *.svg)
