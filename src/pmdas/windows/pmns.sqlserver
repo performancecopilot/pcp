@@ -7,6 +7,7 @@ sqlserver {
 	locks
 	sql
 	connections		WINDOWS:0:83
+	mem_mgr
 }
 
 sqlserver.buf_mgr {
@@ -121,4 +122,21 @@ sqlserver.access {
 	pages_allocated		WINDOWS:0:99
 	table_lock_escalations	WINDOWS:0:100
 	page_splits		WINDOWS:0:122
+}
+
+sqlserver.mem_mgr {
+	connection_memory	WINDOWS:0:153
+	granted_workspace	WINDOWS:0:154
+	lock_memory		WINDOWS:0:155
+	lock_blocks_allocated	WINDOWS:0:156
+	lock_owner_blocks_allocated	WINDOWS:0:157
+	lock_blocks		WINDOWS:0:158
+	lock_owner_blocks	WINDOWS:0:159
+	maximum_workspace_memory	WINDOWS:0:160
+	memory_grants_outstanding	WINDOWS:0:161
+	memory_grants_pending	WINDOWS:0:162
+	optimizer_memory	WINDOWS:0:163
+	sql_cache_memory	WINDOWS:0:164
+	target_server_memory	WINDOWS:0:165
+	total_server_memory	WINDOWS:0:166
 }
