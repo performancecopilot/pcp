@@ -21,9 +21,32 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: infiniband.h,v 1.2 2006/11/14 05:23:06 kimbrr Exp $"
+#ident "$Id: infiniband.h,v 1.4 2007/07/30 06:31:42 kimbrr Exp $"
 
-#define IB_COUNTERS   16
+typedef enum
+{
+	RcvData				= 0,
+	RcvPkts				= 1,
+	RcvSwRelayErrors		= 2,
+	RcvConstraintErrors 		= 3,
+        RcvErrors			= 4,
+        RcvRemotePhysErrors		= 5,
+	XmtData				= 6,
+	XmtPkts				= 7,
+        XmtDiscards			= 8,
+        XmtConstraintErrors		= 9, 
+        LinkDowned			= 10,
+        LinkRecovers			= 11,
+        LinkIntegrityErrors		= 12,
+        VL15Dropped			= 13,
+	ExcBufOverrunErrors 		= 14,
+        SymbolErrors			= 15,	
+} ibcounters;
+
+#define IB_COUNTERS_IN   (RcvRemotePhysErrors+1)
+#define IB_COUNTERS	 (SymbolErrors+1)
+#define IB_COUNTERS_ALL  (IB_COUNTERS+4)  /* includes 4 synthetic counters */
+
 
 typedef struct {
     char	*status;
@@ -32,5 +55,9 @@ typedef struct {
     uint64_t	counters[IB_COUNTERS];
 } ib_port_t;
 
+extern int track_ib(void);
 extern int refresh_ib(pmInDom);
 extern int status_ib(ib_port_t * portp);
+extern uint32_t get_control_ib(void);
+extern void set_control_ib(uint32_t);
+

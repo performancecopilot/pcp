@@ -62,7 +62,9 @@ LDIRT = config.cache autom4te.cache config.status config.log config.done \
 
 SUBDIRS = src man build
 ifeq "$(MAKECMDGOALS)" "clobber"
+ifeq ($(shell [ -d qa ] && echo 1),1)
 SUBDIRS	+= qa
+endif
 endif
 
 default :: default_pcp

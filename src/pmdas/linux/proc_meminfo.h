@@ -21,7 +21,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_meminfo.h,v 1.3 2002/10/11 02:33:38 markgw Exp $"
+#ident "$Id: proc_meminfo.h,v 1.4 2007/08/23 05:58:15 kimbrr Exp $"
 
 /*
  * All fields in /proc/meminfo for 2.5.x
@@ -53,6 +53,7 @@ typedef struct {
     int64_t Committed_AS;
     int64_t PageTables;
     int64_t ReverseMaps;
+    int64_t AnonPages;
 } proc_meminfo_t;
 
 extern int refresh_proc_meminfo(proc_meminfo_t *);

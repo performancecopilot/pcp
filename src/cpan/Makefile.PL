@@ -1,0 +1,10 @@
+use ExtUtils::MakeMaker;
+# See lib/ExtUtils/MakeMaker.pm for details of how to influence
+# the contents of the Makefile that is written.
+WriteMakefile(
+    'NAME'	=> 'PCP::PMDA',
+    'VERSION_FROM'  => 'PMDA.pm', # finds $VERSION
+    'LIBS'	=> ['-lpcp_pmda -lpcp'],
+    'DEFINE'	=> '-DPERLIO_NOT_STDIO=0',     # e.g., '-DPCP_DEBUG' 
+    'XSPROTOARG'    => '-noprototypes',
+);

@@ -67,6 +67,7 @@ PMC_Bool	precFlag = PMC_false;
 PMC_Bool	normFlag = PMC_false;
 PMC_Bool	headerFlag = PMC_false;
 PMC_Bool	fullFlag = PMC_false;
+PMC_Bool	fullXFlag = PMC_false;
 
 // Command line options
 PMC_String	errStr = "?";
@@ -275,6 +276,7 @@ void usage()
   -U string               unavailable value string [default \"?\"]\n\
   -u                      show metric units\n\
   -w width                set column width\n\
+  -X                      show complete metrics names (extended form)\n\
   -Z timezone             set reporting timezone\n\
   -z                      set reporting timezone to local time of metrics source\n");
 
@@ -531,7 +533,7 @@ dumpHeader()
     }
 
     if (instFlag) {
-	if (timeFlag)
+	if (timeFlag) {
 	    if (niceFlag) {
 		if (len < (int)instStr.length()) {
 		    instStr.remove(len, instStr.length() - len);
@@ -540,6 +542,7 @@ dumpHeader()
 	    }
 	    else
 		cout << setw(len) << errStr << delimiter;
+	}
 
 	for (m = 0, v = 1; m < (int)metrics.length(); m++) {
 	    metric = metrics[m];
@@ -563,7 +566,7 @@ dumpHeader()
     }
 
     if (normFlag) {
-	if (timeFlag)
+	if (timeFlag) {
 	    if (niceFlag) {
 		if (len < (int)normStr.length()) {
 		    normStr.remove(len, normStr.length() - len);
@@ -572,6 +575,7 @@ dumpHeader()
 	    }
 	    else
 		cout << errStr << delimiter;
+	}
 
 	for (m = 0, v = 1; m < (int)metrics.length(); m++) {
 	    metric = metrics[m];
@@ -729,7 +733,7 @@ main(int argc, char *argv[])
 //
 
     while((c = getopt(argc, argv, 
-		      "A:a:c:Cd:D:f:Fgh:HilmMn:NO:oP:rR:s:S:t:T:uU:w:Z:z?")) != EOF) {
+		      "A:a:c:Cd:D:f:Fgh:HilmMn:NO:oP:rR:s:S:t:T:uU:w:XZ:z?")) != EOF) {
 	switch (c) {
 	case 'A':       // alignment
             if (Aflag) {
@@ -847,7 +851,7 @@ main(int argc, char *argv[])
 	    headerFlag = PMC_true;
 	    break;
 
-	case 'i':	// abrieviate metric names
+	case 'i':	// abbreviate metric names
 	    if (precFlag) {
 		pmprintf("%s: -i and -P may not be used togther\n",
 			 pmProgname);
@@ -872,6 +876,11 @@ main(int argc, char *argv[])
 
 	case 'M':	// show full metric names
 	    fullFlag = PMC_true;
+	    break;
+
+	case 'X':	// show full metric names repeatedly (extended)
+	    fullFlag = PMC_true;
+	    fullXFlag = PMC_true;
 	    break;
 
         case 'n':       // alternative namespace
@@ -1031,6 +1040,9 @@ main(int argc, char *argv[])
 
     if (headerFlag) {
 	metricFlag = unitFlag = sourceFlag = normFlag = PMC_true;
+    }
+    if (fullXFlag) {
+	niceFlag = PMC_true;
     }
 
     // Get local namespace is requested before opening any contexts
@@ -1261,8 +1273,10 @@ main(int argc, char *argv[])
     pmflush();
     dumpHeader();
 
-    // Only dump full names once
-    fullFlag = PMC_false;
+    if (fullXFlag == PMC_false) {
+	// Only dump full names once
+	fullFlag = PMC_false;
+    }
 
     if (!dumpFlag) {
 	exit(0);

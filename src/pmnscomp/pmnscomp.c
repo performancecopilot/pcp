@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <stddef.h>
 #include <ctype.h>
 #include <signal.h>
 #include <errno.h>

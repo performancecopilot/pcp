@@ -336,10 +336,10 @@ bexp	: '(' bexp ')'
 		{   gramerr(bexp_str, follow, opStrings(CND_AND));
 		    $$ = NULL; }
 	| error OR
-		{   gramerr(bexp_str, precede, opStrings(CND_AND));
+		{   gramerr(bexp_str, precede, opStrings(CND_OR));
 		    $$ = NULL; }
 	| bexp OR error
-		{   gramerr(bexp_str, follow, opStrings(CND_AND));
+		{   gramerr(bexp_str, follow, opStrings(CND_OR));
 		    $$ = NULL; }
 /*** preceding cause harmless shift/reduce conflicts ***/
 	;

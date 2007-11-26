@@ -55,8 +55,10 @@ int		pmDebug = 0;		/* the real McCoy */
  *  ... counts binary PDUs received and sent by low 4 bits of PDU type
  */
 
-unsigned int	__pmPDUCntIn[PDU_MAX+1] = { 0 };
-unsigned int	__pmPDUCntOut[PDU_MAX+1] = { 0 };
+static unsigned int	inctrs[PDU_MAX+1] = { 0 };
+static unsigned int	outctrs[PDU_MAX+1] = { 0 };
+unsigned int	*__pmPDUCntIn = inctrs;
+unsigned int	*__pmPDUCntOut = outctrs;
 
 /*
  * unit of space allocation for PDU buffer ... actually defined in pdubuf.c,
@@ -683,7 +685,15 @@ __pmSetPDUCeiling (int newceiling)
     }
 }
 
+void
+__pmSetPDUCntBuf(unsigned *in, unsigned *out)
+{
+    __pmPDUCntIn = in;
+    __pmPDUCntOut = out;
+}
+
 #ifdef IRIX6_5
 #pragma optional __pmGetPDUCeiling
 #pragma optional __pmSetPDUCeiling
+#pragma optional __pmSetPDUCntBuf
 #endif

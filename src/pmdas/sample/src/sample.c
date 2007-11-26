@@ -1215,8 +1215,10 @@ doit:
 
 	if (dp->pmid != PM_ID_NULL) {
 	    /* the special cases */
-	    if (pmidp->item == 86)
+	    if (pmidp->item == 86) {
 		dp = &magic;
+		numval = 1;
+	    }
 	    else if (pmidp->item == 54)
 		numval = PM_ERR_PMID;
 	    else if (pmidp->item == 92)	/* darkness */

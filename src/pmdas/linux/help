@@ -20,7 +20,7 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Revision: 1.41 $
+# $Revision: 1.45 $
 #
 # Linux PMDA help file in the ASCII format
 #
@@ -341,8 +341,8 @@ are unavailable.
 
 @ swap.pagesin pages read from swap devices due to demand for physical memory
 @ swap.pagesout pages written to swap devices due to demand for physical memory
-@ swap.in pages read into the buffer cache from block devices
-@ swap.out pages written to block devices from the buffer cache
+@ swap.in pages number of swap in operations
+@ swap.out pages number of swap out operations
 @ kernel.all.pswitch context switches metric from /proc/stat
 @ kernel.all.sysfork fork rate metric from /proc/stat
 @ kernel.all.intr intrrupt rate metric from /proc/stat
@@ -533,14 +533,14 @@ rates).
 @ swap.free swap free metric from /proc/meminfo
 @ kernel.all.load 1, 5 and 15 minute load average
 @ kernel.all.cpu.user total user CPU time metric from /proc/stat for all CPUs
-@ kernel.all.cpu.intr total interrupts CPU time (currently always zero on linux)
-Total interrupts CPU time (currently always zero on linux).
+@ kernel.all.cpu.intr total interrupts CPU time
+Total interrupts CPU time.
 
 This metric is retained on Linux for interoperability with PCP monitor
 tools running on IRIX.
 
-@ kernel.all.cpu.wait.total total wait CPU time (currently always zero on linux)
-Total wait CPU time (currently always zero on linux).
+@ kernel.all.cpu.wait.total total wait CPU time
+Total wait CPU time.
 
 This metric is retained on Linux for interoperability with PCP monitor
 tools running on IRIX.
@@ -923,7 +923,7 @@ the completion of the log buffer writes. Synchronous transactions
 include file truncations and all directory updates when the file system
 is mounted with the 'wsync' option.
 
-@ xfs.transactions.async number of synchronous meta-data transactions performed
+@ xfs.transactions.async number of asynchronous meta-data transactions performed
 This is the number of meta-data transactions which did not wait to be
 committed to the on-disk log before allowing the process performing the
 transaction to continue. These transactions are faster and more
@@ -1214,3 +1214,4 @@ See also the kernel.uname.* metrics
 @ network.ib.total.errors.vl15 VL15 packets dropped from perfquery
 @ network.ib.total.errors.overrun excessive buffer overrun errors from perfquery
 @ network.ib.total.errors.symbol minor link errors from perfquery
+@ network.ib.control If non-zero, stop collecting performance stats this many seconds after last fetch

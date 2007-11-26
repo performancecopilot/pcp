@@ -2399,11 +2399,6 @@ ParseRestartAgents(char *fileName)
     free(oldAgent);
     __pmAccFreeSavedHosts();
 
-    /* Allow some time for the old agents to close down.  This allows sockets
-     * to be closed at the agent end, etc.
-     */
-    sleep(1);
-
     /* Start the new agents */
     ContactAgents();
     for (i = 0; i < MAXDOMID + 2; i++)

@@ -753,6 +753,163 @@ static struct {
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Databases(*/*#*)\\Active Transactions"
     },
+
+/* mem.commit_limit */
+    { { PMDA_PMID(0,136), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Commit Limit"
+    },
+/* mem.write_copies */
+    { { PMDA_PMID(0,137), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Write Copies/sec"
+    },
+/* mem.transition_faults */
+    { { PMDA_PMID(0,138), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Transition Faults/sec"
+    },
+/* mem.cache.faults */
+    { { PMDA_PMID(0,139), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Cache Faults/sec"
+    },
+/* mem.demand_zero_faults */
+    { { PMDA_PMID(0,140), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Demand Zero Faults/sec"
+    },
+/* mem.pages_total */
+    { { PMDA_PMID(0,141), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Pages/sec"
+    },
+/* mem.page_reads */
+    { { PMDA_PMID(0,142), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Page Reads/sec"
+    },
+/* mem.pages_output */
+    { { PMDA_PMID(0,143), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Pages Output/sec"
+    },
+/* mem.page_writes */
+    { { PMDA_PMID(0,144), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Page Writes/sec"
+    },
+/* mem.pool.paged_allocs */
+    { { PMDA_PMID(0,145), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Pool Paged Allocs"
+    },
+/* mem.pool.nonpaged_allocs */
+    { { PMDA_PMID(0,146), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Pool Nonpaged Allocs"
+    },
+/* mem.system.free_ptes */
+    { { PMDA_PMID(0,147), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Free System Page Table Entries"
+    },
+/* mem.cache.bytes */
+    { { PMDA_PMID(0,148), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Page Faults/sec"
+    },
+/* mem.cache.bytes_peak */
+    { { PMDA_PMID(0,149), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Cache Bytes Peak"
+    },
+/* mem.pool.paged_resident_bytes */
+    { { PMDA_PMID(0,150), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\Pool Paged Resident Bytes"
+    },
+/* mem.system.total_code_bytes */
+    { { PMDA_PMID(0,151), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\System Code Total Bytes"
+    },
+/* mem.system.resident_code_bytes */
+    { { PMDA_PMID(0,152), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)
+      }, Q_MEMORY, M_NONE,  "\\Memory\\System Code Resident Bytes"
+    },
+
+/* sqlserver.mem_mgr.connection_memory */
+    { { PMDA_PMID(0,153), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Connection Memory (KB)"
+    },
+/* sqlserver.mem_mgr.granted_workspace */
+    { { PMDA_PMID(0,154), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Granted Workspace Memory (KB)"
+    },
+/* sqlserver.mem_mgr.lock_memory */
+    { { PMDA_PMID(0,155), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Lock Memory (KB)"
+    },
+/* sqlserver.mem_mgr.lock_blocks_allocated */
+    { { PMDA_PMID(0,156), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Lock Blocks Allocated"
+    },
+/* sqlserver.mem_mgr.lock_owner_blocks_allocated */
+    { { PMDA_PMID(0,157), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Lock Owner Blocks Allocated"
+    },
+/* sqlserver.mem_mgr.lock_blocks */
+    { { PMDA_PMID(0,158), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Lock Blocks"
+    },
+/* sqlserver.mem_mgr.lock_owner_blocks */
+    { { PMDA_PMID(0,159), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Lock Owner Blocks"
+    },
+/* sqlserver.mem_mgr.maximum_workspace_memory */
+    { { PMDA_PMID(0,160), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Maximum Workspace Memory (KB)"
+    },
+/* sqlserver.mem_mgr.memory_grants_outstanding */
+    { { PMDA_PMID(0,161), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Memory Grants Outstanding"
+    },
+/* sqlserver.mem_mgr.memory_grants_pending */
+    { { PMDA_PMID(0,162), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Memory Grants Pending"
+    },
+/* sqlserver.mem_mgr.optimizer_memory */
+    { { PMDA_PMID(0,163), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Optimizer Memory (KB)"
+    },
+/* sqlserver.mem_mgr.sql_cache_memory */
+    { { PMDA_PMID(0,164), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\SQL Cache Memory (KB)"
+    },
+/* sqlserver.mem_mgr.target_server_memory */
+    { { PMDA_PMID(0,165), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Target Server Memory(KB)"
+    },
+/* sqlserver.mem_mgr.total_server_memory */
+    { { PMDA_PMID(0,166), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Total Server Memory (KB)"
+    },
 };
 
 int metrictab_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);

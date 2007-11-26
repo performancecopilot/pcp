@@ -1,5 +1,6 @@
 # norootforbuild
 
+%define sgi_chroot_build @sgi_chroot_build@
 %define sgi_issp_build @sgi_issp_build@
 
 Name: @package_name@
@@ -8,7 +9,7 @@ Release: @package_release@@package_sgirelease@
 Distribution: @package_distribution@
 Packager: Silicon Graphics, Inc. <http://www.sgi.com/>
 BuildRoot: @build_root@ 
-%if %sgi_issp_build
+%if %sgi_chroot_build
 Source: @package_name@-@package_version@.tar.bz2
 BuildRequires: gcc-c++ libstdc++-devel
 #
@@ -31,7 +32,7 @@ Requires: glibc libgcc libstdc++
 Requires: libunwind
 %endif
 
-%if %sgi_issp_build
+%if %sgi_chroot_build
 Obsoletes: pcp <= @package_version@
 Provides: pcp = @package_version@
 %endif
@@ -62,7 +63,7 @@ all of the interesting performance data in a system, and allows
 client applications to easily retrieve and process any subset of
 that data. 
 
-%if %sgi_issp_build
+%if %sgi_chroot_build
 %debug_package
 %endif
 

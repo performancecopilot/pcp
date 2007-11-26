@@ -75,6 +75,11 @@ COMPRESS=bzip2
 COMPRESSAFTER=""
 COMPRESSREGEX=".meta$|.index$|.Z$|.gz$|.bz2$|.zip$"
 
+# mail addresses to send daily logfile summary to
+#
+MAILME=""
+MAIL=Mail
+
 # determine real name for localhost
 LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
 [ -z "$LOCALHOSTNAME" ] && LOCALHOSTNAME=localhost
@@ -121,7 +126,7 @@ VERBOSE=false
 VERY_VERBOSE=false
 MYARGS=""
 
-while getopts c:k:NVx:X:Y:? c
+while getopts c:k:m:NVx:X:Y:? c
 do
     case $c
     in
@@ -135,6 +140,8 @@ do
 		    status=1
 		    exit
 		fi
+		;;
+	m)	MAILME="$OPTARG"
 		;;
 	N)	SHOWME=true
 		RM="echo + rm"
@@ -241,7 +248,7 @@ _date_filter()
 }
 
 
-rm -f $tmp.err
+rm -f $tmp.err $tmp.mail
 line=0
 version=''
 cat $CONTROL \
@@ -425,6 +432,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	then
 	    $VERY_VERBOSE && echo "+ $KILL -HUP $pid"
 	    eval $KILL -HUP $pid
+	    echo ${logfile}.${SUMMARY_LOGNAME} >> $tmp.mail
 	else
 	    _error "problems moving logfile \"$logfile\" for host \"$host\""
 	    touch $tmp.err
@@ -477,6 +485,17 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
     _unlock
 
 done
+
+if [ -n "$MAILME" -a -s $tmp.mail ]
+then
+    logs=""
+    for file in `cat $tmp.mail`
+    do
+	[ -f $file ] && logs="$logs $file"
+    done
+    grep -v ' OK ' $logs | $MAIL -s "PMIE summary for $LOCALHOSTNAME" $MAILME
+    rm -f $tmp.mail
+fi
 
 [ -f $tmp.err ] && status=1
 exit

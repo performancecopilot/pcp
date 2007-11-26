@@ -98,9 +98,9 @@ static const int nummetrics = sizeof(metrics)/sizeof (metrics[0]);
 
 static char swap_op ='p';
 
-long cntDiff(pmDesc * d, pmValueSet * now, pmValueSet * was)
+long long cntDiff(pmDesc * d, pmValueSet * now, pmValueSet * was)
 {
-    int diff;
+    long long diff;
     pmAtomValue a;
     pmAtomValue b;
 
@@ -604,7 +604,12 @@ main(int argc, char *argv[])
 			    }
 			    printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
 			}
+			else {
+			    tzh = pmNewContextZone();
+			}
 		    }
+
+		    pmUseZone (tzh);
 
 		    /* If we're dealing with archives, find the one
                      * which starts first */
@@ -781,8 +786,8 @@ main(int argc, char *argv[])
 	for ( j=0; j < ctxCnt; j++ ) {
 	    int sts;
 	    int i;
-	    int dtot = 0;
-	    int diffs[4];
+	    unsigned long long dtot = 0;
+	    unsigned long long diffs[4];
 	    pmAtomValue la;
 	    struct statsrc_t * s = ctxList[j];
 
@@ -914,8 +919,7 @@ main(int argc, char *argv[])
 			scale_n_print(cntDiff (s->pmdesc+SYSTEM+i, cur->vset[SYSTEM+i], prev->vset[SYSTEM+i])/period);
 		}
 
-		/* CPU utilization - report percentage, assume all
-		 * times are in milliseconds */
+		/* CPU utilization - report percentage */
 		for ( i=0; i < 4; i++ ) {
 		    if (s->pmdesc[CPU+i].pmid == PM_ID_NULL || prev == NULL ||
 			cur->vset[CPU+i]->numval != 1 ||
@@ -936,11 +940,11 @@ main(int argc, char *argv[])
 		if ( i != 4 ) {
 		    printf(" %3.3s %3.3s %3.3s", "?", "?", "?");
 		} else {
-		    int fill = dtot/2;
-		    printf(" %3d %3d %3d", 
-			   (100*(diffs[0]+diffs[1])+fill)/dtot, 
-			   (100*diffs[2]+fill)/dtot,
-			   (100*diffs[3]+fill)/dtot);
+		    unsigned long long fill = dtot/2;
+		    printf(" %3u %3u %3u",
+			   (unsigned int)((100*(diffs[0]+diffs[1])+fill)/dtot),
+			   (unsigned int)((100*diffs[2]+fill)/dtot),
+			   (unsigned int)((100*diffs[3]+fill)/dtot));
 		}
 
 		if ( prev != NULL ) {
