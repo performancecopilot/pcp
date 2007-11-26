@@ -23,10 +23,10 @@
 #include <pmda.h>
 #include "./domain.h"
 
-#define JSTAT_COMMAND "jstat -J-Djstat.showUnsupported=true -snap %u"
+#define JSTAT_COMMAND "jstat -J-Djstat.showUnsupported=true -snap "
 
 typedef struct {
-    char		command[128];	/* jstat command line */
+    char		*command;	/* jstat command line */
     char		*name;		/* symbolic instance name */
     char		*file;		/* jstat output file */
     FILE		*fin;		/* read output here */

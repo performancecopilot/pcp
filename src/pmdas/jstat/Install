@@ -38,8 +38,49 @@ pmda_interface=3
 #
 pmdaSetup
 
-pollrate=5
-args="-r $pollrate"
+if $do_pmda
+then
+
+    dso_opt=false
+    socket_opt=false
+    pipe_opt=true
+
+    java_home="$JAVA_HOME"
+    while true
+    do
+	$PCP_ECHO_PROG $PCP_ECHO_N 'JAVA_HOME directory ['"$java_home"'] '"$PCP_ECHO_C"
+	read ans
+	[ -z "$ans" ] && break
+	if [ -d "$ans" ]
+	then
+	    java_home="$ans"
+	    break
+	fi
+	echo "Error: \"$ans\" is not a directory"
+    done
+
+    jstat_path="$java_home/bin"
+    while true
+    do
+	$PCP_ECHO_PROG $PCP_ECHO_N 'jstat directory ['"$jstat_path"'] '"$PCP_ECHO_C"
+	read ans
+	[ -z "$ans" ] && break
+	if [ -d "$ans" ]
+	then
+	    jstat_path="$ans"
+	    break
+	fi
+	echo "Error: \"$ans\" is not a directory"
+    done
+
+    args="$args -P $jstat_path -J $java_home"
+
+    refresh=5
+    $PCP_ECHO_PROG $PCP_ECHO_N 'Seconds between refreshes ['"$refresh"'] '"$PCP_ECHO_C"
+    read ans
+    [ ! -z "$ans" ] && args="$args -r $ans"
+    echo
+fi
 
 pmdaInstall
 

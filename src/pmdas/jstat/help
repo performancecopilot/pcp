@@ -35,6 +35,9 @@
 There is one instance in this domain for each monitored Java program
 that the jstat PMDA (Performance Metrics Domain Agent) has discovered.
 
+@ jstat.control.command Command line invocation of jstat
+@ jstat.control.refresh Refresh interval in seconds between jstat runs
+
 @ jstat.synchronizer.contended_lock_attempts
 Number of attempts to obtain a contended lock through the JVM
 object synchronizer path.

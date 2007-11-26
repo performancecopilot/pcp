@@ -40,7 +40,10 @@ pmInDom		*jstat_indom = &indomtab[JSTAT_INDOM].it_indom;
 
 pthread_t	refreshpid;
 pthread_mutex_t	refreshmutex;
-int		refreshdelay = 5;	/* default poll every five seconds */
+int		refreshdelay = 5;	/* by default, poll every 5 secs */
+
+char *java_home;	/* JAVA_HOME environment variable value */
+char *jstat_path;	/* PATH to jstat binary (usually $JAVA_HOME/bin) */
 
 pmdaMetric metrictab[] = {
     /* jstat.synchronizer.contended_lock_attempts */
@@ -61,6 +64,13 @@ pmdaMetric metrictab[] = {
     /* jstat.synchronizer.parks	*/
     { NULL, { PMDA_PMID(0,5), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+    /* jstat.control.command */
+    { NULL, { PMDA_PMID(0,6), PM_TYPE_STRING, JSTAT_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0) } },
+    /* jstat.control.refresh */
+    { NULL, { PMDA_PMID(0,7), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) } },
 };
 
 static int
@@ -68,7 +78,12 @@ jstat_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
 {
     __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
 
-    if (jstat[inst].fetched == 0)
+    if (idp->item == 7) {
+	avp->l = refreshdelay;
+	return 1;
+    }
+
+    if (idp->item != 6 && jstat[inst].fetched == 0)
 	return PM_ERR_AGAIN;
 
     switch (idp->item) {
@@ -95,6 +110,9 @@ jstat_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
 	case 5:
 		if (jstat[inst].parks == -1) return 0;
 		avp->ll = jstat[inst].parks;
+		break;
+	case 6:
+		avp->cp = jstat[inst].command;
 		break;
 	default:
 		return PM_ERR_PMID;
@@ -138,6 +156,23 @@ jstat_lookup_pid(char *fname, jstat_t *jp, int instid)
 	fclose(fp);
     }
     return pid;
+}
+
+char *
+jstat_command(int pid)
+{
+    size_t size;
+    char *command;
+
+    size = (jstat_path == NULL) ? 0 : (strlen(jstat_path) + 1);
+    size += strlen(JSTAT_COMMAND) + 32;
+    if ((command = malloc(size)) == NULL)
+	__pmNoMem("jstat.command", size, PM_FATAL_ERR);
+    if (jstat_path == NULL)
+	sprintf(command, "%s%u", JSTAT_COMMAND, pid);
+    else
+	sprintf(command, "%s/%s%u", jstat_path, JSTAT_COMMAND, pid);
+    return command;
 }
 
 void
@@ -231,7 +266,7 @@ jstat_indom_check(void)
 		    continue;
 		}
 		jstat[i].pidstat = sbuf;
-		sprintf(jstat[i].command, JSTAT_COMMAND, jstat[i].pid);
+		jstat[i].command = jstat_command(jstat[i].pid);
 		__pmNotifyErr(LOG_INFO, "Initialised instance %s (PID=%d)",
 				jstat[i].name, jstat[i].pid);
 	    }
@@ -346,10 +381,8 @@ refresh(void *unused)
     int inst;
 
     for (;;) {
-	for (inst = 0;  inst < jstat_count; inst++) {
-	    fprintf(stderr, "Refresh daemon awake: processing JVM %d\n", inst);
+	for (inst = 0;  inst < jstat_count; inst++)
 	    jstat_parse(inst);
-	}
 	sleep(refreshdelay);
     }
 }
@@ -395,6 +428,8 @@ usage(void)
     fprintf(stderr,
 	    "Usage: %s [options] [directory]\n\n"
 	    "Options:\n"
+	    "  -J path      JAVA_HOME environment variable setting\n"
+	    "  -P path      path to jstat binary (this is not a $PATH)\n"
 	    "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	    "  -l logfile   redirect diagnostics and trace output to logfile\n"
 	    "  -r refresh   update metrics every refresh seconds\n",
@@ -417,9 +452,15 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, JSTAT,
 		"jstat.log", helptext);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:" "r:?", 
+    while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:" "J:P:r:?",
 			   &dispatch, &err)) != EOF) {
 	switch (c) {
+	    case 'J':
+		java_home = optarg;
+		break;
+	    case 'P':
+		jstat_path = optarg;
+		break;
 	    case 'r':
 		refreshdelay = (int)strtol(optarg, &endnum, 10);
 		if (*endnum != '\0') {
@@ -441,11 +482,13 @@ main(int argc, char **argv)
     else
 	jstat_pcp_dir_name = "/var/tmp/jstat";
 
+    if (java_home)
+	setenv("JAVA_HOME", java_home, 1);
+
     pmdaOpenLog(&dispatch);
     jstat_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
     jstat_done();
     exit(0);
-    /*NOTREACHED*/
 }

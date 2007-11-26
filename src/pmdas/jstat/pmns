@@ -20,6 +20,7 @@
 
 jstat {
     synchronizer
+    control
 }
 
 jstat.synchronizer {
@@ -29,4 +30,9 @@ jstat.synchronizer {
     inflations			JSTAT:0:3
     notifications		JSTAT:0:4
     parks			JSTAT:0:5
+}
+
+jstat.control {
+    command			JSTAT:0:6
+    refresh			JSTAT:0:7
 }
