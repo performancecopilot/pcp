@@ -39,7 +39,7 @@ include $(TOPDIR)/src/include/builddefs
 SUBDIRS = pmcd \
 	sample simple trivial weblog sendmail mailq txmon \
 	news cisco trace apache shping mounts darwin windows \
-	solaris aix summary
+	solaris aix summary jstat
 
 ifeq "$(TARGET_OS)" "linux" 
 # PMDAs that only work on Linux.

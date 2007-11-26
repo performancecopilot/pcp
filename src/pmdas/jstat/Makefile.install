@@ -1,0 +1,13 @@
+#!make
+
+SHELL	= /bin/sh
+IAM	= jstat
+TARGETS	=
+LDIRT	= help.dir help.pag *.log
+
+default: $(TARGETS)
+
+install:	default
+
+clobber:
+	rm -f $(LDIRT) $(TARGETS)

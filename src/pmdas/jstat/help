@@ -1,0 +1,59 @@
+#
+# Copyright (c) 2007 Aconex.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# jstat PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric-name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric-name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ JSTAT.1 Monitored JVM processes
+There is one instance in this domain for each monitored Java program
+that the jstat PMDA (Performance Metrics Domain Agent) has discovered.
+
+@ jstat.synchronizer.contended_lock_attempts
+Number of attempts to obtain a contended lock through the JVM
+object synchronizer path.
+
+@ jstat.synchronizer.deflations
+Deflation occurs at STW-time and disassociates idle monitors from objects.
+Such scavanged monitors are returned to the global free list.
+
+@ jstat.synchronizer.futile_wakeups
+Count of attempts to wake a thread when the synchronization point that
+it is blocked on is still blocked.
+
+@ jstat.synchronizer.inflations
+Inflation unlinks monitors from the global free list and associates them
+with objects.
+
+@ jstat.synchronizer.notifications
+Sum of both single- and all- object synchronization wakeup notifications.
+
+@ jstat.synchronizer.parks
+Number of attempts to directly wake a contended thread after a resource
+has become available.

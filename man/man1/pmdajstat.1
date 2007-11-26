@@ -1,0 +1,163 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2007 Aconex.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\" 
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMDAJSTAT 1 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMDAJSTAT 1 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMDAJSTAT 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMDAJSTAT 1 "" "\&"
+.if \nX=3 .ds x} PMDAJSTAT "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmdajstat\f1 \- Java Virtual Machine performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/jstat/pmdajstat\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-r\f1 \f2refresh\f1]
+.SH DESCRIPTION
+.B pmdajstat
+is a Performance Metrics Domain Agent (PMDA) which extracts
+performance metrics from one or more Java Virtual Machines (JVM).
+.PP
+A brief description of the
+.B pmdajstat
+command line options follows:
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP 5
+.B \-l
+Location of the log file.  By default, a log file named
+.I jstat.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdajstat
+is started, i.e.
+.IR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP 5
+.B \-r
+.B pmdajstat
+will refresh the current values for all performance metrics by
+running jstat for each JVM once every
+.I refresh
+seconds.
+The default
+.I refresh
+is 5 seconds.
+.SH JVM IDENTIFICATION
+Multiple Java Virtual Machines can be monitored at once.
+The process identifier for each separate process to monitor
+must be written into the
+.I /var/tmp/jstat
+directory,
+into a file named with the exported instance identifier,
+and the suffix ".pcp.pid".
+To discover the valid JVM processes on a particular host,
+run the
+.BR jps (1)
+command.
+.SH INSTALLATION
+If you want access to the names, help text and values for the jstat
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/jstat
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/jstat
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmdajstat
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdajstat
+.TP 10
+.B $PCP_PMDAS_DIR/jstat/help
+default help text file for the jstat metrics
+.TP 10
+.B $PCP_PMDAS_DIR/jstat/Install
+installation script for the
+.B pmdajstat
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/jstat/Remove
+undo installation script for the 
+.B pmdajstat
+agent
+.TP 10
+.B $PCP_LOG_DIR/pmcd/jstat.log
+default log file for error messages and other information from
+.B pmdajstat
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).
