@@ -83,8 +83,10 @@ jstat_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
 	return 1;
     }
 
-    if (idp->item != 6 && jstat[inst].fetched == 0)
-	return PM_ERR_AGAIN;
+    if (idp->item != 6) {
+	if (jstat[inst].fetched == 0 || jstat[inst].error != 0)
+	    return PM_ERR_AGAIN;
+    }
 
     switch (idp->item) {
 	case 0:
@@ -125,12 +127,14 @@ void
 jstat_indom_clear(int inst)
 {
     jstat_t *jp = &jstat[inst];
+    int error = jp->error;
 
     if (jp->fin)
 	fclose(jp->fin);
     free(jp->command);
     free(jp->name);
     memset(jp, 0, sizeof(jstat_t));
+    jp->error = error;
 
     pmdaCacheStore(*jstat_indom, PMDA_CACHE_HIDE,
 			jstat_insts[inst].i_name, &jstat[inst]);
@@ -147,11 +151,11 @@ jstat_lookup_pid(char *fname, jstat_t *jp, int instid)
 
     if ((fp = fopen(fname, "r")) == NULL) {
 	__pmNotifyErr(LOG_ERR, "Unreadable pid file %d\n", fname);
-	jp->error = 1;
+	jp->error = errno;
     } else {
 	if (fscanf(fp, "%u\n", &pid) != 1) {
 	    __pmNotifyErr(LOG_ERR, "Unparsable pid file %d\n", fname);
-	    jp->error = 1;
+	    jp->error = errno;
 	}
 	fclose(fp);
     }
@@ -253,19 +257,22 @@ jstat_indom_check(void)
 		 jstat_pcp_dir_name, jstat[i].name);
 	if (stat(pidfile, &sbuf) < 0) {
 	    if (jstat[i].error == 0) {
+		jstat[i].error = errno;
 		__pmNotifyErr(LOG_ERR, "stat failed on %s (%s): %s\n",
 			pidfile, jstat[i].name, pmErrStr(-errno));
-		jstat[i].error = 1;
 	    }
 	} else {
-	    jstat[i].error = 0;
 	    if (sbuf.st_mtime != jstat[i].pidstat.st_mtime) {
+		jstat[i].error = 0;
 		jstat[i].pid = jstat_lookup_pid(pidfile, &jstat[i], i);
 		if (jstat[i].error) {
 		    jstat_indom_clear(i);
 		    continue;
 		}
+		jstat[i].fetched = 0;
 		jstat[i].pidstat = sbuf;
+		if (jstat[i].command)
+		    free(jstat[i].command);
 		jstat[i].command = jstat_command(jstat[i].pid);
 		__pmNotifyErr(LOG_INFO, "Initialised instance %s (PID=%d)",
 				jstat[i].name, jstat[i].pid);
@@ -273,9 +280,9 @@ jstat_indom_check(void)
 	    snprintf(statfile, sizeof(statfile), "/proc/%d/stat", jstat[i].pid);
 	    if (stat(statfile, &sbuf) < 0) {
 		if (jstat[i].error == 0) {
+		    jstat[i].error = errno;
 		    __pmNotifyErr(LOG_ERR, "Instance %s (PID=%d) not running",
 					jstat[i].name, jstat[i].pid);
-		    jstat[i].error = 1;
 		}
 		jstat_indom_clear(i);
 		continue;
@@ -322,10 +329,12 @@ jstat_parse(int inst)
     char line[1024];
     char *name, *value;
     jstat_t *jp = &jstat[inst];
+    int count = 0;
     FILE *fp;
 
     fp = popen(jp->command, "r");
     if (fp == NULL) {
+	jp->error = errno;
 	__pmNotifyErr(LOG_ERR, "pipe failed (%s): %s", jp->command,
 			pmErrStr(-errno));
 	pthread_mutex_lock(&refreshmutex);
@@ -336,8 +345,10 @@ jstat_parse(int inst)
     pthread_mutex_lock(&refreshmutex);
     if (inst >= jstat_count)
 	goto unlock;
+    jp = &jstat[inst];
 
     while (fp && fgets(line, sizeof(line), fp) != NULL) {
+	count++;
 	name = value = line;
 	if (strsep(&value, "=") == NULL)
 	    continue;
@@ -366,6 +377,7 @@ jstat_parse(int inst)
 	    continue;
 	}
     }
+    jp->error = (count == 0) ? ESRCH : 0;
     jp->fetched = 1;
 
 unlock:
@@ -378,11 +390,17 @@ unlock:
 void
 refresh(void *unused)
 {
-    int inst;
+    int inst, error;
 
     for (;;) {
-	for (inst = 0;  inst < jstat_count; inst++)
+	for (inst = 0;  inst < jstat_count; inst++) {
+	    pthread_mutex_lock(&refreshmutex);
+	    error = (inst < jstat_count) ? jstat[inst].error : 1;
+	    pthread_mutex_unlock(&refreshmutex);
+	    if (error)
+		continue;
 	    jstat_parse(inst);
+	}
 	sleep(refreshdelay);
     }
 }
