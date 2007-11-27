@@ -543,6 +543,15 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    }
 #endif
 		}
+		else if (sts == PM_ERR_AGAIN) {
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_LIBPMDA) {
+			__pmNotifyErr(LOG_ERR,
+				 "pmdaFetch: Value unavailable for PMID %s\n",
+				 pmIDStr(dp->pmid));
+		    }
+#endif
+		}
 		else
 		    __pmNotifyErr(LOG_ERR,
 				 "pmdaFetch: Fetch callback error: %s\n",
