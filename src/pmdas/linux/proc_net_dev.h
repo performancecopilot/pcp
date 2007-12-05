@@ -49,6 +49,22 @@ typedef struct {
 #define ETHTOOL_GSET	0x1
 #endif
 
+#ifndef SIOCGIFCONF
+#define SIOCGIFCONF	0x8912
+#endif
+
+#ifndef SIOCGIFFLAGS
+#define SIOCGIFFLAGS	0x8913
+#endif
+
+#ifndef SIOCGIFADDR
+#define SIOCGIFADDR	0x8915
+#endif
+
+#ifndef SIOCGIFMTU
+#define SIOCGIFMTU	0x8921
+#endif
+
 #ifndef SIOCETHTOOL
 #define SIOCETHTOOL	0x8946
 #endif
