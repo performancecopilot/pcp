@@ -20,6 +20,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -323,31 +324,14 @@ jstat_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     return sts;
 }
 
-void
-jstat_parse(int inst)
+int
+jstat_parse(jstat_t *jp, FILE *fp)
 {
+    int count = 0;
     char line[1024];
     char *name, *value;
-    jstat_t *jp = &jstat[inst];
-    int count = 0;
-    FILE *fp;
 
-    fp = popen(jp->command, "r");
-    if (fp == NULL) {
-	jp->error = errno;
-	__pmNotifyErr(LOG_ERR, "pipe failed (%s): %s", jp->command,
-			pmErrStr(-errno));
-	pthread_mutex_lock(&refreshmutex);
-	jstat_indom_clear(inst);
-	goto unlock;
-    }
-
-    pthread_mutex_lock(&refreshmutex);
-    if (inst >= jstat_count)
-	goto unlock;
-    jp = &jstat[inst];
-
-    while (fp && fgets(line, sizeof(line), fp) != NULL) {
+    while (fgets(line, sizeof(line), fp) != NULL) {
 	count++;
 	name = value = line;
 	if (strsep(&value, "=") == NULL)
@@ -377,18 +361,43 @@ jstat_parse(int inst)
 	    continue;
 	}
     }
-    jp->error = (count == 0) ? ESRCH : 0;
-    jp->fetched = 1;
-
-unlock:
-    pthread_mutex_unlock(&refreshmutex);
-
-    if (fp)
-	pclose(fp);
+    return count;
 }
 
 void
-refresh(void *unused)
+jstat_execute(jstat_t *jp)
+{
+    FILE *pp;
+
+    jp->fetched = 1;
+
+    if ((pp = popen(jp->command, "r")) == NULL) {
+	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s",
+			jp->command, strerror(errno));
+	jp->error = errno;
+	return;
+    }
+
+    if (jstat_parse(jp, pp) == 0)
+	jp->error = ESRCH;
+    else
+	jp->error = 0;
+
+    pclose(pp);
+}
+
+void
+jstat_reaper(int unused)
+{
+    pid_t pid;
+
+    do {
+	pid = waitpid(-1, &unused, WNOHANG);
+    } while (pid > 0);
+}
+
+void
+jstat_refresh(void *unused)
 {
     int inst, error;
 
@@ -396,11 +405,11 @@ refresh(void *unused)
 	for (inst = 0;  inst < jstat_count; inst++) {
 	    pthread_mutex_lock(&refreshmutex);
 	    error = (inst < jstat_count) ? jstat[inst].error : 1;
+	    if (!error)
+		jstat_execute(&jstat[inst]);
 	    pthread_mutex_unlock(&refreshmutex);
-	    if (error)
-		continue;
-	    jstat_parse(inst);
 	}
+	jstat_reaper(error);
 	sleep(refreshdelay);
     }
 }
@@ -421,7 +430,9 @@ jstat_init(pmdaInterface *dp)
     jstat_indom_check();
 
     /* start the thread for async fetches */
-    if ((i = pthread_create(&refreshpid, NULL, (void (*))refresh, NULL)) != 0)
+    signal(SIGCHLD, jstat_reaper);
+    i = pthread_create(&refreshpid, NULL, (void (*))jstat_refresh, NULL);
+    if (i != 0)
 	refreshpid = i;
     if (refreshpid < 0)
 	dp->status = refreshpid;
