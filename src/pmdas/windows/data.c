@@ -910,6 +910,36 @@ static struct {
 	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
       }, Q_SQLSERVER, M_NONE,  "\\SQLServer:Memory Manager\\Total Server Memory (KB)"
     },
+/* sqlserver.cache_mgr.all.cache_pages */
+    { { PMDA_PMID(0,167), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_SQLSERVER, M_NONE, "\\SQLServer:Cache Manager(_Total)\\Cache Pages"
+    },
+/* sqlserver.cache_mgr.all.cache_object_count */
+    { { PMDA_PMID(0,168), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_SQLSERVER, M_NONE, "\\SQLServer:Cache Manager(_Total)\\Cache Object Counts"
+    },
+/* sqlserver.cache_mgr.all.cache_use */
+    { { PMDA_PMID(0,169), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\SQLServer:Cache Manager(_Total)\\Cache Use Counts/sec"
+    },
+/* sqlserver.cache_mgr.cache.cache_pages */
+    { { PMDA_PMID(0,170), PM_TYPE_U32, SQL_CACHE_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_SQLSERVER, M_NONE, "\\SQLServer:Cache Manager(*/*#*)\\Cache Pages"
+    },
+/* sqlserver.cache_mgr.cache.cache_object_count */
+    { { PMDA_PMID(0,171), PM_TYPE_U32, SQL_CACHE_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_SQLSERVER, M_NONE, "\\SQLServer:Cache Manager(*/*#*)\\Cache Object Counts"
+    },
+/* sqlserver.cache_mgr.cache.cache_use */
+    { { PMDA_PMID(0,172), PM_TYPE_U32, SQL_CACHE_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER, M_NONE, "\\SQLServer:Cache Manager(*/*#*)\\Cache Use Counts/sec"
+    },
 };
 
 int metrictab_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);

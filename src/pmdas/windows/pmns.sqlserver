@@ -72,10 +72,16 @@ sqlserver.cache_mgr {
 
 sqlserver.cache_mgr.all {
 	cache_hit_ratio		WINDOWS:0:81
+	cache_pages		WINDOWS:0:167
+	cache_object_count	WINDOWS:0:168
+	cache_use		WINDOWS:0:169
 }
 
 sqlserver.cache_mgr.cache {
 	cache_hit_ratio		WINDOWS:0:82
+	cache_pages		WINDOWS:0:170
+	cache_object_count	WINDOWS:0:171
+	cache_use		WINDOWS:0:172
 }
 
 sqlserver.databases {
