@@ -48,6 +48,9 @@
         <property name="focusPolicy" >
          <enum>Qt::NoFocus</enum>
         </property>
+        <property name="whatsThis" >
+         <string>The main chart canvas, displaying all charts in the current Tab.</string>
+        </property>
         <property name="tabShape" >
          <enum>QTabWidget::Rounded</enum>
         </property>
@@ -86,6 +89,9 @@
           <property name="focusPolicy" >
            <enum>Qt::NoFocus</enum>
           </property>
+          <property name="whatsThis" >
+           <string>VCR state button, also used to dIsplay the time control window.</string>
+          </property>
           <property name="text" >
            <string/>
           </property>
@@ -112,6 +118,9 @@
             <width>32767</width>
             <height>53</height>
            </size>
+          </property>
+          <property name="whatsThis" >
+           <string>Unified time axis, displaying the current time position at the rightmost point, and the timeframe covering all Visible Points to the left</string>
           </property>
           <property name="frameShape" >
            <enum>QFrame::StyledPanel</enum>
@@ -334,6 +343,9 @@
      <width>48</width>
      <height>36</height>
     </size>
+   </property>
+   <property name="whatsThis" >
+    <string>Configurable toolbar, use the Preferences dialog to change its contents</string>
    </property>
    <property name="orientation" >
     <enum>Qt::Horizontal</enum>
