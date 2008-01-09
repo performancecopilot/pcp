@@ -4,7 +4,7 @@
 
 <profile>
     <property name="name">PCPChartHelp</property>
-    <property name="title">PCP Chart Help</property>
+    <property name="title">PCP Charts Help</property>
     <property name="applicationicon">@pkg_icon_dir@/kmcharticon.png</property>
     <property name="startpage">index.html</property>
     <property name="assistantdocs">@pkg_html_dir@</property>

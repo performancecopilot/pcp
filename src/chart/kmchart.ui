@@ -16,7 +16,7 @@
    </size>
   </property>
   <property name="windowTitle" >
-   <string>PCP Chart</string>
+   <string>PCP Charts</string>
   </property>
   <property name="windowIcon" >
    <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
