@@ -284,7 +284,7 @@ else
 	then
 	    mkdir -p `dirname $dir`
 	fi
-	$CP $f $dir
+	$CP -f $f $dir
 	status=$?
 	if [ $status -eq 0 ]
 	then 
@@ -328,7 +328,7 @@ else
 	# echo DIR=$dir list=\"$list\"
 	for f in $list
 	do
-	    $CP $f $dir
+	    $CP -f $f $dir
 	    status=$?
 	    if [ $status -eq 0 ]
 	    then
