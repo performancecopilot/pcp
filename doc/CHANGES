@@ -1,3 +1,9 @@
+kmchart 1.0.0rc4 (10 January 2008)
+    - Desktop integration for GNOME and KDE.
+    - Fixed some install problems when building from SRPM.
+    - Try harder to install as root.root before falling back to using
+      the build user.group combination.
+
 kmchart 1.0.0rc3 (23 November 2007)
     - Fixed a nasty regression in the last VCR mode changes, and
       commented out an earlier fix too - that one will need some
