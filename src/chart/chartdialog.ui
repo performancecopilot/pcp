@@ -86,6 +86,9 @@
            </property>
            <item row="2" column="1" >
             <widget class="QComboBox" name="colorSchemeComboBox" >
+             <property name="whatsThis" >
+              <string>Drop down llist of available color schemes.  The color scheme determines the initial color for each new plot added to a chart.</string>
+             </property>
              <item>
               <property name="text" >
                <string>Default Scheme</string>
@@ -100,6 +103,9 @@
            </item>
            <item row="1" column="1" >
             <widget class="QComboBox" name="typeComboBox" >
+             <property name="whatsThis" >
+              <string>Drop down list of chart styles, specifying how the values in a chart should be displayed</string>
+             </property>
              <item>
               <property name="text" >
                <string>Line Plot</string>
@@ -129,6 +135,9 @@
            </item>
            <item row="2" column="0" >
             <widget class="QLabel" name="colorSchemeLabel" >
+             <property name="whatsThis" >
+              <string>Drop down llist of available color schemes.  The color scheme determines the initial color for each new plot added to a chart.</string>
+             </property>
              <property name="text" >
               <string>Colors:</string>
              </property>
@@ -171,6 +180,9 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="whatsThis" >
+                <string>Enables or disables the chart legend, which  shows the mapping between plot names and colors</string>
+               </property>
                <property name="text" >
                 <string>On</string>
                </property>
@@ -208,6 +220,9 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="whatsThis" >
+                <string>Enables or disables the chart legend, which  shows the mapping between plot names and colors</string>
+               </property>
                <property name="text" >
                 <string>Off</string>
                </property>
@@ -233,6 +248,9 @@
            </item>
            <item row="3" column="0" >
             <widget class="QLabel" name="legendTextLabel" >
+             <property name="whatsThis" >
+              <string>Enables or disables the chart legend, which  shows the mapping between plot names and colors</string>
+             </property>
              <property name="text" >
               <string>Legend:</string>
              </property>
@@ -246,6 +264,9 @@
            </item>
            <item row="4" column="0" >
             <widget class="QLabel" name="antiAliasingTextLabel" >
+             <property name="whatsThis" >
+              <string>Enable or disable chart rendering with antialiasing.  This affects the way in which charts are drawn, in particular line plots are less "blocky" when rendered this way.  Also, the black like around bar plots are drawn more accurately with antialiasing enabled.</string>
+             </property>
              <property name="text" >
               <string>Antialiasing:</string>
              </property>
@@ -291,6 +312,9 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="whatsThis" >
+                <string>Enable or disable chart rendering with antialiasing.  This affects the way in which charts are drawn, in particular line plots are less "blocky" when rendered this way.  Also, the black like around bar plots are drawn more accurately with antialiasing enabled.</string>
+               </property>
                <property name="text" >
                 <string>On</string>
                </property>
@@ -328,6 +352,9 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="whatsThis" >
+                <string>Enable or disable chart rendering with antialiasing.  This affects the way in which charts are drawn, in particular line plots are less "blocky" when rendered this way.  Also, the black like around bar plots are drawn more accurately with antialiasing enabled.</string>
+               </property>
                <property name="text" >
                 <string>Off</string>
                </property>
@@ -352,10 +379,17 @@
             </layout>
            </item>
            <item row="0" column="1" >
-            <widget class="QLineEdit" name="titleLineEdit" />
+            <widget class="QLineEdit" name="titleLineEdit" >
+             <property name="whatsThis" >
+              <string>Add or modifiy the chart title (description)</string>
+             </property>
+            </widget>
            </item>
            <item row="0" column="0" >
             <widget class="QLabel" name="titleTextLabel" >
+             <property name="whatsThis" >
+              <string>Add or modifiy the chart title (description)</string>
+             </property>
              <property name="text" >
               <string>Title:</string>
              </property>
@@ -369,6 +403,9 @@
            </item>
            <item row="1" column="0" >
             <widget class="QLabel" name="styleLabel" >
+             <property name="whatsThis" >
+              <string>Drop down list of chart styles, specifying how the values in a chart should be displayed</string>
+             </property>
              <property name="text" >
               <string>Style:</string>
              </property>
@@ -407,6 +444,9 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="whatsThis" >
+            <string>When enabled, autoscaling causes the Y axis to be scaled based on the minimum and maximum observed values.  When disabled, the minimum and maximum Y axis values specified here are always used (even if the values observed lie outside that range).</string>
            </property>
            <property name="title" >
             <string>Y-Axis</string>
@@ -681,6 +721,9 @@
            <property name="mouseTracking" >
             <bool>true</bool>
            </property>
+           <property name="whatsThis" >
+            <string>Complete list of metrics and instances which can be added to a new or current chart</string>
+           </property>
            <property name="frameShape" >
             <enum>QFrame::StyledPanel</enum>
            </property>
@@ -717,6 +760,9 @@
              <weight>75</weight>
              <bold>true</bold>
             </font>
+           </property>
+           <property name="whatsThis" >
+            <string>Complete metric name of the currently selected metric in the Available Metrics list</string>
            </property>
            <property name="text" >
             <string/>
@@ -771,6 +817,9 @@
            <property name="toolTip" >
             <string>Metric Info</string>
            </property>
+           <property name="whatsThis" >
+            <string>Display information about a metric selected from either of the Chart Plots or Available Metrics lists.  This includes metric descriptor, help text (if available), and value at the current time position.</string>
+           </property>
            <property name="text" >
             <string/>
            </property>
@@ -817,6 +866,9 @@
            <property name="toolTip" >
             <string>Metric Search</string>
            </property>
+           <property name="whatsThis" >
+            <string>Search for metrics using a regular expression on metric/instance names.</string>
+           </property>
            <property name="text" >
             <string/>
            </property>
@@ -856,6 +908,9 @@
            </property>
            <property name="toolTip" >
             <string>Remove plot from chart</string>
+           </property>
+           <property name="whatsThis" >
+            <string>Remove the current selected plot(s) from the Chart Plots list.  When OK is pressed, these plots will be removed from the current chart.</string>
            </property>
            <property name="text" >
             <string/>
@@ -900,6 +955,9 @@
            <property name="toolTip" >
             <string>Insert plot into chart</string>
            </property>
+           <property name="whatsThis" >
+            <string>Add a new plot into the Chart Plots list.  When OK is pressed, this plot will be added to the new or current chart.</string>
+           </property>
            <property name="text" >
             <string/>
            </property>
@@ -939,6 +997,9 @@
            </property>
            <property name="toolTip" >
             <string>Add new host</string>
+           </property>
+           <property name="whatsThis" >
+            <string>Add new metric source (host or archive) from which additional Available Metrics can be found for plotting.</string>
            </property>
            <property name="text" >
             <string/>
@@ -1015,7 +1076,10 @@
               </size>
              </property>
              <property name="toolTip" >
-              <string>Insert plot into chart</string>
+              <string>Revert to previous color</string>
+             </property>
+             <property name="statusTip" >
+              <string>Change back to the previous plot color, as displayed in the frame below.</string>
              </property>
              <property name="text" >
               <string/>
@@ -1130,7 +1194,10 @@
               </size>
              </property>
              <property name="toolTip" >
-              <string>Insert plot into chart</string>
+              <string>Apply new plot color</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Change the color of the currently selected plot in the Chart Plots list.</string>
              </property>
              <property name="text" >
               <string/>
@@ -1255,6 +1322,9 @@
                  <pointsize>10</pointsize>
                 </font>
                </property>
+               <property name="toolTip" >
+                <string>Saturation</string>
+               </property>
                <property name="text" >
                 <string>S:</string>
                </property>
@@ -1273,6 +1343,9 @@
                  <pointsize>10</pointsize>
                 </font>
                </property>
+               <property name="toolTip" >
+                <string>Red</string>
+               </property>
                <property name="text" >
                 <string>R:</string>
                </property>
@@ -1286,6 +1359,9 @@
              </item>
              <item row="1" column="1" >
               <widget class="QColSpinBox" name="rEd" >
+               <property name="toolTip" >
+                <string>Red</string>
+               </property>
                <property name="alignment" >
                 <set>Qt::AlignRight</set>
                </property>
@@ -1293,6 +1369,9 @@
              </item>
              <item row="1" column="5" >
               <widget class="QColSpinBox" name="bEd" >
+               <property name="toolTip" >
+                <string>Blue</string>
+               </property>
                <property name="alignment" >
                 <set>Qt::AlignRight</set>
                </property>
@@ -1304,6 +1383,9 @@
                 <font>
                  <pointsize>10</pointsize>
                 </font>
+               </property>
+               <property name="toolTip" >
+                <string>Hue</string>
                </property>
                <property name="text" >
                 <string>H:</string>
@@ -1318,6 +1400,9 @@
              </item>
              <item row="1" column="3" >
               <widget class="QColSpinBox" name="gEd" >
+               <property name="toolTip" >
+                <string>Green</string>
+               </property>
                <property name="alignment" >
                 <set>Qt::AlignRight</set>
                </property>
@@ -1329,6 +1414,9 @@
                 <font>
                  <pointsize>10</pointsize>
                 </font>
+               </property>
+               <property name="toolTip" >
+                <string>Blue</string>
                </property>
                <property name="text" >
                 <string>B:</string>
@@ -1348,6 +1436,9 @@
                  <pointsize>10</pointsize>
                 </font>
                </property>
+               <property name="toolTip" >
+                <string>Green</string>
+               </property>
                <property name="text" >
                 <string>G:</string>
                </property>
@@ -1361,6 +1452,9 @@
              </item>
              <item row="0" column="3" >
               <widget class="QColSpinBox" name="sEd" >
+               <property name="toolTip" >
+                <string>Saturation</string>
+               </property>
                <property name="alignment" >
                 <set>Qt::AlignRight</set>
                </property>
@@ -1368,6 +1462,12 @@
              </item>
              <item row="0" column="1" >
               <widget class="QColSpinBox" name="hEd" >
+               <property name="toolTip" >
+                <string>Hue</string>
+               </property>
+               <property name="whatsThis" >
+                <string/>
+               </property>
                <property name="alignment" >
                 <set>Qt::AlignRight</set>
                </property>
@@ -1375,6 +1475,9 @@
              </item>
              <item row="0" column="5" >
               <widget class="QColSpinBox" name="vEd" >
+               <property name="toolTip" >
+                <string>Value</string>
+               </property>
                <property name="alignment" >
                 <set>Qt::AlignRight</set>
                </property>
@@ -1386,6 +1489,9 @@
                 <font>
                  <pointsize>10</pointsize>
                 </font>
+               </property>
+               <property name="toolTip" >
+                <string>Value</string>
                </property>
                <property name="text" >
                 <string>V:</string>
@@ -1425,6 +1531,12 @@
            </property>
            <item row="1" column="0" >
             <widget class="QLabel" name="plotLabelLabel" >
+             <property name="toolTip" >
+              <string>Label to use in chart legend for the currently selected Chart Plot.</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Label to use in chart legend for the currently selected Chart Plot.</string>
+             </property>
              <property name="text" >
               <string>Plot Label:</string>
              </property>
@@ -1440,10 +1552,22 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="toolTip" >
+              <string>Color specification string (e.g. RGB hex value)</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Directly edit the color specification string (e.g. RGB hex value) using this text box.  This color can then be used to set the color of the currently selected plot in the Chart Plots list using the left arrow button above.</string>
+             </property>
             </widget>
            </item>
            <item row="0" column="0" >
             <widget class="QLabel" name="plotColorLabel" >
+             <property name="toolTip" >
+              <string>Color specification string (e.g. RGB hex value)</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Directly edit the color specification string (e.g. RGB hex value) using this text box.  This color can then be used to set the color of the currently selected plot in the Chart Plots list using the left arrow button above.</string>
+             </property>
              <property name="text" >
               <string>Plot Color:</string>
              </property>
@@ -1463,7 +1587,14 @@
             </spacer>
            </item>
            <item row="1" column="1" colspan="2" >
-            <widget class="QLineEdit" name="plotLabelLineEdit" />
+            <widget class="QLineEdit" name="plotLabelLineEdit" >
+             <property name="toolTip" >
+              <string>Label to use in chart legend for the currently selected Chart Plot.</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Label to use in chart legend for the currently selected Chart Plot.</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -1515,6 +1646,9 @@
        <property name="mouseTracking" >
         <bool>true</bool>
        </property>
+       <property name="whatsThis" >
+        <string>List of plots for either a new chart or the currently selected chart</string>
+       </property>
        <property name="frameShape" >
         <enum>QFrame::StyledPanel</enum>
        </property>
@@ -1553,6 +1687,9 @@
          <weight>75</weight>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="whatsThis" >
+        <string>Displays the full metric name of the currently selected chart plot</string>
        </property>
        <property name="text" >
         <string/>
