@@ -1,4 +1,5 @@
 .\" Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
+.\" Copyright (c) 2008, Aconex.  All Rights Reserved.
 .ie \(.g \{\
 .\" ... groff (hack for khelpcenter, man2html, etc.)
 .TH KMCHART 1 "" "Performance Co-Pilot"
@@ -15,30 +16,182 @@
 \f3kmchart\f1 \- stripchart tool for Performance Co-Pilot
 .SH SYNOPSIS
 \f3kmchart\f1
+[\f3\-CVz\f1]
+[\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-c\f1 \f2configfile\f1]
-[\f3\-C\f1]
 [\f3\-h\f1 \f2host\f1]
+[\f3\-O\f1 \f2offset\f1]
+[\f3\-p\f1 \f2port\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-T\f1 \f2endtime\f1]
 [\f3\-t\f1 \f2interval\f1]
-[\f3\-v\f1 \f2samples\f1]
+[\f3\-v\f1 \f2visible\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+[\f2sources\f1...]
 .SH DESCRIPTION
 .B kmchart
-is a replacement for SGI's
-.B pmchart
-tool.
+is a graphical utility that plots performance metrics values
+available through the facilities of the Performance Co-Pilot (PCP).
+Multiple charts can be displayed simultaneously, either aligned
+on the unified time axis (X-axis), and through the use of multiple
+interface Tabs.
+.PP
+Metric values can be sourced from one or more live hosts
+(simultaneously).  Alternatively, one or more PCP archives
+can be used as a source of historical data.
+See
+.BR PCPIntro (1)
+for an in-depth discussion of the capabilities of the PCP
+framework, many of which are used by
+.B kmchart.
+.PP
+Many aspects of the behaviour of
+.B kmchart
+can be customised through the interface.
+In particular, the use of ``views'' (see the VIEWS section)
+allows predefined sets of metrics and charting parameters
+like colors, scaling, titles, legends, and so on to be stored for
+later use, or use with different hosts and archives.
+In addition, the Preferences dialog allows customisations to the
+rest of the
+.B kmchart
+user interface to be saved and restored between different invocations
+of the tool.
+This allows the default background color, highlight color, contents
+and location of the toolbar, and many other aspects to be configured.
 .PP
 .B kmchart
-\&...
-
+makes extensive use of the
+.BR kmtime (1)
+utility for time control, refer to the
+.B kmtime
+manual page for further details of its operation.
 .PP
-Other options control the output of additional information when
-one or more values is available.
+Options which control the default source, timing and layout of the
+.B kmchart
+window are as follows:
 .TP 5
-.B \-f
-When used with ...
+.B \-a
+Performance metric values are retrieved from the Performance Co-Pilot
+(PCP) archive log file identified by the base name archive, by default.
+The initial Tab created will be an archive mode Tab.
+Multiple
+.B \-a
+options can be presented, and the list of archives is used for sourcing
+metric values.
+Any \f2sources\f1 listed on the command line are assumed to be archives
+if this option is used.
 .TP
-.B \-I
-Report the external identifiers for each instance. 
+.B \-c
+.I configfile
+specifies an initial view to load, using the default source of metrics.
+Multiple
+.B \-c views can be specified, and they will all be opened in the
+default Tab with the default source of metrics.
+.TP
+.B \-C
+Used with 
+.BR \-c ,
+the view(s) are parsed, any errors are reported, and the tool exits.
+This is primarily intended for testing purposes.
+If a second
+.B \-C
+option is presented,
+.B kmchart 
+also connects to
+.BR pmcd (1)
+to check the semantics of metrics.
+.TP
+.B \-h
+Current performance metric values are retrieved from the nominated
+.I host
+machine by default.
+Multiple
+.B \-h
+options can be presented, and the list of hosts is used for sourcing
+metric values.
+Any \f2sources\f1 listed on the command line are assumed to be hosts
+if this option is used.
+.TP
+.B \-p
+.I port
+number for connection to an existing
+.B kmtime
+time control process.
+.TP
+.B \-s
+Specifies the number of
+.I samples
+that will be retained before discarding old data (replaced by
+new values at the current time position).
+This value can subsequently be modified through the Edit Tab
+dialog.
+.TP
+.B \-t
+Sets the inital update
+.I interval
+to something other than the default 1 second.
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied
+units in this case are seconds).
+.TP
+.B \-v
+Sets the inital visible
+.I samples
+that will be displayed in all charts in the default Tab.
+This value must be less than or equal to the total number
+of samples retained (the
+.B \-s
+value).
+.TP
+.B \-Z
+By default,
+.B kmtime
+reports the time of day according to the local timezone on the system
+where
+.B kmchart is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable TZ as described in
+.BR environ (5).
+.TP
+.B \-z
+Change the reporting timezone to the local timezone at the host
+that is the source of the performance metrics, as identified via
+either the
+.B \-h
+or
+.B \-a
+options.
+.PP
+The
+.BR \-S ,
+.BR \-T ,
+.B \-O
+and
+.B \-A
+options may be used to define a time window to
+restrict the samples retrieved, set an initial origin within the time
+window, or specify a ‘‘natural’’ alignment of the sample  times;  refer
+to
+.BR PCPIntro (1)
+for a complete description of these options.
+.SH VIEWS
+TODO.
+See CONFIGURATION FILE SYNTAX below.
+.SH TABS
+TODO. Visible points vs total samples.
+.SH IMAGES and PRINTING
+TODO.
+.SH RECORDING
+TODO.
 .SH CONFIGURATION FILE SYNTAX
 .de ES
 .ft CW
@@ -273,10 +426,24 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (4).
+.PP
+Of particular note, the
+.B $PCP_XCONFIRM_PROG
+setting is explicitly and unconditionally overridden by
+.B kmchart.
+This is set to the
+.BR kmconfirm (1),
+utility, in order that some popup dialogs (particularly in the
+area of Recording) maintain a consistent look-and-feel with the
+rest of the
+.B kmchart
+application.
 .SH SEE ALSO
+.BR kmtime (1),
+.BR kmconfirm (1),
+.BR kmdumptext (1),
 .BR PCPIntro (1),
 .BR pmval (1),
-.BR pmdumptext (1),
 .BR pmcd (1),
 .BR pminfo (1),
 .BR pcp.conf (4),
