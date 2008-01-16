@@ -1,3 +1,7 @@
+kmchart 1.0.0rc5 (16 January 2008)
+    - SRPM and source tarball build fix (missing targets).
+    - man page updates.
+
 kmchart 1.0.0rc4 (10 January 2008)
     - Desktop integration for GNOME and KDE.
     - Fixed some install problems when building from SRPM.
