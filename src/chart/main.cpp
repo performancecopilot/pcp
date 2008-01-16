@@ -52,11 +52,11 @@ static void usage(void)
 "  -S starttime  start of the time window\n"
 "  -T endtime    end of the time window\n"
 "  -t interval   sample interval [default: %d seconds]\n"
-"  -v samples    visible history [default: %d points]\n"
+"  -v visible    visible history [default: %d points]\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time of metrics source\n",
-	pmProgname, globalSettings.sampleHistory, globalSettings.chartDelta,
-	globalSettings.visibleHistory);
+	pmProgname, KmChart::defaultSampleHistory(),
+	(int)KmChart::defaultChartDelta(), KmChart::defaultVisibleHistory());
     pmflush();
     exit(1);
 }
@@ -413,7 +413,7 @@ main(int argc, char ** argv)
     liveGroup = new QmcGroup();
     archiveGroup = new QmcGroup();
 
-    while ((c = getopt(argc, argv, "A:a:Cc:D:h:n:O:p:s:S:T:t:v:zZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, "A:a:Cc:D:h:n:O:p:s:S:T:t:Vv:zZ:?")) != EOF) {
 	switch (c) {
 
 	case 'A':	/* sample alignment */
@@ -495,6 +495,10 @@ main(int argc, char ** argv)
 		errflg++;
 	    }
 	    break;
+
+	case 'V':		/* version */
+	    printf("%s %s\n", pmProgname, VERSION);
+	    exit(0);
 
 	case 'z':		/* timezone from host */
 	    if (tz != NULL) {
