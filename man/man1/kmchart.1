@@ -50,7 +50,8 @@ framework, many of which are used by
 Many aspects of the behaviour of
 .B kmchart
 can be customised through the interface.
-In particular, the use of ``views'' (see the VIEWS section)
+In particular, the use of ''views'' (refer to the section describing
+VIEWS later in this document)
 allows predefined sets of metrics and charting parameters
 like colors, scaling, titles, legends, and so on to be stored for
 later use, or use with different hosts and archives.
@@ -184,10 +185,77 @@ to
 .BR PCPIntro (1)
 for a complete description of these options.
 .SH VIEWS
-TODO.
-See CONFIGURATION FILE SYNTAX below.
+The primary
+.B kmchart
+configuration file is the ''view'', which allows the metadata
+associated with one or more charts to be saved in the filesystem.
+This metadata describes all aspects of the charts, including
+which PCP metrics and instances are to be used, which hosts, which
+colors, the chart titles, use of chart legends, and much more.
+.PP
+From a conceptual point of view, there are two classes of view.
+These views share the same configuration file format \- refer
+to a later section for a complete description of this format.
+The differences lie in where they are installed and how they
+are manipulated.
+.PP
+The first class, the ''system'' view, is simply any view that is
+installed as part of the
+.B kmchart
+package.
+These are stored in
+.I $PCP_VAR_DIR/config/kmchart.
+When the
+.I "File\(->Open View"
+dialog is displayed, it is these views that are initially listed.
+The system views cannot be modified by a normal user, and should
+not be modified even by a user with suitable priviledges, as they
+will be overwritten during an upgrade.
+.PP
+The second class of view is the ''user'' view.
+These views are created on-the-fly using the
+.I "File\(->Save View"
+dialog.
+This is a mechanism for individual users to save their commonly
+used views.
+Access to these views is achieved through the
+.I "File\(->Open View"
+dialog, as with the system views.
+Once the dialog is opened, the list of views can be toggled between
+user and system views by clicking on the two toggle buttons in the
+top right corner.
+User views are stored in
+.I $HOME/.pcp/kmchart.
 .SH TABS
-TODO. Visible points vs total samples.
+.B kmchart
+provides the common user interface concept of the Tab, which
+is most prevalent in modern web browsers.
+Tabs allow
+.B kmchart
+to update many more charts than the available screen real estate
+allows, by providing a user interface mechanism to stack (and
+switch between) different vertical sets of charts.
+Switching between Tabs is achieved by clicking on the Tab labels,
+which are located along the top of the display beneath the Menu
+and Tool bars).
+.PP
+Each Tab has a mode of operation (either live or archive \-
+.B kmchart
+can support both modes simultaneously), the total number of
+samples and currently visible points, and a label describing
+the Tab which is displayed at the top of the
+.B kmchart
+window.
+New Tabs can be created using the
+.I "File\(->Add Tab"
+dialog.
+.PP
+In order to save on vertical screen real estate, note that the user
+interface element for changing between different Tabs (and its label)
+are only displayed when more than one Tab exists.
+A Tab can be dismissed using the
+.I "File\(->Close Tab"
+menu, which removes the current Tab and any charts it contained.
 .SH IMAGES and PRINTING
 TODO.
 .SH RECORDING
@@ -206,7 +274,7 @@ TODO.
 ..
 .PP
 .B kmchart
-loads predefined chart configurations (or ``views'') from external
+loads predefined chart configurations (or ''views'') from external
 files that conform to the following rules.  In the descriptions below
 keywords (shown in \f(CBbold\fP) may appear in upper, lower or
 mixed case, elements show \f(CW[stuff]\fP are optional, and
@@ -237,7 +305,7 @@ There is no support for executable views
 as yet.
 .RE
 .IP 2. 0.3i
-After the first line, lines beginning with ``#'' as the first
+After the first line, lines beginning with ''#'' as the first
 non-white space character are treated as comments and skipped.
 Similarly blank lines are skipped.
 .IP 3. 0.3i
@@ -269,14 +337,14 @@ A configuration contains one or more charts defined as follows:
 If specified, the title will appear centred and above the graph area
 of the chart.
 The \f(CW<title>\fP is usually enclosed in quotes (") and if it
-contains the sequence ``%h'' this will be replaced by the short form
+contains the sequence ''%h'' this will be replaced by the short form
 of the hostname for the default source of metrics at the time
 this chart was loaded.
 After the view is loaded, the title visibility and setting
 can be manipulated using the
 .I "Chart Title"
 text box in the
-.I "Edit\(->Chart Title and Legend"
+.I "Edit\(->Chart"
 dialog.
 .RS
 .PP
@@ -285,8 +353,8 @@ should be one of the keywords \f(CBplot\fP (line graph), \f(CBbar\fP,
 \f(CBstacking\fP (stacked bar),
 \f(CBarea\fP or \f(CButilization\fP.
 After the view is loaded, the plotting style can be changed using the
-.I "Edit\(->Chart Style"
-dropdown list.
+.I "Edit\(->Chart"
+Style dropdown list.
 .PP
 The \f(CW<options>\fP are zero or more of the optional elements:
 .ES
@@ -306,7 +374,7 @@ After the view is loaded, the legend visibility
 can be toggled using the
 .I "Show Legend"
 button in the
-.I "Edit\(->Chart Title and Legend"
+.I "Edit\(->Chart"
 dialog.
 .RE
 .IP 5. 0.3i
@@ -333,7 +401,7 @@ then this plot is silently dropped from the chart.
 .PP
 If specified, the title will appear in the chart legend.
 The \f(CW<title>\fP is usually enclosed in quotes (") and if it
-contains the sequence ``%i'' this will be replaced by the metric
+contains the sequence "%i" this will be replaced by the metric
 instance name (if any).
 .PP
 For
@@ -365,7 +433,7 @@ blue color components.
 e.g. \f(CBred\fP or \f(CBsteelblue\fP, see also the output from
 .BR showrgb (1).
 .PP
-The ``color'' \f(CB#-cycle\fP specifies that
+The "color" \f(CB#-cycle\fP specifies that
 .B kmchart
 should use the next in a pallet of colors that it uses cyclically
 for each chart.  This is the default if the \f(CBcolor\fP clause
@@ -411,7 +479,6 @@ end of the input line.  For
 configuration files these elements are either delimited by white
 space, or enclosed in quotes (").
 .RE
-.IP 7. 0.3i
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
