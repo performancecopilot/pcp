@@ -14,7 +14,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 
     - Online Help needs more content
     - Tutorial is not quite complete
-    - WhatsThis markers need to be added across the board.
 
     - Timezone list in kmtime not being updated when new archive/hosts
       added (or sources in exotic timezones, from the start).

@@ -257,9 +257,84 @@ A Tab can be dismissed using the
 .I "File\(->Close Tab"
 menu, which removes the current Tab and any charts it contained.
 .SH IMAGES and PRINTING
-TODO.
+A static copy of the currently displayed vertical series of charts
+can be captured in two ways.
+.PP
+When the intended display device is the screen, the
+.I "File\(->Export"
+menu option should be used.
+This allows exporting the charts in a variety of image formats,
+including PNG, JPEG, GIF, and BMP.
+The image size can be scaled up or down in any dimension.
+.PP
+Alternatively, when the intended display device is paper, the
+.I "File\(->Print"
+menu option can be used.
+This supports the usual set of printing options (choice of printer,
+grayscale/color, landscape/portrait, scaling to different paper sizes,
+etc),
+and in addition allows printing to the intermediate printer formats
+of PostScript and Portable Document Format (PDF).
 .SH RECORDING
-TODO.
+It is possible to make a recording of a set of displayed charts,
+for later playback through
+.B kmchart
+or any of the other Performance Co-Pilot tools.
+The
+.I "Record\(->Start"
+functionality is simple to configure through the user interface,
+and allows fine-tuning of the recording process (including record
+frequencies that differ to the
+.B kmchart
+update interval, alternate file locations, etc).
+.PP
+.B kmchart
+produces recordings that are compatible with the PCP
+.BR pmafm (1)
+replay mechanism, for later playback via a new instance of
+.BR kmchart .
+In addition, when recording through
+.B kmchart
+one can also replay the recording immediately, as on termination
+of the recording (through the
+.I "Record\(->Stop"
+menu item), an archive mode Tab will be created with the captured view.
+.PP
+Once recording is active in a Live Tab, the Time Control status
+button in the bottom left corner of the
+.B kmchart
+window is displayed with a distinctive red dot.
+At any time during a
+.B kmchart
+recording session, the amount of space used in the filesystem by
+that recording can be displayed using the
+.I "Record\(->Query"
+menu item.
+.PP
+Finally, the
+.I "Record\(->Detach"
+menu option provides a mechanism whereby the recording process can
+be completely divorced from the running
+.B kmchart
+process, and allowed to continue on when
+.B kmchart
+exits.
+A dialog displaying the current size and estimated rate of growth for
+the recording is presented.
+On the other hand, if
+.B kmchart
+is terminated while recording is in process, then the recording process
+will prompt the user to choose immediate cessation of recording or for
+it to continue on independently.
+.PP
+All of the record mode services available from
+.B kmchart
+are implemented with the assistance of the base Performance Co-Pilot
+logging services \- refer to
+.BR pmlogger (1)
+and
+.BR pmafm (1)
+for an extensive description of the capabilities of these tools.
 .SH CONFIGURATION FILE SYNTAX
 .de ES
 .ft CW
@@ -510,6 +585,7 @@ application.
 .BR kmconfirm (1),
 .BR kmdumptext (1),
 .BR PCPIntro (1),
+.BR pmafm (1),
 .BR pmval (1),
 .BR pmcd (1),
 .BR pminfo (1),
