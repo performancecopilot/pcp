@@ -10,10 +10,25 @@ Refer to doc/INSTALL for instructions on building these tools.
 
 === 1.0 TODO list ===
 
-  kmchart
-
     - Online Help needs more content
+	[ ] whatsnew.html
+	[x] overview.html
+	[ ] installation.html
+	[ ] views.html
+	[ ] tabs.html
+	[ ] timecontrol.html
+	[ ] synopsis.html
+	[ ] customui.html
+	[ ] contacts.html
+	[ ] reportbug.html
+	[ ] credits.html
+	[ ] gpl.html
+	[ ] qwtlicense.html
+	[ ] artisticlicense.html
+	[ ] pcpintro.html
     - Tutorial is not quite complete
+	[ ] tutorial.html
+	[ ] pmchart.html
 
     - Timezone list in kmtime not being updated when new archive/hosts
       added (or sources in exotic timezones, from the start).
@@ -79,4 +94,3 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Write automated QA for Save View (need a new command line option),
       then with -C and -c, open (multiple) views, save, then verify.
     - kmquery window initial sizing and resizing could use improvement.
-

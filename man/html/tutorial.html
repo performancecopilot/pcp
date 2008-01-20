@@ -28,14 +28,14 @@ mecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
 <P ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7><B>Tutorial</B></FONT></P>
-<P>The following tutorial covers the basic functionality available in the PCP Strip Chart tool, <i>kmchart</i>.  Once PCP (Performance Co-Pilot), Qt, and <i>kmchart</i> are <A HREF="installation.html"><FONT COLOR="#000060">installed</FONT></A>, run the <I>kmchart</I> command or click on the “<I>PCP Charts</I>” icon to begin. 
+<P>The following tutorial covers the basic functionality available in the PCP Strip Chart tool, <B>kmchart</B>.  Once PCP (Performance Co-Pilot), Qt, and <B>kmchart</B> are <A HREF="installation.html"><FONT COLOR="#000060">installed</FONT></A>, run the <B>kmchart</B> command or click on the “<I>PCP Charts</I>” icon to begin. 
 </P>
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Main Window</B></FONT></P></TD></TR>
 </TABLE>
 <CENTER><BR><IMG ALIGN=RIGHT SRC="images/tutorial1.png" BORDER=0></CENTER>
-<p>On starting the PCP Chart (<i>kmchart</i>) tool with no command line arguments, the initial display shows a menu, toolbar, and a live time axis.  The vacant area above the time axis is the blank canvas for your charts – we'll get to this shortly, but take a moment to digest the main window.</P><BR>
+<p>On starting the PCP Chart (<B>kmchart</B>) tool with no command line arguments, the initial display shows a menu, toolbar, and a live time axis.  The vacant area above the time axis is the blank canvas for your charts – we'll get to this shortly, but take a moment to digest the main window.</P><BR>
 <BR><CENTER><IMG ALIGN=LEFT SRC="images/tutorial2.png" BORDER=0></CENTER>
 <P>The time axis along the bottom of the window should be scrolling with the current time, updated every second (this is also called the <I>sample interval</I>).  To the left of the time axis is the time control status button.  The blue arrow signifies that (live) time is moving forward.  Pressing the button once will show the Time Control tool, <i>kmtime</i>, pressing it a second time hides it.  The time controls allow you to modify various aspects of the flow of time in your charts, and clearly displays the current time position.</P>
 <P><BR></P>
@@ -46,7 +46,7 @@ mecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P></TD>
 <BR><CENTER><IMG SRC="images/tutorial3.png" BORDER=0></CENTER>
 <P><B>What is a view?</B></P>
 <P>A view is a complete specification of every aspect of one or more charts, each of which can contains one or more plots.  All properties of the charts and the individual plots are described - the data source behind the performance data, the color of the plots, the chart title, the style of the chart, whether the value axis (Y-Axis) should be scaled, whether there is a title, etc, etc.  Some properties are optional (e.g. the title) and some can be specified as variable (e.g. allowing any host to be the source of the data).</P>
-<P>Views are stored as plain text files in the local filesystem.  The System Views are different only in that they are installed into a fixed location.  There is a fixed place for custom views as well, below your home directory, where views you create in kmchart will be stored.  If you look into the <I>Open View</I> dialog again, you'll see two icons to the right of the Path in the Open View dialog – these indicate whether the current path points to the System View location, the User View location, or neither.  Notice how they update as you navigate through your files.</P>
+<P>Views are stored as plain text files in the local filesystem.  The System Views are different only in that they are installed into a fixed location.  There is a fixed place for custom views as well, below your home directory, where views you create in <B>kmchart</B> will be stored.  If you look into the <I>Open View</I> dialog again, you'll see two icons to the right of the Path in the Open View dialog – these indicate whether the current path points to the System View location, the User View location, or neither.  Notice how they update as you navigate through your files.</P>
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Recording</B></FONT></P></TD></TR>
@@ -96,8 +96,8 @@ explicitly set by:</P>
 </TABLE>
 <P>Click on Record, then Stop.</P>
 <BR><CENTER><IMG SRC="images/tutorial9.png" BORDER=0></CENTER>
-<P>The dialog shown explains the status of your recording session (started earlier).  At any time while recording, you also have the option of querying the recording process to see the same status, and also to detach the recording from the control of <i>kmchart</i>.  But for now, we've simply ended the recording (note the red indicator light is now off on the time control button), and we're left with an archive containing the history from our recording, which we can now replay.
-<P>End your kmchart process now, and open a terminal window.</P>
+<P>The dialog shown explains the status of your recording session (started earlier).  At any time while recording, you also have the option of querying the recording process to see the same status, and also to detach the recording from the control of <B>kmchart</B>.  But for now, we've simply ended the recording (note the red indicator light is now off on the time control button), and we're left with an archive containing the history from our recording, which we can now replay.
+<P>End your <B>kmchart</B> process now, and open a terminal window.</P>
 <P>Run: <b>pmafm ~/.pcp/pmlogger/XXX.folio replay</b> where XXX is the folio file name (timestamp) from your earlier recording session</P>
 <BR><CENTER><IMG SRC="images/tutorial10.png" BORDER=0></CENTER>
 <P>TODO:</P>
