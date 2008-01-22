@@ -22,9 +22,9 @@ Refer to doc/INSTALL for instructions on building these tools.
 	[ ] contacts.html
 	[ ] reportbug.html
 	[ ] credits.html
-	[ ] gpl.html
-	[ ] qwtlicense.html
-	[ ] artisticlicense.html
+	[x] gpl.html
+	[x] qwtlicense.html
+	[x] artisticlicense.html
 	[ ] pcpintro.html
     - Tutorial is not quite complete
 	[ ] tutorial.html
