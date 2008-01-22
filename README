@@ -11,9 +11,9 @@ Refer to doc/INSTALL for instructions on building these tools.
 === 1.0 TODO list ===
 
     - Online Help needs more content
-	[ ] whatsnew.html
+	[x] whatsnew.html
 	[x] overview.html
-	[ ] installation.html
+	[x] installation.html
 	[ ] views.html
 	[ ] tabs.html
 	[ ] timecontrol.html
