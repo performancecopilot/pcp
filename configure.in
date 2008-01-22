@@ -254,8 +254,9 @@ else
 fi
 if test -z "$PCP_GROUP" ; then
     case "$target_os" in
+    irix) pcp_group=bin;;
     darwin) pcp_group=wheel;;
-    *)	pcp_group=bin;;
+    *)	pcp_group=root;;
     esac
 else
     pcp_group="$PCP_GROUP"
