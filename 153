@@ -35,6 +35,7 @@ _filter()
 {
     sed \
 	-e 's/\(Created: on \).*/\1 .../' \
+	-e 's/pmchart/kmchart/' \
     | $PCP_AWK_PROG '
 $1 == "Archive:"	{ $2 = "somehost" }
 $1 == "Host:"		{ $2 = "somehost" }
