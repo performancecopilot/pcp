@@ -512,9 +512,11 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	if [ "$p_logfile" != $logfile ]
 	then
 	    $VERY_VERBOSE && echo "different logfile, skip"
+	    $VERY_VERBOSE && echo "  $p_logfile differs to $logfile"
 	elif [ "$p_pmcd_host" != "$fqdn" ]
 	then
 	    $VERY_VERBOSE && echo "different host, skip"
+	    $VERY_VERBOSE && echo "  $p_pmcd_host differs to $fqdn"
 	elif _get_pids_by_name pmie | grep "^$p_id\$" >/dev/null
 	then
 	    $VERY_VERBOSE && echo "pmie process $p_id identified, OK"
@@ -522,6 +524,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	    break
 	else
 	    $VERY_VERBOSE && echo "pmie process $p_id not running, skip"
+	    $VERY_VERBOSE && _get_pids_by_name pmie
 	fi
     done
 
