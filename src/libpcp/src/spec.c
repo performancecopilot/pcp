@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,44 +21,41 @@
  */
 
 /*
- * parse uniform metric spec syntax
+ * Parse uniform metric and host specification syntax
  */
 
-#ident "$Id: mspec.c,v 1.4 2004/08/02 07:11:43 kenmcd Exp $"
-
+#include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include "pmapi.h"
 #include "impl.h"
 
-/****************************************************************************
- * local functions
- ****************************************************************************/
 
-/* memory allocation */
 static void *
-parseAlloc(size_t need)
+parseAlloc(const char *func, size_t need)
 {
     void    *tmp;
 
     if ((tmp = malloc(need)) == NULL)
-	__pmNoMem("pmParseMetricSpec", need, PM_FATAL_ERR);
+	__pmNoMem(func, need, PM_FATAL_ERR);
     return tmp;
 }
 
-/* Report syntax error */
 static void
-parseError(const char *spec, const char *point, char *msg, char **rslt)
+parseError(const char *func, const char *spec, const char *point, char *msg, char **rslt)
 {
-    int		need = 2 * (int)strlen(spec) + 1 + 6 + (int)strlen(msg) + 2;
+    int		need;
     const char	*p;
     char	*q;
 
-    if ((q = (char *) malloc(need)) == NULL)
-	__pmNoMem("pmParseMetricSpec", need, PM_FATAL_ERR);
-    *rslt = q;
+    if (rslt == NULL)
+	return;
+
+    need = 2 * (int)strlen(spec) + 1 + 6 + (int)strlen(msg) + 2;
+    *rslt = q = (char *)parseAlloc(func, need);
     for (p = spec; *p != '\0'; p++)
 	*q++ = *p;
     *q++ = '\n';
@@ -66,10 +64,17 @@ parseError(const char *spec, const char *point, char *msg, char **rslt)
     sprintf(q, "^ -- %s\n", msg);	/* safe */
 }
 
+static void *
+metricAlloc(size_t need)
+{
+    return parseAlloc("pmParseMetricSpec", need);
+}
 
-/****************************************************************************
- * exported functions
- ****************************************************************************/
+static void
+metricError(const char *spec, const char *point, char *msg, char **rslt)
+{
+    parseError("pmParseMetricSpec", spec, point, msg, rslt);
+}
 
 int		/* 0 -> ok, PM_ERR_GENERIC -> error */
 pmParseMetricSpec(
@@ -116,7 +121,7 @@ pmParseMetricSpec(
     if (*scan == ':') {
 	h_start = mark;
 	if (h_start == h_end) {
-	    parseError(spec, scan, "host name expected", errmsg);
+	    metricError(spec, scan, "host name expected", errmsg);
 	    return PM_ERR_GENERIC;
 	}
 	scan++;
@@ -136,7 +141,7 @@ pmParseMetricSpec(
 	}
 	if (a_start) {
 	    if (a_start == a_end) {
-		parseError(spec, a_start, "archive name expected", errmsg);
+		metricError(spec, a_start, "archive name expected", errmsg);
 		return PM_ERR_GENERIC;
 	    }
 	    scan = a_end + 1;
@@ -153,7 +158,7 @@ pmParseMetricSpec(
     m_start = scan;
     while (! isspace((int)*scan) && *scan != '\0' && *scan != '[') {
 	if (*scan == ':' || *scan == '/' || *scan == ']' || *scan == ',') {
-	    parseError(spec, scan, "unexpected character in metric name", errmsg);
+	    metricError(spec, scan, "unexpected character in metric name", errmsg);
 	    return PM_ERR_GENERIC;
 	}
 	if (*scan == '\\' && *(scan+1) != '\0')
@@ -162,7 +167,7 @@ pmParseMetricSpec(
     }
     m_end = scan;
     if (m_start == m_end) {
-	parseError(spec, m_start, "performance metric name expected", errmsg);
+	metricError(spec, m_start, "performance metric name expected", errmsg);
 	return PM_ERR_GENERIC;
     }
 
@@ -178,9 +183,9 @@ pmParseMetricSpec(
 	for ( ; ; ) {
 	    if (*scan == '\0') {
 		if (inquote)
-		    parseError(spec, scan, "closing \" and ] expected", errmsg);
+		    metricError(spec, scan, "closing \" and ] expected", errmsg);
 		else
-		    parseError(spec, scan, "closing ] expected", errmsg);
+		    metricError(spec, scan, "closing ] expected", errmsg);
 		return PM_ERR_GENERIC;
 	    }
 	    if (*scan == '\\' && *(scan+1) != '\0')
@@ -199,14 +204,14 @@ pmParseMetricSpec(
     while (isspace((int)*scan))
 	scan++;
     if (*scan != '\0') {
-	parseError(spec, scan, "unexpected extra characters", errmsg);
+	metricError(spec, scan, "unexpected extra characters", errmsg);
 	return PM_ERR_GENERIC;
     }
 
     /* count instance names and make temporary copy */
     ninst = 0;
     if (i_start != NULL) {
-	i_str = (char *) parseAlloc(i_end - i_start + 1);
+	i_str = (char *) metricAlloc(i_end - i_start + 1);
 
 	/* count and copy instance names */
 	scan = i_start;
@@ -219,7 +224,7 @@ pmParseMetricSpec(
 		scan++;
 		for (;;) {
 		    if (scan >= i_end) {
-			parseError(spec, scan, "closing \" expected (pmParseMetricSpec botch?)", errmsg);
+			metricError(spec, scan, "closing \" expected (pmParseMetricSpec botch?)", errmsg);
 			if (msp)
 			    pmFreeMetricSpec(msp);
 			if (i_str)
@@ -258,7 +263,7 @@ pmParseMetricSpec(
 	     ((a_start) ? a_end - a_start + 1 : 0) +
 	     ((m_start) ? m_end - m_start + 1 : 0) +
 	     ((i_start) ? i_end - i_start + 1 : 0));
-    msp = (pmMetricSpec *)parseAlloc(length);
+    msp = (pmMetricSpec *)metricAlloc(length);
 
     /* strings follow pmMetricSpec proper */
     push = ((char *) msp) +
@@ -321,4 +326,182 @@ pmParseMetricSpec(
 	free(i_str);
     *rslt = msp;
     return 0;
+}
+
+void
+pmFreeMetricSpec(pmMetricSpec *spec)
+{
+    free(spec);
+}
+
+
+static void
+hostError(const char *spec, const char *point, char *msg, char **rslt)
+{
+    parseError("pmParseHostSpec", spec, point, msg, rslt);
+}
+
+static char *
+hostStrndup(const char *name, int namelen)
+{
+    char *s = malloc(namelen + 1);
+    strncpy(s, name, namelen);
+    s[namelen] = '\0';
+    return s;
+}
+
+static pmHostSpec *
+hostAdd(pmHostSpec *specp, int *count, const char *name, int namelen)
+{
+    int n = *count;
+    char *host;
+
+    host = hostStrndup(name, namelen);
+    if (!host || (specp = realloc(specp, sizeof(pmHostSpec) * (n+1))) == NULL) {
+	*count = 0;
+	return NULL;
+    }
+    specp[n].name = host;
+    specp[n].ports = NULL;
+    specp[n].nports = 0;
+
+    *count = n + 1;
+    return specp;
+}
+
+int
+__pmAddHostPorts(pmHostSpec *specp, int *ports, int nports)
+{
+    int *portlist;
+
+    if ((portlist = malloc(sizeof(int) * (specp->nports + nports))) == NULL)
+	return -ENOMEM;
+    if (specp->nports > 0) {
+	memcpy(portlist, specp->ports, sizeof(int) * specp->nports);
+	free(specp->ports);
+    }
+    memcpy(&portlist[specp->nports], ports, sizeof(int) * nports);
+    specp->ports = portlist;
+    specp->nports = specp->nports + nports;
+    return 0;
+}
+
+void
+__pmDropHostPort(pmHostSpec *specp)
+{
+    specp->nports--;
+    memmove(&specp->ports[0], &specp->ports[1], specp->nports*sizeof(int));
+}
+
+/* 
+ * Parse a host specification, with optional ports and proxy host(s).
+ * Examples:
+ *	pcp -h app1.aconex.com:44321,4321@firewall.aconex.com:44322
+ *	pcp -h app1.aconex.com:44321@firewall.aconex.com:44322
+ *	pcp -h app1.aconex.com:44321@firewall.aconex.com
+ *	pcp -h app1.aconex.com@firewall.aconex.com
+ *	pcp -h app1.aconex.com:44321
+ *
+ * Basic algorithm:
+ *	look for first colon, @ or null; preceding text is hostname
+ *	 if colon, look for comma, @ or null, preceding text is port
+ *	  while comma, look for comma, @ or null, preceding text is next port
+ *	if @, start following host specification at the following character,
+ *	 by returning to the start and repeating the above for the next chunk.
+ * Note:
+ *	Currently only two hosts are useful, but ability to handle more than
+ *	one optional proxy host is there (i.e. proxy ->proxy ->... ->pmcd),
+ *	in case someone implements the pmproxy->pmproxy protocol extension.
+ */
+
+int             /* 0 -> ok, PM_ERR_GENERIC -> error */
+__pmParseHostSpec(
+    const char *spec,           /* parse this string */
+    pmHostSpec **rslt,          /* result allocated and returned here */
+    int *count,
+    char **errmsg)              /* error message */
+{
+    pmHostSpec *hsp = NULL;
+    const char *s, *start;
+    int nhosts = 0, sts = 0;
+
+    for (s = start = spec; s != NULL; s++) {
+	if (*s == ':' || *s == '@' || *s == '\0') {
+	    if (s == start)
+		continue;
+	    hsp = hostAdd(hsp, &nhosts, start, s - start);
+	    if (hsp == NULL) {
+		sts = -ENOMEM;
+		goto fail;
+	    }
+	    if (*s == ':') {
+		for (++s, start = s; s != NULL; s++) {
+		    if (*s == ',' || *s == '@' || *s == '\0') {
+			if (s == start)
+			    continue;
+			int port = atoi(start);
+			sts = __pmAddHostPorts(&hsp[nhosts-1], &port, 1);
+			if (sts < 0)
+			    goto fail;
+			start = s + 1;
+			if (*s == '@' || *s == '\0')
+			    break;
+			continue;
+		    }
+		    if (isdigit(*s))
+			continue;
+		    hostError(spec, s, "non-numeric port", errmsg);
+		    sts = PM_ERR_GENERIC;
+		    goto fail;
+		}
+	    }
+	    if (*s == '@') {
+		start = s+1;
+		continue;
+	    }
+	    break;
+	}
+    }
+    *count = nhosts;
+    *rslt = hsp;
+    return 0;
+
+fail:
+    __pmFreeHostSpec(hsp, nhosts);
+    *rslt = NULL;
+    *count = 0;
+    return sts;
+}
+
+void
+__pmUnparseHostSpec(pmHostSpec *hostp, int count, char **specp)
+{
+    int i, j, sz = 0;
+    static char spec[4096];
+
+    for (i = 0; i < count; i++) {
+	if (i > 0)
+	    sz += snprintf(spec, sizeof(spec), "@");
+	sz += snprintf(spec, sizeof(spec), "%s", hostp[0].name);
+	for (j = 0; j < hostp[i].nports; j++)
+	    sz += snprintf(spec + sz, sizeof(spec) - sz,
+			    "%c%u", (j == 0) ? ':' : ',', hostp[i].ports[j]);
+    }
+}
+
+void
+__pmFreeHostSpec(pmHostSpec *specp, int count)
+{
+    int i;
+
+    for (i = 0; i < count; i++) {
+	free(specp[i].name);
+	specp[i].name = NULL;
+	if (specp[i].nports > 0)
+	    free(specp[i].ports);
+	specp[i].ports = NULL;
+	specp[i].nports = 0;
+    }
+    if (specp && count)
+	free(specp);
 }

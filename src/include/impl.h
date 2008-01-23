@@ -449,34 +449,52 @@ typedef enum {
 } pmcd_ctl_state_t;
 
 /*
+ * Host specification allowing one or more pmproxy host, and port numbers
+ * within the one string, i.e. pmcd host specifications of the form:
+ *		host:port,port@proxy:port,port 
+ */
+typedef struct {
+    char	*name;			/* hostname (always valid) */
+    int		*ports;			/* array of host port numbers */
+    int		nports;			/* number of ports in host port array */
+} pmHostSpec;
+extern int __pmParseHostSpec(const char *, pmHostSpec **, int *, char **);
+extern void __pmUnparseHostSpec(pmHostSpec *, int, char **);
+extern void __pmFreeHostSpec(pmHostSpec *, int);
+
+/*
  * Control for connection to a PMCD
  */
 typedef struct {
     int		pc_refcnt;		/* number of contexts using this socket */
-    char	*pc_name;		/* host name */
     int		pc_fd;			/* socket for comm with pmcd */
 					/* ... -1 means no connection */
+    pmHostSpec	*pc_hosts;		/* pmcd and proxy host specifications */
+    int		pc_nhosts;		/* number of pmHostSpec entries */
     int		pc_timeout;		/* set if connect times out */
     time_t	pc_again;		/* time to try again */
-    int		pc_curpdu;	 	/* current pdu in flight */
+    int		pc_curpdu; 		/* current pdu in flight */
     int		pc_tout_sec;		/* timeout for pmGetPDU */
     pmcd_ctl_state_t pc_state;		/* current state of this context */
     int		pc_fdflags;		/* fcntl(2) flags for pc_fd */
-    int		pc_nports;		/* number of ports to try */
-    int		*pc_ports;		/* list of ports to try */
     struct sockaddr pc_addr;		/* server address */
 } __pmPMCDCtl;
 
-extern int __pmConnectPMCD(const char *);
+extern int __pmConnectPMCD(pmHostSpec *, int);
+extern int __pmConnectLocal(void);
 extern int __pmAuxConnectPMCD(const char *);
 extern int __pmAuxConnectPMCDPort(const char *, int);
 extern int __pmCreateSocket(void);
-extern int __pmConnectGetPorts(int **);
+extern int __pmAddHostPorts(pmHostSpec *, int *, int);
+extern void __pmDropHostPort(pmHostSpec *);
+extern void __pmConnectGetPorts(pmHostSpec *);
 extern int __pmConnectTo (int, const struct sockaddr *, int);
 extern int __pmConnectCheckError(int);
 extern int __pmConnectRestoreFlags (int, int);
 extern int __pmConnectHandshake(int);
 extern const struct timeval *__pmConnectTimeout(void);
+
+
 /*
  * per context controls for archives and logs
  */

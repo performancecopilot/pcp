@@ -1104,7 +1104,7 @@ disconnect(int sts)
     if (sts != 0)
 	fprintf(stderr, "%s: Error: %s\n", pmProgname, pmErrStr(sts));
     fprintf(stderr, "%s: Lost connection to PMCD on \"%s\" at %s",
-	    pmProgname, ctxp->c_pmcd->pc_name, ctime(&now));
+	    pmProgname, ctxp->c_pmcd->pc_hosts[0].name, ctime(&now));
 #if CAN_RECONNECT
     if (primary) {
 	fprintf(stderr, "This is fatal for the primary logger.");

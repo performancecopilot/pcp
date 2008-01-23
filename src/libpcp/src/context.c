@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -38,10 +39,6 @@ static int		curcontext = PM_CONTEXT_UNDEF;	/* current context */
 static int	n_backoff = 0;
 static int	def_backoff[] = {5, 10, 20, 40, 80};
 static int	*backoff = NULL;
-
-extern int 	__pmConnectPMCD(const char *);
-extern int 	__pmConnectLocal(void);
-extern int	errno;
 
 static void
 waitawhile(__pmPMCDCtl *ctl)
@@ -109,7 +106,7 @@ pmGetContextHostName (int ctxid)
     if ( (ctx = __pmHandleToPtr(ctxid)) != NULL) {
 	switch (ctx->c_type) {
 	case PM_CONTEXT_HOST:
-	    return (ctx->c_pmcd->pc_name);
+	    return (ctx->c_pmcd->pc_hosts[0].name);
 
 	case PM_CONTEXT_ARCHIVE:
 	    return (ctx->c_archctl->ac_log->l_label.ill_hostname);
@@ -211,18 +208,26 @@ INIT_CONTEXT:
     }
     memset(new->c_instprof, 0, sizeof(__pmProfile));
     new->c_instprof->state = PM_PROFILE_INCLUDE;	/* default global state */
-    new->c_sent = 0;
-						/* profile not sent */
+    new->c_sent = 0;	/* profile not sent */
     new->c_origin.tv_sec = new->c_origin.tv_usec = 0;	/* default time */
 
     if (new->c_type == PM_CONTEXT_HOST) {
-	if ((type & PM_CTXFLAG_EXCLUSIVE) == 0) {
+	pmHostSpec *hosts;
+	int nhosts;
+
+	/* deconstruct a host[:port@proxy:port] specification */
+	sts = __pmParseHostSpec(name, &hosts, &nhosts, NULL);
+	if (sts < 0)
+	    goto FAILED;
+
+	if ((type & PM_CTXFLAG_EXCLUSIVE) == 0 && nhosts == 1) {
 	    for (i = 0; i < contexts_len; i++) {
 		if (i == curcontext)
 		    continue;
 		if (contexts[i].c_type == PM_CONTEXT_HOST &&
 		    (contexts[i].c_pmcd->pc_curpdu == 0) &&
-		    strcmp(name, contexts[i].c_pmcd->pc_name) == 0) {
+		    strcmp(contexts[i].c_pmcd->pc_hosts[0].name,
+			    hosts[0].name) == 0) {
 		    new->c_pmcd = contexts[i].c_pmcd;
 		    /*new->c_pduinfo = contexts[i].c_pduinfo;*/
 		}
@@ -236,29 +241,29 @@ INIT_CONTEXT:
 	     * and return an error.
 	     */
 	    if (type & PM_CTXFLAG_SHALLOW) {
-		sts = __pmCreateSocket ();
+		sts = __pmCreateSocket();
 		inistate = PC_FETAL;
 	    } else {
-		sts = __pmConnectPMCD(name);
+		sts = __pmConnectPMCD(hosts, nhosts);
 		inistate = PC_READY;
 	    }
-					       
-	    if (sts < 0)
-		goto FAILED;
 
-	    if ((new->c_pmcd = (__pmPMCDCtl *)calloc(1,sizeof(__pmPMCDCtl))) == NULL) {
-		close(sts);
-		sts = -errno;
+	    if (sts < 0) {
+		__pmFreeHostSpec(hosts, nhosts);
 		goto FAILED;
 	    }
-	    if ((new->c_pmcd->pc_name = strdup(name)) == NULL) {
+
+	    new->c_pmcd = (__pmPMCDCtl *)calloc(1,sizeof(__pmPMCDCtl));
+	    if (new->c_pmcd == NULL) {
 		close(sts);
-		free(new->c_pmcd);
 		sts = -errno;
+		__pmFreeHostSpec(hosts, nhosts);
 		goto FAILED;
 	    }
 	    new->c_pmcd->pc_fd = sts;
 	    new->c_pmcd->pc_state = inistate;
+	    new->c_pmcd->pc_hosts = hosts;
+	    new->c_pmcd->pc_nhosts = nhosts;
 	}
 	new->c_pmcd->pc_refcnt++;
     }
@@ -384,7 +389,7 @@ pmReconnectContext(int handle)
 	    ctl->pc_fd = -1;
 	}
 
-	if ((sts = __pmConnectPMCD(ctl->pc_name)) >= 0) {
+	if ((sts = __pmConnectPMCD(ctl->pc_hosts, ctl->pc_nhosts)) >= 0) {
 	    ctl->pc_fd = sts;
 	    ctxp->c_sent = 0;
 	}
@@ -435,7 +440,8 @@ int
 pmDupContext(void)
 {
     int			sts;
-    int			old, new;
+    int			old, new = -1;
+    char		*hostspec;
     __pmContext		*newcon, *oldcon;
     __pmInDomProfile	*q, *p, *p_end;
     __pmProfile		*save;
@@ -445,8 +451,11 @@ pmDupContext(void)
 	goto done;
     }
     oldcon = &contexts[old];
-    if (oldcon->c_type == PM_CONTEXT_HOST)
-	new = pmNewContext(oldcon->c_type, oldcon->c_pmcd->pc_name);
+    if (oldcon->c_type == PM_CONTEXT_HOST) {
+	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
+				oldcon->c_pmcd->pc_nhosts, &hostspec);
+	new = pmNewContext(oldcon->c_type, hostspec);
+    }
     else if (oldcon->c_type == PM_CONTEXT_LOCAL)
 	new = pmNewContext(oldcon->c_type, NULL);
     else
@@ -564,7 +573,7 @@ pmDestroyContext(int handle)
 		    SO_LINGER, (char *) &dolinger, (mysocklen_t)sizeof(dolinger));
 		close(ctxp->c_pmcd->pc_fd);
 	    }
-	    free(ctxp->c_pmcd->pc_name);
+	    __pmFreeHostSpec(ctxp->c_pmcd->pc_hosts, ctxp->c_pmcd->pc_nhosts);
 	    free(ctxp->c_pmcd);
 	}
     }
@@ -616,7 +625,7 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 	if (context == -1 || context == i) {
 	    fprintf(f, "Context[%d]", i);
 	    if (con->c_type == PM_CONTEXT_HOST) {
-		fprintf(f, " host %s:", con->c_pmcd->pc_name);
+		fprintf(f, " host %s:", con->c_pmcd->pc_hosts[0].name);
 		fprintf(f, " pmcd=%s profile=%s fd=%d refcnt=%d",
 		    (con->c_pmcd->pc_fd < 0) ? "NOT CONNECTED" : "CONNECTED",
 		    con->c_sent ? "SENT" : "NOT_SENT",
@@ -737,8 +746,9 @@ int
 pmContextConnectTo (int ctxid, const struct sockaddr *addr)
 {
     int f;
-    __pmContext *ctxp = __pmHandleToPtr(ctxid);
+    pmHostSpec *pmcd;
     __pmPMCDCtl *pc;
+    __pmContext *ctxp = __pmHandleToPtr(ctxid);
 
     if (ctxp == NULL) {
 	return (PM_ERR_NOCONTEXT);
@@ -751,10 +761,12 @@ pmContextConnectTo (int ctxid, const struct sockaddr *addr)
     }
 
     pc = ctxp->c_pmcd;
-    memcpy (&pc->pc_addr, addr, sizeof (pc->pc_addr));
-    pc->pc_nports = __pmConnectGetPorts(&pc->pc_ports);
+    pmcd = &pc->pc_hosts[0];
+    memcpy(&pc->pc_addr, addr, sizeof (pc->pc_addr));
+    if (pmcd->nports < 1)
+	__pmConnectGetPorts(pmcd);
 
-    if ((f =__pmConnectTo(pc->pc_fd, addr, pc->pc_ports[0])) >= 0) {
+    if ((f =__pmConnectTo(pc->pc_fd, addr, pmcd->ports[0])) >= 0) {
 	const struct timeval *tv = __pmConnectTimeout();
 
 	pc->pc_fdflags = f;
@@ -795,7 +807,7 @@ pmContextConnectChangeState (int ctxid)
 	    pc->pc_tout_sec = TIMEOUT_DEFAULT;
 	    pc->pc_state = PC_WAIT_FOR_PMCD;
 	    f = 0;
-	} else if (pc->pc_nports > 1) {
+	} else if (pc->pc_hosts[0].nports > 1) {
 	    int fd;
 	    close (pc->pc_fd);
 
@@ -809,12 +821,11 @@ pmContextConnectChangeState (int ctxid)
 		}
 
 		if (fd > 0) {
-		    pc->pc_nports--;
-		    pc->pc_ports++;
+		    __pmDropHostPort(pc->pc_hosts);
 		    pc->pc_state = PC_FETAL;
-		    
+
 		    if ((f = __pmConnectTo(pc->pc_fd, &pc->pc_addr,
-					   pc->pc_ports[0])) >= 0) {
+				   pc->pc_hosts[0].ports[0])) >= 0) {
 			pc->pc_fdflags = f;
 			pc->pc_state = PC_CONN_INPROGRESS;
 			f = 0;

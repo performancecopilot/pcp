@@ -584,7 +584,7 @@ typedef struct {
 /* parsing of host:metric[instances] or archive/metric[instances] */
 extern int pmParseMetricSpec(const char *, int, char *, pmMetricSpec **,
 			     char **);
-#define pmFreeMetricSpec(p) free(p)
+extern void pmFreeMetricSpec(pmMetricSpec *p);
 
 /*
  * configurable error reporting
