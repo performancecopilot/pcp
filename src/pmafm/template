@@ -2,7 +2,7 @@ PCPFolio
 Version: 1
 
 Created: on hostname at ctime	#abitrary string
-Creator: pmchart [config]
+Creator: kmchart [config]
 
 # use pmfolio(1) to process this PCP Archive Folio
 #
@@ -24,10 +24,10 @@ Creator: pmchart [config]
 #    "list" command echoes this line verbatim
 #
 # 3. [config] is optional, and if present is used to replay with the
-#    Creator using all of the archives in the folio ... e.g. pmchart's
+#    Creator using all of the archives in the folio ... e.g. kmchart's
 #    config file for all of the charts that were visible when "record"
-#    mode started.  Creator: is expected to be one of "pmchart", "pmview"
-#    or "cron.pmdaily" ... yes, this will happen!
+#    mode started.  Creator: is expected to be one of "kmchart",
+#    "pmchart", "pmview", or "cron.pmdaily" ... yes, this will happen!
 #
 # 4. for a Basename of eek, expect to find
 #	eek.meta
