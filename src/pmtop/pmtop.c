@@ -19,7 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmtop.c,v 1.9 2002/11/13 00:22:59 kenmcd Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -27,7 +26,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <bstring.h>
 #include <sys/time.h>
 #include "pmapi.h"
 #include "impl.h"
@@ -234,7 +232,8 @@ get_time(void)
 {
     static char str[80];
     time_t now = time(NULL);
-    (void)cftime(str, "%c %Z", &now);
+    struct tm *tm = localtime(&now);
+    strftime(str, sizeof(str), "%c %Z", tm);
     return str;
 }
 
@@ -1034,7 +1033,7 @@ get_indom(void)
     pmAddProfile(proc_indom, num_inst, instances);
 }
 
-void 
+int
 main(int argc, char *argv[])
 {
     pmDesc desc;
@@ -1106,4 +1105,5 @@ main(int argc, char *argv[])
         sleep(delta.tv_sec);
     }
 
+    return 0;
 }

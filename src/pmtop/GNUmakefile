@@ -1,6 +1,7 @@
 #!gmake
 #
 # Copyright (c) 2007 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,19 +20,24 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Id$
-#
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-# This is just to get the source exported to the community.
-# 'Makefile' in particular is included only for clues it might offer,
-# and should almost certainly be removed from SRCFILES once
-# the pmda is working.
-LSRCFILES = Makefile pmtop.c
+CFILES = pmtop
+LLDLIBS = -lpcp
+TARGET = pmtop$(EXECSUFFIX)
 
-default default_pcp: 
-install install_pcp:
+LDIRT = $(TARGET)
+
+default : $(TARGET)
+
 include $(BUILDRULES)
+
+install : default
+	#$(INSTALL) -m 755 $(TARGET) $(PCP_BIN_DIR)/$(TARGET)
+
+default_pcp : default
+
+install_pcp : install
 
