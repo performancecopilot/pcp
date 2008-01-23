@@ -196,28 +196,12 @@ as described in
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
-.BR pmchart (1),
+.BR kmchart (1),
 .BR pmgenmap (1),
-.BR pmkstat (1),
+.BR pmstat (1),
 .BR PMAPI (3),
 .BR pcp.conf (4)
 and
 .BR pcp.env (4).
 .SH DIAGNOSTICS
 All are generated on standard error, and are intended to be self-explanatory.
-.SH CAVEAT
-On Irix the
-.B pmclient
-source is part of the
-.B pcp.sw.demo
-subsystem and is not installed by default, it must be explicitly
-installed using
-.BR inst (1)
-or
-.BR swmgr (1).
-.PP
-Since
-.B pmclient
-is shipped as source, the installation requires the
-binary to be created, which means the C compiler and development
-environment must also be installed.

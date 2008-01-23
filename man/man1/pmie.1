@@ -483,17 +483,6 @@ The
 .I "Performance Co-Pilot User's and Administrator's Guide"
 provides a detailed tutorial-style chapter covering
 .BR pmie .
-.P
-The PCP Tutorial from the
-.I pcp.man.tutorial
-subsystem includes a
-.B pmie
-tutorial.
-Access the URLs
-.B file:$PCP_DOC_DIR/Tutorial/pmie.html
-and
-.B file:$PCP_DOC_DIR/Tutorial/lab-pmie.html
-from your web browser.
 .SH EXPRESSION SYNTAX
 This description is terse and informal.
 For a more comprehensive description see the
@@ -1070,16 +1059,7 @@ as described in
 .BR pcp.conf (4)
 and
 .BR pcp.env (4).
-.SH TUTORIAL AND USER GUIDE
-Relevant information is also available from the on-line PCP
-Tutorial.  Provided the
-.B pcp.man.tutorial
-subsystem from the PCP images has been installed, access the URLs
-.B file:$PCP_DOC_DIR/Tutorial/pmie.html
-and
-.B file:$PCP_DOC_DIR/Tutorial/lab-pmie.html
-from your web browser.
-.P
+.SH USER GUIDE
 For a more complete description of the
 .B pmie
 language, refer to the
@@ -1095,13 +1075,3 @@ http://techpubs.sgi.com/library/tpl/cgi-bin/getdoc.cgi?\e
     db=bks&fname=/SGI_Admin/books/PCP_IRIX/sgi_html/ch05.html
 .fi
 .in -4n
-.SH CAVEAT
-The example rules in
-.B $PCP_DEMOS_DIR/pmie
-are part of the
-.B pcp.sw.demo
-subsystem and are not installed by default, they must be explicitly
-installed using
-.BR inst (1)
-or
-.BR swmgr (1).

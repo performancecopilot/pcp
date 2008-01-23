@@ -202,18 +202,3 @@ as described in
 .BR txmonvis (1)
 and
 .BR PMDA (3).
-.SH CAVEAT
-The \*(ia PMDA is part of the
-.B pcp.sw.demo
-subsystem and is not installed by default, it must be explicitly
-installed using
-.BR inst (1)
-or
-.BR swmgr (1).
-.PP
-The \*(ia PMDA is shipped as source and as a binary, but
-if the source code is changed the PMDA installation
-requires the
-.B pmda\*(ia
-binary to be re-created, which means the C compiler and development
-environment must also be installed.

@@ -48,6 +48,7 @@ folio control file.
 Some PCP tools use
 .B mkaf
 to create archive folios, e.g.  the ``record'' facility in the
+.BR kmchart (1),
 .BR pmchart (1),
 .BR pmview (1)
 and
@@ -112,12 +113,13 @@ command for
 In the case of
 .B mkaf
 (unlike
+.BR kmchart (1),
 .BR pmchart (1)
 or
 .BR pmview (1))
 there is no knowledge of the contents of the archives, so the ``creator''
 cannot replay the archive, however
-.BR pmchart (1)
+.BR kmchart (1)
 is able to replay any archive, and so this tool is identified as the
 .B Creator:
 for archive folios created by
@@ -140,7 +142,7 @@ Version: 1
 # use pmafm(1) to process this PCP archive folio
 #
 Created: on gonzo at Tue Jul  2 03:35:54 EST 1996
-Creator: pmchart
+Creator: kmchart
 #               Host                    Basename
 #
 Archive:        gonzo                   mydir/gonzo/960627
@@ -168,6 +170,7 @@ as described in
 .BR pcp.conf (4).
 .SH SEE ALSO
 .BR find (1),
+.BR kmchart (1),
 .BR oview (1),
 .BR PCPIntro (1),
 .BR pmafm (1),

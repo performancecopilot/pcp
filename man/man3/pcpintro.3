@@ -129,7 +129,7 @@ Generic protocol failure
 on a pipe or socket connecting two PCP applications, eg. client\-\c
 .BR pmcd ,
 or client\-\c
-.BR pmtime ,
+.BR kmtime ,
 or PMDA\-\c
 .B pmcd
 or
@@ -204,7 +204,7 @@ to a PMDA.
 End of file on a pipe or socket connecting two PCP applications, eg. client\-\c
 .BR pmcd ,
 or client\-\c
-.B pmtime
+.B kmtime
 or PMDA\-\c
 .BR pmcd.
 .TP
@@ -548,45 +548,45 @@ of an archive.
 .SH "TIME CONTROL ERRORS"
 These errors may occur in the interactions between a GUI PCP client and
 the time control services provided by
-.BR pmtime (1).
+.BR kmtime (1).
 .TP
 .B PM_ERR_ISCONN
 .I "Already Connected"
 .br
 A PCP client application called
-.BR pmTimeConnect (3)
+.BR kmTimeConnect (3)
 when already connected to a
-.BR pmtime (1)
+.BR kmtime (1)
 instance.
 .TP
 .B PM_ERR_NOTCONN
 .I "Not Connected"
 .br
 A PCP client application called one of the time control routines
-.BR pmTime* (3)
+.BR kmTime* (3)
 when not currently connected to any
-.BR pmtime (1)
+.BR kmtime (1)
 instance.
 .TP
 .B PM_ERR_NEEDPORT
 .I "A non-null port name is required"
 .br
 If a shared
-.BR pmtime (1)
+.BR kmtime (1)
 instance is being created
 the
 .I port
 argument to
-.BR pmTimeConnect (3)
-must not be a null.
+.BR kmTimeConnect (3)
+must not be invalid.
 .TP
 .B PM_ERR_WANTACK
 .I "Cannot send due to pending acknowledgements"
 .br
 Some client of
-.BR pmtime (1)
+.BR kmtime (1)
 is not acknowledging messages from
-.BR pmtime ,
+.BR kmtime ,
 and this is causing other clients to be blocked.
 .SH "NAMESPACE ERRORS"
 These errors may occur in the processing of PCP namespace operations.

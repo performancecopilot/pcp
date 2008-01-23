@@ -94,20 +94,20 @@ When processing an archive,
 .B pmval
 may relinquish its own timing control, and operate as a ``slave'' of
 a
-.BR pmtime (1)
+.BR kmtime (1)
 process that uses a GUI dialog to provide timing control.
 In this case, either the
 .B \-g
 option should be used to start
 .B pmval
 as the sole slave of a new
-.BR pmtime (1)
-instances, or
+.BR kmtime (1)
+instance, or
 .B \-p
 should be used to attach
 .B pmval
 to an existing
-.BR pmtime (1)
+.BR kmtime (1)
 instance via the IPC channel identified by the
 .I port
 argument.
@@ -159,12 +159,10 @@ omits the decimal point and any fractional digits.
 Start
 .B pmval
 as the slave of a new
-.BR pmtime (1)
+.BR kmtime (1)
 process for replay of archived performance data using the
-.BR pmtime (1)
+.BR kmtime (1)
 graphical user interface.
-.BR Note :
-This option is supported on Irix only.
 .TP
 .B \-h
 Current performance metric values are retrieved from the nominated
@@ -213,16 +211,14 @@ from the file
 Attach
 .B pmval
 to an existing
-.BR pmtime (1)
+.BR kmtime (1)
 time control process instance via the IPC channel identified by the
 \f2port\f1 argument.
 This option is normally only used by other tools, e.g.
-.BR pmview (1),
+.BR kmchart (1),
 when they launch
 .B pmval
 with synchronized time control.
-.BR Note :
-This option is suppored on Irix only.
 .TP
 .B \-r
 Print raw values for cumulative counter metrics.  Normally cumulative counter
@@ -317,11 +313,11 @@ as described in
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
-.BR pmchart (1),
+.BR kmchart (1),
 .BR pmdumplog (1),
 .BR pminfo (1),
 .BR pmlogger (1),
-.BR pmtime (1),
+.BR kmtime (1),
 .BR pcp.conf (4)
 and
 .BR pcp.env (4).

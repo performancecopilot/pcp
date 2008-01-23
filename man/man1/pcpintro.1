@@ -1,6 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" Copyright (c) 2008 Aconex, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -45,40 +46,31 @@ These services are distributed and scalable
 to accommodate the most complex system configurations and performance 
 problems.
 .PP
-From the perspective of package installation managers
-(such as 
-.BR inst (1)
-on IRIX
-and 
-.BR rpm (1)
-on Linux),
-PCP is composed of two products. 
-.PP
-On Linux the products are:
-.IP "\fIPCP Collector\fR" 8
-This is the part of PCP that collects and extracts
+PCP supports many different platforms, including (but not limited
+to) Linux, MacOSX, IRIX, Solaris and Cygwin.
+From a high-level PCP can be considered to contain two classes of
+software utility:
+.IP "\fIPCP Collectors\fR" 8
+These are the parts of PCP that collect and extract
 performance data from various sources, e.g. the Linux /proc pseudo filesystem.
-It is available under GPL/LPGL from oss.sgi.com/projects/pcp.
-.IP "\fIPCP Monitor\fR" 8
-This is the part of PCP that displays data collected from
+These are available under GPL/LPGL from http://oss.sgi.com/projects/pcp.
+.IP "\fIPCP Monitors\fR" 8
+These are the parts of PCP that display data collected from
 hosts (or archives) that have the
 .I "PCP Collector"
 installed.
-.PP
-On Irix the products are:
-.IP \fIpcp_eoe\fR 8
-For IRIX 6.5, this is included in the IRIX CD set.
-For other IRIX versions, this comes from the PCP product distribution.
-.IP \fIpcp\fR 8
-From the PCP product distribution
+Many monitor tools are available as part of PCP under GPL/LPGL from
+http://oss.sgi.com/projects/pcp.
+Other monitoring tools are available separately, and many (such as kmchart)
+are also freely available under the terms of the GPL/LGPL.
 .PP
 This manual entry describes the high-level features
-and options common to the images within both products on each platform.
+and options common to most PCP utilities available on all platforms.
 .SH OVERVIEW
 The PCP architecture is distributed in the 
 sense that any PCP tool may be executing remotely.  On
 the host (or hosts) being monitored, each domain of performance
-metrics, whether IRIX, a service layer, a database management system, a web server, an application,  etc.
+metrics, whether the kernel, a service layer, a database management system, a web server, an application,  etc.
 requires a Performance Metrics Domain Agent (PMDA)
 which is responsible for collecting performance 
 measurements from that domain.
@@ -98,27 +90,19 @@ Clients may also access performance data from a PCP archive
 .BR pmlogger (1))
 for retrospective analysis.
 .PP
-The following performance monitoring applications may be launched
-directly from the command line, or from the
-.B PerfTools
-page of the IRIX Interactive Desktop (trademark) Icon Catalog.
+The following performance monitoring applications are primarily console
+based, are typically run directly from the command line, and are all
+part of the base PCP package.
 .PP
 Each tool or command is documented completely in its
 own reference page.
 .TP
-.B oview
-Displays a three-dimensional visualization of the topology and performance of
-an Origin system.
-.TP
-.B pmkstat
+.B pmstat
 Outputs an ASCII high-level summary of system performance.
 .TP
 .B pmie
 An inference engine that can evaluate predicate-action rules to perform
 alarms and automate system management tasks.
-.TP
-.B pmem
-ASCII report of memory usage by process.
 .TP
 .B pminfo
 Interrogate specific performance metrics and the meta data that
@@ -131,11 +115,25 @@ PCP tools.
 .TP
 .B pmval
 Simple periodic reporting for some or all instances of a performance
-metric.
+metric, with optional VCR time control.
+.TP
+.B pmdumptext
+Produce ASCII reports for arbitrary combinations of performance
+metrics.
 .PP
-If the PCP product is installed (along with the
-associated valid PCP licenses) then
+If the kmchart package is installed then
 the following additional tools are available.
+.TP
+.B kmchart
+Displays trends over time of arbitrarily selected performance metrics from
+one or more hosts.
+.TP
+.B kmtime
+Time control utility for coordinating the time between multiple tools
+(including kmchart and pmval).
+.PP
+If the SGI pcp-pro package is installed (along with the associated
+valid PCP licenses) then the following additional tools are available.
 .TP
 .B pmchart
 Displays trends over time of arbitrarily selected performance metrics from
@@ -157,10 +155,6 @@ Displays a system-level visual monitor of a single host.
 .B nfsvis
 Displays a three-dimensional bar chart of Network File System (NFS) client
 and server activity.
-.TP
-.B pmdumptext
-Produce ASCII reports for arbitrary combinations of performance
-metrics.
 .SH COMMON COMMAND LINE ARGUMENTS
 There is a set of common command line arguments that are used consistently
 by most PCP tools.
@@ -457,7 +451,7 @@ The
 option allows the specification of an origin within the time window
 to be used as the initial sample time.  This
 is useful for interactive use of a PCP tool with the
-.BR pmtime (1)
+.BR kmtime (1)
 VCR replay facility.
 .PP
 The \f2origin\f1 argument accepted by
@@ -616,8 +610,9 @@ monitoring.
 To explore the PMNS
 use
 .BR pminfo (1),
-or if the PCP product is installed the Metric Selection browser within
-.BR pmchart (1).
+or if the kmchart package is installed the New Chart and Metric Search
+windows within
+.BR kmchart (1).
 .SH PERFORMANCE METRIC SPECIFICATIONS
 In configuration files and (to a lesser extent) command line options,
 metric specifications adhere to the following syntax rules.
@@ -703,10 +698,7 @@ If
 is set to the literal value
 .B DISPLAY
 then all messages will be displayed in a dialog.
-This is used for any tools launched from the IRIX Interactive
-Desktop (trademark) or from the
-.B PerfTools
-icon catalog page.
+This is used for any tools launched from the a Desktop environment.
 .PP
 If
 .B PCP_STDERR
@@ -1048,17 +1040,6 @@ and/or managed by
 and
 .BR pmlogger_daily (1)
 as part of a production PCP archive collection setup.
-.TP
-.B $PCP_VAR_DIR/config/pmsnap/control
-Control file for
-.BR pmsnap (1)
-to produce GIF images of recent performance as
-displayed by
-.BR pmchart (1)
-from PCP archives.
-.TP
-.B $PCP_DEMOS_DIR
-Contains examples for using a variety of PCP tools and the PCP online tutorial.
 .PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
@@ -1075,44 +1056,49 @@ configuration file,
 as described in
 .BR pcp.conf (4).
 .SH SEE ALSO
-.BR oview (1),
 .BR pmcd (1),
-.BR pmem (1),
+.BR pmdumptext (1),
 .BR pmie (1),
+.BR pmie_daily (1),
 .BR pminfo (1),
-.BR pmkstat (1),
 .BR pmlogger (1),
+.BR pmlogger_daily (1),
+.BR pmstat (1),
 .BR pmval (1),
+.BR pcp (1),
 .BR pcp.conf (4),
 .BR pcp.env (4),
-.BR pmns (4)
 and
-.BR pmlaunch (5).
+.BR pmns (4).
 .PP
-If the Performance Co-Pilot product is installed, then the
+If the kmchart package is installed, then the
 following entries are also relevant:
 .br
-.BR pmlogger_daily (1),
+.BR kmchart (1)
+and
+.BR kmtime (1).
+.PP
+If the SGI pcp-pro package is installed, then the
+following entries are also relevant:
+.br
 .BR dkvis (1),
 .BR mpvis (1),
 .BR nfsvis (1),
 .BR osvis (1),
-.BR pcp (1),
 .BR pmchart (1),
-.BR pmdumptext (1),
 .BR pmgevctr (1)
+.BR pmgsys (1),
 and
-.BR pmgsys (1).
+.BR pmlaunch (5).
 .PP
-Also refer to the Insight books
+Also refer to the books
 .I "Performance Co-Pilot User's and Administrator's Guide"
 and
-.IR "Performance Co-Pilot Programmer's Guide" .
+.IR "Performance Co-Pilot Programmer's Guide"
+which can be found at http://techpubs.sgi.com.
 .PP
-If you have the PCP product,
+If you have the SGI pcp-pro product installed,
 relevant information is also available from the on-line PCP
-Tutorial.  Provided the
-.B pcp.man.tutorial
-subsystem from the PCP images has been installed, access the URL
+Tutorial, access the URL
 .B file:$PCP_DOC_DIR/Tutorial/index.html
 from your web browser.
