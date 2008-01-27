@@ -300,7 +300,7 @@ void RecordDialog::buttonOk_clicked()
 	}
     }
 
-    if (SaveViewDialog::saveView(view, false, false) == false)
+    if (SaveViewDialog::saveView(view, false, false, false, true) == false)
 	return;
     if (saveFolio(folio, view) == false)
 	return;

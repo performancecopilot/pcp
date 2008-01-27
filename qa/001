@@ -20,11 +20,11 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "=== bad first line ==="
-echo "#bad extra" | kmchart -Dappl2 -C -c -
+echo "#bad extra" | kmchart -Dappl2 -C -c - 2>&1 | _filter_views
 
 echo
 echo "=== lexicon too long ==="
-cat <<End-of-File | kmchart -Dappl2 -C -c -
+cat <<End-of-File | kmchart -Dappl2 -C -c - 2>&1 | _filter_views
 #pmchart
 aaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccXXXXXXXXXXXXXXXXXXX
 End-of-File

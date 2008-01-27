@@ -43,6 +43,7 @@ public:
 
     Chart *chart(int);		// Nth chart
     Chart *currentChart();	// current chart (can be NULL)
+    int currentChartIndex();	// current chart index (can be -1)
     Chart *addChart();		// append a new chart to tab, make it current
     int deleteChart(int);	// remove Nth chart, return current
     int deleteChart(Chart *);	// remove given chart, return current

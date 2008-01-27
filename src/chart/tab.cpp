@@ -149,6 +149,11 @@ bool Tab::isArchiveSource(void)
     return my.kmtimeSource == KmTime::ArchiveSource;
 }
 
+int Tab::currentChartIndex(void)
+{
+    return my.current;
+}
+
 Chart *Tab::currentChart(void)
 {
     return my.charts[my.current];

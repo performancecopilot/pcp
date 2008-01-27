@@ -83,8 +83,7 @@ static uint	_ypos;
 char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
 #define stylestr(x) _style[(int)x]
 
-static void
-err(int severity, int do_where, QString msg)
+static void err(int severity, int do_where, QString msg)
 {
     if (do_where) {
 	QString	where = QString();
@@ -115,8 +114,7 @@ err(int severity, int do_where, QString msg)
     _errors++;
 }
 
-static char *
-getwd(FILE *f)
+static char *getwd(FILE *f)
 {
     static char	buf[MAXWDSZ];
     static int	lastc = 0;
@@ -182,8 +180,7 @@ done:
     return buf;
 }
 
-static void
-eol(FILE *f)
+static void eol(FILE *f)
 {
     char	*w;
 
@@ -195,8 +192,7 @@ eol(FILE *f)
     }
 }
 
-static void
-skip2eol(FILE *f)
+static void skip2eol(FILE *f)
 {
     char	*w;
 
@@ -205,8 +201,7 @@ skip2eol(FILE *f)
     }
 }
 
-static void
-xpect(char *want, char *got)
+static void xpect(char *want, char *got)
 {
     QString     msg = QString("Syntax error: expecting \"");
     msg.append(want);
@@ -223,7 +218,7 @@ xpect(char *want, char *got)
     err(E_CRIT, true, msg);
 }
 
-QColor colorSpec(QString colorName, int *sequence)
+static QColor colorSpec(QString colorName, int *sequence)
 {
     if (colorName == "#-cycle")
 	return nextColor("#-cycle", sequence);
@@ -414,8 +409,8 @@ bool OpenViewDialog::openView(const char *path)
 	}
 
 	else if (state == S_TOP) {
-new_chart:
 	    if (strcasecmp(w, "chart") == 0) {
+new_chart:
 		char		*title = NULL;
 		Chart::Style	style = Chart::NoStyle;
 		int		autoscale = 1;
@@ -608,21 +603,21 @@ abort_chart:
 		    goto abandon;
 		}
 		switch (attr) {
-		case G_WIDTH:
-		    _width = qMax(_width, value);
-		    break;
-		case G_HEIGHT:
-		    _height = qMax(_height, value);
-		    break;
-		case G_POINTS:
-		    _points = qMax(_points, value);
-		    break;
-		case G_XPOS:
-		    _xpos = qMax(_xpos, value);
-		    break;
-		case G_YPOS:
-		    _ypos = qMax(_ypos, value);
-		    break;
+		    case G_WIDTH:
+			_width = qMax(_width, value);
+			break;
+		    case G_HEIGHT:
+			_height = qMax(_height, value);
+			break;
+		    case G_POINTS:
+			_points = qMax(_points, value);
+			break;
+		    case G_XPOS:
+			_xpos = qMax(_xpos, value);
+			break;
+		    case G_YPOS:
+			_ypos = qMax(_ypos, value);
+			break;
 		}
 		eol(f);
 	    }
@@ -662,8 +657,78 @@ abort_chart:
 		}
 		globalSettings.colorSchemes.append(scheme);
 	    }
+	    else if (strcasecmp(w, "tab") == 0) {
+new_tab:
+		QString label;
+		int samples = globalSettings.sampleHistory;
+		int points = globalSettings.visibleHistory;
+		char *endnum;
+
+		w = getwd(f);
+		if (w == NULL || w[0] == '\n') {
+		    xpect("<tab label>", w);
+		    goto abandon;
+		}
+		label = w;
+
+		w = getwd(f);
+		if (w == NULL || w[0] == '\n')
+		    goto done_tab;
+		if (strcasecmp(w, "points") != 0) {
+		    xpect("<tab points>", w);
+		    goto abandon;
+		}
+		w = getwd(f);
+		if (w)
+	 	    points = (uint)strtoul(w, &endnum, 0);
+		if (w == NULL || w[0] == '\n' || *endnum != '\0') {
+		    xpect("<tab points value>", w);
+		    goto abandon;
+		}
+
+		w = getwd(f);
+		if (w == NULL || w[0] == '\n')
+		    goto done_tab;
+		if (strcasecmp(w, "samples") != 0) {
+		    xpect("<tab samples>", w);
+		    goto abandon;
+		}
+		w = getwd(f);
+		if (w)
+		    samples = (uint)strtoul(w, &endnum, 0);
+		if (w == NULL || w[0] == '\n' || *endnum != '\0') {
+		    xpect("<tab samples value>", w);
+		    goto abandon;
+		}
+
+done_tab:
+		Tab *tab = kmchart->activeTab();
+
+		if (tab->numChart() == 0) {	// edit the initial tab
+		    TabWidget *tabWidget = kmchart->tabWidget();
+		    tabWidget->setTabText(tabWidget->currentIndex(), label);
+		    tab->setSampleHistory(samples);
+		    tab->setVisibleHistory(points);
+		}
+		else {		// create a completely new tab from scratch
+		    bool isArchive = tab->isArchiveSource();
+
+		    tab = new Tab;
+		    if (isArchive)
+			tab->init(kmchart->tabWidget(), samples, points,
+				  archiveGroup, KmTime::ArchiveSource, label,
+				  kmtime->archiveInterval(),
+				  kmtime->archivePosition());
+		    else
+			tab->init(kmchart->tabWidget(), samples, points,
+				  liveGroup, KmTime::HostSource, label,
+				  kmtime->liveInterval(),
+				  kmtime->livePosition());
+		    kmchart->addActiveTab(tab);
+		}
+	    }
 	    else {
-		xpect("chart\", \"global\", or \"scheme", w);
+		xpect("chart\", \"global\", \"scheme\" or \"tab", w);
 		goto abandon;
 	    }
 	}
@@ -684,6 +749,11 @@ abort_chart:
 	    int		abort = 1;	// default @ skip
 
 	    memset(&pms, 0, sizeof(pms));
+	    if (strcasecmp(w, "tab") == 0) {
+		// new tab
+		state = S_TOP;
+		goto new_tab;
+	    }
 	    if (strcasecmp(w, "chart") == 0) {
 		// new chart
 		state = S_TOP;
@@ -1095,18 +1165,96 @@ void SaveViewDialog::setGlobals(int width, int height, int points, int x, int y)
     _ypos = y;
 }
 
-bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
+static void saveScheme(FILE *f, QString scheme)
+{
+    ColorScheme	*cs = ColorScheme::findScheme(scheme);
+    int		m;
+
+    if (cs) {
+	fprintf(f, "scheme %s", (const char *)cs->name().toAscii());
+	for (m = 0; m < cs->size(); m++)
+	    fprintf(f, " %s", (const char *)cs->colorName(m).toAscii());
+	fprintf(f, "\n\n");
+    }
+}
+
+static void saveChart(FILE *f, int index, bool hostDynamic)
+{
+    Chart	*cp = kmchart->activeTab()->chart(index);
+    char	*p, *q, *qend;
+    double	ymin, ymax;
+    bool	autoscale;
+
+    fprintf(f, "chart");
+    p = cp->title();
+    if (p != NULL)
+	fprintf(f, " title \"%s\"", p);
+    switch (cp->style()) {
+	case Chart::NoStyle:
+	    p = "none - botched in Save!";
+    	    break;
+	case Chart::LineStyle:
+	    p = "plot";
+	    break;
+	case Chart::BarStyle:
+	    p = "bar";
+	    break;
+	case Chart::StackStyle:
+	    p ="stacking";
+	    break;
+	case Chart::AreaStyle:
+	    p = "area";
+	    break;
+	case Chart::UtilisationStyle:
+	    p = "utilization";
+	    break;
+    }
+    fprintf(f, " style %s", p);
+    if (cp->style() != Chart::UtilisationStyle) {
+	cp->scale(&autoscale, &ymin, &ymax);
+	if (!autoscale)
+	    fprintf(f, " scale %f %f", ymin, ymax);
+    }
+    if (!cp->legendVisible())
+	fprintf(f, " legend off");
+    if (!cp->antiAliasing())
+	fprintf(f, " antialiasing off");
+    fputc('\n', f);
+    for (int m = 0; m < cp->numPlot(); m++) {
+	fprintf(f, "\tplot");
+	p = cp->legendSpec(m);
+	if (p != NULL)
+	    fprintf(f, " legend \"%s\"", p);
+	fprintf(f, " color %s", (const char *)cp->color(m).name().toAscii());
+	if (hostDynamic == false)
+	    fprintf(f, " host %s", (const char *)
+			cp->metricContext(m)->source().host().toAscii());
+	p = (char *)(const char *)cp->name(m).toAscii();
+	if ((q = strstr(p, "[")) != NULL) {
+	    // metric with an instance
+	    if ((qend = strstr(q, "]")) == NULL) {
+		QString	msg;
+		msg.sprintf("Botch @ metric name: \"%s\"", p);
+		err(E_CRIT, false, msg);
+	    }
+	    else {
+		*q++ = '\0';
+		*qend = '\0';
+		fprintf(f, " metric %s instance \"%s\"", p, q);
+	    }
+	}
+	else // singular metric
+	    fprintf(f, " metric %s", p);
+	fputc('\n', f);
+    }
+}
+
+bool SaveViewDialog::saveView(QString file, bool hostDynamic,
+				bool sizeDynamic, bool allTabs, bool allCharts)
 {
     FILE	*f;
-    int		c;
-    int		m;
+    int		c, t;
     Chart	*cp;
-    char	*p;
-    char	*q;
-    char	*qend;
-    bool	autoscale;
-    double	ymin;
-    double	ymax;
     const char	*path = (const char *)file.toAscii();
     QStringList	schemes;
 
@@ -1122,6 +1270,7 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
 	fprintf(f, "global ypos %u\n", _ypos);
 	fprintf(f, "\n");
     }
+
     for (c = 0; c < kmchart->activeTab()->numChart(); c++) {
 	cp = kmchart->activeTab()->chart(c);
 	if (cp->scheme() == QString::null ||
@@ -1129,80 +1278,26 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic, bool sizeDynamic)
 	    continue;
 	schemes.append(cp->scheme());
     }
-    for (c = 0; c < schemes.size(); c++) {
-	ColorScheme *cs = ColorScheme::findScheme(schemes.at(c));
-	if (cs) {
-	    fprintf(f, "scheme %s", (const char *)cs->name().toAscii());
-	    for (m = 0; m < cs->size(); m++)
-		fprintf(f, " %s", (const char *)cs->colorName(m).toAscii());
-	    fprintf(f, "\n\n");
+    for (c = 0; c < schemes.size(); c++)
+	saveScheme(f, schemes.at(c));
+
+    if (allTabs) {
+	TabWidget *tabWidget = kmchart->tabWidget();
+	for (t = 0; t < tabWidget->size(); t++) {
+	    Tab *tab = tabWidget->at(t);
+	    fprintf(f, "\ntab \"%s\" points %d samples %d\n\n",
+		    (const char *) tabWidget->tabText(t).toAscii(),
+		    tab->visibleHistory(), tab->sampleHistory());
+	    for (c = 0; c < kmchart->activeTab()->numChart(); c++)
+		saveChart(f, c, hostDynamic);
 	}
     }
-    for (c = 0; c < kmchart->activeTab()->numChart(); c++) {
-	cp = kmchart->activeTab()->chart(c);
-	fprintf(f, "chart");
-	p = cp->title();
-	if (p != NULL)
-	    fprintf(f, " title \"%s\"", p);
-	switch (cp->style()) {
-	    case Chart::NoStyle:
-		p = "none - botched in Save!";
-	    	break;
-	    case Chart::LineStyle:
-		p = "plot";
-		break;
-	    case Chart::BarStyle:
-		p = "bar";
-		break;
-	    case Chart::StackStyle:
-		p ="stacking";
-		break;
-	    case Chart::AreaStyle:
-		p = "area";
-		break;
-	    case Chart::UtilisationStyle:
-		p = "utilization";
-		break;
-	}
-	fprintf(f, " style %s", p);
-	if (cp->style() != Chart::UtilisationStyle) {
-	    cp->scale(&autoscale, &ymin, &ymax);
-	    if (!autoscale)
-		fprintf(f, " scale %f %f", ymin, ymax);
-	}
-	if (!cp->legendVisible())
-	    fprintf(f, " legend off");
-	if (!cp->antiAliasing())
-	    fprintf(f, " antialiasing off");
-	fputc('\n', f);
-	for (m = 0; m < cp->numPlot(); m++) {
-	    fprintf(f, "\tplot");
-	    p = cp->legendSpec(m);
-	    if (p != NULL)
-		fprintf(f, " legend \"%s\"", p);
-	    fprintf(f, " color %s", (const char *)cp->color(m).name().toAscii());
-	    if (hostDynamic == false)
-		fprintf(f, " host %s", (const char *)
-			cp->metricContext(m)->source().host().toAscii());
-	    p = (char *)(const char *)cp->name(m).toAscii();
-	    if ((q = strstr(p, "[")) != NULL) {
-		// metric with an instance
-		if ((qend = strstr(q, "]")) == NULL) {
-		    QString	msg;
-		    msg.sprintf("Botch @ metric name: \"%s\"", p);
-		    err(E_CRIT, false, msg);
-		}
-		else {
-		    *q++ = '\0';
-		    *qend = '\0';
-		    fprintf(f, " metric %s instance \"%s\"", p, q);
-		}
-	    }
-	    else
-		// singular metric
-		fprintf(f, " metric %s", p);
-	    fputc('\n', f);
-	}
+    else if (allCharts) {
+	for (c = 0; c < kmchart->activeTab()->numChart(); c++)
+	    saveChart(f, c, hostDynamic);
+    }
+    else {
+	saveChart(f, kmchart->activeTab()->currentChartIndex(), hostDynamic);
     }
 
     fflush(f);

@@ -26,7 +26,7 @@ public:
     ~SaveViewDialog();
     void reset();
 
-    static bool saveView(QString, bool, bool);
+    static bool saveView(QString, bool, bool, bool, bool);
     static void setGlobals(int w, int h, int pts, int x, int y);
 
 public slots:
