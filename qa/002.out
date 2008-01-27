@@ -1,31 +1,31 @@
 QA output created by 002
-Load View: /var/lib/pcp/config/kmchart/Schemes
+Load View: PCP_VAR_DIR/config/kmchart/Schemes
 Load View: stdin
 Error: stdin[2] Syntax error: expecting "version", found "Fluff"
-Load View: /var/lib/pcp/config/kmchart/Schemes
+Load View: PCP_VAR_DIR/config/kmchart/Schemes
 Load View: stdin
 Error: stdin[3] Syntax error: expecting "<version number>", found End-of-Line
-Load View: /var/lib/pcp/config/kmchart/Schemes
+Load View: PCP_VAR_DIR/config/kmchart/Schemes
 Load View: stdin
 Error: stdin[2] Syntax error: expecting "<version number>", found "xxx"
-Load View: /var/lib/pcp/config/kmchart/Schemes
+Load View: PCP_VAR_DIR/config/kmchart/Schemes
 Load View: stdin
 Error: stdin[2] Syntax error: expecting "<version number>", found "1.0"
-Load View: /var/lib/pcp/config/kmchart/Schemes
+Load View: PCP_VAR_DIR/config/kmchart/Schemes
 Load View: stdin
 Error: stdin[2] Syntax error: expecting "host", found "foo"
-Load View: /var/lib/pcp/config/kmchart/Schemes
+Load View: PCP_VAR_DIR/config/kmchart/Schemes
 Load View: stdin
 Error: stdin[2] Syntax error: expecting "host", found "foo"
-Load View: /var/lib/pcp/config/kmchart/Schemes
+Load View: PCP_VAR_DIR/config/kmchart/Schemes
 Load View: stdin
 Error: stdin[3] Syntax error: expecting "literal" or "dynamic", found End-of-Line
-Load View: /var/lib/pcp/config/kmchart/Schemes
+Load View: PCP_VAR_DIR/config/kmchart/Schemes
 Load View: stdin
 Error: stdin[2] Syntax error: expecting "literal" or "dynamic", found "fluff"
-Load View: /var/lib/pcp/config/kmchart/Schemes
+Load View: PCP_VAR_DIR/config/kmchart/Schemes
 Load View: stdin
 Error: stdin[2] Syntax error: unexpected word "fluff"
-Load View: /var/lib/pcp/config/kmchart/Schemes
+Load View: PCP_VAR_DIR/config/kmchart/Schemes
 Load View: stdin
 Error: stdin[2] Syntax error: unexpected word "fluff"

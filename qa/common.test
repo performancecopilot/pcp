@@ -1,2 +1,3 @@
+. /etc/pcp.conf
 . ./common.sh
 [ -f ./common.filter ] && . ./common.filter
