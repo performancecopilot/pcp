@@ -1,21 +1,43 @@
-<html>
-    <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-	<title>PCP Charts Help</title>
-    </head>
-    <body style="font-size:14pt;font-family:sans serif">
-	<p><h2>PCP Charts Help</h2></p>
-
-	<p>
-	  Comparison to pmchart - supported features, extra stuff.
-	    <ul>
-	    <li>Tabs</li>
-	    <li>Simultaneous Live and Archive support</li>
-	    <li>View specification - labels, ...</li>
-	    <li>Metric Search dialog</li>
-	    <li>User interface additions - redesigned metric selector, settings vs Xresources, schemes, cross platform, simpler zooming, configurable toolbar</li>
-	    <li>Recording - query, new tab</li>
-	    </ul>
-	</p>
-    </body>
-</html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE>PCP Strip Charts Manual</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Linux)">
+	<META NAME="CREATED" CONTENT="20071020;12372700">
+	<META NAME="CHANGEDBY" CONTENT="Nathan Scott">
+	<META NAME="CHANGED" CONTENT="20071022;10225500">
+	<META NAME="qrichtext" CONTENT="1">
+	<STYLE TYPE="text/css">
+	<!--
+		TD P { color: #000060; font-family: "Sans Serif"; font-size: 15pt; font-style: normal; font-weight: medium }
+		P { color: #000060; font-family: "Lucida Grande"; font-size: 15pt; font-style: normal; font-weight: medium }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/kmcharticon.png" NAME="kmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#ff6600">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="views.html"><FONT COLOR="#ff6600">Views</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="charts.html"><FONT COLOR="#ff6600">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tabs.html"><FONT COLOR="#ff6600">Tabs</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<P ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7><B>Notes for pmchart users</B></FONT></P>
+<P>Users of the original SGI <B>pmchart</B> utility will be immediately at home with <B>kmchart</B>.  This page discusses two areas where differences are more likely to be noticed by people familiar with <B>pmchart</B>.
+<h2>Configuration file syntax</h2>
+<P><B>kmchart</B> provides the ability to parse and interpret all versions of the <B>pmchart</B> configuration file language (i.e. versions 1, 1.1, 1.2 and 2.0.  In addition, <B>kmchart</b> provides it's own configuration file syntax, which both addresses some of the quirkier aspects of the <B>pmchart</B> language and provides support for features specific to <B>kmchart</B> (Legend Labels and Tabs, for example).
+<P>Refer to the discussion of <B>kmchart</B> <A HREF="views.html">Views</A> for a detailed description of the <B>kmchart</B> configuration language.
+<P>Finally, while <B>kmchart</B> will read all <B>pmchart</B> configuration files, it does not implement support for writing them - only the native <B>kmchart</B> is written during a View save operation.
+<H2>User interface changes</H2>
+<P>While every effort has been made to keep all of the excellent features of the <B>pmchart</B> user interface, <B>kmchart</B> provides support for several new user interface advances above and beyond everything <B>pmchart</B> provided.
+<P>A complete list of these new features can be found on the <A HREF="whatsnew.html">What's new in kmchart</A> page.  It includes some functionality which was sought after in <B>pmchart</B> but never implemented there (for example, the metric search function in the revised metric selection dialog).
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2008 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
+	<TD WIDTH=50%><P ALIGN=RIGHT>kmchart</P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>
