@@ -616,6 +616,7 @@ void KmChart::acceptEditTab()
 				my.edittab->labelLineEdit->text());
     tab->setSampleHistory((int)my.edittab->sampleCounter->value());
     tab->setVisibleHistory((int)my.edittab->visibleCounter->value());
+    tab->setupWorldView();
 }
 
 void KmChart::createNewTab(bool live)
@@ -667,6 +668,7 @@ void KmChart::zoomIn()
 
     visible = qMax(visible - decrease, minimumPoints());
     activeTab()->setVisibleHistory(visible);
+    activeTab()->setupWorldView();
 
     zoomInAction->setEnabled(visible > minimumPoints());
     zoomOutAction->setEnabled(visible < samples);
@@ -682,6 +684,7 @@ void KmChart::zoomOut()
 
     visible = qMin(visible + increase, samples);
     activeTab()->setVisibleHistory(visible);
+    activeTab()->setupWorldView();
 
     zoomInAction->setEnabled(visible > minimumPoints());
     zoomOutAction->setEnabled(visible < samples);
