@@ -78,7 +78,7 @@ void Console::post(int level, char *fmt, ...)
     va_list ap;
     int offset = 0;
 
-    if (!(my.level & level))
+    if (!(my.level & level) && !(level & KmChart::DebugForce))
 	return;
 
     if (!(my.level & KmChart::DebugTimeless)) {

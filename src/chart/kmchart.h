@@ -42,6 +42,7 @@ public:
 	DebugProtocol = 0x2,
 	DebugView = 0x4,
 	DebugTimeless = 0x8,
+	DebugForce = 0x10,
     } DebugOptions;
 
     static const int defaultFontSize();
