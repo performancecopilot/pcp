@@ -507,7 +507,8 @@ void KmChart::acceptNewChart()
     cp->setScale(yAutoScale, yMin, yMax);
     my.newchart->scheme(&scheme, &sequence);
     cp->setScheme(scheme, sequence);
-    cp->show();
+
+    activeTab()->setupWorldView();
 
     // TODO: teardown TreeViews and free up memory (both?  chartList only?)
     // TODO: might be an idea to keep available once its built, to optimise
