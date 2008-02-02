@@ -89,7 +89,8 @@ if this option is used.
 .I configfile
 specifies an initial view to load, using the default source of metrics.
 Multiple
-.B \-c views can be specified, and they will all be opened in the
+.B \-c
+views can be specified, and they will all be opened in the
 default Tab with the default source of metrics.
 .TP
 .B \-C
@@ -352,7 +353,7 @@ for an extensive description of the capabilities of these tools.
 loads predefined chart configurations (or ''views'') from external
 files that conform to the following rules.  In the descriptions below
 keywords (shown in \f(CBbold\fP) may appear in upper, lower or
-mixed case, elements show \f(CW[stuff]\fP are optional, and
+mixed case, elements shown in \f(CW[stuff]\fP are optional, and
 user-supplied elements are shown as \f(CW<other stuff>\fP.
 A vertical bar (|) is used where syntactic elements are alternatives.
 Quotes (")
@@ -371,14 +372,6 @@ with an initial line of
 .ES
 \f(CB#pmchart\fP
 .EE
-.RS
-.PP
-There is no support for executable views
-.ES
-\f(CB#!/bin/sh\fP
-.EE
-as yet.
-.RE
 .IP 2. 0.3i
 After the first line, lines beginning with ''#'' as the first
 non-white space character are treated as comments and skipped.
@@ -443,8 +436,7 @@ plotted.
 .PP
 \f(CW<onoff>\fP is one of the keywords \f(CBon\fP or \f(CBoff\fP and the
 \f(CBlegend\fP clause controls the presence or absence of the plot
-legend to the right of the graph area.  The default is for the
-legend to be shown.
+legend below the graph area.  The default is for the legend to be shown.
 After the view is loaded, the legend visibility
 can be toggled using the
 .I "Show Legend"
@@ -455,11 +447,14 @@ dialog.
 .IP 5. 0.3i
 .B pmchart
 supports a \f(CBglobal\fP clause to specify the dimensions of the
-top-level window and some other attributes of a saved view.
-At this stage, there is no support for a \f(CBglobal\fP clause in
-.BR kmchart .
+top-level window (using the \f(CBwidth\fP and \f(CBheight\fP keywords),
+the number of visible points (\f(CBpoints\fP keyword) and the starting
+X and Y axis positions on the screen (\f(CBxpos\fP and \f(CBypos\fP
+keywords).
+Each of these \f(CBglobal\fP attributes takes an integer value as the
+sole qualifier.
 .IP 6. 0.3i
-Each \f(CBchart\fP, has one or more plots associated with it, as
+Each \f(CBchart\fP has one or more plots associated with it, as
 defined by one of the following specifications:
 .ES
 \f(CBplot\fP
@@ -471,7 +466,7 @@ defined by one of the following specifications:
 .PP
 The keyword \f(CBplot\fP may be replaced with the keyword
 \f(CBoptional-plot\fP, in which case if the source of performance data
-does not include the specificified performance metric and/or instance,
+does not include the specified performance metric and/or instance,
 then this plot is silently dropped from the chart.
 .PP
 If specified, the title will appear in the chart legend.
@@ -504,7 +499,7 @@ configuration files.
 where each of \f(CWr\fP, \f(CWg\fP and \f(CWb\fP are hexidecimal
 digits (0-9 and A-F) representing respectively the red, green and
 blue color components.
-\f(CW<Xcolor>\fP is on of the color names from the X color database,
+\f(CW<Xcolor>\fP is one of the color names from the X color database,
 e.g. \f(CBred\fP or \f(CBsteelblue\fP, see also the output from
 .BR showrgb (1).
 .PP
@@ -554,6 +549,18 @@ end of the input line.  For
 configuration files these elements are either delimited by white
 space, or enclosed in quotes (").
 .RE
+.IP 7. 0.3i
+The optional \f(CBtab\fP directive can be used to create views with
+multiple charts which span multiple Tabs.  The synax is as follows:
+.ES
+\f(CBtab\fP <label> [\f(CBpoints\fP <points> [\f(CBsamples\fP <samples>]]
+.EE
+.RS
+.ES
+.PP
+All chart specifications following this keyword will be created
+on the new Tab, until the end of the configuration file or until
+another \f(CBtab\fP keyword is encountered.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
