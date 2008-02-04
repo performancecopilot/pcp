@@ -22,12 +22,43 @@
 	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#ff6600">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="views.html"><FONT COLOR="#ff6600">Views</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="charts.html"><FONT COLOR="#ff6600">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tabs.html"><FONT COLOR="#ff6600">Tabs</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
-<P ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7><B>XXX - Title</B></FONT></P>
-XXX - Text
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>XXX - Heading</B></FONT></P></TD></TR>
+<P ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7><B>Command Line Options</B></FONT></P>
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=2 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+	<TR><TD WIDTH=25%><P><B>-a archive</B></P></TD>
+	    <TD><P>Performance metric values are retrieved from the Performance Co-Pilot (PCP) archive log file identified by the base name archive, by default.  The initial Tab created will be an archive mode Tab.  Multiple <B>-a</B> options can be presented, and the list of archives is used for sourcing metric values.  Any sources listed on the command line are assumed to be archives if this option is used.</P></TD>
+	</TR>
+ 	<TR><TD WIDTH=25%><P><B>-c configfile</B></P></TD>
+	    <TD><P><B>configfile</B> specifies an initial view to load, using the default source of metrics.  Multiple <B>-c</B> views can be specified, and they will all be opened in the default Tab with the default source of metrics.</P></TD>
+	</TR>
+ 	<TR><TD WIDTH=25%><P><B>-C</B></P></TD>
+	    <TD><P>Used with <B>-c</B>, the view(s) are parsed, any errors are reported, and the tool exits.  This is primarily intended for testing purposes.  If a second <B>-C</B> option is presented, <B>kmchart</B> also connects to <B>pmcd</B>(1) to check the semantics of metrics.</P></TD>
+	</TR>
+ 	<TR><TD WIDTH=25%><P><B>-h host</B></P></TD>
+	    <TD><P>Current performance metric values are retrieved from the nominated host machine by default.  Multiple <B>-h</B> options can be presented, and the list of hosts is used for sourcing metric values.  Any sources listed on the command line are assumed to be hosts if this option is used.</P></TD>
+	</TR>
+ 	<TR><TD WIDTH=25%><P><B>-p port</B></P></TD>
+	    <TD><P>Port number for connection to an existing <B>kmtime</B> time control process.</P></TD>
+	</TR>
+ 	<TR><TD WIDTH=25%><P><B>-s samples</B></P></TD>
+	    <TD><P>Specifies the number of samples that will be retained before  discarding old data (replaced by new values at the current time position).  This value can subsequently be modified through the Edit Tab dialog.</P></TD>
+	</TR>
+ 	<TR><TD WIDTH=25%><P><B>-t delta</B></P></TD>
+	    <TD><P>Sets the inital update interval to something other than the default 1 second.  The interval argument follows the syntax described in <B>PCPIntro</B>(1), and in the simplest form may be an unsigned integer (the implied units in this case are seconds).</P></TD>
+	</TR>
+ 	<TR><TD WIDTH=25%><P><B>-v points</B></P></TD>
+	    <TD><P>Sets the inital visible samples that will be displayed in all charts in the default Tab.  This value must be less than or equal to the total number of samples retained (the <B>-s</B> value).</P></TD>
+	</TR>
+ 	<TR><TD WIDTH=25%><P><B>-Z</B></P></TD>
+	    <TD><P>By default, <B>kmtime</B> reports the time of day according to the local timezone on the system where <B>kmchart</B> is run.  The <B>-Z</B> option changes the timezone to timezone in the format of the environment variable TZ as described in <B>environ</B>(5).</P></TD>
+	</TR>
+ 	<TR><TD WIDTH=25%><P><B>-z</B></P></TD>
+	    <TD><P>Change the reporting timezone to the local timezone at the host that is the source of the performance metrics, as identified via either the <B>-h</B> or <B>-a</B> options.</P></TD>
+	</TR>
 </TABLE>
-XXX - Text
+<P>The <B>-S</B>, <B>-T</B>, <B>-O</B> and <B>-A</B> options may be used to define a time window to restrict the samples retrieved, set an initial origin within the time window, or specify a "natural" alignment of the sample times; refer to the <A HREF="pcpintro.html">PCP Introduction</A> for a complete description of these options.
+<HR>
+<CENTER>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2008 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
 	<TD WIDTH=50%><P ALIGN=RIGHT>kmchart</P></TD> </TR>
