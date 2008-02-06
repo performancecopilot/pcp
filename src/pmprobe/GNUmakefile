@@ -27,6 +27,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmprobe.c
 LLDLIBS = -lpcp
+LLDFLAGS = -DPM_USE_CONTEXT_LOCAL
 CMDTARGET = pmprobe$(EXECSUFFIX)
 LDIRT = $(TARGET)
 
