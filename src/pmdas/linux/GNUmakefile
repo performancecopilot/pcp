@@ -52,7 +52,7 @@ HFILES		= domain.h proc_stat.h proc_meminfo.h proc_loadavg.h \
 		  proc_cpuinfo.h proc_net_tcp.h proc_slabinfo.h \
 		  sem_limits.h msg_limits.h shm_limits.h proc_uptime.h \
 		  ksym.h proc_sys_fs.h proc_vmstat.h clusters.h indom.h \
-		  infiniband.h
+		  infiniband.h convert.h
 
 LSRCFILES 	= help root_linux root_irix
 

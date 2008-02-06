@@ -44,6 +44,7 @@
 #include "pmda.h"
 #include "domain.h"
 
+#include "convert.h"
 #include "clusters.h"
 #include "indom.h"
 
@@ -73,33 +74,6 @@
 #include "ksym.h"
 #include "proc_sys_fs.h"
 #include "proc_vmstat.h"
-
-/*
- * Some metrics are exported by the kernel as "unsigned long".
- * On most 64bit platforms this is not the same size as an
- * "unsigned int". 
- */
-#if defined(HAVE_64BIT_LONG)
-#define KERNEL_ULONG PM_TYPE_U64
-#define _pm_assign_ulong(atomp, val) do { (atomp)->ull = (val); } while (0)
-#else
-#define KERNEL_ULONG PM_TYPE_U32
-#define _pm_assign_ulong(atomp, val) do { (atomp)->ul = (val); } while (0)
-#endif
-
-/*
- * Some metrics need to have their type set at runtime, based on the
- * running kernel version (not simply a 64 vs 32 bit machine issue).
- */
-#define KERNEL_UTYPE PM_TYPE_NOSUPPORT	/* set to real type at runtime */
-#define _pm_metric_type(type, size) \
-    do { \
-	(type) = ((size)==8 ? PM_TYPE_U64 : PM_TYPE_U32); \
-    } while (0)
-#define _pm_assign_utype(size, atomp, val) \
-    do { \
-	if ((size)==8) { (atomp)->ull = (val); } else { (atomp)->ul = (val); } \
-    } while (0)
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -242,22 +216,22 @@ static pmdaMetric metrictab[] = {
 
 /* disk.dev.read */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,4), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,4), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.dev.write */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,5), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,5), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.dev.blkread */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,6), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,6), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.dev.blkwrite */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,7), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,7), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.dev.avactive */
@@ -272,12 +246,12 @@ static pmdaMetric metrictab[] = {
 
 /* disk.dev.read_merge */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,49), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,49), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.dev.write_merge */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,50), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,50), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.all.avactive */

@@ -30,13 +30,13 @@ typedef struct {
     unsigned long	nr_blocks;
     char		*namebuf;     /* from /proc/{partitions,diskstats} */
     char		*udevnamebuf; /* from udev if we have it, else NULL */
-    unsigned int	rd_ios;
-    unsigned int	rd_merges;
-    unsigned int	rd_sectors;
+    unsigned long	rd_ios;
+    unsigned long	rd_merges;
+    unsigned long long	rd_sectors;
     unsigned int	rd_ticks;
-    unsigned int	wr_ios;
-    unsigned int	wr_merges;
-    unsigned int	wr_sectors;
+    unsigned long	wr_ios;
+    unsigned long	wr_merges;
+    unsigned long long	wr_sectors;
     unsigned int	wr_ticks;
     unsigned int	ios_in_flight;
     unsigned int	io_ticks;

@@ -35,9 +35,10 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "proc_partitions.h"
+#include "convert.h"
 #include "clusters.h"
 #include "indom.h"
+#include "proc_partitions.h"
 
 extern int _pm_numdisks;
 
@@ -244,7 +245,8 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 	    /* 2.6 style /proc/diskstats */
 	    p->nr_blocks = 0;
 	    namebuf[0] = '\0';
-	    n = sscanf(buf, "%d %d %s %d %d %d %d %d %d %d %d %d %d %d",
+	    /* Linux source: block/genhd.c::diskstats_show(1) */
+	    n = sscanf(buf, "%d %d %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
 		&p->major, &p->minor, namebuf,
 		&p->rd_ios, &p->rd_merges, &p->rd_sectors,
 		&p->rd_ticks, &p->wr_ios, &p->wr_merges,
@@ -253,15 +255,17 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 	    if (n != 14) {
 		p->rd_merges = p->wr_merges = p->wr_ticks =
 			p->ios_in_flight = p->io_ticks = p->aveq = 0;
-		n = sscanf(buf, "%d %d %s %d %d %d %d\n",
+		/* Linux source: block/genhd.c::diskstats_show(2) */
+		n = sscanf(buf, "%d %d %s %u %u %u %u\n",
 		    &p->major, &p->minor, namebuf,
-		    &p->rd_ios, &p->rd_sectors, &p->wr_ios, &p->wr_sectors);
+		    (unsigned int *)&p->rd_ios, (unsigned int *)&p->rd_sectors,
+		    (unsigned int *)&p->wr_ios, (unsigned int *)&p->wr_sectors);
 	    }
 	}
 	else {
 	    /* 2.4 style /proc/partitions */
 	    namebuf[0] = '\0';
-	    n = sscanf(buf, "%d %d %ld %s %d %d %d %d %d %d %d %d %d %d %d",
+	    n = sscanf(buf, "%d %d %ld %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
 		&p->major, &p->minor, &p->nr_blocks, namebuf,
 		&p->rd_ios, &p->rd_merges, &p->rd_sectors,
 		&p->rd_ticks, &p->wr_ios, &p->wr_merges,
@@ -375,23 +379,23 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_INST;
     }
 
-    switch(idp->cluster) {
+    switch (idp->cluster) {
     case CLUSTER_STAT:
 	/*
 	 * disk.{dev,all} remain in CLUSTER_STAT for backward compatibility
 	 */
 	switch(idp->item) {
 	case 4: /* disk.dev.read */
-	    atom->ul = p->rd_ios;
+	    _pm_assign_ulong(atom, p->rd_ios);
 	    break;
 	case 5: /* disk.dev.write */
-	    atom->ul = p->wr_ios;
+	    _pm_assign_ulong(atom, p->wr_ios);
 	    break;
 	case 6: /* disk.dev.blkread */
-	    atom->ul = p->rd_sectors;
+	    atom->ull = p->rd_sectors;
 	    break;
 	case 7: /* disk.dev.blkwrite */
-	    atom->ul = p->wr_sectors;
+	    atom->ull = p->wr_sectors;
 	    break;
 	case 28: /* disk.dev.total */
 	    atom->ull = p->rd_ios + p->wr_ios;
@@ -415,10 +419,10 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = p->aveq;
 	    break;
 	case 49: /* disk.dev.read_merge */
-	    atom->ul = p->rd_merges;
+	    _pm_assign_ulong(atom, p->rd_merges);
 	    break;
 	case 50: /* disk.dev.write_merge */
-	    atom->ul = p->wr_merges;
+	    _pm_assign_ulong(atom, p->wr_merges);
 	    break;
 
 	default:
