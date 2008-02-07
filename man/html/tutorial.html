@@ -53,88 +53,138 @@ mecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P></TD>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Views</B></FONT></P></TD></TR>
 </TABLE>
-<P>The toolbar along the top of the window has a blue folder icon for <I>Views</I>.  Click on it, to bring up the “Open View” window.  This window initially displays a list of common performance views (these are the pre-installed <I>System Views</I>).  Select CPU and Disk from the list (Ctrl-Click allows multiple selections to be made), then press the OK button.  The main window is now filled with the two selected Views, showing several aspects of processor and disk utilisation.</P>
-<BR><CENTER><IMG SRC="images/tutorial3.png" BORDER=0></CENTER>
+<P>The toolbar along the top of the window has a blue folder icon for <I>Views</I>.  The </B>File</B> menu provides access to the same functionality via the "Open View" item.
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Click on the blue <I>Views</I> folder, to bring up the “Open View” window.<BR></TD></TR>
+</TABLE>
+This window initially displays a list of common performance views (these are the pre-installed <I>System Views</I>).  These views have been found to be useful by others over many years, and will be able to run on any host or archive that provides the metrics and instances that they wish to plot - they will never specify specific hostnames, nor will they request any specific geometry or screen position.
+<CENTER><IMG SRC="images/tutorial3.png" BORDER=0></CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Select CPU and Disk from the list (Ctrl-Click allows multiple selections to be made), then press OK.<BR></TD></TR>
+</TABLE>
+The chart canvas in the main window is now filled with the two selected Views, showing several aspects of processor and disk utilisation.</P>
 <P><B>What is a view?</B></P>
-<P>A view is a complete specification of every aspect of one or more charts, each of which can contains one or more plots.  All properties of the charts and the individual plots are described - the data source behind the performance data, the color of the plots, the chart title, the style of the chart, whether the value axis (Y-Axis) should be scaled, whether there is a title, etc, etc.  Some properties are optional (e.g. the title) and some can be specified as variable (e.g. allowing any host to be the source of the data).</P>
+<P>A view is a complete <A HREF="views.html">specification</A> of every aspect of one or more charts, each of which can contains one or more plots.  All properties of the charts and the individual plots are described - the data source behind the performance data, the color of the plots, the chart title, the style of the chart, whether the value axis (Y-Axis) should be scaled, whether there is a title, etc, etc.  Some properties are optional (e.g. the title) and some can be specified as variable (e.g. allowing any host to be the source of the data).</P>
 <P>Views are stored as plain text files in the local filesystem.  The System Views are different only in that they are installed into a fixed location.  There is a fixed place for custom views as well, below your home directory, where views you create in <B>kmchart</B> will be stored.  If you look into the <I>Open View</I> dialog again, you'll see two icons to the right of the Path in the Open View dialog – these indicate whether the current path points to the System View location, the User View location, or neither.  Notice how they update as you navigate through your files.</P>
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Recording</B></FONT></P></TD></TR>
 </TABLE>
-<P><B><FONT SIZE=4>Recording</FONT></B></P>
-<P>Returning to the main window now, select the <I>Record</I> menu option, and then <I>Start</I> recording.  A recording captures live performance data from the current View into an <B>archive folio</B>.  A folio is a group of one or more performance data archives (also refered to as <B>logs</B> – an ambiguous term, so we'll refer to them as archives from here on), a copy of the current View specification, and a configuration file for the <B>pmlogger</B> process which does the actual recording.  A folio contains enough state to be able to replay the recording at any time in the future, exactly as it was recorded.</P>
+<P><B><FONT SIZE=4>Recording data for later playback</FONT></B></P>
+<P>A recording captures live performance data from the current View into an <B>archive folio</B>.  A folio is a group of one or more performance data archives (sometimes refered to as "logs" – an ambiguous term, so we'll refer to them as archives from here on), a copy of the current View specification, and a configuration file for the <B>pmlogger</B> process which does the actual recording.  A folio contains enough state to be able to replay the recording at any time in the future, exactly as it was recorded.</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>From the main menu, select <I>Record</I>, and then <I>Start</I> to initiate a recording. <BR></TD></TR>
+</TABLE>
 <P>The <I>Start Recording</I> dialog allows you to set various aspects of the recording session – we wont change these for now – just press the OK button.  You'll notice the Live Time Control button in the botton left now displays a red light, indicating that recording is in progress.  Let's leave the recording run while we investigate other parts of the tool – we'll come back to this later, when its had a chance to gather some interesting data.</P>
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Saving Views</B></FONT></P></TD></TR>
 </TABLE>
-<P>From the <I>File</I> menu select the <I>Save View</I> option.  Save the current two charts to a View named /tmp/ExampleView.  In a terminal window, take a look through the saved View configuration.</P>
-
-<P STYLE="margin-left: 2cm">$ cat /tmp/ExampleView</P>
-
+<P><I>Views</I> can be saved to (text) files for use on subsequent invocations of <B>kmchart</B>, or for use with different hosts or archives.
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>From the <I>File</I> menu select the <I>Save View</I> option.  Save the current two charts to a View named <I>/tmp/ExampleView</I>.<BR></TD></TR>
+</TABLE>
+<P>In a terminal window, take a look through the saved View configuration.
+<PRE>
+    $ cat /tmp/ExampleView
+<BR>    #kmchart
+<BR>    version 1
+<BR>
+<BR>    chart title "CPU Utilization [%h]" style utilization
+<BR>        plot legend "User" color #2d2de2 metric kernel.all.cpu.user
+<BR>        plot legend "Kernel" color #e71717 metric kernel.all.cpu.sys
+<BR>        plot legend "Nice" color #c2f3c2 metric kernel.all.cpu.nice
+<BR>        plot legend "Intr" color #cdcd00 metric kernel.all.cpu.intr
+<BR>        plot legend "Wait" color #00cdcd metric kernel.all.cpu.wait.total
+<BR>        plot legend "Idle" color #16d816 metric kernel.all.cpu.idle
+<BR>    chart title "IOPS over all Disks [%h]" style stacking
+<BR>        plot legend "Reads" color #ffff00 metric disk.all.read
+<BR>        plot legend "Writes" color #ee82ee metric disk.all.write
+</PRE>
+<P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Custom Charts</B></FONT></P></TD></TR>
 </TABLE>
-<P>Click on the Disk Chart to highlight it, and then opt for the <I>Edit Chart</I> menu item.  A tabbed window with every setting for the Disk chart is displayed.  In the tree view on the left side of the window are the metrics from our selected Disk chart.<BR><CENTER><IMG SRC="images/tutorial4.png" BORDER=0></CENTER></P>
-<P>The three tabs on the right side of the window show the current settings for this chart in three categories:</P>
-<UL>
-	<LI><P>Properties relating to the entire chart (Title, Legend
-	settings, Y-Axis scaling, etc);</P>
-	<LI><P>Available metrics (performance data) for plotting in the
-	chart</P>
-	<LI><P>Properties related to each individual chart plot (color,
-	label)</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Click on the Disk Chart to highlight it, and then opt for the <I>Edit Chart</I> menu item.<BR></TD></TR>
+</TABLE>
+<P>A tabbed window with every setting for the Disk chart is displayed.  In the tree view on the left side of the window are the metrics from our selected Disk chart.
+<BR><CENTER><IMG SRC="images/tutorial4.png" BORDER=0></CENTER></P>
+<P>The three tabs on the right side of the window show the current settings for this chart in three categories:<UL><LI>Properties relating to the entire chart (Title, Legend settings, Y-Axis scaling, etc);
+	<LI>Available metrics (performance data) for plotting in the chart
+	<LI>Properties related to each individual chart plot (color, label)
 </UL>
 <P>Dismiss the Edit Chart dialog – instead of modifying our existing charts, we'll build one from the ground up.</P>
-<P>Click on the <I>New Chart</I> option in the toolbar to display the chart creation window – it is just like the chart editing window we've just seen, except initially we have no metrics selected in the chart, and default values for all of the chart properties.<BR><CENTER><IMG SRC="images/tutorial5.png" BORDER=0></CENTER></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Click on the <I>New Chart</I> option in the toolbar to display the chart creation window.<BR></TD></TR>
+</TABLE>
+<P>It looks just like the chart editing window we've just seen, except initially we have no metrics selected in the chart, and default values for all of the chart properties.<BR><CENTER><IMG SRC="images/tutorial5.png" BORDER=0></CENTER></P>
 <P>In the Available Metrics list on the Metrics tab, expand the <I>kernel,</I> <I>all</I>, <I>load</I> trees from your local hosts metric namespace, and then select the three load averages (<I>1, 5, 15 minutes</I>).  Since these are leaf nodes in the namespace, and identify valid values for plotting, several buttons now become enabled – in particular the “Add Metric” button and the “Metric Info” button.<BR><CENTER><IMG SRC="images/tutorial6.png" BORDER=0></CENTER></P>
-<P>Click on the “Metric Info” button to view the metric descriptor (<I>pminfo</I>) and current values (<I>pmval</I>) for <I>disk.all.total</I>.  Dismiss that dialog, and then press the “Add Metric” button, to add this metric into the list of metrics for our new chart.</P>
-<P>A default color is selected (this is chosen from the charts Color scheme, which can be set on the first tab) – this color can also be
-explicitly set by:</P>
-<UL>
-	<LI><P>selecting the metric from the Chart Plots tree</P>
-	<LI><P>selecting a new color from the color palette on the Plot tab</P>
-	<LI><P>pressing the Apply color button</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Click on the “Metric Info” button to view the metric descriptor (<I>pminfo</I>) and current values (<I>pmval</I>) for <I>disk.all.total</I>.  Dismiss that dialog, and then press the “Add Metric” button, to add this metric into the list of metrics for our new chart.<BR></TD></TR>
+</TABLE>
+<P>A default color is selected (this is chosen from the charts Color scheme, which can be set on the first tab) – this color can also be explicitly set by:<UL><LI>selecting the metric from the Chart Plots tree
+	<LI>selecting a new color from the color palette on the Plot tab
+	<LI>pressing the Apply color button
 </UL>
 <P>This change can also be reverted by using the revert color button, which returns it to its previous color (displayed alongside that button).</P>
 <BR><CENTER><IMG SRC="images/tutorial7.png" BORDER=0></CENTER></P>
-<P>Set the label for the plots as “1 Min”, “5 Min” and “15 Min”, then press OK.  A new chart will appear at the bottom of the main window with one plot, and on the next sample interval current values will be plotted.</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Set the label for the plots as “1 Min”, “5 Min” and “15 Min”, then press OK.<BR></TD></TR>
+</TABLE>
+<P>A new chart will appear at the bottom of the main window with one plot, and on the next sample interval current values will be plotted.</P>
 <BR><CENTER><IMG SRC="images/tutorial8.png" BORDER=0></CENTER>
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Playback Recording</B></FONT></P></TD></TR>
 </TABLE>
-<P>Click on Record, then Stop.</P>
-<BR><CENTER><IMG SRC="images/tutorial9.png" BORDER=0></CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Click on the <I>Record</I> menu, then </I>Stop</I>.<BR></TD></TR>
+</TABLE>
+<CENTER><IMG SRC="images/tutorial9.png" BORDER=0></CENTER>
 <P>The dialog shown explains the status of your recording session (started earlier).  At any time while recording, you also have the option of querying the recording process to see the same status, and also to detach the recording from the control of <B>kmchart</B>.  But for now, we've simply ended the recording (note the red indicator light is now off on the time control button), and we're left with an archive containing the history from our recording, which we can now replay.
-<P>End your <B>kmchart</B> process now, and open a terminal window.</P>
-<P>Run: <b>pmafm ~/.pcp/pmlogger/XXX.folio replay</b> where XXX is the folio file name (timestamp) from your earlier recording session</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>End your <B>kmchart</B> process now, and open a terminal window.<BR>Run: <b>pmafm ~/.pcp/pmlogger/XXX.folio replay</b><BR></TD></TR>
+</TABLE>
+where XXX is the folio file name (timestamp) from your earlier recording session</P>
 <BR><CENTER><IMG SRC="images/tutorial10.png" BORDER=0></CENTER>
-<P>TODO:</P>
-<P>        - Click on Archive Time Control push button to show kmtime</P>
-<P>        - Show VCR controls</P>
-<P>        - Show Time Bounds</P>
-<P>        - Press Play</P>
-<P>        - Increase Speed</P>
-<P>        - Press Stop</P>
-<P>        - Scroll to somewhere else in the archive</P>
-<P>        - Press Back</P>
-<P>        - Press Stop</P>
-<BR><CENTER><IMG SRC="images/tutorial11.png" BORDER=0></CENTER>
-<P><BR><BR>
-</P>
+<P>You are now in archive replay mode.  Initially the time is stopped at the start of the archive, and the chart canvas area displays the recorded data in the views which were active at the time recording begun.</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Click on the "Archive" Time Control push button in the bottom right corner to show the Time Controls.<BR></TD></TR>
+</TABLE>
+<P>We are now presented with the Time Control window, which is actually a separate process (<B>kmtime</B>(1)).  This program controls the flow of time in <B>kmchart</B>.
 
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR><TD WIDTH=350><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/tutorial11.png" BORDER=0></CENTER></P></TD>
+	<TD><BR><P>There are several modes of playback available in archive mode:<UL><LI>Normal mode, where time updates are sent to the client at a continuous rate (usually not too different to the original live recording), as determined by the "Speed" wheel setting.
+	<LI>Step mode, where time is only advanced/retreated (by clicking on the Step button) one sample at a time.
+	<LI>Fast mode, where time is moved quickly in either a fast forward or fast rewind direction, and the visible charts are updated as quickly as possible.
+</UL></P><P>The Speed setting can be changed by directly editing the text entry box, or more simply by selecting and rotating the wheel either left or right.  Speed is only relevent in Normal mode.</TD>
+	</TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Press the Play button.<BR></TD></TR>
+</TABLE>
+<P>We now see the <B>kmchart</B> Disk and CPU charts displaying the recorded data, one sample after another, and the chart appears to be moving from right to left as time advances at the leading (right) edge of the time axis.
+<P>We can increase the speed of the playback by moving the Time Controls wheel from left to right, and vice-versa to reduce the playback speed</B>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Press the Stop button.<BR></TD></TR>
+</TABLE>
+<P>We have now effectively paused, showing a number of Visible Points from the current sample time (displayed in both the Time Control window and the time axis, in the bottom right of the <B>kmchart</B> display) backward in time.
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Use the Position slider in the Time Control window to move toward the end of the archive.<BR>Press the Back button.<BR></TD></TR>
+</TABLE>
+<P>Now time appears to be moving backward, with time updates scrolling past in the <B>kmchart</B> time axis from left to right, until we reach the start of the archive.  At that point, playback will stop and the Time Controls will be updated accordingly.
+<P><I>Note: <B>kmtime</B> can actually coordinate the flow of time to multiple client programs.  For example, if a second <B>kmchart</B> is started via the <I>Options</I> menu, it will share the time control process with the original <B>kmchart</B> and both will be updated in lock-step.  This is true for both Live and Archive monitoring.</I></P>
+<P><BR><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Next Steps</B></FONT></P></TD></TR>
 </TABLE>
-<P>This introductory tutorial has touched on the basics of using this powerful utility.  Numerous functions have not been discussed at all, or only briefly touched on – feel free to investigate these areas in detail now:</P>
-<UL>
-	<LI><P>Try different chart styles</P>
-	<LI><P>Multiple Tab Support</P>
-	<LI><P>Monitoring multiple hosts simultaneously</P>
-	<LI><P>Interface Customisation – toolbar and plot color selection,
-	from the <I>Preferences</I> dialog.</P>
+<P>This introductory tutorial has touched on the basics of using this handy analysis tool.  Numerous functions have not been discussed at all, or only briefly touched on – feel free to investigate these areas in detail now:<UL><LI>Try different chart styles
+	<LI>Multiple Tab Support
+	<LI>Monitoring multiple hosts simultaneously
+	<LI>Interface Customisation – toolbar and plot color selection, from the <I>Preferences</I> dialog.
 </UL>
 <P><BR></P>
 <HR>
