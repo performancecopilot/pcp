@@ -582,6 +582,8 @@ calcbinning(pmResult *result)
 		    pmiderr(avedata->desc.pmid, "failed to extract value: %s\n", pmErrStr(sts));
 		    continue;
 		}
+		if (isnan(av.d))
+		    continue;
 
 		/* reset values from first pass needed in this second pass */
 		if (instdata->bintotal == 0) {	/* 1st time instance seen on 2nd pass */
@@ -726,6 +728,8 @@ calcaverage(pmResult *result)
 		    pmiderr(avedata->desc.pmid, "failed to extract value: %s\n", pmErrStr(sts));
 		    continue;
 		}
+		if (isnan(av.d))
+		    continue;
 		timediff = result->timestamp;
 		tsub(&timediff, &instdata->lasttime);
 		diff = tosec(timediff);
