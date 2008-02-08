@@ -24,7 +24,7 @@ Source: @package_name@-@package_version@-@package_release@.src.tar.gz
 Conflicts: pcp-pro < 2.2
 
 # Stuff used indirectly e.g. by shell scripts we install
-Requires: bash gawk sed grep fileutils findutils
+Requires: bash gawk sed grep fileutils findutils cpp
 
 # RPMs supplying "direct" requirements
 Requires: glibc libgcc libstdc++
