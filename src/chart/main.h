@@ -66,6 +66,7 @@ extern void writeSettings();
 extern QColor nextColor(QString, int *);
 
 extern int Cflag;
+extern int Lflag;
 extern QFont globalFont;
 
 extern QmcGroup	*activeGroup;

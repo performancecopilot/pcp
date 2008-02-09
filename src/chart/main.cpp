@@ -23,8 +23,10 @@
 #include "openviewdialog.h"
 
 #define DESPERATE 0
+//#define PM_USE_CONTEXT_LOCAL 1
 
 int Cflag;
+int Lflag;
 QFont globalFont;
 Settings globalSettings;
 
@@ -45,6 +47,9 @@ static void usage(void)
 "  -C            with -c, parse config, report any errors and exit\n"
 "  -CC           like -C, but also connect to pmcd to check semantics\n"
 "  -h host       add host to list of live metrics sources\n"
+#ifdef PM_USE_CONTEXT_LOCAL
+"  -L            directly fetch metrics from localhost, PMCD is not used\n"
+#endif
 "  -n pmnsfile   use an alternative PMNS\n"
 "  -O offset     initial offset into the time window\n"
 "  -p port       port name for connection to existing time control\n"
@@ -413,7 +418,7 @@ main(int argc, char ** argv)
     liveGroup = new QmcGroup();
     archiveGroup = new QmcGroup();
 
-    while ((c = getopt(argc, argv, "A:a:Cc:D:h:n:O:p:s:S:T:t:Vv:zZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, "A:a:Cc:D:h:Ln:O:p:s:S:T:t:Vv:zZ:?")) != EOF) {
 	switch (c) {
 
 	case 'A':	/* sample alignment */
@@ -445,6 +450,12 @@ main(int argc, char ** argv)
 	case 'h':
 	    hosts.append(optarg);
 	    break;
+
+#ifdef PM_USE_CONTEXT_LOCAL
+	case 'L':		/* local context */
+	    Lflag = 1;
+	    break;
+#endif
 
 	case 'n':		/* alternative PMNS */
 	    pmnsfile = optarg;
@@ -568,6 +579,8 @@ main(int argc, char ** argv)
     }
 
     // Create all of the sources
+    if (Lflag)
+	liveGroup->use(PM_CONTEXT_LOCAL, QmcSource::localHost);
     for (c = 0; c < hosts.size(); c++) {
 	if (liveGroup->use(PM_CONTEXT_HOST, hosts[c]) < 0)
 	    hosts.removeAt(c);
@@ -576,9 +589,8 @@ main(int argc, char ** argv)
 	if (archiveGroup->use(PM_CONTEXT_ARCHIVE, archives[c]) < 0)
 	    archives.removeAt(c);
     }
-    if (hosts.size() == 0 && archives.size() == 0) {
+    if (!Lflag && hosts.size() == 0 && archives.size() == 0)
 	liveGroup->createLocalContext();
-    }
     pmflush();
     console->post("Metric group setup complete (%d hosts, %d archives)",
 			hosts.size(), archives.size());

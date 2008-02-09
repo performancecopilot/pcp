@@ -478,6 +478,8 @@ void KmChart::optionsNewKmchart()
 	QmcSource source = liveGroup->context(i)->source();
 	arguments << "-h" << source.source();
     }
+    if (Lflag)
+	arguments << "-L";
     buddy->start("kmchart", arguments);
 }
 
