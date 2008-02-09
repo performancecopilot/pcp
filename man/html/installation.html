@@ -19,40 +19,40 @@
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
 	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/kmcharticon.png" NAME="kmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
-	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#ff6600">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="views.html"><FONT COLOR="#ff6600">Views</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="charts.html"><FONT COLOR="#ff6600">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tabs.html"><FONT COLOR="#ff6600">Tabs</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#ff6600">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tutorial.html#views"><FONT COLOR="#ff6600">Views</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tutorial.html#charts"><FONT COLOR="#ff6600">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
 <P ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7><B>Installation</B></FONT></P>
-<P>This version of <B>kmchart</B> runs natively on Linux/X11 and MacOSX platforms.
-<P>The installation instructions for each differ significantly - this section discusses each in turn, and then describes building <B>kmchart</B> from source.
+<P>This version of kmchart runs natively on Linux/X11 and MacOSX platforms.
+<P>The installation instructions for each differ significantly - this section discusses each in turn, and then describes building kmchart from source.
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Linux/X11</B></FONT></P></TD></TR>
 </TABLE>
 <H3>RPMs</H3>
 <P>Linux distributions that use the RPM format, such as Centos, Fedora, OpenSuSE, Redhat Enterprise Linux (RHEL), and SuSE Linux Enterprise Server (SLES) can make use of the pre-built packages that are available for download from <A HREF="http://oss.sgi.com/~nathans/">http://oss.sgi.com/~nathans/kmchart-*.rpm</A>.  These have been built on a recent version of Centos.
-<P><B>kmchart</B> has a runtime dependency on the Qt4 shared libraries.  These are usually available from a package named <B>qt4</B>.  Version 3 of the Qt libraries <I>will not work</I>.  There is also a runtime dependency on the PCP library.  RPMs for these can be found in the same place as <B>kmchart</B> - <A HREF="http://oss.sgi.com/~nathans/">http://oss.sgi.com/~nathans/pcp-*.rpm</A>.
-<P>Once downloaded, the PCP and <B>kmchart</B> RPMs can be installed by running the following as root:
+<P>kmchart has a runtime dependency on the Qt4 shared libraries.  These are usually available from a package named <B>qt4</B>.  Version 3 of the Qt libraries <I>will not work</I>.  There is also a runtime dependency on the PCP library.  RPMs for these can be found in the same place as kmchart - <A HREF="http://oss.sgi.com/~nathans/">http://oss.sgi.com/~nathans/pcp-*.rpm</A>.
+<P>Once downloaded, the PCP and kmchart RPMs can be installed by running the following as root:
 <P><I>&nbsp;&nbsp;rpm -Uvh pcp-*.rpm kmchart-*.rpm</I>
 <H3>DEBs</H3>
 <P>At this stage, there are no pre-built packages for users of Debian, and Debian-based distributions such as Ubuntu.  This is planned for a future release.  This first requires packaging of the underlying PCP infrastructure, which is not yet done (but also planned).  At this stage, users of these distributions will need to build both from source (see instructions below).
-<P><B>kmchart</B> has a runtime dependency on the PCP libraries and on the Qt4 libraries.  The latter is available as part of the Debian distribution, in a package named <B>libqt4-gui</B>.
+<P>kmchart has a runtime dependency on the PCP libraries and on the Qt4 libraries.  The latter is available as part of the Debian distribution, in a package named <B>libqt4-gui</B>.
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>MacOSX</B></FONT></P></TD></TR>
 </TABLE>
-<P>On the Apple Mac platform, <B>kmchart</B> has been built and tested on versions 10.4 and 10.5 of MacOSX.  Pre-built binaries can be obtained from <A HREF="http://oss.sgi.com/~nathans/">http://oss.sgi.com/~nathans/kmchart-*.dmg</A>.
-<P>On MacOSX, <B>kmchart</B> has the same dependencies - the PCP library and the Qt4 runtime environment.  Pre-built PCP packages for MacOSX can be downloaded from the same location as <B>kmchart</B> - <A HREF="http://oss.sgi.com/~nathans/">http://oss.sgi.com/~nathans/pcp-*.dmg</A>, and the Qt4 binary package is available from <A HREF="http://www.trolltech.com/qt/">Trolltech</A>.
+<P>On the Apple Mac platform, kmchart has been built and tested on versions 10.4 and 10.5 of MacOSX.  Pre-built binaries can be obtained from <A HREF="http://oss.sgi.com/~nathans/">http://oss.sgi.com/~nathans/kmchart-*.dmg</A>.
+<P>On MacOSX, kmchart has the same dependencies - the PCP library and the Qt4 runtime environment.  Pre-built PCP packages for MacOSX can be downloaded from the same location as kmchart - <A HREF="http://oss.sgi.com/~nathans/">http://oss.sgi.com/~nathans/pcp-*.dmg</A>, and the Qt4 binary package is available from <A HREF="http://www.trolltech.com/qt/">Trolltech</A>.
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Building from source</B></FONT></P></TD></TR>
 </TABLE>
-<P>The best way to build <B>kmchart</B> from source is to use the <B>git</B> source code management (SCM) tools.  This SCM is freely available and runs natively on many different platforms.  First, get the current version of the source code for both <B>kmchart</B> and PCP:
+<P>The best way to build kmchart from source is to use the <B>git</B> source code management (SCM) tools.  This SCM is freely available and runs natively on many different platforms.  First, get the current version of the source code for both kmchart and PCP:
 <P>&nbsp;&nbsp;<I>git clone git://oss.sgi.com:8090/nathans/kmchart.git kmchart</I>
 <P>&nbsp;&nbsp;<I>git clone git://oss.sgi.com:8090/nathans/pcp.git pcp </I>
 <P>Build and install PCP:
 <P>&nbsp;&nbsp;<I>cd pcp && make install
-<P>Then build <B>kmchart</B>:
+<P>Then build kmchart:
 <P>&nbsp;&nbsp;<I>cd ../kmchart && make install
 <P>When building from source, you'll need to ensure you have the following tools and libraries installed: a C++ compiler, autoconf, and the Qt4 development tools (like qmake), libraries and headers.  On MacOSX, the Apple Xcode development environment is also required, as it is used by the Qt application build process.  Inkscape - a Scalable Vector Graphics (SVG) editor- can be used to modify the icons, but is not required during the build process.
 <P>If you encounter difficulties building <B >kmchart</B>, consult the <A HREF="reportbug.html">bug reporting page</A> which contains contact information for those people who can provide additional assistance.
