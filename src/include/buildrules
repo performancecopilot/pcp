@@ -49,7 +49,7 @@ ifdef WINDOWLINKS
 windowlinks:
 	@for l in $(WINDOWLINKS) ; do \
 	    if [ ! -L $$l ] ; then \
-		$(LN_S) $(WINDOW)-$$l $$l ; \
+		$(LN_S) $(WINDOW)_$$l $$l ; \
 	    fi \
 	done
 endif

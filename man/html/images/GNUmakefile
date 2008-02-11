@@ -4,9 +4,19 @@ include $(TOPDIR)/src/include/builddefs
 PNGFILES = $(shell echo *.png)
 LSRCFILES = $(PNGFILES)
 ICONLINKS = kmcharticon.png kmtimeicon.png stepfwd_on.png
-WINDOWLINKS = tutorial1.png tutorial2.png tutorial3.png tutorial4.png \
-	tutorial5.png tutorial6.png tutorial7.png tutorial8.png tutorial9.png \
-	tutorial10.png tutorial11.png  
+WINDOWLINKS = \
+	kmchart_blank_canvas.png \
+	kmchart_open_view.png \
+	kmchart_cpu_disk.png \
+	kmchart_edit_chart.png \
+	kmchart_new_chart.png \
+	kmchart_new_chart_select.png \
+	kmchart_new_chart_colors.png \
+	kmchart_cpu_disk_load.png \
+	kmchart_stop_recording.png \
+	kmchart_cpu_disk_record.png \
+	kmtime_live.png \
+	kmtime_archive.png  
 INSTFILES = $(ICONLINKS) $(WINDOWLINKS)
 LDIRT = $(ICONLINKS) $(WINDOWLINKS)
 
