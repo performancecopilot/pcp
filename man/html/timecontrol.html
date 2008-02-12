@@ -24,20 +24,42 @@
 	</TR>
 </TABLE>
 <P ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7><B>Time Control</B></FONT></P>
-<P>XXX - TODO
+<P>XXX - introduction to kmtime services
+<P>kmtime can actually coordinate the flow of time to multiple client programs.  For example, if a second kmchart is started via the <I>Options</I> menu, it will share the time control process with the original kmchart and both will be updated in lock-step.  This is true for both Live and Archive monitoring.</P>
+<P>XXX - diagram with kmchart, kmtime, pmval showing linkage.</P>
+<BR>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>XXX - Heading</B></FONT></P></TD></TR>
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Live Mode</B></FONT></P></TD></TR>
 </TABLE>
-<P>TODO:
-live and archive screenshots.
-diagram with kmchart, kmtime, pmval showing linkage.
-cut&paste multiple client discussion from tutorial?
-show bounds screenshots.
+<P>XXX - live mode
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR><TD WIDTH=350><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/kmtime_live.png" BORDER=0></CENTER></P></TD>
+	<TD><BR><P>There are just two states available in live mode:<UL><LI>Playing, where time updates are sent to the client at a continuous rate in real time.
+	<LI>Stopped, where time is frozen at a particular point in time.
+</UL></P>
+	</TR>
+</TABLE>
+</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Archive Mode</B></FONT></P></TD></TR>
+</TABLE>
+<P>XXX - archive mode
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR><TD WIDTH=350><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/kmtime_archive.png" BORDER=0></CENTER></P></TD>
+	<TD><BR><P>There are several modes of playback available in archive mode:<UL><LI>Normal mode, where time updates are sent to the client at a continuous rate (usually not too different to the original live recording), as determined by the "Speed" wheel setting.
+	<LI>Step mode, where time is only advanced/retreated (by clicking on the Step button) one sample at a time.
+	<LI>Fast mode, where time is moved quickly in either a fast forward or fast rewind direction, and the visible charts are updated as quickly as possible.
+</UL></P><P>The Speed setting can be changed by directly editing the text entry box, or more simply by selecting and rotating the wheel either left or right.  Speed is only relevent in Normal mode.</TD>
+	</TR>
+</TABLE>
+</P>
+<P>XXX - show bounds screenshots.
+<P><BR></P>
 <HR>
 <CENTER>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2008 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT>kmtime</P></TD> </TR>
+	<TD WIDTH=50%><P ALIGN=RIGHT>kmchart</P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>
