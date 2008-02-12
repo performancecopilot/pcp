@@ -10,30 +10,11 @@ Refer to doc/INSTALL for instructions on building these tools.
 
 === 1.0 TODO list ===
 
-    - Online Help needs more content
-	[x] whatsnew.html
-	[x] overview.html
-	[x] installation.html
-	[ ] views.html
-	[ ] tabs.html
-	[ ] timecontrol.html
-	[ ] synopsis.html
-	[ ] customui.html
-	[ ] contacts.html
-	[ ] reportbug.html
-	[ ] credits.html
-	[x] gpl.html
-	[x] qwtlicense.html
-	[x] artisticlicense.html
-	[ ] pcpintro.html
-    - Tutorial is not quite complete
-	[ ] tutorial.html
-	[ ] pmchart.html
-
     - Timezone list in kmtime not being updated when new archive/hosts
       added (or sources in exotic timezones, from the start).
     - The archive timeframe (esp. kmtime slider) is not being updated
       to reflect new archives added dynamically at run time.
+    - Understand and workaround font sizing issue in Qt4.3.
 
     - Destructors and memory leak plugging.
     - Code audit for TODOs; either fix, exception or add to wishlist.
