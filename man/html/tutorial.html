@@ -10,8 +10,9 @@
 	<META NAME="qrichtext" CONTENT="1">
 	<STYLE TYPE="text/css">
 	<!--
-		TD P { color: #000060; font-family: "Sans Serif"; font-size: 15pt; font-style: normal; font-weight: medium }
-		P { color: #000060; font-family: "Lucida Grande"; font-size: 15pt; font-style: normal; font-weight: medium }
+		TD P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+		UL { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+		P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
 	-->
 	</STYLE>
 </HEAD>
@@ -40,6 +41,7 @@
 </TABLE>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
 	<TR> <TD WIDTH=350><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/kmtime_live.png" BORDER=0></CENTER></P></TD>
+	<TD WIDTH=10></TD>
 	<TD><P><BR><P>The time controls allow you to modify various aspects of the flow of time in your charts, and clearly displays the current time position.</P>
 <P>A VCR paradigm is used to allow stopping and starting the flow of time, and in the case of historical data (PCP archives), allow movement both forwards and backwards through time, and allow fast, slow, or step-by-step updates to the displayed data.</P></TD>
 	</TR>
@@ -50,15 +52,16 @@
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Views</B></FONT></P></TD></TR>
 </TABLE>
 <P>The toolbar along the top of the window has a blue folder icon for <I>Views</I>.  The </B>File</B> menu provides access to the same functionality via the "Open View" item.
+</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Click on the blue <I>Views</I> folder, to bring up the “Open View” window.<BR></TD></TR>
 </TABLE>
-This window initially displays a list of common performance views (these are the pre-installed <I>System Views</I>).  These views have been found to be useful by others over many years, and will be able to run on any host or archive that provides the metrics and instances that they wish to plot - they will never specify specific hostnames, nor will they request any specific geometry or screen position.
+<P>This window initially displays a list of common performance views (these are the pre-installed <I>System Views</I>).  These views have been found to be useful by others over many years, and will be able to run on any host or archive that provides the metrics and instances that they wish to plot - they will never specify specific hostnames, nor will they request any specific geometry or screen position.
 <CENTER><IMG SRC="images/kmchart_open_view.png" BORDER=0></CENTER>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Select <I>CPU</I> and <I>Disk</I> from the list (Ctrl-Click allows multiple selections to be made), then press OK.<BR></TD></TR>
 </TABLE>
-The chart canvas in the main window is now filled with the two selected Views, showing several aspects of processor and disk utilisation.</P>
+<P>The chart canvas in the main window is now filled with the two selected Views, showing several aspects of processor and disk utilisation.</P>
 <P><B>What is a view?</B></P>
 <P>A view is a complete <A HREF="views.html">specification</A> of every aspect of one or more charts, each of which can contains one or more plots.  All properties of the charts and the individual plots are described - the data source behind the performance data, the color of the plots, the chart title, the style of the chart, whether the value axis (Y-Axis) should be scaled, whether there is a title, etc, etc.  Some properties are optional (e.g. the title) and some can be specified as variable (e.g. allowing any host to be the source of the data).</P>
 <P>Views are stored as plain text files in the local filesystem.  The System Views are different only in that they are installed into a fixed location.  There is a fixed place for custom views as well, below your home directory, where views you create in kmchart will be stored.  If you look into the <I>Open View</I> dialog again, you'll see two icons to the right of the Path in the Open View dialog – these indicate whether the current path points to the System View location, the User View location, or neither.  Notice how they update as you navigate through your files.</P>
@@ -74,6 +77,7 @@ The chart canvas in the main window is now filled with the two selected Views, s
 <P>The <I>Start Recording</I> dialog allows you to set various aspects of the recording session – we wont change these for now – just press the OK button.  You'll notice the Live Time Control button in the botton left now displays a red light, indicating that recording is in progress.  Let's leave the recording run while we investigate other parts of the tool – we'll come back to this later, when its had a chance to gather some interesting data.</P>
 <P><B><FONT SIZE=4>Generating load for later playback</FONT></B></P>
 <P>As a simple example of both the recording functionality, and of using kmchart to monitor different subsystems simultaneously, we'll generate some local disk I/O and see how this affects the disk and CPU utilisation charts we have already opened.
+</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>In a terminal window, enter:<BR>$ sh -c 'find / -xdev >/dev/null 2>&1'<BR></TD></TR>
 </TABLE>
@@ -88,6 +92,7 @@ The chart canvas in the main window is now filled with the two selected Views, s
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Saving Views</B></FONT></P></TD></TR>
 </TABLE>
 <P><I>Views</I> can be saved to (text) files for use on subsequent invocations of kmchart, or for use with different hosts or archives.
+</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>From the <I>File</I> menu select the <I>Save View</I> option.  Save the current two charts to a View named <I>/tmp/ExampleView</I>.<BR></TD></TR>
 </TABLE>
@@ -151,10 +156,11 @@ The chart canvas in the main window is now filled with the two selected Views, s
 </TABLE>
 <CENTER><IMG SRC="images/kmchart_stop_recording.png" BORDER=0></CENTER>
 <P>The dialog shown explains the status of your recording session (started earlier).  At any time while recording, you also have the option of querying the recording process to see the same status, and also to detach the recording from the control of kmchart.  But for now, we've simply ended the recording (note the red indicator light is now off on the time control button), and we're left with an archive containing the history from our recording, which we can now replay.
+</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>End your kmchart process now, and open a terminal window.<BR>Run: <b>pmafm ~/.pcp/pmlogger/XXX.folio replay</b><BR></TD></TR>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>End your kmchart process now, and open a terminal window.<BR>Run: <b>pmafm ~/.pcp/pmlogger/20080201.folio replay</b><BR></TD></TR>
 </TABLE>
-where XXX is the folio file name (timestamp) from your earlier recording session</P>
+substituting the current recording timestamp into the folio file name from your earlier recording session</P>
 <BR><CENTER><IMG SRC="images/kmchart_cpu_disk_record.png" BORDER=0></CENTER>
 <P>You are now in archive replay mode.  Initially the time is stopped at the start of the archive, and the chart canvas area displays the recorded data in the views which were active at the time recording begun.</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
@@ -171,15 +177,18 @@ where XXX is the folio file name (timestamp) from your earlier recording session
 </UL></P><P>The Speed setting can be changed by directly editing the text entry box, or more simply by selecting and rotating the wheel either left or right.  Speed is only relevent in Normal mode.</TD>
 	</TR>
 </TABLE>
+</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Press the Play button.<BR></TD></TR>
 </TABLE>
 <P>We now see the kmchart Disk and CPU charts displaying the recorded data, one sample after another, and the chart appears to be moving from right to left as time advances at the leading (right) edge of the time axis.
 <P>We can increase the speed of the playback by moving the Time Controls wheel from left to right, and vice-versa to reduce the playback speed</B>
+</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Press the Stop button.<BR></TD></TR>
 </TABLE>
 <P>We have now effectively paused, showing a number of Visible Points from the current sample time (displayed in both the Time Control window and the time axis, in the bottom right of the kmchart display) backward in time.
+</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Use the Position slider in the Time Control window to move toward the end of the archive.<BR>Press the Back button.<BR></TD></TR>
 </TABLE>

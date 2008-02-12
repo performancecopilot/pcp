@@ -10,8 +10,9 @@
 	<META NAME="qrichtext" CONTENT="1">
 	<STYLE TYPE="text/css">
 	<!--
-		TD P { color: #000060; font-family: "Sans Serif"; font-size: 15pt; font-style: normal; font-weight: medium }
-		P { color: #000060; font-family: "Lucida Grande"; font-size: 15pt; font-style: normal; font-weight: medium }
+		TD P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+		UL { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+		P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
 	-->
 	</STYLE>
 </HEAD>
@@ -25,6 +26,7 @@
 <P ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7><B>Installation</B></FONT></P>
 <P>This version of kmchart runs natively on Linux/X11 and MacOSX platforms.
 <P>The installation instructions for each differ significantly - this section discusses each in turn, and then describes building kmchart from source.
+</P>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Linux/X11</B></FONT></P></TD></TR>
@@ -37,12 +39,14 @@
 <H3>DEBs</H3>
 <P>At this stage, there are no pre-built packages for users of Debian, and Debian-based distributions such as Ubuntu.  This is planned for a future release.  This first requires packaging of the underlying PCP infrastructure, which is not yet done (but also planned).  At this stage, users of these distributions will need to build both from source (see instructions below).
 <P>kmchart has a runtime dependency on the PCP libraries and on the Qt4 libraries.  The latter is available as part of the Debian distribution, in a package named <B>libqt4-gui</B>.
+</P>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>MacOSX</B></FONT></P></TD></TR>
 </TABLE>
 <P>On the Apple Mac platform, kmchart has been built and tested on versions 10.4 and 10.5 of MacOSX.  Pre-built binaries can be obtained from <A HREF="http://oss.sgi.com/~nathans/">http://oss.sgi.com/~nathans/kmchart-*.dmg</A>.
 <P>On MacOSX, kmchart has the same dependencies - the PCP library and the Qt4 runtime environment.  Pre-built PCP packages for MacOSX can be downloaded from the same location as kmchart - <A HREF="http://oss.sgi.com/~nathans/">http://oss.sgi.com/~nathans/pcp-*.dmg</A>, and the Qt4 binary package is available from <A HREF="http://www.trolltech.com/qt/">Trolltech</A>.
+</P>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Building from source</B></FONT></P></TD></TR>
@@ -51,9 +55,9 @@
 <P>&nbsp;&nbsp;<I>git clone git://oss.sgi.com:8090/nathans/kmchart.git kmchart</I>
 <P>&nbsp;&nbsp;<I>git clone git://oss.sgi.com:8090/nathans/pcp.git pcp </I>
 <P>Build and install PCP:
-<P>&nbsp;&nbsp;<I>cd pcp && make install
+<P>&nbsp;&nbsp;<I>cd pcp && make install</I>
 <P>Then build kmchart:
-<P>&nbsp;&nbsp;<I>cd ../kmchart && make install
+<P>&nbsp;&nbsp;<I>cd ../kmchart && make install</I>
 <P>When building from source, you'll need to ensure you have the following tools and libraries installed: a C++ compiler, autoconf, and the Qt4 development tools (like qmake), libraries and headers.  On MacOSX, the Apple Xcode development environment is also required, as it is used by the Qt application build process.  Inkscape - a Scalable Vector Graphics (SVG) editor- can be used to modify the icons, but is not required during the build process.
 <P>If you encounter difficulties building kmchart, consult the <A HREF="contacts.html">contacts page</A> which contains contact information for people who can provide additional assistance.
 <P><BR></P>
