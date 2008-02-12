@@ -10,6 +10,7 @@
 	<META NAME="qrichtext" CONTENT="1">
 	<STYLE TYPE="text/css">
 	<!--
+		H1 { color: #000060; font-family: "Lucida Grande"; font-size: 48pt; font-style: normal; font-weight: bold }
 		TD P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
 		UL { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
 		P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
@@ -23,7 +24,7 @@
 	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#ff6600">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tutorial.html#views"><FONT COLOR="#ff6600">Views</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tutorial.html#charts"><FONT COLOR="#ff6600">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
-<P ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7><B>Views</B></FONT></P>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Views</FONT></H1>
 <P>The primary kmchart configuration file is the  "view", which allows the metadata associated with one or more charts to be saved in the filesystem.  This metadata describes all aspects of the charts, including which PCP metrics and instances are to be used, which hosts, which colors, the chart titles, use of chart legends, and much more.
 <P>From a conceptual point of view, there are two classes of view.  These views share the same configuration file format, described below.  The differences lie in where they are installed and how they are manipulated.
 <P>The first class, the "system" view, is simply any view that is installed as part of the kmchart package.  These are stored in <I>$PCP_VAR_DIR/config/kmchart</I>.  When the <I>File→Open View</I> dialog is displayed, it is these views that are initially listed.  The system views cannot be modified by a normal user, and should not be modified even by a user with suitable priviledges, as they will be overwritten during an upgrade.
