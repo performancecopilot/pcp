@@ -16,7 +16,9 @@ WINDOWLINKS = \
 	kmchart_stop_recording.png \
 	kmchart_cpu_disk_record.png \
 	kmtime_live.png \
-	kmtime_archive.png  
+	kmtime_archive.png \
+	kmtime_clients.png \
+	kmtime_bounds.png
 INSTFILES = $(ICONLINKS) $(WINDOWLINKS)
 LDIRT = $(ICONLINKS) $(WINDOWLINKS)
 
