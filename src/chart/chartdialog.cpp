@@ -325,20 +325,11 @@ void ChartDialog::hostButtonClicked()
     HostDialog *h = new HostDialog(this);
     int sts;
 
-    h->portLabel->setEnabled(false);	// WISHLIST
-    h->portLineEdit->setEnabled(false);	// WISHLIST
-
     if (h->exec() == QDialog::Accepted) {
-	QString proxy = h->portLineEdit->text().trimmed();
 	QString host = h->hostLineEdit->text().trimmed();
 	if ((sts = liveGroup->use(PM_CONTEXT_HOST, host)) < 0) {
 	    host.prepend(tr("Cannot connect to host: "));
 	    host.append(tr("\n"));
-	    if (!proxy.isEmpty()) {
-		host.append(tr(" proxy: "));
-		host.append(proxy);
-		host.append("\n");
-	    }
 	    host.append(tr(pmErrStr(sts)));
 	    QMessageBox::warning(this, pmProgname, host,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,

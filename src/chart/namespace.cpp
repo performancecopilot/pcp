@@ -92,10 +92,6 @@ QString NameSpace::sourceTip()
 	tooltip.append("\n  ending            ");
 	tooltip.append(source.endTime());
     }
-    else if (source.proxy().isEmpty() == false) {
-	tooltip.append("\n  proxy host: ");
-	tooltip.append(source.proxy());
-    }
     tooltip.append("\nTimezone: ");
     tooltip.append(source.timezone());
     return tooltip;

@@ -256,10 +256,7 @@ void OpenViewDialog::hostAdd()
     HostDialog *h = new HostDialog(this);
     int sts;
 
-    h->portLabel->setEnabled(false);
-    h->portLineEdit->setEnabled(false);
     if (h->exec() == QDialog::Accepted) {
-	QString port = h->portLineEdit->text().trimmed();	// WISHLIST
 	QString host = h->hostLineEdit->text().trimmed();
 	if ((sts = liveGroup->use(PM_CONTEXT_HOST, host)) < 0) {
 	    host.prepend(tr("Cannot connect to host: "));

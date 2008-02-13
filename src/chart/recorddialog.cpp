@@ -347,7 +347,6 @@ void RecordDialog::startLoggers()
 		configdata.append(process->configure(tab->chart(c)));
 	saveConfig(configfile, configdata);
 
-	// PMPROXY_HOST support needed here
 	process->start(pmlogger, arguments);
 	tab->addLogger(process, archive);
 
