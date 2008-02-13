@@ -2,7 +2,7 @@
  <class>HostDialog</class>
  <widget class="QDialog" name="HostDialog" >
   <property name="windowModality" >
-   <enum>Qt::NonModal</enum>
+   <enum>Qt::WindowModal</enum>
   </property>
   <property name="geometry" >
    <rect>
