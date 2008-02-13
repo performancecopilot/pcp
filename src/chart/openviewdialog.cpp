@@ -42,9 +42,6 @@ OpenViewDialog::OpenViewDialog(QWidget *parent) : QDialog(parent)
 			  my.userDir);
     pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
 			  home);
-
-    proxyComboBox->setEnabled(false);
-    proxyPushButton->setEnabled(false);
 }
 
 OpenViewDialog::~OpenViewDialog()
@@ -58,14 +55,9 @@ void OpenViewDialog::reset()
     if ((my.archiveSource = kmchart->isArchiveTab())) {
 	sourceLabel->setText(tr("Archive:"));
 	sourcePushButton->setIcon(QIcon(":/archive.png"));
-	proxyLabel->setText(tr("Host:"));
-	proxyPushButton->setEnabled(false);
     } else {
 	sourceLabel->setText(tr("Host:"));
 	sourcePushButton->setIcon(QIcon(":/computer.png"));
-	proxyLabel->setText(tr("Proxy:"));
-	proxyComboBox->setEnabled(false);	// WISHLIST: dynamic proxys
-	proxyPushButton->setEnabled(false);	// WISHLIST: dynamic proxys
     }
     setupComboBoxes(my.archiveSource);
     setPath(my.systemDir);
@@ -179,7 +171,6 @@ int OpenViewDialog::setupArchiveComboBoxes()
     for (unsigned int i = 0; i < archiveGroup->numContexts(); i++) {
 	QmcSource source = archiveGroup->context(i)->source();
 	sourceComboBox->insertItem(i, archiveIcon, source.source());
-	proxyComboBox->insertItem(i, hostIcon, source.host());
 	if (i == archiveGroup->contextIndex())
 	    index = i;
     }
@@ -194,7 +185,6 @@ int OpenViewDialog::setupLiveComboBoxes()
     for (unsigned int i = 0; i < liveGroup->numContexts(); i++) {
 	QmcSource source = liveGroup->context(i)->source();
 	sourceComboBox->insertItem(i, hostIcon, source.host());
-	proxyComboBox->insertItem(i, hostIcon, source.proxy());
 	if (i == liveGroup->contextIndex())
 	    index = i;
     }
@@ -207,14 +197,10 @@ void OpenViewDialog::setupComboBoxes(bool arch)
     // send spurious signals out about their lists being changed.
     // If we did that, we would keep changing the current context.
     sourceComboBox->blockSignals(true);
-    proxyComboBox->blockSignals(true);
     sourceComboBox->clear();
-    proxyComboBox->clear();
     int index = arch ? setupArchiveComboBoxes() : setupLiveComboBoxes();
     sourceComboBox->setCurrentIndex(index);
-    proxyComboBox->setCurrentIndex(index);
     sourceComboBox->blockSignals(false);
-    proxyComboBox->blockSignals(false);
 }
 
 void OpenViewDialog::archiveAdd()
@@ -270,16 +256,6 @@ void OpenViewDialog::hostAdd()
 	}
     }
     delete h;
-}
-
-void OpenViewDialog::proxyAdd()
-{
-}
-
-void OpenViewDialog::proxyPushButton_clicked()
-{
-    if (my.archiveSource == false)
-	proxyAdd();
 }
 
 void OpenViewDialog::sourcePushButton_clicked()

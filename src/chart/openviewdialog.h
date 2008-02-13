@@ -41,7 +41,6 @@ public slots:
 
     virtual void sourceComboBox_currentIndexChanged(int);
     virtual void sourcePushButton_clicked();
-    virtual void proxyPushButton_clicked();
     virtual void openPushButton_clicked();
 
 private:
@@ -63,7 +62,6 @@ private:
     int setupArchiveComboBoxes();
 
     void hostAdd();
-    void proxyAdd();
     void archiveAdd();
 
     bool useLiveContext(QString);
