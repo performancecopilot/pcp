@@ -1,3 +1,8 @@
+kmchart 1.0.0rc6 (13 February 2008)
+    - Huge number of man page, online help text and web docs updated
+      (body of all docs now complete, could use some review though).
+    - Added "tab" keyword to the view file format.
+
 kmchart 1.0.0rc5 (16 January 2008)
     - SRPM and source tarball build fix (missing targets).
     - man page updates.
