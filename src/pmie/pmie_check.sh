@@ -513,12 +513,13 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	then
 	    $VERY_VERBOSE && echo "different logfile, skip"
 	    $VERY_VERBOSE && echo "  $p_logfile differs to $logfile"
-	elif [ "$p_pmcd_host" != "$fqdn" ]
-	then
-	    $VERY_VERBOSE && echo "different host, skip"
-	    $VERY_VERBOSE && echo "  $p_pmcd_host differs to $fqdn"
 	elif _get_pids_by_name pmie | grep "^$p_id\$" >/dev/null
 	then
+	    if [ "$p_pmcd_host" != "$fqdn" ]
+	    then
+		echo "Ignoring $p_id mismatched hostname (possible DNS oddity)"
+		echo "=> $p_pmcd_host differs to $fqdn, but same log $p_logfile"
+	    fi
 	    $VERY_VERBOSE && echo "pmie process $p_id identified, OK"
 	    pid=$p_id
 	    break
