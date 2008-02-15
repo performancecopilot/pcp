@@ -114,7 +114,7 @@ where <I>number</I> is an integer or floating point constant (parsed using <B>st
 <P><B>@ctime</B>  To specify the calendar date and time (local time in the reporting timezone) for the start of the time window, use the <B>ctime</B>(3) syntax preceded by an at sign.  For example <I>-S ’@ Mon Mar 4 13:07:47 1996’</I>. </P></TD></TR>
 	<TR><TD WIDTH=25%><P><B>-T endtime</B></P></TD>
 	    <TD><P>By default the end of the time window is unbounded (in real time mode) or aligned with the time at the end of a PCP archive log (in archive mode).  The <B>-T</B> option may be used to specify an earlier time for the end of the time window.
-<P>The <B>endtime</B> parameter may be given in one of three forms (interval is the same as for the <B>-t option as described above, <B>ctime</B> is described below):
+<P>The <B>endtime</B> parameter may be given in one of three forms (interval is the same as for the <B>-t</B> option as described above, <B>ctime</B> is described below):
 <P><B>interval</B>  To specify an offset from the start of the time window simply use the interval of time as the argument.  For example <I>-T 2h30m</I> will set the end of the time window to be 2 hours and 30 minutes after the start of the time window.
 <P><B>-interval</B>  To specify an offset back from the time at the end of a PCP archive log, prefix the interval argument with a minus sign.  For example <I>-T -90m</I> will set the end of the time window to be 90 minutes before the time of the last sample in a PCP archive log.
 <P><B>@ctime</B>  To specify the calendar date and time (local time in the reporting timezone) for the end of the time window, use the <B>ctime</B>(3C) syntax preceded by an at sign.  For example <I>-T ’@ Mon Mar 4 13:07:47 1996’</I>. </P></TD></TR>
