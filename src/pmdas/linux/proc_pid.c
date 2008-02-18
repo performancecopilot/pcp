@@ -246,6 +246,8 @@ refresh_proc_pid(proc_pid_t *proc_pid)
 		    free(ep->name);
 		if (ep->stat_buf != NULL)
 		    free(ep->stat_buf);
+		if (ep->status_buf != NULL)
+		    free(ep->status_buf);
 		if (ep->statm_buf != NULL)
 		    free(ep->statm_buf);
 		if (ep->maps_buf != NULL)
