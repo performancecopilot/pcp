@@ -467,50 +467,48 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid)
 proc_pid_entry_t *
 fetch_proc_pid_maps(int id, proc_pid_t *proc_pid)
 {
-	int fd;
-	int sts = 0;
-	int n;
-	int len = 0;
-	__pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
-	proc_pid_entry_t *ep;
-	char buf[1024];
-	char *maps_bufptr = NULL;
+    int fd;
+    int sts = 0;
+    int n;
+    int len = 0;
+    __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
+    proc_pid_entry_t *ep;
+    char buf[1024];
+    char *maps_bufptr = NULL;
 
-	if (node == NULL)
-		return NULL;
+    if (node == NULL)
+	return NULL;
 
-	ep = (proc_pid_entry_t *)node->data;
+    ep = (proc_pid_entry_t *)node->data;
 
-	if (ep->maps_fetched == 0) {
-		sprintf(buf, "/proc/%d/maps", ep->id);
-		if ((fd = open(buf, O_RDONLY)) < 0)
-			sts = -errno;
-		else {
-			while ((n = read(fd, buf, sizeof(buf))) > 0) {
-				len += n;
-				if (ep->maps_buflen <= len) {
-					ep->maps_buflen = len + 1;
-					ep->maps_buf = (char *) realloc(ep->maps_buf, ep->maps_buflen);
-				}
-				maps_bufptr = ep->maps_buf + len - n;
-				memcpy(maps_bufptr, buf, n);
-			}
-			ep->maps_fetched = 1;
-			/* if there are no maps, make maps_buf point to
-			   a zero length string. PCP doesn't like NULL
-			   string pointers */
-			if (ep->maps_buflen == 0) {
-				ep->maps_buf = (char *) malloc(1);
-				ep->maps_buflen = 1;
-			}
-			ep->maps_buf[ep->maps_buflen - 1] = '\0';
-			close(fd);
+    if (ep->maps_fetched == 0) {
+	sprintf(buf, "/proc/%d/maps", ep->id);
+	if ((fd = open(buf, O_RDONLY)) < 0)
+	    sts = -errno;
+	else {
+	    while ((n = read(fd, buf, sizeof(buf))) > 0) {
+		len += n;
+		if (ep->maps_buflen <= len) {
+		    ep->maps_buflen = len + 1;
+		    ep->maps_buf = (char *)realloc(ep->maps_buf, ep->maps_buflen);
 		}
+		maps_bufptr = ep->maps_buf + len - n;
+		memcpy(maps_bufptr, buf, n);
+	    }
+	    ep->maps_fetched = 1;
+	    /* If there are no maps, make maps_buf point to a zero length string. */
+	    if (ep->maps_buflen == 0) {
+		ep->maps_buf = (char *)malloc(1);
+		ep->maps_buflen = 1;
+	    }
+	    ep->maps_buf[ep->maps_buflen - 1] = '\0';
+	    close(fd);
 	}
+    }
 
-	if (sts < 0)
-		return NULL;
-	return ep;
+    if (sts < 0)
+	return NULL;
+    return ep;
 }
 
 /*
