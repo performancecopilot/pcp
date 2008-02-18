@@ -763,6 +763,46 @@ Instantaneous number of processes is an unknown state, including all
 kernel threads
 @ proc.runq.kernel number of kernel threads
 Instantaneous number of processes with virtual size of zero (kernel threads)
+
+@ proc.io.rchar
+Extended accounting information - count of the number of bytes that
+have passed over the read(2), readv(2) and sendfile(2) syscalls by
+each process.
+
+@ proc.io.wchar
+Extended accounting information - count of the number of bytes that
+have passed over the write(2), writev(2) and sendfile(2) syscalls by
+each process.
+
+@ proc.io.syscr
+Extended accounting information - count of number of calls to the
+read(2), readv(2) and sendfile(2) syscalls by each process.
+
+@ proc.io.syscw
+Extended accounting information - count of number of calls to the
+write(2), writev(2) and sendfile(2) syscalls by each process.
+
+@ proc.io.read_bytes
+Number of bytes physically read on by devices on behalf of this process.
+@ proc.io.write_bytes
+Number of bytes physically written to devices on behalf of this process.
+This must be reduced by any truncated I/O (proc.io.cancelled_write_bytes).
+@ proc.io.cancelled_write_bytes
+Number of bytes cancelled via truncate by this process.  Actual physical
+writes for an individual process can be calculated as:
+	proc.io.write_bytes - proc.io.cancelled_write_bytes.
+
+@ proc.schedstat.cpu_time
+Length of time in nanoseconds that a process has been running, including
+scheduling time.
+@ proc.schedstat.run_delay
+Length of time in nanoseconds that a process spent waiting to be scheduled
+to run in the run queue.
+@ proc.schedstat.pcount
+Number of times a process has been scheduled to run on a CPU (this is
+incremented when a task actually reaches a CPU to run on, not simply
+when it is added to the run queue).
+
 @ network.ip.forwarding count of ip forwarding
 @ network.ip.defaultttl count of ip defaultttl
 @ network.ip.inreceives count of ip inreceives

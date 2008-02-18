@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) International Business Machines Corp., 2002
- * Portions Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Portions Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -523,6 +523,8 @@ proc {
     memory
     runq
     id 
+    io
+    schedstat
 }
 
 proc.psinfo {
@@ -620,6 +622,22 @@ proc.runq {
     defunct		60:13:5
     unknown		60:13:6
     kernel		60:13:7
+}
+
+proc.io {
+    rchar		60:32:0
+    wchar		60:32:1
+    syscr		60:32:2
+    syscw		60:32:3
+    read_bytes		60:32:4
+    write_bytes		60:32:5
+    cancelled_write_bytes 60:32:6
+}
+
+proc.schedstat {
+    cpu_time		60:31:0
+    run_delay		60:31:1
+    pcount		60:31:2
 }
 
 xfs {

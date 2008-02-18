@@ -37,6 +37,8 @@
 #include "pmda.h"
 #include "proc_pid.h"
 
+int _pm_pid_io_fields;
+
 static int
 compare_pid(const void *pa, const void *pb) {
     int a = *(int *)pa;
@@ -127,12 +129,14 @@ refresh_proc_pid(proc_pid_t *proc_pid)
     for (i=0; i < proc_pid->pidhash.hsize; i++) {
 	for (node=proc_pid->pidhash.hash[i]; node != NULL; node = node->next) {
 	    ep = (proc_pid_entry_t *)node->data;
-            ep->valid = 0;
-            ep->stat_fetched = 0;
-            ep->statm_fetched = 0;
-            ep->status_fetched = 0;
-            ep->maps_fetched = 0;
-        }
+	    ep->valid = 0;
+	    ep->stat_fetched = 0;
+	    ep->statm_fetched = 0;
+	    ep->status_fetched = 0;
+	    ep->schedstat_fetched = 0;
+	    ep->maps_fetched = 0;
+	    ep->io_fetched = 0;
+	}
     }
 
     /*
@@ -245,13 +249,16 @@ refresh_proc_pid(proc_pid_t *proc_pid)
 		if (ep->statm_buf != NULL)
 		    free(ep->statm_buf);
 		if (ep->maps_buf != NULL)
-			free(ep->maps_buf);
-	    	if (prev == NULL) {
+		    free(ep->maps_buf);
+		if (ep->schedstat_buf != NULL)
+		    free(ep->schedstat_buf);
+		if (ep->io_buf != NULL)
+		    free(ep->io_buf);
+
+	    	if (prev == NULL)
 		    proc_pid->pidhash.hash[i] = node->next;
-		}
-		else {
+		else
 		    prev->next = node->next;
-		}
 		free(ep);
 		free(node);
 	    }
@@ -502,6 +509,106 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid)
 	if (sts < 0)
 		return NULL;
 	return ep;
+}
+
+/*
+ * fetch a proc/<pid>/schedstat entry for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid)
+{
+    int fd;
+    int sts = 0;
+    int n;
+    __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
+    proc_pid_entry_t *ep;
+    char buf[1024];
+
+    if (node == NULL)
+    	return NULL;
+    ep = (proc_pid_entry_t *)node->data;
+
+    if (ep->schedstat_fetched == 0) {
+	sprintf(buf, "/proc/%d/schedstat", ep->id);
+	if ((fd = open(buf, O_RDONLY)) < 0)
+	    sts = -errno;
+	else
+	if ((n = read(fd, buf, sizeof(buf))) < 0)
+	    sts = -errno;
+	else {
+	    if (n == 0)
+		/* eh? */
+	    	sts = -1;
+	    else {
+		if (ep->schedstat_buflen <= n) {
+		    ep->schedstat_buflen = n;
+		    ep->schedstat_buf = (char *)realloc(ep->schedstat_buf, n);
+		}
+		memcpy(ep->schedstat_buf, buf, n);
+		ep->schedstat_buf[n-1] = '\0';
+	    }
+	}
+	close(fd);
+	ep->schedstat_fetched = 1;
+    }
+
+    if (sts < 0)
+	return NULL;
+    return ep;
+}
+
+/*
+ * fetch a proc/<pid>/io entry for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_io(int id, proc_pid_t *proc_pid)
+{
+    int fd;
+    int sts = 0;
+    int n;
+    __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
+    proc_pid_entry_t *ep;
+    char buf[1024];
+    char *p;
+
+    if (node == NULL)
+    	return NULL;
+    ep = (proc_pid_entry_t *)node->data;
+
+    if (ep->io_fetched == 0) {
+	sprintf(buf, "/proc/%d/io", ep->id);
+	if ((fd = open(buf, O_RDONLY)) < 0)
+	    sts = -errno;
+	else
+	if ((n = read(fd, buf, sizeof(buf))) < 0)
+	    sts = -errno;
+	else {
+	    if (n == 0)
+		/* eh? */
+	    	sts = -1;
+	    else {
+		if (ep->io_buflen <= n) {
+		    ep->io_buflen = n;
+		    ep->io_buf = (char *)realloc(ep->io_buf, n);
+		}
+		memcpy(ep->io_buf, buf, n);
+		ep->io_buf[n-1] = '\0';
+		/* count the number of fields - expecting either 3 or 7 */
+		if (!_pm_pid_io_fields) {
+		    _pm_pid_io_fields = 1;
+		    for (p = buf; *p != '\0' && *p != '\n'; p++)
+			if (isspace(*p))
+			    _pm_pid_io_fields++;
+		}
+	    }
+	}
+	close(fd);
+	ep->io_fetched = 1;
+    }
+
+    if (sts < 0)
+	return NULL;
+    return ep;
 }
 
 /*

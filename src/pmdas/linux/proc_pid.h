@@ -125,6 +125,29 @@
 /* number of fields in proc_pid_statm_entry_t */
 #define NR_PROC_PID_STATM        8
 
+/*
+ * metrics in /proc/<pid>/schedstat
+ */
+#define PROC_PID_SCHED_CPUTIME		0
+#define PROC_PID_SCHED_RUNDELAY		1
+#define PROC_PID_SCHED_PCOUNT		2
+#define NR_PROC_PID_SCHED		3
+
+/*
+ * metrics in /proc/<pid>/io
+ */
+#define PROC_PID_IO_RCHAR		0
+#define PROC_PID_IO_WCHAR		1
+#define PROC_PID_IO_SYSCR		2
+#define PROC_PID_IO_SYSCW		3
+#define PROC_PID_IO_READ_BYTES		4
+#define PROC_PID_IO_WRITE_BYTES		5
+#define PROC_PID_IO_CANCELLED_BYTES	6
+/* Depending on kernel build options (CONFIG_TASK_[IO_ACCOUNTING|XACCT]),
+ * these /proc/<pid>/io files have either the last three or seven fields. */
+#define NR_PROC_PID_IO_MINIMUM		3
+#define NR_PROC_PID_IO			7
+
 typedef struct {
     char *uid;
     char *gid;
@@ -142,28 +165,38 @@ typedef struct {
 } status_lines_t;
 
 typedef struct {
-    int			id;		/* pid, hash key and internal instance id */
-    int			valid;		/* flag (zero if process has exited) */
-    char		*name;		/* external instance name (<pid> cmdline) */
+    int			id;	/* pid, hash key and internal instance id */
+    int			valid;	/* flag (zero if process has exited) */
+    char		*name;	/* external instance name (<pid> cmdline) */
 
     /* /proc/<pid>/stat cluster */
     int			stat_fetched;
     int			stat_buflen;
     char		*stat_buf;
 
-    /* /proc/<pid>/statm & /proc/<pid>/maps cluster */
+    /* /proc/<pid>/statm and /proc/<pid>/maps cluster */
     int			statm_fetched;
     int			statm_buflen;
-    char        *statm_buf;
-    int         maps_fetched;
-    int         maps_buflen;
-    char        *maps_buf;
+    char		*statm_buf;
+    int			maps_fetched;
+    int			maps_buflen;
+    char		*maps_buf;
 
     /* /proc/<pid>/status cluster */
-    int         status_fetched;
-    int         status_buflen;
-    char        *status_buf;
-    status_lines_t      status_lines;
+    int			status_fetched;
+    int			status_buflen;
+    char		*status_buf;
+    status_lines_t	status_lines;
+
+    /* /proc/<pid>/schedstat cluster */
+    int			schedstat_fetched;
+    int			schedstat_buflen;
+    char		*schedstat_buf;
+
+    /* /proc/<pid>/io cluster */
+    int			io_fetched;
+    int			io_buflen;
+    char		*io_buf;
 } proc_pid_entry_t;
 
 typedef struct {
@@ -187,6 +220,14 @@ extern proc_pid_entry_t *fetch_proc_pid_status(int, proc_pid_t *);
 
 /* fetch a proc/<pid>/maps entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_maps(int, proc_pid_t *);
+
+/* fetch a proc/<pid>/schedstat entry for pid */
+extern proc_pid_entry_t *fetch_proc_pid_schedstat(int, proc_pid_t *);
+
+/* fetch a proc/<pid>/io entry for pid */
+extern proc_pid_entry_t *fetch_proc_pid_io(int, proc_pid_t *);
+
+extern int _pm_pid_io_fields;	/* count of fields in proc/<pid>/io */
 
 /* extract the ith space separated field from a buffer */
 extern char *_pm_getfield(char *, int);

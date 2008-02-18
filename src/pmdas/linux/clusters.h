@@ -37,7 +37,7 @@ enum {
 	CLUSTER_SWAPDEV,	/*  6 /proc/swaps */
 	CLUSTER_NET_NFS,	/*  7 /proc/net/rpc/nfs + /proc/net/rpc/nfsd */
 	CLUSTER_PID_STAT,	/*  8 /proc/<pid>/stat */
-	CLUSTER_PID_STATM,	/*  9 /proc/<pid>/statm & /proc/<pid>/maps */
+	CLUSTER_PID_STATM,	/*  9 /proc/<pid>/statm + /proc/<pid>/maps */
 	CLUSTER_PARTITIONS,	/* 10 /proc/partitions */
 	CLUSTER_NET_SOCKSTAT,	/* 11 /proc/net/sockstat */
 	CLUSTER_KERNEL_UNAME,	/* 12 uname() system call */
@@ -59,6 +59,8 @@ enum {
 	CLUSTER_VMSTAT,		/* 28 /proc/vmstat */
 	CLUSTER_IB,		/* 29 /sys/class/infiniband */
 	CLUSTER_NET_INET,	/* 30 /proc/net/dev and ioctl(SIOCGIFCONF) */
+	CLUSTER_PID_SCHEDSTAT,	/* 31 /proc/<pid>/schedstat */
+	CLUSTER_PID_IO,		/* 32 /proc/<pid>/io */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

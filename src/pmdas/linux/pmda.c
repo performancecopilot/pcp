@@ -1539,6 +1539,55 @@ static pmdaMetric metrictab[] = {
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /*
+ * proc/<pid>/schedstat cluster
+ */
+
+/* proc.schedstat.cpu_time */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_SCHEDSTAT,0), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0)}},
+/* proc.schedstat.run_delay */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_SCHEDSTAT,1), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0)}},
+/* proc.schedstat.pcount */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_SCHEDSTAT,2), KERNEL_ULONG, PROC_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)}},
+
+/*
+ * proc/<pid>/io cluster
+ */
+/* proc.io.rchar */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_IO,0), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)}},
+/* proc.io.wchar */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_IO,1), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)}},
+/* proc.io.syscr */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_IO,2), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)}},
+/* proc.io.syscw */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_IO,3), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)}},
+/* proc.io.read_bytes */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_IO,4), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.io.write_bytes */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_IO,5), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.io.cancelled_write_bytes */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_IO,6), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+/*
  * /proc/partitions cluster
  */
 
@@ -3090,7 +3139,8 @@ linux_refresh(int *need_refresh)
     	refresh_proc_net_sockstat(&proc_net_sockstat);
 
     if (need_refresh[CLUSTER_PID_STAT] || need_refresh[CLUSTER_PID_STATM] || 
-        need_refresh[CLUSTER_PID_STATUS])
+        need_refresh[CLUSTER_PID_STATUS] || need_refresh[CLUSTER_PID_IO] ||
+	need_refresh[CLUSTER_PID_SCHEDSTAT])
 	refresh_proc_pid(&proc_pid);
 
     if (need_refresh[CLUSTER_KERNEL_UNAME])
@@ -3175,7 +3225,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     	need_refresh[CLUSTER_PID_STAT]++;
     	need_refresh[CLUSTER_PID_STATM]++;
         need_refresh[CLUSTER_PID_STATUS]++;
-        break;
+        need_refresh[CLUSTER_PID_SCHEDSTAT]++;
+        need_refresh[CLUSTER_PID_IO]++;
+	break;
     case SCSI_INDOM:
     	need_refresh[CLUSTER_SCSI]++;
 	break;
@@ -3998,7 +4050,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		atom->ul /= 1024;
 		break;
 
-		case PROC_PID_STAT_RSS:
+	    case PROC_PID_STAT_RSS:
 		/*
 		 * pages converted to kbytes
 		 */
@@ -4032,8 +4084,8 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		sscanf(f, "%d", &atom->l);
 		break;
 
-		case PROC_PID_STAT_WCHAN:
-		case PROC_PID_STAT_WCHAN_SYMBOL: 
+	    case PROC_PID_STAT_WCHAN:
+	    case PROC_PID_STAT_WCHAN_SYMBOL: 
 		{
 		    char *wc;
 
@@ -4067,7 +4119,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		}
 		break;
 
-		default:
+	    default:
 		/*
 		 * unsigned decimal int
 		 */
@@ -4084,7 +4136,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_PID_STATM:
-
 	if (idp->item == PROC_PID_STATM_MAPS) {	/* proc.memory.maps */
 	    if ((entry = fetch_proc_pid_maps(inst, &proc_pid)) == NULL)
 		    return PM_ERR_INST;
@@ -4104,6 +4155,53 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return PM_ERR_PMID;
 	}
     	break;
+
+    case CLUSTER_PID_SCHEDSTAT:
+	if ((entry = fetch_proc_pid_schedstat(inst, &proc_pid)) == NULL)
+	    return (errno == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
+
+	if (idp->item >= 0 && idp->item < NR_PROC_PID_SCHED) {
+	    if ((f = _pm_getfield(entry->schedstat_buf, idp->item)) == NULL)
+		return PM_ERR_INST;
+	    if (idp->item == PROC_PID_SCHED_PCOUNT &&
+		mdesc->m_desc.type == PM_TYPE_U32)
+		sscanf(f, "%u", &atom->ul);
+	    else
+#if defined(HAVE_64BIT_PTR)
+		sscanf(f, "%lu", &atom->ull); /* 64bit address */
+#else
+		sscanf(f, "%u", &atom->ul);    /* 32bit address */
+#endif
+	}
+	else
+	    return PM_ERR_PMID;
+    	break;
+
+    case CLUSTER_PID_IO:
+	if (_pm_pid_io_fields != NR_PROC_PID_IO_MINIMUM &&
+	    _pm_pid_io_fields != NR_PROC_PID_IO)
+	    return PM_ERR_APPVERSION;
+	if ((entry = fetch_proc_pid_io(inst, &proc_pid)) == NULL)
+	    return (errno == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
+
+	if (idp->item >= 0 && idp->item < NR_PROC_PID_IO) {
+	    int off = 0;
+	    if (_pm_pid_io_fields == NR_PROC_PID_IO_MINIMUM) {
+		off = 4;
+		if (idp->item > NR_PROC_PID_IO_MINIMUM)
+		    return PM_ERR_APPVERSION;
+	    }
+	    if ((f = _pm_getfield(entry->io_buf, idp->item - off)) == NULL)
+		return PM_ERR_INST;
+#if defined(HAVE_64BIT_PTR)
+	    sscanf(f, "%lu", &atom->ull); /* 64bit address */
+#else
+	    sscanf(f, "%u", &atom->ul);    /* 32bit address */
+#endif
+	}
+	else
+	    return PM_ERR_PMID;
+	break;
 
     case CLUSTER_SLAB:
 	if (proc_slabinfo.ncaches == 0)
