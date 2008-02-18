@@ -1,7 +1,8 @@
 #
 # $Revision: 1.4 $
 #
-# Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (C) 2000 Michal Kara.  All Rights Reserved.
+# Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,23 +18,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
-# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-# Mountain View, CA 94043, USA, or: http://www.sgi.com
-#
 # apache PMDA help file in the ASCII format
-#
-# lines beginning with a # are ignored
-# lines beginning @ introduce a new entry of the form
-#  @ metric_name oneline-text
-#  help test goes
-#  here over multiple lines
-#  ...
-#
-# the metric_name is decoded against the default PMNS -- as a special case,
-# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
-# instance domain identification, and the text describes the instance domain
-#
-# blank lines before the @ line are ignored
 #
 
 @apache.total_accesses Number of accesses since Apache started
@@ -47,12 +32,13 @@ Number of seconds elapsed since the server was started.
 
 @apache.requests_per_sec Requests per second
 Average requests-per-second rate. Apache computes this as
-total_accesses/uptime, so you'd better use delta of total_accesses to get
-current rate.
+(total_accesses / uptime), so its better to use total_accesses
+to get current request rate.
 
 @apache.bytes_per_sec Bytes per second
-Average bytes-per-second rate. Apache computes this as total_kbytes/uptime,
-so you'd better use delta of total_kbytes to get current rate.
+Average bytes-per-second rate. Apache computes this as
+(total_kbytes / uptime), so its better to use total_kbytes
+to get current throughput.
 
 @apache.bytes_per_requests Bytes per request
 Average number of bytes per request. Apache computes this as
@@ -98,3 +84,10 @@ RequestsPerChild limit was reached).
 Number of open "slots" which could be occupied by a process. Together
 with busy_servers and idle_servers, this gives the MaxClients value.
 
+@apache.sb_closing Number of processes closing client connections
+Number of Apache processes closing client connections
+
+@apache.sb_idle_cleanup Number of processes performing idle cleanup
+Number of Apache processes performing idle cleanup
+
+@apache.uptime_s Time since Apache started, as a string
