@@ -1,0 +1,82 @@
+Source: pcp
+Section: utils
+Priority: optional
+Maintainer: Nathan Scott <nathans@debian.org>
+Build-Depends: autoconf, debhelper (>= 5)
+Standards-Version: 3.5.9
+
+Package: pcp
+Depends: libpcp3, libpcp-pmda3, libpcp-trace2
+Architecture: any
+Description: System-level performance monitoring and performance management.
+ Performance Co-Pilot (PCP) is a framework and services to
+ support system-level performance monitoring and performance
+ management.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp3-dev
+Section: libdevel
+Priority: extra
+Depends: libc6-dev | libc-dev, libpcp3
+Architecture: any
+Description: Performance Co-Pilot library and headers
+ libpcp-dev contains the base Performance Co-Pilot (PCP) library and
+ header files needed to develop both collector and monitor programs
+ which make use of PCP services.
+
+Package: libpcp3
+Depends: cpp
+Section: libs
+Priority: required
+Architecture: any
+Description: Performance Co-Pilot library
+ Contains the runtime environment required by programs that make use
+ of Performance Co-Pilot services.
+
+Package: libpcp-pmda3-dev
+Section: libdevel
+Priority: extra
+Depends: libc6-dev | libc-dev, libpcp3-dev
+Architecture: any
+Description: Performance Co-Pilot Domain Agent library and headers
+ libpcppmda-dev contains the Performance Co-Pilot (PCP) library and
+ header files needed to develop Performance Metric Domain Agents
+ (PMDAs).  A PMDA exports performance data for one specific domain,
+ for example the operating system kernel, Cisco routers, a database,
+ an application, etc.
+
+Package: libpcp-pmda3
+Depends: libpcp3
+Section: libs
+Priority: required
+Architecture: any
+Description: Performance Co-Pilot Domain Agent library
+ Contains the runtime environment required by a Performance Metric
+ Domain Agent (PMDAs).  A PMDA exports performance data for one
+ specific domain, for example the operating system kernel, Cisco
+ routers, a database, an application, etc.
+
+Package: libpcp-trace2-dev
+Section: libdevel
+Priority: extra
+Depends: libc6-dev | libc-dev, libpcp3-dev
+Architecture: any
+Description: Performance Co-Pilot Time Control library and headers
+ libpcptrace-dev contains the Performance Co-Pilot (PCP) library and
+ header files needed to directly instrument an application for event
+ and value tracking by the pmdatrace(1) PCP Trace Performance Metric
+ Domain Agent.
+
+Package: libpcp-trace2
+Depends: libpcp3
+Section: libs
+Priority: required
+Architecture: any
+Description: Performance Co-Pilot Time Control library
+ Contains the runtime environment required by an application that is
+ directly instrumented for event and value tracking by pmdatrace(3),
+ the Trace Performance Metric Domain Agent.

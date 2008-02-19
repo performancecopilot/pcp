@@ -1,0 +1,86 @@
+#!/usr/bin/make -f
+
+pcp = pcp
+libpcp = libpcp3
+libpcpdev = libpcp3-dev
+libpcp_pmda = libpcp-pmda3
+libpcp_pmdadev = libpcp-pmda3-dev
+libpcp_trace = libpcp-trace2
+libpcp_tracedev = libpcp-trace2-dev
+
+dirpcp = debian/$(pcp)
+dirlibpcp = debian/$(libpcp)
+dirlibpcpdev = debian/$(libpcpdev)
+dirlibpcp_pmda = debian/$(libpcp_pmda)
+dirlibpcp_pmdadev = debian/$(libpcp_pmdadev)
+dirlibpcp_trace = debian/$(libpcp_trace)
+dirlibpcp_tracedev = debian/$(libpcp_tracedev)
+alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(dirlibpcp_pmda) \
+	$(dirlibpcp_pmdadev) $(dirlibpcp_trace) $(dirlibpcp_tracedev)
+
+pkgpcp = DIST_ROOT=`pwd`/$(dirpcp); export DIST_ROOT;
+pkglibpcp = DIST_ROOT=`pwd`/$(dirlibpcp); export DIST_ROOT;
+pkglibpcp_pmda = DIST_ROOT=`pwd`/$(dirlibpcp_pmda); export DIST_ROOT;
+pkglibpcp_trace = DIST_ROOT=`pwd`/$(dirlibpcp_trace); export DIST_ROOT;
+
+stdenv = @GZIP=-q; export GZIP;
+options = export DEBUG=-DNDEBUG DISTRIBUTION=debian ;
+checkdir = test -f debian/rules
+checkver = rm -f debian/compat && echo 5 > debian/compat
+
+build: built
+built: config
+	@echo "== dpkg-buildpackage: build" 1>&2
+	$(MAKE) default
+	touch built
+
+config: .census
+.census:
+	@echo "== dpkg-buildpackage: configure" 1>&2
+	$(checkdir)
+	$(options) $(MAKE) configure
+	touch .census
+
+clean:
+	@echo "== dpkg-buildpackage: clean" 1>&2
+	$(checkdir)
+	-rm -f built .census
+	$(MAKE) realclean
+	-rm -rf $(alldir)
+	-rm -f debian/*substvars debian/files* debian/*.debhelper debian/compat
+
+binary-indep:
+
+binary-arch: checkroot built
+	@echo "== dpkg-buildpackage: binary-arch" 1>&2
+	$(checkdir)
+	$(checkver)
+	-rm -rf $(alldir)
+	$(pkgpcp) $(MAKE) -C . install
+	$(pkgpcp) $(MAKE) -C build pcp.src
+
+	dh_installdocs
+	dh_installchangelogs
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_install --sourcedir=debian/$(pcp)
+	dh_makeshlibs -N $(libpcp)
+	dh_makeshlibs -p $(libpcp)
+	dh_makeshlibs -N $(libpcp_pmda)
+	dh_makeshlibs -p $(libpcp_pmda)
+	dh_makeshlibs -N $(libpcp_trace)
+	dh_makeshlibs -p $(libpcp_trace)
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+
+checkroot:
+	test 0 -eq `id -u`
+
+.PHONY: binary binary-arch binary-indep clean checkroot
