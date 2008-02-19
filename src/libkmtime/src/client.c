@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Nathan Scott.  All Rights Reserved.
+ * Copyright (c) 2006 Aconex.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published

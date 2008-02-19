@@ -1,6 +1,6 @@
 #! gmake
 #
-# Copyright (c) 2006 Nathan Scott.  All Rights Reserved.
+# Copyright (c) 2006 Aconex.  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
@@ -20,38 +20,17 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-DSOVERSION = 1
-LIBTARGET = libkmtime.$(DSOSUFFIX).$(DSOVERSION)
-SYMTARGET = libkmtime.$(DSOSUFFIX)
-ifeq "$(TARGET_OS)" "darwin"
-LIBTARGET = libkmtime.$(DSOVERSION).$(DSOSUFFIX)
-endif
-ifeq "$(TARGET_OS)" "cygwin"
-LIBTARGET = libkmtime.$(DSOSUFFIX)
-SYMTARGET =
-endif
+STATICLIBTARGET = libkmtime.a
 
 CFILES = client.c
 HFILES = kmtime.h
-LDIRT += $(SYMTARGET)
 
-default: $(LIBTARGET) $(SYMTARGET)
-
-ifneq "$(SYMTARGET)" ""
-$(SYMTARGET):
-	$(LN_S) -f $(LIBTARGET) $(SYMTARGET)
-endif
+default: $(STATICLIBTARGET)
 
 include $(BUILDRULES)
 
-$(LIBTARGET) : $(LOBJECTS)
-
 install: default
-	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
-ifneq "$(SYMTARGET)" ""
-	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET)
-endif
-	$(INSTALL) -m 644 kmtime.h $(PCP_INC_DIR)/kmtime.h
+	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 
 default_pcp:	default
 
