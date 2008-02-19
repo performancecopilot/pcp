@@ -26,18 +26,8 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-# directories that are only used for IRIX builds, but need to be descended
-# into for clean and clobber for shared build areas
-#
-IRIX_SUBDIRS = buildtools libarray_util libpcp_dev
-
-# directories that are only used for open source builds
-#
-GNU_SUBDIRS = libkmtime
-
-SUBDIRS = $(IRIX_SUBDIRS) \
-	  include libpcp pmns libpcp_pmda libpcp_trace libpcp_http \
-	  $(GNU_SUBDIRS) newhelp pminfo pmnscomp pmcd pmerr pmdbg \
+SUBDIRS = include libpcp libpcp_pmda libpcp_trace libpcp_http libkmtime \
+	  pmns newhelp pminfo pmnscomp pmcd pmerr pmdbg \
 	  pmdate pmie pmpost pmprobe pmcdctl pmlock pmval pmlogger \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmlogctl \
 	  pmlogconf pmlogsummary pmclient pmkstat pcp pmlc dbpmda \
