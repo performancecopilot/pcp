@@ -60,7 +60,7 @@ LDIRT = config.cache autom4te.cache config.status config.log config.done \
 	root-*/include root-*/lib root-*/*.rpm root-*/default_pro \
 	autom4te.cache install.manifest install_pro.manifest
 
-SUBDIRS = src man build
+SUBDIRS = src man build debian
 ifeq "$(MAKECMDGOALS)" "clobber"
 ifeq ($(shell [ -d qa ] && echo 1),1)
 SUBDIRS	+= qa
