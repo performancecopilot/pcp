@@ -39,13 +39,15 @@ LIBTARGET = libpcp_trace.$(DSOSUFFIX)
 SYMTARGET =
 endif
 
+STATICLIBTARGET = libpcp_trace.a
+
 LDIRT = $(SYMTARGET)
 
 #
 # Java support (needs jni.h)
 # CFILES += jtrace.c
 
-base default: $(LIBTARGET) $(SYMTARGET)
+base default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET):
@@ -59,6 +61,7 @@ install : default
 ifneq "$(SYMTARGET)" ""
 	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET)
 endif
+	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 
 default_pcp : default
 

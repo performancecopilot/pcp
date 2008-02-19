@@ -23,36 +23,17 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
+STATICLIBTARGET = libpcp_http.a
+
 CFILES = http_lib.c
 HFILES = http_lib.h
 
-DSOVERSION = 1
-LIBTARGET = libpcp_http.$(DSOSUFFIX).$(DSOVERSION)
-SYMTARGET = libpcp_http.$(DSOSUFFIX)
-ifeq "$(TARGET_OS)" "darwin"
-LIBTARGET = libpcp_http.$(DSOVERSION).$(DSOSUFFIX)
-endif
-ifeq "$(TARGET_OS)" "cygwin"
-LIBTARGET = libpcp_http.$(DSOSUFFIX)
-SYMTARGET =
-endif
-
-LDIRT = $(SYMTARGET)
-
-base default : $(LIBTARGET) $(SYMTARGET)
-
-ifneq "$(SYMTARGET)" ""
-$(SYMTARGET):
-	$(LN_S) -f $(LIBTARGET) $(SYMTARGET)
-endif
+base default : $(STATICLIBTARGET)
 
 include $(BUILDRULES)
 
 install : default
-	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
-ifneq "$(SYMTARGET)" ""
-	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET) 
-endif
+	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 
 default_pcp : default
 

@@ -62,11 +62,12 @@ ifeq "$(TARGET_OS)" "cygwin"
 LIBTARGET = libpcp.$(DSOSUFFIX)
 SYMTARGET =
 endif
+STATICLIBTARGET = libpcp.a
 
 LDIRT = $(SYMTARGET) dsotbl.h
 
 
-base default : $(LIBTARGET) $(SYMTARGET)
+base default : $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET): 
@@ -111,6 +112,7 @@ ifneq "$(SYMTARGET)" ""
 	    $(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$$tt || exit 1; \
 	done
 endif
+	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 
 default_pcp : default
 

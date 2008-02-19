@@ -24,41 +24,24 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-DSOVERSION = 1
-LIBTARGET = libpcp_pmc.$(DSOSUFFIX).$(DSOVERSION)
-SYMTARGET = libpcp_pmc.$(DSOSUFFIX)
-ifeq "$(TARGET_OS)" "darwin"
-LIBTARGET = libpcp_pmc.$(DSOVERSION).$(DSOSUFFIX)
-endif
-ifeq "$(TARGET_OS)" "cygwin"
-LIBTARGET = libpcp_pmc.$(DSOSUFFIX)
-SYMTARGET =
-endif
+STATICLIBTARGET = libpcp_pmc.a
 
-CXXFILES	= String.c++ Desc.c++ Indom.c++ Source.c++ Context.c++ \
-		  Group.c++ Metric.c++ 
+CXXFILES = String.c++ Desc.c++ Indom.c++ Source.c++ Context.c++ \
+	   Group.c++ Metric.c++ 
 
 LCXXFLAGS += -I..
 LOBJECTS=${CXXFILES:%.c++=%.o}
 
 LDIRT	= $(SYMTARGET) pcp
 
-default: $(LIBTARGET) $(SYMTARGET)
-
-ifneq "$(SYMTARGET)" ""
-$(SYMTARGET):
-	$(LN_S) -f $(LIBTARGET) $(SYMTARGET)
-endif
+default: $(STATICLIBTARGET)
 
 include $(BUILDRULES)
 
 $(LIBTARGET) : $(LOBJECTS)
 
 install: default
-	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
-ifneq "$(SYMTARGET)" ""
-	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET)
-endif
+	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 
 $(LOBJECTS): pcp
 pcp:

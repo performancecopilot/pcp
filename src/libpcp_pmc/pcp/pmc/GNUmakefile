@@ -24,7 +24,7 @@
 TOPDIR = ../../../..
 include	$(TOPDIR)/src/include/builddefs
 
-HFILES = Bool.h	 Desc.h Hash.h List.h PMC.h String.h Context.h \
+HFILES = Bool.h Desc.h Hash.h List.h PMC.h String.h Context.h \
 	 Group.h Indom.h Metric.h Source.h Vector.h
 LDIRT = pcp
 
@@ -36,8 +36,6 @@ pcp:
 include $(BUILDRULES)
 
 install: default
-	$(INSTALL) -m 755 -d $(PCP_INC_DIR)/pmc
-	$(INSTALL) -m 644 $(HFILES) $(PCP_INC_DIR)/pmc
 
 default_pcp:	default
 
