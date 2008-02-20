@@ -139,14 +139,6 @@ usr/share/man/man3/pmreconnectcontext.3.gz
 usr/share/man/man3/pmsetmode.3.gz
 usr/share/man/man3/pmsortinstances.3.gz
 usr/share/man/man3/pmstore.3.gz
-usr/share/man/man3/pmtraceabort.3.gz
-usr/share/man/man3/pmtracebegin.3.gz
-usr/share/man/man3/pmtracecounter.3.gz
-usr/share/man/man3/pmtraceend.3.gz
-usr/share/man/man3/pmtraceerrstr.3.gz
-usr/share/man/man3/pmtraceobs.3.gz
-usr/share/man/man3/pmtracepoint.3.gz
-usr/share/man/man3/pmtracestate.3.gz
 usr/share/man/man3/pmtraversepmns.3.gz
 usr/share/man/man3/pmtrimnamespace.3.gz
 usr/share/man/man3/pmtypestr.3.gz

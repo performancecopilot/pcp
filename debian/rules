@@ -24,7 +24,7 @@ pkglibpcp = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp);
 pkglibpcp_pmda = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
 pkglibpcp_trace = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_trace);
 
-options = export DEBUG=-DNDEBUG PACKAGE_DISTRIBUTION=debian ;
+options = export DEBUG=-DNDEBUG PACKAGE_DISTRIBUTION=debian;
 checkdir = test -f debian/rules
 checkver = rm -f debian/compat && echo 5 > debian/compat
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
@@ -39,7 +39,7 @@ config: .census
 .census:
 	@echo "== dpkg-buildpackage: configure" 1>&2
 	$(checkdir)
-	$(options) $(MAKE) configure
+	$(options) $(MAKE) configure config.done
 	touch .census
 
 clean:
