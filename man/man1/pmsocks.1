@@ -48,8 +48,7 @@ This assumes the firewall has been configured
 with a compliant
 .B sockd
 daemon and the necessary access controls are satisfied.
-.SH "LINUX CONFIGURATION"
-On Linux,
+.SH "CONFIGURATION"
 .B pmsocks
 uses the
 .BR tsocks (5)
@@ -240,18 +239,6 @@ due to the additional delays introduced as a result of using
 See
 .BR PMAPI (3) 
 for further details about this variable.
-.SH IRIX DIAGNOSTICS
-Network connections which use
-.B libpcp_socks
-are reported via
-.BR syslogd (1M)
-to
-.IR /var/adm/SYSLOG .
-All logged messages contain the string
-.BR libpcp_socks .
-Debugging may be enabled using the
-.B SOCKS_DEBUG
-environment variable, as described above.
 .SH CAVEAT
 The following notes should be considered carefully:
 .TP 5
@@ -338,47 +325,21 @@ it is not immediately obvious whether
 .BR pmcd (1)
 is returning the error or
 .BR sockd .
-.SH "LINUX COPYRIGHT NOTICE"
+.SH "COPYRIGHT NOTICE"
 .B tsocks
 is covered by the GPL license and is copyright
 Shaun Clowes (delius@progsoc.org).
-.SH "IRIX COPYRIGHT NOTICE"
-Socks support Copyright (c) 1989 Regents of the University
-of California.
-All rights reserved.
-Portions of Socks
-support Copyright (c) 1993, 1994, 1995 by NEC Systems
-Laboratory.
-.SH "LINUX FILES"
+.SH "FILES"
 .TP 10
 .B /etc/tsocks.conf
 configuration file
-.SH "IRIX FILES"
-.TP 10
-.B /etc/pcp_socks.conf
-configuration file
-.TP 10
-.B /usr/pcp/lib/libpcp_socks.so
-the socks library
-.BR dso (5)
-.TP 10
-.B /var/adm/SYSLOG
-file containing
-.B pmsocks
-log messages
-.SH "ON LINUX, SEE ALSO"
-.BR resolver (5)
-and
-.BR tsocks (5).
-.SH "ON IRIX, SEE ALSO"
-.BR resolver (4)
-and
-.BR dso (5).
 .SH "SEE ALSO"
 .BR pmcd (1),
 .BR pminfo (1),
 .BR pmlogger (1),
 .BR pmval (1),
-.BR X (1)
+.BR X (1),
+.BR PMAPI (3),
+.BR resolver (5),
 and
-.BR PMAPI (3).
+.BR tsocks (5).
