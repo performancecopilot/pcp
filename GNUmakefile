@@ -49,8 +49,9 @@ TOPDIR = .
 -include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-DOCFILES = README INSTALL CHANGELOG VERSION.pcp COPYING
-LSRCFILES = configure configure.in Makepkgs install-sh $(DOCFILES) \
+LICFILES = COPYING
+DOCFILES = README INSTALL CHANGELOG VERSION.pcp
+LSRCFILES = configure configure.in Makepkgs install-sh $(DOCFILES) $(LICFILES) \
 	    config.guess config.sub sgiReleaseNumber pcp.lsm.in
 LDIRT = config.cache autom4te.cache config.status config.log config.done \
 	files.rpm pro_files.rpm pcp.spec pcp.lsm \
@@ -118,6 +119,9 @@ install_pcp :  default_pcp
 		$(MAKE) -C $$d $@ || exit $$?; \
 	    fi; \
 	done
+ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
+	$(INSTALL) -m 644 $(LICFILES) $(PCP_DOC_DIR)
+endif
 	$(INSTALL) -m 644 pcp.lsm $(DOCFILES) $(PCP_DOC_DIR)
 
 ifdef BUILDRULES
