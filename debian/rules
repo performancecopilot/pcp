@@ -4,7 +4,7 @@ package = kmchart
 
 dirme = debian/$(package)
 zipme = @export GZIP=-9q
-pkgme = $(zip); export DIST_ROOT=`pwd`/$(dirme);
+pkgme = $(zipme); export DIST_ROOT=`pwd`/$(dirme);
 
 options = export DEBUG=-DNDEBUG DISTRIBUTION=debian;
 checkdir = test -f debian/rules
