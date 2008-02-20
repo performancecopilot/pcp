@@ -127,6 +127,11 @@ if test -z "$PACKAGE_BUILD_DATE" ; then
 fi
 AC_SUBST(PACKAGE_BUILD_DATE)
 
+if test -z "$PACKAGE_DISTRIBUTION" ; then
+    PACKAGE_DISTRIBUTION=None
+fi
+AC_SUBST(PACKAGE_DISTRIBUTION)
+
 if test -z "$PACKAGE_BUILDER"
 then
     case "$target_os"

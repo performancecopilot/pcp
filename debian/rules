@@ -18,15 +18,16 @@ dirlibpcp_tracedev = debian/$(libpcp_tracedev)
 alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(dirlibpcp_pmda) \
 	$(dirlibpcp_pmdadev) $(dirlibpcp_trace) $(dirlibpcp_tracedev)
 
-pkgpcp = DIST_ROOT=`pwd`/$(dirpcp); export DIST_ROOT;
-pkglibpcp = DIST_ROOT=`pwd`/$(dirlibpcp); export DIST_ROOT;
-pkglibpcp_pmda = DIST_ROOT=`pwd`/$(dirlibpcp_pmda); export DIST_ROOT;
-pkglibpcp_trace = DIST_ROOT=`pwd`/$(dirlibpcp_trace); export DIST_ROOT;
+zip = @export GZIP=-9q
+pkgpcp = $(zip); export DIST_ROOT=`pwd`/$(dirpcp);
+pkglibpcp = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp);
+pkglibpcp_pmda = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
+pkglibpcp_trace = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_trace);
 
-stdenv = @GZIP=-q; export GZIP;
-options = export DEBUG=-DNDEBUG DISTRIBUTION=debian ;
+options = export DEBUG=-DNDEBUG PACKAGE_DISTRIBUTION=debian ;
 checkdir = test -f debian/rules
 checkver = rm -f debian/compat && echo 5 > debian/compat
+uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
 
 build: built
 built: config
@@ -65,6 +66,7 @@ binary-arch: checkroot built
 	dh_compress
 	dh_fixperms
 	dh_install --sourcedir=debian/$(pcp)
+	$(uninstall)
 	dh_makeshlibs -N $(libpcp)
 	dh_makeshlibs -p $(libpcp)
 	dh_makeshlibs -N $(libpcp_pmda)
