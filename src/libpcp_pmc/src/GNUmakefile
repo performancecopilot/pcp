@@ -41,7 +41,6 @@ include $(BUILDRULES)
 $(LIBTARGET) : $(LOBJECTS)
 
 install: default
-	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 
 $(LOBJECTS): pcp
 pcp:

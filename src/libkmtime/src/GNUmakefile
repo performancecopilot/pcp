@@ -30,7 +30,6 @@ default: $(STATICLIBTARGET)
 include $(BUILDRULES)
 
 install: default
-	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 
 default_pcp:	default
 
