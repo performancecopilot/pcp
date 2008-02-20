@@ -358,7 +358,7 @@ o To examine the load on two hosts foo and bar, simultaneously:
 .in 0.5i
 .ft CW
 .nf
-$ pmdumptext -il 'foo:kernel.all.load[1]' 'bar:kernel.all.load[1]'
+$ pmdumptext \-il 'foo:kernel.all.load[1]' 'bar:kernel.all.load[1]'
              Source        foo     bar
 Wed Jul 30 11:37:53      0.309   0.409
 Wed Jul 30 11:37:54      0.309   0.409
@@ -372,7 +372,7 @@ o To output the memory utilization on a remote host called bing with a simpler t
 .in 0.5i
 .ft CW
 .nf
-$ pmdumptext -imu -h bing -f '%H:%M:%S' mem.util
+$ pmdumptext \-imu \-h bing \-f '%H:%M:%S' mem.util
   Metric        kernel  fs_ctl  _dirty  _clean    free    user
    Units             b       b       b       b       b       b
 09:32:28         8.98M   0.97M   0.00    3.90M   7.13M  46.13M
@@ -390,7 +390,7 @@ for processing by another tool:
 .in 0.5i
 .ft CW
 .nf
-$ pminfo -a archive | pmdumptext -t 30s -m -a archive > outfile
+$ pminfo \-a archive | pmdumptext \-t 30s \-m \-a archive > outfile
 .fi
 .ft R
 .in

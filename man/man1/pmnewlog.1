@@ -192,7 +192,7 @@ encountered.
 The
 .B \-N
 option enables a ``show me'' mode, where the actions are echoed,
-but not executed, in the style of ``make -n''.
+but not executed, in the style of ``make \-n''.
 Using
 .B \-N
 in conjunction with
@@ -271,9 +271,9 @@ LOGDIR=$PCP_LOG_DIR/pmlogger/`hostname`
 LOGNAME=`date "+%Y%m%d.%H.%M"`
 
 # do it
-[ ! -d $LOGDIR ] && mkdir -p $LOGDIR
+[ ! \-d $LOGDIR ] && mkdir \-p $LOGDIR
 cd $LOGDIR
-$PCP_BINADM_DIR/pmnewlog -l $LOGDIR/pmlogger.log $LOGDIR
+$PCP_BINADM_DIR/pmnewlog \-l $LOGDIR/pmlogger.log $LOGDIR
 .ft R
 .fi
 .in -8n

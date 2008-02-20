@@ -334,7 +334,7 @@ window to monitor processes, but do this at most once every 5 minutes:
 .in +0.5i
 all_sample (
     kernel.all.syscall @0..9 > 5000 count/sec * hinv.ncpu
-) -> shell 5 min "xwsh -e 'top'";
+) -> shell 5 min "xwsh \-e 'top'";
 .in
 .fi
 .ft 1
@@ -908,7 +908,7 @@ and
 fits into this model when rules use the
 .I syslog
 action.
-Note that if the action string begins with \-p (priority) and/or -t (tag)
+Note that if the action string begins with \-p (priority) and/or \-t (tag)
 then these are extracted from the string and treated in the same way as in
 .BR logger (1).
 .P
