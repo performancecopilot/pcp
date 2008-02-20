@@ -22,6 +22,7 @@ Source: @package_name@-@package_version@-@package_release@.src.tar.gz
 %endif
 
 Conflicts: pcp-pro < 2.2
+Provides: pcp-open = @package_version@
 
 # Stuff used indirectly e.g. by shell scripts we install
 Requires: bash gawk sed grep fileutils findutils cpp
