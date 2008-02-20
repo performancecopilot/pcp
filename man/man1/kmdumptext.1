@@ -366,7 +366,7 @@ o To examine the load on two hosts foo and bar, simultaneously:
 .in 0.5i
 .ft CW
 .nf
-$ kmdumptext -il 'foo:kernel.all.load[1]' 'bar:kernel.all.load[1]'
+$ kmdumptext \-il 'foo:kernel.all.load[1]' 'bar:kernel.all.load[1]'
              Source        foo     bar
 Wed Jul 30 11:37:53      0.309   0.409
 Wed Jul 30 11:37:54      0.309   0.409
@@ -375,12 +375,12 @@ Wed Jul 30 11:37:55      0.309   0.409
 .ft R
 .in
 .PP
-o To output the memory utilization on a remote host called bing with a simpler timestamp:
+o To output the memory utilization on a remote host called bong with a simpler timestamp:
 .PP
 .in 0.5i
 .ft CW
 .nf
-$ kmdumptext -imu -h bing -f '%H:%M:%S' mem.util
+$ kmdumptext \-imu \-h bong \-f '%H:%M:%S' mem.util
   Metric        kernel  fs_ctl  _dirty  _clean    free    user
    Units             b       b       b       b       b       b
 09:32:28         8.98M   0.97M   0.00    3.90M   7.13M  46.13M
@@ -398,7 +398,7 @@ for processing by another tool:
 .in 0.5i
 .ft CW
 .nf
-$ pminfo -a archive | kmdumptext -t 30s -m -a archive > outfile
+$ pminfo \-a archive | kmdumptext \-t 30s \-m \-a archive > outfile
 .fi
 .ft R
 .in

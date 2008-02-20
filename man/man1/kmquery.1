@@ -222,7 +222,7 @@ asking the user a yes or no question with "Yes" as the default.
 .PP
 .nf
  #! /bin/sh
- case `kmquery -t "Really power down?" -b No -B Yes -icon question
+ case `kmquery \-t "Really power down?" \-b No \-B Yes \-icon question
  in
    Yes) shutdown;;
    No) ;;
@@ -234,10 +234,10 @@ terminal with an ssh session connected to the requested host.
 .PP
 .nf
  #! /bin/sh
- host=`kmquery -input -icon host -b Cancel -B OK \\
-               -header "Remote Terminal - Secure Shell"
+ host=`kmquery \-input \-icon host \-b Cancel \-B OK \\
+               \-header "Remote Terminal \- Secure Shell"
  [ "$host" = "Cancel" -o -z "$host" ] && exit
- gnome-terminal -e "ssh $host"
+ gnome-terminal \-e "ssh $host"
 .fi
 .SH ENVIRONMENT
 .B kmquery
