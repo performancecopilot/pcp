@@ -1,5 +1,5 @@
-kmchart (0.5.0-1) unstable; urgency=low
+kmchart (1.0.0beta6-1) unstable; urgency=low
 
-  * Initial release.
+  * Initial Debian packaging.
 
- -- Nathan Scott <nathans@debian.org>  Wed, 23 May 2007 13:31:16 +1000
+ -- Nathan Scott <nathans@debian.org>  Thu, 21 Feb 2008 05:49:32 +1100

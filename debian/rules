@@ -1,13 +1,12 @@
 #!/usr/bin/make -f
 
-package=kmchart
+package = kmchart
 
-dirme  = debian/$(package)
-pkgme  = DIST_ROOT=`pwd`/$(dirme); export DIST_ROOT;
-stdenv = @GZIP=-q; export GZIP;
+dirme = debian/$(package)
+zipme = @export GZIP=-9q
+pkgme = $(zip); export DIST_ROOT=`pwd`/$(dirme);
 
-options = export DEBUG=-DNDEBUG DISTRIBUTION=debian \
-	  INSTALL_USER=root INSTALL_GROUP=root ;
+options = export DEBUG=-DNDEBUG DISTRIBUTION=debian;
 checkdir = test -f debian/rules
 checkver = rm -f debian/compat && echo 5 > debian/compat
 
@@ -42,6 +41,7 @@ binary-arch: checkroot built
 	$(pkgme) $(MAKE) -C . install
 	$(pkgme) $(MAKE) -C build src-manifest
 
+	dh_desktop
 	dh_installdocs
 	dh_installchangelogs
 	dh_strip
