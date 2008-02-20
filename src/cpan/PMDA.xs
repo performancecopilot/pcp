@@ -26,9 +26,7 @@ extern "C" {
 #include "perl.h"
 #include "XSUB.h"
 #include <pcp/pmapi.h>
-#if defined(sgi)
 #include <pcp/impl.h>
-#endif
 #include <pcp/pmda.h>
 #ifdef __cplusplus
 }
@@ -106,7 +104,7 @@ local_fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 	case PM_TYPE_U64:	atom->ull = POPl; break;
 	case PM_TYPE_FLOAT:	atom->f = POPn; break;
 	case PM_TYPE_DOUBLE:	atom->d = POPn; break;
-	case PM_TYPE_STRING:	atom->cp = SvPV((POPs), na); break;
+	case PM_TYPE_STRING:	atom->cp = SvPV((POPs), PL_na); break;
     }
 
 fetch_end:
@@ -219,7 +217,7 @@ list_to_indom(SV *list, pmdaInstid **set)
 	id = av_fetch(ilist,i*2,0);
 	name = av_fetch(ilist,i*2+1,0);
 	instances[i].i_inst = SvIV(*id);
-	instances[i].i_name = strdup(SvPV(*name, na));
+	instances[i].i_name = strdup(SvPV(*name, PL_na));
 	if (instances[i].i_name == NULL) {
 	    warn("insufficient memory for instance array names");
 	    return -1;
@@ -453,7 +451,7 @@ debug_indom(self)
 	fprintf(stderr, "indom table size = %d\n", itab_size);
 	for (i = 0; i < itab_size; i++) {
 	    fprintf(stderr, "indom idx = %d\n\tindom = %d\n"
-			    "\tninst = %u\n\tiptr = 0x%x\n",
+			    "\tninst = %u\n\tiptr = 0x%p\n",
 		    i, *(int *)&indomtab[i].it_indom, indomtab[i].it_numinst,
 		    indomtab[i].it_set);
 	    for (j = 0; j < indomtab[i].it_numinst; j++) {

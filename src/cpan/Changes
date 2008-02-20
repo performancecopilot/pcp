@@ -1,5 +1,9 @@
 Revision history for Perl extension PCP::PMDA.
 
+0.02  Wed Feb 20 16:38:38 2008
+       - port forward to Perl API changes (circa Perl 5.6).
+
+
 0.01  Mon Sep 20 09:01:16 1999
 	- original version; created by h2xs 1.18
 

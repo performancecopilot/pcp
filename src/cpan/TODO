@@ -23,28 +23,10 @@ o  Use PerlPOD(1) directives in the PCP::PMDA module to interface to
    changed the semantics of the equivalent libpcp_pmda functionality
    especially; but in most routines simply refer to PMDA(3).
 
-
-Extending the API
------------------
-
-Real Perl PMDAs will want to have one/two fundamental features available
-
-1/ Implementation of the PCP::PMDA->add_file_handle() routine
-   which would allow new data to be received asynchronously from
-   an external source (this was needed by trace/hotproc PMDAs,
-   but wasn't catered for in the original libpcp_pmda design)
-   by interrupting the pmcd<->pmda select(2) loop
-
-2/ Thread interface? - design and implement so that a separate thread
-   can be maintained/coordinated which does the work of extracting
-   performance data (see generic database ping PMDA below) to the one
-   doing the pmcd communication - may be enough to do point one above
-   only ... ideally, use some profiling data to decide.
-
-...at this point, we may be able to start thinking about removing the
-ASCII PDU support from libpcp (IRIX 6.5.x compatibility could prove a
-major stumbling block).
-
+o  Many Perl PMDAs will want to have an interface that allows them to
+   get hold of the last data written to a file, as it is written there
+   (ala. tail -f).
+ 
 
 More interesting stuff
 ----------------------
@@ -103,10 +85,3 @@ o  generic SNMP PMDA
 	  which could be easily configured to import arbitrary
 	  SNMP data using the perl SNMP module
 
-o  ... numerous others ... main advance will be simplification
-   of PMDA development & this should be held up as the foremost
-   design concern in any API decisions.
-
-
-
-					nathans@sgi.com

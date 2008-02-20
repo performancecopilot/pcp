@@ -26,9 +26,7 @@
 #include <stdlib.h>
 #include <values.h>
 #include <pcp/pmapi.h>
-#if defined(sgi)
 #include <pcp/impl.h>
-#endif
 #include <pcp/pmda.h>
 
 void

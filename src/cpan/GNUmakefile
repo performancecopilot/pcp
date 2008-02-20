@@ -1,6 +1,7 @@
 #!gmake
 #
-# Copyright (c) 2007 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,16 +20,15 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Id$
-#
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-# placeholder to get the source exported
-LSRCFILES = Changes cvalue.c dbprobe.pl Makefile.PL MANIFEST \
-pmdadbping.pl pmdanews.pl PMDA.pm pmdasimple.pl PMDA.xs test.pl \
-TODO typemap
+PERLPMDAS = dbprobe.pl pmdadbping.pl pmdanews.pl pmdasimple.pl
+PERLCODE  = PMDA.pm PMDA.xs typemap
+TESTCODE  = test.pl cvalue.c
+PERLDOCS  = Changes MANIFEST TODO
+LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLPMDAS) $(PERLCODE) $(TESTCODE)
 
 default default_pcp: 
 install install_pcp:
