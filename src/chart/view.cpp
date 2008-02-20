@@ -251,6 +251,7 @@ void OpenViewDialog::globals(int *w, int *h, int *pts, int *x, int *y)
 bool OpenViewDialog::openView(const char *path)
 {
     Chart		*cp = NULL;
+    int			ct = kmchart->tabWidget()->currentIndex();
     int			m;
     ColorScheme		scheme;
     FILE		*f;
@@ -659,7 +660,7 @@ abort_chart:
 	    }
 	    else if (strcasecmp(w, "tab") == 0) {
 new_tab:
-		QString label;
+		QString label, host;
 		int samples = globalSettings.sampleHistory;
 		int points = globalSettings.visibleHistory;
 		char *endnum;
@@ -674,6 +675,15 @@ new_tab:
 		w = getwd(f);
 		if (w == NULL || w[0] == '\n')
 		    goto done_tab;
+		// default "host" specification for the tab is optional
+		if (strcasecmp(w, "host") == 0) {
+		    w = getwd(f);
+		    if (w == NULL || w[0] == '\n') {
+			xpect("<host>", w);
+			goto abandon;
+		    }
+		    host = w;
+		}
 		if (strcasecmp(w, "points") != 0) {
 		    xpect("<tab points>", w);
 		    goto abandon;
@@ -703,6 +713,14 @@ new_tab:
 
 done_tab:
 		Tab *tab = kmchart->activeTab();
+		bool isArchive = tab->isArchiveSource();
+
+		if (host != QString::null) {
+		    if (isArchive)
+			archiveGroup->use(PM_CONTEXT_ARCHIVE, host);
+		    else
+			liveGroup->use(PM_CONTEXT_HOST, host);
+		}
 
 		if (tab->numChart() == 0) {	// edit the initial tab
 		    TabWidget *tabWidget = kmchart->tabWidget();
@@ -711,8 +729,6 @@ done_tab:
 		    tab->setVisibleHistory(points);
 		}
 		else {		// create a completely new tab from scratch
-		    bool isArchive = tab->isArchiveSource();
-
 		    tab = new Tab;
 		    if (isArchive)
 			tab->init(kmchart->tabWidget(), samples, points,
@@ -1137,6 +1153,9 @@ abandon:
 
     if (_errors)
 	return false;
+
+    if (ct != kmchart->tabWidget()->currentIndex())	// new Tabs added
+	kmchart->setActiveTab(ct, true);
 
     if ((Cflag == 0 || Cflag == 2) && cp != NULL)
 	kmchart->activeTab()->setupWorldView();

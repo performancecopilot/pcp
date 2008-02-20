@@ -84,7 +84,7 @@ where each of r, g and b are hexidecimal digits (0-9 and A-F) representing respe
 <BR>pmchart uses a bizarre syntactic notation where &lt;inst&gt; and &lt;pat&gt; extend from the first non-white space character to the end of the input line.  For kmchart configuration files these elements are either delimited by white space, or enclosed in quotes (").
 </OL><PRE></PRE>
        <LI>The optional <B>tab</B> directive can be used to create views with multiple charts which span multiple Tabs.  The synax is as follows:
-<PRE>    tab &lt;label&gt; [points &lt;points&gt; [samples &lt;samples&gt;]]</PRE>
+<PRE>    tab &lt;label&gt; [host &lt;host&gt;] [points &lt;points&gt; [samples &lt;samples&gt;]]</PRE>
 <BR>All chart specifications following this keyword will be created on the new Tab, until the end of the configuration file or until another <B>tab</B> keyword is encountered.
 </OL>
 <P>&nbsp;</P>
