@@ -1,23 +1,23 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
-LIBPCPPKG = libpcp3
+LIBPCPPCP = libpcp3
 LIBPCP_FILES = libpcp3.install
 DEVPCP_FILES = libpcp3-dev.install
-LIBPCP_DOC_DIR = $(PKG_DOC_DIR)/../libpcp3
-DEVPCP_DOC_DIR = $(PKG_DOC_DIR)/../libpcp3-dev
+LIBPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3
+DEVPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3-dev
 
-LIBPMDAPKG = libpcp-pmda3
+LIBPMDAPCP = libpcp-pmda3
 LIBPMDA_FILES = libpcp-pmda3.install
 DEVPMDA_FILES = libpcp-pmda3-dev.install
-LIBPMDA_DOC_DIR = $(PKG_DOC_DIR)/../libpcp-pmda3
-DEVPMDA_DOC_DIR = $(PKG_DOC_DIR)/../libpcp-pmda3-dev
+LIBPMDA_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-pmda3
+DEVPMDA_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-pmda3-dev
 
-LIBTRACEPKG = libpcp-trace2
+LIBTRACEPCP = libpcp-trace2
 LIBTRACE_FILES = libpcp-trace2.install
 DEVTRACE_FILES = libpcp-trace2-dev.install
-LIBTRACE_DOC_DIR = $(PKG_DOC_DIR)/../libpcp-trace2
-DEVTRACE_DOC_DIR = $(PKG_DOC_DIR)/../libpcp-trace2-dev
+LIBTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2
+DEVTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2-dev
 
 LDIRT = compat
 LSRCFILES = changelog control copyright rules \
@@ -31,8 +31,8 @@ include $(BUILDRULES)
 
 install: default
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
-	$(INSTALL) -m 755 -d $(PKG_DOC_DIR)
-	$(INSTALL) -m 644 changelog $(PKG_DOC_DIR)/changelog.Debian
+	$(INSTALL) -m 755 -d $(PCP_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCP_DOC_DIR)/changelog.Debian
 endif
 
 default_pcp : default
