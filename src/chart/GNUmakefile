@@ -55,6 +55,6 @@ install: default
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
 ifeq ($(WINDOW),x11)
 	$(INSTALL) -m 755 -d $(PKG_DESKTOP_DIR)
-	$(INSTALL) -m 755 $(DESKTOP) $(PKG_DESKTOP_DIR)
+	$(INSTALL) -m 644 $(DESKTOP) $(PKG_DESKTOP_DIR)
 endif
 

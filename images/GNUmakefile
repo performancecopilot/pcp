@@ -25,5 +25,5 @@ include $(BUILDRULES)
 install: default
 ifeq ($(WINDOW),x11)
 	$(INSTALL) -m 755 -d $(PKG_ICON_DIR)
-	$(INSTALL) -m 755 $(DESKTOP_ICONS) $(PKG_ICON_DIR)
+	$(INSTALL) -m 644 $(DESKTOP_ICONS) $(PKG_ICON_DIR)
 endif
