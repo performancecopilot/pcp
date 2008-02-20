@@ -30,6 +30,8 @@ TESTCODE  = test.pl cvalue.c
 PERLDOCS  = Changes MANIFEST TODO
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLPMDAS) $(PERLCODE) $(TESTCODE)
 
+LDIRT = Makefile PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib
+
 default default_pcp: 
 install install_pcp:
 include $(BUILDRULES)
