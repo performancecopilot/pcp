@@ -1,3 +1,7 @@
+kmchart 1.0.0rc7 (21 February 2008)
+    - Debian packaging, hooray!
+    - Update "tab" keyword to allow a default host for each tab
+
 kmchart 1.0.0rc6 (13 February 2008)
     - Huge number of man page, online help text and web docs updated
       (body of all docs now complete, could use some review though).
