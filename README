@@ -10,6 +10,8 @@ Refer to doc/INSTALL for instructions on building these tools.
 
 === 1.0 TODO list ===
 
+    - Add a default host keyword within the tab keyword of view format
+    - Make the first Tab created be the one initially displayed, not last
     - Timezone list in kmtime not being updated when new archive/hosts
       added (or sources in exotic timezones, from the start).
     - The archive timeframe (esp. kmtime slider) is not being updated
