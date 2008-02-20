@@ -247,7 +247,7 @@ pmSetMode(PM_MODE_BACK, &mytime, 0);
 pmFetchArchive(&result);
 mytime = result->timestamp;
 pmFreeResult(result);
-pmSetMode(PM_MODE_INTERP | PM_XTB_SET(PM_TIME_SEC), &mytime, -10);
+pmSetMode(PM_MODE_INTERP | PM_XTB_SET(PM_TIME_SEC), &mytime, \-10);
 
 while (pmFetch(numpmid, pmidlist, &result) != PM_ERR_EOL) {
     /*

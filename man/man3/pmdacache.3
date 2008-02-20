@@ -394,7 +394,7 @@ PMDA_CACHE_WALK_NEXT
 Fetch the next
 .B active
 instance identifier from the cache.  Requires a prior
-call using PMDA_CACHE_WALK_REWIND and will return -1 when all instances
+call using PMDA_CACHE_WALK_REWIND and will return \-1 when all instances
 have been processed.
 .TP
 PMDA_CACHE_ACTIVE
@@ -516,8 +516,8 @@ foo	foodle	no match (PM_ERR_INST)
 foo	foo	match
 foo bar	foo	match on short name (instance identifier)
 foo bar	foo bar	match on full name (instance identifier)
-foo	foo bar	bad match (-EDOM)
-foo bar	foo blah	bad match (-EDOM)
+foo	foo bar	bad match (\-EDOM)
+foo bar	foo blah	bad match (\-EDOM)
 .TE
 .SH FILES
 Cache persistence uses files with names constructed from the

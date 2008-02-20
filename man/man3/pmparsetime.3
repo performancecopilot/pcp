@@ -75,7 +75,7 @@ structure must be allocated before calling
 .BR __pmParseTime .
 .P
 You also need to set the current PCP reporting time zone to correctly
-reflect the -z and -Z command line parameters before calling
+reflect the \-z and \-Z command line parameters before calling
 .BR __pmParseTime .
 See
 .BR pmUseZone (3)
@@ -86,7 +86,7 @@ If the conversion is successful,
 returns 0, and fills in
 .B rslt
 with the time value defined by the input
-parameters.  If the argument strings could not be parsed, it returns -1
+parameters.  If the argument strings could not be parsed, it returns \-1
 and a dynamically allocated error message string in
 .BR errMsg .
 Be sure to

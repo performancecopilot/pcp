@@ -96,7 +96,7 @@ typedef struct {
 } pmDesc;
 
 /* pmDesc.type -- data type of metric values */
-#define PM_TYPE_NOSUPPORT        -1    /* not impl. in this version */
+#define PM_TYPE_NOSUPPORT        \-1    /* not impl. in this version */
 #define PM_TYPE_32               0    /* 32-bit signed integer */
 #define PM_TYPE_U32              1    /* 32-bit unsigned integer */
 #define PM_TYPE_64               2    /* 64-bit signed integer */
@@ -183,9 +183,9 @@ structure.
  * for Performance Metric Values
  *
  * For example, a pmUnits struct of
- *      { 1, -1, 0, PM_SPACE_MBYTE, PM_TIME_SEC, 0 }
+ *      { 1, \-1, 0, PM_SPACE_MBYTE, PM_TIME_SEC, 0 }
  * represents Mbytes/sec, while 
- *      { 0, 1, -1, 0, PM_TIME_HOUR, 6 }
+ *      { 0, 1, \-1, 0, PM_TIME_HOUR, 6 }
  * represents hours/million-events
  */
 typedef struct {
@@ -213,7 +213,7 @@ typedef struct {
 /*
  * pmUnits.scaleCount (e.g. count events, syscalls, interrupts,
  * etc.) these are simply powers of 10, and not enumerated here,
- * e.g. 6 for 10^6, or -3 for 10^-3
+ * e.g. 6 for 10^6, or \-3 for 10^\-3
  */
 #define PM_COUNT_ONE    0       /* 1 */
 .in
