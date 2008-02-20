@@ -236,7 +236,7 @@ terminal with an ssh session connected to the requested host.
  #! /bin/sh
  host=`kmquery \-input \-icon host \-b Cancel \-B OK \\
                \-header "Remote Terminal \- Secure Shell"
- [ "$host" = "Cancel" -o -z "$host" ] && exit
+ [ "$host" = "Cancel" \-o \-z "$host" ] && exit
  gnome-terminal \-e "ssh $host"
 .fi
 .SH ENVIRONMENT
