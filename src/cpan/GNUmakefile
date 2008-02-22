@@ -17,9 +17,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
-# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-# Mountain View, CA 94043, USA, or: http://www.sgi.com
-#
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
@@ -30,9 +27,28 @@ TESTCODE  = test.pl cvalue.c
 PERLDOCS  = Changes MANIFEST TODO
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLPMDAS) $(PERLCODE) $(TESTCODE)
 
-LDIRT = Makefile PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib
+LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib
 
-default default_pcp: 
-install install_pcp:
+default: PMDA.o
+
+PMDA.o: Makefile
+	$(MAKE) -f Makefile
+
+Makefile: COPYING
+	perl Makefile.PL
+
+COPYING:
+	$(LN_S) $(TOPDIR)/COPYING COPYING
+
+test:
+	$(MAKE) -f Makefile test
+
 include $(BUILDRULES)
+
+install: default
+	#$(MAKE) -f Makefile install
+
+default_pcp: default
+
+install_pcp: install
 

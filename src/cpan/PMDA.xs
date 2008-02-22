@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2008 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,6 +29,7 @@ extern "C" {
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
+#include <syslog.h>
 #ifdef __cplusplus
 }
 #endif
@@ -46,6 +48,18 @@ static SV *instance_func = (SV*)NULL;
 static SV *store_cb_func = (SV*)NULL;
 static SV *fetch_cb_func = (SV*)NULL;
 
+static SV *input_cb_func = (SV*)NULL;
+static char input_buffer[4096];
+
+static SV *timer_cb_func = (SV*)NULL;
+static struct timeval timer_delta;
+static int timer_afid;
+
+typedef enum {
+    MODE_NONE,
+    MODE_PIPE,
+    MODE_TAIL,
+} pmda_mode_t;
 
 int
 local_fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
@@ -67,6 +81,26 @@ local_instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
 
     perl_call_sv(instance_func, G_VOID|G_DISCARD);
     return pmdaInstance(indom, a, b, rp, pmda);
+}
+
+void
+local_timer_callback(int afid, void *data)
+{
+    dSP;
+    PUSHMARK(sp);
+
+    perl_call_sv(timer_cb_func, G_DISCARD|G_NOARGS);
+}
+
+void
+local_input_callback(char *string)
+{
+    dSP;
+    PUSHMARK(sp);
+    XPUSHs(sv_2mortal(newSVpv(string,0)));
+    PUTBACK;
+
+    perl_call_sv(input_cb_func, G_VOID|G_DISCARD);
 }
 
 int
@@ -227,6 +261,85 @@ list_to_indom(SV *list, pmdaInstid **set)
     return len;
 }
 
+static void
+local_pmdaMain(pmdaInterface *self, char *filename, pmda_mode_t mode)
+{
+    int pmcdfd, fd = -1;
+    int nready, numfds;
+    fd_set readyfds;
+    fd_set fds;
+    FILE *fp = NULL;
+
+    FD_ZERO(&fds);
+
+    if ((pmcdfd = __pmdaInFd(self)) < 0)
+	exit(1);
+    FD_SET(pmcdfd, &fds);
+
+    if (mode == MODE_PIPE) {
+	/* TODO - need an atexit(3) handler to pclose this guy */
+	if ((fp = popen(filename, "r")) == NULL) {
+	    __pmNotifyErr(LOG_ERR, "popen failed (%s): %s",
+				    filename, strerror(errno));
+	    exit(1);
+	}
+	fd = fileno(fp);
+	FD_SET(fd, &fds);
+    }
+    else if (mode == MODE_TAIL) {
+	/* TODO - "tail -f <filename>" mode */
+	__pmNotifyErr(LOG_ERR, "tail mode not yet implemented");
+	exit(1);
+    }
+
+    numfds = ((pmcdfd > fd) ? pmcdfd : fd) + 1;
+
+    if (timer_cb_func != NULL)	/* TODO - need an add_timer() interface? */
+	timer_afid = __pmAFregister(&timer_delta, NULL, local_timer_callback);
+
+    /* custom PMDA main loop */
+    for (;;) {
+	memcpy(&readyfds, &fds, sizeof(readyfds));
+	nready = select(numfds, &readyfds, NULL, NULL, NULL);
+
+	if (nready == 0)
+	    continue;
+	if (nready < 0) {
+	    if (errno != EINTR) {
+		__pmNotifyErr(LOG_ERR, "select failed: %s\n", strerror(errno));
+		exit(1);
+	    }
+	    continue;
+	}
+
+	__pmAFblock();
+	if (FD_ISSET(pmcdfd, &readyfds)) {
+	    if (__pmdaMainPDU(self) < 0) {
+		__pmAFunblock();
+		exit(1);
+	    }
+	}
+
+	if (fd != -1 && FD_ISSET(fd, &readyfds)) {
+	    char *s, *p;
+	    size_t bytes = read(fd, input_buffer, sizeof(input_buffer));
+	    if (!bytes) {
+		__pmNotifyErr(LOG_ERR, "No data read - pipe closed\n");
+		exit(1);
+	    }
+	    input_buffer[bytes] = '\0';
+	    for (s = p = input_buffer; *s != '\0'; s++) {
+		if (*s != '\n')
+		    continue;
+		*s = '\0';
+		local_input_callback(p);
+		p = s + 1;
+	    }
+	}
+	__pmAFunblock();
+    }
+}
+
 
 MODULE = PCP::PMDA		PACKAGE = PCP::PMDA
 
@@ -321,6 +434,24 @@ set_fetch_callback(self,fetch_callback)
 	if (fetch_callback != (SV *)NULL) {
 	    fetch_cb_func = newSVsv(fetch_callback);
 	    pmdaSetFetchCallBack(self, local_fetch_callback);
+	}
+
+void
+set_timer_callback(self,timer_callback)
+	pmdaInterface *self
+	SV *	timer_callback
+    CODE:
+	if (timer_callback != (SV *)NULL) {
+	    timer_cb_func = newSVsv(timer_callback);
+	}
+
+void
+set_input_callback(self,input_callback)
+	pmdaInterface *self
+	SV *	input_callback
+    CODE:
+	if (input_callback != (SV *)NULL) {
+	    input_cb_func = newSVsv(input_callback);
 	}
 
 void
@@ -421,8 +552,25 @@ run(self)
     CODE:
 	pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
 	pmdaConnect(self);
-	pmdaMain(self);
+	local_pmdaMain(self, NULL, MODE_NONE);
 
+void
+pipe(self,command)
+	pmdaInterface *self
+	char *	command
+    CODE:
+	pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
+	pmdaConnect(self);
+	local_pmdaMain(self, command, MODE_PIPE);
+
+void
+tail(self,filename)
+	pmdaInterface *self
+	char *	filename
+    CODE:
+	pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
+	pmdaConnect(self);
+	local_pmdaMain(self, filename, MODE_TAIL);
 
 void
 debug_metric(self)

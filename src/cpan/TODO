@@ -2,7 +2,8 @@ Getting to a basic working state
 --------------------------------
 
 o  Need to devise a way to plug into pmdaGetOpt(3) and be good citizens
-   in the PMDA command line argument handling world
+   in the PMDA command line argument handling world.  Note: -d is debug
+   mode in Perl, but domain number in the PMDA world.  D'oh.
 
 o  Add a PCP::PMDA->log() routine, simple interface to __pmNotifyErr();
 
@@ -25,8 +26,15 @@ o  Use PerlPOD(1) directives in the PCP::PMDA module to interface to
 
 o  Many Perl PMDAs will want to have an interface that allows them to
    get hold of the last data written to a file, as it is written there
-   (ala. tail -f).
+   (ala. tail -f).  So, need to implement this missing pieces of the
+   MODE_TAIL (see PMDA.xs comments).
  
+o  Need an atexit(3) handler to pclose MODE_PIPE processes.
+
+o  Need an add_timer() interface, see PMDA.xs comments.
+
+o  Need POD updates to document all APIs.
+
 
 More interesting stuff
 ----------------------

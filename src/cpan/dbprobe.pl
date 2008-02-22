@@ -22,16 +22,15 @@
 #
 
 use strict;
-
 use DBI;
 use Time::HiRes qw(gettimeofday);	# Time::HiRes not default?
 
 # ---this section needs user-customisation---
 my $database	= 'DBI:mysql:localhost:3306';
-my $username	= 'dba';
-my $passwd	= 'dba';
-my $select	= 'SELECT * FROM users WHERE uid < 50';
-my $delay	= 300;	# delay in seconds between database ping's
+my $username	= 'dbmonitor';
+my $passwd	= 'dbmonitor';
+my $select	= 'SELECT 1';
+my $delay	= 60;	# delay in seconds between database ping's
 # -----end of user-customisation section-----
 
 
@@ -43,6 +42,7 @@ sub dbping {	# must return array of (response_time, status, time_stamp)
     unless defined ($dbh) {	# reconnect if necessary
 	$dbh = DBI->connect($database, $user, $passwd, undef) || return;
 	$pmda->log("Connected to database.\n");
+	undef $sth;
     }
     unless defined ($sth) {	# prepare SQL statement once only
 	$sth = $dbh->prepare($select) || return;
@@ -56,7 +56,10 @@ sub dbping {	# must return array of (response_time, status, time_stamp)
     print locatime, "\t", gettimeofday - $before, "\n";
 }
 
-$dbh = DBI->connect($database, $user, $passwd, undef) || $pmda->log("Failed initial connect: $dbh->errstr\n");
+$dbh = DBI->connect($database, $user, $passwd, undef) ||
+		    $pmda->log("Failed initial connect: $dbh->errstr\n");
+
+# XXX: TODO - merge with pmdadbping & convert to using the add_timer interface?
 
 for (;;) {
     sleep($delay);
