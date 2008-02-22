@@ -21,7 +21,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-PERLPMDAS = dbprobe.pl pmdadbping.pl pmdanews.pl pmdasimple.pl
+PERLPMDAS = dbprobe.pl pmdadbping.pl
 PERLCODE  = PMDA.pm PMDA.xs typemap
 TESTCODE  = test.pl cvalue.c
 PERLDOCS  = Changes MANIFEST TODO

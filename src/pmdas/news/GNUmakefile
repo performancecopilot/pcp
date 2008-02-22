@@ -26,9 +26,11 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 
+PFILES = pmdanews.pl
 DFILES = README
 TARGETS	= 
-LSRCFILES= Install $(DFILES) Remove active news.agent pmns GNUmakefile.install
+LSRCFILES= Install Remove $(PFILES) $(DFILES) pmns GNUmakefile.install \
+	   active news.agent
 IAM	= news
 DOMAIN	= NEWSAGENT
 

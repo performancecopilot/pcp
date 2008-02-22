@@ -27,7 +27,7 @@ use PCP::PMDA;
 
 use vars qw( $total $news_regex %news_hash @news_count @news_last @newsgroups );
 my ($nnrpd_count, $rn_count, $trn_count, $xrn_count, $vn_count) = (0,0,0,0,0);
-my $news_file = '/var/pcp/pmdas/news/active';	# '/var/news/active'
+my $news_file = '/var/lib/pcp/pmdas/news/active';	# '/var/news/active'
 my $news_indom = 0;
 
 
