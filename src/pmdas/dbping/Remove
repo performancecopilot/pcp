@@ -1,6 +1,5 @@
-#!gmake
+#! /bin/sh
 #
-# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,37 +16,23 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
+# Remove the Database Ping PMDA
+#
 
-TOPDIR = ../..
-include $(TOPDIR)/src/include/builddefs
+# source the PCP configuration environment variables
+. /etc/pcp.env
 
-PERLCODE  = PMDA.pm PMDA.xs typemap
-TESTCODE  = test.pl cvalue.c
-PERLDOCS  = Changes MANIFEST TODO
-LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLCODE) $(TESTCODE)
+# Get the common procedures and variable assignments
+#
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib
+# The name of the PMDA
+#
+iam=dbping
 
-default: PMDA.o
+# Do it
+#
+pmdaSetup
+pmdaRemove
 
-PMDA.o: Makefile
-	$(MAKE) -f Makefile
-
-Makefile: COPYING
-	perl Makefile.PL
-
-COPYING:
-	$(LN_S) $(TOPDIR)/COPYING COPYING
-
-test:
-	$(MAKE) -f Makefile test
-
-include $(BUILDRULES)
-
-install: default
-	#$(MAKE) -f Makefile install
-
-default_pcp: default
-
-install_pcp: install
-
+exit 0

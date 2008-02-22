@@ -1,6 +1,4 @@
-#!gmake
 #
-# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,37 +15,10 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
+# Database Ping PMDA help file in the ASCII format
+#
 
-TOPDIR = ../..
-include $(TOPDIR)/src/include/builddefs
-
-PERLCODE  = PMDA.pm PMDA.xs typemap
-TESTCODE  = test.pl cvalue.c
-PERLDOCS  = Changes MANIFEST TODO
-LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLCODE) $(TESTCODE)
-
-LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib
-
-default: PMDA.o
-
-PMDA.o: Makefile
-	$(MAKE) -f Makefile
-
-Makefile: COPYING
-	perl Makefile.PL
-
-COPYING:
-	$(LN_S) $(TOPDIR)/COPYING COPYING
-
-test:
-	$(MAKE) -f Makefile test
-
-include $(BUILDRULES)
-
-install: default
-	#$(MAKE) -f Makefile install
-
-default_pcp: default
-
-install_pcp: install
-
+@ dbping.response_time Length of time taken to access the database
+@ dbping.status Success state of last attempt to ping the database
+@ dbping.control.timestamp Time of last successful database ping
+@ dbping.control.delay Time to sleep between database ping attempts

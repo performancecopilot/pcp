@@ -1,6 +1,4 @@
-#!gmake
 #
-# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -18,36 +16,13 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
 
-TOPDIR = ../..
-include $(TOPDIR)/src/include/builddefs
+SHELL	= sh
+TARGETS	=
+LDIRT	= *.log *.pag *.dir
 
-PERLCODE  = PMDA.pm PMDA.xs typemap
-TESTCODE  = test.pl cvalue.c
-PERLDOCS  = Changes MANIFEST TODO
-LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLCODE) $(TESTCODE)
-
-LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib
-
-default: PMDA.o
-
-PMDA.o: Makefile
-	$(MAKE) -f Makefile
-
-Makefile: COPYING
-	perl Makefile.PL
-
-COPYING:
-	$(LN_S) $(TOPDIR)/COPYING COPYING
-
-test:
-	$(MAKE) -f Makefile test
-
-include $(BUILDRULES)
+default: $(TARGETS)
 
 install: default
-	#$(MAKE) -f Makefile install
 
-default_pcp: default
-
-install_pcp: install
-
+clobber:
+	rm -f $(LDIRT) $(TARGETS)
