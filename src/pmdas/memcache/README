@@ -1,0 +1,52 @@
+memcached PMDA
+==============
+
+This PMDA extracts performance data from memcached, a distributed memory
+caching daemon commonly used to improve web serving performance.  A farm
+of memcached processes over multiple servers can be utilised by a single
+web application, increasing the total available object cache size, and
+decreasing the database load associated with smaller cache sizes.
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT memcache
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/memcache
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit pmdamemcache.pl to use
+    a different domain number.
+
+ +  Then simply use
+
+	# ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options.
+
+De-installation
+===============
+
+ +  Simply use
+
+	# cd $PCP_PMDAS_DIR/memcache
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/memcache.log) should be checked for any
+    warnings or errors.
