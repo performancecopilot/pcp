@@ -107,33 +107,39 @@ sub news_init {
 # ---end of local routines---
 
 
-my $pmda = PCP::PMDA->new('pmdanews', 28, 'news.log', 'help');
-$pmda->openlog;         # send messages to ^^^^^^^^ from now on
+my $pmda = PCP::PMDA->new('pmdanews', 28, 'news.log');
 
-# news.articles.total
-$pmda->add_metric( pmda_pmid(0,201), PM_TYPE_U32, PM_INDOM_NULL,
-		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE) );
-# news.articles.count
-$pmda->add_metric( pmda_pmid(0,301), PM_TYPE_U32, $news_indom,
-		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE) );
-# news.articles.last
-$pmda->add_metric( pmda_pmid(0,302), PM_TYPE_U32, $news_indom,
-		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE) );
-# news.readers.nnrpd
-$pmda->add_metric( pmda_pmid(0,101), PM_TYPE_U32, PM_INDOM_NULL,
-		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE) );
-# news.readers.rn
-$pmda->add_metric( pmda_pmid(0,111), PM_TYPE_U32, PM_INDOM_NULL,
-		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE) );
-# news.readers.trn
-$pmda->add_metric( pmda_pmid(0,112), PM_TYPE_U32, PM_INDOM_NULL,
-		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE) );
-# news.readers.xrn
-$pmda->add_metric( pmda_pmid(0,113), PM_TYPE_U32, PM_INDOM_NULL,
-		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE) );
-# news.readers.vn
-$pmda->add_metric( pmda_pmid(0,114), PM_TYPE_U32, PM_INDOM_NULL,
-		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE) );
+$pmda->add_metric(pmda_pmid(0,201), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'news.articles.total',
+		  'Total number of articles received for each newsgroup',
+'Total number of articles received for each newsgroup.
+Note this is the historical running total, see news.articles.count for
+the current total of un-expired articles by newsgroup.');
+
+$pmda->add_metric(pmda_pmid(0,301), PM_TYPE_U32, $news_indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'news.articles.count',
+		  'Total number of un-expired articles in each newsgroup', '');
+
+$pmda->add_metric(pmda_pmid(0,302), PM_TYPE_U32, $news_indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'news.articles.last', '', '');
+$pmda->add_metric(pmda_pmid(0,101), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'news.readers.nnrpd', '', '');
+$pmda->add_metric(pmda_pmid(0,111), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'news.readers.rn', '', '');
+$pmda->add_metric(pmda_pmid(0,112), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'news.readers.trn', '', '');
+$pmda->add_metric(pmda_pmid(0,113), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'news.readers.xrn', '', '');
+$pmda->add_metric(pmda_pmid(0,114), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'news.readers.vn', '', '');
 
 @newsgroups = (
     1,  'comp.sys.sgi',
@@ -142,11 +148,10 @@ $pmda->add_metric( pmda_pmid(0,114), PM_TYPE_U32, PM_INDOM_NULL,
     4,  'sgi.bad-attitude',
     5,  'sgi.engr.all',
 );
-$pmda->add_indom( $news_indom, \@newsgroups );
+$pmda->add_indom( $news_indom, \@newsgroups, '', '' );
 
 $pmda->set_fetch( \&news_fetch );
 $pmda->set_fetch_callback( \&news_fetch_callback );
 
 &news_init;
-
 $pmda->run;

@@ -20,17 +20,20 @@
 
 use strict;
 use PCP::PMDA;
-use vars qw( $response_time, $status, $timestamp, $delay );
+use vars qw( $pmda $response $status $timestamp );
+
+my $delay = 60;	# seconds
+my $dbprobe = "/var/lib/pcp/pmdas/pmdadbping/dbprobe.pl $delay";
 
 sub dbping_probe_callback {
     my $stamp;
     ( $_ ) = @_;
-    ($stamp, $response_time) = split(/\t/);
-    if (defined($stamp) && defined($response_time)) {
+    ($stamp, $response) = split(/\t/);
+    if (defined($stamp) && defined($response)) {
 	$timestamp = $stamp;
 	$status = 0;
     } else {
-	$response_time = -1;
+	$response = -1;
 	$status = 1;	# bad result, keep old $timestamp
     }
 }
@@ -38,14 +41,14 @@ sub dbping_probe_callback {
 sub dbping_fetch_callback {	# must return array of value,status
     my ($cluster, $item, $inst) = @_;
 
-    return (PM_ERR_INST, 0) unless ($inst == -1)
+    return (PM_ERR_INST, 0) unless ($inst == -1);
 
     if ($cluster == 0) {
-	if ($item == 0)		{ return ($response_time, 1); }
+	if ($item == 0)		{ return ($response, 1); }
 	elsif ($item == 1)	{ return ($status, 1); }
     }
     elsif ($cluster == 1) {
-	if ($item == 2)		{ return ($time_stamp, 1); }
+	if ($item == 2)		{ return ($timestamp, 1); }
 	elsif ($item == 3)	{ return ($delay, 1); }
     }
     return (PM_ERR_PMID, 0);
@@ -66,28 +69,25 @@ sub dbping_store_callback {	# must return a single value (scalar context)
     return PM_ERR_PMID;
 }
 
-$pmda = PCP::PMDA->new('pmdadbping', 244, 'dbping.log', 'help');
-$pmda->openlog;	        # send messages to ^^^^^^^^^^ from now on
+$pmda = PCP::PMDA->new('pmdadbping', 244, 'dbping.log');
 
-# dbping.response_time
-$pmda->add_metric( pmda_pmid(0,0), PM_TYPE_DOUBLE, PM_INDOM_NULL,
-		PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0) );
-# dbping.status
-$pmda->add_metric( pmda_pmid(0,1), PM_TYPE_32, PM_INDOM_NULL,
-		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0) );
-# dbping.control.timestamp
-$pmda->add_metric( pmda_pmid(1,2), PM_TYPE_STRING, PM_INDOM_NULL,
-		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0) );
-# dbping.control.delay
-$pmda->add_metric( pmda_pmid(1,3), PM_TYPE_U32, PM_INDOM_NULL,
-		PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0) );
+$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_DOUBLE, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
+		  'dbping.response_time', '', '');
+$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'dbping.status', '', '');
+$pmda->add_metric(pmda_pmid(1,2), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'dbping.control.timestamp', '', '');
+$pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
+		  'dbping.control.delay', '', '');
 
 $pmda->set_fetch_callback( \&dbping_fetch_callback );
 $pmda->set_store_callback( \&dbping_store_callback );
-
-$SIG{CHLD} = sub { die "dbprobe exited. I'm quitting too...\n"; };
-open(DBPROBE, "dbprobe.pl $delay |") || die "dbprobe failed to start: $!\n";
-$pmda->pipe( *DBPROBE, \&dbping_probe_callback );
+$pmda->add_pipe( $dbprobe, \&dbping_probe_callback );
+$pmda->run;
 
 __END__
 

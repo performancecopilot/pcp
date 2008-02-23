@@ -30,7 +30,7 @@ LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib
 
 default: PMDA.o
 
-PMDA.o: Makefile
+PMDA.o: Makefile PMDA.xs
 	$(MAKE) -f Makefile
 
 Makefile: COPYING

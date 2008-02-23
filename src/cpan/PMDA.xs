@@ -30,6 +30,8 @@ extern "C" {
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
 #include <syslog.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
 #ifdef __cplusplus
 }
 #endif
@@ -48,18 +50,27 @@ static SV *instance_func = (SV*)NULL;
 static SV *store_cb_func = (SV*)NULL;
 static SV *fetch_cb_func = (SV*)NULL;
 
-static SV *input_cb_func = (SV*)NULL;
-static char input_buffer[4096];
-
 static SV *timer_cb_func = (SV*)NULL;
 static struct timeval timer_delta;
 static int timer_afid;
 
-typedef enum {
-    MODE_NONE,
-    MODE_PIPE,
-    MODE_TAIL,
-} pmda_mode_t;
+enum {
+    FILE_PIPE,
+    FILE_SOCK,
+    FILE_TAIL,
+};
+
+/* XXX - TODO: install a SIGCHLD signal handler when pipe in use */
+/* XXX - TODO: reconnect -- socket(host/port) and logrotate(inode/device) */
+static struct {
+    int		fd;
+    int		type;
+    FILE	*file;
+    SV		*function;
+} *files;
+
+static int nfiles;
+static char buffer[4096];
 
 int
 local_fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
@@ -93,7 +104,7 @@ local_timer_callback(int afid, void *data)
 }
 
 void
-local_input_callback(char *string)
+local_input_callback(SV *input_cb_func, char *string)
 {
     dSP;
     PUSHMARK(sp);
@@ -220,7 +231,7 @@ store_end:
  * converts Perl list ref like [a => 'foo', b => 'boo'] into an indom
  */
 static int
-list_to_indom(SV *list, pmdaInstid **set)
+local_list_to_indom(SV *list, pmdaInstid **set)
 {
     int	i, len;
     SV	**id;
@@ -262,46 +273,141 @@ list_to_indom(SV *list, pmdaInstid **set)
 }
 
 static void
-local_pmdaMain(pmdaInterface *self, char *filename, pmda_mode_t mode)
+local_input_atexit(void)
 {
-    int pmcdfd, fd = -1;
-    int nready, numfds;
-    fd_set readyfds;
-    fd_set fds;
-    FILE *fp = NULL;
+    while (nfiles > 0) {
+	--nfiles;
+	if (files[nfiles].type == FILE_PIPE)
+	    pclose(files[nfiles].file);
+	if (files[nfiles].type == FILE_TAIL)
+	    fclose(files[nfiles].file);
+	if (files[nfiles].type == FILE_SOCK)
+	    close(files[nfiles].fd);
+    }
+    if (files) {
+	free(files);
+	files = NULL;
+    }
+}
 
-    FD_ZERO(&fds);
+static void
+local_file(int type, int fd, FILE *fp, SV *callback)
+{
+    int size = sizeof(*files) * (nfiles + 1);
+
+    if ((files = realloc(files, size)) == NULL)
+	__pmNoMem("files resize", size, PM_FATAL_ERR);
+    files[nfiles].type = type;
+    files[nfiles].fd = fd;
+    files[nfiles].file = fp;
+    files[nfiles].function = callback;
+    nfiles++;
+}
+
+static int
+local_pipe(char *pipe, SV *callback)
+{
+    FILE *fp = popen(pipe, "r");
+
+    if (!fp) {
+	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s", pipe, strerror(errno));
+	exit(1);
+    }
+    local_file(FILE_PIPE, fileno(fp), fp, callback);
+    return fileno(fp);
+}
+
+static int
+local_tail(char *file, SV *callback)
+{
+    FILE *fp = fopen(file, "r");
+
+    if (!fp) {
+	__pmNotifyErr(LOG_ERR, "fopen failed (%s): %s", file, strerror(errno));
+	exit(1);
+    }
+    local_file(FILE_TAIL, fileno(fp), fp, callback);
+    return fileno(fp);
+}
+
+static int
+local_sock(char *host, int port, SV *callback)
+{
+    int fd, nodelay = 1;
+    struct linger nolinger = { 1, 0 };
+    struct hostent *servinfo;
+    struct sockaddr_in myaddr;
+
+    if ((servinfo = gethostbyname(host)) == NULL) {
+	__pmNotifyErr(LOG_ERR, "gethostbyname (%s): %s", host, strerror(errno));
+	exit(1);
+    }
+    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+	__pmNotifyErr(LOG_ERR, "socket (%s): %s", host, strerror(errno));
+	exit(1);
+    }
+    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, /* avoid 200 ms delay */
+		    (char *)&nodelay, (socklen_t)sizeof(nodelay)) < 0) {
+	__pmNotifyErr(LOG_ERR, "setsockopt1 (%s): %s", host, strerror(errno));
+	exit(1);
+    }
+    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, /* don't linger on close */
+		    (char *)&nolinger, (socklen_t)sizeof(nolinger)) < 0) {
+	__pmNotifyErr(LOG_ERR, "setsockopt2 (%s): %s", host, strerror(errno));
+	exit(1);
+    }
+    memset(&myaddr, 0, sizeof(myaddr));
+    myaddr.sin_family = AF_INET;
+    memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
+    myaddr.sin_port = htons(port);
+    if (connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr)) < 0) {
+	__pmNotifyErr(LOG_ERR, "connect (%s): %s", host, strerror(errno));
+	exit(1);
+    }
+    local_file(FILE_SOCK, fd, NULL, callback);
+    return fd;
+}
+
+static char *
+local_filetype(int type)
+{
+    if (type == FILE_SOCK)
+	return "socket connection";
+    if (type == FILE_PIPE)
+	return "command pipe";
+    if (type == FILE_TAIL)
+	return "tailed file";
+    return NULL;
+}
+
+static void
+local_pmdaMain(pmdaInterface *self)
+{
+    int pmcdfd, nready, nfds, i, fd, maxfd = -1;
+    fd_set fds, readyfds;
+    size_t bytes;
+    char *s, *p;
 
     if ((pmcdfd = __pmdaInFd(self)) < 0)
 	exit(1);
+
+    FD_ZERO(&fds);
     FD_SET(pmcdfd, &fds);
-
-    if (mode == MODE_PIPE) {
-	/* TODO - need an atexit(3) handler to pclose this guy */
-	if ((fp = popen(filename, "r")) == NULL) {
-	    __pmNotifyErr(LOG_ERR, "popen failed (%s): %s",
-				    filename, strerror(errno));
-	    exit(1);
-	}
-	fd = fileno(fp);
+    for (i = 0; i < nfiles; i++) {
+	fd = files[i].fd;
 	FD_SET(fd, &fds);
+	if (fd > maxfd)
+	    maxfd = fd;
     }
-    else if (mode == MODE_TAIL) {
-	/* TODO - "tail -f <filename>" mode */
-	__pmNotifyErr(LOG_ERR, "tail mode not yet implemented");
-	exit(1);
-    }
+    nfds = ((pmcdfd > maxfd) ? pmcdfd : maxfd) + 1;
 
-    numfds = ((pmcdfd > fd) ? pmcdfd : fd) + 1;
-
-    if (timer_cb_func != NULL)	/* TODO - need an add_timer() interface? */
+    if (timer_cb_func != NULL)
 	timer_afid = __pmAFregister(&timer_delta, NULL, local_timer_callback);
 
     /* custom PMDA main loop */
     for (;;) {
 	memcpy(&readyfds, &fds, sizeof(readyfds));
-	nready = select(numfds, &readyfds, NULL, NULL, NULL);
-
+	nready = select(nfds, &readyfds, NULL, NULL, NULL);
 	if (nready == 0)
 	    continue;
 	if (nready < 0) {
@@ -313,6 +419,7 @@ local_pmdaMain(pmdaInterface *self, char *filename, pmda_mode_t mode)
 	}
 
 	__pmAFblock();
+
 	if (FD_ISSET(pmcdfd, &readyfds)) {
 	    if (__pmdaMainPDU(self) < 0) {
 		__pmAFunblock();
@@ -320,22 +427,31 @@ local_pmdaMain(pmdaInterface *self, char *filename, pmda_mode_t mode)
 	    }
 	}
 
-	if (fd != -1 && FD_ISSET(fd, &readyfds)) {
-	    char *s, *p;
-	    size_t bytes = read(fd, input_buffer, sizeof(input_buffer));
-	    if (!bytes) {
-		__pmNotifyErr(LOG_ERR, "No data read - pipe closed\n");
+	for (i = 0; i < nfiles; i++) {
+	    fd = files[i].fd;
+	    if (!(FD_ISSET(fd, &readyfds)))
+		continue;
+	    bytes = read(fd, buffer, sizeof(buffer));
+	    if (bytes < 0) {
+		__pmNotifyErr(LOG_ERR, "Data read error on %s: %s\n",
+				local_filetype(files[i].type), strerror(errno));
 		exit(1);
 	    }
-	    input_buffer[bytes] = '\0';
-	    for (s = p = input_buffer; *s != '\0'; s++) {
+	    if (bytes == 0) {
+		__pmNotifyErr(LOG_ERR, "No data to read - %s may be closed\n",
+				local_filetype(files[i].type));
+		exit(1);
+	    }
+	    buffer[bytes] = '\0';
+	    for (s = p = buffer; *s != '\0'; s++) {
 		if (*s != '\n')
 		    continue;
 		*s = '\0';
-		local_input_callback(p);
+		local_input_callback(files[i].function, p);
 		p = s + 1;
 	    }
 	}
+
 	__pmAFunblock();
     }
 }
@@ -345,20 +461,19 @@ MODULE = PCP::PMDA		PACKAGE = PCP::PMDA
 
 
 pmdaInterface *
-new(CLASS,name,domain,logfile,helpfile)
+new(CLASS,name,domain,logf)
 	char *	CLASS
 	char *	name
 	int	domain
-	char *	logfile
-	char *	helpfile
+	char *	logf
     CODE:
 	pmProgname = name;
 	RETVAL = &dispatch;
-	if (helpfile && helpfile[0] == '\0')
-	    helpfile = NULL;
-	if (logfile && logfile[0] == '\0')
-	    logfile = NULL;
-	pmdaDaemon(RETVAL, PMDA_INTERFACE_LATEST, name, domain, logfile, helpfile);
+	if (logf && logf[0] == '\0')
+	    logf = NULL;
+	atexit(&local_input_atexit);
+	pmdaDaemon(RETVAL, PMDA_INTERFACE_LATEST, name, domain, logf, "help");
+	pmdaOpenLog(RETVAL);
     OUTPUT:
 	RETVAL
 
@@ -391,10 +506,11 @@ pmda_units(dim_space,dim_time,dim_count,scale_space,scale_time,scale_count)
 	RETVAL
 
 void
-openlog(self)
+error(self,message)
 	pmdaInterface *self
+	char *	message
     CODE:
-	pmdaOpenLog(self);
+	__pmNotifyErr(LOG_ERR, message);
 
 void
 set_fetch(self,fetch)
@@ -441,18 +557,8 @@ set_timer_callback(self,timer_callback)
 	pmdaInterface *self
 	SV *	timer_callback
     CODE:
-	if (timer_callback != (SV *)NULL) {
+	if (timer_callback != (SV *)NULL)
 	    timer_cb_func = newSVsv(timer_callback);
-	}
-
-void
-set_input_callback(self,input_callback)
-	pmdaInterface *self
-	SV *	input_callback
-    CODE:
-	if (input_callback != (SV *)NULL) {
-	    input_cb_func = newSVsv(input_callback);
-	}
 
 void
 set_inet_socket(self,port)
@@ -471,13 +577,16 @@ set_unix_socket(self,socket_name)
 	self->version.two.ext->e_sockname = socket_name;
 
 void
-add_metric(self,pmid,type,indom,sem,units)
+add_metric(self,pmid,type,indom,sem,units,name,help,longhelp)
 	pmdaInterface *self
 	int	pmid
 	int	type
 	int	indom
 	int	sem
 	int	units
+	char *	name
+	char *	help
+	char *	longhelp
     PREINIT:
 	pmdaMetric *p;
     CODE:
@@ -491,12 +600,17 @@ add_metric(self,pmid,type,indom,sem,units)
 	p->m_desc.type = type;	p->m_desc.indom = *(pmInDom *)&indom;
 	p->m_desc.sem = sem;	p->m_desc.units = *(pmUnits *)&units;
 	(void)self;	/*ARGSUSED*/
+	(void)name;	/*ARGSUSED*/
+	(void)help;	/*ARGSUSED*/
+	(void)longhelp;	/*ARGSUSED*/
 
 int
-add_indom(self,indom,list)
+add_indom(self,indom,list,help,longhelp)
 	pmdaInterface *	self
 	int		indom
 	SV *		list
+	char *	help
+	char *	longhelp
     PREINIT:
 	pmdaIndom *	p;
     CODE:
@@ -507,12 +621,14 @@ add_indom(self,indom,list)
 	}
 	p = indomtab + itab_size;
 	p->it_indom = *(pmInDom *)&indom;
-	p->it_numinst = list_to_indom(list, &p->it_set);
+	p->it_numinst = local_list_to_indom(list, &p->it_set);
 	if (p->it_numinst == -1)
 	    XSRETURN_UNDEF;
 	else
 	    RETVAL = itab_size++;	/* used in calls to replace_indom() */
 	(void)self;	/*ARGSUSED*/
+	(void)help;	/*ARGSUSED*/
+	(void)longhelp;	/*ARGSUSED*/
     OUTPUT:
 	RETVAL
 
@@ -533,16 +649,78 @@ replace_indom(self,index,list)
 	    p = indomtab + index;
 	    if (p->it_set && p->it_numinst > 0) {
 		for (i = 0; i < p->it_numinst; i++)
-		    free(p->it_set[i].i_name);	/* from list_to_indom strdup */
-		free(p->it_set);	/* from list_to_indom calloc */
+		    free(p->it_set[i].i_name);	/* local_list_to_indom strdup */
+		free(p->it_set);	/* local_list_to_indom calloc */
 	    }
-	    p->it_numinst = list_to_indom(list, &p->it_set);
+	    p->it_numinst = local_list_to_indom(list, &p->it_set);
 	    if (p->it_numinst == -1)
 		XSRETURN_UNDEF;
 	    else
 		RETVAL = p->it_numinst;
 	}
-	(void)self;	/*ARGSUSED*/
+    OUTPUT:
+	RETVAL
+
+void
+add_timer(self,timeout,callback)
+	pmdaInterface *	self
+	double	timeout
+	SV *	callback
+    CODE:
+	if (callback != (SV *)NULL) {
+	    timer_cb_func = newSVsv(callback);
+	    timer_delta.tv_sec = (time_t)timeout;
+	    timer_delta.tv_usec = (long)
+			((timeout - (double)timer_delta.tv_sec) * 1000000.0);
+	}
+
+int
+add_pipe(self,command,callback)
+	pmdaInterface *self
+	char *	command
+	SV *	callback
+    CODE:
+	if (callback != (SV *)NULL)
+	    RETVAL = local_pipe(command, newSVsv(callback));
+	else
+	    XSRETURN_UNDEF;
+    OUTPUT:
+	RETVAL
+
+int
+add_tail(self,filename,callback)
+	pmdaInterface *self
+	char *	filename
+	SV *	callback
+    CODE:
+	if (callback != (SV *)NULL)
+	    RETVAL = local_tail(filename, newSVsv(callback));
+	else
+	    XSRETURN_UNDEF;
+    OUTPUT:
+	RETVAL
+
+int
+add_sock(self,hostname,port,callback)
+	pmdaInterface *self
+	char *	hostname
+	int	port
+	SV *	callback
+    CODE:
+	if (callback != (SV *)NULL)
+	    RETVAL = local_sock(hostname, port, newSVsv(callback));
+	else
+	    XSRETURN_UNDEF;
+    OUTPUT:
+	RETVAL
+
+int
+put_sock(self,fd,message)
+	pmdaInterface *self
+	int	fd
+	char *	message
+    CODE:
+	RETVAL = write(fd, message, strlen(message));
     OUTPUT:
 	RETVAL
 
@@ -552,25 +730,7 @@ run(self)
     CODE:
 	pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
 	pmdaConnect(self);
-	local_pmdaMain(self, NULL, MODE_NONE);
-
-void
-pipe(self,command)
-	pmdaInterface *self
-	char *	command
-    CODE:
-	pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
-	pmdaConnect(self);
-	local_pmdaMain(self, command, MODE_PIPE);
-
-void
-tail(self,filename)
-	pmdaInterface *self
-	char *	filename
-    CODE:
-	pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
-	pmdaConnect(self);
-	local_pmdaMain(self, filename, MODE_TAIL);
+	local_pmdaMain(self);
 
 void
 debug_metric(self)

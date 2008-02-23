@@ -18,8 +18,7 @@
 # SystemTap PMDA help file in the ASCII format
 #
 
-@ SYSTEMTAP.1 Instance domain "probes" for systemtap PMDA
-An instance domain exporting each SystemTap probe.
+@ SYSTEMTAP.1 Instance domain exporting each SystemTap probe
 
 @ systemtap.probes.count Number of times the probe has been observed
 @ systemtap.probes.pid The PID of the last process to pass the probe point

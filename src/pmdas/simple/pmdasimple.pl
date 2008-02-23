@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 # Simple, configurable PMDA
-# $Id: pmdasimple.pl,v 1.2 2004/08/24 01:01:58 kenmcd Exp $
 #
+# Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,9 +17,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
-# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-# Mountain View, CA 94043, USA, or: http://www.sgi.com
 # 
 
 use strict;
@@ -37,21 +34,21 @@ my @timeslices = ( [0, 1, 'sec'], [0, 60, 'min'], [0, 3600, 'hour'] );
 my $file_change = 0;
 my $file_error = 0;
 
-
-# ---custom callbacks follow---
-
-sub simple_instance {	# called once per ``instance request'' pdu
+sub simple_instance	# called once per ``instance request'' pdu
+{
     &simple_timenow_check;
 }
 
-sub simple_fetch {	# called once per ``fetch'' pdu, before callbacks
+sub simple_fetch	# called once per ``fetch'' pdu, before callbacks
+{
     $numfetch++;
     &simple_timenow_check;
     ($timeslices[0]->[0], $timeslices[1]->[0], $timeslices[2]->[0],
 	    undef,undef,undef,undef,undef) = localtime;
 }
 
-sub simple_fetch_callback {	# must return array of value,status
+sub simple_fetch_callback	# must return array of value,status
+{
     my ($cluster, $item, $inst) = @_;
 
     return (PM_ERR_INST, 0) unless ( $inst == -1
@@ -84,7 +81,8 @@ sub simple_fetch_callback {	# must return array of value,status
     return (PM_ERR_PMID, 0);
 }
 
-sub simple_store_callback {	# must return a single value (scalar context)
+sub simple_store_callback	# must return a single value (scalar context)
+{
     my ($cluster, $item, $inst, $val) = @_;
     my $sts = 0;
 
@@ -112,11 +110,8 @@ sub simple_store_callback {	# must return a single value (scalar context)
     return PM_ERR_PMID;
 }
 
-# ---end of custom routines---
-
-# ---local routines follow---
-
-sub simple_timenow_check {
+sub simple_timenow_check
+{
     my @statbuf;
 
     if ((@statbuf) = stat($simple_config)) {
@@ -135,7 +130,8 @@ sub simple_timenow_check {
     }
 }
 
-sub simple_timenow_init {
+sub simple_timenow_init
+{
     my ( $spec, $i );
     my @inst;
 
@@ -157,35 +153,32 @@ sub simple_timenow_init {
     }
 }
 
-# ---end of local routines---
+$pmda = PCP::PMDA->new('pmdasimple', 253, 'simple.log');
 
+$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'simple.numfetch', '', '');
+$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_32, $color_indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'simple.color', '', '');
+$pmda->add_metric(pmda_pmid(1,2), PM_TYPE_DOUBLE, PM_INDOM_NULL,
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_SEC,0),
+		  'simple.time.user', '', '');
+$pmda->add_metric(pmda_pmid(1,3), PM_TYPE_DOUBLE, PM_INDOM_NULL,
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_SEC,0),
+		  'simple.time.sys', '', '');
+$pmda->add_metric(pmda_pmid(2,4), PM_TYPE_U32, $now_indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'simple.time.now', '', '');
 
-$pmda = PCP::PMDA->new('pmdasimple', 253, 'simple.log', 'help');
-$pmda->openlog;	        # send messages to ^^^^^^^^^^ from now on
-
-# simple.numfetch
-$pmda->add_metric( pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL,
-		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0) );
-# simple.color
-$pmda->add_metric( pmda_pmid(0,1), PM_TYPE_32, $color_indom,
-		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0) );
-# simple.time.user
-$pmda->add_metric( pmda_pmid(1,2), PM_TYPE_DOUBLE, PM_INDOM_NULL,
-		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_SEC,0) );
-# simple.time.sys
-$pmda->add_metric( pmda_pmid(1,3), PM_TYPE_DOUBLE, PM_INDOM_NULL,
-		PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_SEC,0) );
-# simple.time.now
-$pmda->add_metric( pmda_pmid(2,4), PM_TYPE_U32, $now_indom,
-		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0) );
-
-$pmda->add_indom( $color_indom, [0 => 'red', 1 => 'green', 2 => 'blue'] );
-$now = $pmda->add_indom( $now_indom, [] );	# initialized on-the-fly
-&simple_timenow_check;
-
+$pmda->add_indom( $color_indom, [0 => 'red', 1 => 'green', 2 => 'blue'],
+		  '', '' );
+$now = $pmda->add_indom( $now_indom, [],	# initialized on-the-fly
+		  '', '' );
 $pmda->set_fetch( \&simple_fetch );
 $pmda->set_instance( \&simple_instance );
 $pmda->set_fetch_callback( \&simple_fetch_callback );
 $pmda->set_store_callback( \&simple_store_callback );
 
+&simple_timenow_check;
 $pmda->run;

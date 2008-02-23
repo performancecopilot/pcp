@@ -31,7 +31,7 @@ LLDLIBS = -lpcp -lpcp_pmda
 LCFLAGS = -I.
 PFILES  = pmdasimple.pl
 DFILES	= README help
-LSRCFILES = Install Remove pmns $(DFILES) $(PFILES) root \
+LSRCFILES = Install Remove pmns root $(DFILES) $(PFILES) \
 	simple.conf GNUmakefile.install
 
 IAM	= simple

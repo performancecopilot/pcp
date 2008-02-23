@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-# SystemTap PMDA
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
@@ -61,17 +60,24 @@ sub systemtap_fetch_callback {	# must return array of value,status
     return (PM_ERR_PMID, 0);
 }
 
-$pmda = PCP::PMDA->new('pmdasystemtap', 88, 'systemtap.log', 'help');
-$pmda->openlog;		# send messages into ^^^^^^^^^^^^^ from now on
+$pmda = PCP::PMDA->new('pmdasystemtap', 88, 'systemtap.log');
 
-$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, $probe_indom, PM_SEM_COUNTER,
-		  pmda_units(0,0,1,0,0,PM_COUNT_ONE));	# probes.count
-$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_32, $probe_indom, PM_SEM_INSTANT,
-		  pmda_units(0,0,0,0,0,0));		# probes.pid
-$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_STRING, $probe_indom, PM_SEM_INSTANT,
-		  pmda_units(0,0,0,0,0,0));		# probes.cmd
+$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, $probe_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'systemtap.probes.count',
+		  'Number of times the probe has been observed', '');
+$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_32, $probe_indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'systemtap.probes.pid',
+		  'The PID of the last process to pass the probe point', '');
+$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_STRING, $probe_indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'systemtap.probes.cmd',
+		  'The name of the last process to pass the probe point', '');
 
-$pmda->add_indom( $probe_indom, \@probe_instances );
+$pmda->add_indom( $probe_indom, \@probe_instances,
+		  'Instance domain exporting each SystemTap probe', '');
+
 $pmda->set_fetch_callback( \&systemtap_fetch_callback );
-$pmda->set_input_callback( \&systemtap_input_callback );
-$pmda->pipe( $probe_command );
+$pmda->add_pipe( $probe_command, \&systemtap_input_callback );
+$pmda->run;
