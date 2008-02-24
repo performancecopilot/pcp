@@ -27,7 +27,7 @@ my $dbprobe = "/var/lib/pcp/pmdas/pmdadbping/dbprobe.pl $delay";
 
 sub dbping_probe_callback {
     my $stamp;
-    ( $_ ) = @_;
+
     ($stamp, $response) = split(/\t/);
     if (defined($stamp) && defined($response)) {
 	$timestamp = $stamp;

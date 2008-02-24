@@ -31,71 +31,18 @@ my $query = "stats\r\nstats slabs\r\nstats items\r\n"; # sent to memcached
 
 sub memcache_stats_callback
 {
-    my ( %cache, %item, %slab );
-    ( $id, $_ ) = @_;
+    $id = shift;
 
-    %cache = $caches{$id};
-
-    # stats
-    if (/^STAT pid (\d+)$/)			{ $cache{'pid'} = $1; }
-    elsif (/^STAT uptime (\d+)$/)		{ $cache{'uptime'} = $1; }
-    elsif (/^STAT curr_items (\d+)$/)		{ $cache{'curr_items'} = $1; }
-    elsif (/^STAT total_items (\d+)$/)		{ $cache{'total_items'} = $1; }
-    elsif (/^STAT bytes (\d+)$/)		{ $cache{'bytes'} = $1; }
-    elsif (/^STAT curr_connections (\d+)$/)	{ $cache{'curr_conns'} = $1; }
-    elsif (/^STAT total_connections (\d+)$/)	{ $cache{'total_conns'} = $1; }
-    elsif (/^STAT conn_structs (\d+)$/)		{ $cache{'conn_structs'} = $1; }
-    elsif (/^STAT cmd_get (\d+)$/)		{ $cache{'gets'} = $1; }
-    elsif (/^STAT cmd_set (\d+)$/)		{ $cache{'sets'} = $1; }
-    elsif (/^STAT get_hits (\d+)$/)		{ $cache{'get_hits'} = $1; }
-    elsif (/^STAT get_misses (\d+)$/)		{ $cache{'get_misses'} = $1; }
-    elsif (/^STAT bytes_read (\d+)$/)		{ $cache{'bytes_read'} = $1; }
-    elsif (/^STAT bytes_written (\d+)$/)   { $cache{'bytes_written'} = $1; }
-    elsif (/^STAT limit_maxbytes (\d+)$/)  { $cache{'limit_maxbytes'} = $1; }
-
-    # stats slabs
-    elsif (/^STAT (\d+):chunk_size (\d+)$/) {
-	%slab = $cache{"slab$1"};
-	$slab{'chunk_size'} = $2;
+    if (/^STAT items:(\d+):(\w+) (\d+)$/) {	# stats items
+	$caches{$id}{"item$1"}{$2} = $3;
     }
-    elsif (/^STAT (\d+):chunks_per_page (\d+)$/) {
-	%slab = $cache{"slab$1"};
-	$slab{'chunks_per_page'} = $2;
+    elsif (/^STAT (\d+):(\w+) (\d+)$/) {	# stats slabs
+	$caches{$id}{"slab$1"}{$2} = $3;
     }
-    elsif (/^STAT (\d+):total_pages (\d+)$/) {
-	%slab = $cache{"slab$1"};
-	$slab{'total_pages'} = $2;
+    elsif (/^STAT (\w+) (\d+)$/) {		# stats
+	$caches{$id}{$1} = $2;
     }
-    elsif (/^STAT (\d+):total_chunks (\d+)$/) {
-	%slab = $cache{"slab$1"};
-	$slab{'total_chunks'} = $2;
-    }
-    elsif (/^STAT (\d+):used_chunks (\d+)$/) {
-	%slab = $cache{"slab$1"};
-	$slab{'used_chunks'} = $2;
-    }
-    elsif (/^STAT (\d+):free_chunks (\d+)$/) {
-	%slab = $cache{"slab$1"};
-	$slab{'free_chunks'} = $2;
-    }
-    elsif (/^STAT (\d+):free_chunks_end (\d+)$/) {
-	%slab = $cache{"slab$1"};
-	$slab{'free_chunks_end'} = $2;
-    }
-    elsif (/^STAT active_slabs (\d+)$/)    { $cache{'active_slabs'} = $1; }
-    elsif (/^STAT total_malloced (\d+)$/)  { $cache{'total_malloced'} = $1; }
-
-    # stats items
-    elsif (/^STAT items:(\d+):number (\d+)$/) {
-	%item = $cache{"item$1"};
-	$item{'number'} = $2;
-    }
-    elsif (/^STAT items:(\d+):age (\d+)$/) {
-	%item = $cache{"item$1"};
-	$item{'age'} = $2;
-    }
-    elsif (/^END$/) { }
-    else {
+    elsif (!(/^END$/)) {			# unknown
 	$pmda->log("Eh?: $_");
     }
 }
@@ -108,66 +55,65 @@ sub memcache_connect
     }
 }
 
-sub memcache_fetch	# called once per "fetch" PDU, before callbacks
+sub memcache_timer_callback
 {
     for ($id = 0; $id < $#memcache_instances; $id++) {
 	$pmda->put_sock($id, $query);
     }
 }
 
-sub memcache_fetch_callback	# must return array of value,status
+sub memcache_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
-    my ( %cache, %slabs, %items );
 
     return (PM_ERR_INST, 0) unless ($inst > 0 && $inst < $#memcache_instances);
+    $id = $memcache_instances[$inst];
 
-    %cache = $caches{$inst};
     if ($cluster == 0) {
-	if ($item == 0)     { return ($cache{'pid'}, 1); }
-	elsif ($item == 1)  { return ($cache{'uptime'}, 1); }
-	elsif ($item == 2)  { return ($cache{'curr_items'}, 1); }
-	elsif ($item == 3)  { return ($cache{'total_items'}, 1); }
-	elsif ($item == 4)  { return ($cache{'bytes'}, 1); }
-	elsif ($item == 5)  { return ($cache{'curr_conns'}, 1); }
-	elsif ($item == 6)  { return ($cache{'total_conns'}, 1); }
-	elsif ($item == 7)  { return ($cache{'conn_structs'}, 1); }
-	elsif ($item == 8)  { return ($cache{'gets'}, 1); }
-	elsif ($item == 9)  { return ($cache{'sets'}, 1); }
-	elsif ($item == 10) { return ($cache{'get_hits'}, 1); }
-	elsif ($item == 11) { return ($cache{'get_misses'}, 1); }
-	elsif ($item == 12) { return ($cache{'bytes_read'}, 1); }
-	elsif ($item == 13) { return ($cache{'bytes_written'}, 1); }
-	elsif ($item == 14) { return ($cache{'limit_maxbytes'}, 1); }
+	if ($item == 0)     { return ($caches{$id}{'pid'}, 1); }
+	elsif ($item == 1)  { return ($caches{$id}{'uptime'}, 1); }
+	elsif ($item == 2)  { return ($caches{$id}{'curr_items'}, 1); }
+	elsif ($item == 3)  { return ($caches{$id}{'total_items'}, 1); }
+	elsif ($item == 4)  { return ($caches{$id}{'bytes'}, 1); }
+	elsif ($item == 5)  { return ($caches{$id}{'curr_connections'}, 1); }
+	elsif ($item == 6)  { return ($caches{$id}{'total_connections'}, 1); }
+	elsif ($item == 7)  { return ($caches{$id}{'connection_structures'}, 1); }
+	elsif ($item == 8)  { return ($caches{$id}{'cmd_get'}, 1); }
+	elsif ($item == 9)  { return ($caches{$id}{'cmd_set'}, 1); }
+	elsif ($item == 10) { return ($caches{$id}{'get_hits'}, 1); }
+	elsif ($item == 11) { return ($caches{$id}{'get_misses'}, 1); }
+	elsif ($item == 12) { return ($caches{$id}{'bytes_read'}, 1); }
+	elsif ($item == 13) { return ($caches{$id}{'bytes_written'}, 1); }
+	elsif ($item == 14) { return ($caches{$id}{'limit_maxbytes'}, 1); }
     }
     elsif ($cluster == 1) {
 	# 11 different slabs (6..17), and 7 metrics in this cluster
 	if ($item > 7 * 11) { return (PM_ERR_PMID, 0); }
 	$id = $item / 7;
 	$item %= 7;
-	%slabs = $cache{"slab$id"};
+	my $slab = "slab$id";
 
-	if ($item == 0)     { return ($slabs{'chunk_size'}, 1); }
-	elsif ($item == 1)  { return ($slabs{'chunks_per_page'}, 1); }
-	elsif ($item == 2)  { return ($slabs{'total_pages'}, 1); }
-	elsif ($item == 3)  { return ($slabs{'total_chunks'}, 1); }
-	elsif ($item == 4)  { return ($slabs{'used_chunks'}, 1); }
-	elsif ($item == 5)  { return ($slabs{'free_chunks'}, 1); }
-	elsif ($item == 6)  { return ($slabs{'free_chunks_end'}, 1); }
+	if ($item == 0)     { return ($caches{$id}{$slab}{'chunk_size'}, 1); }
+	elsif ($item == 1)  { return ($caches{$id}{$slab}{'chunks_per_page'}, 1); }
+	elsif ($item == 2)  { return ($caches{$id}{$slab}{'total_pages'}, 1); }
+	elsif ($item == 3)  { return ($caches{$id}{$slab}{'total_chunks'}, 1); }
+	elsif ($item == 4)  { return ($caches{$id}{$slab}{'used_chunks'}, 1); }
+	elsif ($item == 5)  { return ($caches{$id}{$slab}{'free_chunks'}, 1); }
+	elsif ($item == 6)  { return ($caches{$id}{$slab}{'free_chunks_end'}, 1); }
     }
     elsif ($cluster == 2) {
-	if ($item == 0)     { return ($cache{'active_slabs'}, 1); }
-	elsif ($item == 1)  { return ($cache{'total_malloced'}, 1); }
+	if ($item == 0)     { return ($caches{$id}{'active_slabs'}, 1); }
+	elsif ($item == 1)  { return ($caches{$id}{'total_malloced'}, 1); }
     }
     elsif ($cluster == 3) {
 	# 11 different slabs (6..17), and 2 metrics in this cluster
 	if ($item > 2 * 11) { return (PM_ERR_PMID, 0); }
 	$id = $item / 2;
 	$item %= 2;
-	%items = $cache{"item$id"};
+	my $itemid = "item$id";
 
-	if ($item == 0)     { return ($items{'count'}, 1); }
-	elsif ($item == 1)  { return ($items{'age'}, 1); }
+	if ($item == 0)     { return ($caches{$id}{$itemid}{'count'}, 1); }
+	elsif ($item == 1)  { return ($caches{$id}{$itemid}{'age'}, 1); }
     }
     return (PM_ERR_PMID, 0);
 }
@@ -263,6 +209,7 @@ foreach $n (6 .. 17) {	# stats items (N=6-17)
 }
 
 $pmda->add_indom( $memcache_indom, \@memcache_instances, '', '' );
+$pmda->add_timer( 5.0, \&memcache_fetch_callback, undef );
 $pmda->set_fetch_callback( \&memcache_fetch_callback );
 
 &memcache_connect;

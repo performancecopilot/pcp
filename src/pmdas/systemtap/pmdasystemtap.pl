@@ -27,8 +27,8 @@ my @probe_instances = ( 0 => 'sync', 1 => 'readdir' );
 my ( $sync_count, $sync_pid, $sync_cmd ) = ( 0, 0, "(none)" );
 my ( $readdir_count, $readdir_pid, $readdir_cmd ) = ( 0, 0, "(none)" );
 
-sub systemtap_input_callback {
-    ( $_ ) = @_;
+sub systemtap_input_callback
+{
     if (/^readdir: \((\d+)\) (.*)$/) {
 	( $readdir_pid, $readdir_cmd ) = ( $1, $2 );
 	$readdir_count++;
@@ -39,7 +39,8 @@ sub systemtap_input_callback {
     }
 }
 
-sub systemtap_fetch_callback {	# must return array of value,status
+sub systemtap_fetch_callback
+{
     my ($cluster, $item, $inst) = @_;
 
     if ($inst < 0 || $inst > 1)	{ return (PM_ERR_INST, 0); }
