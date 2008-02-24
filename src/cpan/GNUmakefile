@@ -1,7 +1,7 @@
 #!gmake
 #
-# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,10 +21,11 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-PERLCODE  = PMDA.pm PMDA.xs typemap
+PERLMOD   = PMDA.pm
+INTERFACE = PMDA.xs local.h typemap
 TESTCODE  = test.pl cvalue.c
 PERLDOCS  = Changes MANIFEST TODO
-LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLCODE) $(TESTCODE)
+LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 
 LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib
 

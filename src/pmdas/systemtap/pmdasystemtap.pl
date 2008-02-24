@@ -79,5 +79,5 @@ $pmda->add_indom( $probe_indom, \@probe_instances,
 		  'Instance domain exporting each SystemTap probe', '');
 
 $pmda->set_fetch_callback( \&systemtap_fetch_callback );
-$pmda->add_pipe( $probe_command, \&systemtap_input_callback );
+$pmda->add_pipe( $probe_command, \&systemtap_input_callback, undef );
 $pmda->run;

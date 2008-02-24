@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
- * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
+
+/* XXX - TODO: need to install a SIGCHLD signal handler when pipes in use */
+/* XXX - TODO: reconnect -- socket(host/port) and logrotate(inode/device) */
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,45 +32,68 @@ extern "C" {
 #include <syslog.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
+#include "local.h"
 #ifdef __cplusplus
 }
 #endif
 
-extern int	pmDebug;
-extern char *	pmProgname;
-
-static pmdaInterface	dispatch;
-static pmdaMetric *	metrictab;
-static pmdaIndom *	indomtab;
+static pmdaInterface dispatch;
+static pmdaMetric *metrictab;
 static int mtab_size;
+static pmdaIndom *indomtab;
 static int itab_size;
 
-static SV *fetch_func = (SV*)NULL;
-static SV *instance_func = (SV*)NULL;
-static SV *store_cb_func = (SV*)NULL;
-static SV *fetch_cb_func = (SV*)NULL;
+static SV *fetch_func;
+static SV *instance_func;
+static SV *store_cb_func;
+static SV *fetch_cb_func;
 
-static SV *timer_cb_func = (SV*)NULL;
-static struct timeval timer_delta;
-static int timer_afid;
-
-enum {
-    FILE_PIPE,
-    FILE_SOCK,
-    FILE_TAIL,
-};
-
-/* XXX - TODO: install a SIGCHLD signal handler when pipe in use */
-/* XXX - TODO: reconnect -- socket(host/port) and logrotate(inode/device) */
-static struct {
-    int		fd;
-    int		type;
-    FILE	*file;
-    SV		*function;
-} *files;
-
+static timers_t *timers;
+static int ntimers;
+static files_t *files;
 static int nfiles;
-static char buffer[4096];
+
+static char local_buffer[4096];
+
+int
+local_timer(double timeout, SV *cookie, SV *callback)
+{
+    int size = sizeof(*timers) * (ntimers + 1);
+    delta_t delta;
+
+    delta.tv_sec = (time_t)timeout;
+    delta.tv_usec = (long)((timeout - (double)delta.tv_sec) * 1000000.0);
+
+    if ((timers = realloc(timers, size)) == NULL)
+	__pmNoMem("timers resize", size, PM_FATAL_ERR);
+    timers[ntimers].id = -1;	/* not yet registered */
+    timers[ntimers].delta = delta;
+    timers[ntimers].cookie = cookie;
+    timers[ntimers].callback = callback;
+    return ntimers++;
+}
+
+SV *
+local_timer_get_cookie(int id)
+{
+    int i;
+
+    for (i = 0; i < ntimers; i++)
+	if (timers[i].id == id)
+	    return timers[i].cookie;
+    return NULL;
+}
+
+SV *
+local_timer_get_callback(int id)
+{
+    int i;
+
+    for (i = 0; i < ntimers; i++)
+	if (timers[i].id == id)
+	    return timers[i].callback;
+    return NULL;
+}
 
 int
 local_fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
@@ -99,8 +122,10 @@ local_timer_callback(int afid, void *data)
 {
     dSP;
     PUSHMARK(sp);
+    XPUSHs(sv_2mortal(newSVsv(local_timer_get_cookie(afid))));
+    PUTBACK;
 
-    perl_call_sv(timer_cb_func, G_DISCARD|G_NOARGS);
+    perl_call_sv(local_timer_get_callback(afid), G_VOID|G_DISCARD);
 }
 
 void
@@ -272,26 +297,8 @@ local_list_to_indom(SV *list, pmdaInstid **set)
     return len;
 }
 
-static void
-local_input_atexit(void)
-{
-    while (nfiles > 0) {
-	--nfiles;
-	if (files[nfiles].type == FILE_PIPE)
-	    pclose(files[nfiles].file);
-	if (files[nfiles].type == FILE_TAIL)
-	    fclose(files[nfiles].file);
-	if (files[nfiles].type == FILE_SOCK)
-	    close(files[nfiles].fd);
-    }
-    if (files) {
-	free(files);
-	files = NULL;
-    }
-}
-
-static void
-local_file(int type, int fd, FILE *fp, SV *callback)
+static int
+local_file(int type, int fd, SV *callback, SV *cookie)
 {
     int size = sizeof(*files) * (nfiles + 1);
 
@@ -299,44 +306,55 @@ local_file(int type, int fd, FILE *fp, SV *callback)
 	__pmNoMem("files resize", size, PM_FATAL_ERR);
     files[nfiles].type = type;
     files[nfiles].fd = fd;
-    files[nfiles].file = fp;
-    files[nfiles].function = callback;
-    nfiles++;
+    files[nfiles].cookie = cookie;
+    files[nfiles].callback = callback;
+    return nfiles++;
 }
 
 static int
-local_pipe(char *pipe, SV *callback)
+local_pipe(char *pipe, SV *callback, SV *cookie)
 {
     FILE *fp = popen(pipe, "r");
+    int me;
 
     if (!fp) {
 	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s", pipe, strerror(errno));
 	exit(1);
     }
-    local_file(FILE_PIPE, fileno(fp), fp, callback);
+    me = local_file(FILE_PIPE, fileno(fp), callback, cookie);
+    files[me].me.tail.file = fp;
     return fileno(fp);
 }
 
 static int
-local_tail(char *file, SV *callback)
+local_tail(char *file, SV *callback, SV *cookie)
 {
     FILE *fp = fopen(file, "r");
+    struct stat stats;
+    int me;
 
     if (!fp) {
 	__pmNotifyErr(LOG_ERR, "fopen failed (%s): %s", file, strerror(errno));
 	exit(1);
     }
-    local_file(FILE_TAIL, fileno(fp), fp, callback);
-    return fileno(fp);
+    if (stat(file, &stats) < 0) {
+	__pmNotifyErr(LOG_ERR, "stat failed (%s): %s", file, strerror(errno));
+	exit(1);
+    }
+    me = local_file(FILE_TAIL, fileno(fp), callback, cookie);
+    files[me].me.tail.file = fp;
+    files[me].me.tail.dev = stats.st_dev;
+    files[me].me.tail.ino = stats.st_ino;
+    return me;
 }
 
 static int
-local_sock(char *host, int port, SV *callback)
+local_sock(char *host, int port, SV *callback, SV *cookie)
 {
-    int fd, nodelay = 1;
-    struct linger nolinger = { 1, 0 };
-    struct hostent *servinfo;
     struct sockaddr_in myaddr;
+    struct hostent *servinfo;
+    struct linger nolinger = { 1, 0 };
+    int me, fd, nodelay = 1;
 
     if ((servinfo = gethostbyname(host)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "gethostbyname (%s): %s", host, strerror(errno));
@@ -364,8 +382,10 @@ local_sock(char *host, int port, SV *callback)
 	__pmNotifyErr(LOG_ERR, "connect (%s): %s", host, strerror(errno));
 	exit(1);
     }
-    local_file(FILE_SOCK, fd, NULL, callback);
-    return fd;
+    me = local_file(FILE_SOCK, fd, callback, cookie);
+    files[me].me.sock.host = strdup(host);
+    files[me].me.sock.port = port;
+    return me;
 }
 
 static char *
@@ -378,6 +398,44 @@ local_filetype(int type)
     if (type == FILE_TAIL)
 	return "tailed file";
     return NULL;
+}
+
+static int
+local_files_get_descriptor(int id)
+{
+    if (id < 0 || id >= nfiles)
+	return -1;
+    return files[id].fd;
+}
+
+static void
+local_atexit(void)
+{
+    while (ntimers > 0) {
+	--ntimers;
+	__pmAFunregister(timers[ntimers].id);
+    }
+    if (timers) {
+	free(timers);
+	timers = NULL;
+    }
+    while (nfiles > 0) {
+	--nfiles;
+	if (files[nfiles].type == FILE_PIPE)
+	    pclose(files[nfiles].me.pipe.file);
+	if (files[nfiles].type == FILE_TAIL)
+	    fclose(files[nfiles].me.tail.file);
+	if (files[nfiles].type == FILE_SOCK) {
+	    close(files[nfiles].fd);
+	    if (files[nfiles].me.sock.host)
+		free(files[nfiles].me.sock.host);
+	    files[nfiles].me.sock.host = NULL;
+	}
+    }
+    if (files) {
+	free(files);
+	files = NULL;
+    }
 }
 
 static void
@@ -401,8 +459,10 @@ local_pmdaMain(pmdaInterface *self)
     }
     nfds = ((pmcdfd > maxfd) ? pmcdfd : maxfd) + 1;
 
-    if (timer_cb_func != NULL)
-	timer_afid = __pmAFregister(&timer_delta, NULL, local_timer_callback);
+    for (i = 0; i < ntimers; i++) {
+	timers[i].id = __pmAFregister(&timers[i].delta, timers[i].cookie,
+					local_timer_callback);
+    }
 
     /* custom PMDA main loop */
     for (;;) {
@@ -431,7 +491,7 @@ local_pmdaMain(pmdaInterface *self)
 	    fd = files[i].fd;
 	    if (!(FD_ISSET(fd, &readyfds)))
 		continue;
-	    bytes = read(fd, buffer, sizeof(buffer));
+	    bytes = read(fd, local_buffer, sizeof(local_buffer));
 	    if (bytes < 0) {
 		__pmNotifyErr(LOG_ERR, "Data read error on %s: %s\n",
 				local_filetype(files[i].type), strerror(errno));
@@ -442,12 +502,12 @@ local_pmdaMain(pmdaInterface *self)
 				local_filetype(files[i].type));
 		exit(1);
 	    }
-	    buffer[bytes] = '\0';
-	    for (s = p = buffer; *s != '\0'; s++) {
+	    local_buffer[bytes] = '\0';
+	    for (s = p = local_buffer; *s != '\0'; s++) {
 		if (*s != '\n')
 		    continue;
 		*s = '\0';
-		local_input_callback(files[i].function, p);
+		local_input_callback(files[i].callback, p);
 		p = s + 1;
 	    }
 	}
@@ -471,7 +531,7 @@ new(CLASS,name,domain,logf)
 	RETVAL = &dispatch;
 	if (logf && logf[0] == '\0')
 	    logf = NULL;
-	atexit(&local_input_atexit);
+	atexit(&local_atexit);
 	pmdaDaemon(RETVAL, PMDA_INTERFACE_LATEST, name, domain, logf, "help");
 	pmdaOpenLog(RETVAL);
     OUTPUT:
@@ -553,14 +613,6 @@ set_fetch_callback(self,fetch_callback)
 	}
 
 void
-set_timer_callback(self,timer_callback)
-	pmdaInterface *self
-	SV *	timer_callback
-    CODE:
-	if (timer_callback != (SV *)NULL)
-	    timer_cb_func = newSVsv(timer_callback);
-
-void
 set_inet_socket(self,port)
 	pmdaInterface *self
 	int	port
@@ -607,8 +659,8 @@ add_metric(self,pmid,type,indom,sem,units,name,help,longhelp)
 int
 add_indom(self,indom,list,help,longhelp)
 	pmdaInterface *	self
-	int		indom
-	SV *		list
+	int	indom
+	SV *	list
 	char *	help
 	char *	longhelp
     PREINIT:
@@ -661,66 +713,70 @@ replace_indom(self,index,list)
     OUTPUT:
 	RETVAL
 
-void
-add_timer(self,timeout,callback)
+int
+add_timer(self,timeout,callback,data)
 	pmdaInterface *	self
 	double	timeout
 	SV *	callback
+	SV *	data
     CODE:
-	if (callback != (SV *)NULL) {
-	    timer_cb_func = newSVsv(callback);
-	    timer_delta.tv_sec = (time_t)timeout;
-	    timer_delta.tv_usec = (long)
-			((timeout - (double)timer_delta.tv_sec) * 1000000.0);
-	}
+	if (callback != (SV *)NULL)
+	    RETVAL = local_timer(timeout, newSVsv(callback), newSVsv(data));
+	else
+	    XSRETURN_UNDEF;
+    OUTPUT:
+	RETVAL
 
 int
-add_pipe(self,command,callback)
+add_pipe(self,command,callback,data)
 	pmdaInterface *self
 	char *	command
 	SV *	callback
+	SV *	data
     CODE:
 	if (callback != (SV *)NULL)
-	    RETVAL = local_pipe(command, newSVsv(callback));
+	    RETVAL = local_pipe(command, newSVsv(callback), newSVsv(data));
 	else
 	    XSRETURN_UNDEF;
     OUTPUT:
 	RETVAL
 
 int
-add_tail(self,filename,callback)
+add_tail(self,filename,callback,data)
 	pmdaInterface *self
 	char *	filename
 	SV *	callback
+	SV *	data
     CODE:
 	if (callback != (SV *)NULL)
-	    RETVAL = local_tail(filename, newSVsv(callback));
+	    RETVAL = local_tail(filename, newSVsv(callback), newSVsv(data));
 	else
 	    XSRETURN_UNDEF;
     OUTPUT:
 	RETVAL
 
 int
-add_sock(self,hostname,port,callback)
+add_sock(self,hostname,port,callback,data)
 	pmdaInterface *self
 	char *	hostname
 	int	port
 	SV *	callback
+	SV *	data
     CODE:
 	if (callback != (SV *)NULL)
-	    RETVAL = local_sock(hostname, port, newSVsv(callback));
+	    RETVAL = local_sock(hostname, port, newSVsv(callback), newSVsv(data));
 	else
 	    XSRETURN_UNDEF;
     OUTPUT:
 	RETVAL
 
 int
-put_sock(self,fd,message)
+put_sock(self,id,output)
 	pmdaInterface *self
-	int	fd
-	char *	message
+	int	id
+	char *	output
     CODE:
-	RETVAL = write(fd, message, strlen(message));
+	RETVAL = write(local_files_get_descriptor(id), output, strlen(output));
     OUTPUT:
 	RETVAL
 

@@ -31,7 +31,7 @@ require AutoLoader;
 	PM_ERR_TOOSMALL PM_ERR_TOOBIG PM_ERR_NYI
 );
 @EXPORT_OK = qw( );
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 # metric identification
 sub PM_ID_NULL		{ 0xffffffff; }
@@ -157,7 +157,7 @@ PCP::PMDA - Perl extension for Performance Metrics Domain Agents
 
 =head1 AUTHOR
 
-ptg@melbourne.sgi.com
+nathans@debian.org
 
 =head1 SEE ALSO
 

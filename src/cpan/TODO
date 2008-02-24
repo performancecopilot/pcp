@@ -3,9 +3,9 @@ Getting to a basic working state
 
 o  Need to devise a way to plug into pmdaGetOpt(3) and be good citizens
    in the PMDA command line argument handling world.  Note: -d is debug
-   mode in Perl, but domain number in the PMDA world.  D'oh.
-
-o  Add a PCP::PMDA->log() routine, simple interface to __pmNotifyErr();
+   mode in Perl, but domain number in the PMDA world.  D'oh.  This is
+   causing issues with the Install script, which automatically includes
+   that on the command line.
 
 o  Fully investigate Perl<->C value conversion used in the fetch callback
 	- probably some lurking issues here (32/u32/64/u64,etc);
@@ -27,11 +27,9 @@ o  Use PerlPOD(1) directives in the PCP::PMDA module to interface to
 o  Many Perl PMDAs will want to have an interface that allows them to
    get hold of the last data written to a file, as it is written there
    (ala. tail -f).  So, need to implement this missing pieces of the
-   MODE_TAIL (see PMDA.xs comments).
+   FILE_TAIL mode (see PMDA.xs comments).
  
 o  Need an atexit(3) handler to pclose MODE_PIPE processes.
-
-o  Need an add_timer() interface, see PMDA.xs comments.
 
 o  Need POD updates to document all APIs.
 
@@ -53,20 +51,6 @@ o  Extend the PCP::PMDA->add_metric() routine to allow help text and
 	  simplify PMDA development & maintenance;
 	- see also `database interfaces' below;
 
-o  Add routine(s) to PCP::PMDA module which take over functionality
-   currently performed by the Install and Remove scripts?
-	- might be possible to have a single Perl script do
-	  everything that currently requires multiple scripts &
-	  numerous files;
-	- in this case, /var/pcp/pmdas/*/Makefile would no longer
-	  be necessary and README could go away too since POD
-	  would be a better and more appropriate  way to do this
-	  (would also get out of README<->man page mismatch
-	  problems altogether)
-	- In this case, point one of this doc may be invalidated
-	  and we don't need to grok the standard command line
-	  args (no help file?) ... or allow both?
-
 
 Even more interesting stuff
 ---------------------------
@@ -84,7 +68,7 @@ o  database interfaces
 o  generic database ping PMDA
 	- We've traditionally had separate oraping, sybping,
 	  infmxping, etc PMDAs to measure database availability 
-	  and response - dbpingpmda/dbprobe are an initial stab
+	  and response - pmdadbping/dbprobe are an initial stab
 	  at providing a unified database response time measure
 	  PMDA
 

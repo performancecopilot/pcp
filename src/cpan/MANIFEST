@@ -5,6 +5,7 @@ Makefile.PL
 MANIFEST
 PMDA.pm
 PMDA.xs
+local.h
 test.pl
 TODO
 typemap
