@@ -25,9 +25,10 @@ use vars qw( $pmda $response $status $timestamp );
 my $delay = 60;	# seconds
 my $dbprobe = "/var/lib/pcp/pmdas/pmdadbping/dbprobe.pl $delay";
 
-sub dbping_probe_callback {
+sub dbping_probe_callback
+{
     my $stamp;
-
+    ( $_ ) = @_;
     ($stamp, $response) = split(/\t/);
     if (defined($stamp) && defined($response)) {
 	$timestamp = $stamp;
@@ -38,7 +39,8 @@ sub dbping_probe_callback {
     }
 }
 
-sub dbping_fetch_callback {	# must return array of value,status
+sub dbping_fetch_callback	# must return array of value,status
+{
     my ($cluster, $item, $inst) = @_;
 
     return (PM_ERR_INST, 0) unless ($inst == -1);
@@ -54,7 +56,8 @@ sub dbping_fetch_callback {	# must return array of value,status
     return (PM_ERR_PMID, 0);
 }
 
-sub dbping_store_callback {	# must return a single value (scalar context)
+sub dbping_store_callback	# must return a single value (scalar context)
+{
     my ($cluster, $item, $inst, $val) = @_;
     my $sts = 0;
 
@@ -69,7 +72,7 @@ sub dbping_store_callback {	# must return a single value (scalar context)
     return PM_ERR_PMID;
 }
 
-$pmda = PCP::PMDA->new('pmdadbping', 244, 'dbping.log');
+$pmda = PCP::PMDA->new('dbping', 244);
 
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_DOUBLE, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
@@ -86,7 +89,7 @@ $pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U32, PM_INDOM_NULL,
 
 $pmda->set_fetch_callback( \&dbping_fetch_callback );
 $pmda->set_store_callback( \&dbping_store_callback );
-$pmda->add_pipe( $dbprobe, \&dbping_probe_callback, undef );
+$pmda->add_pipe( $dbprobe, \&dbping_probe_callback, 0 );
 $pmda->run;
 
 __END__

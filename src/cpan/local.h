@@ -26,7 +26,7 @@ typedef struct timeval delta_t;
 typedef struct {
     int		id;
     delta_t	delta;
-    SV		*cookie;
+    int		cookie;
     SV		*callback;
 } timers_t;
 
@@ -51,7 +51,7 @@ typedef struct {
 typedef struct {
     int		fd;
     int		type;
-    SV		*cookie;
+    int		cookie;
     SV		*callback;
     union {
 	pipe_data_t pipe;

@@ -23,7 +23,7 @@ use vars qw( $pmda $id $n %caches );
 
 my @memcache_instances = ( 0 => '127.0.0.1:11211',
 			 # 1 => '127.0.0.1:11212',
-			 # 2 => '132.67.22.1:11211',
+			 # 2 => '192.168.5.76:11211',
 			 );
 
 my $memcache_indom = 0;	# one for each memcached
@@ -49,7 +49,7 @@ sub memcache_stats_callback
 
 sub memcache_connect
 {
-    for ($id = 0; $id < $#memcache_instances; $id++) {
+    for ($id = 1; $id < $#memcache_instances; $id += 2) {
 	my ($host, $port) = split(/:/, $memcache_instances[$id]);
 	$pmda->add_sock($host, $port, \&memcache_stats_callback, $id);
     }
@@ -57,7 +57,7 @@ sub memcache_connect
 
 sub memcache_timer_callback
 {
-    for ($id = 0; $id < $#memcache_instances; $id++) {
+    for ($id = 1; $id < $#memcache_instances; $id += 2) {
 	$pmda->put_sock($id, $query);
     }
 }
@@ -118,7 +118,7 @@ sub memcache_fetch_callback
     return (PM_ERR_PMID, 0);
 }
 
-$pmda = PCP::PMDA->new('pmdamemcache', 88, 'memcache.log');
+$pmda = PCP::PMDA->new('memcache', 89);
 
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
@@ -209,25 +209,8 @@ foreach $n (6 .. 17) {	# stats items (N=6-17)
 }
 
 $pmda->add_indom( $memcache_indom, \@memcache_instances, '', '' );
-$pmda->add_timer( 5.0, \&memcache_fetch_callback, undef );
+$pmda->add_timer( 5.0, \&memcache_fetch_callback, 0 );
 $pmda->set_fetch_callback( \&memcache_fetch_callback );
 
 &memcache_connect;
 $pmda->run;
-
-__END__
-
-=head1 NAME
-pmdamemcache - memcached distributed memory cache daemon PMDA
-
-=head1 SYNOPSIS
-
-=head1 DESCRIPTION
-
-The B<pmdamemcache> PMDA...
-
-=head1 SEE ALSO
-
-L<PMDA> - the Performance Metrics Domain Agent's documentation
-
-=cut

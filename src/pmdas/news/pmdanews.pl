@@ -107,7 +107,7 @@ sub news_init {
 # ---end of local routines---
 
 
-my $pmda = PCP::PMDA->new('pmdanews', 28, 'news.log');
+my $pmda = PCP::PMDA->new('news', 28);
 
 $pmda->add_metric(pmda_pmid(0,201), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),

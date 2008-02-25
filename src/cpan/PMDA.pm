@@ -31,7 +31,7 @@ require AutoLoader;
 	PM_ERR_TOOSMALL PM_ERR_TOOBIG PM_ERR_NYI
 );
 @EXPORT_OK = qw( );
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 # metric identification
 sub PM_ID_NULL		{ 0xffffffff; }

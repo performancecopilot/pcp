@@ -22,13 +22,15 @@ use PCP::PMDA;
 
 use vars qw( $pmda );
 my $probe_indom = 0;
-my $probe_command = '/usr/bin/stap /var/lib/pcp/pmdas/systemtap/probes.stp';
+my $probe_script = '/var/lib/pcp/pmdas/systemtap/probes.stp';
+my $probe_command = "/usr/bin/stap -m pmdasystemtap $probe_script";
 my @probe_instances = ( 0 => 'sync', 1 => 'readdir' );
 my ( $sync_count, $sync_pid, $sync_cmd ) = ( 0, 0, "(none)" );
 my ( $readdir_count, $readdir_pid, $readdir_cmd ) = ( 0, 0, "(none)" );
 
 sub systemtap_input_callback
 {
+    ( $_ ) = @_;
     if (/^readdir: \((\d+)\) (.*)$/) {
 	( $readdir_pid, $readdir_cmd ) = ( $1, $2 );
 	$readdir_count++;
@@ -61,7 +63,7 @@ sub systemtap_fetch_callback
     return (PM_ERR_PMID, 0);
 }
 
-$pmda = PCP::PMDA->new('pmdasystemtap', 88, 'systemtap.log');
+$pmda = PCP::PMDA->new('systemtap', 88);
 
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, $probe_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
@@ -80,5 +82,5 @@ $pmda->add_indom( $probe_indom, \@probe_instances,
 		  'Instance domain exporting each SystemTap probe', '');
 
 $pmda->set_fetch_callback( \&systemtap_fetch_callback );
-$pmda->add_pipe( $probe_command, \&systemtap_input_callback, undef );
+$pmda->add_pipe( $probe_command, \&systemtap_input_callback, 0 );
 $pmda->run;
