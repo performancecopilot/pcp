@@ -31,11 +31,12 @@
 # e.g. SuSE, where chkconfig is a perl script.
 ### BEGIN INIT INFO
 # Provides:       pmproxy
-# Required-Start: $network
+# Required-Start: $network $local_fs
 # Required-Stop:
 # Default-Start:  2 3 5
 # Default-Stop:
-# Description:    Control pmproxy for PCP
+# Short-Description:   Control the pmproxy daemon
+# Description:    Control the Performance Co-Pilot protocol proxy daemon
 ### END INIT INFO
 
  
@@ -140,7 +141,7 @@ _shutdown()
 
 _usage()
 {
-    echo "Usage: $PCP_RC_DIR/pmproxy [-v] {start|restart|stop|status}"
+    echo "Usage: $PCP_RC_DIR/pmproxy [-v] {start|restart|stop|status|reload|force-reload}"
 }
 
 while getopts v c
@@ -191,7 +192,7 @@ $RC_RESET
 # considered a success.
 case "$1" in
 
-  'start'|'restart')
+  'start'|'restart'|'reload'|'force-reload')
 	_get_pids_by_name pmproxy >$tmp.tmp
 	[ -s $tmp.tmp ] && _shutdown
 

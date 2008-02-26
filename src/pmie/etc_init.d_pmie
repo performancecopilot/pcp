@@ -30,11 +30,12 @@
 # e.g. SuSE, where chkconfig is a perl script.
 ### BEGIN INIT INFO
 # Provides:       pmie
-# Required-Start: $network
+# Required-Start: $network $local_fs
 # Required-Stop:
 # Default-Start:  2 3 5
 # Default-Stop:
-# Description:   pmie is a performance monitoring inference engine
+# Short-Description:   Control PCP inference engines
+# Description:   Configures the performance monitoring inference engine
 ### END INIT INFO
 
 # If a TRIX MAC label is defined, run pcp stuff at that MAC label
@@ -152,7 +153,7 @@ fi
 
 _usage()
 {
-    echo "Usage: $PCP_RC_DIR/pmie {start|restart|stop|status}"
+    echo "Usage: $PCP_RC_DIR/pmie {start|restart|stop|status|reload|force-reload}"
 }
 
 _reboot_setup()
@@ -225,7 +226,7 @@ _stop_pmie()
 
 
 case "$1" in
-  'start'|'restart')
+  'start'|'restart'|'reload'|'force-reload')
 	_get_pids_by_name "$PMIE" >$tmp.pmies 2>&1
 	[ -s $tmp.pmies ] && _stop_pmie
 
