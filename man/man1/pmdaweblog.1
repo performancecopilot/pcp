@@ -358,7 +358,7 @@ regex expression specifications for monitoring an access log are:
 regex CERN ] "([A\-Za\-z][\-A\-Za\-z]+)$0 .*" [\-0\-9]+ ([\-0\-9]+)$1
 
 # pattern for FTP Server access logs (normally in SYSLOG)
-regex SYSLOG_FTP ftpd\[.*\]: ([gp][\-A\-Za\-z]+)$0( )$1
+regex SYSLOG_FTP ftpd[.*]: ([gp][\-A\-Za\-z]+)$0( )$1
 .in
 .fi
 .ft 1
@@ -460,7 +460,7 @@ regex_posix CERN 1,2 ][ \\]+"([A\-Za\-z][\-A\-Za\-z]+) \\
 .in
 
 # pattern for FTP Server access logs (normally in SYSLOG)
-regex_posix SYSLOG_FTP method,size ftpd\[.*\]: \\
+regex_posix SYSLOG_FTP method,size ftpd[.*]: \\
 .in +0.5i
 ([gp][\-A\-Za\-z]+)( )
 .in
