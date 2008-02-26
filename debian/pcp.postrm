@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ "$1" = purge ]; then
+    update-rc.d pmproxy remove >/dev/null
+    update-rc.d pmie remove >/dev/null
+    update-rc.d pcp remove >/dev/null
+fi

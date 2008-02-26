@@ -1,6 +1,8 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
+PCP_FILES = pcp.prerm pcp.postinst pcp.postrm
+
 LIBPCPPCP = libpcp3
 LIBPCP_FILES = libpcp3.install
 DEVPCP_FILES = libpcp3-dev.install
@@ -19,8 +21,9 @@ DEVTRACE_FILES = libpcp-trace2-dev.install
 LIBTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2
 DEVTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2-dev
 
-LDIRT = compat
-LSRCFILES = changelog control copyright rules \
+LDIRT = compat *.debhelper *.substvars pcp $(LIBPCPPCP) $(LIBPCPPCP)-dev \
+	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev
+LSRCFILES = changelog control copyright rules $(PCP_FILES) \
 		$(LIBPCP_FILES) $(DEVPCP_FILES) \
 		$(LIBPMDA_FILES) $(DEVPMDA_FILES) \
 		$(LIBTRACE_FILES) $(DEVTRACE_FILES)

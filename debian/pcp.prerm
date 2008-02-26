@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if which invoke-rc.d >/dev/null 2>&1; then
+    invoke-rc.d pmproxy stop
+    invoke-rc.d pmie stop
+    invoke-rc.d pcp stop
+else
+    /etc/init.d/pmproxy stop
+    /etc/init.d/pmie stop
+    /etc/init.d/pcp stop
+fi
+rm -f /var/lib/pcp/pmns/.NeedRebuild
