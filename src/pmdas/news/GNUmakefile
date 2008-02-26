@@ -44,9 +44,9 @@ include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PFILES) $(PMDADIR)
 	$(INSTALL) -m 755 news.agent $(PMDADIR)/pmda$(IAM)
-	$(INSTALL) -m 644 $(DFILES) $(PFILES) active domain.h pmns root $(PMDADIR)
+	$(INSTALL) -m 644 $(DFILES) active domain.h pmns root $(PMDADIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 
 domain.h:	../../pmns/stdpmid
