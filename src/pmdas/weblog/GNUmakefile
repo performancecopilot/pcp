@@ -50,7 +50,7 @@ default_pcp default:	$(TARGETS)
 include $(BUILDRULES)
 
 install install_pcp:	default
-	$(INSTALL) -d $(CONFDIR)
+	# $(INSTALL) -d $(CONFDIR)
 	# $(INSTALL) -m 644 weblog.conf $(CONFDIR)/weblog.conf
 	$(INSTALL) -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
