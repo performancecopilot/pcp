@@ -69,7 +69,7 @@ pmnsdel$(EXECSUFFIX):        pmnsdel.o pmnsutil.o
 install:	default
 	$(INSTALL) -m 755 $(TARGETS) $(SCRIPTS) $(PMNS_BIN_DIR)
 	$(INSTALL) -m 755 $(LOCKERS) $(PMNS_LIB_DIR)
-	$(INSTALL) -m 755 GNUmakefile.install $(PMNS_VAR_DIR)/Makefile
+	$(INSTALL) -m 644 GNUmakefile.install $(PMNS_VAR_DIR)/Makefile
 	$(INSTALL) -m 755 Rebuild4linux $(PMNS_VAR_DIR)/Rebuild
 	$(INSTALL) -m 755 Make.stdpmid $(PMNS_VAR_DIR)/Make.stdpmid
 	$(INSTALL) -m 644 $(STDPMIDS) $(PMNS_VAR_DIR)
