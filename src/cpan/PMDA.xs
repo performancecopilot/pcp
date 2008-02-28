@@ -165,8 +165,13 @@ local_fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 	goto fetch_end;
     }
     sts = POPi;		/* pop function return status */
-    if (sts < 0)
+    if (sts < 0) {
 	goto fetch_end;
+    } else if (sts == 0) {
+	sts = POPi;
+	goto fetch_end;
+    }
+
     switch (metric->m_desc.type) {	/* pop result value */
 	case PM_TYPE_32:	atom->l = POPi; break;
 	case PM_TYPE_U32:	atom->ul = POPi; break;
@@ -174,7 +179,7 @@ local_fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 	case PM_TYPE_U64:	atom->ull = POPl; break;
 	case PM_TYPE_FLOAT:	atom->f = POPn; break;
 	case PM_TYPE_DOUBLE:	atom->d = POPn; break;
-	case PM_TYPE_STRING:	atom->cp = SvPV((POPs), PL_na); break;
+	case PM_TYPE_STRING:	atom->cp = strdup(POPpx); break;
     }
 
 fetch_end:
@@ -809,6 +814,20 @@ put_sock(self,id,output)
 	RETVAL = write(local_files_get_descriptor(id), output, strlen(output));
     OUTPUT:
 	RETVAL
+
+void
+log(self,message)
+	pmdaInterface *self
+	char *	message
+    CODE:
+	__pmNotifyErr(LOG_INFO, message);
+
+void
+err(self,message)
+	pmdaInterface *self
+	char *	message
+    CODE:
+	__pmNotifyErr(LOG_ERR, message);
 
 void
 run(self)

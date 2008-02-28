@@ -39,6 +39,7 @@ sub systemtap_input_callback
 	( $sync_pid, $sync_cmd ) = ( $1, $2 );
 	$sync_count++;
     }
+    # $pmda->log($_);
 }
 
 sub systemtap_fetch_callback
@@ -78,9 +79,9 @@ $pmda->add_metric(pmda_pmid(0,2), PM_TYPE_STRING, $probe_indom,
 		  'systemtap.probes.cmd',
 		  'The name of the last process to pass the probe point', '');
 
-$pmda->add_indom( $probe_indom, \@probe_instances,
-		  'Instance domain exporting each SystemTap probe', '');
+$pmda->add_indom($probe_indom, \@probe_instances,
+		 'Instance domain exporting each SystemTap probe', '');
 
-$pmda->set_fetch_callback( \&systemtap_fetch_callback );
-$pmda->add_pipe( $probe_command, \&systemtap_input_callback, 0 );
+$pmda->set_fetch_callback(\&systemtap_fetch_callback);
+$pmda->add_pipe($probe_command, \&systemtap_input_callback, 0);
 $pmda->run;
