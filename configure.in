@@ -62,9 +62,13 @@ echo Building on $build for $target
 echo "Build: os=$build_os cpu=$build_cpu"
 echo "Target: os=$target_os cpu=$target_cpu"
 
+target_distro=unknown
 if test $target_os = linux
 then
-    :
+    test -f /etc/SuSE-release && target_distro=suse
+    test -f /etc/fedora-release && target_distro=fedora
+    test -f /etc/redhat-release && target_distro=redhat
+    test -f /etc/debian_version && target_distro=debian
 elif test $target_os = irix
 then
     AC_DEFINE(IS_IRIX)
@@ -1189,16 +1193,32 @@ dnl pmcd control and options files
 if test $target_os = irix
 then
     pcp_pmcdconf_path=/etc/pmcd.conf
+    pcp_pmcdrclocal_path=$pcp_var_dir/config/pmcd/rc.local
     pcp_pmcdoptions_path=/etc/config/pmcd.options
     pcp_pmproxyoptions_path=/etc/config/pmproxy.options
+    pcp_pmiecontrol_path=$pcp_var_dir/config/pmie/control
+    pcp_pmloggercontrol_path=$pcp_var_dir/config/pmlogger/control
+elif test $target_os = darwin -o $target_distro = debian
+then
+    pcp_pmcdconf_path=/etc/pmcd/pmcd.conf
+    pcp_pmcdrclocal_path=/etc/pmcd/rc.local
+    pcp_pmcdoptions_path=/etc/pmcd/pmcd.options
+    pcp_pmproxyoptions_path=/etc/pmlogger/pmproxy.options
+    pcp_pmiecontrol_path=/etc/pmie/control
+    pcp_pmloggercontrol_path=/etc/pmlogger/control
 else
     pcp_pmcdconf_path=$pcp_var_dir/config/pmcd/pmcd.conf
+    pcp_pmcdrclocal_path=$pcp_var_dir/config/pmcd/rc.local
     pcp_pmcdoptions_path=$pcp_var_dir/config/pmcd/pmcd.options
     pcp_pmproxyoptions_path=$pcp_var_dir/config/pmproxy/pmproxy.options
+    pcp_pmiecontrol_path=$pcp_var_dir/config/pmie/control
+    pcp_pmloggercontrol_path=$pcp_var_dir/config/pmlogger/control
 fi
 AC_SUBST(pcp_pmcdconf_path)
 AC_SUBST(pcp_pmcdoptions_path)
 AC_SUBST(pcp_pmproxyoptions_path)
+AC_SUBST(pcp_pmiecontrol_path)
+AC_SUBST(pcp_pmloggercontrol_path)
 
 pcp_pmdas_dir=$pcp_var_dir/pmdas
 AC_SUBST(pcp_pmdas_dir)
@@ -1210,7 +1230,7 @@ then
 elif test $target_os = cygwin
 then
     pcp_lib_dir=/cygdrive/c/WINDOWS/system32
-elif test $target_os = linux -a $target_cpu = x86_64 -a ! -e /etc/debian_version
+elif test $target_os = linux -a $target_cpu = x86_64 -a $target_distro != debian
 then
     # Linux on x86_64 puts libraries in .../lib64 (and rpmbuild
     # enforces that convention) but $libdir lies about it.

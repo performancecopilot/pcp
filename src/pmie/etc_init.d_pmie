@@ -78,7 +78,7 @@ if [ -f $PCP_SHARE_DIR/lib/rc-proc.sh ] ; then
 fi
 
 PMIE=pmie
-PMIECTRL=$PCP_VAR_DIR/config/pmie/control
+PMIECTRL=$PCP_PMIECONTROL_PATH
 prog=$PCP_RC_DIR/`basename $0`
 MAIL=Mail
 

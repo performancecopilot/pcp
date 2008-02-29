@@ -84,18 +84,36 @@ PCP_VAR_DIR=@pcp_var_dir@
 
 # path to pmcd config file
 # Standard path (linux): $PCP_VAR_DIR/config/pmcd/pmcd.conf
+# Standard path (debian): /etc/pmcd/pmcd.conf
 # Standard path (irix): /etc/pmcd.conf
 PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
 
 # path to pmcd options file
 # Standard path (linux): $PCP_VAR_DIR/config/pmcd/pmcd.options
+# Standard path (debian): /etc/pmcd/pmcd.options
 # Standard path (irix): /etc/config/pmcd.options
 PCP_PMCDOPTIONS_PATH=@pcp_pmcdoptions_path@
 
+# path to site-local pmcd startup script
+# Standard path (linux): $PCP_VAR_DIR/config/pmcd/rc.local
+# Standard path (debian): /etc/pmcd/rc.local
+PCP_PMCDRCLOCAL_PATH=@pcp_pmcdrclocal_path@
+
 # path to pmproxy options file
 # Standard path (linux): $PCP_VAR_DIR/config/pmproxy/pmproxy.options
+# Standard path (debian): /etc/pmproxy/pmproxy.options
 # Standard path (irix): /etc/config/pmproxy.options
 PCP_PMPROXYOPTIONS_PATH=@pcp_pmproxyoptions_path@
+
+# path to pmie control file
+# Standard path (linux): $PCP_VAR_DIR/config/pmie/control
+# Standard path (debian): /etc/pmie/control
+PCP_PMIECONTROL_PATH=@pcp_pmiecontrol_path@
+
+# path to pmlogger control file
+# Standard path (linux): $PCP_VAR_DIR/config/pmlogger/control
+# Standard path (debian): /etc/pmlogger/control
+PCP_PMLOGGERCONTROL_PATH=@pcp_pmloggercontrol_path@
 
 # directory for PCP PMDAs
 # Standard path: /var/lib/pcp/pmdas

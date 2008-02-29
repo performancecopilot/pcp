@@ -52,9 +52,8 @@ link=${base#*[SK][0-9][0-9]}
 
 PMCD=$PCP_BINADM_DIR/pmcd
 PMCDOPTS=$PCP_PMCDOPTIONS_PATH
-PCPLOCAL=$PCP_VAR_DIR/config/pmcd/rc.local
-PMLOGOPTS=$PCP_VAR_DIR/config/pmlogger/pmlogger.options
-PMLOGCTRL=$PCP_VAR_DIR/config/pmlogger/control
+PCPLOCAL=$PCP_PMCDRCLOCAL_PATH
+PMLOGCTRL=$PCP_PMLOGGERCONTROL_PATH
 RUNDIR=$PCP_LOG_DIR/pmcd
 DKPROBE=$PCP_BINADM_DIR/dkprobe
 PMLOGGER=$PCP_BINADM_DIR/pmlogger
@@ -357,8 +356,7 @@ _start_pmlogger()
 
     if which pmlogger_check >/dev/null 2>&1
     then
-	# pmlogger_check uses $PCP_VAR_DIR/config/pmlogger/control
-	# and so can start everything that is needed
+	# pmlogger_check uses $PMLOGCTRL to start everything that is needed
 	#
 	$ECHO $PCP_ECHO_N "Performance Co-Pilot starting archive loggers ..." "$PCP_ECHO_C"
 	if [ ! -f $PMLOGCTRL ]

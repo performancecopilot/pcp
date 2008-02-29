@@ -25,16 +25,13 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-
 OTHERS	= pmlogger.config pmnewlog.sh pmlogger_daily.sh pmlogger_check.sh \
 	pmlogger_merge.sh control config.sar config.base GNUmakefile.install
 
 LSRCFILES = $(OTHERS) crontab.IN
 LDIRT	= crontab control.install
 
-# beware ... spaces at the end of these lines case the install lines
-# to break
-#
+# Beware ... spaces at the end of these lines cause the install lines to break
 _confdir = $(PCP_VAR_DIR)/config/pmlogger
 _bindir  = $(PCP_BINADM_DIR)
 
@@ -51,8 +48,8 @@ include $(BUILDRULES)
 install: $(OTHERS) crontab
 	$(INSTALL) -m 644 config.sar config.base crontab $(_confdir)
 	$(INSTALL) -m 644 pmlogger.config $(_confdir)/config.default
-	$(INSTALL) -m 644 control.install $(_confdir)/control
 	$(INSTALL) -m 644 GNUmakefile.install $(_confdir)/Makefile
+	$(INSTALL) -m 644 control.install $(PCP_PMLOGGERCONTROL_PATH)
 
 	$(INSTALL) -m 755 pmnewlog.sh $(_bindir)/pmnewlog
 	$(INSTALL) -m 755 pmlogger_daily.sh $(_bindir)/pmlogger_daily

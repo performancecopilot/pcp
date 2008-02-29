@@ -90,8 +90,11 @@ install_pcp :  default_pcp
 	# TODO automagic needed here to avoid installing directories like
 	# /usr/bin or /usr/lib or /etc that really belong to some other
 	# package
-	# for Linux, this once comes from the chkconfig package
+	# for Linux, this one comes from the chkconfig package
 	# $(INSTALL) -m 755 -d $(PCP_RC_DIR)
+ifeq ($(TARGET_OS),darwin)
+	$(INSTALL) -m 755 -d $(PCP_RC_DIR)
+endif
 	# for Linux, this group comes from the filesystem package
 	# $(INSTALL) -m 755 -d $(PCP_BIN_DIR)
 	# $(INSTALL) -m 755 -d $(PCP_LIB_DIR)

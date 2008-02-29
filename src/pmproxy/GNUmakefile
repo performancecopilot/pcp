@@ -40,10 +40,12 @@ $(TARGET): $(OBJECTS)
 include $(BUILDRULES)
 
 install: default
-	$(INSTALL) -m 755 $(TARGET) $(PCP_BINADM_DIR)/$(TARGET)
-	$(INSTALL) -m 755 rc_pmproxy $(PCP_RC_DIR)/pmproxy
+	$(INSTALL) -m 755 -d /etc/pmproxy
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmproxy
-	$(INSTALL) -m 644 pmproxy.options $(PCP_VAR_DIR)/config/pmproxy/pmproxy.options
+	$(INSTALL) -m 644 pmproxy.options /etc/pmproxy/pmproxy.options
+	$(INSTALL) -S /etc/pmproxy/pmproxy.options $(PCP_VAR_DIR)/config/pmproxy/pmproxy.options
+	$(INSTALL) -m 755 rc_pmproxy $(PCP_RC_DIR)/pmproxy
+	$(INSTALL) -m 755 $(TARGET) $(PCP_BINADM_DIR)/$(TARGET)
 	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)/pmproxy
 
 default_pcp : default
