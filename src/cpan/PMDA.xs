@@ -26,12 +26,12 @@ extern "C" {
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
-#include <pcp/pmda.h>
 #include <syslog.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
+#include "pmapi.h"
+#include "impl.h"
+#include "pmda.h"
 #include "local.h"
 #ifdef __cplusplus
 }

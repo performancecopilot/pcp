@@ -5,6 +5,7 @@ WriteMakefile(
     'NAME'	=> 'PCP::PMDA',
     'VERSION_FROM'  => 'PMDA.pm', # finds $VERSION
     'LIBS'	=> ['-lpcp_pmda -lpcp'],
-    'DEFINE'	=> '-DPERLIO_NOT_STDIO=0',     # e.g., '-DPCP_DEBUG' 
+    'INC'	=> '-I../include',
+    'DEFINE'	=> '-DPERLIO_NOT_STDIO=0',     # e.g., '-DPCP_DEBUG'
     'XSPROTOARG'    => '-noprototypes',
 );
