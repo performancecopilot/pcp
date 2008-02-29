@@ -262,7 +262,7 @@ DIST_MAKERULE = \
 	$(MAKEF) -C build dist
 
 #
-# For tagets that should always be rebuilt,
+# For targets that should always be rebuilt,
 # define a target that is never up-to-date.
 # Targets needing this should depend on $(_FORCE)
 _FORCE = __force_build

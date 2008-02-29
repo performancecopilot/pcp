@@ -4,7 +4,7 @@
 # longer timeout delay for slow agents
 # -t 10
 
-# supress timeouts
+# suppress timeouts
 # -t 0
 
 # make log go someplace else
@@ -14,7 +14,7 @@
 # -D N
 # -f
 
-# Restricting incomming PDU size to prevent DOS attacks
+# Restricting incoming PDU size to prevent DOS attacks
 # -L 16384 
 
 # enable event tracing bit fields
