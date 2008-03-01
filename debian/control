@@ -2,6 +2,7 @@ Source: pcp
 Section: utils
 Priority: optional
 Maintainer: Nathan Scott <nathans@debian.org>
+Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
 Build-Depends: autoconf, bison, flex, debhelper (>= 5)
 Standards-Version: 3.5.9
 
@@ -10,7 +11,7 @@ Depends: libpcp3, libpcp-pmda3, libpcp-trace2, sysv-rc-conf, ncurses-dev
 Suggests: tsocks
 Recommends: kmchart
 Architecture: any
-Description: System-level performance monitoring and performance management
+Description: System level performance monitoring and performance management
  Performance Co-Pilot (PCP) is a framework and services to
  support system-level performance monitoring and performance
  management.
@@ -67,7 +68,7 @@ Section: libdevel
 Priority: extra
 Depends: libc6-dev | libc-dev, libpcp3-dev
 Architecture: any
-Description: Performance Co-Pilot Time Control library and headers
+Description: Performance Co-Pilot application tracing library and headers
  libpcptrace-dev contains the Performance Co-Pilot (PCP) library and
  header files needed to directly instrument an application for event
  and value tracking by the pmdatrace(1) PCP Trace Performance Metric
@@ -78,7 +79,7 @@ Depends: libpcp3
 Section: libs
 Priority: required
 Architecture: any
-Description: Performance Co-Pilot Time Control library
+Description: Performance Co-Pilot application tracing library
  Contains the runtime environment required by an application that is
  directly instrumented for event and value tracking by pmdatrace(3),
  the Trace Performance Metric Domain Agent.

@@ -35,7 +35,6 @@ do
 	clean=true
 	shift
 	;;
-
     -verbose)
 	verbose=true
 	shift
@@ -51,6 +50,20 @@ do
 	;;
     esac
 done
+
+if [ -f /etc/debian_version ]
+then
+    SUDO=${SUDO:-sudo}
+    LOGDEB=`pwd`
+    LOGDEB=../`basename $LOGDEB`.log
+    echo "== Debian build, log is $LOGDEB"; echo
+    if $verbose ; then
+	dpkg-buildpackage -r$SUDO | tee $LOGDEB
+    else
+	dpkg-buildpackage -r$SUDO > $LOGDEB || exit 1
+    fi
+    exit 0
+fi
 
 if [ $# = 0 ] ; then
     set -- pcp
