@@ -2,11 +2,12 @@ Source: kmchart
 Section: admin
 Priority: optional
 Maintainer: Nathan Scott <nathans@debian.org>
-Build-Depends: autoconf, debhelper (>= 5), libpcp3-dev, qt4-dev
+Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
+Build-Depends: autoconf, debhelper (>= 5), libpcp3-dev, libqt4-dev
 Standards-Version: 3.5.9
 
 Package: kmchart
 Depends: pcp, libqt4-gui
 Architecture: any
-Description: Strip Chart tool for Performance Co-Pilot
- A strip chart tool for plotting metric values from the Performance Co-Pilot.
+Description: Chart tool for Performance Co-Pilot
+ A chart tool for plotting metric values from the Performance Co-Pilot.
