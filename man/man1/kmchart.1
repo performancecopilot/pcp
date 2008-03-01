@@ -50,7 +50,7 @@ framework, many of which are used by
 Many aspects of the behaviour of
 .B kmchart
 can be customised through the interface.
-In particular, the use of ''views'' (refer to the section describing
+In particular, the use of "views" (refer to the section describing
 VIEWS later in this document)
 allows predefined sets of metrics and charting parameters
 like colors, scaling, titles, legends, and so on to be stored for
@@ -181,14 +181,14 @@ and
 .B \-A
 options may be used to define a time window to
 restrict the samples retrieved, set an initial origin within the time
-window, or specify a ‘‘natural’’ alignment of the sample  times;  refer
+window, or specify a "natural" alignment of the sample  times;  refer
 to
 .BR PCPIntro (1)
 for a complete description of these options.
 .SH VIEWS
 The primary
 .B kmchart
-configuration file is the ''view'', which allows the metadata
+configuration file is the "view", which allows the metadata
 associated with one or more charts to be saved in the filesystem.
 This metadata describes all aspects of the charts, including
 which PCP metrics and instances are to be used, which hosts, which
@@ -200,7 +200,7 @@ to a later section for a complete description of this format.
 The differences lie in where they are installed and how they
 are manipulated.
 .PP
-The first class, the ''system'' view, is simply any view that is
+The first class, the "system" view, is simply any view that is
 installed as part of the
 .B kmchart
 package.
@@ -213,7 +213,7 @@ The system views cannot be modified by a normal user, and should
 not be modified even by a user with suitable priviledges, as they
 will be overwritten during an upgrade.
 .PP
-The second class of view is the ''user'' view.
+The second class of view is the "user" view.
 These views are created on-the-fly using the
 .I "File\(->Save View"
 dialog.
@@ -350,7 +350,7 @@ for an extensive description of the capabilities of these tools.
 ..
 .PP
 .B kmchart
-loads predefined chart configurations (or ''views'') from external
+loads predefined chart configurations (or "views") from external
 files that conform to the following rules.  In the descriptions below
 keywords (shown in \f(CBbold\fP) may appear in upper, lower or
 mixed case, elements shown in \f(CW[stuff]\fP are optional, and
@@ -373,7 +373,7 @@ with an initial line of
 \f(CB#pmchart\fP
 .EE
 .IP 2. 0.3i
-After the first line, lines beginning with ''#'' as the first
+After the first line, lines beginning with "#" as the first
 non-white space character are treated as comments and skipped.
 Similarly blank lines are skipped.
 .IP 3. 0.3i
@@ -405,7 +405,7 @@ A configuration contains one or more charts defined as follows:
 If specified, the title will appear centred and above the graph area
 of the chart.
 The \f(CW<title>\fP is usually enclosed in quotes (") and if it
-contains the sequence ''%h'' this will be replaced by the short form
+contains the sequence "%h" this will be replaced by the short form
 of the hostname for the default source of metrics at the time
 this chart was loaded.
 After the view is loaded, the title visibility and setting
