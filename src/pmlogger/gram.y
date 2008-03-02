@@ -83,6 +83,8 @@ static char		* metricName;
     char * str;
 }
 
+%expect 1
+
 %term	LSQB
 	RSQB
 	COMMA

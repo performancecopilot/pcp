@@ -21,10 +21,6 @@ from an archive.
 The framework supports APIs and configuration file formats that enable
 the scope of performance monitoring to be extended at all levels.
 
-The open source release of PCP provides a subset of the features of
-SGI's Performance Co-Pilot products for IRIX (see
-http://www.sgi.com/products/software/co-pilot/).
-
 The architecture and services of the base PCP infrastructure are
 especially attractive for those tackling the harder system-level
 performance problems.  For example this may involve a transient
@@ -50,6 +46,7 @@ broad range of performance data from most kernels circa 2.0.36 (RedHat
     all the per-process statistics 
 
 Other agents export performance data from: 
+    Apache
     Web server activity logs 
     arbitrary application-level tracing (via a PCP trace
     library) 

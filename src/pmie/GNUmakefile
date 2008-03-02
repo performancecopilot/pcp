@@ -42,15 +42,12 @@ install:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 install::	default
+	$(INSTALL) -m 755 -d `dirname $(PCP_PMIECONTROL_PATH)`
+	$(INSTALL) -m 644 control.install $(PCP_PMIECONTROL_PATH)
 	$(INSTALL) -m 755 -d $(CFG_DIR)
-	$(INSTALL) -m 755 -d /etc/pmie
-	$(INSTALL) -m 644 stomp.install /etc/pmie/stomp
-	$(INSTALL) -m 644 control.install /etc/pmie/control
-	$(INSTALL) -m 644 config.default.install /etc/pmie/config.default
-	$(INSTALL) -S /etc/pmie/stomp $(CFG_DIR)/stomp
-	$(INSTALL) -S /etc/pmie/control $(CFG_DIR)/control
-	$(INSTALL) -S /etc/pmie/config.default $(CFG_DIR)/config.default
+	$(INSTALL) -m 644 stomp.install $(CFG_DIR)/stomp
 	$(INSTALL) -m 644 crontab.install $(CFG_DIR)/crontab
+	$(INSTALL) -m 644 config.default.install $(CFG_DIR)/config.default
 	$(INSTALL) -m 755 etc_init.d_pmie $(PCP_RC_DIR)/pmie
 	$(INSTALL) -m 755 pmie_check.sh $(PCP_BINADM_DIR)/pmie_check
 	$(INSTALL) -m 755 pmie_daily.sh $(PCP_BINADM_DIR)/pmie_daily

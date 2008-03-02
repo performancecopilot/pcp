@@ -52,7 +52,6 @@ else
 YFILES = gram.y
 YFLAGS += -v
 gram.tab.h:	gram.y
-	@echo 1 shift/reduce conflict is expected and considered to be benign
 	$(YACC) -d -b `basename $< .y` $<
 LSRCFILES	+= gram.save.c gram.save.h
 endif

@@ -66,7 +66,6 @@ else
 YFILES = grammar.y
 #Expect 184 shift/reduce conflict from bison
 grammar.h:	grammar.y
-	@echo 184 shift/reduce conflicts are expected and considered to be benign
 	$(YACC) -d -b `basename $< .y` $< && cp `basename $@ .h`.tab.h $@
 LSRCFILES	+= grammar.save.c grammar.save.h
 endif

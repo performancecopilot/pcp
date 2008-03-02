@@ -63,6 +63,7 @@ gramerr(char *phrase, char *pos, char *op)
  * yacc token and operator declarations
  ***********************************************************************/
 
+%expect     184
 %start      stmnt
 
 %token      ARROW

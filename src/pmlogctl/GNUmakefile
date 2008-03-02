@@ -46,11 +46,11 @@ control.install: control
 include $(BUILDRULES)
 
 install: $(OTHERS) crontab
+	$(INSTALL) -m 755 -d `dirname $(PCP_PMLOGGERCONTROL_PATH)`
+	$(INSTALL) -m 644 control.install $(PCP_PMLOGGERCONTROL_PATH)
 	$(INSTALL) -m 644 config.sar config.base crontab $(_confdir)
 	$(INSTALL) -m 644 pmlogger.config $(_confdir)/config.default
 	$(INSTALL) -m 644 GNUmakefile.install $(_confdir)/Makefile
-	$(INSTALL) -m 644 control.install $(PCP_PMLOGGERCONTROL_PATH)
-
 	$(INSTALL) -m 755 pmnewlog.sh $(_bindir)/pmnewlog
 	$(INSTALL) -m 755 pmlogger_daily.sh $(_bindir)/pmlogger_daily
 	$(INSTALL) -m 755 pmlogger_check.sh $(_bindir)/pmlogger_check

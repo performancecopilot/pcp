@@ -132,7 +132,7 @@ fi
 AC_SUBST(PACKAGE_BUILD_DATE)
 
 if test -z "$PACKAGE_DISTRIBUTION" ; then
-    PACKAGE_DISTRIBUTION=None
+    PACKAGE_DISTRIBUTION=$target_distro
 fi
 AC_SUBST(PACKAGE_DISTRIBUTION)
 
@@ -1203,7 +1203,7 @@ then
     pcp_pmcdconf_path=/etc/pmcd/pmcd.conf
     pcp_pmcdrclocal_path=/etc/pmcd/rc.local
     pcp_pmcdoptions_path=/etc/pmcd/pmcd.options
-    pcp_pmproxyoptions_path=/etc/pmlogger/pmproxy.options
+    pcp_pmproxyoptions_path=/etc/pmproxy/pmproxy.options
     pcp_pmiecontrol_path=/etc/pmie/control
     pcp_pmloggercontrol_path=/etc/pmlogger/control
 else
@@ -1216,6 +1216,7 @@ else
 fi
 AC_SUBST(pcp_pmcdconf_path)
 AC_SUBST(pcp_pmcdoptions_path)
+AC_SUBST(pcp_pmcdrclocal_path)
 AC_SUBST(pcp_pmproxyoptions_path)
 AC_SUBST(pcp_pmiecontrol_path)
 AC_SUBST(pcp_pmloggercontrol_path)

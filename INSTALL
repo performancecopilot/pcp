@@ -34,11 +34,11 @@ This document describes how to configure and build the open source PCP
 
    You will need to start the PCP Collection Daemon (PMCD)
    # su root
-   # /etc/rc.d/init.d/pcp start
+   # /etc/init.d/pcp start
 
-   This assumes your startup scripts are in /etc/rc.d/init.d
-   (which is the Redhat default). On Debian systems, it is /etc/rc.d
-   so you should run /etc/rc.d/pcp start.
+   On MacOSX and Cygwin systems, there is no /etc/init.d system, so you
+   should run either "/Library/StartupItems/pcp/pcp start" (MacOSX) or
+   "/etc/pcp start" (Cygwin).
 
    By default, PMCD will start automatically at reboot. However
    if you have previously installed PCP, you may need to
@@ -126,8 +126,8 @@ This document describes how to configure and build the open source PCP
      trivial - even easier src code for a new PMDA.
 
    The procedure for configuring all of these is to change to the
-   directory for the PMDA (usually below /var/pcp/pmdas), and then
-   run the Install script found therein. None of these PMDAs are
+   directory for the PMDA (usually below /var/lib/pcp/pmdas), and then
+   run the ./Install script found therein. None of these PMDAs are
    configured by default - you choose the PMDAs you need and run the
    Install script.
 

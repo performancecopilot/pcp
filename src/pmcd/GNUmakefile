@@ -31,7 +31,6 @@ SUBDIRS = src
 LSRCFILES = pmdaproc.sh rc_pcp rc_local config.doc pmcd.options \
 	    rc-proc.sh rc-proc.sh.minimal migrate_pcp_var_dir
 
-
 default : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
@@ -41,15 +40,18 @@ ifeq ($(TARGET_OS),darwin)
 	$(INSTALL) -m 755 -d $(PCP_RC_DIR)
 endif
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMCDOPTIONS_PATH)`
-	$(INSTALL) -m 755 rc_pcp $(PCP_RC_DIR)/pcp
 	$(INSTALL) -m 644 pmcd.options $(PCP_PMCDOPTIONS_PATH)
-	$(INSTALL) -m 755 rc_local $(PCP_VAR_DIR)/config/pmcd/rc.local
+	$(INSTALL) -m 755 -d `dirname $(PCP_PMCDRCLOCAL_PATH)`
+	$(INSTALL) -m 755 rc_local $(PCP_PMCDRCLOCAL_PATH)
+	$(INSTALL) -m 755 rc_pcp $(PCP_RC_DIR)/pcp
 	$(INSTALL) -m 644 pmdaproc.sh $(PCP_SHARE_DIR)/lib/pmdaproc.sh
-	$(INSTALL) -m 755 migrate_pcp_var_dir $(PCP_SHARE_DIR)/lib/.migrate_pcp_var_dir
 	$(INSTALL) -m 644 rc-proc.sh $(PCP_SHARE_DIR)/lib/rc-proc.sh
 	$(INSTALL) -m 644 rc-proc.sh.minimal $(PCP_SHARE_DIR)/lib/rc-proc.sh.minimal
 	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)/pmcd
+ifneq ($(PACKAGE_DISTRIBUTION),debian)
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmcd
+	$(INSTALL) -m 755 migrate_pcp_var_dir $(PCP_SHARE_DIR)/lib/.migrate_pcp_var_dir
+endif
 
 include $(BUILDRULES)
 
