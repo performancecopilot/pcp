@@ -480,7 +480,7 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid is $TOKILL.
     delay=200	# tenths of a second
     for SIG in TERM KILL
     do
-	if [ "x$TOKILL" == "x" ]
+	if [ "x$TOKILL" = "x" ]
 	then
 	    $PCP_KILLALL_PROG -$SIG pmcd > /dev/null 2>&1
 	else
@@ -493,12 +493,12 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid is $TOKILL.
 	    [ ! -s $tmp.tmp ] && break 2
 	    pmsleep 0.1
 	    delay=`expr $delay - 1`
-	    [ "$SIG" == "TERM" ] && [ `expr $delay % 10` -eq 0 ] \
+	    [ "$SIG" = "TERM" ] && [ `expr $delay % 10` -eq 0 ] \
 		&& $ECHO $PCP_ECHO_N ".""$PCP_ECHO_C"
 	done
 	echo
 	echo "Process ..."
-	if [ "$SIG" == "TERM" ]
+	if [ "$SIG" = "TERM" ]
 	then
 	    ps $PCP_PS_ALL_FLAGS >$tmp.ps
 	    sed 1q $tmp.ps

@@ -57,7 +57,7 @@ then
 
     if [ "$PCP_MAC_LABEL" != "$_label" ]
     then
-        if [ "$2" == "trixbox" ]
+        if [ "$2" = "trixbox" ]
         then
             echo "$0 : Failed to launch with correct label"
             exit 1
