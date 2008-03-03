@@ -24,6 +24,9 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Understand and workaround font sizing issue in Qt4.3.
 	- reported by kmcdonell@aconex.com, cdesilva@aconex.com
 
+    - If pmlogger exits immediately in Record mode, a SIGSEGV results.
+	- reported by rmckee@aconex.com
+
     - Code audit for TODOs; either fix, exception or add to wishlist.
     - Destructors and memory leak plugging.
 
