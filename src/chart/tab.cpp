@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -202,6 +202,14 @@ void Tab::setCurrent(Chart *cp)
     t = sp->title();
     t.setColor(globalSettings.chartHighlight);
     sp->setTitle(t);
+}
+
+void Tab::updateBackground()
+{
+    for (int i = 0; i < my.count; i++) {
+	my.charts[i]->setCanvasBackground(globalSettings.chartBackground);
+	my.charts[i]->replot();
+    }
 }
 
 QmcGroup *Tab::group()

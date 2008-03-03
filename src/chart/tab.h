@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2006-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,6 +67,8 @@ public:
     int visibleHistory();
     void setSampleHistory(int);
     int sampleHistory();
+
+    void updateBackground();	// reset background color to global default
 
     void setConfig(char *);
     char *config(void);		// config filename from -c

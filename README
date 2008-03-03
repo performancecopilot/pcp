@@ -10,10 +10,6 @@ Refer to doc/INSTALL for instructions on building these tools.
 
 === 1.0 TODO list ===
 
-    - Changing the background in Settings should take immediate effect
-      (on pressing OK) for all _existing_ charts too, not just new ones.
-	- reported by dgc@sgi.com
-
     - MacOSX packaging needs work to install it like a real Application,
       not just a regular Unix utility.
 	- reported by nickb@sgi.com and psmith@aconex.com

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2006-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -186,6 +186,12 @@ void KmChart::enableUi(void)
 
     zoomInAction->setEnabled(activeTab()->visibleHistory() > minimumPoints());
     zoomOutAction->setEnabled(activeTab()->visibleHistory() < maximumPoints());
+}
+
+void KmChart::updateBackground(void)
+{
+    for (int i = 0; i < chartTabWidget->size(); i++)
+	chartTabWidget->at(i)->updateBackground();
 }
 
 const int KmChart::defaultFontSize()
