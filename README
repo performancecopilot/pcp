@@ -12,16 +12,13 @@ Refer to doc/INSTALL for instructions on building these tools.
 
     - MacOSX packaging needs work to install it like a real Application,
       not just a regular Unix utility.
-	- reported by nickb@sgi.com and psmith@aconex.com
-
-    - Timezone list in kmtime not being updated when new archive/hosts
-      added (or sources in exotic timezones, from the start).
+	- reported by nickb@sgi.com, psmith@aconex.com
 
     - The archive timeframe (esp. kmtime slider) is not being updated
       to reflect new archives added dynamically at run time.
 	- reported by ndonaldson@aconex.com
 
-    - Understand and workaround font sizing issue in Qt4.3.
+    - Understand and workaround font sizing issue in Qt4.3 (X11 only).
 	- reported by kmcdonell@aconex.com, cdesilva@aconex.com
 
     - If pmlogger exits immediately in Record mode, a SIGSEGV results.

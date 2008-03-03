@@ -369,6 +369,7 @@ void TimeControl::protocolMessage(bool live,
 	    my.buffer = (char *)realloc(my.buffer, my.bufferLength);
 	    if (!my.buffer)
 		nomem();
+	    msg = (KmTime::Packet *)my.buffer;
 	}
 	if (msg->length > (uint)offset + sts) {
 	    offset += sts;
