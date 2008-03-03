@@ -10,14 +10,32 @@ Refer to doc/INSTALL for instructions on building these tools.
 
 === 1.0 TODO list ===
 
+    - Changing the background in Settings should take immediate effect
+      (on pressing OK) for all _existing_ charts too, not just new ones.
+	- reported by dgc@sgi.com
+
+    - MacOSX packaging needs work to install it like a real Application,
+      not just a regular Unix utility.
+	- reported by nickb@sgi.com and psmith@aconex.com
+
     - Timezone list in kmtime not being updated when new archive/hosts
       added (or sources in exotic timezones, from the start).
+
     - The archive timeframe (esp. kmtime slider) is not being updated
       to reflect new archives added dynamically at run time.
-    - Understand and workaround font sizing issue in Qt4.3.
+	- reported by ndonaldson@aconex.com
 
-    - Destructors and memory leak plugging.
+    - Understand and workaround font sizing issue in Qt4.3.
+	- reported by kmcdonell@aconex.com, cdesilva@aconex.com
+
     - Code audit for TODOs; either fix, exception or add to wishlist.
+    - Destructors and memory leak plugging.
+
+    - Fix the code handling the "missed update" case in live mode - it
+      currently wipes the history, should just redraw with some missed
+      plots.  Long-time known issue, but I've commented out the code
+      that addresses it as it introduces worse issues (can lock up).
+	- reported by dgc@sgi.com
 
 
 === Wishlist TODO items ===
