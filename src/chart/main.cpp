@@ -23,7 +23,7 @@
 #include "openviewdialog.h"
 
 #define DESPERATE 0
-//#define PM_USE_CONTEXT_LOCAL 1
+#define PM_USE_CONTEXT_LOCAL 1
 
 int Cflag;
 int Lflag;

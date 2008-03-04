@@ -171,7 +171,7 @@ void KmChart::enableUi(void)
     bool haveTabs = (chartTabWidget->size() > 1);
     bool haveCharts = (activeTab()->numChart() > 0);
     bool haveLoggers = (activeTab()->isRecording());
-    bool haveLiveHosts = (!activeTab()->isArchiveSource());
+    bool haveLiveHosts = (!activeTab()->isArchiveSource() && !Lflag);
 
     closeTabAction->setEnabled(haveTabs);
     fileSaveViewAction->setEnabled(haveCharts);
