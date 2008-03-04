@@ -68,6 +68,7 @@ public:
     PmLogger(QObject *parent);
     void init(Tab *tab, QString host, QString log);
     QString configure(Chart *cp);
+    QString host() { return my.host; }
 
 public slots:
     void terminate();

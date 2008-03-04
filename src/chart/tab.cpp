@@ -679,41 +679,61 @@ bool Tab::startRecording(void)
 
 void Tab::stopRecording(void)
 {
-    QString msg = "Q\n";
+    QString msg = "Q\n", errmsg;
     int count = my.loggerList.size();
+    int i, sts, error = 0;
 
-    console->post("Tab::stopRecording stopping %d logger(s)", count);
+    console->post(KmChart::DebugForce, "Tab::stopRecording stopping %d logger(s)", count);
     for (int i = 0; i < count; i++) {
-	my.loggerList.at(i)->write(msg.toAscii());
-	my.loggerList.at(i)->terminate();
+	if (my.loggerList.at(i)->state() == QProcess::NotRunning) {
+	    errmsg.append(tr("Record process (pmlogger) failed for host: "));
+	    errmsg.append(my.loggerList.at(i)->host());
+	    errmsg.append("\n");
+	    error++;
+	}
+	else {
+	    my.loggerList.at(i)->write(msg.toAscii());
+	    my.loggerList.at(i)->terminate();
+	}
     }
 
-    int i, sts;
     for (i = 0; i < my.archiveList.size(); i++) {
 	QString archive = my.archiveList.at(i);
 
-	console->post("Tab::stopRecording opening archive %s",
+	console->post(KmChart::DebugForce, "Tab::stopRecording opening archive %s",
 			(const char *)archive.toAscii());
 	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {
-	    archive.prepend(tr("Cannot open PCP archive: "));
-	    archive.append(tr("\n"));
-	    archive.append(tr(pmErrStr(sts)));
-	    QMessageBox::warning(this, pmProgname, archive,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    QMessageBox::NoButton, QMessageBox::NoButton);
-	    break;
+	    errmsg.append(tr("Cannot open PCP archive: "));
+	    errmsg.append(archive);
+	    errmsg.append("\n");
+	    errmsg.append(tr(pmErrStr(sts)));
+	    errmsg.append("\n");
+	    error++;
 	}
-	archiveGroup->updateBounds();
-	QmcSource source = archiveGroup->context()->source();
-	kmtime->addArchive(source.start(), source.end(),
-			   source.timezone(), source.host(), true);
+	else {
+	    archiveGroup->updateBounds();
+	    QmcSource source = archiveGroup->context()->source();
+	    kmtime->addArchive(source.start(), source.end(),
+				source.timezone(), source.host(), true);
+	}
     }
 
-    // Make the current Tab stop recording before changing Tabs
-    kmchart->setRecordState(this, false);
+    // If all is well, we can now create the new "Record" Tab.
+    // Order of cleanup and changing Record mode state is different
+    // in the error case to non-error case, this is important for
+    // getting the window state correct (i.e. kmchart->enableUi()).
 
-    // If all is well, we can now create the new Tab
-    if (i == my.archiveList.size()) {
+    if (error) {
+	cleanupRecording();
+	kmchart->setRecordState(this, false);
+	QMessageBox::warning(this, pmProgname, errmsg,
+		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
+		QMessageBox::NoButton, QMessageBox::NoButton);
+    }
+    else {
+	// Make the current Tab stop recording before changing Tabs
+	kmchart->setRecordState(this, false);
+
 	Tab *tab = new Tab;
 	console->post("Tab::stopRecording creating tab: delta=%.2f pos=%.2f",
 			tosec(*kmtime->archiveInterval()),
@@ -723,9 +743,8 @@ void Tab::stopRecording(void)
 		  kmtime->archiveInterval(), kmtime->archivePosition());
 	kmchart->addActiveTab(tab);
 	OpenViewDialog::openView((const char *)my.view.toAscii());
+	cleanupRecording();
     }
-
-    cleanupRecording();
 }
 
 void Tab::cleanupRecording(void)
@@ -739,24 +758,63 @@ void Tab::cleanupRecording(void)
 
 void Tab::queryRecording(void)
 {
-    QString msg = "?\n";
-    int count = my.loggerList.size();
+    QString msg = "?\n", errmsg;
+    int i, error = 0, count = my.loggerList.size();
 
     console->post("Tab::stopRecording querying %d logger(s)", count);
-    for (int i = 0; i < count; i++)
-	my.loggerList.at(i)->write(msg.toAscii());
+    for (i = 0; i < count; i++) {
+	if (my.loggerList.at(i)->state() == QProcess::NotRunning) {
+	    errmsg.append(tr("Record process (pmlogger) failed for host: "));
+	    errmsg.append(my.loggerList.at(i)->host());
+	    errmsg.append("\n");
+	    error++;
+	}
+	else {
+	    my.loggerList.at(i)->write(msg.toAscii());
+	}
+    }
+
+    if (error) {
+	msg = "Q\n";	// if one fails, we shut down all loggers
+	for (i = 0; i < count; i++)
+	    my.loggerList.at(i)->write(msg.toAscii());
+	cleanupRecording();
+	kmchart->setRecordState(this, false);
+	QMessageBox::warning(this, pmProgname, errmsg,
+		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
+		QMessageBox::NoButton, QMessageBox::NoButton);
+    }
 }
 
 void Tab::detachLoggers(void)
 {
-    QString msg = "D\n";
-    int count = my.loggerList.size();
+    QString msg = "D\n", errmsg;
+    int error = 0, count = my.loggerList.size();
 
     console->post("Tab::detachLoggers detaching %d logger(s)", count);
-    for (int i = 0; i < count; i++)
-	my.loggerList.at(i)->write(msg.toAscii());
-    kmchart->setRecordState(this, false);
-    cleanupRecording();
+    for (int i = 0; i < count; i++) {
+	if (my.loggerList.at(i)->state() == QProcess::NotRunning) {
+	    errmsg.append(tr("Record process (pmlogger) failed for host: "));
+	    errmsg.append(my.loggerList.at(i)->host());
+	    errmsg.append("\n");
+	    error++;
+	}
+	else {
+	    my.loggerList.at(i)->write(msg.toAscii());
+	}
+    }
+
+    if (error) {
+	cleanupRecording();
+	kmchart->setRecordState(this, false);
+	QMessageBox::warning(this, pmProgname, errmsg,
+		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
+		QMessageBox::NoButton, QMessageBox::NoButton);
+    }
+    else {
+	kmchart->setRecordState(this, false);
+	cleanupRecording();
+    }
 }
 
 void Tab::addFolio(QString folio, QString view)
