@@ -65,6 +65,7 @@ example.metric {
     ##  code                    /* optional code for this metric */ 
     ##  code                    atom->cp = "hello world";
     ##  endmetric
+}
 EOFEOF
 
     exit 1
@@ -302,7 +303,7 @@ $verbose && echo Wrote $oflag/Makefile.install
 #
 # Generate metrictab.[ch]
 #
-gawk '
+awk '
 BEGIN {
     mt_h="'$oflag'/metrictab.h"
     mt_c="'$oflag'/metrictab.c"
@@ -495,7 +496,7 @@ END {
     printf "    int                 need_refresh[NCLUSTERS];\n" >>pmda_c
     printf "\n" >>pmda_c
     printf "    memset(need_refresh, 1, sizeof(need_refresh));\n" >>pmda_c
-    /* TODO: only refresh some clusters */
+    printf "    /* TODO: only refresh some clusters */\n" >>pmda_c
     printf "    %s_refresh(need_refresh);\n", "'$iam'" >>pmda_c
     printf "\n" >>pmda_c
     printf "    return pmdaInstance(indom, inst, name, result, pmda);\n" >>pmda_c
@@ -525,14 +526,14 @@ END {
     #
     # Generate the generic fetch callback in pmda.c
     #
-    printf "\n\nstatic int\n" >>pmda_c
+    printf "static int\n" >>pmda_c
     printf "%s_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)\n", "'$iam'" >>pmda_c
     printf "{\n" >>pmda_c
 
     printf "\tint (*fetchfunction)(pmdaMetric *, unsigned int, pmAtomValue *) =\n">>pmda_c
     printf "\t\t(int (*)(pmdaMetric *, unsigned int, pmAtomValue *)) mdesc->m_user;\n">>pmda_c
     printf "\treturn (*fetchfunction)(mdesc, inst, atom);\n" >>pmda_c
-    printf "}\n", pmda_c >>pmda_c
+    printf "}\n\n", pmda_c >>pmda_c
 
     #
     # Generate the init method in pmda.c
@@ -876,7 +877,7 @@ cat << EOFEOF >$install_g
 
 usage()
 {
-	echo "Usage: "\$0 [-m mode] [-d dir] [-f srcfile -t destfile]"
+	echo "Usage: \$0 [-m mode] [-d dir] [-f srcfile -t destfile]"
 	echo "Required options: both -f and -t, or just -d"
 	exit 1
 }
@@ -907,9 +908,9 @@ do
     esac
 done
 
-[ -z \$fflag && \$dflag ] && usage
-[ -z \$fflag -a ! -z \$tflag ] && usage
-[ ! -z \$fflag -a -z \$tflag ] && usage
+[ -z "\$fflag" -a -z "\$dflag" ] && usage
+[ -z "\$fflag" -a ! -z "\$tflag" ] && usage
+[ ! -z "\$fflag" -a -z "\$tflag" ] && usage
 [ ! -z "\$dflag" ] && mkdir \$dflag && chmod \$mdflag \$dflag
 [ ! -z "\$fflag" ] && cp \$fflag \$tflag && chmod \$mflag \$tflag
 
