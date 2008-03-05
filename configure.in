@@ -1158,6 +1158,9 @@ then
    if test $target_os = irix
    then
        pcp_binadm_dir=/usr/pcp/bin
+   elif test $target_distro = debian
+   then
+       pcp_binadm_dir=/usr/sbin
    else
        pcp_binadm_dir=$pcp_share_dir/bin
    fi
