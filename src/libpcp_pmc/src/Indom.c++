@@ -275,7 +275,7 @@ PMC_Indom::genProfile()
     PMC_IntVector	list;
 
 #ifdef PCP_DEBUG
-    char*		action = NULL;
+    const char*		action = NULL;
 #endif
 
     // If all instances are referenced or there are no instances

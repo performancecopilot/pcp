@@ -77,9 +77,9 @@ PMC_Desc::setUnitStrs()
 const char *
 PMC_Desc::abvUnitsStr(pmUnits *pu)
 {
-    char	*spacestr;
-    char	*timestr;
-    char	*countstr;
+    const char	*spacestr;
+    const char	*timestr;
+    const char	*countstr;
     char	*p;
     char	sbuf[20];
     char	tbuf[20];
