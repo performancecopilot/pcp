@@ -66,7 +66,7 @@ binary-arch: checkroot built
 	dh_compress
 	dh_fixperms
 	dh_install --sourcedir=debian/$(pcp)
-	@$(uninstall) && rmdir debian/$(pcp)/usr/lib
+	@$(uninstall)
 	dh_makeshlibs -N $(libpcp)
 	dh_makeshlibs -p $(libpcp)
 	dh_makeshlibs -N $(libpcp_pmda)
@@ -74,7 +74,7 @@ binary-arch: checkroot built
 	dh_makeshlibs -N $(libpcp_trace)
 	dh_makeshlibs -p $(libpcp_trace)
 	dh_installdeb
-	dh_shlibdeps
+	dh_shlibdeps 2>/dev/null	# squash bogus and harmless warnings
 	dh_gencontrol
 
 	dh_md5sums
