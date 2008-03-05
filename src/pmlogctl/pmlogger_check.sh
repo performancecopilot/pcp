@@ -47,7 +47,7 @@ prog=`basename $0`
 # control file for pmlogger administration ... edit the entries in this
 # file to reflect your local configuration
 #
-CONTROL=$PCP_VAR_DIR/config/pmlogger/control
+CONTROL=$PCP_PMLOGGERCONTROL_PATH
 
 # determine real name for localhost
 LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
