@@ -1,15 +1,15 @@
 This package was debianized by Nathan Scott nathans@debian.org on
 Thu Jan 24 20:17:33 EST 2008.
 
-It can be downloaded from http://oss.sgi.com/~nathans/
+It can be downloaded from http://oss.sgi.com/~nathans/pcp/
 
 Copyright:
 
 Copyright (C) 2001-2007 Silicon Graphics, Inc.  All Rights Reserved.
 Copyright (C) 2006-2008 Aconex.  All Rights Reserved.
 
-You are free to distribute this software under Version 2 of the
-GNU Lesser General Public License.  On Debian systems, refer to
+You are free to distribute this software under Version 2 of
+the GNU General Public License.  On Debian systems, refer to
 /usr/share/common-licenses/GPL-2 for the complete text of the
 GNU General Public License.
 
