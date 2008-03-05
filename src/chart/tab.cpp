@@ -384,25 +384,18 @@ void Tab::adjustLiveWorldView(KmTime::Packet *packet)
     // larger than the one we're after, and then see how that fares on
     // the next iteration.
     //
-    int last = my.samples - 1;
-    //double tolerance = my.realDelta;
-    double position = my.realPosition - (my.realDelta * last);
+    int i, oi, last = my.samples - 1;
+    bool preserve = false;
+    double tolerance = my.realDelta;
+    double position = my.realPosition - (my.realDelta * my.samples);
 
-    for (int i = last /*, oi = last*/; i >= 0; i--, position += my.realDelta) {
-	bool preserve = false;
-
-#if 0
-	// TODO: this code is too inefficient to use at the
-        // moment (causes delays long enough to choke kmtime steps).
-        // Maybe rewrite to find time "extents" and set chunks at a
-        // time (use a QList of these extents) via memset/memmove?
-        // But verify whether its fuzzyTimeMatch or preserveLiveData
-        // taking most time first!
-
-	while (i && my.timeData[oi] < position + my.realDelta && oi > 0) {
+    for (i = oi = last; i >= 0; i--, position += my.realDelta) {
+	while (i > 0 && my.timeData[oi] < position + my.realDelta && oi > 0) {
 	    if (fuzzyTimeMatch(my.timeData[oi], position, tolerance) == false) {
-	    console->post("NO fuzzyTimeMatch %.3f to %.3f (%s)",
+#if DESPERATE
+		console->post("NO fuzzyTimeMatch %.3f to %.3f (%s)",
 			my.timeData[oi], position, timeString(position));
+#endif
 		if (my.timeData[oi] > position)
 		    break;
 		oi--;
@@ -417,7 +410,6 @@ void Tab::adjustLiveWorldView(KmTime::Packet *packet)
 	    oi--;
 	    break;
 	}
-#endif
 
 	if (i == 0) {	// refreshCharts() finishes up last one
 	    console->post("Fetching data[%d] at %s", i, timeString(position));
@@ -425,12 +417,19 @@ void Tab::adjustLiveWorldView(KmTime::Packet *packet)
 	    my.group->fetch();
 	}
 	else if (preserve == false) {
+#if DESPERATE
 	    console->post("No live data for %s", timeString(position));
+#endif
 	    my.timeData[i] = position;
 	    for (int j = 0; j < my.count; j++)
 		my.charts[j]->punchoutLiveData(i);
 	}
+	else
+	    preserve = false;
     }
+    // One (per-chart) recalculation & refresh at the end, after all data moved
+    for (int j = 0; j < my.count; j++)
+	my.charts[j]->adjustedLiveData();
     my.timeState = (packet->state == KmTime::StoppedState) ?
 			Tab::StandbyState : Tab::ForwardState;
     newButtonState(packet->state, packet->mode, my.group->mode(), my.recording);

@@ -111,8 +111,6 @@ void Chart::preserveLiveData(int i, int oi)
 	    plot->plotData[i] = plot->data[i] = Curve::NaN();
 	}
     }
-    redoPlotData();
-    replot();
 }
 
 void Chart::punchoutLiveData(int i)
@@ -127,6 +125,12 @@ void Chart::punchoutLiveData(int i)
 	Plot *plot = my.plots[m];
 	plot->data[i] = plot->plotData[i] = Curve::NaN();
     }
+}
+
+void Chart::adjustedLiveData()
+{
+    redoPlotData();
+    replot();
 }
 
 void Chart::update(bool forward, bool visible)
@@ -768,8 +772,6 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 
     switch (style) {
 	case BarStyle:
-	    // TODO BarStyle is pretty lame compared to pmchart
-	    //
 	    plot->curve->setPen(color);
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
 	    plot->curve->setStyle(QwtPlotCurve::Sticks);
@@ -838,7 +840,6 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	redoPlotData();
 	replot();
     }
-
 }
 
 void Chart::redoPlotData(void)
@@ -1014,7 +1015,8 @@ void Chart::setLegendVisible(bool on)
 	if (l != NULL) {
 	    // currently enabled, disable it
 	    insertLegend(NULL, QwtPlot::BottomLegend);
-	    // TODO: this can cause a core dump - needs investigating [memleak]
+	    // WISHLIST: this can cause a core dump - needs investigating
+	    // [memleak].  Really, all of the legend code needs reworking.
 	    // delete l;
 	}
     }
@@ -1078,12 +1080,12 @@ QString Chart::pmloggerMetricSyntax(int m)
 
 QSize Chart::minimumSizeHint() const
 {
-    return QSize(10,10);	// TODO: hmm, seems pretty random?
+    return QSize(10,10);
 }
 
 QSize Chart::sizeHint() const
 {
-    return QSize(150,100);	// TODO: hmm, seems pretty random?
+    return QSize(150,100);
 }
 
 void Chart::setupTree(QTreeWidget *tree)

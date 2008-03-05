@@ -35,6 +35,16 @@ Live mode
     and that the kmchart time axis is updated also.
 [ ] Change back to localtime, verify position and time axis again.
 
+[ ] Run: kmchart -c CPU -L -t 0.025
+[ ] This should be updating extremely frequently, and depending on
+    the capabilities of your hardware will either keep up beautifully
+    (wow, nice machine!) or frequently miss updates (this is the case
+    with my laptop).  To increase the probability that deltas will be
+    missed, wiggle the cursor around over the CPU chart, which makes
+    kmchart do more work.  When updates are missed kmchart must plot
+    a blank section in the chart, but then it should continue on with
+    normal plotting.
+
 
 Archive mode
 

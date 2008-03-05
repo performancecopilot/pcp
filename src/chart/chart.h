@@ -81,6 +81,7 @@ public:
     void update(bool, bool);
     void preserveLiveData(int, int);
     void punchoutLiveData(int);
+    void adjustedLiveData();
 
     QString name(int);
     char *legendSpec(int);

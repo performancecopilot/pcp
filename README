@@ -20,12 +20,6 @@ Refer to doc/INSTALL for instructions on building these tools.
     - Code audit for TODOs; either fix, exception or add to wishlist.
     - Destructors and memory leak plugging.
 
-    - Fix the code handling the "missed update" case in live mode - it
-      currently wipes the history, should just redraw with some missed
-      plots.  Long-time known issue, but I've commented out the code
-      that addresses it as it introduces worse issues (can lock up).
-	- reported by dgc@sgi.com
-
 
 === Wishlist TODO items ===
 
