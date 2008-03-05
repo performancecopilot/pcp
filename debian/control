@@ -7,7 +7,7 @@ Build-Depends: autoconf, bison, flex, gawk, debhelper (>= 5)
 Standards-Version: 3.5.9
 
 Package: pcp
-Depends: libpcp3, libpcp-pmda3, libpcp-trace2, gawk, sysv-rc-conf, ncurses-dev
+Depends: ${shlibs:Depends}, gawk, sysv-rc-conf, ncurses-dev, cpp
 Suggests: tsocks
 Recommends: kmchart
 Architecture: any
@@ -32,7 +32,7 @@ Description: Performance Co-Pilot library and headers
  which make use of PCP services.
 
 Package: libpcp3
-Depends: cpp
+Depends: ${shlibs:Depends}
 Section: libs
 Priority: required
 Architecture: any
@@ -53,7 +53,7 @@ Description: Performance Co-Pilot Domain Agent library and headers
  an application, etc.
 
 Package: libpcp-pmda3
-Depends: libpcp3
+Depends: ${shlibs:Depends}
 Section: libs
 Priority: required
 Architecture: any
@@ -75,7 +75,7 @@ Description: Performance Co-Pilot application tracing library and headers
  Domain Agent.
 
 Package: libpcp-trace2
-Depends: libpcp3
+Depends: ${shlibs:Depends}
 Section: libs
 Priority: required
 Architecture: any

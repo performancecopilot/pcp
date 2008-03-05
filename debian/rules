@@ -66,7 +66,7 @@ binary-arch: checkroot built
 	dh_compress
 	dh_fixperms
 	dh_install --sourcedir=debian/$(pcp)
-	@$(uninstall)
+	@$(uninstall) && rmdir debian/$(pcp)/usr/lib
 	dh_makeshlibs -N $(libpcp)
 	dh_makeshlibs -p $(libpcp)
 	dh_makeshlibs -N $(libpcp_pmda)
