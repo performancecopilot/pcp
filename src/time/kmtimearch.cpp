@@ -721,10 +721,10 @@ void KmTimeArch::addBound(KmTime::Packet *k, char *tzdata)
     if (tzdata != NULL)
 	addTimezone(tzdata);
 
-    if (KmTime::timevalCompare(&k->start, &my.absoluteStart) < 0 || needPulse)
-	my.absoluteStart = k->start;
-    if (KmTime::timevalCompare(&k->end, &my.absoluteEnd) > 0 || needPulse)
-	my.absoluteEnd = k->end;
+    if (KmTime::timevalCompare(&k->start, &my.absoluteStart) < 0)
+	my.absoluteStart = my.kmtime.start = k->start;
+    if (KmTime::timevalCompare(&k->end, &my.absoluteEnd) > 0)
+	my.absoluteEnd = my.kmtime.end = k->end;
     if (!needPulse) {	// first-time archive initialisation
 	my.kmtime.position = k->position;
 	my.kmtime.start = k->start;
