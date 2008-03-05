@@ -146,7 +146,7 @@ pmtracebegin(const char *tag)
     _pmTraceLibdata	hash;
     int			len, a_sts = 0, b_sts = 0, protocol;
 
-    if (tag == NULL || *tag == (char)NULL)
+    if (tag == NULL || *tag == '\0')
 	return PMTRACE_ERR_TAGNAME;
     if ((len = strlen(tag)+1) >= MAXTAGNAMELEN)
 	return PMTRACE_ERR_TAGLENGTH;
@@ -232,7 +232,7 @@ pmtraceend(const char *tag)
     struct timeval	now;
     int			len, protocol, sts = 0;
 
-    if (tag == NULL || *tag == (char)NULL)
+    if (tag == NULL || *tag == '\0')
 	return PMTRACE_ERR_TAGNAME;
     if ((len = strlen(tag)+1) >= MAXTAGNAMELEN)
 	return PMTRACE_ERR_TAGLENGTH;
@@ -299,7 +299,7 @@ pmtraceabort(const char *tag)
     _pmTraceLibdata	*hptr;
     int			len, sts = 0;
 
-    if (tag == NULL || *tag == (char)NULL)
+    if (tag == NULL || *tag == '\0')
 	return PMTRACE_ERR_TAGNAME;
     if ((len = strlen(tag)+1) >= MAXTAGNAMELEN)
 	return PMTRACE_ERR_TAGLENGTH;
@@ -341,7 +341,7 @@ _pmtracecommon(const char *label, double value, int type)
     int		protocol;
     int		sts = 0;
 
-    if (label == NULL || *label == (char)NULL)
+    if (label == NULL || *label == '\0')
 	return PMTRACE_ERR_TAGNAME;
 
     taglength = (unsigned int)strlen(label)+1;

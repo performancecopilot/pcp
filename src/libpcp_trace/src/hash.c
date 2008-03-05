@@ -64,7 +64,7 @@ __pmhashinit(__pmHashTable *t, size_t tsize, size_t esize,
     blocksize = sizeof(__pmHashEnt *) * t->tsize;
     if ((t->rows = (__pmHashEnt **)malloc(blocksize)) == NULL)
 	return -oserror();
-    memset((void *)t->rows, (int)NULL, blocksize);
+    memset((void *)t->rows, 0, blocksize);
     return 0;
 }
 
@@ -106,7 +106,7 @@ __pmhashtrunc(__pmHashTable *t)
 	    }
 	    t->rows[i] = NULL;
 	}
-	memset((void *)t->rows, (int)NULL, sizeof(__pmHashEnt *)*t->tsize);
+	memset((void *)t->rows, 0, sizeof(__pmHashEnt *)*t->tsize);
 	t->entries = 0;
     }
 }
