@@ -50,7 +50,7 @@ touch -t `pmdate -24H -10M %Y%m%d%H%M` $tmp.merge
 # control file for pmlogger administration ... edit the entries in this
 # file to reflect your local configuration (see also -c option below)
 #
-CONTROL=$PCP_VAR_DIR/config/pmlogger/control
+CONTROL=$PCP_PMLOGGERCONTROL_PATH
 
 # default number of days to keep archive logs
 #

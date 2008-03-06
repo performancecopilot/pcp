@@ -63,7 +63,7 @@ prog=`basename $0`
 # control file for pmie administration ... edit the entries in this
 # file to reflect your local configuration (see also -c option below)
 #
-CONTROL=$PCP_VAR_DIR/config/pmie/control
+CONTROL=$PCP_PMIECONTROL_PATH
 
 # default number of days to keep pmie logfiles
 #
