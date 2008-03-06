@@ -1,5 +1,5 @@
 Source: kmchart
-Section: admin
+Section: utils
 Priority: optional
 Maintainer: Nathan Scott <nathans@debian.org>
 Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
