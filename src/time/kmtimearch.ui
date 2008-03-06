@@ -846,7 +846,7 @@ Click this menu option to invoke a small question mark that is attached to the m
  <connections>
   <connection>
    <sender>fileHideAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeArch</receiver>
    <slot>hideWindow()</slot>
    <hints>
@@ -862,7 +862,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>helpAboutAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeArch</receiver>
    <slot>helpAbout()</slot>
    <hints>
@@ -878,7 +878,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>helpSeeAlsoAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeArch</receiver>
    <slot>helpSeeAlso()</slot>
    <hints>
@@ -942,7 +942,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>optionsDetailShow_MillisecondsAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeArch</receiver>
    <slot>clickShowMsec()</slot>
    <hints>
@@ -958,7 +958,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>optionsDetailShow_YearAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeArch</receiver>
    <slot>clickShowYear()</slot>
    <hints>
@@ -1038,7 +1038,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>optionsShowBoundsAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeArch</receiver>
    <slot>showBounds()</slot>
    <hints>
@@ -1054,7 +1054,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>optionsShowConsoleAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeArch</receiver>
    <slot>showConsole()</slot>
    <hints>
@@ -1118,7 +1118,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>lineEditSpeed</sender>
-   <signal>lostFocus()</signal>
+   <signal>editingFinished()</signal>
    <receiver>KmTimeArch</receiver>
    <slot>lineEditSpeed_validate()</slot>
    <hints>
@@ -1134,7 +1134,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>helpWhats_ThisAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeArch</receiver>
    <slot>whatsThis()</slot>
    <hints>
@@ -1230,7 +1230,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>helpManualAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeArch</receiver>
    <slot>helpManual()</slot>
    <hints>

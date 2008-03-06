@@ -600,7 +600,7 @@ Click this menu option to invoke a small question mark that is attached to the m
  <connections>
   <connection>
    <sender>fileHideAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeLive</receiver>
    <slot>hideWindow()</slot>
    <hints>
@@ -616,7 +616,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>helpAboutAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeLive</receiver>
    <slot>helpAbout()</slot>
    <hints>
@@ -632,7 +632,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>helpSeeAlsoAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeLive</receiver>
    <slot>helpSeeAlso()</slot>
    <hints>
@@ -680,7 +680,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>optionsDetailShow_MillisecondsAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeLive</receiver>
    <slot>clickShowMsec()</slot>
    <hints>
@@ -696,7 +696,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>optionsDetailShow_YearAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeLive</receiver>
    <slot>clickShowYear()</slot>
    <hints>
@@ -712,7 +712,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>optionsShowConsoleAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeLive</receiver>
    <slot>showConsole()</slot>
    <hints>
@@ -744,7 +744,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>helpWhats_ThisAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeLive</receiver>
    <slot>whatsThis()</slot>
    <hints>
@@ -792,7 +792,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   </connection>
   <connection>
    <sender>helpManualAction</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>KmTimeLive</receiver>
    <slot>helpManual()</slot>
    <hints>
