@@ -1,9 +1,8 @@
 TARGET		= qmc
 TEMPLATE	= lib
 VERSION		= 1.0.0
-CONFIG		= qt warn_on debug #release
-CONFIG		+= dll
-CONFIG		+= staticlib
+CONFIG		+= qt staticlib warn_on release	#debug
+QT		-= gui
 
 HEADERS	= qmc_context.h qmc_desc.h qmc_group.h \
 	  qmc_indom.h qmc_metric.h qmc_source.h

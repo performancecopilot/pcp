@@ -1,13 +1,7 @@
 TARGET		= qwt
 TEMPLATE	= lib
 VERSION		= 5.0.2
-
-CONFIG		+= warn_on debug #release
-CONFIG		+= QwtDll
-CONFIG		+= QwtPlot
-CONFIG		+= QwtWidgets
-CONFIG		+= dll
-CONFIG		+= staticlib
+CONFIG		+= qt staticlib warn_on release #debug
 
 HEADERS	+= \
     qwt.h \

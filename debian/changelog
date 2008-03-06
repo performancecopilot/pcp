@@ -1,5 +1,5 @@
-kmchart (1.0.0rc7-1) unstable; urgency=low
+kmchart (1.0.0-0) unstable; urgency=low
 
-  * Initial Debian packaging.
+  * Initial Debian packaging of kmchart (closes: #469461).
 
- -- Nathan Scott <nathans@debian.org>  Sat, 01 Mar 2008 12:52:57 +1100
+ -- Nathan Scott <nathans@debian.org>  Wed, 05 Mar 2008 22:13:06 +1100

@@ -1,3 +1,14 @@
+kmchart 1.0.0 (5 March 2008)
+    - Fix the handling of missed updates in live mode - no longer
+      clears the entire history every time that happens.
+    - Fix up error handling in case of failed pmlogger processes.
+    - Fix kmtime handling of the time bounds when additional logs
+      are added on-the-fly.
+    - Fix timezone setting problem.
+    - Make background preference changes affect existing charts.
+    - Enable local context mode (-L option).
+    - Switch to "release" Qt make options instead of "debug".
+
 kmchart 1.0.0rc7 (21 February 2008)
     - Debian packaging, hooray!
     - Update "tab" keyword to allow a default host for each tab

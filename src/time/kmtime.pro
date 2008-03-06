@@ -13,5 +13,5 @@ RESOURCES	= kmtime.qrc
 INCLUDEPATH	+= ../include ../libqwt
 LIBS		= -lpcp -lqwt
 LIBS		+= -L../libqwt -L../libqwt/build/Default
-CONFIG		+= qt assistant warn_on release
 QT		+= assistant network
+CONFIG		+= qt assistant warn_on release	#debug
