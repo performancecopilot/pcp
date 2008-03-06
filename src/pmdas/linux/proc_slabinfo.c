@@ -80,7 +80,6 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 		}
 	    }
 	}
-	fprintf(stderr, "NOTICE: detected slabinfo version %d.%d\n", major_version, minor_version);
     }
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {

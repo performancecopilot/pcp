@@ -4796,19 +4796,15 @@ linux_init(pmdaInterface *dp)
     _pm_idletime_size = 8;
     if (sscanf(kernel_uname.release, "%d.%d", &major, &minor) == 2) {
 	if (major < 2 || (major == 2 && minor <= 4)) {	/* 2.4 and earlier */
-	     fprintf(stderr, "NOTICE: using kernel 2.4 or earlier CPU types\n");
 	    _pm_ctxt_size = 4;
 	    _pm_intr_size = 4;
 	    _pm_cputime_size = 4;
 	    _pm_idletime_size = sizeof(unsigned long);
 	}
 	else if (major == 2 && minor >= 0 && minor <= 4) {  /* 2.6.0->.4 */
-	     fprintf(stderr, "NOTICE: using kernel 2.6.0 to 2.6.4 CPU types\n");
 	    _pm_cputime_size = 4;
 	    _pm_idletime_size = 4;
 	}
-	else
-	    fprintf(stderr, "NOTICE: using 64 bit CPU time types\n");
     }
     for (i = 0; i < sizeof(metrictab)/sizeof(metrictab[0]); i++) {
 	idp = (__pmID_int *)&(metrictab[i].m_desc.pmid);
