@@ -47,7 +47,7 @@ public:
     static void addMessage(char *string);
 
     static int buttonCount();
-    static void addButton(char *string, bool iamdefault, int exitstatus);
+    static void addButton(const char *string, bool iamdefault, int exitstatus);
     static void addButtons(char *stringlist);
     static void setDefaultButton(char *string);
 

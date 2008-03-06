@@ -33,7 +33,7 @@ public:
     virtual void displayPosition();
     virtual void displayDeltaText();
     virtual void popup(bool hello_popetts);
-    virtual void addTimezone(char *string);
+    virtual void addTimezone(const char *string);
     virtual void setTime(KmTime::Packet *k, char *tzdata);
     virtual void style(char *style, void *source);
     virtual void setupAssistant();

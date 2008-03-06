@@ -242,7 +242,7 @@ QmcIndom::genProfile()
     int sts = 0;
     int *ptr = NULL;
     QVector<int> list;
-    char *action = NULL;
+    const char *action = NULL;
 
     // If all instances are referenced or there are no instances
     // then request all instances

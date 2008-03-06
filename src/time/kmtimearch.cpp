@@ -616,7 +616,7 @@ void KmTimeArch::setTimezone(QAction *action)
     }
 }
 
-void KmTimeArch::addTimezone(char *string)
+void KmTimeArch::addTimezone(const char *string)
 {
     TimeZone *tmp, *tzp;
     QAction *tzAction;

@@ -78,7 +78,7 @@ void KmTimeLive::setControl(KmTime::State state)
 
 void KmTimeLive::init()
 {
-    static char *UTC = "UTC\0Universal Coordinated Time";
+    static const char *UTC = "UTC\0Universal Coordinated Time";
 
     console->post("Starting Live Time Control...");
 
@@ -307,7 +307,7 @@ void KmTimeLive::setTimezone(QAction *action)
     }
 }
 
-void KmTimeLive::addTimezone(char *string)
+void KmTimeLive::addTimezone(const char *string)
 {
     TimeZone *tmp, *tzp;
     QAction *tzAction;

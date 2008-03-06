@@ -407,7 +407,7 @@ void Chart::redoScale(void)
 	    setYAxisTitle("% utilization");
 	}
 	else {
-	    setYAxisTitle((char *)pmUnitsStr(&my.units));
+	    setYAxisTitle(pmUnitsStr(&my.units));
 	}
 
 	replot();
@@ -832,7 +832,7 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	setYAxisTitle("% utilization");
     }
     else {
-	setYAxisTitle((char *)pmUnitsStr(&my.units));
+	setYAxisTitle(pmUnitsStr(&my.units));
     }
 
     if (style != my.style) {
@@ -942,7 +942,7 @@ void Chart::setScale(bool autoScale, double yMin, double yMax)
     redoScale();
 }
 
-void Chart::setYAxisTitle(char *p)
+void Chart::setYAxisTitle(const char *p)
 {
     QwtText *t;
 

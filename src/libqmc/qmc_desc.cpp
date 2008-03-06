@@ -70,7 +70,7 @@ QmcDesc::setScaleUnits(const pmUnits &units)
 const char *
 QmcDesc::shortUnitsString(pmUnits *pu)
 {
-    char *spaceString, *timeString, *countString;
+    const char *spaceString, *timeString, *countString;
     char sbuf[20], tbuf[20], cbuf[20];
     static char buf[60];
     char *p;

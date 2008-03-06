@@ -72,7 +72,7 @@ public:
 			// return autoscale state and fixed scale parameters
     void setScale(bool, double, double);
 			// set autoscale state and fixed scale parameters
-    void setYAxisTitle(char *);
+    void setYAxisTitle(const char *);
     bool legendVisible();
     void setLegendVisible(bool);
     bool antiAliasing();

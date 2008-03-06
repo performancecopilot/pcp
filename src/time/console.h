@@ -23,8 +23,8 @@ class Console : public QDialog, public Ui::Console
 
 public:
     Console();
-    virtual void post(char * p, ...);
-    virtual void post(int level, char * p, ...);
+    virtual void post(const char * p, ...);
+    virtual void post(int level, const char * p, ...);
 
 private:
     struct {

@@ -26,12 +26,12 @@ enum icontypes {
     HOST_ICON,
 } iconic;
 
-static char *title = "Query";
+static const char *title = "Query";
 static int timeout;
 static int *statusi;
-static char **buttons;
+static const char **buttons;
 static int buttoncount;
-static char *defaultbutton;
+static const char *defaultbutton;
 static char **messages;
 static int messagecount;
 
@@ -94,10 +94,10 @@ void KmQuery::addMessage(char *string)
     messages[messagecount++] = string;
 }
 
-void KmQuery::addButton(char *string, bool iamdefault, int status)
+void KmQuery::addButton(const char *string, bool iamdefault, int status)
 {
-    buttons = (char **)realloc(buttons, (buttoncount+1) * sizeof(char *));
-    statusi = (  int *)realloc(statusi, (buttoncount+1) * sizeof(int));
+    buttons = (const char **)realloc(buttons, (buttoncount+1) * sizeof(char *));
+    statusi = (int *)realloc(statusi, (buttoncount+1) * sizeof(int));
     if (!buttons)
 	nomem();
     if (iamdefault)

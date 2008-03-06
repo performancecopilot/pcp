@@ -80,7 +80,7 @@ static uint	_ypos;
 #define IM_MATCH	2
 #define IM_NOT_MATCH	3
 
-char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
+const char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
 #define stylestr(x) _style[(int)x]
 
 static void err(int severity, int do_where, QString msg)
@@ -95,9 +95,7 @@ static void err(int severity, int do_where, QString msg)
 	    msg.prepend("Error: ");
 	else if (severity == E_WARN)
 	    msg.prepend("Warning: ");
-	else
-	    // do nothing for E_INFO
-	    ;
+	// else do nothing for E_INFO
 	msg.append("\n");
 	fflush(stderr);
 	pmprintf((const char *)msg.toAscii());
@@ -201,7 +199,7 @@ static void skip2eol(FILE *f)
     }
 }
 
-static void xpect(char *want, char *got)
+static void xpect(const char *want, const char *got)
 {
     QString     msg = QString("Syntax error: expecting \"");
     msg.append(want);
@@ -1200,7 +1198,8 @@ static void saveScheme(FILE *f, QString scheme)
 static void saveChart(FILE *f, int index, bool hostDynamic)
 {
     Chart	*cp = kmchart->activeTab()->chart(index);
-    char	*p, *q, *qend;
+    const char	*p;
+    char	*q, *qend;
     double	ymin, ymax;
     bool	autoscale;
 

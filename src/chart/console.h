@@ -24,8 +24,8 @@ class Console : public QDialog, public Ui::Console
 
 public:
     Console(struct timeval);
-    void post(char *p, ...);
-    void post(int level, char *p, ...);
+    void post(const char *p, ...);
+    void post(int level, const char *p, ...);
     bool logLevel(int level = KmChart::DebugApp);
 
 private:

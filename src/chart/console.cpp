@@ -39,7 +39,7 @@ Console::Console(struct timeval origin) : QDialog()
     post("Console available");
 }
 
-void Console::post(char *fmt, ...)
+void Console::post(const char *fmt, ...)
 {
     static char buffer[4096];
     struct timeval now;
@@ -71,7 +71,7 @@ bool Console::logLevel(int level)
     return true;
 }
 
-void Console::post(int level, char *fmt, ...)
+void Console::post(int level, const char *fmt, ...)
 {
     static char buffer[4096];
     struct timeval now;

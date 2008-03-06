@@ -30,7 +30,7 @@ Console::Console() : QDialog()
     setupUi(this);
 }
 
-void Console::post(char *fmt, ...)
+void Console::post(const char *fmt, ...)
 {
     static char buffer[4096];
     va_list ap;
@@ -47,7 +47,7 @@ void Console::post(char *fmt, ...)
     text->append(QString(buffer));
 }
 
-void Console::post(int level, char *fmt, ...)
+void Console::post(int level, const char *fmt, ...)
 {
     static char buffer[4096];
     va_list ap;
