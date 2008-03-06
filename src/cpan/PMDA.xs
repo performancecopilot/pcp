@@ -145,6 +145,7 @@ local_fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     dSP;
     __pmID_int	*pmid;
     int		sts;
+    STRLEN	n_a;
 
     ENTER;
     SAVETMPS;	/* allows us to tidy our perl stack changes later */
