@@ -5,38 +5,19 @@ also historical sources (one or more PCP archives).
 kmtime is a graphical time controller utility that coordinates time updates
 and VCR-like playback for other utilities like kmchart and pmval.
 
-Refer to doc/INSTALL for instructions on building these tools.
-
-
-=== 1.0 TODO list ===
-
-    - MacOSX packaging needs work to install it like a real Application,
-      not just a regular Unix utility.
-	- reported by nickb@sgi.com, psmith@aconex.com
-
-    - Understand and workaround font sizing issue in Qt4.3 (X11 only).
-	- reported by kmcdonell@aconex.com, cdesilva@aconex.com
-
-    - Code audit for TODOs; either fix, exception or add to wishlist.
-    - Destructors and memory leak plugging.
+Instructions on building these tools can be found in doc/INSTALL.  Consult
+http://oss.sgi.com/projects/pcp/ for additional details about these tools.
 
 
 === Wishlist TODO items ===
 
+    - MacOSX packaging needs work:
+      o Install it as a "real" Application, not a regular Unix tool.
+      o MacOSX icon artwork needs further touch-ups to look good;
+      o Refer to "Setting the Application Icon" page in QtAssistant.
     - The Qt-based metrics class needs:
       o A hash for metric instance values instead of an array
 	(to support delete, and better support of dynamic indoms)
-      o Per-context support for pmproxy
-    - pmproxy support is far from complete:
-      . Need libpcp changes (new interfaces) to abstract out the code
-	which has a one-trip guard on testing/setting PMPROXY_HOST env
-	variable during connect (so multiple contexts can have different
-	proxies).  [Initial patch sent out for review, 15 Nov 07]
-      . Need Qmc support for these interfaces instead of existing code.
-      . Need to audit kmchart, see all PMPROXY TODOs in the code.
-    - Desktop integration details - basics are done, but:
-      o MacOSX icon artwork needs further touch-ups to look good;
-      o Refer to "Setting the Application Icon" page in QtAssistant.
     - kmtime should send a message to all clients on show/hide (except
       for the client that explicitly requested the show/hide, if there
       was one) - this would let the clients correctly track whether it
@@ -45,29 +26,6 @@ Refer to doc/INSTALL for instructions on building these tools.
     - QwtLegend use needs a complete revamp - see all the hacks in the
       kmchart code related to fixLegendPen().  Print/Export do not do
       anything useful with the legend at the moment, which is a shame.
-
-
-=== PCP extensions ===
-
-    - Some pmproxy changes are required in libpcp (see wishlist above)
-      which will also require some new PMAPI interfaces.  The reason
-      for these changes is to separate out the current behaviour that
-      allows only one PMPROXY_HOST setting to be used for the life of
-      a PCP client program, and instead allow the user to choose (and
-      choose differently for differnt hosts), the pmproxy host that's
-      associated with any pmcd host.
-    - The pmSetMode(3) API needs a replacement that takes a timeval
-      structure for a delta, instead of an integer.  The extended
-      time base code should be factored out (into the old, backward
-      compatible pmSetMode) and deprecated - used in pmval(1) atm.
-    - This timeval delta change needs to be pushed all the way down
-      into the PCP context structure, which fortunately isn't exposed
-      outside of impl.h (AFAICT) - this would be an issue if it was,
-      as the size of that structure will change due to relacing the
-      current integer delta with a timeval.
-    - Not much uses the integer delta however, its mainly interp.c in
-      libpcp that uses it.  Note: libpcp_pmc also has an API that's
-      affected here - PMC_Group::setArchiveMode
     - Extend kmdumptext to use an abstracted kmtime class for kmtime
       VCR control.
     - Extend kmdumptext to allow input to drive kmtime remotely (will
