@@ -20,22 +20,13 @@
 /* XXX - TODO: need to install a SIGCHLD signal handler when pipes in use */
 /* XXX - TODO: reconnect -- socket(host/port) and logrotate(inode/device) */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
-#include <syslog.h>
-#include <netinet/ip.h>
-#include <netinet/tcp.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
 #include "local.h"
-#ifdef __cplusplus
-}
-#endif
 
 static pmdaInterface dispatch;
 static pmdaMetric *metrictab;
@@ -48,55 +39,8 @@ static SV *instance_func;
 static SV *store_cb_func;
 static SV *fetch_cb_func;
 
-static timers_t *timers;
-static int ntimers;
-static files_t *files;
-static int nfiles;
-
-static char local_buffer[4096];
-
 int
-local_timer(double timeout, SV *callback, int cookie)
-{
-    int size = sizeof(*timers) * (ntimers + 1);
-    delta_t delta;
-
-    delta.tv_sec = (time_t)timeout;
-    delta.tv_usec = (long)((timeout - (double)delta.tv_sec) * 1000000.0);
-
-    if ((timers = realloc(timers, size)) == NULL)
-	__pmNoMem("timers resize", size, PM_FATAL_ERR);
-    timers[ntimers].id = -1;	/* not yet registered */
-    timers[ntimers].delta = delta;
-    timers[ntimers].cookie = cookie;
-    timers[ntimers].callback = callback;
-    return ntimers++;
-}
-
-int
-local_timer_get_cookie(int id)
-{
-    int i;
-
-    for (i = 0; i < ntimers; i++)
-	if (timers[i].id == id)
-	    return timers[i].cookie;
-    return -1;
-}
-
-SV *
-local_timer_get_callback(int id)
-{
-    int i;
-
-    for (i = 0; i < ntimers; i++)
-	if (timers[i].id == id)
-	    return timers[i].callback;
-    return NULL;
-}
-
-int
-local_fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
+fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 {
     dSP;
     PUSHMARK(sp);
@@ -106,7 +50,7 @@ local_fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 }
 
 int
-local_instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
+instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
 {
     dSP;
     PUSHMARK(sp);
@@ -118,7 +62,7 @@ local_instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
 }
 
 void
-local_timer_callback(int afid, void *data)
+timer_callback(int afid, void *data)
 {
     dSP;
     PUSHMARK(sp);
@@ -129,7 +73,7 @@ local_timer_callback(int afid, void *data)
 }
 
 void
-local_input_callback(SV *input_cb_func, char *string)
+input_callback(SV *input_cb_func, char *string)
 {
     dSP;
     PUSHMARK(sp);
@@ -140,16 +84,17 @@ local_input_callback(SV *input_cb_func, char *string)
 }
 
 int
-local_fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
+fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 {
     dSP;
     __pmID_int	*pmid;
     int		sts;
-    STRLEN	n_a;
+    STRLEN	n_a;	/* required by older Perl versions, used in POPpx */
 
     ENTER;
     SAVETMPS;	/* allows us to tidy our perl stack changes later */
 
+    (void)n_a;
     pmid = (__pmID_int *) &metric->m_desc.pmid;
 
     PUSHMARK(sp);
@@ -180,7 +125,7 @@ local_fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 	case PM_TYPE_U64:	atom->ull = POPl; break;
 	case PM_TYPE_FLOAT:	atom->f = POPn; break;
 	case PM_TYPE_DOUBLE:	atom->d = POPn; break;
-	case PM_TYPE_STRING:	atom->cp = strdup(POPpx); break;
+	case PM_TYPE_STRING:	atom->cp = local_strdup_hashed(POPpx); break;
     }
 
 fetch_end:
@@ -191,7 +136,7 @@ fetch_end:
 }
 
 int
-local_store(pmResult *result, pmdaExt *pmda)
+store(pmResult *result, pmdaExt *pmda)
 {
     dSP;
     int		i, j;
@@ -233,7 +178,7 @@ local_store(pmResult *result, pmdaExt *pmda)
 		case PM_TYPE_U64:    XPUSHs(sv_2mortal(newSViv(av.ull))); break;
 		case PM_TYPE_FLOAT:  XPUSHs(sv_2mortal(newSVnv(av.f))); break;
 		case PM_TYPE_DOUBLE: XPUSHs(sv_2mortal(newSVnv(av.d))); break;
-		case PM_TYPE_STRING: XPUSHs(sv_2mortal(newSVpv(av.cp,0))); break;
+		case PM_TYPE_STRING: XPUSHs(sv_2mortal(newSVpv(av.cp,0)));break;
 	    }
 	    PUTBACK;
 
@@ -262,7 +207,7 @@ store_end:
  * converts Perl list ref like [a => 'foo', b => 'boo'] into an indom
  */
 static int
-local_list_to_indom(SV *list, pmdaInstid **set)
+list_to_indom(SV *list, pmdaInstid **set)
 {
     int	i, len;
     SV	**id;
@@ -303,249 +248,6 @@ local_list_to_indom(SV *list, pmdaInstid **set)
     return len;
 }
 
-static int
-local_file(int type, int fd, SV *callback, int cookie)
-{
-    int size = sizeof(*files) * (nfiles + 1);
-
-    if ((files = realloc(files, size)) == NULL)
-	__pmNoMem("files resize", size, PM_FATAL_ERR);
-    files[nfiles].type = type;
-    files[nfiles].fd = fd;
-    files[nfiles].cookie = cookie;
-    files[nfiles].callback = callback;
-    return nfiles++;
-}
-
-static int
-local_pipe(char *pipe, SV *callback, int cookie)
-{
-    FILE *fp = popen(pipe, "r");
-    int me;
-
-    if (!fp) {
-	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s", pipe, strerror(errno));
-	exit(1);
-    }
-    me = local_file(FILE_PIPE, fileno(fp), callback, cookie);
-    files[me].me.tail.file = fp;
-    return fileno(fp);
-}
-
-static int
-local_tail(char *file, SV *callback, int cookie)
-{
-    FILE *fp = fopen(file, "r");
-    struct stat stats;
-    int me;
-
-    if (!fp) {
-	__pmNotifyErr(LOG_ERR, "fopen failed (%s): %s", file, strerror(errno));
-	exit(1);
-    }
-    if (stat(file, &stats) < 0) {
-	__pmNotifyErr(LOG_ERR, "stat failed (%s): %s", file, strerror(errno));
-	exit(1);
-    }
-    me = local_file(FILE_TAIL, fileno(fp), callback, cookie);
-    files[me].me.tail.file = fp;
-    files[me].me.tail.dev = stats.st_dev;
-    files[me].me.tail.ino = stats.st_ino;
-    return me;
-}
-
-static int
-local_sock(char *host, int port, SV *callback, int cookie)
-{
-    struct sockaddr_in myaddr;
-    struct hostent *servinfo;
-    struct linger nolinger = { 1, 0 };
-    int me, fd, nodelay = 1;
-
-    if ((servinfo = gethostbyname(host)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "gethostbyname (%s): %s", host, strerror(errno));
-	exit(1);
-    }
-    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-	__pmNotifyErr(LOG_ERR, "socket (%s): %s", host, strerror(errno));
-	exit(1);
-    }
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, /* avoid 200 ms delay */
-		    (char *)&nodelay, (socklen_t)sizeof(nodelay)) < 0) {
-	__pmNotifyErr(LOG_ERR, "setsockopt1 (%s): %s", host, strerror(errno));
-	exit(1);
-    }
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, /* don't linger on close */
-		    (char *)&nolinger, (socklen_t)sizeof(nolinger)) < 0) {
-	__pmNotifyErr(LOG_ERR, "setsockopt2 (%s): %s", host, strerror(errno));
-	exit(1);
-    }
-    memset(&myaddr, 0, sizeof(myaddr));
-    myaddr.sin_family = AF_INET;
-    memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
-    myaddr.sin_port = htons(port);
-    if (connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr)) < 0) {
-	__pmNotifyErr(LOG_ERR, "connect (%s): %s", host, strerror(errno));
-	exit(1);
-    }
-    me = local_file(FILE_SOCK, fd, callback, cookie);
-    files[me].me.sock.host = strdup(host);
-    files[me].me.sock.port = port;
-    return me;
-}
-
-static char *
-local_filetype(int type)
-{
-    if (type == FILE_SOCK)
-	return "socket connection";
-    if (type == FILE_PIPE)
-	return "command pipe";
-    if (type == FILE_TAIL)
-	return "tailed file";
-    return NULL;
-}
-
-static int
-local_files_get_descriptor(int id)
-{
-    if (id < 0 || id >= nfiles)
-	return -1;
-    return files[id].fd;
-}
-
-static void
-local_atexit(void)
-{
-    while (ntimers > 0) {
-	--ntimers;
-	__pmAFunregister(timers[ntimers].id);
-    }
-    if (timers) {
-	free(timers);
-	timers = NULL;
-    }
-    while (nfiles > 0) {
-	--nfiles;
-	if (files[nfiles].type == FILE_PIPE)
-	    pclose(files[nfiles].me.pipe.file);
-	if (files[nfiles].type == FILE_TAIL)
-	    fclose(files[nfiles].me.tail.file);
-	if (files[nfiles].type == FILE_SOCK) {
-	    close(files[nfiles].fd);
-	    if (files[nfiles].me.sock.host)
-		free(files[nfiles].me.sock.host);
-	    files[nfiles].me.sock.host = NULL;
-	}
-    }
-    if (files) {
-	free(files);
-	files = NULL;
-    }
-}
-
-static void
-local_pmdaMain(pmdaInterface *self)
-{
-    int pmcdfd, nready, nfds, i, fd, maxfd = -1;
-    fd_set fds, readyfds;
-    size_t bytes;
-    char *s, *p;
-
-    if ((pmcdfd = __pmdaInFd(self)) < 0)
-	exit(1);
-
-    FD_ZERO(&fds);
-    FD_SET(pmcdfd, &fds);
-    for (i = 0; i < nfiles; i++) {
-	fd = files[i].fd;
-	FD_SET(fd, &fds);
-	if (fd > maxfd)
-	    maxfd = fd;
-    }
-    nfds = ((pmcdfd > maxfd) ? pmcdfd : maxfd) + 1;
-
-    for (i = 0; i < ntimers; i++) {
-	timers[i].id = __pmAFregister(&timers[i].delta, &timers[i].cookie,
-					local_timer_callback);
-    }
-
-    /* custom PMDA main loop */
-    for (;;) {
-	memcpy(&readyfds, &fds, sizeof(readyfds));
-	nready = select(nfds, &readyfds, NULL, NULL, NULL);
-	if (nready == 0)
-	    continue;
-	if (nready < 0) {
-	    if (errno != EINTR) {
-		__pmNotifyErr(LOG_ERR, "select failed: %s\n", strerror(errno));
-		exit(1);
-	    }
-	    continue;
-	}
-
-	__pmAFblock();
-
-	if (FD_ISSET(pmcdfd, &readyfds)) {
-	    if (__pmdaMainPDU(self) < 0) {
-		__pmAFunblock();
-		exit(1);
-	    }
-	}
-
-	for (i = 0; i < nfiles; i++) {
-	    fd = files[i].fd;
-	    if (!(FD_ISSET(fd, &readyfds)))
-		continue;
-	    bytes = read(fd, local_buffer, sizeof(local_buffer));
-	    if (bytes < 0) {
-		__pmNotifyErr(LOG_ERR, "Data read error on %s: %s\n",
-				local_filetype(files[i].type), strerror(errno));
-		exit(1);
-	    }
-	    if (bytes == 0) {
-		__pmNotifyErr(LOG_ERR, "No data to read - %s may be closed\n",
-				local_filetype(files[i].type));
-		exit(1);
-	    }
-	    local_buffer[bytes] = '\0';
-	    for (s = p = local_buffer; *s != '\0'; s++) {
-		if (*s != '\n')
-		    continue;
-		*s = '\0';
-		local_input_callback(files[i].callback, p);
-		p = s + 1;
-	    }
-	}
-
-	__pmAFunblock();
-    }
-}
-
-static char *
-local_strdup_suffix(const char *string, const char *suffix)
-{
-    size_t length = strlen(string) + strlen(suffix) + 1;
-    char *result = malloc(length);
-
-    if (!result)
-	return result;
-    sprintf(result, "%s%s", string, suffix);
-    return result;
-}
-
-static char *
-local_strdup_prefix(const char *prefix, const char *string)
-{
-    size_t length = strlen(prefix) + strlen(string) + 1;
-    char *result = malloc(length);
-
-    if (!result)
-	return result;
-    sprintf(result, "%s%s", prefix, string);
-    return result;
-}
-
 
 MODULE = PCP::PMDA		PACKAGE = PCP::PMDA
 
@@ -558,6 +260,7 @@ new(CLASS,name,domain)
     PREINIT:
 	char *	logfile;
 	char *	pmdaname;
+	char	buffer[256];
     CODE:
 	pmProgname = name;
 	RETVAL = &dispatch;
@@ -565,10 +268,10 @@ new(CLASS,name,domain)
 	pmdaname = local_strdup_prefix("pmda", name);
 	pmProgname = pmdaname;
 	atexit(&local_atexit);
-	snprintf(local_buffer, sizeof(local_buffer), "%s/%s/help",
+	snprintf(buffer, sizeof(buffer), "%s/%s/help",
 			pmGetConfig("PCP_PMDAS_DIR"), name);
 	pmdaDaemon(RETVAL, PMDA_INTERFACE_LATEST, pmdaname, domain,
-			logfile, local_buffer);
+			logfile, buffer);
 	pmdaOpenLog(RETVAL);
     OUTPUT:
 	RETVAL
@@ -609,43 +312,43 @@ error(self,message)
 	__pmNotifyErr(LOG_ERR, message);
 
 void
-set_fetch(self,fetch)
+set_fetch(self,function)
 	pmdaInterface *self
-	SV *	fetch
+	SV *	function
     CODE:
-	if (fetch != (SV *)NULL) {
-	    fetch_func = newSVsv(fetch);
-	    self->version.two.fetch = local_fetch;
+	if (function != (SV *)NULL) {
+	    fetch_func = newSVsv(function);
+	    self->version.two.fetch = fetch;
 	}
 
 void
-set_instance(self,instance)
+set_instance(self,function)
 	pmdaInterface *self
-	SV *	instance
+	SV *	function
     CODE:
-	if (instance != (SV *)NULL) {
-	    instance_func = newSVsv(instance);
-	    self->version.two.instance = local_instance;
+	if (function != (SV *)NULL) {
+	    instance_func = newSVsv(function);
+	    self->version.two.instance = instance;
 	}
 
 void
-set_store_callback(self,store)
+set_store_callback(self,cb_function)
 	pmdaInterface *self
-	SV *	store
+	SV *	cb_function
     CODE:
-	if (store != (SV *)NULL) {
-	    store_cb_func = newSVsv(store);
-	    self->version.two.store = local_store;
+	if (cb_function != (SV *)NULL) {
+	    store_cb_func = newSVsv(cb_function);
+	    self->version.two.store = store;
 	}
 
 void
-set_fetch_callback(self,fetch_callback)
+set_fetch_callback(self,cb_function)
 	pmdaInterface *self
-	SV *	fetch_callback
+	SV *	cb_function
     CODE:
-	if (fetch_callback != (SV *)NULL) {
-	    fetch_cb_func = newSVsv(fetch_callback);
-	    pmdaSetFetchCallBack(self, local_fetch_callback);
+	if (cb_function != (SV *)NULL) {
+	    fetch_cb_func = newSVsv(cb_function);
+	    pmdaSetFetchCallBack(self, fetch_callback);
 	}
 
 void
@@ -709,7 +412,7 @@ add_indom(self,indom,list,help,longhelp)
 	}
 	p = indomtab + itab_size;
 	p->it_indom = *(pmInDom *)&indom;
-	p->it_numinst = local_list_to_indom(list, &p->it_set);
+	p->it_numinst = list_to_indom(list, &p->it_set);
 	if (p->it_numinst == -1)
 	    XSRETURN_UNDEF;
 	else
@@ -737,10 +440,10 @@ replace_indom(self,index,list)
 	    p = indomtab + index;
 	    if (p->it_set && p->it_numinst > 0) {
 		for (i = 0; i < p->it_numinst; i++)
-		    free(p->it_set[i].i_name);	/* local_list_to_indom strdup */
-		free(p->it_set);	/* local_list_to_indom calloc */
+		    free(p->it_set[i].i_name);	/* list_to_indom strdup */
+		free(p->it_set);	/* list_to_indom calloc */
 	    }
-	    p->it_numinst = local_list_to_indom(list, &p->it_set);
+	    p->it_numinst = list_to_indom(list, &p->it_set);
 	    if (p->it_numinst == -1)
 		XSRETURN_UNDEF;
 	    else

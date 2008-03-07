@@ -18,6 +18,11 @@
 #ifndef LOCAL_H
 #define LOCAL_H
 
+#include <syslog.h>
+#include "pmapi.h"
+#include "impl.h"
+#include "pmda.h"
+
 extern int	pmDebug;
 extern char *	pmProgname;
 
@@ -59,5 +64,21 @@ typedef struct {
 	sock_data_t sock;
     } me;
 } files_t;
+
+extern char *local_strdup_hashed(const char *string);
+extern char *local_strdup_suffix(const char *string, const char *suffix);
+extern char *local_strdup_prefix(const char *prefix, const char *string);
+
+extern int local_timer(double timeout, SV *callback, int cookie);
+extern int local_timer_get_cookie(int id);
+extern SV *local_timer_get_callback(int id);
+
+extern int local_pipe(char *pipe, SV *callback, int cookie);
+extern int local_tail(char *file, SV *callback, int cookie);
+extern int local_sock(char *host, int port, SV *callback, int cookie);
+
+extern void local_atexit(void);
+extern int local_files_get_descriptor(int id);
+extern void local_pmdaMain(pmdaInterface *self);
 
 #endif /* LOCAL_H */

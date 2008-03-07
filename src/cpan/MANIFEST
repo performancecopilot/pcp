@@ -6,6 +6,7 @@ MANIFEST
 PMDA.pm
 PMDA.xs
 local.h
+local.c
 test.pl
 TODO
 typemap

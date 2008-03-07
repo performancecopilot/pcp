@@ -22,7 +22,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 PERLMOD   = PMDA.pm
-INTERFACE = PMDA.xs local.h typemap
+INTERFACE = PMDA.xs local.h local.c typemap
 TESTCODE  = test.pl cvalue.c
 PERLDOCS  = Changes MANIFEST TODO
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)

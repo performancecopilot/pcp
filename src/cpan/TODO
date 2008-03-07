@@ -1,59 +1,25 @@
 Getting to a basic working state
 --------------------------------
 
-o  Need to devise a way to plug into pmdaGetOpt(3) and be good citizens
-   in the PMDA command line argument handling world.  Note: -d is debug
+o  Need to devise a way to handle the command line.  Note: -d is debug
    mode in Perl, but domain number in the PMDA world.  D'oh.  This is
    causing issues with the Install script, which automatically includes
-   that on the command line.
+   that on the command line... agent installation needs work.
 
-o  Fully investigate Perl<->C value conversion used in the fetch callback
-	- probably some lurking issues here (32/u32/64/u64,etc);
-	- works for the simple cases I've used so far (see pmdasimple.pl
-	  and the less-than-useful pmdanews.pl);
-	- to test this exhaustively, we should build a Perl pmdasample
-	  and then run the PCP QA suite against it;
-
-o  Figure out whether cvalue.c in the "make test" step is going to
-   pick up any problems, and if so figure out how to get the binary
-   built as part of the "make test" step (remove current hack, should
-   generate a target from Makefile.PL);
-
-o  Use PerlPOD(1) directives in the PCP::PMDA module to interface to
-   perldoc(1) - discuss the Perl routines where we have extended or
-   changed the semantics of the equivalent libpcp_pmda functionality
-   especially; but in most routines simply refer to PMDA(3).
-
-o  Many Perl PMDAs will want to have an interface that allows them to
-   get hold of the last data written to a file, as it is written there
-   (ala. tail -f).  So, need to implement this missing pieces of the
-   FILE_TAIL mode (see PMDA.xs comments).
- 
 o  Need an atexit(3) handler to pclose MODE_PIPE processes.
 
+o  Need to reconnect to rotated log files.
+
+o  Need to reconnect dropped socket connections.
+
 o  Need POD updates to document all APIs.
+
+o  Use the PCP::PMDA->add_metric() routine help text and metric name
+   parameters - generate help files and pmns files automagically.
 
 
 More interesting stuff
 ----------------------
-
-o  Extend the PCP::PMDA->add_metric() routine to allow help text and
-   metric name to be passed in
-	- this would allow us to generate help files and pmns files
-	  automagically;
-	- would prevent the way we replicate PMID data in two places
-	  (currently PMDA binary and PMNS must agree on all of the
-	  PMID except for the domain number part);
-	- an alternative to generating external files would be to
-	  investigate the way libpcp_pmda interfaces to the help/
-	  pmns files and see whether we can do this ourselves;
-	- this may turn out to be optimal, may not, but would
-	  simplify PMDA development & maintenance;
-	- see also `database interfaces' below;
-
-
-Even more interesting stuff
----------------------------
 
 o  database interfaces
 	- If we can pass in the metric name to PCP::PMDA->add_metric,
