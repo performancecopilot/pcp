@@ -27,7 +27,7 @@ TESTCODE  = test.pl cvalue.c
 PERLDOCS  = Changes MANIFEST TODO
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 
-LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib
+LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib blib
 
 default: PMDA.o
 
