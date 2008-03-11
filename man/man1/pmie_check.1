@@ -131,7 +131,7 @@ and
 are controlled by a PCP inference engine control file that specifies the
 .B pmie
 instances to be managed.  The default control file is
-.B $PCP_VAR_DIR/config/pmie/control
+.B $PCP_PMIECONTROL_PATH
 but an alternate may be specified using the
 .B \-c
 option.
@@ -162,7 +162,7 @@ $ PMCD_CONNECT_TIMEOUT=20
 .br
 .BR Warning :
 The
-.B $PCP_VAR_DIR/config/pmie/control
+.B $PCP_PMIECONTROL_PATH
 file is a potential security risk if it is writable by any user other
 than root.
 .br
@@ -332,7 +332,7 @@ in conjunction with
 maximizes the diagnostic capabilities for debugging.
 .SH FILES
 .TP 10
-.B $PCP_VAR_DIR/config/pmie/control
+.B $PCP_PMIECONTROL_PATH
 the default PCP inference engine control file
 .br
 .BR Warning :

@@ -175,7 +175,7 @@ are controlled by a PCP logger control file
 that specifies the
 .B pmlogger
 instances to be managed.  The default control file is
-.BR $PCP_VAR_DIR/config/pmlogger/control ,
+.BR $PCP_PMLOGGERCONTROL_PATH ,
 but an alternate may be specified using the
 .B \-c
 option.
@@ -208,7 +208,7 @@ $ PMCD_CONNECT_TIMEOUT=20
 .br
 .BR Warning :
 The
-.B $PCP_VAR_DIR/config/pmlogger/control
+.B $PCP_PMLOGGERCONTROL_PATH
 file is a potential security risk and should not be writable by any user other
 than root.
 .br
@@ -422,7 +422,7 @@ could be copied and modified to implement a site-specific procedure for
 end-of-week and/or end-of-month management for a set of PCP archives.
 .SH FILES
 .TP 10
-.B $PCP_VAR_DIR/config/pmlogger/control
+.B $PCP_PMLOGGERCONTROL_PATH
 the PCP logger control file
 .br
 .BR Warning :
