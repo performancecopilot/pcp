@@ -1,0 +1,4 @@
+kmchart source: native-package-with-dash-version
+# Maintainer is also an upstream developer, and this version scheme is
+# quite convenient for his workflow; no technical reason seems to exist
+# for not doing versioning this way (its worked fine for many years).
