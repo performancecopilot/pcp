@@ -3,11 +3,11 @@ Section: utils
 Priority: optional
 Maintainer: Nathan Scott <nathans@debian.org>
 Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
-Build-Depends: autoconf, bison, flex, gawk, debhelper (>= 5)
-Standards-Version: 3.5.9
+Build-Depends: autoconf, bison, flex, gawk, procps, debhelper (>= 5)
+Standards-Version: 3.7.3
 
 Package: pcp
-Depends: ${shlibs:Depends}, gawk, sysv-rc-conf, ncurses-dev, cpp
+Depends: ${shlibs:Depends}, gawk, procps, sysv-rc-conf, ncurses-dev, cpp
 Suggests: tsocks
 Recommends: kmchart
 Architecture: any
