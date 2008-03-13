@@ -10,6 +10,7 @@ Distribution: @package_distribution@
 Packager: Silicon Graphics, Inc. <http://www.sgi.com/>
 BuildRoot: @build_root@ 
 BuildRequires: gcc-c++ libstdc++-devel procps autoconf bison flex ncurses-devel
+
 %if %sgi_chroot_build
 Source: @package_name@-@package_version@.tar.bz2
 #
@@ -136,9 +137,11 @@ then
 	$PCP_RC_DIR/pmie stop >/dev/null 2>&1
 	[ -x $PCP_RC_DIR/pmproxy ] && PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
 	rm -f $PCP_VAR_DIR/pmns/.NeedRebuild
+    else
+	PCP_WHICH_PROG=type
     fi
 
-    if which chkconfig >/dev/null 2>&1
+    if $PCP_WHICH_PROG chkconfig >/dev/null 2>&1
     then
 	chkconfig --del pcp >/dev/null 2>&1
 	chkconfig --del pmie >/dev/null 2>&1
@@ -189,10 +192,7 @@ if [ -f /etc/pcp.env ] ; then
 	done
     fi
 
-    #
-    # the chkconfig thing
-    #
-    if which chkconfig >/dev/null 2>&1
+    if $PCP_WHICH_PROG chkconfig >/dev/null 2>&1
     then
 	chkconfig --add pcp >/dev/null 2>&1
 	chkconfig --add pmie >/dev/null 2>&1
@@ -235,9 +235,6 @@ then
     touch $PCP_VAR_DIR/pmns/.NeedRebuild
     chmod 644 $PCP_VAR_DIR/pmns/.NeedRebuild
 
-    #
-    # the chkconfig thing
-    #
     if which chkconfig >/dev/null 2>&1
     then
 	chkconfig --add pcp >/dev/null 2>&1

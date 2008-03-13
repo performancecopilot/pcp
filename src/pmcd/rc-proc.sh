@@ -19,7 +19,6 @@
 # 
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
-# $Id: rc-proc.sh,v 1.13 2006/06/22 08:51:47 makc Exp $
 # 
 
 # source the PCP configuration environment variables
@@ -48,11 +47,11 @@ _cmds_exist()
 
     [ -f $PCP_RC_DIR/$1 ] && _have_flag=true
 
-    if which runlevel >/dev/null 2>&1
+    if $PCP_WHICH_PROG runlevel >/dev/null 2>&1
     then
 	if [ "$PCP_PLATFORM" = solaris -o "$PCP_PLATFORM" = darwin ]
 	then
-	    if which runlevel | grep "no runlevel" >/dev/null
+	    if $PCP_WHICH_PROG runlevel | grep "no runlevel" >/dev/null
 	    then
 		:
 	    else
@@ -63,11 +62,11 @@ _cmds_exist()
 	fi
     fi
 
-    if which chkconfig >/dev/null 2>&1
+    if $PCP_WHICH_PROG chkconfig >/dev/null 2>&1
     then
 	if [ "$PCP_PLATFORM" = solaris -o "$PCP_PLATFORM" = darwin ]
 	then
-	    if which chkconfig | grep "no chkconfig" >/dev/null
+	    if $PCP_WHICH_PROG chkconfig | grep "no chkconfig" >/dev/null
 	    then
 		:
 	    else
@@ -293,7 +292,7 @@ chkconfig_on_msg()
 	echo "    To enable $_flag, run the following as root:"
 	if $_have_chkconfig
 	then
-	    _cmd=`which chkconfig`
+	    _cmd=`$PCP_WHICH_PROG chkconfig`
 	    echo "    # $_cmd $_flag on"
 	elif $_have_sysvrcconf
 	then
