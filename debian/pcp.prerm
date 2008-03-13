@@ -1,5 +1,5 @@
 #!/bin/sh
-
+#DEBHELPER#
 if which invoke-rc.d >/dev/null 2>&1; then
     invoke-rc.d pmproxy stop
     invoke-rc.d pmie stop

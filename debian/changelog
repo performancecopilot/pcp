@@ -1,3 +1,10 @@
+pcp (2.7.4-20080312) unstable; urgency=low
+
+  * Add procps package dependencies (closes: #470326)
+  * Resolve several lintian warnings on source package.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 12 Mar 2008 05:39:40 +1100
+
 pcp (2.7.4-20080306) unstable; urgency=low
 
   * Initial version of Debian packaging of PCP (closes: #105587)

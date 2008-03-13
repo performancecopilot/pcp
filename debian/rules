@@ -26,7 +26,6 @@ pkglibpcp_trace = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_trace);
 
 options = export DEBUG=-DNDEBUG AWK=gawk PACKAGE_DISTRIBUTION=debian;
 checkdir = test -f debian/rules
-checkver = rm -f debian/compat && echo 5 > debian/compat
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
 
 build: built
@@ -48,14 +47,13 @@ clean:
 	-rm -f built .census
 	$(MAKE) realclean
 	-rm -rf $(alldir)
-	-rm -f debian/*substvars debian/files* debian/*.debhelper debian/compat
+	-rm -f debian/*substvars debian/files* debian/*.debhelper
 
 binary-indep:
 
 binary-arch: checkroot built
 	@echo "== dpkg-buildpackage: binary-arch" 1>&2
 	$(checkdir)
-	$(checkver)
 	-rm -rf $(alldir)
 	$(pkgpcp) $(MAKE) -C . install
 	$(pkgpcp) $(MAKE) -C build pcp.src

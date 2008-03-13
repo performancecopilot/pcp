@@ -38,7 +38,7 @@ if test -z "$target"
 then
     echo
     echo '
-FATAL ERROR: Cannot guess your target, try explicit specication
+FATAL ERROR: Cannot guess your target, try explicit specification
              using --target or, if that fails, add it to config.guess and 
 	     send a copy to pcp@oss.sgi.com.'
     exit 1
