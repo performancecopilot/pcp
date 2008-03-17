@@ -18,8 +18,6 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Id: pcp.conf.in,v 1.29 2007/03/30 09:30:06 kimbrr.bonnie.engr.sgi.com Exp $
-#
 # This file defines the directories and paths used by PCP
 # and is installed as the file /etc/pcp.conf for use at run-time.
 #
@@ -164,6 +162,9 @@ PCP_KILLALL_PROG=@pcp_killall_prog@
 # ps
 PCP_PS_HAVE_BSD=@pcp_ps_have_bsd@
 PCP_PS_ALL_FLAGS=@pcp_ps_all_flags@
+
+# which
+PCP_WHICH_PROG=@which@
 
 # host os
 PCP_PLATFORM=@target_os@

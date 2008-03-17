@@ -534,6 +534,17 @@ then
 fi
 AC_SUBST(grep)
 
+if test -n "$WHICH"
+then
+    which=$WHICH
+elif sh -c 'type -p sh' >/dev/null 2>&1 
+then
+    which=type
+else
+    which=which
+fi
+AC_SUBST(which)
+
 dnl checks for /proc pseudo file system and /proc/pinfo
 AC_MSG_CHECKING([for /proc ])
 if test -d /proc
