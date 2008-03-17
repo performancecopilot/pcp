@@ -1,3 +1,9 @@
+pcp (2.7.4-20080317) unstable; urgency=low
+
+  * Fix curses package dependencies (closes: #471220)
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 17 Mar 2008 11:37:57 +1100
+
 pcp (2.7.4-20080312) unstable; urgency=low
 
   * Add procps package dependencies (closes: #470326)
