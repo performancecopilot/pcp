@@ -94,8 +94,8 @@ dumpbuf(int nch, __pmPDU *pb)
 }
 #endif
 
-static int
-chkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
+int
+__pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 {
     int		len;
     int		version = UNKNOWN_VERSION;
@@ -122,7 +122,7 @@ chkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG)
-	fprintf(stderr, "chkLabel: fd=%d vol=%d", fileno(f), vol);
+	fprintf(stderr, "__pmLogChkLabel: fd=%d vol=%d", fileno(f), vol);
 #endif
 
     fseek(f, (long)0, SEEK_SET);
@@ -241,7 +241,7 @@ _logpeek(__pmLogCtl *lcp, int vol)
     if ((f = fopen(logfilename, "r")) == NULL)
 	return f;
 
-    if ((sts = chkLabel(lcp, f, &label, vol)) < 0) {
+    if ((sts = __pmLogChkLabel(lcp, f, &label, vol)) < 0) {
 	fclose(f);
 	errno = sts;
 	return NULL;
@@ -267,7 +267,7 @@ __pmLogChangeVol(__pmLogCtl *lcp, int vol)
     if ((lcp->l_mfp = fopen(name, "r")) == NULL)
 	return -errno;
 
-    if ((sts = chkLabel(lcp, lcp->l_mfp, &lcp->l_label, vol)) < 0)
+    if ((sts = __pmLogChkLabel(lcp, lcp->l_mfp, &lcp->l_label, vol)) < 0)
 	return sts;
 
     lcp->l_curvol = vol;
@@ -278,8 +278,8 @@ __pmLogChangeVol(__pmLogCtl *lcp, int vol)
     return sts;
 }
 
-static int
-loadTI(__pmLogCtl *lcp)
+int
+__pmLogLoadIndex(__pmLogCtl *lcp)
 {
     int		sts = 0;
     FILE	*f = lcp->l_tifp;
@@ -308,7 +308,7 @@ loadTI(__pmLogCtl *lcp)
 		}
 #ifdef PCP_DEBUG
 	  	if (pmDebug & DBG_TRACE_LOG)
-	    	    fprintf(stderr, "loadTI: bad TI entry len=%d: expected %d\n",
+	    	    fprintf(stderr, "__pmLogLoadIndex: bad TI entry len=%d: expected %d\n",
 		            n, (int)sizeof(__pmLogTI));
 #endif
 		if (ferror(f)) {
@@ -605,11 +605,10 @@ __pmLogClose(__pmLogCtl *lcp)
 }
 
 int
-__pmLogOpen(const char *name, __pmContext *ctxp)
+__pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 {
     int		sts;
     int		blen;
-    int		version;
     int		exists = 0;
     char	*q;
     char	*base;
@@ -618,8 +617,6 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     char	*dir;
     DIR		*dirp = NULL;
     char	filename[MAXPATHLEN];
-    __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
-    __pmLogLabel	label;
 #if defined(HAVE_READDIR64)
     struct dirent64	*direntp;
 #else
@@ -684,10 +681,11 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     blen = (int)strlen(base);
     if ((dirp = opendir(dir)) != NULL) {
 #if defined(HAVE_READDIR64)
-	while ((direntp = readdir64(dirp)) != NULL) {
+	while ((direntp = readdir64(dirp)) != NULL)
 #else
-	while ((direntp = readdir(dirp)) != NULL) {
+	while ((direntp = readdir(dirp)) != NULL)
 #endif
+	{
 	    if (strncmp(base, direntp->d_name, blen) != 0)
 		continue;
 	    if (direntp->d_name[blen] != '.')
@@ -762,7 +760,30 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	    sts = -ENOENT;
 	goto cleanup;
     }
-    
+    free(tbuf);
+    free(base);
+    return 0;
+
+cleanup:
+    if (dirp != NULL)
+	closedir(dirp);
+    __pmLogClose(lcp);
+    free(tbuf);
+    free(base);
+    return sts;
+}
+
+int
+__pmLogOpen(const char *name, __pmContext *ctxp)
+{
+    __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
+    __pmLogLabel label;
+    int		version;
+    int		sts;
+
+    if ((sts = __pmLogLoadLabel(lcp, name)) < 0)
+	return sts;
+
     lcp->l_curvol = -1;
     if ((sts = __pmLogChangeVol(lcp, lcp->l_minvol)) < 0)
 	goto cleanup;
@@ -772,9 +793,11 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     ctxp->c_origin = lcp->l_label.ill_start;
 
     if (lcp->l_tifp) {
-	if ((sts = chkLabel(lcp, lcp->l_tifp, &label, PM_LOG_VOL_TI)) < 0)
+	sts = __pmLogChkLabel(lcp, lcp->l_tifp, &label, PM_LOG_VOL_TI);
+	if (sts < 0)
 	    goto cleanup;
-	else if (sts != version) {	/* mismatch between meta & actual data versions! */
+	else if (sts != version) {
+	    /* mismatch between meta & actual data versions! */
 	    sts = PM_ERR_LABEL;
 	    goto cleanup;
 	}
@@ -786,7 +809,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	}
     }
 
-    if ((sts = chkLabel(lcp, lcp->l_mdfp, &label, PM_LOG_VOL_META)) < 0)
+    if ((sts = __pmLogChkLabel(lcp, lcp->l_mdfp, &label, PM_LOG_VOL_META)) < 0)
 	goto cleanup;
     else if (sts != version) {	/* version mismatch between meta & ti */
 	sts = PM_ERR_LABEL;
@@ -796,8 +819,9 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     if ((sts = __pmLogLoadMeta(lcp)) < 0)
 	goto cleanup;
 
-    if ((sts = loadTI(lcp)) < 0)
+    if ((sts = __pmLogLoadIndex(lcp)) < 0)
 	goto cleanup;
+
     if (lcp->l_label.ill_pid != label.ill_pid ||
 	strcmp(lcp->l_label.ill_hostname, label.ill_hostname) != 0) {
 	    sts = PM_ERR_LABEL;
@@ -806,8 +830,6 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     
     lcp->l_refcnt = 0;
     lcp->l_physend = -1;
-    free(tbuf);
-    free(base);
 
     ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
 
@@ -815,9 +837,6 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 
 cleanup:
     __pmLogClose(lcp);
-    free(tbuf);
-    free(base);
-    if (dirp != NULL) closedir(dirp);
     return sts;
 }
 
@@ -1902,26 +1921,30 @@ pmGetArchiveEnd(struct timeval *tp)
      * set l_physend and l_endtime
      * at the end of ... ctxp->c_archctl->ac_log
      */
+    __pmContext	*ctxp;
+
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
+	return PM_ERR_NOCONTEXT;
+    return __pmGetArchiveEnd(ctxp->c_archctl->ac_log, tp);
+}
+
+int
+__pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
+{
     struct stat	sbuf;
-    __pmLogCtl	*lcp;
     FILE	*f;
     long	save;
     pmResult	*rp = NULL;
     pmResult	*nrp;
     int		i;
     int		sts;
-    __pmContext	*ctxp;
     int		found;
     int		head;
     long	offset;
     int		vol;
     __pm_off_t	logend;
     __pm_off_t	physend;
-
-    ctxp = __pmHandleToPtr(pmWhichContext());
-    if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
-	return PM_ERR_NOCONTEXT;
-    lcp = ctxp->c_archctl->ac_log;
 
     /*
      * expect things to be stable, so l_maxvol is not empty, and

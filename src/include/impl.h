@@ -823,6 +823,8 @@ extern int __pmLogCreate(const char *, const char *, int, __pmLogCtl *);
 extern int __pmLogRead(__pmLogCtl *, int, FILE *, pmResult **);
 extern int __pmLogWriteLabel(FILE *, const __pmLogLabel *);
 extern int __pmLogOpen(const char *, __pmContext *);
+extern int __pmLogLoadLabel(__pmLogCtl *, const char *);
+extern int __pmLogLoadIndex(__pmLogCtl *);
 extern int __pmLogLoadMeta(__pmLogCtl *);
 extern void __pmLogClose(__pmLogCtl *);
 extern void __pmLogCacheClear(FILE *);
@@ -841,7 +843,8 @@ extern void __pmLogSetTime(__pmContext *);
 extern void __pmLogResetInterp(__pmContext *);
 
 extern int __pmLogChangeVol(__pmLogCtl *, int);
-
+extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
+extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
 
 #if !defined(PM_LOG_PORT_DIR)
 /* This is the default directory where pmlogger creates the file containing the port
