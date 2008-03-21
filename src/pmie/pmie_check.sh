@@ -69,7 +69,7 @@ prog=`basename $0`
 # control file for pmie administration ... edit the entries in this
 # file to reflect your local configuration
 #
-CONTROL=$PCP_VAR_DIR/config/pmie/control
+CONTROL=$PCP_PMIECONTROL_PATH
 
 # determine real name for localhost
 LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
