@@ -27,7 +27,7 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 SUBDIRS = include libpcp libpcp_pmda libpcp_trace libpcp_http libkmtime \
-	  pmns newhelp pminfo pmnscomp pmcd pmerr pmdbg \
+	  pmns newhelp pminfo pmnscomp pmcd pmerr pmdbg pmloglabel \
 	  pmdate pmie pmpost pmprobe pmcdctl pmlock pmval pmlogger \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmlogctl \
 	  pmlogconf pmlogsummary pmclient pmkstat pcp pmlc dbpmda \
