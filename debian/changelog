@@ -1,3 +1,10 @@
+pcp (2.7.4-20080322) unstable; urgency=low
+
+  * Fix pmie_check script use of control file variable.
+  * Add pmloglabel tool for fixing corrupt archive labels.
+
+ -- Nathan Scott <nathans@debian.org>  Sat, 22 Mar 2008 15:36:55 +1100
+
 pcp (2.7.4-20080317) unstable; urgency=low
 
   * Fix curses package dependencies (closes: #471220)
