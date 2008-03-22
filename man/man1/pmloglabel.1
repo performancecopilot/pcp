@@ -40,8 +40,8 @@
 \f2archive\f1
 .SH DESCRIPTION
 .B pmloglabel
-reports verifies and reports on all details of the labels in each of
-the files of a Performance Co-Pilot (PCP) archive log.
+verifies, reports on, and can modify all details of the labels in
+each of the files of a Performance Co-Pilot (PCP) archive log.
 The archive log has the base name
 .I archive
 and must have been previously created using
@@ -57,7 +57,7 @@ is to be able to repair any inconsistent or corrupt label fields, such
 that the entire archive is not lost.
 It will not check the remainder of the archive, but it will give you a
 fighting chance to recover otherwise lost data.
-The combination of
+Together,
 .B pmloglabel
 and
 .B pmlogextract
