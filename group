@@ -562,6 +562,7 @@ dmf		pcpqa
 324 pmda.txmon pmda.proc local pmda.install oss
 325 libpcp local oss
 326 pmlogger pmval libpcp pmcd local pmda.install folio oss
+327 pmloglabel oss
 328 logutil local pmlogextract oss
 329 archive mem_leak local purify oss
 330 archive mem_leak local purify oss
