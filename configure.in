@@ -32,6 +32,8 @@ unset ROOT TOOLROOT
 # MAKE CC CXX CPP LD LEX YACC INSTALL AWK SED ECHO
 #
 
+rm -f config.done
+
 dnl Guess target platfrom
 AC_CANONICAL_SYSTEM
 if test -z "$target"
@@ -1644,6 +1646,8 @@ fi
 dnl
 dnl output files
 dnl
+
+touch config.done
 
 AC_OUTPUT( \
 dnl   Build definitions for use in Makefiles
