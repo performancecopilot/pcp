@@ -38,6 +38,7 @@ static int gold;	/* boolean flag - do we have a golden label yet? */
 static char *goldfile;
 static __pmLogLabel golden;
 static __pmLogCtl logctl;
+static int status;
 
 /*
  * Basic log control label sanity testing, with prefix/suffix len
@@ -54,46 +55,66 @@ verify_label(FILE *f, const char *file)
     n = (int)fread(&len, 1, sizeof(len), f);
     len = ntohl(len);
     if (n != sizeof(len)) {
-	if (feof(f))
+	if (feof(f)) {
 	    fprintf(stderr, "Bad prefix sentinal read for %s: file too short\n",
 			file);
-	else if (ferror(f))
+	    status = 2;
+	}
+	else if (ferror(f)) {
 	    fprintf(stderr, "Prefix sentinal read error for %s: %s\n",
 			file, strerror(errno));
-	else
+	    status = 2;
+	}
+	else {
 	    fprintf(stderr, "Prefix sentinal read error for %s: read only %d\n",
 			file, n);
+	    status = 2;
+	}
     }
-    if (len != xpectlen)
+    if (len != xpectlen) {
 	fprintf(stderr, "Bad prefix sentinal value for %s: %d (%d expected)\n",
 			file, len, xpectlen);
+	status = 2;
+    }
 
     /* check the suffix integer */
     fseek(f, (long)(xpectlen - sizeof(len)), SEEK_SET);
     n = (int)fread(&len, 1, sizeof(len), f);
     len = ntohl(len);
     if (n != sizeof(len)) {
-	if (feof(f))
+	if (feof(f)) {
 	    fprintf(stderr, "Bad suffix sentinal read for %s: file too short\n",
 			file);
-	else if (ferror(f))
+	    status = 2;
+	}
+	else if (ferror(f)) {
 	    fprintf(stderr, "Suffix sentinal read error for %s: %s\n",
 			file, strerror(errno));
-	else
+	    status = 2;
+	}
+	else {
 	    fprintf(stderr, "Suffix sentinal read error for %s: read only %d\n",
 			file, n);
+	    status = 2;
+	}
     }
-    if (len != xpectlen)
+    if (len != xpectlen) {
 	fprintf(stderr, "Bad suffix sentinal value for %s: %d (%d expected)\n",
 			file, len, xpectlen);
+	status = 2;
+    }
 
     /* check the label itself */
     magic = logctl.l_label.ill_magic & 0xffffff00;
     version = logctl.l_label.ill_magic & 0xff;
-    if (magic != PM_LOG_MAGIC)
+    if (magic != PM_LOG_MAGIC) {
 	fprintf(stderr, "Bad magic (%x) in %s\n", magic, file);
-    if (version != PM_LOG_VERS01 && version != PM_LOG_VERS02)
+	status = 2;
+    }
+    if (version != PM_LOG_VERS01 && version != PM_LOG_VERS02) {
 	fprintf(stderr, "Bad version (%x) in %s\n", version, file);
+	status = 2;
+    }
 
     return version;
 }
@@ -116,19 +137,27 @@ compare_golden(FILE *f, const char *file, int sts, int warnings)
     else if (warnings) {
 	int version = verify_label(f, file);
 
-	if (version != (golden.ill_magic & 0xff))
+	if (version != (golden.ill_magic & 0xff)) {
 	    fprintf(stderr, "Mismatched version (%x/%x) between %s and %s\n",
 			    version, golden.ill_magic & 0xff, file, goldfile);
-	if (label->ill_pid != golden.ill_pid)
+	    status = 2;
+	}
+	if (label->ill_pid != golden.ill_pid) {
 	    fprintf(stderr, "Mismatched PID (%u/%u) between %s and %s\n",
 			    label->ill_pid, golden.ill_pid, file, goldfile);
+	    status = 2;
+	}
 	if (strncmp(label->ill_hostname, golden.ill_hostname,
-			PM_LOG_MAXHOSTLEN) != 0)
+			PM_LOG_MAXHOSTLEN) != 0) {
 	    fprintf(stderr, "Mismatched hostname (%s/%s) between %s and %s\n",
 		    label->ill_hostname, golden.ill_hostname, file, goldfile);
-	if (strncmp(label->ill_tz, golden.ill_tz, PM_TZ_MAXLEN) != 0)
+	    status = 2;
+	}
+	if (strncmp(label->ill_tz, golden.ill_tz, PM_TZ_MAXLEN) != 0) {
 	    fprintf(stderr, "Mismatched timezone (%s/%s) between %s and %s\n",
 		    label->ill_tz, golden.ill_tz, file, goldfile);
+	    status = 2;
+	}
     }
 }
 
@@ -253,8 +282,10 @@ main(int argc, char *argv[])
     for (c = logctl.l_minvol; c <= logctl.l_maxvol; c++) {
 	if (verbose)
 	    printf("Checking label on data volume %d\n", c);
-	if ((sts = __pmLogChangeVol(&logctl, c)) < 0 && warnings)
+	if ((sts = __pmLogChangeVol(&logctl, c)) < 0 && warnings) {
 	    fprintf(stderr, "Bad data volume %d label: %s\n", c, pmErrStr(sts));
+	    status = 2;
+	}
 	snprintf(buffer, sizeof(buffer), "data volume %d", c);
 	compare_golden(logctl.l_mfp, buffer, sts, warnings);
     }
@@ -263,8 +294,10 @@ main(int argc, char *argv[])
 	if (verbose)
 	    printf("Checking label on temporal index\n");
 	if ((sts = __pmLogChkLabel(&logctl, logctl.l_tifp, &logctl.l_label,
-			           PM_LOG_VOL_TI)) < 0 && warnings)
-	fprintf(stderr, "Bad temporal index label: %s\n", pmErrStr(sts));
+			           PM_LOG_VOL_TI)) < 0 && warnings) {
+	    fprintf(stderr, "Bad temporal index label: %s\n", pmErrStr(sts));
+	    status = 2;
+	}
 	compare_golden(logctl.l_tifp, "temporal index", sts, warnings);
     }
     else if (verbose) {
@@ -274,8 +307,10 @@ main(int argc, char *argv[])
     if (verbose)
 	printf("Checking label on metadata volume\n");
     if ((sts = __pmLogChkLabel(&logctl, logctl.l_mdfp, &logctl.l_label,
-			       PM_LOG_VOL_META)) < 0 && warnings)
+			       PM_LOG_VOL_META)) < 0 && warnings) {
 	fprintf(stderr, "Bad metadata volume label: %s\n", pmErrStr(sts));
+	status = 2;
+    }
     compare_golden(logctl.l_mdfp, "temporal index", sts, warnings);
 
     /*
@@ -304,12 +339,16 @@ main(int argc, char *argv[])
 		printf("Writing label on data volume %d\n", c);
 	    golden.ill_vol = c;
 	    snprintf(buffer, sizeof(buffer), "%s.%d", logctl.l_name, c);
-	    if ((logctl.l_mfp = fopen(buffer, "r+")) == NULL)
+	    if ((logctl.l_mfp = fopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed data volume %d open: %s\n",
 				c, strerror(errno));
-	    else if ((sts = __pmLogWriteLabel(logctl.l_mfp, &golden)) < 0)
+		status = 3;
+	    }
+	    else if ((sts = __pmLogWriteLabel(logctl.l_mfp, &golden)) < 0) {
 		fprintf(stderr, "Failed data volume %d label write: %s\n",
 				c, pmErrStr(sts));
+		status = 3;
+	    }
 	    if (logctl.l_mfp)
 		fclose(logctl.l_mfp);
 	}
@@ -324,12 +363,16 @@ main(int argc, char *argv[])
 		printf("Writing label on temporal index\n");
 	    golden.ill_vol = PM_LOG_VOL_TI;
 	    snprintf(buffer, sizeof(buffer), "%s.index", logctl.l_name);
-	    if ((logctl.l_tifp = fopen(buffer, "r+")) == NULL)
+	    if ((logctl.l_tifp = fopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed temporal index open: %s\n",
 				strerror(errno));
-	    else if ((sts = __pmLogWriteLabel(logctl.l_tifp, &golden)) < 0)
+		status = 3;
+	    }
+	    else if ((sts = __pmLogWriteLabel(logctl.l_tifp, &golden)) < 0) {
 		fprintf(stderr, "Failed temporal index label write: %s\n",
 				pmErrStr(sts));
+		status = 3;
+	    }
 	}
 
 	fclose(logctl.l_mdfp);
@@ -337,12 +380,16 @@ main(int argc, char *argv[])
 	    printf("Writing label on metadata volume\n");
 	golden.ill_vol = PM_LOG_VOL_META;
 	snprintf(buffer, sizeof(buffer), "%s.meta", logctl.l_name);
-	if ((logctl.l_mdfp = fopen(buffer, "r+")) == NULL)
+	if ((logctl.l_mdfp = fopen(buffer, "r+")) == NULL) {
 	    fprintf(stderr, "Failed metadata volume open: %s\n",
 			    strerror(errno));
-	else if ((sts = __pmLogWriteLabel(logctl.l_mdfp, &golden)) < 0)
+	    status = 3;
+	}
+	else if ((sts = __pmLogWriteLabel(logctl.l_mdfp, &golden)) < 0) {
 	    fprintf(stderr, "Failed metadata volume label write: %s\n",
 			    pmErrStr(sts));
+	    status = 3;
+	}
     }
 
     /*
@@ -382,5 +429,5 @@ main(int argc, char *argv[])
 	}
     }
 
-    exit(0);
+    exit(status);
 }

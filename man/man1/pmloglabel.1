@@ -133,6 +133,14 @@ Performance metrics from host fw1
   commencing Fri Jan 25 00:10:09.341 2008
   ending     Sat Jan 26 00:09:54.344 2008
 .fi
+.SH EXIT STATUS
+.B pmloglabel
+exits with status 0 if the archive labels are clean.
+If invoked incorrectly, the exit status will be 1.
+If corruption is detected and still exists at the end,
+the exit status will be 2.
+If requested to write out the archive labels, and some aspect of that
+write out fails, then the exit status will be 3.
 .SH FILES
 .PD 0
 .TP 10
