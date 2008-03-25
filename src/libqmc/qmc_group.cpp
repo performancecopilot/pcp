@@ -400,6 +400,47 @@ QmcGroup::updateBounds()
     }
 }
 
+void
+QmcGroup::dump(QTextStream &stream)
+{
+    stream << "mode: ";
+    switch(my.mode) {
+    case PM_CONTEXT_LOCAL:
+	stream << "local";
+	break;
+    case PM_CONTEXT_HOST:
+	stream << "live host";
+	break;
+    case PM_CONTEXT_ARCHIVE:
+	stream << "archive";
+	break;
+    }
+
+    stream << ", timezone: ";
+    switch(my.tzFlag) {
+    case QmcGroup::localTZ:
+	stream << "local = \"" << tzLocalString;
+	break;
+    case QmcGroup::userTZ:
+	stream << "user = \"" << my.tzUserString;
+	break;
+    case QmcGroup::groupTZ:
+	stream << "group = \"" 
+	       << my.contexts[my.tzGroupIndex]->source().timezone();
+	break;
+    case QmcGroup::unknownTZ:
+	stream << "unknown = \"???";
+	break;
+    }
+    stream << "\": " << endl;
+
+    stream << "  " << numContexts() << " contexts:" << endl;
+    for (unsigned int i = 0; i < numContexts(); i++) {
+	stream << "    [" << i << "] " << *(my.contexts[i]) << endl;
+	my.contexts[i]->dumpMetrics(stream);
+    }
+}
+
 int
 QmcGroup::useContext()
 {

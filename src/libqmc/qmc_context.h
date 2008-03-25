@@ -86,6 +86,8 @@ public:
     double timeDelta() const		// Time since previous fetch
 	{ return my.delta; }
 
+    int traverse(const char *name, QStringList &list);	// Walk the namespace
+
     friend QTextStream &operator<<(QTextStream &stream, const QmcContext &rhs);
     void dump(QTextStream &stream);	// Dump debugging information
     void dumpMetrics(QTextStream &stream);	// Dump list of metrics
@@ -104,6 +106,9 @@ private:
 	double delta;			// Time between fetches
 	bool needReconnect;		// Need to reconnect the context
     } my;
+
+    static QStringList *theStringList;	// List of metric names in traversal
+    static void dometric(const char *);
 };
 
 #endif	// QMC_CONTEXT_H
