@@ -408,7 +408,7 @@ lex=$LEX
 AC_SUBST(lex)
 
 dnl check if user wants their own awk, sed and echo
-test -z "$AWK" && AC_PROG_AWK
+test -z "$AWK" && AC_PATH_PROG(AWK, awk, /usr/bin/awk)
 if test $target_os = irix -a "$AWK" = "gawk"
 then
     dnl always use nawk on IRIX
