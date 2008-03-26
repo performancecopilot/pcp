@@ -53,7 +53,7 @@ LICFILES = COPYING
 DOCFILES = README INSTALL CHANGELOG VERSION.pcp
 LSRCFILES = configure.in Makepkgs install-sh $(DOCFILES) $(LICFILES) \
 	    config.guess config.sub sgiReleaseNumber pcp.lsm.in
-LDIRT = config.cache autom4te.cache config.status config.log config.done \
+LDIRT = config.cache autom4te.cache config.status config.log \
 	files.rpm pro_files.rpm pcp.spec pcp.lsm configure \
 	pcp-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
 	pcp-pro-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
@@ -72,7 +72,7 @@ default :: default_pcp
 
 pcp : default_pcp
 
-default_pcp : config.done 
+default_pcp : configure_pcp
 	@for d in `echo $(SUBDIRS)`; do \
 	    if test -d "$$d" ; then \
 		echo === $$d ===; \
@@ -137,8 +137,10 @@ endif
 
 endif # -f $(WORKAREA)/linuxmeister/release
 
-config.done: configure
-	./configure && touch $@
+configure_pcp: pcp.lsm
+
+pcp.lsm: pcp.lsm.in
+	./configure
 
 configure : configure.in
 	rm -fr config.cache autom4te.cache

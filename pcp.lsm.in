@@ -21,17 +21,13 @@ Description:    A system performance monitoring infrastructure that is
 		enables centralized monitoring of distributed
 		processing.
 
-		Integrated archive logging and replay so a client
+		Archive logging and replay is integrated so a client
 		application can use the same API to process real-time
 		data from a host or historical data from an archive.
 
 		The framework supports APIs and configuration file
 		formats that enable the scope of performance monitoring
 		to be extended at all levels.
-
-		The open source release of PCP provides a subset of the
-		features of SGI's Performance Co-Pilot products for
-		IRIX (see http://www.sgi.com/products/software/co-pilot/).
 
 		The architecture and services of the base PCP
 		infrastructure are especially attractive for those
