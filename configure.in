@@ -161,7 +161,9 @@ dnl output header with cpp defs HAVE_*, etc
 AC_CONFIG_HEADER(src/include/platform_defs.h)
 
 dnl check if user wants their own C compiler
-test -z "$CC" && AC_PROG_CC
+if test -z "$CC"; then
+    AC_PROG_CC
+fi
 cc=$CC
 AC_SUBST(cc)
 
@@ -204,12 +206,16 @@ make=$MAKE
 AC_SUBST(make)
 
 dnl check if user wants their own C++ compiler
-test -z "$CXX" && AC_PROG_CXX
+if test -z "$CXX"; then
+    AC_PROG_CXX
+fi
 cxx=$CXX
 AC_SUBST(cxx)
 
 dnl check if users wants their own CPP
-test -z "$CPP" && AC_PROG_CPP
+if test -z "$CPP"; then
+    AC_PROG_CPP
+fi
 cpp=$CPP
 AC_SUBST(cpp)
 
@@ -251,7 +257,9 @@ AC_SUBST(cpp_simple_args)
 AC_MSG_RESULT($cpp_simple $cpp_simple_args)
 
 dnl check if users wants their own linker
-test -z "$LD" && AC_PATH_PROG(LD, ld, /usr/bin/ld)
+if test -z "$LD"; then
+    AC_PATH_PROG(LD, ld, /usr/bin/ld)
+fi
 ld=$LD
 AC_SUBST(ld)
 
@@ -273,7 +281,9 @@ fi
 AC_SUBST(pcp_owner pcp_group)
 
 dnl check if the tar program is available
-test -z "$TAR" && AC_PATH_PROG(TAR, tar)
+if test -z "$TAR"; then
+    AC_PATH_PROG(TAR, tar)
+fi
 if test $target_os = irix -a -x /usr/freeware/bin/tar
 then
     TAR=/usr/freeware/bin/tar
@@ -288,14 +298,16 @@ dnl check if xmessage is available on solaris
 AC_PATH_PROG(XMESSAGE, xmessage, NULL)
 if test $XMESSAGE = NULL -a $target_os = solaris
 then
-	AC_MSG_WARN(xmessage had not been installed)
+    AC_MSG_WARN(xmessage had not been installed)
 fi
 xmessage=$XMESSAGE
 AC_SUBST(xmessage)
 
 dnl check if the gzip program is available
 dnl (needed to gzip man pages on some platforms)
-test -z "$ZIP" && AC_PATH_PROG(ZIP, gzip, /bin/gzip)
+if test -z "$ZIP"; then
+    AC_PATH_PROG(ZIP, gzip, /bin/gzip)
+fi
 test ! -x "$ZIP" && ZIP=/usr/local/bin/gzip
 test ! -x "$ZIP" && ZIP=/usr/freeware/bin/gzip
 test ! -x "$ZIP" && ZIP=/usr/bin/gzip
@@ -304,7 +316,9 @@ AC_SUBST(gzip)
 
 dnl check if the bzip2 program is available
 dnl (needed to bzip2 man pages on some platforms)
-test -z "$BZIP2" && AC_PATH_PROG(BZIP2, bzip2, /bin/bzip2)
+if test -z "$BZIP2"; then
+    AC_PATH_PROG(BZIP2, bzip2, /bin/bzip2)
+fi
 test ! -x "$BZIP2" && BZIP2=/usr/local/bin/bzip2
 test ! -x "$BZIP2" && BZIP2=/usr/freeware/bin/bzip2
 test ! -x "$BZIP2" && BZIP2=/usr/bin/bzip2
@@ -338,17 +352,23 @@ fi
 AC_SUBST(package_maker)
 
 dnl check if the hdiutil program is available
-test -z "$HDIUTIL" && AC_PATH_PROG(HDIUTIL, hdiutil)
+if test -z "$HDIUTIL"; then
+    AC_PATH_PROG(HDIUTIL, hdiutil)
+fi
 hdiutil=$HDIUTIL
 AC_SUBST(hdiutil)
 
 dnl check if the rpmbuild program is available
-test -z "$RPMBUILD" && AC_PATH_PROG(RPMBUILD, rpmbuild)
+if test -z "$RPMBUILD"; then
+    AC_PATH_PROG(RPMBUILD, rpmbuild)
+fi
 rpmbuild=$RPMBUILD
 AC_SUBST(rpmbuild)
 
 dnl check if the rpm program is available
-test -z "$RPM" && AC_PATH_PROG(RPM, rpm)
+if test -z "$RPM"; then
+    AC_PATH_PROG(RPM, rpm)
+fi
 rpm=$RPM
 AC_SUBST(rpm)
 
@@ -371,21 +391,21 @@ fi
 AC_SUBST(rpm_version)
 
 dnl check if the gendist program is available
-if test -z "$GENDIST" 
-then 
+if test -z "$GENDIST" ; then
    AC_PATH_PROG(GENDIST, gendist) 
 fi
 gendist=$GENDIST
 AC_SUBST(gendist)
 
 dnl check if the makedepend program is available
-test -z "$MAKEDEPEND" && AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
+if test -z "$MAKEDEPEND"; then
+    AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
+fi
 makedepend=$MAKEDEPEND
 AC_SUBST(makedepend)
 
 dnl check if the dpkg program is available
-if test -z "$DPKG" 
-then
+if test -z "$DPKG"; then
    AC_PATH_PROG(DPKG, dpkg)
 fi
 dpkg=$DKPG
@@ -395,21 +415,31 @@ dnl check if symbolic links are supported
 AC_PROG_LN_S
 
 dnl check if user wants their own lex, yacc
-test -z "$YACC" && AC_PROG_YACC
+if test -z "$YACC"; then
+    AC_PROG_YACC
+fi
 yacc=$YACC
 AC_SUBST(yacc)
-test -z "$LEX" && AC_PROG_LEX
+if test -z "$LEX"; then
+    AC_PROG_LEX
+fi
 lex=$LEX
 AC_SUBST(lex)
 
 dnl check if user wants their own awk, sed and echo
-test -z "$AWK" && AC_PATH_PROG(AWK, awk, /usr/bin/awk)
+if test -z "$AWK"; then
+    AC_PATH_PROG(AWK, awk, /usr/bin/awk)
+fi
 awk=$AWK
 AC_SUBST(awk)
-test -z "$SED" && AC_PATH_PROG(SED, sed, /bin/sed)
+if test -z "$SED"; then
+    AC_PATH_PROG(SED, sed, /bin/sed)
+fi
 sed=$SED
 AC_SUBST(sed)
-test -z "$ECHO" && AC_PATH_PROG(ECHO, echo, /bin/echo)
+if test -z "$ECHO"; then
+    AC_PATH_PROG(ECHO, echo, /bin/echo)
+fi
 echo=$ECHO
 AC_SUBST(echo)
 
@@ -621,13 +651,14 @@ fi
 
 dnl sysinfo() is not everywhere, and not necessarily useful even when
 dnl it is there
-if test $target_os != solaris
-then
+if test $target_os != solaris; then
     AC_CHECK_FUNCS(sysinfo)
 fi
 
 dnl only define readdir64 on non-linux platforms that support it
-test $target_os != linux && AC_CHECK_FUNCS(readdir64)
+if test $target_os != linux; then
+    AC_CHECK_FUNCS(readdir64)
+fi
 
 dnl typedefs missing from sys/types.h, stdlib.h or stddef.h
 if test $target_os = solaris
@@ -841,8 +872,12 @@ End-of-File
 ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
 AC_MSG_RESULT($ans)
-test $ans -eq 4 && AC_DEFINE(HAVE_32BIT_LONG)
-test $ans -eq 8 && AC_DEFINE(HAVE_64BIT_LONG)
+if test $ans -eq 4; then
+    AC_DEFINE(HAVE_32BIT_LONG)
+fi
+if test $ans -eq 8; then
+    AC_DEFINE(HAVE_64BIT_LONG)
+fi
 rm -f conftest conftest.*
 
 dnl check sizeof pointer
@@ -856,8 +891,12 @@ End-of-File
 ans=`./conftest`
 echo "./conftest -> \"$ans\"" >&5
 AC_MSG_RESULT($ans)
-test $ans -eq 4 && AC_DEFINE(HAVE_32BIT_PTR)
-test $ans -eq 8 && AC_DEFINE(HAVE_64BIT_PTR)
+if test $ans -eq 4; then
+    AC_DEFINE(HAVE_32BIT_PTR)
+fi
+if test $ans -eq 8; then
+    AC_DEFINE(HAVE_64BIT_PTR)
+fi
 rm -f conftest conftest.*
 
 dnl check sizeof int. If not 32, we die
