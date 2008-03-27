@@ -8,7 +8,6 @@ pkgme = $(zipme); export DIST_ROOT=`pwd`/$(dirme);
 
 options = export DEBUG=-DNDEBUG DISTRIBUTION=debian;
 checkdir = test -f debian/rules
-checkver = rm -f debian/compat && echo 5 > debian/compat
 
 build: built
 built: config
@@ -29,14 +28,13 @@ clean:
 	-rm -f built .census
 	$(MAKE) distclean
 	-rm -rf $(dirme)
-	-rm -f debian/*substvars debian/files* debian/*.debhelper debian/compat
+	-rm -f debian/*substvars debian/files* debian/*.debhelper
 
 binary-indep:
 
 binary-arch: checkroot built
 	@echo "== dpkg-buildpackage: binary-arch" 1>&2
 	$(checkdir)
-	$(checkver)
 	-rm -rf $(dirme)
 	$(pkgme) $(MAKE) -C . install
 	$(pkgme) $(MAKE) -C build src-manifest

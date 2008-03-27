@@ -1,11 +1,7 @@
-#
-# Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-#
-
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES = changelog control copyright rules
+LSRCFILES = changelog compat control copyright rules source.lintian-overrides
 
 default:
 
