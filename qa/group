@@ -14,6 +14,10 @@ other
 #
 config
 
+# metrics class tests
+#
+libqmc
+
 # test-group association ... one line per test
 #
 001 config
@@ -23,3 +27,8 @@ config
 005 config
 006 config
 007 config
+008 libqmc
+009 libqmc
+010 libqmc
+011 libqmc
+012 libqmc

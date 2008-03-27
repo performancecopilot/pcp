@@ -1,11 +1,9 @@
 #! /bin/sh
 # kmchart QA Test No. 003
-# $Revision: 1.1 $
+# Copyright (c) 2006 Ken McDonell.  All Rights Reserved.
 #
 # Check that Global clause is detected
 #
-# Copyright (c) 2006 Ken McDonell.  All Rights Reserved.
-
 seq=`basename $0`
 echo "QA output created by $seq"
 

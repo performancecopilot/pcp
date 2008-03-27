@@ -1,11 +1,9 @@
 #! /bin/sh
 # kmchart QA Test No. 002
-# $Revision: 1.1 $
+# Copyright (c) 2006 Ken McDonell.  All Rights Reserved.
 #
 # Syntax errors in the Version line of the config file
 #
-# Copyright (c) 2006 Ken McDonell.  All Rights Reserved.
-
 seq=`basename $0`
 echo "QA output created by $seq"
 

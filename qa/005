@@ -1,13 +1,11 @@
 #! /bin/sh
 # kmchart QA Test No. 005
-# $Revision: 1.1 $
+# Copyright (c) 2007 Aconex.  All Rights Reserved.
 #
 # Check handling of missing plot title keyword - caused SEGV,
 # observed while hand-crafting config file for interactive QA
 # in the Settings dialog.
 #
-# Copyright (c) 2007 Aconex.  All Rights Reserved.
-
 seq=`basename $0`
 echo "QA output created by $seq"
 
