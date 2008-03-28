@@ -1,7 +1,7 @@
 /*
- * Metrics for jstat PMDA (Java Statistics)
+ * Metrics for jstat PMDA (Java Virtual Machine Statistics)
  *
- * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,8 @@
 jstat {
     synchronizer
     control
+    garbage
+    memory
 }
 
 jstat.synchronizer {
@@ -35,4 +37,62 @@ jstat.synchronizer {
 jstat.control {
     command			JSTAT:0:6
     refresh			JSTAT:0:7
+}
+
+jstat.garbage {
+    minor
+    major
+}
+
+jstat.garbage.minor {
+    count			JSTAT:0:8
+    time			JSTAT:0:9
+}
+  
+jstat.garbage.major {
+    count			JSTAT:0:10
+    time			JSTAT:0:11
+}
+
+jstat.memory {
+    eden
+    survivor0
+    survivor1
+    old
+    permanent
+}
+
+jstat.memory.eden {
+    capacity			JSTAT:0:12
+    init_capacity		JSTAT:0:13
+    max_capacity		JSTAT:0:14
+    used			JSTAT:0:15
+}
+
+jstat.memory.survivor0 {
+    capacity			JSTAT:0:16
+    init_capacity		JSTAT:0:17
+    max_capacity		JSTAT:0:18
+    used			JSTAT:0:19
+}
+
+jstat.memory.survivor1 {
+    capacity			JSTAT:0:20
+    init_capacity		JSTAT:0:21
+    max_capacity		JSTAT:0:22
+    used			JSTAT:0:23
+}
+
+jstat.memory.old {
+    capacity			JSTAT:0:24
+    init_capacity		JSTAT:0:25
+    max_capacity		JSTAT:0:26
+    used			JSTAT:0:27
+}
+
+jstat.memory.permanent {
+    capacity			JSTAT:0:28
+    init_capacity		JSTAT:0:29
+    max_capacity		JSTAT:0:30
+    used			JSTAT:0:31
 }

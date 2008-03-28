@@ -72,6 +72,80 @@ pmdaMetric metrictab[] = {
     /* jstat.control.refresh */
     { NULL, { PMDA_PMID(0,7), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) } },
+
+    /* jstat.gc.minor.count */
+    { NULL, { PMDA_PMID(0,8), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    /* jstat.gc.minor.time */
+    { NULL, { PMDA_PMID(0,9), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
+    /* jstat.gc.major.count */
+    { NULL, { PMDA_PMID(0,10), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    /* jstat.gc.major.time */
+    { NULL, { PMDA_PMID(0,11), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
+
+    /* jstat.memory.eden.capacity */
+    { NULL, { PMDA_PMID(0,12), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.eden.init_capacity */
+    { NULL, { PMDA_PMID(0,13), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.eden.max_capacity */
+    { NULL, { PMDA_PMID(0,14), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.eden.used */
+    { NULL, { PMDA_PMID(0,15), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.survivor0.capacity */
+    { NULL, { PMDA_PMID(0,16), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.survivor0.init_capacity */
+    { NULL, { PMDA_PMID(0,17), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.survivor0.max_capacity */
+    { NULL, { PMDA_PMID(0,18), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.survivor0.used */
+    { NULL, { PMDA_PMID(0,19), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.survivor1.capacity */
+    { NULL, { PMDA_PMID(0,20), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.survivor1.init_capacity */
+    { NULL, { PMDA_PMID(0,21), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.survivor1.max_capacity */
+    { NULL, { PMDA_PMID(0,22), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.survivor1.used */
+    { NULL, { PMDA_PMID(0,23), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.old.capacity */
+    { NULL, { PMDA_PMID(0,24), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.old.init_capacity */
+    { NULL, { PMDA_PMID(0,25), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.old.max_capacity */
+    { NULL, { PMDA_PMID(0,26), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.old.used */
+    { NULL, { PMDA_PMID(0,27), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.permanent.capacity */
+    { NULL, { PMDA_PMID(0,28), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.permanent.init_capacity */
+    { NULL, { PMDA_PMID(0,29), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.permanent.max_capacity */
+    { NULL, { PMDA_PMID(0,30), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    /* jstat.memory.permanent.used */
+    { NULL, { PMDA_PMID(0,31), PM_TYPE_64, JSTAT_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 };
 
 static int
@@ -79,7 +153,7 @@ jstat_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
 {
     __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
 
-    if (idp->item == 7) {
+    if (idp->item == 7) {	/* jstat.control.refresh */
 	avp->l = refreshdelay;
 	return 1;
     }
@@ -90,35 +164,134 @@ jstat_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
     }
 
     switch (idp->item) {
-	case 0:
-		if (jstat[inst].contended_lock_attempts == -1) return 0;
-		avp->ll = jstat[inst].contended_lock_attempts;
-		break;
-	case 1:
-		if (jstat[inst].deflations == -1) return 0;
-		avp->ll = jstat[inst].deflations;
-		break;
-	case 2:
-		if (jstat[inst].futile_wakeups == -1) return 0;
-		avp->ll = jstat[inst].futile_wakeups;
-		break;
-	case 3:
-		if (jstat[inst].inflations == -1) return 0;
-		avp->ll = jstat[inst].inflations;
-		break;
-	case 4:
-		if (jstat[inst].notifications == -1) return 0;
-		avp->ll = jstat[inst].notifications;
-		break;
-	case 5:
-		if (jstat[inst].parks == -1) return 0;
-		avp->ll = jstat[inst].parks;
-		break;
-	case 6:
-		avp->cp = jstat[inst].command;
-		break;
-	default:
-		return PM_ERR_PMID;
+    case 0:	/* jstat.synchronizer.contended_lock_attempts */
+	if (jstat[inst].contended_lock_attempts == -1) return 0;
+	avp->ll = jstat[inst].contended_lock_attempts;
+	break;
+    case 1:	/* jstat.synchronizer.deflations */
+	if (jstat[inst].deflations == -1) return 0;
+	avp->ll = jstat[inst].deflations;
+	break;
+    case 2:	/* jstat.synchronizer.futile_wakeups */
+	if (jstat[inst].futile_wakeups == -1) return 0;
+	avp->ll = jstat[inst].futile_wakeups;
+	break;
+    case 3:	/* jstat.synchronizer.inflations */
+	if (jstat[inst].inflations == -1) return 0;
+	avp->ll = jstat[inst].inflations;
+	break;
+    case 4:	/* jstat.synchronizer.notifications	*/
+	if (jstat[inst].notifications == -1) return 0;
+	avp->ll = jstat[inst].notifications;
+	break;
+    case 5:	/* jstat.synchronizer.parks	*/
+	if (jstat[inst].parks == -1) return 0;
+	avp->ll = jstat[inst].parks;
+	break;
+    case 6:	/* jstat.control.command */
+	avp->cp = jstat[inst].command;
+	break;
+
+    case 8:	/* jstat.gc.minor.count */
+	if (jstat[inst].minor_gc_count == -1) return 0;
+	avp->ll = jstat[inst].minor_gc_count;
+	break;
+    case 9:	/* jstat.gc.minor.time */
+	if (jstat[inst].minor_gc_time == -1) return 0;
+	avp->ll = jstat[inst].minor_gc_time;
+	break;
+    case 10:	/* jstat.gc.major.count */
+	if (jstat[inst].major_gc_count == -1) return 0;
+	avp->ll = jstat[inst].major_gc_count;
+	break;
+    case 11:	/* jstat.gc.major.time */
+	if (jstat[inst].major_gc_time == -1) return 0;
+	avp->ll = jstat[inst].major_gc_time;
+	break;
+
+    case 12:	/* jstat.memory.eden.capacity */
+	if (jstat[inst].eden_capacity == -1) return 0;
+	avp->ll = jstat[inst].eden_capacity;
+	break;
+    case 13:	/* jstat.memory.eden.init_capacity */
+	if (jstat[inst].eden_init_capacity == -1) return 0;
+	avp->ll = jstat[inst].eden_init_capacity;
+	break;
+    case 14:	/* jstat.memory.eden.max_capacity */
+	if (jstat[inst].eden_max_capacity == -1) return 0;
+	avp->ll = jstat[inst].eden_max_capacity;
+	break;
+    case 15:	/* jstat.memory.eden.used */
+	if (jstat[inst].eden_used == -1) return 0;
+	avp->ll = jstat[inst].eden_used;
+	break;
+    case 16:	/* jstat.memory.survivor0.capacity */
+	if (jstat[inst].survivor0_capacity == -1) return 0;
+	avp->ll = jstat[inst].survivor0_capacity;
+	break;
+    case 17:	/* jstat.memory.survivor0.init_capacity */
+	if (jstat[inst].survivor0_init_capacity == -1) return 0;
+	avp->ll = jstat[inst].survivor0_init_capacity;
+	break;
+    case 18:	/* jstat.memory.survivor0.max_capacity */
+	if (jstat[inst].survivor0_max_capacity == -1) return 0;
+	avp->ll = jstat[inst].survivor0_max_capacity;
+	break;
+    case 19:	/* jstat.memory.survivor0.used */
+	if (jstat[inst].survivor0_used == -1) return 0;
+	avp->ll = jstat[inst].survivor0_used;
+	break;
+    case 20:	/* jstat.memory.survivor1.capacity */
+	if (jstat[inst].survivor1_capacity == -1) return 0;
+	avp->ll = jstat[inst].survivor1_capacity;
+	break;
+    case 21:	/* jstat.memory.survivor1.init_capacity */
+	if (jstat[inst].survivor1_init_capacity == -1) return 0;
+	avp->ll = jstat[inst].survivor1_init_capacity;
+	break;
+    case 22:	/* jstat.memory.survivor1.max_capacity */
+	if (jstat[inst].survivor1_max_capacity == -1) return 0;
+	avp->ll = jstat[inst].survivor1_max_capacity;
+	break;
+    case 23:	/* jstat.memory.survivor1.used */
+	if (jstat[inst].survivor1_used == -1) return 0;
+	avp->ll = jstat[inst].survivor1_used;
+	break;
+    case 24:	/* jstat.memory.old.capacity */
+	if (jstat[inst].old_capacity == -1) return 0;
+	avp->ll = jstat[inst].old_capacity;
+	break;
+    case 25:	/* jstat.memory.old.init_capacity */
+	if (jstat[inst].old_init_capacity == -1) return 0;
+	avp->ll = jstat[inst].old_init_capacity;
+	break;
+    case 26:	/* jstat.memory.old.max_capacity */
+	if (jstat[inst].old_max_capacity == -1) return 0;
+	avp->ll = jstat[inst].old_max_capacity;
+	break;
+    case 27:	/* jstat.memory.old.used */
+	if (jstat[inst].old_used == -1) return 0;
+	avp->ll = jstat[inst].old_used;
+	break;
+    case 28:	/* jstat.memory.permanent.capacity */
+	if (jstat[inst].permanent_capacity == -1) return 0;
+	avp->ll = jstat[inst].permanent_capacity;
+	break;
+    case 29:	/* jstat.memory.permanent.init_capacity */
+	if (jstat[inst].permanent_init_capacity == -1) return 0;
+	avp->ll = jstat[inst].permanent_init_capacity;
+	break;
+    case 30:	/* jstat.memory.permanent.max_capacity */
+	if (jstat[inst].permanent_max_capacity == -1) return 0;
+	avp->ll = jstat[inst].permanent_max_capacity;
+	break;
+    case 31:	/* jstat.memory.permanent.used */
+	if (jstat[inst].permanent_used == -1) return 0;
+	avp->ll = jstat[inst].permanent_used;
+	break;
+
+    default:
+	return PM_ERR_PMID;
     }
 
     return 1;
@@ -324,6 +497,81 @@ jstat_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     return sts;
 }
 
+void
+jstat_parse_gc_collector(jstat_t *jp, const char *name, const char *value)
+{
+    if (strcmp(name, "0.invocations") == 0)
+	jp->minor_gc_count = atoll(value);
+    else if (strcmp(name, "0.time") == 0)
+	jp->minor_gc_time = atoll(value);
+    else if (strcmp(name, "1.invocations") == 0)
+	jp->major_gc_count = atoll(value);
+    else if (strcmp(name, "1.time") == 0)
+	jp->major_gc_time = atoll(value);
+}
+
+void
+jstat_parse_gc_generation(jstat_t *jp, const char *name, const char *value)
+{
+    if (strcmp(name, "0.space.0.capacity") == 0)
+	jp->eden_capacity = atoll(value);
+    else if (strcmp(name, "0.space.0.initCapacity") == 0)
+	jp->eden_init_capacity = atoll(value);
+    else if (strcmp(name, "0.space.0.maxCapacity") == 0)
+	jp->eden_max_capacity = atoll(value);
+    else if (strcmp(name, "0.space.0.used") == 0)
+	jp->eden_used = atoll(value);
+    else if (strcmp(name, "0.space.1.capacity") == 0)
+	jp->survivor0_capacity = atoll(value);
+    else if (strcmp(name, "0.space.1.initCapacity") == 0)
+	jp->survivor0_init_capacity = atoll(value);
+    else if (strcmp(name, "0.space.1.maxCapacity") == 0)
+	jp->survivor0_max_capacity = atoll(value);
+    else if (strcmp(name, "0.space.1.used") == 0)
+	jp->survivor0_used = atoll(value);
+    else if (strcmp(name, "0.space.2.capacity") == 0)
+	jp->survivor1_capacity = atoll(value);
+    else if (strcmp(name, "0.space.2.initCapacity") == 0)
+	jp->survivor1_init_capacity = atoll(value);
+    else if (strcmp(name, "0.space.2.maxCapacity") == 0)
+	jp->survivor1_max_capacity = atoll(value);
+    else if (strcmp(name, "0.space.2.used") == 0)
+	jp->survivor1_used = atoll(value);
+    else if (strcmp(name, "1.space.0.capacity") == 0)
+	jp->old_capacity = atoll(value);
+    else if (strcmp(name, "1.space.0.initCapacity") == 0)
+	jp->old_init_capacity = atoll(value);
+    else if (strcmp(name, "1.space.0.maxCapacity") == 0)
+	jp->old_max_capacity = atoll(value);
+    else if (strcmp(name, "1.space.0.used") == 0)
+	jp->old_used = atoll(value);
+    else if (strcmp(name, "2.space.0.capacity") == 0)
+	jp->permanent_capacity = atoll(value);
+    else if (strcmp(name, "2.space.0.initCapacity") == 0)
+	jp->permanent_init_capacity = atoll(value);
+    else if (strcmp(name, "2.space.0.maxCapacity") == 0)
+	jp->permanent_max_capacity = atoll(value);
+    else if (strcmp(name, "2.space.0.used") == 0)
+	jp->permanent_used = atoll(value);
+}
+
+void
+jstat_parse_sync(jstat_t *jp, const char *name, const char *value)
+{
+    if (strcmp(name, "ContendedLockAttempts") == 0)
+	jp->contended_lock_attempts = atoll(value);
+    else if (strcmp(name, "Deflations") == 0)
+	jp->deflations = atoll(value);
+    else if (strcmp(name, "FutileWakeups") == 0)
+	jp->futile_wakeups = atoll(value);
+    else if (strcmp(name, "Inflations") == 0)
+	jp->inflations = atoll(value);
+    else if (strcmp(name, "Notifications") == 0)
+	jp->notifications = atoll(value);
+    else if (strcmp(name, "Parks") == 0)
+	jp->parks = atoll(value);
+}
+
 int
 jstat_parse(jstat_t *jp, FILE *fp)
 {
@@ -336,30 +584,12 @@ jstat_parse(jstat_t *jp, FILE *fp)
 	name = value = line;
 	if (strsep(&value, "=") == NULL)
 	    continue;
-	if (strcmp(name, "sun.rt._sync_ContendedLockAttempts") == 0) {
-	    jp->contended_lock_attempts = atoll(value);
-	    continue;
-	}
-	if (strcmp(name, "sun.rt._sync_Deflations") == 0) {
-	    jp->deflations = atoll(value);
-	    continue;
-	}
-	if (strcmp(name, "sun.rt._sync_FutileWakeups") == 0) {
-	    jp->futile_wakeups = atoll(value);
-	    continue;
-	}
-	if (strcmp(name, "sun.rt._sync_Inflations") == 0) {
-	    jp->inflations = atoll(value);
-	    continue;
-	}
-	if (strcmp(name, "sun.rt._sync_Notifications") == 0) {
-	    jp->notifications = atoll(value);
-	    continue;
-	}
-	if (strcmp(name, "sun.rt._sync_Parks") == 0) {
-	    jp->parks = atoll(value);
-	    continue;
-	}
+	else if (strncmp(name, "sun.gc.collector.", 17) == 0)
+	    jstat_parse_gc_collector(jp, name + 17, value);
+	else if (strncmp(name, "sun.gc.generation.", 18) == 0)
+	    jstat_parse_gc_generation(jp, name + 18, value);
+	else if (strncmp(name, "sun.rt._sync_", 13) == 0)
+	    jstat_parse_sync(jp, name + 13, value);
     }
     return count;
 }

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2007 Aconex.  All Rights Reserved.
+# Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -60,3 +60,29 @@ Sum of both single- and all- object synchronization wakeup notifications.
 @ jstat.synchronizer.parks
 Number of attempts to directly wake a contended thread after a resource
 has become available.
+
+@ jstat.garbage.minor.count Count of minor garbage collections
+@ jstat.garbage.minor.time Time spent performing minor garbage collections
+@ jstat.garbage.major.count Count of major garbage collections
+@ jstat.garbage.major.time Time spent performing major garbage collections
+
+@ jstat.memory.eden.capacity Capacity of the Eden space
+@ jstat.memory.eden.init_capacity Initial capacity of the Eden space
+@ jstat.memory.eden.max_capacity Maximum capacity of the Eden space
+@ jstat.memory.eden.used Used bytes in the Eden memory space
+@ jstat.memory.survivor0.capacity Capacity of the Survivor0 space
+@ jstat.memory.survivor0.init_capacity Initial capacity of the Survivor0 space
+@ jstat.memory.survivor0.max_capacity Maximum capacity of the Survivor0 space
+@ jstat.memory.survivor0.used Used bytes in the Survivor0 memory space
+@ jstat.memory.survivor1.capacity Capacity of the Survivor1 space
+@ jstat.memory.survivor1.init_capacity Initial capacity of the Survivor1 space
+@ jstat.memory.survivor1.max_capacity Maximum capacity of the Survivor1 space
+@ jstat.memory.survivor1.used Used bytes in the Survivor0 memory space
+@ jstat.memory.old.capacity Capacity of the Old space
+@ jstat.memory.old.init_capacity Initial capacity of the Old space
+@ jstat.memory.old.max_capacity Maximum capacity of the Old space
+@ jstat.memory.old.used Used bytes in the Old space
+@ jstat.memory.permanent.capacity Capacity of the Permanent space
+@ jstat.memory.permanent.init_capacity Initial capacity of the Permanent space
+@ jstat.memory.permanent.max_capacity Maximum capacity of the Permanent space
+@ jstat.memory.permanent.used Used bytes in the Permanent space

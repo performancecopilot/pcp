@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2007 Aconex, Inc.  All Rights Reserved.
+# Copyright (c) 2007-2008 Aconex, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -49,7 +49,7 @@ install:	default
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 
-jstat.o:	domain.h
+jstat.o:	domain.h jstat.h
 
 domain.h:	../../pmns/stdpmid
 	rm -f domain.h

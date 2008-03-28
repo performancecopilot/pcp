@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,12 +34,38 @@ typedef struct {
     int			pid;		/* process ID for instance */
     int			error;		/* error on this instance */
 
-    __uint32_t		contended_lock_attempts;
-    __uint32_t		deflations;
-    __uint32_t		futile_wakeups;
-    __uint32_t		inflations;
-    __uint32_t		notifications;
-    __uint32_t		parks;
+    __int64_t		contended_lock_attempts;
+    __int64_t		deflations;
+    __int64_t		futile_wakeups;
+    __int64_t		inflations;
+    __int64_t		notifications;
+    __int64_t		parks;
+
+    __int64_t		minor_gc_count;
+    __int64_t		minor_gc_time;
+    __int64_t		major_gc_count;
+    __int64_t		major_gc_time;
+
+    __int64_t		eden_capacity;
+    __int64_t		eden_init_capacity;
+    __int64_t		eden_max_capacity;
+    __int64_t		eden_used;
+    __int64_t		survivor0_capacity;
+    __int64_t		survivor0_init_capacity;
+    __int64_t		survivor0_max_capacity;
+    __int64_t		survivor0_used;
+    __int64_t		survivor1_capacity;
+    __int64_t		survivor1_init_capacity;
+    __int64_t		survivor1_max_capacity;
+    __int64_t		survivor1_used;
+    __int64_t		old_capacity;
+    __int64_t		old_init_capacity;
+    __int64_t		old_max_capacity;
+    __int64_t		old_used;
+    __int64_t		permanent_capacity;
+    __int64_t		permanent_init_capacity;
+    __int64_t		permanent_max_capacity;
+    __int64_t		permanent_used;
 
     int			fetched;	/* initial values retrieved */
 } jstat_t;
