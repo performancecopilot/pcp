@@ -311,7 +311,7 @@ main(int argc, char *argv[])
 	fprintf(stderr, "Bad metadata volume label: %s\n", pmErrStr(sts));
 	status = 2;
     }
-    compare_golden(logctl.l_mdfp, "temporal index", sts, warnings);
+    compare_golden(logctl.l_mdfp, "metadata volume", sts, warnings);
 
     /*
      * Now, make any modifications requested
