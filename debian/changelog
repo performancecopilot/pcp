@@ -1,3 +1,9 @@
+pcp (2.7.4-20080331) unstable; urgency=low
+
+  * Jstat PMDA tweaks and Cygwin build updates.
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 31 Mar 2008 16:24:03 +1100
+
 pcp (2.7.4-20080326) unstable; urgency=low
 
   * Fix pmloglabel exit status.
