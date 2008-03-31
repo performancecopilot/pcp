@@ -24,18 +24,16 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pmtop
+CFILES = pmtop.c
 LLDLIBS = -lpcp
-TARGET = pmtop$(EXECSUFFIX)
+CMDTARGET = pmtop$(EXECSUFFIX)
 
-LDIRT = $(TARGET)
-
-default : $(TARGET)
+default : $(CMDTARGET)
 
 include $(BUILDRULES)
 
 install : default
-	#$(INSTALL) -m 755 $(TARGET) $(PCP_BIN_DIR)/$(TARGET)
+	#$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 
 default_pcp : default
 
