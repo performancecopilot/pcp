@@ -411,7 +411,7 @@ void
 jstat_indom_check(void)
 {
     int		i, sts;
-    char	pidfile[256], statfile[64];
+    char	pidfile[256];
     struct stat	sbuf;
 
     pthread_mutex_lock(&refreshmutex);
@@ -450,16 +450,6 @@ jstat_indom_check(void)
 		jstat[i].command = jstat_command(jstat[i].pid);
 		__pmNotifyErr(LOG_INFO, "Initialised instance %s (PID=%d)",
 				jstat[i].name, jstat[i].pid);
-	    }
-	    snprintf(statfile, sizeof(statfile), "/proc/%d/stat", jstat[i].pid);
-	    if (stat(statfile, &sbuf) < 0) {
-		if (jstat[i].error == 0) {
-		    jstat[i].error = errno;
-		    __pmNotifyErr(LOG_ERR, "Instance %s (PID=%d) not running",
-					jstat[i].name, jstat[i].pid);
-		}
-		jstat_indom_clear(i);
-		continue;
 	    }
 	    if ((sts = pmdaCacheStore(*jstat_indom, PMDA_CACHE_ADD,
 				jstat_insts[i].i_name, &jstat[i])) < 0)
@@ -595,9 +585,10 @@ jstat_parse(jstat_t *jp, FILE *fp)
 }
 
 void
-jstat_execute(jstat_t *jp)
+jstat_execute(int inst)
 {
     FILE *pp;
+    jstat_t *jp = &jstat[inst];
 
     jp->fetched = 1;
 
@@ -613,7 +604,11 @@ jstat_execute(jstat_t *jp)
     else
 	jp->error = 0;
 
-    pclose(pp);
+    if (pclose(pp) == 1) {
+	__pmNotifyErr(LOG_ERR, "jstat failed (%s): %s",
+			jp->command, strerror(errno));
+	jstat_indom_clear(inst);
+    }
 }
 
 void
@@ -636,7 +631,7 @@ jstat_refresh(void *unused)
 	    pthread_mutex_lock(&refreshmutex);
 	    error = (inst < jstat_count) ? jstat[inst].error : 1;
 	    if (!error)
-		jstat_execute(&jstat[inst]);
+		jstat_execute(inst);
 	    pthread_mutex_unlock(&refreshmutex);
 	}
 	jstat_reaper(error);
