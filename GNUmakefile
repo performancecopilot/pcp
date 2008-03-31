@@ -139,7 +139,7 @@ endif # -f $(WORKAREA)/linuxmeister/release
 
 configure_pcp: pcp.lsm
 
-pcp.lsm: pcp.lsm.in
+pcp.lsm: configure pcp.lsm.in
 	./configure
 
 configure : configure.in
