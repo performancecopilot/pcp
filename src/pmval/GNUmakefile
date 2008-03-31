@@ -28,7 +28,6 @@ include $(TOPDIR)/src/include/builddefs
 CFILES	= pmval.c
 CMDTARGET = pmval$(EXECSUFFIX)
 LLDLIBS	= -lpcp -lm
-LDIRT = $(TARGET)
 
 # enable kmtime for GNUmakefile platforms...
 TIMEDIR = $(TOPDIR)/src/libkmtime/src
