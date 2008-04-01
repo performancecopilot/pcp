@@ -32,6 +32,7 @@
 #include "./jstat.h"
 
 jstat_t		*jstat;
+int		jstat_hertz = 1000;
 int		jstat_count;
 char		*jstat_pcp_dir_name;
 struct stat	jstat_pcp_dir_stat;
@@ -198,7 +199,7 @@ jstat_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
 	break;
     case 9:	/* jstat.gc.minor.time */
 	if (jstat[inst].minor_gc_time == -1) return 0;
-	avp->ll = jstat[inst].minor_gc_time;
+	avp->ll = jstat[inst].minor_gc_time / jstat_hertz;
 	break;
     case 10:	/* jstat.gc.major.count */
 	if (jstat[inst].major_gc_count == -1) return 0;
@@ -206,7 +207,7 @@ jstat_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
 	break;
     case 11:	/* jstat.gc.major.time */
 	if (jstat[inst].major_gc_time == -1) return 0;
-	avp->ll = jstat[inst].major_gc_time;
+	avp->ll = jstat[inst].major_gc_time / jstat_hertz;
 	break;
 
     case 12:	/* jstat.memory.eden.capacity */
@@ -706,7 +707,7 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, JSTAT,
 		"jstat.log", helptext);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:" "J:P:r:?",
+    while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:" "H:J:P:r:?",
 			   &dispatch, &err)) != EOF) {
 	switch (c) {
 	    case 'J':
@@ -714,6 +715,15 @@ main(int argc, char **argv)
 		break;
 	    case 'P':
 		jstat_path = optarg;
+		break;
+	    case 'H':
+		jstat_hertz = (int)strtol(optarg, &endnum, 10);
+		if (*endnum != '\0') {
+		    fprintf(stderr, "%s: "
+			"-H requires numeric (number of seconds) argument\n",
+			pmProgname);
+		    err++;
+		}
 		break;
 	    case 'r':
 		refreshdelay = (int)strtol(optarg, &endnum, 10);
