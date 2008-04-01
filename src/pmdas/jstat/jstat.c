@@ -1,7 +1,7 @@
 /*
  * jstat (Java Statistics program) PMDA 
  *
- * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,7 +37,7 @@ int		jstat_count;
 char		*jstat_pcp_dir_name;
 struct stat	jstat_pcp_dir_stat;
 pmdaInstid	*jstat_insts;
-pmdaIndom	indomtab[] = { { JSTAT_INDOM, 0, 0 }, { ACTIVE_INDOM, 0, 0 } };
+pmdaIndom	indomtab[] = { { JSTAT_INDOM, 0, 0 } };
 pmInDom		*jstat_indom = &indomtab[JSTAT_INDOM].it_indom;
 
 pthread_t	refreshpid;
@@ -159,10 +159,8 @@ jstat_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *avp)
 	return 1;
     }
 
-    if (idp->item != 6) {
-	if (jstat[inst].fetched == 0 || jstat[inst].error != 0)
-	    return PM_ERR_AGAIN;
-    }
+    if (idp->item != 6 && jstat[inst].fetched == 0)
+	return PM_ERR_AGAIN;
 
     switch (idp->item) {
     case 0:	/* jstat.synchronizer.contended_lock_attempts */
@@ -302,39 +300,16 @@ void
 jstat_indom_clear(int inst)
 {
     jstat_t *jp = &jstat[inst];
-    int error = jp->error;
 
-    if (jp->fin)
-	fclose(jp->fin);
     free(jp->command);
     free(jp->name);
     memset(jp, 0, sizeof(jstat_t));
-    jp->error = error;
 
     pmdaCacheStore(*jstat_indom, PMDA_CACHE_HIDE,
 			jstat_insts[inst].i_name, &jstat[inst]);
     if (pmDebug & DBG_TRACE_INDOM)
 	__pmNotifyErr(LOG_DEBUG, "Hid instance domain %s (inst=%d)",
 			jstat_insts[inst].i_name, inst);
-}
-
-int
-jstat_lookup_pid(char *fname, jstat_t *jp, int instid)
-{
-    FILE	*fp;
-    int		pid;
-
-    if ((fp = fopen(fname, "r")) == NULL) {
-	__pmNotifyErr(LOG_ERR, "Unreadable pid file %d\n", fname);
-	jp->error = errno;
-    } else {
-	if (fscanf(fp, "%u\n", &pid) != 1) {
-	    __pmNotifyErr(LOG_ERR, "Unparsable pid file %d\n", fname);
-	    jp->error = errno;
-	}
-	fclose(fp);
-    }
-    return pid;
 }
 
 char *
@@ -355,34 +330,34 @@ jstat_command(int pid)
 }
 
 void
-jstat_indom_setup(void)
+jps_parse(FILE *fp)
 {
-    struct dirent	*dirent;
-    char		*suffix;
-    DIR			*pcpdir;
-    int			i, sz;
+    int inst, sts, pid;
+    char *endnum;
+    char line[1024];
+    jstat_t *jp;
+    size_t sz;
 
-    if ((pcpdir = opendir(jstat_pcp_dir_name)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "cannot open %s: %s\n", jstat_pcp_dir_name,
-			pmErrStr(-errno));
-	exit(1);
-    }
-
-    /*
-     * Build the base instance domain and jstat data structures from the
-     * jstat pcp directory.  Note that when the PMDA starts at bootup it
-     * is unlikely any java processes will be running.
-     */
-
-    while ((dirent = readdir(pcpdir))) {
-	if ((suffix = strstr(dirent->d_name, ".pcp.pid")) == NULL)
+    while (fgets(line, sizeof(line), fp) != NULL) {
+	pid = (int)strtol(line, &endnum, 10);
+	if (pid < 1 || *endnum != ' ') {
+	    __pmNotifyErr(LOG_ERR, "Unexpected jps output - %s", line);
 	    continue;
-	*suffix = '\0';	 /* terminate at start of matching suffix */
-	for (i = 0; i < jstat_count; i++)	/* is name in table already? */
-	    if (strcmp(jstat_insts[i].i_name, dirent->d_name) == 0)
-		break;
-	if (i != jstat_count)
+	}
+	line[strlen(line)-1] = '\0';	/* overwrite end-of-line marker */
+	if (strcasecmp(endnum, " jps") == 0)
 	    continue;
+
+	sts = pmdaCacheLookupName(*jstat_indom, line, NULL, (void**)&jp);
+	if (sts == PMDA_CACHE_ACTIVE)	/* repeated output line from jps? */
+	    continue;
+	if (sts == PMDA_CACHE_INACTIVE) {   /* re-activate for next fetch */
+	    jp->fetched = 0;
+	    pmdaCacheStore(*jstat_indom, PMDA_CACHE_ADD, line, jp);
+	    continue;
+	}
+
+	inst = jstat_count;
 	jstat_count++;
 	sz = sizeof(pmdaInstid) * jstat_count;
 	if ((jstat_insts = realloc(jstat_insts, sz)) == NULL)
@@ -390,79 +365,51 @@ jstat_indom_setup(void)
 	sz = sizeof(jstat_t) * jstat_count;
 	if ((jstat = realloc(jstat, sz)) == NULL)
 	    __pmNoMem("jstat.indom", sz, PM_FATAL_ERR);
-	memset(&jstat[i], 0, sizeof(jstat_t));
-	if ((jstat[i].name = strdup(dirent->d_name)) == NULL)
-	    __pmNoMem("jstat.inst", strlen(dirent->d_name), PM_FATAL_ERR);
-	__pmNotifyErr(LOG_INFO, "Adding new instance %s", dirent->d_name);
-	jstat_insts[i].i_name = jstat[i].name;
-	jstat_insts[i].i_inst = i;
+	jp = &jstat[inst];
+	memset(jp, 0, sizeof(jstat_t));
+	if ((jp->name = strdup(line)) == NULL)
+	    __pmNoMem("jstat.inst", strlen(line), PM_FATAL_ERR);
+	jp->pid = pid;
+	jp->fetched = 0;
+	jp->command = jstat_command(pid);
+	__pmNotifyErr(LOG_INFO, "Adding new instance %s (PID=%d)", line, pid);
+	jstat_insts[inst].i_name = jp->name;
+	jstat_insts[inst].i_inst = inst;
 
-	pmdaCacheStore(*jstat_indom, PMDA_CACHE_ADD,
-			jstat_insts[i].i_name, &jstat[i]);
+	pmdaCacheStore(*jstat_indom, PMDA_CACHE_ADD, line, jp);
     }
-    closedir(pcpdir);
 
     indomtab[JSTAT_INDOM].it_numinst = jstat_count;
     indomtab[JSTAT_INDOM].it_set = jstat_insts;
-    indomtab[ACTIVE_INDOM].it_numinst = jstat_count;
-    indomtab[ACTIVE_INDOM].it_set = jstat_insts;
 }
 
 void
 jstat_indom_check(void)
 {
-    int		i, sts;
-    char	pidfile[256];
-    struct stat	sbuf;
+    int sts;
+    FILE *pp;
+    static int initialised;
+    static char jps[BUFFER_MAXLEN];
 
-    pthread_mutex_lock(&refreshmutex);
-
-    if (stat(jstat_pcp_dir_name, &sbuf) < 0) {
-	__pmNotifyErr(LOG_ERR, "cannot stat %s: %s\n",
-				jstat_pcp_dir_name, pmErrStr(-errno));
-	exit(1);
-    } else if (sbuf.st_mtime != jstat_pcp_dir_stat.st_mtime) {
-	jstat_pcp_dir_stat = sbuf;	/* struct copy */
-	jstat_indom_setup();
+    if (!initialised) {
+	if (jstat_path == NULL)
+	    strcpy(jps, "jps");
+	else
+	    sprintf(jps, "%s/jps", jstat_path);
+	initialised = 1;
     }
 
-    for (i = 0; i < jstat_count; i++) {
-	/* check if pidfile has changed */
-	snprintf(pidfile, sizeof(pidfile), "%s/%s.pcp.pid",
-		 jstat_pcp_dir_name, jstat[i].name);
-	if (stat(pidfile, &sbuf) < 0) {
-	    if (jstat[i].error == 0) {
-		jstat[i].error = errno;
-		__pmNotifyErr(LOG_ERR, "stat failed on %s (%s): %s\n",
-			pidfile, jstat[i].name, pmErrStr(-errno));
-	    }
-	} else {
-	    if (sbuf.st_mtime != jstat[i].pidstat.st_mtime) {
-		jstat[i].error = 0;
-		jstat[i].pid = jstat_lookup_pid(pidfile, &jstat[i], i);
-		if (jstat[i].error) {
-		    jstat_indom_clear(i);
-		    continue;
-		}
-		jstat[i].fetched = 0;
-		jstat[i].pidstat = sbuf;
-		if (jstat[i].command)
-		    free(jstat[i].command);
-		jstat[i].command = jstat_command(jstat[i].pid);
-		__pmNotifyErr(LOG_INFO, "Initialised instance %s (PID=%d)",
-				jstat[i].name, jstat[i].pid);
-	    }
-	    if ((sts = pmdaCacheStore(*jstat_indom, PMDA_CACHE_ADD,
-				jstat_insts[i].i_name, &jstat[i])) < 0)
-		__pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s",
-				pmErrStr(sts));
-	    if (pmDebug & DBG_TRACE_INDOM)
-		__pmNotifyErr(LOG_DEBUG, "Added instance domain %s (inst=%d)",
-				jstat_insts[i].i_name, i);
-	}
-    }
+    /* deactivate all active instances */
+    pmdaCacheOp(*jstat_indom, PMDA_CACHE_INACTIVE);
 
-    pthread_mutex_unlock(&refreshmutex);
+    if ((pp = popen(jps, "r")) == NULL)
+	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s", jps, strerror(sts));
+    else {
+	pthread_mutex_lock(&refreshmutex);
+	jps_parse(pp);
+	pthread_mutex_unlock(&refreshmutex);
+	pclose(pp);
+    }
 }
 
 int
@@ -588,28 +535,36 @@ jstat_parse(jstat_t *jp, FILE *fp)
 void
 jstat_execute(int inst)
 {
+    int sts;
     FILE *pp;
-    jstat_t *jp = &jstat[inst];
+    jstat_t *jp;
+    char command[BUFFER_MAXLEN];
 
-    jp->fetched = 1;
-
-    if ((pp = popen(jp->command, "r")) == NULL) {
-	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s",
-			jp->command, strerror(errno));
-	jp->error = errno;
+    pthread_mutex_lock(&refreshmutex);
+    if (inst < jstat_count) {
+	jp = &jstat[inst];
+	strncpy(command, jp->command, sizeof(command));
+	sts = 0;
+    } else {
+	sts = E2BIG;	/* process removed from instance domain */
+    }
+    pthread_mutex_unlock(&refreshmutex);
+    if (sts)
 	return;
+
+    if ((pp = popen(command, "r")) == NULL) {
+	sts = errno;
+	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s", command, strerror(sts));
     }
 
-    if (jstat_parse(jp, pp) == 0)
-	jp->error = ESRCH;
-    else
-	jp->error = 0;
+    pthread_mutex_lock(&refreshmutex);
+    jp = &jstat[inst];
+    jp->fetched = 1;
+    if (!sts && jstat_parse(jp, pp) == 0)
+	__pmNotifyErr(LOG_ERR, "jstat produced no output (%s)", command);
+    pthread_mutex_unlock(&refreshmutex);
 
-    if (pclose(pp) == 1) {
-	__pmNotifyErr(LOG_ERR, "jstat failed (%s): %s",
-			jp->command, strerror(errno));
-	jstat_indom_clear(inst);
-    }
+    pclose(pp);
 }
 
 void
@@ -629,11 +584,7 @@ jstat_refresh(void *unused)
 
     for (;;) {
 	for (inst = 0;  inst < jstat_count; inst++) {
-	    pthread_mutex_lock(&refreshmutex);
-	    error = (inst < jstat_count) ? jstat[inst].error : 1;
-	    if (!error)
-		jstat_execute(inst);
-	    pthread_mutex_unlock(&refreshmutex);
+	    jstat_execute(inst);
 	}
 	jstat_reaper(error);
 	sleep(refreshdelay);

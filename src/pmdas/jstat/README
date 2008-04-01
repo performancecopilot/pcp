@@ -1,15 +1,12 @@
 Performance Co-Pilot PMDA for Monitoring the Java Virtual Machine
 =================================================================
 
-This PMDA is capable of collecting statistics from a running Java
-virtual machine (JVM) via the jstat program.
+This PMDA is capable of collecting statistics from running Java
+virtual machines (JVM) via the jstat(1) program.
 
-The PMDA needs to be configured to collect performance data from a
-designated set of processes, via /var/tmp/jstat:
-
-	# echo [PID] > /var/tmp/jstat/[inst].pcp.pid
-
-There is one instance of the metrics for each named JVM process.
+There is one instance of the metrics for each JVM process found
+by the jps(1) command, which is part of the Java Development Kit
+(as is jstat(1) itself).
 
 Metrics
 =======
@@ -25,8 +22,8 @@ the available metrics and their explanatory "help" text:
 Installation
 ============
 
- +  Create files named /var/tmp/jstat/<inst>.pcp.pid containing just the
-    PID of individual JVMs which you'd like to monitor.
+ +  Verify that the jps(1) command produces a list of interesting Java
+    processes which you'd like to monitor.
 
  +  # cd $PCP_PMDAS_DIR/jstat
 
@@ -66,6 +63,6 @@ Troubleshooting
     ($PCP_LOG_DIR/pmcd/jstat.log) should be checked for any warnings
     or errors.
 
- +  The "jps" program will give a list of java processes for which
-    the "jstat" program will work.  Both need to be run with the
+ +  The jps(1) program will give a list of java processes for which
+    the jstat(1) program will work.  Both need to be run with the
     appropriate level of privileges.

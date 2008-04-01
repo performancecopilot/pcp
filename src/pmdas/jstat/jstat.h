@@ -23,16 +23,13 @@
 #include <pmda.h>
 #include "./domain.h"
 
-#define JSTAT_COMMAND "jstat -J-Djstat.showUnsupported=true -snap "
+#define JSTAT_COMMAND	"jstat -J-Djstat.showUnsupported=true -snap "
+#define BUFFER_MAXLEN	4096
 
 typedef struct {
     char		*command;	/* jstat command line */
     char		*name;		/* symbolic instance name */
-    char		*file;		/* jstat output file */
-    FILE		*fin;		/* read output here */
-    struct stat		pidstat;	/* on /var/tmp/jstat/x.pid */
     int			pid;		/* process ID for instance */
-    int			error;		/* error on this instance */
 
     __int64_t		contended_lock_attempts;
     __int64_t		deflations;
