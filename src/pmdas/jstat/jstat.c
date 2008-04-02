@@ -344,7 +344,9 @@ jps_parse(FILE *fp)
 	    __pmNotifyErr(LOG_ERR, "Unexpected jps output - %s", line);
 	    continue;
 	}
-	line[strlen(line)-1] = '\0';	/* overwrite end-of-line marker */
+	line[strlen(line)-1] = '\0';	/* overwrite end-of-line marker (\n) */
+	if (line[strlen(line)-2] == '\r')
+	    line[strlen(line)-2] = '\0';/* overwrite end-of-line marker (\r) */
 	if (strcasecmp(endnum, " jps") == 0)
 	    continue;
 
