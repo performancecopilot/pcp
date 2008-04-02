@@ -333,7 +333,7 @@ void
 jps_parse(FILE *fp)
 {
     int inst, sts, pid;
-    char *endnum;
+    char *endnum, *p;
     char line[1024];
     jstat_t *jp;
     size_t sz;
