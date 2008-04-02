@@ -415,7 +415,8 @@ dumpHeader()
 	for (m = 0, v = 1; m < metrics.size(); m++) {
 	    metric = metrics[m];
 	    for (i = 0; i < metric->numValues(); i++, v++) {
-		cout << '[' << qSetFieldWidth(2) << v << "] "
+		cout << '[' << qSetFieldWidth(2) << v
+		     << qSetFieldWidth(0) << "] "
 		     << metric->spec(sourceFlag, true, i) << endl;
 	    }
 	}
@@ -427,13 +428,14 @@ dumpHeader()
 	    if (len < columnStr.length()) {
 		columnStr.remove(len, columnStr.length() - len);
 	    }
-	    cout << qSetFieldWidth(len) << columnStr << delimiter;
+	    cout << qSetFieldWidth(len) << columnStr
+		 << qSetFieldWidth(0) << delimiter;
 	}
 
 	for (m = 0, v = 1; m < metrics.size(); m++) {
 	    metric = metrics[m];
 	    for (i = 0; i < metric->numValues(); i++) {
-		cout << qSetFieldWidth(width) << v;
+		cout << qSetFieldWidth(width) << v << qSetFieldWidth(0);
 		if (v < numValues) {
 		    cout << delimiter;
 		    v++;
@@ -448,16 +450,17 @@ dumpHeader()
 	    if (len < srcStr.length()) {
 		srcStr.remove(len, srcStr.length() - len);
 	    }
-	    cout << qSetFieldWidth(len) << srcStr << delimiter;
+	    cout << qSetFieldWidth(len) << srcStr
+	         << qSetFieldWidth(0) << delimiter;
 	}
-	
+
 	for (m = 0, v = 1; m < metrics.size(); m++) {
 	    metric = metrics[m];
 	    QString const& str = metric->context()->source().host();
 	    strncpy(buffer, (const char *)str.toAscii(), width);
 	    buffer[width] = '\0';
 	    for (i = 0; i < metric->numValues(); i++) {
-		cout << qSetFieldWidth(width) << buffer;
+		cout << qSetFieldWidth(width) << buffer << qSetFieldWidth(0);
 		if (v < numValues) {
 		    cout << delimiter;
 		    v++;
@@ -473,7 +476,8 @@ dumpHeader()
 		if (len < metricStr.length()) {
 		    metricStr.remove(len, metricStr.length() - len);
 		}
-		cout << qSetFieldWidth(len) << metricStr << delimiter;
+		cout << qSetFieldWidth(len) << metricStr << qSetFieldWidth(0);
+		cout << delimiter;
 	    }
 	    else
 		cout << "Time" << delimiter;
@@ -484,8 +488,7 @@ dumpHeader()
 	    	instFlag = true;
 	    for (i = 0; i < metric->numValues(); i++) {
 	    	if (niceFlag) {
-		    QString const &str = metric->spec(false, 
-		    					 false, i);
+		    QString const &str = metric->spec(false, false, i);
 		    p = str.length() - width;
 		    if (p > 0) {
 			for (c = (p - 1 > 0 ? p - 1 : 0); c < str.length(); 
@@ -496,12 +499,18 @@ dumpHeader()
 			    }
 			}
 			if (c < str.length())
-			    cout << qSetFieldWidth(width) << ((const char *)str.toAscii() + c);
+			    cout << qSetFieldWidth(width)
+				 << ((const char *)str.toAscii() + c)
+				 << qSetFieldWidth(0);
 			else
-			    cout << qSetFieldWidth(width) << ((const char *)str.toAscii() + p);
+			    cout << qSetFieldWidth(width)
+				 << ((const char *)str.toAscii() + p)
+				 << qSetFieldWidth(0);
 		    }
-		    else
-			cout << qSetFieldWidth(width) << str;
+		    else {
+			cout << qSetFieldWidth(width) << str
+			     << qSetFieldWidth(0);
+		    }
 		}
 		else
 		    cout << metric->spec(sourceFlag, true, i);
@@ -520,10 +529,13 @@ dumpHeader()
 		if (len < instStr.length()) {
 		    instStr.remove(len, instStr.length() - len);
 		}
-		cout << qSetFieldWidth(len) << instStr << delimiter;
+		cout << qSetFieldWidth(len) << instStr
+		     << qSetFieldWidth(0) << delimiter;
 	    }
-	    else
-		cout << qSetFieldWidth(len) << errStr << delimiter;
+	    else {
+		cout << qSetFieldWidth(len) << errStr
+		     << qSetFieldWidth(0) << delimiter;
+	    }
 	}
 
 	for (m = 0, v = 1; m < metrics.size(); m++) {
@@ -533,10 +545,12 @@ dumpHeader()
 		    QString const &str = metric->instName(i);
 		    strncpy(buffer, (const char *)str.toAscii(), width);
 		    buffer[width] = '\0';
-		    cout << qSetFieldWidth(width) << buffer;
+		    cout << qSetFieldWidth(width) << buffer
+			 << qSetFieldWidth(0);
 		}
 		else
-		    cout << qSetFieldWidth(width) << "n/a";
+		    cout << qSetFieldWidth(width) << "n/a"
+			 << qSetFieldWidth(0);
 
 	    	if (v < numValues) {
 		    cout << delimiter;
@@ -553,7 +567,8 @@ dumpHeader()
 		if (len < normStr.length()) {
 		    normStr.remove(len, normStr.length() - len);
 		}
-		cout << qSetFieldWidth(len) << normStr << delimiter;
+		cout << qSetFieldWidth(len) << normStr
+		     << qSetFieldWidth(0) << delimiter;
 	    }
 	    else
 		cout << errStr << delimiter;
@@ -565,15 +580,18 @@ dumpHeader()
 		if (shortFlag)
 		    cout << qSetRealNumberPrecision(precision)
 			 << qSetFieldWidth(width)
-			 << metric->scale();		
+			 << metric->scale()
+			 << qSetFieldWidth(0);
 		else if (descFlag)
 		    cout << qSetFieldWidth(width) 
-			 << QmcMetric::formatNumber(metric->scale());
+			 << QmcMetric::formatNumber(metric->scale())
+			 << qSetFieldWidth(0);
 		else
 		    cout << fixed
 			 << qSetRealNumberPrecision(precision)
 			 << qSetFieldWidth(width)
-			 << metric->scale();
+			 << metric->scale()
+			 << qSetFieldWidth(0);
 	    	if (v < numValues) {
 		    cout << delimiter;
 		    v++;
@@ -589,7 +607,8 @@ dumpHeader()
 		if (len < unitStr.length()) {
 		    unitStr.remove(len, unitStr.length() - len);
 		}
-		cout << qSetFieldWidth(len) << unitStr << delimiter;
+		cout << qSetFieldWidth(len) << unitStr
+		     << qSetFieldWidth(0) << delimiter;
 	    }
 	    else
 		cout << noneStr << delimiter;
@@ -601,10 +620,12 @@ dumpHeader()
 	    for (i = 0; i < metric->numValues(); i++) {
 	    	if (niceFlag) 
 		    if (str.length() > width)
-			cout << qSetFieldWidth(width) 
-			     << ((const char *)str.toAscii() + str.length() - width);
+			cout << qSetFieldWidth(width)
+			     << ((const char *)str.toAscii() + str.length() - width)
+			     << qSetFieldWidth(0);
 		    else
-			cout << qSetFieldWidth(width) << str;
+			cout << qSetFieldWidth(width) << str
+			     << qSetFieldWidth(0);
 		else
 		    cout << str;
 	    	if (v < numValues) {
@@ -1305,7 +1326,8 @@ main(int argc, char *argv[])
 		if (rawFlag) {
 		    if (metric->currentError(i) < 0) {
 			if (niceFlag)
-			    cout << qSetFieldWidth(width) << errStr;
+			    cout << qSetFieldWidth(width) << errStr
+				 << qSetFieldWidth(0);
 			else
 			    cout << errStr;
 			goto next;
@@ -1315,7 +1337,8 @@ main(int argc, char *argv[])
 		}
 		else if (metric->error(i) < 0) {
 		    if (niceFlag)
-			cout << qSetFieldWidth(width) << errStr;
+			cout << qSetFieldWidth(width) << errStr
+			     << qSetFieldWidth(0);
 		    else
 			cout << errStr;
 		    goto next;
@@ -1327,11 +1350,13 @@ main(int argc, char *argv[])
 		    if (descFlag)
 			if (niceFlag)
 			    cout << qSetFieldWidth(width) 
-				 << QmcMetric::formatNumber(value);
+				 << QmcMetric::formatNumber(value)
+				 << qSetFieldWidth(0);
 			else
 			    cout << QmcMetric::formatNumber(value);
 		    else if (niceFlag)
-			cout << qSetFieldWidth(width) << value;
+			cout << qSetFieldWidth(width) << value
+			     << qSetFieldWidth(0);
 		    else
 			cout << value;
 		}
@@ -1345,7 +1370,8 @@ main(int argc, char *argv[])
 				    width - 2);
 			    buffer[width - 1] = '\"';
 			    buffer[width] = '\0';
-			    cout << qSetFieldWidth(width) << buffer;
+			    cout << qSetFieldWidth(width) << buffer
+				 << qSetFieldWidth(0);
 			}
 			else {
 			    strcpy(buffer+1, (const char *)metric->stringValue(i).toAscii());
@@ -1360,14 +1386,16 @@ main(int argc, char *argv[])
 				    width - 5);
 			    strcpy(buffer + width - 4, "...\"");
 			    buffer[width] = '\0';
-			    cout << qSetFieldWidth(width) << buffer;
+			    cout << qSetFieldWidth(width) << buffer
+				 << qSetFieldWidth(0);
 			}
 			else {
 			    strncpy(buffer+1, (const char *)metric->stringValue(i).toAscii(),
 				    width - 2);
 			    buffer[width - 1] = '\"';
 			    buffer[width] = '\0';
-			    cout << qSetFieldWidth(width) << buffer;
+			    cout << qSetFieldWidth(width) << buffer
+				 << qSetFieldWidth(0);
 			}
 		    }
 		    else
