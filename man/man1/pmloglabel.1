@@ -122,12 +122,12 @@ an archive named "20080125".
 .in +1i
 .ft CW
 .nf
-$ pmdumplog -l 20080125
+$ pmdumplog \-l 20080125
 pmdumplog: Cannot open archive "20080125": Illegal label record at start of a PCP archive log file
 $ pmloglabel 20080125
 Mismatched PID (5264/5011) between temporal index and data volume 0
-$ pmloglabel -p 5264 20080125
-$ pmdumplog -l 20080125
+$ pmloglabel \-p 5264 20080125
+$ pmdumplog \-l 20080125
 Log Label (Log Format Version 2)
 Performance metrics from host fw1
   commencing Fri Jan 25 00:10:09.341 2008
