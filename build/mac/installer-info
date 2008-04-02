@@ -60,26 +60,6 @@
                         <key>MessageKey</key>
                         <string>Need MacOS X version &gt;=10.@macosx_version@</string>
                 </dict>
-                <dict>
-                        <key>Level</key>
-                        <string>requires</string>
-                        <key>SpecType</key>
-                        <string>plist</string>
-                        <key>SpecArgument</key>
-                        <string>/System/Library/CoreServices/SystemVersion.plist</string>
-                        <key>SpecProperty</key>
-                        <string>ProductVersion</string>
-                        <key>TestOperator</key>
-                        <string>&lt;</string>
-                        <key>TestObject</key>
-                        <string>10.@macosx_next_version@</string>
-                        <key>LabelKey</key>
-                        <string>OsVerLabelKey</string>
-                        <key>TitleKey</key>
-                        <string>OsVerTitleKey</string>
-                        <key>MessageKey</key>
-                        <string>Need MacOS X version 10.@macosx_version@</string>
-                </dict>
         </array>
 </dict>
 </plist>
