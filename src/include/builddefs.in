@@ -229,7 +229,8 @@ INSTALL_MAN = \
 					    for ( d in ds ) { \
 						sub (d, ds[d], $$0); \
 					    } \
-					    print; } }' | sort -u | \
+					    print; } }' \
+		| LC_COLLATE=POSIX sort -u | \
 	while read m; do \
 	    [ -z "$$m" -o "$$m" = "\\" ] && continue; \
 	    t=$(MAN_DEST)/$$m.$(MAN_SECTION); \
