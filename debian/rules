@@ -24,7 +24,7 @@ pkglibpcp = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp);
 pkglibpcp_pmda = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
 pkglibpcp_trace = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_trace);
 
-options = export DEBUG=-DNDEBUG AWK=gawk PACKAGE_DISTRIBUTION=debian;
+options = export DEBUG=-DNDEBUG AWK=gawk PMC_SUPPORT=false;
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
 

@@ -47,10 +47,14 @@ MAN_PAGES	= \
 	pmsortinstances.3 pmstore.3 pmtraversepmns.3 \
 	pmtrimnamespace.3 pmtypestr.3 pmunitsstr.3 pmunloadnamespace.3 \
 	pmusecontext.3 pmusezone.3 pmwhichcontext.3 pmwhichzone.3 \
-	pmdacache.3 pmdahelp.3 pmc.3 pmc_context.3 pmc_desc.3 pmc_group.3 \
-	pmc_indom.3 pmc_metric.3 pmc_source.3 pmloop.3 pmcontextundef.3 \
+	pmdacache.3 pmdahelp.3 pmloop.3 pmcontextundef.3 \
 	pmgetcontextfd.3 pmcontextconnectto.3 
 
+ifeq ($(PMC_SUPPORT), true)
+MAN_PAGES += \
+	pmc.3 pmc_context.3 pmc_desc.3 pmc_group.3 pmc_indom.3 \
+	pmc_metric.3 pmc_source.3 
+endif
 
 # IMPL_MANPAGES from IRIX
 MAN_PAGES += \

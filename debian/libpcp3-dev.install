@@ -69,13 +69,6 @@ usr/share/man/man3/pmAddProfile.3.gz
 usr/share/man/man3/pmaf.3.gz
 usr/share/man/man3/PMAPI.3.gz
 usr/share/man/man3/pmAtomStr.3.gz
-usr/share/man/man3/PMC.3.gz
-usr/share/man/man3/PMC_Context.3.gz
-usr/share/man/man3/PMC_Desc.3.gz
-usr/share/man/man3/PMC_Group.3.gz
-usr/share/man/man3/PMC_Indom.3.gz
-usr/share/man/man3/PMC_Metric.3.gz
-usr/share/man/man3/PMC_Source.3.gz
 usr/share/man/man3/pmconnectlogger.3.gz
 usr/share/man/man3/pmContextConnectTo.3.gz
 usr/share/man/man3/pmContextUndef.3.gz

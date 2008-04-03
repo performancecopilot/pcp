@@ -34,8 +34,12 @@ SUBDIRS = include libpcp libpcp_pmda libpcp_trace libpcp_http libkmtime \
 	  xconfirm pmtrace pmstat pmsocks pmdas pmafm procmemstat \
 	  pmlogreduce genpmda pmproxy telnet-probe pmsleep pmtop
 
+ifeq ($(PMC_SUPPORT), true)
+SUBDIRS += libpcp_pmc pmdumptext
+endif
+
 ifneq ($(TARGET_OS), cygwin)
-SUBDIRS += libpcp_pmc pmdumptext autofsd-probe cpan
+SUBDIRS += autofsd-probe cpan
 endif
 
 default :: default_pcp

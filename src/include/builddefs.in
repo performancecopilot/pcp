@@ -174,12 +174,11 @@ CPP_SIMPLE_ARGS += -P
 endif
 RDYNAMIC_FLAG = @rdynamic_flag@
 
-#
-#
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
 LIB_FOR_DLOPEN = @lib_for_dlopen@
 LIB_FOR_MATH = @lib_for_math@
+PMC_SUPPORT = @pmc_support@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images

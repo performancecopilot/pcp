@@ -35,9 +35,13 @@ MAN_PAGES	= chkhelp.1 dbpmda.1 mkaf.1 newhelp.1 pcp.1 pcpintro.1 \
 	pmlogger_daily.1 pmnewlog.1 pmnsadd.1 pmnscomp.1 pmnsdel.1 \
 	pmnsmerge.1 pmpost.1 pmprobe.1 pmsocks.1 pmstat.1 pmstore.1 \
 	pmtrace.1 pmval.1 pmdaweblog.1 pmlogsummary.1 pmdashping.1 \
-	pmdumptext.1 genpmda.1 pmproxy.1 pmdasummary.1 pmlogreduce.1 \
+	pmloglabel.1 genpmda.1 pmproxy.1 pmdasummary.1 pmlogreduce.1 \
 	autofsd-probe.1 pmie2col.1 telnet-probe.1 pmsleep.1 pmtop.1 \
-	pmdahotproc.1 pmloglabel.1
+	pmdahotproc.1
+
+ifeq ($(PMC_SUPPORT), true)
+MAN_PAGES	+= pmdumptext.1
+endif
 
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 LSRCFILES	= $(MAN_PAGES)
