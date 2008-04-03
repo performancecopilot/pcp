@@ -328,9 +328,6 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11" />
- <includes>
-  <include location="local" >qwt_counter.h</include>
- </includes>
  <resources>
   <include location="kmchart.qrc" />
  </resources>
