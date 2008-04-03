@@ -3,7 +3,7 @@ Section: utils
 Priority: extra
 Maintainer: Nathan Scott <nathans@debian.org>
 Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
-Build-Depends: autoconf, bison, flex, gawk, procps, libncurses5-dev, debhelper (>= 5)
+Build-Depends: autoconf, bison, flex, gawk, procps, debhelper (>= 5)
 Standards-Version: 3.7.3
 
 Package: pcp
