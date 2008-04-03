@@ -1,3 +1,9 @@
+pcp (2.7.4-20080404) unstable; urgency=low
+
+  * Fix builds on systems without deprecated C++ headers.
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 04 Apr 2008 10:40:01 +1100
+
 pcp (2.7.4-20080402) unstable; urgency=low
 
   * Man page install now uses a deterministic sort (closes: #472322).
