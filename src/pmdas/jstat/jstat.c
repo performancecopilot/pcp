@@ -333,7 +333,7 @@ void
 jps_parse(FILE *fp)
 {
     int inst, sts, pid;
-    char *endnum;
+    char *endnum, *p;
     char line[1024];
     jstat_t *jp;
     size_t sz;
@@ -344,10 +344,12 @@ jps_parse(FILE *fp)
 	    __pmNotifyErr(LOG_ERR, "Unexpected jps output - %s", line);
 	    continue;
 	}
-	line[strlen(line)-1] = '\0';	/* overwrite end-of-line marker (\n) */
-	if (line[strlen(line)-2] == '\r')
-	    line[strlen(line)-2] = '\0';/* overwrite end-of-line marker (\r) */
-	if (strcasecmp(endnum, " jps") == 0)
+	for (p = line; *p != '\0'; p++)
+	    if (!isblank(*p) && isspace(*p))
+		*p = '\0';
+	if (strncasecmp(endnum, " jps", 4) == 0)
+	    continue;
+	if (strncasecmp(endnum, " -- process", 11) == 0) /* unavailable */
 	    continue;
 
 	sts = pmdaCacheLookupName(*jstat_indom, line, NULL, (void**)&jp);
@@ -563,7 +565,7 @@ jstat_execute(int inst)
     jp = &jstat[inst];
     jp->fetched = 1;
     if (!sts && jstat_parse(jp, pp) == 0)
-	__pmNotifyErr(LOG_ERR, "jstat produced no output (%s)", command);
+	__pmNotifyErr(LOG_DEBUG, "jstat produced no output (%s)", command);
     pthread_mutex_unlock(&refreshmutex);
 
     pclose(pp);
@@ -596,8 +598,6 @@ jstat_refresh(void *unused)
 void
 jstat_init(pmdaInterface *dp)
 {
-    int		i;
-
     if (dp->status != 0)
 	return;
 
@@ -610,13 +610,7 @@ jstat_init(pmdaInterface *dp)
 
     /* start the thread for async fetches */
     signal(SIGCHLD, jstat_reaper);
-    i = pthread_create(&refreshpid, NULL, (void (*))jstat_refresh, NULL);
-    if (i != 0)
-	refreshpid = i;
-    if (refreshpid < 0)
-	dp->status = refreshpid;
-    else
-	dp->status = 0;
+    dp->status = pthread_create(&refreshpid, NULL, (void(*))jstat_refresh,NULL);
 
     pthread_mutex_init(&refreshmutex, NULL);
 }

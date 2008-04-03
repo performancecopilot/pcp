@@ -1,3 +1,9 @@
+pcp (2.7.4-20080402) unstable; urgency=low
+
+  * Man page install now uses a deterministic sort (closes: #472322).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 02 Apr 2008 15:56:35 +1100
+
 pcp (2.7.4-20080331) unstable; urgency=low
 
   * Jstat PMDA tweaks and Cygwin build updates.
