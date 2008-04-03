@@ -6,8 +6,6 @@ o  Need to devise a way to handle the command line.  Note: -d is debug
    causing issues with the Install script, which automatically includes
    that on the command line... agent installation needs work.
 
-o  Need an atexit(3) handler to pclose MODE_PIPE processes.
-
 o  Need to reconnect to rotated log files.
 
 o  Need to reconnect dropped socket connections.
