@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2007 Aconex.  All Rights Reserved.
+.\" Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -35,6 +35,8 @@
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-r\f1 \f2refresh\f1]
+[\f3\-J\f1 \f2path\f1]
+[\f3\-P\f1 \f2path\f1]
 .SH DESCRIPTION
 .B pmdajstat
 is a Performance Metrics Domain Agent (PMDA) which extracts
@@ -75,17 +77,34 @@ seconds.
 The default
 .I refresh
 is 5 seconds.
+.TP 5
+.B \-J
+The $JAVA_HOME
+.I path
+where the Java runtime environment can be found.
+.TP 5
+.B \-P
+The
+.I path
+to the 
+.BR jps (1)
+and
+.BR jstat (1)
+binaries.
+This would usually be
+.IR $JAVA_HOME/bin .
 .SH JVM IDENTIFICATION
 Multiple Java Virtual Machines can be monitored at once.
 The process identifier for each separate process to monitor
-must be written into the
-.I /var/tmp/jstat
-directory,
-into a file named with the exported instance identifier,
-and the suffix ".pcp.pid".
-To discover the valid JVM processes on a particular host,
-run the
+is obtained at runtime within
+.B pmdajstat
+via the
 .BR jps (1)
+command, which is part of the regular JDK installation.
+To discover the valid JVM processes on a particular host,
+and also to verify that the PMDA will be able to find the
+processes you're interested in, examine the output of the
+.B jps
 command.
 .SH INSTALLATION
 If you want access to the names, help text and values for the jstat
@@ -157,6 +176,8 @@ configuration file,
 as described in
 .BR pcp.conf (4).
 .SH SEE ALSO
+.BR jps (1),
+.BR jstat (1),
 .BR pmcd (1),
 .BR pcp.conf (4)
 and
