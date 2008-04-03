@@ -15,6 +15,7 @@
 
 #include <qlist.h>
 #include <qstring.h>
+#include <qtextstream.h>
 
 class QmcGroup
 {
@@ -67,6 +68,8 @@ public:
     struct timeval const& logStart() const { return my.timeStart; }
     struct timeval const& logEnd() const { return my.timeEnd; }
     void updateBounds();	// Determine the archive start and finish times
+
+    void dump(QTextStream &os);
 
 private:
     struct {

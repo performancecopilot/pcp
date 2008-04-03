@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1997,2005 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -13,6 +13,9 @@
 #include <assert.h>
 #include <limits.h>
 #include <qvector.h>
+#include <qstringlist.h>
+
+QStringList *QmcContext::theStringList;
 
 QmcContext::QmcContext(QmcSource* source)
 {
@@ -309,6 +312,36 @@ QmcContext::fetch(bool update)
 	QTextStream cerr(stderr);
 	cerr << "QmcContext::fetch: nothing to fetch" << endl;
     }
+
+    return sts;
+}
+
+void
+QmcContext::dometric(const char *name)
+{
+    theStringList->append(name);
+}
+
+int
+QmcContext::traverse(const char *name, QStringList &list)
+{
+    int	sts;
+
+    theStringList = &list;
+    theStringList->clear();
+
+    sts = pmTraversePMNS(name, QmcContext::dometric);
+
+    if (pmDebug & DBG_TRACE_PMC) {
+	QTextStream cerr(stderr);
+	if (sts >= 0) {
+	    cerr << "QmcContext::traverse: Found " << list.size()
+		<< " names from " << name << endl;
+	}
+	else
+	    cerr << "QmcContext::traverse: Failed: " << pmErrStr(sts)
+		<< endl;
+    }	    
 
     return sts;
 }
