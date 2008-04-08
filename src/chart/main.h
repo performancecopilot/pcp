@@ -67,6 +67,9 @@ extern QColor nextColor(QString, int *);
 
 extern int Cflag;
 extern int Lflag;
+extern int Wflag;
+extern char *outfile;
+extern char *outgeometry;
 extern QFont globalFont;
 
 extern QmcGroup	*activeGroup;

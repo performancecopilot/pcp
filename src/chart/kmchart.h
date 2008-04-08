@@ -50,10 +50,10 @@ public:
     static const double defaultLoggerDelta() { return 1.0; }
     static const int defaultVisibleHistory() { return 60; }	// points
     static const int defaultSampleHistory() { return 180; }
-    static const int defaultTimerTimeout() { return 3000; }	// milliseconds
+    static const int defaultTimeout() { return 3000; }		// milliseconds
     static const int minimumPoints() { return 2; }
     static const int maximumPoints() { return 360; }
-    static const int maximumLegendLength() { return 20; }	// chars
+    static const int maximumLegendLength() { return 120; }	// chars
     static const int minimumChartHeight() { return 80; }	// pixels
 
     Tab *activeTab() { return chartTabWidget->activeTab(); }
@@ -94,10 +94,15 @@ public:
 
     void painter(QPainter *, int w, int h, bool);
 
+    // Adjusted height for exporting images (without UI elements)
+    int exportHeight()
+	{ return height() - menuBar()->height() - toolBar->height(); }
+
 public slots:
     virtual void init();
     virtual void quit();
     virtual void enableUi();
+    virtual void exportFile();
     virtual void setupDialogs();
     virtual void fileOpenView();
     virtual void fileSaveView();

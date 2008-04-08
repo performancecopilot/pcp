@@ -31,6 +31,11 @@ public:
     virtual void displayQualitySpinBox();
     virtual void displayQualitySlider();
 
+    static bool exportFile(QString &file, const char *format,
+			   int quality, int width, int height,
+			   bool transparent, bool everything);
+    static int exportFile(char *outfile, char *geometry, bool transparent);
+
 public slots:
     virtual void selectedRadioButton_clicked();
     virtual void allChartsRadioButton_clicked();

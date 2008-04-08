@@ -58,7 +58,7 @@ KmChart::KmChart() : QMainWindow(NULL)
     toolBar->setAllowedAreas(Qt::RightToolBarArea | Qt::TopToolBarArea);
     updateToolbarLocation();
     setupEnabledActionsList();
-    if (!globalSettings.initialToolbar)
+    if (!globalSettings.initialToolbar && !outfile)
 	toolBar->hide();
 
     my.liveHidden = true;
@@ -75,9 +75,10 @@ KmChart::KmChart() : QMainWindow(NULL)
     dateLabel->setFont(globalFont);
     chartValueLabel->setFont(globalFont);
     my.timer = new QTimer(this);
-    my.timer->setSingleShot(true);
-    connect(my.timer, SIGNAL(timeout()), this, SLOT(timeout()));
-    resetTimer();
+    if (outfile)
+	QTimer::singleShot(0, this, SLOT(exportFile()));
+    else
+	QTimer::singleShot(KmChart::defaultTimeout(), this, SLOT(timeout()));
 }
 
 void KmChart::languageChange()
@@ -158,7 +159,7 @@ void KmChart::resetTimer()
 {
     if (my.timer->isActive())
 	my.timer->stop();
-    my.timer->start(KmChart::defaultTimerTimeout());
+    my.timer->start(KmChart::defaultTimeout());
 }
 
 void KmChart::closeEvent(QCloseEvent *)
@@ -319,6 +320,7 @@ void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
 	~QwtPlotPrintFilter::PrintCanvasBackground &
 	~QwtPlotPrintFilter::PrintWidgetBackground &
 	~QwtPlotPrintFilter::PrintGrid);
+    console->post("painter() pw=%d ph=%d nchart=%d", pw, ph, nchart);
     for (i = 0; i < nchart; i++) {
 	Chart *cp = activeTab()->chart(i);
 	if (currentOnly && cp != activeTab()->currentChart())
@@ -326,8 +328,10 @@ void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
 	size = cp->size();
 	if (size.width() > scale_w) scale_w = size.width();
 	scale_h += size.height();
+	console->post("  scale_w=%.2f scale_h=%.2f", scale_w, scale_h);
     }
     size = timeAxisPlot->size();
+    console->post("  timeaxis w=%d h=%d", size.width(), size.height());
     if (size.width() > scale_w) scale_w = size.width();
     scale_h += size.height();
     if (scale_w/pw > scale_h/ph) {
@@ -340,6 +344,7 @@ void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
 	scale_h = ph / scale_h;
 	scale_w = scale_h;
     }
+    console->post("  final chart scale_w=%.2f scale_h=%.2f", scale_w, scale_h);
     rect.setX(0);
     rect.setY(0);
     for (i = 0; i < nchart; i++) {
@@ -355,12 +360,14 @@ void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
 
     // timeButton icon -- not actually painted, just shift coords
     size = timeButton->size();
+    console->post("  timebutton w=%d h=%d", size.width(), size.height());
     rect.setWidth((int)(size.width()*scale_w+0.5));
     rect.setHeight((int)(size.height()*scale_h+0.5));
     rect.setX(rect.x()+rect.width());
 
     // time axis
     size = timeAxisPlot->size();
+    console->post("  timeaxis w=%d h=%d", size.width(), size.height());
     rect.setWidth((int)(size.width()*scale_w+0.5));
     rect.setHeight((int)(size.height()*scale_h+0.5));
     timeAxisPlot->print(qp, rect, filter);
@@ -368,6 +375,7 @@ void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
 
     // date label below time axis
     size = dateLabel->size();
+    console->post("  datelabel w=%d h=%d", size.width(), size.height());
     rect.setWidth((int)(size.width()*scale_w+0.5));
     rect.setHeight((int)(size.height()*scale_h+0.5));
     qp->drawText(rect, Qt::AlignRight, dateLabel->text());
@@ -907,4 +915,10 @@ void KmChart::newScheme(QString cs)
     my.newchart->setupSchemeComboBox();
     my.editchart->setCurrentScheme(cs);
     my.editchart->setupSchemeComboBox();
+}
+
+void KmChart::exportFile()
+{
+    int sts = ExportDialog::exportFile(outfile, outgeometry, Wflag == 0);
+    QApplication::exit(sts);
 }

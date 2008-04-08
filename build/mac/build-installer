@@ -75,7 +75,6 @@ pwd
 
 echo "Updating version information..."
 MACOSX_VERSION=`expr \`uname -r | cut -d. -f1\` - 4`
-MACOSX_NEXT=`expr $MACOSX_VERSION + 1`
 BUILD_DATE=`date +'%Y%m%d'`
 
 for f in installer-info installer-description; do
@@ -84,7 +83,6 @@ for f in installer-info installer-description; do
 	    -e"s/@package_major@/$PKG_MAJOR/g" \
 	    -e"s/@package_minor@/$PKG_MINOR/g" \
 	    -e"s/@macosx_version@/$MACOSX_VERSION/g" \
-	    -e"s/@macosx_next_version@/$MACOSX_NEXT/g" \
 	    -e"s/@build_date@/$BUILD_DATE/g" \
 	    < $f > $nf || exit 1
 done

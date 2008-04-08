@@ -16,11 +16,13 @@
 \f3kmchart\f1 \- stripchart tool for Performance Co-Pilot
 .SH SYNOPSIS
 \f3kmchart\f1
-[\f3\-CVz\f1]
+[\f3\-CVWz\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-c\f1 \f2configfile\f1]
+[\f3\-g\f1 \f2geometry\f1]
 [\f3\-h\f1 \f2host\f1]
+[\f3\-o\f1 \f2outfile\f1]
 [\f3\-O\f1 \f2offset\f1]
 [\f3\-p\f1 \f2port\f1]
 [\f3\-s\f1 \f2samples\f1]
@@ -106,6 +108,17 @@ also connects to
 .BR pmcd (1)
 to check the semantics of metrics.
 .TP
+.B \-g
+Generate image with the specified
+.I geometry
+(width and height).
+This option is only useful when used in conjunction with the
+.B \-o
+option for generating an output image.
+The
+.I geometry
+argument takes the form "WxH" (e.g. 240x120).
+.TP
 .B \-h
 Current performance metric values are retrieved from the nominated
 .I host
@@ -116,6 +129,19 @@ options can be presented, and the list of hosts is used for sourcing
 metric values.
 Any \f2sources\f1 listed on the command line are assumed to be hosts
 if this option is used.
+.TP
+.B \-o
+Generate an image file named
+.IR outfile ,
+and then exit.
+This is most useful when run with an archive and one or more views.
+The generated image will be in the format specified as the file
+extension (automatically determined from
+.IR outfile ).
+If no extension can be determined, then the GIF format is used and
+the generated file is named with this extension.
+The supported image file formats include: bmp, jpeg, jpg, png, ppm,
+tif, tiff, xbm, and xpm.
 .TP
 .B \-p
 .I port

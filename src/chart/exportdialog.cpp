@@ -159,23 +159,78 @@ QSize ExportDialog::imageSize()
 void ExportDialog::flush()
 {
     QString file = fileLineEdit->text().trimmed();
-
     int width = widthSpinBox->value();
     int height = heightSpinBox->value();
+    bool everything = allChartsRadioButton->isChecked();
+    bool transparent = transparentCheckBox->isChecked();
 
-    enum QImage::Format rgbFormat = (transparentCheckBox->isChecked()) ?
-				QImage::Format_ARGB32 : QImage::Format_RGB32;
-    QImage image(width, height, rgbFormat);
-    if (transparentCheckBox->isChecked() == false)
-	image.invertPixels();	// white background
-    QPainter qp(&image);
-    kmchart->painter(&qp, width, height, selectedRadioButton->isChecked());
-
-    if (image.save(file, my.format, my.quality) != true) {
+    if (ExportDialog::exportFile(file, my.format, my.quality, width, height,
+				 transparent, everything) == false) {
 	QString message = tr("Failed to save image file\n");
 	message.append(file);
 	QMessageBox::warning(this, pmProgname, message,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		    QMessageBox::NoButton, QMessageBox::NoButton);
     }
+}
+
+bool ExportDialog::exportFile(QString &file, const char *format, int quality,
+		int width, int height, bool transparent, bool everything)
+{
+    enum QImage::Format rgbFormat = transparent ?
+				QImage::Format_ARGB32 : QImage::Format_RGB32;
+    QImage image(width, height, rgbFormat);
+    if (transparent == false)
+	image.invertPixels();	// white background
+    QPainter qp(&image);
+
+    kmchart->painter(&qp, width, height, everything == false);
+    QImageWriter writer(file, format);
+    writer.setQuality(quality);
+    bool sts = writer.write(image);
+    if (!sts)
+	fprintf(stderr, "%s: error writing %s: %s\n",
+		pmProgname, (const char *) file.toAscii(),
+		(const char *) writer.errorString().toAscii());
+    return sts;
+}
+
+int ExportDialog::exportFile(char *outfile, char *geometry, bool transparent)
+{
+    QRegExp regex;
+    QString file(outfile), format;
+    bool noFormat = false;
+    char suffix[32];
+    int i;
+
+    // Ensure the requested image format is supported, else use GIF
+    regex.setPattern("\\.([a-z]+)$");
+    regex.setCaseSensitivity(Qt::CaseInsensitive);
+    if (regex.indexIn(file) == 0) {
+	noFormat = true;
+    }
+    else {
+	format = regex.cap(1);
+	QList<QByteArray> array = QImageWriter::supportedImageFormats();
+	for (i = 0; i < array.size(); i++)
+	    if (array.at(i) == format)
+		break;
+	if (i == array.size())
+	    noFormat = true;
+    }
+    if (noFormat) {
+	file.append(".gif");
+	format = "gif";
+    }
+    strncpy(suffix, (const char *)format.toAscii(), sizeof(suffix));
+    suffix[sizeof(suffix)-1] = '\0';
+
+    regex.setPattern("(\\d+)x(\\d+)");
+    if (regex.indexIn(QString(geometry)) != -1) {
+	QSize fixed = QSize(regex.cap(1).toInt(), regex.cap(2).toInt());
+	kmchart->setFixedSize(fixed);
+    }
+
+    return ExportDialog::exportFile(file, suffix, 100, kmchart->width(),
+			kmchart->exportHeight(), transparent, true) == false;
 }
