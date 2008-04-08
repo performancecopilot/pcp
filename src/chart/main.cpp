@@ -27,6 +27,9 @@
 
 int Cflag;
 int Lflag;
+int Wflag;
+char *outfile;
+char *outgeometry;
 QFont globalFont;
 Settings globalSettings;
 
@@ -46,11 +49,13 @@ static void usage(void)
 "  -c configfile initial view to load\n"
 "  -C            with -c, parse config, report any errors and exit\n"
 "  -CC           like -C, but also connect to pmcd to check semantics\n"
+"  -g geometry   image geometry Width x Height (WxH)\n"
 "  -h host       add host to list of live metrics sources\n"
 #ifdef PM_USE_CONTEXT_LOCAL
 "  -L            directly fetch metrics from localhost, PMCD is not used\n"
 #endif
 "  -n pmnsfile   use an alternative PMNS\n"
+"  -o outfile    export image to outfile\n"
 "  -O offset     initial offset into the time window\n"
 "  -p port       port name for connection to existing time control\n"
 "  -s samples    sample history [default: %d points]\n"
@@ -58,6 +63,8 @@ static void usage(void)
 "  -T endtime    end of the time window\n"
 "  -t interval   sample interval [default: %d seconds]\n"
 "  -v visible    visible history [default: %d points]\n"
+"  -V            display kmchart version number and exit\n"
+"  -W            export images using an opaque (white) background\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time of metrics source\n",
 	pmProgname, KmChart::defaultSampleHistory(),
@@ -387,7 +394,7 @@ main(int argc, char ** argv)
     char		*Tflag = NULL;		/* argument of -T flag */
     char		*Aflag = NULL;		/* argument of -A flag */
     char		*Oflag = NULL;		/* argument of -O flag */
-    int			zflag = 0;		/* for -z */
+    int			zflag = 0;		/* for -z (source zone) */
     char		*tz = NULL;		/* for -Z timezone */
     int			sh = -1;		/* sample history length */
     int			vh = -1;		/* visible history length */
@@ -405,10 +412,11 @@ main(int argc, char ** argv)
     QStringList		configs;
     QString		tzLabel;
     QString		tzString;
+    static const char	*options = "A:a:Cc:D:g:h:Lo:n:O:p:s:S:T:t:Vv:WzZ:?";
 
     gettimeofday(&origin, NULL);
-    QApplication a(argc, argv);
     pmProgname = basename(argv[0]);
+    QApplication a(argc, argv);
     setupEnvironment();
     readSettings();
 
@@ -418,7 +426,7 @@ main(int argc, char ** argv)
     liveGroup = new QmcGroup();
     archiveGroup = new QmcGroup();
 
-    while ((c = getopt(argc, argv, "A:a:Cc:D:h:Ln:O:p:s:S:T:t:Vv:zZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, options)) != EOF) {
 	switch (c) {
 
 	case 'A':	/* sample alignment */
@@ -451,6 +459,10 @@ main(int argc, char ** argv)
 	    hosts.append(optarg);
 	    break;
 
+	case 'g':
+	    outgeometry = optarg;
+	    break;
+
 #ifdef PM_USE_CONTEXT_LOCAL
 	case 'L':		/* local context */
 	    Lflag = 1;
@@ -459,6 +471,10 @@ main(int argc, char ** argv)
 
 	case 'n':		/* alternative PMNS */
 	    pmnsfile = optarg;
+	    break;
+
+	case 'o':		/* output image file */
+	    outfile = optarg;
 	    break;
 
 	case 'O':		/* sample offset */
@@ -496,6 +512,10 @@ main(int argc, char ** argv)
 
 	case 'T':		/* run time */
 	    Tflag = optarg;
+	    break;
+
+	case 'W':		/* white image background */
+	    Wflag = 1;
 	    break;
 
 	case 'v':		/* vertical history */
