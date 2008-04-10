@@ -375,10 +375,12 @@ void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
 
     // date label below time axis
     size = dateLabel->size();
+    size.setWidth(size.width()+10);	// fudge for text alignment
+    rect.setX(rect.x()+rect.width()-(int)(size.width()*scale_w+0.5));
     console->post("  datelabel w=%d h=%d", size.width(), size.height());
     rect.setWidth((int)(size.width()*scale_w+0.5));
     rect.setHeight((int)(size.height()*scale_h+0.5));
-    qp->drawText(rect, Qt::AlignRight, dateLabel->text());
+    qp->drawText(rect, Qt::AlignLeft, dateLabel->text());
 }
 
 void KmChart::fileQuit()
