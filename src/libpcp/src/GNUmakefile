@@ -104,7 +104,7 @@ dsotbl.h:	$(TOPDIR)/src/pmns/stdpmid
 		udso=`echo $$dso | tr [:lower:] [:upper:] | sed -e's/SAMPLE/SAMPLEDSO/'` ; \
 		domnum=`$(PCP_AWK_PROG) < $^ '$$1=="#define" && $$2=="'$$udso'" { print $$3 }'` ;\
 		echo '#define ' `echo $$dso | tr [:lower:] [:upper:]`_DSO $$domnum ; \
-		echo "	{ $${domnum}, \"$$dso/pmda_$${dso}.so\", \"$${dso}_init\" },"; \
+		echo "	{ $${domnum}, \"$$dso/pmda_$${dso}.$(DSOSUFFIX)\", \"$${dso}_init\" },"; \
 	done >> $@
 	echo '};' >> $@
 	echo 'static int	numdso = (sizeof(dsotab)/sizeof(dsotab[0]));' >> $@
