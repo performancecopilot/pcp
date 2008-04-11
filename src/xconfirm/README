@@ -1,6 +1,0 @@
-This directory is a repository for useful tools that one may
-wish to include with PCP on various platforms.
-
-xconfirm
-	An implementation of the Irix xconfirm(1) command for
-	Linux using xmessage(1).
