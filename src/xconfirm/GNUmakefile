@@ -32,7 +32,7 @@
 TOPDIR = ../..
 include	$(TOPDIR)/src/include/builddefs
 
-LSRCFILES = xconfirm README
+LSRCFILES = xconfirm
 
 default:
 
