@@ -126,100 +126,8 @@ $1 == "-l"	{ if (NF > 1) logf = $2 }
 END		{ print logf }'
 }
 
-_no_libirixpmda()
-{
-    logger -p user.alert -t PCP "pmcd: $1 missing"
-    echo \
-'Error: Cannot find '"$1"'
-       PMCD will start but will not export any IRIX metrics.'
-}
-
-_no_lib64_pcp()
-{
-    logger -p user.alert -t PCP "pmcd: /usr/lib64/libpcp.so.2 missing"
-    echo \
-'Error: Cannot find /usr/lib64/libpcp.so.2 , cannot start PMCD.
-
-       You should use inst(1)/swmgr(1) to ensure that the pcp_eoe.sw64.lib
-       subsystem is installed.'
-    exit
-}
-
 _reboot_setup()
 {
-    if [ "$PCP_PLATFORM" = irix ]
-    then
-	# Set up libirixpmda link so that pmcd will find it
-	# Only needed for 5.3, but removed for all OSs first as previous
-	# releases created it
-	#
-	rm -f /var/pcp/lib/libirixpmda.so /var/pcp/lib/mips_*.libirixpmda.so
-
-	irix_version=`/sbin/uname -r`
-	irix_obj=`pmobjstyle`
-
-	if [ "$irix_obj" = mips_64 -a ! -f /usr/lib64/libpcp.so.2 ]
-	then
-	    _no_lib64_pcp
-	fi
-
-	case $irix_version
-	in
-	    5.3)	if [ ! -f /usr/lib/pcp/libirixpmda.so ]
-		    then
-			_no_libirixpmda /usr/lib/pcp/libirixpmda.so
-			echo \
-'       To obtain an appropriate libirixpmda you should use inst(1)/swmgr(1)
-       to ensure that IRIX patch 2825 (or a successor) is installed.
-'
-		    else
-			ln -s /usr/lib/pcp/libirixpmda.so /var/pcp/lib/mips_o32.libirixpmda.so
-		    fi
-		    ;;
-	    6.2)
-		    if [ ! -f /usr/pcp/lib/$irix_obj.libirixpmda.so ]
-		    then
-			_no_libirixpmda /usr/pcp/lib/$irix_obj.libirixpmda.so
-			echo \
-'       To obtain an appropriate libirixpmda you should use inst(1)/swmgr(1)
-       to ensure that IRIX patch 2826 (or a successor) is installed.
-'
-		    fi
-		    ;;
-	    6.3)
-		    if [ ! -f /usr/pcp/lib/$irix_obj.libirixpmda.so ]
-		    then
-			_no_libirixpmda /usr/pcp/lib/$irix_obj.libirixpmda.so
-			echo \
-'       To obtain an appropriate libirixpmda you should use inst(1)/swmgr(1)
-       to ensure that IRIX patch 2827 (or a successor) is installed.
-'
-		    fi
-		    ;;
-	    6.4)
-		    if [ ! -f /usr/pcp/lib/$irix_obj.libirixpmda.so ]
-		    then
-			_no_libirixpmda /usr/pcp/lib/$irix_obj.libirixpmda.so
-			echo \
-'       To obtain an appropriate libirixpmda you should use inst(1)/swmgr(1)
-       to ensure that IRIX patch 2828 (or a successor) is installed.
-'
-		    fi
-		    ;;
-	    6.5)
-		    if [ ! -f /usr/pcp/lib/$irix_obj.libirixpmda.so ]
-		    then
-			_no_libirixpmda /usr/pcp/lib/$irix_obj.libirixpmda.so
-			echo \
-'       To obtain an appropriate libirixpmda you should use inst(1)/swmgr(1)
-       to ensure that the pcp_eoe.sw.eoe subsystem from the IRIX 6.5 CD set
-       is installed.
-'
-		    fi
-		    ;;
-	esac
-    fi
-
     # base directories and house-keeping for pmlogger instances
     #
     if [ ! -d $PCP_TMP_DIR/pmlogger ]
@@ -584,19 +492,6 @@ case "$1" in
 	unset PCP_STDERR
 
 	_reboot_setup
-
-	if [ "$PCP_PLATFORM" = irix ]
-	then
-	    if [ -d /hw/rdisk ]
-	    then
-		# assume this is a system with the hardware graph support,
-		# so dkprobe is not required
-		:
-	    else
-		# touch all the disks so that libirixpmda sees them
-		which dkprobe >/dev/null 2>&1 && dkprobe
-	    fi
-	fi
 
 	if [ -x $PMCD ]
 	then
