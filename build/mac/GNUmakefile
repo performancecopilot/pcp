@@ -24,8 +24,9 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 include /etc/pcp.conf
 
-LDIRT = $(wildcard kmchart*.pkg) $(wildcard kmchart*.dmg) idb-kmchart
-LDIRDIRT = installer-files
+LDIRT = $(wildcard kmchart*.pkg) $(wildcard kmchart*.dmg) \
+	idb-kmchart description info
+LDIRDIRT = installer-files $(PKG_NAME)-*.*.*
 
 INSTFILES = idb-kmchart install-kmchart uninstall-kmchart \
 	    English.lproj/Localizable.strings
@@ -86,9 +87,9 @@ idb-kmchart: $(DIST_MANIFEST)
 		' $$DIST_MANIFEST \
 	| sed -e 's# '$$WA'/# #g' -e 's# /# #g' >> idb-kmchart
 	@(bdir=`echo $(PCP_BINADM_DIR) | cut -c2-`; \
-	  echo "f 644 root wheel $$bdir/idb-kmchart idb-kmchart replace"; \
-	  echo "f 755 root wheel $$bdir/install-kmchart install-kmchart replace"; \
-	  echo "f 755 root wheel $$bdir/uninstall-kmchart uninstall-kmchart replace") >> idb-kmchart
+	  echo "f 644 root admin $$bdir/idb-kmchart idb-kmchart replace"; \
+	  echo "f 755 root admin $$bdir/install-kmchart install-kmchart replace"; \
+	  echo "f 755 root admin $$bdir/uninstall-kmchart uninstall-kmchart replace") >> idb-kmchart
 	@echo idb-kmchart created
 
 extrabits: idb-kmchart

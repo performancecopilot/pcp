@@ -11,10 +11,6 @@ http://oss.sgi.com/projects/pcp/ for additional details about these tools.
 
 === Wishlist TODO items ===
 
-    - MacOSX packaging needs work:
-      o Install it as a "real" Application, not a regular Unix tool.
-      o MacOSX icon artwork needs further touch-ups to look good;
-      o Refer to "Setting the Application Icon" page in QtAssistant.
     - The Qt-based metrics class needs:
       o A hash for metric instance values instead of an array
 	(to support delete, and better support of dynamic indoms)
