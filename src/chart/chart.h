@@ -53,6 +53,7 @@ public:
     int addPlot(pmMetricSpec *, const char *);
     int numPlot(void);
     void delPlot(int);
+    bool activePlot(int);
     void revivePlot(int m);
     char *title(void);			// return chart title
     void changeTitle(char *, int);	// NULL to clear
