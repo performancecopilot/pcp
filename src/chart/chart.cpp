@@ -1179,3 +1179,10 @@ bool Chart::checkUnits(pmUnits *newUnits)
     else
 	return true;
 }
+
+bool Chart::activePlot(int m)
+{
+    if (m >= 0 && m < my.plots.size())
+	return (my.plots[m]->removed == false);
+    return false;
+}

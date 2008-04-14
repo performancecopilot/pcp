@@ -8,6 +8,7 @@ Standards-Version: 3.7.3
 
 Package: kmchart
 Depends: pcp, ${shlibs:Depends}
+Recommends: xvfb
 Architecture: any
 Description: Chart tool for Performance Co-Pilot
  A chart tool for plotting metric values from the Performance Co-Pilot.

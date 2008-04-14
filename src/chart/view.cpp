@@ -1239,6 +1239,8 @@ static void saveChart(FILE *f, int index, bool hostDynamic)
 	fprintf(f, " antialiasing off");
     fputc('\n', f);
     for (int m = 0; m < cp->numPlot(); m++) {
+	if (cp->activePlot(m) == false)
+	    continue;
 	fprintf(f, "\tplot");
 	p = cp->legendSpec(m);
 	if (p != NULL)
