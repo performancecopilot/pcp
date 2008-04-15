@@ -8,6 +8,8 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+# get standard functions
+. ./common.sh
 # get standard filters
 . ./common.filter
 
@@ -50,7 +52,7 @@ end-of-file
 
 for i in '' '-i' '-i -w 10'
 do
-    for f in '' '-M' '-F' '-g' '-f %H:%M:%S'
+    for f in '' '-M' '-F' '-G' '-f %H:%M:%S'
     do
 	echo
 	echo "kmdumptext $i $f -umN"

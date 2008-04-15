@@ -839,7 +839,7 @@ main(int argc, char *argv[])
 
 	case 'F':	// Fixed width values
 	    if (shortFlag) {
-		pmprintf("%s: -F and -g options may not be used together\n",
+		pmprintf("%s: -F and -G options may not be used together\n",
 			 pmProgname);
 		errflag++;
 	    }
@@ -852,12 +852,12 @@ main(int argc, char *argv[])
 
 	case 'G':	// Shortest format
 	    if (descFlag) {
-		pmprintf("%s: -F and -g may not be used together\n", 
+		pmprintf("%s: -F and -G may not be used together\n", 
 			 pmProgname);
 		errflag++;
 	    }
 	    else if (niceFlag) {
-		pmprintf("%s: -i and -g may not be used togther\n",
+		pmprintf("%s: -i and -G may not be used togther\n",
 			 pmProgname);
 		errflag++;
 	    }
@@ -891,7 +891,7 @@ main(int argc, char *argv[])
 		errflag++;
 	    }
 	    else if (shortFlag) {
-		pmprintf("%s: -i and -g may not be used togther\n",
+		pmprintf("%s: -i and -G may not be used togther\n",
 			 pmProgname);
 		errflag++;
 	    }
