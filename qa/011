@@ -74,7 +74,7 @@ do
     echo Raw $metric
     echo Raw $metric >>$seq.full
     pmval -t 1 -r -a archives/gap $metric 2>&1 | _pmval_filter > $tmp.pmval
-    kmdumptext -g -w 16 -t 1 -r -a archives/gap -d" " -f "%H:%M:%S" $metric 2>&1 | _kmdumptext_filter > $tmp.dump
+    kmdumptext -G -w 16 -t 1 -r -a archives/gap -d" " -f "%H:%M:%S" $metric 2>&1 | _kmdumptext_filter > $tmp.dump
     diff $tmp.pmval $tmp.dump | _diff_filter
     echo "--- pmval ---" >>$seq.full
     cat $tmp.pmval >>$seq.full
@@ -84,7 +84,7 @@ do
     echo Rate $metric
     echo Rate $metric >>$seq.full
     pmval -t 1 -a archives/gap $metric 2>&1 | _pmval_filter > $tmp.pmval
-    kmdumptext -g -w 16 -t 1 -a archives/gap -d" " -f "%H:%M:%S" $metric 2>&1 | _kmdumptext_filter > $tmp.dump 
+    kmdumptext -G -w 16 -t 1 -a archives/gap -d" " -f "%H:%M:%S" $metric 2>&1 | _kmdumptext_filter > $tmp.dump 
     diff $tmp.pmval $tmp.dump | _diff_filter
     echo "--- pmval ---" >>$seq.full
     cat $tmp.pmval >>$seq.full

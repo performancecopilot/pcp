@@ -33,7 +33,7 @@ VERY_VERY_LONG_TIME ? ? ? ? ? ? ?
 VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
 VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
 
-kmdumptext  -g -umN
+kmdumptext  -G -umN
 Time sample.hordes.one["3"] sample.double.ten sample.double.hundred sample.double.million sample.double.ten sample.double.hundred sample.double.million
 ?    0    0    0    0  0.5 -0.0033 5.6e-05
 none none none none none none none none
@@ -85,8 +85,8 @@ VERY_VERY_LONG_TIME      ?      ?      ?      ?      ?      ?      ?
 VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
 VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
 
-kmdumptext -i -g -umN
-kmdumptext: -i and -g may not be used togther
+kmdumptext -i -G -umN
+kmdumptext: -i and -G may not be used togther
 Usage: kmdumptext [options] [metrics ...]
 
 Options:
@@ -137,8 +137,8 @@ VERY_VERY_LONG_TIME          ?          ?          ?          ?          ?      
 VERY_VERY_LONG_TIME      3.00      10.00       0.10K      1.00M     20.00      -0.03M     17.86G
 VERY_VERY_LONG_TIME      3.00      10.00       0.10K      1.00M     20.00      -0.03M     17.86G
 
-kmdumptext -i -w 10 -g -umN
-kmdumptext: -i and -g may not be used togther
+kmdumptext -i -w 10 -G -umN
+kmdumptext: -i and -G may not be used togther
 Usage: kmdumptext [options] [metrics ...]
 
 Options:
