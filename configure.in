@@ -101,6 +101,19 @@ else
     exit 1
 fi
 
+# setup additional platform-specific binary search PATH components
+pcp_platform_paths=""
+case $target_os
+in
+    aix)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin";;
+    irix)	pcp_platform_paths="/usr/bin/X11:/usr/etc";;
+    linux)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin";;
+    cygwin)	pcp_platform_paths="/cygdrive/c/WINDOWS/system32";;
+    solaris)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin:/opt/sfw/bin";;
+    freebsd)	pcp_platform_paths="/usr/bin/X11:/usr/bsd";;
+esac
+AC_SUBST(pcp_platform_paths)
+
 dnl default prefix
 AC_PREFIX_DEFAULT(/usr)
 
@@ -1682,18 +1695,6 @@ struct nfsstats         mach_nfs = { 0 };
 void *p = &mach_nfs.srvnqnfs_leases;
 ], AC_DEFINE(HAVE_NQNFS_LEASES) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 fi
-
-# setup additional platform-specific binary search PATH components
-pcp_platform_paths=""
-case $target_os
-in
-    irix)	pcp_platform_paths="/usr/bin/X11:/usr/etc";;
-    linux)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin";;
-    cygwin)	pcp_platform_paths="/cygdrive/c/WINDOWS/system32";;
-    solaris)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin:/opt/sfw/bin";;
-    freebsd)	pcp_platform_paths="/usr/bin/X11:/usr/bsd";;
-esac
-AC_SUBST(pcp_platform_paths)
 
 dnl
 dnl output files
