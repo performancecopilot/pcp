@@ -291,7 +291,7 @@ archive=$1
 # check that designated pmlogger is really running
 #
 $VERBOSE && _message looking
-ps $PCP_PS_ALL_FLAGS \
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
 | if $primary
 then
     grep 'pmlogger .*-P' | grep -v grep

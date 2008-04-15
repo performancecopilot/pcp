@@ -469,11 +469,20 @@ dnl if /proc is not mounted, try and mount it
 dnl before trying to run the ps style test below
 test -f /proc/stat || mount /proc >/dev/null 2>&1
 
-dnl ps variants, need $awk from above
+dnl set platform specific ps
+if test $target_os = cygwin
+then
+    pcp_ps_prog=procps
+else
+    pcp_ps_prog=ps
+fi
+AC_SUBST(pcp_ps_prog)
+
+dnl ps variants, need $pcp_ps_prog and $awk from above
 dnl want user in col 1, pid in col 2, and command+ps args at the end
 AC_MSG_CHECKING([for ps style])
 pcp_ps_all_flags=''
-if ps -ef >conftest.out 2>/dev/null
+if $pcp_ps_prog -ef >conftest.out 2>/dev/null
 then
     ans=`$awk <conftest.out '
 NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
@@ -485,7 +494,7 @@ $2 == 1 && / \/etc\/init/ { print "OK"; exit }
 # Interix (aka SFU)
 $2 == 0 && /IdleProcess/{ print "OK"; exit }
 # Cygwin
-/ \/usr\/bin\/bash/	{  print "OK"; exit }
+/ \/usr\/bin\/cygrunsrv/{ print "OK"; exit }
 / \/usr\/sbin\/inetd/	{  print "OK"; exit }'`
     if test "$ans" = OK
     then
@@ -494,7 +503,7 @@ $2 == 0 && /IdleProcess/{ print "OK"; exit }
 	AC_MSG_RESULT(SysV)
     fi
 fi
-if test -z "$pcp_ps_all_flags" && ps auxww >conftest.out 2>/dev/null
+if test -z "$pcp_ps_all_flags" && $pcp_ps_prog auxww >conftest.out 2>/dev/null
 then
     ans=`$awk <conftest.out '
 NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
@@ -521,7 +530,7 @@ then
     exit 1
 fi
 dnl checking for w(ide) option so more psargs chars
-if ps ${pcp_ps_all_flags}w >/dev/null 2>&1
+if $pcp_ps_prog ${pcp_ps_all_flags}w >/dev/null 2>&1
 then
     if test $target_os != solaris
     then

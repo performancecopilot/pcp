@@ -408,7 +408,7 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid is $TOKILL.
 	echo "Process ..."
 	if [ "$SIG" = "TERM" ]
 	then
-	    ps $PCP_PS_ALL_FLAGS >$tmp.ps
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps
 	    sed 1q $tmp.ps
 	    for pid in `cat $tmp.tmp`
 	    do

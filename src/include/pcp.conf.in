@@ -160,6 +160,7 @@ PCP_ECHO_C=@echo_c@
 PCP_KILLALL_PROG=@pcp_killall_prog@
 
 # ps
+PCP_PS_PROG=@pcp_ps_prog@
 PCP_PS_HAVE_BSD=@pcp_ps_have_bsd@
 PCP_PS_ALL_FLAGS=@pcp_ps_all_flags@
 

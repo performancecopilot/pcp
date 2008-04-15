@@ -346,7 +346,7 @@ _check_pmie()
 		else
 		    echo "$prog: Error: failed to restart pmie"
 		    echo "Current pmie processes:"
-		    ps $PCP_PS_ALL_FLAGS | tee $tmp.tmp | sed -n -e 1p
+		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | tee $tmp.tmp | sed -n -e 1p
 		    for _p in `echo $_plist`
 		    do
 			sed -n -e "/^[ ]*[^ ]* [ ]*$_p /p" < $tmp.tmp

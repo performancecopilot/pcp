@@ -116,7 +116,7 @@ _shutdown()
 	then
 	    $ECHO
 	    echo "Process ..."
-	    ps $PCP_PS_ALL_FLAGS >$tmp.ps
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps
 	    sed 1q $tmp.ps
 	    for pid in `cat $tmp.tmp`
 	    do
