@@ -87,7 +87,7 @@ elif test $target_os = interix
 then
     dnl Windows Services for Unix (SFU)
     AC_DEFINE(IS_INTERIX)
-    CFLAGS=-D_ALL_SOURCE
+    CFLAGS="$CFLAGS -D_ALL_SOURCE"
     export CFLAGS
 elif test $target_os = aix
 then
