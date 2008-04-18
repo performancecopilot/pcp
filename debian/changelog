@@ -1,3 +1,9 @@
+pcp (2.7.4-20080418) unstable; urgency=low
+
+  * Resolve duplicate names with pgpool2 (closes: #476605)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 18 Apr 2008 11:14:45 +1000
+
 pcp (2.7.4-20080415) unstable; urgency=low
 
   * Improve path handling in pcp.env.

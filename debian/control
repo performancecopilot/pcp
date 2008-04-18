@@ -9,6 +9,7 @@ Standards-Version: 3.7.3
 Package: pcp
 Depends: ${shlibs:Depends}, gawk, procps, sysv-rc-conf, cpp
 Suggests: tsocks
+Conflicts: pgpool2
 Recommends: kmchart
 Architecture: any
 Description: System level performance monitoring and performance management
@@ -33,6 +34,7 @@ Description: Performance Co-Pilot library and headers
 
 Package: libpcp3
 Depends: ${shlibs:Depends}
+Conflicts: pgpool2
 Section: libs
 Priority: extra
 Architecture: any
