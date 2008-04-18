@@ -167,7 +167,7 @@ find_cache(pmInDom indom, int *sts)
 static entry_t *
 walk_cache(hdr_t *h, int op)
 {
-    static entry_t	*e;
+    entry_t	*e;
 
     if (op == PMDA_CACHE_WALK_REWIND) {
 	h->save = h->first;
