@@ -12,10 +12,10 @@ HEADERS = aboutdialog.h console.h kmtimearch.h kmtimelive.h \
 SOURCES = aboutdialog.cpp console.cpp kmtimearch.cpp kmtimelive.cpp \
 	  seealsodialog.cpp showboundsdialog.cpp timelord.cpp main.cpp
 
-LSRCFILES = $(PROJECT) $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
+LSRCFILES = $(PROJECT).in $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
 	  $(WRAPPER).IN
 LDIRDIRT = build $(COMMAND).xcodeproj
-LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER)
+LDIRT = $(PROJECT) $(COMMAND) $(ICONLINKS) $(WRAPPER)
 
 ICONLINKS = play_off.png play_on.png fastfwd_off.png fastfwd_on.png \
 	fastback_off.png fastback_on.png back_off.png back_on.png \

@@ -18,10 +18,10 @@ HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
 	  timeaxis.h timebutton.h timecontrol.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
 
-LSRCFILES = $(PROJECT) $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
+LSRCFILES = $(PROJECT).in $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
 	  $(DESKTOP) $(WRAPPER).IN
 LDIRDIRT = build $(COMMAND).xcodeproj
-LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER)
+LDIRT = $(PROJECT) $(COMMAND) $(ICONLINKS) $(WRAPPER)
 
 ICONLINKS = aboutpcp.png aboutqt.png aboutkmchart.png kmchart.png kmtime.png \
 	    $(ICNFILE) document-close.png document-new.png document-open.png \

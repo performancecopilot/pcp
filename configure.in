@@ -13,8 +13,16 @@ AC_PACKAGE_NEED_PTHREADMUTEXINIT
 
 AC_MANUAL_FORMAT
 
+qt_assistant=assistant
+AC_SUBST(qt_assistant)
+
+qt_release=debug
+AC_SUBST(qt_release)
+
 AC_OUTPUT( \
 	src/include/builddefs \
 	src/include/version.h \
+	src/chart/kmchart.pro \
 	man/html/kmchart.adp \
+	src/time/kmtime.pro \
 	man/html/kmtime.adp)
