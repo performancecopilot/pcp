@@ -90,7 +90,7 @@
            <enum>Qt::NoFocus</enum>
           </property>
           <property name="whatsThis" >
-           <string>VCR state button, also used to dIsplay the time control window.</string>
+           <string>VCR state button, also used to display the time control window.</string>
           </property>
           <property name="text" >
            <string/>
