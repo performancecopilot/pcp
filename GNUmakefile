@@ -128,7 +128,7 @@ ifdef BUILDRULES
 include $(BUILDRULES)
 else
 # if src/include/builddefs doesn't exist, we are pristine (hence also clean)
-realclean clean clobber clean-lbs clean-sgi:
+realclean distclean clean clobber clean-lbs clean-sgi:
 	@true
 endif
 
