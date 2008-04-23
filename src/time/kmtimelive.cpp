@@ -33,6 +33,11 @@
 KmTimeLive::KmTimeLive() : QMainWindow(NULL)
 {
     setupUi(this);
+#ifdef Q_OS_MAC        // fixup after relocation of the MenuBar by Qt
+    QSize size = QSize(width(), height() - MenuBar->height());
+    setMinimumSize(size);
+    setMaximumSize(size);
+#endif
 }
 
 typedef struct {
