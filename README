@@ -9,8 +9,45 @@ Instructions on building these tools can be found in doc/INSTALL.  Consult
 http://oss.sgi.com/projects/pcp/ for additional details about these tools.
 
 
+=== Known Bugs ===
+    - VCR issue when starting at specified archive offset.
+    - Timezone issue (-z not working correctly)
+
+=== Planned for 2.0 ===
+
+    - Gadgets tab type
+    - Button press on time axis "button" need to goto Samples tab
+
+    - Dock Layout
+	- Make a QTabBar the QMainWindow "central" widget
+	- Replace use of QSplitter with QMainWindow QDockWidgets,
+	  and cunning use of save/restore with Tab switches
+	- Allow saving Tab layouts in views (maybe, see below)
+	- Placement user interaction (menu over charts)
+	- Placement functionality - strip charts vs gadgets
+	- New Toolbar items (new toolbar &| Preferences update)
+    - Chart gadget (with Y-axis)
+    - Bar2d gadget (horizonal/vertical - gmemusage/grosview-like)
+    - Bar3d gadget (pmview-like)
+    - LED gadget (pmgadgets-like)
+    - Label gadget (pmgadgets-like)
+    - Value gadget (new - optionally use QLCDNumber)
+
+    - Consider: revised kmchart view format (interim), or switch
+      to using script-based views in this release?  Probably too
+      much to take on for one release (not clear on the language
+      choice yet either - Perl or QtScript?).  Maybe release 2.0
+      without view format extension (i.e. no gadget support, and
+      no individual chart geometry support).  Then implement API
+      and script-language-view support in 3.0?
+
+    - Need to regenerate many screenshots (Tutorial/Manual) with
+      whatever the final windows look like.
+
+
 === Wishlist TODO items ===
 
+    - Merge Qwt 5.1 sources.
     - The Qt-based metrics class needs:
       o A hash for metric instance values instead of an array
 	(to support delete, and better support of dynamic indoms)
@@ -19,9 +56,6 @@ http://oss.sgi.com/projects/pcp/ for additional details about these tools.
       was one) - this would let the clients correctly track whether it
       is visible/not (kmchart displays this state in the Options menu,
       and uses that state to decide whether a hide/show is needed).
-    - QwtLegend use needs a complete revamp - see all the hacks in the
-      kmchart code related to fixLegendPen().  Print/Export do not do
-      anything useful with the legend at the moment, which is a shame.
     - Extend kmdumptext to use an abstracted kmtime class for kmtime
       VCR control.
     - Extend kmdumptext to allow input to drive kmtime remotely (will
