@@ -55,11 +55,6 @@ KmChart::KmChart() : QMainWindow(NULL)
     setIconSize(QSize(22, 22));
 
     setupUi(this);
-#ifdef Q_OS_MAC        // fixup after relocation of the MenuBar by Qt
-    QSize size = QSize(width(), height() - MenuBar->height());
-    setMinimumSize(size);
-    setMaximumSize(size);
-#endif
 
     my.statusBar = new StatusBar;
     setStatusBar(my.statusBar);
