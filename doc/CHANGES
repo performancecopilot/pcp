@@ -1,3 +1,7 @@
+kmchart 1.1.2 (24 April 2008)
+    - Fix kmchart main window sizing issue on Mac OS X
+    - Ensure all sources are picked up in the shipped source.
+
 kmchart 1.1.1 (23 April 2008)
     - Fix a last-minute typo causing compiler warning.
     - Minor cleanups to the Debian package build.
