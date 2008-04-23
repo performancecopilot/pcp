@@ -38,7 +38,8 @@ HEADERS += \
     qwt3d_multiplot.h
 
 HEADERS += \
-    qwt3d_io_gl2ps.h
+    qwt3d_io_gl2ps.h \
+    gl2ps.h
          
 SOURCES += \
     qwt3d_axis.cpp \
@@ -68,5 +69,6 @@ SOURCES += \
     qwt3d_gridplot.cpp \
     qwt3d_meshplot.cpp
 
-#SOURCES += \
-#    qwt3d_io_gl2ps.cpp
+SOURCES += \
+    qwt3d_io_gl2ps.cpp \
+    gl2ps.c
