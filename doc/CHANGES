@@ -1,3 +1,7 @@
+kmchart 1.1.1 (23 April 2008)
+    - Fix a last-minute typo causing compiler warning.
+    - Minor cleanups to the Debian package build.
+
 kmchart 1.1.0 (23 April 2008)
     - Added kmsnap(1) for automating chart image generation.
     - Reworked the time axis layout management.

@@ -1,8 +1,9 @@
-kmchart (1.1.0) unstable; urgency=low
+kmchart (1.1.1) unstable; urgency=low
 
-  * New release.
+  * New kmchart release.
+  * Reworked package versioning to not need a datestamp.
 
- -- Nathan Scott <nathans@debian.org>  Wed, 23 Apr 2008 20:39:02 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 23 Apr 2008 21:58:25 +1000
 
 kmchart (1.0.0-20080312) unstable; urgency=low
 

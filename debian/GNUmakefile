@@ -1,7 +1,7 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES = changelog compat control copyright rules source.lintian-overrides
+LSRCFILES = changelog compat control copyright rules
 
 default:
 
