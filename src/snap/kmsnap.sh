@@ -127,7 +127,7 @@ startXvfb()
 stopXvfb()
 {
     pid="$1"
-    [ -z "$pid" || "$pid" -le 0 ] && return
+    [ -z "$pid" -o "$pid" -le 0 ] && return
     kill $pid
 }
 
