@@ -4,7 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 LIBRARY = libqwt3d
 PROJECT = $(LIBRARY).pro
 HEADERS = $(shell echo *.h)
-SOURCES = $(shell echo *.cpp)
+SOURCES = $(shell echo *.c *.cpp)
 
 LSRCFILES = $(PROJECT) $(SOURCES) $(HEADERS)
 LDIRDIRT = build qwt3d.xcodeproj
