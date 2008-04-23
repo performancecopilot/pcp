@@ -1,6 +1,11 @@
 [git]
     - kmsnap support for automating chart image generation
     - reworked the time axis layout management
+    - fixed issues with generated images (fonts and layouts)
+    - fixed several issues with legends, and now display legends
+      without a surrounding window by default - only when a plot
+      is disabled is its legend drawn indented now, which gives
+      a much cleaner default UI in the default case.
 
 kmchart 1.0.0 (5 March 2008)
     - Fix the handling of missed updates in live mode - no longer

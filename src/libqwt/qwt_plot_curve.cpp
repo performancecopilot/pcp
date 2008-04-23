@@ -110,6 +110,7 @@ public:
         paintAttributes(0)
     {
         pen = QPen(Qt::black, 0);
+        legendPen = Qt::NoPen;
         curveFitter = new QwtSplineCurveFitter;
     }
 
@@ -126,6 +127,7 @@ public:
     QwtCurveFitter *curveFitter;
 
     QPen pen;
+    QPen legendPen;
     QBrush brush;
 
     int attributes;
@@ -311,6 +313,29 @@ void QwtPlotCurve::setPen(const QPen &p)
 const QPen& QwtPlotCurve::pen() const 
 { 
     return d_data->pen; 
+}
+
+/*!
+  \brief Assign a pen for the legend
+  \param p New pen
+  \sa pen(), brush()
+*/
+void QwtPlotCurve::setLegendPen(const QPen &p)
+{
+    if ( p != d_data->legendPen )
+    {
+        d_data->legendPen = p;
+        itemChanged();
+    }
+}
+
+/*!
+    \brief Return the pen used to draw the legend lines
+    \sa setLegendPen(), brush()
+*/
+const QPen& QwtPlotCurve::legendPen() const 
+{ 
+    return (d_data->legendPen != Qt::NoPen) ? d_data->legendPen : d_data->pen;
 }
 
 /*!
@@ -1264,7 +1289,7 @@ void QwtPlotCurve::updateLegend(QwtLegend *legend) const
         int mode = legend->identifierMode();
 
         if (mode & QwtLegendItem::ShowLine)
-            legendItem->setCurvePen(pen());
+            legendItem->setCurvePen(legendPen());
 
         if (mode & QwtLegendItem::ShowSymbol)
             legendItem->setSymbol(symbol());
@@ -1282,7 +1307,7 @@ void QwtPlotCurve::updateLegend(QwtLegend *legend) const
 
         if (QwtPlotCurve::NoCurve != style())
         {
-            legendItem->setCurvePen(pen());
+            legendItem->setCurvePen(legendPen());
             mode |= QwtLegendItem::ShowLine;
         }
         if (QwtSymbol::NoSymbol != symbol().style())

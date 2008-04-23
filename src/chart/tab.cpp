@@ -295,7 +295,6 @@ void Tab::refreshCharts(void)
 		my.timeData[my.visible - 1], my.timeData[0],
 		kmchart->timeAxis()->scaleValue(my.realDelta, my.visible));
 	my.charts[i]->update(my.timeState != Tab::BackwardState, true);
-	my.charts[i]->fixLegendPen();
     }
 
     if (this == kmchart->activeTab()) {

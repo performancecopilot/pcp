@@ -304,9 +304,14 @@ void QwtLegendItem::drawIdentifier(
     if ( (d_data->identifierMode & ShowLine ) && (d_data->curvePen.style() != Qt::NoPen) )
     {
         painter->save();
+        QPen p(Qt::black);
+        p.setWidth(d_data->curvePen.width() + 2);
+        painter->setPen(p);
+        QwtPainter::drawLine(painter, rect.left()+1, rect.center().y(),
+            rect.right()-1, rect.center().y());
         painter->setPen(d_data->curvePen);
-        QwtPainter::drawLine(painter, rect.left(), rect.center().y(), 
-            rect.right(), rect.center().y());
+        QwtPainter::drawLine(painter, rect.left()+1, rect.center().y(), 
+            rect.right()-1, rect.center().y());
         painter->restore();
     }
 
@@ -382,7 +387,7 @@ void QwtLegendItem::paintEvent(QPaintEvent *e)
     QPainter painter(this);
     painter.setClipRegion(e->region());
 
-    if ( d_data->isDown )
+    if ( d_data->isDown == false )
     {
         qDrawWinButton(&painter, 0, 0, width(), height(), 
 #if QT_VERSION < 0x040000

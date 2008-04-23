@@ -328,6 +328,8 @@ void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
 	~QwtPlotPrintFilter::PrintCanvasBackground &
 	~QwtPlotPrintFilter::PrintWidgetBackground &
 	~QwtPlotPrintFilter::PrintGrid);
+    qp->setFont(globalFont);
+
     console->post("painter() pw=%d ph=%d nchart=%d", pw, ph, nchart);
     for (i = 0; i < nchart; i++) {
 	Chart *cp = activeTab()->chart(i);
@@ -371,7 +373,7 @@ void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
     console->post("  timebutton w=%d h=%d", size.width(), size.height());
     rect.setWidth((int)(size.width()*scale_w+0.5));
     rect.setHeight((int)(size.height()*scale_h+0.5));
-    rect.setX(rect.x()+rect.width());
+    rect.setX(rect.width()-5);	// timeframe layout margin adjustment (5)
 
     // time axis
     size = my.statusBar->timeAxis()->size();
@@ -383,7 +385,7 @@ void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
 
     // date label below time axis
     size = my.statusBar->dateLabel()->size();
-    size.setWidth(size.width()+10);	// fudge for text alignment
+    size.setWidth(size.width());
     rect.setX(rect.x()+rect.width()-(int)(size.width()*scale_w+0.5));
     console->post("  datelabel w=%d h=%d", size.width(), size.height());
     rect.setWidth((int)(size.width()*scale_w+0.5));

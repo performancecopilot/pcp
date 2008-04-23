@@ -434,8 +434,11 @@ void Chart::showCurve(QwtPlotItem *item, bool on)
     item->setVisible(on);
     if (legend()) {
 	QWidget *w = legend()->find(item);
-	if (w && w->inherits("QwtLegendItem"))
-	    ((QwtLegendItem *)w)->setChecked(on);
+	if (w && w->inherits("QwtLegendItem")) {
+	    QwtLegendItem *li = (QwtLegendItem *)w;
+	    li->setChecked(on);
+	    li->setFont(globalFont);
+	}
     }
     // find matching plot and update hidden status if required
     for (int m = 0; m < my.plots.size(); m++) {
@@ -449,28 +452,6 @@ void Chart::showCurve(QwtPlotItem *item, bool on)
 	}
     }
     replot();
-}
-
-void Chart::fixLegendPen()
-{
-    // Need to force the pen width in the legend back to 10 pixels
-    // for every chart after every legend update ... Qwt provides
-    // no way to make this sticky, and calls
-    // QwtLegendItem::setCurvePen() from lots of places internally.
-    // Ditto for the alignment and other visual effects for legend
-    // buttons
-    if (legendVisible()) {
-	for (int m = 0; m < my.plots.size(); m++) {
-	    QWidget *w = legend()->find(my.plots[m]->curve);
-	    if (w && w->inherits("QwtLegendItem")) {
-		QwtLegendItem	*lip;
-		QPen p(my.plots[m]->color);
-		p.setWidth(8);
-		lip = (QwtLegendItem *)w;
-		lip->setCurvePen(p);
-	    }
-	}
-    }
 }
 
 void Chart::resetDataArrays(Plot *plot, int v)
@@ -596,8 +577,6 @@ int Chart::addPlot(pmMetricSpec *pmsp, const char *legend)
 
     // set the prevailing chart style and the default color
     setStroke(plot, my.style, nextColor(my.scheme, &my.sequence));
-
-    fixLegendPen();
 
     maxCount = 0;
     for (int m = 0; m < my.plots.size(); m++)
@@ -767,7 +746,9 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 {
     console->post("Chart::setStroke [style %d->%d]", my.style, style);
 
-    plot->color = color;
+    QPen p(color);
+    p.setWidth(8);
+    plot->curve->setLegendPen(p);
     plot->curve->setRenderHint(QwtPlotItem::RenderAntialiased, my.antiAliasing);
 
     switch (style) {

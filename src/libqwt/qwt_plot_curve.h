@@ -148,6 +148,9 @@ public:
     void setPen(const QPen &);
     const QPen &pen() const;
 
+    void setLegendPen(const QPen &);
+    const QPen &legendPen() const;
+
     void setBrush(const QBrush &);
     const QBrush &brush() const;
 

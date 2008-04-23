@@ -95,7 +95,6 @@ public:
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
-    void fixLegendPen(void);
 
     void setupTree(QTreeWidget *);
     void addToTree(QTreeWidget *, QString, const QmcContext *,
