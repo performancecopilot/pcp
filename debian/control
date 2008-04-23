@@ -1,6 +1,6 @@
 Source: kmchart
 Section: utils
-Priority: optional
+Priority: extra
 Maintainer: Nathan Scott <nathans@debian.org>
 Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
 Build-Depends: autoconf, debhelper (>= 5), libpcp3-dev, libqt4-dev
