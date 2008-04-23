@@ -1,11 +1,17 @@
-[git]
-    - kmsnap support for automating chart image generation
-    - reworked the time axis layout management
-    - fixed issues with generated images (fonts and layouts)
-    - fixed several issues with legends, and now display legends
-      without a surrounding window by default - only when a plot
-      is disabled is its legend drawn indented now, which gives
-      a much cleaner default UI in the default case.
+kmchart 1.1.0 (23 April 2008)
+    - Added kmsnap(1) for automating chart image generation.
+    - Reworked the time axis layout management.
+    - Fixed the Dock icons on Mac OS X.
+    - Fixed the packaging on Mac OS X, so that the pre-built
+      packages install on both 10.4 and 10.5, and such that
+      kmchart is installed like other "real" Applications.
+    - Fixed issues with generated images (fonts and layouts)
+    - Fixed several issues surrounding legends, which we now draw
+      without the surrounding frame by default - only when a plot
+      is disabled is its legend drawn indented now, which gives a
+      much cleaner default UI in the default case.
+    - Default to png image format, if none other requested, as
+      it is always supported in all Qt builds (unlike gif).
 
 kmchart 1.0.0 (5 March 2008)
     - Fix the handling of missed updates in live mode - no longer

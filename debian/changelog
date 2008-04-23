@@ -1,3 +1,9 @@
+kmchart (1.1.0) unstable; urgency=low
+
+  * New release.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 23 Apr 2008 20:39:02 +1000
+
 kmchart (1.0.0-20080312) unstable; urgency=low
 
   * Initial Debian packaging of kmchart (closes: #469461).
