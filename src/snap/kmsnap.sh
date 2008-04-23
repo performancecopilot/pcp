@@ -35,7 +35,7 @@ _usage()
 Usage: $prog [-dNV] [-C dir] [-c regex] [-f format] [-n regex] [-o dir]
     -C    alternate directory for control file(s)
     -c    matches the Config field in the kmsnap control file
-    -f    output image format (default gif)
+    -f    output image format (default png)
     -N    show me, but do not execute commands
     -n    matches the Name field in the kmsnap control file
     -o    default directory for output images (default ".")
@@ -136,7 +136,7 @@ archives=""
 configs='.*'
 names='.*'
 dir="."
-format="gif"
+format="png"
 verbose=false
 passthru=false
 version="1.0"

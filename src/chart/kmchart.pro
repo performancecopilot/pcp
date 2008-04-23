@@ -28,4 +28,4 @@ LIBS		= -lpcp -lqmc -lqwt
 LIBS		+= -L../libqmc -L../libqmc/build/Default
 LIBS		+= -L../libqwt -L../libqwt/build/Default
 QT		+= assistant network
-CONFIG		+= qt assistant warn_on release #debug
+CONFIG		+= qt assistant warn_on debug

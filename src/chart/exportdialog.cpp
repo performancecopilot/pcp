@@ -189,8 +189,8 @@ bool ExportDialog::exportFile(QString &file, const char *format, int quality,
     writer.setQuality(quality);
     bool sts = writer.write(image);
     if (!sts)
-	fprintf(stderr, "%s: error writing %s: %s\n",
-		pmProgname, (const char *) file.toAscii(),
+	fprintf(stderr, "%s: error writing %s (%s): %s\n",
+		pmProgname, (const char *) file.toAscii(), format,
 		(const char *) writer.errorString().toAscii());
     return sts;
 }
@@ -212,15 +212,18 @@ int ExportDialog::exportFile(char *outfile, char *geometry, bool transparent)
     else {
 	format = regex.cap(1);
 	QList<QByteArray> array = QImageWriter::supportedImageFormats();
-	for (i = 0; i < array.size(); i++)
-	    if (array.at(i) == format)
+	for (i = 0; i < array.size(); i++) {
+	    const char *f1 = array.at(i);
+	    const char *f2 = (const char *)format.toAscii();
+	    if (strcmp(f2, f2) != 0)
 		break;
+	}
 	if (i == array.size())
 	    noFormat = true;
     }
     if (noFormat) {
-	file.append(".gif");
-	format = "gif";
+	file.append(".png");
+	format = QString("png");
     }
     strncpy(suffix, (const char *)format.toAscii(), sizeof(suffix));
     suffix[sizeof(suffix)-1] = '\0';
