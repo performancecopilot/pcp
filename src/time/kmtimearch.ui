@@ -586,6 +586,22 @@ right (faster).  This only affects normal play/back modes.</string>
       </item>
      </layout>
     </item>
+    <item row="1" column="0" >
+     <spacer>
+      <property name="orientation" >
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType" >
+       <enum>QSizePolicy::MinimumExpanding</enum>
+      </property>
+      <property name="sizeHint" >
+       <size>
+        <width>20</width>
+        <height>0</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="MenuBar" >
@@ -594,7 +610,7 @@ right (faster).  This only affects normal play/back modes.</string>
      <x>0</x>
      <y>0</y>
      <width>320</width>
-     <height>26</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="File" >
