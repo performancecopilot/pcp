@@ -38,8 +38,7 @@
 #include "seealsodialog.h"
 #include "settingsdialog.h"
 #include "tabdialog.h"
-#include "timeaxis.h"
-#include "timebutton.h"
+#include "statusbar.h"
 #include "version.h"
 
 #define DESPERATE 0
@@ -54,6 +53,10 @@ KmChart::KmChart() : QMainWindow(NULL)
     my.assistant = NULL;
     my.dialogsSetup = false;
     setupUi(this);
+    setIconSize(QSize(22, 22));
+
+    my.statusBar = new StatusBar;
+    setStatusBar(my.statusBar);
 
     toolBar->setAllowedAreas(Qt::RightToolBarArea | Qt::TopToolBarArea);
     updateToolbarLocation();
@@ -71,10 +74,6 @@ KmChart::KmChart() : QMainWindow(NULL)
 	consoleAction->setVisible(false);
     consoleAction->setChecked(false);
 
-    setIconSize(QSize(22, 22));
-    dateLabel->setFont(globalFont);
-    chartValueLabel->setFont(globalFont);
-    my.timer = new QTimer(this);
     if (outfile)
 	QTimer::singleShot(0, this, SLOT(exportFile()));
     else
@@ -88,7 +87,7 @@ void KmChart::languageChange()
 
 void KmChart::init(void)
 {
-    timeAxisPlot->init();
+    my.statusBar->init();
 }
 
 void KmChart::setupDialogs(void)
@@ -113,6 +112,10 @@ void KmChart::setupDialogs(void)
     my.saveview = new SaveViewDialog(this);
     my.settings = new SettingsDialog(this);
 
+    connect(my.statusBar->timeFrame(), SIGNAL(clicked()),
+				this, SLOT(editTab()));
+    connect(my.statusBar->timeButton(), SIGNAL(clicked()),
+				this, SLOT(optionsTimeControl()));
     connect(my.newtab->buttonOk, SIGNAL(clicked()),
 				this, SLOT(acceptNewTab()));
     connect(my.edittab->buttonOk, SIGNAL(clicked()),
@@ -149,17 +152,16 @@ void KmChart::quit()
 	kmtime->quit();
 }
 
+void KmChart::setValueText(QString &string)
+{
+    my.statusBar->setValueText(string);
+    QTimer::singleShot(KmChart::defaultTimeout(), this, SLOT(timeout()));
+}
+
 void KmChart::timeout()
 {
     setupDialogs();
-    kmchart->chartValueLabel->clear();
-}
-
-void KmChart::resetTimer()
-{
-    if (my.timer->isActive())
-	my.timer->stop();
-    my.timer->start(KmChart::defaultTimeout());
+    my.statusBar->clearValueText();
 }
 
 void KmChart::closeEvent(QCloseEvent *)
@@ -221,7 +223,7 @@ void KmChart::updateToolbarLocation()
 
 void KmChart::setButtonState(TimeButton::State state)
 {
-    timeButton->setButtonState(state);
+    my.statusBar->timeButton()->setButtonState(state);
 }
 
 void KmChart::step(bool live, KmTime::Packet *packet)
@@ -330,7 +332,7 @@ void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
 	scale_h += size.height();
 	console->post("  scale_w=%.2f scale_h=%.2f", scale_w, scale_h);
     }
-    size = timeAxisPlot->size();
+    size = my.statusBar->timeAxis()->size();
     console->post("  timeaxis w=%d h=%d", size.width(), size.height());
     if (size.width() > scale_w) scale_w = size.width();
     scale_h += size.height();
@@ -359,28 +361,28 @@ void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
     }
 
     // timeButton icon -- not actually painted, just shift coords
-    size = timeButton->size();
+    size = my.statusBar->timeButton()->size();
     console->post("  timebutton w=%d h=%d", size.width(), size.height());
     rect.setWidth((int)(size.width()*scale_w+0.5));
     rect.setHeight((int)(size.height()*scale_h+0.5));
     rect.setX(rect.x()+rect.width());
 
     // time axis
-    size = timeAxisPlot->size();
+    size = my.statusBar->timeAxis()->size();
     console->post("  timeaxis w=%d h=%d", size.width(), size.height());
     rect.setWidth((int)(size.width()*scale_w+0.5));
     rect.setHeight((int)(size.height()*scale_h+0.5));
-    timeAxisPlot->print(qp, rect, filter);
+    my.statusBar->timeAxis()->print(qp, rect, filter);
     rect.setY(rect.y()+rect.height());
 
     // date label below time axis
-    size = dateLabel->size();
+    size = my.statusBar->dateLabel()->size();
     size.setWidth(size.width()+10);	// fudge for text alignment
     rect.setX(rect.x()+rect.width()-(int)(size.width()*scale_w+0.5));
     console->post("  datelabel w=%d h=%d", size.width(), size.height());
     rect.setWidth((int)(size.width()*scale_w+0.5));
     rect.setHeight((int)(size.height()*scale_h+0.5));
-    qp->drawText(rect, Qt::AlignLeft, dateLabel->text());
+    qp->drawText(rect, Qt::AlignLeft, my.statusBar->dateText());
 }
 
 void KmChart::fileQuit()
@@ -777,12 +779,12 @@ void KmChart::setDateLabel(time_t seconds, QString tz)
     else {
 	label = tr("");
     }
-    dateLabel->setText(label);
+    my.statusBar->setDateText(label);
 }
 
 void KmChart::setDateLabel(QString label)
 {
-    dateLabel->setText(label);
+    my.statusBar->setDateText(label);
 }
 
 void KmChart::setRecordState(Tab *tab, bool recording)

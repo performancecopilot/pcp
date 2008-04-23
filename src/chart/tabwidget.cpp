@@ -13,6 +13,12 @@
  */
 #include "tabwidget.h"
 #include "tab.h"
+#include "main.h"
+
+TabWidget::TabWidget(QWidget *parent) : QTabWidget(parent)
+{
+    setFont(globalFont);
+}
 
 bool TabWidget::setActiveTab(Tab *tab)
 {

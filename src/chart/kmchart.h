@@ -15,6 +15,7 @@
 #define KMCHART_H
 
 #include "ui_kmchart.h"
+#include "statusbar.h"
 #include <kmtime.h>
 
 class TimeAxis;
@@ -61,7 +62,7 @@ public:
     void addActiveTab(Tab *tab);
     bool isArchiveTab();
     TabWidget *tabWidget() { return chartTabWidget; }
-    TimeAxis *timeAxis() { return timeAxisPlot; }
+    TimeAxis *timeAxis() { return my.statusBar->timeAxis(); }
 
     virtual void step(bool livemode, KmTime::Packet *kmtime);
     virtual void VCRMode(bool livemode, KmTime::Packet *kmtime, bool drag);
@@ -73,6 +74,7 @@ public:
     virtual void metricInfo(QString src, QString m, QString inst, bool archive);
     virtual void metricSearch(QTreeWidget *pmns);
     virtual void createNewTab(bool liveMode);
+    virtual void setValueText(QString &text);
     virtual void setDateLabel(QString label);
     virtual void setDateLabel(time_t seconds, QString tz);
     virtual void setButtonState(TimeButton::State state);
@@ -89,8 +91,6 @@ public:
     virtual void newScheme();	// request new scheme of settings dialog
     virtual void newScheme(QString);	// reply back to requesting dialog(s)
     virtual void updateBackground();
-
-    virtual void resetTimer();
 
     void painter(QPainter *, int w, int h, bool);
 
@@ -147,12 +147,12 @@ protected slots:
 
 private:
     struct {
-	QTimer *timer;
 	bool dialogsSetup;
 	bool liveHidden;
 	bool archiveHidden;
 	bool toolbarHidden;
 	bool consoleHidden;
+
 	TabDialog *newtab;
 	TabDialog *edittab;
 	InfoDialog *info;
@@ -163,10 +163,14 @@ private:
 	OpenViewDialog *openview;
 	SaveViewDialog *saveview;
 	SettingsDialog *settings;
+
 	QAssistantClient *assistant;
+
 	QList<QAction*> separatorsList;		// separator follow these
 	QList<QAction*> toolbarActionsList;	// all toolbar actions
 	QList<QAction*> enabledActionsList;	// currently visible actions
+
+	StatusBar *statusBar;
     } my;
 };
 

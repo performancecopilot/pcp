@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -53,24 +53,22 @@ public:
 TimeAxis::TimeAxis(QWidget *parent) : QwtPlot(parent)
 {
     clearScaleCache();
-    setFixedHeight(30);
     setFocusPolicy(Qt::NoFocus);
 }
 
 void TimeAxis::init()
 {
-    enableAxis(xBottom, true);
     enableAxis(xTop, false);
     enableAxis(yLeft, false);
     enableAxis(yRight, false);
-    setAutoReplot(false);
-    setHideCanvas(true);
-    plotLayout()->setAlignCanvasToScales(true);
-    canvas()->hide();
+    enableAxis(xBottom, true);
+
     setMargin(1);
+    setHideCanvas(true);
+    setAutoReplot(false);
+    setAxisFont(QwtPlot::xBottom, globalFont);
     setAxisScaleDraw(QwtPlot::xBottom, new TimeScaleDraw());
     setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignHCenter | Qt::AlignBottom);
-    setAxisFont(QwtPlot::xBottom, globalFont);
 }
 
 void TimeAxis::noArchiveSources()

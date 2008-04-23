@@ -6,14 +6,15 @@ HEADERS		= aboutdialog.h chartdialog.h console.h exportdialog.h \
 		  seealsodialog.h settingsdialog.h tabdialog.h \
 		  chart.h colorbutton.h colorscheme.h curve.h \
 		  fileiconprovider.h main.h namespace.h qcolorpicker.h \
-		  tab.h tabwidget.h timeaxis.h timebutton.h timecontrol.h
+		  tab.h tabwidget.h timeaxis.h timebutton.h timecontrol.h \
+		  statusbar.h
 SOURCES		= aboutdialog.cpp chartdialog.cpp console.cpp exportdialog.cpp \
 		  hostdialog.cpp infodialog.cpp kmchart.cpp openviewdialog.cpp \
 		  recorddialog.cpp saveviewdialog.cpp searchdialog.cpp \
 		  seealsodialog.cpp settingsdialog.cpp tabdialog.cpp \
 		  chart.cpp colorbutton.cpp colorscheme.cpp curve.cpp \
 		  fileiconprovider.cpp main.cpp namespace.cpp qcolorpicker.cpp \
-		  tab.cpp tabwidget.cpp \
+		  statusbar.cpp tab.cpp tabwidget.cpp \
 		  timeaxis.cpp timebutton.cpp timecontrol.cpp \
 		  view.cpp
 FORMS		= aboutdialog.ui chartdialog.ui console.ui exportdialog.ui \
@@ -27,4 +28,4 @@ LIBS		= -lpcp -lqmc -lqwt
 LIBS		+= -L../libqmc -L../libqmc/build/Default
 LIBS		+= -L../libqwt -L../libqwt/build/Default
 QT		+= assistant network
-CONFIG		+= qt assistant warn_on release	#debug
+CONFIG		+= qt assistant warn_on release #debug

@@ -25,7 +25,7 @@ class TabWidget : public QTabWidget
     Q_OBJECT
 
 public:
-    TabWidget(QWidget *parent) : QTabWidget(parent) { }
+    TabWidget(QWidget *parent);
 
     int size() { return my.tabs.size(); }
     Tab *at(int i) { return my.tabs.at(i); }

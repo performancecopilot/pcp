@@ -962,8 +962,7 @@ void Chart::selected(const QwtDoublePoint &p)
     QString string;
     string.sprintf("[%.2f %s at %s]",
 		   (float)p.y(), pmUnitsStr(&my.units), timeHiResString(p.x()));
-    kmchart->chartValueLabel->setText(string);
-    kmchart->resetTimer();
+    kmchart->setValueText(string);
 }
 
 void Chart::moved(const QwtDoublePoint &p)
@@ -972,8 +971,7 @@ void Chart::moved(const QwtDoublePoint &p)
     QString string;
     string.sprintf("[%.2f %s at %s]",
 		   (float)p.y(), pmUnitsStr(&my.units), timeHiResString(p.x()));
-    kmchart->chartValueLabel->setText(string);
-    kmchart->resetTimer();
+    kmchart->setValueText(string);
 }
 
 bool Chart::legendVisible()

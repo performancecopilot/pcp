@@ -1,3 +1,7 @@
+[git]
+    - kmsnap support for automating chart image generation
+    - reworked the time axis layout management
+
 kmchart 1.0.0 (5 March 2008)
     - Fix the handling of missed updates in live mode - no longer
       clears the entire history every time that happens.
