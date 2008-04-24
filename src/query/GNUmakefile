@@ -11,7 +11,7 @@ SOURCES = $(HEADERS:.h=.cpp) main.cpp
 SCRIPTS = kmconfirm.sh kmmessage.sh
 
 LSRCFILES = $(PROJECT) $(QRCFILE) $(SCRIPTS) $(HEADERS) $(SOURCES) \
-	  $(WRAPPER).IN
+	  $(WRAPPER).IN kmconfirm.sh.IN kmmessage.sh.IN
 LDIRDIRT = build $(COMMAND).xcodeproj
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(SCRIPTS)
 

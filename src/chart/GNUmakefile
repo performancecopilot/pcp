@@ -14,7 +14,7 @@ HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
 	  tabdialog.h \
 	  chart.h curve.h console.h main.h namespace.h \
 	  colorbutton.h colorscheme.h qcolorpicker.h \
-	  fileiconprovider.h tab.h tabwidget.h \
+	  fileiconprovider.h statusbar.h tab.h tabwidget.h \
 	  timeaxis.h timebutton.h timecontrol.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
 
