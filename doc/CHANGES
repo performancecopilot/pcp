@@ -1,3 +1,6 @@
+kmchart 1.1.3 (24 April 2008)
+    - Ugh, also ensure all scripts are picked up in the source.
+
 kmchart 1.1.2 (24 April 2008)
     - Fix kmchart main window sizing issue on Mac OS X
     - Ensure all sources are picked up in the shipped source.
