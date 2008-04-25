@@ -407,7 +407,7 @@ jstat_indom_check(void)
     pmdaCacheOp(*jstat_indom, PMDA_CACHE_INACTIVE);
 
     if ((pp = popen(jps, "r")) == NULL)
-	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s", jps, strerror(sts));
+	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s", jps, strerror(errno));
     else {
 	pthread_mutex_lock(&refreshmutex);
 	jps_parse(pp);
@@ -584,13 +584,12 @@ jstat_reaper(int unused)
 void
 jstat_refresh(void *unused)
 {
-    int inst, error;
+    int inst;
 
     for (;;) {
-	for (inst = 0;  inst < jstat_count; inst++) {
+	for (inst = 0;  inst < jstat_count; inst++)
 	    jstat_execute(inst);
-	}
-	jstat_reaper(error);
+	jstat_reaper(0);
 	sleep(refreshdelay);
     }
 }
