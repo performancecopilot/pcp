@@ -438,7 +438,8 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
     if (sts < 0){
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) bind: %s\n", port, ipAddr, strerror(errno));
-	__pmNotifyErr(LOG_ERR, "pmcd is already running\n");
+	if (errno == EADDRINUSE)
+	    __pmNotifyErr(LOG_ERR, "pmcd may already be running\n");
 	close(fd);
 	return -1;
     }
