@@ -368,7 +368,7 @@ else
 	# running
 	_b=`basename "$1"`
 	_n=`_get_pids_by_name $_b | wc -l`
-	[ $_n -eq 1 ] && return 0
+	[ $_n -ge 1 ] && return 0
 
 	# not running, but pid exists
 	[ -e /var/run/$_b.pid ] && return 1
