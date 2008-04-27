@@ -49,14 +49,16 @@ StatusBar::StatusBar()
     my.timeAxis->setFixedHeight(timeAxisHeight());
     my.gadgetLabel = new QLabel(my.timeFrame);
     my.gadgetLabel->setFont(globalFont);
-    my.gadgetLabel->hide();
+    my.gadgetLabel->hide();	// shown with gadget Tabs
 
     my.dateLabel = new QLabel(my.timeFrame);
     my.dateLabel->setIndent(8);
     my.dateLabel->setFont(globalFont);
     my.dateLabel->setAlignment(Qt::AlignRight | Qt::AlignBottom);
 
-    QSpacerItem *spacer = new QSpacerItem(10, buttonSize(),
+    my.labelSpacer = new QSpacerItem(10, 10,
+				QSizePolicy::Fixed, QSizePolicy::Minimum);
+    my.rightSpacer = new QSpacerItem(0, buttonSize(),
 				QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     my.valueLabel = new QLabel(my.timeFrame);
@@ -64,15 +66,23 @@ StatusBar::StatusBar()
     my.valueLabel->setFont(globalFont);
     my.valueLabel->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
 
-    my.grid = new QGridLayout;	// Grid of [4 x 3] cells
+    my.grid = new QGridLayout;	// Grid of [5 x 3] cells
     my.grid->setMargin(0);
     my.grid->setSpacing(0);
     my.grid->addWidget(my.gadgetLabel, 0, 0, 1, 3);
     my.grid->addWidget(my.timeAxis, 0, 0, 1, 3);   // top two rows, all columns
     my.grid->addWidget(my.dateLabel, 2, 2, 1, 1);  // bottom row, last two cols
-    my.grid->addItem(spacer, 2, 1, 1, 1);	   // bottom row, second column
+    my.grid->addItem(my.labelSpacer, 2, 1, 1, 1);  // bottom row, second column
     my.grid->addWidget(my.valueLabel, 2, 0, 1, 1); // bottom row, first column.
+    my.grid->addItem(my.rightSpacer, 0, 4, 2, 1);  // all rows, in final column
     my.timeFrame->setLayout(my.grid);
+}
+
+void StatusBar::setTimeAxisRightAlignment(int width)
+{
+    my.rightSpacer->changeSize(width, buttonSize(),
+				QSizePolicy::Fixed, QSizePolicy::Fixed);
+    my.grid->invalidate();
 }
 
 void StatusBar::init()

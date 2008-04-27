@@ -140,6 +140,7 @@ public slots:
     virtual void timeout();
     virtual void zoomIn();
     virtual void zoomOut();
+    virtual void updateToolbarOrientation(Qt::Orientation);
 
 protected slots:
     virtual void languageChange();
