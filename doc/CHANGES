@@ -1,3 +1,8 @@
+kmchart 1.1.4 (28 April 2008)
+    - Fix loss of color settings in edit chart dialog.
+    - Fix default file extensions on image save from command line.
+    - Fix time axis alignment when using a vertical toolbar.
+
 kmchart 1.1.3 (24 April 2008)
     - Ugh, also ensure all scripts are picked up in the source.
 
