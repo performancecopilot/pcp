@@ -131,6 +131,7 @@ private:
     void setStroke(Plot *plot, Style style, QColor color);
     void redoPlotData(void);
     void redoScale(void);
+    void setColor(Plot *plot, QColor c);
     void setLabel(Plot *plot, QString s);
     void resetDataArrays(Plot *plot, int v);
     bool checkUnits(pmUnits *);

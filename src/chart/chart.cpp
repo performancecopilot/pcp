@@ -746,6 +746,8 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 {
     console->post("Chart::setStroke [style %d->%d]", my.style, style);
 
+    setColor(plot, color);
+
     QPen p(color);
     p.setWidth(8);
     plot->curve->setLegendPen(p);
@@ -890,6 +892,11 @@ QColor Chart::color(int m)
     if (m >= 0 && m < my.plots.size())
 	return my.plots[m]->color;
     return QColor("white");
+}
+
+void Chart::setColor(Plot *p, QColor c)
+{
+    p->color = c;
 }
 
 void Chart::setLabel(Plot *plot, QString s)
