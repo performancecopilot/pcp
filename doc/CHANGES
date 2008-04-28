@@ -1,3 +1,6 @@
+kmchart 1.1.5 (28 April 2008)
+    - Workaround Qt4.3 issue with toolbar QSize calculations.
+
 kmchart 1.1.4 (28 April 2008)
     - Fix loss of color settings in edit chart dialog.
     - Fix default file extensions on image save from command line.
