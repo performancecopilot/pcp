@@ -215,7 +215,7 @@ int ExportDialog::exportFile(char *outfile, char *geometry, bool transparent)
 	for (i = 0; i < array.size(); i++) {
 	    const char *f1 = array.at(i);
 	    const char *f2 = (const char *)format.toAscii();
-	    if (strcmp(f1, f2) != 0)
+	    if (strcmp(f1, f2) == 0)
 		break;
 	}
 	if (i == array.size())
