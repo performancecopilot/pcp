@@ -916,7 +916,7 @@ static struct {
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Cache Manager(_Total)\\Cache Pages"
     },
 /* sqlserver.cache_mgr.all.cache_object_count */
-    { { PMDA_PMID(0,168), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { { PMDA_PMID(0,168), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Cache Manager(_Total)\\Cache Object Counts"
     },
@@ -931,7 +931,7 @@ static struct {
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Cache Manager(*/*#*)\\Cache Pages"
     },
 /* sqlserver.cache_mgr.cache.cache_object_count */
-    { { PMDA_PMID(0,171), PM_TYPE_U32, SQL_CACHE_INDOM, PM_SEM_INSTANT,
+    { { PMDA_PMID(0,171), PM_TYPE_32, SQL_CACHE_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Cache Manager(*/*#*)\\Cache Object Counts"
     },
