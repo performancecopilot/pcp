@@ -171,6 +171,7 @@ private:
 	QList<QAction*> toolbarActionsList;	// all toolbar actions
 	QList<QAction*> enabledActionsList;	// currently visible actions
 
+	int timeAxisRightAlign;
 	StatusBar *statusBar;
     } my;
 };

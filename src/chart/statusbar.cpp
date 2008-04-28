@@ -56,10 +56,10 @@ StatusBar::StatusBar()
     my.dateLabel->setFont(globalFont);
     my.dateLabel->setAlignment(Qt::AlignRight | Qt::AlignBottom);
 
-    my.labelSpacer = new QSpacerItem(10, 10,
+    my.labelSpacer = new QSpacerItem(10, 0,
 				QSizePolicy::Fixed, QSizePolicy::Minimum);
-    my.rightSpacer = new QSpacerItem(0, buttonSize(),
-				QSizePolicy::Fixed, QSizePolicy::Fixed);
+    my.rightSpacer = new QSpacerItem(0, 0,
+				QSizePolicy::Fixed, QSizePolicy::Minimum);
 
     my.valueLabel = new QLabel(my.timeFrame);
     my.valueLabel->setIndent(8);
