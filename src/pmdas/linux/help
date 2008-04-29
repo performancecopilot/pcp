@@ -572,10 +572,14 @@ tools running on IRIX.
 @ network.interface.total.mcasts network total (in+out) mcasts from /proc/net/dev per network interface
 @ network.interface.mtu maximum transmission unit on network interface
 @ network.interface.speed interface speed in megabytes per second
-@ network.interface.baudrate linespeed on network interface
 The linespeed on the network interface, as reported by the kernel,
-divided by 10 for approximate conversion from bits/second to
-bytes/second.
+scaled from Megabits/second to Megabytes/second.
+See also network.interface.baudrate for the bytes/second value.
+@ network.interface.baudrate interface speed in bytes per second
+The linespeed on the network interface, as reported by the kernel,
+scaled up from Megabits/second to bits/second and divided by 8 to convert
+to bytes/second.
+See also network.interface.speed for the Megbytes/second value.
 @ network.interface.duplex value one for half or two for full duplex interface
 @ network.interface.up boolean for whether interface is currently up or down
 @ network.interface.inet_addr string INET interface address (ifconfig style)
