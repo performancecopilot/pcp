@@ -1,3 +1,10 @@
+pcp (2.7.4-20080430) unstable; urgency=low
+
+  * Fix network interface speed metrics.
+  * Fix "/etc/init.d/pmie status" reporting on running pmies.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 30 Apr 2008 07:44:51 +1000
+
 pcp (2.7.4-20080418) unstable; urgency=low
 
   * Resolve duplicate names with pgpool2 (closes: #476605)
