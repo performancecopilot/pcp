@@ -343,10 +343,15 @@ void Tab::adjustWorldView(KmTime::Packet *packet, bool vcrMode)
 		my.samples, my.visible, my.realDelta, my.realPosition,
 		timeString(my.realPosition), timeState());
 
+    KmTime::State state = packet->state;
     if (isArchiveSource())
 	adjustArchiveWorldView(packet, vcrMode);
-    else if (packet->state != KmTime::StoppedState)
+    else if (state != KmTime::StoppedState)
 	adjustLiveWorldView(packet);
+    else {
+	newButtonState(state, packet->mode, my.group->mode(), my.recording);
+	updateTimeButton();
+    }
 }
 
 void Tab::adjustArchiveWorldView(KmTime::Packet *packet, bool needFetch)
