@@ -84,6 +84,17 @@ void tadd(struct timeval *a, struct timeval *b)
     a->tv_sec += b->tv_sec;
 }
 
+//
+// a : b for struct timevals ... <0 for a<b, ==0 for a==b, >0 for a>b
+//
+int tcmp(struct timeval *a, struct timeval *b)
+{
+    int res = (int)(a->tv_sec - b->tv_sec);
+    if (res == 0)
+	res = (int)(a->tv_usec - b->tv_usec);
+    return res;
+}
+
 // convert timeval to seconds
 double tosec(struct timeval t)
 {
@@ -655,8 +666,11 @@ main(int argc, char ** argv)
 	    usage();
 	}
 	// move position to account for initial visible points
-	for (c = 0; c < globalSettings.sampleHistory - 2; c++)
-	    tadd(&position, &delta);
+	if (tcmp(&position, &realStartTime) <= 0)
+	    for (c = 0; c < globalSettings.sampleHistory - 2; c++)
+		tadd(&position, &delta);
+	if (tcmp(&position, &realEndTime) > 0)
+	    position = realEndTime;
     }
     else {
 	liveGroup->defaultTZ(tzLabel, tzString);

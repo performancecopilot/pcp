@@ -10,8 +10,7 @@ http://oss.sgi.com/projects/pcp/ for additional details about these tools.
 
 
 === Known Bugs ===
-    - VCR issue when starting at specified archive offset.
-    - Timezone issue (-z not working correctly)
+    - Timezone issue (-z not working correctly?)
 
 === Planned for 2.0 ===
 
