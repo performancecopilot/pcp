@@ -9,22 +9,22 @@ Instructions on building these tools can be found in doc/INSTALL.  Consult
 http://oss.sgi.com/projects/pcp/ for additional details about these tools.
 
 
-=== Known Bugs ===
-    - Timezone issue (-z not working correctly?)
-
 === Planned for 2.0 ===
-
-    - Gadgets tab type
-    - Button press on time axis "button" need to goto Samples tab
 
     - Dock Layout
 	- Make a QTabBar the QMainWindow "central" widget
 	- Replace use of QSplitter with QMainWindow QDockWidgets,
 	  and cunning use of save/restore with Tab switches
 	- Allow saving Tab layouts in views (maybe, see below)
-	- Placement user interaction (menu over charts)
-	- Placement functionality - strip charts vs gadgets
-	- New Toolbar items (new toolbar &| Preferences update)
+	- Placement user interaction (menu over charts), allow
+	  arbitrary chart (gadget) movement, including between
+	  (like) Tabs.
+	- Placement functionality - strip charts vs gadgets -
+	  if any gadgets places side-by-side, strip charts need
+	  to switch to local time axis and hide unified axis.
+	- Allow hiding of status bar, which also means switching
+	  to non-unified time axis mode.
+	- New Toolbar items (new toolbar &| Preferences update).
     - Chart gadget (with Y-axis)
     - Bar2d gadget (horizonal/vertical - gmemusage/grosview-like)
     - Bar3d gadget (pmview-like)
@@ -32,7 +32,7 @@ http://oss.sgi.com/projects/pcp/ for additional details about these tools.
     - Label gadget (pmgadgets-like)
     - Value gadget (new - optionally use QLCDNumber)
 
-    - Consider: revised kmchart view format (interim), or switch
+    - Consider: extended kmchart view format (interim) or switch
       to using script-based views in this release?  Probably too
       much to take on for one release (not clear on the language
       choice yet either - Perl or QtScript?).  Maybe release 2.0
