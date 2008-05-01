@@ -41,6 +41,8 @@ public:
     void setValueText(QString &s) { my.valueLabel->setText(s); }
     void clearValueText() { my.valueLabel->clear(); }
 
+    void setTimeAxisRightAlignment(int w);
+
 protected:
     bool event(QEvent *);
     void paintEvent(QPaintEvent *);
@@ -49,6 +51,8 @@ protected:
 private:
     struct {
 	QGridLayout *grid;
+	QSpacerItem *labelSpacer;	// spacer between date/value labels
+	QSpacerItem *rightSpacer;	// spacer at right edge for toolbar
 	QToolButton *timeFrame;
 	TimeButton *timeButton;
 	TimeAxis *timeAxis;

@@ -499,7 +499,7 @@ void ChartDialog::setRgb(QRgb rgb)
 
 void ChartDialog::setHsv(int h, int s, int v)
 {
-    console->post(KmChart::DebugUi, "ChartDialog::setHsv");
+    console->post(KmChart::DebugUi, "ChartDialog::setHsv h=%d s=%d v=%d",h,s,v);
     QColor c;
     c.setHsv(h, s, v);
     my.currentColor = c.rgb();

@@ -140,6 +140,7 @@ public slots:
     virtual void timeout();
     virtual void zoomIn();
     virtual void zoomOut();
+    virtual void updateToolbarOrientation(Qt::Orientation);
 
 protected slots:
     virtual void languageChange();
@@ -170,6 +171,7 @@ private:
 	QList<QAction*> toolbarActionsList;	// all toolbar actions
 	QList<QAction*> enabledActionsList;	// currently visible actions
 
+	int timeAxisRightAlign;
 	StatusBar *statusBar;
     } my;
 };

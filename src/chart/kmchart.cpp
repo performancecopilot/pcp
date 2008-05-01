@@ -59,7 +59,10 @@ KmChart::KmChart() : QMainWindow(NULL)
     my.statusBar = new StatusBar;
     setStatusBar(my.statusBar);
 
+    my.timeAxisRightAlign = toolBar->height();
     toolBar->setAllowedAreas(Qt::RightToolBarArea | Qt::TopToolBarArea);
+    connect(toolBar, SIGNAL(orientationChanged(Qt::Orientation)),
+		this, SLOT(updateToolbarOrientation(Qt::Orientation)));
     updateToolbarLocation();
     setupEnabledActionsList();
     if (!globalSettings.initialToolbar && !outfile)
@@ -220,6 +223,12 @@ void KmChart::updateToolbarLocation()
 	addToolBar(Qt::RightToolBarArea, toolBar);
     else
 	addToolBar(Qt::TopToolBarArea, toolBar);
+}
+
+void KmChart::updateToolbarOrientation(Qt::Orientation orientation)
+{
+    my.statusBar->setTimeAxisRightAlignment(
+		orientation == Qt::Vertical ? my.timeAxisRightAlign : 0);
 }
 
 void KmChart::setButtonState(TimeButton::State state)
