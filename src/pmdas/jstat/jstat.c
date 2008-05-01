@@ -390,7 +390,6 @@ jps_parse(FILE *fp)
 void
 jstat_indom_check(void)
 {
-    int sts;
     FILE *pp;
     static int initialised;
     static char jps[BUFFER_MAXLEN];
