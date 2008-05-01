@@ -256,6 +256,7 @@ static int		reg[NUMREG];
 
 typedef struct {
     pid_t	pid;
+    int		size;
     char	*name;
     void	*mmap;
 } pmie_t;
@@ -380,6 +381,20 @@ pmcd_profile(__pmProfile *prof, pmdaExt *pmda)
     return 0;
 }
 
+static void
+remove_pmie_indom(void)
+{
+    int n;
+
+    for (n = 0; n < npmies; n++) {
+	free(pmies[n].name);
+	munmap(pmies[n].mmap, pmies[n].size);
+    }
+    free(pmies);
+    pmies = NULL;
+    npmies = 0;
+}
+
 /* use a static timestamp, stat PMIE_DIR, if changed update "pmies" */
 static unsigned int
 refresh_pmie_indom(void)
@@ -397,24 +412,22 @@ refresh_pmie_indom(void)
 
     if (stat(PMIE_DIR, &statbuf) == 0) {
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
-	if (statbuf.st_mtime != lastsbuf.st_mtime) {
+	if (statbuf.st_mtime != lastsbuf.st_mtime)
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
 	if ((statbuf.st_mtimespec.tv_sec != lastsbuf.st_mtimespec.tv_sec) ||
-	    (statbuf.st_mtimespec.tv_nsec != lastsbuf.st_mtimespec.tv_nsec)) {
+	    (statbuf.st_mtimespec.tv_nsec != lastsbuf.st_mtimespec.tv_nsec))
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
 	if ((statbuf.st_mtim.tv_sec != lastsbuf.st_mtim.tv_sec) ||
-	    (statbuf.st_mtim.tv_nsec != lastsbuf.st_mtim.tv_nsec)) {
+	    (statbuf.st_mtim.tv_nsec != lastsbuf.st_mtim.tv_nsec))
 #else
 !bozo!
 #endif
+	{
 	    lastsbuf = statbuf;
 
 	    /* tear down the old instance domain */
-	    if (pmies) {
-		free(pmies);
-		pmies = NULL;
-	    }
-	    npmies = 0;
+	    if (pmies)
+		remove_pmie_indom();
 
 	    /* open the directory iterate through mmaping as we go */
 	    if ((pmiedir = opendir(PMIE_DIR)) == NULL) {
@@ -444,11 +457,13 @@ refresh_pmie_indom(void)
 		}
 		if ((pmies = (pmie_t *)realloc(pmies, size)) == NULL) {
 		    __pmNoMem("pmie instlist", size, PM_RECOV_ERR);
+		    free(endp);
 		    continue;
 		}
 		if ((fd = open(fullpath, O_RDONLY)) < 0) {
 		    __pmNotifyErr(LOG_WARNING, "pmcd pmda cannot open %s: %s",
 				fullpath, strerror(errno));
+		    free(endp);
 		    continue;
 		}
 		ptr = mmap(NULL, statbuf.st_size, PROT_READ, MAP_SHARED, fd, 0);
@@ -456,14 +471,18 @@ refresh_pmie_indom(void)
 		if (ptr == MAP_FAILED) {
 		    __pmNotifyErr(LOG_ERR, "pmcd pmda mmap of %s failed: %s",
 				fullpath, strerror(errno));
+		    free(endp);
 		    continue;
 		}
 		else if (((pmiestats_t *)ptr)->version != 1) {
 		    __pmNotifyErr(LOG_WARNING, "incompatible pmie version: %s",
 				fullpath);
+		    munmap(ptr, statbuf.st_size);
+		    free(endp);
 		    continue;
 		}
 		pmies[npmies].pid = pmiepid;
+		pmies[npmies].size = statbuf.st_size;
 		pmies[npmies].mmap = ptr;
 		pmies[npmies].name = endp;
 		npmies++;
@@ -472,11 +491,7 @@ refresh_pmie_indom(void)
 	}
     }
     else {
-	if (pmies) {
-	    free(pmies);
-	    pmies = NULL;
-	}
-	npmies = 0;
+	remove_pmie_indom();
     }
     setoserror(0);
     return npmies;
