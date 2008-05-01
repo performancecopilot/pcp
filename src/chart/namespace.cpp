@@ -49,8 +49,13 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
     my.isArchive = arch;
     setText(0, my.basename);
 
-    console->post(KmChart::DebugUi, "Added non-root namespace node %s (inst=%d)",
+    if (my.type == ChildMinder) {
+	console->post(KmChart::DebugUi, "Added namespace childminder");
+    }
+    else {
+	console->post(KmChart::DebugUi, "Added non-root namespace node %s (inst=%d)",
 		  (const char *)my.basename.toAscii(), inst);
+    }
 }
 
 NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context, bool arch)
@@ -129,8 +134,9 @@ void NameSpace::setExpanded(bool expand, bool show)
 {
 #if DESPERATE
     console->post(KmChart::DebugUi, "NameSpace::setExpanded "
-		  "on %p %s (expanded=%s, expand=%s, show=%s)",
+		  "on %p %s (type=%d expanded=%s, expand=%s, show=%s)",
 		  this, (const char *)metricName().toAscii(),
+		  my.type,
 		  my.expanded? "y" : "n", expand? "y" : "n", show? "y" : "n");
 #endif
 
@@ -148,12 +154,13 @@ void NameSpace::setExpanded(bool expand, bool show)
 	    expandInstanceNames(show);
 	else if (my.type != InstanceName) {
 	    expandMetricNames(isRoot() ? "" : metricName(), show);
-	    sortChildren(0, Qt::AscendingOrder);
 	}
     }
 
-    if (show)
+    if (show) {
 	QTreeWidgetItem::setExpanded(expand);
+    }
+
 }
 
 void NameSpace::setSelectable(bool selectable)
@@ -200,6 +207,7 @@ void NameSpace::expandMetricNames(QString parent, bool show)
     int		sts, noffspring;
     NameSpace	*m, **leaflist = NULL;
     char	*name = strdup(parent.toAscii());
+    int		sort_done;
 
     sts = pmGetChildrenStatus(name, &offspring, &status);
     if (sts < 0) {
@@ -219,6 +227,36 @@ void NameSpace::expandMetricNames(QString parent, bool show)
     }
     else {
 	noffspring = sts;
+    }
+
+    // Ugliness ahead.
+    // The Qt routine sortChildren() does not work as we maintain
+    // our own pointers into the tree items via my.back ... if
+    // sortChildren() is used, our expansion picking does not work later
+    // on.
+    // Sort the PMNS children lexicographically by name before adding them
+    // into the QTreeWidget ... only tricky part is that we need to sort
+    // offspring[] AND status[]
+    // Bubble Sort is probably OK as the number of descendents in the
+    // PMNS is never huge.
+    //
+    sort_done = 0;
+    while (!sort_done) {
+	char	*ctmp;
+	int	itmp;
+	sort_done = 1;
+	for (i = 0; i < noffspring-1; i++) {
+	    if (strcmp(offspring[i], offspring[i+1]) <= 0)
+		continue;
+	    // swap
+	    ctmp = offspring[i];
+	    offspring[i] = offspring[i+1];
+	    offspring[i+1] = ctmp;
+	    itmp = status[i];
+	    status[i] = status[i+1];
+	    status[i+1] = itmp;
+	    sort_done = 0;
+	}
     }
 
     for (i = 0; i < noffspring; i++) {
@@ -251,8 +289,14 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 	if (!show)
 	    goto done;
 	QString msg = QString();
-	msg.sprintf("Cannot find PMIDs for \"%s\".\n%s.\n\n",
-		name, pmErrStr(sts));
+	msg.sprintf("Cannot find PMIDs: %s.\nMetrics:\n", pmErrStr(sts));
+	for (i = 0; i < nleaf; i++) {
+	    if (pmidlist[i] == PM_ID_NULL) {
+		msg.append("  ");
+		msg.append(offspring[i]);
+		msg.append("\n");
+	    }
+	}
 	QMessageBox::warning(NULL, pmProgname, msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
