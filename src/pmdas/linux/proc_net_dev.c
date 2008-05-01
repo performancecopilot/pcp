@@ -63,6 +63,10 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
     ifr.ifr_data = (caddr_t)&ecmd;
     strncpy(ifr.ifr_name, name, IF_NAMESIZE);
     if (!(ioctl(fd, SIOCETHTOOL, &ifr) < 0)) {
+	/*
+	 * speed is defined in ethtool.h and returns the speed in
+	 * Mbps, so 100 for 100Mbps, 1000 for 1Gbps, etc
+	 */
 	netip->ioc.speed = ecmd.speed;
 	netip->ioc.duplex = ecmd.duplex + 1;
     }

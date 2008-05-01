@@ -774,12 +774,12 @@ static pmdaMetric metrictab[] = {
 /* network.interface.speed */
     { NULL, 
       { PMDA_PMID(CLUSTER_NET_DEV,22), PM_TYPE_FLOAT, NET_DEV_INDOM, PM_SEM_DISCRETE, 
-      PMDA_PMUNITS(1,0,0,PM_SPACE_MBYTE,0,0) }, },
+      PMDA_PMUNITS(1,-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0) }, },
 
 /* network.interface.baudrate */
     { NULL, 
       { PMDA_PMID(CLUSTER_NET_DEV,23), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_DISCRETE, 
-      PMDA_PMUNITS(1,0,0,0,PM_SPACE_BYTE,0) }, },
+      PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) }, },
 
 /* network.interface.duplex */
     { NULL, 
@@ -3736,12 +3736,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 22: /* network.interface.speed */
 	    if (!netip->ioc.speed)
 		return 0;
-	    atom->f = ((float)netip->ioc.speed * 1000000) / 1024 / 1024;
+	    atom->f = ((float)netip->ioc.speed * 1000000) / 8 / 1024 / 1024;
 	    break;
 	case 23: /* network.interface.baudrate */
 	    if (!netip->ioc.speed)
 		return 0;
-	    atom->ul = ((long long)netip->ioc.speed * 1024 * 1024 / 10);
+	    atom->ul = ((long long)netip->ioc.speed * 1000000 / 8);
 	    break;
 	case 24: /* network.interface.duplex */
 	    if (!netip->ioc.duplex)
