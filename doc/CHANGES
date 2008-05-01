@@ -1,3 +1,10 @@
+kmchart 1.2.0 (1 May 2008)
+    - Fix namespace expansion issue in the metric selector.
+    - Fix command line image generation so it no longer opens a
+      window on X11.
+    - Fix timezone issue with value label.
+    - Fix Live mode Stop/Start icon status reporting.
+
 kmchart 1.1.5 (28 April 2008)
     - Workaround Qt4.3 issue with toolbar QSize calculations.
 
