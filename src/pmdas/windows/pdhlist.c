@@ -22,9 +22,10 @@
  * Contact information: Ken McDonell, kenj At internode DoT on DoT net
  */
 
-#include <pdh.h>
-#include <pdhmsg.h>
+#include <windows.h>
+#include "libpdh.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 extern char *pdherrstr(int);
 
@@ -32,15 +33,15 @@ void
 _do(char *pat)
 {
     LPSTR		buf;
-    int			bufsz;
+    DWORD		bufsz;
     int			i;
     PDH_STATUS  	pdhsts;
-    static HQUERY 	hQuery = NULL;
+    static PDH_HQUERY 	hQuery = NULL;
 
     if (hQuery == NULL) {
-	pdhsts = PdhOpenQuery(0,0, &hQuery);
+	pdhsts = PdhOpenQueryA(0,0, &hQuery);
 	if (pdhsts != ERROR_SUCCESS) {
-	    fprintf(stderr, "PdhOpenQuery failed: %s\n", pdherrstr(pdhsts));
+	    fprintf(stderr, "PdhOpenQueryA failed: %s\n", pdherrstr(pdhsts));
 	    return;
 	}
     }
@@ -51,10 +52,10 @@ _do(char *pat)
     // iterate because size grows in first couple of attempts!
     for (i = 0; i < 5; i++) {
 	if ((buf = (LPSTR)malloc(bufsz)) == NULL) {
-	    fprintf(stderr, "Arrgh ... malloc %d failed for pattern %s\n", bufsz, pat);
+	    fprintf(stderr, "Arrgh ... malloc %ld failed for pattern %s\n", bufsz, pat);
 	    return;
 	}
-	if ((pdhsts = PdhExpandCounterPath(pat, buf, &bufsz)) == PDH_MORE_DATA) {
+	if ((pdhsts = PdhExpandCounterPathA(pat, buf, &bufsz)) == PDH_MORE_DATA) {
 	    // bufsz has the required length (minus the last NULL)
 	    bufsz++;
 	    free(buf);
@@ -74,13 +75,13 @@ _do(char *pat)
 	}
     }
     else {
-	fprintf(stderr, "PdhExpandCounterPath failed: %s\n", pdherrstr(pdhsts));
+	fprintf(stderr, "PdhExpandCounterPathA failed: %s\n", pdherrstr(pdhsts));
 	if (pdhsts == PDH_MORE_DATA)
-	    fprintf(stderr, "still need to resize buffer to %d\n", bufsz);
+	    fprintf(stderr, "still need to resize buffer to %ld\n", bufsz);
     }
 }
 
-void
+int
 main(int argc, char **argv)
 {
     // Forms we're looking for ...
@@ -90,11 +91,5 @@ main(int argc, char **argv)
 
     _do("\\*\\*");
     _do("\\*(*/*#*)\\*");
+    return 0;
 }
-
-/*
- * Avoid the symbol botch with newer compilers:
- * http://www.codeproject.com/tips/seccheck.asp
- */
-int __security_cookie;
-void __fastcall __security_check_cookie(void *stackAddress){}

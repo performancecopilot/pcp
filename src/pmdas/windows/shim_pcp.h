@@ -344,4 +344,6 @@ typedef struct {
 #define PMDA_PMUNITS(a,b,c,d,e,f) {0,f,e,d,c,b,a}
 #endif
 
+extern const char * pmUnitsStr(const pmUnits *);
+
 #endif /* _SHIM_PCP_H */

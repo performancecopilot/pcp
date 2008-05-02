@@ -34,7 +34,7 @@ help(int ident, int type, char **buf)
     static LPSTR	info = NULL;
     static DWORD	info_sz = 0;
     static DWORD	result_sz;
-    PDH_COUNTER_INFO	*infop;
+    PDH_COUNTER_INFO_A	*infop;
     int			sts = PM_ERR_TEXT;
 
 #ifdef PCP_DEBUG
@@ -71,40 +71,40 @@ help(int ident, int type, char **buf)
 	    if (info_sz == 0) {
 		/*
 		 * on hugh.melbourne.sgi.com running SFU 3.5 on Windows NT
-		 * the first call to PdhGetCounterInfo() hung with a zero
+		 * the first call to PdhGetCounterInfoA() hung with a zero
 		 * sized buffer ... pander to this with an intial buffer
 		 * allocation ... the size is a 100% guess
 		 */
 	    	info_sz = 256;
 		if ((info = (LPSTR)malloc(info_sz)) == NULL) {
-		    fprintf(stderr, "help: Warning: PdhGetCounterInfo malloc (%d) failed @ metric %s: ",
+		    fprintf(stderr, "help: Warning: PdhGetCounterInfoA malloc (%d) failed @ metric %s: ",
 			(int)info_sz, pmIDStr(shm_metrictab[i].m_desc.pmid));
 		    errmsg();
 		    goto done;
 		}
 	    }
 	    result_sz = info_sz;
-	    pdhsts = PdhGetCounterInfo(wcp->c_hdl, TRUE, &result_sz, (PDH_COUNTER_INFO *)info);
+	    pdhsts = PdhGetCounterInfoA(wcp->c_hdl, TRUE, &result_sz, (PDH_COUNTER_INFO_A *)info);
 	    if (pdhsts == PDH_MORE_DATA) {
 		info_sz = result_sz;
 		if ((info = (LPSTR)realloc(info, info_sz)) == NULL) {
-		    fprintf(stderr, "help: Warning: PdhGetCounterInfo realloc failed @ metric %s: ",
+		    fprintf(stderr, "help: Warning: PdhGetCounterInfoA realloc failed @ metric %s: ",
 			pmIDStr(pmid));
 		    errmsg();
 		    goto done;
 		}
-		pdhsts =  PdhGetCounterInfo(wcp->c_hdl, TRUE, &result_sz, (PDH_COUNTER_INFO *)info);
+		pdhsts =  PdhGetCounterInfoA(wcp->c_hdl, TRUE, &result_sz, (PDH_COUNTER_INFO_A *)info);
 	    }
 	    if (pdhsts != ERROR_SUCCESS) {
-		fprintf(stderr, "help: Warning: PdhGetCounterInfo failed @ metric %s: %s\n",
+		fprintf(stderr, "help: Warning: PdhGetCounterInfoA failed @ metric %s: %s\n",
 		    pmIDStr(pmid), pdherrstr(pdhsts));
 		goto done;
 	    }
-	    infop = (PDH_COUNTER_INFO *)info;
+	    infop = (PDH_COUNTER_INFO_A *)info;
 	    if (infop->szExplainText == NULL) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL2) {
-		    fprintf(stderr, " no text from PdhGetCounterInfo");
+		    fprintf(stderr, " no text from PdhGetCounterInfoA");
 		}
 #endif
 		goto done;

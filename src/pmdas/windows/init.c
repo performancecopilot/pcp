@@ -89,7 +89,7 @@ _get_os_name()
 	    else if (osv.dwMajorVersion <= 4)
 		name = _append(name, "Windows NT");
             else {
-		sprintf(tbuf, "Windows Unknown (%d.%d)",
+		sprintf(tbuf, "Windows Unknown (%ld.%ld)",
 		    osv.dwMajorVersion, osv.dwMinorVersion); 
 		name = _append(name, tbuf);
     	    }
@@ -100,7 +100,7 @@ _get_os_name()
 		name = _append(name, osv.szCSDVersion);
 	    }
 	    if (have_ex) {
-		sprintf(tbuf, " Build %d", osv.dwBuildNumber & 0xFFFF);
+		sprintf(tbuf, " Build %ld", osv.dwBuildNumber & 0xFFFF);
 		name = _append(name, tbuf);
 	    }
 
@@ -185,18 +185,15 @@ int
 shim_init(void)
 {
     int			i;
-    int			j;
-    static int		first = 1;
     PDH_STATUS  	pdhsts;
     static LPSTR	pattern = NULL;
     static DWORD	pattern_sz = 0;
     static LPSTR	info = NULL;
     static DWORD	info_sz = 0;
     static DWORD	result_sz;
-    PDH_COUNTER_INFO	*infop;
+    PDH_COUNTER_INFO_A	*infop;
     LPTSTR      	p;
     int			sts = -1;	/* assume failure */
-    DWORD		index;
     char		*ctr_type;
     MEMORYSTATUS	mstat;
     char		*vp;
@@ -310,10 +307,10 @@ shim_init(void)
     }
 
     for (i = 0; i < querytab_sz; i++) {
-	pdhsts = PdhOpenQuery(NULL, 0, &querytab[i].q_hdl);
+	pdhsts = PdhOpenQueryA(NULL, 0, &querytab[i].q_hdl);
 	if (pdhsts != ERROR_SUCCESS) {
 	    querytab[i].q_hdl = NULL;
-	    fprintf(stderr, "shim_init: Warning: PdhOpenQuery failed: %s\n", pdherrstr(pdhsts));
+	    fprintf(stderr, "shim_init: Warning: PdhOpenQueryA failed: %s\n", pdherrstr(pdhsts));
 	}
 	querytab[i].q_flags = Q_NONE;
 #ifdef PCP_DEBUG
@@ -337,17 +334,17 @@ shim_init(void)
 #ifdef PCP_DEBUG
 	if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
 	    /* desperate */
-	    fprintf(stderr, "\nshim_init: calling PdhExpandCounterPath pat=\"%s\" (len=%d) result_sz=%d\n",
+	    fprintf(stderr, "\nshim_init: calling PdhExpandCounterPathA pat=\"%s\" (len=%d) result_sz=%ld\n",
 		sp->m_pat, strlen(sp->m_pat), result_sz);
 	    fflush(stderr);
 	}
 #endif
-	pdhsts = PdhExpandCounterPath(sp->m_pat, pattern, &result_sz);
+	pdhsts = PdhExpandCounterPathA(sp->m_pat, pattern, &result_sz);
 	if (pdhsts == PDH_MORE_DATA) {
 	    result_sz++;		// not sure if this is this necessary?
 	    pattern_sz = result_sz;
 	    if ((pattern = (LPSTR)realloc(pattern, pattern_sz)) == NULL) {
-		fprintf(stderr, "shim_init: Error: PdhExpandCounterPath realloc (%d) failed @ metric %s: ",
+		fprintf(stderr, "shim_init: Error: PdhExpandCounterPathA realloc (%d) failed @ metric %s: ",
 		    (int)pattern_sz, pmIDStr(sp->m_desc.pmid));
 		errmsg();
 		goto done;
@@ -355,11 +352,11 @@ shim_init(void)
 #ifdef PCP_DEBUG
 	    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
 		/* desperate */
-		fprintf(stderr, "shim_init: calling PdhExpandCounterPath again result_sz=%d\n", result_sz);
+		fprintf(stderr, "shim_init: calling PdhExpandCounterPathA again result_sz=%ld\n", result_sz);
 		fflush(stderr);
 	    }
 #endif
-	    pdhsts = PdhExpandCounterPath(sp->m_pat, pattern, &result_sz);
+	    pdhsts = PdhExpandCounterPathA(sp->m_pat, pattern, &result_sz);
 	}
 	if (pdhsts != ERROR_SUCCESS) {
 	    if (sp->m_pat[0] == '\0') {
@@ -373,7 +370,7 @@ shim_init(void)
 		;
 	    }
 	    else {
-		fprintf(stderr, "shim_init: Warning: PdhExpandCounterPath failed @ metric pmid=%s pattern=\"%s\": %s\n",
+		fprintf(stderr, "shim_init: Warning: PdhExpandCounterPathA failed @ metric pmid=%s pattern=\"%s\": %s\n",
 		    pmIDStr(sp->m_desc.pmid), sp->m_pat, pdherrstr(pdhsts));
             }
 	    sp->m_flags |= M_NOVALUES;
@@ -382,12 +379,12 @@ shim_init(void)
 #ifdef PCP_DEBUG
 	if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
 	    /* desperate */
-	    fprintf(stderr, "shim_init: %d bytes from PdhExpandCounterPath\n", result_sz);
+	    fprintf(stderr, "shim_init: %ld bytes from PdhExpandCounterPathA\n", result_sz);
 	    fflush(stderr);
 	}
 #endif
 	/*
-	 * PdhExpandCounterPath is apparently busted ... the length
+	 * PdhExpandCounterPathA is apparently busted ... the length
 	 * returned includes one byte _after_ the last NULL byte
 	 * string terminator, but the final byte is apparently
 	 * not being set ... force the issue
@@ -475,10 +472,10 @@ shim_init(void)
 	     * counter into our data structures, and even if we do,
 	     * the instance id is not going to be unique enough.
 	     */
-	    pdhsts = PdhAddCounter(querytab[sp->m_qid].q_hdl,
+	    pdhsts = PdhAddCounterA(querytab[sp->m_qid].q_hdl,
 			    p, wcp->c_inst, &wcp->c_hdl);
 	    if (pdhsts != ERROR_SUCCESS) {
-		fprintf(stderr, "shim_init: Warning: PdhAddCounter failed @ metric pmid=%s inst=%d pat=\"%s\" qid=%d qhdl=%p: %s\n",
+		fprintf(stderr, "shim_init: Warning: PdhAddCounterA failed @ metric pmid=%s inst=%d pat=\"%s\" qid=%d qhdl=%p: %s\n",
 		    pmIDStr(sp->m_desc.pmid), wcp->c_inst, p, sp->m_qid,
 		    querytab[sp->m_qid].q_hdl, pdherrstr(pdhsts));
 		sp->m_flags |= M_NOVALUES;
@@ -486,7 +483,7 @@ shim_init(void)
 	    }
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0) {
-		fprintf(stderr, "shim_init: PdhAddCounter: metric pmid=%s inst=%d pat=\"%s\"\n",
+		fprintf(stderr, "shim_init: PdhAddCounterA: metric pmid=%s inst=%d pat=\"%s\"\n",
 		    pmIDStr(sp->m_desc.pmid), wcp->c_inst, p);
 		fflush(stderr);
 	    }
@@ -501,13 +498,13 @@ shim_init(void)
 	    if (info_sz == 0) {
 		/*
 		 * on hugh.melbourne.sgi.com running SFU 3.5 on Windows NT
-		 * the first call to PdhGetCounterInfo() hung with a zero
-		 * sized buffer ... pander to this with an intial buffer
+		 * the first call to PdhGetCounterInfoA() hung with a zero
+		 * sized buffer ... pander to this with an initial buffer
 		 * allocation ... the size is a 100% guess
 		 */
 	    	info_sz = 256;
 		if ((info = (LPSTR)malloc(info_sz)) == NULL) {
-		    fprintf(stderr, "shim_init: Warning: PdhGetCounterInfo malloc (%d) failed @ metric %s: ",
+		    fprintf(stderr, "shim_init: Warning: PdhGetCounterInfoA malloc (%d) failed @ metric %s: ",
 			(int)info_sz, pmIDStr(sp->m_desc.pmid));
 		    errmsg();
 		    goto done;
@@ -517,15 +514,15 @@ shim_init(void)
 #ifdef PCP_DEBUG
 	    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
 		/* desperate */
-		fprintf(stderr, "shim_init: calling PdhGetCounterInfo result_sz=%d\n", result_sz);
+		fprintf(stderr, "shim_init: calling PdhGetCounterInfoA result_sz=%ld\n", result_sz);
 		fflush(stderr);
 	    }
 #endif
-	    pdhsts = PdhGetCounterInfo(wcp->c_hdl, FALSE, &result_sz, (PDH_COUNTER_INFO *)info);
+	    pdhsts = PdhGetCounterInfoA(wcp->c_hdl, FALSE, &result_sz, (PDH_COUNTER_INFO_A *)info);
 	    if (pdhsts == PDH_MORE_DATA) {
 		info_sz = result_sz;
 		if ((info = (LPSTR)realloc(info, info_sz)) == NULL) {
-		    fprintf(stderr, "shim_init: Warning: PdhGetCounterInfo realloc (%d) failed @ metric %s: ",
+		    fprintf(stderr, "shim_init: Warning: PdhGetCounterInfoA realloc (%d) failed @ metric %s: ",
 			(int)info_sz, pmIDStr(sp->m_desc.pmid));
 		    errmsg();
 		    goto done;
@@ -533,23 +530,23 @@ shim_init(void)
 #ifdef PCP_DEBUG
 		if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
 		    /* desperate */
-		    fprintf(stderr, "shim_init: calling PdhGetCounterInfo again result_sz=%d\n", result_sz);
+		    fprintf(stderr, "shim_init: calling PdhGetCounterInfoA again result_sz=%ld\n", result_sz);
 		    fflush(stderr);
 		}
 #endif
-		pdhsts = PdhGetCounterInfo(wcp->c_hdl, FALSE, &result_sz, (PDH_COUNTER_INFO *)info);
+		pdhsts = PdhGetCounterInfoA(wcp->c_hdl, FALSE, &result_sz, (PDH_COUNTER_INFO_A *)info);
 	    }
 	    if (pdhsts != ERROR_SUCCESS) {
-		fprintf(stderr, "shim_init: Warning: PdhGetCounterInfo failed @ metric %s: %s\n",
+		fprintf(stderr, "shim_init: Warning: PdhGetCounterInfoA failed @ metric %s: %s\n",
 		    pmIDStr(sp->m_desc.pmid), pdherrstr(pdhsts));
 		continue;
 	    }
-	    infop = (PDH_COUNTER_INFO *)info;
+	    infop = (PDH_COUNTER_INFO_A *)info;
 	    pp->m_ctype = infop->dwType;
 #ifdef PCP_DEBUG
 	    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
 		/* desperate */
-		fprintf(stderr, "shim_init: %d bytes from PdhGetCounterInfo -> type=0x%x %s\n", result_sz, pp->m_ctype, _ctypestr(pp->m_ctype));
+		fprintf(stderr, "shim_init: %ld bytes from PdhGetCounterInfoA -> type=0x%x %s\n", result_sz, pp->m_ctype, _ctypestr(pp->m_ctype));
 		fflush(stderr);
 	    }
 #endif

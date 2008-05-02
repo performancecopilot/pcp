@@ -25,6 +25,7 @@
  */
 
 #include "./shim.h"
+#include <ctype.h>
 
 extern int domain;
 

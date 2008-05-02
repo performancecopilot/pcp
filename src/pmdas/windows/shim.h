@@ -1,6 +1,4 @@
 /*
- * only the essential Windows headers
- *
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -20,16 +18,11 @@
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
-#define WIN32_LEAN_AND_MEAN 1
-
-#include <Windows.h>
+#include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <WinPerf.h>
-#include <Tchar.h>
-#include <Pdh.h>
-#include <PdhMsg.h>
+#include "libpdh.h"
 
 /*
  * Customized PCP headers from build environment
@@ -49,7 +42,7 @@
 #define Q_ERR_SEEN	2	/* if PdhCollectQueryData error reported */
 
 typedef struct {
-    HQUERY	q_hdl;		/* from PdhOpenQuery */
+    PDH_HQUERY	q_hdl;		/* from PdhOpenQuery */
     int		q_flags;	/* see above */
 } shim_query_t;
 
@@ -57,7 +50,7 @@ extern shim_query_t	*querytab;
 extern int		querytab_sz;
 
 typedef struct {
-    HCOUNTER	c_hdl;		/* from PdhAddCounter */
+    PDH_HCOUNTER c_hdl;		/* from PdhAddCounter */
     int		c_inst;		/* PM_IN_NULL or instance identifier */
 } shim_ctr_t;
 
@@ -89,6 +82,7 @@ extern int		hdr_size;
 extern int		shm_oldsize;
 
 extern int shim_init(void);
+extern void errmsg(void);
 extern char *pdherrstr(int);
 extern char *decode_ctype(DWORD);
 extern int check_instance(char *, shm_metric_t *, int *);

@@ -23,6 +23,7 @@
 
 #include "./shim.h"
 #include "./pmdbg.h"
+#include <ctype.h>
 
 /*
  * This block of functionality is required to map counter types from
@@ -384,7 +385,7 @@ errmsg(void)
         0,
 	NULL);
 
-    fprintf(stderr, "%s\n", bufp);
+    fprintf(stderr, "%s\n", (const char *)bufp);
 
     LocalFree(bufp);
 }
@@ -422,7 +423,7 @@ shm_remap(int newsize)
     static int	first = 1;
 #endif
 
-    UnmapViewOfFile((LPCVOID)shm);
+    UnmapViewOfFile(shm);
     CloseHandle(shm_hmap);
 
     shm_hmap = CreateFileMapping(
@@ -498,7 +499,6 @@ void
 shm_reshape(shm_hdr_t *new)
 {
     int		i;
-    int		sts;
     int		base;
     char	*src;
     char	*dst;

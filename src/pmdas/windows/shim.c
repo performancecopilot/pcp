@@ -81,7 +81,6 @@ main(int argc, char **argv)
     int		i;
     int		sts;
     char	cmd[100];
-    int		base = 0;
     char	c;
     char	*p;
     int		errflag = 0;
@@ -229,11 +228,5 @@ main(int argc, char **argv)
 	}
 	fflush(send_f);
     }
+    return 0;
 }
-
-/*
- * Avoid the symbol botch with newer compilers:
- * http://www.codeproject.com/tips/seccheck.asp
- */
-int __security_cookie;
-void __fastcall __security_check_cookie(void *stackAddress){}

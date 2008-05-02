@@ -84,7 +84,7 @@ The following steps should be followed when adding new metrics ... this
 assumes Cygwin (I've given up on SFU).
 
 a. Make sure you know what you've currently got, so on the target system
-   $ ./show-all-ctrs | ./match-counters >status-quo
+   $ ./pdhlist | ./pdhmatch >status-quo
 
 b. Pick the Pdh paths you're interested in (drop the hostname prefix,
    add the (*/*#*) or * patterns as appropriate.  Beware that metrics
