@@ -23,8 +23,8 @@ endif
 #
 
 ifeq ($(PKG_PLATFORM),darwin)
-PLATFORM_BUILD = xcodebuild
-BINARY =  build/Default/$(COMMAND).app/Contents/MacOS/$(COMMAND)
+PLATFORM_BUILD = xcodebuild -configuration Debug
+BINARY =  build/Debug/$(COMMAND).app/Contents/MacOS/$(COMMAND)
 LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
 WINDOW = mac
 else

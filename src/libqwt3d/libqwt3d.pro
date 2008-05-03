@@ -1,7 +1,7 @@
 TARGET		= qwt3d
 TEMPLATE	= lib
 VERSION		= 0.2.6
-CONFIG		+= qt static lib warn_on opengl release #debug
+CONFIG		+= qt static lib warn_on opengl debug
 QT		+= opengl
 
 HEADERS += \
