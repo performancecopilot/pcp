@@ -13,14 +13,13 @@ AC_DEFUN([AC_PACKAGE_NEED_UTILITY],
 #
 # Generic macro, sets up all of the global build variables.
 # The following environment variables may be set to override defaults:
-#  CC MAKE LIBTOOL TAR ZIP MAKEDEPEND AWK SED ECHO SORT
-#  MSGFMT MSGMERGE XGETTEXT RPM
+#  CC MAKE TAR MAKEDEPEND AWK SED ECHO SORT RPM
 #
 AC_DEFUN([AC_PACKAGE_UTILITIES],
-  [ AC_PROG_CC
-    cc="$CC"
+  [ AC_PROG_CXX
+    cc="$CXX"
     AC_SUBST(cc)
-    AC_PACKAGE_NEED_UTILITY($1, "$cc", cc, [C compiler])
+    AC_PACKAGE_NEED_UTILITY($1, "$cc", cc, [C++ compiler])
 
     if test -z "$MAKE"; then
         AC_PATH_PROG(MAKE, gmake,, /usr/bin:/usr/local/bin:/usr/freeware/bin)
@@ -32,30 +31,11 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     AC_SUBST(make)
     AC_PACKAGE_NEED_UTILITY($1, "$make", make, [GNU make])
 
-    if test -z "$LIBTOOL"; then
-	AC_PATH_PROG(LIBTOOL, glibtool,, /usr/bin)
-    fi
-    if test -z "$LIBTOOL"; then
-	AC_PATH_PROG(LIBTOOL, libtool,, /usr/bin:/usr/local/bin:/usr/freeware/bin)
-    fi
-    libtool=$LIBTOOL
-    AC_SUBST(libtool)
-    AC_PACKAGE_NEED_UTILITY($1, "$libtool", libtool, [GNU libtool])
-
     if test -z "$TAR"; then
         AC_PATH_PROG(TAR, tar,, /usr/freeware/bin:/bin:/usr/local/bin:/usr/bin)
     fi
     tar=$TAR
     AC_SUBST(tar)
-    if test -z "$ZIP"; then
-        AC_PATH_PROG(ZIP, gzip,, /bin:/usr/bin:/usr/local/bin:/usr/freeware/bin)
-    fi
-
-    zip=$ZIP
-    AC_SUBST(zip)
-
-    bzip2=$BZIP2
-    AC_SUBST(bzip2)
 
     if test -z "$MAKEDEPEND"; then
         AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
@@ -89,29 +69,6 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
 
     dnl check if symbolic links are supported
     AC_PROG_LN_S
-
-    if test "$enable_gettext" = yes; then
-        if test -z "$MSGFMT"; then
-                AC_PATH_PROG(MSGFMT, msgfmt,, /usr/bin:/usr/local/bin:/usr/freeware/bin)
-        fi
-        msgfmt=$MSGFMT
-        AC_SUBST(msgfmt)
-        AC_PACKAGE_NEED_UTILITY($1, "$msgfmt", msgfmt, gettext)
-
-        if test -z "$MSGMERGE"; then
-                AC_PATH_PROG(MSGMERGE, msgmerge,, /usr/bin:/usr/local/bin:/usr/freeware/bin)
-        fi
-        msgmerge=$MSGMERGE
-        AC_SUBST(msgmerge)
-        AC_PACKAGE_NEED_UTILITY($1, "$msgmerge", msgmerge, gettext)
-
-        if test -z "$XGETTEXT"; then
-                AC_PATH_PROG(XGETTEXT, xgettext,, /usr/bin:/usr/local/bin:/usr/freeware/bin)
-        fi
-        xgettext=$XGETTEXT
-        AC_SUBST(xgettext)
-        AC_PACKAGE_NEED_UTILITY($1, "$xgettext", xgettext, gettext)
-    fi
 
     if test -z "$RPM"; then
         AC_PATH_PROG(RPM, rpm,, /bin:/usr/bin:/usr/freeware/bin)
