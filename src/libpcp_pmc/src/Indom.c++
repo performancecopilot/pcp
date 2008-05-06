@@ -21,10 +21,15 @@
 
 #ident "$Id: Indom.c++,v 1.9 2005/05/10 01:59:58 kenmcd Exp $"
 
-#include <iostream.h>
-#include <ctype.h>
 #include <pcp/pmc/Indom.h>
 #include <pcp/pmc/Desc.h>
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
+#include <ctype.h>
 
 #ifdef __sgi
 #pragma instantiate PMC_Vector<PMC_Instance>

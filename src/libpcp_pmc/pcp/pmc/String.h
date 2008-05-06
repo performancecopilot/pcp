@@ -35,10 +35,15 @@
 #include <sys/types.h>
 #include <assert.h>
 #include <string.h>
-#include <iostream.h>
 #include <pcp/pmc/Vector.h>
 #include <pcp/pmc/List.h>
 #include <pcp/pmc/Bool.h>
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
 
 typedef PMC_Vector<char> PMC_CharVector;
 

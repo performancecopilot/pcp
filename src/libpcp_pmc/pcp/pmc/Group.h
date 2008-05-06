@@ -26,12 +26,17 @@
 
 #ident "$Id: Group.h,v 1.4 2005/05/10 01:59:58 kenmcd Exp $"
 
-#include <iostream.h>
 #include <pcp/pmc/PMC.h>
 #include <pcp/pmc/List.h>
 #include <pcp/pmc/String.h>
 #include <pcp/pmc/Bool.h>
 #include <pcp/pmc/Context.h>
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
 
 typedef PMC_List<PMC_Context*> PMC_ContextList;
 

@@ -23,8 +23,6 @@
 
 #include <math.h>
 #include <float.h>
-#include <iostream.h>
-#include <iomanip.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -36,6 +34,15 @@
 #include <pcp/pmc/Group.h>
 #include <pcp/pmc/Metric.h>
 #include <pcp/pmc/Context.h>
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#include <iomanip>
+#else
+#include <iostream.h>
+// Warning: piggy-backing iomanip conditional on iostream
+#include <iomanip.h>
+#endif
 
 // Temporary buffer
 char		buffer[256];
@@ -588,10 +595,18 @@ dumpHeader()
 		    cout << setw(width) 
 			 << PMC_Metric::formatNumber(metric->scale());
 		else
+#ifdef HAVE_IOSTREAM
+// Warning: piggy-backing iomanip conditional on iostream
+		    cout << setiosflags(ios_base::fixed)
+			 << setprecision(precision)
+			 << setw(width)
+			 << metric->scale();
+#else
 		    cout << setiosflags(ios::fixed)
 			 << setprecision(precision)
 			 << setw(width)
 			 << metric->scale();
+#endif
 	    	if (v < numValues) {
 		    cout << delimiter;
 		    v++;

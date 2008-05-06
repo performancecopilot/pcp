@@ -28,6 +28,12 @@
 
 #include <pcp/pmc/PMC.h>
 #include <pcp/pmc/String.h>
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
 
 class PMC_Desc
 {

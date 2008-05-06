@@ -26,10 +26,15 @@
 
 #ident "$Id: Source.h,v 1.3 2005/05/10 00:46:37 kenmcd Exp $"
 
-#include <iostream.h>
 #include <pcp/pmc/PMC.h>
 #include <pcp/pmc/String.h>
 #include <pcp/pmc/List.h>
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
 
 typedef PMC_List<PMC_Source*> PMC_SourceList;
 

@@ -19,7 +19,14 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
+#include <pcp/pmc/Group.h>
+#include <pcp/pmc/Metric.h>
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
 #include <iostream.h>
+#endif
 #include <stdlib.h>
 #include <stdarg.h>
 #include <unistd.h>
@@ -28,9 +35,6 @@
 extern "C" {
 #include <curses.h>
 }
-
-#include <pcp/pmc/Group.h>
-#include <pcp/pmc/Metric.h>
 
 // This may be putenv, so make it static
 static PMC_String	tzEnv = "TZ=";

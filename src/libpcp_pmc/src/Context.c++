@@ -21,10 +21,15 @@
 
 #ident "$Id: Context.c++,v 1.5 2005/05/10 01:59:58 kenmcd Exp $"
 
-#include <iostream.h>
-#include <limits.h>
 #include <pcp/pmc/Context.h>
 #include <pcp/pmc/Metric.h>
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
+#include <limits.h>
 
 #ifdef __sgi
 #pragma instantiate PMC_Vector<PMC_String>

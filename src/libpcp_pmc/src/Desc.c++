@@ -21,8 +21,13 @@
 
 #ident "$Id: Desc.c++,v 1.2 2005/05/10 00:46:37 kenmcd Exp $"
 
-#include <iostream.h>
 #include <pcp/pmc/Desc.h>
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
 
 PMC_Desc::PMC_Desc(pmID pmid)
 : _sts(0), _pmid(pmid), _scaleFlag(PMC_false)

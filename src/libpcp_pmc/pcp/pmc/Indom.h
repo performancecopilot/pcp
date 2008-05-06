@@ -24,10 +24,15 @@
 
 #ident "$Id: Indom.h,v 1.10 2005/05/10 01:59:58 kenmcd Exp $"
 
-#include <iostream.h>
-#include <assert.h>
 #include <pcp/pmc/PMC.h>
 #include <pcp/pmc/String.h>
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
+#include <assert.h>
 
 struct PMC_Instance
 {

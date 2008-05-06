@@ -32,8 +32,6 @@
 #endif
 #endif
 
-#include <iostream.h>
-
 #include <pcp/pmc/PMC.h>
 #include <pcp/pmc/Vector.h>
 #include <pcp/pmc/String.h>
@@ -41,6 +39,13 @@
 #include <pcp/pmc/Desc.h>
 #include <pcp/pmc/Indom.h>
 #include <pcp/pmc/Source.h>
+
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
 
 struct PMC_NameToId
 {

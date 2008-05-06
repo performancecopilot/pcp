@@ -19,9 +19,14 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <iostream.h>
 #include <pcp/pmc/Group.h>
 #include <pcp/pmc/Metric.h>
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
 
 int
 main(int argc, char* argv[])
