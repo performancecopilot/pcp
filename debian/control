@@ -26,6 +26,7 @@ Package: libpcp3-dev
 Section: libdevel
 Priority: extra
 Depends: libc6-dev | libc-dev, libpcp3
+Conflicts: pcp (< 2.7.4-20080506)
 Architecture: any
 Description: Performance Co-Pilot library and headers
  libpcp-dev contains the base Performance Co-Pilot (PCP) library and
@@ -46,6 +47,7 @@ Package: libpcp-pmda3-dev
 Section: libdevel
 Priority: extra
 Depends: libc6-dev | libc-dev, libpcp3-dev
+Conflicts: pcp (< 2.7.4-20080506)
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library and headers
  libpcppmda-dev contains the Performance Co-Pilot (PCP) library and
@@ -69,6 +71,7 @@ Package: libpcp-trace2-dev
 Section: libdevel
 Priority: extra
 Depends: libc6-dev | libc-dev, libpcp3-dev
+Conflicts: pcp (< 2.7.4-20080506)
 Architecture: any
 Description: Performance Co-Pilot application tracing library and headers
  libpcptrace-dev contains the Performance Co-Pilot (PCP) library and

@@ -27,6 +27,7 @@ pkglibpcp_trace = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_trace);
 options = export DEBUG=-DNDEBUG AWK=gawk PMC_SUPPORT=false;
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
+uninstalld = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include
 
 build: built
 built: config
@@ -63,8 +64,10 @@ binary-arch: checkroot built
 	dh_strip
 	dh_compress
 	dh_fixperms
+	dh_installdirs
 	dh_install --sourcedir=debian/$(pcp)
 	@$(uninstall)
+	@$(uninstalld)
 	dh_makeshlibs -N $(libpcp)
 	dh_makeshlibs -p $(libpcp)
 	dh_makeshlibs -N $(libpcp_pmda)

@@ -5,19 +5,19 @@ PCP_FILES = pcp.prerm pcp.postinst pcp.postrm
 
 LIBPCPPCP = libpcp3
 LIBPCP_FILES = libpcp3.install
-DEVPCP_FILES = libpcp3-dev.install
+DEVPCP_FILES = libpcp3-dev.dirs libpcp3-dev.install
 LIBPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3
 DEVPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3-dev
 
 LIBPMDAPCP = libpcp-pmda3
 LIBPMDA_FILES = libpcp-pmda3.install
-DEVPMDA_FILES = libpcp-pmda3-dev.install
+DEVPMDA_FILES = libpcp-pmda3-dev.dirs libpcp-pmda3-dev.install
 LIBPMDA_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-pmda3
 DEVPMDA_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-pmda3-dev
 
 LIBTRACEPCP = libpcp-trace2
 LIBTRACE_FILES = libpcp-trace2.install
-DEVTRACE_FILES = libpcp-trace2-dev.install
+DEVTRACE_FILES = libpcp-trace2-dev.dirs libpcp-trace2-dev.install
 LIBTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2
 DEVTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2-dev
 

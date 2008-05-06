@@ -1,3 +1,9 @@
+pcp (2.7.4-20080506) unstable; urgency=low
+
+  * Fix location of headers - moved into dev packages.
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 06 May 2008 21:14:07 +1000
+
 pcp (2.7.4-20080430) unstable; urgency=low
 
   * Fix network interface speed metrics.

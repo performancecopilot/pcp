@@ -1,3 +1,10 @@
+usr/include/pcp/buildrules
+usr/include/pcp/builddefs
+usr/include/pcp/impl.h
+usr/include/pcp/pmapi.h
+usr/include/pcp/pmdbg.h
+usr/include/pcp/platform_defs.h
+usr/include/pcp/pmiestats.h
 usr/lib/libpcp.a
 usr/lib/libpcp.so
 usr/share/man/man3/__pmAFblock.3.gz
