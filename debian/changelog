@@ -1,8 +1,8 @@
-kmchart (1.2.2) unstable; urgency=low
+kmchart (1.2.3) unstable; urgency=low
 
   * New kmchart release, fixes up configure script (closes: #479514).
 
- -- Nathan Scott <nathans@debian.org>  Tue, 06 May 2008 09:36:01 +1000
+ -- Nathan Scott <nathans@debian.org>  Tue, 06 May 2008 10:09:12 +1000
 
 kmchart (1.2.0) unstable; urgency=low
 
