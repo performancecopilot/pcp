@@ -1,3 +1,9 @@
+kmchart (1.2.4) unstable; urgency=low
+
+  * Add missing build dependencies (closes: #479687).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 07 May 2008 08:51:29 +1000
+
 kmchart (1.2.3) unstable; urgency=low
 
   * New kmchart release, fixes up configure script (closes: #479514).

@@ -1,3 +1,6 @@
+kmchart 1.2.4 (7 May 2008)
+    - Resolve some build dependencies in the Debian packages.
+
 kmchart 1.2.3 (6 May 2008)
     - Reinstate part of the removed configure logic ($ZIP).
 
