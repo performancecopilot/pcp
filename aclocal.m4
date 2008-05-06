@@ -241,6 +241,12 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     tar=$TAR
     AC_SUBST(tar)
 
+    if test -z "$ZIP"; then
+	AC_PATH_PROG(ZIP, gzip,, /bin:/usr/bin:/usr/local/bin)
+    fi
+    zip=$ZIP
+    AC_SUBST(zip)
+
     if test -z "$MAKEDEPEND"; then
         AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
     fi
