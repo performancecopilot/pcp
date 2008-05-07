@@ -31,8 +31,9 @@ s/ at .*/ at DATE/
 }' \
 	-e "s;`pwd`;<initial-path>/qa;" \
 	-e '/^Creator:/{
-s/mkaf/MKAF_OR_PMCHART/
-s/pmchart/MKAF_OR_PMCHART/
+s/mkaf/MKAF_OR_CHART/
+s/kmchart/MKAF_OR_CHART/
+s/pmchart/MKAF_OR_CHART/
 }' \
 | $PCP_AWK_PROG '
 $1 == "Archive:"	{ if ($3 ~ /bar$/ || $3 ~ /bigbin$/ ||

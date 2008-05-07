@@ -5,7 +5,7 @@ Version: 1
 # use pmafm(1) to process this PCP archive folio
 #
 Created: on HOSTNAME at DATE
-Creator: MKAF_OR_PMCHART
+Creator: MKAF_OR_CHART
 # 		Host			Basename
 #
 Archive:        gonzo                   951127.23.01
@@ -52,7 +52,7 @@ Version: 1
 # use pmafm(1) to process this PCP archive folio
 #
 Created: on HOSTNAME at DATE
-Creator: MKAF_OR_PMCHART
+Creator: MKAF_OR_CHART
 # 		Host			Basename
 #
 Archive:        gonzo                   <initial-path>/qa/src-oss/951127.23.01
@@ -99,7 +99,7 @@ Version: 1
 # use pmafm(1) to process this PCP archive folio
 #
 Created: on HOSTNAME at DATE
-Creator: MKAF_OR_PMCHART
+Creator: MKAF_OR_CHART
 # 		Host			Basename
 #
 Archive:        gonzo                   src-oss/951127.23.01
