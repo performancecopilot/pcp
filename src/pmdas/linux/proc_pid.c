@@ -548,8 +548,10 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid)
 		ep->schedstat_buf[n-1] = '\0';
 	    }
 	}
-	close(fd);
-	ep->schedstat_fetched = 1;
+	if (fd >= 0) {
+	    close(fd);
+	    ep->schedstat_fetched = 1;
+	}
     }
 
     if (sts < 0)
