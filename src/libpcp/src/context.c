@@ -441,7 +441,7 @@ pmDupContext(void)
 {
     int			sts;
     int			old, new = -1;
-    char		*hostspec;
+    char		hostspec[4096], *h;
     __pmContext		*newcon, *oldcon;
     __pmInDomProfile	*q, *p, *p_end;
     __pmProfile		*save;
@@ -452,8 +452,9 @@ pmDupContext(void)
     }
     oldcon = &contexts[old];
     if (oldcon->c_type == PM_CONTEXT_HOST) {
+	h = &hostspec[0];
 	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
-				oldcon->c_pmcd->pc_nhosts, &hostspec);
+			oldcon->c_pmcd->pc_nhosts, &h, sizeof(hostspec));
 	new = pmNewContext(oldcon->c_type, hostspec);
     }
     else if (oldcon->c_type == PM_CONTEXT_LOCAL)

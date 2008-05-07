@@ -459,7 +459,7 @@ typedef struct {
     int		nports;			/* number of ports in host port array */
 } pmHostSpec;
 extern int __pmParseHostSpec(const char *, pmHostSpec **, int *, char **);
-extern void __pmUnparseHostSpec(pmHostSpec *, int, char **);
+extern void __pmUnparseHostSpec(pmHostSpec *, int, char **, int);
 extern void __pmFreeHostSpec(pmHostSpec *, int);
 
 /*

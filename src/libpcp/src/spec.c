@@ -474,17 +474,16 @@ fail:
 }
 
 void
-__pmUnparseHostSpec(pmHostSpec *hostp, int count, char **specp)
+__pmUnparseHostSpec(pmHostSpec *hostp, int count, char **specp, int specsz)
 {
     int i, j, sz = 0;
-    static char spec[4096];
 
     for (i = 0; i < count; i++) {
 	if (i > 0)
-	    sz += snprintf(spec, sizeof(spec), "@");
-	sz += snprintf(spec, sizeof(spec), "%s", hostp[0].name);
+	    sz += snprintf(*specp, specsz, "@");
+	sz += snprintf(*specp, specsz, "%s", hostp[0].name);
 	for (j = 0; j < hostp[i].nports; j++)
-	    sz += snprintf(spec + sz, sizeof(spec) - sz,
+	    sz += snprintf((*specp) + sz, specsz - sz,
 			    "%c%u", (j == 0) ? ':' : ',', hostp[i].ports[j]);
     }
 }
