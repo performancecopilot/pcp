@@ -58,6 +58,19 @@ refresh_proc_net_snmp(proc_net_snmp_t *proc_net_snmp)
     if ((fp = fopen("/proc/net/snmp", "r")) == NULL)
 	return -errno;
 
+    /*
+    * This is really bogus.
+    * We are consuming the heading line in the while (fgets(..)) and
+    * discarding it, then reading the next line and parsing the counters
+    * from there, with hard coded semantics as to the meaning of each
+    * counter found on this line.
+    * This does not work at all for IcmpMsg where the line we're
+    * ignoring provides the name of the counters on the line we're
+    * scanning (pairs appear to be like this, we're just lucky that
+    * the names in the ignored lines are not changing ... of course
+    * when they change we'll export complete nonsense.
+    * - Ken
+    */
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if (fgets(buf, sizeof(buf), fp) != NULL) {
 	    if (strncmp(buf, "Ip:", 3) == 0)
@@ -74,6 +87,11 @@ refresh_proc_net_snmp(proc_net_snmp_t *proc_net_snmp)
 	    else
 	    if (strncmp(buf, "UdpLite:", 8) == 0)
 		get_fields(proc_net_snmp->udplite, buf, _PM_SNMP_UDPLITE_NFIELDS);
+	    else
+	    if (strncmp(buf, "IcmpMsg:", 8) == 0) {
+		/* TODO - no support at this stage, see comment above */
+		;
+	    }
 	    else
 	    	fprintf(stderr, "Error: /proc/net/snmp fetch failed: buf: %s",
 			buf);
