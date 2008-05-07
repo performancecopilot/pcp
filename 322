@@ -173,7 +173,8 @@ do
     host=`./getpmcdhosts -L -n 1 $type`
     if [ -z "$host" ]
     then
-	echo "Arrgh, cannot find a suitable pmlogger host"
+	cat $tmp.out >$seq.notrun
+	exit
     else
 	echo "$type => $host" >>$seq.full
 	_speak_to_me $host

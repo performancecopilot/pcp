@@ -130,7 +130,8 @@ do
     host=`./getpmcdhosts -L -n 1 $type`
     if [ -z "$host" ]
     then
-	echo "Arrgh, cannot find a suitable pmlc host"
+	cat $tmp.out >$seq.notrun
+	exit
     else
 	# echo $host
 	_speak_to_me $host

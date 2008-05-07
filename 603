@@ -64,8 +64,7 @@ qahost=`_get_fqdn`
 otherhost=`./getpmcdhosts -L -n 1 2>$tmp.out`
 if [ -z "$otherhost" ]
 then
-    cat $tmp.out
-    echo "Arrgh, cannot find a suitable remote pmcd host"
+    cat $tmp.out >$seq.notrun
     exit
 fi
 qanet=`_host_to_ipaddr $otherhost | sed -e 's/[0-9][0-9]*$/*/'`

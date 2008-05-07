@@ -643,7 +643,7 @@ $LIST && echo
 
 if [ $i -lt $COUNT ]
 then
-    echo "$0: ERROR: unable to get $COUNT host(s) with options: \"$@\"" >&2
+    echo "$0: unable to get $COUNT host(s) with options: \"$@\"" >&2
     exit
 fi
 
