@@ -244,41 +244,26 @@ _make_checkfiles()
     		showfiles -cs pcp\* | $PCP_AWK_PROG '{ print "/" $0 }' >$tmp.checkfiles 2>/dev/null
     		_addfiles $tmp.checkfiles $_checkfiles
     	    fi
-	elif [ $PCP_PLATFORM = linux ]
+	elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
 	then
+	    [ -z "$PCP_PMCDOPTIONS_PATH" ] && \
+		PCP_PMCDOPTIONS_PATH="$PCP_VAR_DIR/config/pmcd/pmcd.options"
+	    [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+	    [ -z "$PCP_PMIECONTROL_PATH" ] && \
+		PCP_PMIECONTROL_PATH="$PCP_VAR_DIR/config/pmie/control"
 	    _checkfiles="$PCP_PMCDCONF_PATH \
-		$PCP_VAR_DIR/config/pmlogger/control \
+		$PCP_PMLOGGERCONTROL_PATH \
 		$PCP_VAR_DIR/config/pmlogger/config.default \
-		$PCP_VAR_DIR/config/pmie/control \
-		/etc/rc.d/init.d/pcp \
-		$PCP_VAR_DIR/config/pmcd/pmcd.options \
+		$PCP_PMLOGGERCONTROL_PATH \
+		$PCP_PMCDOPTIONS_PATH \
+		/etc/init.d/pcp \
 		/etc/pcp.conf /etc/pcp.env \
 		$PCP_PMDAS_DIR/sample/dsohelp.dir \
 		$PCP_PMDAS_DIR/sample/dsohelp.pag \
 		$PCP_PMDAS_DIR/sample/help.dir \
 		$PCP_PMDAS_DIR/sample/help.pag \
 		$PCP_PMDAS_DIR/simple/simple.conf"
-
-    	    if [ ! -f $tmp.checkfiles ]
-    	    then
-    		_checkpkgs=`rpm -qa | fgrep pcp`
-    		rpm -qlc $_checkpkgs >$tmp.checkfiles 2>/dev/null
-    		_addfiles $tmp.checkfiles $_checkfiles
-    	    fi
-	elif [ $PCP_PLATFORM = solaris ]
-	then
-	    _checkfiles="$PCP_PMCDCONF_PATH \
-		$PCP_VAR_DIR/config/pmlogger/control \
-		$PCP_VAR_DIR/config/pmlogger/config.default \
-		$PCP_VAR_DIR/config/pmie/control \
-		/etc/init.d/pcp \
-		$PCP_VAR_DIR/config/pmcd/pmcd.options \
-		/etc/pcp.conf /etc/pcp.env \
-		$PCP_PMDAS_DIR/sample/dsohelp.dir \
-		$PCP_PMDAS_DIR/sample/dsohelp.pag \
-		$PCP_PMDAS_DIR/sample/help.dir \
-		$PCP_PMDAS_DIR/sample/help.pag \
-		$PCP_PMDAS_DIR/simple/simple.conf"	
 	else
 	    bozo
 	fi
@@ -444,8 +429,8 @@ do
 	continue
     elif [ ! -f $seq ]
     then
-	echo " - no such test?"
-	err=true
+	notrun="$notrun $seq"
+	continue
     else
 	# really going to try and run this one
 	#

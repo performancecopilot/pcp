@@ -29,7 +29,7 @@ clobber clean:
 
 # 051 depends on this rule being here
 051.work/die.001: 051.setup
-	chmod u+x 051.setup
+	./sudo chmod u+x 051.setup
 	./051.setup
 
 sudo:	sudo.c

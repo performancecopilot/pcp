@@ -44,6 +44,8 @@ sudo=./sudo
 _needclean=true
 TAG=000666000magic
 status=1
+[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
 
 if [ ! -x $sudo ]
 then
@@ -58,7 +60,7 @@ _cleanup()
     if $_needclean
     then
 	[ -f $tmp.control ] && \
-	    $sudo cp $tmp.control $PCP_VAR_DIR/config/pmlogger/control
+	    $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
 	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -79,7 +81,7 @@ fi
 
 # disable all pmloggers ... Linux does not have "chkconfig pmlogger off"
 #
-$sudo cp $PCP_VAR_DIR/config/pmlogger/control $tmp.control
+$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
 cat <<End-of-File >$tmp.tmp
 # dummy file created by qa/$seq on `date`
 # the goal here is to have a controlled primary logger that does
@@ -87,7 +89,7 @@ cat <<End-of-File >$tmp.tmp
 \$version=1.1
 LOCALHOSTNAME y n $LOGGING_DIR/LOCALHOSTNAME -c /dev/null
 End-of-File
-$sudo cp $tmp.tmp $PCP_VAR_DIR/config/pmlogger/control
+$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 
 # I have no idea why this is required, but this test run
 # after 040 sometimes produces garbled messages unless

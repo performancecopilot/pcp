@@ -24,8 +24,10 @@ sudo=$here/sudo
 lhost=`hostname | sed -e 's/\..*//'`
 host=`_get_fqdn`
 remote=`./getpmcdhosts -n 1 -L 2>/dev/null`
-control=$PCP_VAR_DIR/config/pmie/control
 needclean=false
+[ -z "$PCP_PMIECONTROL_PATH" ] && \
+	PCP_PMIECONTROL_PATH="$PCP_VAR_DIR/config/pmie/control"
+control="$PCP_PMIECONTROL_PATH"
 
 _cleanup()
 {
@@ -60,7 +62,7 @@ _filter_pmie_start()
 	-e '/\/sbin\/chkconfig pmie on/d' \
 	-e '/\/usr\/sbin\/sysv-rc-conf pmie on/d' \
 	-e '/ln -sf \.\.\/init.d\/pmie \/etc\/rc\.d\//d' \
-	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;" \
+	-e "s;$PCP_PMIECONTROL_PATH;\$PCP_PMIECONTROL_PATH;" \
         -e '/^\.\.*done$/d' \
         -e '/^\.\.*failed$/d'
 }

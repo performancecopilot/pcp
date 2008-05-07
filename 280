@@ -26,6 +26,9 @@ fi
 
 _filter()
 {
+    [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+    PCP_PMLOGGERCONTROL_PATH=`basename $PCP_PMLOGGERCONTROL_PATH`
     sed \
 	-e 's/\.\.\.*/[dots]/' \
 	-e 's;/usr/var;/var;g' \
@@ -33,7 +36,7 @@ _filter()
 	-e "s/$LOCALHOST/LOCALHOST/g" \
 	-e "s;$LOGGING_DIR;\$PCP_LOG_DIR;" \
 	-e "s;$PCP_LOG_DIR;\$PCP_LOG_DIR;" \
-	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;" \
+	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \
 	-e 's/control:[0-9][0-9]*]/control:LINE]/' \
 	-e 's/process [0-9][0-9]*/process PID/' \
 	-e 's/\.* done/. done/' \

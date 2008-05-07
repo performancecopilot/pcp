@@ -89,7 +89,9 @@ tmp=/var/tmp/$$
 CONFIG=$PCP_PMCDCONF_PATH
 NEWCONFIG=$tmp/pmcd.conf
 CONFIGSAVE=$tmp/pmcd.conf.save
-LOGCONTROL=$PCP_VAR_DIR/config/pmlogger/control
+[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+LOGCONTROL=$PCP_PMLOGGERCONTROL_PATH
 SAVE_LOGCONTROL=$tmp/control.save
 here=`pwd`
 sudo=$here/sudo
