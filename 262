@@ -37,6 +37,7 @@ _filter_number()
 	-e 's/  *[0-9][0-9]*\.[0-9]*/ NUMBER/g' \
 	-e 's/  *[0-9][0-9]*/ NUMBER/g' \
 	-e 's/:[0-9][0-9]/:NUMBER/g' \
+	-e 's/   pi   po   bi/  si  so    bi/' \
 	-e 's/^ //' \
 	-e 's/Mon\|Tue\|Wed\|Thu\|Fri\|Sat\|Sun/DAY/' \
 	-e 's/Jan\|Feb\|Mar\|Apr\|May\|Jun\|Jul\|Aug\|Sep\|Oct\|Nov\|Dec/MONTH/' 
