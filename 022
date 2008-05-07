@@ -10,7 +10,10 @@ seq=`basename $0`
 
 rm -f $seq.out $seq.full
 . ./localconfig
-if [ $PCP_PLATFORM = linux -a $PCP_EOE_VER -ge 2300 ]
+if [ $PCP_PLATFORM = linux -a $PCP_EOE_VER -ge 2704 ]
+then
+    ln $seq.linux.2 $seq.out
+elif [ $PCP_PLATFORM = linux -a $PCP_EOE_VER -ge 2300 ]
 then
     ln $seq.linux.1 $seq.out
 elif [ $PCP_PLATFORM = linux ]
@@ -94,7 +97,7 @@ pminfo -F proc \
 | tee -a $seq.full \
 | _inst_value_filter \
 | sed -e '/value/d' \
-    -e '/not supported/s/:.*//' \
+    -e '/not supported/d' \
     -e '/^[ \t]*$/d' \
     -e '/DISAPPEARED/d'
 
