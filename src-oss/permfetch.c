@@ -183,7 +183,7 @@ Options:\n\
 	printf(" %d value sets\n", todolist[todo].rp->numpmid);
 #endif
 	if (todolist[todo].numpmid != todolist[todo].rp->numpmid)
-	    printf("botch: %d metrics != %d vaue sets!\n",
+	    printf("botch: %d metrics != %d value sets!\n",
 		todolist[todo].numpmid, todolist[todo].rp->numpmid);
 
 	optind++;
@@ -225,7 +225,7 @@ Options:\n\
 	pmFreeResult(todolist[n].rp);
 
 	if (todolist[n].numpmid != todolist[n].rp->numpmid)
-	    printf("botch: %d metrics != %d vaue sets!\n",
+	    printf("botch: %d metrics != %d value sets!\n",
 		todolist[n].numpmid, todolist[n].rp->numpmid);
     }
 
