@@ -9,8 +9,14 @@
 //
 
 #include <stdlib.h>
-#include <iostream.h>
 #include "List.h"
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
+#include <strings.h>
 
 extern char *pmProgname;
 

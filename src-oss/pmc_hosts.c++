@@ -2,11 +2,16 @@
 // Test host matching algorithm with multiple groups
 //
 
-#include <iostream.h>
 #include <errno.h>
 #include "Group.h"
 #include "Metric.h"
 #include "Indom.h"
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
 
 #define mesg(str)	msg(__LINE__, str)
 

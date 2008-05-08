@@ -2,9 +2,15 @@
 // Test PMC_Desc
 //
 
-#include <iostream.h>
 #include "Source.h"
 #include "Desc.h"
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
+#include <strings.h>
 
 int
 main(int argc, char* argv[])

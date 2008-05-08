@@ -5,10 +5,15 @@
 // Two groups are using live contexts, one group is using archives.
 //
 
-#include <iostream.h>
 #include "Group.h"
 #include "Source.h"
 #include "Metric.h"
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
 
 #define mesg(str)	msg(__LINE__, str)
 #define checksts()	pmflush(); if (sts < 0) fail(__LINE__, sts);

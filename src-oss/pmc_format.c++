@@ -8,9 +8,15 @@
 // Test PMC_Metric::formatValue routines
 //
 
-#include <iostream.h>
 #include "PMC.h"
 #include "Metric.h"
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
+#include <strings.h>
 
 #pragma instantiate PMC_List<PMC_Source*>
 #pragma instantiate PMC_List<PMC_Metric*>

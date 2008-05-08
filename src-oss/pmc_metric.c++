@@ -2,11 +2,16 @@
 // Test PMC_Metric
 //
 
-#include <iostream.h>
 #include <errno.h>
 #include "Group.h"
 #include "Metric.h"
 #include "Indom.h"
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
 
 void
 changeConf(const char* str)
