@@ -61,7 +61,7 @@ _cleanup()
     cd # get out of tmp directory so we can delete it
     $sudo rm -rf $tmp
 
-    $sudo pmlogger_check
+    $sudo $PCP_BINADM_DIR/pmlogger_check
 }
 
 _setup()
@@ -96,13 +96,13 @@ EOF
 echo "--------------"
 echo "PMLOGGER.CHECK"
 echo "--------------"
-pmlogger_check -V -c $tmp/control 2>&1 | _filter
+$PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control 2>&1 | _filter
 
 echo
 echo "--------------"
 echo "PMLOGGER.DAILY"
 echo "--------------"
-pmlogger_daily -V -c $tmp/control 2>&1 | _filter
+$PCP_BINADM_DIR/pmlogger_daily -V -c $tmp/control 2>&1 | _filter
 
 # success, all done
 status=0

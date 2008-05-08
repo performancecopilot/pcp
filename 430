@@ -75,7 +75,7 @@ _cleanup()
     $sudo rm -rf $tmp
     $sudo rm -rf $tmp.*
 
-    $sudo pmlogger_check
+    $sudo $PCP_BINADM_DIR/pmlogger_check
 }
 
 _setup()
@@ -233,7 +233,7 @@ do
 
     echo "log mandatory on once pmcd.control.debug" >$logdir/config
     echo "--- pmlogger_check ---" >> $here/$seq.full
-    pmlogger_check -V -c $logdir/control 2>&1 | tee -a $here/$seq.full | _filter
+    $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control 2>&1 | tee -a $here/$seq.full | _filter
 done
 
 echo
@@ -249,7 +249,7 @@ do
     pid=`grep -l $log $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
     kill -INT $pid
     echo "Check ..."
-    pmlogger_check -V -V -c $logdir/control 2>&1 \
+    $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control 2>&1 \
     | sed -e '/^... try /d' \
     | _filter
 

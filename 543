@@ -75,7 +75,7 @@ $sudo mv $NOTICES $tmp.notices
 [ -f $FORWARD ] && $sudo mv $FORWARD $tmp.forward
 cp /dev/null $tmp.noconf
 $sudo cp $tmp.new $NOTICES
-$sudo pmlogger_daily -c $tmp.noconf -m pcpqa@$host
+$sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.noconf -m pcpqa@$host
 
 sleep 2	# let mail arrive (shouldn't take long)
 
