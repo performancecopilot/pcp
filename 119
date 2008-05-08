@@ -37,7 +37,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 rm -f $seq.out
-if pmlogger_check -x 2>&1 | grep NTV >/dev/null
+if $PCP_BINADM_DIR/pmlogger_check -x 2>&1 | grep NTV >/dev/null
 then
     # new version with -T option
     #
@@ -135,7 +135,7 @@ echo
 echo "=== pmlogger_check ==="
 echo >>$seq.full
 echo "=== pmlogger_check ===" >>$seq.full
-$sudo pmlogger_check >$tmp.out 2>&1
+$sudo $PCP_BINADM_DIR/pmlogger_check >$tmp.out 2>&1
 _filter <$tmp.out
 cat $tmp.out >>$seq.full
 
@@ -145,7 +145,7 @@ then
     echo "=== pmlogger_check -T ==="
     echo >>$seq.full
     echo "=== pmlogger_check -T ===" >>$seq.full
-    $sudo pmlogger_check -T >$tmp.out 2>&1
+    $sudo $PCP_BINADM_DIR/pmlogger_check -T >$tmp.out 2>&1
     _filter <$tmp.out
     cat $tmp.out >>$seq.full
 fi

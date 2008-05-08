@@ -28,7 +28,7 @@ _filter()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
-    PCP_PMLOGGERCONTROL_PATH=`basename $PCP_PMLOGGERCONTROL_PATH`
+    PCP_PMLOGGERCONTROL_PATH=`basename "$PCP_PMLOGGERCONTROL_PATH"`
     sed \
 	-e 's/\.\.\.*/[dots]/' \
 	-e 's;/usr/var;/var;g' \
@@ -42,7 +42,6 @@ _filter()
 	-e 's/\.* done/. done/' \
 	-e 's/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]/CHECK/' \
     | _filter_cron_scripts
-
 }
 
 tmp=/tmp/$$
