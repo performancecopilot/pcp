@@ -61,8 +61,6 @@ install: default
 ifneq "$(SYMTARGET)" ""
 	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET)
 endif
-	$(INSTALL) -m 755 -d $(PCP_INC_DIR)/pmc
-	$(INSTALL) -m 644 $(HFILES) $(PCP_INC_DIR)/pmc
 
 $(LOBJECTS): pcp
 

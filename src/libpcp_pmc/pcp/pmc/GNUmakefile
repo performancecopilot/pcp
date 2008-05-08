@@ -36,6 +36,8 @@ pcp:
 include $(BUILDRULES)
 
 install: default
+	$(INSTALL) -m 755 -d $(PCP_INC_DIR)/pmc
+	$(INSTALL) -m 644 $(HFILES) $(PCP_INC_DIR)/pmc
 
 default_pcp:	default
 
