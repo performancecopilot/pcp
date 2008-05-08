@@ -1,3 +1,6 @@
+kmchart 1.2.5 (8 May 2008)
+    - Resolve another build dependency in the Debian package.
+
 kmchart 1.2.4 (7 May 2008)
     - Resolve some build dependencies in the Debian packages.
 
