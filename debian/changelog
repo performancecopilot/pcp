@@ -1,3 +1,10 @@
+pcp (2.7.4-20080507) unstable; urgency=low
+
+  * Fix location of pcp.conf - moved into libpcp runtime.
+  * Introduce a shlibs.local file to track package inter-dependencies.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 07 May 2008 16:43:34 +1000
+
 pcp (2.7.4-20080506) unstable; urgency=low
 
   * Fix location of headers - moved into dev packages.
