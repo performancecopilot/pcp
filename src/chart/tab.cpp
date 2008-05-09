@@ -56,7 +56,9 @@ void Tab::init(QTabWidget *tab, int samples, int visible,
     my.splitter->setOrientation(Qt::Vertical);
     my.splitter->setSizePolicy(QSizePolicy::MinimumExpanding,
 				QSizePolicy::MinimumExpanding);
+    tab->blockSignals(true);
     tab->addTab(my.splitter, label);
+    tab->blockSignals(false);
     my.group = group;
 
     my.kmtimeSource = source;
