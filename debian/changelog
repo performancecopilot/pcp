@@ -1,3 +1,9 @@
+kmchart (1.2.6) unstable; urgency=low
+
+  * Resolve std namespace for some gcc variants (closes: #480141).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 09 May 2008 15:07:30 +1000
+
 kmchart (1.2.5) unstable; urgency=low
 
   * Add missing build dependencies (closes: #479873).
