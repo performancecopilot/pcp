@@ -10,6 +10,8 @@
 owner=kenmcd
 
 seq=`basename $0`
+echo "No qualified output, code/test not quite complete" >$seq.notrun
+exit
 
 if which pmlogreduce >/dev/null 2>&1
 then
