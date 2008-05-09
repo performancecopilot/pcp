@@ -529,6 +529,18 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	fi
     done
 
+    if $VERY_VERBOSE
+    then
+	if [ -z "$pid" ]
+	then
+	    echo "No current pmie process exists for:"
+	else
+	    echo "Found pmie process $pid monitoring:"
+	fi
+	echo "    host = $fqdn"
+	echo "    log file = $logfile"
+    fi
+
     if [ -z "$pid" -a $START_PMIE = true ]
     then
 	configfile=`echo $args | sed -n -e 's/^/ /' -e 's/[ 	][ 	]*/ /g' -e 's/-c /-c/' -e 's/.* -c\([^ ]*\).*/\1/p'`
