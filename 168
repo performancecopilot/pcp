@@ -11,6 +11,8 @@
 owner=kenmcd
 
 seq=`basename $0`
+echo "No qualified output, code/test not quite complete" >$seq.notrun
+exit
 
 # check for new version of sample pmda
 #
