@@ -12,6 +12,7 @@
  * for more details.
  */
 #include "curve.h"
+#include <limits>
 
 void Curve::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
 		 int, int) const
