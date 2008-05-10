@@ -28,15 +28,15 @@ void InfoDialog::languageChange()
 }
 
 void InfoDialog::reset(QString source, QString metric, QString instance,
-			bool isArchive)
+			int sourceType)
 {
     pminfoTextEdit->setText(tr(""));
     pmvalTextEdit->setText(tr(""));
     my.pminfoStarted = false;
     my.pmvalStarted = false;
-    my.isArchive = isArchive;
     my.metric = metric;
     my.source = source;
+    my.sourceType = sourceType;
     my.instance = instance;
 
     infoTab->setCurrentWidget(pminfoTab);
@@ -49,14 +49,22 @@ void InfoDialog::pminfo(void)
     QStringList arguments;
 
     arguments << "-df";
-    if (my.isArchive) {
+    switch (my.sourceType) {
+    case PM_CONTEXT_ARCHIVE:
 	arguments << "-a";
 	arguments << my.source;
-    }
-    else {
+	// no help text in archive mode
+	break;
+    case PM_CONTEXT_LOCAL:
+	arguments << "-L";
+	// no host name in local mode
+	arguments << "-tT";
+	break;
+    default:
 	arguments << "-h";
 	arguments << my.source;
 	arguments << "-tT";
+	break;
     }
     arguments << my.metric;
 
@@ -88,8 +96,10 @@ void InfoDialog::pmval(void)
 
     my.pmvalProc = new QProcess(this);
     arguments << "-f4" << "-p" << port;
-    if (my.isArchive)
+    if (my.sourceType == PM_CONTEXT_ARCHIVE)
 	arguments << "-a" << my.source;
+    else if (my.sourceType == PM_CONTEXT_LOCAL)
+	arguments << "-L";
     else
 	arguments << "-h" << my.source;
     arguments << my.metric;

@@ -98,7 +98,7 @@ public:
 
     void setupTree(QTreeWidget *);
     void addToTree(QTreeWidget *, QString, const QmcContext *,
-			  bool, bool, QColor&, QString&);
+			  bool, QColor&, QString&);
 
     static QColor schemeColor(QString, int *);
 

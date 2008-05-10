@@ -30,6 +30,7 @@ public:
 	NoType,
 	ChildMinder,
 	ArchiveRoot,
+	LocalRoot,
 	HostRoot,
 	NonLeafName,
 	LeafNullIndom,
@@ -37,8 +38,8 @@ public:
 	InstanceName,
     } Type;
 
-    NameSpace(QTreeWidget *, const QmcContext *, bool);// for root nodes only
-    NameSpace(NameSpace *, QString, bool, bool);	// for all other nodes
+    NameSpace(QTreeWidget *, const QmcContext *);	// for root nodes only
+    NameSpace(NameSpace *, QString, bool);		// for all other nodes
 
     QString text(int) const;
     QIcon icon(int) const;
@@ -47,19 +48,26 @@ public:
     void setExpanded(bool expanded, bool show);
 
     pmDesc desc() const { return my.desc; }
+    int sourceType();
     QString sourceName();
     QString metricName();
     QString metricInstance();
     QmcContext *metricContext() { return my.context; }
 
     void setType(Type type) { my.type = type; }
-    bool isRoot() { return my.type == HostRoot || my.type == ArchiveRoot; }
-    bool isLeaf() { return my.type == InstanceName || my.type == LeafNullIndom; }
-    bool isMetric() { return my.type == LeafWithIndom || my.type == LeafNullIndom; }
-    bool isNonLeaf() { return my.type == HostRoot || my.type == ArchiveRoot || my.type == NonLeafName; }
+    bool isRoot() { return my.type == HostRoot ||
+				my.type == LocalRoot ||
+				my.type == ArchiveRoot; }
+    bool isLeaf() { return my.type == InstanceName ||
+				my.type == LeafNullIndom; }
+    bool isMetric() { return my.type == LeafWithIndom ||
+				my.type == LeafNullIndom; }
+    bool isNonLeaf() { return my.type == HostRoot ||
+				my.type == LocalRoot ||
+				my.type == ArchiveRoot ||
+				my.type == NonLeafName; }
     bool isInst() { return my.type == InstanceName; }
     bool isChildMinder() { return my.type == ChildMinder; }
-    bool isArchiveMode() { return my.isArchive; }
 
     void addToTree(QTreeWidget *, QString, int *); // add leaf node to Selected
     void removeFromTree(QTreeWidget *);	// remove leaf nodes from Selected set
@@ -85,7 +93,6 @@ private:
     NameSpace *dup(QTreeWidget *, NameSpace *, QString, int *);	// all other nodes
 
     struct {
-	bool isArchive;
 	bool expanded;		// pmGet{ChildrenStatus,Indom} done
 	pmDesc desc;		// metric descriptor for metric leaves
 	QmcContext *context;	// metrics class metric context

@@ -23,7 +23,7 @@ class InfoDialog : public QDialog, public Ui::InfoDialog
 
 public:
     InfoDialog(QWidget* parent);
-    void reset(QString, QString, QString, bool);
+    void reset(QString, QString, QString, int);
     void pminfo();
     void pmval();
 
@@ -42,7 +42,7 @@ private:
     struct {
 	bool pminfoStarted;
 	bool pmvalStarted;
-	bool isArchive;
+	bool sourceType;
 	QString source;
 	QString metric;
 	QString instance;

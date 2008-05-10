@@ -229,7 +229,7 @@ void ChartDialog::metricInfoButtonClicked()
     NameSpace *name = (NameSpace *)(my.chartTreeSingleSelected ?
 		my.chartTreeSingleSelected : my.availableTreeSingleSelected);
     kmchart->metricInfo(name->sourceName(), name->metricName(),
-			name->metricInstance(), name->isArchiveMode());
+			name->metricInstance(), name->sourceType());
 }
 
 void ChartDialog::metricDeleteButtonClicked()
@@ -584,7 +584,7 @@ void ChartDialog::setupAvailableMetricsTree(bool arch)
     availableMetricsTreeWidget->clear();
     for (unsigned int i = 0; i < group->numContexts(); i++) {
 	QmcContext *cp = group->context(i);
-	NameSpace *name = new NameSpace(availableMetricsTreeWidget, cp, arch);
+	NameSpace *name = new NameSpace(availableMetricsTreeWidget, cp);
 	name->setExpanded(true, true);
 	name->setSelectable(false);
 	availableMetricsTreeWidget->addTopLevelItem(name);
@@ -697,7 +697,8 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
     const char *nlabel = NULL;
     if (name->label().isEmpty() == false)
 	nlabel = (const char *)name->label().toAscii();
-    pms.isarch = name->isArchiveMode();
+    // TODO: need to make pmParseMetricSpec able to use PM_CONTEXT_LOCAL
+    pms.isarch = (name->sourceType() == PM_CONTEXT_ARCHIVE);
     pms.source = strdup((const char *)name->sourceName().toAscii());
     pms.metric = strdup((const char *)name->metricName().toAscii());
     if (!pms.source || !pms.metric)

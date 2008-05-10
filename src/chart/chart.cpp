@@ -1081,22 +1081,21 @@ void Chart::setupTree(QTreeWidget *tree)
 	if (!plot->removed)
 	    addToTree(tree, plot->name,
 		      plot->metric->context(), plot->metric->hasInstances(), 
-		      my.tab->isArchiveSource(), plot->color, plot->label);
+		      plot->color, plot->label);
     }
 }
 
 void Chart::addToTree(QTreeWidget *treeview, QString metric,
-	const QmcContext *context, bool isInst, bool isArch,
-	QColor &color, QString &label)
+	const QmcContext *context, bool isInst, QColor &color, QString &label)
 {
     QRegExp regex(tr("\\.|\\[|\\]"));
     QString source = context->source().source();
     QStringList	baselist;
     int depth;
 
-    console->post("Chart::addToTree src=%s metric=%s, isInst=%d isArch=%d",
+    console->post("Chart::addToTree src=%s metric=%s, isInst=%d",
 		(const char *)source.toAscii(), (const char *)metric.toAscii(),
-		isInst, isArch);
+		isInst);
 
     baselist = metric.split(regex);
     baselist.prepend(source);	// add the host/archive root as well.
@@ -1127,14 +1126,14 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
 	if (foundMatchingName == false) {
 	    NameSpace *n;
 	    if (b == 0) {
-		n = new NameSpace(treeview, context, isArch);
+		n = new NameSpace(treeview, context);
 		n->expand();
 	        n->setExpanded(true, true);
 		n->setSelectable(false);
 	    }
 	    else {
 		bool isLeaf = (b == depth-1);
-		n = new NameSpace(tree, text, isLeaf && isInst, isArch);
+		n = new NameSpace(tree, text, isLeaf && isInst);
 		if (isLeaf) {
 		    n->setLabel(label);
 		    n->setOriginalColor(color);

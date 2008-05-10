@@ -28,7 +28,7 @@
 
 #define DESPERATE 0
 
-NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
+NameSpace::NameSpace(NameSpace *parent, QString name, bool inst)
     : QTreeWidgetItem(parent, QTreeWidgetItem::UserType)
 {
     my.expanded = false;
@@ -46,7 +46,6 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
 	font.setItalic(true);
 	setFont(0, font);
     }
-    my.isArchive = arch;
     setText(0, my.basename);
 
     if (my.type == ChildMinder) {
@@ -58,29 +57,36 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst, bool arch)
     }
 }
 
-NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context, bool arch)
+NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context)
     : QTreeWidgetItem(list, QTreeWidgetItem::UserType)
 {
     my.expanded = false;
     my.back = this;
     memset(&my.desc, 0, sizeof(my.desc));
     my.context = (QmcContext *)context;
-    my.basename = context->source().source();
-    if ((my.isArchive = arch) == true) {
-	my.type = ArchiveRoot;
+    switch (my.context->source().type()) {
+    case PM_CONTEXT_ARCHIVE:
+	my.basename = context->source().source();
 	my.icon = QIcon(":/archive.png");
-    }
-    else {
-	my.type = HostRoot;
+	my.type = ArchiveRoot;
+	break;
+    case PM_CONTEXT_LOCAL:
+	my.basename = QString("Local context");
+	my.icon = QIcon(":/emblem-system.png");
+	my.type = LocalRoot;
+	break;
+    default:
+	my.basename = context->source().source();
 	my.icon = QIcon(":/computer.png");
+	my.type = HostRoot;
+	break;
     }
     setToolTip(0, sourceTip());
     setText(0, my.basename);
     setIcon(0, my.icon);
 
-    console->post(KmChart::DebugUi,
-		  "Added root %s namespace node %s", my.isArchive ?
-		  "archive" : "host", (const char *)my.basename.toAscii());
+    console->post(KmChart::DebugUi, "Added root namespace node %s",
+		  (const char *)my.basename.toAscii());
 }
 
 QString NameSpace::sourceTip()
@@ -91,7 +97,7 @@ QString NameSpace::sourceTip()
     tooltip = "Performance metrics from host ";
     tooltip.append(source.host());
 
-    if (my.isArchive) {
+    if (my.context->source().type() == PM_CONTEXT_ARCHIVE) {
 	tooltip.append("\n  commencing ");
 	tooltip.append(source.startTime());
 	tooltip.append("\n  ending            ");
@@ -100,6 +106,11 @@ QString NameSpace::sourceTip()
     tooltip.append("\nTimezone: ");
     tooltip.append(source.timezone());
     return tooltip;
+}
+
+int NameSpace::sourceType()
+{
+    return my.context->source().type();
 }
 
 QString NameSpace::sourceName()
@@ -186,7 +197,7 @@ void NameSpace::setExpandable(bool expandable)
     // When we later do fill in the real kids, we first delete the ChildMinder.
 
     if (expandable)
-	addChild(new NameSpace(this, QString::null, false, my.isArchive));
+	addChild(new NameSpace(this, QString::null, false));
 }
 
 static char *namedup(const char *name, const char *suffix)
@@ -260,7 +271,7 @@ void NameSpace::expandMetricNames(QString parent, bool show)
     }
 
     for (i = 0; i < noffspring; i++) {
-	m = new NameSpace(this, offspring[i], false, my.isArchive);
+	m = new NameSpace(this, offspring[i], false);
 
 	if (status[i] == PMNS_NONLEAF_STATUS) {
 	    m->setSelectable(false);
@@ -353,9 +364,10 @@ void NameSpace::expandInstanceNames(bool show)
     int		ninst = 0;
     int		*instlist = NULL;
     char	**namelist = NULL;
+    bool	live = (my.context->source().type() != PM_CONTEXT_ARCHIVE);
 
-    sts = !my.isArchive ? pmGetInDom(my.desc.indom, &instlist, &namelist) :
-		pmGetInDomArchive(my.desc.indom, &instlist, &namelist);
+    sts = live ? pmGetInDom(my.desc.indom, &instlist, &namelist) :
+		 pmGetInDomArchive(my.desc.indom, &instlist, &namelist);
     if (sts < 0) {
 	if (!show)
 	    goto done;
@@ -373,7 +385,7 @@ void NameSpace::expandInstanceNames(bool show)
     }
 
     for (i = 0; i < ninst; i++) {
-	NameSpace *m = new NameSpace(this, namelist[i], true, my.isArchive);
+	NameSpace *m = new NameSpace(this, namelist[i], true);
 
 	m->setExpandable(false);
 	m->setSelectable(true);
@@ -408,7 +420,7 @@ NameSpace *NameSpace::dup(QTreeWidget *list)
 {
     NameSpace *n;
 
-    n = new NameSpace(list, my.context, my.type == ArchiveRoot);
+    n = new NameSpace(list, my.context);
     n->expand();
     n->setSelectable(false);
     return n;
@@ -419,7 +431,7 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree,
 {
     NameSpace *n;
 
-    n = new NameSpace(tree, my.basename, my.type == InstanceName, my.isArchive);
+    n = new NameSpace(tree, my.basename, my.type == InstanceName);
     n->my.context = my.context;
     n->my.desc = my.desc;
     n->my.type = my.type;
