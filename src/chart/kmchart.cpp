@@ -41,13 +41,6 @@
 #include "statusbar.h"
 #include "version.h"
 
-#define DESPERATE 0
-
-#if DESPERATE
-char *_style[] = { "None", "Line", "Bar", "Stack", "Area", "Util" };
-#define stylestr(x) _style[(int)x]
-#endif
-
 KmChart::KmChart() : QMainWindow(NULL)
 {
     my.assistant = NULL;
