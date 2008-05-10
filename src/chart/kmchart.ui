@@ -791,7 +791,7 @@
    <sender>editTabAction</sender>
    <signal>triggered()</signal>
    <receiver>KmChart</receiver>
-   <slot>editTab()</slot>
+   <slot>editTabGeneral()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>

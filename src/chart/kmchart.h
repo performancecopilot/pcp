@@ -124,7 +124,8 @@ public slots:
     virtual void editChart();
     virtual void acceptEditChart();
     virtual void closeChart();
-    virtual void editTab();
+    virtual void editTabGeneral();
+    virtual void editTabSamples();
     virtual void acceptEditTab();
     virtual void acceptNewTab();
     virtual void acceptExport();
@@ -174,6 +175,8 @@ private:
 	int timeAxisRightAlign;
 	StatusBar *statusBar;
     } my;
+
+    void editTab(int index);
 };
 
 #endif	// KMCHART_H

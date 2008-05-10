@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2006-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@ class TabDialog : public QDialog, public Ui::TabDialog
 public:
     TabDialog(QWidget* parent);
 
-    virtual void reset(QString, bool, int, int);
+    virtual void reset(QString, bool, int, int, int);
     virtual bool isArchiveSource();
     virtual void displaySampleSlider();
     virtual void displayVisibleSlider();

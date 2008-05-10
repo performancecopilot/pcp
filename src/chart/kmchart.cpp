@@ -117,7 +117,7 @@ void KmChart::setupDialogs(void)
     my.settings = new SettingsDialog(this);
 
     connect(my.statusBar->timeFrame(), SIGNAL(clicked()),
-				this, SLOT(editTab()));
+				this, SLOT(editTabSamples()));
     connect(my.statusBar->timeButton(), SIGNAL(clicked()),
 				this, SLOT(optionsTimeControl()));
     connect(my.newtab->buttonOk, SIGNAL(clicked()),
@@ -630,15 +630,24 @@ void KmChart::metricSearch(QTreeWidget *pmns)
     my.search->show();
 }
 
-void KmChart::editTab()
+void KmChart::editTab(int index)
 {
     setupDialogs();
     Tab *tab = activeTab();
     my.edittab->reset(chartTabWidget->tabText(chartTabWidget->currentIndex()),
 			tab->isArchiveSource() == false,
-		   	tab->sampleHistory(),
-			tab->visibleHistory());
+		   	tab->sampleHistory(), tab->visibleHistory(), index);
     my.edittab->show();
+}
+
+void KmChart::editTabGeneral()
+{
+    editTab(0);
+}
+
+void KmChart::editTabSamples()
+{
+    editTab(1);
 }
 
 void KmChart::acceptEditTab()
@@ -655,7 +664,7 @@ void KmChart::createNewTab(bool live)
 {
     setupDialogs();
     my.newtab->reset(QString::null, live,
-		globalSettings.sampleHistory, globalSettings.visibleHistory);
+		globalSettings.sampleHistory, globalSettings.visibleHistory, 0);
     my.newtab->show();
 }
 

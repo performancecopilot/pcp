@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +24,7 @@ void TabDialog::languageChange()
     retranslateUi(this);
 }
 
-void TabDialog::reset(QString label, bool live, int samples, int visible)
+void TabDialog::reset(QString label, bool live, int samples, int visible, int index)
 {
     if (label == QString::null) {
 	setWindowTitle(tr("Add Tab"));
@@ -52,7 +52,10 @@ void TabDialog::reset(QString label, bool live, int samples, int visible)
     sampleCounter->setValue(samples);
     sampleSlider->setValue(samples);
 
-    console->post(KmChart::DebugUi, "TabDialog::reset arch=%s tot=%d/%d vis=%d/%d",
+    tabWidget->setCurrentIndex(index);
+
+    console->post(KmChart::DebugUi,
+			"TabDialog::reset arch=%s tot=%d/%d vis=%d/%d",
 			my.archiveSource ? "true" : "false",
 			samples, my.samples, visible, my.visible);
 }
@@ -73,7 +76,7 @@ void TabDialog::liveHostRadioButtonClicked()
     my.archiveSource = false;
     console->post(KmChart::DebugUi,
 		  "TabDialog::liveHostRadioButtonClicked archive=%s",
-		  my.archiveSource?"true":"false");
+		  my.archiveSource ? "true" : "false");
 }
 
 void TabDialog::archivesRadioButtonClicked()
@@ -85,7 +88,7 @@ void TabDialog::archivesRadioButtonClicked()
     my.archiveSource = true;
     console->post(KmChart::DebugUi,
 		  "TabDialog::archivesRadioButtonClicked archive=%s",
-		  my.archiveSource?"true":"false");
+		  my.archiveSource ? "true" : "false");
 }
 
 void TabDialog::sampleValueChanged(int value)
