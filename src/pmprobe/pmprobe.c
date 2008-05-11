@@ -439,8 +439,8 @@ Options:\n\
     }
 
    if (Vflag) {
-	extern unsigned int	__pmPDUCntIn[];
-	extern unsigned int	__pmPDUCntOut[];
+	extern unsigned int	*__pmPDUCntIn;
+	extern unsigned int	*__pmPDUCntOut;
 	int			j = 0;
 
 	/* Warning: 16 is magic and from libpcp/src/pdu.c */

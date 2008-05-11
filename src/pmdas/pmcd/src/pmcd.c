@@ -68,8 +68,8 @@ extern int              nAgents;        /* from pmcd/src/config.c */
 #define _TOTAL			16
 
 extern int		errno;
-extern unsigned int	__pmPDUCntIn[];
-extern unsigned int	__pmPDUCntOut[];
+extern unsigned int	*__pmPDUCntIn;
+extern unsigned int	*__pmPDUCntOut;
 extern int		pmDebug;	/* pmcd's debug flag */
 
 /* from pmcd's address space, not in headers */

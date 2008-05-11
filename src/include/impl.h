@@ -584,6 +584,7 @@ extern int __pmXmitAscii(int, const char *, int);
 extern int __pmGetPDU(int, int, int, __pmPDU **);
 extern int __pmGetPDUCeiling (void);
 extern int __pmSetPDUCeiling (int);
+extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 
 /* for __pmGetPDU */
 #define TIMEOUT_NEVER	 0
