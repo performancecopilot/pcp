@@ -304,7 +304,14 @@ void QwtLegendItem::drawIdentifier(
     if ( (d_data->identifierMode & ShowLine ) && (d_data->curvePen.style() != Qt::NoPen) )
     {
         painter->save();
-        QPen p(Qt::black);
+
+#if QT_VERSION < 0x040000
+        QPen p(palette().color(d_data->isDown ?
+               QPalette::Active : QPalette::Inactive, QColorGroup::Text));
+#else
+        QPen p(palette().color(d_data->isDown ?
+               QPalette::Active : QPalette::Inactive, QPalette::Text));
+#endif
         p.setWidth(d_data->curvePen.width() + 2);
         painter->setPen(p);
         QwtPainter::drawLine(painter, rect.left()+1, rect.center().y(),
@@ -312,6 +319,7 @@ void QwtLegendItem::drawIdentifier(
         painter->setPen(d_data->curvePen);
         QwtPainter::drawLine(painter, rect.left()+1, rect.center().y(), 
             rect.right()-1, rect.center().y());
+
         painter->restore();
     }
 
@@ -506,6 +514,7 @@ void QwtLegendItem::setDown(bool down)
         return;
 
     d_data->isDown = down;
+    QwtTextLabel::setActive(down);
     update();
 
     if ( d_data->itemMode == QwtLegend::ClickableItem )
