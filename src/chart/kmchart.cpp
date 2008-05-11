@@ -561,6 +561,7 @@ void KmChart::editChart()
     my.editchart->legendOff->setChecked(!cp->legendVisible());
     my.editchart->antiAliasingOn->setChecked(cp->antiAliasing());
     my.editchart->antiAliasingOff->setChecked(!cp->antiAliasing());
+    my.editchart->antiAliasingAuto->setChecked(false);
     cp->scale(&yAutoScale, &yMin, &yMax);
     my.editchart->setScale(yAutoScale, yMin, yMax);
     my.editchart->setScheme(cp->scheme(), cp->sequence());

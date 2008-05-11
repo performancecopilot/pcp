@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -98,8 +98,9 @@ void ChartDialog::reset(Chart *chart, int style, QString scheme)
     setupSchemeComboBox();
     legendOn->setChecked(true);
     legendOff->setChecked(false);
-    antiAliasingOn->setChecked(true);
+    antiAliasingOn->setChecked(false);
     antiAliasingOff->setChecked(false);
+    antiAliasingAuto->setChecked(true);
     setupAvailableMetricsTree(my.archiveSource);
     my.yMin = yAxisMinimum->value();
     my.yMax = yAxisMaximum->value();
@@ -373,6 +374,10 @@ void ChartDialog::legendOffClicked()
 
 bool ChartDialog::antiAliasing(void)
 {
+    if (antiAliasingAuto->isChecked()) {
+	Chart::Style style = (Chart::Style)(typeComboBox->currentIndex() + 1);
+	return (style != Chart::LineStyle);
+    }
     return antiAliasingOn->isChecked();
 }
 
@@ -380,12 +385,21 @@ void ChartDialog::antiAliasingOnClicked()
 {
     antiAliasingOn->setChecked(true);
     antiAliasingOff->setChecked(false);
+    antiAliasingAuto->setChecked(false);
 }
 
 void ChartDialog::antiAliasingOffClicked()
 {
     antiAliasingOn->setChecked(false);
     antiAliasingOff->setChecked(true);
+    antiAliasingAuto->setChecked(false);
+}
+
+void ChartDialog::antiAliasingAutoClicked()
+{
+    antiAliasingOn->setChecked(false);
+    antiAliasingOff->setChecked(false);
+    antiAliasingAuto->setChecked(true);
 }
 
 void ChartDialog::scheme(QString *scheme, int *sequence)

@@ -181,7 +181,7 @@
                 </sizepolicy>
                </property>
                <property name="whatsThis" >
-                <string>Enables or disables the chart legend, which  shows the mapping between plot names and colors</string>
+                <string>Enables or disables the chart legend, which shows the mapping between plot names and colors</string>
                </property>
                <property name="text" >
                 <string>On</string>
@@ -280,12 +280,6 @@
            </item>
            <item row="4" column="1" >
             <layout class="QHBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
              <item>
               <spacer>
                <property name="orientation" >
@@ -297,6 +291,44 @@
                <property name="sizeHint" >
                 <size>
                  <width>21</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="antiAliasingAuto" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="whatsThis" >
+                <string>Enable or disable chart rendering with antialiasing automatically, based on the chart style chosen.  Line plots will be drawn anti-aliased as this gives a color exactly matching that requested, and bar plots are drawn anti-aliased so their outlines are correctly rendered.</string>
+               </property>
+               <property name="text" >
+                <string>Auto</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+               <property name="autoExclusive" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType" >
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>14</width>
                  <height>20</height>
                 </size>
                </property>
@@ -318,9 +350,6 @@
                <property name="text" >
                 <string>On</string>
                </property>
-               <property name="checked" >
-                <bool>true</bool>
-               </property>
                <property name="autoExclusive" >
                 <bool>false</bool>
                </property>
@@ -336,7 +365,7 @@
                </property>
                <property name="sizeHint" >
                 <size>
-                 <width>16</width>
+                 <width>21</width>
                  <height>20</height>
                 </size>
                </property>
@@ -370,7 +399,7 @@
                </property>
                <property name="sizeHint" >
                 <size>
-                 <width>40</width>
+                 <width>5</width>
                  <height>20</height>
                 </size>
                </property>
@@ -2107,6 +2136,22 @@
    <hints>
     <hint type="sourcelabel" >
      <x>492</x>
+     <y>194</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>305</x>
+     <y>228</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>antiAliasingAuto</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>antiAliasingAutoClicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>560</x>
      <y>194</y>
     </hint>
     <hint type="destinationlabel" >
