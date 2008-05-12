@@ -45,8 +45,8 @@ $sudo touch -t 199701020304.00 $PCP_LOG_DIR/NOTICES
 # real QA test starts here
 for i in 1 2 3 4 5
 do
-    pmpost qa-$seq & pmpost qa-$seq &
-    pmpost qa-$seq & pmpost qa-$seq &
+    $sudo pmpost qa-$seq & $sudo pmpost qa-$seq &
+    $sudo pmpost qa-$seq & $sudo pmpost qa-$seq &
 done
 
 wait

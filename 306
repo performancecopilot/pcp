@@ -31,7 +31,7 @@ _day=`date | $PCP_AWK_PROG '{ print $1 }'`
 _month=`date | $PCP_AWK_PROG '{ print $2 }'`
 _date=`date | $PCP_AWK_PROG '{ print $3 }'`
 
-pmpost "QA test $seq"
+$sudo pmpost "QA test $seq"
 tail -1 $PCP_LOG_DIR/NOTICES | sed -e 's/[0-9]*:[0-9]* //'
 
 # success, all done
