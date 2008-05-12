@@ -47,12 +47,12 @@ pmstore simple.numfetch 0 >/dev/null
 
 # fire em all up
 echo "Starting pmie process"
-$sudo pmie_check -c $tmp.control
+$sudo $PCP_BINADM_DIR/pmie_check -c $tmp.control
 sleep 6		# fill original log a bit
 
 echo "Rotate, rotate..."
 previous=`pmdate -1d %Y%m%d`
-$sudo pmie_daily -c $tmp.control
+$sudo $PCP_BINADM_DIR/pmie_daily -c $tmp.control
 sleep 3		# fill rotated log a bit
 
 grep rotated /tmp/$seq/1.good.log >/dev/null \
@@ -61,7 +61,7 @@ grep rotated /tmp/$seq/1.good.log.$previous >/dev/null \
 	|| echo "New log not started?"
 
 echo "Shutdown pmie process"
-$sudo pmie_check -c $tmp.control -s
+$sudo $PCP_BINADM_DIR/pmie_check -c $tmp.control -s
 
 # look for data in each log file, checking rotation actually did something
 oldlines=`wc -l < /tmp/$seq/1.good.log.$previous 2>/dev/null || echo 0`
