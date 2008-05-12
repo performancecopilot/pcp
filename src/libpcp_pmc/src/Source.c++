@@ -49,7 +49,7 @@ PMC_Source::retryConnect(int type, const char *source)
     switch(type) {
     case PM_CONTEXT_LOCAL:
 	{
-	    _desc = "localhost";
+	    _desc = "CONTEXT_LOCAL";
 	    _host = _localHost;
 	    _source = _host;
 	    break;
@@ -217,7 +217,7 @@ PMC_Source::getSource(int type, char const* source, PMC_Bool matchHosts)
 		cerr << "PMC_Source::getSource: Creating new source for "
 		     << source << endl;
 	    else
-		cerr << "PMC_Source::getSource: Creating new LOCAL source"
+		cerr << "PMC_Source::getSource: Creating new source for CONTEXT_LOCAL"
 		     << endl;
 #endif
 

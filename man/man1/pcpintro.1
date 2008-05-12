@@ -664,6 +664,13 @@ is silently ignored, and in particular
 .IR instance ,
 while ``\fB[one,,,two]\fR'' is parsed as specifying just
 the two instances ``\fBone\fP'' and ``\fBtwo\fP''.
+.PP
+As a special case, if the
+.B host
+is the single character ``@'' then this refers to a 
+.B PM_CONTEXT_LOCAL
+source, see
+.BR pmNewContext (3).
 .SH PMCD AND ARCHIVE VERSIONS
 Since PCP version 2, version information has been associated with
 .BR pmcd (1)

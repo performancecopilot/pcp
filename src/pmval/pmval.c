@@ -1285,9 +1285,12 @@ getargs(int		argc,		/* in - command line argument count */
 	exit(EXIT_FAILURE);
     }
 
-    if (msp->isarch) {
+    if (msp->isarch == 1) {
 	archive = msp->source;
 	ahtype = PM_CONTEXT_ARCHIVE;
+    }
+    else if (msp->isarch == 2) {
+	ahtype = PM_CONTEXT_LOCAL;
     }
 
     if (ahtype != PM_CONTEXT_ARCHIVE) {
@@ -1321,19 +1324,8 @@ getargs(int		argc,		/* in - command line argument count */
 	cntxt->inames = &msp->inst[0];
     }
 
-    /* open connection to host */
-    if (msp->isarch == 0) {
-	if ((sts = pmNewContext(PM_CONTEXT_HOST, msp->source)) < 0) {
-	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		pmProgname, msp->source, pmErrStr(sts));
-	    exit(EXIT_FAILURE);
-	}
-	cntxt->host = msp->source;
-	gettimeofday(&logStart, NULL);
-    }
-
-    /* open connection to archive */
-    else {
+    if (msp->isarch == 1) {
+	/* open connection to archive */
 	if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, msp->source)) < 0) {
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
 		pmProgname, msp->source, pmErrStr(sts));
@@ -1350,6 +1342,20 @@ getargs(int		argc,		/* in - command line argument count */
 		pmProgname, pmErrStr(sts));
 	    exit(EXIT_FAILURE);
 	}
+    }
+    else {
+	/* open connection to host or local context */
+	if ((sts = pmNewContext(ahtype, msp->source)) < 0) {
+	    if (ahtype == PM_CONTEXT_HOST)
+		fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
+		    pmProgname, msp->source, pmErrStr(sts));
+	    else
+		fprintf(stderr, "%s: Cannot establish local context: %s\n",
+		    pmProgname, pmErrStr(sts));
+	    exit(EXIT_FAILURE);
+	}
+	cntxt->host = msp->source;
+	gettimeofday(&logStart, NULL);
     }
 
     if (zflag) {
@@ -1407,7 +1413,7 @@ getargs(int		argc,		/* in - command line argument count */
 	/* set up pmtime control */
 	int		mode;
 
-	if (msp->isarch)
+	if (msp->isarch == 1)
 	    mode = PM_TCTL_MODE_ARCHIVE;
 	else
 	    mode = PM_TCTL_MODE_HOST;
@@ -1423,7 +1429,7 @@ getargs(int		argc,		/* in - command line argument count */
 
 	getXTBintervalFromTimeval(&pmtime.delta, &pmtime.vcrmode, delta);
 
-	if (msp->isarch) {
+	if (msp->isarch == 1) {
 	    pmtime.position = *posn;
 	    pmtime.start = first;
 	    pmtime.finish = last;
@@ -1439,7 +1445,7 @@ getargs(int		argc,		/* in - command line argument count */
 #else
             rpt_tz = __pmTimezone();
 #endif
-	    if (msp->isarch) {
+	    if (msp->isarch == 1) {
 		if ((sts = pmNewZone(rpt_tz)) < 0) {
 		    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
 			pmProgname, rpt_tz, pmErrStr(sts));
@@ -1468,7 +1474,7 @@ getargs(int		argc,		/* in - command line argument count */
 	kmtime->length = sizeof(kmTime);
 	kmtime->command = KM_TCTL_SET;
 	kmtime->delta = *delta;
-	if (msp->isarch) {
+	if (msp->isarch == 1) {
 	    kmtime->source = KM_SOURCE_ARCHIVE;
 	    kmtime->position = *posn;
 	    kmtime->start = first;
@@ -1479,7 +1485,7 @@ getargs(int		argc,		/* in - command line argument count */
 	}
 	if (rpt_tz == NULL) {
 	    rpt_tz = __pmTimezone();
-	    if (msp->isarch) {
+	    if (msp->isarch == 1) {
 		if ((sts = pmNewZone(rpt_tz)) < 0) {
 		    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
 			pmProgname, rpt_tz, pmErrStr(sts));
@@ -1509,7 +1515,7 @@ getargs(int		argc,		/* in - command line argument count */
     }
     else
 #endif
-	if (msp->isarch) {
+	if (msp->isarch == 1) {
 	    /* archive, and no time control, go it alone */
 	    int tmp_ival;
 	    int tmp_mode;

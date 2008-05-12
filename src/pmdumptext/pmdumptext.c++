@@ -214,11 +214,12 @@ traverse(const char *str, double scale)
     }
     else {
 
-	doMetricType = PM_CONTEXT_HOST;
-	if (theMetric->source && strlen(theMetric->source) > 0) {
-	    if (theMetric->isarch)
-		doMetricType = PM_CONTEXT_ARCHIVE;
-	}
+	if (theMetric->isarch == 0)
+	    doMetricType = PM_CONTEXT_HOST;
+	else if (theMetric->isarch == 1)
+	    doMetricType = PM_CONTEXT_ARCHIVE;
+	else if (theMetric->isarch == 2)
+	    doMetricType = PM_CONTEXT_LOCAL;
 
 	doMetricSource = theMetric->source;
 
@@ -232,7 +233,7 @@ traverse(const char *str, double scale)
 	    else if (sts < 0)
 		pmprintf("%s: Error: %s%c%s: %s\n",
 			 pmProgname, 
-			 group->which()->source().source().ptr(),
+			 group->which()->source().type() == PM_CONTEXT_LOCAL ? "@" : group->which()->source().source().ptr(),
 			 (group->which()->source().type() == PM_CONTEXT_ARCHIVE ?
 			  '/' : ':'),
 			 theMetric->metric,

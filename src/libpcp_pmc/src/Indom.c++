@@ -212,7 +212,7 @@ PMC_Indom::lookup(PMC_String const& name)
 			
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_PMC)
-		    cerr << "PMC_Metric::setupDesc: numerical inst \""
+		    cerr << "PMC_Indom::lookup: numerical inst \""
 			 << name << " matched to \"" << _instances[i]._name 
 			 << "\"(" << i << ')' << endl;
 #endif

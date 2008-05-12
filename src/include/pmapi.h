@@ -574,7 +574,7 @@ extern struct tm *pmLocaltime(const time_t *, struct tm *);
 
 /* Parse host:metric[instances] or archive/metric[instances] */
 typedef struct {
-    int         isarch;         /* source type: 0 -> live host, 1 -> archive */
+    int         isarch;         /* source type: 0 -> live host, 1 -> archive, 2 -> local context */
     char        *source;        /* name of source host or archive */
     char        *metric;        /* name of metric */
     int         ninst;          /* number of instances, 0 -> all */

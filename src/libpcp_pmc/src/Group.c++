@@ -157,7 +157,7 @@ PMC_Group::use(int type, char const* source)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PMC) {
 	    cerr << "PMC_Group::use: No direct match for context \"" << source
-		 << "\"." << endl;
+		 << "\" (type " << type << ")." << endl;
 	}
 #endif
 
@@ -169,14 +169,7 @@ PMC_Group::use(int type, char const* source)
 	// we may need to map the host to an archive
 	if (_mode != type) {
 
-	    // This may be an error for some combinations
-	    if (type == PM_CONTEXT_LOCAL) {
-		pmprintf("%s: Error: Local context requested after live or archive contexts\n",
-			 pmProgname);
-		return PM_ERR_NOCONTEXT;
-		/*NOTREACHED*/
-	    }
-	    else if (type == PM_CONTEXT_ARCHIVE) {
+	    if (_mode == PM_CONTEXT_HOST && type == PM_CONTEXT_ARCHIVE) {
 		pmprintf("%s: Error: Archive \"%s\" requested after live mode was assumed.\n",
 			 pmProgname, source);
 		return PM_ERR_NOCONTEXT;

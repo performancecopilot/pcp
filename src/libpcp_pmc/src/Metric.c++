@@ -150,10 +150,10 @@ PMC_Metric::setupDesc(PMC_Group* group, pmMetricSpec *theMetric)
     int		contextType = PM_CONTEXT_HOST;
     int		descType;
 
-    if (theMetric->source && strlen(theMetric->source) > 0) {
-	if (theMetric->isarch)
-	    contextType = PM_CONTEXT_ARCHIVE;
-    }
+    if (theMetric->isarch == 1)
+	contextType = PM_CONTEXT_ARCHIVE;
+    else if (theMetric->isarch == 2)
+	contextType = PM_CONTEXT_LOCAL;
 
     _sts = group->use(contextType, theMetric->source);
     _contextIndex = group->whichIndex();
@@ -166,7 +166,8 @@ PMC_Metric::setupDesc(PMC_Group* group, pmMetricSpec *theMetric)
 
 	if (_sts < 0)
 	    pmprintf("%s: Error: %s%c%s: %s\n", 
-		     pmProgname, context().source().source().ptr(),
+		     pmProgname,
+		     contextType == PM_CONTEXT_LOCAL ? "@" : context().source().source().ptr(),
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
 		     _name.ptr(), pmErrStr(_sts));
     }
@@ -179,7 +180,8 @@ PMC_Metric::setupDesc(PMC_Group* group, pmMetricSpec *theMetric)
 	if (descType == PM_TYPE_NOSUPPORT) {
 	    _sts = PM_ERR_CONV;
 	    pmprintf("%s: Error: %s%c%s is not supported on %s\n",
-		     pmProgname, context().source().source().ptr(),
+		     pmProgname,
+		     contextType == PM_CONTEXT_LOCAL ? "@" : context().source().source().ptr(),
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
 		     _name.ptr(), context().source().host().ptr());
 	}
@@ -189,7 +191,8 @@ PMC_Metric::setupDesc(PMC_Group* group, pmMetricSpec *theMetric)
 
 	    _sts = PM_ERR_CONV;
 	    pmprintf("%s: Error: %s%c%s has type \"%s\", which is not a number or a string\n",
-		     pmProgname, context().source().source().ptr(),
+		     pmProgname,
+		     contextType == PM_CONTEXT_LOCAL ? "@" : context().source().source().ptr(),
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
 		     _name.ptr(), pmTypeStr(descType));
 	}
@@ -321,7 +324,7 @@ PMC_Metric::dumpSource(ostream &os) const
 {
     switch(context().source().type()) {
     case PM_CONTEXT_LOCAL:
-	os << "localhost:";
+	os << "@:";
 	break;
     case PM_CONTEXT_HOST:
 	os << context().source().source() << ':';

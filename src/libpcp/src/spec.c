@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <strings.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include "pmapi.h"
@@ -102,52 +103,52 @@ pmParseMetricSpec(
     const char	    *pull;
     int		    length;
     int		    i;
+    int             type = 0;
     int		    inquote = 0;	/* true if within quotes */
 
     scan = spec;
     while (isspace((int)*scan))
 	scan++;
-    mark = scan;
 
-    /* delimit host name */
-    while (*scan != ':' && ! isspace((int)*scan) && *scan != '\0' && *scan != '[') {
-	if (*scan == '\\' && *(scan+1) != '\0')
-	    scan++;
-	scan++;
-    }
-    h_end = scan;
-    while (isspace((int)*scan))
-	scan++;
-    if (*scan == ':') {
-	h_start = mark;
-	if (h_start == h_end) {
-	    metricError(spec, scan, "host name expected", errmsg);
-	    return PM_ERR_GENERIC;
-	}
-	scan++;
-    }
-
-    /* delimit archive name */
-    else {
-	scan = mark;
-	while (*scan != '\0' && *scan != '[') {
-	    if (*scan == '\\' && *(scan+1) != '\0')
-		scan++;
-	    else if  (*scan == '/') {
-		a_start = mark;
-		a_end = scan;
+    /*
+     * Options here are ...
+     * [host:]metric[[instance list]]
+     *     special case for PM_CONTEXT_LOCAL [@:]metric[[instance list]]
+     * [archive/]metric[[instance list]]
+     *
+     * Find end of metric name first ([ or end of string) then scan
+     * backwards for first ':' or '/'
+     */
+    mark = index(scan, (int)'[');
+    if (mark == NULL) mark = &scan[strlen(scan)-1];
+    while (mark >= scan) {
+	if (*mark == ':') {
+	    type = PM_CONTEXT_HOST;
+	    h_start = scan;
+	    h_end = mark-1;
+	    while (h_end >= scan && isspace((int)*h_end)) h_end--;
+	    if (h_end < h_start) {
+		metricError(spec, h_start, "host name expected", errmsg);
+		return PM_ERR_GENERIC;
 	    }
-	    scan++;
+	    h_end++;
+	    scan = mark+1;
+	    break;
 	}
-	if (a_start) {
-	    if (a_start == a_end) {
+	else if (*mark == '/') {
+	    type = PM_CONTEXT_ARCHIVE;
+	    a_start = scan;
+	    a_end = mark-1;
+	    while (a_end >= scan && isspace((int)*a_end)) a_end--;
+	    if (a_end < a_start) {
 		metricError(spec, a_start, "archive name expected", errmsg);
 		return PM_ERR_GENERIC;
 	    }
-	    scan = a_end + 1;
+	    a_end++;
+	    scan = mark+1;
+	    break;
 	}
-	else
-	    scan = mark;
+	mark--;
     }
 
     while (isspace((int)*scan))
@@ -157,7 +158,7 @@ pmParseMetricSpec(
     /* delimit metric name */
     m_start = scan;
     while (! isspace((int)*scan) && *scan != '\0' && *scan != '[') {
-	if (*scan == ':' || *scan == '/' || *scan == ']' || *scan == ',') {
+	if (*scan == ']' || *scan == ',') {
 	    metricError(spec, scan, "unexpected character in metric name", errmsg);
 	    return PM_ERR_GENERIC;
 	}
@@ -282,7 +283,14 @@ pmParseMetricSpec(
 
     /* copy host name */
     if (h_start != NULL) {
-	msp->isarch = 0;
+	if (h_end - h_start == 1 && *h_start == '@') {
+	    /* PM_CONTEXT_LOCAL special case */
+	    msp->isarch = 2;
+	}
+	else {
+	    /* PM_CONTEXT_HOST */
+	    msp->isarch = 0;
+	}
 	msp->source = push;
 	pull = h_start;
 	while (pull < h_end) {

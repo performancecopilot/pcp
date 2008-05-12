@@ -44,7 +44,7 @@ LOBJECTS=${CXXFILES:%.c++=%.o}
 
 LDIRT	= $(SYMTARGET) pcp
 
-default: $(LIBTARGET) $(STATICLIBTARGET)
+default: $(LIBTARGET) $(STATICLIBTARGET) $(SYMTARGET)
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET):
@@ -54,6 +54,16 @@ endif
 include $(BUILDRULES)
 
 $(LIBTARGET) : $(LOBJECTS)
+
+# header dependencies have to be explicit ...
+#
+Context.o:	../pcp/pmc/Context.h ../pcp/pmc/Metric.h
+Desc.o:		../pcp/pmc/Desc.h
+Group.o:	../pcp/pmc/String.h ../pcp/pmc/Hash.h ../pcp/pmc/Group.h \
+		../pcp/pmc/Source.h ../pcp/pmc/Context.h ../pcp/pmc/Metric.h
+Indom.o:	../pcp/pmc/Indom.h ../pcp/pmc/Desc.h
+Metric.o:	../pcp/pmc/Metric.h ../pcp/pmc/Group.h
+Source.o:	../pcp/pmc/Source.h ../pcp/pmc/String.h ../pcp/pmc/Bool.h
 
 install: default
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
