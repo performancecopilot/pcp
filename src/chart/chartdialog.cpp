@@ -711,8 +711,8 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
     const char *nlabel = NULL;
     if (name->label().isEmpty() == false)
 	nlabel = (const char *)name->label().toAscii();
-    // TODO: need to make pmParseMetricSpec able to use PM_CONTEXT_LOCAL
-    pms.isarch = (name->sourceType() == PM_CONTEXT_ARCHIVE);
+    pms.isarch = (name->sourceType() == PM_CONTEXT_LOCAL) ? 2 :
+		((name->sourceType() == PM_CONTEXT_ARCHIVE) ? 1 : 0);
     pms.source = strdup((const char *)name->sourceName().toAscii());
     pms.metric = strdup((const char *)name->metricName().toAscii());
     if (!pms.source || !pms.metric)
