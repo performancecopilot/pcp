@@ -46,6 +46,8 @@ _x()
     src-oss/parsemetricspec "other_host:sample$1" 1 default_arch
     echo
     src-oss/parsemetricspec "/other/arch/sample$1" 0 default_host
+    echo
+    src-oss/parsemetricspec "@:sample$1" 0 default_host
 }
 
 # real QA test starts here
@@ -79,17 +81,26 @@ echo
 src-oss/parsemetricspec "./myarch/metric[fumble,,mumble]" 0 default_host
 echo
 src-oss/parsemetricspec 'foo["instance with strange chars :/,[]\""]' 0 default_host
+echo
+src-oss/parsemetricspec '20080424:12:05/disk.dev.total["sda1"]' 0 default_host
+echo
+src-oss/parsemetricspec '20080424:12:05/disk.all.total' 0 default_host
+
+echo
+echo "=== Some odd cases (incorrectly used to be classified as errors) ==="
+echo
+src-oss/parsemetricspec "one/two:three" 0 default_host
+echo
+src-oss/parsemetricspec "foo:bar/fumble[mumble]" 0 default_host
 
 echo
 echo "=== Some error cases ==="
 echo
-src-oss/parsemetricspec "one:two:three" 0 default_host
-echo
 src-oss/parsemetricspec "foo/bar[fumble]mumble" 0 default_host
 echo
-src-oss/parsemetricspec "foo:bar:fumble[mumble]" 0 default_host
-echo
 src-oss/parsemetricspec foo: 0 default_host
+echo
+src-oss/parsemetricspec :badhost 0 default_host
 echo
 src-oss/parsemetricspec bad/arch/ 0 default_host
 echo
