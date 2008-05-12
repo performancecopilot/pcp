@@ -111,10 +111,10 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
     int contextType = PM_CONTEXT_HOST;
     int descType;
 
-    if (metricSpec->source && strlen(metricSpec->source) > 0) {
-	if (metricSpec->isarch)
-	    contextType = PM_CONTEXT_ARCHIVE;
-    }
+    if (metricSpec->isarch == 1)
+	contextType = PM_CONTEXT_ARCHIVE;
+    else if (metricSpec->isarch == 2)
+	contextType = PM_CONTEXT_LOCAL;
 
     QString source = QString(metricSpec->source);
     my.status = group->use(contextType, source);
@@ -127,8 +127,9 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 					    my.descIndex, my.indomIndex);
 	if (my.status < 0)
 	    pmprintf("%s: Error: %s%c%s: %s\n", 
-		     pmProgname, context()->source().sourceAscii(),
-		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
+		     pmProgname, contextType == PM_CONTEXT_LOCAL ?
+			"@" : context()->source().sourceAscii(),
+		     contextType == PM_CONTEXT_ARCHIVE ? '/' : ':',
 		     nameAscii(), pmErrStr(my.status));
     }
     else 
@@ -140,7 +141,8 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	if (descType == PM_TYPE_NOSUPPORT) {
 	    my.status = PM_ERR_CONV;
 	    pmprintf("%s: Error: %s%c%s is not supported on %s\n",
-		     pmProgname, context()->source().sourceAscii(),
+		     pmProgname, contextType == PM_CONTEXT_LOCAL ?
+			"@" : context()->source().sourceAscii(),
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
 		     nameAscii(), context()->source().hostAscii());
 	}
@@ -150,7 +152,8 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	    my.status = PM_ERR_CONV;
 	    pmprintf("%s: Error: %s%c%s has type \"%s\","
 		     " which is not a number or a string\n",
-		     pmProgname, context()->source().sourceAscii(),
+		     pmProgname, contextType == PM_CONTEXT_LOCAL ?
+			"@" : context()->source().sourceAscii(),
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
 		     nameAscii(), pmTypeStr(descType));
 	}
@@ -273,7 +276,7 @@ QmcMetric::dumpSource(QTextStream &os) const
 {
     switch(context()->source().type()) {
     case PM_CONTEXT_LOCAL:
-	os << "localhost:";
+	os << "@:";
 	break;
     case PM_CONTEXT_HOST:
 	os << context()->source().source() << ':';

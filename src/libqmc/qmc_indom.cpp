@@ -183,7 +183,7 @@ QmcIndom::lookup(QString const &name)
 		strncmp((const char *)name.toAscii(), q, p - q) == 0) {
 		if (pmDebug & DBG_TRACE_PMC) {
 		    QTextStream cerr(stderr);
-		    cerr << "QmcMetric::setupDesc: numerical inst \""
+		    cerr << "QmcIndom::lookup: numerical inst \""
 			 << name << " matched to \"" << my.instances[i].name()
 			 << "\"(" << i << ')' << endl;
 		}

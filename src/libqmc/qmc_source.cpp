@@ -38,7 +38,7 @@ QmcSource::retryConnect(int type, QString &source)
 
     switch(type) {
     case PM_CONTEXT_LOCAL:
-	my.desc = "localhost";
+	my.desc = "Local context";
 	my.host = my.source = localHost;
 	my.proxy = "";
 	break;
@@ -220,7 +220,7 @@ QmcSource::getSource(int type, QString &source, bool matchHosts)
 		cerr << "QmcSource::getSource: Creating new source for "
 		     << source << endl;
 	    else
-		cerr << "QmcSource::getSource: Creating new LOCAL source"
+		cerr << "QmcSource::getSource: Creating new local context"
 		     << endl;
 	}
 	src = new QmcSource(type, source);

@@ -194,13 +194,20 @@ traverse(const char *str, double scale)
 	    sts = -1;
     }
     else {
-	doMetricType = PM_CONTEXT_HOST;
-	if (theMetric->source && strlen(theMetric->source) > 0) {
-	    if (theMetric->isarch)
-		doMetricType = PM_CONTEXT_ARCHIVE;
+	if (theMetric->isarch == 0)
+	    doMetricType = PM_CONTEXT_HOST;
+	else if (theMetric->isarch == 1)
+	    doMetricType = PM_CONTEXT_ARCHIVE;
+	else if (theMetric->isarch == 2)
+	    doMetricType = PM_CONTEXT_LOCAL;
+	else {
+	    pmprintf("%s: Error: invalid metric source (%d): %s\n",
+			 pmProgname, theMetric->isarch, theMetric->metric);
+	    sts = -1;
 	}
 	doMetricSource = theMetric->source;
-	sts = group->use(doMetricType, doMetricSource);
+	if (sts >= 0)
+	   sts = group->use(doMetricType, doMetricSource);
 	if (sts >= 0) {
 	    doMetricScale = scale;
 	    sts = pmTraversePMNS(theMetric->metric, dometric);

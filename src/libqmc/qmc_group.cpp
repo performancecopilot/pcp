@@ -120,7 +120,7 @@ QmcGroup::use(int type, QString &source)
 	if (pmDebug & DBG_TRACE_PMC) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcGroup::use: No direct match for context \"" << source
-		 << "\"." << endl;
+		 << "\" (type " << type << ")." << endl;
 	}
 
 	// Determine live or archive mode by the first source
@@ -131,13 +131,7 @@ QmcGroup::use(int type, QString &source)
 	// we may need to map the host to an archive
 	if (my.mode != type) {
 
-	    // This may be an error for some combinations
-	    if (type == PM_CONTEXT_LOCAL) {
-		pmprintf("%s: Error: Local context requested "
-			 "after live or archive contexts\n", pmProgname);
-		return PM_ERR_NOCONTEXT;
-	    }
-	    else if (type == PM_CONTEXT_ARCHIVE) {
+	    if (my.mode == PM_CONTEXT_HOST && type == PM_CONTEXT_ARCHIVE) {
 		pmprintf("%s: Error: Archive \"%s\" requested "
 			 "after live mode was assumed.\n", pmProgname,
 			 (const char *)source.toAscii());
