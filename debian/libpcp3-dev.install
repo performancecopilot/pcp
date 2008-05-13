@@ -89,7 +89,6 @@ usr/share/man/man3/pmErrStr.3.gz
 usr/share/man/man3/pmExtractValue.3.gz
 usr/share/man/man3/pmFetch.3.gz
 usr/share/man/man3/pmFetchArchive.3.gz
-usr/share/man/man3/pmfindpmda.3.gz
 usr/share/man/man3/pmflush.3.gz
 usr/share/man/man3/pmfreeprofile.3.gz
 usr/share/man/man3/pmFreeResult.3.gz
