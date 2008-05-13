@@ -1,5 +1,4 @@
 #! /bin/sh
-#Tag 0x00010D12
 #
 # Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 

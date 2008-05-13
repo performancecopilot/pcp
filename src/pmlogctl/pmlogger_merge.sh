@@ -1,5 +1,5 @@
 #! /bin/sh
-#Tag 0x00010D13
+#
 # Copyright (c) 1995,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
