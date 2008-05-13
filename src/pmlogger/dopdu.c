@@ -1272,7 +1272,6 @@ do_control(__pmPDU *pb)
 	free(result);
     }
     pmFreeResult(request);
-    return;
 }
 
 /*
@@ -1337,88 +1336,12 @@ sendstatus(void)
 	    end = 0;
 	ls.ls_tzlogger[end] = '\0';
 
-	rv =  __pmSendLogStatus(clientfd, &ls);
+	rv = __pmSendLogStatus(clientfd, &ls);
     }
-#ifdef HAVE_V1_SUPPORT
-    else {
-	__pmLoggerStatus_v1		ls_v1;
-
-	if ((ls_v1.ls_state = logctl.l_state) == PM_LOG_STATE_NEW)
-	    ls_v1.ls_start.tv_sec = ls_v1.ls_start.tv_usec = 0;
-	else
-	    memcpy(&ls_v1.ls_start, &logctl.l_label.ill_start, sizeof(ls_v1.ls_start));
-	memcpy(&ls_v1.ls_last, &last_stamp, sizeof(ls_v1.ls_last));
-	gettimeofday(&now, NULL);
-	ls_v1.ls_timenow.tv_sec = (__int32_t)now.tv_sec;
-	ls_v1.ls_timenow.tv_usec = (__int32_t)now.tv_usec;
-	ls_v1.ls_vol = logctl.l_curvol;
-	ls_v1.ls_size = ftell(logctl.l_mfp);
-
-	/* be careful of buffer size mismatches when copying strings */
-	end = sizeof(ls_v1.ls_hostname) - 1;
-	strncpy(ls_v1.ls_hostname, logctl.l_label.ill_hostname, end);
-	ls_v1.ls_hostname[end] = '\0';
-
-	end = sizeof(ls_v1.ls_tz) - 1;
-	strncpy(ls_v1.ls_tz, logctl.l_label.ill_tz, end);
-	ls_v1.ls_tz[end] = '\0';
-	end = sizeof(ls_v1.ls_tzlogger) - 1;
-	if (tzlogger != NULL)
-	    strncpy(ls_v1.ls_tzlogger, tzlogger, end);
-	else
-	    end = 0;
-	ls_v1.ls_tzlogger[end] = '\0';
-
-	rv = __pmSendDataX(clientfd, PDU_BINARY, PMLC_PDU_STATUS, sizeof(ls_v1), &ls_v1);
-    }
-#endif
-    return (rv);
+    else
+	rv = PM_ERR_IPC;
+    return rv;
 }
-
-#ifdef HAVE_V1_SUPPORT
-/*
- * do_data_x
- * (function kept for backwards compatability with PCP 1.x)
- */
-static int
-do_data_x(__pmPDU *pb)
-{
-    int			sts;
-    int			subtype, vlen;
-    void		*vp;
-
-    if ((sts = __pmDecodeDataX(pb, PDU_BINARY, &subtype, &vlen, &vp)) < 0) {
-	__pmNotifyErr(LOG_ERR,
-		     "do_data_x: error decoding PDU: %s\n", pmErrStr(sts));
-	sts = PM_ERR_IPC;
-    }
-    else {
-	switch (subtype) {
-	    case PMLC_PDU_STATUS_REQ:
-		sts = sendstatus();
-		break;
-
-	    case PMLC_PDU_NEWVOLUME:
-		sts = newvolume(VOL_SW_PMLC);
-		if (sts >= 0)
-		    sts = logctl.l_label.ill_vol;
-		__pmSendError(clientfd, PDU_BINARY, sts);
-		break;
-
-	    case PMLC_PDU_SYNC:
-		sts = do_flush();
-		__pmSendError(clientfd, PDU_BINARY, sts);
-		break;
-
-	    default:
-		sts = PM_ERR_IPC;
-		break;
-	}
-	__pmUnpinPDUBuf(pb);
-    }
-    return sts;
-}
-#endif
 
 static int
 do_request(__pmPDU *pb)
@@ -1531,17 +1454,6 @@ client_req(void)
 	case PDU_LOG_CONTROL:	/* version 2 PDU */
 	    do_control(pb);
 	    break;
-#ifdef HAVE_V1_SUPPORT
-	case PDU_DATA_X:	/* version 1 PDU */
-	    ipc->version = LOG_PDU_VERSION1;
-	    sts = do_data_x(pb);
-	    break;
-	case PDU_CONTROL_REQ:	/* version 1 PDU */
-	    if (ipc->version == UNKNOWN_VERSION)
-		ipc->version = LOG_PDU_VERSION1;
-	    do_control(pb);
-	    break;
-#endif
 	default:		/*  unknown PDU  */
 	    fprintf(stderr, "client_req: bad PDU type 0x%x\n", php->type);
 	    sts = PM_ERR_IPC;

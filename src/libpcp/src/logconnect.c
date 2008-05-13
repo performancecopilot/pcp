@@ -182,15 +182,10 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 
     if (sts >= 0) {
 	if (sts == LOG_PDU_VERSION1) {
-#ifdef HAVE_V1_SUPPORT
-	    ipc.version = sts;
-	    sts = __pmAddIPC(fd, ipc);
-#else
 	    /* no support for LOG_PDU_VERSION1 any more */
 	    pmprintf("__pmConnectLogger: pmlogger PDU version %d not supported\n", ipc.version == 0 ? LOG_PDU_VERSION1 : ipc.version);
 	    pmflush();
 	    sts = PM_ERR_GENERIC;
-#endif
 	}
 	else if (sts >= LOG_PDU_VERSION2) {
 	    __pmCred	handshake[1];

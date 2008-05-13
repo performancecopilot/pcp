@@ -104,18 +104,8 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 	    vlp->valfmt = htonl(vsp->valfmt);
 	for (j = 0; j < vsp->numval; j++) {
 	    vlp->vlist[j].inst = htonl(vsp->vlist[j].inst);
-	    if (vsp->valfmt == PM_VAL_INSITU) {
+	    if (vsp->valfmt == PM_VAL_INSITU)
 		vlp->vlist[j].value.lval = htonl(vsp->vlist[j].value.lval);
-	    }
-#ifdef HAVE_V1_SUPPORT
-	    else if (vsp->vlist[j].value.pval->vtype == PM_TYPE_FLOAT &&
-		     ipc && ipc->version == PDU_VERSION1) {
-		/* old style FLOAT encoding */
-		vlp->valfmt = htonl(PM_VAL_INSITU);
-		memcpy((void *)&vlp->vlist[j].value.lval, 
-			(void *)vsp->vlist[j].value.pval->vbuf, sizeof(float));
-	    }
-#endif
 	    else {
 		/*
 		 * pmValueBlocks are harder!
@@ -134,22 +124,12 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 		}
 #endif
 		__htonpmValueBlock((pmValueBlock *)vbp);
-#ifdef HAVE_V1_SUPPORT
-		if (ipc && ipc->version == PDU_VERSION1)
-		    /* for Version 1, vtype needs to be zero */
-		    ((pmValueBlock *)vbp)->vtype = 0;
-#endif
 		/* point to the value block at the end of the PDU */
 		vlp->vlist[j].value.lval = htonl((int)(vbp - _pdubuf));
 		vbp += (nb - 1 + sizeof(__pmPDU))/sizeof(__pmPDU);
 	    }
 	}
-#ifdef HAVE_V1_SUPPORT
-	if (vsp->numval < 0 && ipc && ipc->version == PDU_VERSION1)
-	    vlp->numval = htonl(XLATE_ERR_2TO1(vsp->numval));
-	else
-#endif
-	    vlp->numval = htonl(vsp->numval);
+	vlp->numval = htonl(vsp->numval);
 	if (j > 0)
 	    vlp = (vlist_t *)((__psint_t)vlp + sizeof(*vlp) + (j-1)*sizeof(vlp->vlist[0]));
 	else
@@ -165,9 +145,6 @@ __pmSendResult(int fd, int mode, const pmResult *result)
     int		i;
     int		j;
     int		sts;
-#ifdef HAVE_V1_SUPPORT
-    __pmIPC	*ipc;
-#endif
     __pmPDU	*pdubuf;
 
 #ifdef PCP_DEBUG
@@ -190,11 +167,7 @@ __pmSendResult(int fd, int mode, const pmResult *result)
 	    return sts;
 	for (i = 0; i < result->numpmid; i++) {
 	    pmValueSet	*vsp = result->vset[i];
-#ifdef HAVE_V1_SUPPORT
-	    __pmFdLookupIPC(fd, &ipc);
-	    if (vsp->numval < 0 && ipc && ipc->version == PDU_VERSION1)
-		vsp->numval = XLATE_ERR_2TO1(vsp->numval);
-#endif
+
 	    snprintf(__pmAbuf, sizeof(__pmAbuf), ". %d %d %d", vsp->pmid, vsp->valfmt, vsp->numval);
 	    for (j = 0; j < vsp->numval; j++) {
 		q = &__pmAbuf[strlen(__pmAbuf)];

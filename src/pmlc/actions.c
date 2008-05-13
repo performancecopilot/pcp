@@ -93,51 +93,6 @@ ConnectPMCD(void)
 	} 
 	srchost = strdup(lsp->ls_fqdn);
     }
-#ifdef HAVE_V1_SUPPORT
-    else {
-	int			subtype, vlen;
-	__pmLoggerStatus_v1	*lsp_v1;
-
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDU)
-	    fprintf(stderr, "pmlc: sending version 1 datax status request\n");
-#endif
-	if ((sts = __pmSendDataX(logger_fd, PDU_BINARY, PMLC_PDU_STATUS_REQ,
-				0, NULL)) < 0) {
-	    fprintf(stderr, "Error sending request to pmlogger: ");
-	    if (still_connected(sts))
-		fprintf(stderr, "%s\n", pmErrStr(sts));
-	    return sts;
-	}
-	if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, TIMEOUT_NEVER, &pb)) <= 0) {
-	    if (sts == 0)
-		/* end of file! */
-		sts = PM_ERR_IPC;
-	    fprintf(stderr, "Error receiving response from pmlogger: ");
-	    if (still_connected(sts))
-		fprintf(stderr, "%s\n", pmErrStr(sts));
-	    return sts;
-	}
-	if ((sts = __pmDecodeDataX(pb, PDU_BINARY, &subtype,
-			      &vlen, (void **)&lsp_v1)) < 0) {
-	    fprintf(stderr, "Error decoding response from pmlogger: ");
-	    if (still_connected(sts))
-		fprintf(stderr, "%s\n", pmErrStr(sts));
-	    goto done;
-	}
-	if (subtype != PMLC_PDU_STATUS || vlen != sizeof(__pmLoggerStatus_v1)) {
-	    fprintf(stderr, "Incorrect data from pmlogger (version mismatch?)\n"
-#ifdef PCP_DEBUG
-		"subtype=%d vlen=%d (expected %d)\n",
-		subtype, vlen, sizeof(__pmLoggerStatus_v1)
-#endif
-		);
-	    sts = PM_ERR_IPC;
-	    goto done;
-	}
-	srchost = strdup(lsp_v1->ls_hostname);
-    }
-#endif /* HAVE_V1_SUPPORT */
 
     if ((sts = pmNewContext(PM_CONTEXT_HOST, srchost)) < 0) {
 	/* no PMCD connection, we can't do anything, give up */
@@ -643,57 +598,6 @@ void Status(int pid, int primary)
 	vol = lsp->ls_vol;
 	size = lsp->ls_size;
     }
-#ifdef HAVE_V1_SUPPORT
-    else {
-	int	subtype, vlen;
-	__pmLoggerStatus_v1	*lsp_v1;
-
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDU)
-	    fprintf(stderr, "pmlc: sending version 1 datax status request\n");
-#endif
-	if ((sts = __pmSendDataX(logger_fd, PDU_BINARY, PMLC_PDU_STATUS_REQ,
-			    0, NULL)) < 0) {
-	    fprintf(stderr, "Error sending request to pmlogger: ");
-	    if (still_connected(sts))
-		fprintf(stderr, "%s\n", pmErrStr(sts));
-	    return;
-	}
-	if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, TIMEOUT_NEVER, &pb)) <= 0) {
-	    if (sts == 0)
-		/* end of file! */
-		sts = PM_ERR_IPC;
-	    fprintf(stderr, "Error receiving response from pmlogger: ");
-	    if (still_connected(sts))
-		fprintf(stderr, "%s\n", pmErrStr(sts));
-	    return;
-	}
-	if ((sts = __pmDecodeDataX(pb, PDU_BINARY, &subtype,
-			      &vlen, (void **)&lsp_v1)) < 0) {
-	    fprintf(stderr, "Error decoding response from pmlogger: ");
-	    if (still_connected(sts))
-		fprintf(stderr, "%s\n", pmErrStr(sts));
-	    return;
-	}
-	if (subtype != PMLC_PDU_STATUS || vlen != sizeof(__pmLoggerStatus_v1)) {
-	    fprintf(stderr, "Incorrect data from pmlogger (version mismatch?)\n"
-#ifdef PCP_DEBUG
-		    "subtype=%d vlen=%d (expected %d)\n",
-		    subtype, vlen, sizeof(__pmLoggerStatus_v1)
-#endif
-		    );
-	    goto done;
-	}
-	tzlogger = lsp_v1->ls_tzlogger;
-	start = &lsp_v1->ls_start;
-	last = &lsp_v1->ls_last;
-	timenow = &lsp_v1->ls_timenow;
-	hostname = lsp_v1->ls_hostname;
-	state = lsp_v1->ls_state;
-	vol = lsp_v1->ls_vol;
-	size = lsp_v1->ls_size;
-    }
-#endif /* HAVE_V1_SUPPORT */
 
     if (tzchange) {
 	switch (tztype) {
@@ -783,21 +687,6 @@ Sync(void)
 	    return;
 	}
     }
-#ifdef HAVE_V1_SUPPORT
-    else {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDU)
-	    fprintf(stderr, "pmlc: sending version 1 datax sync request\n");
-#endif
-	if ((sts = __pmSendDataX(logger_fd, PDU_BINARY, PMLC_PDU_SYNC,
-			    0, NULL)) < 0) {
-	    fprintf(stderr, "Error sending request to pmlogger: ");
-	    if (still_connected(sts))
-		fprintf(stderr, "%s\n", pmErrStr(sts));
-	    return;
-	}
-    }
-#endif /* HAVE_V1_SUPPORT */
 
     if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, TIMEOUT_NEVER, &pb)) != PDU_ERROR) {
 	if (sts == 0)
@@ -847,22 +736,6 @@ NewVolume(void)
 	    return;
 	}
     }
-#ifdef HAVE_V1_SUPPORT
-    else {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDU)
-	    fprintf(stderr, "pmlc: sending version 1 datax newvol request\n");
-#endif
-	if ((sts = __pmSendDataX(logger_fd, PDU_BINARY, PMLC_PDU_NEWVOLUME,
-			    0, NULL)) < 0) {
-	    fprintf(stderr, "Error sending request to pmlogger: ");
-	    if (still_connected(sts))
-		fprintf(stderr, "%s\n", pmErrStr(sts));
-	    return;
-	}
-    }
-
-#endif /* HAVE_V1_SUPPORT */
 
     if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, TIMEOUT_NEVER, &pb)) != PDU_ERROR) {
 	if (sts == 0)

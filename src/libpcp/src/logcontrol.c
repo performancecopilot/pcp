@@ -27,25 +27,12 @@ __pmControlLog(int fd, const pmResult *request, int control, int state, int delt
 {
     int         n;
     __pmPDU     *pb;
-#ifdef HAVE_V1_SUPPORT
-    __pmIPC	*ipc;
-#endif
 
     if (request->numpmid < 1)
         return PM_ERR_TOOSMALL;
 
-#ifdef HAVE_V1_SUPPORT
-    __pmFdLookupIPC(fd, &ipc);
-
-    if (ipc == NULL || ipc->version == LOG_PDU_VERSION1) {
-	/* send a PCP 1.x control request */
-	n = __pmSendControlReq(fd, PDU_BINARY, request, control, state, delta);
-    }
-    else 
-#endif
-	/* send a PCP 2.0 log control request */
-	n = __pmSendLogControl(fd, request, control, state, delta);
-
+    /* send a PCP 2.0 log control request */
+    n = __pmSendLogControl(fd, request, control, state, delta);
     if (n < 0)
 	n = __pmMapErrno(n);
     else {
