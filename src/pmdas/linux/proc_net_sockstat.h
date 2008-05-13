@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_net_sockstat.h,v 1.4 2004/06/24 06:15:36 kenmcd Exp $"
-
 #define _PM_SOCKSTAT_INUSE	0
 #define _PM_SOCKSTAT_HIGHEST	1
 #define _PM_SOCKSTAT_UTIL	2

@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_stat.h,v 1.14 2007/02/20 00:08:32 kimbrr Exp $"
-
 typedef struct {
 	unsigned long long user, sys, nice, idle, wait, irq, sirq;
 	unsigned int ncpu;

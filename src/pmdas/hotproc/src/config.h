@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: config.h,v 1.10 1999/04/07 07:53:09 tes Exp $"
-
 #ifndef CONFIG_H
 #define CONFIG_H
 

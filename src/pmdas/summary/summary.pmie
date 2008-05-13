@@ -1,6 +1,4 @@
 //
-// $Id: summary.pmie,v 2.4 1999/04/22 04:29:39 hrm Exp $
-//
 // summary metrics
 //
 // these expressions are evaluated by pmie(1)

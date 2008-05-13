@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: util.c,v 1.1 2004/06/15 09:39:44 kenmcd Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>

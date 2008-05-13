@@ -17,10 +17,7 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
- *
  */
-
-#ident "$Id: indom.h,v 1.2 2006/10/30 04:52:30 kimbrr Exp $"
 
 #ifndef _INDOM_H
 #define _INDOM_H

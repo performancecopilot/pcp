@@ -17,8 +17,6 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
- *
- * $Id: ttyname.c,v 1.6 2004/06/24 06:15:36 kenmcd Exp $
  */
 
 #include <limits.h>

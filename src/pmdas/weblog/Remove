@@ -21,8 +21,6 @@
 #
 # Remove the weblog PMDA
 #
-# $Id: Remove,v 2.9 2004/06/24 06:15:36 kenmcd Exp $
-#
 
 # Get standard environment
 . /etc/pcp.env

@@ -21,8 +21,6 @@
 #
 # Remove the AIX PMDA
 #
-# $Id: Remove,v 1.1 2004/08/05 01:26:58 kenmcd Exp $
-#
 
 # source the PCP configuration environment variables
 . /etc/pcp.env

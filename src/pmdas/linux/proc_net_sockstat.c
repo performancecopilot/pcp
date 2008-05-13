@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_net_sockstat.c,v 1.5 2004/06/24 06:15:36 kenmcd Exp $"
-
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>

@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: filesys.h,v 1.5 2004/06/24 06:15:36 kenmcd Exp $"
-
 #include <sys/vfs.h>
 
 typedef struct {

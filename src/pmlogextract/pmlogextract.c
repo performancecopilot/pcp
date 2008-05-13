@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmlogextract.c,v 1.51 2005/07/10 06:57:52 kenmcd Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

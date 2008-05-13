@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: shping.c,v 1.10 2006/06/30 05:47:11 makc Exp $"
-
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>

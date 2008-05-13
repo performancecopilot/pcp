@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmlogger.c,v 1.7 2004/12/06 00:56:58 kenmcd Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>

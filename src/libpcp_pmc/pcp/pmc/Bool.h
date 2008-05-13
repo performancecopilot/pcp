@@ -24,8 +24,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: Bool.h,v 1.2 2005/05/10 00:46:37 kenmcd Exp $"
-
 enum PMC_Bool { PMC_false = 0, PMC_true = 1 };
 
 #endif /* _PMC_DESC_H_ */

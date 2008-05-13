@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: callback.c,v 1.9 2006/10/30 06:23:52 kimbrr Exp $"
-
 #include <stdio.h>
 #include <errno.h>
 #include <syslog.h>

@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmerr.c,v 1.3 2003/02/20 19:20:25 kenmcd Exp $"
-
 #include <stdio.h>
 #include <ctype.h>
 #include "pmapi.h"

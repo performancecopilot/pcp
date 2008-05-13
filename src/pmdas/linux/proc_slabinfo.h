@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_slabinfo.h,v 1.2 2004/05/26 06:00:59 markgw Exp $"
-
 /*** version 1.1
     "cache-name" num-active-objs total-objs object-size num-active-slabs \
 	total-slabs num-pages-per-slab

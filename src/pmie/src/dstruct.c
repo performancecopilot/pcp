@@ -22,8 +22,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: dstruct.c,v 1.11 2007/02/20 00:13:43 kimbrr Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>

@@ -94,8 +94,6 @@ ifeq "$(TARGET_OS)" "solaris"
 PLDLIBS = @solaris_libs@
 endif
 ifeq "$(TARGET_OS)" "aix"
-# -qsuppress=1506-218
-#	ignore #ident lines in the source
 # -qcpluscmt
 #	allow C++-style // as comment preamble
 # -brtl
@@ -103,7 +101,6 @@ ifeq "$(TARGET_OS)" "aix"
 # -bnoipath
 #       do not use path to DSOs from the build, use default search path
 #       rules
-WARN_OFF = -qsuppress=1506-218
 PCFLAGS = -qcpluscmt
 PLDFLAGS = -brtl -bnoipath
 endif

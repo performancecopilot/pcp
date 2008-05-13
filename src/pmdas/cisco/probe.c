@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: probe.c,v 2.20 2004/06/07 10:19:59 nathans Exp $"
-
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>

@@ -20,8 +20,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: context.c,v 1.4 2006/05/02 05:57:28 makc Exp $"
-
 #include <sys/param.h>
 #include <sys/socket.h>
 #include <stdio.h>

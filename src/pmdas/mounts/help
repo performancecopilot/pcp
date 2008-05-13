@@ -21,8 +21,6 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Id: help,v 1.5 2004/07/22 06:48:40 kenmcd Exp $
-#
 # mounts PMDA help file in the ASCII format
 #
 # lines beginning with a # are ignored

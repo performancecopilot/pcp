@@ -21,8 +21,6 @@
 # 
 # Start or Stop the Performance Co-Pilot (PCP) proxy daemon for pmcd
 #
-# $Id: rc_pmproxy,v 1.4 2005/07/10 05:45:35 kenmcd Exp $
-#
 # The following is for chkconfig on RedHat based systems
 # chkconfig: 2345 95 05
 # description: Control pmproxy for PCP

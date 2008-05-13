@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: config.c,v 1.18 2000/08/30 07:04:13 tes Exp $"
-
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>

@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: comms.c,v 1.27 2004/07/22 06:48:40 kenmcd Exp $"
-
 #include <stdio.h>
 #include <errno.h>
 #include <fcntl.h>

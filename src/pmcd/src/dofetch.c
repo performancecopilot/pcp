@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: dofetch.c,v 1.2 2006/05/02 05:57:28 makc Exp $"
-
 #include <syslog.h>
 #include <errno.h>
 #include <string.h>

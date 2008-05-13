@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: mailq.c,v 1.16 2006/06/30 05:47:11 makc Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <dirent.h>

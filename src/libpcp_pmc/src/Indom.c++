@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: Indom.c++,v 1.9 2005/05/10 01:59:58 kenmcd Exp $"
-
 #include <pcp/pmc/Indom.h>
 #include <pcp/pmc/Desc.h>
 #ifdef HAVE_IOSTREAM

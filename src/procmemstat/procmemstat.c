@@ -22,8 +22,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: procmemstat.c,v 1.2 2004/06/23 18:05:05 kenmcd Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>

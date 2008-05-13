@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: optfetch.c,v 1.1 2000/12/05 03:49:43 max Exp $"
-
 /*
  * Generic routines to provide the "optimized" pmFetch bundling
  * services ... the optimization is driven by the crude heuristics

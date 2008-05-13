@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: telnet.c,v 1.18 2004/08/19 06:37:12 kenmcd Exp $"
-
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>

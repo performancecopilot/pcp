@@ -24,9 +24,6 @@
 # Makefile - linux PMDA (shared Dobject)
 #
 #*************************************************************************
-#
-# $Id: GNUmakefile,v 1.39 2006/10/30 04:52:30 kimbrr Exp $
-#
 
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs

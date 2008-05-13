@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmlogsummary.c,v 1.31 2004/06/15 09:39:44 kenmcd Exp $"
-
 #include <math.h>
 #include <stdio.h>
 #include <stdarg.h>

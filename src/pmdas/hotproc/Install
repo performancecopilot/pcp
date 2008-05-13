@@ -21,8 +21,6 @@
 #
 # Install the hotproc PMDA and/or PMNS
 #
-# $Id: Install,v 1.14 2002/07/23 01:13:08 kenmcd Exp $
-#
 tmp=/tmp/$$
 status=1	# failure is the default!
 trap "cd /; rm -rf $tmp; exit \$status" 0 1 2 3 15

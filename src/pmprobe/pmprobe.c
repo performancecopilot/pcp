@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmprobe.c,v 1.4 2001/03/22 05:26:43 max Exp $"
-
 #include <unistd.h>
 #include "pmapi.h"
 #include "impl.h"

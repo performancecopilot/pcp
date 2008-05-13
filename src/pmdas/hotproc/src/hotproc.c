@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: hotproc.c,v 1.48 2004/05/21 02:03:05 kenmcd Exp $"
-
 #include <unistd.h>
 #include <stdio.h>
 #include <syslog.h>

@@ -21,8 +21,6 @@
 #
 # Install the AIX PMDA and/or PMNS
 #
-# $Id: Install,v 1.1 2004/08/05 01:26:58 kenmcd Exp $
-#
 
 # source the PCP configuration environment variables
 . /etc/pcp.env

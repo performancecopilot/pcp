@@ -1,7 +1,4 @@
-#!smake
-#
-# $Id: Makefile,v 1.6 2004/05/20 01:23:03 kenmcd Exp $
-#
+#!make
 
 LTARGETS	= help.dir
 LLDIRT	 	= domain.h *.log *.dir *.pag pmns help

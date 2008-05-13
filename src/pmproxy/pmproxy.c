@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmproxy.c,v 1.5 2006/05/03 02:16:02 makc Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>

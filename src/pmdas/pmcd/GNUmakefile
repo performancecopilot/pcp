@@ -21,8 +21,6 @@
 #
 # pmcd PMDA
 #
-# $Id: GNUmakefile,v 2.39 2004/11/26 04:24:50 kenmcd Exp $
-#
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs

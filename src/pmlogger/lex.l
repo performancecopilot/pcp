@@ -20,7 +20,6 @@
  */
 
 %{
-#ident "$Id: lex.l,v 1.4 2002/07/05 05:14:56 kenmcd Exp $"
 #include <string.h>
 #include "pmapi.h"
 #include "impl.h"

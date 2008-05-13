@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: hash.c,v 1.20 2000/12/28 07:37:59 max Exp $"
-
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>

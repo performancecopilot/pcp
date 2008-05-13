@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: match_inst.c,v 1.1 2000/12/05 03:42:25 max Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <regex.h>

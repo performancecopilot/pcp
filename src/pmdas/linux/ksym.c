@@ -23,7 +23,6 @@
 /*
  * This code originally contributed by Mike Mason <mmlnx@us.ibm.com>
  * with hints from the procps and ksymoops projects.
- * $Id: ksym.c,v 1.8 2004/06/24 06:15:36 kenmcd Exp $
  */
 
 #include <stdio.h>

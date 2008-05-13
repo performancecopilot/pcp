@@ -21,15 +21,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmda.c,v 2.23 2004/06/20 22:38:25 kenmcd Exp $"
-
 #include "pmapi.h"
-
 #include "./weblog.h"
 #include <stdio.h>
-/*
- * see comment in weblog.h re: NON_POSIX_REGEX
- */
 #include <regex.h>
 #include <sys/socket.h>
 #include <sys/wait.h>

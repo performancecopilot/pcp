@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmcd.h,v 1.4 2007/01/16 06:50:10 kimbrr Exp $"
-
 #ifndef _PMCD_H
 #define _PMCD_H
 

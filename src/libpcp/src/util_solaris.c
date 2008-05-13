@@ -22,10 +22,7 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
- *
  */
-
-#ident "$Id: util_solaris.c,v 1.3 2003/10/02 07:14:43 kenmcd Exp $"
 
 #include <stdio.h>
 #include <stdlib.h>

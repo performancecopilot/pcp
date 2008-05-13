@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_meminfo.h,v 1.4 2007/08/23 05:58:15 kimbrr Exp $"
-
 /*
  * All fields in /proc/meminfo for 2.5.x
  * Note that 2.4 has fewer fields available, but we're only exporting

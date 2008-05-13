@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: ppred_values.c,v 1.2 2002/07/23 01:13:08 kenmcd Exp $"
-
 #include <unistd.h>
 #include <stdio.h>
 #include <syslog.h>

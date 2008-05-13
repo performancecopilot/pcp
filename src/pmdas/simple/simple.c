@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: simple.c,v 2.42 2006/06/30 05:47:11 makc Exp $"
-
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>

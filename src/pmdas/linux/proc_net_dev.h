@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_net_dev.h,v 1.6 2005/06/06 08:27:45 kenmcd Exp $"
-
 typedef struct {
     uint32_t	mtu;
     uint32_t	speed;

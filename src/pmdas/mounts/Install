@@ -24,8 +24,6 @@
 #
 # Install the mounts PMDA and/or PMNS
 #
-# $Id: Install,v 1.4 2004/06/24 06:15:36 kenmcd Exp $
-#
 
 # source the PCP configuration environment variables
 . /etc/pcp.env

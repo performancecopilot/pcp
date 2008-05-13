@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: swapdev.h,v 1.2 1999/03/10 02:38:24 markgw Exp $"
-
 typedef struct {
     int		  id;
     int           valid;

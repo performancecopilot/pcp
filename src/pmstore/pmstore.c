@@ -22,8 +22,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmstore.c,v 1.7 2006/06/30 05:47:11 makc Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>

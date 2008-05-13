@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: preamble.c,v 1.3 2004/06/15 09:39:44 kenmcd Exp $"
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/param.h>

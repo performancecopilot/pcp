@@ -20,8 +20,6 @@
  */
 
 %{
-#ident "$Id: lex.l,v 1.8 1998/05/01 04:47:46 tes Exp $"
-
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>

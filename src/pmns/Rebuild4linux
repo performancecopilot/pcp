@@ -21,9 +21,6 @@
 #
 # Rebuild the binary PMNS, handling assorted errors
 #
-# $Id: Rebuild4linux,v 1.7 2004/10/29 04:52:06 markgw Exp $
-#
-#Tag 0x00010D13
 
 # Note. has to be run from where the PMNS files are installed, as
 #	pmnscomp uses dirname <root> as first in search path for #include

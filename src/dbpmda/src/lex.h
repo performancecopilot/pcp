@@ -17,10 +17,7 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
- *
- * $Id: lex.h,v 1.1 1997/05/05 06:19:40 tes Exp $
  */
-
 #ifndef _LEX_H
 #define _LEX_H
 

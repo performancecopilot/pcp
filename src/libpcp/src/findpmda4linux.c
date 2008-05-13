@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: findpmda4linux.c,v 1.2 2004/06/24 06:15:36 kenmcd Exp $"
-
 #include <unistd.h>
 
 /* As of OSS version of pcp 2.1, we're no longer searching for

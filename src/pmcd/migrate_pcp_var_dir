@@ -19,8 +19,6 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Id: migrate_pcp_var_dir,v 1.4 2004/12/03 19:32:18 kenmcd Exp $
-#
 # Migrate from /var/pcp to new $PCP_VAR_DIR
 #
 

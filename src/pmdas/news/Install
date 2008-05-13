@@ -21,8 +21,6 @@
 # 
 # Install the news PMDA and/or PMNS
 #
-# $Id: Install,v 2.12 2000/12/28 07:37:59 max Exp $
-#
 
 # Get standard environment
 . /etc/pcp.env

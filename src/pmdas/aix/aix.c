@@ -24,8 +24,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: aix.c,v 1.1 2004/08/05 01:26:58 kenmcd Exp $"
-
 #include <time.h>
 #include "./common.h"
 

@@ -25,8 +25,6 @@
  * the PMAPI access are kept in this source file.
  */
 
-#ident "$Id: pragmatics.c,v 1.5 2004/06/20 22:38:25 kenmcd Exp $"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/errno.h>

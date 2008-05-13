@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pglobal.c,v 1.6 1998/05/01 04:47:47 tes Exp $"
-
 #include <unistd.h>
 #include <stdio.h>
 #include <syslog.h>

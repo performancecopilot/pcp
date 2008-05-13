@@ -21,8 +21,6 @@
 #
 # Remove the shping PMDA
 #
-# $Id: Remove,v 1.1 2000/12/05 03:42:25 max Exp $
-#
 
 # Get standard environment
 . /etc/pcp.env

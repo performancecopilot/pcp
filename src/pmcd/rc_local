@@ -21,7 +21,6 @@
 #
 # rc.local - perform local Performance Co-Pilot boot/shutdown/restart actions
 #
-# $Id: rc_local,v 2.11 2004/06/24 06:15:36 kenmcd Exp $
 
 # Get standard environment
 . /etc/pcp.env

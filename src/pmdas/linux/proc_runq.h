@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_runq.h,v 1.6 2004/06/24 06:15:36 kenmcd Exp $"
-
 #ifndef _PROC_RUNQ_H
 #define _PROC_RUNQ_H
 

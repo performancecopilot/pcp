@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmda.c,v 2.31 2004/08/02 07:11:43 kenmcd Exp $"
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>

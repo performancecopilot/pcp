@@ -21,8 +21,6 @@
 
 
 %{
-#ident "$Id: gram.y,v 1.15 2002/11/05 23:06:18 kenmcd Exp $"
-
 /*
  *  pmlogextract parser
  */

@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmcd.c,v 1.15 2007/08/22 02:31:54 kimbrr Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>

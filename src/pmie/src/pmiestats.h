@@ -18,9 +18,6 @@
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
-
-/* $Id: pmiestats.h,v 1.1 2000/12/05 03:42:25 max Exp $ */
-
 #ifndef PMIESTATS_H
 #define PMIESTATS_H
 

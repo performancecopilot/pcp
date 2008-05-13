@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: dopdus.c,v 1.3 2002/07/23 10:47:31 kenmcd Exp $"
-
 #include <syslog.h>
 #include <errno.h>
 #include "pmapi.h"

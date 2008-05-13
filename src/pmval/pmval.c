@@ -22,8 +22,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmval.c,v 1.12 2007/02/20 00:08:32 kimbrr Exp $"
-
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>		/* getopt, malloc, qsort and friends */

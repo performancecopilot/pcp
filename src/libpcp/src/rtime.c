@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: rtime.c,v 1.3 2005/02/23 09:55:12 kenmcd Exp $"
-
 #include <stdio.h>
 #include <limits.h>
 #include <ctype.h>

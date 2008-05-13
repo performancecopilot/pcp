@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: connect.c,v 1.10 2006/05/02 05:57:28 makc Exp $"
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"

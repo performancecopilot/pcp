@@ -23,8 +23,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmnsdel.c,v 1.5 2003/02/10 02:32:07 kenmcd Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stddef.h>

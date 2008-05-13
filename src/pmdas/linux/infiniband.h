@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: infiniband.h,v 1.4 2007/07/30 06:31:42 kimbrr Exp $"
-
 typedef enum
 {
 	RcvData				= 0,

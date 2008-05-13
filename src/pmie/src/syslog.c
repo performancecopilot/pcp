@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: syslog.c,v 1.7 2007/02/20 00:08:32 kimbrr Exp $"
-
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>

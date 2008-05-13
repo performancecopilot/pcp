@@ -24,8 +24,6 @@
 #ifndef _CISCO_H
 #define _CISCO_H
 
-#ident "$Id: cisco.h,v 2.11 2002/07/05 03:04:50 kenmcd Exp $"
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"

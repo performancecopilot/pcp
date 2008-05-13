@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: interp.c,v 1.4 2005/07/01 03:44:49 kenmcd Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

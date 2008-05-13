@@ -24,8 +24,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: String.h,v 1.2 2005/05/10 00:46:37 kenmcd Exp $"
-
 #ifndef PCP_DEBUG
 #ifndef NDEBUG
 #define NDEBUG

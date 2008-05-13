@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-/* $Id: pmapi.h,v 1.8 2006/06/03 09:09:26 makc Exp $ */
-
 #ifndef _PMAPI_H
 #define _PMAPI_H
 

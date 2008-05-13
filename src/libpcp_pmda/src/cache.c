@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: cache.c,v 1.7 2005/08/31 01:50:24 kenmcd Exp $"
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/times.h>

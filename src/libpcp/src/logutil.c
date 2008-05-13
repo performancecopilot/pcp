@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: logutil.c,v 1.12 2006/11/13 03:47:31 kimbrr Exp $"
-
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>

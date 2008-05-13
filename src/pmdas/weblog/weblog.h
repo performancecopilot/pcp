@@ -20,8 +20,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: weblog.h,v 2.14 2004/06/15 09:39:44 kenmcd Exp $"
-
 #ifndef _WEBLOG_H
 #define _WEBLOG_H
 

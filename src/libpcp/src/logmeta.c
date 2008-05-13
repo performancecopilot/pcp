@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: logmeta.c,v 1.2 2004/08/02 07:11:43 kenmcd Exp $"
-
 #include <stdio.h>
 #include "pmapi.h"
 #include "impl.h"

@@ -18,8 +18,6 @@
 # 
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
-# 
-# $Id: GNUmakefile,v 2.70 2007/03/30 09:30:06 kimbrr.bonnie.engr.sgi.com Exp $
 #
 
 ifneq (,)

@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: clusters.h,v 1.2 2006/10/30 04:52:30 kimbrr Exp $"
-
 #ifndef _CLUSTERS_H
 #define _CLUSTERS_H
 

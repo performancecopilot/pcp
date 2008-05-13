@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: ctltab.c,v 1.3 2002/07/23 01:13:08 kenmcd Exp $"
-
 #include <sys/procfs.h>
 #include "pmapi.h"
 #include "ctltab.h"

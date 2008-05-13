@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_pid.h,v 1.5 2004/06/24 06:15:36 kenmcd Exp $"
-
 #ifndef _PROC_PID_H
 #define _PROC_PID_H
 

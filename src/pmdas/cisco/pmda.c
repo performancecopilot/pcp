@@ -40,8 +40,6 @@
  *    options and applies for all occurrences of the hostname.
  */
 
-#ident "$Id: pmda.c,v 2.30 2004/06/15 09:39:44 kenmcd Exp $"
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>

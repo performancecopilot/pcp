@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: gram_node.c,v 1.10 1999/01/20 00:12:41 tes Exp $"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

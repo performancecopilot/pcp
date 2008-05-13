@@ -17,10 +17,7 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
- * 
  */
-
-#ident "$Id: sample.c,v 2.63 2006/06/30 05:47:11 makc Exp $"
 
 #include <unistd.h>
 #include <stdio.h>

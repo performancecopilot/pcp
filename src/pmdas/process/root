@@ -6,7 +6,6 @@
  */
 
 /*
- * $Id: root,v 1.4 2004/06/24 06:15:36 kenmcd Exp $
  * fake "root" for validating the local PMNS subtree
  */
 #include <stdpmid>

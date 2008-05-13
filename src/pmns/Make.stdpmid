@@ -19,8 +19,6 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Id: Make.stdpmid,v 1.4 2003/09/05 05:31:58 nathans Exp $
-#
 
 # source the PCP configuration environment variables
 . /etc/pcp.env

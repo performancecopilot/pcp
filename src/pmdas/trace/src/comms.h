@@ -22,8 +22,6 @@
 #ifndef COMMS_H
 #define COMMS_H
 
-#ident "$Id: comms.h,v 1.2 2001/01/02 09:02:00 kenmcd Exp $"
-
 #define TR_OP_NONE	0x0
 #define TR_OP_SEND	0x1
 #define TR_OP_ALL	0x1

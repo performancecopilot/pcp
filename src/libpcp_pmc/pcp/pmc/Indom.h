@@ -22,8 +22,6 @@
 #ifndef _PMC_INDOM_H_
 #define _PMC_INDOM_H_
 
-#ident "$Id: Indom.h,v 1.10 2005/05/10 01:59:58 kenmcd Exp $"
-
 #include <pcp/pmc/PMC.h>
 #include <pcp/pmc/String.h>
 #ifdef HAVE_IOSTREAM

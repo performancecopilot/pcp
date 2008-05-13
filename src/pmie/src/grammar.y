@@ -23,8 +23,6 @@
  */
 
 %{
-#ident "$Id: grammar.y,v 1.2 2007/02/20 00:13:43 kimbrr Exp $"
-
 #include "dstruct.h"
 #include "syntax.h"
 #include "lexicon.h"

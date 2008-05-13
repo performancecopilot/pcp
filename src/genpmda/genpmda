@@ -19,8 +19,6 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# \$Id: genpmda,v 1.7 2005/08/02 01:26:50 markgw Exp $
-#
 
 prog=`basename $0`
 
@@ -644,7 +642,6 @@ END {
 	printf "/*\n" >>fetch_c
 	printf " * Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.\n" >>fetch_c
 	printf " *\n" >>fetch_c
-	printf " * $Id: genpmda,v 1.7 2005/08/02 01:26:50 markgw.longdrop.melbourne.sgi.com Exp $\n" >>fetch_c
 	printf " * Originally generated from \"%s\" using genpmda(1).\n","'$config'" >>fetch_c
 	printf " *\n" >>fetch_c
 	printf " * Refresh and fetch methods for the \"%s\" cluster.\n", c >>fetch_c
@@ -926,8 +923,6 @@ cat << EOFEOF >$gnumakefile
 #
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# \$Id: genpmda,v 1.7 2005/08/02 01:26:50 markgw.longdrop.melbourne.sgi.com Exp $
-#
 
 TOPDIR = $tflag
 include \$(TOPDIR)/src/include/builddefs
@@ -996,8 +991,6 @@ cat << EOFEOF >$gnumakefile_g
 # !gmake
 #
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-#
-# \$Id: genpmda,v 1.7 2005/08/02 01:26:50 markgw.longdrop.melbourne.sgi.com Exp $
 #
 IAM	= $iam
 CONFIG  = $config

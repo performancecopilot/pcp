@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmns.c,v 1.14 2006/06/30 05:47:11 makc Exp $"
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>

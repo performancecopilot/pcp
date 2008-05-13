@@ -21,11 +21,8 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: logio.c,v 1.1 2004/04/13 08:59:30 kenmcd Exp $"
-
 #include <unistd.h>
 #include <errno.h>
-
 #include "pmlogreduce.h"
 
 /*

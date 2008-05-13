@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_net_rpc.h,v 1.3 2004/06/24 06:15:36 kenmcd Exp $"
-
 #define NR_RPC_COUNTERS 18
 #define NR_RPC3_COUNTERS 22
 

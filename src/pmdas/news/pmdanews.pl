@@ -1,6 +1,5 @@
 #!/usr/bin/perl -w
 # Usenet news demo PMDA
-# $Id: pmdanews.pl,v 1.2 2004/08/24 01:01:58 kenmcd Exp $
 #
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 

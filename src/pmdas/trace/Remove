@@ -21,8 +21,6 @@
 #
 # Remove the Trace PMDA
 #
-# $Id: Remove,v 1.4 2000/08/21 06:11:58 mg Exp $
-#
 
 # Get standard environment
 . /etc/pcp.env

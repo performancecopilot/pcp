@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: open.c,v 1.5 2004/07/22 07:00:57 kenmcd Exp $"
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>

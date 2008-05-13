@@ -20,8 +20,6 @@
  */
 
 %{
-#ident "$Id: gram.y,v 2.11 1997/07/14 23:42:04 kenmcd Exp $"
-
 #include <stdio.h>
 #include "./dbpmda.h"
 #include "./lex.h"

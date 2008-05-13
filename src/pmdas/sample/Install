@@ -21,8 +21,6 @@
 #
 # Install the sample PMDA and/or PMNS
 #
-# $Id: Install,v 2.12 2000/12/28 07:37:59 max Exp $
-#
 
 # source the PCP configuration environment variables
 . /etc/pcp.env

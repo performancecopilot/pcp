@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_scsi.h,v 1.4 2004/06/24 06:15:36 kenmcd Exp $"
-
 typedef struct {
     int			id;	     /* internal instance id */
     char		*namebuf;    /* external name, i.e. host:channel:id:lun */

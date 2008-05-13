@@ -25,8 +25,6 @@
  * All rights reserved.
  */
 
-#ident "$Id: proc_cpuinfo.c,v 1.15 2005/08/11 03:26:21 markgw Exp $"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>

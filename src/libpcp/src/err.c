@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: err.c,v 1.7 2006/05/02 05:57:28 makc Exp $"
-
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>

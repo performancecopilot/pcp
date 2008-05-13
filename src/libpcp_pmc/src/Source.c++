@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: Source.c++,v 1.5 2005/05/10 01:59:58 kenmcd Exp $"
-
 #include <pcp/pmc/Source.h>
 
 PMC_SourceList	PMC_Source::_sourceList;

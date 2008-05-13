@@ -1,6 +1,6 @@
+#
 # pmafm support for pcp-col open source release
 #
-# $Id: pmafm.pcp,v 1.1 1999/12/16 03:24:51 markgw Exp $
 
 # the tools that can display multiple concurrent archives ...
 #

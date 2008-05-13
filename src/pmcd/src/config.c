@@ -22,8 +22,6 @@
  * attaching to DSOs.
  */
 
-#ident "$Id: config.c,v 1.15 2007/01/16 06:50:10 kimbrr Exp $"
-
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>

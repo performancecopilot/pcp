@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: fetch.c,v 1.4 2006/06/23 10:39:27 makc Exp $"
-
 #include <stdio.h>
 #include <sys/time.h>
 #include "pmapi.h"

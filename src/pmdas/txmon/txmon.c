@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: txmon.c,v 2.19 2004/06/16 23:33:34 nathans Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>

@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: util.c,v 1.1 2000/12/05 03:42:25 max Exp $"
-
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/stat.h>

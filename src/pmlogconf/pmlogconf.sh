@@ -9,8 +9,6 @@
 #	on-off	y or n to enable or disable this group
 #	delta	delta argument for pmlogger "logging ... on delta" clause
 #	
-# $Id: pmlogconf.sh,v 1.4 2003/06/19 07:32:45 kenmcd Exp $
-#
 #
 # Copyright (c) 1998,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 

@@ -28,8 +28,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmkstat.c,v 1.6 2004/06/07 10:17:19 nathans Exp $"
-
 #define HAVE_NETWORK 0
 
 #include "pmapi.h"

@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: p_error.c,v 1.3 2004/07/02 05:52:57 kenmcd Exp $"
-
 #include "pmapi.h"
 #include "impl.h"
 

@@ -1,7 +1,6 @@
 #pmchart
 #
 # Web statistics (request rates)
-# $Id: Web.Requests.pmchart,v 2.4 2004/05/20 00:10:39 kenmcd Exp $
 #
 # This file is installed by the script $PCP_PMDAS_DIR/weblog/Install
 #

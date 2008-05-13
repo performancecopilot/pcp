@@ -21,8 +21,6 @@
 #
 # Remove the summary PMDA
 #
-# $Id: Remove,v 2.7 2000/08/21 06:05:52 mg Exp $
-#
 
 # Get standard environment
 . /etc/pcp.env

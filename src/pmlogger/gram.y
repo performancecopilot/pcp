@@ -34,8 +34,6 @@
  */
 
 %{
-#ident "$Id: gram.y,v 1.5 2002/10/11 04:14:47 markgw Exp $"
-
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>

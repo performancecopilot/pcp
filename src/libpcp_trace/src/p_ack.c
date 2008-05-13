@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: p_ack.c,v 1.12 2004/07/02 05:52:57 kenmcd Exp $"
-
 #include <ctype.h>
 #include <stdio.h>
 #include <unistd.h>

@@ -21,7 +21,6 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Id: Remove,v 1.2 2004/06/24 06:15:36 kenmcd Exp $
 
 # source the PCP configuration environment variables
 . /etc/pcp.env

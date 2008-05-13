@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: mainloop.c,v 1.8 2006/10/31 06:53:56 kimbrr Exp $"
-
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -20,8 +20,6 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 # 
-# $Id: pcp.sh,v 1.24 2003/02/20 05:28:13 kenmcd Exp $
-#
 # displays the Performance Co-Pilot configuration for a host running pmcd(1)
 #
 

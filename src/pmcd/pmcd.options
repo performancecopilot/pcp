@@ -1,4 +1,3 @@
-# $Id: pmcd.options,v 1.1 2000/12/05 03:42:25 max Exp $
 # command-line options to pmcd, uncomment/edit lines as required
 
 # longer timeout delay for slow agents

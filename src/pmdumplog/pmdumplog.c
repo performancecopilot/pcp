@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmdumplog.c,v 1.5 2004/06/16 23:33:34 nathans Exp $"
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>

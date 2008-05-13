@@ -23,8 +23,6 @@
 
 #include "./cisco.h"
 
-#ident "$Id: interface.c,v 1.7 2002/07/05 03:04:50 kenmcd Exp $"
-
 /*
  * first letter defines command line argument for interface type
  * (0 means not allowed in command line)

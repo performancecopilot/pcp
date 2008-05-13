@@ -30,8 +30,6 @@
  * Description : Use http protocol, connects to server to echange data
  */
 
-#ident "$Id: http_lib.c,v 1.9 2004/07/22 07:00:57 kenmcd Exp $"
-
 /* #define VERBOSE */
 
 /* http_lib - Http data exchanges mini library.

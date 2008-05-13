@@ -21,8 +21,6 @@
 #
 # Install the sendmail PMDA and/or PMNS
 #
-# $Id: Install,v 1.3 2000/08/21 05:55:38 mg Exp $
-#
 
 # Get standard environment
 . /etc/pcp.env

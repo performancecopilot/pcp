@@ -21,9 +21,6 @@
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
-
-/* $Id: fun.h,v 1.2 2007/02/20 00:13:43 kimbrr Exp $ */
-
 #ifndef FUN_H
 #define FUN_H
 

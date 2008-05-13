@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: logger.h,v 1.4 2004/12/06 00:56:58 kenmcd Exp $"
-
 #ifndef _LOGGER_H
 #define _LOGGER_H
 

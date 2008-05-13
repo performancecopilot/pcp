@@ -17,8 +17,6 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
- *
- * $Id: trace_hash.h,v 1.9 1997/07/16 20:26:22 kenmcd Exp $
  */
 
 #ifndef _TRACE_HASH_H

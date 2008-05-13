@@ -19,8 +19,6 @@
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  *
- * $Id: platform_defs.h.in,v 1.46 2007/02/20 00:08:32 kimbrr Exp $
- * 
  * @configure_input@
  */
 

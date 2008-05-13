@@ -27,8 +27,6 @@
  * An example program using this interface can be found at
  * /var/pcp/pmdas/demos/trace/demo.c and contains further doumentation.
  * Also refer to the pmdatrace(1) and pmdatrace(3) man pages.
- *
- * $Id: trace.h,v 1.18 2004/07/22 04:14:22 kenmcd Exp $
  */
 
 #ifndef _TRACE_H

@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: metriclist.c,v 1.17 2006/06/15 08:05:47 makc Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "pmapi.h"

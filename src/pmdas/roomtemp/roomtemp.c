@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: roomtemp.c,v 1.5 2004/06/15 18:53:11 kenmcd Exp $"
-
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>

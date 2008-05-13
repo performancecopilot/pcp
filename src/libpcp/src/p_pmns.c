@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: p_pmns.c,v 1.1 2000/12/05 03:49:43 max Exp $"
-
 #include <ctype.h>
 #include <syslog.h>
 #include "pmapi.h"

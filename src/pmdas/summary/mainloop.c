@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: mainloop.c,v 2.22 2006/05/03 02:16:02 makc Exp $"
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/time.h>

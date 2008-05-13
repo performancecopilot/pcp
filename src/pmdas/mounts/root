@@ -5,8 +5,6 @@
  * for the portions of the code supporting the initial agent functionality.
  * All rights reserved. 
  * Copyright (c) 2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
- *
- * $Id: root,v 1.4 2004/06/24 06:15:36 kenmcd Exp $
  */
 
 #include <stdpmid>

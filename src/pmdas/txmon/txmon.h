@@ -28,8 +28,6 @@
  * then follows one stat_t per transaction type, subject to the
  * constraint that each stat_t is hardware cache aligned to avoid
  * anti-social bus traffic
- *
- * $Id: txmon.h,v 2.3 1997/05/19 20:49:11 kenmcd Exp $
  */
 
 typedef struct {

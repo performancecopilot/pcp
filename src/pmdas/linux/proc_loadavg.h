@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_loadavg.h,v 1.2 2002/10/03 05:49:06 markgw Exp $"
-
 typedef struct {
     float loadavg[3]; /* 1, 5 and 15 min load average */
     unsigned int runnable;

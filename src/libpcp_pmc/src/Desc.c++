@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: Desc.c++,v 1.2 2005/05/10 00:46:37 kenmcd Exp $"
-
 #include <pcp/pmc/Desc.h>
 #ifdef HAVE_IOSTREAM
 #include <iostream>

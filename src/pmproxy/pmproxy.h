@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmproxy.h,v 1.3 2005/07/10 05:45:35 kenmcd Exp $"
-
 #ifndef _PROXY_H
 #define _PROXY_H
 

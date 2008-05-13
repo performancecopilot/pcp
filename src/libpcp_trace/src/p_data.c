@@ -24,8 +24,6 @@
  *	   64-bit integer, but no other format conversion
  */
 
-#ident "$Id: p_data.c,v 1.20 2004/07/02 05:52:57 kenmcd Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

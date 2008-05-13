@@ -19,8 +19,6 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Id: GNUmakefile,v 1.1 2007/07/04 04:53:53 kimbrr Exp $
-#
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs

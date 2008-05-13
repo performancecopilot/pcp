@@ -24,9 +24,6 @@
 # Makefile - sample PMDA
 #
 #*************************************************************************
-#
-# $Id: GNUmakefile,v 2.47 2005/07/10 23:46:11 kenmcd Exp $
-#
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs

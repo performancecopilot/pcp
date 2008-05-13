@@ -26,8 +26,6 @@
 #
 #*************************************************************************
 #
-# $Id: GNUmakefile,v 2.31 2004/11/26 04:24:50 kenmcd Exp $
-#
 
 TOPDIR = ../..
 include	$(TOPDIR)/src/include/builddefs

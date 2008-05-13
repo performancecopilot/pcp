@@ -17,9 +17,7 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
-*
-* $Id: loop.c,v 1.2 2006/06/20 09:43:08 makc Exp $
-*/
+ */
 
 #include "platform_defs.h"
 

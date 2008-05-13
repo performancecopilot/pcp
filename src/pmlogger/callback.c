@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: callback.c,v 1.5 2004/12/06 00:56:58 kenmcd Exp $"
-
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>

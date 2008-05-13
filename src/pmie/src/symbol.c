@@ -23,8 +23,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: symbol.c,v 1.3 2004/06/07 10:17:19 nathans Exp $"
-
 #include <stdlib.h>
 #include <string.h>
 #include "symbol.h"

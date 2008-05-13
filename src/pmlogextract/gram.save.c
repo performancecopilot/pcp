@@ -12,8 +12,6 @@
 
 #line 6 "gram.y"
 
-#ident "$Id: gram.save.c,v 1.1 2004/07/02 05:52:57 kenmcd Exp $"
-
 /*
  *  pmlogextract parser
  */

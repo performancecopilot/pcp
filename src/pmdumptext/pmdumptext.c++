@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmdumptext.c++,v 1.46 2007/02/20 00:08:32 kimbrr Exp $"
-
 #include <math.h>
 #include <float.h>
 #include <stdio.h>

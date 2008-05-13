@@ -1,7 +1,5 @@
 /*
  * PMCD metrics name space
- *
- * $Id: root_pmcd,v 1.2 2006/07/04 06:34:17 makc Exp $
  */
 
 root {

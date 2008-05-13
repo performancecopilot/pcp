@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: units.c,v 1.4 2004/08/02 07:11:43 kenmcd Exp $"
-
 #include <stdio.h>
 #include <string.h>
 #include <syslog.h>

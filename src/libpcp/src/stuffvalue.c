@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: stuffvalue.c,v 1.3 2007/02/26 06:06:46 kimbrr Exp $"
-
 #include <stdio.h>
 #include "pmapi.h"
 #include "impl.h"

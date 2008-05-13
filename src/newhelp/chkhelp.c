@@ -25,8 +25,6 @@
  *    chkhelp helpfile metric-name ...
  */
 
-#ident "$Id: chkhelp.c,v 1.4 2002/09/08 10:45:41 kenmcd Exp $"
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>

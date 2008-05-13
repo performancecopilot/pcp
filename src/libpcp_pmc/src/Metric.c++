@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: Metric.c++,v 1.9 2005/05/10 01:59:58 kenmcd Exp $"
-
 #include <pcp/pmc/Metric.h>
 #include <pcp/pmc/Group.h>
 #ifdef HAVE_IOSTREAM

@@ -23,10 +23,7 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
- * 
  */
-
-#ident "$Id: pmda.c,v 1.6 2007/02/20 00:08:32 kimbrr Exp $"
 
 #include <stdio.h>
 #include <unistd.h>

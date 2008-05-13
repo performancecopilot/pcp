@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_partitions.h,v 1.11 2005/06/07 07:18:20 markgw Exp $"
-
 typedef struct {
     int			id;
     unsigned int	major;

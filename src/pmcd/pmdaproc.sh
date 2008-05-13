@@ -1,7 +1,6 @@
 # Common sh(1) procedures to be used in the Performance Co-Pilot
 # PMDA Install and Remove scripts
 #
-# $Id: pmdaproc.sh,v 1.17 2006/06/30 05:47:11 makc Exp $
 # Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it

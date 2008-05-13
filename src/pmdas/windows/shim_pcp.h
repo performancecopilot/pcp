@@ -26,8 +26,6 @@
  * to be used with the Microsoft C/C++ compiler on Intel i386 platforms
  */
 
-/* $Id: shim_pcp.h,v 1.1 2004/07/12 02:43:23 kenmcd Exp $ */
-
 #ifndef _SHIM_PCP_H
 #define _SHIM_PCP_H
 

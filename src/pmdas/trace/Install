@@ -21,8 +21,6 @@
 #
 # Install the Trace PMDA and/or PMNS
 #
-# $Id: Install,v 1.24 2003/02/20 05:28:13 kenmcd Exp $
-#
 
 # Get standard environment
 . /etc/pcp.env

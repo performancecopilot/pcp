@@ -26,8 +26,6 @@
 
 /*
  *  Http put/get mini lib
- * $Id: http_lib.h,v 1.3 2004/06/24 06:15:36 kenmcd Exp $
- *
  */
 
 // Timeout for connect

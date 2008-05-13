@@ -2,8 +2,6 @@
  * fake "root" for validating the local PMNS subtree
  *
  * Original implementation by Troy Dawson (dawson@fnal.gov)
- * 
- * $Id: root,v 1.2 2004/06/24 06:15:36 kenmcd Exp $
  */ 
 
 #include <stdpmid>

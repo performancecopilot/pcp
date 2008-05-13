@@ -20,8 +20,6 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Id: mkaf,v 1.5 2004/12/03 19:32:18 kenmcd Exp $
-#
 
 # Get standard environment
 . /etc/pcp.env

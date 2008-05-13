@@ -26,8 +26,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
 */
 
-#ident "$Id: infiniband.c,v 1.9 2007/07/30 07:13:08 kimbrr Exp $"
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>

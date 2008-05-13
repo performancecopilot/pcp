@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Revision: 1.10 $"
-
 /*
  * Uses the same regualr expression logic as pmdaweblog, but extracted
  * here so new patterns and access logs can be tested

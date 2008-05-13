@@ -22,7 +22,6 @@
 #
 # stop and restart a pmlogger instance
 #
-# $Id: pmnewlog.sh,v 1.17 2003/02/20 05:28:13 kenmcd Exp $
 
 # Get standard environment
 . /etc/pcp.env

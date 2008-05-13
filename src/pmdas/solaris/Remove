@@ -21,8 +21,6 @@
 #
 # Remove the Solaris PMDA
 #
-# $Id: Remove,v 1.1 2004/07/22 07:18:34 kenmcd Exp $
-#
 
 # source the PCP configuration environment variables
 . /etc/pcp.env

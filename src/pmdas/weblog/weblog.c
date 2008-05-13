@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: weblog.c,v 2.23 2004/06/24 06:15:36 kenmcd Exp $"
-
 #include "./weblog.h"
 #include <sys/types.h>
 #include <sys/stat.h>

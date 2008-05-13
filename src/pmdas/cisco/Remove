@@ -21,8 +21,6 @@
 #
 # Remove the cisco PMDA and/or PMNS
 #
-# $Id: Remove,v 2.7 2000/08/16 07:38:59 mg Exp $
-#
 
 # Get standard environment
 . /etc/pcp.env

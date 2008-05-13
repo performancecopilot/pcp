@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: p_instance.c,v 1.3 2004/08/02 07:11:43 kenmcd Exp $"
-
 #include <ctype.h>
 #include <syslog.h>
 #include "pmapi.h"

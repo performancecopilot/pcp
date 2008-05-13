@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: profile.c,v 1.2 2002/07/06 05:48:20 kenmcd Exp $"
-
 #include "pmapi.h"
 #include "impl.h"
 

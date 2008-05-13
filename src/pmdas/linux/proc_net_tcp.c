@@ -23,8 +23,6 @@
  * This code contributed by Michal Kara (lemming@arthur.plbohnice.cz)
  */
 
-#ident "$Id: proc_net_tcp.c,v 1.6 2004/06/24 06:15:36 kenmcd Exp $"
-
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>

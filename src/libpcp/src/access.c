@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: access.c,v 1.21 2004/07/22 07:00:57 kenmcd Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>

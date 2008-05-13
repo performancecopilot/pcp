@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: check.c,v 1.3 2001/03/09 01:34:57 kenmcd Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>

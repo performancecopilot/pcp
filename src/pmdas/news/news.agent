@@ -22,8 +22,6 @@
 #
 # Standard Performance Metrics Domain Agent - Demo for Usenet News
 #
-# $Id: news.agent,v 2.12 2005/03/15 06:18:54 kenmcd Exp $
-#
 
 # Get standard environment
 . /etc/pcp.env

@@ -22,8 +22,6 @@
 #ifndef _PMC_VECTOR_H_
 #define _PMC_VECTOR_H_
 
-#ident "$Id: Vector.h,v 1.5 2006/05/18 06:48:48 makc Exp $"
-
 #ifndef PCP_DEBUG
 #ifndef NDEBUG
 #define NDEBUG

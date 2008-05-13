@@ -17,8 +17,6 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
- *
- * $Id: impl.h,v 1.9 2007/01/16 06:36:59 kimbrr Exp $
  */
 
 #ifndef _IMPL_H

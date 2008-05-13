@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_stat.c,v 1.25 2007/02/20 00:08:32 kimbrr Exp $"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>

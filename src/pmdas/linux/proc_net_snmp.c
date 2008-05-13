@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_net_snmp.c,v 1.6 2006/06/15 08:05:47 makc Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

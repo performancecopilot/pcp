@@ -17,8 +17,6 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
- *
- * $Id: libdefs.h,v 1.2 2000/12/28 09:17:25 max Exp $
  */
 
 #ifndef LIBDEFS_H

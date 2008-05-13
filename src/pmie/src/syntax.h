@@ -21,9 +21,6 @@
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
-
-/* $Id: syntax.h,v 1.2 2003/05/07 07:22:57 nathans Exp $ */
-
 #ifndef SYNTAX_H
 #define SYNTAX_H
 

@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pminfo.c,v 1.4 2003/02/20 05:28:13 kenmcd Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <ctype.h>

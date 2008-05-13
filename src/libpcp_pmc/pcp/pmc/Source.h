@@ -24,8 +24,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: Source.h,v 1.3 2005/05/10 00:46:37 kenmcd Exp $"
-
 #include <pcp/pmc/PMC.h>
 #include <pcp/pmc/String.h>
 #include <pcp/pmc/List.h>

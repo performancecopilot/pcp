@@ -23,8 +23,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmnsmerge.c,v 1.5 2003/05/07 07:21:03 nathans Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stddef.h>

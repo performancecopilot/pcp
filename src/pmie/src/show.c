@@ -22,8 +22,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: show.c,v 1.5 2007/02/20 00:13:43 kimbrr Exp $"
-
 #include <stdio.h>
 #include <time.h>
 #include <ctype.h>

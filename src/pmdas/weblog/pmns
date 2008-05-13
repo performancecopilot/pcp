@@ -20,8 +20,6 @@
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  *
- * $Id: pmns,v 2.9 2004/06/24 06:15:36 kenmcd Exp $
- *
  * Cluster numbers are used by agent to indicate:
  *
  * 0 - Does not require any servers to be updated

@@ -26,8 +26,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: lexicon.c,v 1.4 2007/02/20 00:13:43 kimbrr Exp $"
-
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>

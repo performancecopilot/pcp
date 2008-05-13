@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: stub.c,v 1.5 2000/05/05 03:16:01 nathans Exp $"
-
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>

@@ -24,8 +24,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_cpuinfo.h,v 1.7 2004/06/24 06:15:36 kenmcd Exp $"
-
 #ifdef  __alpha__
 #define HAVE_ALPHA_LINUX
 #endif

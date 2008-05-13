@@ -1,6 +1,5 @@
 /*
- * $Id: cvalue.c,v 1.2 2004/08/24 01:01:58 kenmcd Exp $
- * verifies that the information we see from PMDA.pm (perl) matches
+ * Verifies that the information we see from PMDA.pm (perl) matches
  * the local PCP installation (PMAPI) - used by test.pl: `make test`
  *
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.

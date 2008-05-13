@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pcpu.c,v 1.7 1999/04/07 07:53:12 tes Exp $"
-
 #include <unistd.h>
 #include <stdio.h>
 #include <syslog.h>

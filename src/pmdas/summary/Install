@@ -21,8 +21,6 @@
 #
 # Install the summary PMDA and/or PMNS
 #
-# $Id: Install,v 2.14 2000/12/28 07:37:59 max Exp $
-#
 
 # Get standard environment
 . /etc/pcp.env

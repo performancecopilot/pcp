@@ -21,8 +21,6 @@
 #
 # Remove the trivial PMDA
 #
-# $Id: Remove,v 2.4 2000/08/23 01:13:37 mg Exp $
-#
 
 # source the PCP configuration environment variables
 . /etc/pcp.env

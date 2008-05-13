@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmlc.h,v 1.4 2005/08/02 16:46:27 kenmcd Exp $"
-
 #ifndef _PMLC_H
 #define _PMLC_H
 

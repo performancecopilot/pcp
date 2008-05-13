@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmlc.c,v 1.3 2005/08/02 16:46:27 kenmcd Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>

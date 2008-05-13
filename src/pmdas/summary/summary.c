@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: summary.c,v 2.20 2006/06/22 03:29:44 makc Exp $"
-
 #include "platform_defs.h"
 
 #include <sys/types.h>

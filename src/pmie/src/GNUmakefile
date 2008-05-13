@@ -25,9 +25,6 @@
 # This Makefile builds the pmie program executable.
 #
 #*************************************************************************
-#
-# $Id: GNUmakefile,v 2.39 2007/02/20 00:13:43 kimbrr Exp $
-#
 
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs

@@ -24,8 +24,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: Desc.h,v 1.2 2005/05/10 00:46:37 kenmcd Exp $"
-
 #include <pcp/pmc/PMC.h>
 #include <pcp/pmc/String.h>
 #ifdef HAVE_IOSTREAM

@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_net_dev.c,v 1.10 2005/08/31 01:50:24 kenmcd Exp $"
-
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>

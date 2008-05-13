@@ -2,8 +2,6 @@
 #
 # Copyright (C) 1995-1999 Silicon Graphics, Inc.
 #
-# $Id: tsocks.sh,v 1.2 2001/03/07 00:07:21 kenmcd Exp $
-#
 # Dynamically sockify the argument program using tsocks
 # from http://www.progsoc.uts.edu.au/~delius/
 #

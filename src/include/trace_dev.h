@@ -17,8 +17,6 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
- *
- * $Id: trace_dev.h,v 1.20 2003/02/20 05:28:13 kenmcd Exp $
  */
 
 #ifndef _TRACE_DEV_H

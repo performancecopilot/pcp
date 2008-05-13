@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_fs_xfs.c,v 1.6 2004/06/24 06:15:36 kenmcd Exp $"
-
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>

@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: help.c,v 1.4 2004/08/02 07:11:43 kenmcd Exp $"
-
 /*
  * Get help text from files built using newhelp
  */

@@ -21,8 +21,6 @@
 #
 # Remove the mailq PMDA
 #
-# $Id: Remove,v 1.2 2000/08/18 06:24:34 mg Exp $
-#
 
 # Get standard environment
 . /etc/pcp.env

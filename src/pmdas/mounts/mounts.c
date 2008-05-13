@@ -22,8 +22,6 @@
  * 
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
- *
- * $Id: mounts.c,v 1.12 2006/06/30 05:47:11 makc Exp $
  */
 #include <stdio.h>
 #include <string.h>

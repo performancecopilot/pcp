@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-/* $Id: endian.c,v 1.11 2004/06/24 06:15:36 kenmcd Exp $ */
-
 /*
  * Bit field typedefs for endian translations to support little endian
  * hosts.

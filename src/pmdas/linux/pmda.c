@@ -23,8 +23,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmda.c,v 1.77 2007/08/24 00:22:08 kimbrr Exp $"
-
 #include <stdio.h>
 #include <limits.h>
 #include <errno.h>

@@ -49,8 +49,6 @@
 
 #line 27 "grammar.y"
 
-#ident "$Id: grammar.save.c,v 1.1 2004/07/02 05:52:57 kenmcd Exp $"
-
 #include "dstruct.h"
 #include "syntax.h"
 #include "lexicon.h"

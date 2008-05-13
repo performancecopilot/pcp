@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: logportmap.c,v 1.6 2005/02/22 05:01:12 markgw Exp $"
-
 #include <sys/types.h>
 #include <sys/param.h>
 #include <stdio.h>

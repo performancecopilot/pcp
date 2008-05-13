@@ -1,7 +1,5 @@
 #pmieconf-rules 1
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
-# $Id: cisco.out_util.pmie,v 1.6 2000/08/17 05:57:26 mg Exp $
-#
 
 rule	cisco.out_util
 	summary	= "$rule$"

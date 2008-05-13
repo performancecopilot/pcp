@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pdu.c,v 1.13 2006/05/02 05:57:28 makc Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>

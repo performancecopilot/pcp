@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_scsi.c,v 1.8 2006/06/30 05:47:11 makc Exp $"
-
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>

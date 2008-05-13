@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmcd_wait.c,v 1.2 2000/12/28 09:17:25 max Exp $"
-
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>

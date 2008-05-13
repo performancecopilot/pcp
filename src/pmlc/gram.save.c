@@ -43,8 +43,6 @@
 
 #line 5 "gram.y"
 
-#ident "$Id: gram.save.c,v 1.1 2004/07/02 05:52:57 kenmcd Exp $"
-
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>

@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: Group.c++,v 1.10 2005/05/10 01:59:58 kenmcd Exp $"
-
 #include <limits.h>
 #include <float.h>
 #include <math.h>

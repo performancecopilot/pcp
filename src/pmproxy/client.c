@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: client.c,v 1.5 2006/06/15 08:05:47 makc Exp $"
-
 #include <stdio.h>
 #include <syslog.h>
 #include <sys/socket.h>

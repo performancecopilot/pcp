@@ -19,9 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_net_snmp.h,v 1.5 2004/06/24 06:15:36 kenmcd Exp $"
-
-
 enum {
     _PM_SNMP_IP_FORWARDING = 0,
     _PM_SNMP_IP_DEFAULTTTL,

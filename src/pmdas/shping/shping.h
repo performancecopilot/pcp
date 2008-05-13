@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: shping.h,v 1.2 2001/02/12 04:45:25 max Exp $"
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"

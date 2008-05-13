@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_meminfo.c,v 1.9 2007/08/23 05:58:15 kimbrr Exp $"
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <ctype.h>

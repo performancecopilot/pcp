@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: dbpmda.c,v 2.19 2002/07/05 02:57:20 kenmcd Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>

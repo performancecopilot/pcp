@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: error.c,v 1.4 1999/01/19 03:35:42 tes Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 

@@ -24,8 +24,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: solaris.c,v 1.2 2004/08/02 02:25:18 kenmcd Exp $"
-
 #include <time.h>
 #include "./common.h"
 

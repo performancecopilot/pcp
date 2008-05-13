@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_pid.c,v 1.14 2007/02/20 00:08:32 kimbrr Exp $"
-
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>

@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: data.c,v 1.1 1998/01/16 03:09:20 nathans Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

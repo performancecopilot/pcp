@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_net_rpc.c,v 1.4 2004/06/24 06:15:36 kenmcd Exp $"
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>

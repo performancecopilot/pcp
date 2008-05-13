@@ -21,7 +21,6 @@
 # Makefile to re-compile the binary format version of the default
 # Performance Metrics Names Space (PMNS)
 #
-# $Id: GNUmakefile.install,v 1.2 2004/06/24 06:15:36 kenmcd Exp $
 
 TARGETS	= root.bin
 PMNS	!= echo root_*

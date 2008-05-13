@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmclient.c,v 2.15 2003/01/08 03:50:10 kenmcd Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>

@@ -34,8 +34,6 @@
  *   $ pminfo -tT trace
  */
 
-#ident "$Id: app2.c,v 1.11 2003/02/20 05:28:13 kenmcd Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

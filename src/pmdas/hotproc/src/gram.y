@@ -20,8 +20,6 @@
  */
 
 %{
-#ident "$Id: gram.y,v 1.11 1999/01/19 03:36:05 tes Exp $"
-
 #include <stdio.h>
 #include "./gram_node.h"
 

@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: ftrace.c,v 1.5 2000/12/28 07:37:59 max Exp $"
-
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>

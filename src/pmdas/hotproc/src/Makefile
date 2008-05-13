@@ -1,7 +1,4 @@
-#!smake
-#
-# $Id: Makefile,v 1.17 2001/04/06 04:52:11 ajag Exp $
-#
+#!make
 
 PCP_SRC_DEPTH = ../../..
 include versiondefs

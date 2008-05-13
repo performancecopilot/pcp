@@ -22,7 +22,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: syntax.c,v 1.3 2002/11/06 00:42:53 kenmcd Exp $"
 #ifdef HAVE_CONFIG_H
 #include <platform_defs.h>
 #endif

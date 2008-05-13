@@ -19,15 +19,10 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: p_result.c,v 1.6 2004/08/02 07:11:43 kenmcd Exp $"
-
 #include <ctype.h>
 #include <syslog.h>
 #include "pmapi.h"
 #include "impl.h"
-
-/* __psint_t is defined in <sgidefs.h> as a pointer-sized int type */
-
 
 extern int      errno;
 

@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: cisco.c,v 2.29 2001/03/14 15:51:10 kenmcd Exp $"
-
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>

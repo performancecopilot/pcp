@@ -21,7 +21,6 @@
 
 /*
  * This code contributed by Mike Mason <mmlnx@us.ibm.com>
- * $Id: proc_uptime.c,v 1.3 2004/06/24 06:15:36 kenmcd Exp $
  */
 
 #include <errno.h>

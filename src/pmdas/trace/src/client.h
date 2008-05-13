@@ -22,8 +22,6 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#ident "$Id: client.h,v 1.3 1997/09/09 00:13:09 nathans Exp $"
-
 typedef struct {
     int			fd;		/* socket descriptor  */
     struct sockaddr_in	addr;		/* address of client  */

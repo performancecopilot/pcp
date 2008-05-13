@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pdubuf.c,v 1.13 2004/06/07 10:19:59 nathans Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

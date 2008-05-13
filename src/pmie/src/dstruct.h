@@ -22,7 +22,6 @@
 /***********************************************************************
  * dstruct.h - central data structures snd associated operations
  ***********************************************************************/
-/* $Id: dstruct.h,v 1.4 2007/02/20 00:13:43 kimbrr Exp $ */
 
 #ifndef DSTRUCT_H
 #define DSTRUCT_H

@@ -19,12 +19,8 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Id: pmnsadd,v 1.2 2001/06/27 06:25:38 kenmcd Exp $
-#
 # Add a subtree of new names into the namespace in the current directory
 #
-#Tag 0x00010D13
-
 
 # source the PCP configuration environment variables
 . /etc/pcp.env

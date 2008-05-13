@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: summary.h,v 2.4 2000/08/21 06:10:48 mg Exp $"
-
 /*
  * exported summary metrics
  */

@@ -21,8 +21,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: sproc.c,v 1.7 2004/06/24 06:15:36 kenmcd Exp $"
-
 #ifndef HAVE_SPROC
 
 #include <signal.h>

@@ -58,7 +58,6 @@ esac
 #			  "copy"  - copy the files
 #			  "skip"  - do not create URLs for this server
 #
-# $Id: server.sh,v 2.44 2004/05/20 02:12:57 kenmcd Exp $
 
 do_logs=false
 do_files=false

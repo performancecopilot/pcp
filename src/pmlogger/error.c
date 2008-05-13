@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: error.c,v 1.2 2000/12/28 09:17:25 max Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 

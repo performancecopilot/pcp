@@ -22,8 +22,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmda.h,v 1.7 2005/08/31 01:50:24 kenmcd Exp $"
-
 #include <stdarg.h>
 
 #ifdef __cplusplus

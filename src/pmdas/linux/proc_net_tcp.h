@@ -23,8 +23,6 @@
  * This code contributed by Michal Kara (lemming@arthur.plbohnice.cz)
  */
 
-#ident "$Id: proc_net_tcp.h,v 1.2 2004/06/24 06:15:36 kenmcd Exp $"
- 
 enum {
 	_PM_TCP_ESTABLISHED = 1,
 	_PM_TCP_SYN_SENT,

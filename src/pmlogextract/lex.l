@@ -24,8 +24,6 @@
 /*
  *  pmlogextract configfile lexer
  */
-#ident "$Id: lex.l,v 1.6 2002/07/05 02:57:20 kenmcd Exp $"
-
 #include "pmapi.h"
 #include "impl.h"
 #include "./logger.h"
