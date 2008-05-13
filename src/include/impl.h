@@ -1088,7 +1088,6 @@ extern void __htonll(char *);		/* 64bit int */
 
 #endif /* HAVE_NETWORK_BYTEORDER */
 
-#ifdef HAVE_DEV_IN_LIBPCP
 /*
  * access control routines
  */
@@ -1210,12 +1209,6 @@ extern int __pmSendDataX(int, int, int, int, const void *);
 extern int __pmDecodeDataX(__pmPDU *, int, int *, int *, void **);
 extern int __pmSendControlReq(int, int, const pmResult *, int, int, int);
 extern int __pmDecodeControlReq(const __pmPDU *, int, pmResult **, int *, int *, int *);
-
-#endif /* HAVE_DEV_IN_LIBPCP */
-
-#ifdef HAVE_SEPARATE_MONS_H
-#include "impl_mon.h"
-#endif
 
 #ifdef __cplusplus
 }

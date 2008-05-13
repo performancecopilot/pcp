@@ -649,10 +649,6 @@ extern int pmRequestStore (int, const pmResult *);
 extern int pmRequestText (int, pmID, int);
 extern int pmRequestTraversePMNS (int, const char *);
 
-#ifdef HAVE_SEPARATE_MONS_H
-#include "pmapi_mon.h"
-#endif
-
 #ifdef MALLOC_AUDIT
 #include "malloc-audit.h"
 #endif

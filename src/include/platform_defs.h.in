@@ -413,13 +413,6 @@ typedef void (*SIG_PF) (int);
 #undef IS_IRIX
 #ifdef IS_IRIX
 /*
- * Parts of pmapi.h and impl.h were moved to the pmapi_mon.h and
- * impl_mon.h to facilitate OpenSource management. This macro controls
- * the inclusion of those files on irix, where they are always present.
- */
-#define HAVE_SEPARATE_MONS_H 1
-
-/*
  * still building the V1 versions of the libraries and APIs for IRIX
  * backwards compatibility
  */
@@ -433,12 +426,6 @@ typedef void (*SIG_PF) (int);
 
 /* Location of pcplog */
 #define PCPLOGDIR "/var/adm/pcplog"
-#else	/* ! IS_IRIX */
-/*
- * In the Open Source, stuff from libpcp_dev has been moved to libpcp
- * so this is always true
- */
-#define HAVE_DEV_IN_LIBPCP 1
 #endif	/* IS_IRIX */
 
 /* Determine if we are on a Solaris box */
