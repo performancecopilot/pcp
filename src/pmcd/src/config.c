@@ -1743,8 +1743,6 @@ GetAgentDso(AgentInfo *aPtr)
      * these circumstances.
      */
     dso->dlHandle = dlopen(dso->pathName, RTLD_LAZY);
-#elif defined(HAVE_SHL_LOAD)
-    dso->dlHandle = shl_load(dso->pathName, BIND_IMMEDIATE | DYNAMIC_PATH | BIND_VERBOSE, 0);
 #else
     fprintf(stderr, "Error attaching %s DSO at \"%s\"\n",
 		     aPtr->pmDomainLabel, dso->pathName);
@@ -1773,13 +1771,6 @@ GetAgentDso(AgentInfo *aPtr)
 	fprintf(stderr, "Couldn't find init function `%s' in %s DSO\n",
 		     dso->entryPoint, aPtr->pmDomainLabel);
 	dlclose(dso->dlHandle);
-	return -1;
-    }
-#elif defined(HAVE_SHL_LOAD)
-    if (shl_findsym((shl_t *)&dso->dlHandle, dso->entryPoint, TYPE_PROCEDURE, &dso->initFn) != 0) {
-	fprintf(stderr, "Couldn't find init function `%s' in %s DSO\n",
-		     dso->entryPoint, aPtr->pmDomainLabel);
-	shl_unload((shl_t)dso->dlHandle);
 	return -1;
     }
 #endif
@@ -1813,8 +1804,6 @@ GetAgentDso(AgentInfo *aPtr)
 		     pmErrStr(dso->dispatch.status));
 #if defined(HAVE_DLOPEN)
 	    dlclose(dso->dlHandle);
-#elif defined(HAVE_SHL_LOAD)
-	    shl_unload((shl_t)dso->dlHandle);
 #endif
 	    return -1;
     }
@@ -1848,8 +1837,6 @@ GetAgentDso(AgentInfo *aPtr)
 		 dso->dispatch.comm.pmda_interface, aPtr->pmDomainLabel);
 #if defined(HAVE_DLOPEN)
 	dlclose(dso->dlHandle);
-#elif defined(HAVE_SHL_LOAD)
-	shl_unload((shl_t)dso->dlHandle);
 #endif
 	return -1;
     }
@@ -1864,8 +1851,6 @@ GetAgentDso(AgentInfo *aPtr)
 		 dso->dispatch.comm.pmapi_version, aPtr->pmDomainLabel);
 #if defined(HAVE_DLOPEN)
 	dlclose(dso->dlHandle);
-#elif defined(HAVE_SHL_LOAD)
-	shl_unload((shl_t)dso->dlHandle);
 #endif
 	return -1;
     }

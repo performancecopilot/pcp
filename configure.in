@@ -664,7 +664,7 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(getcwd gethostname gettimeofday mktime putenv select socket)
 AC_CHECK_FUNCS(strdup strerror strtod strtol uname waitpid atexit brk sbrk)
 AC_CHECK_FUNCS(__clone sproc tcgetattr signal hstrerror)
-AC_CHECK_FUNCS(shl_load sginap usleep oserror setoserror sighold sigrelse)
+AC_CHECK_FUNCS(sginap usleep oserror setoserror sighold sigrelse)
 AC_CHECK_FUNCS(prctl regex regcmp regexec regcomp unsetenv valloc memalign)
 AC_CHECK_FUNCS(strtoll strtoull nanosleep mkstemp)
 
@@ -1030,9 +1030,6 @@ then
     fi
 fi
 AC_SUBST(lib_for_dlopen)
-
-dnl for HP-UX shl_load() and friends are like dlopen() and friends
-AC_CHECK_FUNCS(shl_load)
 
 dnl check if flog10 and isnanf are available in the maths library
 lib_for_math=

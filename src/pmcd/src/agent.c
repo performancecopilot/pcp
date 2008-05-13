@@ -57,8 +57,6 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 	if (aPtr->ipc.dso.dlHandle != NULL) {
 #ifdef HAVE_DLOPEN
 	    dlclose(aPtr->ipc.dso.dlHandle);
-#elif defined(HAVE_SHL_LOAD)
-	    shl_unload((shl_t) aPtr->ipc.dso.dlHandle);
 #endif
 	}
 	pmcd_trace(TR_DEL_AGENT, aPtr->pmDomainId, -1, -1);
