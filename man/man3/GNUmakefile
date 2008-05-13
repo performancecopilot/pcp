@@ -58,8 +58,8 @@ endif
 
 # IMPL_MANPAGES from IRIX
 MAN_PAGES += \
-	pmconverttime.3 pmfindpmda.3 pmmktime.3 pmparsectime.3 \
-	pmfreeprofile.3 pmlookupipc.3 pmopenlog.3 pmparsedebug.3 pmparsetime.3
+	pmconverttime.3 pmmktime.3 pmparsectime.3 pmfreeprofile.3 \
+	pmlookupipc.3 pmopenlog.3 pmparsedebug.3 pmparsetime.3
 
 # NOSHIP_MANPAGES from IRIX
 MAN_PAGES += \
