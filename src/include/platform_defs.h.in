@@ -431,9 +431,6 @@ typedef void (*SIG_PF) (int);
 #define HAVE_LICENSE_CHECK 1
 #define HAVE_FLEXLM 1
 
-/* we have the *objectStyle functions in libpcp */
-#define HAVE_OBJECT_STYLE 1
-
 /* Location of pcplog */
 #define PCPLOGDIR "/var/adm/pcplog"
 #else	/* ! IS_IRIX */

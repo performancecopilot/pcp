@@ -264,10 +264,6 @@ INIT_CONTEXT:
 	new->c_pmcd->pc_refcnt++;
     }
     else if (type == PM_CONTEXT_LOCAL) {
-#if defined(HAVE_OBJECT_STYLE)
-	if ((sts = __pmCheckObjectStyle()) != 0)
-	    goto FAILED;
-#endif
 	if ((sts = __pmConnectLocal()) != 0)
 	    goto FAILED;
     }

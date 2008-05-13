@@ -1045,14 +1045,6 @@ main(int argc, char *argv[])
     atexit(_malloc_audit_);
 #endif
 
-#ifdef __host_mips
-    if ((sts = __pmCheckObjectStyle()) != 0) {
-	/* fatal. This pmcd binary does not match the running kernel. */
-	__pmNotifyErr(LOG_ERR, "pmcd: FATAL ERROR: %s\n", pmErrStr(sts));
-	exit(1);
-    }
-#endif
-
     /*
      * get optional stuff from environment ... PMCD_PORT ...
      * same code is in connect.c of libpcp
