@@ -17,7 +17,6 @@ usr/share/man/man3/__pmConnectLogger.3.gz
 usr/share/man/man3/__pmControlLog.3.gz
 usr/share/man/man3/__pmConvertTime.3.gz
 usr/share/man/man3/__pmFdLookupIPC.3.gz
-usr/share/man/man3/__pmFindPMDA.3.gz
 usr/share/man/man3/__pmFreeProfile.3.gz
 usr/share/man/man3/__pmLookupIPC.3.gz
 usr/share/man/man3/__pmMktime.3.gz
