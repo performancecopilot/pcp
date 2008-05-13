@@ -582,19 +582,11 @@ else
 fi
 AC_SUBST(which)
 
-dnl checks for /proc pseudo file system and /proc/pinfo
+dnl checks for /proc pseudo file system
 AC_MSG_CHECKING([for /proc ])
 if test -d /proc
 then
     AC_DEFINE(HAVE_PROCFS)
-    AC_MSG_RESULT(yes)
-else
-    AC_MSG_RESULT(no)
-fi
-AC_MSG_CHECKING([for /proc/pinfo ])
-if test -d /proc/pinfo
-then
-    AC_DEFINE(HAVE_PROCFS_PINFO)
     AC_MSG_RESULT(yes)
 else
     AC_MSG_RESULT(no)

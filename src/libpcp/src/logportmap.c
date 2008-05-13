@@ -107,9 +107,7 @@ exists_process(pid_t pid)
 /*
  * system dependent path to /proc/.../<pid>
  */
-#if defined(HAVE_PROCFS_PINFO)
-#define PROCFS			"/proc/pinfo"
-#elif defined(HAVE_PROCFS)
+#if defined(HAVE_PROCFS)
 #define PROCFS			"/proc"
 #else
 !bozo!

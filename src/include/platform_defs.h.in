@@ -224,9 +224,6 @@ extern "C" {
 /* if the /proc pseudo filesystem exists */
 #undef HAVE_PROCFS
 
-/* if the /proc/pinfo/<pid> should be used (IRIX only?) */
-#undef HAVE_PROCFS_PINFO
-
 #ifndef ULONGLONG_MAX 
 #define ULONGLONG_MAX (__uint64_t)18446744073709551615ULL
 #endif

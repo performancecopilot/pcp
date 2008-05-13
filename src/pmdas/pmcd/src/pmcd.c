@@ -277,24 +277,22 @@ static struct {
 };
 static int	nbufsz = sizeof(bufinst) / sizeof(bufinst[0]);
 
-#if defined(HAVE_PROCFS_PINFO)
-#define PROCFS_INFO	"/proc/pinfo"	/* from proc pmda - proc.h */
-#elif defined(HAVE_PROCFS)
-#define PROCFS_INFO	"/proc"
+#if defined(HAVE_PROCFS)
+#define PROCFS	"/proc"
 #elif !defined(IS_DARWIN)
 !bozo!
 #endif
 
-#if defined(HAVE_PROCFS_PINFO) || defined(HAVE_PROCFS)
+#if defined(HAVE_PROCFS)
 #define PROCFS_ENTRYLEN	20		/* from proc pmda - proc.h */
-#define PROCFS_PATHLEN	(sizeof(PROCFS_INFO)+PROCFS_ENTRYLEN)
+#define PROCFS_PATHLEN	(sizeof(PROCFS)+PROCFS_ENTRYLEN)
 
 static int
 exists_process(pid_t pid)
 {
     static char proc_buf[PROCFS_PATHLEN];
 
-    sprintf(proc_buf, "%s/%u", PROCFS_INFO, (int)pid);
+    sprintf(proc_buf, "%s/%u", PROCFS, (int)pid);
     return (access(proc_buf, F_OK) == 0);
 }
 
