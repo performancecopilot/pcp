@@ -23,9 +23,6 @@
 
 #include <unistd.h>
 #include <sys/types.h>
-#if defined(sgi)
-#include <bstring.h>
-#endif
 #include <sys/time.h>
 #include <syslog.h>
 #include <stdio.h>

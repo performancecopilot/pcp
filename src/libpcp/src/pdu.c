@@ -28,9 +28,6 @@
 #include <signal.h>
 #include <syslog.h>
 #include <errno.h>
-#if defined(sgi)
-#include <bstring.h>
-#endif
 
 #include "pmapi.h"
 #include "impl.h"
@@ -390,10 +387,7 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 
 	if (len < (int)sizeof(__pmPDUHdr)) {
 	    if (len == -1) {
-		if (errno == ECONNRESET ||
-#ifndef __sgi
-		    errno == EPIPE || 
-#endif
+		if (errno == ECONNRESET || errno == EPIPE || 
 		    errno == ETIMEDOUT || errno == ENETDOWN ||
 		    errno == ENETUNREACH || errno == EHOSTDOWN ||
 		    errno == EHOSTUNREACH || errno == ECONNREFUSED)

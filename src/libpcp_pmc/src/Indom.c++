@@ -31,11 +31,6 @@ using namespace std;
 #endif
 #include <ctype.h>
 
-#ifdef __sgi
-#pragma instantiate PMC_Vector<PMC_Instance>
-#pragma instantiate PMC_List<PMC_Instance>
-#endif
-
 PMC_Instance::PMC_Instance()
 : _inst(PM_IN_NULL),
   _name(),

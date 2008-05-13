@@ -31,9 +31,6 @@
 #include <sys/time.h>
 #include <signal.h>
 #include <errno.h>
-#if defined(sgi)
-#include <bstring.h>
-#endif
 
 #include "platform_defs.h"
 #include "trace.h"

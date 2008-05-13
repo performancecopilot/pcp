@@ -33,9 +33,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#if (defined __sgi) && (defined mips) &&  (defined HAVE_NDBM_H)
-#include <ndbm.h>
-#endif
 #include <time.h>
 
 #ifdef __cplusplus
@@ -695,20 +692,6 @@ typedef pmValueSet	__pmValueSet_PDU;
 
 #else
 bozo - unknown size of long !!!
-#endif
-
-#if (defined __sgi) && (defined mips) &&  (defined HAVE_NDBM_H)
-/*
- * If you use help files created via "newhelp -v1" and ndbm(3B), then
- * this is the key you should use, i.e. dptr -> __pmHelpKey and
- * dsize = sizeof(__pmHelpKey)
- */
-typedef struct {
-    int		ident;		/* PMID or InDom */
-    int		type;
-} __pmHelpKey;
-
-extern char *__pmGetText(DBM *, int, int);
 #endif
 
 /*

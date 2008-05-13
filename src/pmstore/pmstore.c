@@ -305,10 +305,6 @@ char *argv[];
     extern int	optind;
     extern int	pmDebug;
 
-#ifdef __sgi
-    __pmSetAuthClient();
-#endif
-
     /* trim command name of leading directory components */
     pmProgname = argv[0];
     for (p = pmProgname; *p; p++) {

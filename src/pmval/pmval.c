@@ -36,8 +36,7 @@
 #include "pmapi.h"
 #include "impl.h"
 
-#if defined(__sgi)
-#define HAVE_PMTIME 1
+#if defined(HAVE_PMTIME)
 static void talk_to_pmtime(int *);
 #elif defined(HAVE_KMTIME)
 #include "kmtime.h"
@@ -1046,10 +1045,6 @@ getargs(int		argc,		/* in - command line argument count */
     char	    *msg;
 #ifdef HAVE_PMTIME
     struct stat	statbuf;
-#endif
-
-#ifdef __sgi
-    __pmSetAuthClient();
 #endif
 
     /* fill in default values */

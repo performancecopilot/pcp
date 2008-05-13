@@ -1232,17 +1232,10 @@ static pmdaExt		*extp;		/* set in web_init() */
  */
 
 static void
-#if !defined(sgi)
 onhup(int s)
 {
-    _exit(s!=SIGHUP);
+    _exit(s != SIGHUP);
 }
-#else
-onhup(void)
-{
-    _exit(0);
-}
-#endif
 
 /*
  * Replacement for fgets using the FileInfo structure

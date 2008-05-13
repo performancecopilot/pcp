@@ -23,9 +23,6 @@
 
 #include <syslog.h>
 #include <errno.h>
-#if defined(sgi)
-#include <bstring.h>
-#endif
 #include "pmapi.h"
 #include "impl.h"
 #include "pmcd.h"

@@ -21,25 +21,6 @@
 
 #ident "$Id: tz.c,v 1.7 2004/08/02 07:11:43 kenmcd Exp $"
 
-/*
- * ensure the re-entrant versions of the time string functions are
- * used, when available ... net to get in first here before anyone
- * else includes <time.h>
- */
-#if defined(sgi)
-#define _SGI_REENTRANT_FUNCTIONS
-#endif
-#if defined(__INTERIX)
-#define _REENTRANT
-#endif
-#include <time.h>
-#if defined(sgi)
-#undef _SGI_REENTRANT_FUNCTIONS
-#endif
-#if defined(__INTERIX)
-#undef _REENTRANT
-#endif
-
 #include "pmapi.h"
 #include "impl.h"
 

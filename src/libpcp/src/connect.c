@@ -528,14 +528,9 @@ __pmConnectLocal(void)
 	}
 #endif
 
-#ifdef __sgi
-	strcpy(pathbuf, dsoprefix);
-	strcat(pathbuf, dp->name);
-#else
-        snprintf (pathbuf, sizeof(pathbuf), "%s/%s",pmGetConfig("PCP_PMDAS_DIR"), dp->name);
-#endif
+        snprintf(pathbuf, sizeof(pathbuf), "%s/%s",
+		 pmGetConfig("PCP_PMDAS_DIR"), dp->name);
 	if ((path = __pmFindPMDA(pathbuf)) == NULL) {
-
 	    pmprintf("__pmConnectLocal: Warning: cannot find DSO \"%s\"\n", 
 		     pathbuf);
 	    pmflush();
@@ -544,11 +539,7 @@ __pmConnectLocal(void)
 	}
 	else {
 #ifdef HAVE_DLOPEN
-#ifdef __sgi
-	    dp->handle = dlopen(path, RTLD_LAZY);
-#else
             dp->handle = dlopen(path, RTLD_NOW);
-#endif
 	    if (dp->handle == NULL) {
 		pmprintf("__pmConnectLocal: Warning: error attaching DSO "
 			 "\"%s\"\n%s\n\n", path, dlerror());

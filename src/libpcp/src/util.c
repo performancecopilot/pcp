@@ -99,9 +99,6 @@ __pmNotifyErr(int priority, const char *message, ...)
      * do the stderr equivalent
      */
 
-#if defined(sgi)
-    priority = LOG_PRI(priority);
-#endif
     switch (priority) {
     	case LOG_EMERG :
 	    level = "Emergency";

@@ -25,9 +25,6 @@
 #define _PROXY_H
 
 #include <unistd.h>
-#if defined(sgi)
-#include <bstring.h>
-#endif
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/socket.h>

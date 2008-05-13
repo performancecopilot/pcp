@@ -95,10 +95,6 @@ main(int argc, char **argv)
 	    pmProgname = p+1;
     }
 
-#ifdef __sgi
-    __pmSetAuthClient();
-#endif
-
     iflag = isatty(0);
 
     while ((c = getopt(argc, argv, "D:eh:in:Pp:zZ:?")) != EOF) {

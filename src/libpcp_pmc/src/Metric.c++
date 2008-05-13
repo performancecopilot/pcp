@@ -31,11 +31,6 @@ using namespace std;
 #endif
 #include <strings.h>
 
-#ifdef __sgi
-#pragma instantiate PMC_Vector<PMC_MetricValue>
-#pragma instantiate PMC_List<PMC_MetricValue>
-#endif
-
 PMC_MetricValue::PMC_MetricValue()
 : _instance(PM_ERR_INST),
   _value(0.0), 

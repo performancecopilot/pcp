@@ -148,9 +148,6 @@ logmessage(int priority, const char *format, ...)
     buffer[0] = '\0';
     time(&now);
 
-#if defined(sgi)
-    priority = LOG_PRI(priority);
-#endif
     switch (priority) {
         case LOG_EMERG :
             level = "Emergency";

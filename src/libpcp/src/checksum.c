@@ -22,10 +22,6 @@
  * to 32-bit
  */
 
-#include <stdio.h>
-#if defined(sgi)
-#include <sgidefs.h>
-#endif
 #include "pmapi.h"
 #include "impl.h"
 

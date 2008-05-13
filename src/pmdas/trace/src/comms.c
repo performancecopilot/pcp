@@ -31,9 +31,6 @@
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
-#if defined(sgi)
-#include <bstring.h>
-#endif
 #include <sys/time.h>
 #include <netdb.h>
 #include <math.h>

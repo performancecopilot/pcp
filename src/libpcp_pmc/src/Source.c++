@@ -23,11 +23,6 @@
 
 #include <pcp/pmc/Source.h>
 
-#ifdef __sgi
-#pragma instantiate PMC_List<PMC_Source*>
-#pragma instantiate PMC_Vector<PMC_Source*>
-#endif
-
 PMC_SourceList	PMC_Source::_sourceList;
 PMC_String	PMC_Source::_localHost;
 

@@ -25,31 +25,9 @@
 #ifndef _WEBLOG_H
 #define _WEBLOG_H
 
-/*
- * As this is multi-threaded code, use the multi-threaded errno
- */
-#define _SGI_MP_SOURCE
-
 #include <unistd.h>
 #include <syslog.h>
-/*
- * POSIX regular expression library has unacceptably poor
- * performance on Irix forcing us to revert to the old 
- * regcmp/regex routines in libgen for Irix. Linux has
- * the POSIX regex library but not regcmp/regex. The
- * performance of the Linux POSIX library is perfectly 
- * acceptable.
- *
- * For Backwards Compatibility, we include the old stuff
- * whenever it is available (Irix). We always include the
- * Posix code.
- */
-#ifdef __sgi
-#define  NON_POSIX_REGEX
-#endif
-
 #include <regex.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "pmapi.h"

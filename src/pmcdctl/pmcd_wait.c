@@ -147,10 +147,6 @@ main(int argc, char **argv)
     char	env[256];
     long	delta_count;
 
-#ifdef __sgi
-    __pmSetAuthClient();
-#endif
-
     /* trim command name of leading directory components */
     pmProgname = argv[0];
     for (p = pmProgname; pmProgname && *p; p++) {

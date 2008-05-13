@@ -1502,15 +1502,11 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 void
 pmcd_init(pmdaInterface *dp)
 {
-#ifdef __sgi
-    char * helppath = "/usr/pcp/pmdas/pmcd/help";
-#else
     char helppath[MAXPATHLEN];
  
-    snprintf(helppath, sizeof(helppath), "%s/pmdas/pmcd/help", pmGetConfig("PCP_VAR_DIR"));
-#endif
+    snprintf(helppath, sizeof(helppath), "%s/pmdas/pmcd/help",
+	 	pmGetConfig("PCP_VAR_DIR"));
     pmdaDSO(dp, PMDA_INTERFACE_2, "pmcd", helppath);
-
 
     dp->version.two.profile = pmcd_profile;
     dp->version.two.fetch = pmcd_fetch;
@@ -1521,8 +1517,6 @@ pmcd_init(pmdaInterface *dp)
     init_tables(dp->domain);
 
     pmdaInit(dp, NULL, 0, NULL, 0);
-
-    return;
 }
 
 #ifdef DEBUG_WITH_DBPMDA

@@ -39,14 +39,7 @@
 #include "../domain.h"
 
 #ifdef HAVE_SYSINFO
-#if defined(sgi)
-#include <sys/sysmp.h>
 #include <sys/sysinfo.h>
-#elif defined(linux)
-#include <sys/sysinfo.h>
-#else
-bozo!  ... you claim to have sysinfo(), where is the .h file?
-#endif
 #else
 static struct sysinfo {
     char	dummy[64];
@@ -1114,10 +1107,6 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
     return 0;
 }
 
-#if defined(sgi)
-#include <sgidefs.h>
-#endif
-
 /*
  * high precision counter
  */
@@ -1429,14 +1418,8 @@ doit:
 			sivb->vtype = PM_TYPE_AGGREGATE;
 		    }
 
-
 #ifdef HAVE_SYSINFO
-#ifdef sgi
-		    sysmp(MP_SAGET, MPSA_SINFO, (struct sysinfo *)sivb->vbuf, 
-			  sizeof(struct sysinfo));
-#else
-                    sysinfo((struct sysinfo *)sivb->vbuf);
-#endif
+		    sysinfo((struct sysinfo *)sivb->vbuf);
 #else
 		    strncpy((char *)sivb->vbuf, si.dummy, sizeof(struct sysinfo));
 #endif

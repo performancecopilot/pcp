@@ -39,9 +39,6 @@
 #include <sys/sysmacros.h>
 #include <pwd.h>
 #include <grp.h>
-#if defined(sgi)
-#include <bstring.h>
-#endif
 
 #include "pmapi.h"
 #include "impl.h"

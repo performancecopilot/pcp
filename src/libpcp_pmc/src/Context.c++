@@ -31,19 +31,6 @@ using namespace std;
 #endif
 #include <limits.h>
 
-#ifdef __sgi
-#pragma instantiate PMC_Vector<PMC_String>
-#pragma instantiate PMC_Vector<PMC_Desc*>
-#pragma instantiate PMC_Vector<PMC_Indom*>
-#pragma instantiate PMC_Vector<PMC_Metric*>
-#pragma instantiate PMC_Vector<PMC_NameToId>
-#pragma instantiate PMC_List<PMC_String>
-#pragma instantiate PMC_List<PMC_Desc*>
-#pragma instantiate PMC_List<PMC_Indom*>
-#pragma instantiate PMC_List<PMC_Metric*>
-#pragma instantiate PMC_List<PMC_NameToId>
-#endif
-
 PMC_StrList* PMC_Context::theStrList = 0;
 
 PMC_Context::~PMC_Context()

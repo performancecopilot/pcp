@@ -34,11 +34,6 @@
 #include <pcp/pmc/Context.h>
 #include <pcp/pmc/Metric.h>
 
-#ifdef __sgi
-#pragma instantiate PMC_List<PMC_Context*>
-#pragma instantiate PMC_Vector<PMC_Context*>
-#endif
-
 
 PMC_Bool	PMC_Group::_tzLocalInit = PMC_false;
 int		PMC_Group::_tzLocal = -1;

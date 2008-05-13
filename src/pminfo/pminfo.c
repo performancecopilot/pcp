@@ -568,10 +568,6 @@ main(int argc, char **argv)
     struct timeval	last;		/* final sample time */
     int		tzh;			/* initial timezone handle */
 
-#ifdef __sgi
-    __pmSetAuthClient();
-#endif
-
     /* trim command name of leading directory components */
     pmProgname = argv[0];
     for (p = pmProgname; pmProgname && *p; p++) {

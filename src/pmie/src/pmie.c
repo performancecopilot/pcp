@@ -955,10 +955,6 @@ main(int argc, char **argv)
 {
     char	*p;
 
-#ifdef __sgi
-    __pmSetAuthClient();
-#endif
-
     setlinebuf(stdout);
 
     /* trim cmd name of leading directory components */

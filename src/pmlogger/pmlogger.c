@@ -33,9 +33,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <syslog.h>
-#if defined(sgi)
-#include <bstring.h>
-#endif
 
 #include "pmapi.h"
 #include "impl.h"
@@ -499,10 +496,6 @@ main(int argc, char **argv)
     char		*p;
     char		*runtime = NULL;
 
-#ifdef __sgi
-    __pmSetAuthClient();
-#endif
-
     /* trim cmd name of leading directory components */
     pmProgname = argv[0];
     for (p = pmProgname; *p; p++) {
@@ -786,11 +779,7 @@ Options:\n\
 	pmID		pmid;
 	pmResult	*resp;
 
-#if defined(sgi)
-	gettimeofday(&epoch, NULL, NULL);
-#else
 	gettimeofday(&epoch, NULL);
-#endif
 	sts = pmUseContext(ctx);
 	if (sts >= 0)
 	    sts = pmLookupName(1, &name, &pmid);

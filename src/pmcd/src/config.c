@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -41,27 +42,6 @@
 #include <syslog.h>
 #include <fcntl.h>
 #include <errno.h>
-
-#include <sys/wait.h>
-
-#if defined(sgi)
-#include <sgidefs.h>
-#include <rld_interface.h>
-#endif
-
-#include "pmapi.h"
-
-/*
- * INCLUDE_STATIC_DSO_AGENTS controls the support for a "DSO" PMDA that
- * is actually linked into the pmcd binary ... this might be needed if
- * the support for dynamic shared libraries, in particular dlopen() or
- * equivalent, is weak or missing.
- */
-#if defined(sgi)
-#define INCLUDE_STATIC_DSO_AGENTS 1
-#else
-#define INCLUDE_STATIC_DSO_AGENTS 0
-#endif
 
 #include "pmapi.h"
 #include "impl.h"
@@ -1723,37 +1703,6 @@ PrintAgentInfo(FILE *stream)
     fflush(stream);			/* Ensure that it appears now */
 }
 
-#if INCLUDE_STATIC_DSO_AGENTS
-/*
- * Like a DSO, but the library is already linked into my address space
- * Warning: this code is only known to work for IRIX, expect some porting
- *	effort to be required elsewhere.
- */
-static int
-GetAgentInline(AgentInfo *aPtr)
-{
-    DsoInfo		*dso = &aPtr->ipc.dso;
-
-    dso->pathName = strdup("-");
-    dso->dlHandle = NULL;
-
-    /* Get a pointer to the DSO's init function and call it to get the agent's
-     dispatch table for the DSO. */
-
-    dso->initFn = (void (*)(pmdaInterface*))_rld_new_interface(_RLD_NAME_TO_ADDR, dso->entryPoint);
-
-    if (dso->initFn == NULL) {
-	fprintf(stderr, "Couldn't find init function `%s' for DSO agent %s in pmcd executable\n",
-		     dso->entryPoint, aPtr->pmDomainLabel);
-	aPtr->status.connected = 0;
-	aPtr->reason = REASON_NOSTART;
-	return -1;
-    }
-	
-    return 0;
-}
-#endif
-
 /* Load the DSO for a specified agent and initialise it. */
 static int
 GetAgentDso(AgentInfo *aPtr)
@@ -1765,18 +1714,7 @@ GetAgentDso(AgentInfo *aPtr)
     aPtr->status.connected = 0;
     aPtr->reason = REASON_NOSTART;
 
-#if INCLUDE_STATIC_DSO_AGENTS
-    if (strcmp(dso->pathName, "-") == 0) {
-	int	sts;
-	sts = GetAgentInline(aPtr);
-	if (sts < 0)
-	    return sts;
-	goto setup;
-    }
-#endif
-
     name = __pmFindPMDA(dso->pathName);
-
     if (name == NULL) {
 	fprintf(stderr, "Cannot find %s DSO at \"%s\"\n", 
 		     aPtr->pmDomainLabel, dso->pathName);
@@ -1846,9 +1784,6 @@ GetAgentDso(AgentInfo *aPtr)
     }
 #endif
 
-#if INCLUDE_STATIC_DSO_AGENTS
-setup:
-#endif
     /*
      * Pass in the expected domain id.
      * The PMDA initialization routine can (a) ignore it, (b) check it
