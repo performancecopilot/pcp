@@ -691,9 +691,3 @@ __pmSetPDUCntBuf(unsigned *in, unsigned *out)
     __pmPDUCntIn = in;
     __pmPDUCntOut = out;
 }
-
-#ifdef IRIX6_5
-#pragma optional __pmGetPDUCeiling
-#pragma optional __pmSetPDUCeiling
-#pragma optional __pmSetPDUCntBuf
-#endif

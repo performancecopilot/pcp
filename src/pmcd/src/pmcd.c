@@ -33,9 +33,6 @@
 #include <errno.h>
 #include <ctype.h>
 #include <syslog.h>
-#ifdef IRIX6_5
-#include <optional_sym.h>
-#endif
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
 
@@ -266,19 +263,7 @@ ParseOptions(int argc, char *argv[])
 		    fputs ("pmcd: -L require a posivite value\n", stderr);
 		    errflag++;
 		} else {
-#ifdef IRIX6_5
-		    if ( _MIPS_SYMBOL_PRESENT(__pmSetPDUCeiling)) {
-			__pmSetPDUCeiling (val);
-		    } else {
-			fputs ("Cannot restrict incoming PDU size - current "
-			       "libpcp.so does not support this feature",
-				 stderr);
-			errflag++;
-		    }
-#else
 		    __pmSetPDUCeiling (val);
-#endif
-
 		}
 		break;
 

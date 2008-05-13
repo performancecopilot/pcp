@@ -91,7 +91,3 @@ pmGetConfig(const char *name)
 
     return val;
 }
-
-#if defined(IRIX6_5)
-#pragma optional pmGetConfig
-#endif

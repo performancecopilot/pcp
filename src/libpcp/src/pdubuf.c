@@ -213,6 +213,3 @@ __pmCountPDUBuf(int need, int *alloc, int *free)
 
     return;
 }
-#if defined(IRIX6_5) 
-#pragma optional __pmCountPDUBuf
-#endif

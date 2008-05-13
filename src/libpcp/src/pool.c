@@ -156,6 +156,3 @@ __pmPoolCount(size_t size, int *alloc, int *free)
     *alloc = *free = 0;
     return;
 }
-#if defined(IRIX6_5) 
-#pragma optional __pmPoolCount
-#endif

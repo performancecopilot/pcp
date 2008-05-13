@@ -341,8 +341,6 @@ extern char *pmdaGetInDomHelp(int, pmInDom, int);
  * 
  * pmdaCachePurge
  *	cull inactive entries
- *
- * Note: in IRIX 6.5, these are optional symbols
  */
 extern int pmdaCacheStore(pmInDom, int, char *, void *);
 extern int pmdaCacheLookup(pmInDom, int, char **, void **);
@@ -410,7 +408,6 @@ extern int pmdaCachePurge(pmInDom, time_t);
  *
  * __pmdaCacheDumpAll and __pmdaCacheDump
  *	print out cache contents
- *	Note: in IRIX 6.5, these are optional symbols
  */
 
 extern int __pmdaCntInst(pmInDom, pmdaExt *);

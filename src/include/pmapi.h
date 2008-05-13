@@ -315,7 +315,6 @@ extern int pmGetInDomArchive(pmInDom, int **, char ***);
 /*
  * Given context ID, return a host name, associated with the id
  * or empty string if no name can be found
- * Note: in IRIX6.5, this is an optional symbol
  */
 extern const char *pmGetContextHostName(int);
 
@@ -596,7 +595,6 @@ extern int pmflush(void);
  * Wrapper for config/environment variables. Warning: this will exit() with
  * a FATAL error if /etc/pcp.conf does not exist and $PCP_CONF is not set.
  * Return values point to strings in the environment.
- * Note: in IRIX6.5, this is an optional symbol
  */
 extern char *pmGetConfig(const char *);
 
@@ -650,56 +648,6 @@ extern int pmRequestNamesOfChildern (int, const char *, int );
 extern int pmRequestStore (int, const pmResult *);
 extern int pmRequestText (int, pmID, int);
 extern int pmRequestTraversePMNS (int, const char *);
-
-#ifdef __sgi
-#ifndef _SGI_COMPILING_LIBPCP
-#pragma optional pmLoopRegisterInput
-#pragma optional pmLoopRegisterSignal
-#pragma optional pmLoopRegisterTimeout
-#pragma optional pmLoopRegisterChild
-#pragma optional pmLoopRegisterIdle
-#pragma optional pmLoopUnregisterInput
-#pragma optional pmLoopUnregisterSignal
-#pragma optional pmLoopUnregisterTimeout
-#pragma optional pmLoopUnregisterChild
-#pragma optional pmLoopUnregisterIdle
-#pragma optional pmLoopStop
-#pragma optional pmLoopMain
-
-#pragma optional pmGetContextFD
-#pragma optional pmGetContextTimeout
-#pragma optional pmContextConnectTo
-#pragma optional pmContextConnectChangeState
-#pragma optional pmContextUndef
-
-#pragma optional pmReceiveDesc
-#pragma optional pmReceiveFetch
-#pragma optional pmReceiveInDom
-#pragma optional pmReceiveInDomInst
-#pragma optional pmReceiveInDomName
-#pragma optional pmReceiveNameID
-#pragma optional pmReceiveNames
-#pragma optional pmReceiveNamesAll
-#pragma optional pmReceiveNamesOfChildren
-#pragma optional pmReceiveStore
-#pragma optional pmReceiveTraversePMNS
-#pragma optional pmReceiveText
-#pragma optional pmRequestDesc
-#pragma optional pmRequestFetch
-#pragma optional pmRequestInDom
-#pragma optional pmRequestInDomInst
-#pragma optional pmRequestInDomName
-#pragma optional pmRequestInDomText
-#pragma optional pmRequestNameID
-#pragma optional pmRequestNames
-#pragma optional pmRequestNamesOfChildern
-#pragma optional pmRequestStore
-#pragma optional pmRequestText
-#pragma optional pmRequestTraversePMNS
-
-#endif
-#endif
-
 
 #ifdef HAVE_SEPARATE_MONS_H
 #include "pmapi_mon.h"

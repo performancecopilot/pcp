@@ -29,10 +29,6 @@
 #include "impl.h"
 #include "./pmlc.h"
 
-#if defined(IRIX6_5)
-#include <optional_sym.h>
-#endif
-
 /* for the pmlogger/PMCD we currently have a connection to */
 static int	logger_fd = -1;			/* file desc pmlogger */
 static char	*lasthost = NULL;		/* host that logger_ctx is for */
@@ -705,14 +701,7 @@ void Status(int pid, int primary)
 	switch (tztype) {
 	    case TZ_LOCAL:
 		if (localtz == -1) {
-#if defined(IRIX6_5)
-                    if (_MIPS_SYMBOL_PRESENT(__pmTimezone))
-                        str = __pmTimezone();
-                    else
-                        str = getenv("TZ");
-#else
                     str = __pmTimezone();
-#endif
 		    if (str != NULL)
 			ltzstr = str;
 		    localtz = pmNewZone(ltzstr);

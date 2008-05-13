@@ -156,8 +156,6 @@ __pmSquashTZ(char *tzbuffer)
 
 /*
  * __pmTimezone: work out local timezone
- *
- *               NOTE that this is an optional symbol for IRIX6_5
  */
 char *
 __pmTimezone(void)
@@ -206,10 +204,6 @@ __pmTimezone(void)
 
     return tz;
 }
-#if defined(IRIX6_5) 
-#pragma optional __pmTimezone
-#endif
-
 
 int
 pmUseZone(const int tz_handle)

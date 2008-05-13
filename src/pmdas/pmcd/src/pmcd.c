@@ -45,11 +45,7 @@
 #include "pmcd/src/client.h"
 #include "pmie/src/pmiestats.h"
 
-#if defined(IRIX6_5)
-#include <optional_sym.h>
-#else
 extern int              nAgents;        /* from pmcd/src/config.c */
-#endif
 
 /*
  * To debug with dbpmda, add this so the symbols from pmcd(1) will
@@ -1001,14 +997,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.ul = _pmcd_timeout;
 				break;
 			case 5:		/* timezone $TZ */
-#if defined(IRIX6_5)
-				if (_MIPS_SYMBOL_PRESENT(__pmTimezone))
-				    tz = __pmTimezone();
-				else
-				    tz = getenv("TZ");
-#else
 				tz = __pmTimezone();
-#endif
 				atom.cp = tz;
 				break;
 			case 6:		/* simabi (pmcd calling convention) */
@@ -1130,39 +1119,12 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				    vset->vlist[numval].inst = bufinst[j].inst;
 				    if (bufinst[j].inst < 1024) {
 					/* PoolAlloc pool */
-#if defined(IRIX6_5)
-					if (_MIPS_SYMBOL_PRESENT(__pmPoolCount))
-					    __pmPoolCount(bufinst[j].inst, &alloced, &free);
-					else
-					    alloced = free = -1;
-#else
 					__pmPoolCount(bufinst[j].inst, &alloced, &free);
-#endif
 				    }
 				    else {
 					/* PDUBuf pool */
 					int	xtra_alloced;
 					int	xtra_free;
-#if defined(IRIX6_5)
-					if (_MIPS_SYMBOL_PRESENT(__pmCountPDUBuf)) {
-					    __pmCountPDUBuf(bufinst[j].inst, &alloced, &free);
-					    if (bufinst[j].inst <= 8192) {
-						/*
-						 * adjust for larger buffers,
-						 * e.g. the 2K buffer count
-						 * also includes the 3K, 4K, ..
-						 * buffers, so subtract these,
-						 * which are reported as the
-						 * 2K+1 buffer count
-						 */
-						__pmCountPDUBuf(bufinst[j].inst + 1, &xtra_alloced, &xtra_free);
-						alloced -= xtra_alloced;
-						free -= xtra_free;
-					    }
-					}
-					else
-					    alloced = free = -1;
-#else
 					__pmCountPDUBuf(bufinst[j].inst, &alloced, &free);
 					/*
 					 * the 2K buffer count also includes
@@ -1173,7 +1135,6 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 					__pmCountPDUBuf(bufinst[j].inst + 1024, &xtra_alloced, &xtra_free);
 					alloced -= xtra_alloced;
 					free -= xtra_free;
-#endif
 				    }
 				    if (pmidp->item == 18)
 					atom.l = alloced;

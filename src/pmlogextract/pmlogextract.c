@@ -35,10 +35,6 @@
 #include "impl.h"
 #include "./logger.h"
 
-#if defined(IRIX6_5)
-#include <optional_sym.h>
-#endif
-
 #ifdef PCP_DEBUG
 long totalmalloc = 0;
 #endif
@@ -1706,14 +1702,7 @@ main(int argc, char **argv)
     }
     else {
 	char	*tz;
-#if defined(IRIX6_5)
-        if (_MIPS_SYMBOL_PRESENT(__pmTimezone))
-            tz = __pmTimezone();
-        else
-            tz = getenv("TZ");
-#else
         tz = __pmTimezone();
-#endif
 	/* use TZ from local host */
 	if ((sts = pmNewZone(tz)) < 0) {
 	    fprintf(stderr, "%s: Cannot set local host's timezone: %s\n",

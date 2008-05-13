@@ -34,10 +34,6 @@
 #include "impl.h"
 #include "./logger.h"
 
-#if defined(IRIX6_5)
-#include <optional_sym.h>
-#endif
-
 extern int		pmDebug;
 extern int		clientfd;
 
@@ -1298,14 +1294,7 @@ sendstatus(void)
     struct hostent		*hep = NULL;
 
     if (firsttime) {
-#if defined(IRIX6_5)
-        if (_MIPS_SYMBOL_PRESENT(__pmTimezone))
-            tzlogger = __pmTimezone();
-        else
-            tzlogger = getenv("TZ");
-#else
         tzlogger = __pmTimezone();
-#endif
 	firsttime = 0;
     }
 

@@ -116,10 +116,6 @@ pmGetContextHostName (int ctxid)
     return ("");
 }
 
-#if defined(IRIX6_5)
-#pragma optional pmGetContextHostName
-#endif
-
 int
 pmWhichContext(void)
 {

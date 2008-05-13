@@ -209,19 +209,7 @@ ParseOptions(int argc, char *argv[])
 		    fputs ("pmproxy: -L require a posivite value\n", stderr);
 		    errflag++;
 		} else {
-#ifdef IRIX6_5
-		    if ( _MIPS_SYMBOL_PRESENT(__pmSetPDUCeiling)) {
-			__pmSetPDUCeiling (val);
-		    } else {
-			fputs ("Cannot restrict incoming PDU size - current "
-			       "libpcp.so does not support this feature",
-				 stderr);
-			errflag++;
-		    }
-#else
 		    __pmSetPDUCeiling (val);
-#endif
-		 
 		}
 		break;
 

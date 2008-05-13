@@ -1012,16 +1012,6 @@ int pmdaCachePurge(pmInDom indom, time_t recent)
     return cnt;
 }
 
-#if defined(IRIX6_5)
-#pragma optional __pmdaCacheDumpAll
-#pragma optional __pmdaCacheDump
-#pragma optional pmdaCacheStore
-#pragma optional pmdaCacheLookup
-#pragma optional pmdaCacheLookupName
-#pragma optional pmdaCacheOp
-#pragma optional pmdaCachePurge
-#endif
-
 /*
 --------------------------------------------------------------------
 lookup2.c, by Bob Jenkins, December 1996, Public Domain.

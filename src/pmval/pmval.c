@@ -38,9 +38,6 @@
 
 #if defined(__sgi)
 #define HAVE_PMTIME 1
-#if defined(IRIX6_5)
-#include <optional_sym.h>
-#endif
 static void talk_to_pmtime(int *);
 #elif defined(HAVE_KMTIME)
 #include "kmtime.h"
@@ -1437,14 +1434,7 @@ getargs(int		argc,		/* in - command line argument count */
 	else
 	    gettimeofday(&pmtime.position, NULL);
 	if (rpt_tz == NULL) {
-#if defined(IRIX6_5)
-            if (_MIPS_SYMBOL_PRESENT(__pmTimezone))
-                rpt_tz = __pmTimezone();
-            else
-                rpt_tz = getenv("TZ");
-#else
             rpt_tz = __pmTimezone();
-#endif
 	    if (msp->isarch == 1) {
 		if ((sts = pmNewZone(rpt_tz)) < 0) {
 		    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",

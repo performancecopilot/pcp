@@ -34,10 +34,6 @@
 #include <pcp/pmc/Context.h>
 #include <pcp/pmc/Metric.h>
 
-#if defined(IRIX6_5)
-#include <optional_sym.h>
-#endif
-
 #ifdef __sgi
 #pragma instantiate PMC_List<PMC_Context*>
 #pragma instantiate PMC_Vector<PMC_Context*>
@@ -82,14 +78,7 @@ PMC_Group::PMC_Group(PMC_Bool restrictArchives)
 	buf[MAXHOSTNAMELEN-1] = '\0';
 	_localHost = buf;
 
-#if defined(IRIX6_5)
-        if (_MIPS_SYMBOL_PRESENT(__pmTimezone))
-            tz = __pmTimezone();
-        else
-            tz = getenv("TZ");
-#else
         tz = __pmTimezone();
-#endif
 	if (tz == NULL)
 	    pmprintf("%s: Warning: Unable to get timezone from environment\n",
 		     pmProgname);
