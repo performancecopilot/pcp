@@ -77,8 +77,6 @@ __pmConnectHostType __pmConnectHostMethod = pcp_trustme;
 #define MY_BUFLEN (MAXHOSTNAMELEN+10)
 #define MY_VERSION "pmproxy-client 1\n"
 
-static int	proxy_version;
-
 static int
 negotiate_proxy(int fd, const char *hostname, int port)
 {
@@ -112,10 +110,8 @@ negotiate_proxy(int fd, const char *hostname, int port)
 	}
     }
     if (bp < &buf[MY_BUFLEN]) {
-	if (strcmp(buf, "pmproxy-server 1") == 0) {
-	    proxy_version = 1;
+	if (strcmp(buf, "pmproxy-server 1") == 0)
 	    ok = 1;
-	}
     }
 
     if (!ok) {
@@ -133,7 +129,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
 	return PM_ERR_IPC;
     }
 
-    return 0;
+    return ok;
 }
 
 #ifndef HAVE_UNSETENV
@@ -326,6 +322,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
     int		*ports;
     int		nports;
     int		i;
+    int		version;
     int		proxyport;
     pmHostSpec	*proxyhost;
 
@@ -439,12 +436,10 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 #endif
 	    return fd;
 	}
-	if ((sts = negotiate_proxy(fd, hosts[0].name, ports[i])) < 0) {
+	if ((sts = version = negotiate_proxy(fd, hosts[0].name, ports[i])) < 0)
 	    close(fd);
-	}
-	if ((sts = do_handshake(fd, &ipcinfo)) < 0) {
+	else if ((sts = do_handshake(fd, &ipcinfo)) < 0)
 	    close(fd);
-	}
 	else
 	    /* success */
 	    break;
@@ -468,7 +463,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT) {
 	fprintf(stderr, "__pmConnectPMCD(%s): proxy connection host=%s port=%d fd=%d version=%d\n",
-	    hosts[0].name, proxyhost->name, ports[i], fd, proxy_version);
+	    hosts[0].name, proxyhost->name, ports[i], fd, version);
     }
 #endif
     return fd;
