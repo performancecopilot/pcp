@@ -1166,34 +1166,11 @@ int GetLocation(void)
   return loc;
 }
 
-#if !defined(LIBIRIXPMDA)
-/*
- * support for restricted pmLoadNameSpace services, based upon license
- * capabilities
- *
- * NB! On linux /var/pcp is automagically replaced by the value of
- *     PCP_VAR_DIR from the pcp.conf.
- */
-
-static struct {
-    int		cap;		/* & with result from  __pmGetLicenseCap() */
-    char	*root;		/* what to use for PM_NS_DEFAULT */
-    int		ascii;		/* allow ascii format? */
-    int		secure;		/* only secure binary format? */
-} ctltab[] = {
-    { PM_LIC_PCP,	"/var/pcp/pmns/root",		1,	0 },
-    { PM_LIC_WEB,	"/var/pcp/pmns/root_web",	0,	1 },
-#ifdef PCP_DEBUG
-    { PM_LIC_DEV,	"/tmp/root_dev",		0,	1 },
-#endif
-    { 0,		"/var/pcp/pmns/root",		1,	0 },
-};
-static int	numctl = sizeof(ctltab)/sizeof(ctltab[0]);
-
 /*
  * for debugging, and visible via __pmDumpNameSpace()
  *
- * verbosity is 0 (name), 1 (names and pmids) or 2 (names, pmids and linked-list structures)
+ * verbosity is 0 (name), 1 (names and pmids) or 2 (names, pmids and
+ * linked-list structures)
  */
 static void
 dumptree(FILE *f, int level, __pmnsNode *rp, int verbosity)
@@ -1232,7 +1209,6 @@ dumptree(FILE *f, int level, __pmnsNode *rp, int verbosity)
 	dumptree(f, level, rp->next, verbosity);
     }
 }
-#endif
 
 static void
 err(char *s)
@@ -1639,11 +1615,6 @@ pass2(int dupok)
 }
 
 
-
-
-
-
-
 /*
  * clear/set the "mark" bit used by pmTrimNameSpace, for all pmids
  */
@@ -1695,7 +1666,6 @@ mark_one(__pmnsTree *pmns, pmID pmid, int bit)
 	}
     }
 }
-
 
 
 /*
@@ -1869,8 +1839,6 @@ __pmAddPMNSNode(__pmnsTree *tree, int pmid, const char *name)
 }
 
 
-#if !defined(LIBIRIXPMDA)
-
 /*
  * 32-bit and 64-bit dependencies ... there are TWO external format,
  * both created by pmnscomp ... choose the correct one based upon
@@ -1880,8 +1848,6 @@ __pmAddPMNSNode(__pmnsTree *tree, int pmid, const char *name)
  *	PmNs	- old 32-bit (Version 0)
  *	PmN1	- new 32-bit and 64-bit (Version 1)
  *	PmN2	- new 32-bit and 64-bit (Version 1 + checksum)
- *
- * if "secure", only Version 2 is allowed
  *
  * File format:
  *
@@ -1904,7 +1870,7 @@ __pmAddPMNSNode(__pmnsTree *tree, int pmid, const char *name)
  *     
  */
 static int
-loadbinary(int secure)
+loadbinary(void)
 {
     FILE	*fbin;
     char	magic[4];
@@ -1932,7 +1898,7 @@ loadbinary(int secure)
 
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PMNS)
-	    fprintf(stderr, "loadbinary(secure=%d file=%s)\n", secure, linebuf);
+	    fprintf(stderr, "loadbinary(file=%s)\n", linebuf);
 #endif
 	if ((fbin = fopen(linebuf, "r")) == NULL)
 	    continue;
@@ -1973,7 +1939,7 @@ loadbinary(int secure)
 	    }
 	    fseek(fbin, endsum, SEEK_SET);
 	}
-	if (version == -1 || (secure && version != 2)) {
+	if (version == -1) {
 	    fclose(fbin);
 	    continue;
 	}
@@ -2133,7 +2099,6 @@ bad:
     /* failed to open and/or find magic cookie */
     return 0;
 }
-#endif
 
 
 /*
@@ -2210,10 +2175,10 @@ loadascii(int dupok)
 		np->pmid = tokpmid;
 		state = 2;
 #ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_PMNS) {
-				fprintf(stderr, "pmLoadNameSpace: %s -> 0x%0x\n",
-						np->name, (int)np->pmid);
-			}
+		if (pmDebug & DBG_TRACE_PMNS) {
+		    fprintf(stderr, "pmLoadNameSpace: %s -> 0x%0x\n",
+					np->name, (int)np->pmid);
+		}
 #endif
 	    }
 	    else if (type == RBRACE) {
@@ -2288,55 +2253,29 @@ loadascii(int dupok)
     return type;
 }
 
-static int
-whichcap(void)
-{
-    int cap;
-    int i;
-
-    cap = __pmGetLicenseCap();
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS)
-	fprintf(stderr, "__pmGetLicenseCap -> cap=%x\n", cap);
-#endif
-    for (i = 0; i < numctl-1; i++) {
-	if ((cap & ctltab[i].cap) == ctltab[i].cap)
-	    return i;
-    }
-    /*
-     * last entry in the table is a "catch all" default
-     */
-    return numctl-1;
-}
-
 static const char * 
-getfname(const char *filename, int cap_id)
+getfname(const char *filename)
 {
     /*
-     * 0xffffffff is there to maintain backwards compatibility with
-     * PCP 1.0
+     * 0xffffffff is there to maintain backwards compatibility with PCP 1.0
      */
     if (filename == PM_NS_DEFAULT || (__psint_t)filename == 0xffffffff) {
 	char	*def_pmns;
+
 	def_pmns = getenv("PMNS_DEFAULT");
 	if (def_pmns != NULL) {
 	    /* get default PMNS name from environment */
 	    return def_pmns;
 	}
 	else {
-	    /* otherwise use the hard-coded pathname but check for prefix */
-	    if ( ! strncmp (ctltab[cap_id].root, "/var/pcp", 8) ) {
-		static char repname[MAXPATHLEN];
-		snprintf (repname, sizeof(repname), "%s%s", pmGetConfig("PCP_VAR_DIR"),ctltab[cap_id].root+8);
-		return (repname);
-	    } else { /* Doesn't start with /var/pcp - return as is */
-		return ctltab[cap_id].root;
-	    }
+	    static char repname[MAXPATHLEN];
+	    snprintf(repname, sizeof(repname), "%s/pmns/root",
+						pmGetConfig("PCP_VAR_DIR"));
+	    return repname;
 	}
     }
     else
 	return filename;
-
 }
 
 int
@@ -2344,13 +2283,7 @@ __pmHasPMNSFileChanged(const char *filename)
 {
   static const char *f = NULL;
 
-  int cap_id = whichcap();
-
-  if (cap_id < 0)
-     return 1; /* error encountered -> must have changed :) */
-
-  f = getfname(filename, cap_id);
-
+  f = getfname(filename);
   if (f == NULL)
      return 1; /* error encountered -> must have changed :) */
  
@@ -2423,36 +2356,8 @@ load(const char *filename, int binok, int dupok)
         }
     }
 
-
-#if !defined(LIBIRIXPMDA)
-
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PMNS) {
-	fprintf(stderr, "pmLoadNameSpace: control table\n");
-	for (i = 0; i < numctl; i++) {
-	    fprintf(stderr, "[%d] cap=0x%x ascii=%d secure=%d root=%s\n", i,
-		ctltab[i].cap, ctltab[i].ascii, ctltab[i].secure, ctltab[i].root);
-	}
-	fprintf(stderr, "PMNS_DEFAULT=%s\n", getenv("PMNS_DEFAULT"));
-    }
-#endif
-
-    i = whichcap();
-    if (i < 0)
-       return PM_ERR_LICENSE;
-
-    strcpy(fname, getfname(filename, i));
+    strcpy(fname, getfname(filename));
  
-#else
-    if (filename == PM_NS_DEFAULT || (__psint_t)filename == 0xffffffff) {
-	/* in the libirixpmda build context, we _must_ give a file name */
-	fprintf(stderr, "pmLoadNameSpace: require filename for "
-	                "libirixpmda build use!\n");
-	exit(1);
-    }
-    strcpy(fname, filename);
-#endif
-
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS)
 	fprintf(stderr, "load(name=%s, binok=%d, dupok=%d) lic case=%d fname=%s\n",
@@ -2473,21 +2378,15 @@ load(const char *filename, int binok, int dupok)
         }
     }
 
-#if !defined(LIBIRIXPMDA)
     /* try the easy way, c/o pmnscomp */
-    if (binok && loadbinary(ctltab[i].secure)) {
+    if (binok && loadbinary()) {
 	mark_all(main_pmns, 0);
 	return 0;
     }
 
-    if (!ctltab[i].ascii)
-	return PM_ERR_LICENSE;
-#endif
-
     /*
      * the hard way, compiling as we go ...
      */
-    
     return loadascii(dupok);
 }
 
@@ -2828,8 +2727,6 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
     return sts;
 }
 
-#if !defined(LIBIRIXPMDA)
-
 static int
 request_names_of_children(__pmContext *ctxp, const char *name, int wantstatus)
 {
@@ -3106,7 +3003,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 int
 pmGetChildren(const char *name, char ***offspring)
 {
-  return pmGetChildrenStatus(name, offspring, NULL);
+    return pmGetChildrenStatus(name, offspring, NULL);
 }
 
 static int
@@ -3114,15 +3011,13 @@ request_namebypmid (__pmContext *ctxp, pmID pmid)
 {
     int n;
 
-    if (ctxp->c_pmcd->pc_curpdu != 0) {
-	return (PM_ERR_CTXBUSY);
-    }
+    if (ctxp->c_pmcd->pc_curpdu != 0)
+	return PM_ERR_CTXBUSY;
 
     n = __pmSendIDList(ctxp->c_pmcd->pc_fd, PDU_BINARY, 1, &pmid, 0);
     if (n < 0)
 	n = __pmMapErrno(n);
-
-    return (n);
+    return n;
 }
 
 int
@@ -3138,7 +3033,7 @@ pmRequestNameID (int ctxid, pmID pmid)
 	}
     }
 
-    return (n);
+    return n;
 }
 
 static int
@@ -3154,13 +3049,11 @@ receive_namesbyid (__pmContext *ctxp, char ***namelist)
 	int numnames;
 
 	n = __pmDecodeNameList(pb, PDU_BINARY, &numnames, namelist, NULL);
-	if (n >= 0) {
+	if (n >= 0)
 	    n = numnames;
-    	}
     }
-    else if (n == PDU_ERROR) {
+    else if (n == PDU_ERROR)
 	__pmDecodeError(pb, PDU_BINARY, &n);
-    }
     else if (n != PM_ERR_TIMEOUT)
 	n = PM_ERR_IPC;
 
@@ -3184,7 +3077,7 @@ receive_a_name (__pmContext *ctxp, char **name)
 	}
     }
 
-    return (n);
+    return n;
 }
 
 int
@@ -3200,7 +3093,7 @@ pmReceiveNameID (int ctxid, char **name)
 	ctxp->c_pmcd->pc_tout_sec = 0;
     }
 
-    return (n);
+    return n;
 }
 
 int
@@ -3216,7 +3109,7 @@ pmReceiveNamesAll (int ctxid, char ***namelist)
 	ctxp->c_pmcd->pc_tout_sec = 0;
     }
 
-    return (n);
+    return n;
 }
 
 int
@@ -3253,7 +3146,6 @@ pmNameID(pmID pmid, char **name)
 	}
 	return n;
     }
-
 }
 
 int
@@ -3418,15 +3310,12 @@ request_traverse_pmns (__pmContext *ctxp, const char *name)
 {
     int n;
 
-    if (ctxp->c_pmcd->pc_curpdu != 0) {
-	return (PM_ERR_CTXBUSY);
-    }
-
+    if (ctxp->c_pmcd->pc_curpdu != 0)
+	return PM_ERR_CTXBUSY;
     n = __pmSendTraversePMNSReq(ctxp->c_pmcd->pc_fd, PDU_BINARY, name);
-    if (n < 0) {
+    if (n < 0)
 	n = __pmMapErrno(n);
-    }
-    return (n);
+    return n;
 }
 
 int
@@ -3441,7 +3330,7 @@ pmRequestTraversePMNS (int ctx, const char *name)
 	    ctxp->c_pmcd->pc_tout_sec = TIMEOUT_DEFAULT;
 	}
     }
-    return (n);
+    return n;
 }
 
 int
@@ -3451,9 +3340,8 @@ pmReceiveTraversePMNS (int ctxid, void(*func)(const char *name))
     __pmContext *ctxp;
     __pmPDU *pb;
 
-    if ((n = __pmGetBusyHostContextByID(ctxid, &ctxp, PDU_PMNS_TRAVERSE)) < 0) {
-	return (n);
-    }
+    if ((n = __pmGetBusyHostContextByID(ctxid, &ctxp, PDU_PMNS_TRAVERSE)) < 0)
+	return n;
 
     n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
 		   ctxp->c_pmcd->pc_tout_sec, &pb);
@@ -3497,9 +3385,7 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 
     if (pmns_location == PMNS_LOCAL)
 	return TraversePMNS_local(name, func);
-
     else { 
-	/* assume PMNS_REMOTE */
 	int         n;
 	__pmPDU      *pb;
 	__pmContext  *ctxp;
@@ -3589,8 +3475,7 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
             return n;
 	}
     }
-}/*pmTraversePMNS*/
-
+}
 
 int
 pmTrimNameSpace(void)
@@ -3607,7 +3492,6 @@ pmTrimNameSpace(void)
 
     else if (pmns_location == PMNS_REMOTE)
         return 0;
-
 
     /* for PMNS_LOCAL ... */
 
@@ -3657,5 +3541,3 @@ __pmDumpNameSpace(FILE *f, int verbosity)
 
     dumptree(f, 0, curr_pmns->root, verbosity);
 }
-
-#endif
