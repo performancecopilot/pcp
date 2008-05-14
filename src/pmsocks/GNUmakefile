@@ -1,4 +1,3 @@
-#! gmake
 #
 # Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 # 

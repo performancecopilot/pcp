@@ -1,4 +1,3 @@
-#! gmake
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
