@@ -1,4 +1,5 @@
 dnl
+dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 dnl 
 dnl This program is free software; you can redistribute it and/or modify it
@@ -358,6 +359,12 @@ if test -z "$HDIUTIL"; then
 fi
 hdiutil=$HDIUTIL
 AC_SUBST(hdiutil)
+
+dnl check if the dlltool program is available
+if test -z "$DLLTOOL"; then
+    AC_PATH_PROG(DLLTOOL, dlltool)
+fi
+dlltool=$DLLTOOL
 
 dnl check if the rpmbuild program is available
 if test -z "$RPMBUILD"; then
