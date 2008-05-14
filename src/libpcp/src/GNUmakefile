@@ -34,12 +34,6 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	auxconnect.c findpmda4linux.c loop.c
 
-ifeq "$(TARGET_OS)" "solaris"
-CFILES	+= util_solaris.c
-else
-LSRCFILES += util_solaris.c
-endif
-
 ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
 # don't need to be linked to myself in this case!
 LIB_FOR_BASENAME =

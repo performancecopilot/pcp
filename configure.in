@@ -649,12 +649,16 @@ dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(getcwd gethostname gettimeofday mktime putenv select socket)
-AC_CHECK_FUNCS(strdup strerror strtod strtol uname waitpid atexit brk sbrk)
-AC_CHECK_FUNCS(__clone tcgetattr signal hstrerror)
-AC_CHECK_FUNCS(usleep sighold sigrelse)
-AC_CHECK_FUNCS(prctl regex regcmp regexec regcomp unsetenv valloc memalign)
-AC_CHECK_FUNCS(strtoll strtoull nanosleep mkstemp)
+AC_CHECK_FUNCS(gettimeofday mktime putenv unsetenv)
+AC_CHECK_FUNCS(gethostname hstrerror select socket)
+AC_CHECK_FUNCS(uname brk sbrk __clone tcgetattr)
+AC_CHECK_FUNCS(prctl waitpid atexit)
+AC_CHECK_FUNCS(getcwd scandir mkstemp)
+AC_CHECK_FUNCS(memalign valloc)
+AC_CHECK_FUNCS(nanosleep usleep)
+AC_CHECK_FUNCS(signal sighold sigrelse)
+AC_CHECK_FUNCS(regex regcmp regexec regcomp)
+AC_CHECK_FUNCS(strdup strerror strtod strtol strtoll strtoull)
 
 if test $target_os = interix
 then

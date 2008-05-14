@@ -27,6 +27,8 @@
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sys/param.h>
+#include <sys/stat.h> 
+#include <dirent.h> 
 #include <fcntl.h>
 #include <time.h>
 #include <syslog.h>
@@ -35,6 +37,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <math.h>
+
 #include "pmapi.h"
 #include "impl.h"
 #include "pmdbg.h"
@@ -976,7 +979,8 @@ dirname(char *name)
 #endif
 
 #ifndef HAVE_ISNAND
-int isnand (double d)
+int
+isnand(double d)
 {
 #ifdef HAVE_ISNANF
     float	f = (float)d;
@@ -986,5 +990,66 @@ int isnand (double d)
     /* no support, assume is _not_ NAN, i.e. OK */
     return(0);
 #endif
+}
+#endif
+
+#ifndef HAVE_SCANDIR
+/*
+ * Scan the directory dirname, building an array of pointers to
+ * dirent entries using malloc(3C).  select() and dcomp() are used
+ * optionally filter and sort directory entries.
+ */
+int
+scandir(const char *dirname, struct dirent ***namelist,
+	int(*select)(MYDIRENT *), int(*dcomp)(MYDIRENT **, MYDIRENT **))
+{
+    DIR			*dirp;
+    int			n = 0;
+    struct dirent	**names = NULL;
+    struct dirent	*dp;
+    struct dirent	*tp;
+
+    if ((dirp = opendir(dirname)) == NULL)
+	return -1;
+
+    while ((dp = readdir(dirp)) != NULL) {
+	if (select && (*select)(dp) == 0)
+	    continue;
+
+	n++;
+	if ((names = (struct dirent **)realloc(names, n * sizeof(dp))) == NULL)
+	    return -1;
+
+	if ((names[n-1] = tp = (struct dirent *)malloc(
+		sizeof(*dp)-sizeof(dp->d_name)+strlen(dp->d_name)+1)) == NULL)
+	    return -1;
+
+	tp->d_ino = dp->d_ino;
+	tp->d_off = dp->d_off;
+	tp->d_reclen = dp->d_reclen;
+	memcpy(tp->d_name, dp->d_name, strlen(dp->d_name)+1);
+    }
+    closedir(dirp);
+    *namelist = names;
+
+    if (n && dcomp)
+	qsort(names, n, sizeof(names[0]),
+			(int(*)(const void *, const void *))dcomp);
+    return n;
+}
+
+#if defined(HAVE_CONST_DIRENT)
+#define MYDIRENT const struct dirent
+#else
+#define MYDIRENT struct dirent
+#endif
+
+/* 
+ * Alphabetical sort for default use
+ */
+int
+alphasort(MYDIRENT **p, MYDIRENT **q)
+{
+    return strcmp((*p)->d_name, (*q)->d_name);
 }
 #endif

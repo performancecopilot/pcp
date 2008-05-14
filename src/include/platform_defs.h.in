@@ -154,8 +154,6 @@ extern "C" {
 #endif
 #endif
 
-
-
 /* define if libc functions are available */
 #undef HAVE_GETCWD
 #undef HAVE_GETHOSTNAME
@@ -204,7 +202,7 @@ extern "C" {
 #undef HAVE_STRTOULL
 #undef HAVE_NANOSLEEP
 #undef HAVE_MKSTEMP
-
+#undef HAVE_SCANDIR
 #undef HAVE_SYSINFO
 
 /* if termio signals are supported */
