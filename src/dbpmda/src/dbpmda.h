@@ -19,10 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-/*
- *
- */
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"

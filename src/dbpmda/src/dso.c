@@ -38,7 +38,7 @@ pmdaInterface	dispatch;
 void
 opendso(char *dso, char *init, int domain)
 {
-#if HAVE_DLOPEN
+#ifdef HAVE_DLOPEN
     struct stat		buf;
     unsigned int	challenge;
 
@@ -169,7 +169,7 @@ void
 closedso(void)
 {
     if (dsoname != NULL) {
-#if HAVE_DLOPEN
+#ifdef HAVE_DLOPEN
 	dlclose(handle);
 #endif
 	free(dsoname);
