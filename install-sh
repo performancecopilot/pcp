@@ -19,8 +19,6 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Revision: 1.24 $
-#
 # This script emulates bsd install and also recognises
 # two environment variables, with the following semanitcs :-
 #

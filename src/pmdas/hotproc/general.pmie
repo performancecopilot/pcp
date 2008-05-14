@@ -5,7 +5,6 @@
 //	cpuburn > 0.95 || iodemand > 500 || syscalls > 100 
 //	|| iowait > 0.33 || schedwait > 0.25
 //
-// $Revision: 1.1 $
 
 delta = 60sec;		// change this if the hotproc PMDA refresh interval
 			// is different to the default of 60 seconds

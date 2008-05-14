@@ -22,7 +22,6 @@
 # Cheap and nasty wrapper to emulate xconfirm(1) from IRIX using
 # xmessage(1)
 #
-# $Revision: 1.6 $
 
 # Get standard environment
 . /etc/pcp.env

@@ -21,8 +21,6 @@
 #
 # Unlock the PMNS for concurrent transactional updates
 #
-# $Revision: 1.8 $
-#
 
 . /etc/pcp.env
 

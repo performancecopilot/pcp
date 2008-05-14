@@ -21,7 +21,6 @@
 #
 # libpmda.so - PMDA extensions
 #
-# $Revision: 2.29 $
 
 TOPDIR = ../..
 

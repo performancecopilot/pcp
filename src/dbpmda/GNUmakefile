@@ -19,7 +19,6 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Revision: 2.23 $
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
