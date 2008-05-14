@@ -63,6 +63,11 @@ extern "C" {
 #undef HAVE_CONST_DIRENT
 
 /*
+ * If the dirent structure contains a directory offset field.
+ */
+#undef HAVE_DIRENT_D_OFF
+
+/*
  * If getopt() needs $POSIXLY_CORRECT set in the environment to work
  * correctly, specifically to not treat -x as an option when foo is
  * invoked with the arguments "arg -x"

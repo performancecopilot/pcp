@@ -1027,8 +1027,11 @@ scandir(const char *dirname, struct dirent ***namelist,
 	    return -1;
 
 	tp->d_ino = dp->d_ino;
+#if defined(HAVE_DIRENT_D_OFF)
 	tp->d_off = dp->d_off;
+#else
 	tp->d_reclen = dp->d_reclen;
+#endif
 	memcpy(tp->d_name, dp->d_name, strlen(dp->d_name)+1);
     }
     closedir(dirp);

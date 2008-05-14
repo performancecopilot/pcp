@@ -824,6 +824,25 @@ else
 fi
 rm -f conftest.*
 
+dnl check if struct dirent has a d_off (directory offset) field
+AC_MSG_CHECKING([whether struct dirent has a d_off field])
+cat <<End-of-File >conftest.c
+#include <stdlib.h>
+#include <unistd.h>
+#include <dirent.h>
+int main() { struct dirent.d; d.d_off = 0; }
+End-of-File
+(eval $ac_compile) 2>conftest.out
+cat conftest.out >&5
+if test -s conftest.out
+then
+    AC_MSG_RESULT(no)
+else
+    AC_DEFINE(HAVE_DIRENT_D_OFF)
+    AC_MSG_RESULT(yes)
+fi
+rm -f conftest.*
+
 dnl check if getopt() needs $POSIXLY_CORRECT
 AC_MSG_CHECKING([if getopt() needs \$POSIXLY_CORRECT])
 cat <<End-of-File >conftest.c
