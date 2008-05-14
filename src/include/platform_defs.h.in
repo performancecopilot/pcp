@@ -176,19 +176,14 @@ extern "C" {
 #undef HAVE_SBRK
 #undef HAVE_BRK
 #undef HAVE___CLONE
-#undef HAVE_SPROC 
 #undef HAVE_SIGNAL 
 #undef HAVE_TCGETATTR
 #undef HAVE_HSTRERROR
 #undef HAVE_DLOPEN
-#undef SHL_LOAD
 #undef HAVE_ISNANF
 #undef HAVE_ISNAND
 #undef HAVE_SHL
-#undef HAVE_SGINAP
 #undef HAVE_USLEEP
-#undef HAVE_OSERROR
-#undef HAVE_SETOSERROR
 #undef HAVE_FLOG10
 #undef HAVE_SIGHOLD
 #undef HAVE_SIGRELSE
@@ -406,19 +401,6 @@ typedef void (*SIG_PF) (int);
 #ifndef HAVE_VALLOC
 #define valloc(x) malloc(x)
 #endif
-
-/* Determine if we are on an IRIX box */
-#undef IS_IRIX
-#ifdef IS_IRIX
-/*
- * do license checking for IRIX
- */
-#define HAVE_LICENSE_CHECK 1
-#define HAVE_FLEXLM 1
-
-/* Location of pcplog */
-#define PCPLOGDIR "/var/adm/pcplog"
-#endif	/* IS_IRIX */
 
 /* Determine if we are on a Solaris box */
 #undef IS_SOLARIS

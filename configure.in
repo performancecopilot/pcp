@@ -46,13 +46,11 @@ else
     dnl Remove 4th name component, if present, from target, target_os,
     dnl  build and build_os. Squash all x86 cpus into one LCD form - i386
     target=`echo $target | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
-    target_os=`echo $target_os | sed '[s/irix6\..*/irix/]'`
     target_os=`echo $target_os | sed '[s/solaris2\..*/solaris/]'`
     target_os=`echo $target_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]' | sed '[s/[\.0-9]*//g]'`
     target_cpu=`echo $target_cpu | sed '[s/i[3-6]86/i386/]'`
 
     build=`echo $build | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
-    build_os=`echo $build_os | sed '[s/irix6\..*/irix/]'`
     build_os=`echo $build_os | sed '[s/solaris2\..*/solaris/]'`
     build_os=`echo $build_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]'`
     build_cpu=`echo $build_cpu | sed '[s/i[3-6]86/i386/]'`
@@ -69,11 +67,6 @@ then
     test -f /etc/fedora-release && target_distro=fedora
     test -f /etc/redhat-release && target_distro=redhat
     test -f /etc/debian_version && target_distro=debian
-elif test $target_os = irix
-then
-    AC_DEFINE(IS_IRIX)
-    dnl for IRIX, use the MIPS C Compiler, not gcc
-    CC=cc
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS)
@@ -106,7 +99,6 @@ pcp_platform_paths=""
 case $target_os
 in
     aix)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin";;
-    irix)	pcp_platform_paths="/usr/bin/X11:/usr/etc";;
     linux)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin";;
     cygwin)	pcp_platform_paths="/cygdrive/c/WINDOWS/system32";;
     solaris)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin:/opt/sfw/bin";;
@@ -254,7 +246,7 @@ done
 rm -f conftest.out
 
 dnl add to this list for evil words that you don't want cpp to re-write
-for word in sgi irix unix linux mips intel
+for word in unix linux mips intel
 do
     echo $word >conftest.c
     $cpp_simple $cpp_simple_args conftest.c >conftest.out
@@ -284,7 +276,6 @@ else
 fi
 if test -z "$PCP_GROUP" ; then
     case "$target_os" in
-    irix) pcp_group=bin;;
     darwin) pcp_group=wheel;;
     *)	pcp_group=root;;
     esac
@@ -297,10 +288,7 @@ dnl check if the tar program is available
 if test -z "$TAR"; then
     AC_PATH_PROG(TAR, tar)
 fi
-if test $target_os = irix -a -x /usr/freeware/bin/tar
-then
-    TAR=/usr/freeware/bin/tar
-elif test $target_os = darwin -a -x /usr/bin/gnutar
+if test $target_os = darwin -a -x /usr/bin/gnutar
 then
     TAR=/usr/bin/gnutar
 fi
@@ -599,7 +587,7 @@ AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h sys/time.h syslog.h)
 AC_CHECK_HEADERS(unistd.h sched.h termios.h dlfcn.h dl.h ieeefp.h)
 AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h pthread.h getopt.h)
-AC_CHECK_HEADERS(values.h libgen.h sgidefs.h abi_mutex.h sys/param.h)
+AC_CHECK_HEADERS(values.h libgen.h sys/param.h)
 AC_CHECK_HEADERS(netdb.h sys/termios.h stdint.h)
 
 dnl Checks for C++ header files.
@@ -663,8 +651,8 @@ AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(getcwd gethostname gettimeofday mktime putenv select socket)
 AC_CHECK_FUNCS(strdup strerror strtod strtol uname waitpid atexit brk sbrk)
-AC_CHECK_FUNCS(__clone sproc tcgetattr signal hstrerror)
-AC_CHECK_FUNCS(sginap usleep oserror setoserror sighold sigrelse)
+AC_CHECK_FUNCS(__clone tcgetattr signal hstrerror)
+AC_CHECK_FUNCS(usleep sighold sigrelse)
 AC_CHECK_FUNCS(prctl regex regcmp regexec regcomp unsetenv valloc memalign)
 AC_CHECK_FUNCS(strtoll strtoull nanosleep mkstemp)
 
@@ -1194,20 +1182,15 @@ pcp_share_dir=`eval echo $datadir`
 pcp_share_dir=`eval echo $pcp_share_dir`
 if test "`echo $pcp_share_dir | sed 's;/.*\$;;'`" = NONE
 then
-   if test $target_os = irix
-   then
-       pcp_share_dir=/usr/pcp
-   else
-       if test -d /usr/share
-       then
-	   pcp_share_dir=/usr/share/pcp
-       elif test -d /usr/local
-       then
-	   pcp_share_dir=/usr/local/pcp
-       else
-	   pcp_share_dir=/usr/pcp
-       fi
-   fi
+    if test -d /usr/share
+    then
+	pcp_share_dir=/usr/share/pcp
+    elif test -d /usr/local
+    then
+	pcp_share_dir=/usr/local/pcp
+    else
+	pcp_share_dir=/usr/pcp
+    fi
 fi
 AC_SUBST(pcp_share_dir)
 
@@ -1216,10 +1199,7 @@ pcp_binadm_dir=`eval echo $sbindir`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
 if test "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`" = NONE
 then
-   if test $target_os = irix
-   then
-       pcp_binadm_dir=/usr/pcp/bin
-   elif test $target_distro = debian
+   if test $target_distro = debian
    then
        pcp_binadm_dir=/usr/lib/pcp/bin
    else
@@ -1229,41 +1209,27 @@ fi
 AC_SUBST(pcp_binadm_dir)
 
 dnl non-shared (i.e. system local) PCP files
-if test $target_os = irix
+pcp_var_dir=`eval echo $localstatedir`
+pcp_var_dir=`eval echo $pcp_var_dir`
+if test "`echo $pcp_var_dir | sed 's;/.*\$;;'`" = NONE
 then
-    pcp_var_dir=/var/pcp
-else
-    pcp_var_dir=`eval echo $localstatedir`
-    pcp_var_dir=`eval echo $pcp_var_dir`
-    if test "`echo $pcp_var_dir | sed 's;/.*\$;;'`" = NONE
+    if test -d /var/lib
     then
-       if test -d /var/lib
-       then
-	   pcp_var_dir=/var/lib/pcp
-       elif test -d /var
-       then
-	   pcp_var_dir=/var/pcp
-       elif test -d /usr/local
-       then
-	   pcp_var_dir=/usr/local/pcp
-       else
-	   pcp_var_dir=/usr
-       fi
+	pcp_var_dir=/var/lib/pcp
+    elif test -d /var
+    then
+	pcp_var_dir=/var/pcp
+    elif test -d /usr/local
+    then
+	pcp_var_dir=/usr/local/pcp
+    else
+	pcp_var_dir=/usr
     fi
 fi
 AC_SUBST(pcp_var_dir)
 
 dnl pmcd control and options files
-if test $target_os = irix
-then
-    pcp_pmcdconf_path=/etc/pmcd.conf
-    pcp_pmcdrclocal_path=$pcp_var_dir/config/pmcd/rc.local
-    pcp_pmcdoptions_path=/etc/config/pmcd.options
-    pcp_pmproxyoptions_path=/etc/config/pmproxy.options
-    pcp_pmiecontrol_path=$pcp_var_dir/config/pmie/control
-    pcp_kmsnapcontrol_path=$pcp_var_dir/config/kmsnap/control
-    pcp_pmloggercontrol_path=$pcp_var_dir/config/pmlogger/control
-elif test $target_os = darwin -o $target_distro = debian
+if test $target_os = darwin -o $target_distro = debian
 then
     pcp_pmcdconf_path=/etc/pmcd/pmcd.conf
     pcp_pmcdrclocal_path=/etc/pmcd/rc.local
@@ -1293,10 +1259,7 @@ pcp_pmdas_dir=$pcp_var_dir/pmdas
 AC_SUBST(pcp_pmdas_dir)
 
 dnl runtime shared libraries
-if test $target_os = irix
-then
-    pcp_lib_dir=/usr/lib32
-elif test $target_os = cygwin
+if test $target_os = cygwin
 then
     pcp_lib_dir=/cygdrive/c/WINDOWS/system32
 elif test $target_os = linux -a $target_cpu = x86_64 -a $target_distro != debian
@@ -1376,51 +1339,46 @@ then
 	pcp_man_dir=/usr/man
     fi
     dnl some more guided guesses
-    if test $target_os = irix
-    then
-	pcp_man_dir=/usr/share/catman/u_man
-    else
-	for d in /usr/man /usr/share/man $pcp_share_dir/man
-	do
-	    if test -f $d/man1/man.1.gz
-	    then
-		have_gzipped_manpages=true
-		pcp_man_dir=$d
-		break
-	    elif test -f $d/man1/man.1.bz2
-	    then
-		have_bzip2ed_manpages=true
-		pcp_man_dir=$d
-		break
-	    elif test -f $d/man1/man.1
-	    then
-		pcp_man_dir=$d
-		break
-	    elif test -f $d/sman1/man.1.gz
-	    then
-		have_gzipped_manpages=true
-		pcp_man_dir=$d
-		break
-	    elif test -f $d/sman1/man.1.bz2
-	    then
-		have_bzip2ed_manpages=true
-		pcp_man_dir=$d
-		break
-	    elif test -f $d/sman1/man.1
-	    then
-		pcp_man_dir=$d
-		break
-	    elif test -f $d/cat1/man.1
-	    then
-		pcp_man_dir=$d
-		break
-	    fi
-	done
-	if test -x /usr/lib/rpm/brp-compress
+    for d in /usr/man /usr/share/man $pcp_share_dir/man
+    do
+	if test -f $d/man1/man.1.gz
 	then
 	    have_gzipped_manpages=true
-	    have_bzip2ed_manpages=false
+	    pcp_man_dir=$d
+	    break
+	elif test -f $d/man1/man.1.bz2
+	then
+	    have_bzip2ed_manpages=true
+	    pcp_man_dir=$d
+	    break
+	elif test -f $d/man1/man.1
+	then
+	    pcp_man_dir=$d
+	    break
+	elif test -f $d/sman1/man.1.gz
+	then
+	    have_gzipped_manpages=true
+	    pcp_man_dir=$d
+	    break
+	elif test -f $d/sman1/man.1.bz2
+	then
+	    have_bzip2ed_manpages=true
+	    pcp_man_dir=$d
+	    break
+	elif test -f $d/sman1/man.1
+	then
+	    pcp_man_dir=$d
+	    break
+	elif test -f $d/cat1/man.1
+	then
+	    pcp_man_dir=$d
+	    break
 	fi
+    done
+    if test -x /usr/lib/rpm/brp-compress
+    then
+	have_gzipped_manpages=true
+	have_bzip2ed_manpages=false
     fi
 fi
 if test -z "$pcp_man_dir"
@@ -1433,20 +1391,15 @@ AC_SUBST(have_gzipped_manpages)
 AC_SUBST(have_bzip2ed_manpages)
 
 dnl public binaries
-if test $target_os = irix
+pcp_bin_dir=`eval echo $bindir`
+pcp_bin_dir=`eval echo $pcp_bin_dir`
+if test "`echo $pcp_bin_dir | sed 's;/.*\$;;'`" = NONE
 then
-    pcp_bin_dir=/usr/sbin
-else
-    pcp_bin_dir=`eval echo $bindir`
-    pcp_bin_dir=`eval echo $pcp_bin_dir`
-    if test "`echo $pcp_bin_dir | sed 's;/.*\$;;'`" = NONE
+    if test -d /usr/bin
     then
-       if test -d /usr/bin
-       then
-	   pcp_bin_dir=/usr/bin
-       else
-	   pcp_bin_dir=/bin
-       fi
+	pcp_bin_dir=/usr/bin
+    else
+	pcp_bin_dir=/bin
     fi
 fi
 AC_SUBST(pcp_bin_dir)
@@ -1529,23 +1482,18 @@ AC_SUBST(pcp_tmp_dir)
 dnl doc directory
 if test "`eval echo $prefix | sed 's;/.*\$;;'`" = NONE
 then
-   if test $target_os = irix
-   then
-       pcp_doc_dir=/usr/pcp/doc
-   else
-       if test -d /usr/share/doc/packages
-       then
-	   pcp_doc_dir=/usr/share/doc/packages/pcp-${PACKAGE_VERSION}
-       elif test -d /usr/share/doc
-       then
-	   pcp_doc_dir=/usr/share/doc/pcp-${PACKAGE_VERSION}
-       elif test -d /usr/doc
-       then
-	   pcp_doc_dir=/usr/doc/pcp-${PACKAGE_VERSION}
-       else
-	   pcp_doc_dir=/usr/share/pcp/doc
-       fi
-   fi
+    if test -d /usr/share/doc/packages
+    then
+	pcp_doc_dir=/usr/share/doc/packages/pcp-${PACKAGE_VERSION}
+    elif test -d /usr/share/doc
+    then
+	pcp_doc_dir=/usr/share/doc/pcp-${PACKAGE_VERSION}
+    elif test -d /usr/doc
+    then
+	pcp_doc_dir=/usr/doc/pcp-${PACKAGE_VERSION}
+    else
+	pcp_doc_dir=/usr/share/pcp/doc
+    fi
 else
    pcp_doc_dir=`eval echo $prefix/doc`
    pcp_doc_dir=`eval echo $pcp_doc_dir`
@@ -1555,17 +1503,12 @@ AC_SUBST(pcp_doc_dir)
 dnl demos directory
 if test "`eval echo $prefix | sed 's;/.*\$;;'`" = NONE
 then
-   if test $target_os = irix
-   then
-       pcp_demos_dir=/var/pcp/demos
-   else
-       if test -d /usr/share/demos
-       then
-	   pcp_demos_dir=/usr/share/demos/pcp
-       else
-	   pcp_demos_dir=/usr/share/pcp/demos
-       fi
-   fi
+    if test -d /usr/share/demos
+    then
+	pcp_demos_dir=/usr/share/demos/pcp
+    else
+	pcp_demos_dir=/usr/share/pcp/demos
+    fi
 else
    pcp_demos_dir=`eval echo $pcp_doc_dir/demos`
    pcp_demos_dir=`eval echo $pcp_demos_dir`
