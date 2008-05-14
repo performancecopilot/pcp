@@ -473,7 +473,10 @@ AC_SUBST(echo_c)
 
 dnl if /proc is not mounted, try and mount it
 dnl before trying to run the ps style test below
-test -f /proc/stat || mount /proc >/dev/null 2>&1
+if test -d /proc
+then
+    test -f /proc/stat || mount /proc >/dev/null 2>&1
+fi
 
 dnl set platform specific ps
 if test $target_os = cygwin
