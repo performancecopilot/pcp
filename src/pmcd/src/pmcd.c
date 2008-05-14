@@ -42,8 +42,8 @@ extern int      errno;
 extern int  ParseInitAgents(char *);
 extern void ParseRestartAgents(char *);
 extern void PrintAgentInfo(FILE *);
+extern void ResetBadHosts(void);
 extern void StartDaemon(void);
-
 
 #define PIDFILE "/pmcd.pid"
 #define SHUTDOWNWAIT 12 /* < PMDAs wait previously used in rc_pcp */
@@ -54,7 +54,6 @@ int 		pmcd_hi_openfds = -1;   /* Highest known file descriptor for pmcd */
 int		_pmcd_done;		/* flag from pmcd pmda */
 char		*_pmcd_data;    	/* base size of data */
 
-int		pmcdLicense = 0;	/* no license found yet */
 int		AgentDied = 0;		/* for updating mapdom[] */
 static int	timeToDie = 0;		/* For SIGINT handling */
 static int	restart = 0;		/* For SIGHUP restart */
@@ -483,13 +482,6 @@ HandleClientInput(fd_set *fdsPtr)
 	if (ipcptr == NULL || ipcptr->version == UNKNOWN_VERSION) {
 	    if (php->type != (int)PDU_CREDS) {
 		__pmIPC	ipc = { PDU_VERSION1, NULL };
-		if (pmcdLicense != PM_LIC_COL) {
-		    /* Need to wait for an appropriate PDU before sending
-		     * an error PDU back to 1.x clients - flag as suspect
-		     * for now and cleanup later.
-		     */
-		    ipc.version = ILLEGAL_CONNECT;
-		}
 		sts = __pmAddIPC(cp->fd, ipc);
 	    }
 	}
@@ -789,18 +781,14 @@ ClientLoop(void)
 		    	continue;
 
 		    sts = __pmAccAddClient(&cp->addr.sin_addr, &cp->denyOps);
-
 		    if (sts >= 0) {
 			cp->pduInfo.zero = 0;
 			cp->pduInfo.version = PDU_VERSION;
-			cp->pduInfo.licensed = pmcdLicense;
-			cp->pduInfo.authorize = (!pmcdLicense)?((int)lrand48()):(0);
+			cp->pduInfo.licensed = 1;
+			cp->pduInfo.authorize = 0;
 			challenge = *(int*)(&cp->pduInfo);
-			if (!pmcdLicense)
-			    sts = PM_ERR_LICENSE;
-			else
-			    sts = 0;
-			/* reset this (no meaning - use __pmIPC* interface to version) */
+			sts = 0;
+			/* reset (no meaning, use __pmIPC* code to version) */
 			cp->pduInfo.version = UNKNOWN_VERSION;
 		    }
 		    else {
@@ -848,7 +836,6 @@ ClientLoop(void)
 	}
 	if (restart) {
 	    time_t	now;
-	    extern void	ResetBadHosts(void);
 
 	    reload_ns = 1;
 	    restart = 0;
@@ -856,27 +843,8 @@ ClientLoop(void)
 	    __pmNotifyErr(LOG_INFO, "\n\npmcd RESTARTED at %s", ctime(&now));
 	    fprintf(stderr, "\nCurrent PMCD clients ...\n");
 	    ShowClients(stderr);
-
-	    if (__pmGetLicense(PM_LIC_COL, "pmcd", GET_LICENSE_SHOW_EXP) != PM_LIC_COL) {
-		if (pmcdLicense) {
-		    /* no collector license, but continue */
-		    fprintf(stderr, "Warning: PCP collector license vanished.\n");
-		    fprintf(stderr, "         New connections will only be accepted from authorized clients.\n");
-		    fputc('\n', stderr);
-		    pmcdLicense = 0;
-		}
-	    }
-	    else {
-		if (!pmcdLicense) {
-		    fprintf(stderr, "Note: PCP collector license appeared.\n");
-		    fputc('\n', stderr);
-		    pmcdLicense = PM_LIC_COL;
-		}
-	    }
-
 	    ResetBadHosts();
 	    ParseRestartAgents(configFileName);
-
 	}
 
 	if ( reload_ns ) {
@@ -1171,15 +1139,6 @@ main(int argc, char *argv[])
     close(fileno(stdout));
     dup(fileno(stderr));
 
-    if (__pmGetLicense(PM_LIC_COL, "pmcd", GET_LICENSE_SHOW_EXP) != PM_LIC_COL) {
-	/* no collector license, but continue */
-	fprintf(stderr, "Warning: No PCP collector license.\n");
-	fprintf(stderr, "         Connections will only be accepted from authorized clients.\n");
-	pmcdLicense = 0;
-    }
-    else
-	pmcdLicense = PM_LIC_COL;
-
     if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
 	fprintf(stderr, "Error: pmLoadNameSpace: %s\n", pmErrStr(sts));
 	DontStart();
@@ -1221,8 +1180,6 @@ main(int argc, char *argv[])
     __pmAccDumpHosts(stderr);
     fprintf(stderr, "\npmcd: PID = %u", (int)getpid());
     fprintf(stderr, ", PDU version = %u", PDU_VERSION);
-    if (pmcdLicense)
-	fprintf(stderr, ", pcpcol license");
     fputc('\n', stderr);
     fputs("pmcd request port(s):\n"
 	  "  sts fd  port  IP addr\n"

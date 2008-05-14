@@ -26,7 +26,6 @@
 #include "pmcd.h"
 
 extern int	errno;
-extern int	pmcdLicensed;
 
 extern unsigned int	__pmMakeAuthCookie(unsigned int, pid_t);
 
