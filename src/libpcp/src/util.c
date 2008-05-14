@@ -51,9 +51,6 @@ static int	nfilelog = 0;
 static int	dosyslog = 0;
 static int	pmState = PM_STATE_APPL;
 static int	done_exit = 0;
-#if defined(IRIX5_3)
-static pid_t	lucky_pid;
-#endif
 
 char		*pmProgname = "pcp";		/* the real McCoy */
 
@@ -174,12 +171,6 @@ logonexit(void)
      */
     if (++done_exit != 1)
 	return;
-#if defined(IRIX5_3)
-    if (lucky_pid != getpid()) {
-	done_exit--;
-	return;
-    }
-#endif
 
     for (i = 0; i < nfilelog; i++)
 	logfooter(filelog[i], "finished");
@@ -250,17 +241,9 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
     oldstream = logreopen(progname, logname, oldstream, status);
     logheader(progname, oldstream, "started");
 
-    /*
-     * atexit() race condition in IRIX 5.3 measn we have to be very careful
-     * about who is allowed to try and write the log termination messages.
-     */
     nfilelog++;
-    if (nfilelog == 1) {
+    if (nfilelog == 1)
 	atexit(logonexit);
-#if defined(IRIX5_3)
-	lucky_pid = getpid();
-#endif
-    }
 
     filelog = (FILE **)realloc(filelog, nfilelog * sizeof(FILE *));
     if (filelog == NULL) {
@@ -990,6 +973,26 @@ isnand(double d)
     /* no support, assume is _not_ NAN, i.e. OK */
     return(0);
 #endif
+}
+#endif
+
+#ifndef HAVE_UNSETENV
+static int
+unsetenv(const char *name)
+{
+    extern char **_environ;
+    char	**ep;
+    int		len = (int)strlen(name);
+    int		found = 0;
+
+    for (ep = _environ; *ep != NULL; ep++) {
+	if (strncmp(*ep, name, len) == 0 && (*ep)[len] == '=') {
+	    found = 1;
+	}
+	if (found)
+	    ep[0] = ep[1];
+    }
+    return found;
 }
 #endif
 

@@ -242,14 +242,7 @@ __choose_ipc()
 
 # Do it
 #
-if [ -f /usr/sbin/unifdef ]
-then
-    # IRIX
-    CPP=/usr/sbin/unifdef
-else
-    # Linux
-    CPP=cpp
-fi
+CPP=cpp
 
 pmdaSetup
 cat domain.h clusters.h pmns | \$CPP -DPCP_PMNS >\$tmp.pmns

@@ -22,14 +22,8 @@
 
 TOPDIR = ../..
 
-# Getting all the right 32bit libs on x86_64 is getting increasingly difficult.
-# pmchart links pcp libs statically anyway, so lets scrap them and see who screams
-#PCP_ALTLIBS = 32
-
 include $(TOPDIR)/src/include/builddefs
 
-IRIX_DIRT = 32 N32 64 BUILD libpcp*.so* libpcp*.a
-LDIRT	= $(IRIX_DIRT)
 LSRCFILES = GNUlocaldefs.32
 
 SUBDIRS = src $(PCP_ALTLIBS)

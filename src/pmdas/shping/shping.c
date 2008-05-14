@@ -187,22 +187,14 @@ logmessage(int priority, const char *format, ...)
 
 /*ARGSUSED*/
 static void
-#if defined(IRIX5_3)
-onhup(void)
-#else
 onhup(int dummy)
-#endif
 {
     _exit(0);
 }
 
 /*ARGSUSED*/
 static void
-#if defined(IRIX5_3)
-onalarm(void)
-#else
 onalarm(int dummy)
-#endif
 {
     timedout = 1;
     if (shpid > 1) {		/* something other than error, self or init */

@@ -89,29 +89,6 @@ negotiate_proxy(int fd, const char *hostname, int port)
     return ok;
 }
 
-#ifndef HAVE_UNSETENV
-/*
- * don't have unsetenv() for IRIX, so do it the long-handed portable way
- */
-static int
-unsetenv(const char *name)
-{
-    extern char **_environ;
-    char	**ep;
-    int		len = (int)strlen(name);
-    int		found = 0;
-
-    for (ep = _environ; *ep != NULL; ep++) {
-	if (strncmp(*ep, name, len) == 0 && (*ep)[len] == '=') {
-	    found = 1;
-	}
-	if (found)
-	    ep[0] = ep[1];
-    }
-    return found;
-}
-#endif
-
 /*
  * client connects to pmcd handshake
  */

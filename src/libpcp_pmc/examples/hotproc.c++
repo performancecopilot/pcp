@@ -74,14 +74,8 @@ usage()
     pmprintf("  -z             set reporting timeZone to local time of metrics source\n");
 }
 
-#if defined(IRIX5_3)
-static void
-interrupt(...)
-#else
-/*ARGSUSED*/
 static void
 interrupt(int)
-#endif
 {
     if (cFlag == 2) {
         endwin();

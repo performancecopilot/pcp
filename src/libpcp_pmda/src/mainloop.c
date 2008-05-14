@@ -295,21 +295,6 @@ pmdaMain(pmdaInterface *dispatch)
     }
 }
 
-#ifdef IRIX6_5
-/* 
- * This function serves no useful purpose and could be removed.
- * It is left here only to preserve the IRIX 6.5 API 
- */
-/*ARGSUSED*/
-void
-pmdaMainLoopFreeResultCallback(void (*callback)(pmResult *res))
-{
-    __pmNotifyErr(LOG_CRIT, 
-		 "pmdaMainLoopFreeResultCallback() not supported. Use pmdaSetResultCallBack().");
-    exit(1);
-}
-#endif
-
 void
 pmdaSetResultCallBack(pmdaInterface *dispatch, pmdaResultCallBack callback)
 {
