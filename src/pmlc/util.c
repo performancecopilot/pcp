@@ -95,7 +95,6 @@ addindom(pmInDom newindom, int *resptr)
 	i = sz_indoms * sizeof(indom_t);
 	if ((indom = (indom_t *)realloc(indom, i)) == NULL) {
 	    __pmNoMem("expanding instance domain array", i, PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
     }
     ip = &indom[n_indoms];
@@ -235,7 +234,6 @@ endmetrics(void)
 	/* - 1 because a pmResult already contains one pmValueSet ptr */
 	if ((logreq = (pmResult *)malloc(need)) == NULL) {
 	    __pmNoMem("building result to send", need, PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	sz_logreq = n_metrics;
     }
@@ -246,7 +244,6 @@ endmetrics(void)
 	    need += (mp->n_insts - 1) * sizeof(pmValue);
 	if ((vsp = (pmValueSet *)malloc(need)) == NULL) {
 	    __pmNoMem("building result value set", need , PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	logreq->vset[i] = vsp;
 	vsp->pmid = mp->pmid;
@@ -301,7 +298,6 @@ addmetric(const char *name)
 	    need = sz_metrics * sizeof(metric_t);
 	    if ((metric = (metric_t *)realloc(metric, need)) == NULL) {
 		__pmNoMem("expanding metric array", need, PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 	}
 	mp = &metric[i];
@@ -509,7 +505,6 @@ addinst(char *name, int instid)
 		    else
 			fprintf(stderr, "%s inst %d: ", mp->name, instid);
 		    __pmNoMem("expanding instance array", need, PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		mp->inst[j] = inst;
 	    }

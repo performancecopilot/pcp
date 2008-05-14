@@ -133,7 +133,6 @@ wait		{ return WAIT; }
 
 \"[^\"\n][^\"\n]*\n	{
 	    yyerror("Expected \"");
-	    /*NOTREACHED*/
 	}
 
 \#.*\n	{ return EOL; }
@@ -152,7 +151,6 @@ wait		{ return WAIT; }
 
 .	{
 	    yyerror("Illegal character");
-	    /*NOTREACHED*/
 	}
 %%
 

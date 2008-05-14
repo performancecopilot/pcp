@@ -169,5 +169,4 @@ main(int argc, char **argv)
     get_sample();
 
     exit(0);
-    /*NOTREACHED*/
 }

@@ -69,7 +69,6 @@ cleanup(void)
 	unlink(ctlfile);
 }
 
-/*ARGSUSED*/
 static void
 sigexit_handler(int sig)
 {
@@ -78,10 +77,8 @@ sigexit_handler(int sig)
 #endif
     cleanup();
     exit(1);
-    /*NOTREACHED*/
 }
 
-/*ARGSUSED*/
 static void
 sigcore_handler(int sig)
 {
@@ -91,10 +88,8 @@ sigcore_handler(int sig)
     cleanup();
     signal(SIGABRT, SIG_DFL);		/* Don't come back here on SIGABRT */
     abort();
-    /*NOTREACHED*/
 }
 
-/*ARGSUSED*/
 static void
 sighup_handler(int sig)
 {
@@ -104,7 +99,6 @@ sighup_handler(int sig)
     signal(SIGHUP, sighup_handler);
 }
 
-/*ARGSUSED*/
 static void
 sigpipe_handler(int sig)
 {
@@ -115,7 +109,6 @@ sigpipe_handler(int sig)
     signal(SIGPIPE, sigpipe_handler);
 }
 
-/*ARGSUSED*/
 static void
 sigusr1_handler(int sig)
 {
@@ -130,7 +123,6 @@ sigusr1_handler(int sig)
  * may end up using popen() to run xconfirm(1), and then there
  * is a chance of us receiving SIGCHLD ... just ignore this signal
  */
-/*ARGSUSED*/
 static void
 sigchld_handler(int sig)
 {
@@ -207,20 +199,17 @@ GetPort(char *file)
     if (fd < 0) {
 	perror("socket");
 	exit(1);
-	/*NOTREACHED*/
     }
     i = 0;	/* for purify! */
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
 		   (mysocklen_t)sizeof(i)) < 0) {
 	perror("setsockopt(nodelay)");
 	exit(1);
-	/*NOTREACHED*/
     }
     /* Don't linger on close */
     if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger, (mysocklen_t)sizeof(noLinger)) < 0) {
 	perror("setsockopt(nolinger)");
 	exit(1);
-	/*NOTREACHED*/
     }
 
     if (port_base == -1) {
@@ -257,7 +246,6 @@ GetPort(char *file)
 	    if (errno != EADDRINUSE) {
 		fprintf(stderr, "bind(%d): %s\n", ctlport, strerror(errno));
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	}
 	else
@@ -267,7 +255,6 @@ GetPort(char *file)
     if (sts == -1) {
 	perror("listen");
 	exit(1);
-	/*NOTREACHED*/
     }
 
     /* create and initialize the port map file */
@@ -278,13 +265,11 @@ GetPort(char *file)
 	fprintf(stderr, "%s: error creating port map file %s: %s.  Exiting.\n",
 		pmProgname, file, strerror(errno));
 	exit(1);
-	/*NOTREACHED*/
     }
     /* write the port number to the port map file */
     if ((mapstream = fdopen(mapfd, "w")) == NULL) {
 	perror("GetPort: fdopen");
 	exit(1);
-	/*NOTREACHED*/
     }
     /* first the port number */
     fprintf(mapstream, "%d\n", ctlport);
@@ -354,7 +339,6 @@ init_ports(void)
 		pmProgname);
 	cleanup();
 	exit(1);
-	/*NOTREACHED*/
     }
 #endif
 
@@ -369,7 +353,6 @@ init_ports(void)
     ctlfile = (char *)malloc(n);
     if (ctlfile == NULL) {
 	__pmNoMem("port file name", n, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     strcpy(ctlfile, PM_LOG_PORT_DIR);
     
@@ -390,7 +373,6 @@ init_ports(void)
 	fprintf(stderr, "%s: error removing %s: %s.  Exiting.\n",
 		pmProgname, ctlfile, strerror(errno));
 	exit(1);
-	/*NOTREACHED*/
     }
 
     /* get control port and write port map file */
@@ -406,7 +388,6 @@ init_ports(void)
 	linkfile = (char *)malloc(n);
 	if (linkfile == NULL) {
 	    __pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	strcpy(linkfile, PM_LOG_PORT_DIR);
 	strcat(linkfile, "/");
@@ -418,7 +399,6 @@ init_ports(void)
 		fprintf(stderr, "%s: error creating primary logger link %s: %s\n",
 			pmProgname, linkfile, strerror(errno));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
     }
 }

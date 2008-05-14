@@ -259,7 +259,6 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	hostList = (HostInfo *)realloc(hostList, need);
 	if (hostList == NULL) {
 	    __pmNoMem("AddHost enlarge", need, PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 #ifdef MALLOC_AUDIT
 	_persistent_(hostList);

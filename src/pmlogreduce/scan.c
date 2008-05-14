@@ -47,14 +47,12 @@ doscan(struct timeval *end)
 	    fprintf(stderr, "%s: Error: cannot open archive \"%s\" (ctx_b): %s\n",
 		    pmProgname, iname, pmErrStr(ictx_b));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	if ((sts = pmSetMode(PM_MODE_FORW, NULL, 0)) < 0) {
 	    fprintf(stderr,
 		"%s: Error: pmSetMode (ictx_b) failed: %s\n", pmProgname, pmErrStr(sts));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
     }
 
@@ -62,7 +60,6 @@ doscan(struct timeval *end)
 	fprintf(stderr, "%s: doscan: Error: cannot use context: %s\n",
 		pmProgname, pmErrStr(sts));
 	exit(1);
-	/*NOTREACHED*/
     }
 
     for (i = 0; i < numpmid; i++) {
@@ -80,7 +77,6 @@ doscan(struct timeval *end)
 	    fprintf(stderr,
 		"%s: doscan: Error: pmFetch failed: %s\n", pmProgname, pmErrStr(sts));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 #if PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL2) {
@@ -115,7 +111,6 @@ doscan(struct timeval *end)
 		fprintf(stderr, "%s: Error: __pmLogPutResult: mark record write: %s\n",
 			pmProgname, pmErrStr(sts));
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	    /*
 	     * continue on to check the interval range ... numpmid == 0
@@ -153,7 +148,6 @@ doscan(struct timeval *end)
 		    "%s: scan: Arrgh, cannot find pid %s in pidlist[]\n",
 			pmProgname, pmIDStr(vsp->pmid));
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	    mp = &metriclist[i];
 
@@ -170,7 +164,6 @@ doscan(struct timeval *end)
 			fprintf(stderr,
 			    "%s: rewrite: Arrgh, cannot malloc value_t\n", pmProgname);
 			exit(1);
-			/*NOTREACHED*/
 		    }
 		    if (lvp == NULL)
 			mp->first = vp;
@@ -228,6 +221,5 @@ doscan(struct timeval *end)
 	fprintf(stderr,
 	    " failed: %s\n", pmErrStr(sts));
 	exit(1);
-	/*NOTREACHED*/
     }
 }

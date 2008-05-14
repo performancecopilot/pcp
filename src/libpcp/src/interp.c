@@ -586,7 +586,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    /* first time we've been asked for this one in this context */
 	    if ((pcp = (pmidcntl_t *)malloc(sizeof(pmidcntl_t))) == NULL) {
 		__pmNoMem("__pmLogFetchInterp.pmidcntl_t", sizeof(pmidcntl_t), PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 	    pcp->valfmt = -1;
 	    pcp->first = NULL;
@@ -609,7 +608,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    sts = 1;
 		    if ((instlist = (int *)malloc(sizeof(int))) == NULL) {
 			__pmNoMem("__pmLogFetchInterp.instlist", sizeof(int), PM_FATAL_ERR);
-			/*NOTREACHED*/
 		    }
 		    instlist[0] = PM_IN_NULL;
 		}
@@ -620,7 +618,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		for (i = 0; i < sts; i++) {
 		    if ((icp = (instcntl_t *)malloc(sizeof(instcntl_t))) == NULL) {
 			__pmNoMem("__pmLogFetchInterp.instcntl_t", sizeof(instcntl_t), PM_FATAL_ERR);
-			/*NOTREACHED*/
 		    }
 		    if (lcp)
 			lcp->next = icp;
@@ -1012,7 +1009,6 @@ retry_forw:
 
 	if (rp->vset[j] == NULL) {
 	    __pmNoMem("__pmLogFetchInterp.vset", sizeof(pmValueSet), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 
 	rp->vset[j]->pmid = pmidlist[j];

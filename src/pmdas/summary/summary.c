@@ -56,7 +56,6 @@ static int		*freeList = NULL;
 
 extern int		errno;
 
-/*ARGSUSED*/
 static int
 summary_desc(pmID pmid, pmDesc *desc, pmdaExt * ex)
 {
@@ -103,7 +102,6 @@ service_client(__pmPDU *pb)
 	    fprintf(stderr, "service_client: __pmDecodeDesc failed: %s\n",
                     pmErrStr(n));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	if (desc.indom != PM_INDOM_NULL) {
@@ -122,7 +120,6 @@ service_client(__pmPDU *pb)
 	nmeta++;
 	if ((meta = (meta_t *)realloc(meta, nmeta * sizeof(meta_t))) == NULL) {
 	    __pmNoMem("service_client: meta realloc", nmeta * sizeof(meta_t), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	memcpy(&meta[nmeta-1].desc, &desc, sizeof(pmDesc));
 
@@ -132,7 +129,6 @@ service_client(__pmPDU *pb)
 	if ((n = __pmDecodeResult(pb, PDU_BINARY, &resp)) < 0) {
 	    fprintf(stderr, "service_client: __pmDecodeResult failed: %s\n", pmErrStr(n));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	if (cachedResult == NULL) {
@@ -140,7 +136,6 @@ service_client(__pmPDU *pb)
 	    need = (int)sizeof(pmResult) - (int)sizeof(pmValueSet *);
 	    if ((cachedResult = (pmResult *)malloc(need)) == NULL) {
 		__pmNoMem("service_client: result malloc", need, PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 	    cachedResult->numpmid = 0;
 	}
@@ -165,11 +160,9 @@ service_client(__pmPDU *pb)
 		    (cachedResult->numpmid-1) * (int)sizeof(pmValueSet *);
 		if ((cachedResult = (pmResult *)realloc(cachedResult, need)) == NULL) {
 		    __pmNoMem("service_client: result realloc", need, PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		if ((cachedResult->vset[j] = (pmValueSet *)malloc(sizeof(pmValueSet))) == NULL) {
 		    __pmNoMem("service_client: vset[]", sizeof(pmValueSet), PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		cachedResult->vset[j]->pmid = resp->vset[i]->pmid;
 		cachedResult->vset[j]->numval = 0;
@@ -191,7 +184,6 @@ service_client(__pmPDU *pb)
 	if ((n = __pmDecodeError(pb, PDU_BINARY, &i)) < 0) {
 	    fprintf(stderr, "service_client: __pmDecodeError failed: %s\n", pmErrStr(n));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 	fprintf(stderr, "service_client: Error PDU! %s\n", pmErrStr(i));
 	break;
@@ -199,7 +191,6 @@ service_client(__pmPDU *pb)
     default:
 	fprintf(stderr, "service_client: Bogus PDU type %d\n", ph->type);
 	exit(1);
-	/*NOTREACHED*/
     }
 }
 
@@ -232,7 +223,6 @@ service_config(__pmPDU *pb)
 
 }
 
-/*ARGSUSED*/
 static int
 summary_profile(__pmProfile *prof, pmdaExt * ex)
 {
@@ -243,7 +233,6 @@ summary_profile(__pmProfile *prof, pmdaExt * ex)
     return 0;
 }
 
-/*ARGSUSED*/
 static int
 summary_instance(pmInDom indom, int inst, char *name, __pmInResult **result,
                  pmdaExt * ex)
@@ -269,7 +258,6 @@ freeResultCallback(pmResult *res)
 }
 
 
-/*ARGSUSED*/
 static int
 summary_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt * ex)
 {
@@ -350,7 +338,6 @@ summary_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt * ex)
     return numpmid;
 }
 
-/*ARGSUSED*/
 static int
 summary_store(pmResult *result, pmdaExt * ex)
 {

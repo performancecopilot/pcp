@@ -63,7 +63,6 @@ int lineno = 1;
 			    sprintf(emess, "Unexpected character '%c'",
 				yytext[0]);
 			    yyerror(emess);
-			    /*NOTREACHED*/
 			}
 %%
 

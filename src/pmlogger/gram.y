@@ -148,7 +148,6 @@ dowhat		: logopt action
 			char emess[256];
 			sprintf(emess, "malloc failed: %s", strerror(errno));
 			yyerror(emess);
-			/*NOTREACHED*/
                     }
                     tp->t_delta.tv_sec = $2 / 1000;
                     tp->t_delta.tv_usec = 1000 * ($2 % 1000);
@@ -167,14 +166,12 @@ action		: cntrl ON frequency
 			sprintf(emess, 
 				"Logging delta (%ld msec) must be positive",$3);
 			yyerror(emess);
-                        /*NOTREACHED*/
 		    }
 		    else if ($3 >  PMLC_MAX_DELTA) {
 			sprintf(emess, 
 				"Logging delta (%ld msec) cannot be bigger "
 				"than %d msec", $3, PMLC_MAX_DELTA);
 			yyerror(emess);
-			/*NOTREACHED*/
 		    }
 
                     PMLC_SET_ON(state, 1); 
@@ -229,7 +226,6 @@ metricspec	: NAME
 			char emess[256];
 			sprintf(emess, "malloc failed: %s", strerror(errno));
                         yyerror(emess);
-			/*NOTREACHED*/
 		    }
                 }
 		optinst	
@@ -328,7 +324,6 @@ host		: hostspec
                     hlp = (hostlist_t *)malloc(sts = sizeof(hostlist_t));
                     if (hlp == NULL) {
                         __pmNoMem("adding new host", sts, PM_FATAL_ERR);
-                        /*NOTREACHED*/
                     }
                     if (hl_last != NULL) {
                         hl_last->hl_next = hlp;
@@ -554,7 +549,6 @@ defer:
 nomem:
     sprintf(emess, "malloc failed: %s", strerror(errno));
     yyerror(emess);
-    /*NOTREACHED*/
 
 snarf:
     yywarn(emess);

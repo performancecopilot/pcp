@@ -1219,5 +1219,4 @@ main(int argc, char *argv[])
     }
 
     exit(exitstatus);
-    /*NOTREACHED*/
 }

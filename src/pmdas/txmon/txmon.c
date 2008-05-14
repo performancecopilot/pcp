@@ -168,7 +168,6 @@ txmon_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 /*
  * support the storage of a value into the control metrics
  */
-/*ARGSUSED*/
 static int
 txmon_store(pmResult *result, pmdaExt *pmda)
 {
@@ -376,5 +375,4 @@ main(int argc, char **argv)
     pmdaMain(&dispatch);
 
     exit(0);
-    /*NOTREACHED*/
 }

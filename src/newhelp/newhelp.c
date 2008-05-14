@@ -141,7 +141,6 @@ newentry(char *buf)
 	    numindex *= 2;
 	if ((hindex = (help_idx_t *)realloc(hindex, numindex * sizeof(hindex[0]))) == NULL) {
 	    __pmNoMem("newentry", numindex * sizeof(hindex[0]), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
     }
 

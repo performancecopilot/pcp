@@ -55,7 +55,6 @@ do
 
 	?)	# eh?
 		_usage
-		# NOTREACHED
 		;;
     esac
 done
@@ -64,7 +63,6 @@ shift `expr $OPTIND - 1`
 if [ $# -ne 1 ]
 then
     _usage
-    # NOTREACHED
 fi
 
 config=$1

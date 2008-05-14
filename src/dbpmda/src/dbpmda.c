@@ -279,8 +279,6 @@ main(int argc, char **argv)
 
 	    case QUIT:
 		exit(0);
-		/*NOTREACHED*/
-		break;
 
 	    case STATUS:
 		dostatus();
@@ -337,5 +335,4 @@ main(int argc, char **argv)
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

@@ -650,7 +650,6 @@ _pmtracereconnect(void)
 
 
 static struct itimerval	_pmmyitimer, off_itimer;
-/*ARGSUSED1*/
 static void _pmtracealarm(int dummy) { }
 
 static int

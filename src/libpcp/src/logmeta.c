@@ -860,11 +860,9 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 		    numinst++;
 		    if ((ilist = (int *)realloc(ilist, numinst*sizeof(ilist[0]))) == NULL) {
 			__pmNoMem("pmGetInDomArchive: ilist", numinst*sizeof(ilist[0]), PM_FATAL_ERR);
-			/*NOTREACHED*/
 		    }
 		    if ((nlist = (char **)realloc(nlist, numinst*sizeof(nlist[0]))) == NULL) {
 			__pmNoMem("pmGetInDomArchive: nlist", numinst*sizeof(nlist[0]), PM_FATAL_ERR);
-			/*NOTREACHED*/
 		    }
 		    ilist[numinst-1] = idp->instlist[j];
 		    nlist[numinst-1] = idp->namelist[j];
@@ -874,7 +872,6 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 	}
 	if ((olist = (char **)malloc(numinst*sizeof(olist[0]) + strsize)) == NULL) {
 	    __pmNoMem("pmGetInDomArchive: olist", numinst*sizeof(olist[0]) + strsize, PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	p = (char *)olist;
 	p += numinst * sizeof(olist[0]);

@@ -61,7 +61,6 @@ main(int argc, char* argv[])
 	pmprintf("Usage: %s\n", pmProgname);
 	pmflush();
 	exit(1);
-        /*NOTREACHED*/
     }
 
 
@@ -77,7 +76,6 @@ main(int argc, char* argv[])
 	hinv_ndisk->status() < 0 ||
 	timezone->status() < 0) {
 	exit(1);
-	/*NOTREACHED*/
     }
 	
     // Fetch the metrics

@@ -45,7 +45,6 @@ rewrite(pmResult *rp)
 		    pmProgname,
 		    (long long)(sizeof(pmValueSet) + need * sizeof(pmValue)));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 	ovsp->pmid = vsp->pmid;
 	ovsp->valfmt = vsp->valfmt;
@@ -67,7 +66,6 @@ rewrite(pmResult *rp)
 			"%s: rewrite: Arrgh: cannot find inst %d in value_t list for %s (%s)\n",
 			    pmProgname, vsp->vlist[j].inst, namelist[i], pmIDStr(vsp->pmid));
 		    exit(1);
-		    /*NOTREACHED*/
 		}
 		if ((vp->control & (V_SEEN|V_INIT)) == 0)
 		    continue;
@@ -84,7 +82,6 @@ rewrite(pmResult *rp)
 			    "%s: rewrite: pmExtractValue failed for pmid %s value %d: %s\n",
 				pmProgname, pmIDStr(vsp->pmid), j, pmErrStr(sts));
 			exit(1);
-			/*NOTREACHED*/
 		    }
 		    ovsp->pmid = vsp->pmid;
 		    ovsp->vlist[ovsp->numval].inst = vsp->vlist[j].inst;
@@ -94,7 +91,6 @@ rewrite(pmResult *rp)
 			    "%s: rewrite: __pmStuffValue failed for pmid %s value %d: %s\n",
 				pmProgname, pmIDStr(vsp->pmid), j, pmErrStr(sts));
 			exit(1);
-			/*NOTREACHED*/
 		    }
 		    if (ovsp->numval == 0)
 			ovsp->valfmt = k;

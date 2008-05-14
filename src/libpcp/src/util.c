@@ -248,7 +248,6 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
     filelog = (FILE **)realloc(filelog, nfilelog * sizeof(FILE *));
     if (filelog == NULL) {
 	__pmNoMem("__pmOpenLog", nfilelog * sizeof(FILE *), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     filelog[nfilelog-1] = oldstream;
     return oldstream;

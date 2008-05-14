@@ -137,7 +137,6 @@ GrowReqPorts(void)
     reqPorts = (ReqPortInfo*)realloc(reqPorts, need);
     if (reqPorts == NULL) {
 	__pmNoMem("pmcd: can't grow request port array", need, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
 }
 
@@ -244,7 +243,6 @@ ParseOptions(int argc, char *argv[])
 		nintf++;
 		if ((intflist = (char **)realloc(intflist, nintf * sizeof(char *))) == NULL) {
 		    __pmNoMem("pmcd: can't grow interface list", nintf * sizeof(char *), PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		intflist[nintf-1] = optarg;
 		break;
@@ -287,7 +285,6 @@ ParseOptions(int argc, char *argv[])
 			nport++;
 			if ((portlist = (int *)realloc(portlist, nport * sizeof(int))) == NULL) {
 			    __pmNoMem("pmcd: can't grow port list", nport * sizeof(int), PM_FATAL_ERR);
-			    /*NOTREACHED*/
 			}
 			portlist[nport-1] = port;
 		    }
@@ -362,9 +359,7 @@ ParseOptions(int argc, char *argv[])
 	    exit(0);
 	else
 	    DontStart();
-	/*NOTREACHED*/
     }
-    return;
 }
 
 /* Create socket for incoming connections and bind to it an address for
@@ -908,7 +903,6 @@ ClientLoop(void)
 }
 
 #ifdef HAVE_SA_SIGINFO
-/*ARGSUSED*/
 void
 SigIntProc(int sig, siginfo_t *sip, void *x)
 {
@@ -920,7 +914,6 @@ SigIntProc(int sig, siginfo_t *sip, void *x)
     timeToDie = 1;
 }
 #else
-/*ARGSUSED*/
 void SigIntProc(int sig)
 {
     killer_sig = sig;
@@ -930,7 +923,6 @@ void SigIntProc(int sig)
 }
 #endif
 
-/*ARGSUSED*/
 void SigHupProc(int s)
 {
     signal(SIGHUP, SigHupProc);
@@ -979,7 +971,6 @@ void SigBad(int sig)
     fprintf(stderr, "\nDumping to core ...\n");
     fflush(stderr);
     abort();
-    /*NOTREACHED*/
 }
 
 int
@@ -1030,7 +1021,6 @@ main(int argc, char *argv[])
 		nport++;
 		if ((portlist = (int *)realloc(portlist, nport * sizeof(int))) == NULL) {
 		    __pmNoMem("pmcd: can't grow port list", nport * sizeof(int), PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		portlist[nport-1] = port;
 	    }
@@ -1072,7 +1062,6 @@ main(int argc, char *argv[])
 	nport = 2;
 	if ((portlist = (int *)realloc(portlist, nport * sizeof(int))) == NULL) {
 	    __pmNoMem("pmcd: can't grow port list", nport * sizeof(int), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	portlist[0] = SERVER_PORT;
 	portlist[1] = OLD_SERVER_PORT;
@@ -1112,7 +1101,6 @@ main(int argc, char *argv[])
 		if (!AddRequestPort(intflist[i], portlist[n])) {
 		    fprintf(stderr, "pmcd: bad IP spec: -i %s\n", intflist[i]);
 		    exit(1);
-		    /*NOTREACHED*/
 		}
 	    }
 	}
@@ -1130,7 +1118,6 @@ main(int argc, char *argv[])
     if (nReqPortsOK == 0) {
 	__pmNotifyErr(LOG_ERR, "pmcd: can't open any request ports, exiting\n");
 	DontStart();
-	/*NOTREACHED*/
     }	
 
     __pmOpenLog("pmcd", logfile, stderr, &status);
@@ -1142,20 +1129,17 @@ main(int argc, char *argv[])
     if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
 	fprintf(stderr, "Error: pmLoadNameSpace: %s\n", pmErrStr(sts));
 	DontStart();
-	/*NOTREACHED*/
     }
 
     if (ParseInitAgents(configFileName) < 0) {
 	/* error already reported in ParseInitAgents() */
 	DontStart();
-	/*NOTREACHED*/
     }
 
     if (nAgents <= 0) {
 	fprintf(stderr, "Error: No PMDAs found in the configuration file \"%s\"\n",
 		configFileName);
 	DontStart();
-	/*NOTREACHED*/
     }
 
     if (run_daemon) {
@@ -1168,7 +1152,6 @@ main(int argc, char *argv[])
 	if (pidfile == NULL) {
 	    fprintf(stderr, "Error: Cant open pidfile %s\n", pidpath);
 	    DontStart();
-	    /*NOTREACHED*/	
 	}
 	fprintf(pidfile, "%d", getpid());
 	fflush(pidfile);
@@ -1198,7 +1181,6 @@ main(int argc, char *argv[])
 
     Shutdown();
     exit(0);
-    /* NOTREACHED */
 }
 
 /* The bad host list is a list of IP addresses for hosts that have had clients
@@ -1229,7 +1211,6 @@ AddBadHost(struct in_addr *hostId)
 	need = szBadHosts * (int)sizeof(badHost[0]);
 	if ((badHost = (struct in_addr *)malloc(need)) == NULL) {
 	    __pmNoMem("pmcd.AddBadHost", need, PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
     }
     badHost[nBadHosts++].s_addr = hostId->s_addr;

@@ -164,7 +164,6 @@ synerr(void)
     errs++;
 }
 
-/*ARGSUSED*/
 void
 yyerror(char *s)
 {

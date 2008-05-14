@@ -302,7 +302,6 @@ alloc(size_t size)
 
     if ((p = malloc(size)) == NULL) {
 	__pmNoMem("pmie.alloc", size, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     return p;
 }
@@ -315,7 +314,6 @@ zalloc(size_t size)
 
     if ((p = calloc(1, size)) == NULL) {
 	__pmNoMem("pmie.zalloc", size, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     return p;
 }
@@ -328,7 +326,6 @@ aalloc(size_t align, size_t size)
 
     if ((p = memalign(align, size)) == NULL) {
 	__pmNoMem("pmie.aalloc", size, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     return p;
 }
@@ -341,7 +338,6 @@ ralloc(void *p, size_t size)
 
     if ((q = realloc(p, size)) == NULL) {
 	__pmNoMem("pmie.ralloc", size, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     return q;
 }
@@ -353,7 +349,6 @@ sdup(char *p)
 
     if ((q = strdup(p)) == NULL) {
 	__pmNoMem("pmie.sdup", strlen(p), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     return q;
 }

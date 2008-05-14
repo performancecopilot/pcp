@@ -93,23 +93,19 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		    else {
 			fprintf(stderr, "myFetch: ERROR PDU: %s\n", pmErrStr(n));
 			disconnect(PM_ERR_IPC);
-			/*NOTREACHED*/
 		    }
 		}
 		else if (n == 0) {
 		    fprintf(stderr, "myFetch: End of File: PMCD exited?\n");
 		    disconnect(PM_ERR_IPC);
-		    /*NOTREACHED*/
 		}
 		else if (n < 0) {
 		    fprintf(stderr, "myFetch: __pmGetPDU: Error: %s\n", pmErrStr(n));
 		    disconnect(PM_ERR_IPC);
-		    /*NOTREACHED*/
 		}
 		else {
 		    fprintf(stderr, "myFetch: Unexpected %s PDU from PMCD\n", __pmPDUTypeStr(n));
 		    disconnect(PM_ERR_IPC);
-		    /*NOTREACHED*/
 		}
 	    } while (n == 0);
 
@@ -136,7 +132,6 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 
     if (n < 0 && ctxp->c_pmcd->pc_fd != -1) {
 	disconnect(n);
-	/*NOTREACHED*/
     }
 
     return n;

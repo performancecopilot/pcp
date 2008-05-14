@@ -232,7 +232,6 @@ main(int argc, char* argv[])
 	    usage();
 	    pmflush();
 	    exit(0);
-	    /*NOTREACHED*/
 
 	default:
 	    errflag++;
@@ -244,7 +243,6 @@ main(int argc, char* argv[])
 	usage();
 	pmflush();
 	exit(1);
-        /*NOTREACHED*/
     }
 
     PMC_Group setup;	// Fetch once at the start group
@@ -258,7 +256,6 @@ main(int argc, char* argv[])
 	    pmprintf("%s: %s\n", pmProgname, pmErrStr(sts));
 	    pmflush();
 	    exit(1);
-	    /*NOTREACHED*/
 	}
     }
 
@@ -270,14 +267,12 @@ main(int argc, char* argv[])
 	    pmprintf("%s: %s\n", pmProgname, pmErrStr(sts));
 	    pmflush();
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 	sts = group.use(PM_CONTEXT_HOST, host.ptr());
 	if (sts < 0) {
 	    pmprintf("%s: %s\n", pmProgname, pmErrStr(sts));
 	    pmflush();
 	    exit(1);
-	    /*NOTREACHED*/
 	}
     }
 
@@ -289,13 +284,11 @@ main(int argc, char* argv[])
     if (uname->status() < 0) {
 	pmflush();
 	exit(1);
-	/*NOTREACHED*/
     }
     PMC_Metric* pagesize = setup.addMetric("hinv.pagesize");
     if (pagesize->status() < 0) {
 	pmflush();
 	exit(1);
-	/*NOTREACHED*/
     }
 
     setup.fetch();
@@ -305,7 +298,6 @@ main(int argc, char* argv[])
 		 pmErrStr(uname->error(0)));
 	pmflush();
 	exit(1);
-	/*NOTREACHED*/
     }
     if (pagesize->error(0) < 0) {
 	pmprintf("%s: Error %s: %s\n",
@@ -313,7 +305,6 @@ main(int argc, char* argv[])
 		 pmErrStr(uname->error(0)));
 	pmflush();
 	exit(1);
-	/*NOTREACHED*/
     }
 
     if (uname->strValue(0).length() > 30)
@@ -343,7 +334,6 @@ main(int argc, char* argv[])
 		     pmProgname, timeZone.ptr(), pmErrStr(sts));
 	    pmflush();
 	    exit(1);
-	    /*NOTREACHED*/
         }
     }
 
@@ -382,7 +372,6 @@ main(int argc, char* argv[])
 
 	pmflush();
 	exit(1);
-	/*NOTREACHED*/
     }
 
     units.dimTime = 1;

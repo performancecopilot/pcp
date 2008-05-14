@@ -514,5 +514,4 @@ X.XXX   XXX   X.XXX XXXXX.XXX XXXXXX  XXXX.XX XXXX.XX
  	lines++;
     }
     exit(0);
-    /*NOTREACHED*/
 }

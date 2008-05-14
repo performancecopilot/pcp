@@ -151,15 +151,12 @@ roomtemp_init(pmdaInterface *dp)
 	    break;
 	if ((sntab = (sn_t *)realloc(sntab, (i+1) * sizeof(sn_t))) == NULL) {
 	    __pmNoMem("roomtemp_init: realloc sntab", (i+1) * sizeof(sn_t), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	if ((device = (pmdaInstid *)realloc(device, (i+1) * sizeof(pmdaInstid))) == NULL) {
 	    __pmNoMem("roomtemp_init: realloc device", (i+1) * sizeof(pmdaInstid), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	if ((device[i].i_name = (char *)malloc(17)) == NULL) {
 	    __pmNoMem("roomtemp_init: malloc name", 17, PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	memcpy(sntab[i].sn, p, 8);	/* SN for later fetch */
 	device[i].i_inst = i;		/* internal name is ordinal number */
@@ -219,12 +216,10 @@ main(int argc, char **argv)
 
     if (err) {
     	usage();
-	/*NOTREACHED*/
     }
 
     if (argc != optind+1) {
 	usage();
-	/*NOTREACHED*/
     }
     tty = argv[optind];
 
@@ -234,5 +229,4 @@ main(int argc, char **argv)
     pmdaMain(&dispatch);
 
     exit(0);
-    /*NOTREACHED*/
 }

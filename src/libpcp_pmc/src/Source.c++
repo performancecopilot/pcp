@@ -326,7 +326,6 @@ PMC_Source::delContext(int hndl)
 		 << endl;
 #endif
 	return PM_ERR_NOCONTEXT;
-	/*NOTREACHED*/
     }
 
     sts = pmDestroyContext(_hndls[i]);

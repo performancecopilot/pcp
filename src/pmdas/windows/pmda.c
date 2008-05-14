@@ -649,67 +649,56 @@ fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		myatom.ul = shm->physmem;
 		*atom = myatom;
 		return 1;
-		/*NOTREACHED*/
 
 	    case 107:	/* hinv.ncpu */
 		myatom.ul = indomtab[CPU_INDOM].it_numinst;
 		*atom = myatom;
 		return 1;
-		/*NOTREACHED*/
 
 	    case 108:	/* hinv.ndisk */
 		myatom.ul = indomtab[DISK_INDOM].it_numinst;
 		*atom = myatom;
 		return 1;
-		/*NOTREACHED*/
 
 	    case 109:	/* kernel.uname.distro */
 		myatom.cp = shm->uname;
 		*atom = myatom;
 		return 1;
-		/*NOTREACHED*/
 
 	    case 110:	/* kernel.uname.release */
 		myatom.cp = shm->build;
 		*atom = myatom;
 		return 1;
-		/*NOTREACHED*/
 
 	    case 111:	/* kernel.uname.version */
 		myatom.cp = shm->build;
 		*atom = myatom;
 		return 1;
-		/*NOTREACHED*/
 
 	    case 112:	/* kernel.uname.sysname */
 		myatom.cp = "Windows";
 		*atom = myatom;
 		return 1;
-		/*NOTREACHED*/
 
 	    case 113:	/* kernel.uname.machine */
 		myatom.cp = "?";
 		*atom = myatom;
 		return 1;
-		/*NOTREACHED*/
 
 	    case 114:	/* kernel.uname.nodename */
 		myatom.cp = "?";
 		*atom = myatom;
 		return 1;
-		/*NOTREACHED*/
 
 	    case 115:	/* pmda.uname */
 		myatom.cp = shm->uname;
 		*atom = myatom;
 		return 1;
-		/*NOTREACHED*/
 
 	    case 116:	/* pmda.version */
 		myatom.cp = pmGetConfig("PCP_VERSION");
 		*atom = myatom;
 		return 1;
-		/*NOTREACHED*/
 	}
     }
 
@@ -908,7 +897,6 @@ main(int argc, char **argv)
    
     if (err) {
     	usage();
-	/*NOTREACHED*/
     }
 
     pmdaOpenLog(&desc);
@@ -927,5 +915,4 @@ main(int argc, char **argv)
     pmdaMain(&desc);
 
     exit(0);
-    /*NOTREACHED*/
 }

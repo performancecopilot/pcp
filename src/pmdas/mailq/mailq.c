@@ -295,7 +295,6 @@ main(int argc, char **argv)
 		    histo = (histo_t *)realloc(histo, numhisto * sizeof(histo[0]));
 		    if (histo == NULL) {
 			 __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
-			 /*NOTREACHED*/
 		    }
 		    histo[numhisto-1].delay = tv.tv_sec;
 		    q = strtok(NULL, ",");
@@ -326,7 +325,6 @@ main(int argc, char **argv)
 
     if (err) {
     	usage();
-	/*NOTREACHED*/
     }
 
     if (histo == NULL) {
@@ -335,7 +333,6 @@ main(int argc, char **argv)
 	histo = (histo_t *)malloc(numhisto * sizeof(histo[0]));
 	if (histo == NULL) {
 	     __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
-	     /*NOTREACHED*/
 	}
 	histo[0].delay = 7 * 24 * 3600;
 	histo[1].delay = 3 * 24 * 3600;
@@ -351,7 +348,6 @@ main(int argc, char **argv)
 	histo = (histo_t *)realloc(histo, numhisto * sizeof(histo[0]));
 	if (histo == NULL) {
 	     __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
-	     /*NOTREACHED*/
 	}
 	histo[numhisto-1].delay = 0;
 	qsort(histo, numhisto, sizeof(histo[0]), compar);
@@ -360,7 +356,6 @@ main(int argc, char **argv)
     _delay = (pmdaInstid *)malloc(numhisto * sizeof(_delay[0]));
     if (_delay == NULL) {
 	 __pmNoMem("_delay", numhisto * sizeof(_delay[0]), PM_FATAL_ERR);
-	 /*NOTREACHED*/
     }
     for (i = 0; i < numhisto; i++) {
 	_delay[i].i_inst = histo[i].delay;
@@ -393,7 +388,6 @@ main(int argc, char **argv)
 	_delay[i].i_name = strdup(namebuf);
 	if (_delay[i].i_name == NULL) {
 	     __pmNoMem("_delay[i].i_name", strlen(namebuf), PM_FATAL_ERR);
-	     /*NOTREACHED*/
 	}
     }
 
@@ -406,5 +400,4 @@ main(int argc, char **argv)
     pmdaMain(&dispatch);
 
     exit(0);
-    /*NOTREACHED*/
 }

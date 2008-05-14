@@ -271,7 +271,6 @@ tzspec		: LOCAL		{ tztype = TZ_LOCAL; }
 		    if ((tz = strdup($1)) == NULL) {
 			__pmNoMem("setting up timezone",
 				 strlen($1), PM_FATAL_ERR);
-			/*NOTREACHED*/
 		    }
 		}
 		;

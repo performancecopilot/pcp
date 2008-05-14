@@ -390,10 +390,10 @@ add_metric(self,pmid,type,indom,sem,units,name,help,longhelp)
 	p->m_user = NULL;	p->m_desc.pmid = *(pmID *)&pmid;
 	p->m_desc.type = type;	p->m_desc.indom = *(pmInDom *)&indom;
 	p->m_desc.sem = sem;	p->m_desc.units = *(pmUnits *)&units;
-	(void)self;	/*ARGSUSED*/
-	(void)name;	/*ARGSUSED*/
-	(void)help;	/*ARGSUSED*/
-	(void)longhelp;	/*ARGSUSED*/
+	(void)self;
+	(void)name;
+	(void)help;
+	(void)longhelp;
 
 int
 add_indom(self,indom,list,help,longhelp)
@@ -417,9 +417,9 @@ add_indom(self,indom,list,help,longhelp)
 	    XSRETURN_UNDEF;
 	else
 	    RETVAL = itab_size++;	/* used in calls to replace_indom() */
-	(void)self;	/*ARGSUSED*/
-	(void)help;	/*ARGSUSED*/
-	(void)longhelp;	/*ARGSUSED*/
+	(void)self;
+	(void)help;
+	(void)longhelp;
     OUTPUT:
 	RETVAL
 
@@ -556,7 +556,7 @@ debug_metric(self)
 		(int)metrictab[i].m_desc.indom, metrictab[i].m_desc.sem,
 		*(unsigned int *)&metrictab[i].m_desc.units);
 	}
-	(void)self;	/*ARGSUSED*/
+	(void)self;
 
 void
 debug_indom(self)
@@ -576,7 +576,7 @@ debug_indom(self)
 		    indomtab[i].it_set[j].i_inst, indomtab[i].it_set[j].i_name);
 	    }
 	}
-	(void)self;	/*ARGSUSED*/
+	(void)self;
 
 void
 debug_init(self)

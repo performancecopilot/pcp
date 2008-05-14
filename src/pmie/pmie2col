@@ -50,7 +50,6 @@ do
 	    ;;
 	*)
 	    _usage
-	    #NOTREACHED
 	    ;;
     esac
 done
@@ -59,7 +58,6 @@ shift `expr $OPTIND - 1`
 if [ $# -ne 0 ]
 then
     _usage
-    #NOTREACHED
 fi
 
 $SED \

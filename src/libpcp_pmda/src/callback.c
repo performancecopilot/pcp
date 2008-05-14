@@ -667,17 +667,8 @@ pmdaText(int ident, int type, char **buffer, pmdaExt *pmda)
  * Tell PMCD there is nothing to store
  */
 
-/*ARGSUSED*/
 int
 pmdaStore(pmResult *result, pmdaExt *pmda)
 {
     return -EACCES;
 }
-
-
-
-
-
-
-
-

@@ -348,7 +348,6 @@ read_test_var(char *line, config_vars *vars)
 failure:
     (void)fprintf(stderr, "%s: malloc failed for read_test_var()\n", pmProgname); 
     exit(1);
-    /*NOTREACHED*/
 
 }
 
@@ -468,7 +467,6 @@ eval_comparison(bool_node *comp)
 	default:
 	    eval_error("comparison");
     }/*switch*/
-    /*NOTREACHED*/
 }
 
 static int
@@ -487,7 +485,6 @@ eval_num_comp(N_tag tag, bool_node *lhs, bool_node *rhs)
 	default:
 	    eval_error("number comparison");
     }/*switch*/
-    /*NOTREACHED*/
 }
 
 static double
@@ -508,7 +505,6 @@ get_numvalue(bool_node *n)
 	default:
 	    eval_error("number value");
     }
-    /*NOTREACHED*/
 }
 
 static int
@@ -523,7 +519,6 @@ eval_str_comp(N_tag tag, bool_node *lhs, bool_node *rhs)
 	default:
 	    eval_error("string comparison");
     }/*switch*/
-    /*NOTREACHED*/
 
 }
 
@@ -556,7 +551,6 @@ eval_match_comp(N_tag tag, bool_node *lhs, bool_node *rhs)
 	default:
 	    eval_error("match comparison");
     }/*switch*/
-    /*NOTREACHED*/
 
 }
 
@@ -583,5 +577,4 @@ get_strvalue(bool_node *n)
 	default:
 	    eval_error("string value");
     }/*switch*/
-    /*NOTREACHED*/
 }

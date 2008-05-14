@@ -376,7 +376,6 @@ startmonitor(void)
  * signal handling
  ***********************************************************************/
 
-/*ARGSUSED*/
 static void
 sigintproc(int sig)
 {
@@ -386,7 +385,6 @@ sigintproc(int sig)
     exit(1);
 }
 
-/*ARGSUSED*/
 static void
 sigbye(int sig)
 {
@@ -411,7 +409,6 @@ remap_stdout_stderr(void)
 			pmProgname, j, i, fileno(stderr));
 }
 
-/*ARGSUSED*/
 static void
 sighupproc(int sig)
 {
@@ -515,7 +512,6 @@ getargs(int argc, char *argv[])
 		a->fname = subopt;
 		if (!initArchive(a)) {
 		    exit(1);
-		    /*NOTREACHED*/
 		}
 		if (subopts == NULL) break;
 	    }
@@ -965,5 +961,4 @@ main(int argc, char **argv)
     else
 	run();
     exit(0);
-    /*NOTREACHED*/
 }

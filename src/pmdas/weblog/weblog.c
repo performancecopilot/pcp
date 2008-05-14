@@ -3054,7 +3054,6 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
  * web.activity.config.catchup, web.activity.config.check and web.activity.server.watched
  */
 
-/*ARGSUSED1*/
 static int
 web_store(pmResult *result, pmdaExt *ext)
 {

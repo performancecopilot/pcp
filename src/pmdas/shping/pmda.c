@@ -46,7 +46,6 @@ cmd_t		*cmdlist = NULL;
 #ifdef HAVE_SPROC
 
 /* Signals are only used with sproc, threads will never generate SIGGHLD */
-/*ARGSUSED*/
 void
 onchld(int s)
 {
@@ -180,7 +179,6 @@ main(int argc, char **argv)
 
     if (err || optind != argc -1) {
     	usage();
-	/*NOTREACHED*/
     }
 
     configfile = argv[optind];
@@ -220,7 +218,6 @@ main(int argc, char **argv)
 	if ((cmdlist = (cmd_t *)realloc(cmdlist, numcmd * sizeof(cmd_t))) == NULL) {
 	    __pmNoMem("main:cmdlist", numcmd * sizeof(cmd_t), 
 		     PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 
 	cmdlist[numcmd-1].tag = strdup(tag);
@@ -260,7 +257,6 @@ main(int argc, char **argv)
     indomtab.it_numinst = numcmd;
     if ((indomtab.it_set = (pmdaInstid *)malloc(numcmd*sizeof(pmdaInstid))) == NULL) {
 	__pmNoMem("main.indomtab", numcmd * sizeof(pmdaInstid), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     for (i = 0; i < numcmd; i++) {
 	indomtab.it_set[i].i_inst = i;
@@ -277,5 +273,4 @@ main(int argc, char **argv)
     pmdaMain(&dispatch);
 
     exit(0);
-    /*NOTREACHED*/
 }

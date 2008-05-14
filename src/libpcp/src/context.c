@@ -65,7 +65,6 @@ waitawhile(__pmPMCDCtl *ctl)
 		}
 		if ((backoff = (int *)realloc(backoff, (n_backoff+1) * sizeof(backoff[0]))) == NULL) {
 		    __pmNoMem("pmReconnectContext", (n_backoff+1) * sizeof(backoff[0]), PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		backoff[n_backoff++] = val;
 		if (*pend == '\0')

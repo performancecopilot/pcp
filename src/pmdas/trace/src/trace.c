@@ -499,7 +499,6 @@ readData(int clientfd, int *protocol)
     return hptr->tracetype;
 }
 
-/*ARGSUSED*/
 static void
 clearTable(__pmHashTable *t, void *entry)
 {
@@ -541,7 +540,6 @@ timerUpdate(void)
 #endif
 }
 
-/*ARGSUSED*/
 static void
 summariseDataAux(__pmHashTable *t, void *entry)
 {
@@ -1023,7 +1021,6 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 
-/*ARGSUSED*/
 static int
 traceStore(pmResult *result, pmdaExt *pmda)
 {
@@ -1053,7 +1050,6 @@ traceStore(pmResult *result, pmdaExt *pmda)
 		if ((afid = __pmAFregister(&interval, NULL, alarming)) < 0) {
 		    __pmNotifyErr(LOG_ERR, "__pmAFregister failed");
 		    exit(1);
-		    /*NOTREACHED*/
 		}
 	    }
 

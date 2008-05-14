@@ -48,5 +48,4 @@ main(int argc, char **argv)
     }
     fprintf(stderr, "Usage: pmsleep interval\n");
     exit(1);
-    /*NOTREACHED*/
 }

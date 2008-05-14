@@ -251,7 +251,6 @@ host, PWPROMPT, passwd);
 
 static int	timeout;
 
-/*ARGSUSED*/
 void
 onalarm(int dummy)
 {

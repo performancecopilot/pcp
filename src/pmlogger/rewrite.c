@@ -91,5 +91,4 @@ rewrite_pdu(__pmPDU *pb, int version)
 
     fprintf(stderr, "Errors: do not know how to re-write the PDU buffer for a version %d archive\n", version);
     exit(1);
-    /*NOTREACHED*/
 }

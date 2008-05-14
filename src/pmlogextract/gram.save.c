@@ -905,7 +905,6 @@ case 8:
 			if (name == NULL) {
 			    snprintf(emess, sizeof(emess), "malloc failed: %s", strerror(errno));
 			    yyerror(emess);
-			    /*NOTREACHED*/
 			}
 			found = 0;
 			for (i=0; i<inarchnum; i++) {
@@ -915,7 +914,6 @@ case 8:
 				    "from archive \"%s\"\n", 
 				    pmProgname, inarch[i].ctx, inarch[i].name);
 				exit(1);
-				/*NOTREACHED*/
 			    }
 
 			    if ((sts = pmTraversePMNS (name, dometric)) == 0) {
@@ -1393,7 +1391,6 @@ defer:
 nomem:
     snprintf(emess, sizeof(emess), "malloc failed: %s", strerror(errno));
     yyerror(emess);
-    /*NOTREACHED*/
 }
 
 

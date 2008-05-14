@@ -107,7 +107,6 @@ nodemap(__pmnsNode *p)
     printf("%s: fatal error, cannot map node addr " PRINTF_P_PFX "%p\n", pmProgname, p);
     dumpmap();
     exit(1);
-    /*NOTREACHED*/
 }
 
 static void
@@ -172,7 +171,6 @@ pass2(__pmnsNode *p)
     i++;
 }
 
-/*ARGSUSED*/
 static void
 pass3(__pmnsNode *p)
 {
@@ -376,7 +374,6 @@ Options:\n\
 				 nodecnt * sizeof(_nodetab[0]) +
 				 symbsize +
 				 nodecnt * sizeof(_map[0]), PM_FATAL_ERR);
-	    /*NOTREACHED*/
     }
 
 #ifdef MALLOC_AUDIT

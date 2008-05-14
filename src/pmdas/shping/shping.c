@@ -185,14 +185,12 @@ logmessage(int priority, const char *format, ...)
 }
 
 
-/*ARGSUSED*/
 static void
 onhup(int dummy)
 {
     _exit(0);
 }
 
-/*ARGSUSED*/
 static void
 onalarm(int dummy)
 {
@@ -212,7 +210,6 @@ onalarm(int dummy)
 /*
  * the sproc starts here to refresh the metric values periodically
  */
-/*ARGSUSED*/
 static void
 refresh(void *dummy)
 {
@@ -589,7 +586,6 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
     return 0;
 }
 
-/*ARGSUSED*/
 static int
 shping_store(pmResult *result, pmdaExt *ext)
 {

@@ -137,7 +137,6 @@ ConnectLogger(char *hostname, int *pid, int *port)
 	logger_fd = sts;
 	if ((lasthost = strdup(hostname)) == NULL) {
 	    __pmNoMem("Error copying host name", strlen(hostname), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	return 0;
     }

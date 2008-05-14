@@ -204,7 +204,6 @@ int pmWhichContext(void)
     return 0;
 }
 
-/*ARGSUSED1*/
 __pmContext *
 __pmHandleToPtr(int dummy)
 {

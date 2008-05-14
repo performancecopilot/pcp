@@ -62,7 +62,6 @@ SplitResult(pmResult *res)
 	resIndex = (int *)malloc((nAgents + 1) * sizeof(int));
 	if (aFreq == NULL || resIndex == NULL) {
 	    __pmNoMem("SplitResult.freq", 2 * (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
     }
 
@@ -92,7 +91,6 @@ SplitResult(pmResult *res)
     need *= sizeof(pmResult *);
     if ((results = (pmResult **) malloc(need)) == NULL) {
 	__pmNoMem("SplitResult.results", need, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     j = 0;
     for (i = 0; i <= nAgents; i++)
@@ -101,7 +99,6 @@ SplitResult(pmResult *res)
 	    results[j] = (pmResult *) malloc(need);
 	    if (results[j] == NULL) {
 		__pmNoMem("SplitResult.domain", need, PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 	    results[j]->numpmid = aFreq[i];
 	    j++;
@@ -110,7 +107,6 @@ SplitResult(pmResult *res)
     /* Make the "end of list" pmResult */
     if ((results[j] = (pmResult *) malloc(sizeof(pmResult))) == NULL) {
 	__pmNoMem("SplitResult.domain", sizeof(pmResult), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     results[j]->numpmid = 0;
 
@@ -242,7 +238,6 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 		__pmNotifyErr(LOG_ERR, "DoStore: fatal select failure: %s\n", strerror(errno));
 		Shutdown();
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	}
 

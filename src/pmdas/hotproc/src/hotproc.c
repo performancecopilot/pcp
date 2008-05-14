@@ -832,7 +832,6 @@ restart_proc_list(void)
     return sts;
 }
 
-/*ARGSUSED0*/
 static void
 timer_callback(int afid, void *data)
 {
@@ -844,7 +843,6 @@ timer_callback(int afid, void *data)
 }
 
 
-/*ARGSUSED4*/
 static int
 hotproc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
@@ -940,7 +938,6 @@ hotproc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmd
     return sts;
 }
 
-/*ARGSUSED2*/
 static int
 hotproc_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 {
@@ -1479,7 +1476,6 @@ get_options(int argc, char *argv[], pmdaInterface *dispatch)
 
     if (err || optind != argc -1) {
     	usage();
-	/*NOTREACHED*/
     }
 
     configfile = argv[optind];
@@ -1566,5 +1562,4 @@ main(int argc, char **argv)
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

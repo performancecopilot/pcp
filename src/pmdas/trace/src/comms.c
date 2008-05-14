@@ -87,7 +87,6 @@ traceMain(pmdaInterface *dispatch)
     if ((afid = __pmAFregister(&interval, NULL, alarming)) < 0) {
 	__pmNotifyErr(LOG_ERR, "error registering asynchronous event handler");
 	exit(1);
-	/*NOTREACHED*/
     }
 
     for (;;) {
@@ -100,7 +99,6 @@ traceMain(pmdaInterface *dispatch)
 	    if (errno != EINTR) {
 		__pmNotifyErr(LOG_ERR, "select failure");
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	    continue;
 	}
@@ -114,7 +112,6 @@ traceMain(pmdaInterface *dispatch)
 	    if (__pmdaMainPDU(dispatch) < 0) {
 		__pmAFunblock();
 		exit(1);	/* fatal if we lose pmcd */
-		/*NOTREACHED*/
 	    }
 	}
 	/* handle request on control port */
@@ -208,14 +205,12 @@ traceMain(pmdaInterface *dispatch)
 }
 
 
-/*ARGSUSED*/
 void
 alarming(int sig, void *ptr)
 {
     timerUpdate();
 }
 
-/*ARGSUSED*/
 static void
 hangup(int sig)
 {
@@ -239,7 +234,6 @@ getcport(void)
     if (fd < 0) {
 	perror("getcport: socket");
 	exit(1);
-	/*NOTREACHED*/
     }
     /* avoid 200 ms delay */
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
@@ -247,7 +241,6 @@ getcport(void)
 	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(nodelay): %s",
 		strerror(errno));
 	exit(1);
-	/*NOTREACHED*/
     }
     /* don't linger on close */
     if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger,
@@ -255,7 +248,6 @@ getcport(void)
 	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(nolinger): %s",
 		strerror(errno));
 	exit(1);
-	/*NOTREACHED*/
     }
     /* ignore dead client connections */
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
@@ -263,7 +255,6 @@ getcport(void)
 	__pmNotifyErr(LOG_ERR, "getcport: setsockopt(reuseaddr): %s",
 		strerror(errno));
 	exit(1);
-	/*NOTREACHED*/
     }
 
     if (ctlport == -1) {
@@ -292,13 +283,11 @@ getcport(void)
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "bind(%d): %s", ctlport, strerror(errno));
 	exit(1);
-	/*NOTREACHED*/
     }
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	perror("getcport: listen");
 	exit(1);
-	/*NOTREACHED*/
     }
 
     return fd;

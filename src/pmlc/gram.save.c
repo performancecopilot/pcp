@@ -1236,7 +1236,6 @@ case 59:
 		    if ((tz = strdup(yyvsp[0].str)) == NULL) {
 			__pmNoMem("setting up timezone",
 				 strlen(yyvsp[0].str), PM_FATAL_ERR);
-			/*NOTREACHED*/
 		    }
 		}
     break;

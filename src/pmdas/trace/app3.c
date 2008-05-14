@@ -72,11 +72,9 @@ main(int argc, char **argv)
     }
 
     exit(0);
-    /*NOTREACHED*/
 }
 
 
-/*ARGSUSED*/
 static void *
 pcpu_sucker(void *dummy)
 {
@@ -108,7 +106,6 @@ pcpu_sucker(void *dummy)
     return NULL;
 }
 
-/*ARGSUSED*/
 static void *
 ptime_sucker(void *dummy)
 {
@@ -135,7 +132,6 @@ ptime_sucker(void *dummy)
     return NULL;
 }
 
-/*ARGSUSED*/
 static void *
 pio_sucker(void *dummy)
 {

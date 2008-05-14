@@ -74,7 +74,6 @@ SplitPmidList(int nPmids, pmID *pmidList)
 	aFreq = (int *)malloc((nAgents + 1) * sizeof(int));
 	if (resIndex == NULL || aFreq == NULL) {
 	    __pmNoMem("SplitPmidList.resIndex", 2 * (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
     }
 
@@ -130,7 +129,6 @@ doit:
 	result = (DomPmidList *)malloc(resultSize);
 	if (result == NULL) {
 	    __pmNoMem("SplitPmidList.result", resultSize, PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	currentSize = resultSize;
     }
@@ -188,14 +186,12 @@ MakeBadResult(int npmids, pmID *list, int sts)
     result = (pmResult *)malloc(need);
     if (result == NULL) {
 	__pmNoMem("MakeBadResult.result", need, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     result->numpmid = npmids;
     for (i = 0; i < npmids; i++) {
 	vSet = (pmValueSet *)malloc(sizeof(pmValueSet));
 	if (vSet == NULL) {
 	    __pmNoMem("MakeBadResult.vSet", sizeof(pmValueSet), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	result->vset[i] = vSet;
 	vSet->pmid = list[i];
@@ -363,7 +359,6 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	resIndex = (int *)malloc((nAgents + 1) * sizeof(int));
 	if (results == NULL || resIndex == NULL) {
 	    __pmNoMem("DoFetch.results", (nAgents + 1) * sizeof (pmResult *) + (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	nDoms = nAgents;
     }
@@ -387,7 +382,6 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	need = (int)sizeof(pmResult) + (nPmids - 1) * (int)sizeof(pmValueSet *);
 	if ((endResult = (pmResult *)malloc(need)) == NULL) {
 	    __pmNoMem("DoFetch.endResult", need, PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	maxnpmids = nPmids;
     }
@@ -452,7 +446,6 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 		__pmNotifyErr(LOG_ERR, "DoFetch: fatal select failure: %s\n", strerror(errno));
 		Shutdown();
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	}
 

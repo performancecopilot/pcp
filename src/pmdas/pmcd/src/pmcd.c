@@ -365,7 +365,6 @@ init_tables(int dom)
 }
 
 
-/*ARGSUSED*/
 static int
 pmcd_profile(__pmProfile *prof, pmdaExt *pmda)
 {
@@ -645,7 +644,6 @@ pmcd_instance_pool(int inst, char *name, __pmInResult **result)
     return 0;
 }
 
-/*ARGSUSED*/
 static int
 pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
@@ -904,7 +902,6 @@ vset_resize(pmResult *rp, int i, int onumval, int numval)
     return 0;
 }
 
-/*ARGSUSED*/
 static int
 pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
@@ -1363,7 +1360,6 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     return 0;
 }
 
-/*ARGSUSED*/
 static int
 pmcd_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 {
@@ -1378,7 +1374,6 @@ pmcd_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
     return PM_ERR_PMID;
 }
 
-/*ARGSUSED*/
 static int
 pmcd_store(pmResult *result, pmdaExt *pmda)
 {

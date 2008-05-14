@@ -107,7 +107,6 @@ PMC_Group::use(int type, char const* source)
 		pmprintf("%s: Error: Archive context requires path to archive\n",
 			 pmProgname);
 		return PM_ERR_NOCONTEXT;
-		/*NOTREACHED*/
 	    }
 	    else {
 		if (!defaultDefined()) {
@@ -116,7 +115,6 @@ PMC_Group::use(int type, char const* source)
 			pmprintf("%s: Error: Cannot connect to PMCD on localhost: %s\n",
 				 pmProgname, pmErrStr(_localSource->status()));
 			return _localSource->status();
-			/*NOTREACHED*/
 		    }
 		}
 		source = _contexts[0]->source().source().ptr();
@@ -155,7 +153,6 @@ PMC_Group::use(int type, char const* source)
 		pmprintf("%s: Error: Archive \"%s\" requested after live mode was assumed.\n",
 			 pmProgname, source);
 		return PM_ERR_NOCONTEXT;
-		/*NOTREACHED*/
 	    }
 
 	    // If we are in archive mode, map hosts to archives with the
@@ -170,7 +167,6 @@ PMC_Group::use(int type, char const* source)
 		    pmprintf("%s: Error: No archives were specified for host \"%s\"\n",
 			     pmProgname, source);
 		    return PM_ERR_NOTARCHIVE;
-		    /*NOTREACHED*/
 		}
 	    }
 	}
@@ -193,7 +189,6 @@ PMC_Group::use(int type, char const* source)
 	    pmprintf("%s: Error: No archives were specified for host \"%s\"\n",
 		     pmProgname, source);
 	    return PM_ERR_NOTARCHIVE;
-	    /*NOTREACHED*/
 	}
 
 	PMC_Context *newContext = new PMC_Context(src);
@@ -205,7 +200,6 @@ PMC_Group::use(int type, char const* source)
 		     pmErrStr(sts));
 	    delete newContext;
 	    return sts;
-	    /*NOTREACHED*/
 	}
 
 	// If we are in archive mode and are adding an archive,
@@ -244,7 +238,6 @@ PMC_Group::use(int type, char const* source)
 		     pmProgname, which()->source().desc().ptr(), 
 		     pmErrStr(sts));
 	    return sts;
-	    /*NOTREACHED*/
 	}
 
 #ifdef PCP_DEBUG

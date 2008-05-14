@@ -89,7 +89,6 @@ pmdaIndom	indomtab[] = {
 };
 
 #ifdef HAVE_SPROC
-/*ARGSUSED*/
 static RETSIGTYPE
 onhup(int s)
 {
@@ -101,7 +100,6 @@ onhup(int s)
 /*
  * the sproc starts here to refresh the metric values periodically
  */
-/*ARGSUSED*/
 void
 refresh(void *dummy)
 {

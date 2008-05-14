@@ -613,7 +613,6 @@ END {
     printf "    pmdaMain(&dispatch);\n" >>pmda_c
     printf "\n" >>pmda_c
     printf "    exit(0);\n" >>pmda_c
-    printf "    /*NOTREACHED*/\n" >>pmda_c
     printf "}\n" >>pmda_c
 
     #

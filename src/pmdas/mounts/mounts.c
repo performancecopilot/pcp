@@ -420,5 +420,4 @@ main(int argc, char **argv)
     pmdaMain(&desc);
 
     exit(0);
-    /*NOTREACHED*/
 }

@@ -404,7 +404,6 @@ void SetBaudCOM(int new_baud)
 #define ERR_MSG_57600 "SetBaudCOM: no support for 57600 baud, sorry!"
 	 write(2, ERR_MSG_57600, strlen(ERR_MSG_57600));
 	 exit(1);
-	 /*NOTREACHED*/
 #endif
       case PARMSET_115200:
 #ifdef B115200
@@ -414,7 +413,6 @@ void SetBaudCOM(int new_baud)
 #define ERR_MSG_115200 "SetBaudCOM: no support for 115200 baud, sorry!"
 	 write(2, ERR_MSG_115200, strlen(ERR_MSG_115200));
 	 exit(1);
-	 /*NOTREACHED*/
 #endif
    }
 

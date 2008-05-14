@@ -295,7 +295,6 @@ initinsts(Context *x)
 	    ip = (int *)malloc(n * sizeof(int));
 	    if (ip == NULL) {
 		__pmNoMem("pmval.ip", n * sizeof(int), PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 	    x->iids = ip;
 	    for (i = 0; i < n; i++) {
@@ -337,7 +336,6 @@ initinsts(Context *x)
 	pp = (InstPair *)malloc(n * sizeof(InstPair));
 	if (pp == NULL) {
 	    __pmNoMem("pmval.pp", n * sizeof(InstPair), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	x->ipairs = pp;
 	for (i = 0; i < n; i++) {
@@ -540,7 +538,6 @@ howide(int type)
 	fprintf(stderr, "pmval: unknown performance metric value type\n");
 	exit(EXIT_FAILURE);
     }
-    /*NOTREACHED*/
 }
 
 /*
@@ -1119,7 +1116,6 @@ getargs(int		argc,		/* in - command line argument count */
 		    (char **)realloc(cntxt->inames, i * (sizeof (char *)));
 		if (cntxt->inames == NULL) {
 		    __pmNoMem("pmval.ip", i * sizeof(char *), PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		*(cntxt->inames + i - 1) = subopt;
 		subopt = getinstance(NULL);
@@ -1237,7 +1233,6 @@ getargs(int		argc,		/* in - command line argument count */
 	case '?':
 	    fprintf(stderr, usage, pmProgname);
 	    exit(EXIT_FAILURE);
-	    /* NOTREACHED */
 
 	default:
 	    errflag++;
@@ -1658,7 +1653,6 @@ main(int argc, char *argv[])
     }
 
     exit(first == 0);
-    /*NOTREACHED*/
 }
 
 #ifdef HAVE_PMTIME

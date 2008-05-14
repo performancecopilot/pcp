@@ -11,7 +11,6 @@ dometric(const char *name)
 	    "%s: dometric: Error: cannot realloc space for %d names\n",
 		pmProgname, numpmid+1);
 	exit(1);
-	/*NOTREACHED*/
     }
     namelist[numpmid] = strdup(name);
     if ((pmidlist = (pmID *)realloc(pmidlist, (numpmid+1)*sizeof(pmidlist[0]))) == NULL) {
@@ -19,21 +18,18 @@ dometric(const char *name)
 	    "%s: dometric: Error: cannot realloc space for %d pmIDs\n",
 		pmProgname, numpmid+1);
 	exit(1);
-	/*NOTREACHED*/
     }
     if ((sts = pmLookupName(1, (char **)&name, &pmidlist[numpmid])) < 0) {
 	fprintf(stderr,
 	    "%s: dometric: Error: cannot lookup pmID for metric \"%s\": %s\n",
 		pmProgname, name, pmErrStr(sts));
 	exit(1);
-	/*NOTREACHED*/
     }
     if ((metriclist = (metric_t *)realloc(metriclist, (numpmid+1)*sizeof(metriclist[0]))) == NULL) {
 	fprintf(stderr,
 	    "%s: dometric: Error: cannot realloc space for %d metric_t's\n",
 		pmProgname, numpmid+1);
 	exit(1);
-	/*NOTREACHED*/
     }
     mp = &metriclist[numpmid];
     mp->first = NULL;
@@ -42,7 +38,6 @@ dometric(const char *name)
 	    "%s: dometric: Error: cannot lookup pmDesc for metric \"%s\": %s\n",
 		pmProgname, name, pmErrStr(sts));
 	exit(1);
-	/*NOTREACHED*/
     }
     mp->odesc = mp->idesc;	/* struct assignment */
 
@@ -79,7 +74,6 @@ dometric(const char *name)
 		fprintf(stderr, "Cannot rate convert \"%s\" yet,", namelist[numpmid]);
 		__pmPrintDesc(stderr, &mp->idesc);
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	    break;
 #endif
@@ -100,7 +94,6 @@ dometric(const char *name)
 	    "%s: Error: failed to add pmDesc for %s (%s): %s\n",
 		pmProgname, namelist[numpmid], pmIDStr(pmidlist[numpmid]), pmErrStr(sts));
 	exit(1);
-	/*NOTREACHED*/
     }
 
     /*
@@ -127,7 +120,6 @@ dometric(const char *name)
 		    "%s: dometric: Error: cannot malloc indom_t for %s\n",
 		    pmProgname, pmInDomStr(mp->idp->indom));
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	    mp->idp->state = I_INIT;
 	    mp->idp->indom = mp->idesc.indom;

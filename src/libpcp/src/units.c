@@ -933,7 +933,6 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		}
 		if ((oval->cp = (char *)malloc(len + 1)) == NULL) {
 		    __pmNoMem("pmConvValue.string", len + 1, PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		memcpy(oval->cp, ival->value.pval->vbuf, len);
 		oval->cp[len] = '\0';
@@ -964,7 +963,6 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		}
 		if ((oval->vp = (void *)malloc(len)) == NULL) {
 		    __pmNoMem("pmConvValue.aggr", len, PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		memcpy(oval->vp, ival->value.pval->vbuf, len);
 		break;

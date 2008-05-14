@@ -122,7 +122,6 @@ main(int argc, char **argv)
     if (parseargs(argc, argv) < 0) {
 	usage();
 	exit(1);
-	/*NOTREACHED*/
     }
 
 
@@ -142,20 +141,17 @@ main(int argc, char **argv)
 	fprintf(stderr, "%s: Error: cannot open archive \"%s\" (ctx_a): %s\n",
 		pmProgname, iname, pmErrStr(ictx_a));
 	exit(1);
-	/*NOTREACHED*/
     }
 
     if ((sts = pmGetArchiveLabel(&ilabel)) < 0) {
 	fprintf(stderr, "%s: Error: cannot get archive label record (%s): %s\n", pmProgname, iname, pmErrStr(sts));
 	exit(1);
-	/*NOTREACHED*/
     }
 
     if ((sts = pmGetArchiveEnd(&unused)) < 0) {
 	fprintf(stderr, "%s: Error: cannot get end of archive (%s): %s\n",
 		pmProgname, iname, pmErrStr(sts));
 	exit(1);
-	/*NOTREACHED*/
     }
 
     /* start time */
@@ -172,7 +168,6 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
 		    pmProgname, pmErrStr(sts));
             exit(1);
-	    /*NOTREACHED*/
 	}
 	printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n", ilabel.ll_hostname);
     }
@@ -182,7 +177,6 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
 		    pmProgname, tz, pmErrStr(sts));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
     }
@@ -194,7 +188,6 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%s: Cannot set local host's timezone: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
     }
 
@@ -206,7 +199,6 @@ main(int argc, char **argv)
 	fprintf(stderr, "%s: Invalid time window specified: %s\n",
 		pmProgname, msg);
 	exit(1);
-	/*NOTREACHED*/
     }
 
     if ((sts = pmSetMode(PM_MODE_INTERP | PM_XTB_SET(PM_TIME_SEC),
@@ -214,7 +206,6 @@ main(int argc, char **argv)
 	fprintf(stderr, "%s: pmSetMode(PM_MODE_INTERP ...) failed: %s\n",
 		pmProgname, pmErrStr(sts));
 	exit(1);
-	/*NOTREACHED*/
     }
 
     /* create output log - must be done before writing label */
@@ -222,7 +213,6 @@ main(int argc, char **argv)
 	fprintf(stderr, "%s: Error: __pmLogCreate: %s\n",
 		pmProgname, pmErrStr(sts));
 	exit(1);
-	/*NOTREACHED*/
     }
 
     /* This must be done after log is created:
@@ -249,7 +239,6 @@ main(int argc, char **argv)
 	fprintf(stderr, "%s: Error traversing namespace ... %s\n",
 		pmProgname, pmErrStr(sts));
 	goto cleanup;
-	/*NOTREACHED*/
     }
 
     /*
@@ -271,7 +260,6 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%s: Error: cannot use context (%s): %s\n",
 		    pmProgname, iname, pmErrStr(sts));
 	    goto cleanup;
-	    /*NOTREACHED*/
 	}
 	if ((sts = pmFetch(numpmid, pmidlist, &irp)) < 0) {
 	    if (sts == PM_ERR_EOL)
@@ -279,7 +267,6 @@ main(int argc, char **argv)
 	    fprintf(stderr,
 		"%s: Error: pmFetch failed: %s\n", pmProgname, pmErrStr(sts));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 #if PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL2) {
@@ -302,7 +289,6 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%s: Error: cannot use context (%s): %s\n",
 		    pmProgname, iname, pmErrStr(sts));
 	    goto cleanup;
-	    /*NOTREACHED*/
 	}
 
 	/* TODO - volume switching as per -v */
@@ -310,7 +296,6 @@ main(int argc, char **argv)
 	if ((orp = rewrite(irp)) == NULL) {
 	    /* reporting done in rewrite() */
 	    goto cleanup;
-	    /*NOTREACHED*/
 	}
 #if PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL2) {
@@ -332,14 +317,12 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    goto cleanup;
-	    /*NOTREACHED*/
 	}
 	/* write out log record */
 	if ((sts = __pmLogPutResult(&logctl, pb)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    goto cleanup;
-	    /*NOTREACHED*/
 	}
 	written++;
 
@@ -364,7 +347,6 @@ main(int argc, char **argv)
     __pmLogPutIndex(&logctl, &current);
 
     exit(exit_status);
-    /*NOTREACHED*/
 
 cleanup:
     {
@@ -377,6 +359,5 @@ cleanup:
 	snprintf(fname, sizeof(fname), "%s.index", oname);
 	unlink(fname);
 	exit(1);
-	/*NOTREACHED*/
     }
 }

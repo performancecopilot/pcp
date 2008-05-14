@@ -125,7 +125,6 @@ main(int argc, char **argv)
 
     if (errflag) {
 	usage();
-	/*NOTREACHED*/
     }
 
     pmdaOpenLog(&dispatch);
@@ -143,5 +142,4 @@ main(int argc, char **argv)
     pmdaMain(&dispatch);
 
     exit(0);
-    /*NOTREACHED*/
 }

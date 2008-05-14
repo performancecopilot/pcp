@@ -1031,7 +1031,6 @@ case 7:
 			char emess[256];
 			sprintf(emess, "malloc failed: %s", strerror(errno));
 			yyerror(emess);
-			/*NOTREACHED*/
                     }
                     tp->t_delta.tv_sec = yyvsp[0].lval / 1000;
                     tp->t_delta.tv_usec = 1000 * (yyvsp[0].lval % 1000);
@@ -1046,14 +1045,12 @@ case 10:
 			sprintf(emess, 
 				"Logging delta (%ld msec) must be positive",yyvsp[0].lval);
 			yyerror(emess);
-                        /*NOTREACHED*/
 		    }
 		    else if (yyvsp[0].lval >  PMLC_MAX_DELTA) {
 			sprintf(emess, 
 				"Logging delta (%ld msec) cannot be bigger "
 				"than %d msec", yyvsp[0].lval, PMLC_MAX_DELTA);
 			yyerror(emess);
-			/*NOTREACHED*/
 		    }
 
                     PMLC_SET_ON(state, 1); 
@@ -1127,7 +1124,6 @@ case 31:
 			char emess[256];
 			sprintf(emess, "malloc failed: %s", strerror(errno));
                         yyerror(emess);
-			/*NOTREACHED*/
 		    }
                 }
     break;
@@ -1218,7 +1214,6 @@ case 50:
                     hlp = (hostlist_t *)malloc(sts = sizeof(hostlist_t));
                     if (hlp == NULL) {
                         __pmNoMem("adding new host", sts, PM_FATAL_ERR);
-                        /*NOTREACHED*/
                     }
                     if (hl_last != NULL) {
                         hl_last->hl_next = hlp;
@@ -1679,7 +1674,6 @@ defer:
 nomem:
     sprintf(emess, "malloc failed: %s", strerror(errno));
     yyerror(emess);
-    /*NOTREACHED*/
 
 snarf:
     yywarn(emess);

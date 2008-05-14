@@ -267,7 +267,6 @@ newvolume(char *base, __pmTimeval *tvp)
 	fprintf(stderr, "%s: Error: volume %d: %s\n",
 		pmProgname, nextvol, pmErrStr(-errno));
 	exit(1);
-	/*NOTREACHED*/
     }
 }
 
@@ -294,7 +293,6 @@ newlabel(void)
 	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
 		pmProgname, inarchvers, iap->name);
 	exit(1);
-	/*NOTREACHED*/
     }
 
     /* copy magic number, pid, host and timezone */
@@ -316,7 +314,6 @@ newlabel(void)
 		    pmProgname, inarch[0].name, inarchvers,
 		    iap->name, (iap->label.ll_magic & 0xff));
 	    exit(1);
-	    /*NOTREACHED*/
         }
 
 	/* Ensure all archives of the same host */
@@ -328,7 +325,6 @@ newlabel(void)
 	    fprintf(stderr, "archive: %s host: %s\n",
 		    iap->name, iap->label.ll_hostname);
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	/* Ensure all archives of the same timezone */
@@ -523,7 +519,6 @@ append_descreclist(int i)
 		    "%s: Error: meta data description records do not match.\n",
 			pmProgname);
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	}
 	else {
@@ -609,7 +604,6 @@ write_rec(reclist_t *rec)
 	    fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 	    fprintf(stderr,"    record is marked for write, but pdu is NULL\n");
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	/* write out the pdu ; exit if write failed */
@@ -617,7 +611,6 @@ write_rec(reclist_t *rec)
 	    fprintf(stderr, "%s: Error: _pmLogPut: meta data : %s\n",
 		    pmProgname, pmErrStr(sts));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 	/* META: free PDU buffer */
 	free(rec->pdu);
@@ -662,7 +655,6 @@ write_metareclist(pmResult *result, int *needti)
 	     */
 	    fprintf(stderr, "%s: Error: meta data (TYPE_DESC) for pmid %d has not been found.\n", pmProgname, pmid);
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 	else if (curr_desc->pmid == pmid) {
 	    /* descriptor has been found
@@ -681,7 +673,6 @@ write_metareclist(pmResult *result, int *needti)
 		fprintf(stderr, "%s: Error: missing pdu for pmid %d\n",
 			pmProgname, pmid);
 	        exit(1);
-	        /*NOTREACHED*/
 	    }
 	    else {
 		/* descriptor is in list, has not been written, and has pdu
@@ -773,7 +764,6 @@ _createmark(void)
 	fprintf(stderr, "%s: Error: mark_t malloc: %s\n",
 		pmProgname, strerror(errno));
 	exit(1);
-	/*NOTREACHED*/
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
@@ -842,7 +832,6 @@ nextmeta(void)
 	    fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 	    fprintf(stderr, "    iap->pb[META] is not NULL\n");
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 againmeta:
@@ -907,7 +896,6 @@ againmeta:
 		free(iap->pb[META]);
 		iap->pb[META] = NULL;
 		goto againmeta;
-		/*NOTREACHED*/
 	    }
 	}
 	else if (ntohl(iap->pb[META][1]) == TYPE_INDOM) {
@@ -942,7 +930,6 @@ againmeta:
 	        free(iap->pb[META]);
 	        iap->pb[META] = NULL;
 	        goto againmeta;
-	        /*NOTREACHED*/
 	    }
 	}
 	else {
@@ -1228,7 +1215,6 @@ adminarch(void)
 	    fprintf(stderr, "%s: Error: cannot load name space: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	for (i=0; i<inarchnum; i++) {
@@ -1237,14 +1223,12 @@ adminarch(void)
 		    "%s: Error: cannot use context (%d) from archive \"%s\"\n",
 			pmProgname, inarch[i].ctx, inarch[i].name);
 		exit(1);
-		/*NOTREACHED*/
 	    }
 
 	    if ((sts = pmTrimNameSpace ()) < 0) {
 		fprintf(stderr, "%s: Error: cannot trim name space: %s\n", 
 			pmProgname, pmErrStr(sts));
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	}
     }
@@ -1327,7 +1311,6 @@ checkwinend(double now)
 	fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		pmProgname, pmErrStr(sts));
 	exit(1);
-	/*NOTREACHED*/
     }
     written++;
     free(markpdu);
@@ -1401,7 +1384,6 @@ writerlist(rlist_t **rlready, double mintime)
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	/* __pmEncodeResult doesn't pin the PDU buffer, so we have to
@@ -1414,7 +1396,6 @@ writerlist(rlist_t **rlready, double mintime)
 	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 	written++;
 
@@ -1505,7 +1486,6 @@ writemark(inarch_t *iap)
 	fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		pmProgname, pmErrStr(sts));
 	exit(1);
-	/*NOTREACHED*/
     }
     written++;
     free(iap->pb[LOG]);
@@ -1561,7 +1541,6 @@ main(int argc, char **argv)
     if (parseargs(argc, argv) < 0) {
 	usage();
 	exit(1);
-	/*NOTREACHED*/
     }
 
 
@@ -1578,7 +1557,6 @@ main(int argc, char **argv)
 	fprintf(stderr, "%s: Error: mallco inarch: %s\n",
 		pmProgname, strerror(errno));
 	exit(1);
-	/*NOTREACHED*/
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
@@ -1605,27 +1583,23 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%s: Error: cannot open archive \"%s\": %s\n",
 		    pmProgname, iap->name, pmErrStr(iap->ctx));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	if ((sts = pmUseContext(iap->ctx)) < 0) {
 	    fprintf(stderr, "%s: Error: cannot use context (%s): %s\n",
 		    pmProgname, iap->name, pmErrStr(sts));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	if ((sts = pmGetArchiveLabel(&iap->label)) < 0) {
 	    fprintf(stderr, "%s: Error: cannot get archive label record (%s): %s\n", pmProgname, iap->name, pmErrStr(sts));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	if ((sts = pmGetArchiveEnd(&unused)) < 0) {
 	    fprintf(stderr, "%s: Error: cannot get end of archive (%s): %s\n",
 		    pmProgname, iap->name, pmErrStr(sts));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	if (i == 0) {
@@ -1683,7 +1657,6 @@ main(int argc, char **argv)
 		    pmProgname, pmErrStr(sts));
             exit_status = 1;
             goto cleanup;
-	    /*NOTREACHED*/
 	}
 	printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n", inarch[0].label.ll_hostname);
     }
@@ -1694,7 +1667,6 @@ main(int argc, char **argv)
 		    pmProgname, tz, pmErrStr(sts));
 	    exit_status = 1;
 	    goto cleanup;
-	    /*NOTREACHED*/
 	}
 	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
     }
@@ -1707,7 +1679,6 @@ main(int argc, char **argv)
 		    pmProgname, pmErrStr(sts));
 	    exit_status = 1;
 	    goto cleanup;
-	    /*NOTREACHED*/
 	}
     }
 
@@ -1717,7 +1688,6 @@ main(int argc, char **argv)
 	fprintf(stderr, "%s: Error: __pmLogCreate: %s\n",
 		pmProgname, pmErrStr(sts));
 	exit(1);
-	/*NOTREACHED*/
     }
 
     /* This must be done after log is created:
@@ -1738,7 +1708,6 @@ main(int argc, char **argv)
 	fprintf(stderr, "%s: Invalid time window specified: %s\n",
 		pmProgname, msg);
 	exit(1);
-	/*NOTREACHED*/
     }
     winstart_time = tv2double(&winstart_tval);
     winend_time = tv2double(&winend_tval);
@@ -1859,7 +1828,6 @@ main(int argc, char **argv)
 	    fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 	    fprintf(stderr, "    log file index = %d\n", ilog);
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	iap = &inarch[ilog];
@@ -1872,7 +1840,6 @@ main(int argc, char **argv)
 		fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 		fprintf(stderr, "    pick == LOG and _Nresult = NULL\n");
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	    insertresult(&rlready, iap->_Nresult);
 	    writerlist(&rlready, now);

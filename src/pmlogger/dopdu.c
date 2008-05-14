@@ -281,7 +281,6 @@ add_metric(pmValueSet *vsp, task_t **result)
     dp = (pmDesc *)malloc(sizeof(pmDesc));
     if (dp == NULL) {
 	__pmNoMem("add_metric: new pmDesc malloc", sizeof(pmDesc), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     if ((sts = pmLookupDesc(pmid, dp)) < 0)
 	return sts;
@@ -291,7 +290,6 @@ add_metric(pmValueSet *vsp, task_t **result)
 	tp = calloc(1, sizeof(task_t));
 	if (tp == NULL) {
 	    __pmNoMem("add_metric: new task calloc", sizeof(task_t), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	*result = tp;
     }
@@ -302,19 +300,16 @@ add_metric(pmValueSet *vsp, task_t **result)
     tp->t_pmidlist = (pmID *)realloc(tp->t_pmidlist, need);
     if (tp->t_pmidlist == NULL) {
 	__pmNoMem("add_metric: new task pmidlist realloc", need, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     need = tp->t_numpmid * sizeof(char *);
     tp->t_namelist = (char **)realloc(tp->t_namelist, need);
     if (tp->t_namelist == NULL) {
 	__pmNoMem("add_metric: new task namelist realloc", need, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     need = tp->t_numpmid * sizeof(pmDesc);
     tp->t_desclist = (pmDesc *)realloc(tp->t_desclist, need);
     if (tp->t_desclist == NULL) {
 	__pmNoMem("add_metric: new task desclist realloc", need, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     tp->t_namelist[tp->t_numpmid-1] = NULL;	/* name not known here */
     tp->t_pmidlist[tp->t_numpmid-1] = pmid;
@@ -323,7 +318,6 @@ add_metric(pmValueSet *vsp, task_t **result)
     rqp = (optreq_t *)calloc(1, sizeof(optreq_t));
     if (rqp == NULL) {
 	__pmNoMem("add_metric: new task optreq calloc", need, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     rqp->r_desc = dp;
 
@@ -342,7 +336,6 @@ add_metric(pmValueSet *vsp, task_t **result)
 	if (rqp->r_instlist == NULL) {
 	    __pmNoMem("add_metric: new task optreq instlist malloc", need,
 		     PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	for (i = 0; i < vsp->numval; i++)
 	    rqp->r_instlist[i] = vsp->vlist[i].inst;
@@ -504,7 +497,6 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 	if (ntp == NULL) {
 	    __pmNoMem("update_metric: new task calloc", sizeof(task_t),
 		     PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	*result = ntp;
     }
@@ -618,7 +610,6 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 		    if (rqp == NULL) {
 			__pmNoMem("update_metric: optreq calloc",
 				 sizeof(optreq_t), PM_FATAL_ERR);
-			/*NOTREACHED*/
 		    }
 		    /* if the metric existed but the instance didn't, we don't
 		     * have a valid pmDesc (dp), so find one.
@@ -645,7 +636,6 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 			if (rqp->r_desc == NULL) {
 			    __pmNoMem("update_metric: new inst pmDesc malloc",
 				     need, PM_FATAL_ERR);
-			    /*NOTREACHED*/
 			}
 			memcpy(rqp->r_desc, dp, need);
 		    }
@@ -658,7 +648,6 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 		if (rqp->r_instlist == NULL) {
 		    __pmNoMem("update_metric: inst list resize", need,
 			     PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		rqp->r_instlist[rqp->r_numinst++] = inst;
 		if ((sts = __pmOptFetchAdd(&ntp->t_fetch, rqp)) < 0)
@@ -737,7 +726,6 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 		if (rqp == NULL) {
 		    __pmNoMem("update_metric: all inst calloc",
 			     sizeof(optreq_t), PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		rqp->r_desc = dp;
 		if ((sts = __pmOptFetchAdd(&ntp->t_fetch, rqp)) < 0)
@@ -763,7 +751,6 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 	ntp->t_pmidlist = (pmID *)realloc(ntp->t_pmidlist, need);
 	if (ntp->t_pmidlist == NULL) {
 	    __pmNoMem("update_metric: grow task pmidlist", need, PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	ntp->t_pmidlist[ntp->t_numpmid] = pmid;
 	ntp->t_numpmid++;
@@ -852,7 +839,6 @@ siamise_request(pmResult *request)
     result = (pmResult *)malloc(need);
     if (result == NULL) {
 	__pmNoMem("siamise_request: malloc pmResult", need, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     for (i = 0; i < request->numpmid; i++) {
 	vsp = request->vset[i];
@@ -949,7 +935,6 @@ no_info:
     vsp = (pmValueSet *)malloc(need);
     if (vsp == NULL) {
 	__pmNoMem("build_vset for control/enquire", need, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     vsp->pmid = pmid;
     if (have_desc < 0) {

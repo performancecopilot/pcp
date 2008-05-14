@@ -32,7 +32,6 @@ doindom(pmResult *rp)
 		"%s: doindom: pmGetInDom (%s) failed: %s\n",
 		    pmProgname, pmInDomStr(mp->idp->indom), pmErrStr(sts));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	need = 1;
@@ -74,7 +73,6 @@ doindom(pmResult *rp)
 		    "%s: Error: failed to add pmInDom: indom %s (for pmid %s): %s\n",
 			pmProgname, pmInDomStr(mp->idp->indom), pmIDStr(vsp->pmid), pmErrStr(sts));
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	    needti = 1;		/* requires a temporal index update */
 	}

@@ -74,14 +74,12 @@ static ascii_ctl	ac;
 
 static int              ceiling = PDU_CHUNK * 64;
 
-/*ARGSUSED*/
 int
 __pmMoreInput(int fd)
 {
     return 0;
 }
 
-/*ARGSUSED*/
 void
 __pmNoMoreInput(int fd)
 {

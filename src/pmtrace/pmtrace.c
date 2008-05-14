@@ -223,5 +223,4 @@ Options:\n\
 	}
     }
     exit(c);
-    /*NOTREACHED*/
 }

@@ -970,7 +970,6 @@ init_tables(int dom)
 	(void)redo_many();
 }
 
-/*ARGSUSED2*/
 static int
 sample_profile(__pmProfile *prof, pmdaExt *ep)
 {
@@ -979,7 +978,6 @@ sample_profile(__pmProfile *prof, pmdaExt *ep)
     return 0;
 }
 
-/*ARGSUSED5*/
 static int
 sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *ep)
 {
@@ -1131,7 +1129,6 @@ _pmHPCincr(pmHPC_t *ctr, __uint32_t val)
 
 static pmHPC_t	rapid_ctr;
 
-/*ARGSUSED4*/
 static int
 sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
 {
@@ -1798,7 +1795,6 @@ done:
     return 0;
 }
 
-/*ARGSUSED3*/
 static int
 sample_desc(pmID pmid, pmDesc *desc, pmdaExt *ep)
 {
@@ -1837,7 +1833,6 @@ doit:
     return PM_ERR_PMID;
 }
 
-/*ARGSUSED4*/
 static int
 sample_text(int ident, int type, char **buffer, pmdaExt *ep)
 {
@@ -1877,7 +1872,6 @@ doit:
     return sts;
 }
 
-/*ARGSUSED2*/
 static int
 sample_store(pmResult *result, pmdaExt *ep)
 {

@@ -932,8 +932,6 @@ int pmdaCacheOp(pmInDom indom, int op)
 	default:
 	    return -EINVAL;
     }
-
-    /*NOTREACHED*/
 }
 
 int pmdaCacheLookupName(pmInDom indom, char *name, int *inst, void **private)

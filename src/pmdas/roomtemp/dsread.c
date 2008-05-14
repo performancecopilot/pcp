@@ -114,5 +114,4 @@ nextsensor(void)
 	if (sn[0] == TEMP_FAMILY)
 	    return sn;
     }
-    /*NOTREACHED*/
 }

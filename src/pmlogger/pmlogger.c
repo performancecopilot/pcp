@@ -117,14 +117,12 @@ run_done(int sts, char *msg)
     exit(sts);
 }
 
-/*ARGSUSED*/
 static void
 run_done_callback(int i, void *j)
 {
   run_done(0, NULL);
 }
 
-/*ARGSUSED*/
 static void
 vol_switch_callback(int i, void *j)
 {
@@ -460,7 +458,6 @@ failed:
 
     if (cmd == 'Q' || (cmd == 'X' && strcmp(lbuf, "Yes") == 0)) {
 	run_done(0, "Recording session terminated");
-	/*NOTREACHED*/
     }
 
     if (cmd != '?') {
@@ -519,7 +516,6 @@ main(int argc, char **argv)
 		int sz = strlen(vardir)+strlen("/config/pmlogger/")+strlen(optarg)+1;
 		if ( (configfile = (char *)malloc(sz)) == NULL ) {
 		    __pmNoMem("config file name", sz, PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		sprintf(configfile, "%s/config/pmlogger/%s", vardir, optarg);
 		if (access(configfile, F_OK) != 0) {
@@ -918,14 +914,12 @@ Options:\n\
 		    if (sts < 0)
 			fprintf(stderr, "Error: __pmGetPDU: %s\n", pmErrStr(sts));
 		    disconnect(sts);
-		    /*NOTREACHED*/
 		}
 		else {
 		    php = (__pmPDUHdr *)pb;
 		    fprintf(stderr, "Error: Unsolicited %s PDU from PMCD\n",
 			__pmPDUTypeStr(php->type));
 		    disconnect(PM_ERR_IPC);
-		    /*NOTREACHED*/
 		}
 	    }
 	    if (rsc_fd >= 0 && FD_ISSET(rsc_fd, &readyfds)) {
@@ -1008,7 +1002,6 @@ Options:\n\
 	    perror("select");
     }
 
-    /*NOTREACHED*/
 }
 
 

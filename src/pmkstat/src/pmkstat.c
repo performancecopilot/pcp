@@ -781,7 +781,6 @@ NEXT:
 	pmFreeResult(prev);
 
     exit(0);
-    /*NOTREACHED*/
 }
 
 /* return ulong result of difference between two ulong */

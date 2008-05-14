@@ -28,7 +28,6 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-/*ARGSUSED*/
 int
 main(int argc, char **argv)
 {
@@ -54,6 +53,5 @@ main(int argc, char **argv)
         printf("%s\n", hep->h_name);
 
     exit(0);
-    /*NOTREACHED*/
 
 }

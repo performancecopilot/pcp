@@ -80,13 +80,11 @@ false		{ return FALSE; }
 	    if (yylval.y_str == 0) {
 		(void)sprintf(emsg, "malloc failed: %s", strerror(errno));
 		yyerror(emsg);
-	        /*NOTREACHED*/
 	    }
 	    strncpy(yylval.y_str, &yytext[1], yyleng-2);
 	    yylval.y_str[yyleng-2] = '\0';
 	    if ((str = re_comp(yylval.y_str)) != 0) {
 	        yyerror(str);
-	        /*NOTREACHED*/
 	    }
 	    return PATTERN;
 	}
@@ -96,7 +94,6 @@ false		{ return FALSE; }
 	    if (yylval.y_str == 0) {
 		(void)sprintf(emsg, "malloc failed: %s", strerror(errno));
 		yyerror(emsg);
-	        /*NOTREACHED*/
 	    }
 	    strncpy(yylval.y_str, &yytext[1], yyleng-2);
 	    yylval.y_str[yyleng-2] = '\0';

@@ -152,7 +152,6 @@ GetNextLine(void)
 	linebuf = (char *)malloc(szLineBuf);
 	if (linebuf == NULL)
 	    __pmNoMem("pmcd config: GetNextLine init", szLineBuf, PM_FATAL_ERR);
-	/* NOTREACHED */
     }
 
     linebuf[0] = '\0';
@@ -663,7 +662,6 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 			 "pmcd config: line %d, couldn't copy DSO entry point\n",
 			 nLines);
 	    __pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
-	    /* NOTREACHED */
 	}
 
     FindNextToken();
@@ -677,7 +675,6 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 		     "pmcd config: line %d, couldn't copy DSO pathname\n",
 		     nLines);
 	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
-	/* NOTREACHED */
     }
 
 #ifdef __host_mips
@@ -695,7 +692,6 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 			 "pmcd config: line %d, couldn't construct DSO pathname\n",
 			 nLines);
 	    __pmNoMem("pmcd config", need, PM_FATAL_ERR);
-	    /* NOTREACHED */
 	}
 	strcpy(newPath, dsoPrefix);
 	strcat(newPath, pathName);
@@ -778,7 +774,6 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
 	    fprintf(stderr, "pmcd: line %d, couldn't copy port name\n",
 			 nLines);
 	    __pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
-	    /* NOTREACHED */
 	}
     FindNextToken();
 
@@ -1726,7 +1721,6 @@ GetAgentDso(AgentInfo *aPtr)
 	dso->pathName = strdup(name);
 	if (dso->pathName == NULL) {
 	    __pmNoMem("pmcd config: pathName", strlen(name), PM_FATAL_ERR);
-	    /* NOTREACHED */
 	}
 	dso->xlatePath = 1;
     }
@@ -1746,7 +1740,6 @@ GetAgentDso(AgentInfo *aPtr)
 		     aPtr->pmDomainLabel, dso->pathName);
     fprintf(stderr, "No dynamic DSO/DLL support on this platform\n");
     return -1;
-    /* NOTREACHED */
 #endif
 
     if (dso->dlHandle == NULL) {

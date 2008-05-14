@@ -91,7 +91,6 @@ PMC_Metric::PMC_Metric(PMC_Group *group,
 		 pmProgname, msg);
 	free(msg);
 	return;
-	/*NOTREACHED*/
     }
 
     if (_sts >= 0) {
@@ -128,7 +127,6 @@ PMC_Metric::setup(PMC_Group* group, pmMetricSpec *theMetric)
 	setupIndom(theMetric);
     if (_sts < 0) {
 	return;
-	/*NOTREACHED*/
     }
 
  #ifdef PCP_DEBUG
@@ -451,7 +449,6 @@ PMC_Metric::update()
 	    if (value._error < 0) {		// we already know we
 		value._value = 0.0;		// don't have this value
 		continue;
-		/*NOTREACHED*/
 	    }
 
 	    if (value._prevError < 0) {		// we need two values
@@ -468,7 +465,6 @@ PMC_Metric::update()
 #endif
 
 		continue;
-		/*NOTREACHED*/
 	    }
 
 	    value._value = value._currValue - value._prevValue;
@@ -492,7 +488,6 @@ PMC_Metric::update()
 		    value._error = PM_ERR_VALUE;
 		    err++;
 		    continue;
-		    /*NOTREACHED*/
 		}
 	    }
 	    // wrapped going backwards
@@ -514,7 +509,6 @@ PMC_Metric::update()
 		    value._error = PM_ERR_VALUE;
 		    err++;
 		    continue;
-		    /*NOTREACHED*/
 		}
 	    }
 
@@ -887,7 +881,6 @@ PMC_Metric::updateIndom(void)
 		cerr << "PMC_Metric::updateIndom: No change required" << endl;
 #endif
 	    return PMC_false;
-	    /*NOTREACHED*/
 	}
     }
 

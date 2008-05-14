@@ -105,7 +105,6 @@ main(int argc, char **argv)
 	    for (i = 0; i < nfoo; i++)
 		printf(fmt, foo[i].name, foo[i].flag, foo[i].text);
 	    exit(0);
-	    /*NOTREACHED*/
 
 	case '?':
 	default:

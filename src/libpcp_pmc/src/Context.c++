@@ -137,7 +137,6 @@ PMC_Context::lookupDesc(pmID pmid, uint_t& desc, uint_t& indom)
 	    sts = descPtr->status();
 	    delete descPtr;
 	    return sts;
-	    /*NOTREACHED*/
 	}
 
 	_descs.append(descPtr);
@@ -174,7 +173,6 @@ PMC_Context::lookupDesc(pmID pmid, uint_t& desc, uint_t& indom)
 		sts = indomPtr->status();
 		delete indomPtr;
 		return sts;
-		/*NOTREACHED*/
 	    }
 
 	    _indoms.append(indomPtr);

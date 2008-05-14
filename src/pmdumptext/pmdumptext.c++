@@ -196,7 +196,6 @@ traverse(const char *str, double scale)
 		 pmProgname, msg);
 	free(msg);
 	return sts;
-	/*NOTREACHED*/
     }
 
     // If the metric has instances, then it cannot be traversed
@@ -1049,7 +1048,6 @@ main(int argc, char *argv[])
 
     if (errflag > 0) {
 	usage();
-	/*NOTREACHED*/
     }
 
     if (headerFlag) {
@@ -1067,7 +1065,6 @@ main(int argc, char *argv[])
 	    pmprintf("%s: %s\n", pmProgname, pmErrStr(sts));
 	    pmflush();
 	    exit(1);
-	    /*NOTREACHED*/
 	}
     }
 
@@ -1088,7 +1085,6 @@ main(int argc, char *argv[])
     if (errflag) {
     	pmflush();
 	exit(1);
-	/*NOTREACHED*/
     }
 
     // Set up cout to use the required formatting
@@ -1139,7 +1135,6 @@ main(int argc, char *argv[])
 			 pmProgname, configName.ptr(), strerror(errno));
 	    	pmflush();
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	}
     }
@@ -1147,7 +1142,6 @@ main(int argc, char *argv[])
 	pmprintf("%s: configuration file cannot be specified with metrics\n",
 		 pmProgname);
 	usage();
-	/*NOTREACHED*/
     }
     
     if (configFile != NULL) {
@@ -1203,7 +1197,6 @@ main(int argc, char *argv[])
 		     pmProgname, (char *)(timeZone.ptr()), pmErrStr(sts));
 	    pmflush();
 	    exit(1);
-	    /*NOTREACHED*/
         }
     }
 
@@ -1266,7 +1259,6 @@ main(int argc, char *argv[])
     if (sts < 0) {
 	pmprintf("%s\n", msg);
 	usage();
-	/*NOTREACHED*/
     }
 
     pos = __pmtimevalToReal(&position);
@@ -1294,7 +1286,6 @@ main(int argc, char *argv[])
 
     if (!dumpFlag) {
 	exit(0);
-	/*NOTREACHED*/
     }
 
     if (!isLive) {

@@ -341,5 +341,4 @@ Options:\n\
     sts = system(cmd);
 
     exit(sts);
-    /* NOTREACHED */
 }

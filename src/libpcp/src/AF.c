@@ -197,7 +197,6 @@ enqueue(qelt *qp)
     }
 }
 
-/*ARGSUSED*/
 static void
 onalarm(int dummy)
 {

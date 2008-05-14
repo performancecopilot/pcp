@@ -110,7 +110,6 @@ ParseOptions(int argc, char *argv[])
 	    case '?':
 		PrintUsage();
 		exit(EXIT_STS_SUCCESS);
-		/*NOTREACHED*/
 	}
     }
 
@@ -210,5 +209,4 @@ main(int argc, char **argv)
 	}
     }
 
-    /*NOTREACHED*/
 }

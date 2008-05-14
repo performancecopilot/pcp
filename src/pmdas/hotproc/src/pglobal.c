@@ -78,7 +78,6 @@ pglobal_getdesc(pmID pmid, pmDesc *desc)
     return getdesc(ndesc, desctab, pmid, desc);
 }
 
-/*ARGSUSED0*/
 int
 pglobal_setatom(int item, pmAtomValue *atom, int j)
 {
@@ -87,7 +86,6 @@ pglobal_setatom(int item, pmAtomValue *atom, int j)
 }
 
 
-/*ARGSUSED0*/
 int
 pglobal_getinfo(pid_t pid, int j)
 {
@@ -96,7 +94,6 @@ pglobal_getinfo(pid_t pid, int j)
 }
 
 
-/*ARGSUSED0*/
 int
 pglobal_allocbuf(int size)
 {

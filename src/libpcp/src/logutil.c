@@ -349,7 +349,6 @@ __pmLogName(const char *base, int vol)
 	    free(tbuf);
 	if ((tbuf = (char *)malloc(len)) == NULL) {
 	    __pmNoMem("__pmLogName", len, PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	tlen = len;
     }
@@ -1540,7 +1539,6 @@ more:
 	    i = (int)sizeof(pmResult) + numpmid * (int)sizeof(pmValueSet *);
 	    if ((newres = (pmResult *)malloc(i)) == NULL) {
 		__pmNoMem("__pmLogFetch.newres", i, PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 	    newres->numpmid = numpmid;
 	    newres->timestamp = (*result)->timestamp;
@@ -1551,7 +1549,6 @@ more:
 		    /* first time we've been asked for this one */
 		    if ((pcp = (pmid_ctl *)malloc(sizeof(pmid_ctl))) == NULL) {
 			__pmNoMem("__pmLogFetch.pmid_ctl", sizeof(pmid_ctl), PM_FATAL_ERR);
-			/*NOTREACHED*/
 		    }
 		    pcp->pc_pmid = pmidlist[j];
 		    pcp->pc_numval = 0;

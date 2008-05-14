@@ -122,7 +122,6 @@ refresh_proc_interrupts(proc_interrupts_t *proc_interrupts)
 		    proc_interrupts->ncpus = cpu + 1;
 		proc_interrupts->syscall[cpu] = count;
 		continue;
-		/* NOTREACHED */
 	    }
 
 	    /*

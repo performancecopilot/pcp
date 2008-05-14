@@ -166,7 +166,6 @@ main(int argc, char **argv)
 	    }
 	    if ((tz = strdup(optarg)) == NULL) {
 		__pmNoMem("initialising timezone", strlen(optarg), PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 	    tztype  = TZ_OTHER;
 	    tzchange = 1;
@@ -363,7 +362,6 @@ fprintf(stderr, "Logging delta (%d msec) cannot be bigger than %d msec\n", logfr
 		printf("Goodbye\n");
 		DisconnectLogger();
 		exit(0);
-		/*NOTREACHED*/
 		break;
 
 	    case STATUS:
@@ -392,5 +390,4 @@ fprintf(stderr, "Logging delta (%d msec) cannot be bigger than %d msec\n", logfr
 
     DisconnectLogger();
     exit(0);
-    /*NOTREACHED*/
 }

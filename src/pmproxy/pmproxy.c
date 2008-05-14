@@ -101,7 +101,6 @@ GrowReqPorts(void)
     reqPorts = (ReqPortInfo*)realloc(reqPorts, need);
     if (reqPorts == NULL) {
 	__pmNoMem("pmproxy: can't grow request port array", need, PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
 }
 
@@ -238,7 +237,6 @@ ParseOptions(int argc, char *argv[])
 	    exit(0);
 	else
 	    DontStart();
-	/*NOTREACHED*/
     }
     return;
 }
@@ -262,7 +260,6 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     if (fd < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) socket: %s\n", port, strerror(errno));
 	DontStart();
-	/*NOTREACHED*/
     }
     if (fd > maxSockFd)
 	maxSockFd = fd;
@@ -272,7 +269,6 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 		   (mysocklen_t)sizeof(i)) < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) setsockopt(nodelay): %s\n", port, strerror(errno));
 	DontStart();
-	/*NOTREACHED*/
     }
 
     /* Don't linger on close */
@@ -294,14 +290,12 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) bind: %s\n", port, strerror(errno));
 	__pmNotifyErr(LOG_ERR, "pmproxy is already running\n");
 	DontStart();
-	/*NOTREACHED*/
     }
 
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) listen: %s\n", port, strerror(errno));
 	DontStart();
-	/*NOTREACHED*/
     }
     return fd;
 }
@@ -520,7 +514,6 @@ ClientLoop(void)
     }
 }
 
-/*ARGSUSED*/
 static void
 SigIntProc(int s)
 {
@@ -536,7 +529,6 @@ SigBad(int sig)
     fprintf(stderr, "\nDumping to core ...\n");
     fflush(stderr);
     abort();
-    /*NOTREACHED*/
 }
 
 /* Based on Stevens (Unix Network Programming, p.83) */
@@ -636,7 +628,6 @@ main(int argc, char *argv[])
     if (nReqPortsOK == 0) {
 	__pmNotifyErr(LOG_ERR, "pmproxy: can't open any request ports, exiting\n");
 	DontStart();
-	/*NOTREACHED*/
     }	
 
     __pmOpenLog("pmproxy", logfile, stderr, &status);
@@ -664,6 +655,5 @@ main(int argc, char *argv[])
 
     Shutdown();
     exit(0);
-    /* NOTREACHED */
 }
 #endif

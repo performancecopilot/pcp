@@ -52,7 +52,6 @@ instdel(void *a)
     }
 }
 
-/*ARGSUSED*/
 void
 instprint(__pmHashTable *t, void *e)
 {
@@ -89,7 +88,6 @@ datadel(void *a)
     }
 }
 
-/*ARGSUSED*/
 void
 dataprint(__pmHashTable *t, void *e)
 {

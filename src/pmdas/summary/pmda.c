@@ -185,5 +185,4 @@ main(int argc, char **argv)
     summary_done();
 
     exit(0);
-    /*NOTREACHED*/
 }

@@ -141,7 +141,6 @@ PMC_Indom::lookup(PMC_String const& name)
 	    }
 	    _instances[i]._refCount++;
 	    return i;
-	    /*NOTREACHED*/
 	}
     }
 
@@ -174,7 +173,6 @@ PMC_Indom::lookup(PMC_String const& name)
 	    }
 	    _instances[i]._refCount++;
 	    return i;
-	    /*NOTREACHED*/
 	}
     }
 
@@ -218,7 +216,6 @@ PMC_Indom::lookup(PMC_String const& name)
 		}
 		_instances[i]._refCount++;
 		return i;
-		/*NOTREACHED*/
 	    }
 	}
     }

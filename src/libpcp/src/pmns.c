@@ -1066,7 +1066,6 @@ loadbinary(void)
 	    symbol = (char *)malloc(symbsize);
 	    if (symbol == NULL) {
 		__pmNoMem("loadbinary-symbol", symbsize, PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 	    if (fread(symbol, sizeof(symbol[0]), 
 	        symbsize, fbin) != symbsize) goto bad;
@@ -1103,7 +1102,6 @@ loadbinary(void)
 			 htabsize * sizeof(htab[0]) + 
 			 nodecnt * sizeof(*root),
 			 PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 
 	    if (fread(htab, sizeof(htab[0]), htabsize, fbin) != htabsize) goto bad;

@@ -365,7 +365,6 @@ receivePDUs(pmdaInterface *dispatch)
 
 	if (__pmdaMainPDU(dispatch) < 0){
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	if (interval == 0) {
@@ -379,7 +378,6 @@ receivePDUs(pmdaInterface *dispatch)
  * Catch an SPROC dying, report what we know, and exit
  * -- when main exits, other sprocs will get SIGHUP and exit quietly
  */
-/*ARGSUSED0*/
 static void
 onchld(int dummy)
 {
@@ -559,7 +557,6 @@ main(int argc, char **argv)
 
     if (err || optind != argc-1) {
     	usage();
-	/*NOTREACHED*/
     }
 
     line = 0;
@@ -569,7 +566,6 @@ main(int argc, char **argv)
     if (configFile == (FILE*)0) {
 	fprintf(stderr, "Unable to open config file %s\n", configFileName);
     	usage();
-	/*NOTREACHED*/
     }
 
     if (checkOnly == 0) {
@@ -624,7 +620,6 @@ main(int argc, char **argv)
 		    __pmNoMem("main.wl_regexInst", 
 			     (wl_numRegex + 1) * sizeof(WebRegex),
 			     PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 	    }
 
@@ -745,7 +740,6 @@ main(int argc, char **argv)
 		__pmNoMem("main.wl_regex", 
 			  sizeof(*wl_regexTable[wl_numRegex].regex),
 			  PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 
 	    if (regcomp(wl_regexTable[wl_numRegex].regex, buf1, REG_EXTENDED) != 0) {
@@ -776,7 +770,6 @@ main(int argc, char **argv)
 		    __pmNoMem("main.wl_regexInst", 
 			     (wl_numRegex + 1) * sizeof(WebRegex),
 			     PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 	    }
 
@@ -860,7 +853,6 @@ main(int argc, char **argv)
 		    __pmNoMem("main.wl_serverInst", 
 			     (wl_numServers + 1) * sizeof(pmdaInstid),
 			     PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 
 		wl_servers = (WebServer*)realloc(wl_servers,
@@ -869,7 +861,6 @@ main(int argc, char **argv)
 		    __pmNoMem("main.wl_servers", 
 			     (wl_numServers + 1) * sizeof(WebServer),
 			     PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 	    }
 
@@ -1092,7 +1083,6 @@ main(int argc, char **argv)
 	__pmNoMem("main.wl_sproc", 
 		  (wl_numSprocs+1) * sizeof(WebSproc),
 		  PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
 
 

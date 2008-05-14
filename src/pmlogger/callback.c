@@ -161,7 +161,6 @@ setavail(pmResult *resp)
 	    if (php == (pmidhist_t *)0) {
 		__pmNoMem("setavail: new pmid hist entry calloc",
 			 sizeof(pmidhist_t), PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 	    php->ph_pmid = pmid;
 	    php->ph_indom = ((optreq_t *)hp->data)->r_desc->indom;
@@ -174,7 +173,6 @@ setavail(pmResult *resp)
 	    if (ihp == (insthist_t *)0) {
 		__pmNoMem("setavail: inst list calloc",
 			 vsp->numval * sizeof(insthist_t), PM_FATAL_ERR);
-		/*NOTREACHED*/
 	    }
 	    php->ph_instlist = ihp;
 	    for (j = 0; j < vsp->numval; j++, ihp++) {
@@ -184,7 +182,6 @@ setavail(pmResult *resp)
 	    if ((j = __pmHashAdd(pmid, (void *)php, &hist_hash)) < 0) {
 		extern void die(char *, int);
 		die("setavail: __pmHashAdd(hist_hash)", j);
-		/*NOTREACHED*/
 	    }
 	    
 	    return;
@@ -210,7 +207,6 @@ setavail(pmResult *resp)
 		php->ph_instlist = (insthist_t *)realloc(php->ph_instlist, need);
 		if (php->ph_instlist == (insthist_t *)0) {
 		    __pmNoMem("setavail: inst list realloc", need, PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		ihp = &php->ph_instlist[k];
 		ihp->ih_inst = inst;
@@ -361,7 +357,6 @@ log_callback(int afid, void *data)
 	if (acp == (AFctl_t *)0) {
 	    __pmNoMem("log_callback: new AFctl_t entry calloc",
 		     sizeof(AFctl_t), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	acp->ac_afid = afid;
 	acp->ac_next = achead;
@@ -403,7 +398,6 @@ log_callback(int afid, void *data)
 		if (lfp == (lastfetch_t *)0) {
 		    __pmNoMem("log_callback: new lastfetch_t entry calloc",
 			     sizeof(lastfetch_t), PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		lfp->lf_next = acp->ac_fetch;
 		acp->ac_fetch = lfp;
@@ -429,7 +423,6 @@ log_callback(int afid, void *data)
 		fprintf(stderr, "callback: disconnecting because myFetch failed: %s\n", pmErrStr(sts));
 #endif
 	    disconnect(sts);
-	    /*NOTREACHED*/
 	}
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL2)

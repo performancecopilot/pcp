@@ -205,7 +205,6 @@ newlabel(void)
 	fprintf(stderr,"%s: Error: version number %d (not %d as expected) in archive (%s)\n",
 		pmProgname, ilabel.ll_magic & 0xff, PM_LOG_VERS02, iname);
 	exit(1);
-	/*NOTREACHED*/
     }
 
     /* copy magic number, pid, host and timezone */
@@ -258,6 +257,5 @@ newvolume(char *base, __pmTimeval *tvp)
 	fprintf(stderr, "%s: Error: volume %d: %s\n",
 		pmProgname, nextvol, pmErrStr(-errno));
 	exit(1);
-	/*NOTREACHED*/
     }
 }

@@ -202,7 +202,6 @@ mkAtom(pmAtomValue *avp, int *nbyte, int type, char *buf)
 		*nbyte = strlen(buf) + 1;
 		if ((avp->cp = strdup (buf)) == NULL) {
 		    __pmNoMem("pmstore", *nbyte, PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		endbuf = "";
 		break;
@@ -218,7 +217,6 @@ mkAtom(pmAtomValue *avp, int *nbyte, int type, char *buf)
 		vp = (void *)malloc(*nbyte);
 		if (vp == NULL) {
 		    __pmNoMem("pmstore", *nbyte, PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 		if (vtype & (IS_HEX | IS_INTEGER) ) {
 		    /* Try short one first */
@@ -349,7 +347,6 @@ char *argv[];
 		    (char **)realloc(instnames, numinst * sizeof(char *));
 		if (instnames == NULL) {
 		    __pmNoMem("pmstore.instnames", numinst * sizeof(char *), PM_FATAL_ERR);
-		    /*NOTREACHED*/
 		}
 	       instnames[numinst-1] = subopt;
 	       subopt = strtok(NULL, WHITESPACE);
@@ -473,5 +470,4 @@ char *argv[];
     pmFreeResult(result);
 
     exit(0);
-    /* NOTREACHED */
 }

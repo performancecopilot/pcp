@@ -247,5 +247,4 @@ main(int argc, char **argv)
     }
 
     exit(sts);
-    /* NOTREACHED */
 }

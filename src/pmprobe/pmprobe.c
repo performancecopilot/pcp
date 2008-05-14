@@ -40,18 +40,15 @@ dometric(const char *name)
 	listsize = listsize == 0 ? 16 : listsize * 2;
 	if ((pmidlist = (pmID *)realloc(pmidlist, listsize * sizeof(pmidlist[0]))) == NULL) {
 	    __pmNoMem("realloc pmidlist", listsize * sizeof(pmidlist[0]), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	if ((namelist = (char **)realloc(namelist, listsize * sizeof(namelist[0]))) == NULL) {
 	    __pmNoMem("realloc namelist", listsize * sizeof(namelist[0]), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
     }
 
     namelist[numpmid]= strdup(name);
     if (namelist[numpmid] == NULL) {
 	__pmNoMem("strdup name", strlen(name), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
 
     numpmid++;
@@ -455,5 +452,4 @@ Options:\n\
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

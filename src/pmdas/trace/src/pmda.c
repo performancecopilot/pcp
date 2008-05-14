@@ -224,5 +224,4 @@ main(int argc, char **argv)
     traceMain(&dispatch);
 
     exit(0);
-    /*NOTREACHED*/
 }

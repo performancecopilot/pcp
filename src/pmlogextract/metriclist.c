@@ -234,7 +234,6 @@ searchmlist(pmResult *_Oresult)
 	free(ilist);
 	free(jlist);
 	return(NULL);
-	/*NOTREACHED*/
     }
 
 
@@ -320,5 +319,4 @@ nomem:
     fprintf(stderr, "%s: Error: cannot malloc space in \"searchmlist\".\n",
 	    pmProgname);
     exit(1);
-    /*NOTREACHED*/
 }
