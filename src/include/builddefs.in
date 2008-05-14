@@ -73,6 +73,7 @@ PCFLAGS = -fpic -fno-strict-aliasing
 DSOSUFFIX = so
 EXECSUFFIX =
 PLDFLAGS =
+PLDLIBS =
 
 ifeq "$(TARGET_OS)" "irix"
 PCFLAGS =
@@ -92,7 +93,7 @@ ifeq "$(TARGET_OS)" "interix"
 PCFLAGS = -fno-strict-aliasing -D_ALL_SOURCE
 endif
 ifeq "$(TARGET_OS)" "solaris"
-PLDLIBS = @solaris_libs@
+PLDLIBS = -lnsl -lsocket -lresolv -ldl -lposix4
 endif
 ifeq "$(TARGET_OS)" "aix"
 # -qcpluscmt

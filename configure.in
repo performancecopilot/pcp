@@ -1010,13 +1010,6 @@ AC_TRY_LINK(
     double y = (double)x;
 ], AC_DEFINE(HAVE_CAST_U64_DOUBLE))
 
-solaris_libs=""
-if test $target_os = solaris
-then
-    solaris_libs="-lnsl -lsocket -lresolv -ldl -lposix4"
-fi
-AC_SUBST(solaris_libs)
-
 dnl check if basename and dirname need -lgen, -lpcp or nothing to work
 dnl (assume both go together)
 AC_CHECK_FUNCS(basename)
