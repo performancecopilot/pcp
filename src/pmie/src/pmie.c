@@ -720,12 +720,6 @@ getargs(int argc, char *argv[])
     if (bflag || isdaemon)
 	remap_stdout_stderr();
 
-    if (__pmGetLicense(PM_LIC_MON, pmProgname,
-			GET_LICENSE_SHOW_EXP) == PM_LIC_MON ||
-	__pmGetLicense(PM_LIC_COL, pmProgname,
-			GET_LICENSE_SHOW_EXP) == PM_LIC_COL)
-	licensed = 1;
-
     if (dfltConn == 0) {
 	/* default case, no -a or -h */
 	dfltConn = PM_CONTEXT_HOST;

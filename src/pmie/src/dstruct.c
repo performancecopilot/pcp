@@ -82,7 +82,6 @@ int		isdaemon = 0;			/* run as a daemon */
 int		agent = 0;			/* secret agent mode? */
 int		applet = 0;			/* applet mode? */
 int		dowrap = 0;			/* counter wrap? default no */
-int		licensed = 0;			/* pmie licensed? default no */
 pmiestats_t	*perf;				/* live performance data */
 pmiestats_t	instrument;			/* used if no mmap (archive) */
 
@@ -418,18 +417,6 @@ newHost(Task *owner, Symbol name)
 {
     Host *h = (Host *) zalloc(sizeof(Host));
 
-    if (!licensed && !archives) {
-	static char	*first_name = NULL;
-	if (first_name == NULL)
-	    first_name = sdup(symName(name));
-	else if (strcmp(symName(name), first_name) != 0) {
-	    fprintf(stderr, "Error: %s unlicensed - cannot create multiple host contexts without a valid\n"
-			    "       PCP Collector or Monitor license\n"
-			    "       (hosts \"%s\" and \"%s\")\n",
-			    pmProgname, first_name, symName(name));
-	    exit(1);
-	}
-    }
     h->name = symCopy(name);
     h->task = owner;
     return h;

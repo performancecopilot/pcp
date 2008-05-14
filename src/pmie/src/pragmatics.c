@@ -82,12 +82,6 @@ newContext(char *host)
     Archive	*a;
     int		sts = -1;
 
-    if (!licensed && archives) {
-	fprintf(stderr, "Error: %s unlicensed - cannot create an archive "
-			"context without a valid PCP\n"
-			"       Collector or Monitor license.", pmProgname);
-	exit(1);
-    }
     if (archives) {
 	a = archives;
 	while (a) {	/* find archive for host */
