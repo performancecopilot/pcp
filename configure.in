@@ -77,12 +77,9 @@ then
 elif test $target_os = cygwin
 then
     AC_DEFINE(IS_CYGWIN)
-elif test $target_os = interix
+elif test $target_os = mingw
 then
-    dnl Windows Services for Unix (SFU)
-    AC_DEFINE(IS_INTERIX)
-    CFLAGS="$CFLAGS -D_ALL_SOURCE"
-    export CFLAGS
+    AC_DEFINE(IS_MINGW)
 elif test $target_os = aix
 then
     AC_DEFINE(IS_AIX)
@@ -500,8 +497,6 @@ NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 # Unix variants
 $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/etc\/init/ { print "OK"; exit }
-# Interix (aka SFU)
-$2 == 0 && /IdleProcess/{ print "OK"; exit }
 # Cygwin
 / \/usr\/bin\/cygrunsrv/{ print "OK"; exit }
 / \/usr\/sbin\/inetd/	{  print "OK"; exit }'`
@@ -553,10 +548,6 @@ dnl set platform specific killall
 if test $target_os = solaris -o $target_os = cygwin
 then
     pcp_killall_prog=pkill
-elif test $target_os = interix
-then
-    dnl neither killall nor pkill in SFU 3.5
-    pcp_killall_prog=pmkillall
 else
     pcp_killall_prog=killall
 fi
@@ -669,16 +660,6 @@ AC_CHECK_FUNCS(nanosleep usleep)
 AC_CHECK_FUNCS(signal sighold sigrelse)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strdup strerror strtod strtol strtoll strtoull)
-
-if test $target_os = interix
-then
-    dnl despite the checks above, hstrerror() is actually a synonym
-    dnl via #define for strerror(), so we don't want a private version
-    dnl in libpcp
-    dnl
-    AC_DEFINE(HAVE_HSTRERROR)
-    AC_MSG_WARN(Force hstrerror() to be defined for interix)
-fi
 
 dnl sysinfo() is not everywhere, and not necessarily useful even when
 dnl it is there

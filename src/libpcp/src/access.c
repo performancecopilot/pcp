@@ -32,11 +32,6 @@
 #include <syslog.h>
 #include <netdb.h>
 
-#ifdef IS_INTERIX
-/* needed for definition of INADDR_LOOPBACK */
-#include <rpc/types.h>
-#endif
-
 #if !defined(HAVE_HSTRERROR)
 static char *
 hstrerror(int err)

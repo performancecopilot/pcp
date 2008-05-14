@@ -422,22 +422,11 @@ typedef void (*SIG_PF) (int);
 #define isnanf	isnan	/* isnan is a type-independent macro */
 #endif
 
-/* Determine if we are on a Cygwin box */
+/* Determine if we are on a Windows box with Cygwin */
 #undef IS_CYGWIN
 
-/*
- * Determine if we are on an Interix (aka Windows Services for Unix) box
- *
- * sometimes we have no choice other than to make platform-specific
- * choices at compile time ... sigh
- */
-#undef IS_INTERIX
-#ifdef IS_INTERIX
-/*
- * On Interix, the standard headers are incomplete ...
- */
-extern int unsetenv(char *);
-#endif
+/* Determine if we are on Windows with MinGW compilers */
+#undef IS_MINGW
 
 /* Determine if we are on an AIX box */
 #undef IS_AIX

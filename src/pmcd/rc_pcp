@@ -93,7 +93,7 @@ VERBOSE_CTL=on
 
 case "$PCP_PLATFORM"
 in
-    cygwin|interix)
+    cygwin|mingw)
 	# nothing we can usefully do here, skip the test
 	#
 	IAM=0

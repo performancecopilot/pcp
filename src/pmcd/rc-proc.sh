@@ -139,7 +139,7 @@ is_chkconfig_on()
     _cmds_exist $_flag
     $_have_runlevel && _rl=`runlevel | $PCP_AWK_PROG '{print $2}'`
 
-    if [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = interix ]
+    if [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = mingw ]
     then
 	# no chkconfig, just do it
 	#
@@ -195,7 +195,7 @@ chkconfig_on()
     _cmds_exist $_flag
     $_have_flag || return 1 # fail
 
-    if [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = interix ]
+    if [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = mingw ]
     then
 	# no chkconfig, just pretend
 	#
@@ -248,7 +248,7 @@ chkconfig_off()
     _cmds_exist $_flag
     $_have_flag || return 1 # fail
 
-    if [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = interix ]
+    if [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = mingw ]
     then
 	# no chkconfig, just pretend
 	#
@@ -283,7 +283,7 @@ chkconfig_on_msg()
     _cmds_exist $_flag
     $_have_flag || return 1 # fail
 
-    if [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = interix ]
+    if [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = mingw ]
     then
 	# no chkconfig, just pretend
 	#

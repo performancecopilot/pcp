@@ -22,35 +22,15 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
+CMDTARGET = pmlc$(EXECSUFFIX)
 CFILES	= pmlc.c util.c actions.c
 HFILES	= pmlc.h
 LFILES  = lex.l
-
-CMDTARGET	= pmlc$(EXECSUFFIX)
-
+YFILES	= gram.y
 LDIRT	= *.log foo.* $(YFILES:%.y=%.tab.?) $(CMDTARGET) $(LFILES:.l=.c) gram.h
 LLDLIBS = -lpcp 
 
 default: $(CMDTARGET)
-
-ifeq "$(TARGET_OS)" "interix"
-# use these rules for platforms where yacc/bison is broken
-CFILES	+= gram.tab.c
-HFILES	+= gram.tab.h
-gram.tab.c:	gram.save.c
-	cp gram.save.c gram.tab.c
-gram.tab.h:	gram.save.h
-	cp gram.save.h gram.tab.h
-LDIRT	+= gram.tab.c gram.tab.h
-LSRCFILES	+= gram.y
-else
-# do it properly
-YFILES = gram.y
-gram.tab.h:	gram.y
-	@echo 1 shift/reduce conflict is expected and considered to be benign
-	$(YACC) -d -b `basename $< .y` $<
-LSRCFILES	+= gram.save.c gram.save.h
-endif
 
 $(CMDTARGET):	$(OBJECTS)
 
@@ -58,6 +38,9 @@ install:	$(CMDTARGET)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 
 pmlc.o:	gram.h
+
+gram.tab.h:	gram.y
+	$(YACC) -d -b `basename $< .y` $<
 
 gram.h:	gram.tab.h
 	rm -f $@ && $(LN_S) $< $@

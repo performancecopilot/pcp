@@ -34,9 +34,6 @@ $(CMDTARGET) : $(SUBDIRS) $(OBJECTS)
 endif
 
 ifdef LIBTARGET
-ifeq ($(TARGET_OS), irix)
-_SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
-endif
 ifeq ($(TARGET_OS), linux)
 _SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
 endif
@@ -50,8 +47,8 @@ endif
 ifeq ($(TARGET_OS), cygwin)
 _SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
 endif
-ifeq ($(TARGET_OS), interix)
-_SHAREDOPTS	= -shared -Wl'-soname $(LIBTARGET)'
+ifeq ($(TARGET_OS), mingw)
+_SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
 endif
 ifeq ($(TARGET_OS), aix)
 _SHAREDOPTS	= -qmkshrobj

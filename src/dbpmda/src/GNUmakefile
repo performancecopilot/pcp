@@ -23,42 +23,28 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-TARGET	= dbpmda$(EXECSUFFIX)
-LFILES	= lex.l
+CMDTARGET = dbpmda$(EXECSUFFIX)
 CFILES	= dbpmda.c dso.c util.c pmda.c
 HFILES	= lex.h dbpmda.h
+LFILES	= lex.l
+YFILES	= gram.y
 
-LDIRT	= *.log foo.* gram.h $(YFILES:%.y=%.tab.?) $(LFILES:%.l=%.c) $(TARGET)
+LDIRT	= *.log foo.* gram.h $(YFILES:%.y=%.tab.?) $(LFILES:%.l=%.c)
 LLDLIBS	= -lpcp $(LIB_FOR_DLOPEN)
 
-default:	$(TARGET)
-
-ifeq "$(TARGET_OS)" "interix"
-# use these rules for platforms where yacc/bison is broken
-CFILES	+= gram.tab.c
-HFILES	+= gram.tab.h
-gram.tab.c:	gram.save.c
-	cp gram.save.c gram.tab.c
-gram.tab.h:	gram.save.h
-	cp gram.save.h gram.tab.h
-LDIRT	+= gram.tab.c gram.tab.h
-LSRCFILES	+= gram.y
-else
-# do it properly
-YFILES = gram.y
-gram.tab.h:	gram.y
-LSRCFILES	+= gram.save.c gram.save.h
-endif
+default:	$(CMDTARGET)
 
 include $(BUILDRULES)
 
-$(TARGET):	$(OBJECTS)
+$(CMDTARGET):	$(OBJECTS)
 
 install:	$(TARGET) 
-	$(INSTALL) -m 755 dbpmda $(PCP_BIN_DIR)/dbpmda
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 
 dbpmda.o:	gram.h
 lex.o:		gram.tab.h
+
+gram.tab.h:	gram.y
 
 gram.h:		gram.tab.h
 	rm -f $@ && $(LN_S) $< $@

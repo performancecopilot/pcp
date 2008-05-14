@@ -72,7 +72,7 @@ rm -f $tmp
 
 # chown/chmod is not always helpful
 #
-if [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = interix ]
+if [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = mingw ]
 then
     CHOWN=": skip chown"
     CHMOD=chmod
@@ -1098,7 +1098,7 @@ _check_userroot()
 {
     case "$PCP_PLATFORM"
     in
-	cygwin|interix)
+	cygwin|mingw)
 	    # nothing we can usefully do here, skip the test
 	    #
 	    ;;

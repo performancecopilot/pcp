@@ -47,24 +47,9 @@ LLDLIBS = -lpcp -lm
 
 default:	$(TARGET)
 
-ifeq "$(TARGET_OS)" "interix"
-# use these rules for platforms where yacc/bison is broken
-CFILES	+= grammar.c
-HFILES	+= grammar.h
-grammar.c:	grammar.save.c
-	cp grammar.save.c grammar.c
-grammar.h:	grammar.save.h
-	cp grammar.save.h grammar.h
-LSRCFILES	+= grammar.y
-LDIRT	+= grammar.c
-else
-# do it properly
 YFILES = grammar.y
-#Expect 184 shift/reduce conflict from bison
 grammar.h:	grammar.y
 	$(YACC) -d -b `basename $< .y` $< && cp `basename $@ .h`.tab.h $@
-LSRCFILES	+= grammar.save.c grammar.save.h
-endif
 
 pmie$(EXECSUFFIX):	$(OBJECTS) fun.o
 	$(CCF) -o $@ $(LDFLAGS) $(OBJECTS) fun.o $(LDLIBS)

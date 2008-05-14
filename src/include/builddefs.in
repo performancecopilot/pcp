@@ -89,8 +89,11 @@ PCFLAGS = -fno-strict-aliasing
 DSOSUFFIX = dll
 EXECSUFFIX = .exe
 endif
-ifeq "$(TARGET_OS)" "interix"
-PCFLAGS = -fno-strict-aliasing -D_ALL_SOURCE
+ifeq "$(TARGET_OS)" "mingw"
+PCFLAGS = -fno-strict-aliasing
+DSOSUFFIX = dll
+EXECSUFFIX = .exe
+PLDLIBS = -lwsock32
 endif
 ifeq "$(TARGET_OS)" "solaris"
 PLDLIBS = -lnsl -lsocket -lresolv -ldl -lposix4

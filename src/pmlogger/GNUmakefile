@@ -23,36 +23,18 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
+CMDTARGET = pmlogger$(EXECSUFFIX)
 
 CFILES	= pmlogger.c fetch.c util.c error.c callback.c ports.c \
 	  dopdu.c check.c preamble.c rewrite.c
 HFILES	= logger.h
 LFILES  = lex.l
-CMDTARGET	= pmlogger$(EXECSUFFIX)
+YFILES	= gram.y
 
 LLDLIBS	= -lpcp
 LDIRT	= *.log foo.* gram.h lex.c y.tab.? $(YFILES:%.y=%.tab.?) $(CMDTARGET)
 
 default:	$(CMDTARGET)
-
-ifeq "$(TARGET_OS)" "interix"
-# use these rules for platforms where yacc/bison is broken
-CFILES	+= gram.tab.c
-HFILES	+= gram.tab.h
-gram.tab.c:	gram.save.c
-	cp gram.save.c gram.tab.c
-gram.tab.h:	gram.save.h
-	cp gram.save.h gram.tab.h
-LDIRT	+= gram.tab.c gramm.tab.h
-LSRCFILES	+= gram.y
-else
-# do it properly
-YFILES = gram.y
-YFLAGS += -v
-gram.tab.h:	gram.y
-	$(YACC) -d -b `basename $< .y` $<
-LSRCFILES	+= gram.save.c gram.save.h
-endif
 
 include $(BUILDRULES)
 
@@ -61,9 +43,11 @@ $(CMDTARGET):	$(OBJECTS)
 install:	$(CMDTARGET) $(OTHERS)
 	$(INSTALL) -m 755 pmlogger $(PCP_BINADM_DIR)/pmlogger
 
+YFLAGS += -v
+gram.tab.h:	gram.y
+	$(YACC) -d -b `basename $< .y` $<
+
 lex.o gram.tab.o:	gram.tab.h
-
-
 
 default_pcp:	default
 

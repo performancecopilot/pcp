@@ -228,7 +228,7 @@ refresh(void *dummy)
     prctl(PR_TERMCHILD);          	/* SIGHUP when the parent dies */
 #elif defined (PR_SET_PDEATHSIG)
     prctl(PR_SET_PDEATHSIG, SIGTERM);
-#elif defined(IS_SOLARIS) || defined(IS_DARWIN) || defined(IS_CYGWIN) || defined(IS_INTERIX) || defined(IS_AIX) || defined(IS_FREEBSD)
+#elif defined(IS_SOLARIS) || defined(IS_DARWIN) || defined(IS_CYGWIN) || defined(IS_MINGW) || defined(IS_AIX) || defined(IS_FREEBSD)
     /* no signals here for child exit */
 #else
 !bozo: cant decide between PR_TERMCHILD and PR_SET_PDEATHSIG
