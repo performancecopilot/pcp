@@ -30,47 +30,6 @@
 
 #include "dsotbl.h"
 
-/*
- * for libpcp and unauthorized clients, __pmConnectHostMethod() leads
- * here and PMCD connection failure ...
- */
-/*ARGSUSED*/
-static int
-pcp_trustme(int fd, int what)
-{
-#ifndef HAVE_FLEXLM
-#ifdef HAVE_DLOPEN
-    char libpath[MAXPATHLEN];
-    void * dso;
-
-    snprintf (libpath, sizeof(libpath), "%s/libpcp_mon.so", pmGetConfig("PCP_LIB_DIR"));
-	
-    if ( (dso = dlopen (libpath, RTLD_LAZY)) != NULL ) {
-	void * sym;
-
-	if ( (sym = dlsym (dso, "__pmSetAuthClient")) != NULL ) {
-	    void (*f) (void) = (void (*) (void))sym;
-	    (*f)();
-	    /* No recursion here - __pmSetAuthClient MUST change the
-	     * pointer ... */
-	    return (__pmConnectHostMethod (fd, what));
-	} else {
-	    dlclose (dso);
-	}
-    }	    
-#endif
-#endif
-    return PM_ERR_PMCDLICENSE;
-}
-
-/*
- * Function pointer manipulation here is used to make the authorised
- * pmcd connect functionality accessible via a single call to
- * __pmConnectPMCD and in such a way that all subsequent calls will do
- * the right thing (always) when deciding which to call.
- */
-__pmConnectHostType __pmConnectHostMethod = pcp_trustme;
-
 /* MY_BUFLEN needs to big enough to hold "hostname port" */
 #define MY_BUFLEN (MAXHOSTNAMELEN+10)
 #define MY_VERSION "pmproxy-client 1\n"
@@ -168,7 +127,7 @@ do_handshake(int fd, __pmIPC *infop)
     sts = __pmGetPDU(fd, PDU_BINARY, TIMEOUT_DEFAULT, &pb);
     if (sts == PDU_ERROR) {
 	/*
-	 * see comments in pmcd ... we actually get an extended PDU
+	 * See comments in pmcd ... we actually get an extended PDU
 	 * from a 2.0 pmcd, of the form
 	 *
 	 *  :----------:-----------:
@@ -179,10 +138,13 @@ do_handshake(int fd, __pmIPC *infop)
 	 *     pmcd  licensed             0          bits
 	 *	     unlicensed       -1007          bits
 	 *
-	 *  -1007 is magic and is PM_ERR_LICENSE for PCP 1.x
-	 *
-	 * a 1.x pmcd will send us just the regular error PDU with
+	 * -1007 is magic and is PM_ERR_LICENSE for PCP 1.x.
+	 * A 1.x pmcd will send us just the regular error PDU with
 	 * a "status" value.
+	 *
+	 * NB: Licensing is a historical remnant from the earlier
+	 * days of PCP on IRIX.  Modern day, open source PCP has no
+	 * run-time licensing restrictions using this mechanism.
 	 */
 	ok = __pmDecodeXtendError(pb, PDU_BINARY, &sts, &challenge);
 	if (ok < 0) {
@@ -195,9 +157,8 @@ do_handshake(int fd, __pmIPC *infop)
 	 */
 	infop->version = ok;
 	infop->ext = NULL;
-	if ((ok = __pmAddIPC(fd, *infop)) < 0) {
+	if ((ok = __pmAddIPC(fd, *infop)) < 0)
 	    return ok;
-	}
 
 	if (infop->version == PDU_VERSION1) {
 	    /* 1.x pmcd */
@@ -224,17 +185,11 @@ do_handshake(int fd, __pmIPC *infop)
 	    pduinfo = (__pmPDUInfo *)&challenge;
 	    *pduinfo = __ntohpmPDUInfo(*pduinfo);
 
-	    if (pduinfo->licensed == PM_LIC_COL) {
-		/* licensed pmcd, accept all */
-		handshake[0].c_type = CVERSION;
-		handshake[0].c_vala = PDU_VERSION;
-		handshake[0].c_valb = 0;
-		handshake[0].c_valc = 0;
-		sts = __pmSendCreds(fd, PDU_BINARY, 1, handshake);
-	    }
-	    else
-		/* pmcd not licensed, are you an authorized client? */
-		sts = __pmConnectHostMethod(fd, challenge);
+	    handshake[0].c_type = CVERSION;
+	    handshake[0].c_vala = PDU_VERSION;
+	    handshake[0].c_valb = 0;
+	    handshake[0].c_valc = 0;
+	    sts = __pmSendCreds(fd, PDU_BINARY, 1, handshake);
 	}
     }
     else
@@ -506,7 +461,7 @@ __pmConnectLocal(void)
 		continue;
 	    }
 	}
-#ifdef PROC_DSO
+#if defined(PROC_DSO)
 	/*
 	 * For Linux (and perhaps anything other than IRIX), the proc
 	 * PMDA is part of the OS PMDA, so this one cannot be optional
@@ -536,7 +491,7 @@ __pmConnectLocal(void)
 	    dp->handle = NULL;
 	}
 	else {
-#ifdef HAVE_DLOPEN
+#if defined(HAVE_DLOPEN)
             dp->handle = dlopen(path, RTLD_NOW);
 	    if (dp->handle == NULL) {
 		pmprintf("__pmConnectLocal: Warning: error attaching DSO "
@@ -546,7 +501,8 @@ __pmConnectLocal(void)
 	    }
 #else	/* ! HAVE_DLOPEN */
 	    dp->handle = NULL;
-	    pmprintf("__pmConnectLocal: Warning: error attaching DSO \"%s\"\n", path);
+	    pmprintf("__pmConnectLocal: Warning: error attaching DSO \"%s\"\n",
+		     path);
 	    pmprintf("No dynamic DSO/DLL support on this platform\n\n");
 	    pmflush();
 	    dp->domain = -1;
@@ -556,7 +512,7 @@ __pmConnectLocal(void)
 	if (dp->handle == NULL)
 	    continue;
 
-#ifdef HAVE_DLOPEN
+#if defined(HAVE_DLOPEN)
 	/*
 	 * rest of this only makes sense if the dlopen() worked
 	 */
@@ -644,7 +600,6 @@ __pmConnectLocal(void)
 	    }
 	}
 #endif	/* HAVE_DLOPEN */
-
     }
 
     done_init = 1;
