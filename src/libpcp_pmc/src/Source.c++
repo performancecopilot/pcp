@@ -68,12 +68,7 @@ PMC_Source::retryConnect(int type, const char *source)
 
     oldContext = pmWhichContext();
 
-#ifdef PCP_UNLICENSED    
-    _sts = _pmAuthNewContext(type, source);
-#else
     _sts = pmNewContext(type, source);
-#endif
-
     if (_sts >= 0) {
 
 	_hndls.append(_sts);
@@ -292,12 +287,7 @@ PMC_Source::dupContext()
     // No active contexts, create a new context
     else {
 
-#ifdef PCP_UNLICENSED    
-	sts = _pmAuthNewContext(_type, _source.ptr());
-#else
 	sts = pmNewContext(_type, _source.ptr());
-#endif
-
 	if (sts >= 0) {
 	    _hndls.append(sts);
 #ifdef PCP_DEBUG

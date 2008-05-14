@@ -467,18 +467,4 @@ Options:\n\
     }
 
     exit(status);
-    /*NOTREACHED*/
 }
-
-#ifdef BUILDTOOL
-/*
- * redefine __pmGetLicenseCap(), to avoid PCP license hassles in the
- * build environment
- */
-
-int
-__pmGetLicenseCap(void)
-{
-    return PM_LIC_PCP | PM_LIC_COL | PM_LIC_MON;
-}
-#endif

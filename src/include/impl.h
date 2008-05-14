@@ -717,29 +717,6 @@ extern void __pmNoMem(const char *, size_t, int);
 #define PM_RECOV_ERR 0
 
 /*
- * nodelock license check
- */
-/*
- * if license checking is enabled, the following two functions need
- * to be implemented in a static library, else they are stubs.
- */
-#ifdef HAVE_LICENSE_CHECK
-extern int __pmGetLicense(int, const char *, int);
-extern int __pmGetLicenseCap(void);
-#else
-#define __pmGetLicense(a, b, c) (a)
-#define __pmGetLicenseCap() (~0)
-#endif
-
-#define PM_LIC_COL      1
-#define PM_LIC_MON      2
-#define PM_LIC_PCP      4
-#define PM_LIC_WEB      8
-#ifdef PCP_DEBUG
-#define PM_LIC_DEV      16384   /* for development and testing */
-#endif
-
-/*
  * program name, as used in __pmNotifyErr() ... default is "pcp"
  */
 extern char	*pmProgname;

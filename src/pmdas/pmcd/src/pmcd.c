@@ -1083,15 +1083,8 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			case 15:	/* sighup ... always 0 */
 				atom.l = 0;
 				break;
-			case 16:	/* license */
-				/*
-				 * be careful about errors, and
-				 * strip the PM_LIC_PCP bit as this is
-				 * redundant
-				 */
-				j = __pmGetLicenseCap();
-				if (j < 0) j = 0;
-				atom.l = j & (~0x4);
+			case 16:	/* license - hysterical raisins */
+				j = 1;
 				break;
 			case 17:	/* openfds */
 				atom.ul = (unsigned int)pmcd_hi_openfds;
