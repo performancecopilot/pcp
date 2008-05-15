@@ -23,17 +23,6 @@
 #include "impl.h"
 #include <ctype.h>
 
-#if defined(HAVE_CONST_DIRENT)
-#define MYDIRENT const struct dirent
-#else
-#define MYDIRENT struct dirent
-#endif
-
-#ifdef IS_SOLARIS
-extern int scandir(const char *, struct dirent ***, int(*)(MYDIRENT *), int(*)(MYDIRENT **, MYDIRENT **)); 
-extern int alphasort(MYDIRENT **, MYDIRENT **);
-#endif
-
 static __pmLogPort *logport = NULL;
 					/* array of all known pmlogger ports */
 static int	nlogports = 0;		/* no. of elements used in logports array */
@@ -120,7 +109,7 @@ exists_process(pid_t pid)
  * files are numbers (pids) or PM_LOG_PRIMARY_LINK for the primary logger.
  */
 static int
-is_portfile(MYDIRENT *dep)
+is_portfile(const_dirent *dep)
 {
     char	*endp;
     int		pid;
@@ -141,7 +130,7 @@ is_portfile(MYDIRENT *dep)
 static char match[PROCFS_ENTRY_SIZE];
 
 static int
-is_match(MYDIRENT *dep)
+is_match(const_dirent *dep)
 {
     return strcmp(match, dep->d_name) == 0;
 }
@@ -165,7 +154,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     static char		*namebuf = NULL;
 					/* for building file names */
     static int		sznamebuf = 0;	/* current size of namebuf */
-    int			(*scanfn)(MYDIRENT *dep);
+    int			(*scanfn)(const_dirent *dep);
     FILE		*pfile;
     char		buf[MAXPATHLEN];
 
