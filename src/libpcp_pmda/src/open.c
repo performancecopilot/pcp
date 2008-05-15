@@ -107,6 +107,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     *outfd = *infd;
 }
 
+#if !defined(IS_MINGW)
 /*
  * Open a unix port to PMCD
  */
@@ -167,6 +168,15 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
     close(sfd);
     *outfd = *infd;
 }
+
+#else	/* MINGW */
+void
+__pmdaOpenUnix(char *sockname, int *infd, int *outfd)
+{
+    __pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Not supported on Windows");
+    exit(1);
+}
+#endif
 
 /*
  * capture PMDA args from getopts 
@@ -578,14 +588,14 @@ pmdaConnect(pmdaInterface *dispatch)
  */
 
 void
-__pmdaSetup(pmdaInterface *dispatch, int interface, char *name)
+__pmdaSetup(pmdaInterface *dispatch, int version, char *name)
 {
     pmdaExt	*pmda = NULL;
     e_ext_t	*extp;
 
-    if (!HAVE_V_TWO(interface)) {
+    if (!HAVE_V_TWO(version)) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetup: %s PMDA: interface version %d not supported (domain=%d)",
-		     name, interface, dispatch->domain);
+		     name, version, dispatch->domain);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
@@ -601,7 +611,7 @@ __pmdaSetup(pmdaInterface *dispatch, int interface, char *name)
 
     dispatch->status = 0;
 
-    dispatch->comm.pmda_interface = interface;
+    dispatch->comm.pmda_interface = version;
     dispatch->comm.pmapi_version = PMAPI_VERSION;
     dispatch->comm.flags = 0;
 
@@ -645,7 +655,7 @@ __pmdaSetup(pmdaInterface *dispatch, int interface, char *name)
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
-    extp->pmda_interface = interface;
+    extp->pmda_interface = version;
     extp->res = NULL;
     extp->maxnpmids = 0;
     pmda->e_ext = (void *)extp;
@@ -662,13 +672,13 @@ __pmdaSetup(pmdaInterface *dispatch, int interface, char *name)
  */
 
 void
-pmdaDaemon(pmdaInterface *dispatch, int interface, char *name, int domain, 
+pmdaDaemon(pmdaInterface *dispatch, int version, char *name, int domain, 
 	   char *logfile, char *helptext)
 {
     pmdaExt	*pmda = NULL;
 
     dispatch->domain = domain;
-    __pmdaSetup(dispatch, interface, name);
+    __pmdaSetup(dispatch, version, name);
 
     if (dispatch->status < 0)
 	return;
@@ -686,9 +696,9 @@ pmdaDaemon(pmdaInterface *dispatch, int interface, char *name, int domain,
  */
 
 void
-pmdaDSO(pmdaInterface *dispatch, int interface, char *name, char *helptext)
+pmdaDSO(pmdaInterface *dispatch, int version, char *name, char *helptext)
 {
-    __pmdaSetup(dispatch, interface, name);
+    __pmdaSetup(dispatch, version, name);
 
     if (dispatch->status < 0)
 	return;
