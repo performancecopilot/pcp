@@ -428,8 +428,10 @@ __pmConnectLocal(void)
     __pmDSO		*dp;
     char		pathbuf[MAXPATHLEN];
     const char		*path;
+#if defined(HAVE_DLOPEN)
     unsigned int	challenge;
     void		(*initp)(pmdaInterface *);
+#endif
 
     if (done_init)
 	return 0;
