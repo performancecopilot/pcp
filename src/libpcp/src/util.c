@@ -988,12 +988,13 @@ unsetenv(const char *name)
 #ifndef HAVE_SCANDIR
 /*
  * Scan the directory dirname, building an array of pointers to
- * dirent entries using malloc(3C).  select() and dcomp() are used
- * optionally filter and sort directory entries.
+ * dirent entries using malloc(3C).  select() and compare() are
+ * used to optionally filter and sort directory entries.
  */
 int
 scandir(const char *dirname, struct dirent ***namelist,
-	int(*select)(MYDIRENT *), int(*dcomp)(MYDIRENT **, MYDIRENT **))
+        int(*select)(const_dirent *),
+        int(*compare)(const_dirent **, const_dirent **))
 {
     DIR			*dirp;
     int			n = 0;
@@ -1027,23 +1028,17 @@ scandir(const char *dirname, struct dirent ***namelist,
     closedir(dirp);
     *namelist = names;
 
-    if (n && dcomp)
+    if (n && compare)
 	qsort(names, n, sizeof(names[0]),
-			(int(*)(const void *, const void *))dcomp);
+			(int(*)(const void *, const void *))compare);
     return n;
 }
-
-#if defined(HAVE_CONST_DIRENT)
-#define MYDIRENT const struct dirent
-#else
-#define MYDIRENT struct dirent
-#endif
 
 /* 
  * Alphabetical sort for default use
  */
 int
-alphasort(MYDIRENT **p, MYDIRENT **q)
+alphasort(const_dirent **p, const_dirent **q)
 {
     return strcmp((*p)->d_name, (*q)->d_name);
 }

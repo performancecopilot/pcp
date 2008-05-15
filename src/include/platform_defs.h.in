@@ -495,6 +495,20 @@ extern char *basename(char *);
 extern int isnand (double);
 #endif
 
+#ifdef HAVE_CONST_DIRENT
+#define const_dirent const struct dirent
+#else
+#define const_dirent struct dirent
+#endif
+
+#ifndef HAVE_SCANDIR
+struct dirent;
+extern int scandir(const char *, struct dirent ***,
+                   int(*filter)(const_dirent *),
+                   int(*compare)(const_dirent **, const_dirent **));
+extern int alphasort(const_dirent **, const_dirent **);
+#endif
+
 #ifndef __cplusplus      
 #undef inline
 #endif
