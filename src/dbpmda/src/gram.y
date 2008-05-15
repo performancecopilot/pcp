@@ -73,9 +73,9 @@ param_t	param;
 
 %term	COMMA EQUAL
 	OPEN CLOSE DESC GETDESC FETCH INSTANCE PROFILE HELP 
-	WATCH DBG QUIT STATUS STORE TEXT TIMER NAMESPACE WAIT
+	WATCH DBG QUIT STATUS STORE INFO TIMER NAMESPACE WAIT
 	DSO PIPE
-	ADD DELETE ALL NONE INDOM ON OFF
+	ADD DEL ALL NONE INDOM ON OFF
 	PLUS EOL
 
 %type <y_num>
@@ -130,19 +130,19 @@ stmt	: OPEN EOL				{
 		param.pmid = (pmID)$2;
 		stmt_type = STORE; YYACCEPT;
 	    }
-	| TEXT EOL				{
-		param.number = TEXT; param.pmid = HELP_USAGE;
+	| INFO EOL				{
+		param.number = INFO; param.pmid = HELP_USAGE;
 		stmt_type = HELP; YYACCEPT;
 	    }
-	| TEXT metric EOL			{
+	| INFO metric EOL			{
 		param.number = PM_TEXT_PMID;
 		param.pmid = (pmID)$2;
-		stmt_type = TEXT; YYACCEPT;
+		stmt_type = INFO; YYACCEPT;
 	    }
-	| TEXT INDOM indom EOL			{
+	| INFO INDOM indom EOL			{
 		param.number = PM_TEXT_INDOM;
 		param.indom = indom.whole;
-		stmt_type = TEXT; YYACCEPT;
+		stmt_type = INFO; YYACCEPT;
 	    }
 	| INSTANCE EOL				{
 		param.number = INSTANCE; param.pmid = HELP_USAGE;
@@ -201,7 +201,7 @@ stmt	: OPEN EOL				{
 		stmt_type = EOL;
 		YYACCEPT;
 	    }
-	| PROFILE indom DELETE NUMBER EOL		{
+	| PROFILE indom DEL NUMBER EOL		{
 		inst = $4;
 		sts = pmDelProfile($2, 1, &inst);
 		if (sts < 0) {
@@ -280,8 +280,8 @@ stmt	: OPEN EOL				{
 		param.number = STORE; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
-	| HELP TEXT EOL				{
-		param.number = TEXT; param.pmid = HELP_FULL;
+	| HELP INFO EOL				{
+		param.number = INFO; param.pmid = HELP_FULL;
 		stmt_type = HELP; YYACCEPT;
 	    }
 	| HELP TIMER EOL				{

@@ -53,7 +53,7 @@ static int dbpmdaFlexInput (char *, int);
 
 instance	{ return INSTANCE; }
 profile		{ return PROFILE; }
-delete		{ return DELETE; }
+delete		{ return DEL; }
 close		{ return CLOSE; }
 debug		{ return DBG; }
 fetch		{ return FETCH; }
@@ -73,7 +73,7 @@ add		{ return ADD; }
 all		{ return ALL; }
 dso		{ BEGIN FNAME; return DSO; }
 store		{ return STORE; }
-text		{ return TEXT; }
+text		{ return INFO; }
 indom		{ return INDOM; }
 timer		{ return TIMER; }
 on		{ return ON; }

@@ -284,7 +284,7 @@ main(int argc, char **argv)
 		dostatus();
 		break;
 
-	    case TEXT:
+	    case INFO:
 		switch (connmode) {
 		case PDU_DSO:
 		    dodso(PDU_TEXT_REQ);

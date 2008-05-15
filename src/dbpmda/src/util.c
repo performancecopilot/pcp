@@ -227,7 +227,7 @@ dohelp(int command, int full)
 	dohelp(QUIT, HELP_USAGE);
 	dohelp(STATUS, HELP_USAGE);
 	dohelp(STORE, HELP_USAGE);
-	dohelp(TEXT, HELP_USAGE);
+	dohelp(INFO, HELP_USAGE);
 	dohelp(TIMER, HELP_USAGE);
 	dohelp(WAIT, HELP_USAGE);
 	dohelp(WATCH, HELP_USAGE);
@@ -280,7 +280,7 @@ dohelp(int command, int full)
 	case STORE:
 	    puts("store metric \"value\"");
 	    break;
-	case TEXT:
+	case INFO:
 	    puts("text metric");
 	    puts("text indom indom#");
 	    break;
@@ -368,7 +368,7 @@ dohelp(int command, int full)
 "interpret the value, and to allocate the PDU for transmitting the value,\n"
 "respectively.  The current profile will be used.\n");
 		break;
-	    case TEXT:
+	    case INFO:
 		puts(
 "Retrieve the help text for the 'metric' or 'indom' from the PMDA.  The one\n"
 "line message is shown between '[' and ']' with the long message on the next\n"
