@@ -856,11 +856,6 @@ Options:\n\
     parse_done = 1;	/* enable callback processing */
     __pmAFunblock();
 
-#if defined(__NUTC__)
-    /* kick-start the AF itimer for the "log on once" case */
-    kill(getpid(), SIGALRM);
-#endif
-
     for ( ; ; ) {
 	int		nready;
 	extern int	control_req(void);

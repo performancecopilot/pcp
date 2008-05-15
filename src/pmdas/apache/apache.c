@@ -146,7 +146,7 @@ enum {
 void sigalrm(int unused)
 {
     data.timeout = 1;
-    kill(getpid(),SIGINT);
+    raise(SIGINT);
 }
 
 /* Dummy signal handler */

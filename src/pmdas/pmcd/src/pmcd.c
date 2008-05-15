@@ -1468,7 +1468,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		 * send myself SIGHUP
 		 */
 		__pmNotifyErr(LOG_INFO, "pmcd reset via pmcd.control.sighup");
-		kill(getpid(), SIGHUP);
+		raise(SIGHUP);
 	    }
 	    else {
 		sts = PM_ERR_PMID;
