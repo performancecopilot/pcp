@@ -108,9 +108,6 @@ char *argv[];
     int		id;
     int		next_type;
     char	*endnum;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
     /* trim command name of leading directory components */
     pmProgname = argv[0];

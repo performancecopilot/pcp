@@ -197,7 +197,6 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     char		*p;
     char		mypath[MAXPATHLEN];
-    extern int		optind;
 
     /* trim cmd name of leading directory components */
     pmProgname = argv[0];

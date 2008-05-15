@@ -44,7 +44,6 @@
 #define MAXLINE	128
 #define MAXENTRY 1024
 
-extern int	errno;
 static int	verbose = 0;
 static int	ln = 0;
 static char	*filename;
@@ -249,9 +248,6 @@ char *argv[];
     char	*p;
     int		skip;
     help_idx_t	hdr;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
     /* trim command name of leading directory components */
     pmProgname = argv[0];

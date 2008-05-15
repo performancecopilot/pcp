@@ -27,12 +27,9 @@
 #include "pmda.h"
 #include <fcntl.h>
 #include <sys/stat.h>
-
 #ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #endif
-
-extern int	errno;
 
 typedef struct {
     pmID	pmid;

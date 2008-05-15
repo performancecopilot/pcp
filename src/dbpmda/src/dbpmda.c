@@ -50,9 +50,6 @@ main(int argc, char **argv)
     int			errflag = 0;
     char		*endnum;
     int			i;
-    extern char		*optarg;
-    extern int		optind;
-    extern int		pmDebug;
 
     /* trim command name of leading directory components */
     pmProgname = argv[0];

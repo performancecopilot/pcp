@@ -37,7 +37,6 @@
 
 #include <sys/resource.h>
 
-extern int	errno;
 extern int	refreshdelay;
 
 #ifdef HAVE_SPROC

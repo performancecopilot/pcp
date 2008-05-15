@@ -36,7 +36,6 @@ fd_set		clientFds;		/* for client select() */
 
 static int	clientSize = 0;
 
-extern int	errno;
 extern void	Shutdown(void);
 
 /* Establish a new socket connection to a client */

@@ -796,8 +796,6 @@ parse_options(int argc, char *argv[])
     int		sts;
     int		errflag = 0;
     char	*opts = "D:h:m:p:s:t:wzZ:?";
-    extern char	*optarg;
-    extern int	pmDebug;
     char	*p;
     char	*endnum;
     int		one_trip = 1;

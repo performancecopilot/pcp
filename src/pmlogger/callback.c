@@ -714,7 +714,6 @@ putmark(void)
 	int		numpmid;	/* zero PMIDs to follow */
 	__pmPDU		tail;
     } mark;
-    extern int	errno;
 
     if (last_stamp.tv_sec == 0 && last_stamp.tv_usec == 0)
 	/* no earlier pmResult, no point adding a mark record */

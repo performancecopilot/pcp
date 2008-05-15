@@ -33,7 +33,6 @@ int
 main(int argc, char **argv)
 {
     int		verbose = 0;
-    extern int	errno;
 
     if (argc > 1 && strcmp(argv[1], "-v") == 0) {
 	verbose = 1;

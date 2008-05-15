@@ -52,10 +52,6 @@ bozo!
 #include "trace_dev.h"
 #include "trace_hash.h"
 
-#ifdef IS_SOLARIS
-extern int sys_nerr;
-#endif
-
 static int	_pmtimedout = 1;
 static time_t	_pmttimeout = 0;
 
@@ -684,10 +680,6 @@ _pmtraceconnect(int doit)
 static int
 _pmauxtraceconnect(void)
 {
-#ifndef h_errno
-    /* h_errno is a macro in AIX */
-    extern int		h_errno;
-#endif
     int			port = TRACE_PORT;
     char		hostname[MAXHOSTNAMELEN];
     struct timeval	timeout = { 3, 0 };     /* default 3 secs */

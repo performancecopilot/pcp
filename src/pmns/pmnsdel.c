@@ -35,8 +35,6 @@
 #include "impl.h"
 #include "./pmnsutil.h"
 
-extern int		errno;
-
 static FILE		*outf;		/* output */
 static __pmnsNode	*root;		/* result so far */
 static char		*fullname;	/* full PMNS pathname for newbie */
@@ -108,9 +106,6 @@ main(int argc, char **argv)
     int		c;
     int		dupok = 0;
     int		errflag = 0;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     char	*p;
     char	cmd[3*MAXPATHLEN];
     char	pmnsfile[MAXPATHLEN];

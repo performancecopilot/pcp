@@ -425,9 +425,6 @@ main(int argc, char *argv[])
     struct timeval	delta_stamp;
     int			zflag = 0;		/* for -z */
     char 		*tz = NULL;		/* for -Z timezone */
-    extern char		*optarg;
-    extern int		optind;
-    extern int		pmDebug;
 
     for (p = pmProgname = argv[0]; *p; p++)
 	if (*p == '/')

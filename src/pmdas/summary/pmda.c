@@ -37,6 +37,9 @@
 #include "./summary.h"
 #include "./domain.h"
 
+extern void	summary_init(pmdaInterface *);
+extern void	summary_done(void);
+
 pid_t		clientPID;
 
 int
@@ -48,13 +51,9 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     int			i;
     int			len, c;
-    extern char		*optarg;
-    extern int		optind;
     int			clientPipe[2];
     int			configfd = -1;
     char		*p;
-    extern void		summary_init(pmdaInterface *);
-    extern void		summary_done(void);
     __pmIPC		ipc = { PDU_VERSION2, NULL };
     char		helpfile[MAXPATHLEN]; 
     int			cmdpipe;		/* metric source/cmd pipe */

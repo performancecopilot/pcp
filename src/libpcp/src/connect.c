@@ -37,7 +37,6 @@ negotiate_proxy(int fd, const char *hostname, int port)
     char	buf[MY_BUFLEN];
     char	*bp;
     int		ok = 0;
-    extern int	errno;
 
     /*
      * version negotiation (converse to pmproxy logic)
@@ -255,7 +254,6 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 
     static int first_time = 1;
     static pmHostSpec proxy;
-    extern int errno;
 
     if (first_time) {
 	/*

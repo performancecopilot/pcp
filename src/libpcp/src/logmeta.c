@@ -23,8 +23,6 @@
 #include "impl.h"
 #include <stddef.h>
 
-extern int	errno;
-
 /* bytes for a length field in a header/trailer, or a string length field */
 #define LENSIZE	4
 

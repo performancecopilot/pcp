@@ -36,7 +36,6 @@ fd_set		sockFds;		/* for client select() */
 
 static int	clientSize = 0;
 
-extern int	errno;
 extern void	Shutdown(void);
 
 static int

@@ -35,15 +35,6 @@
 #include "pmda.h"
 #include "./domain.h"
 
-#ifdef IS_SOLARIS
-#if defined(HAVE_CONST_DIRENT)
-#define MYDIRENT const struct dirent
-#else
-#define MYDIRENT struct dirent
-#endif
-extern int scandir(const char *, struct dirent ***, int(*)(MYDIRENT *), int(*)(MYDIRENT **, MYDIRENT **)); 
-#endif
-
 /*
  * histogram for binning messages based on queue time
  */
@@ -147,7 +138,6 @@ mailq_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     time_t		waiting;
     char		*p;
     struct dirent 	**list;
-    extern int		errno;
 
     time(&now);
 
@@ -266,7 +256,6 @@ main(int argc, char **argv)
     char		namebuf[30];
     struct timeval	tv;
     char		mypath[MAXPATHLEN];
-    extern int		optind;
 
     /* trim cmd name of leading directory components */
     pmProgname = argv[0];

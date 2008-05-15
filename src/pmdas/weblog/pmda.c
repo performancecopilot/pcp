@@ -90,9 +90,6 @@ WebRegex	*wl_regexTable = (WebRegex*)0;
 /* instance table of web servers */
 pmdaInstid	*wl_serverInst = (pmdaInstid*)0;
 
-/* pmAPI hack to piggy back requestes from PMCD */
-extern int _pm_moreinput;
-
 /* list of sprocs spawned from the main process */
 WebSproc	*wl_sproc;
 
@@ -446,10 +443,6 @@ onchld(int dummy)
 int
 main(int argc, char **argv)
 {
-    extern char		*optarg;
-    extern int		optind;
-    extern int		pmDebug;
-
     WebServer		*server = (WebServer *)0;
     WebSproc		*proc = (WebSproc *)0;
 

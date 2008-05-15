@@ -1011,18 +1011,12 @@ getargs(int		argc,		/* in - command line argument count */
         long		*smpls,		/* out - number of samples */
 	int		*cols)		/* out - output column width */
 {
-    extern char	*optarg;
-    extern int	optind;
-    extern int	errno;
     int		c;
-
     char        *subopt;
-
     long	d;
     int		errflag = 0;
     int         i;
     int		src = 0;
-
     char	*host = local;
     int		sts;
     char        *endnum;

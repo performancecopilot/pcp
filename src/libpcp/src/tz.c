@@ -282,12 +282,12 @@ pmNewContextZone(void)
 char *
 pmCtime(const time_t *clock, char *buf)
 {
-#ifndef IS_SOLARIS
+#if !defined(IS_SOLARIS) && !defined(IS_MINGW)
     static struct tm	tbuf;
 #endif
     if (curzone >= 0) {
 	_pushTZ();
-#ifdef IS_SOLARIS
+#if defined(IS_SOLARIS) || defined(IS_MINGW)
 	strcpy(buf, asctime(localtime(clock)));
 #else
 	asctime_r(localtime_r(clock, &tbuf), buf);
@@ -295,7 +295,7 @@ pmCtime(const time_t *clock, char *buf)
 	_popTZ();
     }
     else {
-#ifdef IS_SOLARIS
+#if defined(IS_SOLARIS) || defined(IS_MINGW)
 	strcpy(buf, asctime(localtime(clock)));
 #else
 	asctime_r(localtime_r(clock, &tbuf), buf);
@@ -308,12 +308,12 @@ pmCtime(const time_t *clock, char *buf)
 struct tm *
 pmLocaltime(const time_t *clock, struct tm *result)
 {
-#ifdef IS_SOLARIS
+#if defined(IS_SOLARIS) || defined(IS_MINGW)
     struct tm	*tmp;
 #endif
     if (curzone >= 0) {
 	_pushTZ();
-#ifdef IS_SOLARIS
+#if defined(IS_SOLARIS) || defined(IS_MINGW)
 	tmp = localtime(clock);
         memcpy(result, tmp, sizeof(*result));
 #else
@@ -322,7 +322,7 @@ pmLocaltime(const time_t *clock, struct tm *result)
 	_popTZ();
     }
     else {
-#ifdef IS_SOLARIS
+#if defined(IS_SOLARIS) || defined(IS_MINGW)
 	tmp = localtime(clock);
         memcpy(result, tmp, sizeof(*result));
 #else

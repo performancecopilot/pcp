@@ -37,8 +37,6 @@
 #include "pmcd.h"
 #include "impl.h"
 
-extern int      errno;
-
 extern int  ParseInitAgents(char *);
 extern void ParseRestartAgents(char *);
 extern void PrintAgentInfo(FILE *);
@@ -47,8 +45,6 @@ extern void StartDaemon(void);
 
 #define PIDFILE "/pmcd.pid"
 #define SHUTDOWNWAIT 12 /* < PMDAs wait previously used in rc_pcp */
-
-extern int	pmDebug;
 
 int 		pmcd_hi_openfds = -1;   /* Highest known file descriptor for pmcd */
 int		_pmcd_done;		/* flag from pmcd pmda */
@@ -193,8 +189,6 @@ ParseOptions(int argc, char *argv[])
 {
     int		c;
     int		sts;
-    extern char	*optarg;
-    extern int	optind;
     int		errflag = 0;
     int		usage = 0;
     char	*endptr;

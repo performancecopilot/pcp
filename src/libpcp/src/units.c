@@ -28,8 +28,6 @@
 #define SIGN_64_MASK 0x8000000000000000
 #endif
 
-extern int	errno;
-
 /* pmAtomValue -> string, max length is 40 bytes */
 const char *
 pmAtomStr(const pmAtomValue *avp, int type)

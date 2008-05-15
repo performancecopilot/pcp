@@ -41,9 +41,6 @@ main(int argc, char **argv)
     char		*host = "localhost";
     char		*p;
     int			errflag = 0;
-    extern char		*pmProgname;
-    extern char		*optarg;
-    extern int		optind;
 
     pmProgname = basename(argv[0]);
 

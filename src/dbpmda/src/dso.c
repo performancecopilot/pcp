@@ -30,7 +30,6 @@
 #include <dlfcn.h>
 #endif
 
-extern int	errno;
 static char	*dsoname;
 static void	*handle;
 pmdaInterface	dispatch;

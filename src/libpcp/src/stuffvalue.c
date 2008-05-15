@@ -22,8 +22,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-extern int	errno;
-
 int
 __pmStuffValue(const pmAtomValue *avp, int aggr_len, pmValue *vp, int type)
 {

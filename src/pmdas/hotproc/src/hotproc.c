@@ -78,7 +78,6 @@
 #define ACCUM_PMTYPE    PM_TYPE_U64  /* accum_t from types.h */
 #endif  /* _MIPS_SZLONG == 64 */
 
-extern int		errno;
 extern char *conf_buffer;
 extern char *conf_buffer_ptr;
 extern char *pred_buffer;

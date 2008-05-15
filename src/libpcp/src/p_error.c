@@ -23,8 +23,6 @@
 #include "impl.h"
 #include <ctype.h>
 
-extern int      errno;
-
 /*
  * PDU for general error reporting (PDU_ERROR)
  */

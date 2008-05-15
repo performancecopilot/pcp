@@ -31,7 +31,6 @@
 #include "no-malloc-audit.h"
 #endif
 
-extern int	errno;
 extern int	__pmLastUsedFd;
 
 int		pmDebug = 0;		/* the real McCoy */

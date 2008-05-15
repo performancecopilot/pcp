@@ -23,8 +23,6 @@
 #include "impl.h"
 #include "pmda.h"
 
-extern int	errno;
-
 int
 __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 {

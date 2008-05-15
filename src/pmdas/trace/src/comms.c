@@ -48,7 +48,6 @@
 extern struct timeval	interval;
 extern int readData(int, int *);
 extern void timerUpdate(void);
-extern int pmDebug;
 
 extern int	maxfd;
 extern int	nclients;

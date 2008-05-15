@@ -94,10 +94,7 @@ extern int parseargs(int, char **);
 int
 main(int argc, char **argv)
 {
-    extern int		optind;		/* used in main() */
-
     int		sts;
-
     char	*p;
     char	*msg;
     pmResult	*irp;		/* input pmResult */
@@ -107,7 +104,6 @@ main(int argc, char **argv)
     char	*base = (char *)sbrk(0);
     char	*lbase = (char *)sbrk(0);
 #endif
-
     struct timeval	unused;
 
     /* trim cmd name of leading directory components */

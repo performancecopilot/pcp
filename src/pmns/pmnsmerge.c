@@ -202,9 +202,6 @@ main(int argc, char **argv)
     int		dupok = 0;
     int		errflag = 0;
     __pmnsNode	*tmp;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     char	*p;
     char	cmd[1024];
     char	pmnscomp[MAXPATHLEN];

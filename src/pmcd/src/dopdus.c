@@ -25,10 +25,6 @@
 #include "impl.h"
 #include "pmcd.h"
 
-extern int	errno;
-
-extern unsigned int	__pmMakeAuthCookie(unsigned int, pid_t);
-
 /* Check returned error from a client.
  * If client returns ready/not_ready status change, check then update agent
  * status.

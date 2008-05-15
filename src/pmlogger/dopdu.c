@@ -32,7 +32,6 @@
 #include "impl.h"
 #include "./logger.h"
 
-extern int		pmDebug;
 extern int		clientfd;
 
 

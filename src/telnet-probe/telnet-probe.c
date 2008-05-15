@@ -43,7 +43,6 @@ main(int argc, char *argv[])
     int			vflag = 0;
     int			sts = 1;
     int			c;
-    extern int		optind;
 
     while ((c = getopt(argc, argv, "cv?")) != EOF) {
         switch (c) {

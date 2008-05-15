@@ -43,7 +43,6 @@ int			outfd;
 char			*pmdaName = 0;
 
 extern int		_creds_timeout;
-extern int		errno;
 
 #ifndef HAVE_STRTOLL
 /*

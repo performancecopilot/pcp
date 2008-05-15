@@ -55,7 +55,6 @@
 #define MIN_AGENTS_ALLOC	3	/* Number to allocate first time */
 #define LINEBUF_SIZE 200
 
-extern int	errno;
 extern int	_creds_timeout;
 
 /* Config file modification time */

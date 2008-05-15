@@ -61,22 +61,18 @@ char		*username = NULL;	/* username */
 char		*passwd = NULL;		/* user-level password */
 int		port = 23;
 
+extern void	cisco_init(pmdaInterface *);
+extern void	cisco_done(void);
+
 int
 main(int argc, char **argv)
 {
     int			err = 0;
-#ifdef PARSE_ONLY
-    extern int		pmDebug;
-#endif
     char		*endnum;
     pmdaInterface	dispatch;
     int			n;
     int			i;
     int			c;
-    extern char		*optarg;
-    extern int		optind;
-    extern void		cisco_init(pmdaInterface *);
-    extern void		cisco_done(void);
     char		helptext[MAXPATHLEN];
 
     /* trim cmd name of leading directory components */

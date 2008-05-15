@@ -32,8 +32,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-extern int	errno;
-
 static struct timeval	tv;
 static int		numpmid;
 static pmID		*pmid;
@@ -386,9 +384,6 @@ main(int argc, char *argv[])
     char		timebuf[32];		/* for pmCtime result + .xxx */
     double		current;
     double		done;
-    extern char		*optarg;
-    extern int		optind;
-    extern int		pmDebug;
 
     /* trim cmd name of leading directory components */
     pmProgname = argv[0];

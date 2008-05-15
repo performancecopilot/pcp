@@ -904,9 +904,6 @@ main(int argc, char *argv[])
     int			zflag = 0;		/* for -z */
     char 		*tz = NULL;		/* for -Z timezone */
     char		timebuf[32];		/* for pmCtime result + .xxx */
-    extern char		*optarg;
-    extern int		optind;
-    extern int		pmDebug;
 
     for (p = pmProgname = argv[0]; *p; p++)
 	if (*p == '/')

@@ -23,8 +23,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-extern int	errno;
-
 /*
  * PDU for pm*InDom request (PDU_INSTANCE_REQ)
  */

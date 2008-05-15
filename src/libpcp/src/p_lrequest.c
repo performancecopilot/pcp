@@ -23,8 +23,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-extern int      errno;
-
 /*
  * PDU for general pmlogger notification (PDU_LOG_REQUEST)
  */

@@ -480,8 +480,6 @@ getargs(int argc, char *argv[])
     int			bflag = 0;
     Archive		*a;
     struct timeval	tv, tv1, tv2;
-    extern char		*optarg;
-    extern int		optind;
     extern int		showTimeFlag;
     extern int		errs;		/* syntax errors from syntax.c */
 

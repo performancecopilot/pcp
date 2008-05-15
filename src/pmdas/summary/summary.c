@@ -54,8 +54,6 @@ char			*configfile = NULL;
 
 static int		*freeList = NULL;
 
-extern int		errno;
-
 static int
 summary_desc(pmID pmid, pmDesc *desc, pmdaExt * ex)
 {

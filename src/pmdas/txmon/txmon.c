@@ -275,7 +275,6 @@ main(int argc, char **argv)
     size_t		index_size;
     size_t		shm_size;
     stat_t		*sp;
-    extern int		errno;
 
     /* trim cmd name of leading directory components */
     pmProgname = argv[0];

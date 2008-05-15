@@ -47,8 +47,6 @@
 
 #define LOG_PRI(p)      ((p) & LOG_PRIMASK)
 
-extern int	errno;
-
 static int	cycles;		/* completed cycles */
 static int	numskip;	/* skipped cycles */
 static int	numcmd;		/* number of commands */

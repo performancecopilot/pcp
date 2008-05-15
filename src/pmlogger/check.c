@@ -28,8 +28,6 @@
 #include "impl.h"
 #include "./logger.h"
 
-extern int		pmDebug;
-
 char *chk_emess[] = {
     "No error",
     "Request for (advisory) ON conflicts with current (mandatory) ON state",

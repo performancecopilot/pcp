@@ -225,10 +225,6 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
     int			i, n, sts;
     struct hostent	*hep;
     int			level = 0;	/* Wildcarding level */
-#ifndef h_errno
-    /* h_errno is a macro in AIX */
-    extern int		h_errno;
-#endif
     struct in_addr	hostId, hostMask;
     const char		*p;
     HostInfo		*hp;

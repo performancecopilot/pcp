@@ -36,8 +36,6 @@ extern char	    	*archBase;	/* base name for log files */
 extern int		ctlport;	/* pmlogger control port number */
 extern int		archive_version; 
 
-extern int	errno;
-
 /*
  * this routine creates the "fake" pmResult to be added to the
  * start of the archive log to identify information about the

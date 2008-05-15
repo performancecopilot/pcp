@@ -127,9 +127,6 @@ main(int argc, char **argv)
     char		*p;
     char		*tag;
     char		lbuf[256];
-
-    extern char		*optarg;
-    extern int		optind;
     char		mypath[MAXPATHLEN];
 
     /* trim cmd name of leading directory components */

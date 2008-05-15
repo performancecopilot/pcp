@@ -36,9 +36,6 @@ bozo ... need to be able to find MAXINT or equivalent
 #endif
 #endif
 
-extern int	pmDebug;
-extern int	errno;
-
 #define PMIPC_TABLE_INIT	4
 #define PMIPC_TABLE_BASE	0
 

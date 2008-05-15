@@ -83,8 +83,6 @@ main(int argc, char **argv)
     char		*pmnsfile = PM_NS_DEFAULT;
     char		*endnum;
     int			primary;
-    extern char		*optarg;
-    extern int		optind;
 
     /* trim cmd name of leading directory components */
     pmProgname = argv[0];

@@ -23,8 +23,6 @@
 #include "impl.h"
 #include "pmda.h"
 
-extern int	errno;
-
 static int
 request_instance (__pmContext *ctxp, pmInDom indom, int inst, const char *name)
 {

@@ -43,8 +43,6 @@ typedef struct {
 
 static unsigned int	ncpu;
 
-extern int		errno;
-
 /*
  * real time difference, *ap minus *bp
  */
@@ -274,9 +272,6 @@ main(int argc, char **argv)
     char		*endnum;
     char		*msg;			/* error message */
     struct timeval	ttval;
-    extern char		*optarg;
-    extern int		optind;
-    extern int		pmDebug;
 
     /* trim command name of leading directory components */
     pmProgname = argv[0];

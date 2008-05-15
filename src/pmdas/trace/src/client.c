@@ -36,7 +36,6 @@
 #include "comms.h"
 
 extern fd_set	fds;
-extern int	pmDebug;
 
 int		nclients = 0;		/* number of entries in array */
 int		maxfd;			/* largest fd currently in use */

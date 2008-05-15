@@ -23,7 +23,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-extern int	errno;
 int		__pmLogReads = 0;
 
 static char	*logfilename = NULL;

@@ -174,7 +174,6 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
     int		oldfd;
     int		dupoldfd;
     FILE	*dupoldstream = oldstream;
-    extern int	errno;
 
     /*
      * Do our own version of freopen() because the standard one closes the
@@ -551,8 +550,6 @@ pmPrintValue(FILE *f,			/* output stream */
 void
 __pmNoMem(const char *where, size_t size, int fatal)
 {
-    extern int	errno;
-
     __pmNotifyErr(fatal ? LOG_ERR : LOG_WARNING,
 		 "%s: malloc(%d) failed: %s", where, size, strerror(errno));
     if (fatal)

@@ -22,8 +22,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-extern int	errno;
-
 static int *
 _subtract(int *list, int *list_len, int *arg, int arg_len)
 {

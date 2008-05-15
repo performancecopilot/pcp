@@ -49,8 +49,6 @@
 /* default costs */
 static optcost_t	optcost = { 4, 1, 15, 10, 2, 0 };
 
-extern int	errno;
-
 static int
 addpmid(fetchctl_t *fp, pmID pmid)
 {

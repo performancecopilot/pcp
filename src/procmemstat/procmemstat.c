@@ -31,8 +31,6 @@
 #include "impl.h"
 #include "pmnsmap.h"
 
-extern int		errno;
-
 static void
 get_sample(void)
 {
@@ -114,9 +112,6 @@ main(int argc, char **argv)
     char		*q;
     int			errflag = 0;
     char		host[MAXHOSTNAMELEN];
-    extern char		*optarg;
-    extern int		optind;
-    extern int		pmDebug;
 
     /* trim command name of leading directory components */
     pmProgname = argv[0];

@@ -36,9 +36,6 @@ tv2double(struct timeval *tv)
 int
 parseargs(int argc, char *argv[])
 {
-    extern int		pmDebug;	/* used in parseargs() */
-    extern char		*optarg;	/* used in parseargs() */
-
     int			c;
     int			sts;
     int			errflag = 0;

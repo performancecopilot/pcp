@@ -22,8 +22,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-extern int	errno;
-
 /*
  * PDU for pmLookupText request (PDU_TEXT_REQ)
  */

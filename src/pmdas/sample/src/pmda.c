@@ -104,8 +104,6 @@ main(int argc, char **argv)
     int			errflag = 0;
     char		*p;
     char		helppath[MAXPATHLEN];
-    extern char		*optarg;
-    extern int		optind;
     extern int		_isDSO;
 
     /* trim cmd name of leading directory components */

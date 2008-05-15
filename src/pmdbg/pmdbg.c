@@ -86,8 +86,6 @@ main(int argc, char **argv)
     int		code;
     char	*p;
     int		errflag = 0;
-    extern char	*optarg;
-    extern int	optind;
 
     /* trim command name of leading directory components */
     pmProgname = argv[0];

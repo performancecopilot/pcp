@@ -37,10 +37,6 @@
 
 #include "pmproxy.h"
 
-extern int      errno;
-
-extern int	pmDebug;
-
 int 		proxy_hi_openfds = -1;   /* Highest known file descriptor for pmproxy */
 
 static int	timeToDie = 0;		/* For SIGINT handling */
@@ -155,8 +151,6 @@ ParseOptions(int argc, char *argv[])
 {
     int		c;
     int		sts;
-    extern char	*optarg;
-    extern int	optind;
     int		errflag = 0;
     int		usage = 0;
     int		val;

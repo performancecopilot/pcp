@@ -23,8 +23,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-extern int      errno;
-
 /*
  * PDU for logger status information transfer (PDU_LOG_STATUS)
  */

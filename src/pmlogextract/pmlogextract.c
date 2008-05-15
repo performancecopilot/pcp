@@ -1072,9 +1072,6 @@ againlog:
 int
 parseargs(int argc, char *argv[])
 {
-    extern int		pmDebug;	/* used in parseargs() */
-    extern char		*optarg;	/* used in parseargs() */
-
     int			c;
     int			sts;
     int			errflag = 0;
@@ -1501,8 +1498,6 @@ writemark(inarch_t *iap)
 int
 main(int argc, char **argv)
 {
-    extern int		optind;		/* used in main() */
-
     int		i;
     int		j;
     int		sts;

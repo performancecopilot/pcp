@@ -45,7 +45,6 @@ int
 main(int argc, char *argv[])
 {
     FILE	*fc;
-    extern int	errno;
     char	buf[1024];
     char	*p;
     char	*q;

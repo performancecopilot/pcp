@@ -359,9 +359,8 @@ __pmIsLocalhost(const char *hostname)
     else {
 	char lhost[MAXHOSTNAMELEN+1];
 	struct hostent * he;
-	extern int errno;
 
-	if (gethostname (lhost, MAXHOSTNAMELEN) < 0)
+	if (gethostname(lhost, MAXHOSTNAMELEN) < 0)
 	   return -errno;
 
         if ((he = gethostbyname(lhost)) != NULL ) {

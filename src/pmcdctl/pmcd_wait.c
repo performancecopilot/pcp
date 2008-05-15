@@ -33,9 +33,6 @@
 #define EXIT_STS_UNIXERR 	3
 #define EXIT_STS_PCPERR 	4
 
-extern int	errno;
-extern int 	optind;
-
 static char     localhost[MAXHOSTNAMELEN];
 static char	*hostname = NULL;
 static long	delta = 60;
@@ -61,8 +58,6 @@ ParseOptions(int argc, char *argv[])
     int		c;
     int		sts;
     int		errflag = 0;
-    extern char	*optarg;
-    extern int	pmDebug;
     char	*msg;
     struct 	timeval delta_time;
 

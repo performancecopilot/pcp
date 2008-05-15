@@ -27,10 +27,6 @@
 #include <pcp/platform_defs.h>
 #include <pcp/trace.h>
 
-extern int	errno;
-extern int	optind;
-extern char	*optarg;
-
 typedef enum { UNKNOWN, COUNTER, OBSERVE, TRANSACT } trace_t;
 
 int

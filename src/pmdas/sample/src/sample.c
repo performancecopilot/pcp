@@ -52,8 +52,6 @@ int	sample_done=0;	/* pending request to terminate, see sample_store() */
 int	need_mirage=0;	/* only do mirage glop is someone asks for it */
 int	need_dynamic=0;	/* only do dynamic glop is someone asks for it */
 
-extern int	errno;
-
 /* from pmda.c: simulate PMDA busy */
 extern int	limbo(void);
 

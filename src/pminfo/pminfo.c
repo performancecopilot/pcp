@@ -23,8 +23,6 @@
 #include "impl.h"
 #include <limits.h>
 
-extern int	errno;
-
 static int	p_mid = 0;		/* Print metric IDs of leaf nodes */
 static int	p_fullmid = 0;		/* Print verbose metric IDs of leaf nodes */
 static int	p_desc = 0;		/* Print descriptions for metrics */
@@ -330,8 +328,6 @@ dometric(const char *name)
 	report();
 }
 
-extern int optind;
-
 static void
 PrintUsage(void)
 {
@@ -373,8 +369,6 @@ ParseOptions(int argc, char *argv[])
 #else
     char	*opts = "a:b:dD:Ffn:h:MmO:tTvzZ:?";
 #endif
-    extern char	*optarg;
-    extern int	pmDebug;
 
     while ((c = getopt(argc, argv, opts)) != EOF) {
 	switch (c) {

@@ -75,8 +75,6 @@ static char	*rsc_prog = "<unknown>";
 static char	*folio_name = "<unknown>";
 static char	*dialog_title = "PCP Archive Recording Session";
 
-extern int	errno;
-
 /*
  * flush stdio buffers
  */
@@ -483,9 +481,6 @@ main(int argc, char **argv)
     int			i;
     task_t		*tp;
     optcost_t		ocp;
-    extern char		*optarg;
-    extern int		optind;
-    extern int		pmDebug;
     extern void		init_ports(void);
     fd_set		readyfds;
     char		*p;

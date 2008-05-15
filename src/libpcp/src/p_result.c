@@ -23,8 +23,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-extern int      errno;
-
 char __pmAbuf[ABUFSIZE] = { '\0' };	/* line buffer for PDU_ASCII Sends and Decodes */
 
 /*

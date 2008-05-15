@@ -74,8 +74,6 @@ lookup(pmInDom indom)
     return numinst;
 }
 
-extern int optind;
-
 int
 main(int argc, char **argv)
 {
@@ -104,9 +102,6 @@ main(int argc, char **argv)
 #else
     char        *opts = "a:D:fh:Iin:Vv?";
 #endif
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
     /* trim cmd name of leading directory components */
     pmProgname = argv[0];

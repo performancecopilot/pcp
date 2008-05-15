@@ -34,7 +34,6 @@
 #include <errno.h>
 #include "./cisco.h"
 
-extern int	errno;
 extern int	port;
 
 int

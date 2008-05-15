@@ -22,8 +22,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-extern int	errno;
-
 /*
  * PDU for __pmControlLogging request (PDU_LOG_CONTROL)
  */

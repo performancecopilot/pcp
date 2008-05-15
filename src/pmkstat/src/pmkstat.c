@@ -53,9 +53,6 @@
 #include <string.h>
 #include <limits.h>
 
-extern char *optarg;
-extern int optind;
-
 /* arg flags */
 static double interval=5.0;
 static int iter=0;
@@ -125,9 +122,6 @@ main(int argc, char **argv)
     int		reconnecting = 0;
     double	runq;
     double	swapq;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     char	    *Sflag = NULL;		/* argument of -S flag */
     char	    *Tflag = NULL;		/* argument of -T flag */
     char	    *Aflag = NULL;		/* argument of -A flag */

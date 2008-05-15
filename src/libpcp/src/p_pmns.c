@@ -23,15 +23,9 @@
 #include "pmapi.h"
 #include "impl.h"
 
-extern int	errno;
-
-
-/*********************************************************************/
-
 /*
  * PDU for id list (PDU_PMNS_IDS)
  */
-
 typedef struct {
     __pmPDUHdr   hdr;
     int		sts;      /* to encode status of pmns op */

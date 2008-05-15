@@ -22,8 +22,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-extern int	errno;
-
 /*
  * PDU used to transmit __pmProfile prior to pmFetch (PDU_PROFILE)
  */

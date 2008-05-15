@@ -222,9 +222,6 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     int			fd;	/* Fd for socket connection to pmcd */
     int			fdFlags;
 
-    extern int		errno;
-    extern int		h_errno;
-
     if ((servInfo = gethostbyname(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {

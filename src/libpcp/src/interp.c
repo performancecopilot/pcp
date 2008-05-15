@@ -33,8 +33,6 @@
 #define SIGN_64_MASK 0x8000000000000000
 #endif
 
-extern int	errno;
-
 typedef union {				/* value from pmResult */
     pmValueBlock	*pval;
     int			lval;

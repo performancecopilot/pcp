@@ -37,13 +37,10 @@
 #include <errno.h>
 #include "./cisco.h"
 
-extern int	errno;
-
 static FILE	*fin;
 static FILE	*fout;
 
 int		port = 23;
-
 int		seen_fr = 0;
 
 char *
@@ -244,9 +241,6 @@ main(int argc, char **argv)
     char		*endnum;
     char		*passwd = NULL;
     char		*username = NULL;
-    extern char		*optarg;
-    extern int		optind;
-    extern int		pmDebug;
     char		*p;
     struct hostent	*hostInfo;
 

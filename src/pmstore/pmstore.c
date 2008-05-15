@@ -35,8 +35,6 @@
 #endif
 #include <float.h>
 
-extern int	errno;
-
 #define	IS_UNKNOWN	15
 #define	IS_STRING	1
 #define IS_INTEGER	2
@@ -297,9 +295,6 @@ char *argv[];
     int		aggr_len;
     pmValueSet	*vsp;
     char        *subopt;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
     /* trim command name of leading directory components */
     pmProgname = argv[0];

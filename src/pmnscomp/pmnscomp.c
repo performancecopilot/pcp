@@ -34,8 +34,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-extern int	errno;
-
 static int	nodecnt;	/* number of nodes */
 static int	leafcnt;	/* number of leaf nodes */
 static int	symbsize;	/* aggregate string table size */
@@ -229,9 +227,6 @@ main(int argc, char **argv)
     __int32_t	tmp;
     __int32_t	sum;
     long	startsum;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     char	*p;
 
     /* trim command name of leading directory components */
