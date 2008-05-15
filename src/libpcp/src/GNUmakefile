@@ -31,7 +31,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c \
         stuffvalue.c endian.c config.c access.c authcookie.c AF.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
-	auxconnect.c findpmda4linux.c loop.c
+	auxconnect.c loop.c
 
 ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
 # don't need to be linked to myself in this case!

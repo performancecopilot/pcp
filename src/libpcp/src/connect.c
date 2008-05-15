@@ -399,6 +399,16 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
     return fd;
 }
 
+/*
+ * As of PCP version 2.1, we're no longer searching for DSO's;
+ * pmcd's config file should have full paths to each of 'em.
+ */
+const char *
+__pmFindPMDA(const char *name)
+{
+    return (access(name, F_OK) == 0) ? name : NULL;
+}
+
 __pmDSO *
 __pmLookupDSO(int domain)
 {
