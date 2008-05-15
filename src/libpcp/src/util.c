@@ -976,7 +976,7 @@ isnand(double d)
 #endif
 
 #ifndef HAVE_UNSETENV
-static int
+int
 unsetenv(const char *name)
 {
     extern char **_environ;
