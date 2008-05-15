@@ -43,10 +43,14 @@ typedef struct {
 typedef struct {
     int		dir_fd;
     int		pag_fd;
+#if defined(IS_MINGW)
+    HANDLE	handle;
+    HANDLE	texthandle;
+#endif
+    int		textlen;
     int		numidx;
     help_idx_t	*index;
     char	*text;
-    int		textlen;
 } help_t;
 
 static help_t	*tab = NULL;
@@ -59,7 +63,7 @@ int
 pmdaOpenHelp(char *fname)
 {
     char	pathname[MAXPATHLEN];
-    int		sts;
+    int		sts, size;
     help_idx_t	hdr;
     help_t	*hp;
     struct stat	sbuf;
@@ -78,11 +82,9 @@ pmdaOpenHelp(char *fname)
 	}
     }
     hp = &tab[sts];
-
-    hp->dir_fd = hp->pag_fd = -1;
-    hp->numidx = hp->textlen = 0;
-    hp->index = NULL;
-    hp->text = NULL;
+    memset(hp, 0, sizeof(*hp));
+    hp->dir_fd = -1;
+    hp->pag_fd = -1;
 
     snprintf(pathname, sizeof(pathname), "%s.dir", fname);
     hp->dir_fd = open(pathname, O_RDONLY);
@@ -103,9 +105,23 @@ pmdaOpenHelp(char *fname)
     }
 
     hp->numidx = hdr.off_text;
+    size = (hp->numidx + 1) * sizeof(help_idx_t);
 
-    hp->index = (help_idx_t *)mmap(NULL, (hp->numidx + 1) * sizeof(help_idx_t),
-				    PROT_READ, MAP_PRIVATE, hp->dir_fd, 0);
+#if defined(IS_MINGW)
+    hp->handle = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READONLY,
+				   0, size, NULL);
+    if (hp->handle == NULL) {
+	sts = -errno;
+	goto failed;
+    }
+#endif
+
+    hp->index = (help_idx_t *)
+#if defined(IS_MINGW)
+		MapViewOfFile(hp->handle, FILE_MAP_READ, 0, 0, size);
+#else	/* POSIX */
+		mmap(NULL, size, PROT_READ, MAP_PRIVATE, hp->dir_fd, 0);
+#endif
     if (hp->index == NULL) {
 	sts = -errno;
 	goto failed;
@@ -117,19 +133,31 @@ pmdaOpenHelp(char *fname)
 	sts = -errno;
 	goto failed;
     }
-
     if (fstat(hp->pag_fd, &sbuf) < 0) {
 	sts = -errno;
 	goto failed;
     }
+    hp->textlen = size = (int)sbuf.st_size;
 
-    hp->textlen = (int)sbuf.st_size;
-    hp->text = (char *)mmap(NULL, hp->textlen, PROT_READ, MAP_PRIVATE, hp->pag_fd, 0);
+#if defined(IS_MINGW)
+    hp->texthandle = CreateFileMapping((HANDLE)_get_osfhandle(hp->pag_fd),
+					NULL, PAGE_READONLY, 0, size, NULL);
+    if (hp->texthandle == INVALID_HANDLE_VALUE) {
+	sts = -errno;
+	goto failed;
+    }
+#endif
+
+    hp->text = (char *)
+#if defined(IS_MINGW)
+		MapViewOfFile(hp->texthandle, FILE_MAP_READ, 0, 0, size);
+#else
+		mmap(NULL, hp->textlen, PROT_READ, MAP_PRIVATE, hp->pag_fd, 0);
+#endif
     if (hp->text == NULL) {
 	sts = -errno;
 	goto failed;
     }
-
     return numhelp - 1;
 
 failed:
@@ -222,15 +250,25 @@ pmdaCloseHelp(int handle)
 	close(hp->dir_fd);
     if (hp->pag_fd != -1)
 	close(hp->pag_fd);
+#ifdef IS_MINGW
+    if (hp->index != NULL)
+	UnmapViewOfFile(hp->index);
+    if (hp->text != NULL)
+	UnmapViewOfFile(hp->text);
+    if (hp->handle != INVALID_HANDLE_VALUE)
+	CloseHandle(hp->index);
+    if (hp->texthandle != INVALID_HANDLE_VALUE)
+	CloseHandle(hp->texthandle);
+#else	/* POSIX */
     if (hp->index != NULL)
 	munmap((void *)hp->index, (hp->numidx + 1) * sizeof(help_idx_t));
     if (hp->text != NULL)
 	munmap(hp->text, hp->textlen);
-
-    hp->dir_fd = hp->pag_fd = -1;
-    hp->numidx = hp->textlen = 0;
+#endif
+    hp->textlen = 0;
+    hp->dir_fd = -1;
+    hp->pag_fd = -1;
+    hp->numidx = 0;
     hp->index = NULL;
     hp->text = NULL;
-
-    return;
 }
