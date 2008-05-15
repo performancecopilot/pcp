@@ -173,10 +173,10 @@ pmErrStr(int code)
 	     */
 	    char *sp = strrchr(msg, ' ');
 	    char *endp = NULL;
-            int64_t ec = strtoll (sp+1, &endp, 0);
+            long long ec = strtoll(sp+1, &endp, 0);
 
             if ((endp != NULL) && (*endp == '\0') && (endp != sp+1)) {
-		if ((ec == -1LL) || (ec == (unsigned)-1LL)) {
+		if ((ec == -1LL) || (ec == (unsigned long long)-1LL)) {
 		    if ((unknown = strdup (msg)) != NULL) {
 			unknown[sp - msg] = '\0';
 		    }

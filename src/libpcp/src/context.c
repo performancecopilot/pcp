@@ -367,7 +367,7 @@ pmReconnectContext(int handle)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "pmReconnectContext(%d) -> %d, too soon (need wait another %d secs)\n",
-		handle, -ETIMEDOUT, (int)(ctl->pc_again - time(NULL)));
+		handle, (int)-ETIMEDOUT, (int)(ctl->pc_again - time(NULL)));
 #endif
 	    return -ETIMEDOUT;
 	}

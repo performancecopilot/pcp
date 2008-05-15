@@ -108,7 +108,7 @@ __pmConnectCheckError (int fd)
     int	so_err;
     mysocklen_t	olen = sizeof(int);
 
-    if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &so_err, &olen) < 0) {
+    if (getsockopt(fd, SOL_SOCKET, SO_ERROR, (void *)&so_err, &olen) < 0) {
 	so_err = errno;
 	__pmNotifyErr(LOG_ERR, 
 		      "__pmConnectCheckError: getsockopt(SO_ERROR) failed: %s\n",
