@@ -25,19 +25,9 @@
  *    chkhelp helpfile metric-name ...
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <string.h>
-#include <ctype.h>
-#include <syslog.h>
-#include <errno.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-
-extern int	errno;
 
 #define VERSION 2
 static int	version = VERSION;

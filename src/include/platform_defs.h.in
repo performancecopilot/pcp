@@ -117,9 +117,20 @@ extern "C" {
 #undef HAVE_SGIDEFS_H
 #undef HAVE_ABI_MUTEX_H
 #undef HAVE_SYS_PARAM_H
-#undef HAVE_NETDB_H
-#undef HAVE_SYS_TERMIOS_H
+#undef HAVE_SYS_MMAN_H
+#undef HAVE_SYS_UN_H
 #undef HAVE_STDINT_H
+#undef HAVE_SYS_TERMIOS_H
+#undef HAVE_WINDOWS_H
+#undef HAVE_WINSOCK2_H
+#undef HAVE_WS2TCPIP_H
+#undef HAVE_IPTYPES_H
+#undef HAVE_NETDB_H
+#undef HAVE_SYS_SOCKET_H
+#undef HAVE_NETINET_IN_H
+#undef HAVE_NETINET_TCP_H
+#undef HAVE_ARPA_INET_H
+
 #undef HAVE_IOSTREAM_H
 #undef HAVE_IOSTREAM
 
@@ -129,6 +140,18 @@ extern "C" {
 
 #if defined(HAVE_MALLOC_H)
 #include <malloc.h>
+#endif
+#if defined(HAVE_SYSLOG_H)
+#include <syslog.h>
+#endif
+#if defined(HAVE_WINDOWS_H)
+#include <windows.h>
+#endif
+#if defined(HAVE_WINSOCK2_H)
+#include <winsock2.h>
+#endif
+#if defined(HAVE_WS2TCPIP_H)
+#include <ws2tcpip.h>
 #endif
 
 /* HAVE_NETWORK_BYTEORDER for big endian systems (not Intel) */
@@ -159,56 +182,70 @@ extern "C" {
 #endif
 #endif
 
-/* define if libc functions are available */
-#undef HAVE_GETCWD
-#undef HAVE_GETHOSTNAME
+/* define which libc functions are available */
+#undef HAVE_WAIT3
+
 #undef HAVE_GETTIMEOFDAY
 #undef HAVE_MKTIME
 #undef HAVE_PUTENV
+#undef HAVE_UNSETENV
+
+#undef HAVE_GETHOSTNAME
+#undef HAVE_HSTRERROR
 #undef HAVE_SELECT
 #undef HAVE_SOCKET
-#undef HAVE_STRDUP
-#undef HAVE_STRERROR
-#undef HAVE_STRTOD
-#undef HAVE_STRTOL
+
 #undef HAVE_UNAME
+#undef HAVE_SYSLOG
+#undef HAVE_BRK
+#undef HAVE_SBRK
+#undef HAVE___CLONE
+#undef HAVE_FCNTL
+
+#undef HAVE_PRCTL
+#undef HAVE_SETLINEBUF
 #undef HAVE_WAITPID
 #undef HAVE_ATEXIT
-#undef HAVE_READDIR64
-#undef HAVE_WAIT3
-#undef HAVE_SBRK
-#undef HAVE_BRK
-#undef HAVE___CLONE
-#undef HAVE_SIGNAL 
-#undef HAVE_TCGETATTR
-#undef HAVE_HSTRERROR
-#undef HAVE_DLOPEN
-#undef HAVE_ISNANF
-#undef HAVE_ISNAND
-#undef HAVE_SHL
+#undef HAVE_KILL
+
+#undef HAVE_GETCWD
+#undef HAVE_SCANDIR
+#undef HAVE_MKSTEMP
+
+#undef HAVE_MEMALIGN
+#undef HAVE_VALLOC
+
+#undef HAVE_NANOSLEEP
 #undef HAVE_USLEEP
-#undef HAVE_FLOG10
+
+#undef HAVE_SIGNAL
 #undef HAVE_SIGHOLD
 #undef HAVE_SIGRELSE
-#undef HAVE_PRCTL
+#undef HAVE_TCGETATTR
+
 #undef HAVE_REGEX
 #undef HAVE_REGCMP
 #undef HAVE_REGEXEC
 #undef HAVE_REGCOMP
-#undef HAVE_FLOCK
-#undef HAVE_FCNTL
-#undef HAVE_CFMAKERAW
-#undef HAVE_DIRNAME
-#undef HAVE_BASENAME
-#undef HAVE_UNSETENV
-#undef HAVE_VALLOC
-#undef HAVE_MEMALIGN
+
+#undef HAVE_STRERROR
+#undef HAVE_STRTOD
+#undef HAVE_STRTOL
 #undef HAVE_STRTOLL
 #undef HAVE_STRTOULL
-#undef HAVE_NANOSLEEP
-#undef HAVE_MKSTEMP
-#undef HAVE_SCANDIR
+
+#undef HAVE_DLOPEN
+#undef HAVE_ISNANF
+#undef HAVE_ISNAND
+#undef HAVE_FLOG10
+#undef HAVE_DIRNAME
+#undef HAVE_BASENAME
 #undef HAVE_SYSINFO
+#undef HAVE_READDIR64
+
+#undef HAVE_ISNANF
+#undef HAVE_ISNAND
+#undef HAVE_FLOG10
 
 /* if termio signals are supported */
 #ifdef HAVE_TERMIOS_H
@@ -323,6 +360,12 @@ bozo! need to find where MAXPATHLEN is defined for this platform
 #ifndef MAXHOSTNAMELEN
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
+#endif
+#endif
+#ifndef MAXHOSTNAMELEN
+#ifdef HAVE_IPTYPES_H
+#include <iptypes.h>
+#define MAXHOSTNAMELEN MAX_HOSTNAME_LEN
 #endif
 #endif
 #ifndef MAXHOSTNAMELEN
@@ -443,13 +486,13 @@ typedef void (*SIG_PF) (int);
  * we need to provide our own implementation
  */
 #ifndef HAVE_DIRNAME
-char *dirname(char *);
+extern char *dirname(char *);
 #endif
 #ifndef HAVE_BASENAME
-char *basename(char *);
+extern char *basename(char *);
 #endif
 #ifndef HAVE_ISNAND
-int isnand (double);
+extern int isnand (double);
 #endif
 
 #ifndef __cplusplus      

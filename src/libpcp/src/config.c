@@ -19,12 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"

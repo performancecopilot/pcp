@@ -21,19 +21,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <stdarg.h>
-#include <sys/types.h>
-#include <sys/param.h>
 #include <sys/stat.h> 
-#include <dirent.h> 
 #include <fcntl.h>
-#include <time.h>
-#include <syslog.h>
-#include <string.h>
-#include <errno.h>
 #include <ctype.h>
 #include <limits.h>
 #include <math.h>

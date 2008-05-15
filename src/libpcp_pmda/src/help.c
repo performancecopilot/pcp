@@ -22,17 +22,15 @@
 /*
  * Get help text from files built using newhelp
  */
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <syslog.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include <fcntl.h>
+#include <sys/stat.h>
+
+#ifdef HAVE_SYS_MMAN_H
+#include <sys/mman.h>
+#endif
 
 extern int	errno;
 

@@ -19,13 +19,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
 #include "pmapi.h"
 #include "impl.h"
 #include <stddef.h>
-#include <string.h>
-#include <syslog.h>
-#include <errno.h>
 
 extern int	errno;
 

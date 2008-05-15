@@ -19,21 +19,19 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/un.h>
-#include <netdb.h>
-#include <string.h>
-#include <errno.h>
-#include <syslog.h>
-#include <fcntl.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "./libdefs.h"
+#include "libdefs.h"
+#ifdef HAVE_SYS_UN_H
+#include <sys/un.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+#ifdef HAVE_NETINET_TCP_H
+#include <netinet/tcp.h>
+#endif
 
 /*
  * Open an inet port to PMCD

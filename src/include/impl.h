@@ -22,16 +22,24 @@
 #ifndef _IMPL_H
 #define _IMPL_H
 
+#include <time.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/time.h>
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
-#include <arpa/inet.h>
+#endif
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h> 
+#endif
+#ifdef HAVE_NETDB_H
 #include <netdb.h>
-#include <time.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

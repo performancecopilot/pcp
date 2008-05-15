@@ -20,7 +20,6 @@
  */
 
 #include <ctype.h>
-#include <syslog.h>
 #include "pmapi.h"
 #include "impl.h"
 

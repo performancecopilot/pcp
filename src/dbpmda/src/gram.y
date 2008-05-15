@@ -20,7 +20,6 @@
  */
 
 %{
-#include <stdio.h>
 #include "./dbpmda.h"
 #include "./lex.h"
 

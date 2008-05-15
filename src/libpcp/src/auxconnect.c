@@ -21,13 +21,10 @@
 
 #include "pmapi.h"
 #include "impl.h"
-
-#include <sys/socket.h>
-#include <netinet/tcp.h>
-#include <netdb.h>
-#include <errno.h>
 #include <fcntl.h>
-#include <syslog.h>
+#ifdef HAVE_NETINET_TCP_H
+#include <netinet/tcp.h>
+#endif
 
 /* default connect timeout is 5 seconds */
 static struct timeval	canwait = { 5, 000000 };

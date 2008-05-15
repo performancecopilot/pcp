@@ -19,18 +19,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <strings.h>
-#include <unistd.h>
 #include <limits.h>
-
 #include "pmapi.h"
 #include "impl.h"
-
-#include <syslog.h>
-#include <netdb.h>
 
 #if !defined(HAVE_HSTRERROR)
 static char *

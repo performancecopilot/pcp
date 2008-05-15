@@ -19,17 +19,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <sys/types.h>
-#include <sys/param.h>
-#include <stdio.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <strings.h>
-#include <string.h>
-#include <errno.h>
 #include "pmapi.h"
 #include "impl.h"
+#include <ctype.h>
 
 #if defined(HAVE_CONST_DIRENT)
 #define MYDIRENT const struct dirent

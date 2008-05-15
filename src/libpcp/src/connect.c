@@ -22,13 +22,10 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include <syslog.h>
-
+#include "dsotbl.h"
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
 #endif
-
-#include "dsotbl.h"
 
 /* MY_BUFLEN needs to big enough to hold "hostname port" */
 #define MY_BUFLEN (MAXHOSTNAMELEN+10)

@@ -22,16 +22,13 @@
 #include "pmapi.h"
 #include "impl.h"
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <netinet/tcp.h>
-#include <signal.h>
-#include <syslog.h>
-#include <netdb.h>
-#include <errno.h>
 #include <limits.h>
+#include <signal.h>
+#include <sys/stat.h>
+#ifdef HAVE_NETINET_TCP_H
+#include <netinet/tcp.h>
+#endif
 
 /*
  * expect one of pid or port to be 0 ... if port is 0, use

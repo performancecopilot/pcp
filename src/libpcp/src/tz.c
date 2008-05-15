@@ -22,10 +22,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-
 static char	*envtz = NULL;		/* buffer in env */
 static int	envtzlen = 0;
 

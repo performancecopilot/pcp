@@ -19,18 +19,12 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/times.h>
-#include <sys/stat.h>
-#include <string.h>
-#include <errno.h>
-#include <syslog.h>
-#include <fcntl.h>
-#include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include <fcntl.h>
+#include <ctype.h>
+#include <sys/stat.h>
 
 static __uint32_t hash(char *, int, __uint32_t);
 

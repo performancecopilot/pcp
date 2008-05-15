@@ -16,23 +16,8 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/param.h>
-#include <ctype.h>
-#include <string.h>
-#include <errno.h>
-#include <syslog.h>
-#include <time.h>
-#include <limits.h>
 #include "pmapi.h"
 #include "impl.h"
-
-extern int errno;
-extern int optind;
-extern int pmDebug;
-extern char *optarg;
 
 static int gold;	/* boolean flag - do we have a golden label yet? */
 static char *goldfile;

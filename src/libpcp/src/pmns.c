@@ -19,16 +19,10 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <stdio.h>
 #include <stddef.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <ctype.h>
-#include <string.h>
-#include <syslog.h>
 #include <assert.h>
+#include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
 

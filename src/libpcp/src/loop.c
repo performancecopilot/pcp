@@ -19,24 +19,19 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include "platform_defs.h"
-
+#include "pmapi.h"
+#include "impl.h"
 #include <assert.h>
-#include <sys/poll.h>
 #include <signal.h>
-#include <sys/types.h>
+#include <sys/poll.h>
 #include <sys/wait.h>
+#include <sys/types.h>
 #ifndef HAVE_WAIT_DEFINES_RUSAGE
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
 #include <sys/resource.h>
 #endif
-#include <sys/syslog.h>
-
-#include "pmapi.h"
-#include "impl.h"
-
 
 typedef enum {
     FALSE = 0,

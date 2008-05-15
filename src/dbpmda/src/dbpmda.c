@@ -19,17 +19,10 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
+#include "dbpmda.h"
+#include "lex.h"
+#include "gram.h"
 #include <ctype.h>
-#include <string.h>
-#include <errno.h>
-#include <syslog.h>
-#include <sys/select.h>
-#include "./dbpmda.h"
-#include "./lex.h"
-#include "./gram.h"
 
 char		*configfile = NULL;
 __pmLogCtl	logctl;

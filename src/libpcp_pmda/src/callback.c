@@ -19,13 +19,10 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <errno.h>
-#include <syslog.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "./libdefs.h"
+#include "libdefs.h"
 
 /*
  * count the number of instances in an instance domain

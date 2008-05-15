@@ -21,10 +21,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
-
 #include <ctype.h>
-#include <syslog.h>
-#include <sys/types.h>
 
 extern int      errno;
 

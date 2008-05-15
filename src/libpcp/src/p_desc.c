@@ -22,9 +22,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-#include <syslog.h>
-#include <sys/types.h>
-
 extern int	errno;
 
 /*

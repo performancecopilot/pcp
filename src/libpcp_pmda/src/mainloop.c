@@ -19,14 +19,10 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <syslog.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "./libdefs.h"
+#include "libdefs.h"
 
 extern int __pmdaSetupPDU(int, int, char *);
 

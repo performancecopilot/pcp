@@ -24,13 +24,7 @@
  * Parse uniform metric and host specification syntax
  */
 
-#include <errno.h>
-#include <stdio.h>
 #include <ctype.h>
-#include <string.h>
-#include <strings.h>
-#include <stdlib.h>
-#include <sys/types.h>
 #include "pmapi.h"
 #include "impl.h"
 

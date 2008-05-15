@@ -21,8 +21,6 @@
 
 #include "pmapi.h"
 #include "impl.h"
-#include <errno.h>
-#include <syslog.h>
 #ifdef HAVE_VALUES_H
 #include <values.h>
 #endif
