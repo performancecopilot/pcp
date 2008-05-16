@@ -28,7 +28,7 @@ main(int argc, char **argv)
     pmDesc	desc;
     int		type = 0;
     char	*host = NULL;
-    char	*metric = "irix.kernel.all.cpu.idle";
+    char	*metric = "kernel.all.cpu.idle";
 
     /* trim command name of leading directory components */
     pmProgname = argv[0];
