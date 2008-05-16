@@ -29,7 +29,6 @@ Contents of the selected configuration file:
 #		IFS=" \t\n"
 #		PATH=... as per /etc/pcp.env ...
 #
-# [RCSID]
 
 # Specification format, one per line ("Tags" must be unique)
 # Tag	Shell command

@@ -20,12 +20,12 @@ static char *metrics_a[] = {
 
 static char *metrics_b[] = {
     "proc.nprocs",
-    "irix.kernel.all.syscall"
+    "kernel.all.syscall"
 };
 
 static char *metrics_c[] = {
     "proc.nprocs",
-    "irix.kernel.all.sysexec"
+    "kernel.all.sysexec"
 };
 
 static pmID pmid_a[N_PMID_A];

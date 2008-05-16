@@ -33,8 +33,8 @@ PMC_Context::lookupDesc: Add descriptor for <pmid for kernel.all.load>
 PMC_Context::lookupDesc: Add indom for <indom for kernel.all.load>
 PMC_Indom::lookup: inst "1"(0) matched to "1 minute"(0)
 PMC_Indom::lookup: inst "5"(1) matched to "5 minute"(1)
-HOST:irix.kernel.all.load["1 minute", "5 minute"] from host "HOST" with scale = 0 and units = none
-irix.kernel.all.load: 2 instances
+HOST:kernel.all.load["1 minute", "5 minute"] from host "HOST" with scale = 0 and units = none
+kernel.all.load: 2 instances
   [1 or "1 minute" (0)] = Missing metric value(s)
   [5 or "5 minute" (1)] = Missing metric value(s)
 
@@ -56,10 +56,10 @@ pmc_metric: Error: HOST:bogus.metric: Unknown metric name
 
 *** Bogus instance ***
 PMC_Group::use: Using current context 0 (hndl = 0) for host "HOST"
-PMC_Context::lookupDesc: Matched "irix.kernel.all.load" to id <pmid for kernel.all.load>
+PMC_Context::lookupDesc: Matched "kernel.all.load" to id <pmid for kernel.all.load>
 PMC_Context::lookupDesc: Reusing descriptor <pmid for kernel.all.load>
 PMC_Context::lookupDesc: Reusing indom <indom for kernel.all.load>
-pmc_metric: Error: HOST:irix.kernel.all.load[2]: Unknown or illegal instance identifier
+pmc_metric: Error: HOST:kernel.all.load[2]: Unknown or illegal instance identifier
 
 *** Group 1 Fetch 1 ***
 PMC_Group::fetch: 1 contexts
@@ -79,7 +79,7 @@ sample.bin: 9 instances
   [700 or "bin-700" (6)] = 700 none
   [800 or "bin-800" (7)] = 800 none
   [900 or "bin-900" (8)] = 900 none
-irix.kernel.all.load: 2 instances
+kernel.all.load: 2 instances
   [1 or "1 minute" (0)] = NUMBER none
   [5 or "5 minute" (1)] = NUMBER none
 sample.string.hullo = hullo world!
@@ -101,14 +101,14 @@ sample.bin: 9 instances
   [700 or "bin-700" (6)] = 700 none
   [800 or "bin-800" (7)] = 800 none
   [900 or "bin-900" (8)] = 900 none
-irix.kernel.all.load: 2 instances
+kernel.all.load: 2 instances
   [1 or "1 minute" (0)] = NUMBER none
   [5 or "5 minute" (1)] = NUMBER none
 sample.string.hullo = hullo world!
 sample.seconds = NUMBER sec / second
 
 *** Remove an instance ***
-irix.kernel.all.load: 1 instance
+kernel.all.load: 1 instance
   [5 or "5 minute" (1)] = NUMBER none
 
 *** Group 1 Fetch 3 ***
@@ -128,14 +128,14 @@ sample.bin: 9 instances
   [700 or "bin-700" (6)] = 700 none
   [800 or "bin-800" (7)] = 800 none
   [900 or "bin-900" (8)] = 900 none
-irix.kernel.all.load: 1 instance
+kernel.all.load: 1 instance
   [5 or "5 minute" (1)] = NUMBER none
 sample.string.hullo = hullo world!
 sample.seconds = NUMBER sec / second
 
 *** Add an instance ***
 PMC_Indom::lookup: inst "15"(2) matched to "15 minute"(2)
-irix.kernel.all.load: 2 instances
+kernel.all.load: 2 instances
   [5 or "5 minute" (1)] = NUMBER none
   [15 or "15 minute" (2)] = Missing metric value(s)
 
@@ -156,7 +156,7 @@ sample.bin: 9 instances
   [700 or "bin-700" (6)] = 700 none
   [800 or "bin-800" (7)] = 800 none
   [900 or "bin-900" (8)] = 900 none
-irix.kernel.all.load: 2 instances
+kernel.all.load: 2 instances
   [5 or "5 minute" (1)] = NUMBER none
   [15 or "15 minute" (2)] = NUMBER none
 sample.string.hullo = hullo world!

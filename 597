@@ -62,7 +62,6 @@ _filter()
 {
     _filter_pmda_install | \
     sed \
-	-e 's/\$Id.*\$/[RCSID]/' \
 	-e '/Removing files/d' \
 	-e '/Updating the PMCD control file/c\
 Updating the PMCD control file, and notifying PMCD ...\

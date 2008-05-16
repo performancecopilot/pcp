@@ -15,12 +15,12 @@
 
 static char *metrics_a[] = {
     "sample.long.one",
-    "irix.kernel.all.syscall"
+    "kernel.all.syscall"
 };
 
 static char *metrics_b[] = {
     "sample.long.one",
-    "irix.kernel.all.sysexec"
+    "kernel.all.sysexec"
 };
 
 static pmID pmid_a[N_PMID_A];

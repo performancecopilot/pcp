@@ -53,20 +53,20 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # -S and -T before the start of the archive
 #
-pmval -z -S '@Sat May 10 01:00:00 1997' -T '@Sat May 10 01:00:00 1997' -a src-oss/rattle kernel.all.load
+pmval -z -S '@Sat May 10 01:00:00 1997' -T '@Sat May 10 01:00:00 1997' -a src-oss/rattle irix.kernel.all.load
 
 echo
-echo "kernel.all.load;" \
+echo "irix.kernel.all.load;" \
 | pmie -z -v -S '@Sat May 10 01:00:00 1997' -T '@Sat May 10 01:00:00 1997' -a src-oss/rattle 2>&1 \
 | grep -v 'evaluator exiting'
 
 # -S and -T after the end of the archive
 #
 echo
-pmval -z -S '@Sat May 24 01:00:00 1997' -T '@Sat May 24 01:00:00 1997' -a src-oss/rattle kernel.all.load
+pmval -z -S '@Sat May 24 01:00:00 1997' -T '@Sat May 24 01:00:00 1997' -a src-oss/rattle irix.kernel.all.load
 
 echo
-echo "kernel.all.load;" \
+echo "irix.kernel.all.load;" \
 | pmie -v -S '@Sat May 24 01:00:00 1997' -T '@Sat May 24 01:00:00 1997' -a src-oss/rattle 2>&1 \
 | grep -v 'evaluator exiting'
 

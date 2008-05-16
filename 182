@@ -56,8 +56,8 @@ _wait_for_pmlogger $pid $tmp.log 10
 cat <<End-of-File >$tmp.cmd
 pmlc <<E-O-F >>$tmp.out
 connect $pid
-query irix
-query irix
+query kernel
+query kernel
 E-O-F
 End-of-File
 chmod u+x $tmp.cmd

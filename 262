@@ -92,7 +92,7 @@ echo "Expect no error messages or ?'s from pmie"
 echo
 echo "=== pmie + PM_CONTEXT_HOST ==="
 cat >$tmp.conf <<'End-of-File'
-irix.kernel.all.load;
+kernel.all.load;
 proc.nprocs;
 End-of-File
 pmie -v -t1 -T2 <$tmp.conf 2>$tmp.err | _filter_number > $tmp.out
@@ -101,7 +101,7 @@ cat $tmp.out $tmp.err | _show_pmie_errors
 echo
 echo "=== pmie + PM_CONTEXT_HOST + pmsocks ==="
 cat >$tmp.conf <<'End-of-File'
-irix.kernel.all.load;
+kernel.all.load;
 proc.nprocs;
 End-of-File
 pmsocks pmie -v -t1 -T2 <$tmp.conf 2>$tmp.err | _filter_number > $tmp.out

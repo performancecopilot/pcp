@@ -139,7 +139,7 @@ interval:  1.00 sec
   yes     no      yes     3
 Note: timezone set to local timezone of host "gonzo" from archive
 
-metric:    network.interface.total.packets
+metric:    irix.network.interface.total.packets
 archive:   src-oss/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
@@ -465,7 +465,7 @@ interval:  0.50 sec
   yes     no      yes     3
 Note: timezone set to local timezone of host "gonzo" from archive
 
-metric:    network.interface.total.packets
+metric:    irix.network.interface.total.packets
 archive:   src-oss/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
