@@ -498,8 +498,10 @@ NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 # Unix variants
 $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/etc\/init/ { print "OK"; exit }
+# Fedora 9
+$2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 # Cygwin
-/ \/usr\/bin\/cygrunsrv/{ print "OK"; exit }
+/ \/usr\/bin\/cygrunsrv/ { print "OK"; exit }
 / \/usr\/sbin\/inetd/	{  print "OK"; exit }'`
     if test "$ans" = OK
     then
