@@ -37,6 +37,10 @@
 long totalmalloc = 0;
 #endif
 
+static pmUnits nullunits = { 0,0,0,0,0,0 };
+
+static int desperate = 0;
+
 /*
  *  Usage
  */
@@ -65,6 +69,7 @@ Options:\n\
 \n\
 Options:\n\
   -c configfile  file to load configuration from\n\
+  -d             desperate, save output after fatal error\n\
   -n pmnsfile    use an alternative PMNS\n\
   -S starttime   start of the time window\n\
   -s samples     terminate after this many log records have been written\n\
@@ -75,6 +80,20 @@ Options:\n\
   -z             set reporting timezone to local time of input-archive\n",
 	pmProgname);
     }
+}
+
+const char *
+metricname(pmID pmid)
+{
+    static char	*name = NULL;
+    if (name != NULL) {
+	free(name);
+	name = NULL;
+    }
+    if (pmNameID(pmid, &name) == 0)
+	return(name);
+    name = NULL;
+    return pmIDStr(pmid);
 }
 
 /*
@@ -217,6 +236,25 @@ tv2double(struct timeval *tv)
     return tv->tv_sec + (double)tv->tv_usec / 1000000.0;
 }
 
+static void
+abandon()
+{
+    char    fname[MAXNAMELEN];
+    if (desperate == 0) {
+	fprintf(stderr, "Archive \"%s\" not created.\n", outarchname);
+	while (logctl.l_curvol >= 0) {
+	    snprintf(fname, sizeof(fname), "%s.%d", outarchname, logctl.l_curvol);
+	    unlink(fname);
+	    logctl.l_curvol--;
+	}
+	snprintf(fname, sizeof(fname), "%s.meta", outarchname);
+	unlink(fname);
+	snprintf(fname, sizeof(fname), "%s.index", outarchname);
+	unlink(fname);
+    }
+    exit(1);
+}
+
 
 /*
  *  report that archive is corrupted
@@ -235,7 +273,7 @@ _report(FILE *fp)
     else
 	fprintf(stderr, " %ld bytes.\n", (long int)sbuf.st_size);
     fprintf(stderr, "The last record, and the remainder of this file will not be extracted.\n");
-    exit_status = 1;
+    abandon();
 }
 
 
@@ -257,16 +295,14 @@ newvolume(char *base, __pmTimeval *tvp)
 	fflush(logctl.l_mfp);
 	stamp.tv_sec = tvp->tv_sec;
 	stamp.tv_usec = tvp->tv_usec;
-	fprintf(stderr, "%s: New log volume %d, at ",
-		pmProgname, nextvol);
+	fprintf(stderr, "%s: New log volume %d, at ", pmProgname, nextvol);
 	__pmPrintStamp(stderr, &stamp);
 	fputc('\n', stderr);
-	return;
     }
     else {
 	fprintf(stderr, "%s: Error: volume %d: %s\n",
 		pmProgname, nextvol, pmErrStr(-errno));
-	exit(1);
+	abandon();
     }
 }
 
@@ -292,7 +328,7 @@ newlabel(void)
     if (inarchvers != PM_LOG_VERS01 && inarchvers != PM_LOG_VERS02) {
 	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
 		pmProgname, inarchvers, iap->name);
-	exit(1);
+	abandon();
     }
 
     /* copy magic number, pid, host and timezone */
@@ -313,7 +349,7 @@ newlabel(void)
 		"archive: %s version: %d\n",
 		    pmProgname, inarch[0].name, inarchvers,
 		    iap->name, (iap->label.ll_magic & 0xff));
-	    exit(1);
+	    abandon();
         }
 
 	/* Ensure all archives of the same host */
@@ -324,7 +360,7 @@ newlabel(void)
 		    inarch[0].name, inarch[0].label.ll_hostname);
 	    fprintf(stderr, "archive: %s host: %s\n",
 		    iap->name, iap->label.ll_hostname);
-	    exit(1);
+	    abandon();
 	}
 
 	/* Ensure all archives of the same timezone */
@@ -381,7 +417,7 @@ mk_reclist_t(void)
     if ((rec = (reclist_t *)malloc(sizeof(reclist_t))) == NULL) {
 	fprintf(stderr, "%s: Error: cannot malloc space for record list.\n",
 		pmProgname);
-	exit(1);
+	abandon();
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
@@ -390,8 +426,11 @@ mk_reclist_t(void)
     }
 #endif
     rec->pdu = NULL;
-    rec->pmid = (pmID)0;
-    rec->indom = PM_INDOM_NULL;
+    rec->desc.pmid = PM_ID_NULL;
+    rec->desc.type = PM_TYPE_NOSUPPORT;
+    rec->desc.indom = PM_IN_NULL;
+    rec->desc.sem = 0;
+    rec->desc.units = nullunits;	/* struct assignment */
     rec->written = NOT_WRITTEN;
     rec->ptr = NULL;
     rec->next = NULL;
@@ -399,8 +438,6 @@ mk_reclist_t(void)
 }
 
 /*
-curr->ptr = findnadd_indomreclist(curr->indom);
- *
  * find indom in indomreclist - if it isn't in the list then add it in
  * with no pdu buffer
  */
@@ -411,27 +448,33 @@ findnadd_indomreclist(int indom)
 
     if (rindom == NULL) {
 	rindom = mk_reclist_t();
-	rindom->pmid = 0;
-	rindom->indom = indom;
+	rindom->desc.pmid = PM_ID_NULL;
+	rindom->desc.type = PM_TYPE_NOSUPPORT;
+	rindom->desc.indom = indom;
+	rindom->desc.sem = 0;
+	rindom->desc.units = nullunits;	/* struct assignment */
 	return(rindom);
     }
     else {
 	curr = rindom;
 
 	/* find matching record or last record */
-	while (curr->next != NULL && curr->indom != indom)
+	while (curr->next != NULL && curr->desc.indom != indom)
 	    curr = curr->next;
 
-	if (curr->indom == indom) {
+	if (curr->desc.indom == indom) {
 	    /* we have found a matching record - return the pointer */
 	    return(curr);
 	}
 	else {
-	    /* we have not found a matchin record - append new record */
+	    /* we have not found a matching record - append new record */
 	    curr->next = mk_reclist_t();
 	    curr = curr->next;
-	    curr->pmid = 0;
-	    curr->indom = indom;
+	    curr->desc.pmid = PM_ID_NULL;
+	    curr->desc.type = PM_TYPE_NOSUPPORT;
+	    curr->desc.indom = indom;
+	    curr->desc.sem = 0;
+	    curr->desc.units = nullunits;	/* struct assignment */
 	    return(curr);
 	}
     }
@@ -473,67 +516,115 @@ append_logreclist(int i)
     } /*else*/
 
     iap->pb[LOG] = NULL;
-    iap->pick[LOG] = 0;
 }
 
 /*
- *  append a new record to the desc meta record list
+ *  append a new record to the desc meta record list if not seen
+ *  before, else check the desc meta record is semantically the
+ *  same as the last desc meta record for this pmid from this source
  */
 void
-append_descreclist(int i)
+update_descreclist(int i)
 {
     inarch_t	*iap;
     reclist_t	*curr;
+    pmUnits	pmu;
+    pmUnits	*pmup;
 
     iap = &inarch[i];
 
     if (rdesc == NULL) {
-	rdesc = mk_reclist_t();
-	rdesc->pmid = __ntohpmID(iap->pb[META][2]);
-	rdesc->indom = __ntohpmInDom(iap->pb[META][4]);
-	rdesc->pdu = iap->pb[META];
-	rdesc->ptr = findnadd_indomreclist(rdesc->indom);
+	/* first time */
+	curr = rdesc = mk_reclist_t();
     }
     else {
 	curr = rdesc;
-
 	/* find matching record or last record */
-	while (curr->next != NULL && curr->pmid != __ntohpmID(iap->pb[META][2]))
+	while (curr->next != NULL && curr->desc.pmid != __ntohpmID(iap->pb[META][2]))
 	    curr = curr->next;
 
-	if (curr->pmid == __ntohpmID(iap->pb[META][2])) {
-	    if (curr->pdu == NULL) {
-		curr->pdu = iap->pb[META];
-		curr->indom = __ntohpmInDom(iap->pb[META][4]);
-		curr->written = MARK_FOR_WRITE;
-		if (curr->ptr == NULL) {
-		    curr->ptr = findnadd_indomreclist(curr->indom);
-		}
-	    }
-	    else if (curr->indom == __ntohpmInDom(iap->pb[META][4])) {
-		/* META: discard new record */
-		free(iap->pb[META]);
-	    }
-	    else {
-		fprintf(stderr,
-		    "%s: Error: meta data description records do not match.\n",
-			pmProgname);
-		exit(1);
-	    }
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL1) {
+	    fprintf(stderr, "update_descreclist: pmid: last/match %s", metricname(curr->desc.pmid));
+	    fprintf(stderr, " new %s", metricname(__ntohpmID(iap->pb[META][2])));
+	    fputc('\n', stderr);
 	}
-	else {
-	    /* append new record */
-	    curr->next = mk_reclist_t();
-	    curr = curr->next;
-	    curr->pdu = iap->pb[META];
-	    curr->pmid = __ntohpmID(iap->pb[META][2]);
-	    curr->indom = __ntohpmInDom(iap->pb[META][4]);
-	    curr->ptr = findnadd_indomreclist(curr->indom);
-	}
-    } /*else*/
+#endif
+    }
 
-    iap->pb[META] = NULL;
-    iap->pick[META] = 0;
+    if (curr->desc.pmid == __ntohpmID(iap->pb[META][2])) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL1) {
+	    fprintf(stderr, " type: old %s", pmTypeStr(curr->desc.type));
+	    fprintf(stderr, " new %s", pmTypeStr(ntohl(iap->pb[META][3])));
+	    fprintf(stderr, " indom: old %s", pmInDomStr(curr->desc.indom));
+	    fprintf(stderr, " new %s", pmInDomStr(__ntohpmInDom(iap->pb[META][4])));
+	    fprintf(stderr, " sem: old %d", curr->desc.sem);
+	    fprintf(stderr, " new %d", ntohl(iap->pb[META][5]));
+	    fprintf(stderr, " units: old %s", pmUnitsStr(&curr->desc.units));
+	    pmup = (pmUnits *)&iap->pb[META][6];
+	    pmu = __ntohpmUnits(*pmup);
+	    fprintf(stderr, " new %s", pmUnitsStr(&pmu));
+	    fputc('\n', stderr);
+	}
+#endif
+	if (curr->desc.type != ntohl(iap->pb[META][3])) {
+	    fprintf(stderr,
+		"%s: Error: metric %s: type changed from",
+		pmProgname, metricname(curr->desc.pmid));
+	    fprintf(stderr, " %s", pmTypeStr(curr->desc.type));
+	    fprintf(stderr, " to %s!\n", pmTypeStr(ntohl(iap->pb[META][3])));
+	    abandon();
+	}
+	if (curr->desc.indom != __ntohpmInDom(iap->pb[META][4])) {
+	    fprintf(stderr,
+		"%s: Error: metric %s: indom changed from",
+		pmProgname, metricname(curr->desc.pmid));
+	    fprintf(stderr, " %s", pmInDomStr(curr->desc.indom));
+	    fprintf(stderr, " to %s!\n", pmInDomStr(__ntohpmInDom(iap->pb[META][4])));
+	    abandon();
+	}
+	if (curr->desc.sem != ntohl(iap->pb[META][5])) {
+	    fprintf(stderr,
+		"%s: Error: metric %s: semantics changed from",
+		pmProgname, metricname(curr->desc.pmid));
+	    fprintf(stderr, " %d", curr->desc.sem);
+	    fprintf(stderr, " to %d!\n", ntohl(iap->pb[META][5]));
+	    abandon();
+	}
+	pmup = (pmUnits *)&iap->pb[META][6];
+	pmu = __ntohpmUnits(*pmup);
+	if (curr->desc.units.dimSpace != pmu.dimSpace ||
+	    curr->desc.units.dimTime != pmu.dimTime ||
+	    curr->desc.units.dimCount != pmu.dimCount ||
+	    curr->desc.units.scaleSpace != pmu.scaleSpace ||
+	    curr->desc.units.scaleTime != pmu.scaleTime ||
+	    curr->desc.units.scaleCount != pmu.scaleCount) {
+	    fprintf(stderr,
+		"%s: Error: metric %s: units changed from",
+		pmProgname, metricname(curr->desc.pmid));
+	    fprintf(stderr, " %s", pmUnitsStr(&curr->desc.units));
+	    fprintf(stderr, " to %s!\n", pmUnitsStr(&pmu));
+	    abandon();
+	}
+	/* not adding, so META: discard new record */
+	free(iap->pb[META]);
+	iap->pb[META] = NULL;
+    }
+    else {
+	/* append new record */
+	curr->next = mk_reclist_t();
+	curr = curr->next;
+	curr->pdu = iap->pb[META];
+	curr->desc.pmid = __ntohpmID(iap->pb[META][2]);
+	curr->desc.type = ntohl(iap->pb[META][3]);
+	curr->desc.indom = __ntohpmInDom(iap->pb[META][4]);
+	curr->desc.sem = ntohl(iap->pb[META][5]);
+	pmup =(pmUnits *)&iap->pb[META][6];
+	curr->desc.units = __ntohpmUnits(*pmup);
+	curr->ptr = findnadd_indomreclist(curr->desc.indom);
+	iap->pb[META] = NULL;
+    }
 }
 
 /*
@@ -551,18 +642,21 @@ append_indomreclist(int i)
     if (rindom == NULL) {
 	rindom = mk_reclist_t();
 	rindom->pdu = iap->pb[META];
-	rindom->pmid = 0;
-	rindom->indom = __ntohpmInDom(iap->pb[META][4]);
+	rindom->desc.pmid = PM_ID_NULL;
+	rindom->desc.type = PM_TYPE_NOSUPPORT;
+	rindom->desc.indom = __ntohpmInDom(iap->pb[META][4]);
+	rindom->desc.sem = 0;
+	rindom->desc.units = nullunits;	/* struct assignment */
     }
     else {
 	curr = rindom;
 
 	/* find matching record or last record */
-	while (curr->next != NULL && curr->indom != __ntohpmInDom(iap->pb[META][4])) {
+	while (curr->next != NULL && curr->desc.indom != __ntohpmInDom(iap->pb[META][4])) {
 	    curr = curr->next;
 	}
 
-	if (curr->indom == __ntohpmInDom(iap->pb[META][4])) {
+	if (curr->desc.indom == __ntohpmInDom(iap->pb[META][4])) {
 	    if (curr->pdu == NULL) {
 		/* insert new record */
 		curr->pdu = iap->pb[META];
@@ -571,8 +665,11 @@ append_indomreclist(int i)
 		/* do NOT discard old record; insert new record */
 		rec = mk_reclist_t();
 		rec->pdu = iap->pb[META];
-		rec->pmid = 0;
-		rec->indom = __ntohpmInDom(iap->pb[META][4]);
+		rec->desc.pmid = PM_ID_NULL;
+		rec->desc.type = PM_TYPE_NOSUPPORT;
+		rec->desc.indom = __ntohpmInDom(iap->pb[META][4]);
+		rec->desc.sem = 0;
+		rec->desc.units = nullunits;	/* struct assignment */
 		rec->next = curr->next;
 		curr->next = rec;
 	    }
@@ -582,13 +679,15 @@ append_indomreclist(int i)
 	    curr->next = mk_reclist_t();
 	    curr = curr->next;
 	    curr->pdu = iap->pb[META];
-	    curr->pmid = 0;
-	    curr->indom = __ntohpmInDom(iap->pb[META][4]);
+	    curr->desc.pmid = PM_ID_NULL;
+	    curr->desc.type = PM_TYPE_NOSUPPORT;
+	    curr->desc.indom = __ntohpmInDom(iap->pb[META][4]);
+	    curr->desc.sem = 0;
+	    curr->desc.units = nullunits;	/* struct assignment */
 	}
     } /*else*/
 
     iap->pb[META] = NULL;
-    iap->pick[META] = 0;
 }
 
 /*
@@ -603,14 +702,14 @@ write_rec(reclist_t *rec)
 	if (rec->pdu == NULL) {
 	    fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 	    fprintf(stderr,"    record is marked for write, but pdu is NULL\n");
-	    exit(1);
+	    abandon();
 	}
 
 	/* write out the pdu ; exit if write failed */
 	if ((sts = _pmLogPut(logctl.l_mdfp, rec->pdu)) < 0) {
 	    fprintf(stderr, "%s: Error: _pmLogPut: meta data : %s\n",
 		    pmProgname, pmErrStr(sts));
-	    exit(1);
+	    abandon();
 	}
 	/* META: free PDU buffer */
 	free(rec->pdu);
@@ -620,7 +719,7 @@ write_rec(reclist_t *rec)
     else {
 	fprintf(stderr,
 		"%s : Warning: attempting to write out meta record (%d,%d)\n",
-		pmProgname, rec->pmid, rec->indom);
+		pmProgname, rec->desc.pmid, rec->desc.indom);
 	fprintf(stderr, "        when it is not marked for writing (%d)\n",
 		rec->written);
     }
@@ -643,27 +742,27 @@ write_metareclist(pmResult *result, int *needti)
      */
     for (i=0; i<result->numpmid; i++) {
 	pmid = result->vset[i]->pmid;
-	indom = PM_INDOM_NULL;
+	indom = PM_IN_NULL;
 	curr_indom = NULL;
 
 	curr_desc = rdesc;
-	while (curr_desc != NULL && curr_desc->pmid != pmid)
+	while (curr_desc != NULL && curr_desc->desc.pmid != pmid)
 	    curr_desc = curr_desc->next;
 
 	if (curr_desc == NULL) {
 	    /* descriptor has not been found - this is bad
 	     */
 	    fprintf(stderr, "%s: Error: meta data (TYPE_DESC) for pmid %d has not been found.\n", pmProgname, pmid);
-	    exit(1);
+	    abandon();
 	}
-	else if (curr_desc->pmid == pmid) {
+	else {
 	    /* descriptor has been found
 	     */
 	    if (curr_desc->written == WRITTEN) {
 		/* descriptor has been written before (no need to write again)
 		 * but still need to check indom
 		 */
-		indom = curr_desc->indom;
+		indom = curr_desc->desc.indom;
 		curr_indom = curr_desc->ptr;
 	    }
 	    else if (curr_desc->pdu == NULL) {
@@ -672,7 +771,7 @@ write_metareclist(pmResult *result, int *needti)
 		 */
 		fprintf(stderr, "%s: Error: missing pdu for pmid %d\n",
 			pmProgname, pmid);
-	        exit(1);
+	        abandon();
 	    }
 	    else {
 		/* descriptor is in list, has not been written, and has pdu
@@ -680,16 +779,9 @@ write_metareclist(pmResult *result, int *needti)
 		 */
 		curr_desc->written = MARK_FOR_WRITE;
 		write_rec(curr_desc);
-		indom = curr_desc->indom;
+		indom = curr_desc->desc.indom;
 		curr_indom = curr_desc->ptr;
 	    }
-	}
-	else {
-	    /* unexpected code
-	     */
-	    fprintf(stderr,
-		"%s: Error: reached unexpected code in `write_metareclist'.\n",
-		    pmProgname);
 	}
 
 	/* descriptor has been found and written,
@@ -703,7 +795,7 @@ write_metareclist(pmResult *result, int *needti)
 	     *  - all others before the current timestamp can be discarded(?)
 	     */
 	    othr_indom = NULL;
-	    while (curr_indom != NULL && curr_indom->indom == indom) {
+	    while (curr_indom != NULL && curr_indom->desc.indom == indom) {
 		if (curr_indom->written != WRITTEN) {
 		    if (curr_indom->pdu == NULL) {
 			/* indom is in list, has not been written,
@@ -763,7 +855,7 @@ _createmark(void)
     if (markp == NULL) {
 	fprintf(stderr, "%s: Error: mark_t malloc: %s\n",
 		pmProgname, strerror(errno));
-	exit(1);
+	abandon();
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
@@ -806,7 +898,7 @@ nextmeta(void)
 {
     int		i;
     int		j;
-    int		found;
+    int		want;
     int		numeof = 0;
     int		sts;
     pmID	pmid;			/* pmid for TYPE_DESC */
@@ -831,13 +923,13 @@ nextmeta(void)
 	if (iap->pb[META] != NULL) {
 	    fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 	    fprintf(stderr, "    iap->pb[META] is not NULL\n");
-	    exit(1);
+	    abandon();
 	}
+	ctxp = __pmHandleToPtr(iap->ctx);
+	lcp = ctxp->c_archctl->ac_log;
 
 againmeta:
 	/* get next meta record */
-	ctxp = __pmHandleToPtr(iap->ctx);
-	lcp = ctxp->c_archctl->ac_log;
 
 	if ((sts = _pmLogGet(lcp, PM_LOG_VOL_META, &iap->pb[META])) < 0) {
 	    iap->eof[META] = 1;
@@ -859,40 +951,41 @@ againmeta:
 	    /* if ml is defined, then look for pmid in the list
 	     * if pmid is not in the list then discard it immediately
 	     */
-	    found = 0;
+	    want = 0;
 	    if (ml == NULL)
-		found = 1;
+		want = 1;
 	    else {
 		for (j=0; j<ml_numpmid; j++) {
 		    if (pmid == ml[j].idesc->pmid)
-			found = 1;
+			want = 1;
 		}
 	    }
 
-	    if (found) {
-		if ((hnp = __pmHashSearch((int)pmid, &mdesc_hash)) != NULL) {
-		    /*
-		     * meta record has already been processed ...
-		     * TODO check that metadata is consistent ... if not, abort,
-		     * else skip this one
-		     */
-		    found = 0;
+	    if (want) {
+		if ((hnp = __pmHashSearch((int)pmid, &mdesc_hash)) == NULL) {
+		    __pmHashAdd((int)pmid, NULL, &mdesc_hash);
 		}
-	    }
-
-	    if (found) {
-		/* we want meta */
-		/* add to hash list */
-		__pmHashAdd((int)pmid, NULL, &mdesc_hash);
-
-		/* add to desc list */
-		/* append_descreclist() sets
-		 *	pb[META] to NULL and pick[META] to 0
+		/*
+		 * update the desc list (add first time, check on subsequent
+		 * sightings of desc for this pmid from this source
+		 * update_descreclist() sets pb[META] to NULL
 		 */
-		append_descreclist(i);
+		update_descreclist(i);
+	    }
+
+	    if (want) {
+		if ((hnp = __pmHashSearch((int)pmid, &mdesc_hash)) == NULL) {
+		    __pmHashAdd((int)pmid, NULL, &mdesc_hash);
+		}
+		/*
+		 * update the desc list (add first time, check on subsequent
+		 * sightings of desc for this pmid from this source
+		 * update_descreclist() sets pb[META] to NULL
+		 */
+		update_descreclist(i);
 	    }
 	    else {
-		/* META: don't want this meta */
+		/* not wanted */
 		free(iap->pb[META]);
 		iap->pb[META] = NULL;
 		goto againmeta;
@@ -903,24 +996,23 @@ againmeta:
 	     * if indom is not in the list then discard it immediately
 	     */
 	    indom = __ntohpmInDom(iap->pb[META][4]);
-	    found = 0;
+	    want = 0;
 	    if (ml == NULL)
-	        found = 1;
+	        want = 1;
 	    else {
 	        for (j=0; j<ml_numpmid; j++) {
 		    if (indom == ml[j].idesc->indom)
-		        found = 1;
+		        want = 1;
 	        }
 	    }
 
-	    if (found) {
+	    if (want) {
 	        if (__pmHashSearch((int)indom, &mindom_hash) == NULL) {
 		    /* meta record has never been seen ... add it to the list */
 		    __pmHashAdd((int)indom, NULL, &mindom_hash);
 	        }
 		/* add to indom list */
-		/* append_indomreclist() sets
-		 *	pb[META] to NULL and pick[META] to 0
+		/* append_indomreclist() sets pb[META] to NULL
 		 * append_indomreclist() may unpin the pdu buffer
 		 */
 		append_indomreclist(i);
@@ -935,10 +1027,10 @@ againmeta:
 	else {
 	    fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
 		    pmProgname, ntohl(iap->pb[META][1]));
-	    exit(1);
+	    abandon();
 	}
 
-    } /*for(i)*/
+    }
 
     if (numeof == inarchnum) return(-1);
     return(0);
@@ -1078,7 +1170,7 @@ parseargs(int argc, char *argv[])
     char		*endnum;
     struct stat		sbuf;
 
-    while ((c = getopt(argc, argv, "c:D:n:S:s:T:v:wZ:z?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:D:dn:S:s:T:v:wZ:z?")) != EOF) {
 	switch (c) {
 
 	case 'c':	/* config file */
@@ -1100,6 +1192,10 @@ parseargs(int argc, char *argv[])
 	    }
 	    else
 		pmDebug |= sts;
+	    break;
+
+	case 'd':	/* desperate to save output archive, even after error */
+	    desperate = 1;
 	    break;
 
 	case 'n':	/* namespace */
@@ -1284,7 +1380,6 @@ checkwinend(double now)
 		    iap->_result = NULL;
 		}
 		iap->_Nresult = NULL;
-		iap->pick[LOG] = 0;
 		iap->pb[LOG] = NULL;
 	    }
 	}
@@ -1296,7 +1391,6 @@ checkwinend(double now)
 		 */
 		free(iap->pb[LOG]);
 		iap->pb[LOG] = NULL;
-		iap->pick[LOG] = 0;
 	    }
 	}
     } /*for(i)*/
@@ -1307,7 +1401,7 @@ checkwinend(double now)
     if ((sts = __pmLogPutResult(&logctl, markpdu)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		pmProgname, pmErrStr(sts));
-	exit(1);
+	abandon();
     }
     written++;
     free(markpdu);
@@ -1380,7 +1474,7 @@ writerlist(rlist_t **rlready, double mintime)
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmProgname, pmErrStr(sts));
-	    exit(1);
+	    abandon();
 	}
 
 	/* __pmEncodeResult doesn't pin the PDU buffer, so we have to
@@ -1392,7 +1486,7 @@ writerlist(rlist_t **rlready, double mintime)
 	if ((sts = __pmLogPutResult(&logctl, pb)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
-	    exit(1);
+	    abandon();
 	}
 	written++;
 
@@ -1467,13 +1561,13 @@ writemark(inarch_t *iap)
     if (!iap->mark) {
 	fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 	fprintf(stderr, "    writemark called, but mark not set\n");
-	exit(1);
+	abandon();
     }
 
     if (p == NULL) {
 	fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 	fprintf(stderr, "    writemark called, but no pdu\n");
-	exit(1);
+	abandon();
     }
 
     p->timestamp.tv_sec = htonl(p->timestamp.tv_sec);
@@ -1482,12 +1576,11 @@ writemark(inarch_t *iap)
     if ((sts = __pmLogPutResult(&logctl, iap->pb[LOG])) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		pmProgname, pmErrStr(sts));
-	exit(1);
+	abandon();
     }
     written++;
     free(iap->pb[LOG]);
     iap->pb[LOG] = NULL;
-    iap->pick[LOG] = 0;
 }
 
 /*--- END FUNCTIONS ---------------------------------------------------------*/
@@ -1569,7 +1662,6 @@ main(int argc, char **argv)
 
 	iap->pb[LOG] = iap->pb[META] = NULL;
 	iap->eof[LOG] = iap->eof[META] = 0;
-	iap->pick[LOG] = iap->pick[META] = 0;
 	iap->mark = 0;
 	iap->_result = NULL;
 	iap->_Nresult = NULL;
@@ -1822,7 +1914,7 @@ main(int argc, char **argv)
 	if (ilog < 0 || ilog >= inarchnum) {
 	    fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 	    fprintf(stderr, "    log file index = %d\n", ilog);
-	    exit(1);
+	    abandon();
 	}
 
 	iap = &inarch[ilog];
@@ -1834,7 +1926,7 @@ main(int argc, char **argv)
 	    if (iap->_Nresult == NULL) {
 		fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 		fprintf(stderr, "    pick == LOG and _Nresult = NULL\n");
-		exit(1);
+		abandon();
 	    }
 	    insertresult(&rlready, iap->_Nresult);
 	    writerlist(&rlready, now);
@@ -1869,18 +1961,10 @@ main(int argc, char **argv)
     } /*while()*/
 
     if (first_datarec) {
-	char    fname[MAXNAMELEN];
         fprintf(stderr, "%s: Warning: no qualifying records found.\n",
                 pmProgname);
 cleanup:
-        fprintf(stderr, "Archive \"%s\" not created.\n", outarchname);
-        snprintf(fname, sizeof(fname), "%s.0", outarchname);
-        unlink(fname);
-        snprintf(fname, sizeof(fname), "%s.meta", outarchname);
-        unlink(fname);
-        snprintf(fname, sizeof(fname), "%s.index", outarchname);
-        unlink(fname);
-        exit_status = 1;
+	abandon();
     }
     else {
 	/* write the last time stamp */

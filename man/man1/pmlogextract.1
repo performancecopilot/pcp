@@ -36,7 +36,7 @@
 and merge Performance Co-Pilot archives
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmlogextract\f1
-[\f3\-wz\f1]
+[\f3\-dwz\f1]
 [\f3\-c\f1 \f2configfile\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-S\f1 \f2starttime\f1]
@@ -105,6 +105,17 @@ syntax accepted by
 is explained in more detail in the
 .B Configuration File Syntax
 section.
+.PP
+.TP 7
+.B \-d
+Desperate mode.  Normally if a fatal error occurs, all trace of
+the partially written PCP archive
+.I output
+is removed.  With the
+.B \-d
+option, the
+.I output
+archive is not removed.
 .PP
 .TP 7
 .BI \-n " pmnsfile"

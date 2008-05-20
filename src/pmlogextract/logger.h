@@ -31,8 +31,7 @@
  */
 typedef struct _reclist_t {
     __pmPDU		*pdu;		/* PDU ptr */
-    pmID		pmid;
-    pmInDom		indom;
+    pmDesc		desc;
     int			written;	/* written status */
     struct _reclist_t	*ptr;		/* ptr to record in another reclist */
     struct _reclist_t	*next;		/* ptr to next reclist_t record */
@@ -48,7 +47,6 @@ typedef struct {
     __pmPDU	*pb[2];
     pmResult	*_result;
     pmResult	*_Nresult;
-    int		pick[2];
     int		eof[2];
     int		mark;		/* need EOL marker */
 } inarch_t;
