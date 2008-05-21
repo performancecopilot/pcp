@@ -19,15 +19,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/time.h>
 #include "pmapi.h"
 #include "impl.h"
-#include "./pmlc.h"
+#include "pmlc.h"
 
 /* this pmResult is built after parsing the current statement.  The action
  * routines (Status, LogReq) send it to the logger as a request.

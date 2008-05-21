@@ -19,13 +19,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <errno.h>
-#include <unistd.h>
-
 #include "pmapi.h"
 #include "impl.h"
-#include "./pmlc.h"
+#include "pmlc.h"
 
 /* for the pmlogger/PMCD we currently have a connection to */
 static int	logger_fd = -1;			/* file desc pmlogger */

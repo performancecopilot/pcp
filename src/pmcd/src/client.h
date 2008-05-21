@@ -22,12 +22,6 @@
 #ifndef _CLIENT_H
 #define _CLIENT_H
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-
 /* The table of clients, used by pmcd */
 typedef struct {
     int			fd;		/* Socket descriptor */

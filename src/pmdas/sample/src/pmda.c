@@ -23,19 +23,6 @@
  * Generic driver for a daemon-based PMDA
  */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <syslog.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/un.h>
-#include <netdb.h>
-#include <string.h>
-#include <errno.h>
-#include <signal.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
@@ -67,8 +54,7 @@ check(void)
 {
     if (access("/tmp/sample.unavail", F_OK) == 0)
 	return PM_ERR_AGAIN;
-    else
-	return 0;
+    return 0;
 }
 
 /*

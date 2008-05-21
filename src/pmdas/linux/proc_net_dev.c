@@ -21,20 +21,14 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <sys/types.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <ctype.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <net/if.h>
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include <sys/types.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <net/if.h>
+#include <ctype.h>
 #include "proc_net_dev.h"
 
 int

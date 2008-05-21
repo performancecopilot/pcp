@@ -19,21 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/wait.h>
-#include <sys/param.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <netdb.h>
-#include <signal.h>
-#include <errno.h>
-#include <ctype.h>
-#include <syslog.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-
 #include "pmcd.h"
 #include "impl.h"
 

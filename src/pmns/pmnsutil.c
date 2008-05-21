@@ -21,7 +21,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
-#include "./pmnsutil.h"
+#include "pmnsutil.h"
 
 static FILE	*outf;
 

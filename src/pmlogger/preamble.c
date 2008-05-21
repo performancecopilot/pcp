@@ -19,18 +19,10 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <errno.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "./logger.h"
+#include "logger.h"
 
 extern char	    	*archBase;	/* base name for log files */
 extern int		ctlport;	/* pmlogger control port number */

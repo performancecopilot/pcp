@@ -23,13 +23,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stddef.h>
 #include <ctype.h>
-#include <signal.h>
-#include <errno.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"

@@ -19,25 +19,11 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
 #include <math.h>
-#include <errno.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
 #include "pmapi.h"
 #include "impl.h"
-#include "./logger.h"
+#include "logger.h"
 
 #if !defined(SIGRTMAX)
 #if defined(NSIG)

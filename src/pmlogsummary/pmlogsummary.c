@@ -20,7 +20,6 @@
  */
 
 #include <math.h>
-#include <stdio.h>
 #include <stdarg.h>
 #include <limits.h>
 #include "pmapi.h"

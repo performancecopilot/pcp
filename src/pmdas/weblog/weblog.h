@@ -23,14 +23,11 @@
 #ifndef _WEBLOG_H
 #define _WEBLOG_H
 
-#include <unistd.h>
-#include <syslog.h>
-#include <regex.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include <regex.h>
+#include <sys/stat.h>
 
 enum HTTP_Methods {
     wl_httpGet, wl_httpHead, wl_httpPost, wl_httpOther, wl_numMethods

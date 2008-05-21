@@ -19,30 +19,26 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <signal.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <syslog.h>
-#include <errno.h>
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-
 #include "shping.h"
 #include "domain.h"
-
-#ifdef HAVE_PRCTL
+#include <sys/stat.h>
+#if defined(HAVE_SYS_WAIT_H)
+#include <sys/wait.h>
+#endif
+#if defined(HAVE_SYS_RESOURCE_H)
+#include <sys/resource.h>
+#endif
+#if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
+#endif
+#if defined(HAVE_SCHED_H)
+#include <sched.h>
+#endif
+#if defined(HAVE_PTHREAD_H)
+#include <pthread.h>
 #endif
 
 #define LOG_PRI(p)      ((p) & LOG_PRIMASK)
@@ -53,16 +49,9 @@ static int	numcmd;		/* number of commands */
 static int	timedout;	/* command timed out */
 static pid_t	shpid;		/* for /sbin/sh running command */
 
-#ifdef HAVE_SPROC
-#if defined (HAVE_SCHED_H)
-#include <sched.h>
-#endif
-
+#if defined(HAVE_SCHED_H)
 pid_t		sprocpid;	/* for refresh() */
-
-#elif defined (HAVE_PTHREAD_H)
-#include 	<pthread.h>
-
+#elif defined(HAVE_PTHREAD_H)
 static pthread_t 	sprocpid;
 #else
 #error "Need pthreads or sproc"

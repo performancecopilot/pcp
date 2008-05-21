@@ -19,14 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/stat.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <signal.h>
-#include <syslog.h>
-#include <errno.h>
 #include "pmcd.h"
 
 /* Based on Stevens (Unix Network Programming, p.83) */

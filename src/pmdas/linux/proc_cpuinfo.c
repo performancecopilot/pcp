@@ -25,14 +25,9 @@
  * All rights reserved.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <dirent.h>
 #include <ctype.h>
-#include <sys/types.h>
+#include <dirent.h>
 #include <sys/stat.h>
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"

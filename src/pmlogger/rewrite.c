@@ -19,10 +19,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
 #include "pmapi.h"
 #include "impl.h"
-#include "./logger.h"
+#include "logger.h"
 
 /*
  * PDU for pmResult (PDU_RESULT) -- from libpcp/src/p_fetch.c

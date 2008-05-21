@@ -19,14 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <libgen.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/time.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -45,8 +37,7 @@
  * 
  */
 
-
-#define MAX_PMID	15 /* must give enough space for all possible metrics in fetch */
+#define MAX_PMID 15 /* gives enough space for all possible metrics in fetch */
 char    *namelist[MAX_PMID];
 pmID	pmidlist[MAX_PMID];
 int	type_tab[MAX_PMID]; /* the types of the metrics */
@@ -170,8 +161,9 @@ val_entry_t *val_tab = NULL;
 /* parallels index with other MAX_PMID arrays */
 pmValue global_val[MAX_PMID][2]; 
 
-
+#ifndef min
 #define min(x,y) (((x)<(y))?(x):(y))
+#endif
 
 void get_indom(void);
 

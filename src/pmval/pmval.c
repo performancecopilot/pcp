@@ -22,17 +22,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <errno.h>
-#include <stdlib.h>		/* getopt, malloc, qsort and friends */
-#include <sys/time.h>		/* timeval and friends */
-#include <limits.h>		/* CLK_TCK */
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <math.h>		/* pow */
-
 #include "pmapi.h"
 #include "impl.h"
+#include <math.h>
 
 #if defined(HAVE_PMTIME)
 static void talk_to_pmtime(int *);

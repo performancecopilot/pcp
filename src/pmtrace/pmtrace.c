@@ -24,8 +24,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#include <pcp/platform_defs.h>
-#include <pcp/trace.h>
+#include "platform_defs.h"
+#include "trace.h"
 
 typedef enum { UNKNOWN, COUNTER, OBSERVE, TRANSACT } trace_t;
 

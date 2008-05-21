@@ -25,11 +25,7 @@
  * with hints from the procps and ksymoops projects.
  */
 
-#include <stdio.h>
-#include <string.h>
 #include <ctype.h>
-#include <stdlib.h>
-#include <errno.h>
 #include <limits.h>
 #include <sys/time.h>
 #include <sys/utsname.h>

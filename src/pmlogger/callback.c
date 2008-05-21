@@ -19,13 +19,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/time.h>
 #include "pmapi.h"
 #include "impl.h"
-#include "./logger.h"
+#include "logger.h"
 
 /*
  * pro tem, we have a single context with the pmcd providing the

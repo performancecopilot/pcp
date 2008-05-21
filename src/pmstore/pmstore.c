@@ -22,14 +22,11 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <errno.h>
-#include <limits.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include <ctype.h>
+#include <limits.h>
 #ifdef HAVE_VALUES_H
 #include <values.h>
 #endif

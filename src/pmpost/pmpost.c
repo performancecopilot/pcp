@@ -19,19 +19,10 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <string.h>
-#include <signal.h>
-#include <sys/file.h>
-#include <time.h>
-#include <sys/param.h>
 #include "pmapi.h"
+#include "impl.h"
+#include <sys/stat.h>
+#include <sys/file.h>
 
 static int
 mkdir_r(char *path)
@@ -41,7 +32,7 @@ mkdir_r(char *path)
     if (stat(path, &sbuf) < 0) {
 	if (mkdir_r(dirname(strdup(path))) < 0)
 	    return -1;
-	return mkdir(path, 0755);
+	return mkdir2(path, 0755);
     }
     else if ((sbuf.st_mode & S_IFDIR) == 0) {
 	fprintf(stderr, "pmpost: \"%s\" is not a directory\n", path);

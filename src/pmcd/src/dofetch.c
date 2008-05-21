@@ -19,16 +19,13 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <syslog.h>
-#include <errno.h>
-#include <string.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmcd.h"
 
 /* Freq. histogram: pmids for each agent in current fetch request */
 
-static int	*aFreq = NULL;
+static int	*aFreq;
 
 /* Routine to break a list of pmIDs up into sublists of metrics within the
  * same metric domain.  The resulting lists are returned via a pointer to an

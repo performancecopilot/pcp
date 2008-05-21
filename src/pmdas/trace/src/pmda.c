@@ -21,11 +21,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
 #include <ctype.h>
-#include <syslog.h>
-#include <fcntl.h>
-#include <errno.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
@@ -41,7 +37,7 @@ struct timeval	timespan  = { DEFAULT_TIMESPAN, 0 };
 struct timeval	interval;
 unsigned int	rbufsize  = DEFAULT_BUFSIZE;
 int		ctlport	  = -1;
-char		*ctlsock  = NULL;
+char		*ctlsock;
 
 static char	mypath[MAXPATHLEN];
 

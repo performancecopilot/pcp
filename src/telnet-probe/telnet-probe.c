@@ -11,21 +11,8 @@
  * Exit status is 1 in the case of any errors, else 0.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <netdb.h>
-#include <limits.h>
-#include <string.h>
-#include <errno.h>
-
-#include "platform_defs.h"
+#include "pmapi.h"
+#include "impl.h"
 
 int
 main(int argc, char *argv[])

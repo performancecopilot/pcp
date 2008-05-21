@@ -23,18 +23,12 @@
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
-#include <stdio.h>
-#include <string.h>
-#include <strings.h>
-#include <syslog.h>
-#include <errno.h>
-#include <dirent.h>
-#include <sys/stat.h>
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
 #include "domain.h"
+#include <dirent.h>
+#include <sys/stat.h>
 
 /*
  * Mounts PMDA
@@ -285,11 +279,10 @@ mounts_refresh_mounts(void) {
         }
       }
 
-      bzero(device, 100);
-      bzero(mount, 100);
-      bzero(type, 100);
-      bzero(options, 100);
-
+      memset(device, 0, sizeof(device));
+      memset(mount, 0, sizeof(mount));
+      memset(type, 0, sizeof(type));
+      memset(options, 0, sizeof(options));
     }
   }
 

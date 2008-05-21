@@ -19,18 +19,11 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/param.h>
-#include <ctype.h>
-#include <string.h>
-#include <errno.h>
-#include <syslog.h>
-#include <time.h>
-#include <limits.h>
 #include "pmapi.h"
 #include "impl.h"
+#include <ctype.h>
+#include <limits.h>
+#include <sys/stat.h>
 
 static struct timeval	tv;
 static int		numpmid;

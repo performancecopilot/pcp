@@ -19,18 +19,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-#include <errno.h>
-#include <syslog.h>
-#include <sys/select.h>
-
 #include "pmapi.h"
 #include "impl.h"
-#include "./pmlc.h"
+#include "pmlc.h"
 #include "gram.h"
 
 char		*configfile = NULL;

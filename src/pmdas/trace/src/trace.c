@@ -19,17 +19,12 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <syslog.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "trace_dev.h"
 #include "pmda.h"
 #include "domain.h"
 #include "data.h"
-
 
 static pmdaIndom indomtab[] = {	/* list of trace metric instance domains */
 #define TRANSACT_INDOM	0
@@ -42,14 +37,14 @@ static pmdaIndom indomtab[] = {	/* list of trace metric instance domains */
     { COUNTER_INDOM, 0, NULL },		/* dynamically updated */
 };
 
-static int	transacts = 0;	/* next instance# to allocate */
-static int	points = 0;	/* next instance# to allocate */
-static int	counters = 0;	/* next instance# to allocate */
-static int	observes = 0;	/* next instance# to allocate */
-static int	tsortflag = 0;	/* need sort on next request? */
-static int	psortflag = 0;	/* need sort on next request? */
-static int	csortflag = 0;	/* need sort on next request? */
-static int	osortflag = 0;	/* need sort on next request? */
+static int	transacts;	/* next instance# to allocate */
+static int	points;		/* next instance# to allocate */
+static int	counters;	/* next instance# to allocate */
+static int	observes;	/* next instance# to allocate */
+static int	tsortflag;	/* need sort on next request? */
+static int	psortflag;	/* need sort on next request? */
+static int	csortflag;	/* need sort on next request? */
+static int	osortflag;	/* need sort on next request? */
 
 /* all metrics supported in this PMDA - one table entry for each */
 static pmdaMetric metrictab[] = {

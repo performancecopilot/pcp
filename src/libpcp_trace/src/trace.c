@@ -21,31 +21,15 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <limits.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <string.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-
-#include "platform_defs.h"
+#include "pmapi.h"
+#include "impl.h"
 
 #if defined(HAVE_PTHREAD_H)
 #include <pthread.h>
 #elif defined(HAVE_ABI_MUTEX_H)
 #include <abi_mutex.h>
 #else
-bozo!
+#error !bozo!
 #endif
 
 #include "trace.h"
@@ -130,6 +114,8 @@ static abilock_t        _pmtracelock;
 #define TRACE_UNLOCK	release_lock(&_pmtracelock)
 #define TRACE_ERRNO	oserror()
 
+#else
+#error !bozo!
 #endif
 
 int

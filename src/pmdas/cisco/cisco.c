@@ -19,40 +19,27 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
 #include <ctype.h>
-#include <signal.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <netdb.h>
-#include <fcntl.h>
-#include <syslog.h>
-#include <errno.h>
-#include "./cisco.h"
-
+#include "cisco.h"
+#if defined(HAVE_SYS_RESOURCE_H)
 #include <sys/resource.h>
+#endif
+#if defined(HAVE_PTHREAD_H)
+#include <pthread.h>
+#endif
+#if defined(HAVE_PRCTL_H)
+#include <sys/prctl.h>
+#endif
 
 extern int	refreshdelay;
 
 #ifdef HAVE_SPROC
-#ifdef HAVE_PRCTL
-#include <sys/prctl.h>
-#endif
-
 static pid_t	sproc_pid = 0;
-
 #elif defined (HAVE_PTHREAD_H)
 #include <pthread.h>
-
 static pthread_t sproc_pid;
-
 #else
-#error "Need sproc of pthreads here!"
+#error "Need sproc or pthreads here!"
 #endif
 
 /*

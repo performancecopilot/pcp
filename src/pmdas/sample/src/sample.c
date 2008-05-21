@@ -19,22 +19,12 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <syslog.h>
-#include <errno.h>
-#include <sys/param.h>
-#include <sys/types.h>
-#include <time.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <limits.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include <limits.h>
+#include <sys/stat.h>
 #include "../domain.h"
-
 #ifdef HAVE_SYSINFO
 #include <sys/sysinfo.h>
 #else

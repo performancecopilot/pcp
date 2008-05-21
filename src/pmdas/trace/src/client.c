@@ -19,16 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <syslog.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "trace_dev.h"
@@ -37,15 +27,14 @@
 
 extern fd_set	fds;
 
-int		nclients = 0;		/* number of entries in array */
+int		nclients;		/* number of entries in array */
 int		maxfd;			/* largest fd currently in use */
-client_t	*clients = NULL;	/* array of clients */
+client_t	*clients;		/* array of clients */
 
 #define MIN_CLIENTS_ALLOC 8
-static int	clientsize = 0;
+static int	clientsize;
 
 static int newClient(void);
-
 
 client_t *
 acceptClient(int reqfd)

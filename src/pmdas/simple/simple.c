@@ -21,18 +21,14 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <limits.h>
-#include <string.h>
-#include <syslog.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/times.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
 #include "domain.h"
+#include <sys/stat.h>
+#if defined(HAVE_SYS_TIMES_H)
+#include <sys/times.h>
+#endif
 
 /*
  * Simple PMDA

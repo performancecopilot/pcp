@@ -21,7 +21,7 @@
 #include <pmapi.h>
 #include <impl.h>
 #include <pmda.h>
-#include "./domain.h"
+#include "domain.h"
 
 #define JSTAT_COMMAND	"jstat -J-Djstat.showUnsupported=true -snap "
 #define BUFFER_MAXLEN	4096

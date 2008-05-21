@@ -19,17 +19,18 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <syslog.h>
 #include "pmcd.h"
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
 #elif defined(HAVE_DL_H)
 #include <dl.h>
 #endif
+#if defined(HAVE_SYS_WAIT_H)
 #include <sys/wait.h>
+#endif
+#if defined(HAVE_SYS_RESOURCE_H)
 #include <sys/resource.h>
+#endif
 
 /* Return a pointer to the agent that is reposible for a given domain.
  * Note that the agent may not be in a connected state!

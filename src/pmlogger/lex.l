@@ -20,10 +20,9 @@
  */
 
 %{
-#include <string.h>
 #include "pmapi.h"
 #include "impl.h"
-#include "./logger.h"
+#include "logger.h"
 
 int lineno=1;
 

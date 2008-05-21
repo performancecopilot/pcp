@@ -21,18 +21,12 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <errno.h>
-#include <ctype.h>
-#include <string.h>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include <ctype.h>
+#include <dirent.h>
+#include <sys/stat.h>
 #include "proc_pid.h"
 #include "proc_runq.h"
 

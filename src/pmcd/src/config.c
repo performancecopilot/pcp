@@ -22,35 +22,17 @@
  * attaching to DSOs.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/un.h>
-#include <unistd.h>
-#include <syslog.h>
-#include <fcntl.h>
-#include <errno.h>
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmcd.h"
-
+#include <ctype.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
 #elif defined(HAVE_DL_H)
 #include <dl.h>
 #endif
-
 
 #define MIN_AGENTS_ALLOC	3	/* Number to allocate first time */
 #define LINEBUF_SIZE 200
@@ -1421,7 +1403,6 @@ AgentNegotiate(AgentInfo *aPtr)
 static int
 ConnectSocketAgent(AgentInfo *aPtr)
 {
-    int		len;
     int		sts = 0;
     int		fd;
 
@@ -1463,13 +1444,18 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	sts = connect(fd, (struct sockaddr *) &addr, sizeof(addr));
     }
     else {
+#if defined(HAVE_SYS_UN_H)
 	struct sockaddr_un	addr;
+	int			len;
 
 	memset(&addr, 0, sizeof(addr));
 	addr.sun_family = AF_UNIX;
 	strcpy(addr.sun_path, aPtr->ipc.socket.name);
 	len = (int)sizeof(addr.sun_family) + (int)strlen(addr.sun_path);
 	sts = connect(fd, (struct sockaddr *) &addr, len);
+#else
+	errno = EOPNOTSUPP;
+#endif
     }
     if (sts < 0) {
 	fprintf(stderr, "pmcd: Error connecting to \"%s\" agent : %s\n",

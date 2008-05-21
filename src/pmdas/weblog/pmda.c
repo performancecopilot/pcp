@@ -21,20 +21,14 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include "pmapi.h"
-#include "./weblog.h"
-#include <stdio.h>
+#include "weblog.h"
+#include "domain.h"
+#if defined(HAVE_REGEX_H)
 #include <regex.h>
-#include <sys/socket.h>
+#endif
+#if defined(HAVE_SYS_WAIT_H)
 #include <sys/wait.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/un.h>
-#include <netdb.h>
-#include <signal.h>
-#include <string.h>
-#include <errno.h>
-
+#endif
 #ifdef HAVE_SCHED_H
 #include <sched.h>
 #endif
@@ -48,8 +42,6 @@
 #ifndef HAVE_SPROC
 int sproc (void (*entry) (void *), int flags, void *arg);
 #endif
-
-#include "domain.h"
 
 /* path to the configuration file */
 static char	*configFileName = (char*)0;

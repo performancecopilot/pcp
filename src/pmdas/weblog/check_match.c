@@ -20,7 +20,7 @@
  */
 
 /*
- * Uses the same regualr expression logic as pmdaweblog, but extracted
+ * Uses the same regular expression logic as pmdaweblog, but extracted
  * here so new patterns and access logs can be tested
  *
  * Usage: check_match configfile pat_name [input]
@@ -36,7 +36,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <platform_defs.h>
-#if (defined HAVE_REGEXEC) && (defined HAVE_REGCOMP)
+#if defined HAVE_REGEX_H)
 #include <regex.h>
 #endif
 #include <sys/types.h>

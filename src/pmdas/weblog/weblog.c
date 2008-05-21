@@ -19,23 +19,19 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include "./weblog.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <stdio.h>
+#include "weblog.h"
+#include "domain.h"
 #include <ctype.h>
-#include <string.h>
-#include <signal.h>
+#include <sys/stat.h>
+#if defined(HAVE_SYS_RESOURCE_H)
 #include <sys/resource.h>
-#ifdef HAVE_PRCTL
+#endif
+#if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
 #endif
-#include <sys/socket.h>
+#if defined(HAVE_SYS_WAIT_H)
 #include <sys/wait.h>
-#include <fcntl.h>
-#include <errno.h>
-#include "./domain.h"
+#endif
 
 /*
  * Types of metrics, used by fetch to more efficiently calculate metrics

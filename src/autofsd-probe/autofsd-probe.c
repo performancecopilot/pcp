@@ -19,11 +19,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <sys/time.h>
-#include <rpc/rpc.h>
 #include "pmapi.h"
 #include "impl.h"
+#include <rpc/rpc.h>
 
 #define AUTOFSD_PROGRAM 100099UL
 #define AUTOFSD_VERSION 1UL

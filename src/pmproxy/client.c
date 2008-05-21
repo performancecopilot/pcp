@@ -19,22 +19,16 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <syslog.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
 #include "pmproxy.h"
 
 #define MIN_CLIENTS_ALLOC 8
 
-ClientInfo	*client = NULL;
-int		nClients = 0;		/* Number in array, (not all in use) */
+ClientInfo	*client;
+int		nClients;		/* Number in array, (not all in use) */
 int		maxSockFd = -1;		/* largest fd for a client */
 fd_set		sockFds;		/* for client select() */
 
-static int	clientSize = 0;
+static int	clientSize;
 
 extern void	Shutdown(void);
 

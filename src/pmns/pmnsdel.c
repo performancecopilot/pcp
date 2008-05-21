@@ -23,17 +23,11 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stddef.h>
-#include <stdlib.h>
 #include <ctype.h>
-#include <signal.h>
-#include <sys/param.h>
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
-#include "./pmnsutil.h"
+#include "pmnsutil.h"
 
 static FILE		*outf;		/* output */
 static __pmnsNode	*root;		/* result so far */

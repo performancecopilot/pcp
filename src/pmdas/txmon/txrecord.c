@@ -19,16 +19,12 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
+
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-
-#include <pcp/platform_defs.h>
-#include "./txmon.h"
+#include "txmon.h"
 
 /*
  * Update the shm segment the is used to export metrics via the txmon PMDA

@@ -18,18 +18,10 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <ctype.h>
-#include <signal.h>
-#include <syslog.h>
+#include "jstat.h"
+#if defined(HAVE_PTHREAD_H)
 #include <pthread.h>
-#include "./jstat.h"
+#endif
 
 jstat_t		*jstat;
 int		jstat_hertz = 1000;

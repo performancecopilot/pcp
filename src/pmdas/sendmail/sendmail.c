@@ -21,22 +21,15 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
 #include <ctype.h>
-#include <limits.h>
-#include <time.h>
-#include <string.h>
-#include <syslog.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/times.h>
-#include <sys/mman.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "./domain.h"
+#include "domain.h"
+#include <sys/stat.h>
+#if defined(HAVE_SYS_MMAN_H)
+#include <sys/mman.h>
+#endif
 
 /*
  * Sendmail PMDA

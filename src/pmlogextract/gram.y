@@ -24,11 +24,9 @@
 /*
  *  pmlogextract parser
  */
-#include <stdio.h>
-#include <string.h>
 #include "pmapi.h"
 #include "impl.h"
-#include "./logger.h"
+#include "logger.h"
 
 int	i;
 int	found;

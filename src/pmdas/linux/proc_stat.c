@@ -21,29 +21,22 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <dirent.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/utsname.h>
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-
+#include <dirent.h>
+#include <ctype.h>
+#include <sys/stat.h>
+#include <sys/utsname.h>
 #include "proc_cpuinfo.h"
 #include "proc_stat.h"
 
-static int started = 0;
-static char *statbuf = NULL;
-static int maxstatbuf = 0;
-static char **bufindex = NULL;
-static int nbufindex = 0;
-static int maxbufindex = 0;
+static int started;
+static char *statbuf;
+static int maxstatbuf;
+static char **bufindex;
+static int nbufindex;
+static int maxbufindex;
 
 /*
  * real time difference, *ap minus *bp

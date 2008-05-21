@@ -19,7 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
 #ifdef IS_SOLARIS
 #define _REENTRANT
 #include <time.h>
@@ -27,9 +26,6 @@
 #else
 #include <time.h>
 #endif
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include "pmcd.h"
 
 /*

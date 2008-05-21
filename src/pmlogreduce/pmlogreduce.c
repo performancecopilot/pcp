@@ -37,15 +37,7 @@
  *	  in the head of scan.c
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <ctype.h>
-#include <math.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-
 #include "pmlogreduce.h"
 
 /*
@@ -100,10 +92,6 @@ main(int argc, char **argv)
     pmResult	*irp;		/* input pmResult */
     pmResult	*orp;		/* output pmResult */
     __pmPDU	*pb;		/* pdu buffer */
-#if PCP_DEBUG
-    char	*base = (char *)sbrk(0);
-    char	*lbase = (char *)sbrk(0);
-#endif
     struct timeval	unused;
 
     /* trim cmd name of leading directory components */
@@ -323,16 +311,6 @@ main(int argc, char **argv)
 	written++;
 
 	rewrite_free();
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
-	    /* check for mem leaks from orp et al */
-	    char	*xbase;
-	    xbase = (char *)sbrk(0);
-	    fprintf(stderr, "memusage: %ld (delta %ld)\n",
-		    (long)(xbase-base), (long)(xbase-lbase));
-	    lbase = xbase;
-	}
-#endif
 
 	pmFreeResult(irp);
     }

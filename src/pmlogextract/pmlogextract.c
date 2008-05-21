@@ -21,17 +21,12 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <ctype.h>
 #include <math.h>
-#include <sys/types.h>
+#include <ctype.h>
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
-#include "./logger.h"
+#include "logger.h"
 
 #ifdef PCP_DEBUG
 long totalmalloc = 0;
@@ -560,7 +555,7 @@ update_descreclist(int i)
 	    fprintf(stderr, " indom: old %s", pmInDomStr(curr->desc.indom));
 	    fprintf(stderr, " new %s", pmInDomStr(__ntohpmInDom(iap->pb[META][4])));
 	    fprintf(stderr, " sem: old %d", curr->desc.sem);
-	    fprintf(stderr, " new %d", ntohl(iap->pb[META][5]));
+	    fprintf(stderr, " new %d", (int)ntohl(iap->pb[META][5]));
 	    fprintf(stderr, " units: old %s", pmUnitsStr(&curr->desc.units));
 	    pmup = (pmUnits *)&iap->pb[META][6];
 	    pmu = __ntohpmUnits(*pmup);
@@ -589,7 +584,7 @@ update_descreclist(int i)
 		"%s: Error: metric %s: semantics changed from",
 		pmProgname, metricname(curr->desc.pmid));
 	    fprintf(stderr, " %d", curr->desc.sem);
-	    fprintf(stderr, " to %d!\n", ntohl(iap->pb[META][5]));
+	    fprintf(stderr, " to %d!\n", (int)ntohl(iap->pb[META][5]));
 	    abandon();
 	}
 	pmup = (pmUnits *)&iap->pb[META][6];
@@ -1026,7 +1021,7 @@ againmeta:
 	}
 	else {
 	    fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
-		    pmProgname, ntohl(iap->pb[META][1]));
+		    pmProgname, (int)ntohl(iap->pb[META][1]));
 	    abandon();
 	}
 

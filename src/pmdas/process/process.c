@@ -31,18 +31,13 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <syslog.h>
-#include <errno.h>
-#include <ctype.h>
-#include <dirent.h>
-#include <sys/stat.h>
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
 #include "domain.h"
+#include <ctype.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
 /*
  * Process PMDA

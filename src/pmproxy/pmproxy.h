@@ -22,12 +22,6 @@
 #ifndef _PROXY_H
 #define _PROXY_H
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-
 #include "pmapi.h"
 #include "impl.h"
 

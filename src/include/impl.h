@@ -23,6 +23,7 @@
 #define _IMPL_H
 
 #include <time.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/types.h>

@@ -19,22 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <syslog.h>
-#include <unistd.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/stat.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <netdb.h>
-#include <math.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
@@ -43,7 +27,6 @@
 #include "domain.h"
 #include "client.h"
 #include "comms.h"
-
 
 extern struct timeval	interval;
 extern int readData(int, int *);

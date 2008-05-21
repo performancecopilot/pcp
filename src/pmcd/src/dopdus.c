@@ -19,8 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <syslog.h>
-#include <errno.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmcd.h"

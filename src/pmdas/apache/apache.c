@@ -19,15 +19,10 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include <stdio.h>
-#include <signal.h>
-#include <syslog.h>
-#include <time.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
 #include "domain.h"
-
 #include "http_lib.h"
 
 static char server_path[260];
@@ -272,17 +267,17 @@ static int refreshData(time_t now)
 	    data.flags |= BYTESPERSEC;
 	}
 	else if (strcmp(s2, "BytesPerReq:") == 0) {
-	    data.bytes_per_request = (uint)strtoul(s3, (char **)NULL, 10);
+	    data.bytes_per_request = (unsigned int)strtoul(s3, (char **)NULL, 10);
 	    data.flags |= BYTESPERREQ;
 	}
 	else if ((strcmp(s2, "BusyServers:") == 0) ||
 		 (strcmp(s2, "BusyWorkers:") == 0)) {
-	    data.busy_servers = (uint)strtoul(s3, (char **)NULL, 10);
+	    data.busy_servers = (unsigned int)strtoul(s3, (char **)NULL, 10);
 	    data.flags |= BUSYSERVERS;
 	}
 	else if ((strcmp(s2, "IdleServers:") == 0) ||
 		 (strcmp(s2, "IdleWorkers:") == 0)) {
-	    data.idle_servers = (uint)strtoul(s3, (char **)NULL, 10);
+	    data.idle_servers = (unsigned int)strtoul(s3, (char **)NULL, 10);
 	    data.flags |= IDLESERVERS;
 	}
 	else if (strcmp(s2, "Scoreboard:") == 0) {

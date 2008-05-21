@@ -36,41 +36,13 @@
  */
 
 
-#ifndef OSK
-/* unix */
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <ctype.h>
-#include <string.h>
+#include <platform_defs.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <errno.h>
-#include <sys/time.h>
+#include <ctype.h>
+#include "http_lib.h"
 
 static int http_read_line (int fd,char *buffer, int max) ;
 static int http_read_buffer (int fd,char *buffer, int max) ;
-#else
-/* OS/9 includes */
-#include <modes.h>
-#include <types.h>
-#include <machine/reg.h>
-#include <INET/socket.h>
-#include <INET/in.h>
-#include <INET/netdb.h>
-#include <INET/pwd.h>
-extern char *malloc();
-#endif /* OS9/Unix */
-
-#include <stdio.h>
-
-#include "platform_defs.h"
-
-#include "http_lib.h"
 
 #define SERVER_DEFAULT "adonis"
 
@@ -222,7 +194,7 @@ static http_retcode http_query(command, url, additional_header, mode,
   /* connect to server */
 	t=0;
 	len = sizeof(res);
-	getsockopt(s,SOL_SOCKET,SO_ERROR,&res,&len); // Clear error
+	getsockopt(s,SOL_SOCKET,SO_ERROR,(void*)&res,&len); // Clear error
 	connok=0;
   if (connect(s, (struct sockaddr *)&server, sizeof(server)) < 0) {
 		if (errno == EINPROGRESS) {
@@ -252,7 +224,7 @@ static http_retcode http_query(command, url, additional_header, mode,
 					ret=ERRCONN; // ???
 					fprintf(stderr,"FD not set\n");
 				}
-				else if (getsockopt(s,SOL_SOCKET,SO_ERROR,&res,&len) < 0) {
+				else if (getsockopt(s,SOL_SOCKET,SO_ERROR,(void*)&res,&len) < 0) {
 					// Error
 					fprintf(stderr,"Cannot get socket options: %s\n",strerror(errno));
 					ret=ERRCONN;

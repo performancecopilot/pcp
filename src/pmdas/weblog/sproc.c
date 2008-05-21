@@ -21,19 +21,15 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ifndef HAVE_SPROC
-
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "weblog.h"
+#if defined(HAVE_PTHREAD_H)
 #include <pthread.h>
-
-#ifdef HAVE_SCHED_H
+#endif
+#if defined(HAVE_SCHED_H)
 #include <sched.h>
 #endif
-#include "weblog.h"
 
-
+#if defined(HAVE_PTHREAD_H)
 static pthread_t sproc_thread;
 
 int sproc (void (*entry) (void *), int flags, void *arg)
@@ -43,4 +39,4 @@ int sproc (void (*entry) (void *), int flags, void *arg)
     retval = pthread_create(&sproc_thread, NULL, (void (*))entry, NULL);
     return retval;
 }
-#endif /*HAVE_SPROC*/
+#endif

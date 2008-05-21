@@ -27,7 +27,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "./domain.h"
+#include "domain.h"
 
 typedef struct {
     char		*host;		/* CISCO hostname */
