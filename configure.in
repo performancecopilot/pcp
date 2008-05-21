@@ -64,6 +64,7 @@ echo "Target: os=$target_os cpu=$target_cpu"
 target_distro=unknown
 if test $target_os = linux
 then
+    AC_DEFINE(IS_LINUX)
     test -f /etc/SuSE-release && target_distro=suse
     test -f /etc/fedora-release && target_distro=fedora
     test -f /etc/redhat-release && target_distro=redhat
@@ -98,6 +99,7 @@ case $target_os
 in
     aix)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin";;
     linux)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin";;
+    mingw)	pcp_platform_paths="/mingw/bin:/usr/local/bin";;
     cygwin)	pcp_platform_paths="/cygdrive/c/WINDOWS/system32";;
     solaris)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin:/opt/sfw/bin";;
     freebsd)	pcp_platform_paths="/usr/bin/X11:/usr/bsd";;
@@ -232,6 +234,7 @@ else
     test -z "$CPP_SIMPLE" && CPP_SIMPLE=/lib/cpp
     test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/bin/cpp
     test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/usr/bin/cpp
+    test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/mingw/bin/cpp
 fi
 cpp_simple="$CPP_SIMPLE"
 cpp_simple_args=""
@@ -477,7 +480,10 @@ then
 fi
 
 dnl set platform specific ps
-if test $target_os = cygwin
+if test -n "$PS"
+then
+    pcp_ps_proc="$PS"
+elif test $target_os = cygwin -o $target_os = mingw
 then
     pcp_ps_prog=procps
 else
@@ -1044,7 +1050,7 @@ then
     fi
 fi
 
-if test $target_os != darwin
+if test $target_os != darwin -a $target_os != mingw -a $target_os != linux
 then
     AC_CHECK_FUNCS(isnanf)
     if test $ac_cv_func_isnanf = no
@@ -1067,7 +1073,6 @@ then
 	fi
     fi
 else
-    dnl circumvent tests for darwin
     AC_DEFINE(HAVE_ISNANF)
     AC_DEFINE(HAVE_ISNAND)
 fi

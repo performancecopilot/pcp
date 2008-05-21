@@ -448,6 +448,13 @@ typedef void (*SIG_PF) (int);
 #define valloc(x) malloc(x)
 #endif
 
+/* Determine if we are on a Linux box */
+#undef IS_LINUX
+#ifdef IS_LINUX
+#define isnand isnan   /* isnan is a type-independent macro */
+#define isnanf isnan   /* isnan is a type-independent macro */
+#endif
+
 /* Determine if we are on a Solaris box */
 #undef IS_SOLARIS
 #ifdef IS_SOLARIS
@@ -470,6 +477,10 @@ typedef void (*SIG_PF) (int);
 
 /* Determine if we are on Windows with MinGW compilers */
 #undef IS_MINGW
+#ifdef IS_MINGW
+#define isnand isnan   /* isnan is a type-independent macro */
+#define isnanf isnan   /* isnan is a type-independent macro */
+#endif
 
 /* Determine if we are on an AIX box */
 #undef IS_AIX
