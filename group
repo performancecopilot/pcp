@@ -505,7 +505,7 @@ dmf		pcpqa
 267 pmlogger local oss
 268 interop local oss
 269 wrap pmval pmie pmdumptext pmkstat local oss
-270 logutil local oss
+270 pmlogextract logutil local oss
 271 archive local oss
 272 pmcd pmval pmprobe remote oss
 273 pmdumptext local oss
@@ -527,7 +527,7 @@ dmf		pcpqa
 289 libpcp fetch archive #505498 local oss
 290 pmns local purify oss
 291 logutil local pmlogextract oss
-292 logutil pmval local oss
+292 pmlogextract logutil pmval local oss
 293 pmstat #939275 local oss
 294 pmproxy local oss
 295 pmproxy local oss
@@ -537,7 +537,7 @@ dmf		pcpqa
 299 libpcp local oss
 300 pmcd local oss
 301 pmda pmcd pmlogger local oss
-302 logutil local oss
+302 pmlogextract logutil local oss
 303 logutil local pmlogextract oss
 304 pmlogger local oss
 305 pmgadgets local oss
@@ -572,6 +572,7 @@ dmf		pcpqa
 334 archive mem_leak local pmval purify oss
 335 libpcp_pmc pmdumptext pmval local oss
 336 trace local pmda.install oss
+337 pmlogextract local oss
 340 pmcd remote oss
 346 pmda.mailq local pmda.install oss
 347 pmda.news local pmda.install oss

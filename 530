@@ -42,6 +42,7 @@ else
 fi
 
 # get standard filters
+. ./common.product
 . ./common.filter
 . ./common.check
 

@@ -91,6 +91,7 @@ _filter()
     sed \
 	-e "s/`hostname | sed -e 's/\..*//'`/LOCALHOST/g" \
 	-e "/UID.*PID/d" \
+	-e "/USER.*PID/d" \
 	-e "s/.* pmlogger .*-c .*/<pmlogger process>/" \
 	-e "/Warning: creating directory/s/(.*\/\([^/][^/]*\))/(...\/\1)/" \
     | _filter_pmlogger_log \
