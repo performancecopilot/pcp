@@ -36,7 +36,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <platform_defs.h>
-#if defined HAVE_REGEX_H)
+#if defined(HAVE_REGEX_H)
 #include <regex.h>
 #endif
 #include <sys/types.h>

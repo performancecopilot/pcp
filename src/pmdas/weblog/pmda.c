@@ -29,7 +29,7 @@
 #if defined(HAVE_SYS_WAIT_H)
 #include <sys/wait.h>
 #endif
-#ifdef HAVE_SCHED_H
+#if defined(HAVE_SCHED_H)
 #include <sched.h>
 #endif
 

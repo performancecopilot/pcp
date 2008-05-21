@@ -28,6 +28,9 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#if defined(HAVE_SYS_UN_H)
+#include <sys/un.h>
+#endif
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
 #elif defined(HAVE_DL_H)

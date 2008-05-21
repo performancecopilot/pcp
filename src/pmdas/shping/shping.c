@@ -19,6 +19,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
+#include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
@@ -49,10 +50,10 @@ static int	numcmd;		/* number of commands */
 static int	timedout;	/* command timed out */
 static pid_t	shpid;		/* for /sbin/sh running command */
 
-#if defined(HAVE_SCHED_H)
-pid_t		sprocpid;	/* for refresh() */
-#elif defined(HAVE_PTHREAD_H)
+#if defined(HAVE_PTHREAD_H)
 static pthread_t 	sprocpid;
+#elif defined(HAVE_SCHED_H)
+pid_t		sprocpid;	/* for refresh() */
 #else
 #error "Need pthreads or sproc"
 #endif

@@ -20,9 +20,13 @@
  */
 
 #include <ctype.h>
+#include <signal.h>
 #include "cisco.h"
 #if defined(HAVE_SYS_RESOURCE_H)
 #include <sys/resource.h>
+#endif
+#if defined(HAVE_SYS_WAIT_H)
+#include <sys/wait.h>
 #endif
 #if defined(HAVE_PTHREAD_H)
 #include <pthread.h>

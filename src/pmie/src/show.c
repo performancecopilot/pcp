@@ -22,21 +22,16 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <time.h>
+#include <math.h>
 #include <ctype.h>
-#include <string.h>
-
 #include "show.h"
 #include "impl.h"
 #include "dstruct.h"
 #include "lexicon.h"
 #include "pragmatics.h"
-
 #if defined(HAVE_IEEEFP_H)
 #include <ieeefp.h>
 #endif
-#include <math.h>
 
 /***********************************************************************
  * local declarations

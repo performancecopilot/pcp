@@ -21,6 +21,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
+#include <ctype.h>
 #include "shping.h"
 #include "domain.h"
 

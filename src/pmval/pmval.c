@@ -22,9 +22,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
+#include <math.h>
 #include "pmapi.h"
 #include "impl.h"
-#include <math.h>
 
 #if defined(HAVE_PMTIME)
 static void talk_to_pmtime(int *);

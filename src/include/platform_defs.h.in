@@ -102,7 +102,6 @@ extern "C" {
 #undef HAVE_SYSLOG_H
 #undef HAVE_UNISTD_H
 #undef HAVE_SCHED_H
-#undef HAVE_TERMIOS_H
 #undef HAVE_DLFCN_H
 #undef HAVE_DL_H
 #undef HAVE_IEEEFP_H
@@ -123,7 +122,10 @@ extern "C" {
 #undef HAVE_SYS_MMAN_H
 #undef HAVE_SYS_UN_H
 #undef HAVE_STDINT_H
+#undef HAVE_REGEX_H
+#undef HAVE_TERMIOS_H
 #undef HAVE_SYS_TERMIOS_H
+#undef HAVE_SYS_WAIT_H
 #undef HAVE_WINDOWS_H
 #undef HAVE_WINSOCK2_H
 #undef HAVE_WS2TCPIP_H

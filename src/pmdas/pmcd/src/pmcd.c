@@ -19,13 +19,16 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
 #include "pmcd/src/pmcd.h"
 #include "pmcd/src/client.h"
 #include "pmie/src/pmiestats.h"
+#include <sys/stat.h>
+#if defined(HAVE_SYS_MMAN_H)
+#include <sys/mman.h>
+#endif
 
 extern int              nAgents;        /* from pmcd/src/config.c */
 

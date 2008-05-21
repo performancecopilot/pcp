@@ -25,23 +25,16 @@
  * the PMAPI access are kept in this source file.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/errno.h>
-#include <sys/syslog.h>
+#include <math.h>
 #include <ctype.h>
-#include <string.h>
-
 #include "pmapi.h"
 #include "impl.h"
 #include "dstruct.h"
 #include "eval.h"
 #include "pragmatics.h"
-
 #if defined(HAVE_IEEEFP_H)
 #include <ieeefp.h>
 #endif
-#include <math.h>
 
 int	dfltConn;	/* default context type */
 

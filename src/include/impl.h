@@ -24,13 +24,17 @@
 
 #include <time.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <dirent.h>
+#include <signal.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/time.h>
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#ifdef HAVE_NETINET_TCP_H
+#include <netinet/tcp.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>

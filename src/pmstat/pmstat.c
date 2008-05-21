@@ -22,7 +22,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-
+#include <ctype.h>
 #include <sys/ioctl.h>
 #ifdef HAVE_SYS_TERMIOS_H
 #include <sys/termios.h>

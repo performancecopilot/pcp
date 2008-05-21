@@ -19,8 +19,12 @@
  */
 
 #include "jstat.h"
+#include <ctype.h>
 #if defined(HAVE_PTHREAD_H)
 #include <pthread.h>
+#endif
+#if defined(HAVE_SYS_WAIT_H)
+#include <sys/wait.h>
 #endif
 
 jstat_t		*jstat;

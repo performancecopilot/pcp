@@ -32,7 +32,7 @@ mkdir_r(char *path)
     if (stat(path, &sbuf) < 0) {
 	if (mkdir_r(dirname(strdup(path))) < 0)
 	    return -1;
-	return mkdir2(path, 0755);
+	return mkdir(path, 0755);
     }
     else if ((sbuf.st_mode & S_IFDIR) == 0) {
 	fprintf(stderr, "pmpost: \"%s\" is not a directory\n", path);
