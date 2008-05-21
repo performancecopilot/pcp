@@ -21,6 +21,7 @@
 
 #include "pmcd.h"
 #include "impl.h"
+#include <sys/stat.h>
 
 extern int  ParseInitAgents(char *);
 extern void ParseRestartAgents(char *);

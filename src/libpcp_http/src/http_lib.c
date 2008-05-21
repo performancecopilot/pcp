@@ -36,9 +36,9 @@
  */
 
 
-#include <platform_defs.h>
-#include <unistd.h>
 #include <ctype.h>
+#include "pmapi.h"
+#include "impl.h"
 #include "http_lib.h"
 
 static int http_read_line (int fd,char *buffer, int max) ;

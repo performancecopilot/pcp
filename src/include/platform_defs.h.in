@@ -101,6 +101,7 @@ extern "C" {
 #undef HAVE_STRINGS_H
 #undef HAVE_SYSLOG_H
 #undef HAVE_UNISTD_H
+#undef HAVE_STDDEF_H
 #undef HAVE_SCHED_H
 #undef HAVE_DLFCN_H
 #undef HAVE_DL_H
@@ -145,6 +146,9 @@ extern "C" {
 
 #if defined(HAVE_MALLOC_H)
 #include <malloc.h>
+#endif
+#if defined(HAVE_STDDEF_H)
+#include <stddef.h>
 #endif
 #if defined(HAVE_SYSLOG_H)
 #include <syslog.h>

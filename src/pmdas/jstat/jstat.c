@@ -20,6 +20,7 @@
 
 #include "jstat.h"
 #include <ctype.h>
+#include <sys/stat.h>
 #if defined(HAVE_PTHREAD_H)
 #include <pthread.h>
 #endif

@@ -23,16 +23,10 @@ TOPDIR = ../..
 include	$(TOPDIR)/src/include/builddefs
 
 CXXFILES	= pmdumptext.c++
-
 TARGETS		= pmdumptext
-
 LCXXFLAGS	= -I$(TOPDIR)/src/libpcp_pmc
-
-LLDFLAGS	= -fexternal-templates \
-		  -L/usr/X11R6/lib -L$(ROOT)/lib -L$(TOPDIR)/src/libpcp/src
-
+LLDFLAGS	= -fexternal-templates -L$(TOPDIR)/src/libpcp/src
 LLDLIBS         =  -L$(TOPDIR)/src/libpcp_pmc/src -lpcp_pmc -lpcp -lstdc++
-
 CC		= $(CXX)
 
 LDIRT = pmdumptext

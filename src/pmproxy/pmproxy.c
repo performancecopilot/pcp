@@ -20,6 +20,7 @@
  */
 
 #include "pmproxy.h"
+#include <sys/stat.h>
 
 int 		proxy_hi_openfds = -1;   /* Highest known file descriptor for pmproxy */
 

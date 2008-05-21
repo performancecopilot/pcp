@@ -226,21 +226,17 @@ cisco_init(pmdaInterface *dp)
 
     /* start the sproc for async fetches */
 #ifdef HAVE_SPROC
-    sproc_pid = sproc(refresh, PR_SADDR);
+    i = sproc_pid = sproc(refresh, PR_SADDR);
 #elif defined (HAVE_PTHREAD_H)
-    if ((i = pthread_create(&sproc_pid, NULL, (void (*))refresh, NULL)) != 0) {
-	sproc_pid = i;
-    }
+    i = pthread_create(&sproc_pid, NULL, (void (*))refresh, NULL);
 #else
 #error "Need sproc or pthread here!"
 #endif
 
-    if (sproc_pid < 0)
-	dp->status = sproc_pid;
+    if (i < 0)
+	dp->status = i;
     else
 	dp->status = 0;
-
-    return;
 }
 
 void
@@ -249,7 +245,11 @@ cisco_done(void)
     int		i;
 
     if (sproc_pid > 0) {
+#ifndef HAVE_SPROC
+	pthread_kill(sproc_pid, SIGHUP);
+#else
 	kill(sproc_pid, SIGHUP);
+#endif
 	while (wait(&i) >= 0)
 	    ;
     }
