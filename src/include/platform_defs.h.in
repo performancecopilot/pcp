@@ -99,7 +99,6 @@ extern "C" {
 #undef HAVE_LIMITS_H
 #undef HAVE_MALLOC_H
 #undef HAVE_STRINGS_H
-#undef HAVE_SYS_TIME_H
 #undef HAVE_SYSLOG_H
 #undef HAVE_UNISTD_H
 #undef HAVE_SCHED_H
@@ -107,6 +106,10 @@ extern "C" {
 #undef HAVE_DLFCN_H
 #undef HAVE_DL_H
 #undef HAVE_IEEEFP_H
+#undef HAVE_SYS_TIME_H
+#undef HAVE_SYS_TIMES_H
+#undef HAVE_SYS_RESOURCE_H
+#undef HAVE_SYS_PRCTL_H
 #undef HAVE_ENDIAN_H
 #undef HAVE_STANDARDS_H
 #undef HAVE_SYS_BYTEORDER_H
@@ -208,6 +211,7 @@ extern "C" {
 #undef HAVE_ATEXIT
 #undef HAVE_KILL
 
+#undef HAVE_CHOWN
 #undef HAVE_GETCWD
 #undef HAVE_SCANDIR
 #undef HAVE_MKSTEMP

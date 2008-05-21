@@ -594,8 +594,9 @@ dnl Checks for C header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h sys/time.h syslog.h)
+AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h syslog.h)
 AC_CHECK_HEADERS(unistd.h sched.h termios.h dlfcn.h dl.h ieeefp.h)
+AC_CHECK_HEADERS(sys/time.h sys/times.h sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h pthread.h getopt.h)
 AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
 AC_CHECK_HEADERS(termios.h sys/termios.h)
@@ -665,7 +666,7 @@ AC_CHECK_FUNCS(gettimeofday mktime putenv unsetenv)
 AC_CHECK_FUNCS(gethostname hstrerror select socket)
 AC_CHECK_FUNCS(uname syslog brk sbrk __clone fcntl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
-AC_CHECK_FUNCS(getcwd scandir mkstemp)
+AC_CHECK_FUNCS(chown getcwd scandir mkstemp)
 AC_CHECK_FUNCS(memalign valloc)
 AC_CHECK_FUNCS(nanosleep usleep)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
