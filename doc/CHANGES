@@ -1,3 +1,6 @@
+kmchart 1.2.7 (22 May 2008)
+    - Resolve another build dependency in the Debian package.
+
 kmchart 1.2.6 (9 May 2008)
     - Some gcc variants need an explicit <limits> include to
       find the NaN definitions from the std namespace.
