@@ -262,17 +262,10 @@ main(int argc, char **argv)
 		fprintf(stderr, "%s: -v requires numeric argument\n", pmProgname);
 		errflag++;
 	    }
-#ifdef BUILDTOOL
 	    if (version < 0 || version > 2) {
 		fprintf(stderr, "%s: version must be 0, 1 or 2\n", pmProgname);
 		errflag++;
 	    }
-#else
-	    if (version < 0 || version > 1) {
-		fprintf(stderr, "%s: version must be 0 or 1\n", pmProgname);
-		errflag++;
-	    }
-#endif
 	    break;
 
 	case '?':

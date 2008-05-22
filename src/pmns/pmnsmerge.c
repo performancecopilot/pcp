@@ -210,7 +210,7 @@ main(int argc, char **argv)
 
     umask((mode_t)022);		/* anything else is pretty silly */
 
-    while ((c = getopt(argc, argv, "aD:dfvx:?")) != EOF) {
+    while ((c = getopt(argc, argv, "aD:dfv?")) != EOF) {
 	switch (c) {
 
 	case 'a':
@@ -239,12 +239,6 @@ main(int argc, char **argv)
 	case 'v':
 	    verbose++;
 	    break;
-
-#ifdef BUILDTOOL
-	case 'x':		/* alternate pmnscomp */
-	    strcpy(pmnscomp, optarg);
-	    break;
-#endif
 
 	case '?':
 	default:
@@ -312,7 +306,6 @@ Options:\n\
 	    tmp = t->root;
 	}
 
-
 	if (first) {
 	    root = tmp;
 	    first = 0;
@@ -327,7 +320,7 @@ Options:\n\
     fclose(outf);
 
     snprintf(cmd, sizeof(cmd), "%s %s -f -n %s %s.bin",
-	pmnscomp, dupok ? "-d" : "", argv[argc-1], argv[argc-1]);
+		pmnscomp, dupok ? "-d" : "", argv[argc-1], argv[argc-1]);
     sts = system(cmd);
 
     exit(sts);
