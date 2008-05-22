@@ -967,18 +967,6 @@ againmeta:
 		 */
 		update_descreclist(i);
 	    }
-
-	    if (want) {
-		if ((hnp = __pmHashSearch((int)pmid, &mdesc_hash)) == NULL) {
-		    __pmHashAdd((int)pmid, NULL, &mdesc_hash);
-		}
-		/*
-		 * update the desc list (add first time, check on subsequent
-		 * sightings of desc for this pmid from this source
-		 * update_descreclist() sets pb[META] to NULL
-		 */
-		update_descreclist(i);
-	    }
 	    else {
 		/* not wanted */
 		free(iap->pb[META]);
@@ -1789,7 +1777,7 @@ main(int argc, char **argv)
     if (sts < 0) {
 	fprintf(stderr, "%s: Invalid time window specified: %s\n",
 		pmProgname, msg);
-	exit(1);
+	abandon();
     }
     winstart_time = tv2double(&winstart_tval);
     winend_time = tv2double(&winend_tval);
