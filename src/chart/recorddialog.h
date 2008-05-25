@@ -36,7 +36,7 @@ public:
 public slots:
     virtual void deltaUnitsComboBox_activated(int);
     virtual void selectedRadioButton_clicked();
-    virtual void allChartsRadioButton_clicked();
+    virtual void allGadgetsRadioButton_clicked();
     virtual void viewPushButton_clicked();
     virtual void folioPushButton_clicked();
     virtual void archivePushButton_clicked();
@@ -58,8 +58,6 @@ private:
     } my;
 };
 
-class Chart;
-
 class PmLogger : public QProcess
 {
     Q_OBJECT
@@ -67,7 +65,6 @@ class PmLogger : public QProcess
 public:
     PmLogger(QObject *parent);
     void init(Tab *tab, QString host, QString log);
-    QString configure(Chart *cp);
     QString host() { return my.host; }
 
 public slots:

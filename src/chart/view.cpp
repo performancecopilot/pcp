@@ -248,6 +248,7 @@ void OpenViewDialog::globals(int *w, int *h, int *pts, int *x, int *y)
 
 bool OpenViewDialog::openView(const char *path)
 {
+    Tab			*tab;
     Chart		*cp = NULL;
     int			ct = kmchart->tabWidget()->currentIndex();
     int			m;
@@ -548,7 +549,8 @@ done_chart:
 		    fputc('\n', stderr);
 		}
 		if (Cflag == 0 || Cflag == 2) {
-		    cp = kmchart->activeTab()->addChart();
+		    tab = kmchart->activeTab();
+		    cp = new Chart(tab, tab->splitter());
 		    cp->setStyle(style);
 		    cp->setScheme(scheme.name());
 		    if (title != NULL)
@@ -557,6 +559,9 @@ done_chart:
 			cp->setLegendVisible(false);
 		    if (antialias == 0)
 			cp->setAntiAliasing(false);
+
+		    activeGroup->addGadget(cp);
+		    tab->addGadget(cp);
 		}
 		state = S_CHART;
 		if (title != NULL) free(title);
@@ -710,7 +715,7 @@ new_tab:
 		}
 
 done_tab:
-		Tab *tab = kmchart->activeTab();
+		tab = kmchart->activeTab();
 		bool isArchive = tab->isArchiveSource();
 
 		if (host != QString::null) {
@@ -720,24 +725,19 @@ done_tab:
 			liveGroup->use(PM_CONTEXT_HOST, host);
 		}
 
-		if (tab->numChart() == 0) {	// edit the initial tab
+		if (tab->gadgetCount() == 0) {	// edit the initial tab
 		    TabWidget *tabWidget = kmchart->tabWidget();
 		    tabWidget->setTabText(tabWidget->currentIndex(), label);
-		    tab->setSampleHistory(samples);
-		    tab->setVisibleHistory(points);
+		    activeGroup->setSampleHistory(samples);
+		    activeGroup->setVisibleHistory(points);
 		}
 		else {		// create a completely new tab from scratch
 		    tab = new Tab;
+		    // TODO: samples, points?
 		    if (isArchive)
-			tab->init(kmchart->tabWidget(), samples, points,
-				  archiveGroup, KmTime::ArchiveSource, label,
-				  kmtime->archiveInterval(),
-				  kmtime->archivePosition());
+			tab->init(kmchart->tabWidget(), archiveGroup, label);
 		    else
-			tab->init(kmchart->tabWidget(), samples, points,
-				  liveGroup, KmTime::HostSource, label,
-				  kmtime->liveInterval(),
-				  kmtime->livePosition());
+			tab->init(kmchart->tabWidget(), liveGroup, label);
 		    kmchart->addActiveTab(tab);
 		}
 	    }
@@ -1155,8 +1155,10 @@ abandon:
     if (ct != kmchart->tabWidget()->currentIndex())	// new Tabs added
 	kmchart->setActiveTab(ct, true);
 
-    if ((Cflag == 0 || Cflag == 2) && cp != NULL)
-	kmchart->activeTab()->setupWorldView();
+    if ((Cflag == 0 || Cflag == 2) && cp != NULL) {
+	activeGroup->setupWorldView();
+	kmchart->activeTab()->showGadgets();
+    }
     return true;
 
 noview:
@@ -1195,9 +1197,8 @@ static void saveScheme(FILE *f, QString scheme)
     }
 }
 
-static void saveChart(FILE *f, int index, bool hostDynamic)
+void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 {
-    Chart	*cp = kmchart->activeTab()->chart(index);
     const char	*p;
     char	*q, *qend;
     double	ymin, ymax;
@@ -1238,7 +1239,7 @@ static void saveChart(FILE *f, int index, bool hostDynamic)
     if (!cp->antiAliasing())
 	fprintf(f, " antialiasing off");
     fputc('\n', f);
-    for (int m = 0; m < cp->numPlot(); m++) {
+    for (int m = 0; m < cp->metricCount(); m++) {
 	if (cp->activePlot(m) == false)
 	    continue;
 	fprintf(f, "\tplot");
@@ -1274,7 +1275,8 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
 {
     FILE	*f;
     int		c, t;
-    Chart	*cp;
+    Tab		*tab;
+    Gadget	*gadget;
     const char	*path = (const char *)file.toAscii();
     QStringList	schemes;
 
@@ -1291,12 +1293,12 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
 	fprintf(f, "\n");
     }
 
-    for (c = 0; c < kmchart->activeTab()->numChart(); c++) {
-	cp = kmchart->activeTab()->chart(c);
-	if (cp->scheme() == QString::null ||
-	    schemes.contains(cp->scheme()) == true)
+    for (c = 0; c < kmchart->activeTab()->gadgetCount(); c++) {
+	gadget = kmchart->activeTab()->gadget(c);
+	if (gadget->scheme() == QString::null ||
+	    schemes.contains(gadget->scheme()) == true)
 	    continue;
-	schemes.append(cp->scheme());
+	schemes.append(gadget->scheme());
     }
     for (c = 0; c < schemes.size(); c++)
 	saveScheme(f, schemes.at(c));
@@ -1304,20 +1306,20 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
     if (allTabs) {
 	TabWidget *tabWidget = kmchart->tabWidget();
 	for (t = 0; t < tabWidget->size(); t++) {
-	    Tab *tab = tabWidget->at(t);
-	    fprintf(f, "\ntab \"%s\" points %d samples %d\n\n",
-		    (const char *) tabWidget->tabText(t).toAscii(),
-		    tab->visibleHistory(), tab->sampleHistory());
-	    for (c = 0; c < kmchart->activeTab()->numChart(); c++)
-		saveChart(f, c, hostDynamic);
+	    tab = tabWidget->at(t);
+	    fprintf(f, "\ntab \"%s\"\n\n",
+		    (const char *) tabWidget->tabText(t).toAscii());
+	    for (c = 0; c < tab->gadgetCount(); c++)
+		tab->gadget(c)->save(f, hostDynamic);
 	}
     }
-    else if (allCharts) {
-	for (c = 0; c < kmchart->activeTab()->numChart(); c++)
-	    saveChart(f, c, hostDynamic);
-    }
     else {
-	saveChart(f, kmchart->activeTab()->currentChartIndex(), hostDynamic);
+	tab = kmchart->activeTab();
+	if (!allCharts)
+	    tab->currentGadget()->save(f, hostDynamic);
+	else
+	    for (c = 0; c < tab->gadgetCount(); c++)
+		tab->gadget(c)->save(f, hostDynamic);
     }
 
     fflush(f);

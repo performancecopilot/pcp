@@ -72,9 +72,9 @@ extern char *outfile;
 extern char *outgeometry;
 extern QFont globalFont;
 
-extern QmcGroup	*activeGroup;
-extern QmcGroup *liveGroup;
-extern QmcGroup *archiveGroup;
+extern GroupControl *activeGroup;
+extern GroupControl *liveGroup;
+extern GroupControl *archiveGroup;
 
 class KmChart;
 extern KmChart *kmchart;

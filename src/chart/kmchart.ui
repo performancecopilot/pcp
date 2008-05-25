@@ -133,8 +133,9 @@
      <string>&amp;Edit</string>
     </property>
     <addaction name="editChartAction" />
-    <addaction name="separator" />
     <addaction name="editTabAction" />
+    <addaction name="separator" />
+    <addaction name="editSamplesAction" />
     <addaction name="zoomInAction" />
     <addaction name="zoomOutAction" />
     <addaction name="separator" />
@@ -304,10 +305,18 @@
     <iconset resource="kmchart.qrc" >:/tab-edit.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Tab...</string>
+    <string>Tab...</string>
    </property>
    <property name="iconText" >
     <string>Edit Tab</string>
+   </property>
+  </action>
+  <action name="editSamplesAction" >
+   <property name="text" >
+    <string>Samples...</string>
+   </property>
+   <property name="iconText" >
+    <string>Edit Samples</string>
    </property>
   </action>
   <action name="editSettingsAction" >
@@ -791,7 +800,7 @@
    <sender>editTabAction</sender>
    <signal>triggered()</signal>
    <receiver>KmChart</receiver>
-   <slot>editTabGeneral()</slot>
+   <slot>editTab()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>
@@ -802,6 +811,12 @@
      <y>20</y>
     </hint>
    </hints>
+  </connection>
+  <connection>
+   <sender>editSamplesAction</sender>
+   <signal>triggered()</signal>
+   <receiver>KmChart</receiver>
+   <slot>editSamples()</slot>
   </connection>
   <connection>
    <sender>closeTabAction</sender>

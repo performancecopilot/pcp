@@ -171,7 +171,7 @@ void SearchDialog::ok()
     for (i = 0; i < selected.size(); i++) {
 	row = matchList->row(selected[i]);
 #if DESPERATE
-fprintf(stderr, "[%d] %s:%s[%s]\n",
+	fprintf(stderr, "[%d] %s:%s[%s]\n",
 	    row, (const char *)my.pmnsList[row]->sourceName().toAscii(),
 	    (const char *)my.pmnsList[row]->metricName().toAscii(),
 	    (const char *)my.pmnsList[row]->metricInstance().toAscii());
@@ -180,7 +180,8 @@ fprintf(stderr, "[%d] %s:%s[%s]\n",
 	parent = (NameSpace *)my.pmnsList[row]->parent();
 	while (parent->isRoot() == false) {
 #if DESPERATE
-fprintf(stderr, "expand: %s\n", (const char *)parent->metricName().toAscii());
+	    fprintf(stderr, "SearchDialog::ok expand: %s\n",
+			(const char *)parent->metricName().toAscii());
 #endif
 	    parent->QTreeWidgetItem::setExpanded(true);
 	    parent = (NameSpace *)parent->parent();

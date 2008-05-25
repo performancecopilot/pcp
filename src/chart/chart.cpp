@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2006-2008, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,6 +15,7 @@
 #include <qmc_desc.h>
 #include "main.h"
 #include "curve.h"
+#include "saveviewdialog.h"
 
 #include <QtCore/QPoint>
 #include <QtCore/QRegExp>
@@ -35,8 +36,9 @@
 
 #define DESPERATE 0
 
-Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent)
+Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
 {
+    Gadget::setWidget(this);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     plotLayout()->setAlignCanvasToScales(true);
     plotLayout()->setFixedAxisOffset(45, QwtPlot::yLeft);
@@ -93,6 +95,32 @@ Chart::~Chart()
     }
 }
 
+void Chart::setCurrent(bool enable)
+{
+    QwtScaleWidget *sp;
+    QPalette palette;
+    QwtText t;
+
+    console->post("Chart::setCurrent(%p) %s", this, enable ? "true" : "false");
+
+    // (Re)set title and y-axis highlight for new/old current chart.
+    // For title, have to set both QwtText and QwtTextLabel because of
+    // the way attributes are cached and restored when printing charts
+
+    t = titleLabel()->text();
+    t.setColor(enable ? globalSettings.chartHighlight : "black");
+    setTitle(t);
+    palette = titleLabel()->palette();
+    palette.setColor(QPalette::Active, QPalette::Text,
+		enable ? globalSettings.chartHighlight : QColor("black"));
+    titleLabel()->setPalette(palette);
+    sp = axisWidget(QwtPlot::yLeft);
+    t = sp->title();
+    t.setColor(enable ? globalSettings.chartHighlight : "black");
+    sp->setTitle(t);
+}
+
+
 void Chart::preserveLiveData(int i, int oi)
 {
 #if DESPERATE
@@ -133,13 +161,18 @@ void Chart::adjustedLiveData()
     replot();
 }
 
-void Chart::update(bool forward, bool visible)
+void Chart::updateTimeAxis(double leftmost, double rightmost, double delta)
 {
-    int		sh = my.tab->sampleHistory();
+    setAxisScale(QwtPlot::xBottom, leftmost, rightmost, delta);
+}
+
+void Chart::updateValues(bool forward, bool visible)
+{
+    int		sh = my.tab->group()->sampleHistory();
     int		idx, m;
 
 #if DESPERATE
-    console->post("Chart::update(forward=%d,visible=%d) sh=%d (%d plots)",
+    console->post("Chart::updateValues(forward=%d,visible=%d) sh=%d (%d plots)",
 			forward, visible, sh, my.plots.size());
 #endif
 
@@ -416,14 +449,14 @@ void Chart::redoScale(void)
 
 void Chart::replot()
 {
-    int	vh = my.tab->visibleHistory();
+    int	vh = my.tab->group()->visibleHistory();
 
 #if DESPERATE
     console->post("Chart::replot vh=%d, %d plots)", vh, my.plots.size());
 #endif
 
     for (int m = 0; m < my.plots.size(); m++)
-	my.plots[m]->curve->setRawData(my.tab->timeAxisData(),
+	my.plots[m]->curve->setRawData(my.tab->group()->timeAxisData(),
 					my.plots[m]->plotData,
 					qMin(vh, my.plots[m]->dataCount));
     QwtPlot::replot();
@@ -559,7 +592,7 @@ int Chart::addPlot(pmMetricSpec *pmsp, const char *legend)
     plot->dataCount = 0;
     plot->data = NULL;
     plot->plotData = NULL;
-    resetDataArrays(plot, my.tab->sampleHistory());
+    resetDataArrays(plot, my.tab->group()->sampleHistory());
 
     // create and attach the plot right here
     plot->curve = new Curve(plot->label);
@@ -634,7 +667,7 @@ void Chart::delPlot(int m)
     //my.plots.removeAt(m);
 }
 
-int Chart::numPlot()
+int Chart::metricCount() const
 {
     return my.plots.size();
 }
@@ -692,7 +725,7 @@ void Chart::changeTitle(QString title, int expand)
     changeTitle((char *)(const char *)title.toAscii(), expand);
 }
 
-QString Chart::scheme()
+QString Chart::scheme() const
 {
     return my.scheme;
 }
@@ -809,7 +842,7 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
     // conversion is indistinguishable from instantaneous or discrete
     // metrics of dimension time^0 which are units compatible ... so we're
     // opting for the simplest possible interpretation of utilization or
-    // everyhing else
+    // everything else.
     //
     if (style == UtilisationStyle) {
 	setYAxisTitle("% utilization");
@@ -1008,6 +1041,22 @@ void Chart::setLegendVisible(bool on)
     }
 }
 
+void Chart::save(FILE *f, bool hostDynamic)
+{
+    SaveViewDialog::saveChart(f, this, hostDynamic);
+}
+
+void Chart::print(QPainter *qp, QRect &rect)
+{
+    QwtPlotPrintFilter filter;
+
+    filter.setOptions(QwtPlotPrintFilter::PrintAll &
+	~QwtPlotPrintFilter::PrintCanvasBackground &
+	~QwtPlotPrintFilter::PrintWidgetBackground &
+	~QwtPlotPrintFilter::PrintGrid);
+    QwtPlot::print(qp, rect, filter);
+}
+
 bool Chart::antiAliasing()
 {
     return my.antiAliasing;
@@ -1019,49 +1068,41 @@ void Chart::setAntiAliasing(bool on)
     my.antiAliasing = on;
 }
 
-QString Chart::name(int m)
+QString Chart::name(int m) const
 {
     return my.plots[m]->name;
 }
 
-char *Chart::legendSpec(int m)
+char *Chart::legendSpec(int m) const
 {
     return my.plots[m]->legend;
 }
 
-QmcDesc *Chart::metricDesc(int m)
+QmcDesc *Chart::metricDesc(int m) const
 {
     return (QmcDesc *)&my.plots[m]->metric->desc();
 }
 
-QString Chart::metricName(int m)
+QString Chart::metricName(int m) const
 {
     return my.plots[m]->metric->name();
 }
 
-QString Chart::metricInstance(int m)
+QString Chart::metricInstance(int m) const
 {
     if (my.plots[m]->metric->numInst() > 0)
 	return my.plots[m]->metric->instName(0);
     return QString::null;
 }
 
-QmcContext *Chart::metricContext(int m)
+QmcContext *Chart::metricContext(int m) const
 {
     return my.plots[m]->metric->context();
 }
 
-QString Chart::pmloggerMetricSyntax(int m)
+QmcMetric *Chart::metric(int m) const
 {
-    QmcMetric *metric = my.plots[m]->metric;
-    QString syntax = metric->name();
-
-    if (metric->numInst() == 1) {
-	syntax.append(" [ \"");
-	syntax.append(metric->indom()->name(0));
-	syntax.append("\" ]");
-    }
-    return syntax;
+    return my.plots[m]->metric;
 }
 
 QSize Chart::minimumSizeHint() const

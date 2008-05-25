@@ -15,10 +15,6 @@
 #ifndef CHART_H
 #define CHART_H
 
-//
-// Chart class ... multiple plots per chart, multiple charts per tab
-//
-
 #include <QtCore/QString>
 #include <QtCore/QDateTime>
 #include <QtGui/QColor>
@@ -28,11 +24,12 @@
 #include <qwt_plot_picker.h>
 #include <qwt_double_rect.h>
 #include <qmc_metric.h>
+#include "gadget.h"
 
 class Tab;
 class Curve;
 
-class Chart : public QwtPlot 
+class Chart : public QwtPlot, public Gadget
 {
     Q_OBJECT
 
@@ -49,9 +46,9 @@ public:
 	UtilisationStyle
     } Style;
 
+    void setCurrent(bool);
     void resetDataArrays(int m, int v);
     int addPlot(pmMetricSpec *, const char *);
-    int numPlot(void);
     void delPlot(int);
     bool activePlot(int);
     void revivePlot(int m);
@@ -62,7 +59,7 @@ public:
     Style style(void);			// return chart style
     void setStyle(Style);		// set default chart plot style
     void setStroke(int, Style, QColor);	// set chart style and color
-    QString scheme();			// return chart color scheme
+    QString scheme() const;		// return chart color scheme
     void setScheme(QString);		// set the chart color scheme
     int sequence();			// return chart color scheme position
     void setSequence(int);		// set the chart color scheme position
@@ -79,19 +76,23 @@ public:
     bool antiAliasing();
     void setAntiAliasing(bool);
 
-    void update(bool, bool);
+    void save(FILE *, bool);
+    void print(QPainter *, QRect &);
+
+    void updateTimeAxis(double, double, double);
+    void updateValues(bool, bool);
     void preserveLiveData(int, int);
     void punchoutLiveData(int);
     void adjustedLiveData();
 
-    QString name(int);
-    char *legendSpec(int);
-    QString metricName(int);
-    QmcDesc *metricDesc(int);
-    QString metricInstance(int);
-    QmcContext *metricContext(int);
-
-    QString pmloggerMetricSyntax(int);
+    int metricCount() const;
+    QString name(int) const;
+    char *legendSpec(int) const;
+    QmcMetric *metric(int) const;
+    QString metricName(int) const;
+    QmcDesc *metricDesc(int) const;
+    QString metricInstance(int) const;
+    QmcContext *metricContext(int) const;
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;

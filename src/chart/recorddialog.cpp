@@ -51,19 +51,19 @@ void RecordDialog::init(Tab *tab)
 		KmTime::deltaString(globalSettings.loggerDelta, my.units));
 
     selectedRadioButton->setChecked(false);
-    allChartsRadioButton->setChecked(true);
+    allGadgetsRadioButton->setChecked(true);
 }
 
 void RecordDialog::selectedRadioButton_clicked()
 {
     selectedRadioButton->setChecked(true);
-    allChartsRadioButton->setChecked(false);
+    allGadgetsRadioButton->setChecked(false);
 }
 
-void RecordDialog::allChartsRadioButton_clicked()
+void RecordDialog::allGadgetsRadioButton_clicked()
 {
     selectedRadioButton->setChecked(false);
-    allChartsRadioButton->setChecked(true);
+    allGadgetsRadioButton->setChecked(true);
 }
 
 void RecordDialog::deltaUnitsComboBox_activated(int value)
@@ -189,48 +189,6 @@ void PmLogger::finished(int, QProcess::ExitStatus)
     }
 }
 
-QString PmLogger::configure(Chart *cp)
-{
-    QString input;
-    bool beDiscrete = false;
-    bool nonDiscrete = false;
-
-    // discover whether we need separate log-once/log-every sections
-    for (int m = 0; m < cp->numPlot(); m++) {
-	if (cp->metricDesc(m)->desc().sem == PM_SEM_DISCRETE)
-	    beDiscrete = true;
-	else
-	    nonDiscrete = true;
-    }
-
-    // pmlogger header for file(1)
-    input.append("#pmlogger Version 1\n");
-
-    if (beDiscrete) {
-	input.append("log mandatory on once {\n");
-	for (int m = 0; m < cp->numPlot(); m++) {
-	    if (cp->metricDesc(m)->desc().sem != PM_SEM_DISCRETE)
-		continue;
-	    input.append('\t');
-	    input.append(cp->pmloggerMetricSyntax(m));
-	    input.append('\n');
-	}
-	input.append("}\n");
-    }
-    if (nonDiscrete) {
-	input.append("log mandatory on default {\n");
-	for (int m = 0; m < cp->numPlot(); m++) {
-	    if (cp->metricDesc(m)->desc().sem == PM_SEM_DISCRETE)
-		continue;
-	    input.append('\t');
-	    input.append(cp->pmloggerMetricSyntax(m));
-	    input.append('\n');
-	}
-	input.append("}\n");
-    }
-    return input;
-}
-
 void RecordDialog::buttonOk_clicked()
 {
     if (deltaLineEdit->isModified()) {
@@ -283,21 +241,23 @@ void RecordDialog::buttonOk_clicked()
     my.delta.setNum(KmTime::deltaValue(deltaLineEdit->text(), my.units), 'f');
 
     Tab *tab = kmchart->activeTab();
-    for (int c = 0; c < tab->numChart(); c++) {
-	Chart *cp = tab->chart(c);
-	if (selectedRadioButton->isChecked() && cp != tab->currentChart())
+    for (int c = 0; c < tab->gadgetCount(); c++) {
+	Gadget *gadget = tab->gadget(c);
+	if (selectedRadioButton->isChecked() && gadget != tab->currentGadget())
 	    continue;
-	for (int m = 0; m < cp->numPlot(); m++) {
-	    QString host = cp->metricContext(m)->source().host();
-	    if (!my.hosts.contains(host)) {
-		QString archive = archiveLineEdit->text().trimmed();
-		archive.replace(QRegExp("^~"), QDir::homePath());
-		archive.replace(QRegExp("\\[host\\]"), host);
-		archive.replace(QRegExp("\\[date\\]"), today);
-		my.archives.append(archive);
-		my.hosts.append(host);
-	    }
+	QStringList ghosts = gadget->hosts();
+	for (int i = 0; i < ghosts.count(); i++) {
+	    if (!my.hosts.contains(ghosts.at(i)))
+		my.hosts.append(ghosts.at(i));
 	}
+    }
+
+    for (int h = 0; h < my.hosts.count(); h++) {
+	QString archive = archiveLineEdit->text().trimmed();
+	archive.replace(QRegExp("^~"), QDir::homePath());
+	archive.replace(QRegExp("\\[host\\]"), my.hosts.at(h));
+	archive.replace(QRegExp("\\[date\\]"), today);
+	my.archives.append(archive);
     }
 
     if (SaveViewDialog::saveView(view, false, false, false, true) == false)
@@ -339,12 +299,12 @@ void RecordDialog::startLoggers()
 	arguments << "-r" << "-c" << configfile << "-h" << host << "-x0";
 	arguments << "-l" << logfile << "-t" << my.delta << archive;
 
-	QString configdata;
+	QString configdata("#pmlogger Version 1\n\n"); // header for file(1)
 	if (selectedRadioButton->isChecked())
-	    configdata.append(process->configure(tab->currentChart()));
+	    configdata.append(tab->currentGadget()->pmloggerSyntax());
 	else
-	    for (int c = 0; c < tab->numChart(); c++)
-		configdata.append(process->configure(tab->chart(c)));
+	    for (int c = 0; c < tab->gadgetCount(); c++)
+		configdata.append(tab->gadget(c)->pmloggerSyntax());
 	saveConfig(configfile, configdata);
 
 	process->start(pmlogger, arguments);

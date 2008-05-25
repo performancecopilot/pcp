@@ -25,6 +25,7 @@ class InfoDialog;
 class ChartDialog;
 class ExportDialog;
 class SearchDialog;
+class SamplesDialog;
 class OpenViewDialog;
 class SaveViewDialog;
 class SettingsDialog;
@@ -61,12 +62,13 @@ public:
     void setActiveTab(int index, bool redisplay);
     void addActiveTab(Tab *tab);
     bool isArchiveTab();
+    bool isTabRecording();
     TabWidget *tabWidget() { return chartTabWidget; }
     TimeAxis *timeAxis() { return my.statusBar->timeAxis(); }
 
     virtual void step(bool livemode, KmTime::Packet *kmtime);
     virtual void VCRMode(bool livemode, KmTime::Packet *kmtime, bool drag);
-    virtual void timeZone(bool livemode, char *tzdata);
+    virtual void timeZone(bool livemode, KmTime::Packet *kmtime, char *tzdata);
     virtual void setStyle(char *style);
     virtual void setupAssistant();
     virtual void updateHeight(int);
@@ -78,7 +80,7 @@ public:
     virtual void setDateLabel(QString label);
     virtual void setDateLabel(time_t seconds, QString tz);
     virtual void setButtonState(TimeButton::State state);
-    virtual void setRecordState(Tab *tab, bool recording);
+    virtual void setRecordState(bool recording);
 
     virtual void updateToolbarContents();
     virtual void updateToolbarLocation();
@@ -107,6 +109,7 @@ public slots:
     virtual void fileOpenView();
     virtual void fileSaveView();
     virtual void fileExport();
+    virtual void acceptExport();
     virtual void filePrint();
     virtual void fileQuit();
     virtual void assistantError(const QString &);
@@ -124,12 +127,12 @@ public slots:
     virtual void editChart();
     virtual void acceptEditChart();
     virtual void closeChart();
-    virtual void editTabGeneral();
-    virtual void editTabSamples();
+    virtual void editTab();
     virtual void acceptEditTab();
-    virtual void acceptNewTab();
-    virtual void acceptExport();
+    virtual void editSamples();
+    virtual void acceptEditSamples();
     virtual void addTab();
+    virtual void acceptNewTab();
     virtual void closeTab();
     virtual void activeTabChanged(int);
     virtual void editSettings();
@@ -158,10 +161,11 @@ private:
 	TabDialog *newtab;
 	TabDialog *edittab;
 	InfoDialog *info;
-	SearchDialog *search;
 	ChartDialog *newchart;
 	ChartDialog *editchart;
 	ExportDialog *exporter;
+	SearchDialog *search;
+	SamplesDialog *samples;
 	OpenViewDialog *openview;
 	SaveViewDialog *saveview;
 	SettingsDialog *settings;

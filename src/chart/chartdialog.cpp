@@ -618,7 +618,7 @@ void ChartDialog::setupChartPlots(Chart *cp)
     // no-op in the createChart case, of course.
 
     int m;
-    int nplots = cp->numPlot();	// Use a copy as we change it in the loop body
+    int nplots = cp->metricCount(); // Copy, as we change it in the loop body
     for (m = 0; m < nplots; m++) {
 	QTreeWidgetItemIterator iterator1(chartMetricsTreeWidget,
 				    QTreeWidgetItemIterator::Selectable);
@@ -685,7 +685,7 @@ bool ChartDialog::matchChartPlot(Chart *cp, NameSpace *name, int m)
 
 bool ChartDialog::existsChartPlot(Chart *cp, NameSpace *name, int *m)
 {
-    for (int i = 0; i < cp->numPlot(); i++) {
+    for (int i = 0; i < cp->metricCount(); i++) {
 	if (matchChartPlot(cp, name, i)) {
 	    *m = i;
 	    return true;

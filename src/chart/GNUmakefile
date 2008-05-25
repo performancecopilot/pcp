@@ -11,17 +11,18 @@ UIFILES = $(shell echo *.ui)
 HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
 	  infodialog.h kmchart.h openviewdialog.h saveviewdialog.h \
 	  recorddialog.h seealsodialog.h searchdialog.h settingsdialog.h \
-	  tabdialog.h \
+	  samplesdialog.h tabdialog.h \
 	  chart.h curve.h console.h main.h namespace.h \
 	  colorbutton.h colorscheme.h qcolorpicker.h \
 	  fileiconprovider.h statusbar.h tab.h tabwidget.h \
-	  timeaxis.h timebutton.h timecontrol.h
+	  timeaxis.h timebutton.h timecontrol.h \
+	  groupcontrol.h gadget.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
 
 LSRCFILES = $(PROJECT).in $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
 	  $(DESKTOP) $(WRAPPER).IN
 LDIRDIRT = build $(COMMAND).xcodeproj
-LDIRT = $(PROJECT) $(COMMAND) $(ICONLINKS) $(WRAPPER)
+LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER)
 
 ICONLINKS = aboutpcp.png aboutqt.png aboutkmchart.png kmchart.png kmtime.png \
 	    $(ICNFILE) document-close.png document-new.png document-open.png \

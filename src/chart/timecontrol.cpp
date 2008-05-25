@@ -433,7 +433,7 @@ void TimeControl::protocolMessage(bool live,
 		   msg->command == KmTime::Bounds) {
 	    kmchart->VCRMode(live, msg, msg->command == KmTime::VCRModeDrag);
 	} else if (msg->command == KmTime::TZ) {
-	    kmchart->timeZone(live, (char *)msg->data);
+	    kmchart->timeZone(live, msg, (char *)msg->data);
 	} else if (msg->command == KmTime::GUIStyle) {
 	    kmchart->setStyle((char *)msg->data);
 	}

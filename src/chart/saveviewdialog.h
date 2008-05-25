@@ -17,6 +17,8 @@
 #include "ui_saveviewdialog.h"
 #include <QtGui/QDirModel>
 
+class Chart;
+
 class SaveViewDialog : public QDialog, public Ui::SaveViewDialog
 {
     Q_OBJECT
@@ -26,6 +28,7 @@ public:
     ~SaveViewDialog();
     void reset();
 
+    static void saveChart(FILE *, Chart *, bool);
     static bool saveView(QString, bool, bool, bool, bool);
     static void setGlobals(int w, int h, int pts, int x, int y);
 

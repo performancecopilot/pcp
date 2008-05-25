@@ -15,7 +15,7 @@ SOURCES = aboutdialog.cpp console.cpp kmtimearch.cpp kmtimelive.cpp \
 LSRCFILES = $(PROJECT).in $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
 	  $(WRAPPER).IN
 LDIRDIRT = build $(COMMAND).xcodeproj
-LDIRT = $(PROJECT) $(COMMAND) $(ICONLINKS) $(WRAPPER)
+LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER)
 
 ICONLINKS = play_off.png play_on.png fastfwd_off.png fastfwd_on.png \
 	fastback_off.png fastback_on.png back_off.png back_on.png \

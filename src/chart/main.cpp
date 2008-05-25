@@ -34,10 +34,10 @@ QFont globalFont;
 Settings globalSettings;
 
 // Globals used to provide single instances of classes used across kmchart
-QmcGroup *liveGroup;	// one metrics class group for all hosts
-QmcGroup *archiveGroup;	// one metrics class group for all archives
-QmcGroup *activeGroup;	// currently active metric fetchgroup
-TimeControl *kmtime;	// one timecontrol class for kmtime
+GroupControl *liveGroup;	// one metrics class group for all hosts
+GroupControl *archiveGroup;	// one metrics class group for all archives
+GroupControl *activeGroup;	// currently active metric fetchgroup
+TimeControl *kmtime;		// one timecontrol class for kmtime
 KmChart *kmchart;
 
 static void usage(void)
@@ -388,9 +388,9 @@ void setupViewGlobals()
 	kmchart->move(pos);
     }
     if (points) {
-	if (kmchart->activeTab()->sampleHistory() < points)
-	    kmchart->activeTab()->setSampleHistory(points);
-	kmchart->activeTab()->setVisibleHistory(points);
+	if (activeGroup->sampleHistory() < points)
+	    activeGroup->setSampleHistory(points);
+	activeGroup->setVisibleHistory(points);
     }
 }
 
@@ -434,8 +434,8 @@ main(int argc, char ** argv)
     fromsec(globalSettings.chartDelta, &delta);
 
     tab = new Tab;
-    liveGroup = new QmcGroup();
-    archiveGroup = new QmcGroup();
+    liveGroup = new GroupControl();
+    archiveGroup = new GroupControl();
 
     while ((c = getopt(argc, argv, options)) != EOF) {
 	switch (c) {
@@ -697,23 +697,22 @@ main(int argc, char ** argv)
     kmtime->init(port, archives.size() == 0, &delta, &position,
 		 &realStartTime, &realEndTime, tzString, tzLabel);
 
+    kmchart->init();
+    liveGroup->init(globalSettings.sampleHistory,
+			globalSettings.visibleHistory,
+			kmtime->liveInterval(), kmtime->livePosition());
+    archiveGroup->init(globalSettings.sampleHistory,
+			globalSettings.visibleHistory,
+			kmtime->archiveInterval(), kmtime->archivePosition());
+
     //
     // We setup the kmchart tab list late, so we don't have to deal
     // with kmtime messages reaching the Tabs until we're all setup.
     //
-    kmchart->init();
-    if (archives.size() == 0) {
-	tab->init(kmchart->tabWidget(),
-		globalSettings.sampleHistory, globalSettings.visibleHistory,
-		liveGroup, KmTime::HostSource, "Live",
-		kmtime->liveInterval(), kmtime->livePosition());
-    }
-    else {
-	tab->init(kmchart->tabWidget(),
-		globalSettings.sampleHistory, globalSettings.visibleHistory,
-		archiveGroup, KmTime::ArchiveSource, "Archive",
-		kmtime->archiveInterval(), kmtime->archivePosition());
-    }
+    if (archives.size() == 0)
+	tab->init(kmchart->tabWidget(), liveGroup, "Live");
+    else
+	tab->init(kmchart->tabWidget(), archiveGroup, "Archive");
     kmchart->tabWidget()->insertTab(tab);
     kmchart->setActiveTab(0, true);
     console->post("Phase2 user interface setup complete");

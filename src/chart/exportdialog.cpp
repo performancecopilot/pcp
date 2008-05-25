@@ -144,12 +144,12 @@ QSize ExportDialog::imageSize()
     Tab *tab = kmchart->activeTab();
     int height = 0, width = 0;
 
-    for (int i = 0; i < tab->numChart(); i++) {
-	Chart *cp = tab->chart(i);
-	if (cp != tab->currentChart() && selectedRadioButton->isChecked())
+    for (int i = 0; i < tab->gadgetCount(); i++) {
+	Gadget *gadget = tab->gadget(i);
+	if (gadget != tab->currentGadget() && selectedRadioButton->isChecked())
 	    continue;
-	width = qMax(width, cp->width());
-	height += cp->height();
+	width = qMax(width, gadget->width());
+	height += gadget->height();
     }
     height += kmchart->timeAxis()->height();
 

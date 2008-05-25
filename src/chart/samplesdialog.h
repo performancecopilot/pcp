@@ -11,33 +11,38 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef TABDIALOG_H
-#define TABDIALOG_H
+#ifndef SAMPLESDIALOG_H
+#define SAMPLESDIALOG_H
 
-#include "ui_tabdialog.h"
+#include "ui_samplesdialog.h"
 
-class TabDialog : public QDialog, public Ui::TabDialog
+class SamplesDialog : public QDialog, public Ui::SamplesDialog
 {
     Q_OBJECT
 
 public:
-    TabDialog(QWidget* parent);
-
-    void reset(QString, bool);
-    bool isArchiveSource();
-    QString label() const;
+    SamplesDialog(QWidget* parent);
+    void reset(int, int);
+    int samples();
+    int visible();
 
 public slots:
-    void liveHostRadioButtonClicked();
-    void archivesRadioButtonClicked();
+    void sampleValueChanged(int);
+    void visibleValueChanged(int);
 
 protected slots:
     void languageChange();
 
 private:
+    void displaySampleSlider();
+    void displayVisibleSlider();
+    void displaySampleCounter();
+    void displayVisibleCounter();
+
     struct {
-	bool archiveSource;
+	int samples;
+	int visible;
     } my;
 };
 
-#endif // TABDIALOG_H
+#endif // SAMPLESDIALOG_H

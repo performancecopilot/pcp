@@ -18,6 +18,7 @@
 TabWidget::TabWidget(QWidget *parent) : QTabWidget(parent)
 {
     setFont(globalFont);
+    my.activeTab = NULL;
 }
 
 bool TabWidget::setActiveTab(Tab *tab)

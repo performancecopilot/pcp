@@ -71,6 +71,17 @@ void TimeAxis::init()
     setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignHCenter | Qt::AlignBottom);
 }
 
+void TimeAxis::print(QPainter *qp, QRect &rect)
+{
+    QwtPlotPrintFilter filter;
+
+    filter.setOptions(QwtPlotPrintFilter::PrintAll &
+        ~QwtPlotPrintFilter::PrintCanvasBackground &
+        ~QwtPlotPrintFilter::PrintWidgetBackground &
+        ~QwtPlotPrintFilter::PrintGrid);
+    QwtPlot::print(qp, rect, filter);
+}
+
 void TimeAxis::noArchiveSources()
 {
     setAxisScale(QwtPlot::xBottom, 0, 1, 0);
@@ -142,6 +153,6 @@ void TimeAxis::resizeEvent(QResizeEvent *e)
     QwtPlot::resizeEvent(e);
     if (e->size().width() != e->oldSize().width()) {
 	clearScaleCache();
-	kmchart->activeTab()->updateTimeAxis();
+	activeGroup->updateTimeAxis();
     }
 }
