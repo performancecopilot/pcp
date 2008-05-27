@@ -162,9 +162,9 @@ void ChartDialog::buttonOk_clicked()
 	validInput = false;
 	index = 1;
     }
-    // Validate Y-Axis scale range if not auto-scaling
+    // Validate Values Axis scale range if not auto-scaling
     else if (autoScaleOn->isChecked() == false && my.yMin >= my.yMax) {
-	message = tr("Y-Axis scale minimum/maximum range is invalid.");
+	message = tr("Values Axis scale minimum/maximum range is invalid.");
 	validInput = false;
 	index = 0;
     }

@@ -285,7 +285,7 @@ void Chart::updateValues(bool forward, bool visible)
 #endif
 
     if (visible) {
-	// replot() first so Y-axis range is updated
+	// replot() first so Value Axis range is updated
 	replot();
 	redoScale();
     }

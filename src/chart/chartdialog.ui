@@ -475,10 +475,10 @@
             </sizepolicy>
            </property>
            <property name="whatsThis" >
-            <string>When enabled, autoscaling causes the Y axis to be scaled based on the minimum and maximum observed values.  When disabled, the minimum and maximum Y axis values specified here are always used (even if the values observed lie outside that range).</string>
+            <string>When enabled, autoscaling causes the Values axis to be scaled based on the minimum and maximum observed values.  When disabled, the minimum and maximum points on the Values Axis specified here are always used (even if the values observed lie outside that range).</string>
            </property>
            <property name="title" >
-            <string>Y-Axis</string>
+            <string>Values Axis</string>
            </property>
            <layout class="QGridLayout" >
             <property name="margin" >
