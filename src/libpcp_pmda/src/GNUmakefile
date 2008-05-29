@@ -23,6 +23,10 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 -include GNUlocaldefs
 
+CFILES	= callback.c open.c mainloop.c help.c cache.c
+HFILES	= libdefs.h
+LLDLIBS	= -lpcp
+
 #
 # libpcp.so   -> libpcp.so.3
 # libpcp.so.2 -> libpcp.so.3
@@ -44,18 +48,13 @@ LIBTARGET_V2 =
 endif
 LIBTARGET = $(LIBTARGET_V3)
 
-ifeq "$(TARGET_OS)" "cygwin"
+ifneq "$(findstring $(TARGET_OS),cygwin mingw)" ""
 LIBTARGET = libpcp_pmda.$(DSOSUFFIX)
+STATICLIBTARGET =
 LIBTARGET_V1 =
 LIBTARGET_V2 =
 LIBTARGET_V3 =
 endif
-
-STATICLIBTARGET = libpcp_pmda.a
-
-CFILES	= callback.c open.c mainloop.c help.c cache.c
-HFILES = libdefs.h
-LLDLIBS	= -lpcp
 
 LDIRT = $(LIBTARGET_V1) $(LIBTARGET_V2) $(LIBTARGET_V3)
 
