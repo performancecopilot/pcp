@@ -28,8 +28,8 @@ PMNS_VAR_DIR = $(PCP_VAR_DIR)/pmns
 PMNS_BIN_DIR = $(PCP_BINADM_DIR)
 PMNS_LIB_DIR = $(PCP_SHARE_DIR)/lib
 
-# take control here ... do not need to search in libpcp_pmda directory
-# for libpcp_pmda DSO, and it is not even built yet for a virgin make
+# Take control here ... do not need to search in libpcp_pmda directory
+# for libpcp_pmda DSO, and it is not even built yet for a virgin make.
 #
 PCP_LIBS = -L$(TOPDIR)/src/libpcp/src
 
@@ -42,13 +42,13 @@ LOCKERS	= lockpmns unlockpmns
 STDPMIDS= stdpmid.irix  stdpmid.linux stdpmid.add-on stdpmid.local \
 	stdpmid.pcp stdpmid.qa
 
-LSRCFILES = Make.stdpmid GNUmakefile.install Rebuild4linux $(STDPMIDS) \
+LSRCFILES = Make.stdpmid GNUmakefile.install Rebuild $(STDPMIDS) \
 	    $(SCRIPTS) $(LOCKERS)
 	    
 LLDLIBS = -lpcp
 LDIRT	= *.log *.pmns stdpmid $(TARGETS)
 
-default:	$(SCRIPTS) $(LOCKERS) $(TARGETS) GNUmakefile.install Rebuild4linux stdpmid
+default:	$(SCRIPTS) $(LOCKERS) $(TARGETS) GNUmakefile.install Rebuild stdpmid
 
 include $(BUILDRULES)
 
@@ -58,20 +58,18 @@ pmnsmerge$(EXECSUFFIX):      pmnsmerge.o pmnsutil.o
 pmnsdel$(EXECSUFFIX):        pmnsdel.o pmnsutil.o
 	$(CCF) -o $@ $(LDFLAGS) pmnsdel.o pmnsutil.o $(LDLIBS)
 
-# all pmns config stuff goes in $PCP_VAR_DIR/pmns
-#
-# For Linux, the .NeedRebuild hook is added in the RPM packaging, for
-# others we'd like an IRIX inst(1) exitop, but touch here is as close
-# as it gets
+# All PMNS config stuff goes in $PCP_VAR_DIR/pmns
+# For platforms with packaging, the .NeedRebuild hook is added there,
+# for the others touch(1) here is as close as it gets unfortunately.
 #
 install:	default
 	$(INSTALL) -m 755 $(TARGETS) $(SCRIPTS) $(PMNS_BIN_DIR)
 	$(INSTALL) -m 755 $(LOCKERS) $(PMNS_LIB_DIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMNS_VAR_DIR)/Makefile
-	$(INSTALL) -m 755 Rebuild4linux $(PMNS_VAR_DIR)/Rebuild
+	$(INSTALL) -m 755 Rebuild $(PMNS_VAR_DIR)/Rebuild
 	$(INSTALL) -m 755 Make.stdpmid $(PMNS_VAR_DIR)/Make.stdpmid
 	$(INSTALL) -m 644 $(STDPMIDS) $(PMNS_VAR_DIR)
-ifneq "$(TARGET_OS)" "linux"
+ifeq "$(findstring $(TARGET_OS),linux darwin)" ""
 	touch $(DIST_ROOT)$(PMNS_VAR_DIR)/.NeedRebuild
 endif
 
