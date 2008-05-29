@@ -45,7 +45,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
      *   send hostname and port
      */
 
-    if (write(fd, MY_VERSION, strlen(MY_VERSION)) != strlen(MY_VERSION)) {
+    if (send(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send version string to pmproxy failed: %s\n",
 	     pmErrStr(-errno));
@@ -75,7 +75,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
     }
 
     snprintf(buf, sizeof(buf), "%s %d\n", hostname, port);
-    if (write(fd, buf, strlen(buf)) != strlen(buf)) {
+    if (send(fd, buf, strlen(buf), 0) != strlen(buf)) {
 	__pmNotifyErr(LOG_WARNING,
 	     "__pmConnectPMCD: send hostname+port string to pmproxy failed: %s'\n",
 	     pmErrStr(-errno));

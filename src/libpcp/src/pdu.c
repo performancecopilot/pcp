@@ -129,7 +129,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 	     * Also assumes buf is aligned on a __pmPDU boundary.
 	     */
 	    __pmPDU	*lp;
-	    status = (int)read(fd, buf, (int)sizeof(__pmPDU));
+	    status = (int)recv(fd, buf, (int)sizeof(__pmPDU), 0);
 	    __pmLastUsedFd = fd;
 	    if (status <= 0)
 		/* EOF or error */
@@ -139,7 +139,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 		return PM_ERR_IPC;
 	    lp = (__pmPDU *)buf;
 	    have = ntohl(*lp);
-	    status = (int)read(fd, &buf[sizeof(__pmPDU)], have - (int)sizeof(__pmPDU));
+	    status = (int)recv(fd, &buf[sizeof(__pmPDU)], have - (int)sizeof(__pmPDU), 0);
 	    if (status <= 0)
 		/* EOF or error */
 		return status;
@@ -194,7 +194,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 		    return status;
 		}
 	    }
-	    status = (int)read(fd, buf, len);
+	    status = (int)recv(fd, buf, len, 0);
 	    __pmLastUsedFd = fd;
 	    if (status <= 0 || mode == PDU_ASCII)
 		/* ASCII, EOF or error */
@@ -317,7 +317,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 
 	p += off;
 
-	if ((n = (int)write(fd, p, len-off)) < 0) {
+	if ((n = (int)send(fd, p, len-off, 0)) < 0) {
 	    break;
 	}
 	off += n;
@@ -350,7 +350,7 @@ __pmXmitAscii(int fd, const char *buf, int nbytes)
 
     setup_sigpipe();
 
-    if (write(fd, buf, nbytes) != nbytes)
+    if (send(fd, buf, nbytes, 0) != nbytes)
 	return -errno;
 
     __pmLastUsedFd = fd;
