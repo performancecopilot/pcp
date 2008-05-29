@@ -56,8 +56,8 @@ log mandatory on default {
 	disk.dev.read		# + read ops
 	disk.dev.read_bytes	# + read bytes
 	disk.all.total		# + all disk r+w/s
-	disk.all.read		# + all disk r/s [for pmkstat]
-	disk.all.write		# + all disk w/s [for pmkstat]
+	disk.all.read		# + all disk r/s [for pmstat]
+	disk.all.write		# + all disk w/s [for pmstat]
 
 # -y
 	kernel.all.tty.raw		#   rawch/s

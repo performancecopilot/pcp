@@ -162,7 +162,7 @@ BEGIN						{ out = "'"$tmp.pre"'" }
 		    metrics="hinv"
 		    ;;
 
-	    D0)	desc="activity (IOPs and bytes for both reads and writes) over all disks [osvis, pmkstat, pmchart:Disk, pmchart:Overview]"
+	    D0)	desc="activity (IOPs and bytes for both reads and writes) over all disks [osvis, pmstat, pmchart:Disk, pmchart:Overview]"
 		    metrics="disk.all.read
 			    disk.all.write
 			    disk.all.total
@@ -195,7 +195,7 @@ BEGIN						{ out = "'"$tmp.pre"'" }
 		    metrics="disk.dev"
 		    ;;
 
-	    C0)	desc="utilization (usr, sys, idle, ...) over all CPUs [osvis, pmkstat, pmchart:CPU, pmchart:Overview, pmie:cpu]"
+	    C0)	desc="utilization (usr, sys, idle, ...) over all CPUs [osvis, pmstat, pmchart:CPU, pmchart:Overview, pmie:cpu]"
 		    metrics="kernel.all.cpu.idle
 			    kernel.all.cpu.nice
 			    kernel.all.cpu.intr
@@ -223,13 +223,13 @@ BEGIN						{ out = "'"$tmp.pre"'" }
 	            metrics="kernel.percpu.wait"
 		    ;;
 
-	    K0)	desc="load average and number of logins [osvis, pmkstat, pmchart:LoadAvg, pmchart:Overview, pmie:cpu]"
+	    K0)	desc="load average and number of logins [osvis, pmstat, pmchart:LoadAvg, pmchart:Overview, pmie:cpu]"
 		    metrics="kernel.all.load
 			    kernel.all.users"
 
 		    ;;
 
-	    K1)	desc="context switches, total syscalls and counts for selected calls (e.g. read, write, fork, exec, select) over all CPUs [pmkstat, pmchart:Syscalls, pmie:cpu]"
+	    K1)	desc="context switches, total syscalls and counts for selected calls (e.g. read, write, fork, exec, select) over all CPUs [pmstat, pmchart:Syscalls, pmie:cpu]"
 		    metrics="kernel.all.pswitch
 			    kernel.all.syscall
 			    kernel.all.sysexec
@@ -301,7 +301,7 @@ BEGIN						{ out = "'"$tmp.pre"'" }
 			    kernel.all.swap.swpocc"
 		    ;;
 
-	    M0)	desc="pages in and out (severe VM demand) [pmkstat, pmchart:Paging]"
+	    M0)	desc="pages in and out (severe VM demand) [pmstat, pmchart:Paging]"
 		    metrics="swap.pagesin
 			    swap.pagesout"
 		    ;;
@@ -310,7 +310,7 @@ BEGIN						{ out = "'"$tmp.pre"'" }
 		    metrics="mem.fault mem.tlb"
 		    ;;
 
-	    M2)	desc="kernel memory allocation [osvis, pmkstat, pmchart:Memory, pmchart:Overview]"
+	    M2)	desc="kernel memory allocation [osvis, pmstat, pmchart:Memory, pmchart:Overview]"
 		    metrics="mem.system
 			    mem.util
 			    mem.freemem

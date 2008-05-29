@@ -27,7 +27,7 @@ SUBDIRS = include libpcp libpcp_pmda libpcp_trace libpcp_http libkmtime \
 	  pmns newhelp pminfo pmnscomp pmcd pmerr pmdbg pmloglabel \
 	  pmdate pmie pmpost pmprobe pmcdctl pmlock pmval pmlogger \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmlogctl \
-	  pmlogconf pmlogsummary pmclient pmkstat pcp pmlc dbpmda \
+	  pmlogconf pmlogsummary pmclient pcp pmlc dbpmda \
 	  xconfirm pmtrace pmstat pmsocks pmdas pmafm procmemstat \
 	  pmlogreduce genpmda pmproxy telnet-probe pmsleep pmtop
 
