@@ -244,17 +244,32 @@ __pmPDUTypeStr(int type)
     }
 }
 
-/* Because the default handler for SIGPIPE is to exit, we always want a handler
-   installed to override that so that the write() just returns an error.  The
-   problem is that the user might have installed one prior to the first write()
-   or may install one at some later stage.  This doesn't matter.  As long as a
-   handler other than SIG_DFL is there, all will be well.  The first time that
-   __pmXmitPDU is called, install SIG_IGN as the handler for SIGPIPE.  If the
-   user had already changed the handler from SIG_DFL, put back what was there
-   before. */
-
+#if defined(HAVE_SIGPIPE)
+/*
+ * Because the default handler for SIGPIPE is to exit, we always want a handler
+ * installed to override that so that the write() just returns an error.  The
+ * problem is that the user might have installed one prior to the first write()
+ * or may install one at some later stage.  This doesn't matter.  As long as a
+ * handler other than SIG_DFL is there, all will be well.  The first time that
+ * __pmXmitPDU is called, install SIG_IGN as the handler for SIGPIPE.  If the
+ * user had already changed the handler from SIG_DFL, put back what was there
+ * before.
+ */
 static int sigpipe_done = 0;		/* First time check for installation of
 					   non-default SIGPIPE handler */
+static void setup_sigpipe()
+{
+    if (!sigpipe_done) {       /* Make sure SIGPIPE is handled */
+	SIG_PF  user_onpipe;
+	user_onpipe = signal(SIGPIPE, SIG_IGN);
+	if (user_onpipe != SIG_DFL)     /* Put user handler back */
+	     signal(SIGPIPE, user_onpipe);
+	sigpipe_done = 1;
+    }
+}
+#else
+static void setup_sigpipe() { }
+#endif
 
 int
 __pmXmitPDU(int fd, __pmPDU *pdubuf)
@@ -264,13 +279,8 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     __pmPDUHdr	*php = (__pmPDUHdr *)pdubuf;
 
     /* assume PDU_BINARY ... should not be here, otherwise */
-    if (!sigpipe_done) {	/* Make sure SIGPIPE is handled */
-	SIG_PF	user_onpipe;
-	user_onpipe = signal(SIGPIPE, SIG_IGN);
-	if (user_onpipe != SIG_DFL)	/* Put user handler back */
-	    signal(SIGPIPE, user_onpipe);
-	sigpipe_done = 1;
-    }
+
+    setup_sigpipe();
 
     if (mypid == -1)
 	mypid = getpid();
@@ -337,13 +347,8 @@ __pmXmitAscii(int fd, const char *buf, int nbytes)
 	    putc('\n', stderr);
     }
 #endif
-    if (!sigpipe_done) {	/* Make sure SIGPIPE is handled */
-	SIG_PF	user_onpipe;
-	user_onpipe = signal(SIGPIPE, SIG_IGN);
-	if (user_onpipe != SIG_DFL)	/* Put user handler back */
-	    signal(SIGPIPE, user_onpipe);
-	sigpipe_done = 1;
-    }
+
+    setup_sigpipe();
 
     if (write(fd, buf, nbytes) != nbytes)
 	return -errno;

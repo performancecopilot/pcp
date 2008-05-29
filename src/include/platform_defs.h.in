@@ -432,6 +432,8 @@ typedef void (*SIG_PF) (int);
 #endif
 
 #undef HAVE_SA_SIGINFO
+#undef HAVE_SIGPIPE
+#undef HAVE_SIGHUP
 
 #undef HAVE_WAIT_INCLUDES_SIGNAL
 #ifndef HAVE_WAIT_INCLUDES_SIGNAL

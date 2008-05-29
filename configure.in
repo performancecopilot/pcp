@@ -1098,6 +1098,24 @@ AC_TRY_LINK(
     int x = SA_SIGINFO;
 ], AC_DEFINE(HAVE_SA_SIGINFO))
 
+dnl check if we support the SIGPIPE signal
+AC_TRY_LINK(
+[
+    #include <signal.h>
+],
+[
+    int x = SIGPIPE;
+], AC_DEFINE(HAVE_SIGPIPE))
+
+dnl check if we support the SIGHUP signal
+AC_TRY_LINK(
+[
+    #include <signal.h>
+],
+[
+    int x = SIGHUP;
+], AC_DEFINE(HAVE_SIGHUP))
+
 dnl check if we need to explicitly include signal.h
 AC_TRY_LINK(
 [
