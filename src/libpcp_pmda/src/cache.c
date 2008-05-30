@@ -70,7 +70,7 @@ typedef struct hdr {
 static hdr_t	*base;		/* start of cache headers */
 static char 	filename[MAXPATHLEN];
 				/* for load/save ops */
-static char	*vdp = NULL;	/* first trip mkdir for load/save */
+static char	*vdp;		/* first trip mkdir for load/save */
 
 /*
  * count character to end of string or first space, whichever comes
@@ -620,7 +620,7 @@ load_cache(hdr_t *h)
     if (vdp == NULL) {
 	vdp = pmGetConfig("PCP_VAR_DIR");
 	snprintf (filename, sizeof(filename), "%s/config/pmda", vdp);
-	mkdir(filename, 0755);
+	mkdir2(filename, 0755);
     }
 
     snprintf (filename, sizeof(filename), "%s/config/pmda/%s", vdp, pmInDomStr(h->indom));
@@ -702,7 +702,7 @@ save_cache(hdr_t *h, int hstate)
     if (vdp == NULL) {
 	vdp = pmGetConfig("PCP_VAR_DIR");
 	snprintf (filename, sizeof(filename), "%s/config/pmda", vdp);
-	mkdir(filename, 0755);
+	mkdir2(filename, 0755);
     }
 
     snprintf (filename, sizeof(filename), "%s/config/pmda/%s", vdp, pmInDomStr(h->indom));

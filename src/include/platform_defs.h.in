@@ -492,6 +492,8 @@ typedef void (*SIG_PF) (int);
 #ifdef IS_MINGW
 #define isnand isnan   /* isnan is a type-independent macro */
 #define isnanf isnan   /* isnan is a type-independent macro */
+#define HAVE_MKDIR2
+#define mkdir2(path,mode) mkdir(path)
 #ifdef LIBPCP_INTERNAL
 #define INTERN __declspec(dllexport)
 #define EXTERN
@@ -499,7 +501,6 @@ typedef void (*SIG_PF) (int);
 #define INTERN
 #define EXTERN __declspec(dllimport)
 #endif
-
 #else /* !MINGW */
 #define INTERN
 #define EXTERN extern
@@ -541,6 +542,10 @@ extern int scandir(const char *, struct dirent ***,
                    int(*filter)(const_dirent *),
                    int(*compare)(const_dirent **, const_dirent **));
 extern int alphasort(const_dirent **, const_dirent **);
+#endif
+
+#ifndef HAVE_MKDIR2
+#define mkdir2(path,mode) mkdir(path,mode)
 #endif
 
 #ifndef __cplusplus      
