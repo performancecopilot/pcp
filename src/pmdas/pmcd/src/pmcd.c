@@ -256,47 +256,6 @@ static struct {
 };
 static int	nbufsz = sizeof(bufinst) / sizeof(bufinst[0]);
 
-#if defined(HAVE_PROCFS)
-#define PROCFS	"/proc"
-#elif !defined(IS_DARWIN)
-!bozo!
-#endif
-
-#if defined(HAVE_PROCFS)
-#define PROCFS_ENTRYLEN	20		/* from proc pmda - proc.h */
-#define PROCFS_PATHLEN	(sizeof(PROCFS)+PROCFS_ENTRYLEN)
-
-static int
-exists_process(pid_t pid)
-{
-    static char proc_buf[PROCFS_PATHLEN];
-
-    sprintf(proc_buf, "%s/%u", PROCFS, (int)pid);
-    return (access(proc_buf, F_OK) == 0);
-}
-
-#elif defined(IS_DARWIN)	/* No procfs on Mac OS X */
-#include <sys/sysctl.h>
-
-static int
-exists_process(pid_t pid)
-{
-    struct kinfo_proc kp;
-    size_t len = sizeof(kp);
-    int mib[4];
-
-    mib[0] = CTL_KERN;
-    mib[1] = KERN_PROC;
-    mib[2] = KERN_PROC_PID;
-    mib[3] = pid;
-    if (sysctl(mib, 4, &kp, &len, NULL, 0) == -1)
-	return 0;
-    return (len > 0);
-}
-#else
-!bozo!
-#endif
-
 /*
  * this routine is called at initialization to patch up any parts of the
  * desctab that cannot be statically initialized, and to optionally
@@ -417,7 +376,7 @@ refresh_pmie_indom(void)
 		pmiepid = (pid_t)strtoul(dp->d_name, &endp, 10);
 		if (*endp != '\0')	/* skips over "." and ".." here */
 		    continue;
-		if (!exists_process(pmiepid))
+		if (!__pmProcessExists(pmiepid))
 		    continue;
 		snprintf(fullpath, sizeof(fullpath), "%s/%s", PMIE_DIR, dp->d_name);
 		if (stat(fullpath, &statbuf) < 0) {

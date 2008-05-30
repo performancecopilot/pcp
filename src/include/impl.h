@@ -1078,6 +1078,11 @@ extern void __pmAccFreeSavedHosts(void);
 extern unsigned int __pmMakeAuthCookie(unsigned int, pid_t);
 
 /*
+ * platform independent process routines
+ */
+extern int __pmProcessExists(pid_t);
+
+/*
  * AF - general purpose asynchronous event management routines
  */
 extern int __pmAFregister(const struct timeval *, void *, void (*)(int, void *));

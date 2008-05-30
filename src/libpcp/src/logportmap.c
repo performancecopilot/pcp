@@ -62,12 +62,12 @@ resize_logports(int newsize)
     return 0;
 }
 
+#define PROCFS_ENTRY_SIZE 40	/* encompass any size of entry for pid */
+
 #if defined(IS_DARWIN)	/* No procfs on Mac OS X */
 #include <sys/sysctl.h>
-#define PROCFS_ENTRY_SIZE	16  /* encompass size of entry for pid */
-
-static int
-exists_process(pid_t pid)
+int
+__pmProcessExists(pid_t pid)
 {
     struct kinfo_proc kp;
     size_t len = sizeof(kp);
@@ -81,25 +81,16 @@ exists_process(pid_t pid)
        return 0;
     return (len > 0);
 }
-#else
-
-/*
- * system dependent path to /proc/.../<pid>
- */
-#if defined(HAVE_PROCFS)
-#define PROCFS			"/proc"
-#else
+#elif !defined(IS_MINGW)
+#if !defined(HAVE_PROCFS)
 !bozo!
 #endif
-
-#define PROCFS_ENTRY_SIZE	40 /* encompass size of entry for pid in PROCFS */
+#define PROCFS			"/proc"
 #define PROCFS_PATH_SIZE	(sizeof(PROCFS)+PROCFS_ENTRY_SIZE)
-
-static int 
-exists_process(pid_t pid)
+int 
+__pmProcessExists(pid_t pid)
 {
-    static char proc_buf[PROCFS_PATH_SIZE];
-
+    char proc_buf[PROCFS_PATH_SIZE];
     snprintf(proc_buf, sizeof(proc_buf), "%s/%d", PROCFS, (int)pid);
     return (access(proc_buf, F_OK) == 0);
 }
@@ -115,12 +106,9 @@ is_portfile(const_dirent *dep)
     int		pid;
 
     pid = (int)strtol(dep->d_name, &endp, 10);
-    if (pid > 1) {
-	return exists_process(pid);
-    }
-    else {
-	return strcmp(dep->d_name, PM_LOG_PRIMARY_LINK) == 0;
-    }
+    if (pid > 1)
+	return __pmProcessExists(pid);
+    return strcmp(dep->d_name, PM_LOG_PRIMARY_LINK) == 0;
 }
 
 /* The following function is used for selecting particular port files rather
@@ -181,7 +169,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	    break;
 
 	default:			/* a specific pid (single) */
-	    if (!exists_process(pid)) {
+	    if (!__pmProcessExists(pid)) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG) {
 		    fprintf(stderr, "__pmLogFindLocalPorts() -> 0, "
