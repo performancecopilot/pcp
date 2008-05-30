@@ -26,11 +26,8 @@ CFILES = pmprobe.c
 LLDLIBS = -lpcp
 LCFLAGS += -DPM_USE_CONTEXT_LOCAL
 CMDTARGET = pmprobe$(EXECSUFFIX)
-LDIRT = $(TARGET)
 
 default:	$(CMDTARGET)
-
-$(CMDTARGET):	$(OBJECTS)
 
 include $(BUILDRULES)
 
