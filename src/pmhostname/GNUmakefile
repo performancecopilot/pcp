@@ -24,6 +24,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES	= pmhostname.c
+LLDLIBS = -lpcp
 CMDTARGET = pmhostname$(EXECSUFFIX)
 
 default:	$(CMDTARGET)

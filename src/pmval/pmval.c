@@ -1508,21 +1508,14 @@ main(int argc, char *argv[])
     Context	    cntxt;		/* performance metric description */
     pmResult	    *rslt1;		/* current values */
     pmResult	    *rslt2;		/* previous values */
-    char	    *p;
     int		    first = 1;		/* need first sample */
     int		    forever;
     int		    idx1;
     int		    idx2;
     int		    no_values = 0;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
     setlinebuf(stdout);
-
 
     getargs(argc, argv, &cntxt, &now, &delta, &smpls, &cols);
     forever = (smpls == ALL_SAMPLES || gui);

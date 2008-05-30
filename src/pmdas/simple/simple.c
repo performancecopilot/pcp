@@ -486,16 +486,9 @@ main(int argc, char **argv)
 {
     int			err = 0;
     pmdaInterface	dispatch;
-    char		*p;
-
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
 
     isDSO = 0;
+    __pmSetProgname(argv[0]);
 
     snprintf(mypath, sizeof(mypath),
 		"%s/simple/help", pmGetConfig("PCP_PMDAS_DIR"));

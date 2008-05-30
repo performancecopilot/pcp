@@ -91,12 +91,7 @@ main(int argc, char **argv)
     pmdaInterface	desc;
     char		*p;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     snprintf(mypath, sizeof(mypath),
 		"%s/solaris/help", pmGetConfig("PCP_PMDAS_DIR"));
@@ -104,10 +99,9 @@ main(int argc, char **argv)
 		"solaris.log", mypath);
 
     if (pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err) != EOF)
-    	err++;
-   
+	err++;
     if (err)
-    	usage();
+	usage();
 
     pmdaOpenLog(&desc);
     init(&desc);

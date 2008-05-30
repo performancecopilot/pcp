@@ -520,10 +520,7 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     char		mypath[MAXPATHLEN];
 
-
-    /* trim cmd name of leading directory components */
-    pmProgname = basename(argv[0]);
-
+    __pmSetProgname(argv[0]);
     snprintf(mypath, sizeof(mypath),
 		"%s/sendmail/help", pmGetConfig("PCP_PMDAS_DIR"));
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, SENDMAIL,

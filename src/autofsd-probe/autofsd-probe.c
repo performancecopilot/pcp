@@ -36,11 +36,11 @@ main(int argc, char **argv)
     CLIENT		*clnt;
     enum clnt_stat	stat;
     int			c;
-    char		*host = "localhost";
     char		*p;
+    char		*host = "localhost";
     int			errflag = 0;
 
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "h:t:?")) != EOF) {
 	switch (c) {

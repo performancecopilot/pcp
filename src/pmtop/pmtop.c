@@ -1029,7 +1029,7 @@ main(int argc, char *argv[])
     pmDesc desc;
     int sts, i;
 
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
 
     parse_options(argc, argv);
 

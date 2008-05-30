@@ -266,7 +266,7 @@ new(CLASS,name,domain)
 	RETVAL = &dispatch;
 	logfile = local_strdup_suffix(name, ".log");
 	pmdaname = local_strdup_prefix("pmda", name);
-	pmProgname = pmdaname;
+	__pmSetProgname(pmdaname);
 	atexit(&local_atexit);
 	snprintf(buffer, sizeof(buffer), "%s/%s/help",
 			pmGetConfig("PCP_PMDAS_DIR"), name);

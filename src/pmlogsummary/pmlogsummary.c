@@ -894,7 +894,6 @@ main(int argc, char *argv[])
     char		*startstr = NULL;
     char		*endstr = NULL;
     char		*msg = NULL;
-    char		*p;
     int			errflag = 0;
     int			lflag = 0;		/* no label by default */
     pmResult		*result;
@@ -904,9 +903,7 @@ main(int argc, char *argv[])
     char 		*tz = NULL;		/* for -Z timezone */
     char		timebuf[32];		/* for pmCtime result + .xxx */
 
-    for (p = pmProgname = argv[0]; *p; p++)
-	if (*p == '/')
-	    pmProgname = p+1;
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "abB:D:fFiIlmMNn:p:rsS:T:xyzZ:?")) != EOF) {
 	switch (c) {

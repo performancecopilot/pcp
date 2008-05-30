@@ -1581,7 +1581,6 @@ main(int argc, char **argv)
     int		stsmeta;		/* sts from nextmeta() */
     int		breakflag;		/* reason for breaking out of while */
 
-    char	*p;
     char	*msg;
 
     double 	now = 0.0;		/* the current time */
@@ -1600,13 +1599,7 @@ main(int argc, char **argv)
     rlready = NULL;
 
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
-
+    __pmSetProgname(argv[0]);
 
     /* process cmd line args */
     if (parseargs(argc, argv) < 0) {

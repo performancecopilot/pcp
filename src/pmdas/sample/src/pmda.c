@@ -88,28 +88,21 @@ int
 main(int argc, char **argv)
 {
     int			errflag = 0;
-    char		*p;
     char		helppath[MAXPATHLEN];
     extern int		_isDSO;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    _isDSO = 0;
+    __pmSetProgname(argv[0]);
 
-    _isDSO = 0;		/* if we get here, we are a daemon PMDA */
-
-    snprintf(helppath, sizeof(helppath), "%s/pmdas/sample/help", pmGetConfig("PCP_VAR_DIR"));
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, SAMPLE, "sample.log", helppath);
+    snprintf(helppath, sizeof(helppath), "%s/pmdas/sample/help",
+		pmGetConfig("PCP_VAR_DIR"));
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, SAMPLE,
+		"sample.log", helppath);
 
     if (pmdaGetOpt(argc, argv, "D:d:i:l:pu:?", &dispatch, &errflag) != EOF)
 	errflag++;
-
-    if (errflag) {
+    if (errflag)
 	usage();
-    }
 
     pmdaOpenLog(&dispatch);
     sample_init(&dispatch);

@@ -229,9 +229,7 @@ idcomp(const void *a, const void *b)
 }
 
 int
-main(argc, argv)
-int argc;
-char *argv[];
+main(int argc, char **argv)
 {
     int		n;
     int		c;
@@ -249,12 +247,7 @@ char *argv[];
     int		skip;
     help_idx_t	hdr;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:n:o:Vv:?")) != EOF) {
 	switch (c) {

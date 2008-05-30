@@ -182,12 +182,7 @@ ParseOptions(int argc, char *argv[])
     int		port;
     char	*p;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     strcpy(configFileName, pmGetConfig("PCP_PMCDCONF_PATH"));
 

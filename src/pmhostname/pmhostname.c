@@ -29,6 +29,8 @@ main(int argc, char **argv)
     char        	host[MAXHOSTNAMELEN];
     struct hostent      *hep = NULL;
 
+    __pmSetProgname(argv[0]);
+
     if (argc == 1) {
 	(void)gethostname(host, MAXHOSTNAMELEN);
 	name = host;

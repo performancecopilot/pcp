@@ -158,7 +158,7 @@ main(int argc, char* argv[])
     int			active;
     ProcVector		procList;
 
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
 
     interval.tv_sec = 2;
     interval.tv_usec = 0;

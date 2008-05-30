@@ -243,19 +243,13 @@ main(int argc, char **argv)
     int			i;
     time_t		tmp;
     pmdaInterface	dispatch;
-    char		*p;
     char		*q;
     char		*errmsg;
     char		namebuf[30];
     struct timeval	tv;
     char		mypath[MAXPATHLEN];
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     snprintf(mypath, sizeof(mypath),
 		"%s/mailq/help", pmGetConfig("PCP_PMDAS_DIR"));

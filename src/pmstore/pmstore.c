@@ -267,9 +267,7 @@ mkAtom(pmAtomValue *avp, int *nbyte, int type, char *buf)
 }
 
 int
-main(argc, argv)
-int argc;
-char *argv[];
+main(int argc, char **argv)
 {
     int		sts;
     int		n;
@@ -293,12 +291,7 @@ char *argv[];
     pmValueSet	*vsp;
     char        *subopt;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
 #ifdef HAVE_GETOPT_NEEDS_POSIXLY_CORRECT
     /*

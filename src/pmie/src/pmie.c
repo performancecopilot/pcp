@@ -939,14 +939,8 @@ interact(void)
 int
 main(int argc, char **argv)
 {
-    char	*p;
-
+    __pmSetProgname(argv[0]);
     setlinebuf(stdout);
-
-    /* trim cmd name of leading directory components */
-    for (p = pmProgname = argv[0]; *p; p++)
-	if (*p == '/')
-	    pmProgname = p+1;
 
     /* PCP_COUNTER_WRAP in environment enables "counter wrap" logic */
     if (getenv("PCP_COUNTER_WRAP") != NULL)

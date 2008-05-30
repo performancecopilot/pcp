@@ -87,16 +87,13 @@ next(int *ident, int *type)
 }
 
 int
-main(argc, argv)
-int argc;
-char *argv[];
+main(int argc, char **argv)
 {
     int		sts;
     int		c;
     int		help = 0;
     int		oneline = 0;
     char	*pmnsfile = PM_NS_DEFAULT;
-    char	*p;
     int		errflag = 0;
     int		aflag = 0;
     int		allpmid = 0;
@@ -109,12 +106,7 @@ char *argv[];
     int		next_type;
     char	*endnum;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:Hin:Opv:?")) != EOF) {
 	switch (c) {

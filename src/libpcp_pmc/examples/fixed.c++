@@ -34,7 +34,7 @@ main(int argc, char* argv[])
     int		sts = 0;
     int		c;
 
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {

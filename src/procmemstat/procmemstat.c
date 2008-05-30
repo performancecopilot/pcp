@@ -113,12 +113,7 @@ main(int argc, char **argv)
     int			errflag = 0;
     char		host[MAXHOSTNAMELEN];
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
     setlinebuf(stdout);
 
     while ((c = getopt(argc, argv, "D:?")) != EOF) {

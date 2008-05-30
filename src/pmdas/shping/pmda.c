@@ -116,12 +116,7 @@ main(int argc, char **argv)
     char		lbuf[256];
     char		mypath[MAXPATHLEN];
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     snprintf(mypath, sizeof(mypath),
 		"%s/shping/help", pmGetConfig("PCP_PMDAS_DIR"));

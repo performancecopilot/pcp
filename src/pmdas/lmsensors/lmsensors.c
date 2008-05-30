@@ -937,28 +937,21 @@ int
 main(int argc, char **argv)
 {
     int			err = 0;
-    int			c = 0;
     pmdaInterface	desc;
-    char		*p;
     char		mypath[MAXPATHLEN];
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     snprintf(mypath, sizeof(mypath),
 		"%s/lmsensors/help", pmGetConfig("PCP_PMDAS_DIR"));
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, LMSENSORS,
 		"lmsensors.log", mypath);
 
-    if ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err)) != EOF)
-    	err++;
+    if ((pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err)) != EOF)
+	err++;
    
     if (err)
-    	usage();
+	usage();
 
     pmdaOpenLog(&desc);
     lmsensors_init(&desc);

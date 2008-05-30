@@ -195,20 +195,13 @@ main(int argc, char **argv)
     int		dupok = 0;
     int		errflag = 0;
     __pmnsNode	*tmp;
-    char	*p;
     char	cmd[1024];
     char	pmnscomp[MAXPATHLEN];
     
-    snprintf(pmnscomp, sizeof(pmnscomp), "%s/pmnscomp", pmGetConfig("PCP_BINADM_DIR"));
-
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
-
     umask((mode_t)022);		/* anything else is pretty silly */
+    __pmSetProgname(argv[0]);
+    snprintf(pmnscomp, sizeof(pmnscomp), "%s/pmnscomp",
+		pmGetConfig("PCP_BINADM_DIR"));
 
     while ((c = getopt(argc, argv, "aD:dfv?")) != EOF) {
 	switch (c) {

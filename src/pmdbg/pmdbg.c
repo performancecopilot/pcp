@@ -84,15 +84,9 @@ main(int argc, char **argv)
     int		i;
     int		c;
     int		code;
-    char	*p;
     int		errflag = 0;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "l?")) != EOF) {
 	switch (c) {

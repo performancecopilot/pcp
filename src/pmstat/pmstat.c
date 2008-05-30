@@ -290,7 +290,7 @@ main(int argc, char *argv[])
     float period;
 
     setlinebuf(stdout);
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
 
     namecnt = 0;
     if ( argc > 2 ) {

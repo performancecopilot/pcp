@@ -221,14 +221,8 @@ main(int argc, char **argv)
     __int32_t	tmp;
     __int32_t	sum;
     long	startsum;
-    char	*p;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "dD:fn:v:?")) != EOF) {
 	switch (c) {
@@ -551,17 +545,17 @@ Options:\n\
 			putchar('\n');
 		    printf("htab32[%3d]", j);
 		}
-		printf(" %5d", ntohl(_htab32[j]));
+		printf(" %5d", (int)ntohl(_htab32[j]));
 	    }
 	    printf("\n\n32-bit Node Table\n");
 	    for (j = 0; j < nodecnt; j++) {
 		if (j % 20 == 0)
 		    printf("             Parent   Next  First   Hash Symbol           PMID\n");
 		printf("node32[%4d] %6d %6d %6d %6d %-16.16s",
-		    j, ntohl(_nodetab32[j].parent), 
-		       ntohl(_nodetab32[j].next), 
-	               ntohl(_nodetab32[j].first),
-		       ntohl(_nodetab32[j].hash), 
+		    j, (int)ntohl(_nodetab32[j].parent), 
+		       (int)ntohl(_nodetab32[j].next), 
+	               (int)ntohl(_nodetab32[j].first),
+		       (int)ntohl(_nodetab32[j].hash), 
 		       _symbol+ntohl(_nodetab32[j].name));
 		if (htonl(_nodetab32[j].first) == -1)
 		    printf(" %s", pmIDStr(__htonpmID(_nodetab32[j].pmid)));

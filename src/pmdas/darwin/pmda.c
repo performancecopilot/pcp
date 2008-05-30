@@ -1236,20 +1236,17 @@ int
 main(int argc, char **argv)
 {
     int			errflag = 0;
-    char		*p;
     char		helppath[MAXPATHLEN];
 
-    for (p = pmProgname = argv[0]; *p; p++)
-	if (*p == '/') pmProgname = p+1;
-
     _isDSO = 0;
+    __pmSetProgname(argv[0]);
+
     sprintf(helppath, "%s/pmdas/darwin/help", pmGetConfig("PCP_VAR_DIR"));
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, DARWIN, "darwin.log",
 		helppath);
 
     if (pmdaGetOpt(argc, argv, "D:d:i:l:pu:?", &dispatch, &errflag) != EOF)
 	errflag++;
-
     if (errflag)
 	usage();
 

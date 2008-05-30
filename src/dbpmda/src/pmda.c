@@ -19,7 +19,6 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <fcntl.h>
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"

@@ -251,7 +251,6 @@ main(int argc, char **argv)
 {
     int			c;
     int			sts;
-    char		*p;
     int			errflag = 0;
     int			type = 0;
     char		*host;
@@ -273,12 +272,7 @@ main(int argc, char **argv)
     char		*msg;			/* error message */
     struct timeval	ttval;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
     setlinebuf(stdout);
 
     while ((c = getopt(argc, argv, "a:D:h:n:ps:S:t:zZ:?")) != EOF) {

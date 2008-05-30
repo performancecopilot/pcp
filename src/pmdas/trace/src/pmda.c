@@ -146,15 +146,11 @@ int
 main(int argc, char **argv)
 {
     pmdaInterface	dispatch;
-    char		*endnum, *p;
+    char		*endnum;
     int			err = 0;
     int			c = 0;
 
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     snprintf(mypath, sizeof(mypath),
 		"%s/trace/help", pmGetConfig("PCP_PMDAS_DIR"));

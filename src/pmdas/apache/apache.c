@@ -506,7 +506,7 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s/apache/help",
 		pmGetConfig("PCP_PMDAS_DIR"));
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, APACHE, "apache.log",

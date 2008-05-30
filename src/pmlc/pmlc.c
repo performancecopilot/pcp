@@ -24,13 +24,13 @@
 #include "pmlc.h"
 #include "gram.h"
 
-char		*configfile = NULL;
+char		*configfile;
 __pmLogCtl	logctl;
-int		parse_done = 0;
+int		parse_done;
 int		pid = PM_LOG_NO_PID;
 int		port = PM_LOG_NO_PORT;
-int		zflag = 0;		/* for -z */
-char 		*tz = NULL;	/* for -Z timezone */
+int		zflag;		/* for -z */
+char 		*tz;		/* for -Z timezone */
 int		tztype = TZ_LOCAL;	/* timezone for status cmd */
 
 int		eflag;
@@ -67,7 +67,6 @@ main(int argc, char **argv)
 {
     int			c;
     int			sts;
-    char		*p;
     int			errflag = 0;
     char		*host = NULL;
     char		local[MAXHOSTNAMELEN];
@@ -75,12 +74,7 @@ main(int argc, char **argv)
     char		*endnum;
     int			primary;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     iflag = isatty(0);
 

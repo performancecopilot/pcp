@@ -23,30 +23,30 @@
 #include "impl.h"
 #include <limits.h>
 
-static int	p_mid = 0;		/* Print metric IDs of leaf nodes */
-static int	p_fullmid = 0;		/* Print verbose metric IDs of leaf nodes */
-static int	p_desc = 0;		/* Print descriptions for metrics */
-static int	verify = 0;		/* Only print error messages */
-static int	p_oneline = 0;		/* fetch oneline text? */
-static int	p_help = 0;		/* fetch help text? */
-static int	p_value = 0;		/* pmFetch and print value(s)? */
-static int	p_force = 0;		/* pmFetch and print value(s)? for non-enumerable indoms too */
+static int	p_mid;		/* Print metric IDs of leaf nodes */
+static int	p_fullmid;	/* Print verbose metric IDs of leaf nodes */
+static int	p_desc;		/* Print descriptions for metrics */
+static int	verify;		/* Only print error messages */
+static int	p_oneline;	/* fetch oneline text? */
+static int	p_help;		/* fetch help text? */
+static int	p_value;	/* pmFetch and print value(s)? */
+static int	p_force;	/* pmFetch and print value(s)? for non-enumerable indoms too */
 
-static int	need_context = 0;	/* set if need a pmapi context */
-static int	need_pmid = 0;		/* set if need to lookup names */
-static int	type = 0;
+static int	need_context;	/* set if need a pmapi context */
+static int	need_pmid;	/* set if need to lookup names */
+static int	type;
 static char	*hostname;
 static char	*pmnsfile = PM_NS_DEFAULT;
 
 static char	**namelist;
 static pmID	*pmidlist;
 static int	batchsize = 20;
-static int	batchidx = 0;
+static int	batchidx;
 
-static char	*Oflag = NULL;		/* argument of -O flag */
-static int	zflag = 0;		/* for -z */
-static char 	*tz = NULL;		/* for -Z timezone */
-static struct timeval 	start;		/* start of time window */
+static char	*Oflag;		/* argument of -O flag */
+static int	zflag;		/* for -z */
+static char 	*tz;		/* for -Z timezone */
+static struct timeval 	start;	/* start of time window */
 
 /*
  * stolen from pmprobe.c ... cache all of the most recently requested
@@ -546,7 +546,6 @@ main(int argc, char **argv)
     int		sts;
     int		exitsts = 0;
     char	local[MAXHOSTNAMELEN];
-    char	*p;
     pmLogLabel	label;
     char	*host;
     char	*msg;
@@ -554,12 +553,7 @@ main(int argc, char **argv)
     struct timeval	last;		/* final sample time */
     int		tzh;			/* initial timezone handle */
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; pmProgname && *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     ParseOptions(argc, argv);
 

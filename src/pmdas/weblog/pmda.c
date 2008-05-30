@@ -442,7 +442,6 @@ main(int argc, char **argv)
     char		buf1[FILENAME_MAX];
     char		buf2[FILENAME_MAX];
     char		emess[120];
-    char		*p;
     char		*pstart, *pend;
     char		argsDone, argFound;
     char		*err_msg;
@@ -472,12 +471,7 @@ main(int argc, char **argv)
     double		startTime;
 #endif
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
 #ifdef PCP_DEBUG
     gettimeofday(&start, NULL);

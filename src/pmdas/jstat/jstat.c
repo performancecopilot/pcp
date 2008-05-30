@@ -643,7 +643,7 @@ main(int argc, char **argv)
     int			c;
     char		helptext[MAXPATHLEN];
 
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
     snprintf(helptext, sizeof(helptext), "%s/jstat/help",
 		pmGetConfig("PCP_PMDAS_DIR"));
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, JSTAT,

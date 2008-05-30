@@ -53,22 +53,16 @@ main(int argc, char **argv)
     int			len, c;
     int			clientPipe[2];
     int			configfd = -1;
-    char		*p;
     __pmIPC		ipc = { PDU_VERSION2, NULL };
     char		helpfile[MAXPATHLEN]; 
     int			cmdpipe;		/* metric source/cmd pipe */
     char		*command = NULL;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
-
+    __pmSetProgname(argv[0]);
     __pmSetInternalState(PM_STATE_PMCS);  /* we are below the PMAPI */
 
-    snprintf (helpfile, sizeof(helpfile), "%s/pmdas/summary/help", pmGetConfig("PCP_VAR_DIR"));
+    snprintf(helpfile, sizeof(helpfile), "%s/pmdas/summary/help",
+		pmGetConfig("PCP_VAR_DIR"));
     pmdaDaemon (&dispatch, PMDA_INTERFACE_2, pmProgname, SYSSUMMARY,
 		"summary.log", helpfile);
 

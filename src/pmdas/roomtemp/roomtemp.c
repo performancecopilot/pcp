@@ -185,33 +185,22 @@ int
 main(int argc, char **argv)
 {
     int			err = 0;
-    int			c = 0;
     pmdaInterface	dispatch;
-    char		*p;
     char		mypath[MAXPATHLEN];
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     snprintf(mypath, sizeof(mypath),
 		"%s/roomtemp/help", pmGetConfig("PCP_PMDAS_DIR"));
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, ROOMTEMP,
 		"roomtemp.log", mypath);
 
-    if ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:?", &dispatch, &err)) != EOF)
+    if (pmdaGetOpt(argc, argv, "D:d:i:l:pu:?", &dispatch, &err) != EOF)
     	err++;
-
-    if (err) {
+    if (err)
     	usage();
-    }
-
-    if (argc != optind+1) {
+    if (argc != optind+1)
 	usage();
-    }
     tty = argv[optind];
 
     pmdaOpenLog(&dispatch);

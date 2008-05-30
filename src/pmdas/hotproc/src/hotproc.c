@@ -1499,12 +1499,7 @@ main(int argc, char **argv)
     FILE		*conf;
     char		mypath[MAXPATHLEN];
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     refresh_delta.tv_sec = 10;
     refresh_delta.tv_usec = 0;

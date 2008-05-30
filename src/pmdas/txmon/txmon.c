@@ -270,12 +270,7 @@ main(int argc, char **argv)
     size_t		shm_size;
     stat_t		*sp;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     snprintf(mypath, sizeof(mypath),
 		"%s/txmon/help", pmGetConfig("PCP_PMDAS_DIR"));
@@ -283,10 +278,9 @@ main(int argc, char **argv)
 		"txmon.log", mypath);
 
     if (pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err) != EOF)
-    	err++;
-
+	err++;
     if (err)
-    	usage();
+	usage();
 
     n = argc - optind;
     if (n < 1) {

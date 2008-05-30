@@ -733,6 +733,7 @@ extern void __pmNoMem(const char *, size_t, int);
  * program name, as used in __pmNotifyErr() ... default is "pcp"
  */
 extern char	*pmProgname;
+extern int __pmSetProgname(const char *);
 
 /* map Unix errno values to PMAPI errors */
 extern int __pmMapErrno(int);

@@ -75,8 +75,7 @@ main(int argc, char **argv)
     int			c;
     char		helptext[MAXPATHLEN];
 
-    /* trim cmd name of leading directory components */
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
 
 #ifdef PARSE_ONLY
     pmDebug = DBG_TRACE_APPL0 | DBG_TRACE_APPL1;

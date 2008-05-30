@@ -46,17 +46,11 @@ main(int argc, char **argv)
 {
     int			c;
     int			sts;
-    char		*p;
     int			errflag = 0;
     char		*endnum;
     int			i;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     iflag = isatty(0);
 

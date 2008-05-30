@@ -87,20 +87,13 @@ int
 main(int argc, char **argv)
 {
     int		sts;
-    char	*p;
     char	*msg;
     pmResult	*irp;		/* input pmResult */
     pmResult	*orp;		/* output pmResult */
     __pmPDU	*pb;		/* pdu buffer */
     struct timeval	unused;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
-
+    __pmSetProgname(argv[0]);
 
     /* process cmd line args */
     if (parseargs(argc, argv) < 0) {

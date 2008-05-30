@@ -165,7 +165,7 @@ main(int argc, char *argv[])
     char 		*host = NULL;
     char		buffer[MAXPATHLEN];
 
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:lLp:svV:Z:?")) != EOF) {
 	switch (c) {

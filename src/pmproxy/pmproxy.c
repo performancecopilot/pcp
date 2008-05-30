@@ -24,7 +24,7 @@
 
 int 		proxy_hi_openfds = -1;   /* Highest known file descriptor for pmproxy */
 
-static int	timeToDie = 0;		/* For SIGINT handling */
+static int	timeToDie;		/* For SIGINT handling */
 static char	*logfile = "pmproxy.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
@@ -139,14 +139,6 @@ ParseOptions(int argc, char *argv[])
     int		errflag = 0;
     int		usage = 0;
     int		val;
-    char	*p;
-
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
 
     while ((c = getopt(argc, argv, "D:fi:l:L:x:?")) != EOF)
 	switch (c) {
@@ -217,7 +209,6 @@ ParseOptions(int argc, char *argv[])
 	else
 	    DontStart();
     }
-    return;
 }
 
 /* Create socket for incoming connections and bind to it an address for
@@ -552,6 +543,7 @@ main(int argc, char *argv[])
     unsigned	nReqPortsOK = 0;
 
     umask(022);
+    __pmSetProgname(argv[0]);
     __pmSetInternalState(PM_STATE_PMCS);
 
 #ifdef MALLOC_AUDIT

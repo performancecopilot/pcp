@@ -587,14 +587,8 @@ END {
     printf "    int                 c = 0;\n" >>pmda_c
     printf "    pmdaInterface       dispatch;\n" >>pmda_c
     printf "    char                helppath[MAXPATHLEN];\n" >>pmda_c
-    printf "    char                *p;\n" >>pmda_c
     printf "\n" >>pmda_c
-    printf "    /* trim cmd name of leading directory components */\n" >>pmda_c
-    printf "    pmProgname = argv[0];\n" >>pmda_c
-    printf "    for (p = pmProgname; *p; p++) {\n" >>pmda_c
-    printf "        if (*p == 0x27) /* single quote */\n" >>pmda_c
-    printf "            pmProgname = p+1;\n" >>pmda_c
-    printf "    }\n" >>pmda_c
+    printf "    __pmSetProgname(argv[0]);\n" >>pmda_c
     printf "\n" >>pmda_c
     printf "    _isDSO = 0;\n" >>pmda_c
     printf "\n" >>pmda_c

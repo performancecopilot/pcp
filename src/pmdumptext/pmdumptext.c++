@@ -732,7 +732,7 @@ main(int argc, char *argv[])
     double		diff;
 
     // Set the program name for error messages
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
 
     // Default update interval is 1 second
     interval.tv_sec = 1;

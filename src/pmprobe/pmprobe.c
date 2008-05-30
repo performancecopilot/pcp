@@ -87,7 +87,6 @@ main(int argc, char **argv)
     int		Iflag = 0;		/* -I for instance names */
     int		vflag = 0;		/* -v for values */
     int		Vflag = 0;		/* -V for verbose */
-    char	*p;
     int		errflag = 0;
     char	*host;
     pmLogLabel	label;				/* get hostname for archives */
@@ -103,12 +102,7 @@ main(int argc, char **argv)
     char        *opts = "a:D:fh:Iin:Vv?";
 #endif
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, opts)) != EOF) {
 	switch (c) {
