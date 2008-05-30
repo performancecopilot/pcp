@@ -492,6 +492,17 @@ typedef void (*SIG_PF) (int);
 #ifdef IS_MINGW
 #define isnand isnan   /* isnan is a type-independent macro */
 #define isnanf isnan   /* isnan is a type-independent macro */
+#ifdef LIBPCP_INTERNAL
+#define INTERN __declspec(dllexport)
+#define EXTERN
+#else
+#define INTERN
+#define EXTERN __declspec(dllimport)
+#endif
+
+#else /* !MINGW */
+#define INTERN
+#define EXTERN extern
 #endif
 
 /* Determine if we are on an AIX box */

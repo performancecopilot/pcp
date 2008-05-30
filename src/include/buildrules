@@ -48,7 +48,7 @@ ifeq ($(TARGET_OS), cygwin)
 _SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
 endif
 ifeq ($(TARGET_OS), mingw)
-_SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
+_SHAREDOPTS	= -shared -Wl,-export-all-symbols,-soname,$(LIBTARGET)
 endif
 ifeq ($(TARGET_OS), aix)
 _SHAREDOPTS	= -qmkshrobj

@@ -41,7 +41,7 @@ static int	dosyslog = 0;
 static int	pmState = PM_STATE_APPL;
 static int	done_exit = 0;
 
-char		*pmProgname = "pcp";		/* the real McCoy */
+INTERN char	*pmProgname = "pcp";		/* the real McCoy */
 
 static int vpmprintf(const char *, va_list);
 

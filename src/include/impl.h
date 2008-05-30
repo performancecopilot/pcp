@@ -226,8 +226,7 @@ extern void __pmNotifyErr(int, const char *, ...);
  * These ones are only for debugging and may not appear in the shipped
  * libpmapi ...
  */
-extern int	pmDebug;
-/* debug control bit fields */
+EXTERN int	pmDebug;
 #define  DBG_TRACE_PDU		1	/* PDU send and receive */
 #define  DBG_TRACE_FETCH	2	/* dump pmFetch results */
 #define  DBG_TRACE_PROFILE	4	/* trace profile changes */
@@ -592,6 +591,9 @@ extern int __pmXmitAscii(int, const char *, int);
 extern int __pmGetPDU(int, int, int, __pmPDU **);
 extern int __pmGetPDUCeiling (void);
 extern int __pmSetPDUCeiling (int);
+
+EXTERN unsigned int *__pmPDUCntIn;
+EXTERN unsigned int *__pmPDUCntOut;
 extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 
 /* for __pmGetPDU */
@@ -732,7 +734,7 @@ extern void __pmNoMem(const char *, size_t, int);
 /*
  * program name, as used in __pmNotifyErr() ... default is "pcp"
  */
-extern char	*pmProgname;
+EXTERN char *pmProgname;
 extern int __pmSetProgname(const char *);
 
 /* map Unix errno values to PMAPI errors */

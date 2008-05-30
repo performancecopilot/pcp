@@ -33,7 +33,7 @@
 
 extern int	__pmLastUsedFd;
 
-int		pmDebug = 0;		/* the real McCoy */
+INTERN int	pmDebug = 0;		/* the real McCoy */
 
 #define ABUF_SIZE	1024	/* read buffer for reading ascii PDUs */
 
@@ -44,8 +44,8 @@ int		pmDebug = 0;		/* the real McCoy */
 
 static unsigned int	inctrs[PDU_MAX+1] = { 0 };
 static unsigned int	outctrs[PDU_MAX+1] = { 0 };
-unsigned int	*__pmPDUCntIn = inctrs;
-unsigned int	*__pmPDUCntOut = outctrs;
+INTERN unsigned int	*__pmPDUCntIn = inctrs;
+INTERN unsigned int	*__pmPDUCntOut = outctrs;
 
 /*
  * unit of space allocation for PDU buffer ... actually defined in pdubuf.c,

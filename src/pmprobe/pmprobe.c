@@ -419,12 +419,11 @@ Options:\n\
     }
 
    if (Vflag) {
-	extern unsigned int	*__pmPDUCntIn;
-	extern unsigned int	*__pmPDUCntOut;
-	int			j = 0;
+	int j;
 
 	/* Warning: 16 is magic and from libpcp/src/pdu.c */
 	printf("PDUs send");
+	j = 0;
 	for (i = 0; i < 16; i++) {
 	    printf(" %3d", __pmPDUCntOut[i]);
 	    j += __pmPDUCntOut[i];
