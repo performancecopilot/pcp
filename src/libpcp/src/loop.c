@@ -25,13 +25,8 @@
 #include <signal.h>
 #include <sys/poll.h>
 #include <sys/wait.h>
-#include <sys/types.h>
-#ifndef HAVE_WAIT_DEFINES_RUSAGE
-#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
-#endif
 #include <sys/resource.h>
-#endif
 
 typedef enum {
     FALSE = 0,

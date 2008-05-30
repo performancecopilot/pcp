@@ -536,7 +536,6 @@ extern int alphasort(const_dirent **, const_dirent **);
 #undef inline
 #endif
 
-#undef HAVE_WAIT_DEFINES_RUSAGE
 #undef HAVE_NQNFS_LEASES
 
 #ifdef __cplusplus      

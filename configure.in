@@ -1126,14 +1126,6 @@ AC_TRY_LINK(
     SIGRET x = SIG_IGN;
 ], AC_DEFINE(HAVE_WAIT_INCLUDES_SIGNAL))
 
-AC_TRY_COMPILE(
-[
-	#include <sys/wait.h>
-],
-[
-	struct rusage ru;
-], AC_DEFINE(HAVE_WAIT_DEFINES_RUSAGE))
-
 dnl check for type of fields in struct stat
 dnl IRIX example	timespec_t st_mtim;	
 dnl Linux example 	struct timespec st_mtim;
