@@ -25,18 +25,14 @@ include $(TOPDIR)/src/include/builddefs
 CFILES = pminfo.c
 LLDLIBS = -lpcp
 LCFLAGS = -DPM_USE_CONTEXT_LOCAL
-TARGET = pminfo$(EXECSUFFIX)
+CMDTARGET = pminfo$(EXECSUFFIX)
 
-LDIRT = $(TARGET)
-
-default : $(TARGET)
-
-$(TARGET) : $(OBJECTS)
+default : $(CMDTARGET)
 
 include $(BUILDRULES)
 
 install : default
-	$(INSTALL) -m 755 $(TARGET) $(PCP_BIN_DIR)/$(TARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 
 default_pcp : default
 
