@@ -191,7 +191,9 @@ main(int argc, char **argv)
 	 * preserve the mode and ownership of any existing ascii PMNS file
 	 */
 	chmod(outfname, sbuf.st_mode & ~S_IFMT);
+#if defined(HAVE_CHOWN)
 	chown(outfname, sbuf.st_uid, sbuf.st_gid);
+#endif
     }
 
     pmns_output(root, outf);
@@ -219,7 +221,9 @@ main(int argc, char **argv)
 	     * preserve the mode and ownership of any existing binary PMNS file
 	     */
 	    chmod(outfname, sbuf.st_mode & ~S_IFMT);
+#if defined(HAVE_CHOWN)
 	    chown(outfname, sbuf.st_uid, sbuf.st_gid);
+#endif
 	}
 	if (rename(outfname, pmnsfile) == -1) {
 	    fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, strerror(errno));
