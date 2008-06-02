@@ -2,6 +2,7 @@
  * Error code -> message map comes from
  * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/perfmon/base/pdh_error_codes.asp
  *
+ * Copyright (c) 2008 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,16 +18,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
- * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include "shim.h"
+#include "hypnotoad.h"
 
-static struct err {
-    int	code;
-    char *msg;
+static struct {
+    int		code;
+    char	*msg;
 } errtab[] = {
     { PDH_CSTATUS_VALID_DATA, "The returned data is valid." },
     { PDH_CSTATUS_NEW_DATA, "The return data value is valid and different from the last sample." },

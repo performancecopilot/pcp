@@ -18,6 +18,7 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
+# $Id: GNUmakefile.install,v 1.2 2004/06/30 01:05:59 kenmcd Exp $
 
 SHELL	= sh
 

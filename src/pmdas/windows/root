@@ -5,14 +5,15 @@
 #include <stdpmid>
 
 root {
-	hinv
-	kernel
-	disk
-	filesys
-	mem
-	network
-	sqlserver
-	pmda
+    hinv
+    kernel
+    disk
+    filesys
+    mem
+    network
+    sqlserver
+    pmda
+    process
 }
 
 #include "pmns.hinv"
@@ -23,4 +24,5 @@ root {
 #include "pmns.network"
 #include "pmns.sqlserver"
 #include "pmns.pmda"
+#include "pmns.process"
 

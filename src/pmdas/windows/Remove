@@ -21,6 +21,8 @@
 #
 # Remove the windows PMDA
 #
+# $Id: Remove,v 1.4 2007/02/20 00:08:32 kimbrr Exp $
+#
 
 # source the PCP configuration environment variables
 . /etc/pcp.env
@@ -35,7 +37,7 @@ iam=windows
 
 # has to match top-level names in ./root and be the same as Install
 #
-pmns_name="hinv kernel disk mem network sqlserver filesys pmda"
+pmns_name="hinv kernel disk mem network sqlserver filesys pmda process"
 
 # Do it
 #

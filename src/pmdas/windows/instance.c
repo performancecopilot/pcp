@@ -1,11 +1,9 @@
 /*
- * Instance domain support for shim.exe.
- *
+ * Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Parts of this file contributed by Ken McDonell
  * (kenj At internode DoT on DoT net)
  *
- * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
@@ -19,159 +17,63 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
- * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
-
-#include "./shim.h"
+#include "hypnotoad.h"
 #include <ctype.h>
 
-extern int domain;
-
-#define GIMME_NEXT_INST -99
-
-/*
- * List of instance domains ... we expect *_INDOM macros from shm.h
- * to index into this table.
- * This is the copy used by shim.exe, and needs to match the copy in
- * data.c
- */
-static pmInDom indomtab[] = {
-    DISK_INDOM,
-    CPU_INDOM,
-    NETIF_INDOM,
-    LDISK_INDOM,
-    SQL_LOCK_INDOM,
-    SQL_CACHE_INDOM,
-    SQL_DB_INDOM,
-};
-static int indomtab_sz = sizeof(indomtab) / sizeof(indomtab[0]);
-
-static int
-update_indom(pmInDom indom, int *instp, char *name)
+pmInDom
+windows_indom(int qid, int domain)
 {
-    int		s;
+    pmInDom		result;
+    __pmInDom_int	*indomp = (__pmInDom_int *)&result;
+    int			serial;
+
+    switch (qid) {
+    case Q_DISK_DEV:		serial = DISK_INDOM; break;
+    case Q_PERCPU:		serial = CPU_INDOM; break;
+    case Q_NETWORK:		serial = NETIF_INDOM; break;
+    case Q_LDISK:		serial = FILESYS_INDOM; break;
+    case Q_SQLSERVER_LOCK:	serial = SQL_LOCK_INDOM; break;
+    case Q_SQLSERVER_CACHE:	serial = SQL_CACHE_INDOM; break;
+    case Q_SQLSERVER_DB:	serial = SQL_DB_INDOM; break;
+    case Q_PROCESSES:		serial = PROCESS_INDOM; break;
+    case Q_THREADS:		serial = THREAD_INDOM; break;
+    default:			serial = PM_INDOM_NULL; break;
+    }
+    indomp->serial = serial;
+    indomp->pad = 0;
+    indomp->domain = domain;
+    return result;
+};
+
+void
+windows_instance_refresh(pmInDom indom)
+{
     int		i;
-    int		seg;
-    int		inst;
-    int		numinst;
-    shm_inst_t	*ip;
 
-    inst = *instp;
+    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-    for (s = 0; s < indomtab_sz; s++) {
-	if (indomtab[s] == indom)
-	    break;
+    for (i = 0; i < metricdesc_sz; i++) {
+	pdh_metric_t *mp = &metricdesc[i];
+
+	if (indom != mp->desc.indom || mp->pat[0] == '\0')
+	    continue;
+	windows_check_metric(mp, 0);
+	break;
     }
-    if (s == indomtab_sz) {
-	/* this is fatal! */
-	fprintf(stderr, "update_indom: Fatal: pmInDom %s is not in indomtab[]\n",
-	    pmInDomStr(indom));
-	for (s = 0; s < indomtab_sz; s++) {
-	    fprintf(stderr, "  [%d] %s (0x%x)\n", s, pmInDomStr(indomtab[s]), indomtab[s]);
-	}
-	exit(1);
-    }
-
-    seg = SEG_INDOM + s;
-    ip = (shm_inst_t *)&((char *)shm)[shm->segment[seg].base];
-    numinst = ip[0].i_inst;	// really numinst hiding here
-
-#ifdef PCP_DEBUG
-    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
-	/* desperate */
-	fprintf(stderr, "update_indom(%s, inst=%d, name=\"%s\")\n",
-		pmInDomStr(indom), inst, name);
-	fprintf(stderr, "  seg=%d numinst=%d\n", seg, numinst);
-	fflush(stderr);
-    }
-#endif
-
-    for (i = 1; i <= numinst; i++) {
-	if (strcmp(ip[i].i_name, name) == 0) {
-	    if (inst == GIMME_NEXT_INST)
-		*instp = inst = ip[i].i_inst;
-	    if (ip[i].i_inst == inst) {
-		/*
-		 * matches and already in the instance domain
-		 */
-		free(name);
-		return 1;
-	    }
-	    fprintf(stderr, "update_indom: Warning: indom %s inst %d name (%s) differs to previous name (%s)\n",
-		pmInDomStr(indom), inst, name, ip[i].i_name);
-	    strncpy(ip[i].i_name, name, MAX_INST_NAME_LEN);
-	    ip[0].i_name[0] = 'c';		// mark indom changed
-	    return 1;
-	}
-    }
-
-    if (inst == GIMME_NEXT_INST)
-	*instp = inst = numinst;
-
-    numinst++;
-    memcpy(new_hdr, shm, hdr_size);
-    new_hdr->segment[seg].nelt = numinst+1;
-    new_hdr->size += sizeof(shm_inst_t);
-    shm_reshape(new_hdr);
-    ip = (shm_inst_t *)&((char *)shm)[shm->segment[seg].base];
-
-    ip[0].i_inst = numinst;		// real number of instances
-    ip[0].i_name[0] = 'c';		// mark indom changed
-
-    ip[numinst].i_inst = inst;
-    strncpy(ip[numinst].i_name, name, MAX_INST_NAME_LEN);
-    if (strlen(name)+1 > MAX_INST_NAME_LEN) {
-	fprintf(stderr, "update_indom: Warning: name=\"%s\" too long (exceeds max %d for shm structs)\n", name, MAX_INST_NAME_LEN);
-	fflush(stderr);
-    }
-
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
-	fprintf(stderr, "update_indom: add indom %s numinst=%d inst=%d name=\"%s\"\n",
-	    pmInDomStr(indom), numinst, inst, name);
-	ip = (shm_inst_t *)&((char *)shm)[shm->segment[SEG_INDOM].base];
-	fprintf(stderr, "check disk ctl %d '%c'\n", ip[0].i_inst, ip[0].i_name[0]);
-    }
-#endif
-
-    return 1;
 }
 
 int
-check_instance(char *path, shm_metric_t *sp, int *instp)
+windows_check_instance(char *path, pdh_metric_t *mp)
 {
     __pmInDom_int	*ip;
-    char		*p;
-    char		*q;
-    int			inst;
-    char		*name;
+    char		*p, *q, *name;
     int			ok = 0;
-    static int		first = 1;
 
-    if (first) {
-	int	s;
-	int	serial;
-	/*
-	 * copied from libpcp_pmda (open.c) ... need to be endian
-	 * safe here
-	 */
-	for (s = 0; s < indomtab_sz; s++) {
-	    serial = indomtab[s];
-	    ip = (__pmInDom_int *)&indomtab[s];
-	    ip->serial = serial;
-	    ip->pad = 0;
-	    ip->domain = domain;
-	}
-	first = 0;
-    }
-
-    if (sp->m_desc.indom == PM_INDOM_NULL) {
+    if (mp->desc.indom == PM_INDOM_NULL)
 	return PM_IN_NULL;
-    }
 
-    ip = (__pmInDom_int *)&sp->m_desc.indom;
+    ip = (__pmInDom_int *)&mp->desc.indom;
     switch (ip->serial) {
 	/*
 	 * Examples:
@@ -190,7 +92,7 @@ check_instance(char *path, shm_metric_t *sp, int *instp)
 		     */
 		    return 0;
 		}
-		inst = atoi(p);
+		// inst = atoi(p);
 		while (isascii(*p) && isdigit(*p)) p++;
 		if (*p == ' ') {
 		    p++;
@@ -203,8 +105,10 @@ check_instance(char *path, shm_metric_t *sp, int *instp)
 			    ok = 1;
 			}
 			else {
-			    fprintf(stderr, "check_instance: malloc[%d] failed for DISK_INDOM path=%s\n", q - p + 1, path);
-			    exit(1);
+			    __pmNotifyErr(LOG_ERR, "windows_check_instance: "
+					"Error: DISK_INDOM malloc[%d] failed "
+					"path=%s\n", q - p + 1, path);
+			    return -1;
 			}
 			/*
 			 * If more than one drive letter maps to the same
@@ -223,7 +127,8 @@ check_instance(char *path, shm_metric_t *sp, int *instp)
 	     * don't know what to do with this one!
 	     */
 	    if (!ok) {
-		fprintf(stderr, "check_instance: unrecognized disk instance: %s\n", path);
+		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+				"unrecognized disk instance: %s\n", path);
 		return -1;
 	    }
 	    break;
@@ -244,7 +149,7 @@ check_instance(char *path, shm_metric_t *sp, int *instp)
 		     */
 		    return 0;
 		}
-		inst = atoi(p);
+		int inst = atoi(p);
 		name = (char *)malloc(6);	// "cpuNN"
 		if (name != NULL) {
 		    sprintf(name, "cpu%d", inst);
@@ -256,17 +161,17 @@ check_instance(char *path, shm_metric_t *sp, int *instp)
 	     * don't know what to do with this one!
 	     */
 	    if (!ok) {
-		fprintf(stderr, "check_instance: unrecognized cpu instance: %s\n", path);
+		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+				"unrecognized cpu instance: %s\n", path);
 		return -1;
 	    }
 	    break;
 
 	/*
 	 * Examples:
-	 * \\WINBUILD\Network Interface(MS TCP Loopback interface)\Bytes Total/sec
+	 * \\WINNT\Network Interface(MS TCP Loopback interface)\Bytes Total/sec
 	 */
 	case NETIF_INDOM:
-	    inst = GIMME_NEXT_INST;
 	    p = strchr(path, '(');	// skip hostname and metric name
 	    if (p != NULL) {
 		p++;
@@ -279,8 +184,10 @@ check_instance(char *path, shm_metric_t *sp, int *instp)
 			ok = 1;
 		    }
 		    else {
-			fprintf(stderr, "check_instance: malloc[%d] failed for NETIF_INDOM path=%s\n", q - p + 1, path);
-			exit(1);
+			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+					"malloc[%d] failed for NETIF_INDOM "
+					"path=%s\n", q - p + 1, path);
+			return -1;
 		    }
 		}
 	    }
@@ -289,7 +196,8 @@ check_instance(char *path, shm_metric_t *sp, int *instp)
 	     * don't know what to do with this one!
 	     */
 	    if (!ok) {
-		fprintf(stderr, "check_instance: unrecognized network interface instance: %s\n", path);
+		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+			"unrecognized network interface instance: %s\n", path);
 		return -1;
 	    }
 	    break;
@@ -298,8 +206,7 @@ check_instance(char *path, shm_metric_t *sp, int *instp)
 	 * Examples:
 	 * \\TOWER\LogicalDisk(C:)\% Free Space
 	 */
-	case LDISK_INDOM:
-	    inst = GIMME_NEXT_INST;
+	case FILESYS_INDOM:
 	    p = strchr(path, '(');	// skip hostname and metric name
 	    if (p != NULL) {
 		p++;
@@ -319,8 +226,10 @@ check_instance(char *path, shm_metric_t *sp, int *instp)
 			ok = 1;
 		    }
 		    else {
-			fprintf(stderr, "check_instance: malloc[%d] failed for LDISK_INDOM path=%s\n", q - p + 1, path);
-			exit(1);
+			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+				"malloc[%d] failed for LDISK_INDOM path=%s\n",
+				q - p + 1, path);
+			return -1;
 		    }
 		}
 	    }
@@ -329,7 +238,8 @@ check_instance(char *path, shm_metric_t *sp, int *instp)
 	     * don't know what to do with this one!
 	     */
 	    if (!ok) {
-		fprintf(stderr, "check_instance: unrecognized logical disk instance: %s\n", path);
+		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+			"unrecognized logical disk instance: %s\n", path);
 		return -1;
 	    }
 	    break;
@@ -345,7 +255,6 @@ check_instance(char *path, shm_metric_t *sp, int *instp)
 	case SQL_LOCK_INDOM:
 	case SQL_CACHE_INDOM:
 	case SQL_DB_INDOM:
-	    inst = GIMME_NEXT_INST;
 	    p = strchr(path, '(');	// skip hostname and metric name
 	    if (p != NULL) {
 		p++;
@@ -365,8 +274,10 @@ check_instance(char *path, shm_metric_t *sp, int *instp)
 			ok = 1;
 		    }
 		    else {
-			fprintf(stderr, "check_instance: malloc[%d] failed for SQL_LOCK_INDOM path=%s\n", q - p + 1, path);
-			exit(1);
+			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+				"malloc[%d] failed, SQL_INDOM path=%s\n",
+				q - p + 1, path);
+			return -1;
 		    }
 		}
 	    }
@@ -375,26 +286,66 @@ check_instance(char *path, shm_metric_t *sp, int *instp)
 	     * don't know what to do with this one!
 	     */
 	    if (!ok) {
-		fprintf(stderr, "check_instance: unrecognized SQLServer instance: %s\n", path);
+		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+				"unrecognized SQLServer instance: %s\n", path);
+		return -1;
+	    }
+	    break;
+
+	/*
+	 * Per-process and per-thread instance domain
+	 *
+	 * Examples:
+	 * \\TOWER\Process(svchost#6)\% Processor Time
+	 * \\TOWER\Thread(svchost/1#1)\% Processor Time
+	 * \\TOWER\Thread(Idle/0)\ID Process
+	 * \\TOWER\Thread(Idle/0)\ID Thread
+	 */
+	case PROCESS_INDOM:
+	case THREAD_INDOM:
+	    p = strchr(path, '(');	// skip hostname and Process/Thread
+	    if (p != NULL) {
+		p++;
+		if (strncmp(p, "_Total)", 7) == 0) {
+		    /*
+		     * The totals are done as independent metrics,
+		     * just skip them here
+		     */
+		    return 0;
+		}
+		q = strchr(p, ')');
+		if (q != NULL) {
+		    name = (char *)malloc(q - p + 1);
+		    if (name != NULL) {
+			strncpy(name, p, q - p);
+			name[q - p] = '\0';
+			ok = 1;
+		    }
+		    else {
+			__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+				"malloc[%d] failed, process/thread path=%s\n",
+				q - p + 1, path);
+			return -1;
+		    }
+		}
+	    }
+	    /*
+	     * expecting something like ... \Process(...)\...
+	     * don't know what to do with this one!
+	     */
+	    if (!ok) {
+		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+				"unrecognized process/thread name: %s\n", path);
 		return -1;
 	    }
 	    break;
 
 	default:
-	    /* this is fatal! */
-	    fprintf(stderr, "check_instance: Fatal: pmInDom %s is unknown for metric %s\n",
-		pmInDomStr(sp->m_desc.indom), pmIDStr(sp->m_desc.pmid));
-	    exit(1);
+	    __pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
+				   "pmInDom %s is unknown for metric %s\n",
+			pmInDomStr(mp->desc.indom), pmIDStr(mp->desc.pmid));
+	    return -1;
     }
 
-    /*
-     * check and update indom ... may free name if not needed
-     */
-    if (update_indom(sp->m_desc.indom, &inst, name)) {
-	*instp = inst;
-	return 1;
-    }
-    else
-	return 0;
+    return pmdaCacheStore(mp->desc.indom, PMDA_CACHE_ADD, name, NULL);
 }
-

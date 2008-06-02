@@ -48,40 +48,11 @@ Troubleshooting
     ($PCP_LOG_DIR/pmcd/windows.log) should be checked for any warnings
     or errors.
 
-Shared Memory
-=============
-
-The file /tmp/pcp.windows.shm is used as an mmap()ed file to provide a
-shared memory region between the PMDA and the helper executable (shim.exe)
-that is needed to make the Win32 API calls.
-
-Reshaping the shared memory region is necessary and a challenge, so these
-notes document the flow of control back from the functions that change
-the shared memory mapping.
-
-    PMDA
-	shm_remap (pmda.c)
-	    init (pmda.c)		after shim.exe initialization
-	    prefetch (pmda.c)		after prefetch in shim.exe
-	    help (pmda.c)		after help returned from shim.exe
-	    shm_reshape (pmda.c)
-		prefetch (pmda.c)	before setting up pmids for prefetch
-
-
-    shim.exe
-	shm_remap (util.c)
-	    shm_reshape (util.c)
-		prefetch (fetch.c)	before returning pmAtomValues
-		update_indom (instance.c)
-					before adding another instance to an
-					indom
-		main (shim.c)		before copy help text
-
 Adding New Metrics
 ==================
 
 The following steps should be followed when adding new metrics ... this
-assumes Cygwin (I've given up on SFU).
+assumes the MinGW gcc compiler is being used.
 
 a. Make sure you know what you've currently got, so on the target system
    $ ./pdhlist | ./pdhmatch >status-quo
@@ -99,7 +70,7 @@ b. Pick the Pdh paths you're interested in (drop the hostname prefix,
    the per instance metrics.
 
 c. Choose a PMID ... use the next unused number in sequence ... check
-   metricdesc[] in data.c, you want the PMDA_PMID(0,x) macro from the
+   metricdesc[] in pmda.c, you want the PMDA_PMID(0,x) macro from the
    last entry in the table, and the number you're after is x+1 (x+1 =
    81 for my example).
 
@@ -142,7 +113,7 @@ d. Choose a name and where to put the new metric in the namespace ...
 	sqlserver.cache_mgr.cache.cache_hit_ratio PMID: 79.0.82
 
 e. Metric semantics ... you'll need a complete metricdesc[i]
-   initializers from data.c ... pick one that is similar, copy, paste
+   initializer from pmda.c ... pick one that is similar, copy, paste
    at the end of the table initialization and update PMDA_PMID(0,y)
    with x+1 from step a.
 
@@ -160,7 +131,7 @@ e. Metric semantics ... you'll need a complete metricdesc[i]
        representing a cache hit ratio, returned in the range 0.0 to
        1.0
 
-   Be careful with '\' in the PDh patterns.  Replace them with '\\' in the
+   Be careful with '\' in the Pdh patterns.  Replace them with '\\' in the
    string initializer used here.
 
    My new metrics are cache hit ratios
@@ -178,9 +149,9 @@ e. Metric semantics ... you'll need a complete metricdesc[i]
 
 f. If you've added a new instance domain (SQL_CACHE_INDOM in the case
    above, this needs to be handled):
-     i. add a new #define in shm.h (use the next ordinal number), e.g.
+     i. add a new header #define line (use the next ordinal number), e.g.
 	#define SQL_CACHE_INDOM	5
-    ii. add a new entry to indomtab[] in data.c, e.g.
+    ii. add a new entry to indomtab[] in pmda.c, e.g.
 	{ SQL_CACHE_INDOM, 0, NULL },
    iii. add a new entry to indomtab[] in instance.c, e.g.
 	SQL_CACHE_INDOM,

@@ -433,13 +433,11 @@ static struct {
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Locks(_Total)\\Lock Wait Time (ms)"
     },
-#if DELTAV_OVER_DELTAV
 /* sqlserver.locks.all.avg_wait */
     { { PMDA_PMID(0,74), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Locks(_Total)\\Average Wait Time (ms)"
     },
-#endif
 /* sqlserver.locks.region.requests */
     { { PMDA_PMID(0,75), PM_TYPE_U32, SQL_LOCK_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
@@ -465,13 +463,11 @@ static struct {
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Locks(*/*#*)\\Lock Wait Time (ms)"
     },
-#if DELTAV_OVER_DELTAV
 /* sqlserver.locks.region.avg_wait */
     { { PMDA_PMID(0,80), PM_TYPE_FLOAT, SQL_LOCK_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Locks(*/*#*)\\Average Wait Time (ms)"
     },
-#endif
 /* sqlserver.cache_mgr.all.cache_hit_ratio */
     { { PMDA_PMID(0,81), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
@@ -512,13 +508,11 @@ static struct {
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Latches\\Total Latch Wait Time (ms)"
     },
-#if DELTAV_OVER_DELTAV
 /* sqlserver.latches.avg_wait_time */
     { { PMDA_PMID(0,89), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
       }, Q_SQLSERVER, M_NONE, "\\SQLServer:Latches\\Average Latch Wait Time (ms)"
     },
-#endif
 /* sqlserver.databases.all.data_file_size */
     { { PMDA_PMID(0,90), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)

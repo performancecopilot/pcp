@@ -1,6 +1,6 @@
 disk {
-	all
-	dev
+    all
+    dev
 }
 
 disk.all {

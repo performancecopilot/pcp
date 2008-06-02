@@ -1,12 +1,8 @@
 /*
  * Windows PMDA
  *
- * Only ever installed as a daemon PMDA ... needs shim.exe to call the
- * required Win32 APIs.  Communication is via pipes with shim.exe and
- * a mmap()'d shared memory region.
+ * Copyright (c) 2008 Aconex.  All Rights Reserved.
  *
- * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
@@ -20,693 +16,1198 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
- * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
+#include "hypnotoad.h"
+#include <ctype.h>
 
-#include <stdio.h>
-#include <unistd.h>
-#include <time.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <errno.h>
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
+static int isDSO = 1;
+char windows_uname[32];
+char windows_build[32];
+unsigned long windows_pagesize;
+unsigned long long windows_physmem;
 
-#include "./domain.h"
-#include "./shm.h"
+pdh_query_t querydesc[Q_NUMQUERIES];
+int querydesc_sz;
 
 /*
- * Windows PMDA
- *
+ * Array of all metrics - the PMID item field indexes this directly.
  */
+pdh_metric_t metricdesc[] = {
+/* kernel.all.cpu.user */
+    { { PMDA_PMID(0,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\Processor(_Total)\\% User Time"
+    },
+/* kernel.all.cpu.idle */
+    { { PMDA_PMID(0,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\Processor(_Total)\\% Idle Time"
+    },
+/* kernel.all.cpu.sys */
+    { { PMDA_PMID(0,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\Processor(_Total)\\% Privileged Time"
+    },
+/* kernel.percpu.cpu.intr */
+    { { PMDA_PMID(0,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\Processor(_Total)\\% Interrupt Time"
+    },
+/* kernel.percpu.cpu.user */
+    { { PMDA_PMID(0,4), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\Processor(*/*#*)\\% User Time"
+    },
+/* kernel.percpu.cpu.idle */
+    { { PMDA_PMID(0,5), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\Processor(*/*#*)\\% Idle Time"
+    },
+/* kernel.percpu.cpu.sys */
+    { { PMDA_PMID(0,6), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\Processor(*/*#*)\\% Privileged Time"
+    },
+/* kernel.percpu.cpu.intr */
+    { { PMDA_PMID(0,7), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\Processor(*/*#*)\\% Interrupt Time"
+    },
+/* kernel.num_processes */
+    { { PMDA_PMID(0,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\System\\Processes"
+    },
+/* kernel.num_threads */
+    { { PMDA_PMID(0,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\System\\Threads"
+    },
+/* kernel.all.pswitch */
+    { { PMDA_PMID(0,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\System\\Context Switches/sec"
+    },
+/* kernel.all.file.read */
+    { { PMDA_PMID(0,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_KERNEL, M_NONE,  0, 0, NULL,
+      "\\System\\File Read Operations/sec"
+    },
+/* kernel.all.file.write */
+    { { PMDA_PMID(0,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\System\\File Write Operations/sec"
+    },
+/* kernel.all.file.read_bytes */
+    { { PMDA_PMID(0,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\System\\File Read Bytes/sec"
+    },
+/* kernel.all.file.write_bytes */
+    { { PMDA_PMID(0,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      "\\System\\File Write Bytes/sec"
+    },
+/* disk.all.read */
+    { { PMDA_PMID(0,15), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\Disk Reads/sec"
+    },
+/* disk.all.write */
+    { { PMDA_PMID(0,16), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\Disk Writes/sec"
+    },
+/* disk.all.total */
+    { { PMDA_PMID(0,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\Disk Transfers/sec"
+    },
+/* disk.all.read_bytes */
+    { { PMDA_PMID(0,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\Disk Read Bytes/sec"
+    },
+/* disk.all.write_bytes */
+    { { PMDA_PMID(0,19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\Disk Write Bytes/sec"
+    },
+/* disk.all.total_bytes */
+    { { PMDA_PMID(0,20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\Disk Bytes/sec"
+    },
+/* disk.dev.read */
+    { { PMDA_PMID(0,21), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Disk Reads/sec"
+    },
+/* disk.dev.write */
+    { { PMDA_PMID(0,22), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Disk Writes/sec"
+    },
+/* disk.dev.total */
+    { { PMDA_PMID(0,23), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Disk Transfers/sec"
+    },
+/* disk.dev.read_bytes */
+    { { PMDA_PMID(0,24), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Disk Read Bytes/sec"
+    },
+/* disk.dev.write_bytes */
+    { { PMDA_PMID(0,25), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Disk Write Bytes/sec"
+    },
+/* disk.dev.total_bytes */
+    { { PMDA_PMID(0,26), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Disk Bytes/sec"
+    },
+/* mem.page_faults */
+    { { PMDA_PMID(0,27), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Page Faults/sec"
+    },
+/* mem.available */
+    { { PMDA_PMID(0,28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_MBYTE, 0, 0)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Available MBytes"
+    },
+/* mem.committed_bytes */
+    { { PMDA_PMID(0,29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Committed Bytes"
+    },
+/* mem.pool.paged_bytes */
+    { { PMDA_PMID(0,30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Pool Paged Bytes"
+    },
+/* mem.pool.non_paged_bytes */
+    { { PMDA_PMID(0,31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Pool Nonpaged Bytes"
+    },
+/* mem.cache.lazy_writes */
+    { { PMDA_PMID(0,32), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Cache\\Lazy Write Flushes/sec"
+    },
+/* mem.cache.lazy_write_pages */
+    { { PMDA_PMID(0,33), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Cache\\Lazy Write Pages/sec"
+    },
+/* mem.cache.mdl.read */
+    { { PMDA_PMID(0,34), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Cache\\MDL Reads/sec"
+    },
+/* mem.cache.read_ahead */
+    { { PMDA_PMID(0,35), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Cache\\Read Aheads/sec"
+    },
+/* mem.cache.mdl.sync_read */
+    { { PMDA_PMID(0,36), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Cache\\Sync MDL Reads/sec"
+    },
+/* mem.cache.mdl.async_read */
+    { { PMDA_PMID(0,37), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Cache\\Async MDL Reads/sec"
+    },
+/* network.interface.in.packets */
+    { { PMDA_PMID(0,38), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      "\\Network Interface(*/*#*)\\Packets Received/sec"
+    },
+/* network.interface.in.bytes */
+    { { PMDA_PMID(0,39), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      "\\Network Interface(*/*#*)\\Bytes Received/sec"
+    },
+/* network.interface.in.errors */
+    { { PMDA_PMID(0,40), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      "\\Network Interface(*/*#*)\\Packets Received Errors"
+    },
+/* network.interface.out.packets */
+    { { PMDA_PMID(0,41), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      "\\Network Interface(*/*#*)\\Packets Sent/sec"
+    },
+/* network.interface.out.bytes */
+    { { PMDA_PMID(0,42), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      "\\Network Interface(*/*#*)\\Bytes Sent/sec"
+    },
+/* network.interface.out.errors */
+    { { PMDA_PMID(0,43), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      "\\Network Interface(*/*#*)\\Packets Outbound Errors"
+    },
+/* network.interface.total.packets */
+    { { PMDA_PMID(0,44), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Network Interface(*/*#*)\\Packets/sec"
+    },
+/* network.interface.total.bytes */
+    { { PMDA_PMID(0,45), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Network Interface(*/*#*)\\Bytes Total/sec"
+    },
+/* sqlserver.buf_mgr.cache_hit_ratio */
+    { { PMDA_PMID(0,46), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Buffer cache hit ratio"
+    },
+/* sqlserver.buf_mgr.page_lookups */
+    { { PMDA_PMID(0,47), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Page lookups/sec"
+    },
+/* sqlserver.buf_mgr.free_list_stalls */
+    { { PMDA_PMID(0,48), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Free list stalls/sec"
+    },
+/* sqlserver.buf_mgr.free_pages */
+    { { PMDA_PMID(0,49), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Free pages"
+    },
+/* sqlserver.buf_mgr.total_pages */
+    { { PMDA_PMID(0,50), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Total pages"
+    },
+/* sqlserver.buf_mgr.target_pages */
+    { { PMDA_PMID(0,51), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Target pages"
+    },
+/* sqlserver.buf_mgr.database_pages */
+    { { PMDA_PMID(0,52), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Database pages"
+    },
+/* sqlserver.buf_mgr.reserved_pages */
+    { { PMDA_PMID(0,53), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Reserved pages"
+    },
+/* sqlserver.buf_mgr.stolen_pages */
+    { { PMDA_PMID(0,54), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Stolen pages"
+    },
+/* sqlserver.buf_mgr.lazy_writes */
+    { { PMDA_PMID(0,55), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Lazy writes/sec"
+    },
+/* sqlserver.buf_mgr.readahead_pages */
+    { { PMDA_PMID(0,56), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Readahead pages/sec"
+    },
+/* sqlserver.buf_mgr.procedure_cache_pages */
+    { { PMDA_PMID(0,57), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Procedure cache pages"
+    },
+/* sqlserver.buf_mgr.page_reads */
+    { { PMDA_PMID(0,58), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Page reads/sec"
+    },
+/* sqlserver.buf_mgr.page_writes */
+    { { PMDA_PMID(0,59), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Page writes/sec"
+    },
+/* sqlserver.buf_mgr.checkpoint_pages */
+    { { PMDA_PMID(0,60), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Checkpoint pages/sec"
+    },
+/*  sqlserver.buf_mgr.awe.lookup_maps */
+    { { PMDA_PMID(0,61), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\AWE lookup maps/sec"
+    },
+/* sqlserver.buf_mgr.awe.stolen_maps */
+    { { PMDA_PMID(0,62), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\AWE stolen maps/sec"
+    },
+/* sqlserver.buf_mgr.awe.write_maps */
+    { { PMDA_PMID(0,63), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\AWE write maps/sec"
+    },
+/* sqlserver.buf_mgr.awe.unmap_calls */
+    { { PMDA_PMID(0,64), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\AWE unmap calls/sec"
+    },
+/* sqlserver.buf_mgr.awe.unmap_pages */
+    { { PMDA_PMID(0,65), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\AWE unmap pages/sec"
+    },
+/* sqlserver.buf_mgr.page_life_expectancy */
+    { { PMDA_PMID(0,66), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Buffer Manager\\Page life expectancy"
+    },
+/* filesys.full */
+    { { PMDA_PMID(0,67), PM_TYPE_FLOAT, FILESYS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_LDISK, M_REDO, 0, 0, NULL,
+      "\\LogicalDisk(*/*#*)\\% Free Space"
+    },
+/* disk.dev.idle */
+    { { PMDA_PMID(0,68), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\% Idle Time"
+    },
+/* sqlserver.locks.all.requests */
+    { { PMDA_PMID(0,69), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Locks(_Total)\\Lock Requests/sec"
+    },
+/* sqlserver.locks.all.waits */
+    { { PMDA_PMID(0,70), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Locks(_Total)\\Lock Waits/sec"
+    },
+/* sqlserver.locks.all.deadlocks */
+    { { PMDA_PMID(0,71), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Locks(_Total)\\Number of Deadlocks/sec"
+    },
+/* sqlserver.locks.all.timeouts */
+    { { PMDA_PMID(0,72), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Locks(_Total)\\Lock Timeouts/sec"
+    },
+/* sqlserver.locks.all.wait_time */
+    { { PMDA_PMID(0,73), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Locks(_Total)\\Lock Wait Time (ms)"
+    },
+/* sqlserver.locks.all.avg_wait */
+    { { PMDA_PMID(0,74), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Locks(_Total)\\Average Wait Time (ms)"
+    },
+/* sqlserver.locks.region.requests */
+    { { PMDA_PMID(0,75), PM_TYPE_U32, SQL_LOCK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_LOCK, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Locks(*/*#*)\\Lock Requests/sec"
+    },
+/* sqlserver.locks.region.waits */
+    { { PMDA_PMID(0,76), PM_TYPE_U32, SQL_LOCK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_LOCK, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Locks(*/*#*)\\Lock Waits/sec"
+    },
+/* sqlserver.locks.region.deadlocks */
+    { { PMDA_PMID(0,77), PM_TYPE_U32, SQL_LOCK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_LOCK, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Locks(*/*#*)\\Number of Deadlocks/sec"
+    },
+/* sqlserver.locks.region.timeouts */
+    { { PMDA_PMID(0,78), PM_TYPE_U32, SQL_LOCK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_LOCK, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Locks(*/*#*)\\Lock Timeouts/sec"
+    },
+/* sqlserver.locks.region.wait_time */
+    { { PMDA_PMID(0,79), PM_TYPE_U32, SQL_LOCK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
+      }, Q_SQLSERVER_LOCK, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Locks(*/*#*)\\Lock Wait Time (ms)"
+    },
+/* sqlserver.locks.region.avg_wait */
+    { { PMDA_PMID(0,80), PM_TYPE_FLOAT, SQL_LOCK_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
+      }, Q_SQLSERVER_LOCK, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Locks(*/*#*)\\Average Wait Time (ms)"
+    },
+/* sqlserver.cache_mgr.all.cache_hit_ratio */
+    { { PMDA_PMID(0,81), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Cache Manager(_Total)\\Cache Hit Ratio"
+    },
+/* sqlserver.cache_mgr.cache.cache_hit_ratio */
+    { { PMDA_PMID(0,82), PM_TYPE_FLOAT, SQL_CACHE_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_SQLSERVER_CACHE, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Cache Manager(*/*#*)\\Cache Hit Ratio"
+    },
+/* sqlserver.connections */
+    { { PMDA_PMID(0,83), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:General Statistics\\User Connections"
+    },
+/* sqlserver.databases.all.transactions */
+    { { PMDA_PMID(0,84), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Databases(_Total)\\Transactions/sec"
+    },
+/* sqlserver.databases.db.transactions */
+    { { PMDA_PMID(0,85), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_DB, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Databases(*/*#*)\\Transactions/sec"
+    },
+/* sqlserver.sql.batch_requests */
+    { { PMDA_PMID(0,86), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:SQL Statistics\\Batch Requests/sec"
+    },
+/* sqlserver.latches.waits */
+    { { PMDA_PMID(0,87), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Latches\\Latch Waits/sec"
+    },
+/* sqlserver.latches.wait_time */
+    { { PMDA_PMID(0,88), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Latches\\Total Latch Wait Time (ms)"
+    },
+/* sqlserver.latches.avg_wait_time */
+    { { PMDA_PMID(0,89), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Latches\\Average Latch Wait Time (ms)"
+    },
+/* sqlserver.databases.all.data_file_size */
+    { { PMDA_PMID(0,90), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Databases(_Total)\\Data File(s) Size (KB)"
+    },
+/* sqlserver.databases.all.log_file_size */
+    { { PMDA_PMID(0,91), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Databases(_Total)\\Log File(s) Size (KB)"
+    },
+/* sqlserver.databases.all.log_file_used */
+    { { PMDA_PMID(0,92), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Databases(_Total)\\Log File(s) Used Size (KB)"
+    },
+/* sqlserver.databases.db.data_file_size */
+    { { PMDA_PMID(0,93), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+      }, Q_SQLSERVER_DB, M_REDO, 0, 0, NULL,
+      "\\SQLServer:Databases(*/*#*)\\Data File(s) Size (KB)"
+    },
+/* sqlserver.databases.db.log_file_size */
+    { { PMDA_PMID(0,94), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+      }, Q_SQLSERVER_DB, M_REDO, 0, 0, NULL,
+      "\\SQLServer:Databases(*/*#*)\\Log File(s) Size (KB)"
+    },
+/* sqlserver.databases.db.log_file_used */
+    { { PMDA_PMID(0,95), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+      }, Q_SQLSERVER_DB, M_REDO, 0, 0, NULL,
+      "\\SQLServer:Databases(*/*#*)\\Log File(s) Used Size (KB)"
+    },
+/* sqlserver.sql.compilations */
+    { { PMDA_PMID(0,96), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:SQL Statistics\\SQL Compilations/sec"
+    },
+/* sqlserver.sql.re_compilations */
+    { { PMDA_PMID(0,97), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:SQL Statistics\\SQL Re-Compilations/sec"
+    },
+/* sqlserver.access.full_scans */
+    { { PMDA_PMID(0,98), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Access Methods\\Full Scans/sec"
+    },
+/* sqlserver.access.pages_allocated */
+    { { PMDA_PMID(0,99), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Access Methods\\Pages Allocated/sec"
+    },
+/* sqlserver.access.table_lock_escalations */
+    { { PMDA_PMID(0,100), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Access Methods\\Table Lock Escalations/sec"
+    },
+/* disk.dev.queuelen */
+    { { PMDA_PMID(0,101), PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Current Disk Queue Length"
+    },
+/* sqlserver.databases.all.log_flushes */
+    { { PMDA_PMID(0,102), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Databases(_Total)\\Log Flushes/sec"
+    },
+/* sqlserver.databases.db.log_flushes */
+    { { PMDA_PMID(0,103), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_DB, M_REDO, 0, 0, NULL,
+      "\\SQLServer:Databases(*/*#*)\\Log Flushes/sec"
+    },
+/* sqlserver.databases.all.log_bytes_flushed */
+    { { PMDA_PMID(0,104), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Databases(_Total)\\Log Bytes Flushed/sec"
+    },
+/* sqlserver.databases.db.log_bytes_flushed */
+    { { PMDA_PMID(0,105), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_SQLSERVER_DB, M_REDO, 0, 0, NULL,
+      "\\SQLServer:Databases(*/*#*)\\Log Bytes Flushed/sec"
+    },
+/* hinv.physmem */
+    { { PMDA_PMID(0,106), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_MBYTE, 0, 0)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL, ""
+    },
+/* hinv.ncpu */
+    { { PMDA_PMID(0,107), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
+    },
+/* hinv.ndisk */
+    { { PMDA_PMID(0,108), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
+    },
+/* kernel.uname.distro */
+    { { PMDA_PMID(0,109), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
+    },
+/* kernel.uname.release */
+    { { PMDA_PMID(0,110), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
+    },
+/* kernel.uname.version */
+    { { PMDA_PMID(0,111), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
+    },
+/* kernel.uname.sysname */
+    { { PMDA_PMID(0,112), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
+    },
+/* kernel.uname.machine */
+    { { PMDA_PMID(0,113), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
+    },
+/* kernel.uname.nodename */
+    { { PMDA_PMID(0,114), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
+    },
 
-extern pmdaIndom	indomtab[];
-extern int		indomtab_sz;
-extern pmdaMetric	*metrictab;
-extern int		metrictab_sz;
+/* pmda.uname */
+    { { PMDA_PMID(0,115), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
+    },
+/* pmda.version */
+    { { PMDA_PMID(0,116), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
+    },
 
-shm_hdr_t		*shm = NULL;
+/* filesys.capacity */
+    { { PMDA_PMID(0,117), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)
+      }, Q_LDISK, M_REDO, 0, 0, NULL, ""
+    },
+/* filesys.used */
+    { { PMDA_PMID(0,118), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)
+      }, Q_LDISK, M_REDO, 0, 0, NULL, ""
+    },
+/* filesys.free */
+    { { PMDA_PMID(0,119), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)
+      }, Q_LDISK, M_REDO, 0, 0, NULL, ""
+    },
+/* dummy - filesys.free_space */
+    { { PMDA_PMID(0,120), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_MBYTE,0,0)
+      }, Q_LDISK, M_REDO, 0, 0, NULL,
+      "\\LogicalDisk(*/*#*)\\Free Megabytes"
+    },
+/* dummy - filesys.free_percent */
+    { { PMDA_PMID(0,121), PM_TYPE_FLOAT, FILESYS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0)
+      }, Q_LDISK, M_REDO, 0, 0, NULL,
+      "\\LogicalDisk(*/*#*)\\% Free Space"
+    },
+/* sqlserver.access.page_splits */
+    { { PMDA_PMID(0,122), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Access Methods\\Page Splits/sec"
+    },
+/* network.tcp.activeopens */
+    { { PMDA_PMID(0,123), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\TCPv4\\Connections Active"
+    },
+/* network.tcp.passiveopens */
+    { { PMDA_PMID(0,124), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\TCPv4\\Connections Passive"
+    },
+/* network.tcp.attemptfails */
+    { { PMDA_PMID(0,125), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\TCPv4\\Connection Failures"
+    },
+/* network.tcp.estabresets */
+    { { PMDA_PMID(0,126), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\TCPv4\\Connections Reset"
+    },
+/* network.tcp.currestab */
+    { { PMDA_PMID(0,127), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\TCPv4\\Connections Established"
+    },
+/* network.tcp.insegs */
+    { { PMDA_PMID(0,128), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\TCPv4\\Segments Received/sec"
+    },
+/* network.tcp.outsegs */
+    { { PMDA_PMID(0,129), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\TCPv4\\Segments Sent/sec"
+    },
+/* network.tcp.totalsegs */
+    { { PMDA_PMID(0,130), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\TCPv4\\Segments/sec"
+    },
+/* network.tcp.retranssegs */
+    { { PMDA_PMID(0,131), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\TCPv4\\Segments Retransmitted/sec"
+    },
 
-extern void init_data(int);
+/* disk.all.split_io */
+    { { PMDA_PMID(0,132), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\Split IO/Sec"
+    },
+/* disk.dev.split_io */
+    { { PMDA_PMID(0,133), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Split IO/Sec"
+    },
 
-static int		shm_fd;
-static shm_hdr_t	*new_hdr;
-static int		hdr_size;
-static int		shm_oldsize = 0;
+/* sqlserver.databases.all.active_transactions */
+    { { PMDA_PMID(0,134), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Databases(_Total)\\Active Transactions"
+    },
+/* sqlserver.databases.db.active_transactions */
+    { { PMDA_PMID(0,135), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_SQLSERVER_DB, M_REDO, 0, 0, NULL,
+      "\\SQLServer:Databases(*/*#*)\\Active Transactions"
+    },
 
-static FILE		*send_f;
-static FILE		*recv_f;
+/* mem.commit_limit */
+    { { PMDA_PMID(0,136), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Commit Limit"
+    },
+/* mem.write_copies */
+    { { PMDA_PMID(0,137), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Write Copies/sec"
+    },
+/* mem.transition_faults */
+    { { PMDA_PMID(0,138), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Transition Faults/sec"
+    },
+/* mem.cache.faults */
+    { { PMDA_PMID(0,139), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Cache Faults/sec"
+    },
+/* mem.demand_zero_faults */
+    { { PMDA_PMID(0,140), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Demand Zero Faults/sec"
+    },
+/* mem.pages_total */
+    { { PMDA_PMID(0,141), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Pages/sec"
+    },
+/* mem.page_reads */
+    { { PMDA_PMID(0,142), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Page Reads/sec"
+    },
+/* mem.pages_output */
+    { { PMDA_PMID(0,143), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Pages Output/sec"
+    },
+/* mem.page_writes */
+    { { PMDA_PMID(0,144), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Page Writes/sec"
+    },
+/* mem.pool.paged_allocs */
+    { { PMDA_PMID(0,145), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Pool Paged Allocs"
+    },
+/* mem.pool.nonpaged_allocs */
+    { { PMDA_PMID(0,146), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Pool Nonpaged Allocs"
+    },
+/* mem.system.free_ptes */
+    { { PMDA_PMID(0,147), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Free System Page Table Entries"
+    },
+/* mem.cache.bytes */
+    { { PMDA_PMID(0,148), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Page Faults/sec"
+    },
+/* mem.cache.bytes_peak */
+    { { PMDA_PMID(0,149), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Cache Bytes Peak"
+    },
+/* mem.pool.paged_resident_bytes */
+    { { PMDA_PMID(0,150), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\Pool Paged Resident Bytes"
+    },
+/* mem.system.total_code_bytes */
+    { { PMDA_PMID(0,151), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\System Code Total Bytes"
+    },
+/* mem.system.resident_code_bytes */
+    { { PMDA_PMID(0,152), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)
+      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      "\\Memory\\System Code Resident Bytes"
+    },
 
-static char		response[100];	// response on pipe back from shim.exe
-static char		shimprog[MAXPATHLEN];
-
-static int		numatoms = 0;
-
-static void
-shm_dump_hdr(FILE *f, char *msg, shm_hdr_t *smp)
-{
-    int		i;
-    int		*p;
-
-    fprintf(f, "[PMDA] Dump shared memory header: %s\n", msg);
-    fprintf(f, "magic    0x%8x\n", smp->magic);
-    fprintf(f, "size       %8d\n", smp->size);
-    fprintf(f, "nseg       %8d\n", smp->nseg);
-    fprintf(f, "segment     base     nelt elt_size\n");
-    for (i = 0; i < smp->nseg; i++) {
-	fprintf(f, "[%5d] %8d %8d %8d\n", i, smp->segment[i].base,
-		smp->segment[i].nelt, smp->segment[i].elt_size);
-    }
-    p = (int *)&((char *)shm)[shm->segment[smp->nseg-1].base];
-    fprintf(f, "end      0x%8x\n", *p);
-    fflush(f);
-}
-
-/*
- * Only called after initialization, so shm is valid.
- * This is the PMDA version ... there is also a shim.exe version that
- * is semantically equivalent.
- */
-static void
-shm_remap(int newsize)
-{
-    int		*p;
-#ifdef PCP_DEBUG
-    static int	first = 1;
+/* sqlserver.mem_mgr.connection_memory */
+    { { PMDA_PMID(0,153), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\Connection Memory (KB)"
+    },
+/* sqlserver.mem_mgr.granted_workspace */
+    { { PMDA_PMID(0,154), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\Granted Workspace Memory (KB)"
+    },
+/* sqlserver.mem_mgr.lock_memory */
+    { { PMDA_PMID(0,155), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\Lock Memory (KB)"
+    },
+/* sqlserver.mem_mgr.lock_blocks_allocated */
+    { { PMDA_PMID(0,156), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\Lock Blocks Allocated"
+    },
+/* sqlserver.mem_mgr.lock_owner_blocks_allocated */
+    { { PMDA_PMID(0,157), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\Lock Owner Blocks Allocated"
+    },
+/* sqlserver.mem_mgr.lock_blocks */
+    { { PMDA_PMID(0,158), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\Lock Blocks"
+    },
+/* sqlserver.mem_mgr.lock_owner_blocks */
+    { { PMDA_PMID(0,159), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\Lock Owner Blocks"
+    },
+/* sqlserver.mem_mgr.maximum_workspace_memory */
+    { { PMDA_PMID(0,160), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\Maximum Workspace Memory (KB)"
+    },
+/* sqlserver.mem_mgr.memory_grants_outstanding */
+    { { PMDA_PMID(0,161), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\Memory Grants Outstanding"
+    },
+/* sqlserver.mem_mgr.memory_grants_pending */
+    { { PMDA_PMID(0,162), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\Memory Grants Pending"
+    },
+/* sqlserver.mem_mgr.optimizer_memory */
+    { { PMDA_PMID(0,163), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\Optimizer Memory (KB)"
+    },
+/* sqlserver.mem_mgr.sql_cache_memory */
+    { { PMDA_PMID(0,164), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\SQL Cache Memory (KB)"
+    },
+/* sqlserver.mem_mgr.target_server_memory */
+    { { PMDA_PMID(0,165), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\Target Server Memory(KB)"
+    },
+/* sqlserver.mem_mgr.total_server_memory */
+    { { PMDA_PMID(0,166), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Memory Manager\\Total Server Memory (KB)"
+    },
+/* sqlserver.cache_mgr.all.cache_pages */
+    { { PMDA_PMID(0,167), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Cache Manager(_Total)\\Cache Pages"
+    },
+/* sqlserver.cache_mgr.all.cache_object_count */
+    { { PMDA_PMID(0,168), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Cache Manager(_Total)\\Cache Object Counts"
+    },
+/* sqlserver.cache_mgr.all.cache_use */
+    { { PMDA_PMID(0,169), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Cache Manager(_Total)\\Cache Use Counts/sec"
+    },
+/* sqlserver.cache_mgr.cache.cache_pages */
+    { { PMDA_PMID(0,170), PM_TYPE_U32, SQL_CACHE_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_SQLSERVER_CACHE, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Cache Manager(*/*#*)\\Cache Pages"
+    },
+/* sqlserver.cache_mgr.cache.cache_object_count */
+    { { PMDA_PMID(0,171), PM_TYPE_32, SQL_CACHE_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_SQLSERVER_CACHE, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Cache Manager(*/*#*)\\Cache Object Counts"
+    },
+/* sqlserver.cache_mgr.cache.cache_use */
+    { { PMDA_PMID(0,172), PM_TYPE_U32, SQL_CACHE_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, Q_SQLSERVER_CACHE, M_NONE, 0, 0, NULL,
+      "\\SQLServer:Cache Manager(*/*#*)\\Cache Use Counts/sec"
+    },
+#if 0
+/* process.count */
+    { { PMDA_PMID(0,173), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_PROCESS, M_REDO, 0, 0, NULL,
+      "\\Objects\Processes"
+    },
+/* process.psinfo.pid */
+    { { PMDA_PMID(0,174), 
+/* process.psinfo.ppid */
+    { { PMDA_PMID(0,175), 
+/* process.psinfo.cpu_time */
+    { { PMDA_PMID(0,176), 
+/* process.psinfo.elapsed_time */
+    { { PMDA_PMID(0,177), 
+/* process.psinfo.utime */
+    { { PMDA_PMID(0,178), 
+/* process.psinfo.stime */
+    { { PMDA_PMID(0,179), 
+/* process.psinfo.nthreads */
+    { { PMDA_PMID(0,180), 
+/* process.psinfo.priority_base */
+    { { PMDA_PMID(0,181), 
+/* process.psinfo.nhandles */
+    { { PMDA_PMID(0,182), 
+/* process.memory.size */
+    { { PMDA_PMID(0,183), 
+/* process.memory.rss */
+    { { PMDA_PMID(0,184), 
+/* process.memory.page_file */
+    { { PMDA_PMID(0,185), 
+/* process.memory.private */
+    { { PMDA_PMID(0,186), 
+/* process.memory.pool_paged */
+    { { PMDA_PMID(0,187), 
+/* process.memory.pool_nonpages */
+    { { PMDA_PMID(0,188), 
+/* process.io.reads */
+    { { PMDA_PMID(0,189), 
+/* process.io.writes */
+    { { PMDA_PMID(0,190), 
+/* process.io.data */
+    { { PMDA_PMID(0,191), 
+/* process.io.other */
+    { { PMDA_PMID(0,192), 
+/* process.io.read_bytes */
+    { { PMDA_PMID(0,193), 
+/* process.io.write_bytes */
+    { { PMDA_PMID(0,194), 
+/* process.io.data_bytes */
+    { { PMDA_PMID(0,195), 
+/* process.io.other_bytes */
+    { { PMDA_PMID(0,196), 
+/* process.thread.context_switches */
+    { { PMDA_PMID(0,197), 
+/* process.thread.cpu_time */
+    { { PMDA_PMID(0,198), 
+/* process.thread.utime */
+    { { PMDA_PMID(0,199), 
+/* process.thread.stime */
+    { { PMDA_PMID(0,200), 
+/* process.thread.elapsed_time */
+    { { PMDA_PMID(0,201), 
+/* process.thread.priority */
+    { { PMDA_PMID(0,202), 
+/* process.thread.priority_base */
+    { { PMDA_PMID(0,203), 
+/* process.thread.start_address */
+    { { PMDA_PMID(0,204), 
+/* process.thread.state */
+    { { PMDA_PMID(0,205), 
+/* process.thread.wait_reason_s */
+    { { PMDA_PMID(0,206), 
+/* process.thread.process_id */
+    { { PMDA_PMID(0,207), 
+/* process.thread.thread_id */
+    { { PMDA_PMID(0,208), 
 #endif
+};
+int metricdesc_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);
 
-    munmap(shm, (off_t)shm_oldsize);
-    shm = (shm_hdr_t *)mmap(NULL, (off_t)newsize, PROT_READ|PROT_WRITE, MAP_SHARED, shm_fd, 0);
-    if (shm == NULL) {
-	fprintf(stderr, "shm_remap: mmap() failed: %s\n", strerror(errno));
-	exit(1);
-    }
-    shm_oldsize = newsize;
-
-#ifdef PCP_DEBUG
-    if (first && (pmDebug & DBG_TRACE_APPL1)) {
-	shm_dump_hdr(stderr, "intial shm_remap", shm);
-	first = 0;
-    }
-#endif
-
-    /*
-     * Integrity checks
-     */
-    
-    if (shm->magic != SHM_MAGIC) {
-	shm_dump_hdr(stderr, "shm_remap: Error: bad magic!", shm);
-	exit(1);
-    }
-
-    p = (int *)&((char *)shm)[shm->segment[shm->nseg-1].base];
-    if (*p != SHM_MAGIC) {
-	fprintf(stderr, "shm_remap: Error: bad end segment: 0x%x not 0x%x\n", *p, SHM_MAGIC);
-	shm_dump_hdr(stderr, "shm_remap", shm);
-	exit(1);
-    }
-
-#ifdef PCP_DEBUG
-    if (first && (pmDebug & DBG_TRACE_APPL1)) {
-	shm_dump_hdr(stderr, "intial shm_remap", shm);
-	first = 0;
-    }
-#endif
-}
-
-/*
- * Only called after initialization, so shm is valid
- * This is the PMDA version ... there is also a shim.exe version that
- * is semantically equivalent.
- *
- * new contains just the header with the desired shape elt_size and
- * nelt entries for each segment.
- *
- * Note, each segment in the shm region is only allowed to exand ...
- * contraction would make the re-shaping horribly complicated in the
- * presence of concurrent expansion.  So if the total size is unchanged,
- * none of the segments have changed.  When the total size increases, one
- * or more of the segments have increased.
- */
-static void
-shm_reshape(shm_hdr_t *new)
-{
-    int		i;
-    int		sts;
-    int		base;
-    char	*src;
-    char	*dst;
-
-    if (new->size == shm->size)
-	/* do nothing */
-	return;
-
-    /*
-     * compute new base offsets and check for any shrinking segments
-     */
-    base = SHM_ROUND(hdr_size);
-    for (i = 0; i < new->nseg; i++) {
-	if (new->segment[i].elt_size * new->segment[i].nelt <
-	    shm->segment[i].elt_size * shm->segment[i].nelt) {
-	    fprintf(stderr, "shm_reshape: Botch: segment[%d] shrank!\n", i);
-	    shm_dump_hdr(stderr, "Old", shm);
-	    shm_dump_hdr(stderr, "New", new);
-	    exit(1);
-	}
-	new->segment[i].base = base;
-	base = SHM_ROUND(base + new->segment[i].elt_size * new->segment[i].nelt);
-    }
-    new->size = base;
-
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1) {
-	shm_dump_hdr(stderr, "shm_reshape - Old", shm);
-    }
-#endif
-
-    lseek(shm_fd, (off_t)(new->size-1), SEEK_SET);
-    if ((sts = write(shm_fd, "\377", 1)) != 1) {
-	fprintf(stderr, "shm_reshape: write() to expand file to %d bytes failed: %s\n",
-	    new->size, strerror(errno));
-	exit(1);
-    }
-
-    shm->size = new->size;
-    shm_remap(new->size);
-
-    /*
-     * shift segments from last to first to avoid clobbering good data
-     */
-    for (i = new->nseg-1; i >=0; i--) {
-	if (new->segment[i].base > shm->segment[i].base) {
-	    src = (char *)&((char *)shm)[shm->segment[i].base];
-	    dst = (char *)&((char *)shm)[new->segment[i].base];
-	    /* note, may overlap so memmove() not memcpy() */
-	    memmove(dst, src, new->segment[i].nelt * new->segment[i].elt_size);
-	}
-	else {
-	    /* this and earlier ones are not moving */
-	    break;
-	}
-    }
-
-    /* update header */
-    for (i = 0; i < shm->nseg; i++) {
-	shm->segment[i].base = new->segment[i].base;
-	shm->segment[i].elt_size = new->segment[i].elt_size;
-	shm->segment[i].nelt = new->segment[i].nelt;
-    }
-
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL1) {
-	shm_dump_hdr(stderr, "shm_reshape - New", shm);
-    }
-#endif
-}
-
-static void
-init_shm(void)
-{
-    int		base;
-    int		size;
-    int		sts;
-    int		i;
-    int		j;
-    int		nseg;
-    shm_inst_t	instctl = { 0, "" };
-
-    if ((shm_fd = open(SHM_FILENAME, O_CREAT|O_RDWR, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH)) < 0) {
-	fprintf(stderr, "init: shm open(%s) failed: %s\n", SHM_FILENAME, strerror(errno));
-	exit(1);
-    }
-
-    /*
-     * we are going to use one segment for each instance domain, so
-     * we end up with ...
-     *		0	shm_metrictab[]
-     *		1	scratch (input and out data)
-     *		2	1st indom
-     *		3	2nd indom
-     *		...
-     *		?	end
-     */
-    nseg = indomtab_sz + 3;
-
-    hdr_size = sizeof(shm_hdr_t) + (nseg-1)*sizeof(shm_seg_t);
-    if ((new_hdr = (shm_hdr_t *)malloc(hdr_size)) == NULL) {
-	fprintf(stderr, "init: shm malloc hdr: %s\n", strerror(errno));
-	exit(1);
-    }
-    if ((new_hdr = (shm_hdr_t *)malloc(hdr_size)) == NULL) {
-	fprintf(stderr, "init: shm malloc hdr: %s\n", strerror(errno));
-	exit(1);
-    }
-    new_hdr->magic = SHM_MAGIC;
-    new_hdr->nseg = nseg;
-    base = SHM_ROUND(hdr_size);
-
-    /* shm_metrictab[] */
-    new_hdr->segment[SEG_METRICS].base = base;
-    new_hdr->segment[SEG_METRICS].elt_size = sizeof(shm_metric_t);
-    new_hdr->segment[SEG_METRICS].nelt = metrictab_sz;
-    size = metrictab_sz * sizeof(shm_metric_t);
-    /*
-     * don't write this one ... we'll fill it in once the shm region
-     * is mapped
-     */
-    base = SHM_ROUND(base + size);
-    lseek(shm_fd, (off_t)base, SEEK_SET);
-
-    /*
-     * scratch, always count size in units of one byte ... starts off empty
-     */
-    new_hdr->segment[SEG_SCRATCH].base = base;
-    new_hdr->segment[SEG_SCRATCH].elt_size = 1;
-    new_hdr->segment[SEG_SCRATCH].nelt = 0;
-
-    /*
-     * indoms, always count in units of a shm_inst_t ... start off empty
-     */
-    size = sizeof(shm_inst_t);
-    for (i = 0; i < indomtab_sz; i++) {
-	new_hdr->segment[SEG_INDOM+i].base = base;
-	new_hdr->segment[SEG_INDOM+i].elt_size = sizeof(shm_inst_t);
-	new_hdr->segment[SEG_INDOM+i].nelt = 1;
-	if ((sts = write(shm_fd, &instctl, size)) != size) {
-	    fprintf(stderr, "init: shm write() %d bytes failed for indom[%d] -> %d: %s\n",
-		sts, i, size, strerror(errno));
-	    exit(1);
-	}
-	base = SHM_ROUND(base + size);
-    }
-
-    /* end segment */
-    new_hdr->segment[nseg-1].base = base;
-    new_hdr->segment[nseg-1].elt_size = sizeof(int);
-    new_hdr->segment[nseg-1].nelt = 1;
-    base = SHM_ROUND(base + sizeof(int));
-    /*
-     * messy, need to pad to the SHM_ROUND() alignment of the
-     * total size so the shm size and the file size are the same
-     */
-    j = (base - new_hdr->segment[nseg-1].base) / sizeof(int);
-    i = SHM_MAGIC;
-    while (j > 0) {
-	if ((sts = write(shm_fd, &i, sizeof(int))) != sizeof(int)) {
-	    fprintf(stderr, "init: shm write() %d bytes failed for end segment -> %d: %s\n",
-		sizeof(int), sts, strerror(errno));
-	    exit(1);
-	}
-	j--;
-    }
-
-    new_hdr->size = base;
-
-    /* go back and do the header */
-    lseek(shm_fd, (off_t)0, SEEK_SET);
-    if ((sts = write(shm_fd, new_hdr, hdr_size)) != hdr_size) {
-	fprintf(stderr, "init: shm write() %d bytes failed for hdr -> %d: %s\n",
-	    hdr_size, sts, strerror(errno));
-	exit(1);
-    }
-
-    /* mmap */
-    shm = (shm_hdr_t *)mmap(NULL, (off_t)new_hdr->size, PROT_READ|PROT_WRITE, MAP_SHARED, shm_fd, 0);
-    if (shm == NULL) {
-	fprintf(stderr, "init: mmap() failed: %s\n", strerror(errno));
-	exit(1);
-    }
-}
-
-static void
-init_shim(int argc, char **argv)
-{
-    int		send[2];	/* from the master's perspective */
-    int		recv[2];
-    int		sts;
-
-    /* pipe and launch shim.exe */
-    if ((sts = pipe(send)) < 0) {
-	fprintf(stderr, "init: send pipe() failed: %s\n", strerror(errno));
-	exit(1);
-    }
-    if ((sts = pipe(recv)) < 0) {
-	fprintf(stderr, "init: recv pipe() failed: %s\n", strerror(errno));
-	exit(1);
-    }
-    sts = fork();
-    if (sts == 0) {
-	/*
-	 * child ... re-assign stdin and stdout and exec shim.exe
-	 */
-	int	i;
-	int	newfd;
-	char	**newargv;
-
-	close(0);
-	newfd = dup(send[0]);
-	if (newfd != 0) {
-	    fprintf(stderr, "init: fd=%d expecting 0 for stdin\n", newfd);
-	    exit(1);
-	}
-	close(send[0]);
-	close(send[1]);
-	close(1);
-	newfd = dup(recv[1]);
-	if (newfd != 1) {
-	    fprintf(stderr, "init: fd=%d expecting 1 for stdout\n", newfd);
-	    exit(1);
-	}
-	close(recv[0]);
-	close(recv[1]);
-
-	if ((newargv = (char **)malloc((argc+1)*sizeof(char *))) == NULL) {
-	    fprintf(stderr, "init: malloc argv[%d]: %s\n",
-		(argc+1)*sizeof(char *), strerror(errno));
-	    exit(1);
-	}
-	for (i = 0; i < argc; i++) {
-	    newargv[i] = argv[i];
-	}
-	newargv[i] = NULL;
-
-	execv(shimprog, newargv);
-	fprintf(stderr, "init: execv(%s): %s\n", shimprog, strerror(errno));
-	exit(1);
-    }
-    else if (sts < 0) {
-	fprintf(stderr, "init: fork() failed: %s\n", strerror(errno));
-	exit(1);
-    }
-
-    /*
-     * parent
-     */
-    if ((send_f = fdopen(send[1], "w")) == NULL) {
-	fprintf(stderr, "init: send fdopen(%d) failed: %s\n", send[1], strerror(errno));
-	exit(1);
-    }
-    setlinebuf(send_f);
-    close(send[0]);
-    if ((recv_f = fdopen(recv[0], "r")) == NULL) {
-	fprintf(stderr, "init: recv fdopen(%d) failed: %s\n", recv[0], strerror(errno));
-	exit(1);
-    }
-    setlinebuf(recv_f);
-    close(recv[1]);
-
-    /*
-     * initialize shim.exe
-     */
-    fprintf(send_f, "init\n");
-    fflush(send_f);
-    if (fgets(response, sizeof(response), recv_f) == NULL) {
-	fprintf(stderr, "init: recv EOF: %s\n", strerror(errno));
-	exit(1);
-    }
-    if (strncmp(response, "ok", 2) == 0) {
-	if (shm->size != shm_oldsize)
-	    shm_remap(shm->size);
-    }
-    else {
-	fprintf(stderr, "init: recv unexpected: %s\n", response);
-	exit(1);
-    }
-
-}
-
-/*
- * Rebuild the PMDA's indomtab[idx] using the instance data in the
- * corresponding shm seegment.
- */
-static void
-redo_indom(int idx)
-{
-    int		seg = SEG_INDOM + idx;
-    shm_inst_t	*ip;
-    int		numinst;
-    int		j;
-
-    if (shm->segment[seg].nelt == 0)
-	return;
-
-    ip = (shm_inst_t *)&((char *)shm)[shm->segment[seg].base];
-    if (ip->i_name[0] != 'c') {
-	return;
-    }
-
-    /*
-     * indom has changed
-     */
-    numinst = ip->i_inst;	// really numinst hiding here
-
-    /*
-     * number of instances changed, or inst ids changed or inst
-     * names changed ... simplest is to rebuild the indomtab[] entry
-     */
-    for (j = 0; j < indomtab[idx].it_numinst; j++) {
-	free(indomtab[idx].it_set[j].i_name);
-    }
-    indomtab[idx].it_numinst = numinst;
-    if ((indomtab[idx].it_set = (pmdaInstid *)realloc(indomtab[idx].it_set,
-    numinst * sizeof(pmdaInstid))) == NULL) {
-	fprintf(stderr, "redo_indom: realloc indomtab[%d][%d]: %s\n",
-	    idx, numinst * sizeof(pmdaInstid), strerror(errno));
-	exit(1);
-    }
-    for (j = 0; j < numinst; j++) {
-	indomtab[idx].it_set[j].i_inst = ip[j+1].i_inst;
-	if ((indomtab[idx].it_set[j].i_name = strdup(ip[j+1].i_name)) == NULL) {
-	    fprintf(stderr, "redo_indom: malloc name[%d][%d] %s [%d]: %s\n",
-		idx, j, ip[j+1].i_name, strlen(ip[j+1].i_name), strerror(errno));
-	    exit(1);
-	}
-    }
-    ip[0].i_name[0] = ' ';	// clear the changed flag
-
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
-	fprintf(stderr, "redo indomtab[%d]\n", idx);
-	for (j = 0; j < indomtab[idx].it_numinst; j++) {
-	    fprintf(stderr, "  [%d] %d \"%s\"\n", j,
-		indomtab[idx].it_set[j].i_inst, indomtab[idx].it_set[j].i_name);
-	}
-	fflush(stderr);
-    }
-#endif
-
-}
-
-static void
-prefetch(int numpmid, pmID pmidlist[])
-{
-    int		delta, numextra = 0;
-    int		sts, i;
-    pmID	*dst;
-    __pmID_int	extra[2];
-    __pmID_int	*pmidp;
-
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
-	fprintf(stderr, "prefetch(numpmid=%d, ...)\n", numpmid);
-    }
-#endif
-
-    /*
-     * we have derived filesys metrics, so may need to fetch more... ugh
-     * depends on pmids for these metrics
-     * 		117 filesys.capacity
-     *		118 filesys.used
-     *		119 filesys.free
-     *		120 dummy metric, rtab holds FreeMB
-     *		121 dummy metric, rtab holds %Free
-     */
-    for (i = 0; i < numpmid; i++) {
-	pmidp = (__pmID_int *)&pmidlist[i];
-	if ((pmidp->cluster == 0) &&
-	    (pmidp->item >= 117 && pmidp->item <= 119)) {
-	    extra[0] = extra[1] = *pmidp;
-	    extra[0].item = 120;
-	    extra[1].item = 121;
-	    numextra = 2;
-	    break;
-	}
-    }
-
-    delta = (numpmid + numextra) * sizeof(pmID) -
-	    shm->segment[SEG_SCRATCH].elt_size * shm->segment[SEG_SCRATCH].nelt;
-    if (delta > 0) {
-	memcpy(new_hdr, shm, hdr_size);
-	new_hdr->segment[SEG_SCRATCH].nelt = (numpmid+numextra) * sizeof(pmID);
-	new_hdr->size += delta;
-	shm_reshape(new_hdr);
-    }
-    dst = (pmID *)&((char *)shm)[shm->segment[SEG_SCRATCH].base];
-    if (numextra)
-	memcpy(dst + numpmid, extra, numextra * sizeof(pmID));
-    memcpy(dst, pmidlist, numpmid * sizeof(pmID));
-    numatoms = 0;
-    fprintf(send_f, "prefetch %d\n", numpmid + numextra);
-    fflush(send_f);
-    if (fgets(response, sizeof(response), recv_f) == NULL) {
-	fprintf(stderr, "prefetch: recv EOF: %s\n", strerror(errno));
-	numatoms = PM_ERR_IPC;
-	return;
-    }
-    if (strncmp(response, "err", 3) == 0) {
-	sscanf(&response[4], "%d", &sts);
-	numatoms = sts;
-	return;
-    }
-    if (strncmp(response, "ok", 2) != 0) {
-	numatoms = PM_ERR_IPC;
-	return;
-    }
-    sscanf(&response[3], "%d", &numatoms);
-    if (shm->size != shm_oldsize)
-	shm_remap(shm->size);
-
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
-	if (numatoms == 0)
-	    fprintf(stderr, "prefetch: no values\n");
-	else if (numatoms < 0)
-	    fprintf(stderr, "prefetch: Error: %s\n", pmErrStr(numatoms));
-	else {
-	    int			i;
-	    shm_result_t	*rtab;
-	    rtab = (shm_result_t *)&((char *)shm)[shm->segment[SEG_SCRATCH].base];
-	    for (i = 0; i < numatoms; i++) {
-		fprintf(stderr, "prefetch[%d] pmid=%s inst=%d ul=%u ull=%llu\n",
-			i, pmIDStr(rtab[i].r_pmid), rtab[i].r_inst,
-			rtab[i].r_atom.ul, rtab[i].r_atom.ull);
-	    }
-	}
-	fflush(stderr);
-    }
-#endif
-
-}
-
-/*
- * wrapper for pmdaFetch which primes the shm region ready for
- * the next fetch
- * ... real callback is fetch_callback()
- */
 static int
-fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+windows_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
-    int		s;
+    windows_instance_refresh(indom);
+    return pmdaInstance(indom, inst, name, result, pmda);
+}
 
-    prefetch(numpmid, pmidlist);
-
-    /*
-     * Update the indom tables, so libpcp_pmda will see the correct
-     * list of instances to drive the callback.
-     * Really only need to update the indoms that match metrics in
-     * the fetch, but this involves
-     * 	- searching metrictab[] to find the descriptor
-     * 	- seaching indomtab[] to find the matching indom
-     *
-     * I decided it was not worth the effort ... redo_indom() is
-     * really quick if there is nothing to be done!
-     */
-    for (s = 0; s < indomtab_sz; s++) {
-	redo_indom(s);
-    }
-
+static int
+windows_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+{
+    windows_fetch_refresh(numpmid, pmidlist);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
 static int
-fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
+windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    int			i, count;
-    shm_result_t	*rtab;
-    pmAtomValue		myatom;
-    __pmID_int		*pmidp;
+    __pmID_int		*pmidp = (__pmID_int *)&mdesc->m_desc.pmid;
+    pdh_metric_t	*mp;
+    int			i;
 
-#ifdef PCP_DEBUG
-    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
-	/* desperate */
-	fprintf(stderr, "fetch_callback(%s, %d, ...)\n", pmIDStr(mdesc->m_desc.pmid), inst);
-	fflush(stderr);
-    }
-#endif
+    if (pmidp->cluster != 0 || pmidp->item > metricdesc_sz)
+	return PM_ERR_PMID;
 
     /*
-     * perhaps it is one of the lucky ones that are derived or 
-     * do not use the PDH services
+     * Check if its one of the derived metrics, or one that doen't use PDH
      */
-    pmidp = (__pmID_int *)&mdesc->m_desc.pmid;
-    if (pmidp->cluster == 0) {
-	switch (pmidp->item) {
-	    case 106:	/* hinv.physmem */
-		myatom.ul = shm->physmem;
-		*atom = myatom;
-		return 1;
-
-	    case 107:	/* hinv.ncpu */
-		myatom.ul = indomtab[CPU_INDOM].it_numinst;
-		*atom = myatom;
-		return 1;
-
-	    case 108:	/* hinv.ndisk */
-		myatom.ul = indomtab[DISK_INDOM].it_numinst;
-		*atom = myatom;
-		return 1;
-
-	    case 109:	/* kernel.uname.distro */
-		myatom.cp = shm->uname;
-		*atom = myatom;
-		return 1;
-
-	    case 110:	/* kernel.uname.release */
-		myatom.cp = shm->build;
-		*atom = myatom;
-		return 1;
-
-	    case 111:	/* kernel.uname.version */
-		myatom.cp = shm->build;
-		*atom = myatom;
-		return 1;
-
-	    case 112:	/* kernel.uname.sysname */
-		myatom.cp = "Windows";
-		*atom = myatom;
-		return 1;
-
-	    case 113:	/* kernel.uname.machine */
-		myatom.cp = "?";
-		*atom = myatom;
-		return 1;
-
-	    case 114:	/* kernel.uname.nodename */
-		myatom.cp = "?";
-		*atom = myatom;
-		return 1;
-
-	    case 115:	/* pmda.uname */
-		myatom.cp = shm->uname;
-		*atom = myatom;
-		return 1;
-
-	    case 116:	/* pmda.version */
-		myatom.cp = pmGetConfig("PCP_VERSION");
-		*atom = myatom;
-		return 1;
-	}
+    switch (pmidp->item) {
+    case 106:	/* hinv.physmem */
+	atom->ul = windows_physmem;
+	return 1;
+    case 107:	/* hinv.ncpu */
+	atom->ul = pmdaCacheOp(CPU_INDOM, PMDA_CACHE_SIZE_ACTIVE);
+	return 1;
+    case 108:	/* hinv.ndisk */
+	atom->ul = pmdaCacheOp(DISK_INDOM, PMDA_CACHE_SIZE_ACTIVE);
+	return 1;
+    case 109:	/* kernel.uname.distro */
+	atom->cp = windows_uname;
+	return 1;
+    case 110:	/* kernel.uname.release */
+	atom->cp = windows_build;
+	return 1;
+    case 111:	/* kernel.uname.version */
+	atom->cp = windows_build;
+	return 1;
+    case 112:	/* kernel.uname.sysname */
+	atom->cp = "Windows";
+	return 1;
+    case 113:	/* kernel.uname.machine */
+	atom->cp = "?";
+	return 1;
+    case 114:	/* kernel.uname.nodename */
+	atom->cp = "?";
+	return 1;
+    case 115:	/* pmda.uname */
+	atom->cp = windows_uname;
+	return 1;
+    case 116:	/* pmda.version */
+	atom->cp = pmGetConfig("PCP_VERSION");
+	return 1;
     }
 
-    if (numatoms <= 0)
-	return numatoms;
-
-    rtab = (shm_result_t *)&((char *)shm)[shm->segment[SEG_SCRATCH].base];
-
+#if 0	/* TODO ... */
     /*
      * special case the filesystem metrics at this point -
      * mapping the PDH services semantics for these to the
@@ -716,28 +1217,31 @@ fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      * 		117 filesys.capacity
      *		118 filesys.used
      *		119 filesys.free
-     *		120 dummy metric, rtab holds FreeMB
-     *		121 dummy metric, rtab holds %Free
+     *		120 dummy metric, atomtab holds FreeMB
+     *		121 dummy metric, atomtab holds %Free
      */
-    if ((pmidp->cluster == 0) &&
-	(pmidp->item == 67 || (pmidp->item >= 117 && pmidp->item <= 119))) {
+    if (pmidp->item == 67 || (pmidp->item >= 117 && pmidp->item <= 119)) {
 	float used_space, free_space, free_percent;
 	unsigned long long used, avail, capacity;
 	int item;
 
-	for (count = 0, i = 0; i < numatoms; i++) {
-	    if (rtab[i].r_inst != inst)
+	/* TODO: fix this up ... probably needs to move in with the */
+	/* actual fetch code - need to flag if extra values needed, */
+	/* do the fetch, then stitch up the atom for these metrics. */
+
+	for (count = 0, i = 0; i < atomtab_sz; i++) {
+	    if (atomtab[i].inst != inst)
 		continue;
-	    if (pmidp->item == 67) {	/* filesys.full, rtab holds %Free */
-		atom->f = (1.0 - rtab[i].r_atom.f) * 100.0;
+	    if (pmidp->item == 67) {	/* filesys.full, atomtab holds %Free */
+		atom->f = (1.0 - atomtab[i].atom.f) * 100.0;
 		return 1;
 	    }
-	    item = ((__pmID_int*)&rtab[i].r_pmid)->item;
-	    if (item == 120) {		/* dummy metric, rtab holds FreeMB */
-		free_space = ((float)rtab[i].r_atom.ul);
+	    item = ((__pmID_int*)&atomtab[i].pmid)->item;
+	    if (item == 120) {		/* dummy metric, atomtab holds FreeMB */
+		free_space = ((float)atomtab[i].atom.ul);
 		count++;
-	    } else if (item == 121) {	/* dummy metric, rtab holds %Free */
-		free_percent = rtab[i].r_atom.f;
+	    } else if (item == 121) {	/* dummy metric, atomtab holds %Free */
+		free_percent = atomtab[i].atom.f;
 		count++;
 	    }
 	}
@@ -757,93 +1261,66 @@ fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ull = avail;
 	return 1;
     }
-
-    /*
-     * search in shm for pmAtomValues previously deposited by prefetch
-     */
-    for (i = 0; i < numatoms; i++) {
-	if (rtab[i].r_pmid == mdesc->m_desc.pmid && rtab[i].r_inst == inst) {
-	    *atom = rtab[i].r_atom;
-#ifdef PCP_DEBUG
-	    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
-		/* desperate */
-		fprintf(stderr, "fetch_callback: success @ prefetch[%d]\n", i);
-		fflush(stderr);
-	    }
 #endif
+
+    mp = &metricdesc[pmidp->item];
+    for (i = 0; i < mp->num_vals; i++) {
+	if (mp->vals[i].inst != inst)
+	    continue;
+	if (!(mp->vals[i].flags & V_COLLECTED))
 	    return 1;
-	}
+	*atom = mp->vals[i].atom;
+	return 0;
     }
-
-    return 0;
-
+    return 1;
 }
 
 static int
-help(int ident, int type, char **buf, pmdaExt *pmda)
+windows_help(int ident, int type, char **buf, pmdaExt *pmda)
 {
-    char	*src;
-    int		sts;
-
-    fprintf(send_f, "help %d %d\n", ident, type);
-    fflush(send_f);
-    if (fgets(response, sizeof(response), recv_f) == NULL) {
-	fprintf(stderr, "help: recv EOF: %s\n", strerror(errno));
-	return PM_ERR_IPC;
-    }
-    if (strncmp(response, "err", 3) == 0) {
-	sscanf(&response[4], "%d", &sts);
-	return sts;
-    }
-    if (strncmp(response, "ok", 2) != 0)
-	return PM_ERR_IPC;
-
-    if (shm->size != shm_oldsize)
-	shm_remap(shm->size);
-    src = (char *)&((char *)shm)[shm->segment[SEG_SCRATCH].base];
-    if ((*buf = strdup(src)) == NULL) {
-	fprintf(stderr, "help: malloc[%d] failed: %s\n", strlen(src), strerror(errno));
-	return -errno;
-    }
-
+    /* TODO */
     return 0;
-}
-
-int
-instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
-{
-    int			s;
-    int			sts;
-
-    for (s = 0; s < indomtab_sz; s++) {
-	if (indomtab[s].it_indom == indom) {
-	    /* TODO refresh -> shim <- ok? */
-	    redo_indom(s);
-	    break;
-	}
-    }
-    if (s == indomtab_sz) {
-	fprintf(stderr, "instance: Warning: indom %s not in indomtab[]\n",
-		pmInDomStr(indom));
-    }
-
-    sts = pmdaInstance(indom, inst, name, result, pmda);
-
-    return sts;
 }
 
 /*
  * Initialise the agent.
  */
-static void 
-pmda_init(pmdaInterface *dp)
+void 
+windows_init(pmdaInterface *dp)
 {
+    static pmdaMetric	*metrictab;
+    int			metrictab_sz = metricdesc_sz;
+    int			i;
 
-    pmdaSetFetchCallBack(dp, fetch_callback);
-    pmdaInit(dp, indomtab, indomtab_sz, metrictab, metrictab_sz);
-    dp->version.two.fetch = fetch;
-    dp->version.two.instance = instance;
-    dp->version.two.text = help;
+    if (isDSO)
+	pmdaDSO(dp, PMDA_INTERFACE_3, "windows DSO", NULL);
+
+    if (dp->status != 0)
+	return;
+
+    windows_globals();
+
+    /* Create the PMDA's metrictab[] version of the per-metric table */
+    metrictab = (pmdaMetric *)malloc(metrictab_sz * sizeof(pmdaMetric));
+    if (metrictab == NULL) {
+	fprintf(stderr, "Error: malloc metrictab [%d] failed: %s\n",
+		metrictab_sz * sizeof(pmdaMetric), strerror(errno));
+	return;
+    }
+    for (i = 0; i < metrictab_sz; i++) {
+	/* rewrite indom, now that we know what the domain number is */
+	metricdesc[i].desc.indom = windows_indom(metricdesc[i].qid, dp->domain);
+
+	/* write the metrictab entry for this metric */
+	metrictab[i].m_desc = metricdesc[i].desc;
+	metrictab[i].m_user = NULL;
+    }
+
+    dp->version.two.fetch = windows_fetch;
+    dp->version.two.instance = windows_instance;
+    dp->version.two.text = windows_help;
+    pmdaSetFetchCallBack(dp, windows_fetch_callback);
+    pmdaInit(dp, NULL, 0, metrictab, metrictab_sz);
 }
 
 static void
@@ -852,7 +1329,6 @@ usage(void)
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -e exec      pathname to shim executable [shim.exe]\n"
 	  "  -l logfile   write log into logfile rather than using default log name\n",
 	      stderr);		
     exit(1);
@@ -865,48 +1341,21 @@ int
 main(int argc, char **argv)
 {
     int			err = 0;
-    pmdaInterface	desc;
+    pmdaInterface	d;
     int			c;
 
-    __pmSetProgname(argv[0]);
+    isDSO = 0;
+    pmProgname = basename(argv[0]);
+    pmdaDaemon(&d, PMDA_INTERFACE_3, pmProgname, WINDOWS, "windows.log", NULL);
 
-    pmdaDaemon(&desc, PMDA_INTERFACE_3, pmProgname, WINDOWS,
-		"windows.log", NULL);
-
-    snprintf(shimprog, sizeof(shimprog),
-    		"%s/windows/shim.exe", pmGetConfig("PCP_PMDAS_DIR"));
-
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:?" "e:", &desc, &err)) != EOF) {
-	switch (c) {
-	    case 'e':	/* alternate shim executable */
-		strcpy(shimprog, optarg);
-		break;
-
-	    case '?':
-	    default:
-		err++;
-		break;
-	}
-    }
-   
-    if (err) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &d, &err)) != EOF)
+	err++;
+    if (err)
     	usage();
-    }
 
-    pmdaOpenLog(&desc);
-
-    /*
-     * initialize the shared memory region, establish the pipe
-     * for communication with shim.exe and launch shim.exe
-     */
-    init_shm();
-    init_data(desc.domain);
-    init_shim(argc, argv);
-
-    pmda_init(&desc);
-
-    pmdaConnect(&desc);
-    pmdaMain(&desc);
-
+    pmdaOpenLog(&d);
+    windows_init(&d);
+    pmdaConnect(&d);
+    pmdaMain(&d);
     exit(0);
 }

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# take the output from show-all-ctrs.exe
+# take the output from pdhlist.exe
 #	- remove hostname
 #	- collapse known instance domains to a symbolic representation
 #	- match up against patterns in data.c
@@ -10,7 +10,7 @@
 #debug# trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 tmp=`pwd`/tmp
 
-# Examples of instance domains to collapse from show-all-ctrs.exe
+# Examples of instance domains to collapse from pdhlist.exe
 # output
 #
 # SQLServer:Buffer Partition(0)\Free pages
@@ -51,7 +51,7 @@ elif [ $# -eq 0 ]
 then
     cat
 else
-    echo "Usage: $0 [output-file-from-show-all-ctrs.exe]" >&2
+    echo "Usage: $0 [output-file-from-pdhlist]" >&2
     exit 1
 fi \
 | dos2unix \
@@ -93,7 +93,7 @@ s/([^/]*\/[0-9]*#[0-9]*)\\/(<name>\/<pid>#<tid>)\\/
     -e '/^Terminal Services Session(/s/(.*)\\/(<tty>)\\/'
 
 # This step tries to deal with this class of cases ...
-# show-ctrs-all reports stuff like
+# pdhlist reports stuff like
 #	SQLServer:Locks\Average Wait Time (ms)
 #	SQLServer:Locks(_Total)\Average Wait Time (ms)
 #	SQLServer:Locks(*/*#*)\Average Wait Time (ms)
