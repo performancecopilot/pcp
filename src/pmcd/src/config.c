@@ -27,7 +27,9 @@
 #include "pmcd.h"
 #include <ctype.h>
 #include <sys/stat.h>
+#if defined(HAVE_SYS_WAIT_H)
 #include <sys/wait.h>
+#endif
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
 #endif
