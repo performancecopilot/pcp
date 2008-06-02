@@ -85,7 +85,7 @@ again:
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "Error: __pmFindPDUBuf(%d) %s\n",
-		ntohl(head), strerror(errno));
+		(int)ntohl(head), strerror(errno));
 #endif
 	fseek(f, offset, SEEK_SET);
 	return -errno;
@@ -114,7 +114,7 @@ again:
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, "Error: head-tail mismatch (%d-%d)\n",
-		ntohl(head), ntohl(tail));
+		(int)ntohl(head), (int)ntohl(tail));
 #endif
 	return PM_ERR_LOGREC;
     }
@@ -133,7 +133,7 @@ again:
 	    else
 		fprintf(stderr, "unknown time");
 	}
-	fprintf(stderr, " len=%d (incl head+tail)\n", ntohl(head));
+	fprintf(stderr, " len=%d (incl head+tail)\n", (int)ntohl(head));
     }
 #endif
 
