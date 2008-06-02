@@ -846,6 +846,30 @@ vset_resize(pmResult *rp, int i, int onumval, int numval)
     return 0;
 }
 
+static char *
+simabi()
+{
+#if defined(__linux__) 
+# if defined(__i386__)
+    return "ia32";
+# elif defined(__ia64__) || defined(__ia64)
+    return "ia64";
+# else
+    return SIM_ABI;	/* SIM_ABI is defined in the linux Makefile */
+# endif /* __linux__ */
+#elif defined(IS_SOLARIS) || defined(IS_INTERIX) || defined(IS_FREEBSD)
+    return "elf";
+#elif defined(IS_DARWIN)
+    return "Mach-O";
+#elif defined(IS_CYGWIN) || defined(IS_MINGW)
+    return "i386";
+#elif defined(IS_AIX)
+    return "powerpc";
+#else
+    !!! bozo : dont know which executable format pmcd should be!!!
+#endif
+}
+
 static int
 pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
@@ -940,40 +964,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.cp = tz;
 				break;
 			case 6:		/* simabi (pmcd calling convention) */
-				atom.cp =
-#if defined(_MIPS_SIM)
-
-#if   _MIPS_SIM == _MIPS_SIM_ABI32
-				    "o32";
-#elif _MIPS_SIM == _MIPS_SIM_NABI32
-				    "n32";
-#elif _MIPS_SIM == _MIPS_SIM_ABI64
-				    "64";
-#else
-    !!! bozo : dont know which MIPS executable format pmcd should be!!!
-#endif
-
-#elif defined(__linux__) 
-#if defined(__i386__)
-				    "ia32";
-#elif defined(__ia64__) || defined(__ia64)
-				    "ia64";
-#else
-				    /* SIM_ABI is defined in the linux Makefile */
-				    SIM_ABI;
-#endif /* __linux__ */
-
-#elif defined(IS_SOLARIS) || defined(IS_INTERIX) || defined(IS_FREEBSD)
-				    "elf";
-#elif defined(IS_DARWIN)
-				    "Mach-O";
-#elif defined(IS_CYGWIN)
-				    "i386";
-#elif defined(IS_AIX)
-				    "powerpc";
-#else
-    !!! bozo : dont know which executable format pmcd should be!!!
-#endif
+				atom.cp = simabi();
 				break;
 			case 7:		/* version */
 				atom.cp = PCP_VERSION;
