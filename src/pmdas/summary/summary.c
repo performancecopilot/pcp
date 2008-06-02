@@ -19,40 +19,28 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include "platform_defs.h"
-
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
 #include <ctype.h>
 #include <signal.h>
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-#include <sys/resource.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <netdb.h>
-#include <fcntl.h>
-#include <syslog.h>
-#include <errno.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "./summary.h"
-#include "./domain.h"
+#include "summary.h"
+#include "domain.h"
+#ifdef HAVE_SYS_RESOURCE_H
+#include <sys/resource.h>
+#endif
+#ifdef HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
 
-int			nmeta = 0;
-meta_t			*meta = NULL;
+int			nmeta;
+meta_t			*meta;
 
-pmResult 		*cachedResult = NULL;
-pmResult 		*cachedConfigResult = NULL;
-char			*configfile = NULL;
+pmResult 		*cachedResult;
+pmResult 		*cachedConfigResult;
+char			*configfile;
 
-static int		*freeList = NULL;
+static int		*freeList;
 
 static int
 summary_desc(pmID pmid, pmDesc *desc, pmdaExt * ex)
@@ -67,13 +55,6 @@ found:
 	return 0; /* success */
     }
 
-    /* TODO EXCEPTION PCP 2.0
-     * Use a hash list.
-     * A hash list could speed up the lookup.
-     * pmid --> meta_t
-     * However, its probably not really warranted and
-     * other agents don't bother doing this :)
-     */
     for (i = 0; i < nmeta; i++) {
 	if (pmid == meta[i].desc.pmid)
 	    goto found;
@@ -355,7 +336,7 @@ summary_init(pmdaInterface *dp)
 
     mainLoopFreeResultCallback(callback);
 
-    pmdaInit (dp, NULL, 0, NULL, 0);
+    pmdaInit(dp, NULL, 0, NULL, 0);
 }
 
 void
@@ -365,5 +346,5 @@ summary_done(void)
 
     fprintf(stderr, "summary agent pid=%d done\n", getpid());
     kill(clientPID, SIGINT);
-    waitpid (clientPID, &st, 0);
+    waitpid(clientPID, &st, 0);
 }
