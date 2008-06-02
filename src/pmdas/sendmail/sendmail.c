@@ -52,7 +52,10 @@ static pmdaIndom indomtab[] = {
 
 static char		*statsfile = "/var/sendmail.st";
 static int		nmailer;
-static void		*ptr = NULL;
+static void		*ptr;
+#ifdef IS_MINGW
+static HANDLE		hdl;
+#endif
 static struct stat	laststatbuf;
 static time_t		*start_date;
 static __uint32_t	*msgs_from;
@@ -143,7 +146,12 @@ map_stats(void)
 	/* if sendmail not collecting stats this is expected */
 	if (ptr != NULL) {
 	    /* must have gone away */
+#ifdef IS_MINGW
+	    UnmapViewOfFile(ptr);
+	    CloseHandle(hdl);
+#else
 	    munmap(ptr, laststatbuf.st_size);
+#endif
 	    close(fd);
 	    ptr = NULL;
 	    notified &= ~MAPSTATS_NOTV2STRUCT;
@@ -182,7 +190,12 @@ map_stats(void)
 	 */
 
 	if (ptr != NULL) {
+#ifdef IS_MINGW
+	    UnmapViewOfFile(ptr);
+	    CloseHandle(hdl);
+#else
 	    munmap(ptr, laststatbuf.st_size);
+#endif
 	    close(fd);
 	    ptr = NULL;
 	    notified &= ~MAPSTATS_NOTV2STRUCT;
@@ -198,9 +211,21 @@ map_stats(void)
 			pmProgname, statsfile, strerror(errno));
 	    return;
 	}
-
+#ifdef IS_MINGW
+	if ((hdl = CreateFileMapping((HANDLE)_get_osfhandle(fd), NULL,
+			PAGE_READONLY, 0, statbuf.st_size, NULL)) == NULL) {
+	    if (!(notified & MAPSTATS_MAPFAIL)) {
+		__pmNotifyErr(LOG_ERR, "%s: map_stats: mapping %s failed: %s",
+			    pmProgname, statsfile, strerror(errno));
+	    }
+	    close(fd);
+	    notified |= MAPSTATS_MAPFAIL;
+	    return;
+	}
+	ptr = MapViewOfFile(hdl, FILE_MAP_READ, 0, 0, statbuf.st_size);
+#else
 	ptr = mmap(NULL, statbuf.st_size, PROT_READ, MAP_SHARED, fd, 0);
-
+#endif
 	if (ptr == MAP_FAILED) {
 	    if (!(notified & MAPSTATS_MAPFAIL)) {
 		__pmNotifyErr(LOG_ERR, "%s: map_stats: mmap of file %s failed: %s",
