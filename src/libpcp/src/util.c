@@ -1067,3 +1067,61 @@ alphasort(const_dirent **p, const_dirent **q)
     return strcmp((*p)->d_name, (*q)->d_name);
 }
 #endif
+
+#define PROCFS_ENTRY_SIZE 40	/* encompass any size of entry for pid */
+
+#if defined(IS_DARWIN)	/* No procfs on Mac OS X */
+#include <sys/sysctl.h>
+int
+__pmProcessExists(pid_t pid)
+{
+    struct kinfo_proc kp;
+    size_t len = sizeof(kp);
+    int mib[4];
+
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC;
+    mib[2] = KERN_PROC_PID;
+    mib[3] = pid;
+    if (sysctl(mib, 4, &kp, &len, NULL, 0) == -1)
+       return 0;
+    return (len > 0);
+}
+#elif defined(HAVE_PROCFS)
+#define PROCFS			"/proc"
+#define PROCFS_PATH_SIZE	(sizeof(PROCFS)+PROCFS_ENTRY_SIZE)
+int 
+__pmProcessExists(pid_t pid)
+{
+    char proc_buf[PROCFS_PATH_SIZE];
+    snprintf(proc_buf, sizeof(proc_buf), "%s/%d", PROCFS, (int)pid);
+    return (access(proc_buf, F_OK) == 0);
+}
+#elif !defined(IS_MINGW)
+!bozo!
+#endif
+
+#if defined(HAVE_KILL)
+int
+__pmProcessTerminate(pid_t pid, int force)
+{
+    return kill(pid, force ? SIGKILL : SIGTERM);
+}
+#elif !defined(IS_MINGW)
+!bozo!
+#endif
+
+#if defined(HAVE_SBRK)
+unsigned long
+__pmProcessDataSize()
+{
+    static void *base;
+
+    if (base == NULL)
+	base = sbrk(0);
+    return (sbrk(0) - base) / 1024;
+}
+#elif !defined(IS_MINGW)
+#warning "Platform does not define a process datasize interface?"
+unsigned long __pmProcessDataSize() { return 0L; }
+#endif

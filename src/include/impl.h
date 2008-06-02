@@ -1081,6 +1081,8 @@ extern unsigned int __pmMakeAuthCookie(unsigned int, pid_t);
  * platform independent process routines
  */
 extern int __pmProcessExists(pid_t);
+extern int __pmProcessTerminate(pid_t, int);
+extern unsigned long __pmProcessDataSize();
 
 /*
  * AF - general purpose asynchronous event management routines

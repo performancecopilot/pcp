@@ -34,7 +34,6 @@ extern void StartDaemon(void);
 
 int 		pmcd_hi_openfds = -1;   /* Highest known file descriptor for pmcd */
 int		_pmcd_done;		/* flag from pmcd pmda */
-char		*_pmcd_data;    	/* base size of data */
 
 int		AgentDied = 0;		/* for updating mapdom[] */
 static int	timeToDie = 0;		/* For SIGINT handling */
@@ -590,9 +589,9 @@ Shutdown(void)
 	for (i = 0; i < nAgents; i++) {
 	    AgentInfo *ap = &agent[i];
 	    if (ap->status.connected) {
-		kill((ap->ipcType == AGENT_SOCKET) 
-		     ? ap->ipc.socket.agentPid 
-		     : ap->ipc.pipe.agentPid, SIGKILL);
+		pid_t pid = ap->ipcType == AGENT_SOCKET ?
+			    ap->ipc.socket.agentPid : ap->ipc.pipe.agentPid;
+		__pmProcessTerminate(pid, 1);
 	    }
 	}
     }
@@ -965,12 +964,8 @@ main(int argc, char *argv[])
 #endif
 
     umask(022);
+    __pmProcessDataSize();
     __pmSetInternalState(PM_STATE_PMCS);
-#if defined(HAVE_SBRK)
-    _pmcd_data = sbrk(0);
-#else
-    _pmcd_data = 0;
-#endif
 
 #ifdef MALLOC_AUDIT
     _malloc_reset_();

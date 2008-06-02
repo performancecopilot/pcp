@@ -53,7 +53,6 @@ extern unsigned int	*__pmPDUCntOut;
 
 /* from pmcd's address space, not in headers */
 extern int		_pmcd_done;	/* pending request to terminate */
-extern char		*_pmcd_data;	/* base size of data */
 extern int		_pmcd_trace_nbufs;	/* number of trace buffers */
 
 /*
@@ -942,7 +941,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.l = pmDebug;
 				break;
 			case 1:		/* datasize */
-				atom.ul = (int)((__psint_t)sbrk(0) - (__psint_t)_pmcd_data) / 1024;
+				atom.ul = __pmProcessDataSize();
 				break;
 			case 2:		/* numagents */
 				atom.ul = 0;

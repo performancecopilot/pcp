@@ -463,8 +463,6 @@ static __uint32_t	const_rate_gradient = 0;
 static __uint32_t	const_rate_value = 10485760;
 static struct timeval	const_rate_timestamp = {0,0};
 
-static char		*pmda_data;
-
 /* this needs to be visible in pmda.c */
 int			not_ready = 0;	/* sleep interval in seconds */
 
@@ -1759,7 +1757,7 @@ doit:
 		    atom.ul = *ulp;
 		    break;
 		case 91:	/* datasize */
-		    atom.ul = (int)((__psint_t)sbrk(0) - (__psint_t)pmda_data) / 1024;
+		    atom.ul = __pmProcessDataSize();
 		    break;
 		case 1023: /* bigid */
 		    atom.l = 4194303;
@@ -2045,14 +2043,13 @@ sample_store(pmResult *result, pmdaExt *ep)
 
 void sample_init(pmdaInterface *dp)
 {
-
     char	helppath[MAXPATHLEN];
 
-    /* base of data segment */
-    pmda_data = sbrk(0);
+    __pmProcessDataSize();	/* calculate base data address */
 
     if (_isDSO) {
-	snprintf(helppath, sizeof(helppath), "%s/pmdas/sample/dsohelp", pmGetConfig("PCP_VAR_DIR"));
+	snprintf(helppath, sizeof(helppath), "%s/pmdas/sample/dsohelp",
+			pmGetConfig("PCP_VAR_DIR"));
 	pmdaDSO(dp, PMDA_INTERFACE_2, "sample DSO", helppath);
     }
 
