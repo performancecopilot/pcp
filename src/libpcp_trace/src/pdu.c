@@ -19,21 +19,11 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/time.h>
 #include <signal.h>
-#include <errno.h>
-
-#include "platform_defs.h"
+#include "pmapi.h"
+#include "impl.h"
 #include "trace.h"
 #include "trace_dev.h"
-
 
 typedef struct {
     __pmTracePDU	*pdubuf;
@@ -43,7 +33,6 @@ static more_ctl		*more;
 static int		maxfd = -1;
 
 extern int	__pmfd;
-
 
 static char *
 pdutypestr(int type)
@@ -217,14 +206,16 @@ __pmtracexmitPDU(int fd, __pmTracePDU *pdubuf)
 {
     int			n, len;
     __pmTracePDUHdr	*php = (__pmTracePDUHdr *)pdubuf;
+
+#if defined(HAVE_SIGPIPE)
     SIG_PF		user_onpipe;
-
-    if (__pmfd == -1)
-	return PMTRACE_ERR_IPC;
-
     user_onpipe = signal(SIGPIPE, SIG_IGN);
     if (user_onpipe != SIG_DFL)	/* put user handler back */
 	signal(SIGPIPE, user_onpipe);
+#endif
+
+    if (__pmfd == -1)
+	return PMTRACE_ERR_IPC;
 
     php->from = getpid();
 #ifdef PMTRACE_DEBUG

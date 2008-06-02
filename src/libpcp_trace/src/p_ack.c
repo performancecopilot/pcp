@@ -19,14 +19,8 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <ctype.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include "platform_defs.h"
+#include "pmapi.h"
+#include "impl.h"
 #include "trace.h"
 #include "trace_dev.h"
 

@@ -28,7 +28,7 @@
 #include <pthread.h>
 #elif defined(HAVE_ABI_MUTEX_H)
 #include <abi_mutex.h>
-#else
+#elif !defined(IS_MINGW)
 #error !bozo!
 #endif
 
@@ -113,6 +113,14 @@ static abilock_t        _pmtracelock;
 #define TRACE_LOCK	spin_lock(&_pmtracelock)
 #define TRACE_UNLOCK	release_lock(&_pmtracelock)
 #define TRACE_ERRNO	oserror()
+
+#elif defined(IS_MINGW)
+/* use native Win32 primitives */
+static HANDLE _pmtracelock;
+#define TRACE_LOCK_INIT (_pmtracelock = CreateMutex(NULL, FALSE, NULL), 0)
+#define TRACE_LOCK	WaitForSingleObject(_pmtracelock, INFINITE)
+#define TRACE_UNLOCK	ReleaseMutex(_pmtracelock)
+#define TRACE_ERRNO	GetLastError()
 
 #else
 #error !bozo!

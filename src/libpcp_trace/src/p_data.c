@@ -24,23 +24,10 @@
  *	   64-bit integer, but no other format conversion
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-#include "trace.h"
-#include "trace_dev.h"
-
-/*
- * Pull in the libpcp definitions for the endian macros
- */
 #include "pmapi.h"
 #include "impl.h"
+#include "trace.h"
+#include "trace_dev.h"
 
 /*
  * But we don't want to force linking with libpcp, so this is a direct
