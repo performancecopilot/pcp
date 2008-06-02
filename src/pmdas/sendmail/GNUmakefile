@@ -23,10 +23,10 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-
 IAM	= sendmail
 DOMAIN	= SENDMAIL
-TARGETS	= $(IAM)$(EXECSUFFIX)
+CMDTARGET = $(IAM)$(EXECSUFFIX)
+LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 CFILES	= sendmail.c
 SCRIPTS	= Install Remove
 DFILES	= README
@@ -36,16 +36,17 @@ LSRCFILES= $(SCRIPTS) pmns help root Sendmail.pmchart $(DFILES) \
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart
 
-LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so $(TARGETS)
+LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) $LIBTARGET) $(CMDTARGET)
 LLDLIBS	= -lpcp_pmda -lpcp
 
-default_pcp default:	$(TARGETS)
+default_pcp default:	$(CMDTARGET) $(LIBTARGET)
 
 include $(BUILDRULES)
 
 install install_pcp:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
+	$(INSTALL) -m 755 $(LIBTARGET) $(PMDADIR)/$(LIBTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/pmda$(IAM)$(EXECSUFFIX)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
