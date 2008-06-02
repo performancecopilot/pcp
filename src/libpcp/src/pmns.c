@@ -40,9 +40,7 @@
 static char	*cpp_path[] = {
     CPP_SIMPLE,
     "/lib/cpp",
-    "/usr/cpu/sysgen/root/lib/cpp",
     "/usr/lib/cpp",
-    "/usr/cpu/sysgen/root/usr/lib/cpp",
     "/usr/bin/cpp",
     NULL
 };
