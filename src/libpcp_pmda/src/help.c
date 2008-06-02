@@ -119,7 +119,7 @@ pmdaOpenHelp(char *fname)
 #else	/* POSIX */
 		mmap(NULL, size, PROT_READ, MAP_PRIVATE, hp->dir_fd, 0);
 #endif
-    if (hp->index == NULL) {
+    if (hp->index == MAP_FAILED) {
 	sts = -errno;
 	goto failed;
     }
@@ -151,7 +151,7 @@ pmdaOpenHelp(char *fname)
 #else
 		mmap(NULL, hp->textlen, PROT_READ, MAP_PRIVATE, hp->pag_fd, 0);
 #endif
-    if (hp->text == NULL) {
+    if (hp->text == MAP_FAILED) {
 	sts = -errno;
 	goto failed;
     }
