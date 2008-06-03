@@ -21,9 +21,11 @@
 static void setupEnvironment(void)
 {
     QString confirm = pmGetConfig("PCP_BIN_DIR");
+    confirm.prepend("PCP_XCONFIRM_PROG=");
     confirm.append("/kmquery");
-    setenv("PCP_XCONFIRM_PROG", (const char *)confirm.toAscii(), 1);
-    setenv("PCP_STDERR", "DISPLAY", 0);	// do not overwrite, for QA
+    putenv((const char *)confirm.toAscii());
+    if (getenv("PCP_STDERR") == NULL)	// do not overwrite, for QA
+	putenv("PCP_STDERR=DISPLAY");
 
     QCoreApplication::setOrganizationName("PCP");
     QCoreApplication::setApplicationName("kmtime");
