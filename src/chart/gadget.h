@@ -23,6 +23,7 @@ class Gadget
 {
 public:
     Gadget();
+    virtual ~Gadget() { }
     virtual void setWidget(QWidget *w) { my.widget = w; }
     virtual void setCurrent(bool) { }
     virtual void setScheme(QString &s) { my.scheme = s; }
