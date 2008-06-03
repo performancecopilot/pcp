@@ -1,2 +1,9 @@
-#define VERSION	"@pkg_version@"
-#define HTMLDIR	"@pkg_html_dir@"
+#define VERSION "@pkg_version@"
+#define HTMLDIR "@pkg_html_dir@"
+
+#define HAVE_PM_SET_PROGNAME @have_pm_set_progname@
+#if HAVE_PM_SET_PROGNAME == 0
+static inline void __pmSetProgname(char *p) { pmProgname = basename(p); }
+#endif
+
+#define PM_USE_CONTEXT_LOCAL 1

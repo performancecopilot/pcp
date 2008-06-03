@@ -21,6 +21,8 @@ AC_SUBST(qt_release)
 AC_OUTPUT( \
 	src/include/builddefs \
 	src/include/version.h \
+	src/dumptext/kmdumptext.pro \
+	src/query/kmquery.pro \
 	src/chart/kmchart.pro \
 	src/time/kmtime.pro \
 	man/html/kmchart.adp \

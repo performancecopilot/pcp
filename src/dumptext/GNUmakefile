@@ -8,7 +8,7 @@ QRCFILE = $(COMMAND).qrc
 UIFILES = $(shell echo *.ui)
 SOURCES = kmdumptext.cpp
 
-LSRCFILES = $(PROJECT) $(SOURCES)
+LSRCFILES = $(PROJECT).in $(SOURCES)
 LDIRDIRT = build $(COMMAND).xcodeproj
 LDIRT = $(COMMAND)
 

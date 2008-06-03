@@ -43,7 +43,7 @@ AC_DEFUN([AC_PACKAGE_NEED_LIBPCP],
 #
 AC_DEFUN([AC_PACKAGE_HAVE_PM_SET_PROGNAME],
   [ AC_CHECK_LIB(pcp, __pmSetProgname,
-    [ have_pm_set_progname=true ], [ have_pm_set_progname=false ])
+    [ have_pm_set_progname=1 ], [ have_pm_set_progname=0 ])
     AC_SUBST(have_pm_set_progname)
   ])
 
