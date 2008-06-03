@@ -10,8 +10,9 @@ FORMS		= aboutdialog.ui console.ui kmtimelive.ui kmtimearch.ui \
 		  seealsodialog.ui showboundsdialog.ui
 ICON		= kmtime.icns
 RESOURCES	= kmtime.qrc
-INCLUDEPATH	+= ../include ../libqwt
-LIBS		= -lpcp -lqwt -L../libqwt
+INCLUDEPATH	+= ../include ../libqwt @pcp_inc_dir@
+LIBS		= -lpcp -L../libqwt -lqwt
 LIBS		+= -L../libqwt/@qt_release@ -L../libqwt/build/@qt_release@
+win32:LIBS	+= -lwsock32
 QT		+= @qt_assistant@ network
 CONFIG		+= qt @qt_assistant@ warn_on @qt_release@

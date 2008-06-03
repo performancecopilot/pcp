@@ -28,9 +28,10 @@ FORMS		= aboutdialog.ui chartdialog.ui console.ui exportdialog.ui \
 		  tabdialog.ui
 ICON		= kmchart.icns
 RESOURCES	= kmchart.qrc
-INCLUDEPATH	+= ../include ../libqmc ../libqwt
-LIBS		= -lpcp -lqmc -lqwt -L../libqmc -L../libqwt
+INCLUDEPATH	+= ../include ../libqmc ../libqwt @pcp_inc_dir@
+LIBS		= -lpcp -L../libqmc -lqmc -L../libqwt -lqwt
 LIBS		+= -L../libqmc/@qt_release@ -L../libqmc/build/@qt_release@
 LIBS		+= -L../libqwt/@qt_release@ -L../libqwt/build/@qt_release@
+win32:LIBS	+= -lwsock32 libregex.dll.a
 QT		+= @qt_assistant@ network
 CONFIG		+= qt @qt_assistant@ warn_on @qt_release@
