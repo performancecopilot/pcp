@@ -22,7 +22,10 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     AC_PACKAGE_NEED_UTILITY($1, "$cc", cc, [C++ compiler])
 
     if test -z "$MAKE"; then
-        AC_PATH_PROG(MAKE, gmake,, /usr/bin:/usr/local/bin:/usr/freeware/bin)
+        AC_PATH_PROG(MAKE, mingw32-make,, /mingw/bin:/usr/bin:/usr/local/bin)
+    fi
+    if test -z "$MAKE"; then
+        AC_PATH_PROG(MAKE, gmake,, /usr/bin:/usr/local/bin)
     fi
     if test -z "$MAKE"; then
         AC_PATH_PROG(MAKE, make,, /usr/bin)
@@ -32,7 +35,7 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     AC_PACKAGE_NEED_UTILITY($1, "$make", make, [GNU make])
 
     if test -z "$TAR"; then
-        AC_PATH_PROG(TAR, tar,, /usr/freeware/bin:/bin:/usr/local/bin:/usr/bin)
+        AC_PATH_PROG(TAR, tar,, /bin:/usr/local/bin:/usr/bin)
     fi
     tar=$TAR
     AC_SUBST(tar)
@@ -77,7 +80,7 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     AC_PROG_LN_S
 
     if test -z "$RPM"; then
-        AC_PATH_PROG(RPM, rpm,, /bin:/usr/bin:/usr/freeware/bin)
+        AC_PATH_PROG(RPM, rpm,, /bin:/usr/bin)
     fi
     rpm=$RPM
     AC_SUBST(rpm)
