@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2006-2008, Aconex.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ *
+ * @configure_input@
+ */
+#ifndef VERSION_H
+#define VERSION_H
+
 #define VERSION "@pkg_version@"
 #define HTMLDIR "@pkg_html_dir@"
 
@@ -8,3 +26,5 @@ static inline void __pmSetProgname(char *p) { pmProgname = basename(p); }
 #endif
 
 #define PM_USE_CONTEXT_LOCAL 1
+
+#endif // VERSION_H
