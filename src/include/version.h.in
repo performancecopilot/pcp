@@ -3,6 +3,7 @@
 
 #define HAVE_PM_SET_PROGNAME @have_pm_set_progname@
 #if HAVE_PM_SET_PROGNAME == 0
+extern char *pmProgname;
 static inline void __pmSetProgname(char *p) { pmProgname = basename(p); }
 #endif
 

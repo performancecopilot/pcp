@@ -27,6 +27,7 @@
 #include <qmc_group.h>
 #include <qmc_metric.h>
 #include <qmc_context.h>
+#include "version.h"
 
 // Temporary buffer
 char buffer[256];
@@ -756,7 +757,7 @@ main(int argc, char *argv[])
     double pos;
 
     // Set the program name for error messages
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
 
     // Default update interval is 1 second
     interval.tv_sec = 1;
@@ -770,7 +771,7 @@ main(int argc, char *argv[])
 //
 
     while((c = getopt(argc, argv, 
-	   "A:a:c:Cd:D:f:FgGh:HilmMn:NO:op:P:rR:s:S:t:T:uU:w:XZ:z?")) != EOF) {
+	   "A:a:c:Cd:D:f:FgGh:HilmMn:NO:op:P:rR:s:S:t:T:uU:Vw:XZ:z?")) != EOF) {
 	switch (c) {
 	case 'A':       // alignment
             if (Aflag) {
@@ -1030,6 +1031,10 @@ main(int argc, char *argv[])
 	case 'U':	// error string
 	    errStr = optarg;
 	    break;
+
+	case 'V':	// version
+	    printf("%s %s\n", pmProgname, VERSION);
+	    exit(0);
 
         case 'w':       // width
 	    if (precFlag) {

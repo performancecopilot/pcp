@@ -17,15 +17,16 @@
 #include <pcp/impl.h>
 #include <kmtime.h>
 #include "timelord.h"
+#include "version.h"
 
 static void setupEnvironment(void)
 {
     QString confirm = pmGetConfig("PCP_BIN_DIR");
     confirm.prepend("PCP_XCONFIRM_PROG=");
     confirm.append("/kmquery");
-    putenv((const char *)confirm.toAscii());
+    putenv(strdup((const char *)confirm.toAscii()));
     if (getenv("PCP_STDERR") == NULL)	// do not overwrite, for QA
-	putenv("PCP_STDERR=DISPLAY");
+	putenv(strdup("PCP_STDERR=DISPLAY"));
 
     QCoreApplication::setOrganizationName("PCP");
     QCoreApplication::setApplicationName("kmtime");
@@ -38,13 +39,13 @@ int main(int argc, char **argv)
     int			errorFlag = 0;
     int			port = -1, autoport = 0;
     char		*endnum, *envstr, portname[32];
-    static char		usage[] = "Usage: %s [-a | -h] [-p port]\n";
+    static char		usage[] = "Usage: %s [-V] [-a | -h] [-p port]\n";
 
     QApplication a(argc, argv);
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
     setupEnvironment();
 
-    while ((c = getopt(argc, argv, "ahp:D:?")) != EOF) {
+    while ((c = getopt(argc, argv, "ahp:D:V?")) != EOF) {
 	switch (c) {
 
 	case 'a':
@@ -70,6 +71,10 @@ int main(int argc, char **argv)
 	    else
 		pmDebug |= sts;
 	    break;
+
+	case 'V':		/* version */
+	    printf("%s %s\n", pmProgname, VERSION);
+	    exit(0);
 
 	case '?':
 	    errorFlag++;
