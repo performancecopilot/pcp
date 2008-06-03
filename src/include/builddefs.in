@@ -64,6 +64,7 @@ PACKAGE_MAKER	= @package_maker@
 HDIUTIL		= @hdiutil@
 DPKG		= @dpkg@
 
+HAVE_PM_SET_PROGNAME = @have_pm_set_progname@
 HAVE_ZIPPED_MANPAGES = @have_zipped_manpages@
 
 include $(TOPDIR)/src/include/buildmacros

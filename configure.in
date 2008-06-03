@@ -8,8 +8,7 @@ AC_PACKAGE_NEED_QT_QMAKE
 
 AC_PACKAGE_NEED_PMAPI_H
 AC_PACKAGE_NEED_LIBPCP
-AC_PACKAGE_NEED_PTHREAD_H
-AC_PACKAGE_NEED_PTHREADMUTEXINIT
+AC_PACKAGE_HAVE_PM_SET_PROGNAME
 
 AC_MANUAL_FORMAT
 
@@ -23,6 +22,6 @@ AC_OUTPUT( \
 	src/include/builddefs \
 	src/include/version.h \
 	src/chart/kmchart.pro \
-	man/html/kmchart.adp \
 	src/time/kmtime.pro \
+	man/html/kmchart.adp \
 	man/html/kmtime.adp)

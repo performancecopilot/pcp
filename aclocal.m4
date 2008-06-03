@@ -143,6 +143,15 @@ AC_DEFUN([AC_PACKAGE_NEED_LIBPCP],
   ])
 
 #
+# Check if we have the __pmSetProgname routine in libpcp
+#
+AC_DEFUN([AC_PACKAGE_HAVE_PM_SET_PROGNAME],
+  [ AC_CHECK_LIB(pcp, __pmSetProgname,
+    [ have_pm_set_progname=true ], [ have_pm_set_progname=false ])
+    AC_SUBST(have_pm_set_progname)
+  ])
+
+#
 # Check if we have the pmdaMain routine in libpcp_pmda
 #
 AC_DEFUN([AC_PACKAGE_NEED_LIBPCP_PMDA],
