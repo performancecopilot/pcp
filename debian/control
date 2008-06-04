@@ -7,8 +7,7 @@ Build-Depends: autoconf, debhelper (>= 5), libpcp3-dev (>= 2.7.4-20080507), libq
 Standards-Version: 3.7.3
 
 Package: kmchart
-Depends: pcp, ${shlibs:Depends}
-Recommends: xvfb
+Depends: pcp, xvfb, qt4-dev-tools, ${shlibs:Depends}
 Architecture: any
 Description: Chart tool for Performance Co-Pilot
  A chart tool for plotting metric values from the Performance Co-Pilot.
