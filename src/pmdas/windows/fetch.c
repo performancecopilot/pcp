@@ -35,7 +35,7 @@ pdh_fetch(pdh_metric_t *mp, int c)
 	return 0;
 
     if ((querydesc[mp->qid].flags & Q_COLLECTED) == 0) {
-	pdhsts = PdhCollectQueryData(vp->hdl);
+	pdhsts = PdhCollectQueryData(querydesc[mp->qid].hdl);
 	if (pdhsts == ERROR_SUCCESS)
 	    querydesc[mp->qid].flags |= Q_COLLECTED;
 	else {
@@ -97,7 +97,7 @@ windows_fetch_refresh(int numpmid, pmID pmidlist[])
 {
     int		i, v;
 
-    for (i = 0; i < querydesc_sz; i++)
+    for (i = 0; i < Q_NUMQUERIES; i++)
 	querydesc[i].flags &= ~Q_COLLECTED;
 
     for (i = 0; i < numpmid; i++) {

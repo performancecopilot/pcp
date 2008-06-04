@@ -38,7 +38,7 @@ windows_indom(int qid, int domain)
     case Q_SQLSERVER_DB:	serial = SQL_DB_INDOM; break;
     case Q_PROCESSES:		serial = PROCESS_INDOM; break;
     case Q_THREADS:		serial = THREAD_INDOM; break;
-    default:			serial = PM_INDOM_NULL; break;
+    default:			return PM_INDOM_NULL;
     }
     indomp->serial = serial;
     indomp->pad = 0;

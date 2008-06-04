@@ -37,7 +37,7 @@ LIBTARGET	= pmda_windows.dll
 EXTRATARGETS	= pdhlist.exe
 
 LDIRT		= root_windows domain.h $(IAM).log pmda$(IAM) libpdh.a \
-		  $(EXTRATARGETS)
+		  $(EXTRATARGETS) pdhlist.o
 
 CONF_LINE = "windows	79	dso	windows_init	$(PCP_PMDAS_DIR)/windows/pmda_windows.dll"
 

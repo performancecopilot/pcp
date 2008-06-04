@@ -22,7 +22,7 @@
 static char	*lastbuf;
 
 int
-windows_help(int ident, int type, char **buf)
+windows_help(int ident, int type, char **buf, pmdaExt *pmda)
 {
     int			i;
     pmID		pmid;

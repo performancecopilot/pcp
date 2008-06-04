@@ -237,7 +237,7 @@ format_uname(OSVERSIONINFOEX osv)
 }
 
 void
-windows_globals(void)
+setup_globals(void)
 {
     SYSTEM_INFO		sysinfo;
     OSVERSIONINFOEX	osversion;
@@ -482,6 +482,10 @@ windows_check_metric(pdh_metric_t *pmp, int first)
 		 */
 		;
 	    }
+	    else if (pmp->flags & M_OPTIONAL) {
+		pmp->flags |= M_NOVALUES;
+		return 0;
+	    }
 	    else {
 		__pmNotifyErr(LOG_ERR, "windows_open: PdhExpandCounterPathA "
 			"failed @ metric pmid=%s pattern=\"%s\": %s\n",
@@ -632,15 +636,17 @@ windows_check_metric(pdh_metric_t *pmp, int first)
     return 0;
 }
 
-int
+void
 windows_open(void)
 {
     int			i, sts = 0;
     pdh_metric_t	*pmp;
 
+    setup_globals();
+
     memset(querydesc, 0, sizeof(pdh_query_t) * Q_NUMQUERIES);
-    for (i = 0; i < querydesc_sz; i++) {
-	sts |= PdhOpenQueryA(NULL, 0, &querydesc[i].hdl);
+    for (i = 0; i < Q_NUMQUERIES; i++) {
+	sts = PdhOpenQueryA(NULL, 0, &querydesc[i].hdl);
 	if (sts != ERROR_SUCCESS) {
 	    __pmNotifyErr(LOG_ERR, "windows_open: PdhOpenQueryA "
 				    "failed @ query %d: %s\n",
@@ -651,7 +657,6 @@ windows_open(void)
 
     for (i = 0; i < metricdesc_sz; i++) {
 	pmp = &metricdesc[i];
-	sts |= windows_check_metric(pmp, 1);
+	windows_check_metric(pmp, 1);
     }
-    return sts;
 }

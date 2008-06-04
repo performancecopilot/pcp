@@ -96,6 +96,7 @@ typedef enum {
     M_EXPANDED	= 0x1,		/* pattern has been expanded */
     M_REDO	= 0x2,		/* redo pattern expansion on each fetch */
     M_NOVALUES	= 0x4,		/* setup failed, don't bother with the fetch */
+    M_OPTIONAL	= 0x8,		/* optional component, no values is expected */
 } pdh_metricflag_t;
 
 typedef struct {
@@ -111,6 +112,7 @@ typedef struct {
 extern pdh_metric_t metricdesc[];
 extern int metricdesc_sz;
 
+extern void windows_open();
 extern char windows_uname[];
 extern char windows_build[];
 extern unsigned long windows_pagesize;
@@ -119,7 +121,6 @@ extern unsigned long long windows_physmem;
 extern void errmsg();
 extern char *pdherrstr(int);
 extern char *decode_ctype(DWORD);
-extern void windows_globals();
 extern pmInDom windows_indom(int, int);
 
 extern int windows_check_metric(pdh_metric_t *, int);
@@ -127,5 +128,7 @@ extern int windows_check_instance(char *, pdh_metric_t *);
 
 extern void windows_instance_refresh(pmInDom);
 extern void windows_fetch_refresh(int numpmid, pmID pmidlist[]);
+
+extern int windows_help(int, int, char **, pmdaExt *);
 
 #endif	/* HYPNOTOAD_H */
