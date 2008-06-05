@@ -1,1 +1,0 @@
-#define LINUX 60
