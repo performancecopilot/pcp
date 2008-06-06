@@ -13,7 +13,7 @@ Data Helper) APIs.  To view the help text, install the PMDA, then
 the following command will list all the available metrics and their
 explanatory "help" text:
 
-	$ pminfo -fT kernel disk mem network filesys sqlserver hinv pmda
+ $ pminfo -fT kernel disk mem network filesys sqlserver hinv pmda process
 
 Installation
 ============
