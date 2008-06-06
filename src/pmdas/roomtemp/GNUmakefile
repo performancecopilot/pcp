@@ -39,18 +39,26 @@ IAM	= roomtemp
 DOMAIN	= ROOMTEMP
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-LDIRT	= domain.h pcp *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so \
-	  libmlan.a
+LDIRT	= domain.h pcp $(IAM).log pmda$(IAM) pmda_$(IAM).so libmlan.a
 
-default: pcp domain.h libmlan.a $(CMDTARGET)
+default: build-me
 
 include $(BUILDRULES)
+
+ifeq "$(findstring $(TARGET_OS),solaris linux)" ""
+build-me:
+	$(SUBDIRS_MAKERULE)
+
+install:
+else
+build-me: pcp domain.h libmlan.a $(CMDTARGET)
 
 install: default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root pmns domain.h $(PMDADIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
+endif
 
 domain.h: ../../pmns/stdpmid
 	rm -f domain.h

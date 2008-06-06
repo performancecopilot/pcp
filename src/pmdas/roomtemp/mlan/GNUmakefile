@@ -30,6 +30,12 @@ LCFLAGS = -g
 
 default : $(STATICLIBTARGET)
 
+ifeq "$(findstring $(TARGET_OS),solaris linux)" ""
+default:
+else
+default : $(STATICLIBTARGET)
+endif
+
 install : 
 
 default_pcp : default
