@@ -36,7 +36,7 @@ LSRCFILES= $(SCRIPTS) pmns help root Sendmail.pmchart $(DFILES) \
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart
 
-LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) $LIBTARGET) $(CMDTARGET)
+LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) $(LIBTARGET) $(CMDTARGET)
 LLDLIBS	= -lpcp_pmda -lpcp
 
 default_pcp default:	$(CMDTARGET) $(LIBTARGET)
