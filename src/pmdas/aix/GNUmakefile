@@ -16,55 +16,58 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
-# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-# Mountain View, CA 94043, USA, or: http://www.sgi.com
-#
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-DFILES 	= README
+IAM	= aix
+DOMAIN	= AIX
+CMDTARGET = pmdaaix
+LIBTARGET = pmda_aix.so
+PMDADIR   = $(PCP_PMDAS_DIR)/$(IAM)
+CONF_LINE = "aix	80	dso	aix_init	$(PMDADIR)/$(LIBTARGET)"
+
 CFILES	= aix.c data.c disk_total.c disk.c cpu_total.c cpu.c netif.c
 
-ifeq "$(TARGET_OS)" "aix" 
-CMDTARGET = pmdaaix$(EXECSUFFIX)
-endif
 LLDLIBS = -lpcp -lpcp_pmda -lperfstat
 LCFLAGS = -I.
 PMNS	= pmns.disk pmns.kernel pmns.mem pmns.network pmns.hinv
-LSRCFILES = Install Remove $(PMNS) help $(DFILES) root \
-		GNUmakefile.install common.h
+LSRCFILES = $(PMNS) help root common.h
 
-IDBTAG	= PCP_DEMO
+LDIRT	= *.log *.dir *.pag root_aix domain.h
 
-IAM	= aix
-DOMAIN	= AIX
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-
-LDIRT	= domain.h pcp *.o $(IAM).log pmda$(IAM)
-
-default:	domain.h build-me
+default:	build-me
 
 ifeq "$(TARGET_OS)" "aix" 
-build-me:	pcp $(CMDTARGET)
+build-me: common.h root_aix domain.h $(CMDTARGET) $(LIBTARGET) help.dir help.pag
+	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	fi
 
-install:	default
+install: build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(CMDTARGET) Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
-	$(INSTALL) -m 644 $(DFILES) root help $(PMNS) domain.h $(CFILES) $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help.dir help.pag $(PMDADIR)
+	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
+	$(INSTALL) -m 644 root_aix $(PCP_VAR_DIR)/pmns/root_aix
 else
 build-me:
 install:
 endif
 
-$(OBJECTS):	domain.h common.h
+$(OBJECTS):	common.h
 
 include $(BUILDRULES)
 
 default_pcp : default
 
 install_pcp : install
+
+help.dir help.pag: help root_aix
+	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_aix -v 2 -o help < help
+
+root_aix:	../../pmns/stdpmid
+	rm -f root_aix
+	cpp -I../../pmns -fno-show-column < root | sed -e '/^#/d' > root_aix
 
 domain.h:	../../pmns/stdpmid
 	rm -f domain.h
@@ -73,6 +76,3 @@ domain.h:	../../pmns/stdpmid
 	echo " */" >>domain.h
 	$(PCP_AWK_PROG) <../../pmns/stdpmid >>domain.h \
 	    '/#define[ 	][ 	]*$(DOMAIN)[ 	]/ { print "#define $(DOMAIN) " $$3 }'
-
-pcp:
-	$(LN_S) -f $(TOPDIR)/src/include pcp

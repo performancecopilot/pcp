@@ -27,6 +27,7 @@
 #include <time.h>
 #include "./common.h"
 
+static int	_isDSO = 1;
 static char	mypath[MAXPATHLEN];
 
 /*
@@ -35,10 +36,11 @@ static char	mypath[MAXPATHLEN];
  * ... real callback is fetch_callback()
  */
 static int
-fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+aix_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int		i;
 
+    // TODO: this should only fetch metrics from "pmidlist"
     for (i = 0; i < methodtab_sz; i++) {
 	methodtab[i].m_prefetch();
     }
@@ -50,7 +52,7 @@ fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
  * callback provided to pmdaFetch
  */
 static int
-fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
+aix_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     metricdesc_t	*mdp;
 
@@ -62,12 +64,21 @@ fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  * Initialise the agent (both daemon and DSO).
  */
 void 
-init(pmdaInterface *dp)
+aix_init(pmdaInterface *dp)
 {
-    pmdaSetFetchCallBack(dp, fetch_callback);
+    if (_isDSO) {
+	snprintf(mypath, sizeof(mypath),
+		"%s/aix/help", pmGetConfig("PCP_PMDAS_DIR"));
+	pmdaDSO(dp, PMDA_INTERFACE_3, "AIX DSO", mypath);
+    }
+
+    if (dp->status != 0)
+	return;
+
+    dp->version.two.fetch = aix_fetch;
+    pmdaSetFetchCallBack(dp, aix_fetch_callback);
     init_data(dp->domain);
     pmdaInit(dp, indomtab, indomtab_sz, metrictab, metrictab_sz);
-    dp->version.two.fetch = fetch;
 }
 
 static void
@@ -90,6 +101,7 @@ main(int argc, char **argv)
     int			err = 0;
     pmdaInterface	desc;
 
+    _isDSO = 0;
     __pmSetProgname(argv[0]);
 
     snprintf(mypath, sizeof(mypath),
@@ -98,13 +110,12 @@ main(int argc, char **argv)
 		"aix.log", mypath);
 
     if (pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err) != EOF)
-    	err++;
-   
+	err++;
     if (err)
-    	usage();
+	usage();
 
     pmdaOpenLog(&desc);
-    init(&desc);
+    aix_init(&desc);
     pmdaConnect(&desc);
     pmdaMain(&desc);
 
