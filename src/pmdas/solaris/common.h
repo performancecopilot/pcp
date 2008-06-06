@@ -26,7 +26,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "./domain.h"
+#include "domain.h"
 
 #include <kstat.h>
 #include <sys/sysinfo.h>

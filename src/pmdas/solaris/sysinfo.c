@@ -19,7 +19,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include "./common.h"
+#include "common.h"
 
 typedef struct {
     int		fetched;

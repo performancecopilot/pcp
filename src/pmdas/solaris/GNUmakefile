@@ -15,52 +15,58 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
-# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-# Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-DFILES 	= README
-CFILES	= solaris.c data.c sysinfo.c disk.c
-
-ifeq "$(TARGET_OS)" "solaris" 
-CMDTARGET = pmdasolaris$(EXECSUFFIX)
-endif
-LLDLIBS = -lpcp -lpcp_pmda -lkstat
-LCFLAGS = -I.
-PMNS	= pmns.disk pmns.kernel pmns.mem pmns.network pmns.hinv
-LSRCFILES = Install Remove $(PMNS) help $(DFILES) root \
-		GNUmakefile.install common.h
-
-IDBTAG	= PCP_DEMO
-
 IAM	= solaris
 DOMAIN	= SOLARIS
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+CMDTARGET = pmdasolaris
+LIBTARGET = pmda_solaris.so
+CONF_LINE = "solaris	75	dso	solaris_init	$(PMDADIR)/$(LIBTARGET)"
 
-LDIRT	= domain.h pcp *.o $(IAM).log pmda$(IAM)
+CFILES	= solaris.c data.c sysinfo.c disk.c
 
-default_pcp default:	domain.h build-me
+PMNS	= pmns.disk pmns.kernel pmns.mem pmns.network pmns.hinv
+LSRCFILES = Install Remove $(PMNS) help root common.h
+LDIRT	= domain.h *.log *.dir *.pag root_solaris
 
-ifeq "$(TARGET_OS)" "solaris" 
-build-me:	pcp $(CMDTARGET)
+LLDLIBS = -lpcp -lpcp_pmda -lkstat
 
-install install_pcp:	default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(CMDTARGET) Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
-	$(INSTALL) -m 644 $(DFILES) root help $(PMNS) domain.h $(CFILES) $(PMDADIR)
-else
-build-me:
-install install_pcp:
-endif
-
-$(OBJECTS):	domain.h common.h
+default: build-me
 
 include $(BUILDRULES)
+
+ifeq "$(TARGET_OS)" "solaris" 
+build-me: root_solaris domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
+	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	fi
+
+install: build-me
+	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help.dir help.pag $(PMDADIR)
+	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
+	$(INSTALL) -m 644 root_solaris $(PCP_VAR_DIR)/pmns/root_solaris
+else
+build-me:
+install:
+endif
+
+default_pcp : default
+
+install_pcp : install
+
+$(OBJECTS):	common.h
+
+help.dir help.pag: help root_solaris
+	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_solaris -v 2 -o help < help
+
+root_solaris: ../../pmns/stdpmid
+	rm -f root_solaris
+	cpp -I../../pmns < root | sed -e '/^#/d' > root_solaris
 
 domain.h:	../../pmns/stdpmid
 	rm -f domain.h
@@ -69,6 +75,3 @@ domain.h:	../../pmns/stdpmid
 	echo " */" >>domain.h
 	$(PCP_AWK_PROG) <../../pmns/stdpmid >>domain.h \
 	    '/#define[ 	][ 	]*$(DOMAIN)[ 	]/ { print "#define $(DOMAIN) " $$3 }'
-
-pcp:
-	$(LN_S) -f $(TOPDIR)/src/include pcp
