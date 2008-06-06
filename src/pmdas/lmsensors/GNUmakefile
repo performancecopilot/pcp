@@ -17,9 +17,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
-# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-# Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
 
 TOPDIR = ../../..
@@ -32,29 +29,39 @@ CFILES	= lmsensors.c
 HFILES	= lmsensors.h
 SCRIPTS	= Install Remove
 DFILES	= README
-LSRCFILES= $(SCRIPTS) pmns help root $(DFILES) GNUmakefile.install
+LSRCFILES = $(SCRIPTS) pmns help root $(DFILES) GNUmakefile.install
 
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-PMCHART	= $(PCP_VAR_DIR)/config/pmchart
 
-LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so $(TARGETS) \
+LDIRT	= domain.h $(IAM).log pmda$(IAM) pmda_$(IAM).so $(TARGETS) \
 	help.pag help.dir
 LLDLIBS	= -lpcp_pmda -lpcp
 
-default_pcp default: $(TARGETS)
+default: build-me
 
 include $(BUILDRULES)
 
-install install_pcp : default
+ifeq "$(TARGET_OS)" "linux"
+build-me: $(TARGETS)
+
+install : default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
+else
+build-me:
+install:
+endif
 
 $(IAM):	$(OBJECTS)
 
 lmsensors.o: domain.h
+
+default_pcp: default
+
+install_pcp: install
 
 domain.h:	../../pmns/stdpmid
 	rm -f domain.h
