@@ -29,19 +29,22 @@ LLDFLAGS	= -fexternal-templates -L$(TOPDIR)/src/libpcp/src
 LLDLIBS         =  -L$(TOPDIR)/src/libpcp_pmc/src -lpcp_pmc -lpcp -lstdc++
 CC		= $(CXX)
 
-LDIRT = pmdumptext
+LDIRT = $(TARGETS)
 
-default: $(OBJECTS) $(TARGETS)
+default: build-me
 
 include $(TOPDIR)/src/include/buildrules
 
+ifeq "$(PMC_SUPPORT)" "true"
+build-me: $(OBJECTS) $(TARGETS)
+
 install: default
 	$(INSTALL) -m 755 pmdumptext  $(PCP_BIN_DIR)/pmdumptext
+else
+build-me:
+install:
+endif
 
-pmdumptext : $(OBJECTS)
+default_pcp : default
 
-default_% : default
-	@true
-
-install_% : install
-	@true
+install_pcp : install
