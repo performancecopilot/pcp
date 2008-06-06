@@ -43,19 +43,32 @@ LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so $(TARGETS) \
 	help.pag help.dir
 LLDLIBS	= -lpcp_pmda -lpcp
 
-default_pcp default:	$(TARGETS)
+default:	build-me
 
 include $(BUILDRULES)
 
-install install_pcp:	default
+
+# This PMDA is only valid on platforms with a mount table (e.g. /proc/mounts)
+ifeq "$(findstring $(TARGET_OS),cygwin mingw darwin)" ""
+build-me:	$(TARGETS)
+
+install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 mounts.conf $(PMDADIR)/mounts.conf
+else
+build-me:
+install:
+endif
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
+
+default_pcp:	default
+
+install_pcp:	install
 
 mounts.o:	domain.h
 
