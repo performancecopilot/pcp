@@ -43,9 +43,13 @@ LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so $(TARGETS) \
 	help.dir help.pag
 LLDLIBS	= -lpcp_pmda -lpcp
 
-default_pcp default: $(TARGETS)
+default: build-me
 
 include $(BUILDRULES)
+
+# This PMDA is only valid on platforms with a procfs
+ifeq "$(findstring $(TARGET_OS),cygwin mingw darwin)" ""
+build-me: $(TARGETS)
 
 install install_pcp : default
 	$(INSTALL) -m 755 -d $(PMDADIR)
@@ -54,8 +58,16 @@ install install_pcp : default
 	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 process.conf $(PMDADIR)/process.conf
+else
+build-me:
+install:
+endif
 
 $(IAM):	$(OBJECTS)
+
+default_pcp : default
+
+install_pcp : install
 
 process.o: domain.h
 
