@@ -1190,14 +1190,14 @@ darwin_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 void 
 darwin_init(pmdaInterface *dp)
 {
-    if (dp->status != 0)
-	return;
-
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
 	sprintf(helppath, "%s/pmdas/darwin/help", pmGetConfig("PCP_VAR_DIR"));
 	pmdaDSO(dp, PMDA_INTERFACE_3, "darwin DSO", helppath);
     }
+
+    if (dp->status != 0)
+	return;
 
     dp->version.two.instance = darwin_instance;
     dp->version.two.fetch = darwin_fetch;

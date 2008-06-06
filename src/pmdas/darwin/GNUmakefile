@@ -15,27 +15,16 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
-# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-# Mountain View, CA 94043, USA, or: http://www.sgi.com
-#
-#*************************************************************************
-#
-# Makefile - Darwin PMDA (dynamic library)
-#
-#*************************************************************************
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM		= darwin
 DOMAIN		= DARWIN
-PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
-CONF_LINE	= "darwin	78	dso	darwin_init	$(PCP_PMDAS_DIR)/darwin/pmda_darwin.dylib"
-
-ifeq "$(TARGET_OS)" "darwin" 
-LIBTARGET	= pmda_darwin.dylib
 CMDTARGET	= pmdadarwin
-endif
+LIBTARGET	= pmda_darwin.dylib
+PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
+CONF_LINE	= "darwin	78	dso	darwin_init	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES		= pmda.c kernel.c disk.c network.c
 HFILES		= disk.h network.h
@@ -52,7 +41,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "darwin" 
-build-me:	root_darwin domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
+build-me: root_darwin domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
 	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
 	fi
@@ -67,12 +56,12 @@ build-me:
 install:
 endif
 
-help.dir help.pag : help
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_darwin -v 2 -o help < help
-
 default_pcp : default
 
 install_pcp : install
+
+help.dir help.pag: help root_darwin
+	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_darwin -v 2 -o help < help
 
 root_darwin: ../../pmns/stdpmid
 	rm -f root_darwin
