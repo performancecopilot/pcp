@@ -30,7 +30,6 @@ CONF_LINE = "aix	80	dso	aix_init	$(PMDADIR)/$(LIBTARGET)"
 CFILES	= aix.c data.c disk_total.c disk.c cpu_total.c cpu.c netif.c
 
 LLDLIBS = -lpcp -lpcp_pmda -lperfstat
-LCFLAGS = -I.
 PMNS	= pmns.disk pmns.kernel pmns.mem pmns.network pmns.hinv
 LSRCFILES = $(PMNS) help root common.h
 

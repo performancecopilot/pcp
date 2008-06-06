@@ -25,7 +25,7 @@
  */
 
 #include <time.h>
-#include "./common.h"
+#include "common.h"
 
 static int	_isDSO = 1;
 static char	mypath[MAXPATHLEN];
@@ -106,8 +106,7 @@ main(int argc, char **argv)
 
     snprintf(mypath, sizeof(mypath),
 		"%s/aix/help", pmGetConfig("PCP_PMDAS_DIR"));
-    pmdaDaemon(&desc, PMDA_INTERFACE_3, pmProgname, AIX,
-		"aix.log", mypath);
+    pmdaDaemon(&desc, PMDA_INTERFACE_3, pmProgname, AIX, "aix.log", mypath);
 
     if (pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err) != EOF)
 	err++;
