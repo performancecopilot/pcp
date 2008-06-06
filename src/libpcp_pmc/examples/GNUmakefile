@@ -11,11 +11,17 @@ LCXXFLAGS	+= -I..
 LLDLIBS		= -L../src -lpcp_pmc -lpcp $(LIB_FOR_BASENAME)
 LDIRT		= $(TARGETS)
 
-default:	$(TARGETS)
+default:	build-me
 
 include $(BUILDRULES)
 
-install:	$(TARGETS)
+ifeq "$(PMC_SUPPORT)" "true"
+build-me:	$(TARGETS)
+install:	build-me
+else
+build-me:
+install:
+endif
 
 fixed:	fixed.o
 	rm -f $@

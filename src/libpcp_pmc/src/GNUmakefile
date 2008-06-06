@@ -42,7 +42,7 @@ LOBJECTS=${CXXFILES:%.c++=%.o}
 
 LDIRT	= $(SYMTARGET) pcp
 
-default: $(LIBTARGET) $(STATICLIBTARGET) $(SYMTARGET)
+default: build-me
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET):
@@ -50,6 +50,20 @@ $(SYMTARGET):
 endif
 
 include $(BUILDRULES)
+
+ifeq "$(PMC_SUPPORT)" "true"
+build-me: $(LIBTARGET) $(STATICLIBTARGET) $(SYMTARGET)
+
+install: build-me
+	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+ifneq "$(SYMTARGET)" ""
+	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET)
+endif
+	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
+else
+build-me:
+install:
+endif
 
 $(LIBTARGET) : $(LOBJECTS)
 
@@ -62,13 +76,6 @@ Group.o:	../pcp/pmc/String.h ../pcp/pmc/Hash.h ../pcp/pmc/Group.h \
 Indom.o:	../pcp/pmc/Indom.h ../pcp/pmc/Desc.h
 Metric.o:	../pcp/pmc/Metric.h ../pcp/pmc/Group.h
 Source.o:	../pcp/pmc/Source.h ../pcp/pmc/String.h ../pcp/pmc/Bool.h
-
-install: default
-	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
-	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
-ifneq "$(SYMTARGET)" ""
-	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET)
-endif
 
 $(LOBJECTS): pcp
 
