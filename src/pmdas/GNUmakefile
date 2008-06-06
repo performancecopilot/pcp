@@ -23,25 +23,10 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-# This is the list of PMDAs which is supported on all platforms
-# or at least for which it is safe to descend into these directories
-# on all platforms ... if you want the source to be in the open
-# source release, you need to be on this list and make sure you
-# export the sources, even if you don't make any binaries on some
-# platforms. The src tarball is always created on Linux. Hence the
-# non-linux platform PMDAs (darwin, windows, solaris, aix, etc) are
-# always present in SUBDIRS. Each is responsible for handling
-# the "default" and "install" targets, even on Linux.
-#
-SUBDIRS = pmcd \
-	sample simple trivial weblog sendmail mailq txmon \
-	news cisco trace apache shping mounts darwin windows \
-	solaris aix summary hotproc jstat
-
-ifeq "$(TARGET_OS)" "linux" 
-# PMDAs that only work on Linux.
-SUBDIRS += linux lmsensors process roomtemp
-endif
+SUBDIRS = pmcd linux solaris aix darwin windows \
+	sample simple trivial sendmail mailq txmon \
+	news cisco trace apache shping mounts weblog \
+	lmsensors process roomtemp summary hotproc jstat
 
 LDIRT = pmcd.conf
 
