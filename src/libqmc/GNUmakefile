@@ -6,9 +6,9 @@ PROJECT = $(LIBRARY).pro
 HEADERS = $(shell echo *.h)
 SOURCES = $(shell echo *.cpp)
 
-LSRCFILES = $(PROJECT) $(SOURCES) $(HEADERS)
-LDIRDIRT = build qmc.xcodeproj
-LDIRT = *.a
+LSRCFILES = $(PROJECT).in $(SOURCES) $(HEADERS)
+LDIRDIRT = build debug release qmc.xcodeproj
+LDIRT = *.a $(PROJECT)
 
 default: $(PROJECT)
 	$(QTMAKE)

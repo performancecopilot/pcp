@@ -13,14 +13,22 @@ AC_PACKAGE_HAVE_PM_SET_PROGNAME
 AC_MANUAL_FORMAT
 
 qt_assistant=assistant
+test -z "$QT_ASSISTANT" || qt_assistant="$QT_ASSISTANT"
 AC_SUBST(qt_assistant)
 
 qt_release=debug
+test -z "$QT_RELEASE" || qt_release="$QT_RELEASE"
 AC_SUBST(qt_release)
+
+pcp_inc_dir=/usr/include/pcp
+test -z "$PCP_INC_DIR" || pcp_inc_dir="$PCP_INC_DIR"
+AC_SUBST(pcp_inc_dir)
 
 AC_OUTPUT( \
 	src/include/builddefs \
 	src/include/version.h \
+	src/libqwt/libqwt.pro \
+	src/libqwt3d/libqwt3d.pro \
 	src/dumptext/kmdumptext.pro \
 	src/query/kmquery.pro \
 	src/chart/kmchart.pro \

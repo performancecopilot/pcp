@@ -1,7 +1,7 @@
 TARGET		= qwt
 TEMPLATE	= lib
 VERSION		= 5.0.2
-CONFIG		+= qt staticlib warn_on debug
+CONFIG		+= qt staticlib warn_on @qt_release@
 
 HEADERS	+= \
     qwt.h \

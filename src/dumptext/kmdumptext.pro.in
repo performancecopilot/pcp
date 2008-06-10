@@ -1,7 +1,7 @@
 TEMPLATE	= app
 LANGUAGE	= C++
 SOURCES		= kmdumptext.cpp
-INCLUDEPATH	+= ../include ../libqmc
+INCLUDEPATH	+= ../include ../libqmc @pcp_inc_dir@
 LIBS		= -lpcp -L../libqmc -lqmc
 LIBS		+= -L../libqmc/@qt_release@ -L../libqmc/build/@qt_release@
 QT		-= gui
