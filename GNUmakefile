@@ -7,9 +7,11 @@ endif
 
 CONFIGURE = src/include/builddefs src/include/version.h \
 	    man/html/kmchart.adp man/html/kmtime.adp \
+	    src/libqmc/libqmc.pro \
 	    src/libqwt/libqwt.pro src/libqwt3d/libqwt3d.pro \
 	    src/dumptext/kmdumptext.pro src/query/kmquery.pro \
-	    src/chart/kmchart.pro src/time/kmtime.pro configure
+	    src/chart/kmchart.pro src/time/kmtime.pro \
+	    configure
 
 LSRCFILES = configure configure.in Makepkgs aclocal.m4 install-sh README VERSION
 

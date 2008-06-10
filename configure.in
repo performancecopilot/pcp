@@ -27,6 +27,7 @@ AC_SUBST(pcp_inc_dir)
 AC_OUTPUT( \
 	src/include/builddefs \
 	src/include/version.h \
+	src/libqmc/libqmc.pro \
 	src/libqwt/libqwt.pro \
 	src/libqwt3d/libqwt3d.pro \
 	src/dumptext/kmdumptext.pro \
