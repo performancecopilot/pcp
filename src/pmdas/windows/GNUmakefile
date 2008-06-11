@@ -29,8 +29,7 @@ LLDLIBS		= -lpcp -lpcp_pmda libpdh.a
 PMNS		= pmns.disk pmns.kernel pmns.mem pmns.network \
 		  pmns.sqlserver pmns.filesys pmns.hinv pmns.pmda \
 		  pmns.process
-LSRCFILES	= Install Remove $(PMNS) root README GNUmakefile.install \
-		  libpdh.def pdhlist.c pdhmatch.sh
+LSRCFILES	= $(PMNS) root README libpdh.def pdhlist.c pdhmatch.sh
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CMDTARGET	= pmdawindows.exe
 LIBTARGET	= pmda_windows.dll
@@ -53,9 +52,7 @@ build-me: root_windows $(LSRCFILES) $(CMDTARGET) $(LIBTARGET) $(EXTRATARGETS)
 
 install: build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 755 pdhlist.exe $(CMDTARGET) $(LIBTARGET) $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 README root $(PMNS) domain.h $(CFILES) $(PMDADIR)
 	$(INSTALL) -m 644 root_windows $(PCP_VAR_DIR)/pmns/root_windows
 else

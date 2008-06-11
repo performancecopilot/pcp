@@ -30,7 +30,7 @@ CONF_LINE = "solaris	75	dso	solaris_init	$(PMDADIR)/$(LIBTARGET)"
 CFILES	= solaris.c data.c sysinfo.c disk.c
 
 PMNS	= pmns.disk pmns.kernel pmns.mem pmns.network pmns.hinv
-LSRCFILES = Install Remove $(PMNS) help root common.h
+LSRCFILES = $(PMNS) help root common.h
 LDIRT	= domain.h *.log *.dir *.pag root_solaris
 
 LLDLIBS = -lpcp -lpcp_pmda -lkstat
