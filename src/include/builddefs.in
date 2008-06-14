@@ -64,6 +64,8 @@ PACKAGE_MAKER	= @package_maker@
 HDIUTIL		= @hdiutil@
 DPKG		= @dpkg@
 
+QT_RELEASE	= @qt_release@
+
 HAVE_PM_SET_PROGNAME = @have_pm_set_progname@
 HAVE_ZIPPED_MANPAGES = @have_zipped_manpages@
 
