@@ -23,18 +23,16 @@ endif
 #
 
 ifeq ($(PKG_PLATFORM),darwin)
-PLATFORM_BUILD = xcodebuild -configuration $(QT_RELEASE)
+QTMAKE = $(QMAKE) -spec macx-xcode && xcodebuild -configuration $(QT_RELEASE)
 BINARY =  build/$(QT_RELEASE)/$(COMMAND).app/Contents/MacOS/$(COMMAND)
 LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
 WINDOW = mac
 else
-PLATFORM_BUILD = $(MAKE) -f Makefile
+QTMAKE = $(QMAKE) && $(MAKE) -f Makefile
 BINARY =  $(COMMAND)
 LNMAKE =
 WINDOW = x11
 endif
-
-QTMAKE = $(QMAKE) && $(PLATFORM_BUILD)
 
 ifdef ICONLINKS
 iconlinks:
