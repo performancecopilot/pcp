@@ -77,19 +77,18 @@ __pmCreateSocket (void)
 int
 __pmConnectTo (int fd, const struct sockaddr *addr, int port)
 {
-    int fdFlags = fcntl(fd, F_GETFL) | FNDELAY;
+    int fdFlags = fcntl(fd, F_GETFL);
     struct sockaddr_in myAddr;
 
     memcpy(&myAddr, addr, sizeof (struct sockaddr_in));
     myAddr.sin_port = htons(port);
 
-    if (fcntl(fd, F_SETFL, fdFlags) < 0) {
+    if (fcntl (fd, F_SETFL, fdFlags | FNDELAY) < 0) {
         __pmNotifyErr(LOG_ERR, "__pmConnectTo: cannot set FNDELAY - "
 		      "fcntl(%d,F_SETFL,0x%x) failed: %s\n",
-		      fd, fdFlags, strerror(errno));
-	fdFlags &= ~FNDELAY;
+		      fd, fdFlags|FNDELAY , strerror(errno));
     }
-
+    
     if (connect(fd, (struct sockaddr*)&myAddr, sizeof(myAddr)) < 0) {
 	if (errno != EINPROGRESS) {
 	    close (fd);
@@ -97,7 +96,7 @@ __pmConnectTo (int fd, const struct sockaddr *addr, int port)
 	}
     }
 
-    return fdFlags;
+    return (fdFlags);
 }
 
 int
