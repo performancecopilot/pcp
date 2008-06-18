@@ -253,10 +253,6 @@ extern "C" {
 #undef HAVE_SYSINFO
 #undef HAVE_READDIR64
 
-#undef HAVE_ISNANF
-#undef HAVE_ISNAND
-#undef HAVE_FLOG10
-
 /* if termio signals are supported */
 #ifdef HAVE_TERMIOS_H
 #ifdef HAVE_TCGETATTR
@@ -463,8 +459,7 @@ typedef void (*SIG_PF) (int);
 /* Determine if we are on a Linux box */
 #undef IS_LINUX
 #ifdef IS_LINUX
-#define isnand isnan   /* isnan is a type-independent macro */
-#define isnanf isnan   /* isnan is a type-independent macro */
+#define isnand(d) isnan(d)	/* isnan is a type-independent macro (isnanf is defined though) */
 #endif
 
 /* Determine if we are on a Solaris box */
@@ -480,8 +475,8 @@ typedef void (*SIG_PF) (int);
 #define st_atim st_atimespec    /* workaround */
 #define st_mtim st_mtimespec    /* workaround */
 #define st_ctim st_ctimespec    /* workaround */
-#define isnand	isnan	/* isnan is a type-independent macro */
-#define isnanf	isnan	/* isnan is a type-independent macro */
+#define isnand(d) isnan(d)	/* isnan is a type-independent macro */
+#define isnanf(d) isnan(d)	/* isnan is a type-independent macro */
 #endif
 
 /* Determine if we are on a Windows box with Cygwin */
@@ -490,10 +485,58 @@ typedef void (*SIG_PF) (int);
 /* Determine if we are on Windows with MinGW compilers */
 #undef IS_MINGW
 #ifdef IS_MINGW
-#define isnand isnan   /* isnan is a type-independent macro */
-#define isnanf isnan   /* isnan is a type-independent macro */
+#define isnand(d) isnan(d)	/* isnan is a type-independent macro */
+#define isnanf(d) isnan(d)	/* isnan is a type-independent macro */
+
+#define EINPROGRESS	WSAEINPROGRESS
+#define ENETDOWN	WSAENETDOWN
+#define ENETUNREACH	WSAENETUNREACH
+#define ECONNRESET	WSAECONNRESET
+#define ETIMEDOUT	WSAETIMEDOUT
+#define ECONNREFUSED	WSAECONNREFUSED
+#define EHOSTDOWN	WSAEHOSTDOWN
+#define EHOSTUNREACH	WSAEHOSTUNREACH
+#define EOPNOTSUPP	WSAEOPNOTSUPP
+#define EADDRINUSE	WSAEADDRINUSE
+#define EPROTO		WSAEPROTONOSUPPORT
+#define EMSGSIZE	WSAEMSGSIZE
+#define ENODATA		WSANO_DATA
+
 #define HAVE_MKDIR2
-#define mkdir2(path,mode) mkdir(path)
+#define HAVE_DLOPEN
+#define HAVE_FNDELAY
+#define HAVE_HSTRERROR
+
+#define MAP_FAILED	NULL
+#define O_NDELAY	0
+
+#define fcntl(f, cmd, ...) 0
+#define mkdir2(path, mode) mkdir(path)
+#define pipe(fds) _pipe(fds, 4*1024, O_BINARY)
+
+extern void setlinebuf(FILE *);
+extern const char *hstrerror(int);
+extern const char *index(const char *, int);
+extern long int lrand48(void);
+extern void srand48(long int);
+
+struct timespec { time_t tv_sec; long tv_nsec; };
+extern int nanosleep(const struct timespec *, struct timespec *);
+extern unsigned int sleep(unsigned int);
+
+enum { RTLD_NOW, RTLD_LAZY };
+extern void *dlopen(const char *, int);
+extern char *dlerror(void);
+extern void *dlsym(void *, const char *);
+extern int dlclose(void *);
+
+enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
+       LOG_WARNING, LOG_NOTICE, LOG_INFO, LOG_DEBUG,
+       LOG_PID, LOG_DAEMON };
+extern void openlog(const char *, int, int);
+extern void syslog(int, const char *, ...);
+extern void closelog(void);
+
 #ifdef LIBPCP_INTERNAL
 #define INTERN __declspec(dllexport)
 #define EXTERN
@@ -501,7 +544,7 @@ typedef void (*SIG_PF) (int);
 #define INTERN
 #define EXTERN __declspec(dllimport)
 #endif
-#else /* !MINGW */
+#else /*!MINGW*/
 #define INTERN
 #define EXTERN extern
 #endif

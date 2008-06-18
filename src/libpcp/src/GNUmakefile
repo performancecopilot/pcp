@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This library is free software; you can redistribute it and/or modify it
@@ -14,9 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
-# 
-# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-# Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
 
 TOPDIR = ../../..
@@ -29,9 +27,16 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	pdubuf.c pmns.c pool.c profile.c store.c units.c util.c ipc.c \
         sortinst.c logmeta.c logportmap.c logutil.c tz.c interp.c \
 	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c \
-        stuffvalue.c endian.c config.c access.c authcookie.c AF.c \
-	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
-	auxconnect.c loop.c
+        stuffvalue.c endian.c config.c access.c authcookie.c auxconnect.c \
+	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c
+
+ifneq "$(TARGET_OS)" "mingw"
+CFILES += loop.c AF.c
+LSRCFILES = win32.c
+else
+CFILES += win32.c
+LSRCFILES = loop.c AF.c
+endif
 
 ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
 # don't need to be linked to myself in this case!
@@ -40,13 +45,14 @@ endif
 
 LLDLIBS	+= $(LIB_FOR_MATH)
 
-LCFLAGS += -DLIBPCP_INTERNAL \
+LCFLAGS += -DLIBPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 	'-DCPP_SIMPLE="$(CPP_SIMPLE)"' '-DCPP_SIMPLE_ARGS="$(CPP_SIMPLE_ARGS)"'
 
 DSOVERSION = 3
 STATICLIBTARGET = libpcp.a
 LIBTARGET = libpcp.$(DSOSUFFIX).$(DSOVERSION)
 SYMTARGET = libpcp.$(DSOSUFFIX) libpcp.$(DSOSUFFIX).2
+
 ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
 SYMTARGET = libpcp.$(DSOSUFFIX)
 endif
@@ -59,9 +65,13 @@ STATICLIBTARGET =
 LIBTARGET = libpcp.$(DSOSUFFIX)
 SYMTARGET =
 endif
+ifeq "$(TARGET_OS)" "mingw"
+STATICLIBTARGET = 
+LIBTARGET = libpcp.$(DSOSUFFIX)
+SYMTARGET =
+endif
 
 LDIRT = $(SYMTARGET) dsotbl.h
-
 
 base default : $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
@@ -74,16 +84,10 @@ include $(BUILDRULES)
 
 connect.o: dsotbl.h
 
-# Yes, it's ugly. And I'd like to see a better alternative....
-# Note, no proc for Linux, as this as part of the Linux PMDA
-#       and there is no way to make it optional
-
-# the kernel PMDA will be delivered as a DSO for most platforms,
-# but not all
-ifeq "$(findstring $(TARGET_OS),cygwin interix freebsd)" ""
+ifeq "$(findstring $(TARGET_OS),cygwin mingw)" ""
 kernel_pmda_dso	= $(TARGET_OS)
 else
-kernel_pmda_dso	=
+kernel_pmda_dso	= windows
 endif
 
 dsotbl.h:	$(TOPDIR)/src/pmns/stdpmid 
@@ -93,9 +97,9 @@ dsotbl.h:	$(TOPDIR)/src/pmns/stdpmid
 	echo ' */' >> $@
 	echo 'static __pmDSO dsotab[] = {' >> $@
 	for dso in $(kernel_pmda_dso) sample ; do \
-		udso=`echo $$dso | tr [:lower:] [:upper:] | sed -e's/SAMPLE/SAMPLEDSO/'` ; \
+		udso=`echo $$dso | tr '[:lower:]' '[:upper:]' | sed -e's/SAMPLE/SAMPLEDSO/'` ; \
 		domnum=`$(PCP_AWK_PROG) < $^ '$$1=="#define" && $$2=="'$$udso'" { print $$3 }'` ;\
-		echo '#define ' `echo $$dso | tr [:lower:] [:upper:]`_DSO $$domnum ; \
+		echo '#define ' `echo $$dso | tr '[:lower:]' '[:upper:]'`_DSO $$domnum ; \
 		echo "	{ $${domnum}, \"$$dso/pmda_$${dso}.$(DSOSUFFIX)\", \"$${dso}_init\" },"; \
 	done >> $@
 	echo '};' >> $@
@@ -108,7 +112,9 @@ ifneq "$(SYMTARGET)" ""
 	    $(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$$tt || exit 1; \
 	done
 endif
+ifneq "$(STATICLIBTARGET)" ""
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
+endif
 
 default_pcp : default
 

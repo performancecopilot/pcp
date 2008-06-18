@@ -481,10 +481,10 @@ then
 fi
 
 dnl set platform specific ps
-if test -n "$PS"
+if test -n "$PROCPS"
 then
-    pcp_ps_proc="$PS"
-elif test $target_os = cygwin -o $target_os = mingw
+    pcp_ps_prog="$PROCPS"
+elif test $target_os = cygwin
 then
     pcp_ps_prog=procps
 else
@@ -532,6 +532,15 @@ $2 == 1 && / \/init/	{ print "OK"; exit }'`
 	pcp_ps_have_bsd=true
 	pcp_ps_all_flags=auxww
 	AC_MSG_RESULT(BSD)
+    fi
+fi
+if test -z "$pcp_ps_all_flags" && $pcp_ps_prog -eflW >conftest.out 2>/dev/null
+then
+    if test $target_os = mingw
+    then
+	pcp_ps_have_bsd=false
+	pcp_ps_all_flags=-eflW
+	AC_MSG_RESULT(MinGW)
     fi
 fi
 if test -z "$pcp_ps_all_flags"
@@ -1081,48 +1090,24 @@ fi
 AC_SUBST(lib_for_math)
 
 dnl check if we have the SIG_PF typedef
-AC_TRY_LINK(
-[
-    #include <signal.h>
-],
-[
-    SIG_PF x;
-], AC_DEFINE(HAVE_SIGPF))
+AC_TRY_LINK([#include <signal.h>], [SIG_PF x;], AC_DEFINE(HAVE_SIGPF))
 
 dnl check if we have the SA_SIGINFO #define
-AC_TRY_LINK(
-[
-    #include <signal.h>
-],
-[
-    int x = SA_SIGINFO;
-], AC_DEFINE(HAVE_SA_SIGINFO))
+AC_TRY_LINK([#include <signal.h>], [int x = SA_SIGINFO;],
+    AC_DEFINE(HAVE_SA_SIGINFO))
 
 dnl check if we support the SIGPIPE signal
-AC_TRY_LINK(
-[
-    #include <signal.h>
-],
-[
-    int x = SIGPIPE;
-], AC_DEFINE(HAVE_SIGPIPE))
+AC_TRY_LINK([#include <signal.h>], [int x = SIGPIPE;], AC_DEFINE(HAVE_SIGPIPE))
 
 dnl check if we support the SIGHUP signal
-AC_TRY_LINK(
-[
-    #include <signal.h>
-],
-[
-    int x = SIGHUP;
-], AC_DEFINE(HAVE_SIGHUP))
+AC_TRY_LINK([#include <signal.h>], [int x = SIGHUP;], AC_DEFINE(HAVE_SIGHUP))
+
+dnl check if we support the SIGBUS signal
+AC_TRY_LINK([#include <signal.h>], [int x = SIGBUS;], AC_DEFINE(HAVE_SIGBUS))
 
 dnl check if we need to explicitly include signal.h
-AC_TRY_LINK(
-[
-    #include <sys/wait.h>
-],
-[
-    typedef void (*SIGRET)(int);
+AC_TRY_LINK([#include <sys/wait.h>],
+[   typedef void (*SIGRET)(int);
     SIGRET x = SIG_IGN;
 ], AC_DEFINE(HAVE_WAIT_INCLUDES_SIGNAL))
 
@@ -1211,7 +1196,10 @@ pcp_share_dir=`eval echo $datadir`
 pcp_share_dir=`eval echo $pcp_share_dir`
 if test "`echo $pcp_share_dir | sed 's;/.*\$;;'`" = NONE
 then
-    if test -d /usr/share
+    if test $target_os = mingw
+    then
+        pcp_share_dir=/usr/local
+    elif test -d /usr/share
     then
 	pcp_share_dir=/usr/share/pcp
     elif test -d /usr/local
@@ -1228,12 +1216,15 @@ pcp_binadm_dir=`eval echo $sbindir`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
 if test "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`" = NONE
 then
-   if test $target_distro = debian
-   then
-       pcp_binadm_dir=/usr/lib/pcp/bin
-   else
-       pcp_binadm_dir=$pcp_share_dir/bin
-   fi
+    if test $target_distro = debian
+    then
+        pcp_binadm_dir=/usr/lib/pcp/bin
+    elif test $target_os = mingw
+    then
+        pcp_binadm_dir=/usr/local/bin
+    else
+        pcp_binadm_dir=$pcp_share_dir/bin
+    fi
 fi
 AC_SUBST(pcp_binadm_dir)
 
@@ -1291,6 +1282,10 @@ dnl runtime shared libraries
 if test $target_os = cygwin
 then
     pcp_lib_dir=/cygdrive/c/WINDOWS/system32
+elif test $target_os = mingw
+then
+    pcp_lib_dir=/usr/local/bin
+    pcp_lib32_dir=/usr/local/bin
 elif test $target_os = linux -a $target_cpu = x86_64 -a $target_distro != debian
 then
     # Linux on x86_64 puts libraries in .../lib64 (and rpmbuild
@@ -1424,7 +1419,10 @@ pcp_bin_dir=`eval echo $bindir`
 pcp_bin_dir=`eval echo $pcp_bin_dir`
 if test "`echo $pcp_bin_dir | sed 's;/.*\$;;'`" = NONE
 then
-    if test -d /usr/bin
+    if test $target_os = mingw
+    then
+	pcp_bin_dir=/usr/local/bin
+    elif test -d /usr/bin
     then
 	pcp_bin_dir=/usr/bin
     else

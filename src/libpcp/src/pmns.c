@@ -38,10 +38,10 @@
 #define CPP_FMT "%s %s -I. -I%s/pmns -I%s/pmns %s"
 
 static char	*cpp_path[] = {
-    CPP_SIMPLE,
-    "/lib/cpp",
-    "/usr/lib/cpp",
-    "/usr/bin/cpp",
+    CPP_SIMPLE EXEC_SUFFIX,
+    "/lib/cpp" EXEC_SUFFIX,
+    "/usr/lib/cpp" EXEC_SUFFIX,
+    "/usr/bin/cpp" EXEC_SUFFIX,
     NULL
 };
 
