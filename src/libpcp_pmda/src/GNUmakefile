@@ -27,9 +27,11 @@ CFILES	= callback.c open.c mainloop.c help.c cache.c
 HFILES	= libdefs.h
 LLDLIBS	= -lpcp
 
+STATICLIBTARGET = libpcp_pmda.a
+
 #
-# libpcp.so   -> libpcp.so.3
-# libpcp.so.2 -> libpcp.so.3
+# libpcp_pmda.so   -> libpcp_pmda.so.3
+# libpcp_pmda.so.2 -> libpcp_pmda.so.3
 #
 DSOVERSION_V2 = 2
 DSOVERSION_V3 = 3
