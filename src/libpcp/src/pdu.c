@@ -78,6 +78,7 @@ __pmNoMoreInput(int fd)
 }
 
 static struct timeval	def_wait = { 10, 0 };
+static double		def_timeout = 10.0;
 
 const struct timeval *
 __pmDefaultRequestTimeout(void)
@@ -85,7 +86,6 @@ __pmDefaultRequestTimeout(void)
     static int		done_default = 0;
 
     if (!done_default) {
-	double	def_timeout;
 	char	*timeout_str;
 	char	*end_ptr;
 	if ((timeout_str = getenv("PMCD_REQUEST_TIMEOUT")) != NULL) {
@@ -108,11 +108,84 @@ __pmDefaultRequestTimeout(void)
     return (&def_wait);
 }
 
+#if defined(IS_MINGW)
 static int
 pduread(int fd, char *buf, int len, int mode, int timeout)
 {
     /*
-     * handle short reads that may spilt a PDU ...
+     * handle short reads that may split a PDU ...
+     */
+    DWORD		status = 0;
+    int			have = 0;
+    HANDLE		hdl = (HANDLE)_get_osfhandle(fd);
+
+    while (len) {
+	if (timeout == GETPDU_ASYNC) {
+	    /*
+	     * no grabbing more than you need ... read header to get
+	     * length and then read body.  Assumes we're known ready
+	     * to read and buf is aligned on a __pmPDU boundary.
+	     */
+	    __pmPDU	*lp;
+	    __pmLastUsedFd = fd;
+
+	    if (!ReadFile(hdl, buf, (int)sizeof(__pmPDU), &status, NULL))
+		return -1;
+
+	    if (status <= 0)
+		/* EOF or error */
+		return status;
+	    else if (status != sizeof(__pmPDU))
+		/* short read, bad error! */
+		return PM_ERR_IPC;
+	    lp = (__pmPDU *)buf;
+	    have = ntohl(*lp);
+	    if (!ReadFile(hdl, &buf[sizeof(__pmPDU)],
+			have - (int)sizeof(__pmPDU), &status, NULL))
+		return -1;
+	    if (status <= 0)
+		/* EOF or error */
+		return status;
+	    else if (status != have - (int)sizeof(__pmPDU))
+		/* short read, bad error! */
+		return PM_ERR_IPC;
+	    break;
+	}
+	else {
+	    COMMTIMEOUTS wait = { 0 };
+
+	    /*
+	     * either never timeout (i.e. block forever), or timeout
+	     */
+	    if (timeout != TIMEOUT_NEVER)
+		wait.ReadTotalTimeoutConstant = timeout * 1000.0;
+	    else
+		wait.ReadTotalTimeoutConstant = def_timeout * 1000.0;
+	    SetCommTimeouts(hdl, &wait);
+	    __pmLastUsedFd = fd;
+	    if (!ReadFile(hdl, buf, len, &status, NULL))
+		return -1;
+	    /* TODO: PM_ERR_TIMEOUT handling? - see below */
+	    if (status <= 0 || mode == PDU_ASCII)
+		/* ASCII, EOF or error */
+		return status;
+	    if (mode == -1)
+		/* special case, see __pmGetPDU */
+		return status;
+	    have += status;
+	    buf += status;
+	    len -= status;
+	}
+    }
+
+    return have;
+}
+#else
+static int
+pduread(int fd, char *buf, int len, int mode, int timeout)
+{
+    /*
+     * handle short reads that may split a PDU ...
      */
     int			status = 0;
     int			have = 0;
@@ -129,8 +202,9 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 	     * Also assumes buf is aligned on a __pmPDU boundary.
 	     */
 	    __pmPDU	*lp;
-	    status = (int)recv(fd, buf, (int)sizeof(__pmPDU), 0);
 	    __pmLastUsedFd = fd;
+
+	    status = (int)read(fd, buf, (int)sizeof(__pmPDU));
 	    if (status <= 0)
 		/* EOF or error */
 		return status;
@@ -139,7 +213,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 		return PM_ERR_IPC;
 	    lp = (__pmPDU *)buf;
 	    have = ntohl(*lp);
-	    status = (int)recv(fd, &buf[sizeof(__pmPDU)], have - (int)sizeof(__pmPDU), 0);
+	    status = (int)read(fd, &buf[sizeof(__pmPDU)], have - (int)sizeof(__pmPDU));
 	    if (status <= 0)
 		/* EOF or error */
 		return status;
@@ -166,8 +240,8 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 		if (status == 0) {
 		    if (__pmGetInternalState() != PM_STATE_APPL) {
 			/* special for PMCD and friends 
-			 * Note, on Linux select would return 'time remaing' in
-			 * timeout value, so report the expected timeout
+			 * Note, on Linux select would return 'time remaining'
+			 * in timeout value, so report the expected timeout
 			 */
 			int tosec, tomsec;
 
@@ -194,7 +268,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 		    return status;
 		}
 	    }
-	    status = (int)recv(fd, buf, len, 0);
+	    status = (int)read(fd, buf, len);
 	    __pmLastUsedFd = fd;
 	    if (status <= 0 || mode == PDU_ASCII)
 		/* ASCII, EOF or error */
@@ -210,6 +284,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 
     return have;
 }
+#endif
 
 const char *
 __pmPDUTypeStr(int type)
@@ -317,9 +392,13 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 
 	p += off;
 
-	if ((n = (int)send(fd, p, len-off, 0)) < 0) {
+#if defined(IS_MINGW)
+	if (!WriteFile((HANDLE)_get_osfhandle(fd), p, len-off, &n, NULL))
+#else
+	n = (int)write(fd, p, len-off);
+#endif
+	if (n < 0)
 	    break;
-	}
 	off += n;
     }
     php->len = ntohl(php->len);
@@ -350,8 +429,16 @@ __pmXmitAscii(int fd, const char *buf, int nbytes)
 
     setup_sigpipe();
 
-    if (send(fd, buf, nbytes, 0) != nbytes)
+#if defined(IS_MINGW)
+    DWORD out;
+    if (!WriteFile((HANDLE)_get_osfhandle(fd), buf, nbytes, &out, NULL))
 	return -errno;
+    if (out != nbytes)
+	return -errno;
+#else
+    if (write(fd, buf, nbytes) != nbytes)
+	return -errno;
+#endif
 
     __pmLastUsedFd = fd;
     return 0;

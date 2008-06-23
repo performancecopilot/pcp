@@ -32,7 +32,6 @@
 #include "./lex.h"
 #include "./gram.h"
 
-static pid_t		pmda_pid;
 static __pmTimeval	now = { 0, 0 };
 
 int			infd;
@@ -145,8 +144,6 @@ pmdaversion(void)
 void
 openpmda(char *fname)
 {
-    int		in[2];
-    int		out[2];
     int		i;
     struct stat	buf;
 
@@ -154,53 +151,27 @@ openpmda(char *fname)
 	fprintf(stderr, "openpmda: %s: %s\n", fname, strerror(errno));
 	return;
     }
-   
+
     closepmda();
     free(param.argv[0]);
-    param.argv[0] = strdup(basename(fname));
+    param.argv[0] = strdup(fname);
     param.argc--;
-    printf("Start %s PMDA: %s", param.argv[0], fname);
+    printf("Start %s PMDA: %s", basename(param.argv[0]), fname);
     for (i = 1; i < param.argc; i++)
 	printf(" %s", param.argv[i]);
     putchar('\n');
-    pipe(in);
-    pipe(out);
-    pmda_pid = fork();
-    if (pmda_pid < 0) {
-	fprintf(stderr, "openpmda: fork: %s\n", strerror(errno));
-	return;
-    }
-    else if (pmda_pid) {
-	/* dbpmda */
-	close(in[0]);
-	close(out[1]);
-	outfd = in[1];
-	infd = out[0];
-	connmode = PDU_BINARY;
-	reset_profile();
+
+    if (__pmProcessCreate(param.argc, param.argv, &infd, &outfd) < 0) {
+	fprintf(stderr, "openpmda: create process: %s\n", strerror(errno));
     }
     else {
-	/* pmda */
-	close(in[1]);
-	close(out[0]);
-	if (in[0] != 0) {
-	    close(0);
-	    dup2(in[0], 0);
-	    close(in[0]);
-	}
-	if (out[1] != 1) {
-	    close(1);
-	    dup2(out[1], 1);
-	    close(out[1]);
-	}
-	execvp(fname, param.argv);
-	fprintf(stderr, "openpmda: exec: %s\n", strerror(errno));
-	exit(1);
+	connmode = PDU_BINARY;
+	reset_profile();
+	if (pmdaName != NULL)
+	    free(pmdaName);
+	pmdaName = strdup(fname);
+	pmdaversion();
     }
-    if (pmdaName != NULL)
-	free(pmdaName);
-    pmdaName = strdup(fname);
-    pmdaversion();
 }
 
 void
@@ -263,7 +234,7 @@ dopmda(int pdu)
     pmDesc		desc;
     pmDesc		*desc_list;
     pmResult		*result;
-    __pmInResult		*inresult;
+    __pmInResult	*inresult;
     __pmPDU		*pb;
     int			i;
     int			j;

@@ -1125,3 +1125,47 @@ __pmProcessDataSize()
 #warning "Platform does not define a process datasize interface?"
 unsigned long __pmProcessDataSize() { return 0L; }
 #endif
+
+#if !defined(IS_MINGW)
+int
+__pmProcessCreate(int argc, char **argv, int *infd, int *outfd)
+{
+    int		in[2];
+    int		out[2];
+    pid_t	pid;
+
+    pipe(in);
+    pipe(out);
+
+    pid = fork();
+    if (pid < 0) {
+	return -1;
+    }
+    else if (pid) {
+	/* parent */
+	close(in[0]);
+	close(out[1]);
+	*infd = out[0];
+	*outfd = in[1];
+    }
+    else {
+	/* child */
+	close(in[1]);
+	close(out[0]);
+	if (in[0] != 0) {
+	    close(0);
+	    dup2(in[0], 0);
+	    close(in[0]);
+	}
+	if (out[1] != 1) {
+	    close(1);
+	    dup2(out[1], 1);
+	    close(out[1]);
+	}
+	execvp(argv[0], argv);
+	fprintf(stderr, "execvp: %s\n", strerror(errno));
+	exit(1);
+    }
+    return 0;
+}
+#endif
