@@ -126,7 +126,7 @@ while getopts "d:g:m:o:S:" c $*
 do
    case $c in
    d) 
-	dir=`echo $DIST_ROOT/$OPTARG | sed -e 's;///*;/;g'`
+	dir=`echo $DIST_ROOT/$OPTARG | sed -e 's;//*;/;g'`
 	dflag=true
 	;;
    g)
@@ -179,10 +179,10 @@ then
     then
     	_usage
     else
-	target=`echo $DIST_ROOT/$1 | sed -e 's;///*;/;g'`
+	target=`echo $DIST_ROOT/$1 | sed -e 's;//*;/;g'`
     fi
     $RM -f $target
-    dir=`dirname $target | sed -e 's;///*;/;g'`
+    dir=`dirname $target | sed -e 's;//*;/;g'`
     [ ! -d $dir ] && mkdir -p $dir
     $LN -s -f $symlink $target
     status=$?
@@ -199,7 +199,8 @@ else
 	#
 	f=$1
 	dir=$DIST_ROOT/`dirname $2`
-	t_dir=`echo "$dir" | sed -e "s;^$DIST_ROOT;;"`
+	dir=`echo $dir | sed -e 's;//*;/;g'`
+	t_dir=`echo "$dir" | sed -e "s;^$DIST_ROOT;;" | sed -e 's;//*;/;g'`
 	destfile=`basename $2`
 	if [ -f $f -a -f $f.exe ]
 	then
@@ -251,7 +252,7 @@ else
 	    then
 		list="$list $1"
 	    else
-		dir=`echo $DIST_ROOT/$1 | sed -e 's;///*;/;g'`
+		dir=`echo $DIST_ROOT/$1 | sed -e 's;//*;/;g'`
 	    fi
 	    shift
 	done
