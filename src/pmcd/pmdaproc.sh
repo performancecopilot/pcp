@@ -21,7 +21,7 @@
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 
 # source the PCP configuration environment variables
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 tmp=/var/tmp/$$
 trap "rm -f $tmp; exit" 0 1 2 3 15

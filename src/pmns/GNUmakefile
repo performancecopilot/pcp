@@ -75,7 +75,7 @@ endif
 
 stdpmid:	$(STDPMIDS)
 	PCP_CONF=$(TOPDIR)/src/include/pcp.conf export PCP_CONF; \
-	sed -e 's/\/etc\/pcp\.env/\.\.\/\.\.\/src\/include\/pcp.env/' <Make.stdpmid >run; \
+	sed -e 's/\$PCP_DIR\/etc\/pcp\.env/\.\.\/\.\.\/src\/include\/pcp.env/' <Make.stdpmid >run; \
 	sh ./run; rm -f run
 
 default_pcp:	default

@@ -24,7 +24,7 @@
 #
 
 # Get standard environment
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 # Get the portable PCP rc script functions
 if [ -f $PCP_SHARE_DIR/lib/rc-proc.sh ] ; then

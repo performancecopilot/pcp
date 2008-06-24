@@ -21,7 +21,7 @@
 #
 
 # Get standard environment
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 # Setup some default paths 
 

@@ -27,7 +27,7 @@
 #
 
 # Get standard environment
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 
 prog=`basename $0`

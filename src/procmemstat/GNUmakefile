@@ -44,7 +44,7 @@ procmemstat.o : pmnsmap.h
 
 pmnsmap.h:	pmnsmap.spec
 	PCP_CONF=$(TOPDIR)/src/include/pcp.conf; export PCP_CONF; \
-	sed -e "s;^\. /etc/pcp.env;. $(TOPDIR)/src/include/pcp.env;" \
+	sed -e "s;^\. \$PCP_DIR/etc/pcp.env;. $(TOPDIR)/src/include/pcp.env;" \
 	../pmgenmap/pmgenmap.sh >runme.sh; \
 	$(CPP) <pmnsmap.spec >pmnsmap.i
 	sh ./runme.sh pmnsmap.i >pmnsmap.h

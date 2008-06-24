@@ -24,7 +24,7 @@
 #
 
 # Get standard environment
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 PATH=$PATH:/usr/bin/X11:/usr/X11R6/bin
 
 [ -x $PCP_BIN_DIR/kmconfirm ] && exec $PCP_BIN_DIR/kmconfirm $@

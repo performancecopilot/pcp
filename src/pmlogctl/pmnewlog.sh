@@ -23,7 +23,7 @@
 #
 
 # Get standard environment
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 
 # error messages should go to stderr, not the GUI notifiers

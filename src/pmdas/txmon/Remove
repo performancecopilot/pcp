@@ -23,7 +23,7 @@
 #
 
 # Get standard environment
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 # Get the common procedures and variable assignments
 #

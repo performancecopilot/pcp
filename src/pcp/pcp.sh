@@ -23,7 +23,7 @@
 #
 
 # Get standard environment
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 sts=2
 tmp=/tmp/$$

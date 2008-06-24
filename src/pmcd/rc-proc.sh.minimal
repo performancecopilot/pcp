@@ -25,7 +25,7 @@
 # 
 
 # source the PCP configuration environment variables
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 # These functions use chkconfig if available, else tolerate missing chkconfig
 # command (as on SUSE) by manipulating symlinks in /etc/rc.d directly.

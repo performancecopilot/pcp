@@ -30,7 +30,7 @@
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 
 # Get standard environment
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 prog=`basename $0`
 

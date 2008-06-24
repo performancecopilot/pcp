@@ -23,7 +23,7 @@
 #
 
 # Get standard environment
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 prog=`basename $0`
 if [ $# -gt 1 -o "X$1" = "X-?" ]

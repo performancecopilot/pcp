@@ -43,7 +43,7 @@ base=${0##*/}
 link=${base#*[SK][0-9][0-9]}
  
 # Get standard environment
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 # Get the portable PCP rc script functions
 . $PCP_SHARE_DIR/lib/rc-proc.sh

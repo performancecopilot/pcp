@@ -23,7 +23,7 @@
 #
 
 # source the PCP configuration environment variables
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 exitsts=1
 tmp=$PCP_TMP_DIR/$$

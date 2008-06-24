@@ -29,7 +29,7 @@
 #
 # Shell scripts should never source this file directly, rather they
 # should use this file indirectly by sourcing /etc/pcp.env, i.e.
-#   . /etc/pcp.env
+#   . $PCP_DIR/etc/pcp.env
 # this will handle the quoting and white space issues and set all
 # "variables" beginning with PCP_ in this file into the environment.
 # The defaults may be over-ridden by setting $PCP_CONF in the environment

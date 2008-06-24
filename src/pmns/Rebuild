@@ -25,9 +25,8 @@
 # Note. has to be run from where the PMNS files are installed, as
 #	pmnscomp uses dirname <root> as first in search path for #include
 
-
 # source the PCP configuration environment variables
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 tmp=./$$
 status=1

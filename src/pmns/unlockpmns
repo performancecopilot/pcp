@@ -22,7 +22,7 @@
 # Unlock the PMNS for concurrent transactional updates
 #
 
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 lock=${1-$PCP_VAR_DIR/pmns/root}.lock
 

@@ -4,7 +4,7 @@
 # Lines with tabs or double spaces are run thru fmt(1) only for that line
 
 # source the PCP configuration environment variables
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 tmp=/tmp/$$
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15

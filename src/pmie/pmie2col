@@ -20,7 +20,7 @@
 #
  
 # Get standard environment
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 # for interactive use, works better with line buffered output from sed(1)
 # and awk(1)

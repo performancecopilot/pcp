@@ -186,7 +186,7 @@ install_g=install-generic.new
 cat <<EOFEOF >$oflag/Install
 #! /bin/sh
 # source the PCP configuration environment variables
-. /etc/pcp.env
+. \$PCP_DIR/etc/pcp.env
 
 # Get the common procedures and variable assignments
 #
@@ -258,7 +258,7 @@ $verbose && echo Wrote $oflag/Install
 cat <<EOFEOF >$oflag/Remove
 #! /bin/sh
 # source the PCP configuration environment variables
-. /etc/pcp.env
+. \$PCP_DIR/etc/pcp.env
 
 # Get the common procedures and variable assignments
 #

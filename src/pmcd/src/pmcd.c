@@ -852,7 +852,7 @@ ClientLoop(void)
 		    killer_sig == SIGINT ? "SIGINT" : "SIGTERM", killer_pid, killer_uid);
 #if DESPERATE
 		__pmNotifyErr(LOG_INFO, "Try to find process in ps output ...\n");
-		sprintf(buf, "sh -c \". /etc/pcp.env; ( \\$PCP_PS_PROG \\$PCP_PS_ALL_FLAGS | \\$PCP_AWK_PROG 'NR==1 {print} \\$2==%d {print}' )\"", killer_pid);
+		sprintf(buf, "sh -c \". \\$PCP_DIR/etc/pcp.env; ( \\$PCP_PS_PROG \\$PCP_PS_ALL_FLAGS | \\$PCP_AWK_PROG 'NR==1 {print} \\$2==%d {print}' )\"", killer_pid);
 		system(buf);
 #endif
 	    }
