@@ -32,21 +32,29 @@ pmGetConfig(const char *name)
 
     if (first) {
 	/*
-	 * scan ${PCP_CONF-/etc/pcp.conf} and put all PCP config
+	 * Scan ${PCP_CONF-$PCP_DIR/etc/pcp.conf} and put all PCP config
 	 * variables found therein into the environment.
 	 */
 	FILE *fp;
+	char dir[MAXPATHLEN];
 	char var[MAXPATHLEN];
+	char *prefix;
 	char *conf;
 	char *p;
 
-	if ((conf = getenv("PCP_CONF")) == NULL)
-	    conf="/etc/pcp.conf";
+	if ((conf = getenv("PCP_CONF")) == NULL) {
+	    if ((prefix = getenv("PCP_DIR")) == NULL)
+		conf = "/etc/pcp.conf";
+	    else {
+		snprintf(dir, sizeof(dir), "%s/etc/pcp.conf", prefix);
+		conf = dir;
+	    }
+	}
 
 	if (access((const char *)conf, R_OK) < 0 ||
 	   (fp = fopen(conf, "r")) == (FILE *)NULL) {
 	    pmprintf("FATAL PCP ERROR: could not open config file \"%s\" : %s\n", conf, strerror(errno));
-	    pmprintf("You may need to set $PCP_CONF in your environment.\n");
+	    pmprintf("You may need to set $PCP_CONF or $PCP_DIR in your environment.\n");
 	    pmflush();
 	    exit(1);
 	}
