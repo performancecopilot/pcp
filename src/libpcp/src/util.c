@@ -31,6 +31,9 @@
 #include "impl.h"
 #include "pmdbg.h"
 
+#if defined(HAVE_SYS_TIMES_H)
+#include <sys/times.h>
+#endif
 #if defined(HAVE_IEEEFP_H)
 #include <ieeefp.h>
 #endif
@@ -1112,18 +1115,40 @@ __pmProcessTerminate(pid_t pid, int force)
 #endif
 
 #if defined(HAVE_SBRK)
-unsigned long
-__pmProcessDataSize()
+int
+__pmProcessDataSize(unsigned long *size)
 {
     static void *base;
 
-    if (base == NULL)
+    if (size && base)
+	*size = (sbrk(0) - base) / 1024;
+    else {
 	base = sbrk(0);
-    return (sbrk(0) - base) / 1024;
+	if (size)
+	    *size = 0;
+    }
+    return 0;
 }
 #elif !defined(IS_MINGW)
 #warning "Platform does not define a process datasize interface?"
-unsigned long __pmProcessDataSize() { return 0L; }
+int __pmProcessDataSize(unsigned long *) { return -1; }
+#endif
+
+#if !defined(IS_MINGW)
+int
+__pmProcessRunTimes(double *usr, double *sys)
+{
+    struct tms tms;
+    double ticks = (double)sysconf(_SC_CLK_TCK);
+
+    if (times(&tms) == (clock_t)-1) {
+	*usr = *sys = 0.0;
+	return -1;
+    }
+    *usr = (double)tms.tms_utime / ticks;
+    *sys = (double)tms.tms_stime / ticks;
+    return 0;
+}
 #endif
 
 #if !defined(IS_MINGW)

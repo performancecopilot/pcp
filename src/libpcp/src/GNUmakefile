@@ -36,6 +36,7 @@ LSRCFILES = win32.c
 else
 CFILES += win32.c
 LSRCFILES = loop.c AF.c
+LLDLIBS	+= -lpsapi
 endif
 
 ifeq "$(LIB_FOR_BASENAME)" "-lpcp"

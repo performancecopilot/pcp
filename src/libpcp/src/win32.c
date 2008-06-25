@@ -18,6 +18,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include <winbase.h>
+#include <psapi.h>
 
 int
 __pmProcessExists(pid_t pid)
@@ -41,9 +42,130 @@ __pmProcessTerminate(pid_t pid, int force)
     return -ESRCH;
 }
 
-unsigned long __pmProcessDataSize()
+int
+__pmProcessCreate(int argc, char **argv, int *infd, int *outfd)
 {
-    return 0L;
+    HANDLE hChildStdinRd, hChildStdinWr, hChildStdoutRd, hChildStdoutWr;
+    PROCESS_INFORMATION piProcInfo; 
+    SECURITY_ATTRIBUTES saAttr; 
+    STARTUPINFO siStartInfo;
+    LPTSTR cmdline;
+    int i, sz;
+ 
+    ZeroMemory(&saAttr, sizeof(SECURITY_ATTRIBUTES));
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES); 
+    saAttr.bInheritHandle = TRUE;	/* pipe handles are inherited. */
+    saAttr.lpSecurityDescriptor = NULL; 
+
+    /*
+     * Create a pipe for communication with the child process.
+     * Ensure that the read handle to the child process's pipe for
+     * STDOUT is not inherited.
+     */
+    if (!CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0))
+	return -1;
+    SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0);
+
+    /*
+     * Create a pipe for the child process's STDIN.
+     * Ensure that the write handle to the child process's pipe for
+     * STDIN is not inherited.
+     */
+    if (!CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0)) {
+	CloseHandle(hChildStdoutRd);
+	CloseHandle(hChildStdoutWr);
+	return -1;
+    }
+    SetHandleInformation(hChildStdinWr, HANDLE_FLAG_INHERIT, 0);
+
+    ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
+    ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
+    siStartInfo.cb = sizeof(STARTUPINFO); 
+    siStartInfo.hStdOutput = hChildStdoutWr;
+    siStartInfo.hStdInput = hChildStdinRd;
+    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+
+    /* Flatten the argv array for the Windows CreateProcess API */
+    for (cmdline = NULL, sz = 0, i = 0; i < argc; i++) {
+	int length = strlen(argv[i]);
+	cmdline = realloc(cmdline, sz + length + 1); /* 1space or 1null */
+	strcpy(&cmdline[sz], argv[i]);
+	cmdline[sz + length] = ' ';
+	sz += length + 1;
+    }
+    cmdline[sz - 1] = '\0';
+
+    if (0 == CreateProcess(NULL, 
+	cmdline,       /* command line */
+	NULL,          /* process security attributes */
+	NULL,          /* primary thread security attributes */
+	TRUE,          /* handles are inherited */
+	0,             /* creation flags */
+	NULL,          /* use parent's environment */
+	NULL,          /* use parent's current directory */
+	&siStartInfo,  /* STARTUPINFO pointer */
+	&piProcInfo))  /* receives PROCESS_INFORMATION */
+    {
+	CloseHandle(hChildStdinRd);
+	CloseHandle(hChildStdinWr);
+	CloseHandle(hChildStdoutRd);
+	CloseHandle(hChildStdoutWr);
+	return -1;
+    }
+    else {
+	CloseHandle(piProcInfo.hProcess);
+	CloseHandle(piProcInfo.hThread);
+    }
+
+    *infd = _open_osfhandle((intptr_t)hChildStdoutRd, _O_RDONLY);
+    *outfd = _open_osfhandle((intptr_t)hChildStdinWr, _O_WRONLY);
+    return 0;
+}
+ 
+int
+__pmProcessDataSize(unsigned long *datasize)
+{
+    PROCESS_MEMORY_COUNTERS pmc;
+    HANDLE ph;
+    int sts = -1;
+
+    if (!datasize)
+	return 0;
+    *datasize = 0UL;
+    ph = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
+    if (ph == NULL)
+	return sts;
+    else if (GetProcessMemoryInfo(ph, &pmc, sizeof(pmc))) {
+	*datasize = pmc.WorkingSetSize / 1024;
+	sts = 0;
+    }
+    CloseHandle(ph);
+    return sts;
+}
+
+int
+__pmProcessRunTimes(double *usr, double *sys)
+{
+    ULARGE_INTEGER ul;
+    FILETIME times[4];
+    HANDLE ph;
+    int sts = -1;
+
+    *usr = *sys = 0.0;
+    ph = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
+    if (ph == NULL)
+	return sts;
+    else if (GetProcessTimes(ph, &times[0], &times[1], &times[2], &times[3])) {
+	ul.LowPart = times[2].dwLowDateTime;
+	ul.HighPart = times[2].dwHighDateTime;
+	*sys = ul.QuadPart / 10000000.0;
+	ul.LowPart = times[3].dwLowDateTime;
+	ul.HighPart = times[3].dwHighDateTime;
+	*usr = ul.QuadPart / 10000000.0;
+	sts = 0;
+    }
+    CloseHandle(ph);
+    return sts;
 }
 
 int

@@ -26,9 +26,6 @@
 #include <pcp/pmda.h>
 #include "domain.h"
 #include <sys/stat.h>
-#if defined(HAVE_SYS_TIMES_H)
-#include <sys/times.h>
-#endif
 
 /*
  * Simple PMDA
@@ -140,8 +137,8 @@ static int
 simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     int			sts;
-    static int		oldfetch = 0;
-    static struct tms	tms;
+    static int		oldfetch;
+    static double	usr, sys;
 
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
 
@@ -177,13 +174,13 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     }
     else if (idp->cluster == 1) {		/* simple.time */
 	if (oldfetch < numfetch) {
-	    times(&tms);
+	    __pmProcessRunTimes(&usr, &sys);
 	    oldfetch = numfetch;
 	}
 	if (idp->item == 2)			/* simple.time.user */
-	    atom->d = (tms.tms_utime / (double)CLK_TCK);
+	    atom->d = usr;
 	else if (idp->item == 3)      		/* simple.time.sys */
-	    atom->d = (tms.tms_stime / (double)CLK_TCK);
+	    atom->d = sys;
 	else
 	    return PM_ERR_PMID;
      }

@@ -29,7 +29,6 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <sys/types.h>
-#include <sys/times.h>
 #include <sys/sysmp.h>
 #include <sys/sysinfo.h>
 #include <sys/procfs.h>
@@ -236,12 +235,10 @@ dump_proc_list(void)
 }
 
 static void
-dump_cputime(struct tms *pre, struct tms *post)
+dump_cputime(double pre_usr, double pre_sys, double post_usr, double post_sys)
 {
-  (void)fprintf(stderr, "CPU Time: user = %f, sys = %f\n",
-          ((post->tms_utime - pre->tms_utime)/ (double)CLK_TCK),
-          ((post->tms_stime - pre->tms_stime)/ (double)CLK_TCK));
-
+  fprintf(stderr, "CPU Time: user = %f, sys = %f\n",
+          post_usr - pre_usr, post_sys - pre_sys);
 }
 
 static void
@@ -527,8 +524,8 @@ refresh_proc_list(void)
 
 #ifdef PCP_DEBUG
     double curr_time;	/* for current time */
-    struct tms pre_tms;
-    struct tms post_tms;
+    double pre_usr, pre_sys;
+    double post_usr, post_sys;
 #endif
 
     /* switch current and previous */
@@ -541,10 +538,10 @@ refresh_proc_list(void)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
-	(void)gettimeofday(&ts);
+	gettimeofday(&ts);
 	curr_time = utime2double(ts);
-        (void)fprintf(stderr, "refresh_proc_list():\n");
-        (void)times(&pre_tms); 
+        fprintf(stderr, "refresh_proc_list():\n");
+        __pmProcessRunTimes(&pre_usr, &pre_sys); 
     }
 #endif
 
@@ -806,11 +803,11 @@ refresh_proc_list(void)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
-        (void)times(&post_tms); 
+        __pmProcessRunTimes(&post_usr, &post_sys); 
         dump_proc_list();
-        (void)fprintf(stderr, "refresh_proc_list: duration = %f secs; ", 
+        fprintf(stderr, "refresh_proc_list: duration = %f secs; ", 
                 refresh_time[current] - curr_time);
-        dump_cputime(&pre_tms, &post_tms);
+        dump_cputime(pre_usr, pre_sys, post_usr, post_sys);
         dump_active_list();
     }
 #endif

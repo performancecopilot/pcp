@@ -964,7 +964,7 @@ main(int argc, char *argv[])
 #endif
 
     umask(022);
-    __pmProcessDataSize();
+    __pmProcessDataSize(NULL);
     __pmSetInternalState(PM_STATE_PMCS);
 
 #ifdef MALLOC_AUDIT

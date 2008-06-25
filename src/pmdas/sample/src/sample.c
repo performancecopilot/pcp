@@ -1757,7 +1757,7 @@ doit:
 		    atom.ul = *ulp;
 		    break;
 		case 91:	/* datasize */
-		    atom.ul = __pmProcessDataSize();
+		    __pmProcessDataSize(&atom.ul);
 		    break;
 		case 1023: /* bigid */
 		    atom.l = 4194303;
@@ -2043,14 +2043,15 @@ sample_store(pmResult *result, pmdaExt *ep)
 
 void sample_init(pmdaInterface *dp)
 {
-    char	helppath[MAXPATHLEN];
-
-    __pmProcessDataSize();	/* calculate base data address */
+    char helppath[MAXPATHLEN];
 
     if (_isDSO) {
 	snprintf(helppath, sizeof(helppath), "%s/pmdas/sample/dsohelp",
 			pmGetConfig("PCP_VAR_DIR"));
 	pmdaDSO(dp, PMDA_INTERFACE_2, "sample DSO", helppath);
+    }
+    else {
+	__pmProcessDataSize(NULL);
     }
 
     if (dp->status != 0)

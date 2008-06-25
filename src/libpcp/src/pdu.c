@@ -352,6 +352,10 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     int		off = 0;
     int		len;
     __pmPDUHdr	*php = (__pmPDUHdr *)pdubuf;
+#if defined(IS_MINGW)
+    DWORD	out;
+    HANDLE	hdl = (HANDLE)_get_osfhandle(fd);
+#endif
 
     /* assume PDU_BINARY ... should not be here, otherwise */
 
@@ -393,7 +397,9 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 	p += off;
 
 #if defined(IS_MINGW)
-	if (!WriteFile((HANDLE)_get_osfhandle(fd), p, len-off, &n, NULL))
+	if (!WriteFile(hdl, p, len-off, &out, NULL))
+	    break;
+	n = out;
 #else
 	n = (int)write(fd, p, len-off);
 #endif

@@ -976,7 +976,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.l = pmDebug;
 				break;
 			case 1:		/* datasize */
-				atom.ul = __pmProcessDataSize();
+				__pmProcessDataSize(&atom.ul);
 				break;
 			case 2:		/* numagents */
 				atom.ul = 0;
