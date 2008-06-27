@@ -190,18 +190,13 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 	return PM_ERR_LABEL;
     }
     else {
-	__pmIPC	ipc;
-
+	if (__pmSetVersionIPC(fileno(f), version) < 0)
+	    return -errno;
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG)
 	    fprintf(stderr, " [magic=%8x version=%d vol=%d pid=%d host=%s]\n",
 		lp->ill_magic, version, lp->ill_vol, (int)lp->ill_pid, lp->ill_hostname);
 #endif
-
-	ipc.version = version;
-	ipc.ext = NULL;
-	if ((__pmAddIPC(fileno(f), ipc)) < 0)
-	    return -errno;
     }
 
     if (vol >= 0 && vol < lcp->l_numseen)
@@ -385,16 +380,12 @@ __pmLogNewFile(const char *base, int vol)
 	setoserror(save_errno);
 	return NULL;
     }
-    else {
-	__pmIPC	ipc = { PDU_VERSION, NULL };
 
-	if ((__pmAddIPC(fileno(f), ipc)) < 0) {
-	    save_errno = oserror();
-	    pmprintf("__pmLogNewFile: failed to create \"%s\": %s\n", fname, strerror(save_errno));
-	    pmflush();
-	    setoserror(save_errno);
-	    return NULL;
-	}
+    if ((save_errno = __pmSetVersionIPC(fileno(f), PDU_VERSION)) < 0) {
+	pmprintf("__pmLogNewFile: failed to setup \"%s\": %s\n", fname, strerror(save_errno));
+	pmflush();
+	setoserror(save_errno);
+	return NULL;
     }
 
     return f;
@@ -444,7 +435,6 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 	    if ((lcp->l_mfp = __pmLogNewFile(base, 0)) != NULL) {
 		char *tz = __pmTimezone();
                 int             sts;
-                __pmIPC         *ipc;
 
 		lcp->l_label.ill_magic = PM_LOG_MAGIC | log_version;
 		/*
@@ -464,20 +454,14 @@ __pmLogCreate(const char *host, const char *base, int log_version,
                  * __pmLogNewFile sets the IPC version to PDU_VERSION
                  * we want log_version instead
                  */
-
-                if ((sts=__pmFdLookupIPC(fileno(lcp->l_tifp), &ipc)) < 0)
+		sts = __pmSetVersionIPC(fileno(lcp->l_tifp), log_version);
+		if (sts < 0)
                     return sts;
-                ipc->version=log_version;
-
-                if ((sts=__pmFdLookupIPC(fileno(lcp->l_mdfp), &ipc)) < 0)
+		sts = __pmSetVersionIPC(fileno(lcp->l_mdfp), log_version);
+		if (sts < 0)
                     return sts;
-                ipc->version=log_version;
-
-                if ((sts=__pmFdLookupIPC(fileno(lcp->l_mfp), &ipc)) < 0)
-                    return sts;
-                ipc->version=log_version;
-
-		return 0;
+		sts = __pmSetVersionIPC(fileno(lcp->l_mfp), log_version);
+		return sts;
 	    }
 	    else {
 		save_errno = oserror();

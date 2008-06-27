@@ -50,17 +50,11 @@ ConnectPMCD(void)
 {
     int			sts;
     __pmPDU		*pb;
-    __pmIPC		*ipc;
 
     if (src_ctx >= 0)
 	return src_ctx;
 
-    if ((sts = __pmFdLookupIPC(logger_fd, &ipc)) < 0) {
-	fprintf(stderr, "Logger connection badly initialised.\n");
-	return sts;
-    }
-
-    if (ipc->version >= LOG_PDU_VERSION2) {
+    if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2) {
 	__pmLoggerStatus	*lsp;
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDU)
@@ -548,17 +542,11 @@ void Status(int pid, int primary)
     char		timenowbuf[TZBUFSZ];
     int			sts;
     __pmPDU		*pb;
-    __pmIPC		*ipc;
 
     if (!connected())
 	return;
 
-    if (__pmFdLookupIPC(logger_fd, &ipc) < 0) {
-	fprintf(stderr, "Logger connection badly initialised.\n");
-	return;
-    }
-
-    if (ipc->version >= LOG_PDU_VERSION2) {
+    if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDU)
 	    fprintf(stderr, "pmlc: sending version 2 status request\n");
@@ -636,7 +624,7 @@ void Status(int pid, int primary)
 	printf("[%d]", pid);
     printf(" on host %s is logging metrics from host %s\n",
 	lasthost, hostname);
-    if (ipc->version >= LOG_PDU_VERSION2)
+    if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2)
 	printf("PMCD host        %s\n", lsp->ls_fqdn);
     if (state == PM_LOG_STATE_NEW) {
 	puts("logging hasn't started yet");
@@ -660,17 +648,11 @@ Sync(void)
 {
     int			sts;
     __pmPDU		*pb;
-    __pmIPC		*ipc;
 
     if (!connected())
 	return;
 
-    if (__pmFdLookupIPC(logger_fd, &ipc) < 0) {
-	fprintf(stderr, "Logger connection badly initialised.\n");
-	return;
-    }
-
-    if (ipc->version >= LOG_PDU_VERSION2) {
+    if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDU)
 	    fprintf(stderr, "pmlc: sending version 2 sync request\n");
@@ -709,17 +691,11 @@ NewVolume(void)
 {
     int			sts;
     __pmPDU		*pb;
-    __pmIPC		*ipc;
 
     if (!connected())
 	return;
 
-    if (__pmFdLookupIPC(logger_fd, &ipc) < 0) {
-	fprintf(stderr, "Logger connection badly initialised.\n");
-	return;
-    }
-
-    if (ipc->version >= LOG_PDU_VERSION2) {
+    if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDU)
 	    fprintf(stderr, "pmlc: sending version 2 newvol request\n");

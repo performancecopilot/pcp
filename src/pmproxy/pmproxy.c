@@ -221,12 +221,11 @@ static int
 OpenRequestSocket(int port, __uint32_t ipAddr)
 {
     int			fd;
-    int			i, sts;
+    int			sts;
     struct sockaddr_in	myAddr;
-    struct linger	noLinger = {1, 0};
     int			one = 1;
 
-    fd = socket(AF_INET, SOCK_STREAM, 0);
+    fd = __pmCreateSocket();
     if (fd < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) socket: %s\n", port, strerror(errno));
 	DontStart();
@@ -234,17 +233,6 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     if (fd > maxSockFd)
 	maxSockFd = fd;
     FD_SET(fd, &sockFds);
-    i = 1;
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
-		   (mysocklen_t)sizeof(i)) < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) setsockopt(nodelay): %s\n", port, strerror(errno));
-	DontStart();
-    }
-
-    /* Don't linger on close */
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger, (mysocklen_t)sizeof(noLinger)) < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) setsockopt(nolinger): %s\n", port, strerror(errno));
-    }
 
     /* Ignore dead client connections */
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one, (mysocklen_t)sizeof(one)) < 0) {
@@ -372,10 +360,10 @@ Shutdown(void)
 
     for (i = 0; i < nClients; i++)
 	if (client[i].status.connected)
-	    close(client[i].fd);
+	    __pmCloseSocket(client[i].fd);
     for (i = 0; i < nReqPorts; i++)
 	if ((fd = reqPorts[i].fd) != -1)
-	    close(fd);
+	    __pmCloseSocket(fd);
     __pmNotifyErr(LOG_INFO, "pmproxy Shutdown\n");
     fflush(stderr);
 }

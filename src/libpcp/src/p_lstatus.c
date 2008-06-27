@@ -58,10 +58,9 @@ __pmSendLogStatus(int fd, __pmLoggerStatus *status)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {
-	__pmIPC	*ipc;
-	__pmFdLookupIPC(fd, &ipc);
+	int version = __pmVersionIPC(fd);
 	fprintf(stderr, "__pmSendLogStatus: sending PDU (toversion=%d)\n",
-		(ipc)?(ipc->version):(LOG_PDU_VERSION));
+		version == UNKNOWN_VERSION ? LOG_PDU_VERSION : version);
     }
 #endif
     return __pmXmitPDU(fd, (__pmPDU *)pp);
@@ -92,10 +91,9 @@ __pmDecodeLogStatus(__pmPDU *pdubuf, __pmLoggerStatus **status)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {
-	__pmIPC	*ipc;
-	__pmLookupIPC(&ipc);
+	int version = __pmLastVersionIPC();
 	fprintf(stderr, "__pmDecodeLogStatus: got PDU (fromversion=%d)\n",
-		(ipc)?(ipc->version):(LOG_PDU_VERSION));
+		version == UNKNOWN_VERSION ? LOG_PDU_VERSION : version);
     }
 #endif
     return 0;

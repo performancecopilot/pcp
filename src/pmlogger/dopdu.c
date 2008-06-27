@@ -1258,7 +1258,7 @@ sendstatus(void)
 {
     int				rv;
     int				end;
-    __pmIPC			*ipc;
+    int				version;
     static int			firsttime = 1;
     static char			*tzlogger;
     extern struct timeval	last_stamp;
@@ -1270,10 +1270,10 @@ sendstatus(void)
 	firsttime = 0;
     }
 
-    if ((end = __pmFdLookupIPC(clientfd, &ipc)) < 0)
-	return end;
+    if ((version = __pmVersionIPC(clientfd)) < 0)
+	return version;
 
-    if (ipc->version >= LOG_PDU_VERSION2) {
+    if (version >= LOG_PDU_VERSION2) {
 	__pmLoggerStatus		ls;
 
 	if ((ls.ls_state = logctl.l_state) == PM_LOG_STATE_NEW)
@@ -1358,10 +1358,10 @@ do_creds(__pmPDU *pb)
 {
     int		i;
     int		sts;
+    int		version = UNKNOWN_VERSION;
     int		credcount;
     int		sender;
     __pmCred	*credlist = NULL;
-    __pmIPC	ipc = { UNKNOWN_VERSION, NULL };
 
     if ((sts = __pmDecodeCreds(pb, PDU_BINARY, &sender, &credcount, &credlist)) < 0) {
 	__pmNotifyErr(LOG_ERR, "do_creds: error decoding PDU: %s\n", pmErrStr(sts));
@@ -1370,8 +1370,8 @@ do_creds(__pmPDU *pb)
 
     for (i = 0; i < credcount; i++) {
 	if (credlist[i].c_type == CVERSION) {
-	    ipc.version = credlist[i].c_vala;
-	    if ((sts = __pmAddIPC(clientfd, ipc)) < 0) {
+	    version = credlist[i].c_vala;
+	    if ((sts = __pmSetVersionIPC(clientfd, version)) < 0) {
 		free(credlist);
 		return sts;
 	    }
@@ -1383,7 +1383,7 @@ do_creds(__pmPDU *pb)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL1)
-	fprintf(stderr, "do_creds: pmlc version=%d\n", ipc.version);
+	fprintf(stderr, "do_creds: pmlc version=%d\n", version);
 #endif
 
     return sts;
@@ -1398,7 +1398,6 @@ client_req(void)
 {
     int		sts;
     __pmPDU	*pb;
-    __pmIPC	*ipc;
     __pmPDUHdr	*php;
 
     if ((sts = __pmGetPDU(clientfd, PDU_BINARY, TIMEOUT_DEFAULT, &pb)) <= 0) {
@@ -1410,13 +1409,6 @@ client_req(void)
 	return 1;
     }
     php = (__pmPDUHdr *)pb;
-    if ((sts = __pmFdLookupIPC(clientfd, &ipc)) < 0) {
-	fprintf(stderr, "client_req: %s\n", pmErrStr(sts));
-	__pmResetIPC(clientfd);
-	close(clientfd);
-	clientfd = -1;
-	return 1;
-    }
     sts = 0;
 
     switch (php->type) {
@@ -1440,8 +1432,7 @@ client_req(void)
     else {
 	/* the client isn't playing by the rules; disconnect it */
 	__pmSendError(clientfd, PDU_BINARY, sts);
-	__pmResetIPC(clientfd);
-	close(clientfd);
+	__pmCloseSocket(clientfd);
 	clientfd = -1;
 	return 1;
     }

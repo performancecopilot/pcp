@@ -243,8 +243,8 @@ INIT_CONTEXT:
 
 	    new->c_pmcd = (__pmPMCDCtl *)calloc(1,sizeof(__pmPMCDCtl));
 	    if (new->c_pmcd == NULL) {
-		close(sts);
 		sts = -errno;
+		__pmCloseSocket(sts);
 		__pmFreeHostSpec(hosts, nhosts);
 		goto FAILED;
 	    }
@@ -369,7 +369,7 @@ pmReconnectContext(int handle)
 
 	if (ctl->pc_fd >= 0) {
 	    /* don't care if this fails */
-	    close(ctl->pc_fd);
+	    __pmCloseSocket(ctl->pc_fd);
 	    ctl->pc_fd = -1;
 	}
 
@@ -556,7 +556,7 @@ pmDestroyContext(int handle)
 		/* before close, unsent data should be flushed */
 		setsockopt(ctxp->c_pmcd->pc_fd, SOL_SOCKET,
 		    SO_LINGER, (char *) &dolinger, (mysocklen_t)sizeof(dolinger));
-		close(ctxp->c_pmcd->pc_fd);
+		__pmCloseSocket(ctxp->c_pmcd->pc_fd);
 	    }
 	    __pmFreeHostSpec(ctxp->c_pmcd->pc_hosts, ctxp->c_pmcd->pc_nhosts);
 	    free(ctxp->c_pmcd);
@@ -760,7 +760,7 @@ pmContextConnectTo (int ctxid, const struct sockaddr *addr)
         return (0);
     }
 
-    close (pc->pc_fd);
+    __pmCloseSocket(pc->pc_fd);
     pc->pc_fd = -1;
     
     return (f);
@@ -794,12 +794,14 @@ pmContextConnectChangeState (int ctxid)
 	    f = 0;
 	} else if (pc->pc_hosts[0].nports > 1) {
 	    int fd;
-	    close (pc->pc_fd);
+	    __pmCloseSocket(pc->pc_fd);
 
-	    if ((fd = __pmCreateSocket ()) >= 0) {
+	    if ((fd = __pmCreateSocket()) >= 0) {
 		if (fd != pc->pc_fd) {
-		    if ((f = dup2 (fd, pc->pc_fd)) == pc->pc_fd) {
-			close (fd);
+		    if ((f = dup2(fd, pc->pc_fd)) == pc->pc_fd) {
+			__pmSetVersionIPC(pc->pc_fd, __pmVersionIPC(fd));
+			__pmSetSocketIPC(pc->pc_fd);
+			__pmCloseSocket(fd);
 		    } else {
 			fd = -errno;
 		    }
@@ -827,7 +829,7 @@ pmContextConnectChangeState (int ctxid)
 	break;
 
     case PC_WAIT_FOR_PMCD:
-	if ((f = __pmConnectHandshake (pc->pc_fd)) >= 0) {
+	if ((f = __pmConnectHandshake(pc->pc_fd)) >= 0) {
 	    pc->pc_state = PC_READY;
 	    f = 0;
 	}
@@ -847,7 +849,7 @@ pmContextConnectChangeState (int ctxid)
     }
 
     if (f) {
-	close (pc->pc_fd);
+	__pmCloseSocket(pc->pc_fd);
 	pc->pc_fd = -1;
     } else if (pc->pc_state != PC_READY) {
 	f = PM_ERR_AGAIN;

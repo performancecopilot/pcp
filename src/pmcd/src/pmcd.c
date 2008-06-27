@@ -346,12 +346,10 @@ static int
 OpenRequestSocket(int port, __uint32_t ipAddr)
 {
     int			fd;
-    int			i, sts;
+    int			one, sts;
     struct sockaddr_in	myAddr;
-    struct linger	noLinger = {1, 0};
-    int			one = 1;
 
-    fd = socket(AF_INET, SOCK_STREAM, 0);
+    fd = __pmCreateSocket();
     if (fd < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) socket: %s\n", port, ipAddr, strerror(errno));
 	return -1;
@@ -359,20 +357,9 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     if (fd > maxClientFd)
 	maxClientFd = fd;
     FD_SET(fd, &clientFds);
-    i = 1;
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
-		   (mysocklen_t)sizeof(i)) < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) setsockopt(nodelay): %s\n", port, ipAddr, strerror(errno));
-	close(fd);
-	return -1;
-    }
-
-    /* Don't linger on close */
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *)&noLinger, (mysocklen_t)sizeof(noLinger)) < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) setsockopt(nolinger): %s\n", port, ipAddr, strerror(errno));
-    }
 
     /* Ignore dead client connections */
+    one = 1;
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one, (mysocklen_t)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) setsockopt(SO_REUSEADDR): %s\n", port, ipAddr, strerror(errno));
     }
@@ -391,14 +378,14 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) bind: %s\n", port, ipAddr, strerror(errno));
 	if (errno == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "pmcd may already be running\n");
-	close(fd);
+	__pmCloseSocket(fd);
 	return -1;
     }
 
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) listen: %s\n", port, ipAddr, strerror(errno));
-	close(fd);
+	__pmCloseSocket(fd);
 	return -1;
     }
     return fd;
@@ -428,7 +415,6 @@ HandleClientInput(fd_set *fdsPtr)
     __pmPDU	*pb;
     __pmPDUHdr	*php;
     ClientInfo	*cp;
-    __pmIPC	*ipcptr;
 
     for (i = 0; i < nClients; i++) {
 	if (!client[i].status.connected || !FD_ISSET(client[i].fd, fdsPtr))
@@ -445,32 +431,8 @@ HandleClientInput(fd_set *fdsPtr)
 	}
 
 	php = (__pmPDUHdr *)pb;
-
-	__pmFdLookupIPC(cp->fd, &ipcptr);
-
-	if (ipcptr == NULL || ipcptr->version == UNKNOWN_VERSION) {
-	    if (php->type != (int)PDU_CREDS) {
-		__pmIPC	ipc = { PDU_VERSION1, NULL };
-		sts = __pmAddIPC(cp->fd, ipc);
-	    }
-	}
-	else if (ipcptr->version == ILLEGAL_CONNECT) {
-	    if (php->type != PDU_PROFILE) {
-		__pmIPC	ipc = { PDU_VERSION1, NULL };
-
-		/* send error to 1.x client and close connection */
-		sts = __pmAddIPC(cp->fd, ipc);
-		if (sts >= 0)
-		    sts = __pmSendError(cp->fd, PDU_BINARY, PM_ERR_LICENSE);
-		if (sts < 0)
-		    __pmNotifyErr(LOG_ERR,
-				 "pmcd: error sending Error PDU to client[%d] %s\n",
-				 i, pmErrStr(sts));
-		CleanupClient(cp, PM_ERR_LICENSE);
-	    }
-	    /* else ignore message & wait for a message that has an ACK */
-	    continue;
-	}
+	if (__pmVersionIPC(cp->fd) == UNKNOWN_VERSION && php->type != PDU_CREDS)
+	    __pmSetVersionIPC(cp->fd, PDU_VERSION1);
 
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
@@ -528,10 +490,9 @@ HandleClientInput(fd_set *fdsPtr)
 		break;
 
 	    case PDU_CREDS:
-		if ((sts = __pmFdLookupIPC(cp->fd, &ipcptr)) < 0)
+		if ((sts = __pmVersionIPC(cp->fd)) < 0)
 		    break;
-		if (ipcptr->version == PDU_VERSION1 ||
-					ipcptr->version == ILLEGAL_CONNECT) {
+		if (sts == PDU_VERSION1) {
 		    __pmNotifyErr(LOG_ERR, "pmcd: protocol version error on fd=%d\n", cp->fd);
 		    sts = PM_ERR_V1(PM_ERR_IPC);
 		}
@@ -574,10 +535,18 @@ Shutdown(void)
 	AgentInfo *ap = &agent[i];
 	if (!ap->status.connected)
 	    continue;
-	if (ap->inFd != -1)
-	    close(ap->inFd);
-	if (ap->outFd != -1)
-	    close(ap->outFd);
+	if (ap->inFd != -1) {
+	    if (__pmSocketIPC(ap->inFd))
+		__pmCloseSocket(ap->inFd);
+	    else
+		close(ap->inFd);
+	}
+	if (ap->outFd != -1) {
+	    if (__pmSocketIPC(ap->outFd))
+		__pmCloseSocket(ap->outFd);
+	    else
+		close(ap->outFd);
+	}
 	if (ap->ipcType == AGENT_SOCKET &&
 	    ap->ipc.socket.addrDomain == AF_UNIX) {
 	    /* remove the Unix domain socket */
@@ -597,10 +566,10 @@ Shutdown(void)
     }
     for (i = 0; i < nClients; i++)
 	if (client[i].status.connected)
-	    close(client[i].fd);
+	    __pmCloseSocket(client[i].fd);
     for (i = 0; i < nReqPorts; i++)
 	if ((fd = reqPorts[i].fd) != -1)
-	    close(fd);
+	    __pmCloseSocket(fd);
     __pmNotifyErr(LOG_INFO, "pmcd Shutdown\n");
     fflush(stderr);
 }
@@ -757,7 +726,7 @@ ClientLoop(void)
 			cp->pduInfo.authorize = 0;
 			challenge = *(int*)(&cp->pduInfo);
 			sts = 0;
-			/* reset (no meaning, use __pmIPC* code to version) */
+			/* reset (no meaning, use fd table to version) */
 			cp->pduInfo.version = UNKNOWN_VERSION;
 		    }
 		    else {

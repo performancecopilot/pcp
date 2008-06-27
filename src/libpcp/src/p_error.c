@@ -43,9 +43,7 @@ typedef struct {
 int
 __pmSendError(int fd, int mode, int code)
 {
-    __pmIPC	*ipc = NULL;
     p_error_t	*pp;
-    int		sts;
 
     if (mode == PDU_ASCII) {
 	/* Outgoing ASCII result PDUs not supported */
@@ -57,18 +55,16 @@ __pmSendError(int fd, int mode, int code)
     pp->hdr.len = sizeof(p_error_t);
     pp->hdr.type = PDU_ERROR;
 
-    if ((sts = __pmFdLookupIPC(fd, &ipc)) < 0)
-	return sts;
-
-    if (ipc && ipc->version == PDU_VERSION1)
+    if (__pmVersionIPC(fd) == PDU_VERSION1)
 	pp->code = XLATE_ERR_2TO1(code);
     else
 	pp->code = code;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "__pmSendError: sending error PDU (code=%d, toversion=%d)\n",
-		pp->code, (ipc)?(ipc->version):(PDU_VERSION));
+	fprintf(stderr,
+		"__pmSendError: sending error PDU (code=%d, toversion=%d)\n",
+		pp->code, __pmVersionIPC(fd));
 #endif
 
     pp->code = htonl(pp->code);
@@ -99,22 +95,19 @@ __pmSendXtendError(int fd, int mode, int code, int datum)
 int
 __pmDecodeError(__pmPDU *pdubuf, int mode, int *code)
 {
-    __pmIPC	*ipc;
     p_error_t	*pp;
-    int		sts;
 
-    if ((sts = __pmLookupIPC(&ipc)) < 0)
-	return sts;
     if (mode == PDU_BINARY) {
 	pp = (p_error_t *)pdubuf;
-	if (ipc && ipc->version == PDU_VERSION1)
+	if (__pmLastVersionIPC() == PDU_VERSION1)
 	    *code = XLATE_ERR_1TO2((int)ntohl(pp->code));
 	else
 	    *code = ntohl(pp->code);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "__pmDecodeError: got error PDU (code=%d, fromversion=%d)\n",
-		*code, (ipc)?(ipc->version):(PDU_VERSION));
+	fprintf(stderr,
+		"__pmDecodeError: got error PDU (code=%d, fromversion=%d)\n",
+		*code, __pmLastVersionIPC());
 #endif
     }
     else {
@@ -128,7 +121,7 @@ __pmDecodeError(__pmPDU *pdubuf, int mode, int *code)
 	    __pmNotifyErr(LOG_WARNING, "__pmDecodeError: ASCII botch @ \"%s\"\n", __pmAbuf);
 	    return PM_ERR_IPC;
 	}
-	if (ipc && ipc->version == PDU_VERSION1)
+	if (__pmLastVersionIPC() == PDU_VERSION1)
 	    *code = XLATE_ERR_1TO2(*code);
     }
     return 0;
@@ -145,7 +138,7 @@ __pmDecodeXtendError(__pmPDU *pdubuf, int mode, int *code, int *datum)
 	return PM_ERR_NOASCII;
 
     /*
-     * is is ALWAYS a PCP 1.x error code here
+     * it is ALWAYS a PCP 1.x error code here
      */
     *code = XLATE_ERR_1TO2((int)ntohl(pp->code));
 
@@ -155,13 +148,14 @@ __pmDecodeXtendError(__pmPDU *pdubuf, int mode, int *code, int *datum)
 	*datum = pp->datum; /* NOTE: caller must swab this */
     }
     else {
-	/* assume a vanilla 1.x error PDU ... has saame PDU type */
+	/* assume a vanilla 1.x error PDU ... has same PDU type */
 	sts = PDU_VERSION1;
 	*datum = 0;
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "__pmDecodeXtendError: got error PDU (code=%d, datum=%d, version=%d)\n",
+	fprintf(stderr, "__pmDecodeXtendError: "
+		"got error PDU (code=%d, datum=%d, version=%d)\n",
 		*code, *datum, sts);
 #endif
 

@@ -577,7 +577,6 @@ done:
     if (name) free(name);
     if (travNL) free(travNL);
     return sts;
-
 }
 
 /*************************************************************************/
@@ -585,11 +584,11 @@ done:
 int
 DoCreds(ClientInfo *cp, __pmPDU *pb)
 {
-    int			i, sts, credcount=0;
+    int			i, sts, credcount = 0;
+    int			version = UNKNOWN_VERSION;
     int			sender = 0;
     unsigned int	cookie = 0;
     __pmCred		*credlist = NULL;
-    __pmIPC		ipc = { UNKNOWN_VERSION, NULL };
 
     if ((sts = __pmDecodeCreds(pb, PDU_BINARY, &sender, &credcount, &credlist)) < 0)
 	return sts;
@@ -600,11 +599,11 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
     for (i = 0; i < credcount; i++) {
 	switch(credlist[i].c_type) {
 	    case CVERSION:
-		ipc.version = credlist[i].c_vala;
-		sts = __pmAddIPC(cp->fd, ipc);
+		version = credlist[i].c_vala;
+		sts = __pmSetVersionIPC(cp->fd, version);
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_CONTEXT)
-		    fprintf(stderr, "pmcd: version cred (%u)\n", ipc.version);
+		    fprintf(stderr, "pmcd: version cred (%u)\n", version);
 #endif
 		break;
 	    case CAUTH:

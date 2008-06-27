@@ -1312,8 +1312,8 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
     int			credcount = 0;
     int			sender = 0;
     int			vflag = 0;
+    int			version = UNKNOWN_VERSION;
     __pmCred		*credlist = NULL;
-    __pmIPC		ipc = { UNKNOWN_VERSION, NULL };
 
     if ((sts = __pmDecodeCreds(pb, PDU_BINARY, &sender, &credcount, &credlist)) < 0)
 	return sts;
@@ -1324,7 +1324,7 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 	switch (credlist[i].c_type) {
 	case CVERSION:
 	    aPtr->pduVersion = credlist[i].c_vala;
-	    ipc.version = credlist[i].c_vala;
+	    version = credlist[i].c_vala;
 	    vflag = 1;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
@@ -1337,8 +1337,8 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
     if (credlist != NULL)
 	free(credlist);
 
-    if (((sts = __pmAddIPC(aPtr->inFd, ipc)) < 0) ||
-	((sts = __pmAddIPC(aPtr->outFd, ipc)) < 0))
+    if (((sts = __pmSetVersionIPC(aPtr->inFd, version)) < 0) ||
+	((sts = __pmSetVersionIPC(aPtr->outFd, version)) < 0))
 	return sts;
 
     if (vflag) {	/* complete the version exchange - respond to agent */
@@ -1362,8 +1362,8 @@ static int
 AgentNegotiate(AgentInfo *aPtr)
 {
     int		sts;
+    int		version;
     __pmPDU	*ack;
-    __pmIPC	ipc = { UNKNOWN_VERSION, NULL };
 
     if (aPtr->pduProtocol == PDU_BINARY) {
 	sts = __pmGetPDU(aPtr->outFd, PDU_BINARY, _creds_timeout, &ack);
@@ -1398,9 +1398,9 @@ AgentNegotiate(AgentInfo *aPtr)
      * Either (PDU_ASCII _is_ version 1 ONLY), or timed out in PDU exchange
      */
     aPtr->pduVersion = PDU_VERSION1;
-    ipc.version = PDU_VERSION1;
-    if ((sts = __pmAddIPC(aPtr->inFd, ipc)) >= 0)
-	sts = __pmAddIPC(aPtr->outFd, ipc);
+    version = PDU_VERSION1;
+    if ((sts = __pmSetVersionIPC(aPtr->inFd, version)) >= 0)
+	sts = __pmSetVersionIPC(aPtr->outFd, version);
     return sts;
 }
 
@@ -1411,31 +1411,16 @@ ConnectSocketAgent(AgentInfo *aPtr)
     int		sts = 0;
     int		fd;
 
-    fd = socket(aPtr->ipc.socket.addrDomain, SOCK_STREAM, 0);
-    if (fd < 0) {
-	fprintf(stderr,
-		     "pmcd: Error creating socket for \"%s\" agent : %s\n",
-		     aPtr->pmDomainLabel, strerror(errno));
-	return -1;
-    }
-
     if (aPtr->ipc.socket.addrDomain == AF_INET) {
 	struct sockaddr_in	addr;
 	struct hostent		*hostInfo;
-	int			i;
-	struct linger		noLinger = {1, 0};
 
-	i = 1;
-	if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
-		(mysocklen_t)sizeof(i)) < 0) {
-	    fprintf(stderr, "ConnectSocketAgent setsockopt(nodelay): %s\n",
-			 strerror(errno));
-	    goto error;
-	}
-	if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger, (mysocklen_t)sizeof(noLinger)) < 0) {
-	    fprintf(stderr, "ConnectSocketAgent setsockopt(nolinger): %s\n",
-			 strerror(errno));
-	    goto error;
+	fd = __pmCreateSocket();
+	if (fd < 0) {
+	    fprintf(stderr,
+		     "pmcd: Error creating socket for \"%s\" agent : %s\n",
+		     aPtr->pmDomainLabel, strerror(errno));
+	    return -1;
 	}
 	hostInfo = gethostbyname("localhost");
 	if (hostInfo == NULL) {
@@ -1453,6 +1438,13 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	struct sockaddr_un	addr;
 	int			len;
 
+	fd = socket(aPtr->ipc.socket.addrDomain, SOCK_STREAM, 0);
+	if (fd < 0) {
+	    fprintf(stderr,
+		     "pmcd: Error creating socket for \"%s\" agent : %s\n",
+		     aPtr->pmDomainLabel, strerror(errno));
+	    return -1;
+	}
 	memset(&addr, 0, sizeof(addr));
 	addr.sun_family = AF_UNIX;
 	strcpy(addr.sun_path, aPtr->ipc.socket.name);
@@ -1479,7 +1471,10 @@ ConnectSocketAgent(AgentInfo *aPtr)
     return 0;
 
 error:
-    close(fd);
+    if (aPtr->ipc.socket.addrDomain == AF_INET)
+	__pmCloseSocket(fd);
+    else
+	close(fd);
     return -1;
 }
 
@@ -1609,8 +1604,7 @@ CreateAgent(AgentInfo *aPtr)
 void
 PrintAgentInfo(FILE *stream)
 {
-    int		i, ver=0;
-    __pmIPC	*ipc = NULL;
+    int		i, version;
     AgentInfo	*aPtr;
 
     fputs("\nactive agent dom   pid  in out ver protocol parameters\n", stream);
@@ -1633,12 +1627,9 @@ PrintAgentInfo(FILE *stream)
 	    break;
 
 	case AGENT_SOCKET:
-	    if (__pmFdLookupIPC(aPtr->inFd, &ipc) < 0)
-		ver = UNKNOWN_VERSION;
-	    else
-		ver = ipc->version;
+	    version = __pmVersionIPC(aPtr->inFd);
 	    fprintf(stream, " %3d %5d %3d %3d %3d ",
-		aPtr->pmDomainId, (int)aPtr->ipc.socket.agentPid, aPtr->inFd, aPtr->outFd, ver);
+		aPtr->pmDomainId, (int)aPtr->ipc.socket.agentPid, aPtr->inFd, aPtr->outFd, version);
 	    fputs("bin ", stream);
 	    fputs("sock ", stream);
 	    if (aPtr->ipc.socket.addrDomain == AF_UNIX)
@@ -1661,12 +1652,9 @@ PrintAgentInfo(FILE *stream)
 	    break;
 
 	case AGENT_PIPE:
-	    if (__pmFdLookupIPC(aPtr->inFd, &ipc) < 0)
-		ver = UNKNOWN_VERSION;
-	    else
-		ver = ipc->version;
+	    version = __pmVersionIPC(aPtr->inFd);
 	    fprintf(stream, " %3d %5d %3d %3d %3d ",
-		aPtr->pmDomainId, (int)aPtr->ipc.pipe.agentPid, aPtr->inFd, aPtr->outFd, ver);
+		aPtr->pmDomainId, (int)aPtr->ipc.pipe.agentPid, aPtr->inFd, aPtr->outFd, version);
 	    if (aPtr->pduProtocol == PDU_BINARY)
 		fputs("bin ", stream);
 	    else

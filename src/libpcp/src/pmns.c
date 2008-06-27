@@ -158,9 +158,8 @@ pmGetPMNSLocation(void)
   int pmns_location = PM_ERR_NOPMNS;
   int n;
   int sts;
-  __pmIPC *ipc;
   __pmContext  *ctxp;
-  int version = 0;
+  int version;
 
   if (useExtPMNS) {
       return PMNS_LOCAL;
@@ -177,22 +176,22 @@ pmGetPMNSLocation(void)
         case PM_CONTEXT_HOST:
 	    if (ctxp->c_pmcd->pc_fd == -1)
 		return PM_ERR_IPC;
-	    if ((sts = __pmFdLookupIPC(ctxp->c_pmcd->pc_fd, &ipc)) < 0) {
+	    if ((sts = version = __pmVersionIPC(ctxp->c_pmcd->pc_fd)) < 0) {
 	      __pmNotifyErr(LOG_ERR, 
 			"pmGetPMNSLocation: version lookup failed (context=%d, fd=%d): %s", 
 			n, ctxp->c_pmcd->pc_fd, pmErrStr(sts));
 	      pmns_location = PM_ERR_NOPMNS;
 	    }
-            else if (ipc->version == PDU_VERSION1) {
+            else if (version == PDU_VERSION1) {
 	      pmns_location = LoadDefault("PMCD (version 1)");
 	    }
-	    else if (ipc->version == PDU_VERSION2) {
+	    else if (version == PDU_VERSION2) {
 	      pmns_location = PMNS_REMOTE;
 	    }
 	    else {
             	__pmNotifyErr(LOG_ERR, 
 			"pmGetPMNSLocation: bad host PDU version (context=%d, fd=%d, ver=%d)",
-			n, ctxp->c_pmcd->pc_fd, ipc->version);
+			n, ctxp->c_pmcd->pc_fd, version);
 	      	pmns_location = PM_ERR_NOPMNS;
 	    }
 	    break;
@@ -213,12 +212,11 @@ pmGetPMNSLocation(void)
 			n, ctxp->c_pmcd->pc_fd, version); 
 	        pmns_location = PM_ERR_NOPMNS;
 	    }
-
 	    break;
         default: 
 	    __pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bogus context type: %d", ctxp->c_type); 
             pmns_location = PM_ERR_NOPMNS;
-      }/*switch*/
+      }
     }
     else {
       pmns_location = PM_ERR_NOPMNS; /* no context for client */

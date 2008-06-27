@@ -41,7 +41,6 @@ AcceptNewClient(int reqfd)
 {
     int		i, fd;
     mysocklen_t	addrlen;
-    __pmIPC	ipc = { UNKNOWN_VERSION, NULL };
 
     i = NewClient();
     addrlen = sizeof(client[i].addr);
@@ -67,7 +66,7 @@ AcceptNewClient(int reqfd)
     PMCD_OPENFDS_SETHI(fd);
 
     FD_SET(fd, &clientFds);
-    __pmAddIPC(fd, ipc);	/* unknown version before negotiation */
+    __pmSetVersionIPC(fd, UNKNOWN_VERSION);	/* before negotiation */
     client[i].fd = fd;
     client[i].status.connected = 1;
     client[i].status.changes = 0;
@@ -182,7 +181,6 @@ ShowClients(FILE *f)
 {
     int			i;
     struct hostent	*hp;
-    __pmIPC		*ipcptr;
 
     fprintf(f, "     fd  client connection from                    ipc ver  operations denied\n");
     fprintf(f, "     ==  ========================================  =======  =================\n");
@@ -206,8 +204,7 @@ ShowClients(FILE *f)
 	else
 	    fprintf(f, "%-40.40s", hp->h_name);
 
-	__pmFdLookupIPC(client[i].fd, &ipcptr);
-	fprintf(f, "  %7d", ipcptr ? ipcptr->version : -1);
+	fprintf(f, "  %7d", __pmVersionIPC(client[i].fd));
 
 	if (client[i].denyOps != 0) {
 	    fprintf(f, "  ");

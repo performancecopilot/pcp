@@ -88,11 +88,12 @@ negotiate_proxy(int fd, const char *hostname, int port)
 /*
  * client connects to pmcd handshake
  */
-static int
-do_handshake(int fd, __pmIPC *infop)
+int
+__pmConnectHandshake(int fd)
 {
     __pmPDU	*pb;
     int		ok;
+    int		version;
     int		challenge;
     int		sts;
 
@@ -120,27 +121,23 @@ do_handshake(int fd, __pmIPC *infop)
 	 * run-time licensing restrictions using this mechanism.
 	 */
 	ok = __pmDecodeXtendError(pb, PDU_BINARY, &sts, &challenge);
-	if (ok < 0) {
+	if (ok < 0)
 	    return ok;
-	}
 
 	/*
 	 * At this point, ok is PDU_VERSION1 or PDU_VERSION2 and
 	 * sts is a PCP 2.0 error code
 	 */
-	infop->version = ok;
-	infop->ext = NULL;
-	if ((ok = __pmAddIPC(fd, *infop)) < 0)
+	version = ok;
+	if ((ok = __pmSetVersionIPC(fd, version)) < 0)
 	    return ok;
 
-	if (infop->version == PDU_VERSION1) {
+	if (version == PDU_VERSION1) {
 	    /* 1.x pmcd */
 	    ;
 	}
 	else if (sts < 0 && sts != PM_ERR_LICENSE) {
-	    /*
-	     * 2.0+ pmcd, but we have a fatal error on the connection ...
-	     */
+	    /* 2.0+ pmcd, but we have a fatal error on the connection ... */
 	    ;
 	}
 	else {
@@ -169,13 +166,6 @@ do_handshake(int fd, __pmIPC *infop)
 	sts = PM_ERR_IPC;
 
     return sts;
-}
-
-int
-__pmConnectHandshake (int fd)
-{
-   __pmIPC	ipcinfo = { UNKNOWN_VERSION, NULL };
-   return (do_handshake (fd, &ipcinfo));
 }
 
 static int	global_nports;
@@ -242,7 +232,6 @@ __pmConnectGetPorts(pmHostSpec *host)
 int
 __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 {
-    __pmIPC	ipcinfo = { UNKNOWN_VERSION, NULL };
     int		sts;
     int		fd;	/* Fd for socket connection to pmcd */
     int		*ports;
@@ -306,7 +295,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	 */
 	for (i = 0; i < nports; i++) {
 	    if ((fd = __pmAuxConnectPMCDPort(hosts[0].name, ports[i])) >= 0) {
-		if ((sts = do_handshake(fd, &ipcinfo)) < 0) {
+		if ((sts = __pmConnectHandshake(fd)) < 0) {
 		    close(fd);
 		}
 		else
@@ -335,7 +324,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    fprintf(stderr, "__pmConnectPMCD(%s): pmcd connection port=%d fd=%d PDU version=%u\n",
-		    hosts[0].name, ports[i], fd, ipcinfo.version);
+		    hosts[0].name, ports[i], fd, __pmVersionIPC(fd));
 	    __pmPrintIPC();
 	}
 #endif
@@ -363,7 +352,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	}
 	if ((sts = version = negotiate_proxy(fd, hosts[0].name, ports[i])) < 0)
 	    close(fd);
-	else if ((sts = do_handshake(fd, &ipcinfo)) < 0)
+	else if ((sts = __pmConnectHandshake(fd)) < 0)
 	    close(fd);
 	else
 	    /* success */

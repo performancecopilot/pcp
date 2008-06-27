@@ -45,20 +45,25 @@ hstrerror(int h_errno)
 #endif /* HAVE_HSTRERROR */
 
 int
-__pmCreateSocket (void)
+__pmCreateSocket(void)
 {
-    int fd;
+    int			fd;
+    int			sts;
     int			nodelay=1;
     struct linger	nolinger = {1, 0};
 
-    /* Create socket and attempt to connect to the local PMCD */
     if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	return -errno;
+
+    if ((sts = __pmSetSocketIPC(fd)) < 0) {
+	__pmCloseSocket(fd);
+	return sts;
+    }
 
     /* avoid 200 ms delay */
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
 		   (mysocklen_t)sizeof(nodelay)) < 0) {
-        __pmNotifyErr(LOG_ERR, 
+	__pmNotifyErr(LOG_ERR, 
 		      "__pmCreateSocket(%d): setsockopt TCP_NODELAY: %s\n",
 		      fd, strerror(errno));
     }
@@ -66,16 +71,28 @@ __pmCreateSocket (void)
     /* don't linger on close */
     if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
 		   (mysocklen_t)sizeof(nolinger)) < 0) {
-        __pmNotifyErr(LOG_ERR, 
+	__pmNotifyErr(LOG_ERR, 
 		      "__pmCreateSocket(%d): setsockopt SO_LINGER: %s\n",
 		      fd, strerror(errno));
     }
 
-    return (fd);
+    return fd;
+}
+
+void
+__pmCloseSocket(int fd)
+{
+    __pmResetIPC(fd);
+
+#if defined(IS_MINGW)
+    closesocket(fd);
+#else
+    close(fd);
+#endif
 }
 
 int
-__pmConnectTo (int fd, const struct sockaddr *addr, int port)
+__pmConnectTo(int fd, const struct sockaddr *addr, int port)
 {
     int fdFlags = fcntl(fd, F_GETFL);
     struct sockaddr_in myAddr;
@@ -234,9 +251,8 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 
     __pmConnectTimeout();
 
-    if ((fd = __pmCreateSocket ()) < 0) {
-	return (fd);
-    }
+    if ((fd = __pmCreateSocket()) < 0)
+	return fd;
 
     memset(&myAddr, 0, sizeof(myAddr));	/* Arrgh! &myAddr, not myAddr */
     myAddr.sin_family = AF_INET;

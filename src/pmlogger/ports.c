@@ -173,28 +173,16 @@ GetPort(char *file)
     int			fd;
     int			mapfd;
     FILE		*mapstream;
-    int			i, sts;
+    int			sts;
     struct sockaddr_in	myAddr;
-    struct linger	noLinger = {1, 0};
     static int		port_base = -1;
     struct hostent	*hep;
     extern char	    	*archBase;		/* base name for log files */
     extern char		*pmcd_host;		/* collecting from PMCD on this host */
 
-    fd = socket(AF_INET, SOCK_STREAM, 0);
+    fd = __pmCreateSocket();
     if (fd < 0) {
 	perror("socket");
-	exit(1);
-    }
-    i = 0;	/* for purify! */
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
-		   (mysocklen_t)sizeof(i)) < 0) {
-	perror("setsockopt(nodelay)");
-	exit(1);
-    }
-    /* Don't linger on close */
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger, (mysocklen_t)sizeof(noLinger)) < 0) {
-	perror("setsockopt(nolinger)");
 	exit(1);
     }
 
@@ -405,7 +393,6 @@ control_req(void)
     struct sockaddr_in	addr;
     struct hostent	*hp;
     mysocklen_t		addrlen;
-    __pmIPC		ipc = { UNKNOWN_VERSION, NULL };
 
     addrlen = sizeof(addr);
     fd = accept(ctlfd, (struct sockaddr *)&addr, &addrlen);
@@ -418,15 +405,14 @@ control_req(void)
 	if (sts < 0)
 	    fprintf(stderr, "error sending connection NACK to client: %s\n",
 			 pmErrStr(sts));
-	__pmResetIPC(fd);
-	close(fd);
+	__pmCloseSocket(fd);
 	return 0;
     }
 
-    if ((sts = __pmAddIPC(fd, ipc)) < 0) {
+    if ((sts = __pmSetVersionIPC(fd, UNKNOWN_VERSION)) < 0) {
 	__pmSendError(fd, PDU_BINARY, sts);
 	fprintf(stderr, "error connecting to client: %s\n", pmErrStr(sts));
-	close(fd);
+	__pmCloseSocket(fd);
 	return 0;
     }
 
@@ -448,8 +434,7 @@ control_req(void)
 	if (sts < 0)
 	    fprintf(stderr, "error sending connection access NACK to client: %s\n",
 			 pmErrStr(sts));
-	__pmResetIPC(fd);
-	close(fd);
+	__pmCloseSocket(fd);
 	return 0;
     }
 
@@ -458,8 +443,7 @@ control_req(void)
     if (sts < 0) {
 	fprintf(stderr, "error sending connection ACK to client: %s\n",
 		     pmErrStr(sts));
-	__pmResetIPC(fd);
-	close(fd);
+	__pmCloseSocket(fd);
 	return 0;
     }
     clientfd = fd;

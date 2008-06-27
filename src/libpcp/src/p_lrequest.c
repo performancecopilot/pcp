@@ -43,10 +43,9 @@ __pmSendLogRequest(int fd, int type)
     pp->type = htonl(type);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {
-	__pmIPC	*ipc;
-	__pmFdLookupIPC(fd, &ipc);
+	int version = __pmVersionIPC(fd);
 	fprintf(stderr, "_pmSendRequest: sending PDU (type=%d, version=%d)\n",
-		pp->type, (ipc)?(ipc->version):(LOG_PDU_VERSION));
+		pp->type, version==UNKNOWN_VERSION? LOG_PDU_VERSION : version);
     }
 #endif
     return __pmXmitPDU(fd, (__pmPDU *)pp);
@@ -61,10 +60,9 @@ __pmDecodeLogRequest(const __pmPDU *pdubuf, int *type)
     *type = ntohl(pp->type);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDU) {
-	__pmIPC	*ipc;
-	__pmLookupIPC(&ipc);
+	int version = __pmLastVersionIPC();
 	fprintf(stderr, "__pmDecodeLogRequest: got PDU (type=%d, version=%d)\n",
-		*type, (ipc)?(ipc->version):(LOG_PDU_VERSION));
+		*type, version==UNKNOWN_VERSION? LOG_PDU_VERSION : version);
     }
 #endif
     return 0;

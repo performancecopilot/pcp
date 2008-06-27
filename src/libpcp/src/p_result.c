@@ -48,16 +48,12 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 {
     int		i;
     int		j;
-    __pmIPC	*ipc;
     size_t	need;	/* bytes for the PDU */
     size_t	vneed;	/* additional bytes for the pmValueBlocks on the end */
     __pmPDU	*_pdubuf;
     __pmPDU	*vbp;
     result_t	*pp;
     vlist_t	*vlp;
-
-    if ((i = __pmFdLookupIPC(targetfd, &ipc)) < 0)
-	return i;
 
     /* to start with, need space for result_t with no data (__pmPDU) */
     need = sizeof(result_t) - sizeof(__pmPDU);
@@ -188,12 +184,12 @@ __pmDecodeResult(__pmPDU *pdubuf, int mode, pmResult **result)
     int		sts;		/* function status */
     int		i;		/* range of metrics */
     int		j;		/* range over values */
+    int		version;
     result_t	*pp;
     vlist_t	*vlp;
     char	*q;
     pmResult	*pr = NULL;
     pmID	pmid;
-    __pmIPC	*ipc;
 
 #if defined(HAVE_64BIT_PTR)
     char	*newbuf;
@@ -211,7 +207,7 @@ __pmDecodeResult(__pmPDU *pdubuf, int mode, pmResult **result)
     pmValueSet		*vsp;		/* vlist_t == pmValueSet */
 #endif
 
-    if ((sts = __pmLookupIPC(&ipc)) < 0)
+    if ((sts = version = __pmLastVersionIPC()) < 0)
 	return sts;
 
     if (mode == PDU_BINARY) {
@@ -358,7 +354,7 @@ __pmDecodeResult(__pmPDU *pdubuf, int mode, pmResult **result)
 		    }
 		}
 	    }
-	    else if (nvsp->numval < 0 && ipc && ipc->version == PDU_VERSION1) {
+	    else if (nvsp->numval < 0 && version == PDU_VERSION1) {
 		nvsp->numval = XLATE_ERR_1TO2(nvsp->numval);
 	    }
 #ifdef DESPERATE
@@ -404,7 +400,7 @@ __pmDecodeResult(__pmPDU *pdubuf, int mode, pmResult **result)
 		vlp = (vlist_t *)((__psint_t)vlp + sizeof(*vlp) + (vsp->numval-1)*sizeof(vlp->vlist[0]));
 	    }
 	    else {
-		if (vsp->numval < 0 && ipc && ipc->version == PDU_VERSION1)
+		if (vsp->numval < 0 && version == PDU_VERSION1)
 		    vsp->numval = XLATE_ERR_1TO2(vsp->numval);
 		vlp = (vlist_t *)((__psint_t)vlp + sizeof(vlp->pmid) + sizeof(vlp->numval));
 	    }
@@ -431,7 +427,7 @@ __pmDecodeResult(__pmPDU *pdubuf, int mode, pmResult **result)
 	    if ((sts = __pmRecvLine(pdubuf, ABUFSIZE, __pmAbuf)) <= 0) goto badsts;
 	    if (sscanf(__pmAbuf, ". %d %d", &pmid, &j) != 2) goto bad;
 
-	    if (j < 0 && ipc && ipc->version == PDU_VERSION1)
+	    if (j < 0 && version == PDU_VERSION1)
 		numval = XLATE_ERR_1TO2(j);
 	    else
 		numval = j;

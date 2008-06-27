@@ -173,25 +173,14 @@ local_sock(char *host, int port, SV *callback, int cookie)
 {
     struct sockaddr_in myaddr;
     struct hostent *servinfo;
-    struct linger nolinger = { 1, 0 };
-    int me, fd, nodelay = 1;
+    int me, fd;
 
     if ((servinfo = gethostbyname(host)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "gethostbyname (%s): %s", host, strerror(errno));
 	exit(1);
     }
-    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((fd = __pmCreateSocket()) < 0) {
 	__pmNotifyErr(LOG_ERR, "socket (%s): %s", host, strerror(errno));
-	exit(1);
-    }
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, /* avoid 200 ms delay */
-		    (char *)&nodelay, (socklen_t)sizeof(nodelay)) < 0) {
-	__pmNotifyErr(LOG_ERR, "setsockopt1 (%s): %s", host, strerror(errno));
-	exit(1);
-    }
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, /* don't linger on close */
-		    (char *)&nolinger, (socklen_t)sizeof(nolinger)) < 0) {
-	__pmNotifyErr(LOG_ERR, "setsockopt2 (%s): %s", host, strerror(errno));
 	exit(1);
     }
     memset(&myaddr, 0, sizeof(myaddr));
@@ -246,7 +235,7 @@ local_atexit(void)
 	if (files[nfiles].type == FILE_TAIL)
 	    fclose(files[nfiles].me.tail.file);
 	if (files[nfiles].type == FILE_SOCK) {
-	    close(files[nfiles].fd);
+	    __pmSocketClose(files[nfiles].fd);
 	    if (files[nfiles].me.sock.host)
 		free(files[nfiles].me.sock.host);
 	    files[nfiles].me.sock.host = NULL;

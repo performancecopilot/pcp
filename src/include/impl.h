@@ -424,12 +424,10 @@ extern void __pmFreeInResult(__pmInResult *);
  * Version and authorisation info for PDU exchanges
  */
 
+#define UNKNOWN_VERSION	0
 #define PDU_VERSION1	1
 #define PDU_VERSION2	2
-
-#define UNKNOWN_VERSION		0
-#define ILLEGAL_CONNECT		(128-1)
-#define PDU_VERSION		PDU_VERSION2
+#define PDU_VERSION	PDU_VERSION2
 
 #define PDU_OVERRIDE1	-1001
 #define PDU_OVERRIDE2	-1002
@@ -492,6 +490,7 @@ extern int __pmConnectLocal(void);
 extern int __pmAuxConnectPMCD(const char *);
 extern int __pmAuxConnectPMCDPort(const char *, int);
 extern int __pmCreateSocket(void);
+extern void __pmCloseSocket(int);
 extern int __pmAddHostPorts(pmHostSpec *, int *, int);
 extern void __pmDropHostPort(pmHostSpec *);
 extern void __pmConnectGetPorts(pmHostSpec *);
@@ -907,14 +906,11 @@ extern void __pmEventTrace(const char *);
 typedef int (*__pmConnectHostType)(int, int);
 extern __pmConnectHostType __pmConnectHostMethod;
 
-typedef struct {
-    unsigned int        version;
-    void                *ext;
-} __pmIPC;
-
-extern int __pmAddIPC(int, __pmIPC);
-extern int __pmLookupIPC(__pmIPC **);
-extern int __pmFdLookupIPC(int, __pmIPC **);
+extern int __pmSetSocketIPC(int);
+extern int __pmSetVersionIPC(int, int);
+extern int __pmLastVersionIPC();
+extern int __pmVersionIPC(int);
+extern int __pmSocketIPC(int);
 extern void __pmOverrideLastFd(int);
 extern void __pmPrintIPC(void);
 extern void __pmResetIPC(int);
@@ -1179,19 +1175,6 @@ extern int __pmControlLog(int, const pmResult *, int, int, int, pmResult **);
         val = (val & 0xf) | (delta << 4)
 #define PMLC_GET_DELTA(val) \
         (((val & ~0xf) >> 4) & PMLC_MAX_DELTA)
-
-/*
- * deprecated pmlc <-> pmlogger protocol interfaces
- */
-#define PMLC_PDU_STATUS_REQ	1
-#define PMLC_PDU_STATUS		2
-#define PMLC_PDU_NEWVOLUME	3
-#define PMLC_PDU_SYNC		4
-
-extern int __pmSendDataX(int, int, int, int, const void *);
-extern int __pmDecodeDataX(__pmPDU *, int, int *, int *, void **);
-extern int __pmSendControlReq(int, int, const pmResult *, int, int, int);
-extern int __pmDecodeControlReq(const __pmPDU *, int, pmResult **, int *, int *, int *);
 
 #ifdef __cplusplus
 }

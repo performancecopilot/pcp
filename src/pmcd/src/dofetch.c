@@ -345,7 +345,6 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     int			nWait;
     int			maxFd;
     struct timeval	timeout;
-    __pmIPC		*ipc;
 
     if (nAgents > nDoms) {
 	if (results != NULL)
@@ -497,10 +496,10 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 		    int s, k;
 		    extern int CheckError(AgentInfo *ap, int sts);
 
-		    s = PM_ERR_AGAIN;
-		    if ((__pmFdLookupIPC(cip->fd, &ipc) >= 0) &&
-					(ipc->version == PDU_VERSION1))
+		    if (__pmVersionIPC(cip->fd) == PDU_VERSION1)
 			s = PM_ERR_V1(PM_ERR_AGAIN);
+		    else
+			s = PM_ERR_AGAIN;
 
 		    for (k = 0; k < dList[j].listSize; k++)
 			results[i]->vset[k]->numval = s;
@@ -537,8 +536,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 
     sts = 0;
     if (cip->status.changes) {
-	if (__pmFdLookupIPC(cip->fd, &ipc) >= 0 &&
-					ipc->version != PDU_VERSION1) {
+	if (__pmVersionIPC(cip->fd) >= PDU_VERSION2) {
 	    /* notify PCP >= 2.0 client of PMCD state change */
 	    sts = __pmSendError(cip->fd, PDU_BINARY, (int)cip->status.changes);
 	    if (sts > 0)

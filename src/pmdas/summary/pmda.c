@@ -53,7 +53,6 @@ main(int argc, char **argv)
     int			len, c;
     int			clientPipe[2];
     int			configfd = -1;
-    __pmIPC		ipc = { PDU_VERSION2, NULL };
     char		helpfile[MAXPATHLEN]; 
     int			cmdpipe;		/* metric source/cmd pipe */
     char		*command = NULL;
@@ -127,7 +126,7 @@ main(int argc, char **argv)
 	    perror(configFile);
 	    exit(1);
 	}
-	__pmAddIPC(configfd, ipc);
+	__pmSetVersionIPC(configfd, PDU_VERSION2);
     }
 
 #ifdef MALLOC_AUDIT
@@ -171,7 +170,7 @@ main(int argc, char **argv)
 
     close(clientPipe[1]);
     cmdpipe = clientPipe[0]; /* parent/agent reads from here */
-    __pmAddIPC(cmdpipe, ipc);
+    __pmSetVersionIPC(cmdpipe, PDU_VERSION2);
 
     summaryMainLoop(pmProgname, configfd, cmdpipe, &dispatch);
 

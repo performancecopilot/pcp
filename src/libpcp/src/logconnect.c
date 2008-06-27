@@ -42,10 +42,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     struct sockaddr_in	myAddr;
     struct hostent*	servInfo;
     int			fd;	/* Fd for socket connection to pmcd */
-    int			nodelay=1;
-    struct linger	nolinger = {1, 0};
     __pmPDU		*pb;
-    __pmIPC		ipc = { UNKNOWN_VERSION, NULL };
     __pmPDUHdr		*php;
 
 #ifdef PCP_DEBUG
@@ -107,25 +104,8 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     }
 
     /* Create socket and attempt to connect to the pmlogger control port */
-    fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (fd < 0)
-	return -errno;
-
-    /* avoid 200 ms delay */
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY,
-		   (char *) &nodelay, (mysocklen_t)sizeof(nodelay)) < 0) {
-	sts = -errno;
-	close(fd);
-	return sts;
-    }
-
-    /* don't linger on close */
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER,
-		   (char *) &nolinger, (mysocklen_t)sizeof(nolinger)) < 0) {
-	sts = -errno;
-	close(fd);
-	return sts;
-    }
+    if ((fd = __pmCreateSocket()) < 0)
+	return fd;
 
     memset(&myAddr, 0, sizeof(myAddr));	/* Arrgh! &myAddr, not myAddr */
     myAddr.sin_family = AF_INET;
@@ -135,7 +115,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     sts = connect(fd, (struct sockaddr*) &myAddr, sizeof(myAddr));
     if (sts < 0) {
 	sts = -errno;
-	close(fd);
+	__pmCloseSocket(fd);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr(sts));
@@ -180,14 +160,14 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     if (sts >= 0) {
 	if (sts == LOG_PDU_VERSION1) {
 	    /* no support for LOG_PDU_VERSION1 any more */
-	    pmprintf("__pmConnectLogger: pmlogger PDU version %d not supported\n", ipc.version == 0 ? LOG_PDU_VERSION1 : ipc.version);
+	    pmprintf("__pmConnectLogger: logger PDU version 1 not supported\n");
 	    pmflush();
 	    sts = PM_ERR_GENERIC;
 	}
 	else if (sts >= LOG_PDU_VERSION2) {
 	    __pmCred	handshake[1];
-	    ipc.version = sts;
-	    sts = __pmAddIPC(fd, ipc);
+
+	    __pmSetVersionIPC(fd, sts);
 	    handshake[0].c_type = CVERSION;
 	    handshake[0].c_vala = LOG_PDU_VERSION;
 	    handshake[0].c_valb = 0;
@@ -198,12 +178,12 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "__pmConnectLogger: PDU version=%d fd=%d\n",
-					ipc.version, fd);
+					__pmVersionIPC(fd), fd);
 #endif
 	    return fd;
 	}
     }
     /* error if we get here */
-    close(fd);
+    __pmCloseSocket(fd);
     return sts;
 }

@@ -391,8 +391,7 @@ void
 dostatus(void)
 {
     int		i = 0;
-    __pmIPC	*ipc;
-	
+
     putchar('\n');
     printf("Namespace:              ");
     if (cmd_namespace != NULL)
@@ -403,7 +402,6 @@ dostatus(void)
 	else
             printf("%s\n", pmnsfile);
     }
-
 
     if (pmdaName == NULL || connmode == PDU_NOT)
 	printf("PMDA:                   none\n");
@@ -419,10 +417,11 @@ dostatus(void)
 	case PDU_BINARY:
 	    printf("daemon\n");
 	    printf("PMDA PMAPI Version:     ");
-	    if (__pmFdLookupIPC(infd, &ipc) < 0)
+	    i = __pmVersionIPC(infd);
+	    if (i == UNKNOWN_VERSION)
 		printf("unknown!\n");
 	    else
-		printf("%d\n", ipc->version);
+		printf("%d\n", i);
 	    break;
 	default:
 	    printf("unknown!\n");

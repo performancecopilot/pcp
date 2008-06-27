@@ -40,12 +40,11 @@
 void
 __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 {
-    int			i, sts;
+    int			sts;
     int			sfd;
     struct sockaddr_in	myaddr;
     struct sockaddr_in	from;
     struct servent	*service;
-    struct linger	nolinger = {1, 0};
     mysocklen_t		addrlen;
     int			one = 1;
 
@@ -59,19 +58,9 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 	myport = service->s_port;
     }
 
-    sfd = socket(AF_INET, SOCK_STREAM, 0);
+    sfd = __pmCreateSocket();
     if (sfd < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet socket: %s\n", strerror(errno));
-	exit(1);
-    }
-    i = 1;
-    if (setsockopt(sfd, IPPROTO_TCP, TCP_NODELAY, (char *) &i, (mysocklen_t)sizeof(i)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(nodelay): %s\n", strerror(errno));
-	exit(1);
-    }
-    if (setsockopt(sfd, SOL_SOCKET, SO_LINGER,
-		   (char *) &nolinger, (mysocklen_t)sizeof(nolinger)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: setsockopt(nolinger): %s\n", strerror(errno));
 	exit(1);
     }
     /*
@@ -103,7 +92,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet accept: %s\n", strerror(errno));
 	exit(1);
     }
-    close(sfd);
+    __pmCloseSocket(sfd);
     *outfd = *infd;
 }
 
@@ -463,8 +452,8 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
     __pmCred	handshake[1];
     __pmCred	*credlist = NULL;
     __pmPDU	*pb;
-    __pmIPC	ipc = { UNKNOWN_VERSION, NULL };
-    int		i, sts, credcount=0, sender=0, vflag=0;
+    int		i, sts, vflag = 0;
+    int		version = UNKNOWN_VERSION, credcount = 0, sender = 0;
 
     handshake[0].c_type = CVERSION;
     handshake[0].c_vala = PDU_VERSION;
@@ -489,7 +478,7 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
 	for (i = 0; i < credcount; i++) {
 	    switch (credlist[i].c_type) {
 	    case CVERSION:
-		ipc.version = credlist[i].c_vala;
+		version = credlist[i].c_vala;
 		vflag = 1;
 		break;
 	    default:
@@ -497,9 +486,8 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
 	    }
 	}
 	if (vflag) {
-	    __pmAddIPC(infd, ipc);
-	    if (outfd != infd)
-		__pmAddIPC(outfd, ipc);
+	    __pmSetVersionIPC(infd, version);
+	    __pmSetVersionIPC(outfd, version);
 	}
 	if (credlist != NULL)
 	    free(credlist);
@@ -507,7 +495,7 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
     else
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: version exchange failure\n", agentname);
 
-    return ipc.version;
+    return version;
 }
 
 /* 

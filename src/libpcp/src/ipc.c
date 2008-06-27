@@ -36,100 +36,112 @@ bozo ... need to be able to find MAXINT or equivalent
 #endif
 #endif
 
-#define PMIPC_TABLE_INIT	4
-#define PMIPC_TABLE_BASE	0
-
-int		__pmLastUsedFd   = -MAXINT;
-__pmIPC		*__pmIPCTablePtr = NULL;
-static int	ipctablesize = 0;
-
 /*
- * This table is used when an explicit version is to be used.
- * A lookup on file descriptor `-PDU_VERSION1' returns 1st entry,
- * similarly with fd `-PDU_VERSION2'.
+ * We keep a table of connection state for each interesting file descriptor here.
+ * The version field holds the version of the software at the other end of the
+ * connection end point (0 is unknown, 1 or 2 are also valid).
+ * The socket field is used to tell whether this is a socket or pipe (or a file)
+ * connection, which is most important for the Windows port, as socket interfaces
+ * are braindead and do not use the usual file descriptor read/write/close calls,
+ * but must rather use recv/send/closesocket.
  */
-static __pmIPC	force[] = {
-    { PDU_VERSION1, NULL },
-    { PDU_VERSION2, NULL }
-};
+typedef struct {
+    int		version;	/* one or two */
+    int		socket;		/* true or false */
+} __pmIPC;
 
-int
-__pmAddIPC(int fd, __pmIPC ipc)
+static int	__pmLastUsedFd = -MAXINT;
+static __pmIPC	*__pmIPCTablePtr;
+static int	ipctablesize;
+
+static int
+__pmResizeIPC(int fd)
 {
-    int		oldsize;
+    int	oldsize;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "__pmAddIPC: fd=%d verion=%d\n", fd, ipc.version);
-#endif
     if (__pmIPCTablePtr == NULL || fd >= ipctablesize) {
 	oldsize = ipctablesize;
 	while (fd >= ipctablesize) {
 	    if (ipctablesize == 0) {
-		ipctablesize = PMIPC_TABLE_INIT;
+		ipctablesize = 4;
 	    }
 	    else
 		ipctablesize *= 2;
 	}
 	if ((__pmIPCTablePtr = (__pmIPC *)realloc(__pmIPCTablePtr,
-		sizeof(__pmIPC)*ipctablesize)) == NULL)
+				sizeof(__pmIPC)*ipctablesize)) == NULL)
 	    return -errno;
 	if (oldsize == 0)
-	    memset(__pmIPCTablePtr, UNKNOWN_VERSION, sizeof(__pmIPC)*ipctablesize);
-	memset((__pmIPCTablePtr+fd), UNKNOWN_VERSION, sizeof(__pmIPC)*(ipctablesize-fd));
+	    memset(__pmIPCTablePtr, 0, sizeof(__pmIPC)*ipctablesize);
+	memset((__pmIPCTablePtr+fd), 0, sizeof(__pmIPC)*(ipctablesize-fd));
     }
-    __pmIPCTablePtr[fd] = ipc;
+    return 0;
+}
+
+int
+__pmSetVersionIPC(int fd, int version)
+{
+    int sts;
+
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	fprintf(stderr, "__pmSetVersionIPC: fd=%d version=%d\n", fd, version);
+
+    if ((sts = __pmResizeIPC(fd)) < 0)
+	return sts;
+
+    __pmIPCTablePtr[fd].version = version;
     __pmLastUsedFd = fd;
 
-#ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
 	__pmPrintIPC();
-#endif
-
-    return 0;
+    return sts;
 }
 
 int
-__pmLookupIPC(__pmIPC **ipc)
+__pmSetSocketIPC(int fd)
 {
-    return __pmFdLookupIPC(__pmLastUsedFd, ipc);
+    int sts;
+
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	fprintf(stderr, "__pmSetSocketIPC: fd=%d\n", fd);
+
+    if ((sts = __pmResizeIPC(fd)) < 0)
+	return sts;
+
+    __pmIPCTablePtr[fd].socket = 1;
+    __pmLastUsedFd = fd;
+
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	__pmPrintIPC();
+    return sts;
 }
 
 int
-__pmFdLookupIPC(int fd, __pmIPC **ipc)
+__pmVersionIPC(int fd)
 {
-    if (fd == PDU_OVERRIDE1) {
-	*ipc = &force[0];
-	return 0;
-    }
-    else if (fd == PDU_OVERRIDE2) {
-	*ipc = &force[1];
-	return 0;
-    }
-
     if (__pmIPCTablePtr == NULL || fd < 0 || fd >= ipctablesize) {
-#ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
-	    fprintf(stderr, "IPC protocol botch: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
+	    fprintf(stderr,
+		"IPC protocol botch: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
 		__pmIPCTablePtr, fd, ipctablesize);
-#endif
-	*ipc = NULL;
-	return PM_ERR_IPC;
+	return UNKNOWN_VERSION;
     }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT) {
-	fprintf(stderr, "__pmFdLookupIPC: fd=%d PDU version: ", fd);
-	if (__pmIPCTablePtr[fd].version == UNKNOWN_VERSION)
-	    fprintf(stderr, "?\n");
-	else
-	    fprintf(stderr, "%d\n", __pmIPCTablePtr[fd].version);
-    }
-#endif
-
-    *ipc = &__pmIPCTablePtr[fd];
-    return 0;
+    return __pmIPCTablePtr[fd].version;
 }
 
+int
+__pmLastVersionIPC()
+{
+    return __pmVersionIPC(__pmLastUsedFd);
+}
+
+int
+__pmSocketIPC(int fd)
+{
+    if (__pmIPCTablePtr == NULL || fd < 0 || fd >= ipctablesize)
+	return 0;
+    return __pmIPCTablePtr[fd].socket;
+}
 
 /*
  * Called by log readers who need version info for result decode,
@@ -148,9 +160,7 @@ __pmResetIPC(int fd)
 {
     if (__pmIPCTablePtr == NULL || fd < 0 || fd >= ipctablesize)
 	return;
-
-    __pmIPCTablePtr[fd].version = UNKNOWN_VERSION;
-    __pmIPCTablePtr[fd].ext = NULL;
+    memset(&__pmIPCTablePtr[fd], 0, sizeof(__pmIPC));
 }
 
 void
@@ -161,9 +171,10 @@ __pmPrintIPC(void)
     fprintf(stderr, "IPC table fd(PDU version):");
     for (i = 0; i < ipctablesize; i++) {
 	if (__pmIPCTablePtr[i].version == UNKNOWN_VERSION)
-	    fprintf(stderr, " %d(?)", i);
+	    fprintf(stderr, " %d(?,%d)", i, __pmIPCTablePtr[i].socket);
 	else
-	    fprintf(stderr, " %d(%d)", i, __pmIPCTablePtr[i].version);
+	    fprintf(stderr, " %d(%d,%d)", i, __pmIPCTablePtr[i].version,
+					     __pmIPCTablePtr[i].socket);
     }
     fputc('\n', stderr);
 }

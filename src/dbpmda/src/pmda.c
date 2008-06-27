@@ -69,11 +69,11 @@ agent_creds(__pmPDU *pb)
 {
     int			i;
     int			sts = 0;
+    int			version = UNKNOWN_VERSION;
     int			credcount = 0;
     int			sender = 0;
     int			vflag = 0;
     __pmCred		*credlist = NULL;
-    __pmIPC		ipc = { UNKNOWN_VERSION, NULL };
 
     if ((sts = __pmDecodeCreds(pb, PDU_BINARY, &sender, &credcount, &credlist)) < 0)
 	return sts;
@@ -85,11 +85,11 @@ agent_creds(__pmPDU *pb)
 #endif
 	switch(credlist[i].c_type) {
 	case CVERSION:
-	    ipc.version = credlist[i].c_vala;
+	    version = credlist[i].c_vala;
 	    vflag = 1;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "agent_creds: version cred (%u)\n", ipc.version);
+		fprintf(stderr, "agent_creds: version cred (%u)\n", version);
 #endif
 	    break;
 	}
@@ -98,8 +98,8 @@ agent_creds(__pmPDU *pb)
     if (credlist)
 	free(credlist);
 
-    if (((sts = __pmAddIPC(infd, ipc)) < 0) ||
-	((sts = __pmAddIPC(outfd, ipc)) < 0))
+    if (((sts = __pmSetVersionIPC(infd, version)) < 0) ||
+	((sts = __pmSetVersionIPC(outfd, version)) < 0))
 	return sts;
 
     if (vflag) {	/* complete the version exchange - respond to agent */
@@ -131,13 +131,12 @@ pmdaversion(void)
 	}
     }
     else {
-	__pmIPC	ipc = { PDU_VERSION1, NULL };
 	if (sts < 0)
 	    fprintf(stderr, "__pmGetPDU(%d): %s\n", infd, pmErrStr(sts));
 	fprintf(stderr, "Warning: no version exchange with PMDA %s: "
 			"assuming PCP 1.x PMDA.\n", pmdaName);
-	__pmAddIPC(infd, ipc);
-	__pmAddIPC(outfd, ipc);
+	__pmSetVersionIPC(infd, PDU_VERSION1);
+	__pmSetVersionIPC(outfd, PDU_VERSION1);
     }
 }
 
