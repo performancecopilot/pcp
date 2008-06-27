@@ -807,13 +807,6 @@ Options:\n\
 
     fprintf(stderr, "Archive basename: %s\n", archBase);
 
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-#if defined(HAVE_ATEXIT)
-    atexit(_malloc_audit_);
-#endif
-#endif
-
     /* detach yourself from the launching process */
     setpgid(getpid(), 0);
 

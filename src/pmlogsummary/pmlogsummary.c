@@ -1118,11 +1118,6 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
-
     if (lflag == 1) {
 	char	       *ddmm;
 	char	       *yr;

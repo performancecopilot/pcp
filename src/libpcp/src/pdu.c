@@ -23,14 +23,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-#ifdef MALLOC_AUDIT
-/*
- * PDU buffer allocations here are permanent, and do not cause any
- * memory leaks
- */
-#include "no-malloc-audit.h"
-#endif
-
 INTERN int	pmDebug = 0;		/* the real McCoy */
 
 #define ABUF_SIZE	1024	/* read buffer for reading ascii PDUs */

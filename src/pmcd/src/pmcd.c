@@ -936,11 +936,6 @@ main(int argc, char *argv[])
     __pmProcessDataSize(NULL);
     __pmSetInternalState(PM_STATE_PMCS);
 
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
-
     /*
      * get optional stuff from environment ... PMCD_PORT ...
      * same code is in connect.c of libpcp

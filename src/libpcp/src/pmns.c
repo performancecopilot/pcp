@@ -1334,10 +1334,6 @@ loadascii(int dupok)
 
 
     if (type == 0) {
-#ifdef MALLOC_AUDIT
-	_malloc_reset_();
-	atexit(_malloc_audit_);
-#endif
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PMNS)
 	    fprintf(stderr, "Loaded ASCII PMNS\n");

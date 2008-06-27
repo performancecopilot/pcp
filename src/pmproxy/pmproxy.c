@@ -534,11 +534,6 @@ main(int argc, char *argv[])
     __pmSetProgname(argv[0]);
     __pmSetInternalState(PM_STATE_PMCS);
 
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
-
     ParseOptions(argc, argv);
 
     if (run_daemon) {

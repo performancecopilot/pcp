@@ -157,12 +157,6 @@ main(int argc, char **argv)
 	__pmNoMem("main.cisco", n_intf * sizeof(cisco_t), PM_FATAL_ERR);
     }
 
-#ifdef MALLOC_AUDIT
-    _persistent_(_router);
-    _persistent_(intf);
-    _persistent_(cisco);
-#endif
-
     indomtab[CISCO_INDOM].it_numinst = n_intf;
     indomtab[CISCO_INDOM].it_set = _router;
 
@@ -313,11 +307,6 @@ badintfspec:
 
     /* initialize */
     cisco_init(&dispatch);
-
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
 
 #ifdef PARSE_ONLY
     for (i = 0; i < n_intf; i++)

@@ -129,12 +129,7 @@ main(int argc, char **argv)
 	__pmSetVersionIPC(configfd, PDU_VERSION2);
     }
 
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
-
-    pmdaConnect (&dispatch);
+    pmdaConnect(&dispatch);
     if ( dispatch.status ) {
 	fprintf (stderr, "Cannot connect to pmcd: %s\n",
 		 pmErrStr(dispatch.status));

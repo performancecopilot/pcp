@@ -352,13 +352,6 @@ Options:\n\
 				 nodecnt * sizeof(_map[0]), PM_FATAL_ERR);
     }
 
-#ifdef MALLOC_AUDIT
-    _persistent_(_htab);
-    _persistent_(_nodetab);
-    _persistent_(symp);
-    _persistent_(_map);
-#endif
-
     i = 0;
     traverse(root, pass2);
 

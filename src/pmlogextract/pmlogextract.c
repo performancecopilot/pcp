@@ -1783,13 +1783,6 @@ main(int argc, char **argv)
 	}
     }
 
-
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
-
-
     ilog = -1;
     written = 0;
     curlog.tv_sec = 0;

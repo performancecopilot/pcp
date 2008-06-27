@@ -948,12 +948,8 @@ init_tables(int dom)
     _len35 = 2;
     _aggr35 = (char *)malloc(_len35);
     memcpy(_aggr35, "13", _len35);
-#ifdef MALLOC_AUDIT
-    _persistent_(_string);
-    _persistent_(_aggr34);
-    _persistent_(_aggr35);
-#endif
-	(void)redo_many();
+
+    (void)redo_many();
 }
 
 static int

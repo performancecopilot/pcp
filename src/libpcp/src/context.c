@@ -149,26 +149,11 @@ pmNewContext(int type, const char *name)
 	}
     }
 
-#ifdef MALLOC_AUDIT
-/* contexts are persistent, and no memory leak here */
-#include "no-malloc-audit.h"
-#endif
-
     /* Create a new one */
     if (contexts == NULL)
 	list = (__pmContext *)malloc(sizeof(__pmContext));
     else
 	list = (__pmContext *)realloc((void *)contexts, (1+contexts_len) * sizeof(__pmContext));
-
-#ifdef MALLOC_AUDIT
-/*
- * but other code may contain memory leaks ...
- * note { } 'cause prototypes in the include file
- */
-{
-#include "malloc-audit.h"
-}
-#endif
 
     if (list == NULL) {
 	/* fail : nothing changed */

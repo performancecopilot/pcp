@@ -550,10 +550,6 @@ GetNewAgent(void)
 	    perror("GetNewAgentIndex: malloc");
 	    exit(1);
 	}
-#ifdef MALLOC_AUDIT
-	_persistent_(agent);
-#endif
-
 	szAgents = MIN_AGENTS_ALLOC;
     }
     else if (nAgents >= szAgents) {
@@ -716,12 +712,6 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
     newAgent->ipc.dso.xlatePath = xlatePath;
     newAgent->ipc.dso.entryPoint = entryPoint;
 
-#ifdef MALLOC_AUDIT
-    _persistent_(pmDomainLabel);
-    _persistent_(pathName);
-    _persistent_(entryPoint);
-#endif
-
     return 0;
 }
 
@@ -806,18 +796,6 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
     }
     newAgent->ipc.socket.agentPid = (pid_t) -1;
 
-#ifdef MALLOC_AUDIT
-    _persistent_(pmDomainLabel);
-    if (socketName != NULL) _persistent_(socketName);
-    if (commandLine != NULL) {
-	char	**argv = newAgent->ipc.socket.argv;
-
-	_persistent_(commandLine);
-	for (i = 0; argv[i] != NULL; i++)
-	    _persistent_(argv[i]);
-    }
-#endif
-
     return 0;
 }
 
@@ -874,17 +852,6 @@ ParsePipe(char *pmDomainLabel, int pmDomainId)
 	return -1;
     }
     newAgent->ipc.pipe.commandLine = BuildCmdLine(newAgent->ipc.pipe.argv);
-
-#ifdef MALLOC_AUDIT
-    _persistent_(pmDomainLabel);
-    if (commandLine != NULL) {
-	char	**argv = newAgent->ipc.pipe.argv;
-
-	_persistent_(commandLine);
-	for (i = 0; argv[i] != NULL; i++)
-	    _persistent_(argv[i]);
-    }
-#endif
 
     return 0;
 }

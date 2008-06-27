@@ -227,11 +227,6 @@ Options:\n\
 	}
     }
 
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
-
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
 	(void)gethostname(local, MAXHOSTNAMELEN);

@@ -242,9 +242,6 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	if (hostList == NULL) {
 	    __pmNoMem("AddHost enlarge", need, PM_FATAL_ERR);
 	}
-#ifdef MALLOC_AUDIT
-	_persistent_(hostList);
-#endif
     }
 
     /* If it has an asterisk it's a wildcarded host id */
