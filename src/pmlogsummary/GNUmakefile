@@ -24,8 +24,8 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES	= pmlogcheck.c pmlogsummary.c
-
 TARGETS	= pmlogcheck$(EXECSUFFIX) pmlogsummary$(EXECSUFFIX)
+LSRCFILES = pmwtf.sh
 
 LLDLIBS	= -lpcp -lm
 
@@ -43,6 +43,7 @@ include $(BUILDRULES)
 
 install:	$(TARGETS)
 	$(INSTALL) -m 755 $(TARGETS) $(PCP_BIN_DIR)
+	$(INSTALL) -m 755 pmwtf.sh $(PCP_BINADM_DIR)/pmwtf
 
 default_pcp:	default
 
