@@ -614,7 +614,7 @@ AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h iptypes.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
 
 dnl Checks for C++ header files.
-if test "$PMC_SUPPORT" = false
+if test "$PMC_SUPPORT" = false -o $target_os = mingw
 then
     pmc_support=false
 else
