@@ -199,7 +199,7 @@ void KmChart::updateBackground(void)
     archiveGroup->updateBackground();
 }
 
-const int KmChart::defaultFontSize()
+int KmChart::defaultFontSize()
 {
 #ifdef IS_DARWIN
     return 9;

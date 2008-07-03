@@ -47,16 +47,16 @@ public:
 	DebugForce = 0x10,
     } DebugOptions;
 
-    static const int defaultFontSize();
-    static const double defaultChartDelta() { return 1.0; }	// seconds
-    static const double defaultLoggerDelta() { return 1.0; }
-    static const int defaultVisibleHistory() { return 60; }	// points
-    static const int defaultSampleHistory() { return 180; }
-    static const int defaultTimeout() { return 3000; }		// milliseconds
-    static const int minimumPoints() { return 2; }
-    static const int maximumPoints() { return 360; }
-    static const int maximumLegendLength() { return 120; }	// chars
-    static const int minimumChartHeight() { return 80; }	// pixels
+    static int defaultFontSize();
+    static double defaultChartDelta() { return 1.0; }	// seconds
+    static double defaultLoggerDelta() { return 1.0; }
+    static int defaultVisibleHistory() { return 60; }	// points
+    static int defaultSampleHistory() { return 180; }
+    static int defaultTimeout() { return 3000; }		// milliseconds
+    static int minimumPoints() { return 2; }
+    static int maximumPoints() { return 360; }
+    static int maximumLegendLength() { return 120; }	// chars
+    static int minimumChartHeight() { return 80; }	// pixels
 
     Tab *activeTab() { return chartTabWidget->activeTab(); }
     void setActiveTab(int index, bool redisplay);

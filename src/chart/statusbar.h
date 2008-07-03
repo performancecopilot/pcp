@@ -28,8 +28,8 @@ public:
     StatusBar();
     void init();
 
-    static const int buttonSize() { return 56; }	// pixels
-    static const int timeAxisHeight() { return 30; }	// pixels
+    static int buttonSize() { return 56; }	// pixels
+    static int timeAxisHeight() { return 30; }	// pixels
 
     QLabel *dateLabel() { return my.dateLabel; }
     TimeAxis *timeAxis() { return my.timeAxis; }
