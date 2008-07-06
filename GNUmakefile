@@ -84,18 +84,16 @@ pack_pcp : default_pcp
 
 install_pcp :  default_pcp
 	# install the common directories _once_
-	# TODO automagic needed here to avoid installing directories like
-	# /usr/bin or /usr/lib or /etc that really belong to some other
-	# package
+ifneq "$(findstring $(TARGET_OS),darwin mingw)" ""
 	# for Linux, this one comes from the chkconfig package
-	# $(INSTALL) -m 755 -d $(PCP_RC_DIR)
-ifeq ($(TARGET_OS),darwin)
 	$(INSTALL) -m 755 -d $(PCP_RC_DIR)
 endif
+ifeq ($(TARGET_OS),mingw)
 	# for Linux, this group comes from the filesystem package
-	# $(INSTALL) -m 755 -d $(PCP_BIN_DIR)
-	# $(INSTALL) -m 755 -d $(PCP_LIB_DIR)
-	# $(INSTALL) -m 755 -d $(PCP_MAN_DIR)
+	$(INSTALL) -m 755 -d $(PCP_BIN_DIR)
+	$(INSTALL) -m 755 -d $(PCP_LIB_DIR)
+	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)
+endif
 	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/lib
