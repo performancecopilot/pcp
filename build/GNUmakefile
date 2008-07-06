@@ -29,9 +29,7 @@ LDIRT += $(wildcard *.src.tar.gz) pack_pcp.bin pcp.src \
 	pack_pro.bin pro.src
 
 # for clean and clobber
-SUBDIRS = tar rpm
-
-LSRCFILES = mac
+SUBDIRS = tar rpm mac
 
 # nothing to build here (it's all packaging)
 default install default_pcp install_pcp :
@@ -54,7 +52,7 @@ pack_pcp : pcp.src
 	fi; \
 	test -z "$$KEEP_DIST_ROOT" && rm -rf $$DIST_ROOT; echo Done
 
-# Simlink in the TOPDIR is used to pack files relative to
+# Symlink in the TOPDIR is used to pack files relative to
 # product-version directory. It is replaced with a directory if we
 # have to do any post-processing on sources. After sources has been
 # packed, touch .census in the topdir to prevent second run on
