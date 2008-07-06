@@ -87,7 +87,7 @@ if $clean; then
 	    echo \"$MAKE clean\" failed, see log in $LOGDIR/clean
 	    tail $LOGDIR/clean
 	fi
-        exit 1
+	exit 1
     fi
 fi
 
@@ -138,7 +138,7 @@ for prod ; do
 	    echo \"$MAKE default_$prod\" failed, see log in $LOGF
 	    tail $LOGF
 	fi
-        exit 1
+	exit 1
     fi
 
     rm -f files.rpm
@@ -155,7 +155,7 @@ for prod ; do
 	    echo Packaging failed, see log in $LOGF
 	    tail $LOGF
 	fi
-        exit 1
+	exit 1
     else
 	if ! $verbose ; then
 	    grep '^Wrote:' $LOGF | sed -e 's/\.\.\/\.\.\///' | fgrep -v tar.gz
