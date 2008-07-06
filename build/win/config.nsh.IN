@@ -1,0 +1,3 @@
+!define VERSION "@VERSION@"
+!define INSTPCP "install"
+!define TOPDIR  "..\.."
