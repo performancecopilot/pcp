@@ -160,6 +160,7 @@ TAR	= @tar@
 RPMPROG	= @rpmprog@
 PACKAGE_MAKER= @package_maker@
 HDIUTIL = @hdiutil@
+MAKENSIS= @makensis@
 DLLTOOL = @dlltool@
 RPMBUILD= @rpmbuild@
 RPM	= @rpm@

@@ -361,6 +361,13 @@ fi
 hdiutil=$HDIUTIL
 AC_SUBST(hdiutil)
 
+dnl check if the makensis program is available
+if test -z "$MAKENSIS"; then
+    AC_PATH_PROG(MAKENSIS, makensis)
+fi
+makensis=$MAKENSIS
+AC_SUBST(makensis)
+
 dnl check if the dlltool program is available
 if test -z "$DLLTOOL"; then
     AC_PATH_PROG(DLLTOOL, dlltool)
