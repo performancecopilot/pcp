@@ -89,7 +89,7 @@ metricspec	: NAME { name = strdup($1); numinst = 0; } optinst
 				exit(1);
 			    }
 
-			    if ((sts = pmTraversePMNS (name, dometric)) == 0) {
+			    if ((sts = pmTraversePMNS (name, dometric)) >= 0) {
 				found = 1;
 				break;
 			    }
