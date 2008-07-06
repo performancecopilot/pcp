@@ -30,7 +30,11 @@ LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib blib \
 	local.o
 
+ifeq "$(findstring $(TARGET_OS),cygwin mingw)" ""
 default: PMDA.o
+else
+default:
+endif
 
 PMDA.o: Makefile PMDA.xs
 	$(MAKE) -f Makefile

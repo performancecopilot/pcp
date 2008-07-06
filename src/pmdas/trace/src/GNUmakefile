@@ -42,14 +42,21 @@ PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 LDIRT		= *.log *.dir *.pag domain.h $(TARGETS)
 
-default:	$(TARGETS)
+default:	build-me
 
 include $(BUILDRULES)
 
-install:	default
+ifneq "$(TARGET_OS)" "mingw"
+build-me:	$(TARGETS)
+
+install:	build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
+else
+build-me:
+install:
+endif
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 
@@ -61,7 +68,6 @@ domain.h:	../../../pmns/stdpmid
 	echo " * built from $<" >>$@
 	echo " */" >>$@
 	$(PCP_AWK_PROG) <$< >>$@ '$$1="#define" && $$2=="$(DOMAIN)" { print "#define $(DOMAIN) " $$3 }'
-
 
 default_pcp:	default
 

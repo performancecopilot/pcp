@@ -37,17 +37,24 @@ LDIRT	= domain.h *.log *.dir *.pag  $(TARGETS)
 IAM	= summary
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-default:	$(TARGETS) 
+default:	build-me
 
 include $(TOPDIR)/src/include/buildrules
 
-install:	default
+ifneq "$(TARGET_OS)" "mingw"
+build-me:	$(TARGETS) 
+
+install:	build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 root README help pmns domain.h $(PMDADIR)
 	$(INSTALL) -m 644 Makefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 summary.pmie $(PMDADIR)/expr.pmie
+else
+build-me:
+install:
+endif
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 

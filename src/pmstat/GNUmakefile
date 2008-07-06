@@ -28,13 +28,15 @@ CFILES	= pmstat.c
 LSRCFILES = pmlogger.config
 LDIRT = $(CMDTARGET)
 
-$(CMDTARGET):	pmstat.o
-
 PMLOGGERCONFIG = $(PCP_VAR_DIR)/config/pmlogger
 
 LLDLIBS	= -lpcp
 
+ifneq "$(TARGET_OS)" "mingw"
 default:	$(CMDTARGET)
+else
+default:
+endif
 
 include $(BUILDRULES)
 

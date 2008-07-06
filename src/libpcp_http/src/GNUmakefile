@@ -22,7 +22,11 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
+ifeq "$(TARGET_OS)" "mingw"
+STATICLIBTARGET =
+else
 STATICLIBTARGET = libpcp_http.a
+endif
 
 CFILES = http_lib.c
 HFILES = http_lib.h

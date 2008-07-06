@@ -41,11 +41,14 @@ PMIE	= $(PCP_VAR_DIR)/config/pmie/$(IAM)
 LDIRT	= domain.h *.log *.dir *.pag so_locations a.out parse.? probe.o \
 	$(TARGETS)
 
-default:	$(TARGETS)
+default:	build-me
 
 include $(BUILDRULES)
 
-install:	default
+ifneq "$(TARGET_OS)" "mingw"
+build-me:	$(TARGETS)
+
+install:	build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM) 
 	$(INSTALL) -m 755 probe parse Install Remove $(PMDADIR)
@@ -55,6 +58,10 @@ install:	default
 	$(INSTALL) -m 755 -d $(PMIE)
 	$(INSTALL) -m 644 cisco.in_util.pmie $(PMIE)/in_util
 	$(INSTALL) -m 644 cisco.out_util.pmie $(PMIE)/out_util
+else
+build-me:
+install:
+endif
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 

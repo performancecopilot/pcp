@@ -45,7 +45,11 @@ LDIRT += $(YFILES:%.y=%.tab.?) fun.c fun.o $(TARGET) grammar.h
 
 LLDLIBS = -lpcp -lm
 
+ifneq "$(TARGET_OS)" "mingw"
 default:	$(TARGET)
+else
+default:
+endif
 
 YFILES = grammar.y
 grammar.h:	grammar.y

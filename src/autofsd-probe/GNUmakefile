@@ -27,12 +27,19 @@ CFILES	= autofsd-probe.c
 CMDTARGET = autofsd-probe
 LLDLIBS = -lpcp $(LIB_FOR_BASENAME)
 
-default: $(CMDTARGET)
+default: build-me
 
 include $(TOPDIR)/src/include/buildrules
 
-install: $(CMDTARGET)
+ifneq "$(TARGET_OS)" "mingw"
+build-me: $(CMDTARGET)
+
+install: build-me
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
+else
+build-me:
+install:
+endif
 
 default_pcp : default
 

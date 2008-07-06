@@ -41,11 +41,14 @@ PMCHART	= $(PCP_VAR_DIR)/config/pmchart
 PMIE	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 LDIRT	= *.log *.dir *.pag so_locations a.out domain.h $(CMDTARGETS)
 
-default:	$(CMDTARGETS)
+default:	build-me
 
 include $(TOPDIR)/src/include/buildrules
 
-install:	default
+ifneq "$(TARGET_OS)" "mingw"
+build-me:	$(CMDTARGETS)
+
+install:	build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM) 
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
@@ -56,6 +59,10 @@ install:	default
 	$(INSTALL) -m 755 -d $(PMIE)
 	$(INSTALL) -m 644 shping.status.pmie $(PMIE)/status
 	$(INSTALL) -m 644 shping.response.pmie $(PMIE)/response
+else
+build-me:
+install:
+endif
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 

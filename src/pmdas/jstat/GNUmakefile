@@ -36,16 +36,23 @@ PMIE	= $(PCP_VAR_DIR)/config/pmie/$(IAM)
 
 LDIRT	= domain.h *.log *.dir *.pag so_locations a.out $(TARGETS)
 
-default:	$(TARGETS)
+default:	build-me
 
 include $(BUILDRULES)
 
-install:	default
+ifneq "$(TARGET_OS)" "mingw"
+build-me:	$(TARGETS)
+
+install:	build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM)$(EXECSUFFIX) $(PMDADIR)/pmda$(IAM)$(EXECSUFFIX)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
 	$(INSTALL) -m 644 Makefile.install $(PMDADIR)/Makefile
+else
+build-me:
+install:
+endif
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 

@@ -26,18 +26,20 @@ CFILES	= trace.c hash.c pdu.c pdubuf.c p_ack.c p_data.c ftrace.c
 LCFLAGS = -DPMTRACE_DEBUG
 LLDLIBS = $(PTHREAD_LIB)
 
+STATICLIBTARGET = libpcp_trace.a
+
 DSOVERSION = 2
 LIBTARGET = libpcp_trace.$(DSOSUFFIX).$(DSOVERSION)
 SYMTARGET = libpcp_trace.$(DSOSUFFIX)
+
 ifeq "$(TARGET_OS)" "darwin"
 LIBTARGET = libpcp_trace.$(DSOVERSION).$(DSOSUFFIX)
 endif
-ifeq "$(TARGET_OS)" "cygwin"
+ifneq "$(findstring $(TARGET_OS),cygwin mingw)" ""
+STATICLIBTARGET =
 LIBTARGET = libpcp_trace.$(DSOSUFFIX)
 SYMTARGET =
 endif
-
-STATICLIBTARGET = libpcp_trace.a
 
 LDIRT = $(SYMTARGET)
 

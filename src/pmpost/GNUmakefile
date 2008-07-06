@@ -26,7 +26,11 @@ CFILES = pmpost.c
 CMDTARGET = pmpost$(EXECSUFFIX)
 LLDLIBS = -lpcp $(LIB_FOR_BASENAME)
 
+ifneq "$(TARGET_OS)" "mingw"
 default:	$(CMDTARGET)
+else
+default:
+endif
 
 include $(BUILDRULES)
 

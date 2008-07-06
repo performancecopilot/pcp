@@ -40,17 +40,24 @@ LCFLAGS = -I$(TOPDIR)/src/libpcp_http/src
 LLDFLAGS= -L$(TOPDIR)/src/libpcp_http/src
 LLDLIBS	= -lpcp_http -lpcp_pmda -lpcp
 
-default: $(TARGETS)
+default: build-me
 
 include $(BUILDRULES)
 
-install: default
+ifneq "$(TARGET_OS)" "mingw"
+build-me: $(TARGETS)
+
+install: build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 Apache.pmchart $(PMCHART)/Apache
+else
+build-me:
+install:
+endif
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 

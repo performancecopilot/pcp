@@ -48,10 +48,13 @@ LSRCFILES= $(SCRIPTS) $(OTHERS) $(DEMOS) $(DEMOFILES) $(DFILES) \
 
 SUBDIRS	= src
 
-default:	$(SUBDIRS) demos
+default:	$(SUBDIRS) build-me
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
+
+ifneq "$(TARGET_OS)" "mingw"
+build-me:	demos
 
 install:	$(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -66,6 +69,11 @@ install:	$(SUBDIRS)
 	$(INSTALL) -m 644 stub.c pmtrace.c $(DEMOS) $(DEMODIR)
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
 	$(INSTALL) -m 755 $(APPS) $(DEMODIR)
+endif
+
+else
+build-me:
+install:	$(SUBDIRS)
 endif
 
 demos:	$(APPS) pmtrace.c

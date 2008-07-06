@@ -43,11 +43,14 @@ CONFDIR	= $(PCP_VAR_DIR)/config/web
 
 LDLIBS	= -lpcp_pmda -lpcp $(PTHREAD_LIB)
 
-default_pcp default:	$(TARGETS)
+default:	build-me
 
 include $(BUILDRULES)
 
-install install_pcp:	default
+ifneq "$(TARGET_OS)" "mingw"
+build-me:	$(TARGETS)
+
+install:	build-me
 	# $(INSTALL) -d $(CONFDIR)
 	# $(INSTALL) -m 644 weblog.conf $(CONFDIR)/weblog.conf
 	$(INSTALL) -d $(PMDADIR)
@@ -61,6 +64,10 @@ install install_pcp:	default
 	$(INSTALL) -m 755 Web.Allservers.pmchart $(PMCHARTDIR)/Web.Allservers
 	$(INSTALL) -m 755 Web.Perserver.Bytes.pmchart $(PMCHARTDIR)/Web.Perserver.Bytes
 	$(INSTALL) -m 755 Web.Perserver.Requests.pmchart $(PMCHARTDIR)/Web.Perserver.Requests
+else
+build-me:
+install:
+endif
 
 weblog$(EXECSUFFIX):	$(OBJECTS)
 
@@ -75,3 +82,7 @@ domain.h:	../../pmns/stdpmid
 	echo " * built from stdpmid by Makefile on `date`" >>domain.h
 	echo " */" >>domain.h
 	$(PCP_AWK_PROG) < $< >> $@ '$$1=="#define" && $$2=="$(DOMAIN)" { print "#define $(DOMAIN) " $$3 }'
+
+default_pcp:	default
+
+install_pcp:	install
