@@ -492,7 +492,7 @@ then
     do
 	[ -f $file ] && logs="$logs $file"
     done
-    grep -v ' OK ' $logs | $MAIL -s "PMIE summary for $LOCALHOSTNAME" $MAILME
+    grep -v ' OK' $logs | $MAIL -s "PMIE summary for $LOCALHOSTNAME" $MAILME
     rm -f $tmp.mail
 fi
 
