@@ -638,9 +638,20 @@ _pmtracereconnect(void)
     return 0;
 }
 
-
+#ifndef IS_MINGW
 static struct itimerval	_pmmyitimer, off_itimer;
 static void _pmtracealarm(int dummy) { }
+static void _pmtraceinit(void) { }
+#else
+static void _pmtraceinit(void)
+{
+    WORD wVersionRequested = MAKEWORD(2, 2);
+    WSADATA wsaData;
+    WSAStartup(wVersionRequested, &wsaData);
+    _fmode = O_BINARY;
+}
+const char *hstrerror(int error) { return strerror(error); }
+#endif
 
 static int
 _pmtraceconnect(int doit)
@@ -651,6 +662,7 @@ _pmtraceconnect(int doit)
     if (!_pmtimedout)
 	return 0;
     else if (first) {	/* once-off, not to be done on reconnect */
+	_pmtraceinit();
 	if (TRACE_LOCK_INIT < 0)
 	    return -TRACE_ERRNO;
 	first = 0;
@@ -680,11 +692,13 @@ _pmauxtraceconnect(void)
     struct sockaddr_in	myaddr;
     struct hostent	*servinfo;
     struct linger	nolinger = {1, 0};
+#ifndef IS_MINGW
     struct itimerval	_pmolditimer;
+    void		(*old_handler)(int foo);
+#endif
     int			rc, sts = 0;
     int			flags;
     int			nodelay=1;
-    void		(*old_handler)(int foo);
     char		*sptr, *endptr, *endnum;
 
 #ifdef PMTRACE_DEBUG
@@ -772,6 +786,7 @@ _pmauxtraceconnect(void)
     memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
     myaddr.sin_port = htons(port);
 
+#ifndef IS_MINGW
     /* arm interval timer */
     _pmmyitimer.it_value.tv_sec = timeout.tv_sec;
     _pmmyitimer.it_value.tv_usec = timeout.tv_usec;
@@ -779,6 +794,8 @@ _pmauxtraceconnect(void)
     _pmmyitimer.it_interval.tv_usec = 0;
     old_handler = signal(SIGALRM, _pmtracealarm);
     setitimer(ITIMER_REAL, &_pmmyitimer, &_pmolditimer);
+#endif
+
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_COMMS) {
 	fprintf(stderr, "_pmtraceconnect: PMDA host=%s port=%d timeout=%d"
@@ -789,6 +806,7 @@ _pmauxtraceconnect(void)
     if ((rc = connect(__pmfd, (struct sockaddr*) &myaddr, sizeof(myaddr))) < 0)
 	return -TRACE_ERRNO;
 
+#ifndef IS_MINGW
     /* re-arm interval timer */
     setitimer(ITIMER_REAL, &off_itimer, &_pmmyitimer);
     signal(SIGALRM, old_handler);
@@ -810,6 +828,7 @@ _pmauxtraceconnect(void)
 	}
 	setitimer(ITIMER_REAL, &_pmolditimer, &_pmmyitimer);
     }
+#endif
 
     if (rc < 0) {
 	if (sts == EINTR)
