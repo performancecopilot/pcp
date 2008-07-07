@@ -121,7 +121,32 @@ __pmProcessCreate(int argc, char **argv, int *infd, int *outfd)
     *outfd = _open_osfhandle((intptr_t)hChildStdinWr, _O_WRONLY);
     return 0;
 }
- 
+
+pid_t
+__pmProcessWait(pid_t pid, int nowait, int *code, int *signal)
+{
+    HANDLE ph;
+    DWORD status;
+
+    if (pid == (pid_t)-1 || pid == (pid_t)-2)
+	return -1;
+    if ((ph = OpenProcess(SYNCHRONIZE, FALSE, pid)) == NULL)
+	return -1;
+    if (WaitForSingleObject(ph, (DWORD)(-1L)) == WAIT_FAILED) {
+	CloseHandle(ph);
+	return -1;
+    }
+    if (GetExitCodeProcess(ph, &status)) {
+	CloseHandle(ph);
+	return -1;
+    }
+    if (code)
+	*code = status;
+    CloseHandle(ph);
+    *signal = -1;
+    return pid;
+}
+
 int
 __pmProcessDataSize(unsigned long *datasize)
 {
@@ -171,7 +196,9 @@ __pmProcessRunTimes(double *usr, double *sys)
 int
 nanosleep(const struct timespec *req, struct timespec *rem)
 {
-    Sleep((req->tv_sec * 1000) + (req->tv_nsec / 1000));
+    DWORD milliseconds = req->tv_sec * MILLISEC_PER_SEC
+			+ req->tv_nsec / NANOSEC_PER_MILLISEC;
+    Sleep(milliseconds);
     memset(rem, 0, sizeof(*rem));
     return 0;
 }
