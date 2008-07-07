@@ -20,13 +20,10 @@
 /* XXX - TODO: need to install a SIGCHLD signal handler when pipes in use */
 /* XXX - TODO: reconnect -- socket(host/port) and logrotate(inode/device) */
 
+#include "local.h"
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "local.h"
 
 static pmdaInterface dispatch;
 static pmdaMetric *metrictab;

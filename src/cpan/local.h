@@ -18,7 +18,6 @@
 #ifndef LOCAL_H
 #define LOCAL_H
 
-#include <syslog.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
@@ -26,13 +25,14 @@
 extern int	pmDebug;
 extern char *	pmProgname;
 
+typedef struct sv scalar_t;
 typedef struct timeval delta_t;
 
 typedef struct {
     int		id;
     delta_t	delta;
     int		cookie;
-    SV		*callback;
+    scalar_t	*callback;
 } timers_t;
 
 typedef enum { FILE_PIPE, FILE_SOCK, FILE_TAIL } file_type_t;
@@ -57,7 +57,7 @@ typedef struct {
     int		fd;
     int		type;
     int		cookie;
-    SV		*callback;
+    scalar_t	*callback;
     union {
 	pipe_data_t pipe;
 	tail_data_t tail;
@@ -69,13 +69,13 @@ extern char *local_strdup_hashed(const char *string);
 extern char *local_strdup_suffix(const char *string, const char *suffix);
 extern char *local_strdup_prefix(const char *prefix, const char *string);
 
-extern int local_timer(double timeout, SV *callback, int cookie);
+extern int local_timer(double timeout, scalar_t *callback, int cookie);
 extern int local_timer_get_cookie(int id);
-extern SV *local_timer_get_callback(int id);
+extern scalar_t *local_timer_get_callback(int id);
 
-extern int local_pipe(char *pipe, SV *callback, int cookie);
-extern int local_tail(char *file, SV *callback, int cookie);
-extern int local_sock(char *host, int port, SV *callback, int cookie);
+extern int local_pipe(char *pipe, scalar_t *callback, int cookie);
+extern int local_tail(char *file, scalar_t *callback, int cookie);
+extern int local_sock(char *host, int port, scalar_t *callback, int cookie);
 
 extern void local_atexit(void);
 extern int local_files_get_descriptor(int id);

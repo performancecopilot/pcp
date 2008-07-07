@@ -16,14 +16,9 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-typedef struct sv SV;
-
-#include <search.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <netinet/ip.h>
-#include <netinet/tcp.h>
 #include "local.h"
+#include <search.h>
+#include <sys/stat.h>
 
 static timers_t *timers;
 static int ntimers;
@@ -33,7 +28,7 @@ static int nfiles;
 static char buffer[4096];
 
 extern void timer_callback(int, void *);
-extern void input_callback(SV *, char *);
+extern void input_callback(scalar_t *, char *);
 
 char *
 local_strdup_hashed(const char *string)
@@ -78,7 +73,7 @@ local_strdup_prefix(const char *prefix, const char *string)
 }
 
 int
-local_timer(double timeout, SV *callback, int cookie)
+local_timer(double timeout, scalar_t *callback, int cookie)
 {
     int size = sizeof(*timers) * (ntimers + 1);
     delta_t delta;
@@ -106,7 +101,7 @@ local_timer_get_cookie(int id)
     return -1;
 }
 
-SV *
+scalar_t *
 local_timer_get_callback(int id)
 {
     int i;
@@ -118,7 +113,7 @@ local_timer_get_callback(int id)
 }
 
 static int
-local_file(int type, int fd, SV *callback, int cookie)
+local_file(int type, int fd, scalar_t *callback, int cookie)
 {
     int size = sizeof(*files) * (nfiles + 1);
 
@@ -132,7 +127,7 @@ local_file(int type, int fd, SV *callback, int cookie)
 }
 
 int
-local_pipe(char *pipe, SV *callback, int cookie)
+local_pipe(char *pipe, scalar_t *callback, int cookie)
 {
     FILE *fp = popen(pipe, "r");
     int me;
@@ -147,7 +142,7 @@ local_pipe(char *pipe, SV *callback, int cookie)
 }
 
 int
-local_tail(char *file, SV *callback, int cookie)
+local_tail(char *file, scalar_t *callback, int cookie)
 {
     FILE *fp = fopen(file, "r");
     struct stat stats;
@@ -169,7 +164,7 @@ local_tail(char *file, SV *callback, int cookie)
 }
 
 int
-local_sock(char *host, int port, SV *callback, int cookie)
+local_sock(char *host, int port, scalar_t *callback, int cookie)
 {
     struct sockaddr_in myaddr;
     struct hostent *servinfo;
