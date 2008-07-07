@@ -40,8 +40,8 @@ typedef struct _qelt {
 
 static qelt		*root;
 static int		afid = 0x8000;
+static int		block;
 static struct itimerval	val;
-static int		block = 0;
 
 #if !defined(HAVE_SIGHOLD)
 static int
