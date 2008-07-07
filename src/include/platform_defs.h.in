@@ -488,6 +488,7 @@ typedef void (*SIG_PF) (int);
 #define isnand(d) isnan(d)	/* isnan is a type-independent macro */
 #define isnanf(d) isnan(d)	/* isnan is a type-independent macro */
 
+#ifdef PCP_VERSION		/* used to reduce namespace pollution */
 #define EINPROGRESS	WSAEINPROGRESS
 #define ENETDOWN	WSAENETDOWN
 #define ENETUNREACH	WSAENETUNREACH
@@ -530,12 +531,13 @@ extern char *dlerror(void);
 extern void *dlsym(void *, const char *);
 extern int dlclose(void *);
 
-enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
-       LOG_WARNING, LOG_NOTICE, LOG_INFO, LOG_DEBUG,
-       LOG_PID, LOG_DAEMON };
 extern void openlog(const char *, int, int);
 extern void syslog(int, const char *, ...);
 extern void closelog(void);
+#endif
+enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
+       LOG_WARNING, LOG_NOTICE, LOG_INFO, LOG_DEBUG,
+       LOG_PID, LOG_DAEMON };	/* required for __pmNotifyErr use */
 
 #ifdef LIBPCP_INTERNAL
 #define INTERN __declspec(dllexport)
