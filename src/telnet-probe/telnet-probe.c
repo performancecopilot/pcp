@@ -14,6 +14,10 @@
 #include "pmapi.h"
 #include "impl.h"
 
+#ifdef IS_MINGW
+const char *hstrerror(int error) { return strerror(error); }
+#endif
+
 int
 main(int argc, char *argv[])
 {

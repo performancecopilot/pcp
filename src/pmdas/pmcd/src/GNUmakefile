@@ -47,11 +47,9 @@ BUILD = unknown
 endif
 
 LCFLAGS += -DBUILD=\"$(BUILD)\"
-LLDLIBS = -lpcp_pmda -lpcp
-ifeq "$(TARGET_OS)" "aix"
-# need to allow unresolved symbols (back into pmcd)
-LLDFLAGS	= -berok
-endif
+LLDLIBS = -lpcp_pmda -lpcp_pmcd -lpcp
+
+PCP_LIBS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)
 
 default: $(LIBTARGET)
 

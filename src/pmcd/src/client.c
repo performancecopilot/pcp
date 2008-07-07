@@ -21,13 +21,12 @@
 
 #include "pmapi.h"
 #include "impl.h"
-#include "client.h"
 #include "pmcd.h"
 
 #define MIN_CLIENTS_ALLOC 8
 
-ClientInfo	*client = NULL;
-int		nClients = 0;		/* Number in array, (not all in use) */
+PMCD_INTERN ClientInfo	*client;
+PMCD_INTERN int		nClients;	/* Number in array, (not all in use) */
 int		maxClientFd = -1;	/* largest fd for a client */
 fd_set		clientFds;		/* for client select() */
 
@@ -175,49 +174,6 @@ nameclient(int fd)
     return stdFds[0];
 }
 #endif
-
-void
-ShowClients(FILE *f)
-{
-    int			i;
-    struct hostent	*hp;
-
-    fprintf(f, "     fd  client connection from                    ipc ver  operations denied\n");
-    fprintf(f, "     ==  ========================================  =======  =================\n");
-    for (i = 0; i < nClients; i++) {
-	if (client[i].status.connected == 0)
-	    continue;
-
-	fprintf(f, "    %3d  ", client[i].fd);
-
-	hp = gethostbyaddr((void *)&client[i].addr.sin_addr.s_addr, sizeof(client[i].addr.sin_addr.s_addr), AF_INET);
-	if (hp == NULL) {
-	    char	*p = (char *)&client[i].addr.sin_addr.s_addr;
-	    int	k;
-
-	    for (k = 0; k < 4; k++) {
-		if (k > 0)
-		    fputc('.', f);
-		fprintf(f, "%d", p[k] & 0xff);
-	    }
-	}
-	else
-	    fprintf(f, "%-40.40s", hp->h_name);
-
-	fprintf(f, "  %7d", __pmVersionIPC(client[i].fd));
-
-	if (client[i].denyOps != 0) {
-	    fprintf(f, "  ");
-	    if (client[i].denyOps & PMCD_OP_FETCH)
-		fprintf(f, "fetch ");
-	    if (client[i].denyOps & PMCD_OP_STORE)
-		fprintf(f, "store ");
-	}
-
-	fputc('\n', f);
-    }
-    fputc('\n', f);
-}
 
 void
 MarkStateChanges(int changes)

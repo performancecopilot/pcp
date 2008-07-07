@@ -489,6 +489,7 @@ SigBad(int sig)
     abort();
 }
 
+#ifndef IS_MINGW
 /* Based on Stevens (Unix Network Programming, p.83) */
 static void
 StartDaemon(void)
@@ -520,6 +521,7 @@ StartDaemon(void)
 
     /* don't chdir("/") -- we still need to open pmcd.log */
 }
+#endif
 
 int
 main(int argc, char *argv[])
@@ -538,13 +540,19 @@ main(int argc, char *argv[])
 
     if (run_daemon) {
 	fflush(stderr);
+#ifndef IS_MINGW
 	StartDaemon();
+#endif
     }
 
+#ifdef HAVE_SIGHUP
     signal(SIGHUP, SIG_IGN);
+#endif
     signal(SIGINT, SigIntProc);
     signal(SIGTERM, SigIntProc);
+#ifdef HAVE_SIGBUS
     signal(SIGBUS, SigBad);
+#endif
     signal(SIGSEGV, SigBad);
 
     /*

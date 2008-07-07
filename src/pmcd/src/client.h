@@ -40,8 +40,8 @@ typedef struct {
     __pmPDUInfo		pduInfo;
 } ClientInfo;
 
-extern ClientInfo	*client;		/* Array of clients */
-extern int		nClients;		/* Number of entries in array */
+PMCD_EXTERN ClientInfo	*client;		/* Array of clients */
+PMCD_EXTERN int		nClients;		/* Number of entries in array */
 extern int		maxClientFd;		/* largest fd for a client */
 extern fd_set		clientFds;		/* for client select() */
 
@@ -49,7 +49,8 @@ extern fd_set		clientFds;		/* for client select() */
 extern ClientInfo *AcceptNewClient(int);
 extern int NewClient(void);
 extern void DeleteClient(ClientInfo *);
-extern void ShowClients(FILE *m);
+PMCD_EXTERN void ShowClients(FILE *m);
+
 #ifdef PCP_DEBUG
 extern char *nameclient(int);
 #endif

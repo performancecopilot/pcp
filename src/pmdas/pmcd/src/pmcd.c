@@ -30,8 +30,6 @@
 #include <sys/mman.h>
 #endif
 
-extern int              nAgents;        /* from pmcd/src/config.c */
-
 /*
  * To debug with dbpmda, add this so the symbols from pmcd(1) will
  * be faked out:
@@ -47,13 +45,6 @@ extern int              nAgents;        /* from pmcd/src/config.c */
  * field of the PMID
  */
 #define _TOTAL			16
-
-extern unsigned int	*__pmPDUCntIn;
-extern unsigned int	*__pmPDUCntOut;
-
-/* from pmcd's address space, not in headers */
-extern int		_pmcd_done;	/* pending request to terminate */
-extern int		_pmcd_trace_nbufs;	/* number of trace buffers */
 
 /*
  * all metrics supported in this PMD - one table entry for each
@@ -913,6 +904,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int			need;
     int			numval;
     int			valfmt;
+    unsigned long	datasize;
     static pmResult	*res = NULL;
     static int		maxnpmids = 0;
     static char		*hostname = NULL;
@@ -976,7 +968,8 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.l = pmDebug;
 				break;
 			case 1:		/* datasize */
-				__pmProcessDataSize(&atom.ul);
+				__pmProcessDataSize(&datasize);
+				atom.ul = datasize;
 				break;
 			case 2:		/* numagents */
 				atom.ul = 0;
@@ -1433,11 +1426,13 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		}
 	    }
 	    else if (pmidp->item == 15) { /* pmcd.control.sighup */
+#ifdef HAVE_SIGHUP
 		/*
 		 * send myself SIGHUP
 		 */
 		__pmNotifyErr(LOG_INFO, "pmcd reset via pmcd.control.sighup");
 		raise(SIGHUP);
+#endif
 	    }
 	    else {
 		sts = PM_ERR_PMID;

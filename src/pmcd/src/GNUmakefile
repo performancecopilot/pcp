@@ -23,13 +23,17 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-TARGET = pmcd$(EXECSUFFIX)
+CMDTARGET = pmcd$(EXECSUFFIX)
 HFILES = client.h pmcd.h
-CFILES = pmcd.c config.c dofetch.c dopdus.c util.c dostore.c \
-	  client.c agent.c trace.c
+CFILES = pmcd.c config.c dofetch.c dopdus.c dostore.c client.c agent.c
+ifeq "$(findstring $(TARGET_OS),mingw)" ""
+CFILES += util.c 
+else
+LSRCFILES += util.c 
+endif
+LLDLIBS	= -lpcp -lpcp_pmcd $(LIB_FOR_BASENAME) $(LIB_FOR_DLOPEN)
 
-LLDLIBS	= -lpcp $(LIB_FOR_BASENAME) $(LIB_FOR_DLOPEN)
-LDIRT = $(TARGET)
+PCP_LIBS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)
 
 # Note: on platforms that need it (see configure.in) the "-rdynamic" flag
 # allows the pmcd pmda (dynamicaly loaded shared library) to access the
@@ -37,14 +41,12 @@ LDIRT = $(TARGET)
 #LCFLAGS = $(RDYNAMIC_FLAG)
 LLDFLAGS = $(RDYNAMIC_FLAG)
 
-default:	$(TARGET)
-
-$(TARGET):	$(OBJECTS)
+default:	$(CMDTARGET)
 
 include $(BUILDRULES)
 
 install:	default
-	$(INSTALL) -m 755 $(TARGET) $(PCP_BINADM_DIR)/$(TARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 
 default_pcp:	default
 

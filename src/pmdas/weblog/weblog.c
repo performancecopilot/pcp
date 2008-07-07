@@ -1221,15 +1221,16 @@ long wl_sizes[] = {
 
 static pmdaExt		*extp;		/* set in web_init() */
 
+#ifdef HAVE_SIGHUP
 /*
  * Signal handler for an sproc receiving TERM (probably from parent)
  */
-
 static void
 onhup(int s)
 {
     _exit(s != SIGHUP);
 }
+#endif
 
 /*
  * Replacement for fgets using the FileInfo structure
@@ -1580,9 +1581,10 @@ sprocMain(void *sprocNum)
     /* Pause a sec' so the output log doesn't get mucked up */
     sleep(1);
 
-/*  SIGHUP when the parent dies */
-
+#ifdef HAVE_SIGHUP
+    /* SIGHUP when the parent dies */
     signal(SIGHUP, onhup);
+#endif
 
 #ifdef HAVE_PRCTL
 #ifdef HAVE_PR_TERMCHILD

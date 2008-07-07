@@ -110,11 +110,13 @@ main(int argc, char **argv)
     pmdaSetDoneCallBack(&dispatch, done);
     pmdaConnect(&dispatch);
 
+#ifdef HAVE_SIGHUP
     /*
      * Non-DSO agents should ignore gratuitous SIGHUPs, e.g. from xwsh
      * when launched by the PCP Tutorial!
      */
     signal(SIGHUP, SIG_IGN);
+#endif
 
     pmdaMain(&dispatch);
 

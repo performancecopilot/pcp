@@ -32,17 +32,12 @@ extern void StartDaemon(void);
 #define PIDFILE "/pmcd.pid"
 #define SHUTDOWNWAIT 12 /* < PMDAs wait previously used in rc_pcp */
 
-int 		pmcd_hi_openfds = -1;   /* Highest known file descriptor for pmcd */
-int		_pmcd_done;		/* flag from pmcd pmda */
-
 int		AgentDied = 0;		/* for updating mapdom[] */
 static int	timeToDie = 0;		/* For SIGINT handling */
 static int	restart = 0;		/* For SIGHUP restart */
 static char	configFileName[MAXPATHLEN]; /* path to pmcd.conf */
 static char	*logfile = "pmcd.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
-int		_pmcd_timeout = 5;	/* Timeout for hung agents */
-					/* NOTE: may be set by pmcd pmda */
 int		_creds_timeout = 3;	/* Timeout for agents credential PDU */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*pmnsfile = PM_NS_DEFAULT;
@@ -866,11 +861,13 @@ void SigIntProc(int sig)
 }
 #endif
 
+#ifdef HAVE_SIGHUP
 void SigHupProc(int s)
 {
     signal(SIGHUP, SigHupProc);
     restart = 1;
 }
+#endif
 
 #if HAVE_TRACE_BACK_STACK
 /*
@@ -968,7 +965,9 @@ main(int argc, char *argv[])
 
     if (run_daemon) {
 	fflush(stderr);
+#ifndef IS_MINGW
 	StartDaemon();
+#endif
     }
 
 #ifdef HAVE_SA_SIGINFO
@@ -980,8 +979,12 @@ main(int argc, char *argv[])
     signal(SIGINT, SigIntProc);
     signal(SIGTERM, SigIntProc);
 #endif
+#ifdef HAVE_SIGHUP
     signal(SIGHUP, SigHupProc);
+#endif
+#ifdef HAVE_SIGBUS
     signal(SIGBUS, SigBad);
+#endif
     signal(SIGSEGV, SigBad);
 
     /* seed random numbers for authorisation */

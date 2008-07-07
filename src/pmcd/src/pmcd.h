@@ -24,8 +24,22 @@
 
 #include "pmapi.h"
 #include "impl.h"
-#include "client.h"
 #include "pmda.h"
+
+#ifdef IS_MINGW
+#ifdef PMCD_INTERNAL
+#define PMCD_INTERN __declspec(dllexport)
+#define PMCD_EXTERN
+#else
+#define PMCD_INTERN
+#define PMCD_EXTERN __declspec(dllimport)
+#endif
+#else /*!MINGW*/
+#define PMCD_INTERN
+#define PMCD_EXTERN extern
+#endif
+
+#include "client.h"
 
 /* Structures of type-specific info for each kind of domain agent-PMCD 
  * connection (DSO, socket, pipe).
@@ -50,12 +64,14 @@ typedef struct {
 					/* or socket name for UNIX */
     char  *commandLine;			/* Optinal command to start agent */
     char* *argv;			/* Arg list built from commandLine */
+    int   argc;				/* Arg list size (excl. final null) */
     pid_t agentPid;			/* Process is of agent if PMCD started */
 } SocketInfo;
 
 typedef struct {
     char* commandLine;			/* Command line to use for child */
     char* *argv;			/* Arg list built from command line */
+    int   argc;				/* Arg list size (excl. final null) */
     pid_t agentPid;			/* Process id of the agent */
 } PipeInfo;
 
@@ -89,8 +105,8 @@ typedef struct {
     } ipc;
 } AgentInfo;
 
-extern AgentInfo *agent;		/* Array of domain agent structs */
-extern int	 nAgents;		/* Number of agents in array */
+PMCD_EXTERN AgentInfo *agent;		/* Array of domain agent structs */
+PMCD_EXTERN int	 nAgents;		/* Number of agents in array */
 
 /* DomainId-to-AgentIndex map */
 #define MAXDOMID	254		/* 8 bits of DomainId, 255 is special */
@@ -134,7 +150,10 @@ extern pmResult **SplitResult(pmResult *);
 extern void Shutdown(void);
 
 /* timeout to PMDAs (secs) */
-extern int	_pmcd_timeout;
+PMCD_EXTERN int	_pmcd_timeout;
+
+/* global PMCD PMDA variables */
+PMCD_EXTERN int _pmcd_done;
 
 /*
  * trace types
@@ -155,7 +174,8 @@ extern int	_pmcd_timeout;
 /*
  * trace control
  */
-extern int		_pmcd_trace_mask;
+PMCD_EXTERN int		_pmcd_trace_mask;
+PMCD_EXTERN int		_pmcd_trace_nbufs;
 
 /*
  * trace mask bits
@@ -181,7 +201,7 @@ extern void MarkStateChanges(int);
  * Keep the highest know file desriptor used for a Client or an Agent connection.
  * This is reported in the pmcd.openfds metric. See Bug #660497.
  */
-extern int pmcd_hi_openfds;   /* Highest known file descriptor for pmcd */
+PMCD_EXTERN int pmcd_hi_openfds;   /* Highest known file descriptor for pmcd */
 
 #define PMCD_OPENFDS_SETHI(x) if (x > pmcd_hi_openfds) pmcd_hi_openfds = x;
 
