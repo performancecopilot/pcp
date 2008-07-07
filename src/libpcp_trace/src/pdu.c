@@ -314,7 +314,7 @@ __pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
 		/*
 		 * failed as a result of pmdatrace exiting and the
 		 * connection being reset, or as a result of the kernel
-		 * ripping * down the connection (most likely because the
+		 * ripping down the connection (most likely because the
 		 * host at the other end just took a dive)
 		 *
 		 * treat this like end of file on input
