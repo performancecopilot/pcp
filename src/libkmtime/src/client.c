@@ -22,42 +22,28 @@
 static int kmServerExec(int fd, int livemode)
 {
     char portname[32];
-    int pid, sts, port = -1, pfd[2] = { -1, -1 };
+    int port, in, out;
+    char *argv[] = { "kmtime", "-a", NULL };
 
-    if (pipe(pfd) < 0)
-	goto error;
-    if ((pid = fork()) < 0) {
-	goto error;
-    } else if (pid == 0) {	/* child (kmtime) */
-	if (pfd[1] != STDOUT_FILENO) {
-	    if (dup2(pfd[1], STDOUT_FILENO) != STDOUT_FILENO) {
-		errno = EBADF;
-		goto error;
-	    }
-	    close(pfd[1]);	/* not needed after dup2 */
-	}
-	close(pfd[0]);	/* close read end */
-	execlp("kmtime", "kmtime", livemode ? "-h" : "-a", NULL);
-	_exit(127);
-    } else {			/* parent (self) */
-	if ((sts = read(pfd[0], &portname, sizeof(portname))) < 0)
-	    goto error;
-	if (sscanf(portname, "port=%d", &port) != 1) {
-	    errno = EPROTO;
-	    goto error;
-	}
-	close(pfd[0]);
-	close(pfd[1]);
+    if (livemode)
+	argv[1][1] = 'h';	/* -h for live hosts */
+
+    if (__pmProcessCreate(2, argv, &in, &out) == (pid_t)-1) {
+	__pmCloseSocket(fd);
+	return -1;
     }
-    return port;
 
-error:
-    if (pfd[0] != -1)
-	close(pfd[0]);
-    if (pfd[1] != -1)
-	close(pfd[1]);
-    __pmCloseSocket(fd);
-    return -1;
+    if (read(out, &portname, sizeof(portname)) < 0)
+	port = -1;
+    else if (sscanf(portname, "port=%d", &port) != 1) {
+	errno = EPROTO;
+	port = -1;
+    }
+    close(in);
+    close(out);
+    if (port == -1)
+	__pmCloseSocket(fd);
+    return port;
 }
 
 static int kmConnectHandshake(int fd, int port, kmTime *pkt)
@@ -81,7 +67,7 @@ static int kmConnectHandshake(int fd, int port, kmTime *pkt)
     /*
      * Write the packet, then wait for an ACK.
      */
-    sts = send(fd, pkt, pkt->length, 0);
+    sts = send(fd, (const void *)pkt, pkt->length, 0);
     if (sts < 0) {
 	goto error;
     } else if (sts != pkt->length) {
@@ -136,7 +122,7 @@ int kmTimeSendAck(int fd, struct timeval *tv)
     data.length = sizeof(data);
     data.command = KM_TCTL_ACK;
     data.position = *tv;
-    return send(fd, &data, sizeof(data), 0);
+    return send(fd, (const void *)&data, sizeof(data), 0);
 }
 
 int kmTimeShowDialog(int fd, int show)
@@ -148,7 +134,7 @@ int kmTimeShowDialog(int fd, int show)
     data.magic = KMTIME_MAGIC;
     data.length = sizeof(data);
     data.command = show ? KM_TCTL_GUISHOW : KM_TCTL_GUIHIDE;
-    sts = send(fd, &data, sizeof(data), 0);
+    sts = send(fd, (const void *)&data, sizeof(data), 0);
     if (sts >= 0 && sts != sizeof(data)) {
 	errno = ENODATA;
 	sts = -1;
@@ -162,7 +148,7 @@ int kmTimeRecv(int fd, kmTime **datap)
     int sts, remains;
 
     memset(k, 0, sizeof(kmTime));
-    sts = recv(fd, k, sizeof(kmTime), 0);
+    sts = recv(fd, (void *)k, sizeof(kmTime), 0);
     if (sts >= 0 && sts != sizeof(kmTime)) {
 	errno = ENODATA;
 	sts = -1;
