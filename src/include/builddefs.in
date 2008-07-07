@@ -75,10 +75,6 @@ EXECSUFFIX =
 PLDFLAGS =
 PLDLIBS =
 
-ifeq "$(TARGET_OS)" "irix"
-PCFLAGS =
-WARN_OFF =
-endif
 ifeq "$(TARGET_OS)" "darwin"
 PCFLAGS = -fPIC -no-cpp-precomp -fno-strict-aliasing 
 DSOSUFFIX = dylib

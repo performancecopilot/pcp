@@ -45,13 +45,6 @@ then
 	echo \
 'Error: The "summary" PMDA requires the pmie(1) application but this
        does not appear to be installed.'
-	if [ "$PCP_PLATFORM" = "irix" ] ; then
-	    echo \
-'       You should install the pcp_eoe.sw.monitor subsystem from the IRIX
-       6.5 distribution (or the PCP distribution for earlier IRIXes) and
-       the pcp.sw.monitor subsystem from the PCP distribution, then try
-       to install the "summary" PMDA again.'
-	fi
 	exit 1
     fi
 

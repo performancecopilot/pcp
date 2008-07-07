@@ -253,38 +253,6 @@ _check_pmie_version()
 You seem to have mixed versions in your Performance Co-Pilot (PCP)
 installation, such that pmie(1) is incompatible with pmie_check(1).
 EOF
-	if [ "$PCP_PLATFORM" = "irix" ]
-	then
-	    #
-	    # The following only makes sense on IRIX
-	    #
-	    echo
-	    showfiles pcp\* \
-	    | $PCP_AWK_PROG '/bin\/pmie$/ {print $4}' >$tmp.subsys
-
-	    if [ -s $tmp.subsys ]
-	    then
-		echo "Currently $binary is installed from these subsystem(s):"
-		echo
-		versions `cat $tmp.subsys` </dev/null
-		echo
-	    else
-		echo "The current installation history does not identify the subsystem(s)"
-		echo "where $binary was installed from."
-		echo
-	    fi
-
-	    case `uname -r`
-	    in
-		6.5*)
-		    echo "Please upgrade pcp_eoe from the IRIX 6.5.5 (or later) distribution."
-		    ;;
-		*)
-		    echo "Please upgrade pcp_eoe from the PCP 2.1 (or later) distribution."
-		    ;;
-	    esac
-	fi
-
 	status=1
 	exit
     fi

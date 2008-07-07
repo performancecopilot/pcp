@@ -252,30 +252,11 @@ Error: PCP inference engine control file '$PMIECTRL'
 			_start_pmie &
 			$RC_STATUS -v
 		    fi
-		elif [ $PCP_PLATFORM = "irix" ]
-		then
-		    PMIECHECK=/usr/pcp/bin/pmie_check
-		    echo "$prog:"'
-Warning: Performance Co-Pilot installation is incomplete (at least the
-	 script '$PMIECHECK' is missing) and the PCP Inference
-	 Engine(s) cannot be started.
-	 You should re-install the pcp_eoe.sw.eoe subsystem from the IRIX
-	 distribution and consult pmie_check(1), else
-		# /sbin/chkconfig pmie off'
 		fi
-	    else
-		if [ "$0" = "$PCP_RC_DIR/pmie" ]
-		then
-		    if [ "$PCP_PLATFORM" = "irix" ]
-		    then
-			echo "$prog:"'
-Warning: Performance Co-Pilot Inference Engine (pmie) is disabled.  To enable:
-	 # /sbin/chkconfig pmie on'
-		    else
-			echo "$prog: Warning: Performance Co-Pilot Inference Engine (pmie) is disabled."
-			chkconfig_on_msg pmie
-		    fi
-		fi
+	    elif [ "$0" = "$PCP_RC_DIR/pmie" ]
+	    then
+		echo "$prog: Warning: Performance Co-Pilot Inference Engine (pmie) is disabled."
+		chkconfig_on_msg pmie
 	    fi
 	fi
 	status=0
