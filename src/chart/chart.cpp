@@ -201,7 +201,8 @@ void Chart::updateValues(bool forward, bool visible)
 	    sz = qMax(0, (int)((plot->dataCount - 1) * sizeof(double)));
 
 #if DESPERATE
-	console->post("BEFORE Chart::update (%s) 0-%d (sz=%d,v=%.2f):",
+	console->post(KmChart::DebugForce,
+		"BEFORE Chart::update (%s) 0-%d (sz=%d,v=%.2f):",
 		(const char *)plot->metric->name().toAscii(),
 		plot->dataCount, sz, value);
 	for (int i = 0; i < plot->dataCount; i++)
@@ -222,10 +223,10 @@ void Chart::updateValues(bool forward, bool visible)
 	    plot->dataCount++;
 
 #if DESPERATE
-	console->post(KmChart::DebugApp, "AFTER Chart::update (%s) 0-%d:",
+	console->post(KmChart::DebugForce, "AFTER Chart::update (%s) 0-%d:",
 			(const char *)plot->name.toAscii(), plot->dataCount);
 	for (int i = 0; i < plot->dataCount; i++)
-	    console->post(KmChart::DebugApp, "\t[%d] data=%.2f time=%s",
+	    console->post(KmChart::DebugForce, "\t[%d] data=%.2f time=%s",
 				i, plot->data[i],
 				timeString(my.tab->timeAxisData()[i]));
 #endif
@@ -241,40 +242,48 @@ void Chart::updateValues(bool forward, bool visible)
     }
     else if (my.style == UtilisationStyle) {
 	// like Stack, but normalize value to a percentage (0,100)
-	double sum = 0;
+	double sum = 0.0;
 	idx = 0;
 	// compute sum
 	for (m = 0; m < my.plots.size(); m++) {
 	    if (!forward)
 		idx = my.plots[m]->dataCount - 1;
-	    sum += my.plots[m]->data[idx];
+	    if (!Curve::isNaN(my.plots[m]->data[idx]))
+		sum += my.plots[m]->data[idx];
 	}
 	// scale all components
 	for (m = 0; m < my.plots.size(); m++) {
 	    if (!forward)
 		idx = my.plots[m]->dataCount - 1;
-	    if (sum == 0 || my.plots[m]->hidden)
-		my.plots[m]->plotData[idx] = 0;
+	    if (sum == 0 || my.plots[m]->hidden || Curve::isNaN(my.plots[m]->data[idx]))
+		my.plots[m]->plotData[idx] = Curve::NaN();
 	    else
 		my.plots[m]->plotData[idx] = 100 * my.plots[m]->data[idx] / sum;
 	}
 	// stack components
-	for (m = 1; m < my.plots.size(); m++) {
+	sum = 0.0;
+	for (m = 0; m < my.plots.size(); m++) {
 	    if (!forward)
 		idx = my.plots[m]->dataCount - 1;
-	    my.plots[m]->plotData[idx] += my.plots[m-1]->plotData[idx];
+	    if (!Curve::isNaN(my.plots[m]->plotData[idx])) {
+		sum += my.plots[m]->plotData[idx];
+		my.plots[m]->plotData[idx] = sum;
+	    }
 	}
     }
     else if (my.style == StackStyle) {
+	double sum = 0.0;
 	idx = 0;
 	for (m = 0; m < my.plots.size(); m++) {
 	    if (!forward)
 		idx = my.plots[0]->dataCount - 1;
-	    if (m == 0)
-		my.plots[0]->plotData[idx] = my.plots[0]->data[idx];
-	    else
-		my.plots[m]->plotData[idx] =
-			my.plots[m]->data[idx] + my.plots[m-1]->plotData[idx];
+	    if (my.plots[m]->hidden || Curve::isNaN(my.plots[m]->data[idx])) {
+		my.plots[m]->plotData[idx] = Curve::NaN();
+	    }
+	    else {
+		sum += my.plots[m]->data[idx];
+		my.plots[m]->plotData[idx] = sum;
+	    }
 	}
     }
 
@@ -863,6 +872,7 @@ void Chart::redoPlotData(void)
     int		m;
     int		i;
     int		maxCount;
+    double	sum;
 
     switch (my.style) {
 	case BarStyle:
@@ -880,19 +890,24 @@ void Chart::redoPlotData(void)
 	    for (m = 0; m < my.plots.size(); m++)
 		maxCount = qMax(maxCount, my.plots[m]->dataCount);
 	    for (i = 0; i < maxCount; i++) {
-		double sum = 0;
+		sum = 0.0;
 		for (m = 0; m < my.plots.size(); m++) {
-		    if (i < my.plots[m]->dataCount)
+		    if (i < my.plots[m]->dataCount && !Curve::isNaN(my.plots[m]->data[i]))
 			sum += my.plots[m]->data[i];
 		}
 		for (m = 0; m < my.plots.size(); m++) {
-		    if (sum == 0 || i >= my.plots[m]->dataCount || my.plots[m]->hidden)
-			my.plots[m]->plotData[i] = 0;
+		    if (sum == 0.0 || i >= my.plots[m]->dataCount || my.plots[m]->hidden ||
+			Curve::isNaN(my.plots[0]->data[i]))
+			my.plots[m]->plotData[i] = Curve::NaN();
 		    else
 			my.plots[m]->plotData[i] = 100 * my.plots[m]->data[i] / sum;
 		}
-		for (m = 1; m < my.plots.size(); m++) {
-		    my.plots[m]->plotData[i] += my.plots[m-1]->plotData[i];
+		sum = 0.0;
+		for (m = 0; m < my.plots.size(); m++) {
+		    if (!Curve::isNaN(my.plots[m]->plotData[i])) {
+			sum += my.plots[m]->plotData[i];
+			my.plots[m]->plotData[i] = sum;
+		    }
 		}
 	    }
 	    break;
@@ -903,14 +918,15 @@ void Chart::redoPlotData(void)
 		maxCount = qMax(maxCount, my.plots[m]->dataCount);
 	    for (i = 0; i < maxCount; i++) {
 		if (i >= my.plots[0]->dataCount || my.plots[0]->hidden)
-		    my.plots[0]->plotData[i] = 0;
+		    my.plots[0]->plotData[i] = Curve::NaN();
 		else
 		    my.plots[0]->plotData[i] = my.plots[0]->data[i];
-		for (m = 1; m < my.plots.size(); m++) {
-		    if (i >= my.plots[m]->dataCount || my.plots[m]->hidden)
-			my.plots[m]->plotData[i] = my.plots[m-1]->plotData[i];
-		    else
-			my.plots[m]->plotData[i] = my.plots[m]->data[i] + my.plots[m-1]->plotData[i];
+		sum = 0.0;
+		for (m = 0; m < my.plots.size(); m++) {
+		    if (!Curve::isNaN(my.plots[m]->plotData[i])) {
+			sum += my.plots[m]->plotData[i];
+			my.plots[m]->plotData[i] = sum;
+		    }
 		}
 	    }
 	    break;
