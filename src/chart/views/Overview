@@ -25,12 +25,6 @@ chart title "Network Interface Bytes [%h]" style stacking
 	plot legend "out %i" metric network.interface.out.bytes not-matching "^lo|^sl|^ppp|^sit|^gif|^stf|^wlt|^vmnet|^MS TCP Loopback interface"
 
 chart title "Real Memory Usage [%h]" style stacking
-	optional-plot color #f8ff00 metric mem.util.kernel
-	optional-plot color #00ffff metric mem.util.fs_ctl
-	optional-plot color #ff0000 metric mem.util.fs_dirty
-	optional-plot color #fe00ff metric mem.util.fs_clean
-	optional-plot color #0000fd metric mem.util.user
-	optional-plot color #000096 metric mem.util.shared
 	optional-plot color #9cffab metric mem.util.cached
 	optional-plot color #fe68ad metric mem.util.bufmem
 	optional-plot color #ffae2c metric mem.util.other
