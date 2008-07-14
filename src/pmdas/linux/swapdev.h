@@ -1,5 +1,5 @@
 /*
- * Linux Filesystem Cluster
+ * Linux swap device Cluster
  *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -21,20 +21,11 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-typedef struct {
-    int		  id;
-    int           valid;
-    int           seen;
+typedef struct swapdev {
     char	  *path;
     unsigned int  size;
     unsigned int  used;
     int		  priority;
-} swapdev_entry_t;
-
-typedef struct {
-    int		  nswaps;
-    swapdev_entry_t *swaps;
-    pmdaIndom *indom;
 } swapdev_t;
 
-extern int refresh_swapdev(swapdev_t *);
+extern int refresh_swapdev(pmInDom);

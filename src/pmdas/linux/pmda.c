@@ -72,7 +72,6 @@ static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
 static proc_loadavg_t		proc_loadavg;
 static proc_interrupts_t	proc_interrupts;
-static swapdev_t		swapdev;
 static proc_net_rpc_t		proc_net_rpc;
 static proc_net_tcp_t		proc_net_tcp;
 static proc_net_sockstat_t	proc_net_sockstat;
@@ -3122,7 +3121,7 @@ linux_refresh(int *need_refresh)
 	refresh_filesys(INDOM(FILESYS_INDOM));
 
     if (need_refresh[CLUSTER_SWAPDEV])
-	refresh_swapdev(&swapdev);
+	refresh_swapdev(INDOM(SWAPDEV_INDOM));
 
     if (need_refresh[CLUSTER_NET_NFS])
 	refresh_proc_net_rpc(&proc_net_rpc);
@@ -3811,7 +3810,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_FILESYS:
 	if (idp->item == 0)
-	    atom->ul = pmdaCacheOp(INDOM(FILESYS_INDOM),PMDA_CACHE_SIZE_ACTIVE);
+	    atom->ul = pmdaCacheOp(INDOM(FILESYS_INDOM), PMDA_CACHE_SIZE_ACTIVE);
 	else {
 	    struct statfs *sbuf;
 	    struct filesys *fs;
@@ -3873,36 +3872,34 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
-    case CLUSTER_SWAPDEV:
-	if (swapdev.nswaps == 0)
-	    return 0; /* no values available */
-	for (i=0; i < swapdev.nswaps; i++) {
-	    if (swapdev.swaps[i].valid && swapdev.swaps[i].id == inst)
-		break;
-	}
+    case CLUSTER_SWAPDEV: {
+	struct swapdev *swap;
 
-	if (i == swapdev.nswaps)
+	sts = pmdaCacheLookup(INDOM(SWAPDEV_INDOM), inst, NULL, (void **)&swap);
+	if (sts < 0)
+	    return sts;
+	if (sts != PMDA_CACHE_ACTIVE)
 	    return PM_ERR_INST;
 
 	switch (idp->item) {
 	case 0: /* swapdev.free (kbytes) */
-	    atom->ul = swapdev.swaps[i].size - swapdev.swaps[i].used;
+	    atom->ul = swap->size - swap->used;
 	    break;
 	case 1: /* swapdev.length (kbytes) */
 	case 2: /* swapdev.maxswap (kbytes) */
-	    atom->ul = swapdev.swaps[i].size;
+	    atom->ul = swap->size;
 	    break;
 	case 3: /* swapdev.vlength (kbytes) */
 	    atom->ul = 0;
 	    break;
 	case 4: /* swapdev.priority */
-	    atom->l = swapdev.swaps[i].priority;
+	    atom->l = swap->priority;
 	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
-
 	break;
+    }
 
     case CLUSTER_NET_NFS:
 	switch (idp->item) {
@@ -4764,7 +4761,6 @@ linux_init(pmdaInterface *dp)
     dp->version.two.fetch = linux_fetch;
     pmdaSetFetchCallBack(dp, linux_fetchCallBack);
 
-    swapdev.indom = &indomtab[SWAPDEV_INDOM];
     proc_interrupts.indom = &indomtab[PROC_INTERRUPTS_INDOM];
     proc_pid.indom = &indomtab[PROC_INDOM];
     proc_stat.cpu_indom = proc_cpuinfo.cpuindom = &indomtab[CPU_INDOM];

@@ -1,5 +1,5 @@
 /*
- * Linux SwapDev Cluster
+ * Linux Swap Device Cluster
  *
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -27,34 +27,22 @@
 #include "swapdev.h"
 
 int
-refresh_swapdev(swapdev_t *swapdev) {
-    char buf[1024];
+refresh_swapdev(pmInDom swapdev_indom)
+{
+    char buf[MAXPATHLEN];
+    swapdev_t *swap;
     FILE *fp;
     char *path;
     char *type;
     char *size;
     char *used;
     char *priority;
-    int unused_entry;
-    int i;
-    int n;
-    pmdaIndom *indomp = swapdev->indom;
-    static int next_id = -1;
+    int sts;
 
-    if (next_id < 0) {
-	next_id = 0;
-	swapdev->nswaps = 0;
-    	swapdev->swaps = (swapdev_entry_t *)malloc(sizeof(swapdev_entry_t));
-	swapdev->indom->it_numinst = 0;
-	swapdev->indom->it_set = (pmdaInstid *)malloc(sizeof(pmdaInstid));
-    }
+    pmdaCacheOp(swapdev_indom, PMDA_CACHE_INACTIVE);
 
     if ((fp = fopen("/proc/swaps", "r")) == (FILE *)NULL)
-    	return -errno;
-
-    for (i=0; i < swapdev->nswaps; i++) {
-    	swapdev->swaps[i].seen = 0;
-    }
+	return -errno;
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if (buf[0] != '/')
@@ -66,74 +54,24 @@ refresh_swapdev(swapdev_t *swapdev) {
 	    (used = strtok(NULL, " \t")) == NULL ||
 	    (priority = strtok(NULL, " \t")) == NULL)
 	    continue;
-	unused_entry = -1;
-	for (i=0; i < swapdev->nswaps; i++) {
-	    if (swapdev->swaps[i].valid == 0) {
-	    	unused_entry = i;
+	sts = pmdaCacheLookupName(swapdev_indom, path, NULL, (void **)&swap);
+	if (sts == PMDA_CACHE_ACTIVE)	/* repeated line in /proc/swaps? */
+	    continue;
+	if (sts == PMDA_CACHE_INACTIVE) { /* re-activate an old swap device */
+	    pmdaCacheStore(swapdev_indom, PMDA_CACHE_ADD, path, swap);
+	}
+	else {	/* new swap device */
+	    if ((swap = malloc(sizeof(swapdev_t))) == NULL)
 		continue;
-	    }
-	    if (strcmp(swapdev->swaps[i].path, path) == 0) {
-		break;
-	    }
-	}
-	if (i == swapdev->nswaps) {
-	    /* new mount */
-	    if (unused_entry >= 0)
-	    	i = unused_entry;
-	    else {
-		swapdev->nswaps++;
-	    	swapdev->swaps = (swapdev_entry_t *)realloc(swapdev->swaps,
-		    swapdev->nswaps * sizeof(swapdev_entry_t));
-	    }
-	    swapdev->swaps[i].valid = 1;
-	    swapdev->swaps[i].id = next_id++;
-	    swapdev->swaps[i].path = strdup(path);
 #if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LIBPMDA) {
-		fprintf(stderr, "refresh_swapdev: add \"%s\"\n", swapdev->swaps[i].path);
-	    }
+	    if (pmDebug & DBG_TRACE_LIBPMDA)
+		fprintf(stderr, "refresh_swapdev: add \"%s\"\n", path);
 #endif
+	    pmdaCacheStore(swapdev_indom, PMDA_CACHE_ADD, path, swap);
 	}
-
-	sscanf(size, "%u", &swapdev->swaps[i].size);
-	sscanf(used, "%u", &swapdev->swaps[i].used);
-	sscanf(priority, "%d", &swapdev->swaps[i].priority);
-
-	swapdev->swaps[i].seen = 1;
-    }
-
-    /* check for swaps that have been unmounted */
-    for (n=0, i=0; i < swapdev->nswaps; i++) {
-	if (swapdev->swaps[i].valid) {
-	    if (swapdev->swaps[i].seen == 0) {
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_LIBPMDA) {
-		    fprintf(stderr, "refresh_swapdev: drop \"%s\"\n", swapdev->swaps[i].path);
-		}
-#endif
-		free(swapdev->swaps[i].path);
-		swapdev->swaps[i].path = NULL;
-		swapdev->swaps[i].valid = 0;
-	    }
-	    else
-		n++;
-    	}
-    }
-
-    /* refresh indom */
-    if (indomp->it_numinst != n) {
-        indomp->it_numinst = n;
-        indomp->it_set = (pmdaInstid *)realloc(indomp->it_set, n * sizeof(pmdaInstid));
-        memset(indomp->it_set, 0, n * sizeof(pmdaInstid));
-    }
-    for (n=0, i=0; i < swapdev->nswaps; i++) {
-        if (swapdev->swaps[i].valid) {
-            if (swapdev->swaps[i].id != indomp->it_set[n].i_inst || indomp->it_set[n].i_name == NULL) {
-                indomp->it_set[n].i_inst = swapdev->swaps[i].id;
-                indomp->it_set[n].i_name = swapdev->swaps[i].path;
-            }
-            n++;
-        }
+	sscanf(size, "%u", &swap->size);
+	sscanf(used, "%u", &swap->used);
+	sscanf(priority, "%d", &swap->priority);
     }
 
     /*
