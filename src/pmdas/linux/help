@@ -427,6 +427,7 @@ you will get real memory on demand, and just as much as you use.
 @ mem.util.pageTables Kbytes in kernel page tables, from /proc/meminfo
 @ mem.util.reverseMaps Kbytes in reverse mapped pages, from /proc/meminfo
 @ mem.util.cache_clean Kbytes cached and not dirty or writeback, derived from /proc/meminfo
+@ mem.util.anonpages Kbytes in anonymous mapped pages, from /proc/meminfo
 
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat
