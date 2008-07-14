@@ -23,20 +23,10 @@
 
 #include <sys/vfs.h>
 
-typedef struct {
-    int		  id;
-    char	  *device;
+typedef struct filesys {
     char	  *path;
     int		  fetched;
-    int		  valid;
-    int		  seen;
     struct statfs stats;
-} filesys_entry_t;
-
-typedef struct {
-    int		  nmounts;
-    filesys_entry_t *mounts;
-    pmdaIndom 	*indom;
 } filesys_t;
 
-extern int refresh_filesys(filesys_t *);
+extern int refresh_filesys(pmInDom);

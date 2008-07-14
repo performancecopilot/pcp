@@ -72,7 +72,6 @@ static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
 static proc_loadavg_t		proc_loadavg;
 static proc_interrupts_t	proc_interrupts;
-static filesys_t		filesys;
 static swapdev_t		swapdev;
 static proc_net_rpc_t		proc_net_rpc;
 static proc_net_tcp_t		proc_net_tcp;
@@ -3120,7 +3119,7 @@ linux_refresh(int *need_refresh)
 	refresh_net_dev_inet(INDOM(NET_INET_INDOM));
 
     if (need_refresh[CLUSTER_FILESYS])
-	refresh_filesys(&filesys);
+	refresh_filesys(INDOM(FILESYS_INDOM));
 
     if (need_refresh[CLUSTER_SWAPDEV])
 	refresh_swapdev(&swapdev);
@@ -3811,31 +3810,27 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_FILESYS:
-	if (idp->item == 0) {
-	    atom->ul = indomtab[FILESYS_INDOM].it_numinst;
-	}
+	if (idp->item == 0)
+	    atom->ul = pmdaCacheOp(INDOM(FILESYS_INDOM),PMDA_CACHE_SIZE_ACTIVE);
 	else {
 	    struct statfs *sbuf;
+	    struct filesys *fs;
+	    __uint64_t ull, used;
 
-	    if (filesys.nmounts == 0)
-	    	return 0; /* no values available */
-	    for (i=0; i < filesys.nmounts; i++) {
-	    	if (filesys.mounts[i].valid && filesys.mounts[i].id == inst)
-		    break;
-	    }
-	    if (i == filesys.nmounts)
+	    sts = pmdaCacheLookup(INDOM(FILESYS_INDOM), inst, NULL, (void **)&fs);
+	    if (sts < 0)
+		return sts;
+	    if (sts != PMDA_CACHE_ACTIVE)
 	    	return PM_ERR_INST;
 
-	    sbuf = &filesys.mounts[i].stats;
-	    if (filesys.mounts[i].fetched == 0) {
-		if (statfs(filesys.mounts[i].path, sbuf) < 0)
+	    sbuf = &fs->stats;
+	    if (!fs->fetched) {
+		if (statfs(fs->path, sbuf) < 0)
 		    return -errno;
-		filesys.mounts[i].fetched = 1;
+		fs->fetched = 1;
 	    }
 
 	    switch (idp->item) {
-	    __uint64_t	ull, used;
-
 	    case 1: /* filesys.capacity */
 	    	ull = (__uint64_t)sbuf->f_blocks;
 	    	atom->ull = ull * sbuf->f_bsize / 1024;
@@ -3858,17 +3853,17 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	atom->ul = sbuf->f_ffree;
 		break;
 	    case 7: /* filesys.mountdir */
-	    	atom->cp = filesys.mounts[i].path;
+	    	atom->cp = fs->path;
 		break;
 	    case 8: /* filesys.full */
 		used = (__uint64_t)(sbuf->f_blocks - sbuf->f_bfree);
 		ull = used + (__uint64_t)sbuf->f_bavail;
 		atom->d = (100.0 * (double)used) / (double)ull;
 		break;
-	    case 9: /* filesys.blocksize -- added by Mike Mason <mmlnx@us.ibm.com> */
+	    case 9: /* filesys.blocksize */
 		atom->ul = sbuf->f_bsize;
 		break;
-	    case 10: /* filesys.avail -- added by Mike Mason <mmlnx@us.ibm.com> */
+	    case 10: /* filesys.avail */
 		ull = (__uint64_t)sbuf->f_bavail;
 		atom->ull = ull * sbuf->f_bsize / 1024;
 		break;
@@ -4769,7 +4764,6 @@ linux_init(pmdaInterface *dp)
     dp->version.two.fetch = linux_fetch;
     pmdaSetFetchCallBack(dp, linux_fetchCallBack);
 
-    filesys.indom = &indomtab[FILESYS_INDOM];
     swapdev.indom = &indomtab[SWAPDEV_INDOM];
     proc_interrupts.indom = &indomtab[PROC_INTERRUPTS_INDOM];
     proc_pid.indom = &indomtab[PROC_INDOM];

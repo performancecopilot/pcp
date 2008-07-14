@@ -27,34 +27,22 @@
 #include "filesys.h"
 
 int
-refresh_filesys(filesys_t *filesys) {
+refresh_filesys(pmInDom filesys_indom)
+{
     char buf[MAXPATHLEN];
     char realdevice[MAXPATHLEN];
+    filesys_t *fs;
     FILE *fp;
     char *path;
     char *device;
     char *type;
-    int i;
-    int n;
-    int old_device;
     char *p;
-    pmdaIndom *indomp = filesys->indom;
-    static int next_id = -1;
+    int sts;
 
-    if (next_id < 0) {
-	next_id = 0;
-	filesys->nmounts = 0;
-    	filesys->mounts = (filesys_entry_t *)malloc(sizeof(filesys_entry_t));
-	indomp->it_numinst = 0;
-	indomp->it_set = (pmdaInstid *)malloc(sizeof(pmdaInstid));
-    }
+    pmdaCacheOp(filesys_indom, PMDA_CACHE_INACTIVE);
 
     if ((fp = fopen("/proc/mounts", "r")) == (FILE *)NULL)
-    	return -errno;
-
-    for (i=0; i < filesys->nmounts; i++) {
-    	filesys->mounts[i].seen = 0;
-    }
+	return -errno;
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if ((device = strtok(buf, " ")) == 0)
@@ -71,77 +59,30 @@ refresh_filesys(filesys_t *filesys) {
 	    strcmp(type, "devpts") == 0 ||
 	    strncmp(type, "auto", 4) == 0)
 	    continue;
-	old_device = -1;
-	for (i=0; i < filesys->nmounts; i++) {
-	    if (filesys->mounts[i].device != NULL && strcmp(filesys->mounts[i].device, device) == 0) {
-		if (filesys->mounts[i].valid)
-		    break;
-		else
-		    old_device = i;
+	sts = pmdaCacheLookupName(filesys_indom, device, NULL, (void **)&fs);
+	if (sts == PMDA_CACHE_ACTIVE)	/* repeated line in /proc/mounts? */
+	    continue;
+	if (sts == PMDA_CACHE_INACTIVE) { /* re-activate an old mount */
+	    pmdaCacheStore(filesys_indom, PMDA_CACHE_ADD, device, fs);
+	    if (strcmp(path, fs->path) != 0) {	/* old device, new path */
+		free(fs->path);
+		fs->path = strdup(path);
 	    }
 	}
-	if (i == filesys->nmounts) {
-	    /* new mount */
-	    if (old_device >= 0) {
-		/* same device as last time mounted: reuse the id and device name */ 
-	    	i = old_device;
-	    }
-	    else {
-		filesys->nmounts++;
-	    	filesys->mounts = (filesys_entry_t *)realloc(filesys->mounts,
-		    filesys->nmounts * sizeof(filesys_entry_t));
-		filesys->mounts[i].device = strdup(device);
-		filesys->mounts[i].id = next_id++;
-	    }
-	    filesys->mounts[i].path = strdup(path);
-	    filesys->mounts[i].valid = 1;
+	else {	/* new mount */
+	    if ((fs = malloc(sizeof(filesys_t))) == NULL)
+		continue;
+	    fs->path = strdup(path);
 #if PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LIBPMDA) {
 		fprintf(stderr, "refresh_filesys: add \"%s\" \"%s\"\n",
-		    filesys->mounts[i].path, filesys->mounts[i].device);
+		    fs->path, device);
 	    }
 #endif
+	    pmdaCacheStore(filesys_indom, PMDA_CACHE_ADD, device, fs);
 	}
-
-	filesys->mounts[i].seen = 1;
+	fs->fetched = 0;
     }
-
-    /* check for filesystems that have been unmounted */
-    for (n=0, i=0; i < filesys->nmounts; i++) {
-	if (filesys->mounts[i].valid) {
-	    if (filesys->mounts[i].seen == 0) {
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_LIBPMDA) {
-		    fprintf(stderr, "refresh_filesys: drop \"%s\" \"%s\"\n",
-			filesys->mounts[i].path, filesys->mounts[i].device);
-		}
-#endif
-		free(filesys->mounts[i].path);
-		filesys->mounts[i].path = NULL;
-		filesys->mounts[i].valid = 0;
-	    }
-	    else
-		n++;
-    	}
-    }
-
-    /* refresh indom */
-    if (indomp->it_numinst != n) {
-        indomp->it_numinst = n;
-        indomp->it_set = (pmdaInstid *)realloc(indomp->it_set, n * sizeof(pmdaInstid));
-        memset(indomp->it_set, 0, n * sizeof(pmdaInstid));
-    }
-    for (n=0, i=0; i < filesys->nmounts; i++) {
-        if (filesys->mounts[i].valid) {
-            if (filesys->mounts[i].id != indomp->it_set[n].i_inst || indomp->it_set[n].i_name == NULL) {
-                indomp->it_set[n].i_inst = filesys->mounts[i].id;
-                indomp->it_set[n].i_name = filesys->mounts[i].device;
-            }
-	    filesys->mounts[i].fetched = 0; /* avoid multiple calls to statfs */
-            n++;
-        }
-    }
-
 
     /*
      * success
