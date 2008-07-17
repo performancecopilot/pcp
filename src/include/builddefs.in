@@ -69,12 +69,14 @@ PCP_LIBS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
 	   -L$(TOPDIR)/src/libpcp_pmda/$(LIBPCP_ABIDIR)
 
 # platform-specific CFLAGS, LDLIBS, and shared library extension
+ifeq "$(TARGET_OS)" "linux"
+PCFLAGS = -fpic -fno-strict-aliasing -D_GNU_SOURCE
+DSOSUFFIX = so
+endif
+ifeq "$(TARGET_OS)" "freebsd"
 PCFLAGS = -fpic -fno-strict-aliasing
 DSOSUFFIX = so
-EXECSUFFIX =
-PLDFLAGS =
-PLDLIBS =
-
+endif
 ifeq "$(TARGET_OS)" "darwin"
 PCFLAGS = -fPIC -no-cpp-precomp -fno-strict-aliasing 
 DSOSUFFIX = dylib
@@ -86,15 +88,17 @@ DSOSUFFIX = dll
 EXECSUFFIX = .exe
 endif
 ifeq "$(TARGET_OS)" "mingw"
-PCFLAGS = -fno-strict-aliasing
+PCFLAGS = -fno-strict-aliasing -I$$PCP_DIR/include
 DSOSUFFIX = dll
 EXECSUFFIX = .exe
 PLDLIBS = -lwsock32
 endif
 ifeq "$(TARGET_OS)" "solaris"
 PLDLIBS = -lnsl -lsocket -lresolv -ldl -lposix4
+DSOSUFFIX = so
 endif
 ifeq "$(TARGET_OS)" "aix"
+DSOSUFFIX = so
 # -qcpluscmt
 #	allow C++-style // as comment preamble
 # -brtl
@@ -107,7 +111,7 @@ PLDFLAGS = -brtl -bnoipath
 endif
 
 CFLAGS += $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -g -DPCP_DEBUG \
-	-DPCP_VERSION=\"$(PCP_VERSION)\" -D_GNU_SOURCE -I$(TOPDIR)/src/include 
+	-DPCP_VERSION=\"$(PCP_VERSION)\" -I$(TOPDIR)/src/include 
 
 CXXFLAGS += $(PCFLAGS) $(LCXXFLAGS) $(LCPPFLAGS) \
 	    -g -DPCP_DEBUG -DPCP_VERSION=\"$(PCP_VERSION)\" \
@@ -195,6 +199,9 @@ RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf DYLD_LIBRARY_PATH=$(T
 endif
 ifeq "$(TARGET_OS)" "aix"
 RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LIBPATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LIBPATH
+endif
+ifeq "$(TARGET_OS)" "mingw"
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$PATH
 endif
 
 SUBDIRS_MAKERULE = \
