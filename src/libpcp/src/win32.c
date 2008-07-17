@@ -20,6 +20,9 @@
 #include <winbase.h>
 #include <psapi.h>
 
+#define MILLISEC_PER_SEC	1000
+#define NANOSEC_PER_MILLISEC	1000000
+
 int
 __pmProcessExists(pid_t pid)
 {

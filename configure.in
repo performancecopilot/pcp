@@ -81,6 +81,7 @@ then
 elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW)
+    export CFLAGS="$CFLAGS -I$PCP_DIR/include"
 elif test $target_os = aix
 then
     AC_DEFINE(IS_AIX)
@@ -99,7 +100,7 @@ case $target_os
 in
     aix)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin";;
     linux)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin";;
-    mingw)	pcp_platform_paths="/mingw/bin:/usr/local/bin";;
+    mingw)	pcp_platform_paths="/usr/local/bin";;
     cygwin)	pcp_platform_paths="/cygdrive/c/WINDOWS/system32";;
     solaris)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin:/opt/sfw/bin";;
     freebsd)	pcp_platform_paths="/usr/bin/X11:/usr/bsd";;
@@ -224,20 +225,21 @@ fi
 cpp=$CPP
 AC_SUBST(cpp)
 
+dnl (note: special case for Mac OS X and MinGW where cpp is gcc -E)
+if test "$CPP" = "gcc -E"; then
+    CPP_SIMPLE="gcc"
+    CPP_SIMPLE_ARGS="-E"
+fi
+
 dnl check for simple cpp usage
 dnl use -P during the configure test but don't use it for real stuff...
 AC_MSG_CHECKING([for simple cpp args])
-if test $target_os = cygwin
-then
-    test -z "$CPP_SIMPLE" && CPP_SIMPLE=$CPP
-else
-    test -z "$CPP_SIMPLE" && CPP_SIMPLE=/lib/cpp
-    test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/bin/cpp
-    test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/usr/bin/cpp
-    test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/mingw/bin/cpp
-fi
+test -z "$CPP_SIMPLE" && CPP_SIMPLE=/lib/cpp
+test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/bin/cpp
+test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/usr/bin/cpp
+test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=$CPP
 cpp_simple="$CPP_SIMPLE"
-cpp_simple_args=""
+cpp_simple_args="$CPP_SIMPLE_ARGS"
 for arg in -traditional -undef
 do
     if $cpp_simple -P $cpp_simple_args $arg /dev/null >conftest.out 2>&1 && test ! -s conftest.out
@@ -1443,12 +1445,7 @@ pcp_inc_dir=`eval echo $includedir`
 pcp_inc_dir=`eval echo $pcp_inc_dir`
 if test "`echo $pcp_inc_dir | sed 's;/.*\$;;'`" = NONE
 then
-   if test -d /usr/include
-   then
-       pcp_inc_dir=/usr/include/pcp
-   else
-       pcp_inc_dir=$pcp_share_dir/include
-   fi
+   pcp_inc_dir=/usr/include/pcp
 fi
 AC_SUBST(pcp_inc_dir)
 

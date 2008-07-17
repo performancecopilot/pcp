@@ -288,10 +288,6 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     int		off = 0;
     int		len;
     __pmPDUHdr	*php = (__pmPDUHdr *)pdubuf;
-#if defined(IS_MINGW)
-    DWORD	out;
-    HANDLE	hdl = (HANDLE)_get_osfhandle(fd);
-#endif
 
     /* assume PDU_BINARY ... should not be here, otherwise */
 

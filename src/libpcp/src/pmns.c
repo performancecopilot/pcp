@@ -363,7 +363,7 @@ lex(int reset)
 
 	first = 0;
 	for (i = 0; cpp_path[i] != NULL; i++) {
-	    if (access(cpp_path[i], X_OK) != 0)
+	    if (i != 0 && access(cpp_path[i], X_OK) != 0)
 		continue;
 	    if ((lp = (char *)malloc(1 + strlen(CPP_FMT)
 		+ strlen(cpp_path[i]) + strlen(CPP_SIMPLE_ARGS)
