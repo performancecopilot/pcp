@@ -18,7 +18,6 @@
 #include <qwt_scale_widget.h>
 #include <qwt_text.h>
 #include <qwt_text_label.h>
-#include <pcp/pmapi.h>
 #include "timeaxis.h"
 #include "main.h"
 

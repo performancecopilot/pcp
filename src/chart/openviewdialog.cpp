@@ -15,8 +15,6 @@
 #include <QtGui/QCompleter>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include "main.h"
 #include "hostdialog.h"
 

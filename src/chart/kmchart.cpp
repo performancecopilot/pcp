@@ -23,7 +23,6 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QWhatsThis>
 #include <QtGui/QPainter>
-#include <pcp/pmapi.h>
 
 #include "main.h"
 #include "kmchart.h"
@@ -858,10 +857,14 @@ void KmChart::setupEnabledActionsList()
     addSeparatorAction();	// end other processes
     my.toolbarActionsList << helpManualAction << helpWhatsThisAction;
 
+    // needs to match kmchart.ui
     my.enabledActionsList << fileNewChartAction << fileOpenViewAction
-			  << addTabAction << zoomInAction << zoomOutAction
+				// separator
+			  << zoomInAction << zoomOutAction
+				// separator
 			  << fileExportAction << filePrintAction
-			  << helpWhatsThisAction;
+				// separator
+			  << newKmchartAction;
 
     if (globalSettings.toolbarActions.size() > 0) {
 	setEnabledActionsList(globalSettings.toolbarActions, false);

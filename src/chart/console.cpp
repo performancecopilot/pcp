@@ -15,8 +15,6 @@
 #include "console.h"
 #include "main.h"
 #include <stdarg.h>
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
 
 Console *console;
 

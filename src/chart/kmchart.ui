@@ -175,14 +175,13 @@
    <addaction name="fileNewChartAction" />
    <addaction name="fileOpenViewAction" />
    <addaction name="separator" />
-   <addaction name="addTabAction" />
    <addaction name="zoomInAction" />
    <addaction name="zoomOutAction" />
    <addaction name="separator" />
    <addaction name="fileExportAction" />
    <addaction name="filePrintAction" />
    <addaction name="separator" />
-   <addaction name="helpWhatsThisAction" />
+   <addaction name="newKmchartAction" />
   </widget>
   <action name="fileOpenViewAction" >
    <property name="icon" >
@@ -482,13 +481,6 @@
   </action>
  </widget>
  <layoutdefault spacing="0" margin="0" />
- <customwidgets>
-  <customwidget>
-   <class>TabWidget</class>
-   <extends>QTabWidget</extends>
-   <header>tabwidget.h</header>
-  </customwidget>
- </customwidgets>
  <includes>
   <include location="local" >kmtime.h</include>
   <include location="local" >tabdialog.h</include>

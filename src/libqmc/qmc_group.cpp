@@ -8,17 +8,17 @@
  * (at your option) any later version.
  */
 
+#include <assert.h>
+#include <limits.h>
+#include <float.h>
+#include <math.h>
+
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <qmc_group.h>
 #include <qmc_source.h>
 #include <qmc_context.h>
 #include <qmc_metric.h>
-
-#include <assert.h>
-#include <limits.h>
-#include <float.h>
-#include <math.h>
 
 int QmcGroup::tzLocal = -1;
 bool QmcGroup::tzLocalInit = false;
