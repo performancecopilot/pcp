@@ -62,6 +62,7 @@ RPM_VERSION	= @rpm_version@
 PACKAGE_MAKER	= @package_maker@
 HDIUTIL		= @hdiutil@
 DPKG		= @dpkg@
+MAKENSIS	= @makensis@
 
 QT_RELEASE	= @qt_release@
 

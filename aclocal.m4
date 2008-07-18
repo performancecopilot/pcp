@@ -322,7 +322,7 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     dpkg=$DKPG
     AC_SUBST(dpkg)
 
-    dnl Check for mac PackageMaker
+    dnl Check for the MacOSX PackageMaker
     AC_MSG_CHECKING([for PackageMaker])
     if test -z "$PACKAGE_MAKER"
     then
@@ -342,9 +342,14 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     fi
     AC_SUBST(package_maker)
 
-    dnl check if the hdiutil program is available
+    dnl check if the MacOSX hdiutil program is available
     test -z "$HDIUTIL" && AC_PATH_PROG(HDIUTIL, hdiutil)
     hdiutil=$HDIUTIL
     AC_SUBST(hdiutil)
+
+    dnl check if the Win32 makensis program is available
+    test -z "$MAKENSIS" && AC_PATH_PROG(MAKENSIS, makensis)
+    makensis=$MAKENSIS
+    AC_SUBST(makensis)
   ])
 
