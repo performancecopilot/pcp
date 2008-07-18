@@ -13,11 +13,11 @@ AC_PACKAGE_HAVE_PM_SET_PROGNAME
 AC_MANUAL_FORMAT
 
 qt_assistant=assistant
-test -z "$QT_ASSISTANT" || qt_assistant="$QT_ASSISTANT"
+test -z "$QTASSISTANT" || qt_assistant="$QTASSISTANT"
 AC_SUBST(qt_assistant)
 
 qt_release=debug
-test -z "$QT_RELEASE" || qt_release="$QT_RELEASE"
+test -z "$QTRELEASE" || qt_release="$QTRELEASE"
 AC_SUBST(qt_release)
 
 pcp_dir=""
