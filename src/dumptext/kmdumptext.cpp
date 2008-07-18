@@ -24,6 +24,9 @@
 #include <unistd.h>
 #include <QTextStream>
 #include <QStringList>
+#define PCP_VERSION	// pick up hidden impl.h macros, like nanosleep
+			// TODO: at some point we should switch to more
+			// portable (Qt) interfaces for these things.
 #include <qmc_group.h>
 #include <qmc_metric.h>
 #include <qmc_context.h>
