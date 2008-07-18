@@ -153,7 +153,7 @@ void ChartDialog::buttonOk_clicked()
     // Needs to handle both cases: New Chart (!my.chart) and Edit Chart.
     bool validInput = true;
     QString message;
-    int index;
+    int index = 0;
 
     // Check some plots have been selected.
     if (!my.chart && chartMetricsTreeWidget->topLevelItemCount() == 0 &&
