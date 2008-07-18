@@ -1,5 +1,8 @@
 AC_DEFUN([AC_PACKAGE_NEED_QT_QMAKE],
-  [ if test -z "$QMAKE"; then
+  [ if test -x "$QTDIR\bin\qmake.exe"; then
+	QMAKE="$QTDIR\bin\qmake.exe"
+    fi
+    if test -z "$QMAKE"; then
 	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
     fi
     qmake=$QMAKE
