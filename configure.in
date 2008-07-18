@@ -20,9 +20,9 @@ qt_release=debug
 test -z "$QT_RELEASE" || qt_release="$QT_RELEASE"
 AC_SUBST(qt_release)
 
-pcp_inc_dir=/usr/include/pcp
-test -z "$PCP_INC_DIR" || pcp_inc_dir="$PCP_INC_DIR"
-AC_SUBST(pcp_inc_dir)
+pcp_dir=""
+test -z "$PCP_DIR" || pcp_dir="$PCP_DIR"
+AC_SUBST(pcp_dir)
 
 AC_OUTPUT( \
 	src/include/builddefs \

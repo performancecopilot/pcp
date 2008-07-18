@@ -1,6 +1,6 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
-include /etc/pcp.conf
+include $(PCP_DIR)/etc/pcp.conf
 VIEWDIR = $(PCP_VAR_DIR)/config/kmchart
 VIEWS	= Apache CPU Disk Diskbytes Loadavg NFS2 NFS3 Filesystem \
 	  Memory Netbytes Netpackets \

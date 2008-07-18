@@ -1,6 +1,6 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
-include /etc/pcp.conf
+include $(PCP_DIR)/etc/pcp.conf
 PMAFM  = $(PCP_VAR_DIR)/config/pmafm
 CONFIG = kmchart
 LSRCFILES = $(CONFIG)
