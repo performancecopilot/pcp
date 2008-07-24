@@ -97,14 +97,14 @@ echo "Excluded metrics:"
 sed -e 's/^/    /' <$tmp.exclude
 echo
 
-pmlogsummary $opts $1 2>$tmp.err | _fix >$tmp.1
+pmlogsummary -N $opts $1 2>$tmp.err | _fix >$tmp.1
 if [ -s $tmp.err ]
 then
     echo "Warnings from pmlogsummary ... $1"
     cat $tmp.err
     echo
 fi
-pmlogsummary $opts $2 2>$tmp.err | _fix >$tmp.2
+pmlogsummary -N $opts $2 2>$tmp.err | _fix >$tmp.2
 if [ -s $tmp.err ]
 then
     echo "Warnings from pmlogsummary ... $2"
@@ -128,9 +128,11 @@ then
     echo
 fi
 
+a1=`basename "$1"`
+a2=`basename "$2"`
 echo "$thres" | awk '
     { printf "Ratio Threshold: > %.2f or < %.3f\n",'"$thres"',1/'"$thres"'
-      printf "%12s %12s   Ratio  Metric-Instance\n",'"$1"','"$2"' }'
+      printf "%12s %12s   Ratio  Metric-Instance\n",'"$a1"','"$a2"' }'
 join -t\| $tmp.1 $tmp.2 \
 | awk -F\| '
 function doval(v)
