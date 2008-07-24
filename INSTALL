@@ -78,8 +78,9 @@ Now, configure this environment as follows:
   set PATH=%PATH%;C:/Toolkit/sh/bin
   set PATH=%PATH%;C:/Toolkit/sh/local/bin
   set PATH=%PATH%;C:/Toolkit/perl/bin
-  set PATH=%PATH%;C:/Toolkit/NSIS
-  set QT_RELEASE=release
+  set PATH=%PATH%;C:/Toolkit/nsis
+  set QTRELEASE=release
+  set QMAKESPEC=win32-g++
   set QTDIR=C:/Toolkit/qt
   set PCP_DIR=C:/Toolkit/sh
 
@@ -94,7 +95,7 @@ Now, configure this environment as follows:
 - But wait, there's more.  We're using the Nullsoft Scriptable Install
   System (which Qt also uses) to build the PCP installer/uninstaller
   for Windows (http://nsis.sourceforge.net).
-* Download and install these to: C:\Toolkit\NSIS
+* Download and install these to: C:\Toolkit\nsis
 
 - You're done.  Have a beer.  You'll need it to get through a build.
 
