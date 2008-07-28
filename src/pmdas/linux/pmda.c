@@ -205,6 +205,31 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,3), KERNEL_UTYPE, CPU_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/* kernel.percpu.cpu.wait.total */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,30), KERNEL_UTYPE, CPU_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.percpu.cpu.intr */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,31), KERNEL_UTYPE, CPU_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.percpu.cpu.irq.soft */
+    { NULL,
+      { PMDA_PMID(CLUSTER_STAT,56), KERNEL_UTYPE, CPU_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.percpu.cpu.irq.hard */
+    { NULL,
+      { PMDA_PMID(CLUSTER_STAT,57), KERNEL_UTYPE, CPU_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.percpu.cpu.steal */
+    { NULL,
+      { PMDA_PMID(CLUSTER_STAT,58), KERNEL_UTYPE, CPU_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
 /* disk.dev.read */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,4), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
@@ -300,7 +325,6 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,14), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-
 /* kernel.all.cpu.user */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,20), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -319,6 +343,31 @@ static pmdaMetric metrictab[] = {
 /* kernel.all.cpu.idle */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,23), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.all.cpu.intr */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,34), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.all.cpu.wait.total */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,35), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.all.cpu.irq.soft */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,53), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.all.cpu.irq.hard */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,54), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.all.cpu.steal */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,55), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
 /* disk.all.read */
@@ -361,16 +410,6 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* kernel.percpu.cpu.wait.total */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,30), KERNEL_UTYPE, CPU_INDOM, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
-
-/* kernel.percpu.cpu.intr */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,31), KERNEL_UTYPE, CPU_INDOM, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
-
 /* hinv.ncpu */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,32), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
@@ -380,16 +419,6 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,33), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
-
-/* kernel.all.cpu.intr */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,34), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
-
-/* kernel.all.cpu.wait.total */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,35), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
 /* kernel.all.hz */
     { NULL,
@@ -3343,21 +3372,42 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 * All metrics from /proc/stat
 	 */
 	switch (idp->item) {
-	case 0: /* user */
+	case 0: /* kernel.percpu.cpu.user */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.p_user[inst] / proc_stat.hz);
 	    break;
-	case 1: /* nice */
+	case 1: /* kernel.percpu.cpu.nice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.p_nice[inst] / proc_stat.hz);
 	    break;
-	case 2: /* sys */
+	case 2: /* kernel.percpu.cpu.sys */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.p_sys[inst] / proc_stat.hz);
 	    break;
-	case 3: /* idle */
+	case 3: /* kernel.percpu.cpu.idle */
 	    _pm_assign_utype(_pm_idletime_size, atom,
 			1000 * (double)proc_stat.p_idle[inst] / proc_stat.hz);
+	    break;
+	case 30: /* kernel.percpu.cpu.wait.total */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.p_wait[inst] / proc_stat.hz);
+	    break;
+	case 31: /* kernel.percpu.cpu.intr */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * ((double)proc_stat.p_irq[inst] +
+				(double)proc_stat.p_sirq[inst]) / proc_stat.hz);
+	    break;
+	case 56: /* kernel.percpu.cpu.irq.soft */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.p_sirq[inst] / proc_stat.hz);
+	    break;
+	case 57: /* kernel.percpu.cpu.irq.hard */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.p_irq[inst] / proc_stat.hz);
+	    break;
+	case 58: /* kernel.percpu.cpu.steal */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.p_steal[inst] / proc_stat.hz);
 	    break;
 
 	case 8: /* pagesin */
@@ -3394,32 +3444,21 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    _pm_assign_ulong(atom, proc_stat.processes);
 	    break;
 
-	/* gilly - change the calculation to prevent a bug */
-	case 20: /* all.user */
+	case 20: /* kernel.all.cpu.user */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.user / proc_stat.hz);
 	    break;
-	case 21: /* all.nice */
+	case 21: /* kernel.all.cpu.nice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.nice / proc_stat.hz);
 	    break;
-	case 22: /* all.sys */
+	case 22: /* kernel.all.cpu.sys */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.sys / proc_stat.hz);
 	    break;
-	case 23: /* all.idle */
+	case 23: /* kernel.all.cpu.idle */
 	    _pm_assign_utype(_pm_idletime_size, atom,
 			1000 * (double)proc_stat.idle / proc_stat.hz);
-	    break;
-
-	case 30: /* kernel.percpu.cpu.wait.total */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_wait[inst] / proc_stat.hz);
-	    break;
-	case 31: /* kernel.percpu.cpu.intr */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)proc_stat.p_irq[inst] +
-				(double)proc_stat.p_sirq[inst]) / proc_stat.hz);
 	    break;
 	case 34: /* kernel.all.cpu.intr */
 	    _pm_assign_utype(_pm_cputime_size, atom,
@@ -3430,6 +3469,19 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.wait / proc_stat.hz);
 	    break;
+	case 53: /* kernel.all.cpu.irq.soft */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.sirq / proc_stat.hz);
+	    break;
+	case 54: /* kernel.all.cpu.irq.hard */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.irq / proc_stat.hz);
+	    break;
+	case 55: /* kernel.all.cpu.steal */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.steal / proc_stat.hz);
+	    break;
+
 	case 32: /* hinv.ncpu */
 	    atom->ul = indomtab[CPU_INDOM].it_numinst;
 	    break;
@@ -4803,6 +4855,12 @@ linux_init(pmdaInterface *dp)
 	    case 31:	/* kernel.percpu.cpu.intr */
 	    case 34:	/* kernel.all.cpu.intr */
 	    case 35:	/* kernel.all.cpu.wait.total */
+	    case 53:	/* kernel.all.cpu.irq.soft */
+	    case 54:	/* kernel.all.cpu.irq.hard */
+	    case 55:	/* kernel.all.cpu.steal */
+	    case 56:	/* kernel.percpu.cpu.irq.soft */
+	    case 57:	/* kernel.percpu.cpu.irq.hard */
+	    case 58:	/* kernel.percpu.cpu.steal */
 		_pm_metric_type(metrictab[i].m_desc.type, _pm_cputime_size);
 		break;
 	    case 3:	/* kernel.percpu.cpu.idle */

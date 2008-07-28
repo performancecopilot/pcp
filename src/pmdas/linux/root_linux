@@ -94,10 +94,17 @@ kernel.all.cpu {
     idle		60:0:23
     intr		60:0:34
     wait
+    irq
+    steal		60:0:55
 }
 
 kernel.all.cpu.wait {
     total		60:0:35
+}
+
+kernel.all.cpu.irq {
+    soft		60:0:53
+    hard		60:0:54
 }
 
 kernel.percpu {
@@ -113,10 +120,17 @@ kernel.percpu.cpu {
     idle		60:0:3
     intr		60:0:31
     wait
+    irq
+    steal		60:0:58
 }
 
 kernel.percpu.cpu.wait {
     total		60:0:30
+}
+
+kernel.percpu.cpu.irq {
+    soft		60:0:56
+    hard		60:0:57
 }
 
 kernel.uname {

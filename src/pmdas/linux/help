@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) International Business Machines Corp., 2002
-# Portions Copyright (c) 2007 Aconex.  All Rights Reserved.
+# Portions Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -79,16 +79,34 @@ For example:
 @ kernel.percpu.cpu.sys percpu sys CPU time metric from /proc/stat
 @ kernel.percpu.cpu.idle percpu idle CPU time metric from /proc/stat
 @ kernel.percpu.cpu.wait.total percpu wait CPU time
-Percpu i/o wait CPU time. This is available on 2.6 kernels and
+Percpu I/O wait CPU time. This is available on 2.6 kernels and
 some 2.4 kernels. If it is not available it will be zero rather than
-"unavailable", for compatibility with monitoring tools running
-on IRIX.
+"unavailable".
 
-@ kernel.percpu.cpu.intr percpu interrupts CPU time 
-Percpu interrupts CPU time.  This is available on 2.6 kernels and
-some 2.4 kernels. If it is not available it will be zero rather than
-"unavailable", for compatibility with monitoring tools running
-on IRIX.
+@ kernel.percpu.cpu.intr percpu interrupt CPU time 
+Total time spent processing interrupts on each CPU (this includes
+both soft and hard interrupt processing time).  This is available
+on 2.6 kernels and some 2.4 kernels. If it is not available it
+will be zero rather than "unavailable".
+
+@ kernel.percpu.cpu.irq.soft percpu soft interrupt CPU time 
+Percpu soft interrupt CPU time (defered interrupt handling code,
+not run in the initial interrupt handler).  This is available on
+2.6 kernels and some 2.4 kernels. If it is not available it will
+be zero rather than "unavailable".
+
+@ kernel.percpu.cpu.irq.hard percpu hard interrupt CPU time 
+Percpu soft interrupt CPU time ("hard" interrupt handling code
+is the code run directly on receipt of the initial hardware
+interrupt, and does not include "soft" interrupt handling code
+which is defered until later).  This is available on 2.6 kernels
+and some 2.4 kernels. If it is not available it will be zero
+rather than "unavailable".
+
+@ kernel.percpu.cpu.steal percpu CPU steal time 
+Percpu time when the CPU had a runnable process, but the hypervisor
+(virtualisation layer) chose to run something else instead.  This
+metric is available on 2.6 kernels.
 
 @ kernel.percpu.interrupts per-CPU interrupt counters from /proc/interrupts
 This provides one counter (normally converted to a count/second)
@@ -367,7 +385,7 @@ Used memory is the difference between mem.physmem and mem.freemem.
 @ mem.util.free free memory metric from /proc/meminfo
 Alias for mem.freemem.
 @ mem.util.shared shared memory metric from /proc/meminfo
-Shared memory metric. Currently always zero on linux 2.4 kernels
+Shared memory metric. Currently always zero on Linux 2.4 kernels
 and has been removed from 2.6 kernels.
 @ mem.util.bufmem I/O buffers metric from /proc/meminfo
 Memory allocated for buffer_heads.
@@ -531,23 +549,27 @@ rates).
 @ swap.used swap used metric from /proc/meminfo
 @ swap.free swap free metric from /proc/meminfo
 @ kernel.all.load 1, 5 and 15 minute load average
-@ kernel.all.cpu.user total user CPU time metric from /proc/stat for all CPUs
-@ kernel.all.cpu.intr total interrupts CPU time
-Total interrupts CPU time.
-
-This metric is retained on Linux for interoperability with PCP monitor
-tools running on IRIX.
-
-@ kernel.all.cpu.wait.total total wait CPU time
-Total wait CPU time.
-
-This metric is retained on Linux for interoperability with PCP monitor
-tools running on IRIX.
-
-@ kernel.all.cpu.nice total nice user CPU time metric from /proc/stat for all CPUs
-@ kernel.all.cpu.sys total sys CPU time metric from /proc/stat for all CPUs
-@ kernel.all.cpu.idle total idle CPU time metric from /proc/stat for all CPUs
+@ kernel.all.cpu.user total user CPU time from /proc/stat for all CPUs
+@ kernel.all.cpu.intr total interrupt CPU time from /proc/stat for all CPUs
+Total time spent processing interrupts on all CPUs.
+This value includes both soft and hard interrupt processing time.
+@ kernel.all.cpu.wait.total total wait CPU time from /proc/stat for all CPUs
+@ kernel.all.cpu.nice total nice user CPU time from /proc/stat for all CPUs
+@ kernel.all.cpu.sys total sys CPU time from /proc/stat for all CPUs
+@ kernel.all.cpu.idle total idle CPU time from /proc/stat for all CPUs
+@ kernel.all.cpu.irq.soft soft interrupt CPU time from /proc/stat for all CPUs
+Total soft interrupt CPU time (defered interrupt handling code,
+not run in the initial interrupt handler).
+@ kernel.all.cpu.irq.hard hard interrupt CPU time from /proc/stat for all CPUs
+Total soft interrupt CPU time ("hard" interrupt handling code
+is the code run directly on receipt of the initial hardware
+interrupt, and does not include "soft" interrupt handling code
+which is defered until later).
+@ kernel.all.cpu.steal percpu virtualisation CPU steal time 
+Total CPU time when a CPU had a runnable process, but the hypervisor
+(virtualisation layer) chose to run something else instead.
 @ kernel.all.nusers number of user sessions on system
+
 @ network.interface.in.bytes network recv read bytes from /proc/net/dev per network interface
 @ network.interface.in.packets network recv read packets from /proc/net/dev per network interface
 @ network.interface.in.errors network recv read errors from /proc/net/dev per network interface
@@ -617,9 +639,9 @@ are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
 @ filesys.avail Total space free to non-superusers on mounted filesystem (Kbytes)
 @ swapdev.free physical swap free space
 @ swapdev.length physical swap size
-@ swapdev.maxswap maximum swap length (same as swapdev.length on linux)
-@ swapdev.vlength virtual swap size (always zero on linux)
-Virtual swap size (always zero on linux since linux does not support
+@ swapdev.maxswap maximum swap length (same as swapdev.length on Linux)
+@ swapdev.vlength virtual swap size (always zero on Linux)
+Virtual swap size (always zero on Linux since Linux does not support
 virtual swap).
 
 This metric is retained on Linux for interoperability with PCP monitor
@@ -1181,7 +1203,7 @@ returned from utsname(2), also similar to uname -a.
 
 See also the kernel.uname.* metrics
 
-@ pmda.version build version of linux PMDA
+@ pmda.version build version of Linux PMDA
 @ hinv.map.cpu_num logical to physical CPU mapping for each CPU
 @ hinv.machine machine name, IP35 if SGI SNIA, else simply linux
 @ hinv.cpu.clock clock rate in Mhz for each CPU as reported by /proc/cpuinfo

@@ -2,6 +2,7 @@
  * Linux /proc/stat metrics cluster
  *
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Portions Copyright (c) 2008 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,9 +23,9 @@
  */
 
 typedef struct {
-	unsigned long long user, sys, nice, idle, wait, irq, sirq;
+	unsigned long long user, sys, nice, idle, wait, irq, sirq, steal;
 	unsigned int ncpu;
-	unsigned long long *p_user, *p_sys, *p_nice, *p_idle, *p_wait, *p_irq, *p_sirq;
+	unsigned long long *p_user, *p_sys, *p_nice, *p_idle, *p_wait, *p_irq, *p_sirq, *p_steal;
 	unsigned int ndisk;
 	unsigned int page[2];	/* unused in 2.6, switched to /proc/vmstat */
 	unsigned int swap[2];	/* unused in 2.6, switched to /proc/vmstat */
