@@ -33,13 +33,13 @@ rm -f $tmp.*
 errors=0
 prog=`basename $0`
 host=`pmhostname`
-for var in unknown version build numagents numclients simabi ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone status license
+for var in unknown version build numagents numclients simabi ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone status
 do
     eval $var="unknown?"
 done
 
 # metrics
-metrics="pmcd.numagents pmcd.numclients pmcd.simabi pmcd.version pmcd.build pmcd.license pmcd.timezone pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
+metrics="pmcd.numagents pmcd.numclients pmcd.simabi pmcd.version pmcd.build pmcd.timezone pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
 pmiemetrics="pmcd.pmie.actions pmcd.pmie.eval.true pmcd.pmie.eval.false pmcd.pmie.eval.unknown pmcd.pmie.eval.expected"
 
 _usage()
@@ -189,7 +189,6 @@ mode == 3		{ inst(); next }
 /pmcd.numclients/	{ mode = 1; quote="numclients"; next }
 /pmcd.simabi/		{ mode = 1; quote="simabi"; next }
 /pmcd.timezone/		{ mode = 1; quote="timezone"; next }
-/pmcd.license/		{ mode = 1; quote="license"; next }
 /pmcd.agent.status/	{ mode = 2; count = 0; quote="status"; next }
 /pmcd.pmlogger.archive/	{ mode = 3; count = 0; quote="log_archive"; next }
 /pmcd.pmlogger.pmcd_host/ { mode = 3; count = 0; quote="log_host"; next }
@@ -360,20 +359,6 @@ echo
 echo " platform: ${uname}$simabi"
 echo " hardware: "`echo $hardware | _fmt`
 echo " timezone: $timezone"
-
-$PCP_ECHO_PROG $PCP_ECHO_N " licenses: ""$PCP_ECHO_C"
-if [ "$license" = $unknown ]
-then
-    echo "unknown"
-elif [ "$license" -eq 0 ]
-then
-    echo "none"
-else
-    [ `expr $license %  2` -gt 0 ] && collector="Collector"
-    [ `expr $license %  4` -gt 1 ] && monitor="Monitor"
-    [ `expr $license % 16` -gt 4 ] && webmeter="WebMeter"
-    echo $collector $monitor $webmeter
-fi
 
 echo "     pmcd: ${version},${numagents}$numclients"
 
