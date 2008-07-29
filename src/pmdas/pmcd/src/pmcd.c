@@ -1043,7 +1043,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.l = 0;
 				break;
 			case 16:	/* license - hysterical raisins */
-				atom.l = 1;
+				atom.l = 0;
 				break;
 			case 17:	/* openfds */
 				atom.ul = (unsigned int)pmcd_hi_openfds;
