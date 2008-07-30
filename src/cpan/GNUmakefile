@@ -27,11 +27,12 @@ TESTCODE  = test.pl cvalue.c
 PERLDOCS  = Changes MANIFEST TODO
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 
+LPKGDIRT = PCP-PMDA-*
 LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib blib \
-	local.o
+	local.o $(LPKGDIRT)
 
 ifeq "$(findstring $(TARGET_OS),cygwin mingw)" ""
-default: PMDA.o
+default: dist
 else
 default:
 endif
@@ -45,13 +46,13 @@ Makefile: COPYING
 COPYING:
 	$(LN_S) $(TOPDIR)/COPYING COPYING
 
-test:
-	$(MAKE) -f Makefile test
+test dist: PMDA.o
+	rm -f $(LPKGDIRT)
+	$(MAKE) -f Makefile $@
 
 include $(BUILDRULES)
 
 install: default
-	#$(MAKE) -f Makefile install
 
 default_pcp: default
 

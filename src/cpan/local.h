@@ -18,9 +18,9 @@
 #ifndef LOCAL_H
 #define LOCAL_H
 
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
+#include <pmapi.h>
+#include <impl.h>
+#include <pmda.h>
 
 extern int	pmDebug;
 extern char *	pmProgname;
