@@ -764,15 +764,7 @@ main(int argc, char *argv[])
 	}
 
 	if ( ctxType != PM_CONTEXT_ARCHIVE  || pauseFlag ) {
-#ifdef HAVE_NANOSLEEP
 	    nanosleep (&sleeptime, NULL);
-#else
-#ifdef HAVE_USLEEP
-	    usleep((useconds_t)(sleeptime.tv_sec * 1e6 + (sleeptime.tv_nsec + 5e2) / 1e3));
-#else
-	    sleep((unsigned int)(sleeptime.tv_sec + (sleeptime.tv_nsec + 5e8) / 1e9));
-#endif
-#endif
 	}
 
 	for ( j=0; j < ctxCnt; j++ ) {
