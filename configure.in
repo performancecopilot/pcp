@@ -409,6 +409,13 @@ else
 fi
 AC_SUBST(rpm_version)
 
+dnl check if the cpanflute2 program is available (perl rpm builder)
+if test -z "$CPANFLUTE"; then
+    AC_PATH_PROG(CPANFLUTE, cpanflute2)
+fi
+cpanflute=$CPANFLUTE
+AC_SUBST(cpanflute)
+
 dnl check if the gendist program is available
 if test -z "$GENDIST" ; then
    AC_PATH_PROG(GENDIST, gendist) 

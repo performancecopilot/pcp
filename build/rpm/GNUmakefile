@@ -24,9 +24,9 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 SPEC = pcp.spec
-LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros rpm-$(RPM_VERSION).rc 
+LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros rpm-$(RPM_VERSION).rc
 
-LSRCFILES = macros.template pcp.spec.in rpm-2.rc.template
+LSRCFILES = macros.template pcp.spec.in rpm-2.rc.template pcp-pmda-perl.desc
 
 default install :
 
@@ -38,6 +38,11 @@ pack_pcp : rpm-$(RPM_VERSION).rc $(SPEC)
 		--clean $(SPEC)
 	rm -f $(SPEC) $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm \
 		rpmmacros rpm-$(RPM_VERSION).rc
+ifneq "$(CPANFLUTE)" ""
+	$(CPANFLUTE) --email="$(PACKAGE_BUILDER)" \
+		--descfile=pcp-pmda-perl.desc --buildrequires=pcp \
+		--buildall $(TOPDIR)/src/cpan/PCP-PMDA-*.tar.gz
+endif
 
 # Because rpm prior v.2.90 does not support macros and old style config
 # is not supported by rpm v.3, we have to resort to such ugly hacks
@@ -86,7 +91,6 @@ pcp.spec: pcp.spec.in
 	    -e's|@pcp_run_dir@|$(PCP_RUN_DIR)|g' \
 	    -e's|@pcp_tmp_dir@|$(PCP_TMP_DIR)|g' \
 	    -e's|@make@|$(PCP_MAKE_PROG)|g' < $? > $@
-
 
 include $(BUILDRULES)
 
