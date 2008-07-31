@@ -3,7 +3,7 @@ Section: utils
 Priority: extra
 Maintainer: Nathan Scott <nathans@debian.org>
 Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
-Build-Depends: autoconf, bison, flex, gawk, procps, debhelper (>= 5)
+Build-Depends: autoconf, bison, flex, gawk, procps, debhelper (>= 5), perl (>= 5.6)
 Standards-Version: 3.7.3
 
 Package: pcp
@@ -88,3 +88,16 @@ Description: Performance Co-Pilot application tracing library
  Contains the runtime environment required by an application that is
  directly instrumented for event and value tracking by pmdatrace(3),
  the Trace Performance Metric Domain Agent.
+
+Package: libpcp-pmda-perl
+Section: perl
+Priority: optional
+Architecture: any
+Depends: ${perl:Depends}, ${shlibs:Depends}, libpcp-pmda3
+Description: Performance Co-Pilot Domain Agent Perl module
+ The PCP::PMDA Perl module contains the language bindings for
+ building Performance Metric Domain Agents (PMDAs) using Perl.
+ Each PMDA exports performance data for one specific domain, for
+ example the operating system kernel, Cisco routers, a database,
+ an application, etc.
+

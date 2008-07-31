@@ -21,7 +21,7 @@ DEVTRACE_FILES = libpcp-trace2-dev.dirs libpcp-trace2-dev.install
 LIBTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2
 DEVTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2-dev
 
-LDIRT = *.debhelper *.substvars *.log pcp $(LIBPCPPCP) $(LIBPCPPCP)-dev \
+LDIRT = *.debhelper *.substvars *.log pcp files $(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev
 LSRCFILES = changelog compat control copyright rules source.lintian-overrides \
 		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) shlibs.local \
