@@ -982,7 +982,7 @@ listens for client connections on one or more well-known TCP/IP port numbers
 (historically 4321 and more recently the officially registered port
 44321; in the current release,
 .B pmcd
-listens on both these ports as a transitional arrangement).
+listens on only port 44321 by default).
 Either the environment
 variable
 .B PMCD_PORT
@@ -1009,22 +1009,6 @@ care should be taken to ensure that
 is also set in the environment of any client application that
 will connect to
 .BR pmcd .
-.SH LICENSES
-In previous PCP releases,
-.B pmcd
-would terminate immediately if there was no valid
-.I Collector
-license on the localhost.  This has now changed so that on Irix
-.B pmcd
-will run on hosts without a
-.I Collector
-license, however an unlicensed
-.B pmcd
-will only accept connections from authorized clients. On Linux
-.B pmcd
-will run on any host without a license and will accept connections from 
-any client. Not all PCP tools are authorized clients.  
-See the PCP release notes for more details about licenses for PCP.
 .SH FILES
 .PD 0
 .TP 10

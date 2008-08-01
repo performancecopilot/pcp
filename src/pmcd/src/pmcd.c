@@ -993,15 +993,14 @@ main(int argc, char *argv[])
     if (nport == 0) {
 	/*
 	 * no ports from $PMCD_PORT, nor from -p, set up defaults
-	 * for compatibility this is SERVER_PORT,4321 but eventually
-	 * it will become just SERVER_PORT
+	 * for compatibility this used to be SERVER_PORT,4321 but
+	 * has now transitioned to just SERVER_PORT
 	 */
-	nport = 2;
+	nport = 1;
 	if ((portlist = (int *)realloc(portlist, nport * sizeof(int))) == NULL) {
 	    __pmNoMem("pmcd: can't grow port list", nport * sizeof(int), PM_FATAL_ERR);
 	}
 	portlist[0] = SERVER_PORT;
-	portlist[1] = OLD_SERVER_PORT;
     }
 
     /*

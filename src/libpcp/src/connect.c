@@ -170,7 +170,7 @@ __pmConnectHandshake(int fd)
 
 static int	global_nports;
 static int	*global_portlist;
-static int	default_portlist[] = { SERVER_PORT, OLD_SERVER_PORT };
+static int	default_portlist[] = { SERVER_PORT };
 
 static void
 load_pmcd_ports(void)
