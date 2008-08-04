@@ -47,9 +47,11 @@ BUILD = unknown
 endif
 
 LCFLAGS += -DBUILD=\"$(BUILD)\"
-LLDLIBS = -lpcp_pmda -lpcp_pmcd -lpcp
-
+LLDLIBS = -lpcp_pmda -lpcp
+ifneq "$(findstring $(TARGET_OS),cygwin mingw)" ""
+LLDLIBS += -lpcp_pmcd
 PCP_LIBS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)
+endif
 
 default: $(LIBTARGET)
 
