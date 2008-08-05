@@ -1308,6 +1308,116 @@ pdh_metric_t metricdesc[] = {
       }, Q_THREADS, M_REDO, 0, 0, NULL,
       "\\Thread(*/*#*)\\ID Thread"
     },
+
+/* disk.all.read_time */
+    { { PMDA_PMID(0,214), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\% Disk Read Time"
+    },
+/* disk.all.write_time */
+    { { PMDA_PMID(0,215), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\% Disk Write Time"
+    },
+/* disk.all.total_time */
+    { { PMDA_PMID(0,216), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\% Disk Time"
+    },
+/* disk.dev.read_time */
+    { { PMDA_PMID(0,217), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\% Disk Read Time"
+    },
+/* disk.dev.write_time */
+    { { PMDA_PMID(0,218), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\% Disk Write Time"
+    },
+/* disk.dev.total_time */
+    { { PMDA_PMID(0,219), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\% Disk Time"
+    },
+/* disk.all.average.read_bytes */
+    { { PMDA_PMID(0,220), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\Avg. Disk Bytes/Read"
+    },
+/* disk.all.average.write_bytes */
+    { { PMDA_PMID(0,221), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\Avg. Disk Bytes/Write"
+    },
+/* disk.all.average.total_bytes */
+    { { PMDA_PMID(0,222), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\Avg. Disk Bytes/Transfer"
+    },
+/* disk.all.average.read_time */
+    { { PMDA_PMID(0,223), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\Avg. Disk sec/Read"
+    },
+/* disk.all.average.write_time */
+    { { PMDA_PMID(0,224), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\Avg. Disk sec/Write"
+    },
+/* disk.all.average.total_time */
+    { { PMDA_PMID(0,225), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_DISK_ALL, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(_Total)\\Avg. Disk sec/Transfer"
+    },
+/* disk.dev.average.read_bytes */
+    { { PMDA_PMID(0,226), PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Avg. Disk Bytes/Read"
+    },
+/* disk.dev.write_bytes */
+    { { PMDA_PMID(0,227), PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Avg. Disk Bytes/Write"
+    },
+/* disk.dev.total_bytes */
+    { { PMDA_PMID(0,228), PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Avg. Disk Bytes/Transfer"
+    },
+/* disk.dev.average.read_time */
+    { { PMDA_PMID(0,229), PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_DISK_DEV, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Avg. Disk sec/Read"
+    },
+/* disk.dev.average.write_time */
+    { { PMDA_PMID(0,230), PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_DISK_DEV, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Avg. Disk sec/Write"
+    },
+/* disk.dev.average.total_time */
+    { { PMDA_PMID(0,231), PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, Q_DISK_DEV, M_NONE, 0, 0, NULL,
+      "\\PhysicalDisk(*/*#*)\\Avg. Disk sec/Transfer"
+    },
+
 };
 int metricdesc_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);
 
@@ -1442,6 +1552,9 @@ windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return filesys_fetch_callback(pmidp->item, inst, atom);
     }
 
+    /*
+     * All other (most) metrics will go through this path
+     */
     vp = find_instance_value(pmidp->item, inst);
     if (!vp)
 	return 0;
@@ -1512,7 +1625,7 @@ main(int argc, char **argv)
     int			c;
 
     isDSO = 0;
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
     pmdaDaemon(&d, PMDA_INTERFACE_3, pmProgname, WINDOWS, "windows.log", NULL);
 
     while ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &d, &err)) != EOF)

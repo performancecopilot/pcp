@@ -428,6 +428,24 @@ check_semantics(pdh_metric_t *mp, pdh_value_t *vp)
 	    }
 	    break;
 
+	case PERF_AVERAGE_BULK:
+	case PERF_AVERAGE_TIMER:
+	    /* 64-bit PM_SEM_INSTANT or PM_SEM_DISCRETE */
+	    if (mp->desc.sem != PM_SEM_INSTANT && mp->desc.sem != PM_SEM_DISCRETE) {
+		__pmNotifyErr(LOG_ERR, "windows_open: Warning: %s: "
+				       "metric %s: semantics %s (expected %s)\n",
+					ctr_type, pmIDStr(mp->desc.pmid),
+					_semstr(mp->desc.sem), _semstr(PM_SEM_INSTANT));
+		mp->desc.sem = PM_SEM_INSTANT;
+	    }
+	    if (mp->desc.type != PM_TYPE_64 && mp->desc.type != PM_TYPE_U64) {
+		__pmNotifyErr(LOG_ERR, "windows_open: Warning: %s "
+			"metric %s: rewrite type from %s to PM_TYPE_U64\n",
+			ctr_type, pmIDStr(mp->desc.pmid), _typestr(mp->desc.type));
+		mp->desc.type = PM_TYPE_U64;
+	    }
+	    break;
+
 	default:
 	    sts = -1;
     }
