@@ -1588,7 +1588,9 @@ windows_init(pmdaInterface *dp)
 	return;
     }
     for (i = 0; i < metrictab_sz; i++) {
-	/* rewrite indom, now that we know what the domain number is */
+	/* rewrite pmid & indom, now that we know what the domain number is */
+	pmID p = metricdesc[i].desc.pmid;
+	metricdesc[i].desc.pmid = pmid_build(dp->domain, pmid_cluster(p), pmid_item(p));
 	metricdesc[i].desc.indom = windows_indom(metricdesc[i].qid, dp->domain);
 
 	/* write the metrictab entry for this metric */
