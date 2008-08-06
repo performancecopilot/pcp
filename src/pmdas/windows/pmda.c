@@ -53,31 +53,31 @@ pdh_metric_t metricdesc[] = {
 /* kernel.percpu.cpu.intr */
     { { PMDA_PMID(0,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
-      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      }, Q_PERCPU, M_NONE, 0, 0, NULL,
       "\\Processor(_Total)\\% Interrupt Time"
     },
 /* kernel.percpu.cpu.user */
     { { PMDA_PMID(0,4), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
-      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      }, Q_PERCPU, M_NONE, 0, 0, NULL,
       "\\Processor(*/*#*)\\% User Time"
     },
 /* kernel.percpu.cpu.idle */
     { { PMDA_PMID(0,5), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
-      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      }, Q_PERCPU, M_NONE, 0, 0, NULL,
       "\\Processor(*/*#*)\\% Idle Time"
     },
 /* kernel.percpu.cpu.sys */
     { { PMDA_PMID(0,6), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
-      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      }, Q_PERCPU, M_NONE, 0, 0, NULL,
       "\\Processor(*/*#*)\\% Privileged Time"
     },
 /* kernel.percpu.cpu.intr */
     { { PMDA_PMID(0,7), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
-      }, Q_KERNEL, M_NONE, 0, 0, NULL,
+      }, Q_PERCPU, M_NONE, 0, 0, NULL,
       "\\Processor(*/*#*)\\% Interrupt Time"
     },
 /* kernel.num_processes */
@@ -263,49 +263,49 @@ pdh_metric_t metricdesc[] = {
 /* network.interface.in.packets */
     { { PMDA_PMID(0,38), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_NETWORK_IF, M_REDO, 0, 0, NULL,
       "\\Network Interface(*/*#*)\\Packets Received/sec"
     },
 /* network.interface.in.bytes */
     { { PMDA_PMID(0,39), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_NETWORK_IF, M_REDO, 0, 0, NULL,
       "\\Network Interface(*/*#*)\\Bytes Received/sec"
     },
 /* network.interface.in.errors */
     { { PMDA_PMID(0,40), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_NETWORK_IF, M_REDO, 0, 0, NULL,
       "\\Network Interface(*/*#*)\\Packets Received Errors"
     },
 /* network.interface.out.packets */
     { { PMDA_PMID(0,41), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_NETWORK_IF, M_REDO, 0, 0, NULL,
       "\\Network Interface(*/*#*)\\Packets Sent/sec"
     },
 /* network.interface.out.bytes */
     { { PMDA_PMID(0,42), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_NETWORK_IF, M_REDO, 0, 0, NULL,
       "\\Network Interface(*/*#*)\\Bytes Sent/sec"
     },
 /* network.interface.out.errors */
     { { PMDA_PMID(0,43), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_NETWORK_IF, M_REDO, 0, 0, NULL,
       "\\Network Interface(*/*#*)\\Packets Outbound Errors"
     },
 /* network.interface.total.packets */
     { { PMDA_PMID(0,44), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      }, Q_NETWORK_IF, M_NONE, 0, 0, NULL,
       "\\Network Interface(*/*#*)\\Packets/sec"
     },
 /* network.interface.total.bytes */
     { { PMDA_PMID(0,45), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
-      }, Q_MEMORY, M_NONE, 0, 0, NULL,
+      }, Q_NETWORK_IF, M_NONE, 0, 0, NULL,
       "\\Network Interface(*/*#*)\\Bytes Total/sec"
     },
 /* sqlserver.buf_mgr.cache_hit_ratio */
@@ -761,55 +761,55 @@ pdh_metric_t metricdesc[] = {
 /* network.tcp.activeopens */
     { { PMDA_PMID(0,123), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      }, Q_NETWORK_ALL, M_NONE, 0, 0, NULL,
       "\\TCPv4\\Connections Active"
     },
 /* network.tcp.passiveopens */
     { { PMDA_PMID(0,124), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      }, Q_NETWORK_ALL, M_NONE, 0, 0, NULL,
       "\\TCPv4\\Connections Passive"
     },
 /* network.tcp.attemptfails */
     { { PMDA_PMID(0,125), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      }, Q_NETWORK_ALL, M_NONE, 0, 0, NULL,
       "\\TCPv4\\Connection Failures"
     },
 /* network.tcp.estabresets */
     { { PMDA_PMID(0,126), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      }, Q_NETWORK_ALL, M_NONE, 0, 0, NULL,
       "\\TCPv4\\Connections Reset"
     },
 /* network.tcp.currestab */
     { { PMDA_PMID(0,127), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      }, Q_NETWORK_ALL, M_NONE, 0, 0, NULL,
       "\\TCPv4\\Connections Established"
     },
 /* network.tcp.insegs */
     { { PMDA_PMID(0,128), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      }, Q_NETWORK_ALL, M_NONE, 0, 0, NULL,
       "\\TCPv4\\Segments Received/sec"
     },
 /* network.tcp.outsegs */
     { { PMDA_PMID(0,129), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      }, Q_NETWORK_ALL, M_NONE, 0, 0, NULL,
       "\\TCPv4\\Segments Sent/sec"
     },
 /* network.tcp.totalsegs */
     { { PMDA_PMID(0,130), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      }, Q_NETWORK_ALL, M_NONE, 0, 0, NULL,
       "\\TCPv4\\Segments/sec"
     },
 /* network.tcp.retranssegs */
     { { PMDA_PMID(0,131), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, Q_SQLSERVER_ALL, M_NONE, 0, 0, NULL,
+      }, Q_NETWORK_ALL, M_NONE, 0, 0, NULL,
       "\\TCPv4\\Segments Retransmitted/sec"
     },
 
@@ -1065,7 +1065,7 @@ pdh_metric_t metricdesc[] = {
 /* process.count */
     { { PMDA_PMID(0,173), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
-      }, Q_PROCESSES, M_NONE, 0, 0, NULL,
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
       "\\Objects\\Processes"
     },
 /* process.psinfo.pid */
@@ -1131,61 +1131,61 @@ pdh_metric_t metricdesc[] = {
 /* process.memory.size */
     { { PMDA_PMID(0,184), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\Pool Paged Bytes"
     },
 /* process.memory.rss */
     { { PMDA_PMID(0,185), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\Working Set"
     },
 /* process.memory.rss_peak */
     { { PMDA_PMID(0,186), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\Working Set Peak"
     },
 /* process.memory.virtual */
     { { PMDA_PMID(0,187), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\Virtual Bytes"
     },
 /* process.memory.virtual_peak */
     { { PMDA_PMID(0,188), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\Virtual Bytes Peak"
     },
 /* process.memory.page_file */
     { { PMDA_PMID(0,189), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\Page File Bytes"
     },
 /* process.memory.page_file_peak */
     { { PMDA_PMID(0,190), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\Page File Bytes Peak"
     },
 /* process.memory.private */
     { { PMDA_PMID(0,191), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\Private Bytes"
     },
 /* process.memory.pool_paged */
     { { PMDA_PMID(0,192), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\Pool Paged Bytes"
     },
 /* process.memory.pool_nonpaged */
     { { PMDA_PMID(0,193), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0)
-      }, Q_MEMORY, M_REDO, 0, 0, NULL,
+      }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\Pool Nonpaged Bytes"
     },
 /* process.io.reads */
@@ -1578,8 +1578,6 @@ windows_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    windows_open();
-
     /* Create the PMDA's metrictab[] version of the per-metric table */
     metrictab = (pmdaMetric *)malloc(metrictab_sz * sizeof(pmdaMetric));
     if (metrictab == NULL) {
@@ -1587,16 +1585,20 @@ windows_init(pmdaInterface *dp)
 		metrictab_sz * sizeof(pmdaMetric), strerror(errno));
 	return;
     }
+
     for (i = 0; i < metrictab_sz; i++) {
 	/* rewrite pmid & indom, now that we know what the domain number is */
-	pmID p = metricdesc[i].desc.pmid;
-	metricdesc[i].desc.pmid = pmid_build(dp->domain, pmid_cluster(p), pmid_item(p));
+	pmID pmid = metricdesc[i].desc.pmid;
+	metricdesc[i].desc.pmid = pmid_build(dp->domain,
+					pmid_cluster(pmid), pmid_item(pmid));
 	metricdesc[i].desc.indom = windows_indom(metricdesc[i].qid, dp->domain);
 
 	/* write the metrictab entry for this metric */
 	metrictab[i].m_desc = metricdesc[i].desc;
 	metrictab[i].m_user = NULL;
     }
+
+    windows_open();
 
     dp->version.two.fetch = windows_fetch;
     dp->version.two.instance = windows_instance;

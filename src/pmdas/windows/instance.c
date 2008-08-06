@@ -31,7 +31,7 @@ windows_indom(int qid, int domain)
     switch (qid) {
     case Q_DISK_DEV:		serial = DISK_INDOM; break;
     case Q_PERCPU:		serial = CPU_INDOM; break;
-    case Q_NETWORK:		serial = NETIF_INDOM; break;
+    case Q_NETWORK_IF:		serial = NETIF_INDOM; break;
     case Q_LDISK:		serial = FILESYS_INDOM; break;
     case Q_SQLSERVER_LOCK:	serial = SQL_LOCK_INDOM; break;
     case Q_SQLSERVER_CACHE:	serial = SQL_CACHE_INDOM; break;
@@ -90,7 +90,7 @@ windows_check_instance(char *path, pdh_metric_t *mp)
 		     * The totals get enumerated in the per disk path
 		     * expansion, just skip 'em here
 		     */
-		    return 0;
+		    return -1;
 		}
 		// inst = atoi(p);
 		while (isascii(*p) && isdigit(*p)) p++;
@@ -147,7 +147,7 @@ windows_check_instance(char *path, pdh_metric_t *mp)
 		     * The totals get enumerated in the per cpu path
 		     * expansion, just skip 'em here
 		     */
-		    return 0;
+		    return -1;
 		}
 		int inst = atoi(p);
 		name = (char *)malloc(6);	// "cpuNN"
@@ -215,7 +215,7 @@ windows_check_instance(char *path, pdh_metric_t *mp)
 		     * The totals value makes no semantic sense,
 		     * just skip it here
 		     */
-		    return 0;
+		    return -1;
 		}
 		q = strchr(p, ')');
 		if (q != NULL) {
@@ -263,7 +263,7 @@ windows_check_instance(char *path, pdh_metric_t *mp)
 		     * The totals are done as independent metrics,
 		     * just skip them here
 		     */
-		    return 0;
+		    return -1;
 		}
 		q = strchr(p, ')');
 		if (q != NULL) {
@@ -311,7 +311,7 @@ windows_check_instance(char *path, pdh_metric_t *mp)
 		     * The totals are done as independent metrics,
 		     * just skip them here
 		     */
-		    return 0;
+		    return -1;
 		}
 		q = strchr(p, ')');
 		if (q != NULL) {
