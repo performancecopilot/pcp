@@ -17,9 +17,31 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
+#include <ctype.h>
 #include "hypnotoad.h"
 
-static char	*lastbuf;
+/*
+ * Replace backslashes in the help string returned from Pdh APIs.
+ * Everything done "in-place" so no change to size of the string.
+ */
+static char *
+windows_fmt(char *text)
+{
+    char *p;
+    int n;
+
+    for (p = text, n = 0; p && *p != '\0'; p++, n++) {
+	if (!isprint(*p))		/* toss any dodgey characters */
+	    *p = '?';
+	else if (*p == '\r')		/* remove Windows line ending */
+	    *p = '\n';
+	if (n < 70 || !isspace(*p))	/* very simple line wrapping */
+	    continue;
+	*p = '\n';
+	n = 0;
+    }
+    return text;
+}
 
 int
 windows_help(int ident, int type, char **buf, pmdaExt *pmda)
@@ -27,34 +49,31 @@ windows_help(int ident, int type, char **buf, pmdaExt *pmda)
     int			i;
     pmID		pmid;
     PDH_STATUS  	pdhsts;
+    PDH_COUNTER_INFO_A	*infop;
     static LPSTR	info = NULL;
     static DWORD	info_sz = 0;
     static DWORD	result_sz;
-    PDH_COUNTER_INFO_A	*infop;
-    int			sts = PM_ERR_TEXT;
+    static char		*lastbuf;
+    char		*text;
+    int			sts;
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2) {
-	fprintf(stderr, "help(ident=%s, type=%d)", pmIDStr((pmID)ident), type);
-    }
-#endif
+    if (pmDebug & DBG_TRACE_APPL2)
+	fprintf(stderr, "help(ident=%s, type=%d)\n", pmIDStr((pmID)ident), type);
+
     if ((type & PM_TEXT_PMID) != PM_TEXT_PMID)
-	/*
-	 * cannot do anything other than metric help text from PDH,
-	 * so no instance domain help text I'm afraid
-	 */
-	return sts;
-
-    if (type & PM_TEXT_ONELINE)
-	/*
-	 * no one line help text I'm afraid ...
-	 */
-	return sts;
+	return PM_ERR_TEXT;
 
     pmid = (pmID)ident;
     for (i = 0; i < metricdesc_sz; i++) {
 	if (pmid == metricdesc[i].desc.pmid) {
 	    pdh_value_t *pvp = metricdesc[i].vals;
+	    if (type & PM_TEXT_ONELINE) {
+		if (metricdesc[i].pat[0] == '\0')
+		    return PM_ERR_TEXT;
+		text = &metricdesc[i].pat[0];
+		goto found;
+	    }
+
 	    if (metricdesc[i].num_vals < 1)
 		/* no counter handle, no help text */
 		return sts;
@@ -99,11 +118,13 @@ windows_help(int ident, int type, char **buf, pmdaExt *pmda)
 				"NULL help text @ metric %s\n", pmIDStr(pmid));
 		return sts;
 	    }
+	    text = infop->szExplainText;
+found:
 	    if (lastbuf != NULL) {
 		free(lastbuf);
 		lastbuf = NULL;
 	    }
-	    lastbuf = *buf = strdup(infop->szExplainText);
+	    lastbuf = *buf = windows_fmt(strdup(text));
 	    if (*buf != NULL)
 		sts = 0;
 	    return sts;
