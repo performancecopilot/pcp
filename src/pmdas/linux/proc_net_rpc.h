@@ -1,5 +1,5 @@
 /* 
- * Linux /proc/net/dev metrics cluster
+ * Linux /proc/net/rpc metrics cluster
  *
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -47,7 +47,7 @@ typedef struct {
 
     struct {
 	int		errcode;	/* error from last refresh */
-	/* /proc/net/rpc/nfsd  "rc" */
+	/* /proc/net/rpc/nfsd "rc" and "fh" */
         unsigned int    rchits;         /* repcache hits */
         unsigned int    rcmisses;       /* repcache hits */
         unsigned int    rcnocache;      /* uncached reqs */
@@ -57,6 +57,17 @@ typedef struct {
         unsigned int    fh_lookup;      /* new lookup required */
         unsigned int    fh_stale;       /* FH stale error */
         unsigned int    fh_concurrent;  /* concurrent request */
+	unsigned int    fh_anon;	/* anon file dentry returned */
+	unsigned int	fh_nocache_dir;	/* dir filehandle not found in dcache */
+	unsigned int	fh_nocache_nondir; /* nondir filehandle not in dcache */
+
+	/* /proc/net/rpc/nfsd "io" */
+	unsigned int	io_read;	/* bytes returned to read requests */
+	unsigned int	io_write;	/* bytes passed in write requests */
+
+	/* /proc/net/rpc/nfsd "th" */
+	unsigned int	th_cnt;		/* available nfsd threads */
+	unsigned int	th_fullcnt;	/* times last free thread used */
 
 	/* /proc/net/rpc/nfsd "net" */
 	unsigned int	netcnt;

@@ -109,6 +109,24 @@ refresh_proc_net_rpc(proc_net_rpc_t *proc_net_rpc)
 		    &proc_net_rpc->server.fh_stale,
 		    &proc_net_rpc->server.fh_concurrent);
 	    else
+	    if (strncmp(buf, "fh", 2) == 0)
+		sscanf(buf, "fh %u %u %u %u %u",
+		    &proc_net_rpc->server.fh_stale,
+		    &proc_net_rpc->server.fh_lookup,
+		    &proc_net_rpc->server.fh_anon,
+		    &proc_net_rpc->server.fh_nocache_dir,
+		    &proc_net_rpc->server.fh_nocache_nondir);
+	    else
+	    if (strncmp(buf, "io", 2) == 0)
+		sscanf(buf, "io %u %u",
+		    &proc_net_rpc->server.io_read,
+		    &proc_net_rpc->server.io_write);
+	    else
+	    if (strncmp(buf, "th", 2) == 0)
+		sscanf(buf, "th %u %u",
+		    &proc_net_rpc->server.th_cnt,
+		    &proc_net_rpc->server.th_fullcnt);
+	    else
 	    if (strncmp(buf, "net", 3) == 0)
 		sscanf(buf, "net %u %u %u %u", 
 		    &proc_net_rpc->server.netcnt,

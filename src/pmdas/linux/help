@@ -681,6 +681,13 @@ tools running on IRIX.
 @ rpc.server.netudpcnt cumulative total of server RPC UDP network layer requests
 @ rpc.server.nettcpcnt cumulative total of server RPC TCP network layer requests
 @ rpc.server.nettcpconn cumulative total of server RPC TCP network layer connection requests
+@ rpc.server.fh_anon cumulative total anonymous file dentries returned
+@ rpc.server.fh_nocache_dir count of directory file handles not found cached
+@ rpc.server.fh_nocache_nondir count of non-directory file handles not found cached
+@ rpc.server.io_read cumulative count of bytes returned from read requests
+@ rpc.server.io_write cumulative count of bytes passed into write requests
+@ rpc.server.th_cnt available nfsd threads
+@ rpc.server.th_fullcnt number of times the last free nfsd thread was used
 @ proc.nprocs instantaneous number of processes
 @ proc.psinfo.pid process identifier
 @ proc.psinfo.psargs full command string

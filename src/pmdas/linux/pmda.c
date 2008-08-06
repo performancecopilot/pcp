@@ -1145,6 +1145,41 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NFS,47), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* rpc.server.fh_anon */
+  { &proc_net_rpc.server.fh_anon,
+    { PMDA_PMID(CLUSTER_NET_NFS,51), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* rpc.server.fh_nocache_dir */
+  { &proc_net_rpc.server.fh_nocache_dir,
+    { PMDA_PMID(CLUSTER_NET_NFS,52), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* rpc.server.fh_nocache_nondir */
+  { &proc_net_rpc.server.fh_nocache_nondir,
+    { PMDA_PMID(CLUSTER_NET_NFS,53), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* rpc.server.io_read */
+  { &proc_net_rpc.server.io_read,
+    { PMDA_PMID(CLUSTER_NET_NFS,54), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+
+/* rpc.server.io_write */
+  { &proc_net_rpc.server.io_write,
+    { PMDA_PMID(CLUSTER_NET_NFS,55), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+
+/* rpc.server.th_cnt */
+  { &proc_net_rpc.server.th_cnt,
+    { PMDA_PMID(CLUSTER_NET_NFS,56), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* rpc.server.th_fullcnt */
+  { &proc_net_rpc.server.th_fullcnt,
+    { PMDA_PMID(CLUSTER_NET_NFS,57), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /*
  * proc/<pid>/stat cluster
  */
@@ -3320,7 +3355,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	return 0;
 	    else
 	    if (idp->item >= 30 && idp->item <= 47 && proc_net_rpc.server.errcode != 0)
-		/* no values available - this is expected < 2.2.8 without /proc/net/rpc/nfsd */
+		/* no values available - expected without /proc/net/rpc/nfsd */
+	    	return 0; /* no values available */
+	    if (idp->item >= 51 && idp->item <= 57 && proc_net_rpc.server.errcode != 0)
+		/* no values available - expected without /proc/net/rpc/nfsd */
 	    	return 0; /* no values available */
 	}
 	else

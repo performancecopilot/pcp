@@ -514,6 +514,13 @@ rpc.server {
     netudpcnt		60:7:45
     nettcpcnt		60:7:46
     nettcpconn		60:7:47
+    fh_anon		60:7:51
+    fh_nocache_dir	60:7:52
+    fh_nocache_nondir	60:7:53
+    io_read		60:7:54
+    io_write		60:7:55
+    th_cnt		60:7:56
+    th_fullcnt		60:7:57
 }
 
 nfs3 {
