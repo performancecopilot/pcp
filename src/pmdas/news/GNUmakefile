@@ -24,7 +24,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 
-PFILES = #pmdanews.pl
+PFILES = pmdanews.pl
 DFILES = README
 TARGETS	= 
 LSRCFILES= Install Remove pmns root $(PFILES) $(DFILES) GNUmakefile.install \

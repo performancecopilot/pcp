@@ -26,7 +26,8 @@ include $(TOPDIR)/src/include/builddefs
 SUBDIRS = pmcd linux solaris aix darwin windows \
 	sample simple trivial sendmail mailq txmon \
 	news cisco trace apache shping mounts weblog \
-	lmsensors process roomtemp summary hotproc jstat
+	lmsensors process roomtemp summary hotproc jstat \
+	dbping memcache systemtap
 
 LDIRT = pmcd.conf
 

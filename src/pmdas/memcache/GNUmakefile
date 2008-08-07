@@ -23,7 +23,7 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= memcache
 DOMAIN	= MEMCACHE
 TARGETS	= 
-LSRCFILES = Install Remove README pmdamemcache.pl pmns root GNUmakefile.install
+LSRCFILES = Install Remove README pmdamemcache.pl pmns root
 
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
@@ -36,7 +36,6 @@ include $(BUILDRULES)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 README domain.h pmns root $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 755 Install Remove pmdamemcache.pl $(PMDADIR)
 
 domain.h:	../../pmns/stdpmid

@@ -22,20 +22,11 @@
 # Remove the news PMDA
 #
 
-# Get standard environment
 . $PCP_DIR/etc/pcp.env
-
-# Get the common procedures and variable assignments
-#
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-# The name of the PMDA
-#
 iam=news
 
-# Do it
-#
 pmdaSetup
 pmdaRemove
-
 exit 0

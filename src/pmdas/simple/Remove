@@ -22,20 +22,11 @@
 # Remove the simple PMDA
 #
 
-# source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
-
-# Get the common procedures and variable assignments
-#
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-# The name of the PMDA
-#
 iam=simple
 
-# Do it
-#
 pmdaSetup
 pmdaRemove
-
 exit 0

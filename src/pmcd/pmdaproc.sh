@@ -108,13 +108,6 @@ fi
 NAMESPACE=${PMNS_DEFAULT-$PMNSDIR/root}
 PMNSROOT=`basename $NAMESPACE`
 
-# install your DSO PMDAs here
-DSOPMDADIR=/var/pcp/lib
-[ "$PCP_PLATFORM" = linux ] && DSOPMDADIR=$PCP_PMDAS_DIR
-
-# install your daemon PMDAs here
-PMDADIR=$PCP_PMDAS_DIR
-
 # echo without newline - deprecated - use the $PCP_ECHO_* ones from
 # /etc/pcp.conf instead, however some old Install and Remove scripts may
 # still use $ECHONL, so keep it here
@@ -124,6 +117,8 @@ ECHONL="echo -n"
 # Install control variables
 #	Can install as DSO?
 dso_opt=false
+#	Can install as perl script?
+perl_opt=false
 #	Can install as daemon?
 daemon_opt=true
 #	If daemon, pipe?
@@ -785,24 +780,23 @@ _setup()
     # some more configuration controls
     pmns_name=${pmns_name-$iam}
     pmda_name=pmda$iam
-    if [ "$PCP_PLATFORM" = linux ]
-    then
-	dso_name=${DSOPMDADIR}/${iam}/pmda_${iam}.so
-    else
-	dso_name=pmda_${iam}.so
-    fi
+    perl_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.pl"
+    dso_suffix=so
+    [ "$PCP_PLATFORM" = darwin ] && dso_suffix=dylib
+    [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = mingw ] && dso_suffix=dll
+    dso_name="${PCP_PMDAS_DIR}/${iam}/pmda_${iam}.${dso_suffix}"
     dso_entry=${iam}_init
-    pmda_dir=$PMDADIR/$iam
+    pmda_dir="${PCP_PMDAS_DIR}/${iam}"
 }
 
 # Configurable PMDA installation
 #
 # before calling _install,
 # 1. set $iam
-# 2. set one or both of $dso_opt or $daemon_opt true (optional, $daemon_opt
-#    is true by default)
-# 3. if $dso_opt set one or both of $pipe_opt or $socket_opt true (optional,
-#    $pipe_opt is true by default)
+# 2. set one/some/all of $dso_opt, $perl_opt, or $daemon_opt to true
+#    (optional, $daemon_opt is true by default)
+# 3. if $daemon_opt set one or both of $pipe_opt or $socket_opt true
+#    (optional, $pipe_opt is true by default)
 # 4. if $socket_opt and there is an default Internet socket, set
 #    $socket_inet_def
 
@@ -816,11 +810,11 @@ _install()
 
     if $do_pmda
     then
-	if $dso_opt || $daemon_opt
+	if $dso_opt || $perl_opt || $daemon_opt
 	then
 	    :
 	else
-	    echo 'Botch: must set at least one of $dso_opt or $daemon_opt to "true"'
+	    echo 'Botch: must set at least one of $dso_opt, $perl_opt or $daemon_opt to "true"'
 	    exit 1
 	fi
 	if $daemon_opt
@@ -927,10 +921,13 @@ _install()
 	#
 	pmda_type=''
 	$dso_opt && pmda_type=dso
+	$perl_opt && pmda_type=perl
 	$daemon_opt && pmda_type=daemon
+	$dso_opt && $perl_opt && pmda_type=''
 	$dso_opt && $daemon_opt && pmda_type=''
+	$daemon_opt && $perl_opt && pmda_type=''
 	if [ -z "$pmda_type" ]
-        then
+	then
 	    while true
 	    do
 		$PCP_ECHO_PROG $PCP_ECHO_N "Install $iam as a daemon or dso agent? [daemon] ""$PCP_ECHO_C"
@@ -942,6 +939,9 @@ _install()
 		elif [ "X$pmda_type" = Xdso ]
 		then
 		    break
+		elif [ "X$pmda_type" = Xperl ]
+		then
+		    break
 		else
 		    echo "Must choose one of \"daemon\" or \"dso\", please try again"
 		fi
@@ -951,6 +951,10 @@ _install()
 	then
 	    __choose_ipc $pmda_dir
 	    args="-d $domain $args"
+	elif [ "$pmda_type" = perl ]
+	then
+	    type="pipe	binary		perl $perl_name"
+	    args=""
 	else
 	    type="dso	$dso_entry	$dso_name"
 	    args=""

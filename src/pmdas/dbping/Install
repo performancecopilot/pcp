@@ -19,23 +19,16 @@
 # Install the Database Ping PMDA
 #
 
-# source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
-
-# Get the common procedures and variable assignments
-#
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-# The name of the PMDA
-#
 iam=dbping
 
-# Do it
-#
 pmdaSetup
 
 dso_opt=false
-socket_opt=false
+perl_opt=true
+daemon_opt=false
 
 pmdaInstall
 
