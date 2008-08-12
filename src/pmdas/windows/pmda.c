@@ -1093,13 +1093,13 @@ pdh_metric_t metricdesc[] = {
       "\\Process(*/*#*)\\Elapsed Time"
     },
 /* process.psinfo.utime */
-    { { PMDA_PMID(0,178), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_COUNTER, 
+    { { PMDA_PMID(0,178), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
       }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\% User Time"
     },
 /* process.psinfo.stime */
-    { { PMDA_PMID(0,179), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_COUNTER, 
+    { { PMDA_PMID(0,179), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
       }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\% Privileged Time"
@@ -1129,7 +1129,7 @@ pdh_metric_t metricdesc[] = {
       "\\Process(*/*#*)\\Page Faults/sec"
     },
 /* process.memory.size */
-    { { PMDA_PMID(0,184), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
+    { { PMDA_PMID(0,184), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0)
       }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\Pool Paged Bytes"
@@ -1177,37 +1177,37 @@ pdh_metric_t metricdesc[] = {
       "\\Process(*/*#*)\\Private Bytes"
     },
 /* process.memory.pool_paged */
-    { { PMDA_PMID(0,192), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
+    { { PMDA_PMID(0,192), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0)
       }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\Pool Paged Bytes"
     },
 /* process.memory.pool_nonpaged */
-    { { PMDA_PMID(0,193), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
+    { { PMDA_PMID(0,193), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0)
       }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\Pool Nonpaged Bytes"
     },
 /* process.io.reads */
-    { { PMDA_PMID(0,194), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_COUNTER, 
+    { { PMDA_PMID(0,194), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
       }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\IO Read Operations/sec"
     },
 /* process.io.writes */
-    { { PMDA_PMID(0,195), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_COUNTER, 
+    { { PMDA_PMID(0,195), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
       }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\IO Write Operations/sec"
     },
 /* process.io.data */
-    { { PMDA_PMID(0,196), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_COUNTER, 
+    { { PMDA_PMID(0,196), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
       }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\IO Data Operations/sec"
     },
 /* process.io.other */
-    { { PMDA_PMID(0,197), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_COUNTER, 
+    { { PMDA_PMID(0,197), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
       }, Q_PROCESSES, M_REDO, 0, 0, NULL,
       "\\Process(*/*#*)\\IO Other Operations/sec"
@@ -1243,25 +1243,25 @@ pdh_metric_t metricdesc[] = {
       "\\Thread(*/*#*)\\Context Switches/sec"
     },
 /* process.thread.cpu_time */
-    { { PMDA_PMID(0,203), PM_TYPE_U32, THREAD_INDOM, PM_SEM_COUNTER,
+    { { PMDA_PMID(0,203), PM_TYPE_U64, THREAD_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
       }, Q_THREADS, M_REDO, 0, 0, NULL,
       "\\Thread(*/*#*)\\% Processor Time"
     },
 /* process.thread.utime */
-    { { PMDA_PMID(0,204), PM_TYPE_U32, THREAD_INDOM, PM_SEM_COUNTER,
+    { { PMDA_PMID(0,204), PM_TYPE_U64, THREAD_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
       }, Q_THREADS, M_REDO, 0, 0, NULL,
       "\\Thread(*/*#*)\\% User Time"
     },
 /* process.thread.stime */
-    { { PMDA_PMID(0,205), PM_TYPE_U32, THREAD_INDOM, PM_SEM_COUNTER,
+    { { PMDA_PMID(0,205), PM_TYPE_U64, THREAD_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
       }, Q_THREADS, M_REDO, 0, 0, NULL,
       "\\Thread(*/*#*)\\% Privileged Time"
     },
 /* process.thread.elapsed_time */
-    { { PMDA_PMID(0,206), PM_TYPE_U32, THREAD_INDOM, PM_SEM_COUNTER,
+    { { PMDA_PMID(0,206), PM_TYPE_U64, THREAD_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
       }, Q_THREADS, M_REDO, 0, 0, NULL,
       "\\Thread(*/*#*)\\Elapsed Time"
@@ -1466,10 +1466,10 @@ filesys_fetch_callback(int item, int inst, pmAtomValue *atom)
      * 		117 filesys.capacity
      *		118 filesys.used
      *		119 filesys.free
-     *		120 dummy metric, atomtab holds FreeMB
-     *		121 dummy metric, atomtab holds %Free
+     *		120 dummy metric, metricdesc holds FreeMB
+     *		121 dummy metric, metricdesc holds %Free
      */
-    if (item == 67) {		/* filesys.full, atomtab holds %Free */
+    if (item == 67) {		/* filesys.full, metricdesc holds %Free */
 	vp = find_instance_value(item, inst);
 	if (!vp)
 	    return 0;
@@ -1477,12 +1477,12 @@ filesys_fetch_callback(int item, int inst, pmAtomValue *atom)
 	return 1;
     }
 
-    vp = find_instance_value(120,inst);	/* dummy metric, atomtab holds FreeMB */
+    vp = find_instance_value(120,inst);	/* dummy, metricdesc holds FreeMB */
     if (!vp)
 	return 0;
     free_space = ((float)vp->atom.ul);
 
-    vp = find_instance_value(121,inst);	/* dummy metric, atomtab holds %Free */
+    vp = find_instance_value(121,inst);	/* dummy, metricdesc holds %Free */
     if (!vp)
 	return 0;
     free_percent = vp->atom.f;

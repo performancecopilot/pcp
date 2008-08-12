@@ -95,15 +95,29 @@ pdh_fetch(pdh_metric_t *mp, int c)
 void
 windows_fetch_refresh(int numpmid, pmID pmidlist[])
 {
-    int		i, v;
+    int			i, v, extra_filesys = 0;
+    __pmID_int		*pmidp;
+    pdh_metric_t	*mp;
 
     for (i = 0; i < Q_NUMQUERIES; i++)
 	querydesc[i].flags &= ~Q_COLLECTED;
 
     for (i = 0; i < numpmid; i++) {
-	__pmID_int	*pmidp = (__pmID_int *)&pmidlist[i];
-	pdh_metric_t	*mp = &metricdesc[pmidp->item];
+	pmidp = (__pmID_int *)&pmidlist[i];
+	mp = &metricdesc[pmidp->item];
 
+	if (pmidp->item == 117 || pmidp->item == 118 || pmidp->item == 119)
+	    extra_filesys = 1;
+	else
+	    for (v = 0; v < mp->num_vals; v++)
+		pdh_fetch(mp, v);
+    }
+
+    if (extra_filesys) {
+	mp = &metricdesc[120];
+	for (v = 0; v < mp->num_vals; v++)
+	    pdh_fetch(mp, v);
+	mp = &metricdesc[121];
 	for (v = 0; v < mp->num_vals; v++)
 	    pdh_fetch(mp, v);
     }
