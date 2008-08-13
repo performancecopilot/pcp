@@ -24,7 +24,7 @@ include $(TOPDIR)/src/include/builddefs
 PERLMOD   = PMDA.pm
 INTERFACE = PMDA.xs local.h local.c typemap
 TESTCODE  = test.pl cvalue.c
-PERLDOCS  = Changes MANIFEST TODO
+PERLDOCS  = Changes MANIFEST
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 
 LPKGDIRT = PCP-PMDA-*

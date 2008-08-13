@@ -19,6 +19,7 @@
 
 /* XXX - TODO: need to install a SIGCHLD signal handler when pipes in use */
 /* XXX - TODO: reconnect -- socket(host/port) and logrotate(inode/device) */
+/* XXX - TODO: Need POD updates to document all of the perl APIs & PMDAs. */
 
 #include "local.h"
 #include "EXTERN.h"
@@ -349,7 +350,7 @@ pmda_pmid(cluster,item)
 	unsigned int	cluster
 	unsigned int	item
     CODE:
-	RETVAL = PMDA_PMID(cluster, item);
+	RETVAL = pmid_build(dispatch.domain, cluster, item);
     OUTPUT:
 	RETVAL
 
@@ -461,7 +462,6 @@ add_metric(self,pmid,type,indom,sem,units,name,help,longhelp)
 	int         size;
     CODE:
 	pmidp = (__pmID_int *)&pmid;
-	pmid = pmid_build(dispatch.domain, pmidp->cluster, pmidp->item);
 	if (!clustertab_lookup(pmidp->cluster)) {
 	    size = sizeof(int) * (ctab_size + 1);
 	    clustertab = (int *)realloc(clustertab, size);
