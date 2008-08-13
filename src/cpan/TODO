@@ -1,11 +1,6 @@
 Getting to a basic working state
 --------------------------------
 
-o  Need to devise a way to handle the command line.  Note: -d is debug
-   mode in Perl, but domain number in the PMDA world.  D'oh.  This is
-   causing issues with the Install script, which automatically includes
-   that on the command line... agent installation needs work.
-
 o  Need to reconnect to rotated log files.
 
 o  Need to reconnect dropped socket connections.
@@ -14,30 +9,4 @@ o  Need POD updates to document all APIs.
 
 o  Use the PCP::PMDA->add_metric() routine help text and metric name
    parameters - generate help files and pmns files automagically.
-
-
-More interesting stuff
-----------------------
-
-o  database interfaces
-	- If we can pass in the metric name to PCP::PMDA->add_metric,
-	  then we may be able to do tricky things in the fun-filled
-	  world of database monitoring (these tend to use metric
-	  names with embedded database names, e.g. oracle.BOB.locks)
-	  which requires the pmns file to be post-processed currently
-	  (yuk!) ... would be able to cleanly resolve this;
-	- we should be able to use DBI to hide the changing database 
-	  client libraries, hiding different binary formats, etc.
-
-o  generic database ping PMDA
-	- We've traditionally had separate oraping, sybping,
-	  infmxping, etc PMDAs to measure database availability 
-	  and response - pmdadbping/dbprobe are an initial stab
-	  at providing a unified database response time measure
-	  PMDA
-
-o  generic SNMP PMDA
-	- might be an idea to have an easily modified snmppmda
-	  which could be easily configured to import arbitrary
-	  SNMP data using the perl SNMP module
 

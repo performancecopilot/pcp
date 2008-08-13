@@ -30,19 +30,90 @@ static pmdaMetric *metrictab;
 static int mtab_size;
 static pmdaIndom *indomtab;
 static int itab_size;
+static int *clustertab;
+static int ctab_size;
 
 static SV *fetch_func;
+static SV *refresh_func;
 static SV *instance_func;
 static SV *store_cb_func;
 static SV *fetch_cb_func;
+
+int
+clustertab_lookup(int cluster)
+{
+    int i, found = 0;
+
+    for (i = 0; i < ctab_size; i++) {
+	if (cluster == clustertab[i]) {
+	    found = 1;
+	    break;
+	}
+    }
+    return found;
+}
+
+void
+clustertab_replace(int index, int cluster)
+{
+    if (index >= 0 && index < ctab_size)
+	clustertab[index] = cluster;
+    else
+	warn("invalid cluster table replacement requested");
+}
+
+void
+clustertab_scratch()
+{
+    memset(clustertab, -1, sizeof(int) * ctab_size);
+}
+
+void
+refresh(int numpmid, pmID *pmidlist)
+{
+    dSP;
+    ENTER;
+    SAVETMPS;
+    PUSHMARK(sp);
+    int i, numclusters = 0;
+    __pmID_int *pmid;
+
+    /* Create list of affected clusters from pmidlist
+     * Note: we overwrite the initial cluster array here, to avoid
+     * allocating memory.  The initial array contains all possible
+     * clusters whereas we (possibly) construct a subset here.  We
+     * do not touch ctab_size at all, however, which lets us reuse
+     * the preallocated array space on every fetch.
+     */
+    clustertab_scratch();
+    for (i = 0; i < numpmid; i++) {
+	pmid = (__pmID_int *) &pmidlist[i];
+	if (clustertab_lookup(pmid->cluster))
+	    clustertab_replace(numclusters++, pmid->cluster);
+    }
+
+    /* For each unique cluster, call the cluster refresh method */
+    for (i = 0; i < numclusters; i++) {
+	PUSHMARK(sp);
+	XPUSHs(sv_2mortal(newSViv(clustertab[i])));
+	PUTBACK;
+	perl_call_sv(refresh_func, G_VOID|G_DISCARD);
+	SPAGAIN;
+    }
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+}
 
 int
 fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 {
     dSP;
     PUSHMARK(sp);
-
     perl_call_sv(fetch_func, G_DISCARD|G_NOARGS);
+    if (refresh_func)
+	refresh(numpmid, pmidlist);
     return pmdaFetch(numpmid, pmidlist, rp, pmda);
 }
 
@@ -319,6 +390,15 @@ set_fetch(self,function)
 	}
 
 void
+set_refresh(self,function)
+	pmdaInterface *self
+	SV *	function
+    CODE:
+	if (function != (SV *)NULL) {
+	    refresh_func = newSVsv(function);
+	}
+
+void
 set_instance(self,function)
 	pmdaInterface *self
 	SV *	function
@@ -372,17 +452,36 @@ add_metric(self,pmid,type,indom,sem,units,name,help,longhelp)
 	int	indom
 	int	sem
 	int	units
-	char *	name
-	char *	help
-	char *	longhelp
+	char *	name = NO_INIT
+	char *	help = NO_INIT
+	char *	longhelp = NO_INIT
     PREINIT:
 	pmdaMetric *p;
+	__pmID_int *pmidp;
+	int         size;
     CODE:
-	metrictab = (pmdaMetric *)realloc(metrictab, sizeof(pmdaMetric)*(mtab_size+1));
+	pmidp = (__pmID_int *)&pmid;
+	pmid = pmid_build(dispatch.domain, pmidp->cluster, pmidp->item);
+	if (!clustertab_lookup(pmidp->cluster)) {
+	    size = sizeof(int) * (ctab_size + 1);
+	    clustertab = (int *)realloc(clustertab, size);
+	    if (clustertab)
+		clustertab[ctab_size++] = pmidp->cluster;
+	    else {
+		warn("unable to allocate memory for cluster table");
+		ctab_size = 0;
+		XSRETURN_UNDEF;
+	    }
+	}
+
+	size = sizeof(pmdaMetric) * (mtab_size + 1);
+	metrictab = (pmdaMetric *)realloc(metrictab, size);
 	if (metrictab == NULL) {
 	    warn("unable to allocate memory for metric table");
+	    mtab_size = 0;
 	    XSRETURN_UNDEF;
 	}
+
 	p = metrictab + mtab_size++;
 	p->m_user = NULL;	p->m_desc.pmid = *(pmID *)&pmid;
 	p->m_desc.type = type;	p->m_desc.indom = *(pmInDom *)&indom;
@@ -397,8 +496,8 @@ add_indom(self,indom,list,help,longhelp)
 	pmdaInterface *	self
 	int	indom
 	SV *	list
-	char *	help
-	char *	longhelp
+	char *	help = NO_INIT
+	char *	longhelp = NO_INIT
     PREINIT:
 	pmdaIndom *	p;
     CODE:
