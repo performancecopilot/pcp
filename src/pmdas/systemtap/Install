@@ -26,7 +26,7 @@ iam=systemtap
 
 pmdaSetup
 
-perl_opt=false
+perl_opt=true
 daemon_opt=false
 
 pmdaInstall
