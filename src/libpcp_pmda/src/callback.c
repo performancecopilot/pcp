@@ -647,7 +647,6 @@ pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 int
 pmdaText(int ident, int type, char **buffer, pmdaExt *pmda)
 {
-
     if (pmda->e_help >= 0) {
 	if ((type & PM_TEXT_PMID) == PM_TEXT_PMID)
 	    *buffer = pmdaGetHelp(pmda->e_help, (pmID)ident, type);
