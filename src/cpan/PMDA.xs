@@ -34,6 +34,13 @@ static int itab_size;
 static int *clustertab;
 static int ctab_size;
 
+static HV *metric_names;
+static HV *metric_oneline;
+static HV *metric_helptext;
+static HV *indom_helptext;
+static HV *indom_oneline;
+static int perltext;	/* did we find a pre-built help database? */
+
 static SV *fetch_func;
 static SV *refresh_func;
 static SV *instance_func;
@@ -271,6 +278,34 @@ store_end:
     return sts;
 }
 
+int
+text(int ident, int type, char **buffer, pmdaExt *pmda)
+{
+    const char *hash;
+    int size;
+    SV **sv;
+
+    if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
+	hash = pmIDStr((pmID)ident);
+	size = strlen(hash);
+	if (type & PM_TEXT_ONELINE)
+	    sv = hv_fetch(metric_oneline, hash, size, 0);
+	else
+	    sv = hv_fetch(metric_helptext, hash, size, 0);
+    }
+    else {
+	hash = pmInDomStr((pmInDom)ident);
+	size = strlen(hash);
+	if (type & PM_TEXT_ONELINE)
+	    sv = hv_fetch(indom_oneline, hash, size, 0);
+	else
+	    sv = hv_fetch(indom_helptext, hash, size, 0);
+    }
+
+    if (sv && (*sv))
+	*buffer = SvPV_nolen(*sv);
+    return (*buffer == NULL) ? PM_ERR_TEXT : 0;
+}
 
 /*
  * converts Perl list ref like [a => 'foo', b => 'boo'] into an indom
@@ -307,7 +342,7 @@ list_to_indom(SV *list, pmdaInstid **set)
 	id = av_fetch(ilist,i*2,0);
 	name = av_fetch(ilist,i*2+1,0);
 	instances[i].i_inst = SvIV(*id);
-	instances[i].i_name = strdup(SvPV(*name, PL_na));
+	instances[i].i_name = strdup(SvPV_nolen(*name));
 	if (instances[i].i_name == NULL) {
 	    warn("insufficient memory for instance array names");
 	    return -1;
@@ -339,9 +374,10 @@ new(CLASS,name,domain)
 	atexit(&local_atexit);
 	snprintf(buffer, sizeof(buffer), "%s/%s/help",
 			pmGetConfig("PCP_PMDAS_DIR"), name);
-	pmdaDaemon(RETVAL, PMDA_INTERFACE_LATEST, pmdaname, domain,
-			logfile, buffer);
-	pmdaOpenLog(RETVAL);
+	perltext = (access(buffer, R_OK) != 0);
+	pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmdaname, domain,
+			logfile, perltext ? buffer : NULL);
+	pmdaOpenLog(&dispatch);
     OUTPUT:
 	RETVAL
 
@@ -453,14 +489,16 @@ add_metric(self,pmid,type,indom,sem,units,name,help,longhelp)
 	int	indom
 	int	sem
 	int	units
-	char *	name = NO_INIT
-	char *	help = NO_INIT
-	char *	longhelp = NO_INIT
+	char *	name
+	char *	help
+	char *	longhelp
     PREINIT:
-	pmdaMetric *p;
-	__pmID_int *pmidp;
-	int         size;
+	pmdaMetric * p;
+	__pmID_int * pmidp;
+	const char * hash;
+	int          size;
     CODE:
+	(void)self;
 	pmidp = (__pmID_int *)&pmid;
 	if (!clustertab_lookup(pmidp->cluster)) {
 	    size = sizeof(int) * (ctab_size + 1);
@@ -486,26 +524,36 @@ add_metric(self,pmid,type,indom,sem,units,name,help,longhelp)
 	p->m_user = NULL;	p->m_desc.pmid = *(pmID *)&pmid;
 	p->m_desc.type = type;	p->m_desc.indom = *(pmInDom *)&indom;
 	p->m_desc.sem = sem;	p->m_desc.units = *(pmUnits *)&units;
-	(void)self;
-	(void)name;
-	(void)help;
-	(void)longhelp;
+
+	hash = pmIDStr(pmid);
+	size = strlen(hash);
+	if (name)
+	    hv_store(metric_names, hash, size, newSVpv(name,0), 0);
+	if (help)
+	    hv_store(metric_oneline, hash, size, newSVpv(help,0), 0);
+	if (longhelp)
+	    hv_store(metric_helptext, hash, size, newSVpv(longhelp,0), 0);
 
 int
 add_indom(self,indom,list,help,longhelp)
 	pmdaInterface *	self
 	int	indom
 	SV *	list
-	char *	help = NO_INIT
-	char *	longhelp = NO_INIT
+	char *	help
+	char *	longhelp
     PREINIT:
-	pmdaIndom *	p;
+	pmdaIndom  * p;
+	const char * hash;
+	int          size;
     CODE:
-	indomtab = (pmdaIndom *)realloc(indomtab, sizeof(pmdaIndom)*(itab_size+1));
+	(void)self;
+	size = sizeof(pmdaIndom) * (itab_size + 1);
+	indomtab = (pmdaIndom *)realloc(indomtab, size);
 	if (indomtab == NULL) {
 	    warn("unable to allocate memory for indom table");
 	    XSRETURN_UNDEF;
 	}
+
 	p = indomtab + itab_size;
 	p->it_indom = *(pmInDom *)&indom;
 	p->it_numinst = list_to_indom(list, &p->it_set);
@@ -513,9 +561,13 @@ add_indom(self,indom,list,help,longhelp)
 	    XSRETURN_UNDEF;
 	else
 	    RETVAL = itab_size++;	/* used in calls to replace_indom() */
-	(void)self;
-	(void)help;
-	(void)longhelp;
+
+	hash = pmInDomStr(indom);
+	size = strlen(hash);
+	if (help)
+	    hv_store(indom_oneline, hash, size, newSVpv(help,0), 0);
+	if (longhelp)
+	    hv_store(indom_helptext, hash, size, newSVpv(longhelp,0), 0);
     OUTPUT:
 	RETVAL
 
@@ -633,6 +685,8 @@ void
 run(self)
 	pmdaInterface *self
     CODE:
+	if (perltext)
+	    dispatch.version.two.text = text;
 	pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
 	pmdaConnect(self);
 	local_pmdaMain(self);
