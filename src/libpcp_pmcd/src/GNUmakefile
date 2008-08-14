@@ -28,8 +28,10 @@ LLDLIBS = -lpcp
 
 ifneq "$(findstring $(TARGET_OS),cygwin mingw)" ""
 LIBTARGET = libpcp_pmcd.$(DSOSUFFIX)
+LDIRT	+= libpcp_pmcd.a
 else
 STATICLIBTARGET = libpcp_pmcd.a
+LDIRT	+= libpcp_pmcd.$(DSOSUFFIX)
 endif
 
 default : $(LIBTARGET) $(STATICLIBTARGET)
