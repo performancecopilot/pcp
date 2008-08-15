@@ -46,6 +46,7 @@ static int	queue;
 static pmdaInstid *_delay;
 
 static char	*queuedir = "/var/spool/mqueue";
+static char	startdir[MAXPATHLEN];
 
 static char	*regexstring;
 static regex_t	regex;
@@ -195,6 +196,7 @@ next:
 	    }
 	    free(list);
 	}
+	chdir(startdir);
     }
 
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
@@ -250,6 +252,7 @@ main(int argc, char **argv)
     char		mypath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
+    getcwd(startdir, sizeof(startdir));
 
     snprintf(mypath, sizeof(mypath),
 		"%s/mailq/help", pmGetConfig("PCP_PMDAS_DIR"));
