@@ -24,13 +24,18 @@
 use strict;
 use PCP::PMDA;
 
-use vars qw( $total $news_regex %news_hash @news_count @news_last @newsgroups );
+my @newsgroups = (
+    1,  'comp.sys.sgi',
+    2,  'comp.sys.sgi.graphics',
+    3,  'comp.sys.sgi.hardware',
+    4,  'sgi.bad-attitude',
+    5,  'sgi.engr.all',
+);
+
+use vars qw( $total $news_regex %news_hash @news_count @news_last );
 my ($nnrpd_count, $rn_count, $trn_count, $xrn_count, $vn_count) = (0,0,0,0,0);
 my $news_file = '/var/lib/pcp/pmdas/news/active';	# '/var/news/active'
 my $news_indom = 0;
-
-
-# ---custom callbacks follow---
 
 sub news_fetch {	# called once per ``fetch'' pdu, before callbacks
     my ( $group, $cmd );
@@ -84,10 +89,6 @@ sub news_fetch_callback {	# must return array of value,status
     else { (PM_ERR_PMID, 0); }
 }
 
-# ---end of custom routines---
-
-# ---local routines follow---
-
 sub news_init {
     ($#newsgroups > 0 && $#newsgroups % 2 != 0)
 		|| die "Invalid newsgroups array has been specified\n";
@@ -102,9 +103,6 @@ sub news_init {
     }
     $news_regex = $_ . ") (\\d+) (\\d+) y\$";
 }
-
-# ---end of local routines---
-
 
 my $pmda = PCP::PMDA->new('news', 28);
 
@@ -123,31 +121,24 @@ $pmda->add_metric(pmda_pmid(0,301), PM_TYPE_U32, $news_indom,
 
 $pmda->add_metric(pmda_pmid(0,302), PM_TYPE_U32, $news_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'news.articles.last', '', '');
+		  'news.articles.last', undef, undef);
 $pmda->add_metric(pmda_pmid(0,101), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'news.readers.nnrpd', '', '');
+		  'news.readers.nnrpd', undef, undef);
 $pmda->add_metric(pmda_pmid(0,111), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'news.readers.rn', '', '');
+		  'news.readers.rn', undef, undef);
 $pmda->add_metric(pmda_pmid(0,112), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'news.readers.trn', '', '');
+		  'news.readers.trn', undef, undef);
 $pmda->add_metric(pmda_pmid(0,113), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'news.readers.xrn', '', '');
+		  'news.readers.xrn', undef, undef);
 $pmda->add_metric(pmda_pmid(0,114), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'news.readers.vn', '', '');
+		  'news.readers.vn', undef, undef);
 
-@newsgroups = (
-    1,  'comp.sys.sgi',
-    2,  'comp.sys.sgi.graphics',
-    3,  'comp.sys.sgi.hardware',
-    4,  'sgi.bad-attitude',
-    5,  'sgi.engr.all',
-);
-$pmda->add_indom( $news_indom, \@newsgroups, '', '' );
+$pmda->add_indom( $news_indom, \@newsgroups, undef, undef );
 
 $pmda->set_fetch( \&news_fetch );
 $pmda->set_fetch_callback( \&news_fetch_callback );

@@ -22,28 +22,17 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= dbping
 DOMAIN	= DBPING
-LSRCFILES = Install Remove README pmns dbprobe.pl pmdadbping.pl
-
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+LSRCFILES = Install Remove dbprobe.pl pmdadbping.pl README
 
-LDIRT	= domain.h
-
-default: domain.h $(TARGETS)
+default: 
 
 include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 README domain.h pmns $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 755 pmdadbping.pl dbprobe.pl $(PMDADIR)
-
-domain.h:	../../pmns/stdpmid
-	rm -f domain.h
-	echo "/*" >domain.h
-	echo " * built from $(TOPDIR)/src/pmns/stdpmid" >>domain.h
-	echo " */" >>domain.h
-	sed -n -e 's/[ 	]*$$//' -e '/define[ 	]$(DOMAIN)[ 	]/s/.*[ 	]/#define $(DOMAIN) /p' ../../pmns/stdpmid >>domain.h
 
 default_pcp : default
 

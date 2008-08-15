@@ -157,24 +157,24 @@ $pmda = PCP::PMDA->new('simple', 253);
 
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'simple.numfetch', '', '');
+		  'simple.numfetch', undef, undef);
 $pmda->add_metric(pmda_pmid(0,1), PM_TYPE_32, $color_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'simple.color', '', '');
+		  'simple.color', undef, undef);
 $pmda->add_metric(pmda_pmid(1,2), PM_TYPE_DOUBLE, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_SEC,0),
-		  'simple.time.user', '', '');
+		  'simple.time.user', undef, undef);
 $pmda->add_metric(pmda_pmid(1,3), PM_TYPE_DOUBLE, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_SEC,0),
-		  'simple.time.sys', '', '');
+		  'simple.time.sys', undef, undef);
 $pmda->add_metric(pmda_pmid(2,4), PM_TYPE_U32, $now_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'simple.time.now', '', '');
+		  'simple.time.now', undef, undef);
 
 $pmda->add_indom( $color_indom, [0 => 'red', 1 => 'green', 2 => 'blue'],
-		  '', '' );
+		  undef, undef );
 $now = $pmda->add_indom( $now_indom, [],	# initialized on-the-fly
-		  '', '' );
+		  undef, undef );
 $pmda->set_fetch( \&simple_fetch );
 $pmda->set_instance( \&simple_instance );
 $pmda->set_fetch_callback( \&simple_fetch_callback );

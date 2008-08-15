@@ -22,29 +22,19 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= systemtap
 DOMAIN	= SYSTEMTAP
-LSRCFILES = Install Remove README pmdasystemtap.pl pmns root probes.stp
-
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+LSRCFILES = Install Remove pmdasystemtap.pl probes.stp README
 
-LDIRT	= domain.h
-
-default: domain.h
+default: 
 
 include $(BUILDRULES)
 
 install: default
 ifeq "$(TARGET_OS)" "linux"
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 README domain.h pmns root probes.stp $(PMDADIR)
+	$(INSTALL) -m 644 probes.stp $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove pmdasystemtap.pl $(PMDADIR)
 endif
-
-domain.h:	../../pmns/stdpmid
-	rm -f domain.h
-	echo "/*" >domain.h
-	echo " * built from $(TOPDIR)/src/pmns/stdpmid" >>domain.h
-	echo " */" >>domain.h
-	sed -n -e 's/[ 	]*$$//' -e '/define[ 	]$(DOMAIN)[ 	]/s/.*[ 	]/#define $(DOMAIN) /p' ../../pmns/stdpmid >>domain.h
 
 default_pcp : default
 

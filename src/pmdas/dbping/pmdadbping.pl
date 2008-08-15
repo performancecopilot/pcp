@@ -76,17 +76,20 @@ $pmda = PCP::PMDA->new('dbping', 244);
 
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_DOUBLE, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
-		  'dbping.response_time', '', '');
+		  'dbping.response_time',
+		  'Length of time taken to access the database', undef);
 $pmda->add_metric(pmda_pmid(0,1), PM_TYPE_32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'dbping.status', '', '');
+		  'dbping.status',
+		  'Success state of last attempt to ping the database', undef);
 $pmda->add_metric(pmda_pmid(1,2), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'dbping.control.timestamp', '', '');
+		  'dbping.control.timestamp',
+		  'Time of last successful database ping', undef);
 $pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
-		  'dbping.control.delay', '', '');
-
+		  'dbping.control.delay',
+		  'Time to sleep between database ping attempts', undef);
 $pmda->set_fetch_callback( \&dbping_fetch_callback );
 $pmda->set_store_callback( \&dbping_store_callback );
 $pmda->add_pipe( $dbprobe, \&dbping_probe_callback, 0 );
