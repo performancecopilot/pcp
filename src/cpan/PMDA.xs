@@ -39,7 +39,6 @@ static HV *metric_oneline;
 static HV *metric_helptext;
 static HV *indom_helptext;
 static HV *indom_oneline;
-static int perltext;	/* did we find a pre-built help database? */
 
 static SV *fetch_func;
 static SV *refresh_func;
@@ -189,7 +188,8 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     sts = POPi;		/* pop function return status */
     if (sts < 0) {
 	goto fetch_end;
-    } else if (sts == 0) {
+    }
+    else if (sts == 0) {
 	sts = POPi;
 	goto fetch_end;
     }
@@ -307,8 +307,24 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
     return (*buffer == NULL) ? PM_ERR_TEXT : 0;
 }
 
+void
+pmns(void)
+{
+    char *key, *root = local_pmns_root();
+    I32 keysize;
+    SV *metric;
+
+    if (!root)
+	croak("failed to create pmns root");
+    hv_iterinit(metric_names);
+    while ((metric = hv_iternextsv(metric_names, &key, &keysize)) != NULL)
+	local_pmns_split(root, SvPV_nolen(metric), key);
+    local_pmns_write(root);
+    local_pmns_clear(root);
+}
+
 /*
- * converts Perl list ref like [a => 'foo', b => 'boo'] into an indom
+ * Converts Perl list ref like [a => 'foo', b => 'boo'] into an indom
  */
 static int
 list_to_indom(SV *list, pmdaInstid **set)
@@ -364,7 +380,7 @@ new(CLASS,name,domain)
     PREINIT:
 	char *	logfile;
 	char *	pmdaname;
-	char	buffer[256];
+	char	helpfile[256];
     CODE:
 	pmProgname = name;
 	RETVAL = &dispatch;
@@ -372,12 +388,24 @@ new(CLASS,name,domain)
 	pmdaname = local_strdup_prefix("pmda", name);
 	__pmSetProgname(pmdaname);
 	atexit(&local_atexit);
-	snprintf(buffer, sizeof(buffer), "%s/%s/help",
+	snprintf(helpfile, sizeof(helpfile), "%s/%s/help",
 			pmGetConfig("PCP_PMDAS_DIR"), name);
-	perltext = (access(buffer, R_OK) != 0);
-	pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmdaname, domain,
-			logfile, perltext ? buffer : NULL);
+	if (access(helpfile, R_OK) != 0) {
+	    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmdaname, domain,
+			logfile, NULL);
+	    dispatch.version.two.text = text;
+	}
+        else {
+	    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmdaname, domain,
+			logfile, helpfile);
+	}
 	pmdaOpenLog(&dispatch);
+	metric_names = newHV();
+	metric_oneline = newHV();
+	metric_helptext = newHV();
+	indom_helptext = newHV();
+	indom_oneline = newHV();
+	pmProgname = name;
     OUTPUT:
 	RETVAL
 
@@ -387,6 +415,19 @@ pmda_pmid(cluster,item)
 	unsigned int	item
     CODE:
 	RETVAL = pmid_build(dispatch.domain, cluster, item);
+    OUTPUT:
+	RETVAL
+
+SV *
+pmda_pmid_name(pmid)
+	char *pmid
+    PREINIT:
+	SV   **rval;
+    CODE:
+	rval = hv_fetch(metric_names, pmid, strlen(pmid), 0);
+	if (!rval || !(*rval))
+	    XSRETURN_UNDEF;
+	RETVAL = *rval;
     OUTPUT:
 	RETVAL
 
@@ -685,11 +726,13 @@ void
 run(self)
 	pmdaInterface *self
     CODE:
-	if (perltext)
-	    dispatch.version.two.text = text;
-	pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
-	pmdaConnect(self);
-	local_pmdaMain(self);
+	if (getenv("PCP_PERL_PMNS") != NULL)
+	    pmns();	/* generate ascii namespace */
+	else {		/* vs. normal operating mode */
+	    pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
+	    pmdaConnect(self);
+	    local_pmdaMain(self);
+	}
 
 void
 debug_metric(self)

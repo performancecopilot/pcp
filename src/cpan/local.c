@@ -319,3 +319,153 @@ local_pmdaMain(pmdaInterface *self)
 	__pmAFunblock();
     }
 }
+
+/* Create a root for a local filesystem namespace tree */
+char *
+local_pmns_root(void)
+{
+    static char buffer[256];
+
+    snprintf(buffer, sizeof(buffer), "%s/pmns", pmGetConfig("PCP_TMP_DIR"));
+    rmdir(buffer);
+    if (mkdir2(buffer, 0755) == 0)
+	return buffer;
+    return NULL;
+}
+
+/*
+ * Split "metric" up based on "." separators - for non-leaf nodes create a
+ * directory, for each leaf node we create a regular file containing the PMID.
+ */
+int
+local_pmns_split(const char *root, const char *metric, const char *pmid)
+{
+    char *p, *path, buffer[256];
+    int fd;
+
+    /* Take a copy, so strtok doesn't scribble on Perl strings */
+    memcpy(buffer, metric, sizeof(buffer));
+    buffer[sizeof(buffer)-1] = '\0';
+
+    mkdir2(root, 0777);
+    chdir(root);
+    p = strtok(buffer, ".");
+    p = strtok(NULL, ".");	/* skip over the top level name */
+    do {
+	path = p;
+	p = strtok(NULL, ".");
+	if (p) {
+	    mkdir2(path, 0777);
+	    chdir(path);
+	} else {
+	    fd = open(path, O_WRONLY|O_CREAT|O_EXCL, 0644);
+	    write(fd, pmid, strlen(pmid));
+	    close(fd);
+	}
+    } while (p);
+    return 0;
+}
+
+static char *
+local_pmns_path(const char *root)
+{
+    static int offset;
+    static char path[MAXPATHLEN];
+    char *p, *s;
+
+    p = getcwd(path, sizeof(path));
+    if (!offset) {		/* first call, we're at the root */
+	offset = strlen(root);
+	return pmProgname;	/* top level of the pmns */
+    }
+    p += offset + 1;		/* move past the tmpdir prefix */
+    for (s = p; *s; s++)	/* replace path-pmns separator */
+	if (*s == '/' || *s == '\\')
+	    *s = '.';
+    return p;
+}
+
+/*
+ * Print out all entries at the current level, including leaf nodes
+ * (with PMIDs) then recursively descend into subtrees.  Use chdir
+ * and getcwd to avoid building up the path at each step of the way.
+ */
+int
+local_pmns_write(const char *root)
+{
+    struct dirent **list;
+    struct stat sbuf;
+    char *p, pmid[32];
+    int i, fd, num;
+
+    chdir(root);
+    printf("%s {\n", local_pmns_path(root));
+
+    num = scandir(".", &list, NULL, NULL);
+    for (i = 0; i < num; i++) {
+	p = list[i]->d_name;
+	if (*p == '.')
+	    goto clobber;
+	if (stat(p, &sbuf) != 0)
+	    return -1;
+	if (S_ISDIR(sbuf.st_mode)) {
+	    printf("\t%s\n", p);
+	    continue;	/* directories are not clobbered, descend later */
+	}
+	else {
+	    fd = open(p, O_RDONLY);
+	    memset(pmid, 0, sizeof(pmid));
+	    if (read(fd, pmid, sizeof(pmid)-1) < 0)
+		return -1;
+	    close(fd);
+	    printf("\t%s\t\t%s\n", p, pmid);
+	}
+clobber:	/* overwrite entries we are done with */
+	*p = '\0';
+    }
+    printf("}\n\n");
+
+    for (i = 0; i < num; i++) {
+	p = list[i]->d_name;
+	if (*p) {
+	    chdir(root);
+	    if (local_pmns_write(p) < 0)
+		return -1;
+	    chdir("..");
+	}
+	free(list[i]);
+    }
+    free(list);
+    return 0;
+}
+
+/*
+ * Walk the tree depth-first, unlink files, rmdir directories (cleanup)
+ */
+int
+local_pmns_clear(const char *root)
+{
+    struct dirent **list;
+    struct stat sbuf;
+    int i, num;
+    char *p;
+
+    chdir(root);
+    num = scandir(".", &list, NULL, NULL);
+    for (i = 0; i < num; i++) {
+	p = list[i]->d_name;
+	if (*p == '.')
+	    ;
+	else if (stat(p, &sbuf) < 0)
+	    ;
+	else if (!S_ISDIR(sbuf.st_mode))
+	    unlink(p);
+	else
+	    local_pmns_clear(p);
+	free(list[i]);
+    }
+    free(list);
+    chdir("..");
+    rmdir(root);
+    return 0;
+}
