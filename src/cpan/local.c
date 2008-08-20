@@ -340,17 +340,21 @@ local_pmns_root(void)
 int
 local_pmns_split(const char *root, const char *metric, const char *pmid)
 {
-    char *p, *path, buffer[256];
+    char *p, *path, mypmid[32] = { 0 }, mymetric[256] = { 0 };
     int fd;
 
-    /* Take a copy, so strtok doesn't scribble on Perl strings */
-    memcpy(buffer, metric, sizeof(buffer));
-    buffer[sizeof(buffer)-1] = '\0';
+    /* Take copies, so we don't risk scribbling on Perl strings */
+    strncpy(mymetric, metric, sizeof(mymetric)-1);
+    strncpy(mypmid, pmid, sizeof(mypmid)-1);
+
+    /* Replace '.' with ':' in our local pmid string */
+    p = mypmid;
+    while ((p = index(p, '.')))
+	*p++ = ':';
 
     mkdir2(root, 0777);
     chdir(root);
-    p = strtok(buffer, ".");
-    p = strtok(NULL, ".");	/* skip over the top level name */
+    p = strtok(mymetric, ".");
     do {
 	path = p;
 	p = strtok(NULL, ".");
@@ -359,7 +363,7 @@ local_pmns_split(const char *root, const char *metric, const char *pmid)
 	    chdir(path);
 	} else {
 	    fd = open(path, O_WRONLY|O_CREAT|O_EXCL, 0644);
-	    write(fd, pmid, strlen(pmid));
+	    write(fd, mypmid, strlen(mypmid));
 	    close(fd);
 	}
     } while (p);
@@ -376,7 +380,7 @@ local_pmns_path(const char *root)
     p = getcwd(path, sizeof(path));
     if (!offset) {		/* first call, we're at the root */
 	offset = strlen(root);
-	return pmProgname;	/* top level of the pmns */
+	return NULL;
     }
     p += offset + 1;		/* move past the tmpdir prefix */
     for (s = p; *s; s++)	/* replace path-pmns separator */
@@ -391,15 +395,16 @@ local_pmns_path(const char *root)
  * and getcwd to avoid building up the path at each step of the way.
  */
 int
-local_pmns_write(const char *root)
+local_pmns_write(const char *path)
 {
     struct dirent **list;
     struct stat sbuf;
-    char *p, pmid[32];
+    char *p, *pmns, pmid[32];
     int i, fd, num;
 
-    chdir(root);
-    printf("%s {\n", local_pmns_path(root));
+    chdir(path);
+    if ((p = pmns = local_pmns_path(path)) != NULL)
+	printf("%s {\n", local_pmns_path(p));
 
     num = scandir(".", &list, NULL, NULL);
     for (i = 0; i < num; i++) {
@@ -409,7 +414,8 @@ local_pmns_write(const char *root)
 	if (stat(p, &sbuf) != 0)
 	    return -1;
 	if (S_ISDIR(sbuf.st_mode)) {
-	    printf("\t%s\n", p);
+	    if (pmns)
+		printf("\t%s\n", p);
 	    continue;	/* directories are not clobbered, descend later */
 	}
 	else {
@@ -423,12 +429,13 @@ local_pmns_write(const char *root)
 clobber:	/* overwrite entries we are done with */
 	*p = '\0';
     }
-    printf("}\n\n");
+    if (pmns)
+	printf("}\n\n");
 
     for (i = 0; i < num; i++) {
 	p = list[i]->d_name;
 	if (*p) {
-	    chdir(root);
+	    chdir(path);
 	    if (local_pmns_write(p) < 0)
 		return -1;
 	    chdir("..");
