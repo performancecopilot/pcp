@@ -758,9 +758,30 @@ END		{ if (warn) printf "%d warnings, ",warn
 
 _setup()
 {
+    # some more configuration controls
+    pmns_name=${pmns_name-$iam}
+    pmda_name=pmda$iam
+    dso_suffix=so
+    [ "$PCP_PLATFORM" = darwin ] && dso_suffix=dylib
+    [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = mingw ] && dso_suffix=dll
+    dso_name="${PCP_PMDAS_DIR}/${iam}/pmda_${iam}.${dso_suffix}"
+    dso_entry=${iam}_init
+    pmda_dir="${PCP_PMDAS_DIR}/${iam}"
+
     # check the user is root 
     #
     _check_userroot
+
+    # automatically generate files for those lazy Perl programmers
+    #
+    if $perl_opt
+    then
+	perl_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.pl"
+	perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns"
+	perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h"
+	test -f "$perl_dom" || eval PCP_PERL_DOMAIN=1 "$perl_name" > "$perl_dom"
+	test -f "$perl_pmns" || eval PCP_PERL_PMNS=1 "$perl_name" > "$perl_pmns"
+    fi
 
     # Set $domain and $SYMDOM from domain.h
     #
@@ -776,17 +797,6 @@ _setup()
 	    __choose_mode
 	    ;;
     esac
-
-    # some more configuration controls
-    pmns_name=${pmns_name-$iam}
-    pmda_name=pmda$iam
-    perl_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.pl"
-    dso_suffix=so
-    [ "$PCP_PLATFORM" = darwin ] && dso_suffix=dylib
-    [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = mingw ] && dso_suffix=dll
-    dso_name="${PCP_PMDAS_DIR}/${iam}/pmda_${iam}.${dso_suffix}"
-    dso_entry=${iam}_init
-    pmda_dir="${PCP_PMDAS_DIR}/${iam}"
 }
 
 # Configurable PMDA installation
@@ -804,7 +814,7 @@ _install()
 {
     if [ -z "$iam" ]
     then
-	echo 'Botch: must define $iam before calling _install_preamble()'
+	echo 'Botch: must define $iam before calling _install()'
 	exit 1
     fi
 
