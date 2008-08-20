@@ -323,6 +323,19 @@ pmns(void)
     local_pmns_clear(root);
 }
 
+void
+domain(void)
+{
+    char name[512] = { 0 };
+    int i, len = strlen(pmProgname);
+
+    if (len >= sizeof(name) - 1)
+	len = sizeof(name) - 2;
+    for (i = 0; i < len; i++)
+	name[i] = toupper(pmProgname[i]);
+    printf("#define %s %u\n", name, dispatch.domain);
+}
+
 /*
  * Converts Perl list ref like [a => 'foo', b => 'boo'] into an indom
  */
@@ -399,7 +412,9 @@ new(CLASS,name,domain)
 	    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmdaname, domain,
 			logfile, helpfile);
 	}
-	pmdaOpenLog(&dispatch);
+	if (!getenv("PCP_PERL_PMNS") && !getenv("PCP_PERL_DOMAIN")) {
+	    pmdaOpenLog(&dispatch);
+	}
 	metric_names = newHV();
 	metric_oneline = newHV();
 	metric_helptext = newHV();
@@ -728,7 +743,9 @@ run(self)
     CODE:
 	if (getenv("PCP_PERL_PMNS") != NULL)
 	    pmns();	/* generate ascii namespace */
-	else {		/* vs. normal operating mode */
+	else if (getenv("PCP_PERL_DOMAIN") != NULL)
+	    domain();	/* generate the domain header */
+	else {		/* or normal operating mode ... */
 	    pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
 	    pmdaConnect(self);
 	    local_pmdaMain(self);
