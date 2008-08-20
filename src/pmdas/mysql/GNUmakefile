@@ -21,7 +21,6 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM	= mysql
-DOMAIN	= MYSQL
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 LSRCFILES = Install Remove pmdamysql.pl
 LDIRT	= domain.h root pmns *.log
