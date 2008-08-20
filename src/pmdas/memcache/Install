@@ -23,11 +23,9 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=memcache
-
-pmdaSetup
-
 perl_opt=true
 daemon_opt=false
 
+pmdaSetup
 pmdaInstall
 exit 0

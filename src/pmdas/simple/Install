@@ -27,13 +27,11 @@
 
 iam=simple
 pmda_interface=2
-
-pmdaSetup
-
 dso_opt=true
 perl_opt=true
 socket_opt=true
 socket_inet_def=2078
 
+pmdaSetup
 pmdaInstall
 exit 0

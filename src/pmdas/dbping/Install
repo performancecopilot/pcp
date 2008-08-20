@@ -23,13 +23,11 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=dbping
-
-pmdaSetup
-
 dso_opt=false
 perl_opt=true
 daemon_opt=false
 
+pmdaSetup
 pmdaInstall
 
 exit 0

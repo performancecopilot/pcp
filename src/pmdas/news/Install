@@ -27,8 +27,6 @@
 
 iam=news
 
-pmdaSetup
-
 perl_opt=true
 daemon_opt=true
 pipe_opt=true
@@ -36,5 +34,6 @@ ipc_prot=text
 socket_opt=false
 check_delay=5
 
+pmdaSetup
 pmdaInstall
 exit 0
