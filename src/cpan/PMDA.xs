@@ -434,12 +434,15 @@ pmda_pmid(cluster,item)
 	RETVAL
 
 SV *
-pmda_pmid_name(pmid)
-	char *pmid
+pmda_pmid_name(cluster,item)
+	unsigned int	cluster
+	unsigned int	item
     PREINIT:
-	SV   **rval;
+	const char	*name;
+	SV		**rval;
     CODE:
-	rval = hv_fetch(metric_names, pmid, strlen(pmid), 0);
+	name = pmIDStr(pmid_build(dispatch.domain, cluster, item));
+	rval = hv_fetch(metric_names, name, strlen(name), 0);
 	if (!rval || !(*rval))
 	    XSRETURN_UNDEF;
 	RETVAL = *rval;

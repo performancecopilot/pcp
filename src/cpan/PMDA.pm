@@ -9,7 +9,7 @@ require AutoLoader;
 
 @ISA = qw( Exporter DynaLoader );
 @EXPORT = qw(
-    pmda_pmid pmda_units
+    pmda_pmid pmda_units pmda_pmid_name
     PM_ID_NULL PM_INDOM_NULL PM_IN_NULL
     PM_SPACE_BYTE PM_SPACE_KBYTE PM_SPACE_MBYTE PM_SPACE_GBYTE PM_SPACE_TBYTE
     PM_TIME_NSEC PM_TIME_USEC PM_TIME_MSEC PM_TIME_SEC PM_TIME_MIN PM_TIME_HOUR
