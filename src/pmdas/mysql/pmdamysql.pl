@@ -1,26 +1,27 @@
 #!/usr/bin/perl -w
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
+#
 
 use strict;
 use PCP::PMDA;
+use DBI;
 
-my $database = 'DBI:mysql:information_schema';
+my $database = 'DBI:mysql:mysql';
 my $username = 'dbmonitor';
 my $password = 'dbmonitor';
 
@@ -31,6 +32,8 @@ my @process_instances;
 
 sub mysql_connection_setup
 {
+    # $pmda->log("mysql_connection_setup\n");
+
     if (!defined($dbh)) {
 	$dbh = DBI->connect($database, $username, $password);
 	if (defined($dbh)) {
@@ -43,12 +46,13 @@ sub mysql_connection_setup
 
 sub mysql_variables_refresh
 {
+    # $pmda->log("mysql_variables_refresh\n");
+
     %variables = ();	# clear any previous contents
     if (defined($dbh)) {
 	$sth_variables->execute();
 	my $result = $sth_variables->fetchall_arrayref();
-	my ($i, %variables);
-	for $i (0 .. $#{$result}) {
+	for my $i (0 .. $#{$result}) {
 	    $variables{$result->[$i][0]} = $result->[$i][1];
 	}
     }
@@ -56,12 +60,13 @@ sub mysql_variables_refresh
 
 sub mysql_status_refresh
 {
+    # $pmda->log("mysql_status_refresh\n");
+
     %status = ();	# clear any previous contents
     if (defined($dbh)) {
 	$sth_status->execute();
 	my $result = $sth_status->fetchall_arrayref();
-	my ($i, %status);
-	for $i (0 .. $#{$result}) {
+	for my $i (0 .. $#{$result}) {
 	    $status{$result->[$i][0]} = $result->[$i][1];
 	}
     }
@@ -69,12 +74,13 @@ sub mysql_status_refresh
 
 sub mysql_process_refresh
 {
+    # $pmda->log("mysql_process_refresh\n");
+
     %processes = ();	# clear any previous contents
     if (defined($dbh)) {
 	$sth_processes->execute();
 	my $result = $sth_processes->fetchall_arrayref();
-	my ($i, %processes);
-	for $i (0 .. $#{$result}) {
+	for my $i (0 .. $#{$result}) {
 	    $processes{$result->[$i][0]} = $result->[$i];
 	}
     }
@@ -84,6 +90,7 @@ sub mysql_refresh
 {
     my ($cluster) = @_;
 
+    # $pmda->log("mysql_refresh $cluster\n");
     if ($cluster == 0)		{ mysql_status_refresh; }
     elsif ($cluster == 1)	{ mysql_variables_refresh; }
     elsif ($cluster == 2)	{ mysql_process_refresh; }
@@ -94,6 +101,8 @@ sub mysql_fetch_callback
     my ($cluster, $item, $inst) = @_;
     my $metric_name = pmda_pmid_name($cluster, $item);
     my ($mysql_name, $value, %procs);
+
+    # $pmda->log("mysql_fetch_callback $cluster:$item ($inst) - $metric_name\n");
 
     if (!defined($metric_name))	{ return (PM_ERR_PMID, 0); }
     $mysql_name = $metric_name;
