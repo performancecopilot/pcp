@@ -1121,16 +1121,17 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
     int		inst;
     int		numval;
     int		aggregate_len = 0;
-    static pmResult	*res = NULL;
-    static int		maxnpmids = 0;
+    static pmResult	*res;
+    static int		maxnpmids;
+    static int		nbyte;
+    __uint32_t		*ulp;
+    unsigned long	ul;
+    struct timeval	now;
     pmValueSet	*vset;
     pmDesc	*dp;
     __pmID_int	*pmidp;
-    __uint32_t	*ulp;
     pmAtomValue	atom;
     int		type;
-    struct timeval	now;
-    static int	nbyte = 0;
 
     _recv_pdu++;
     _xmit_pdu++;
@@ -1753,7 +1754,8 @@ doit:
 		    atom.ul = *ulp;
 		    break;
 		case 91:	/* datasize */
-		    __pmProcessDataSize(&atom.ul);
+		    __pmProcessDataSize(&ul);
+		    atom.ul = ul;
 		    break;
 		case 1023: /* bigid */
 		    atom.l = 4194303;
