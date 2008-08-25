@@ -31,7 +31,7 @@ static pmdaMetric *metrictab;
 static int mtab_size;
 static pmdaIndom *indomtab;
 static int itab_size;
-static int *clustertab;
+static unsigned int *clustertab;
 static int ctab_size;
 
 static HV *metric_names;
@@ -95,14 +95,14 @@ refresh(int numpmid, pmID *pmidlist)
     clustertab_scratch();
     for (i = 0; i < numpmid; i++) {
 	pmid = (__pmID_int *) &pmidlist[i];
-	if (clustertab_lookup(pmid->cluster))
+	if (clustertab_lookup(pmid->cluster) == 0)
 	    clustertab_replace(numclusters++, pmid->cluster);
     }
 
     /* For each unique cluster, call the cluster refresh method */
     for (i = 0; i < numclusters; i++) {
 	PUSHMARK(sp);
-	XPUSHs(sv_2mortal(newSViv(clustertab[i])));
+	XPUSHs(sv_2mortal(newSVuv(clustertab[i])));
 	PUTBACK;
 	perl_call_sv(refresh_func, G_VOID|G_DISCARD);
 	SPAGAIN;
@@ -129,7 +129,7 @@ instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
 {
     dSP;
     PUSHMARK(sp);
-    XPUSHs(sv_2mortal(newSViv(indom)));
+    XPUSHs(sv_2mortal(newSVuv(indom)));
     PUTBACK;
 
     perl_call_sv(instance_func, G_VOID|G_DISCARD);
@@ -173,9 +173,9 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     pmid = (__pmID_int *) &metric->m_desc.pmid;
 
     PUSHMARK(sp);
-    XPUSHs(sv_2mortal(newSViv(pmid->cluster)));
-    XPUSHs(sv_2mortal(newSViv(pmid->item)));
-    XPUSHs(sv_2mortal(newSViv(inst)));
+    XPUSHs(sv_2mortal(newSVuv(pmid->cluster)));
+    XPUSHs(sv_2mortal(newSVuv(pmid->item)));
+    XPUSHs(sv_2mortal(newSVuv(inst)));
     PUTBACK;
 
     sts = perl_call_sv(fetch_cb_func, G_ARRAY);
@@ -241,17 +241,17 @@ store(pmResult *result, pmdaExt *pmda)
 
 	for (j = 0; j < vsp->numval; j++) {
 	    PUSHMARK(sp);
-	    XPUSHs(sv_2mortal(newSViv(pmid->cluster)));
-	    XPUSHs(sv_2mortal(newSViv(pmid->item)));
-	    XPUSHs(sv_2mortal(newSViv(vsp->vlist[j].inst)));
+	    XPUSHs(sv_2mortal(newSVuv(pmid->cluster)));
+	    XPUSHs(sv_2mortal(newSVuv(pmid->item)));
+	    XPUSHs(sv_2mortal(newSVuv(vsp->vlist[j].inst)));
 	    sts = pmExtractValue(vsp->valfmt, &vsp->vlist[j],type, &av,type);
 	    if (sts < 0)
 		goto store_end;
 	    switch (type) {
 		case PM_TYPE_32:     XPUSHs(sv_2mortal(newSViv(av.l))); break;
-		case PM_TYPE_U32:    XPUSHs(sv_2mortal(newSViv(av.ul))); break;
-		case PM_TYPE_64:     XPUSHs(sv_2mortal(newSViv(av.ul))); break;
-		case PM_TYPE_U64:    XPUSHs(sv_2mortal(newSViv(av.ull))); break;
+		case PM_TYPE_U32:    XPUSHs(sv_2mortal(newSVuv(av.ul))); break;
+		case PM_TYPE_64:     XPUSHs(sv_2mortal(newSVuv(av.ul))); break;
+		case PM_TYPE_U64:    XPUSHs(sv_2mortal(newSVuv(av.ull))); break;
 		case PM_TYPE_FLOAT:  XPUSHs(sv_2mortal(newSVnv(av.f))); break;
 		case PM_TYPE_DOUBLE: XPUSHs(sv_2mortal(newSVnv(av.d))); break;
 		case PM_TYPE_STRING: XPUSHs(sv_2mortal(newSVpv(av.cp,0)));break;
