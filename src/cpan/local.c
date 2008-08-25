@@ -403,8 +403,13 @@ local_pmns_write(const char *path)
     int i, fd, num;
 
     chdir(path);
-    if ((p = pmns = local_pmns_path(path)) != NULL)
+    p = pmns = local_pmns_path(path);
+    if (p != NULL)
 	printf("%s {\n", local_pmns_path(p));
+    else if (strcmp(getenv("PCP_PERL_PMNS"), "root") == 0) {
+	pmns = "root";
+	printf("%s {\n", pmns);
+    }
 
     num = scandir(".", &list, NULL, NULL);
     for (i = 0; i < num; i++) {
