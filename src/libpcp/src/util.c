@@ -1153,7 +1153,7 @@ __pmProcessRunTimes(double *usr, double *sys)
 
 #if !defined(IS_MINGW)
 int
-__pmProcessCreate(int argc, char **argv, int *infd, int *outfd)
+__pmProcessCreate(char **argv, int *infd, int *outfd)
 {
     int		in[2];
     int		out[2];

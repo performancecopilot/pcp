@@ -160,7 +160,7 @@ openpmda(char *fname)
 	printf(" %s", param.argv[i]);
     putchar('\n');
 
-    if (__pmProcessCreate(param.argc, param.argv, &infd, &outfd) < 0) {
+    if (__pmProcessCreate(param.argv, &infd, &outfd) < 0) {
 	fprintf(stderr, "openpmda: create process: %s\n", strerror(errno));
     }
     else {

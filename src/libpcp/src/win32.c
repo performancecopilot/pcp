@@ -46,14 +46,15 @@ __pmProcessTerminate(pid_t pid, int force)
 }
 
 int
-__pmProcessCreate(int argc, char **argv, int *infd, int *outfd)
+__pmProcessCreate(char **argv, int *infd, int *outfd)
 {
     HANDLE hChildStdinRd, hChildStdinWr, hChildStdoutRd, hChildStdoutWr;
     PROCESS_INFORMATION piProcInfo; 
     SECURITY_ATTRIBUTES saAttr; 
     STARTUPINFO siStartInfo;
-    LPTSTR cmdline;
-    int i, sz;
+    LPTSTR cmdline = NULL;
+    char *command;
+    int sz = 0;
  
     ZeroMemory(&saAttr, sizeof(SECURITY_ATTRIBUTES));
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES); 
@@ -89,10 +90,10 @@ __pmProcessCreate(int argc, char **argv, int *infd, int *outfd)
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
     /* Flatten the argv array for the Windows CreateProcess API */
-    for (cmdline = NULL, sz = 0, i = 0; i < argc; i++) {
-	int length = strlen(argv[i]);
+    for (command = argv[0], sz = 0; *command; command++) {
+	int length = strlen(command);
 	cmdline = realloc(cmdline, sz + length + 1); /* 1space or 1null */
-	strcpy(&cmdline[sz], argv[i]);
+	strcpy(&cmdline[sz], command);
 	cmdline[sz + length] = ' ';
 	sz += length + 1;
     }

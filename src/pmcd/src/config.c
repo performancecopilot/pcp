@@ -504,8 +504,8 @@ BuildCmdLine(char **argv)
 /* Build an argument list suitable for an exec call from the rest of the tokens
  * on the current line.
  */
-int
-BuildArgv(int *argc, char ***argv)
+char **
+BuildArgv(void)
 {
     int		nArgs;
     char	**result;
@@ -522,7 +522,7 @@ BuildArgv(int *argc, char ***argv)
 		    nLines);
 	    __pmNoMem("pmcd config: build argv", nArgs * sizeof(char *),
 		     PM_RECOV_ERR);
-	    return 0;
+	    return NULL;
 	}
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL2)
@@ -534,9 +534,7 @@ BuildArgv(int *argc, char ***argv)
     } while (*token && *token != '\n');
     result[nArgs] = NULL;
 
-    *argv = result;
-    *argc = nArgs;
-    return nArgs;
+    return result;
 }
 
 /* Return the next unused index into the agent array, extending the array
@@ -723,7 +721,7 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 static int
 ParseSocket(char *pmDomainLabel, int pmDomainId)
 {
-    int		addrDomain, i, port = -1;
+    int		addrDomain, port = -1;
     char	*socketName = NULL;
     AgentInfo	*newAgent;
 
@@ -788,8 +786,8 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
     newAgent->ipc.socket.name = socketName;
     newAgent->ipc.socket.port = port;
     if (*token != '\n') {
-	i = BuildArgv(&newAgent->ipc.socket.argc, &newAgent->ipc.socket.argv);
-	if (i == 0) {
+	newAgent->ipc.socket.argv = BuildArgv();
+	if (newAgent->ipc.socket.argv == NULL) {
 	    fprintf(stderr, "pmcd: line %d, error building argv for \"%s\" agent.\n",
 			 nLines, newAgent->pmDomainLabel);
 	    return -1;
@@ -846,8 +844,9 @@ ParsePipe(char *pmDomainLabel, int pmDomainId)
     newAgent->outFd = -1;
     newAgent->pmDomainLabel = pmDomainLabel;
     newAgent->status.startNotReady = notReady;
-    i = BuildArgv(&newAgent->ipc.pipe.argc, &newAgent->ipc.pipe.argv);
-    if (i == 0) {
+    newAgent->ipc.pipe.argv = BuildArgv();
+
+    if (newAgent->ipc.pipe.argv == NULL) {
 	fprintf(stderr, "pmcd: line %d, error building argv for \"%s\" agent.\n",
 		     nLines, newAgent->pmDomainLabel);
 	return -1;
@@ -1457,11 +1456,9 @@ CreateAgent(AgentInfo *aPtr)
     int		inPipe[2];	/* Pipe for input to child */
     int		outPipe[2];	/* For output to child */
     pid_t	childPid;
-    int		argc;
     char	**argv;
 
     if (aPtr->ipcType == AGENT_PIPE) {
-	argc = aPtr->ipc.pipe.argc;
 	argv = aPtr->ipc.pipe.argv;
 	if (pipe(inPipe) < 0) {
 	    fprintf(stderr,
@@ -1484,17 +1481,15 @@ CreateAgent(AgentInfo *aPtr)
 	PMCD_OPENFDS_SETHI(outPipe[1]);
 
     }
-    else if (aPtr->ipcType == AGENT_SOCKET) {
-	argc = aPtr->ipc.socket.argc;
+    else if (aPtr->ipcType == AGENT_SOCKET)
 	argv = aPtr->ipc.socket.argv;
-    }
 
     if (argv != NULL) {			/* Start a new agent if required */
 	fflush(stderr);
 	fflush(stdout);
 
 #ifdef IS_MINGW
-	childPid = __pmProcessCreate(argc, argv, &aPtr->inFd, &aPtr->outFd);
+	childPid = __pmProcessCreate(argv, &aPtr->inFd, &aPtr->outFd);
 #else
 	childPid = fork();
 #endif

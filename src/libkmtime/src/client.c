@@ -28,7 +28,7 @@ static int kmServerExec(int fd, int livemode)
     if (livemode)
 	argv[1][1] = 'h';	/* -h for live hosts */
 
-    if (__pmProcessCreate(2, argv, &in, &out) == (pid_t)-1) {
+    if (__pmProcessCreate(argv, &in, &out) == (pid_t)-1) {
 	__pmCloseSocket(fd);
 	return -1;
     }

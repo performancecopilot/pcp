@@ -64,14 +64,12 @@ typedef struct {
 					/* or socket name for UNIX */
     char  *commandLine;			/* Optinal command to start agent */
     char* *argv;			/* Arg list built from commandLine */
-    int   argc;				/* Arg list size (excl. final null) */
     pid_t agentPid;			/* Process is of agent if PMCD started */
 } SocketInfo;
 
 typedef struct {
     char* commandLine;			/* Command line to use for child */
     char* *argv;			/* Arg list built from command line */
-    int   argc;				/* Arg list size (excl. final null) */
     pid_t agentPid;			/* Process id of the agent */
 } PipeInfo;
 
