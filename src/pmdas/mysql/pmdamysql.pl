@@ -37,6 +37,7 @@ sub mysql_connection_setup
     if (!defined($dbh)) {
 	$dbh = DBI->connect($database, $username, $password);
 	if (defined($dbh)) {
+	    $pmda->log("MySQL connection established\n");
 	    $sth_variables = $dbh->prepare('show variables');
 	    $sth_status = $dbh->prepare('show status');
 	    $sth_processes = $dbh->prepare('show processes');
@@ -117,7 +118,7 @@ sub mysql_fetch_callback
 	if (!defined($procs{$inst}[$item])) { return (PM_ERR_APPVERSION, 0); }
 	return ($procs{$inst}[$item], 1);
     }
-    if ($inst != 0)		{ return (PM_ERR_INST, 0); }
+    if ($inst != PM_IN_NULL)		{ return (PM_ERR_INST, 0); }
     if ($cluster == 0) {
 	$mysql_name =~ s/^mysql\.status\.//;
 	$value = $status{$mysql_name};
@@ -1583,7 +1584,7 @@ $pmda->add_metric(pmda_pmid(1,220), PM_TYPE_STRING, PM_INDOM_NULL,
 $pmda->add_metric(pmda_pmid(1,221), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.variables.updatable_views_with_limit', '', '');
-$pmda->add_metric(pmda_pmid(1,222), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(1,222), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.variables.version', '', '');
 $pmda->add_metric(pmda_pmid(1,223), PM_TYPE_STRING, PM_INDOM_NULL,
