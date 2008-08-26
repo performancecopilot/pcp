@@ -201,7 +201,7 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 	case PM_TYPE_U64:	atom->ull = POPl; break;
 	case PM_TYPE_FLOAT:	atom->f = POPn; break;
 	case PM_TYPE_DOUBLE:	atom->d = POPn; break;
-	case PM_TYPE_STRING:	atom->cp = local_strdup_hashed(POPpx); break;
+	case PM_TYPE_STRING:	atom->cp = strdup(POPpx); break;
     }
 
 fetch_end:
@@ -412,7 +412,7 @@ new(CLASS,name,domain)
 			logfile, NULL);
 	    dispatch.version.two.text = text;
 	}
-        else {
+	else {
 	    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmdaname, domain,
 			logfile, helpfile);
 	}
@@ -449,7 +449,7 @@ pmda_pmid_name(cluster,item)
 	rval = hv_fetch(metric_names, name, strlen(name), 0);
 	if (!rval || !(*rval))
 	    XSRETURN_UNDEF;
-	RETVAL = *rval;
+	RETVAL = newSVsv(*rval);
     OUTPUT:
 	RETVAL
 
