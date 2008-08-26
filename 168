@@ -11,8 +11,6 @@
 owner=kenmcd
 
 seq=`basename $0`
-echo "No qualified output, code/test not quite complete" >$seq.notrun
-exit
 
 # check for new version of sample pmda
 #
@@ -42,10 +40,12 @@ trap "rm -f $tmp.*; _reset; exit \$status" 0 1 2 3 15
 # force sample PMDA back to a sane state
 _reset()
 {
-    pmstore sample.dynamic.meta.pmdesc.type 0 2>&1 >/dev/null
-    pmstore sample.dynamic.meta.pmdesc.indom -1 2>&1 >/dev/null
-    pmstore sample.dynamic.meta.pmdesc.sem 4 2>&1 >/dev/null
-    pmstore sample.dynamic.meta.pmdesc.units 520105984 2>&1 >/dev/null
+    $sudo /etc/init.d/pcp restart >/dev/null 2>&1
+}
+
+_filter()
+{
+    sed -e "s;$tmp;TMP;g"
 }
 
 # create second archive and try to merge 'em
@@ -55,7 +55,8 @@ _doit()
     echo "log mandatory on 1sec { sample.dynamic.meta }" \
     | pmlogger -l $tmp.log -s 3 $tmp.new
     _reset
-    pmlogextract $tmp.base $tmp.new $tmp.out
+    pmlogextract $tmp.base $tmp.new $tmp.out 2>&1 \
+    | _filter
     if [ -f $tmp.out.0 ]
     then
 	echo "Oops ... should not have created an output archive!"
@@ -84,11 +85,21 @@ echo "log mandatory on 1sec { sample.dynamic.meta }" \
 
 # real QA test starts here
 
-echo "Change metric type from 32 to U64"
+echo "Change metric type ..."
 pmstore sample.dynamic.meta.pmdesc.type 3
 _doit
 
-echo
+echo "Change metric indom ..."
+pmstore sample.dynamic.meta.pmdesc.indom 42
+_doit
+
+echo "Change metric semantics ..."
+pmstore sample.dynamic.meta.pmdesc.sem 0
+_doit
+
+echo "Change metric units ..."
+pmstore sample.dynamic.meta.pmdesc.units 0
+_doit
 
 # success, all done
 exit
