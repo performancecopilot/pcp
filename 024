@@ -36,6 +36,7 @@ _filter()
         -e '/IPC table/{
 s/ [0-9][0-9]*(?)//g
 s/ [0-9][0-9]*(2)/ <n>(2)/g
+s/ [0-9][0-9]*(2,1)/ <n>(2,1)/g
 }'
 
 }
@@ -65,7 +66,7 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 . ./common.filter
 
-remote=`./getpmcdhosts -L -n 1 2>$tmp.out`
+remote=`./getpmcdhosts -L -n 1 -a sample 2>$tmp.out`
 if [ -z "$remote" ]
 then
     cat $tmp.out >$seq.notrun
