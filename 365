@@ -15,18 +15,16 @@ echo "QA output created by $seq"
 . ./localconfig
 
 rm -f $seq.out
-if [ "$PCP_PLATFORM" = linux ]
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
 then
-    echo "[test configuration for Linux]"
-    if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
+    if test $PCP_EOE_VER -ge 2704
     then
-	ln $seq.out.2 $seq.out
+	ln $seq.out.3 $seq.out
     else
-	ln $seq.out.1 $seq.out
+	ln $seq.out.2 $seq.out
     fi
 else
-    echo "[test configuration for IRIX]"
-    ln $seq.out.0 $seq.out
+    ln $seq.out.1 $seq.out
 fi
 
 # get standard filters
