@@ -170,9 +170,7 @@ __pmPrintIPC(void)
 
     fprintf(stderr, "IPC table fd(PDU version):");
     for (i = 0; i < ipctablesize; i++) {
-	if (__pmIPCTablePtr[i].version == UNKNOWN_VERSION)
-	    fprintf(stderr, " %d(?,%d)", i, __pmIPCTablePtr[i].socket);
-	else
+	if (__pmIPCTablePtr[i].version != UNKNOWN_VERSION)
 	    fprintf(stderr, " %d(%d,%d)", i, __pmIPCTablePtr[i].version,
 					     __pmIPCTablePtr[i].socket);
     }
