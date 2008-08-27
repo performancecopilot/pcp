@@ -222,6 +222,13 @@ See disk.dev.write for further details.
 This metric is not available if the "sard" patch has not been applied.
 See disk.dev.total for further details.
 
+@ disk.dev.scheduler per-disk I/O scheduler
+The name of the I/O scheduler in use for each device.  The scheduler
+is part of the block layer in the kernel, and attempts to optimise the
+I/O submission patterns using various techniques (typically, sorting
+and merging adjacent requests into larger ones to reduce seek activity,
+but certainly not limited to that).
+
 @ disk.dev.avactive per-disk count of active time
 When converted to a rate, this metric represents the average utilization of
 the disk during the sampling interval.  A value of 0.5 (or 50%) means the

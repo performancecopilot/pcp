@@ -270,6 +270,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,50), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* disk.dev.scheduler */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,59), PM_TYPE_STRING, DISK_INDOM,
+	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* disk.all.avactive */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 

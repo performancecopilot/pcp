@@ -316,6 +316,7 @@ static pmID disk_metric_table[] = {
     /* disk.dev.write_merge */	     PMDA_PMID(CLUSTER_STAT,50),
     /* disk.dev.avactive */	     PMDA_PMID(CLUSTER_STAT,46),
     /* disk.dev.aveq */		     PMDA_PMID(CLUSTER_STAT,47),
+    /* disk.dev.scheduler */	     PMDA_PMID(CLUSTER_STAT,59),
 
     /* disk.all.read */		     PMDA_PMID(CLUSTER_STAT,24),
     /* disk.all.write */	     PMDA_PMID(CLUSTER_STAT,25),
@@ -358,6 +359,59 @@ is_partitions_metric(pmID full_pmid)
 	    return 1;
     }
     return 0;
+}
+
+char *
+_pm_ioscheduler(const char *device)
+{
+    FILE *fp;
+    char *p, *q;
+    static char buf[1024];
+    char path[MAXNAMELEN];
+
+    /*
+     * Extract scheduler from /sys/block/<device>/queue/scheduler.
+     *     File format: "noop anticipatory [deadline] cfq"
+     * In older kernels (incl. RHEL5 and SLES10) this doesn't exist,
+     * but we can still look in /sys/block/<device>/queue/iosched to
+     * intuit the ones we know about (cfq, deadline, as, noop) based
+     * on the different status files they create.
+     */
+    sprintf(path, "/sys/block/%s/queue/scheduler", device);
+    if ((fp = fopen(path, "r")) != NULL) {
+	if (!fgets(buf, sizeof(buf), fp))
+	    goto unknown;
+	for (p = q = buf; p && *p && *p != ']'; p++) {
+	    if (*p == '[')
+		q = p+1;
+	}
+	if (q == buf)
+	    goto unknown;
+	if (*p != ']')
+	    goto unknown;
+	*p = '\0';
+	return q;
+    }
+    else {
+	/* sniff around, maybe we'll get lucky and find something */
+	sprintf(path, "/sys/block/%s/queue/iosched/quantum", device);
+	if (access(path, F_OK) == 0)
+	    return "cfq";
+	sprintf(path, "/sys/block/%s/queue/iosched/fifo_batch", device);
+	if (access(path, F_OK) == 0)
+	    return "deadline";
+	sprintf(path, "/sys/block/%s/queue/iosched/antic_expire", device);
+	if (access(path, F_OK) == 0)
+	    return "anticipatory";
+	/* punt.  noop has no files to match on ... */
+	sprintf(path, "/sys/block/%s/queue/iosched", device);
+	if (access(path, F_OK) == 0)
+	    return "noop";
+	/* else fall though ... */
+    }
+
+unknown:
+    return "unknown";
 }
 
 int
@@ -418,7 +472,9 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 50: /* disk.dev.write_merge */
 	    _pm_assign_ulong(atom, p->wr_merges);
 	    break;
-
+	case 59: /* disk.dev.scheduler */
+	    atom->cp = _pm_ioscheduler(p->namebuf);
+	    break;
 	default:
 	    /* disk.all.* is a singular instance domain */
 	    atom->ull = 0;

@@ -205,6 +205,7 @@ disk.dev {
     write_merge		60:0:50
     avactive		60:0:46
     aveq		60:0:47
+    scheduler		60:0:59
 }
 
 disk.all {
