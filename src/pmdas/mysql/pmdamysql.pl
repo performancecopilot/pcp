@@ -25,7 +25,7 @@ my $database = 'DBI:mysql:mysql';
 my $username = 'dbmonitor';
 my $password = 'dbmonitor';
 
-use vars qw( $pmda %status %variables %processes );
+use vars qw( $pmda %status %variables @processes );
 use vars qw( $dbh $sth_variables $sth_status $sth_processes );
 my $process_indom = 0;
 my @process_instances;
@@ -78,14 +78,20 @@ sub mysql_process_refresh
 {
     # $pmda->log("mysql_process_refresh\n");
 
-    %processes = ();	# clear any previous contents
+    @processes = ();	# clear any previous contents
+    @process_instances = ();	# refresh indom too
+
     if (defined($dbh)) {
 	$sth_processes->execute();
 	my $result = $sth_processes->fetchall_arrayref();
 	for my $i (0 .. $#{$result}) {
-	    $processes{$result->[$i][0]} = $result->[$i];
+	    $process_instances[($i*2)] = $i;
+	    $process_instances[($i*2)+1] = "$result->[$i][0]";
+	    $processes[$i] = $result->[$i];
 	}
     }
+
+    $pmda->replace_indom($process_indom, \@process_instances);
 }
 
 sub mysql_refresh
@@ -102,7 +108,7 @@ sub mysql_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
     my $metric_name = pmda_pmid_name($cluster, $item);
-    my ($mysql_name, $value, %procs);
+    my ($mysql_name, $value, @procs);
 
     # $pmda->log("mysql_fetch_callback $cluster:$item ($inst) - $metric_name\n");
 
@@ -112,12 +118,13 @@ sub mysql_fetch_callback
     if ($cluster == 2) {
 	if ($inst < 0)		{ return (PM_ERR_INST, 0); }
 	if ($inst > @process_instances)	{ return (PM_ERR_INST, 0); }
-	$mysql_name =~ s/^mysql\.processlist\.//;
-	$value = $processes{$mysql_name};
+	$value = $processes[$inst];
 	if (!defined($value))	{ return (PM_ERR_INST, 0); }
-	%procs = %$value;
-	if (!defined($procs{$inst}[$item])) { return (PM_ERR_APPVERSION, 0); }
-	return ($procs{$inst}[$item], 1);
+	@procs = @$value;
+	if (!defined($procs[$item])) { return (PM_ERR_APPVERSION, 0); }
+	if (!defined($procs[$item]) && $item == 7) { return ("?", 1); }
+	if (!defined($procs[$item])) { return (PM_ERR_APPVERSION, 0); }
+	return ($procs[$item], 1);
     }
     if ($inst != PM_IN_NULL)		{ return (PM_ERR_INST, 0); }
     if ($cluster == 0) {
