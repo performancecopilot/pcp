@@ -680,10 +680,9 @@ add_timer(self,timeout,callback,data)
 	SV *	callback
 	int	data
     CODE:
-	if (callback != (SV *)NULL)
-	    RETVAL = local_timer(timeout, newSVsv(callback), data);
-	else
+	if (getenv("PCP_PERL_PMNS") || getenv("PCP_PERL_DOMAIN") || !callback)
 	    XSRETURN_UNDEF;
+	RETVAL = local_timer(timeout, newSVsv(callback), data);
     OUTPUT:
 	RETVAL
 
@@ -694,10 +693,9 @@ add_pipe(self,command,callback,data)
 	SV *	callback
 	int	data
     CODE:
-	if (callback != (SV *)NULL)
-	    RETVAL = local_pipe(command, newSVsv(callback), data);
-	else
+	if (getenv("PCP_PERL_PMNS") || getenv("PCP_PERL_DOMAIN") || !callback)
 	    XSRETURN_UNDEF;
+	RETVAL = local_pipe(command, newSVsv(callback), data);
     OUTPUT:
 	RETVAL
 
@@ -708,10 +706,9 @@ add_tail(self,filename,callback,data)
 	SV *	callback
 	int	data
     CODE:
-	if (callback != (SV *)NULL)
-	    RETVAL = local_tail(filename, newSVsv(callback), data);
-	else
+	if (getenv("PCP_PERL_PMNS") || getenv("PCP_PERL_DOMAIN") || !callback)
 	    XSRETURN_UNDEF;
+	RETVAL = local_tail(filename, newSVsv(callback), data);
     OUTPUT:
 	RETVAL
 
@@ -723,10 +720,9 @@ add_sock(self,hostname,port,callback,data)
 	SV *	callback
 	int	data
     CODE:
-	if (callback != (SV *)NULL)
-	    RETVAL = local_sock(hostname, port, newSVsv(callback), data);
-	else
+	if (getenv("PCP_PERL_PMNS") || getenv("PCP_PERL_DOMAIN") || !callback)
 	    XSRETURN_UNDEF;
+	RETVAL = local_sock(hostname, port, newSVsv(callback), data);
     OUTPUT:
 	RETVAL
 
