@@ -472,6 +472,16 @@ pmda_units(dim_space,dim_time,dim_count,scale_space,scale_time,scale_count)
     OUTPUT:
 	RETVAL
 
+char *
+pmda_config(name)
+	char * name
+    CODE:
+	RETVAL = pmGetConfig(name);
+	if (!RETVAL)
+	    XSRETURN_UNDEF;
+    OUTPUT:
+	RETVAL
+
 void
 error(self,message)
 	pmdaInterface *self
