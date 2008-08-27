@@ -40,7 +40,7 @@ sub mysql_connection_setup
 	    $pmda->log("MySQL connection established\n");
 	    $sth_variables = $dbh->prepare('show variables');
 	    $sth_status = $dbh->prepare('show status');
-	    $sth_processes = $dbh->prepare('show processes');
+	    $sth_processes = $dbh->prepare('show processlist');
 	}
     }
 }
@@ -68,7 +68,8 @@ sub mysql_status_refresh
 	$sth_status->execute();
 	my $result = $sth_status->fetchall_arrayref();
 	for my $i (0 .. $#{$result}) {
-	    $status{$result->[$i][0]} = $result->[$i][1];
+	    my $key = lcfirst $result->[$i][0];
+	    $status{$key} = $result->[$i][1];
 	}
     }
 }
@@ -122,7 +123,6 @@ sub mysql_fetch_callback
     if ($cluster == 0) {
 	$mysql_name =~ s/^mysql\.status\.//;
 	$value = $status{$mysql_name};
-	$value = $processes{$mysql_name};
 	if (!defined($value))	{ return (PM_ERR_APPVERSION, 0); }
 	return ($value, 1);
     }
@@ -630,273 +630,270 @@ $pmda->add_metric(pmda_pmid(0,163), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'mysql.status.innodb_page_size', '', '');
 $pmda->add_metric(pmda_pmid(0,164), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		  'mysql.status.innodb_data_written', '', '');
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'mysql.status.innodb_pages_created', '', '');
 $pmda->add_metric(pmda_pmid(0,165), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'mysql.status.created', '', '');
+		  'mysql.status.innodb_pages_read', '', '');
 $pmda->add_metric(pmda_pmid(0,166), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'mysql.status.innodb_pages_read', '', '');
+		  'mysql.status.innodb_pages_written', '', '');
 $pmda->add_metric(pmda_pmid(0,167), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'mysql.status.innodb_pages_written', '', '');
-$pmda->add_metric(pmda_pmid(0,168), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.innodb_row_lock_current_waits', '', '');
-$pmda->add_metric(pmda_pmid(0,169), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,168), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
 		  'mysql.status.innodb_row_lock_time', '', '');
-$pmda->add_metric(pmda_pmid(0,170), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,169), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
 		  'mysql.status.innodb_row_lock_time_avg', '', '');
-$pmda->add_metric(pmda_pmid(0,171), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,170), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
 		  'mysql.status.innodb_row_lock_time_max', '', '');
-$pmda->add_metric(pmda_pmid(0,172), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,171), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.innodb_row_lock_waits', '', '');
-$pmda->add_metric(pmda_pmid(0,173), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,172), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.innodb_rows_deleted', '', '');
-$pmda->add_metric(pmda_pmid(0,174), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,173), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.innodb_rows_inserted', '', '');
-$pmda->add_metric(pmda_pmid(0,175), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,174), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.innodb_rows_read', '', '');
-$pmda->add_metric(pmda_pmid(0,176), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,175), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.innodb_rows_updated', '', '');
-$pmda->add_metric(pmda_pmid(0,177), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,176), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.key_blocks_not_flushed', '', '');
-$pmda->add_metric(pmda_pmid(0,178), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,177), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.key_blocks_unused', '', '');
-$pmda->add_metric(pmda_pmid(0,179), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,178), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.key_blocks_used', '', '');
-$pmda->add_metric(pmda_pmid(0,180), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,179), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.key_read_requests', '', '');
-$pmda->add_metric(pmda_pmid(0,181), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,180), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.key_reads', '', '');
-$pmda->add_metric(pmda_pmid(0,182), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,181), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.key_write_requests', '', '');
-$pmda->add_metric(pmda_pmid(0,183), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,182), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.key_writes', '', '');
-$pmda->add_metric(pmda_pmid(0,184), PM_TYPE_DOUBLE, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,183), PM_TYPE_DOUBLE, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.last_query_cost', '', '');
-$pmda->add_metric(pmda_pmid(0,185), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,184), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.max_used_connections', '', ''); 
-$pmda->add_metric(pmda_pmid(0,186), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,185), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ndb_cluster_node_id', '', ''); 
-$pmda->add_metric(pmda_pmid(0,187), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,186), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ndb_config_from_host', '', ''); 
-$pmda->add_metric(pmda_pmid(0,188), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,187), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ndb_config_from_port', '', ''); 
-$pmda->add_metric(pmda_pmid(0,189), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,188), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ndb_number_of_data_nodes', '', ''); 
-$pmda->add_metric(pmda_pmid(0,190), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,189), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.not_flushed_delayed_rows', '', '');
-$pmda->add_metric(pmda_pmid(0,191), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,190), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.open_files', '', '');
-$pmda->add_metric(pmda_pmid(0,192), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,191), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.open_streams', '', '');
-$pmda->add_metric(pmda_pmid(0,193), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,192), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.open_tables', '', '');
-$pmda->add_metric(pmda_pmid(0,194), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,193), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.opened_tables', '', '');
-$pmda->add_metric(pmda_pmid(0,195), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,194), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.prepared_stmt_count', '', '');
-$pmda->add_metric(pmda_pmid(0,196), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,195), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.qcache_free_blocks', '', '');
-$pmda->add_metric(pmda_pmid(0,197), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,196), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'mysql.status.qcache_free_memory', '', '');
-$pmda->add_metric(pmda_pmid(0,198), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,197), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.qcache_hits', '', '');
-$pmda->add_metric(pmda_pmid(0,199), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,198), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.qcache_inserts', '', '');
-$pmda->add_metric(pmda_pmid(0,200), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,199), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.qcache_lowmem_prunes', '', '');
-$pmda->add_metric(pmda_pmid(0,201), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,200), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.qcache_not_cached', '', '');
-$pmda->add_metric(pmda_pmid(0,202), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,201), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.qcache_queries_in_cache', '', '');
-$pmda->add_metric(pmda_pmid(0,203), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,202), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.qcache_total_blocks', '', '');
-$pmda->add_metric(pmda_pmid(0,204), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,203), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.questions', '', '');
-$pmda->add_metric(pmda_pmid(0,205), PM_TYPE_STRING, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,204), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.rpl_status', '', '');
-$pmda->add_metric(pmda_pmid(0,206), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,205), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.select_full_join', '', '');
-$pmda->add_metric(pmda_pmid(0,207), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,206), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.select_full_range_join', '', '');
-$pmda->add_metric(pmda_pmid(0,208), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,207), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.select_range', '', '');
-$pmda->add_metric(pmda_pmid(0,209), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,208), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.select_range_check', '', '');
-$pmda->add_metric(pmda_pmid(0,210), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,209), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.select_scan', '', '');
-$pmda->add_metric(pmda_pmid(0,211), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,210), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.slave_open_temp_tables', '', '');
-$pmda->add_metric(pmda_pmid(0,212), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,211), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.slave_retried_transactions', '', '');
-$pmda->add_metric(pmda_pmid(0,213), PM_TYPE_STRING, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,212), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.slave_running', '', '');
-$pmda->add_metric(pmda_pmid(0,214), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,213), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.slow_launch_threads', '', '');
-$pmda->add_metric(pmda_pmid(0,215), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,214), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.slow_queries', '', '');
-$pmda->add_metric(pmda_pmid(0,216), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,215), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.sort_merge_passes', '', '');
-$pmda->add_metric(pmda_pmid(0,217), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,216), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.sort_range', '', '');
-$pmda->add_metric(pmda_pmid(0,218), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,217), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.sort_rows', '', '');
-$pmda->add_metric(pmda_pmid(0,219), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,218), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.sort_scan', '', '');
-$pmda->add_metric(pmda_pmid(0,220), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,219), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ssl_accept_renegotiates', '', '');
-$pmda->add_metric(pmda_pmid(0,221), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,220), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.ssl_accepts', '', '');
-$pmda->add_metric(pmda_pmid(0,222), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,221), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.ssl_callback_cache_hits', '', '');
-$pmda->add_metric(pmda_pmid(0,223), PM_TYPE_STRING, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,222), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ssl_cipher', '', '');
-$pmda->add_metric(pmda_pmid(0,224), PM_TYPE_STRING, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,223), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ssl_cipher_list', '', '');
-$pmda->add_metric(pmda_pmid(0,225), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,224), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.ssl_client_connects', '', '');
-$pmda->add_metric(pmda_pmid(0,226), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,225), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.ssl_connect_renegotiates', '', '');
-$pmda->add_metric(pmda_pmid(0,227), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,226), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ssl_ctx_verify_depth', '', '');
-$pmda->add_metric(pmda_pmid(0,228), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,227), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ssl_ctx_verify_mode', '', '');
-$pmda->add_metric(pmda_pmid(0,229), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,228), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'mysql.status.ssl_default_timeout', '', '');
-$pmda->add_metric(pmda_pmid(0,230), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,229), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.ssl_finished_accepts', '', '');
-$pmda->add_metric(pmda_pmid(0,231), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,230), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.ssl_finished_connects', '', '');
-$pmda->add_metric(pmda_pmid(0,232), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,231), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.ssl_session_cache_hits', '', '');
-$pmda->add_metric(pmda_pmid(0,233), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,232), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.ssl_session_cache_misses', '', '');
-$pmda->add_metric(pmda_pmid(0,234), PM_TYPE_STRING, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,233), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ssl_session_cache_mode', '', '');
-$pmda->add_metric(pmda_pmid(0,235), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,234), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.ssl_session_cache_overflows', '', '');
-$pmda->add_metric(pmda_pmid(0,236), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,235), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ssl_session_cache_size', '', '');
-$pmda->add_metric(pmda_pmid(0,237), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,236), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.ssl_session_cache_timeouts', '', '');
-$pmda->add_metric(pmda_pmid(0,238), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,237), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.ssl_sessions_reused', '', '');
-$pmda->add_metric(pmda_pmid(0,239), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,238), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ssl_used_session_cache_entries', '', '');
-$pmda->add_metric(pmda_pmid(0,240), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,239), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ssl_verify_depth', '', '');
-$pmda->add_metric(pmda_pmid(0,241), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,240), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ssl_verify_mode', '', '');
-$pmda->add_metric(pmda_pmid(0,242), PM_TYPE_STRING, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,241), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.ssl_version', '', '');
-$pmda->add_metric(pmda_pmid(0,243), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,242), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.table_locks_immediate', '', '');
-$pmda->add_metric(pmda_pmid(0,244), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,243), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.table_locks_waited', '', '');
-$pmda->add_metric(pmda_pmid(0,245), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,244), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.tc_log_max_pages_used', '', '');
-$pmda->add_metric(pmda_pmid(0,246), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,245), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.tc_log_page_size', '', '');
-$pmda->add_metric(pmda_pmid(0,247), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,246), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.tc_log_page_waits', '', '');
-$pmda->add_metric(pmda_pmid(0,248), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,247), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.threads_cached', '', '');
-$pmda->add_metric(pmda_pmid(0,249), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,248), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.threads_connected', '', '');
-$pmda->add_metric(pmda_pmid(0,250), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,249), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.threads_created', '', '');
-$pmda->add_metric(pmda_pmid(0,251), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,250), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.threads_running', '', '');
-$pmda->add_metric(pmda_pmid(0,252), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,251), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_TIME_SEC,0,0),
 		  'mysql.status.uptime', '', '');
-$pmda->add_metric(pmda_pmid(0,253), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(0,252), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_TIME_SEC,0,0),
 		  'mysql.status.uptime_since_flush_status', '', '');
 
@@ -1202,7 +1199,7 @@ $pmda->add_metric(pmda_pmid(1,96), PM_TYPE_U32, PM_INDOM_NULL,
 		  'mysql.variables.interactive_timeout', '', '');
 $pmda->add_metric(pmda_pmid(1,97), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		  'mysql.variables.join_buffer', '', '');
+		  'mysql.variables.join_buffer_size', '', '');
 $pmda->add_metric(pmda_pmid(1,98), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'mysql.variables.key_buffer_size', '', '');
@@ -1266,7 +1263,7 @@ $pmda->add_metric(pmda_pmid(1,117), PM_TYPE_U32, PM_INDOM_NULL,
 $pmda->add_metric(pmda_pmid(1,118), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_TIME_SEC,0,0),
 		  'mysql.variables.long_query_time', '', '');
-$pmda->add_metric(pmda_pmid(1,119), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(1,119), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.variables.low_priority_updates', '', '');
 $pmda->add_metric(pmda_pmid(1,120), PM_TYPE_STRING, PM_INDOM_NULL,
@@ -1470,7 +1467,7 @@ $pmda->add_metric(pmda_pmid(1,184), PM_TYPE_STRING, PM_INDOM_NULL,
 $pmda->add_metric(pmda_pmid(1,185), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.variables.server_id', '', '');
-$pmda->add_metric(pmda_pmid(1,186), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(1,186), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.variables.skip_external_locking', '', '');
 $pmda->add_metric(pmda_pmid(1,187), PM_TYPE_STRING, PM_INDOM_NULL,
@@ -1497,7 +1494,7 @@ $pmda->add_metric(pmda_pmid(1,193), PM_TYPE_U32, PM_INDOM_NULL,
 $pmda->add_metric(pmda_pmid(1,194), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'mysql.variables.slow_launch_time', '', '');
-$pmda->add_metric(pmda_pmid(1,195), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(1,195), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.variables.socket', '', '');
 $pmda->add_metric(pmda_pmid(1,196), PM_TYPE_U32, PM_INDOM_NULL,
