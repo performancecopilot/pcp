@@ -125,7 +125,7 @@ _checkpmcdhost()
 	objfmt=`$PROBE -h $HOST -v pmcd.simabi 2>/dev/null \
 		| sed -e 's/\"//g' \
 		| $PCP_AWK_PROG 'NF == 3 { print $3 }' \
-                | sed -e 's/[a-zA-Z]//g' `
+		| sed -e 's/x86-64/64/g' | sed -e 's/[a-zA-Z]//g' `
 
 	if [ "$objfmt" != $BINFMT ]
 	then
