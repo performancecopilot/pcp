@@ -121,22 +121,22 @@ $pmda->add_metric(pmda_pmid(0,301), PM_TYPE_U32, $news_indom,
 
 $pmda->add_metric(pmda_pmid(0,302), PM_TYPE_U32, $news_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'news.articles.last', undef, undef);
+		  'news.articles.last', '', '');
 $pmda->add_metric(pmda_pmid(0,101), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'news.readers.nnrpd', undef, undef);
+		  'news.readers.nnrpd', '', '');
 $pmda->add_metric(pmda_pmid(0,111), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'news.readers.rn', undef, undef);
+		  'news.readers.rn', '', '');
 $pmda->add_metric(pmda_pmid(0,112), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'news.readers.trn', undef, undef);
+		  'news.readers.trn', '', '');
 $pmda->add_metric(pmda_pmid(0,113), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'news.readers.xrn', undef, undef);
+		  'news.readers.xrn', '', '');
 $pmda->add_metric(pmda_pmid(0,114), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'news.readers.vn', undef, undef);
+		  'news.readers.vn', '', '');
 
 $pmda->add_indom( $news_indom, \@newsgroups, undef, undef );
 

@@ -122,90 +122,90 @@ $pmda = PCP::PMDA->new('memcache', 89);
 
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'memcache.pid', undef, undef);
+		  'memcache.pid', '', '');
 $pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'memcache.uptime', undef, undef);
+		  'memcache.uptime', '', '');
 $pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'memcache.current_items', undef, undef);
+		  'memcache.current_items', '', '');
 $pmda->add_metric(pmda_pmid(0,3), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'memcache.total_items', undef, undef);
+		  'memcache.total_items', '', '');
 $pmda->add_metric(pmda_pmid(0,4), PM_TYPE_U64, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		  'memcache.bytes', undef, undef);
+		  'memcache.bytes', '', '');
 $pmda->add_metric(pmda_pmid(0,5), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'memcache.current_connections', undef, undef);
+		  'memcache.current_connections', '', '');
 $pmda->add_metric(pmda_pmid(0,6), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'memcache.total_connections', undef, undef);
+		  'memcache.total_connections', '', '');
 $pmda->add_metric(pmda_pmid(0,7), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'memcache.connection_structures', undef, undef);
+		  'memcache.connection_structures', '', '');
 $pmda->add_metric(pmda_pmid(0,8), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'memcache.gets', undef, undef);
+		  'memcache.gets', '', '');
 $pmda->add_metric(pmda_pmid(0,9), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'memcache.sets', undef, undef);
+		  'memcache.sets', '', '');
 $pmda->add_metric(pmda_pmid(0,10), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'memcache.hits', undef, undef);
+		  'memcache.hits', '', '');
 $pmda->add_metric(pmda_pmid(0,11), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-		  'memcache.misses', undef, undef);
+		  'memcache.misses', '', '');
 $pmda->add_metric(pmda_pmid(0,12), PM_TYPE_U64, $memcache_indom,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		  'memcache.bytes_read', undef, undef);
+		  'memcache.bytes_read', '', '');
 $pmda->add_metric(pmda_pmid(0,13), PM_TYPE_U64, $memcache_indom,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		  'memcache.bytes_written', undef, undef);
+		  'memcache.bytes_written', '', '');
 $pmda->add_metric(pmda_pmid(0,14), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		  'memcache.limit_maxbytes', undef, undef);
+		  'memcache.limit_maxbytes', '', '');
 
 $id = 0;
 foreach $n (6 .. 17) {	# stats slabs (N=6-17)
     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
 		      PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		      "memcache.slabs.slab$n.chunk_size", undef, undef);
+		      "memcache.slabs.slab$n.chunk_size", '', '');
     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
 		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		      "memcache.slabs.slab$n.chunks_per_page", undef, undef);
+		      "memcache.slabs.slab$n.chunks_per_page", '', '');
     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
 		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		      "memcache.slabs.slab$n.total_pages", undef, undef);
+		      "memcache.slabs.slab$n.total_pages", '', '');
     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
 		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		      "memcache.slabs.slab$n.total_chunks", undef, undef);
+		      "memcache.slabs.slab$n.total_chunks", '', '');
     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
 		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		      "memcache.slabs.slab$n.used_chunks", undef, undef);
+		      "memcache.slabs.slab$n.used_chunks", '', '');
     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
 		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		      "memcache.slabs.slab$n.free_chunks", undef, undef);
+		      "memcache.slabs.slab$n.free_chunks", '', '');
     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
 		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		      "memcache.slabs.slab$n.free_chunks_end", undef, undef);
+		      "memcache.slabs.slab$n.free_chunks_end", '', '');
 }
 
 $pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'memcache.active_slabs', undef, undef);
+		  'memcache.active_slabs', '', '');
 $pmda->add_metric(pmda_pmid(2,1), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		  'memcache.total_malloced', undef, undef);
+		  'memcache.total_malloced', '', '');
 
 $id = 0;
 foreach $n (6 .. 17) {	# stats items (N=6-17)
     $pmda->add_metric(pmda_pmid(3,$id++), PM_TYPE_U32, $memcache_indom,
 		      PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		      "memcache.items.item$n.count", undef, undef);
+		      "memcache.items.item$n.count", '', '');
     $pmda->add_metric(pmda_pmid(3,$id++), PM_TYPE_U32, $memcache_indom,
 		      PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
-		      "memcache.items.item$n.age", undef, undef);
+		      "memcache.items.item$n.age", '', '');
 }
 
 $pmda->add_indom( $memcache_indom, \@memcache_instances, '', '' );

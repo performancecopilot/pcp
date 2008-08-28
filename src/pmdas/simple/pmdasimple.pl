@@ -157,19 +157,19 @@ $pmda = PCP::PMDA->new('simple', 253);
 
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'simple.numfetch', undef, undef);
+		  'simple.numfetch', '', '');
 $pmda->add_metric(pmda_pmid(0,1), PM_TYPE_32, $color_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'simple.color', undef, undef);
+		  'simple.color', '', '');
 $pmda->add_metric(pmda_pmid(1,2), PM_TYPE_DOUBLE, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_SEC,0),
-		  'simple.time.user', undef, undef);
+		  'simple.time.user', '', '');
 $pmda->add_metric(pmda_pmid(1,3), PM_TYPE_DOUBLE, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_SEC,0),
-		  'simple.time.sys', undef, undef);
+		  'simple.time.sys', '', '');
 $pmda->add_metric(pmda_pmid(2,4), PM_TYPE_U32, $now_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'simple.time.now', undef, undef);
+		  'simple.time.now', '', '');
 
 $pmda->add_indom( $color_indom, [0 => 'red', 1 => 'green', 2 => 'blue'],
 		  undef, undef );
