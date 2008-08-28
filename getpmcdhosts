@@ -138,13 +138,13 @@ _checkpmcdhost()
     #
     if [ "$LICENSE" != "_" -o "$IRIX" != "_" ]
     then
-	if ssh $SSH_USER@$HOST date 1>/dev/null 2>&1
+	if ssh -q $SSH_USER@$HOST date 1>/dev/null 2>&1
 	then
 	    :
 	else
 	    if $MSG
 	    then
-		echo "$0: WARNING: \"ssh $SSH_USER@$HOST\" failed" >&2
+		echo "$0: WARNING: \"ssh -q $SSH_USER@$HOST\" failed" >&2
 		return 1
 	    fi
 	fi
@@ -154,7 +154,7 @@ _checkpmcdhost()
     #
     if [ "$SYSTEM" != "_" ]
     then
-	osname=`ssh $SSH_USER@$HOST uname -s`
+	osname=`ssh -q $SSH_USER@$HOST uname -s`
         if echo $osname | grep -i $SYSTEM >/dev/null 2>&1 
         then
 	    :
@@ -169,7 +169,7 @@ _checkpmcdhost()
     #
     if [ "$IRIX" != "_" ]
     then
-	irixrev=`ssh $SSH_USER@$HOST uname -r | sed -e 's/-ALPHA.*//' -e 's/ .*//'`
+	irixrev=`ssh -q $SSH_USER@$HOST uname -r | sed -e 's/-ALPHA.*//' -e 's/ .*//'`
 	if [ "$irixrev" != $IRIX ]
 	then
 	    $MSG && echo "$HOST: IRIX $IRIX != $irixrev" >&2
@@ -181,8 +181,8 @@ _checkpmcdhost()
     #
     if [ "$LICENSE" != "_" ]
     then
-	$VERBOSE && echo "+ ssh $SSH_USER@$HOST $BRAND -l"
-	license=`ssh $SSH_USER@$HOST "$BRAND -l" 2>&1`
+	$VERBOSE && echo "+ ssh -q $SSH_USER@$HOST $BRAND -l"
+	license=`ssh -q $SSH_USER@$HOST "$BRAND -l" 2>&1`
 	$VERBOSE && echo "-> $license"
 	if [ "$LICENSE" = "full" ]
 	then
@@ -255,8 +255,8 @@ _checkpmcdhost()
     #
     if [ "$ENDIAN" != "_" ]
     then
-	$VERBOSE && echo "+ echo a | ssh $SSH_USER@$HOST od -x"
-	check=`echo a | ssh $SSH_USER@$HOST "od -x" 2>&1 | sed -e 's/^0[^ ]* *//' -e '/^$/d'`
+	$VERBOSE && echo "+ echo a | ssh -q $SSH_USER@$HOST od -x"
+	check=`echo a | ssh -q $SSH_USER@$HOST "od -x" 2>&1 | sed -e 's/^0[^ ]* *//' -e '/^$/d'`
 	$VERBOSE && echo "-> $check"
 	case "$check"
 	in
