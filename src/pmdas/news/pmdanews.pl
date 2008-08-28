@@ -72,7 +72,7 @@ sub news_fetch {	# called once per ``fetch'' pdu, before callbacks
 sub news_fetch_callback {	# must return array of value,status
     my ($cluster, $item, $inst) = @_;
 
-    return (PM_ERR_INST, 0) unless ( $inst == -1 ||
+    return (PM_ERR_INST, 0) unless ( $inst == PM_IN_NULL ||
 		( $cluster == 0 && ($item == 301 || $item == 302) &&
 				$inst > 0 && $inst <= ($#newsgroups+1)/2 ) );
     if ($cluster == 0) {
