@@ -2,6 +2,7 @@
 # PMDA Install and Remove scripts
 #
 # Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# Portions Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -909,7 +910,10 @@ _install()
 
     if [ -d $PCP_VAR_DIR/config/pmchart ]
     then
-	echo "Installing pmchart view(s) ..."
+	if [ `echo *.pmchart` != "*.pmchart" ]
+	then
+	    echo "Installing pmchart view(s) ..."
+	fi
 	for __i in *.pmchart
 	do
 	    if [ "$__i" != "*.pmchart" ]
@@ -923,24 +927,68 @@ _install()
 	echo "Skip installing pmchart view(s) ... no \"$PCP_VAR_DIR/config/pmchart\" directory"
     fi
 
-    # Prompt for command line arguments to the PMDA
-    #
+    if [ -d $PCP_VAR_DIR/config/kmchart ]
+    then
+	if [ `echo *.kmchart` != "*.kmchart" ]
+	then
+	    echo "Installing kmchart view(s) ..."
+	fi
+	for __i in *.kmchart
+	do
+	    if [ "$__i" != "*.kmchart" ]
+	    then
+		__dest=$PCP_VAR_DIR/config/kmchart/`basename $__i .kmchart`
+		rm -f $__dest
+		cp $__i $__dest
+	    fi
+	done
+    else
+	echo "Skip installing kmchart view(s) ... no \"$PCP_VAR_DIR/config/kmchart\" directory"
+    fi
+
     if $do_pmda
     then
-	# Select an IPC method for communication between PMCD and PMDA
+	# Select a PMDA style (dso/perl/deamon), and for daemons the
+	# IPC method for communication between PMCD and the PMDA.
 	#
-	pmda_type=''
-	$dso_opt && pmda_type=dso
-	$perl_opt && pmda_type=perl
-	$daemon_opt && pmda_type=daemon
-	$dso_opt && $perl_opt && pmda_type=''
-	$dso_opt && $daemon_opt && pmda_type=''
-	$daemon_opt && $perl_opt && pmda_type=''
-	if [ -z "$pmda_type" ]
+	pmda_options=''
+	pmda_default_option=''
+	pmda_multiple_options=false
+
+	if $dso_opt
+	then
+	    pmda_options="dso"
+	    pmda_default_option="dso"
+	fi
+	if $perl_opt
+	then
+	    pmda_default_option="perl"
+	    if test -n "$pmda_options"
+	    then
+		pmda_options="perl or $pmda_options"
+		pmda_multiple_options=true
+	    else
+		pmda_options="perl"
+	    fi
+	fi
+	if $daemon_opt
+	then
+	    pmda_default_option="daemon"
+	    if test -n "$pmda_options"
+	    then
+		pmda_options="daemon or $pmda_options"
+		pmda_multiple_options=true
+	    else
+		pmda_options="daemon"
+	    fi
+	fi
+
+	pmda_type="$pmda_default_option"
+	if $pmda_multiple_options
 	then
 	    while true
 	    do
-		$PCP_ECHO_PROG $PCP_ECHO_N "Install $iam as a daemon or dso agent? [daemon] ""$PCP_ECHO_C"
+		$PCP_ECHO_PROG $PCP_ECHO_N "Install $iam as a $pmda_options agent? [$pmda_default_option] ""$PCP_ECHO_C"
 		read pmda_type
 		if [ "X$pmda_type" = Xdaemon -o "X$pmda_type" = X ]
 		then
@@ -953,7 +1001,7 @@ _install()
 		then
 		    break
 		else
-		    echo "Must choose one of \"daemon\" or \"dso\", please try again"
+		    echo "Must choose one of $pmda_options, please try again"
 		fi
 	    done
 	fi
@@ -1082,6 +1130,14 @@ _remove()
 	    if [ "$__i" != "*.pmchart" ]
 	    then
 		__dest=$PCP_VAR_DIR/config/pmchart/`basename $__i .pmchart`
+		rm -f $__dest
+	    fi
+	done
+	for __i in *.kmchart
+	do
+	    if [ "$__i" != "*.kmchart" ]
+	    then
+		__dest=$PCP_VAR_DIR/config/kmchart/`basename $__i .kmchart`
 		rm -f $__dest
 	    fi
 	done
