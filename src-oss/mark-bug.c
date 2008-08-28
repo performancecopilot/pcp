@@ -11,7 +11,7 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-char *namelist[2] = {"hinv.ncpu", "kernel.all.cpu.idle"};
+char *namelist[2] = {"hinv.ncpu", "irix.kernel.all.cpu.idle"};
 pmID pmidlist[2];
 pmResult *result;
 struct timeval curpos;
