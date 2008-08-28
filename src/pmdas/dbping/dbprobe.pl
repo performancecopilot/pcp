@@ -56,12 +56,14 @@ sub dbping {	# must return array of (response_time, status, time_stamp)
 	($sth->err) && return;
     }
 
-    print localtime, "\t", gettimeofday - $before, "\n";
+    my $timenow = localtime;
+    print "$timenow\t", gettimeofday - $before, "\n";
 }
 
 $dbh = DBI->connect($database, $username, $password, undef) ||
 		    $pmda->log("Failed initial connect: $dbh->errstr\n");
 
+$| = 1;	# IMPORTANT! Enables auto-flush, for piping hot pipes.
 for (;;) {
     sleep($delay);
     dbping;
