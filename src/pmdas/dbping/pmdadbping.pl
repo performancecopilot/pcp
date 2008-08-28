@@ -22,8 +22,10 @@ use strict;
 use PCP::PMDA;
 use vars qw( $pmda $stamp $response $status $timestamp );
 
-my $delay = 60;	# seconds
+my $delay = $ARGV[0];	# delay in seconds between database ping's
+$delay = 60 unless defined($delay);
 my $dbprobe = pmda_config('PCP_PMDAS_DIR') . "/dbping/dbprobe.pl $delay";
+my ( $stamp, $response, $status, $timestamp ) = ( 0, 0, 1, 0 );
 
 sub dbping_probe_callback
 {
