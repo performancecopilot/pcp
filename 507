@@ -35,6 +35,7 @@ echo "QA output created by $seq"
 _filter()
 {
     sed \
+	-e "/^ licenses:.*/d" \
 	-e "s/$qahost/HOST/g" \
 	-e "s/$local/HOST/g" \
     | fgrep -v "archive:"

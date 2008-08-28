@@ -31,7 +31,6 @@ Performance Co-Pilot configuration on wobbly:
  platform: IRIX wobbly 6.5 05190003 IP22 n32
  hardware: 1 R4400 cpu, 2 disks, 64MB RAM
  timezone: EST-11EST-10,87/2:00,297/2:00
- licenses: Collector Monitor
      pmcd: Version 2.1 beta-1, 8 agents, 3 clients
      pmda: irix pmcd proc cisco trace summary sample sampledso
  pmlogger: primary logger: wobbly/19981006.00.35
