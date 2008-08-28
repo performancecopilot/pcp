@@ -20,30 +20,35 @@
 
 use strict;
 use DBI;
-use Time::HiRes qw(gettimeofday);	# Time::HiRes not default?
-use vars qw( $pmda );
+use PCP::PMDA qw(pmda_config);
+use Time::HiRes qw(gettimeofday);
 
-# ---this section needs user-customisation---
-my $database	= 'DBI:mysql:localhost:3306';
-my $username	= 'dbmonitor';
-my $passwd	= 'dbmonitor';
-my $select	= 'SELECT 1';
-my $delay	= 60;	# delay in seconds between database ping's
-# -----end of user-customisation section-----
+my $database = 'DBI:mysql:mysql';
+my $username = 'dbmonitor';
+my $password = 'dbmonitor';
+my $response = 'SELECT 1';
+my $delay = $ARGV[0];	# delay in seconds between database ping's
+$delay = 60 unless defined($delay);
 
+# Configuration files for overriding the above settings
+for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
+		pmda_config('PCP_PMDAS_DIR') . '/dbping/dbprobe.conf',
+		'./dbprobe.conf' ) {	# current directory (high priority)
+    eval `cat $file` unless ! -f $file;
+}
 
-use vars qw( $dbh $sth );
+use vars qw( $pmda $dbh $sth );
 
 sub dbping {	# must return array of (response_time, status, time_stamp)
     my $before;
 
     if (!defined($dbh)) {	# reconnect if necessary
-	$dbh = DBI->connect($database, $username, $passwd, undef) || return;
+	$dbh = DBI->connect($database, $username, $password, undef) || return;
 	$pmda->log("Connected to database.\n");
 	undef $sth;
     }
     if (!defined($sth)) {	# prepare SQL statement once only
-	$sth = $dbh->prepare($select) || return;
+	$sth = $dbh->prepare($response) || return;
     }
     $before = gettimeofday;
     $sth->execute || return;
@@ -54,7 +59,7 @@ sub dbping {	# must return array of (response_time, status, time_stamp)
     print localtime, "\t", gettimeofday - $before, "\n";
 }
 
-$dbh = DBI->connect($database, $username, $passwd, undef) ||
+$dbh = DBI->connect($database, $username, $password, undef) ||
 		    $pmda->log("Failed initial connect: $dbh->errstr\n");
 
 for (;;) {

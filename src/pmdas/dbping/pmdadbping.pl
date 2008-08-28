@@ -20,16 +20,18 @@
 
 use strict;
 use PCP::PMDA;
-use vars qw( $pmda $response $status $timestamp );
+use vars qw( $pmda $stamp $response $status $timestamp );
 
 my $delay = 60;	# seconds
-my $dbprobe = "/var/lib/pcp/pmdas/pmdadbping/dbprobe.pl $delay";
+my $dbprobe = pmda_config('PCP_PMDAS_DIR') . "/dbping/dbprobe.pl $delay";
 
 sub dbping_probe_callback
 {
-    my $stamp;
     ( $_ ) = @_;
     ($stamp, $response) = split(/\t/);
+
+    # $pmda->log("dbping_probe_callback: time=$stamp resp=$response\n");
+
     if (defined($stamp) && defined($response)) {
 	$timestamp = $stamp;
 	$status = 0;
@@ -43,15 +45,17 @@ sub dbping_fetch_callback	# must return array of value,status
 {
     my ($cluster, $item, $inst) = @_;
 
-    return (PM_ERR_INST, 0) unless ($inst == -1);
+    # $pmda->log("dbping_fetch_callback $cluster:$item ($inst)\n");
+
+    return (PM_ERR_INST, 0) unless ($inst == PM_IN_NULL);
 
     if ($cluster == 0) {
 	if ($item == 0)		{ return ($response, 1); }
 	elsif ($item == 1)	{ return ($status, 1); }
     }
     elsif ($cluster == 1) {
-	if ($item == 2)		{ return ($timestamp, 1); }
-	elsif ($item == 3)	{ return ($delay, 1); }
+	if ($item == 0)		{ return ($timestamp, 1); }
+	elsif ($item == 1)	{ return ($delay, 1); }
     }
     return (PM_ERR_PMID, 0);
 }
@@ -61,12 +65,14 @@ sub dbping_store_callback	# must return a single value (scalar context)
     my ($cluster, $item, $inst, $val) = @_;
     my $sts = 0;
 
-    if ($cluster == 1 && $item == 3) {
+    # $pmda->log("dbping_store_callback $cluster:$item ($inst) $val\n");
+
+    if ($cluster == 1 && $item == 1) {
 	$delay = $val;
 	return 0;
     }
     elsif ( ($cluster == 0 && ($item == 0 || $item == 1))
-	|| ($cluster == 1 && $item == 2) ) {
+	|| ($cluster == 1 && $item == 0) ) {
 	return PM_ERR_PERMISSION;
     }
     return PM_ERR_PMID;
@@ -77,19 +83,19 @@ $pmda = PCP::PMDA->new('dbping', 244);
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_DOUBLE, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'dbping.response_time',
-		  'Length of time taken to access the database', undef);
+		  'Length of time taken to access the database', '');
 $pmda->add_metric(pmda_pmid(0,1), PM_TYPE_32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'dbping.status',
-		  'Success state of last attempt to ping the database', undef);
-$pmda->add_metric(pmda_pmid(1,2), PM_TYPE_STRING, PM_INDOM_NULL,
+		  'Success state of last attempt to ping the database', '');
+$pmda->add_metric(pmda_pmid(1,0), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'dbping.control.timestamp',
-		  'Time of last successful database ping', undef);
-$pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U32, PM_INDOM_NULL,
+		  'Time of last successful database ping', '');
+$pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'dbping.control.delay',
-		  'Time to sleep between database ping attempts', undef);
+		  'Time to sleep between database ping attempts', '');
 $pmda->set_fetch_callback( \&dbping_fetch_callback );
 $pmda->set_store_callback( \&dbping_store_callback );
 $pmda->add_pipe( $dbprobe, \&dbping_probe_callback, 0 );

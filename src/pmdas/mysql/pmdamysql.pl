@@ -25,6 +25,13 @@ my $database = 'DBI:mysql:mysql';
 my $username = 'dbmonitor';
 my $password = 'dbmonitor';
 
+# Configuration files for overriding the above settings
+for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
+		pmda_config('PCP_PMDAS_DIR') . '/mysql/mysql.conf',
+		'./mysql.conf' ) {	# current directory (high priority)
+    eval `cat $file` unless ! -f $file;
+}
+
 use vars qw( $pmda %status %variables @processes );
 use vars qw( $dbh $sth_variables $sth_status $sth_processes );
 my $process_indom = 0;
@@ -110,7 +117,7 @@ sub mysql_fetch_callback
     my $metric_name = pmda_pmid_name($cluster, $item);
     my ($mysql_name, $value, @procs);
 
-    # $pmda->log("mysql_fetch_callback $cluster:$item ($inst) - $metric_name\n");
+    # $pmda->log("mysql_fetch_callback $metric_name $cluster:$item ($inst)\n");
 
     if (!defined($metric_name))	{ return (PM_ERR_PMID, 0); }
     $mysql_name = $metric_name;
@@ -121,8 +128,7 @@ sub mysql_fetch_callback
 	$value = $processes[$inst];
 	if (!defined($value))	{ return (PM_ERR_INST, 0); }
 	@procs = @$value;
-	if (!defined($procs[$item])) { return (PM_ERR_APPVERSION, 0); }
-	if (!defined($procs[$item]) && $item == 7) { return ("?", 1); }
+	if (!defined($procs[$item]) && $item == 6) { return ("?", 1); }
 	if (!defined($procs[$item])) { return (PM_ERR_APPVERSION, 0); }
 	return ($procs[$item], 1);
     }
