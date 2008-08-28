@@ -65,8 +65,8 @@ $dbh = DBI->connect($database, $username, $password, undef) ||
 
 $| = 1;	# IMPORTANT! Enables auto-flush, for piping hot pipes.
 for (;;) {
-    sleep($delay);
     dbping;
+    sleep($delay);
 }
 
 __END__
