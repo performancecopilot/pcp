@@ -97,6 +97,7 @@ _filter()
 	-e '/^pmda.c:$/d' \
 	-e '/^simple.c:$/d' \
 	-e '/make: Nothing to be done/d' \
+	-e 's/ or perl//' \
 	-e 's/.* \(hash table entries\)/  NNN \1/' \
 	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
 	-e 's/.* \(leaf nodes\)/  NNN \1/' \
