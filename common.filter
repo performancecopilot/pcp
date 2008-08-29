@@ -475,10 +475,10 @@ $1 == "Data"		{ printf "%s|",$0; next }
 _filter_pmda_install()
 {
     sed \
-        -e 's/.* \(hash table entries\)/  NNN \1/' \
-        -e 's/.* \(non-leaf nodes\)/  NNN \1/' \
-        -e 's/.* \(leaf nodes\)/  NNN \1/' \
-        -e 's/.* \(bytes of symbol table\)/  NNN \1/' \
+	-e 's/.* \(hash table entries\)/  NNN \1/' \
+	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
 	-e '/^Installing .mchart view*/d' \
 	-e '/Terminate PMDA/,/Updating the PMCD/c\
 Terminate PMDA if already installed ...\
