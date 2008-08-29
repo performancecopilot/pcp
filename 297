@@ -89,7 +89,13 @@ s/[0-9][0-9]*/N/g
 s//DATE/
 s/	[0-9][0-9.]*/	N/g
 }' \
-    | uniq
+    | _filter_pmproxy | uniq
+}
+
+_filter_pmproxy()
+{
+    sed -e '/^__pmSetSocketIPC: fd=/d' -e '/^IPC table fd/d' \
+	-e '/^__pmSetVersionIPC: fd=/d'
 }
 
 $sudo /etc/init.d/pmproxy stop >/dev/null 2>&1
@@ -98,7 +104,7 @@ $sudo killall pmproxy >/dev/null 2>&1
 PMCD_RECONNECT_TIMEOUT=1
 export PMCD_RECONNECT_TIMEOUT
 
-pmproxy -Dcontext -l $tmp.log
+pmproxy -Dcontext -l $tmp.log 2>&1 | _filter_pmproxy
 
 PMPROXY_HOST=localhost
 export PMPROXY_HOST
@@ -119,7 +125,7 @@ echo "1st pmproxy log" >$seq.full
 cat $tmp.log >>$seq.full
 
 echo "re-starting pmproxy ..."
-pmproxy -Dcontext -l $tmp.log
+pmproxy -Dcontext -l $tmp.log 2>&1 | _filter_pmproxy
 
 sleep 4
 echo "killing pmcd ..."
