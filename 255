@@ -63,6 +63,7 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 _filter_ins()
 {
     sed \
+	-e '/^Installing .mchart view*/d' \
 	-e 's/.* \(hash table entries\)/  NNN \1/' \
 	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
 	-e 's/.* \(leaf nodes\)/  NNN \1/' \
