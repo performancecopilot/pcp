@@ -4,8 +4,6 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: pmconvscale.c,v 1.1 2005/01/18 10:44:50 kenmcd Exp $"
-
 #include <unistd.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
@@ -147,5 +145,4 @@ main(int argc, char **argv)
 	oldunits = units;
     }
     exit(0);
-    /*NOTREACHED*/
 }

@@ -1,6 +1,3 @@
-
-#ident "$Id: indom.c,v 1.1 2002/10/27 21:34:59 kenmcd Exp $"
-
 /*
  * indom - exercise pmGetInDom, pmNameInDom and pmLookupInDom
  */
@@ -252,10 +249,6 @@ Options\n\
 	exit(1);
     }
 
-#ifdef REALAPP
-    __pmGetLicense(-1, pmProgname, UIMODE);
-#endif
-
     if (logfile != (char *)0) {
 	__pmOpenLog(pmProgname, logfile, stderr, &sts);
 	if (sts < 0) {
@@ -267,11 +260,6 @@ Options\n\
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);
     }
-
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
@@ -329,5 +317,4 @@ Options\n\
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

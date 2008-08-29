@@ -97,5 +97,4 @@ main(int argc, char *argv[])
 	write(1, &extbits, sizeof(bits_t));
     }
     exit(0);
-    /*NOTREACHED*/
 }

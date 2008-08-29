@@ -2,9 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: whichtimezone.c,v 1.1 2002/10/22 00:03:20 kenmcd Exp $"
-
-
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <time.h>
@@ -43,5 +40,4 @@ more:	continue;
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

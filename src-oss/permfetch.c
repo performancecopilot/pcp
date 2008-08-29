@@ -2,9 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-
-#ident "$Id: permfetch.c,v 1.1 2002/10/22 00:03:20 kenmcd Exp $"
-
 /*
  * permfetch - fetch, permute and fetch again - for a bunch of metrics
  */
@@ -130,11 +127,6 @@ Options:\n\
 	exit(1);
     }
 
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
-
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
 	gethostname(local, sizeof(local));
@@ -230,5 +222,4 @@ Options:\n\
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

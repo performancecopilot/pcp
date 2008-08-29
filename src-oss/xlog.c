@@ -2,8 +2,6 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: xlog.c,v 1.1 2002/10/21 00:59:56 kenmcd Exp $"
-
 /*
  * exercise meta-Data services for an archive
  */
@@ -233,5 +231,4 @@ main(int argc, char **argv)
 	grind();
     }
     exit(0);
-    /*NOTREACHED*/
 }

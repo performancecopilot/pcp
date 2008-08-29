@@ -2,7 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: hp-mib.c,v 1.1 2002/10/21 00:59:56 kenmcd Exp $"
 /* short test program for hp-mib metrics */
 
 #include <pcp/pmapi.h>
@@ -204,6 +203,5 @@ main(int argc, char **argv)
     }
     pmDestroyContext(sts);
     exit(0);
-    /*NOTREACHED*/
 }
 

@@ -1,10 +1,3 @@
-/*
- * obs.c
- *
- */
-
-#ident "$Id: obs.c,v 1.1 2002/10/25 01:33:55 kenmcd Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -37,5 +30,4 @@ main(int argc, char **argv)
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

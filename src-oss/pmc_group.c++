@@ -802,8 +802,8 @@ main(int argc, char* argv[])
 
     mesg("Client1: LIST 2 kernel.all.idle localhost:kernel.all.cpu.user");
     metrics.removeAll();
-    metrics.append("kernel.all.cpu.idle");
-    metrics.append("moomba:kernel.all.cpu.user");
+    metrics.append("irix.kernel.all.cpu.idle");
+    metrics.append("moomba:irix.kernel.all.cpu.user");
     sts = client1->list(metrics);
 
     checksts();

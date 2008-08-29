@@ -2,8 +2,6 @@
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: xarch.c,v 1.2 2002/10/22 18:12:29 kenmcd Exp $"
-
 /*
  * exercise archive-based pmFetch and pmSetMode ops
  */
@@ -187,9 +185,6 @@ main(int argc, char **argv)
         printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
         exit(1);
     }
-#ifdef MALLOC_AUDIT
-    atexit(_malloc_audit_);
-#endif
 
     pmUseContext(ctx[0]);
     if (tflag)
@@ -438,5 +433,4 @@ main(int argc, char **argv)
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

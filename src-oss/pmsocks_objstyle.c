@@ -1,10 +1,6 @@
 /*
- * TOOLNAME - one line summary
- *
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
-
-#ident "$Id: pmsocks_objstyle.c,v 1.2 2003/02/11 23:02:22 kenmcd Exp $"
 
 #include <unistd.h>
 #include <limits.h>
@@ -95,15 +91,6 @@ Options\n\
 	exit(1);
     }
 
-#ifdef REALAPP
-    __pmGetLicense(-1, pmProgname, UIMODE);
-#else
-#ifdef __sgi
-    /* authorized client */
-    __pmSetAuthClient();
-#endif
-#endif
-
     if (logfile != NULL) {
 	__pmOpenLog(pmProgname, logfile, stderr, &sts);
 	if (sts < 0) {
@@ -116,11 +103,6 @@ Options\n\
 	       pmnsfile, pmErrStr(sts));
 	exit(1);
     }
-
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;

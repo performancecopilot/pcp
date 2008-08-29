@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: pducheck.c,v 1.1 2002/10/18 22:30:50 kenmcd Exp $"
-
 /*
  * Mongo PDU conversion exerciser --
  * 	+ if run standalone uses Send and Recv down its own pipe.
@@ -15,14 +13,9 @@
 #include <sys/errno.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#ifndef HAVE_DEV_IN_LIBPCP
-#include <pcp/pmapi_dev.h>
-#endif
 #include <pcp/trace.h>
 #include "trace_dev.h"
 #include <math.h>
-
-extern int errno;
 
 static int		fd[2];
 static int		standalone = 1;
@@ -1489,9 +1482,7 @@ _z(int mode)
 }
 
 int
-main(argc, argv)
-int argc;
-char *argv[];
+main(int argc, char **argv)
 {
     int		c;
     int		sts;
@@ -1500,19 +1491,9 @@ char *argv[];
     int		port = 4323;	/* default port for remote connection */
     char	env[100];
     char	*endnum;
-    __pmIPC	ipc = { PDU_VERSION, NULL };
-				/* use this week's protocol version */
     __pmID_int	*pmidp;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "AD:i:Np:?")) != EOF) {
 	switch (c) {
@@ -1589,10 +1570,10 @@ char *argv[];
 	standalone = 0;
     }
 
-    if ((__pmAddIPC(fd[0], ipc) < 0) || (__pmAddIPC(fd[1], ipc) < 0)) {
-	fprintf(stderr, "Error: __pmAddIPC: %s\n", pmErrStr(-errno));
+    if (__pmSetVersionIPC(fd[0], PDU_VERSION) < 0 ||
+	__pmSetVersionIPC(fd[1], PDU_VERSION) < 0) {
+	fprintf(stderr, "Error: __pmSetVersionIPC: %s\n", pmErrStr(-errno));
 	exit(1);
-	/*NOTREACHED*/
     }
 
     pmidlist[0] = (pmID)0;
@@ -1626,5 +1607,4 @@ char *argv[];
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

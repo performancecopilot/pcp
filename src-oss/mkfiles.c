@@ -72,5 +72,4 @@ main(int argc, char* argv[])
 	    close(sts);
     }
     exit(0);
-    /*NOTREACHED*/
 }

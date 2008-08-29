@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: proc_test.c,v 1.2 2002/10/23 07:56:56 pcpqa Exp $"
-
 /*
  * Test Plan
  * ---------
@@ -623,5 +621,4 @@ main(int argc, char **argv)
     pmDestroyContext(sts);
 
     exit(0);
-    /*NOTREACHED*/
 }

@@ -1,10 +1,6 @@
 /*
- * TOOLNAME - one line summary
- *
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
-
-#ident "$Id: template.c,v 1.2 2003/02/11 23:02:22 kenmcd Exp $"
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -251,28 +247,6 @@ Options:\n\
         exit(1);
     }
 
-#ifdef REALAPP
-    /*
-     * if the application is licensed you need to ...
-     *
-     * + construct LIC from the following bit fields:
-     *		PM_LIC_COL      PCP collector license
-     *		PM_LIC_MON      PCP monitor license
-     *		PM_LIC_PCP      PCP collector and/or PCP monitor license
-     *  	PM_LIC_WEB      WebMeter license
-     *
-     * + construct SHOW from the following bit fields:
-     *		GET_LICENSE_DIE		exit if you cannot obtain the license
-     *		GET_LICENSE_SILENT	be silent
-     *		GET_LICENSE_SHOW_EXP	show pending expiration warnings
-     *		GET_LICENSE_SHOW_NOLIC	show no licenses messages
-     *		GET_LICENSE_SHOW_ALL	show all warnings and messages
-     *
-     * messages, if any, go to the place controlled by pmprintf()
-     */
-    __pmGetLicense(LIC, pmProgname, SHOW);
-#endif
-
     if (logfile != NULL) {
 	__pmOpenLog(pmProgname, logfile, stderr, &sts);
 	if (sts < 0) {
@@ -285,11 +259,6 @@ Options:\n\
 	       pmnsfile, pmErrStr(sts));
 	exit(1);
     }
-
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;

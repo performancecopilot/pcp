@@ -1,10 +1,6 @@
 /*
- * TOOLNAME - one line summary
- *
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
-
-#ident "$Id: badloglabel.c,v 1.1 2002/10/22 07:02:33 kenmcd Exp $"
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -80,5 +76,4 @@ main(int argc, char **argv)
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

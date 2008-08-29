@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: scale.c,v 1.1 2002/10/21 00:59:56 kenmcd Exp $"
-
 /*
  * scale - exercise scale conversion, pmConvScale and pmUnitsStr
  */
@@ -225,5 +223,4 @@ main(int argc, char **argv)
     printf("\nPass 3:\n");
 
     exit(0);
-    /*NOTREACHED*/
 }

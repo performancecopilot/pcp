@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: recon.c,v 1.1 2002/10/25 01:33:55 kenmcd Exp $"
-
 /*
  * ping pmcd ... when the connection is lost, note time.
  * keep pinging ... when connection is resumed, report time delta.
@@ -126,5 +124,4 @@ Options:\n\
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

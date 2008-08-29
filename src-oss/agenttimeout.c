@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: agenttimeout.c,v 1.1 2002/10/21 00:59:56 kenmcd Exp $"
-
 #include <sys/types.h>
 #include <time.h>
 #include <stdio.h>
@@ -185,5 +183,4 @@ main(int argc, char *argv[])
     else if (tElapsed > tMax + 2)	/* Allow 2 second's delay in processing */
 	fprintf(stderr, "Fetch took too long to time out: %d\n", tElapsed);
     exit(0);
-    /*NOTREACHED*/
 }

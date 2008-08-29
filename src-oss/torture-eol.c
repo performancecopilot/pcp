@@ -222,5 +222,4 @@ Options\n\
     }
 
     exit(e_sts);
-    /*NOTREACHED*/
 }

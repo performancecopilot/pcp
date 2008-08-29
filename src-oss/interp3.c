@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: interp3.c,v 1.1 2002/10/22 00:03:20 kenmcd Exp $"
-
 /*
  * exercise archive-based pmFetch and pmSetMode ops in interpolate mode
  */
@@ -192,9 +190,6 @@ main(int argc, char **argv)
         printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
         exit(1);
     }
-#ifdef MALLOC_AUDIT
-    atexit(_malloc_audit_);
-#endif
 
     pmUseContext(ctx[0]);
     if (tflag)
@@ -439,5 +434,4 @@ main(int argc, char **argv)
     fflush(stdout);
 
     exit(0);
-    /*NOTREACHED*/
 }

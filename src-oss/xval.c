@@ -2,8 +2,6 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: xval.c,v 1.1 2002/10/21 00:59:56 kenmcd Exp $"
-
 #include <stdio.h>
 #include <math.h>
 #include <pcp/pmapi.h>
@@ -218,5 +216,4 @@ main(int argc, char *argv[])
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

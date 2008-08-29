@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: descreqX2.c,v 1.1 2002/10/25 01:33:55 kenmcd Exp $"
-
 /*
  * 2 DESC_REQs back-to-back ... trying to understand www.sgi.com PMDA deaths
  */
@@ -108,6 +106,5 @@ char *argv[];
 	fprintf(stderr, "__pmGetPDUX2 -> 0x%x\n", e);
 
     exit(0);
-    /*NOTREACHED*/
 }
 

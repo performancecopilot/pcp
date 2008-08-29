@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: disk_test.c,v 1.1 2002/10/18 22:30:50 kenmcd Exp $"
-
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -151,6 +149,5 @@ main(int argc, char **argv)
     }
 
     exit(0);
-    /*NOTREACHED*/
 }
 

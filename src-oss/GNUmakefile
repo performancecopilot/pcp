@@ -2,8 +2,6 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: GNUmakefile,v 1.32 2007/02/26 06:06:46 kimbrr Exp $
-#
 
 ifdef PCP_CONF
 include $(PCP_CONF)
@@ -21,64 +19,19 @@ root-snarf:
 endif
 
 OBJSTYLE =
-
-ifeq ($(PCP_PLATFORM), irix)
-include /usr/include/make/commondefs
-include versiondefs
-
-LIBGEN = -lgen
-
-OBJSTYLE = n32
-ifeq ($(IRIX), IRIX5_3)
-OBJSTYLE = o32
-endif
-ifeq ($(IRIX), IRIX6_2)
-OBJSTYLE = o32
-endif
-ifeq ($(IRIX), IRIX6_3)
-OBJSTYLE = o32
-endif
-ifeq ($(IRIX), IRIX6_4)
-OBJSTYLE = o32
-endif
-
-ifeq ($(OBJSTYLE), o32)
-LIBPCP2 = /usr/lib/libpcp.so.2
-LIBPMDA2 = /usr/lib/libpcp_pmda.so.2
-LIBTRACE = /usr/lib/libpcp_trace.so.1
-LIBPMC = /usr/lib/libpcp_pmc.a
-OPTS_32 = -o32 -mips1
-else
-LIBPCP2 = /usr/lib32/libpcp.so.2
-LIBPMDA2 = /usr/lib32/libpcp_pmda.so.2
-LIBTRACE = /usr/lib32/libpcp_trace.so.1
-OPTS_32 = -n32 -mips3
-endif
-
-else
-# not IRIX
-
 INCPMC	= -I/usr/include/pcp/pmc
 LIBPMC = /usr/lib/libpcp_pmc.so.1
 
 ifeq ($(PCP_PLATFORM), solaris)
 LIBSOL = -lsocket
+endif
 
-else
-# not Irix or Solaris
-RPATH = -Wl,-rpath,/usr/share/pcp/compat
 LIBPCP2 = -lpcp
 LIBPMDA2 = -lpcp_pmda
-LIBGEN =
-endif
-endif
 
 HAVE_DYNAMIC	= $(shell grep DYNAMIC $(PCP_VAR_DIR)/pmns/stdpmid >/dev/null && echo 1; exit 0)
 
-# now, libpcp_pmc is _in_ the open source distribution, this is no longer
-# conditional
-# HAVE_PMC	= $(shell [ -f $(LIBPMC) ] && echo 1; exit 0)
-HAVE_PMC	= 1
+HAVE_PMC	= $(shell [ -f $(LIBPMC) ] && echo 1; exit 0)
 
 LITE_LDLIBS	= -lpcp
 
@@ -88,18 +41,7 @@ DBG     = -DPCP_DEBUG -DDEBUG -g
 
 DEBUG   = $(DBG)
 
-HAVE_64		= $(shell test `uname -m` = "ia64" && echo 1 || echo 0)
-
-ifeq ($(PCP_PLATFORM), irix)
-DEBUG	+= -D$(IRIX)=1
-# when DEBUG includes -g, turn off optimization
-ifneq ($(findstring $(DEBUG),-g), )
-OPTIMIZER	= -O0
-endif
-ifneq ($(findstring $(IRIX_OBJECT),64), )
-HAVE_64		= 1
-endif
-endif
+HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || echo 0)
 
 SRCARCH	= mirage.0 moomba.client.0 babylon.percpu.0 omen.client.0 \
 	bozo.client.0 late.0 ok-bigbin.0 ok-mv-bigbin.0 ok-noti-bigbin.0 \
@@ -238,10 +180,6 @@ clobber: clean-exec clean-arch
 	rm -rf $(LDIRT) $(OBJECTS)
 
 $(TARGETS):
-
-ifeq ($(PCP_PLATFORM), irix)
-include $(COMMONRULES)
-endif
 
 install: default
 

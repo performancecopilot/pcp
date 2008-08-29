@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: chkctx2.c,v 1.1 2002/10/21 00:59:56 kenmcd Exp $"
-
 #define SOURCE handle == 0 ? "host" : ( type == PM_CONTEXT_ARCHIVE ? "archive" : "host" )
 #define HOST handle == 0 ? "localhost" : host
 
@@ -213,5 +211,4 @@ main(int argc, char **argv)
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

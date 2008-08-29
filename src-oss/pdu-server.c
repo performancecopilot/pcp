@@ -13,25 +13,12 @@
  *		for PDUs
  */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <errno.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <string.h>
-#include <stdlib.h>
-
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#ifndef HAVE_DEV_IN_LIBPCP
-#include <pcp/pmapi_dev.h>
-#endif
 #include <pcp/trace.h>
 #include "trace_dev.h"
 
-static int	raw = 0;	/* if set, echo PDUs, do not decode/encode */
+static int	raw;		/* if set, echo PDUs, do not decode/encode */
 
 typedef struct {		/* from src/libpcp/src/p_pmns.c */
     __pmPDUHdr   hdr;
@@ -253,29 +240,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    fail = 0;
 	    break;
 
-#ifdef __sgi
-	case PDU_CONTROL_REQ:
-	    if ((e = __pmDecodeControlReq(pb, mode, &rp, &control, &state, &rate)) < 0) {
-		fprintf(stderr, "%s: Error: DecodeControlReq: %s\n", pmProgname, pmErrStr(e));
-	        break;
-	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
-		fprintf(stderr, "+ PDU_CONTROL_REQ: control=%d state=%d rate=%d\n",
-		    control, state, rate);
-		__pmDumpResult(stderr, rp);
-	    }
-#endif
-	    e = __pmSendControlReq(fd, mode, rp, control, state, rate);
-	    pmFreeResult(rp);
-	    if (e < 0) {
-		fprintf(stderr, "%s: Error: SendControlReq: %s\n", pmProgname, pmErrStr(e));
-		break;
-	    }
-	    fail = 0;
-	    break;
-#endif /* __sgi */
-
 	case PDU_TEXT_REQ:
 	    if ((e = __pmDecodeTextReq(pb, mode, &ident, &txtype)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeTextReq: %s\n", pmProgname, pmErrStr(e));
@@ -328,28 +292,6 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    fail = 0;
 	    free(buffer);
 	    break;
-
-#ifdef __sgi
-	case PDU_DATA_X: {
-	    void *vp;
-	    if ((e = __pmDecodeDataX(pb, mode, &xtype, &xlen, (void **)&vp)) < 0) {
-		fprintf(stderr, "%s: Error: DecodeDataX: %s\n", pmProgname, pmErrStr(e));
-		break;
-	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0)
-		fprintf(stderr, "+ PDU_DATA_X: content opaque\n");
-#endif
-	    e = __pmSendDataX(fd, mode, xtype, xlen, vp);
-	    __pmUnpinPDUBuf(vp);
-	    if (e < 0) {
-		fprintf(stderr, "%s: Error: SendDataX: %s\n", pmProgname, pmErrStr(e));
-		break;
-	    }
-	    fail = 0;
-	}
-	    break;
-#endif /* __sgi */
 
 	case PDU_CREDS:
 	    if ((e = __pmDecodeCreds(pb, mode, &sender, &count, &creds)) < 0) {
@@ -631,19 +573,8 @@ main(int argc, char *argv[])
     char	*p;
     __pmPDU	*pb;
     __pmPDUHdr	*php;
-    __pmIPC	ipc = { PDU_VERSION, NULL };
-			/* use this week's protocol version */
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
-    extern int	errno;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:p:rZ:?")) != EOF) {
 	switch (c) {
@@ -668,7 +599,6 @@ main(int argc, char *argv[])
 	    if (*endnum != '\0') {
 		fprintf(stderr, "%s: port argument must be a numeric internet port number\n", pmProgname);
 		exit(1);
-		/*NOTREACHED*/
 	    }
 	    break;
 
@@ -686,26 +616,22 @@ main(int argc, char *argv[])
     if (errflag || optind != argc) {
 	fprintf(stderr, "Usage: %s [-D n] [-p port] [-r] [-Z timezone]\n", pmProgname);
 	exit(1);
-	/*NOTREACHED*/
     }
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
 	perror("socket");
 	exit(1);
-	/*NOTREACHED*/
     }
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i,
 		   sizeof(i)) < 0) {
 	perror("setsockopt(nodelay)");
 	exit(1);
-	/*NOTREACHED*/
     }
     /* Don't linger on close */
     if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &noLinger, sizeof(noLinger)) < 0) {
 	perror("setsockopt(nolinger)");
 	exit(1);
-	/*NOTREACHED*/
     }
 
     memset(&myAddr, 0, sizeof(myAddr));
@@ -716,14 +642,12 @@ main(int argc, char *argv[])
     if (sts < 0) {
 	fprintf(stderr, "bind(%d): %s\n", port, strerror(errno));
 	exit(1);
-	/*NOTREACHED*/
     }
 
     sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	perror("listen");
 	exit(1);
-	/*NOTREACHED*/
     }
 
     fprintf(stderr, "%s: MYPID %d %x\n", pmProgname, getpid(), getpid());
@@ -734,15 +658,13 @@ main(int argc, char *argv[])
 	if (newfd < 0) {
 	    fprintf(stderr, "%s: accept: %s\n", pmProgname, strerror(errno));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	new = 1;
 
-	if (!raw && __pmAddIPC(newfd, ipc) < 0) {
-	    fprintf(stderr, "%s: __pmAddIPC: %s\n", pmProgname, pmErrStr(-errno));
+	if (!raw && __pmSetVersionIPC(newfd, PDU_VERSION) < 0) {
+	    fprintf(stderr, "%s: __pmSetVersionIPC: %s\n", pmProgname, pmErrStr(-errno));
 	    exit(1);
-	    /*NOTREACHED*/
 	}
 
 	for ( ; ; ) {
@@ -789,5 +711,4 @@ main(int argc, char *argv[])
 	close(newfd);
     }
 
-    /*NOTREACHED*/
 }

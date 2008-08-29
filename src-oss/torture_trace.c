@@ -153,5 +153,4 @@ main(int argc, char *argv[])
     fprintf(stderr, "    pmtracetransact %d\n", transactcount);
 
     exit(0);
-    /*NOTREACHED*/
 }

@@ -4,8 +4,6 @@
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: dynamic_pmda.c,v 1.1 2005/05/26 06:38:49 kenmcd Exp $"
-
 #include <stdio.h>
 #include <syslog.h>
 #include <errno.h>
@@ -422,5 +420,4 @@ main(int argc, char **argv)
     pmdaMain(&dispatch);
 
     exit(0);
-    /*NOTREACHED*/
 }

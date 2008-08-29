@@ -6,8 +6,6 @@
  * pmcd pmda was botched
  */
 
-#ident "$Id: badpmcdpmid.c,v 1.1 2002/10/22 00:03:20 kenmcd Exp $"
-
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -40,5 +38,4 @@ main()
 	printf("no value in pmResult -- expected\n");
 
     exit(0);
-    /*NOTREACHED*/
 }

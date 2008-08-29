@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: nameall.c,v 1.1 2002/10/22 07:02:33 kenmcd Exp $"
-
 /*
  * nameall - exercise pmNameAll
  */
@@ -188,5 +186,4 @@ main(int argc, char **argv)
 #endif
 
   exit(0);
-  /*NOTREACHED*/
 }/*main*/

@@ -2,8 +2,6 @@
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: hex2nbo.c,v 1.2 2002/10/21 11:20:04 kenmcd Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

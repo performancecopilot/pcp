@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: chkoptfetch.c,v 1.1 2002/10/18 22:30:50 kenmcd Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -44,7 +42,6 @@ setup(int i, int pmid_d, int pmid_i, int indom_d, int indom_s, int loinst, int h
     desc = (pmDesc *)realloc(desc, (i+1) * sizeof(desc[0]));
     if (desc == (pmDesc *)0) {
 	__pmNoMem("setup.desc", (i+1) * sizeof(desc[0]), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     desc[i].pmid = pmid;
     desc[i].type = PM_TYPE_32;
@@ -55,14 +52,12 @@ setup(int i, int pmid_d, int pmid_i, int indom_d, int indom_s, int loinst, int h
     req = (optreq_t *)realloc(req, (i+1) * sizeof(req[0]));
     if (req == (optreq_t *)0) {
 	__pmNoMem("setup.req", (i+1) * sizeof(req[0]), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     if (loinst != -1) {
 	req[i].r_numinst = numinst = (hiinst - loinst + 1);
 	req[i].r_instlist = (int *)malloc(numinst * sizeof(req[i].r_instlist[0]));
 	if (req[i].r_instlist == (int *)0) {
 	    __pmNoMem("setup.instlist", numinst * sizeof(req[i].r_instlist[0]), PM_FATAL_ERR);
-	    /*NOTREACHED*/
 	}
 	for (j = 0; j < numinst; j++)
 	    req[i].r_instlist[j] = loinst + j;
@@ -76,12 +71,10 @@ setup(int i, int pmid_d, int pmid_i, int indom_d, int indom_s, int loinst, int h
     cost = (int *)realloc(cost, (i+1) * sizeof(cost[0]));
     if (cost == (int *)0) {
 	__pmNoMem("setup.cost", (i+1) * sizeof(cost[0]), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
     nfetch = (int *)realloc(nfetch, (i+1) * sizeof(nfetch[0]));
     if (nfetch == (int *)0) {
 	__pmNoMem("setup.nfetch", (i+1) * sizeof(nfetch[0]), PM_FATAL_ERR);
-	/*NOTREACHED*/
     }
 }
 
@@ -306,5 +299,4 @@ main(int argc, char **argv)
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

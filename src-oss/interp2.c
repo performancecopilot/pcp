@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: interp2.c,v 1.1 2002/10/22 00:03:20 kenmcd Exp $"
-
 /*
  * interp2 - random offset PM_MODE_INTERP exercises
  */
@@ -116,19 +114,10 @@ Options\n\
 	exit(1);
     }
 
-#ifdef REALAPP
-    __pmGetLicense(-1, pmProgname, UIMODE);
-#endif
-
     if ((sts = pmLoadNameSpace(namespace)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);
     }
-
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
 
     if (ahtype == 0) {
 	fprintf(stderr, "%s: -a is not optional!\n", pmProgname);
@@ -213,5 +202,4 @@ Options\n\
     }
 
     exit(0);
-    /*NOTREACHED*/
 }
