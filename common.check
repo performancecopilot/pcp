@@ -230,11 +230,11 @@ _wait_for_pmlogger()
 	    else
 	    	if [ "`hostname | sed -e 's/\..*//'`" != $_pmcdhost ]
 	    	then
-	    	    if scp $_pmcdhost:$PCP_LOG_DIR/pmcd/pmcd.log \
+	    	    if scp -q $_pmcdhost:$PCP_LOG_DIR/pmcd/pmcd.log \
 	    	      $tmp._wait_for_pmlogger.pmcdlog
 	    	    then
 	    	    	cat $tmp._wait_for_pmlogger.pmcdlog
-	    	    elif scp $_pmcdhost:$PCP_LOG_DIR/pmcd.log \
+	    	    elif scp -q $_pmcdhost:$PCP_LOG_DIR/pmcd.log \
 	    	      $tmp._wait_for_pmlogger.pmcdlog
 	    	    then
 	    	    	cat $tmp._wait_for_pmlogger.pmcdlog
