@@ -39,6 +39,10 @@ _cleanup()
     $sudo /etc/init.d/pmproxy start >/dev/null 2>&1
 }
 
+_filter_pmproxy()
+{
+    sed -e '/^__pmSetSocketIPC: fd=/d' -e '/^IPC table fd/d'
+}
 
 _check()
 {
@@ -49,7 +53,7 @@ _check()
 $sudo /etc/init.d/pmproxy stop >/dev/null 2>&1
 $sudo killall pmproxy >/dev/null 2>&1
 
-pmproxy -Dcontext -l $tmp.log
+pmproxy -Dcontext -l $tmp.log 2>&1 | _filter_pmproxy
 
 PMPROXY_HOST=localhost
 export PMPROXY_HOST
