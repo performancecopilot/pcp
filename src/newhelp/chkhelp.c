@@ -33,7 +33,7 @@
 static int	version = VERSION;
 
 /*
- * these two are from libpcp/gettext.c
+ * Note: these two are from libpcp_pmda/src/help.c
  */
 typedef struct {
     pmID	pmid;
@@ -44,6 +44,10 @@ typedef struct {
 typedef struct {
     int		dir_fd;
     int		pag_fd;
+#if defined(IS_MINGW)
+    HANDLE	handle;
+    HANDLE	texthandle;
+#endif
     int		numidx;
     help_idx_t	*index;
     char	*text;

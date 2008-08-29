@@ -31,23 +31,23 @@
 #include <sys/mman.h>
 #endif
 
-typedef struct {
+typedef struct {	/* beware: this data structure mirrored in chkhelp */
     pmID	pmid;
     __uint32_t	off_oneline;
     __uint32_t	off_text;
 } help_idx_t;
 
-typedef struct {
+typedef struct {	/* beware: this data structure mirrored in chkhelp */
     int		dir_fd;
     int		pag_fd;
 #if defined(IS_MINGW)
     HANDLE	handle;
     HANDLE	texthandle;
 #endif
-    int		textlen;
     int		numidx;
     help_idx_t	*index;
     char	*text;
+    int		textlen;
 } help_t;
 
 static help_t	*tab = NULL;
