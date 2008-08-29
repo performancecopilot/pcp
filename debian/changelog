@@ -1,3 +1,16 @@
+pcp (2.7.4-20080829) unstable; urgency=low
+
+  * Added the Perl PCP::PMDA interface package - libpcp-pmda-perl.
+  * Several new Perl PMDAs (mysql, dbping, systemtap, memcached).
+  * Several new Linux kernel metrics (cpu steal time, IO scheduler,
+    additional NFS server metrics).
+  * Many portability changes for native Win32 builds under MinGW.
+  * Deprecated (IRIX) pmkstat tool is now removed.
+  * Old "irix." metric auto-prepend-on-failure hack removed.
+  * Huge code cleanup, most/all IRIX-specific code removed.
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 29 Aug 2008 16:48:13 +1000
+
 pcp (2.7.4-20080507) unstable; urgency=low
 
   * Fix location of pcp.conf - moved into libpcp runtime.
