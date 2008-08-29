@@ -224,7 +224,7 @@ echo
 
 echo "expect two connection limit errors:"
 cmd1='sh -c "PMCD_CONNECT_TIMEOUT=30 PMCD_PORT='$PMCD_PORT'; export PMCD_CONNECT_TIMEOUT PMCD_PORT; pmval -h '$LOCALHOST_FULL' pmcd.numclients"'
-(ssh pcpqa@$other1 $cmd1  &) 1>$tmp.pmval 2>&1
+(ssh -q pcpqa@$other1 $cmd1  &) 1>$tmp.pmval 2>&1
 sleep 5
 
 # not sure how long it takes to get the remote pmval command started,
@@ -235,7 +235,7 @@ cnt=0
 echo >$tmp.pminfo
 for i in 1 2 3 4 5 6 7 8 9 10
 do
-    ssh pcpqa@$other1 $cmd2 >$tmp.tmp 2>&1
+    ssh -q pcpqa@$other1 $cmd2 >$tmp.tmp 2>&1
     cat $tmp.tmp >>$tmp.pminfo
     if grep 'connection limit' $tmp.tmp >/dev/null
     then
@@ -250,7 +250,7 @@ if [ $cnt -ne 2 ]
 then
     cat $tmp.pminfo
 fi
-ssh pcpqa@$other1 killall pmval > /dev/null 2>&1
+ssh -q pcpqa@$other1 killall pmval > /dev/null 2>&1
 echo
 echo "=== pmval output ===" >>$seq.full
 cat $tmp.pmval >>$seq.full
@@ -258,7 +258,7 @@ echo "=== pminfo output ===" >>$seq.full
 cat $tmp.pminfo >>$seq.full
 
 echo "expect two connection limit errors:"
-(ssh pcpqa@$other2 pcpqa $cmd1 &) > $tmp.pmval 2>&1
+(ssh -q pcpqa@$other2 pcpqa $cmd1 &) > $tmp.pmval 2>&1
 sleep 5
 
 # not sure how long it takes to get the remote pmval command started
@@ -268,7 +268,7 @@ found=false
 echo >$tmp.pminfo
 for i in 1 2 3 4 5 6 7 8 9 10
 do
-    ssh pcpqa@$other2 $cmd2 >$tmp.tmp 2>&1
+    ssh -q pcpqa@$other2 $cmd2 >$tmp.tmp 2>&1
     cat $tmp.tmp >>$tmp.pminfo
     if grep 'connection limit' $tmp.tmp >/dev/null
     then
@@ -293,7 +293,7 @@ found=false
 echo >$tmp.pmstore
 for i in 1 2 3 4 5 6 7 8 9 10
 do
-    ssh pcpqa@$other2 $cmd3 >$tmp.tmp 2>&1
+    ssh -q pcpqa@$other2 $cmd3 >$tmp.tmp 2>&1
     cat $tmp.tmp >>$tmp.pmstore
     if grep 'connection limit' $tmp.tmp >/dev/null
     then
@@ -305,7 +305,7 @@ do
     sleep 1
 done
 $found || cat $tmp.pmstore
-ssh pcpqa@$other2 killall pmval > /dev/null 2>&1
+ssh -q pcpqa@$other2 killall pmval > /dev/null 2>&1
 echo
 echo "=== pmval output ===" >>$seq.full
 cat $tmp.pmval >>$seq.full

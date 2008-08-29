@@ -184,7 +184,7 @@ echo '=== Attempting bad remote access ==='
 echo "=== Attempting bad remote access ===" >>$here/$seq.full
 # Error message mapping is for Linux
 #
-ssh pcpqa@$otherhost "sh -c 'PCP_TRACE_HOST=$qahost pmtrace -v 1 eek'" 2>&1 \
+ssh -q pcpqa@$otherhost "sh -c 'PCP_TRACE_HOST=$qahost pmtrace -v 1 eek'" 2>&1 \
 | tee -a $here/$seq.full \
 | sed \
     -e "s/Interrupted function call/Cannot connect to PMDA - permission denied/" \

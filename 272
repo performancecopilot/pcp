@@ -76,12 +76,12 @@ _wait_for_pmcd_from_remote()
     dead=true
     while [ $i -lt $can_wait ]
     do
-	clients=`ssh $1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'" 2>/dev/null | sed -e 's/.* //'`
+	clients=`ssh $1 -q -n -l pcpqa "sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'" 2>/dev/null | sed -e 's/.* //'`
 	if [ $i -eq 0 ]
 	then
 	    echo >>$seq.full
-	    echo "+ ssh $1 -n -l pcpqa \"sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'\"" >>$seq.full
-	    ssh $1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'" >>$seq.full 2>&1
+	    echo "+ ssh $1 -q -n -l pcpqa \"sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'\"" >>$seq.full
+	    ssh $1 -q -n -l pcpqa "sh -c 'PMCD_PORT=$port pmprobe -h $me pmcd.numclients'" >>$seq.full 2>&1
 	    echo "clients=\"$clients\"" >>$seq.full
 	fi
 	if [ ! -z "$clients" ]
@@ -98,7 +98,7 @@ _wait_for_pmcd_from_remote()
     if $dead
     then
 	echo "Arrgghhh ... pmcd failed to start after $can_wait seconds"
-	ssh $1 -n -l pcpqa cat $PCP_PMCDLOG_PATH
+	ssh $1 -q -n -l pcpqa cat $PCP_PMCDLOG_PATH
 	ps $PCP_PS_ALL_FLAGS
 	status=2
 	exit $status
@@ -166,7 +166,7 @@ if [ -z "$list1" ]
 then
     echo "Arrgh ... failed to expand other1=\"$other1\" to all hostnames"
     echo "netstat reports ..."
-    ssh </dev/null $other1 -n -l pcpqa $NETSTAT -in
+    ssh -q </dev/null $other1 -n -l pcpqa $NETSTAT -in
     exit
 fi
 list2=`_all_hostnames $other2`
@@ -174,7 +174,7 @@ if [ -z "$list2" ]
 then
     echo "Arrgh ... failed to expand other2=\"$other2\" to all hostnames"
     echo "netstat reports ..."
-    ssh </dev/null $other2 -n -l pcpqa $NETSTAT -in
+    ssh -q </dev/null $other2 -n -l pcpqa $NETSTAT -in
     exit
 fi
 echo "other1=$other1 list1=$list1" >>$seq.full
@@ -214,17 +214,17 @@ pmstore sample.write_me 111
 
 echo
 echo "    checking access for OTHERHOST1 (both should succeed)"
-ssh $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.million'"
-ssh $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me sample.write_me 222'"
+ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.million'"
+ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me sample.write_me 222'"
 
 echo
 echo "    checking access for OTHERHOST2 (store should fail)"
-ssh $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.hundred'"
-ssh $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me sample.write_me 333'"
+ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.hundred'"
+ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me sample.write_me 333'"
 
 echo
 echo "    checking connection limit for OTHERHOST2 (will exceed connection limit)"
-ssh $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmval -h $me -t 666 sample.long.ten'" >/dev/null 2>&1 &
+ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmval -h $me -t 666 sample.long.ten'" >/dev/null 2>&1 &
 # guess at delay
 #
 sleep `expr $PMCD_CONNECT_TIMEOUT / 2`
@@ -234,13 +234,13 @@ sleep `expr $PMCD_CONNECT_TIMEOUT / 2`
 # of this for pmcd on a Linux host and $other2 being an IRIX host, and it
 # is _not_ a PCP protocol failure.
 #
-ssh $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.one'" 2>&1 \
+ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.one'" 2>&1 \
 | sed \
     -e 's/".*"/"OTHERHOST2"/' \
     -e 's/IPC protocol failure/PMCD connection limit for this host exceeded/'
 #DEBUG# echo "Trying connection limit pminfo again ..." >>$seq.full
-#DEBUG# ssh $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port par -s -SS pminfo -Dall -h $me -f sample.long.one'" >>$seq.full 2>&1
-ssh $other2 -n -l pcpqa killall pmval > /dev/null 2>&1
+#DEBUG# ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port par -s -SS pminfo -Dall -h $me -f sample.long.one'" >>$seq.full 2>&1
+ssh -q $other2 -n -l pcpqa killall pmval > /dev/null 2>&1
 
 echo "pmcd.log:======="
 sed -n <$PCP_PMCDLOG_PATH -e '/endclient/{
@@ -297,7 +297,7 @@ cat $config >>$seq.full
 
 $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd_from_remote $other1
-ssh $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me pmcd.control.debug 4096'"
+ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me pmcd.control.debug 4096'"
 
 echo "    checking default access for this host (store should fail) ..."
 
@@ -306,13 +306,13 @@ pmstore sample.write_me 444
 
 echo
 echo "    checking access for OTHERHOST1 (both should succeed)"
-ssh $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.million'"
-ssh $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me sample.write_me 555'"
+ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.million'"
+ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me sample.write_me 555'"
 
 echo
 echo "    checking access for OTHERHOST2 (store should fail)"
-ssh $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.hundred'"
-ssh $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me sample.write_me 666'"
+ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.hundred'"
+ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me sample.write_me 666'"
 
 echo
 echo "    checking default access for explicit/localhost (both should fail)"

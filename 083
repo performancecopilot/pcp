@@ -206,7 +206,7 @@ fi
 echo
 echo "================"
 echo "checking enquire access for other1..."
-ssh pcpqa@$other1 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
+ssh -q pcpqa@$other1 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
 | _filter
 query kernel.all.load[1,5,15]
 quit
@@ -220,7 +220,7 @@ fi
 echo
 echo "================"
 echo "checking enquire access for other2 (should fail)..."
-ssh pcpqa@$other2 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
+ssh -q pcpqa@$other2 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
 | _filter
 query kernel.all.load[1,5,15]
 quit
@@ -296,7 +296,7 @@ echo
 echo "================"
 echo "checking advisory access for other1..."
 echo "(200,500 will change, 800 will not)"
-ssh pcpqa@$other1 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
+ssh -q pcpqa@$other1 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
 | _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
 advisory on 1 hour sample.bin[200]
@@ -315,7 +315,7 @@ echo
 echo "================"
 echo "checking advisory access for other2..."
 echo "(expect 3 permission errors)"
-ssh pcpqa@$other2 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
+ssh -q pcpqa@$other2 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
 | _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
 advisory on 1 hour sample.bin[300]
@@ -369,7 +369,7 @@ echo
 echo "================"
 echo "checking mandatory access for other1..."
 echo "Expect 3 permission errors"
-ssh pcpqa@$other1 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
+ssh -q pcpqa@$other1 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
 | _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
 mandatory on 3 hour sample.bin[200]
@@ -388,7 +388,7 @@ echo
 echo "================"
 echo "checking mandatory access for other2..."
 echo "Expect 3 permission errors"
-ssh pcpqa@$other2 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
+ssh -q pcpqa@$other2 "sh -c 'PMCD_CONNECT_TIMEOUT=60 PMCD_REQUEST_TIMEOUT=60 pmlc -h $me -P'" <<End-Of-File 2>$errors \
 | _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
 mandatory on 3 hour sample.bin[300]

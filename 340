@@ -182,12 +182,12 @@ if $dov1hosts
 then
     echo
     echo "    checking access for list1 (should fail)"
-    ssh pcpqa@$other1 pminfo -h $me -f pmcd.numclients 2>&1 \
+    ssh -q pcpqa@$other1 pminfo -h $me -f pmcd.numclients 2>&1 \
       | sed -e 's/"'$me'"/"HOST"/g'
 fi
 echo
 echo "    checking access for list2 (should fail)"
-ssh pcpqa@$other2 pminfo -h $me -f pmcd.numclients 2>&1 \
+ssh -q pcpqa@$other2 pminfo -h $me -f pmcd.numclients 2>&1 \
   | sed -e 's/"'$me'"/"HOST"/g'
 
 echo "pmcd.log:======="
@@ -261,13 +261,13 @@ if $dov1hosts
 then
     echo
     echo "    checking access for iplist1 (should fail)"
-    ssh pcpqa@$other1 pminfo -h $me -f pmcd.numclients 2>&1 \
+    ssh -q pcpqa@$other1 pminfo -h $me -f pmcd.numclients 2>&1 \
       | sed -e 's/"'$me'"/"HOST"/g'
 fi
 
 echo
 echo "    checking access for iplist2 (should fail)"
-ssh pcpqa@$other2 pminfo -h $me -f pmcd.numclients 2>&1 \
+ssh -q pcpqa@$other2 pminfo -h $me -f pmcd.numclients 2>&1 \
   | sed -e 's/"'$me'"/"HOST"/g'
 
 echo "pmcd.log:======="
