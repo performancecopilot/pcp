@@ -53,6 +53,7 @@ _filter()
 	-e 's/metrics and [0-9][0-9]*/metrics and N/' \
 	-e '/^sendmail\..* No value(s) available/d' \
 	-e "/make: Nothing to be done for .install./d" \
+	-e '/^Installing .mchart view*/d' \
 	-e '/Installing files \.\.\./d' \
 	-e '/Removing files \.\.\./d'
 }
