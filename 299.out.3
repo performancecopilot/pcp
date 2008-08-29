@@ -1,0 +1,279 @@
+QA output created by 299
+=== No instance and no error cases ===
+
+pmParseMetricSpec("sample", 1, "default_arch", ...)
+isarch:   1
+source:   "default_arch"
+metric:   "sample"
+
+pmParseMetricSpec("sample", 0, "default_host", ...)
+isarch:   0
+source:   "default_host"
+metric:   "sample"
+
+pmParseMetricSpec("my_arch/sample", 1, "default_arch", ...)
+isarch:   1
+source:   "my_arch"
+metric:   "sample"
+
+pmParseMetricSpec("my_host:sample", 0, "default_host", ...)
+isarch:   0
+source:   "my_host"
+metric:   "sample"
+
+pmParseMetricSpec("other_host:sample", 1, "default_arch", ...)
+isarch:   0
+source:   "other_host"
+metric:   "sample"
+
+pmParseMetricSpec("/other/arch/sample", 0, "default_host", ...)
+isarch:   1
+source:   "/other/arch"
+metric:   "sample"
+
+pmParseMetricSpec("@:sample", 0, "default_host", ...)
+isarch:   2
+source:   "@"
+metric:   "sample"
+
+=== One instance and no error cases ===
+
+pmParseMetricSpec("sample[singular]", 1, "default_arch", ...)
+isarch:   1
+source:   "default_arch"
+metric:   "sample"
+inst[0]:  "singular"
+
+pmParseMetricSpec("sample[singular]", 0, "default_host", ...)
+isarch:   0
+source:   "default_host"
+metric:   "sample"
+inst[0]:  "singular"
+
+pmParseMetricSpec("my_arch/sample[singular]", 1, "default_arch", ...)
+isarch:   1
+source:   "my_arch"
+metric:   "sample"
+inst[0]:  "singular"
+
+pmParseMetricSpec("my_host:sample[singular]", 0, "default_host", ...)
+isarch:   0
+source:   "my_host"
+metric:   "sample"
+inst[0]:  "singular"
+
+pmParseMetricSpec("other_host:sample[singular]", 1, "default_arch", ...)
+isarch:   0
+source:   "other_host"
+metric:   "sample"
+inst[0]:  "singular"
+
+pmParseMetricSpec("/other/arch/sample[singular]", 0, "default_host", ...)
+isarch:   1
+source:   "/other/arch"
+metric:   "sample"
+inst[0]:  "singular"
+
+pmParseMetricSpec("@:sample[singular]", 0, "default_host", ...)
+isarch:   2
+source:   "@"
+metric:   "sample"
+inst[0]:  "singular"
+
+=== Multiple instances and no error cases ===
+
+pmParseMetricSpec("sample[one,two,three]", 1, "default_arch", ...)
+isarch:   1
+source:   "default_arch"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+pmParseMetricSpec("sample[one,two,three]", 0, "default_host", ...)
+isarch:   0
+source:   "default_host"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+pmParseMetricSpec("my_arch/sample[one,two,three]", 1, "default_arch", ...)
+isarch:   1
+source:   "my_arch"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+pmParseMetricSpec("my_host:sample[one,two,three]", 0, "default_host", ...)
+isarch:   0
+source:   "my_host"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+pmParseMetricSpec("other_host:sample[one,two,three]", 1, "default_arch", ...)
+isarch:   0
+source:   "other_host"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+pmParseMetricSpec("/other/arch/sample[one,two,three]", 0, "default_host", ...)
+isarch:   1
+source:   "/other/arch"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+pmParseMetricSpec("@:sample[one,two,three]", 0, "default_host", ...)
+isarch:   2
+source:   "@"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+=== Some whitespace cases ===
+
+pmParseMetricSpec(" my_host : sample [ one , two , three ] ", 0, "default_host", ...)
+isarch:   0
+source:   "my_host"
+metric:   "sample"
+inst[0]:  "one"
+inst[1]:  "two"
+inst[2]:  "three"
+
+pmParseMetricSpec("my_arch   /   sample  [singular]", 1, "default_arch", ...)
+isarch:   1
+source:   "my_arch"
+metric:   "sample"
+inst[0]:  "singular"
+
+=== Miscellaneous cases ===
+
+pmParseMetricSpec("../../relative/pathname/myarch/metric", 0, "default_host", ...)
+isarch:   1
+source:   "../../relative/pathname/myarch"
+metric:   "metric"
+
+pmParseMetricSpec("metric.a.b.c.d[]", 0, "default_host", ...)
+isarch:   0
+source:   "default_host"
+metric:   "metric.a.b.c.d"
+
+pmParseMetricSpec("/full/pathname/myarch/metric[fumble mumble]", 0, "default_host", ...)
+isarch:   1
+source:   "/full/pathname/myarch"
+metric:   "metric"
+inst[0]:  "fumble"
+inst[1]:  "mumble"
+
+pmParseMetricSpec("./myarch/metric[fumble,,mumble]", 0, "default_host", ...)
+isarch:   1
+source:   "./myarch"
+metric:   "metric"
+inst[0]:  "fumble"
+inst[1]:  "mumble"
+
+pmParseMetricSpec("foo["instance with strange chars :/,[]\""]", 0, "default_host", ...)
+isarch:   0
+source:   "default_host"
+metric:   "foo"
+inst[0]:  "instance with strange chars :/,[]""
+
+pmParseMetricSpec("20080424:12:05/disk.dev.total["sda1"]", 0, "default_host", ...)
+isarch:   1
+source:   "20080424:12:05"
+metric:   "disk.dev.total"
+inst[0]:  "sda1"
+
+pmParseMetricSpec("20080424:12:05/disk.all.total", 0, "default_host", ...)
+isarch:   1
+source:   "20080424:12:05"
+metric:   "disk.all.total"
+
+=== Some odd cases (incorrectly used to be classified as errors) ===
+
+pmParseMetricSpec("one/two:three", 0, "default_host", ...)
+isarch:   0
+source:   "one/two"
+metric:   "three"
+
+pmParseMetricSpec("foo:bar/fumble[mumble]", 0, "default_host", ...)
+isarch:   1
+source:   "foo:bar"
+metric:   "fumble"
+inst[0]:  "mumble"
+
+=== Some error cases ===
+
+pmParseMetricSpec("foo/bar[fumble]mumble", 0, "default_host", ...)
+pmParseMetricSpec Error:
+foo/bar[fumble]mumble
+               ^ -- unexpected extra characters
+
+
+pmParseMetricSpec("foo:", 0, "default_host", ...)
+pmParseMetricSpec Error:
+foo:
+    ^ -- performance metric name expected
+
+
+pmParseMetricSpec(":badhost", 0, "default_host", ...)
+pmParseMetricSpec Error:
+:badhost
+^ -- host name expected
+
+
+pmParseMetricSpec("bad/arch/", 0, "default_host", ...)
+pmParseMetricSpec Error:
+bad/arch/
+         ^ -- performance metric name expected
+
+
+pmParseMetricSpec("/bad/arch/[", 0, "default_host", ...)
+pmParseMetricSpec Error:
+/bad/arch/[
+          ^ -- performance metric name expected
+
+
+pmParseMetricSpec("norsqb[", 0, "default_host", ...)
+pmParseMetricSpec Error:
+norsqb[
+       ^ -- closing ] expected
+
+
+pmParseMetricSpec("nolsqb-instance]", 0, "default_host", ...)
+pmParseMetricSpec Error:
+nolsqb-instance]
+               ^ -- unexpected character in metric name
+
+
+pmParseMetricSpec("metric["noclosingquote", 0, "default_host", ...)
+pmParseMetricSpec Error:
+metric["noclosingquote
+                      ^ -- closing " and ] expected
+
+
+pmParseMetricSpec("metric["noclosingquote]", 0, "default_host", ...)
+pmParseMetricSpec Error:
+metric["noclosingquote]
+                       ^ -- closing " and ] expected
+
+
+pmParseMetricSpec("metric["noclosing]"", 0, "default_host", ...)
+pmParseMetricSpec Error:
+metric["noclosing]"
+                   ^ -- closing ] expected
+
+
+pmParseMetricSpec("metric["ends in backslash\", 0, "default_host", ...)
+pmParseMetricSpec Error:
+metric["ends in backslash\
+                          ^ -- closing " and ] expected
+
