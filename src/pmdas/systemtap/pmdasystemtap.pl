@@ -20,7 +20,7 @@
 use strict;
 use PCP::PMDA;
 
-use vars qw( $pmda );
+use vars qw( $pmda $id );
 my $probe_indom = 0;
 my $probe_script = '/var/lib/pcp/pmdas/systemtap/probes.stp';
 my $probe_command = "/usr/bin/stap -m pmdasystemtap $probe_script";
@@ -30,7 +30,9 @@ my ( $readdir_count, $readdir_pid, $readdir_cmd ) = ( 0, 0, "(none)" );
 
 sub systemtap_input_callback
 {
-    ( $_ ) = @_;
+    ( $id, $_ ) = @_;
+    # $pmda->log($_);
+
     if (/^readdir: \((\d+)\) (.*)$/) {
 	( $readdir_pid, $readdir_cmd ) = ( $1, $2 );
 	$readdir_count++;
@@ -39,7 +41,6 @@ sub systemtap_input_callback
 	( $sync_pid, $sync_cmd ) = ( $1, $2 );
 	$sync_count++;
     }
-    # $pmda->log($_);
 }
 
 sub systemtap_fetch_callback
