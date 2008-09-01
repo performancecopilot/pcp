@@ -1,4 +1,4 @@
-pcp (2.7.4-20080829) unstable; urgency=low
+pcp (2.7.4-20081001) unstable; urgency=low
 
   * Added the Perl PCP::PMDA interface package - libpcp-pmda-perl.
   * Several new Perl PMDAs (mysql, dbping, systemtap, memcached).
@@ -9,7 +9,7 @@ pcp (2.7.4-20080829) unstable; urgency=low
   * Old "irix." metric auto-prepend-on-failure hack removed.
   * Huge code cleanup, most/all IRIX-specific code removed.
 
- -- Nathan Scott <nathans@debian.org>  Fri, 29 Aug 2008 16:48:13 +1000
+ -- Nathan Scott <nathans@debian.org>  Mon, 01 Sep 2008 11:49:03 +1000
 
 pcp (2.7.4-20080507) unstable; urgency=low
 
