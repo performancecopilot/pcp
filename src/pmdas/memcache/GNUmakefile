@@ -24,6 +24,7 @@ IAM	= memcache
 DOMAIN	= MEMCACHE
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 LSRCFILES = Install Remove pmdamemcache.pl README
+LDIRT	= domain.h root pmns *.log
 
 default:
 

@@ -21,43 +21,53 @@ use strict;
 use PCP::PMDA;
 use vars qw( $pmda $id $n %caches );
 
+my $memcache_delay = 2;	# refresh rate in seconds
 my @memcache_instances = ( 0 => '127.0.0.1:11211',
 			 # 1 => '127.0.0.1:11212',
 			 # 2 => '192.168.5.76:11211',
 			 );
+# Configuration files for overriding the above settings
+for my $file (	pmda_config('PCP_PMDAS_DIR') . '/memcache/memcache.conf', './memcache.conf' ) {
+    eval `cat $file` unless ! -f $file;
+}
 
 my $memcache_indom = 0;	# one for each memcached
 my $query = "stats\r\nstats slabs\r\nstats items\r\n"; # sent to memcached
 
 sub memcache_stats_callback
 {
-    $id = shift;
+    ( $id, $_ ) = @_;
+    # $pmda->log("memcache_stats_callback: id $id\n");
 
-    if (/^STAT items:(\d+):(\w+) (\d+)$/) {	# stats items
+    if (/^STAT items:(\d+):(\w+) (\d+)/) {	# stats items
 	$caches{$id}{"item$1"}{$2} = $3;
     }
-    elsif (/^STAT (\d+):(\w+) (\d+)$/) {	# stats slabs
+    elsif (/^STAT (\d+):(\w+) (\d+)/) {		# stats slabs
 	$caches{$id}{"slab$1"}{$2} = $3;
     }
-    elsif (/^STAT (\w+) (\d+)$/) {		# stats
+    elsif (/^STAT (\w+) (\d+)/) {		# stats
 	$caches{$id}{$1} = $2;
     }
-    elsif (!(/^END$/)) {			# unknown
+    elsif (!(/^END/)) {				# unknown
 	$pmda->log("Eh?: $_");
     }
 }
 
 sub memcache_connect
 {
-    for ($id = 1; $id < $#memcache_instances; $id += 2) {
-	my ($host, $port) = split(/:/, $memcache_instances[$id]);
+    # $pmda->log("memcache_connect: $#memcache_instances\n");
+
+    for ($id = 0; $id < $#memcache_instances; $id += 2) {
+	my ($host, $port) = split(/:/, $memcache_instances[$id+1]);
 	$pmda->add_sock($host, $port, \&memcache_stats_callback, $id);
     }
 }
 
 sub memcache_timer_callback
 {
-    for ($id = 1; $id < $#memcache_instances; $id += 2) {
+    # $pmda->log("memcache_timer_callback\n");
+
+    for ($id = 0; $id < $#memcache_instances; $id += 2) {
 	$pmda->put_sock($id, $query);
     }
 }
@@ -66,8 +76,12 @@ sub memcache_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
 
-    return (PM_ERR_INST, 0) unless ($inst > 0 && $inst < $#memcache_instances);
+    # $pmda->log("memcache_fetch_callback: $cluster:$item ($inst)\n");
+
+    return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
+    return (PM_ERR_INST, 0) unless ($inst < $#memcache_instances);
     $id = $memcache_instances[$inst];
+    return (PM_ERR_AGAIN, 0) unless defined($caches{$id});
 
     if ($cluster == 0) {
 	if ($item == 0)     { return ($caches{$id}{'pid'}, 1); }
@@ -93,6 +107,7 @@ sub memcache_fetch_callback
 	$item %= 7;
 	my $slab = "slab$id";
 
+	return (PM_ERR_AGAIN, 0) unless defined($caches{$id}{$slab});
 	if ($item == 0)     { return ($caches{$id}{$slab}{'chunk_size'}, 1); }
 	elsif ($item == 1)  { return ($caches{$id}{$slab}{'chunks_per_page'}, 1); }
 	elsif ($item == 2)  { return ($caches{$id}{$slab}{'total_pages'}, 1); }
@@ -112,6 +127,7 @@ sub memcache_fetch_callback
 	$item %= 2;
 	my $itemid = "item$id";
 
+	return (PM_ERR_AGAIN, 0) unless defined($caches{$id}{$itemid});
 	if ($item == 0)     { return ($caches{$id}{$itemid}{'count'}, 1); }
 	elsif ($item == 1)  { return ($caches{$id}{$itemid}{'age'}, 1); }
     }
@@ -208,8 +224,10 @@ foreach $n (6 .. 17) {	# stats items (N=6-17)
 		      "memcache.items.item$n.age", '', '');
 }
 
-$pmda->add_indom( $memcache_indom, \@memcache_instances, '', '' );
-$pmda->add_timer( 5.0, \&memcache_fetch_callback, 0 );
+$pmda->add_indom( $memcache_indom, \@memcache_instances,
+		      'Instance domain exporting each memcache daemon', '' );
+
+$pmda->add_timer( $memcache_delay, \&memcache_timer_callback, 0 );
 $pmda->set_fetch_callback( \&memcache_fetch_callback );
 
 &memcache_connect;
