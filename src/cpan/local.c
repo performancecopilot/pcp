@@ -28,7 +28,7 @@ static int nfiles;
 static char buffer[4096];
 
 extern void timer_callback(int, void *);
-extern void input_callback(scalar_t *, char *);
+extern void input_callback(scalar_t *, int, char *);
 
 char *
 local_strdup_hashed(const char *string)
@@ -230,7 +230,7 @@ local_atexit(void)
 	if (files[nfiles].type == FILE_TAIL)
 	    fclose(files[nfiles].me.tail.file);
 	if (files[nfiles].type == FILE_SOCK) {
-	    __pmSocketClose(files[nfiles].fd);
+	    __pmCloseSocket(files[nfiles].fd);
 	    if (files[nfiles].me.sock.host)
 		free(files[nfiles].me.sock.host);
 	    files[nfiles].me.sock.host = NULL;
@@ -311,7 +311,7 @@ local_pmdaMain(pmdaInterface *self)
 		if (*s != '\n')
 		    continue;
 		*s = '\0';
-		input_callback(files[i].callback, p);
+		input_callback(files[i].callback, files[i].cookie, p);
 		p = s + 1;
 	    }
 	}

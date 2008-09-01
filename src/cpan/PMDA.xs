@@ -148,10 +148,11 @@ timer_callback(int afid, void *data)
 }
 
 void
-input_callback(SV *input_cb_func, char *string)
+input_callback(SV *input_cb_func, int data, char *string)
 {
     dSP;
     PUSHMARK(sp);
+    XPUSHs(sv_2mortal(newSViv(data)));
     XPUSHs(sv_2mortal(newSVpv(string,0)));
     PUTBACK;
 
