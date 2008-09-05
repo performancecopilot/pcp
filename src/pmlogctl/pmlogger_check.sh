@@ -209,11 +209,9 @@ _check_logger()
 
     # wait for maximum time of a connection and 20 requests
     #
-    delay=`expr $delay + 20 \* $x`
-    i=0
-    while [ $i -lt $delay ]
+    delay=`expr \( $delay + 20 \* $x \) \* 10`	# tenths of a second
+    while [ $delay -gt 0 ]
     do
-	$VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
 	if [ -f $logfile ]
 	then
 	    # $logfile was previously removed, if it has appeared again
@@ -224,7 +222,6 @@ _check_logger()
 	    then
 		:
 	    else
-		sleep 5
 		$VERBOSE && echo " done"
 		return 0
 	    fi
@@ -261,8 +258,10 @@ _check_logger()
 		return 1
 	    fi
 	fi
-	sleep 5
-	i=`expr $i + 5`
+	pmsleep 0.1
+	delay=`expr $delay - 1`
+	$VERBOSE && [ `expr $delay % 10` -eq 0 ] && \
+			$PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
     done
     $VERBOSE || _message restart
     echo " timed out waiting!"
@@ -394,40 +393,28 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     else
 	# demand mutual exclusion
 	#
-	fail=true
 	rm -f $tmp.stamp
-	for try in 1 2 3 4
+	delay=200	# tenths of a second
+	while [ $delay -gt 0 ]
 	do
 	    if pmlock -v lock >$tmp.out
 	    then
 		echo $dir/lock >$tmp.lock
-		fail=false
 		break
 	    else
-		if [ ! -f $tmp.stamp ]
+		[ -f $tmp.stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp.stamp
+		if [ -z "`find lock -newer $tmp.stamp -print 2>/dev/null`" ]
 		then
-		    if uname -r | grep '^5\.3' >/dev/null
-		    then
-			# IRIX 5.3 does not support -t for touch(1)
-			#
-			touch `pmdate -30M %m%d%H%M%y` $tmp.stamp
-		    else
-			touch -t `pmdate -30M %Y%m%d%H%M` $tmp.stamp
-		    fi
-		fi
-		if [ ! -z "`find lock -newer $tmp.stamp -print 2>/dev/null`" ]
-		then
-		    :
-		else
 		    echo "$prog: Warning: removing lock file older than 30 minutes"
 		    LC_TIME=POSIX ls -l $dir/lock
 		    rm -f lock
 		fi
 	    fi
-	    sleep 5
+	    pmsleep 0.1
+	    delay=`expr $delay - 1`
 	done
 
-	if $fail
+	if [ $delay -eq 0 ]
 	then
 	    # failed to gain mutex lock
 	    #

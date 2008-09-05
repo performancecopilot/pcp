@@ -29,8 +29,8 @@ extern "C" {
 #include <curses.h>
 }
 
-#include "Group.h"
-#include "Metric.h"
+#include <pcp/pmc/Group.h>
+#include <pcp/pmc/Metric.h>
 
 // This may be putenv, so make it static
 static PMC_String	tzEnv = "TZ=";

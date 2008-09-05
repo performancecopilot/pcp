@@ -34,8 +34,8 @@
 
 #include <sys/types.h>
 #include <assert.h>
-#include "Vector.h"
-#include "Bool.h"
+#include <pcp/pmc/Vector.h>
+#include <pcp/pmc/Bool.h>
 
 template<class T>
 class PMC_List

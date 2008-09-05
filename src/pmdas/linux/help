@@ -1,6 +1,7 @@
 #
-# Copyright (c) International Business Machines Corp., 2002
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Portions Copyright (c) International Business Machines Corp., 2002
+# Portions Copyright (c) 2007 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,7 +20,7 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Revision: 1.41 $
+# $Revision: 1.45 $
 #
 # Linux PMDA help file in the ASCII format
 #
@@ -428,6 +429,7 @@ you will get real memory on demand, and just as much as you use.
 @ mem.util.pageTables Kbytes in kernel page tables, from /proc/meminfo
 @ mem.util.reverseMaps Kbytes in reverse mapped pages, from /proc/meminfo
 @ mem.util.cache_clean Kbytes cached and not dirty or writeback, derived from /proc/meminfo
+
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat
 @ mem.vmstat.nr_writeback number of pages in writeback state
@@ -436,10 +438,13 @@ Instantaneous number of pages in writeback state, from /proc/vmstat
 Instantaneous number of pages in unstable state, from /proc/vmstat
 @ mem.vmstat.nr_page_table_pages number of page table pages
 Instantaneous number of page table pages, from /proc/vmstat
-@ mem.vmstat.nr_mapped number of mapped pages
-Instantaneous number of mapped pages, from /proc/vmstat
+@ mem.vmstat.nr_mapped number of mapped pagecache pages
+Instantaneous number of mapped pagecache pages, from /proc/vmstat
+See also mem.vmstat.nr_anon for anonymous mapped pages.
 @ mem.vmstat.nr_slab number of slab pages
 Instantaneous number of slab pages, from /proc/vmstat
+This counter was retired in 2.6.18 kernels, and replaced by
+mem.vmstat.nr_slab_reclaimable and mem.vmstat.nr_slab_unreclaimable.
 @ mem.vmstat.pgpgin page in operations
 Count of page in operations since boot, from /proc/vmstat
 @ mem.vmstat.pgpgout page out operations
@@ -506,19 +511,36 @@ Count of kswapd calls to page reclaim since boot, from /proc/vmstat
 Count of direct reclaim calls since boot, from /proc/vmstat
 @ mem.vmstat.pgrotated pages rotated to tail of the LRU
 Count of pages rotated to tail of the LRU since boot, from /proc/vmstat
+@mem.vmstat.nr_anon_pages number of anonymous mapped pagecache pages
+Instantaneous number of anonymous mapped pagecache pages, from /proc/vmstat
+See also mem.vmstat.mapped for other mapped pages.
+@mem.vmstat.nr_bounce number of bounce buffer pages
+Instantaneous number of bounce buffer pages, from /proc/vmstat
+@mem.vmstat.nr_slab_reclaimable reclaimable slab pages
+Instantaneous number of reclaimable slab pages, from /proc/vmstat.
+Added in 2.6.18 kernels.
+@mem.vmstat.nr_slab_unreclaimable unreclaimable slab pages
+Instantaneous number of unreclaimable slab pages, from /proc/vmstat.
+Added in 2.6.18 kernels.
+@mem.vmstat.nr_vmscan_write pages written by VM scanner from LRU
+Count of pages written from the LRU by the VM scanner, from /proc/vmstat.
+The VM is supposed to minimise the number of pages which get written
+from the LRU (for IO scheduling efficiency, and for high reclaim-success
+rates).
+
 @ swap.length total swap available metric from /proc/meminfo
 @ swap.used swap used metric from /proc/meminfo
 @ swap.free swap free metric from /proc/meminfo
 @ kernel.all.load 1, 5 and 15 minute load average
 @ kernel.all.cpu.user total user CPU time metric from /proc/stat for all CPUs
-@ kernel.all.cpu.intr total interrupts CPU time (currently always zero on linux)
-Total interrupts CPU time (currently always zero on linux).
+@ kernel.all.cpu.intr total interrupts CPU time
+Total interrupts CPU time.
 
 This metric is retained on Linux for interoperability with PCP monitor
 tools running on IRIX.
 
-@ kernel.all.cpu.wait.total total wait CPU time (currently always zero on linux)
-Total wait CPU time (currently always zero on linux).
+@ kernel.all.cpu.wait.total total wait CPU time
+Total wait CPU time.
 
 This metric is retained on Linux for interoperability with PCP monitor
 tools running on IRIX.
@@ -806,6 +828,14 @@ Instantaneous number of processes with virtual size of zero (kernel threads)
 @ network.udp.noports count of udp noports
 @ network.udp.inerrors count of udp inerrors
 @ network.udp.outdatagrams count of udp outdatagrams
+@ network.udp.recvbuferrors count of udp receive buffer errors
+@ network.udp.sndbuferrors count of udp send buffer errors
+@ network.udplite.indatagrams count of udplite indatagrams
+@ network.udplite.noports count of udplite noports
+@ network.udplite.inerrors count of udplite inerrors
+@ network.udplite.outdatagrams count of udplite outdatagrams
+@ network.udplite.recvbuferrors count of udplite receive buffer errors
+@ network.udplite.sndbuferrors count of udplite send buffer errors
 @ xfs.allocs.alloc_extent XFS extents allocated
 Number of file system extents allocated over all XFS filesystems
 @ xfs.allocs.alloc_block XFS blocks allocated
@@ -884,7 +914,7 @@ the completion of the log buffer writes. Synchronous transactions
 include file truncations and all directory updates when the file system
 is mounted with the 'wsync' option.
 
-@ xfs.transactions.async number of synchronous meta-data transactions performed
+@ xfs.transactions.async number of asynchronous meta-data transactions performed
 This is the number of meta-data transactions which did not wait to be
 committed to the on-disk log before allowing the process performing the
 transaction to continue. These transactions are faster and more
@@ -1173,3 +1203,4 @@ See also the kernel.uname.* metrics
 @ network.ib.total.errors.vl15 VL15 packets dropped from perfquery
 @ network.ib.total.errors.overrun excessive buffer overrun errors from perfquery
 @ network.ib.total.errors.symbol minor link errors from perfquery
+@ network.ib.control If non-zero, stop collecting performance stats this many seconds after last fetch

@@ -100,7 +100,7 @@ option specifies the number of days after which to compress archive data
 files, and the
 .B \-X
 option specifies the program to use for compression \- by default this is
-.BR compress (1).
+.BR bzip2 (1).
 Use of the
 .B \-Y
 option allows a regular expression to be specified causing files in
@@ -108,11 +108,10 @@ the set of files matched for compression to be omitted \- this allows
 only the data file to be compressed, and also prevents the program from
 attempting to compress it more than once.  The default
 .I regex
-is ".meta$|.index$|.Z$|.gz$" \- such files are filtered using the
+is ".meta$|.index$|.Z$|.gz$|.bz2|.zip$" \- such files are filtered using the
 .B \-v
 option to
 .BR egrep (1).
-.B 
 .PP
 In addition, if the
 PCP ``notices'' file (\c
@@ -341,9 +340,9 @@ for root if automated PCP archive log maintenance is desired.
 .nf
 .ft CW
 # daily processing of archive logs
-10      0       *       *       *       $PCP_BINADM_DIR/pmlogger_daily
+14      0       *       *       *       $PCP_BINADM_DIR/pmlogger_daily
 # every 30 minutes, check pmlogger instances are running
-25,55   *       *       *       *       $PCP_BINADM_DIR/pmlogger_check
+28,58   *       *       *       *       $PCP_BINADM_DIR/pmlogger_check
 .ft 1
 .fi
 .PP
@@ -444,11 +443,11 @@ other
 configuration files suited for particular PCP monitoring tools,
 add-on products and application environments
 .TP
-.BI $PCP_LOG_DIR/pmlogger hostname
+.BI $PCP_LOG_DIR/pmlogger/ hostname
 default location for archives of performance information collected from the host
 .I hostname
 .TP
-.BI $PCP_LOG_DIR/pmlogger hostname /lock
+.BI $PCP_LOG_DIR/pmlogger/ hostname /lock
 transient lock file to guarantee mutual exclusion during
 .B pmlogger
 administration for the host
@@ -459,7 +458,7 @@ nor
 .B pmlogger_check
 are running
 .TP
-.BI $PCP_LOG_DIR/pmlogger hostname /Latest
+.BI $PCP_LOG_DIR/pmlogger/ hostname /Latest
 PCP archive folio created by
 .BR mkaf (1)
 for the most recently launched archive containing performance metrics from
@@ -485,7 +484,7 @@ configuration file,
 as described in
 .BR pcp.conf (4).
 .SH SEE ALSO
-.BR compress (1),
+.BR bzip2 (1),
 .BR cron (1),
 .BR egrep (1),
 .BR PCP (1),

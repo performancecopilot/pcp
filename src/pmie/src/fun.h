@@ -28,6 +28,7 @@
 #define FUN_H
 
 #include "dstruct.h"
+#include "andor.h"
 
 #define ROTATE(x)  if ((x)->nsmpls > 1) rotate(x);
 #define EVALARG(x) if ((x)->op < NOP) ((x)->eval)(x);
@@ -101,14 +102,6 @@ void cndRise_n(Expr *);
 void cndRise_1(Expr *);
 void cndFall_n(Expr *);
 void cndFall_1(Expr *);
-void cndAnd_n_n(Expr *);
-void cndAnd_1_n(Expr *);
-void cndAnd_n_1(Expr *);
-void cndAnd_1_1(Expr *);
-void cndOr_n_n(Expr *);
-void cndOr_1_n(Expr *);
-void cndOr_n_1(Expr *);
-void cndOr_1_1(Expr *);
 void cndMatch_inst(Expr *);
 void cndAll_host(Expr *);
 void cndAll_inst(Expr *);

@@ -22,7 +22,7 @@
 #ident "$Id: Desc.c++,v 1.2 2005/05/10 00:46:37 kenmcd Exp $"
 
 #include <iostream.h>
-#include "Desc.h"
+#include <pcp/pmc/Desc.h>
 
 PMC_Desc::PMC_Desc(pmID pmid)
 : _sts(0), _pmid(pmid), _scaleFlag(PMC_false)

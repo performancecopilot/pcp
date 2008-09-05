@@ -48,7 +48,7 @@ void
     EVALARG(arg2)
     ROTATE(x)
 
-    if (arg1->valid && arg2->valid) {
+    if (arg1->valid && arg2->valid && x->tspan > 0) {
 	ip1 = (@ITYPE *)is1->ptr;
 	ip2 = (@ITYPE *)is2->ptr;
 	op = (@OTYPE *)os->ptr;
@@ -89,7 +89,7 @@ void
     EVALARG(arg2)
     ROTATE(x)
 
-    if (arg1->valid && arg2->valid) {
+    if (arg1->valid && arg2->valid && x->tspan > 0) {
 	ip1 = (@ITYPE *)is1->ptr;
 	iv2 = *(@ITYPE *)is2->ptr;
 	op = (@OTYPE *)os->ptr;
@@ -129,7 +129,7 @@ void
     EVALARG(arg2)
     ROTATE(x)
 
-    if (arg1->valid && arg2->valid) {
+    if (arg1->valid && arg2->valid && x->tspan > 0) {
 	iv1 = *(@ITYPE *)is1->ptr;
 	ip2 = (@ITYPE *)is2->ptr;
 	op = (@OTYPE *)os->ptr;

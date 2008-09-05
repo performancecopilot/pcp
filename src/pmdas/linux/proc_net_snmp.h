@@ -101,8 +101,21 @@ enum {
     _PM_SNMP_UDP_NOPORTS,
     _PM_SNMP_UDP_INERRORS,
     _PM_SNMP_UDP_OUTDATAGRAMS,
+    _PM_SNMP_UDP_RECVBUFERRORS,
+    _PM_SNMP_UDP_SNDBUFERRORS,
 
     _PM_SNMP_UDP_NFIELDS /* must be last */
+};
+
+enum {
+    _PM_SNMP_UDPLITE_INDATAGRAMS = 0,
+    _PM_SNMP_UDPLITE_NOPORTS,
+    _PM_SNMP_UDPLITE_INERRORS,
+    _PM_SNMP_UDPLITE_OUTDATAGRAMS,
+    _PM_SNMP_UDPLITE_RECVBUFERRORS,
+    _PM_SNMP_UDPLITE_SNDBUFERRORS,
+
+    _PM_SNMP_UDPLITE_NFIELDS /* must be last */
 };
 
 typedef struct {
@@ -110,6 +123,7 @@ typedef struct {
     unsigned int icmp[_PM_SNMP_ICMP_NFIELDS];
     unsigned int tcp[_PM_SNMP_TCP_NFIELDS];
     unsigned int udp[_PM_SNMP_UDP_NFIELDS];
+    unsigned int udplite[_PM_SNMP_UDPLITE_NFIELDS];
 } proc_net_snmp_t;
 
 extern int refresh_proc_net_snmp(proc_net_snmp_t *);

@@ -71,6 +71,7 @@ static char *prompt = "pmie> ";
 static char *intro  = "Performance Co-Pilot Inference Engine (pmie), "
 		      "Version %s\n\n%s%s";
 
+static FILE *logfp;
 static char logfile[MAXPATHLEN+1];
 static char perffile[PMIE_PATHSIZE];	/* /var/tmp/<pid> file name */
 
@@ -396,6 +397,42 @@ sigbye(int sig)
 
 
 static void
+remap_stdout_stderr(void)
+{
+    int	i, j;
+
+    fflush(stderr);
+    fflush(stdout);
+    setlinebuf(stderr);
+    setlinebuf(stdout);
+    i = fileno(stdout);
+    close(i);
+    if ((j = dup(fileno(stderr))) != i)
+	fprintf(stderr, "%s: Warning: failed to link stdout ... "
+			"dup() returns %d, expected %d (stderr=%d)\n",
+			pmProgname, j, i, fileno(stderr));
+}
+
+/*ARGSUSED*/
+static void
+sighupproc(int sig)
+{
+    FILE *fp;
+    int sts;
+
+    fp = __pmRotateLog(pmProgname, logfile, logfp, &sts);
+    if (sts != 0) {
+	fprintf(stderr, "pmie: PID = %d, default host = %s\n\n",
+			(int)getpid(), dfltHost);
+	remap_stdout_stderr();
+	logfp = fp;
+    } else {
+	__pmNotifyErr(LOG_ERR, "pmie: log rotation failed\n");
+    }
+}
+
+
+static void
 dotraceback(void)
 {
 #if HAVE_TRACE_BACK_STACK
@@ -653,7 +690,6 @@ getargs(int argc, char *argv[])
 	perf = &instrument;
 
     if (isdaemon) {			/* daemon mode */
-	signal(SIGHUP, SIG_IGN);
 	signal(SIGTTOU, SIG_IGN);
 	signal(SIGTTIN, SIG_IGN);
 	signal(SIGTSTP, SIG_IGN);
@@ -669,30 +705,22 @@ getargs(int argc, char *argv[])
     }
 
     if (commandlog != NULL) {
-	__pmOpenLog(pmProgname, commandlog, stderr, &sts);
+	logfp = __pmOpenLog(pmProgname, commandlog, stderr, &sts);
 	if (realpath(commandlog, logfile) == NULL) {
 	    fprintf(stderr, "%s: cannot find realpath for log %s: %s\n",
 		    pmProgname, commandlog, strerror(oserror()));
 	    exit(1);
 	}
+	signal(SIGHUP, isdaemon ? sighupproc : SIG_IGN);
+    } else {
+	signal(SIGHUP, SIG_IGN);
     }
 
-    if (bflag) {
-	/*
-	 * -b ... force line buffering and stdout onto stderr
-	 */
-	int	i, j;
-
-	fflush(stderr);
-	fflush(stdout);
-	setlinebuf(stderr);
-	setlinebuf(stdout);
-	i = fileno(stdout);
-	close(i);
-	if ((j = dup(fileno(stderr))) != i)
-	    fprintf(stderr, "%s: Warning: failed to link stdout (-b option) "
-			    "... dup() returns %d, expected %d\n", pmProgname, j, i);
-    }
+    /*
+     * -b ... force line buffering and stdout onto stderr
+     */
+    if (bflag || isdaemon)
+	remap_stdout_stderr();
 
     if (__pmGetLicense(PM_LIC_MON, pmProgname,
 			GET_LICENSE_SHOW_EXP) == PM_LIC_MON ||
@@ -771,7 +799,9 @@ getargs(int argc, char *argv[])
 					 */
 
     if (isdaemon) {			/* daemon mode */
-	close(fileno(stdin));		/* ensure stdin closed for daemon */
+	/* Note: we can no longer close stdin here, as it can really
+	 * confuse remap_stdout_stderr() during log rotation!
+	 */
 	setsid();	/* not process group leader, lose controlling tty */
     }
 

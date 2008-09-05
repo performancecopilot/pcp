@@ -702,3 +702,31 @@ pcp-2.7.1 (20 Feb 2007)
     - 958951 	open 	3 	kimbrr 	pmie support for stomp messages
     - 960909 	open 	2 	kimbrr 	dev version => 2.7.1 and QA test pun in preparation for releases
     - 958414 	open 	1 	kimbrr 	pcp in pp5sp1 for rhel5	
+
+pcp-2.7.2 (8 Jun 2007)
+    - pcp doc updates
+    - pmdalinux dies: too many open file descriptors: pclose needed in network.ib
+    - new pmchart added to mangrove - runs on recent Red Hat
+    - network.ib stats updated to cope with OFED 1.2 changes
+    - some numa.link fixes for shub2 & NL4
+    - Improve start/stop times of pmcd,pmlogger,pmie; create portable pmsleep (subsecond sleep) exe
+pcp-2.7.3 (July 2007)
+    - add network.ib.control to timeout infiniband stats workthread
+    - add mem.util.anonpages 
+pcp-2.7.4 (7 Sep 2007)
+    - MaxOSX and Debian/Ubuntu build/package fixes
+    - Add sqlserver active_transactions metrics to the Windows PMDA.
+    - Fix a pmie_check typo causing mis-identification of pmie processes.
+    - Allow pmie and/or operators to function with some data missing.
+    - Resolve path naming issues with more recent versions of autoconf.
+    - pmlogsummary report sum option
+    - pmval kmtime support
+    - Additional Linux SNMP metrics
+    - Fix Linux vmstat nr_slab metrics
+    - Make pcp status command report build version
+    - Windows split_io metrics
+    - Fix pmdapmcd empty pmie instance
+    - pmdamailq filename regex
+    - Windows TCP metrics
+    - pmie log file rotation
+    - Changed the default compression program to be bzip2(1)

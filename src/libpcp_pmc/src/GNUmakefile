@@ -38,11 +38,7 @@ endif
 CXXFILES	= String.c++ Desc.c++ Indom.c++ Source.c++ Context.c++ \
 		  Group.c++ Metric.c++ 
 
-
-HFILES = Bool.h	 Desc.h Hash.h List.h PMC.h String.h Context.h \
-	 Group.h Indom.h Metric.h Source.h Vector.h
-
-LCXXFLAGS = -I.
+LCXXFLAGS += -I..
 LOBJECTS=${CXXFILES:%.c++=%.o}
 
 LDIRT	= $(SYMTARGET) pcp
@@ -63,11 +59,8 @@ install: default
 ifneq "$(SYMTARGET)" ""
 	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET)
 endif
-	$(INSTALL) -m 755 -d $(PCP_INC_DIR)/pmc
-	$(INSTALL) -m 644 $(HFILES) $(PCP_INC_DIR)/pmc
 
 $(LOBJECTS): pcp
-
 pcp:
 	$(LN_S) $(TOPDIR)/src/include pcp
 

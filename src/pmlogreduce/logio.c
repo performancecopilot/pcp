@@ -160,7 +160,7 @@ again:
 		fprintf(stderr, "\n%03d: ", j);
 		i = 0;
 	    }
-	    fprintf(stderr, "" PRINTF_P_PFX "%p ", (unsigned int *)lpb[j]);
+	    fprintf(stderr, "%x ", lpb[j]);
 	    i++;
 	}
 	fputc('\n', stderr);

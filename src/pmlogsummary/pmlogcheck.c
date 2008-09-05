@@ -189,6 +189,7 @@ newHashInst(pmValue *vp,
 	int pos)			/* position of this inst in instlist */
 {
     int		sts;
+    size_t	size;
     pmAtomValue av;
 
     if ((sts = pmExtractValue(valfmt, vp, checkdata->desc.type, &av, PM_TYPE_DOUBLE)) < 0) {
@@ -197,10 +198,17 @@ newHashInst(pmValue *vp,
 	printf("] ");
 	print_metric(stdout, checkdata->desc.pmid);
 	printf(": pmExtractValue failed: %s\n", pmErrStr(sts));
-	return;
+	fprintf(stderr, "%s: possibly corrupt archive?\n", pmProgname);
+	exit(1);
     }
-    checkdata->instlist = (instData**) realloc(checkdata->instlist, (pos+1)*sizeof(instData*));
-    checkdata->instlist[pos] = (instData*) malloc(sizeof(instData));
+    size = (pos+1)*sizeof(instData*);
+    checkdata->instlist = (instData**) realloc(checkdata->instlist, size);
+    if (!checkdata->instlist)
+	__pmNoMem("newHashInst.instlist", size, PM_FATAL_ERR);
+    size = sizeof(instData);
+    checkdata->instlist[pos] = (instData*) malloc(size);
+    if (!checkdata->instlist[pos])
+	__pmNoMem("newHashInst.instlist[pos]", size, PM_FATAL_ERR);
     checkdata->instlist[pos]->inst = vp->inst;
     checkdata->instlist[pos]->lastval = av.d;
     checkdata->instlist[pos]->lasttime = *timestamp;

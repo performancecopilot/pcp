@@ -519,7 +519,15 @@ prefetch(int numpmid, pmID pmidlist[])
     }
 #endif
 
-    /* we have derived filesys metrics, so may need to fetch more... ugh */
+    /*
+     * we have derived filesys metrics, so may need to fetch more... ugh
+     * depends on pmids for these metrics
+     * 		117 filesys.capacity
+     *		118 filesys.used
+     *		119 filesys.free
+     *		120 dummy metric, rtab holds FreeMB
+     *		121 dummy metric, rtab holds %Free
+     */
     for (i = 0; i < numpmid; i++) {
 	pmidp = (__pmID_int *)&pmidlist[i];
 	if ((pmidp->cluster == 0) &&
@@ -670,6 +678,41 @@ fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 1;
 		/*NOTREACHED*/
 
+	    case 111:	/* kernel.uname.version */
+		myatom.cp = shm->build;
+		*atom = myatom;
+		return 1;
+		/*NOTREACHED*/
+
+	    case 112:	/* kernel.uname.sysname */
+		myatom.cp = "Windows";
+		*atom = myatom;
+		return 1;
+		/*NOTREACHED*/
+
+	    case 113:	/* kernel.uname.machine */
+		myatom.cp = "?";
+		*atom = myatom;
+		return 1;
+		/*NOTREACHED*/
+
+	    case 114:	/* kernel.uname.nodename */
+		myatom.cp = "?";
+		*atom = myatom;
+		return 1;
+		/*NOTREACHED*/
+
+	    case 115:	/* pmda.uname */
+		myatom.cp = shm->uname;
+		*atom = myatom;
+		return 1;
+		/*NOTREACHED*/
+
+	    case 116:	/* pmda.version */
+		myatom.cp = pmGetConfig("PCP_VERSION");
+		*atom = myatom;
+		return 1;
+		/*NOTREACHED*/
 	}
     }
 
@@ -682,6 +725,13 @@ fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      * special case the filesystem metrics at this point -
      * mapping the PDH services semantics for these to the
      * saner metrics from other platforms is not pretty...
+     * depends on pmids for these metrics
+     *		 67 filesys.full
+     * 		117 filesys.capacity
+     *		118 filesys.used
+     *		119 filesys.free
+     *		120 dummy metric, rtab holds FreeMB
+     *		121 dummy metric, rtab holds %Free
      */
     if ((pmidp->cluster == 0) &&
 	(pmidp->item == 67 || (pmidp->item >= 117 && pmidp->item <= 119))) {
@@ -708,7 +758,7 @@ fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (count != 2)	/* we need both "dummy" metric values below */
 	    return 0;
 
-	used_space = free_space * (1.0 - free_percent);
+	used_space = (free_space / free_percent) - free_space;
 	used = 1024 * (unsigned long long)used_space;	/* MB to KB */
 	avail = 1024 * (unsigned long long)free_space;	/* MB to KB */
 	capacity = used + avail;

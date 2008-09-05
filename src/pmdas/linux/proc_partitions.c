@@ -174,7 +174,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
     int indom;
     int have_proc_diskstats;
     int inst;
-    uint64_t blocks;
+    unsigned long long blocks;
     partitions_entry_t *p;
     int indom_changes = 0;
     static int first = 1;

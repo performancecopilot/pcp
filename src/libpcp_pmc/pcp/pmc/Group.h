@@ -27,11 +27,11 @@
 #ident "$Id: Group.h,v 1.4 2005/05/10 01:59:58 kenmcd Exp $"
 
 #include <iostream.h>
-#include "PMC.h"
-#include "List.h"
-#include "String.h"
-#include "Bool.h"
-#include "Context.h"
+#include <pcp/pmc/PMC.h>
+#include <pcp/pmc/List.h>
+#include <pcp/pmc/String.h>
+#include <pcp/pmc/Bool.h>
+#include <pcp/pmc/Context.h>
 
 typedef PMC_List<PMC_Context*> PMC_ContextList;
 

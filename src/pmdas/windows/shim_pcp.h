@@ -284,6 +284,7 @@ extern int	pmDebug;
 #define  DBG_TRACE_PMC		(1<<17)	/* metrics class */
 #define  DBG_TRACE_INTERP	(1<<20)	/* interpolate mode for archives */
 #define  DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
+#define  DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
 
 extern int __pmParseDebug(const char *);
 

@@ -19,7 +19,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: agent.c,v 1.6 2007/01/16 06:50:10 kimbrr Exp $"
+#ident "$Id: agent.c,v 1.7 2007/07/04 04:53:53 kimbrr Exp $"
 
 #include <unistd.h>
 #include <stdio.h>
@@ -183,7 +183,7 @@ HarvestAgents(unsigned int total)
 	found = 0;
 	for ( i = 0; i < nAgents; i++) {
 	    ap = &agent[i];
-	    if (!ap->status.connected)
+	    if (!ap->status.connected || ap->ipcType == AGENT_DSO)
 		continue;
 
 	    found = 1;

@@ -36,7 +36,8 @@ extern int		mach_hertz;
 int
 refresh_vmstat(struct vm_statistics *vmstat)
 {
-    int error, info = HOST_VM_INFO, count = HOST_VM_INFO_COUNT;
+    int error, info = HOST_VM_INFO;
+    natural_t count = HOST_VM_INFO_COUNT;
 
     error = host_statistics(mach_host, info, (host_info_t)vmstat, &count);
     return (error != KERN_SUCCESS) ? -errno : 0;
@@ -45,7 +46,8 @@ refresh_vmstat(struct vm_statistics *vmstat)
 int
 refresh_cpuload(struct host_cpu_load_info *cpuload)
 {
-    int error, info = HOST_CPU_LOAD_INFO, count = HOST_CPU_LOAD_INFO_COUNT;
+    int error, info = HOST_CPU_LOAD_INFO;
+    natural_t count = HOST_CPU_LOAD_INFO_COUNT;
 
     error = host_statistics(mach_host, info, (host_info_t)cpuload, &count);
     return (error != KERN_SUCCESS) ? -errno : 0;
@@ -116,10 +118,10 @@ refresh_uptime(unsigned int *uptime)
 int
 refresh_cpus(struct processor_cpu_load_info **cpuload, pmdaIndom *indom)
 {
-    natural_t ncpu;
+    natural_t ncpu, icount;
     processor_info_array_t iarray;
     struct processor_cpu_load_info *cpuinfo;
-    int icount, error, i, info = PROCESSOR_CPU_LOAD_INFO;
+    int error, i, info = PROCESSOR_CPU_LOAD_INFO;
 
     error = host_processor_info(mach_host, info, &ncpu, &iarray, &icount);
     if (error != KERN_SUCCESS)

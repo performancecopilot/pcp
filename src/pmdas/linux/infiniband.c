@@ -26,7 +26,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
 */
 
-#ident "$Id: infiniband.c,v 1.5 2007/02/26 06:06:46 kimbrr Exp $"
+#ident "$Id: infiniband.c,v 1.9 2007/07/30 07:13:08 kimbrr Exp $"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -47,9 +47,11 @@
 #include "infiniband.h"
 
 #define CARD0DIR	"/sys/class/infiniband/mthca0"
-#define OFEDBIN		"/usr/local/ofed/bin/"
-#define PERFQUERY	OFEDBIN "perfquery"
-#define IBSTATUS	OFEDBIN "ibstatus"
+#define PERFQUERY	"perfquery"
+#define IBSTATUS	"ibstatus"
+#define IBCONTROLFILE	"/linux/ibcontrol"
+
+#define IBCONTROL_DEFAULT 30
 
 #define MAX_COUNTER_NAME 21
 
@@ -57,14 +59,31 @@
 #define BUFSIZ 1024
 #endif
 
+static uint32_t	ibcontrol = IBCONTROL_DEFAULT;
+static int64_t	ibtimeleft = 0;
+static int	ibfetched = 0;
+
+static FILE	*ibcontrol_file;
+
+static char *paths[] =
+   { "/usr/bin/", 
+     "/usr/local/bin/", 
+     "/usr/local/ofed/bin/" /* must be last for 1.1 fallback */
+   };
+
+static int num_paths = sizeof(paths) / sizeof(char*);
+
 static char scratch[BUFSIZ];
 
-static char perfquery[MAXPATHLEN] = PERFQUERY;
-static char ibstatus[MAXPATHLEN] = IBSTATUS;
+static char perfquery[MAXPATHLEN];
+static char ibstatus[MAXPATHLEN];
+static char ibcontrol_path[MAXPATHLEN];
+
+static char *perfquery_args;
+static char *ibstatus_args;
 
 static pthread_t fetch_thread;
 static pthread_mutex_t fetch_mutex; /* mutex to update/retrieve values */
-static int fetched = 0;
 
 /* 
  * Default time between workproc counter updates.
@@ -74,13 +93,13 @@ static int fetched = 0;
 static int sleeptime = 2;
 
 char *counter_names[IB_COUNTERS] = {
-	"RcvBytes",				/* 0 */
+	"RcvData",				/* 0 */
 	"RcvPkts",				/* 1 */
 	"RcvSwRelayErrors",			/* 2 */
 	"RcvConstraintErrors",	 		/* 3 */
         "RcvErrors",				/* 4 */
         "RcvRemotePhysErrors",			/* 5 */
-	"XmtBytes",				/* 6 */
+	"XmtData",				/* 6 */
 	"XmtPkts",				/* 7 */
         "XmtDiscards",				/* 8 */
         "XmtConstraintErrors",			/* 9 */ 
@@ -131,7 +150,7 @@ do_refresh(void)
     port_list_t	*this;
 
     for (this = ports; this; this = this->next) {
-	sprintf(perfquery, PERFQUERY " -r -C %s -P %" PRIu64,
+	sprintf(perfquery_args,  " -r -C %s -P %" PRIu64,
 		this->port->card, this->port->portnum);
 
 	fp = popen(perfquery, "r");
@@ -194,15 +213,30 @@ cache_name(pmInDom indom, char *name, char *port)
 void *
 fetch_workproc(void *foo)
 {
-    for (;;) {
-	sleep(sleeptime);
-	pthread_mutex_lock(&fetch_mutex);
-	if (fetched != 0) fetched = 0;
-	else do_refresh();
-
+    pthread_mutex_lock(&fetch_mutex);
+    for(;;)
+    {
+	if (ibfetched != 0) {
+	    ibfetched  = 0;
+	} else {
+	    do_refresh();
+	}
 	pthread_mutex_unlock(&fetch_mutex);
-    } 
-    /*NOTREACHED*/
+
+	sleep(sleeptime);
+
+	pthread_mutex_lock(&fetch_mutex);
+	if (ibcontrol != 0) {
+	    ibtimeleft -= sleeptime;
+	    if (ibtimeleft <= 0) {
+		ibtimeleft = 0;
+
+		break;
+	    }
+	}
+
+    }
+    pthread_mutex_unlock(&fetch_mutex);
     return NULL;
 }
 
@@ -215,40 +249,61 @@ init_ib(pmInDom indom)
     char port[MAX_COUNTER_NAME], name[MAX_COUNTER_NAME << 1];
     FILE *fp = NULL;
     struct stat statbuf;
-    int sts, j=0, ix=0;
+    uint32_t control = IBCONTROL_DEFAULT;
+    int c, sts=0, j=0, ix=0;
 
     pmdaCacheOp(indom, PMDA_CACHE_LOAD);
 
     if (stat(CARD0DIR, &statbuf) < 0 || !S_ISDIR(statbuf.st_mode)) {
 	return PM_ERR_VALUE; /* No IB */
     }
-    if (stat(ibstatus, &statbuf) < 0) { /* OFED tools not installed? */
-#ifdef PCP_DEBUG
-	fprintf(stderr, "IB: %s not found\n", ibstatus);
-#endif
+
+    for (ix=0; ix<num_paths; ix++) {
+	sprintf(ibstatus, "%s" IBSTATUS, paths[ix]);
+	if (stat(ibstatus, &statbuf) == 0)
+	    break;;
+    }
+    if (ix == num_paths) {
+	fprintf(stderr, "network.ib: init failed: " IBSTATUS 
+		" not found: OFED tools not installed?\n");
+
+	return PM_ERR_VALUE;
+    } else if (ix == num_paths-1) { /* 1.1 fallback */
+	/* Reverse change of perfquery stat names from OFED 1.1 to 1.2 */
+	counter_names[RcvData]	= "RcvBytes";
+	counter_names[XmtData]	= "XmtBytes";
+    }
+    sprintf(perfquery, "%s" PERFQUERY, paths[ix]);
+
+    ibstatus_args = ibstatus + strlen(ibstatus);
+    perfquery_args = perfquery + strlen(perfquery);
+
+    fp = popen(ibstatus, "r");
+    if (fp == NULL) {
+	fprintf(stderr, "network.ib: init failed: %s returned %d\n", 
+		ibstatus, errno);
+
 	return PM_ERR_VALUE;
     }
-    fp = popen(ibstatus, "r");
-    if (fp == NULL) return -errno;
-
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-
     for (;;) {
-	sts = fgetc(fp);
-	if (sts == (int)'I') {
-	    sts = fscanf(fp, "nfiniband device \'%[^']\' port %s status: %*[\n]", 
-			 name, port);
-	    if (sts == 2) {
-	        sts = cache_name(indom, name, port);
-        	if (sts != 0) goto init_ib_err;
-		continue;
+	c = fgetc(fp);
+	if (c == (int)'I') {
+	    if (2 == fscanf(fp, "nfiniband device \'%[^']\' port %s status: %*[\n]", 
+			    name, port)) {
+	        if (0 == (sts = cache_name(indom, name, port)))
+		    continue;
+
+		pclose(fp);
+		port_list_free();
+		return sts;
 	    }
 	}
-	for (;;sts = fgetc(fp)) {
-	    switch (sts) {
+	for (;;c = fgetc(fp)) {
+	    switch (c) {
 	    case EOF: goto ibstatus_end;
 	    case (int)'\n':
-		sts = fgetc(fp);
+		c = fgetc(fp);
 		break;
 	    default:
 		continue;
@@ -264,6 +319,7 @@ init_ib(pmInDom indom)
 #endif
 	    return PM_ERR_VALUE;
     }
+    /* OK to call perquery here without -r */
     fp = popen(perfquery, "r");
     while (fgetc(fp) != '\n'); /* skip header line */
 
@@ -277,7 +333,7 @@ init_ib(pmInDom indom)
 	ix = 0;
 	for (;;) {
 	    if (strcmp(name, counter_names[ix])==0) {
-	        counter_xix[j++] = ix;
+		counter_xix[j++] = ix;
 		break;
 	    }
 	    if (++ix == IB_COUNTERS) {
@@ -286,17 +342,84 @@ init_ib(pmInDom indom)
 	    }
 	}
     }
+    pclose(fp);
     pmdaCacheOp(indom, PMDA_CACHE_SAVE);
 
     pthread_mutex_init(&fetch_mutex, NULL);
-    if (pthread_create(&fetch_thread, NULL, fetch_workproc, NULL) != 0)  {
-        sts = -errno;
 
-      init_ib_err:
-	port_list_free();
+    sprintf(ibcontrol_path, "%s" IBCONTROLFILE, pmGetConfig("PCP_PMDAS_DIR"));
+    if (NULL != (ibcontrol_file = fopen(ibcontrol_path, "r"))) {
+	fscanf(ibcontrol_file, "%u", &control);
+	fclose(ibcontrol_file);
+    } 
+    set_control_ib(control);
+
+    return 0;
+}
+
+static int
+thread_ib()
+{
+    static int first = 1;
+
+    ibfetched = 0;
+    if (first)
+	first = 0;
+    else
+	pthread_join(fetch_thread, NULL);
+
+    return (0 == pthread_create(&fetch_thread, NULL, fetch_workproc, NULL)
+	    ? PM_ERR_VALUE : -errno);
+}
+
+int
+track_ib() 
+{
+    int tracking, ret;
+
+    pthread_mutex_lock(&fetch_mutex);
+
+    tracking = (ibcontrol == 0 || ibtimeleft > 0);
+
+    ibtimeleft = ibcontrol;
+
+    ret =  tracking ? 0 : thread_ib();
+
+    pthread_mutex_unlock(&fetch_mutex);
+
+    return ret;
+}
+
+uint32_t
+get_control_ib(void)
+{
+    return ibcontrol;
+}
+
+void
+set_control_ib(uint32_t control)
+{
+    int change, tracking;
+
+    pthread_mutex_lock(&fetch_mutex);
+
+    change   = (ibcontrol != control);
+    tracking = (ibcontrol == 0 || ibtimeleft > 0);
+
+    ibcontrol = control;
+    if (tracking)
+	ibtimeleft = ibcontrol;
+    else if (ibcontrol != 0)
+	ibtimeleft = 0;
+    else
+	thread_ib();
+
+    pthread_mutex_unlock(&fetch_mutex);
+
+    if (change && NULL != (ibcontrol_file = fopen(ibcontrol_path, "w"))) {
+	fprintf(ibcontrol_file, "%u\n", ibcontrol);
+	fclose(ibcontrol_file);
     }
-    pclose(fp);
-    return sts;
 }
 
 int
@@ -308,8 +431,10 @@ refresh_ib(pmInDom indom)
 	return sts;
 
     pthread_mutex_lock(&fetch_mutex);
-    fetched = 1;
-    do_refresh();
+    if (ibcontrol == 0 || ibtimeleft > 0) {
+	ibfetched = 1;
+	do_refresh();
+    }
     pthread_mutex_unlock(&fetch_mutex);
 
     return 0;
@@ -325,7 +450,7 @@ status_ib(ib_port_t * portp)
     int		sts;
     char	*str;
 
-    sprintf(ibstatus, IBSTATUS " %s:%" PRIu64,
+    sprintf(ibstatus_args, " %s:%" PRIu64,
 	    portp->card, portp->portnum);
     fp = popen(ibstatus, "r");
     if (fp == NULL) return -errno;
@@ -357,6 +482,7 @@ status_ib(ib_port_t * portp)
 	break;
     }
     scratch[cur] = '\0';
+    pclose(fp);
     str = strdup(scratch);
     if (str == NULL) return -errno;
     if (portp->status != NULL) free(portp->status);

@@ -1,0 +1,15 @@
+#!make
+#
+# $Id: Makefile.install,v 1.1 1997/06/04 23:21:39 tes Exp $
+
+SHELL	= /bin/sh
+IAM	= hotproc
+TARGETS	=
+LDIRT	= *.log *.pag *.dir
+
+default: $(TARGETS)
+
+install:	default
+
+clobber:
+	rm -f $(LDIRT) $(TARGETS)

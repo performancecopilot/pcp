@@ -89,6 +89,7 @@ sqlserver.databases.all {
 	data_file_size		WINDOWS:0:90
 	log_file_size		WINDOWS:0:91
 	log_file_used		WINDOWS:0:92
+	active_transactions	WINDOWS:0:134
 }
 
 sqlserver.databases.db {
@@ -98,6 +99,7 @@ sqlserver.databases.db {
 	data_file_size		WINDOWS:0:93
 	log_file_size		WINDOWS:0:94
 	log_file_used		WINDOWS:0:95
+	active_transactions	WINDOWS:0:135
 }
 
 sqlserver.latches {

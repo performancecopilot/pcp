@@ -51,6 +51,7 @@ sed -e "$CULLCOPYRIGHT" \
     -e "s/@FUN/$fun/g" \
     -e "s/@ITYPE/$itype/g" \
     -e "s/@OTYPE/$otype/g" \
+    -e "s/@TTYPE/$ttype/g" \
     -e "s/@TOP/$top/g" \
     -e "s/@LOOP/$loop/g" \
     -e "s/@BOT/$bot/g" \
@@ -134,6 +135,7 @@ _misc
 #
 itype=double
 otype=double
+ttype=double
 notvalid="x->valid = 0;"
 
 fun=cndSum
@@ -165,6 +167,7 @@ _aggr
 #
 itype=double
 otype=double
+ttype=double
 
 fun=cndNeg
 op="OP(x) -(x)"
@@ -197,6 +200,7 @@ _merge
 #
 itype=double
 otype=Truth
+ttype=Truth
 
 fun=cndEq
 op="OP(x,y) ((x) == (y))"
@@ -227,18 +231,11 @@ _binary
 #
 itype=Truth
 otype=Truth
+ttype=Truth
 
 fun=cndNot
 op="OP(x) (((x) == TRUE || (x) == FALSE) ? !(x) : DUNNO)"
 _unary
-
-fun=cndAnd
-op="OP(x,y) (((x) == TRUE \\&\\& (y) == TRUE) ? TRUE : (((x) == FALSE || (y) == FALSE) ?  FALSE : DUNNO))"
-_binary
-
-fun=cndOr
-op="OP(x,y) (((x) == TRUE || (y) == TRUE) ? TRUE : (((x) == FALSE \\&\\& (y) == FALSE) ?  FALSE : DUNNO))"
-_binary
 
 fun=cndRise
 delta=""
@@ -257,6 +254,7 @@ _merge
 #
 itype=Truth
 otype=Truth
+ttype=Truth
 
 fun=cndAll
 top="a = *ip;"
@@ -275,9 +273,10 @@ notvalid="*op++ = DUNNO; os->stamp = is->stamp; x->valid++;"
 _aggr
 
 fun=cndPcnt
+ttype='int	'
 top="a = *ip;"
 loop="a += *ip;"
-bot="*op++ = (a >= *(double *)x->arg2->ring * n) ? TRUE : FALSE;"
+bot="*op++ = (a >= (int)(0.5 + *(double *)x->arg2->ring * n)) ? TRUE : FALSE;"
 notvalid="*op++ = DUNNO; os->stamp = is->stamp; x->valid++;"
 _aggr
 

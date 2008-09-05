@@ -33,19 +33,75 @@
 .rr X
 \}
 .SH NAME
-\f3pmie_check\f1
-\- administration of the Performance Co-Pilot inference engine
+\f3pmie_check\f1,
+\f3pmie_daily\f1 \- administration of the Performance Co-Pilot inference engine
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmie_check
 [\f3\-NsV\f1]
 [\f3\-c\f1 \f2control\f1]
+.br
+.B $PCP_BINADM_DIR/pmie_daily
+[\f3\-NV\f1]
+[\f3\-c\f1 \f2control\f1]
+[\f3\-k\f1 \f2discard\f1]
+[\f3\-x\f1 \f2compress\f1]
+[\f3\-X\f1 \f2program\f1]
+[\f3\-Y\f1 \f2regex\f1]
+.br
 .SH DESCRIPTION
-This shell script and associated control file may be used to
+This series of shell scripts and associated control files may be used to
 create a customized regime of administration and management for the
 Performance Co-Pilot (see
 .BR PCPintro (1))
 inference engine,
 .BR pmie (1).
+.PP
+.B pmie_daily
+is intended to be run once per day, preferably in the early morning, as
+soon after midnight as practicable.  Its task is to rotate the log files
+for the running
+.B pmie
+processes \- these files may grow without bound if the
+``print'' action is used, or any other
+.B pme
+action writes to its stdout/stderr streams.
+After some period, old
+.B pmie
+log files are discarded.
+This period is 14 days by default, but may be changed using the
+.B \-k
+option. Two special values are recognized for the period (\c
+.IR discard ),
+namely
+.B 0
+to keep no log files beyond the current one, and
+.B forever
+to prevent any log files being discarded.
+.PP
+Log files can optionally be compressed after some period (\c
+.IR compress ),
+to conserve disk space.  This is particularly useful for large numbers of
+.B pmie
+processes under the control of
+.BR pmie_check .
+The
+.B \-x
+option specifies the number of days after which to compress archive data
+files, and the
+.B \-X
+option specifies the program to use for compression \- by default this is
+.BR bzip2 (1).
+Use of the
+.B \-Y
+option allows a regular expression to be specified causing files in
+the set of files matched for compression to be omitted \- this allows
+only the data file to be compressed, and also prevents the program from
+attempting to compress it more than once.  The default
+.I regex
+is ".meta$|.index$|.Z$|.gz$|.bz2|.zip$" \- such files are filtered using the
+.B \-v
+option to
+.BR egrep (1).
 .PP
 .B pmie_check
 may be run at any time, and is intended to check that the desired set
@@ -58,8 +114,11 @@ option provides the reverse functionality, allowing the set of
 .B pmie
 processes to be cleanly shutdown.
 .PP
+Both
 .B pmie_check
-is controlled by a PCP inference engine control file that specifies the
+and
+.B pmie_daily
+are controlled by a PCP inference engine control file that specifies the
 .B pmie
 instances to be managed.  The default control file is
 .B $PCP_VAR_DIR/config/pmie/control
@@ -180,8 +239,8 @@ and another monitoring performance metrics from the host
 .PP
 .nf
 .ft CW
-wobbly  n  $PCP_LOG_DIR/pmie/wobbly  -c $PCP_VAR_DIR/config/pmie/config.default
-splat   n  $PCP_LOG_DIR/pmie/splat   -c $PCP_LOG_DIR/pmie/splat/cpu.conf
+wobbly  n  PCP_LOG_DIR/pmie/wobbly  -c pmie/config.default
+splat   n  PCP_LOG_DIR/pmie/splat   -c pmie/splat/cpu.conf
 .ft 1
 .fi
 .PP
@@ -195,8 +254,10 @@ and shown below.
 .PP
 .nf
 .ft CW
+# daily processing of pmie logs
+14      0       *       *       *       $PCP_BINADM_DIR/pmie_daily
 # every 30 minutes, check pmie instances are running
-25,55   *       *       *       *       $PCP_BINADM_DIR/pmie_check
+28,58   *       *       *       *       $PCP_BINADM_DIR/pmie_check
 .ft 1
 .fi
 .PP
@@ -271,15 +332,20 @@ other than root.
 .B $PCP_VAR_DIR/config/pmie/crontab
 sample crontab for automated script execution by root
 .TP
-.BI logfile .lock
-transient lock file which is named using the control-specified
+.BI $PCP_LOG_DIR/pmie/ hostname
+default location for the pmie log file for the host
+.I hostname
+.TP
+.BI $PCP_LOG_DIR/pmie/ hostname /lock
+transient lock file to guarantee mutual exclusion during
 .B pmie
-.I logfile
-names, and is used to guarantee mutual exclusion during
+administration for the host
+.I hostname
+\- if present, can be safely removed if neither
+.B pmie_daily
+nor
 .B pmie_check
-execution \- if present, can be safely removed if
-.B pmie_check
-is not running
+are running
 .TP
 .B $PCP_LOG_DIR/NOTICES
 PCP ``notices'' file used by

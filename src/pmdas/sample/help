@@ -84,6 +84,10 @@ The value of the metric is monotonic increasing in the range N to
 N+100, then back to N.  The different instances have different N values,
 namely 100 (red), 200 (green) and 300 (blue).
 
+@ sample.darkness No values available
+Defined over the same instance domain as sample.colour, but this metric
+returns the "No values available" error for every fetch.
+
 @ sample.bin Several constant instances
 9 instances labelled "bin-100" thru "bin-900", each with a constant
 value of 100 thru 900.

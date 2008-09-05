@@ -208,6 +208,7 @@ extern int __pmHasPMNSFileChanged(const char *);
 
 /* standard log file set up */
 extern FILE *__pmOpenLog(const char *, const char *, FILE *, int *);
+extern FILE *__pmRotateLog(const char *, const char *, FILE *, int *);
 /* make __pmNotifyErr also add entries to syslog */
 extern void __pmSyslog(int);
 /* standard error, warning and info wrapper for syslog(3C) */

@@ -27,43 +27,51 @@
  * All fields in /proc/vmstat for 2.6.x
  */
 typedef struct {
+	/* sorted by name to make maintenance easier */
+	__uint64_t allocstall;
+	__uint64_t kswapd_inodesteal;
+	__uint64_t kswapd_steal;
+	__uint64_t nr_anon_pages;
+	__uint64_t nr_bounce;
 	__uint64_t nr_dirty;
-	__uint64_t nr_writeback;
-	__uint64_t nr_unstable;
-	__uint64_t nr_page_table_pages;
+	__uint64_t nr_file_pages;
 	__uint64_t nr_mapped;
-	__uint64_t nr_slab;
-	__uint64_t pgpgin;
-	__uint64_t pgpgout;
-	__uint64_t pswpin;
-	__uint64_t pswpout;
+	__uint64_t nr_page_table_pages;
+	__uint64_t nr_slab;		/* not in later kernels */
+	__uint64_t nr_slab_reclaimable;
+	__uint64_t nr_slab_unreclaimable;
+	__uint64_t nr_unstable;
+	__uint64_t nr_vmscan_write;
+	__uint64_t nr_writeback;
+	__uint64_t pageoutrun;
+	__uint64_t pgactivate;
+	__uint64_t pgalloc_dma;
 	__uint64_t pgalloc_high;
 	__uint64_t pgalloc_normal;
-	__uint64_t pgalloc_dma;
-	__uint64_t pgfree;
-	__uint64_t pgactivate;
 	__uint64_t pgdeactivate;
 	__uint64_t pgfault;
+	__uint64_t pgfree;
+	__uint64_t pginodesteal;
 	__uint64_t pgmajfault;
+	__uint64_t pgpgin;
+	__uint64_t pgpgout;
+	__uint64_t pgrefill_dma;
 	__uint64_t pgrefill_high;
 	__uint64_t pgrefill_normal;
-	__uint64_t pgrefill_dma;
-	__uint64_t pgsteal_high;
-	__uint64_t pgsteal_normal;
-	__uint64_t pgsteal_dma;
-	__uint64_t pgscan_kswapd_high;
-	__uint64_t pgscan_kswapd_normal;
-	__uint64_t pgscan_kswapd_dma;
+	__uint64_t pgrotated;
+	__uint64_t pgscan_direct_dma;
 	__uint64_t pgscan_direct_high;
 	__uint64_t pgscan_direct_normal;
-	__uint64_t pgscan_direct_dma;
-	__uint64_t pginodesteal;
+	__uint64_t pgscan_kswapd_dma;
+	__uint64_t pgscan_kswapd_high;
+	__uint64_t pgscan_kswapd_normal;
+	__uint64_t pgsteal_dma;
+	__uint64_t pgsteal_high;
+	__uint64_t pgsteal_normal;
+	__uint64_t pswpin;
+	__uint64_t pswpout;
 	__uint64_t slabs_scanned;
-	__uint64_t kswapd_steal;
-	__uint64_t kswapd_inodesteal;
-	__uint64_t pageoutrun;
-	__uint64_t allocstall;
-	__uint64_t pgrotated;
+
 } proc_vmstat_t;
 
 extern int refresh_proc_vmstat(proc_vmstat_t *);

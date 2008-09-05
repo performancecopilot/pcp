@@ -230,3 +230,10 @@ main(int argc, char **argv)
 	fflush(send_f);
     }
 }
+
+/*
+ * Avoid the symbol botch with newer compilers:
+ * http://www.codeproject.com/tips/seccheck.asp
+ */
+int __security_cookie;
+void __fastcall __security_check_cookie(void *stackAddress){}

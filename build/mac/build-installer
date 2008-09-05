@@ -1,28 +1,35 @@
 #! /bin/sh
 
-if [ ! -d "$1" -o ! -x "$2" -o -z "$3" -o ! -f "$4" ]; then
-    if [ ! -d "$1" ]; then
-	echo "DIST_ROOT doesnt exist"
-    fi
-    if [ ! -x "$2" ]; then
+if [ ! -x "$1" -o ! -x "$2" -o ! -d "$3" -o -z "$4" -o ! -f "$5" ]; then
+    if [ ! -x "$1" ]; then
 	echo PackageMaker not executable
     fi
-    if [ -z "$3" ]; then
+    if [ ! -x "$2" ]; then
+	echo hdiutil not executable
+    fi
+    if [ ! -d "$3" ]; then
+	echo "DIST_ROOT doesnt exist"
+    fi
+    if [ -z "$4" ]; then
 	echo Must supply a package name
     fi
-    if [ ! -f "$4" ]; then
+    if [ ! -f "$5" ]; then
 	echo idb file not found
     fi
-    echo "Usage: $0 /path/to/DIST_ROOT /path/to/PackageMaker package_name idb_file"
+    echo "Usage: $0 /path/to/PackageMaker /path/to/hdiutil /path/to/DIST_ROOT package_name idb_file"
     exit 1
 fi
 
-DIST_ROOT=$1
 IFDIR="installer-files"
 IRDIR="installer-resources"
-PKGMKR=$2
-PKG="$3.pkg"
-IDB=$4
+PKGMKR=$1
+HDIUTIL=$2
+DIST_ROOT=$3
+PACKAGE=$4-$PACKAGE_VERSION-$PACKAGE_BUILD
+PKG=$PACKAGE.pkg
+DMG=$PACKAGE.dmg
+TEMPDMG=$PACKAGE.tmp.dmg
+IDB=$5
 HERE=`pwd`
 
 prog=`basename $0`
@@ -38,6 +45,12 @@ _do()
 	cat $tmp.out
 	exit 1
     fi
+}
+
+_run()
+{
+    echo $*
+    eval $*
 }
 
 echo "Verifying IDB file is valid"
@@ -83,17 +96,34 @@ _do rm -rf $PKG
 # PackageMaker returns non-zero value even if it succeeds.
 # PackageMaker must be run by the user logged into the localhost desktop.
 #
-echo "$PKGMKR -build -p $HERE/$PKG -f $HERE/installer-files -r $HERE/installer-resources -i $HERE/info -d $HERE/description"
-
-$PKGMKR -build -p $HERE/$PKG -f $HERE/installer-files -r $HERE/installer-resources \
--i $HERE/info -d $HERE/description &
-
+_run $PKGMKR -build -p $HERE/$PKG  \
+	-f $HERE/installer-files -r $HERE/installer-resources \
+	-i $HERE/info -d $HERE/description &
 wait
 
 if [ ! -d $HERE/$PKG ]
 then
     echo "$prog: Package generation failed"
     exit 1
+fi
+
+echo "Launching hdiutil..."
+_do rm -rf $DMG $TEMPDMG $PACKAGE
+
+_do mkdir $PACKAGE
+_do mv $PKG $PACKAGE
+
+_do $HDIUTIL makehybrid -quiet -o $PACKAGE.tmp $PACKAGE \
+	-hfs-openfolder dmg.tmp/$DMG -hfs
+_do $HDIUTIL convert -quiet $TEMPDMG -format UDRO -o $DMG
+_do $HDIUTIL internet-enable -quiet -yes $DMG
+
+if [ ! -f $HERE/$DMG ]
+then
+    echo "$prog: Package Disk Image generation failed"
+    exit 1
+else
+    echo "Wrote: $HERE/$DMG"
 fi
 
 status=0

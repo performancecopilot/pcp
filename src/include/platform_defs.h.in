@@ -120,7 +120,7 @@ extern "C" {
 
 #undef HAVE_SYS_ENDIAN_H
 #undef HAVE_SYS_MACHINE_H
-#undef HAVE_PPC_ENDIAN_H
+#undef HAVE_MACHINE_ENDIAN_H
 
 #if defined(HAVE_MALLOC_H)
 #include <malloc.h>
@@ -134,10 +134,10 @@ extern "C" {
 #include <endian.h>
 #elif defined(HAVE_SYS_ENDIAN_H)
 #include <sys/endian.h>
-#elif defined(HAVE_PPC_ENDIAN_H)
-#include <ppc/endian.h>
+#elif defined(HAVE_MACHINE_ENDIAN_H)
+#include <machine/endian.h>
 #endif
-#if defined(HAVE_ENDIAN_H) || defined(HAVE_SYS_ENDIAN_H) || defined(HAVE_PPC_ENDIAN_H)
+#if defined(HAVE_ENDIAN_H) || defined(HAVE_SYS_ENDIAN_H) || defined(HAVE_MACHINE_ENDIAN_H)
 #if defined(BYTE_ORDER) && BYTE_ORDER == BIG_ENDIAN
 #define HAVE_NETWORK_BYTEORDER
 #endif

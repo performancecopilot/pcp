@@ -57,32 +57,6 @@ char		*pmProgname = "pcp";		/* the real McCoy */
 
 static int vpmprintf(const char *, va_list);
 
-static void
-onexit(void)
-{
-    int		i;
-    time_t	now;
-
-    /*
-     * there is a race condition here ... but the worse that can happen
-     * is (a) no "Log finished" message, or (b) _two_ "Log finished"
-     * messages ... neither case is serious enough to warrant a mutex guard
-     */
-    if (++done_exit != 1)
-	return;
-#if defined(IRIX5_3)
-    if (lucky_pid != getpid()) {
-	done_exit--;
-	return;
-    }
-#endif
-
-    (void)time(&now);
-    for (i = 0; i < nfilelog; i++) {
-	fprintf(filelog[i], "\nLog finished %s", ctime(&now));
-    }
-}
-
 /*
  * if onoff == 1, logging is to syslog and stderr, else logging is
  * just to stderr (this is the default)
@@ -167,12 +141,56 @@ __pmNotifyErr(int priority, const char *message, ...)
     pmflush();
 }
 
-FILE *
-__pmOpenLog(const char *progname, const char *logname, FILE *oldstream, 
-	    int *status)
+static void
+logheader(const char *progname, FILE *log, const char *act)
 {
     time_t	now;
     char	host[MAXHOSTNAMELEN];
+
+    setlinebuf(log);		/* line buffering for log files */
+    gethostname(host, MAXHOSTNAMELEN);
+    host[MAXHOSTNAMELEN-1] = '\0';
+    time(&now);
+    fprintf(log, "Log for %s on %s %s %s\n", progname, host, act, ctime(&now));
+}
+
+static void
+logfooter(FILE *log, const char *act)
+{
+    time_t	now;
+
+    time(&now);
+    fprintf(log, "\nLog %s %s", act, ctime(&now));
+}
+
+static void
+logonexit(void)
+{
+    int		i;
+
+    /*
+     * there is a race condition here ... but the worse that can happen
+     * is (a) no "Log finished" message, or (b) _two_ "Log finished"
+     * messages ... neither case is serious enough to warrant a mutex guard
+     */
+    if (++done_exit != 1)
+	return;
+#if defined(IRIX5_3)
+    if (lucky_pid != getpid()) {
+	done_exit--;
+	return;
+    }
+#endif
+
+    for (i = 0; i < nfilelog; i++)
+	logfooter(filelog[i], "finished");
+}
+
+/* common code shared by __pmRotateLog and __pmOpenLog */
+static FILE *
+logreopen(const char *progname, const char *logname, FILE *oldstream,
+	    int *status)
+{
     int		oldfd;
     int		dupoldfd;
     FILE	*dupoldstream = oldstream;
@@ -223,13 +241,15 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
 	*status = 1;
     }
     close(dupoldfd);
-    setlinebuf(oldstream);		/* line buffering for log files */
-    (void)gethostname(host, MAXHOSTNAMELEN);
-    host[MAXHOSTNAMELEN-1] = '\0';
-    time(&now);
-    fprintf(oldstream, "Log for %s on %s started %s\n",
-			progname, host, ctime(&now));
+    return oldstream;
+}
 
+FILE *
+__pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
+	    int *status)
+{
+    oldstream = logreopen(progname, logname, oldstream, status);
+    logheader(progname, oldstream, "started");
 
     /*
      * atexit() race condition in IRIX 5.3 measn we have to be very careful
@@ -237,18 +257,36 @@ __pmOpenLog(const char *progname, const char *logname, FILE *oldstream,
      */
     nfilelog++;
     if (nfilelog == 1) {
-	atexit(onexit);
+	atexit(logonexit);
 #if defined(IRIX5_3)
 	lucky_pid = getpid();
 #endif
     }
 
-    if ((filelog = (FILE **)realloc(filelog, nfilelog * sizeof(FILE *))) == NULL) {
+    filelog = (FILE **)realloc(filelog, nfilelog * sizeof(FILE *));
+    if (filelog == NULL) {
 	__pmNoMem("__pmOpenLog", nfilelog * sizeof(FILE *), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     filelog[nfilelog-1] = oldstream;
+    return oldstream;
+}
 
+FILE *
+__pmRotateLog(const char *progname, const char *logname, FILE *oldstream,
+	    int *status)
+{
+    int		i;
+
+    for (i = 0; i < nfilelog; i++) {
+	if (oldstream == filelog[i]) {
+	    logfooter(oldstream, "rotated");	/* old */
+	    oldstream = logreopen(progname, logname, oldstream, status);
+	    logheader(progname, oldstream, "rotated");	/* new */
+	    filelog[i] = oldstream;
+	    break;
+	}
+    }
     return oldstream;
 }
 
@@ -421,11 +459,11 @@ pmPrintValue(FILE *f,			/* output stream */
         break;
 
     case PM_TYPE_64:
-        fprintf(f, "%*lli", minwidth, a.ll);
+        fprintf(f, "%*lli", minwidth, (long long)a.ll);
         break;
 
     case PM_TYPE_U64:
-        fprintf(f, "%*llu", minwidth, a.ull);
+        fprintf(f, "%*llu", minwidth, (unsigned long long)a.ull);
         break;
 
     case PM_TYPE_FLOAT:
@@ -466,7 +504,7 @@ pmPrintValue(FILE *f,			/* output stream */
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(__uint64_t)) {
 		__uint64_t	i;
 		memcpy((void *)&i, (void *)&val->value.pval->vbuf, sizeof(__uint64_t));
-		fprintf(f, "%*llu", minwidth, i);
+		fprintf(f, "%*llu", minwidth, (unsigned long long)i);
 		done = 1;
 	    }
 	    if (val->value.pval->vlen == PM_VAL_HDR_SIZE + sizeof(double)) {

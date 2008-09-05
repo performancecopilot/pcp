@@ -36,10 +36,13 @@ cc -c dummy.c
 if [ -f /usr/share/misc/magic ]
 then
     appstyle=`file -m /usr/share/misc/magic dummy.o`
+elif [ -f /usr/share/file/magic ]
+then
+    appstyle=`file -m /usr/share/file/magic dummy.o`
 elif [ -f /usr/share/magic ]
 then
     appstyle=`file -m /usr/share/magic dummy.o`
-elif [ -f /etc/magic]
+elif [ -f /etc/magic ]
 then
     appstyle=`file -m /etc/magic dummy.o`
 else

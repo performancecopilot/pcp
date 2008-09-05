@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os PACKAGE_MAJOR PACKAGE_MINOR PACKAGE_REVISION PACKAGE_BUILD package_builder CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT cc MAKE make CXX CXXFLAGS ac_ct_CXX cxx CPP cpp cpp_simple cpp_simple_args LD ld pcp_owner pcp_group TAR tar XMESSAGE xmessage ZIP gzip BZIP2 bzip2 package_maker RPMBUILD rpmbuild RPM rpm rpmprog rpm_version GENDIST gendist MAKEDEPEND makedepend DPKG dpkg LN_S YACC yacc LEX LEXLIB LEX_OUTPUT_ROOT lex AWK awk SED sed ECHO echo echo_n echo_c pcp_ps_have_bsd pcp_ps_all_flags pcp_killall_prog grep EGREP rdynamic_flag solaris_libs lib_for_basename lib_for_dlopen lib_for_math pcp_etc_dir pcp_share_dir pcp_binadm_dir pcp_var_dir pcp_pmcdconf_path pcp_pmcdoptions_path pcp_pmproxyoptions_path pcp_pmdas_dir pcp_lib_dir pcp_lib32_dir X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS pcp_x11_incflags pcp_x11_libflags pcp_x11_extra pcp_x11_pre pcp_x11_appdefs_dir pcp_man_dir have_gzipped_manpages have_bzip2ed_manpages pcp_bin_dir pcp_inc_dir pcp_rc_dir pcp_sysconfig_dir pcp_log_dir pcp_run_dir pcp_tmp_dir pcp_doc_dir pcp_demos_dir ac_xconfirm_prog ac_cv_pthread_lib pcp_mpi_dirs LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os PACKAGE_MAJOR PACKAGE_MINOR PACKAGE_REVISION PACKAGE_BUILD PACKAGE_BUILD_DATE package_builder CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT cc MAKE make CXX CXXFLAGS ac_ct_CXX cxx CPP cpp cpp_simple cpp_simple_args LD ld pcp_owner pcp_group TAR tar XMESSAGE xmessage ZIP gzip BZIP2 bzip2 package_maker HDIUTIL hdiutil RPMBUILD rpmbuild RPM rpm rpmprog rpm_version GENDIST gendist MAKEDEPEND makedepend DPKG dpkg LN_S YACC yacc LEX LEXLIB LEX_OUTPUT_ROOT lex AWK awk SED sed ECHO echo echo_n echo_c pcp_ps_have_bsd pcp_ps_all_flags pcp_killall_prog grep EGREP rdynamic_flag solaris_libs lib_for_basename lib_for_dlopen lib_for_math pcp_etc_dir pcp_share_dir pcp_binadm_dir pcp_var_dir pcp_pmcdconf_path pcp_pmcdoptions_path pcp_pmproxyoptions_path pcp_pmdas_dir pcp_lib_dir pcp_lib32_dir X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS pcp_x11_incflags pcp_x11_libflags pcp_x11_extra pcp_x11_pre pcp_x11_appdefs_dir pcp_man_dir have_gzipped_manpages have_bzip2ed_manpages pcp_bin_dir pcp_inc_dir pcp_rc_dir pcp_sysconfig_dir pcp_log_dir pcp_run_dir pcp_tmp_dir pcp_doc_dir pcp_demos_dir ac_xconfirm_prog ac_cv_pthread_lib pcp_mpi_dirs LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1528,6 +1528,11 @@ PACKAGE_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
 
 
 
+
+
+if test -z "$PACKAGE_BUILD_DATE" ; then
+    PACKAGE_BUILD_DATE=`date +%Y-%m-%d`
+fi
 
 
 if test -z "$PACKAGE_BUILDER"
@@ -3470,6 +3475,48 @@ echo "${ECHO_T} no" >&6
 else
     package_maker="$PACKAGE_MAKER"
 fi
+
+
+test -z "$HDIUTIL" && # Extract the first word of "hdiutil", so it can be a program name with args.
+set dummy hdiutil; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_HDIUTIL+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $HDIUTIL in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_HDIUTIL="$HDIUTIL" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_HDIUTIL="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  ;;
+esac
+fi
+HDIUTIL=$ac_cv_path_HDIUTIL
+
+if test -n "$HDIUTIL"; then
+  echo "$as_me:$LINENO: result: $HDIUTIL" >&5
+echo "${ECHO_T}$HDIUTIL" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+hdiutil=$HDIUTIL
 
 
 test -z "$RPMBUILD" && # Extract the first word of "rpmbuild", so it can be a program name with args.
@@ -5790,8 +5837,8 @@ echo "${ECHO_T}no" >&6
 fi
 rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 
-echo "$as_me:$LINENO: checking for ppc/endian.h " >&5
-echo $ECHO_N "checking for ppc/endian.h ... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking for machine/endian.h " >&5
+echo $ECHO_N "checking for machine/endian.h ... $ECHO_C" >&6
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -5799,7 +5846,7 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
-    #include <ppc/endian.h>
+    #include <machine/endian.h>
 
 int
 main ()
@@ -5833,7 +5880,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   cat >>confdefs.h <<\_ACEOF
-#define HAVE_PPC_ENDIAN_H 1
+#define HAVE_MACHINE_ENDIAN_H 1
 _ACEOF
  echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
@@ -10436,7 +10483,9 @@ fi
 
 test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
 
-if test "`eval echo $datadir | sed 's;/[^/]*\$;;'`" = NONE
+pcp_share_dir=`eval echo $datadir`
+pcp_share_dir=`eval echo $pcp_share_dir`
+if test "`echo $pcp_share_dir | sed 's;/.*\$;;'`" = NONE
 then
    if test $target_os = irix
    then
@@ -10452,12 +10501,12 @@ then
 	   pcp_share_dir=/usr/pcp
        fi
    fi
-else
-   pcp_share_dir=`eval echo $datadir`
 fi
 
 
-if test "`eval echo $sbindir | sed 's;/[^/]*\$;;'`" = NONE
+pcp_binadm_dir=`eval echo $sbindir`
+pcp_binadm_dir=`eval echo $pcp_binadm_dir`
+if test "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`" = NONE
 then
    if test $target_os = irix
    then
@@ -10465,8 +10514,6 @@ then
    else
        pcp_binadm_dir=$pcp_share_dir/bin
    fi
-else
-   pcp_binadm_dir=`eval echo $sbindir`
 fi
 
 
@@ -10474,7 +10521,9 @@ if test $target_os = irix
 then
     pcp_var_dir=/var/pcp
 else
-    if test "`eval echo $localstatedir | sed 's;/[^/]*\$;;'`" = NONE
+    pcp_var_dir=`eval echo $localstatedir`
+    pcp_var_dir=`eval echo $pcp_var_dir`
+    if test "`echo $pcp_var_dir | sed 's;/.*\$;;'`" = NONE
     then
        if test -d /var/lib
        then
@@ -10488,8 +10537,6 @@ else
        else
 	   pcp_var_dir=/usr
        fi
-    else
-       pcp_var_dir=`eval echo $localstatedir`
     fi
 fi
 
@@ -10524,7 +10571,9 @@ then
     pcp_lib_dir=/usr/lib64
     pcp_lib32_dir=/usr/lib
 else
-    if test "`eval echo $libdir | sed 's;/[^/]*\$;;'`" = NONE
+    pcp_lib_dir=`eval echo $libdir`
+    pcp_lib_dir=`eval echo $pcp_lib_dir`
+    if test "`echo $pcp_lib_dir | sed 's;/.*\$;;'`" = NONE
     then
        if test -d /usr/lib
        then
@@ -10535,8 +10584,6 @@ else
        else
 	   pcp_lib_dir=/lib
        fi
-    else
-       pcp_lib_dir=`eval echo $libdir`
     fi
 fi
 if test -z "$pcp_lib32_dir" ; then
@@ -11966,7 +12013,9 @@ fi
 
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
-if test "`eval echo $mandir | sed 's;/[^/]*\$;;'`" = NONE
+pcp_man_dir=`eval echo $mandir`
+pcp_man_dir=`eval echo $pcp_man_dir`
+if test "`echo $pcp_man_dir | sed 's;/.*\$;;'`" = NONE
 then
         if test -d /usr/share/man
     then
@@ -12023,8 +12072,6 @@ then
 	    have_bzip2ed_manpages=false
 	fi
     fi
-else
-   pcp_man_dir=`eval echo $mandir`
 fi
 if test -z "$pcp_man_dir"
 then
@@ -12039,7 +12086,9 @@ if test $target_os = irix
 then
     pcp_bin_dir=/usr/sbin
 else
-    if test "`eval echo $bindir | sed 's;/[^/]*\$;;'`" = NONE
+    pcp_bin_dir=`eval echo $bindir`
+    pcp_bin_dir=`eval echo $pcp_bin_dir`
+    if test "`echo $pcp_bin_dir | sed 's;/.*\$;;'`" = NONE
     then
        if test -d /usr/bin
        then
@@ -12047,13 +12096,13 @@ else
        else
 	   pcp_bin_dir=/bin
        fi
-    else
-       pcp_bin_dir=`eval echo $bindir`
     fi
 fi
 
 
-if test "`eval echo $includedir | sed 's;/[^/]*\$;;'`" = NONE
+pcp_inc_dir=`eval echo $includedir`
+pcp_inc_dir=`eval echo $pcp_inc_dir`
+if test "`echo $pcp_inc_dir | sed 's;/.*\$;;'`" = NONE
 then
    if test -d /usr/include
    then
@@ -12061,8 +12110,6 @@ then
    else
        pcp_inc_dir=$pcp_share_dir/include
    fi
-else
-   pcp_inc_dir=`eval echo $includedir`
 fi
 
 
@@ -12119,7 +12166,7 @@ else
 fi
 
 
-if test "`eval echo $prefix | sed 's;/[^/]*\$;;'`" = NONE
+if test "`eval echo $prefix | sed 's;/.*\$;;'`" = NONE
 then
    if test $target_os = irix
    then
@@ -12140,10 +12187,11 @@ then
    fi
 else
    pcp_doc_dir=`eval echo $prefix/doc`
+   pcp_doc_dir=`eval echo $pcp_doc_dir`
 fi
 
 
-if test "`eval echo $prefix | sed 's;/[^/]*\$;;'`" = NONE
+if test "`eval echo $prefix | sed 's;/.*\$;;'`" = NONE
 then
    if test $target_os = irix
    then
@@ -12158,6 +12206,7 @@ then
    fi
 else
    pcp_demos_dir=`eval echo $pcp_doc_dir/demos`
+   pcp_demos_dir=`eval echo $pcp_demos_dir`
 fi
 
 
@@ -12584,7 +12633,7 @@ rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
 
 
-                    ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf"
+                              ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -13111,6 +13160,7 @@ do
   # Handling of arguments.
   "src/include/builddefs" ) CONFIG_FILES="$CONFIG_FILES src/include/builddefs" ;;
   "src/include/pcp.conf" ) CONFIG_FILES="$CONFIG_FILES src/include/pcp.conf" ;;
+  "pcp.lsm" ) CONFIG_FILES="$CONFIG_FILES pcp.lsm" ;;
   "src/include/platform_defs.h" ) CONFIG_HEADERS="$CONFIG_HEADERS src/include/platform_defs.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -13212,6 +13262,7 @@ s,@PACKAGE_MAJOR@,$PACKAGE_MAJOR,;t t
 s,@PACKAGE_MINOR@,$PACKAGE_MINOR,;t t
 s,@PACKAGE_REVISION@,$PACKAGE_REVISION,;t t
 s,@PACKAGE_BUILD@,$PACKAGE_BUILD,;t t
+s,@PACKAGE_BUILD_DATE@,$PACKAGE_BUILD_DATE,;t t
 s,@package_builder@,$package_builder,;t t
 s,@CC@,$CC,;t t
 s,@CFLAGS@,$CFLAGS,;t t
@@ -13244,6 +13295,8 @@ s,@gzip@,$gzip,;t t
 s,@BZIP2@,$BZIP2,;t t
 s,@bzip2@,$bzip2,;t t
 s,@package_maker@,$package_maker,;t t
+s,@HDIUTIL@,$HDIUTIL,;t t
+s,@hdiutil@,$hdiutil,;t t
 s,@RPMBUILD@,$RPMBUILD,;t t
 s,@rpmbuild@,$rpmbuild,;t t
 s,@RPM@,$RPM,;t t

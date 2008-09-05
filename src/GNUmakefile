@@ -19,7 +19,7 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Id: GNUmakefile,v 2.165 2006/06/30 05:47:11 makc Exp $
+# $Id: GNUmakefile,v 2.167 2007/09/05 03:25:21 kimbrr Exp $
 #
 
 TOPDIR = ..
@@ -31,14 +31,18 @@ include $(TOPDIR)/src/include/builddefs
 #
 IRIX_SUBDIRS = buildtools libarray_util libpcp_dev
 
+# directories that are only used for open source builds
+#
+GNU_SUBDIRS = libkmtime
+
 SUBDIRS = $(IRIX_SUBDIRS) \
 	  include libpcp pmns libpcp_pmda libpcp_trace libpcp_http \
-	  newhelp pminfo pmnscomp pmcd pmerr pmdbg \
+	  $(GNU_SUBDIRS) newhelp pminfo pmnscomp pmcd pmerr pmdbg \
 	  pmdate pmie pmpost pmprobe pmcdctl pmlock pmval pmlogger \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmlogctl \
 	  pmlogconf pmlogsummary pmclient pmkstat pcp pmlc dbpmda \
 	  xconfirm pmtrace pmstat pmsocks pmdas pmafm procmemstat \
-	  pmlogreduce genpmda pmproxy telnet-probe
+	  pmlogreduce genpmda pmproxy telnet-probe pmsleep cpan pmtop
 
 ifneq ($(TARGET_OS), cygwin)
 SUBDIRS += libpcp_pmc pmdumptext autofsd-probe
