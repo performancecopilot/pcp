@@ -128,6 +128,7 @@ refresh_proc_pid(proc_pid_t *proc_pid)
 	    ep->schedstat_fetched = 0;
 	    ep->maps_fetched = 0;
 	    ep->io_fetched = 0;
+	    ep->wchan_fetched = 0;
 	}
     }
 
@@ -178,7 +179,7 @@ refresh_proc_pid(proc_pid_t *proc_pid)
 		    /* We engage in a bit of a hanky-panky here:
 		     * the string should look like "123456 (name)",
 		     * we get it from /proc/XX/status as "Name:   name\n...",
-		     * to fit the 6 digits of PID and openeing parethesis, 
+		     * to fit the 6 digits of PID and opening parenthesis, 
 	             * save 2 bytes at the start of the buffer. 
                      * And don't forget to leave 2 bytes for the trailing 
 		     * parenthesis and the nil. Here is
@@ -248,6 +249,8 @@ refresh_proc_pid(proc_pid_t *proc_pid)
 		    free(ep->schedstat_buf);
 		if (ep->io_buf != NULL)
 		    free(ep->io_buf);
+		if (ep->wchan_buf != NULL)
+		    free(ep->wchan_buf);
 
 	    	if (prev == NULL)
 		    proc_pid->pidhash.hash[i] = node->next;
@@ -303,10 +306,37 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid)
 		}
 		memcpy(ep->stat_buf, buf, n);
 		ep->stat_buf[n-1] = '\0';
+		sts = 0;
 	    }
 	}
 	close(fd);
 	ep->stat_fetched = 1;
+    }
+
+    if (ep->wchan_fetched == 0) {
+	sprintf(buf, "/proc/%d/wchan", ep->id);
+	if ((fd = open(buf, O_RDONLY)) < 0)
+	    sts = 0;	/* ignore failure here, backwards compat */
+	else
+	if ((n = read(fd, buf, sizeof(buf)-1)) < 0)
+	    sts = -errno;
+	else {
+	    if (n == 0)
+		/* eh? */
+	    	sts = -1;
+	    else {
+		n++;	/* no terminating null (from kernel) */
+		if (ep->wchan_buflen <= n) {
+		    ep->wchan_buflen = n;
+		    ep->wchan_buf = (char *)realloc(ep->wchan_buf, n);
+		}
+		memcpy(ep->wchan_buf, buf, n);
+		ep->wchan_buf[n-1] = '\0';
+		sts = 0;
+	    }
+	}
+	close(fd);
+	ep->wchan_fetched = 1;
     }
 
     if (sts < 0)

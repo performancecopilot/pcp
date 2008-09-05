@@ -195,6 +195,11 @@ typedef struct {
     int			io_fetched;
     int			io_buflen;
     char		*io_buf;
+
+    /* /proc/<pid>/wchan cluster */
+    int			wchan_fetched;
+    int			wchan_buflen;
+    char		*wchan_buf;
 } proc_pid_entry_t;
 
 typedef struct {

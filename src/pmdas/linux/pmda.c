@@ -78,7 +78,7 @@ static proc_net_sockstat_t	proc_net_sockstat;
 static proc_pid_t		proc_pid;
 static struct utsname		kernel_uname;
 static char 			uname_string[sizeof(kernel_uname)];
-static char			*distro_name = NULL;
+static char			*distro_name;
 static proc_runq_t		proc_runq;
 static proc_net_snmp_t		proc_net_snmp;
 static proc_scsi_t		proc_scsi;
@@ -3199,7 +3199,7 @@ linux_refresh(int *need_refresh)
     	refresh_proc_net_sockstat(&proc_net_sockstat);
 
     if (need_refresh[CLUSTER_PID_STAT] || need_refresh[CLUSTER_PID_STATM] || 
-        need_refresh[CLUSTER_PID_STATUS] || need_refresh[CLUSTER_PID_IO] ||
+	need_refresh[CLUSTER_PID_STATUS] || need_refresh[CLUSTER_PID_IO] ||
 	need_refresh[CLUSTER_PID_SCHEDSTAT])
 	refresh_proc_pid(&proc_pid);
 
@@ -4165,37 +4165,40 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	    case PROC_PID_STAT_WCHAN:
-	    case PROC_PID_STAT_WCHAN_SYMBOL: 
-		{
-		    char *wc;
-
-		    if ((f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_WCHAN)) == NULL)
+		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 			return PM_ERR_INST;
 #if defined(HAVE_64BIT_PTR)
-		    sscanf(f, "%lu", &atom->ull); /* 64bit address */
+		sscanf(f, "%lu", &atom->ull); /* 64bit address */
 #else
-		    sscanf(f, "%u", &atom->ul);    /* 32bit address */
+		sscanf(f, "%u", &atom->ul);    /* 32bit address */
 #endif
+		break;
 
+	    case PROC_PID_STAT_WCHAN_SYMBOL:
+		if (entry->wchan_buf)	/* 2.6 kernel, /proc/<pid>/wchan */
+		    atom->cp = entry->wchan_buf;
+		else {		/* old school (2.4 kernels, at least) */
+		    char *wc;
 		    /*
 		     * Convert address to symbol name if requested
 		     * Added by Mike Mason <mmlnx@us.ibm.com>
 		     */
-		    if (idp->item == PROC_PID_STAT_WCHAN_SYMBOL) {
+		    f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_WCHAN);
+		    if (f == NULL)
+			return PM_ERR_INST;
 #if defined(HAVE_64BIT_PTR)
-			/* 64 bit address */
-			if ((wc = wchan(atom->ull)))
-			    atom->cp = strdup(wc);
-			else
-			    atom->cp = strdup(atom->ull ? f : "");
+		    sscanf(f, "%lu", &atom->ull); /* 64bit address */
+		    if ((wc = wchan(atom->ull)))
+			atom->cp = wc;
+		    else
+			atom->cp = atom->ull ? f : "";
 #else
-			/* 32 bit address */
-			if ((wc = wchan((__psint_t)atom->ul)))
-			    atom->cp = strdup(wc);
-			else
-			    atom->cp = strdup(atom->ul ? f : "");
+		    sscanf(f, "%u", &atom->ul);    /* 32bit address */
+		    if ((wc = wchan((__psint_t)atom->ul)))
+			atom->cp = wc;
+		    else
+			atom->cp = atom->ul ? f : "";
 #endif
-		    }
 		}
 		break;
 
@@ -4492,7 +4495,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sscanf(f, "%u", &atom->ul);
 	    if (idp->item > PROC_PID_STATUS_FSUID) {
 		if ((pwe = getpwuid((uid_t)atom->ul)) != NULL)
-		    atom->cp = strdup(pwe->pw_name);
+		    atom->cp = pwe->pw_name;
 		else
 		    atom->cp = "UNKNOWN";
 	    }
@@ -4515,7 +4518,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sscanf(f, "%u", &atom->ul);
 	    if (idp->item > PROC_PID_STATUS_FSGID) {
 		if ((gre = getgrgid((gid_t)atom->ul)) != NULL) {
-		    atom->cp = strdup(gre->gr_name);
+		    atom->cp = gre->gr_name;
 		} else {
 		    atom->cp = "UNKNOWN";
 		}
@@ -4767,9 +4770,8 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    need_refresh[idp->cluster]++;
 	    if (idp->cluster == CLUSTER_STAT && 
 		need_refresh[CLUSTER_PARTITIONS] == 0 &&
-	    	is_partitions_metric(pmidlist[i])) {
+		is_partitions_metric(pmidlist[i]))
 		need_refresh[CLUSTER_PARTITIONS]++;
-	    }
 	}
 
 	/* In 2.6 kernels, swap.{pagesin,pagesout,in,out} are in /proc/vmstat */
