@@ -30,28 +30,28 @@
 #include <sys/time.h>
 #include <sys/utsname.h>
 #include <linux/version.h>
-#include <regex.h>
 #include "ksym.h"
 
 #include "pmapi.h"
 #include "impl.h"
 
-static struct ksym *ksym_a = NULL;
-static size_t ksym_a_sz = 0;
-static int ksym_mismatch_count = 0;
+static struct ksym *ksym_a;
+static size_t ksym_a_sz;
+static int ksym_mismatch_count;
 
-int find_index(__psint_t addr, int lo, int hi)
+static int
+find_index(__psint_t addr, int lo, int hi)
 {
     int mid;
 
     if (lo > hi) {
-        return -1;
+	return -1;
     }
 
     mid = lo + ((hi - lo) / 2);
     if (addr == ksym_a[mid].addr || 
-        (addr > ksym_a[mid].addr && addr < ksym_a[mid+1].addr)) {
-        return mid;
+	(addr > ksym_a[mid].addr && addr < ksym_a[mid+1].addr)) {
+	return mid;
     }
 
     if (addr > ksym_a[mid].addr)
@@ -60,21 +60,21 @@ int find_index(__psint_t addr, int lo, int hi)
 	return find_index(addr, lo, mid-1);
 }
 
-
-char *find_name_by_addr(__psint_t addr)
+static char *
+find_name_by_addr(__psint_t addr)
 {
     int ix = -1;
 
     if (ksym_a)
-		ix = find_index(addr, 0, ksym_a_sz - 1);
+	ix = find_index(addr, 0, ksym_a_sz - 1);
     if (ix < 0)
-        return NULL;
+	return NULL;
 
     return ksym_a[ix].name;
 }
 
-
-int find_dup_name(int maxix, __psint_t addr, char *name)
+static int
+find_dup_name(int maxix, __psint_t addr, char *name)
 {
     int i, res;
 
@@ -95,7 +95,6 @@ int find_dup_name(int maxix, __psint_t addr, char *name)
     return KSYM_NOT_FOUND;
 }
 
-
 /* Brute force linear search to determine if the kernel version
    in System.map matches the running kernel version and returns
    a tri-state result as follows:
@@ -104,8 +103,7 @@ int find_dup_name(int maxix, __psint_t addr, char *name)
    1 _end not found but version matched
    2 _end found and matched
  */
-
-int
+static int
 validate_sysmap(FILE *fp, char *version, __psint_t end_addr)
 {
     __psint_t addr;
@@ -125,10 +123,10 @@ validate_sysmap(FILE *fp, char *version, __psint_t end_addr)
     return ret;
 }
 
-
 char *
-wchan(__psint_t addr) {
-    static char zero = 0;
+wchan(__psint_t addr)
+{
+    static char zero;
     char *p = NULL;
 
     if (addr == 0) /* 0 address means not in kernel space */
@@ -144,22 +142,20 @@ wchan(__psint_t addr) {
     return p;
 }
 
-
-int
+static int
 ksym_compare_addr(const void *e1, const void *e2)
 {
     struct ksym *ks1 = (struct ksym *) e1;
     struct ksym *ks2 = (struct ksym *) e2;
 
     if (ks1->addr < ks2->addr)
-        return -1;
+	return -1;
     if (ks1->addr > ks2->addr)
-        return 1;
+	return 1;
     return 0;
 }
 
-
-int
+static int
 ksym_compare_name(const void *e1, const void *e2)
 {
     struct ksym *ks1 = (struct ksym *) e1;
@@ -168,8 +164,7 @@ ksym_compare_name(const void *e1, const void *e2)
     return(strcmp(ks1->name, ks2->name));
 }
 
-
-int
+static int
 read_ksyms(__psint_t *end_addr)
 {
     char	inbuf[256];
@@ -185,7 +180,7 @@ read_ksyms(__psint_t *end_addr)
 
     *end_addr = 0;
     if ((fp = fopen(ksyms_path, "r")) == NULL)
-        return -errno;
+	return -errno;
 
     while (fgets(inbuf, sizeof(inbuf), fp) != NULL) {
 	l++;
@@ -207,16 +202,16 @@ read_ksyms(__psint_t *end_addr)
 	    continue;
 	}
 
-        /* Increase array size, if necessary */
-        if (ksym_a_sz < ix+1) {
+	/* Increase array size, if necessary */
+	if (ksym_a_sz < ix+1) {
 	    if (ksym_a_sz > 0)
 		ksym_a_sz += INCR_KSIZE;
 	    else
 		ksym_a_sz = INIT_KSIZE;
-            ksym_a = (struct ksym *)realloc(ksym_a, ksym_a_sz * sizeof(struct ksym));
+	    ksym_a = (struct ksym *)realloc(ksym_a, ksym_a_sz * sizeof(struct ksym));
 	    if (ksym_a == NULL)
-                return -errno;
-        }
+		return -errno;
+	}
 
 	ip = inbuf;
 	/* parse over address */
@@ -264,12 +259,12 @@ read_ksyms(__psint_t *end_addr)
 		}
 	    }
 	    else {
-		/* not enough characters for [0-9a-fA-f}{8,} at the end */
+		/* not enough characters for [0-9a-fA-f]{8,} at the end */
 		tp = sp;
 	    }
 	}
 	if (tp > sp)
-	    /* need to strip the trailing _R.*[0-9a-fA-f}{8,} */
+	    /* need to strip the trailing _R.*[0-9a-fA-f]{8,} */
 	    len = tp - sp - 2;
 	else
 	    len = ip - sp + 1;
@@ -325,9 +320,9 @@ next:
 
     /* release unused ksym array entries */
     if (ix) {
-        ksym_a = (struct ksym *)realloc(ksym_a, ix * sizeof(struct ksym));
-        if (ksym_a == NULL)
-            return -errno;
+	ksym_a = (struct ksym *)realloc(ksym_a, ix * sizeof(struct ksym));
+	if (ksym_a == NULL)
+	    return -errno;
     }
 
     ksym_a_sz = ix;
@@ -365,19 +360,19 @@ read_sysmap(__psint_t end_addr)
     struct utsname uts;
     char	*bestpath = NULL;
     char *sysmap_paths[] = {	/* Paths to check for System.map file */
-        "/boot/System.map-%s",
-        "/boot/System.map",
-        "/lib/modules/%s/System.map",
-        "/usr/src/linux/System.map",
-        "/System.map",
-        NULL
+	"/boot/System.map-%s",
+	"/boot/System.map",
+	"/lib/modules/%s/System.map",
+	"/usr/src/linux/System.map",
+	"/System.map",
+	NULL
     };
 
     uname(&uts);
 
     /* Create version symbol name to look for in System.map */
     if (sscanf(uts.release, "%d.%d.%d", &major, &minor, &patch) < 3 )
-        return -1;
+	return -1;
     sprintf(inbuf, "Version_%u", KERNEL_VERSION(major, minor, patch));
 
     /*
@@ -385,9 +380,9 @@ read_sysmap(__psint_t end_addr)
      * either _end from /proc/ksyms or the uts version.
      */
     for (fmt = sysmap_paths; *fmt; fmt++) {
-        snprintf(path, MAXPATHLEN, *fmt, uts.release);
-        if ((fp = fopen(path, "r"))) {
-            if ((e = validate_sysmap(fp, inbuf, end_addr)) != 0) {
+	snprintf(path, MAXPATHLEN, *fmt, uts.release);
+	if ((fp = fopen(path, "r"))) {
+	    if ((e = validate_sysmap(fp, inbuf, end_addr)) != 0) {
 		if (e == 2) {
 		    /* matched _end, so this is the right System.map */
 		    if (bestpath)
@@ -403,7 +398,7 @@ read_sysmap(__psint_t end_addr)
 		/* _end matched => don't look any further */
 	    	break;
 	    }
-        }
+	}
     }
 
     if (bestpath)
@@ -452,13 +447,13 @@ read_sysmap(__psint_t end_addr)
 	    continue;
 	}
 
-        /* Increase array size, if necessary */
-        if (ksym_a_sz < ix+1) {
-            ksym_a_sz += INCR_KSIZE;
-            ksym_a = (struct ksym *)realloc(ksym_a, ksym_a_sz * sizeof(struct ksym));
-            if (ksym_a == NULL)
-                goto fail;
-        }
+	/* Increase array size, if necessary */
+	if (ksym_a_sz < ix+1) {
+	    ksym_a_sz += INCR_KSIZE;
+	    ksym_a = (struct ksym *)realloc(ksym_a, ksym_a_sz * sizeof(struct ksym));
+	    if (ksym_a == NULL)
+		goto fail;
+	}
 
 	ip = inbuf;
 	/* parse over address */
@@ -517,14 +512,14 @@ read_sysmap(__psint_t end_addr)
 
     if (ksym_mismatch_count > KSYM_MISMATCH_MAX_ALLOWED) {
 	fprintf(stderr, "Warning: only reported first %d out of %d mismatches "
-	                "between System.map and /proc/ksyms.\n",
+			"between System.map and /proc/ksyms.\n",
 	    KSYM_MISMATCH_MAX_ALLOWED, ksym_mismatch_count);
     }
 
     /* release unused ksym array entries */
     ksym_a = (struct ksym *)realloc(ksym_a, ix * sizeof(struct ksym));
     if (ksym_a == NULL)
-        goto fail;
+	goto fail;
 
     ksym_a_sz = ix;
 
@@ -556,6 +551,6 @@ read_ksym_sources()
 {
     __psint_t end_addr;
 
-    if (read_ksyms(&end_addr) > 0) /* read /proc/ksyms first */
-	read_sysmap(end_addr);  /* then System.map  */
+    if (read_ksyms(&end_addr) > 0)	/* read /proc/ksyms first */
+	read_sysmap(end_addr);	/* then System.map  */
 }
