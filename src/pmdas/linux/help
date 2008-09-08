@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
 #
@@ -78,6 +78,7 @@ For example:
 @ kernel.percpu.cpu.nice percpu nice user CPU time metric from /proc/stat
 @ kernel.percpu.cpu.sys percpu sys CPU time metric from /proc/stat
 @ kernel.percpu.cpu.idle percpu idle CPU time metric from /proc/stat
+@ kernel.percpu.cpu.steal percpu XEN CPU time metric from /proc/stat
 @ kernel.percpu.cpu.wait.total percpu wait CPU time
 Percpu I/O wait CPU time. This is available on 2.6 kernels and
 some 2.4 kernels. If it is not available it will be zero rather than
@@ -442,18 +443,21 @@ Memory which is actively being written back to the disk
 files which have been mmaped, such as libraries
 @ mem.util.slab Kbytes in slab memory, from /proc/meminfo
 in-kernel data structures cache
-@ mem.util.committed_AS Kbytes see extended help text, from /proc/meminfo
+@ mem.util.commitLimit Kbytes limit for address space commit, from /proc/meminfo
+The static total, in Kbytes, available for commitment to address 
+spaces. Thus, mem.util.committed_AS may range up to this total. Normally 
+the kernel overcommits memory, so this value may exceed mem.physmem
+@ mem.util.committed_AS Kbytes committed to address spaces, from /proc/meminfo
 An estimate of how much RAM you would need to make a 99.99% guarantee
 that there never is OOM (out of memory) for this workload. Normally
 the kernel will overcommit memory. That means, say you do a 1GB malloc,
 nothing happens, really. Only when you start USING that malloc memory
 you will get real memory on demand, and just as much as you use.
-
 @ mem.util.pageTables Kbytes in kernel page tables, from /proc/meminfo
 @ mem.util.reverseMaps Kbytes in reverse mapped pages, from /proc/meminfo
 @ mem.util.cache_clean Kbytes cached and not dirty or writeback, derived from /proc/meminfo
-@ mem.util.anonpages Kbytes in anonymous mapped pages, from /proc/meminfo
-
+@ mem.util.anonpages Kbytes in user pages not backed by files, from /proc/meminfo
+User memory (Kbytes) in pages not backed by files, e.g. from malloc()
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat
 @ mem.vmstat.nr_writeback number of pages in writeback state
@@ -663,6 +667,10 @@ tools running on IRIX.
 @ nfs3.client.reqs cumulative total of client NFSv3 requests by request type
 @ nfs3.server.calls cumulative total of server NFSv3 requests
 @ nfs3.server.reqs cumulative total of client NFSv3 requests by request type
+@ nfs4.client.calls cumulative total of client NFSv4 requests
+@ nfs4.client.reqs cumulative total for each client NFSv4 request type
+@ nfs4.server.calls cumulative total of server NFSv4 operations, plus NULL requests
+@ nfs4.server.reqs cumulative total for each server NFSv4 operation, and for NULL requests
 @ rpc.client.rpccnt cumulative total of client RPC requests
 @ rpc.client.rpcretrans cumulative total of client RPC retransmissions
 @ rpc.client.rpcauthrefresh cumulative total of client RPC auth refreshes
@@ -1294,3 +1302,14 @@ See also the kernel.uname.* metrics
 @ network.ib.total.errors.overrun excessive buffer overrun errors from perfquery
 @ network.ib.total.errors.symbol minor link errors from perfquery
 @ network.ib.control If non-zero, stop collecting performance stats this many seconds after last fetch
+
+@ quota.state.project.accounting 1 indicates quota accounting enabled, else 0
+@ quota.state.project.enforcement 1 indicates quotas enforced, else 0
+@ quota.project.space.hard hard limit for this project and filesys in Kbytes
+@ quota.project.space.soft soft limit for this project and filesys in Kbytes
+@ quota.project.space.used space used for this project and filesys in Kbytes
+@ quota.project.space.time_left when soft limit is exceeded, seconds until it is enacted
+@ quota.project.files.hard file count hard limit for this project and filesys
+@ quota.project.files.soft file count soft limit for this project and filesys
+@ quota.project.files.used file count for this project and filesys
+@ quota.project.files.time_left when soft limit is exceeded, seconds until it is enacted

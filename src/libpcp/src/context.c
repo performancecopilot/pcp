@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -130,6 +130,30 @@ pmWhichContext(void)
 }
 
 
+static int
+__pmConvertTimeout (int timeo)
+{
+    int tout_msec;
+    const struct timeval *tv;
+
+    switch (timeo) {
+    case TIMEOUT_NEVER:
+        tout_msec = -1;
+        break;
+    case TIMEOUT_DEFAULT:
+        tv = __pmDefaultRequestTimeout();
+
+        tout_msec = tv->tv_sec *1000 + tv->tv_usec / 1000;
+        break;
+
+    default:
+        tout_msec = timeo  * 1000;
+        break;
+    }
+
+    return tout_msec;
+}
+
 int
 pmNewContext(int type, const char *name)
 {
@@ -237,6 +261,7 @@ INIT_CONTEXT:
 	    new->c_pmcd->pc_state = inistate;
 	    new->c_pmcd->pc_hosts = hosts;
 	    new->c_pmcd->pc_nhosts = nhosts;
+	    new->c_pmcd->pc_tout_sec = __pmConvertTimeout(TIMEOUT_DEFAULT) / 1000;
 	}
 	new->c_pmcd->pc_refcnt++;
     }
@@ -680,11 +705,10 @@ pmGetContextFD (int ctxid)
     return (ctxp->c_pmcd->pc_fd);
 }
 
-int
+int 
 pmGetContextTimeout (int ctxid, int *tout_msec)
 {
     __pmContext *ctxp = __pmHandleToPtr(ctxid);
-    const struct timeval *tv;
 
     if (ctxp == NULL) {
 	return (PM_ERR_NOCONTEXT);
@@ -694,20 +718,7 @@ pmGetContextTimeout (int ctxid, int *tout_msec)
 	return (-EINVAL);
     }
 
-    switch (ctxp->c_pmcd->pc_tout_sec) {
-    case TIMEOUT_NEVER:
-	*tout_msec = -1;
-	break;
-    case TIMEOUT_DEFAULT:
-	tv = __pmDefaultRequestTimeout();
-
-	*tout_msec = tv->tv_sec *1000 + tv->tv_usec / 1000;
-	break;
-
-    default:
-	*tout_msec = ctxp->c_pmcd->pc_tout_sec * 1000;
-	break;
-    }
+    *tout_msec = __pmConvertTimeout(ctxp->c_pmcd->pc_tout_sec);
 
     return (0);
 }

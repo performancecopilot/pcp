@@ -1,7 +1,7 @@
 /*
  * Linux Filesystem Cluster
  *
- * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000,2004,2007 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,10 +23,28 @@
 
 #include <sys/vfs.h>
 
+typedef struct {
+    int32_t	  space_time_left;	/* seconds */
+    int32_t	  files_time_left;	/* seconds */
+    uint64_t	  space_hard;		/* blocks */
+    uint64_t	  space_soft;		/* blocks */
+    uint64_t	  space_used;		/* blocks */
+    uint64_t	  files_hard;
+    uint64_t	  files_soft;
+    uint64_t	  files_used;
+} quota_entry_t;
+
+/* Values for flags in filesys_t */
+#define FSF_FETCHED		(1U << 0)
+#define FSF_QUOT_PROJ_ACC	(1U << 1)
+#define FSF_QUOT_PROJ_ENF	(1U << 2)
+
 typedef struct filesys {
+    int		  id;
+    unsigned int  flags;
+    char	  *device;
     char	  *path;
-    int		  fetched;
     struct statfs stats;
 } filesys_t;
 
-extern int refresh_filesys(pmInDom);
+extern int refresh_filesys(pmInDom, pmInDom);

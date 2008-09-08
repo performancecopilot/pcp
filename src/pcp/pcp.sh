@@ -33,7 +33,7 @@ rm -f $tmp.*
 errors=0
 prog=`basename $0`
 host=`pmhostname`
-for var in unknown version build numagents numclients simabi ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone status
+for var in unknown version build numagents numclients simabi ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone status license
 do
     eval $var="unknown?"
 done

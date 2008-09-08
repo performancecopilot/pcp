@@ -83,6 +83,16 @@ refresh_proc_net_rpc(proc_net_rpc_t *proc_net_rpc)
 		    proc_net_rpc->client.reqcounts3[i] = strtoul(p, (char **)NULL, 10);
 		}
 	    }
+	    else
+	    if (strncmp(buf, "proc4", 5) == 0) {
+		if ((p = strtok(buf, " ")) != NULL)
+		    p = strtok(NULL, " ");
+		for (i=0; p && i < NR_RPC4_CLI_COUNTERS; i++) {
+		    if ((p = strtok(NULL, " ")) == NULL)
+			break;
+		    proc_net_rpc->client.reqcounts4[i] = strtoul(p, (char **)NULL, 10);
+		}
+	    }
 	}
 
 	fclose(fp);
@@ -157,6 +167,26 @@ refresh_proc_net_rpc(proc_net_rpc_t *proc_net_rpc)
 		    if ((p = strtok(NULL, " ")) == NULL)
 			break;
 		    proc_net_rpc->server.reqcounts3[i] = strtoul(p, (char **)NULL, 10);
+		}
+	    }
+	    else
+	    if (strncmp(buf, "proc4ops", 8) == 0) {
+		if ((p = strtok(buf, " ")) != NULL)
+		    p = strtok(NULL, " ");
+
+		/* Inst 0 is NULL count (below) */
+		for (i=1; p && i < NR_RPC4_SVR_COUNTERS; i++) {
+		    if ((p = strtok(NULL, " ")) == NULL)
+			break;
+		    proc_net_rpc->server.reqcounts4[i] = strtoul(p, (char **)NULL, 10);
+		}
+	    }
+	    else
+	    if (strncmp(buf, "proc4", 5) == 0) {
+		if ((p = strtok(buf, " ")) != NULL &&
+		    (p = strtok(NULL, " ")) != NULL &&
+		    (p = strtok(NULL, " ")) != NULL) { /* 3rd token is NULL count */
+		    proc_net_rpc->server.reqcounts4[0] = strtoul(p, (char **)NULL, 10);
 		}
 	    }
 	}

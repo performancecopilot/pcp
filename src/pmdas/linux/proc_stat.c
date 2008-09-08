@@ -1,7 +1,7 @@
 /*
  * Linux /proc/stat metrics cluster
  *
- * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -163,6 +163,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	proc_stat->p_nice[0] = proc_stat->nice;
 	proc_stat->p_sys[0] = proc_stat->sys;
 	proc_stat->p_idle[0] = proc_stat->idle;
+	proc_stat->p_steal[0] = proc_stat->steal;
 	proc_stat->p_wait[0] = proc_stat->wait;
 	proc_stat->p_irq[0] = proc_stat->irq;
 	proc_stat->p_sirq[0] = proc_stat->sirq;

@@ -58,6 +58,7 @@ static struct {
     { "Writeback",	&moff.Writeback },
     { "Mapped",		&moff.Mapped },
     { "Slab",		&moff.Slab },
+    { "CommitLimit",	&moff.CommitLimit },
     { "Committed_AS",	&moff.Committed_AS },
     { "PageTables",	&moff.PageTables },
     { "ReverseMaps",	&moff.ReverseMaps },

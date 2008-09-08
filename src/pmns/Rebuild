@@ -31,9 +31,9 @@
 tmp=./$$
 status=1
 rm -f $tmp.*
-trap "$PCP_SHARE_DIR/lib/unlockpmns root; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 $PCP_SHARE_DIR/lib/lockpmns root
+trap "$PCP_SHARE_DIR/lib/unlockpmns root; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _trace()
 {

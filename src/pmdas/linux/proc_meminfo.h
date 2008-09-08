@@ -48,6 +48,7 @@ typedef struct {
     int64_t Writeback;
     int64_t Mapped;
     int64_t Slab;
+    int64_t CommitLimit;
     int64_t Committed_AS;
     int64_t PageTables;
     int64_t ReverseMaps;

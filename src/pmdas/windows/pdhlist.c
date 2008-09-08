@@ -93,3 +93,10 @@ main(int argc, char **argv)
     _do("\\*(*/*#*)\\*");
     return 0;
 }
+
+/*
+ * Avoid the symbol botch with newer compilers:
+ * http://www.codeproject.com/tips/seccheck.asp
+ */
+int __security_cookie;
+void __fastcall __security_check_cookie(void *stackAddress){}

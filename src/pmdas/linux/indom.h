@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2005,2007 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,10 @@
 #define SCSI_INDOM		11
 #define SLAB_INDOM		12
 #define IB_INDOM		13
-#define NET_INET_INDOM		14
+#define NFS4_CLI_INDOM		14
+#define NFS4_SVR_INDOM		15
+#define QUOTA_PRJ_INDOM		16
+#define NET_INET_INDOM		17
 
 #define INDOM(x) (indomtab[x].it_indom)
 extern pmdaIndom indomtab[];

@@ -2,7 +2,7 @@
  * pmstore [-h hostname ] [-i inst[,inst...]] [-n pmnsfile ] metric value
  *
  *
- * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 1995,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -276,6 +276,7 @@ main(int argc, char **argv)
     int		j;
     char	*p;
     int		type = 0;
+    int		force = 0;
     char	*host;
     char	local[MAXHOSTNAMELEN];
     char	*pmnsfile = PM_NS_DEFAULT;
@@ -300,7 +301,7 @@ main(int argc, char **argv)
      */
     putenv("POSIXLY_CORRECT=");
 #endif
-    while ((c = getopt(argc, argv, "D:h:i:n:?")) != EOF) {
+    while ((c = getopt(argc, argv, "D:fh:i:n:?")) != EOF) {
 	switch (c) {
 
 	case 'D':	/* debug flag */
@@ -313,6 +314,10 @@ main(int argc, char **argv)
 	    else
 		pmDebug |= sts;
 	    break;
+
+        case 'f':
+            force++;
+            break;
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
@@ -354,6 +359,7 @@ main(int argc, char **argv)
 "Usage: %s [options] metricname value\n"
 "\n"
 "Options:\n"
+"  -f            store the value even if there is no current value set\n"
 "  -h host       metrics source is PMCD on host\n"
 "  -i instance   metric instance or list of instances. Elements in an\n"
 "                instance list are separated by commas and/or newlines\n" 
@@ -422,14 +428,27 @@ main(int argc, char **argv)
     mkAtom(&nav, &aggr_len, desc.type, argv[optind]);
 
     vsp = result->vset[0];
-    if (vsp->numval == 0) {
-	printf("%s: No value(s) available!\n", namelist[0]);
-	exit(1);
-    }
-    else if (vsp->numval < 0) {
+    if (vsp->numval < 0) {
 	printf("%s: Error: %s\n", namelist[0], pmErrStr(vsp->numval));
 	exit(1);
     }
+
+    if (vsp->numval == 0) {
+        if (!force) {
+            printf("%s: No value(s) available!\n", namelist[0]);
+            exit(1);
+        }
+        else {
+            pmAtomValue tmpav;
+            int tmplen;
+
+            mkAtom(&tmpav, &tmplen, PM_TYPE_STRING, "(none)");
+
+            vsp->numval = 1;
+            vsp->valfmt = __pmStuffValue(&tmpav, tmplen, &vsp->vlist[0], PM_TYPE_STRING);
+        }
+    }
+
     for (j = 0; j < vsp->numval; j++) {
 	pmValue	*vp = &vsp->vlist[j];
 	printf("%s", namelist[0]);

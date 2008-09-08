@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995-2006 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 1995-2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -83,7 +83,7 @@ receive_fetch (__pmContext *ctxp, pmResult **result)
     __pmPDU	*pb;
 
     n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
-		   ctxp->c_pmcd->pc_timeout, &pb);
+		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_RESULT) {
 	n = __pmDecodeResult(pb, PDU_BINARY, result);
     }

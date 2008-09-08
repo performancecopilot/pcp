@@ -50,7 +50,7 @@ int pmdaCacheStore(pmInDom indom, int flags, char *name, void *private)
 .br
 int pmdaCacheLookup(pmInDom indom, int inst, char **name, void **private)
 .br
-int pmdaCacheLookupName(pmInDom indom, char *name, int **name, void **private)
+int pmdaCacheLookupName(pmInDom indom, char *name, int *inst, void **private)
 .br
 int pmdaCacheOp(pmInDom indom, int op)
 .br
@@ -149,7 +149,7 @@ Instances are updated in the cache for instance domain
 by calling
 .B pmdaCacheStore
 with the external name of the instance passed via
-.I name .
+.I name.
 The opaque pointer
 .I private
 may be used to associate additional data with the entry in the cache;

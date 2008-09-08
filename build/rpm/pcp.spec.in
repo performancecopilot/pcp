@@ -13,6 +13,7 @@ BuildRequires: gcc-c++ libstdc++-devel procps autoconf bison flex ncurses-devel
 
 %if %sgi_chroot_build
 Source: @package_name@-@package_version@.tar.bz2
+BuildRequires: gcc-c++ libstdc++-devel
 #
 # Try not building 32bit libs for x86_64 & see who screams 
 #%ifarch x86_64
@@ -32,6 +33,12 @@ Requires: bash gawk sed grep fileutils findutils cpp
 Requires: glibc libgcc libstdc++
 %ifarch ia64
 Requires: libunwind
+%endif
+
+%if %_vendor == "suse"
+Requires: sysconfig
+%else
+Requires: initscripts
 %endif
 
 %if %sgi_chroot_build

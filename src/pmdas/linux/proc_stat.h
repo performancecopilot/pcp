@@ -2,7 +2,7 @@
  * Linux /proc/stat metrics cluster
  *
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Portions Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the

@@ -908,6 +908,9 @@ _install()
         cd $__here
     done
 
+    trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+    $PCP_SHARE_DIR/lib/unlockpmns $NAMESPACE
+
     if [ -d $PCP_VAR_DIR/config/pmchart ]
     then
 	if [ `echo *.pmchart` != "*.pmchart" ]
@@ -1072,9 +1075,6 @@ _install()
     else
 	echo "Skipping PMDA install and PMCD re-configuration"
     fi
-
-    trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
-    $PCP_SHARE_DIR/lib/unlockpmns $NAMESPACE
 }
 
 _remove()

@@ -348,7 +348,6 @@ read_test_var(char *line, config_vars *vars)
 failure:
     (void)fprintf(stderr, "%s: malloc failed for read_test_var()\n", pmProgname); 
     exit(1);
-
 }
 
 
@@ -519,7 +518,6 @@ eval_str_comp(N_tag tag, bool_node *lhs, bool_node *rhs)
 	default:
 	    eval_error("string comparison");
     }/*switch*/
-
 }
 
 static int
@@ -551,7 +549,6 @@ eval_match_comp(N_tag tag, bool_node *lhs, bool_node *rhs)
 	default:
 	    eval_error("match comparison");
     }/*switch*/
-
 }
 
 static char *
