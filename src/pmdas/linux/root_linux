@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) International Business Machines Corp., 2002
  * Portions Copyright (c) 2007 Aconex.  All Rights Reserved.
  *
@@ -33,11 +33,13 @@ root {
     rpc
     nfs
     nfs3
+    nfs4
     proc
     xfs
     pmda
     ipc 
     vfs
+    quota
 }
 
 hinv {
@@ -90,6 +92,7 @@ kernel.all.cpu {
     nice		60:0:21
     sys			60:0:22
     idle		60:0:23
+    steal		60:0:54
     intr		60:0:34
     wait
 }
@@ -109,6 +112,7 @@ kernel.percpu.cpu {
     nice		60:0:1
     sys			60:0:2
     idle		60:0:3
+    steal		60:0:53
     intr		60:0:31
     wait
 }
@@ -252,6 +256,7 @@ mem.util {
     reverseMaps		60:1:28
     cache_clean		60:1:29
     anonpages		60:1:30
+    commitLimit		60:1:31
 }
 
 swap {
@@ -507,6 +512,21 @@ nfs3.client {
 nfs3.server {
     calls		60:7:62
     reqs		60:7:63
+}
+
+nfs4 {
+    client
+    server
+}
+
+nfs4.client {
+    calls		60:7:64
+    reqs		60:7:65
+}
+
+nfs4.server {
+    calls		60:7:66
+    reqs		60:7:67
 }
 
 proc {
@@ -919,4 +939,37 @@ network.ib.total.errors {
     vl15		60:29:13
     overrun		60:29:14
     symbol		60:29:15
+}
+
+quota {
+    state
+    project
+}
+
+quota.state {
+    project
+}
+
+quota.state.project {
+    accounting		60:30:0
+    enforcement		60:30:1
+}
+
+quota.project {
+    space
+    files
+}
+
+quota.project.space {
+    hard  		60:30:6
+    soft  		60:30:7
+    used  		60:30:8
+    time_left  		60:30:9
+}
+
+quota.project.files {
+    hard  		60:30:10
+    soft  		60:30:11
+    used  		60:30:12
+    time_left  		60:30:13
 }

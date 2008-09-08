@@ -21,7 +21,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: trace.c,v 1.56 2007/02/20 00:08:32 kimbrr Exp $"
+#ident "$Id: trace.c,v 1.57 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <stdio.h>
 #include <stdlib.h>

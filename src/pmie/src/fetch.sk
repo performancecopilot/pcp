@@ -182,7 +182,8 @@ indom_changed(Metric *m)
 	    if (old_handle >= 0)
 		pmUseContext(old_handle);
 	}
-	if (numinst != -1) {
+	if (numinst > 0) {
+	    /* pmGetInDom returned some instances above */
 	    free(get_iids);
 	    free(get_inames);
 	}

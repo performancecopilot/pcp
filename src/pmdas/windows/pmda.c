@@ -26,7 +26,7 @@
  * 
  */
 
-#ident "$Id: pmda.c,v 1.6 2007/02/20 00:08:32 kimbrr Exp $"
+#ident "$Id: pmda.c,v 1.7 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <stdio.h>
 #include <unistd.h>

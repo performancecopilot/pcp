@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2000-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,8 +19,7 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Id: GNUmakefile,v 2.77 2006/05/12 08:11:47 makc Exp $
-#
+# $Id: GNUmakefile,v 2.78 2008/07/24 06:16:06 kimbrr Exp $
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
@@ -44,13 +43,14 @@ LOCKERS	= lockpmns unlockpmns
 STDPMIDS= stdpmid.irix  stdpmid.linux stdpmid.add-on stdpmid.local \
 	stdpmid.pcp stdpmid.qa
 
-LSRCFILES = Make.stdpmid GNUmakefile.install Rebuild4linux $(STDPMIDS) \
-	    $(SCRIPTS) $(LOCKERS)
+LSRCFILES =	Make.stdpmid GNUmakefile.install Rebuild4linux \
+		ReplacePmnsSubtree $(STDPMIDS) $(SCRIPTS) $(LOCKERS)
 	    
 LLDLIBS = -lpcp
 LDIRT	= *.log *.pmns stdpmid $(TARGETS)
 
-default:	$(SCRIPTS) $(LOCKERS) $(TARGETS) GNUmakefile.install Rebuild4linux stdpmid
+default:	$(SCRIPTS) $(LOCKERS) $(TARGETS) \
+		GNUmakefile.install Rebuild4linux ReplacePmnsSubtree stdpmid
 
 include $(BUILDRULES)
 
@@ -68,7 +68,7 @@ pmnsdel$(EXECSUFFIX):        pmnsdel.o pmnsutil.o
 #
 install:	default
 	$(INSTALL) -m 755 $(TARGETS) $(SCRIPTS) $(PMNS_BIN_DIR)
-	$(INSTALL) -m 755 $(LOCKERS) $(PMNS_LIB_DIR)
+	$(INSTALL) -m 755 $(LOCKERS) ReplacePmnsSubtree $(PMNS_LIB_DIR)
 	$(INSTALL) -m 755 GNUmakefile.install $(PMNS_VAR_DIR)/Makefile
 	$(INSTALL) -m 755 Rebuild4linux $(PMNS_VAR_DIR)/Rebuild
 	$(INSTALL) -m 755 Make.stdpmid $(PMNS_VAR_DIR)/Make.stdpmid

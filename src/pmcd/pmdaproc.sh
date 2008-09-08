@@ -1,7 +1,7 @@
 # Common sh(1) procedures to be used in the Performance Co-Pilot
 # PMDA Install and Remove scripts
 #
-# $Id: pmdaproc.sh,v 1.17 2006/06/30 05:47:11 makc Exp $
+# $Id: pmdaproc.sh,v 1.18 2008/07/24 06:01:03 kimbrr Exp $
 # Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -904,6 +904,9 @@ _install()
         cd $__here
     done
 
+    trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+    $PCP_SHARE_DIR/lib/unlockpmns $NAMESPACE
+
     if [ -d $PCP_VAR_DIR/config/pmchart ]
     then
 	echo "Installing pmchart view(s) ..."
@@ -1011,9 +1014,6 @@ _install()
     else
 	echo "Skipping PMDA install and PMCD re-configuration"
     fi
-
-    trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
-    $PCP_SHARE_DIR/lib/unlockpmns $NAMESPACE
 }
 
 _remove()

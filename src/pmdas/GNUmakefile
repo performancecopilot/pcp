@@ -19,7 +19,7 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# $Id: GNUmakefile,v 1.56 2005/07/10 06:57:52 kenmcd Exp $
+# $Id: GNUmakefile,v 1.57 2007/09/11 01:38:10 kimbrr Exp $
 #
 
 TOPDIR = ../..

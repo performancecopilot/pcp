@@ -21,7 +21,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_meminfo.h,v 1.4 2007/08/23 05:58:15 kimbrr Exp $"
+#ident "$Id: proc_meminfo.h,v 1.5 2007/09/14 01:11:20 kimbrr Exp $"
 
 /*
  * All fields in /proc/meminfo for 2.5.x
@@ -50,6 +50,7 @@ typedef struct {
     int64_t Writeback;
     int64_t Mapped;
     int64_t Slab;
+    int64_t CommitLimit;
     int64_t Committed_AS;
     int64_t PageTables;
     int64_t ReverseMaps;

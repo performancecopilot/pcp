@@ -26,7 +26,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
 */
 
-#ident "$Id: infiniband.c,v 1.9 2007/07/30 07:13:08 kimbrr Exp $"
+#ident "$Id: infiniband.c,v 1.12 2008/03/06 05:53:36 kimbrr Exp $"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -37,9 +37,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <pthread.h>
 #include <inttypes.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "pmapi.h"
 #include "impl.h"
@@ -59,40 +59,74 @@
 #define BUFSIZ 1024
 #endif
 
-static uint32_t	ibcontrol = IBCONTROL_DEFAULT;
-static int64_t	ibtimeleft = 0;
+/* Note on locking.
+ *
+ * The primary purpose of the mutex is to ensure the main thread
+ * doesnt read a counter value while its being updated in the
+ * subsidiary thread (though on 64 bit systems it should be atomic
+ * anyway).. but also:
+ *
+ * gettimeofday is in lock scope to prevent subsidiary thread
+ * attempting to read it while its being set in main thread
+ * (fetch). This can only happen ifdef GOOD_PERFQUERY (ie if perfquery
+ * is fixed or replaced), but getimeofday is fast enough anyway.
+ *
+ * In addition ibcontrol and ibtimeleft together define thread state:
+ * we dont want the subsidiary thread examining them while theyre being
+ * set by set_control_ib
+ *
+ * Of other non-init ops, only perfquery and sleep take significant
+ * time, so it makes sense to hold the lock through most (non-init)
+ * ops, with do_refresh and fetch_workproc jsut dropping it for
+ * perfquery and sleep.
+ */
+pthread_mutex_t	ib_mutex;
+
+
+static uint32_t	ibcontrol	= IBCONTROL_DEFAULT;
+static int64_t	ibtimeleft	= 0;
+
+#ifdef GOOD_PERFQUERY
+/* If do_refresh gets called from refresh_ib, it can be skipped on the
+ * following iteration of subsidiary thread.
+ */
 static int	ibfetched = 0;
+#else
+/* do_refresh cannot be called from refresh_ib (except at init)
+ * because perfquery is too slow
+ */
+#endif
 
 static FILE	*ibcontrol_file;
 
-static char *paths[] =
+static char	*paths[] =
    { "/usr/bin/", 
+     "/usr/sbin/",
      "/usr/local/bin/", 
      "/usr/local/ofed/bin/" /* must be last for 1.1 fallback */
    };
 
-static int num_paths = sizeof(paths) / sizeof(char*);
+static int	num_paths = sizeof(paths) / sizeof(char*);
 
-static char scratch[BUFSIZ];
+static char	scratch[BUFSIZ];
 
-static char perfquery[MAXPATHLEN];
-static char ibstatus[MAXPATHLEN];
-static char ibcontrol_path[MAXPATHLEN];
+static char	perfquery[MAXPATHLEN];
+static char	ibstatus[MAXPATHLEN];
+static char	ibcontrol_path[MAXPATHLEN];
 
-static char *perfquery_args;
-static char *ibstatus_args;
+static char	*perfquery_args;
+static char	*ibstatus_args;
 
 static pthread_t fetch_thread;
-static pthread_mutex_t fetch_mutex; /* mutex to update/retrieve values */
 
 /* 
  * Default time between workproc counter updates.
  * Calculated to expire at least twice in the time it takes any 
  * h/w config to peg out
  */
-static int sleeptime = 2;
+static int	polltime = 2;
 
-char *counter_names[IB_COUNTERS] = {
+static char	*counter_names[IB_COUNTERS] = {
 	"RcvData",				/* 0 */
 	"RcvPkts",				/* 1 */
 	"RcvSwRelayErrors",			/* 2 */
@@ -117,9 +151,10 @@ char *counter_names[IB_COUNTERS] = {
  * lines we're not interested in (marked -1)
  */
 #define XIX_SIZ (IB_COUNTERS<<1)
-int counter_xix[XIX_SIZ] = { 0 };
+static int	counter_xix[XIX_SIZ] = { 0 };
 
-static int fail_count = 0;
+static int	fail_count = 0;
+static  struct  timeval nextpoll;
 
 struct port_list;
 typedef struct port_list port_list_t;
@@ -128,8 +163,8 @@ struct port_list {
     port_list_t	*next;
 };
 
-port_list_t *ports = NULL;
-port_list_t **port_tl = &ports;
+static port_list_t *ports = NULL;
+static port_list_t **port_tl = &ports;
 
 static inline void
 port_list_free(void)
@@ -141,6 +176,9 @@ port_list_free(void)
     }
 }
 
+/* Pre:  ib_mutex is held
+ * Post: ib_mutex is held
+ */
 static void 
 do_refresh(void)
 {
@@ -149,10 +187,13 @@ do_refresh(void)
     FILE	*fp = NULL;
     port_list_t	*this;
 
+    gettimeofday(&nextpoll, NULL);
+    nextpoll.tv_sec += polltime;
     for (this = ports; this; this = this->next) {
-	sprintf(perfquery_args,  " -r -C %s -P %" PRIu64,
+	sprintf(perfquery_args,  " -t 100 -r -C %s -P %" PRIu64,
 		this->port->card, this->port->portnum);
 
+	pthread_mutex_unlock(&ib_mutex);
 	fp = popen(perfquery, "r");
 	if (fp != NULL) {
 	    while (fgetc(fp) != '\n'); /* skip header line */
@@ -160,15 +201,18 @@ do_refresh(void)
 		         fscanf(fp, " %*[^:]:%*[.]%" SCNi64 " ", 
 				(int64_t *)&llval) == 1 ; j++) {
 		ix = counter_xix[j];
-		if (ix != -1) this->port->counters[ix] += llval;
+		if (ix != -1) this->port->raw[ix] += llval;
 	    }
 	    pclose(fp);
 #ifdef PCP_DEBUG
-	} else {
+	} 
+	else {
 	    if (++fail_count < 10)
 		fprintf(stderr, "IB:Cmd failed:%s(%d)\n", perfquery, errno);
 #endif
 	}
+	pthread_mutex_lock(&ib_mutex);
+	memcpy(this->port->counters, this->port->raw, IB_COUNTERS*sizeof(uint64_t));
     }
 }
 
@@ -213,34 +257,58 @@ cache_name(pmInDom indom, char *name, char *port)
 void *
 fetch_workproc(void *foo)
 {
-    pthread_mutex_lock(&fetch_mutex);
-    for(;;)
+    struct timeval  now;
+    int64_t dif;
+    int go = 1;
+
+    pthread_mutex_lock(&ib_mutex);
+    while(go)
     {
-	if (ibfetched != 0) {
+	struct timespec sleeptime = {0, 0};
+#ifdef GOOD_PERFQUERY
+	if (ibfetched != 0)
 	    ibfetched  = 0;
-	} else {
+	else
+#endif
 	    do_refresh();
+
+	gettimeofday(&now, NULL);
+	dif = (uint64_t)nextpoll.tv_usec - (uint64_t)now.tv_usec;
+	if (dif < 0) {
+	    dif += 1000000;
+	    now.tv_sec++;
 	}
-	pthread_mutex_unlock(&fetch_mutex);
-
-	sleep(sleeptime);
-
-	pthread_mutex_lock(&fetch_mutex);
+	sleeptime.tv_nsec = dif * 1000;
+	dif = (uint64_t)nextpoll.tv_sec - (uint64_t)now.tv_sec;
+	if (dif >= 0) {
+	    sleeptime.tv_sec  = dif;
+	} else {
+	    sleeptime.tv_nsec = 0;
+	}
+	if (sleeptime.tv_sec || sleeptime.tv_nsec) {
+	    pthread_mutex_unlock(&ib_mutex);
+	    nanosleep(&sleeptime, NULL);
+	    pthread_mutex_lock(&ib_mutex);
+	}
 	if (ibcontrol != 0) {
-	    ibtimeleft -= sleeptime;
+	    ibtimeleft -= polltime;
 	    if (ibtimeleft <= 0) {
 		ibtimeleft = 0;
-
-		break;
+		go = 0;
 	    }
 	}
-
     }
-    pthread_mutex_unlock(&fetch_mutex);
+    pthread_mutex_unlock(&ib_mutex);
     return NULL;
 }
 
-int
+int 
+has_ib()
+{
+    return (ports != NULL);
+}
+
+static int
 init_ib(pmInDom indom)
 {
     /* at least 21 for counter name. name[] is also used above to put together
@@ -261,7 +329,7 @@ init_ib(pmInDom indom)
     for (ix=0; ix<num_paths; ix++) {
 	sprintf(ibstatus, "%s" IBSTATUS, paths[ix]);
 	if (stat(ibstatus, &statbuf) == 0)
-	    break;;
+	    break;
     }
     if (ix == num_paths) {
 	fprintf(stderr, "network.ib: init failed: " IBSTATUS 
@@ -345,7 +413,7 @@ init_ib(pmInDom indom)
     pclose(fp);
     pmdaCacheOp(indom, PMDA_CACHE_SAVE);
 
-    pthread_mutex_init(&fetch_mutex, NULL);
+    pthread_mutex_init(&ib_mutex, NULL);
 
     sprintf(ibcontrol_path, "%s" IBCONTROLFILE, pmGetConfig("PCP_PMDAS_DIR"));
     if (NULL != (ibcontrol_file = fopen(ibcontrol_path, "r"))) {
@@ -357,17 +425,33 @@ init_ib(pmInDom indom)
     return 0;
 }
 
+/* Pre:  ib_mutex is held
+ * Post: ib_mutex is held
+ */
 static int
 thread_ib()
 {
     static int first = 1;
 
-    ibfetched = 0;
-    if (first)
-	first = 0;
-    else
-	pthread_join(fetch_thread, NULL);
+    if (ports == NULL)
+	return 0; /* No IB */
 
+#ifdef GOOD_PERFQUERY
+    ibfetched = 0;
+#endif
+    if (first) {
+	first = 0;
+	/* Initial do_refresh from main thread, for set-up */
+	do_refresh();
+	return (0 == pthread_create(&fetch_thread, NULL, fetch_workproc, NULL)
+		? 0 : -errno);
+    } 
+    else {
+	pthread_join(fetch_thread, NULL);
+    }
+    /* Restarts return PM_ERR_VALUE to indicate to tools that there is a
+     * discontinuity in the metric 
+     */
     return (0 == pthread_create(&fetch_thread, NULL, fetch_workproc, NULL)
 	    ? PM_ERR_VALUE : -errno);
 }
@@ -377,7 +461,7 @@ track_ib()
 {
     int tracking, ret;
 
-    pthread_mutex_lock(&fetch_mutex);
+    pthread_mutex_lock(&ib_mutex);
 
     tracking = (ibcontrol == 0 || ibtimeleft > 0);
 
@@ -385,7 +469,7 @@ track_ib()
 
     ret =  tracking ? 0 : thread_ib();
 
-    pthread_mutex_unlock(&fetch_mutex);
+    pthread_mutex_unlock(&ib_mutex);
 
     return ret;
 }
@@ -396,12 +480,15 @@ get_control_ib(void)
     return ibcontrol;
 }
 
-void
+int
 set_control_ib(uint32_t control)
 {
     int change, tracking;
 
-    pthread_mutex_lock(&fetch_mutex);
+    if (ports == NULL)
+	return PM_ERR_VALUE;
+
+    pthread_mutex_lock(&ib_mutex);
 
     change   = (ibcontrol != control);
     tracking = (ibcontrol == 0 || ibtimeleft > 0);
@@ -411,32 +498,39 @@ set_control_ib(uint32_t control)
 	ibtimeleft = ibcontrol;
     else if (ibcontrol != 0)
 	ibtimeleft = 0;
-    else
+    else 
 	thread_ib();
 
-    pthread_mutex_unlock(&fetch_mutex);
-
+    pthread_mutex_unlock(&ib_mutex);
     if (change && NULL != (ibcontrol_file = fopen(ibcontrol_path, "w"))) {
 	fprintf(ibcontrol_file, "%u\n", ibcontrol);
 	fclose(ibcontrol_file);
     }
+    return 0;
 }
 
 int
 refresh_ib(pmInDom indom)
 {
-    int sts;
+    static int first = 1;
 
-    if (ports == NULL && (0 != (sts = init_ib(indom))))
-	return sts;
-
-    pthread_mutex_lock(&fetch_mutex);
-    if (ibcontrol == 0 || ibtimeleft > 0) {
-	ibfetched = 1;
-	do_refresh();
+    if (first) {
+	first = 0;
+	return init_ib(indom);
     }
-    pthread_mutex_unlock(&fetch_mutex);
-
+#ifdef GOOD_PERFQUERY
+    if (ports) {
+	/* As long as perfquery is potentially so slow (currently ~10s under load),
+	 * it can't be called from the main thread.. hence commented out. 
+	 */
+	pthread_mutex_lock(&ib_mutex);
+	if (ibcontrol == 0 || ibtimeleft > 0) {
+	    ibfetched = 1;
+	    do_refresh();
+	}
+	pthread_mutex_unlock(&ib_mutex);
+    }
+#endif
     return 0;
 }
 

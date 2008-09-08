@@ -25,7 +25,9 @@
 
 typedef struct {
     float loadavg[3]; /* 1, 5 and 15 min load average */
-    unsigned long lastpid;
+    unsigned int runnable;
+    unsigned int nprocs;
+    unsigned int lastpid;
 } proc_loadavg_t;
 
 extern int refresh_proc_loadavg(proc_loadavg_t *);

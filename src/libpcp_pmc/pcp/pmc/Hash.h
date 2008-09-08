@@ -24,7 +24,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: Hash.h,v 1.5 2006/05/18 06:48:48 makc Exp $"
+#ident "$Id: Hash.h,v 1.1 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>

@@ -22,7 +22,7 @@
 #ifndef _PMC_METRIC_H_
 #define _PMC_METRIC_H_
 
-#ident "$Id: Metric.h,v 1.11 2005/05/10 00:46:37 kenmcd Exp $"
+#ident "$Id: Metric.h,v 1.1 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <pcp/pmc/PMC.h>
 #include <pcp/pmc/Vector.h>

@@ -19,7 +19,7 @@
 .\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 .\" Mountain View, CA 94043, USA, or: http://www.sgi.com
 .\"
-.\" $Id: pmie_check.1,v 1.9 2006/12/14 03:09:48 kimbrr Exp $
+.\" $Id: pmie_check.1,v 1.10 2007/09/11 01:38:10 kimbrr Exp $
 .ie \(.g \{\
 .\" ... groff (hack for khelpcenter, man2html, etc.)
 .TH PMIE_CHECK 1 "SGI" "Performance Co-Pilot"
@@ -44,6 +44,7 @@
 [\f3\-NV\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2discard\f1]
+[\f3\-m\f1 \f2addresses\f1]
 [\f3\-x\f1 \f2compress\f1]
 [\f3\-X\f1 \f2program\f1]
 [\f3\-Y\f1 \f2regex\f1]
@@ -102,6 +103,15 @@ is ".meta$|.index$|.Z$|.gz$|.bz2|.zip$" \- such files are filtered using the
 .B \-v
 option to
 .BR egrep (1).
+.PP
+Use of the
+.B \-m
+option causes
+.B pmie_daily
+to construct a summary of the log files generated for all monitored hosts
+in the last 24 hours (lines matching `` OK '' are culled), and e-mail that
+summary to the set of space-separated
+.IR addresses .
 .PP
 .B pmie_check
 may be run at any time, and is intended to check that the desired set

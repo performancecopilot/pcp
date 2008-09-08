@@ -19,7 +19,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: units.c,v 1.4 2004/08/02 07:11:43 kenmcd Exp $"
+#ident "$Id: units.c,v 1.5 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <stdio.h>
 #include <string.h>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995-2006 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 1995-2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -19,7 +19,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: fetch.c,v 1.4 2006/06/23 10:39:27 makc Exp $"
+#ident "$Id: fetch.c,v 1.6 2008/06/13 09:32:47 kimbrr.bonnie.engr.sgi.com Exp $"
 
 #include <stdio.h>
 #include <sys/time.h>
@@ -87,7 +87,7 @@ receive_fetch (__pmContext *ctxp, pmResult **result)
     __pmPDU	*pb;
 
     n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY,
-		   ctxp->c_pmcd->pc_timeout, &pb);
+		   ctxp->c_pmcd->pc_tout_sec, &pb);
     if (n == PDU_RESULT) {
 	n = __pmDecodeResult(pb, PDU_BINARY, result);
     }

@@ -4,11 +4,23 @@ mem {
     committed_bytes	WINDOWS:0:29
     pool
     cache
+    commit_limit	WINDOWS:0:136
+    write_copies	WINDOWS:0:137
+    transition_faults	WINDOWS:0:138
+    demand_zero_faults	WINDOWS:0:140
+    pages_total		WINDOWS:0:141
+    page_reads		WINDOWS:0:142
+    pages_output	WINDOWS:0:143
+    page_writes		WINDOWS:0:144
+    system
 }
 
 mem.pool {
     paged_bytes		WINDOWS:0:30
     non_paged_bytes	WINDOWS:0:31
+    paged_allocs	WINDOWS:0:145
+    nonpaged_allocs	WINDOWS:0:146
+    paged_resident_bytes	WINDOWS:0:150
 }
 
 mem.cache {
@@ -16,10 +28,19 @@ mem.cache {
     lazy_writes		WINDOWS:0:32
     lazy_write_pages	WINDOWS:0:33
     mdl
+    faults		WINDOWS:0:139
+    bytes		WINDOWS:0:148
+    bytes_peak		WINDOWS:0:149
 }
 
 mem.cache.mdl {
     read		WINDOWS:0:34
     sync_read		WINDOWS:0:36
     async_read		WINDOWS:0:37
+}
+
+mem.system {
+    free_ptes		WINDOWS:0:147
+    total_code_bytes	WINDOWS:0:151
+    resident_code_bytes	WINDOWS:0:152
 }

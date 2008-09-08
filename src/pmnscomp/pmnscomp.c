@@ -23,10 +23,11 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmnscomp.c,v 1.5 2006/06/27 09:09:16 makc Exp $"
+#ident "$Id: pmnscomp.c,v 1.6 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <stdio.h>
 #include <unistd.h>
+#include <stddef.h>
 #include <ctype.h>
 #include <signal.h>
 #include <errno.h>

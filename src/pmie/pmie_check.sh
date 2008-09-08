@@ -20,7 +20,7 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 # 
-# $Id: pmie_check.sh,v 1.9 2005/01/19 00:04:20 kenmcd Exp $
+# $Id: pmie_check.sh,v 1.11 2007/09/11 01:38:10 kimbrr Exp $
 #
 # Administrative script to check pmie processes are alive, and restart
 # them as required.

@@ -21,7 +21,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_vmstat.c,v 1.2 2006/06/15 08:05:47 makc Exp $"
+#ident "$Id: proc_vmstat.c,v 1.3 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <sys/types.h>
 #include <sys/stat.h>

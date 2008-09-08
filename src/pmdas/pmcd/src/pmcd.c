@@ -19,7 +19,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmcd.c,v 1.13 2006/07/17 02:23:19 makc Exp $"
+#ident "$Id: pmcd.c,v 1.14 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <unistd.h>
 #include <stdio.h>

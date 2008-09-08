@@ -21,7 +21,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_meminfo.c,v 1.9 2007/08/23 05:58:15 kimbrr Exp $"
+#ident "$Id: proc_meminfo.c,v 1.10 2007/09/14 01:11:20 kimbrr Exp $"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -60,6 +60,7 @@ static struct {
     { "Writeback",	&moff.Writeback },
     { "Mapped",		&moff.Mapped },
     { "Slab",		&moff.Slab },
+    { "CommitLimit",	&moff.CommitLimit },
     { "Committed_AS",	&moff.Committed_AS },
     { "PageTables",	&moff.PageTables },
     { "ReverseMaps",	&moff.ReverseMaps },

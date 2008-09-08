@@ -21,7 +21,9 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: infiniband.h,v 1.4 2007/07/30 06:31:42 kimbrr Exp $"
+#ident "$Id: infiniband.h,v 1.5 2007/10/17 01:59:18 kimbrr Exp $"
+
+#include <pthread.h>
 
 typedef enum
 {
@@ -49,15 +51,19 @@ typedef enum
 
 
 typedef struct {
-    char	*status;
-    char	*card;
-    uint64_t	portnum;    
-    uint64_t	counters[IB_COUNTERS];
+    char      *status;
+    char        *card;
+    uint64_t  portnum;    
+    uint64_t      raw[IB_COUNTERS]; /* private to subsidiary thread */
+    uint64_t counters[IB_COUNTERS];
 } ib_port_t;
 
+extern pthread_mutex_t ib_mutex;
+
+extern int has_ib(void);
 extern int track_ib(void);
 extern int refresh_ib(pmInDom);
 extern int status_ib(ib_port_t * portp);
 extern uint32_t get_control_ib(void);
-extern void set_control_ib(uint32_t);
+extern int set_control_ib(uint32_t);
 

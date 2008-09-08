@@ -26,7 +26,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: lexicon.c,v 1.4 2007/02/20 00:13:43 kimbrr Exp $"
+#ident "$Id: lexicon.c,v 1.5 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <stdio.h>
 #include <ctype.h>
@@ -262,16 +262,22 @@ varDeref(char *name)
 	return 2;
     }
 
-    /* numeric valued macro */
-    if (x->sem == SEM_NUM) {
+    /* constant numeric valued macro */
+    if (x->sem == SEM_NUMCONST) {
 	/*
 	 * need to copy the Expr as the one returned here may be freed
 	 * later after constant folding, and we need the real macro's
 	 * value to be available for use in later rules
 	 */
-	yylval.x = newExpr(NOP, NULL, NULL, -1, -1, -1, 1, SEM_NUM);
+	yylval.x = newExpr(NOP, NULL, NULL, -1, -1, -1, 1, SEM_NUMCONST);
 	yylval.x->smpls[0].ptr = x->smpls[0].ptr;
 	yylval.x->valid = 1;
+	return 3;
+    }
+
+    /* variable numeric valued macro */
+    if (x->sem == SEM_NUMVAR) {
+	yylval.x = x;
 	return 3;
     }
 

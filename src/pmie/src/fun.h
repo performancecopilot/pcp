@@ -22,7 +22,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-/* $Id: fun.h,v 1.2 2007/02/20 00:13:43 kimbrr Exp $ */
+/* $Id: fun.h,v 1.3 2007/09/11 01:38:10 kimbrr Exp $ */
 
 #ifndef FUN_H
 #define FUN_H

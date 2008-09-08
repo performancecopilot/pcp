@@ -18,7 +18,7 @@
  * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  *
- * $Id: impl.h,v 1.9 2007/01/16 06:36:59 kimbrr Exp $
+ * $Id: impl.h,v 1.10 2007/09/11 01:38:10 kimbrr Exp $
  */
 
 #ifndef _IMPL_H
@@ -566,6 +566,7 @@ extern int __pmXmitAscii(int, const char *, int);
 extern int __pmGetPDU(int, int, int, __pmPDU **);
 extern int __pmGetPDUCeiling (void);
 extern int __pmSetPDUCeiling (int);
+extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 
 /* for __pmGetPDU */
 #define TIMEOUT_NEVER	 0

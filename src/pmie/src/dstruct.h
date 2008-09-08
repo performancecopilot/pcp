@@ -232,9 +232,10 @@ typedef struct task {
 
 /* value semantics - as in pmDesc plus following */
 #define SEM_UNKNOWN	0	/* semantics not yet available */
-#define SEM_NUM		10	/* numeric value */
+#define SEM_NUMVAR	10	/* numeric variable value */
 #define SEM_TRUTH	11	/* truth value */
 #define SEM_CHAR	12	/* character (string) */
+#define SEM_NUMCONST	13	/* numeric constant value */
 
 /* Expr operator (op) tokens */
 typedef int Op;

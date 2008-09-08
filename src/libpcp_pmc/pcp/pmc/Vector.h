@@ -22,7 +22,7 @@
 #ifndef _PMC_VECTOR_H_
 #define _PMC_VECTOR_H_
 
-#ident "$Id: Vector.h,v 1.5 2006/05/18 06:48:48 makc Exp $"
+#ident "$Id: Vector.h,v 1.1 2007/09/11 01:38:10 kimbrr Exp $"
 
 #ifndef PCP_DEBUG
 #ifndef NDEBUG

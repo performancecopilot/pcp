@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2000-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
 # 
 # Start or Stop the Performance Co-Pilot Daemon(s)
 #
-# $Id: rc_pcp,v 1.43 2007/07/12 01:30:21 kimbrr Exp $
+# $Id: rc_pcp,v 1.47 2008/06/13 09:34:15 kimbrr.bonnie.engr.sgi.com Exp $
 #
 # The following is for chkconfig on RedHat based systems
 # chkconfig: 2345 95 05
@@ -478,7 +478,7 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid is $TOKILL.
     # On failure, resort to SIGKILL.
     #
     $ECHO $PCP_ECHO_N "Waiting for PMCD to terminate ...""$PCP_ECHO_C"
-    delay=80	# tenths of a second
+    delay=200	# tenths of a second
     for SIG in TERM KILL
     do
 	if [ "x$TOKILL" == "x" ]

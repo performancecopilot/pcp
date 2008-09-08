@@ -23,54 +23,56 @@
  * This code contributed by Michal Kara (lemming@arthur.plbohnice.cz)
  */
 
-#ident "$Id: proc_net_tcp.c,v 1.6 2004/06/24 06:15:36 kenmcd Exp $"
+#ident "$Id: proc_net_tcp.c,v 1.7 2008/05/15 04:54:16 kimbrr Exp $"
 
 #include <stdio.h>
+#include <unistd.h>
 #include <errno.h>
 #include <ctype.h>
 #include <string.h>
+#include <stddef.h>
 
 #include "proc_net_tcp.h"
+
+#define MYBUFSZ (1<<14) /*16k*/
 
 int
 refresh_proc_net_tcp(proc_net_tcp_t *proc_net_tcp)
 {
-    char buf[1024];
-    char *s;
     FILE *fp;
-    int n;
+    char buf[MYBUFSZ]; 
+    char *p = buf;
+    char *q;
+    unsigned int n;
+    ssize_t got = 0;
+    ptrdiff_t remnant= 0;
 
     memset(proc_net_tcp, 0, sizeof(*proc_net_tcp));
 
     if ((fp = fopen("/proc/net/tcp", "r")) == NULL) {
     	return -errno;
     }
-
-    while (fgets(buf, sizeof(buf)-1, fp) != NULL) {
-	if (!buf[0]) break;
-    	buf[sizeof(buf)-1] = 0;
-	// Find colon
-	s = buf;
-	while(*s && (*s != ':')) s++;
-	if (*s) {
-	    // Skip three spaces
-	    n = 3;
-	    while(*s && n) {
-		if (*s == ' ') n--;
-		s++;
-	    }
-	    if (*s) {
-		// Get state
-		n = 0;
-		for(;;) {
-	 	    if (isalpha(*s)) n = (n<<4) + (toupper(*s)-'A'+10);
-		    else if (isdigit(*s)) n = (n<<4) + (*s-'0');
-		    else break;
-		    s++;
-	 	}
-		if (n < _PM_TCP_LAST) proc_net_tcp->stat[n]++;
-	    }
+    fgets(buf, sizeof(buf)-1, fp); /* skip header */
+    for (buf[0]='\0';;) {
+	q = strchrnul(p, '\n');
+	if (*q == '\n') {
+	    if (1 == sscanf(p, " %*s %*s %*s %x", &n)
+		&& n < _PM_TCP_LAST) {
+		proc_net_tcp->stat[n]++;
+            }
+	    p = q + 1;
+	    continue;
 	}
+	remnant = (q - p);
+	if (remnant > 0 && p != buf) 
+	    memmove(buf, p, remnant);
+
+	got = read(fileno(fp), buf + remnant, MYBUFSZ - remnant - 1);
+	if (got <= 0)
+	    break;
+
+	buf[remnant + got] = '\0';
+	p = buf;
     }
 
     fclose(fp);

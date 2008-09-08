@@ -19,7 +19,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: Metric.c++,v 1.9 2005/05/10 01:59:58 kenmcd Exp $"
+#ident "$Id: Metric.c++,v 1.10 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <iostream.h>
 #include <strings.h>

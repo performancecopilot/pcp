@@ -24,7 +24,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: Group.h,v 1.4 2005/05/10 01:59:58 kenmcd Exp $"
+#ident "$Id: Group.h,v 1.1 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <iostream.h>
 #include <pcp/pmc/PMC.h>

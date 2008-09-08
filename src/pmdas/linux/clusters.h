@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2005,2007 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: clusters.h,v 1.2 2006/10/30 04:52:30 kimbrr Exp $"
+#ident "$Id: clusters.h,v 1.3 2007/12/18 04:29:10 kimbrr Exp $"
 
 #ifndef _CLUSTERS_H
 #define _CLUSTERS_H
@@ -58,6 +58,7 @@ enum {
 	CLUSTER_VFS,		/* 27 /proc/sys/fs */
 	CLUSTER_VMSTAT,		/* 28 /proc/vmstat */
 	CLUSTER_IB,		/* 29 /sys/class/infiniband */
+	CLUSTER_QUOTA,		/* 30 quotactl() */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

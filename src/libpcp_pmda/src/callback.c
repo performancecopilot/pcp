@@ -19,7 +19,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: callback.c,v 1.9 2006/10/30 06:23:52 kimbrr Exp $"
+#ident "$Id: callback.c,v 1.11 2008/02/12 04:36:59 kimbrr Exp $"
 
 #include <stdio.h>
 #include <errno.h>
@@ -543,19 +543,15 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    }
 #endif
 		}
-		else if (sts == PM_ERR_APPVERSION) {
+		else {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_LIBPMDA) {
 			__pmNotifyErr(LOG_ERR,
-				 "pmdaFetch: Unsupported metric PMID %s\n",
-				 pmIDStr(dp->pmid));
+				 "pmdaFetch: Fetch callback error: %s\n",
+                                 pmErrStr(sts));
 		    }
 #endif
 		}
-		else
-		    __pmNotifyErr(LOG_ERR,
-				 "pmdaFetch: Fetch callback error: %s\n",
-				 pmErrStr(sts));
 	    }
 	    else {
 		/*

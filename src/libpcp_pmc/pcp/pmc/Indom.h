@@ -22,7 +22,7 @@
 #ifndef _PMC_INDOM_H_
 #define _PMC_INDOM_H_
 
-#ident "$Id: Indom.h,v 1.10 2005/05/10 01:59:58 kenmcd Exp $"
+#ident "$Id: Indom.h,v 1.1 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <iostream.h>
 #include <assert.h>

@@ -20,7 +20,7 @@
  * 
  */
 
-#ident "$Id: sample.c,v 2.63 2006/06/30 05:47:11 makc Exp $"
+#ident "$Id: sample.c,v 2.64 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <unistd.h>
 #include <stdio.h>
@@ -1215,8 +1215,10 @@ doit:
 
 	if (dp->pmid != PM_ID_NULL) {
 	    /* the special cases */
-	    if (pmidp->item == 86)
+	    if (pmidp->item == 86) {
 		dp = &magic;
+		numval = 1;
+	    }
 	    else if (pmidp->item == 54)
 		numval = PM_ERR_PMID;
 	    else if (pmidp->item == 92)	/* darkness */

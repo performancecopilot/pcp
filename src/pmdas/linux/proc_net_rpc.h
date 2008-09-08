@@ -21,10 +21,12 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_net_rpc.h,v 1.3 2004/06/24 06:15:36 kenmcd Exp $"
+#ident "$Id: proc_net_rpc.h,v 1.4 2007/10/24 03:15:45 kimbrr Exp $"
 
-#define NR_RPC_COUNTERS 18
-#define NR_RPC3_COUNTERS 22
+#define NR_RPC_COUNTERS		18
+#define NR_RPC3_COUNTERS	22
+#define NR_RPC4_CLI_COUNTERS	35
+#define NR_RPC4_SVR_COUNTERS	41
 
 typedef struct {
     struct {
@@ -45,6 +47,9 @@ typedef struct {
 
 	/* /proc/net/rpc/nfs  "proc3" */
 	unsigned int reqcounts3[NR_RPC3_COUNTERS];
+
+	/* /proc/net/rpc/nfs  "proc4" */
+	unsigned int reqcounts4[NR_RPC4_CLI_COUNTERS];
     } client;
 
     struct {
@@ -78,6 +83,9 @@ typedef struct {
 
 	/* /proc/net/rpc/nfsd  "proc3" */
 	unsigned int reqcounts3[NR_RPC3_COUNTERS];
+
+	/* /proc/net/rpc/nfsd  "proc4" & "proc4ops" */
+	unsigned int reqcounts4[NR_RPC4_SVR_COUNTERS];
     } server;
 
 } proc_net_rpc_t;

@@ -19,7 +19,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmlogsummary.c,v 1.31 2004/06/15 09:39:44 kenmcd Exp $"
+#ident "$Id: pmlogsummary.c,v 1.32 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <math.h>
 #include <stdio.h>
@@ -303,7 +303,7 @@ printsummary(const char *name)
 	    printf("%c%s\n", delimiter, *u == '\0' ? "none" : u);
 	    if (instdata) {
 		if (instdata->bin)
-		   free(instdata->bin);
+		    free(instdata->bin);
 		free(instdata);
 	    }
 	}
@@ -429,7 +429,7 @@ newHashItem(pmValueSet *vsp,
     avedata->scale = 0.0;
 
     /* convert counter metric units to rate units & get time scale */
-    if (avedata->desc.sem == PM_SEM_COUNTER) {
+    if (avedata->desc.sem == PM_SEM_COUNTER && !sumflag) {
 	if (avedata->desc.units.dimTime == 0)
 	    avedata->scale = 1.0;
 	else {
@@ -442,7 +442,9 @@ newHashItem(pmValueSet *vsp,
 	    avedata->desc.units.scaleTime = PM_TIME_SEC;
 	avedata->desc.units.dimTime--;
     }
-
+    else if (avedata->desc.sem == PM_SEM_COUNTER && sumflag) {
+	avedata->scale = 1.0;
+    }
     avedata->listsize = 0;
     avedata->instlist = NULL;
     for (j = 0; j < vsp->numval; j++)
@@ -545,10 +547,8 @@ calcbinning(pmResult *result)
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
-	if (vsp->numval == 0) {
-	    pmiderr(vsp->pmid, "no values available\n");
+	if (vsp->numval == 0)
 	    continue;
-	}
 	else if (vsp->numval < 0) {
 	    pmiderr(vsp->pmid, "failed in 2nd pass archive fetch: %s\n", pmErrStr(vsp->numval));
 	    continue;
@@ -664,10 +664,8 @@ calcaverage(pmResult *result)
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
-	if (vsp->numval == 0) {
-	    pmiderr(vsp->pmid, "no values available\n");
+	if (vsp->numval == 0)
 	    continue;
-	}
 	else if (vsp->numval < 0) {
 	    pmiderr(vsp->pmid, "failed in archive value fetch: %s\n", pmErrStr(vsp->numval));
 	    continue;
@@ -775,8 +773,10 @@ calcaverage(pmResult *result)
 			    tadd(&instdata->firsttime, &result->timestamp);
 			    tsub(&instdata->firsttime, &instdata->lasttime);
 			}
-			if (instdata->count == 0)		/* 1st time */
-			    instdata->min = instdata->max = instdata->sum = rate;
+			if (instdata->count == 0) {		/* 1st time */
+			    instdata->min = instdata->max = rate;
+			    instdata->sum = (val - instdata->lastval);
+			}
 			else {
 #ifdef PCP_DEBUG
 			    if (pmDebug & DBG_TRACE_APPL2) {
@@ -813,7 +813,7 @@ calcaverage(pmResult *result)
 				instdata->max = rate;
 				instdata->maxtime = result->timestamp;
 			    }
-			    instdata->sum += rate;
+			    instdata->sum += (val - instdata->lastval);
 			}
 		    }
 		}
@@ -987,7 +987,8 @@ main(int argc, char *argv[])
 	    }
 	    break;
 
-	case 's':	/* print sums */
+	case 's':	/* print sums (and only sums) */
+	    stocaveflag = timeaveflag = lflag = countflag = minflag = maxflag = 0;
 	    sumflag = 1;
 	    break;
 

@@ -19,7 +19,7 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 # 
-# $Id: GNUmakefile,v 2.70 2007/03/30 09:30:06 kimbrr.bonnie.engr.sgi.com Exp $
+# $Id: GNUmakefile,v 2.71 2007/09/11 01:38:10 kimbrr Exp $
 #
 
 ifneq (,)
@@ -62,7 +62,9 @@ LDIRT = config.cache autom4te.cache config.status config.log config.done \
 
 SUBDIRS = src man build
 ifeq "$(MAKECMDGOALS)" "clobber"
+ifeq ($(shell [ -d qa ] && echo 1),1)
 SUBDIRS	+= qa
+endif
 endif
 
 default :: default_pcp

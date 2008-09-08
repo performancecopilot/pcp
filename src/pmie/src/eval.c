@@ -22,7 +22,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: eval.c,v 1.4 2007/02/20 00:13:43 kimbrr Exp $"
+#ident "$Id: eval.c,v 1.5 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <limits.h>
 #include <sys/syslog.h>
@@ -108,7 +108,7 @@ typedef struct hstate {
 } hstate_t;
 
 static hstate_t	*host_map = NULL;
-    
+
 int
 host_state_changed(char *host, int state)
 {
@@ -292,7 +292,12 @@ clobber(Expr *x)
 	if (x->arg2)
 	    clobber(x->arg2);
 	x->valid = 0;
-	if (x->sem <= SEM_NUM) {
+	/*
+	 * numeric variable or variable?
+	 */
+	if (x->sem == PM_SEM_COUNTER ||
+	    x->sem == PM_SEM_INSTANT || x->sem == PM_SEM_DISCRETE ||
+	    x->sem == SEM_NUMVAR) {
 	    d = (double *) x->ring;
 	    for (i = 0; i < x->nvals; i++)
 		*d++ = mynan;

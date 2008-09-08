@@ -19,7 +19,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_net_snmp.h,v 1.5 2004/06/24 06:15:36 kenmcd Exp $"
+#ident "$Id: proc_net_snmp.h,v 1.6 2007/09/11 01:38:10 kimbrr Exp $"
 
 
 enum {

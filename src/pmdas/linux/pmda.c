@@ -1,7 +1,7 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmda.c,v 1.77 2007/08/24 00:22:08 kimbrr Exp $"
+#ident "$Id: pmda.c,v 1.86 2008/06/13 09:35:01 kimbrr.bonnie.engr.sgi.com Exp $"
 
 #include <stdio.h>
 #include <limits.h>
@@ -188,6 +188,88 @@ static pmdaInstid nfs3_indom_id[] = {
 	{ 21, "commit" }
 };
 
+static pmdaInstid nfs4_cli_indom_id[] = {
+	{ 0,  "null" },
+	{ 1,  "read" },
+	{ 2,  "write" },
+	{ 3,  "commit" },
+	{ 4,  "open" },
+	{ 5,  "open_conf" },
+	{ 6,  "open_noat" },
+	{ 7,  "open_dgrd" },
+	{ 8,  "close" },
+	{ 9,  "setattr" },
+	{ 10, "fsinfo" },
+	{ 11, "renew" },
+	{ 12, "setclntid" },
+	{ 13, "confirm" },
+	{ 14, "lock" },
+	{ 15, "lockt" },
+	{ 16, "locku" },
+	{ 17, "access" },
+	{ 18, "getattr" },
+	{ 19, "lookup" },
+	{ 20, "lookup_root" },
+	{ 21, "remove" },
+	{ 22, "rename" },
+	{ 23, "link" },
+	{ 24, "symlink" },
+	{ 25, "create" },
+	{ 26, "pathconf" },
+	{ 27, "statfs" },
+	{ 28, "readlink" },
+	{ 29, "readdir" },
+	{ 30, "server_caps" },
+	{ 31, "delegreturn" },
+	{ 32, "getacl" },
+	{ 33, "setacl" },
+	{ 34, "fs_locatns" },
+};
+
+static pmdaInstid nfs4_svr_indom_id[] = {
+	{ 0,  "null" },
+	{ 1,  "op0-unused" },
+	{ 2,  "op1-unused"},
+	{ 3,  "minorversion"},	/* future use */
+	{ 4,  "access" },
+	{ 5,  "close" },
+	{ 6,  "commit" },
+	{ 7,  "create" },
+	{ 8,  "delegpurge" },
+	{ 9,  "delegreturn" },
+	{ 10, "getattr" },
+	{ 11, "getfh" },
+	{ 12, "link" },
+	{ 13, "lock" },
+	{ 14, "lockt" },
+	{ 15, "locku" },
+	{ 16, "lookup" },
+	{ 17, "lookup_root" },
+	{ 18, "nverify" },
+	{ 19, "open" },
+	{ 20, "openattr" },
+	{ 21, "open_conf" },
+	{ 22, "open_dgrd" },
+	{ 23, "putfh" },
+	{ 24, "putpubfh" },
+	{ 25, "putrootfh" },
+	{ 26, "read" },
+	{ 27, "readdir" },
+	{ 28, "readlink" },
+	{ 29, "remove" },
+	{ 30, "rename" },
+	{ 31, "renew" },
+	{ 32, "restorefh" },
+	{ 33, "savefh" },
+	{ 34, "secinfo" },
+	{ 35, "setattr" },
+	{ 36, "setcltid" },
+	{ 37, "setcltidconf" },
+	{ 38, "verify" },
+	{ 39, "write" },
+	{ 40, "rellockowner" },
+};
+
 pmdaIndom indomtab[] = {
     { CPU_INDOM, 0, NULL },
     { DISK_INDOM, 0, NULL }, /* cached */
@@ -203,6 +285,9 @@ pmdaIndom indomtab[] = {
     { SCSI_INDOM, 0,  NULL},
     { SLAB_INDOM, 0,  NULL},
     { IB_INDOM, 0, NULL },
+    { NFS4_CLI_INDOM, NR_RPC4_CLI_COUNTERS,  nfs4_cli_indom_id},
+    { NFS4_SVR_INDOM, NR_RPC4_SVR_COUNTERS,  nfs4_svr_indom_id},
+    { QUOTA_PRJ_INDOM, 0, NULL },
 };
 
 
@@ -235,6 +320,11 @@ static pmdaMetric metrictab[] = {
 /* kernel.percpu.cpu.idle */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,3), KERNEL_UTYPE, CPU_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.percpu.cpu.steal */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,53), KERNEL_UTYPE, CPU_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
 /* disk.dev.read */
@@ -351,6 +441,11 @@ static pmdaMetric metrictab[] = {
 /* kernel.all.cpu.idle */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,23), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.all.cpu.steal */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,54), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
 /* disk.all.read */
@@ -567,6 +662,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_MEMINFO,30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/* mem.util.commitLimit */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
 /* swap.length */
     { NULL,
       { PMDA_PMID(CLUSTER_MEMINFO,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
@@ -600,16 +700,6 @@ static pmdaMetric metrictab[] = {
 /* mem.util.other */
     { NULL,
       { PMDA_PMID(CLUSTER_MEMINFO,12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
-      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
-
-/* mem.active */
-    { NULL,
-      { PMDA_PMID(CLUSTER_MEMINFO,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
-      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
-
-/* mem.inactive */
-    { NULL,
-      { PMDA_PMID(CLUSTER_MEMINFO,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /*
@@ -982,6 +1072,26 @@ static pmdaMetric metrictab[] = {
 /* nfs3.server.reqs */
   { NULL,
     { PMDA_PMID(CLUSTER_NET_NFS,63), PM_TYPE_U32, NFS3_INDOM, PM_SEM_COUNTER, 
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* nfs4.client.calls */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NET_NFS,64), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* nfs4.client.reqs */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NET_NFS,65), PM_TYPE_U32, NFS4_CLI_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* nfs4.server.calls */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NET_NFS,66), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* nfs4.server.reqs */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NET_NFS,67), PM_TYPE_U32, NFS4_SVR_INDOM, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* rpc.client.rpccnt */
@@ -1941,57 +2051,57 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_SNMP,53), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 			
-/* proc.tcp.established */
+/* network.tcpconn.established */
   { &proc_net_tcp.stat[_PM_TCP_ESTABLISHED],
     { PMDA_PMID(CLUSTER_NET_TCP, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* proc.tcp.syn_sent */
+/* network.tcpconn.syn_sent */
   { &proc_net_tcp.stat[_PM_TCP_SYN_SENT],
     { PMDA_PMID(CLUSTER_NET_TCP, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* proc.tcp.syn_recv */
+/* network.tcpconn.syn_recv */
   { &proc_net_tcp.stat[_PM_TCP_SYN_RECV],
     { PMDA_PMID(CLUSTER_NET_TCP, 3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* proc.tcp.fin_wait1 */
+/* network.tcpconn.fin_wait1 */
   { &proc_net_tcp.stat[_PM_TCP_FIN_WAIT1],
     { PMDA_PMID(CLUSTER_NET_TCP, 4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* proc.tcp.fin_wait2 */
+/* network.tcpconn.fin_wait2 */
   { &proc_net_tcp.stat[_PM_TCP_FIN_WAIT2],
     { PMDA_PMID(CLUSTER_NET_TCP, 5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* proc.tcp.time_wait */
+/* network.tcpconn.time_wait */
   { &proc_net_tcp.stat[_PM_TCP_TIME_WAIT],
     { PMDA_PMID(CLUSTER_NET_TCP, 6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* proc.tcp.close */
+/* network.tcpconn.close */
   { &proc_net_tcp.stat[_PM_TCP_CLOSE],
     { PMDA_PMID(CLUSTER_NET_TCP, 7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* proc.tcp.close_wait */
+/* network.tcpconn.close_wait */
   { &proc_net_tcp.stat[_PM_TCP_CLOSE_WAIT],
     { PMDA_PMID(CLUSTER_NET_TCP, 8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* proc.tcp.last_ack */
+/* network.tcpconn.last_ack */
   { &proc_net_tcp.stat[_PM_TCP_LAST_ACK],
     { PMDA_PMID(CLUSTER_NET_TCP, 9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* proc.tcp.listen */
+/* network.tcpconn.listen */
   { &proc_net_tcp.stat[_PM_TCP_LISTEN],
     { PMDA_PMID(CLUSTER_NET_TCP, 10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* proc.tcp.closing */
+/* network.tcpconn.closing */
   { &proc_net_tcp.stat[_PM_TCP_CLOSING],
     { PMDA_PMID(CLUSTER_NET_TCP, 11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
@@ -3032,6 +3142,59 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_IB,21), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/*
+ * quota cluster
+ */
+/* quota.state.project.accounting */
+    { NULL,
+      { PMDA_PMID(CLUSTER_QUOTA,0), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_DISCRETE,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* quota.state.project.enforcement */
+    { NULL,
+      { PMDA_PMID(CLUSTER_QUOTA,1), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_DISCRETE,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* quota.project.space.hard */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_QUOTA,6), PM_TYPE_U64, QUOTA_PRJ_INDOM, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* quota.project.space.soft */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_QUOTA,7), PM_TYPE_U64, QUOTA_PRJ_INDOM, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* quota.project.space.used */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_QUOTA,8), PM_TYPE_U64, QUOTA_PRJ_INDOM, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* quota.project.space.time_left */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_QUOTA,9), PM_TYPE_32, QUOTA_PRJ_INDOM, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
+
+/* quota.project.files.hard */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_QUOTA,10), PM_TYPE_U64, QUOTA_PRJ_INDOM, PM_SEM_DISCRETE, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* quota.project.files.soft */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_QUOTA,11), PM_TYPE_U64, QUOTA_PRJ_INDOM, PM_SEM_DISCRETE, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* quota.project.files.used */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_QUOTA,12), PM_TYPE_U64, QUOTA_PRJ_INDOM, PM_SEM_DISCRETE, 
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* quota.project.files.time_left */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_QUOTA,13), PM_TYPE_32, QUOTA_PRJ_INDOM, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
+
 };
 
 static void
@@ -3058,8 +3221,8 @@ linux_refresh(int *need_refresh)
     if (need_refresh[CLUSTER_NET_DEV])
 	refresh_proc_net_dev(INDOM(NET_DEV_INDOM));
 
-    if (need_refresh[CLUSTER_FILESYS])
-    	refresh_filesys(&filesys);
+    if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_QUOTA])
+    	refresh_filesys(&filesys, INDOM(QUOTA_PRJ_INDOM));
 
     if (need_refresh[CLUSTER_SWAPDEV])
 	refresh_swapdev(&swapdev);
@@ -3145,11 +3308,16 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     case FILESYS_INDOM:
     	need_refresh[CLUSTER_FILESYS]++;
 	break;
+    case QUOTA_PRJ_INDOM:
+    	need_refresh[CLUSTER_QUOTA]++;
+	break;
     case SWAPDEV_INDOM:
     	need_refresh[CLUSTER_SWAPDEV]++;
 	break;
     case NFS_INDOM:
     case NFS3_INDOM:
+    case NFS4_CLI_INDOM:
+    case NFS4_SVR_INDOM:
     	need_refresh[CLUSTER_NET_NFS]++;
 	break;
     case PROC_INDOM:
@@ -3206,6 +3374,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     proc_pid_entry_t	*entry;
     net_interface_t	*netip;
     ib_port_t		*ibportp;
+    quota_entry_t	*quotap;
 
     if (mdesc->m_user != NULL) {
 	/* 
@@ -3296,6 +3465,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    _pm_assign_utype(_pm_idletime_size, atom,
 			1000 * (double)proc_stat.p_idle[inst] / proc_stat.hz);
 	    break;
+	case 53: /* steal */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.p_steal[inst] / proc_stat.hz);
+	    break;
 
 	case 8: /* pagesin */
 	    if (_pm_have_proc_vmstat)
@@ -3347,6 +3520,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 23: /* all.idle */
 	    _pm_assign_utype(_pm_idletime_size, atom,
 			1000 * (double)proc_stat.idle / proc_stat.hz);
+	    break;
+	case 54: /* all.steal */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.steal / proc_stat.hz);
 	    break;
 
 	case 30: /* kernel.percpu.cpu.wait.total */
@@ -3503,12 +3680,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	return 0; /* no values available */
 	    atom->ull = proc_meminfo.SwapCached >> 10;
 	    break;
-	case 14: /* mem.active (in kbytes) */
+	case 14: /* mem.util.active (in kbytes) */
 	    if (!VALID_VALUE(proc_meminfo.Active))
 	    	return 0; /* no values available */
 	    atom->ull = proc_meminfo.Active >> 10;
 	    break;
-	case 15: /* mem.inactive (in kbytes) */
+	case 15: /* mem.util.inactive (in kbytes) */
 	    if (!VALID_VALUE(proc_meminfo.Inactive))
 	    	return 0; /* no values available */
 	    atom->ull = proc_meminfo.Inactive >> 10;
@@ -3594,6 +3771,11 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.AnonPages >> 10;
 	   break;
+	case 31: /* mem.util.commitLimit (in kbytes) */
+	    if (!VALID_VALUE(proc_meminfo.CommitLimit))
+	    	return 0; /* no values available */
+	    atom->ull = proc_meminfo.CommitLimit >> 10;
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -3710,17 +3892,18 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (filesys.nmounts == 0)
 	    	return 0; /* no values available */
 	    for (i=0; i < filesys.nmounts; i++) {
-	    	if (filesys.mounts[i].valid && filesys.mounts[i].id == inst)
+	    	if ((filesys.mounts[i].flags & FSF_VALID) && filesys.mounts[i].id == inst)
 		    break;
 	    }
 	    if (i == filesys.nmounts)
 	    	return PM_ERR_INST;
 
 	    sbuf = &filesys.mounts[i].stats;
-	    if (filesys.mounts[i].fetched == 0) {
+	    if (!(filesys.mounts[i].flags & FSF_FETCHED)) {
 		if (statfs(filesys.mounts[i].path, sbuf) < 0)
 		    return -errno;
-		filesys.mounts[i].fetched = 1;
+
+		filesys.mounts[i].flags |= FSF_FETCHED;
 	    }
 
 	    switch (idp->item) {
@@ -3863,6 +4046,40 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	return 0; /* no values available */
 	    if (inst >= 0 && inst < NR_RPC3_COUNTERS)
 		atom->ul = proc_net_rpc.server.reqcounts3[inst];
+	    else
+	    	return PM_ERR_INST;
+	    break;
+
+	case 64: /* nfs4.client.calls */
+	    if (proc_net_rpc.client.errcode != 0)
+	    	return 0; /* no values available */
+	    for (atom->ul=0, i=0; i < NR_RPC4_CLI_COUNTERS; i++) {
+		atom->ul += proc_net_rpc.client.reqcounts4[i];
+	    }
+	    break;
+
+	case 66: /* nfs4.server.calls */
+	    if (proc_net_rpc.server.errcode != 0)
+	    	return 0; /* no values available */
+	    for (atom->ul=0, i=0; i < NR_RPC4_SVR_COUNTERS; i++) {
+		atom->ul += proc_net_rpc.server.reqcounts4[i];
+	    }
+	    break;
+
+	case 65: /* nfs4.client.reqs */
+	    if (proc_net_rpc.client.errcode != 0)
+	    	return 0; /* no values available */
+	    if (inst >= 0 && inst < NR_RPC4_CLI_COUNTERS)
+		atom->ul = proc_net_rpc.client.reqcounts4[inst];
+	    else
+	    	return PM_ERR_INST;
+	    break;
+
+	case 67: /* nfs4.server.reqs */
+	    if (proc_net_rpc.server.errcode != 0)
+	    	return 0; /* no values available */
+	    if (inst >= 0 && inst < NR_RPC4_SVR_COUNTERS)
+		atom->ul = proc_net_rpc.server.reqcounts4[inst];
 	    else
 	    	return PM_ERR_INST;
 	    break;
@@ -4472,14 +4689,19 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 
     case CLUSTER_IB: /* network.ib */
+	if (idp->item > IB_COUNTERS_ALL + 1) {
+            return PM_ERR_PMID;
+	} 
+	if (!has_ib()) {
+	    return PM_ERR_VALUE;
+	} 
+	if (idp->item < IB_COUNTERS_ALL && (0 != (sts = track_ib()))) {
+	    return sts;
+	} 
 	if (idp->item == IB_COUNTERS_ALL + 1) { /* control */
 	    atom->ul = get_control_ib();
 	    break;
-	} else if (idp->item > IB_COUNTERS_ALL + 1) {
-            return PM_ERR_PMID;
-	} else if (idp->item != IB_COUNTERS_ALL && (0 != (sts = track_ib()))) {
-	    return sts;
-	}
+	} 
 	if (0 > (sts = pmdaCacheLookup(indomtab[IB_INDOM].it_indom, inst, NULL, (void **)&ibportp))) {
 	    return sts;
 	}
@@ -4489,6 +4711,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->cp = ibportp->status;
 	    break;
 	}
+	/* On 64 bit systems one would expect read of a single counter
+	 * to be atomic anyway .. but perhaps not otherwise.
+	 */
+	pthread_mutex_lock(&ib_mutex); 
 	/* network.ib.{in,out}.bytes: convert to bytes */
 	if (idp->item == RcvData || idp->item == XmtData) {
 	    atom->ull = ibportp->counters[idp->item] << 2;
@@ -4502,7 +4728,69 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    pmID base = idp->item - IB_COUNTERS;
 	    atom->ull = ibportp->counters[base] + ibportp->counters[IB_COUNTERS_IN + base];
 	}
+	pthread_mutex_unlock(&ib_mutex);
 	break;
+
+    case CLUSTER_QUOTA: /* quota.* */
+	if (filesys.nmounts == 0)
+	    return 0; /* no values available */
+
+	if (idp->item <= 5) {
+	    for (i=0; i < filesys.nmounts; i++) {
+	    	if (!((filesys.mounts[i].flags & FSF_VALID) && filesys.mounts[i].id == inst))
+		    continue;
+
+		switch (idp->item) {
+		case 0:	/* quota.state.project.accounting */
+		    atom->ul = !!(filesys.mounts[i].flags & FSF_QUOT_PROJ_ACC);
+		    return 1;
+		case 1:	/* quota.state.project.enforcement */
+		    atom->ul = !!(filesys.mounts[i].flags & FSF_QUOT_PROJ_ENF);
+		    return 1;
+		default:
+		    return PM_ERR_PMID;
+		}
+		/*NOTREACHED*/
+	    }
+	    return PM_ERR_INST;
+	}
+	if (idp->item <= 13) {
+	    if ((sts  = pmdaCacheLookup(indomtab[QUOTA_PRJ_INDOM].it_indom, inst, 
+					NULL, (void **)&quotap)) != PMDA_CACHE_ACTIVE) {
+		return PM_ERR_INST;
+	    }
+	    switch (idp->item) {
+	    case 6:	/* quota.project.space.hard */
+		atom->ull = quotap->space_hard >> 1; /* 2 blocks/Kb */
+		return 1;
+	    case 7:	/* quota.project.space.soft */
+		atom->ull = quotap->space_soft >> 1; /* 2 blocks/Kb */
+		return 1;
+	    case 8:	/* quota.project.space.used */
+		atom->ull = quotap->space_used >> 1; /* 2 blocks/Kb */
+		return 1;
+	    case 9:	/* quota.project.space.time_left */
+		atom->l = quotap->space_time_left;
+		return 1;
+	    case 10:	/* quota.project.files.hard */
+		atom->ull = quotap->files_hard;
+		return 1;
+	    case 11:	/* quota.project.files.soft */
+		atom->ull = quotap->files_soft;
+		return 1;
+	    case 12:	/* quota.project.files.used */
+		atom->ull = quotap->files_used;
+		return 1;
+	    case 13:	/* quota.project.files.time_left */
+		atom->l = quotap->files_time_left;
+		return 1;
+	    default:
+		return PM_ERR_PMID;
+	    }
+	    /*NOTREACHED*/
+	}
+	/*NOTREACHED*/
+
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -4577,7 +4865,7 @@ linux_store(pmResult *result, pmdaExt *pmda)
 	    sts = procfs_zero("/proc/sys/fs/xfs/stats_clear", vsp);
 	} 
 	else if (pmidp->cluster == CLUSTER_IB && pmidp->item == IB_COUNTERS_ALL + 1) {
-	    set_control_ib(vsp->vlist[0].value.lval);
+	    sts = set_control_ib(vsp->vlist[0].value.lval);
 	} 
 	else {
 	    sts = -EACCES;
@@ -4654,9 +4942,11 @@ linux_init(pmdaInterface *dp)
 	    case 0:	/* kernel.percpu.cpu.user */
 	    case 1:	/* kernel.percpu.cpu.nice */
 	    case 2:	/* kernel.percpu.cpu.sys */
+	    case 53:	/* kernel.percpu.cpu.steal */
 	    case 20:	/* kernel.all.cpu.user */
 	    case 21:	/* kernel.all.cpu.nice */
 	    case 22:	/* kernel.all.cpu.sys */
+	    case 54:	/* kernel.all.cpu.steal */
 	    case 30:	/* kernel.percpu.cpu.wait.total */
 	    case 31:	/* kernel.percpu.cpu.intr */
 	    case 34:	/* kernel.all.cpu.intr */

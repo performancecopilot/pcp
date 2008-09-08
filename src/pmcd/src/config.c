@@ -22,7 +22,7 @@
  * attaching to DSOs.
  */
 
-#ident "$Id: config.c,v 1.15 2007/01/16 06:50:10 kimbrr Exp $"
+#ident "$Id: config.c,v 1.16 2007/10/23 08:31:40 kimbrr Exp $"
 
 #include <stdio.h>
 #include <string.h>
@@ -2398,11 +2398,6 @@ ParseRestartAgents(char *fileName)
     }
     free(oldAgent);
     __pmAccFreeSavedHosts();
-
-    /* Allow some time for the old agents to close down.  This allows sockets
-     * to be closed at the agent end, etc.
-     */
-    sleep(1);
 
     /* Start the new agents */
     ContactAgents();

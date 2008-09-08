@@ -21,7 +21,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_partitions.c,v 1.15 2005/07/12 07:33:35 markgw Exp $"
+#ident "$Id: proc_partitions.c,v 1.16 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <stdio.h>
 #include <errno.h>

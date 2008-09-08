@@ -21,7 +21,7 @@
 # 
 # Install the mailq PMDA and/or PMNS
 #
-# $Id: Install,v 1.9 2003/02/20 05:28:13 kenmcd Exp $
+# $Id: Install,v 1.10 2007/09/11 01:38:10 kimbrr Exp $
 #
 
 # Get standard environment

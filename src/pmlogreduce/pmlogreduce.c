@@ -37,7 +37,7 @@
  *	  in the head of scan.c
  */
 
-#ident "$Id: pmlogreduce.c,v 1.5 2005/03/16 09:45:23 kenmcd Exp $"
+#ident "$Id: pmlogreduce.c,v 1.6 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <stdio.h>
 #include <stdlib.h>

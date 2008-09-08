@@ -46,7 +46,7 @@ LDLIBS	= -lpcp_pmda -lpcp
 ifeq "$(PCP_PLATFORM)" "solaris"
 DSOOPTS	= -fpic -shared 
 else
-DSOOPTS = -shared -Wl,-soname,$(LIBTARGET)
+DSOOPTS = -fPIC -shared -Wl,-soname,$(LIBTARGET)
 endif
 
 LDIRT	= so_locations *.log help.dir help.pag *.pmda_$(IAM).so

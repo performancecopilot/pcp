@@ -1,7 +1,7 @@
 /*
  * Linux /proc/stat metrics cluster
  *
- * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_stat.c,v 1.25 2007/02/20 00:08:32 kimbrr Exp $"
+#ident "$Id: proc_stat.c,v 1.27 2008/06/13 09:35:01 kimbrr.bonnie.engr.sgi.com Exp $"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -133,6 +133,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	proc_stat->p_nice = (unsigned long long *)malloc(n);
 	proc_stat->p_sys = (unsigned long long *)malloc(n);
 	proc_stat->p_idle = (unsigned long long *)malloc(n);
+	proc_stat->p_steal = (unsigned long long *)malloc(n);
 	proc_stat->p_wait = (unsigned long long *)malloc(n);
 	proc_stat->p_irq = (unsigned long long *)malloc(n);
 	proc_stat->p_sirq = (unsigned long long *)malloc(n);
@@ -140,6 +141,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	memset(proc_stat->p_nice, 0, n);
 	memset(proc_stat->p_sys, 0, n);
 	memset(proc_stat->p_idle, 0, n);
+	memset(proc_stat->p_steal, 0, n);
 	memset(proc_stat->p_wait, 0, n);
 	memset(proc_stat->p_irq, 0, n);
 	memset(proc_stat->p_sirq, 0, n);
@@ -150,14 +152,14 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
      * 2.6 kernels have 3 additional fields
      * for wait, irq and soft_irq.
      */
-    strcpy(fmt, "cpu %llu %llu %llu %llu %llu %llu %llu");
+    strcpy(fmt, "cpu %llu %llu %llu %llu %llu %llu %llu %llu");
     n = sscanf((const char *)bufindex[0], fmt,
 	&proc_stat->user, &proc_stat->nice,
 	&proc_stat->sys, &proc_stat->idle,
 	&proc_stat->wait, &proc_stat->irq,
-	&proc_stat->sirq);
+	&proc_stat->sirq, &proc_stat->steal);
     if (n == 4)
-    	proc_stat->wait = proc_stat->irq = proc_stat->sirq = 0;
+    	proc_stat->steal = proc_stat->wait = proc_stat->irq = proc_stat->sirq = 0;
 
     /*
      * per-cpu stats
@@ -176,12 +178,13 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	proc_stat->p_nice[0] = proc_stat->nice;
 	proc_stat->p_sys[0] = proc_stat->sys;
 	proc_stat->p_idle[0] = proc_stat->idle;
+	proc_stat->p_steal[0] = proc_stat->steal;
 	proc_stat->p_wait[0] = proc_stat->wait;
 	proc_stat->p_irq[0] = proc_stat->irq;
 	proc_stat->p_sirq[0] = proc_stat->sirq;
     }
     else {
-	strcpy(fmt, "cpu%d %llu %llu %llu %llu %llu %llu %llu");
+	strcpy(fmt, "cpu%d %llu %llu %llu %llu %llu %llu %llu %llu");
 	for (i=0; i < proc_stat->ncpu; i++) {
 	    for (j=0; j < nbufindex; j++) {
 		if (strncmp("cpu", bufindex[j], 3) == 0 && isdigit(bufindex[j][3])) {
@@ -195,8 +198,10 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 			    &proc_stat->p_idle[cpunum],
 			    &proc_stat->p_wait[cpunum],
 			    &proc_stat->p_irq[cpunum],
-			    &proc_stat->p_sirq[cpunum]);
+			    &proc_stat->p_sirq[cpunum],
+			    &proc_stat->p_steal[cpunum]);
 			if (n == 4) {
+			    proc_stat->p_steal[cpunum] =
 			    proc_stat->p_wait[cpunum] =
 			    proc_stat->p_irq[cpunum] =
 			    proc_stat->p_sirq[cpunum] = 0;

@@ -22,7 +22,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmval.c,v 1.12 2007/02/20 00:08:32 kimbrr Exp $"
+#ident "$Id: pmval.c,v 1.13 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <stdio.h>
 #include <errno.h>

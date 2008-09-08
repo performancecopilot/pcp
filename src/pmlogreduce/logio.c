@@ -21,7 +21,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: logio.c,v 1.1 2004/04/13 08:59:30 kenmcd Exp $"
+#ident "$Id: logio.c,v 1.2 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -160,7 +160,7 @@ again:
 		fprintf(stderr, "\n%03d: ", j);
 		i = 0;
 	    }
-	    fprintf(stderr, "%x ", lpb[j]);
+	    fprintf(stderr, "" PRINTF_P_PFX "%p ", (unsigned int *)lpb[j]);
 	    i++;
 	}
 	fputc('\n', stderr);

@@ -19,7 +19,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: pmtop.c,v 1.9 2002/11/13 00:22:59 kenmcd Exp $"
+#ident "$Id: pmtop.c,v 1.1 2007/09/05 03:25:21 kimbrr Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>

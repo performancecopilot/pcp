@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os PACKAGE_MAJOR PACKAGE_MINOR PACKAGE_REVISION PACKAGE_BUILD PACKAGE_BUILD_DATE package_builder CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT cc MAKE make CXX CXXFLAGS ac_ct_CXX cxx CPP cpp cpp_simple cpp_simple_args LD ld pcp_owner pcp_group TAR tar XMESSAGE xmessage ZIP gzip BZIP2 bzip2 package_maker HDIUTIL hdiutil RPMBUILD rpmbuild RPM rpm rpmprog rpm_version GENDIST gendist MAKEDEPEND makedepend DPKG dpkg LN_S YACC yacc LEX LEXLIB LEX_OUTPUT_ROOT lex AWK awk SED sed ECHO echo echo_n echo_c pcp_ps_have_bsd pcp_ps_all_flags pcp_killall_prog grep EGREP rdynamic_flag solaris_libs lib_for_basename lib_for_dlopen lib_for_math pcp_etc_dir pcp_share_dir pcp_binadm_dir pcp_var_dir pcp_pmcdconf_path pcp_pmcdoptions_path pcp_pmproxyoptions_path pcp_pmdas_dir pcp_lib_dir pcp_lib32_dir X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS pcp_x11_incflags pcp_x11_libflags pcp_x11_extra pcp_x11_pre pcp_x11_appdefs_dir pcp_man_dir have_gzipped_manpages have_bzip2ed_manpages pcp_bin_dir pcp_inc_dir pcp_rc_dir pcp_sysconfig_dir pcp_log_dir pcp_run_dir pcp_tmp_dir pcp_doc_dir pcp_demos_dir ac_xconfirm_prog ac_cv_pthread_lib pcp_mpi_dirs LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os PACKAGE_MAJOR PACKAGE_MINOR PACKAGE_REVISION PACKAGE_BUILD PACKAGE_BUILD_DATE package_builder CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT cc MAKE make CXX CXXFLAGS ac_ct_CXX cxx CPP cpp cpp_simple cpp_simple_args LD ld pcp_owner pcp_group TAR tar XMESSAGE xmessage ZIP gzip BZIP2 bzip2 package_maker HDIUTIL hdiutil RPMBUILD rpmbuild RPM rpm rpmprog rpm_version GENDIST gendist MAKEDEPEND makedepend DPKG dpkg LN_S YACC yacc LEX LEXLIB LEX_OUTPUT_ROOT lex AWK awk SED sed ECHO echo echo_n echo_c pcp_ps_have_bsd pcp_ps_all_flags pcp_killall_prog grep which EGREP rdynamic_flag solaris_libs lib_for_basename lib_for_dlopen lib_for_math pcp_etc_dir pcp_share_dir pcp_binadm_dir pcp_var_dir pcp_pmcdconf_path pcp_pmcdoptions_path pcp_pmproxyoptions_path pcp_pmdas_dir pcp_lib_dir pcp_lib32_dir X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS pcp_x11_incflags pcp_x11_libflags pcp_x11_extra pcp_x11_pre pcp_x11_appdefs_dir pcp_man_dir have_gzipped_manpages have_bzip2ed_manpages pcp_bin_dir pcp_inc_dir pcp_rc_dir pcp_sysconfig_dir pcp_log_dir pcp_run_dir pcp_tmp_dir pcp_doc_dir pcp_demos_dir ac_xconfirm_prog ac_cv_pthread_lib pcp_mpi_dirs UMAD_H MAD_H LIBIBCOMMON LIBIBMAD LIBIBUMAD HAVE_IBDEV LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -4326,6 +4326,17 @@ then
 fi
 
 
+if test -n "$WHICH"
+then
+    which=$WHICH
+elif sh -c 'type -p sh' >/dev/null 2>&1
+then
+    which=type
+else
+    which=which
+fi
+
+
 echo "$as_me:$LINENO: checking for /proc " >&5
 echo $ECHO_N "checking for /proc ... $ECHO_C" >&6
 if test -d /proc
@@ -5631,7 +5642,8 @@ done
 
 
 
-for ac_header in netdb.h sys/termios.h stdint.h
+
+for ac_header in netdb.h sys/termios.h stdint.h linux/spinlock.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -12632,6 +12644,512 @@ fi
 rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
 
+if test "${ac_cv_header_infiniband_umad_h+set}" = set; then
+  echo "$as_me:$LINENO: checking for infiniband/umad.h" >&5
+echo $ECHO_N "checking for infiniband/umad.h... $ECHO_C" >&6
+if test "${ac_cv_header_infiniband_umad_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+fi
+echo "$as_me:$LINENO: result: $ac_cv_header_infiniband_umad_h" >&5
+echo "${ECHO_T}$ac_cv_header_infiniband_umad_h" >&6
+else
+  # Is the header compilable?
+echo "$as_me:$LINENO: checking infiniband/umad.h usability" >&5
+echo $ECHO_N "checking infiniband/umad.h usability... $ECHO_C" >&6
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+#include <infiniband/umad.h>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_header_compiler=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_header_compiler=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
+echo "${ECHO_T}$ac_header_compiler" >&6
+
+# Is the header present?
+echo "$as_me:$LINENO: checking infiniband/umad.h presence" >&5
+echo $ECHO_N "checking infiniband/umad.h presence... $ECHO_C" >&6
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <infiniband/umad.h>
+_ACEOF
+if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
+  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null; then
+  if test -s conftest.err; then
+    ac_cpp_err=$ac_c_preproc_warn_flag
+    ac_cpp_err=$ac_cpp_err$ac_c_werror_flag
+  else
+    ac_cpp_err=
+  fi
+else
+  ac_cpp_err=yes
+fi
+if test -z "$ac_cpp_err"; then
+  ac_header_preproc=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  ac_header_preproc=no
+fi
+rm -f conftest.err conftest.$ac_ext
+echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
+echo "${ECHO_T}$ac_header_preproc" >&6
+
+# So?  What about this header?
+case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
+  yes:no: )
+    { echo "$as_me:$LINENO: WARNING: infiniband/umad.h: accepted by the compiler, rejected by the preprocessor!" >&5
+echo "$as_me: WARNING: infiniband/umad.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
+    { echo "$as_me:$LINENO: WARNING: infiniband/umad.h: proceeding with the compiler's result" >&5
+echo "$as_me: WARNING: infiniband/umad.h: proceeding with the compiler's result" >&2;}
+    ac_header_preproc=yes
+    ;;
+  no:yes:* )
+    { echo "$as_me:$LINENO: WARNING: infiniband/umad.h: present but cannot be compiled" >&5
+echo "$as_me: WARNING: infiniband/umad.h: present but cannot be compiled" >&2;}
+    { echo "$as_me:$LINENO: WARNING: infiniband/umad.h:     check for missing prerequisite headers?" >&5
+echo "$as_me: WARNING: infiniband/umad.h:     check for missing prerequisite headers?" >&2;}
+    { echo "$as_me:$LINENO: WARNING: infiniband/umad.h: see the Autoconf documentation" >&5
+echo "$as_me: WARNING: infiniband/umad.h: see the Autoconf documentation" >&2;}
+    { echo "$as_me:$LINENO: WARNING: infiniband/umad.h:     section \"Present But Cannot Be Compiled\"" >&5
+echo "$as_me: WARNING: infiniband/umad.h:     section \"Present But Cannot Be Compiled\"" >&2;}
+    { echo "$as_me:$LINENO: WARNING: infiniband/umad.h: proceeding with the preprocessor's result" >&5
+echo "$as_me: WARNING: infiniband/umad.h: proceeding with the preprocessor's result" >&2;}
+    { echo "$as_me:$LINENO: WARNING: infiniband/umad.h: in the future, the compiler will take precedence" >&5
+echo "$as_me: WARNING: infiniband/umad.h: in the future, the compiler will take precedence" >&2;}
+    (
+      cat <<\_ASBOX
+## ------------------------------------------ ##
+## Report this to the AC_PACKAGE_NAME lists.  ##
+## ------------------------------------------ ##
+_ASBOX
+    ) |
+      sed "s/^/$as_me: WARNING:     /" >&2
+    ;;
+esac
+echo "$as_me:$LINENO: checking for infiniband/umad.h" >&5
+echo $ECHO_N "checking for infiniband/umad.h... $ECHO_C" >&6
+if test "${ac_cv_header_infiniband_umad_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_cv_header_infiniband_umad_h=$ac_header_preproc
+fi
+echo "$as_me:$LINENO: result: $ac_cv_header_infiniband_umad_h" >&5
+echo "${ECHO_T}$ac_cv_header_infiniband_umad_h" >&6
+
+fi
+if test $ac_cv_header_infiniband_umad_h = yes; then
+  UMAD_H=yes
+
+fi
+
+
+if test "${ac_cv_header_infiniband_mad_h+set}" = set; then
+  echo "$as_me:$LINENO: checking for infiniband/mad.h" >&5
+echo $ECHO_N "checking for infiniband/mad.h... $ECHO_C" >&6
+if test "${ac_cv_header_infiniband_mad_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+fi
+echo "$as_me:$LINENO: result: $ac_cv_header_infiniband_mad_h" >&5
+echo "${ECHO_T}$ac_cv_header_infiniband_mad_h" >&6
+else
+  # Is the header compilable?
+echo "$as_me:$LINENO: checking infiniband/mad.h usability" >&5
+echo $ECHO_N "checking infiniband/mad.h usability... $ECHO_C" >&6
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+#include <infiniband/mad.h>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_header_compiler=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_header_compiler=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
+echo "${ECHO_T}$ac_header_compiler" >&6
+
+# Is the header present?
+echo "$as_me:$LINENO: checking infiniband/mad.h presence" >&5
+echo $ECHO_N "checking infiniband/mad.h presence... $ECHO_C" >&6
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <infiniband/mad.h>
+_ACEOF
+if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
+  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null; then
+  if test -s conftest.err; then
+    ac_cpp_err=$ac_c_preproc_warn_flag
+    ac_cpp_err=$ac_cpp_err$ac_c_werror_flag
+  else
+    ac_cpp_err=
+  fi
+else
+  ac_cpp_err=yes
+fi
+if test -z "$ac_cpp_err"; then
+  ac_header_preproc=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  ac_header_preproc=no
+fi
+rm -f conftest.err conftest.$ac_ext
+echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
+echo "${ECHO_T}$ac_header_preproc" >&6
+
+# So?  What about this header?
+case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
+  yes:no: )
+    { echo "$as_me:$LINENO: WARNING: infiniband/mad.h: accepted by the compiler, rejected by the preprocessor!" >&5
+echo "$as_me: WARNING: infiniband/mad.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
+    { echo "$as_me:$LINENO: WARNING: infiniband/mad.h: proceeding with the compiler's result" >&5
+echo "$as_me: WARNING: infiniband/mad.h: proceeding with the compiler's result" >&2;}
+    ac_header_preproc=yes
+    ;;
+  no:yes:* )
+    { echo "$as_me:$LINENO: WARNING: infiniband/mad.h: present but cannot be compiled" >&5
+echo "$as_me: WARNING: infiniband/mad.h: present but cannot be compiled" >&2;}
+    { echo "$as_me:$LINENO: WARNING: infiniband/mad.h:     check for missing prerequisite headers?" >&5
+echo "$as_me: WARNING: infiniband/mad.h:     check for missing prerequisite headers?" >&2;}
+    { echo "$as_me:$LINENO: WARNING: infiniband/mad.h: see the Autoconf documentation" >&5
+echo "$as_me: WARNING: infiniband/mad.h: see the Autoconf documentation" >&2;}
+    { echo "$as_me:$LINENO: WARNING: infiniband/mad.h:     section \"Present But Cannot Be Compiled\"" >&5
+echo "$as_me: WARNING: infiniband/mad.h:     section \"Present But Cannot Be Compiled\"" >&2;}
+    { echo "$as_me:$LINENO: WARNING: infiniband/mad.h: proceeding with the preprocessor's result" >&5
+echo "$as_me: WARNING: infiniband/mad.h: proceeding with the preprocessor's result" >&2;}
+    { echo "$as_me:$LINENO: WARNING: infiniband/mad.h: in the future, the compiler will take precedence" >&5
+echo "$as_me: WARNING: infiniband/mad.h: in the future, the compiler will take precedence" >&2;}
+    (
+      cat <<\_ASBOX
+## ------------------------------------------ ##
+## Report this to the AC_PACKAGE_NAME lists.  ##
+## ------------------------------------------ ##
+_ASBOX
+    ) |
+      sed "s/^/$as_me: WARNING:     /" >&2
+    ;;
+esac
+echo "$as_me:$LINENO: checking for infiniband/mad.h" >&5
+echo $ECHO_N "checking for infiniband/mad.h... $ECHO_C" >&6
+if test "${ac_cv_header_infiniband_mad_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_cv_header_infiniband_mad_h=$ac_header_preproc
+fi
+echo "$as_me:$LINENO: result: $ac_cv_header_infiniband_mad_h" >&5
+echo "${ECHO_T}$ac_cv_header_infiniband_mad_h" >&6
+
+fi
+if test $ac_cv_header_infiniband_mad_h = yes; then
+  MAD_H=yes
+
+fi
+
+
+
+echo "$as_me:$LINENO: checking for ibwarn in -libcommon" >&5
+echo $ECHO_N "checking for ibwarn in -libcommon... $ECHO_C" >&6
+if test "${ac_cv_lib_ibcommon_ibwarn+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-libcommon  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char ibwarn ();
+int
+main ()
+{
+ibwarn ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_ibcommon_ibwarn=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_ibcommon_ibwarn=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_ibcommon_ibwarn" >&5
+echo "${ECHO_T}$ac_cv_lib_ibcommon_ibwarn" >&6
+if test $ac_cv_lib_ibcommon_ibwarn = yes; then
+  LIBIBCOMMON=-libcommon
+
+fi
+
+echo "$as_me:$LINENO: checking for madrpc_init in -libmad" >&5
+echo $ECHO_N "checking for madrpc_init in -libmad... $ECHO_C" >&6
+if test "${ac_cv_lib_ibmad_madrpc_init+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-libmad  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char madrpc_init ();
+int
+main ()
+{
+madrpc_init ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_ibmad_madrpc_init=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_ibmad_madrpc_init=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_ibmad_madrpc_init" >&5
+echo "${ECHO_T}$ac_cv_lib_ibmad_madrpc_init" >&6
+if test $ac_cv_lib_ibmad_madrpc_init = yes; then
+  LIBIBMAD=-libmad
+
+fi
+
+echo "$as_me:$LINENO: checking for umad_init in -libumad" >&5
+echo $ECHO_N "checking for umad_init in -libumad... $ECHO_C" >&6
+if test "${ac_cv_lib_ibumad_umad_init+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-libumad  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char umad_init ();
+int
+main ()
+{
+umad_init ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_ibumad_umad_init=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_ibumad_umad_init=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_ibumad_umad_init" >&5
+echo "${ECHO_T}$ac_cv_lib_ibumad_umad_init" >&6
+if test $ac_cv_lib_ibumad_umad_init = yes; then
+  LIBIBUMAD=-libumad
+
+fi
+
+
+HAVE_IBDEV=""
+if test -n "$UMAD_H" -a \
+	-n "$MAD_H" -a \
+	-n "$LIBIBCOMMON" -a \
+	-n "$LIBIBUMAD" -a \
+	-n "$LIBIBMAD" ; then
+	HAVE_IBDEV=yes
+fi
+
+
+
 
                               ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm"
 cat >confcache <<\_ACEOF
@@ -13328,6 +13846,7 @@ s,@pcp_ps_have_bsd@,$pcp_ps_have_bsd,;t t
 s,@pcp_ps_all_flags@,$pcp_ps_all_flags,;t t
 s,@pcp_killall_prog@,$pcp_killall_prog,;t t
 s,@grep@,$grep,;t t
+s,@which@,$which,;t t
 s,@EGREP@,$EGREP,;t t
 s,@rdynamic_flag@,$rdynamic_flag,;t t
 s,@solaris_libs@,$solaris_libs,;t t
@@ -13368,6 +13887,12 @@ s,@pcp_demos_dir@,$pcp_demos_dir,;t t
 s,@ac_xconfirm_prog@,$ac_xconfirm_prog,;t t
 s,@ac_cv_pthread_lib@,$ac_cv_pthread_lib,;t t
 s,@pcp_mpi_dirs@,$pcp_mpi_dirs,;t t
+s,@UMAD_H@,$UMAD_H,;t t
+s,@MAD_H@,$MAD_H,;t t
+s,@LIBIBCOMMON@,$LIBIBCOMMON,;t t
+s,@LIBIBMAD@,$LIBIBMAD,;t t
+s,@LIBIBUMAD@,$LIBIBUMAD,;t t
+s,@HAVE_IBDEV@,$HAVE_IBDEV,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF

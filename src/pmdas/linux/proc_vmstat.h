@@ -21,7 +21,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: proc_vmstat.h,v 1.1 2004/12/15 06:50:50 markgw Exp $"
+#ident "$Id: proc_vmstat.h,v 1.2 2007/09/11 01:38:10 kimbrr Exp $"
 
 /*
  * All fields in /proc/vmstat for 2.6.x

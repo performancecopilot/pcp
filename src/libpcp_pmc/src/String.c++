@@ -19,7 +19,7 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#ident "$Id: String.c++,v 1.2 2005/05/10 00:46:37 kenmcd Exp $"
+#ident "$Id: String.c++,v 1.3 2007/09/11 01:38:10 kimbrr Exp $"
 
 #include <pcp/pmc/String.h>
 #include <pcp/pmc/Bool.h>

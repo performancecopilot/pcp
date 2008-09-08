@@ -21,7 +21,7 @@
 #
 # Rebuild the binary PMNS, handling assorted errors
 #
-# $Id: Rebuild4linux,v 1.7 2004/10/29 04:52:06 markgw Exp $
+# $Id: Rebuild4linux,v 1.8 2008/07/24 06:05:47 kimbrr Exp $
 #
 #Tag 0x00010D13
 
@@ -35,9 +35,9 @@
 tmp=./$$
 status=1
 rm -f $tmp.*
-trap "$PCP_SHARE_DIR/lib/unlockpmns root; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 $PCP_SHARE_DIR/lib/lockpmns root
+trap "$PCP_SHARE_DIR/lib/unlockpmns root; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _trace()
 {
