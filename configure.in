@@ -628,7 +628,6 @@ AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
 AC_CHECK_HEADERS(regex.h termios.h sys/termios.h sys/wait.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h iptypes.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
-AC_CHECK_HEADERS(linux/spinlock.h)
 
 dnl Checks for C++ header files.
 if test "$PMC_SUPPORT" = false -o $target_os = mingw

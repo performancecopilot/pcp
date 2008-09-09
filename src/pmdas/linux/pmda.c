@@ -4978,37 +4978,37 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    }
 	}
 	else if (idp->item <= 13) {
-	    quota_entry_t *quotap;
+	    struct project *pp;
 	    sts = pmdaCacheLookup(INDOM(QUOTA_PRJ_INDOM), inst, NULL,
-					(void **)&quotap);
+					(void **)&pp);
 	    if (sts < 0)
 		return sts;
 	    if (sts != PMDA_CACHE_ACTIVE)
 		return PM_ERR_INST;
 	    switch (idp->item) {
 	    case 6:	/* quota.project.space.hard */
-		atom->ull = quotap->space_hard >> 1; /* BBs to KB */
+		atom->ull = pp->space_hard >> 1; /* BBs to KB */
 		break;
 	    case 7:	/* quota.project.space.soft */
-		atom->ull = quotap->space_soft >> 1; /* BBs to KB */
+		atom->ull = pp->space_soft >> 1; /* BBs to KB */
 		break;
 	    case 8:	/* quota.project.space.used */
-		atom->ull = quotap->space_used >> 1; /* BBs to KB */
+		atom->ull = pp->space_used >> 1; /* BBs to KB */
 		break;
 	    case 9:	/* quota.project.space.time_left */
-		atom->l = quotap->space_time_left;
+		atom->l = pp->space_time_left;
 		break;
 	    case 10:	/* quota.project.files.hard */
-		atom->ull = quotap->files_hard;
+		atom->ull = pp->files_hard;
 		break;
 	    case 11:	/* quota.project.files.soft */
-		atom->ull = quotap->files_soft;
+		atom->ull = pp->files_soft;
 		break;
 	    case 12:	/* quota.project.files.used */
-		atom->ull = quotap->files_used;
+		atom->ull = pp->files_used;
 		break;
 	    case 13:	/* quota.project.files.time_left */
-		atom->l = quotap->files_time_left;
+		atom->l = pp->files_time_left;
 		break;
 	    default:
 		return PM_ERR_PMID;

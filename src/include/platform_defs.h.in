@@ -139,7 +139,6 @@ extern "C" {
 
 #undef HAVE_IOSTREAM_H
 #undef HAVE_IOSTREAM
-#undef HAVE_LINUX_SPINLOCK_H
 
 #undef HAVE_SYS_ENDIAN_H
 #undef HAVE_SYS_MACHINE_H
