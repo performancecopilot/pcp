@@ -1,3 +1,9 @@
+pcp (2.7.7-20080910) unstable; urgency=low
+
+  * Merged with new code from SGI.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 10 Sep 2008 07:39:38 +1000
+
 pcp (2.7.4-20081001) unstable; urgency=low
 
   * Added the Perl PCP::PMDA interface package - libpcp-pmda-perl.
