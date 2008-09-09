@@ -29,11 +29,9 @@
 #include <limits.h>
 #include <sys/time.h>
 #include <sys/utsname.h>
-#include <linux/version.h>
-#include "ksym.h"
-
 #include "pmapi.h"
 #include "impl.h"
+#include "ksym.h"
 
 static struct ksym *ksym_a;
 static size_t ksym_a_sz;

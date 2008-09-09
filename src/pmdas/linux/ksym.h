@@ -22,7 +22,7 @@
 /*
  * This code contributed by Mike Mason (mmlnx@us.ibm.com)
  */
-#include "platform_defs.h"
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 
 #define INIT_KSIZE 8192
 #define INCR_KSIZE 2048
