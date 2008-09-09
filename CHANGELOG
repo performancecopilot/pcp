@@ -710,9 +710,11 @@ pcp-2.7.2 (8 Jun 2007)
     - network.ib stats updated to cope with OFED 1.2 changes
     - some numa.link fixes for shub2 & NL4
     - Improve start/stop times of pmcd,pmlogger,pmie; create portable pmsleep (subsecond sleep) exe
+
 pcp-2.7.3 (July 2007)
     - add network.ib.control to timeout infiniband stats workthread
     - add mem.util.anonpages 
+
 pcp-2.7.4 (7 Sep 2007)
     - MaxOSX and Debian/Ubuntu build/package fixes
     - Add sqlserver active_transactions metrics to the Windows PMDA.
@@ -730,3 +732,18 @@ pcp-2.7.4 (7 Sep 2007)
     - Windows TCP metrics
     - pmie log file rotation
     - Changed the default compression program to be bzip2(1)
+
+pcp-2.7.7 (5 Sep 2008)
+    - Infiniband metric enhancements
+    - Handle missing "which" binary during rpm installation
+    - Added new quota metrics (XFS project quota)
+    - Aggregate and per-CPU hypervisor "steal" time metrics added
+    - NFS v4 metrics
+    - commitLimit meminfo metric added
+    - Namespace locking fix in pmdaproc.sh
+    - Additional Windows memory metrics
+    - Several pmie fixes from Ken
+    - Kens pmlogreduce archive corruption fix
+    - Kens pmproxy PDU size fix
+    - Nathan's pmlogsummary sum calulation fix
+    - Added a (cheap) runnable processes metric.
