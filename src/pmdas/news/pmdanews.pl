@@ -1,5 +1,3 @@
-#!/usr/bin/perl -w
-# Usenet news demo PMDA
 #
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -22,6 +20,7 @@
 # 
 
 use strict;
+use warnings;
 use PCP::PMDA;
 
 my @newsgroups = (
@@ -34,10 +33,11 @@ my @newsgroups = (
 
 use vars qw( $total $news_regex %news_hash @news_count @news_last );
 my ($nnrpd_count, $rn_count, $trn_count, $xrn_count, $vn_count) = (0,0,0,0,0);
-my $news_file = '/var/lib/pcp/pmdas/news/active';	# '/var/news/active'
+my $news_file = pmda_config('PCP_PMDAS_DIR') . '/news/active';
 my $news_indom = 0;
 
-sub news_fetch {	# called once per ``fetch'' pdu, before callbacks
+sub news_fetch		# called once per ``fetch'' pdu, before callbacks
+{
     my ( $group, $cmd );
 
     $total = 0;
@@ -65,11 +65,12 @@ sub news_fetch {	# called once per ``fetch'' pdu, before callbacks
 	close READERS;
     }
     else {
-	print STDERR "Cannot execute 'ps' to count news reader processes\n";
+	$pmda->log("Cannot execute 'ps' to count news reader processes");
     }
 }
 
-sub news_fetch_callback {	# must return array of value,status
+sub news_fetch_callback		# must return array of value,status
+{
     my ($cluster, $item, $inst) = @_;
 
     return (PM_ERR_INST, 0) unless ( $inst == PM_IN_NULL ||
@@ -89,7 +90,8 @@ sub news_fetch_callback {	# must return array of value,status
     else { (PM_ERR_PMID, 0); }
 }
 
-sub news_init {
+sub news_init
+{
     ($#newsgroups > 0 && $#newsgroups % 2 != 0)
 		|| die "Invalid newsgroups array has been specified\n";
     open(ACTIVE, $news_file) || die "Can't open $news_file: $!\n";
@@ -138,10 +140,10 @@ $pmda->add_metric(pmda_pmid(0,114), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'news.readers.vn', '', '');
 
-$pmda->add_indom( $news_indom, \@newsgroups, undef, undef );
+$pmda->add_indom($news_indom, \@newsgroups, undef, undef);
 
-$pmda->set_fetch( \&news_fetch );
-$pmda->set_fetch_callback( \&news_fetch_callback );
+$pmda->set_fetch(\&news_fetch);
+$pmda->set_fetch_callback(\&news_fetch_callback);
 
 &news_init;
 $pmda->run;

@@ -1,4 +1,3 @@
-#!/usr/bin/perl -w
 #
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
@@ -19,12 +18,14 @@
 # 
 
 use strict;
+use warnings;
 use PCP::PMDA;
 use vars qw( $pmda $stamp $response $status $timestamp );
 
 my $delay = $ARGV[0];	# delay in seconds between database ping's
 $delay = 60 unless defined($delay);
-my $dbprobe = pmda_config('PCP_PMDAS_DIR') . "/dbping/dbprobe.pl $delay";
+my $dbprobe = pmda_config('PCP_PMDAS_DIR') . '/dbping/dbprobe.pl';
+$dbprobe = "perl " . $dbprobe . " $delay";
 my ( $stamp, $response, $status, $timestamp ) = ( 0, 0, 1, 0 );
 
 sub dbping_probe_callback

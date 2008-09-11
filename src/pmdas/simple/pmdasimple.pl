@@ -1,5 +1,3 @@
-#!/usr/bin/perl -w
-# Simple, configurable PMDA
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
@@ -20,6 +18,7 @@
 # 
 
 use strict;
+use warnings;
 use PCP::PMDA;
 
 use vars qw( $pmda $now $red $green $blue $user $system );

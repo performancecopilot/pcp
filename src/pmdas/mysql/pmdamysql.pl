@@ -1,4 +1,3 @@
-#!/usr/bin/perl -w
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 #
@@ -18,6 +17,7 @@
 #
 
 use strict;
+use warnings;
 use PCP::PMDA;
 use DBI;
 

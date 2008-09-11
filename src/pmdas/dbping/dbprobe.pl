@@ -1,4 +1,3 @@
-#!/usr/bin/perl -w
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
@@ -19,6 +18,7 @@
 # 
 
 use strict;
+use warnings;
 use DBI;
 use PCP::PMDA qw(pmda_config);
 use Time::HiRes qw(gettimeofday);

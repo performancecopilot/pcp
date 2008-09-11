@@ -1,4 +1,3 @@
-#!/usr/bin/perl -w
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
@@ -18,11 +17,12 @@
 # 
 
 use strict;
+use warnings;
 use PCP::PMDA;
 
 use vars qw( $pmda $id );
 my $probe_indom = 0;
-my $probe_script = '/var/lib/pcp/pmdas/systemtap/probes.stp';
+my $probe_script = pmda_config('PCP_PMDAS_DIR') . '/systemtap/probes.stp';
 my $probe_command = "/usr/bin/stap -m pmdasystemtap $probe_script";
 my @probe_instances = ( 0 => 'sync', 1 => 'readdir' );
 my ( $sync_count, $sync_pid, $sync_cmd ) = ( 0, 0, "(none)" );

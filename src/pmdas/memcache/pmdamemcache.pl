@@ -1,4 +1,3 @@
-#!/usr/bin/perl -w
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
@@ -18,6 +17,7 @@
 # 
 
 use strict;
+use warnings;
 use PCP::PMDA;
 use vars qw( $pmda $id $n %caches );
 
@@ -27,7 +27,8 @@ my @memcache_instances = ( 0 => '127.0.0.1:11211',
 			 # 2 => '192.168.5.76:11211',
 			 );
 # Configuration files for overriding the above settings
-for my $file (	pmda_config('PCP_PMDAS_DIR') . '/memcache/memcache.conf', './memcache.conf' ) {
+for my $file (	pmda_config('PCP_PMDAS_DIR') . '/memcache/memcache.conf',
+		'./memcache.conf' ) {
     eval `cat $file` unless ! -f $file;
 }
 
