@@ -780,8 +780,10 @@ _setup()
 	perl_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.pl"
 	perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns"
 	perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h"
-	test -f "$perl_dom" || eval PCP_PERL_DOMAIN=1 "$perl_name" > "$perl_dom"
-	test -f "$perl_pmns" || eval PCP_PERL_PMNS=1 "$perl_name" > "$perl_pmns"
+	test -f "$perl_dom" || \
+		eval PCP_PERL_DOMAIN=1 perl "$perl_name" > "$perl_dom"
+	test -f "$perl_pmns" || \
+		eval PCP_PERL_PMNS=1 perl "$perl_name" > "$perl_pmns"
     fi
 
     # Set $domain and $SYMDOM from domain.h
