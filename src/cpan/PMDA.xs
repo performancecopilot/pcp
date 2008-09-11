@@ -454,6 +454,22 @@ pmda_pmid_name(cluster,item)
     OUTPUT:
 	RETVAL
 
+SV *
+pmda_pmid_text(cluster,item)
+	unsigned int	cluster
+	unsigned int	item
+    PREINIT:
+	const char	*name;
+	SV		**rval;
+    CODE:
+	name = pmIDStr(pmid_build(dispatch.domain, cluster, item));
+	rval = hv_fetch(metric_oneline, name, strlen(name), 0);
+	if (!rval || !(*rval))
+	    XSRETURN_UNDEF;
+	RETVAL = newSVsv(*rval);
+    OUTPUT:
+	RETVAL
+
 int
 pmda_units(dim_space,dim_time,dim_count,scale_space,scale_time,scale_count)
 	unsigned int	dim_space
@@ -482,6 +498,33 @@ pmda_config(name)
 	    XSRETURN_UNDEF;
     OUTPUT:
 	RETVAL
+
+char *
+pmda_uptime(now)
+	int	now
+    PREINIT:
+	static char s[32];
+	size_t sz = sizeof(s);
+	int days, hours, mins, secs;
+    CODE:
+	days = now / (60 * 60 * 24);
+	now %= (60 * 60 * 24);
+	hours = now / (60 * 60);
+	now %= (60 * 60);
+	mins = now / 60;
+	now %= 60;
+	secs = now;
+
+	if (days > 1)
+	    snprintf(s, sz, "%ddays %02d:%02d:%02d", days, hours, mins, secs);
+	else if (days == 1)
+	    snprintf(s, sz, "%dday %02d:%02d:%02d", days, hours, mins, secs);
+	else
+	    snprintf(s, sz, "%02d:%02d:%02d", hours, mins, secs);
+	RETVAL = s;
+    OUTPUT:
+	RETVAL
+
 
 void
 error(self,message)
