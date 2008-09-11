@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
@@ -25,6 +25,10 @@
 iam=systemtap
 perl_opt=true
 daemon_opt=false
+
+if ! test -x /usr/bin/stap; then
+    echo "SystemTap \"stap\" tool is not installed" && exit 1
+fi
 
 pmdaSetup
 pmdaInstall
