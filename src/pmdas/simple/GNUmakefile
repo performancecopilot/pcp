@@ -27,9 +27,8 @@ CFILES	= simple.c
 CMDTARGET = pmdasimple$(EXECSUFFIX)
 LLDLIBS = -lpcp -lpcp_pmda
 LCFLAGS = -I.
-PFILES  = pmdasimple.pl
 DFILES	= README help
-LSRCFILES = Install Remove pmns root $(DFILES) $(PFILES) \
+LSRCFILES = Install Remove pmns root $(DFILES) pmdasimple.pl \
 	simple.conf GNUmakefile.install
 
 IAM	= simple
@@ -44,7 +43,8 @@ include $(BUILDRULES)
 
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PFILES) $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 pmdasimple.pl $(PMDADIR)/pmdasimple.pl
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 root pmns domain.h simple.conf $(PMDADIR)
 	$(INSTALL) -m 644 $(CFILES) $(DFILES) $(PMDADIR)

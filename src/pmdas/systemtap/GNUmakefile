@@ -32,8 +32,8 @@ include $(BUILDRULES)
 install: default
 ifeq "$(TARGET_OS)" "linux"
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 probes.stp $(PMDADIR)/probes.stp
-	$(INSTALL) -m 755 Install Remove pmdasystemtap.pl $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 probes.stp pmdasystemtap.pl $(PMDADIR)
 endif
 
 default_pcp : default

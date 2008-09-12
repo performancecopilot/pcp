@@ -32,7 +32,8 @@ include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove pmdamemcache.pl $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 pmdamemcache.pl $(PMDADIR)/pmdamemcache.pl
 
 default_pcp : default
 

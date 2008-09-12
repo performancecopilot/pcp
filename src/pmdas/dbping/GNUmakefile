@@ -32,7 +32,7 @@ include $(BUILDRULES)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 755 pmdadbping.pl dbprobe.pl $(PMDADIR)
+	$(INSTALL) -m 644 pmdadbping.pl dbprobe.pl $(PMDADIR)
 
 default_pcp : default
 

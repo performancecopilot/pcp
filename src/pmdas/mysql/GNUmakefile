@@ -31,7 +31,8 @@ include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove pmdamysql.pl $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 pmdamysql.pl $(PMDADIR)/pmdamysql.pl
 
 default_pcp : default
 

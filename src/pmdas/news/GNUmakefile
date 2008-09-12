@@ -23,12 +23,9 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-
-PFILES = pmdanews.pl
 DFILES = README
-TARGETS	= 
-LSRCFILES= Install Remove pmns root $(PFILES) $(DFILES) GNUmakefile.install \
-	   active news.agent
+LSRCFILES= Install Remove pmns root $(DFILES) GNUmakefile.install \
+	   active news.agent pmdanews.pl
 IAM	= news
 DOMAIN	= NEWSAGENT
 
@@ -42,8 +39,9 @@ include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PFILES) $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 755 news.agent $(PMDADIR)/pmda$(IAM)
+	$(INSTALL) -m 644 pmdanews.pl $(PMDADIR)/pmdanews.pl
 	$(INSTALL) -m 644 $(DFILES) active domain.h pmns root $(PMDADIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 
