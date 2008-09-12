@@ -32,7 +32,7 @@ include $(BUILDRULES)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 $(PMDADIR)/pmdavmware.pl
+	$(INSTALL) -m 644 pmdavmware.pl $(PMDADIR)/pmdavmware.pl
 
 default_pcp : default
 
