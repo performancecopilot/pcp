@@ -15,13 +15,19 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
-
+# The memcached PMDA
+# NOTE: Not all metrics are exported at the moment, in particular,
+# the per-slab and per-item statistics are not.  It may be better to
+# manage instances differently as these values are dynamic - perhaps
+# have the monitored memcaches (the current indom) in the namespace,
+# like the old DBMS PMDAs.
+# 
 use strict;
 use warnings;
 use PCP::PMDA;
 use vars qw( $pmda $id $n %caches );
 
-my $memcache_delay = 2;	# refresh rate in seconds
+my $memcache_delay = 5;	# refresh rate in seconds
 my @memcache_instances = ( 0 => '127.0.0.1:11211',
 			 # 1 => '127.0.0.1:11212',
 			 # 2 => '192.168.5.76:11211',
@@ -38,13 +44,13 @@ my $query = "stats\r\nstats slabs\r\nstats items\r\n"; # sent to memcached
 sub memcache_stats_callback
 {
     ( $id, $_ ) = @_;
-    # $pmda->log("memcache_stats_callback: id $id\n");
+    # $pmda->log("memcache_stats_callback: id $id");
 
     if (/^STAT items:(\d+):(\w+) (\d+)/) {	# stats items
-	$caches{$id}{"item$1"}{$2} = $3;
+	# $caches{$id}{"item$1"}{$2} = $3;
     }
     elsif (/^STAT (\d+):(\w+) (\d+)/) {		# stats slabs
-	$caches{$id}{"slab$1"}{$2} = $3;
+	# $caches{$id}{"slab$1"}{$2} = $3;
     }
     elsif (/^STAT (\w+) (\d+)/) {		# stats
 	$caches{$id}{$1} = $2;
@@ -56,7 +62,7 @@ sub memcache_stats_callback
 
 sub memcache_connect
 {
-    # $pmda->log("memcache_connect: $#memcache_instances\n");
+    # $pmda->log("memcache_connect: $#memcache_instances");
 
     for ($id = 0; $id < $#memcache_instances; $id += 2) {
 	my ($host, $port) = split(/:/, $memcache_instances[$id+1]);
@@ -66,7 +72,7 @@ sub memcache_connect
 
 sub memcache_timer_callback
 {
-    # $pmda->log("memcache_timer_callback\n");
+    # $pmda->log("memcache_timer_callback");
 
     for ($id = 0; $id < $#memcache_instances; $id += 2) {
 	$pmda->put_sock($id, $query);
@@ -77,7 +83,7 @@ sub memcache_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
 
-    # $pmda->log("memcache_fetch_callback: $cluster:$item ($inst)\n");
+    # $pmda->log("memcache_fetch_callback: $cluster:$item ($inst)");
 
     return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
     return (PM_ERR_INST, 0) unless ($inst < $#memcache_instances);
@@ -101,37 +107,37 @@ sub memcache_fetch_callback
 	elsif ($item == 13) { return ($caches{$id}{'bytes_written'}, 1); }
 	elsif ($item == 14) { return ($caches{$id}{'limit_maxbytes'}, 1); }
     }
-    elsif ($cluster == 1) {
-	# 11 different slabs (6..17), and 7 metrics in this cluster
-	if ($item > 7 * 11) { return (PM_ERR_PMID, 0); }
-	$id = $item / 7;
-	$item %= 7;
-	my $slab = "slab$id";
-
-	return (PM_ERR_AGAIN, 0) unless defined($caches{$id}{$slab});
-	if ($item == 0)     { return ($caches{$id}{$slab}{'chunk_size'}, 1); }
-	elsif ($item == 1)  { return ($caches{$id}{$slab}{'chunks_per_page'}, 1); }
-	elsif ($item == 2)  { return ($caches{$id}{$slab}{'total_pages'}, 1); }
-	elsif ($item == 3)  { return ($caches{$id}{$slab}{'total_chunks'}, 1); }
-	elsif ($item == 4)  { return ($caches{$id}{$slab}{'used_chunks'}, 1); }
-	elsif ($item == 5)  { return ($caches{$id}{$slab}{'free_chunks'}, 1); }
-	elsif ($item == 6)  { return ($caches{$id}{$slab}{'free_chunks_end'}, 1); }
-    }
+#   elsif ($cluster == 1) {
+#	# many different slabs (X..Y), and 7 metrics in this cluster
+#	if ($item > 7 * 11) { return (PM_ERR_PMID, 0); }
+#	$id = int($item / 7) + 6;
+#	$item %= 7;
+#	my $slab = "slab$id";
+#
+#	return (PM_ERR_AGAIN, 0) unless defined($caches{$id}{$slab});
+#	if ($item == 0)     { return ($caches{$id}{$slab}{'chunk_size'}, 1); }
+#	elsif ($item == 1)  { return ($caches{$id}{$slab}{'chunks_per_page'}, 1); }
+#	elsif ($item == 2)  { return ($caches{$id}{$slab}{'total_pages'}, 1); }
+#	elsif ($item == 3)  { return ($caches{$id}{$slab}{'total_chunks'}, 1); }
+#	elsif ($item == 4)  { return ($caches{$id}{$slab}{'used_chunks'}, 1); }
+#	elsif ($item == 5)  { return ($caches{$id}{$slab}{'free_chunks'}, 1); }
+#	elsif ($item == 6)  { return ($caches{$id}{$slab}{'free_chunks_end'}, 1); }
+#   }
     elsif ($cluster == 2) {
 	if ($item == 0)     { return ($caches{$id}{'active_slabs'}, 1); }
 	elsif ($item == 1)  { return ($caches{$id}{'total_malloced'}, 1); }
     }
-    elsif ($cluster == 3) {
-	# 11 different slabs (6..17), and 2 metrics in this cluster
-	if ($item > 2 * 11) { return (PM_ERR_PMID, 0); }
-	$id = $item / 2;
-	$item %= 2;
-	my $itemid = "item$id";
-
-	return (PM_ERR_AGAIN, 0) unless defined($caches{$id}{$itemid});
-	if ($item == 0)     { return ($caches{$id}{$itemid}{'count'}, 1); }
-	elsif ($item == 1)  { return ($caches{$id}{$itemid}{'age'}, 1); }
-    }
+#   elsif ($cluster == 3) {
+#	# many different slabs (X..Y), and 2 metrics in this cluster
+#	if ($item > 2 * [Y]) { return (PM_ERR_PMID, 0); }
+#	$id = int($item / 2) + [X];
+#	$item %= 2;
+#	my $itemid = "item$id";
+#
+#	return (PM_ERR_AGAIN, 0) unless defined($caches{$id}{$itemid});
+#	if ($item == 0)     { return ($caches{$id}{$itemid}{'count'}, 1); }
+#	elsif ($item == 1)  { return ($caches{$id}{$itemid}{'age'}, 1); }
+#   }
     return (PM_ERR_PMID, 0);
 }
 
@@ -182,7 +188,7 @@ $pmda->add_metric(pmda_pmid(0,13), PM_TYPE_U64, $memcache_indom,
 $pmda->add_metric(pmda_pmid(0,14), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'memcache.limit_maxbytes', '', '');
-
+=pod
 $id = 0;
 foreach $n (6 .. 17) {	# stats slabs (N=6-17)
     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
@@ -207,6 +213,7 @@ foreach $n (6 .. 17) {	# stats slabs (N=6-17)
 		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		      "memcache.slabs.slab$n.free_chunks_end", '', '');
 }
+=cut
 
 $pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
@@ -215,6 +222,7 @@ $pmda->add_metric(pmda_pmid(2,1), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'memcache.total_malloced', '', '');
 
+=pod
 $id = 0;
 foreach $n (6 .. 17) {	# stats items (N=6-17)
     $pmda->add_metric(pmda_pmid(3,$id++), PM_TYPE_U32, $memcache_indom,
@@ -224,12 +232,13 @@ foreach $n (6 .. 17) {	# stats items (N=6-17)
 		      PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		      "memcache.items.item$n.age", '', '');
 }
+=cut
 
-$pmda->add_indom( $memcache_indom, \@memcache_instances,
-		      'Instance domain exporting each memcache daemon', '' );
+$pmda->add_indom($memcache_indom, \@memcache_instances,
+		 'Instance domain exporting each memcache daemon', '');
 
-$pmda->add_timer( $memcache_delay, \&memcache_timer_callback, 0 );
-$pmda->set_fetch_callback( \&memcache_fetch_callback );
+$pmda->add_timer($memcache_delay, \&memcache_timer_callback, 0);
+$pmda->set_fetch_callback(\&memcache_fetch_callback);
 
 &memcache_connect;
 $pmda->run;
