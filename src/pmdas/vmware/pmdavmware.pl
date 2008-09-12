@@ -53,6 +53,15 @@ sub vmware_connect
     $interval = 20 unless defined($interval);	# the vmware default
 }
 
+sub vmware_timer_callback
+{
+    return unless !defined($entity);
+    $pmda->log("Connecting to VMware services on $host ($server)");
+    vmware_connect();
+    return unless defined($entity);
+    $pmda->log("Successfully connected.");
+}
+
 sub vmware_disconnect
 {
     Util::disconnect();
@@ -115,8 +124,7 @@ sub vmware_fetch
 	    my $counter = $metric_info->{$counter_id};
 	    my $key = $counter->nameInfo->label;
 	    $metric_values{$key} = $_;
-
-	    $pmda->log("Value found: $key maps to $counter_id\n");
+	    # $pmda->log("Value found: $key maps to $counter_id\n");
 	}
     }
 }
@@ -130,12 +138,15 @@ sub vmware_fetch_callback
 	if ($item == 1)	{ return ($interval, 1); }
     }
 
+    return (PM_ERR_NOTCONN, 0) unless defined($entity);
+
     my $key = pmda_pmid_text($cluster, $item);
     return (PM_ERR_PMID, 0) unless defined($key);
 
-    $pmda->log("vmware_fetch_callback $key $cluster:$item ($inst)\n");
+    # $pmda->log("vmware_fetch_callback $key $cluster:$item ($inst)\n");
 
     my $pmvalue = $metric_values{$key};
+    return (PM_ERR_AGAIN, 0) unless defined($pmvalue);
     my $counter = $metric_info->{$pmvalue->id->counterId};
 
     if ($cluster == 0 && $item == 3) {
@@ -165,13 +176,13 @@ $pmda->add_metric(pmda_pmid(0,3), PM_TYPE_STRING, PM_INDOM_NULL,
 		  'vmware.sys.uptime_s', 'Uptime',
 		  'Total time elapsed since last startup');
 
-$pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U64, PM_INDOM_NULL,
-		  PM_SEM_INSTANT, pmda_units(0,-1,1,0,PM_TIME_SEC,PM_COUNT_ONE),
+$pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+		  pmda_units(1,-1,0,PM_SPACE_KBYTE,PM_TIME_SEC,0),
 		  'vmware.net.usage', 'Network Usage (Average/Rate)',
 		  'Aggregated network performance statistics.');
 
-$pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U64, PM_INDOM_NULL,
-		  PM_SEM_INSTANT, pmda_units(0,-1,1,0,PM_TIME_SEC,PM_COUNT_ONE),
+$pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+		  pmda_units(1,-1,0,PM_SPACE_KBYTE,PM_TIME_SEC,0),
 		  'vmware.disk.usage', 'Disk Usage (Average/Rate)',
 		  'Aggregated storage performance statistics.');
 
@@ -265,33 +276,33 @@ $pmda->add_metric(pmda_pmid(4,2), PM_TYPE_U64, PM_INDOM_NULL,
 
 $pmda->add_metric(pmda_pmid(5,0), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.throttled.1_min_average',
+		  'vmware.rescpu.throttled.one_min_average',
 		  'CPU Throttled (1 min. average)',
 		  'Amount of CPU resources over the limit that were refused, average over 1 minute');
 $pmda->add_metric(pmda_pmid(5,1), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.throttled.5_min_average',
+		  'vmware.rescpu.throttled.five_min_average',
 		  'CPU Throttled (5 min. average)',
 		  'Amount of CPU resources over the limit that were refused, average over 5 minutes');
 $pmda->add_metric(pmda_pmid(5,2), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.throttled.15_min_average',
+		  'vmware.rescpu.throttled.fifteen_min_average',
 		  'CPU Throttled (15 min. average)',
 		  "Amount of CPU resources over the limit that were refused,\n"
 		  . "average over 15 minutes\n");
 $pmda->add_metric(pmda_pmid(5,3), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.running.1_min_peak',
+		  'vmware.rescpu.running.one_min_peak',
 		  'CPU running peak over 1 minute',
 		  '');
 $pmda->add_metric(pmda_pmid(5,4), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.running.5_min_peak',
+		  'vmware.rescpu.running.five_min_peak',
 		  'CPU running peak over 5 minutes',
 		  '');
 $pmda->add_metric(pmda_pmid(5,5), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.running.15_min_peak',
+		  'vmware.rescpu.running.fifteen_min_peak',
 		  'CPU running peak over 15 minutes',
 		  '');
 $pmda->add_metric(pmda_pmid(5,6), PM_TYPE_U64, PM_INDOM_NULL,
@@ -300,45 +311,47 @@ $pmda->add_metric(pmda_pmid(5,6), PM_TYPE_U64, PM_INDOM_NULL,
 		  'Group CPU Sample Count', 'Group CPU sample count');
 $pmda->add_metric(pmda_pmid(5,7), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.active.1_min_peak', 'CPU Active (1 min. peak)',
+		  'vmware.rescpu.active.one_min_peak',
+		  'CPU Active (1 min. peak)',
 		  'CPU active peak over 1 minute');
 $pmda->add_metric(pmda_pmid(5,8), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.active.5_min_peak', 'CPU Active (5 min. peak)',
+		  'vmware.rescpu.active.five_min_peak',
+		  'CPU Active (5 min. peak)',
 		  'CPU active peak over 5 minutes');
 $pmda->add_metric(pmda_pmid(5,9), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.active.15_min_peak',
+		  'vmware.rescpu.active.fifteen_min_peak',
 		  'CPU Active (15 min. peak)',
 		  'CPU active peak over 15 minutes');
 $pmda->add_metric(pmda_pmid(5,10), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.running.1_min_average',
+		  'vmware.rescpu.running.one_min_average',
 		  'CPU Running (1 min. average)',
 		  'CPU running average over 1 minute');
 $pmda->add_metric(pmda_pmid(5,11), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.running.5_min_average',
+		  'vmware.rescpu.running.five_min_average',
 		  'CPU Running (5 min. average)',
 		  'CPU running average over 5 minutes');
 $pmda->add_metric(pmda_pmid(5,12), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.running.15_min_average',
+		  'vmware.rescpu.running.fifteen_min_average',
 		  'CPU Running (15 min. average)',
 		  'CPU running average over 15 minutes');
 $pmda->add_metric(pmda_pmid(5,13), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.running.1_min_peak',
+		  'vmware.rescpu.running.one_min_peak',
 		  'CPU Running (1 min. peak)',
 		  'CPU running peak over 1 minute');
 $pmda->add_metric(pmda_pmid(5,14), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.running.5_min_peak',
+		  'vmware.rescpu.running.five_min_peak',
 		  'CPU Running (5 min. peak)',
 		  'CPU running peak over 5 minutes');
 $pmda->add_metric(pmda_pmid(5,15), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.running.15_min_peak',
+		  'vmware.rescpu.running.fifteen_min_peak',
 		  'CPU Running (15 min. peak)',
 		  'CPU running peak over 15 minutes');
 $pmda->add_metric(pmda_pmid(5,16), PM_TYPE_U64, PM_INDOM_NULL,
@@ -347,24 +360,22 @@ $pmda->add_metric(pmda_pmid(5,16), PM_TYPE_U64, PM_INDOM_NULL,
 		  'Group CPU Sample Period', 'Group CPU sample period');
 $pmda->add_metric(pmda_pmid(5,17), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.active.1_min_average',
+		  'vmware.rescpu.active.one_min_average',
 		  'CPU Active (1 min. average)',
 		  'CPU active average over 1 minute');
 $pmda->add_metric(pmda_pmid(5,18), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.active.5_min_average',
+		  'vmware.rescpu.active.five_min_average',
 		  'CPU Active (5 min. average)',
 		  'CPU active average over 5 minutes');
 $pmda->add_metric(pmda_pmid(5,19), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'vmware.rescpu.active.15_min_average',
+		  'vmware.rescpu.active.fifteen_min_average',
 		  'CPU Active (15 min. average)',
 		  'CPU active average over 15 minutes');
 
 $pmda->set_fetch(\&vmware_fetch);
 $pmda->set_fetch_callback(\&vmware_fetch_callback);
-
-$pmda->log("Connecting to VMware services on $host ($server)");
-vmware_connect();
+$pmda->add_timer(5, \&vmware_timer_callback, 0);
 $pmda->run;
 vmware_disconnect();
