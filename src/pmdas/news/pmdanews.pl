@@ -35,6 +35,7 @@ use vars qw( $total $news_regex %news_hash @news_count @news_last );
 my ($nnrpd_count, $rn_count, $trn_count, $xrn_count, $vn_count) = (0,0,0,0,0);
 my $news_file = pmda_config('PCP_PMDAS_DIR') . '/news/active';
 my $news_indom = 0;
+my $pmda;
 
 sub news_fetch		# called once per ``fetch'' pdu, before callbacks
 {
@@ -106,7 +107,7 @@ sub news_init
     $news_regex = $_ . ") (\\d+) (\\d+) y\$";
 }
 
-my $pmda = PCP::PMDA->new('news', 28);
+$pmda = PCP::PMDA->new('news', 28);
 
 $pmda->add_metric(pmda_pmid(0,201), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
@@ -140,7 +141,7 @@ $pmda->add_metric(pmda_pmid(0,114), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'news.readers.vn', '', '');
 
-$pmda->add_indom($news_indom, \@newsgroups, undef, undef);
+$pmda->add_indom($news_indom, \@newsgroups, '', '');
 
 $pmda->set_fetch(\&news_fetch);
 $pmda->set_fetch_callback(\&news_fetch_callback);
