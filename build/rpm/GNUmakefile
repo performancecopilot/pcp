@@ -39,6 +39,9 @@ $$1 == "d" { printf ("%%%%dir %%%%attr(%s,%s,%s) %s\n", $$2, $$3, $$4, $$5); } \
 $$1 == "f" { if (match ($$6, "$(PKG_MAN_DIR)") || \
                 match ($$6, "$(PKG_DOC_DIR)")) \
                 printf ("%%%%doc "); \
+            if (match ($$6, "$(PCP_VAR_DIR)/config")) { \
+                printf ("%%%%config(noreplace) "); \
+            } \
             if (match ($$6, "$(PKG_MAN_DIR)")) \
                 printf ("%%%%attr(%s,%s,%s) %s*\n", $$2, $$3, $$4, $$6); \
             else \
