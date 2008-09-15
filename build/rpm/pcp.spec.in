@@ -116,7 +116,7 @@ sort $DIST_MANIFEST | uniq | $PCP_AWK_PROG '
 $1 == "d" { printf ("%%%%dir %%%%attr(%s,root,root) %s\n", $2, $5); } 
 $1 == "f" { if ( match ($6, "'$PCP_VAR_DIR'/config") ||
 		 match ($6, "'$PCP_SYSCONFIG_DIR'") ) {
-	       printf ("%%%%config ");
+	       printf ("%%%%config(noreplace) ");
 	    }
 	    if (match ($6, "'$PCP_MAN_DIR'") || match ($6, "'$PCP_DOC_DIR'")) {
 		printf ("%%%%doc ");
