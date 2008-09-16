@@ -215,6 +215,9 @@ parse_args(int argc, char **argv)
 	    context_name = optarg;
 	    break;
 
+	case 'i':	/* non-IRIX names (always true now) */
+	    break;
+
 	case 'L':	/* LOCAL context */
             if (context_type != 0) {
 	        fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n",
