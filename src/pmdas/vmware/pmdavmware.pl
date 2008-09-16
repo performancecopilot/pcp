@@ -147,13 +147,13 @@ sub vmware_fetch_callback
 
     my $pmvalue = $metric_values{$key};
     return (PM_ERR_AGAIN, 0) unless defined($pmvalue);
-    my $counter = $metric_info->{$pmvalue->id->counterId};
+    my $counters = ($pmvalue->value)[0];
 
     if ($cluster == 0 && $item == 3) {
-	my $uptime = pmda_uptime(($pmvalue->value)[0][0]);
+	my $uptime = pmda_uptime($counters->[0]);
 	return ($uptime, 1);
     }
-    return (($pmvalue->value)[0][0], 1);
+    return ($counters->[0], 1);
 }
 
 
