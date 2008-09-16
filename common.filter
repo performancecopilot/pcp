@@ -196,6 +196,7 @@ _filter_optional_pmdas()
 	-e '/pmdaash/d' \
 	-e '/pmdabrocade/d' \
 	-e '/pmdacisco/d' \
+	-e '/pmdadbping/d' \
 	-e '/pmdadmf/d' \
 	-e '/pmda_environ/d' \
 	-e '/pmdaespping/d' \
@@ -203,13 +204,17 @@ _filter_optional_pmdas()
 	-e '/pmdahotproc/d' \
 	-e '/pmdainfmx7/d' \
 	-e '/pmdainfmxping/d' \
+	-e '/pmdajstat/d' \
 	-e '/pmdalab/d' \
+	-e '/pmdalmsensors/d' \
 	-e '/pmdalockstat/d' \
 	-e '/pmdalsf/d' \
 	-e '/pmdamailq/d' \
+	-e '/pmdamemcache/d' \
 	-e '/pmdammv/d' \
 	-e '/pmdamounts/d' \
 	-e '/pmdampi/d' \
+	-e '/pmdamysql/d' \
 	-e '/pmdanasavg/d' \
 	-e '/pmdanetprobe/d' \
 	-e '/pmdanews/d' \
@@ -225,11 +230,13 @@ _filter_optional_pmdas()
 	-e '/pmdasnmp/d' \
 	-e '/pmdassping/d' \
 	-e '/pmdasummary/d' \
+	-e '/pmdasystemtap/d' \
 	-e '/pmdasyb10/d' \
 	-e '/pmdasybping/d' \
 	-e '/pmdatrace/d' \
 	-e '/pmdatrivial/d' \
 	-e '/pmdatxmon/d' \
+	-e '/pmdavmware/d' \
 	-e '/pmdawatch/d' \
 	-e '/pmdaweblog/d' \
 	-e '/pmdawebping/d' \
@@ -250,6 +257,7 @@ _filter_top_pmns()
 	-e '/^    broken /d' \
 	-e '/^    cisco /d' \
 	-e '/^    datatape /d' \
+	-e '/^    dbping /d' \
 	-e '/^    dmf /d' \
 	-e '/^    environ /d' \
 	-e '/^    hippi /d' \
@@ -257,11 +265,15 @@ _filter_top_pmns()
 	-e '/^    hw /d' \
 	-e '/^    infmxping /d' \
 	-e '/^    informix /d' \
+	-e '/^    jstat /d' \
 	-e '/^    lab /d' \
+	-e '/^    lmsensors /d' \
 	-e '/^    lsf /d' \
 	-e '/^    mailq /d' \
+	-e '/^    memcache /d' \
 	-e '/^    mmv /d' \
 	-e '/^    mpi /d' \
+	-e '/^    mysql /d' \
 	-e '/^    netprobe /d' \
 	-e '/^    news /d' \
 	-e '/^    oracle /d' \
@@ -276,9 +288,11 @@ _filter_top_pmns()
 	-e '/^    sybase /d' \
 	-e '/^    sybping /d' \
 	-e '/^    sysother /d' \
+	-e '/^    systemtap /d' \
 	-e '/^    trace /d' \
 	-e '/^    trivial /d' \
 	-e '/^    txmon /d' \
+	-e '/^    vmware /d' \
 	-e '/^    web /d' \
 	-e '/^    webping /d' \
 	-e 's/ $//'
