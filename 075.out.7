@@ -42,6 +42,7 @@ $ pmstore -i bin-300 bin-400 bin-500 sample.bin 400
 Usage: pmstore [options] metricname value
 
 Options:
+  -f            store the value even if there is no current value set
   -h host       metrics source is PMCD on host
   -i instance   metric instance or list of instances. Elements in an
                 instance list are separated by commas and/or newlines
@@ -54,6 +55,7 @@ $ pmstore -i bin-300,bin-400,bin-500 sample.bin
 Usage: pmstore [options] metricname value
 
 Options:
+  -f            store the value even if there is no current value set
   -h host       metrics source is PMCD on host
   -i instance   metric instance or list of instances. Elements in an
                 instance list are separated by commas and/or newlines
