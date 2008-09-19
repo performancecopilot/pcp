@@ -21,6 +21,9 @@
 
 #include "pmproxy.h"
 #include <sys/stat.h>
+#ifdef HAVE_PWD_H
+#include <pwd.h>
+#endif
 
 int 		proxy_hi_openfds = -1;   /* Highest known file descriptor for pmproxy */
 
@@ -28,6 +31,7 @@ static int	timeToDie;		/* For SIGINT handling */
 static char	*logfile = "pmproxy.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
+static char	*username;
 
 /*
  * For maintaining info about a request port that clients may connect to
@@ -140,7 +144,7 @@ ParseOptions(int argc, char *argv[])
     int		usage = 0;
     int		val;
 
-    while ((c = getopt(argc, argv, "D:fi:l:L:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "D:fi:l:L:U:x:?")) != EOF)
 	switch (c) {
 
 	    case 'D':	/* debug flag */
@@ -181,6 +185,11 @@ ParseOptions(int argc, char *argv[])
 		}
 		break;
 
+	    case 'U':
+		/* run as user username */
+		username = optarg;
+		break;
+
 	    case 'x':
 		fatalfile = optarg;
 		break;
@@ -202,6 +211,7 @@ ParseOptions(int argc, char *argv[])
 "  -i ipaddress    accept connections on this IP address\n"
 "  -l logfile      redirect diagnostics and trace output\n"
 "  -L bytes        maximum size for PDUs from clients [default 65536]\n"
+"  -U username     assume identity of username (only when run as root)\n"
 "  -x file         fatal messages at startup sent to file [default /dev/tty]\n",
 			pmProgname);
 	if (usage)
@@ -611,6 +621,24 @@ main(int argc, char *argv[])
 		rp->ipSpec ? rp->ipSpec : "(any address)");
     }
     fflush(stderr);
+
+#ifdef HAVE_GETPWNAM
+    /* lose root privileges if we have them */
+    if (username) {
+	struct passwd	*pw;
+
+	if ((pw = getpwnam(username)) == 0) {
+	    __pmNotifyErr(LOG_WARNING,
+			"cannot find the user %s to switch to\n", username);
+	    DontStart();
+	}
+	if (setgid(pw->pw_gid) < 0 || setuid(pw->pw_uid) < 0) {
+	    __pmNotifyErr(LOG_WARNING,
+			"cannot switch to uid/gid of user %s\n", username);
+	    DontStart();
+	}
+    }
+#endif
 
     /* all the work is done here */
     ClientLoop();

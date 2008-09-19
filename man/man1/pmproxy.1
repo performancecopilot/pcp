@@ -39,6 +39,7 @@
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
+[\f3\-U\f1 \f2username\f1]
 [\f3\-x\f1 \f2file\f1]
 .SH DESCRIPTION
 .B pmproxy
@@ -140,6 +141,11 @@ Service attacks.  The
 option may be used to change the maximum incoming 
 .I PDU 
 size.
+.TP
+\f3\-U\f1 \f2username\f1
+Assume the identity of
+.I username
+before starting to accept incoming packets from PCP monitoring clients.
 .TP
 \f3\-x\f1 \f2file\f1
 Before the
