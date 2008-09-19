@@ -225,19 +225,19 @@ fi
 cpp=$CPP
 AC_SUBST(cpp)
 
-dnl (note: special case for Mac OS X and MinGW where cpp is gcc -E)
-if test "$CPP" = "gcc -E"; then
-    CPP_SIMPLE="gcc"
-    CPP_SIMPLE_ARGS="-E"
-fi
-
 dnl check for simple cpp usage
 dnl use -P during the configure test but don't use it for real stuff...
+dnl (special case for Mac OS X and MinGW where cpp is a gcc -E wrapper)
 AC_MSG_CHECKING([for simple cpp args])
-test -z "$CPP_SIMPLE" && CPP_SIMPLE=/lib/cpp
-test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/bin/cpp
-test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/usr/bin/cpp
-test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=$CPP
+if test "$CPP" = "gcc -E"; then
+    CPP_SIMPLE="cpp"
+    CPP_SIMPLE_ARGS=""
+else
+    test -z "$CPP_SIMPLE" && CPP_SIMPLE=/lib/cpp
+    test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/bin/cpp
+    test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=/usr/bin/cpp
+    test ! -x "$CPP_SIMPLE" && CPP_SIMPLE=$CPP
+fi
 cpp_simple="$CPP_SIMPLE"
 cpp_simple_args="$CPP_SIMPLE_ARGS"
 for arg in -traditional -undef
