@@ -31,7 +31,7 @@ CFILES	= mailq.c
 DFILES	= README
 LSRCFILES = Install Remove root help pmns $(DFILES) GNUmakefile.install
 
-LDLIBS	= -lpcp_pmda -lpcp
+LLDLIBS	= -lpcp_pmda -lpcp $(LIB_FOR_REGEX)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 LDIRT	= domain.h *.log *.dir *.pag so_locations a.out $(TARGETS)

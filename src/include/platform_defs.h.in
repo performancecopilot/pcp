@@ -192,6 +192,9 @@ extern "C" {
 #endif
 #endif
 
+/* define which libraries are available */
+#undef HAVE_LIBREGEX
+
 /* define which libc functions are available */
 #undef HAVE_WAIT3
 

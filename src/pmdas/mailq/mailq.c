@@ -21,12 +21,12 @@
  * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
-#include <sys/stat.h>
-#include <regex.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
 #include "domain.h"
+#include <regex.h>
+#include <sys/stat.h>
 
 /*
  * histogram for binning messages based on queue time
