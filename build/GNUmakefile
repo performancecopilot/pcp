@@ -63,7 +63,10 @@ pack_pcp : pcp.src
 pcp.src : $(_FORCE)
 	SRC_ROOT=$(PACKAGE_NAME)-$(PACKAGE_VERSION); \
 	export SRC_ROOT; \
-	if [ -x $(TOPDIR)/tools/mangle-src ] ; then \
+	if [ "$(TARGET_OS)" = mingw ] ; then \
+	    rm -rf $(TOPDIR)/$$SRC_ROOT || exit 1; \
+	    mkdir $(TOPDIR)/$$SRC_ROOT || exit 1 ; \
+	elif [ -x $(TOPDIR)/tools/mangle-src ] ; then \
 	    if [ -L $(TOPDIR)/$$SRC_ROOT ] ; then \
 	    	rm $(TOPDIR)/$$SRC_ROOT || exit 1; \
 	    elif [ -d $(TOPDIR)/$$SRC_ROOT ] ; then \
@@ -84,7 +87,7 @@ pcp.src : $(_FORCE)
 	    unset TAPE; SRCTAR=$${SRC_ROOT}-$(PACKAGE_BUILD).src.tar.gz;\
 	    $(TAR) -T $$CDIR/$@ -cf - | gzip > $$CDIR/tar/$$SRCTAR; \
 	    test -f .census || touch .census; \
-	    if [ ! -L $$SRC_ROOT ] ; then \
+	    if [ ! -L $$SRC_ROOT -a "$(TARGET_OS)" != mingw ] ; then \
 		if [ -n "$$SRC_ROOT" ]; then \
 		    rm -rf $$SRC_ROOT || exit 1; \
 		    $(LN_S) . $$SRC_ROOT || exit 1; \
