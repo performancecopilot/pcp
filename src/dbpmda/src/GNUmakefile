@@ -38,7 +38,7 @@ include $(BUILDRULES)
 
 $(CMDTARGET):	$(OBJECTS)
 
-install:	$(TARGET) 
+install:	$(CMDTARGET) 
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 
 dbpmda.o:	gram.h
