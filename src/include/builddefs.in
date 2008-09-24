@@ -88,10 +88,10 @@ DSOSUFFIX = dll
 EXECSUFFIX = .exe
 endif
 ifeq "$(TARGET_OS)" "mingw"
-PCFLAGS = -fno-strict-aliasing -I$$PCP_DIR/include
+PCFLAGS = -fno-strict-aliasing -I$$PCP_DIR/local/include
 DSOSUFFIX = dll
 EXECSUFFIX = .exe
-PLDLIBS = -lwsock32
+PLDLIBS = -lwsock32 -L$$PCP_DIR/local/lib
 endif
 ifeq "$(TARGET_OS)" "solaris"
 PLDLIBS = -lnsl -lsocket -lresolv -ldl -lposix4
@@ -182,6 +182,7 @@ RDYNAMIC_FLAG = @rdynamic_flag@
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
 LIB_FOR_DLOPEN = @lib_for_dlopen@
+LIB_FOR_REGEX = @lib_for_regex@
 LIB_FOR_MATH = @lib_for_math@
 PMC_SUPPORT = @pmc_support@
 
