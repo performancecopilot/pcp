@@ -39,8 +39,6 @@ refresh_filesys_projects(pmInDom qindom, filesys_t *fs)
     uint32_t    	prid;
     int         	qcmd, sts;
 
-    fs->flags &= ~(FSF_QUOT_PROJ_ACC | FSF_QUOT_PROJ_ENF);
-
     qcmd = QCMD(Q_XGETQSTAT, XQM_PRJQUOTA);
     if (quotactl(qcmd, fs->device, 0, (void*)&s) < 0)
 	return;
@@ -158,6 +156,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom)
 #endif
 	    pmdaCacheStore(filesys_indom, PMDA_CACHE_ADD, device, fs);
 	}
+	fs->flags = 0;
 
 	if (strcmp(type, "xfs") == 0)
 	    refresh_filesys_projects(quota_indom, fs);
