@@ -174,9 +174,6 @@ HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
 CPP_SIMPLE = @cpp_simple@
 CPP_SIMPLE_ARGS = @cpp_simple_args@
-ifeq "$(TARGET_OS)" "aix"
-CPP_SIMPLE_ARGS += -P
-endif
 RDYNAMIC_FLAG = @rdynamic_flag@
 
 # additional libraries needed for particular functions

@@ -250,7 +250,11 @@ do
     fi 
 done
 rm -f conftest.out
-
+dnl always use -P option on AIX (for reasons lost in the mists of time)
+if test $target_os = aix
+then
+    cpp_simple_args="$cpp_simple_args -P"
+fi
 dnl add to this list for evil words that you don't want cpp to re-write
 for word in unix linux mips intel
 do
