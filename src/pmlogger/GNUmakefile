@@ -34,16 +34,19 @@ YFILES	= gram.y
 LLDLIBS	= -lpcp
 LDIRT	= *.log foo.* gram.h lex.c y.tab.? $(YFILES:%.y=%.tab.?) $(CMDTARGET)
 
-ifneq "$(TARGET_OS)" "mingw"
-default:	$(CMDTARGET)
-else
-default:
-endif
+default:	build-me
 
 include $(BUILDRULES)
 
+ifneq "$(TARGET_OS)" "mingw"
+build-me:	$(CMDTARGET)
+
 install:	$(CMDTARGET) $(OTHERS)
 	$(INSTALL) -m 755 pmlogger $(PCP_BINADM_DIR)/pmlogger
+else
+build-me:
+install:
+endif
 
 YFLAGS += -v
 gram.tab.h:	gram.y

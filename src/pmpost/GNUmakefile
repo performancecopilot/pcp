@@ -26,16 +26,19 @@ CFILES = pmpost.c
 CMDTARGET = pmpost$(EXECSUFFIX)
 LLDLIBS = -lpcp $(LIB_FOR_BASENAME)
 
-ifneq "$(TARGET_OS)" "mingw"
-default:	$(CMDTARGET)
-else
-default:
-endif
+default:	build-me
 
-include $(BUILDRULES)
+ifneq "$(TARGET_OS)" "mingw"
+build-me:	$(CMDTARGET)
 
 install:	default
 	$(INSTALL) -m 4755 -o root $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
+else
+build-me:
+install:
+endif
+
+include $(BUILDRULES)
 
 default_pcp:	default
 

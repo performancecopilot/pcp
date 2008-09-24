@@ -45,11 +45,7 @@ LDIRT += $(YFILES:%.y=%.tab.?) fun.c fun.o $(TARGET) grammar.h
 
 LLDLIBS = -lpcp -lm
 
-ifneq "$(TARGET_OS)" "mingw"
-default:	$(TARGET)
-else
-default:
-endif
+default:	build-me
 
 YFILES = grammar.y
 grammar.h:	grammar.y
@@ -58,9 +54,16 @@ grammar.h:	grammar.y
 pmie$(EXECSUFFIX):	$(OBJECTS) fun.o
 	$(CCF) -o $@ $(LDFLAGS) $(OBJECTS) fun.o $(LDLIBS)
 
+ifneq "$(TARGET_OS)" "mingw"
+build-me:	$(TARGET)
+
 install:	default
 	$(INSTALL) -m 755 $(TARGET) $(PCP_BIN_DIR)/$(TARGET)
 	$(INSTALL) -m 644 pmiestats.h $(PCP_INC_DIR)/pmiestats.h
+else
+build-me:
+install:
+endif
 
 lexicon.o syntax.o:	grammar.h
 
