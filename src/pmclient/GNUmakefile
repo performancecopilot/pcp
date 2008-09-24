@@ -24,26 +24,25 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES	= pmclient.c
-TARGET	= pmclient$(EXECSUFFIX)
+CMDTARGET = pmclient$(EXECSUFFIX)
 LLDLIBS	= -lpcp
-LDIRT	= pmnsmap.h mylog.* runme.sh $(TARGET)
+LDIRT	= pmnsmap.h mylog.* runme.sh
 LSRCFILES = README GNUmakefile.install pmlogger.config pmnsmap.spec
 
 PMLOGGERCONFIG=$(PCP_VAR_DIR)/config/pmlogger
 DEMODIR=$(PCP_DEMOS_DIR)/pmclient
 
-default:	$(TARGET)
+default:	$(CMDTARGET)
 
 include $(BUILDRULES)
 
-install:	$(TARGET)
-	$(INSTALL) -m 755 pmclient $(PCP_BIN_DIR)/pmclient
+install:	$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 644 pmlogger.config $(PMLOGGERCONFIG)/config.pmclient
 	$(INSTALL) -m 755 -d $(DEMODIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(DEMODIR)/Makefile
 	$(INSTALL) -m 644 pmclient.c README pmnsmap.spec $(DEMODIR)
 
-$(TARGET):	pmclient.o
 pmclient.o:	pmnsmap.h
 
 pmnsmap.h:	pmnsmap.spec

@@ -26,28 +26,25 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= mailq
 DOMAIN	= MAILQ
 
-TARGETS	= $(IAM)$(EXECSUFFIX)
+CMDTARGET = $(IAM)$(EXECSUFFIX)
 CFILES	= mailq.c
 DFILES	= README
 LSRCFILES = Install Remove root help pmns $(DFILES) GNUmakefile.install
-
 LLDLIBS	= -lpcp_pmda -lpcp $(LIB_FOR_REGEX)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
-LDIRT	= domain.h *.log *.dir *.pag so_locations a.out $(TARGETS)
+LDIRT	= domain.h *.log *.dir *.pag so_locations
 
-default:	$(TARGETS)
+default:	$(CMDTARGET)
 
 include $(BUILDRULES)
 
 install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM) 
+	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/pmda$(CMDTARGET)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
-
-$(IAM)$(EXECSUFFIX):	$(OBJECTS)
 
 mailq.o:	domain.h
 

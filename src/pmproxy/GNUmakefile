@@ -23,17 +23,15 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-TARGET = pmproxy
+CMDTARGET = pmproxy$(EXECSUFFIX)
 HFILES = pmproxy.h
 CFILES = pmproxy.c client.c
 LSRCFILES = rc_pmproxy pmproxy.options
 
 LLDLIBS	= -lpcp $(LIB_FOR_BASENAME)
-LDIRT = $(TARGET) pmproxy.log
+LDIRT += pmproxy.log
 
-default: $(TARGET)
-
-$(TARGET): $(OBJECTS)
+default: $(CMDTARGET)
 
 include $(BUILDRULES)
 
@@ -41,7 +39,7 @@ install: default
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMPROXYOPTIONS_PATH)`
 	$(INSTALL) -m 644 pmproxy.options $(PCP_PMPROXYOPTIONS_PATH)
 	$(INSTALL) -m 755 rc_pmproxy $(PCP_RC_DIR)/pmproxy
-	$(INSTALL) -m 755 $(TARGET) $(PCP_BINADM_DIR)/$(TARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)/pmproxy
 
 default_pcp : default

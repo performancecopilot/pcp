@@ -24,17 +24,14 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmcd_wait.c
 LLDLIBS = -lpcp
-TARGET = pmcd_wait$(EXECSUFFIX)
-LDIRT = $(TARGET)
+CMDTARGET = pmcd_wait$(EXECSUFFIX)
 
-default:	$(TARGET)
-
-$(TARGET):	$(OBJECTS)
+default:	$(CMDTARGET)
 
 include $(BUILDRULES)
 
 install:	default
-	$(INSTALL) -m 755 $(TARGET) $(PCP_BINADM_DIR)/$(TARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 
 default_pcp:	default
 
