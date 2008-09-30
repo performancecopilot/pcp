@@ -1,5 +1,5 @@
 /*
- * Copyright (c) * 2004-2006 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2004-2006 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -27,11 +27,6 @@
 #include <sys/wait.h>
 #include <sys/time.h>
 #include <sys/resource.h>
-
-typedef enum {
-    FALSE = 0,
-    TRUE = 1
-} bool_t;
 
 #ifndef SIGMAX
 /* I would use SIGRTMAX...except it's not constant on Linux */
@@ -98,26 +93,26 @@ void *closure;
 struct loop_main_s
 {
 loop_main_t *next;
-bool_t running;
+int running;
 loop_timeout_t *current_timeout;
 loop_child_t *current_child;
 };
 
 #define pmLoopDebug ((pmDebug & DBG_TRACE_LOOP) != 0)
 
-static int num_inputs = 0;
-static loop_input_t *input_list = NULL;
+static int num_inputs;
+static loop_input_t *input_list;
 static struct pollfd *pfd;
 static loop_input_t **inputs;
 static int next_tag = 1;
-static bool_t inputs_dirty = TRUE;
+static int inputs_dirty = 1;
 static loop_signal_t *signals[SIGMAX];
-static volatile bool_t signals_pending[SIGMAX];
+static volatile int signals_pending[SIGMAX];
 static struct timeval poll_start;
 static loop_timeout_t *timeout_list;
 static loop_main_t *main_stack;
 static loop_child_t *child_list;
-static bool_t child_pending = FALSE;
+static int child_pending;
 static int sigchld_tag;
 static loop_idle_t *idle_list;
 
@@ -174,7 +169,7 @@ pmLoopRegisterInput(
     input_list = ii;
     num_inputs++;
 
-    inputs_dirty = TRUE;
+    inputs_dirty = 1;
 
     return ii->tag;
 }
@@ -202,7 +197,7 @@ pmLoopUnregisterInput(int tag)
     num_inputs--;
     free(ii);
 
-    inputs_dirty = TRUE;
+    inputs_dirty = 1;
 }
 
 static int
@@ -232,7 +227,7 @@ loop_setup_inputs(void)
 	if ((pfd == NULL) || (inputs == NULL)) {
 		return (-ENOMEM);
 	}
-	inputs_dirty = FALSE;
+	inputs_dirty = 0;
     }
 
     for (ii = input_list, i = 0; ii != NULL ; ii = ii->next, i++)
@@ -296,7 +291,7 @@ loop_dispatch_inputs(void)
 static void
 loop_sig_handler(int sig)
 {
-    signals_pending[sig] = TRUE;
+    signals_pending[sig] = 1;
 }
 
 int
@@ -306,7 +301,7 @@ pmLoopRegisterSignal(
     void *closure)
 {
     loop_signal_t *ss;
-    bool_t doinstall;
+    int doinstall;
 
     if (sig < 0 || sig >= SIGMAX)
 	return -EINVAL;
@@ -391,7 +386,7 @@ loop_dispatch_signals(void)
 
     for (sig = 0 ; sig < SIGMAX ; sig++) {
 	if (signals_pending[sig]) {
-	    signals_pending[sig] = FALSE;
+	    signals_pending[sig] = 0;
 
 	    for (ss = signals[sig]; ss != NULL;  ss = nextss) {
 		nextss = ss->next;
@@ -633,7 +628,7 @@ loop_sigchld_handler(int sig, void *closure)
 {
     if (pmLoopDebug)
 	__pmNotifyErr(LOG_DEBUG,"loop_sigchld_handler");
-    child_pending = TRUE;
+    child_pending = 1;
     return (0);
 }
 
@@ -645,7 +640,7 @@ pmLoopRegisterChild(
     void *closure)
 {
     loop_child_t *cc;
-    bool_t doinstall;
+    int doinstall;
 
     if (pmLoopDebug)
 	__pmNotifyErr(LOG_DEBUG,"loop_register_child: pid=%d callback=%p closure=%p",
@@ -719,7 +714,7 @@ loop_dispatch_children(void)
 
     memset (&rusage, 0, sizeof(rusage));
 
-    child_pending = FALSE;
+    child_pending = 0;
 
     if (pmLoopDebug)
 	__pmNotifyErr(LOG_DEBUG,"loop_dispatch_children");
@@ -832,7 +827,7 @@ void
 pmLoopStop(void)
 {
     if (main_stack != NULL)
-	main_stack->running = FALSE;
+	main_stack->running = 0;
 }
 
 int
@@ -846,7 +841,7 @@ pmLoopMain(void)
     lmain.next = main_stack;
     main_stack = &lmain;
 
-    lmain.running = TRUE;
+    lmain.running = 1;
     while (lmain.running)
     {
 	int ee;
