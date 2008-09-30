@@ -42,48 +42,48 @@ typedef struct loop_main_s loop_main_t;
 
 struct loop_input_s
 {
-loop_input_t *next;
-int tag;
-int fd;
-int flags;
-int (*callback)(int fd, int flags, void *closure);
-void *closure;
-int priority;
+    loop_input_t *next;
+    int tag;
+    int fd;
+    int flags;
+    int (*callback)(int fd, int flags, void *closure);
+    void *closure;
+    int priority;
 };
 
 struct loop_signal_s
 {
-loop_signal_t *next;
-int tag;
-int (*callback)(int sig, void *closure);
-void *closure;
+    loop_signal_t *next;
+    int tag;
+    int (*callback)(int sig, void *closure);
+    void *closure;
 };
 
 struct loop_timeout_s
 {
-loop_timeout_t *next;
-int tag;
-int delay;
-int tout_msec;
-int (*callback)(void *closure);
-void *closure;
+    loop_timeout_t *next;
+    int tag;
+    int delay;
+    int tout_msec;
+    int (*callback)(void *closure);
+    void *closure;
 };
 
 struct loop_child_s
 {
-loop_child_t *next;
-int tag;
-pid_t pid;
-int (*callback)(pid_t pid, int status, const struct rusage *, void *closure);
-void *closure;
+    loop_child_t *next;
+    int tag;
+    pid_t pid;
+    int (*callback)(pid_t pid, int status, const struct rusage *, void *closure);
+    void *closure;
 };
 
 struct loop_idle_s
 {
-loop_idle_t *next;
-int tag;
-int (*callback)(void *closure);
-void *closure;
+    loop_idle_t *next;
+    int tag;
+    int (*callback)(void *closure);
+    void *closure;
 };
 
 /*
@@ -92,10 +92,10 @@ void *closure;
 */
 struct loop_main_s
 {
-loop_main_t *next;
-int running;
-loop_timeout_t *current_timeout;
-loop_child_t *current_child;
+    loop_main_t *next;
+    int running;
+    loop_timeout_t *current_timeout;
+    loop_child_t *current_child;
 };
 
 #define pmLoopDebug ((pmDebug & DBG_TRACE_LOOP) != 0)
@@ -119,23 +119,22 @@ static loop_idle_t *idle_list;
 static int
 tv_sub(const struct timeval *a, const struct timeval *b)
 {
-struct timeval t;
+    struct timeval t;
 
-t.tv_sec = a->tv_sec - b->tv_sec;
-if (a->tv_usec >= b->tv_usec) {
-    t.tv_usec = a->tv_usec - b->tv_usec;
-} else {
-    t.tv_sec--;
-    t.tv_usec = 1000000 + a->tv_usec - b->tv_usec;
-}
-
-return (t.tv_sec*1000 + t.tv_usec / 1000);
+    t.tv_sec = a->tv_sec - b->tv_sec;
+    if (a->tv_usec >= b->tv_usec) {
+	t.tv_usec = a->tv_usec - b->tv_usec;
+    } else {
+	t.tv_sec--;
+	t.tv_usec = 1000000 + a->tv_usec - b->tv_usec;
+    }
+    return (t.tv_sec * 1000 + t.tv_usec / 1000);
 }
 
 static void
 tv_now(struct timeval *tv)
 {
-gettimeofday(tv, NULL);
+    gettimeofday(tv, NULL);
 }
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
 
@@ -173,7 +172,6 @@ pmLoopRegisterInput(
 
     return ii->tag;
 }
-
 
 void
 pmLoopUnregisterInput(int tag)
@@ -893,4 +891,3 @@ pmLoopMain(void)
 }
 
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
-/*END*/
