@@ -33,8 +33,10 @@ typedef enum {
     TRUE = 1
 } bool_t;
 
+#ifndef SIGMAX
 /* I would use SIGRTMAX...except it's not constant on Linux */
 #define SIGMAX	64
+#endif
 
 typedef struct loop_input_s loop_input_t;
 typedef struct loop_signal_s loop_signal_t;
