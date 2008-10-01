@@ -106,8 +106,10 @@ DSOSUFFIX = so
 # -bnoipath
 #       do not use path to DSOs from the build, use default search path
 #       rules
+# (and does not accept -Wall as a valid option)
 PCFLAGS = -qcpluscmt
 PLDFLAGS = -brtl -bnoipath
+WARN_OFF =
 endif
 
 CFLAGS += $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -g -DPCP_DEBUG \
