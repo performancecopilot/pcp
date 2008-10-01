@@ -162,6 +162,7 @@ TAR	= @tar@
 RPMPROG	= @rpmprog@
 PACKAGE_MAKER = @package_maker@
 HDIUTIL = @hdiutil@
+MKINSTALLP = @mkinstallp@
 MAKENSIS= @makensis@
 DLLTOOL = @dlltool@
 RPMBUILD= @rpmbuild@

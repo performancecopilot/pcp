@@ -369,6 +369,13 @@ fi
 hdiutil=$HDIUTIL
 AC_SUBST(hdiutil)
 
+dnl check if the mkinstallp program is available (AIX)
+if test -z "$MKINSTALLP"; then
+    AC_PATH_PROG(MKINSTALLP, mkinstallp)
+fi
+mkinstallp=$MKINSTALLP
+AC_SUBST(mkinstallp)
+
 dnl check if the makensis program is available
 if test -z "$MAKENSIS"; then
     AC_PATH_PROG(MAKENSIS, makensis)
