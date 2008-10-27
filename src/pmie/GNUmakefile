@@ -24,7 +24,7 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS	= src examples
 
-LSRCFILES = control etc_init.d_pmie pmie_check.sh crontab config.default \
+LSRCFILES = control rc_pmie pmie_check.sh crontab config.default \
 	stomp.install pmie2col pmie_daily.sh
 LDIRT	= control.install config.default.install crontab.install
 
@@ -45,7 +45,7 @@ install::	default
 	$(INSTALL) -m 644 stomp.install $(CFG_DIR)/stomp
 	$(INSTALL) -m 644 crontab.install $(CFG_DIR)/crontab
 	$(INSTALL) -m 644 config.default.install $(CFG_DIR)/config.default
-	$(INSTALL) -m 755 etc_init.d_pmie $(PCP_RC_DIR)/pmie
+	$(INSTALL) -m 755 rc_pmie $(PCP_RC_DIR)/pmie
 	$(INSTALL) -m 755 pmie_check.sh $(PCP_BINADM_DIR)/pmie_check
 	$(INSTALL) -m 755 pmie_daily.sh $(PCP_BINADM_DIR)/pmie_daily
 	$(INSTALL) -m 755 pmie2col $(PCP_BIN_DIR)/pmie2col
