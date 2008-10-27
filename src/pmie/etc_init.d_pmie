@@ -36,37 +36,6 @@
 # Description:   Configures the performance monitoring inference engine
 ### END INIT INFO
 
-# If a TRIX MAC label is defined, run pcp stuff at that MAC label
-#
-if [ -x /usr/sbin/sysconf ] && [ `/usr/sbin/sysconf MAC` = "1" ]
-then
-    if [ ! -n "$PCP_MAC_LABEL" ]
-    then
-        if [ -f /etc/pcp.maclabel ]
-        then
-            . /etc/pcp.maclabel
-        else
-            PCP_MAC_LABEL=dbadmin
-        fi
-    fi
-
-    _label=` id -M | cut -d' ' -f3 | sed -e 's/.*(//' -e 's/)$//'`
-
-
-    if [ "$PCP_MAC_LABEL" != "$_label" ]
-    then
-        if [ "$2" = "trixbox" ]
-        then
-            echo "$0 : Failed to launch with correct label"
-            exit 1
-        fi
-
-        /sbin/suattr -M $PCP_MAC_LABEL -c "$0 $1 trixbox > /var/pcp/etc/init.d_pmie.out 2>&1"
-        /sbin/suattr -C CAP_MAC_READ+ep -c "cat /var/pcp/etc/init.d_pmie.out"
-        exit 0
-    fi
-fi
-
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
 
@@ -175,14 +144,7 @@ _reboot_setup()
     fi
     chmod 1777 $PCP_TMP_DIR/pmie
 
-    if [ -x /sbin/suattr ]
-    then
-    # Obtain capabilities since /var/adm is labeled dblow and owned by adm under TRIX
-        [ ! -d $LOGDIR ] && /sbin/suattr -C CAP_MAC_WRITE,CAP_DAC_WRITE+ep -c "mkdir -p $LOGDIR"
-    else
-        [ ! -d $LOGDIR ] && mkdir -p $LOGDIR
-    fi
-
+    [ ! -d $LOGDIR ] && mkdir -p $LOGDIR
 }
 
 _start_pmie()
