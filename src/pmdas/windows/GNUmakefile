@@ -23,7 +23,7 @@ include $(TOPDIR)/src/include/builddefs
 IAM		= windows
 DOMAIN		= WINDOWS
 CFILES		= pmda.c error.c open.c instance.c fetch.c help.c
-HFILES		= hypnotoad.h
+HFILES		= hypnotoad.h libpdh.h
 LCFLAGS		= -DWIN32_LEAN_AND_MEAN
 LLDLIBS		= -lpcp -lpcp_pmda libpdh.a
 PMNS		= pmns.disk pmns.kernel pmns.mem pmns.network \
