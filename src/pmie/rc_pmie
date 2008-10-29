@@ -36,16 +36,12 @@
 # Description:   Configures the performance monitoring inference engine
 ### END INIT INFO
 
-# source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/rc-proc.sh
 
-# Get the portable PCP rc script functions
-if [ -f $PCP_SHARE_DIR/lib/rc-proc.sh ] ; then
-    . $PCP_SHARE_DIR/lib/rc-proc.sh
-fi
-
-PMIE=pmie
 PMIECTRL=$PCP_PMIECONTROL_PATH
+RUNDIR=$PCP_LOG_DIR/pmie
+pmprog=$PCP_RC_DIR/pmie
 prog=$PCP_RC_DIR/`basename $0`
 MAIL=Mail
 
@@ -53,56 +49,20 @@ tmp=/var/tmp/$$
 status=1
 trap "rm -f $tmp.* ; exit \$status" 0 1 2 3 15
 
-if [ "$PCP_PLATFORM" = "linux" ]
+if is_chkconfig_on pmie
 then
-    ECHO=$PCP_ECHO_PROG			# Linux does not have verbose flags
-    IS_ON=is_chkconfig_on
-    RUNDIR=$PCP_LOG_DIR/pmie
-elif [ "$PCP_PLATFORM" = "darwin" ]
-then
-    # OS X has no concept of chkconfig... so it will require manual tweaking to enable this
-    IS_ON=/usr/bin/true
+    PMIE_CTL=on
 else
-    IS_ON=/sbin/chkconfig
-    RUNDIR=${PCP_LOGDIR:-/var/adm/pmielog}
-    if $IS_ON verbose
-    then			# For a verbose startup and shutdown
-	ECHO=$PCP_ECHO_PROG
-    else			# For a quiet startup and shutdown
-	ECHO=:
-    fi
-
-    # life support for platforms without rc-proc.sh (e.g. IRIX)
-    if [ -z "$RC_STATUS" ]
-    then
-	RC_STATUS=_RC_STATUS
-	_RC_STATUS()
-	{
-	    _rc_status=$?
-	    if [ "$1" = "-v" ]
-	    then
-		if [ $_rc_status -eq 0 ]
-		then $ECHO
-		else
-		    $ECHO "failed (status=$_rc_status)"
-		fi
-	    fi
-	    return $_rc_status
-	}
-
-	RC_CHECKPROC=_RC_CHECKPROC
-	_RC_CHECKPROC()
-	{
-	    _b=`basename $1`
-	    _n=`_get_pids_by_name $_b | wc -l`
-	    [ $_n -eq 1 ] && return 0
-	    return 3
-	}
-    fi
+    PMIE_CTL=off
 fi
 
-# determine real name for localhost
-#
+if [ $pmprog = $prog ]
+then
+    VERBOSE_CTL=on
+else
+    VERBOSE_CTL=off
+fi
+
 LOCALHOSTNAME=`hostname`
 if [ -z "$LOCALHOSTNAME" ] ; then
     LOCALHOSTNAME="localhost"
@@ -120,7 +80,7 @@ fi
 
 _usage()
 {
-    echo "Usage: $PCP_RC_DIR/pmie {start|restart|stop|status|reload|force-reload}"
+    echo "Usage: $pmprog [-v] {start|restart|stop|status|reload|force-reload}"
 }
 
 _reboot_setup()
@@ -168,9 +128,16 @@ _start_pmie()
     fi
 }
 
-_stop_pmie()
+_shutdown()
 {
-    $ECHO $PCP_ECHO_N "Waiting for pmie process(es) to terminate ..." "$PCP_ECHO_C"
+    _get_pids_by_name pmie >$tmp.pmies 2>&1
+    if [ ! -s $tmp.pmies ]
+    then
+	[ "$1" = verbose ] && echo "$pmprog: PMIE not running"
+	return 0
+    fi
+
+    $ECHO $PCP_ECHO_N "Waiting for PMIE process(es) to terminate ..." "$PCP_ECHO_C"
 
     pmie_check -s >$tmp.pmie 2>&1
     if [ -s $tmp.pmie ]
@@ -182,13 +149,34 @@ _stop_pmie()
     true
     $RC_STATUS -v
     rm -fr $tmp.pmie $PCP_TMP_DIR/pmie
+    pmpost "stop pmie from $pmprog"
 }
 
+while getopts v c
+do
+    case $c
+    in
+	v)  # force verbose
+	    VERBOSE_CTL=on
+	    ;;
+	*)
+	    _usage
+	    exit 1
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $VERBOSE_CTL = on ]
+then                            # For a verbose startup and shutdown
+    ECHO=$PCP_ECHO_PROG
+else                            # For a quiet startup and shutdown
+    ECHO=:
+fi
 
 case "$1" in
   'start'|'restart'|'reload'|'force-reload')
-	_get_pids_by_name "$PMIE" >$tmp.pmies 2>&1
-	[ -s $tmp.pmies ] && _stop_pmie
+	_shutdown quietly
 
 	# messages should go to stderr, not the GUI notifiers
 	#
@@ -196,7 +184,7 @@ case "$1" in
 
 	_reboot_setup
 
-	if which $PMIE >/dev/null 2>&1
+	if which pmie >/dev/null 2>&1
 	then
 	    if $IS_ON pmie
 	    then
@@ -225,7 +213,7 @@ Error: PCP inference engine control file '$PMIECTRL'
         ;;
 
   'stop')
-	_stop_pmie
+	_shutdown verbose
 	status=0
         ;;
 
@@ -235,12 +223,12 @@ Error: PCP inference engine control file '$PMIECTRL'
         if [ -r /etc/rc.status ]
         then
             # SuSE
-            $RC_CHECKPROC $PMIE
+            $RC_CHECKPROC pmie
             $RC_STATUS -v
             status=$?
         else
             # not SuSE
-            $RC_CHECKPROC $PMIE
+            $RC_CHECKPROC pmie
             status=$?
             if [ $status -eq 0 ]
             then
