@@ -25,6 +25,7 @@ include $(TOPDIR)/src/include/builddefs
 
 HFILES = pmapi.h impl.h pmda.h trace.h trace_dev.h trace_hash.h
 GENERATED_HFILES = pmdbg.h platform_defs.h
+CONFFILES = platform_defs.h builddefs pcp.conf
 
 LSRCFILES = platform_defs.h.in builddefs.in buildrules pcp.conf.in \
 	    pcp.env mk_pmdbg trace_dev.h trace_hash.h 

@@ -26,7 +26,7 @@ include $(TOPDIR)/src/include/builddefs
 LDIRT += $(wildcard *.src.tar.gz) pack_pcp.bin pcp.src \
 	$(TOPDIR)/$(PACKAGE_NAME)-$(PACKAGE_VERSION) \
 	$(TOPDIR)/$(PACKAGE_NAME)-$(PACKAGE_VERSION)-$(PACKAGE_REVISION) \
-	pack_pro.bin pro.src
+	pack_pro.bin pro.src deb
 
 # for clean and clobber
 SUBDIRS = tar rpm mac
@@ -50,33 +50,20 @@ pack_pcp : pcp.src
 	if test ! -z "$(PACKAGE_MAKER)"; then \
 	    echo === mac === && $(MAKEF) -j 1 -C mac $@ || exit $$?; \
 	fi; \
-	if test ! -z "$(MAKENSIS)"; then \
-	    echo === win === && $(MAKEF) -j 1 -C win $@ || exit $$?; \
-	fi; \
 	if test ! -z "$(MKINSTALLP)"; then \
 	    echo === aix === && $(MAKEF) -j 1 -C aix $@ || exit $$?; \
 	fi; \
 	test -z "$$KEEP_DIST_ROOT" && rm -rf $$DIST_ROOT; echo Done
 
-# Symlink in the TOPDIR is used to pack files relative to
-# product-version directory. It is replaced with a directory if we
-# have to do any post-processing on sources. After sources has been
-# packed, touch .census in the topdir to prevent second run on
-# setup by RPM.
+# Either a symlink in the TOPDIR is used to pack files relative to
+# product-version directory, or hardlinks below build dir (MinGW).
+# After sources have been packed, touch .census in the topdir to
+# prevent second run on setup by RPM.
 pcp.src : $(_FORCE)
-	SRC_ROOT=$(PACKAGE_NAME)-$(PACKAGE_VERSION); \
-	export SRC_ROOT; \
 	if [ "$(TARGET_OS)" = mingw ] ; then \
-	    rm -rf $(TOPDIR)/$$SRC_ROOT || exit 1; \
-	    mkdir $(TOPDIR)/$$SRC_ROOT || exit 1 ; \
-	elif [ -x $(TOPDIR)/tools/mangle-src ] ; then \
-	    if [ -L $(TOPDIR)/$$SRC_ROOT ] ; then \
-	    	rm $(TOPDIR)/$$SRC_ROOT || exit 1; \
-	    elif [ -d $(TOPDIR)/$$SRC_ROOT ] ; then \
-	        rm -rf $(TOPDIR)/$$SRC_ROOT || exit 1; \
-	    fi; \
-	    mkdir $(TOPDIR)/$$SRC_ROOT || exit 1 ; \
+	    export SRC_ROOT=. ; \
 	else \
+	    export SRC_ROOT=$(PACKAGE_NAME)-$(PACKAGE_VERSION); \
 	    if [ ! -L $(TOPDIR)/$$SRC_ROOT ] ; then \
 		$(LN_S) . $(TOPDIR)/$$SRC_ROOT || exit 1; \
 	    fi; \

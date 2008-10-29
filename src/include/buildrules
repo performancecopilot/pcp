@@ -104,6 +104,7 @@ clean clobber :: $(SUBDIRS) $(PRO_SUBDIRS) $(SNIA_SUBDIRS)
 
 clean-lbs clean-sgi realclean distclean: clean
 	rm -f $(TOPDIR)/src/include/builddefs $(TOPDIR)/src/include/pcp.conf
+	rm -f $(TOPDIR)/pcp.lsm $(TOPDIR)/configure
 
 #
 # Never blow away subdirs
@@ -119,11 +120,19 @@ src-pcp : $(SRCFILES) $(SUBDIRS)
 	    if test -d $$f ; then \
 		$(MAKEF) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
 	    else \
-		if [ -x $(TOPDIR)/tools/mangle-src ] ; then \
-		    $(TOPDIR)/tools/mangle-src $(TOPDIR)/$$SRC_ROOT $$DIR/$$f \
-			|| exit $$?; \
-		fi; \
 		$(ECHO) $$DIR/$$f; \
+	    fi; \
+	done
+
+src-link-pcp : $(SRCFILES) $(CONFFILES) $(SUBDIRS)
+	@test ! -z "$$SRCLINK_ROOT" || ( echo '$$SRCLINK_ROOT not set ... bozo!' ; echo "... generally unsafe to run make src-link-pcp outside the Makepkgs script"; exit 1 )
+	@test -z "$$DIR" && DIR="."; \
+	for f in `echo $^`; do \
+	    if test -d $$f ; then \
+		mkdir $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
+		$(MAKEF) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
+	    else \
+		ln $$f $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
 	    fi; \
 	done
 
@@ -153,7 +162,7 @@ depend : $(SUBDIRS)
 # include dep, but only if it exists
 -include dep
 
-# Support for bulding multiple versions of the same library
+# Support for building multiple versions of the same library
 ifneq ($(PCP_ALTLIBS),)
 $(PCP_ALTLIBS): 
 	rm -rf $@
