@@ -139,7 +139,7 @@ for prod ; do
 
 	if [ $special = debian ]
 	then
-	    SUDO=${SUDO:-sudo}
+	    SUDO=${SUDO:-fakeroot}
 	    if $verbose ; then
 		dpkg-buildpackage -r$SUDO | tee -a $LOGF
 	    else

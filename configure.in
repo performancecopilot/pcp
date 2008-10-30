@@ -1390,7 +1390,7 @@ pcp_man_dir=`eval echo $pcp_man_dir`
 if test "`echo $pcp_man_dir | sed 's;/.*\$;;'`" = NONE
 then
     dnl some low risk defaults
-    if $target_os = mingw
+    if test $target_os = mingw
     then
 	pcp_man_dir=/man
     elif test -d /usr/share/man
