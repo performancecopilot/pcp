@@ -31,7 +31,7 @@ static pmdaMetric *metrictab;
 static int mtab_size;
 static pmdaIndom *indomtab;
 static int itab_size;
-static unsigned int *clustertab;
+static int *clustertab;
 static int ctab_size;
 
 static HV *metric_names;
@@ -79,11 +79,12 @@ void
 refresh(int numpmid, pmID *pmidlist)
 {
     dSP;
+    int i, numclusters = 0;
+    __pmID_int *pmid;
+
     ENTER;
     SAVETMPS;
     PUSHMARK(sp);
-    int i, numclusters = 0;
-    __pmID_int *pmid;
 
     /* Create list of affected clusters from pmidlist
      * Note: we overwrite the initial cluster array here, to avoid
