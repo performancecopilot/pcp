@@ -102,7 +102,7 @@ case $target_os
 in
     aix)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin";;
     linux)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin";;
-    mingw)	pcp_platform_paths="/local/bin";;
+    mingw)	pcp_platform_paths="/usr/local/bin";;
     cygwin)	pcp_platform_paths="/cygdrive/c/WINDOWS/system32";;
     solaris)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin:/opt/sfw/bin";;
     freebsd)	pcp_platform_paths="/usr/bin/X11:/usr/bsd";;
@@ -1232,7 +1232,7 @@ if test "`echo $pcp_share_dir | sed 's;/.*\$;;'`" = NONE
 then
     if test $target_os = mingw
     then
-        pcp_share_dir=/local/pcp
+        pcp_share_dir=/pcp
     elif test -d /usr/share
     then
 	pcp_share_dir=/usr/share/pcp
@@ -1255,7 +1255,7 @@ then
         pcp_binadm_dir=/usr/lib/pcp/bin
     elif test $target_os = mingw
     then
-        pcp_binadm_dir=/local/bin
+        pcp_binadm_dir=/bin
     else
         pcp_binadm_dir=$pcp_share_dir/bin
     fi
@@ -1267,15 +1267,15 @@ pcp_var_dir=`eval echo $localstatedir`
 pcp_var_dir=`eval echo $pcp_var_dir`
 if test "`echo $pcp_var_dir | sed 's;/.*\$;;'`" = NONE
 then
-    if test -d /var/lib
+    if test $target_os = mingw
+    then
+	pcp_var_dir=/pcp
+    elif test -d /var/lib
     then
 	pcp_var_dir=/var/lib/pcp
     elif test -d /var
     then
 	pcp_var_dir=/var/pcp
-    elif test $target_os = mingw
-    then
-	pcp_var_dir=/local/pcp
     elif test -d /usr/local
     then
 	pcp_var_dir=/usr/local/pcp
@@ -1321,8 +1321,8 @@ then
     pcp_lib_dir=/cygdrive/c/WINDOWS/system32
 elif test $target_os = mingw
 then
-    pcp_lib_dir=/local/bin
-    pcp_lib32_dir=/local/bin
+    pcp_lib_dir=/bin
+    pcp_lib32_dir=/bin
 elif test $target_os = linux -a $target_cpu = x86_64 -a $target_distro != debian
 then
     # Linux on x86_64 puts libraries in .../lib64 (and rpmbuild
@@ -1461,7 +1461,7 @@ if test "`echo $pcp_bin_dir | sed 's;/.*\$;;'`" = NONE
 then
     if test $target_os = mingw
     then
-	pcp_bin_dir=/local/bin
+	pcp_bin_dir=/bin
     elif test -d /usr/bin
     then
 	pcp_bin_dir=/usr/bin
