@@ -29,6 +29,12 @@ SUBDIRS = pmcd linux solaris aix darwin windows \
 	lmsensors process roomtemp summary hotproc jstat \
 	dbping memcache systemtap mysql vmware
 
+# Build Infiniband Linux PMDA only if development environment available
+ifneq ($(HAVE_IBDEV),)
+SUBDIRS += ib
+endif
+
+LSRCFILES = ib
 LDIRT = pmcd.conf
 
 default :: default_pcp
