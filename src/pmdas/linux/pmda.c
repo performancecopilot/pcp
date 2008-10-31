@@ -46,7 +46,6 @@
 #include "proc_meminfo.h"
 #include "proc_loadavg.h"
 #include "proc_net_dev.h"
-#include "infiniband.h"
 #include "proc_interrupts.h"
 #include "filesys.h"
 #include "swapdev.h"
@@ -67,6 +66,13 @@
 #include "ksym.h"
 #include "proc_sys_fs.h"
 #include "proc_vmstat.h"
+
+/*
+ * Legacy value from deprecated infiniband.h, preserved for backward
+ * compatibility in linux_store() below.
+ */
+
+#define IB_COUNTERS_ALL  20
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -251,7 +257,6 @@ pmdaIndom indomtab[] = {
     { PARTITIONS_INDOM, 0,  NULL}, /* cached */
     { SCSI_INDOM, 0,  NULL},
     { SLAB_INDOM, 0,  NULL},
-    { IB_INDOM, 0, NULL },
     { NFS4_CLI_INDOM, NR_RPC4_CLI_COUNTERS,  nfs4_cli_indom_id},
     { NFS4_SVR_INDOM, NR_RPC4_SVR_COUNTERS,  nfs4_svr_indom_id},
     { QUOTA_PRJ_INDOM, 0, NULL },
@@ -3146,113 +3151,115 @@ static pmdaMetric metrictab[] = {
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /*
- * infiniband cluster
+ * deprecated: infiniband cluster (network.ib.* gone, use infiniband.*)
  */
 
-/* network.ib.in.bytes */
+/* deprecated: network.ib.in.bytes, use infiniband.* */
     { NULL, 
-      { PMDA_PMID(CLUSTER_IB,0), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_IB,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
-/* network.ib.in.packets */
+/* deprecated: network.ib.in.packets, use infiniband.* */
     { NULL, 
-      { PMDA_PMID(CLUSTER_IB,1), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_IB,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.in.errors.drop */
+/* deprecated: network.ib.in.errors.drop, use infiniband.* */
     { NULL,
-      { PMDA_PMID(CLUSTER_IB,2), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_IB,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.in.errors.filter */
+/* deprecated: network.ib.in.errors.filter, use infiniband.* */
     { NULL,
-      { PMDA_PMID(CLUSTER_IB,3), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_IB,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.in.errors.local */
+/* deprecated: network.ib.in.errors.local, use infiniband.* */
     { NULL,
-      { PMDA_PMID(CLUSTER_IB,4), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_IB,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.in.errors.remote */    { NULL,
-      { PMDA_PMID(CLUSTER_IB,5), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+/* deprecated: network.ib.in.errors.remote, use infiniband.* */
+    { NULL,
+      { PMDA_PMID(CLUSTER_IB,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.out.bytes */
+/* deprecated: network.ib.out.bytes, use infiniband.* */
     { NULL, 
-      { PMDA_PMID(CLUSTER_IB,6), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_IB,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
-/* network.ib.out.packets */
+/* deprecated: network.ib.out.packets, use infiniband.* */
     { NULL, 
-      { PMDA_PMID(CLUSTER_IB,7), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_IB,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.out.errors.drop */
+/* deprecated: network.ib.out.errors.drop, use infiniband.* */
     { NULL,
-      { PMDA_PMID(CLUSTER_IB,8), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_IB,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.out.errors.filter */    { NULL,
-      { PMDA_PMID(CLUSTER_IB,9), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+/* deprecated: network.ib.out.errors.filter, use infiniband.* */
+    { NULL,
+      { PMDA_PMID(CLUSTER_IB,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.total.bytes */
+/* deprecated: network.ib.total.bytes, use infiniband.* */
     { NULL, 
-      { PMDA_PMID(CLUSTER_IB,16), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_IB,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,0,PM_SPACE_BYTE,0) }, },
 
-/* network.ib.total.packets */
+/* deprecated: network.ib.total.packets, use infiniband.* */
     { NULL, 
-      { PMDA_PMID(CLUSTER_IB,17), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_IB,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.total.errors.drop */
+/* deprecated: network.ib.total.errors.drop, use infiniband.* */
     { NULL,
-      { PMDA_PMID(CLUSTER_IB,18), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_IB,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.total.errors.filter */
+/* deprecated: network.ib.total.errors.filter, use infiniband.* */
     { NULL,
-      { PMDA_PMID(CLUSTER_IB,19), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_IB,19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.total.errors.link */
+/* deprecated: network.ib.total.errors.link, use infiniband.* */
     { NULL,
-      { PMDA_PMID(CLUSTER_IB,10), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_IB,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.total.errors.recover */
+/* deprecated: network.ib.total.errors.recover, use infiniband.* */
     { NULL,
-      { PMDA_PMID(CLUSTER_IB,11), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_IB,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.total.errors.integrity */
+/* deprecated: network.ib.total.errors.integrity, use infiniband.* */
     { NULL,
-      { PMDA_PMID(CLUSTER_IB,12), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_IB,12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.total.errors.vl15 */
+/* deprecated: network.ib.total.errors.vl15, use infiniband.* */
     { NULL,
-      { PMDA_PMID(CLUSTER_IB,13), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_IB,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.total.errors.overrun */
+/* deprecated: network.ib.total.errors.overrun, use infiniband.* */
     { NULL,
-      { PMDA_PMID(CLUSTER_IB,14), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_IB,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.total.errors.symbol */
+/* deprecated: network.ib.total.errors.symbol, use infiniband.* */
     { NULL,
-      { PMDA_PMID(CLUSTER_IB,15), PM_TYPE_U64, IB_INDOM, PM_SEM_COUNTER,
+      { PMDA_PMID(CLUSTER_IB,15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* network.ib.status */
+/* deprecated: network.ib.status, use infiniband.* */
     { NULL, 
-      { PMDA_PMID(CLUSTER_IB,20), PM_TYPE_STRING, IB_INDOM, PM_SEM_INSTANT,
+      { PMDA_PMID(CLUSTER_IB,20), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* network.ib.control */
+/* deprecated: network.ib.control, use infiniband.* */
     { NULL,
       { PMDA_PMID(CLUSTER_IB,21), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
@@ -3394,9 +3401,6 @@ linux_refresh(int *need_refresh)
 
     if (need_refresh[CLUSTER_VMSTAT])
     	refresh_proc_vmstat(&proc_vmstat);
-
-    if (need_refresh[CLUSTER_IB])
-	refresh_ib(INDOM(IB_INDOM));
 }
 
 static int
@@ -3452,9 +3456,6 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     case SLAB_INDOM:
     	need_refresh[CLUSTER_SLAB]++;
 	break;
-    case IB_INDOM:
-    	need_refresh[CLUSTER_IB]++;
-	break;
     /* no default label : pmdaInstance will pick up errors */
     }
 
@@ -3495,7 +3496,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     proc_pid_entry_t	*entry;
     net_inet_t		*inetp;
     net_interface_t	*netip;
-    ib_port_t		*ibportp;
 
     if (mdesc->m_user != NULL) {
 	/* 
@@ -4117,10 +4117,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		ull = used + (__uint64_t)sbuf->f_bavail;
 		atom->d = (100.0 * (double)used) / (double)ull;
 		break;
-	    case 9: /* filesys.blocksize */
+	    case 9: /* filesys.blocksize -- added by Mike Mason <mmlnx@us.ibm.com> */
 		atom->ul = sbuf->f_bsize;
 		break;
-	    case 10: /* filesys.avail */
+	    case 10: /* filesys.avail -- added by Mike Mason <mmlnx@us.ibm.com> */
 		ull = (__uint64_t)sbuf->f_bavail;
 		atom->ull = ull * sbuf->f_bsize / 1024;
 		break;
@@ -4914,47 +4914,8 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
 
-    case CLUSTER_IB: /* network.ib */
-	if (idp->item > IB_COUNTERS_ALL + 1) {
-            return PM_ERR_PMID;
-	} 
-	if (!has_ib()) {
-	    return PM_ERR_VALUE;
-	} 
-	if (idp->item < IB_COUNTERS_ALL && (0 != (sts = track_ib()))) {
-	    return sts;
-	} 
-	if (idp->item == IB_COUNTERS_ALL + 1) { /* control */
-	    atom->ul = get_control_ib();
-	    break;
-	} 
-	if (0 > (sts = pmdaCacheLookup(indomtab[IB_INDOM].it_indom, inst, NULL, (void **)&ibportp))) {
-	    return sts;
-	}
-	if (idp->item == IB_COUNTERS_ALL) { /* status */
-	    sts = status_ib(ibportp);
-	    if (sts != 0) return sts;
-	    atom->cp = ibportp->status;
-	    break;
-	}
-	/* On 64 bit systems one would expect read of a single counter
-	 * to be atomic anyway .. but perhaps not otherwise.
-	 */
-	pthread_mutex_lock(&ib_mutex); 
-	/* network.ib.{in,out}.bytes: convert to bytes */
-	if (idp->item == RcvData || idp->item == XmtData) {
-	    atom->ull = ibportp->counters[idp->item] << 2;
-	} else if (idp->item < IB_COUNTERS) {
-	    /* other non-synthetic in/out counter */
-	    atom->ull = ibportp->counters[idp->item];
-	} else if (idp->item == IB_COUNTERS) {
-	    /* network.ib.total.bytes (synthetic) */
-	    atom->ull = (ibportp->counters[RcvData] + ibportp->counters[XmtData]) << 2;
-	} else if (idp->item < IB_COUNTERS_ALL) { /* other total counter */
-	    pmID base = idp->item - IB_COUNTERS;
-	    atom->ull = ibportp->counters[base] + ibportp->counters[IB_COUNTERS_IN + base];
-	}
-	pthread_mutex_unlock(&ib_mutex);
+    case CLUSTER_IB: /* deprecated: network.ib, use infiniband.* */
+        return PM_ERR_APPVERSION;
 	break;
 
     case CLUSTER_QUOTA:
@@ -5091,7 +5052,8 @@ linux_store(pmResult *result, pmdaExt *pmda)
 	    sts = procfs_zero("/proc/sys/fs/xfs/stats_clear", vsp);
 	} 
 	else if (pmidp->cluster == CLUSTER_IB && pmidp->item == IB_COUNTERS_ALL + 1) {
-	    sts = set_control_ib(vsp->vlist[0].value.lval);
+	    /* deprecated: code preserved so suitable error can be returned */
+	    sts = PM_ERR_APPVERSION;
 	} 
 	else {
 	    sts = -EACCES;

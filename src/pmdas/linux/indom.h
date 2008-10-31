@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2005,2007 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
@@ -35,7 +35,7 @@
 #define PARTITIONS_INDOM 	10
 #define SCSI_INDOM		11
 #define SLAB_INDOM		12
-#define IB_INDOM		13
+#define IB_INDOM		13	/* deprecated: do not re-use */
 #define NFS4_CLI_INDOM		14
 #define NFS4_SVR_INDOM		15
 #define QUOTA_PRJ_INDOM		16

@@ -365,8 +365,8 @@ are unavailable.
 
 @ swap.pagesin pages read from swap devices due to demand for physical memory
 @ swap.pagesout pages written to swap devices due to demand for physical memory
-@ swap.in pages number of swap in operations
-@ swap.out pages number of swap out operations
+@ swap.in number of swap in operations
+@ swap.out number of swap out operations
 @ kernel.all.pswitch context switches metric from /proc/stat
 @ kernel.all.sysfork fork rate metric from /proc/stat
 @ kernel.all.intr intrrupt rate metric from /proc/stat
@@ -1280,28 +1280,28 @@ See also the kernel.uname.* metrics
 @ vfs.dentry.count number of in-use dentry structures
 @ vfs.dentry.free number of available dentry structures
 
-@ network.ib.status IB status and description from ibstatus
-@ network.ib.in.bytes network recv read bytes from perfquery
-@ network.ib.in.packets network recv read packets from perfquery
-@ network.ib.in.errors.drop network recv read drops from perfquery
-@ network.ib.in.errors.filter network recv filtered packets from perfquery
-@ network.ib.in.errors.local network recv error packets from perfquery
-@ network.ib.in.errors.remote remote physical error packets recv with EBP delimiter from perfquery
-@ network.ib.out.bytes network send bytes from perfquery
-@ network.ib.out.packets network send packets from perfquery
-@ network.ib.out.errors.drop network send drops from perfquery
-@ network.ib.out.errors.filter network send filtered packets from perfquery
-@ network.ib.total.bytes network total (in+out) bytes from perfquery
-@ network.ib.total.packets network total (in+out) packets from perfquery
-@ network.ib.total.errors.drop network drops (in+out) from perfquery
-@ network.ib.total.errors.filter network filtered packets (in+out) from perfquery
-@ network.ib.total.errors.link network link drops from perfquery
-@ network.ib.total.errors.recover network link recoveries from perfquery
-@ network.ib.total.errors.integrity local link integrity errors from perfquery
-@ network.ib.total.errors.vl15 VL15 packets dropped from perfquery
-@ network.ib.total.errors.overrun excessive buffer overrun errors from perfquery
-@ network.ib.total.errors.symbol minor link errors from perfquery
-@ network.ib.control If non-zero, stop collecting performance stats this many seconds after last fetch
+@ network.ib.status (deprecated: use infiniband.*) IB status and description from ibstatus
+@ network.ib.in.bytes (deprecated: use infiniband.*) network recv read bytes from perfquery
+@ network.ib.in.packets (deprecated: use infiniband.*) network recv read packets from perfquery
+@ network.ib.in.errors.drop (deprecated: use infiniband.*) network recv read drops from perfquery
+@ network.ib.in.errors.filter (deprecated: use infiniband.*) network recv filtered packets from perfquery
+@ network.ib.in.errors.local (deprecated: use infiniband.*) network recv error packets from perfquery
+@ network.ib.in.errors.remote (deprecated: use infiniband.*) remote phys error packets recv with EBP delim from perfquery
+@ network.ib.out.bytes (deprecated: use infiniband.*) network send bytes from perfquery
+@ network.ib.out.packets (deprecated: use infiniband.*) network send packets from perfquery
+@ network.ib.out.errors.drop (deprecated: use infiniband.*) network send drops from perfquery
+@ network.ib.out.errors.filter (deprecated: use infiniband.*) network send filtered packets from perfquery
+@ network.ib.total.bytes (deprecated: use infiniband.*) network total (in+out) bytes from perfquery
+@ network.ib.total.packets (deprecated: use infiniband.*) network total (in+out) packets from perfquery
+@ network.ib.total.errors.drop (deprecated: use infiniband.*) network drops (in+out) from perfquery
+@ network.ib.total.errors.filter (deprecated: use infiniband.*) network filtered packets (in+out) from perfquery
+@ network.ib.total.errors.link (deprecated: use infiniband.*) network link drops from perfquery
+@ network.ib.total.errors.recover (deprecated: use infiniband.*) network link recoveries from perfquery
+@ network.ib.total.errors.integrity (deprecated: use infiniband.*) local link integrity errors from perfquery
+@ network.ib.total.errors.vl15 (deprecated: use infiniband.*) VL15 packets dropped from perfquery
+@ network.ib.total.errors.overrun (deprecated: use infiniband.*) excessive buffer overrun errors from perfquery
+@ network.ib.total.errors.symbol (deprecated: use infiniband.*) minor link errors from perfquery
+@ network.ib.control (deprecated: use infiniband.*) If non-zero, stop collecting perf stats this many secs after last fetch
 
 @ quota.state.project.accounting 1 indicates quota accounting enabled, else 0
 @ quota.state.project.enforcement 1 indicates quotas enforced, else 0

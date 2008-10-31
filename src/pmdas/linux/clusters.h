@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005,2007 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -55,7 +55,7 @@ enum {
 	CLUSTER_UPTIME,		/* 26 /proc/uptime */
 	CLUSTER_VFS,		/* 27 /proc/sys/fs */
 	CLUSTER_VMSTAT,		/* 28 /proc/vmstat */
-	CLUSTER_IB,		/* 29 /sys/class/infiniband */
+	CLUSTER_IB,		/* deprecated: do not re-use 29 infiniband */
 	CLUSTER_QUOTA,		/* 30 quotactl() */
 	CLUSTER_PID_SCHEDSTAT,	/* 31 /proc/<pid>/schedstat */
 	CLUSTER_PID_IO,		/* 32 /proc/<pid>/io */
