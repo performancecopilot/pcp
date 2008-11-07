@@ -1,7 +1,7 @@
 Rebuilding kmchart
 
 1. Fetch the latest open source version of PCP from:
-	git clone git://oss.sgi.com:8090/nathans/pcp.git pcp
+	git clone git://oss.sgi.com/nathans/pcp.git pcp
 
 2. Install the open source Qt run-time and developer software.
    This is available for MacOSX from the Trolltech site, and is
