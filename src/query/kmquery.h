@@ -31,6 +31,8 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 
+#include <cstdio>
+
 class KmQuery : public QDialog
 {
     Q_OBJECT
