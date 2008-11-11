@@ -22,6 +22,7 @@
 
 #define MILLISEC_PER_SEC	1000
 #define NANOSEC_PER_MILLISEC	1000000
+#define NANOSEC_BOUND		(1000000000-1)
 
 int
 __pmProcessExists(pid_t pid)
@@ -200,7 +201,13 @@ __pmProcessRunTimes(double *usr, double *sys)
 int
 nanosleep(const struct timespec *req, struct timespec *rem)
 {
-    DWORD milliseconds = req->tv_sec * MILLISEC_PER_SEC
+    DWORD milliseconds;
+
+    if (req->tv_sec < 0 || req->tv_nsec < 0 || req->tv_nsec > NANOSEC_BOUND) {
+	errno = EINVAL;
+	return -1;
+    }
+    milliseconds = req->tv_sec * MILLISEC_PER_SEC
 			+ req->tv_nsec / NANOSEC_PER_MILLISEC;
     Sleep(milliseconds);
     memset(rem, 0, sizeof(*rem));
