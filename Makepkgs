@@ -51,20 +51,6 @@ do
     esac
 done
 
-if [ -f /etc/debian_version ]
-then
-    SUDO=${SUDO:-sudo}
-    LOGDEB=`pwd`
-    LOGDEB=../`basename $LOGDEB`.log
-    echo "== Debian build, log is $LOGDEB"; echo
-    if $verbose ; then
-	dpkg-buildpackage -r$SUDO | tee $LOGDEB
-    else
-	dpkg-buildpackage -r$SUDO > $LOGDEB || exit 1
-    fi
-    exit 0
-fi
-
 if [ $# = 0 ] ; then
     set -- pcp
 fi
@@ -99,6 +85,7 @@ then
 fi
 
 ARCH=`uname -m | sed -e 's/i.86/ia32/'`
+VERS=`uname -s | cut -c-5`
 
 for prod ; do
     LOGF=$LOGDIR/$prod
@@ -126,6 +113,41 @@ for prod ; do
 	    PACKAGE_NAME=${prod}
 	fi
 	export PACKAGE_NAME
+    fi
+
+    special=false
+    [ "$VERS" = MINGW ] && special=windows
+    [ -f /etc/debian_version ] && special=debian
+    
+    if [ $special != false ]
+    then
+	LOGF=`pwd`/$LOGF
+
+	if $verbose ; then
+	    $MAKE -j 1 configure_$prod 2>&1 | tee -a $LOGF
+	else
+	    $MAKE -j 1 configure_$prod 2>&1 >> $LOGF
+	fi
+
+	VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+	export SRCLINK_ROOT=`pwd`/pcp-$VERSION
+	rm -fr $SRCLINK_ROOT
+	mkdir -p $SRCLINK_ROOT || exit 1
+	$MAKE -j 1 src-link-pcp || exit 1
+	cd $SRCLINK_ROOT
+	[ ! -f .census ] && touch .census
+
+	if [ $special = debian ]
+	then
+	    SUDO=${SUDO:-fakeroot}
+	    if $verbose ; then
+		dpkg-buildpackage -r$SUDO | tee -a $LOGF
+	    else
+		dpkg-buildpackage -r$SUDO >> $LOGF || exit 1
+	    fi
+	    exit 0
+	fi
+	# Fall through for MinGW (Win32) builds
     fi
 
     if $verbose ; then

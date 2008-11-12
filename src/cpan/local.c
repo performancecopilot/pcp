@@ -333,6 +333,12 @@ local_pmns_root(void)
     return NULL;
 }
 
+static void
+lchdir(const char *path)
+{
+    (void)chdir(path);	/* debug hook, workaround rval compiler warning */
+}
+
 /*
  * Split "metric" up based on "." separators - for non-leaf nodes create a
  * directory, for each leaf node we create a regular file containing the PMID.
@@ -353,14 +359,14 @@ local_pmns_split(const char *root, const char *metric, const char *pmid)
 	*p++ = ':';
 
     mkdir2(root, 0777);
-    chdir(root);
+    lchdir(root);
     p = strtok(mymetric, ".");
     do {
 	path = p;
 	p = strtok(NULL, ".");
 	if (p) {
 	    mkdir2(path, 0777);
-	    chdir(path);
+	    lchdir(path);
 	} else {
 	    fd = open(path, O_WRONLY|O_CREAT|O_EXCL, 0644);
 	    write(fd, mypmid, strlen(mypmid));
@@ -402,7 +408,7 @@ local_pmns_write(const char *path)
     char *p, *pmns, pmid[32];
     int i, fd, num;
 
-    chdir(path);
+    lchdir(path);
     p = pmns = local_pmns_path(path);
     if (p != NULL)
 	printf("%s {\n", local_pmns_path(p));
@@ -440,10 +446,10 @@ clobber:	/* overwrite entries we are done with */
     for (i = 0; i < num; i++) {
 	p = list[i]->d_name;
 	if (*p) {
-	    chdir(path);
+	    lchdir(path);
 	    if (local_pmns_write(p) < 0)
 		return -1;
-	    chdir("..");
+	    lchdir("..");
 	}
 	free(list[i]);
     }
@@ -462,7 +468,7 @@ local_pmns_clear(const char *root)
     int i, num;
     char *p;
 
-    chdir(root);
+    lchdir(root);
     num = scandir(".", &list, NULL, NULL);
     for (i = 0; i < num; i++) {
 	p = list[i]->d_name;
@@ -477,7 +483,7 @@ local_pmns_clear(const char *root)
 	free(list[i]);
     }
     free(list);
-    chdir("..");
+    lchdir("..");
     rmdir(root);
     return 0;
 }

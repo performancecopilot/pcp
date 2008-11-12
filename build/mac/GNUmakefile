@@ -21,27 +21,11 @@
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
--include ./GNUlocaldefs
 
 LDIRT = $(wildcard pcp*.pkg) $(wildcard pcp*.dmg) idb installer-files
-
-INSTFILES = idb install-pcp uninstall-pcp English.lproj/Localizable.strings\
-	    StartupParameters.plist
-
-LSRCFILES = English.lproj/Localizable.strings StartupParameters.plist \
-	    build-installer install-pcp installer-description installer-info \
-	    installer-resources/InstallationCheck \
-	    installer-resources/License.html \
-	    installer-resources/ReadMe.html \
-	    installer-resources/Welcome.txt \
-	    installer-resources/background.jpg \
-	    installer-resources/postflight \
-	    installer-resources/postinstall \
-	    installer-resources/postupgrade \
-	    installer-resources/preflight \
-	    installer-resources/preinstall \
-	    installer-resources/preupgrade \
-	    uninstall-pcp
+SUBDIRS = English.lproj installer-resources
+LSRCFILES = StartupParameters.plist build-installer \
+	    installer-description installer-info install-pcp uninstall-pcp
 
 default install :
 

@@ -1,26 +1,28 @@
 == INSTALL ==
 
-A. Linux Installation (rpm, deb)
-B. Mac OS X Installation
-C. Windows Installation (mingw)
-D. Building from source
-E. Post-install steps
+A.1 Linux Installation (rpm, deb)
+ .2 Mac OS X Installation
+ .3 AIX Installation
+ .4 Solaris Installation
+ .5 Windows Installation
+B. Building from source
+C. Post-install steps
 
 This document describes how to configure and build the open source PCP
 ("pcp") package from source, and how to install and finally run it.
 
 
-== A. Linux Installation
+== A.1 Linux Installation
 
 If you are using Debian, or a Debian-based distribution like Ubuntu,
-PCP is included in the distribution (as of early 2008).  Run:
+PCP is included in the distribution (as of late 2008).  Run:
 	# apt-get install pcp
 If you are using a RPM based distribution and have the binary rpm:
 	# rpm -Uvh pcp-*.rpm
 ... and skip to the final section (below) - "Post-install steps".
 
 
-== B. Mac OS X Installation
+== A.2 Mac OS X Installation
 
 The only unusual step in installing PCP on Mac OS X is the additional
 dependency on the developer tools (XCode package).  The specific need
@@ -33,86 +35,48 @@ as clicking on the icon in a Finder window, and following the prompts
 from the installer.
 
 
-== C. Windows Installation
+== A.3 AIX Installation
 
-PCP requires an open source build environment, and runtime.  Initially
-this was done using Cygwin, but limitations of using that platform for
-building a low-level toolkit like PCP ultimately led to the need to
-switch to using a native Windows compiler - MinGW was chosen, as this
-compiler supports several things we need:
-- Direct access to the Win32 API (for extracting performance data from
-  the Windows kernel).
-- Support for runtime loading and unloading of DLLs, for DSO agents.
-- It's freely available, using an open source license compatilble with
-  those used in PCP (GPL and LGPL).
-- Qt supports this compiler for open source builds, so graphical tools
-  like kmchart can run natively on PCP when built with this compiler.
-
-However, MinGW is a compiler only, and PCP also has a need for a POSIX
-shell, POSIX utilities, and Perl at both build and runtime.  So, we've
-got several dependencies we need to meet as follows:
-
-- Strawberry Perl (http://strawberryperl.com)
-  This package provide a Perl runtime, Perl development environment and
-  a C development environment (incl. MinGW compiler and Win32 headers).
-* Download and install this to: C:\Toolkit
-
-- Minimal SYStem (http://mingw.org/) and MSYS Developers ToolKit
-  This is a minimal runtime environment to satisfy many of the remaining
-  PCP needs for UNIX-like utilities.  Note: we only need to install MSYS
-  and msysDTK here, not MinGW, as we already installed that with Perl.
-* Download and install these both to: C:\Toolkit\sh
-
-- QT (http://trolltech.com/qt)
-  This is the cross-platform build environment for GUI applications like
-  kmchart.  While not needed during a PCP build, you'll very likely want
-  to use kmchart with PCP, so let's install it now with everything else.
-* Download and install this to: C:\Toolkit\qt
-  (when prompted for path to MinGW, use C:Toolkit\c)
-
-Now, configure this environment as follows:
-- Add to you PATH environment variable - using a "cmd.exe" console:
-  (Note: the direction of the slashes is critical!)
-  set PATH=%PATH%;C:/Toolkit/c/bin
-  set PATH=%PATH%;C:/Toolkit/qt/bin
-  set PATH=%PATH%;C:/Toolkit/sh/bin
-  set PATH=%PATH%;C:/Toolkit/sh/local/bin
-  set PATH=%PATH%;C:/Toolkit/perl/bin
-  set PATH=%PATH%;C:/Toolkit/nsis
-  set QTRELEASE=release
-  set QMAKESPEC=win32-g++
-  set QTDIR=C:/Toolkit/qt
-  set PCP_DIR=C:/Toolkit/sh
-
-- Unfortunately, we're not done yet.  There are a handful of tools we're
-  still missing that PCP requires...
-
-  The msysDTK is missing some pieces.  We need bison, flex, and the GNU
-  regular expression development kit (regex).  These can be downloaded
-  from the GnuWin32 project (http://gnuwin32.sourceforge.net).
-* Download and install these to: C:\Toolkit\sh\local
-
-- But wait, there's more.  We're using the Nullsoft Scriptable Install
-  System (which Qt also uses) to build the PCP installer/uninstaller
-  for Windows (http://nsis.sourceforge.net).
-* Download and install these to: C:\Toolkit\nsis
-
-- You're done.  Have a beer.  You'll need it to get through a build.
+At this stage, noone is making available pre-built AIX packages.
+A port to Solaris has been done, and merged, however - building from
+the source is currently the only option.  The packaging work is also
+begun on this platform (see the build/aix/ directory in the sources).
 
 
-== D. Building from source
+== A.4 Solaris Installation
+
+At this stage, noone is making available pre-built Solaris binaries.
+A port to Solaris has been done, and merged, however - building from
+the source is currently the only option.  Packaging work is not begun
+for PCP on Solaris at this stage.
+
+
+== A.5 Windows Installation
+
+Download the native Windows version of PCP from the PCP download
+section.  There are two variants: .zip and .exe.  The latter is
+a self-installing executable, the former a simple compressed PCP
+image.  Run the executable, follow the prompts, and a Startup
+Menu item with several PCP options will be available - standard
+DOS shell or POSIX shell (with suitable environment setup), the
+Perl CPAN configuration tool, links to documentation and online
+PCP internet resources, and the kmchart utility.
+
+
+== B. Building from source
 
 1. Configure, build and install the package
 
    The pcp package uses autoconf/configure and expects a GNU build
-   environment (your platform must at least have both autoconf and gmake). 
-   
+   environment (your platform must at least have both autoconf and
+   gmake). 
+
    If you just want to spin a .RPM, .DEB, .DMG, .EXE and/or tar
    file, use the Makepkgs script in the top level directory.
    This will configure and build the package for your platform and
    leave binary and src packages in the build/<pkg-type> directory.
-   It will also leave a binary tar file in the build/tar directory,
-   and a source tar file in the build directory.
+   It will also leave binary and source tar file in the build/tar
+   directory.
 
        $ ./Makepkgs -verbose
 
@@ -128,15 +92,16 @@ Now, configure this environment as follows:
    which works on every platform supported by PCP.
    Note 2: the Windows build is particularly involved to setup, this
    is primarily due to build tools not being available by default on
-   that platform.  See the platform notes earlier to correctly setup
-   your environment before attempting to build from source.
+   that platform.  See the PCP Glider scripts and notes in the pcpweb
+   tree to configure your environment before attempting to build from
+   source under Win32.
 
 
-== E. Post-install steps
+== C. Post-install steps
 
    You will need to start the PCP Collection Daemon (PMCD), as root:
 
-   Linux:
+   Linux, AIX, Solaris:
    # /etc/init.d/pcp start
    Mac OS X:
    /Library/StartupItems/pcp/pcp start
@@ -164,15 +129,13 @@ Now, configure this environment as follows:
    # as root, "crontab -e" and add something like:
 
    # -- typical PCP log management crontab entries
-   # daily processing of archive logs
+   # daily processing of pmlogger archives and pmie logs
    10      0       *       *       *       $PCP_BINADM_DIR/pmlogger_daily
+   15      0       *       *       *       $PCP_BINADM_DIR/pmie_daily
    #
-   # every 30 minutes, check pmlogger instances are running
+   # every 30 minutes, check pmlogger and pmie instances are running
    25,40   *       *       *       *       $PCP_BINADM_DIR/pmlogger_check
-   #
-   # every 30 minutes, check pmie instances are running
    5,55    *       *       *       *       $PCP_BINADM_DIR/pmie_check
-
 
    The pmie (Performance Metrics Interfence Engine) daemon is _not_
    configured to start by default. To enable it, you may want to (on

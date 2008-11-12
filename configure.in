@@ -376,13 +376,6 @@ fi
 mkinstallp=$MKINSTALLP
 AC_SUBST(mkinstallp)
 
-dnl check if the makensis program is available
-if test -z "$MAKENSIS"; then
-    AC_PATH_PROG(MAKENSIS, makensis)
-fi
-makensis=$MAKENSIS
-AC_SUBST(makensis)
-
 dnl check if the dlltool program is available
 if test -z "$DLLTOOL"; then
     AC_PATH_PROG(DLLTOOL, dlltool)
@@ -452,6 +445,9 @@ AC_SUBST(dpkg)
 
 dnl check if symbolic links are supported
 AC_PROG_LN_S
+if test $target_os = mingw; then
+    as_ln_s=/bin/true
+fi
 
 dnl check if user wants their own lex, yacc
 if test -z "$YACC"; then
@@ -1236,7 +1232,7 @@ if test "`echo $pcp_share_dir | sed 's;/.*\$;;'`" = NONE
 then
     if test $target_os = mingw
     then
-        pcp_share_dir=/usr/local
+        pcp_share_dir=/pcp
     elif test -d /usr/share
     then
 	pcp_share_dir=/usr/share/pcp
@@ -1259,7 +1255,7 @@ then
         pcp_binadm_dir=/usr/lib/pcp/bin
     elif test $target_os = mingw
     then
-        pcp_binadm_dir=/usr/local/bin
+        pcp_binadm_dir=/bin
     else
         pcp_binadm_dir=$pcp_share_dir/bin
     fi
@@ -1271,7 +1267,10 @@ pcp_var_dir=`eval echo $localstatedir`
 pcp_var_dir=`eval echo $pcp_var_dir`
 if test "`echo $pcp_var_dir | sed 's;/.*\$;;'`" = NONE
 then
-    if test -d /var/lib
+    if test $target_os = mingw
+    then
+	pcp_var_dir=/pcp
+    elif test -d /var/lib
     then
 	pcp_var_dir=/var/lib/pcp
     elif test -d /var
@@ -1322,8 +1321,8 @@ then
     pcp_lib_dir=/cygdrive/c/WINDOWS/system32
 elif test $target_os = mingw
 then
-    pcp_lib_dir=/usr/local/bin
-    pcp_lib32_dir=/usr/local/bin
+    pcp_lib_dir=/bin
+    pcp_lib32_dir=/bin
 elif test $target_os = linux -a $target_cpu = x86_64 -a $target_distro != debian
 then
     # Linux on x86_64 puts libraries in .../lib64 (and rpmbuild
@@ -1391,7 +1390,10 @@ pcp_man_dir=`eval echo $pcp_man_dir`
 if test "`echo $pcp_man_dir | sed 's;/.*\$;;'`" = NONE
 then
     dnl some low risk defaults
-    if test -d /usr/share/man
+    if test $target_os = mingw
+    then
+	pcp_man_dir=/man
+    elif test -d /usr/share/man
     then
 	pcp_man_dir=/usr/share/man
     elif test -d /usr/local/man 
@@ -1445,7 +1447,7 @@ then
 fi
 if test -z "$pcp_man_dir"
 then
-    echo "FATAL ERROR: could not find find pcp_man_dir directory."
+    echo "FATAL ERROR: could not find pcp_man_dir directory."
     exit 1
 fi
 AC_SUBST(pcp_man_dir)
@@ -1459,7 +1461,7 @@ if test "`echo $pcp_bin_dir | sed 's;/.*\$;;'`" = NONE
 then
     if test $target_os = mingw
     then
-	pcp_bin_dir=/usr/local/bin
+	pcp_bin_dir=/bin
     elif test -d /usr/bin
     then
 	pcp_bin_dir=/usr/bin
@@ -1474,14 +1476,19 @@ pcp_inc_dir=`eval echo $includedir`
 pcp_inc_dir=`eval echo $pcp_inc_dir`
 if test "`echo $pcp_inc_dir | sed 's;/.*\$;;'`" = NONE
 then
-   pcp_inc_dir=/usr/include/pcp
+    if test $target_os = mingw
+    then
+	pcp_inc_dir=/include/pcp
+    else
+	pcp_inc_dir=/usr/include/pcp
+    fi
 fi
 AC_SUBST(pcp_inc_dir)
 
 dnl rc/startup files
 if test $target_os != darwin
 then
-    for d in /etc/init.d /etc/rc.d/init.d /sbin/init.d ; do
+    for d in /etc/rc.d/init.d /etc/init.d /sbin/init.d ; do
 	if test -d $d
 	then
 	    pcp_rc_dir=$d
@@ -1542,7 +1549,10 @@ AC_SUBST(pcp_tmp_dir)
 dnl doc directory
 if test "`eval echo $prefix | sed 's;/.*\$;;'`" = NONE
 then
-    if test -d /usr/share/doc/packages
+    if test $target_os = mingw
+    then
+	pcp_doc_dir=/doc
+    elif test -d /usr/share/doc/packages
     then
 	pcp_doc_dir=/usr/share/doc/packages/pcp-${PACKAGE_VERSION}
     elif test -d /usr/share/doc
@@ -1563,7 +1573,10 @@ AC_SUBST(pcp_doc_dir)
 dnl demos directory
 if test "`eval echo $prefix | sed 's;/.*\$;;'`" = NONE
 then
-    if test -d /usr/share/demos
+    if test $target_os = mingw
+    then
+	pcp_demos_dir=/demos
+    elif test -d /usr/share/demos
     then
 	pcp_demos_dir=/usr/share/demos/pcp
     else

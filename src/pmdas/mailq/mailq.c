@@ -196,7 +196,10 @@ next:
 	    }
 	    free(list);
 	}
-	chdir(startdir);
+	if (chdir(startdir) < 0) {
+	    __pmNotifyErr(LOG_ERR, "chdir(\"%s\") failed: %s\n",
+			startdir, strerror(errno));
+	}
     }
 
     return pmdaFetch(numpmid, pmidlist, resp, pmda);

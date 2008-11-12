@@ -48,10 +48,10 @@ TOPDIR = .
 
 LICFILES = COPYING
 DOCFILES = README INSTALL CHANGELOG VERSION.pcp
+CONFFILES = configure pcp.lsm
 LSRCFILES = configure.in Makepkgs install-sh $(DOCFILES) $(LICFILES) \
 	    config.guess config.sub sgiReleaseNumber pcp.lsm.in
-LDIRT = config.cache autom4te.cache config.status config.log \
-	files.rpm pro_files.rpm pcp.spec pcp.lsm configure \
+LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	pcp-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
 	pcp-pro-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
 	pcp-sgi-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
