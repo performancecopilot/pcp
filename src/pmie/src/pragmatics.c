@@ -17,9 +17,6 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  * 
- * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
- * Mountain View, CA 94043, USA, or: http://www.sgi.com
- * 
  * The analysis of how to organize the fetching of metrics (pragmatics),
  * and any other parts of the inference engine sensitive to details of
  * the PMAPI access are kept in this source file.

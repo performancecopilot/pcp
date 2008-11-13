@@ -15,9 +15,6 @@ C
 C You should have received a copy of the GNU General Public License along
 C with this program; if not, write to the Free Software Foundation, Inc.,
 C 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-C 
-C Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-C Mountain View, CA 94043, USA, or: http://www.sgi.com
 
 C fapp1.f
 C

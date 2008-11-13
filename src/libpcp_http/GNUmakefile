@@ -14,9 +14,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
-# 
-# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-# Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
 
 TOPDIR = ../..
