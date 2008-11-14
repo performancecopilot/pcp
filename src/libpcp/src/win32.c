@@ -210,7 +210,8 @@ nanosleep(const struct timespec *req, struct timespec *rem)
     milliseconds = req->tv_sec * MILLISEC_PER_SEC
 			+ req->tv_nsec / NANOSEC_PER_MILLISEC;
     Sleep(milliseconds);
-    memset(rem, 0, sizeof(*rem));
+    if (rem)
+	memset(rem, 0, sizeof(*rem));
     return 0;
 }
 
