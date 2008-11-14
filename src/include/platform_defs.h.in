@@ -520,6 +520,7 @@ typedef void (*SIG_PF) (int);
 extern void setlinebuf(FILE *);
 extern const char *hstrerror(int);
 extern const char *index(const char *, int);
+extern const char *rindex(const char *, int);
 extern long int lrand48(void);
 extern void srand48(long int);
 

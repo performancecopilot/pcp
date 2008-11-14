@@ -2,6 +2,7 @@ pcp (2.7.7-20080924) unstable; urgency=low
 
   * Merged with new code from SGI.
   * VMware PMDA included, memcached PMDA updated.
+  * Fixes build issue with gcc 4.4 (closes: #504832)
 
  -- Nathan Scott <nathans@debian.org>  Wed, 24 Sep 2008 17:55:14 +1000
 
