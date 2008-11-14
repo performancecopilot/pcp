@@ -1,0 +1,78 @@
+
+infiniband {
+	hca
+	port
+	control
+}
+
+infiniband.hca {
+	type		IB:0:0
+	ca_type		IB:0:1
+	numports	IB:0:2
+	fw_ver		IB:0:3
+	hw_ver		IB:0:4
+	node_guid	IB:0:5
+	system_guid	IB:0:6
+}
+
+infiniband.port {
+	guid		IB:0:7
+	gid_prefix	IB:0:8
+	lid		IB:0:9
+	state		IB:0:10
+	phystate	IB:0:11
+	rate		IB:0:12
+	capabilities	IB:0:13
+	linkspeed	IB:0:14
+	linkwidth	IB:0:15
+
+	in
+	out
+	total
+}
+
+infiniband.port.in {
+	bytes		IB:1:0
+	packets		IB:1:1
+	errors
+}
+
+infiniband.port.in.errors {
+	drop		IB:1:4
+    	filter          IB:1:9
+    	local           IB:1:10
+    	remote		IB:1:11
+}
+
+infiniband.port.out {
+	bytes		IB:1:2
+	packets		IB:1:3
+	errors
+}
+
+infiniband.port.out.errors {
+	drop		IB:1:5
+	filter		IB:1:12
+}
+
+infiniband.port.total {
+	bytes		IB:1:6
+	packets		IB:1:7
+	errors
+}
+
+infiniband.port.total.errors {
+	drop		IB:1:8
+	filter          IB:1:13
+	link            IB:1:14
+	recover         IB:1:15
+	integrity       IB:1:16
+	vl15            IB:1:17
+	overrun         IB:1:18
+	symbol          IB:1:19
+}
+
+infiniband.control {
+	query_timeout	IB:2:0
+	hiwat		IB:2:1
+}

@@ -23,6 +23,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "dsotbl.h"
+
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
 #endif
@@ -453,6 +454,17 @@ __pmConnectLocal(void)
 	    }
 	}
 #endif
+	if (dp->domain == IB_DSO) {
+	    /*
+	     * only attach infiniband pmda dso if env var PMDA_LOCAL_IB is
+	     * set
+	     */
+	    if (getenv("PMDA_LOCAL_IB") == NULL) {
+		/* no infiniband pmda */
+		dp->domain = -1;
+		continue;
+	    }
+	}
 
         snprintf(pathbuf, sizeof(pathbuf), "%s/%s",
 		 pmGetConfig("PCP_PMDAS_DIR"), dp->name);

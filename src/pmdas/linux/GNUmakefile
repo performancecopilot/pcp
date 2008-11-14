@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.
+# All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -36,8 +37,7 @@ CFILES		= pmda.c proc_stat.c proc_meminfo.c proc_loadavg.c \
 		  proc_net_snmp.c proc_scsi.c proc_fs_xfs.c \
 		  proc_cpuinfo.c proc_net_tcp.c \
 		  proc_slabinfo.c sem_limits.c msg_limits.c shm_limits.c \
-		  proc_uptime.c ksym.c proc_sys_fs.c proc_vmstat.c \
-		  infiniband.c
+		  proc_uptime.c ksym.c proc_sys_fs.c proc_vmstat.c
 
 HFILES		= proc_stat.h proc_meminfo.h proc_loadavg.h \
 		  proc_net_dev.h proc_interrupts.h filesys.h swapdev.h \
@@ -47,7 +47,7 @@ HFILES		= proc_stat.h proc_meminfo.h proc_loadavg.h \
 		  proc_cpuinfo.h proc_net_tcp.h proc_slabinfo.h \
 		  sem_limits.h msg_limits.h shm_limits.h proc_uptime.h \
 		  ksym.h proc_sys_fs.h proc_vmstat.h clusters.h indom.h \
-		  infiniband.h convert.h
+		  convert.h
 
 LSRCFILES 	= help root_linux root_irix
 LDIRT		= help.dir help.pag domain.h
