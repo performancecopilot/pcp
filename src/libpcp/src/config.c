@@ -23,6 +23,27 @@
 #include "impl.h"
 #include "pmda.h"
 
+#ifdef IS_MINGW
+/*
+ * For native Win32 console tools, we need to translate the paths
+ * used in scripts to native paths with PCP_DIR prefix prepended.
+ */
+static char *
+rewrite_path(val)
+{
+    char *p = rindex(val, '_');
+
+    if (p && (strcmp(p, "_PATH") == 0 || strcmp(p, "_DIR") == 0)) {
+	for (p = val; *p; p++)
+	    if (*p == '/') *p = '\\';
+	return val;
+    }
+    return NULL;
+}
+#else
+#define rewrite_path(path)	(0)
+#endif
+
 char *
 pmGetConfig(const char *name)
 {
@@ -38,12 +59,12 @@ pmGetConfig(const char *name)
 	FILE *fp;
 	char dir[MAXPATHLEN];
 	char var[MAXPATHLEN];
-	char *prefix;
+	char *prefix = getenv("PCP_DIR");
 	char *conf;
 	char *p;
 
 	if ((conf = getenv("PCP_CONF")) == NULL) {
-	    if ((prefix = getenv("PCP_DIR")) == NULL)
+	    if (prefix == NULL)
 		conf = "/etc/pcp.conf";
 	    else {
 		snprintf(dir, sizeof(dir), "%s/etc/pcp.conf", prefix);
@@ -54,7 +75,7 @@ pmGetConfig(const char *name)
 	if (access((const char *)conf, R_OK) < 0 ||
 	   (fp = fopen(conf, "r")) == (FILE *)NULL) {
 	    pmprintf("FATAL PCP ERROR: could not open config file \"%s\" : %s\n", conf, strerror(errno));
-	    pmprintf("You may need to set $PCP_CONF or $PCP_DIR in your environment.\n");
+	    pmprintf("You may need to set PCP_CONF or PCP_DIR in your environment.\n");
 	    pmflush();
 	    exit(1);
 	}
@@ -70,7 +91,11 @@ pmGetConfig(const char *name)
 		val = p;
 	    else {
 		char envbuf[MAXPATHLEN];
-		snprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
+
+		if (prefix && rewrite_path(val))
+		    snprintf(envbuf, sizeof(envbuf), "%s%s=%s", prefix,var,val);
+		else
+		    snprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
 		putenv(strdup(envbuf));
 	    }
 

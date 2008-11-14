@@ -247,6 +247,18 @@ index(const char *string, int marker)
     return NULL;
 }
 
+const char *
+rindex(const char *string, int marker)
+{
+    const char *p;
+    for (p = string; *p != '\0'; p++)
+	;
+    for (--p; p != string; p--)
+	if (*p == marker)
+	    return p;
+    return NULL;
+}
+
 void *
 dlopen(const char *filename, int flag)
 {
