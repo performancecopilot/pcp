@@ -439,20 +439,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
-        if [ "$PCP_PLATFORM" = "linux" ] ; then
-            # On linux, pmcd and (the primary) pmlogger are both
-            # controlled by the "pcp" chkconfig flag.
-            IS_ON="is_chkconfig_on pcp"
-            LTEST="-L"
-        elif [ "$PCP_PLATFORM" = "solaris" ] ; then
-	    IS_ON="is_chkconfig_on pcp"
-	    LTEST="-h"
-	else
-            IS_ON="/sbin/chkconfig pmlogger"
-            LTEST="-l"
-	fi
-
-	if $IS_ON
+	if is_chkconfig_on pcp
 	then
 	    :
 	else
@@ -461,7 +448,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
-	if [ $LTEST /var/tmp/pmlogger/primary ]
+	if test -L /var/tmp/pmlogger/primary
 	then
 	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: ""$PCP_ECHO_C"
 	    pid=`LC_TIME=POSIX ls -l $PCP_TMP_DIR/pmlogger/primary | sed -e 's,.*/,,'`
