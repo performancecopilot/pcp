@@ -559,7 +559,7 @@ done_chart:
 			cp->setLegendVisible(false);
 		    if (antialias == 0)
 			cp->setAntiAliasing(false);
-
+		    cp->setScale(autoscale, ymin, ymax);
 		    activeGroup->addGadget(cp);
 		    tab->addGadget(cp);
 		}
