@@ -29,10 +29,14 @@ default:
 
 include $(BUILDRULES)
 
+ifeq "$(TARGET_OS)" "linux"
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmdakvm.pl $(PMDADIR)/pmdakvm.pl
+else
+install:
+endif
 
 default_pcp : default
 

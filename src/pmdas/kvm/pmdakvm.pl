@@ -39,7 +39,7 @@ sub kvm_fetch_callback
     return ($value, 1);
 }
 
-$pmda = PCP::PMDA->new('kvm', 92);
+$pmda = PCP::PMDA->new('kvm', 93);
 
 my $pmid = 0;
 opendir(DIR, $kvm_path) || $pmda->err("pmdakvm failed to open $kvm_path: $!");
