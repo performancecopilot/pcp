@@ -1269,7 +1269,7 @@ if test "`echo $pcp_var_dir | sed 's;/.*\$;;'`" = NONE
 then
     if test $target_os = mingw
     then
-	pcp_var_dir=/
+	pcp_var_dir=
     elif test -d /var/lib
     then
 	pcp_var_dir=/var/lib/pcp
