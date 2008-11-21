@@ -56,20 +56,20 @@ do
 // arithmetic expressions
 valid_a = hinv.ncpu;
 alone_a = no.such.metric;
-sum1_a = irix.mem.physmem + no.such.metric;
-sum2_a = no.such.metric + irix.mem.physmem;
+sum1_a = mem.physmem + no.such.metric;
+sum2_a = no.such.metric + mem.physmem;
 product_a = no.such.metric * hinv.physmem;
-compound1_a = irix.mem.physmem + no.such.metric * hinv.ncpu;
-compound2_a = (no.such.metric + irix.mem.physmem) * hinv.ncpu;
+compound1_a = mem.physmem + no.such.metric * hinv.ncpu;
+compound2_a = (no.such.metric + mem.physmem) * hinv.ncpu;
 
 // boolean expressions
 valid_b = 0 < hinv.ncpu;
 alone_b = 0 < no.such.metric;
-sum1_b = 0 < irix.mem.physmem + no.such.metric;
-sum2_b = 0 < no.such.metric + irix.mem.physmem;
+sum1_b = 0 < mem.physmem + no.such.metric;
+sum2_b = 0 < no.such.metric + mem.physmem;
 product_b = 0 < no.such.metric * hinv.physmem;
-compound1_b = 0 < irix.mem.physmem + no.such.metric * hinv.ncpu;
-compound2_b = 0 < (no.such.metric + irix.mem.physmem) * hinv.ncpu;
+compound1_b = 0 < mem.physmem + no.such.metric * hinv.ncpu;
+compound2_b = 0 < (no.such.metric + mem.physmem) * hinv.ncpu;
 
 // existential expressions
 valid_s = some_inst 500 < sample.bin;
@@ -78,7 +78,7 @@ sum1_s = some_inst 0 < sample.bin + no.such.metric;
 sum2_s = some_inst 0 < no.such.metric + sample;
 product_s = some_inst 0 < no.such.metric * sample.bin;
 compound1_s = some_inst 0 < sample.bin + no.such.metric * sample.bin;
-compound2_s = some_inst 0 < (no.such.metric + irix.mem.physmem) * hinv.ncpu;
+compound2_s = some_inst 0 < (no.such.metric + mem.physmem) * hinv.ncpu;
 
 // no support
 one = sample.long.one;

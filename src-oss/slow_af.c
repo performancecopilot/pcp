@@ -1,11 +1,5 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/time.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#ifndef HAVE_DEV_IN_LIBPCP
-#include <pcp/pmapi_dev.h>
-#endif
 
 static struct timeval	start;
 
@@ -133,5 +127,4 @@ Options\n\
 	    fputc('\n', stderr);
 	}
     }
-    /*NOTREACHED*/
 }

@@ -24,6 +24,7 @@ do
     src-oss/xarch -a $arch -D128 2>&1 \
     | sed \
 	-e 's/posn=[0-9]*/posn=OFFSET/' \
+	-e 's/__pmLogChkLabel/chkLabel/g' \
 	-e '/__pmLogRead/d' \
 	-e '/LogLoadMeta/d' \
 	-e '/__pmLogOpen: inspect file/d' \

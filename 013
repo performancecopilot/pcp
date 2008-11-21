@@ -17,6 +17,7 @@ _filter_trace()
 {
     sed \
 	-e '/chkLabel:/d' \
+	-e '/__pmLogChkLabel:/d' \
 	-e '/__pmLogLoadMeta:/d' \
 	-e '/__pmLogSetTime/d' \
 	-e '/__pmLogRead/d'

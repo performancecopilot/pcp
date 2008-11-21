@@ -123,5 +123,4 @@ main()
 #endif
 
     exit(sts);
-    /*NOTREACHED*/
 }

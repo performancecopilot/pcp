@@ -1,9 +1,9 @@
 QA output created by 173
 metrics_a[0]: proc.nprocs 3.0.0
 metrics_b[0]: proc.nprocs 3.0.0
-metrics_b[1]: irix.kernel.all.syscall 1.10.19
+metrics_b[1]: kernel.all.syscall 1.10.19
 metrics_c[0]: proc.nprocs 3.0.0
-metrics_c[1]: irix.kernel.all.sysexec 1.10.20
+metrics_c[1]: kernel.all.sysexec 1.10.20
 Start at: 14:36:16.341
 
 Pass One: rewind and fetch metrics_a until end of log

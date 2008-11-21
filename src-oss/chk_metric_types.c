@@ -4,8 +4,6 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: chk_metric_types.c,v 1.1 2002/10/25 01:33:55 kenmcd Exp $"
-
 #include <unistd.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
@@ -185,10 +183,6 @@ Options\n\
 	exit(1);
     }
 
-#ifdef REALAPP
-    __pmGetLicense(-1, pmProgname, UIMODE);
-#endif
-
     if (logfile != NULL) {
 	__pmOpenLog(pmProgname, logfile, stderr, &sts);
 	if (sts < 0) {
@@ -201,11 +195,6 @@ Options\n\
 	       pmnsfile, pmErrStr(sts));
 	exit(1);
     }
-
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;

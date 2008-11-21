@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: context_test.c,v 1.1 2002/10/18 22:30:50 kenmcd Exp $"
-
 /*
  * context and profile exerciser
  */
@@ -289,5 +287,4 @@ main(int argc, char **argv)
     _err(1);		/* was valid, now destroyed */
 
     exit(0);
-    /*NOTREACHED*/
 }

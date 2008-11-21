@@ -2,8 +2,14 @@
 // Test PMC_Source
 //
 
-#include <iostream.h>
 #include "Source.h"
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
+#include <strings.h>
 
 int
 main(int argc, char* argv[])

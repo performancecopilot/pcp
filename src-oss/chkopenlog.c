@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: chkopenlog.c,v 1.2 2003/05/29 00:19:21 pcpqa Exp $"
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -49,5 +47,4 @@ main(int argc, char *argv[])
 	fprintf(f, "[a helpful little message]\n");
 
     exit(0);
-    /*NOTREACHED*/
 }

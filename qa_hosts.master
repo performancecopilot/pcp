@@ -28,18 +28,14 @@ whirr.engr.sgi.com
 wobbly.melbourne.sgi.com
 
 # Aconex Section
-ken.engr.acx
-nathan.engr.acx
-herry.engr.acx
+forge.scott.net.au
+furnace.scott.net.au
 edge.scott.net.au
-leaf.scott.net.au
+verge.scott.net.au
 croc.scott.net.au
-kenj.scott.net.au
 some-host.scott.net.au
 farawaypmcd.scott.net.au
 socksserver.scott.net.au
-bozo.localdomain
-bozo-pc.localdomain
 
 # sort control lines
 # each line here is a specification that includes the keyword #order and

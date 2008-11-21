@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: storepdu.c,v 1.1 2002/10/22 07:02:33 kenmcd Exp $"
-
 #include <ctype.h>
 #include <errno.h>
 #include <pcp/pmapi.h>
@@ -115,5 +113,4 @@ main(int argc, char **argv)
     }
     printf("pmStore: ok\n");
     exit(0);
-    /*NOTREACHED*/
 }

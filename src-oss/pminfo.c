@@ -677,5 +677,4 @@ main(int argc, char **argv)
     report();
 
     exit(exitsts);
-    /*NOTREACHED*/
 }

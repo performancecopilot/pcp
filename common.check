@@ -230,11 +230,11 @@ _wait_for_pmlogger()
 	    else
 	    	if [ "`hostname | sed -e 's/\..*//'`" != $_pmcdhost ]
 	    	then
-	    	    if scp $_pmcdhost:$PCP_LOG_DIR/pmcd/pmcd.log \
+	    	    if scp -q $_pmcdhost:$PCP_LOG_DIR/pmcd/pmcd.log \
 	    	      $tmp._wait_for_pmlogger.pmcdlog
 	    	    then
 	    	    	cat $tmp._wait_for_pmlogger.pmcdlog
-	    	    elif scp $_pmcdhost:$PCP_LOG_DIR/pmcd.log \
+	    	    elif scp -q $_pmcdhost:$PCP_LOG_DIR/pmcd.log \
 	    	      $tmp._wait_for_pmlogger.pmcdlog
 	    	    then
 	    	    	cat $tmp._wait_for_pmlogger.pmcdlog
@@ -984,10 +984,12 @@ _get_config()
 #
 _disable_loggers()
 {
-    if [ -f $PCP_VAR_DIR/config/pmlogger/control ]
+    [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+    if [ -f $PCP_PMLOGGERCONTROL_PATH ]
     then
 	[ ! -f $tmp.control ] && \
-		$sudo cp $PCP_VAR_DIR/config/pmlogger/control $tmp.control
+		$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
     fi
     cat <<End-of-File >$tmp.tmp
 # dummy file created by qa/$seq on `date`
@@ -996,13 +998,15 @@ _disable_loggers()
 \$version=1.1
 LOCALHOSTNAME y n /var/adm/pcplog/LOCALHOSTNAME -c /dev/null
 End-of-File
-    $sudo cp $tmp.tmp $PCP_VAR_DIR/config/pmlogger/control
+    $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 }
 
 _restore_loggers()
 {
+    [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
     [ -f $tmp.control ] && \
-	$sudo cp $tmp.control $PCP_VAR_DIR/config/pmlogger/control
+	$sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
 }
 
 # _check_core [dir]

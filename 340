@@ -31,6 +31,9 @@ here=`pwd`
 sudo=$here/sudo
 status=1	# failure is the default!
 
+[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+
 _filter_pminfo()
 {
     sed \
@@ -59,7 +62,7 @@ cleanup()
     if $_chkconfig_pmlogger_on
     then
 	[ -f $tmp.control ] && \
-	    $sudo cp $tmp.control $PCP_VAR_DIR/config/pmlogger/control
+	    $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
 	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -79,7 +82,7 @@ dov1hosts=true
 
 # disable all pmloggers ... Linux does not have "chkconfig pmlogger off"
 _chkconfig_pmlogger_on=true
-$sudo cp $PCP_VAR_DIR/config/pmlogger/control $tmp.control
+$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
 cat <<End-of-File >$tmp.tmp
 # dummy file created by qa/$seq on `date`
 # the goal here is to have a controlled primary logger that does
@@ -87,7 +90,7 @@ cat <<End-of-File >$tmp.tmp
 \$version=1.1
 LOCALHOSTNAME y n $PCP_LOGGING_DIR/LOCALHOSTNAME -c /dev/null
 End-of-File
-$sudo cp $tmp.tmp $PCP_VAR_DIR/config/pmlogger/control
+$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 #_change_config pmlogger off
 
 $sudo cp $config $oconfig
@@ -179,12 +182,12 @@ if $dov1hosts
 then
     echo
     echo "    checking access for list1 (should fail)"
-    ssh pcpqa@$other1 pminfo -h $me -f pmcd.numclients 2>&1 \
+    ssh -q pcpqa@$other1 pminfo -h $me -f pmcd.numclients 2>&1 \
       | sed -e 's/"'$me'"/"HOST"/g'
 fi
 echo
 echo "    checking access for list2 (should fail)"
-ssh pcpqa@$other2 pminfo -h $me -f pmcd.numclients 2>&1 \
+ssh -q pcpqa@$other2 pminfo -h $me -f pmcd.numclients 2>&1 \
   | sed -e 's/"'$me'"/"HOST"/g'
 
 echo "pmcd.log:======="
@@ -258,13 +261,13 @@ if $dov1hosts
 then
     echo
     echo "    checking access for iplist1 (should fail)"
-    ssh pcpqa@$other1 pminfo -h $me -f pmcd.numclients 2>&1 \
+    ssh -q pcpqa@$other1 pminfo -h $me -f pmcd.numclients 2>&1 \
       | sed -e 's/"'$me'"/"HOST"/g'
 fi
 
 echo
 echo "    checking access for iplist2 (should fail)"
-ssh pcpqa@$other2 pminfo -h $me -f pmcd.numclients 2>&1 \
+ssh -q pcpqa@$other2 pminfo -h $me -f pmcd.numclients 2>&1 \
   | sed -e 's/"'$me'"/"HOST"/g'
 
 echo "pmcd.log:======="

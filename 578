@@ -200,7 +200,7 @@ else
 fi
 
 sed -e "/^@ SIMPLE/s/SIMPLE/$simple_domain/" < help \
-| $sudo newhelp -v 2 -o help
+| $sudo $PCP_BINADM_DIR/newhelp -v 2 -o help
 echo "Help generated"
 cd $here
 

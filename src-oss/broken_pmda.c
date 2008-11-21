@@ -4,8 +4,6 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: broken_pmda.c,v 1.2 2004/06/15 09:39:44 kenmcd Exp $"
-
 #include <stdio.h>
 #include <time.h>
 #include <pcp/pmapi.h>
@@ -386,5 +384,4 @@ main(int argc, char **argv)
     pmdaMain(&desc);
 
     exit(0);
-    /*NOTREACHED*/
 }

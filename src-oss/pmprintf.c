@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: pmprintf.c,v 1.2 2003/05/29 00:44:42 pcpqa Exp $"
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -50,5 +48,4 @@ main(int argc, char *argv[])
     pmprintf("\n");
     pmflush();
     exit(0);
-    /*NOTREACHED*/
 }

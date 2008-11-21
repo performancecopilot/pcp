@@ -4,8 +4,6 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: mark-bug.c,v 1.2 2003/02/11 23:02:22 kenmcd Exp $"
-
 #include <unistd.h>
 #include <limits.h>
 #include <pcp/pmapi.h>
@@ -221,10 +219,6 @@ Options\n\
 	exit(1);
     }
 
-#ifdef REALAPP
-    __pmGetLicense(-1, pmProgname, UIMODE);
-#endif
-
     if (logfile != NULL) {
 	__pmOpenLog(pmProgname, logfile, stderr, &sts);
 	if (sts < 0) {
@@ -237,11 +231,6 @@ Options\n\
 	       pmnsfile, pmErrStr(sts));
 	exit(1);
     }
-
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;

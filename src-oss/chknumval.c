@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: chknumval.c,v 1.1 2002/10/21 00:59:56 kenmcd Exp $"
-
 /*
  * chknumval - check out new encoding of errors within numval of a pmResult
  */
@@ -11,9 +9,6 @@
 #include <ctype.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#ifndef HAVE_DEV_IN_LIBPCP
-#include <pcp/pmapi_dev.h>
-#endif
 
 int
 main(int argc, char **argv)
@@ -24,15 +19,8 @@ main(int argc, char **argv)
     char	*p;
     char	*host = "localhost";
     char	*namespace = PM_NS_DEFAULT;
-#ifdef PCP_DEBUG
     static char	*debug = "[-D N]";
-#else
-    static char	*debug = "";
-#endif
     static char	*usage = "[-D N] [-h hostname] [-n namespace] [-v]";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     int		i;
     int		ctlport;
     int		pid = PM_LOG_PRIMARY_PID;
@@ -56,7 +44,6 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:h:n:")) != EOF) {
 	switch (c) {
 
-#ifdef PCP_DEBUG
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
 	    if (sts < 0) {
@@ -67,7 +54,6 @@ main(int argc, char **argv)
 	    else
 		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* hostname for PMCD to contact */
 	    host = optarg;
@@ -238,5 +224,4 @@ main(int argc, char **argv)
     __pmDumpResult(stdout, req);
 
     exit(0);
-    /*NOTREACHED*/
 }

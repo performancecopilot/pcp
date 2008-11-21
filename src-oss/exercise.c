@@ -2,8 +2,6 @@
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: exercise.c,v 1.1 2002/10/18 22:30:50 kenmcd Exp $"
-
 /*
  * General exerciser, checks (for licensed/unlicensed PMCDs)
  *	- PMCD availability
@@ -202,5 +200,4 @@ char *argv[];
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

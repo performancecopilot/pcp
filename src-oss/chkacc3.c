@@ -4,17 +4,8 @@
 
 /* Check access control wildcarding, bad ops etc. */
 
-#include <stdio.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#ifndef HAVE_DEV_IN_LIBPCP
-#include <pcp/pmapi_dev.h>
-#endif
-#include <limits.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 
 int a[4] = {0, 37, 235, 126};
 int b[4] = {0, 201, 77, 127};
@@ -110,5 +101,4 @@ main()
 		    }
     
     exit(0);
-    /*NOTREACHED*/
 }

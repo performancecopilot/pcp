@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: eofarch.c,v 1.1 2002/10/21 11:20:04 kenmcd Exp $"
-
 /*
  * exercise outside feasible log range operations ... before start
  * and after end
@@ -100,10 +98,6 @@ main(int argc, char **argv)
 	printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
 	exit(1);
     }
-
-#ifdef MALLOC_AUDIT
-    atexit(_malloc_audit_);
-#endif
 
     printf("\nPass 1: forward scan\n");
     for (;;) {
@@ -222,5 +216,4 @@ main(int argc, char **argv)
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

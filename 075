@@ -48,27 +48,20 @@ _cmd()
 
 . ./localconfig
 rm -f $seq.out
-if [ $PCP_PLATFORM != irix ]
+if [ $PCP_VER -ge 2707 ]
 then
-    if [ $PCP_VER -ge 2701 ]
-    then
+	ln $seq.out.7 $seq.out
+elif [ $PCP_VER -ge 2701 ]
+then
 	ln $seq.out.6 $seq.out
-    elif [ $PCP_VER -ge 2401 ]
-    then
+elif [ $PCP_VER -ge 2401 ]
+then
 	ln $seq.out.4 $seq.out
-    elif [ $PCP_VER -eq 2400 ]
-    then
+elif [ $PCP_VER -eq 2400 ]
+then
 	ln $seq.out.3 $seq.out
-    else
-	ln $seq.out.2 $seq.out
-    fi
 else
-    if [ $PCP_EOE_VER -ge 6528 ]
-    then
-	ln $seq.out.5 $seq.out
-    else
-	ln $seq.out.1 $seq.out
-    fi
+	ln $seq.out.2 $seq.out
 fi
 
 # get standard filters
@@ -82,11 +75,10 @@ PMCD_CONNECT_TIMEOUT=30
 PMCD_REQUEST_TIMEOUT=30
 export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 
-remote=`./getpmcdhosts -L -n 1 2>$tmp.out`
+remote=`./getpmcdhosts -L -n 1 -a sample 2>$tmp.out`
 if [ -z "$remote" ]
 then
-    cat $tmp.out
-    echo "Arrgh, cannot find a suitable remote pmcd host"
+    cat $tmp.out >$seq.notrun
     exit
 fi
 

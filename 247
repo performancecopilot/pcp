@@ -54,16 +54,16 @@ $dump -a bogus_archive_i_hope 2>&1 | _filter
 $dump bogus_archive_i_hope/hinv.ncpu 2>&1 | _filter
 
 echo "--- bogus metric ---"
-$dump make.irix.go.faster 2>&1 | _filter
+$dump make.it.go.faster 2>&1 | _filter
 
 echo "--- bogus instance ---"
-$dump "irix.kernel.percpu.cpu.user[cpu999999]" 2>&1 | _filter
+$dump "kernel.percpu.cpu.user[cpu999999]" 2>&1 | _filter
 
 echo "--- metric has no instances ---"
 $dump "hinv.ncpu[cpu0]" 2>&1 | _filter
 
 echo "--- matching instances up to leading space ---"
-$dump -imC "irix.kernel.all.load[15,5,1]" 2>&1 | _filter
+$dump -imC "kernel.all.load[15,5,1]" 2>&1 | _filter
 
 echo "--- two archives from the same host ---"
 $dump -a src-oss/gap,src-oss/gap2 hinv.ncpu 2>&1 | _filter

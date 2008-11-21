@@ -2,8 +2,13 @@
 // Test PMC_Context
 //
 
-#include <iostream.h>
 #include "Context.h"
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
 
 int
 main(int argc, char* argv[])

@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: torture_api.c,v 1.2 2002/10/22 18:12:29 kenmcd Exp $"
-
 /*
  * main - general purpose exerciser of much of the PMAPI
  */
@@ -21,49 +19,21 @@ static int 	context_type = 0; /* archive, host or local */
 static char	*namespace = PM_NS_DEFAULT;
 static int	all_children = 1; /* do the children of "" test */
 static int	root_children = 0; /* only do the children of "" test */
-static int	no_irix_names = 0; /* dont use irix names */
 static int	dump_metrics = 0; /* just dump the metrics and exit */
 extern int	pmDebug;
 /*
  * pmns_style == 1 => do PMNS style loading the old way
  * pmns_style == 2 => try to use the distributed PMNS
  */
-#if PMAPI_VERSION == 2
 static int pmns_style = 1;
-#endif
-
-#if defined(__sgi)
-static char *no_irix_namelist[] = {
-    "proc.nprocs",
-    "pmcd.control.debug",
-    "pmcd.control.timeout",
-    "proc.accounting.counts",
-    "pmcd.control.sighup"
-};
-
-#define MAXNOIRIXNAMES (sizeof(no_irix_namelist)/sizeof(char*))
-#endif
 
 /* The list of metrics to test out */
 static char *namelist[] = {
-#if defined(__sgi)
-    "irix.disk.all.total",
-    "irix.kernel.percpu",
-    "irix.kernel.all.syscall",
-    "irix.kernel.all.cpu.user",
-    "irix.kernel.all.cpu.wait.io",
-#elif defined(__hp)
-    "hpux.disk.all.total",
-    "hpux.kernel.percpu",
-    "hpux.kernel.all.syscall",
-    "hpux.kernel.all.cpu.user",
-#else
     "disk.all.total",
     "pmcd",
     "kernel.all.pswitch",
     "kernel.all.cpu.user",
     "kernel.all.cpu.wait.total",
-#endif
     "hinv.ncpu",
     "pmcd.control",
     "sampledso.aggregate.hullo",
@@ -224,7 +194,6 @@ parse_args(int argc, char **argv)
 	    root_children = 1;
 	    break;
 
-#ifdef PCP_DEBUG
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
 	    if (sts < 0) {
@@ -235,7 +204,6 @@ parse_args(int argc, char **argv)
 	    else
 		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* context_namename for live context */
             if (context_type != 0) {
@@ -247,11 +215,9 @@ parse_args(int argc, char **argv)
 	    context_name = optarg;
 	    break;
 
-	case 'i': /* no irix names */
-	    no_irix_names = 1;
+	case 'i':	/* non-IRIX names (always true now) */
 	    break;
 
-#if PMAPI_VERSION == 2
 	case 'L':	/* LOCAL context */
             if (context_type != 0) {
 	        fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n",
@@ -261,7 +227,7 @@ parse_args(int argc, char **argv)
 	    context_type = PM_CONTEXT_LOCAL;
 	    context_name = NULL;
 	    break;
-#endif
+
         case 'm':       /* dump out the list of metrics to be tested */
 	    dump_metrics = 1;
 	    break;
@@ -567,15 +533,6 @@ main(int argc, char **argv)
 {
   parse_args(argc, argv);
 
-    if (no_irix_names == 1) {
-#if defined(__sgi)
-	int ix;
-	for(ix = 0; ix < MAXNOIRIXNAMES; ix++) {
-	    namelist[ix] = no_irix_namelist[ix];
-	}
-#endif
-    }
-
     if (dump_metrics == 1) {
 	int i;
 	for(i = 0; i < MAXNAMES; i++) {
@@ -584,7 +541,6 @@ main(int argc, char **argv)
 	exit(0);
     }
 
-#if PMAPI_VERSION == 2
   if (pmns_style == 2) {
     /* test it the new way with distributed namespace */
     /* i.e. no client loaded namespace */
@@ -595,12 +551,7 @@ main(int argc, char **argv)
     load_namespace(namespace);
     test_api();
   }
-#else
-  load_namespace(namespace);
-  test_api();
-#endif
 
   printf("\nUnexpected failure for %d of %d PMAPI operations\n", _err, _op);
   exit(0);
-  /*NOTREACHED*/
-}/*main*/
+}

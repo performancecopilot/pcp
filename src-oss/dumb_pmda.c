@@ -4,8 +4,6 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: dumb_pmda.c,v 1.1 2005/05/10 00:56:48 kenmcd Exp $"
-
 #include <stdio.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
@@ -69,9 +67,7 @@ main(int argc, char **argv)
     if (sts < 0) {
 	fprintf(stderr, "dumb_pmda: Error on read from pmcd?: %s\n", strerror(errno));
 	exit(1);
-	/*NOTREACHED*/
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

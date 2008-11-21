@@ -35,8 +35,8 @@ echo
 echo "kernel.all.load ["1 minute"] ..."
 cat <<End-of-File >$tmp.config
 log advisory on 200 msec {
-irix.kernel.all.load ["1 minute"]
-irix.kernel.all.load ["1 minute"]
+kernel.all.load ["1 minute"]
+kernel.all.load ["1 minute"]
 }
 End-of-File
 pmlogger -c $tmp.config -T 1 -l $tmp.log $tmp >$tmp.err 2>&1
@@ -48,8 +48,8 @@ echo
 echo "kernel.all.load ..."
 cat <<End-of-File >$tmp.config
 log advisory on 200 msec {
-irix.kernel.all.load
-irix.kernel.all.load
+kernel.all.load
+kernel.all.load
 }
 End-of-File
 pmlogger -c $tmp.config -T 1 -l $tmp.log $tmp >$tmp.err 2>&1

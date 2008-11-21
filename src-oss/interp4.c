@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: interp4.c,v 1.1 2002/10/22 00:03:20 kenmcd Exp $"
-
 /*
  * EOL and clock advancing in interpolate mode
  */
@@ -182,10 +180,6 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-#ifdef MALLOC_AUDIT
-    atexit(_malloc_audit_);
-#endif
-
     if (tflag)
 	pmTrimNameSpace();
 
@@ -315,5 +309,4 @@ main(int argc, char **argv)
     fflush(stdout);
 
     exit(0);
-    /*NOTREACHED*/
 }

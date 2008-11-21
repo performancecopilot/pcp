@@ -12,8 +12,6 @@
  * the Makefile
  */
 
-#ident "$Id: pv.c,v 1.1 2002/10/25 01:33:55 kenmcd Exp $"
-
 int
 main(void)
 {
@@ -76,5 +74,4 @@ main(void)
     printf(" correct: %llu (0x%llx)\n", ull, ull);
 
     exit(0);
-    /*NOTREACHED*/
 }

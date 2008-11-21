@@ -16,7 +16,12 @@ seq=`basename $0`
 rm -f $seq.out
 if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
 then
-    ln $seq.out.2 $seq.out
+    if test $PCP_EOE_VER -ge 2704
+    then
+	ln $seq.out.3 $seq.out
+    else
+	ln $seq.out.2 $seq.out
+    fi
 else
     ln $seq.out.1 $seq.out
 fi
@@ -58,6 +63,7 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 _filter_ins()
 {
     sed \
+	-e '/^Installing .mchart view*/d' \
 	-e 's/.* \(hash table entries\)/  NNN \1/' \
 	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
 	-e 's/.* \(leaf nodes\)/  NNN \1/' \
@@ -197,7 +203,7 @@ else
     exit
 fi
 sed -e "/^@ SIMPLE/s/SIMPLE/$simple_domain/" < help \
-| $sudo newhelp -v 2 -o help
+| $sudo $PCP_BINADM_DIR/newhelp -v 2 -o help
 echo "Help generated"
 cd $here
 

@@ -77,10 +77,10 @@ fi
 
 # Look for any of the pmie child processes left after pmie death
 # They should all be dead
-cat $tmp.num >>$tmp.$PCP_AWK_PROG
-echo "----" >>$tmp.$PCP_AWK_PROG
-cat $tmp.ps.final >>$tmp.$PCP_AWK_PROG
-$PCP_AWK_PROG < $tmp.$PCP_AWK_PROG '
+cat $tmp.num >>$tmp.psawk
+echo "----" >>$tmp.psawk
+cat $tmp.ps.final >>$tmp.psawk
+$PCP_AWK_PROG < $tmp.psawk '
   final == 0 {  
 	        # skip over $1 (num)
 		# chuck all others in pidlist

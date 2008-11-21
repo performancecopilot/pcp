@@ -4,8 +4,6 @@
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: interp_bug2.c,v 1.2 2002/10/22 18:12:29 kenmcd Exp $"
-
 #include <unistd.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
@@ -20,12 +18,12 @@ static char *metrics_a[] = {
 
 static char *metrics_b[] = {
     "proc.nprocs",
-    "irix.kernel.all.syscall"
+    "kernel.all.syscall"
 };
 
 static char *metrics_c[] = {
     "proc.nprocs",
-    "irix.kernel.all.sysexec"
+    "kernel.all.sysexec"
 };
 
 static pmID pmid_a[N_PMID_A];
@@ -196,10 +194,6 @@ Options\n\
 	exit(1);
     }
 
-#ifdef REALAPP
-    __pmGetLicense(-1, pmProgname, UIMODE);
-#endif
-
     if (logfile != (char *)0) {
 	__pmOpenLog(pmProgname, logfile, stderr, &sts);
 	if (sts < 0) {
@@ -211,11 +205,6 @@ Options\n\
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);
     }
-
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
@@ -437,5 +426,4 @@ Options\n\
     }
 
     exit(status);
-    /*NOTREACHED*/
 }

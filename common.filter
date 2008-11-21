@@ -157,6 +157,14 @@ _filter_pmdumplog()
 	-e '/^host:/s/\(  *\).*/\1HOST/'
 }
 
+# pmdumptext
+#
+_filter_pmdumptext()
+{
+    sed \
+	-e 's/^[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/'
+}
+
 # some common -D diagnostics
 #
 _filter_dbg()
@@ -188,6 +196,7 @@ _filter_optional_pmdas()
 	-e '/pmdaash/d' \
 	-e '/pmdabrocade/d' \
 	-e '/pmdacisco/d' \
+	-e '/pmdadbping/d' \
 	-e '/pmdadmf/d' \
 	-e '/pmda_environ/d' \
 	-e '/pmdaespping/d' \
@@ -195,13 +204,17 @@ _filter_optional_pmdas()
 	-e '/pmdahotproc/d' \
 	-e '/pmdainfmx7/d' \
 	-e '/pmdainfmxping/d' \
+	-e '/pmdajstat/d' \
 	-e '/pmdalab/d' \
+	-e '/pmdalmsensors/d' \
 	-e '/pmdalockstat/d' \
 	-e '/pmdalsf/d' \
 	-e '/pmdamailq/d' \
+	-e '/pmdamemcache/d' \
 	-e '/pmdammv/d' \
 	-e '/pmdamounts/d' \
 	-e '/pmdampi/d' \
+	-e '/pmdamysql/d' \
 	-e '/pmdanasavg/d' \
 	-e '/pmdanetprobe/d' \
 	-e '/pmdanews/d' \
@@ -217,11 +230,13 @@ _filter_optional_pmdas()
 	-e '/pmdasnmp/d' \
 	-e '/pmdassping/d' \
 	-e '/pmdasummary/d' \
+	-e '/pmdasystemtap/d' \
 	-e '/pmdasyb10/d' \
 	-e '/pmdasybping/d' \
 	-e '/pmdatrace/d' \
 	-e '/pmdatrivial/d' \
 	-e '/pmdatxmon/d' \
+	-e '/pmdavmware/d' \
 	-e '/pmdawatch/d' \
 	-e '/pmdaweblog/d' \
 	-e '/pmdawebping/d' \
@@ -242,6 +257,7 @@ _filter_top_pmns()
 	-e '/^    broken /d' \
 	-e '/^    cisco /d' \
 	-e '/^    datatape /d' \
+	-e '/^    dbping /d' \
 	-e '/^    dmf /d' \
 	-e '/^    environ /d' \
 	-e '/^    hippi /d' \
@@ -249,11 +265,15 @@ _filter_top_pmns()
 	-e '/^    hw /d' \
 	-e '/^    infmxping /d' \
 	-e '/^    informix /d' \
+	-e '/^    jstat /d' \
 	-e '/^    lab /d' \
+	-e '/^    lmsensors /d' \
 	-e '/^    lsf /d' \
 	-e '/^    mailq /d' \
+	-e '/^    memcache /d' \
 	-e '/^    mmv /d' \
 	-e '/^    mpi /d' \
+	-e '/^    mysql /d' \
 	-e '/^    netprobe /d' \
 	-e '/^    news /d' \
 	-e '/^    oracle /d' \
@@ -268,9 +288,11 @@ _filter_top_pmns()
 	-e '/^    sybase /d' \
 	-e '/^    sybping /d' \
 	-e '/^    sysother /d' \
+	-e '/^    systemtap /d' \
 	-e '/^    trace /d' \
 	-e '/^    trivial /d' \
 	-e '/^    txmon /d' \
+	-e '/^    vmware /d' \
 	-e '/^    web /d' \
 	-e '/^    webping /d' \
 	-e 's/ $//'
@@ -467,10 +489,11 @@ $1 == "Data"		{ printf "%s|",$0; next }
 _filter_pmda_install()
 {
     sed \
-        -e 's/.* \(hash table entries\)/  NNN \1/' \
-        -e 's/.* \(non-leaf nodes\)/  NNN \1/' \
-        -e 's/.* \(leaf nodes\)/  NNN \1/' \
-        -e 's/.* \(bytes of symbol table\)/  NNN \1/' \
+	-e 's/.* \(hash table entries\)/  NNN \1/' \
+	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(leaf nodes\)/  NNN \1/' \
+	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
+	-e '/^Installing .mchart view*/d' \
 	-e '/Terminate PMDA/,/Updating the PMCD/c\
 Terminate PMDA if already installed ...\
 [...install files, make output...]\

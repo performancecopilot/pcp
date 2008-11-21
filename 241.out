@@ -12,8 +12,8 @@ PMC_Source::PMC_Source: Created context 1 to host "HOST"
 PMC_Source::getSource: Matched HOST to source 1
 
 *** Create a local context ***
-PMC_Source::getSource: Creating new LOCAL source
-PMC_Source::PMC_Source: Created context 2 to localhost
+PMC_Source::getSource: Creating new source for CONTEXT_LOCAL
+PMC_Source::PMC_Source: Created context 2 to CONTEXT_LOCAL
 
 *** List all known sources ***
 3 sources:
@@ -27,7 +27,7 @@ PMC_Source::PMC_Source: Created context 2 to localhost
   host = HOST, timezone = TZ, tz hndl = 1
   start = 0, end = 0, dupFlag = false
   1 contexts: 1 
-[2] localhost
+[2] CONTEXT_LOCAL
   sts = 2, type = 3, source = HOST
   host = HOST, timezone = TZ, tz hndl = 2
   start = 0, end = 0, dupFlag = false
@@ -49,8 +49,8 @@ pmc_source: Error: Unable to create context to "HOST": Connection refused
 pmc_source: Error: Unable to create context to "HOST": Connection refused
 
 *** Create a local context ***
-PMC_Source::getSource: Creating new LOCAL source
-PMC_Source::PMC_Source: Created context 1 to localhost
+PMC_Source::getSource: Creating new source for CONTEXT_LOCAL
+PMC_Source::PMC_Source: Created context 1 to CONTEXT_LOCAL
 
 *** List all known sources ***
 4 sources:
@@ -67,7 +67,7 @@ PMC_Source::PMC_Source: Created context 1 to localhost
   sts = ECONNREFUSED, type = 1, source = HOST
   host = HOST, timezone = , tz hndl = 0
 
-[3] localhost
+[3] CONTEXT_LOCAL
   sts = 1, type = 3, source = HOST
   host = HOST, timezone = TZ, tz hndl = 1
   start = 0, end = 0, dupFlag = false

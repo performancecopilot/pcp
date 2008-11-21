@@ -27,9 +27,8 @@ Contents of the selected configuration file:
 #	current directory set to $PCP_LOG_DIR/pmcd and the
 #	following set in the environment:
 #		IFS=" \t\n"
-#		PATH=... as per /etc/pcp.env ...
+#		PATH=... as per $PCP_DIR/etc/pcp.env ...
 #
-# [RCSID]
 
 # Specification format, one per line ("Tags" must be unique)
 # Tag	Shell command
@@ -38,11 +37,7 @@ Contents of the selected configuration file:
 null	exit 0
 
 # not too much work, date(1) is pretty light-weight
-date	/bin/date
-
-# this burns some CPU cycles, and if the page cache is busy will require
-# disk I/O to read the file "/unix"
-sum	sum /unix
+date	date
 
 # compile and run the generic simple program ... requires a C compiler
 # to be installed
@@ -55,29 +50,22 @@ cc	cd /tmp; rm -f $$.[oc] $$; echo "main(){printf(\"g'day world\\\\n\");}" >/tmp
 dns	nslookup - DEFAULT-DNS-SERVER </dev/null
 
 # DNS lookup for localhost
-dns-self	nslookup `/usr/bsd/hostname`
+dns-self	nslookup `hostname`
 
 # DNS lookup that will fail ...
 dns-err	nslookup foo.bar.no.host.com
 
 # ypserv ... if you have yp running
-ypserv	ypcat hosts | grep `/usr/bsd/hostname`
+ypserv	ypcat hosts | grep `hostname`
 
 # contact portmap/rpcbind for registered RPC programs
-rpcbind	/usr/etc/rpcinfo -p
+rpcbind	rpcinfo -p
 
 # if smtpd is running here, a simple test
-smtp	( echo "expn root"; echo quit ) | /usr/pcp/bin/telnet-probe localhost 25
+smtp	( echo "expn root"; echo quit ) | telnet-probe localhost 25
 
-# NNTP ... probably need to customize nntp server host
-nntp	( echo "listgroup comp.sys.sgi"; echo quit ) | /usr/pcp/bin/telnet-probe tokyo.engr.sgi.com 119
-
-# probe HIPPI interfaces ...
-hippi	/usr/pcp/bin/hipprobe
-
-# probe autofsd ...
-autofsd	/usr/pcp/bin/autofsd-probe
-
+# NNTP ... need to customize nntp server host
+nntp	( echo "listgroup comp.sys.sgi"; echo quit ) | telnet-probe tokyo.engr.sgi.com 119
 --------------- end ./sample.conf ---------------
 
 Use this configuration file? [y] 
@@ -90,13 +78,12 @@ Compiled PMNS contains
   NNN leaf nodes
   NNN non-leaf nodes
   NNN bytes of symbol table
-Installing pmchart view(s) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 [...removing files...]
 Wait 10 seconds for the shping agent to initialize ...
-Check shping metrics have appeared ... 11 metrics and 83 values
+Check shping metrics have appeared ... 11 metrics and 65 values
 
 === remove shping agent ===
 Culling the Performance Metrics Name Space ...

@@ -26,6 +26,9 @@ fi
 
 _filter()
 {
+    [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+    PCP_PMLOGGERCONTROL_PATH=`dirname "$PCP_PMLOGGERCONTROL_PATH"`
     sed \
 	-e 's/\.\.\.*/[dots]/' \
 	-e 's;/usr/var;/var;g' \
@@ -33,13 +36,12 @@ _filter()
 	-e "s/$LOCALHOST/LOCALHOST/g" \
 	-e "s;$LOGGING_DIR;\$PCP_LOG_DIR;" \
 	-e "s;$PCP_LOG_DIR;\$PCP_LOG_DIR;" \
-	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;" \
+	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \
 	-e 's/control:[0-9][0-9]*]/control:LINE]/' \
 	-e 's/process [0-9][0-9]*/process PID/' \
 	-e 's/\.* done/. done/' \
 	-e 's/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]/CHECK/' \
     | _filter_cron_scripts
-
 }
 
 tmp=/tmp/$$
@@ -67,7 +69,7 @@ echo 'connect primary' | pmlc
 
 echo
 echo "Expect this should do nothing ..." | tee -a $seq.full
-$sudo pmlogger_check -V 2>&1 | tee -a $seq.full | _filter
+$sudo $PCP_BINADM_DIR/pmlogger_check -V 2>&1 | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
 pid=`LC_TIME=POSIX ls -l $PCP_TMP_DIR/pmlogger/primary 2>/dev/null | sed -e 's/.*\/\([0-9][0-9]*\)$/\1/'`
@@ -93,7 +95,7 @@ pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 sleep 10
 
 echo "Expect this to re-start the primary logger ..." | tee -a $seq.full
-$sudo pmlogger_check -V 2>&1 | tee -a $seq.full | _filter
+$sudo $PCP_BINADM_DIR/pmlogger_check -V 2>&1 | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
 pid=`LC_TIME=POSIX ls -l $PCP_TMP_DIR/pmlogger/primary 2>/dev/null | sed -e 's/.*\/\([0-9][0-9]*\)$/\1/'`
@@ -120,13 +122,13 @@ sleep 10
 
 echo
 echo "Expect this to quietly re-start the primary logger ..." | tee -a $seq.full
-$sudo pmlogger_check 2>&1 | tee -a $seq.full | _filter
+$sudo $PCP_BINADM_DIR/pmlogger_check 2>&1 | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
 echo
 echo "Expect this to get a mutex failure ..." | tee -a $seq.full
 $sudo touch $LOGGING_DIR/$LOCALHOST/lock
-$sudo pmlogger_check 2>&1 \
+$sudo $PCP_BINADM_DIR/pmlogger_check 2>&1 \
 | tee -a $seq.full | _filter \
 | $PCP_AWK_PROG '
 /-r.-r.-r.-/	{ $4 = "GROUP"; $6 = "Mmm"; $7 = "D"; $8 = "YYYY" }
@@ -136,7 +138,7 @@ echo
 echo "Expect this to cleanup an old lock file ..." | tee -a $seq.full
 $sudo rm -f $LOGGING_DIR/$LOCALHOST/lock
 $sudo touch -t 199701020304.00 $LOGGING_DIR/$LOCALHOST/lock
-$sudo pmlogger_check 2>&1 \
+$sudo $PCP_BINADM_DIR/pmlogger_check 2>&1 \
 | tee -a $seq.full | _filter \
 | $PCP_AWK_PROG '
 /-r.-r.-r.-/	{ $4 = "GROUP" }

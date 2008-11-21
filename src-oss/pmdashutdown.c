@@ -71,5 +71,4 @@ main(int argc, char *argv[])
 
     fprintf(stderr, "%s terminated\n", pmProgname);
     exit(0);
-    /*NOTREACHED*/
 }

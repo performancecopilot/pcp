@@ -2,8 +2,6 @@
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: ipc.c,v 1.1 2002/10/18 22:30:50 kenmcd Exp $"
-
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -11,9 +9,6 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#ifndef HAVE_DEV_IN_LIBPCP
-#include <pcp/pmapi_dev.h>
-#endif
 
 #define SEMAPHORES /* comment this to NOT test semaphores */
 
@@ -282,5 +277,4 @@ CLEANUP:
 #endif
 
     exit(0);
-    /*NOTREACHED*/
 }

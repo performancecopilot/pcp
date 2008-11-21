@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: storepast.c,v 1.1 2002/10/22 00:03:20 kenmcd Exp $"
-
 /*
  * storepast - illegal pmStore wrt to current
  */
@@ -100,11 +98,6 @@ Options:\n\
 	exit(1);
     }
 
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
-
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
 	gethostname(local, sizeof(local));
@@ -148,5 +141,4 @@ Options:\n\
     printf("pmStore, should produce PM_ERR_NOHOST, ...\n%s\n", pmErrStr(sts));
 
     exit(0);
-    /*NOTREACHED*/
 }

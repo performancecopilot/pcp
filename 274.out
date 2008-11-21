@@ -13,7 +13,6 @@ Compiled PMNS contains
   NNN leaf nodes
   NNN non-leaf nodes
   NNN bytes of symbol table
-Installing pmchart view(s) ...
 Skipping PMDA install and PMCD re-configuration
 dbpmda> open pipe src-oss/broken_pmda_2_0 -D47104 -l logfile
 Start broken_pmda_2_0 PMDA: ./src-oss/broken_pmda_2_0 -D47104 -l logfile

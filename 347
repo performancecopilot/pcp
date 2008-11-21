@@ -3,7 +3,6 @@
 # $Revision: 1.14 $
 # Exercise the Install/Remove for the news PMDA
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # creator
@@ -46,7 +45,9 @@ _filter()
 	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
 	-e 's/.* \(leaf nodes\)/  NNN \1/' \
 	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
-	-e "/make: Nothing to be done for .install./d"
+	-e 's/^Install news as a daemon or perl agent? \[daemon] //' \
+	-e "/^Installing .mchart view.*/d" \
+	-e "/^make: Nothing to be done for .install./d"
 }
 
 _filter_info()

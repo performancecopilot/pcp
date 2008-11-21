@@ -64,8 +64,7 @@ qahost=`_get_fqdn`
 otherhost=`./getpmcdhosts -L -n 1 2>$tmp.out`
 if [ -z "$otherhost" ]
 then
-    cat $tmp.out
-    echo "Arrgh, cannot find a suitable remote pmcd host"
+    cat $tmp.out >$seq.notrun
     exit
 fi
 qanet=`_host_to_ipaddr $otherhost | sed -e 's/[0-9][0-9]*$/*/'`
@@ -154,12 +153,13 @@ grep trace $PCP_PMCDCONF_PATH >>$here/$seq.full
 
 echo '=== Building demo program (app2) ==='
 cd $PCP_DEMOS_DIR/trace
-$here/sudo sh -c "( make app2 >$tmp.make 2>&1
+$here/sudo make app2 >$tmp.make 2>&1
 if [ $? -ne 0 ]
 then
-    echo app2 make failed.  Heres the make output ...
+    echo "trace app2 make failed.  Here is the make output ..."
     cat $tmp.make
-fi)"
+    exit 1
+fi
 
 echo '=== Running demo program (app2) ==='
 # use app2 process to bump the number of connections.
@@ -184,7 +184,7 @@ echo '=== Attempting bad remote access ==='
 echo "=== Attempting bad remote access ===" >>$here/$seq.full
 # Error message mapping is for Linux
 #
-rsh $otherhost -n -l pcpqa "sh -c 'PCP_TRACE_HOST=$qahost pmtrace -v 1 eek'" 2>&1 \
+ssh -q pcpqa@$otherhost "sh -c 'PCP_TRACE_HOST=$qahost pmtrace -v 1 eek'" 2>&1 \
 | tee -a $here/$seq.full \
 | sed \
     -e "s/Interrupted function call/Cannot connect to PMDA - permission denied/" \

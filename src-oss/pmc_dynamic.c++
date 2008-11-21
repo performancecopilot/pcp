@@ -2,11 +2,16 @@
 // Test libpcp_pmc dynamic indom support
 //
 
-#include <iostream.h>
 #include <errno.h>
 #include "Group.h"
 #include "Metric.h"
 #include "Indom.h"
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
 
 #define ADD_INST	"dynamic.control.add"
 #define DEL_INST	"dynamic.control.del"

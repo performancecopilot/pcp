@@ -6,17 +6,8 @@
  * Check connection limits
  */
 
-#include <stdio.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#ifndef HAVE_DEV_IN_LIBPCP
-#include <pcp/pmapi_dev.h>
-#endif
-#include <limits.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 
 int
 main()
@@ -74,5 +65,4 @@ main()
     __pmAccDumpHosts(stderr);
 
     exit(0);
-    /*NOTREACHED*/
 }

@@ -102,7 +102,6 @@ _haveagents()
     # PMDAs than need to be here for QA
     #
     COMMON_PMDAS="sample sampledso simple"
-    [ -d $PCP_PMDAS_DIR/weblog ] && COMMON_PMDAS="$COMMON_PMDAS weblog"
     if [ -d $PCP_PMDAS_DIR/cisco ]
     then
 	# cisco PMDA requires that you can reach a router
@@ -224,16 +223,18 @@ _havelogger()
 	echo "Primary pmlogger not running ..."
 	echo "chkconfig pmlogger on, and restart PMCD"
 	_change_config pmlogger on
-	if sed -e '/^#/d' $PCP_VAR_DIR/config/pmlogger/control \
+	[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+	if sed -e '/^#/d' "$PCP_PMLOGGERCONTROL_PATH" \
 	   | $PCP_AWK_PROG '$2 == "y" && $3 == "n" { sts=1 } END { exit 1-sts }'
 	then
 	    : echo "have primary pmlogger line in control file"
 	else
 	    : echo "no primary pmlogger line in control file"
-	    if $PCP_AWK_PROG '$2 == "y" && $3 == "n" { sts=1} END { exit 1-sts }' <$PCP_VAR_DIR/config/pmlogger/control
+	    if $PCP_AWK_PROG '$2 == "y" && $3 == "n" { sts=1} END { exit 1-sts }' <$PCP_PMLOGGERCONTROL_PATH
 	    then
 		: echo uncomment
-		$sudo ed - $PCP_VAR_DIR/config/pmlogger/control <<End-of-File
+		$sudo ed - $PCP_PMLOGGERCONTROL_PATH <<End-of-File
 /^#[^ 	][^ 	]*[ 	][ 	]*y/s/#//
 w
 q
@@ -242,7 +243,7 @@ End-of-File
 	    	echo add
 		if [ -e $PCP_LOG_DIR/pmlogger ]
 		then
-		    $sudo ed - $PCP_VAR_DIR/config/pmlogger/control <<\End-of-File
+		    $sudo ed - $PCP_PMLOGGERCONTROL_PATH <<\End-of-File
 $a
 
 # added by PCP qa
@@ -252,7 +253,7 @@ w
 q
 End-of-File
 		else
-		    $sudo ed - $PCP_VAR_DIR/config/pmlogger/control <<\End-of-File
+		    $sudo ed - $PCP_PMLOGGERCONTROL_PATH <<\End-of-File
 $a
 
 # added by PCP qa
@@ -288,12 +289,10 @@ _havepmcdtrace()
 	if [ $PCP_PLATFORM = irix ]
 	then
 	    PCPQA_PMCDOPTIONS=/etc/config/pmcd.options
-	elif [ $PCP_PLATFORM = linux ]
-	then
-	    PCPQA_PMCDOPTIONS=$PCP_VAR_DIR/config/pmcd/pmcd.options
 	else
-	    bozo
-	    exit 1
+	    [ -z "PCP_PMCDOPTIONS_PATH" ] && \
+		PCP_PMCDOPTIONS_PATH="$PCP_VAR_DIR/config/pmcd/pmcd.options"
+	    PCPQA_PMCDOPTIONS="$PCP_PMCDOPTIONS_PATH"
 	fi
 	$here/sudo chmod u+w $PCPQA_PMCDOPTIONS
 	$here/sudo ed - $PCPQA_PMCDOPTIONS <<'End-of-File'

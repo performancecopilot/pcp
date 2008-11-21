@@ -31,7 +31,7 @@ if [ $PCP_PLATFORM = irix ]
 then
 
 cat >$tmp.conf <<'End-of-File'
-dsk = "irix.disk.dev";
+dsk = "disk.dev";
 total0 = $delta * $dsk.total@0;
 total1 = $delta * $dsk.total@1;
 iops = $delta * ($dsk.total@0 - $dsk.total@1);
@@ -42,7 +42,7 @@ elif [ $PCP_PLATFORM = linux ]
 then
 
 cat >$tmp.conf <<'End-of-File'
-dsk = "irix.disk.dev";
+dsk = "disk.dev";
 total0 = $delta * $dsk.total@0;
 total1 = $delta * $dsk.total@1;
 iops = $delta * ($dsk.total@0 - $dsk.total@1);
@@ -65,7 +65,7 @@ if [ $PCP_PLATFORM = irix ]
 then
 
 cat >$tmp.conf <<'End-of-File'
-dsk = "irix.disk.dev";
+dsk = "disk.dev";
 total0 = $delta * $dsk.total@0;
 total1 = $delta * $dsk.total@1;
 iops = $delta * ($dsk.total@0 - $dsk.total@1);
@@ -77,7 +77,7 @@ elif [ $PCP_PLATFORM = linux ]
 then
 
 cat >$tmp.conf <<'End-of-File'
-dsk = "irix.disk.dev";
+dsk = "disk.dev";
 total0 = $delta * $dsk.total@0;
 total1 = $delta * $dsk.total@1;
 iops = $delta * ($dsk.total@0 - $dsk.total@1);

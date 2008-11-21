@@ -2,9 +2,6 @@
  * Copyright (c) 1994-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: multifetch.c,v 1.1 2002/10/27 21:34:59 kenmcd Exp $"
-
-
 #include <unistd.h>
 #include <ctype.h>
 #include <pcp/pmapi.h>
@@ -126,10 +123,6 @@ Options\n\
 	exit(1);
     }
 
-#ifdef REALAPP
-    _pmGetLicense(-1, cmd, UIMODE);
-#endif
-
     if (logfile != (char *)0) {
 	__pmOpenLog(cmd, logfile, stderr, &sts);
 	if (sts < 0) {
@@ -141,11 +134,6 @@ Options\n\
 	printf("%s: Cannot load namespace from \"%s\": %s\n", cmd, namespace, pmErrStr(sts));
 	exit(1);
     }
-
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
@@ -219,5 +207,4 @@ Options\n\
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

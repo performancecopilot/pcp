@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: pmnsunload.c,v 1.1 2002/10/25 01:33:55 kenmcd Exp $"
-
 /*
  * check open/close archive for mem leaks
  */
@@ -144,6 +142,5 @@ main(int argc, char **argv)
 
     (void)pmDestroyContext(pmWhichContext());
     exit(0);
-    /*NOTREACHED*/
 }
 

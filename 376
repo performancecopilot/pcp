@@ -74,6 +74,7 @@ $here/sudo ./Install -R / < /dev/null 2>&1 | sed \
 	-e '/.[0-9][0-9]* leaf nodes/d' \
 	-e '/.[0-9][0-9]* non-leaf nodes/d' \
 	-e '/.[0-9][0-9]* bytes of symbol table/d' \
+	-e '/^Installing .mchart view*/d' \
 	-e '/Compiled PMNS contains/d' \
 	-e "s/$qahost/HOSTNAME/g" \
 	-e "/make: Nothing to be done for .install./d" \

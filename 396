@@ -35,27 +35,27 @@ _filter()
 
 # real QA test starts here
 echo "=== 1,5 ==="
-pmval -i 1,5 -r -t 1 -s 1 irix.kernel.all.load | _filter
+pmval -i 1,5 -r -t 1 -s 1 kernel.all.load | _filter
 
 echo
 echo "=== \"'1 minute'\" ==="
-pmval -i "'1 minute'" -r -t 1 -s 1 irix.kernel.all.load | _filter
+pmval -i "'1 minute'" -r -t 1 -s 1 kernel.all.load | _filter
 
 echo
 echo "=== '\"1 minute\"' ==="
-pmval -i '"1 minute"' -r -t 1 -s 1 irix.kernel.all.load | _filter
+pmval -i '"1 minute"' -r -t 1 -s 1 kernel.all.load | _filter
 
 echo
 echo "===  '\"1 minute\" \"5 minute\"' ==="
-pmval -i '"1 minute" "5 minute"' -r -t 1 -s 1 irix.kernel.all.load | _filter
+pmval -i '"1 minute" "5 minute"' -r -t 1 -s 1 kernel.all.load | _filter
 
 echo
 echo "===  '\"1 minute\",\"5 minute\"' ==="
-pmval -i '"1 minute","5 minute"' -r -t 1 -s 1 irix.kernel.all.load | _filter
+pmval -i '"1 minute","5 minute"' -r -t 1 -s 1 kernel.all.load | _filter
 
 echo
 echo "===  \" '1 minute' , '5 minute' \" ==="
-pmval -i " '1 minute' , '5 minute' " -r -t 1 -s 1 irix.kernel.all.load | _filter
+pmval -i " '1 minute' , '5 minute' " -r -t 1 -s 1 kernel.all.load | _filter
 
 # success, all done
 status=0

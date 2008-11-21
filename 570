@@ -132,7 +132,7 @@ _ls no/such/path/root.bin
 
 echo
 echo "some options errors"
-pmnscomp -n pmns -v 2 -f root.bin
+pmnscomp -n pmns -v 3 -f root.bin 2| sed -e 's/0 or 1/0, 1 or 2/g'
 pmnscomp -n pmns
 pmnscomp
 

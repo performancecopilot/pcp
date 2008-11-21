@@ -99,12 +99,12 @@ interval:  60.00 sec
 12:24:31.724    0.190     0.190     0.140 
 12:25:31.724    0.150     0.170     0.140 
 
-=== network.interface.total.packets - counter ===
+=== irix.network.interface.total.packets - counter ===
 
 --- arg  ---
 Note: timezone set to local timezone of host "gonzo" from archive
 
-metric:    network.interface.total.packets
+metric:    irix.network.interface.total.packets
 archive:   src-oss/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
@@ -124,7 +124,7 @@ interval:  1.00 sec
 --- arg -f 0 ---
 Note: timezone set to local timezone of host "gonzo" from archive
 
-metric:    network.interface.total.packets
+metric:    irix.network.interface.total.packets
 archive:   src-oss/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
@@ -144,7 +144,7 @@ interval:  1.00 sec
 --- arg -f 1 ---
 Note: timezone set to local timezone of host "gonzo" from archive
 
-metric:    network.interface.total.packets
+metric:    irix.network.interface.total.packets
 archive:   src-oss/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
@@ -164,7 +164,7 @@ interval:  1.00 sec
 --- arg -w 4 -f 0 ---
 Note: timezone set to local timezone of host "gonzo" from archive
 
-metric:    network.interface.total.packets
+metric:    irix.network.interface.total.packets
 archive:   src-oss/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
@@ -184,7 +184,7 @@ interval:  1.00 sec
 --- arg -w 6 -f 2 ---
 Note: timezone set to local timezone of host "gonzo" from archive
 
-metric:    network.interface.total.packets
+metric:    irix.network.interface.total.packets
 archive:   src-oss/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997

@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: chktrim.c,v 1.1 2002/10/21 00:59:56 kenmcd Exp $"
-
 /*
  * Check new functionality of pmTrimNameSpace
  */
@@ -115,5 +113,4 @@ char *argv[];
     pmTraversePMNS("sample", dometric);
 
     exit(0);
-    /*NOTREACHED*/
 }

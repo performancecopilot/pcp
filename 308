@@ -110,8 +110,8 @@ rm -f /tmp/\$\$.*
 echo rem_pid=\$! rem_tmp=\$\$
 end-of-file
 
-scp $tmp.cmd pcpqa@$host1:$tmp.cmd
-eval `ssh pcpqa@$host1 /bin/sh $tmp.cmd`
+scp -q $tmp.cmd pcpqa@$host1:$tmp.cmd
+eval `ssh -q pcpqa@$host1 /bin/sh $tmp.cmd`
 
 if [ -z "$rem_pid" ]
 then
@@ -130,9 +130,9 @@ _wait_for_pmlogger "-h $host1 $rem_pid" /hosts/$host1/tmp/$rem_tmp.log
 ( echo "connect $rem_pid@$host1"; cat $tmp.conf ) | pmlc
 sleep 2
 rm -f $tmp.0 $tmp.meta $tmp.index
-scp pcpqa@$host1:/tmp/$rem_tmp.index $tmp.index
-scp pcpqa@$host1:/tmp/$rem_tmp.meta $tmp.meta
-scp pcpqa@$host1:/tmp/$rem_tmp.0 $tmp.0
+scp -q pcpqa@$host1:/tmp/$rem_tmp.index $tmp.index
+scp -q pcpqa@$host1:/tmp/$rem_tmp.meta $tmp.meta
+scp -q pcpqa@$host1:/tmp/$rem_tmp.0 $tmp.0
 x=`pmdumplog $tmp | _filter`
 if [ -z "$x" ]
 then
@@ -142,7 +142,7 @@ then
 else
     echo "$x"
 fi
-ssh pcpqa@$host1 "rm -f /tmp/$rem_tmp.*"
+ssh -q pcpqa@$host1 "rm -f /tmp/$rem_tmp.*"
 
 echo
 echo "pmlc local, pmcd remote on one host, pmlogger remote on a different host ..."
@@ -167,7 +167,7 @@ echo rem_pid=\$! rem_tmp=\$\$
 end-of-file
 
 scp $tmp.cmd pcpqa@$host1:$tmp.cmd
-eval `ssh pcpqa@$host1 /bin/sh $tmp.cmd`
+eval `ssh -q pcpqa@$host1 /bin/sh $tmp.cmd`
 
 if [ -z "$rem_pid" ]
 then
@@ -198,7 +198,7 @@ then
 else
     echo "$x"
 fi
-ssh pcpqa@$host1 "rm -f /tmp/$rem_tmp.*"
+ssh -q pcpqa@$host1 "rm -f /tmp/$rem_tmp.*"
 
 # success, all done
 status=0

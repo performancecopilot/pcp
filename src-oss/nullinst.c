@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: nullinst.c,v 1.1 2002/10/22 07:02:33 kenmcd Exp $"
-
 /*
  * nullinst - check metrics with indom PM_INDOM_NULL return 1
  * value with inst == PM_IN_NULL
@@ -123,5 +121,4 @@ main(int argc, char **argv)
 	pmTraversePMNS(argv[optind], dometric);
 
     exit(0);
-    /*NOTREACHED*/
 }

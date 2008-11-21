@@ -92,6 +92,7 @@ sample	89	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 89
 sample	99	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 99
 sample	109	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 109
 End-of-File
+$sudo cp $tmp.out $PCP_PMCDCONF_PATH.$seq
 $sudo cp $tmp.out $PCP_PMCDCONF_PATH
 $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
@@ -106,6 +107,7 @@ then
     echo "=== pmcd.log ==="
     cat $PCP_PMCDLOG_PATH
     status=1
+    exit
 else
     echo "OK, 11 started"
 fi
@@ -118,6 +120,7 @@ sleep 5
 _wait_for_pmcd
 
 ps $PCP_PS_ALL_FLAGS >$tmp.out
+cp $tmp.out $seq.full
 num=`grep pmdasample $tmp.out | wc -l | sed -e 's/ //g'`
 if [ $num -ne 0 ]
 then

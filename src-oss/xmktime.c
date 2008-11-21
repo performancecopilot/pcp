@@ -84,5 +84,4 @@ main()
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

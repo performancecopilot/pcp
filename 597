@@ -12,11 +12,17 @@ owner=kenmcd
 seq=`basename $0`
 
 . ./localconfig
+rm -f $seq.out
 if [ $PCP_VER -le 2100 ]
 then
     echo "needs new shping with telnet-probe" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
+fi
+if grep PCP_DIR $PCP_PMDAS_DIR/shping/sample.conf >/dev/null ; then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
 fi
 
 echo "QA output created by $seq"
@@ -62,13 +68,11 @@ _filter()
 {
     _filter_pmda_install | \
     sed \
-	-e 's/\$Id.*\$/[RCSID]/' \
 	-e '/Removing files/d' \
 	-e '/Updating the PMCD control file/c\
 Updating the PMCD control file, and notifying PMCD ...\
 [...removing files...]'
 }
-
 
 # real QA test starts here
 here=`pwd`

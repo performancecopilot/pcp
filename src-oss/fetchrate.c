@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: fetchrate.c,v 1.1 2002/10/25 01:33:55 kenmcd Exp $"
-
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -129,5 +127,4 @@ USAGE:
     pmProgname, metric, (double)iterations / delta);
 
     exit(0);
-    /*NOTREACHED*/
 }

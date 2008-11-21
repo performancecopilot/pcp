@@ -81,7 +81,7 @@ echo "  lo0     ec0     ec2     section"
 echo "  yes     yes     no      1"
 echo "  no      no      no      2"
 echo "  yes     no      yes     3"
-pmval -O $offset -t $delta -z -a src-oss/changeinst -i ec0,ec2,lo0 network.interface.total.packets 2>$tmp.err
+pmval -O $offset -t $delta -z -a src-oss/changeinst -i ec0,ec2,lo0 irix.network.interface.total.packets 2>$tmp.err
 cat $tmp.err
 
 echo

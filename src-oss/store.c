@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: store.c,v 1.1 2002/10/21 00:59:56 kenmcd Exp $"
-
 #include <ctype.h>
 #include <errno.h>
 #include <pcp/pmapi.h>
@@ -220,5 +218,4 @@ main(int argc, char **argv)
     pmFreeResult(old);
 
     exit(0);
-    /*NOTREACHED*/
 }

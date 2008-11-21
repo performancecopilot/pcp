@@ -37,7 +37,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 rm -f $seq.out
-if pmlogger_check -x 2>&1 | grep NTV >/dev/null
+if $PCP_BINADM_DIR/pmlogger_check -x 2>&1 | grep NTV >/dev/null
 then
     # new version with -T option
     #
@@ -56,6 +56,8 @@ sudo=$here/sudo
 $sudo rm -rf $tmp.*
 status=1	# failure is the default!
 _needclean=true
+[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
 
 trap "_cleanup" 0 1 2 3 15
 
@@ -64,7 +66,7 @@ _cleanup()
     if $_needclean
     then
 	[ -f $tmp.control ] && \
-	    $sudo cp $tmp.control $PCP_VAR_DIR/config/pmlogger/control
+	    $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
 	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -89,6 +91,7 @@ _filter()
     sed \
 	-e "s/`hostname | sed -e 's/\..*//'`/LOCALHOST/g" \
 	-e "/UID.*PID/d" \
+	-e "/USER.*PID/d" \
 	-e "s/.* pmlogger .*-c .*/<pmlogger process>/" \
 	-e "/Warning: creating directory/s/(.*\/\([^/][^/]*\))/(...\/\1)/" \
     | _filter_pmlogger_log \
@@ -103,7 +106,7 @@ skip == 1	{ next }
 		{ print }'
 }
 
-$sudo cp $PCP_VAR_DIR/config/pmlogger/control $tmp.control
+$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
 cat <<End-of-File >$tmp.tmp
 # dummy file created by qa/$seq on `date`
 # the goal here is to have just two pmlogger instances running and
@@ -114,7 +117,7 @@ LOCALHOSTNAME	y n $LOGGING_DIR/LOCALHOSTNAME-one -c /dev/null
 LOCALHOSTNAME	n n $LOGGING_DIR/LOCALHOSTNAME-two -c /dev/null -L
 no.such.host	n n $LOGGING_DIR/no.such.host -c /dev/null
 End-of-File
-$sudo cp $tmp.tmp $PCP_VAR_DIR/config/pmlogger/control
+$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 
 # stop pmcd, create the archive directories, start pmcd ...
 #
@@ -133,7 +136,7 @@ echo
 echo "=== pmlogger_check ==="
 echo >>$seq.full
 echo "=== pmlogger_check ===" >>$seq.full
-$sudo pmlogger_check >$tmp.out 2>&1
+$sudo $PCP_BINADM_DIR/pmlogger_check >$tmp.out 2>&1
 _filter <$tmp.out
 cat $tmp.out >>$seq.full
 
@@ -143,7 +146,7 @@ then
     echo "=== pmlogger_check -T ==="
     echo >>$seq.full
     echo "=== pmlogger_check -T ===" >>$seq.full
-    $sudo pmlogger_check -T >$tmp.out 2>&1
+    $sudo $PCP_BINADM_DIR/pmlogger_check -T >$tmp.out 2>&1
     _filter <$tmp.out
     cat $tmp.out >>$seq.full
 fi

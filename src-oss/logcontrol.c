@@ -2,18 +2,12 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: logcontrol.c,v 1.1 2002/10/21 00:59:56 kenmcd Exp $"
-
 /*
  * Utility to control archive logging for metrics
  */
 
-#include <stdio.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#ifndef HAVE_DEV_IN_LIBPCP
-#include <pcp/pmapi_dev.h>
-#endif
 
 int
 main(int argc, char **argv)
@@ -43,21 +37,12 @@ main(int argc, char **argv)
     int		inst;
     pmResult	*status;
     int		delta = 5000;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:i:n:p:r:")) != EOF) {
 	switch (c) {
 
-#ifdef PCP_DEBUG
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
 	    if (sts < 0) {
@@ -68,7 +53,6 @@ main(int argc, char **argv)
 	    else
 		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* hostname for PMCD to contact */
 	    host = optarg;
@@ -111,9 +95,7 @@ USAGE:
 "Usage: %s [options] action metric ...\n"
 "\n"
 "Options\n"
-#ifdef PCP_DEBUG
 " -D level	set debug level\n"
-#endif
 " -h hostname	contact PMCD at this host\n"
 " -i instance	apply only to this instance\n"
 " -n namespace	use and alternative name space\n"
@@ -267,5 +249,4 @@ done:
     sleep(1);
 
     exit(0);
-    /*NOTREACHED*/
 }

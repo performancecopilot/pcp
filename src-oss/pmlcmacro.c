@@ -6,13 +6,8 @@
  * exercise the state bit fiddling macros for pmlogger and friends
  */
 
-#ident "$Id: pmlcmacro.c,v 1.1 2002/10/22 00:03:20 kenmcd Exp $"
-
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#ifndef HAVE_DEV_IN_LIBPCP
-#include <pcp/pmapi_dev.h>
-#endif
 
 int
 main()
@@ -61,5 +56,4 @@ main()
 	}
     }
     exit(0);
-    /*NOTREACHED*/
 }

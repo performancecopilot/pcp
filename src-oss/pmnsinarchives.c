@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: pmnsinarchives.c,v 1.1 2002/10/25 01:33:55 kenmcd Exp $"
-
 /*
  * main - test the code which adds PMNS to archives
  */
@@ -189,5 +187,4 @@ main(int argc, char **argv)
   }/*for*/
 
   exit(0);
-  /*NOTREACHED*/
 }

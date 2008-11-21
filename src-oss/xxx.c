@@ -2,9 +2,6 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: xxx.c,v 1.1 2002/10/21 00:59:56 kenmcd Exp $"
-
-#include <unistd.h>
 #include <ctype.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
@@ -18,11 +15,7 @@ main()
     int		n;
     int		numpmid;
     pmResult	*resp;
-    void	*mem;
-
-    extern int pmDebug;
-    pmDebug = DBG_TRACE_PDU;
-    pmDebug = 0;
+    unsigned long mem;
 
     if ((n = pmLoadNameSpace(PM_NS_DEFAULT)) < 0) {
 	fprintf(stderr, "pmLoadNameSpace: %s\n", pmErrStr(n));
@@ -55,7 +48,7 @@ main()
 	exit(1);
     }
 
-    mem = sbrk(0);
+    __pmProcessDataSize(NULL);
     for (i = 0; i < 10000; i++) {
 	if ((n = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    fprintf(stderr, "pmFetch: %s\n", pmErrStr(n));
@@ -63,8 +56,8 @@ main()
 	}
 	pmFreeResult(resp);
     }
-    printf("mem growth: %d Kbytes\n", ((int)sbrk(0) - (int)mem)/1024);
+    __pmProcessDataSize(&mem);
+    printf("mem growth: %lu Kbytes\n", mem);
 
     exit(0);
-    /*NOTREACHED*/
 }

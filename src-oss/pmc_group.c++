@@ -5,10 +5,15 @@
 // Two groups are using live contexts, one group is using archives.
 //
 
-#include <iostream.h>
 #include "Group.h"
 #include "Source.h"
 #include "Metric.h"
+#ifdef HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <iostream.h>
+#endif
 
 #define mesg(str)	msg(__LINE__, str)
 #define checksts()	pmflush(); if (sts < 0) fail(__LINE__, sts);
@@ -667,13 +672,13 @@ main(int argc, char* argv[])
     // names
     //
 
-    mesg("Client3: LIST 4 snort:disk.dev.read[dks0d1,dks1d1,dks9d1] vldb-disks/disk.dev.total[dks17d8,dks11d3,dks45d2] disk.dev.write[dks1d1,dks0d4] vldb.engr:disk.dev.total[dks18d6,dks11d3]");
+    mesg("Client3: LIST 4 snort:disk.dev.read[dks0d1,dks1d1,dks9d1] vldb-disks/irix.disk.dev.total[dks17d8,dks11d3,dks45d2] disk.dev.write[dks1d1,dks0d4] vldb.engr:irix.disk.dev.total[dks18d6,dks11d3]");
 
     metrics.removeAll();
     metrics.append("snort:disk.dev.read[dks0d1,dks1d1,dks9d1]");
-    metrics.append("vldb-disks/disk.dev.total[dks17d8,dks11d3,dks45d2]");
+    metrics.append("vldb-disks/irix.disk.dev.total[dks17d8,dks11d3,dks45d2]");
     metrics.append("disk.dev.write[dks1d1,dks0d4]");
-    metrics.append("vldb.engr:disk.dev.total[dks18d6,dks11d3]");
+    metrics.append("vldb.engr:irix.disk.dev.total[dks18d6,dks11d3]");
 
     sts = client3->list(metrics);
 
@@ -797,8 +802,8 @@ main(int argc, char* argv[])
 
     mesg("Client1: LIST 2 kernel.all.idle localhost:kernel.all.cpu.user");
     metrics.removeAll();
-    metrics.append("kernel.all.cpu.idle");
-    metrics.append("moomba:kernel.all.cpu.user");
+    metrics.append("irix.kernel.all.cpu.idle");
+    metrics.append("moomba:irix.kernel.all.cpu.user");
     sts = client1->list(metrics);
 
     checksts();

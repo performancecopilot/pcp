@@ -22,7 +22,11 @@ then
     fi
 else
     # open source
-    if [ $PCP_EOE_VER -ge 2402 ]
+    if [ $PCP_EOE_VER -ge 2704 ]
+    then
+	rm -f $seq.out && ln $seq.out.3 $seq.out || exit 1
+	echo "Pmprobe with local context and changes from pv. 807561"
+    elif [ $PCP_EOE_VER -ge 2402 ]
     then
 	rm -f $seq.out && ln $seq.out.2 $seq.out || exit 1
 	echo "Pmprobe with changes from pv. 807561"

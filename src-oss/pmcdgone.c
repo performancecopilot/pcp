@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: pmcdgone.c,v 1.2 2005/01/19 02:22:26 kenmcd Exp $"
-
 /*
  * ping pmcd 4 times, kill off pmcd, ping 4 more times, restart pmcd,
  * ping 4 more times ... and some reconnect attempts for good measure ...
@@ -13,13 +11,9 @@
  * Has to be run as root to control pmcd
  */
 
-#include <unistd.h>
 #include <ctype.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#ifndef HAVE_DEV_IN_LIBPCP
-#include <pcp/pmapi_dev.h>
-#endif
 
 #include "localconfig.h"
 
@@ -246,31 +240,13 @@ main(int argc, char **argv)
     int		c;
     char	*p;
     int		errflag = 0;
-#if PCP_VER >= 2200
     char	*binadm = pmGetConfig("PCP_BINADM_DIR");
-#else
-#ifdef __sgi
-    char	*binadm = "/usr/pcp/bin";
-#elif defined __linux
-    char	*binadm = "/usr/share/pcp/bin";
-#endif
-#endif
     char	path[MAXPATHLEN];
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:")) != EOF) {
 	switch (c) {
-
-#ifdef PCP_DEBUG
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
 	    if (sts < 0) {
@@ -281,7 +257,6 @@ main(int argc, char **argv)
 	    else
 		pmDebug |= sts;
 	    break;
-#endif
 
 	case '?':
 	default:
@@ -424,5 +399,4 @@ Options:\n\
 
     fprintf(stderr, "%d unexpected errors.\n", err);
     exit(0);
-    /*NOTREACHED*/
 }

@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: pcp_lite_crash.c,v 1.1 2002/10/22 04:19:56 kenmcd Exp $"
-
 /*
  * pcp_lite_crash - crash pcp lite
  */
@@ -28,7 +26,7 @@ main(int argc, char **argv)
     pmDesc	desc;
     int		type = 0;
     char	*host = NULL;
-    char	*metric = "irix.kernel.all.cpu.idle";
+    char	*metric = "kernel.all.cpu.idle";
 
     /* trim command name of leading directory components */
     pmProgname = argv[0];
@@ -111,11 +109,6 @@ Options:\n\
 	exit(1);
     }
 
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
-
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
 	gethostname(local, sizeof(local));
@@ -146,5 +139,4 @@ Options:\n\
     }
 
     exit(0);
-    /*NOTREACHED*/
 }

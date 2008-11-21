@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: 779246.c,v 1.1 2002/10/27 21:34:59 kenmcd Exp $"
-
 /*
  * pv 779246 - check sample pmda returns type on sample.sysinfo
  */
@@ -147,5 +145,4 @@ main(int argc, char *argv[])
      * give a hint how many bytes are expected in the output */
     printf ("+++ Expect %d bytes\n", sizeof (struct sysinfo));
     return dometric();
-    /*NOTREACHED*/
 }

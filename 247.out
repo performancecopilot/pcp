@@ -8,10 +8,10 @@ pmdumptext: Error: archive "bogus_archive_i_hope": No such file or directory
 pmdumptext: Error: archive "bogus_archive_i_hope": No such file or directory
 pmdumptext: no valid metrics, exiting.
 --- bogus metric ---
-pmdumptext: Error: THIS_HOST:make.irix.go.faster: Unknown metric name
+pmdumptext: Error: THIS_HOST:make.it.go.faster: Unknown metric name
 pmdumptext: no valid metrics, exiting.
 --- bogus instance ---
-pmdumptext: Error: THIS_HOST:irix.kernel.percpu.cpu.user[cpu999999]: Unknown or illegal instance identifier
+pmdumptext: Error: THIS_HOST:kernel.percpu.cpu.user[cpu999999]: Unknown or illegal instance identifier
 pmdumptext: no valid metrics, exiting.
 --- metric has no instances ---
 pmdumptext: Error: THIS_HOST:hinv.ncpu[cpu0]: Unknown or illegal instance identifier

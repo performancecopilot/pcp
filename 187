@@ -84,7 +84,7 @@ _burn_pids
 otherhost=`./getpmcdhosts -L -n 1`
 if [ -z "$otherhost" ]
 then
-    echo "Arrgh, cannot find a suitable remote pmcd host"
+    cat $tmp.out >$seq.notrun
     exit
 fi
 otherip=`_host_to_ipaddr $otherhost`

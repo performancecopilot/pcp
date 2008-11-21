@@ -1,8 +1,5 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <pcp/platform_defs.h>
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 
 typedef struct {
 	unsigned int	a:16;
@@ -77,7 +74,7 @@ main(int argc, char *argv[])
 	/*
 	 * assign fields, then swap bytes
 	 */
-	memset((void *)&extbits, 0, sizeof(ext_bits_t));
+	memset(&extbits, 0, sizeof(ext_bits_t));
 	extbits.a = outbits.a;
 	extbits.b = outbits.b;
 	extbits.c = outbits.c;
@@ -97,5 +94,4 @@ main(int argc, char *argv[])
 	write(1, &extbits, sizeof(bits_t));
     }
     exit(0);
-    /*NOTREACHED*/
 }

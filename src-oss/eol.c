@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: eol.c,v 1.1 2002/10/22 04:19:56 kenmcd Exp $"
-
 /*
  * eol - exercise _pmLogFindEOF
  */
@@ -97,19 +95,10 @@ Options\n\
 	exit(1);
     }
 
-#ifdef REALAPP
-    __pmGetLicense(-1, pmProgname, UIMODE);
-#endif
-
     if ((sts = pmLoadNameSpace(namespace)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);
     }
-
-#ifdef MALLOC_AUDIT
-    _malloc_reset_();
-    atexit(_malloc_audit_);
-#endif
 
     if (ahtype != PM_CONTEXT_ARCHIVE) {
 	fprintf(stderr, "%s: -a is not optional!\n", pmProgname);
@@ -217,5 +206,4 @@ Options\n\
     __pmLogReads = 0;
 
     exit(0);
-    /*NOTREACHED*/
 }
