@@ -454,6 +454,7 @@ __pmConnectLocal(void)
 	    }
 	}
 #endif
+#if defined(IB_DSO)
 	if (dp->domain == IB_DSO) {
 	    /*
 	     * only attach infiniband pmda dso if env var PMDA_LOCAL_IB is
@@ -465,6 +466,7 @@ __pmConnectLocal(void)
 		continue;
 	    }
 	}
+#endif
 
         snprintf(pathbuf, sizeof(pathbuf), "%s/%s",
 		 pmGetConfig("PCP_PMDAS_DIR"), dp->name);
