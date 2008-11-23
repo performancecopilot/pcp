@@ -188,32 +188,30 @@ $pmda->add_metric(pmda_pmid(0,13), PM_TYPE_U64, $memcache_indom,
 $pmda->add_metric(pmda_pmid(0,14), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'memcache.limit_maxbytes', '', '');
-=pod
-$id = 0;
-foreach $n (6 .. 17) {	# stats slabs (N=6-17)
-    $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
-		      PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		      "memcache.slabs.slab$n.chunk_size", '', '');
-    $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
-		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		      "memcache.slabs.slab$n.chunks_per_page", '', '');
-    $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
-		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		      "memcache.slabs.slab$n.total_pages", '', '');
-    $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
-		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		      "memcache.slabs.slab$n.total_chunks", '', '');
-    $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
-		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		      "memcache.slabs.slab$n.used_chunks", '', '');
-    $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
-		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		      "memcache.slabs.slab$n.free_chunks", '', '');
-    $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
-		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		      "memcache.slabs.slab$n.free_chunks_end", '', '');
-}
-=cut
+# $id = 0;
+# foreach $n (6 .. 17) {	# stats slabs (N=6-17)
+#     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
+# 		      PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+# 		      "memcache.slabs.slab$n.chunk_size", '', '');
+#     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
+# 		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+# 		      "memcache.slabs.slab$n.chunks_per_page", '', '');
+#     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
+# 		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+# 		      "memcache.slabs.slab$n.total_pages", '', '');
+#     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
+# 		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+# 		      "memcache.slabs.slab$n.total_chunks", '', '');
+#     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
+# 		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+# 		      "memcache.slabs.slab$n.used_chunks", '', '');
+#     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
+# 		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+# 		      "memcache.slabs.slab$n.free_chunks", '', '');
+#     $pmda->add_metric(pmda_pmid(1,$id++), PM_TYPE_U32, $memcache_indom,
+# 		      PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+# 		      "memcache.slabs.slab$n.free_chunks_end", '', '');
+# }
 
 $pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
@@ -222,17 +220,15 @@ $pmda->add_metric(pmda_pmid(2,1), PM_TYPE_U32, $memcache_indom,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'memcache.total_malloced', '', '');
 
-=pod
-$id = 0;
-foreach $n (6 .. 17) {	# stats items (N=6-17)
-    $pmda->add_metric(pmda_pmid(3,$id++), PM_TYPE_U32, $memcache_indom,
-		      PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		      "memcache.items.item$n.count", '', '');
-    $pmda->add_metric(pmda_pmid(3,$id++), PM_TYPE_U32, $memcache_indom,
-		      PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
-		      "memcache.items.item$n.age", '', '');
-}
-=cut
+# $id = 0;
+# foreach $n (6 .. 17) {	# stats items (N=6-17)
+#     $pmda->add_metric(pmda_pmid(3,$id++), PM_TYPE_U32, $memcache_indom,
+# 		      PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+# 		      "memcache.items.item$n.count", '', '');
+#     $pmda->add_metric(pmda_pmid(3,$id++), PM_TYPE_U32, $memcache_indom,
+# 		      PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
+# 		      "memcache.items.item$n.age", '', '');
+# }
 
 $pmda->add_indom($memcache_indom, \@memcache_instances,
 		 'Instance domain exporting each memcache daemon', '');
@@ -242,3 +238,70 @@ $pmda->set_fetch_callback(\&memcache_fetch_callback);
 
 &memcache_connect;
 $pmda->run;
+
+=pod
+
+=head1 NAME
+
+pmdamemcache - memcache performance metrics domain agent (PMDA)
+
+=head1 DESCRIPTION
+
+This PMDA extracts performance data from memcached, a distributed memory
+caching daemon commonly used to improve web serving performance.  A farm
+of memcached processes over multiple servers can be utilised by a single
+web application, increasing the total available object cache size, and
+decreasing the database load associated with smaller cache sizes.  This
+system is described in detail at http://www.danga.com/memcached.
+
+=head1 INSTALLATION
+
+Configure B<pmdamemcache> to extract the values from set of hosts
+used in the memcache farm.  These hosts can be listed in the
+$PCP_PMDAS_DIR/memcache/memcache.conf file, in the format (i.e.
+Perl array) described at the top of pmdamemcache.pl.  A custom
+refresh rate can also be configured using this mechanism.
+
+	# cd $PCP_PMDAS_DIR/memcache
+	# [ edit memcache.conf ]
+
+Once this is setup, you can access the names and values for the
+memcache performance metrics by doing the following as root:
+
+	# cd $PCP_PMDAS_DIR/memcache
+	# ./Install
+
+If you want to undo the installation, do the following as root:
+
+	# cd $PCP_PMDAS_DIR/memcache
+	# ./Remove
+
+B<pmdamemcache> is launched by pmcd(1) and should never be executed
+directly.  The Install and Remove scripts notify pmcd(1) when
+the agent is installed or removed.
+
+=head1 FILES
+
+=over
+
+=item $PCP_PMDAS_DIR/memcache/memcache.conf
+
+configuration file listing monitored memcache instances
+
+=item $PCP_PMDAS_DIR/memcache/Install
+
+installation script for the B<pmdamemcache> agent
+
+=item $PCP_PMDAS_DIR/memcache/Remove
+
+undo installation script for the B<pmdamemcache> agent
+
+=item $PCP_LOG_DIR/pmcd/memcache.log
+
+default log file for error messages from B<pmdamemcache>
+
+=back
+
+=head1 SEE ALSO
+
+pmcd(1) and memcached(1).

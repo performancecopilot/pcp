@@ -64,7 +64,7 @@ pmdakvm - Linux virtualisation performance metrics domain agent (PMDA)
 
 =head1 DESCRIPTION
 
-pmdakvm is a Performance Metrics Domain Agent (PMDA) which exports
+B<pmdakvm> is a Performance Metrics Domain Agent (PMDA) which exports
 metric values from the Linux KVM virtualisation subsystem.
 
 Unlike many PMDAs it dynamically enumerates its metric hierarchy,
@@ -83,7 +83,7 @@ If you want to undo the installation, do the following as root:
 	# cd $PCP_PMDAS_DIR/kvm
 	# ./Remove
 
-pmdakvm is launched by pmcd(1) and should never be executed
+B<pmdakvm> is launched by pmcd(1) and should never be executed
 directly.  The Install and Remove scripts notify pmcd(1) when
 the agent is installed or removed.
 
@@ -93,15 +93,15 @@ the agent is installed or removed.
 
 =item $PCP_PMDAS_DIR/kvm/Install
 
-installation script for the pmdakvm agent
+installation script for the B<pmdakvm> agent
 
 =item $PCP_PMDAS_DIR/kvm/Remove
 
-undo installation script for the pmdakvm agent
+undo installation script for the B<pmdakvm> agent
 
 =item $PCP_LOG_DIR/pmcd/kvm.log
 
-default log file for error messages from pmdakvm
+default log file for error messages from B<pmdakvm>
 
 =back
 

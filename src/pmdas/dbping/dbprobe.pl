@@ -72,17 +72,21 @@ for (;;) {
 __END__
 
 =head1 NAME
-dbprobe - database response time and availability information
+dbprobe.pl - database response time and availability information
 
 =head1 SYNOPSIS
 
+dbprobe.pl [ delay ]
+
 =head1 DESCRIPTION
 
-blah, blah B<dbprobe> blah, blah...
+The B<dbprobe.pl> utility is used by pmdadbping to measure response
+time from a monitored database.  A given query is executed on
+the database at the requested interval (delay, which defaults
+to 60 seconds).  This response time measure can be exported
+via the Performance Co-Pilot framework for live and historical
+monitoring using B<pmdadbping>(1).
 
 =head1 SEE ALSO
 
-L<pmdadbping> - the database "ping" performance metrics domain agent
-L<PMDA> - the Performance Metric Domain Agent documentation
-
-=cut
+pmcd(1), pmdadbping(1) and DBI(3).
