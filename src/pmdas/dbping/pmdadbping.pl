@@ -160,7 +160,7 @@ If you want to undo the installation, do the following as root:
 	# cd $PCP_PMDAS_DIR/dbping
 	# ./Remove
 
-pmdadbping is launched by pmcd(1) and should never be executed
+B<pmdadbping> is launched by pmcd(1) and should never be executed
 directly.  The Install and Remove scripts notify pmcd(1) when
 the agent is installed or removed.
 
@@ -170,19 +170,19 @@ the agent is installed or removed.
 
 =item $PCP_PMDAS_DIR/dbping/probes.stp
 
-probe configuration file for stap(1), run by pmdadbping
+probe configuration file for stap(1), run by B<pmdadbping>
 
 =item $PCP_PMDAS_DIR/dbping/Install
 
-installation script for the pmdadbping agent
+installation script for the B<pmdadbping> agent
 
 =item $PCP_PMDAS_DIR/dbping/Remove
 
-undo installation script for the pmdadbping agent
+undo installation script for the B<pmdadbping> agent
 
 =item $PCP_LOG_DIR/pmcd/dbping.log
 
-default log file for error messages from pmdadbping
+default log file for error messages from B<pmdadbping>
 
 =back
 

@@ -122,6 +122,8 @@ produced by stap.  Two example probes are implemented in the
 default systemtap PMDA script - readdir and sync traces (see
 $PCP_PMDAS_DIR/systemtap/pmdasystemtap.pl for details).
 
+=back
+
 	# cd $PCP_PMDAS_DIR/systemtap
 	# [ edit probes.stp, test /usr/bin/stap probes.stp ]
 	# [ edit pmdasystemtap.pl ]

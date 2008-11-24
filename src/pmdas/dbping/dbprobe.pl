@@ -69,9 +69,10 @@ for (;;) {
     sleep($delay);
 }
 
-__END__
+=pod
 
 =head1 NAME
+
 dbprobe.pl - database response time and availability information
 
 =head1 SYNOPSIS
@@ -80,12 +81,12 @@ dbprobe.pl [ delay ]
 
 =head1 DESCRIPTION
 
-The B<dbprobe.pl> utility is used by pmdadbping to measure response
-time from a monitored database.  A given query is executed on
-the database at the requested interval (delay, which defaults
+The B<dbprobe.pl> utility is used by pmdadbping(1) to measure
+response time from a database.  A given query is executed on
+the database at the requested interval (I<delay>, which defaults
 to 60 seconds).  This response time measure can be exported
 via the Performance Co-Pilot framework for live and historical
-monitoring using B<pmdadbping>(1).
+monitoring using pmdadbping(1).
 
 =head1 SEE ALSO
 

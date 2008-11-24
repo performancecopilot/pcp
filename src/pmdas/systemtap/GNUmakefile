@@ -23,9 +23,20 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= systemtap
 DOMAIN	= SYSTEMTAP
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmdasystemtap.pl probes.stp README
+LSRCFILES = Install Remove pmdasystemtap.pl probes.stp
 
-default: 
+ifneq ($(POD2MAN),)
+MAN_SECTION = 1
+MAN_PAGES = pmdasystemtap.$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+endif
+
+LDIRT = domain.h root pmns *.log $(MAN_PAGES)
+
+default: $(MAN_PAGES)
+
+pmdasystemtap.1: pmdasystemtap.pl
+	$(POD_MAKERULE)
 
 include $(BUILDRULES)
 
@@ -34,6 +45,7 @@ ifeq "$(TARGET_OS)" "linux"
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 probes.stp pmdasystemtap.pl $(PMDADIR)
+	@$(INSTALL_MAN)
 endif
 
 default_pcp : default

@@ -20,12 +20,22 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= mysql
+IAM = mysql
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 LSRCFILES = Install Remove pmdamysql.pl
-LDIRT	= domain.h root pmns *.log
 
-default:
+ifneq ($(POD2MAN),)
+MAN_SECTION = 1
+MAN_PAGES = pmdamysql.$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+endif
+
+LDIRT = domain.h root pmns *.log $(MAN_PAGES)
+
+default: $(MAN_PAGES)
+
+pmdamysql.1: pmdamysql.pl
+	$(POD_MAKERULE)  
 
 include $(BUILDRULES)
 
@@ -33,6 +43,7 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmdamysql.pl $(PMDADIR)/pmdamysql.pl
+	@$(INSTALL_MAN)
 
 default_pcp : default
 
