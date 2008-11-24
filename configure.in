@@ -422,6 +422,13 @@ fi
 cpanflute=$CPANFLUTE
 AC_SUBST(cpanflute)
 
+dnl check if the pod2man program is available (perl man page builder)
+if test -z "$POD2MAN"; then
+    AC_PATH_PROG(POD2MAN, pod2man)
+fi
+pod2man=$POD2MAN
+AC_SUBST(pod2man)
+
 dnl check if the gendist program is available
 if test -z "$GENDIST" ; then
    AC_PATH_PROG(GENDIST, gendist) 
