@@ -679,7 +679,7 @@ pdh_metric_t metricdesc[] = {
       }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
     },
 /* hinv.ndisk */
-    { { PMDA_PMID(0,108), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+    { { PMDA_PMID(0,108), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
       }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
     },
@@ -1402,22 +1402,32 @@ pdh_metric_t metricdesc[] = {
 /* disk.dev.average.read_time */
     { { PMDA_PMID(0,229), PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
-      }, Q_DISK_DEV, M_NONE, 0, 0, NULL,
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
       "\\PhysicalDisk(*/*#*)\\Avg. Disk sec/Read"
     },
 /* disk.dev.average.write_time */
     { { PMDA_PMID(0,230), PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
-      }, Q_DISK_DEV, M_NONE, 0, 0, NULL,
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
       "\\PhysicalDisk(*/*#*)\\Avg. Disk sec/Write"
     },
 /* disk.dev.average.total_time */
     { { PMDA_PMID(0,231), PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
-      }, Q_DISK_DEV, M_NONE, 0, 0, NULL,
+      }, Q_DISK_DEV, M_REDO, 0, 0, NULL,
       "\\PhysicalDisk(*/*#*)\\Avg. Disk sec/Transfer"
     },
 
+/* hinv.nfilesys */
+    { { PMDA_PMID(0,232), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
+    },
+/* hinv.pagesize */
+    { { PMDA_PMID(0,233), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, Q_KERNEL, M_NONE, 0, 0, NULL, ""
+    },
 };
 int metricdesc_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);
 
@@ -1505,7 +1515,6 @@ static int
 windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int		*pmidp = (__pmID_int *)&mdesc->m_desc.pmid;
-    int			dom = pmidp->domain;
     pdh_value_t		*vp;
 
     if (pmidp->cluster != 0 || pmidp->item > metricdesc_sz ||
@@ -1520,10 +1529,12 @@ windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	atom->ul = windows_physmem;
 	return 1;
     case 107:	/* hinv.ncpu */
-	atom->ul = pmdaCacheOp(INDOM(dom, CPU_INDOM, PMDA_CACHE_SIZE_ACTIVE);
+	atom->ul = pmdaCacheOp(INDOM(pmidp->domain, CPU_INDOM),
+				PMDA_CACHE_SIZE_ACTIVE);
 	return 1;
     case 108:	/* hinv.ndisk */
-	atom->ul = pmdaCacheOp(INDOM(dom, DISK_INDOM), PMDA_CACHE_SIZE_ACTIVE);
+	atom->ul = pmdaCacheOp(INDOM(pmidp->domain, DISK_INDOM),
+				PMDA_CACHE_SIZE_ACTIVE);
 	return 1;
     case 109:	/* kernel.uname.distro */
 	atom->cp = windows_uname;
@@ -1551,6 +1562,13 @@ windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return 1;
     case 67: case 117: case 118: case 119:
 	return filesys_fetch_callback(pmidp->item, inst, atom);
+    case 232:	/* hinv.nfilesys */
+	atom->ul = pmdaCacheOp(INDOM(pmidp->domain, FILESYS_INDOM),
+				PMDA_CACHE_SIZE_ACTIVE);
+	return 1;
+    case 233:	/* hinv.pagesize */
+	atom->ul = windows_pagesize;
+	return 1;
     }
 
     /*
