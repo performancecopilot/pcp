@@ -25,7 +25,8 @@
 #include "libpdh.h"
 #include "domain.h"
 
-#define MAX_M_PATH_LEN 80	/* pattern passed to PdhExpandCounterPath */
+#define MAX_M_PATH_LEN	80	/* pattern passed to PdhExpandCounterPath */
+#define INDOM(x,y)	(((x)<<22)|(y))	/* pmdaCache interfaces use indom */
 
 enum {
     DISK_INDOM,
@@ -124,7 +125,7 @@ extern char *pdherrstr(int);
 extern char *decode_ctype(DWORD);
 extern pmInDom windows_indom(int, int);
 
-extern int windows_check_metric(pdh_metric_t *, int);
+extern int windows_check_metric(pdh_metric_t *);
 extern int windows_check_instance(char *, pdh_metric_t *);
 
 extern void windows_instance_refresh(pmInDom);

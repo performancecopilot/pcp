@@ -1505,6 +1505,7 @@ static int
 windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int		*pmidp = (__pmID_int *)&mdesc->m_desc.pmid;
+    int			dom = pmidp->domain;
     pdh_value_t		*vp;
 
     if (pmidp->cluster != 0 || pmidp->item > metricdesc_sz ||
@@ -1519,10 +1520,10 @@ windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	atom->ul = windows_physmem;
 	return 1;
     case 107:	/* hinv.ncpu */
-	atom->ul = pmdaCacheOp(CPU_INDOM, PMDA_CACHE_SIZE_ACTIVE);
+	atom->ul = pmdaCacheOp(INDOM(dom, CPU_INDOM, PMDA_CACHE_SIZE_ACTIVE);
 	return 1;
     case 108:	/* hinv.ndisk */
-	atom->ul = pmdaCacheOp(DISK_INDOM, PMDA_CACHE_SIZE_ACTIVE);
+	atom->ul = pmdaCacheOp(INDOM(dom, DISK_INDOM), PMDA_CACHE_SIZE_ACTIVE);
 	return 1;
     case 109:	/* kernel.uname.distro */
 	atom->cp = windows_uname;
