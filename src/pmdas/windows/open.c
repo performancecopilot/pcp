@@ -468,7 +468,7 @@ windows_check_metric(pdh_metric_t *pmp)
     LPTSTR      	p;
 
     for (i = 0; i < pmp->num_vals; i++)
-	CloseHandle(pmp->vals[i].hdl);
+	PdhRemoveCounter(pmp->vals[i].hdl);
     if (pmp->num_vals)
 	free(pmp->vals);
     pmp->num_vals = 0;
