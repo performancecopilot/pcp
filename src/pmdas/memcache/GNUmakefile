@@ -23,7 +23,7 @@ include $(TOPDIR)/src/include/builddefs
 IAM = memcache
 DOMAIN = MEMCACHE
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmdamemcache.pl README client.pl
+LSRCFILES = Install Remove pmdamemcache.pl client.pl
 
 ifneq ($(POD2MAN),)
 MAN_SECTION = 1
