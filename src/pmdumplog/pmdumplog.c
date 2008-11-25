@@ -293,9 +293,10 @@ rawdump(FILE *f)
     int		sts;
 
     old = ftell(f);
-    fseek(f, 0, SEEK_SET);
+    fseek(f, (long)0, SEEK_SET);
 
     while ((sts = fread(&len, 1, sizeof(len), f)) == sizeof(len)) {
+	len = ntohl(len);
 	printf("Dump ... record len: %d @ offset: %ld", len, ftell(f) - sizeof(len));
 	len -= 2 * sizeof(len);
 	for (i = 0; i < len; i++) {
@@ -306,7 +307,7 @@ rawdump(FILE *f)
 	    }
 	    if (i % 32 == 0) putchar('\n');
 	    if (i % 4 == 0) putchar(' ');
-	    printf("%02x", check &0xff);
+	    printf("%02x", check & 0xff);
 	}
 	putchar('\n');
 	if ((sts = fread(&check, 1, sizeof(check), f)) != sizeof(check)) {
@@ -314,6 +315,7 @@ rawdump(FILE *f)
 		printf("Unexpected EOF\n");
 	    break;
 	}
+	check = ntohl(check);
 	len += 2 * sizeof(len);
 	if (check != len) {
 	    printf("Trailer botch: %d != %d\n", check, len);
