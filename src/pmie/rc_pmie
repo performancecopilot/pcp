@@ -186,7 +186,7 @@ case "$1" in
 
 	if which pmie >/dev/null 2>&1
 	then
-	    if $IS_ON pmie
+	    if is_chkconfig_on pmie
 	    then
 		[ ! -d "$RUNDIR" ] && mkdir -p "$RUNDIR"
 		cd $RUNDIR

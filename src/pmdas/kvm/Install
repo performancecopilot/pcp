@@ -1,4 +1,4 @@
-#!gmake
+#! /bin/sh
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
@@ -16,38 +16,25 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
+# Install the KVM PMDA
+#
 
-TOPDIR = ../../..
-include $(TOPDIR)/src/include/builddefs
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-IAM	= systemtap
-DOMAIN	= SYSTEMTAP
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmdasystemtap.pl probes.stp
+iam=kvm
+perl_opt=true
+daemon_opt=false
 
-ifneq ($(POD2MAN),)
-MAN_SECTION = 1
-MAN_PAGES = pmdasystemtap.$(MAN_SECTION)
-MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
-endif
+if ! test -d /sys/kernel/debug; then
+    echo "DEBUGFS not enabled in your kernel"
+    exit 1
+fi
+if ! test -d /sys/kernel/debug/kvm; then
+    echo "KVM statistics unavailable (load kvm module and mount debugfs)"
+    exit 1
+fi
 
-LDIRT = domain.h root pmns *.log $(MAN_PAGES)
-
-default: $(MAN_PAGES)
-
-pmdasystemtap.1: pmdasystemtap.pl
-	$(POD_MAKERULE)
-
-include $(BUILDRULES)
-
-install: default
-ifeq "$(TARGET_OS)" "linux"
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 probes.stp pmdasystemtap.pl $(PMDADIR)
-	@$(INSTALL_MAN)
-endif
-
-default_pcp : default
-
-install_pcp : install
+pmdaSetup
+pmdaInstall
+exit 0

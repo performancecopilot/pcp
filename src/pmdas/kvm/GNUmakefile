@@ -20,32 +20,32 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= systemtap
-DOMAIN	= SYSTEMTAP
+IAM	= kvm
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmdasystemtap.pl probes.stp
+LSRCFILES = Install Remove pmdakvm.pl
+LDIRT	= domain.h root pmns *.log $(MAN_PAGES)
 
 ifneq ($(POD2MAN),)
 MAN_SECTION = 1
-MAN_PAGES = pmdasystemtap.$(MAN_SECTION)
+MAN_PAGES = pmdakvm.$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 endif
 
-LDIRT = domain.h root pmns *.log $(MAN_PAGES)
-
 default: $(MAN_PAGES)
 
-pmdasystemtap.1: pmdasystemtap.pl
+pmdakvm.1: pmdakvm.pl
 	$(POD_MAKERULE)
 
 include $(BUILDRULES)
 
-install: default
 ifeq "$(TARGET_OS)" "linux"
+install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 probes.stp pmdasystemtap.pl $(PMDADIR)
+	$(INSTALL) -m 644 pmdakvm.pl $(PMDADIR)/pmdakvm.pl
 	@$(INSTALL_MAN)
+else
+install:
 endif
 
 default_pcp : default

@@ -1,3 +1,11 @@
+pcp (2.7.8-20081117) unstable; urgency=low
+
+  * Merged with new code from SGI.
+  * Infiniband and KVM PMDAs included.
+  * Fixes build issue with gcc 4.4 (closes: #504832)
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 17 Nov 2008 21:04:55 +1100
+
 pcp (2.7.7-20080924) unstable; urgency=low
 
   * Merged with new code from SGI.
