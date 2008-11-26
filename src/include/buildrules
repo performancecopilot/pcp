@@ -103,7 +103,10 @@ clean clobber :: $(SUBDIRS) $(PRO_SUBDIRS) $(SNIA_SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 clean-lbs clean-sgi realclean distclean: clean
-	rm -f $(TOPDIR)/src/include/builddefs $(TOPDIR)/src/include/pcp.conf
+	rm -f $(TOPDIR)/src/include/builddefs \
+	      $(TOPDIR)/src/include/pcp.conf \
+	      $(TOPDIR)/src/include/platform_defs.h \
+	      $(TOPDIR)/src/include/pmdbg.h
 	rm -f $(TOPDIR)/pcp.lsm $(TOPDIR)/configure
 
 #
