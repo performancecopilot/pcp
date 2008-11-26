@@ -27,7 +27,7 @@ CONFFILES = platform_defs.h builddefs pcp.conf
 LSRCFILES = platform_defs.h.in builddefs.in buildrules pcp.conf.in \
 	    pcp.env mk_pmdbg trace_dev.h trace_hash.h 
 
-LDIRT = $(GENERATED_HFILES) builddefs.install include
+LDIRT = builddefs.install
 
 default :: default_pcp
 

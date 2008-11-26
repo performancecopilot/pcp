@@ -165,6 +165,7 @@ RPMBUILD= @rpmbuild@
 RPM	= @rpm@
 RPM_VERSION = @rpm_version@
 CPANFLUTE = @cpanflute@
+POD2MAN = @pod2man@
 GENDIST	= @gendist@
 DPKG	= @dpkg@
 GENPMDA	= $(TOPDIR)/src/genpmda/genpmda
@@ -210,12 +211,9 @@ SUBDIRS_MAKERULE = \
 	    fi; \
 	done
 
-MAN_MAKERULE = \
-    @for f in *.[12345678] ""; do \
-	if test ! -z "$$f"; then \
-	    $(ZIP) -c < $$f > $$f.gz; \
-	fi; \
-    done
+POD_OPTIONS = --section=$(MAN_SECTION) --release=$(PCP_VERSION) \
+		--center="Performance Co-Pilot" --date="Performance Co-Pilot"
+POD_MAKERULE = $(POD2MAN) $(POD_OPTIONS) $^ $@
 
 INSTALL_MAN = \
     test -z "$$MAN_PAGES" && MAN_PAGES="$(MAN_PAGES)"; \
@@ -262,9 +260,6 @@ INSTALL_MAN = \
 	    first=false; \
 	done; \
     done
-
-DIST_MAKERULE = \
-	$(MAKEF) -C build dist
 
 #
 # For targets that should always be rebuilt,

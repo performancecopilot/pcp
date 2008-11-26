@@ -379,3 +379,80 @@ $pmda->set_fetch_callback(\&vmware_fetch_callback);
 $pmda->add_timer(5, \&vmware_timer_callback, 0);
 $pmda->run;
 vmware_disconnect();
+
+=pod
+
+=head1 NAME
+
+pmdavmware - VMware performance metrics domain agent (PMDA)
+
+=head1 DESCRIPTION
+
+B<pmdavmware> is a Performance Metrics Domain Agent (PMDA) which exports
+metric values from a (possibly remote) VMware virtualisation host.
+
+This implementation uses the VMare Perl API (refer to the online
+docs at http://www.vmware.com/support/developer/viperltoolkit).
+VIPerl is a prerequisite for this PMDA, it needs to be installed
+and configured before attempting to use this agent.  It is highly
+recommended that you test your VIPerl installation using the
+demo programs that are shipped with VIPerl, before attempting to
+use this PMDA.
+
+=head1 INSTALLATION
+
+In order to access performance data using the VIPerl API, it is
+necessary to be able to login to the metrics source.  Hence, a
+valid VMware server name, user name and pass word are needed by
+the PMDA.  These can be passed in on the command line (via the
+pmcd.conf file) or via a vmware.conf file in the PMDA directory.
+
+	# cd $PCP_PMDAS_DIR/vmware
+	# [ edit vmware.conf ]
+
+This file should contain three lines, such as:
+
+	$server = 'vm.server.net';
+	$username = 'XXXX';
+	$password  = 'YYYY';
+
+Once this is setup, you can access the names and values for the
+vmware performance metrics by doing the following as root:
+
+	# cd $PCP_PMDAS_DIR/vmware
+	# ./Install
+
+If you want to undo the installation, do the following as root:
+
+	# cd $PCP_PMDAS_DIR/vmware
+	# ./Remove
+
+B<pmdavmware> is launched by pmcd(1) and should never be executed
+directly.  The Install and Remove scripts notify pmcd(1) when
+the agent is installed or removed.
+
+=head1 FILES
+
+=over
+
+=item $PCP_PMDAS_DIR/vmware/vmware.conf
+
+configuration file for the B<pmdavmware> agent 
+
+=item $PCP_PMDAS_DIR/vmware/Install
+
+installation script for the B<pmdavmware> agent
+
+=item $PCP_PMDAS_DIR/vmware/Remove
+
+undo installation script for the B<pmdavmware> agent
+
+=item $PCP_LOG_DIR/pmcd/vmware.log
+
+default log file for error messages from B<pmdavmware>
+
+=back
+
+=head1 SEE ALSO
+
+pmcd(1).

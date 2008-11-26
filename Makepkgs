@@ -127,7 +127,12 @@ for prod ; do
 	fi
 
 	VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
-	export SRCLINK_ROOT=`pwd`/pcp-$VERSION
+	SRCLINK_ROOT=`pwd`/pcp-$VERSION
+	if [ $special = debian ] ; then
+	    SRCLINK_ROOT=`pwd`/build/deb/pcp-$VERSION
+	fi
+	export SRCLINK_ROOT
+
 	rm -fr $SRCLINK_ROOT
 	mkdir -p $SRCLINK_ROOT || exit 1
 	$MAKE -j 1 src-link-pcp || exit 1

@@ -25,7 +25,18 @@ DOMAIN	= VMWARE
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 LSRCFILES = Install Remove pmdavmware.pl
 
-default: 
+ifneq ($(POD2MAN),)
+MAN_SECTION = 1
+MAN_PAGES = pmdavmware.$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+endif
+
+LDIRT = domain.h root pmns *.log $(MAN_PAGES)
+
+default: $(MAN_PAGES)
+
+pmdavmware.1: pmdavmware.pl
+	$(POD_MAKERULE)
 
 include $(BUILDRULES)
 
@@ -33,6 +44,7 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmdavmware.pl $(PMDADIR)/pmdavmware.pl
+	@$(INSTALL_MAN)
 
 default_pcp : default
 

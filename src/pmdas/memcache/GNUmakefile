@@ -20,13 +20,23 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= memcache
-DOMAIN	= MEMCACHE
+IAM = memcache
+DOMAIN = MEMCACHE
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmdamemcache.pl README client.pl
-LDIRT	= domain.h root pmns *.log
+LSRCFILES = Install Remove pmdamemcache.pl client.pl
 
-default:
+ifneq ($(POD2MAN),)
+MAN_SECTION = 1
+MAN_PAGES = pmdamemcache.$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+endif
+
+LDIRT = domain.h root pmns *.log $(MAN_PAGES)
+
+default: $(MAN_PAGES)
+
+pmdamemcache.1: pmdamemcache.pl
+	$(POD_MAKERULE)
 
 include $(BUILDRULES)
 
@@ -34,6 +44,7 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmdamemcache.pl $(PMDADIR)/pmdamemcache.pl
+	@$(INSTALL_MAN)
 
 default_pcp : default
 

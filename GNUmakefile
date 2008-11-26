@@ -90,13 +90,14 @@ ifeq ($(TARGET_OS),mingw)
 	$(INSTALL) -m 755 -d $(PCP_BIN_DIR)
 	$(INSTALL) -m 755 -d $(PCP_LIB_DIR)
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)
+else
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)
 endif
 	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/lib
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/examples
 	$(INSTALL) -m 755 -d $(PCP_INC_DIR)
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmchart
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmieconf
