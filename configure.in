@@ -16,9 +16,6 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 dnl 
-dnl Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-dnl Mountain View, CA 94043, USA, or: http://www.sgi.com
-dnl 
 
 dnl unpacking check - this file must exist
 AC_INIT(src/include/pmapi.h)
