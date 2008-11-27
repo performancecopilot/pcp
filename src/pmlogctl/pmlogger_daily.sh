@@ -102,6 +102,8 @@ Options:
   -k discard    remove archives after "discard" days
   -m addresses  send daily NOTICES entries to email addresses
   -N            show-me mode, no operations performed
+  -o            (old style) merge logs only from yesterday
+                [default is to merge all possible logs before today]
   -V            verbose output
   -x compress   compress archive data files after "compress" days
   -X program    use program for archive data file compression
@@ -117,8 +119,9 @@ SHOWME=false
 VERBOSE=false
 VERY_VERBOSE=false
 MYARGS=""
+OFLAG=false
 
-while getopts c:k:m:Ns:Vx:X:Y:? c
+while getopts c:k:m:Nos:Vx:X:Y:? c
 do
     case $c
     in
@@ -137,6 +140,8 @@ do
 		;;
 	N)	SHOWME=true
 		MYARGS="$MYARGS -N"
+		;;
+	o)	OFLAG=true
 		;;
 	s)	ROLLNOTICES="$OPTARG"
 		check=`echo "$ROLLNOTICES" | sed -e 's/[0-9]//g'`
@@ -188,12 +193,6 @@ fi
 #
 LOGNAME=`date "+%Y%m%d.%H.%M"`
 
-# each summarized log is named yyyymmdd using yesterday's date
-# previous day's logs are named yymmdd (old format) or
-# yyyymmdd (new year 2000 format)
-#
-SUMMARY_LOGNAME=`pmdate -1d %Y%m%d`
-
 _error()
 {
     _report Error "$1"
@@ -217,56 +216,20 @@ _unlock()
     echo >$tmp.lock
 }
 
-# filter for pmlogger archive files in working directory -
-# pass in the number of days to skip over (backwards) from today
+# filter file names to leave those that look like PCP archives
+# managed by pmlogger_check and pmlogger_daily, namely they begin
+# with a datestamp
 #
-# pv:821339 too many sed commands for IRIX ... split into groups
-#           of at most 200 days
+# need to handle both the year 2000 and the old name formats, and
+# possible ./ prefix (from find .)
 # 
-_date_filter()
+_filter_filename()
 {
-    # start with all files whose names match the patterns used by
-    # the PCP archive log management scripts ... this list may be
-    # reduced by the sed filtering later on
-    #
-    # need to handle both the year 2000 and the old name formats
-    #
-    ls | sed -n >$tmp.in \
+    sed -n \
+	-e 's/^\.\///' \
 	-e '/^[12][0-9][0-9][0-9][0-1][0-9][0-3][0-9][-.]/p' \
 	-e '/^[0-9][0-9][0-1][0-9][0-3][0-9][-.]/p'
-
-    i=0
-    while [ $i -le $1 ]
-    do
-	dmax=`expr $i + 200`
-	[ $dmax -gt $1 ] && dmax=$1
-	echo "/^[12][0-9][0-9][0-9][0-1][0-9][0-3][0-9][-.]/{" >$tmp.sed1
-	echo "/^[0-9][0-9][0-1][0-9][0-3][0-9][-.]/{" >$tmp.sed2
-	while [ $i -le $dmax ]
-	do
-	    x=`pmdate -${i}d %Y%m%d`
-	    echo "/^$x\./d" >>$tmp.sed1
-	    echo "/^$x-[0-9][0-9]\./d" >>$tmp.sed1
-	    x=`pmdate -${i}d %y%m%d`
-	    echo "/^$x\./d" >>$tmp.sed2
-	    echo "/^$x-[0-9][0-9]\./d" >>$tmp.sed2
-	    i=`expr $i + 1`
-	done
-	echo "p" >>$tmp.sed1
-	echo "}" >>$tmp.sed1
-	echo "p" >>$tmp.sed2
-	echo "}" >>$tmp.sed2
-	cat $tmp.sed2 >>$tmp.sed1
-
-	# cull file names with matching dates, keep other file names
-	#
-	sed -n -f $tmp.sed1 <$tmp.in >$tmp.tmp
-	mv $tmp.tmp $tmp.in
-    done
-
-    cat $tmp.in
 }
-
 
 # mails out any entries for the previous 24hrs from the PCP notices file
 # 
@@ -567,10 +530,17 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	fqdn=`pmhostname $host`
 	for log in $PCP_TMP_DIR/pmlogger/[0-9]*
 	do
-	    [ "$log" = "[0-9]*" ] && continue
+	    case "$log"
+	    in
+		*[0-9]*)
+		    # no pmlogger running according to $PCP_TMP_DIR/pmlogger
+		    #
+		    break
+		    ;;
+	    esac
 	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $log: ""$PCP_ECHO_C"
 	    match=`sed -e '3s/\/[0-9][0-9][0-9][0-9][0-9.]*$//' $log \
-                   | $PCP_AWK_PROG '
+		   | $PCP_AWK_PROG '
 BEGIN							{ m = 0 }
 NR == 2	&& $1 == "'$fqdn'"				{ m = 1; next }
 NR == 2	&& "'$fqdn'" == "'$host'" &&
@@ -622,55 +592,112 @@ END							{ print m }'`
 	    touch $tmp.err
 	fi
     fi
+    $VERBOSE && echo
 
-    # concatenate yesterday's archive logs
+    # Merge archive logs.
     #
-    # note: we need to handle duplicate-breaking forms like
+    # Will work for new style YYYYMMDD.HH.MM[-NN] archives and old style
+    # YYMMDD.HH.MM[-NN] archives.
+    # Note: we need to handle duplicate-breaking forms like
     # YYYYMMDD.HH.MM-seq# (even though pmlogger_merge already picks most
     # of these up) in case the base YYYYMMDD.HH.MM archive is for some
     # reason missing here
     #
-    $VERBOSE && echo
+    # Assume if .meta file is present then other archive components are
+    # also present (if not the case it is a serious process botch, and
+    # pmlogmerge will fail below)
+    #
+    # Find all candidate input archives, remove any that contain today's
+    # date and group the remainder by date.
+    #
+    TODAY=`date +%Y%m%d`
 
-    WANT_LOG=`find *.meta \
-		     \( -name "*.[0-2][0-9].[0-5][0-9].meta" \
-		        -o -name "*.[0-2][0-9].[0-5][0-9]-[0-9][0-9].meta" \
-		     \) \
-		     -newer $tmp.merge \
-		     -print \
-	      | sed \
-		  -e "/$LOGNAME/d" \
-		  -e 's/\.meta//' \
-		  -e 's/^\.\///'`
+    find *.meta \
+	     \( -name "*.[0-2][0-9].[0-5][0-9].meta" \
+		-o -name "*.[0-2][0-9].[0-5][0-9]-[0-9][0-9].meta" \
+	     \) \
+	     -print \
+    | sed \
+	-e "/^$TODAY\./d" \
+	-e 's/\.meta//' \
+    | sort -n \
+    | $PCP_AWK_PROG '
+	{ if (lastdate != "" && match($1, "^" lastdate "\\.") == 1) {
+	    # same date as previous one
+	    inlist = inlist " " $1
+	    next
+	  }
+	  else {
+	    # different date as previous one
+	    if (inlist != "") print lastdate,inlist
+	    inlist = $1
+	    lastdate = $1
+	    sub(/\..*/, "", lastdate)
+	  }
+	}
+END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 
-    if [ ! -z "$WANT_LOG" ]
+    if $OFLAG
     then
-	if [ -f $SUMMARY_LOGNAME.0 -o -f $SUMMARY_LOGNAME.index -o -f $SUMMARY_LOGNAME.meta ]
+	# -o option, preserve the old semantics, and only process the
+	# previous day's archives ... aim for a time close to midday
+	# yesterday and report that date
+	#
+	now_hr=`pmdate %H`
+	hr=`expr 12 + $now_hr`
+	grep "^[0-9]*`pmdate -${hr}H %y%m%d` " $tmp.list >$tmp.tmp
+	mv $tmp.tmp $tmp.list
+    fi
+
+    rm -f $tmp.skip
+    if [ ! -s $tmp.list ]
+    then
+	if $VERBOSE
 	then
-	    echo "$prog: Warning: output archive ($SUMMARY_LOGNAME) already exists"
-	    echo "[$CONTROL:$line] ... skip log merging, culling and compressing for host \"$host\""
-	    echo "Note: Possibly a daylight saving change caused a large date jump?"
-	    continue
-	else
-	    if $SHOWME
+	    echo "$prog: Warning: no archives found to merge"
+	    $VERY_VERBOSE && ls -l
+	fi
+    else
+	cat $tmp.list \
+	| while read outfile inlist
+	do
+	    if [ -f $outfile.0 -o -f $outfile.index -o -f $outfile.meta ]
 	    then
-		echo "+ pmlogger_merge$MYARGS -f $WANT_LOG $SUMMARY_LOGNAME"
+		echo "$prog: Warning: output archive ($outfile) already exists"
+		echo "[$CONTROL:$line] ... skip log merging, culling and compressing for host \"$host\""
+		touch $tmp.skip
+		break
 	    else
-		if pmlogger_merge$MYARGS -f $WANT_LOG $SUMMARY_LOGNAME
+		if $SHOWME
 		then
-		    :
+		    echo "+ pmlogger_merge$MYARGS -f $inlist $outfile"
 		else
-		    _error "problems executing pmlogger_merge for host \"$host\""
+		    if pmlogger_merge$MYARGS -f $inlist $outfile
+		    then
+			:
+		    else
+			_error "problems executing pmlogger_merge for host \"$host\""
+		    fi
 		fi
 	    fi
-	fi
+	done
+    fi
+
+    if [ -f $tmp.skip ]
+    then
+	# this is sufficiently serious that we don't want to remove
+	# the lock file, so problems are not compounded the next time
+	# the script is run
+	continue
     fi
 
     # and cull old archives
     #
     if [ X"$CULLAFTER" != X"forever" ]
     then
-	_date_filter $CULLAFTER >$tmp.list
+	find . -type f -mtime +$CULLAFTER \
+	| _filter_filename \
+	| sort >$tmp.list
 	if [ -s $tmp.list ]
 	then
 	    if $VERBOSE
@@ -693,7 +720,10 @@ END							{ print m }'`
     if [ ! -z "$COMPRESSAFTER" ]
     then
 
-	_date_filter $COMPRESSAFTER | egrep -v "$COMPRESSREGEX" >$tmp.list
+	find . -type f -mtime +$COMPRESSAFTER \
+	| _filter_filename \
+	| egrep -v "$COMPRESSREGEX" \
+	| sort >$tmp.list
 	if [ -s $tmp.list ]
 	then
 	    if $VERBOSE
