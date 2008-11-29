@@ -73,10 +73,10 @@ then
 	    # local and really me
 	    QA_DIR_DEFAULT=`pwd`
 	else
-	    QA_DIR_DEFAULT=`ssh $QA_USER@$QA_HOST /bin/ls -d isms/pcp[1-9]*/qa" 2>/dev/null | grep '^isms/' | tail -1`
+	    QA_DIR_DEFAULT=`ssh $QA_USER@$QA_HOST "/bin/ls -d isms/pcp[1-9]*/qa" 2>/dev/null | grep '^isms/' | tail -1`
 	fi
     else
-	QA_DIR_DEFAULT=`ssh $QA_USER@$QA_HOST /bin/ls -d isms/pcp[1-9]*/qa" 2>/dev/null | grep '^isms/' | tail -1`
+	QA_DIR_DEFAULT=`ssh $QA_USER@$QA_HOST "/bin/ls -d isms/pcp[1-9]*/qa" 2>/dev/null | grep '^isms/' | tail -1`
     fi
     if [ "$QA_DIR_DEFAULT" = "" ]
     then
