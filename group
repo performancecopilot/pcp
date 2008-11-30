@@ -575,6 +575,7 @@ dmf		pcpqa
 335 libpcp_pmc pmdumptext pmval local oss
 336 trace local pmda.install oss
 337 pmlogextract local oss
+338 logutil local pmlogextract local oss
 340 pmcd remote oss
 346 pmda.mailq local pmda.install oss
 347 pmda.news local pmda.install oss
