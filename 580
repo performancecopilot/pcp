@@ -43,6 +43,7 @@ src-oss/indom -i 1 proc.psinfo.pid \
 | sed 's/<0*1/<ONE/g;
        s,/etc/init ,INIT,g;
        s,/etc/init,INIT,g;
+       s,/sbin/init,INIT,g;
        s,init[^>]*,INIT,g;'   # 6.2 has a space after the init, linux may have
                          #  extra arguments
        
