@@ -58,6 +58,8 @@ cp $tmp.ctl $tmp.relaydir/$FIVEDAYS.meta
 cp $tmp.ctl $tmp.relaydir/$FIVEDAYS.index
 cp $tmp.ctl $tmp.relaydir/mumble
 cp $tmp.ctl $tmp.relaydir/mumble.0
+STAMP=`pmdate -5d %Y%m%d`0010
+touch -t "$STAMP" $tmp.*/$FIVEDAYS.* $tmp.relaydir/mumble*
 
 # some archives for five months ago...
 FIVEMONTHS=`pmdate -5m %Y%m%d.0`
@@ -67,6 +69,8 @@ cp $tmp.ctl $tmp.distdir/$FIVEMONTHS.index
 cp $tmp.ctl $tmp.relaydir/$FIVEMONTHS.0
 cp $tmp.ctl $tmp.relaydir/$FIVEMONTHS.meta
 cp $tmp.ctl $tmp.relaydir/$FIVEMONTHS.index
+STAMP=`pmdate -5m %Y%m%d`0010
+touch -t "$STAMP" $tmp.*/$FIVEMONTHS.*
 
 # real QA test starts here
 pmlogger_daily -V -N -x 3 -X bzip2 -c $tmp.ctl | sed \
@@ -74,6 +78,7 @@ pmlogger_daily -V -N -x 3 -X bzip2 -c $tmp.ctl | sed \
 	-e "s/$FIVEDAYS/FIVEDAYS/g" \
 	-e "s/$FIVEMONTHS/FIVEMONTHS/g" \
 	-e "s/$$/PID/g" \
+	-e '/Warning: no archives found to merge/d' \
 	-e "s,/var/tmp,TMP,g" \
 	-e "s,/tmp,TMP,g" \
 

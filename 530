@@ -2,8 +2,11 @@
 # PCP QA Test No. 530
 # $Revision: 1.13 $
 # pmlogger_daily ... do you work at all?
-# dual of 314 ... this is the PCP 2.1 version
 #
+# OLD VERSION for YYDDMM style naming convention (see also 338)
+#
+# NOTE - THIS TEST WILL FAIL IF RUN IN THE FIRST 5 MINUTES AFTER
+# MIDNIGHT - c'est la vie, I'm afraid.
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -11,25 +14,6 @@
 owner=kenmcd
 
 seq=`basename $0`
-# Because pmlogger_daily is way too clever to use the same criteria
-# for deciding which logs to merge and which to cull, we have to have
-# QA output in 3 different times of the day
-
-case "`date +%H`" in
-00)
-    # just after midnight
-    rm -f $seq.out && ln $seq.out.00-01 $seq.out || exit 1
-    ;;
-01)
-    # just after 1am
-    rm -f $seq.out && ln $seq.out.01-02 $seq.out || exit 1
-    ;;
-*)
-    # any other time of the day
-    rm -f $seq.out && ln $seq.out.02-24 $seq.out || exit 1
-    ;;
-esac
-
 echo "QA output created by $seq"
 
 # check for new version ... may need -o to force "old style" behaviour
@@ -74,7 +58,6 @@ END				{ if ( eatlines ) {
 	-e "s;$tmp;TMP;g" \
 	-e "s/`hostname`/HOST/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
-	-e '/Possibly a daylight saving change/d' \
 	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
     | $PCP_AWK_PROG '
 /-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
@@ -103,36 +86,38 @@ do
     echo >$tmp/sed
     for day in 0 1 2 3 4 5
     do
-	for fmt in %Y%m%d %y%m%d
-	do
-	    namea=`pmdate -${day}d -1H $fmt.%H.%M`
-	    nameb=`pmdate -${day}d -2H $fmt.%H.%M`
-	    stampa=`echo $namea | sed -e 's/\.//g'`
-	    stampb=`echo $nameb | sed -e 's/\.//g'`
-	    if [ "$fmt" = "%Y%m%d" ]
-	    then
-		echo "s/$namea/NOW-$day.-1H.MM/g" >>$tmp/sed
-		echo "s/$nameb/NOW-$day.-2H.MM/g" >>$tmp/sed
-	    else
-		echo "s/$namea/NOW-$day-old.-1H.MM/g" >>$tmp/sed
-		echo "s/$nameb/NOW-$day-old.-2H.MM/g" >>$tmp/sed
-	    fi
+	fmt=%y%m%d
+	# aiming for the time to be 00:02 and 00:04 on each day,
+	# even if that is ahead of NOW for today
+	#
+	now_hr=`pmdate %H`
+	hour=-$now_hr
+	now_min=`pmdate %M`
+	min2=`expr 2 - $now_min`
+	[ "$min2" -ge 0 ] && min2="+$min2"
+	min4=`expr 4 - $now_min`
+	[ "$min4" -ge 0 ] && min4="+$min4"
+	namea=`pmdate -${day}d ${hour}H ${min2}M $fmt.%H.%M`
+	nameb=`pmdate -${day}d ${hour}H ${min4}M $fmt.%H.%M`
+	yesterday=`pmdate -1d ${hour}H ${min2}M $fmt`
+	stampa=`echo $namea | sed -e 's/\.//g'`
+	stampb=`echo $nameb | sed -e 's/\.//g'`
+	echo "s/$namea/NOW-$day.00.02/g" >>$tmp/sed
+	echo "s/$nameb/NOW-$day.00.04/g" >>$tmp/sed
 
-	    for ext in 0 index meta
-	    do
-		cp src-oss/arch_a.$ext $tmp/$namea.$ext
-		touch -t $stampa $tmp/$namea.$ext
-		cp src-oss/arch_b.$ext $tmp/$nameb.$ext
-		touch -t $stampb $tmp/$nameb.$ext
-	    done
+	for ext in 0 index meta
+	do
+	    cp src-oss/arch_a.$ext $tmp/$namea.$ext
+	    touch -t $stampa $tmp/$namea.$ext
+	    cp src-oss/arch_b.$ext $tmp/$nameb.$ext
+	    touch -t $stampb $tmp/$nameb.$ext
 	done
     done
     ls -lt $tmp >>$seq.full
     echo "s/NOW-0/TODAY/g" >>$tmp/sed
     echo "s/NOW-1/YESTERDAY/g" >>$tmp/sed
-    echo "s/`pmdate %Y%m%d`/TODAY/g" >>$tmp/sed
-    echo "s/`pmdate -1d %Y%m%d`/YESTERDAY/g" >>$tmp/sed
-    echo "s/`pmdate -1d %y%m%d`/YESTERDAY-old/g" >>$tmp/sed
+    echo "s/`pmdate %y%m%d`/TODAY/g" >>$tmp/sed
+    echo "s/$yesterday/YESTERDAY/g" >>$tmp/sed
 
     echo >$tmp/control '$version=1.1
 LOCALHOSTNAME	n   n	'"$tmp"'	./config'
@@ -140,15 +125,18 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     echo
     echo "=== [${verbose+verbose}] regular show ==="
     echo "=== [${verbose+verbose}] regular show ===" >>$seq.full
-    pmlogger_daily $oflag -c $tmp/control -k 2 $verbose 2>&1 \
+    pmlogger_daily $oflag -c $tmp/control -k 3 $verbose 2>&1 \
     | _filter
     ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
 
     echo
     echo "=== [${verbose+verbose}] nothing to do but cull some more ==="
     echo "=== [${verbose+verbose}] nothing to do but cull some more ===" >>$seq.full
-    rm -f $tmp/`pmdate -${day}d %Y%m%d`.*
-    pmlogger_daily $oflag -c $tmp/control -k 1 $verbose 2>&1 \
+    for ext in 0 index meta
+    do
+	mv $tmp/$yesterday.$ext $tmp/save.$ext
+    done
+    pmlogger_daily $oflag -c $tmp/control -k 2 $verbose 2>&1 \
     | _filter
     ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
 
@@ -157,10 +145,10 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     echo "=== [${verbose+verbose}] error, output already exists ===" >>$seq.full
     for ext in 0 index meta
     do
-	cp src-oss/arch_a.$ext $tmp/`pmdate -1d %Y%m%d`.17.18.$ext
-	cp src-oss/arch_b.$ext $tmp/`pmdate -1d %y%m%d`.18.19.$ext
+	cp src-oss/arch_a.$ext $tmp/$yesterday.17.18.$ext
+	mv $tmp/save.$ext $tmp/$yesterday.$ext
     done
-    pmlogger_daily $oflag -c $tmp/control -k 1 $verbose 2>&1 \
+    pmlogger_daily $oflag -c $tmp/control -k 2 $verbose 2>&1 \
     | _filter
     ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
 
