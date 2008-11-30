@@ -151,9 +151,8 @@ Options:\n\
 	todolist[todo].pmidlist = (pmID *)0;
 	pmTraversePMNS(argv[optind], dometric);
 	printf("%s:\n", argv[optind]);
-#if DESPERATE
-	printf("... %d metrics,", todolist[todo].numpmid);
-#endif
+	if (verbose)
+	    printf("... %d metrics,", todolist[todo].numpmid);
 	sts = pmLookupName(todolist[todo].numpmid, todolist[todo].namelist, todolist[todo].pmidlist);
 	if (sts < 0) {
 	    int		i;
@@ -171,9 +170,8 @@ Options:\n\
 	    fprintf(stderr, "%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
 	    exit(1);
 	}
-#if DESPERATE
-	printf(" %d value sets\n", todolist[todo].rp->numpmid);
-#endif
+	if (verbose)
+	    printf(" %d value sets\n", todolist[todo].rp->numpmid);
 	if (todolist[todo].numpmid != todolist[todo].rp->numpmid)
 	    printf("botch: %d metrics != %d value sets!\n",
 		todolist[todo].numpmid, todolist[todo].rp->numpmid);
@@ -201,24 +199,23 @@ Options:\n\
     }
     for (n = 0; n < todo; n++) {
 	printf("%s (reverse):\n", todolist[n].base);
-#if DESPERATE
-	printf("... %d metrics,", todolist[n].numpmid);
-#endif
+	if (verbose)
+	    printf("... %d metrics,", todolist[n].numpmid);
 	sts = pmFetch(todolist[n].numpmid, todolist[n].pmidlist, &todolist[n].rp);
 	if (sts < 0) {
 	    putchar('\n');
 	    fprintf(stderr, "%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
 	    exit(1);
 	}
-#if DESPERATE
-	printf(" %d value sets", todolist[n].rp->numpmid);
-	printf(" free result\n");
-#endif
-	pmFreeResult(todolist[n].rp);
-
 	if (todolist[n].numpmid != todolist[n].rp->numpmid)
 	    printf("botch: %d metrics != %d value sets!\n",
 		todolist[n].numpmid, todolist[n].rp->numpmid);
+
+	if (verbose) {
+	    printf(" %d value sets", todolist[n].rp->numpmid);
+	    printf(" free result\n");
+	}
+	pmFreeResult(todolist[n].rp);
     }
 
     exit(0);
