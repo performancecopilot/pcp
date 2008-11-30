@@ -429,6 +429,7 @@ do
 	continue
     elif [ ! -f $seq ]
     then
+	echo " [not run, missing]"
 	notrun="$notrun $seq"
 	continue
     else
