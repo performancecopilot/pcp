@@ -68,7 +68,10 @@ $sudo cp /dev/null $PCP_PMCDCONF_PATH
 # should be empty
 echo "--- pmcd.conf contents follow ---"
 cat $PCP_PMCDCONF_PATH
-$sudo $PCP_RC_DIR/pcp start 2>&1 | _filter_pcp_start | fgrep -v "Waiting for PMCD to terminate"
+$sudo $PCP_RC_DIR/pcp start 2>&1 \
+| _filter_pcp_start \
+| fgrep -v "Waiting for PMCD to terminate" \
+| fgrep -v "pmcd_wait failed:"
 
 echo "Waiting for PMCD ..."
 pmcd_wait -t 5sec
