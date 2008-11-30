@@ -82,7 +82,7 @@ sed -e 1q $PCP_TMP_DIR/pmlogger/primary
 
 echo "... and netstat"
 netstat -an \
-| egrep '42000|43000' \
+| egrep '(42000|43000) ' \
 | grep LISTEN \
 | sed \
     -e 's/0\.0\.0\.0/*/g' \
