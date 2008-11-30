@@ -47,7 +47,7 @@ _filter()
 	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
 	-e 's/^Install news as a daemon or perl agent? \[daemon] //' \
 	-e "/^Installing .mchart view.*/d" \
-	-e "/^make: Nothing to be done for .install./d"
+	-e "/^g*make: Nothing to be done for .install./d"
 }
 
 _filter_info()
