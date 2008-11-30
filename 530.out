@@ -1,0 +1,177 @@
+QA output created by 530
+
+=== [] regular show ===
+PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
+[TMP/control:2] ... logging for host "HOST" unchanged
+NOW-2.00.02.0
+NOW-2.00.02.index
+NOW-2.00.02.meta
+NOW-2.00.04.0
+NOW-2.00.04.index
+NOW-2.00.04.meta
+NOW-3.00.02.0
+NOW-3.00.02.index
+NOW-3.00.02.meta
+NOW-3.00.04.0
+NOW-3.00.04.index
+NOW-3.00.04.meta
+TODAY.00.02.0
+TODAY.00.02.index
+TODAY.00.02.meta
+TODAY.00.04.0
+TODAY.00.04.index
+TODAY.00.04.meta
+YESTERDAY.0
+YESTERDAY.index
+YESTERDAY.meta
+control
+sed
+
+=== [] nothing to do but cull some more ===
+PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
+[TMP/control:2] ... logging for host "HOST" unchanged
+NOW-2.00.02.0
+NOW-2.00.02.index
+NOW-2.00.02.meta
+NOW-2.00.04.0
+NOW-2.00.04.index
+NOW-2.00.04.meta
+TODAY.00.02.0
+TODAY.00.02.index
+TODAY.00.02.meta
+TODAY.00.04.0
+TODAY.00.04.index
+TODAY.00.04.meta
+control
+save.0
+save.index
+save.meta
+sed
+
+=== [] error, output already exists ===
+PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
+[TMP/control:2] ... logging for host "HOST" unchanged
+PMLOGGER.DAILY: Warning: output archive (YESTERDAY) already exists
+[TMP/control:2] ... skip log merging, culling and compressing for host "HOST"
+NOW-2.00.02.0
+NOW-2.00.02.index
+NOW-2.00.02.meta
+NOW-2.00.04.0
+NOW-2.00.04.index
+NOW-2.00.04.meta
+TODAY.00.02.0
+TODAY.00.02.index
+TODAY.00.02.meta
+TODAY.00.04.0
+TODAY.00.04.index
+TODAY.00.04.meta
+YESTERDAY.0
+YESTERDAY.17.18.0
+YESTERDAY.17.18.index
+YESTERDAY.17.18.meta
+YESTERDAY.index
+YESTERDAY.meta
+control
+sed
+
+=== [verbose] regular show ===
+
+=== daily maintenance of PCP archives for host HOST ===
+
+PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
+[TMP/control:2] ... logging for host "HOST" unchanged
+
+Input archives to be merged:
+	YESTERDAY.00.02
+	YESTERDAY.00.04
+Output archive files:
+-rw-r--r-- ... 455 ... YESTERDAY.meta
+-rw-r--r-- ... 192 ... YESTERDAY.index
+-rw-r--r-- ... 864 ... YESTERDAY.0
+Removing input archive files ... done
+Archive files older than 3 days being removed ...
+    NOW-5.00.02.0 NOW-5.00.02.index NOW-5.00.02.meta NOW-5.00.04.0
+    NOW-5.00.04.index NOW-5.00.04.meta NOW-4.00.02.0 NOW-4.00.02.index
+    NOW-4.00.02.meta NOW-4.00.04.0 NOW-4.00.04.index NOW-4.00.04.meta
+NOW-2.00.02.0
+NOW-2.00.02.index
+NOW-2.00.02.meta
+NOW-2.00.04.0
+NOW-2.00.04.index
+NOW-2.00.04.meta
+NOW-3.00.02.0
+NOW-3.00.02.index
+NOW-3.00.02.meta
+NOW-3.00.04.0
+NOW-3.00.04.index
+NOW-3.00.04.meta
+TODAY.00.02.0
+TODAY.00.02.index
+TODAY.00.02.meta
+TODAY.00.04.0
+TODAY.00.04.index
+TODAY.00.04.meta
+YESTERDAY.0
+YESTERDAY.index
+YESTERDAY.meta
+control
+sed
+
+=== [verbose] nothing to do but cull some more ===
+
+=== daily maintenance of PCP archives for host HOST ===
+
+PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
+[TMP/control:2] ... logging for host "HOST" unchanged
+
+PMLOGGER.DAILY: Warning: no archives found to merge
+Archive files older than 2 days being removed ...
+    NOW-3.00.02.0 NOW-3.00.02.index NOW-3.00.02.meta NOW-3.00.04.0
+    NOW-3.00.04.index NOW-3.00.04.meta
+NOW-2.00.02.0
+NOW-2.00.02.index
+NOW-2.00.02.meta
+NOW-2.00.04.0
+NOW-2.00.04.index
+NOW-2.00.04.meta
+TODAY.00.02.0
+TODAY.00.02.index
+TODAY.00.02.meta
+TODAY.00.04.0
+TODAY.00.04.index
+TODAY.00.04.meta
+control
+save.0
+save.index
+save.meta
+sed
+
+=== [verbose] error, output already exists ===
+
+=== daily maintenance of PCP archives for host HOST ===
+
+PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
+[TMP/control:2] ... logging for host "HOST" unchanged
+
+PMLOGGER.DAILY: Warning: output archive (YESTERDAY) already exists
+[TMP/control:2] ... skip log merging, culling and compressing for host "HOST"
+NOW-2.00.02.0
+NOW-2.00.02.index
+NOW-2.00.02.meta
+NOW-2.00.04.0
+NOW-2.00.04.index
+NOW-2.00.04.meta
+TODAY.00.02.0
+TODAY.00.02.index
+TODAY.00.02.meta
+TODAY.00.04.0
+TODAY.00.04.index
+TODAY.00.04.meta
+YESTERDAY.0
+YESTERDAY.17.18.0
+YESTERDAY.17.18.index
+YESTERDAY.17.18.meta
+YESTERDAY.index
+YESTERDAY.meta
+control
+sed
