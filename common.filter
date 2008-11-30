@@ -435,6 +435,7 @@ _filter_pcp_start()
 	-e "s;$PCP_RC_DIR/pcp;\$PCP_RC_DIR/pcp;" \
 	-e "s;$PCP_BINADM_DIR/pmcd;\$PCP_BINADM_DIR/pmcd;" \
 	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
+	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \
 	-e "s;$PCP_VAR_DIR/;\$PCP_VAR_DIR/;" \
 	-e "s;/usr/etc/pmcd;\$PCP_BINADM_DIR/pmcd;" \
         -e '/^Starting PCP$/d' \

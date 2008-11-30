@@ -1,12 +1,12 @@
 QA output created by 282
 
 === expect error: no $PCP_PMCDCONF_PATH ===
-Waiting for PMCD to terminate ...
+Waiting for PMCD to terminate DOTS
 $PCP_RC_DIR/pcp:
-Warning: PMCD control file $PCP_VAR_DIR/config/pmcd/pmcd.conf is missing, cannot identify PMDAs
+Warning: PMCD control file $PCP_PMCDCONF_PATH is missing, cannot identify PMDAs
          to be terminated.
 $PCP_RC_DIR/pcp:
-Error: PMCD control file $PCP_VAR_DIR/config/pmcd/pmcd.conf is missing, cannot start PMCD.
+Error: PMCD control file $PCP_PMCDCONF_PATH is missing, cannot start PMCD.
 === probe pmcd: pmprobe: Cannot connect to PMCD on host "HOST": Connection refused
 
 === simple case, no frills, no errors ===
@@ -20,16 +20,17 @@ $PCP_RC_DIR/pcp:
 Error: You must be root (uid 0) to start or stop the Performance Co-Pilot PMCD.
 === probe pmcd: OK
 === start again ===
-Waiting for PMCD to terminate ...
+Waiting for PMCD to terminate DOTS
 Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) ...
 Performance Co-Pilot starting archive loggers ...
 === probe pmcd: OK
 === probe pmlogger: OK
 
 === expect 2 x connect failure: pmcd is true(1), so hard for pmlogger ===
-Waiting for PMCD to terminate ...
+Waiting for PMCD to terminate DOTS
 Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) ...
 Performance Co-Pilot starting archive loggers ...
+$PCP_RC_DIR/pcp: pmcd_wait failed: exit status: 2
 === probe pmcd: pmprobe: Cannot connect to PMCD on host "HOST": Connection refused
 === probe pmlogger: Unable to connect to primary pmlogger at HOST: Connection refused
 === start again ===
@@ -38,7 +39,7 @@ Performance Co-Pilot starting archive loggers ...
 === probe pmcd: OK
 === probe pmlogger: OK
 === expect difficulty terminating pmcd ... it has been sent a SIGSTOP ===
-Waiting for PMCD to terminate ...........
+Waiting for PMCD to terminate DOTS
 Process ...
 -- ps output line --
 $PCP_RC_DIR/pcp: Warning: Forcing PMCD to terminate!
@@ -47,7 +48,7 @@ Performance Co-Pilot starting archive loggers ...
 === probe pmcd: OK
 
 === expect warning: PMLOGGER.CHECK moved, so no pmlogger ===
-Waiting for PMCD to terminate ...
+Waiting for PMCD to terminate DOTS
 Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) ...
 $PCP_RC_DIR/pcp:
 Warning: Performance Co-Pilot installation is incomplete (at least the
@@ -57,11 +58,11 @@ Warning: Performance Co-Pilot installation is incomplete (at least the
 === probe pmlogger: Unable to connect to primary pmlogger at HOST: Connection refused
 
 === expect error: pmlogger/control moved, so no pmlogger ===
-Waiting for PMCD to terminate ...
+Waiting for PMCD to terminate DOTS
 Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) ...
 Performance Co-Pilot starting archive loggers ...
 $PCP_RC_DIR/pcp:
-Error: PCP archive logger control file $PCP_VAR_DIR/config/pmlogger/control
+Error: PCP archive logger control file $PCP_PMLOGGERCONTROL_PATH
        is missing!  Cannot start any Performance Co-Pilot archive logger(s).
 === probe pmcd: OK
 === probe pmlogger: Unable to connect to primary pmlogger at HOST: Connection refused
