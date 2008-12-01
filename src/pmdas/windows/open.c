@@ -454,7 +454,7 @@ check_semantics(pdh_metric_t *mp, pdh_value_t *vp)
 }
 
 int
-windows_check_metric(pdh_metric_t *pmp, int first)
+windows_check_metric(pdh_metric_t *pmp)
 {
     int			i, id;
     size_t		size;
@@ -467,189 +467,187 @@ windows_check_metric(pdh_metric_t *pmp, int first)
     PDH_COUNTER_INFO_A	*infop;
     LPTSTR      	p;
 
-    if (first || (pmp->flags & M_REDO)) {
-	for (i = 0; i < pmp->num_vals; i++)
-	    CloseHandle(pmp->vals[i].hdl);
-	if (pmp->num_vals)
-	    free(pmp->vals);
-	pmp->num_vals = 0;
-	pmp->flags &= ~(M_EXPANDED|M_NOVALUES);
+    for (i = 0; i < pmp->num_vals; i++)
+	PdhRemoveCounter(pmp->vals[i].hdl);
+    if (pmp->num_vals)
+	free(pmp->vals);
+    pmp->num_vals = 0;
+    pmp->flags &= ~(M_EXPANDED|M_NOVALUES);
 
-	result_sz = pattern_sz;
-	pdhsts = PdhExpandCounterPathA(pmp->pat, pattern, &result_sz);
-	if (pdhsts == PDH_MORE_DATA) {
-	    result_sz++;		// not sure if this is necessary?
-	    pattern_sz = result_sz;
-	    if ((pattern = (LPSTR)realloc(pattern, pattern_sz)) == NULL) {
-		__pmNotifyErr(LOG_ERR, "windows_open: PdhExpandCounterPathA "
-				       "realloc (%d) failed @ metric %s: ",
-			(int)pattern_sz, pmIDStr(pmp->desc.pmid));
-		errmsg();
-		return -1;
-	    }
-	    pdhsts = PdhExpandCounterPathA(pmp->pat, pattern, &result_sz);
+    result_sz = pattern_sz;
+    pdhsts = PdhExpandCounterPathA(pmp->pat, pattern, &result_sz);
+    if (pdhsts == PDH_MORE_DATA) {
+	result_sz++;		// not sure if this is necessary?
+	pattern_sz = result_sz;
+	if ((pattern = (LPSTR)realloc(pattern, pattern_sz)) == NULL) {
+	    __pmNotifyErr(LOG_ERR, "windows_open: PdhExpandCounterPathA "
+				   "realloc (%d) failed @ metric %s: ",
+				(int)pattern_sz, pmIDStr(pmp->desc.pmid));
+	    errmsg();
+	    return -1;
 	}
-	if (pdhsts != ERROR_SUCCESS) {
-	    if (pmp->pat[0] == '\0') {
-		/*
-		 * Empty path string.  Used to denote metrics that are
-		 * derived and do not have an explicit path or retrieval
-		 * need, other than to make sure the qid value will
-		 * force the corresponding query to be run before a PCP
-		 * fetch ... do nothing here
-		 */
-		;
-	    }
-	    else if (pmp->flags & M_OPTIONAL) {
-		pmp->flags |= M_NOVALUES;
-		return 0;
-	    }
-	    else {
-		__pmNotifyErr(LOG_ERR, "windows_open: PdhExpandCounterPathA "
+	pdhsts = PdhExpandCounterPathA(pmp->pat, pattern, &result_sz);
+    }
+    if (pdhsts != ERROR_SUCCESS) {
+	if (pmp->pat[0] == '\0') {
+	    /*
+	     * Empty path string.  Used to denote metrics that are
+	     * derived and do not have an explicit path or retrieval
+	     * need, other than to make sure the qid value will
+	     * force the corresponding query to be run before a PCP
+	     * fetch ... do nothing here
+	     */
+	    ;
+	}
+	else if (pmp->flags & M_OPTIONAL) {
+	    pmp->flags |= M_NOVALUES;
+	    return 0;
+	}
+	else {
+	    __pmNotifyErr(LOG_ERR, "windows_open: PdhExpandCounterPathA "
 			"failed @ metric pmid=%s pattern=\"%s\": %s\n",
 			pmIDStr(pmp->desc.pmid), pmp->pat, pdherrstr(pdhsts));
-	    }
-	    pmp->flags |= M_NOVALUES;
+	}
+	pmp->flags |= M_NOVALUES;
+	return -1;
+    }
+
+    /*
+     * PdhExpandCounterPathA is apparently busted ... the length
+     * returned includes one byte _after_ the last NULL byte
+     * string terminator, but the final byte is apparently
+     * not being set ... force the issue
+     */
+    pattern[result_sz-1] = '\0';
+    for (p = pattern; *p; p += lstrlen(p) + 1) {
+	pdh_value_t	*pvp;
+
+	pmp->num_vals++;
+	size = pmp->num_vals * sizeof(pdh_value_t);
+	if ((pmp->vals = (pdh_value_t *)realloc(pmp->vals, size)) == NULL) {
+	    __pmNotifyErr(LOG_ERR, "windows_open: Error: values realloc "
+				   "(%d x %d) failed @ metric %s [%s]: ",
+				pmp->num_vals, sizeof(pdh_value_t),
+				pmIDStr(pmp->desc.pmid), p);
+	    errmsg();
 	    return -1;
+	}
+	pvp = &pmp->vals[pmp->num_vals-1];
+	if (pmp->desc.indom == PM_INDOM_NULL) {
+	    /* singular instance */
+	    pvp->inst = PM_IN_NULL;
+	    if (pmp->num_vals > 1) {
+		char 	*q;
+		int	k;
+
+		/*
+		 * report only once per pattern
+		 */
+		__pmNotifyErr(LOG_ERR, "windows_open: Warning: singular "
+				"metric %s has more than one instance ...\n",
+				pmIDStr(pmp->desc.pmid));
+		fprintf(stderr, "  pattern: \"%s\"\n", pmp->pat);
+		for (k = 0, q = pattern; *q; q += lstrlen(q) + 1, k++)
+		    fprintf(stderr, "  match[%d]: \"%s\"\n", k, q);
+		fprintf(stderr, "... skip this counter\n");
+
+		/* next realloc() will be a NOP */
+		pmp->num_vals--;
+
+		/* no more we can do here, onto next metric-pattern */
+		break;
+	    }
+	}
+	else {
+	    /*
+	     * if metric has instance domain, parse pattern using
+	     * indom type to extract instance name and number, and
+	     * add into indom cache data structures as needed.
+	     */
+	    if ((pvp->inst = windows_check_instance(p, pmp)) < 0) {
+		/*
+		 * error reported in windows_check_instance() ...
+		 * we cannot return any values for this instance if
+		 * we don't recognize the name ... skip this one,
+		 * the next realloc() (if any) will be a NOP
+		 */
+		pmp->num_vals--;
+
+		/* move onto next instance */
+		continue;
+	    }
 	}
 
 	/*
-	 * PdhExpandCounterPathA is apparently busted ... the length
-	 * returned includes one byte _after_ the last NULL byte
-	 * string terminator, but the final byte is apparently
-	 * not being set ... force the issue
+	 * Note.  Passing inst down here does not help much, as
+	 * I don't think we're ever going to navigate back from a PDH
+	 * counter into our data structures, and even if we do,
+	 * the instance id is not going to be unique enough.
 	 */
-	pattern[result_sz-1] = '\0';
-	for (p = pattern; *p; p += lstrlen(p) + 1) {
-	    pdh_value_t	*pvp;
-
-	    pmp->num_vals++;
-	    size = pmp->num_vals * sizeof(pdh_value_t);
-	    if ((pmp->vals = (pdh_value_t *)realloc(pmp->vals, size)) == NULL) {
-		__pmNotifyErr(LOG_ERR, "windows_open: Error: values realloc "
-					"(%d x %d) failed @ metric %s [%s]: ",
-				pmp->num_vals, sizeof(pdh_value_t),
-				pmIDStr(pmp->desc.pmid), p);
-		errmsg();
-		return -1;
-	    }
-	    pvp = &pmp->vals[pmp->num_vals-1];
-	    if (pmp->desc.indom == PM_INDOM_NULL) {
-		/* singular instance */
-		pvp->inst = PM_IN_NULL;
-		if (pmp->num_vals > 1) {
-		    char 	*q;
-		    int		k;
-
-		    /*
-		     * report only once per pattern
-		     */
-		    __pmNotifyErr(LOG_ERR, "windows_open: Warning: singular "
-				"metric %s has more than one instance ...\n",
-				pmIDStr(pmp->desc.pmid));
-		    fprintf(stderr, "  pattern: \"%s\"\n", pmp->pat);
-		    for (k = 0, q = pattern; *q; q += lstrlen(q) + 1, k++)
-			fprintf(stderr, "  match[%d]: \"%s\"\n", k, q);
-		    fprintf(stderr, "... skip this counter\n");
-
-		    /* next realloc() will be a NOP */
-		    pmp->num_vals--;
-
-		    /* no more we can do here, onto next metric-pattern */
-		    break;
-		}
-	    }
-	    else {
-		/*
-		 * if metric has instance domain, parse pattern using
-		 * indom type to extract instance name and number, and
-		 * add into indom cache data structures as needed.
-		 */
-		if ((pvp->inst = windows_check_instance(p, pmp)) < 0) {
-		    /*
-		     * error reported in windows_check_instance() ...
-		     * we cannot return any values for this instance if
-		     * we don't recognize the name ... skip this one,
-		     * the next realloc() (if any) will be a NOP
-		     */
-		    pmp->num_vals--;
-
-		    /* move onto next instance */
-		    continue;
-		}
-	    }
-
-	    /*
-	     * Note.  Passing inst down here does not help much, as
-	     * I don't think we're ever going to navigate back from a PDH
-	     * counter into our data structures, and even if we do,
-	     * the instance id is not going to be unique enough.
-	     */
-	    id = pmp->qid;
-	    pdhsts = PdhAddCounterA(querydesc[id].hdl, p, pvp->inst, &pvp->hdl);
-	    if (pdhsts != ERROR_SUCCESS) {
-		__pmNotifyErr(LOG_ERR, "windows_open: Warning: PdhAddCounterA "
+	id = pmp->qid;
+	pdhsts = PdhAddCounterA(querydesc[id].hdl, p, pvp->inst, &pvp->hdl);
+	if (pdhsts != ERROR_SUCCESS) {
+	    __pmNotifyErr(LOG_ERR, "windows_open: Warning: PdhAddCounterA "
 				"@ pmid=%s inst=%d pat=\"%s\" hdl=%p: %s\n",
 			    pmIDStr(pmp->desc.pmid), pvp->inst, p, pvp->hdl,
 			    pdherrstr(pdhsts));
-		pmp->flags |= M_NOVALUES;
-		break;
-	    }
+	    pmp->flags |= M_NOVALUES;
+	    break;
+	}
 
-	    if (p > pattern)
-		continue;
-	    if (pvp->flags & V_VERIFIED)
-		continue;
+	if (p > pattern)
+	    continue;
+	if (pvp->flags & V_VERIFIED)
+	    continue;
 
+	/*
+	 * check PCP metric semantics against PDH info
+	 */
+	if (info_sz == 0) {
 	    /*
-	     * check PCP metric semantics against PDH info
+	     * We've observed an initial call to PdhGetCounterInfoA()
+	     * hang with a zero sized buffer ... pander to this with
+	     * an initial buffer allocation ... (size is a 100% guess).
 	     */
-	    if (info_sz == 0) {
-		/*
-		 * We've observed an initial call to PdhGetCounterInfoA()
-		 * hang with a zero sized buffer ... pander to this with
-		 * an initial buffer allocation ... (size is a 100% guess).
-		 */
-	    	info_sz = 256;
-		if ((info = (LPSTR)malloc(info_sz)) == NULL) {
-		    __pmNotifyErr(LOG_ERR, "windows_open: PdhGetCounterInfoA "
+	    info_sz = 256;
+	    if ((info = (LPSTR)malloc(info_sz)) == NULL) {
+		__pmNotifyErr(LOG_ERR, "windows_open: PdhGetCounterInfoA "
 					"malloc (%d) failed @ metric %s: ",
 				(int)info_sz, pmIDStr(pmp->desc.pmid));
-		    errmsg();
-		    return -1;
-		}
+		errmsg();
+		return -1;
 	    }
-	    result_sz = info_sz;
-	    pdhsts = PdhGetCounterInfoA(pvp->hdl, FALSE, &result_sz,
+	}
+	result_sz = info_sz;
+	pdhsts = PdhGetCounterInfoA(pvp->hdl, FALSE, &result_sz,
 					(PDH_COUNTER_INFO_A *)info);
-	    if (pdhsts == PDH_MORE_DATA) {
-		info_sz = result_sz;
-		if ((info = (LPSTR)realloc(info, info_sz)) == NULL) {
-		 __pmNotifyErr(LOG_ERR, "windows_open: PdhGetCounterInfoA "
+	if (pdhsts == PDH_MORE_DATA) {
+	    info_sz = result_sz;
+	    if ((info = (LPSTR)realloc(info, info_sz)) == NULL) {
+		__pmNotifyErr(LOG_ERR, "windows_open: PdhGetCounterInfoA "
 					"realloc (%d) failed @ metric %s: ",
 				(int)info_sz, pmIDStr(pmp->desc.pmid));
-		    errmsg();
-		    return -1;
-		}
-		pdhsts = PdhGetCounterInfoA(pvp->hdl, FALSE, &result_sz,
-					    (PDH_COUNTER_INFO_A *)info);
+		errmsg();
+		return -1;
 	    }
-	    if (pdhsts != ERROR_SUCCESS) {
-		__pmNotifyErr(LOG_ERR, "windows_open: PdhGetCounterInfoA "
+	    pdhsts = PdhGetCounterInfoA(pvp->hdl, FALSE, &result_sz,
+					(PDH_COUNTER_INFO_A *)info);
+	}
+	if (pdhsts != ERROR_SUCCESS) {
+	    __pmNotifyErr(LOG_ERR, "windows_open: PdhGetCounterInfoA "
 					"failed @ metric %s: %s\n",
 				pmIDStr(pmp->desc.pmid), pdherrstr(pdhsts));
-		continue;
-	    }
-	    infop = (PDH_COUNTER_INFO_A *)info;
-	    pmp->ctype = infop->dwType;
-
-	    if (check_semantics(pmp, pvp) == 0)
-		pvp->flags |= V_VERIFIED;
-	    else
-		__pmNotifyErr(LOG_ERR, "windows_open: Warning: metric %s: "
-					"unexpected counter type: %s\n",
-			pmIDStr(pmp->desc.pmid), decode_ctype(pmp->ctype));
+	    continue;
 	}
+	infop = (PDH_COUNTER_INFO_A *)info;
+	pmp->ctype = infop->dwType;
+
+	if (check_semantics(pmp, pvp) == 0)
+	    pvp->flags |= V_VERIFIED;
+	else
+	    __pmNotifyErr(LOG_ERR, "windows_open: Warning: metric %s: "
+				   "unexpected counter type: %s\n",
+			pmIDStr(pmp->desc.pmid), decode_ctype(pmp->ctype));
     }
     return 0;
 }
@@ -658,7 +656,6 @@ void
 windows_open(void)
 {
     int			i, sts = 0;
-    pdh_metric_t	*pmp;
 
     setup_globals();
 
@@ -674,7 +671,6 @@ windows_open(void)
     }
 
     for (i = 0; i < metricdesc_sz; i++) {
-	pmp = &metricdesc[i];
-	windows_check_metric(pmp, 1);
+	windows_check_metric(&metricdesc[i]);
     }
 }

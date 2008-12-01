@@ -24,9 +24,8 @@
 pmInDom
 windows_indom(int qid, int domain)
 {
-    pmInDom		result;
-    __pmInDom_int	*indomp = (__pmInDom_int *)&result;
-    int			serial;
+    pmInDom	result;
+    int		serial;
 
     switch (qid) {
     case Q_DISK_DEV:		serial = DISK_INDOM; break;
@@ -40,25 +39,23 @@ windows_indom(int qid, int domain)
     case Q_THREADS:		serial = THREAD_INDOM; break;
     default:			return PM_INDOM_NULL;
     }
-    indomp->serial = serial;
-    indomp->pad = 0;
-    indomp->domain = domain;
-    return result;
-};
+    return INDOM(domain, serial);
+}
 
 void
 windows_instance_refresh(pmInDom indom)
 {
     int		i;
 
-    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-
     for (i = 0; i < metricdesc_sz; i++) {
 	pdh_metric_t *mp = &metricdesc[i];
 
 	if (indom != mp->desc.indom || mp->pat[0] == '\0')
 	    continue;
-	windows_check_metric(mp, 0);
+	if (mp->flags & M_REDO) {
+	    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+	    windows_check_metric(mp);
+	}
 	break;
     }
 }
@@ -112,7 +109,8 @@ windows_check_instance(char *path, pdh_metric_t *mp)
 			}
 			/*
 			 * If more than one drive letter maps to the same
-			 * physical disk, the name contains spaces, e.g.
+			 * logical disk (e.g. mirrored root),, the name
+			 * contains spaces, e.g.
 			 * "C: D:" ... replace ' ' by '_' to play by the
 			 * PCP rules for instance names
 			 */
@@ -188,6 +186,14 @@ windows_check_instance(char *path, pdh_metric_t *mp)
 					"malloc[%d] failed for NETIF_INDOM "
 					"path=%s\n", q - p + 1, path);
 			return -1;
+		    }
+		    /*
+		     * The network interface names have many spaces and are
+		     * not unique up to the first space by any means.  So,
+		     * replace ' 's to play by the PCP instance name rules.
+		     */
+		    for (p = name; *p; p++) {
+			if (*p == ' ') *p = '_';
 		    }
 		}
 	    }

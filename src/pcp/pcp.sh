@@ -16,9 +16,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
-# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-# Mountain View, CA 94043, USA, or: http://www.sgi.com
-# 
 # displays the Performance Co-Pilot configuration for a host running pmcd(1)
 #
 

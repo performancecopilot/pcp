@@ -1,7 +1,5 @@
-#!gmake
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
-# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,51 +16,19 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
 
-TOPDIR = ../..
+TOPDIR	= ../..
 include $(TOPDIR)/src/include/builddefs
 
-PERLMOD   = PMDA.pm
-INTERFACE = PMDA.xs local.h local.c typemap
-TESTCODE  = test.pl cvalue.c
-PERLDOCS  = Changes MANIFEST
-LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
+SUBDIRS	= PMDA LogSummary
 
-LPKGDIRT = PCP-PMDA-*
-LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib blib \
-	Makefile.old local.o $(LPKGDIRT)
+default: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 
-ifeq "$(findstring $(TARGET_OS),cygwin mingw)" ""
-default: dist
-else
-default:
-endif
-
-ifeq ($(PACKAGE_DISTRIBUTION),debian)
-MAKEMAKER_OPTIONS = "INSTALLDIRS=vendor"
-INSTALLER_OPTIONS = DESTDIR=$$DIST_ROOT PREFIX=/usr
-endif
-
-PMDA.o: Makefile PMDA.xs
-	$(MAKE) -f Makefile
-
-Makefile: COPYING
-	perl Makefile.PL $(MAKEMAKER_OPTIONS)
-
-COPYING:
-	$(LN_S) $(TOPDIR)/COPYING COPYING
-
-test dist: PMDA.o
-	rm -f $(LPKGDIRT)
-	$(MAKE) -f Makefile $@
+install: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
 
-install: default
+default_pcp : default
 
-install_perl:
-	$(MAKE) -f Makefile install $(INSTALLER_OPTIONS)
-
-default_pcp: default
-
-install_pcp: install
-
+install_pcp : install

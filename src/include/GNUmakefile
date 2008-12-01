@@ -14,9 +14,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
-# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-# Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
 
 TOPDIR = ../..
@@ -30,7 +27,7 @@ CONFFILES = platform_defs.h builddefs pcp.conf
 LSRCFILES = platform_defs.h.in builddefs.in buildrules pcp.conf.in \
 	    pcp.env mk_pmdbg trace_dev.h trace_hash.h 
 
-LDIRT = $(GENERATED_HFILES) builddefs.install include
+LDIRT = builddefs.install
 
 default :: default_pcp
 

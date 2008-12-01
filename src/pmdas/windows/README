@@ -3,8 +3,6 @@ Windows PMDA
 
 This PMDA collects performance data from a Microsoft Windows kernel.
 
-Note:
-
 Metrics
 =======
 

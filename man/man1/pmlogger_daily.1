@@ -15,9 +15,6 @@
 .\" You should have received a copy of the GNU General Public License along
 .\" with this program; if not, write to the Free Software Foundation, Inc.,
 .\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-.\" 
-.\" Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-.\" Mountain View, CA 94043, USA, or: http://www.sgi.com
 .\"
 .ie \(.g \{\
 .\" ... groff (hack for khelpcenter, man2html, etc.)
@@ -37,7 +34,7 @@
 \f3pmlogger_merge\f1 \- administration of Performance Co-Pilot archive log files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-NV\f1]
+[\f3\-NoV\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2discard\f1]
 [\f3\-m\f1 \f2addresses\f1]
@@ -404,6 +401,11 @@ Using
 in conjunction with
 .B \-V
 maximizes the diagnostic capabilities for debugging.
+.PP
+By default all possible archives will be merged.  The
+.B \-o
+option reinstates the old behaviour in which only yesterday's archives
+will be considered as merge candidates.
 .PP
 The
 .B \-T

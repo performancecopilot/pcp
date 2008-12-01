@@ -14,9 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
- * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
- * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
 #include "pmapi.h"
@@ -293,9 +290,10 @@ rawdump(FILE *f)
     int		sts;
 
     old = ftell(f);
-    fseek(f, 0, SEEK_SET);
+    fseek(f, (long)0, SEEK_SET);
 
     while ((sts = fread(&len, 1, sizeof(len), f)) == sizeof(len)) {
+	len = ntohl(len);
 	printf("Dump ... record len: %d @ offset: %ld", len, ftell(f) - sizeof(len));
 	len -= 2 * sizeof(len);
 	for (i = 0; i < len; i++) {
@@ -306,7 +304,7 @@ rawdump(FILE *f)
 	    }
 	    if (i % 32 == 0) putchar('\n');
 	    if (i % 4 == 0) putchar(' ');
-	    printf("%02x", check &0xff);
+	    printf("%02x", check & 0xff);
 	}
 	putchar('\n');
 	if ((sts = fread(&check, 1, sizeof(check), f)) != sizeof(check)) {
@@ -314,6 +312,7 @@ rawdump(FILE *f)
 		printf("Unexpected EOF\n");
 	    break;
 	}
+	check = ntohl(check);
 	len += 2 * sizeof(len);
 	if (check != len) {
 	    printf("Trailer botch: %d != %d\n", check, len);
