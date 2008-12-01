@@ -23,7 +23,8 @@ include $(TOPDIR)/src/include/builddefs
 SPEC = pcp.spec
 LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros rpm-$(RPM_VERSION).rc
 
-LSRCFILES = macros.template pcp.spec.in rpm-2.rc.template pcp-pmda-perl.desc
+PERLFILES = pcp-pmda-perl.desc pcp-logsummary-perl.desc
+LSRCFILES = macros.template pcp.spec.in rpm-2.rc.template $(PERLFILES)
 
 default install :
 
@@ -38,7 +39,10 @@ pack_pcp : rpm-$(RPM_VERSION).rc $(SPEC)
 ifneq "$(CPANFLUTE)" ""
 	$(CPANFLUTE) --email="$(PACKAGE_BUILDER)" \
 		--descfile=pcp-pmda-perl.desc --buildrequires=pcp \
-		--buildall $(TOPDIR)/src/cpan/PCP-PMDA-*.tar.gz
+		--buildall $(TOPDIR)/src/cpan/PMDA/PCP-PMDA-*.tar.gz
+	$(CPANFLUTE) --email="$(PACKAGE_BUILDER)" \
+		--descfile=pcp-logsummary-perl.desc --buildrequires=pcp \
+		--buildall $(TOPDIR)/src/cpan/LogSummary/PCP-LogSummary-*.tar.gz
 endif
 
 # Because rpm prior v.2.90 does not support macros and old style config
