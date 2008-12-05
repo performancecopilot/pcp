@@ -1,3 +1,9 @@
+pcp (2.7.8-20081205) unstable; urgency=low
+
+  * Fix perl PMDA interface build (closes: #507830)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 05 Dec 2008 16:48:04 +1100
+
 pcp (2.7.8-20081201) unstable; urgency=low
 
   * Merged with new code from SGI.

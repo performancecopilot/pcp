@@ -3946,7 +3946,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_NET_DEV: /* network.interface */
-	sts = pmdaCacheLookup(indomtab[NET_DEV_INDOM].it_indom, inst, NULL, (void **)&netip);
+	sts = pmdaCacheLookup(INDOM(NET_DEV_INDOM), inst, NULL, (void **)&netip);
 	if (sts < 0)
 	    return sts;
 	if (idp->item >= 0 && idp->item <= 15) {
@@ -4003,7 +4003,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_NET_INET:
-	sts = pmdaCacheLookup(indomtab[NET_INET_INDOM].it_indom, inst, NULL, (void **)&inetp);
+	sts = pmdaCacheLookup(INDOM(NET_INET_INDOM), inst, NULL, (void **)&inetp);
 	if (sts < 0)
 	    return sts;
 	switch (idp->item) {
