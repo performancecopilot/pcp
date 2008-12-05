@@ -11,6 +11,13 @@
 owner=kenmcd
 
 seq=`basename $0`
+rm -f $seq.out
+if which pmdumptext >/dev/null 2>&1
+then
+    ln $seq.out.1 $seq.out
+else
+    ln $seq.out.2 $seq.out
+fi
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
