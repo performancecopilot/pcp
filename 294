@@ -132,7 +132,7 @@ _do pmdumptext -t 0.5 -s 2 `hostname | sed -e 's/\..*//'`:sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 `pmhostname`:kernel.all.load
 _do pmstat -t 0.5 -s 2
 _do pmlogger -c $PCP_VAR_DIR/config/pmlogger/config.pmstat -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
-_do pmstat -t 0.5sec -a $tmp.arch
+_do pmstat -S +0.25sec -t 0.5sec -a $tmp.arch
 
 # success, all done
 exit
