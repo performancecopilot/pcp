@@ -10,6 +10,14 @@
 owner=kenmcd
 
 seq=`basename $0`
+rm -f $seq.out
+if which pmdumptext >/dev/null 2>&1
+then
+    ln $seq.out.1 $seq.out
+else
+    ln $seq.out.2 $seq.out
+fi
+
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
@@ -21,17 +29,18 @@ if which pmproxy >/dev/null 2>&1
 then
     :
 else
-    echo "No pmproxy mview binary installed" >$seq.notrun
+    echo "No pmproxy binary installed" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi
 
-tmp=/tmp/$$
+#debug# tmp=/tmp/$$
+tmp=`pwd`/tmp
 here=`pwd`
 sudo=$here/sudo
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
-trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+#debug# trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _cleanup()
 {
@@ -62,7 +71,7 @@ s//@ DATE/
 # pmstat header3
 s//   1 min   swpd   free   buff  cache   si   so   bi   bo   in   cs  us  sy  id/
 }' \
-	-e '/[0-9][0-9]*  *[0-9][0-9]*  *[0-9][0-9]*  *[0-9][0-9]*  *[0-9][0-9]*/{
+	-e '/[0-9.]*[0-9m]  *[0-9.]*[0-9m]  *[0-9.]*[0-9m]  *[0-9.]*[0-9m]  *[0-9.]*[0-9m]/{
 # pmstat data
 s/  *[0-9.]*[0-9m]/ N/g
 }' \
@@ -88,9 +97,14 @@ _do()
 {
     echo
     echo "+++ $* +++" | tee -a $seq.full | _filter_me
-    eval $* 2>&1 | tee -a $seq.full | _filter
-    echo "`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'` connects"
-    echo "`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'` disconnects"
+    if which $1 >/dev/null 2>&1
+    then
+	eval $* 2>&1 | tee -a $seq.full | _filter
+	echo "`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'` connects"
+	echo "`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'` disconnects"
+    else
+	echo "Skipped, no $1 binary installed"
+    fi
 }
 
 $sudo /etc/init.d/pmproxy stop >/dev/null 2>&1
