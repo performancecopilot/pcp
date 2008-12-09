@@ -540,8 +540,7 @@ extern void closelog(void);
 #endif
 enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
        LOG_WARNING, LOG_NOTICE, LOG_INFO, LOG_DEBUG,
-       LOG_PID, LOG_DAEMON };	/* required for __pmNotifyErr use */
-
+       LOG_PID, LOG_CONS, LOG_DAEMON };
 #ifdef LIBPCP_INTERNAL
 #define INTERN __declspec(dllexport)
 #define EXTERN
