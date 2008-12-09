@@ -37,7 +37,7 @@ fi
 [ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pmda\" && exit 1
 [ ! -f $dsopmda ] && echo "FATAL ERROR Could not find \"$pmda\" && exit 1
 
-dbpmda <<End-of-File | _filter
+dbpmda -ie <<End-of-File 2>&1 | _filter
 open pipe $pipepmda -d 29
 getdesc on
 fetch 29.0.6
