@@ -3405,7 +3405,7 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 {
     __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
     int			need_refresh[NUM_CLUSTERS];
-    char		newname[8];
+    char		newname[11];		/* see Note below */
 
     memset(need_refresh, 0, sizeof(need_refresh));
     switch (indomp->serial) {
@@ -3461,6 +3461,12 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	 * For the proc indom, if the name is a pid (as a string), and it
 	 * contains only digits (i.e. it's not a full instance name) then
 	 * reformat it to be exactly six digits, with leading zeros.
+	 *
+	 * Note that although format %06d is used here and in proc_pid.c,
+	 *      the pid could be longer than this (in which case there
+	 *      are no leading zeroes.  The size of newname[] is chosen
+	 *	to compfortably accommodate a 32-bit pid (Linux maximum),
+	 *      or max value of 4294967295 (10 digits)
 	 */
 	char *p;
 	for (p = name; *p != '\0'; p++) {
@@ -3468,7 +3474,7 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	    	break;
 	}
 	if (*p == '\0') {
-	    sprintf(newname, "%06d", atoi(name));
+	    snprintf(newname, sizeof(newname), "%06d", atoi(name));
 	    name = newname;
 	}
     }
