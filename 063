@@ -28,7 +28,7 @@ main()
 
     __pmOptFetchRedo(&root);
 
-    printf("__pmOptFetchRedo returns: 0x%x\n", root);
+    printf("__pmOptFetchRedo returns: %ld\n", (long)root);
 
     exit(0);
 }
