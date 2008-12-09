@@ -44,7 +44,7 @@ _doit()
 
 seq=`basename $0`
 
-rm -f $seq.out
+rm -f $seq.out $seq.full
 . ./localconfig
 if [ $PCP_PLATFORM = linux ]
 then
@@ -61,6 +61,7 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
@@ -88,3 +89,5 @@ then
     _filter <$tmp.err
     echo
 fi
+
+_wait_for_pmcd
