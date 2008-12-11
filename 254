@@ -30,7 +30,8 @@ cleanup()
     if $_needclean
     then
         _needclean=false
-        $sudo killall -TERM pmcd
+	kill -TERM $pmcd
+	sleep 1
         echo "Restart and ping pmcd ..."
         $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
@@ -68,6 +69,7 @@ $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 #
 $PCP_PMCD_PROG -f -n $pmns &
+pmcd=$!
 _wait_for_pmcd
 
 cd $here
