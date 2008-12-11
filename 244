@@ -116,7 +116,8 @@ cleanup()
     if $_needclean
     then
 	_needclean=false
-	$sudo killall -TERM pmcd
+	kill -TERM $pmcd
+	sleep 1
 	$sudo rm -f $CONFIG
 	$sudo cp $CONFIGSAVE $CONFIG
 	$sudo chmod u-w $CONFIG
