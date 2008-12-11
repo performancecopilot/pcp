@@ -81,7 +81,7 @@ s/  *[0-9.]*[0-9m]/ N/g
 _filter_me()
 {
     sed \
-	-e "s/`pmhostname`/MY_FQDN/g" \
+	-e "s/`pmhostname`/MY_HOSTNAME/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/MY_HOSTNAME/" \
 	-e "s#$tmp#TMP#g" \
 	-e "s#$PCP_VAR_DIR#PCP_VAR_DIR#g" \

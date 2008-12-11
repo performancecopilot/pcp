@@ -1025,10 +1025,10 @@ hinv.ncpu 1 N
 3 connects
 3 disconnects
 
-+++ pmval -h MY_FQDN -t 0.5 -s 3 sample.bin +++
++++ pmval -h MY_HOSTNAME -t 0.5 -s 3 sample.bin +++
 
 metric:    sample.bin
-host:      MY_FQDN
+host:      MY_HOSTNAME
 semantics: instantaneous value
 units:     none
 samples:   3
@@ -1073,7 +1073,7 @@ Skipped, no pmdumptext binary installed
 +++ pmdumptext -t 0.5 -s 2 MY_HOSTNAME:sample.string.hullo +++
 Skipped, no pmdumptext binary installed
 
-+++ pmdumptext -t 0.5 -s 2 MY_FQDN:kernel.all.load +++
++++ pmdumptext -t 0.5 -s 2 MY_HOSTNAME:kernel.all.load +++
 Skipped, no pmdumptext binary installed
 
 +++ pmstat -t 0.5 -s 2 +++
