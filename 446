@@ -11,10 +11,12 @@ owner=nathans
 
 seq=`basename $0`
 echo "QA output created by $seq"
+NM_ARG=''
 
 . ./localconfig
 if [ $PCP_PLATFORM = "linux" ] ; then
     libmajor=2
+    NM_ARG=--dynamic
 else
     libmajor=1
 fi
@@ -33,7 +35,7 @@ trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 get_syms()
 {
     # gets all code symbols, prints the name, & strips internal names
-    nm -B $1 | grep " T " | $PCP_AWK_PROG '{print $3}' | grep -v "_" | grep -v "^.MIPS."
+    nm $NM_ARG -B $1 | grep " T " | $PCP_AWK_PROG '{print $3}' | grep -v "_" | grep -v "^.MIPS."
 }
 
 # real QA test starts here
