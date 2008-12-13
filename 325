@@ -18,17 +18,27 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
-    killall xconfirm xmessage pmprintf
+    echo "at end ..." >>$seq.full
+    pid=`ps $PCP_PS_ALL_FLAGS | egrep '[x]confirm' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
+    [ -n "$pid" ] && kill -TERM $pid
+    pid=`ps $PCP_PS_ALL_FLAGS | egrep '[x]message' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
+    [ -n "$pid" ] && kill -TERM $pid
+    pid=`ps $PCP_PS_ALL_FLAGS | egrep '[p]mprintf' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
+    [ -n "$pid" ] && kill -TERM $pid
+    pid=`ps $PCP_PS_ALL_FLAGS | egrep '[k]mquery' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
+    [ -n "$pid" ] && kill -TERM $pid
     rm -f $tmp.*
 }
 
 tmp=/tmp/$$
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
+rm -f $seq.full
 
 # real QA test starts here
 
-OLDXCONFIRMCNT=`ps $PCP_PS_ALL_FLAGS | fgrep xconfirm | fgrep -v fgrep | wc -l | tr -d ' '`
+echo "initially ..." >$seq.full
+OLDXCONFIRMCNT=`ps $PCP_PS_ALL_FLAGS | grep '[x]confirm' | tee -a $seq.full | wc -l | tr -d ' '`
 [ "X$OLDXCONFIRMCNT" = X ] && OLDXCONFIRMCNT=0
 
 # Save state for restoration later
@@ -52,7 +62,8 @@ export PCP_STDERR
 # wait for dialog to fire up
 sleep 3
 rm -f $tmp.out
-ps $PCP_PS_ALL_FLAGS | fgrep xconfirm | fgrep -v fgrep > $tmp.out
+echo "after start up ..." >>$seq.full
+ps $PCP_PS_ALL_FLAGS | grep '[x]confirm' | tee -a $seq.full > $tmp.out
 XCONFIRMCNT=`cat $tmp.out | wc -l | tr -d ' '`
 [ "X$XCONFIRMCNT" = X ] && XCONFIRMCNT=0
 
