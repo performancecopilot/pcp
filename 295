@@ -60,7 +60,8 @@ export PMPROXY_HOST
 
 # real QA test starts here
 pidlist=`sh -c "pmval hinv.ncpu >$tmp.1 2>&1 & echo \\\$!"`
-pid=`sh -c "pmdumptext sample.colour >$tmp.2 2>&1 & echo \\\$!"`
+#pid=`sh -c "pmdumptext sample.colour >$tmp.2 2>&1 & echo \\\$!"`
+pid=`sh -c "pmstat >$tmp.2 2>&1 & echo \\\$!"`
 pidlist="$pidlist $pid"
 echo "kernel.all.load;" >$tmp.in
 pid=`sh -c "pmie -v -c $tmp.in >$tmp.3 2>&1 & echo \\\$!"`
@@ -84,7 +85,7 @@ done
 echo "pmval output ..." >$seq.full
 cat $tmp.1 >>$seq.full
 echo >>$seq.full
-echo "pmdumptext output ..." >>$seq.full
+echo "pmstat output ..." >>$seq.full
 cat $tmp.2 >>$seq.full
 echo >>$seq.full
 echo "pmie output ..." >>$seq.full
