@@ -80,6 +80,8 @@ _filter_pmie_log <$tmp.log \
     -e "s/$HOST/HOST/g" \
     -e "s/ host localhost/ host HOST\/localhost/g" \
     -e "s/ from localhost/ from HOST\/localhost/g" \
+    -e 's/failed: IPC protocol failure/failed: [IPC shutdown]/' \
+    -e 's/failed: Connection reset by peer/failed: [IPC shutdown]/' \
 | $PCP_AWK_PROG '
 $1 == "DATE:" && $2 == "singular"	{ if (state > 0) skip = 1
 					  state++
