@@ -106,12 +106,14 @@ do
     $sudo cp $tmp.conf+trivial $PCP_PMCDCONF_PATH
     $sudo touch $PCP_PMCDCONF_PATH
     $sudo killall -HUP pmcd
+    sleep 1
     _wait_for_pmcd
     pminfo -f pmcd.agent.type
     echo "cull trivial PMDA ..."
     $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
     $sudo touch $PCP_PMCDCONF_PATH
     $sudo killall -HUP pmcd
+    sleep 1
     _wait_for_pmcd
     pminfo -f pmcd.agent.type
 done
