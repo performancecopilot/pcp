@@ -279,7 +279,9 @@ do
 	    -e "/mem\.util\.reverseMaps: $unavailable/d" \
 	    -e "/mem\.util\.shared: $unavailable/d" \
 	    -e "/network\.ib\..*/d" \
-	    -e "/network.interface.inet_addr: $unavailable/d" \
+	    -e "/network\.interface\.baudrate: $unavailable/d" \
+	    -e "/network\.interface\.inet_addr: $unavailable/d" \
+	    -e "/network\.interface\.speed: $unavailable/d" \
 	    -e "/nfs3\.server\..*: $unavailable/d" \
 	    -e "/nfs.*\.client\.calls: $unavailable/d" \
 	    -e "/nfs.*\.client\.reqs: $unavailable/d" \
