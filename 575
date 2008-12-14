@@ -23,9 +23,11 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+$sudo killall pmie
 $sudo rm -fr $PCP_TMP_DIR/pmie
 $sudo $PCP_RC_DIR/pmie stop | _filter_pcp_stop
 
+$sudo $PCP_RC_DIR/pmie start >/dev/null 2>&1
 # success, all done
 status=0
 exit
