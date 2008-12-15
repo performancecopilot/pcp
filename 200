@@ -28,6 +28,7 @@ tmp=/tmp/$$
 LOCALHOST=`hostname`
 sudo=./sudo
 status=1
+rm -f $seq.full
 
 _filter()
 {
@@ -38,6 +39,18 @@ $0 != last	{ print; last = $0 }' \
 	-e 's/failed: Connection reset by peer/failed: IPC protocol failure/' \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
 	-e '/recon([0-9][0-9]*)/s//recon(PID)/' \
+	-e '/^Context\[/d' \
+	-e '/^pmReconnectContext(/d' \
+	-e '/^Dump Contexts:/d' \
+	-e '/^Dump Instance Profile /d' \
+	-e '/^IPC table fd/d' \
+	-e '/^__pmConnectPMCD(/d' \
+	-e '/^__pmDecodeXtendError:/d' \
+	-e '/^pmNewContext(/d' \
+	-e '/^__pmSendCreds:/d' \
+	-e '/^__pmSetSocketIPC:/d' \
+	-e '/^__pmSetVersionIPC:/d' \
+	-e '/^pmWhichContext(/d' \
     | $PCP_AWK_PROG '
 /delay: 6 /	{ print "delay: 6-10 secs"; next }
 /delay: 7 /	{ print "delay: 6-10 secs"; next }
@@ -104,18 +117,25 @@ do
 
     echo
     echo "PMCD_RECONNECT_TIMEOUT=\"$PMCD_RECONNECT_TIMEOUT\""
+    echo "start PMCD_RECONNECT_TIMEOUT=$PMCD_RECONNECT_TIMEOUT" >>$seq.full
+    echo "start `date`" >>$seq.full
 
-    DEBUG=-D16
     DEBUG=
+    DEBUG=-D16
     src-oss/recon $DEBUG >$tmp.out 2>&1 &
 
     sleep 2
+    echo "begin stop pmcd `date`" >>$seq.full
     $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
-    sleep 2
+    echo "end stop pmcd `date`" >>$seq.full
+    sleep 4
+    echo "begin start pmcd `date`" >>$seq.full
     $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+    echo "end start pmcd `date`" >>$seq.full
 
     wait
     _filter <$tmp.out
+    cat $tmp.out >>$seq.full
 done
 
 status=0
