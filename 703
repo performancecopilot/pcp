@@ -90,7 +90,8 @@ _remove_pmda weblog > /dev/null
 
 echo "=== install weblog PMDA ===" | tee -a $seq.full
 _install_pmda weblog | tee -a $seq.full | _filter | $PCP_AWK_PROG '
-/Installing pmchart view/	{ print ""; skip = 0 }
+/Installing pmchart view/	{ skip = 0; next }
+/Terminate PMDA if already installed/	{ skip = 0 }
 skip == 1	{ next }
 /^Found /	{ print "Found at least one server ..."
 		  skip = 1
