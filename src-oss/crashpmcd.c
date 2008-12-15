@@ -23,6 +23,7 @@ try(int len)
     static int first = 1;
     static struct sockaddr_in  myAddr;
     static struct hostent*     servInfo;
+    char buf[256];
 
     if (first) {
 	first = 0;
@@ -52,6 +53,7 @@ try(int len)
 	close(fd);
 	return;
     }
+    read(fd, buf, sizeof(buf));
     close(fd);
 }
 

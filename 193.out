@@ -170,7 +170,6 @@ QA output created by 193
 [DATE] pmcd(PID) Error: __pmGetPDU: PDU hdr: len=0xc type=0x55aa0000
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N data read: END-OF-FILE
 [DATE] pmcd(PID) Error: __pmGetPDU: PDU hdr: len=0xc type=0x55aa0000
-[DATE] pmcd(PID) Error: HandleClientInput: error sending Error PDU to client[N] Broken pipe
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=1
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=2
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=3
