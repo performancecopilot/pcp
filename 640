@@ -11,6 +11,23 @@
 owner=kenmcd
 
 seq=`basename $0`
+
+if which pmpost >/dev/null 2>&1
+then
+    if ls -l `which pmpost` | cut -c4 | grep -q 's' 
+    then
+	:
+    else
+	echo "pmpost binary is not installed setuid" >$seq.notrun
+	echo "$seq: [not run] `cat $seq.notrun`"
+	exit 0
+    fi
+else
+    echo "No pmpost binary installed" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
