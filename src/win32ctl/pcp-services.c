@@ -116,8 +116,8 @@ pcpQueryService(char *name)
 
     manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (!manager) {
-	fprintf(stderr, "%s: cannot open service manager (%ld)\n",
-			pmProgname, GetLastError());
+	fprintf(stderr, "%s: cannot open service manager: %s\n",
+			pmProgname, strerror(GetLastError()));
 	return 1;
     }
 
@@ -133,11 +133,11 @@ pcpQueryService(char *name)
 
     service = OpenService(manager, services[c].name, SERVICE_QUERY_STATUS);
     if (!service)
-	fprintf(stderr, "%s: OpenService failed on \"%s\" (%ld)\n",
-			pmProgname, services[c].name, GetLastError());
+	fprintf(stderr, "%s: OpenService failed on \"%s\": %s\n",
+			pmProgname, services[c].name, strerror(GetLastError()));
     if (!QueryServiceStatus(service, &status))
-	fprintf(stderr, "%s: QueryServiceStatus failed for \"%s\" (%ld)\n",
-			pmProgname, services[c].name, GetLastError());
+	fprintf(stderr, "%s: QueryServiceStatus failed for \"%s\": %s\n",
+			pmProgname, services[c].name, strerror(GetLastError()));
     else
 	printf("Service status: %s\n", statusString(status.dwCurrentState));
     if (service)
@@ -156,8 +156,8 @@ pcpStartService(char *name)
 
     manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (!manager) {
-	fprintf(stderr, "%s: cannot open service manager (%ld)\n",
-			pmProgname, GetLastError());
+	fprintf(stderr, "%s: cannot open service manager: %s\n",
+			pmProgname, strerror(GetLastError()));
 	return 1;
     }
 
@@ -173,11 +173,11 @@ pcpStartService(char *name)
 
     service = OpenService(manager, services[c].name, SERVICE_ALL_ACCESS);
     if (!service)
-	fprintf(stderr, "%s: OpenService failed on \"%s\" (%ld)\n",
-			pmProgname, services[c].name, GetLastError());
+	fprintf(stderr, "%s: OpenService failed on \"%s\": %s\n",
+			pmProgname, services[c].name, strerror(GetLastError()));
     if (!StartService(service, 0, NULL)) {
-	fprintf(stderr, "%s: QueryServiceStatus failed for \"%s\" (%ld)\n",
-			pmProgname, services[c].name, GetLastError());
+	fprintf(stderr, "%s: QueryServiceStatus failed for \"%s\": %s\n",
+			pmProgname, services[c].name, strerror(GetLastError()));
 	CloseServiceHandle(service);
     }
     CloseServiceHandle(manager);
@@ -194,8 +194,8 @@ pcpStopService(char *name)
 
     manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (!manager) {
-	fprintf(stderr, "%s: cannot open service manager (%ld)\n",
-			pmProgname, GetLastError());
+	fprintf(stderr, "%s: cannot open service manager: %s\n",
+			pmProgname, strerror(GetLastError()));
 	return 1;
     }
 
@@ -211,11 +211,11 @@ pcpStopService(char *name)
 
     service = OpenService(manager, services[c].name, SERVICE_ALL_ACCESS);
     if (!service)
-	fprintf(stderr, "%s: OpenService failed on \"%s\" (%ld)\n",
-			pmProgname, services[c].name, GetLastError());
+	fprintf(stderr, "%s: OpenService failed on \"%s\": %s\n",
+			pmProgname, services[c].name, strerror(GetLastError()));
     if (!ControlService(service, SERVICE_CONTROL_STOP, &ss)) {
-	fprintf(stderr, "%s: ControlService (stop) failed for \"%s\" (%ld)\n",
-			pmProgname, services[c].name, GetLastError());
+	fprintf(stderr, "%s: ControlService (stop) failed for \"%s\": %s\n",
+			pmProgname, services[c].name, strerror(GetLastError()));
 	CloseServiceHandle(service);
     }
     CloseServiceHandle(manager);
@@ -253,15 +253,15 @@ pcpInstallServices(void)
     int c;
 
     if (!GetModuleFileName(NULL, path, MAX_PATH)) {
-	fprintf(stderr, "%s: cannot install service (%ld)\n",
-			pmProgname, GetLastError());
+	fprintf(stderr, "%s: cannot install service: %s\n",
+			pmProgname, strerror(GetLastError()));
 	return 1;
     }
 
     manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (!manager) {
-	fprintf(stderr, "%s: cannot open service manager (%ld)\n",
-			pmProgname, GetLastError());
+	fprintf(stderr, "%s: cannot open service manager: %s\n",
+			pmProgname, strerror(GetLastError()));
 	return 1;
     }
 
@@ -276,8 +276,8 @@ pcpInstallServices(void)
 				SERVICE_ERROR_NORMAL,
 				path, NULL, NULL, NULL, NULL, NULL);
 	if (!service)
-	    fprintf(stderr, "%s: CreateService failed for \"%s\" (%ld)\n",
-			pmProgname, services[c].name, GetLastError());
+	    fprintf(stderr, "%s: CreateService failed for \"%s\": %s\n",
+			pmProgname, services[c].name, strerror(GetLastError()));
 	else {
 	    SERVICE_DESCRIPTION sd;
 	    sd.lpDescription = services[c].description;
@@ -304,19 +304,19 @@ pcpRemoveServices(void)
 
     manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (!manager) {
-	fprintf(stderr, "%s: cannot open service manager (%ld)\n",
-			pmProgname, GetLastError());
+	fprintf(stderr, "%s: cannot open service manager: %s\n",
+			pmProgname, strerror(GetLastError()));
 	return 1;
     }
 
     for (c = 0; c < NUM_SERVICES; c++) {
 	service = OpenService(manager, services[c].name, SERVICE_ALL_ACCESS);
 	if (!service)
-	    fprintf(stderr, "%s: OpenService failed on \"%s\" (%ld)\n",
-			pmProgname, services[c].name, GetLastError());
+	    fprintf(stderr, "%s: OpenService failed on \"%s\": %s\n",
+			pmProgname, services[c].name, strerror(GetLastError()));
 	else if (!DeleteService(service))
-	    fprintf(stderr, "%s: DeleteService failed on \"%s\" (%ld)\n",
-			pmProgname, services[c].name, GetLastError());
+	    fprintf(stderr, "%s: DeleteService failed on \"%s\": %s\n",
+			pmProgname, services[c].name, strerror(GetLastError()));
 	else
 	    CloseServiceHandle(service);
     }
@@ -332,8 +332,8 @@ pcpServiceMain(DWORD argc, LPTSTR *argv, PCPSERVICE s)
 			services[s].name, services[s].dispatch, NULL);
     if (!services[s].statusHandle) {
 	fprintf(stderr, "%s: RegisterServiceCtrlHandlerEx() failed"
-			" for \"%s\" %ld\n",
-		pmProgname, services[s].name, GetLastError());
+			" for \"%s\": %s\n",
+		pmProgname, services[s].name, strerror(GetLastError()));
 	return;
     }
 
@@ -419,8 +419,8 @@ pcpServiceHandler(DWORD dwControl, DWORD dwEventType,
 
     /* Send current status (done for most request types) */
     if (!SetServiceStatus(services[s].statusHandle, &services[s].status)) {
-	fprintf(stderr, "%s: SetServiceStatus on %s failed (%ld)\n",
-			pmProgname, services[s].name, GetLastError());
+	fprintf(stderr, "%s: SetServiceStatus on %s failed: %s\n",
+		pmProgname, services[s].name, strerror(GetLastError()));
     }
     return NO_ERROR;
 }
@@ -490,8 +490,8 @@ main(int argc, char **argv)
     dispatchTable[c].lpServiceProc = NULL;
 
     if (!StartServiceCtrlDispatcher(dispatchTable)) {
-	fprintf(stderr, "%s: cannot dispatch services (%ld)\n",
-			pmProgname, GetLastError());
+	fprintf(stderr, "%s: cannot dispatch services: %s\n",
+			pmProgname, strerror(GetLastError()));
 	return 1;
     }
     return 0;
