@@ -115,9 +115,13 @@ then
 		# glibc-2.3.3-98.3	SuSE SLES9 beta4
 		ln $seq.out.linux.1 $seq.out
 	    fi
-	else
-	    # 2.b.?, b > 3
+	elif [ "$b" -lt 8 ]
+	then
+	    # 2.b.?, b > 3 and b < 8
 	    ln $seq.out.linux.1 $seq.out
+	else
+	    # 2.b.?, b >= 8
+	    ln $seq.out.linux.3 $seq.out
 	fi
     else
 	# a.?.?, a > 2
