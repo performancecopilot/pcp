@@ -99,10 +99,10 @@ statusString(DWORD state)
 }
 
 int
-pcpQueryScript(char *name)
+pcpScript(const char *name, const char *act)
 {
     char cmd[MAXPATHLEN];
-    snprintf(cmd, sizeof(cmd), "sh %s/etc/%s status", getenv("PCP_DIR"), name);
+    snprintf(cmd, sizeof(cmd), "sh %s/etc/%s %s", getenv("PCP_DIR"), name, act);
     return system(cmd);
 }
 
@@ -144,15 +144,7 @@ pcpQueryService(char *name)
 	CloseServiceHandle(service);
     CloseServiceHandle(manager);
 
-    return pcpQueryScript(services[c].script);
-}
-
-int
-pcpStartScript(char *name)
-{
-    char cmd[MAXPATHLEN];
-    snprintf(cmd, sizeof(cmd), "sh %s/etc/%s start", getenv("PCP_DIR"), name);
-    return system(cmd);
+    return pcpScript(services[c].script, "status");
 }
 
 int
@@ -190,14 +182,6 @@ pcpStartService(char *name)
     }
     CloseServiceHandle(manager);
     return 0;
-}
-
-int
-pcpStopScript(char *name)
-{
-    char cmd[MAXPATHLEN];
-    snprintf(cmd, sizeof(cmd), "sh %s/etc/%s stop", getenv("PCP_DIR"), name);
-    return system(cmd);
 }
 
 int
@@ -369,7 +353,7 @@ pcpServiceMain(DWORD argc, LPTSTR *argv, PCPSERVICE s)
     /*
      * Go, go, go... run the start script for this service.
      */
-    if (pcpStartScript(services[s].script) != 0) {
+    if (pcpScript(services[s].script, "start") != 0) {
 	pcpSetServiceState(s, SERVICE_STOPPED, NO_ERROR, 0);
 	return;
     }
@@ -378,6 +362,9 @@ pcpServiceMain(DWORD argc, LPTSTR *argv, PCPSERVICE s)
 
     /* Check whether to stop the service. */
     WaitForSingleObject(services[s].stopEvent, INFINITE);
+
+    /* ServiceState already set to SERVICE_STOP_PENDING */
+    pcpScript(services[s].script, "stop");
 
     pcpSetServiceState(s, SERVICE_STOPPED, NO_ERROR, 0);
 }
