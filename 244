@@ -124,8 +124,7 @@ cleanup()
 	[ -f $SAVE_LOGCONTROL ] && $sudo mv $SAVE_LOGCONTROL $LOGCONTROL
 	_restore_loggers
 	echo "Restart and ping pmcd ..."
-	PMCD_PORT=4321
-	export PMCD_PORT
+	unset PMCD_PORT
 	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
