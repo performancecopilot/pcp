@@ -2,11 +2,7 @@
 # Check if we have a pcp/pmapi.h installed
 #
 AC_DEFUN([AC_PACKAGE_NEED_PMAPI_H],
-  [ if test -n "$PCP_DIR"; then
-	CFLAGS="$CFLAGS -I$PCP_DIR"
-	CPPFLAGS="$CPPFLAGS -I$PCP_DIR/include"
-    fi
-    AC_CHECK_HEADERS(pcp/pmapi.h)
+  [ AC_CHECK_HEADERS(pcp/pmapi.h)
     if test $ac_cv_header_pcp_pmapi_h = no; then
 	echo
 	echo 'FATAL ERROR: could not find a valid <pcp/pmapi.h> header.'
@@ -18,11 +14,7 @@ AC_DEFUN([AC_PACKAGE_NEED_PMAPI_H],
 # Check if we have a pcp/pmda.h installed
 #
 AC_DEFUN([AC_PACKAGE_NEED_PMDA_H],
-  [ if test -n "$PCP_DIR"; then
-	CFLAGS="$CFLAGS -I$PCP_DIR/include"
-	CPPFLAGS="$CPPFLAGS -I$PCP_DIR/include"
-    fi
-    AC_CHECK_HEADERS([pcp/pmda.h], [], [],
+  [ AC_CHECK_HEADERS([pcp/pmda.h], [], [],
 [[#include <pcp/pmapi.h>
 #include <pcp/impl.h>
 ]])
@@ -37,10 +29,7 @@ AC_DEFUN([AC_PACKAGE_NEED_PMDA_H],
 # Check if we have the pmNewContext routine in libpcp
 #
 AC_DEFUN([AC_PACKAGE_NEED_LIBPCP],
-  [ if test -n "$PCP_DIR"; then
-	LDFLAGS="$LDFLAGS -L$PCP_DIR/local/bin"
-    fi
-    AC_CHECK_LIB(pcp, pmNewContext,, [
+  [ AC_CHECK_LIB(pcp, pmNewContext,, [
 	echo
 	echo 'FATAL ERROR: could not find a PCP library (libpcp).'
 	exit 1
@@ -53,10 +42,7 @@ AC_DEFUN([AC_PACKAGE_NEED_LIBPCP],
 # Check if we have the __pmSetProgname routine in libpcp
 #
 AC_DEFUN([AC_PACKAGE_HAVE_PM_SET_PROGNAME],
-  [ if test -n "$PCP_DIR"; then
-	LDFLAGS="$LDFLAGS -L$PCP_DIR/local/bin"
-    fi
-    AC_CHECK_LIB(pcp, __pmSetProgname,
+  [ AC_CHECK_LIB(pcp, __pmSetProgname,
     [ have_pm_set_progname=1 ], [ have_pm_set_progname=0 ])
     AC_SUBST(have_pm_set_progname)
   ])
@@ -65,10 +51,7 @@ AC_DEFUN([AC_PACKAGE_HAVE_PM_SET_PROGNAME],
 # Check if we have the pmdaMain routine in libpcp_pmda
 #
 AC_DEFUN([AC_PACKAGE_NEED_LIBPCP_PMDA],
-  [ if test -n "$PCP_DIR"; then
-	LDFLAGS="$LDFLAGS -L$PCP_DIR/local/bin"
-    fi
-    AC_CHECK_LIB(pcp_pmda, pmdaMain,, [
+  [ AC_CHECK_LIB(pcp_pmda, pmdaMain,, [
 	echo
 	echo 'FATAL ERROR: could not find a PCP PMDA library (libpcp_pmda).'
 	exit 1

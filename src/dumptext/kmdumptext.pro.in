@@ -5,6 +5,6 @@ INCLUDEPATH	+= ../include ../libqmc
 win32:INCLUDEPATH += @pcp_dir@/include
 LIBS		= -lpcp -L../libqmc -lqmc
 LIBS		+= -L../libqmc/@qt_release@ -L../libqmc/build/@qt_release@
-win32:LIBS	+= -L@pcp_dir@/local/bin
+win32:LIBS	+= -L @pcp_dir@/local/bin -lwsock32
 QT		-= gui
 CONFIG		+= qt warn_on debug

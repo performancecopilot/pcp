@@ -7,8 +7,7 @@ HEADERS = $(shell echo *.h)
 SOURCES = $(shell echo *.cpp)
 
 LSRCFILES = $(PROJECT).in $(SOURCES) $(HEADERS)
-LDIRDIRT = build qwt.xcodeproj
-LDIRT = $(PROJECT) *.a
+LDIRT = $(PROJECT)
 
 default: $(PROJECT)
 	$(QTMAKE)

@@ -6,6 +6,17 @@ AC_PACKAGE_PATHS(kmchart)
 
 AC_PACKAGE_NEED_QT_QMAKE
 
+pcp_dir=""
+if test -n "$PCP_DIR"; then
+    pcp_dir="$PCP_DIR"
+    export CPPFLAGS="$CPPFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
+    export CFLAGS="$CFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
+    export LDFLAGS="$LDFLAGS -L$PCP_DIR/bin -L$PCP_DIR/local/bin"
+    export PATH="$PATH:$PCP_DIR/bin:$PCP_DIR/local/bin"
+
+fi
+AC_SUBST(pcp_dir)
+
 AC_PACKAGE_NEED_PMAPI_H
 AC_PACKAGE_NEED_LIBPCP
 AC_PACKAGE_HAVE_PM_SET_PROGNAME
@@ -13,16 +24,38 @@ AC_PACKAGE_HAVE_PM_SET_PROGNAME
 AC_MANUAL_FORMAT
 
 qt_assistant=assistant
-test -z "$QTASSISTANT" || qt_assistant="$QTASSISTANT"
+test -z "$QT_ASSISTANT" || qt_assistant="$QT_ASSISTANT"
 AC_SUBST(qt_assistant)
 
-qt_release=debug
-test -z "$QTRELEASE" || qt_release="$QTRELEASE"
+qt_release=release
+test -z "$QT_RELEASE" || qt_release="$QT_RELEASE"
 AC_SUBST(qt_release)
 
-pcp_dir=""
-test -z "$PCP_DIR" || pcp_dir="$PCP_DIR"
-AC_SUBST(pcp_dir)
+dnl if regex functions come from libregex (mingw)
+AC_CHECK_HEADERS(regex.h)
+AC_CHECK_LIB(regex, regcomp)
+lib_for_regex=""
+if test $ac_cv_lib_regex_regcomp = yes
+then
+    lib_for_regex="-lregex"
+fi
+AC_SUBST(lib_for_regex)
+
+dnl check if basename and dirname need -lgen, -lpcp or nothing to work
+AC_CHECK_FUNCS(basename)
+if test $ac_cv_func_basename = yes
+then
+    lib_for_basename=""
+else
+    AC_CHECK_LIB(gen, basename)
+    if test $ac_cv_lib_gen_basename = yes
+    then
+	lib_for_basename="-lgen"
+    else
+	lib_for_basename="-lpcp"
+    fi
+fi
+AC_SUBST(lib_for_basename)
 
 AC_OUTPUT( \
 	src/include/builddefs \

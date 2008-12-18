@@ -22,7 +22,7 @@ _BUILDDEFS_INCLUDED_ = 1
 include @pcp_dir@/etc/pcp.conf
 
 LIBPCP		= @libpcp@
-PCP_DIR 	= @pcp_dir@
+PCP_DIR		= @pcp_dir@
 
 prefix = @prefix@
 datarootdir = @datarootdir@
@@ -51,6 +51,7 @@ AWK		= @awk@
 SED		= @sed@
 TAR		= @tar@
 ZIP		= @zip@
+BZIP2		= @bzip2@
 MAKE		= @make@
 ECHO		= @echo@
 SORT		= @sort@
@@ -62,12 +63,15 @@ RPM_VERSION	= @rpm_version@
 PACKAGE_MAKER	= @package_maker@
 HDIUTIL		= @hdiutil@
 DPKG		= @dpkg@
-MAKENSIS	= @makensis@
 
 QT_RELEASE	= @qt_release@
 
 HAVE_PM_SET_PROGNAME = @have_pm_set_progname@
 HAVE_ZIPPED_MANPAGES = @have_zipped_manpages@
+
+# additional libraries needed for particular functions
+LIB_FOR_BASENAME = @lib_for_basename@
+LIB_FOR_REGEX = @lib_for_regex@
 
 include $(TOPDIR)/src/include/buildmacros
 

@@ -18,11 +18,11 @@ SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(LSRCFILES) $(LFILES) $(YFILES)
 DEPDIRT = dep dep.bak
 MANDIRT = *.[1-9].gz
 PODIRT = *.tmpo *.mo
-QTDIRT = *.o ui_* moc_* qrc_* Info.plist Makefile
+QTDIRT =  *.a*.o ui_* moc_* qrc_* Info.plist Makefile* object_script.*
 CDIRT = $(OBJECTS) $(LTOBJECTS) $(LTCOMMAND) $(LTLIBRARY)
 DIRT = $(LDIRT) $(DEPDIRT) $(MANDIRT) $(PODIRT) $(QTDIRT) $(CDIRT)
 
-QTDIRDIRT = .obj .ui .moc .qrc *.xcodeproj *.app
+QTDIRDIRT = build debug release .obj .ui .moc .qrc *.xcodeproj *.app
 DIRDIRT = $(LDIRDIRT) $(QTDIRDIRT)
 
 OBJECTS = $(ASFILES:.s=.o) \

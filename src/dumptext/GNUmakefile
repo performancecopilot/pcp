@@ -9,7 +9,6 @@ UIFILES = $(shell echo *.ui)
 SOURCES = kmdumptext.cpp
 
 LSRCFILES = $(PROJECT).in $(SOURCES)
-LDIRDIRT = build $(COMMAND).xcodeproj
 LDIRT = $(COMMAND)
 
 default:

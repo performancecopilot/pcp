@@ -12,7 +12,6 @@ SCRIPTS = kmconfirm.sh kmmessage.sh
 
 LSRCFILES = $(PROJECT).in $(QRCFILE) $(SCRIPTS) $(HEADERS) $(SOURCES) \
 	  $(WRAPPER).IN kmconfirm.sh.IN kmmessage.sh.IN
-LDIRDIRT = build $(COMMAND).xcodeproj
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(SCRIPTS)
 
 ICONLINKS = $(ICNFILE) dialog-archive.png dialog-error.png dialog-host.png \

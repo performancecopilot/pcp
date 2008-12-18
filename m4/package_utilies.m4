@@ -22,7 +22,7 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     AC_PACKAGE_NEED_UTILITY($1, "$cc", cc, [C++ compiler])
 
     if test -z "$MAKE"; then
-        AC_PATH_PROG(MAKE, mingw32-make,, /mingw/bin:/usr/bin:/usr/local/bin)
+        AC_PATH_PROG(MAKE, mingw32-make.exe,,)
     fi
     if test -z "$MAKE"; then
         AC_PATH_PROG(MAKE, gmake,, /usr/bin:/usr/local/bin)
@@ -133,9 +133,4 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     test -z "$HDIUTIL" && AC_PATH_PROG(HDIUTIL, hdiutil)
     hdiutil=$HDIUTIL
     AC_SUBST(hdiutil)
-
-    dnl check if the Win32 makensis program is available
-    test -z "$MAKENSIS" && AC_PATH_PROG(MAKENSIS, makensis)
-    makensis=$MAKENSIS
-    AC_SUBST(makensis)
   ])
