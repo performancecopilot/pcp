@@ -78,9 +78,10 @@ then
 elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW)
-    export CFLAGS="$CFLAGS -I$PCP_DIR/local/include"
-    export LDFLAGS="$LDFLAGS -L$PCP_DIR/local/lib"
-    export PATH="$PATH:$PCP_DIR/local/bin"
+    export CPPFLAGS="$CPPFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
+    export CFLAGS="$CFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
+    export LDFLAGS="$LDFLAGS -L$PCP_DIR/lib -L$PCP_DIR/local/lib"
+    export PATH="$PATH:$PCP_DIR/bin:$PCP_DIR/local/bin"
 elif test $target_os = aix
 then
     AC_DEFINE(IS_AIX)
@@ -97,12 +98,12 @@ fi
 pcp_platform_paths=""
 case $target_os
 in
-    aix)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin";;
-    linux)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin";;
-    mingw)	pcp_platform_paths="/usr/local/bin";;
-    cygwin)	pcp_platform_paths="/cygdrive/c/WINDOWS/system32";;
-    solaris)	pcp_platform_paths="/usr/bin/X11:/usr/local/bin:/opt/sfw/bin";;
-    freebsd)	pcp_platform_paths="/usr/bin/X11:/usr/bsd";;
+    aix)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
+    linux)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
+    mingw)	pcp_platform_paths='/c/bin:/perl/bin:/usr/local/bin';;
+    cygwin)	pcp_platform_paths='/cygdrive/c/WINDOWS/system32';;
+    solaris)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin';;
+    freebsd)	pcp_platform_paths='/usr/bin/X11:/usr/bsd';;
 esac
 AC_SUBST(pcp_platform_paths)
 
@@ -1236,7 +1237,7 @@ if test "`echo $pcp_share_dir | sed 's;/.*\$;;'`" = NONE
 then
     if test $target_os = mingw
     then
-        pcp_share_dir=/pcp
+        pcp_share_dir=
     elif test -d /usr/share
     then
 	pcp_share_dir=/usr/share/pcp
@@ -1259,7 +1260,7 @@ then
         pcp_binadm_dir=/usr/lib/pcp/bin
     elif test $target_os = mingw
     then
-        pcp_binadm_dir=/bin
+        pcp_binadm_dir=/local/bin
     else
         pcp_binadm_dir=$pcp_share_dir/bin
     fi
@@ -1325,8 +1326,8 @@ then
     pcp_lib_dir=/cygdrive/c/WINDOWS/system32
 elif test $target_os = mingw
 then
-    pcp_lib_dir=/bin
-    pcp_lib32_dir=/bin
+    pcp_lib_dir=/local/bin
+    pcp_lib32_dir=/local/bin
 elif test $target_os = linux -a $target_cpu = x86_64 -a $target_distro != debian
 then
     # Linux on x86_64 puts libraries in .../lib64 (and rpmbuild
@@ -1465,7 +1466,7 @@ if test "`echo $pcp_bin_dir | sed 's;/.*\$;;'`" = NONE
 then
     if test $target_os = mingw
     then
-	pcp_bin_dir=/bin
+	pcp_bin_dir=/local/bin
     elif test -d /usr/bin
     then
 	pcp_bin_dir=/usr/bin
