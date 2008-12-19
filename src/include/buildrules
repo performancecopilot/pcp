@@ -6,21 +6,53 @@ _BUILDRULES_INCLUDED_ = 1
 
 include $(TOPDIR)/src/include/builddefs
 
-clean clobber : $(SUBDIRS)
+clean clobber:
 	@rm -f $(DIRT)
 	@rm -fr $(DIRDIRT)
 	$(SUBDIRS_MAKERULE)
 
+realclean distclean: clean
+	rm -f $(TOPDIR)/src/include/builddefs \
+	      $(TOPDIR)/src/include/version.h \
+	      $(TOPDIR)/src/libqmc/libqmc.pro \
+	      $(TOPDIR)/src/libqwt/libqwt.pro \
+	      $(TOPDIR)/src/libqwt3d/libqwt3d.pro \
+	      $(TOPDIR)/src/dumptext/kmdumptext.pro \
+	      $(TOPDIR)/src/query/kmquery.pro \
+	      $(TOPDIR)/src/chart/kmchart.pro \
+	      $(TOPDIR)/src/time/kmtime.pro \
+	      $(TOPDIR)/man/html/kmchart.adp \
+	      $(TOPDIR)/man/html/kmtime.adp \
+	rm -f $(TOPDIR)/kmchart.lsm $(TOPDIR)/configure
+
+
 # Never blow away subdirs
 ifdef SUBDIRS
 .PRECIOUS: $(SUBDIRS)
-$(SUBDIRS):
-	$(SUBDIRS_MAKERULE)
 endif
 
-#
-# Standard targets
-#
+src-kmchart : $(SRCFILES) $(SUBDIRS)
+	@test ! -z "$$SRC_ROOT" || ( echo '$$SRC_ROOT not set ... bozo!' ; echo "... generally unsafe to run make src-kmchart outside the Makepkgs script"; exit 1 )
+	@test -z "$$DIR" && DIR="."; \
+	for f in `echo $^`; do \
+	    if test -d $$f ; then \
+		$(MAKEF) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
+	    else \
+		$(ECHO) $$DIR/$$f; \
+	    fi; \
+	done
+
+src-link-kmchart : $(SRCFILES) $(CONFFILES) $(SUBDIRS)
+	@test ! -z "$$SRCLINK_ROOT" || ( echo '$$SRCLINK_ROOT not set ... bozo!' ; echo "... generally unsafe to run make src-link-kmchart outside the Makepkgs script"; exit 1 )
+	@test -z "$$DIR" && DIR="."; \
+	for f in `echo $^`; do \
+	    if test -d $$f ; then \
+		mkdir $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
+		$(MAKEF) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
+	    else \
+		ln $$f $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
+	    fi; \
+	done
 
 ifeq ($(PKG_PLATFORM),darwin)
 QTMAKE = $(QMAKE) -spec macx-xcode && xcodebuild -configuration $(QT_RELEASE)
