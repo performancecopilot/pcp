@@ -77,7 +77,7 @@ fi
 echo
 if [ ! -f ./configure ]
 then
-    echo "== autconf, log is in $LOGDIR/autoconf"
+    echo "== autoconf, log is in $LOGDIR/autoconf"
     autoconf 2>&1 >$LOGDIR/autoconf
 fi
 
@@ -125,6 +125,9 @@ for prod ; do
 	else
 	    $MAKE -j 1 configure_$prod 2>&1 >> $LOGF
 	fi
+
+	echo
+	echo "== src-link, log is in $LOGF" | tee -a $LOGF
 
 	VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
 	SRCLINK_ROOT=`pwd`/pcp-$VERSION
@@ -182,7 +185,7 @@ for prod ; do
 	exit 1
     else
 	if ! $verbose ; then
-	    grep '^Wrote:' $LOGF | sed -e 's/\.\.\/\.\.\///' | fgrep -v tar.gz
+	    grep '^Wrote:' $LOGF | sed -e 's/\.\.\/\.\.\///'
 	fi
     fi
 done
