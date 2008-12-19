@@ -2,12 +2,13 @@
 
 %define sgi_chroot_build @sgi_chroot_build@
 %define sgi_issp_build @sgi_issp_build@
+%define have_ibdev @have_ibdev@
 
 %if %{sgi_chroot_build}
 %define ib_prereqs libibmad-pp >= 1.1.6-1.ofed20080604r1.3.1sgi601 libibumad-pp >= 1.1.7  libibcommon-pp 
 %define ib_build_prereqs %{ib_prereqs} libibmad-pp-devel libibumad-pp-devel libibcommon-pp-devel
 %else
-%if %{with ib}
+%if %{have_ibdev}
 %define ib_prereqs libibmad libibumad  libibcommon 
 %define ib_build_prereqs %{ib_prereqs} libibmad-devel libibumad-devel libibcommon-devel
 %endif
