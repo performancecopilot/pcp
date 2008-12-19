@@ -1,0 +1,14 @@
+Begin4
+Title:          Performance Co-Pilot Strip Charts
+Version:        @PKG_VERSION@
+Entered-date:   @PKG_BUILD_DATE@
+Description:    Strip Chart tool for plotting PCP metric values.
+Keywords:       performance, monitoring, system, status, distributed
+Author:         pcp@oss.sgi.com (SGI Performance Co-Pilot Engineers)
+Maintained-by:  pcp@oss.sgi.com (SGI Performance Co-Pilot Engineers)
+Primary-site:   ftp://oss.sgi.com/www/projects/pcp/download/
+Alternate-site:
+Original-site:  ftp://oss.sgi.com/www/projects/pcp/download/
+Platforms:      Linux, MacOSX, IRIX, Solaris, FreeBSD, Cygwin
+Copying-policy: GPL (libraries are LGPL)
+End

@@ -1,4 +1,3 @@
-#! gmake
 #
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -15,9 +14,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
-# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
-# Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
 
 TOPDIR = ../..
@@ -28,28 +24,16 @@ LDIRT = $(wildcard kmchart*.pkg) $(wildcard kmchart*.dmg) \
 	idb-kmchart description info
 LDIRDIRT = installer-files $(PKG_NAME)-*.*.*
 
-INSTFILES = idb-kmchart install-kmchart uninstall-kmchart \
-	    English.lproj/Localizable.strings
+SUBDIRS = English.lproj installer-resources
+INSTFILES = idb-kmchart install-kmchart uninstall-kmchart
 
-LSRCFILES = English.lproj/Localizable.strings build-installer \
-	    install-kmchart installer-description installer-info \
-	    installer-resources/InstallationCheck \
-	    installer-resources/License.html \
-	    installer-resources/ReadMe.html \
-	    installer-resources/Welcome.txt \
-	    installer-resources/background.jpg \
-	    installer-resources/postflight \
-	    installer-resources/postinstall \
-	    installer-resources/postupgrade \
-	    installer-resources/preflight \
-	    installer-resources/preinstall \
-	    installer-resources/preupgrade \
-	    uninstall-kmchart
+LSRCFILES = build-installer installer-description installer-info \
+	    install-kmchart uninstall-kmchart
 
 default install :
 
-.PHONY: dist
-dist: extrabits
+.PHONY: pack_kmchart
+pack_kmchart : extrabits
 	@PKG_VERSION=${PKG_VERSION} \
 	 PKG_MAJOR=${PKG_MAJOR} \
 	 PKG_MINOR=${PKG_MINOR} \

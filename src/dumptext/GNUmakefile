@@ -1,15 +1,13 @@
 TOPDIR = ../..
-include $(TOPDIR)/src/include/builddefs
-
 COMMAND = kmdumptext
 PROJECT = $(COMMAND).pro
-QRCFILE = $(COMMAND).qrc
+include $(TOPDIR)/src/include/builddefs
 
+QRCFILE = $(COMMAND).qrc
 UIFILES = $(shell echo *.ui)
 SOURCES = kmdumptext.cpp
-
+CONFFILES = $(PROJECT)
 LSRCFILES = $(PROJECT).in $(SOURCES)
-LDIRT = $(COMMAND)
 
 default:
 	$(QTMAKE)

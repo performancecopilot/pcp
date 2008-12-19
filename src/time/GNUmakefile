@@ -1,9 +1,9 @@
 TOPDIR = ../..
+COMMAND = kmtime
+PROJECT = $(COMMAND).pro
 include $(TOPDIR)/src/include/builddefs
 
-COMMAND = kmtime
 WRAPPER = $(COMMAND).sh
-PROJECT = $(COMMAND).pro
 QRCFILE = $(COMMAND).qrc
 ICNFILE = $(COMMAND).icns
 UIFILES = $(shell echo *.ui)
@@ -11,7 +11,7 @@ HEADERS = aboutdialog.h console.h kmtimearch.h kmtimelive.h \
 	  seealsodialog.h showboundsdialog.h timelord.h timezone.h
 SOURCES = aboutdialog.cpp console.cpp kmtimearch.cpp kmtimelive.cpp \
 	  seealsodialog.cpp showboundsdialog.cpp timelord.cpp main.cpp
-
+CONFFILES = $(PROJECT)
 LSRCFILES = $(PROJECT).in $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
 	  $(WRAPPER).IN
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER)

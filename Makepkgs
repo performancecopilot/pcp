@@ -5,84 +5,150 @@
 #
 LOGDIR=Logs
 
-type=rpm
+clean=false
 verbose=false
 
 MAKE=${MAKE:-make}
-test ! -z "$MAKE" && make=$MAKE
 
 for opt in $*
 do
-	case "$opt" in
-	clean)
-		;; # ignored, kept for backward compatibility
-	rpm)
-		type=rpm ;;
-	debian)
-		type=debian ;;
-	verbose)
-		verbose=true ;;
-	*)
-		echo "Usage: Makepkgs [verbose] [debian|rpm]"; exit 1 ;;
-	esac
+    case "$opt" in
+    -clean)
+	clean=true
+	shift
+	;;
+    -verbose)
+	verbose=true
+	shift
+	;;
+    -*)
+	echo "Unknown option $opt"
+	echo "Usage: Makepkgs [-clean] [-verbose]"
+	exit 1
+	;;
+    *)
+	break
+	;;
+    esac
 done
 
-# start with a clean manifest
-test -f files.rpm && rm -f files.rpm
-test -f filesdevel.rpm && rm -f filesdevel.rpm
-test -f fileslib.rpm && rm -f fileslib.rpm
+if [ $# = 0 ] ; then
+    set -- kmchart
+fi
 
 test ! -d $LOGDIR && mkdir $LOGDIR
 rm -rf $LOGDIR/* > /dev/null 2>&1
 
-# build Debian packages, cleans itself before starting
-SUDO=${SUDO:-sudo}
-test ! -z "$SUDO" && sudo=$SUDO
-if [ $type = debian ] ; then
-	LOGDEB=`pwd`
-	LOGDEB=../`basename $LOGDEB`.log
-	echo "== Debian build, log is $LOGDEB"; echo
+tmp=/tmp/$$
+trap "rm -f $tmp.*;" 0 1 2 3 15
+
+if $clean; then
+    echo "== clean, log is in $LOGDIR/clean"
+    if $verbose ; then
+	$MAKE clean 2>&1 | tee $LOGDIR/clean
+    else
+	$MAKE clean > $LOGDIR/clean 2>&1  || exit 1
+    fi
+    if [ -f $tmp.failed ] ; then
+	if ! $verbose ; then
+	    echo \"$MAKE clean\" failed, see log in $LOGDIR/clean
+	    tail $LOGDIR/clean
+	fi
+	exit 1
+    fi
+fi
+
+echo
+if [ ! -f ./configure ]
+then
+    echo "== autoconf, log is in $LOGDIR/autoconf"
+    autoconf 2>&1 >$LOGDIR/autoconf
+fi
+
+LOGF=$LOGDIR/kmchart
+. VERSION
+
+special=false
+ARCH=`uname -m | sed -e 's/i.86/ia32/'`
+VERS=`uname -s | cut -c-5`
+[ "$VERS" = MINGW ] && special=windows
+[ -f /etc/debian_version ] && special=debian
+
+if [ $special != false ]
+then
+    LOGF=`pwd`/$LOGF
+
+    if $verbose ; then
+	$MAKE -j 1 configure 2>&1 | tee -a $LOGF
+    else
+	$MAKE -j 1 configure 2>&1 >> $LOGF
+    fi
+
+    echo
+    echo "== src-link, log is in $LOGF" | tee -a $LOGF
+
+    VERSION=${PKG_MAJOR}.${PKG_MINOR}.${PKG_REVISION}
+    SRCLINK_ROOT=`pwd`/$VERSION
+    if [ $special = debian ] ; then
+	SRCLINK_ROOT=`pwd`/build/deb/kmchart-$VERSION
+    fi
+    export SRCLINK_ROOT
+
+    rm -fr $SRCLINK_ROOT
+    mkdir -p $SRCLINK_ROOT || exit 1
+    $MAKE -j 1 src-link-kmchart || exit 1
+    cd $SRCLINK_ROOT
+    [ ! -f .census ] && touch .census
+
+    if [ $special = debian ]
+    then
+	SUDO=${SUDO:-fakeroot}
 	if $verbose ; then
-		dpkg-buildpackage -r$SUDO | tee $LOGDEB
+	    dpkg-buildpackage -r$SUDO | tee -a $LOGF
 	else
-		dpkg-buildpackage -r$SUDO > $LOGDEB || exit 1
+	    dpkg-buildpackage -r$SUDO >> $LOGF || exit 1
 	fi
 	exit 0
-fi
-
-# build RPM packages - manual clean before starting
-echo "== clean, log is $LOGDIR/clean"
-if $verbose ; then
-	$MAKE clean 2>&1 | tee $LOGDIR/clean
-else
-	$MAKE clean > $LOGDIR/clean 2>&1  || exit 1
+    fi
+    # Fall through for MinGW (Win32) builds
 fi
 
 echo
-echo "== configure, log is $LOGDIR/configure"
-rm -f .census	# force configure to run here
+echo "== default, log is in $LOGF"
 if $verbose ; then
-	$MAKE configure 2>&1 | tee $LOGDIR/configure
+    st=`(($MAKE -j 1 default 2>&1; echo $? >&3) | tee $LOGF 1>&2) 3>&1`
 else
-	$MAKE configure > $LOGDIR/configure 2>&1 || exit 1
+    $MAKE -j 1 default > $LOGF 2>&1; st=$?
+fi
+if [ $st -ne 0 ] ; then
+    if ! $verbose ; then
+	echo \"$MAKE default\" failed, see log in $LOGF
+	tail $LOGF
+    fi
+    exit 1
 fi
 
+rm -f files.rpm
 echo
-echo "== default, log is $LOGDIR/default"
-if $verbose ; then
-	$MAKE default 2>&1 | tee $LOGDIR/default
-else
-	$MAKE default > $LOGDIR/default 2>&1 || exit 1
-fi
-
-echo
-echo "== dist, log is $LOGDIR/dist"
+echo "== Packaging, log is in $LOGF"
 [ ! -f .census ] && touch .census
 if $verbose ; then
-	$MAKE -C build dist 2>&1 | tee $LOGDIR/dist
+    ($MAKE -j 1 -C build pack 2>&1 || touch $tmp.failed) | tee -a $LOGF
 else
-	$MAKE -C build dist > $LOGDIR/dist 2>&1 || exit 1
-	grep '^Wrote:' $LOGDIR/dist | sed -e 's/\.\.\/\.\.\///'
+    ($MAKE -j 1 -C build pack 2>&1 || touch $tmp.failed) >> $LOGF
+fi
+if [ -f $tmp.failed ] ; then
+    if ! $verbose ; then
+	echo Packaging failed, see log in $LOGF
+	tail $LOGF
+    fi
+    exit 1
+else
+    $MAKE -C build dist > $LOGDIR/dist 2>&1 || exit 1
+    if ! $verbose ; then
+	grep '^Wrote:' $LOGF | sed -e 's/\.\.\/\.\.\///'
+    fi
 fi
 
+rm -f $tmp.failed
 exit 0

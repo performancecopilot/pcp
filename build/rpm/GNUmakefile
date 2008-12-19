@@ -13,10 +13,8 @@ LSRCFILES = macros.template $(SPECF).in rpm-2.rc.template
 
 default install install-dev install-lib:
 
-include $(BUILDRULES)
-
 # Generate a binary rpm file
-dist : default $(SPECF) rpm-$(RPM_VERSION).rc
+pack_kmchart : default $(SPECF) rpm-$(RPM_VERSION).rc
 	$(RPMBUILD) -ba --rcfile ./rpm-$(RPM_VERSION).rc $(SPECF)
 
 # Because rpm prior to v.2.90 does not support macros and old style config
@@ -54,7 +52,6 @@ $$1 == "l" { if (match ($$3, "$(PKG_MAN_DIR)") || \
             else \
                 printf ("%%%%attr(0777,root,root) %s\n", $$3); }'
 
-.PHONY: $(SPECF)
 ${SPECF} : ${SPECF}.in
 	$(SED) -e's|@pkg_name@|$(PKG_NAME)|g' \
 	    -e's|@pkg_version@|$(PKG_VERSION)|g' \
@@ -63,3 +60,5 @@ ${SPECF} : ${SPECF}.in
 	    -e's|@build_root@|$(DIST_ROOT)|g' \
 	    -e'/^BuildRoot: *$$/d' \
 	    -e's|@make@|$(MAKE)|g' < $< > $@
+
+include $(BUILDRULES)

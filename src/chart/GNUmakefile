@@ -1,9 +1,9 @@
 TOPDIR = ../..
+COMMAND = kmchart
+PROJECT = $(COMMAND).pro
 include $(TOPDIR)/src/include/builddefs
 
-COMMAND = kmchart
 WRAPPER = $(COMMAND).sh
-PROJECT = $(COMMAND).pro
 QRCFILE = $(COMMAND).qrc
 ICNFILE = $(COMMAND).icns
 DESKTOP = $(COMMAND).desktop
@@ -18,7 +18,7 @@ HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
 	  timeaxis.h timebutton.h timecontrol.h \
 	  groupcontrol.h gadget.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
-
+CONFFILES = $(PROJECT)
 LSRCFILES = $(PROJECT).in $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
 	  $(DESKTOP) $(WRAPPER).IN
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER)

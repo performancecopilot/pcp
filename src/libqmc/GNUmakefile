@@ -1,13 +1,12 @@
 TOPDIR = ../..
-include $(TOPDIR)/src/include/builddefs
-
 LIBRARY = libqmc
 PROJECT = $(LIBRARY).pro
+include $(TOPDIR)/src/include/builddefs
+
 HEADERS = $(shell echo *.h)
 SOURCES = $(shell echo *.cpp)
-
+CONFFILES = $(PROJECT)
 LSRCFILES = $(PROJECT).in $(SOURCES) $(HEADERS)
-LDIRT = $(PROJECT)
 
 default: $(PROJECT)
 	$(QTMAKE)

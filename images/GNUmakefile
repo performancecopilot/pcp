@@ -17,7 +17,7 @@ default:
 
 pngfiles: $(PNGFILES)
 
-%.png: %.svg
+%.png:
 	$(INKSCAPE) -z -e $@ $<
 
 include $(BUILDRULES)

@@ -37,7 +37,7 @@ binary-arch: checkroot built
 	$(checkdir)
 	-rm -rf $(dirme)
 	$(pkgme) $(MAKE) -C . install
-	$(pkgme) $(MAKE) -C build src-manifest
+	$(pkgme) $(MAKE) -C build kmchart.src
 
 	dh_desktop
 	dh_installdocs

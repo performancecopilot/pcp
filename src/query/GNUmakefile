@@ -1,15 +1,15 @@
 TOPDIR = ../..
+COMMAND = kmquery
+PROJECT = $(COMMAND).pro
 include $(TOPDIR)/src/include/builddefs
 
-COMMAND = kmquery
 WRAPPER = $(COMMAND).sh
-PROJECT = $(COMMAND).pro
 QRCFILE = $(COMMAND).qrc
 ICNFILE = $(COMMAND).icns
 HEADERS = kmquery.h
 SOURCES = $(HEADERS:.h=.cpp) main.cpp
 SCRIPTS = kmconfirm.sh kmmessage.sh
-
+CONFFILES = $(PROJECT)
 LSRCFILES = $(PROJECT).in $(QRCFILE) $(SCRIPTS) $(HEADERS) $(SOURCES) \
 	  $(WRAPPER).IN kmconfirm.sh.IN kmmessage.sh.IN
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(SCRIPTS)
@@ -34,11 +34,11 @@ endif
 wrappers: $(WRAPPER) $(SCRIPTS)
 
 $(WRAPPER): $(WRAPPER).IN
-	$(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
+	@ $(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
 kmmessage.sh: kmmessage.sh.IN
-	$(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
+	@ $(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
 kmconfirm.sh: kmconfirm.sh.IN
-	$(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
+	@ $(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
 
 install: default
 	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)

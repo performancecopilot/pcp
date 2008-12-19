@@ -1,9 +1,9 @@
 AC_INIT(VERSION)
 
+AC_PREFIX_DEFAULT(/usr)
 AC_PACKAGE_GLOBALS(kmchart)
 AC_PACKAGE_UTILITIES(kmchart)
 AC_PACKAGE_PATHS(kmchart)
-
 AC_PACKAGE_NEED_QT_QMAKE
 
 pcp_dir=""
@@ -68,4 +68,5 @@ AC_OUTPUT( \
 	src/chart/kmchart.pro \
 	src/time/kmtime.pro \
 	man/html/kmchart.adp \
-	man/html/kmtime.adp)
+	man/html/kmtime.adp \
+	kmchart.lsm )
