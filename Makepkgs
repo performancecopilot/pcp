@@ -1,7 +1,19 @@
 #! /bin/sh
 #
-#	Make whichever packages have been requested.
-#	Defaults to RPMs.
+# Make whichever packages the system supports
+#
+# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2008 Aconex.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
 #
 LOGDIR=Logs
 
@@ -79,9 +91,9 @@ then
     LOGF=`pwd`/$LOGF
 
     if $verbose ; then
-	$MAKE -j 1 configure 2>&1 | tee -a $LOGF
+	$MAKE -j 1 configure_kmchart 2>&1 | tee -a $LOGF
     else
-	$MAKE -j 1 configure 2>&1 >> $LOGF
+	$MAKE -j 1 configure_kmchart 2>&1 >> $LOGF
     fi
 
     echo
