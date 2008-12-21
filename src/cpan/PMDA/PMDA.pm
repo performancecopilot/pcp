@@ -1,13 +1,13 @@
 package PCP::PMDA;
 
 use strict;
+use warnings;
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
 
 require Exporter;
 require DynaLoader;
-require AutoLoader;
 
-@ISA = qw( Exporter DynaLoader );
+@ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(
     pmda_pmid pmda_pmid_name pmda_pmid_text pmda_units pmda_config pmda_uptime
     PM_ID_NULL PM_INDOM_NULL PM_IN_NULL
@@ -30,7 +30,7 @@ require AutoLoader;
 	PM_ERR_PMDANOTREADY PM_ERR_PMDAREADY PM_ERR_OBJSTYLE PM_ERR_PMCDLICENSE
 	PM_ERR_TOOSMALL PM_ERR_TOOBIG PM_ERR_NYI
 );
-@EXPORT_OK = qw( );
+@EXPORT_OK = qw();
 $VERSION = '1.00';
 
 # metric identification
@@ -131,10 +131,6 @@ sub PM_ERR_NYI		{ -21344; }	# Functionality not yet implemented
 
 bootstrap PCP::PMDA $VERSION;
 
-# Preloaded methods go here.
-
-# Autoload methods go after =cut, and are processed by the autosplit program.
-
 1;
 __END__
 
@@ -145,22 +141,33 @@ PCP::PMDA - Perl extension for Performance Metrics Domain Agents
 =head1 SYNOPSIS
 
   use PCP::PMDA;
-  blah blah blah
 
 =head1 DESCRIPTION
 
-
-
-
-
-
-
-=head1 AUTHOR
-
-nathans@debian.org
+The PCP::PMDA Perl module contains the language bindings for
+building Performance Metric Domain Agents (PMDAs) using Perl.
+Each PMDA exports performance data for one specific domain, for
+example the operating system kernel, Cisco routers, a database,
+an application, etc.
 
 =head1 SEE ALSO
 
 perl(1) and pmda(3).
+
+The PCP mailing list pcp@oss.sgi.com can be used for questions about
+this module.
+
+Further details can be found at http://oss.sgi.com/projects/pcp
+
+=head1 AUTHOR
+
+Nathan Scott, E<lt>nathans@debian.orgE<gt>
+
+Copyright (C) 2008 by Aconex.
+Copyright (C) 2004 by Silicon Graphics, Inc.
+
+This library is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License, version 2 (see
+the "COPYING" file in the PCP source tree for further details).
 
 =cut

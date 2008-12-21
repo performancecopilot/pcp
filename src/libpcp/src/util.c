@@ -146,6 +146,7 @@ __pmNotifyErr(int priority, const char *message, ...)
 
     pmprintf("[%.19s] %s(%d) %s: ", ctime(&now), pmProgname, getpid(), level);
     vpmprintf(message, arg);
+    va_end(arg);
     /* trailing \n if needed */
     for (p = (char *)message; *p; p++)
 	;

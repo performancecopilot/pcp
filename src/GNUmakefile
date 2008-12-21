@@ -28,7 +28,7 @@ SUBDIRS = include libpcp libpcp_pmda libpcp_trace libpcp_http \
 	  pmlogconf pmlogsummary pmclient pcp pmlc dbpmda \
 	  xconfirm pmtrace pmstat pmsocks pmdas pmafm procmemstat \
 	  pmlogreduce genpmda pmproxy pmsleep pmtop pmdumptext \
-	  autofsd-probe telnet-probe cpan
+	  autofsd-probe telnet-probe cpan win32ctl
 
 default :: default_pcp
 

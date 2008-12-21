@@ -291,22 +291,70 @@ dlerror(void)
     return strerror(GetLastError());
 }
 
+static HANDLE eventlog;
+static char *eventlogPrefix;
+
 void
 openlog(const char *ident, int option, int facility)
 {
-    /* TODO */
+    if (eventlog)
+	closelog();
+    eventlog = RegisterEventSource(NULL, "Application");
+    if (ident)
+	eventlogPrefix = strdup(ident);
 }
 
 void
 syslog(int priority, const char *format, ...)
 {
-    /* TODO */
+    va_list	arg;
+    LPCSTR	msgptr;
+    char	logmsg[2048];
+    char	*p = logmsg;
+    int		offset = 0;
+    DWORD	eventlogPriority;
+
+    va_start(arg, format);
+
+    if (!eventlog)
+	openlog(NULL, 0, 0);
+
+    if (eventlogPrefix)
+	offset = snprintf(p, sizeof(logmsg), "%s: ", eventlogPrefix);
+
+    switch (priority) {
+    case LOG_EMERG:
+    case LOG_CRIT:
+    case LOG_ERR:
+	eventlogPriority = EVENTLOG_ERROR_TYPE;
+	break;
+    case LOG_WARNING:
+    case LOG_ALERT:
+	eventlogPriority = EVENTLOG_WARNING_TYPE;
+	break;
+    case LOG_NOTICE:
+    case LOG_DEBUG:
+    case LOG_INFO:
+    default:
+	eventlogPriority = EVENTLOG_INFORMATION_TYPE;
+	break;
+    }
+    msgptr = logmsg;
+    snprintf(p + offset, sizeof(logmsg) - offset, format, arg);
+    ReportEvent(eventlog, eventlogPriority, 0, 0, NULL, 1, 0, &msgptr, NULL);
+    va_end(arg);
 }
 
 void
 closelog(void)
 {
-    /* TODO */
+    if (eventlog) {
+	DeregisterEventSource(eventlog);
+	if (eventlogPrefix)
+	    free(eventlogPrefix);
+	eventlogPrefix = NULL;
+    }
+    eventlog = NULL;
 }
 
 

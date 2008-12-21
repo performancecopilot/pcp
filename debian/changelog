@@ -1,10 +1,23 @@
-pcp (2.7.8-20081117) unstable; urgency=low
+pcp (2.7.8-20081209) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 09 Dec 2008 13:19:38 +1100
+
+pcp (2.7.8-20081205) unstable; urgency=low
+
+  * Fix perl PMDA interface build (closes: #507830)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 05 Dec 2008 16:48:04 +1100
+
+pcp (2.7.8-20081201) unstable; urgency=low
 
   * Merged with new code from SGI.
   * Infiniband and KVM PMDAs included.
+  * Added PCP::LogSummary module - libpcp-logsummary-perl.
   * Fixes build issue with gcc 4.4 (closes: #504832)
 
- -- Nathan Scott <nathans@debian.org>  Mon, 17 Nov 2008 21:04:55 +1100
+ -- Nathan Scott <nathans@debian.org>  Mon, 01 Dec 2008 13:14:41 +1100
 
 pcp (2.7.7-20080924) unstable; urgency=low
 

@@ -10,25 +10,34 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
+#
 
-TOPDIR	= ../..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS	= PMDA LogSummary
+CFILES = pcp-services.c logger.c
+TARGETS = pcp-services.exe logger.exe
+LLDLIBS = -lpcp
 
-default: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-
-install: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+default:	build-me
 
 include $(BUILDRULES)
 
-default_pcp : default
+ifeq "$(TARGET_OS)" "mingw"
+build-me:	$(TARGETS)
+install:	default
+	$(INSTALL) -m 755 $(TARGETS) $(PCP_BIN_DIR)
+else
+build-me:
+install:
+endif
 
-install_pcp : install
+logger.exe:	logger.o
+	$(CCF) -o $@ $(LDFLAGS) logger.o $(LDLIBS)
+
+pcp-services.exe:	pcp-services.o
+	$(CCF) -o $@ $(LDFLAGS) pcp-services.o $(LDLIBS)
+
+default_pcp:	default
+
+install_pcp:	install

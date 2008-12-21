@@ -34,7 +34,7 @@
 \f3pmlogger_merge\f1 \- administration of Performance Co-Pilot archive log files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-NV\f1]
+[\f3\-NoV\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2discard\f1]
 [\f3\-m\f1 \f2addresses\f1]
@@ -401,6 +401,11 @@ Using
 in conjunction with
 .B \-V
 maximizes the diagnostic capabilities for debugging.
+.PP
+By default all possible archives will be merged.  The
+.B \-o
+option reinstates the old behaviour in which only yesterday's archives
+will be considered as merge candidates.
 .PP
 The
 .B \-T
