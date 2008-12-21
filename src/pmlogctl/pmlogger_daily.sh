@@ -39,10 +39,6 @@ echo >$tmp.lock
 trap "rm -f \`[ -f $tmp.lock ] && cat $tmp.lock\` $tmp.*; exit \$status" 0 1 2 3 15
 prog=`basename $0`
 
-# 24 hours and 10 minutes ago
-#
-touch -t `pmdate -24H -10M %Y%m%d%H%M` $tmp.merge
-
 # control file for pmlogger administration ... edit the entries in this
 # file to reflect your local configuration (see also -c option below)
 #
