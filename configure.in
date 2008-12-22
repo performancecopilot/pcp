@@ -3,7 +3,6 @@ AC_INIT(VERSION)
 AC_PREFIX_DEFAULT(/usr)
 AC_PACKAGE_GLOBALS(kmchart)
 AC_PACKAGE_UTILITIES(kmchart)
-AC_PACKAGE_PATHS(kmchart)
 AC_PACKAGE_NEED_QT_QMAKE
 
 pcp_dir=""
@@ -23,7 +22,12 @@ AC_PACKAGE_HAVE_PM_SET_PROGNAME
 
 AC_MANUAL_FORMAT
 
-qt_assistant=assistant
+dnl calculate Qt version using qmake binary
+eval `$QMAKE --version | awk '{ print $4 }' | awk -F. \
+    'END { printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$1,$2,$3 }'`
+
+qt_assistant=""		# no longer need this set since 4.4.0
+test $QT_MAJOR -lt 4 && qt_assistant=assistant
 test -z "$QT_ASSISTANT" || qt_assistant="$QT_ASSISTANT"
 AC_SUBST(qt_assistant)
 

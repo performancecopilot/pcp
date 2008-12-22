@@ -45,6 +45,9 @@ install: default
 ifeq ($(WINDOW),x11)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
 endif
+ifeq ($(WINDOW),win)
+	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
+endif
 	$(INSTALL) -m 755 kmconfirm.sh $(PKG_BIN_DIR)/kmconfirm
 	$(INSTALL) -m 755 kmmessage.sh $(PKG_BIN_DIR)/kmmessage
 ifeq ($(WINDOW),mac)

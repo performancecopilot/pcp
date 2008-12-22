@@ -4,15 +4,8 @@
 
 BUILDRULES = $(TOPDIR)/src/include/buildrules
 
-# LCFLAGS, LLDFLAGS, LLDLIBS, LSRCFILES and LDIRT may be specified in
-# user Makefiles. Note: LSRCFILES is anything other than Makefile, $(CFILES)
-# $(CXXFILES), or $(HFILES) and is used to construct the manifest list
-# during the "dist" phase (packaging).
-
-LDFLAGS += $(LOADERFLAGS) $(LLDFLAGS)
-LDLIBS = $(LLDLIBS) $(PLDLIBS) $(MALLOCLIB)
-
 MAKEOPTS = --no-print-directory
+MAKEF = $(MAKE) $(MAKEOPTS)
 SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(LSRCFILES) $(LFILES) $(YFILES)
 
 ifdef PROJECT
@@ -34,63 +27,9 @@ OBJECTS = $(ASFILES:.s=.o) \
 
 INSTALL	= $(TOPDIR)/install-sh -o $(PKG_USER) -g $(PKG_GROUP)
 
-SHELL = /bin/sh
-IMAGES_DIR = $(TOPDIR)/all-images
-DIST_DIR = $(TOPDIR)/dist
-
-CCF	= $(CC) $(CFLAGS) $(CPPFLAGS)
-MAKEF	= $(MAKE) $(MAKEOPTS)
-CXXF	= $(CXX) $(CXXFLAGS)
-
-# For libtool.
-LIBNAME = $(basename $(LTLIBRARY))
-LTOBJECTS = $(OBJECTS:.o=.lo)
-LTVERSION = $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
-
-LTLINK = $(LIBTOOL) --mode=link $(CC)
-LTEXEC = $(LIBTOOL) --mode=execute
-LTINSTALL = $(LIBTOOL) --mode=install $(INSTALL)
-LTCOMPILE = $(LIBTOOL) --mode=compile $(CCF)
-
-ifeq ($(ENABLE_SHARED),yes)
-LTLDFLAGS += -rpath $(PKG_LIB_DIR)
-LTLDFLAGS += -version-info $(LTVERSION)
-endif
-
-ifeq ($(ENABLE_SHARED),yes)
-INSTALL_LTLIB = \
-	cd $(TOPDIR)/$(LIBNAME)/.libs; \
-	../$(INSTALL) -m 755 -d $(PKG_LIB_DIR); \
-	../$(INSTALL) -m 644 -T so_dot_version $(LIBNAME).lai $(PKG_LIB_DIR); \
-	../$(INSTALL) -T so_dot_current $(LIBNAME).lai $(PKG_LIB_DIR)
-endif
-
-# Libtool thinks the static and shared libs should be in the same dir, so
-# make the static lib appear in the place we chose as rpath (using the two
-# symlinks below).
-# Other things want the shared libs to appear in /usr/lib, else they'll
-# link with the static libs there.  So, another symlink to get the .so into
-# /usr/lib.
-ifeq ($(ENABLE_SHARED),yes)
-INSTALL_LTLIB_DEV = \
-	cd $(TOPDIR)/$(LIBNAME)/.libs; \
-	../$(INSTALL) -m 755 -d $(PKG_DEVLIB_DIR); \
-	../$(INSTALL) -m 644 -T old_lib $(LIBNAME).lai $(PKG_DEVLIB_DIR); \
-	../$(INSTALL) -m 644 $(LIBNAME).lai $(PKG_DEVLIB_DIR)/$(LIBNAME).la ; \
-	../$(INSTALL) -m 755 -d $(PKG_LIB_DIR); \
-	../$(INSTALL) -T so_base $(LIBNAME).lai $(PKG_LIB_DIR); \
-	../$(INSTALL) -S $(PKG_DEVLIB_DIR)/$(LIBNAME).a $(PKG_LIB_DIR)/$(LIBNAME).a; \
-	../$(INSTALL) -S $(PKG_DEVLIB_DIR)/$(LIBNAME).la $(PKG_LIB_DIR)/$(LIBNAME).la; \
-	../$(INSTALL) -S $(PKG_LIB_DIR)/$(LIBNAME).so $(PKG_DEVLIB_DIR)/$(LIBNAME).so
+ifeq "$(TARGET_OS)" "mingw"
+INSTALL_MAN =
 else
-INSTALL_LTLIB_DEV = $(INSTALL_LTLIB_STATIC)
-endif
-
-INSTALL_LTLIB_STATIC = \
-	cd $(TOPDIR)/$(LIBNAME)/.libs; \
-	../$(INSTALL) -m 755 -d $(PKG_DEVLIB_DIR); \
-	../$(INSTALL) -m 644 -T old_lib $(LIBNAME).lai $(PKG_DEVLIB_DIR)
-
 INSTALL_MAN = \
 	@for d in $(MAN_PAGES); do \
 		first=true; \
@@ -116,16 +55,6 @@ INSTALL_MAN = \
 			first=false; \
 		done; \
 	done
-
-ifeq ($(ENABLE_GETTEXT),yes)
-INSTALL_LINGUAS = \
-	@for l in $(LINGUAS) ""; do \
-		if test -f "$$l.mo" ; then \
-			ldir=$(PKG_LOCALE_DIR)/$$l/LC_MESSAGES; \
-			$(INSTALL) -m 755 -d $$ldir; \
-			$(INSTALL) -m 644 $$l.mo $$ldir/$(PKG_NAME).mo; \
-		fi; \
-	done
 endif
 
 SUBDIRS_MAKERULE = \
@@ -142,9 +71,6 @@ MAN_MAKERULE = \
 			$(ZIP) --best -c < $$f > $$f.gz; \
 		fi; \
 	done
-
-DIST_MAKERULE = \
-	$(MAKEF) -C build dist
 
 SOURCE_MAKERULE = \
 	@test -z "$$DIR" && DIR="."; \

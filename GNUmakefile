@@ -58,6 +58,9 @@ install_kmchart : default_kmchart
 	done
 	$(INSTALL) -m 755 -d $(PKG_DOC_DIR)
 	$(INSTALL) -m 644 kmchart.lsm README $(PKG_DOC_DIR)
+	$(INSTALL) -m 755 -d $(PKG_HTML_DIR)
+	$(INSTALL) -m 755 -d $(PKG_ICON_DIR)
+	$(INSTALL) -m 755 -d $(PKG_DESKTOP_DIR)
 
 ifdef BUILDRULES
 include $(BUILDRULES)

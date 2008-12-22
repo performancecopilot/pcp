@@ -1,15 +1,29 @@
-#! /bin/sh
+#!/bin/sh
 #
-# Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
 # This script emulates bsd install and also recognises
-# two environment variables, with the following semantics :-
+# two environment variables, with the following semanitcs :-
 #
 # $DIST_MANIFEST - if set, the name of the file to append manifest
 #                  information in the following format:
-#                  File     :  f mode owner group src target
-#                  Directory:  d mode owner group target
-#                  Symlink  :  l linkval target
+#                  File    :  f mode owner group src target
+#                  Diretory:  d mode owner group target
+#                  Symlink :  l linkval target
 #
 # $DIST_ROOT     - if set, prepend to target
 #
@@ -22,18 +36,15 @@
 #       not set       set      |    yes        no
 #       set           not set  |    no         yes
 #       set           set      |    yes        yes
-#
+
 _usage() {
     echo "Usage: $prog [-o owner] [-g group] [-m mode] -d directory"
-    echo "or     $prog [-D] [-o owner] [-g group] [-m mode] file directory/file"
-    echo "or     $prog [-o owner] [-g group] [-m mode] file [file ...] directory"
+    echo "or     $prog [-o owner] [-g group] [-m mode] file directory/file"
+    echo "or     $prog [-o owner] [-g group] [-m mode] file file [file ...] directory"
     echo "or     $prog -S file target  (creates \"target\" symlink)"
-    echo "or     $prog -T lt_arg [-o owner] [-g group] [-m mode] libtool.lai directory"
     echo ""
     echo "The \$DIST_MANIFEST and \$DIST_ROOT environment variables affect the"
     echo "behaviour of this command - see comments in the script."
-    echo "The -D flag is only available for the second usage, and causes"
-    echo "the target directory to be created before installing the file."
     echo ""
     exit 1
 }
@@ -46,13 +57,13 @@ _chown ()
 	_st=$?
 	if [ $_st -ne 0 ] ; then
 	    if [ $REAL_UID != '0' ] ; then
-		if [ ! -f $DIST_ROOT/.chown.quiet ] ; then
+		if [ ! -f $DIST_ROOT/.chown.quite ] ; then
 		    echo '==============================================='
 		    echo Ownership of files under ${DIST_ROOT:-/}
 		    echo cannot be changed
 		    echo '==============================================='
 		    if [ -n "$DIST_ROOT" ] ; then
-			touch $DIST_ROOT/.chown.quiet
+			touch $DIST_ROOT/.chown.quite
 		    fi
 		fi
 	       _st=0
@@ -69,16 +80,25 @@ _manifest ()
     echo $* | sed -e 's/\/\//\//g' >>${DIST_MANIFEST:-/dev/null}
 }
 
+ID=id
+# Test to use the functional id on Solaris
+test -f /usr/xpg4/bin/id && ID=/usr/xpg4/bin/id
+
 prog=`basename $0`
 HERE=`pwd`
 dflag=false
-Dflag=false
 Sflag=false
-Tflag=false
 DIRMODE=755
 FILEMODE=644
-OWNER=`id -u`
-GROUP=`id -g`
+OWNER=`$ID -u 2>/dev/null`
+GROUP=`$ID -g 2>/dev/null`
+if [ -z "$OWNER" -o -z "$GROUP" ]
+then
+    # do it the hardway
+    #
+    OWNER=`$ID | sed -e 's/.*uid=[^(]*(//' -e 's/).*//'`
+    GROUP=`$ID | sed -e 's/.*gid=[^(]*(//' -e 's/).*//'`
+fi
 REAL_UID=$OWNER
 
 # default is to install and don't append manifest
@@ -92,42 +112,33 @@ MANIFEST=:
 
 if $INSTALL
 then
-    CP=cp; LN=ln; MKDIR=mkdir; CHMOD=chmod; CHOWN=_chown
+    RM=rm; CP=cp; LN=ln; MKDIR=mkdir; CHMOD=chmod; CHOWN=_chown
 else
-    CP=true; LN=true; MKDIR=true; CHMOD=true; CHOWN=true
+    RM=true; CP=true; LN=true; MKDIR=true; CHMOD=true; CHOWN=true
 fi
 
 [ -n "$DIST_ROOT" -a $REAL_UID -ne 0 ] && CHOWN=true
 
-while getopts "Dcm:d:S:o:g:T:" c $*
+while getopts "d:g:m:o:S:" c $*
 do
    case $c in
-   c)
+   d) 
+	dir=`echo $DIST_ROOT/$OPTARG | sed -e 's;//*;/;g'`
+	dflag=true
 	;;
    g)
 	GROUP=$OPTARG
-	;;
-   o)
-	OWNER=$OPTARG
 	;;
    m)
 	DIRMODE=`expr $OPTARG`
 	FILEMODE=$DIRMODE
 	;;
-   D) 
-	Dflag=true
+   o)
+	OWNER=$OPTARG
 	;;
    S) 
 	symlink=$OPTARG
 	Sflag=true
-	;;
-   d) 
-	dir=$DIST_ROOT/$OPTARG
-	dflag=true
-	;;
-   T)
-	lt_install=$OPTARG
-	Tflag=true
 	;;
    *)
    	_usage
@@ -143,7 +154,7 @@ then
     #
     # first usage
     #
-    $MKDIR -p $dir 
+    $MKDIR -p $dir
     status=$?
     if [ $status -eq 0 ]
     then
@@ -155,7 +166,7 @@ then
 	$CHOWN $OWNER $GROUP $dir
 	status=$?
     fi
-    $MANIFEST d $DIRMODE $OWNER $GROUP ${dir#$DIST_ROOT}
+    $MANIFEST d $DIRMODE $OWNER $GROUP `echo "$dir" | sed -e "s;^$DIST_ROOT;;"`
 elif $Sflag
 then
     #
@@ -165,153 +176,71 @@ then
     then
     	_usage
     else
-    	target=$DIST_ROOT/$1
+	target=`echo $DIST_ROOT/$1 | sed -e 's;//*;/;g'`
     fi
+    $RM -f $target
+    dir=`dirname $target | sed -e 's;//*;/;g'`
+    [ ! -d $dir ] && mkdir -p $dir
     $LN -s -f $symlink $target
     status=$?
-    $MANIFEST l $symlink ${target#$DIST_ROOT} 
-elif $Tflag
-then
-    #
-    # -T (install libs built by libtool)
-    #
-    if [ $# -ne 2 ]
-    then
-	_usage
-    else
-	libtool_lai=$1
-	# source the libtool variables
-	if [ ! -f $libtool_lai ]
-	then
-		echo "$prog: Unable to find libtool library file $libtool_lai"
-		exit 2
-	fi
-	. ./$libtool_lai
-	target=$DIST_ROOT/$2
-    fi
-    case $lt_install in
-    so_dot_version)
-	# Loop until we find libfoo.so.x.y.z, then break out.
-	for solib in $library_names
-	do
-		# does it have enough parts?  libfoo.so.x.y.z == 5
-		cnt=`echo "$solib" | sed -e 's/\./ /g' | wc -w`
-		if [ $cnt -eq 5 ]
-		then
-			install_name=$target/$solib
-			$CP $solib $install_name
-			status=$?
-			$MANIFEST f $FILEMODE $OWNER $GROUP $HERE/$solib ${install_name#$DIST_ROOT}
-			break
-		fi
-	done
-	;;
-
-    so_*)
-	case $lt_install in
-	so_dot_current)
-		# ln -s libfoo.so.x.y.z to libfoo.so.x
-		from_parts=5  # libfoo.so.x.y.z
-		to_parts=3    # libfoo.so.x
-		;;
-	so_base)
-		# ln -s libfoo.so.x to libfoo.so
-		from_parts=3  # libfoo.so.x
-		to_parts=2    # libfoo.so
-		;;
-	*)
-		echo "$prog: -T $lt_install invalid"
-		exit 2
-		;;
-	esac
-
-	# Loop until we find the names, then break out.
-	for solib in $library_names
-	do
-		# does it have enough parts?
-		cnt=`echo "$solib" | sed -e 's/\./ /g' | wc -w`
-		if [ $cnt -eq $from_parts ]
-		then
-			from_name=$solib
-		elif [ $cnt -eq $to_parts ]
-		then
-			to_name=$solib
-		fi
-
-		if [ -n "$from_name" ] && [ -n "$to_name" ]
-		then
-			install_name=$target/$to_name
-			$LN -s -f $from_name $install_name
-			status=$?
-			$MANIFEST l $from_name ${install_name#$DIST_ROOT}
-			break
-		fi
-	done
-	;;
-    old_lib)
-	install_name=$target/$old_library
-	$CP $old_library $install_name
-	status=$?
-	$MANIFEST f $FILEMODE $OWNER $GROUP $HERE/$old_library ${install_name#$DIST_ROOT}
-	;;
-    *)
-	echo "$prog: -T $lt_install invalid"
-	exit 2
-	;;
-    esac
-
-    case $lt_install in
-    old_lib|so_dot_version)
-	if [ $status -eq 0 ]
-	then
-		$CHMOD $FILEMODE $install_name
-		$CHOWN $OWNER $GROUP $install_name
-	fi
-	;;
-    esac
-
+    $MANIFEST l $symlink `echo "$target" | sed -e "s;^$DIST_ROOT;;"`
 else
     list=""
     dir=""
     if [ $# -eq 2 ]
     then
 	#
-	# second usage
+	# second usage: install file dir/name
+	# target 'name' is not necessarily the same as 'file'
+	# (Note: install file dir  is ambiguous and not supported
 	#
 	f=$1
-	dir=$DIST_ROOT/$2
-	if $Dflag
+	dir=$DIST_ROOT/`dirname $2`
+	dir=`echo $dir | sed -e 's;//*;/;g'`
+	t_dir=`echo "$dir" | sed -e "s;^$DIST_ROOT;;" | sed -e 's;//*;/;g'`
+	destfile=`basename $2`
+	if [ -f $f -a -f $f.exe ]
 	then
-	    mkdir -p `dirname $dir`
-	fi
-	$CP -f $f $dir
-	status=$?
-	if [ $status -eq 0 ]
-	then 
-	    if [ -f $dir/$f ]
+	    # Cygwin hack ... executables present as foo and foo.exe,
+	    # the foo one is visible to test(1) and ls(1), but not to
+	    # cat(1)/cp(1) ... need to $RM/$CP the foo.exe one
+	    #
+	    if cat $f >/dev/null 2>&1
 	    then
-		$CHMOD $FILEMODE $dir/$f
-		status=$?
-		if [ $status -eq 0 ]
-		then
-		    $CHOWN $OWNER $GROUP $dir/$f
-		    status=$?
-		fi
-		$MANIFEST f $FILEMODE $OWNER $GROUP $HERE/$f ${dir#$DIST_ROOT}/$f
+		:
 	    else
-		$CHMOD $FILEMODE $dir
-		status=$?
-		if [ $status -eq 0 ]
-		then
-		    $CHOWN $OWNER $GROUP $dir
-		    status=$?
-		fi
-		$MANIFEST f $FILEMODE $OWNER $GROUP $HERE/$dir ${dir#$DIST_ROOT}
+		f=$f.exe
+		destfile=$destfile.exe
 	    fi
 	fi
+	[ ! -d $dir ] && mkdir -p $dir
+	if [ -d $dir/$destfile ]
+	then
+	    echo ERROR: unsupported install usage
+	    _usage
+	    exit 1
+	else
+	    $RM -f $dir/$destfile
+	fi
+	$CP $f $dir/$destfile
+	status=$?
+
+	if [ $status -eq 0 ]
+	then
+	    [ ! -d $dir/$destfile ] && $CHMOD $FILEMODE $dir/$destfile
+	    status=$?
+	    if [ $status -eq 0 ]
+	    then
+		$CHOWN $OWNER $GROUP $dir/$destfile
+		status=$?
+	    fi
+	    $MANIFEST f $FILEMODE $OWNER $GROUP $HERE/$f $t_dir/$destfile
+	fi
+	[ $status -ne 0 ] && break
+
     else
 	#
-	# third usage
+	# third usage: install file file [file ...] directory
 	#
 	n=1
 	while [ $# -gt 0 ]
@@ -320,16 +249,38 @@ else
 	    then
 		list="$list $1"
 	    else
-		dir=$DIST_ROOT/$1
+		dir=`echo $DIST_ROOT/$1 | sed -e 's;//*;/;g'`
 	    fi
 	    shift
 	done
 
-	# echo DIR=$dir list=\"$list\"
+	# At this stage, $list is the list of files to install
+	# in $dir. We create $dir if necessary
+
+	# t_dir is for the manifest, i.e. without $DIST_ROOT prefix
+	t_dir=`echo "$dir" | sed -e "s;^$DIST_ROOT;;"`
+
 	for f in $list
 	do
-	    $CP -f $f $dir
+	    if [ -f $f -a -f $f.exe ]
+	    then
+		# Cygwin hack ... executables present as foo and foo.exe,
+		# the foo one is visible to test(1) and ls(1), but not to
+		# cat(1)/cp(1) ... need to $RM/$CP the foo.exe one
+		#
+		if cat $f >/dev/null 2>&1
+		then
+		    :
+		else
+		    f=$f.exe
+		fi
+	    fi
+
+	    [ ! -d $dir ] && mkdir -p $dir
+	    $RM -f $dir/$f
+	    $CP $f $dir/$f
 	    status=$?
+
 	    if [ $status -eq 0 ]
 	    then
 		$CHMOD $FILEMODE $dir/$f
@@ -339,7 +290,7 @@ else
 		    $CHOWN $OWNER $GROUP $dir/$f
 		    status=$?
 		fi
-		$MANIFEST f $FILEMODE $OWNER $GROUP $HERE/$f ${dir#$DIST_ROOT}/$f
+		$MANIFEST f $FILEMODE $OWNER $GROUP $HERE/$f $t_dir/$f
 	    fi
 	    [ $status -ne 0 ] && break
 	done

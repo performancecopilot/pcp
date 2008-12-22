@@ -21,10 +21,14 @@ ifndef _BUILDDEFS_INCLUDED_
 _BUILDDEFS_INCLUDED_ = 1
 include @pcp_dir@/etc/pcp.conf
 
+SHELL = /bin/sh
+TARGET_OS = @target_os@
+
 LIBPCP		= @libpcp@
 PCP_DIR		= @pcp_dir@
 
 prefix = @prefix@
+datadir = @datadir@
 datarootdir = @datarootdir@
 exec_prefix = @exec_prefix@
 
@@ -40,10 +44,10 @@ PKG_PLATFORM	= @pkg_platform@
 PKG_DISTRIBUTION= @pkg_distribution@
 PKG_BIN_DIR	= $(PCP_BIN_DIR)
 PKG_MAN_DIR	= $(PCP_MAN_DIR)
-PKG_DOC_DIR	= @pkg_doc_dir@
-PKG_HTML_DIR	= @pkg_html_dir@
-PKG_ICON_DIR	= @pkg_icon_dir@
-PKG_DESKTOP_DIR	= @pkg_desktop_dir@
+PKG_DOC_DIR	= $(datadir)/doc/@pkg_name@
+PKG_HTML_DIR	= $(PKG_DOC_DIR)/html
+PKG_ICON_DIR	= $(datadir)/pixmaps
+PKG_DESKTOP_DIR	= $(datadir)/applications
 
 QMAKE		= @qmake@
 CC		= @cc@

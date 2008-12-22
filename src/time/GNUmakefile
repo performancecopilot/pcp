@@ -45,6 +45,9 @@ install: default
 ifeq ($(WINDOW),x11)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
 endif
+ifeq ($(WINDOW),win)
+	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
+endif
 ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 755 $(WRAPPER) $(PKG_BIN_DIR)/$(COMMAND)
 	$(INSTALL) -m 755 -d /Library

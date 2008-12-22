@@ -22,7 +22,7 @@ pack_kmchart : kmchart.src
 	@DIST_MANIFEST=`pwd`/$@.bin; DIST_ROOT=/tmp/kmchart-build-$$$$; \
 	export DIST_MANIFEST DIST_ROOT; \
 	rm -f $$DIST_MANIFEST; \
-	echo === install === && $(MAKE) -C -j 1 $(TOPDIR) install || exit $$?; \
+	echo === install === && $(MAKE) -j 1 -C $(TOPDIR) install || exit $$?; \
 	if test ! -z "$(TAR)"; then \
 	    ( echo "=== tar ===" && $(MAKEF) -j 1 -C tar $@ || exit $$? ); \
 	fi; \
@@ -54,7 +54,7 @@ kmchart.src : $(_FORCE)
 	else \
 	    sed -e "s;^\.;$$SRC_ROOT;" </tmp/$$$$.makesrc >$$CDIR/$@ ;\
 	    rm -f /tmp/$$$$.makesrc; \
-	    unset TAPE; SRCTAR=$${PKG_ROOT}-$(PKG_BUILD).src.tar.gz;\
+	    unset TAPE; SRCTAR=$${PKG_ROOT}-$(PKG_RELEASE).src.tar.gz;\
 	    $(TAR) -T $$CDIR/$@ -cf - | gzip > $$CDIR/tar/$$SRCTAR; \
 	    test -f .census || touch .census; \
 	    if [ ! -L $$SRC_ROOT -a "$(TARGET_OS)" != mingw ] ; then \

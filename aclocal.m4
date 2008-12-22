@@ -52,6 +52,11 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     test -z "$BUILD_VERSION" || pkg_release="$BUILD_VERSION"
     AC_SUBST(pkg_release)
 
+    if test -z "$pkg_build_date" ; then
+	pkg_build_date=`date +%Y-%m-%d`
+    fi
+    AC_SUBST(pkg_build_date)
+
     DEBUG=${DEBUG:-'-DDEBUG'}		dnl  -DNDEBUG
     debug_build="$DEBUG"
     AC_SUBST(debug_build)
@@ -78,28 +83,9 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     test -z "$DISTRIBUTION" || pkg_distribution="$DISTRIBUTION"
     AC_SUBST(pkg_distribution)
 
-    pkg_platform=`uname -s | tr 'A-Z' 'a-z' | sed -e 's/irix64/irix/'`
+    pkg_platform=`echo $target_os`
     test -z "$PLATFORM" || pkg_platform="$PLATFORM"
     AC_SUBST(pkg_platform)
-  ])
-
-#
-# Find base location of installed documents, esp. the html manual.
-#
-AC_DEFUN([AC_PACKAGE_PATHS],
-  [ pkg_name="$1"
-    pkg_doc_dir=`eval echo "${datadir}/doc/${pkg_name}"`
-    pkg_doc_dir=`eval echo "${pkg_doc_dir}"`
-    AC_SUBST(pkg_doc_dir)
-    pkg_html_dir=`eval echo "${pkg_doc_dir}"/html`
-    pkg_html_dir=`eval echo "${pkg_html_dir}"`
-    AC_SUBST(pkg_html_dir)
-    pkg_desktop_dir=`eval echo "${datadir}"/applications`
-    pkg_desktop_dir=`eval echo "${pkg_desktop_dir}"`
-    AC_SUBST(pkg_desktop_dir)
-    pkg_icon_dir=`eval echo "${datadir}"/pixmaps`
-    pkg_icon_dir=`eval echo "${pkg_icon_dir}"`
-    AC_SUBST(pkg_icon_dir)
   ])
 
 #

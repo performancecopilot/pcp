@@ -1,7 +1,7 @@
 Begin4
 Title:          Performance Co-Pilot Strip Charts
-Version:        @PKG_VERSION@
-Entered-date:   @PKG_BUILD_DATE@
+Version:        @pkg_version@
+Entered-date:   @pkg_build_date@
 Description:    Strip Chart tool for plotting PCP metric values.
 Keywords:       performance, monitoring, system, status, distributed
 Author:         pcp@oss.sgi.com (SGI Performance Co-Pilot Engineers)

@@ -100,7 +100,7 @@ then
     echo "== src-link, log is in $LOGF" | tee -a $LOGF
 
     VERSION=${PKG_MAJOR}.${PKG_MINOR}.${PKG_REVISION}
-    SRCLINK_ROOT=`pwd`/$VERSION
+    SRCLINK_ROOT=`pwd`/kmchart-$VERSION
     if [ $special = debian ] ; then
 	SRCLINK_ROOT=`pwd`/build/deb/kmchart-$VERSION
     fi

@@ -36,4 +36,4 @@ LIBS		+= -L../libqwt/@qt_release@ -L../libqwt/build/@qt_release@
 win32:LIBS	+= -L @pcp_dir@/bin -L @pcp_dir@/local/bin
 win32:LIBS	+= -lwsock32 @pcp_dir@/local/lib/libregex.dll.a
 QT		+= @qt_assistant@ network
-CONFIG		+= qt @qt_assistant@ warn_on @qt_release@
+CONFIG		+= qt assistant warn_on @qt_release@

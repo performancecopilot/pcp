@@ -18,7 +18,6 @@
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
-include /etc/pcp.conf
 
 LDIRT = $(wildcard kmchart*.pkg) $(wildcard kmchart*.dmg) \
 	idb-kmchart description info
