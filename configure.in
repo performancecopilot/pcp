@@ -282,6 +282,7 @@ if test -z "$PCP_OWNER" ; then
 else
     pcp_owner="$PCP_OWNER"
 fi
+AC_SUBST(pcp_owner)
 if test -z "$PCP_GROUP" ; then
     case "$target_os" in
     darwin) pcp_group=wheel;;
@@ -290,7 +291,7 @@ if test -z "$PCP_GROUP" ; then
 else
     pcp_group="$PCP_GROUP"
 fi
-AC_SUBST(pcp_owner pcp_group)
+AC_SUBST(pcp_group)
 
 dnl check if the tar program is available
 if test -z "$TAR"; then
@@ -1358,10 +1359,13 @@ AC_SUBST(pcp_lib32_dir)
 
 AC_PATH_XTRA
 pcp_x11_incflags=$X_CFLAGS
+AC_SUBST(pcp_x11_incflags)
 pcp_x11_libflags=$X_LIBS
+AC_SUBST(pcp_x11_libflags)
 pcp_x11_extra=$X_EXTRA_LIBS
+AC_SUBST(pcp_x11_extra)
 pcp_x11_pre=$X_PRE_LIBS
-AC_SUBST(pcp_x11_incflags pcp_x11_libflags pcp_x11_extra pcp_x11_pre)
+AC_SUBST(pcp_x11_pre)
 
 dnl Where is X11 app-defaults should go
 pcp_x11_appdefs_dir=
