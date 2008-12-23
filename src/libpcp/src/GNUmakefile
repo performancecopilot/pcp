@@ -91,7 +91,7 @@ else
 kernel_pmda_dso	= windows
 endif
 
-ifneq ($(HAVE_IBDEV),)
+ifeq ($(HAVE_IBDEV),1)
 infiniband_pmda_dso = ib
 else
 infiniband_pmda_dso =

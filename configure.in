@@ -1727,16 +1727,15 @@ AC_CHECK_LIB(ibcommon, ibwarn, [AC_SUBST(LIBIBCOMMON,-libcommon)])
 AC_CHECK_LIB(ibmad, madrpc_init, [AC_SUBST(LIBIBMAD,-libmad)])
 AC_CHECK_LIB(ibumad, umad_init, [AC_SUBST(LIBIBUMAD,-libumad)])
 
-HAVE_IBDEV=""
+HAVE_IBDEV=0
 if test -n "$UMAD_H" -a \ 
 	-n "$MAD_H" -a \
 	-n "$LIBIBCOMMON" -a \
 	-n "$LIBIBUMAD" -a \
 	-n "$LIBIBMAD" ; then
-	HAVE_IBDEV=yes
+	HAVE_IBDEV=1
 fi
 AC_SUBST(HAVE_IBDEV)
-	
 
 dnl
 dnl output files
