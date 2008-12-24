@@ -24,7 +24,6 @@
 pmInDom
 windows_indom(int qid, int domain)
 {
-    pmInDom	result;
     int		serial;
 
     switch (qid) {

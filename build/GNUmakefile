@@ -20,7 +20,7 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-LDIRT += $(wildcard *.src.tar.gz) pack_pcp.bin pcp.src \
+LDIRT = $(wildcard *.src.tar.gz) pack_pcp.bin pcp.src \
 	$(TOPDIR)/$(PACKAGE_NAME)-$(PACKAGE_VERSION) \
 	$(TOPDIR)/$(PACKAGE_NAME)-$(PACKAGE_VERSION)-$(PACKAGE_REVISION) \
 	pack_pro.bin pro.src deb

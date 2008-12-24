@@ -523,14 +523,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	fqdn=`pmhostname $host`
 	for log in $PCP_TMP_DIR/pmlogger/[0-9]*
 	do
-	    case "$log"
-	    in
-		*[0-9]*)
-		    # no pmlogger running according to $PCP_TMP_DIR/pmlogger
-		    #
-		    break
-		    ;;
-	    esac
+	    [ "$log" = "$PCP_TMP_DIR/pmlogger/[0-9]*" ] && continue
 	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $log: ""$PCP_ECHO_C"
 	    match=`sed -e '3s/\/[0-9][0-9][0-9][0-9][0-9.]*$//' $log \
 		   | $PCP_AWK_PROG '
