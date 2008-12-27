@@ -79,13 +79,6 @@ _cleanup()
     exit $status
 }
 
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
-
 _filter()
 {
     sed \
@@ -119,16 +112,41 @@ no.such.host	n n $LOGGING_DIR/no.such.host -c /dev/null
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 
+myhost=`hostname | sed -e 's/\..*//'`
+
 # stop pmcd, create the archive directories, start pmcd ...
 #
 $sudo $PCP_RC_DIR/pcp stop >$tmp.out 2>&1
 cat $tmp.out >$seq.full
-$sudo mkdir -p $LOGGING_DIR/`hostname | sed -e 's/\..*//'`-one >/dev/null 2>&1
-$sudo mkdir -p $LOGGING_DIR/`hostname | sed -e 's/\..*//'`-two >/dev/null 2>&1
+$sudo mkdir -p $LOGGING_DIR/${myhost}-one >/dev/null 2>&1
+$sudo mkdir -p $LOGGING_DIR/${myhost}-two >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/no.such.host >/dev/null 2>&1
 $sudo $PCP_RC_DIR/pcp start >$tmp.out 2>&1
 cat $tmp.out >>$seq.full
 _wait_for_pmcd
+
+# avoid race with pmloggers not being started before pmlogger_check
+# is run below
+for i in 1 2 3 4 5
+do
+    [ -f $LOGGING_DIR/${myhost}-one/pmlogger.log -a -f $LOGGING_DIR/${myhost}-two/pmlogger.log ] && break
+    sleep 1
+done
+if [ ! -f $LOGGING_DIR/${myhost}-one/pmlogger.log ]
+then
+    echo "Failed to start pmlogger for ${myhost}-one"
+    echo "Logging directory contents ..."
+    ls -l $LOGGING_DIR/${myhost}-one
+    exit
+fi
+
+if [ ! -f $LOGGING_DIR/${myhost}-two/pmlogger.log ]
+then
+    echo "Failed to start pmlogger for ${myhost}-two"
+    echo "Logging directory contents ..."
+    ls -l $LOGGING_DIR/${myhost}-two
+    exit
+fi
 
 # real QA test starts here
 
