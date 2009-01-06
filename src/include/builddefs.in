@@ -215,6 +215,9 @@ POD_OPTIONS = --section=$(MAN_SECTION) --release=$(PCP_VERSION) \
 		--center="Performance Co-Pilot" --date="Performance Co-Pilot"
 POD_MAKERULE = $(POD2MAN) $(POD_OPTIONS) $^ $@
 
+ifeq "$(TARGET_OS)" "mingw"
+INSTALL_MAN =
+else
 INSTALL_MAN = \
     test -z "$$MAN_PAGES" && MAN_PAGES="$(MAN_PAGES)"; \
     for d in `echo $$MAN_PAGES`; do \
@@ -260,6 +263,7 @@ INSTALL_MAN = \
 	    first=false; \
 	done; \
     done
+endif
 
 #
 # For targets that should always be rebuilt,

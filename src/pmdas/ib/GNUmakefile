@@ -41,19 +41,23 @@ LLDLIBS	= $(IBLIBS) $(PCP_LIBS) -lpcp_pmda -lpcp
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 LDIRT	= *.o $(TARGETS) *.log *.dir *.pag pcp domain.h
 
-default: pcp help.pag help.dir $(TARGETS)
+default: build-me
 
 include $(BUILDRULES)
 
+ifeq ($(HAVE_IBDEV),1)
+build-me: pcp help.pag help.dir $(TARGETS)
 install: default
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/pmdas
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PMDADIR)/$(LIBTARGET)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmns root domain.h $(PMDADIR)
 	$(INSTALL) -m 644 help help.pag help.dir $(PMDADIR)
+else
+build-me:
+install:
+endif
 
 domain.h:       ../../pmns/stdpmid
 	rm -f $@

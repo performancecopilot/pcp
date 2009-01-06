@@ -38,6 +38,34 @@ mkdir_r(char *path)
     return 0;
 }
 
+#ifdef IS_MINGW
+#define timerlock(fd) 0	/* no non-blocking file lock found on Win32...? */
+#else
+static int
+timerlock(int fd)
+{
+    struct flock lock = { .l_type = F_WRLCK };
+    int i, sts = 0;
+
+    /*
+     * drop root privileges for bug #827972
+     */
+    if (setuid(getuid()) < 0)
+    	exit(1);
+
+    /*
+     * willing to try for 3 seconds to get the lock ... note fcntl()
+     * does not block, unlike flock()
+     */
+    for (i = 0; i < 3; i++) {
+	if ((sts = fcntl(fd, F_SETLK, &lock)) != -1)
+	    break;
+	sleep(1);
+    }
+    return sts;
+}
+#endif
+
 #define LAST_UNDEFINED	-1
 #define LAST_NEWFILE	-2
 
@@ -55,7 +83,6 @@ main(int argc, char **argv)
     int		sts = 0;
     char	notices[MAXPATHLEN];
     char	*tz = getenv("TZ");
-    struct flock lock;
     extern char **environ;
     static char *newenviron[] =
 	{"HOME=/nowhere", "SHELL=/noshell", "PATH=/nowhere", NULL};
@@ -86,7 +113,6 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-
     if ((fd = open(notices, O_WRONLY, 0)) < 0) {
 	if ((fd = open(notices, O_WRONLY|O_CREAT, 0644)) < 0) {
 	    fprintf(stderr, "pmpost: cannot create file \"%s\": %s\n",
@@ -96,27 +122,7 @@ main(int argc, char **argv)
 	lastday = LAST_NEWFILE;
     }
 
-    /*
-     * drop root privileges for bug #827972
-     */
-    if (setuid(getuid()) < 0)
-    	exit(1);
-
-    lock.l_type = F_WRLCK;
-    lock.l_whence = 0;
-    lock.l_start = 0;
-    lock.l_len = 0;
-
-    /*
-     * willing to try for 3 seconds to get the lock ... note fcntl()
-     * does not block, unlike flock()
-     */
-    for (i = 0; i < 3; i++) {
-	if ((sts = fcntl(fd, F_SETLK, &lock)) != -1)
-	    break;
-	sleep(1);
-    }
-    
+    sts = timerlock(fd);
     if (sts == -1) {
 	fprintf(stderr, "pmpost: warning, cannot lock file \"%s\"", notices);
 	if (errno != EINTR)
