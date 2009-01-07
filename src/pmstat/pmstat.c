@@ -792,7 +792,8 @@ main(int argc, char *argv[])
 	    }
 
 	    if ((sts = pmFetch(nummetrics, s->pmids, s->res + s->flip)) < 0) {
-		if (ctxType == PM_CONTEXT_HOST && sts == PM_ERR_IPC) {
+		if (ctxType == PM_CONTEXT_HOST &&
+		    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT)) {
 		    puts (" Fetch failed. Reconnecting ...");
 		    if ( s->res[1-s->flip] != NULL ) {
 			pmFreeResult(s->res[1-s->flip]);
