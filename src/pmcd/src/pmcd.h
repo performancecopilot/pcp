@@ -100,7 +100,7 @@ typedef struct {
     } ipc;
 } AgentInfo;
 
-PMCD_EXTERN AgentInfo *agent;		/* Array of domain agent structs */
+extern AgentInfo *agent;		/* Array of domain agent structs */
 PMCD_EXTERN int	 nAgents;		/* Number of agents in array */
 
 /* DomainId-to-AgentIndex map */
