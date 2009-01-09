@@ -597,28 +597,6 @@ FreeAgent(AgentInfo *ap)
     }
 }
 
-#ifdef __host_mips
-/*
- * Use compilation flags to determine what format this pmcd is compiled into.
- * pmcd can only load DSOs compiled in the same MIPS format that it is.
- *
- * Each of the MIPS executable/DSO formats has a different prefix to allow
- * multiple versions of the same DSO agent to coexist in one directory.
- */
-
-static char	*dsoPrefix =
-#if   _MIPS_SIM == _MIPS_SIM_ABI32
-    "mips_o32.";
-#elif _MIPS_SIM == _MIPS_SIM_NABI32
-    "mips_n32.";
-#elif _MIPS_SIM == _MIPS_SIM_ABI64
-    "mips_64.";
-#else
-    !!! bozo : dont know which MIPS executable format pmcd should be!!!
-#endif
-#endif /* __host_mips */
-
-
 /* Parse a DSO specification, creating and initialising a new entry in the
  * agent table if the spec has no errors.
  */
@@ -656,29 +634,6 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
     }
 
-#ifdef __host_mips
-    /*
-     * if the DSO pathname is not absolute, prepend the appropriate "well
-     * known directory" where the DSOs have the same MIPS format as this
-     * pmcd executable.
-     */
-    if (*pathName != '/' && strcmp(pathName, "-") != 0) {
-	char	*newPath;
-	size_t	need = strlen(pathName) + strlen(dsoPrefix) + 1;
-
-	if ((newPath = (char *)malloc(need)) == NULL) {
-	    fprintf(stderr,
-			 "pmcd config: line %d, couldn't construct DSO pathname\n",
-			 nLines);
-	    __pmNoMem("pmcd config", need, PM_FATAL_ERR);
-	}
-	strcpy(newPath, dsoPrefix);
-	strcat(newPath, pathName);
-	free(pathName);
-	pathName = newPath;
-	xlatePath = 1;
-    }
-#else /* __host_mips */
     /*
      * Only absolute DSO pathnames are supported.
      */
@@ -686,7 +641,6 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 	fprintf(stderr, "pmcd: line %d IGNORED : path \"%s\" to PMDA is not absolute\n", nLines, pathName);
 	return -1;
     }
-#endif /* __host_mips */
 
     FindNextToken();
     if (*token != '\n') {
@@ -1965,41 +1919,12 @@ AgentsDiffer(AgentInfo *a1, AgentInfo *a2)
     if (a1->ipcType == AGENT_DSO) {
 	DsoInfo	*dso1 = &a1->ipc.dso;
 	DsoInfo	*dso2 = &a2->ipc.dso;
-#ifdef __host_mips 
-	char	*p1;
-	char	*p2;
-	int	pfxlen = (int)strlen(dsoPrefix);
-
-	if (dso1 == NULL || dso2 == NULL)
-		return 1;	/* should never happen */
-	if (dso1->pathName == NULL || dso2->pathName == NULL)
-		return 1;	/* should never happen */
-	p1 = dso1->pathName;
-	if (dso1->xlatePath) {
-	    p1 = basename(p1);
-	    if (strncmp(p1, dsoPrefix, pfxlen) == 0)
-		p1 += pfxlen;
-	}
-	p2 = dso2->pathName;
-	if (dso2->xlatePath) {
-	    p2 = basename(p2);
-	    if (strncmp(p2, dsoPrefix, pfxlen) == 0)
-		p2 += pfxlen;
-	}
-	if (strcmp(p1, p2))
-	    return 1;
-	if (dso1->entryPoint == NULL || dso2->entryPoint == NULL)
-		return 1;	/* should never happen */
-	if (strcmp(dso1->entryPoint, dso2->entryPoint))
-	    return 1;
-#else /* __host_mips */
 	if (strcmp(dso1->pathName, dso2->pathName) != 0)
 	    return 1;
 	if (dso1->entryPoint == NULL || dso2->entryPoint == NULL)
-		return 1;	/* should never happen */
+	    return 1;	/* should never happen */
 	if (strcmp(dso1->entryPoint, dso2->entryPoint))
 	    return 1;
-#endif
     }
     else if (a1->ipcType == AGENT_SOCKET) {
 	SocketInfo	*sock1 = &a1->ipc.socket;
