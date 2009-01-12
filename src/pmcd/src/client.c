@@ -150,27 +150,6 @@ DeleteClient(ClientInfo *cp)
     cp->fd = -1;
 }
 
-#ifdef PCP_DEBUG
-/* Convert a client file descriptor to a string describing what it is for. */
-char *
-nameclient(int fd)
-{
-#define FDNAMELEN 30
-    static char fdStr[FDNAMELEN];
-    static char *stdFds[4] = {"*UNKNOWN FD*", "stdin", "stdout", "stderr"};
-    int		i;
-
-    for (i = 0; i < nClients; i++)
-	if (client[i].status.connected && fd == client[i].fd) {
-	    sprintf(fdStr, "client[%d] input socket", i);
-	    return fdStr;
-	}
-    if (fd >= -1 && fd < 3)
-	return stdFds[fd + 1];
-    return stdFds[0];
-}
-#endif
-
 void
 MarkStateChanges(int changes)
 {
