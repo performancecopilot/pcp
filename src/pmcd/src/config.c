@@ -54,7 +54,6 @@ static time_t   	configFileTime;
 !bozo!
 #endif
 
-AgentInfo	*agent = NULL; /* List of agent info structs */
 int		szAgents = 0;		/* Number currently allocated */
 int		mapdom[MAXDOMID+2];	/* The DomainId-to-AgentIndex map */
 					/* Don't use it during parsing! */
