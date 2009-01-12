@@ -28,15 +28,6 @@
 #endif
 
 /*
- * To debug with dbpmda, add this so the symbols from pmcd(1) will
- * be faked out:
- *
- * #define DEBUG_WITH_DBPMDA
- */
-
-#define PMCD			2
-
-/*
  * Note: strange numbering for pmcd.pdu_{in,out}.total for
  * compatibility with earlier PCP versions ... this is the "item"
  * field of the PMID
@@ -1465,51 +1456,3 @@ pmcd_init(pmdaInterface *dp)
 
     pmdaInit(dp, NULL, 0, NULL, 0);
 }
-
-#ifdef DEBUG_WITH_DBPMDA
-/*
- * from pmcd's address space  ... weak symbols added here for use
- * with dbpmda
- */
-int		_pmcd_done;
-#pragma weak _pmcd_done
-char		*_pmcd_data;
-#pragma weak _pmcd_data
-int		_pmcd_timeout;
-#pragma weak _pmcd_timeout
-int		_pmcd_trace_nbufs;
-#pragma weak _pmcd_trace_nbufs
-int		_pmcd_trace_mask;
-#pragma weak _pmcd_trace_mask
-int		nAgents;
-#pragma weak nAgents
-AgentInfo	*agent;
-#pragma weak agent
-int		nClients;
-#pragma weak nClients
-ClientInfo	*client;
-#pragma weak client
-int		pmcd_hi_openfds = -1;
-#pragma weak pmcd_hi_openfds
-
-void pmcd_init_trace(int n)
-{
-    fprintf(stderr, "dummy pmcd_init_trace(%d) called\n", n);
-}
-#pragma weak pmcd_init_trace
-
-void
-pmcd_dump_trace(FILE *f)
-{
-    fprintf(f, "dummy pmcd_dump_trace called\n");
-}
-#pragma weak pmcd_dump_trace
-
-void
-ShowClients(FILE *f)
-{
-    fprintf(f, "dummy ShowClients called\n");
-}
-#pragma weak ShowClients
-
-#endif /* DEBUG_WITH_DBPMDA */
