@@ -78,6 +78,7 @@ AcceptNewClient(int reqfd)
 	Shutdown();
 	exit(1);
     }
+    __pmSetSocketIPC(fd);
     if (fd > maxSockFd)
 	maxSockFd = fd;
     FD_SET(fd, &sockFds);

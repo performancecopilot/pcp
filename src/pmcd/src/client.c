@@ -63,6 +63,7 @@ AcceptNewClient(int reqfd)
 
     FD_SET(fd, &clientFds);
     __pmSetVersionIPC(fd, UNKNOWN_VERSION);	/* before negotiation */
+    __pmSetSocketIPC(fd);
     client[i].fd = fd;
     client[i].status.connected = 1;
     client[i].status.changes = 0;
