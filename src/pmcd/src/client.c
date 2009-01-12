@@ -22,8 +22,6 @@
 
 #define MIN_CLIENTS_ALLOC 8
 
-PMCD_INTERN ClientInfo	*client;
-PMCD_INTERN int		nClients;	/* Number in array, (not all in use) */
 int		maxClientFd = -1;	/* largest fd for a client */
 fd_set		clientFds;		/* for client select() */
 
