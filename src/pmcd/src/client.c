@@ -22,8 +22,6 @@
 
 #define MIN_CLIENTS_ALLOC 8
 
-PMCD_INTERN ClientInfo	*client;
-PMCD_INTERN int		nClients;	/* Number in array, (not all in use) */
 int		maxClientFd = -1;	/* largest fd for a client */
 fd_set		clientFds;		/* for client select() */
 
@@ -63,6 +61,7 @@ AcceptNewClient(int reqfd)
 
     FD_SET(fd, &clientFds);
     __pmSetVersionIPC(fd, UNKNOWN_VERSION);	/* before negotiation */
+    __pmSetSocketIPC(fd);
     client[i].fd = fd;
     client[i].status.connected = 1;
     client[i].status.changes = 0;
@@ -150,27 +149,6 @@ DeleteClient(ClientInfo *cp)
     cp->status.connected = 0;
     cp->fd = -1;
 }
-
-#ifdef PCP_DEBUG
-/* Convert a client file descriptor to a string describing what it is for. */
-char *
-nameclient(int fd)
-{
-#define FDNAMELEN 30
-    static char fdStr[FDNAMELEN];
-    static char *stdFds[4] = {"*UNKNOWN FD*", "stdin", "stdout", "stderr"};
-    int		i;
-
-    for (i = 0; i < nClients; i++)
-	if (client[i].status.connected && fd == client[i].fd) {
-	    sprintf(fdStr, "client[%d] input socket", i);
-	    return fdStr;
-	}
-    if (fd >= -1 && fd < 3)
-	return stdFds[fd + 1];
-    return stdFds[0];
-}
-#endif
 
 void
 MarkStateChanges(int changes)

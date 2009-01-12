@@ -26,5 +26,7 @@
 PMCD_INTERN int	pmcd_hi_openfds = -1;   /* Highest open pmcd file descriptor */
 PMCD_INTERN int	_pmcd_done;		/* flag from pmcd pmda */
 PMCD_INTERN int	_pmcd_timeout = 5;	/* Timeout for hung agents */
+
+PMCD_INTERN AgentInfo *agent;		/* Array of agent info structs */
 PMCD_INTERN int	nAgents;		/* Number of active agents */
 
