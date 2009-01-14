@@ -11,13 +11,15 @@ default install install-dev install-lib:
 
 .PHONY: pack_kmchart
 pack_kmchart :
-	@BINTAR=$(PKG_NAME)-$(PKG_VERSION).tar.gz; \
-	HERE=`pwd`; cd $${DIST_ROOT:-/}; \
-	$(SORT) -u $$DIST_MANIFEST | $(AWK) ' \
+	@ BINTAR=$(PKG_NAME)-$(PKG_VERSION).tar.gz; HERE=`pwd`; \
+	cd $${DIST_ROOT:-/}; \
+	$(SORT) -u $$DIST_MANIFEST \
+	| $(AWK) ' \
 		$$1 == "f" { printf (".%s\n", $$6); } \
 		$$1 == "d" { next; } \
 		$$1 == "l" { printf (".%s\n", $$3); }' \
-	| $(TAR) -T - -cf - | $(ZIP) --best > $$HERE/$(BINTAR)
-	@echo Wrote: `pwd`/$(BINTAR)
+	| $(TAR) -T - -cf - \
+	| $(ZIP) --best > $$HERE/$$BINTAR; \
+	echo Wrote: $$HERE/$$BINTAR
 
 include $(BUILDRULES)
