@@ -18,7 +18,9 @@
 #include <string.h>
 #include <sys/time.h>
 #include <sys/types.h>
+extern "C" {	// for the MinGW version of regex.h, avoids name mangling
 #include <regex.h>
+}
 #include "main.h"
 #include "openviewdialog.h"
 #include "saveviewdialog.h"
