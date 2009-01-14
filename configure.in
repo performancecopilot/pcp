@@ -10,9 +10,8 @@ if test -n "$PCP_DIR"; then
     pcp_dir="$PCP_DIR"
     export CPPFLAGS="$CPPFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
     export CFLAGS="$CFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
-    export LDFLAGS="$LDFLAGS -L$PCP_DIR/bin -L$PCP_DIR/local/bin"
+    export LDFLAGS="$LDFLAGS -L$PCP_DIR/bin -L$PCP_DIR/local/bin -L$PCP_DIR/lib"
     export PATH="$PATH:$PCP_DIR/bin:$PCP_DIR/local/bin"
-
 fi
 AC_SUBST(pcp_dir)
 

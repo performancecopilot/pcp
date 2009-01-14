@@ -22,7 +22,6 @@ _BUILDDEFS_INCLUDED_ = 1
 include @pcp_dir@/etc/pcp.conf
 
 SHELL = /bin/sh
-TARGET_OS = @target_os@
 
 LIBPCP		= @libpcp@
 PCP_DIR		= @pcp_dir@
@@ -40,7 +39,7 @@ PKG_VERSION	= @pkg_version@
 PKG_MAJOR	= @pkg_major@
 PKG_MINOR	= @pkg_minor@
 PKG_REVISION	= @pkg_revision@
-PKG_PLATFORM	= @pkg_platform@
+PKG_PLATFORM	= $(PCP_PLATFORM)
 PKG_DISTRIBUTION= @pkg_distribution@
 PKG_BIN_DIR	= $(PCP_BIN_DIR)
 PKG_MAN_DIR	= $(PCP_MAN_DIR)

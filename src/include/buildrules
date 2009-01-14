@@ -56,12 +56,19 @@ src-link-kmchart : $(SRCFILES) $(CONFFILES) $(SUBDIRS)
 
 ifeq ($(PKG_PLATFORM),darwin)
 QTMAKE = $(QMAKE) -spec macx-xcode && xcodebuild -configuration $(QT_RELEASE)
-BINARY =  build/$(QT_RELEASE)/$(COMMAND).app/Contents/MacOS/$(COMMAND)
+BINARY = build/$(QT_RELEASE)/$(COMMAND).app/Contents/MacOS/$(COMMAND)
 LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
 WINDOW = mac
-else
+endif
+ifeq ($(PKG_PLATFORM),mingw)
 QTMAKE = $(QMAKE) && $(MAKE) -f Makefile
-BINARY =  $(COMMAND)
+BINARY = $(QT_RELEASE)/$(COMMAND)
+LNMAKE =
+WINDOW = win
+endif
+ifeq "$(findstring $(PKG_PLATFORM),darwin mingw)" ""
+QTMAKE = $(QMAKE) && $(MAKE) -f Makefile
+BINARY = $(COMMAND)
 LNMAKE =
 WINDOW = x11
 endif

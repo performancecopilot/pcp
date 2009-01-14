@@ -40,7 +40,7 @@ pack_kmchart : kmchart.src
 # prevent second run on setup by RPM.
 kmchart.src : $(_FORCE)
 	export PKG_ROOT=$(PKG_NAME)-$(PKG_VERSION); \
-	if [ "$(TARGET_OS)" = mingw ] ; then \
+	if [ "$(PCP_PLATFORM)" = mingw ] ; then \
 	    export SRC_ROOT=. ; \
 	else \
 	    export SRC_ROOT=$$PKG_ROOT; \
@@ -57,7 +57,7 @@ kmchart.src : $(_FORCE)
 	    unset TAPE; SRCTAR=$${PKG_ROOT}-$(PKG_RELEASE).src.tar.gz;\
 	    $(TAR) -T $$CDIR/$@ -cf - | gzip > $$CDIR/tar/$$SRCTAR; \
 	    test -f .census || touch .census; \
-	    if [ ! -L $$SRC_ROOT -a "$(TARGET_OS)" != mingw ] ; then \
+	    if [ ! -L $$SRC_ROOT -a "$(PCP_PLATFORM)" != mingw ] ; then \
 		if [ -n "$$SRC_ROOT" ]; then \
 		    rm -rf $$SRC_ROOT || exit 1; \
 		    $(LN_S) . $$SRC_ROOT || exit 1; \

@@ -27,7 +27,7 @@ OBJECTS = $(ASFILES:.s=.o) \
 
 INSTALL	= $(TOPDIR)/install-sh -o $(PKG_USER) -g $(PKG_GROUP)
 
-ifeq "$(TARGET_OS)" "mingw"
+ifeq "$(PCP_PLATFORM)" "mingw"
 INSTALL_MAN =
 else
 INSTALL_MAN = \

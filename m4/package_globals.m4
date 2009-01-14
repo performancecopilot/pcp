@@ -21,9 +21,7 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     test -z "$BUILD_VERSION" || pkg_release="$BUILD_VERSION"
     AC_SUBST(pkg_release)
 
-    if test -z "$pkg_build_date" ; then
-	pkg_build_date=`date +%Y-%m-%d`
-    fi
+    pkg_build_date=`date +%Y-%m-%d`
     AC_SUBST(pkg_build_date)
 
     DEBUG=${DEBUG:-'-DDEBUG'}		dnl  -DNDEBUG
@@ -33,10 +31,6 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     OPTIMIZER=${OPTIMIZER:-'-g -O2'}
     opt_build="$OPTIMIZER"
     AC_SUBST(opt_build)
-
-    MALLOCLIB=${MALLOCLIB:-''}		dnl  /usr/lib/libefence.a
-    malloc_lib="$MALLOCLIB"
-    AC_SUBST(malloc_lib)
 
     pkg_user=`id -u -n root`
     test $? -eq 0 || pkg_user=`id -u -n`
@@ -48,11 +42,11 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     test -z "$INSTALL_GROUP" || pkg_group="$INSTALL_GROUP"
     AC_SUBST(pkg_group)
 
-    pkg_distribution=`uname -s`
+    pkg_distribution=unknown
+    test -f /etc/SuSE-release && pkg_distribution=suse
+    test -f /etc/fedora-release && pkg_distribution=fedora
+    test -f /etc/redhat-release && pkg_distribution=redhat
+    test -f /etc/debian_version && pkg_distribution=debian
     test -z "$DISTRIBUTION" || pkg_distribution="$DISTRIBUTION"
     AC_SUBST(pkg_distribution)
-
-    pkg_platform=`echo $target_os`
-    test -z "$PLATFORM" || pkg_platform="$PLATFORM"
-    AC_SUBST(pkg_platform)
   ])

@@ -22,7 +22,7 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     AC_PACKAGE_NEED_UTILITY($1, "$cc", cc, [C++ compiler])
 
     if test -z "$MAKE"; then
-        AC_PATH_PROG(MAKE, mingw32-make.exe,,)
+        AC_PATH_PROG(MAKE, mingw32-make,, /mingw/bin:/usr/bin:/usr/local/bin)
     fi
     if test -z "$MAKE"; then
         AC_PATH_PROG(MAKE, gmake,, /usr/bin:/usr/local/bin)
@@ -45,6 +45,12 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     fi
     zip=$ZIP
     AC_SUBST(zip)
+
+    if test -z "$BZIP2"; then
+	AC_PATH_PROG(BZIP2, bzip2,, /bin:/usr/bin:/usr/local/bin)
+    fi
+    bzip2=$BZIP2
+    AC_SUBST(bzip2)
 
     if test -z "$MAKEDEPEND"; then
         AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
