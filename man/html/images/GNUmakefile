@@ -22,7 +22,13 @@ WINDOWLINKS = \
 INSTFILES = $(ICONLINKS) $(WINDOWLINKS)
 LDIRT = $(ICONLINKS) $(WINDOWLINKS)
 
+# TODO: generate images for Win32 and rejig LN_S use here
+ifneq ($(PKG_PLATFORM),mingw)
 default: iconlinks windowlinks
+else
+default:
+	touch $(INSTFILES)
+endif
 
 include $(BUILDRULES)
 
