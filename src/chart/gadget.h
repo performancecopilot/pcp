@@ -49,6 +49,7 @@ public:
     virtual int metricCount() const { return 0; }
     virtual QmcMetric *metric(int) const { return NULL; }
     virtual QmcDesc *metricDesc(int) const { return NULL; }
+    virtual QString metricInstance(int) const { return QString::null; }
     virtual QmcContext *metricContext(int) const { return NULL; }
 
     virtual QStringList hosts();	// unique hostnames across all metrics

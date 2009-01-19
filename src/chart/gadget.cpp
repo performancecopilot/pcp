@@ -37,7 +37,7 @@ QString Gadget::pmloggerMetricSyntax(int m)
 
     if (mp->numInst() == 1) {
 	config.append(" [ \"");
-	config.append(mp->indom()->name(0));
+	config.append(metricInstance(m));
 	config.append("\" ]");
     }
     return config;
