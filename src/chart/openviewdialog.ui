@@ -30,10 +30,13 @@
    </property>
    <item row="2" column="0" >
     <layout class="QGridLayout" >
-     <property name="margin" >
+     <property name="horizontalSpacing" >
       <number>0</number>
      </property>
-     <property name="spacing" >
+     <property name="verticalSpacing" >
+      <number>2</number>
+     </property>
+     <property name="margin" >
       <number>0</number>
      </property>
      <item row="1" column="1" >
