@@ -78,7 +78,7 @@ then
 fi
 
 LOGF=$LOGDIR/kmchart
-. VERSION
+. ./VERSION
 
 special=false
 ARCH=`uname -m | sed -e 's/i.86/ia32/'`
