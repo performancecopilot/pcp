@@ -291,7 +291,7 @@ cndAnd_n_n(Expr *x)
 	x->valid++;
     }
     else if (arg2->valid) {
-	ip1 = (Truth *)is2->ptr;
+	ip2 = (Truth *)is2->ptr;
 	op = (Truth *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = AND1(*ip2);

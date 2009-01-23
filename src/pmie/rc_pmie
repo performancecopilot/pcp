@@ -40,7 +40,18 @@ PMIECTRL=$PCP_PMIECONTROL_PATH
 RUNDIR=$PCP_LOG_DIR/pmie
 pmprog=$PCP_RC_DIR/pmie
 prog=$PCP_RC_DIR/`basename $0`
-MAIL=Mail
+
+# search for your mail agent of choice ...
+#
+MAIL=''
+for try in Mail mail email
+do
+    if which $try >/dev/null 2>&1
+    then
+	MAIL=$try
+	break
+    fi
+done
 
 tmp=/var/tmp/$$
 status=1
@@ -115,13 +126,25 @@ _start_pmie()
 	if [ -s $tmp.pmie ]
 	then
 	    pmpost "pmie_check start failed in $prog, mailing output to root"
-	    $MAIL -s "pmie_check start failed in $prog" root <$tmp.pmie >/dev/null 2>&1
+	    if [ ! -z "$MAIL" ]
+	    then
+		$MAIL -s "pmie_check start failed in $prog" root <$tmp.pmie >/dev/null 2>&1
+	    else
+		echo "$prog: pmie_check start failed ..."
+		cat $tmp.pmie
+	    fi
 	fi
 	rm -f $tmp.pmie
     else
 	status=$?
 	pmpost "pmcd_wait failed in $prog: exit status: $status" 
-	echo "pmcd_wait: exit status: $status" | $MAIL -s "pmcd_wait failed in $prog" root
+	if [ ! -z "$MAIL" ]
+	then
+	    echo "pmcd_wait: exit status: $status" | $MAIL -s "pmcd_wait failed in $prog" root
+	else
+	    echo "$prog: pmcd_wait failed ..."
+	    echo "pmcd_wait: exit status: $status"
+	fi
     fi
 }
 
@@ -140,7 +163,13 @@ _shutdown()
     if [ -s $tmp.pmie ]
     then
 	pmpost "pmie_check stop failed in $prog, mailing output to root"
-	$MAIL -s "pmie_check stop failed in $prog" root <$tmp.pmie
+	if [ ! -z "$MAIL" ]
+	then
+	    $MAIL -s "pmie_check stop failed in $prog" root <$tmp.pmie
+	else
+	    echo "$prog: pmie_check stop failed ..."
+	    cat $tmp.pmie
+	fi
     fi
 
     true

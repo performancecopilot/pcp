@@ -1283,7 +1283,8 @@ See also the kernel.uname.* metrics
 @ network.ib.in.errors.drop (deprecated: use infiniband.*) network recv read drops from perfquery
 @ network.ib.in.errors.filter (deprecated: use infiniband.*) network recv filtered packets from perfquery
 @ network.ib.in.errors.local (deprecated: use infiniband.*) network recv error packets from perfquery
-@ network.ib.in.errors.remote (deprecated: use infiniband.*) remote phys error packets recv with EBP delim from perfquery
+@ network.ib.in.errors.remote (deprecated: use infiniband.*) remote phys error packets recv ...
+remote phys error packets recv with EBP delim from perfquery
 @ network.ib.out.bytes (deprecated: use infiniband.*) network send bytes from perfquery
 @ network.ib.out.packets (deprecated: use infiniband.*) network send packets from perfquery
 @ network.ib.out.errors.drop (deprecated: use infiniband.*) network send drops from perfquery
@@ -1298,7 +1299,8 @@ See also the kernel.uname.* metrics
 @ network.ib.total.errors.vl15 (deprecated: use infiniband.*) VL15 packets dropped from perfquery
 @ network.ib.total.errors.overrun (deprecated: use infiniband.*) excessive buffer overrun errors from perfquery
 @ network.ib.total.errors.symbol (deprecated: use infiniband.*) minor link errors from perfquery
-@ network.ib.control (deprecated: use infiniband.*) If non-zero, stop collecting perf stats this many secs after last fetch
+@ network.ib.control (deprecated: use infiniband.*) Control IB stats collection.
+If non-zero, stop collecting perf stats this many secs after last fetch
 
 @ quota.state.project.accounting 1 indicates quota accounting enabled, else 0
 @ quota.state.project.enforcement 1 indicates quotas enforced, else 0

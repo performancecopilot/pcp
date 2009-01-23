@@ -39,10 +39,6 @@ echo >$tmp.lock
 trap "rm -f \`[ -f $tmp.lock ] && cat $tmp.lock\` $tmp.*; exit \$status" 0 1 2 3 15
 prog=`basename $0`
 
-# 24 hours and 10 minutes ago
-#
-touch -t `pmdate -24H -10M %Y%m%d%H%M` $tmp.merge
-
 # control file for pmlogger administration ... edit the entries in this
 # file to reflect your local configuration (see also -c option below)
 #
@@ -66,8 +62,19 @@ ROLLNOTICES=20480
 # mail addresses to send daily NOTICES summary to
 # 
 MAILME=""
-MAIL=Mail
 MAILFILE=$PCP_LOG_DIR/NOTICES.daily
+
+# search for your mail agent of choice ...
+#
+MAIL=''
+for try in Mail mail email
+do
+    if which $try >/dev/null 2>&1
+    then
+	MAIL=$try
+	break
+    fi
+done
 
 # determine real name for localhost
 LOCALHOST=`hostname | sed -e 's/\..*//'`
@@ -266,9 +273,18 @@ $1 == "DATE" && $3 == my && $4 == dy && $8 == yy { yday = 1; print; next }
 	    print
 	}' >$tmp.pcp
 
-    [ -s $tmp.pcp ] && \
-	$MAIL -s "PCP NOTICES summary for $LOCALHOST" $MAILME <$tmp.pcp
-    [ -s $tmp.pcp -a -w `dirname $NOTICES` ] && mv $tmp.pcp $MAILFILE
+    if [ -s $tmp.pcp ]
+    then
+	if [ ! -z "$MAIL" ]
+	then
+	    $MAIL -s "PCP NOTICES summary for $LOCALHOST" $MAILME <$tmp.pcp
+	else
+	    echo "$prog: Warning: cannot find a mail agent to send mail ..."
+	    echo "PCP NOTICES summary for $LOCALHOST"
+	    cat $tmp.pcp
+	fi
+        [ -w `dirname $NOTICES` ] && mv $tmp.pcp $MAILFILE
+    fi
 fi
 
 
