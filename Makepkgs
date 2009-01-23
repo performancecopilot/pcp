@@ -89,7 +89,7 @@ for prod ; do
     echo
     echo "== Building $prod, log is in $LOGF"
 
-    . VERSION.$prod
+    . ./VERSION.$prod
 
     if [ "$prod" = "pro" ]
     then
