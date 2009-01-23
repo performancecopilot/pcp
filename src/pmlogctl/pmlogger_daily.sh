@@ -62,8 +62,19 @@ ROLLNOTICES=20480
 # mail addresses to send daily NOTICES summary to
 # 
 MAILME=""
-MAIL=Mail
 MAILFILE=$PCP_LOG_DIR/NOTICES.daily
+
+# search for your mail agent of choice ...
+#
+MAIL=''
+for try in Mail mail email
+do
+    if which $try >/dev/null 2>&1
+    then
+	MAIL=$try
+	break
+    fi
+done
 
 # determine real name for localhost
 LOCALHOST=`hostname | sed -e 's/\..*//'`
@@ -262,9 +273,18 @@ $1 == "DATE" && $3 == my && $4 == dy && $8 == yy { yday = 1; print; next }
 	    print
 	}' >$tmp.pcp
 
-    [ -s $tmp.pcp ] && \
-	$MAIL -s "PCP NOTICES summary for $LOCALHOST" $MAILME <$tmp.pcp
-    [ -s $tmp.pcp -a -w `dirname $NOTICES` ] && mv $tmp.pcp $MAILFILE
+    if [ -s $tmp.pcp ]
+    then
+	if [ ! -z "$MAIL" ]
+	then
+	    $MAIL -s "PCP NOTICES summary for $LOCALHOST" $MAILME <$tmp.pcp
+	else
+	    echo "$prog: Warning: cannot find a mail agent to send mail ..."
+	    echo "PCP NOTICES summary for $LOCALHOST"
+	    cat $tmp.pcp
+	fi
+        [ -w `dirname $NOTICES` ] && mv $tmp.pcp $MAILFILE
+    fi
 fi
 
 

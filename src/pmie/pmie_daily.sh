@@ -74,7 +74,18 @@ COMPRESSREGEX=".meta$|.index$|.Z$|.gz$|.bz2$|.zip$"
 # mail addresses to send daily logfile summary to
 #
 MAILME=""
-MAIL=Mail
+
+# search for your mail agent of choice ...
+#
+MAIL=''
+for try in Mail mail email
+do
+    if which $try >/dev/null 2>&1
+    then
+	MAIL=$try
+	break
+    fi
+done
 
 # determine real name for localhost
 LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
@@ -489,8 +500,14 @@ then
     do
 	[ -f $file ] && logs="$logs $file"
     done
-    egrep -v '( OK | OK$|^$)' $logs | \
-	$MAIL -s "PMIE summary for $LOCALHOSTNAME" $MAILME
+    if [ ! -z "$MAIL" ]
+    then
+	egrep -v '( OK | OK$|^$)' $logs | \
+	    $MAIL -s "PMIE summary for $LOCALHOSTNAME" $MAILME
+    else
+	echo "$prog: PMIE summary for $LOCALHOSTNAME ..."
+	egrep -v '( OK | OK$|^$)' $logs
+    fi
     rm -f $tmp.mail
 fi
 
