@@ -548,7 +548,6 @@ main(int argc, char **argv)
     char	*msg;
     struct timeval	first;		/* initial sample time */
     struct timeval	last;		/* final sample time */
-    int		tzh;			/* initial timezone handle */
 
     __pmSetProgname(argv[0]);
 
@@ -619,24 +618,24 @@ main(int argc, char **argv)
 	    }
 
 	    if (zflag) {
-		if ((tzh = pmNewContextZone()) < 0) {
+		if ((sts = pmNewContextZone()) < 0) {
 		    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-			pmProgname, pmErrStr(tzh));
+			pmProgname, pmErrStr(sts));
 		    exit(1);
 		}
 		printf("Note: timezone set to local timezone of host \"%s\"\n\n", host);
 	    }
 	    else if (tz != NULL) {
-		if ((tzh = pmNewZone(tz)) < 0) {
+		if ((sts = pmNewZone(tz)) < 0) {
 		    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-			pmProgname, tz, pmErrStr(tzh));
+			pmProgname, tz, pmErrStr(sts));
 		    exit(1);
 		}
 		printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
 	    }
-	    else
-		/* save this one */
-		tzh = pmNewContextZone();
+	    else {
+		pmNewContextZone();
+	    }
 
 	    if (pmParseTimeWindow(NULL, NULL, NULL, Oflag,
 				   &first, &last,
