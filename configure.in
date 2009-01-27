@@ -460,17 +460,19 @@ dnl check if user wants their own lex, yacc
 if test -z "$YACC"; then
     AC_PROG_YACC
 fi
-yacc=`which $YACC`
+yacc=$YACC
 AC_SUBST(yacc)
 if test -z "$LEX"; then
     AC_PROG_LEX
 fi
-lex=`which $LEX`
+lex=$LEX
 AC_SUBST(lex)
 
 dnl extra check for lex and yacc as these are often not installed
 AC_MSG_CHECKING([if yacc is executable])
-if test -x "$yacc"
+binary=`echo $yacc | awk '{print $1}'`
+binary=`which "$binary"`
+if test -x "$binary"
 then
     AC_MSG_RESULT([ yes])
 else
@@ -482,7 +484,9 @@ else
     exit 1
 fi
 AC_MSG_CHECKING([if lex is executable])
-if test -x "$lex"
+binary=`echo $lex | awk '{print $1}'`
+binary=`which "$binary"`
+if test -x "$binary"
 then
     AC_MSG_RESULT([ yes])
 else
