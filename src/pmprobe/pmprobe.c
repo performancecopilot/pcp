@@ -84,19 +84,26 @@ main(int argc, char **argv)
     int		Iflag = 0;		/* -I for instance names */
     int		vflag = 0;		/* -v for values */
     int		Vflag = 0;		/* -V for verbose */
+    int		zflag = 0;		/* -z for archive timezone */
     int		errflag = 0;
     char	*host;
-    pmLogLabel	label;				/* get hostname for archives */
+    char	*msg;
+    pmLogLabel	label;			/* get hostname for archives */
+    struct timeval	start;		/* start of sample window */
+    struct timeval	first;		/* initial sample time */
+    struct timeval	last;		/* final sample time */
     char	local[MAXHOSTNAMELEN];
     char	*pmnsfile = PM_NS_DEFAULT;
+    char	*Oflag = NULL;		/* -O for archive offset */
+    char	*tz = NULL;
     int		i;
     pmResult	*result;
     pmValueSet	*vsp;
     pmDesc	desc;
 #ifdef PM_USE_CONTEXT_LOCAL
-    char        *opts = "a:D:fh:IiLn:Vv?";
+    char        *opts = "a:D:fh:IiLn:O:VvZ:z?";
 #else
-    char        *opts = "a:D:fh:Iin:Vv?";
+    char        *opts = "a:D:fh:Iin:O:VvZ:z?";
 #endif
 
     __pmSetProgname(argv[0]);
@@ -176,6 +183,10 @@ main(int argc, char **argv)
 	    pmnsfile = optarg;
 	    break;
 
+	case 'O':	/* sample origin */
+	    Oflag = optarg;
+	    break;
+
 	case 'V':	/* verbose */
 	    Vflag++;
 	    break;
@@ -188,12 +199,39 @@ main(int argc, char **argv)
 	    vflag++;
 	    break;
 
+	case 'z':	/* timezone from host */
+	    if (tz != NULL) {
+		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
+		errflag++;
+	    }
+	    zflag++;
+	    break;
+
+	case 'Z':	/* $TZ timezone */
+	    if (zflag) {
+		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
+		errflag++;
+	    }
+	    tz = optarg;
+	    break;
+
 	case '?':
 	default:
 	    errflag++;
 	    break;
 	}
     }
+
+    if (type != PM_CONTEXT_ARCHIVE && zflag) {
+	fprintf(stderr, "%s: -z requires an archive source\n", pmProgname);
+	errflag++;
+    }
+
+    if (type != PM_CONTEXT_ARCHIVE && Oflag != NULL) {
+	fprintf(stderr, "%s: -O requires an archive source\n", pmProgname);
+	errflag++;
+    }
+
 
     if (errflag) {
 	fprintf(stderr,
@@ -211,8 +249,11 @@ Options:\n\
 "  -L           use local context instead of PMCD\n"
 #endif
 "  -n pmnsfile  use an alternative PMNS\n\
+  -O time      origin for a fetch from the archive\n\
   -V           report PDU operations (verbose)\n\
-  -v           list metric values\n",
+  -v           list metric values\n\
+  -Z timezone  set timezone for -O\n\
+  -z           set timezone for -O to local time for host from -a\n",
 		pmProgname);
 	exit(1);
     }
@@ -249,6 +290,34 @@ Options:\n\
 	if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
 		pmProgname, pmErrStr(sts));
+	    exit(1);
+	}
+	first = label.ll_start;
+	if ((sts = pmGetArchiveEnd(&last)) < 0) {
+	    last.tv_sec = INT_MAX;
+	    last.tv_usec = 0;
+	}
+	if (zflag) {
+	    if ((sts = pmNewContextZone()) < 0) {
+		fprintf(stderr, "%s: Cannot set context timezone: %s\n",
+			pmProgname, pmErrStr(sts));
+		exit(1);
+	    }
+	}
+	else if (tz != NULL) {
+	    if ((sts = pmNewZone(tz)) < 0) {
+		fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
+			pmProgname, tz, pmErrStr(sts));
+		exit(1);
+	    }
+	}
+	else
+	    pmNewContextZone();
+
+	if (pmParseTimeWindow(NULL, NULL, NULL, Oflag,
+				   &first, &last,
+				   &last, &first, &start, &msg) < 0) {
+	    fprintf(stderr, "%s: %s", pmProgname, msg);
 	    exit(1);
 	}
     }
@@ -331,7 +400,7 @@ Options:\n\
 	     * merics from archives are fetched one at a time, otherwise
 	     * get them all at once
 	     */
-	    if ((sts = pmSetMode(PM_MODE_FORW, &label.ll_start, 0)) < 0) {
+	    if ((sts = pmSetMode(PM_MODE_FORW, &start, 0)) < 0) {
 		printf("%d %s (pmSetMode)\n", sts, pmErrStr(sts));
 		continue;
 	    }
