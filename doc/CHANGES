@@ -1,3 +1,12 @@
+kmchart 1.2.8 (27 January 2009)
+    - Numerous Win32 build and packaging tweaks.
+    - Fix recording of metrics with an instance domain.
+    - Fix scale-setting from a config file.
+    - Fix compilation under gcc 4.4.
+    - Install rpm config files with the (noreplace) keyword.
+    - Update PMCD view, removing hard-coded paths.
+    - Add a Memory view.
+
 kmchart 1.2.7 (22 May 2008)
     - Resolve another build dependency in the Debian package.
 

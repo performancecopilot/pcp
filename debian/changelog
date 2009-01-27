@@ -1,3 +1,9 @@
+kmchart (1.2.8) unstable; urgency=low
+
+  * New kmchart release (closes: #504904).
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 27 Jan 2009 22:02:40 +1100
+
 kmchart (1.2.7) unstable; urgency=low
 
   * Add missing build dependencies (closes: #481995, #482234).
