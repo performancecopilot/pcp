@@ -1,3 +1,10 @@
+kmchart 1.2.9 (29 January 2009)
+    - Fix a Mac OS X packaging regression (make install rule).
+    - Rework preference dialog for better Mac OS X integration.
+    - Use unified title-and-toolbar on Mac by default, with an
+      option to use the Linux/Windows style via preferences.
+    - Allow builds under Qt 4.2 once more.
+
 kmchart 1.2.8 (27 January 2009)
     - Numerous Win32 build and packaging tweaks.
     - Fix recording of metrics with an instance domain.

@@ -1,3 +1,9 @@
+kmchart (1.2.9) unstable; urgency=low
+
+  * New kmchart release.
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 29 Jan 2009 13:55:03 +1100
+
 kmchart (1.2.8) unstable; urgency=low
 
   * New kmchart release (closes: #504904).
