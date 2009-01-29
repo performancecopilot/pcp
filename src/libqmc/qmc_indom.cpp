@@ -177,7 +177,7 @@ QmcIndom::lookup(QString const &name)
 
 	    for (q = (const char *)my.instances[i].name().toAscii(); 
 		 isdigit(*q) && *q == '0' && q < p;
-		 q++);
+		 q++) { ; }
 
 	    if (q < p && isdigit(*q) && name.size() == (p - q) &&
 		strncmp((const char *)name.toAscii(), q, p - q) == 0) {
@@ -372,17 +372,19 @@ QmcIndom::update()
 	    if (inst.refCount() || inst.null())
 		continue;
 	    j = 0;
-	    if (i < count && inst.inst() == instList[i])
+	    if (i < count && inst.inst() == instList[i]) {
 		if (inst.name() == nameList[i])
 		    continue;
 		else
 		    j = count;
+	    }
 	    for (; j < count; j++) {
-		if (inst.inst() == instList[j])
+		if (inst.inst() == instList[j]) {
 		    if (inst.name() == nameList[j])
 			break;
 		    else
 			j = count;
+		}
 	    }
 
 	    // If j >= count, then instance i has either changed or gone away

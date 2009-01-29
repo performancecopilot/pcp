@@ -153,11 +153,12 @@ dometric(const char *name)
 {
     QString	fullname = doMetricSource;
 
-    if (fullname.length())
+    if (fullname.length()) {
 	if (doMetricType == PM_CONTEXT_ARCHIVE)
 	    fullname.append(QChar('/'));
 	else
 	    fullname.append(QChar(':'));
+    }
     fullname.append(name);
 
     QmcMetric* metric = group->addMetric((const char *)fullname.toAscii(),
@@ -317,10 +318,10 @@ parseConfig(QString const& configName, FILE *configFile)
 
 	last = strrchr(buf, ']');
 	if (last == NULL) {	// No instances
-	    for (last = buf; *last != '\0' && isspace(*last); last++);
+	    for (last = buf; *last != '\0' && isspace(*last); last++) { ; }
 	    if (*last == '\0')
 		continue;
-	    for (; *last != '\0' && !isspace(*last); last++);
+	    for (; *last != '\0' && !isspace(*last); last++) { ; }
 	    last--;
 	}
 	if (*(last + 1) == '\0') {
@@ -482,7 +483,7 @@ dumpHeader()
     }
 
     if (metricFlag || (sourceFlag && !niceFlag)) {
-	if (timeFlag)
+	if (timeFlag) {
 	    if (niceFlag) {
 		if (len < metricStr.length()) {
 		    metricStr.remove(len, metricStr.length() - len);
@@ -492,6 +493,7 @@ dumpHeader()
 	    }
 	    else
 		cout << "Time" << delimiter;
+	}
 
 	for (m = 0, v = 1; m < metrics.size(); m++) {
 	    metric = metrics[m];
@@ -613,7 +615,7 @@ dumpHeader()
     }
 
     if (unitFlag) {
-	if (timeFlag)
+	if (timeFlag) {
 	    if (niceFlag) {
 		if (len < unitStr.length()) {
 		    unitStr.remove(len, unitStr.length() - len);
@@ -623,6 +625,7 @@ dumpHeader()
 	    }
 	    else
 		cout << noneStr << delimiter;
+	}
 
 	for (m = 0, v = 1; m < metrics.size(); m++) {
 	    metric = metrics[m];
