@@ -214,7 +214,9 @@ void KmChart::updateHeight(int adjustment)
 
 void KmChart::updateToolbarLocation()
 {
+#if QT_VERSION >= 0x040300
     setUnifiedTitleAndToolBarOnMac(globalSettings.nativeToolbar);
+#endif
     if (globalSettings.toolbarLocation)
 	addToolBar(Qt::RightToolBarArea, toolBar);
     else
