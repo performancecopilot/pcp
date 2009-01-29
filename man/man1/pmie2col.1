@@ -32,6 +32,7 @@
 \f3pmie2col\f1 \- convert pmie output to multi-column format
 .SH SYNOPSIS
 \f3pmie2col\f1
+[\f3\-d\f1 \f2delim\f1]
 [\f3\-w\f1 \f2width\f1]
 .de EX
 .in +0.5i
@@ -57,6 +58,11 @@ into regular column format.  Each column is 7 characters wide
 (by default, may be changed with the
 .B \-w
 option) with a single space between columns.
+That single space can be substituted with an alternate
+delimiter using the
+.B \-d
+option (this is useful for importing the data into a spreadsheet,
+for example).
 .PP
 The
 .BR pmie (1)
