@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) International Business Machines Corp., 2002
- * Portions Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -248,18 +248,18 @@ pmdaIndom indomtab[] = {
     { PROC_INTERRUPTS_INDOM, 0, NULL },
     { FILESYS_INDOM, 0, NULL },
     { SWAPDEV_INDOM, 0, NULL },
-    { NFS_INDOM, NR_RPC_COUNTERS,  nfs_indom_id},
-    { NFS3_INDOM, NR_RPC3_COUNTERS,  nfs3_indom_id},
-    { PROC_INDOM, 0,  NULL},
-    { PARTITIONS_INDOM, 0,  NULL}, /* cached */
-    { SCSI_INDOM, 0,  NULL},
-    { SLAB_INDOM, 0,  NULL},
-    { NFS4_CLI_INDOM, NR_RPC4_CLI_COUNTERS,  nfs4_cli_indom_id},
-    { NFS4_SVR_INDOM, NR_RPC4_SVR_COUNTERS,  nfs4_svr_indom_id},
+    { NFS_INDOM, NR_RPC_COUNTERS, nfs_indom_id },
+    { NFS3_INDOM, NR_RPC3_COUNTERS, nfs3_indom_id },
+    { PROC_INDOM, 0, NULL },
+    { PARTITIONS_INDOM, 0, NULL }, /* cached */
+    { SCSI_INDOM, 0, NULL },
+    { SLAB_INDOM, 0, NULL },
+    { IB_INDOM, 0, NULL }, /* deprecated */
+    { NFS4_CLI_INDOM, NR_RPC4_CLI_COUNTERS, nfs4_cli_indom_id },
+    { NFS4_SVR_INDOM, NR_RPC4_SVR_COUNTERS, nfs4_svr_indom_id },
     { QUOTA_PRJ_INDOM, 0, NULL },
     { NET_INET_INDOM, 0, NULL },
 };
-
 
 
 /*

@@ -23,10 +23,12 @@ static int kmServerExec(int fd, int livemode)
 {
     char portname[32];
     int port, in, out;
-    char *argv[] = { "kmtime", "-a", NULL };
+    char *argv[] = { "kmtime", NULL, NULL };
 
     if (livemode)
-	argv[1][1] = 'h';	/* -h for live hosts */
+	argv[1] = "-h";	/* -h for live hosts */
+    else
+	argv[1] = "-a";	/* -a for archives */
 
     if (__pmProcessCreate(argv, &in, &out) == (pid_t)-1) {
 	__pmCloseSocket(fd);
