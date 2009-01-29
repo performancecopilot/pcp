@@ -126,8 +126,6 @@ void KmChart::setupDialogs(void)
 				this, SLOT(acceptEditChart()));
     connect(my.exporter->buttonOk, SIGNAL(clicked()),
 				this, SLOT(acceptExport()));
-    connect(my.settings->buttonOk, SIGNAL(clicked()),
-				this, SLOT(acceptSettings()));
     my.dialogsSetup = true;
 }
 
@@ -216,6 +214,7 @@ void KmChart::updateHeight(int adjustment)
 
 void KmChart::updateToolbarLocation()
 {
+    setUnifiedTitleAndToolBarOnMac(globalSettings.nativeToolbar);
     if (globalSettings.toolbarLocation)
 	addToolBar(Qt::RightToolBarArea, toolBar);
     else
@@ -762,12 +761,6 @@ void KmChart::editSettings()
     setupDialogs();
     my.settings->reset();
     my.settings->show();
-}
-
-void KmChart::acceptSettings()
-{
-    my.settings->flush();
-    writeSettings();
 }
 
 void KmChart::setDateLabel(time_t seconds, QString tz)

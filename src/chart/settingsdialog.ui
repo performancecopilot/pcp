@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>390</width>
-    <height>260</height>
+    <height>268</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -20,13 +20,13 @@
   <property name="minimumSize" >
    <size>
     <width>390</width>
-    <height>260</height>
+    <height>268</height>
    </size>
   </property>
   <property name="maximumSize" >
    <size>
     <width>390</width>
-    <height>260</height>
+    <height>268</height>
    </size>
   </property>
   <property name="windowTitle" >
@@ -38,90 +38,13 @@
   <property name="sizeGripEnabled" >
    <bool>false</bool>
   </property>
-  <widget class="QWidget" name="layoutWidget" >
-   <property name="geometry" >
-    <rect>
-     <x>3</x>
-     <y>230</y>
-     <width>381</width>
-     <height>29</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" >
-    <property name="margin" >
-     <number>0</number>
-    </property>
-    <property name="spacing" >
-     <number>6</number>
-    </property>
-    <item>
-     <widget class="QPushButton" name="updateSchemeButton" >
-      <property name="text" >
-       <string>Update</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="removeSchemeButton" >
-      <property name="text" >
-       <string>Remove</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <spacer>
-      <property name="orientation" >
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeType" >
-       <enum>QSizePolicy::Expanding</enum>
-      </property>
-      <property name="sizeHint" >
-       <size>
-        <width>20</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item>
-     <widget class="QPushButton" name="buttonOk" >
-      <property name="text" >
-       <string>&amp;OK</string>
-      </property>
-      <property name="shortcut" >
-       <string/>
-      </property>
-      <property name="autoDefault" >
-       <bool>true</bool>
-      </property>
-      <property name="default" >
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="buttonCancel" >
-      <property name="text" >
-       <string>&amp;Cancel</string>
-      </property>
-      <property name="shortcut" >
-       <string/>
-      </property>
-      <property name="autoDefault" >
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
   <widget class="QTabWidget" name="settingsTab" >
    <property name="geometry" >
     <rect>
      <x>10</x>
      <y>10</y>
      <width>371</width>
-     <height>210</height>
+     <height>251</height>
     </rect>
    </property>
    <property name="currentIndex" >
@@ -350,7 +273,7 @@
        <x>10</x>
        <y>70</y>
        <width>351</width>
-       <height>101</height>
+       <height>141</height>
       </rect>
      </property>
      <property name="title" >
@@ -1098,6 +1021,32 @@
        <string>#-cycle</string>
       </property>
      </widget>
+     <widget class="QPushButton" name="updateSchemeButton" >
+      <property name="geometry" >
+       <rect>
+        <x>180</x>
+        <y>100</y>
+        <width>75</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Update</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="removeSchemeButton" >
+      <property name="geometry" >
+       <rect>
+        <x>260</x>
+        <y>100</y>
+        <width>75</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Remove</string>
+      </property>
+     </widget>
     </widget>
     <widget class="ColorButton" name="selectedHighlightButton" >
      <property name="geometry" >
@@ -1218,7 +1167,7 @@
         <number>6</number>
        </property>
        <item>
-        <widget class="QCheckBox" name="toolbarCheckBox" >
+        <widget class="QCheckBox" name="startupToolbarCheckBox" >
          <property name="text" >
           <string>Show Toolbar on Startup</string>
          </property>
@@ -1228,12 +1177,22 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" >
-         <property name="margin" >
-          <number>0</number>
+        <widget class="QCheckBox" name="nativeToolbarCheckBox" >
+         <property name="text" >
+          <string>Native Toolbar Style</string>
          </property>
+         <property name="checked" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" >
          <property name="spacing" >
           <number>6</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
          </property>
          <item>
           <widget class="QLabel" name="toolbarLocationLabel" >
@@ -1321,46 +1280,10 @@
    <header>colorbutton.h</header>
   </customwidget>
  </customwidgets>
- <tabstops>
-  <tabstop>buttonOk</tabstop>
-  <tabstop>buttonCancel</tabstop>
- </tabstops>
  <resources>
   <include location="kmchart.qrc" />
  </resources>
  <connections>
-  <connection>
-   <sender>buttonCancel</sender>
-   <signal>clicked()</signal>
-   <receiver>SettingsDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonOk</sender>
-   <signal>clicked()</signal>
-   <receiver>SettingsDialog</receiver>
-   <slot>buttonOk_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>defaultBackgroundButton</sender>
    <signal>clicked()</signal>
@@ -1746,6 +1669,38 @@
    </hints>
   </connection>
   <connection>
+   <sender>chartDeltaLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>chartDeltaLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loggerDeltaLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>loggerDeltaLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>chartDeltaUnitsComboBox</sender>
    <signal>activated(int)</signal>
    <receiver>SettingsDialog</receiver>
@@ -1842,10 +1797,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>toolbarCheckBox</sender>
+   <sender>startupToolbarCheckBox</sender>
    <signal>clicked()</signal>
    <receiver>SettingsDialog</receiver>
-   <slot>toolbarCheckBox_clicked()</slot>
+   <slot>startupToolbarCheckBox_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>111</x>
@@ -1854,6 +1809,22 @@
     <hint type="destinationlabel" >
      <x>199</x>
      <y>129</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>nativeToolbarCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>nativeToolbarCheckBox_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
     </hint>
    </hints>
   </connection>

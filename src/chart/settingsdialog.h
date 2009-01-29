@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2007, 2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,15 +27,15 @@ public:
     SettingsDialog(QWidget* parent);
     void enableUi();
     void reset();
-    void flush();
 
     void newScheme();
     int colorArray(ColorButton *** array);
 
 public slots:
-    virtual void buttonOk_clicked();
     virtual void settingsTab_currentChanged(int index);
 
+    virtual void chartDeltaLineEdit_editingFinished();
+    virtual void loggerDeltaLineEdit_editingFinished();
     virtual void chartDeltaUnitsComboBox_activated(int value);
     virtual void loggerDeltaUnitsComboBox_activated(int value);
     virtual void visible_valueChanged(int value);
@@ -48,7 +48,8 @@ public slots:
     virtual void updateSchemeButton_clicked();
     virtual void schemeComboBox_currentIndexChanged(int);
 
-    virtual void toolbarCheckBox_clicked();
+    virtual void startupToolbarCheckBox_clicked();
+    virtual void nativeToolbarCheckBox_clicked();
     virtual void toolbarAreasComboBox_currentIndexChanged(int);
     virtual void actionListWidget_itemClicked(QListWidgetItem *);
 

@@ -54,6 +54,8 @@ typedef struct {
 	// Toolbar
 	int initialToolbar;
 	bool initialToolbarModified;
+	int nativeToolbar;
+	bool nativeToolbarModified;
 	int toolbarLocation;
 	int toolbarLocationModified;
 	QStringList toolbarActions;

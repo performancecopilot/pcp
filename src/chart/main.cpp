@@ -204,19 +204,31 @@ void setupEnvironment(void)
 void writeSettings(void)
 {
     QSettings userSettings;
+
     userSettings.beginGroup("kmchart");
-    if (globalSettings.chartDeltaModified)
+    if (globalSettings.chartDeltaModified) {
+	globalSettings.chartDeltaModified = false;
 	userSettings.setValue("chartDelta", globalSettings.chartDelta);
-    if (globalSettings.loggerDeltaModified)
+    }
+    if (globalSettings.loggerDeltaModified) {
+	globalSettings.loggerDeltaModified = false;
 	userSettings.setValue("loggerDelta", globalSettings.loggerDelta);
-    if (globalSettings.sampleHistoryModified)
+    }
+    if (globalSettings.sampleHistoryModified) {
+	globalSettings.sampleHistoryModified = false;
 	userSettings.setValue("sampleHistory", globalSettings.sampleHistory);
-    if (globalSettings.visibleHistoryModified)
+    }
+    if (globalSettings.visibleHistoryModified) {
+	globalSettings.visibleHistoryModified = false;
 	userSettings.setValue("visibleHistory", globalSettings.visibleHistory);
-    if (globalSettings.defaultSchemeModified)
+    }
+    if (globalSettings.defaultSchemeModified) {
+	globalSettings.defaultSchemeModified = false;
 	userSettings.setValue("defaultColorScheme",
 				globalSettings.defaultScheme.colorNames());
+    }
     if (globalSettings.colorSchemesModified) {
+	globalSettings.colorSchemesModified = false;
 	userSettings.beginWriteArray("schemes");
 	for (int i = 0; i < globalSettings.colorSchemes.size(); i++) {
 	    userSettings.setArrayIndex(i);
@@ -227,19 +239,33 @@ void writeSettings(void)
 	}
 	userSettings.endArray();
     }
-    if (globalSettings.chartBackgroundModified)
+    if (globalSettings.chartBackgroundModified) {
+	globalSettings.chartBackgroundModified = false;
 	userSettings.setValue("chartBackgroundColor",
 				globalSettings.chartBackgroundName);
-    if (globalSettings.chartHighlightModified)
+    }
+    if (globalSettings.chartHighlightModified) {
+	globalSettings.chartHighlightModified = false;
 	userSettings.setValue("chartHighlightColor",
 				globalSettings.chartHighlightName);
-    if (globalSettings.initialToolbarModified)
+    }
+    if (globalSettings.initialToolbarModified) {
+	globalSettings.initialToolbarModified = false;
 	userSettings.setValue("initialToolbar", globalSettings.initialToolbar);
-    if (globalSettings.toolbarLocationModified)
+    }
+    if (globalSettings.nativeToolbarModified) {
+	globalSettings.nativeToolbarModified = false;
+	userSettings.setValue("nativeToolbar", globalSettings.nativeToolbar);
+    }
+    if (globalSettings.toolbarLocationModified) {
+	globalSettings.toolbarLocationModified = false;
 	userSettings.setValue("toolbarLocation",
 				globalSettings.toolbarLocation);
-    if (globalSettings.toolbarActionsModified)
+    }
+    if (globalSettings.toolbarActionsModified) {
+	globalSettings.toolbarActionsModified = false;
 	userSettings.setValue("toolbarActions", globalSettings.toolbarActions);
+    }
     userSettings.endGroup();
 }
 
@@ -248,23 +274,23 @@ void checkHistory(int samples, int visible)
     // sanity checking on sample sizes
     if (samples < KmChart::minimumPoints()) {
 	globalSettings.sampleHistory = KmChart::minimumPoints();
-	globalSettings.sampleHistoryModified = 1;
+	globalSettings.sampleHistoryModified = true;
     }
     if (samples > KmChart::maximumPoints()) {
 	globalSettings.sampleHistory = KmChart::maximumPoints();
-	globalSettings.sampleHistoryModified = 1;
+	globalSettings.sampleHistoryModified = true;
     }
     if (visible < KmChart::minimumPoints()) {
 	globalSettings.visibleHistory = KmChart::minimumPoints();
-	globalSettings.visibleHistoryModified = 1;
+	globalSettings.visibleHistoryModified = true;
     }
     if (visible > KmChart::maximumPoints()) {
 	globalSettings.visibleHistory = KmChart::maximumPoints();
-	globalSettings.visibleHistoryModified = 1;
+	globalSettings.visibleHistoryModified = true;
     }
     if (samples < visible) {
 	globalSettings.sampleHistory = globalSettings.visibleHistory;
-	globalSettings.sampleHistoryModified = 1;
+	globalSettings.sampleHistoryModified = true;
     }
 }
 
@@ -276,12 +302,16 @@ void readSettings(void)
     //
     // Parameters related to sampling
     //
+    globalSettings.chartDeltaModified = false;
     globalSettings.chartDelta = userSettings.value("chartDelta",
 				KmChart::defaultChartDelta()).toDouble();
+    globalSettings.loggerDeltaModified = false;
     globalSettings.loggerDelta = userSettings.value("loggerDelta",
 				KmChart::defaultLoggerDelta()).toDouble();
+    globalSettings.sampleHistoryModified = false;
     globalSettings.sampleHistory = userSettings.value("sampleHistory",
 				KmChart::defaultSampleHistory()).toInt();
+    globalSettings.visibleHistoryModified = false;
     globalSettings.visibleHistory = userSettings.value("visibleHistory",
 				KmChart::defaultVisibleHistory()).toInt();
     checkHistory(globalSettings.sampleHistory, globalSettings.visibleHistory);
@@ -298,6 +328,7 @@ void readSettings(void)
     // Everything colour (scheme) related
     //
     QStringList colorList;
+    globalSettings.defaultSchemeModified = false;
     if (userSettings.contains("defaultColorScheme") == true)
 	colorList = userSettings.value("defaultColorScheme").toStringList();
     else
@@ -320,10 +351,12 @@ void readSettings(void)
     //
     // Everything (else) colour related
     //
+    globalSettings.chartBackgroundModified = false;
     globalSettings.chartBackgroundName = userSettings.value(
 		"chartBackgroundColor", "#6ca2c9").toString();
     globalSettings.chartBackground = QColor(globalSettings.chartBackgroundName);
 
+    globalSettings.chartHighlightModified = false;
     globalSettings.chartHighlightName = userSettings.value(
 		"chartHighlightColor", "blue").toString();
     globalSettings.chartHighlight = QColor(globalSettings.chartHighlightName);
@@ -331,11 +364,17 @@ void readSettings(void)
     //
     // Toolbar user preferences
     //
+    globalSettings.initialToolbarModified = false;
     globalSettings.initialToolbar = userSettings.value(
 					"initialToolbar", 1).toInt();
+    globalSettings.nativeToolbarModified = false;
+    globalSettings.nativeToolbar = userSettings.value(
+					"nativeToolbar", 1).toInt();
+    globalSettings.toolbarLocationModified = false;
     globalSettings.toolbarLocation = userSettings.value(
 					"toolbarLocation", 0).toInt();
     QStringList actionList;
+    globalSettings.toolbarActionsModified = false;
     if (userSettings.contains("toolbarActions") == true)
 	globalSettings.toolbarActions =
 			userSettings.value("toolbarActions").toStringList();

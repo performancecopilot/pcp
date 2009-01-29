@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
+ * Copyright (c) 2007, 2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,10 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	: QDialog(parent), disabled(Qt::Dense4Pattern)
 {
     setupUi(this);
+
+#ifndef IS_DARWIN	// only relevent as an option on Mac OS X
+    nativeToolbarCheckBox->setEnabled(false);
+#endif
 
     QList<QAction*> actionsList = kmchart->toolbarActionsList();
     for (int i = 0; i < actionsList.size(); i++) {
@@ -103,86 +107,14 @@ void SettingsDialog::reset()
 	if (enabledList.contains(action) == false)
 	    item->setBackground(disabled);
     }
-    toolbarCheckBox->setCheckState(
+    startupToolbarCheckBox->setCheckState(
 		globalSettings.initialToolbar ? Qt::Checked : Qt::Unchecked);
+    nativeToolbarCheckBox->setCheckState(
+		globalSettings.nativeToolbar ? Qt::Checked : Qt::Unchecked);
     toolbarAreasComboBox->setCurrentIndex(
 		globalSettings.toolbarLocation ? 1: 0);
 
-    globalSettings.chartDeltaModified = false;
-    globalSettings.loggerDeltaModified = false;
-    globalSettings.sampleHistoryModified = false;
-    globalSettings.visibleHistoryModified = false;
-    globalSettings.defaultSchemeModified = false;
-    globalSettings.chartBackgroundModified = false;
-    globalSettings.chartHighlightModified = false;
-    globalSettings.initialToolbarModified = false;
-    globalSettings.toolbarLocationModified = false;
-    globalSettings.toolbarActionsModified = false;
-
     enableUi();
-}
-
-void SettingsDialog::flush()
-{
-    globalSettings.chartDeltaModified = chartDeltaLineEdit->isModified();
-    globalSettings.loggerDeltaModified = loggerDeltaLineEdit->isModified();
-
-    if (globalSettings.chartDeltaModified)
-	globalSettings.chartDelta = (int)
-		KmTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
-    if (globalSettings.loggerDeltaModified)
-	globalSettings.loggerDelta = (int)
-		KmTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
-
-    if (globalSettings.visibleHistoryModified)
-	globalSettings.visibleHistory = my.visibleHistory;
-    if (globalSettings.sampleHistoryModified)
-	globalSettings.sampleHistory = my.sampleHistory;
-
-    if (globalSettings.defaultSchemeModified) {
-	ColorButton **buttons;
-
-	int colorCount = colorArray(&buttons);
-	for (int i = 0; i < colorCount; i++) {
-	    QColor c = buttons[i]->color();
-	    if (c == Qt::white)
-		continue;
-	    globalSettings.defaultScheme.addColor(c);
-	}
-    }
-
-    if (globalSettings.chartBackgroundModified) {
-	globalSettings.chartBackground = defaultBackgroundButton->color();
-	globalSettings.chartBackgroundName =
-			globalSettings.chartBackground.name();
-	kmchart->updateBackground();
-    }
-    if (globalSettings.chartHighlightModified) {
-	globalSettings.chartHighlight = selectedHighlightButton->color();
-	globalSettings.chartHighlightName =
-			globalSettings.chartHighlight.name();
-    }
-
-    if (globalSettings.initialToolbarModified)
-	globalSettings.initialToolbar =
-			toolbarCheckBox->checkState() == Qt::Checked;
-    if (globalSettings.toolbarLocationModified) {
-	globalSettings.toolbarLocation = toolbarAreasComboBox->currentIndex();
-	kmchart->updateToolbarLocation();
-    }
-
-    if (globalSettings.toolbarActionsModified) {
-	QStringList actions;
-	QListWidgetItem *item;
-	for (int i = 0; i < actionListWidget->count(); i++) {
-	    item = actionListWidget->item(i);
-	    if (item->background() != disabled)
-		actions.append(item->text());
-	}
-	globalSettings.toolbarActions = actions;
-	kmchart->setEnabledActionsList(actions, true);
-	kmchart->updateToolbarContents();
-    }
 }
 
 void SettingsDialog::settingsTab_currentChanged(int)
@@ -190,38 +122,43 @@ void SettingsDialog::settingsTab_currentChanged(int)
     enableUi();
 }
 
-void SettingsDialog::buttonOk_clicked()
+void SettingsDialog::chartDeltaLineEdit_editingFinished()
 {
-    bool inputValid = true;
-    double input;
+    double input = globalSettings.chartDelta;
 
-    if (chartDeltaLineEdit->isModified()) {
-	// convert to seconds, make sure its still in range 0.001-INT_MAX
+    // convert to seconds, make sure its still in range 0.001-INT_MAX
+    if (chartDeltaLineEdit->isModified())
 	input = KmTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
-	if (input < 0.001 || input > INT_MAX) {
-	    QString msg = tr("Default Chart Sampling Interval is invalid.\n");
-	    msg.append(chartDeltaLineEdit->text());
-	    msg.append(" is out of range (0.001 to 0x7fffffff seconds)\n");
-	    QMessageBox::warning(this, pmProgname, msg);
-	    inputValid = false;
-	}
+    if (input < 0.001 || input > INT_MAX) {
+	QString msg = tr("Default Chart Sampling Interval is invalid.\n");
+	msg.append(chartDeltaLineEdit->text());
+	msg.append(" is out of range (0.001 to 0x7fffffff seconds)\n");
+	QMessageBox::warning(this, pmProgname, msg);
     }
-    if (loggerDeltaLineEdit->isModified() && inputValid) {
-	// convert to seconds, make sure its still in range 0.001-INT_MAX
-	input = KmTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
-	if (input < 0.001 || input > INT_MAX) {
-	    QString msg = tr("Default Record Sampling Interval is invalid.\n");
-	    msg.append(loggerDeltaLineEdit->text());
-	    msg.append(" is out of range (0.001 to 0x7fffffff seconds)\n");
-	    QMessageBox::warning(this, pmProgname, msg);
-	    inputValid = false;
-	}
+    else if (input != globalSettings.chartDelta) {
+	globalSettings.chartDeltaModified = true;
+	globalSettings.chartDelta = input;
+	writeSettings();
     }
+}
 
-    if (inputValid) {
-	if (my.newScheme != QString::null)
-	    kmchart->newScheme(my.newScheme);
-	QDialog::accept();
+void SettingsDialog::loggerDeltaLineEdit_editingFinished()
+{
+    double input = globalSettings.loggerDelta;
+
+    // convert to seconds, make sure its still in range 0.001-INT_MAX
+    if (loggerDeltaLineEdit->isModified())
+	input = KmTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
+    if (input < 0.001 || input > INT_MAX) {
+	QString msg = tr("Default Record Sampling Interval is invalid.\n");
+	msg.append(loggerDeltaLineEdit->text());
+	msg.append(" is out of range (0.001 to 0x7fffffff seconds)\n");
+	QMessageBox::warning(this, pmProgname, msg);
+    }
+    else if (input != globalSettings.loggerDelta) {
+	globalSettings.loggerDeltaModified = true;
+	globalSettings.loggerDelta = input;
+	writeSettings();
     }
 }
 
@@ -248,6 +185,8 @@ void SettingsDialog::visible_valueChanged(int value)
 	if (my.visibleHistory > my.sampleHistory)
 	    sampleSlider->setValue(value);
 	globalSettings.visibleHistoryModified = true;
+	globalSettings.visibleHistory = my.visibleHistory;
+	writeSettings();
     }
 }
 
@@ -260,6 +199,8 @@ void SettingsDialog::sample_valueChanged(int value)
 	if (my.visibleHistory > my.sampleHistory)
 	    visibleSlider->setValue(value);
 	globalSettings.sampleHistoryModified = true;
+	globalSettings.sampleHistory = my.sampleHistory;
+	writeSettings();
     }
 }
 
@@ -294,15 +235,26 @@ void SettingsDialog::displayVisibleCounter()
 void SettingsDialog::selectedHighlightButton_clicked()
 {
     selectedHighlightButton->clicked();
-    if (selectedHighlightButton->isSet())
+    if (selectedHighlightButton->isSet()) {
 	globalSettings.chartHighlightModified = true;
+	globalSettings.chartHighlight = selectedHighlightButton->color();
+	globalSettings.chartHighlightName =
+			globalSettings.chartHighlight.name();
+	writeSettings();
+    }
 }
 
 void SettingsDialog::defaultBackgroundButton_clicked()
 {
     defaultBackgroundButton->clicked();
-    if (defaultBackgroundButton->isSet())
+    if (defaultBackgroundButton->isSet()) {
 	globalSettings.chartBackgroundModified = true;
+	globalSettings.chartBackground = defaultBackgroundButton->color();
+	globalSettings.chartBackgroundName =
+			globalSettings.chartBackground.name();
+	kmchart->updateBackground();
+	writeSettings();
+    }
 }
 
 void SettingsDialog::colorButtonClicked(int n)
@@ -311,24 +263,62 @@ void SettingsDialog::colorButtonClicked(int n)
 
     colorArray(&buttons);
     buttons[n-1]->clicked();
-    if (buttons[n-1]->isSet())
+    if (buttons[n-1]->isSet()) {
+	ColorButton **buttons;
+
+	int colorCount = colorArray(&buttons);
+	for (int i = 0; i < colorCount; i++) {
+	    QColor c = buttons[i]->color();
+	    if (c == Qt::white)
+		continue;
+	    globalSettings.defaultScheme.addColor(c);
+	}
+
 	globalSettings.defaultSchemeModified = true;
+	writeSettings();
+    }
 }
 
-void SettingsDialog::toolbarCheckBox_clicked()
+void SettingsDialog::startupToolbarCheckBox_clicked()
 {
+    globalSettings.initialToolbar =
+			startupToolbarCheckBox->checkState() == Qt::Checked;
     globalSettings.initialToolbarModified = true;
+    writeSettings();
+}
+
+void SettingsDialog::nativeToolbarCheckBox_clicked()
+{
+    globalSettings.nativeToolbar =
+			nativeToolbarCheckBox->checkState() == Qt::Checked;
+    globalSettings.nativeToolbarModified = true;
+    writeSettings();
+    kmchart->updateToolbarLocation();
 }
 
 void SettingsDialog::toolbarAreasComboBox_currentIndexChanged(int)
 {
+    globalSettings.toolbarLocation = toolbarAreasComboBox->currentIndex();
     globalSettings.toolbarLocationModified = true;
+    writeSettings();
+    kmchart->updateToolbarLocation();
 }
 
 void SettingsDialog::actionListWidget_itemClicked(QListWidgetItem *item)
 {
-    globalSettings.toolbarActionsModified = true;
+    QStringList actions;
+
     item->setBackground(item->background() == disabled ? enabled : disabled);
+    for (int i = 0; i < actionListWidget->count(); i++) {
+	QListWidgetItem *listitem = actionListWidget->item(i);
+	if (listitem->background() != disabled)
+	    actions.append(listitem->text());
+    }
+    globalSettings.toolbarActions = actions;
+    globalSettings.toolbarActionsModified = true;
+    writeSettings();
+    kmchart->setEnabledActionsList(actions, true);
+    kmchart->updateToolbarContents();
 }
 
 void SettingsDialog::newScheme()
@@ -396,9 +386,9 @@ void SettingsDialog::updateSchemeButton_clicked()
 	my.newScheme = newName;
 	scheme.setName(newName);
 	updateSchemeColors(&scheme);
-
 	index = globalSettings.colorSchemes.size();
 	globalSettings.colorSchemes.append(scheme);
+	kmchart->newScheme(my.newScheme);
 	schemeComboBox->blockSignals(true);
 	schemeComboBox->addItem(newName);
 	schemeComboBox->setCurrentIndex(index + 2);
@@ -408,6 +398,7 @@ void SettingsDialog::updateSchemeButton_clicked()
 	updateSchemeColors(&globalSettings.defaultScheme);
     }
     globalSettings.colorSchemesModified = true;
+    writeSettings();
     return;
 
 conflict:

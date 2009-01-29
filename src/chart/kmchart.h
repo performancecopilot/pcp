@@ -136,7 +136,6 @@ public slots:
     virtual void closeTab();
     virtual void activeTabChanged(int);
     virtual void editSettings();
-    virtual void acceptSettings();
     virtual void recordStart();
     virtual void recordQuery();
     virtual void recordStop();
