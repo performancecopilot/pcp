@@ -77,8 +77,6 @@ idb-kmchart: $(DIST_MANIFEST)
 
 extrabits: idb-kmchart
 	DIST_MANIFEST= $(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
-	DIST_MANIFEST= $(INSTALL) -m 755 idb-kmchart $(PCP_BINADM_DIR)
-	DIST_MANIFEST= $(INSTALL) -m 755 install-kmchart $(PCP_BINADM_DIR)
-	DIST_MANIFEST= $(INSTALL) -m 755 uninstall-kmchart $(PCP_BINADM_DIR)
+	DIST_MANIFEST= $(INSTALL) -m 755 $(INSTFILES) $(PCP_BINADM_DIR)
 
 include $(BUILDRULES)
