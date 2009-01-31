@@ -1,0 +1,9 @@
+QA output created by 339
+DATE: TEST1: Left-most single value: v=NUMBER
+DATE: TEST2: Left-most sum_inst: v=NUMBER
+DATE: TEST3: Left-most max_inst: v=NUMBER
+DATE: TEST4: Left-most min_inst: v=NUMBER
+DATE: TEST5: Left-most avg_inst: v=NUMBER
+DATE: TEST6: Left-most max_sample: v=NUMBER
+DATE: TEST7: Left-most min_sample: v=NUMBER
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
