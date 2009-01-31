@@ -406,7 +406,9 @@ control_req(void)
 	return 0;
     }
 
-    if ((sts = __pmSetVersionIPC(fd, UNKNOWN_VERSION)) < 0) {
+    sts = __pmSetVersionIPC(fd, UNKNOWN_VERSION);
+    __pmSetSocketIPC(fd);
+    if (sts < 0) {
 	__pmSendError(fd, PDU_BINARY, sts);
 	fprintf(stderr, "error connecting to client: %s\n", pmErrStr(sts));
 	__pmCloseSocket(fd);

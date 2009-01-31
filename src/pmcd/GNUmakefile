@@ -23,7 +23,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = src
-LSRCFILES = pmdaproc.sh rc_pcp rc_local config.doc pmcd.options \
+LSRCFILES = pmdaproc.sh rc_pcp rc_local pmcd.options \
 	    rc-proc.sh rc-proc.sh.minimal migrate_pcp_var_dir
 
 default : $(SUBDIRS)

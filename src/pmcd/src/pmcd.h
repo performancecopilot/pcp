@@ -100,8 +100,8 @@ typedef struct {
     } ipc;
 } AgentInfo;
 
-PMCD_EXTERN AgentInfo *agent;		/* Array of domain agent structs */
-PMCD_EXTERN int	 nAgents;		/* Number of agents in array */
+PMCD_EXTERN AgentInfo	*agent;		/* Array of domain agent structs */
+PMCD_EXTERN int		nAgents;	/* Number of agents in array */
 
 /* DomainId-to-AgentIndex map */
 #define MAXDOMID	254		/* 8 bits of DomainId, 255 is special */
