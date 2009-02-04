@@ -72,4 +72,4 @@ AC_OUTPUT( \
 	src/time/kmtime.pro \
 	man/html/kmchart.adp \
 	man/html/kmtime.adp \
-	kmchart.lsm )
+	pcp-gui.lsm )

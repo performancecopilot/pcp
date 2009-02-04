@@ -1,4 +1,4 @@
-Summary: Performance Co-Pilot Stripchart utility
+Summary: Visualisation tools for the Performance Co-Pilot toolkit
 Name: @pkg_name@
 Version: @pkg_version@
 Release: @pkg_release@
@@ -22,7 +22,7 @@ BuildRequires: qt4-devel >= 4.2
 %endif
 
 %description
-Strip Chart tool for plotting Performance Co-Pilot framework metric values.
+Visualisation tools for displaying Performance Co-Pilot metric values.
 
 %prep
 if [ -f .census ] ; then

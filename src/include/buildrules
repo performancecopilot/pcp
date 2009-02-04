@@ -23,7 +23,7 @@ realclean distclean: clean
 	      $(TOPDIR)/src/time/kmtime.pro \
 	      $(TOPDIR)/man/html/kmchart.adp \
 	      $(TOPDIR)/man/html/kmtime.adp \
-	rm -f $(TOPDIR)/kmchart.lsm $(TOPDIR)/configure
+	rm -f $(TOPDIR)/pcp-gui.lsm $(TOPDIR)/configure
 
 
 # Never blow away subdirs

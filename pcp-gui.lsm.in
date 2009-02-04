@@ -1,0 +1,14 @@
+Begin4
+Title:          Performance Co-Pilot visualisation tools
+Version:        @pkg_version@
+Entered-date:   @pkg_build_date@
+Description:    Visualisation tools for displaying PCP metric values.
+Keywords:       performance, monitoring, system, distributed, visualisation
+Author:         pcp@oss.sgi.com (Performance Co-Pilot Development Team)
+Maintained-by:  pcp@oss.sgi.com (Performance Co-Pilot Development Team)
+Primary-site:   ftp://oss.sgi.com/www/projects/pcp/download/
+Alternate-site:
+Original-site:  ftp://oss.sgi.com/www/projects/pcp/download/
+Platforms:      Linux, MacOSX, AIX, Solaris, FreeBSD, Windows
+Copying-policy: GPL (libraries are LGPL)
+End

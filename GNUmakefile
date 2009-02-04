@@ -23,9 +23,9 @@ endif
 TOPDIR = .
 -include $(TOPDIR)/src/include/builddefs
 
-CONFFILES = configure kmchart.lsm
+CONFFILES = configure pcp-gui.lsm
 LSRCFILES = Makepkgs aclocal.m4 install-sh README VERSION \
-	    configure.in kmchart.lsm.in
+	    configure.in pcp-gui.lsm.in
 
 LDIRT = config.log .dep config.status config.cache confdefs.h conftest* \
 	Logs/* built .census install.* install-dev.* *.gz
@@ -57,7 +57,7 @@ install-pcp-gui : default-pcp-gui
 	    fi; \
 	done
 	$(INSTALL) -m 755 -d $(PKG_DOC_DIR)
-	$(INSTALL) -m 644 kmchart.lsm README $(PKG_DOC_DIR)
+	$(INSTALL) -m 644 pcp-gui.lsm README $(PKG_DOC_DIR)
 	$(INSTALL) -m 755 -d $(PKG_HTML_DIR)
 	$(INSTALL) -m 755 -d $(PKG_ICON_DIR)
 	$(INSTALL) -m 755 -d $(PKG_DESKTOP_DIR)
@@ -70,9 +70,9 @@ realclean distclean clean clobber:
 	@true
 endif
 
-configure-pcp-gui: kmchart.lsm
+configure-pcp-gui: pcp-gui.lsm
 
-kmchart.lsm: configure kmchart.lsm.in
+pcp-gui.lsm: configure pcp-gui.lsm.in
 	./configure
 
 configure : configure.in
