@@ -32,11 +32,11 @@ LDIRT = config.log .dep config.status config.cache confdefs.h conftest* \
 
 SUBDIRS = src m4 images doc man debian build
 
-default :: default_kmchart
+default :: default-pcp-gui
 
-kmchart : default_kmchart
+pcp-gui : default-pcp-gui
 
-default_kmchart : configure_kmchart
+default-pcp-gui : configure-pcp-gui
 	@for d in `echo $(SUBDIRS)`; do \
 	    if test -d "$$d" ; then \
 		echo === $$d ===; \
@@ -44,12 +44,12 @@ default_kmchart : configure_kmchart
 	    fi; \
 	done
 
-install :: default_kmchart install_kmchart
+install :: default-pcp-gui install-pcp-gui
 
-pack_kmchart : default_kmchart
+pack-pcp-gui : default-pcp-gui
 	$(MAKE) -C build $@
 
-install_kmchart : default_kmchart
+install-pcp-gui : default-pcp-gui
 	@for d in `echo $(SUBDIRS)`; do \
 	    if test -d "$$d" ; then \
 		echo === $$d ===; \
@@ -70,7 +70,7 @@ realclean distclean clean clobber:
 	@true
 endif
 
-configure_kmchart: kmchart.lsm
+configure-pcp-gui: kmchart.lsm
 
 kmchart.lsm: configure kmchart.lsm.in
 	./configure

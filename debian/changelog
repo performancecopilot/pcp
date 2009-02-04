@@ -1,3 +1,9 @@
+pcp-gui (1.3.0) unstable; urgency=low
+
+  * New pcp-gui release, replacing package "kmchart".
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 05 Feb 2009 08:18:19 +1100
+
 kmchart (1.2.9) unstable; urgency=low
 
   * New kmchart release.

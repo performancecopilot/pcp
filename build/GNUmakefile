@@ -5,7 +5,7 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
-LDIRT = $(wildcard *.src.tar.gz) pack_kmchart.bin kmchart.src \
+LDIRT = $(wildcard *.src.tar.gz) pack-pcp-gui.bin pcp-gui.src \
 	$(TOPDIR)/$(PKG_NAME)-$(PKG_VERSION) \
 	$(TOPDIR)/$(PKG_NAME)-$(PKG_VERSION)-$(PKG_REVISION)
 LDIRDIRT = deb
@@ -16,10 +16,10 @@ SUBDIRS = tar rpm mac
 # nothing to build here (it's all packaging)
 default install install-dev install-lib:
 
-pack :: pack_kmchart
+pack :: pack-pcp-gui
 
-pack_kmchart : kmchart.src
-	@DIST_MANIFEST=`pwd`/$@.bin; DIST_ROOT=/tmp/kmchart-build-$$$$; \
+pack-pcp-gui : pcp-gui.src
+	@DIST_MANIFEST=`pwd`/$@.bin; DIST_ROOT=/tmp/pcp-gui-build-$$$$; \
 	export DIST_MANIFEST DIST_ROOT; \
 	rm -f $$DIST_MANIFEST; \
 	echo === install === && $(MAKE) -j 1 -C $(TOPDIR) install || exit $$?; \
@@ -38,7 +38,7 @@ pack_kmchart : kmchart.src
 # product-version directory, or hardlinks below build dir (MinGW).
 # After sources have been packed, touch .census in the topdir to
 # prevent second run on setup by RPM.
-kmchart.src : $(_FORCE)
+pcp-gui.src : $(_FORCE)
 	export PKG_ROOT=$(PKG_NAME)-$(PKG_VERSION); \
 	if [ "$(PCP_PLATFORM)" = mingw ] ; then \
 	    export SRC_ROOT=. ; \

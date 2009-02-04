@@ -1,4 +1,4 @@
-Source: kmchart
+Source: pcp-gui
 Section: utils
 Priority: extra
 Maintainer: Nathan Scott <nathans@debian.org>
@@ -6,8 +6,10 @@ Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
 Build-Depends: autoconf, debhelper (>= 5), libpcp3-dev (>= 2.7.4-20080507), libqt4-dev, libqt4-opengl-dev
 Standards-Version: 3.7.3
 
-Package: kmchart
+Package: pcp-gui
+Provides: kmchart
+Replaces: kmchart
 Depends: pcp, xvfb, qt4-dev-tools, ${shlibs:Depends}
 Architecture: any
-Description: Chart tool for Performance Co-Pilot
+Description: Visualisation tools for the Performance Co-Pilot toolkit
  A chart tool for plotting metric values from the Performance Co-Pilot.

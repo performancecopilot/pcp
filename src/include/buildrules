@@ -31,8 +31,8 @@ ifdef SUBDIRS
 .PRECIOUS: $(SUBDIRS)
 endif
 
-src-kmchart : $(SRCFILES) $(SUBDIRS)
-	@test ! -z "$$SRC_ROOT" || ( echo '$$SRC_ROOT not set ... bozo!' ; echo "... generally unsafe to run make src-kmchart outside the Makepkgs script"; exit 1 )
+src-pcp-gui : $(SRCFILES) $(SUBDIRS)
+	@test ! -z "$$SRC_ROOT" || ( echo '$$SRC_ROOT not set ... bozo!' ; echo "... generally unsafe to run make src-pcp-gui outside the Makepkgs script"; exit 1 )
 	@test -z "$$DIR" && DIR="."; \
 	for f in `echo $^`; do \
 	    if test -d $$f ; then \
@@ -42,8 +42,8 @@ src-kmchart : $(SRCFILES) $(SUBDIRS)
 	    fi; \
 	done
 
-src-link-kmchart : $(SRCFILES) $(CONFFILES) $(SUBDIRS)
-	@test ! -z "$$SRCLINK_ROOT" || ( echo '$$SRCLINK_ROOT not set ... bozo!' ; echo "... generally unsafe to run make src-link-kmchart outside the Makepkgs script"; exit 1 )
+src-link-pcp-gui : $(SRCFILES) $(CONFFILES) $(SUBDIRS)
+	@test ! -z "$$SRCLINK_ROOT" || ( echo '$$SRCLINK_ROOT not set ... bozo!' ; echo "... generally unsafe to run make src-link-pcp-gui outside the Makepkgs script"; exit 1 )
 	@test -z "$$DIR" && DIR="."; \
 	for f in `echo $^`; do \
 	    if test -d $$f ; then \

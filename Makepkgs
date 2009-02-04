@@ -45,7 +45,7 @@ do
 done
 
 if [ $# = 0 ] ; then
-    set -- kmchart
+    set -- pcp-gui
 fi
 
 test ! -d $LOGDIR && mkdir $LOGDIR
@@ -77,7 +77,7 @@ then
     autoconf 2>&1 >$LOGDIR/autoconf
 fi
 
-LOGF=$LOGDIR/kmchart
+LOGF=$LOGDIR/pcp-gui
 . ./VERSION
 
 special=false
@@ -91,24 +91,24 @@ then
     LOGF=`pwd`/$LOGF
 
     if $verbose ; then
-	$MAKE -j 1 configure_kmchart 2>&1 | tee -a $LOGF
+	$MAKE -j 1 configure-pcp-gui 2>&1 | tee -a $LOGF
     else
-	$MAKE -j 1 configure_kmchart 2>&1 >> $LOGF
+	$MAKE -j 1 configure-pcp-gui 2>&1 >> $LOGF
     fi
 
     echo
     echo "== src-link, log is in $LOGF" | tee -a $LOGF
 
     VERSION=${PKG_MAJOR}.${PKG_MINOR}.${PKG_REVISION}
-    SRCLINK_ROOT=`pwd`/kmchart-$VERSION
+    SRCLINK_ROOT=`pwd`/pcp-gui-$VERSION
     if [ $special = debian ] ; then
-	SRCLINK_ROOT=`pwd`/build/deb/kmchart-$VERSION
+	SRCLINK_ROOT=`pwd`/build/deb/pcp-gui-$VERSION
     fi
     export SRCLINK_ROOT
 
     rm -fr $SRCLINK_ROOT
     mkdir -p $SRCLINK_ROOT || exit 1
-    $MAKE -j 1 src-link-kmchart || exit 1
+    $MAKE -j 1 src-link-pcp-gui || exit 1
     cd $SRCLINK_ROOT
     [ ! -f .census ] && touch .census
 

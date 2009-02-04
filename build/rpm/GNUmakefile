@@ -14,7 +14,7 @@ LSRCFILES = macros.template $(SPECF).in rpm-2.rc.template
 default install install-dev install-lib:
 
 # Generate a binary rpm file
-pack_kmchart : default $(SPECF) rpm-$(RPM_VERSION).rc
+pack-pcp-gui : default $(SPECF) rpm-$(RPM_VERSION).rc
 	$(RPMBUILD) -ba --rcfile ./rpm-$(RPM_VERSION).rc $(SPECF)
 
 # Because rpm prior to v.2.90 does not support macros and old style config

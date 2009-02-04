@@ -5,12 +5,12 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-LDIRT = $(wildcard kmchart*.tar.gz)
+LDIRT = $(wildcard pcp-gui*.tar.gz)
 
 default install install-dev install-lib:
 
-.PHONY: pack_kmchart
-pack_kmchart :
+.PHONY: pack-pcp-gui
+pack-pcp-gui :
 	@ BINTAR=$(PKG_NAME)-$(PKG_VERSION).tar.gz; HERE=`pwd`; \
 	cd $${DIST_ROOT:-/}; \
 	$(SORT) -u $$DIST_MANIFEST \

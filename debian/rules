@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-package = kmchart
+package = pcp-gui
 
 dirme = debian/$(package)
 zipme = @export GZIP=-9q
@@ -37,7 +37,7 @@ binary-arch: checkroot built
 	$(checkdir)
 	-rm -rf $(dirme)
 	$(pkgme) $(MAKE) -C . install
-	$(pkgme) $(MAKE) -C build kmchart.src
+	$(pkgme) $(MAKE) -C build pcp-gui.src
 
 	dh_desktop
 	dh_installdocs

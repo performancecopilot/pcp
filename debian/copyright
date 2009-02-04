@@ -1,11 +1,11 @@
 This package was debianized by Nathan Scott nathans@debian.org on
 Wed, 23 May 2007 13:31:16 +1000.
 
-It can be downloaded from http://oss.sgi.com/~nathans/kmchart/
+It can be downloaded from http://oss.sgi.com/projects/pcp/
 
 Copyright:
 
-Copyright (c) 2006-2008 Aconex.  All Rights Reserved.
+Copyright (c) 2006-2009 Aconex.  All Rights Reserved.
 Copyright (c) 2005-2006 Ken McDonell.  All Rights Reserved.
 
 You are free to distribute this software under the terms of
