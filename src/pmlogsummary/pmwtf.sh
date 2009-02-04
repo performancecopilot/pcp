@@ -33,6 +33,8 @@ _usage()
     echo "             [default 2]"
     echo "  -S start   start time, see PCPIntro(1)"
     echo "  -T end     end time, see PCPIntro(1)"
+    echo "  -B start   start time, second archive (optional)"
+    echo "  -E end     end time, second archive (optional)"
     echo "  -x metric  egrep(1) pattern of metric(s) to be excluded"
     echo "  -z         use local timezone, see PCPIntro(1)"
     sts=1
@@ -52,7 +54,11 @@ End-of-File
 
 thres=2
 opts=""
-while getopts dq:S:T:x:z? c
+start1=""
+start2=""
+finish1=""
+finish2=""
+while getopts dq:S:T:B:E:x:z? c
 do
     case $c
     in
@@ -66,10 +72,16 @@ do
 	    thres="$OPTARG"
 	    ;;
 	S)
-	    opts="$opts -S $OPTARG"
+	    start1="$OPTARG"
 	    ;;
 	T)
-	    opts="$opts -T $OPTARG"
+	    finish1="$OPTARG"
+	    ;;
+	B)
+	    start2="$OPTARG"
+	    ;;
+	E)
+	    finish2="$OPTARG"
 	    ;;
 	x)
 	    echo "$OPTARG" >>$tmp.exclude
@@ -92,19 +104,37 @@ then
 fi
 
 echo "Directory: `pwd`"
-echo "PCP options:$opts"
 echo "Excluded metrics:"
 sed -e 's/^/    /' <$tmp.exclude
 echo
 
-pmlogsummary -N $opts $1 2>$tmp.err | _fix >$tmp.1
+options="$opts"
+if [ "X$start1" != X ]; then
+    options="$options -S $start1"
+fi
+if [ "X$finish1" != X ]; then
+    options="$options -T $finish1"
+fi
+pmlogsummary -N $options $1 2>$tmp.err | _fix >$tmp.1
 if [ -s $tmp.err ]
 then
     echo "Warnings from pmlogsummary ... $1"
     cat $tmp.err
     echo
 fi
-pmlogsummary -N $opts $2 2>$tmp.err | _fix >$tmp.2
+
+options="$opts"
+if [ "X$start2" != X ]; then
+    options="$options -S $start2"
+elif [ "X$start1" != X ]; then
+    options="$options -S $start1"
+fi
+if [ "X$finish2" != X ]; then
+    options="$options -T $finish2"
+elif [ "X$finish1" != X ]; then
+    options="$options -T $finish1"
+fi
+pmlogsummary -N $options $2 2>$tmp.err | _fix >$tmp.2
 if [ -s $tmp.err ]
 then
     echo "Warnings from pmlogsummary ... $2"

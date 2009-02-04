@@ -109,7 +109,7 @@ static struct timeval   windowend = {0, 0};
 static char		timebuf[32];		/* for pmCtime result + .xxx */
 
 /* duration of log */
-static double		logspan = 0.0;
+static double		logspan;
 
 /* time manipulation */
 static int
@@ -1083,8 +1083,6 @@ main(int argc, char *argv[])
 	fprintf(stderr, "         produce complete information.  Continuing and hoping for the best.\n\n");
 	fflush(stderr);
     }
-    else
-	logspan = tosec(logend) - tosec(logstart);
 
     if (tflag || sflag) {
 	if (pmParseTimeWindow(startstr, endstr, NULL, NULL, &logstart, &logend,
@@ -1109,6 +1107,7 @@ main(int argc, char *argv[])
 	windowstart = logstart;
 	windowend = logend;
     }
+    logspan = tosec(windowend) - tosec(windowstart);
 
     if ((sts = pmSetMode(PM_MODE_FORW, &windowstart, 0)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmProgname, pmErrStr(sts));

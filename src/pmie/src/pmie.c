@@ -669,6 +669,11 @@ getargs(int argc, char *argv[])
 		pmProgname);
 	err++;
     }
+    if (bflag && agent) {
+	fprintf(stderr, "%s: the -b and -x options are incompatible\n",
+		pmProgname);
+	err++;
+    }
     if (err)
     	usageMessage();
 
@@ -700,7 +705,7 @@ getargs(int argc, char *argv[])
 		    pmProgname, commandlog, strerror(oserror()));
 	    exit(1);
 	}
-	signal(SIGHUP, isdaemon ? sighupproc : SIG_IGN);
+	signal(SIGHUP, (isdaemon && !agent) ? sighupproc : SIG_IGN);
     } else {
 	signal(SIGHUP, SIG_IGN);
     }
@@ -708,7 +713,7 @@ getargs(int argc, char *argv[])
     /*
      * -b ... force line buffering and stdout onto stderr
      */
-    if (bflag || isdaemon)
+    if ((bflag || isdaemon) && !agent)
 	remap_stdout_stderr();
 
     if (dfltConn == 0) {
@@ -782,9 +787,11 @@ getargs(int argc, char *argv[])
 					 */
 
     if (isdaemon) {			/* daemon mode */
-	/* Note: we can no longer close stdin here, as it can really
-	 * confuse remap_stdout_stderr() during log rotation!
+	/* Note: we can no longer unilaterally close stdin here, as it
+	 * can really confuse remap_stdout_stderr() during log rotation!
 	 */
+	if (agent)
+	    close(fileno(stdin));
 	setsid();	/* not process group leader, lose controlling tty */
     }
 
