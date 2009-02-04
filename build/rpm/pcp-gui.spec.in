@@ -4,6 +4,9 @@ Version: @pkg_version@
 Release: @pkg_release@
 Distribution: @pkg_distribution@
 BuildRoot: @build_root@ 
+Provides: kmchart
+Obsoletes: kmchart
+Conflicts: pcp-pro
 Prereq: /sbin/ldconfig
 Source: @pkg_name@-@pkg_version@.src.tar.gz
 License: GPL
