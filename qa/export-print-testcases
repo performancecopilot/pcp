@@ -3,7 +3,7 @@ Export and Print
 
 Export
 
-[ ] Run: kmchart -a archives/chartqa1 -c views/ScaleManual
+[ ] Run: pmchart -a archives/chartqa1 -c views/ScaleManual
 [ ] Verify that the default image format (png) is show, the default file
     name is $HOME/chart.png, and that the Width/Height are 302/280 pixels
     respectively.
@@ -17,7 +17,7 @@ Export
     - All Charts in Tab enabled
     and Press OK.
 [ ] Verify using an image editor (eog, gimp, xv, ...) that a jpeg image
-    matching the main kmchart window is generated in that file.
+    matching the main pmchart window is generated in that file.
 [ ] Select the second (bottom) chart in the main window, then open the
     Export dialog once again.
 [ ] The previous settings should all have been preserved.  Enable the

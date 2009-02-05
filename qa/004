@@ -1,5 +1,5 @@
 #! /bin/sh
-# kmchart QA Test No. 004
+# pcp-gui QA Test No. 004
 # Copyright (c) 2006 Ken McDonell.  All Rights Reserved.
 #
 # Some simple views ...
@@ -18,7 +18,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 
 echo "=== Cisco ==="
-cat <<End-of-File | kmchart -C -c - -Dappl2 2>&1 | _filter_views
+cat <<End-of-File | pmchart -C -c - -Dappl2 2>&1 | _filter_views
 #pmchart
 Version 1.2 host dynamic
 
@@ -32,7 +32,7 @@ End-of-File
 
 echo
 echo "=== Disk ==="
-cat <<End-of-File | kmchart -C -c - -Dappl2 2>&1 | _filter_views
+cat <<End-of-File | pmchart -C -c - -Dappl2 2>&1 | _filter_views
 #pmchart
 Version 1.1 host dynamic
 Chart Title "Disk Activity" Style stacking
@@ -42,7 +42,7 @@ End-of-File
 
 echo
 echo "=== CPU ==="
-cat <<End-of-File | kmchart -C -c - -Dappl2 2>&1 | _filter_views
+cat <<End-of-File | pmchart -C -c - -Dappl2 2>&1 | _filter_views
 #pmchart
 Version 1.1 host dynamic
 Chart Title "CPU Utilization" Style utilization
@@ -57,7 +57,7 @@ End-of-File
 
 echo
 echo "=== Loadavg ==="
-cat <<End-of-File | kmchart -C -c - -Dappl2 2>&1 | _filter_views
+cat <<End-of-File | pmchart -C -c - -Dappl2 2>&1 | _filter_views
 #kmchart
 version 1 host dynamic
 chart title "Average Load" style plot
@@ -68,7 +68,7 @@ End-of-File
 
 echo
 echo "=== Net.bytes ==="
-cat <<End-of-File | kmchart -C -c - -Dappl2 2>&1 | _filter_views
+cat <<End-of-File | pmchart -C -c - -Dappl2 2>&1 | _filter_views
 #kmchart
 version 1
 chart title "Network Interface Activity" style stacking
@@ -78,7 +78,7 @@ End-of-File
 
 echo
 echo "=== PMCD ==="
-cat <<End-of-File | kmchart -C -c - -Dappl2 2>&1 | _filter_views
+cat <<End-of-File | pmchart -C -c - -Dappl2 2>&1 | _filter_views
 #kmchart
 version 1 host dynamic
 

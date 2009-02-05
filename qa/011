@@ -1,9 +1,9 @@
 #! /bin/sh
-# kmchart QA Test No. 011
+# pcp-gui QA Test No. 011
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# Compare kmdumptext output to pmval
+# Compare pmdumptext output to pmval
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -30,13 +30,13 @@ _diff_filter()
     # -e "s/^[<>] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]/TIME/"
 }
 
-# Note: kmdumptext and pmval can disagree about the timezone when
+# Note: pmdumptext and pmval can disagree about the timezone when
 #       processing an archive, in the presence of timestamps in the
 #       archive coming from a period of daylight savings, and it not
 #       currently being a period of daylight savings, or vice versa.
 #       This sometimes produces a difference of 1 hour in the reported
 #       time between the tools, hence the HH: filtering here and in
-#       _kmdumptext_filter.
+#       _pmdumptext_filter.
 #       Given the way timezones work for Linux in particular, this
 #       difference cannot be fixed, as the two applications use different
 #       ways of interacting with the PCP timezones support.
@@ -55,7 +55,7 @@ _pmval_filter()
     -e 's/  [ ]*/ /g'
 }
 
-_kmdumptext_filter()
+_pmdumptext_filter()
 {
     sed \
     -e 's/^[012][0-9]:/HH:/' \
@@ -74,21 +74,21 @@ do
     echo Raw $metric
     echo Raw $metric >>$seq.full
     pmval -t 1 -r -a archives/gap $metric 2>&1 | _pmval_filter > $tmp.pmval
-    kmdumptext -G -w 16 -t 1 -r -a archives/gap -d" " -f "%H:%M:%S" $metric 2>&1 | _kmdumptext_filter > $tmp.dump
+    pmdumptext -G -w 16 -t 1 -r -a archives/gap -d" " -f "%H:%M:%S" $metric 2>&1 | _pmdumptext_filter > $tmp.dump
     diff $tmp.pmval $tmp.dump | _diff_filter
     echo "--- pmval ---" >>$seq.full
     cat $tmp.pmval >>$seq.full
-    echo "--- kmdumptext ---" >>$seq.full
+    echo "--- pmdumptext ---" >>$seq.full
     cat $tmp.dump >>$seq.full
 
     echo Rate $metric
     echo Rate $metric >>$seq.full
     pmval -t 1 -a archives/gap $metric 2>&1 | _pmval_filter > $tmp.pmval
-    kmdumptext -G -w 16 -t 1 -a archives/gap -d" " -f "%H:%M:%S" $metric 2>&1 | _kmdumptext_filter > $tmp.dump 
+    pmdumptext -G -w 16 -t 1 -a archives/gap -d" " -f "%H:%M:%S" $metric 2>&1 | _pmdumptext_filter > $tmp.dump 
     diff $tmp.pmval $tmp.dump | _diff_filter
     echo "--- pmval ---" >>$seq.full
     cat $tmp.pmval >>$seq.full
-    echo "--- kmdumptext ---" >>$seq.full
+    echo "--- pmdumptext ---" >>$seq.full
     cat $tmp.dump >>$seq.full
 
 done

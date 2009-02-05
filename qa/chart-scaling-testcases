@@ -3,7 +3,7 @@ Scaling Charts
 
 See also qa 006 for automated tests.
 
-[ ] Start kmchart as follows:
+[ ] Start pmchart as follows:
 	$ pmafm 20071023.08:06:36.folio replay
 
 [ ] The initial configuration should be from top to bottom (5 charts):
@@ -15,7 +15,7 @@ See also qa 006 for automated tests.
 	<nothing>		1000
 	Kbyte/sec		1000
     
-[ ] Open kmtime
+[ ] Open pmtime
     - move the time slider back to the start of the archive
     - change Archive Control to Step
     - click Step Forward 10 times

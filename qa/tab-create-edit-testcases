@@ -3,7 +3,7 @@ Creating and Editing Tabs
 
 Live Edit
 
-[ ] Run: kmchart -t 0.5 -c CPU -c Disk
+[ ] Run: pmchart -t 0.5 -c CPU -c Disk
 [ ] Select Start from the Record menu.  Press OK to start recording.
 [ ] Click on Edit Tab in the Edit Menu, to bring up the default live
     mode tab details.
@@ -36,7 +36,7 @@ Live Edit
     larger size than the initial window.  Verify the child widget layout
     remains as sensible as possible for the window size.
 [ ] Change the Label to "LiveQA", set Visible points to 120 and press OK.
-    Verify that the changes are made to the current kmchart Live tab.
+    Verify that the changes are made to the current pmchart Live tab.
 
 Live Create
 

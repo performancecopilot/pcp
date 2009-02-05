@@ -1,7 +1,7 @@
 Search Dialog for Metric Selection
 ==================================
 
-[ ] Start kmchart, click on New Chart from the File Menu Item or Toolbar
+[ ] Start pmchart, click on New Chart from the File Menu Item or Toolbar
     Verify that the Search icon (magnifying glass) is enabled on
     the central menu bar
     Click the Search icon
@@ -67,9 +67,9 @@ Search Dialog for Metric Selection
     - instances bin-100 thru bin-500 for sample.bogus_bin
     - instances bin-100 thru bin-500 for dsosample.bogus_bin
 
-[ ] Repeat all of the above for archive mode, starting kmchart as
+[ ] Repeat all of the above for archive mode, starting pmchart as
     follows:
-    Run:	$ kmchart -a kmchart/qa/archives/viewqa1
+    Run:	$ pmchart -a pcp-gui/qa/archives/viewqa1
     There are no sampledso metrics in this archive, so the set of
     matching metrics will typically be halved compared to the live
     tests.

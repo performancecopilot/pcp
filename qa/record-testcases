@@ -12,14 +12,14 @@ Phase A:
 [ ] Verify red light is now disabled and Record menu items are
     disabled (Query/Stop/Detach) and enabled (Start).
 [ ] Click on newly created Tab, click on Archive Time Control
-    push button in bottom left corner, in kmtime select Options
+    push button in bottom left corner, in pmtime select Options
     -> Boundaries and verify the time window matches up with
     the timeframe recorded.
 [ ] Fast forward through the archive, then Fast Back to start,
     checking the charts for both hosts matches expectations.
 [ ] Verify no additional pmlogger processes are running.
 [ ] Run: pmafm ~/.pcp/pmlogger/[timenow].folio replay
-    Verify a kmchart starts up with appropriate archive view
+    Verify a pmchart starts up with appropriate archive view
     of CPU utilisation for both hosts.
 
 Phase B:
@@ -51,6 +51,6 @@ Phase C:
     Verify the output lists several kernel.all.cpu metrics,
     and three pmcd.pmlogger metrics.
 [ ] Run: pmafm /tmp/folio replay
-    Verify a kmchart starts up with appropriate archive view
+    Verify a pmchart starts up with appropriate archive view
 [ ] Run: rm -fr /tmp/archive /var/tmp/pmlogger.log /tmp/folio
 

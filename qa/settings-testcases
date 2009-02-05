@@ -4,7 +4,7 @@ Global Settings
 Sampling
 
 [ ] Open the Settings dialog.  This is available from the Edit
-    menu (Linux) or from the kmchart Preferences menu on a Mac.
+    menu (Linux) or from the pmchart Preferences menu on a Mac.
 [ ] Type some invalid chart intervals into the one-line editor
     (try: abc, 0.1.1, -1 - none should be possible)
 [ ] Set the chart interval to zero and press OK - should block
@@ -43,7 +43,7 @@ Sampling
     the maximum, for all of Up/Down/PageUp/PageDown.
 [ ] Set sample history size to 4
 [ ] Set visible history size to 2
-[ ] Press OK, exit kmchart, restart kmchart, bring up Settings
+[ ] Press OK, exit pmchart, restart pmchart, bring up Settings
     dialog and verify the following values are set...
     ( ) Default Chart Interval:  0.25 seconds
     ( ) Default Record Interval: 1200 seconds
@@ -85,7 +85,7 @@ Toolbar
 [ ] Open the Settings Dialog, click on the Toolbar tab.
 [ ] Uncheck the "Show Toolbar on Startup" check box.
 [ ] Select "Right and Vertical" from the Location/Orientation box.
-[ ] Quit kmchart.  Restart kmchart.  Verify that the Toolbar is not
+[ ] Quit pmchart.  Restart pmchart.  Verify that the Toolbar is not
     displayed at all.  Verify also that the Toolbar option from the
     Options menu is not checked.
 [ ] Select the Toolbar item in the Options menu.  Verify that the
@@ -98,6 +98,6 @@ Toolbar
     selected and deselected simply by clicking on them).  Press the
     OK button and verify that the main window is updated to display
     your selected actions, instead of the defaults.
-[ ] Exit kmchart.  Restart kmchart.  Verify that your selected set of
+[ ] Exit pmchart.  Restart pmchart.  Verify that your selected set of
     actions is still displayed, in preference to the defaults.
 

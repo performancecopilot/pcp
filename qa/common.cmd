@@ -1,5 +1,5 @@
 #
-# common procedures for kmchart QA scripts
+# common procedures for pcp-gui QA scripts
 # ... stolen from PCP QA
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.

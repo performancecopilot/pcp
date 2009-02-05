@@ -1,5 +1,5 @@
 #! /bin/sh
-# kmchart QA Test No. 006
+# pcp-gui QA Test No. 006
 # Copyright (c) 2007 Aconex.  All Rights Reserved.
 #
 # check units compatibility in view loading
@@ -22,7 +22,7 @@ do
     echo "=== $config ==="
     cat $config
     rm -f $tmp.post
-    kmchart -CC -D appl0 -c $config >$tmp.out 2>$tmp.err
+    pmchart -CC -D appl0 -c $config >$tmp.out 2>$tmp.err
     echo "exit=$?"
     echo "--- out ---"
     cat $tmp.out

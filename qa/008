@@ -1,5 +1,5 @@
 #!/bin/sh
-# kmchart QA Test No. 008
+# pcp-gui QA Test No. 008
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -18,7 +18,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 localhost=`hostname`
 otherhost=no.such.host
-dump="kmdumptext -s 1"
+dump="pmdumptext -s 1"
 tz=`pmprobe -v pmcd.timezone | sed -e 's/.* "//' -e 's/"//'`
 
 _filter()

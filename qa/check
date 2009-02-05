@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Control script for running kmchart QA tests
+# Control script for running pcp-gui QA tests
 # ... stolen from PCP QA
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.

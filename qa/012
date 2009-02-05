@@ -1,9 +1,9 @@
 #! /bin/sh
-# kmchart QA Test No. 012
+# pcp-gui QA Test No. 012
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# Test unit scale conversion in kmdumptext
+# Test unit scale conversion in pmdumptext
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -25,7 +25,7 @@ $1 == "TIME-STAMP" && $2 != "?"	{ val = $2;
 }
 
 # real QA test starts here
-kmdumptext -imu -w 7 -s 3 -f 'TIME-STAMP' sample.milliseconds | _filter 2>&1
+pmdumptext -imu -w 7 -s 3 -f 'TIME-STAMP' sample.milliseconds | _filter 2>&1
 
 # success, all done
 status=0

@@ -1,5 +1,5 @@
 #! /bin/sh
-# kmchart QA Test No. 001
+# pcp-gui QA Test No. 001
 # Copyright (c) 2006 Ken McDonell.  All Rights Reserved.
 #
 # Basic config file error checking
@@ -18,11 +18,11 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "=== bad first line ==="
-echo "#bad extra" | kmchart -Dappl2 -C -c - 2>&1 | _filter_views
+echo "#bad extra" | pmchart -Dappl2 -C -c - 2>&1 | _filter_views
 
 echo
 echo "=== lexicon too long ==="
-cat <<End-of-File | kmchart -Dappl2 -C -c - 2>&1 | _filter_views
+cat <<End-of-File | pmchart -Dappl2 -C -c - 2>&1 | _filter_views
 #pmchart
 aaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccXXXXXXXXXXXXXXXXXXX
 End-of-File

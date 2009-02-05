@@ -3,7 +3,7 @@ Chart Correctness and Control
 
 Live mode
 
-[ ] Run: kmchart -c views/ScaleManual -t 1
+[ ] Run: pmchart -c views/ScaleManual -t 1
     This should display two charts - the top one with instantaneous
     sample metrics (sample.double.one and sample.double.ten), lower
     chart with one counter metric (sample.byte_ctr).
@@ -32,23 +32,23 @@ Live mode
 
 [ ] Change the Timezone to UTC in the Time Control dialog.
     Verify that the position text is updated with the new time,
-    and that the kmchart time axis is updated also.
+    and that the pmchart time axis is updated also.
 [ ] Change back to localtime, verify position and time axis again.
 
-[ ] Run: kmchart -c CPU -L -t 0.025
+[ ] Run: pmchart -c CPU -L -t 0.025
 [ ] This should be updating extremely frequently, and depending on
     the capabilities of your hardware will either keep up beautifully
     (wow, nice machine!) or frequently miss updates (this is the case
     with my laptop).  To increase the probability that deltas will be
     missed, wiggle the cursor around over the CPU chart, which makes
-    kmchart do more work.  When updates are missed kmchart must plot
+    pmchart do more work.  When updates are missed pmchart must plot
     a blank section in the chart, but then it should continue on with
     normal plotting.
 
 
 Archive mode
 
-[ ] Run: kmchart -c views/ScaleManual -t 1 -a archives/chartqa1
+[ ] Run: pmchart -c views/ScaleManual -t 1 -a archives/chartqa1
     This should display two charts - the top one with instantaneous
     sample metrics (sample.double.one and sample.double.ten), lower
     chart with one counter metric (sample.byte_ctr).  The initial
@@ -63,21 +63,21 @@ Archive mode
     dip to zero).
 [ ] Verify that when the end of the archive is reached, the time
     controls are updated to Stop state, in both the Time Control
-    window and kmchart.
+    window and pmchart.
 [ ] Press Back, and let it run back to the start of the archive.
     Verify that when the start of the archive is reached, time
     controls are updated to Stop state in both the Time Control
-    window and kmchart.
+    window and pmchart.
 [ ] Change the Archive Control mode to Step, then take three steps
     forward, and four steps back.  Verify that the time controls
     are update to Stop state in both the Time Control window and
-    kmchart.
+    pmchart.
 [ ] Change the Archive Control mode to Fast.  Fast forward to the
     end of the archive, verify it stops at the end, then fast back
     to the start.  Again verify that it stops, and the interface
     state (icons) in both windows is updated to indicate this.
 [ ] Change back to Normal Archive Control mode.  Press Play.  Now
-    increase and decrease the playback Speed while kmchart is
+    increase and decrease the playback Speed while pmchart is
     displaying the data from the archive.  Use both the direct
     text input mechanism, and the wheel.  You can use the little
     button next to the wheel to reset Speed to its original value.
@@ -94,7 +94,7 @@ Archive mode
 
 [ ] Change the Timezone to UTC in the Time Control dialog.
     Verify that the position text is updated with the new time,
-    and that the kmchart time axis is updated also.  Also verify
+    and that the pmchart time axis is updated also.  Also verify
     that the Archive Bounds dialog displays an updated timeframe.
 [ ] Change back to localtime from the archive; verify position,
     time axis and Archive Bounds again.

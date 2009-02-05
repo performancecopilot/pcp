@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Make a new kmchart QA test ... stolen from PCP QA
+# Make a new pcp-gui QA test ... stolen from PCP QA
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2006 Ken McDonell.  All Rights Reserved.
@@ -93,7 +93,7 @@ echo -n "Creating skeletal script for you to edit ..."
 
 cat <<End-of-File | sed -e '/revision/s//Revision: 1.1 /' >$id
 #! /bin/sh
-# kmchart QA Test No. $id
+# pcp-gui QA Test No. $id
 # \$revision\$
 #
 # (what am I here for?)

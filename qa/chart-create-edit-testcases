@@ -3,7 +3,7 @@ Creating and Editing Charts
 
 Live Create
 
-[ ] Start kmchart, click on New Chart in the File Menu Item or Toolbar.
+[ ] Start pmchart, click on New Chart in the File Menu Item or Toolbar.
     Verify that the New Chart dialog is displayed with no entries in
     the Chart Plots list, one host in the Available Metrics list, and
     one level of the local hosts metric namespace expanded.
@@ -13,7 +13,7 @@ Live Create
 [ ] Before selecting anything click on the OK push button, and verify
     that a warning dialog is displayed (No metrics selected), that
     the New Chart dialog remains on screen and no chart is created in
-    the main kmchart window.
+    the main pmchart window.
 
 [ ] Verify the metic namespace traversal and selection functionality:
     - Double click on the hostname, verify the metric list collapses.
@@ -24,7 +24,7 @@ Live Create
       that the Info tab displays the metric name, short help text,
       descriptor (type, indom, semantics, units), long help, and the
       current value.  Then click on the Value tab, which should cause
-      the kmtime live window to be displayed and the current values
+      the pmtime live window to be displayed and the current values
       for sample.seconds should be reported at the current interval.
     - Click the red Delete button.  It should be disabled, so nothing
       should happen here at this stage.
@@ -146,7 +146,7 @@ Live Edit
       press OK.  Verify that the chart is now displaying only sample.load.
 
 [ ] Check the conversion of plot style in live mode
-    - Run: kmchart -c CPU -c CPU 
+    - Run: pmchart -c CPU -c CPU 
       (yes, the view appears twice)
     - Edit -> Chart
       + step through the Styles for the bottom chart, and verify that the
@@ -157,7 +157,7 @@ Live Edit
 	Utilization -> Area Plot -> Utilization
 
 [ ] Check the hiding of plots in archive mode
-    - Run: kmchart -c CPU -c CPU -t 1 -a archives/viewqa1
+    - Run: pmchart -c CPU -c CPU -t 1 -a archives/viewqa1
       (yes, the view appears twice)
     - in the lower chart, go through this sequence and verify that the
       plotted values match the values in the upper chart ... at the
@@ -176,14 +176,14 @@ Live Edit
       + click User on in the legend
       + click Idle on in the legend
     - Edit -> Chart and change Style to Line Plot for both charts (may need
-      to Step in the kmtime dialog to get the plots updated correctly), then
+      to Step in the pmtime dialog to get the plots updated correctly), then
       repeat the legend off and on sequence above
 
 Archive Create
 
 [ ] Click on the Archive Tab.  Click on the New Chart toolbutton.  Click
-    on the Archive push button, and open up kmchart/qa/archives/viewqa1,
-    kmchart/qa/archives/viewqa2 and kmchart/qa/archives/viewqa3.
+    on the Archive push button, and open up pcp-gui/qa/archives/viewqa1,
+    pcp-gui/qa/archives/viewqa2 and pcp-gui/qa/archives/viewqa3.
 [ ] Verify that the hosts "edge" and "leaf" are displayed along with the
     top level of their respective metric namespaces.
     Verify also that the Time Axis in the main window has been updated

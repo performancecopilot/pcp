@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Recreate validate NNN.out files for kmchart QA tests
+# Recreate validate NNN.out files for pcp-gui QA tests
 # ... stolen from PCP QA
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.

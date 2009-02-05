@@ -1,5 +1,5 @@
 QA output created by 003
-Load View: PCP_VAR_DIR/config/kmchart/Schemes
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
 Load View: stdin
 openView: new chart: style=Stack title="Memory Usage" autoscale=yes legend=yes
 openView: new optional-plot color=#f8ff00 metric=mem.util.kernel
