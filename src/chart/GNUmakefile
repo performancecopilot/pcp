@@ -1,5 +1,5 @@
 TOPDIR = ../..
-COMMAND = kmchart
+COMMAND = pmchart
 PROJECT = $(COMMAND).pro
 include $(TOPDIR)/src/include/builddefs
 
@@ -9,7 +9,7 @@ ICNFILE = $(COMMAND).icns
 DESKTOP = $(COMMAND).desktop
 UIFILES = $(shell echo *.ui)
 HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
-	  infodialog.h kmchart.h openviewdialog.h saveviewdialog.h \
+	  infodialog.h pmchart.h openviewdialog.h saveviewdialog.h \
 	  recorddialog.h seealsodialog.h searchdialog.h settingsdialog.h \
 	  samplesdialog.h tabdialog.h tab.h tabwidget.h \
 	  chart.h curve.h console.h main.h namespace.h \
