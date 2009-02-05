@@ -70,6 +70,6 @@ AC_OUTPUT( \
 	src/query/kmquery.pro \
 	src/chart/kmchart.pro \
 	src/time/kmtime.pro \
-	man/html/kmchart.adp \
-	man/html/kmtime.adp \
+	man/html/pmchart.adp \
+	man/html/pmtime.adp \
 	pcp-gui.lsm )

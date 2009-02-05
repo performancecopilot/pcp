@@ -396,7 +396,7 @@ void KmTimeLive::setupAssistant()
 		    this, SLOT(assistantError(const QString &)));
     QStringList arguments;
     QString documents = HTMLDIR;
-    arguments << "-profile" << documents.append("/kmtime.adp");
+    arguments << "-profile" << documents.append("/pmtime.adp");
     my.assistant->setArguments(arguments);
 }
 

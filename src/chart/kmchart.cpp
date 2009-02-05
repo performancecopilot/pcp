@@ -399,7 +399,7 @@ void KmChart::setupAssistant()
     		    this, SLOT(assistantError(const QString &)));
     QStringList arguments;
     QString documents = HTMLDIR;
-    arguments << "-profile" << documents.append("/kmchart.adp");
+    arguments << "-profile" << documents.append("/pmchart.adp");
     my.assistant->setArguments(arguments);
 }
 
