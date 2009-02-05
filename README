@@ -5,7 +5,7 @@ performance metrics fetched from live sources (one or more pmcd hosts) and
 also historical sources (one or more PCP archives).
 
 pmtime is a graphical time controller utility that coordinates time updates
-and VCR-like playback for other utilities like kmchart and pmval.
+and VCR-like playback for other utilities like pmchart and pmval.
 
 Instructions on building these tools can be found in doc/INSTALL.  Consult
 http://oss.sgi.com/projects/pcp/ for additional details about these tools.
@@ -20,7 +20,7 @@ http://oss.sgi.com/projects/pcp/ for additional details about these tools.
     - Label gadget (pmgadgets-like)
     - Value gadget (new - optionally use QLCDNumber)
 
-    - Consider: extended kmchart view format (interim) or switch
+    - Consider: extended pmchart view format (interim) or switch
       to using script-based views in this release?  Probably too
       much to take on for one release (not clear on the language
       choice yet either - Perl or QtScript?).  Maybe release 2.0
@@ -38,16 +38,16 @@ http://oss.sgi.com/projects/pcp/ for additional details about these tools.
     - The Qt-based metrics class needs:
       o A hash for metric instance values instead of an array
 	(to support delete, and better support of dynamic indoms)
-    - kmtime should send a message to all clients on show/hide (except
+    - pmtime should send a message to all clients on show/hide (except
       for the client that explicitly requested the show/hide, if there
       was one) - this would let the clients correctly track whether it
-      is visible/not (kmchart displays this state in the Options menu,
+      is visible/not (pmchart displays this state in the Options menu,
       and uses that state to decide whether a hide/show is needed).
-    - Extend kmdumptext to use an abstracted kmtime class for kmtime
+    - Extend pmdumptext to use an abstracted pmtime class for pmtime
       VCR control.
-    - Extend kmdumptext to allow input to drive kmtime remotely (will
+    - Extend pmdumptext to allow input to drive pmtime remotely (will
       need to allow SET message from clients at any time, not just on
-      initial exchange) and use this to automate QA of kmtime.
+      initial exchange) and use this to automate QA of pmtime.
     - Write automated QA for Save View (need a new command line option),
       then with -C and -c, open (multiple) views, save, then verify.
-    - kmquery window initial sizing and resizing could use improvement.
+    - pmquery window initial sizing and resizing could use improvement.

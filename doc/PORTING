@@ -40,9 +40,9 @@
 6. Makefiles and build environment
    First have a look at some Makefiles
 
-   	example using SUBDIRS :  kmchart/Makefile
-        example static library:  kmchart/libxxx/Makefile
-        example command       :  kmchart/pmdaaconex/Makefile
+   	example using SUBDIRS :  pcp-gui/Makefile
+        example static library:  pcp-gui/libqmc/Makefile
+        example command       :  pcp-gui/chart/Makefile
 
    All Makefiles must define TOPDIR as the root of the project. This
    allows other stuff to be found relative to $(TOPDIR).
@@ -72,15 +72,15 @@
 
    # ./Makepkgs
    this script generates all of the packages supported - each has a
-   subdirectory below kmchart/build where knowledge specific to
+   subdirectory below pcp-gui/build where knowledge specific to
    each package type is maintained.
 
    The script produces logs of each stage of the build (this info is
    also echoed to the screen when the "verbose" option is provided):
 
-	kmchart/Logs/configure	- `autoconf; ./configure' output
-	kmchart/Logs/default	- `make default' output
-	kmchart/Logs/dist	- `make build dist' output
+	pcp-gui/Logs/configure	- `autoconf; ./configure' output
+	pcp-gui/Logs/default	- `make default' output
+	pcp-gui/Logs/dist	- `make build dist' output
 
    On successful completion, the script echoes the names of packages
    successfully generated.
