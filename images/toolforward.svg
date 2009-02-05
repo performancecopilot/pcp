@@ -14,9 +14,9 @@
    id="svg2108"
    sodipodi:version="0.32"
    inkscape:version="0.44.1"
-   sodipodi:docbase="/source/git/kmchart/images"
+   sodipodi:docbase="/source/git/pcp-gui/images"
    sodipodi:docname="toolforward.svg"
-   inkscape:export-filename="/source/git/kmchart/images/toolforward.png"
+   inkscape:export-filename="/source/git/pcp-gui/images/toolforward.png"
    inkscape:export-xdpi="37.5"
    inkscape:export-ydpi="37.5">
   <defs
@@ -409,7 +409,7 @@
        d="M 11.130284,36.610801 L 11.130284,12.455436 L 37.234939,24.533114 L 11.130284,36.610801 z "
        id="path3375"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/git/kmchart/images/play_on.png"
+       inkscape:export-filename="/source/git/pcp-gui/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
   </g>

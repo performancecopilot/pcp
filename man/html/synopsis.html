@@ -19,7 +19,7 @@
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/kmcharticon.png" NAME="kmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
+	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pmcharticon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
 	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#ff6600">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tutorial.html#views"><FONT COLOR="#ff6600">Views</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tutorial.html#charts"><FONT COLOR="#ff6600">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P></TD>
 	</TR>
@@ -34,13 +34,13 @@
 	    <TD><P><B>configfile</B> specifies an initial view to load, using the default source of metrics.  Multiple <B>-c</B> views can be specified, and they will all be opened in the default Tab with the default source of metrics.</P></TD>
 	</TR>
  	<TR><TD WIDTH=25%><P><B>-C</B></P></TD>
-	    <TD><P>Used with <B>-c</B>, the view(s) are parsed, any errors are reported, and the tool exits.  This is primarily intended for testing purposes.  If a second <B>-C</B> option is presented, kmchart also connects to <B>pmcd</B>(1) to check the semantics of metrics.</P></TD>
+	    <TD><P>Used with <B>-c</B>, the view(s) are parsed, any errors are reported, and the tool exits.  This is primarily intended for testing purposes.  If a second <B>-C</B> option is presented, pmchart also connects to <B>pmcd</B>(1) to check the semantics of metrics.</P></TD>
 	</TR>
  	<TR><TD WIDTH=25%><P><B>-h host</B></P></TD>
 	    <TD><P>Current performance metric values are retrieved from the nominated host machine by default.  Multiple <B>-h</B> options can be presented, and the list of hosts is used for sourcing metric values.  Any sources listed on the command line are assumed to be hosts if this option is used.</P></TD>
 	</TR>
  	<TR><TD WIDTH=25%><P><B>-p port</B></P></TD>
-	    <TD><P>Port number for connection to an existing kmtime time control process.</P></TD>
+	    <TD><P>Port number for connection to an existing pmtime time control process.</P></TD>
 	</TR>
  	<TR><TD WIDTH=25%><P><B>-s samples</B></P></TD>
 	    <TD><P>Specifies the number of samples that will be retained before  discarding old data (replaced by new values at the current time position).  This value can subsequently be modified through the Edit Tab dialog.</P></TD>
@@ -52,7 +52,7 @@
 	    <TD><P>Sets the inital visible samples that will be displayed in all charts in the default Tab.  This value must be less than or equal to the total number of samples retained (the <B>-s</B> value).</P></TD>
 	</TR>
  	<TR><TD WIDTH=25%><P><B>-Z</B></P></TD>
-	    <TD><P>By default, kmtime reports the time of day according to the local timezone on the system where kmchart is run.  The <B>-Z</B> option changes the timezone to timezone in the format of the environment variable TZ as described in <B>environ</B>(5).</P></TD>
+	    <TD><P>By default, pmtime reports the time of day according to the local timezone on the system where pmchart is run.  The <B>-Z</B> option changes the timezone to timezone in the format of the environment variable TZ as described in <B>environ</B>(5).</P></TD>
 	</TR>
  	<TR><TD WIDTH=25%><P><B>-z</B></P></TD>
 	    <TD><P>Change the reporting timezone to the local timezone at the host that is the source of the performance metrics, as identified via either the <B>-h</B> or <B>-a</B> options.</P></TD>
@@ -63,7 +63,7 @@
 <CENTER>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2008 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT>kmchart</P></TD> </TR>
+	<TD WIDTH=50%><P ALIGN=RIGHT>PCP GUI</P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>

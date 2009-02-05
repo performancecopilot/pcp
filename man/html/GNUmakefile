@@ -2,8 +2,8 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 HTMLPAGES = $(shell echo *.html)
-CONFFILES = kmchart.adp kmtime.adp
-CONFIGURE = kmchart.adp.in kmtime.adp.in
+CONFFILES = pmchart.adp pmtime.adp
+CONFIGURE = pmchart.adp.in pmtime.adp.in
 LSRCFILES = $(HTMLPAGES) $(CONFIGURE)
 SUBDIRS = images
 

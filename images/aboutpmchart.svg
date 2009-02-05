@@ -14,9 +14,9 @@
    id="svg11454"
    sodipodi:version="0.32"
    inkscape:version="0.44.1"
-   sodipodi:docbase="/source/git/kmchart/images"
-   sodipodi:docname="kmchart.svg"
-   inkscape:export-filename="/source/git/kmchart/images/kmcharticon.png"
+   sodipodi:docbase="/source/git/pcp-gui/images"
+   sodipodi:docname="aboutpmchart.svg"
+   inkscape:export-filename="/source/git/pcp-gui/images/pmcharticon.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
    version="1.0">
@@ -374,15 +374,15 @@
      inkscape:pageshadow="2"
      inkscape:zoom="11.313708"
      inkscape:cx="22.25"
-     inkscape:cy="10.431076"
+     inkscape:cy="10.386882"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
      inkscape:window-width="906"
-     inkscape:window-height="611"
+     inkscape:window-height="610"
      inkscape:window-x="71"
-     inkscape:window-y="31"
+     inkscape:window-y="32"
      width="48px"
      height="48px"
      inkscape:guide-bbox="true" />
@@ -396,6 +396,11 @@
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/LGPL/2.1/" />
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Nathan Scott</dc:title>
+          </cc:Agent>
+        </dc:creator>
       </cc:Work>
       <cc:License
          rdf:about="http://creativecommons.org/licenses/LGPL/2.1/">

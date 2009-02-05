@@ -5,12 +5,12 @@
 <profile>
     <property name="name">PCPChartHelp</property>
     <property name="title">PCP Charts Help</property>
-    <property name="applicationicon">@pkg_icon_dir@/kmcharticon.png</property>
+    <property name="applicationicon">@pkg_icon_dir@/pmcharticon.png</property>
     <property name="startpage">index.html</property>
     <property name="assistantdocs">@pkg_html_dir@</property>
 </profile>
 
-<DCF ref="index.html" icon=@pkg_icon_dir@/kmcharticon.png title="PCPChart">
+<DCF ref="index.html" icon=@pkg_icon_dir@/pmcharticon.png title="PCPChart">
     <section ref="manual.html" title="PCP Strip Chart Tool">
 	<keyword ref="manual.html#onlydoc">Example Profile</keyword>
 	<keyword ref="manual.html#lineedit">Filename</keyword>

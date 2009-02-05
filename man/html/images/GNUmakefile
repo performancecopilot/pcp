@@ -3,22 +3,22 @@ include $(TOPDIR)/src/include/builddefs
 
 PNGFILES = $(shell echo *.png)
 LSRCFILES = $(PNGFILES)
-ICONLINKS = kmcharticon.png kmtimeicon.png stepfwd_on.png
+ICONLINKS = pmcharticon.png pmtimeicon.png stepfwd_on.png
 WINDOWLINKS = \
-	kmchart_blank_canvas.png \
-	kmchart_open_view.png \
-	kmchart_cpu_disk.png \
-	kmchart_edit_chart.png \
-	kmchart_new_chart.png \
-	kmchart_new_chart_select.png \
-	kmchart_new_chart_colors.png \
-	kmchart_cpu_disk_load.png \
-	kmchart_stop_recording.png \
-	kmchart_cpu_disk_record.png \
-	kmtime_live.png \
-	kmtime_archive.png \
-	kmtime_clients.png \
-	kmtime_bounds.png
+	pmchart_blank_canvas.png \
+	pmchart_open_view.png \
+	pmchart_cpu_disk.png \
+	pmchart_edit_chart.png \
+	pmchart_new_chart.png \
+	pmchart_new_chart_select.png \
+	pmchart_new_chart_colors.png \
+	pmchart_cpu_disk_load.png \
+	pmchart_stop_recording.png \
+	pmchart_cpu_disk_record.png \
+	pmtime_live.png \
+	pmtime_archive.png \
+	pmtime_clients.png \
+	pmtime_bounds.png
 INSTFILES = $(ICONLINKS) $(WINDOWLINKS)
 LDIRT = $(ICONLINKS) $(WINDOWLINKS)
 

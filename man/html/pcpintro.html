@@ -19,7 +19,7 @@
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/kmcharticon.png" NAME="kmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
+	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pmcharticon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
 	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#ff6600">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tutorial.html#views"><FONT COLOR="#ff6600">Views</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tutorial.html#charts"><FONT COLOR="#ff6600">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P></TD>
 	</TR>
@@ -28,7 +28,7 @@
 <P>The Performance Co-Pilot (PCP) is an SGI toolkit designed for monitoring and managing system-level performance.  These services are distributed and scalable to accommodate the most complex system configurations and performance problems.
 <P>PCP supports many different platforms, including (but not limited to) Linux, MacOSX, IRIX, Solaris and Cygwin.  From a high-level PCP can be considered to contain two classes of software utility:
 <UL> <LI><I>PCP Collectors</I>.  These are the parts of PCP that collect and extract performance data from various sources, e.g. the Linux /proc pseudo filesystem.  These are available under GPL/LPGL from <A HREF="http://oss.sgi.com/projects/pcp">http://oss.sgi.com/projects/pcp</A>.
-<P> <LI><I>PCP Monitors</I>.  These are the parts of PCP that display data collected from hosts (or archives) that have the PCP Collector installed.  Many monitor tools are available as part of PCP under GPL/LPGL.  Other monitoring tools are available separately, and many (such as kmchart) are also freely available under the terms of the GPL/LGPL.
+<P> <LI><I>PCP Monitors</I>.  These are the parts of PCP that display data collected from hosts (or archives) that have the PCP Collector installed.  Many monitor tools are available as part of PCP under GPL/LPGL.  Other monitoring tools are available separately, and many (such as pmchart) are also freely available under the terms of the GPL/LGPL.
 </UL>
 <P>&nbsp;</P>
 <P>This document describes the high-level features and options common to most PCP utilities available on all platforms.
@@ -119,7 +119,7 @@ where <I>number</I> is an integer or floating point constant (parsed using <B>st
 <P><B>-interval</B>  To specify an offset back from the time at the end of a PCP archive log, prefix the interval argument with a minus sign.  For example <I>-T -90m</I> will set the end of the time window to be 90 minutes before the time of the last sample in a PCP archive log.
 <P><B>@ctime</B>  To specify the calendar date and time (local time in the reporting timezone) for the end of the time window, use the <B>ctime</B>(3C) syntax preceded by an at sign.  For example <I>-T ’@ Mon Mar 4 13:07:47 1996’</I>. </P></TD></TR>
 	<TR><TD WIDTH=25%><P><B>-O origin</B></P></TD>
-	    <TD><P>By default samples are fetched from the start of the time window (see description of <B>-S</B> option) to the end of the time window (see description of <B>-T</B> option).  The <B>-O</B> option allows the specification of an origin within the time window to be used as the initial sample time.  This is useful for interactive use of a PCP tool with the kmtime(1) VCR replay facility.
+	    <TD><P>By default samples are fetched from the start of the time window (see description of <B>-S</B> option) to the end of the time window (see description of <B>-T</B> option).  The <B>-O</B> option allows the specification of an origin within the time window to be used as the initial sample time.  This is useful for interactive use of a PCP tool with the pmtime(1) VCR replay facility.
 <P>The <B>origin</B> argument accepted by <B>-O</B> conforms to the same syntax and semantics as the <B>starttime</B> argument for the <B>-T</B> option.
 <P>For example <I>-O -0</I> specifies that the initial position should be at the end of the time window; this is most useful when wishing to replay "backwards" within the time window. </P></TD></TR>
 </TABLE>
@@ -141,7 +141,7 @@ where <I>number</I> is an integer or floating point constant (parsed using <B>st
 <P>Note also that there is no requirement for the PMNS to be the same on all systems, however in practice most applications would be developed against a stable PMNS that was assumed to be a subset of the PMNS on all systems.  Indeed the PCP distribution includes a default local PMNS for just this purpose.
 <P>The default local PMNS is located at $PCP_VAR_DIR/pmns/root however the environment variable PMNS_DEFAULT may be set to the full pathname of a different PMNS which will then be used as the default local PMNS.
 <P>Most applications do not use the local PMNS, but rather import parts of the PMNS as required from the same place that performance metrics are fetched, i.e. from <B>pmcd</B>(1) for live monitoring or from a PCP archive for retrospective monitoring.
-<P>To explore the PMNS use <B>pminfo</B>(1), or if the kmchart package is installed the New Chart and Metric Search windows within kmchart(1).
+<P>To explore the PMNS use <B>pminfo</B>(1), or if the PCP GUI package is installed the New Chart and Metric Search windows within pmchart(1).
 <P>&nbsp;</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Performance Metric Specifications</B></FONT></P></TD></TR>
@@ -255,7 +255,7 @@ where <I>number</I> is an integer or floating point constant (parsed using <B>st
 <CENTER>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=50%><P>Copyright &copy; 2000 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">SGI</FONT></A> and Copyright &copy; 2008 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT>kmchart</P></TD> </TR>
+	<TD WIDTH=50%><P ALIGN=RIGHT>PCP GUI</P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>

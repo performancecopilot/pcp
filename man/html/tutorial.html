@@ -19,29 +19,29 @@
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/kmcharticon.png" NAME="kmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pmcharticon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
 	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#ff6600">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tutorial.html#views"><FONT COLOR="#ff6600">Views</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tutorial.html#charts"><FONT COLOR="#ff6600">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Tutorial</FONT></H1>
-<P>The following tutorial covers the basic functionality available in the PCP Strip Chart tool, kmchart.  Once PCP (Performance Co-Pilot), Qt4, and kmchart are <A HREF="installation.html"><FONT COLOR="#000060">installed</FONT></A>, run the kmchart command or click on the <I>PCP Charts</I> icon to begin. 
+<P>The following tutorial covers the basic functionality available in the PCP Strip Chart tool, pmchart.  Once PCP (Performance Co-Pilot), Qt4, and PCP GUI packages are <A HREF="installation.html"><FONT COLOR="#000060">installed</FONT></A>, run the pmchart command or click on the <I>PCP Charts</I> icon to begin. 
 </P>
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Main Window</B></FONT></P></TD></TR>
 </TABLE>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD><P><BR><P>On starting the PCP Chart (kmchart) tool with no command line arguments, the initial display shows a menu, toolbar, and a live time axis.</P>
+	<TR> <TD><P><BR><P>On starting the PCP Chart (pmchart) tool with no command line arguments, the initial display shows a menu, toolbar, and a live time axis.</P>
 <P>The vacant area above the time axis is the blank canvas for your charts – we'll get to this shortly, but take a moment to digest the main window.</P>
 <P>The time axis along the bottom of the window scrolls with the current time, updated every second, by default (this is also called the <I>sample interval</I>).
-<P>To the left of the time axis is the time control status button.</P><P>The blue arrow signifies that (live) time is moving forward.  Pressing the button once will show the Time Control tool, <i>kmtime</i>, pressing it a second time hides it.</P>
+<P>To the left of the time axis is the time control status button.</P><P>The blue arrow signifies that (live) time is moving forward.  Pressing the button once will show the Time Control tool, <i>pmtime</i>, pressing it a second time hides it.</P>
 	</TD>
-	<TD WIDTH=380><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/kmchart_blank_canvas.png" BORDER=0></CENTER></P></TD>
+	<TD WIDTH=380><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmchart_blank_canvas.png" BORDER=0></CENTER></P></TD>
 	</TR>
 </TABLE>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=350><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/kmtime_live.png" BORDER=0></CENTER></P></TD>
+	<TR> <TD WIDTH=350><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmtime_live.png" BORDER=0></CENTER></P></TD>
 	<TD WIDTH=10></TD>
 	<TD><P><BR><P>The time controls allow you to modify various aspects of the flow of time in your charts, and clearly displays the current time position.</P>
 <P>A VCR paradigm is used to allow stopping and starting the flow of time, and in the case of historical data (PCP archives), allow movement both forwards and backwards through time, and allow fast, slow, or step-by-step updates to the displayed data.</P></TD>
@@ -58,14 +58,14 @@
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Click on the blue <I>Views</I> folder, to bring up the “Open View” window.<BR></TD></TR>
 </TABLE>
 <P>This window initially displays a list of common performance views (these are the pre-installed <I>System Views</I>).  These views have been found to be useful by others over many years, and will be able to run on any host or archive that provides the metrics and instances that they wish to plot - they will never specify specific hostnames, nor will they request any specific geometry or screen position.
-<CENTER><IMG SRC="images/kmchart_open_view.png" BORDER=0></CENTER>
+<CENTER><IMG SRC="images/pmchart_open_view.png" BORDER=0></CENTER>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Select <I>CPU</I> and <I>Disk</I> from the list (Ctrl-Click allows multiple selections to be made), then press OK.<BR></TD></TR>
 </TABLE>
 <P>The chart canvas in the main window is now filled with the two selected Views, showing several aspects of processor and disk utilisation.</P>
 <P><B>What is a view?</B></P>
 <P>A view is a complete <A HREF="views.html">specification</A> of every aspect of one or more charts, each of which can contains one or more plots.  All properties of the charts and the individual plots are described - the data source behind the performance data, the color of the plots, the chart title, the style of the chart, whether the value axis (Y-Axis) should be scaled, whether there is a title, etc, etc.  Some properties are optional (e.g. the title) and some can be specified as variable (e.g. allowing any host to be the source of the data).</P>
-<P>Views are stored as plain text files in the local filesystem.  The System Views are different only in that they are installed into a fixed location.  There is a fixed place for custom views as well, below your home directory, where views you create in kmchart will be stored.  If you look into the <I>Open View</I> dialog again, you'll see two icons to the right of the Path in the Open View dialog – these indicate whether the current path points to the System View location, the User View location, or neither.  Notice how they update as you navigate through your files.</P>
+<P>Views are stored as plain text files in the local filesystem.  The System Views are different only in that they are installed into a fixed location.  There is a fixed place for custom views as well, below your home directory, where views you create in pmchart will be stored.  If you look into the <I>Open View</I> dialog again, you'll see two icons to the right of the Path in the Open View dialog – these indicate whether the current path points to the System View location, the User View location, or neither.  Notice how they update as you navigate through your files.</P>
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Recording</B></FONT></P></TD></TR>
@@ -77,13 +77,13 @@
 </TABLE>
 <P>The <I>Start Recording</I> dialog allows you to set various aspects of the recording session – we wont change these for now – just press the OK button.  You'll notice the Live Time Control button in the botton left now displays a red light, indicating that recording is in progress.  Let's leave the recording run while we investigate other parts of the tool – we'll come back to this later, when its had a chance to gather some interesting data.</P>
 <P><B><FONT SIZE=4>Generating load for later playback</FONT></B></P>
-<P>As a simple example of both the recording functionality, and of using kmchart to monitor different subsystems simultaneously, we'll generate some local disk I/O and see how this affects the disk and CPU utilisation charts we have already opened.
+<P>As a simple example of both the recording functionality, and of using pmchart to monitor different subsystems simultaneously, we'll generate some local disk I/O and see how this affects the disk and CPU utilisation charts we have already opened.
 </P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>In a terminal window, enter:<BR>$ sh -c 'find / -xdev >/dev/null 2>&1'<BR></TD></TR>
 </TABLE>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=350><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/kmchart_cpu_disk.png" BORDER=0></CENTER></P></TD>
+	<TR> <TD WIDTH=350><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmchart_cpu_disk.png" BORDER=0></CENTER></P></TD>
 	<TD WIDTH=15></TD>
 	<TD><P><BR><P>This command scans every inode on the root filesystem, which is usually a local disk.  We observe a large increase in disk read operations as each inode is read in from disk (yellow plot in the <I>Disk</I> chart).</P><P>At the same time we observe a small increase in CPU utilisation, in both kernel and user mode (red and navy blue in the <I>CPU</I> chart), as the command executes the code to read directories and query the <B>stat</B>(2) information for each file.  Since we account for all CPU time, these increases in system and user time cause a corresponding decrease in the idle time (green area in the <I>CPU</I> chart).</P><P>There is also now an increase in the amount of time spent executing interrupt handlers (yellow plot in the <I>CPU</I> chart) since the device must generate an interrupt completion event for every I/O.</P><P>On systems that support a separate I/O wait CPU utilisation metric (Linux 2.6+ and IRIX), we also see a significant amount of time is spent with outstanding I/O requests (cyan plot in the <I>CPU</I> chart).</P></TD>
 	</TR>
@@ -92,7 +92,7 @@
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Saving Views</B></FONT></P></TD></TR>
 </TABLE>
-<P><I>Views</I> can be saved to (text) files for use on subsequent invocations of kmchart, or for use with different hosts or archives.
+<P><I>Views</I> can be saved to (text) files for use on subsequent invocations of pmchart, or for use with different hosts or archives.
 </P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>From the <I>File</I> menu select the <I>Save View</I> option.  Save the current two charts to a View named <I>/tmp/ExampleView</I>.<BR></TD></TR>
@@ -123,7 +123,7 @@
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>From the <I>Edit</I> menu select the <I>Chart</I> item.<BR></TD></TR>
 </TABLE>
 <P>A tabbed window with every setting for the Disk chart is displayed.  In the tree view on the left side of the window are the metrics from our selected Disk chart.
-<BR><CENTER><IMG SRC="images/kmchart_edit_chart.png" BORDER=0></CENTER></P>
+<BR><CENTER><IMG SRC="images/pmchart_edit_chart.png" BORDER=0></CENTER></P>
 <P>The three tabs on the right side of the window show the current settings for this chart in three categories:<UL><LI>Properties relating to the entire chart (Title, Legend settings, Y-Axis scaling, etc);
 	<LI>Available metrics (performance data) for plotting in the chart
 	<LI>Properties related to each individual chart plot (color, label)
@@ -132,8 +132,8 @@
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Click on the <I>New Chart</I> option in the toolbar to display the chart creation window.<BR></TD></TR>
 </TABLE>
-<P>It looks just like the chart editing window we've just seen, except initially we have no metrics selected in the chart, and default values for all of the chart properties.<BR><CENTER><IMG SRC="images/kmchart_new_chart.png" BORDER=0></CENTER></P>
-<P>In the Available Metrics list on the Metrics tab, expand the <I>kernel,</I> <I>all</I>, <I>load</I> trees from your local hosts metric namespace, and then select the three load averages (<I>1, 5, 15 minutes</I>).  Since these are leaf nodes in the namespace, and identify valid values for plotting, several buttons now become enabled – in particular the “Add Metric” button and the “Metric Info” button.<BR><CENTER><IMG SRC="images/kmchart_new_chart_select.png" BORDER=0></CENTER></P>
+<P>It looks just like the chart editing window we've just seen, except initially we have no metrics selected in the chart, and default values for all of the chart properties.<BR><CENTER><IMG SRC="images/pmchart_new_chart.png" BORDER=0></CENTER></P>
+<P>In the Available Metrics list on the Metrics tab, expand the <I>kernel,</I> <I>all</I>, <I>load</I> trees from your local hosts metric namespace, and then select the three load averages (<I>1, 5, 15 minutes</I>).  Since these are leaf nodes in the namespace, and identify valid values for plotting, several buttons now become enabled – in particular the “Add Metric” button and the “Metric Info” button.<BR><CENTER><IMG SRC="images/pmchart_new_chart_select.png" BORDER=0></CENTER></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Click on the “Metric Info” button to view the metric descriptor (<I>pminfo</I>) and current values (<I>pmval</I>) for <I>disk.all.total</I>.  Dismiss that dialog, and then press the “Add Metric” button, to add this metric into the list of metrics for our new chart.<BR></TD></TR>
 </TABLE>
@@ -142,12 +142,12 @@
 	<LI>pressing the Apply color button
 </UL>
 <P>This change can also be reverted by using the revert color button, which returns it to its previous color (displayed alongside that button).</P>
-<BR><CENTER><IMG SRC="images/kmchart_new_chart_colors.png" BORDER=0></CENTER></P>
+<BR><CENTER><IMG SRC="images/pmchart_new_chart_colors.png" BORDER=0></CENTER></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Set the label for the plots as “1 Min”, “5 Min” and “15 Min”, then press OK.<BR></TD></TR>
 </TABLE>
 <P>A new chart will appear at the bottom of the main window with one plot, and on the next sample interval current values will be plotted.</P>
-<BR><CENTER><IMG SRC="images/kmchart_cpu_disk_load.png" BORDER=0></CENTER>
+<BR><CENTER><IMG SRC="images/pmchart_cpu_disk_load.png" BORDER=0></CENTER>
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Playback Recording</B></FONT></P></TD></TR>
@@ -155,22 +155,22 @@
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Click on the <I>Record</I> menu, then </I>Stop</I>.<BR></TD></TR>
 </TABLE>
-<CENTER><IMG SRC="images/kmchart_stop_recording.png" BORDER=0></CENTER>
-<P>The dialog shown explains the status of your recording session (started earlier).  At any time while recording, you also have the option of querying the recording process to see the same status, and also to detach the recording from the control of kmchart.  But for now, we've simply ended the recording (note the red indicator light is now off on the time control button), and we're left with an archive containing the history from our recording, which we can now replay.
+<CENTER><IMG SRC="images/pmchart_stop_recording.png" BORDER=0></CENTER>
+<P>The dialog shown explains the status of your recording session (started earlier).  At any time while recording, you also have the option of querying the recording process to see the same status, and also to detach the recording from the control of pmchart.  But for now, we've simply ended the recording (note the red indicator light is now off on the time control button), and we're left with an archive containing the history from our recording, which we can now replay.
 </P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>End your kmchart process now, and open a terminal window.<BR>Run: <b>pmafm ~/.pcp/pmlogger/20080201.folio replay</b><BR></TD></TR>
+	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>End your pmchart process now, and open a terminal window.<BR>Run: <b>pmafm ~/.pcp/pmlogger/20080201.folio replay</b><BR></TD></TR>
 </TABLE>
 <P>(substituting the current recording timestamp into the folio file name from your earlier recording session)</P>
-<BR><CENTER><IMG SRC="images/kmchart_cpu_disk_record.png" BORDER=0></CENTER>
+<BR><CENTER><IMG SRC="images/pmchart_cpu_disk_record.png" BORDER=0></CENTER>
 <P>You are now in archive replay mode.  Initially the time is stopped at the start of the archive, and the chart canvas area displays the recorded data in the views which were active at the time recording begun.</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Click on the "Archive" Time Control push button in the bottom right corner to show the Time Controls.<BR></TD></TR>
 </TABLE>
-<P>We are now presented with the Time Control window, which is actually a separate process (kmtime(1)).  This program controls the flow of time in kmchart.
+<P>We are now presented with the Time Control window, which is actually a separate process (pmtime(1)).  This program controls the flow of time in pmchart.
 </P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR><TD WIDTH=350><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/kmtime_archive.png" BORDER=0></CENTER></P></TD>
+	<TR><TD WIDTH=350><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/pmtime_archive.png" BORDER=0></CENTER></P></TD>
 	<TD><BR><P>There are several modes of playback available in archive mode:<UL><LI>Normal mode, where time updates are sent to the client at a continuous rate (usually not too different to the original live recording), as determined by the "Speed" wheel setting.
 	<LI>Step mode, where time is only advanced/retreated (by clicking on the Step button) one sample at a time.
 	<LI>Fast mode, where time is moved quickly in either a fast forward or fast rewind direction, and the visible charts are updated as quickly as possible.
@@ -181,18 +181,18 @@
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Press the Play button.<BR></TD></TR>
 </TABLE>
-<P>We now see the kmchart Disk and CPU charts displaying the recorded data, one sample after another, and the chart appears to be moving from right to left as time advances at the leading (right) edge of the time axis.
+<P>We now see the pmchart Disk and CPU charts displaying the recorded data, one sample after another, and the chart appears to be moving from right to left as time advances at the leading (right) edge of the time axis.
 <P>We can increase the speed of the playback by moving the Time Controls wheel from left to right, and vice-versa to reduce the playback speed</B>
 </P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Press the Stop button.<BR></TD></TR>
 </TABLE>
-<P>We have now effectively paused, showing a number of Visible Points from the current sample time (displayed in both the Time Control window and the time axis, in the bottom right of the kmchart display) backward in time.
+<P>We have now effectively paused, showing a number of Visible Points from the current sample time (displayed in both the Time Control window and the time axis, in the bottom right of the pmchart display) backward in time.
 </P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=30></TD><TD WIDTH=30 BGCOLOR="#e2e2e2"><BR>&nbsp;<IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0></TD> <TD WIDTH=85% BGCOLOR="#e2e2e2"><BR>Use the Position slider in the Time Control window to move toward the end of the archive.<BR>Press the Back button.<BR></TD></TR>
 </TABLE>
-<P>Now time appears to be moving backward, with time updates scrolling past in the kmchart time axis from left to right, until we reach the start of the archive.  At that point, playback will stop and the Time Controls will be updated accordingly.
+<P>Now time appears to be moving backward, with time updates scrolling past in the pmchart time axis from left to right, until we reach the start of the archive.  At that point, playback will stop and the Time Controls will be updated accordingly.
 <P><BR><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Next Steps</B></FONT></P></TD></TR>
@@ -206,7 +206,7 @@
 <CENTER>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2008 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT>kmchart</P></TD> </TR>
+	<TD WIDTH=50%><P ALIGN=RIGHT>PCP GUI</P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>
