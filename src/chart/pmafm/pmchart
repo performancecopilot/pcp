@@ -1,0 +1,5 @@
+# pmafm support for pmchart
+
+MULTI="pmchart pmdumptext"
+REPLAY="pmchart"
+

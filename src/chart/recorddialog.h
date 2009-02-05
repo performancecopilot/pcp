@@ -17,7 +17,7 @@
 #include "ui_recorddialog.h"
 #include <QtCore/QProcess>
 #include <QtGui/QFileDialog>
-#include "kmtime.h"
+#include "pmtime.h"
 
 class Tab;
 

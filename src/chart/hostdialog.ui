@@ -36,7 +36,7 @@
    <string>Add Host</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmchart.qrc" >:/computer.png</iconset>
+   <iconset resource="pmchart.qrc" >:/computer.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>false</bool>
@@ -166,7 +166,7 @@
   <tabstop>buttonCancel</tabstop>
  </tabstops>
  <resources>
-  <include location="kmchart.qrc" />
+  <include location="pmchart.qrc" />
  </resources>
  <connections>
   <connection>

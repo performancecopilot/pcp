@@ -12,7 +12,7 @@
  * for more details.
  */
 #include "main.h"
-#include <kmtime.h>
+#include <pmtime.h>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QApplication>
@@ -140,20 +140,20 @@ void TimeControl::addArchive(
     if (my.archiveSocket->write((const char *)message, sz) < 0)
 	QMessageBox::warning(0,
 		QApplication::tr("Error"),
-		QApplication::tr("Cannot update kmtime boundaries."),
+		QApplication::tr("Cannot update pmtime boundaries."),
 		QApplication::tr("Quit") );
     free(message);
 }
 
 void TimeControl::liveConnect()
 {
-    console->post("Connecting to kmtime, live source");
+    console->post("Connecting to pmtime, live source");
     my.liveSocket->connectToHost(QHostAddress::LocalHost, my.tcpPort);
 }
 
 void TimeControl::archiveConnect()
 {
-    console->post("Connecting to kmtime, archive source");
+    console->post("Connecting to pmtime, archive source");
     my.archiveSocket->connectToHost(QHostAddress::LocalHost, my.tcpPort);
 }
 
@@ -165,7 +165,7 @@ void TimeControl::showLiveTimeControl(void)
 					sizeof(KmTime::Packet)) < 0)
 	QMessageBox::warning(0,
                 QApplication::tr("Error"),
-                QApplication::tr("Cannot get kmtime to show itself."),
+                QApplication::tr("Cannot get pmtime to show itself."),
                 QApplication::tr("Quit") );
 }
 
@@ -177,7 +177,7 @@ void TimeControl::showArchiveTimeControl(void)
 					sizeof(KmTime::Packet)) < 0)
 	QMessageBox::warning(0,
     		QApplication::tr("Error"),
-    		QApplication::tr("Cannot get kmtime to show itself."),
+    		QApplication::tr("Cannot get pmtime to show itself."),
     		QApplication::tr("Quit") );
 }
 
@@ -189,7 +189,7 @@ void TimeControl::hideLiveTimeControl()
 					sizeof(KmTime::Packet)) < 0)
 	QMessageBox::warning(0,
 		QApplication::tr("Error"),
-		QApplication::tr("Cannot get kmtime to hide itself."),
+		QApplication::tr("Cannot get pmtime to hide itself."),
 		QApplication::tr("Quit") );
 }
 
@@ -201,7 +201,7 @@ void TimeControl::hideArchiveTimeControl()
 					sizeof(KmTime::Packet)) < 0)
 	QMessageBox::warning(0,
 		QApplication::tr("Error"),
-		QApplication::tr("Cannot get kmtime to hide itself."),
+		QApplication::tr("Cannot get pmtime to hide itself."),
 		QApplication::tr("Quit") );
 }
 
@@ -220,7 +220,7 @@ void TimeControl::styleTimeControl(char *style)
     if (my.liveSocket->write((const char *)message, sz) < 0)
 	QMessageBox::warning(0,
 		QApplication::tr("Error"),
-		QApplication::tr("Cannot get kmtime to change style."),
+		QApplication::tr("Cannot get pmtime to change style."),
 		QApplication::tr("Quit") );
     free(message);
 }
@@ -229,7 +229,7 @@ void TimeControl::endTimeControl(void)
 {
     QMessageBox::warning(0,
 		QApplication::tr("Error"),
-		QApplication::tr("Time Control process kmtime has exited."),
+		QApplication::tr("Time Control process pmtime has exited."),
 		QApplication::tr("Quit") );
     exit(-1);
 }
@@ -257,7 +257,7 @@ void TimeControl::liveSocketConnected()
 	QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
 		QApplication::tr(
-			"Failed socket write in live kmtime negotiation."),
+			"Failed socket write in live pmtime negotiation."),
 		QApplication::tr("Quit") );
 	exit(1);
     }
@@ -265,7 +265,7 @@ void TimeControl::liveSocketConnected()
 	QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
 		QApplication::tr(
-			"Failed to send timezone in live kmtime negotiation."),
+			"Failed to send timezone in live pmtime negotiation."),
 		QApplication::tr("Quit"));
 	exit(1);
     }
@@ -279,7 +279,7 @@ void TimeControl::archiveSocketConnected()
 	QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
 		QApplication::tr(
-			"Failed socket write in archive kmtime negotiation."),
+			"Failed socket write in archive pmtime negotiation."),
 		QApplication::tr("Quit") );
 	exit(1);
     }
@@ -287,7 +287,7 @@ void TimeControl::archiveSocketConnected()
 	QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
 		QApplication::tr(
-			"Failed timezone send in archive kmtime negotiation."),
+			"Failed timezone send in archive pmtime negotiation."),
 		QApplication::tr("Quit") );
 	exit(1);
     }
@@ -295,7 +295,7 @@ void TimeControl::archiveSocketConnected()
 }
 
 //
-// Start a shiny new kmtime process.
+// Start a shiny new pmtime process.
 // The one process serves time for all (live and archive) tabs.
 // We do have to specify which form will be used first, however.
 //
@@ -309,11 +309,11 @@ void TimeControl::startTimeServer()
 		    SLOT(endTimeControl()));
     connect(this, SIGNAL(readyReadStandardOutput()), this,
 		    SLOT(readPortFromStdout()));
-    start("kmtime", arguments);
+    start("pmtime", arguments);
 }
 
 //
-// When kmtime starts in "port probe" mode, port# is written to
+// When pmtime starts in "port probe" mode, port# is written to
 // stdout.  We can only complete negotiation once we have that...
 //
 void TimeControl::readPortFromStdout(void)
@@ -325,7 +325,7 @@ void TimeControl::readPortFromStdout(void)
     if (!ok) {
 	QMessageBox::critical(0,
     	QApplication::tr("Fatal error"),
-    	QApplication::tr("Bad port number from kmtime program."),
+    	QApplication::tr("Bad port number from pmtime program."),
     	QApplication::tr("Quit") );
 	exit(1);
     }
@@ -340,13 +340,13 @@ void TimeControl::protocolMessage(bool live,
     int sts, need = sizeof(KmTime::Packet), offset = 0;
     KmTime::Packet *msg;
 
-    // Read one kmtime packet, handling both small reads and large packets
+    // Read one pmtime packet, handling both small reads and large packets
     for (;;) {
 	sts = socket->read(my.buffer + offset, need);
 	if (sts < 0) {
 	    QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
-		QApplication::tr("Failed socket read in kmtime transfer."),
+		QApplication::tr("Failed socket read in pmtime transfer."),
 		QApplication::tr("Quit") );
 	    exit(1);
 	}
@@ -390,14 +390,14 @@ void TimeControl::protocolMessage(bool live,
 	if (msg->command != KmTime::ACK) {
 	    QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
-		QApplication::tr("Initial ACK not received from kmtime."),
+		QApplication::tr("Initial ACK not received from pmtime."),
 		QApplication::tr("Quit") );
 	    exit(1);
 	}
 	if (msg->source != packet->source) {
 	    QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
-		QApplication::tr("kmtime not serving same metric source."),
+		QApplication::tr("pmtime not serving same metric source."),
 		QApplication::tr("Quit") );
 	    exit(1);
 	}
@@ -424,7 +424,7 @@ void TimeControl::protocolMessage(bool live,
 	    if (sts < 0 || sts != (int)msg->length) {
 		QMessageBox::critical(0,
 			QApplication::tr("Fatal error"),
-			QApplication::tr("Failed kmtime write for STEP ACK."),
+			QApplication::tr("Failed pmtime write for STEP ACK."),
 			QApplication::tr("Quit") );
 		exit(1);
 	    }
@@ -442,7 +442,7 @@ void TimeControl::protocolMessage(bool live,
     default:
 	QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
-		QApplication::tr("Protocol error with kmtime."),
+		QApplication::tr("Protocol error with pmtime."),
 		QApplication::tr("Quit") );
 	// fall through
     case TimeControl::Disconnected:

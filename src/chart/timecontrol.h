@@ -17,7 +17,7 @@
 #include <QtCore/QString>
 #include <QtCore/QProcess>
 #include <QtNetwork/QTcpSocket>
-#include <kmtime.h>
+#include <pmtime.h>
 
 class TimeControl : public QProcess
 {

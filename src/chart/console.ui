@@ -10,10 +10,10 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>kmchart Console</string>
+   <string>pmchart Console</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
+   <iconset resource="pmchart.qrc" >:/pmchart.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>true</bool>
@@ -115,7 +115,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="kmchart.qrc" />
+  <include location="pmchart.qrc" />
  </resources>
  <connections>
   <connection>

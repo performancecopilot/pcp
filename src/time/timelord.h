@@ -23,8 +23,8 @@
 #include <QtGui/QApplication>
 
 #include "console.h"
-#include "kmtimelive.h"
-#include "kmtimearch.h"
+#include "pmtimelive.h"
+#include "pmtimearch.h"
 
 // The TimeClient class provides a socket that is connected with a client.
 // For every client that connects to the server, the server creates a new
@@ -35,7 +35,7 @@ class TimeClient : public QObject
     Q_OBJECT
 
 public:
-    // State transitions for a kmtime client.  Basic SET/ACK protocol is:
+    // State transitions for a pmtime client.  Basic SET/ACK protocol is:
     // - client connects and sends initial (global) SET
     // - server responds with ACK (beware live mode, with timers SETs here)
     // - server now sends SETs with optional ACKs, until first ACK recv'd

@@ -1,7 +1,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-SCRIPTS = kmsnap.sh
+SCRIPTS = pmsnap.sh
 CONFIGS = crontab.IN Snap control
 HTMLDOC = summary.html
 LSRCFILES = $(SCRIPTS) $(CONFIGS) $(HTMLDOC)
@@ -14,14 +14,14 @@ crontab : crontab.IN
 
 include $(BUILDRULES)
 
-ifndef PCP_KMSNAPCONTROL_PATH
-PCP_KMSNAPCONTROL_PATH = $(PCP_VAR_DIR)/config/kmsnap/control
+ifndef PCP_PMSNAPCONTROL_PATH
+PCP_PMSNAPCONTROL_PATH = $(PCP_VAR_DIR)/config/pmsnap/control
 endif
 
 install: default
 	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
-	$(INSTALL) -m 755 kmsnap.sh $(PCP_BINADM_DIR)/kmsnap
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/kmsnap
-	$(INSTALL) -m 644 Snap crontab summary.html $(PCP_VAR_DIR)/config/kmsnap
-	$(INSTALL) -m 755 -d `dirname $(PCP_KMSNAPCONTROL_PATH)`
-	$(INSTALL) -m 644 control $(PCP_KMSNAPCONTROL_PATH)
+	$(INSTALL) -m 755 pmsnap.sh $(PCP_BINADM_DIR)/pmsnap
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmsnap
+	$(INSTALL) -m 644 Snap crontab summary.html $(PCP_VAR_DIR)/config/pmsnap
+	$(INSTALL) -m 755 -d `dirname $(PCP_PMSNAPCONTROL_PATH)`
+	$(INSTALL) -m 644 control $(PCP_PMSNAPCONTROL_PATH)

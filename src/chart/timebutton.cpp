@@ -13,7 +13,7 @@
  */
 #include "timebutton.h"
 #include "console.h"
-#include "kmchart.h"
+#include "pmchart.h"
 
 TimeButton::TimeButton(QWidget *parent) : QToolButton(parent)
 {

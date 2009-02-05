@@ -1,11 +1,11 @@
 TOPDIR = ../..
-COMMAND = kmdumptext
+COMMAND = pmdumptext
 PROJECT = $(COMMAND).pro
 include $(TOPDIR)/src/include/builddefs
 
 QRCFILE = $(COMMAND).qrc
 UIFILES = $(shell echo *.ui)
-SOURCES = kmdumptext.cpp
+SOURCES = pmdumptext.cpp
 CONFFILES = $(PROJECT)
 LSRCFILES = $(PROJECT).in $(SOURCES)
 

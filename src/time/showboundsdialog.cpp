@@ -15,7 +15,7 @@
 #include <QtGui/QMessageBox>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#include <kmtime.h>
+#include <pmtime.h>
 
 ShowBounds::ShowBounds(QWidget* parent) : QDialog(parent)
 {
@@ -136,7 +136,7 @@ void ShowBounds::changedEnd(double value)
 // This routine just verifies that input from the user is correct,
 // before allowing the window to be closed.  If theres invalid date
 // strings in start/end text boxes, we must deny the "OK" press.
-// Actual work of updating kmtime is done in flush().
+// Actual work of updating pmtime is done in flush().
 //
 void ShowBounds::accept()
 {
@@ -216,7 +216,7 @@ void ShowBounds::reject()
 }
 
 //
-// Inform parent kmtime window of accepted changes (start/end),
+// Inform parent pmtime window of accepted changes (start/end),
 // via the pointers-to-struct-timevals we were initially given.
 //
 void ShowBounds::flush()

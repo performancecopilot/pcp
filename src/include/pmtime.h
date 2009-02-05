@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2008, Aconex.  All Rights Reserved.
+ * Copyright (c) 2006-2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,8 +11,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef KMTIME_H
-#define KMTIME_H
+#ifndef PMTIME_H
+#define PMTIME_H
 
 #include <sys/time.h>
 
@@ -119,4 +119,4 @@ public:
     static double deltaValue(QString delta, DeltaUnits units);
 };
 
-#endif	// KMTIME_H
+#endif	// PMTIME_H

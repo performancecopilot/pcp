@@ -19,7 +19,8 @@
    <string>PCP Charts</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
+   <iconset resource="pmchart.qrc" >
+    <normaloff>:/pmchart.png</normaloff>:/pmchart.png</iconset>
   </property>
   <property name="iconSize" >
    <size>
@@ -185,7 +186,8 @@
   </widget>
   <action name="fileOpenViewAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/view.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/view.png</normaloff>:/view.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Open View...</string>
@@ -199,7 +201,8 @@
   </action>
   <action name="fileSaveViewAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/document-save.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/document-save.png</normaloff>:/document-save.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Save View ...</string>
@@ -213,7 +216,8 @@
   </action>
   <action name="fileExportAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/document-export.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/document-export.png</normaloff>:/document-export.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Export...</string>
@@ -227,7 +231,8 @@
   </action>
   <action name="filePrintAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/document-print.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/document-print.png</normaloff>:/document-print.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Print...</string>
@@ -252,13 +257,14 @@
   </action>
   <action name="newKmchartAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/pmchart.png</normaloff>:/pmchart.png</iconset>
    </property>
    <property name="text" >
-    <string>New &amp;kmchart</string>
+    <string>New &amp;pmchart</string>
    </property>
    <property name="iconText" >
-    <string>New kmchart</string>
+    <string>New pmchart</string>
    </property>
   </action>
   <action name="timeControlAction" >
@@ -266,7 +272,8 @@
     <bool>true</bool>
    </property>
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/kmtime.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/pmtime.png</normaloff>:/pmtime.png</iconset>
    </property>
    <property name="text" >
     <string>Time Controls</string>
@@ -290,7 +297,8 @@
   </action>
   <action name="editChartAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/document-properties.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/document-properties.png</normaloff>:/document-properties.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Chart...</string>
@@ -301,7 +309,8 @@
   </action>
   <action name="editTabAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/tab-edit.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/tab-edit.png</normaloff>:/tab-edit.png</iconset>
    </property>
    <property name="text" >
     <string>Tab...</string>
@@ -320,7 +329,8 @@
   </action>
   <action name="editSettingsAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/settings.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/settings.png</normaloff>:/settings.png</iconset>
    </property>
    <property name="text" >
     <string>Preferences...</string>
@@ -331,7 +341,8 @@
   </action>
   <action name="closeTabAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/tab-close.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/tab-close.png</normaloff>:/tab-close.png</iconset>
    </property>
    <property name="text" >
     <string>Close Tab</string>
@@ -342,7 +353,8 @@
   </action>
   <action name="fileNewChartAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/document-new.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/document-new.png</normaloff>:/document-new.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;New Chart...</string>
@@ -353,7 +365,8 @@
   </action>
   <action name="addTabAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/tab-new.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/tab-new.png</normaloff>:/tab-new.png</iconset>
    </property>
    <property name="text" >
     <string>Add Tab...</string>
@@ -364,7 +377,8 @@
   </action>
   <action name="closeChartAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/document-close.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/document-close.png</normaloff>:/document-close.png</iconset>
    </property>
    <property name="text" >
     <string>Close Chart</string>
@@ -375,7 +389,8 @@
   </action>
   <action name="zoomInAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/zoom-in.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/zoom-in.png</normaloff>:/zoom-in.png</iconset>
    </property>
    <property name="text" >
     <string>Zoom &amp;In</string>
@@ -386,7 +401,8 @@
   </action>
   <action name="zoomOutAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/zoom-out.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/zoom-out.png</normaloff>:/zoom-out.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Zoom Out</string>
@@ -397,7 +413,8 @@
   </action>
   <action name="helpManualAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/help-contents.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/help-contents.png</normaloff>:/help-contents.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Manual</string>
@@ -419,7 +436,8 @@
   </action>
   <action name="helpAboutAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/pmchart.png</normaloff>:/pmchart.png</iconset>
    </property>
    <property name="text" >
     <string>About</string>
@@ -441,7 +459,8 @@
   </action>
   <action name="helpWhatsThisAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/whatsthis.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/whatsthis.png</normaloff>:/whatsthis.png</iconset>
    </property>
    <property name="text" >
     <string>What's This</string>
@@ -455,7 +474,8 @@
   </action>
   <action name="recordStartAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/camera-video.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/camera-video.png</normaloff>:/camera-video.png</iconset>
    </property>
    <property name="text" >
     <string>Start...</string>
@@ -468,7 +488,8 @@
   </action>
   <action name="recordStopAction" >
    <property name="icon" >
-    <iconset resource="kmchart.qrc" >:/camera-video-close.png</iconset>
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/camera-video-close.png</normaloff>:/camera-video-close.png</iconset>
    </property>
    <property name="text" >
     <string>Stop</string>
@@ -479,9 +500,10 @@
     <string>Detach</string>
    </property>
   </action>
+<<<<<<< HEAD:src/chart/kmchart.ui
  </widget>
  <includes>
-  <include location="local" >kmtime.h</include>
+  <include location="local" >pmtime.h</include>
   <include location="local" >tabdialog.h</include>
   <include location="local" >infodialog.h</include>
   <include location="local" >chartdialog.h</include>
@@ -496,7 +518,7 @@
   <include location="local" >timeaxis.h</include>
  </includes>
  <resources>
-  <include location="kmchart.qrc" />
+  <include location="pmchart.qrc" />
  </resources>
  <connections>
   <connection>

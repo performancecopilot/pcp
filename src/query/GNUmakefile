@@ -1,17 +1,17 @@
 TOPDIR = ../..
-COMMAND = kmquery
+COMMAND = pmquery
 PROJECT = $(COMMAND).pro
 include $(TOPDIR)/src/include/builddefs
 
 WRAPPER = $(COMMAND).sh
 QRCFILE = $(COMMAND).qrc
 ICNFILE = $(COMMAND).icns
-HEADERS = kmquery.h
+HEADERS = pmquery.h
 SOURCES = $(HEADERS:.h=.cpp) main.cpp
-SCRIPTS = kmconfirm.sh kmmessage.sh
+SCRIPTS = pmconfirm.sh pmmessage.sh
 CONFFILES = $(PROJECT)
 LSRCFILES = $(PROJECT).in $(QRCFILE) $(SCRIPTS) $(HEADERS) $(SOURCES) \
-	  $(WRAPPER).IN kmconfirm.sh.IN kmmessage.sh.IN
+	  $(WRAPPER).IN pmconfirm.sh.IN pmmessage.sh.IN
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(SCRIPTS)
 
 ICONLINKS = $(ICNFILE) dialog-archive.png dialog-error.png dialog-host.png \
@@ -35,9 +35,9 @@ wrappers: $(WRAPPER) $(SCRIPTS)
 
 $(WRAPPER): $(WRAPPER).IN
 	@ $(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
-kmmessage.sh: kmmessage.sh.IN
+pmmessage.sh: pmmessage.sh.IN
 	@ $(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
-kmconfirm.sh: kmconfirm.sh.IN
+pmconfirm.sh: pmconfirm.sh.IN
 	@ $(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
 
 install: default
@@ -48,8 +48,8 @@ endif
 ifeq ($(WINDOW),win)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
 endif
-	$(INSTALL) -m 755 kmconfirm.sh $(PKG_BIN_DIR)/kmconfirm
-	$(INSTALL) -m 755 kmmessage.sh $(PKG_BIN_DIR)/kmmessage
+	$(INSTALL) -m 755 pmconfirm.sh $(PKG_BIN_DIR)/pmconfirm
+	$(INSTALL) -m 755 pmmessage.sh $(PKG_BIN_DIR)/pmmessage
 ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 755 $(WRAPPER) $(PKG_BIN_DIR)/$(COMMAND)
 	$(INSTALL) -m 755 -d /Library

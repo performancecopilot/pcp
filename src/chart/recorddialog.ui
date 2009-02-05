@@ -36,7 +36,7 @@
    <string>Record</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmchart.qrc" >:/archive.png</iconset>
+   <iconset resource="pmchart.qrc" >:/archive.png</iconset>
   </property>
   <property name="toolTip" >
    <string/>
@@ -255,7 +255,7 @@
             <string>...</string>
            </property>
            <property name="icon" >
-            <iconset resource="kmchart.qrc" >:/folio.png</iconset>
+            <iconset resource="pmchart.qrc" >:/folio.png</iconset>
            </property>
           </widget>
          </item>
@@ -288,7 +288,7 @@
             <string>...</string>
            </property>
            <property name="icon" >
-            <iconset resource="kmchart.qrc" >:/view.png</iconset>
+            <iconset resource="pmchart.qrc" >:/view.png</iconset>
            </property>
           </widget>
          </item>
@@ -321,7 +321,7 @@
             <string>...</string>
            </property>
            <property name="icon" >
-            <iconset resource="kmchart.qrc" >:/archive.png</iconset>
+            <iconset resource="pmchart.qrc" >:/archive.png</iconset>
            </property>
           </widget>
          </item>
@@ -405,7 +405,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="kmchart.qrc" />
+  <include location="pmchart.qrc" />
  </resources>
  <connections>
   <connection>

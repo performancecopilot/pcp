@@ -14,9 +14,9 @@
 #ifndef KMCHART_H
 #define KMCHART_H
 
-#include "ui_kmchart.h"
+#include "ui_pmchart.h"
 #include "statusbar.h"
-#include <kmtime.h>
+#include <pmtime.h>
 
 class TimeAxis;
 class NameSpace;

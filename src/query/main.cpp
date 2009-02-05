@@ -15,10 +15,10 @@
 #include <QtCore/QTextStream>
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QCursor>
-#include "kmquery.h"
+#include "pmquery.h"
 
 static char usage[] =
-    "Usage: kmquery [options] [message...]\n\n"
+    "Usage: pmquery [options] [message...]\n\n"
     "Options:\n"
     "  -c              center the window on the display\n"
     "  -center         display in the center (alias for -c)\n"

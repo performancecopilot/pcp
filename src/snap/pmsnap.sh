@@ -25,24 +25,24 @@ trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 prog=`basename $0`
 
 LOCALHOST=`pmhostname`
-CONFIGDIR=$PCP_VAR_DIR/config/kmsnap
+CONFIGDIR=$PCP_VAR_DIR/config/pmsnap
 CONTROL=$CONFIGDIR/control
-[ -z "$PCP_KMSNAPCONTROL_PATH" ] || CONTROL="$PCP_KMSNAPCONTROL_PATH"
+[ -z "$PCP_PMSNAPCONTROL_PATH" ] || CONTROL="$PCP_PMSNAPCONTROL_PATH"
 
 _usage()
 {
     cat << EOF
 Usage: $prog [-dNV] [-C dir] [-c regex] [-f format] [-n regex] [-o dir]
     -C    alternate directory for control file(s)
-    -c    matches the Config field in the kmsnap control file
+    -c    matches the Config field in the pmsnap control file
     -f    output image format (default png)
     -N    show me, but do not execute commands
-    -n    matches the Name field in the kmsnap control file
+    -n    matches the Name field in the pmsnap control file
     -o    default directory for output images (default ".")
     -V    verbose trace of actions (for debugging)
-    --    pass all following options directly to kmchart
+    --    pass all following options directly to pmchart
 
-If no patterns are given then all lines in the kmsnap control file
+If no patterns are given then all lines in the pmsnap control file
 	$CONTROL
 will be processed.  If any patterns are given then only lines which
 match all patterns will be processed.
@@ -319,17 +319,17 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     then
 	if [ ! -f $CONFIGDIR/$aview ]
 	then
-	    if [ ! -f $PCP_VAR_DIR/config/kmchart/$aview ]
+	    if [ ! -f $PCP_VAR_DIR/config/pmchart/$aview ]
 	    then
-		if [ ! -f $PCP_VAR_DIR/config/pmchart/$aview ]
+		if [ ! -f $PCP_VAR_DIR/config/kmchart/$aview ]
 		then
-		    _warning "could not find \"$view\", \"$CONFIGDIR/$aview\", \"$PCP_VAR_DIR/config/kmchart/$aview, or \"$PCP_VAR_DIR/config/pmchart/$aview\""
+		    _warning "could not find \"$view\", \"$CONFIGDIR/$aview\", \"$PCP_VAR_DIR/config/pmchart/$aview, or \"$PCP_VAR_DIR/config/kmchart/$aview\""
 		    continue
 		else
-		    view=$PCP_VAR_DIR/config/pmchart/$aview
+		    view=$PCP_VAR_DIR/config/kmchart/$aview
 		fi
 	    else
-		view=$PCP_VAR_DIR/config/kmchart/$aview
+		view=$PCP_VAR_DIR/config/pmchart/$aview
 	    fi
 	else
 	    view=$CONFIGDIR/$aview
@@ -415,9 +415,9 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
     if $SHOWME
     then
-	echo "+ kmchart -c $view -o $name.$format -a $arch $commonargs $args"
+	echo "+ pmchart -c $view -o $name.$format -a $arch $commonargs $args"
     else
-	eval kmchart -c "$view" -o "$tmp.name.$format" -a "$arch" $commonargs $args > $tmp.err 2>&1
+	eval pmchart -c "$view" -o "$tmp.name.$format" -a "$arch" $commonargs $args > $tmp.err 2>&1
 	sts=$?
 
 	if [ $sts -eq 0 -a -f $tmp.name.$format ]
@@ -427,7 +427,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    $verbose && _debug "created \"$name.$format\""
 	    if [ -s "$tmp.err" ]
 	    then
-		_warning "the output image \"$name.$format\" was created but there were warning messages from kmchart, as follows:"
+		_warning "the output image \"$name.$format\" was created but there were warning messages from pmchart, as follows:"
 		cat $tmp.err
 		echo "-------------"
 	    fi
@@ -438,11 +438,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    # or soon thereafter
 	    if $verbose
 	    then
-		_debug "archive \"$arch\" too short for kmchart args \"$args\""
+		_debug "archive \"$arch\" too short for pmchart args \"$args\""
 	    fi
 	else
 	    # failed, remove the image and report the error
-	    _warning "the output image \"$name.$format\" was not created. There were error messages from kmchart, as follows:"
+	    _warning "the output image \"$name.$format\" was not created. There were error messages from pmchart, as follows:"
 	    cat $tmp.err
 	    echo "-------------"
 	    rm -f $name.$format

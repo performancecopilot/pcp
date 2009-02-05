@@ -27,7 +27,7 @@
    <string>Acknowlegdements</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmtime.qrc" >:/kmtime.png</iconset>
+   <iconset resource="pmtime.qrc" >:/pmtime.png</iconset>
   </property>
   <layout class="QGridLayout" >
    <property name="margin" >
@@ -77,7 +77,7 @@
             </size>
            </property>
            <property name="pixmap" >
-            <pixmap resource="kmtime.qrc" >:/aboutpcp.png</pixmap>
+            <pixmap resource="pmtime.qrc" >:/aboutpcp.png</pixmap>
            </property>
            <property name="scaledContents" >
             <bool>false</bool>
@@ -117,7 +117,7 @@
             </size>
            </property>
            <property name="pixmap" >
-            <pixmap resource="kmtime.qrc" >:/aboutqt.png</pixmap>
+            <pixmap resource="pmtime.qrc" >:/aboutqt.png</pixmap>
            </property>
            <property name="scaledContents" >
             <bool>true</bool>
@@ -266,7 +266,7 @@ Copyright (c) 1994-2007 Trolltech&lt;br>
  </widget>
  <layoutdefault spacing="6" margin="11" />
  <resources>
-  <include location="kmtime.qrc" />
+  <include location="pmtime.qrc" />
  </resources>
  <connections>
   <connection>

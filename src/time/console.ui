@@ -10,10 +10,10 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>kmtime Console</string>
+   <string>pmtime Console</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmtime.qrc" >:/kmtime.png</iconset>
+   <iconset resource="pmtime.qrc" >:/pmtime.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>true</bool>
@@ -116,7 +116,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11" />
  <resources>
-  <include location="kmtime.qrc" />
+  <include location="pmtime.qrc" />
  </resources>
  <connections>
   <connection>

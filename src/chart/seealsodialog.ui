@@ -27,7 +27,7 @@
    <string>Acknowlegdements</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
+   <iconset resource="pmchart.qrc" >:/pmchart.png</iconset>
   </property>
   <layout class="QGridLayout" >
    <property name="margin" >
@@ -77,7 +77,7 @@
             </size>
            </property>
            <property name="pixmap" >
-            <pixmap resource="kmchart.qrc" >:/aboutpcp.png</pixmap>
+            <pixmap resource="pmchart.qrc" >:/aboutpcp.png</pixmap>
            </property>
            <property name="scaledContents" >
             <bool>false</bool>
@@ -117,7 +117,7 @@
             </size>
            </property>
            <property name="pixmap" >
-            <pixmap resource="kmchart.qrc" >:/aboutqt.png</pixmap>
+            <pixmap resource="pmchart.qrc" >:/aboutqt.png</pixmap>
            </property>
            <property name="scaledContents" >
             <bool>true</bool>
@@ -265,7 +265,7 @@ Copyright (c) 1994-2007 Trolltech&lt;br>
   </layout>
  </widget>
  <resources>
-  <include location="kmchart.qrc" />
+  <include location="pmchart.qrc" />
  </resources>
  <connections>
   <connection>

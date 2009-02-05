@@ -1,5 +1,0 @@
-# pmafm support for kmchart
-
-MULTI="kmchart kmdumptext"
-REPLAY="kmchart"
-

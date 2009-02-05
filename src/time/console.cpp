@@ -13,7 +13,7 @@
  * for more details.
  */
 #include "console.h"
-#include <kmtime.h>
+#include <pmtime.h>
 #include <stdarg.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
@@ -24,9 +24,9 @@ Console::Console() : QDialog()
 {
     my.level = 0;
     if (pmDebug & DBG_TRACE_APPL0)
-	my.level |= KmTime::DebugApp;	// kmtime apps internals
+	my.level |= KmTime::DebugApp;	// pmtime apps internals
     if (pmDebug & DBG_TRACE_APPL1)
-	my.level |= KmTime::DebugProtocol;	// trace kmtime protocol
+	my.level |= KmTime::DebugProtocol;	// trace pmtime protocol
     setupUi(this);
 }
 

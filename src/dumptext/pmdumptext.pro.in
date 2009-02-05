@@ -1,6 +1,6 @@
 TEMPLATE	= app
 LANGUAGE	= C++
-SOURCES		= kmdumptext.cpp
+SOURCES		= pmdumptext.cpp
 INCLUDEPATH	+= ../include ../libqmc
 win32:INCLUDEPATH += @pcp_dir@/include
 LIBS		= -lpcp -L../libqmc -lqmc

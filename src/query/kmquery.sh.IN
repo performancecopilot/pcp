@@ -1,2 +1,0 @@
-#!/bin/sh
-exec PKG_BIN_DIR/kmquery "$@"

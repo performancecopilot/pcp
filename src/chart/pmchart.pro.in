@@ -1,6 +1,6 @@
 TEMPLATE	= app
 LANGUAGE	= C++
-HEADERS		= console.h kmchart.h main.h \
+HEADERS		= console.h pmchart.h main.h \
 		  aboutdialog.h chartdialog.h exportdialog.h \
 		  hostdialog.h infodialog.h openviewdialog.h \
 		  recorddialog.h samplesdialog.h saveviewdialog.h \
@@ -10,7 +10,7 @@ HEADERS		= console.h kmchart.h main.h \
 		  fileiconprovider.h namespace.h qcolorpicker.h \
 		  tabwidget.h timeaxis.h timebutton.h timecontrol.h \
 		  statusbar.h groupcontrol.h gadget.h
-SOURCES		= console.cpp kmchart.cpp main.cpp \
+SOURCES		= console.cpp pmchart.cpp main.cpp \
 		  aboutdialog.cpp chartdialog.cpp exportdialog.cpp \
 		  hostdialog.cpp infodialog.cpp openviewdialog.cpp \
 		  recorddialog.cpp samplesdialog.cpp saveviewdialog.cpp \
@@ -22,12 +22,12 @@ SOURCES		= console.cpp kmchart.cpp main.cpp \
 		  statusbar.cpp groupcontrol.cpp gadget.cpp \
 		  view.cpp
 FORMS		= aboutdialog.ui chartdialog.ui console.ui exportdialog.ui \
-		  hostdialog.ui infodialog.ui kmchart.ui openviewdialog.ui \
+		  hostdialog.ui infodialog.ui pmchart.ui openviewdialog.ui \
 		  recorddialog.ui samplesdialog.ui saveviewdialog.ui \
 		  searchdialog.ui seealsodialog.ui settingsdialog.ui \
 		  tabdialog.ui
-ICON		= kmchart.icns
-RESOURCES	= kmchart.qrc
+ICON		= pmchart.icns
+RESOURCES	= pmchart.qrc
 INCLUDEPATH	+= ../include ../libqmc ../libqwt
 win32:INCLUDEPATH += @pcp_dir@/include @pcp_dir@/local/include
 LIBS		= -lpcp -L../libqmc -lqmc -L../libqwt -lqwt

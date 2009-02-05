@@ -39,7 +39,7 @@
    <string>Add Tab</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmchart.qrc" >:/tab-edit.png</iconset>
+   <iconset resource="pmchart.qrc" >:/tab-edit.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>false</bool>
@@ -110,7 +110,7 @@
         <string>Live</string>
        </property>
        <property name="icon" >
-        <iconset resource="kmchart.qrc" >
+        <iconset resource="pmchart.qrc" >
          <normaloff>:/computer.png</normaloff>:/computer.png</iconset>
        </property>
        <property name="checked" >
@@ -127,7 +127,7 @@
         <string>Archives</string>
        </property>
        <property name="icon" >
-        <iconset resource="kmchart.qrc" >
+        <iconset resource="pmchart.qrc" >
          <normaloff>:/archive.png</normaloff>:/archive.png</iconset>
        </property>
        <property name="autoExclusive" >
@@ -250,7 +250,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="kmchart.qrc" />
+  <include location="pmchart.qrc" />
  </resources>
  <connections>
   <connection>

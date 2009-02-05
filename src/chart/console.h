@@ -16,7 +16,7 @@
 #define CONSOLE_H
 
 #include "ui_console.h"
-#include "kmchart.h"
+#include "pmchart.h"
 
 class Console : public QDialog, public Ui::Console
 {

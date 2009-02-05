@@ -16,12 +16,12 @@
    <string>Archive Time Bounds</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmtime.qrc" >:/kmtime.png</iconset>
+   <iconset resource="pmtime.qrc" >:/pmtime.png</iconset>
   </property>
   <property name="whatsThis" >
    <string>The Archive Bounds dialog displays and allows modifications
 to the start and end time of a (set of) PCP data archive(s).
-This effectively restricts all kmtime clients (e.g. pmval, kmchart)
+This effectively restricts all pmtime clients (e.g. pmval, pmchart)
 to a subset of the available performance data.</string>
   </property>
   <property name="sizeGripEnabled" >
@@ -57,7 +57,7 @@ to a subset of the available performance data.</string>
         <widget class="QwtSlider" name="sliderEnd" >
          <property name="whatsThis" >
           <string>Modify the archive end time as seen by all&lt;br>
-kmtime clients (e.g. pmval, kmchart).&lt;br>&lt;br>
+pmtime clients (e.g. pmval, pmchart).&lt;br>&lt;br>
 This cannot be set before the start time of the&lt;br>
 archive with the earliest start time, nor beyond&lt;br>
 of the archive with the latest end time.&lt;br>
@@ -99,7 +99,7 @@ time.</string>
         <widget class="QLineEdit" name="lineEditStart" >
          <property name="whatsThis" >
           <string>Modify the archive start time as seen by all&lt;br>
-kmtime clients (e.g. pmval, kmchart).&lt;br>&lt;br>
+pmtime clients (e.g. pmval, pmchart).&lt;br>&lt;br>
 This cannot be set before the start time of the&lt;br>
 archive with the earliest start time, nor beyond&lt;br>
 of the archive with the latest end time.&lt;br>
@@ -112,7 +112,7 @@ time.</string>
         <widget class="QwtSlider" name="sliderStart" >
          <property name="whatsThis" >
           <string>Modify the archive start time as seen by all&lt;br>
-kmtime clients (e.g. pmval, kmchart).&lt;br>&lt;br>
+pmtime clients (e.g. pmval, pmchart).&lt;br>&lt;br>
 This cannot be set before the start time of the&lt;br>
 archive with the earliest start time, nor beyond&lt;br>
 of the archive with the latest end time.&lt;br>
@@ -134,7 +134,7 @@ time.</string>
         <widget class="QLineEdit" name="lineEditEnd" >
          <property name="whatsThis" >
           <string>Modify the archive end time as seen by all&lt;br>
-kmtime clients (e.g. pmval, kmchart).&lt;br>&lt;br>
+pmtime clients (e.g. pmval, pmchart).&lt;br>&lt;br>
 This cannot be set before the start time of the&lt;br>
 archive with the earliest start time, nor beyond&lt;br>
 of the archive with the latest end time.&lt;br>
@@ -226,7 +226,7 @@ time.</string>
   <include location="local" >console.h</include>
  </includes>
  <resources>
-  <include location="kmtime.qrc" />
+  <include location="pmtime.qrc" />
  </resources>
  <connections>
   <connection>

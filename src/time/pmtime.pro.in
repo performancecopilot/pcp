@@ -1,15 +1,15 @@
 TEMPLATE	= app
 LANGUAGE	= C++
-HEADERS		= aboutdialog.h console.h kmtimearch.h kmtimelive.h \
+HEADERS		= aboutdialog.h console.h pmtimearch.h pmtimelive.h \
 		  seealsodialog.h showboundsdialog.h \
 		  timelord.h timezone.h
-SOURCES		= aboutdialog.cpp console.cpp kmtimearch.cpp kmtimelive.cpp \
+SOURCES		= aboutdialog.cpp console.cpp pmtimearch.cpp pmtimelive.cpp \
 		  seealsodialog.cpp showboundsdialog.cpp \
 		  timelord.cpp main.cpp
-FORMS		= aboutdialog.ui console.ui kmtimelive.ui kmtimearch.ui \
+FORMS		= aboutdialog.ui console.ui pmtimelive.ui pmtimearch.ui \
 		  seealsodialog.ui showboundsdialog.ui
-ICON		= kmtime.icns
-RESOURCES	= kmtime.qrc
+ICON		= pmtime.icns
+RESOURCES	= pmtime.qrc
 INCLUDEPATH	+= ../include ../libqwt
 win32:INCLUDEPATH += @pcp_dir@/include
 LIBS		= -lpcp -L../libqwt -lqwt

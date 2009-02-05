@@ -24,7 +24,7 @@
 #include "colorscheme.h"
 #include "timecontrol.h"
 #include "fileiconprovider.h"
-#include "kmchart.h"
+#include "pmchart.h"
 #include "version.h"
 
 typedef struct {

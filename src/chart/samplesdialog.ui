@@ -39,7 +39,7 @@
    <string>Add Samples</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmchart.qrc" >:/zoom-out.png</iconset>
+   <iconset resource="pmchart.qrc" >:/zoom-out.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>false</bool>
@@ -258,7 +258,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="kmchart.qrc" />
+  <include location="pmchart.qrc" />
  </resources>
  <connections>
   <connection>

@@ -66,10 +66,10 @@ AC_OUTPUT( \
 	src/libqmc/libqmc.pro \
 	src/libqwt/libqwt.pro \
 	src/libqwt3d/libqwt3d.pro \
-	src/dumptext/kmdumptext.pro \
-	src/query/kmquery.pro \
-	src/chart/kmchart.pro \
-	src/time/kmtime.pro \
+	src/dumptext/pmdumptext.pro \
+	src/query/pmquery.pro \
+	src/chart/pmchart.pro \
+	src/time/pmtime.pro \
 	man/html/pmchart.adp \
 	man/html/pmtime.adp \
 	pcp-gui.lsm )

@@ -13,7 +13,7 @@
       <string>Metric Information</string>
     </property>
     <property name="windowIcon" >
-      <iconset resource="kmchart.qrc" >:/help-browser.png</iconset>
+      <iconset resource="pmchart.qrc" >:/help-browser.png</iconset>
     </property>
     <property name="sizeGripEnabled" >
       <bool>true</bool>
@@ -162,7 +162,7 @@
     </layout>
   </widget>
   <resources>
-   <include location="kmchart.qrc" />
+   <include location="pmchart.qrc" />
   </resources>
   <connections>
     <connection>

@@ -1,7 +1,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-HFILES = kmtime.h
+HFILES = pmtime.h
 CONFFILES = builddefs version.h
 LSRCFILES = builddefs.in version.h.in buildmacros buildrules
 

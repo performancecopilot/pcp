@@ -17,7 +17,7 @@
 #include "ui_settingsdialog.h"
 #include "colorbutton.h"
 #include "colorscheme.h"
-#include "kmtime.h"
+#include "pmtime.h"
 
 class SettingsDialog : public QDialog, public Ui::SettingsDialog
 {

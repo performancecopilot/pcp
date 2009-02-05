@@ -25,7 +25,7 @@
 #include <QtGui/QPainter>
 
 #include "main.h"
-#include "kmchart.h"
+#include "pmchart.h"
 #include "aboutdialog.h"
 #include "chartdialog.h"
 #include "exportdialog.h"
@@ -292,12 +292,12 @@ void KmChart::acceptExport()
 void KmChart::filePrint()
 {
     QPrinter printer;
-    QString creator = QString("kmchart Version ");
+    QString creator = QString("pmchart Version ");
 
     creator.append(VERSION);
     printer.setCreator(creator);
     printer.setOrientation(QPrinter::Portrait);
-    printer.setDocName("kmchart.pdf");
+    printer.setDocName("pmchart.pdf");
 
     QPrintDialog print(&printer, (QWidget *)this);
     if (print.exec()) {
@@ -492,7 +492,7 @@ void KmChart::optionsNewKmchart()
     }
     if (Lflag)
 	arguments << "-L";
-    buddy->start("kmchart", arguments);
+    buddy->start("pmchart", arguments);
 }
 
 void KmChart::createNewChart(Chart::Style style)
@@ -852,7 +852,7 @@ void KmChart::setupEnabledActionsList()
     addSeparatorAction();	// end other processes
     my.toolbarActionsList << helpManualAction << helpWhatsThisAction;
 
-    // needs to match kmchart.ui
+    // needs to match pmchart.ui
     my.enabledActionsList << fileNewChartAction << fileOpenViewAction
 				// separator
 			  << zoomInAction << zoomOutAction

@@ -33,7 +33,7 @@
    <string>Settings</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmchart.qrc" >:/settings.png</iconset>
+   <iconset resource="pmchart.qrc" >:/settings.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>false</bool>
@@ -1281,7 +1281,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="kmchart.qrc" />
+  <include location="pmchart.qrc" />
  </resources>
  <connections>
   <connection>

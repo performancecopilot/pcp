@@ -25,7 +25,7 @@
    <string>About</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmtime.qrc" >:/kmtime.png</iconset>
+   <iconset resource="pmtime.qrc" >:/pmtime.png</iconset>
   </property>
   <property name="modal" >
    <bool>true</bool>
@@ -69,7 +69,7 @@
        <item>
         <widget class="QLabel" name="aboutPixmapLabel" >
          <property name="pixmap" >
-          <pixmap resource="kmtime.qrc" >:/kmtime.png</pixmap>
+          <pixmap resource="pmtime.qrc" >:/pmtime.png</pixmap>
          </property>
          <property name="scaledContents" >
           <bool>false</bool>
@@ -93,7 +93,7 @@
           <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal; text-decoration:none;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600; font-style:italic;">kmtime&lt;/span>&lt;br />&lt;span style=" font-weight:600; font-style:italic;">Version VERSION&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600; font-style:italic;">pmtime&lt;/span>&lt;br />&lt;span style=" font-weight:600; font-style:italic;">Version VERSION&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
          </property>
          <property name="alignment" >
           <set>Qt::AlignCenter</set>
@@ -209,7 +209,7 @@ p, li { white-space: pre-wrap; }
  </widget>
  <layoutdefault spacing="6" margin="11" />
  <resources>
-  <include location="kmtime.qrc" />
+  <include location="pmtime.qrc" />
  </resources>
  <connections>
   <connection>

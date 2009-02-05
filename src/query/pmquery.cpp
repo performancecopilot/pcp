@@ -11,7 +11,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include "kmquery.h"
+#include "pmquery.h"
 
 #define max(a,b) ((a)>(b)?(a):(b))
 #define DEFAULT_EDIT_WIDTH	420	/* in units of pixels */

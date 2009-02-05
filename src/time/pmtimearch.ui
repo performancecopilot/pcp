@@ -33,7 +33,7 @@
    <string>PCP Archive Time Control</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmtime.qrc" >:/kmtime.png</iconset>
+   <iconset resource="pmtime.qrc" >:/pmtime.png</iconset>
   </property>
   <property name="windowIconText" >
    <string/>
@@ -45,7 +45,7 @@
    <string>&lt;b>Archive Time Control&lt;/b>&lt;br>
 A time server, sending time related information (current time,
 metric value fetch interval, timezone) to one or more client
-programs (e.g. kmchart, pmval, etc).</string>
+programs (e.g. pmchart, pmval, etc).</string>
   </property>
   <widget class="QWidget" name="widget" >
    <layout class="QGridLayout" >
@@ -88,7 +88,7 @@ programs (e.g. kmchart, pmval, etc).</string>
              <string>&lt;b>Metric sampling interval&lt;/b>&lt;br>
 Numeric values entered into these fields will form the number of
 hours, minutes and/or seconds between PCP metric value
-samples in Time Control client programs (e.g. kmchart, pmval, etc).</string>
+samples in Time Control client programs (e.g. pmchart, pmval, etc).</string>
             </property>
             <property name="text" >
              <string>Interval</string>
@@ -109,7 +109,7 @@ samples in Time Control client programs (e.g. kmchart, pmval, etc).</string>
             <property name="whatsThis" >
              <string>&lt;b>Time Position&lt;/b>&lt;br>
 This text field displays the current time position.  This value is
-sent to clients (e.g. kmchart, pmval) of this Time Control
+sent to clients (e.g. pmchart, pmval) of this Time Control
 program to synchronise them in terms of the progression of time
 and also with respect to any "play mode" changes requested.</string>
             </property>
@@ -171,7 +171,7 @@ and also with respect to any "play mode" changes requested.</string>
                <string>&lt;b>Metric sampling interval&lt;/b>&lt;br>
 Numeric values entered into these fields will form the number of
 hours, minutes and/or seconds between PCP metric value
-samples in Time Control client programs (e.g. kmchart, pmval, etc).</string>
+samples in Time Control client programs (e.g. pmchart, pmval, etc).</string>
               </property>
              </widget>
             </item>
@@ -181,7 +181,7 @@ samples in Time Control client programs (e.g. kmchart, pmval, etc).</string>
                <string>&lt;b>Sampling interval units&lt;/b>&lt;br>
 Displays the units in which the sampling interval is entered.
 Metric values can be sampled in days, hours, minutes, seconds
-or milliseconds in Time Control client programs (e.g. kmchart,
+or milliseconds in Time Control client programs (e.g. pmchart,
 pmval, etc).</string>
               </property>
               <property name="currentIndex" >
@@ -246,7 +246,7 @@ pmval, etc).</string>
             <property name="whatsThis" >
              <string>&lt;b>Time Position&lt;/b>&lt;br>
 This text field displays the current time position.  This value is
-sent to clients (e.g. kmchart, pmval) of this Time Control
+sent to clients (e.g. pmchart, pmval) of this Time Control
 program to synchronise them in terms of the progression of time
 and also with respect to any "play mode" changes requested.</string>
             </property>
@@ -281,7 +281,7 @@ and also with respect to any "play mode" changes requested.</string>
         <property name="whatsThis" >
          <string>&lt;b>Time Position&lt;/b>&lt;br>
 This slider modifies the current time position.  This value is
-sent to clients (e.g. kmchart, pmval) of this Time Control
+sent to clients (e.g. pmchart, pmval) of this Time Control
 program to synchronise them in terms of the progression of time
 and also with respect to any "play mode" changes requested.</string>
         </property>
@@ -371,7 +371,7 @@ and also with respect to any "play mode" changes requested.</string>
           <property name="whatsThis" >
            <string>&lt;b>Back/Step/Rewind&lt;/b>&lt;br>
 Pressing this button will cause time to decrease, as seen by the
-Time Control program and all of its clients (e.g. kmchart, pmval,
+Time Control program and all of its clients (e.g. pmchart, pmval,
 etc).  In Backward mode, time will decrease in decrements of the
 current Interval (subject to Speed setting).  In Step mode, time
 will decrease one Interval and then wait.  In Rewind mode, time
@@ -408,7 +408,7 @@ time Interval.</string>
           <property name="whatsThis" >
            <string>&lt;b>Stop&lt;/b>&lt;br>
 Pressing this button will stop the movement of time, as seen by
-the Time Control program and all of its clients (e.g. kmchart,
+the Time Control program and all of its clients (e.g. pmchart,
 pmval, etc).  Unless stopped, time either advances/retreats in
 increments of the current Interval.</string>
           </property>
@@ -442,7 +442,7 @@ increments of the current Interval.</string>
           <property name="whatsThis" >
            <string>&lt;b>Play/Step/FastFwd&lt;/b>&lt;br>
 Pressing this button will begin the advancement of time, as seen
-by the Time Control program and all of its clients (e.g. kmchart,
+by the Time Control program and all of its clients (e.g. pmchart,
 pmval, etc).  In Play mode, time will advance in increments of the
 current Interval (subject to Speed setting).  In Step mode, time
 will advance one Interval and then wait.  In Fast Forward mode, time
@@ -653,7 +653,7 @@ can be displayed in the current time interval.</string>
       <string>&lt;b>Options|Timezone&lt;/b>&lt;br>
 Click on this menu item to display a list of available timezones,
 from which to choose.  The timezone selected will be made the
-new reporting timezone for all client programs (e.g. kmchart,
+new reporting timezone for all client programs (e.g. pmchart,
 pmval, etc) and affects the display of timestamps in the clients
 and also in the Time Control program itself.</string>
      </property>
@@ -661,7 +661,7 @@ and also in the Time Control program itself.</string>
       <string>&amp;Timezone</string>
      </property>
      <property name="icon" >
-      <iconset resource="kmtime.qrc" >:/internet-web-browser.png</iconset>
+      <iconset resource="pmtime.qrc" >:/internet-web-browser.png</iconset>
      </property>
     </widget>
     <addaction name="optionsTimezoneAction" />
@@ -676,17 +676,17 @@ and also in the Time Control program itself.</string>
   </widget>
   <action name="helpAboutAction" >
    <property name="icon" >
-    <iconset resource="kmtime.qrc" >:/kmtime.png</iconset>
+    <iconset resource="pmtime.qrc" >:/pmtime.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;About</string>
    </property>
    <property name="iconText" >
-    <string>About kmtime</string>
+    <string>About pmtime</string>
    </property>
    <property name="whatsThis" >
     <string>&lt;b>Help|About&lt;/b>&lt;br>
-Click this menu option to bring up the About &lt;i>kmtime&lt;/i> dialog with version, author, and licensing information.</string>
+Click this menu option to bring up the About &lt;i>pmtime&lt;/i> dialog with version, author, and licensing information.</string>
    </property>
    <property name="shortcut" >
     <string/>
@@ -694,7 +694,7 @@ Click this menu option to bring up the About &lt;i>kmtime&lt;/i> dialog with ver
   </action>
   <action name="fileHideAction" >
    <property name="icon" >
-    <iconset resource="kmtime.qrc" >:/edit-clear.png</iconset>
+    <iconset resource="pmtime.qrc" >:/edit-clear.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Hide</string>
@@ -766,8 +766,8 @@ Display the year (or not) in the current time position.</string>
    <property name="whatsThis" >
     <string>&lt;b>Option|Show Console&lt;/b>&lt;br>
 Click here to display the Time Boundaries dialog, which allows the
-archive time boundaries (as seen by kmtime clients, like pmval and
-kmchart) to be set.
+archive time boundaries (as seen by pmtime clients, like pmval and
+pmchart) to be set.
 Initially these are set to the start and end time of the archive
 (or earliest start and latest end, if multiple archives present),
 but it can be further restricted as needed here.</string>
@@ -808,7 +808,7 @@ Click on this menu option to bring up the See Also dialog, with author and websi
   </action>
   <action name="helpWhats_ThisAction" >
    <property name="icon" >
-    <iconset resource="kmtime.qrc" >:/whatsthis.png</iconset>
+    <iconset resource="pmtime.qrc" >:/whatsthis.png</iconset>
    </property>
    <property name="text" >
     <string>What's This?</string>
@@ -850,14 +850,14 @@ Click this menu option to invoke a small question mark that is attached to the m
   </customwidget>
  </customwidgets>
  <includes>
-  <include location="local" >kmtime.h</include>
+  <include location="local" >pmtime.h</include>
   <include location="local" >console.h</include>
   <include location="local" >timezone.h</include>
   <include location="local" >showboundsdialog.h</include>
   <include location="local" >qassistantclient.h</include>
  </includes>
  <resources>
-  <include location="kmtime.qrc" />
+  <include location="pmtime.qrc" />
  </resources>
  <connections>
   <connection>

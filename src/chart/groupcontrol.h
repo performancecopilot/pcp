@@ -22,7 +22,7 @@
 #include <qwt_plot.h>
 #include <qwt_scale_draw.h>
 #include <qmc_group.h>
-#include <kmtime.h>
+#include <pmtime.h>
 #include "gadget.h"
 #include "timebutton.h"
 

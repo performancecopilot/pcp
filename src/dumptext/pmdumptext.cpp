@@ -861,7 +861,7 @@ main(int argc, char *argv[])
 		descFlag = true;
 	    break;
 
-	case 'g':	// GUI mode with kmtime
+	case 'g':	// GUI mode with pmtime
 	    break;
 
 	case 'G':	// Shortest format
@@ -956,7 +956,7 @@ main(int argc, char *argv[])
 	    timeOffsetFlag = true;
 	    break;
 
-	case 'p':	// GUI port number for connecting to kmtime
+	case 'p':	// GUI port number for connecting to pmtime
 	    break;
 
         case 'P':       // precision

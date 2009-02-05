@@ -12,7 +12,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include "kmtimelive.h"
+#include "pmtimelive.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QTimer>
@@ -25,7 +25,7 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <sys/time.h>
-#include <kmtime.h>
+#include <pmtime.h>
 #include "version.h"
 #include "aboutdialog.h"
 #include "seealsodialog.h"

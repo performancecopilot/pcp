@@ -16,7 +16,7 @@
    <string>New Chart</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="kmchart.qrc" >:/kmchart.png</iconset>
+   <iconset resource="pmchart.qrc" >:/pmchart.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>true</bool>
@@ -853,7 +853,7 @@
             <string/>
            </property>
            <property name="icon" >
-            <iconset resource="kmchart.qrc" >:/help-browser.png</iconset>
+            <iconset resource="pmchart.qrc" >:/help-browser.png</iconset>
            </property>
           </widget>
          </item>
@@ -902,7 +902,7 @@
             <string/>
            </property>
            <property name="icon" >
-            <iconset resource="kmchart.qrc" >:/system-search.png</iconset>
+            <iconset resource="pmchart.qrc" >:/system-search.png</iconset>
            </property>
           </widget>
          </item>
@@ -945,7 +945,7 @@
             <string/>
            </property>
            <property name="icon" >
-            <iconset resource="kmchart.qrc" >:/process-stop.png</iconset>
+            <iconset resource="pmchart.qrc" >:/process-stop.png</iconset>
            </property>
           </widget>
          </item>
@@ -991,7 +991,7 @@
             <string/>
            </property>
            <property name="icon" >
-            <iconset resource="kmchart.qrc" >:/go-previous.png</iconset>
+            <iconset resource="pmchart.qrc" >:/go-previous.png</iconset>
            </property>
           </widget>
          </item>
@@ -1114,7 +1114,7 @@
               <string/>
              </property>
              <property name="icon" >
-              <iconset resource="kmchart.qrc" >:/go-jump.png</iconset>
+              <iconset resource="pmchart.qrc" >:/go-jump.png</iconset>
              </property>
             </widget>
            </item>
@@ -1232,7 +1232,7 @@
               <string/>
              </property>
              <property name="icon" >
-              <iconset resource="kmchart.qrc" >:/go-previous.png</iconset>
+              <iconset resource="pmchart.qrc" >:/go-previous.png</iconset>
              </property>
             </widget>
            </item>
@@ -1820,7 +1820,7 @@
   <include location="local" >qcolorpicker.h</include>
  </includes>
  <resources>
-  <include location="kmchart.qrc" />
+  <include location="pmchart.qrc" />
  </resources>
  <connections>
   <connection>
