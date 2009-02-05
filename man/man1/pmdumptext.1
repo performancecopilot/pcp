@@ -1,22 +1,22 @@
 '\"macro stdmacro
 .ie \(.g \{\
 .\" ... groff (hack for khelpcenter, man2html, etc.)
-.TH KMDUMPTEXT 1 "SGI" "Performance Co-Pilot"
+.TH PMDUMPTEXT 1 "SGI" "Performance Co-Pilot"
 \}
 .el \{\
-.if \nX=0 .ds x} KMDUMPTEXT 1 "" "Performance Co-Pilot"
-.if \nX=1 .ds x} KMDUMPTEXT 1 "Performance Co-Pilot"
-.if \nX=2 .ds x} KMDUMPTEXT 1 "" "\&"
-.if \nX=3 .ds x} KMDUMPTEXT "" "" "\&"
+.if \nX=0 .ds x} PMDUMPTEXT 1 "" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMDUMPTEXT 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMDUMPTEXT 1 "" "\&"
+.if \nX=3 .ds x} PMDUMPTEXT "" "" "\&"
 .TH \*(x}
 .rr X
 \}
 .SH NAME
-\f3kmdumptext\f1 \- dump performance metrics to an ASCII table
+\f3pmdumptext\f1 \- dump performance metrics to an ASCII table
 .\" literals use .B or \f3
 .\" arguments use .I or \f2
 .SH SYNOPSIS
-\f3kmdumptext\f1
+\f3pmdumptext\f1
 [\f3\-CFgGHilmMNoruXz\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1[\f3,\f2archive\f3,\f1...]]
@@ -38,7 +38,7 @@
 [\f3\-Z\f1 \f2timezone\f1]
 [\f2metric \f1...]
 .SH DESCRIPTION
-.B kmdumptext
+.B pmdumptext
 outputs the values of performance metrics collected live or from a
 Performance Co-Pilot (PCP) archive.
 By default, the metric values are displayed in tab separated columns,
@@ -49,12 +49,12 @@ Unless directed to another host by the
 option, or to one or more archives by the
 .B \-a
 option, 
-.B kmdumptext
+.B pmdumptext
 will contact
 .BR pmcd (1)
 on the local host to obtain the required information.
 .PP
-.B kmdumptext
+.B pmdumptext
 may be run in interactive mode with the
 .B \-i
 option which displays the values in equal width columns.  Without this option,
@@ -78,7 +78,7 @@ The
 to be dumped can be listed on the command line, in a 
 .I config
 file, or piped to
-.B kmdumptext
+.B pmdumptext
 on
 .IR stdin .
 A metric consists of an optional source (host or archive), the metric name,
@@ -207,7 +207,7 @@ Output the values using the shortest of a scientific format or a decimal
 notation.
 .IP \f3\-g\f1
 Run in graphical user interface (GUI) mode, with
-.B kmtime
+.B pmtime
 being used for VCR-alike time control functionality.
 .IP \f3\-h\f1
 Fetch performance metrics from
@@ -255,12 +255,12 @@ given with the
 .B \-f 
 option), the timestamp is prefixed with the offset in seconds from
 the start of the archive or the beginning of the execution of
-.BR kmdumptext .
+.BR pmdumptext .
 .IP \f3\-N\f1
 Output the normalization factors before the metric values.
 .IP \f3\-p\f1
 Connect to
-.BR kmtime (1)
+.BR pmtime (1)
 on the specified
 .IR port .
 .IP \f3\-P\f1
@@ -272,7 +272,7 @@ as the precision is constant.  The default precision is 3.
 .IP \f3\-r\f1
 Output the raw metric values, do not convert counters to rates.  This option
 also causes
-.B kmdumptext
+.B pmdumptext
 to ignore the normalization values for each metric.
 .IP \f3\-R\f1
 Repeat the header every
@@ -281,7 +281,7 @@ of output.  This option is useful in interactive mode when using a
 graphical window to avoid the header scrolling beyond the window's buffer,
 and to realign the header if the window is resized.
 .IP \f3\-s\f1
-.B kmdumptext
+.B pmdumptext
 will terminate after this many samples.
 .IP \f3\-t\f1
 The
@@ -325,7 +325,7 @@ is in the format of the environment variable
 as described in
 .BR environ (5).
 .SH MULTIPLE SOURCES
-.B kmdumptext
+.B pmdumptext
 supports the dumping of metrics from multiple hosts or archives.  The metrics
 listed on the command line or in the
 .I config
@@ -347,7 +347,7 @@ may not be used together.
 .SH UNIT CONVERSION
 All metrics that have the semantics of counters are automatically converted to
 rates over the sample time interval.  In interactive mode,
-.B kmdumptext
+.B pmdumptext
 will also change the units of some metrics so that they are easier to
 comprehend:
 .TP
@@ -366,7 +366,7 @@ o To examine the load on two hosts foo and bar, simultaneously:
 .in 0.5i
 .ft CW
 .nf
-$ kmdumptext \-il 'foo:kernel.all.load[1]' 'bar:kernel.all.load[1]'
+$ pmdumptext \-il 'foo:kernel.all.load[1]' 'bar:kernel.all.load[1]'
              Source        foo     bar
 Wed Jul 30 11:37:53      0.309   0.409
 Wed Jul 30 11:37:54      0.309   0.409
@@ -380,7 +380,7 @@ o To output the memory utilization on a remote host called bong with a simpler t
 .in 0.5i
 .ft CW
 .nf
-$ kmdumptext \-imu \-h bong \-f '%H:%M:%S' mem.util
+$ pmdumptext \-imu \-h bong \-f '%H:%M:%S' mem.util
   Metric        kernel  fs_ctl  _dirty  _clean    free    user
    Units             b       b       b       b       b       b
 09:32:28         8.98M   0.97M   0.00    3.90M   7.13M  46.13M
@@ -398,7 +398,7 @@ for processing by another tool:
 .in 0.5i
 .ft CW
 .nf
-$ pminfo \-a archive | kmdumptext \-t 30s \-m \-a archive > outfile
+$ pminfo \-a archive | pmdumptext \-t 30s \-m \-a archive > outfile
 .fi
 .ft R
 .in
@@ -421,8 +421,8 @@ configuration file,
 as described in
 .BR pcp.conf (4).
 .SH SEE ALSO
-.BR kmchart (1),
-.BR kmtime (1),
+.BR pmchart (1),
+.BR pmtime (1),
 .BR PCPIntro (1),
 .BR pmcd (1),
 .BR pmlogger (1),

@@ -1,19 +1,19 @@
 .ie \(.g \{\
 .\" ... groff (hack for khelpcenter, man2html, etc.)
-.TH KMSNAP 1 "" "Performance Co-Pilot"
+.TH PMSNAP 1 "" "Performance Co-Pilot"
 \}
 .el \{\
-.if \nX=0 .ds x} KMSNAP 1 "" "Performance Co-Pilot"
-.if \nX=1 .ds x} KMSNAP 1 "Performance Co-Pilot"
-.if \nX=2 .ds x} KMSNAP 1 "" "\&"
-.if \nX=3 .ds x} KMSNAP "" "" "\&"
+.if \nX=0 .ds x} PMSNAP 1 "" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMSNAP 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMSNAP 1 "" "\&"
+.if \nX=3 .ds x} PMSNAP "" "" "\&"
 .TH \*(x}
 .rr X
 \}
 .SH NAME
-\f3kmsnap\f1 \- generate performance summary snapshot images
+\f3pmsnap\f1 \- generate performance summary snapshot images
 .SH SYNOPSIS
-.B $PCP_BINADM_DIR/kmsnap
+.B $PCP_BINADM_DIR/pmsnap
 [\f3\-NV\f1]
 [\f3\-C\f1 \f2dir\f1]
 [\f3\-c\f1 \f2configs\f1]
@@ -22,15 +22,15 @@
 [\f3\-t\f1 \f2type\f1]
 .br
 .SH DESCRIPTION
-.B kmsnap
+.B pmsnap
 is a shell script
 that is normally run periodically from
 .BR crontab (1)
 to generate graphic images of 
-.BR kmchart (1)
+.BR pmchart (1)
 performance charts.
 These images can be in any of the supported
-.B kmchart
+.B pmchart
 formats, including
 .IR png ,
 .IR bmp ,
@@ -41,12 +41,12 @@ The
 .B \-V
 option enables verbose tracing of the actions.
 By default 
-.B kmsnap
+.B pmsnap
 generates no output unless some error or warning condition is encountered.
 .PP
-.B kmsnap
+.B pmsnap
 generates images according to its control file,
-.B $PCP_KMSNAPCONTROL_PATH
+.B $PCP_PMSNAPCONTROL_PATH
 (or
 .B dir/control
 if the
@@ -59,7 +59,7 @@ or PCP archive folios created by
 and
 .BR pmlogger_check (1).
 Before attempting to configure
-.BR kmsnap ,
+.BR pmsnap ,
 it is strongly recommended that
 .B pmlogger
 be configured according to the descriptions in
@@ -72,33 +72,33 @@ Once
 .B pmlogger
 has been configured,
 it is necessary to configure
-.B kmsnap
+.B pmsnap
 as follows;
 .IP 1.
 Edit the control file
-.BR $PCP_KMSNAPCONTROL_PATH .
+.BR $PCP_PMSNAPCONTROL_PATH .
 The syntax of this file is described in the comment at the head of the file
 and an example is supplied for one and twelve hour "Summary" performance charts
 for the local host.
 Suitable arguments for
-.B kmchart
+.B pmchart
 are also described in the comment.
 The user should consult
-.B kmchart
+.B pmchart
 for further details.
 Note that when
-.B kmsnap
+.B pmsnap
 is run, it globally substitutes the string
 .B LOCALHOSTNAME
 with the name of the local host in the control file.
 .IP 2.
 Test the configuration by running
 .ce 1
-.BR "$PCP_BINADM_DIR/kmsnap" .
+.BR "$PCP_BINADM_DIR/pmsnap" .
 Without any arguments 
-.B kmsnap
+.B pmsnap
 will process every non-comment line in 
-.BR $PCP_KMSNAPCONTROL_PATH .
+.BR $PCP_PMSNAPCONTROL_PATH .
 The output images will be placed in the files named
 in the first field of each line in the control file, with the file format
 appended if necessary.
@@ -119,16 +119,16 @@ Note that if
 has only been recently started (within about the last 15 minutes),
 snap-shot images may not be produced and no error
 messages will be issued - the reason is that
-.B kmchart
+.B pmchart
 can not use very short archives
 and hence, neither can
-.BR kmsnap .
+.BR pmsnap .
 For debugging purposes the
 .B \-V
 flag should be used.
 .IP 3.
 Add an appropriate entry for
-.B kmsnap
+.B pmsnap
 in the
 .B root
 user's
@@ -137,7 +137,7 @@ An example is supplied in
 .BR $PCP_VAR_DIR/config/pmlogger/crontab .
 .IP 4.
 Incorporate the
-.B kmsnap
+.B pmsnap
 images into the local WWW content.
 Usually, WWW pages use images that are relative to a particular document root,
 so it is often convenient to use the
@@ -147,7 +147,7 @@ and then create a web page in this directory that shows the
 snapshot images with text and other content appropriate to the local
 environment.
 .SH "COMMAND LINE OPTIONS"
-.B kmsnap
+.B pmsnap
 accepts the following command line options;
 .TP
 .BI \-C " dir"
@@ -156,7 +156,7 @@ The
 file is located in the directory
 .I dir
 rather than in the default
-.BR $PCP_KMSNAPCONTROL_PATH
+.BR $PCP_PMSNAPCONTROL_PATH
 location.
 .TP
 .BI \-c " config-pattern"
@@ -212,23 +212,23 @@ When either
 or
 .BR \-c
 are used,
-.B kmsnap
+.B pmsnap
 will only process lines in the control file
 which match all the supplied patterns.
 If no patterns are given,
 then all lines will be processed.
 These arguments allow multiple entries for
-.B kmsnap
+.B pmsnap
 in
 .B crontab
 so that different performance summary images can be generated
 at different times or with different frequencies.
 .P
 A sample HTML page, suitable for the Summary snapshot may be found in
-.BR $PCP_VAR_DIR/config/kmsnap/Summary.html .
+.BR $PCP_VAR_DIR/config/pmsnap/Summary.html .
 .P
 Although
-.B kmsnap
+.B pmsnap
 attempts to flush 
 .BR stdio (3)
 output buffers in the relevant 
@@ -236,15 +236,15 @@ output buffers in the relevant
 processes before generating snap-shots images,
 this may fail for assorted reasons and no error message will be given.
 .P
-.B kmsnap
+.B pmsnap
 should not be invoked immediately after
 .B pmlogger_daily
 has rolled the logs because the new archive logs will be too short
 to obtain meaningful results.
 Note however that
-.B kmsnap
+.B pmsnap
 will not report errors from
-.B kmchart
+.B pmchart
 about not being able to comply with the
 .B \-A
 option on very short archives.
@@ -252,14 +252,14 @@ In these cases no error will be reported
 and no output images will be produced.
 .SH FILES
 .TP 10
-.B $PCP_KMSNAPCONTROL_PATH
-\fBkmsnap\fR control file
+.B $PCP_PMSNAPCONTROL_PATH
+\fBpmsnap\fR control file
 .TP
-.B $PCP_VAR_DIR/config/kmsnap/Summary
+.B $PCP_VAR_DIR/config/pmsnap/Summary
 summary view for
-.B kmchart
+.B pmchart
 .TP
-.B $PCP_VAR_DIR/config/kmsnap/Summary.html
+.B $PCP_VAR_DIR/config/pmsnap/Summary.html
 sample HTML page for summary snapshot
 .TP
 .BI $PCP_LOG_DIR/pmlogger/ hostname /Latest
@@ -276,7 +276,7 @@ entry
 .BR cron (1),
 .BR crontab (1),
 .BR egrep (1),
-.BR kmchart (1),
+.BR pmchart (1),
 .BR pmafm (1),
 .BR pmlc (1),
 .BR pmlogger (1),

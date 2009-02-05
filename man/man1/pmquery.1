@@ -1,19 +1,19 @@
 .ie \(.g \{\
 .\" ... groff (hack for khelpcenter, man2html, etc.)
-.TH KMQUERY 1 "" "Performance Co-Pilot"
+.TH PMQUERY 1 "" "Performance Co-Pilot"
 \}
 .el \{\
-.if \nX=0 .ds x} KMQUERY 1 "" "Performance Co-Pilot"
-.if \nX=1 .ds x} KMQUERY 1 "Performance Co-Pilot"
-.if \nX=2 .ds x} KMQUERY 1 "" "\&"
-.if \nX=3 .ds x} KMQUERY "" "" "\&"
+.if \nX=0 .ds x} PMQUERY 1 "" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMQUERY 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMQUERY 1 "" "\&"
+.if \nX=3 .ds x} PMQUERY "" "" "\&"
 .TH \*(x}
 .rr X
 \}
 .SH NAME
-\f3kmconfirm\f1, \f3kmmessage\f1, \f3kmquery\f1 \- general purpose dialog box
+\f3pmconfirm\f1, \f3pmmessage\f1, \f3pmquery\f1 \- general purpose dialog box
 .SH SYNOPSIS
-\f3kmconfirm\f1
+\f3pmconfirm\f1
 [\f3\-c\f1]
 [\f3\-b\f1 \f2button-name\f1]
 [\f3\-B\f1 \f2default-button-name\f1]
@@ -28,7 +28,7 @@
 [\f3\-exclusive\f1]
 .br
 .PP
-\f3kmmessage\f1
+\f3pmmessage\f1
 [\f3\-buttons\f1 \f2label1\f1[:\f2value1\f1][,\f2label2\f1[:\f2value2\f1][,...]]]
 [\f3\-center\f1]
 [\f3\-nearmouse\f1]
@@ -39,24 +39,24 @@
 .I message...
 .br
 .PP
-\f3kmquery
+\f3pmquery
 [\f3\-input\f1]
 [\f3all above options...\f1]
 [\f2message...\f1]
 .SH DESCRIPTION
-.B kmquery
+.B pmquery
 provides a command-line-option compatible implementation of the
 .B xconfirm
 and
 .B xmessage
 tools, using a look-and-feel that is consistent with
-.BR kmchart .
+.BR pmchart .
 Several extensions to the functionality of the original tools have been made,
 in order to improve their specific utility for
-.BR kmchart ,
+.BR pmchart ,
 but wherever possible the original semantics remain.
 .PP
-.B kmconfirm
+.B pmconfirm
 displays a line of text for each
 .I \-t
 argument specified (or a file when the
@@ -66,19 +66,19 @@ and a button for each
 .I \-b
 argument specified.
 When one of the buttons is pressed, the label of that button is written to
-.B kmquery's
+.B pmquery's
 standard output.
 This provides a means of communication/feedback from within shell
 scripts and a means to display useful information to a user from
 an application.
 .PP
-.B kmmessage
+.B pmmessage
 displays a window containing a message from the command line, a file,
 or standard input.
 It additionally allows buttons to be associated with an exit status,
 and only optionally will write the label of the button to standard output.
 .PP
-.B kmquery
+.B pmquery
 extends the above tools to additionally support limited user input,
 as free form text.
 In this
@@ -162,7 +162,7 @@ where icontype is one of:
 is also accepted as a synonym for
 .I error
 for backward compatibility.
-.BR kmquery
+.BR pmquery
 introduces the additional
 .I archive
 and
@@ -182,15 +182,15 @@ Use string as the window title.
 This causes the program to write the label of the button pressed to
 standard output.
 It is the default behaviour for
-.B kmconfirm
+.B pmconfirm
 and
-.BR kmquery .
+.BR pmquery .
 .TP
 .B \-noprint
 This causes the program to not write the label of the button pressed to
 standard output.
 It is the default behaviour for
-.BR kmmessage .
+.BR pmmessage .
 .TP
 .B \-geometry \f2geometry-string\f1
 This provides xconfirm with an X-compatible geometry string specification.
@@ -221,7 +221,7 @@ asking the user a yes or no question with "Yes" as the default.
 .PP
 .nf
  #! /bin/sh
- case `kmquery \-t "Really power down?" \-b No \-B Yes \-icon question
+ case `pmquery \-t "Really power down?" \-b No \-B Yes \-icon question
  in
    Yes) shutdown;;
    No) ;;
@@ -233,31 +233,31 @@ terminal with an ssh session connected to the requested host.
 .PP
 .nf
  #! /bin/sh
- host=`kmquery \-input \-icon host \-b Cancel \-B OK \\
+ host=`pmquery \-input \-icon host \-b Cancel \-B OK \\
                \-header "Remote Terminal \- Secure Shell"
  [ "$host" = "Cancel" \-o \-z "$host" ] && exit
  gnome-terminal \-e "ssh $host"
 .fi
 .SH ENVIRONMENT
-.B kmquery
+.B pmquery
 is an excellent choice of utility for the "PCP_XCONFIRM_PROG"
 Performance Co-Pilot configuration parameter (refer to
 .BR pcp.conf (4)
 for details).
 .PP
 Note that PCP_XCONFIRM_PROG will be automatically set to
-.B kmquery
+.B pmquery
 inside tools like
-.BR kmchart ,
+.BR pmchart ,
 unless PCP_XCONFIRM_PROG is already set in the environment.
 .SH "EXIT STATUS"
 If it detects an error,
-.B kmquery
+.B pmquery
 always returns 1, so this value should not be associated with a button.
 Unless \f2\-button\f1 option has not been used, the return code will be
 zero on success.
 .SH "SEE ALSO"
-.BR kmchart (1),
+.BR pmchart (1),
 .BR xconfirm (1),
 .BR xmessage (1),
 .BR pcp.conf (4).

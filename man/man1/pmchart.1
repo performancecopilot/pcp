@@ -2,20 +2,20 @@
 .\" Copyright (c) 2008, Aconex.  All Rights Reserved.
 .ie \(.g \{\
 .\" ... groff (hack for khelpcenter, man2html, etc.)
-.TH KMCHART 1 "" "Performance Co-Pilot"
+.TH PMCHART 1 "" "Performance Co-Pilot"
 \}
 .el \{\
-.if \nX=0 .ds x} KMCHART 1 "" "Performance Co-Pilot"
-.if \nX=1 .ds x} KMCHART 1 "Performance Co-Pilot"
-.if \nX=2 .ds x} KMCHART 1 "" "\&"
-.if \nX=3 .ds x} KMCHART "" "" "\&"
+.if \nX=0 .ds x} PMCHART 1 "" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMCHART 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMCHART 1 "" "\&"
+.if \nX=3 .ds x} PMCHART "" "" "\&"
 .TH \*(x}
 .rr X
 \}
 .SH NAME
-\f3kmchart\f1 \- stripchart tool for Performance Co-Pilot
+\f3pmchart\f1 \- strip chart tool for Performance Co-Pilot
 .SH SYNOPSIS
-\f3kmchart\f1
+\f3pmchart\f1
 [\f3\-CVWz\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1]
@@ -33,7 +33,7 @@
 [\f3\-Z\f1 \f2timezone\f1]
 [\f2sources\f1...]
 .SH DESCRIPTION
-.B kmchart
+.B pmchart
 is a graphical utility that plots performance metrics values
 available through the facilities of the Performance Co-Pilot (PCP).
 Multiple charts can be displayed simultaneously, either aligned
@@ -47,10 +47,10 @@ See
 .BR PCPIntro (1)
 for an in-depth discussion of the capabilities of the PCP
 framework, many of which are used by
-.B kmchart.
+.B pmchart.
 .PP
 Many aspects of the behaviour of
-.B kmchart
+.B pmchart
 can be customised through the interface.
 In particular, the use of "views" (refer to the section describing
 VIEWS later in this document)
@@ -59,21 +59,21 @@ like colors, scaling, titles, legends, and so on to be stored for
 later use, or use with different hosts and archives.
 In addition, the Preferences dialog allows customisations to the
 rest of the
-.B kmchart
+.B pmchart
 user interface to be saved and restored between different invocations
 of the tool.
 This allows the default background color, highlight color, contents
 and location of the toolbar, and many other aspects to be configured.
 .PP
-.B kmchart
+.B pmchart
 makes extensive use of the
-.BR kmtime (1)
+.BR pmtime (1)
 utility for time control, refer to the
-.B kmtime
+.B pmtime
 manual page for further details of its operation.
 .PP
 Options which control the default source, timing and layout of the
-.B kmchart
+.B pmchart
 window are as follows:
 .TP 5
 .B \-a
@@ -103,7 +103,7 @@ This is primarily intended for testing purposes.
 If a second
 .B \-C
 option is presented,
-.B kmchart 
+.B pmchart 
 also connects to
 .BR pmcd (1)
 to check the semantics of metrics.
@@ -146,7 +146,7 @@ tif, tiff, xbm, and xpm.
 .B \-p
 .I port
 number for connection to an existing
-.B kmtime
+.B pmtime
 time control process.
 .TP
 .B \-s
@@ -179,10 +179,10 @@ value).
 .TP
 .B \-Z
 By default,
-.B kmtime
+.B pmtime
 reports the time of day according to the local timezone on the system
 where
-.B kmchart is run.
+.B pmchart is run.
 The
 .B \-Z
 option changes the timezone to
@@ -213,7 +213,7 @@ to
 for a complete description of these options.
 .SH VIEWS
 The primary
-.B kmchart
+.B pmchart
 configuration file is the "view", which allows the metadata
 associated with one or more charts to be saved in the filesystem.
 This metadata describes all aspects of the charts, including
@@ -228,10 +228,10 @@ are manipulated.
 .PP
 The first class, the "system" view, is simply any view that is
 installed as part of the
-.B kmchart
+.B pmchart
 package.
 These are stored in
-.I $PCP_VAR_DIR/config/kmchart.
+.I $PCP_VAR_DIR/config/pmchart.
 When the
 .I "File\(->Open View"
 dialog is displayed, it is these views that are initially listed.
@@ -252,13 +252,13 @@ Once the dialog is opened, the list of views can be toggled between
 user and system views by clicking on the two toggle buttons in the
 top right corner.
 User views are stored in
-.I $HOME/.pcp/kmchart.
+.I $HOME/.pcp/pmchart.
 .SH TABS
-.B kmchart
+.B pmchart
 provides the common user interface concept of the Tab, which
 is most prevalent in modern web browsers.
 Tabs allow
-.B kmchart
+.B pmchart
 to update many more charts than the available screen real estate
 allows, by providing a user interface mechanism to stack (and
 switch between) different vertical sets of charts.
@@ -267,11 +267,11 @@ which are located along the top of the display beneath the Menu
 and Tool bars).
 .PP
 Each Tab has a mode of operation (either live or archive \-
-.B kmchart
+.B pmchart
 can support both modes simultaneously), the total number of
 samples and currently visible points, and a label describing
 the Tab which is displayed at the top of the
-.B kmchart
+.B pmchart
 window.
 New Tabs can be created using the
 .I "File\(->Add Tab"
@@ -305,23 +305,23 @@ of PostScript and Portable Document Format (PDF).
 .SH RECORDING
 It is possible to make a recording of a set of displayed charts,
 for later playback through
-.B kmchart
+.B pmchart
 or any of the other Performance Co-Pilot tools.
 The
 .I "Record\(->Start"
 functionality is simple to configure through the user interface,
 and allows fine-tuning of the recording process (including record
 frequencies that differ to the
-.B kmchart
+.B pmchart
 update interval, alternate file locations, etc).
 .PP
-.B kmchart
+.B pmchart
 produces recordings that are compatible with the PCP
 .BR pmafm (1)
 replay mechanism, for later playback via a new instance of
-.BR kmchart .
+.BR pmchart .
 In addition, when recording through
-.B kmchart
+.B pmchart
 one can also replay the recording immediately, as on termination
 of the recording (through the
 .I "Record\(->Stop"
@@ -329,10 +329,10 @@ menu item), an archive mode Tab will be created with the captured view.
 .PP
 Once recording is active in a Live Tab, the Time Control status
 button in the bottom left corner of the
-.B kmchart
+.B pmchart
 window is displayed with a distinctive red dot.
 At any time during a
-.B kmchart
+.B pmchart
 recording session, the amount of space used in the filesystem by
 that recording can be displayed using the
 .I "Record\(->Query"
@@ -342,20 +342,20 @@ Finally, the
 .I "Record\(->Detach"
 menu option provides a mechanism whereby the recording process can
 be completely divorced from the running
-.B kmchart
+.B pmchart
 process, and allowed to continue on when
-.B kmchart
+.B pmchart
 exits.
 A dialog displaying the current size and estimated rate of growth for
 the recording is presented.
 On the other hand, if
-.B kmchart
+.B pmchart
 is terminated while recording is in process, then the recording process
 will prompt the user to choose immediate cessation of recording or for
 it to continue on independently.
 .PP
 All of the record mode services available from
-.B kmchart
+.B pmchart
 are implemented with the assistance of the base Performance Co-Pilot
 logging services \- refer to
 .BR pmlogger (1)
@@ -375,7 +375,7 @@ for an extensive description of the capabilities of these tools.
 .fi
 ..
 .PP
-.B kmchart
+.B pmchart
 loads predefined chart configurations (or "views") from external
 files that conform to the following rules.  In the descriptions below
 keywords (shown in \f(CBbold\fP) may appear in upper, lower or
@@ -391,10 +391,10 @@ The first line defines the configuration file type and should be
 \f(CB#kmchart\fP
 .EE
 although
-.B kmchart
-provides backwards compatibility for
 .B pmchart
-with an initial line of
+provides backwards compatibility for the older
+.B pmchart
+view formats with an initial line of
 .ES
 \f(CB#pmchart\fP
 .EE
@@ -408,11 +408,11 @@ The next line should be
 \f(CBversion\fP <n> <host-clause>
 .EE
 where \f(CW<n>\fP depends on the configuration file type, and
-is \f(CB1\fP for \f(CBkmchart\fP else \f(CB1.1\fP, \f(CB1.2\fP or
+is \f(CB1\fP for \f(CBpmchart\fP else \f(CB1.1\fP, \f(CB1.2\fP or
 \f(CB2.0\fP for \f(CBpmchart\fP.
 .RS
 The \f(CW<host-clause>\fP part is optional (and ignored)
-for \fBkmchart\fP configuration
+for \fBpmchart\fP configuration
 files, but required for the \fBpmchart\fP configuration files, and
 is of the form
 .ES
@@ -500,18 +500,19 @@ The \f(CW<title>\fP is usually enclosed in quotes (") and if it
 contains the sequence "%i" this will be replaced by the metric
 instance name (if any).
 .PP
-For
+For older
 .B pmchart
 configuration files, the keyword \f(CBtitle\fP must be used instead of
 \f(CBlegend\fP.
-.B kmchart
+Nowadays
+.B pmchart
 supports either keyword.
 .PP
-The \f(CBcolor\fP clause is optional for
-.B kmchart
-configuration files, but it is mandatory for
+The \f(CBcolor\fP clause is optional for newer
 .B pmchart
-configuration files.
+configuration files, but it was mandatory in the original
+.B pmchart
+configuration file format.
 \f(CW<colorspec>\fP may be one of the following:
 .ES
 \f(CB#\-cycle\fP
@@ -530,7 +531,7 @@ e.g. \f(CBred\fP or \f(CBsteelblue\fP, see also the output from
 .BR showrgb (1).
 .PP
 The "color" \f(CB#\-cycle\fP specifies that
-.B kmchart
+.B pmchart
 should use the next in a pallet of colors that it uses cyclically
 for each chart.  This is the default if the \f(CBcolor\fP clause
 is omitted.
@@ -538,10 +539,10 @@ is omitted.
 The \f(CW<hostspec>\fP in the \f(CBhost\fP clause may be a hostname,
 an IP address or an asterisk (*); the latter is used to mean the
 default source of performance metrics.
-For
+For older
 .B pmchart
-configuration files, the \f(CBhost\fP clause must be present, for
-.B kmchart
+configuration files, the \f(CBhost\fP clause must be present, for new
+.B pmchart
 configuration files it is optional, and if missing the default source
 of performance metrics will be used.
 .PP
@@ -571,7 +572,7 @@ uses extended regular expression notation in the style of
 uses a bizarre syntactic notation where \f(CW<inst>\fP and
 \f(CW<pat>\fP extend from the first non-white space character to the
 end of the input line.  For
-.B kmchart
+.B pmchart
 configuration files these elements are either delimited by white
 space, or enclosed in quotes (").
 .RE
@@ -605,18 +606,18 @@ as described in
 Of particular note, the
 .B $PCP_XCONFIRM_PROG
 setting is explicitly and unconditionally overridden by
-.B kmchart.
+.B pmchart.
 This is set to the
-.BR kmconfirm (1),
+.BR pmconfirm (1),
 utility, in order that some popup dialogs (particularly in the
 area of Recording) maintain a consistent look-and-feel with the
 rest of the
-.B kmchart
+.B pmchart
 application.
 .SH SEE ALSO
-.BR kmtime (1),
-.BR kmconfirm (1),
-.BR kmdumptext (1),
+.BR pmtime (1),
+.BR pmconfirm (1),
+.BR pmdumptext (1),
 .BR PCPIntro (1),
 .BR pmafm (1),
 .BR pmval (1),
