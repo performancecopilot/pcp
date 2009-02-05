@@ -33,9 +33,9 @@
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Linux/X11</B></FONT></P></TD></TR>
 </TABLE>
 <H3>RPM-based Distributions</H3>
-<P>Linux distributions that use the RPM format, such as Centos, Fedora, OpenSuSE, Redhat Enterprise Linux (RHEL), and SuSE Linux Enterprise Server (SLES) can make use of the pre-built packages that are available for download from <A HREF="http://oss.sgi.com/~nathans/">http://oss.sgi.com/~nathans/pcp-gui-*.rpm</A>.  These have been built on a recent version of Centos.
-<P>pmchart has a runtime dependency on the Qt4 shared libraries.  These are usually available from a package named <B>qt4</B>.  Version 3 of the Qt libraries <I>will not work</I>.  There is also a runtime dependency on the PCP library.  RPMs for these can be found in the same place as pcp-gui - <A HREF="http://oss.sgi.com/~nathans/">http://oss.sgi.com/~nathans/pcp-*.rpm</A>.
-<P>Once downloaded, the PCP and pcp-gui RPMs can be installed by running the following as root:
+<P>Linux distributions that use the RPM format, such as Centos, Fedora, OpenSuSE, Redhat Enterprise Linux (RHEL), and SuSE Linux Enterprise Server (SLES) can make use of the pre-built packages that are available for download from <A HREF="ftp://oss.sgi.com/projects/pcp/download/">http://oss.sgi.com/projects/pcp/download/pcp-gui-*.rpm</A>.  These have been built on a recent version of Centos.
+<P>pmchart has a runtime dependency on the Qt4 shared libraries.  These are usually available from a package named <B>qt4</B>.  Version 3 of the Qt libraries <I>will not work</I>.  There is also a runtime dependency on the PCP library.  RPMs for these can be found in the same place as pcp-gui - <A HREF="ftp://oss.sgi.com/projects/pcp/download/">ftp://oss.sgi.com/projects/pcp/download/pcp-*.rpm</A>.
+<P>Once downloaded, the PCP and PCP GUI RPMs can be installed by running the following as root:
 <P><I>&nbsp;&nbsp;rpm -Uvh pcp-*.rpm pcp-gui-*.rpm</I>
 <H3>DEB-based Distributions</H3>
 <P>For users of Debian, and Debian-based distributions like Ubuntu, binary packages are also available.  These have been incorporated into the official version of Debian currently under development (Feb 2008).  The initial version of the package is being made available alongside the RPMs above, but this will no longer be the case once the package is part of an official Debian release.
@@ -44,16 +44,16 @@
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>MacOSX</B></FONT></P></TD></TR>
 </TABLE>
-<P>On the Apple Mac platform, PCP GUI has been built and tested on versions 10.4 and 10.5 of MacOSX.  Pre-built binaries can be obtained from <A HREF="http://oss.sgi.com/~nathans/">http://oss.sgi.com/~nathans/kmchart-*.dmg</A>.
-<P>On MacOSX, PCP GUI has the same dependencies - the PCP library and the Qt4 runtime environment.  Pre-built PCP packages for MacOSX can be downloaded from the same location as pcp-gui - <A HREF="http://oss.sgi.com/~nathans/">http://oss.sgi.com/~nathans/pcp-*.dmg</A>, and the Qt4 binary package is available from <A HREF="http://www.trolltech.com/qt/">Trolltech</A>.
-</P>
+<P>On the Apple Mac platform, PCP GUI has been built and tested on versions 10.4 and 10.5 of MacOSX.  Pre-built binaries can be obtained from <A HREF="ftp://oss.sgi.com/projects/pcp/download/">ftp://oss.sgi.com/projects/pcp/download/pcp-gui-*.dmg</A>.
+<P>On MacOSX, PCP GUI has the same dependencies - the PCP library and the Qt4 runtime environment.  Pre-built PCP packages for MacOSX can be downloaded from the same location as pcp-gui - <A HREF="ftp://oss.sgi.com/projects/pcp/download">ftp://oss.sgi.com/projects/pcp/download/pcp-*.dmg</A>, and the Qt4 binary package is available from <A HREF="http://www.trolltech.com/qt/">Trolltech</A>.
+P>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Building from source</B></FONT></P></TD></TR>
 </TABLE>
 <P>The best way to build pmchart from source is to use the <B>git</B> source code management (SCM) tools.  This SCM is freely available and runs natively on many different platforms.  First, get the current version of the source code for both PCP GUI and PCP:
-<P>&nbsp;&nbsp;<I>git clone git://oss.sgi.com/nathans/kmchart.git kmchart</I>
-<P>&nbsp;&nbsp;<I>git clone git://oss.sgi.com/nathans/pcp.git pcp </I>
+<P>&nbsp;&nbsp;<I>git clone git://oss.sgi.com/pcp/pcp-gui.git pcp-gui</I>
+<P>&nbsp;&nbsp;<I>git clone git://oss.sgi.com/pcp/pcp.git pcp </I>
 <P>Build and install PCP:
 <P>&nbsp;&nbsp;<I>cd pcp && make install</I>
 <P>Then build pmchart:
@@ -64,7 +64,7 @@
 <HR>
 <CENTER>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2008 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
+	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2009 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
 	<TD WIDTH=50%><P ALIGN=RIGHT>PCP GUI</P></TD> </TR>
 </TABLE>
 </CENTER>
