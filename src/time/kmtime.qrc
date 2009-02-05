@@ -17,8 +17,8 @@
     <file>whatsthis.png</file>
     <file>edit-clear.png</file>
     <file>internet-web-browser.png</file>
-    <file>kmtime.png</file>
-    <file>aboutkmtime.png</file>
+    <file>pmtime.png</file>
+    <file>aboutpmtime.png</file>
     <file>aboutpcp.png</file>
     <file>aboutqt.png</file>
 </qresource>
