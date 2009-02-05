@@ -1,8 +1,10 @@
-kmchart is designed to produce stripcharts from Performance Co-Pilot (PCP)
+PCP GUI
+
+pmchart is designed to produce stripcharts from Performance Co-Pilot (PCP)
 performance metrics fetched from live sources (one or more pmcd hosts) and
 also historical sources (one or more PCP archives).
 
-kmtime is a graphical time controller utility that coordinates time updates
+pmtime is a graphical time controller utility that coordinates time updates
 and VCR-like playback for other utilities like kmchart and pmval.
 
 Instructions on building these tools can be found in doc/INSTALL.  Consult
