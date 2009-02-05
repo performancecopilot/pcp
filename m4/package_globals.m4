@@ -49,4 +49,24 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     test -f /etc/debian_version && pkg_distribution=debian
     test -z "$DISTRIBUTION" || pkg_distribution="$DISTRIBUTION"
     AC_SUBST(pkg_distribution)
+
+    pkg_doc_dir=`eval echo $datadir`
+    pkg_doc_dir=`eval echo $pkg_doc_dir/doc/$pkg_name`
+    if test "`echo $pkg_doc_dir | sed 's;/.*\$;;'`" = NONE
+    then
+	if test -d /usr/share
+	then
+	    pkg_doc_dir=/usr/share/$pkg_name
+	elif test -d /usr/local
+	then
+	    pkg_doc_dir=/usr/local/$pkg_name
+	else
+	    pkg_doc_dir=
+	fi
+    fi
+    AC_SUBST(pkg_doc_dir)
+
+    pkg_html_dir="$pkg_doc_dir/html"
+    test -z "$HTMLDIR" || pkg_html_dir="$HTMLDIR"
+    AC_SUBST(pkg_html_dir)
   ])
