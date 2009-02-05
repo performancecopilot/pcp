@@ -740,7 +740,7 @@ EOF
 if $remove
 then
 
-    _mesg_head "Removing all installed kmchart files"
+    _mesg_head "Removing all installed pcp-gui files"
     _mesg_head "Date: "`date`
     _mesg_head "User: $USER"
     _remove $tmp.idb
@@ -773,14 +773,14 @@ $1 == "f"	{ printf("_collect_file %s %s %s %s\n", $5, $6, $8, $9) }'
 #
 elif $install
 then
-    _mesg_head "Installing kmchart files"
+    _mesg_head "Installing pcp-gui files"
     _mesg_head "Date: "`date`
     _mesg_head "User: $USER"
     _install
 
 elif $upgrade
 then
-    _mesg_head "Upgrade of kmchart files"
+    _mesg_head "Upgrade of pcp-gui files"
     _mesg_head "Date: "`date`
     _mesg_head "User: $USER"
 

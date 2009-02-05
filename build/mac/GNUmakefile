@@ -19,36 +19,36 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-LDIRT = $(wildcard kmchart*.pkg) $(wildcard kmchart*.dmg) \
-	idb-kmchart description info
+LDIRT = $(wildcard pcp-gui*.pkg) $(wildcard pcp-gui*.dmg) \
+	idb-pcp-gui description info
 LDIRDIRT = installer-files $(PKG_NAME)-*.*.*
 
 SUBDIRS = English.lproj installer-resources
-INSTFILES = idb-kmchart install-kmchart uninstall-kmchart
+INSTFILES = idb-pcp-gui install-pcp-gui uninstall-pcp-gui
 
 LSRCFILES = build-installer installer-description installer-info \
-	    install-kmchart uninstall-kmchart
+	    install-pcp-gui uninstall-pcp-gui
 
 default install :
 
-.PHONY: pack_kmchart
-pack_kmchart : extrabits
+.PHONY: pack-pcp-gui
+pack-pcp-gui : extrabits
 	@PKG_VERSION=${PKG_VERSION} \
 	 PKG_MAJOR=${PKG_MAJOR} \
 	 PKG_MINOR=${PKG_MINOR} \
 	 PKG_RELEASE=${PKG_RELEASE} \
 	./build-installer $(PACKAGE_MAKER) $(HDIUTIL) \
-			  $$DIST_ROOT ${PKG_NAME} idb-kmchart
+			  $$DIST_ROOT ${PKG_NAME} idb-pcp-gui
 
 # We need to do a fair bit of munging here.  Firstly, add a version number
 # then swap source and destination.  Ensure there is a mode and user/group
 # for EVERY entry.  Add a 'rule' (eg replace).  Make destination relative.
 # Make source relative to DIST_ROOT.  Ensure that a symlink has a full path
 # for the source append the installer scripts.
-idb-kmchart: $(DIST_MANIFEST)
-	@echo Making idb-kmchart...
-	@echo "# Version 1" > idb-kmchart
-	@echo "# IDB for kmchart" >> idb-kmchart
+idb-pcp-gui: $(DIST_MANIFEST)
+	@echo Making idb-pcp-gui...
+	@echo "# Version 1" > idb-pcp-gui
+	@echo "# IDB for pcp-gui" >> idb-pcp-gui
 	@WA=`cd $(TOPDIR) ; pwd` ; \
 	$(AWK) ' \
 		$$1 == "d" { printf "%s %s %s %s %s src/ replace\n", $$1, $$2, $$3, $$4, $$5 ; next; } \
@@ -68,14 +68,14 @@ idb-kmchart: $(DIST_MANIFEST)
 			printf "%s %s %s %s %s %s replace\n", $$1, $$2, $$3, $$4, $$6, $$5 ; \
 		} \
 		' $$DIST_MANIFEST \
-	| sed -e 's# '$$WA'/# #g' -e 's# /# #g' >> idb-kmchart
+	| sed -e 's# '$$WA'/# #g' -e 's# /# #g' >> idb-pcp-gui
 	@(bdir=`echo $(PCP_BINADM_DIR) | cut -c2-`; \
-	  echo "f 644 root admin $$bdir/idb-kmchart idb-kmchart replace"; \
-	  echo "f 755 root admin $$bdir/install-kmchart install-kmchart replace"; \
-	  echo "f 755 root admin $$bdir/uninstall-kmchart uninstall-kmchart replace") >> idb-kmchart
-	@echo idb-kmchart created
+	  echo "f 644 root admin $$bdir/idb-pcp-gui idb-pcp-gui replace"; \
+	  echo "f 755 root admin $$bdir/install-pcp-gui install-pcp-gui replace"; \
+	  echo "f 755 root admin $$bdir/uninstall-pcp-gui uninstall-pcp-gui replace") >> idb-pcp-gui
+	@echo idb-pcp-gui created
 
-extrabits: idb-kmchart
+extrabits: idb-pcp-gui
 	DIST_MANIFEST= $(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
 	DIST_MANIFEST= $(INSTALL) -m 755 $(INSTFILES) $(PCP_BINADM_DIR)
 

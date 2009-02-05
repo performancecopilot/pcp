@@ -20,11 +20,11 @@
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
 
-if [ -d /Library/Receipts/kmchart-* ]
+if [ -d /Library/Receipts/pcp-gui-* ]
 then
-    /bin/chmod 755 /Library/Receipts/kmchart*
-    /usr/sbin/chown -R root /Library/Receipts/kmchart*
-    /usr/bin/chgrp -R wheel /Library/Receipts/kmchart*
+    /bin/chmod 755 /Library/Receipts/pcp-gui*
+    /usr/sbin/chown -R root /Library/Receipts/pcp-gui*
+    /usr/bin/chgrp -R wheel /Library/Receipts/pcp-gui*
 fi
 
 exit 0

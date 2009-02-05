@@ -7,7 +7,7 @@
 	<key>IFPkgDescriptionDescription</key>
 	<string>Performance Co-Pilot Strip Charts for MacOS X</string>
 	<key>IFPkgDescriptionTitle</key>
-	<string>PCP Charts (kmchart) for Mac OS X</string>
+	<string>PCP GUI for Mac OS X</string>
 	<key>IFPkgDescriptionVersion</key>
 	<string>@package_version@</string>
 </dict>

@@ -19,16 +19,16 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# Post installation/upgrade script for kmchart
+# Post installation/upgrade script for pcp-gui
 #
 
 prog=`basename $0`
 status=1
 trap "exit \$status" 0 1 2 15
 
-echo "$prog: PCP Charts (kmchart) for MacOSX Upgrade"
+echo "$prog: PCP GUI for MacOSX Upgrade"
 
-echo "$prog: Writing install log to /var/log/kmchart_inst.log"
+echo "$prog: Writing install log to /var/log/pcp-gui-inst.log"
 
 if [ ! -d $2 ]
 then
@@ -39,9 +39,9 @@ fi
 cd $2
 
 # TODO: Remove -v flag once stable
-if [ -f /usr/share/pcp/bin/idb-kmchart ]
+if [ -f /usr/share/pcp/bin/idb-pcp-gui ]
 then
-    if ./install-kmchart -v -u /usr/share/pcp/bin/idb-kmchart -l /var/log/kmchart_inst.log idb-kmchart
+    if ./install-pcp-gui -v -u /usr/share/pcp/bin/idb-pcp-gui -l /var/log/pcp-gui-inst.log idb-pcp-gui
     then
 	:
     else
@@ -51,9 +51,9 @@ then
 else
     echo "$prog: Package detected previous install of pcp but /usr/share/pcp/bin/idb does not exist."
     echo "$prog: Attempting to remove existing files using new idb."
-    if ./install-kmchart -v -r -l /var/log/kmchart_inst.log idb-kmchart
+    if ./install-pcp-gui -v -r -l /var/log/pcp-gui-inst.log idb-pcp-gui
     then
-	if ./install-kmchart -v -i -l /var/log/kmchart_inst.log idb-kmchart
+	if ./install-pcp-gui -v -i -l /var/log/pcp-gui-inst.log idb-pcp-gui
 	then
 	    :
 	else

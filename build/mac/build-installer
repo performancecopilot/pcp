@@ -14,7 +14,7 @@ if [ ! -x "$1" -o ! -x "$2" -o ! -d "$3" -o -z "$4" -o ! -f "$5" ]; then
 	echo Must supply a package name
     fi
     if [ ! -f "$5" ]; then
-	echo idb-kmchart file not found
+	echo idb-pcp-gui file not found
     fi
     echo "Usage: $0 /path/to/PackageMaker /path/to/hdiutil /path/to/DIST_ROOT package_name idb_file"
     exit 1
@@ -54,13 +54,13 @@ _run()
 }
 
 echo "Verifying IDB file is valid"
-_do ./install-kmchart -R $DIST_ROOT -p $IDB
+_do ./install-pcp-gui -R $DIST_ROOT -p $IDB
 
-echo "Gathering files from the source tree using install-kmchart"
+echo "Gathering files from the source tree using install-pcp-gui"
 _do rm -rf $IFDIR
 _do mkdir $IFDIR
 cd $IFDIR
-_do ../install-kmchart -R $DIST_ROOT -c ../idb-kmchart
+_do ../install-pcp-gui -R $DIST_ROOT -c ../idb-pcp-gui
 cd $HERE
 
 pwd

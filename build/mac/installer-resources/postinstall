@@ -19,33 +19,33 @@
 # Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
 # Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
-# Post installation/upgrade script for kmchart
+# Post installation/upgrade script for pcp-gui
 #
 
 prog=`basename $0`
 status=1
 trap "exit \$status" 0 1 2 15
 
-echo "$prog: PCP Charts (kmchart) for MacOSX Install"
+echo "$prog: PCP GUI for MacOSX Install"
 
-echo "$prog: Writing install log to /var/log/kmchart_inst.log"
-echo "$prog: Writing install log to /var/log/kmchart_inst.log"  > /var/log/kmchart_inst.log
+echo "$prog: Writing install log to /var/log/pcp-gui-inst.log"
+echo "$prog: Writing install log to /var/log/pcp-gui-inst.log"  > /var/log/pcp-gui-inst.log
 
 if [ ! -d $2 ]
 then
     echo "$prog: Unable to open directory of new files ($2)"
-    echo "$prog: Unable to open directory of new files ($2)" >> /var/log/kmchart_inst.log
+    echo "$prog: Unable to open directory of new files ($2)" >> /var/log/pcp-gui-inst.log
     exit 1
 fi
 
 cd $2
 
-if ./install-kmchart -i -l /var/log/kmchart_inst.log idb-kmchart
+if ./install-pcp-gui -i -l /var/log/pcp-gui-inst.log idb-pcp-gui
 then
     :
 else
     echo "$prog: Install Failed"
-    echo "$prog: Install Failed" >> /var/log/kmchart_inst.log
+    echo "$prog: Install Failed" >> /var/log/pcp-gui-inst.log
     exit 1
 fi
 

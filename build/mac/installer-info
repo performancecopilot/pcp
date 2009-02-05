@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
         <key>CFBundleGetInfoString</key>
-        <string>kmchart @package_version@</string>
+        <string>pcp-gui @package_version@</string>
         <key>CFBundleIdentifier</key>
-        <string>com.aconex.pkg.kmchart</string>
+        <string>com.aconex.pkg.pcp-gui</string>
         <key>CFBundleName</key>
         <string>PCP Charts</string>
         <key>CFBundleShortVersionString</key>
@@ -19,7 +19,7 @@
 	<key>IFPkgFlagAuthorizationAction</key>
 	<string>RootAuthorization</string>
 	<key>IFPkgFlagDefaultLocation</key>
-	<string>/tmp/kmchart</string>
+	<string>/tmp/pcp-gui</string>
 	<key>IFPkgFlagInstallFat</key>
 	<false/>
 	<key>IFPkgFlagIsRequired</key>
