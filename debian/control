@@ -10,7 +10,7 @@ Package: pcp
 Depends: ${shlibs:Depends}, gawk, procps, sysv-rc-conf, cpp
 Suggests: tsocks
 Conflicts: pgpool2
-Recommends: kmchart
+Recommends: pcp-gui
 Architecture: any
 Description: System level performance monitoring and performance management
  Performance Co-Pilot (PCP) is a framework and services to
