@@ -1308,7 +1308,7 @@ then
     pcp_pmcdoptions_path=/etc/pmcd/pmcd.options
     pcp_pmproxyoptions_path=/etc/pmproxy/pmproxy.options
     pcp_pmiecontrol_path=/etc/pmie/control
-    pcp_kmsnapcontrol_path=/etc/kmsnap/control
+    pcp_pmsnapcontrol_path=/etc/pmsnap/control
     pcp_pmloggercontrol_path=/etc/pmlogger/control
 else
     pcp_pmcdconf_path=$pcp_var_dir/config/pmcd/pmcd.conf
@@ -1316,7 +1316,7 @@ else
     pcp_pmcdoptions_path=$pcp_var_dir/config/pmcd/pmcd.options
     pcp_pmproxyoptions_path=$pcp_var_dir/config/pmproxy/pmproxy.options
     pcp_pmiecontrol_path=$pcp_var_dir/config/pmie/control
-    pcp_kmsnapcontrol_path=$pcp_var_dir/config/kmsnap/control
+    pcp_pmsnapcontrol_path=$pcp_var_dir/config/pmsnap/control
     pcp_pmloggercontrol_path=$pcp_var_dir/config/pmlogger/control
 fi
 AC_SUBST(pcp_pmcdconf_path)
@@ -1324,7 +1324,7 @@ AC_SUBST(pcp_pmcdoptions_path)
 AC_SUBST(pcp_pmcdrclocal_path)
 AC_SUBST(pcp_pmproxyoptions_path)
 AC_SUBST(pcp_pmiecontrol_path)
-AC_SUBST(pcp_kmsnapcontrol_path)
+AC_SUBST(pcp_pmsnapcontrol_path)
 AC_SUBST(pcp_pmloggercontrol_path)
 
 pcp_pmdas_dir=$pcp_var_dir/pmdas
