@@ -27,7 +27,7 @@ unset ROOT TOOLROOT
 # Note: the following environment variables may be
 # set to override the defaults.
 #
-# MAKE CC CXX CPP LD LEX YACC INSTALL AWK SED ECHO
+# MAKE CC CPP LD LEX YACC INSTALL AWK SED ECHO
 #
 
 dnl Guess target platfrom
@@ -211,13 +211,6 @@ then
 fi
 make=$MAKE
 AC_SUBST(make)
-
-dnl check if user wants their own C++ compiler
-if test -z "$CXX"; then
-    AC_PROG_CXX
-fi
-cxx=$CXX
-AC_SUBST(cxx)
 
 dnl check if users wants their own CPP
 if test -z "$CPP"; then
@@ -674,21 +667,6 @@ AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
 AC_CHECK_HEADERS(pwd.h regex.h termios.h sys/termios.h sys/wait.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h iptypes.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
-
-dnl Checks for C++ header files.
-if test "$PMC_SUPPORT" = false -o $target_os = mingw
-then
-    pmc_support=false
-else
-    AC_LANG_PUSH([C++])
-    AC_CHECK_HEADERS(iostream.h, [pmc_support=true], [pmc_support=false])
-    if test "$pmc_support" = false
-    then
-	AC_CHECK_HEADERS(iostream, [pmc_support=true], [pmc_support=false])
-    fi
-    AC_LANG_POP([C++])
-fi
-AC_SUBST(pmc_support)
 
 dnl Check if we have <sys/endian.h> ... standard way
 AC_MSG_CHECKING([for sys/endian.h ])

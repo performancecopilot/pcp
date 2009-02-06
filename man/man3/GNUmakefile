@@ -46,12 +46,6 @@ MAN_PAGES	= \
 	pmdacache.3 pmdahelp.3 pmloop.3 pmcontextundef.3 \
 	pmgetcontextfd.3 pmcontextconnectto.3 
 
-ifeq ($(PMC_SUPPORT), true)
-MAN_PAGES += \
-	pmc.3 pmc_context.3 pmc_desc.3 pmc_group.3 pmc_indom.3 \
-	pmc_metric.3 pmc_source.3 
-endif
-
 # IMPL_MANPAGES from IRIX
 MAN_PAGES += \
 	pmconverttime.3 pmmktime.3 pmparsectime.3 pmfreeprofile.3 \

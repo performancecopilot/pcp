@@ -32,7 +32,7 @@ pkglibpcp_trace = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_trace);
 pkglibpcp_pmda_perl = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda_perl);
 pkgpcp_logsummary_perl = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_logsummary_perl);
 
-options = export DEBUG=-DNDEBUG AWK=gawk PMC_SUPPORT=false;
+options = export DEBUG=-DNDEBUG AWK=gawk;
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
 uninstalld = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include
