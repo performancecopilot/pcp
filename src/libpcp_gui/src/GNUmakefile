@@ -21,7 +21,7 @@ include	$(TOPDIR)/src/include/builddefs
 
 STATICLIBTARGET = libpcp_gui.a
 
-CFILES = client.c
+CFILES = timeclient.c
 HFILES = pmtime.h
 
 default: $(STATICLIBTARGET)
