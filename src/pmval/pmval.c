@@ -22,13 +22,9 @@
 #include <math.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "pmtime.h"
 
-#if defined(HAVE_PMTIME)
 static void talk_to_pmtime(int *);
-#elif defined(HAVE_KMTIME)
-#include "kmtime.h"
-static void talk_to_kmtime(int *);
-#endif
 
 /***************************************************************************
  * constants
@@ -54,17 +50,13 @@ static char usage[] =
     "  -d            delay, pause between updates for archive replay\n"
     "  -f N          fixed precision output format with N digits to the\n"
     "                right of the decimal point\n"
-#if defined(HAVE_PMTIME) || defined(HAVE_KMTIME)
     "  -g            start in GUI mode with new time control\n"
-#endif
     "  -h host       metrics source is PMCD on host\n"
     "  -i instance   metric instance or list of instances - elements in an\n"
     "                instance list are separated by commas or whitespace\n"
     "  -n pmnsfile   use an alternative PMNS\n"
     "  -O offset     initial offset into the time window\n"
-#if defined(HAVE_PMTIME) || defined(HAVE_KMTIME)
-    "  -p port       port name for connection to existing time control\n"
-#endif
+    "  -p port       port number for connection to existing time control\n"
     "  -r            output raw counter values\n"
     "  -S starttime  start of the time window\n"
     "  -s samples    terminate after this many samples\n"
@@ -123,19 +115,11 @@ static char		local[] = "localhost";
 static int		gui = 0;
 static int		rawarchive = 0;
 static int		state = START;
-#if defined(HAVE_PMTIME) || defined(HAVE_KMTIME)
 static char		*control_port = NULL;
 static int		control_fd;
-#if defined(HAVE_PMTIME)
-static pmTime		pmtime;
-static int		lastdeltaunits;	/* from -t or pmtime.vcrmode */
-static int		lastdelta;	/* from -t or pmtime.delta */
-#elif defined(HAVE_KMTIME)
-static int		kmport;
-static kmTime		*kmtime;
-static struct timeval	lastkmdelta;	/* from -t or kmtime.delta */
-#endif
-#endif
+static int		pmport;
+static pmTime		*pmtime;
+static struct timeval	lastpmdelta;	/* from -t or pmtime.delta */
 static struct timeval	last = {INT_MAX, 999999};	/* end time for log */
 static int		fixed = -1;
 
@@ -374,13 +358,19 @@ initapi(Context *x)
     }
 }
 
-#if defined(HAVE_PMTIME)	/* let pmtime control know we are done */
 static void
 ack_tctl(struct timeval *now)
 {
     int		sts;
 
-    if ((sts = pmTimeSendAck(now)) < 0) {
+    /*
+     * DO NOT send back ACKs for timestamps NOT sent from pmtime!  (i.e.
+     * we need to ignore the "now" parameter past in, for pmtime).  Old
+     * pmtime must allow different times? (not checking ACK timestamps?)
+     * The pmFetch seems to modify (at least) the tv_usec component when
+     * interpolating in live mode...
+     */
+    if ((sts = pmTimeSendAck(control_fd, &pmtime->position)) < 0) {
 	if (sts == -EPIPE)
 	    fprintf(stderr, "\n%s: Time Controller has exited, goodbye\n",
 		pmProgname);
@@ -389,31 +379,6 @@ ack_tctl(struct timeval *now)
 	exit(EXIT_FAILURE);
     }
 }
-#elif defined(HAVE_KMTIME)	/* let kmtime control know we are done */
-static void
-ack_tctl(struct timeval *now)
-{
-    int		sts;
-
-    /*
-     * DO NOT send back ACKs for timestamps NOT sent from kmtime!  (i.e.
-     * we need to ignore the "now" parameter past in, for kmtime).
-     * pmtime must allow different times? (not checking ACK timestamps?)
-     * The pmFetch seems to modify (at least) the tv_usec component when
-     * interpolating in live mode...
-     */
-    if ((sts = kmTimeSendAck(control_fd, &kmtime->position)) < 0) {
-	if (sts == -EPIPE)
-	    fprintf(stderr, "\n%s: Time Controller has exited, goodbye\n",
-		pmProgname);
-	else
-	    fprintf(stderr, "\n%s: kmTimeSendAck: %s\n", pmProgname, pmErrStr(sts));
-	exit(EXIT_FAILURE);
-    }
-}
-#else
-#define ack_tctl(now)		do { } while (0)
-#endif
 
 
 /* Fetch metric values. */
@@ -652,11 +617,7 @@ printhdr(Context *x, long smpls, struct timeval delta, struct timeval first)
     else printf("samples:   %ld\n", smpls);
     if (smpls != ALL_SAMPLES && smpls > 1 && (ahtype != PM_CONTEXT_ARCHIVE || amode == PM_MODE_INTERP)) {
 	printf("interval:  %1.2f sec\n", tosec(delta));
-#if defined(HAVE_PMTIME)
-	getXTBintervalFromTimeval(&lastdelta, &lastdeltaunits, &delta);
-#elif defined(HAVE_KMTIME)
-	lastkmdelta = delta;
-#endif
+	lastpmdelta = delta;
     }
 }
 
@@ -1075,11 +1036,9 @@ getargs(int		argc,		/* in - command line argument count */
 	   fixed = d;
 	   break;
 
-#if defined(HAVE_PMTIME) || defined(HAVE_KMTIME)
 	case 'g':
 	    gui = 1;
 	    break;
-#endif
 
 	case 'h':		/* host name */
 	    if (++src > 1) {
@@ -1115,31 +1074,13 @@ getargs(int		argc,		/* in - command line argument count */
 	    break;
 
 	case 'p':		/* port for slave of existing time control */
-#if defined(HAVE_PMTIME)
-	    if ((sts = stat(optarg, &statbuf)) < 0) {
-		fprintf(stderr, "%s: Error: can not access time control port \"%s\": %s\n",
-		    pmProgname, optarg, pmErrStr(-errno));
-		errflag++;
-	    }
-	    else if ((statbuf.st_mode & S_IFSOCK) != S_IFSOCK) {
-		fprintf(stderr, "%s: Error: time control port \"%s\" is not a socket\n",
-		    pmProgname, optarg);
-		errflag++;
-	    }
-	    else
-		control_port = optarg;
-#elif defined(HAVE_KMTIME)
-	    kmport = (int)strtol(optarg, &endnum, 10);
-	    if (*endnum != '\0' || kmport < 0) {
-		fprintf(stderr, "%s: Error: invalid kmtime port \"%s\": %s\n",
+	    pmport = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0' || pmport < 0) {
+		fprintf(stderr, "%s: Error: invalid pmtime port \"%s\": %s\n",
 			pmProgname, optarg, pmErrStr(-errno));
 		errflag++;
 	    } else
 	    	control_port = optarg;
-#else
-	    fprintf(stderr, "%s: Sorry, no time control support\n", pmProgname);
-	    errflag++;
-#endif
 	    break;
 
 	case 'r':		/* raw */
@@ -1267,7 +1208,6 @@ getargs(int		argc,		/* in - command line argument count */
 	    errflag++;
 	}
     }
-#if defined(HAVE_PMTIME) || defined(HAVE_KMTIME)
     else {
 	if (gui == 1 && control_port != NULL) {
 	    fprintf(stderr, "%s: -g cannot be used with -p\n", pmProgname);
@@ -1278,7 +1218,6 @@ getargs(int		argc,		/* in - command line argument count */
 	    errflag++;
 	}
     }
-#endif
 
     if (errflag) {
 	fprintf(stderr, usage, pmProgname);
@@ -1376,73 +1315,23 @@ getargs(int		argc,		/* in - command line argument count */
 #endif
     }
 
-#ifdef HAVE_PMTIME
     if (gui || control_port != NULL) {
 	/* set up pmtime control */
-	int		mode;
-
-	if (msp->isarch == 1)
-	    mode = PM_TCTL_MODE_ARCHIVE;
-	else
-	    mode = PM_TCTL_MODE_HOST;
-
-	pmtime.showdialog = 0;	/* don't expose dialog yet */
-
-	if (gui) {
-	    mode |= PM_TCTL_MODE_NEWMASTER;
-	    control_port = mktemp("/usr/tmp/vcr.XXXXXX");
-	}
-	else
-	    mode |= PM_TCTL_MODE_MASTER;
-
-	getXTBintervalFromTimeval(&pmtime.delta, &pmtime.vcrmode, delta);
-
-	if (msp->isarch == 1) {
-	    pmtime.position = *posn;
-	    pmtime.start = first;
-	    pmtime.finish = last;
-	}
-	else
-	    gettimeofday(&pmtime.position, NULL);
-	if (rpt_tz == NULL) {
-            rpt_tz = __pmTimezone();
-	    if (msp->isarch == 1) {
-		if ((sts = pmNewZone(rpt_tz)) < 0) {
-		    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-			pmProgname, rpt_tz, pmErrStr(sts));
-		    exit(EXIT_FAILURE);
-		}
-	    }
-	}
-	strncpy(pmtime.tz, rpt_tz, sizeof(pmtime.tz));
-	if (rpt_tz_label == NULL)
-	    rpt_tz_label = "localhost";
-	strncpy(pmtime.tzlabel, rpt_tz_label, sizeof(pmtime.tzlabel));
-	if ((control_fd = pmTimeConnect(mode, control_port, &pmtime)) < 0) {
-	    fprintf(stderr, "%s: pmTimeConnect: %s\n", pmProgname, pmErrStr(control_fd));
-	    exit(EXIT_FAILURE);
-	}
-	gui = 1;		/* means using pmtime control from here on */
-    }
-    else 
-#elif defined(HAVE_KMTIME)
-    if (gui || control_port != NULL) {
-	/* set up kmtime control */
 	if (gui)
-	    kmport = -1;
-	kmtime = malloc(sizeof(kmTime));
-	kmtime->magic = KMTIME_MAGIC;
-	kmtime->length = sizeof(kmTime);
-	kmtime->command = KM_TCTL_SET;
-	kmtime->delta = *delta;
+	    pmport = -1;
+	pmtime = malloc(sizeof(pmTime));
+	pmtime->magic = PMTIME_MAGIC;
+	pmtime->length = sizeof(pmTime);
+	pmtime->command = PM_TCTL_SET;
+	pmtime->delta = *delta;
 	if (msp->isarch == 1) {
-	    kmtime->source = KM_SOURCE_ARCHIVE;
-	    kmtime->position = *posn;
-	    kmtime->start = first;
-	    kmtime->end = last;
+	    pmtime->source = PM_SOURCE_ARCHIVE;
+	    pmtime->position = *posn;
+	    pmtime->start = first;
+	    pmtime->end = last;
 	} else {
-	    kmtime->source = KM_SOURCE_HOST;
-	    gettimeofday(&kmtime->position, NULL);
+	    pmtime->source = PM_SOURCE_HOST;
+	    gettimeofday(&pmtime->position, NULL);
 	}
 	if (rpt_tz == NULL) {
 	    rpt_tz = __pmTimezone();
@@ -1457,25 +1346,24 @@ getargs(int		argc,		/* in - command line argument count */
 	tzh = strlen(rpt_tz) + 1;
 	if (rpt_tz_label == NULL)
 	    rpt_tz_label = "localhost";
-	kmtime->length += tzh + strlen(rpt_tz_label) + 1;
-	kmtime = realloc(kmtime, kmtime->length);
-	if (!kmtime) {
+	pmtime->length += tzh + strlen(rpt_tz_label) + 1;
+	pmtime = realloc(pmtime, pmtime->length);
+	if (!pmtime) {
 	    fprintf(stderr, "%s: realloc: %s\n", pmProgname, strerror(errno));
 	    exit(EXIT_FAILURE);
 	}
-	strcpy(kmtime->data, rpt_tz);
-	strcpy(kmtime->data + tzh, rpt_tz_label);
-	if ((control_fd = kmTimeConnect(kmport, kmtime)) < 0) {
-	    fprintf(stderr, "%s: kmTimeConnect: %s\n",
+	strcpy(pmtime->data, rpt_tz);
+	strcpy(pmtime->data + tzh, rpt_tz_label);
+	if ((control_fd = pmTimeConnect(pmport, pmtime)) < 0) {
+	    fprintf(stderr, "%s: pmTimeConnect: %s\n",
 		    pmProgname, pmErrStr(control_fd));
 	    exit(EXIT_FAILURE);
 	}
-	kmtime->length = sizeof(kmTime); /* reduce size to header only */
-	kmtime = realloc(kmtime, kmtime->length);
-	gui = 1;		/* means using kmtime control from here on */
+	pmtime->length = sizeof(pmTime); /* reduce size to header only */
+	pmtime = realloc(pmtime, pmtime->length);
+	gui = 1;		/* means using pmtime control from here on */
     }
     else
-#endif
 	if (msp->isarch == 1) {
 	    /* archive, and no time control, go it alone */
 	    int tmp_ival;
@@ -1520,13 +1408,8 @@ main(int argc, char *argv[])
     initinsts(&cntxt);
 
     /* seems safe enough at this point to expose the Time Control dialog... */
-#if defined(HAVE_PMTIME)
     if (gui)
-	pmTimeShowDialog(1);
-#elif defined(HAVE_KMTIME)
-    if (gui)
-	kmTimeShowDialog(control_fd, 1);
-#endif
+	pmTimeShowDialog(control_fd, 1);
 
     if (cols <= 0) cols = howide(cntxt.desc.type);
 
@@ -1544,11 +1427,7 @@ main(int argc, char *argv[])
 
     /* main loop fetching and printing sample values */
     while (forever || (smpls-- > 0)) {
-#if defined(HAVE_PMTIME)
 	talk_to_pmtime(&first);
-#elif defined(HAVE_KMTIME)
-	talk_to_kmtime(&first);
-#endif
 	if (first) {
 	    if ((idx2 = getvals(&cntxt, &rslt2)) >= 0) {
 		/* first-time success */
@@ -1631,22 +1510,22 @@ main(int argc, char *argv[])
     exit(first == 0);
 }
 
-#ifdef HAVE_PMTIME
-static void talk_to_pmtime(int *first)
+static void
+talk_to_pmtime(int *first)
 {
     if (gui) {
 	for ( ; ; ) {
 	    int sts;
 	    int fetch = 0;
-	    int cmd = pmTimeRecv(&pmtime);
+	    int cmd = pmTimeRecv(control_fd, &pmtime);
+
 	    if (cmd < 0) {
-		fprintf(stderr, "\n%s: Time Control dialog has terminated: %s\n",
-			pmProgname, pmErrStr(cmd));
-		fprintf(stderr, "Sorry.\n");
+		fprintf(stderr, "\n%s: Time Control dialog exited, sorry.\n",
+			pmProgname);
             	exit(EXIT_FAILURE);
 	    }
 
-	    switch (cmd) {
+	    switch (pmtime->command) {
 	    case PM_TCTL_SET:
 		if (state == ENDLOG)
 		    state = STANDBY;
@@ -1655,111 +1534,7 @@ static void talk_to_pmtime(int *first)
 		break;
 
 	    case PM_TCTL_STEP:
-		if (pmtime.delta < 0) {
-		    if (state != BACK) {
-			printf("\n[Time Control] Rewind/Reverse ...\n");
-			state = BACK;
-		    }
-		}
-		else if (state != FORW && state != ENDLOG) {
-		    if (ahtype == PM_CONTEXT_ARCHIVE) {
-			if (state != STANDBY)
-			    printf("\n[Time Control] Repositioned in archive ...\n");
-		    }
-		    else {
-			printf("\n[Time Control] Resume ...\n");
-		    }
-		    if (pmtime.delta != lastdelta ||
-		        PM_XTB_GET(pmtime.vcrmode) != PM_XTB_GET(lastdeltaunits))
-			printf("new interval:  %1.2f sec\n",
-				getXTBinSeconds(&pmtime.delta, &pmtime.vcrmode));
-
-		    if (ahtype == PM_CONTEXT_ARCHIVE) {
-			int setmode = PM_MODE_INTERP | (pmtime.vcrmode & 0xffff0000);
-			if ((sts = pmSetMode(setmode, &pmtime.position, pmtime.delta)) < 0) {
-			    fprintf(stderr, "%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
-			    exit(EXIT_FAILURE);
-			}
-		    }
-		    lastdeltaunits = pmtime.vcrmode & 0xffff0000;
-		    lastdelta = pmtime.delta;
-		    state = FORW;
-		    *first = 1;
-		}
-
-		if (state == BACK || state == ENDLOG) {
-		    /*
-		     * for EOL and reverse travel, no pmFetch,
-		     * so ack here
-		     */
-		    ack_tctl(&pmtime.position);
-		    break;
-		}
-		fetch = 1;
-		break;
-
-	    case PM_TCTL_TZ:
-		if ((sts = pmNewZone(pmtime.tz)) < 0) {
-		    fprintf(stderr, "%s: Warning: cannot set timezone to \"%s\": %s\n",
-			pmProgname, pmtime.tz, pmErrStr(sts));
-		}
-		break;
-
-	    case PM_TCTL_VCRMODE:
-		/* something has changed ... suppress reporting */
-		if ((pmtime.vcrmode & __PM_MODE_MASK) == PM_TCTL_VCRMODE_DRAG)
-		    state = MOVING;
-		else if (state != MOVING)
-		    state = STANDBY;
-		break;
-
-	    /*
-	     * safely and silently ignore these
-	     */
-	    case PM_TCTL_SHOWDIALOG:
-		break;
-
-	    case PM_TCTL_SKIP:
-	    case PM_TCTL_BOUNDS:
-	    case PM_TCTL_ACK:
-		break;
-
-	    default:
-		printf("pmTimeRecv: cmd %d?\n", cmd);
-		break;
-	    }
-	    if (fetch)
-		break;
-	}
-    }
-}
-#endif
-
-#ifdef HAVE_KMTIME
-static void talk_to_kmtime(int *first)
-{
-    if (gui) {
-	for ( ; ; ) {
-	    int sts;
-	    int fetch = 0;
-	    int cmd = kmTimeRecv(control_fd, &kmtime);
-
-	    if (cmd < 0) {
-		fprintf(stderr, "\n%s: Time Control dialog exited, sorry.\n",
-			pmProgname);
-            	exit(EXIT_FAILURE);
-	    }
-
-	    switch (kmtime->command) {
-	    case KM_TCTL_SET:
-		if (state == ENDLOG)
-		    state = STANDBY;
-		else if (state == FORW)
-		    state = START;
-		break;
-
-	    case KM_TCTL_STEP:
-		if (kmtime->state == KM_STATE_BACKWARD) {
+		if (pmtime->state == PM_STATE_BACKWARD) {
 		    if (state != BACK) {
 			printf("\n[Time Control] Rewind/Reverse ...\n");
 			state = BACK;
@@ -1772,27 +1547,27 @@ static void talk_to_kmtime(int *first)
 		    } else {
 			printf("\n[Time Control] Resume ...\n");
 		    }
-		    if (tcmp(&kmtime->delta, &lastkmdelta) != 0)
-			printf("new interval:  %1.2f sec\n", tosec(kmtime->delta));
+		    if (tcmp(&pmtime->delta, &lastpmdelta) != 0)
+			printf("new interval:  %1.2f sec\n", tosec(pmtime->delta));
 
 		    if (ahtype == PM_CONTEXT_ARCHIVE) {
 			int setmode = PM_MODE_INTERP;
-			int delta = kmtime->delta.tv_sec;
+			int delta = pmtime->delta.tv_sec;
 
-			if (kmtime->delta.tv_usec == 0) {
+			if (pmtime->delta.tv_usec == 0) {
 			    setmode |= PM_XTB_SET(PM_TIME_SEC);
 			} else {
-			    delta = delta * 1000 + kmtime->delta.tv_usec / 1000;
+			    delta = delta * 1000 + pmtime->delta.tv_usec / 1000;
 			    setmode |= PM_XTB_SET(PM_TIME_MSEC);
 			}
-			sts = pmSetMode(setmode, &kmtime->position, delta);
+			sts = pmSetMode(setmode, &pmtime->position, delta);
 			if (sts < 0) {
 			    fprintf(stderr, "%s: pmSetMode: %s\n",
 					pmProgname, pmErrStr(sts));
 			    exit(EXIT_FAILURE);
 			}
 		    }
-		    lastkmdelta = kmtime->delta;
+		    lastpmdelta = pmtime->delta;
 		    state = FORW;
 		    *first = 1;
 		}
@@ -1802,27 +1577,27 @@ static void talk_to_kmtime(int *first)
 		     * for EOL and reverse travel, no pmFetch,
 		     * so ack here
 		     */
-		    ack_tctl(&kmtime->position);
+		    ack_tctl(&pmtime->position);
 		    break;
 		}
 		fetch = 1;
 		break;
 
-	    case KM_TCTL_TZ:
-		if ((sts = pmNewZone(kmtime->data)) < 0) {
+	    case PM_TCTL_TZ:
+		if ((sts = pmNewZone(pmtime->data)) < 0) {
 		    fprintf(stderr,
 			"%s: Warning: cannot set timezone to \"%s\": %s\n",
-			pmProgname, kmtime->data, pmErrStr(sts));
+			pmProgname, pmtime->data, pmErrStr(sts));
 		} else {
-		    printf("new timezone: %s (%s)\n", kmtime->data,
-			    kmtime->data + strlen(kmtime->data) + 1);
+		    printf("new timezone: %s (%s)\n", pmtime->data,
+			    pmtime->data + strlen(pmtime->data) + 1);
 		}
 		break;
 
-	    case KM_TCTL_VCRMODE:
-	    case KM_TCTL_VCRMODE_DRAG:
+	    case PM_TCTL_VCRMODE:
+	    case PM_TCTL_VCRMODE_DRAG:
 		/* something has changed ... suppress reporting */
-		if (kmtime->state == KM_TCTL_VCRMODE_DRAG)
+		if (pmtime->state == PM_TCTL_VCRMODE_DRAG)
 		    state = MOVING;
 		else if (state != MOVING)
 		    state = STANDBY;
@@ -1831,15 +1606,15 @@ static void talk_to_kmtime(int *first)
 	    /*
 	     * safely and silently ignore these
 	     */
-	    case KM_TCTL_GUISTYLE:
-	    case KM_TCTL_GUISHOW:
-	    case KM_TCTL_GUIHIDE:
-	    case KM_TCTL_BOUNDS:
-	    case KM_TCTL_ACK:
+	    case PM_TCTL_GUISTYLE:
+	    case PM_TCTL_GUISHOW:
+	    case PM_TCTL_GUIHIDE:
+	    case PM_TCTL_BOUNDS:
+	    case PM_TCTL_ACK:
 		break;
 
 	    default:
-		printf("kmTimeRecv: cmd %x?\n", cmd);
+		printf("pmTimeRecv: cmd %x?\n", cmd);
 		break;
 	    }
 	    if (fetch)
@@ -1847,4 +1622,3 @@ static void talk_to_kmtime(int *first)
 	}
     }
 }
-#endif

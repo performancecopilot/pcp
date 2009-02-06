@@ -24,10 +24,9 @@ CFILES	= pmval.c
 CMDTARGET = pmval$(EXECSUFFIX)
 LLDLIBS	= -lpcp -lm
 
-# enable kmtime for GNUmakefile platforms...
-TIMEDIR = $(TOPDIR)/src/libkmtime/src
-LCFLAGS = -DHAVE_KMTIME -I$(TIMEDIR) -L$(TIMEDIR)
-LLDLIBS += -lkmtime
+PCP_GUI = $(TOPDIR)/src/libpcp_gui/src
+LCFLAGS = -I$(PCP_GUI) -L$(PCP_GUI)
+LLDLIBS += -lpcp_gui
 
 default:	$(CMDTARGET)
 

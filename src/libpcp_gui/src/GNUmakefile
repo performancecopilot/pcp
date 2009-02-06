@@ -19,10 +19,10 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-STATICLIBTARGET = libkmtime.a
+STATICLIBTARGET = libpcp_gui.a
 
 CFILES = client.c
-HFILES = kmtime.h
+HFILES = pmtime.h
 
 default: $(STATICLIBTARGET)
 
