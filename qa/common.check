@@ -1,0 +1,84 @@
+
+_check_metric()
+{
+    if pminfo -h ${2-localhost} -f $1 2>&1 | grep " value " >/dev/null
+    then
+	:
+    else
+	echo "Check failed for metric \"$1\" at host \"${2-localhost}\" ... is PMDA installed?"
+	exit 1
+    fi
+}
+
+# wait_for_pmcd [maxdelay [host]]
+#
+_wait_for_pmcd()
+{
+    # 20 seconds default seems like a reasonble max time to get going
+    #debug# set -x
+    _can_wait=${1-20}
+    _host=${2-localhost}
+    _i=0
+    _dead=true
+
+    while [ $_i -lt $_can_wait ]
+    do
+	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
+	_sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients 2>/dev/null | $PCP_AWK_PROG '{print $2}'`
+	if [ "${_sts:-0}" -gt 0 ]
+	then
+	    # numval really > 0, we're done
+	    #
+	    _dead=false
+	    break
+	fi
+	sleep 1
+	_i=`expr $_i + 1`
+    done
+
+    if $_dead
+    then
+        echo "Argh ... pmcd at $_host failed to start after $_can_wait seconds"
+	status=2
+        exit $status
+    fi
+}
+
+_dynamic_install()
+{
+    echo "Installing dynamic PMDA ..." >> $seq.full
+
+    cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+    mkdir $tmp.pmda
+    cp -a src/dynamic/* $tmp.pmda
+    cd $tmp.pmda
+    mv GNUmakefile.install GNUmakefile
+    $sudo ./Install < /dev/null >> $seq.full 2>&1
+    cd $here
+}
+
+_dynamic_remove()
+{
+    echo "Removing dynamic PMDA ..." >> $seq.full
+
+    cd $tmp.pmda
+    $sudo ./Remove < /dev/null
+    cd $here
+
+    if [ -f $tmp.pmcd.conf ]
+    then
+    	if diff $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+    	then
+	    :
+	else
+ 	    echo "Remove failed to return pmcd to original state"
+	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    $sudo killall -HUP pmcd
+	    _wait_for_pmcd
+	fi
+    fi
+
+    rm -rf $tmp.pmda
+}
+

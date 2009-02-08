@@ -1,0 +1,29 @@
+QA output created by 016
+*** Simple connection ***
+QmcSource::getSource: Creating new source for oview-short
+QmcSource::QmcSource: Context to oview-short failed: No such file or directory
+qmc_context: Error: Unable to create context to "oview-short": No such file or directory
+Context -2 has 0 metric names for source:
+  sts = -2, type = 2, source = oview-short
+  host = , timezone = , tz hndl = 164109112
+
+
+*** Cacheing of descriptors and indoms ***
+qmc_context: Error: hinv.ncpu: PMNS not accessible
+qmc_context: Error: hinv.cputype: PMNS not accessible
+qmc_context: Error: hinv.map.cpu: PMNS not accessible
+qmc_context: Error: hinv.ncpu: PMNS not accessible
+Context -2 has 0 metric names for source:
+  sts = -2, type = 2, source = oview-short
+  host = , timezone = , tz hndl = 164109112
+
+
+*** Bad Context ***
+QmcSource::getSource: Creating new source for no-such-host
+QmcSource::QmcSource: Context to no-such-host failed: No route to host
+Context -148 has 0 metric names for source:
+  sts = -148, type = 1, source = no-such-host
+  host = no-such-host, timezone = , tz hndl = -1217990444
+
+
+*** Exiting ***

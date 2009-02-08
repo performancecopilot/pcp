@@ -90,7 +90,7 @@ main(int argc, char* argv[])
 	percpu_user->dump(cerr);
 
     cerr << endl << "*** proc style specific instance ***" << endl;
-    QmcMetric* load_avg = group1.addMetric("irix.kernel.all.load[1,5]");
+    QmcMetric* load_avg = group1.addMetric("kernel.all.load[1,5]");
     pmflush();
     
     if (load_avg->status() < 0)
@@ -126,11 +126,11 @@ main(int argc, char* argv[])
     }
 	
     cerr << endl << "*** Bogus instance ***" << endl;
-    QmcMetric* bogus_inst = group1.addMetric("irix.kernel.all.load[2]");
+    QmcMetric* bogus_inst = group1.addMetric("kernel.all.load[2]");
     pmflush();
     
     if (bogus_inst->status() >= 0) {
-	pmprintf("%s: Error: irix.kernel.all.load[2] was not invalid!\n",
+	pmprintf("%s: Error: kernel.all.load[2] was not invalid!\n",
 		 pmProgname);
 	pmflush();
 	sts = 1;

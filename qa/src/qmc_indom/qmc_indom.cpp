@@ -48,7 +48,7 @@ main(int argc, char* argv[])
     }
 
     fprintf(stderr, "*** Lookup an indom ***\n");
-    QString source = QString("oview-short");
+    QString source = QString("archives/oview-short");
     QmcSource *src = QmcSource::getSource(PM_CONTEXT_ARCHIVE, source, false);
 
     if (src->status() < 0) {

@@ -1,11 +1,9 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-VIEWDIR = $(PCP_VAR_DIR)/config/kmchart
-VIEWS	= Apache CPU Disk Diskbytes Loadavg NFS2 NFS3 Filesystem \
-	  Memory Netbytes Netpackets \
-	  PMCD Syscalls Paging Overview Sockets Swap Cisco Sendmail \
-	  ShpingCPU ShpingElapsed Schemes
+VIEWDIR = $(PCP_VAR_DIR)/config/pmchart
+VIEWS	= CPU Disk Diskbytes Loadavg NFS2 NFS3 Filesystem Memory Netbytes \
+	  Netpackets PMCD Syscalls Paging Overview Schemes Sockets Swap
 LSRCFILES = $(VIEWS)
 
 default:

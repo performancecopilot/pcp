@@ -1,5 +1,5 @@
-#! /bin/sh
-# pcp-gui QA Test No. 012
+#!/bin/sh
+# PCP GUI QA Test No. 012
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -7,11 +7,8 @@
 #
 seq=`basename $0`
 echo "QA output created by $seq"
+. ./common.test
 
-# get standard filters
-. ./common.filter
-
-tmp=/tmp/$$
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

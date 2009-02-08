@@ -76,13 +76,13 @@ main(int argc, char* argv[])
     pmflush();
     
     mesg("Create an archive context in both groups, but to different hosts");
-    source = "oview-short";
+    source = "archives/oview-short";
     sts = group1.use(PM_CONTEXT_ARCHIVE, source);
 
     if (sts < 0)
 	quit(sts);
 	
-    source = "../src-oss/rattle";
+    source = "archives/rattle";
     sts = group2.use(PM_CONTEXT_ARCHIVE, source);
     
     if (sts < 0)

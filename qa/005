@@ -1,5 +1,5 @@
-#! /bin/sh
-# pcp-gui QA Test No. 005
+#!/bin/sh
+# PCP GUI QA Test No. 005
 # Copyright (c) 2007 Aconex.  All Rights Reserved.
 #
 # Check handling of missing plot title keyword - caused SEGV,
@@ -8,11 +8,8 @@
 #
 seq=`basename $0`
 echo "QA output created by $seq"
-
-# get standard environment, filters and checks
 . ./common.test
 
-tmp=/tmp/$$
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

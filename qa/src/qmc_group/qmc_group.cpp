@@ -522,13 +522,13 @@ main(int argc, char* argv[])
     int		sts = 0;
     int		c;
     const char	*string;
-    QString	archive1 = "snort-disks";
+    QString	archive1 = "archives/snort-disks";
     			// snort-disks timestamps
 			// 1117075022.613953 ... 1117075050.309912
-    QString	archive2 = "vldb-disks";
+    QString	archive2 = "archives/vldb-disks";
     			// vldb-disks timestamps
 			// 869629190.357184 ... 869629210.660548
-    QString	archive3 = "moomba.pmkstat";
+    QString	archive3 = "archives/moomba.pmkstat";
     QStringList	metrics;
     QList<int>	metricIds;
 
@@ -802,8 +802,8 @@ main(int argc, char* argv[])
 
     mesg("Client1: LIST 2 kernel.all.idle localhost:kernel.all.cpu.user");
     metrics.clear();
-    metrics.append("kernel.all.cpu.idle");
-    metrics.append("moomba:kernel.all.cpu.user");
+    metrics.append("irix.kernel.all.cpu.idle");
+    metrics.append("moomba:irix.kernel.all.cpu.user");
     sts = client1->list(metrics);
 
     checksts();

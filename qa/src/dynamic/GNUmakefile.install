@@ -1,0 +1,50 @@
+#
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+
+SHELL	= sh
+
+ifdef PCP_CONF
+include $(PCP_CONF)
+else
+PCP_DIR = $(shell echo $$PCP_DIR)
+include $(PCP_DIR)/etc/pcp.conf
+endif
+
+PATH    = $(shell . $$PCP_DIR/etc/pcp.env; echo $$PATH)
+
+IAM	= dynamic
+CFILES	= $(IAM).c
+
+CMDTARGET = pmda$(IAM)
+TARGETS = $(LIBTARGET) $(CMDTARGET)
+
+DEBUG   = -DDEBUG
+CFLAGS	= $(DEBUG)
+LDOPTS	=
+LDLIBS	= -lpcp_pmda -lpcp
+
+LDIRT	= *.log help.dir help.pag
+
+INSTALL	= install
+CC	= $(PCP_CC_PROG)
+
+default: $(TARGETS)
+
+install: default
+
+$(CMDTARGET): $(CFILES)
+	$(CC) $(CFLAGS) $(CFILES) $(LDOPTS) $(LDLIBS) -o $@
+
+clean clobber:
+	rm -f $(LDIRT) $(TARGETS)

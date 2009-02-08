@@ -1,3 +1,9 @@
 . /etc/pcp.conf
 . ./common.sh
-[ -f ./common.filter ] && . ./common.filter
+. ./common.check
+. ./common.filter
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=sudo
+host=`hostname`

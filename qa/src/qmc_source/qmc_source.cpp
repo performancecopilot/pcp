@@ -50,7 +50,7 @@ main(int argc, char* argv[])
     buf[MAXHOSTNAMELEN-1] = '\0';
 
     fprintf(stderr,"*** Create an archive context ***\n");
-    source = "oview-short";
+    source = "archives/oview-short";
     QmcSource* src1 = QmcSource::getSource(PM_CONTEXT_ARCHIVE, source, false);
 
     if (src1->status() < 0) {
