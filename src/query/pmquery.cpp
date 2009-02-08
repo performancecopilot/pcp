@@ -41,7 +41,7 @@ static void nomem()
     exit(1);
 }
 
-int KmQuery::setTimeout(char *string)
+int PmQuery::setTimeout(char *string)
 {
     char *endnum;
     timeout = (int)strtol(string, &endnum, 10);
@@ -50,22 +50,22 @@ int KmQuery::setTimeout(char *string)
     return 0;
 }
 
-void KmQuery::setTitle(char *heading)
+void PmQuery::setTitle(char *heading)
 {
     title = heading;
 }
 
-int KmQuery::messageCount()
+int PmQuery::messageCount()
 {
     return messagecount;
 }
 
-int KmQuery::buttonCount()
+int PmQuery::buttonCount()
 {
     return buttoncount;
 }
 
-int KmQuery::setIcontype(char *string)
+int PmQuery::setIcontype(char *string)
 {
     if (strcmp(string, "info") == 0)
 	iconic = INFO_ICON;
@@ -86,7 +86,7 @@ int KmQuery::setIcontype(char *string)
     return 0;
 }
 
-void KmQuery::addMessage(char *string)
+void PmQuery::addMessage(char *string)
 {
     messages = (char **)realloc(messages, (messagecount+1) * sizeof(char *));
     if (!messages)
@@ -94,7 +94,7 @@ void KmQuery::addMessage(char *string)
     messages[messagecount++] = string;
 }
 
-void KmQuery::addButton(const char *string, bool iamdefault, int status)
+void PmQuery::addButton(const char *string, bool iamdefault, int status)
 {
     buttons = (const char **)realloc(buttons, (buttoncount+1) * sizeof(char *));
     statusi = (int *)realloc(statusi, (buttoncount+1) * sizeof(int));
@@ -106,7 +106,7 @@ void KmQuery::addButton(const char *string, bool iamdefault, int status)
     buttons[buttoncount++] = string;
 }
 
-void KmQuery::addButtons(char *string) // comma-separated label:exitcode string
+void PmQuery::addButtons(char *string) // comma-separated label:exitcode string
 {
     char *n;
     QString pairs(string);
@@ -125,19 +125,19 @@ void KmQuery::addButtons(char *string) // comma-separated label:exitcode string
     }
 }
 
-void KmQuery::setDefaultButton(char *string)
+void PmQuery::setDefaultButton(char *string)
 {
     for (int i = 0; i < buttoncount; i++)
 	if (strcmp(buttons[i], string) == 0)
 	    defaultbutton = buttons[i];
 }
 
-void KmQuery::buttonClicked()
+void PmQuery::buttonClicked()
 {
     done(my.status);
 }
 
-void KmQuery::timerEvent(QTimerEvent *)
+void PmQuery::timerEvent(QTimerEvent *)
 {
     done(1);
 }
@@ -147,7 +147,7 @@ void KmQuery::timerEvent(QTimerEvent *)
 // Note: the +4 pixels for height ensure the auto-scroll does not
 // kick in, seems to be required.
 
-KmQuery::KmQuery(bool inputflag, bool printflag, bool noframeflag,
+PmQuery::PmQuery(bool inputflag, bool printflag, bool noframeflag,
 		 bool nosliderflag, bool usesliderflag, bool exclusiveflag)
     : QDialog()
 {

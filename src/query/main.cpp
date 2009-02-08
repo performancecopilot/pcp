@@ -105,14 +105,14 @@ int main(int argc, char ** argv)
 		fprintf(stderr, "The -b option requires an argument\n");
 		errflag++;
 	    }
-	    KmQuery::addButton(option, FALSE, 0);
+	    PmQuery::addButton(option, FALSE, 0);
 	}
 	else if (strcmp(option, "-B") == 0) {
 	    if ((option = getoption(argc, argv)) == NULL) {
 		fprintf(stderr, "The -B option requires an argument\n");
 		errflag++;
 	    }
-	    KmQuery::addButton(option, TRUE, 0);
+	    PmQuery::addButton(option, TRUE, 0);
 	}
 	else if (strcmp(option, "-default") == 0) {
 	    if ((option = getoption(argc, argv)) == NULL) {
@@ -126,7 +126,7 @@ int main(int argc, char ** argv)
 		fprintf(stderr, "The -buttons option requires an argument\n");
 		errflag++;
 	    }
-	    KmQuery::addButtons(option);
+	    PmQuery::addButtons(option);
 	}
 	else if (strcmp(option, "-t") == 0) {
 	    if ((option = getoption(argc, argv)) == NULL) {
@@ -137,14 +137,14 @@ int main(int argc, char ** argv)
 		fprintf(stderr, "The -file and -t options are incompatible\n");
 		errflag++;
 	    }
-	    else KmQuery::addMessage(option);
+	    else PmQuery::addMessage(option);
 	}
 	else if (strcmp(option, "-file") == 0) {
 	    if ((option = getoption(argc, argv)) == NULL) {
 		fprintf(stderr, "The -file option requires an argument\n");
 		errflag++;
 	    }
-	    else if (KmQuery::messageCount()) {
+	    else if (PmQuery::messageCount()) {
 		fprintf(stderr, "The -file and -t options are incompatible\n");
 		errflag++;
 	    }
@@ -155,7 +155,7 @@ int main(int argc, char ** argv)
 		fprintf(stderr, "The -icon option requires an argument\n");
 		errflag++;
 	    }
-	    else if (KmQuery::setIcontype(option) < 0) {
+	    else if (PmQuery::setIcontype(option) < 0) {
 		fprintf(stderr, "Unknown icon type - %s\n", option);
 		errflag++;
 	    }
@@ -165,7 +165,7 @@ int main(int argc, char ** argv)
 		fprintf(stderr, "The -header option requires an argument\n");
 		errflag++;
 	    }
-	    else KmQuery::setTitle(option);
+	    else PmQuery::setTitle(option);
 	}
 	else if (strcmp(option, "-input") == 0) {
 	    inputflag = 1;
@@ -194,7 +194,7 @@ int main(int argc, char ** argv)
 		fprintf(stderr, "The -timeout option requires an argument\n");
 		errflag++;
 	    }
-	    else if (KmQuery::setTimeout(option) < 0) {
+	    else if (PmQuery::setTimeout(option) < 0) {
 		fprintf(stderr, "'%s' is not a positive non-zero timeout\n",
 			option);
 		errflag++;
@@ -214,7 +214,7 @@ int main(int argc, char ** argv)
 	    errflag++;
 	}
 	else {
-	    KmQuery::addMessage(getoptions(argc, argv, option));
+	    PmQuery::addMessage(getoptions(argc, argv, option));
 	}
     }
 
@@ -224,7 +224,7 @@ int main(int argc, char ** argv)
     }
 
     if (defaultname)
-	KmQuery::setDefaultButton(defaultname);
+	PmQuery::setDefaultButton(defaultname);
 
     if (filename) {
 	QTextStream *stream;
@@ -250,17 +250,17 @@ int main(int argc, char ** argv)
 		fputs("Insufficient memory reading message stream\n", stderr);
 		exit(1);
 	    }
-	    KmQuery::addMessage(option);
+	    PmQuery::addMessage(option);
 	}
 	if (file)
 	    delete file;
 	delete stream;
     }
 
-    if (!KmQuery::buttonCount())
-	KmQuery::addButton("Continue", TRUE, 0);
+    if (!PmQuery::buttonCount())
+	PmQuery::addButton("Continue", TRUE, 0);
 
-    KmQuery q(inputflag, printflag, noframeflag,
+    PmQuery q(inputflag, printflag, noframeflag,
 	      nosliderflag, usesliderflag, exclusiveflag);
 
     if (nearmouseflag)

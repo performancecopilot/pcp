@@ -33,11 +33,11 @@
 
 #include <cstdio>
 
-class KmQuery : public QDialog
+class PmQuery : public QDialog
 {
     Q_OBJECT
 public:
-    KmQuery(bool inputflag, bool printflag, bool noframeflag,
+    PmQuery(bool inputflag, bool printflag, bool noframeflag,
 	    bool nosliderflag, bool usesliderflag, bool exclusiveflag);
     void setStatus(int status) { my.status = status; }
 
@@ -80,7 +80,7 @@ public:
 	    else
 		connect(this, SIGNAL(clicked()), this, SLOT(noprint()));
 	}
-    void setQuery(KmQuery *dialog) { my.k = dialog; }
+    void setQuery(PmQuery *dialog) { my.k = dialog; }
     void setStatus(int status) { my.s = status; }
     void setEditor(QLineEdit *editor) { my.l = editor; }
     void setEditor(QTextEdit *editor) { my.t = editor; }
@@ -96,7 +96,7 @@ public slots:
 private:
     struct {
 	int s;
-	KmQuery *k;
+	PmQuery *k;
 	QLineEdit *l;
 	QTextEdit *t;
     } my;
