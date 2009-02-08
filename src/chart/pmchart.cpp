@@ -41,7 +41,7 @@
 #include "statusbar.h"
 #include "version.h"
 
-KmChart::KmChart() : QMainWindow(NULL)
+PmChart::PmChart() : QMainWindow(NULL)
 {
     my.assistant = NULL;
     my.dialogsSetup = false;
@@ -74,20 +74,20 @@ KmChart::KmChart() : QMainWindow(NULL)
     if (outfile)
 	QTimer::singleShot(0, this, SLOT(exportFile()));
     else
-	QTimer::singleShot(KmChart::defaultTimeout(), this, SLOT(timeout()));
+	QTimer::singleShot(PmChart::defaultTimeout(), this, SLOT(timeout()));
 }
 
-void KmChart::languageChange()
+void PmChart::languageChange()
 {
     retranslateUi(this);
 }
 
-void KmChart::init(void)
+void PmChart::init(void)
 {
     my.statusBar->init();
 }
 
-void KmChart::setupDialogs(void)
+void PmChart::setupDialogs(void)
 {
     // In order to speed startup times, we delay creation of these
     // global dialogs until after the main window is displayed. We
@@ -129,7 +129,7 @@ void KmChart::setupDialogs(void)
     my.dialogsSetup = true;
 }
 
-void KmChart::quit()
+void PmChart::quit()
 {
     // End any processes we may have started and close any open dialogs
     if (my.dialogsSetup) {
@@ -147,28 +147,28 @@ void KmChart::quit()
     }
     if (my.assistant)
 	my.assistant->closeAssistant();
-    if (kmtime)
-	kmtime->quit();
+    if (pmtime)
+	pmtime->quit();
 }
 
-void KmChart::setValueText(QString &string)
+void PmChart::setValueText(QString &string)
 {
     my.statusBar->setValueText(string);
-    QTimer::singleShot(KmChart::defaultTimeout(), this, SLOT(timeout()));
+    QTimer::singleShot(PmChart::defaultTimeout(), this, SLOT(timeout()));
 }
 
-void KmChart::timeout()
+void PmChart::timeout()
 {
     setupDialogs();
     my.statusBar->clearValueText();
 }
 
-void KmChart::closeEvent(QCloseEvent *)
+void PmChart::closeEvent(QCloseEvent *)
 {
     quit();
 }
 
-void KmChart::enableUi(void)
+void PmChart::enableUi(void)
 {
     bool haveTabs = (chartTabWidget->size() > 1);
     bool haveCharts = (activeTab()->gadgetCount() > 0);
@@ -190,13 +190,13 @@ void KmChart::enableUi(void)
     zoomOutAction->setEnabled(activeGroup->visibleHistory() < maximumPoints());
 }
 
-void KmChart::updateBackground(void)
+void PmChart::updateBackground(void)
 {
     liveGroup->updateBackground();
     archiveGroup->updateBackground();
 }
 
-int KmChart::defaultFontSize()
+int PmChart::defaultFontSize()
 {
 #ifdef IS_DARWIN
     return 9;
@@ -205,14 +205,14 @@ int KmChart::defaultFontSize()
 #endif
 }
 
-void KmChart::updateHeight(int adjustment)
+void PmChart::updateHeight(int adjustment)
 {
     QSize newSize = size();
     newSize.setHeight(newSize.height() + adjustment);	// may be negative
     resize(newSize);
 }
 
-void KmChart::updateToolbarLocation()
+void PmChart::updateToolbarLocation()
 {
 #if QT_VERSION >= 0x040300
     setUnifiedTitleAndToolBarOnMac(globalSettings.nativeToolbar);
@@ -223,18 +223,18 @@ void KmChart::updateToolbarLocation()
 	addToolBar(Qt::TopToolBarArea, toolBar);
 }
 
-void KmChart::updateToolbarOrientation(Qt::Orientation orientation)
+void PmChart::updateToolbarOrientation(Qt::Orientation orientation)
 {
     my.statusBar->setTimeAxisRightAlignment(
 		orientation == Qt::Vertical ? my.timeAxisRightAlign : 0);
 }
 
-void KmChart::setButtonState(TimeButton::State state)
+void PmChart::setButtonState(TimeButton::State state)
 {
     my.statusBar->timeButton()->setButtonState(state);
 }
 
-void KmChart::step(bool live, KmTime::Packet *packet)
+void PmChart::step(bool live, PmTime::Packet *packet)
 {
     if (live)
 	liveGroup->step(packet);
@@ -242,7 +242,7 @@ void KmChart::step(bool live, KmTime::Packet *packet)
 	archiveGroup->step(packet);
 }
 
-void KmChart::VCRMode(bool live, KmTime::Packet *packet, bool drag)
+void PmChart::VCRMode(bool live, PmTime::Packet *packet, bool drag)
 {
     if (live)
 	liveGroup->VCRMode(packet, drag);
@@ -250,7 +250,7 @@ void KmChart::VCRMode(bool live, KmTime::Packet *packet, bool drag)
 	archiveGroup->VCRMode(packet, drag);
 }
 
-void KmChart::timeZone(bool live, KmTime::Packet *packet, char *tzdata)
+void PmChart::timeZone(bool live, PmTime::Packet *packet, char *tzdata)
 {
     if (live)
 	liveGroup->setTimezone(packet, tzdata);
@@ -258,38 +258,38 @@ void KmChart::timeZone(bool live, KmTime::Packet *packet, char *tzdata)
 	archiveGroup->setTimezone(packet, tzdata);
 }
 
-void KmChart::setStyle(char *newlook)
+void PmChart::setStyle(char *newlook)
 {
     QApplication::setStyle(newlook);
 }
 
-void KmChart::fileOpenView()
+void PmChart::fileOpenView()
 {
     setupDialogs();
     my.openview->reset();
     my.openview->show();
 }
 
-void KmChart::fileSaveView()
+void PmChart::fileSaveView()
 {
     setupDialogs();
     my.saveview->reset();
     my.saveview->show();
 }
 
-void KmChart::fileExport()
+void PmChart::fileExport()
 {
     setupDialogs();
     my.exporter->reset();
     my.exporter->show();
 }
 
-void KmChart::acceptExport()
+void PmChart::acceptExport()
 {
     my.exporter->flush();
 }
 
-void KmChart::filePrint()
+void PmChart::filePrint()
 {
     QPrinter printer;
     QString creator = QString("pmchart Version ");
@@ -306,7 +306,7 @@ void KmChart::filePrint()
     }
 }
 
-void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
+void PmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
 {
     double scale_h = 0;
     double scale_w = 0;
@@ -379,17 +379,17 @@ void KmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
     qp->drawText(rect, Qt::AlignLeft, my.statusBar->dateText());
 }
 
-void KmChart::fileQuit()
+void PmChart::fileQuit()
 {
     QApplication::exit(0);
 }
 
-void KmChart::assistantError(const QString &msg)
+void PmChart::assistantError(const QString &msg)
 {
     QMessageBox::warning(this, pmProgname, msg);
 }
 
-void KmChart::setupAssistant()
+void PmChart::setupAssistant()
 {
     if (my.assistant)
 	return;
@@ -403,58 +403,58 @@ void KmChart::setupAssistant()
     my.assistant->setArguments(arguments);
 }
 
-void KmChart::helpManual()
+void PmChart::helpManual()
 {
     setupAssistant();
     QString documents = HTMLDIR;
     my.assistant->showPage(documents.append("/index.html"));
 }
 
-void KmChart::helpTutorial()
+void PmChart::helpTutorial()
 {
     setupAssistant();
     QString documents = HTMLDIR;
     my.assistant->showPage(documents.append("/tutorial.html"));
 }
 
-void KmChart::helpAbout()
+void PmChart::helpAbout()
 {
     AboutDialog about(this);
     about.exec();
 }
 
-void KmChart::helpSeeAlso()
+void PmChart::helpSeeAlso()
 {
     SeeAlsoDialog seealso(this);
     seealso.exec();
 }
 
-void KmChart::whatsThis()
+void PmChart::whatsThis()
 {
     QWhatsThis::enterWhatsThisMode();
 }
 
-void KmChart::optionsTimeControl()
+void PmChart::optionsTimeControl()
 {
     if (activeTab()->isArchiveSource()) {
 	if (my.archiveHidden)
-	    kmtime->showArchiveTimeControl();
+	    pmtime->showArchiveTimeControl();
 	else
-	    kmtime->hideArchiveTimeControl();
+	    pmtime->hideArchiveTimeControl();
 	my.archiveHidden = !my.archiveHidden;
 	timeControlAction->setChecked(!my.archiveHidden);
     }
     else {
 	if (my.liveHidden)
-	    kmtime->showLiveTimeControl();
+	    pmtime->showLiveTimeControl();
 	else
-	    kmtime->hideLiveTimeControl();
+	    pmtime->hideLiveTimeControl();
 	my.liveHidden = !my.liveHidden;
 	timeControlAction->setChecked(!my.liveHidden);
     }
 }
 
-void KmChart::optionsToolbar()
+void PmChart::optionsToolbar()
 {
     if (my.toolbarHidden)
 	toolBar->show();
@@ -463,7 +463,7 @@ void KmChart::optionsToolbar()
     my.toolbarHidden = !my.toolbarHidden;
 }
 
-void KmChart::optionsConsole()
+void PmChart::optionsConsole()
 {
     if (pmDebug) {
 	if (my.consoleHidden)
@@ -474,13 +474,13 @@ void KmChart::optionsConsole()
     }
 }
 
-void KmChart::optionsNewKmchart()
+void PmChart::optionsNewPmchart()
 {
     QProcess *buddy = new QProcess(this);
     QStringList arguments;
     QString port;
 
-    port.setNum(kmtime->port());
+    port.setNum(pmtime->port());
     arguments << "-p" << port;
     for (unsigned int i = 0; i < archiveGroup->numContexts(); i++) {
 	QmcSource source = archiveGroup->context(i)->source();
@@ -495,14 +495,14 @@ void KmChart::optionsNewKmchart()
     buddy->start("pmchart", arguments);
 }
 
-void KmChart::createNewChart(Chart::Style style)
+void PmChart::createNewChart(Chart::Style style)
 {
     setupDialogs();
     my.newchart->reset(NULL, (int)style - 1, QString::null);
     my.newchart->show();
 }
 
-void KmChart::acceptNewChart()
+void PmChart::acceptNewChart()
 {
     bool yAutoScale;
     double yMin, yMax;
@@ -535,12 +535,12 @@ void KmChart::acceptNewChart()
     enableUi();
 }
 
-void KmChart::fileNewChart()
+void PmChart::fileNewChart()
 {
     createNewChart(Chart::LineStyle);
 }
 
-void KmChart::editChart()
+void PmChart::editChart()
 {
     bool yAutoScale;
     double yMin, yMax;
@@ -560,7 +560,7 @@ void KmChart::editChart()
     my.editchart->show();
 }
 
-void KmChart::acceptEditChart()
+void PmChart::acceptEditChart()
 {
     bool yAutoScale;
     double yMin, yMax;
@@ -596,27 +596,27 @@ void KmChart::acceptEditChart()
     enableUi();
 }
 
-void KmChart::closeChart()
+void PmChart::closeChart()
 {
     activeTab()->deleteCurrent();
     enableUi();
 }
 
-void KmChart::metricInfo(QString src, QString m, QString inst, bool archive)
+void PmChart::metricInfo(QString src, QString m, QString inst, bool archive)
 {
     setupDialogs();
     my.info->reset(src, m, inst, archive);
     my.info->show();
 }
 
-void KmChart::metricSearch(QTreeWidget *pmns)
+void PmChart::metricSearch(QTreeWidget *pmns)
 {
     setupDialogs();
     my.search->reset(pmns);
     my.search->show();
 }
 
-void KmChart::editSamples()
+void PmChart::editSamples()
 {
     setupDialogs();
     my.samples->reset(globalSettings.sampleHistory,
@@ -624,7 +624,7 @@ void KmChart::editSamples()
     my.samples->show();
 }
 
-void KmChart::acceptEditSamples()
+void PmChart::acceptEditSamples()
 {
     activeGroup->setSampleHistory(my.samples->samples());
     activeGroup->setVisibleHistory(my.samples->visible());
@@ -632,7 +632,7 @@ void KmChart::acceptEditSamples()
     activeTab()->showGadgets();
 }
 
-void KmChart::editTab()
+void PmChart::editTab()
 {
     setupDialogs();
     my.edittab->reset(chartTabWidget->tabText(chartTabWidget->currentIndex()),
@@ -640,25 +640,25 @@ void KmChart::editTab()
     my.edittab->show();
 }
 
-void KmChart::acceptEditTab()
+void PmChart::acceptEditTab()
 {
     QString label =  my.edittab->label();
     chartTabWidget->setTabText(chartTabWidget->currentIndex(), label);
 }
 
-void KmChart::createNewTab(bool live)
+void PmChart::createNewTab(bool live)
 {
     setupDialogs();
     my.newtab->reset(QString::null, live);
     my.newtab->show();
 }
 
-void KmChart::addTab()
+void PmChart::addTab()
 {
     createNewTab(isArchiveTab() == false);
 }
 
-void KmChart::acceptNewTab()
+void PmChart::acceptNewTab()
 {
     Tab *tab = new Tab;
     QString label = my.newtab->labelLineEdit->text().trimmed();
@@ -671,14 +671,14 @@ void KmChart::acceptNewTab()
     enableUi();
 }
 
-void KmChart::addActiveTab(Tab *tab)
+void PmChart::addActiveTab(Tab *tab)
 {
     chartTabWidget->insertTab(tab);
     setActiveTab(chartTabWidget->size() - 1, true);
     enableUi();
 }
 
-void KmChart::zoomIn()
+void PmChart::zoomIn()
 {
     int visible = activeGroup->visibleHistory();
     int samples = activeGroup->sampleHistory();
@@ -695,7 +695,7 @@ void KmChart::zoomIn()
     zoomOutAction->setEnabled(visible < samples);
 }
 
-void KmChart::zoomOut()
+void PmChart::zoomOut()
 {
     int visible = activeGroup->visibleHistory();
     int samples = activeGroup->sampleHistory();
@@ -712,17 +712,17 @@ void KmChart::zoomOut()
     zoomOutAction->setEnabled(visible < samples);
 }
 
-bool KmChart::isTabRecording()
+bool PmChart::isTabRecording()
 {
     return activeTab()->isRecording();
 }
 
-bool KmChart::isArchiveTab()
+bool PmChart::isArchiveTab()
 {
     return activeTab()->isArchiveSource();
 }
 
-void KmChart::closeTab()
+void PmChart::closeTab()
 {
     int	index = chartTabWidget->currentIndex();
 
@@ -733,9 +733,9 @@ void KmChart::closeTab()
     enableUi();
 }
 
-void KmChart::setActiveTab(int index, bool redisplay)
+void PmChart::setActiveTab(int index, bool redisplay)
 {
-    console->post("KmChart::setActiveTab index=%d r=%d", index, redisplay);
+    console->post("PmChart::setActiveTab index=%d r=%d", index, redisplay);
     
     if (chartTabWidget->setActiveTab(index) == true) {
 	activeGroup = archiveGroup;
@@ -751,21 +751,21 @@ void KmChart::setActiveTab(int index, bool redisplay)
 	chartTabWidget->setCurrentIndex(index);
 }
 
-void KmChart::activeTabChanged(int index)
+void PmChart::activeTabChanged(int index)
 {
     if (index < chartTabWidget->size())
 	setActiveTab(index, false);
     enableUi();
 }
 
-void KmChart::editSettings()
+void PmChart::editSettings()
 {
     setupDialogs();
     my.settings->reset();
     my.settings->show();
 }
 
-void KmChart::setDateLabel(time_t seconds, QString tz)
+void PmChart::setDateLabel(time_t seconds, QString tz)
 {
     char datestring[32];
     QString label;
@@ -783,51 +783,51 @@ void KmChart::setDateLabel(time_t seconds, QString tz)
     my.statusBar->setDateText(label);
 }
 
-void KmChart::setDateLabel(QString label)
+void PmChart::setDateLabel(QString label)
 {
     my.statusBar->setDateText(label);
 }
 
-void KmChart::setRecordState(bool record)
+void PmChart::setRecordState(bool record)
 {
-    liveGroup->newButtonState(liveGroup->kmtimeState(),
-				KmTime::NormalMode, record);
+    liveGroup->newButtonState(liveGroup->pmtimeState(),
+				PmTime::NormalMode, record);
     setButtonState(liveGroup->buttonState());
     enableUi();
 }
 
-void KmChart::recordStart()
+void PmChart::recordStart()
 {
     if (activeTab()->startRecording())
 	setRecordState(true);
 }
 
-void KmChart::recordStop()
+void PmChart::recordStop()
 {
     activeTab()->stopRecording();
 }
 
-void KmChart::recordQuery()
+void PmChart::recordQuery()
 {
     activeTab()->queryRecording();
 }
 
-void KmChart::recordDetach()
+void PmChart::recordDetach()
 {
     activeTab()->detachLoggers();
 }
 
-QList<QAction*> KmChart::toolbarActionsList()
+QList<QAction*> PmChart::toolbarActionsList()
 {
     return my.toolbarActionsList;
 }
 
-QList<QAction*> KmChart::enabledActionsList()
+QList<QAction*> PmChart::enabledActionsList()
 {
     return my.enabledActionsList;
 }
 
-void KmChart::setupEnabledActionsList()
+void PmChart::setupEnabledActionsList()
 {
     // ToolbarActionsList is a list of all Actions available.
     // The SeparatorsList contains Actions that are group "breaks", and
@@ -848,7 +848,7 @@ void KmChart::setupEnabledActionsList()
     addSeparatorAction();	// end recording group
     my.toolbarActionsList << editSettingsAction;
     addSeparatorAction();	// end settings group
-    my.toolbarActionsList << timeControlAction << newKmchartAction;
+    my.toolbarActionsList << timeControlAction << newPmchartAction;
     addSeparatorAction();	// end other processes
     my.toolbarActionsList << helpManualAction << helpWhatsThisAction;
 
@@ -859,7 +859,7 @@ void KmChart::setupEnabledActionsList()
 				// separator
 			  << fileExportAction << filePrintAction
 				// separator
-			  << newKmchartAction;
+			  << newPmchartAction;
 
     if (globalSettings.toolbarActions.size() > 0) {
 	setEnabledActionsList(globalSettings.toolbarActions, false);
@@ -867,13 +867,13 @@ void KmChart::setupEnabledActionsList()
     }
 }
 
-void KmChart::addSeparatorAction()
+void PmChart::addSeparatorAction()
 {
     int index = my.toolbarActionsList.size() - 1;
     my.separatorsList << my.toolbarActionsList.at(index);
 }
 
-void KmChart::updateToolbarContents()
+void PmChart::updateToolbarContents()
 {
     bool needSeparator = false;
 
@@ -892,7 +892,7 @@ void KmChart::updateToolbarContents()
     }
 }
 
-void KmChart::setEnabledActionsList(QStringList tools, bool redisplay)
+void PmChart::setEnabledActionsList(QStringList tools, bool redisplay)
 {
     my.enabledActionsList.clear();
     for (int i = 0; i < my.toolbarActionsList.size(); i++) {
@@ -911,12 +911,12 @@ void KmChart::setEnabledActionsList(QStringList tools, bool redisplay)
     }
 }
 
-void KmChart::newScheme()
+void PmChart::newScheme()
 {
     my.settings->newScheme();
 }
 
-void KmChart::newScheme(QString cs)
+void PmChart::newScheme(QString cs)
 {
     my.newchart->setCurrentScheme(cs);
     my.newchart->setupSchemeComboBox();
@@ -924,7 +924,7 @@ void KmChart::newScheme(QString cs)
     my.editchart->setupSchemeComboBox();
 }
 
-void KmChart::exportFile()
+void PmChart::exportFile()
 {
     int sts = ExportDialog::exportFile(outfile, outgeometry, Wflag == 0);
     QApplication::exit(sts);

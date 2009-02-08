@@ -48,9 +48,9 @@ public:
 
     double *timeAxisData(void);
 
-    void step(KmTime::Packet *);
-    void VCRMode(KmTime::Packet *, bool);
-    void setTimezone(KmTime::Packet *, char *);
+    void step(PmTime::Packet *);
+    void VCRMode(PmTime::Packet *, bool);
+    void setTimezone(PmTime::Packet *, char *);
 
     void setupWorldView();
     void updateTimeButton();
@@ -58,8 +58,8 @@ public:
     void updateTimeAxis(time_t secs);
 
     TimeButton::State buttonState();
-    KmTime::State kmtimeState();
-    void newButtonState(KmTime::State, KmTime::Mode, bool);
+    PmTime::State pmtimeState();
+    void newButtonState(PmTime::State, PmTime::Mode, bool);
 
 private:
     typedef enum {
@@ -72,13 +72,13 @@ private:
 
     char *timeState();
     void refreshGadgets(bool);
-    bool isActive(KmTime::Packet *);
-    void adjustWorldView(KmTime::Packet *, bool);
-    void adjustLiveWorldViewForward(KmTime::Packet *);
-    void adjustLiveWorldViewStopped(KmTime::Packet *);
-    void adjustArchiveWorldViewForward(KmTime::Packet *, bool);
-    void adjustArchiveWorldViewStopped(KmTime::Packet *, bool);
-    void adjustArchiveWorldViewBackward(KmTime::Packet *, bool);
+    bool isActive(PmTime::Packet *);
+    void adjustWorldView(PmTime::Packet *, bool);
+    void adjustLiveWorldViewForward(PmTime::Packet *);
+    void adjustLiveWorldViewStopped(PmTime::Packet *);
+    void adjustArchiveWorldViewForward(PmTime::Packet *, bool);
+    void adjustArchiveWorldViewStopped(PmTime::Packet *, bool);
+    void adjustArchiveWorldViewBackward(PmTime::Packet *, bool);
 
     struct {
 	QList<Gadget*> gadgetsList;	// gadgets with metrics in this group
@@ -93,8 +93,8 @@ private:
 	double *timeData;		// time array (intervals)
 
 	TimeButton::State buttonState;
-	KmTime::Source kmtimeSource;	// reliable archive/host test
-	KmTime::State kmtimeState;
+	PmTime::Source pmtimeSource;	// reliable archive/host test
+	PmTime::State pmtimeState;
 	State timeState;
     } my;
 };

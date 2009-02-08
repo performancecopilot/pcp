@@ -91,7 +91,7 @@ int main(int argc, char **argv)
     if (port == -1) {
 	autoport = 1;
 	if ((envstr = getenv("KMTIME_PORT")) == NULL) {
-	    port = KmTime::BasePort;
+	    port = PmTime::BasePort;
 	} else {
 	    port = strtol(envstr, &endnum, 0);
 	    if (*endnum != '\0' || port < 0) {
@@ -130,8 +130,8 @@ int main(int argc, char **argv)
 	}
     }
 
-    KmTimeLive hc;
-    KmTimeArch ac;
+    PmTimeLive hc;
+    PmTimeArch ac;
     tl.setContext(&hc, &ac);
 
     hc.init();
@@ -149,27 +149,27 @@ int main(int argc, char **argv)
 //
 // Map icon type name to QIcon
 //
-extern QIcon *KmTime::icon(KmTime::Icon type)
+extern QIcon *PmTime::icon(PmTime::Icon type)
 {
-    static QIcon icons[KmTime::IconCount];
+    static QIcon icons[PmTime::IconCount];
     static int setup;
 
     if (!setup) {
 	setup = 1;
-	icons[KmTime::ForwardOn] = QIcon(":play_on.png");
-	icons[KmTime::ForwardOff] = QIcon(":play_off.png");
-	icons[KmTime::StoppedOn] = QIcon(":stop_on.png");
-	icons[KmTime::StoppedOff] = QIcon(":stop_off.png");
-	icons[KmTime::BackwardOn] = QIcon(":back_on.png");
-	icons[KmTime::BackwardOff] = QIcon(":back_off.png");
-	icons[KmTime::FastForwardOn] = QIcon(":fastfwd_on.png");
-	icons[KmTime::FastForwardOff] = QIcon(":fastfwd_off.png");
-	icons[KmTime::FastBackwardOn] = QIcon(":fastback_on.png");
-	icons[KmTime::FastBackwardOff] = QIcon(":fastback_off.png");
-	icons[KmTime::StepForwardOn] = QIcon(":stepfwd_on.png");
-	icons[KmTime::StepForwardOff] = QIcon(":stepfwd_off.png");
-	icons[KmTime::StepBackwardOn] = QIcon(":stepback_on.png");
-	icons[KmTime::StepBackwardOff] = QIcon(":stepback_off.png");
+	icons[PmTime::ForwardOn] = QIcon(":play_on.png");
+	icons[PmTime::ForwardOff] = QIcon(":play_off.png");
+	icons[PmTime::StoppedOn] = QIcon(":stop_on.png");
+	icons[PmTime::StoppedOff] = QIcon(":stop_off.png");
+	icons[PmTime::BackwardOn] = QIcon(":back_on.png");
+	icons[PmTime::BackwardOff] = QIcon(":back_off.png");
+	icons[PmTime::FastForwardOn] = QIcon(":fastfwd_on.png");
+	icons[PmTime::FastForwardOff] = QIcon(":fastfwd_off.png");
+	icons[PmTime::FastBackwardOn] = QIcon(":fastback_on.png");
+	icons[PmTime::FastBackwardOff] = QIcon(":fastback_off.png");
+	icons[PmTime::StepForwardOn] = QIcon(":stepfwd_on.png");
+	icons[PmTime::StepForwardOff] = QIcon(":stepfwd_off.png");
+	icons[PmTime::StepBackwardOn] = QIcon(":stepback_on.png");
+	icons[PmTime::StepBackwardOff] = QIcon(":stepback_off.png");
     }
     return &icons[type];
 }
@@ -177,7 +177,7 @@ extern QIcon *KmTime::icon(KmTime::Icon type)
 //
 // Test for not-zeroed timeval
 //
-int KmTime::timevalNonZero(struct timeval *a)
+int PmTime::timevalNonZero(struct timeval *a)
 {
     return (a->tv_sec != 0 || a->tv_usec != 0);
 }
@@ -185,7 +185,7 @@ int KmTime::timevalNonZero(struct timeval *a)
 //
 // a := a + b for struct timevals
 //
-void KmTime::timevalAdd(struct timeval *a, struct timeval *b)
+void PmTime::timevalAdd(struct timeval *a, struct timeval *b)
 {
     a->tv_usec += b->tv_usec;
     if (a->tv_usec > 1000000) {
@@ -198,7 +198,7 @@ void KmTime::timevalAdd(struct timeval *a, struct timeval *b)
 //
 // a := a - b for struct timevals, result is never less than zero
 //
-void KmTime::timevalSub(struct timeval *a, struct timeval *b)
+void PmTime::timevalSub(struct timeval *a, struct timeval *b)
 {
     a->tv_usec -= b->tv_usec;
     if (a->tv_usec < 0) {
@@ -216,7 +216,7 @@ void KmTime::timevalSub(struct timeval *a, struct timeval *b)
 //
 // a : b for struct timevals ... <0 for a<b, ==0 for a==b, >0 for a>b
 //
-int KmTime::timevalCompare(struct timeval *a, struct timeval *b)
+int PmTime::timevalCompare(struct timeval *a, struct timeval *b)
 {
     int res = (int)(a->tv_sec - b->tv_sec);
     if (res == 0)
@@ -227,7 +227,7 @@ int KmTime::timevalCompare(struct timeval *a, struct timeval *b)
 //
 // Conversion from seconds (double precision) to struct timeval
 //
-void KmTime::secondsToTimeval(double value, struct timeval *tv)
+void PmTime::secondsToTimeval(double value, struct timeval *tv)
 {
     tv->tv_sec = (time_t)value;
     tv->tv_usec = (long)(((value - (double)tv->tv_sec) * 1000000.0));
@@ -236,7 +236,7 @@ void KmTime::secondsToTimeval(double value, struct timeval *tv)
 //
 // Conversion from struct timeval to seconds (double precision)
 //
-double KmTime::secondsFromTimeval(struct timeval *tv)
+double PmTime::secondsFromTimeval(struct timeval *tv)
 {
     return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
 }
@@ -244,17 +244,17 @@ double KmTime::secondsFromTimeval(struct timeval *tv)
 //
 // Conversion from other time units into seconds
 //
-double KmTime::unitsToSeconds(double value, KmTime::DeltaUnits units)
+double PmTime::unitsToSeconds(double value, PmTime::DeltaUnits units)
 {
-    if (units == KmTime::Milliseconds)
+    if (units == PmTime::Milliseconds)
 	return value / 1000.0;
-    else if (units == KmTime::Minutes)
+    else if (units == PmTime::Minutes)
 	return value * 60.0;
-    else if (units == KmTime::Hours)
+    else if (units == PmTime::Hours)
 	return value * (60.0 * 60.0);
-    else if (units == KmTime::Days)
+    else if (units == PmTime::Days)
 	return value * (60.0 * 60.0 * 24.0);
-    else if (units == KmTime::Weeks)
+    else if (units == PmTime::Weeks)
 	return value * (60.0 * 60.0 * 24.0 * 7.0);
     return value;
 }
@@ -262,17 +262,17 @@ double KmTime::unitsToSeconds(double value, KmTime::DeltaUnits units)
 //
 // Conversion from seconds into other time units
 //
-double KmTime::secondsToUnits(double value, KmTime::DeltaUnits units)
+double PmTime::secondsToUnits(double value, PmTime::DeltaUnits units)
 {
-    if (units == KmTime::Milliseconds)
+    if (units == PmTime::Milliseconds)
 	return value * 1000.0;
-    else if (units == KmTime::Minutes)
+    else if (units == PmTime::Minutes)
 	return value / 60.0;
-    else if (units == KmTime::Hours)
+    else if (units == PmTime::Hours)
 	return value / (60.0 * 60.0);
-    else if (units == KmTime::Days)
+    else if (units == PmTime::Days)
 	return value / (60.0 * 60.0 * 24.0);
-    else if (units == KmTime::Weeks)
+    else if (units == PmTime::Weeks)
 	return value / (60.0 * 60.0 * 24.0 * 7.0);
     return value;
 }

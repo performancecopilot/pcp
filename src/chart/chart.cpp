@@ -172,8 +172,9 @@ void Chart::updateValues(bool forward, bool visible)
     int		idx, m;
 
 #if DESPERATE
-    console->post("Chart::updateValues(forward=%d,visible=%d) sh=%d (%d plots)",
-			forward, visible, sh, my.plots.size());
+    console->post(PmChart::DebugForce,
+		  "Chart::updateValues(forward=%d,visible=%d) sh=%d (%d plots)",
+		  forward, visible, sh, my.plots.size());
 #endif
 
     if (my.plots.size() < 1)
@@ -201,7 +202,7 @@ void Chart::updateValues(bool forward, bool visible)
 	    sz = qMax(0, (int)((plot->dataCount - 1) * sizeof(double)));
 
 #if DESPERATE
-	console->post(KmChart::DebugForce,
+	console->post(PmChart::DebugForce,
 		"BEFORE Chart::update (%s) 0-%d (sz=%d,v=%.2f):",
 		(const char *)plot->metric->name().toAscii(),
 		plot->dataCount, sz, value);
@@ -223,10 +224,10 @@ void Chart::updateValues(bool forward, bool visible)
 	    plot->dataCount++;
 
 #if DESPERATE
-	console->post(KmChart::DebugForce, "AFTER Chart::update (%s) 0-%d:",
+	console->post(PmChart::DebugForce, "AFTER Chart::update (%s) 0-%d:",
 			(const char *)plot->name.toAscii(), plot->dataCount);
 	for (int i = 0; i < plot->dataCount; i++)
-	    console->post(KmChart::DebugForce, "\t[%d] data=%.2f time=%s",
+	    console->post(PmChart::DebugForce, "\t[%d] data=%.2f time=%s",
 				i, plot->data[i],
 				timeString(my.tab->timeAxisData()[i]));
 #endif
@@ -289,7 +290,7 @@ void Chart::updateValues(bool forward, bool visible)
 
 #if DESPERATE
     for (m = 0; m < my.plots.size(); m++)
-	console->post(KmChart::DebugApp, "metric[%d] value %f plot %f", m,
+	console->post(PmChart::DebugForce, "metric[%d] value %f plot %f", m,
 		my.plots[m]->metric->value(0), my.plots[m]->plotData[0]);
 #endif
 
@@ -586,11 +587,11 @@ int Chart::addPlot(pmMetricSpec *pmsp, const char *legend)
     }
     else {
 	plot->legend = NULL;
-	if (plot->name.size() > KmChart::maximumLegendLength()) {
+	if (plot->name.size() > PmChart::maximumLegendLength()) {
 	    // show name as ...[end of name]
 	    int		size;
 	    plot->label = QString("...");
-	    size = KmChart::maximumLegendLength() - 3;
+	    size = PmChart::maximumLegendLength() - 3;
 	    plot->label.append(plot->name.right(size));
 	}
 	else
@@ -698,7 +699,7 @@ void Chart::changeTitle(char *title, int expand)
     }
     if (title != NULL) {
 	if (hadTitle)
-	    kmchart->updateHeight(titleLabel()->height());
+	    pmchart->updateHeight(titleLabel()->height());
 	QwtText t = titleLabel()->text();
 	t.setFont(globalFont);
 	setTitle(t);
@@ -724,7 +725,7 @@ void Chart::changeTitle(char *title, int expand)
     }
     else {
 	if (hadTitle)
-	    kmchart->updateHeight(-(titleLabel()->height()));
+	    pmchart->updateHeight(-(titleLabel()->height()));
 	setTitle(NULL);
     }
 }
@@ -999,7 +1000,7 @@ void Chart::selected(const QwtDoublePoint &p)
     QString string;
     string.sprintf("[%.2f %s at %s]",
 		   (float)p.y(), pmUnitsStr(&my.units), timeHiResString(p.x()));
-    kmchart->setValueText(string);
+    pmchart->setValueText(string);
 }
 
 void Chart::moved(const QwtDoublePoint &p)
@@ -1008,7 +1009,7 @@ void Chart::moved(const QwtDoublePoint &p)
     QString string;
     string.sprintf("[%.2f %s at %s]",
 		   (float)p.y(), pmUnitsStr(&my.units), timeHiResString(p.x()));
-    kmchart->setValueText(string);
+    pmchart->setValueText(string);
 }
 
 bool Chart::legendVisible()

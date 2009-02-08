@@ -90,8 +90,8 @@ private:
     void displayVisibleCounter();
 
     struct {
-	KmTime::DeltaUnits chartUnits;
-	KmTime::DeltaUnits loggerUnits;
+	PmTime::DeltaUnits chartUnits;
+	PmTime::DeltaUnits loggerUnits;
 	int visibleHistory;
 	int sampleHistory;
 	QString newScheme;

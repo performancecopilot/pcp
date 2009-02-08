@@ -56,8 +56,8 @@ public:
     ~TimeClient();
     void reset();
 
-    void setContext(KmTimeArch *ac, KmTimeLive *hc) { my.ac = ac; my.hc = hc; }
-    bool writeClient(KmTime::Packet *k, char *tz = NULL, int tzlen = 0,
+    void setContext(PmTimeArch *ac, PmTimeLive *hc) { my.ac = ac; my.hc = hc; }
+    bool writeClient(PmTime::Packet *k, char *tz = NULL, int tzlen = 0,
 				char *label = NULL, int llen = 0);
 
 signals:
@@ -71,10 +71,10 @@ private:
     struct {
 	QTcpSocket *socket;
 	TimeClient::State state;
-	KmTime::Source source;
+	PmTime::Source source;
 	struct timeval acktime;	// time position @ last STEP
-	KmTimeLive *hc;
-	KmTimeArch *ac;
+	PmTimeLive *hc;
+	PmTimeArch *ac;
     } my;
 };
 
@@ -93,7 +93,7 @@ class TimeLord : public QTcpServer
 
 public:
     TimeLord(QApplication *app);
-    void setContext(KmTimeLive *live, KmTimeArch *archive);
+    void setContext(PmTimeLive *live, PmTimeArch *archive);
 
 signals:
     void lastClientExit();
@@ -102,16 +102,16 @@ public slots:
     void quit();
     void newConnection();
     void endConnect(TimeClient *client);
-    void timePulse(KmTime::Packet *k);
-    void boundsPulse(KmTime::Packet *k);
-    void vcrModePulse(KmTime::Packet *k, int drag);
-    void tzPulse(KmTime::Packet *k, char *t, int tlen, char *l, int llen);
-    void stylePulse(KmTime::Packet *k, char *style, int len, void *source);
+    void timePulse(PmTime::Packet *k);
+    void boundsPulse(PmTime::Packet *k);
+    void vcrModePulse(PmTime::Packet *k, int drag);
+    void tzPulse(PmTime::Packet *k, char *t, int tlen, char *l, int llen);
+    void stylePulse(PmTime::Packet *k, char *style, int len, void *source);
 
 private:
     struct {
-	KmTimeLive *hc;
-	KmTimeArch *ac;
+	PmTimeLive *hc;
+	PmTimeArch *ac;
 	QList<TimeClient*> clientlist;
     } my;
 };

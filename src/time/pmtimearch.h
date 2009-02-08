@@ -21,12 +21,12 @@
 #include "showboundsdialog.h"
 #include "timezone.h"
 
-class KmTimeArch : public QMainWindow, public Ui::KmTimeArch
+class PmTimeArch : public QMainWindow, public Ui::PmTimeArch
 {
     Q_OBJECT
 
 public:
-    KmTimeArch();
+    PmTimeArch();
 
     virtual void play();
     virtual void back();
@@ -41,12 +41,12 @@ public:
     virtual void setPositionSlideDelta();
     virtual void popup(bool hello_popetts);
     virtual void addTimezone(const char *string);
-    virtual void setTime(KmTime::Packet *k, char *tzdata);
-    virtual void addBound(KmTime::Packet *k, char *tzdata);
+    virtual void setTime(PmTime::Packet *k, char *tzdata);
+    virtual void addBound(PmTime::Packet *k, char *tzdata);
     virtual void setupAssistant();
 
 public slots:
-    virtual void setControl(KmTime::State newstate, KmTime::Mode newmode);
+    virtual void setControl(PmTime::State newstate, PmTime::Mode newmode);
     virtual void init();
     virtual void quit();
     virtual void play_clicked();
@@ -81,18 +81,18 @@ public slots:
     virtual void whatsThis();
 
 signals:
-    void timePulse(KmTime::Packet *);
-    void boundsPulse(KmTime::Packet *);
-    void vcrModePulse(KmTime::Packet *, int);
-    void tzPulse(KmTime::Packet *, char *, int, char *, int);
+    void timePulse(PmTime::Packet *);
+    void boundsPulse(PmTime::Packet *);
+    void vcrModePulse(PmTime::Packet *, int);
+    void tzPulse(PmTime::Packet *, char *, int, char *, int);
 
 protected:
     virtual void closeEvent(QCloseEvent * ce);
 
 private:
     struct {
-	KmTime::Packet kmtime;
-	KmTime::DeltaUnits units;
+	PmTime::Packet pmtime;
+	PmTime::DeltaUnits units;
 	struct timeval absoluteStart;
 	struct timeval absoluteEnd;
 	double speed;

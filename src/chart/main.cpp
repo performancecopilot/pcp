@@ -32,12 +32,12 @@ char *outgeometry;
 QFont globalFont;
 Settings globalSettings;
 
-// Globals used to provide single instances of classes used across kmchart
+// Globals used to provide single instances of classes used across pmchart
 GroupControl *liveGroup;	// one metrics class group for all hosts
 GroupControl *archiveGroup;	// one metrics class group for all archives
 GroupControl *activeGroup;	// currently active metric fetchgroup
-TimeControl *kmtime;		// one timecontrol class for kmtime
-KmChart *kmchart;
+TimeControl *pmtime;		// one timecontrol class for pmtime
+PmChart *pmchart;
 
 static void usage(void)
 {
@@ -62,12 +62,12 @@ static void usage(void)
 "  -T endtime    end of the time window\n"
 "  -t interval   sample interval [default: %d seconds]\n"
 "  -v visible    visible history [default: %d points]\n"
-"  -V            display kmchart version number and exit\n"
+"  -V            display pmchart version number and exit\n"
 "  -W            export images using an opaque (white) background\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time of metrics source\n",
-	pmProgname, KmChart::defaultSampleHistory(),
-	(int)KmChart::defaultChartDelta(), KmChart::defaultVisibleHistory());
+	pmProgname, PmChart::defaultSampleHistory(),
+	(int)PmChart::defaultChartDelta(), PmChart::defaultVisibleHistory());
     pmflush();
     exit(1);
 }
@@ -140,7 +140,7 @@ char *timeHiResString(double time)
     return s;
 }
 
-double KmTime::secondsToUnits(double value, KmTime::DeltaUnits units)
+double PmTime::secondsToUnits(double value, PmTime::DeltaUnits units)
 {
     switch (units) {
     case Milliseconds:
@@ -165,16 +165,16 @@ double KmTime::secondsToUnits(double value, KmTime::DeltaUnits units)
     return value;
 }
 
-double KmTime::deltaValue(QString delta, KmTime::DeltaUnits units)
+double PmTime::deltaValue(QString delta, PmTime::DeltaUnits units)
 {
-    return KmTime::secondsToUnits(delta.trimmed().toDouble(), units);
+    return PmTime::secondsToUnits(delta.trimmed().toDouble(), units);
 }
 
-QString KmTime::deltaString(double value, KmTime::DeltaUnits units)
+QString PmTime::deltaString(double value, PmTime::DeltaUnits units)
 {
     QString delta;
 
-    value = KmTime::secondsToUnits(value, units);
+    value = PmTime::secondsToUnits(value, units);
     if ((double)(int)value == value)
 	delta.sprintf("%.2f", value);
     else
@@ -198,14 +198,14 @@ void setupEnvironment(void)
 	putenv(strdup("PCP_STDERR=DISPLAY"));
 
     QCoreApplication::setOrganizationName("PCP");
-    QCoreApplication::setApplicationName("kmchart");
+    QCoreApplication::setApplicationName("pmchart");
 }
 
 void writeSettings(void)
 {
     QSettings userSettings;
 
-    userSettings.beginGroup("kmchart");
+    userSettings.beginGroup("pmchart");
     if (globalSettings.chartDeltaModified) {
 	globalSettings.chartDeltaModified = false;
 	userSettings.setValue("chartDelta", globalSettings.chartDelta);
@@ -272,20 +272,20 @@ void writeSettings(void)
 void checkHistory(int samples, int visible)
 {
     // sanity checking on sample sizes
-    if (samples < KmChart::minimumPoints()) {
-	globalSettings.sampleHistory = KmChart::minimumPoints();
+    if (samples < PmChart::minimumPoints()) {
+	globalSettings.sampleHistory = PmChart::minimumPoints();
 	globalSettings.sampleHistoryModified = true;
     }
-    if (samples > KmChart::maximumPoints()) {
-	globalSettings.sampleHistory = KmChart::maximumPoints();
+    if (samples > PmChart::maximumPoints()) {
+	globalSettings.sampleHistory = PmChart::maximumPoints();
 	globalSettings.sampleHistoryModified = true;
     }
-    if (visible < KmChart::minimumPoints()) {
-	globalSettings.visibleHistory = KmChart::minimumPoints();
+    if (visible < PmChart::minimumPoints()) {
+	globalSettings.visibleHistory = PmChart::minimumPoints();
 	globalSettings.visibleHistoryModified = true;
     }
-    if (visible > KmChart::maximumPoints()) {
-	globalSettings.visibleHistory = KmChart::maximumPoints();
+    if (visible > PmChart::maximumPoints()) {
+	globalSettings.visibleHistory = PmChart::maximumPoints();
 	globalSettings.visibleHistoryModified = true;
     }
     if (samples < visible) {
@@ -297,23 +297,23 @@ void checkHistory(int samples, int visible)
 void readSettings(void)
 {
     QSettings userSettings;
-    userSettings.beginGroup("kmchart");
+    userSettings.beginGroup("pmchart");
 
     //
     // Parameters related to sampling
     //
     globalSettings.chartDeltaModified = false;
     globalSettings.chartDelta = userSettings.value("chartDelta",
-				KmChart::defaultChartDelta()).toDouble();
+				PmChart::defaultChartDelta()).toDouble();
     globalSettings.loggerDeltaModified = false;
     globalSettings.loggerDelta = userSettings.value("loggerDelta",
-				KmChart::defaultLoggerDelta()).toDouble();
+				PmChart::defaultLoggerDelta()).toDouble();
     globalSettings.sampleHistoryModified = false;
     globalSettings.sampleHistory = userSettings.value("sampleHistory",
-				KmChart::defaultSampleHistory()).toInt();
+				PmChart::defaultSampleHistory()).toInt();
     globalSettings.visibleHistoryModified = false;
     globalSettings.visibleHistory = userSettings.value("visibleHistory",
-				KmChart::defaultVisibleHistory()).toInt();
+				PmChart::defaultVisibleHistory()).toInt();
     checkHistory(globalSettings.sampleHistory, globalSettings.visibleHistory);
     if (globalSettings.sampleHistoryModified) {
 	userSettings.setValue("samplePoints", globalSettings.sampleHistory);
@@ -378,7 +378,7 @@ void readSettings(void)
     if (userSettings.contains("toolbarActions") == true)
 	globalSettings.toolbarActions =
 			userSettings.value("toolbarActions").toStringList();
-    // else: (defaults come from the kmchart.ui interface specification)
+    // else: (defaults come from the pmchart.ui interface specification)
 
     userSettings.endGroup();
 }
@@ -418,14 +418,14 @@ void setupViewGlobals()
 
     OpenViewDialog::globals(&w, &h, &points, &x, &y);
     if (w || h) {
-	QSize size = kmchart->size();
-	kmchart->resize(size.expandedTo(QSize(w, h)));
+	QSize size = pmchart->size();
+	pmchart->resize(size.expandedTo(QSize(w, h)));
     }
     if (x || y) {
-	QPoint pos = kmchart->pos();
+	QPoint pos = pmchart->pos();
 	if (x) pos.setX(x);
 	if (y) pos.setY(y);
-	kmchart->move(pos);
+	pmchart->move(pos);
     }
     if (points) {
 	if (activeGroup->sampleHistory() < points)
@@ -449,7 +449,7 @@ main(int argc, char ** argv)
     char		*tz = NULL;		/* for -Z timezone */
     int			sh = -1;		/* sample history length */
     int			vh = -1;		/* visible history length */
-    int			port = -1;		/* kmtime port number */
+    int			port = -1;		/* pmtime port number */
     struct timeval	delta;
     struct timeval	origin;
     struct timeval	logStartTime;
@@ -532,7 +532,7 @@ main(int argc, char ** argv)
 	    Oflag = optarg;
 	    break;
 
-	case 'p':		/* existing kmtime port */
+	case 'p':		/* existing pmtime port */
 	    port = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0' || c < 0) {
 		pmprintf("%s: -p requires a numeric argument\n", pmProgname);
@@ -623,7 +623,7 @@ main(int argc, char ** argv)
     //
     // Deal with user requested sample/visible points globalSettings.  These
     // (command line) override the QSettings values, for this instance
-    // of kmchart.  They should not be written though, unless requested
+    // of pmchart.  They should not be written though, unless requested
     // later via the Settings dialog.
     //
     if (vh != -1 || sh != -1) {
@@ -688,7 +688,7 @@ main(int argc, char ** argv)
     //
     // Choose which Tab will be displayed initially - archive/live.
     // If any archives given on command line, we go Archive mode;
-    // otherwise Live mode wins.  Our initial kmtime connection is
+    // otherwise Live mode wins.  Our initial pmtime connection is
     // set in that mode too.  Later we'll make a second connection
     // in the other mode (and only "on-demand").
     //
@@ -727,34 +727,34 @@ main(int argc, char ** argv)
     }
     console->post("Timezones and time window setup complete");
 
-    globalFont = QFont("Sans Serif", KmChart::defaultFontSize());
+    globalFont = QFont("Sans Serif", PmChart::defaultFontSize());
     fileIconProvider = new FileIconProvider();
-    kmchart = new KmChart;
-    kmtime = new TimeControl;
+    pmchart = new PmChart;
+    pmtime = new TimeControl;
     console->post("Phase1 user interface constructors complete");
 
-    // Start kmtime process for time management
-    kmtime->init(port, archives.size() == 0, &delta, &position,
+    // Start pmtime process for time management
+    pmtime->init(port, archives.size() == 0, &delta, &position,
 		 &realStartTime, &realEndTime, tzString, tzLabel);
 
-    kmchart->init();
+    pmchart->init();
     liveGroup->init(globalSettings.sampleHistory,
 			globalSettings.visibleHistory,
-			kmtime->liveInterval(), kmtime->livePosition());
+			pmtime->liveInterval(), pmtime->livePosition());
     archiveGroup->init(globalSettings.sampleHistory,
 			globalSettings.visibleHistory,
-			kmtime->archiveInterval(), kmtime->archivePosition());
+			pmtime->archiveInterval(), pmtime->archivePosition());
 
     //
-    // We setup the kmchart tab list late, so we don't have to deal
+    // We setup the pmchart tab list late, so we don't have to deal
     // with kmtime messages reaching the Tabs until we're all setup.
     //
     if (archives.size() == 0)
-	tab->init(kmchart->tabWidget(), liveGroup, "Live");
+	tab->init(pmchart->tabWidget(), liveGroup, "Live");
     else
-	tab->init(kmchart->tabWidget(), archiveGroup, "Archive");
-    kmchart->tabWidget()->insertTab(tab);
-    kmchart->setActiveTab(0, true);
+	tab->init(pmchart->tabWidget(), archiveGroup, "Archive");
+    pmchart->tabWidget()->insertTab(tab);
+    pmchart->setActiveTab(0, true);
     console->post("Phase2 user interface setup complete");
 
     readSchemes();
@@ -765,10 +765,10 @@ main(int argc, char ** argv)
     if (Cflag)	// done with -c config, quit
 	return 0;
 
-    kmchart->enableUi();
-    kmchart->show();
+    pmchart->enableUi();
+    pmchart->show();
     console->post("Top level window shown");
 
-    a.connect(&a, SIGNAL(lastWindowClosed()), kmchart, SLOT(quit()));
+    a.connect(&a, SIGNAL(lastWindowClosed()), pmchart, SLOT(quit()));
     return a.exec();
 }

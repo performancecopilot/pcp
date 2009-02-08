@@ -49,10 +49,10 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst)
     setText(0, my.basename);
 
     if (my.type == ChildMinder) {
-	console->post(KmChart::DebugUi, "Added namespace childminder");
+	console->post(PmChart::DebugUi, "Added namespace childminder");
     }
     else {
-	console->post(KmChart::DebugUi, "Added non-root namespace node %s (inst=%d)",
+	console->post(PmChart::DebugUi, "Added non-root namespace node %s (inst=%d)",
 		  (const char *)my.basename.toAscii(), inst);
     }
 }
@@ -85,7 +85,7 @@ NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context)
     setText(0, my.basename);
     setIcon(0, my.icon);
 
-    console->post(KmChart::DebugUi, "Added root namespace node %s",
+    console->post(PmChart::DebugUi, "Added root namespace node %s",
 		  (const char *)my.basename.toAscii());
 }
 
@@ -144,7 +144,7 @@ QString NameSpace::metricInstance()
 void NameSpace::setExpanded(bool expand, bool show)
 {
 #if DESPERATE
-    console->post(KmChart::DebugUi, "NameSpace::setExpanded "
+    console->post(PmChart::DebugUi, "NameSpace::setExpanded "
 		  "on %p %s (type=%d expanded=%s, expand=%s, show=%s)",
 		  this, (const char *)metricName().toAscii(),
 		  my.type,
@@ -184,7 +184,7 @@ void NameSpace::setSelectable(bool selectable)
 
 void NameSpace::setExpandable(bool expandable)
 {
-    console->post(KmChart::DebugUi, "NameSpace::setExpandable "
+    console->post(PmChart::DebugUi, "NameSpace::setExpandable "
 		  "on %p %s (expanded=%s, expandable=%s)",
 		  this, (const char *)metricName().toAscii(),
 		  my.expanded ? "y" : "n", expandable ? "y" : "n");

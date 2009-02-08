@@ -22,14 +22,14 @@ Console::Console(struct timeval origin) : QDialog()
 {
     my.level = 0;
     if (pmDebug & DBG_TRACE_APPL0) {
-	my.level |= KmChart::DebugApp;		// general and UI tracing
-	my.level |= KmChart::DebugUi;
+	my.level |= PmChart::DebugApp;		// general and UI tracing
+	my.level |= PmChart::DebugUi;
     }
     if (pmDebug & DBG_TRACE_APPL1)
-	my.level |= KmChart::DebugProtocol;	// trace time protocol
+	my.level |= PmChart::DebugProtocol;	// trace time protocol
     if (pmDebug & DBG_TRACE_APPL2) {
-	my.level |= KmChart::DebugView;		// config files, for QA
-	my.level |= KmChart::DebugTimeless;
+	my.level |= PmChart::DebugView;		// config files, for QA
+	my.level |= PmChart::DebugTimeless;
     }
     setupUi(this);
 
@@ -44,10 +44,10 @@ void Console::post(const char *fmt, ...)
     va_list ap;
     int offset = 0;
 
-    if (!(my.level & KmChart::DebugApp))
+    if (!(my.level & PmChart::DebugApp))
 	return;
 
-    if (!(my.level & KmChart::DebugTimeless)) {
+    if (!(my.level & PmChart::DebugTimeless)) {
 	gettimeofday(&now, NULL);
 	sprintf(buffer, "%6.2f: ", tosec(now) - my.origin);
 	offset = 8;
@@ -76,10 +76,10 @@ void Console::post(int level, const char *fmt, ...)
     va_list ap;
     int offset = 0;
 
-    if (!(my.level & level) && !(level & KmChart::DebugForce))
+    if (!(my.level & level) && !(level & PmChart::DebugForce))
 	return;
 
-    if (!(my.level & KmChart::DebugTimeless)) {
+    if (!(my.level & PmChart::DebugTimeless)) {
 	gettimeofday(&now, NULL);
 	sprintf(buffer, "%6.2f: ", tosec(now) - my.origin);
 	offset = 8;

@@ -105,11 +105,11 @@ static void err(int severity, int do_where, QString msg)
     }
     else {
 	if (severity == E_CRIT)
-	    QMessageBox::critical(kmchart, pmProgname,  msg);
+	    QMessageBox::critical(pmchart, pmProgname,  msg);
 	else if (severity == E_WARN)
-	    QMessageBox::warning(kmchart, pmProgname,  msg);
+	    QMessageBox::warning(pmchart, pmProgname,  msg);
 	else
-	    QMessageBox::information(kmchart, pmProgname,  msg);
+	    QMessageBox::information(pmchart, pmProgname,  msg);
     }
     _errors++;
 }
@@ -252,7 +252,7 @@ bool OpenViewDialog::openView(const char *path)
 {
     Tab			*tab;
     Chart		*cp = NULL;
-    int			ct = kmchart->tabWidget()->currentIndex();
+    int			ct = pmchart->tabWidget()->currentIndex();
     int			m;
     ColorScheme		scheme;
     FILE		*f;
@@ -320,7 +320,7 @@ bool OpenViewDialog::openView(const char *path)
 
     _line = 1;
     _errors = 0;
-    console->post(KmChart::DebugView, "Load View: %s", _fname);
+    console->post(PmChart::DebugView, "Load View: %s", _fname);
 
     while ((w = getwd(f)) != NULL) {
 	if (state == S_BEGIN) {
@@ -381,7 +381,7 @@ bool OpenViewDialog::openView(const char *path)
 	    w = getwd(f);
 	    if (w == NULL || w[0] == '\n') {
 		if (mode == M_KMCHART) {
-		    // host [literal|dynamic] is optional for kmchart
+		    // host [literal|dynamic] is optional for new pmchart
 		    h_mode = H_DYNAMIC;
 		    state = S_TOP;
 		    continue;
@@ -551,7 +551,7 @@ done_chart:
 		    fputc('\n', stderr);
 		}
 		if (Cflag == 0 || Cflag == 2) {
-		    tab = kmchart->activeTab();
+		    tab = pmchart->activeTab();
 		    cp = new Chart(tab, tab->splitter());
 		    cp->setStyle(style);
 		    cp->setScheme(scheme.name());
@@ -717,7 +717,7 @@ new_tab:
 		}
 
 done_tab:
-		tab = kmchart->activeTab();
+		tab = pmchart->activeTab();
 		bool isArchive = tab->isArchiveSource();
 
 		if (host != QString::null) {
@@ -728,7 +728,7 @@ done_tab:
 		}
 
 		if (tab->gadgetCount() == 0) {	// edit the initial tab
-		    TabWidget *tabWidget = kmchart->tabWidget();
+		    TabWidget *tabWidget = pmchart->tabWidget();
 		    tabWidget->setTabText(tabWidget->currentIndex(), label);
 		    activeGroup->setSampleHistory(samples);
 		    activeGroup->setVisibleHistory(points);
@@ -737,10 +737,10 @@ done_tab:
 		    tab = new Tab;
 		    // TODO: samples, points?
 		    if (isArchive)
-			tab->init(kmchart->tabWidget(), archiveGroup, label);
+			tab->init(pmchart->tabWidget(), archiveGroup, label);
 		    else
-			tab->init(kmchart->tabWidget(), liveGroup, label);
-		    kmchart->addActiveTab(tab);
+			tab->init(pmchart->tabWidget(), liveGroup, label);
+		    pmchart->addActiveTab(tab);
 		}
 	    }
 	    else {
@@ -792,7 +792,7 @@ done_tab:
 	    if (strcasecmp(w, "title") == 0 ||
 	        (mode == M_KMCHART && strcasecmp(w, "legend") == 0)) {
 		// optional title "<title>" or
-		// (for kmchart) legend "<title>"
+		// (for new pmchart) legend "<title>"
 		if ((w = getwd(f)) == NULL || w[0] == '\n') {
 		    xpect("<legend title>", w);
 		    goto skip;
@@ -804,7 +804,7 @@ done_tab:
 		}
 	    }
 	    // color <color> is mandatory for pmchart, optional for
-	    // kmchart (where the default is color #-cycle)
+	    // new pmchart (where the default is color #-cycle)
 	    if (strcasecmp(w, "color") == 0 || strcasecmp(w, "colour") == 0) {
 		if ((w = getwd(f)) == NULL || w[0] == '\n') {
 		    xpect("<color>", w);
@@ -821,14 +821,14 @@ done_tab:
 		goto skip;
 	    }
 	    // host <host> is mandatory for pmchart, optional for
-	    // kmchart (where the default is host *)
+	    // new pmchart (where the default is host *)
 	    if (strcasecmp(w, "host") == 0) {
 		if ((w = getwd(f)) == NULL || w[0] == '\n') {
 		    xpect("<host>", w);
 		    goto skip;
 		}
 		if (strcmp(w, "*") == 0)
-		    host = NULL;	// just like the kmchart default
+		    host = NULL;	// just like the new pmchart default
 		else {
 		    if ((host = strdup(w)) == NULL) nomem();
 		}
@@ -907,7 +907,7 @@ done_tab:
 		}
 		else {
 		    // expect end of line after instance/pattern
-		    // (kmchart uses quotes to make instance a single
+		    // (pmchart uses quotes to make instance a single
 		    // lexical element in the line)
 		    eol(f);
 		}
@@ -1154,12 +1154,12 @@ abandon:
     if (_errors)
 	return false;
 
-    if (ct != kmchart->tabWidget()->currentIndex())	// new Tabs added
-	kmchart->setActiveTab(ct, true);
+    if (ct != pmchart->tabWidget()->currentIndex())	// new Tabs added
+	pmchart->setActiveTab(ct, true);
 
     if ((Cflag == 0 || Cflag == 2) && cp != NULL) {
 	activeGroup->setupWorldView();
-	kmchart->activeTab()->showGadgets();
+	pmchart->activeTab()->showGadgets();
     }
     return true;
 
@@ -1295,8 +1295,8 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
 	fprintf(f, "\n");
     }
 
-    for (c = 0; c < kmchart->activeTab()->gadgetCount(); c++) {
-	gadget = kmchart->activeTab()->gadget(c);
+    for (c = 0; c < pmchart->activeTab()->gadgetCount(); c++) {
+	gadget = pmchart->activeTab()->gadget(c);
 	if (gadget->scheme() == QString::null ||
 	    schemes.contains(gadget->scheme()) == true)
 	    continue;
@@ -1306,7 +1306,7 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
 	saveScheme(f, schemes.at(c));
 
     if (allTabs) {
-	TabWidget *tabWidget = kmchart->tabWidget();
+	TabWidget *tabWidget = pmchart->tabWidget();
 	for (t = 0; t < tabWidget->size(); t++) {
 	    tab = tabWidget->at(t);
 	    fprintf(f, "\ntab \"%s\"\n\n",
@@ -1316,7 +1316,7 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
 	}
     }
     else {
-	tab = kmchart->activeTab();
+	tab = pmchart->activeTab();
 	if (!allCharts)
 	    tab->currentGadget()->save(f, hostDynamic);
 	else

@@ -24,9 +24,9 @@ Console::Console() : QDialog()
 {
     my.level = 0;
     if (pmDebug & DBG_TRACE_APPL0)
-	my.level |= KmTime::DebugApp;	// pmtime apps internals
+	my.level |= PmTime::DebugApp;	// pmtime apps internals
     if (pmDebug & DBG_TRACE_APPL1)
-	my.level |= KmTime::DebugProtocol;	// trace pmtime protocol
+	my.level |= PmTime::DebugProtocol;	// trace pmtime protocol
     setupUi(this);
 }
 
@@ -35,7 +35,7 @@ void Console::post(const char *fmt, ...)
     static char buffer[4096];
     va_list ap;
 
-    if (!(my.level & KmTime::DebugApp))
+    if (!(my.level & PmTime::DebugApp))
 	return;
 
     va_start(ap, fmt);

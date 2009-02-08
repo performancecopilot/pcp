@@ -40,7 +40,7 @@ void Tab::init(QTabWidget *tab, GroupControl *group, QString label)
 void Tab::addGadget(Gadget *gadget)
 {
     if (gadgetCount())
-	kmchart->updateHeight(KmChart::minimumChartHeight());
+	pmchart->updateHeight(PmChart::minimumChartHeight());
     my.gadgetsList.append(gadget);
     if (my.currentGadget == -1)
 	setCurrentGadget(gadgetCount() - 1);
@@ -68,7 +68,7 @@ int Tab::deleteGadget(int index)
     delete gadget;
 
     if (gadgetCount() > 1)
-	kmchart->updateHeight(-(gadget->height()));
+	pmchart->updateHeight(-(gadget->height()));
 
     int newCurrent = my.currentGadget;
     if (index < newCurrent || index == gadgetCount() - 1)
@@ -161,7 +161,7 @@ bool Tab::startRecording(void)
     record.init(this);
     if (record.exec() != QDialog::Accepted)
 	my.recording = false;
-    else {	// write pmlogger/kmchart/pmafm configs and start up loggers.
+    else {	// write pmlogger/pmchart/pmafm configs and start up loggers.
 	console->post("Tab::startRecording starting loggers");
 	record.startLoggers();
 	my.recording = true;
@@ -205,7 +205,7 @@ void Tab::stopRecording(void)
 	else {
 	    archiveGroup->updateBounds();
 	    QmcSource source = archiveGroup->context()->source();
-	    kmtime->addArchive(source.start(), source.end(),
+	    pmtime->addArchive(source.start(), source.end(),
 				source.timezone(), source.host(), true);
 	}
     }
@@ -213,26 +213,26 @@ void Tab::stopRecording(void)
     // If all is well, we can now create the new "Record" Tab.
     // Order of cleanup and changing Record mode state is different
     // in the error case to non-error case, this is important for
-    // getting the window state correct (i.e. kmchart->enableUi()).
+    // getting the window state correct (i.e. pmchart->enableUi()).
 
     if (error) {
 	cleanupRecording();
-	kmchart->setRecordState(false);
+	pmchart->setRecordState(false);
 	QMessageBox::warning(this, pmProgname, errmsg,
 		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
     }
     else {
 	// Make the current Tab stop recording before changing Tabs
-	kmchart->setRecordState(false);
+	pmchart->setRecordState(false);
 
 	Tab *tab = new Tab;
 	console->post("Tab::stopRecording creating tab: delta=%.2f pos=%.2f",
-			tosec(*kmtime->archiveInterval()),
-			tosec(*kmtime->archivePosition()));
+			tosec(*pmtime->archiveInterval()),
+			tosec(*pmtime->archivePosition()));
 	// TODO: may need to update archive samples/visible?
-	tab->init(kmchart->tabWidget(), archiveGroup, "Record");
-	kmchart->addActiveTab(tab);
+	tab->init(pmchart->tabWidget(), archiveGroup, "Record");
+	pmchart->addActiveTab(tab);
 	OpenViewDialog::openView((const char *)my.view.toAscii());
 	cleanupRecording();
     }
@@ -270,7 +270,7 @@ void Tab::queryRecording(void)
 	for (i = 0; i < count; i++)
 	    my.loggerList.at(i)->write(msg.toAscii());
 	cleanupRecording();
-	kmchart->setRecordState(false);
+	pmchart->setRecordState(false);
 	QMessageBox::warning(this, pmProgname, errmsg,
 		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
@@ -297,13 +297,13 @@ void Tab::detachLoggers(void)
 
     if (error) {
 	cleanupRecording();
-	kmchart->setRecordState(false);
+	pmchart->setRecordState(false);
 	QMessageBox::warning(this, pmProgname, errmsg,
 		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
     }
     else {
-	kmchart->setRecordState(false);
+	pmchart->setRecordState(false);
 	cleanupRecording();
     }
 }

@@ -78,11 +78,11 @@ extern GroupControl *activeGroup;
 extern GroupControl *liveGroup;
 extern GroupControl *archiveGroup;
 
-class KmChart;
-extern KmChart *kmchart;
+class PmChart;
+extern PmChart *pmchart;
 
 class TimeControl;
-extern TimeControl *kmtime;
+extern TimeControl *pmtime;
 
 extern double tosec(struct timeval);
 extern double torange(struct timeval, int);

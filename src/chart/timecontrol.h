@@ -79,9 +79,9 @@ private:
     } ProtocolState;
 
     void startTimeServer();
-    void protocolMessage(bool live, KmTime::Packet *kmtime,
+    void protocolMessage(bool live, PmTime::Packet *pmtime,
 			 QTcpSocket *socket, ProtocolState *state);
-    void protocolMessageLoop(bool live, KmTime::Packet *kmtime,
+    void protocolMessageLoop(bool live, PmTime::Packet *pmtime,
 			 QTcpSocket *socket, ProtocolState *state);
 
     struct {
@@ -93,15 +93,15 @@ private:
 	char *buffer;
 
 	QTcpSocket *liveSocket;
-	KmTime::Packet *livePacket;
+	PmTime::Packet *livePacket;
 	ProtocolState liveState;
 
 	QTcpSocket *archiveSocket;
-	KmTime::Packet *archivePacket;
+	PmTime::Packet *archivePacket;
 	ProtocolState archiveState;
     } my;
 };
 
-extern TimeControl *kmtime;
+extern TimeControl *pmtime;
 
 #endif	// TIMECONTROL_H

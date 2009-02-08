@@ -46,9 +46,9 @@ void RecordDialog::init(Tab *tab)
     archiveLineEdit->setText(archive);
 
     my.tab = tab;
-    my.units = KmTime::Seconds;
+    my.units = PmTime::Seconds;
     deltaLineEdit->setText(
-		KmTime::deltaString(globalSettings.loggerDelta, my.units));
+		PmTime::deltaString(globalSettings.loggerDelta, my.units));
 
     selectedRadioButton->setChecked(false);
     allGadgetsRadioButton->setChecked(true);
@@ -68,9 +68,9 @@ void RecordDialog::allGadgetsRadioButton_clicked()
 
 void RecordDialog::deltaUnitsComboBox_activated(int value)
 {
-    double delta = tosec(*(kmtime->liveInterval()));
-    my.units = (KmTime::DeltaUnits)value;
-    deltaLineEdit->setText(KmTime::deltaString(delta, my.units));
+    double delta = tosec(*(pmtime->liveInterval()));
+    my.units = (PmTime::DeltaUnits)value;
+    deltaLineEdit->setText(PmTime::deltaString(delta, my.units));
 }
 
 void RecordDialog::viewPushButton_clicked()
@@ -122,7 +122,7 @@ bool RecordDialog::saveFolio(QString folioname, QString viewname)
     stream << "# use pmafm(1) to process this PCP archive folio\n" << "#\n";
     stream << "Created: on " << QmcSource::localHost;
     stream << " at " << datetime << "\n";
-    stream << "Creator: kmchart " << viewname << "\n";
+    stream << "Creator: pmchart " << viewname << "\n";
     stream << "#\t\tHost\t\tBasename\n";
 
     for (int i = 0; i < my.hosts.size(); i++) {
@@ -185,7 +185,7 @@ void PmLogger::finished(int, QProcess::ExitStatus)
 	msg.append(".\n\n");
 	msg.append("Additional diagnostics may be available in the log:\n");
 	msg.append(my.logfile);
-	QMessageBox::warning(kmchart, pmProgname, msg);
+	QMessageBox::warning(pmchart, pmProgname, msg);
     }
 }
 
@@ -193,7 +193,7 @@ void RecordDialog::buttonOk_clicked()
 {
     if (deltaLineEdit->isModified()) {
 	// convert to seconds, make sure its still in range 0.001-INT_MAX
-	double input = KmTime::deltaValue(deltaLineEdit->text(), my.units);
+	double input = PmTime::deltaValue(deltaLineEdit->text(), my.units);
 	if (input < 0.001 || input > INT_MAX) {
 	    QString msg = tr("Record Sampling Interval is invalid.\n");
 	    msg.append(deltaLineEdit->text());
@@ -238,9 +238,9 @@ void RecordDialog::buttonOk_clicked()
 
     my.view  = view;
     my.folio = folio;
-    my.delta.setNum(KmTime::deltaValue(deltaLineEdit->text(), my.units), 'f');
+    my.delta.setNum(PmTime::deltaValue(deltaLineEdit->text(), my.units), 'f');
 
-    Tab *tab = kmchart->activeTab();
+    Tab *tab = pmchart->activeTab();
     for (int c = 0; c < tab->gadgetCount(); c++) {
 	Gadget *gadget = tab->gadget(c);
 	if (selectedRadioButton->isChecked() && gadget != tab->currentGadget())
@@ -268,7 +268,7 @@ void RecordDialog::buttonOk_clicked()
 }
 
 //
-// write pmlogger, kmchart and pmafm configs, then start pmloggers.
+// write pmlogger, pmchart and pmafm configs, then start pmloggers.
 //
 void RecordDialog::startLoggers()
 {
@@ -279,11 +279,11 @@ void RecordDialog::startLoggers()
     regex.append(QDir::homePath());
     my.folio.replace(QRegExp(regex), "~"); 
 
-    Tab *tab = kmchart->activeTab();
+    Tab *tab = pmchart->activeTab();
     tab->addFolio(my.folio, my.view);
 
     for (int i = 0; i < my.hosts.size(); i++) {
-	PmLogger *process = new PmLogger(kmchart);
+	PmLogger *process = new PmLogger(pmchart);
 	QString archive = my.archives.at(i);
 	QString host = my.hosts.at(i);
 	QString logfile, configfile;
@@ -314,7 +314,7 @@ void RecordDialog::startLoggers()
 	QStringList control;
 	control << "V0\n";
 	control << "F" << my.folio << "\n";
-	control << "Pkmchart\n" << "R\n";
+	control << "Ppmchart\n" << "R\n";
 	for (int i = 0; i < control.size(); i++)
 	    process->write(control.at(i).toAscii());
     }

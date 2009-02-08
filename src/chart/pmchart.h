@@ -31,12 +31,12 @@ class SaveViewDialog;
 class SettingsDialog;
 class QAssistantClient;
 
-class KmChart : public QMainWindow, public Ui::KmChart
+class PmChart : public QMainWindow, public Ui::PmChart
 {
     Q_OBJECT
 
 public:
-    KmChart();
+    PmChart();
 
     typedef enum {
 	DebugApp = 0x1,
@@ -66,9 +66,9 @@ public:
     TabWidget *tabWidget() { return chartTabWidget; }
     TimeAxis *timeAxis() { return my.statusBar->timeAxis(); }
 
-    virtual void step(bool livemode, KmTime::Packet *kmtime);
-    virtual void VCRMode(bool livemode, KmTime::Packet *kmtime, bool drag);
-    virtual void timeZone(bool livemode, KmTime::Packet *kmtime, char *tzdata);
+    virtual void step(bool livemode, PmTime::Packet *pmtime);
+    virtual void VCRMode(bool livemode, PmTime::Packet *pmtime, bool drag);
+    virtual void timeZone(bool livemode, PmTime::Packet *pmtime, char *tzdata);
     virtual void setStyle(char *style);
     virtual void setupAssistant();
     virtual void updateHeight(int);
@@ -121,7 +121,7 @@ public slots:
     virtual void optionsTimeControl();
     virtual void optionsToolbar();
     virtual void optionsConsole();
-    virtual void optionsNewKmchart();
+    virtual void optionsNewPmchart();
     virtual void acceptNewChart();
     virtual void fileNewChart();
     virtual void editChart();

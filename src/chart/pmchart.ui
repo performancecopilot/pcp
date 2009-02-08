@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>KmChart</class>
- <widget class="QMainWindow" name="KmChart" >
+ <class>PmChart</class>
+ <widget class="QMainWindow" name="PmChart" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -100,7 +100,7 @@
     <addaction name="toolbarAction" />
     <addaction name="consoleAction" />
     <addaction name="separator" />
-    <addaction name="newKmchartAction" />
+    <addaction name="newPmchartAction" />
    </widget>
    <widget class="QMenu" name="Record" >
     <property name="title" >
@@ -182,7 +182,7 @@
    <addaction name="fileExportAction" />
    <addaction name="filePrintAction" />
    <addaction name="separator" />
-   <addaction name="newKmchartAction" />
+   <addaction name="newPmchartAction" />
   </widget>
   <action name="fileOpenViewAction" >
    <property name="icon" >
@@ -255,7 +255,7 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="newKmchartAction" >
+  <action name="newPmchartAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
      <normaloff>:/pmchart.png</normaloff>:/pmchart.png</iconset>
@@ -500,7 +500,6 @@
     <string>Detach</string>
    </property>
   </action>
-<<<<<<< HEAD:src/chart/kmchart.ui
  </widget>
  <includes>
   <include location="local" >pmtime.h</include>
@@ -524,7 +523,7 @@
   <connection>
    <sender>fileNewChartAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>fileNewChart()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -540,7 +539,7 @@
   <connection>
    <sender>fileOpenViewAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>fileOpenView()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -556,23 +555,13 @@
   <connection>
    <sender>fileSaveViewAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>fileSaveView()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
   </connection>
   <connection>
    <sender>fileExportAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>fileExport()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -588,7 +577,7 @@
   <connection>
    <sender>filePrintAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>filePrint()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -604,7 +593,7 @@
   <connection>
    <sender>fileQuitAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>fileQuit()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -620,7 +609,7 @@
   <connection>
    <sender>helpTutorialAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>helpTutorial()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -636,7 +625,7 @@
   <connection>
    <sender>helpAboutAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>helpAbout()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -652,7 +641,7 @@
   <connection>
    <sender>helpSeeAlsoAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>helpSeeAlso()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -668,7 +657,7 @@
   <connection>
    <sender>helpWhatsThisAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>whatsThis()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -684,7 +673,7 @@
   <connection>
    <sender>timeControlAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>optionsTimeControl()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -700,7 +689,7 @@
   <connection>
    <sender>toolbarAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>optionsToolbar()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -716,7 +705,7 @@
   <connection>
    <sender>consoleAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>optionsConsole()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -730,10 +719,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>newKmchartAction</sender>
+   <sender>newPmchartAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
-   <slot>optionsNewKmchart()</slot>
+   <receiver>PmChart</receiver>
+   <slot>optionsNewPmchart()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>
@@ -748,7 +737,7 @@
   <connection>
    <sender>editSettingsAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>editSettings()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -764,7 +753,7 @@
   <connection>
    <sender>chartTabWidget</sender>
    <signal>currentChanged(int)</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>activeTabChanged(int)</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -780,7 +769,7 @@
   <connection>
    <sender>editChartAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>editChart()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -796,7 +785,7 @@
   <connection>
    <sender>closeChartAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>closeChart()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -812,7 +801,7 @@
   <connection>
    <sender>editTabAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>editTab()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -828,13 +817,13 @@
   <connection>
    <sender>editSamplesAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>editSamples()</slot>
   </connection>
   <connection>
    <sender>closeTabAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>closeTab()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -850,7 +839,7 @@
   <connection>
    <sender>addTabAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>addTab()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -866,7 +855,7 @@
   <connection>
    <sender>helpManualAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>helpManual()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -882,7 +871,7 @@
   <connection>
    <sender>recordStartAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>recordStart()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -898,7 +887,7 @@
   <connection>
    <sender>recordQueryAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>recordQuery()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -914,7 +903,7 @@
   <connection>
    <sender>recordStopAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>recordStop()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -930,7 +919,7 @@
   <connection>
    <sender>recordDetachAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>recordDetach()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -946,7 +935,7 @@
   <connection>
    <sender>zoomInAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>zoomIn()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -962,7 +951,7 @@
   <connection>
    <sender>zoomOutAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmChart</receiver>
+   <receiver>PmChart</receiver>
    <slot>zoomOut()</slot>
    <hints>
     <hint type="sourcelabel" >

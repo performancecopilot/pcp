@@ -35,13 +35,13 @@ void ShowBounds::init(
 
 void ShowBounds::reset()
 {
-    my.localAbsoluteStart = KmTime::secondsFromTimeval(my.absoluteStart);
-    my.localCurrentStart = KmTime::secondsFromTimeval(my.currentStart);
-    my.localAbsoluteEnd = KmTime::secondsFromTimeval(my.absoluteEnd);
-    my.localCurrentEnd = KmTime::secondsFromTimeval(my.currentEnd);
+    my.localAbsoluteStart = PmTime::secondsFromTimeval(my.absoluteStart);
+    my.localCurrentStart = PmTime::secondsFromTimeval(my.currentStart);
+    my.localAbsoluteEnd = PmTime::secondsFromTimeval(my.absoluteEnd);
+    my.localCurrentEnd = PmTime::secondsFromTimeval(my.currentEnd);
 
 #ifdef DESPERATE
-    console->post(KmTime::DebugProtocol, "ShowBounds::reset START: "
+    console->post(PmTime::DebugProtocol, "ShowBounds::reset START: "
 	"end=%u.%u(%.3f) start=%u.%u(%.3f) lend=%u.%u(%.3f) lstart=%u.%u(%.3f)",
 	my.absoluteEnd->tv_sec, my.absoluteEnd->tv_usec, my.localAbsoluteEnd,
 	my.absoluteStart->tv_sec, my.absoluteStart->tv_usec,
@@ -57,7 +57,7 @@ void ShowBounds::reset()
     displayEndText();
 
 #ifdef DESPERATE
-    console->post(KmTime::DebugProtocol, "ShowBounds::reset ENDED: "
+    console->post(PmTime::DebugProtocol, "ShowBounds::reset ENDED: "
 	"end=%u.%u(%.3f) start=%u.%u(%.3f) lend=%u.%u(%.3f) lstart=%u.%u(%.3f)",
 	my.absoluteEnd->tv_sec, my.absoluteEnd->tv_usec, my.localAbsoluteEnd,
 	my.absoluteStart->tv_sec, my.absoluteStart->tv_usec,
@@ -146,8 +146,8 @@ void ShowBounds::accept()
 
     console->post("ShowBounds::accept: OK pressed");
 
-    KmTime::secondsToTimeval(my.localAbsoluteStart, &start);
-    KmTime::secondsToTimeval(my.localAbsoluteEnd, &end);
+    PmTime::secondsToTimeval(my.localAbsoluteStart, &start);
+    PmTime::secondsToTimeval(my.localAbsoluteEnd, &end);
 
     if (lineEditStart->isModified()) {
 	input = lineEditStart->text().simplified();
@@ -163,13 +163,13 @@ void ShowBounds::accept()
 	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	    free(msg);
 	    return;
-	} else if (KmTime::timevalCompare(&current, &start) < 0 ||
-		   KmTime::timevalCompare(&current, &end) > 0) {
+	} else if (PmTime::timevalCompare(&current, &start) < 0 ||
+		   PmTime::timevalCompare(&current, &end) > 0) {
 	    error.sprintf("Start time is outside archive boundaries\n");
 	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	    return;
 	}
-	my.localCurrentStart = KmTime::secondsFromTimeval(&current);
+	my.localCurrentStart = PmTime::secondsFromTimeval(&current);
 	console->post("ShowBounds::accept start=%.2f (abs=%.2f-%.2f)",
 			my.localCurrentStart, my.localAbsoluteStart,
 			my.localAbsoluteEnd);
@@ -189,13 +189,13 @@ void ShowBounds::accept()
 	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	    free(msg);
 	    return;
-	} else if (KmTime::timevalCompare(&current, &start) < 0 ||
-		   KmTime::timevalCompare(&current, &end) > 0) {
+	} else if (PmTime::timevalCompare(&current, &start) < 0 ||
+		   PmTime::timevalCompare(&current, &end) > 0) {
 	    error.sprintf("End time is outside the archive boundaries\n");
 	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	    return;
 	}
-	my.localCurrentEnd = KmTime::secondsFromTimeval(&current);
+	my.localCurrentEnd = PmTime::secondsFromTimeval(&current);
 	console->post("ShowBounds::accept end=%.2f (abs=%.2f-%.2f)",
 		my.localCurrentEnd, my.localAbsoluteStart, my.localAbsoluteEnd);
     }
@@ -223,15 +223,15 @@ void ShowBounds::flush()
 {
     struct timeval start, end;
 
-    KmTime::secondsToTimeval(my.localCurrentStart, &start);
-    KmTime::secondsToTimeval(my.localCurrentEnd, &end);
+    PmTime::secondsToTimeval(my.localCurrentStart, &start);
+    PmTime::secondsToTimeval(my.localCurrentEnd, &end);
 
     console->post("ShowBounds::flush updating bounds to %.2f->%.2f",
-			KmTime::secondsFromTimeval(&start),
-			KmTime::secondsFromTimeval(&end));
+			PmTime::secondsFromTimeval(&start),
+			PmTime::secondsFromTimeval(&end));
 
-    if (KmTime::timevalCompare(&start, my.currentStart) != 0)
+    if (PmTime::timevalCompare(&start, my.currentStart) != 0)
 	*my.currentStart = start;
-    if (KmTime::timevalCompare(&end, my.currentEnd) != 0)
+    if (PmTime::timevalCompare(&end, my.currentEnd) != 0)
 	*my.currentEnd = end;
 }

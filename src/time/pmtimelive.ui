@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>KmTimeLive</class>
- <widget class="QMainWindow" name="KmTimeLive" >
+ <class>PmTimeLive</class>
+ <widget class="QMainWindow" name="PmTimeLive" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -617,7 +617,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   <connection>
    <sender>fileHideAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmTimeLive</receiver>
+   <receiver>PmTimeLive</receiver>
    <slot>hideWindow()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -633,7 +633,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   <connection>
    <sender>helpAboutAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmTimeLive</receiver>
+   <receiver>PmTimeLive</receiver>
    <slot>helpAbout()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -649,7 +649,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   <connection>
    <sender>helpSeeAlsoAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmTimeLive</receiver>
+   <receiver>PmTimeLive</receiver>
    <slot>helpSeeAlso()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -665,7 +665,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   <connection>
    <sender>buttonPlay</sender>
    <signal>clicked()</signal>
-   <receiver>KmTimeLive</receiver>
+   <receiver>PmTimeLive</receiver>
    <slot>play_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -681,7 +681,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   <connection>
    <sender>buttonStop</sender>
    <signal>clicked()</signal>
-   <receiver>KmTimeLive</receiver>
+   <receiver>PmTimeLive</receiver>
    <slot>stop_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -697,7 +697,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   <connection>
    <sender>optionsDetailShow_MillisecondsAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmTimeLive</receiver>
+   <receiver>PmTimeLive</receiver>
    <slot>clickShowMsec()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -713,7 +713,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   <connection>
    <sender>optionsDetailShow_YearAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmTimeLive</receiver>
+   <receiver>PmTimeLive</receiver>
    <slot>clickShowYear()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -729,7 +729,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   <connection>
    <sender>optionsShowConsoleAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmTimeLive</receiver>
+   <receiver>PmTimeLive</receiver>
    <slot>showConsole()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -745,7 +745,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   <connection>
    <sender>comboBoxDelta</sender>
    <signal>activated(int)</signal>
-   <receiver>KmTimeLive</receiver>
+   <receiver>PmTimeLive</receiver>
    <slot>changeDelta(int)</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -761,7 +761,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   <connection>
    <sender>helpWhats_ThisAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmTimeLive</receiver>
+   <receiver>PmTimeLive</receiver>
    <slot>whatsThis()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -777,7 +777,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   <connection>
    <sender>lineEditDelta</sender>
    <signal>returnPressed()</signal>
-   <receiver>KmTimeLive</receiver>
+   <receiver>PmTimeLive</receiver>
    <slot>lineEditDelta_validate()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -793,7 +793,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   <connection>
    <sender>lineEditDelta</sender>
    <signal>textChanged(QString)</signal>
-   <receiver>KmTimeLive</receiver>
+   <receiver>PmTimeLive</receiver>
    <slot>lineEditDelta_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -809,7 +809,7 @@ Click this menu option to invoke a small question mark that is attached to the m
   <connection>
    <sender>helpManualAction</sender>
    <signal>triggered()</signal>
-   <receiver>KmTimeLive</receiver>
+   <receiver>PmTimeLive</receiver>
    <slot>helpManual()</slot>
    <hints>
     <hint type="sourcelabel" >

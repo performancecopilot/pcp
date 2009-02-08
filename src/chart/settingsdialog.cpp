@@ -25,7 +25,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     nativeToolbarCheckBox->setEnabled(false);
 #endif
 
-    QList<QAction*> actionsList = kmchart->toolbarActionsList();
+    QList<QAction*> actionsList = pmchart->toolbarActionsList();
     for (int i = 0; i < actionsList.size(); i++) {
 	QAction *action = actionsList.at(i);
 	actionListWidget->insertItem(i,
@@ -76,22 +76,22 @@ void SettingsDialog::enableUi()
 
 void SettingsDialog::reset()
 {
-    my.chartUnits = KmTime::Seconds;
+    my.chartUnits = PmTime::Seconds;
     chartDeltaLineEdit->setText(
-	KmTime::deltaString(globalSettings.chartDelta, my.chartUnits));
-    my.loggerUnits = KmTime::Seconds;
+	PmTime::deltaString(globalSettings.chartDelta, my.chartUnits));
+    my.loggerUnits = PmTime::Seconds;
     loggerDeltaLineEdit->setText(
-	KmTime::deltaString(globalSettings.loggerDelta, my.loggerUnits));
+	PmTime::deltaString(globalSettings.loggerDelta, my.loggerUnits));
 
     my.visibleHistory = my.sampleHistory = 0;
     visibleCounter->setValue(globalSettings.visibleHistory);
-    visibleCounter->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
+    visibleCounter->setRange(PmChart::minimumPoints(), PmChart::maximumPoints());
     visibleSlider->setValue(globalSettings.visibleHistory);
-    visibleSlider->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
+    visibleSlider->setRange(PmChart::minimumPoints(), PmChart::maximumPoints());
     sampleCounter->setValue(globalSettings.sampleHistory);
-    sampleCounter->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
+    sampleCounter->setRange(PmChart::minimumPoints(), PmChart::maximumPoints());
     sampleSlider->setValue(globalSettings.sampleHistory);
-    sampleSlider->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
+    sampleSlider->setRange(PmChart::minimumPoints(), PmChart::maximumPoints());
 
     defaultBackgroundButton->setColor(QColor(globalSettings.chartBackground));
     selectedHighlightButton->setColor(QColor(globalSettings.chartHighlight));
@@ -99,8 +99,8 @@ void SettingsDialog::reset()
     setupSchemeComboBox();
     setupSchemePalette();
 
-    QList<QAction*> actionsList = kmchart->toolbarActionsList();
-    QList<QAction*> enabledList = kmchart->enabledActionsList();
+    QList<QAction*> actionsList = pmchart->toolbarActionsList();
+    QList<QAction*> enabledList = pmchart->enabledActionsList();
     for (int i = 0; i < actionsList.size(); i++) {
 	QAction *action = actionsList.at(i);
 	QListWidgetItem *item = actionListWidget->item(i);
@@ -128,7 +128,7 @@ void SettingsDialog::chartDeltaLineEdit_editingFinished()
 
     // convert to seconds, make sure its still in range 0.001-INT_MAX
     if (chartDeltaLineEdit->isModified())
-	input = KmTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
+	input = PmTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
     if (input < 0.001 || input > INT_MAX) {
 	QString msg = tr("Default Chart Sampling Interval is invalid.\n");
 	msg.append(chartDeltaLineEdit->text());
@@ -148,7 +148,7 @@ void SettingsDialog::loggerDeltaLineEdit_editingFinished()
 
     // convert to seconds, make sure its still in range 0.001-INT_MAX
     if (loggerDeltaLineEdit->isModified())
-	input = KmTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
+	input = PmTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
     if (input < 0.001 || input > INT_MAX) {
 	QString msg = tr("Default Record Sampling Interval is invalid.\n");
 	msg.append(loggerDeltaLineEdit->text());
@@ -164,16 +164,16 @@ void SettingsDialog::loggerDeltaLineEdit_editingFinished()
 
 void SettingsDialog::chartDeltaUnitsComboBox_activated(int value)
 {
-    double v = KmTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
-    my.chartUnits = (KmTime::DeltaUnits)value;
-    chartDeltaLineEdit->setText(KmTime::deltaString(v, my.chartUnits));
+    double v = PmTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
+    my.chartUnits = (PmTime::DeltaUnits)value;
+    chartDeltaLineEdit->setText(PmTime::deltaString(v, my.chartUnits));
 }
 
 void SettingsDialog::loggerDeltaUnitsComboBox_activated(int value)
 {
-    double v = KmTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
-    my.loggerUnits = (KmTime::DeltaUnits)value;
-    loggerDeltaLineEdit->setText(KmTime::deltaString(v, my.loggerUnits));
+    double v = PmTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
+    my.loggerUnits = (PmTime::DeltaUnits)value;
+    loggerDeltaLineEdit->setText(PmTime::deltaString(v, my.loggerUnits));
 }
 
 void SettingsDialog::visible_valueChanged(int value)
@@ -252,7 +252,7 @@ void SettingsDialog::defaultBackgroundButton_clicked()
 	globalSettings.chartBackground = defaultBackgroundButton->color();
 	globalSettings.chartBackgroundName =
 			globalSettings.chartBackground.name();
-	kmchart->updateBackground();
+	pmchart->updateBackground();
 	writeSettings();
     }
 }
@@ -293,7 +293,7 @@ void SettingsDialog::nativeToolbarCheckBox_clicked()
 			nativeToolbarCheckBox->checkState() == Qt::Checked;
     globalSettings.nativeToolbarModified = true;
     writeSettings();
-    kmchart->updateToolbarLocation();
+    pmchart->updateToolbarLocation();
 }
 
 void SettingsDialog::toolbarAreasComboBox_currentIndexChanged(int)
@@ -301,7 +301,7 @@ void SettingsDialog::toolbarAreasComboBox_currentIndexChanged(int)
     globalSettings.toolbarLocation = toolbarAreasComboBox->currentIndex();
     globalSettings.toolbarLocationModified = true;
     writeSettings();
-    kmchart->updateToolbarLocation();
+    pmchart->updateToolbarLocation();
 }
 
 void SettingsDialog::actionListWidget_itemClicked(QListWidgetItem *item)
@@ -317,8 +317,8 @@ void SettingsDialog::actionListWidget_itemClicked(QListWidgetItem *item)
     globalSettings.toolbarActions = actions;
     globalSettings.toolbarActionsModified = true;
     writeSettings();
-    kmchart->setEnabledActionsList(actions, true);
-    kmchart->updateToolbarContents();
+    pmchart->setEnabledActionsList(actions, true);
+    pmchart->updateToolbarContents();
 }
 
 void SettingsDialog::newScheme()
@@ -388,7 +388,7 @@ void SettingsDialog::updateSchemeButton_clicked()
 	updateSchemeColors(&scheme);
 	index = globalSettings.colorSchemes.size();
 	globalSettings.colorSchemes.append(scheme);
-	kmchart->newScheme(my.newScheme);
+	pmchart->newScheme(my.newScheme);
 	schemeComboBox->blockSignals(true);
 	schemeComboBox->addItem(newName);
 	schemeComboBox->setCurrentIndex(index + 2);

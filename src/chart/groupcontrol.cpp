@@ -26,7 +26,7 @@ GroupControl::GroupControl()
     my.timeData = NULL;
     my.timeState = StartState;
     my.buttonState = TimeButton::Timeless;
-    my.kmtimeState = KmTime::StoppedState;
+    my.pmtimeState = PmTime::StoppedState;
     memset(&my.delta, 0, sizeof(struct timeval));
     memset(&my.position, 0, sizeof(struct timeval));
 }
@@ -38,11 +38,11 @@ void GroupControl::init(int samples, int visible,
     my.visible = visible;
 
     if (isArchiveSource()) {
-	my.kmtimeState = KmTime::StoppedState;
+	my.pmtimeState = PmTime::StoppedState;
 	my.buttonState = TimeButton::StoppedArchive;
     }
     else {
-	my.kmtimeState = KmTime::ForwardState;
+	my.pmtimeState = PmTime::ForwardState;
 	my.buttonState = TimeButton::ForwardLive;
     }
     my.delta = *interval;
@@ -64,12 +64,12 @@ bool GroupControl::isArchiveSource(void)
     return this == archiveGroup;
 }
 
-bool GroupControl::isActive(KmTime::Packet *packet)
+bool GroupControl::isActive(PmTime::Packet *packet)
 {
     return (((activeGroup == archiveGroup) &&
-	     (packet->source == KmTime::ArchiveSource)) ||
+	     (packet->source == PmTime::ArchiveSource)) ||
 	    ((activeGroup == liveGroup) && 
-	     (packet->source == KmTime::HostSource)));
+	     (packet->source == PmTime::HostSource)));
 }
 
 void GroupControl::addGadget(Gadget *gadget)
@@ -108,25 +108,25 @@ void GroupControl::updateTimeAxis(void)
 	else
 	    otz = QmcSource::localHost;
 	tz = otz;
-	kmchart->timeAxis()->setAxisScale(QwtPlot::xBottom,
+	pmchart->timeAxis()->setAxisScale(QwtPlot::xBottom,
 		my.timeData[my.visible - 1], my.timeData[0],
-		kmchart->timeAxis()->scaleValue(my.realDelta, my.visible));
-	kmchart->setDateLabel(my.position.tv_sec, tz);
-	kmchart->timeAxis()->replot();
+		pmchart->timeAxis()->scaleValue(my.realDelta, my.visible));
+	pmchart->setDateLabel(my.position.tv_sec, tz);
+	pmchart->timeAxis()->replot();
     } else {
-	kmchart->timeAxis()->noArchiveSources();
-	kmchart->setDateLabel(tr("[No open archives]"));
+	pmchart->timeAxis()->noArchiveSources();
+	pmchart->setDateLabel(tr("[No open archives]"));
     }
 
-    if (console->logLevel(KmChart::DebugProtocol)) {
+    if (console->logLevel(PmChart::DebugProtocol)) {
 	int i = my.visible - 1;
-	console->post(KmChart::DebugProtocol,
+	console->post(PmChart::DebugProtocol,
 		"GroupControl::updateTimeAxis: tz=%s; visible points=%d",
 		(const char *)tz.toAscii(), i);
-	console->post(KmChart::DebugProtocol,
+	console->post(PmChart::DebugProtocol,
 		"GroupControl::updateTimeAxis: first time is %.3f (%s)",
 		my.timeData[i], timeString(my.timeData[i]));
-	console->post(KmChart::DebugProtocol,
+	console->post(PmChart::DebugProtocol,
 		"GroupControl::updateTimeAxis: final time is %.3f (%s)",
 		my.timeData[0], timeString(my.timeData[0]));
     }
@@ -134,12 +134,12 @@ void GroupControl::updateTimeAxis(void)
 
 void GroupControl::updateTimeButton(void)
 {
-    kmchart->setButtonState(my.buttonState);
+    pmchart->setButtonState(my.buttonState);
 }
 
-KmTime::State GroupControl::kmtimeState(void)
+PmTime::State GroupControl::pmtimeState(void)
 {
-    return my.kmtimeState;
+    return my.pmtimeState;
 }
 
 char *GroupControl::timeState()
@@ -164,16 +164,16 @@ void GroupControl::refreshGadgets(bool active)
 {
 #if DESPERATE
     for (int s = 0; s < my.samples; s++)
-	console->post(KmChart::DebugProtocol,
+	console->post(PmChart::DebugProtocol,
 		"GroupControl::refreshGadgets: timeData[%2d] is %.2f (%s)",
 		s, my.timeData[s], timeString(my.timeData[s]));
-    console->post(KmChart::DebugProtocol,
+    console->post(PmChart::DebugProtocol,
 		"GroupControl::refreshGadgets: state=%s", timeState());
 #endif
 
     double left = my.timeData[my.visible - 1];
     double right = my.timeData[0];
-    double interval = kmchart->timeAxis()->scaleValue(my.realDelta, my.visible);
+    double interval = pmchart->timeAxis()->scaleValue(my.realDelta, my.visible);
     for (int i = 0; i < gadgetCount(); i++) {
 	Gadget *gadget = my.gadgetsList.at(i);
 	if (active)
@@ -196,14 +196,14 @@ void GroupControl::setupWorldView(void)
     if (isArchiveSource() == false)
 	return;
 
-    KmTime::Packet packet;
-    packet.source = KmTime::ArchiveSource;
-    packet.state = KmTime::ForwardState;
-    packet.mode = KmTime::NormalMode;
-    memcpy(&packet.delta, kmtime->archiveInterval(), sizeof(packet.delta));
-    memcpy(&packet.position, kmtime->archivePosition(), sizeof(packet.position));
-    memcpy(&packet.start, kmtime->archiveStart(), sizeof(packet.start));
-    memcpy(&packet.end, kmtime->archiveEnd(), sizeof(packet.end));
+    PmTime::Packet packet;
+    packet.source = PmTime::ArchiveSource;
+    packet.state = PmTime::ForwardState;
+    packet.mode = PmTime::NormalMode;
+    memcpy(&packet.delta, pmtime->archiveInterval(), sizeof(packet.delta));
+    memcpy(&packet.position, pmtime->archivePosition(), sizeof(packet.position));
+    memcpy(&packet.start, pmtime->archiveStart(), sizeof(packet.start));
+    memcpy(&packet.end, pmtime->archiveEnd(), sizeof(packet.end));
     adjustWorldView(&packet, true);
 }
 
@@ -212,7 +212,7 @@ void GroupControl::setupWorldView(void)
 // and possibly rethink everything.  This can result from a time
 // control position change, delta change, direction change, etc.
 //
-void GroupControl::adjustWorldView(KmTime::Packet *packet, bool vcrMode)
+void GroupControl::adjustWorldView(PmTime::Packet *packet, bool vcrMode)
 {
     my.delta = packet->delta;
     my.position = packet->position;
@@ -224,25 +224,25 @@ void GroupControl::adjustWorldView(KmTime::Packet *packet, bool vcrMode)
 		my.samples, my.visible, my.realDelta, my.realPosition,
 		timeString(my.realPosition), timeState());
 
-    KmTime::State state = packet->state;
+    PmTime::State state = packet->state;
     if (isArchiveSource()) {
-	if (packet->state == KmTime::ForwardState)
+	if (packet->state == PmTime::ForwardState)
 	    adjustArchiveWorldViewForward(packet, vcrMode);
-	else if (packet->state == KmTime::BackwardState)
+	else if (packet->state == PmTime::BackwardState)
 	    adjustArchiveWorldViewBackward(packet, vcrMode);
 	else
 	    adjustArchiveWorldViewStopped(packet, vcrMode);
     }
-    else if (state != KmTime::StoppedState)
+    else if (state != PmTime::StoppedState)
 	adjustLiveWorldViewForward(packet);
     else
 	adjustLiveWorldViewStopped(packet);
 }
 
-void GroupControl::adjustLiveWorldViewStopped(KmTime::Packet *packet)
+void GroupControl::adjustLiveWorldViewStopped(PmTime::Packet *packet)
 {
     if (isActive(packet)) {
-	newButtonState(packet->state, packet->mode, kmchart->isTabRecording());
+	newButtonState(packet->state, packet->mode, pmchart->isTabRecording());
 	updateTimeButton();
     }
 }
@@ -255,7 +255,7 @@ static bool fuzzyTimeMatch(double a, double b, double tolerance)
 	    (b < a && a - tolerance < b));
 }
 
-void GroupControl::adjustLiveWorldViewForward(KmTime::Packet *packet)
+void GroupControl::adjustLiveWorldViewForward(PmTime::Packet *packet)
 {
     //
     // X-Axis _max_ becomes packet->position.
@@ -315,16 +315,16 @@ void GroupControl::adjustLiveWorldViewForward(KmTime::Packet *packet)
     // One (per-gadget) recalculation & refresh at the end, after all data moved
     for (int j = 0; j < gadgetCount(); j++)
 	my.gadgetsList.at(j)->adjustedLiveData();
-    my.timeState = (packet->state == KmTime::StoppedState) ?
+    my.timeState = (packet->state == PmTime::StoppedState) ?
 			StandbyState : ForwardState;
 
     bool active = isActive(packet);
     if (active)
-	newButtonState(packet->state, packet->mode, kmchart->isTabRecording());
+	newButtonState(packet->state, packet->mode, pmchart->isTabRecording());
     refreshGadgets(active);
 }
 
-void GroupControl::adjustArchiveWorldViewForward(KmTime::Packet *packet, bool setup)
+void GroupControl::adjustArchiveWorldViewForward(PmTime::Packet *packet, bool setup)
 {
     console->post("GroupControl::adjustArchiveWorldViewForward");
     my.timeState = ForwardState;
@@ -371,13 +371,13 @@ void GroupControl::adjustArchiveWorldViewForward(KmTime::Packet *packet, bool se
 
     bool active = isActive(packet);
     if (setup)
-	packet->state = KmTime::StoppedState;
+	packet->state = PmTime::StoppedState;
     if (active)
-	newButtonState(packet->state, packet->mode, kmchart->isTabRecording());
+	newButtonState(packet->state, packet->mode, pmchart->isTabRecording());
     refreshGadgets(active);
 }
 
-void GroupControl::adjustArchiveWorldViewBackward(KmTime::Packet *packet, bool setup)
+void GroupControl::adjustArchiveWorldViewBackward(PmTime::Packet *packet, bool setup)
 {
     console->post("GroupControl::adjustArchiveWorldViewBackward");
     my.timeState = BackwardState;
@@ -424,21 +424,21 @@ void GroupControl::adjustArchiveWorldViewBackward(KmTime::Packet *packet, bool s
 
     bool active = isActive(packet);
     if (setup)
-	packet->state = KmTime::StoppedState;
+	packet->state = PmTime::StoppedState;
     if (active)
-	newButtonState(packet->state, packet->mode, kmchart->isTabRecording());
+	newButtonState(packet->state, packet->mode, pmchart->isTabRecording());
     refreshGadgets(active);
 }
 
-void GroupControl::adjustArchiveWorldViewStopped(KmTime::Packet *packet, bool needFetch)
+void GroupControl::adjustArchiveWorldViewStopped(PmTime::Packet *packet, bool needFetch)
 {
     if (needFetch) {	// stopped, but VCR reposition event occurred
 	adjustArchiveWorldViewForward(packet, needFetch);
 	return;
     }
     my.timeState = StandbyState;
-    packet->state = KmTime::StoppedState;
-    newButtonState(packet->state, packet->mode, kmchart->isTabRecording());
+    packet->state = PmTime::StoppedState;
+    newButtonState(packet->state, packet->mode, pmchart->isTabRecording());
     updateTimeButton();
 }
 
@@ -457,33 +457,33 @@ static bool sideStep(double n, double o, double interval)
 // Fetch all metric values across all gadgets, and also update the
 // unified time axis.
 //
-void GroupControl::step(KmTime::Packet *packet)
+void GroupControl::step(PmTime::Packet *packet)
 {
     double stepPosition = tosec(packet->position);
 
-    console->post(KmChart::DebugProtocol,
+    console->post(PmChart::DebugProtocol,
 	"GroupControl::step: stepping to time %.2f, delta=%.2f, state=%s",
 	stepPosition, my.realDelta, timeState());
 
-    if ((packet->source == KmTime::ArchiveSource &&
-	((packet->state == KmTime::ForwardState &&
+    if ((packet->source == PmTime::ArchiveSource &&
+	((packet->state == PmTime::ForwardState &&
 		my.timeState != ForwardState) ||
-	 (packet->state == KmTime::BackwardState &&
+	 (packet->state == PmTime::BackwardState &&
 		my.timeState != BackwardState))) ||
 	 sideStep(stepPosition, my.realPosition, my.realDelta))
 	return adjustWorldView(packet, false);
 
-    my.kmtimeState = packet->state;
+    my.pmtimeState = packet->state;
     my.position = packet->position;
     my.realPosition = stepPosition;
 
     int last = my.samples - 1;
-    if (packet->state == KmTime::ForwardState) { // left-to-right (all but 1st)
+    if (packet->state == PmTime::ForwardState) { // left-to-right (all but 1st)
 	if (my.samples > 1)
 	    memmove(&my.timeData[1], &my.timeData[0], sizeof(double) * last);
 	my.timeData[0] = my.realPosition;
     }
-    else if (packet->state == KmTime::BackwardState) { // right-to-left
+    else if (packet->state == PmTime::BackwardState) { // right-to-left
 	if (my.samples > 1)
 	    memmove(&my.timeData[0], &my.timeData[1], sizeof(double) * last);
 	my.timeData[last] = my.realPosition - torange(my.delta, last);
@@ -493,19 +493,19 @@ void GroupControl::step(KmTime::Packet *packet)
 
     bool active = isActive(packet);
     if (isActive(packet))
-	newButtonState(packet->state, packet->mode, kmchart->isTabRecording());
+	newButtonState(packet->state, packet->mode, pmchart->isTabRecording());
     refreshGadgets(active);
 }
 
-void GroupControl::VCRMode(KmTime::Packet *packet, bool dragMode)
+void GroupControl::VCRMode(PmTime::Packet *packet, bool dragMode)
 {
     if (!dragMode)
 	adjustWorldView(packet, true);
 }
 
-void GroupControl::setTimezone(KmTime::Packet *packet, char *tz)
+void GroupControl::setTimezone(PmTime::Packet *packet, char *tz)
 {
-    console->post(KmChart::DebugProtocol, "GroupControl::setTimezone %s", tz);
+    console->post(PmChart::DebugProtocol, "GroupControl::setTimezone %s", tz);
 
     useTZ(QString(tz));
 
@@ -557,35 +557,35 @@ TimeButton::State GroupControl::buttonState(void)
     return my.buttonState;
 }
 
-void GroupControl::newButtonState(KmTime::State s, KmTime::Mode m, bool record)
+void GroupControl::newButtonState(PmTime::State s, PmTime::Mode m, bool record)
 {
     if (isArchiveSource() == false) {
-	if (s == KmTime::StoppedState)
+	if (s == PmTime::StoppedState)
 	    my.buttonState = record ?
 			TimeButton::StoppedRecord : TimeButton::StoppedLive;
 	else
 	    my.buttonState = record ?
 			TimeButton::ForwardRecord : TimeButton::ForwardLive;
     }
-    else if (m == KmTime::StepMode) {
-	if (s == KmTime::ForwardState)
+    else if (m == PmTime::StepMode) {
+	if (s == PmTime::ForwardState)
 	    my.buttonState = TimeButton::StepForwardArchive;
-	else if (s == KmTime::BackwardState)
+	else if (s == PmTime::BackwardState)
 	    my.buttonState = TimeButton::StepBackwardArchive;
 	else
 	    my.buttonState = TimeButton::StoppedArchive;
     }
-    else if (m == KmTime::FastMode) {
-	if (s == KmTime::ForwardState)
+    else if (m == PmTime::FastMode) {
+	if (s == PmTime::ForwardState)
 	    my.buttonState = TimeButton::FastForwardArchive;
-	else if (s == KmTime::BackwardState)
+	else if (s == PmTime::BackwardState)
 	    my.buttonState = TimeButton::FastBackwardArchive;
 	else
 	    my.buttonState = TimeButton::StoppedArchive;
     }
-    else if (s == KmTime::ForwardState)
+    else if (s == PmTime::ForwardState)
 	my.buttonState = TimeButton::ForwardArchive;
-    else if (s == KmTime::BackwardState)
+    else if (s == PmTime::BackwardState)
 	my.buttonState = TimeButton::BackwardArchive;
     else
 	my.buttonState = TimeButton::StoppedArchive;

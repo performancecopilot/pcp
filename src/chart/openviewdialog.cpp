@@ -29,10 +29,19 @@ OpenViewDialog::OpenViewDialog(QWidget *parent) : QDialog(parent)
     my.completer->setModel(my.dirModel);
     fileNameLineEdit->setCompleter(my.completer);
 
+    QDir dir;
     QString home = my.userDir = QDir::homePath();
     my.userDir.append("/.pcp/kmchart");
-    my.systemDir = pmGetConfig("PCP_VAR_DIR");
+    if (!dir.exists(my.userDir)) {
+	my.userDir = home;
+	my.userDir.append("/.pcp/pmchart");
+    }
+    QString sys = my.systemDir = pmGetConfig("PCP_VAR_DIR");
     my.systemDir.append("/config/kmchart");
+    if (!dir.exists(my.systemDir)) {
+	my.systemDir = sys;
+	my.userDir.append("/config/pmchart");
+    }
 
     pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
 			  my.systemDir);
@@ -50,7 +59,7 @@ OpenViewDialog::~OpenViewDialog()
 
 void OpenViewDialog::reset()
 {
-    if ((my.archiveSource = kmchart->isArchiveTab())) {
+    if ((my.archiveSource = pmchart->isArchiveTab())) {
 	sourceLabel->setText(tr("Archive:"));
 	sourcePushButton->setIcon(QIcon(":/archive.png"));
     } else {
@@ -228,7 +237,7 @@ void OpenViewDialog::archiveAdd()
 	    setupComboBoxes(true);
 	    archiveGroup->updateBounds();
 	    QmcSource source = archiveGroup->context()->source();
-	    kmtime->addArchive(source.start(), source.end(),
+	    pmtime->addArchive(source.start(), source.end(),
 				source.timezone(), source.host(), false);
 	}
     }
@@ -318,8 +327,8 @@ bool OpenViewDialog::openViewFiles(const QStringList &fl)
     QString msg;
     bool result = true;
 
-    if (kmchart->isArchiveTab() != my.archiveSource) {
-	if (kmchart->isArchiveTab())
+    if (pmchart->isArchiveTab() != my.archiveSource) {
+	if (pmchart->isArchiveTab())
 	    msg = tr("Cannot open Host View(s) in an Archive Tab\n");
 	else
 	    msg = tr("Cannot open Archive View(s) in a Host Tab\n");
@@ -334,7 +343,7 @@ bool OpenViewDialog::openViewFiles(const QStringList &fl)
     for (QStringList::Iterator it = files.begin(); it != files.end(); ++it)
 	if (openView((const char *)(*it).toAscii()) == false)
 	    result = false;
-    kmchart->enableUi();
+    pmchart->enableUi();
     return result;
 }
 

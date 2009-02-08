@@ -18,7 +18,7 @@
 
 class QIcon;
 
-class KmTime
+class PmTime
 {
 public:
     typedef enum {
@@ -57,10 +57,10 @@ public:
     typedef struct {
 	unsigned int	magic;
 	unsigned int	length;
-	KmTime::Command	command;
-	KmTime::Source	source;
-	KmTime::State	state;
-	KmTime::Mode	mode;
+	PmTime::Command	command;
+	PmTime::Source	source;
+	PmTime::State	state;
+	PmTime::Mode	mode;
 	struct timeval	delta;
 	struct timeval	position;
 	struct timeval	start;		// archive only
@@ -97,7 +97,7 @@ public:
     static const int FastModeDelay = 100;	// milliseconds
     static const int DefaultDelta = 2;		// seconds
 
-    static QIcon *icon(KmTime::Icon);
+    static QIcon *icon(PmTime::Icon);
     static double defaultSpeed(double delta)
 	{ return 2.0 * delta; }		// num deltas per second
     static double minimumSpeed(double delta)

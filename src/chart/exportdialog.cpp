@@ -141,7 +141,7 @@ void ExportDialog::formatComboBox_currentIndexChanged(QString suffix)
 
 QSize ExportDialog::imageSize()
 {
-    Tab *tab = kmchart->activeTab();
+    Tab *tab = pmchart->activeTab();
     int height = 0, width = 0;
 
     for (int i = 0; i < tab->gadgetCount(); i++) {
@@ -151,7 +151,7 @@ QSize ExportDialog::imageSize()
 	width = qMax(width, gadget->width());
 	height += gadget->height();
     }
-    height += kmchart->timeAxis()->height();
+    height += pmchart->timeAxis()->height();
 
     return QSize(width, height);
 }
@@ -184,7 +184,7 @@ bool ExportDialog::exportFile(QString &file, const char *format, int quality,
 	image.invertPixels();	// white background
     QPainter qp(&image);
 
-    kmchart->painter(&qp, width, height, everything == false);
+    pmchart->painter(&qp, width, height, everything == false);
     QImageWriter writer(file, format);
     writer.setQuality(quality);
     bool sts = writer.write(image);
@@ -231,9 +231,9 @@ int ExportDialog::exportFile(char *outfile, char *geometry, bool transparent)
     regex.setPattern("(\\d+)x(\\d+)");
     if (regex.indexIn(QString(geometry)) != -1) {
 	QSize fixed = QSize(regex.cap(1).toInt(), regex.cap(2).toInt());
-	kmchart->setFixedSize(fixed);
+	pmchart->setFixedSize(fixed);
     }
 
-    return ExportDialog::exportFile(file, suffix, 100, kmchart->width(),
-			kmchart->exportHeight(), transparent, true) == false;
+    return ExportDialog::exportFile(file, suffix, 100, pmchart->width(),
+			pmchart->exportHeight(), transparent, true) == false;
 }

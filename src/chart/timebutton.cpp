@@ -20,29 +20,29 @@ TimeButton::TimeButton(QWidget *parent) : QToolButton(parent)
     my.state = Timeless;
     setIconSize(QSize(52, 52));
     setFocusPolicy(Qt::NoFocus);
-    console->post(KmChart::DebugUi, "Loading resource :/play_live.png");
+    console->post(PmChart::DebugUi, "Loading resource :/play_live.png");
     my.forwardLiveIcon = QIcon(":/play_live.png");
-    console->post(KmChart::DebugUi, "Loading resource :/stop_live.png");
+    console->post(PmChart::DebugUi, "Loading resource :/stop_live.png");
     my.stoppedLiveIcon = QIcon(":/stop_live.png");
-    console->post(KmChart::DebugUi, "Loading resource :/play_record.png");
+    console->post(PmChart::DebugUi, "Loading resource :/play_record.png");
     my.forwardRecordIcon = QIcon(":/play_record.png");
-    console->post(KmChart::DebugUi, "Loading resource :/stop_record.png");
+    console->post(PmChart::DebugUi, "Loading resource :/stop_record.png");
     my.stoppedRecordIcon = QIcon(":/stop_record.png");
-    console->post(KmChart::DebugUi, "Loading resource :/play_archive.png");
+    console->post(PmChart::DebugUi, "Loading resource :/play_archive.png");
     my.forwardArchiveIcon = QIcon(":/play_archive.png");
-    console->post(KmChart::DebugUi, "Loading resource :/stop_archive.png");
+    console->post(PmChart::DebugUi, "Loading resource :/stop_archive.png");
     my.stoppedArchiveIcon = QIcon(":/stop_archive.png");
-    console->post(KmChart::DebugUi, "Loading resource :/back_archive.png");
+    console->post(PmChart::DebugUi, "Loading resource :/back_archive.png");
     my.backwardArchiveIcon = QIcon(":/back_archive.png");
-    console->post(KmChart::DebugUi, "Loading resource :/stepfwd_archive.png");
+    console->post(PmChart::DebugUi, "Loading resource :/stepfwd_archive.png");
     my.stepForwardArchiveIcon = QIcon(":/stepfwd_archive.png");
-    console->post(KmChart::DebugUi, "Loading resource :/stepback_archive.png");
+    console->post(PmChart::DebugUi, "Loading resource :/stepback_archive.png");
     my.stepBackwardArchiveIcon = QIcon(":/stepback_archive.png");
-    console->post(KmChart::DebugUi, "Loading resource :/fastfwd_archive.png");
+    console->post(PmChart::DebugUi, "Loading resource :/fastfwd_archive.png");
     my.fastForwardArchiveIcon = QIcon(":/fastfwd_archive.png");
-    console->post(KmChart::DebugUi, "Loading resource :/fastback_archive.png");
+    console->post(PmChart::DebugUi, "Loading resource :/fastback_archive.png");
     my.fastBackwardArchiveIcon = QIcon(":/fastback_archive.png");
-    console->post(KmChart::DebugUi, "Time button resources loaded");
+    console->post(PmChart::DebugUi, "Time button resources loaded");
 }
 
 void TimeButton::setButtonState(TimeButton::State state)

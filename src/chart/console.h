@@ -26,7 +26,7 @@ public:
     Console(struct timeval);
     void post(const char *p, ...);
     void post(int level, const char *p, ...);
-    bool logLevel(int level = KmChart::DebugApp);
+    bool logLevel(int level = PmChart::DebugApp);
 
 private:
     struct {

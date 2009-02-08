@@ -20,12 +20,12 @@
 #include "console.h"
 #include "timezone.h"
 
-class KmTimeLive : public QMainWindow, public Ui::KmTimeLive
+class PmTimeLive : public QMainWindow, public Ui::PmTimeLive
 {
     Q_OBJECT
 
 public:
-    KmTimeLive();
+    PmTimeLive();
 
     virtual void play();
     virtual void stop();
@@ -34,12 +34,12 @@ public:
     virtual void displayDeltaText();
     virtual void popup(bool hello_popetts);
     virtual void addTimezone(const char *string);
-    virtual void setTime(KmTime::Packet *k, char *tzdata);
+    virtual void setTime(PmTime::Packet *k, char *tzdata);
     virtual void style(char *style, void *source);
     virtual void setupAssistant();
 
 public slots:
-    virtual void setControl(KmTime::State newstate);
+    virtual void setControl(PmTime::State newstate);
     virtual void init();
     virtual void quit();
     virtual void play_clicked();
@@ -61,18 +61,18 @@ public slots:
     virtual void whatsThis();
 
 signals:
-    void timePulse(KmTime::Packet *);
-    void vcrModePulse(KmTime::Packet *, int);
-    void tzPulse(KmTime::Packet *, char *, int, char *, int);
-    void stylePulse(KmTime::Packet *, char *, int, void *);
+    void timePulse(PmTime::Packet *);
+    void vcrModePulse(PmTime::Packet *, int);
+    void tzPulse(PmTime::Packet *, char *, int, char *, int);
+    void stylePulse(PmTime::Packet *, char *, int, void *);
 
 protected:
     virtual void closeEvent(QCloseEvent *ce);
 
 private:
     struct {
-	KmTime::Packet kmtime;
-	KmTime::DeltaUnits units;
+	PmTime::Packet pmtime;
+	PmTime::DeltaUnits units;
 	bool first;
 	bool showMilliseconds;
 	bool showYear;

@@ -30,7 +30,7 @@
 #include "aboutdialog.h"
 #include "seealsodialog.h"
 
-KmTimeLive::KmTimeLive() : QMainWindow(NULL)
+PmTimeLive::PmTimeLive() : QMainWindow(NULL)
 {
     setupUi(this);
 #ifdef Q_OS_MAC        // fixup after relocation of the MenuBar by Qt
@@ -41,12 +41,12 @@ KmTimeLive::KmTimeLive() : QMainWindow(NULL)
 }
 
 typedef struct {
-    KmTime::State	state;
+    PmTime::State	state;
     QIcon 		*stop;
     QIcon 		*play;
 } IconStateMap;
 
-static void setup(IconStateMap *map, KmTime::State state,
+static void setup(IconStateMap *map, PmTime::State state,
 		  QIcon *stop, QIcon *play)
 {
     map->state = state;
@@ -54,22 +54,22 @@ static void setup(IconStateMap *map, KmTime::State state,
     map->play = play;
 }
 
-void KmTimeLive::setControl(KmTime::State state)
+void PmTimeLive::setControl(PmTime::State state)
 {
     static IconStateMap maps[2];
     static int nmaps;
 
     if (!nmaps) {
 	nmaps = sizeof(maps) / sizeof(maps[0]);
-	setup(&maps[0], KmTime::StoppedState,
-			KmTime::icon(KmTime::StoppedOn),
-			KmTime::icon(KmTime::ForwardOff));
-	setup(&maps[1], KmTime::ForwardState,
-			KmTime::icon(KmTime::StoppedOff),
-			KmTime::icon(KmTime::ForwardOn));
+	setup(&maps[0], PmTime::StoppedState,
+			PmTime::icon(PmTime::StoppedOn),
+			PmTime::icon(PmTime::ForwardOff));
+	setup(&maps[1], PmTime::ForwardState,
+			PmTime::icon(PmTime::StoppedOff),
+			PmTime::icon(PmTime::ForwardOn));
     }
 
-    if (my.kmtime.state != state) {
+    if (my.pmtime.state != state) {
 	for (int i = 0; i < nmaps; i++) {
 	    if (maps[i].state == state) {
 		buttonStop->setIcon(*maps[i].stop);
@@ -77,24 +77,24 @@ void KmTimeLive::setControl(KmTime::State state)
 		break;
 	    }
 	}
-	my.kmtime.state = state;
+	my.pmtime.state = state;
     }
 }
 
-void KmTimeLive::init()
+void PmTimeLive::init()
 {
     static const char *UTC = "UTC\0Universal Coordinated Time";
 
     console->post("Starting Live Time Control...");
 
-    my.units = KmTime::Seconds;
+    my.units = PmTime::Seconds;
     my.first = true;
     my.tzActions = NULL;
     my.assistant = NULL;
 
-    memset(&my.kmtime, 0, sizeof(my.kmtime));
-    my.kmtime.source = KmTime::HostSource;
-    my.kmtime.delta.tv_sec = KmTime::DefaultDelta;
+    memset(&my.pmtime, 0, sizeof(my.pmtime));
+    my.pmtime.source = PmTime::HostSource;
+    my.pmtime.delta.tv_sec = PmTime::DefaultDelta;
 
     my.showMilliseconds = false;
     optionsDetailShow_MillisecondsAction->setChecked(my.showMilliseconds);
@@ -104,7 +104,7 @@ void KmTimeLive::init()
     addTimezone(UTC);
     displayPosition();
     displayDeltaText();
-    setControl(KmTime::ForwardState);
+    setControl(PmTime::ForwardState);
 
     my.timer = new QTimer(this);
     connect(my.timer, SIGNAL(timeout()), SLOT(updateTime()));
@@ -114,94 +114,94 @@ void KmTimeLive::init()
 		(0.001, INT_MAX, 3, lineEditDelta));
 }
 
-void KmTimeLive::quit()
+void PmTimeLive::quit()
 {
     console->post("live quit!\n");
     if (my.assistant)
 	my.assistant->closeAssistant();
 }
 
-void KmTimeLive::helpAbout()
+void PmTimeLive::helpAbout()
 {
     AboutDialog about(this);
     about.exec();
 }
 
-void KmTimeLive::helpSeeAlso()
+void PmTimeLive::helpSeeAlso()
 {
     SeeAlsoDialog about(this);
     about.exec();
 }
 
-void KmTimeLive::whatsThis()
+void PmTimeLive::whatsThis()
 {
     QWhatsThis::enterWhatsThisMode();
 }
 
-int KmTimeLive::timerInterval()
+int PmTimeLive::timerInterval()
 {
-    return (int)((my.kmtime.delta.tv_sec * 1000) +
-		 (my.kmtime.delta.tv_usec / 1000));
+    return (int)((my.pmtime.delta.tv_sec * 1000) +
+		 (my.pmtime.delta.tv_usec / 1000));
 }
 
-void KmTimeLive::play_clicked()
+void PmTimeLive::play_clicked()
 {
     if (lineEditDelta->isModified())
 	lineEditDelta_validate();
-    if (my.kmtime.state != KmTime::ForwardState)
+    if (my.pmtime.state != PmTime::ForwardState)
 	play();
 }
 
-void KmTimeLive::play()
+void PmTimeLive::play()
 {
-    console->post("KmTimeLive::play");
-    setControl(KmTime::ForwardState);
-    gettimeofday(&my.kmtime.position, NULL);
+    console->post("PmTimeLive::play");
+    setControl(PmTime::ForwardState);
+    gettimeofday(&my.pmtime.position, NULL);
     displayPosition();
-    emit vcrModePulse(&my.kmtime, 0);
+    emit vcrModePulse(&my.pmtime, 0);
     if (!my.timer->isActive())
 	my.timer->start(timerInterval());
 }
 
-void KmTimeLive::stop_clicked()
+void PmTimeLive::stop_clicked()
 {
-    if (my.kmtime.state != KmTime::StoppedState)
+    if (my.pmtime.state != PmTime::StoppedState)
 	stop();
 }
 
-void KmTimeLive::stop()
+void PmTimeLive::stop()
 {
-    console->post("KmTimeLive::stop stopped time");
-    setControl(KmTime::StoppedState);
+    console->post("PmTimeLive::stop stopped time");
+    setControl(PmTime::StoppedState);
     my.timer->stop();
-    gettimeofday(&my.kmtime.position, NULL);
-    emit vcrModePulse(&my.kmtime, 0);
+    gettimeofday(&my.pmtime.position, NULL);
+    emit vcrModePulse(&my.pmtime, 0);
 }
 
-void KmTimeLive::updateTime()
+void PmTimeLive::updateTime()
 {
-    gettimeofday(&my.kmtime.position, NULL);
+    gettimeofday(&my.pmtime.position, NULL);
     displayPosition();
-    emit timePulse(&my.kmtime);
+    emit timePulse(&my.pmtime);
 }
 
-void KmTimeLive::displayPosition()
+void PmTimeLive::displayPosition()
 {
     QString text;
     char ctimebuf[32], msecbuf[5];
 
-    pmCtime(&my.kmtime.position.tv_sec, ctimebuf);
+    pmCtime(&my.pmtime.position.tv_sec, ctimebuf);
     text = tr(ctimebuf);
     if (my.showYear == false)
 	text.remove(19, 5);
     if (my.showMilliseconds == true) {
-	sprintf(msecbuf, ".%03u", (uint)my.kmtime.position.tv_usec / 1000);
+	sprintf(msecbuf, ".%03u", (uint)my.pmtime.position.tv_usec / 1000);
 	text.insert(19, msecbuf);
     }
     lineEditCtime->setText(text.simplified());
 }
 
-void KmTimeLive::clickShowMsec()
+void PmTimeLive::clickShowMsec()
 {
     if (my.showMilliseconds == true)
 	my.showMilliseconds = false;
@@ -211,7 +211,7 @@ void KmTimeLive::clickShowMsec()
     displayPosition();
 }
 
-void KmTimeLive::clickShowYear()
+void PmTimeLive::clickShowYear()
 {
     if (my.showYear == true)
 	my.showYear = false;
@@ -221,18 +221,18 @@ void KmTimeLive::clickShowYear()
     displayPosition();
 }
 
-void KmTimeLive::changeDelta(int value)
+void PmTimeLive::changeDelta(int value)
 {
-    my.units = (KmTime::DeltaUnits)value;
+    my.units = (PmTime::DeltaUnits)value;
     displayDeltaText();
 }
 
-void KmTimeLive::displayDeltaText()
+void PmTimeLive::displayDeltaText()
 {
     QString text;
-    double delta = KmTime::secondsFromTimeval(&my.kmtime.delta);
+    double delta = PmTime::secondsFromTimeval(&my.pmtime.delta);
 
-    delta = KmTime::secondsToUnits(delta, my.units);
+    delta = PmTime::secondsToUnits(delta, my.units);
     if ((double)(int)delta == delta)
 	text.sprintf("%.2f", delta);
     else
@@ -240,17 +240,17 @@ void KmTimeLive::displayDeltaText()
     lineEditDelta->setText(text);
 }
 
-void KmTimeLive::showConsole()
+void PmTimeLive::showConsole()
 {
     console->show();
 }
 
-void KmTimeLive::disableConsole()
+void PmTimeLive::disableConsole()
 {
     optionsShowConsoleAction->setVisible(false);
 }
 
-void KmTimeLive::hideWindow()
+void PmTimeLive::hideWindow()
 {
     if (isVisible())
 	hide();
@@ -258,7 +258,7 @@ void KmTimeLive::hideWindow()
 	show();
 }
 
-void KmTimeLive::popup(bool hello_popetts)
+void PmTimeLive::popup(bool hello_popetts)
 {
     if (hello_popetts)
 	show();
@@ -266,19 +266,19 @@ void KmTimeLive::popup(bool hello_popetts)
 	hide();
 }
 
-void KmTimeLive::closeEvent(QCloseEvent *ce)
+void PmTimeLive::closeEvent(QCloseEvent *ce)
 {
     hide();
     ce->ignore();
 }
 
-void KmTimeLive::lineEditDelta_changed(const QString &)
+void PmTimeLive::lineEditDelta_changed(const QString &)
 {
     if (lineEditDelta->isModified())
 	stop_clicked();
 }
 
-void KmTimeLive::lineEditDelta_validate()
+void PmTimeLive::lineEditDelta_validate()
 {
     double delta;
     bool ok, reset = my.timer->isActive();
@@ -288,31 +288,31 @@ void KmTimeLive::lineEditDelta_validate()
 	displayDeltaText();	// reset to previous, known-good delta
     } else {
 	my.timer->stop();
-	delta = KmTime::unitsToSeconds(delta, my.units);
-	KmTime::secondsToTimeval(delta, &my.kmtime.delta);
-	emit vcrModePulse(&my.kmtime, 0);
+	delta = PmTime::unitsToSeconds(delta, my.units);
+	PmTime::secondsToTimeval(delta, &my.pmtime.delta);
+	emit vcrModePulse(&my.pmtime, 0);
 	if (reset)
 	    my.timer->start(timerInterval());
     }
 }
 
-void KmTimeLive::setTimezone(QAction *action)
+void PmTimeLive::setTimezone(QAction *action)
 {
     for (int i = 0; i < my.tzlist.size(); i++) {
 	TimeZone *tz = my.tzlist.at(i);
 	if (tz->action() == action) {
 	    pmUseZone(tz->handle());
-	    emit tzPulse(&my.kmtime, tz->tz(), strlen(tz->tz()) + 1,
+	    emit tzPulse(&my.pmtime, tz->tz(), strlen(tz->tz()) + 1,
 				tz->tzlabel(), strlen(tz->tzlabel()) + 1);
-	    setTime(&my.kmtime, NULL);	// re-display the time, no messages
-	    console->post("KmTimeLive::setTimezone sent TZ %s(%s) to clients\n",
+	    setTime(&my.pmtime, NULL);	// re-display the time, no messages
+	    console->post("PmTimeLive::setTimezone sent TZ %s(%s) to clients\n",
 				tz->tz(), tz->tzlabel());
 	    break;
 	}
     }
 }
 
-void KmTimeLive::addTimezone(const char *string)
+void PmTimeLive::addTimezone(const char *string)
 {
     TimeZone *tmp, *tzp;
     QAction *tzAction;
@@ -354,10 +354,10 @@ void KmTimeLive::addTimezone(const char *string)
     }
     my.tzActions->addAction(tzAction);
     optionsTimezoneAction->addActions(my.tzActions->actions());
-    console->post("KmTimeLive::addTimezone added TZ=%s label=%s", tz, label);
+    console->post("PmTimeLive::addTimezone added TZ=%s label=%s", tz, label);
 }
 
-void KmTimeLive::setTime(KmTime::Packet *k, char *tzdata)
+void PmTimeLive::setTime(PmTime::Packet *k, char *tzdata)
 {
     if (tzdata != NULL)
 	addTimezone(tzdata);
@@ -366,8 +366,8 @@ void KmTimeLive::setTime(KmTime::Packet *k, char *tzdata)
 	bool reset = my.timer->isActive();
 
 	my.first = false;
-	my.kmtime.position = k->position;
-	my.kmtime.delta = k->delta;
+	my.pmtime.position = k->position;
+	my.pmtime.delta = k->delta;
 	my.timer->stop();
 	if (reset)
 	    my.timer->start(timerInterval());
@@ -376,17 +376,17 @@ void KmTimeLive::setTime(KmTime::Packet *k, char *tzdata)
     }
 }
 
-void KmTimeLive::style(char *style, void *source)
+void PmTimeLive::style(char *style, void *source)
 {
-    emit stylePulse(&my.kmtime, style, strlen(style) + 1, source);
+    emit stylePulse(&my.pmtime, style, strlen(style) + 1, source);
 }
 
-void KmTimeLive::assistantError(const QString &msg)
+void PmTimeLive::assistantError(const QString &msg)
 {
     QMessageBox::warning(this, pmProgname, msg);
 }
 
-void KmTimeLive::setupAssistant()
+void PmTimeLive::setupAssistant()
 {
     if (my.assistant)
 	return;
@@ -400,7 +400,7 @@ void KmTimeLive::setupAssistant()
     my.assistant->setArguments(arguments);
 }
 
-void KmTimeLive::helpManual()
+void PmTimeLive::helpManual()
 {
     setupAssistant();
     QString documents = HTMLDIR;

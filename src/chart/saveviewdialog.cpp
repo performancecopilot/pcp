@@ -28,8 +28,13 @@ SaveViewDialog::SaveViewDialog(QWidget* parent) : QDialog(parent)
     my.completer->setModel(my.dirModel);
     fileNameLineEdit->setCompleter(my.completer);
 
+    QDir dir;
     QString home = my.userDir = QDir::homePath();
     my.userDir.append("/.pcp/kmchart");
+    if (!dir.exists(my.userDir)) {
+	my.userDir = home;
+	my.userDir.append("/.pcp/pmchart");
+    }
     my.hostDynamic = true;
     my.sizeDynamic = true;
 
@@ -163,9 +168,9 @@ void SaveViewDialog::preserveSizeCheckBox_toggled(bool sizePreserve)
 bool SaveViewDialog::saveViewFile(const QString &filename)
 {
     if (my.sizeDynamic == false)
-	setGlobals(kmchart->size().width(), kmchart->size().height(),
+	setGlobals(pmchart->size().width(), pmchart->size().height(),
 		   activeGroup->visibleHistory(),
-		   kmchart->pos().x(), kmchart->pos().y());
+		   pmchart->pos().x(), pmchart->pos().y());
     return saveView(filename, my.hostDynamic, my.sizeDynamic, false, true);
 }
 

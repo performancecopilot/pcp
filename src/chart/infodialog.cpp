@@ -92,7 +92,7 @@ void InfoDialog::pmval(void)
 {
     QStringList arguments;
     QString port;
-    port.setNum(kmtime->port());
+    port.setNum(pmtime->port());
 
     my.pmvalProc = new QProcess(this);
     arguments << "-f4" << "-p" << port;

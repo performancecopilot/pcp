@@ -42,7 +42,7 @@ void TabDialog::reset(QString label, bool live)
 
     my.archiveSource = !live;
 
-    console->post(KmChart::DebugUi, "TabDialog::reset arch=%s",
+    console->post(PmChart::DebugUi, "TabDialog::reset arch=%s",
 			my.archiveSource ? "true" : "false");
 }
 
@@ -63,7 +63,7 @@ void TabDialog::liveHostRadioButtonClicked()
     liveHostRadioButton->setChecked(true);
     archivesRadioButton->setChecked(false);
     my.archiveSource = false;
-    console->post(KmChart::DebugUi,
+    console->post(PmChart::DebugUi,
 		  "TabDialog::liveHostRadioButtonClicked archive=%s",
 		  my.archiveSource ? "true" : "false");
 }
@@ -75,7 +75,7 @@ void TabDialog::archivesRadioButtonClicked()
     liveHostRadioButton->setChecked(false);
     archivesRadioButton->setChecked(true);
     my.archiveSource = true;
-    console->post(KmChart::DebugUi,
+    console->post(PmChart::DebugUi,
 		  "TabDialog::archivesRadioButtonClicked archive=%s",
 		  my.archiveSource ? "true" : "false");
 }

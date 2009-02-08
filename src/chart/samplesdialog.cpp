@@ -28,16 +28,16 @@ void SamplesDialog::reset(int samples, int visible)
 {
     my.samples = my.visible = 0;
 
-    visibleCounter->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
-    visibleSlider->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
-    sampleCounter->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
-    sampleSlider->setRange(KmChart::minimumPoints(), KmChart::maximumPoints());
+    visibleCounter->setRange(PmChart::minimumPoints(), PmChart::maximumPoints());
+    visibleSlider->setRange(PmChart::minimumPoints(), PmChart::maximumPoints());
+    sampleCounter->setRange(PmChart::minimumPoints(), PmChart::maximumPoints());
+    sampleSlider->setRange(PmChart::minimumPoints(), PmChart::maximumPoints());
     visibleCounter->setValue(visible);
     visibleSlider->setValue(visible);
     sampleCounter->setValue(samples);
     sampleSlider->setValue(samples);
 
-    console->post(KmChart::DebugUi, "SamplesDialog::reset tot=%d/%d vis=%d/%d",
+    console->post(PmChart::DebugUi, "SamplesDialog::reset tot=%d/%d vis=%d/%d",
 		  samples, my.samples, visible, my.visible);
 }
 

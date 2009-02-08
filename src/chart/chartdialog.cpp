@@ -85,7 +85,7 @@ void ChartDialog::reset(Chart *chart, int style, QString scheme)
 	tabWidget->setCurrentIndex(0);
 	setupChartMetricsTree();
     }
-    if ((my.archiveSource = kmchart->isArchiveTab()) == true) {
+    if ((my.archiveSource = pmchart->isArchiveTab()) == true) {
 	sourceButton->setToolTip(tr("Add archives"));
 	sourceButton->setIcon(QIcon(":/archive.png"));
     }
@@ -169,12 +169,12 @@ void ChartDialog::buttonOk_clicked()
 	index = 0;
     }
     // Check the archive/live type still matches the current Tab
-    else if (!my.chart && my.archiveSource && !kmchart->isArchiveTab()) {
+    else if (!my.chart && my.archiveSource && !pmchart->isArchiveTab()) {
 	message = tr("Cannot add an archive Chart to a live Tab");
 	validInput = false;
 	index = 1;
     }
-    else if (!my.chart && !my.archiveSource && kmchart->isArchiveTab()) {
+    else if (!my.chart && !my.archiveSource && pmchart->isArchiveTab()) {
 	message = tr("Cannot add a live host Chart to an archive Tab");
 	validInput = false;
 	index = 1;
@@ -219,7 +219,7 @@ void ChartDialog::availableMetricsItemSelectionChanged()
 
 void ChartDialog::availableMetricsItemExpanded(QTreeWidgetItem *item)
 {
-    console->post(KmChart::DebugUi,
+    console->post(PmChart::DebugUi,
 		 "ChartDialog::availableMetricsItemExpanded %p", item);
     NameSpace *metricName = (NameSpace *)item;
     metricName->setExpanded(true, true);
@@ -229,7 +229,7 @@ void ChartDialog::metricInfoButtonClicked()
 {
     NameSpace *name = (NameSpace *)(my.chartTreeSingleSelected ?
 		my.chartTreeSingleSelected : my.availableTreeSingleSelected);
-    kmchart->metricInfo(name->sourceName(), name->metricName(),
+    pmchart->metricInfo(name->sourceName(), name->metricName(),
 			name->metricInstance(), name->sourceType());
 }
 
@@ -245,7 +245,7 @@ void ChartDialog::metricDeleteButtonClicked()
 
 void ChartDialog::metricSearchButtonClicked()
 {
-    kmchart->metricSearch(availableMetricsTreeWidget);
+    pmchart->metricSearch(availableMetricsTreeWidget);
 }
 
 void ChartDialog::availableMetricsTreeWidget_doubleClicked(QModelIndex)
@@ -314,7 +314,7 @@ void ChartDialog::archiveButtonClicked()
 	    setupAvailableMetricsTree(true);
 	    archiveGroup->updateBounds();
 	    const QmcSource source = archiveGroup->context()->source();
-	    kmtime->addArchive(source.start(), source.end(),
+	    pmtime->addArchive(source.start(), source.end(),
 				source.timezone(), source.host(), false);
 	}
     }
@@ -478,7 +478,7 @@ void ChartDialog::setCurrentColor(QRgb rgb)
 // Sets all widgets except cle to display color
 void ChartDialog::newColor(QColor col)
 {
-    console->post(KmChart::DebugUi, "ChartDialog::newColor");
+    console->post(PmChart::DebugUi, "ChartDialog::newColor");
     int h, s, v;
     col.getHsv(&h, &s, &v);
     colorPicker->setCol(h, s);
@@ -489,7 +489,7 @@ void ChartDialog::newColor(QColor col)
 // Sets all widgets except cs to display rgb
 void ChartDialog::newColorTypedIn(QRgb rgb)
 {
-    console->post(KmChart::DebugUi, "ChartDialog::newColorTypedIn");
+    console->post(PmChart::DebugUi, "ChartDialog::newColorTypedIn");
     int h, s, v;
     rgb2hsv(rgb, h, s, v);
     colorPicker->setCol(h, s);
@@ -499,7 +499,7 @@ void ChartDialog::newColorTypedIn(QRgb rgb)
 
 void ChartDialog::setRgb(QRgb rgb)
 {
-    console->post(KmChart::DebugUi, "ChartDialog::setRgb");
+    console->post(PmChart::DebugUi, "ChartDialog::setRgb");
     my.currentColor = rgb;
     rgb2hsv(my.currentColor, my.hue, my.sat, my.val);
     hEd->setValue(my.hue);
@@ -513,7 +513,7 @@ void ChartDialog::setRgb(QRgb rgb)
 
 void ChartDialog::setHsv(int h, int s, int v)
 {
-    console->post(KmChart::DebugUi, "ChartDialog::setHsv h=%d s=%d v=%d",h,s,v);
+    console->post(PmChart::DebugUi, "ChartDialog::setHsv h=%d s=%d v=%d",h,s,v);
     QColor c;
     c.setHsv(h, s, v);
     my.currentColor = c.rgb();
@@ -560,7 +560,7 @@ void ChartDialog::hsvEd()
 
 void ChartDialog::showCurrentColor()
 {
-    console->post(KmChart::DebugUi, "ChartDialog::showCurrentColor");
+    console->post(PmChart::DebugUi, "ChartDialog::showCurrentColor");
     applyColorLabel->setColor(my.currentColor);
     colorLineEdit->setColor(my.currentColor);
 }
@@ -745,7 +745,7 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 	}
 	else
 	    msg.append(pmErrStr(m));
-	QMessageBox::critical(kmchart, pmProgname,  msg);
+	QMessageBox::critical(pmchart, pmProgname,  msg);
     }
     else {
 	cp->setStroke(m, style, name->currentColor());
@@ -792,7 +792,7 @@ void ChartDialog::colorSchemeComboBox_currentIndexChanged(int index)
     if (index == 0)
 	my.scheme = QString::null;
     else if (index == 1)
-	kmchart->newScheme();
+	pmchart->newScheme();
     else
 	my.scheme = colorSchemeComboBox->itemText(index);
 }

@@ -49,7 +49,7 @@ private:
     struct {
 	Tab *tab;
 	QString delta;
-	KmTime::DeltaUnits units;
+	PmTime::DeltaUnits units;
 
 	QString view;
 	QString folio;
