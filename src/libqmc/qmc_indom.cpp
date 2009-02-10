@@ -18,6 +18,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include <qvector.h>
+#include <qstringlist.h>
 #include <pcp/pmapi.h>
 
 QmcInstance::QmcInstance()
@@ -110,13 +111,13 @@ int
 QmcIndom::lookup(QString const &name)
 {
     int i;
-    char *p = NULL;
-    const char *q = NULL;
+    bool ok;
+    QStringList list;
 
     for (i = 0; i < my.instances.size(); i++) {
 	if (my.instances[i].null())
 	    continue;
-	if (my.instances[i].name() == name) {
+	if (my.instances[i].name().compare(name) == 0) {
 	    if (my.instances[i].refCount() == 0) {
 		my.profile = true;
 		my.count++;
@@ -134,13 +135,10 @@ QmcIndom::lookup(QString const &name)
     for (i = 0; i < my.instances.size(); i++) {
 	if (my.instances[i].null())
 	    continue;
-
-	const char *asciiName = (const char *)my.instances[i].name().toAscii();
-	p = strchr(asciiName, ' ');
-	if (p != NULL &&
-	    name.size() == (p - asciiName) &&
-	    strncmp((const char *)name.toAscii(), asciiName,
-			p - asciiName) == 0) {
+	list = my.instances[i].name().split(QChar(' '));
+	if (list.size() <= 1)
+	    continue;
+	if (name.compare(list.at(0)) == 0) {
 	    if (pmDebug & DBG_TRACE_PMC) {
 		QTextStream cerr(stderr);
 		cerr << "QmcIndom::lookup: inst \"" << name << "\"(" << i
@@ -160,27 +158,21 @@ QmcIndom::lookup(QString const &name)
 
     // If the instance requested is numeric, then ignore leading
     // zeros in the instance up to the first space
-
-    for (i = 0; i < name.size(); i++)
-	if (!name[i].isNumber())
-	    break;
+    int nameNumber = name.toInt(&ok);
 
     // The requested instance is numeric
-    if (i == name.size()) {
+    if (ok) {
 	for (i = 0; i < my.instances.size(); i++) {
 	    if (my.instances[i].null())
 		continue;
 
-	    p = strchr((const char *)my.instances[i].name().toAscii(), ' ');
-	    if (p == NULL)
+	    list = my.instances[i].name().split(QChar(' '));
+	    if (list.size() <= 1)
 		continue;
-
-	    for (q = (const char *)my.instances[i].name().toAscii(); 
-		 isdigit(*q) && *q == '0' && q < p;
-		 q++) { ; }
-
-	    if (q < p && isdigit(*q) && name.size() == (p - q) &&
-		strncmp((const char *)name.toAscii(), q, p - q) == 0) {
+	    int instNumber = list.at(0).toInt(&ok);
+	    if (!ok)
+		continue;
+	    if (instNumber == nameNumber) {
 		if (pmDebug & DBG_TRACE_PMC) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcIndom::lookup: numerical inst \""
@@ -373,14 +365,14 @@ QmcIndom::update()
 		continue;
 	    j = 0;
 	    if (i < count && inst.inst() == instList[i]) {
-		if (inst.name() == nameList[i])
+		if (inst.name().compare(nameList[i]) == 0)
 		    continue;
 		else
 		    j = count;
 	    }
 	    for (; j < count; j++) {
 		if (inst.inst() == instList[j]) {
-		    if (inst.name() == nameList[j])
+		    if (inst.name().compare(nameList[j]) == 0)
 			break;
 		    else
 			j = count;
@@ -400,7 +392,7 @@ QmcIndom::update()
 	    // Quick check to see if they are the same
 	    if (i < my.instances.size() && 
 		my.instances[i].inst() == instList[i] &&
-		my.instances[i].name() == nameList[i]) {
+		my.instances[i].name().compare(nameList[i]) == 0) {
 		if (pmDebug & DBG_TRACE_INDOM) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcIndom::update: Unchanged \"" << nameList[i]
@@ -421,7 +413,7 @@ QmcIndom::update()
 		    // Same instance and same external name but different
 		    // order, mark as active. If it has a different
 		    // external name just ignore it
-		    if (my.instances[j].name() == nameList[i]) {
+		    if (my.instances[j].name().compare(nameList[i]) == 0) {
 			my.instances[j].setActive(true);
 			my.numActive++;
 			if (my.instances[j].refCount())

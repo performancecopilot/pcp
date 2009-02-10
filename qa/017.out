@@ -32,11 +32,11 @@ QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
 QmcContext::lookupDesc: Add descriptor for <pmid for kernel.all.load>
 QmcContext::lookupDesc: Add indom for <indom for kernel.all.load>
 QmcIndom::lookup: inst "1"(0) matched to "1 minute"(0)
-QmcIndom::lookup: inst "5"(0) matched to "5 minute"(0)
+QmcIndom::lookup: inst "5"(1) matched to "5 minute"(1)
 HOST:kernel.all.load["1 minute", "5 minute"] from host "HOST" with scale = 0 and units = none
 kernel.all.load: 2 instances
   [1 or "1 minute" (0)] = Missing metric value(s)
-  [5 or "5 minute" (0)] = Missing metric value(s)
+  [5 or "5 minute" (1)] = Missing metric value(s)
 
 *** String metric ***
 QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
@@ -59,15 +59,13 @@ QmcGroup::use: Using current context 0 (handle = 0) for host "HOST"
 QmcContext::lookupDesc: Matched "kernel.all.load" to id <pmid for kernel.all.load>
 QmcContext::lookupDesc: Reusing descriptor <pmid for kernel.all.load>
 QmcContext::lookupDesc: Reusing indom <indom for kernel.all.load>
-QmcIndom::lookup: inst "2"(1) matched to "5 minute"(1)
-HOST:kernel.all.load["5 minute"] from host "HOST" with scale = 0 and units = none
-qmc_metric: Error: kernel.all.load[2] was not invalid!
+qmc_metric: Error: HOST:kernel.all.load[2]: Unknown or illegal instance identifier
 
 *** Group 1 Fetch 1 ***
 QmcGroup::fetch: 1 contexts
 QmcIndom::genProfile: id = NNN, count = 9, numInsts = 9, active = 9, activeRef = 9: ALL ptr = 0x0
 QmcIndom::genProfile: id = NNN, count = 2, numInsts = 3, active = 3, activeRef = 2: DELETE ptr = 0x########
-QmcContext::fetch: fetching context host "HOST" has 6 metrics
+QmcContext::fetch: fetching context host "HOST" has 5 metrics
 QmcContext::fetch: Updating metrics
 QmcGroup::fetch: Done
 hinv.ncpu = VALUE none
@@ -83,13 +81,13 @@ sample.bin: 9 instances
   [900 or "bin-900" (8)] = 900 none
 kernel.all.load: 2 instances
   [1 or "1 minute" (0)] = NUMBER none
-  [1 or "1 minute" (0)] = NUMBER none
+  [5 or "5 minute" (1)] = NUMBER none
 sample.string.hullo = hullo world!
 sample.seconds = Missing metric value(s)
 
 *** Group 1 Fetch 2 ***
 QmcGroup::fetch: 1 contexts
-QmcContext::fetch: fetching context host "HOST" has 6 metrics
+QmcContext::fetch: fetching context host "HOST" has 5 metrics
 QmcContext::fetch: Updating metrics
 QmcGroup::fetch: Done
 hinv.ncpu = VALUE none
@@ -105,7 +103,7 @@ sample.bin: 9 instances
   [900 or "bin-900" (8)] = 900 none
 kernel.all.load: 2 instances
   [1 or "1 minute" (0)] = NUMBER none
-  [5 or "5 minute" (0)] = NUMBER none
+  [5 or "5 minute" (1)] = NUMBER none
 sample.string.hullo = hullo world!
 sample.seconds = NUMBER sec / second
 
@@ -115,7 +113,8 @@ kernel.all.load: 1 instance
 
 *** Group 1 Fetch 3 ***
 QmcGroup::fetch: 1 contexts
-QmcContext::fetch: fetching context host "HOST" has 6 metrics
+QmcIndom::genProfile: id = NNN, count = 1, numInsts = 3, active = 3, activeRef = 1: ADD ptr = 0x########
+QmcContext::fetch: fetching context host "HOST" has 5 metrics
 QmcContext::fetch: Updating metrics
 QmcGroup::fetch: Done
 hinv.ncpu = VALUE none
@@ -142,8 +141,8 @@ kernel.all.load: 2 instances
 
 *** Group 1 Fetch 4 ***
 QmcGroup::fetch: 1 contexts
-QmcIndom::genProfile: id = NNN, count = 3, numInsts = 3, active = 3, activeRef = 3: ALL ptr = 0x0
-QmcContext::fetch: fetching context host "HOST" has 6 metrics
+QmcIndom::genProfile: id = NNN, count = 2, numInsts = 3, active = 3, activeRef = 2: DELETE ptr = 0x########
+QmcContext::fetch: fetching context host "HOST" has 5 metrics
 QmcContext::fetch: Updating metrics
 QmcGroup::fetch: Done
 hinv.ncpu = VALUE none
