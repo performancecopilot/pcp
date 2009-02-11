@@ -51,7 +51,7 @@ SRCARCH	= mirage.0 moomba.client.0 babylon.percpu.0 omen.client.0 \
 	binning.0 wrap.0 573184.0 xbug1.0 pcpcmd.0 markmerge.0 \
 	sample-secs.0 gmt-boring.0 kenj-pc-1.0 kenj-pc-2.0 \
 	reduce-1.0 reduce-2.0 kenj-pc-diskstat.0 snort-disks.0 \
-	vldb-disks.0 oview-short.0 moomba.pmkstat.0 fcsw_indom.0 \
+	vldb-disks.0 moomba.pmkstat.0 fcsw_indom.0 \
 	uwrap.0 20041125.0 ac15.0 conn20070309.0 logsummary-bug.0 \
 	mirage-1.0 mirage-2.0
 
@@ -96,15 +96,6 @@ endif
 
 CFILES_TARGETS = $(CFILES)
 
-CXXFILES	=
-
-ifeq ($(HAVE_PMC), 1)
-CXXFILES	+= pmc_list.c++ pmc_context.c++ \
-		pmc_format.c++ pmc_vector.c++ pmc_string.c++ \
-		pmc_source.c++ pmc_desc.c++ pmc_indom.c++ pmc_context.c++ \
-		pmc_metric.c++ pmc_group.c++ pmc_dynamic.c++ pmc_hosts.c++
-endif
-
 TARGETS = \
 	$(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
 	pminfo_lite chkctx2_lite pmclient template \
@@ -131,20 +122,6 @@ CFLAGS	= $(CDEFS) $(COPTS)
 LDOPTS = 
 LDLIBS	= -lpcp
 
-LCXXOPTS = -I/usr/include/pcp -Wno-deprecated
-LCXXDEFS = $(DEBUG) $(HAVE_MONS_H)
-LCXXINCS =
-
-ifeq ($(PCP_PLATFORM), irix)
-COPTS	+= -fullwarn -MDupdate Makedepend
-LCXXOPTS += -MDupdate Makedepend
-ifeq ($(OBJSTYLE), o32)
-LCXXOPTS += $(OPTS_32)
-else
-LCXXOPTS += -n32
-endif
-endif
-
 # libpcp_trace is ready
 COPTS		+= -DHAVE_TRACE
 TRACELIB	= -lpcp_trace
@@ -157,7 +134,7 @@ endif
 # then add executables beyond $(TARGETS)
 #
 LDIRT	= *.log domain.h help.pag help.dir mv-foo.? mv-bar.? mv-bigbin.? \
-	$(subst .c,.o,$(CFILES)) $(subst .c++,.o,$(CXXFILES)) \
+	$(subst .c,.o,$(CFILES)) \
 	chkctx2_lite.c pmclient_src mv-interp.? fetchrate_lite.c \
 	real_dynamic_pmns dynamic.dir dynamic.pag \
 	broken_pmda_*.c real_broken_pmns broken_v?.dir broken_v?.pag \
@@ -194,7 +171,6 @@ clean-arch:
 	rm -f $(MKARCH) $(subst 0,meta,$(MKARCH)) $(subst 0,index,$(MKARCH))
 
 OBJECTS = $(shell echo $(CFILES) | sed -e 's/\.c/.o/g')
-OBJECTS += $(shell echo $(CXXFILES) | sed -e 's/\.c++/.o/g')
 
 # make just the archives, not the binaries
 #
@@ -683,68 +659,6 @@ pmclient_src/Makefile:	$(PCP_DEMOS_DIR)/pmclient/Makefile
 torture_indom: torture_indom.c
 	rm -f $@
 	$(CC) $(IRIX_OBJECT) $(CDEFS) $(COPTS) -o $@ torture_indom.c $(LDOPTS) $(LDLIBS)
-
-# --- libpcp_pmc
-#
-pmc_format.o	:	pmc_format.c++
-	$(CXX) -c pmc_format.c++ $(LCXXOPTS) $(LCXXDEFS) $(INCPMC)
-pmc_format	:	pmc_format.o $(LIBPMC)
-	$(CXX) -o $@ $@.o $(LCXXOPTS) $(LCXXDEFS) $(LIBPMC) $(LIBPCP2) $(LIBGEN)
-
-pmc_vector.o	:	pmc_vector.c++
-	$(CXX) -c pmc_vector.c++ $(LCXXOPTS) $(LCXXDEFS) $(INCPMC)
-pmc_vector	:	pmc_vector.o $(LIBPMC)
-	$(CXX) -o $@ $@.o $(LCXXOPTS) $(LCXXDEFS) $(LIBPCP2) $(LIBGEN)
-
-pmc_list.o	:	pmc_list.c++
-	$(CXX) -c pmc_list.c++ $(LCXXOPTS) $(LCXXDEFS) $(INCPMC)
-pmc_list	:	pmc_list.o $(LIBPMC)
-	$(CXX) -o $@ $@.o $(LCXXOPTS) $(LCXXDEFS) $(LIBPCP2) $(LIBGEN)
-
-pmc_string.o	:	pmc_string.c++
-	$(CXX) -c pmc_string.c++ $(LCXXOPTS) $(LCXXDEFS) $(INCPMC)
-pmc_string	:	pmc_string.o $(LIBPMC)
-	$(CXX) -o $@ $@.o $(LCXXOPTS) $(LCXXDEFS) $(LIBPMC) $(LIBPCP2) $(LIBGEN)
-
-pmc_source.o	:	pmc_source.c++
-	$(CXX) -c pmc_source.c++ $(LCXXOPTS) $(LCXXDEFS) $(INCPMC)
-pmc_source	:	pmc_source.o $(LIBPMC)
-	$(CXX) -o $@ $@.o $(LCXXOPTS) $(LCXXDEFS) $(LIBPMC) $(LIBPCP2) $(LIBGEN)
-
-pmc_desc.o	:	pmc_desc.c++
-	$(CXX) -c pmc_desc.c++ $(LCXXOPTS) $(LCXXDEFS) $(INCPMC)
-pmc_desc	:	pmc_desc.o $(LIBPMC)
-	$(CXX) -o $@ $@.o $(LCXXOPTS) $(LCXXDEFS) $(LIBPMC) $(LIBPCP2) $(LIBGEN)
-
-pmc_indom.o	:	pmc_indom.c++
-	$(CXX) -c pmc_indom.c++ $(LCXXOPTS) $(LCXXDEFS) $(INCPMC)
-pmc_indom	:	pmc_indom.o $(LIBPMC)
-	$(CXX) -o $@ $@.o $(LCXXOPTS) $(LCXXDEFS) $(LIBPMC) $(LIBPCP2) $(LIBGEN)
-
-pmc_context.o	:	pmc_context.c++
-	$(CXX) -c pmc_context.c++ $(LCXXOPTS) $(LCXXDEFS) $(INCPMC)
-pmc_context	:	pmc_context.o $(LIBPMC)
-	$(CXX) -o $@ $@.o $(LCXXOPTS) $(LCXXDEFS) $(LIBPMC) $(LIBPCP2) $(LIBGEN)
-
-pmc_metric.o	:	pmc_metric.c++
-	$(CXX) -c pmc_metric.c++ $(LCXXOPTS) $(LCXXDEFS) $(INCPMC)
-pmc_metric	:	pmc_metric.o $(LIBPMC)
-	$(CXX) -o $@ $@.o $(LCXXOPTS) $(LCXXDEFS) $(LIBPMC) $(LIBPCP2) $(LIBGEN)
-
-pmc_group.o	:	pmc_group.c++
-	$(CXX) -c pmc_group.c++ $(LCXXOPTS) $(LCXXDEFS) $(INCPMC)
-pmc_group	:	pmc_group.o $(LIBPMC)
-	$(CXX) -o $@ $@.o $(LCXXOPTS) $(LCXXDEFS) $(LIBPMC) $(LIBPCP2) $(LIBGEN)
-
-pmc_dynamic.o	:	pmc_dynamic.c++
-	$(CXX) -c pmc_dynamic.c++ $(LCXXOPTS) $(LCXXDEFS) $(INCPMC)
-pmc_dynamic	:	pmc_dynamic.o $(LIBPMC)
-	$(CXX) -o $@ $@.o $(LCXXOPTS) $(LCXXDEFS) $(LIBPMC) $(LIBPCP2) $(LIBGEN)
-
-pmc_hosts.o	:	pmc_hosts.c++
-	$(CXX) -c pmc_hosts.c++ $(LCXXOPTS) $(LCXXDEFS) $(INCPMC)
-pmc_hosts	:	pmc_hosts.o $(LIBPMC)
-	$(CXX) -o $@ $@.o $(LCXXOPTS) $(LCXXDEFS) $(LIBPMC) $(LIBPCP2) $(LIBGEN)
 
 # --- miscellaneous
 #

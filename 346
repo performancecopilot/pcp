@@ -41,14 +41,10 @@ trap "_cleanup" 0 1 2 3 15
 
 _filter()
 {
+    _filter_pmda_install | \
     sed \
 	-e '/Mail queue directory/d' \
-	-e '/Mail basename regex/d' \
-	-e 's/.* \(hash table entries\)/  NNN \1/' \
-	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
-	-e 's/.* \(leaf nodes\)/  NNN \1/' \
-	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
-	-e "/make: Nothing to be done for .install./d"
+	-e '/Mail basename regex/d'
 }
 
 _filter_info()

@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 348
-# Install/Remove for Linux KVM pmda
+# Install/Remove for summary pmda
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 #
@@ -18,19 +18,6 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 status=1
 done_clean=false
-kvm_stats_path=/sys/kernel/debug/kvm
-
-if [ $PCP_PLATFORM != linux ]
-then
-    echo "KVM only exists on Linux" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-elif [ ! -d $kvm_stats_path ]
-then
-    echo "KVM sysfs interface not available" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
 
 _cleanup()
 {
@@ -53,7 +40,7 @@ trap "_cleanup" 0 1 2 3 15
 # real QA test starts here
 here=`pwd`
 home=$PCP_PMDAS_DIR
-iam=kvm
+iam=summary
 if [ ! -d $home/$iam ]
 then
     echo "Where is $home/$iam?"
@@ -67,7 +54,6 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
 # start from a known starting point
 $here/sudo ./Remove >/dev/null 2>&1
-$here/sudo rm -f pmns domain.h
 
 echo
 echo "=== $iam agent installation ==="
@@ -81,26 +67,6 @@ then
 else
     echo "... failed! ... here is the Install log ..."
     cat $tmp.out
-fi
-
-echo
-echo "=== validate values ==="
-rm -f $tmp.stats $tmp.values $tmp.probe $tmp.diff
-pmprobe -v $iam | LC_COLLATE=POSIX sort > $tmp.probe
-for stat in `find $kvm_stats_path -mindepth 1`
-do
-    value=`cat $stat`
-    echo $stat 1 $value | sed -e "s,$kvm_stats_path/,kvm.,g" >> $tmp.stats
-done
-LC_COLLATE=POSIX sort $tmp.stats > $tmp.values
-diff $tmp.values $tmp.probe > $tmp.diff
-if [ $? -ne 0 ]
-then
-    echo "Kernel stats and KVM PMDA exported values differ!"
-    cat $tmp.diff
-    exit
-else
-    echo "All good."
 fi
 
 echo

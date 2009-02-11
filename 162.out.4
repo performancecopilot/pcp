@@ -229,6 +229,29 @@ simple.numfetch
 simple.time.sys
 simple.time.user
 
+=== Install -n for summary ===
+You will need to choose an appropriate configuration for installation of
+the "summary" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [m] 
+Updating the Performance Metrics Name Space (PMNS) ...
+Compiled PMNS contains
+  NNN hash table entries
+  NNN leaf nodes
+  NNN non-leaf nodes
+  NNN bytes of symbol table
+Skipping PMDA install and PMCD re-configuration
+summary.cpu.busy
+summary.cpu.util
+summary.disk.busy
+summary.disk.iops
+summary.netif.busy
+summary.netif.packets
+
 === Install -n for trace ===
 Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
 
@@ -345,6 +368,12 @@ Culling the Performance Metrics Name Space ...
 simple ... done
 Skipping PMDA removal and PMCD re-configuration
 Error: simple: Unknown metric name
+
+=== Remove -n for summary ===
+Culling the Performance Metrics Name Space ...
+summary ... done
+Skipping PMDA removal and PMCD re-configuration
+Error: summary: Unknown metric name
 
 === Remove -n for trace ===
 Culling the Performance Metrics Name Space ...

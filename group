@@ -444,26 +444,16 @@ dmf		pcpqa
 204 pmlogger local oss
 205 pdu local oss
 206 archive pmval local oss
-207 libpcp_pmc local oss
-208 libpcp_pmc local purify oss
 209 pmval local oss
-210 libpcp_pmc local purify oss
-211 libpcp_pmc local purify oss
 212 pmda pmda.cisco local oss
-213 libpcp_pmc local oss
-214 libpcp_pmc local oss
 215 other pmsocks pmval remote oss
-216 libpcp_pmc local oss
 217 folio local oss
 218 archive logutil local pmlogextract oss
-219 libpcp_pmc local pmda.install pmda.simple oss
 220 pmlogger local oss
 221 pmlogger local oss
 222 other local oss
 223 pmns local oss
 224 pmcd local oss
-225 libpcp_pmc local pmda.install oss
-226 pmda libpcp_pmc local pmda.install oss
 227 folio local oss
 228 pmie local oss
 229 pmie local oss
@@ -478,7 +468,6 @@ dmf		pcpqa
 238 pmns local oss
 239 pmns local oss
 240 pmns local oss
-241 libpcp_pmc local pmprobe oss
 242 pmlogger local oss
 243 pmcd local pmprobe oss
 244 pmcd local pmprobe oss
