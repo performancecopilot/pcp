@@ -94,10 +94,7 @@ echo -n "Creating skeletal script for you to edit ..."
 cat <<End-of-File | sed -e '/revision/s//Revision: 1.1 /' >$id
 #!/bin/sh
 # PCP GUI QA Test No. $id
-#
 # (what am I here for?)
-#
-# Copyright (C) `date +%Y` (who wrote me?).  All Rights Reserved.
 #
 seq=\`basename \$0\`
 echo "QA output created by \$seq"

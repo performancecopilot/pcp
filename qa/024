@@ -1,0 +1,23 @@
+#!/bin/sh
+# PCP GUI QA Test No. 024
+# Check tools with indoms that have bizarre instance names, e.g.
+# @fcsw=asg-fcsw8:port=007
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+DISPLAY=$PCPQA_CLOSE_X_SERVER
+export DISPLAY
+
+# real QA test starts here
+src/grind-tools -v -a archives/fcsw_indom fcsw.port.bytes_out \
+| sed \
+    -e '/pmview/d' \
+    -e '/pmgadgets/d'
+
+# success, all done
+exit

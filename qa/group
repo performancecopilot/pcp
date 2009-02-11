@@ -1,32 +1,29 @@
 # QA groups control
-#
-# $Id: group,v 1.2 2006/01/22 20:10:54 kenj Exp $
-#
-# define groups and default owners
-# do not start group name with a digit
-#
 
 # catch-all
-#
 other
 
 # view configs
-#
 config
 
 # metrics class tests
-#
 libqmc
+
+# pmchart command
+config
+
+# pmdumptext command
+dumtpext
 
 # test-group association ... one line per test
 #
-001 config
-002 config
-003 config
-004 config
-005 config
-006 config
-007 config
+001 config chart
+002 config chart
+003 config chart
+004 config chart
+005 config chart
+006 config chart
+007 config chart
 008 libqmc
 009 libqmc
 010 libqmc
@@ -41,3 +38,9 @@ libqmc
 019 libqmc
 020 libqmc
 021 libqmc
+022 dumptext
+023 dumptext
+024 dumptext chart
+025 dumptext
+026 dumptext
+027 dumptext

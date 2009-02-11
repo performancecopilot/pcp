@@ -1,7 +1,5 @@
 #!/bin/sh
 # PCP GUI QA Test No. 005
-# Copyright (c) 2007 Aconex.  All Rights Reserved.
-#
 # Check handling of missing plot title keyword - caused SEGV,
 # observed while hand-crafting config file for interactive QA
 # in the Settings dialog.

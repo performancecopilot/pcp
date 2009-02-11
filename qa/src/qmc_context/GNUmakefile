@@ -7,7 +7,7 @@ SOURCES = $(COMMAND).cpp
 
 LSRCFILES = $(PROJECT) $(SOURCES)
 LDIRDIRT = build $(COMMAND).xcodeproj
-LDIRT = $(COMMAND)
+LDIRT = $(COMMAND) *.o Makefile
 
 default:
 	$(QTMAKE)

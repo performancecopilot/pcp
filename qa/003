@@ -1,7 +1,5 @@
 #!/bin/sh
 # PCP GUI QA Test No. 003
-# Copyright (c) 2006 Ken McDonell.  All Rights Reserved.
-#
 # Check that Global clause is detected
 #
 seq=`basename $0`

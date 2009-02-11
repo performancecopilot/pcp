@@ -1,9 +1,6 @@
 #!/bin/sh
 # PCP GUI QA Test No. 013
-# Copyright (c) 2008 Aconex.  All Rights Reserved.
-# Copyright (c) 1995-2002,2005 Silicon Graphics, Inc.  All Rights Reserved.
-#
-# test QmcMetric::formatNumber
+# Test QmcMetric::formatNumber
 #
 seq=`basename $0`
 echo "QA output created by $seq"
