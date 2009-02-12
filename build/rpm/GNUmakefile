@@ -21,21 +21,22 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 SPEC = pcp.spec
-LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros rpm-$(RPM_VERSION).rc
+LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros 
 
 PERLFILES = pcp-pmda-perl.desc pcp-logsummary-perl.desc
-LSRCFILES = macros.template pcp.spec.in rpm-2.rc.template $(PERLFILES)
+LSRCFILES = macros.template pcp.spec.in $(PERLFILES)
 
 default install :
 
 # Blow the spec away after rpm has finished its work - it IS
 # going to make sure it'll be rebuild next time we come here
-pack_pcp : rpm-$(RPM_VERSION).rc $(SPEC)
-	$(RPMPROG) -ba --rcfile rpm-$(RPM_VERSION).rc \
+pack_pcp : rpmmacros $(SPEC)
+	DEFS=`grep '^--define' rpmmacros`; \
+	eval $(RPMPROG) -ba $$DEFS \
 		--target $(TARGET_CPU)-$(TARGET_VENDOR)-$(TARGET_OS) \
 		--clean $(SPEC)
 	rm -f $(SPEC) $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm \
-		rpmmacros rpm-$(RPM_VERSION).rc
+		rpmmacros 
 ifneq "$(CPANFLUTE)" ""
 	$(CPANFLUTE) --email="$(PACKAGE_BUILDER)" \
 		--descfile=pcp-pmda-perl.desc --buildrequires=pcp \
@@ -44,12 +45,6 @@ ifneq "$(CPANFLUTE)" ""
 		--descfile=pcp-logsummary-perl.desc --buildrequires=pcp \
 		--buildall $(TOPDIR)/src/cpan/LogSummary/PCP-LogSummary-*.tar.gz
 endif
-
-# Because rpm prior v.2.90 does not support macros and old style config
-# is not supported by rpm v.3, we have to resort to such ugly hacks
-ifneq ($(RPM_VERSION),2)
-rpm-$(RPM_VERSION).rc : rpmmacros
-	sed -e '/^macrofiles:/s|~/.rpmmacros|'`pwd`'/rpmmacros|' < /usr/lib/rpm/rpmrc > $@
 
 rpmmacros : macros.template
 	@TREEROOT=`cd ${TOPDIR}; pwd`; \
@@ -61,19 +56,9 @@ rpmmacros : macros.template
 	done; \
 	sed -e "s|%topdir%|$${TREEROOT}|g" \
 	    -e "s|@rpmsdir@|$${RPMDIR}|g" \
-	    -e "s|@srpmsdir@|$${SRPMDIR}|g" < $< > $@
-else
-rpm-2.rc: rpm-2.rc.template
-	@for d in RPM SRPM; do \
-	    eval D=\$$$${d}DIR; \
-	    if [ -z "$$D" -o ! -d "$$D" ] ; then \
-		eval $${d}DIR=$(TOPDIR)/build/rpm; \
-	    fi; \
-	done; \
-	sed -e 's|%topdir%|$(TOPDIR)|g' \
-	    -e "s|@rpmsdir@|$${RPMDIR}|g" \
-	    -e "s|@srpmsdir@|$${SRPMDIR}|g" < $< > $@
-endif
+	    -e "s|@srpmsdir@|$${SRPMDIR}|"g \
+	    -e '/^%/s/[ \t]*$$/'\''/' \
+	    -e '/^%/s/^%/--define '\''/' < $< > $@
 
 pcp.spec: pcp.spec.in
 	@echo Generating $@ from $?; \
