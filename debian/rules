@@ -7,6 +7,8 @@ libpcp_pmda = libpcp-pmda3
 libpcp_pmdadev = libpcp-pmda3-dev
 libpcp_pmda_perl = libpcp-pmda-perl
 pcp_logsummary_perl = pcp-logsummary-perl
+libpcp_gui = libpcp-gui1
+libpcp_guidev = libpcp-gui1-dev
 libpcp_trace = libpcp-trace2
 libpcp_tracedev = libpcp-trace2-dev
 
@@ -17,22 +19,26 @@ dirlibpcp_pmda = debian/$(libpcp_pmda)
 dirlibpcp_pmdadev = debian/$(libpcp_pmdadev)
 dirlibpcp_pmda_perl = debian/$(libpcp_pmda_perl)
 dirpcp_logsummary_perl = debian/$(pcp_logsummary_perl)
+dirlibpcp_gui = debian/$(libpcp_gui)
+dirlibpcp_guidev = debian/$(libpcp_guidev)
 dirlibpcp_trace = debian/$(libpcp_trace)
 dirlibpcp_tracedev = debian/$(libpcp_tracedev)
 alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(dirlibpcp_pmda) \
 		$(dirlibpcp_pmdadev) $(dirlibpcp_pmda_perl) \
 		$(dirlibpcp_trace) $(dirlibpcp_tracedev) \
+		$(dirlibpcp_gui) $(dirlibpcp_guidev) \
 		$(dirpcp_logsummary_perl)
 
 zip = @export GZIP=-9q
 pkgpcp = $(zip); export DIST_ROOT=`pwd`/$(dirpcp);
 pkglibpcp = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp);
+pkglibpcp_gui = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_gui);
 pkglibpcp_pmda = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
 pkglibpcp_trace = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_trace);
 pkglibpcp_pmda_perl = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda_perl);
 pkgpcp_logsummary_perl = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_logsummary_perl);
 
-options = export DEBUG=-DNDEBUG AWK=gawk PMC_SUPPORT=false;
+options = export DEBUG=-DNDEBUG AWK=gawk;
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
 uninstalld = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include
@@ -84,6 +90,8 @@ binary-arch: checkroot built
 	dh_makeshlibs --package $(libpcp_pmda)
 	dh_makeshlibs -N $(libpcp_trace)
 	dh_makeshlibs --package $(libpcp_trace)
+	dh_makeshlibs -N $(libpcp_gui)
+	dh_makeshlibs --package $(libpcp_gui)
 	dh_perl -p $(libpcp_pmda_perl)
 	dh_perl -p $(pcp_logsummary_perl)
 	dh_installdeb

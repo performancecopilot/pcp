@@ -17,13 +17,13 @@
  */
 #include "pmapi.h"
 #include "impl.h"
-#include "kmtime.h"
+#include "pmtime.h"
 
-static int kmServerExec(int fd, int livemode)
+static int pmServerExec(int fd, int livemode)
 {
     char portname[32];
     int port, in, out;
-    char *argv[] = { "kmtime", NULL, NULL };
+    char *argv[] = { "pmtime", NULL, NULL };
 
     if (livemode)
 	argv[1] = "-h";	/* -h for live hosts */
@@ -48,15 +48,15 @@ static int kmServerExec(int fd, int livemode)
     return port;
 }
 
-static int kmConnectHandshake(int fd, int port, kmTime *pkt)
+static int pmConnectHandshake(int fd, int port, pmTime *pkt)
 {
     struct sockaddr_in myaddr;
     char buffer[4096];
-    kmTime *ack;
+    pmTime *ack;
     int sts;
 
     /*
-     * Connect to kmtime - kmtime guaranteed started by now, due to the
+     * Connect to pmtime - pmtime guaranteed started by now, due to the
      * port number read(2) earlier, or -p option (so no race there).
      */
     memset(&myaddr, 0, sizeof(myaddr));
@@ -76,14 +76,14 @@ static int kmConnectHandshake(int fd, int port, kmTime *pkt)
 	errno = EMSGSIZE;
 	goto error;
     }
-    ack = (kmTime *)buffer;
+    ack = (pmTime *)buffer;
     sts = recv(fd, buffer, sizeof(buffer), 0);
     if (sts < 0) {
 	goto error;
     } else if (sts != ack->length) {
 	errno = EMSGSIZE;
 	goto error;
-    } else if (ack->command != KM_TCTL_ACK) {
+    } else if (ack->command != PM_TCTL_ACK) {
 	errno = EPROTO;
 	goto error;
     } else if (ack->source != pkt->source) {
@@ -97,45 +97,45 @@ error:
     return -1;
 }
 
-int kmTimeConnect(int port, kmTime *pkt)
+int pmTimeConnect(int port, pmTime *pkt)
 {
     int	fd;
 
     if ((fd = __pmCreateSocket()) < 0)
 	return -1;
     if (port < 0) {
-	if ((port = kmServerExec(fd, pkt->source != KM_SOURCE_ARCHIVE)) < 0)
+	if ((port = pmServerExec(fd, pkt->source != PM_SOURCE_ARCHIVE)) < 0)
 	    return -2;
-	if (kmConnectHandshake(fd, port, pkt) < 0)
+	if (pmConnectHandshake(fd, port, pkt) < 0)
 	    return -3;
     } else {		/* attempt to connect to the given port (once) */
-	if (kmConnectHandshake(fd, port, pkt) < 0)
+	if (pmConnectHandshake(fd, port, pkt) < 0)
 	    return -4;
     }
     return fd;
 }
 
-int kmTimeSendAck(int fd, struct timeval *tv)
+int pmTimeSendAck(int fd, struct timeval *tv)
 {
-    kmTime data;
+    pmTime data;
 
     memset(&data, 0, sizeof(data));
-    data.magic = KMTIME_MAGIC;
+    data.magic = PMTIME_MAGIC;
     data.length = sizeof(data);
-    data.command = KM_TCTL_ACK;
+    data.command = PM_TCTL_ACK;
     data.position = *tv;
     return send(fd, (const void *)&data, sizeof(data), 0);
 }
 
-int kmTimeShowDialog(int fd, int show)
+int pmTimeShowDialog(int fd, int show)
 {
-    kmTime data;
+    pmTime data;
     int sts;
 
     memset(&data, 0, sizeof(data));
-    data.magic = KMTIME_MAGIC;
+    data.magic = PMTIME_MAGIC;
     data.length = sizeof(data);
-    data.command = show ? KM_TCTL_GUISHOW : KM_TCTL_GUIHIDE;
+    data.command = show ? PM_TCTL_GUISHOW : PM_TCTL_GUIHIDE;
     sts = send(fd, (const void *)&data, sizeof(data), 0);
     if (sts >= 0 && sts != sizeof(data)) {
 	errno = ENODATA;
@@ -144,20 +144,20 @@ int kmTimeShowDialog(int fd, int show)
     return sts;
 }
 
-int kmTimeRecv(int fd, kmTime **datap)
+int pmTimeRecv(int fd, pmTime **datap)
 {
-    kmTime *k = *datap;
+    pmTime *k = *datap;
     int sts, remains;
 
-    memset(k, 0, sizeof(kmTime));
-    sts = recv(fd, (void *)k, sizeof(kmTime), 0);
-    if (sts >= 0 && sts != sizeof(kmTime)) {
+    memset(k, 0, sizeof(pmTime));
+    sts = recv(fd, (void *)k, sizeof(pmTime), 0);
+    if (sts >= 0 && sts != sizeof(pmTime)) {
 	errno = ENODATA;
 	sts = -1;
-    } else if (k->length > sizeof(kmTime)) {	/* double dipping */
-	remains = k->length - sizeof(kmTime);
+    } else if (k->length > sizeof(pmTime)) {	/* double dipping */
+	remains = k->length - sizeof(pmTime);
 	*datap = k = realloc(k, k->length);
-	sts = recv(fd, (char *)k + sizeof(kmTime), remains, 0);
+	sts = recv(fd, (char *)k + sizeof(pmTime), remains, 0);
 	if (sts >= 0 && sts != remains) {
 	    errno = E2BIG;
 	    sts = -1;

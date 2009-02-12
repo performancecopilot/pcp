@@ -46,7 +46,7 @@ Requires: glibc libgcc libstdc++ %{?ib_prereqs}
 Requires: libunwind
 %endif
 
-%if %_vendor == "suse"
+%if "%{_vendor}" == "suse"
 Requires: sysconfig
 %else
 Requires: initscripts

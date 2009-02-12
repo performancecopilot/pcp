@@ -27,7 +27,7 @@ unset ROOT TOOLROOT
 # Note: the following environment variables may be
 # set to override the defaults.
 #
-# MAKE CC CXX CPP LD LEX YACC INSTALL AWK SED ECHO
+# MAKE CC CPP LD LEX YACC INSTALL AWK SED ECHO
 #
 
 dnl Guess target platfrom
@@ -211,13 +211,6 @@ then
 fi
 make=$MAKE
 AC_SUBST(make)
-
-dnl check if user wants their own C++ compiler
-if test -z "$CXX"; then
-    AC_PROG_CXX
-fi
-cxx=$CXX
-AC_SUBST(cxx)
 
 dnl check if users wants their own CPP
 if test -z "$CPP"; then
@@ -405,15 +398,6 @@ else
     rpmprog=$RPM
 fi
 AC_SUBST(rpmprog)
-
-dnl .. and what version is rpm
-if test ! -z "$RPM" && test -x $RPM
-then
-    rpm_version=`$RPM --version | awk '{print $NF}' | awk -F. '{print $1}'`
-else
-    rpm_version=0
-fi
-AC_SUBST(rpm_version)
 
 dnl check if the cpanflute2 program is available (perl rpm builder)
 if test -z "$CPANFLUTE"; then
@@ -674,21 +658,6 @@ AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
 AC_CHECK_HEADERS(pwd.h regex.h termios.h sys/termios.h sys/wait.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h iptypes.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
-
-dnl Checks for C++ header files.
-if test "$PMC_SUPPORT" = false -o $target_os = mingw
-then
-    pmc_support=false
-else
-    AC_LANG_PUSH([C++])
-    AC_CHECK_HEADERS(iostream.h, [pmc_support=true], [pmc_support=false])
-    if test "$pmc_support" = false
-    then
-	AC_CHECK_HEADERS(iostream, [pmc_support=true], [pmc_support=false])
-    fi
-    AC_LANG_POP([C++])
-fi
-AC_SUBST(pmc_support)
 
 dnl Check if we have <sys/endian.h> ... standard way
 AC_MSG_CHECKING([for sys/endian.h ])
@@ -1330,7 +1299,7 @@ then
     pcp_pmcdoptions_path=/etc/pmcd/pmcd.options
     pcp_pmproxyoptions_path=/etc/pmproxy/pmproxy.options
     pcp_pmiecontrol_path=/etc/pmie/control
-    pcp_kmsnapcontrol_path=/etc/kmsnap/control
+    pcp_pmsnapcontrol_path=/etc/pmsnap/control
     pcp_pmloggercontrol_path=/etc/pmlogger/control
 else
     pcp_pmcdconf_path=$pcp_var_dir/config/pmcd/pmcd.conf
@@ -1338,7 +1307,7 @@ else
     pcp_pmcdoptions_path=$pcp_var_dir/config/pmcd/pmcd.options
     pcp_pmproxyoptions_path=$pcp_var_dir/config/pmproxy/pmproxy.options
     pcp_pmiecontrol_path=$pcp_var_dir/config/pmie/control
-    pcp_kmsnapcontrol_path=$pcp_var_dir/config/kmsnap/control
+    pcp_pmsnapcontrol_path=$pcp_var_dir/config/pmsnap/control
     pcp_pmloggercontrol_path=$pcp_var_dir/config/pmlogger/control
 fi
 AC_SUBST(pcp_pmcdconf_path)
@@ -1346,7 +1315,7 @@ AC_SUBST(pcp_pmcdoptions_path)
 AC_SUBST(pcp_pmcdrclocal_path)
 AC_SUBST(pcp_pmproxyoptions_path)
 AC_SUBST(pcp_pmiecontrol_path)
-AC_SUBST(pcp_kmsnapcontrol_path)
+AC_SUBST(pcp_pmsnapcontrol_path)
 AC_SUBST(pcp_pmloggercontrol_path)
 
 pcp_pmdas_dir=$pcp_var_dir/pmdas

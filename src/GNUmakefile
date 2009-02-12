@@ -20,14 +20,14 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = include libpcp libpcp_pmda libpcp_trace libpcp_http \
-	  libpcp_pmcd libpcp_pmc libkmtime \
+SUBDIRS = include \
+	  libpcp libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
 	  pmns newhelp pminfo pmnscomp pmcd pmerr pmdbg pmloglabel \
 	  pmdate pmie pmpost pmprobe pmcdctl pmlock pmval pmlogger \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmlogctl \
 	  pmlogconf pmlogsummary pmclient pcp pmlc dbpmda \
 	  xconfirm pmtrace pmstat pmsocks pmdas pmafm procmemstat \
-	  pmlogreduce genpmda pmproxy pmsleep pmtop pmdumptext \
+	  pmlogreduce genpmda pmproxy pmsleep pmtop \
 	  autofsd-probe telnet-probe cpan win32ctl
 
 default :: default_pcp

@@ -20,14 +20,11 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES	= pmval.c
-CMDTARGET = pmval$(EXECSUFFIX)
-LLDLIBS	= -lpcp -lm
+CFILES = pmval.c
+LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
+LLDLIBS = -lpcp_gui -lpcp -lm
 
-# enable kmtime for GNUmakefile platforms...
-TIMEDIR = $(TOPDIR)/src/libkmtime/src
-LCFLAGS = -DHAVE_KMTIME -I$(TIMEDIR) -L$(TIMEDIR)
-LLDLIBS += -lkmtime
+CMDTARGET = pmval$(EXECSUFFIX)
 
 default:	$(CMDTARGET)
 

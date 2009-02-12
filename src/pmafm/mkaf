@@ -124,7 +124,7 @@ Version: 1
 # use pmafm(1) to process this PCP archive folio
 #
 Created: on $host at `date`
-Creator: kmchart
+Creator: pmchart
 # 		Host			Basename
 #
 End-of-File

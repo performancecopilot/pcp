@@ -57,8 +57,8 @@ hosts (or archives) that have the
 installed.
 Many monitor tools are available as part of PCP under GPL/LPGL from
 http://oss.sgi.com/projects/pcp.
-Other monitoring tools are available separately, and many (such as kmchart)
-are also freely available under the terms of the GPL/LGPL.
+Other (typically graphical) monitoring tools are available separately
+in the PCP GUI package.
 .PP
 This manual entry describes the high-level features
 and options common to most PCP utilities available on all platforms.
@@ -112,49 +112,21 @@ PCP tools.
 .B pmval
 Simple periodic reporting for some or all instances of a performance
 metric, with optional VCR time control.
-.TP
-.B pmdumptext
-Produce ASCII reports for arbitrary combinations of performance
-metrics.
 .PP
-If the kmchart package is installed then
+If the PCP GUI package is installed then
 the following additional tools are available.
-.TP
-.B kmchart
-Displays trends over time of arbitrarily selected performance metrics from
-one or more hosts.
-.TP
-.B kmtime
-Time control utility for coordinating the time between multiple tools
-(including kmchart and pmval).
-.TP
-.B kmdumptext
-Produce ASCII reports for arbitrary combinations of performance
-metrics.
-.PP
-If the SGI pcp-pro package is installed (along with the associated
-valid PCP licenses) then the following additional tools are available.
 .TP
 .B pmchart
 Displays trends over time of arbitrarily selected performance metrics from
 one or more hosts.
 .TP
-.B osvis
-Displays a three-dimensional bar chart of high-level CPU, disk, memory and
-network activity.
+.B pmtime
+Time control utility for coordinating the time between multiple tools
+(including pmchart and pmval).
 .TP
-.B mpvis
-Displays a three-dimensional bar chart of multiprocessor CPU utilization.
-.TP
-.B dkvis
-Displays a three-dimensional bar chart showing activity in the disk subsystem.
-.TP
-.B pmgsys
-Displays a system-level visual monitor of a single host.
-.TP
-.B nfsvis
-Displays a three-dimensional bar chart of Network File System (NFS) client
-and server activity.
+.B pmdumptext
+Produce ASCII reports for arbitrary combinations of performance
+metrics.
 .SH COMMON COMMAND LINE ARGUMENTS
 There is a set of common command line arguments that are used consistently
 by most PCP tools.
@@ -451,7 +423,7 @@ The
 option allows the specification of an origin within the time window
 to be used as the initial sample time.  This
 is useful for interactive use of a PCP tool with the
-.BR kmtime (1)
+.BR pmtime (1)
 VCR replay facility.
 .PP
 The \f2origin\f1 argument accepted by
@@ -610,9 +582,9 @@ monitoring.
 To explore the PMNS
 use
 .BR pminfo (1),
-or if the kmchart package is installed the New Chart and Metric Search
+or if the PCP GUI package is installed the New Chart and Metric Search
 windows within
-.BR kmchart (1).
+.BR pmchart (1).
 .SH PERFORMANCE METRIC SPECIFICATIONS
 In configuration files and (to a lesser extent) command line options,
 metric specifications adhere to the following syntax rules.
@@ -1064,7 +1036,6 @@ as described in
 .BR pcp.conf (4).
 .SH SEE ALSO
 .BR pmcd (1),
-.BR pmdumptext (1),
 .BR pmie (1),
 .BR pmie_daily (1),
 .BR pminfo (1),
@@ -1078,26 +1049,13 @@ as described in
 and
 .BR pmns (4).
 .PP
-If the kmchart package is installed, then the
+If the PCP GUI package is installed, then the
 following entries are also relevant:
 .br
-.BR kmchart (1),
-.BR kmtime (1),
-and
-.BR kmdumptext (1).
-.PP
-If the SGI pcp-pro package is installed, then the
-following entries are also relevant:
-.br
-.BR dkvis (1),
-.BR mpvis (1),
-.BR nfsvis (1),
-.BR osvis (1),
 .BR pmchart (1),
-.BR pmgevctr (1)
-.BR pmgsys (1),
+.BR pmtime (1),
 and
-.BR pmlaunch (5).
+.BR pmdumptext (1).
 .PP
 Also refer to the books
 .I "Performance Co-Pilot User's and Administrator's Guide"

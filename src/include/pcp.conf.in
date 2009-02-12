@@ -105,10 +105,10 @@ PCP_PMPROXYOPTIONS_PATH=@pcp_pmproxyoptions_path@
 # Standard path (debian): /etc/pmie/control
 PCP_PMIECONTROL_PATH=@pcp_pmiecontrol_path@
 
-# path to kmsnap control file
-# Standard path (linux): $PCP_VAR_DIR/config/kmsnap/control
-# Standard path (debian): /etc/kmsnap/control
-PCP_KMSNAPCONTROL_PATH=@pcp_kmsnapcontrol_path@
+# path to pmsnap control file
+# Standard path (linux): $PCP_VAR_DIR/config/pmsnap/control
+# Standard path (debian): /etc/pmsnap/control
+PCP_PMSNAPCONTROL_PATH=@pcp_pmsnapcontrol_path@
 
 # path to pmlogger control file
 # Standard path (linux): $PCP_VAR_DIR/config/pmlogger/control

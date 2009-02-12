@@ -60,7 +60,7 @@ image.  Run the executable, follow the prompts, and a Startup
 Menu item with several PCP options will be available - standard
 DOS shell or POSIX shell (with suitable environment setup), the
 Perl CPAN configuration tool, links to documentation and online
-PCP internet resources, and the kmchart utility.
+PCP internet resources, and the pmchart utility.
 
 
 == B. Building from source

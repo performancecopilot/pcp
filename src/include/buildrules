@@ -74,18 +74,6 @@ endif
 %.tab.c : %.y
 	$(YACC) -d -b `basename $< .y` $<
 
-#
-# Rule for C++ files
-#
-%.o: %.cxx
-	$(CXX) $(CXXFLAGS) -c $<
-
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $<
-
-%.o: %.c++
-	$(CXX) $(CXXFLAGS) -c $<
-
 ifeq ($(TARGET_OS), cygwin)
 #
 # .exe rule for Cygwin
