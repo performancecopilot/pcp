@@ -102,13 +102,15 @@ Usage: $prog [options]
 
 Options:
   -c control    pmlogger control file
-  -s size       rotate NOTICES file after reaching size bytes
   -k discard    remove archives after "discard" days
   -m addresses  send daily NOTICES entries to email addresses
   -N            show-me mode, no operations performed
   -o            (old style) merge logs only from yesterday
                 [default is to merge all possible logs before today]
-  -V            verbose output
+  -s size       rotate NOTICES file after reaching size bytes
+  -t want       implies -VV and keep trace of verbose output for "want"
+                days
+  -V            verbose output (-VV for very verbose)
   -x compress   compress archive data files after "compress" days
   -X program    use program for archive data file compression
   -Y regex      egrep filter for files to compress ["$COMPRESSREGEX"]
@@ -124,8 +126,9 @@ VERBOSE=false
 VERY_VERBOSE=false
 MYARGS=""
 OFLAG=false
+TRACE=0
 
-while getopts c:k:m:Nos:Vx:X:Y:? c
+while getopts c:k:m:Nos:t:Vx:X:Y:? c
 do
     case $c
     in
@@ -155,6 +158,15 @@ do
 		    status=1
 		    exit
 		fi
+		;;
+	t)	TRACE="$OPTARG"
+		# from here on, all stdout and stderr output goes to
+		# $PCP_LOG_DIR/pmlogger/daily.<date>.trace
+		#
+		exec 1>$PCP_LOG_DIR/pmlogger/daily.`date "+%Y%m%d.%H.%M"`.trace 2>&1
+		VERBOSE=true
+		VERY_VERBOSE=true
+		MYARGS="$MYARGS -V -V"
 		;;
 	V)	if $VERBOSE
 		then
@@ -674,13 +686,25 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 		touch $tmp.skip
 		break
 	    else
+		if $VERY_VERBOSE
+		then
+		    for arch in $inlist
+		    do
+			echo "Input archive $arch ..."
+			pmdumplog -L $arch
+		    done
+		fi
 		if $SHOWME
 		then
 		    echo "+ pmlogger_merge$MYARGS -f $inlist $outfile"
 		else
 		    if pmlogger_merge$MYARGS -f $inlist $outfile
 		    then
-			:
+			if $VERY_VERBOSE
+			then
+			    echo "Merged output archive $outfile ..."
+			    pmdumplog -L $outfile
+			fi
 		    else
 			_error "problems executing pmlogger_merge for host \"$host\""
 		    fi
@@ -720,12 +744,11 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	fi
     fi
 
-    # finally, compress old archive data files
+    # and compress old archive data files
     # (after cull - don't compress unnecessarily)
     #
     if [ ! -z "$COMPRESSAFTER" ]
     then
-
 	find . -type f -mtime +$COMPRESSAFTER \
 	| _filter_filename \
 	| egrep -v "$COMPRESSREGEX" \
@@ -742,6 +765,29 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 		cat $tmp.list | xargs echo + $COMPRESS
 	    else
 		cat $tmp.list | xargs $COMPRESS
+	    fi
+	fi
+    fi
+
+    # and cull old trace files (from -t option)
+    #
+    if [ "$TRACE" -gt 0 ]
+    then
+	find $PCP_LOG_DIR/pmlogger -type f -mtime +$TRACE \
+	| sed -n -e '/pmlogger\/daily\..*\.trace/p' \
+	| sort >$tmp.list
+	if [ -s $tmp.list ]
+	then
+	    if $VERBOSE
+	    then
+		echo "Trace files older than $TRACE days being removed ..."
+		fmt <$tmp.list | sed -e 's/^/    /'
+	    fi
+	    if $SHOWME
+	    then
+		cat $tmp.list | xargs echo + rm -f
+	    else
+		cat $tmp.list | xargs rm -f
 	    fi
 	fi
     fi

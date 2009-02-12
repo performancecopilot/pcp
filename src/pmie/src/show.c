@@ -520,6 +520,15 @@ findBindings(Expr *x)
 	if (y != NULL) x = y;
     }
     while (x->metrics && (x->e_idom <= 0 || x->hdom <= 0)) {
+	if (x->op == CND_SUM_HOST || x->op == CND_SUM_INST || x->op == CND_SUM_TIME ||
+	    x->op == CND_AVG_HOST || x->op == CND_AVG_INST || x->op == CND_AVG_TIME ||
+	    x->op == CND_MAX_HOST || x->op == CND_MAX_INST || x->op == CND_MAX_TIME ||
+	    x->op == CND_MIN_HOST || x->op == CND_MIN_INST || x->op == CND_MIN_TIME)
+	    /*
+	     * don't descend below an aggregation operator with a singular
+	     * value, ... value you seek is right here
+	     */
+	    break;
 	if (x->arg1 && x->metrics == x->arg1->metrics)
 	    x = x->arg1;
 	else if (x->arg2)
@@ -724,8 +733,9 @@ showSatisfyingValue(FILE *f, Expr *x)
 
     /* construct string representation */
     for (i = 0; i < x1->tspan; i++) {
-	if (x1->valid &&
-	    (x1->sem == SEM_TRUTH && *((char *)x1->smpls[0].ptr + i) == TRUE)) {
+	if (!x1->valid) continue;
+	if ((x1->sem == SEM_TRUTH && *((char *)x1->smpls[0].ptr + i) == TRUE)
+	    || (x1->sem != SEM_TRUTH && x1->sem != SEM_UNKNOWN)) {
 	    length = concat("\n    ", length, &string);
 	    lookupHostInst(x1, i, &host, &inst);
 	    length = concat(host, length,  &string);
@@ -776,8 +786,9 @@ formatSatisfyingValue(char *format, size_t length, char **string)
     x2 = findValues(x1);
 
     for (i = 0; i < x1->tspan; i++) {
-	if (x1->valid && 
-	    (x1->sem == SEM_TRUTH && *((char *)x1->smpls[0].ptr + i) == TRUE)) {
+	if (!x1->valid) continue;
+	if ((x1->sem == SEM_TRUTH && *((char *)x1->smpls[0].ptr + i) == TRUE)
+	    || (x1->sem != SEM_TRUTH && x1->sem != SEM_UNKNOWN)) {
 	    prev = format;
 	    next = first;
 	    sts2 = sts1;
