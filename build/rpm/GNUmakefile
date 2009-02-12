@@ -6,29 +6,35 @@ TOPDIR = ../..
 TREEROOT = $(shell cd ${TOPDIR}; pwd)
 include $(TOPDIR)/src/include/builddefs
 
-SPECF = $(PKG_NAME).spec
-LDIRT = *.rpm $(SPECF) rpmmacros rpmfiles* rpm-*.rc
+SPEC = pcp-gui.spec
+LDIRT = *.rpm $(SPEC) rpmmacros rpmfiles*
 
-LSRCFILES = macros.template $(SPECF).in rpm-2.rc.template
+LSRCFILES = macros.template $(SPEC).in
 
 default install install-dev install-lib:
 
 # Generate a binary rpm file
-pack-pcp-gui : default $(SPECF) rpm-$(RPM_VERSION).rc
-	$(RPMBUILD) -ba --rcfile ./rpm-$(RPM_VERSION).rc $(SPECF)
-
-# Because rpm prior to v.2.90 does not support macros and old style config
-# is not supported by rpm v.3, we have to resort to such ugly hacks
-ifneq ($(RPM_VERSION),2)
-rpm-$(RPM_VERSION).rc : rpmmacros
-	@$(SED) -e '/^macrofiles:/s|~/.rpmmacros|rpmmacros|' </usr/lib/rpm/rpmrc >$@
+pack-pcp-gui : rpmmacros $(SPEC)
+	DEFS=`grep '^--define' rpmmacros`; \
+	eval $(RPMBUILD) -ba $$DEFS --clean $(SPEC)
+	rm -f $(SPEC) $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm rpmmacros
 
 rpmmacros : macros.template
-	@$(SED) -e 's|%topdir%|$(TREEROOT)|g' < $< > $@
-else
-rpm-2.rc: rpm-2.rc.template
-	@$(SED) -e 's|%topdir%|$(TOPDIR)|g' < $< > $@
-endif
+	@TREEROOT=`cd ${TOPDIR}; pwd` TARDIST=$$TREEROOT/build/tar; \
+	for d in RPM SRPM SPEC; do \
+	    eval D=\$$$${d}DIR; \
+	    if [ -z "$$D" -o ! -d "$$D" ] ; then \
+		eval $${d}DIR=$$TREEROOT/build/rpm; \
+	    fi; \
+	done; \
+	sed -e "s|%topdir%|$${TREEROOT}|g" \
+	    -e "s|@topdir@|$${TREEROOT}|g" \
+	    -e "s|@tardir@|$${TARDIST}|g" \
+	    -e "s|@rpmsdir@|$${RPMDIR}|g" \
+	    -e "s|@srpmsdir@|$${SRPMDIR}|"g \
+	    -e "s|@specdir@|$${SPECDIR}|"g \
+	    -e '/^%/s/[ \t]*$$/'\''/' \
+	    -e '/^%/s/^%/--define '\''/' < $< > $@
 
 # Generate the rpm specfile format file list from the install-sh manifest
 rpmfiles rpmfiles-dev rpmfiles-lib:
@@ -52,7 +58,7 @@ $$1 == "l" { if (match ($$3, "$(PKG_MAN_DIR)") || \
             else \
                 printf ("%%%%attr(0777,root,root) %s\n", $$3); }'
 
-${SPECF} : ${SPECF}.in
+${SPEC} : ${SPEC}.in
 	$(SED) -e's|@pkg_name@|$(PKG_NAME)|g' \
 	    -e's|@pkg_version@|$(PKG_VERSION)|g' \
 	    -e's|@pkg_release@|$(PKG_RELEASE)|g' \

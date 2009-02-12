@@ -60,9 +60,7 @@ ECHO		= @echo@
 SORT		= @sort@
 LN_S		= @LN_S@
 
-RPM		= @rpm@
 RPMBUILD	= @rpmbuild@
-RPM_VERSION	= @rpm_version@
 PACKAGE_MAKER	= @package_maker@
 HDIUTIL		= @hdiutil@
 DPKG		= @dpkg@

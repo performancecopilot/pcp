@@ -54,7 +54,7 @@ pcp-gui.src : $(_FORCE)
 	else \
 	    sed -e "s;^\.;$$SRC_ROOT;" </tmp/$$$$.makesrc >$$CDIR/$@ ;\
 	    rm -f /tmp/$$$$.makesrc; \
-	    unset TAPE; SRCTAR=$${PKG_ROOT}-$(PKG_RELEASE).src.tar.gz;\
+	    unset TAPE; SRCTAR=$${PKG_ROOT}.src.tar.gz;\
 	    $(TAR) -T $$CDIR/$@ -cf - | gzip > $$CDIR/tar/$$SRCTAR; \
 	    test -f .census || touch .census; \
 	    if [ ! -L $$SRC_ROOT -a "$(PCP_PLATFORM)" != mingw ] ; then \
