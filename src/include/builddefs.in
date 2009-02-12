@@ -156,7 +156,6 @@ MKINSTALLP = @mkinstallp@
 DLLTOOL = @dlltool@
 RPMBUILD= @rpmbuild@
 RPM	= @rpm@
-RPM_VERSION = @rpm_version@
 CPANFLUTE = @cpanflute@
 POD2MAN = @pod2man@
 GENDIST	= @gendist@
