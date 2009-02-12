@@ -20,13 +20,11 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES	= pmval.c
-CMDTARGET = pmval$(EXECSUFFIX)
-LLDLIBS	= -lpcp -lm
+CFILES = pmval.c
+LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
+LLDLIBS = -lpcp_gui -lpcp -lm
 
-PCP_GUI = $(TOPDIR)/src/libpcp_gui/src
-LCFLAGS = -I$(PCP_GUI) -L$(PCP_GUI)
-LLDLIBS += -lpcp_gui
+CMDTARGET = pmval$(EXECSUFFIX)
 
 default:	$(CMDTARGET)
 

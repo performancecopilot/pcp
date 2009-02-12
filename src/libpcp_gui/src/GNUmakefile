@@ -19,16 +19,42 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
+CFILES = timeclient.c
+LLDLIBS = -lpcp
+
 STATICLIBTARGET = libpcp_gui.a
 
-CFILES = timeclient.c
-HFILES = pmtime.h
+DSOVERSION = 1
+LIBTARGET = libpcp_gui.$(DSOSUFFIX).$(DSOVERSION)
+SYMTARGET = libpcp_gui.$(DSOSUFFIX)
 
-default: $(STATICLIBTARGET)
+ifeq "$(TARGET_OS)" "darwin"
+LIBTARGET = libpcp_gui.$(DSOVERSION).$(DSOSUFFIX)
+endif
+ifneq "$(findstring $(TARGET_OS),cygwin mingw)" ""
+LIBTARGET = libpcp_gui.$(DSOSUFFIX)
+STATICLIBTARGET =
+endif
+
+LDIRT = $(SYMTARGET)
+
+default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+
+ifneq "$(SYMTARGET)" ""
+$(SYMTARGET):
+	$(LN_S) -f $(LIBTARGET) $(SYMTARGET)
+endif
 
 include $(BUILDRULES)
 
 install: default
+	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+ifneq "$(SYMTARGET)" ""
+	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET)
+endif
+ifneq "$(STATICLIBTARGET)" ""
+	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
+endif
 
 default_pcp:	default
 

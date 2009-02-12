@@ -43,10 +43,29 @@ Description: Performance Co-Pilot library
  Contains the runtime environment required by programs that make use
  of Performance Co-Pilot services.
 
+Package: libpcp-gui1-dev
+Section: libdevel
+Priority: extra
+Depends: libpcp3-dev
+Architecture: any
+Description: Performance Co-Pilot graphical client tools library and headers
+ libpcpgui-dev contains the Performance Co-Pilot (PCP) library and
+ header files needed to incorporate graphical time control (pmtime)
+ into a monitoring application.
+
+Package: libpcp-gui1
+Depends: ${shlibs:Depends}
+Section: libs
+Priority: extra
+Architecture: any
+Description: Performance Co-Pilot graphical client tools library
+ Contains the runtime environment required by a monitoring tool that
+ makes use of the time control services of pmtime(1).
+
 Package: libpcp-pmda3-dev
 Section: libdevel
 Priority: extra
-Depends: libc6-dev | libc-dev, libpcp3-dev
+Depends: libpcp3-dev
 Conflicts: pcp (< 2.7.4-20080507)
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library and headers
@@ -70,7 +89,7 @@ Description: Performance Co-Pilot Domain Agent library
 Package: libpcp-trace2-dev
 Section: libdevel
 Priority: extra
-Depends: libc6-dev | libc-dev, libpcp3-dev
+Depends: libpcp3-dev
 Conflicts: pcp (< 2.7.4-20080507)
 Architecture: any
 Description: Performance Co-Pilot application tracing library and headers

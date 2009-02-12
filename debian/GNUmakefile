@@ -9,6 +9,12 @@ DEVPCP_FILES = libpcp3-dev.dirs libpcp3-dev.install
 LIBPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3
 DEVPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3-dev
 
+LIBGUIPCP = libpcp-gui1
+LIBGUI_FILES = libpcp-gui1.install
+DEVGUI_FILES = libpcp-gui1-dev.dirs libpcp-gui1-dev.install
+LIBGUI_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-gui1
+DEVGUI_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-gui1-dev
+
 LIBPMDAPCP = libpcp-pmda3
 LIBPMDA_FILES = libpcp-pmda3.install
 DEVPMDA_FILES = libpcp-pmda3-dev.dirs libpcp-pmda3-dev.install
@@ -25,6 +31,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files $(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev
 LSRCFILES = changelog compat control copyright rules source.lintian-overrides \
 		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) shlibs.local \
+		$(LIBGUI_FILES) $(DEVGUI_FILES) \
 		$(LIBPMDA_FILES) $(DEVPMDA_FILES) \
 		$(LIBTRACE_FILES) $(DEVTRACE_FILES)
 
@@ -54,6 +61,20 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(DEVPCP_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(DEVPCP_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(DEVPCP_DOC_DIR)/changelog.Debian
+endif
+
+install-libgui: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(LIBGUI_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(LIBGUI_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(LIBGUI_DOC_DIR)/changelog.Debian
+endif
+
+install-devgui: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(DEVGUI_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(DEVGUI_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(DEVGUI_DOC_DIR)/changelog.Debian
 endif
 
 install-libpmda: default

@@ -58,7 +58,9 @@ install : default
 ifneq "$(SYMTARGET)" ""
 	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET)
 endif
+ifneq "$(STATICLIBTARGET)" ""
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
+endif
 
 default_pcp : default
 
