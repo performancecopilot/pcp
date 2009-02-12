@@ -1,14 +1,12 @@
 #
 # rpmrc.template
 #
-# Template to fudge rpm directory structure inside IRIX-like build
-# environment
 
 # topdir == $(WORKAREA)
 %_topdir %topdir%
 
 # Following directories are specific to the topdir
-# This is where build is done. In out case it's the same as $WORKAREA
+# This is where build is done. In our case it's the same as $WORKAREA
 %_builddir %{_topdir}
 
 # This is where foo.1.99.tar.gz is living in the real world.
