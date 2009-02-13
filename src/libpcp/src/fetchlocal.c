@@ -14,11 +14,19 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
+ * 
+ * Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+ * Mountain View, CA 94043, USA, or: http://www.sgi.com
  */
 
+
+#include <stdio.h>
+#include <sys/time.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+
+extern int	errno;
 
 int
 __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
@@ -27,6 +35,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
     int		ctx;
     int		j;
     int		k;
+    int		n;
     __pmContext	*ctxp;
     pmResult	*ans;
     pmResult	*tmp_ans;
@@ -134,8 +143,8 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 	 * Note: We DO NOT have to free tmp_ans since DSO PMDA would
 	 *		ALWAYS return a pointer to the static area.
 	 */
-	for (cnt=0, k = j; k < numpmid; k++) {
-	    if ( pmidlist[k] == splitlist[cnt] ) {
+	for (n = 0, k = j; k < numpmid && n < cnt; k++) {
+	    if ( pmidlist[k] == splitlist[n] ) {
 		if (sts < 0) {
 		    ans->vset[k] = (pmValueSet *)malloc(sizeof(pmValueSet));
 		    if (ans->vset[k] == NULL)
@@ -143,7 +152,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 		    ans->vset[k]->numval = sts;
 		}
 		else {
-		    ans->vset[k] = tmp_ans->vset[cnt];
+		    ans->vset[k] = tmp_ans->vset[n];
 		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_FETCH) {
@@ -156,7 +165,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 			fprintf(stderr, "%d\n", ans->vset[k]->numval);
 		}
 #endif
-		cnt++;
+		n++;
 	    }
 	}
     }
