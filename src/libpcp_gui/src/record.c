@@ -18,6 +18,9 @@
 #include "pmapi.h"
 #include "pmafm.h"
 #include "impl.h"
+#ifdef HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
 
 /*
  * some extended state, make sure these values are different to
