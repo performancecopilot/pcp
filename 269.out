@@ -4,13 +4,3 @@ QA output created by 269
 Enough Matched ok
 --- Wrapping ON ---
 Enough Matched ok
---- Testing pmdumptext ---
---- Wrapping OFF ---
-Enough Matched ok
---- Wrapping ON ---
-Enough Matched ok
---- Testing pmkstat ---
---- Wrapping OFF ---
-Enough Matched ok
---- Wrapping ON ---
-Enough Matched ok

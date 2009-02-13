@@ -22,8 +22,6 @@ pmproxy		pcpqa
 pmchart		pcpqa
 # pmdumplog app
 pmdumplog	pcpqa
-# pmdumptext app
-pmdumptext	pcpqa
 # pmlogger app (not control scripts)
 pmlogger	pcpqa
 # pmview app
@@ -167,10 +165,6 @@ libirixpmda	pcpqa
 # Linux platform PMDA
 #
 pmda.linux	pcpqa
-
-# libpcp_omc.a
-#
-libpcp_omc	pcpqa
 
 # libpcp_dev
 #
@@ -397,7 +391,6 @@ dmf		pcpqa
 157 pmlogger local oss
 158 pmval pmie local oss
 159 pmda.cisco pmda.proc remote pmda.install oss
-160 pmdumptext local oss
 161 pmlogger local oss
 162 pmda pmda.proc local pmda.shping pmda.install oss
 163 archive local oss
@@ -472,37 +465,26 @@ dmf		pcpqa
 243 pmcd local pmprobe oss
 244 pmcd local pmprobe oss
 245 pmns local oss
-246 pmdumptext local oss
-247 libpcp_pmc pmdumptext pmprobe remote oss
 248 pmlogger local oss
-249 pmdumptext #482374 patch2140 patch2141 local oss
 250 pmns local oss
 251 archive pmval local oss
 252 pmlogger local oss
-253 pmdumptext #505832 patch2140 patch2141 local oss
 254 libpcp pmns local oss
 255 compat pmda #508731 #509091 pmda.proc help pmda.install local pmda.simple oss
-256 pmdumptext local oss
 257 libpcp pmns compat remote oss
 258 trace local pmda.install oss
-259 pmdumptext archive local oss
-260 pmdumptext #529509 #581372 #581449 remote oss
 261 logutil pmdumplog pmval local pmlogextract oss
 262 context_local pmie pmsocks remote pmstat oss
-263 libirixpmda pmdumptext pmval local oss
 264 pmns local oss
 265 util_lib local oss
 266 logutil #466346 patch2140 patch2141 local pmlogextract oss
 267 pmlogger local oss
 268 interop local oss
-269 wrap pmval pmie pmdumptext pmkstat local oss
+269 wrap pmval pmie pmkstat local oss
 270 pmlogextract logutil local oss
 271 archive local oss
 272 pmcd pmval pmprobe remote oss
-273 pmdumptext local oss
 274 pmda help local pmda.install oss
-275 pmdumptext #529506 local oss
-276 pmval pmdumptext pmie pmlogger local oss
 277 libpcp pdu interop local oss
 278 other help local oss
 279 pmcd local oss
@@ -561,7 +543,6 @@ dmf		pcpqa
 332 archive mem_leak local purify oss
 333 archive mem_leak local purify oss
 334 archive mem_leak local pmval purify oss
-335 libpcp_pmc pmdumptext pmval local oss
 336 trace local pmda.install oss
 337 pmlogextract local oss
 338 logutil local pmlogextract local oss
@@ -749,10 +730,6 @@ dmf		pcpqa
 1063 pmgadgets remote sgi
 1064 pmgadgets local #526784 sgi
 1073 pmval pmdumplog local OSS-CONFLICT sgi
-1075 libpcp_omc local sgi
-1076 libpcp_omc local purify sgi
-1077 libpcp_omc local purify sgi
-1078 libpcp_omc local purify sgi
 1079 mpi libpcp_mpi local sgi
 1080 mpi libpcp_mpiread local sgi
 1081 mpi pmdampi libpcp_mpiread local sgi
@@ -899,5 +876,4 @@ dmf		pcpqa
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
-1237 pmchart pmgadgets local pmview sgi
 339 pmie local oss
