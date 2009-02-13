@@ -19,7 +19,8 @@
 #include "impl.h"
 #include "pmtime.h"
 
-static int pmServerExec(int fd, int livemode)
+static int
+pmServerExec(int fd, int livemode)
 {
     char portname[32];
     int port, in, out;
@@ -48,7 +49,8 @@ static int pmServerExec(int fd, int livemode)
     return port;
 }
 
-static int pmConnectHandshake(int fd, int port, pmTime *pkt)
+static int
+pmConnectHandshake(int fd, int port, pmTime *pkt)
 {
     struct sockaddr_in myaddr;
     char buffer[4096];
@@ -97,7 +99,8 @@ error:
     return -1;
 }
 
-int pmTimeConnect(int port, pmTime *pkt)
+int
+pmTimeConnect(int port, pmTime *pkt)
 {
     int	fd;
 
@@ -115,7 +118,19 @@ int pmTimeConnect(int port, pmTime *pkt)
     return fd;
 }
 
-int pmTimeSendAck(int fd, struct timeval *tv)
+int
+pmTimeDisconnect(int fd)
+{
+    if (fd < 0) {
+	errno = EINVAL;
+	return -1;
+    }
+    __pmCloseSocket(fd);
+    return 0;
+}
+
+int
+pmTimeSendAck(int fd, struct timeval *tv)
 {
     pmTime data;
 
@@ -127,7 +142,8 @@ int pmTimeSendAck(int fd, struct timeval *tv)
     return send(fd, (const void *)&data, sizeof(data), 0);
 }
 
-int pmTimeShowDialog(int fd, int show)
+int
+pmTimeShowDialog(int fd, int show)
 {
     pmTime data;
     int sts;
@@ -144,7 +160,8 @@ int pmTimeShowDialog(int fd, int show)
     return sts;
 }
 
-int pmTimeRecv(int fd, pmTime **datap)
+int
+pmTimeRecv(int fd, pmTime **datap)
 {
     pmTime *k = *datap;
     int sts, remains;

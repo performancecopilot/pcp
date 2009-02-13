@@ -30,7 +30,6 @@ typedef enum {
     PM_TCTL_GUIHIDE	= (1<<6),	// client -> server
     PM_TCTL_BOUNDS	= (1<<7),	// client -> server
     PM_TCTL_ACK		= (1<<8),	// client -> server (except handshake)
-    PM_TCTL_GUISTYLE	= (1<<9),	// client <-> server (both ways)
 } pm_tctl_command;
 
 typedef enum {

@@ -19,7 +19,7 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-CFILES = timeclient.c
+CFILES = timeclient.c record.c
 LLDLIBS = -lpcp
 
 STATICLIBTARGET = libpcp_gui.a
