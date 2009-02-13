@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -468,6 +468,34 @@ pmda_pmid_text(cluster,item)
 	if (!rval || !(*rval))
 	    XSRETURN_UNDEF;
 	RETVAL = newSVsv(*rval);
+    OUTPUT:
+	RETVAL
+
+SV *
+pmda_inst_name(indom,instance)
+	unsigned int	indom
+	int		instance
+    PREINIT:
+	pmdaInstid	*instp;
+	int		i, instc;
+    CODE:
+	for (i = 0; i < itab_size; i++) {
+	    if (indomtab[i].it_indom != indom)
+		continue;
+	    break;
+	}
+	if (i == itab_size)
+	    XSRETURN_UNDEF;
+	instp = indomtab[i].it_set;
+	instc = indomtab[i].it_numinst;
+	for (i = 0; i < instc; i++) {
+	    if (instance != instp[i].i_inst)
+		continue;
+	    break;
+	}
+	if (i == instc)
+	    XSRETURN_UNDEF;
+	RETVAL = newSVpv(instp[i].i_name,0);
     OUTPUT:
 	RETVAL
 
