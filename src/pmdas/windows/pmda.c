@@ -50,10 +50,10 @@ pdh_metric_t metricdesc[] = {
       }, Q_KERNEL, M_NONE, 0, 0, NULL,
       "\\Processor(_Total)\\% Privileged Time"
     },
-/* kernel.percpu.cpu.intr */
+/* kernel.all.cpu.intr */
     { { PMDA_PMID(0,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
-      }, Q_PERCPU, M_NONE, 0, 0, NULL,
+      }, Q_KERNEL, M_NONE, 0, 0, NULL,
       "\\Processor(_Total)\\% Interrupt Time"
     },
 /* kernel.percpu.cpu.user */
