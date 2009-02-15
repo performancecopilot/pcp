@@ -34,6 +34,7 @@ endif
 ifneq "$(findstring $(TARGET_OS),cygwin mingw)" ""
 LIBTARGET = libpcp_gui.$(DSOSUFFIX)
 STATICLIBTARGET =
+SYMTARGET =
 endif
 
 LDIRT = $(SYMTARGET)
