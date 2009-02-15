@@ -56,7 +56,9 @@ typedef struct _record {
 
 static record_t	*record;
 static int	n_record;
+#ifndef IS_MINGW	/* not yet ported */
 static int	n_alive;
+#endif
 static char	tbuf[MAXPATHLEN];	/* used for mktemp(), messages, ... */
 
 /*
@@ -370,6 +372,7 @@ failed:
     return sts;
 }
 
+#ifndef IS_MINGW	/* not yet ported */
 /*
  * simple control protocol between here and pmlogger
  *  - only write from app to pmlogger
@@ -387,12 +390,16 @@ static int
 xmit_to_logger(int fd, char tag, const char *msg)
 {
     int		sts;
+#ifdef HAVE_SIGPIPE
     SIG_PF	user_onpipe;
+#endif
 
     if (fd < 0)
 	return PM_ERR_IPC;
 
+#ifdef HAVE_SIGPIPE
     user_onpipe = signal(SIGPIPE, SIG_IGN);
+#endif
     sts = (int)write(fd, &tag, 1);
     if (sts != 1)
 	goto fail;
@@ -408,7 +415,9 @@ xmit_to_logger(int fd, char tag, const char *msg)
     if (sts != 1)
 	goto fail;
 
+#ifdef HAVE_SIGPIPE
     signal(SIGPIPE, user_onpipe);
+#endif
     return 0;
 
 fail:
@@ -416,13 +425,17 @@ fail:
 	sts = PM_ERR_IPC;
     else
 	sts = -errno;
+#ifdef HAVE_SIGPIPE
     signal(SIGPIPE, user_onpipe);
+#endif
     return sts;
 }
+#endif
 
 int
 pmRecordControl(pmRecordHost *rhp, int request, const char *msg)
 {
+#ifndef IS_MINGW	/* not yet ported */
     pid_t	pid;
     record_t	*rp;
     int		sts;
@@ -709,4 +722,7 @@ broadcast:
     }
 
     return sts;
+#else
+    return -EINVAL;
+#endif
 }
