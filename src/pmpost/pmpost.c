@@ -79,7 +79,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    snprintf(notices, sizeof(notices), "%s/NOTICES", pmGetConfig("PCP_LOG_DIR"));
+    snprintf(notices, sizeof(notices), "%s%c" "NOTICES",
+		pmGetConfig("PCP_LOG_DIR"), __pmPathSeparator());
 
     dir = dirname(strdup(notices));
     if (mkdir_r(dir) < 0) {
@@ -87,7 +88,6 @@ main(int argc, char **argv)
 	    dir, strerror(errno));
 	exit(1);
     }
-
 
     if ((fd = open(notices, O_WRONLY, 0)) < 0) {
 	if ((fd = open(notices, O_WRONLY|O_CREAT, 0644)) < 0) {

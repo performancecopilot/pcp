@@ -43,6 +43,7 @@ int
 main(int argc, char **argv)
 {
     int			errflag = 0;
+    int			sep = __pmPathSeparator();
     char		*configFile = NULL;
     char		**commandArgv;
     pmdaInterface	dispatch;
@@ -57,8 +58,8 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmSetInternalState(PM_STATE_PMCS);  /* we are below the PMAPI */
 
-    snprintf(helpfile, sizeof(helpfile), "%s/pmdas/summary/help",
-		pmGetConfig("PCP_VAR_DIR"));
+    snprintf(helpfile, sizeof(helpfile), "%s%c" "summary" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon (&dispatch, PMDA_INTERFACE_2, pmProgname, SYSSUMMARY,
 		"summary.log", helpfile);
 

@@ -113,6 +113,22 @@ CopyToken(void)
     return copy;
 }
 
+/* Return a strdup-ed copy of the current token, plus an optional prefix. */
+static char*
+CopyPathToken(const char *prefix)
+{
+    int		len = (int)(tokenend - token);
+    int		plen = prefix ? strlen(prefix) : 0;
+    char	*copy = (char *)malloc(plen + len + 1);
+    if (copy != NULL) {
+	if (plen > 0)
+	    strncpy(copy, prefix, plen);
+	strncpy(copy + plen, token, len);
+	copy[plen + len] = '\0';
+    }
+    return copy;
+}
+
 /* Get the next line from the input stream into linebuf. */
 
 static void
@@ -611,34 +627,28 @@ ParseDso(char *pmDomainLabel, int pmDomainId)
 	fprintf(stderr, "pmcd: line %d, expected DSO entry point\n", nLines);
 	return -1;
     }
-    else
-	if ((entryPoint = CopyToken()) == NULL) {
-	    fprintf(stderr,
-			 "pmcd config: line %d, couldn't copy DSO entry point\n",
+    if ((entryPoint = CopyToken()) == NULL) {
+	fprintf(stderr, "pmcd config: line %d, couldn't copy DSO entry point\n",
 			 nLines);
-	    __pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
-	}
+	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
+    }
 
     FindNextToken();
     if (*token == '\n') {
 	fprintf(stderr, "pmcd: line %d, expected DSO pathname\n", nLines);
 	return -1;
     }
-
-    if ((pathName = CopyToken()) == NULL) {
-	fprintf(stderr,
-		     "pmcd config: line %d, couldn't copy DSO pathname\n",
-		     nLines);
-	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
-    }
-
-    /*
-     * Only absolute DSO pathnames are supported.
-     */
-    if (*pathName != '/') {
-	fprintf(stderr, "pmcd: line %d IGNORED : path \"%s\" to PMDA is not absolute\n", nLines, pathName);
+    if (*token != '/') {
+	fprintf(stderr, "pmcd: line %d IGNORED : path \"%s\" to PMDA is not absolute\n", nLines, token);
 	return -1;
     }
+
+    if ((pathName = CopyPathToken(getenv("PCP_DIR"))) == NULL) {
+	fprintf(stderr, "pmcd config: line %d, couldn't copy DSO pathname\n",
+			nLines);
+	__pmNoMem("pmcd config", tokenend - token + 1, PM_FATAL_ERR);
+    }
+    __pmNativePath(pathName);
 
     FindNextToken();
     if (*token != '\n') {

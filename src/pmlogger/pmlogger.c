@@ -458,6 +458,7 @@ main(int argc, char **argv)
 {
     int			c;
     int			sts;
+    int			sep = __pmPathSeparator();
     int			errflag = 0;
     char		local[MAXHOSTNAMELEN];
     char		*pmnsfile = PM_NS_DEFAULT;
@@ -493,7 +494,9 @@ main(int argc, char **argv)
 		if ( (configfile = (char *)malloc(sz)) == NULL ) {
 		    __pmNoMem("config file name", sz, PM_FATAL_ERR);
 		}
-		sprintf(configfile, "%s/config/pmlogger/%s", vardir, optarg);
+		sprintf(configfile,
+			"%s%c" "config" "%c" "pmlogger" "%c%s",
+			vardir, sep, sep, sep, optarg);
 		if (access(configfile, F_OK) != 0) {
 		    /* still no good, error handling happens below */
 		    free(configfile);

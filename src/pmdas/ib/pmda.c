@@ -300,14 +300,15 @@ void
 ibpmda_init(const char *confpath, pmdaInterface *dp)
 {
     char defconf[MAXPATHLEN];
+    int sep = __pmPathSeparator();
     int i;
 
     if (dp->status != 0)
          return;
 
     if (confpath == NULL) {
-	snprintf(defconf, sizeof(defconf), "%s/pmdas/ib/config", 
-		 pmGetConfig("PCP_VAR_DIR"));
+	snprintf(defconf, sizeof(defconf), "%s%c" "ib" "%c" "config", 
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	confpath = defconf;
     }
 

@@ -465,8 +465,8 @@ __pmConnectLocal(void)
 	}
 #endif
 
-        snprintf(pathbuf, sizeof(pathbuf), "%s/%s",
-		 pmGetConfig("PCP_PMDAS_DIR"), dp->name);
+	snprintf(pathbuf, sizeof(pathbuf), "%s%c%s",
+		 pmGetConfig("PCP_PMDAS_DIR"), __pmPathSeparator(), dp->name);
 	if ((path = __pmFindPMDA(pathbuf)) == NULL) {
 	    pmprintf("__pmConnectLocal: Warning: cannot find DSO \"%s\"\n", 
 		     pathbuf);

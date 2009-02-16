@@ -447,6 +447,7 @@ main(int argc, char **argv)
     int			argCount = 0;
     int			checkOnly = 0;
     int			sts = 0;
+    int			sep = __pmPathSeparator();
     int			n = 0;
     int			serverTableSize = 0;
     int			regexTableSize = 0;
@@ -476,8 +477,8 @@ main(int argc, char **argv)
 
     wl_isDSO = 0;
 
-    snprintf(wl_helpFile, sizeof(wl_helpFile),
-		"%s/weblog/help", pmGetConfig("PCP_PMDAS_DIR"));
+    snprintf(wl_helpFile, sizeof(wl_helpFile), "%s%c" "weblog" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, WEBSERVER,
 		wl_logFile, wl_helpFile);
 

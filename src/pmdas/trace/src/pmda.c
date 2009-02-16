@@ -145,12 +145,13 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     char		*endnum;
     int			err = 0;
+    int			sep = __pmPathSeparator();
     int			c = 0;
 
     __pmSetProgname(argv[0]);
 
-    snprintf(mypath, sizeof(mypath),
-		"%s/trace/help", pmGetConfig("PCP_PMDAS_DIR"));
+    snprintf(mypath, sizeof(mypath), "%s%c" "trace" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, TRACE,
 		"trace.log", mypath);
 

@@ -67,9 +67,6 @@ install:	default
 	$(INSTALL) -m 755 Rebuild $(PMNS_VAR_DIR)/Rebuild
 	$(INSTALL) -m 755 Make.stdpmid $(PMNS_VAR_DIR)/Make.stdpmid
 	$(INSTALL) -m 644 $(STDPMIDS) $(PMNS_VAR_DIR)
-ifeq "$(findstring $(TARGET_OS),linux darwin)" ""
-	touch $(DIST_ROOT)$(PMNS_VAR_DIR)/.NeedRebuild
-endif
 
 stdpmid:	$(STDPMIDS)
 	PCP_CONF=$(TOPDIR)/src/include/pcp.conf export PCP_CONF; \

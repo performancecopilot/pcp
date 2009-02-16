@@ -212,12 +212,14 @@ static void stomp_parse(void)
 {
     char config[MAXPATHLEN+1];
     FILE *f;
+    int sep = __pmPathSeparator();
 
     if (stompfile)
 	strncat(config, stompfile, sizeof(config));
     else
-	snprintf(config, sizeof(config), "%s/config/pmie/stomp",
-		 pmGetConfig("PCP_VAR_DIR"));
+	snprintf(config, sizeof(config),
+		"%s%c" "config" "%c" "pmie" "%c" "stomp",
+		 pmGetConfig("PCP_VAR_DIR"), sep, sep, sep);
     if ((f = fopen(config, "r")) == NULL) {
 	__pmNotifyErr(LOG_ERR, "Cannot open STOMP configuration file %s: %s",
 			config, strerror(errno));

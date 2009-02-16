@@ -1079,6 +1079,15 @@ extern int __pmProcessDataSize(unsigned long *);
 extern int __pmProcessRunTimes(double *, double *);
 
 /*
+ * platform independent environment and filesystem path access
+ */
+typedef void (*__pmConfigCallback)(char *, char *, char *);
+EXTERN __pmConfigCallback __pmNativeConfig;
+extern void __pmConfig(const char *, __pmConfigCallback);
+extern char *__pmNativePath(char *);
+extern int __pmPathSeparator();
+
+/*
  * AF - general purpose asynchronous event management routines
  */
 extern int __pmAFregister(const struct timeval *, void *, void (*)(int, void *));

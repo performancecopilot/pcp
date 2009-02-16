@@ -469,13 +469,14 @@ static int
 redo_dynamic(void)
 {
     int			i;
+    int			sep = __pmPathSeparator();
     static struct stat	lastsbuf;
     struct stat		statbuf;
     indom_t		*idp = &indomtab[DYNAMIC_INDOM];
     char		mypath[MAXPATHLEN];
 
-    snprintf(mypath, sizeof(mypath),
-		"%s/sample/dynamic.indom", pmGetConfig("PCP_PMDAS_DIR"));
+    snprintf(mypath, sizeof(mypath), "%s%c" "sample" "%c" "dynamic.indom",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 
     if (stat(mypath, &statbuf) == 0) {
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
@@ -2041,8 +2042,9 @@ void sample_init(pmdaInterface *dp)
     char helppath[MAXPATHLEN];
 
     if (_isDSO) {
-	snprintf(helppath, sizeof(helppath), "%s/pmdas/sample/dsohelp",
-			pmGetConfig("PCP_VAR_DIR"));
+	int sep = __pmPathSeparator();
+	snprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "dsohelp",
+			pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_2, "sample DSO", helppath);
     }
     else {

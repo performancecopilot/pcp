@@ -182,13 +182,14 @@ int
 main(int argc, char **argv)
 {
     int			err = 0;
+    int			sep = __pmPathSeparator();
     pmdaInterface	dispatch;
     char		mypath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
 
-    snprintf(mypath, sizeof(mypath),
-		"%s/roomtemp/help", pmGetConfig("PCP_PMDAS_DIR"));
+    snprintf(mypath, sizeof(mypath), "%s%c" "roomtemp" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, ROOMTEMP,
 		"roomtemp.log", mypath);
 

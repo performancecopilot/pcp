@@ -1,3 +1,4 @@
+#!gmake
 #
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -14,30 +15,25 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
 #
 
-TOPDIR = ..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
--include ./GNUlocaldefs
 
-SUBDIRS = include \
-	  libpcp libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
-	  pmns newhelp pminfo pmnscomp pmcd pmerr pmdbg pmloglabel \
-	  pmdate pmie pmpost pmprobe pmcdctl pmlock pmval pmlogger \
-	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmlogctl \
-	  pmlogconf pmlogsummary pmclient pcp pmlc pmconfig dbpmda \
-	  xconfirm pmtrace pmstat pmsocks pmdas pmafm procmemstat \
-	  pmlogreduce genpmda pmproxy pmsleep pmtop \
-	  autofsd-probe telnet-probe cpan win32ctl
+CFILES	= pmconfig.c
+LLDLIBS = -lpcp
+CMDTARGET = pmconfig$(EXECSUFFIX)
 
-default :: default_pcp
-
-default_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-
-install :: default_pcp install_pcp
-
-install_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+default:	$(CMDTARGET)
 
 include $(BUILDRULES)
+
+install:	$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
+
+default_pcp:	default
+
+install_pcp:	install
