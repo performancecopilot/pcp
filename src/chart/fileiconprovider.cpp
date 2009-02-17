@@ -25,7 +25,7 @@ FileIconProvider::FileIconProvider() : QFileIconProvider()
     my.folder = QIcon(":/filefolder.png");
     my.computer = QIcon(":/computer.png");
 
-    // kmchart/PCP-specific images
+    // PCP GUI specific images
     my.fileView = QIcon(":/fileview.png");
     my.fileFolio = QIcon(":/filefolio.png");
     my.fileArchive = QIcon(":/filearchive.png");
