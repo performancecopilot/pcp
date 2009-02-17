@@ -17,7 +17,6 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 #
 _err()
 {
-    kill -9 $x_pid
     echo "Failed to fetch user mode CPU cycles metrics" >$tmp.msg
     echo >>$tmp.msg
     for f in $tmp.err.*
@@ -26,7 +25,7 @@ _err()
     done
     echo >>$tmp.msg
     echo "Sorry, there is nothing to display." >>$tmp.msg
-    xconfirm >/dev/null \
+    pmconfirm >/dev/null \
 	-header "pmchart view construction failure" \
 	-file $tmp.msg \
 	-icon error \
@@ -52,11 +51,12 @@ echo "/\[0*$$ /d" >$tmp.sed
 
 # progress notifier while we do our job
 #
-xconfirm >/dev/null 2>&1 \
+pmquery >/dev/null 2>&1 \
+    -timeout 5 \
     -header "kmchart view construction" \
     -t "Finding top CPU burners, please wait 5 seconds ..." &
-x_pid=$!
-echo "/\[0*$x_pid /d" >>$tmp.sed \
+query=$!
+echo "/\[0*$query /d" >>$tmp.sed
 
 # deal with alternative metric names ...
 #
@@ -97,8 +97,6 @@ else
     #NOTREACHED
 fi
 
-echo "/\[0*$xconfirm_pid /d" >>$tmp.sed
-
 # get pid and user mode CPU cycles usage from lines like
 #	inst [8072 or "08072 rlogin gonzo.melbourne "] value 28
 # and turn them into this
@@ -138,7 +136,7 @@ if [ ! -s $tmp.found ]
 then
     # no processes qualify
     #
-    xconfirm >/dev/null \
+    pmconfirm >/dev/null \
 	-header "pmchart view construction failure" \
 	-t "No qualifying processes were found!" \
 	-icon warning \
@@ -164,7 +162,3 @@ sort -nr +0 -1 $tmp.found \
 do
     echo "  Plot Color #-cycle Host * Metric $metric Instance $inst"
 done
-
-# shutdown xconfirm
-#
-kill -9 $x_pid
