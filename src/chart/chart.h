@@ -46,8 +46,10 @@ public:
 	UtilisationStyle
     } Style;
 
-    void setCurrent(bool);
-    void resetDataArrays(int m, int v);
+    virtual void setCurrent(bool);
+    virtual QString scheme() const;	// return chart color scheme
+    virtual void setScheme(QString);	// set the chart color scheme
+
     int addPlot(pmMetricSpec *, const char *);
     void delPlot(int);
     bool activePlot(int);
@@ -59,8 +61,6 @@ public:
     Style style(void);			// return chart style
     void setStyle(Style);		// set default chart plot style
     void setStroke(int, Style, QColor);	// set chart style and color
-    QString scheme() const;		// return chart color scheme
-    void setScheme(QString);		// set the chart color scheme
     int sequence();			// return chart color scheme position
     void setSequence(int);		// set the chart color scheme position
     void setScheme(QString, int);	// set the chart scheme and position
@@ -76,23 +76,24 @@ public:
     bool antiAliasing();
     void setAntiAliasing(bool);
 
-    void save(FILE *, bool);
-    void print(QPainter *, QRect &);
+    virtual void save(FILE *, bool);
+    virtual void print(QPainter *, QRect &);
 
-    void updateTimeAxis(double, double, double);
-    void updateValues(bool, bool);
-    void preserveLiveData(int, int);
-    void punchoutLiveData(int);
-    void adjustedLiveData();
+    virtual void updateTimeAxis(double, double, double);
+    virtual void updateValues(bool, bool);
+    virtual void resetDataArrays(int m, int v);
+    virtual void preserveLiveData(int, int);
+    virtual void punchoutLiveData(int);
+    virtual void adjustedLiveData();
 
-    int metricCount() const;
-    QString name(int) const;
-    char *legendSpec(int) const;
-    QmcMetric *metric(int) const;
-    QString metricName(int) const;
-    QmcDesc *metricDesc(int) const;
-    QString metricInstance(int) const;
-    QmcContext *metricContext(int) const;
+    virtual int metricCount() const;
+    virtual QString name(int) const;
+    virtual char *legendSpec(int) const;
+    virtual QmcMetric *metric(int) const;
+    virtual QString metricName(int) const;
+    virtual QmcDesc *metricDesc(int) const;
+    virtual QString metricInstance(int) const;
+    virtual QmcContext *metricContext(int) const;
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;

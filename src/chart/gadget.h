@@ -44,7 +44,7 @@ public:
     virtual QSize size() const { return my.widget->size(); }
 
     virtual void save(FILE *, bool) { }
-    virtual void print(QPainter *, QRect) { }
+    virtual void print(QPainter *, QRect &) { }
 
     virtual int metricCount() const { return 0; }
     virtual QmcMetric *metric(int) const { return NULL; }
