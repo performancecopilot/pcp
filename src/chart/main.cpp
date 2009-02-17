@@ -192,7 +192,7 @@ void setupEnvironment(void)
 {
     QString confirm = pmGetConfig("PCP_BIN_DIR");
     confirm.prepend("PCP_XCONFIRM_PROG=");
-    confirm.append("/kmquery");
+    confirm.append("/pmquery");
     putenv(strdup((const char *)confirm.toAscii()));
     if (getenv("PCP_STDERR") == NULL)	// do not overwrite, for QA
 	putenv(strdup("PCP_STDERR=DISPLAY"));
