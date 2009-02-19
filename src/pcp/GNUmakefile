@@ -20,17 +20,17 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES= pcp.sh pmlogger.config
+LSRCFILES = pcp.sh pmlogger.config
 
-default: $(SOURCE)
+default:
 
 include $(BUILDRULES)
 
-_confdir=$(PCP_VAR_DIR)/config/pmlogger
+CONFIGDIR = $(PCP_VAR_DIR)/config/pmlogger
 
 install: default
 	$(INSTALL) -m 755 pcp.sh $(PCP_BIN_DIR)/pcp
-	$(INSTALL) -m 644 pmlogger.config $(_confdir)/config.pcp
+	$(INSTALL) -m 644 pmlogger.config $(CONFIGDIR)/config.pcp
 
 default_pcp : default
 
