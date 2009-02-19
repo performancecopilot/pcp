@@ -40,7 +40,7 @@ OpenViewDialog::OpenViewDialog(QWidget *parent) : QDialog(parent)
     my.systemDir.append("/config/kmchart");
     if (!dir.exists(my.systemDir)) {
 	my.systemDir = sys;
-	my.userDir.append("/config/pmchart");
+	my.systemDir.append("/config/pmchart");
     }
 
     pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
