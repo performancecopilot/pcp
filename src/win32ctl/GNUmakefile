@@ -15,8 +15,8 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pcp-services.c logger.c
-TARGETS = pcp-services.exe logger.exe
+CFILES = pcp-services.c pcp-setevent.c logger.c
+TARGETS = pcp-services.exe pcp-setevent.exe logger.exe
 LLDLIBS = -lpcp
 
 default:	build-me
@@ -34,6 +34,9 @@ endif
 
 logger.exe:	logger.o
 	$(CCF) -o $@ $(LDFLAGS) logger.o $(LDLIBS)
+
+pcp-setevent.exe:	pcp-setevent.o
+	$(CCF) -o $@ $(LDFLAGS) pcp-setevent.o $(LDLIBS)
 
 pcp-services.exe:	pcp-services.o
 	$(CCF) -o $@ $(LDFLAGS) pcp-services.o $(LDLIBS)

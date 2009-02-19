@@ -27,7 +27,7 @@ SUBDIRS = include \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmlogctl \
 	  pmlogconf pmlogsummary pmclient pcp pmlc pmconfig dbpmda \
 	  xconfirm pmtrace pmstat pmsocks pmdas pmafm procmemstat \
-	  pmlogreduce genpmda pmproxy pmsleep pmtop \
+	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
 	  autofsd-probe telnet-probe cpan win32ctl
 
 default :: default_pcp
