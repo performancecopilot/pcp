@@ -24,9 +24,8 @@ extern int  ParseInitAgents(char *);
 extern void ParseRestartAgents(char *);
 extern void PrintAgentInfo(FILE *);
 extern void ResetBadHosts(void);
-extern void StartDaemon(void);
+extern void StartDaemon(int, char **);
 
-#define PIDFILE "/pmcd.pid"
 #define SHUTDOWNWAIT 12 /* < PMDAs wait previously used in rc_pcp */
 
 int		AgentDied = 0;		/* for updating mapdom[] */
@@ -97,6 +96,24 @@ DontStart(void)
 	fclose(tty);
     }
     exit(1);
+}
+
+static int
+CreatePIDfile(void)
+{
+    char	pidpath[MAXPATHLEN];
+    FILE	*pidfile;
+
+    snprintf(pidpath, sizeof(pidpath), "%s%c" "pmcd.pid",
+		pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
+    if ((pidfile = fopen(pidpath, "w")) == NULL) {
+	fprintf(stderr, "Error: Cant open PID file %s\n", pidpath);
+	return -1;
+    }
+    fprintf(pidfile, "%d", getpid());
+    fflush(pidfile);
+    fclose(pidfile);
+    return 0;
 }
 
 /* Increase the capacity of the reqPorts array (maintain the contents) */
@@ -919,9 +936,6 @@ main(int argc, char *argv[])
     int		status;
     char	*envstr;
     unsigned	nReqPortsOK = 0;
-    char	*run_dir;
-    char	*pidpath = NULL;
-    FILE	*pidfile = NULL;
 #ifdef HAVE_SA_SIGINFO
     static struct sigaction act;
 #endif
@@ -962,9 +976,7 @@ main(int argc, char *argv[])
 
     if (run_daemon) {
 	fflush(stderr);
-#ifndef IS_MINGW
-	StartDaemon();
-#endif
+	StartDaemon(argc, argv);
     }
 
 #ifdef HAVE_SA_SIGINFO
@@ -1075,22 +1087,8 @@ main(int argc, char *argv[])
 	DontStart();
     }
 
-    if (run_daemon) {
-	run_dir = pmGetConfig("PCP_RUN_DIR");
-	i = strlen(run_dir);
-	pidpath = malloc(i + strlen(PIDFILE) + 1);
-	memcpy(pidpath, run_dir, i);
-	strcpy(pidpath + i, PIDFILE);
-	pidfile = fopen(pidpath, "w");
-	if (pidfile == NULL) {
-	    fprintf(stderr, "Error: Cant open pidfile %s\n", pidpath);
-	    DontStart();
-	}
-	fprintf(pidfile, "%d", getpid());
-	fflush(pidfile);
-	fclose(pidfile);
-	free(pidpath);
-    }
+    if (CreatePIDfile() < 0)
+	DontStart();
 
     PrintAgentInfo(stderr);
     __pmAccDumpHosts(stderr);

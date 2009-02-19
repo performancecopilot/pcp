@@ -32,7 +32,7 @@
  *  /usr/pcp or similar
  *  input pmns file name
  */
-#define CPP_FMT "%s %s -I. -I%s/pmns -I%s/pmns %s"
+#define CPP_FMT "%s %s -I. -I%s%cpmns -I%s%cpmns %s"
 
 static char	*cpp_path[] = {
     CPP_SIMPLE EXEC_SUFFIX,
@@ -354,8 +354,8 @@ lex(int reset)
     }
 
     if (first) {
-	int		i;
-	char	*var_dir   = pmGetConfig("PCP_VAR_DIR");
+	int	i, sep = __pmPathSeparator();
+	char	*var_dir = pmGetConfig("PCP_VAR_DIR");
 	char	*share_dir = pmGetConfig("PCP_SHARE_DIR");
 
 	first = 0;
@@ -370,7 +370,7 @@ lex(int reset)
 	    }
 
 /* safe */  sprintf(lp, CPP_FMT, cpp_path[i], CPP_SIMPLE_ARGS, var_dir, 
-		    share_dir, fname);
+		    sep, share_dir, sep, fname);
 
 	    fin = popen(lp, "r");
 	    free(lp);
@@ -1356,13 +1356,13 @@ getfname(const char *filename)
 	}
 	else {
 	    static char repname[MAXPATHLEN];
-	    snprintf(repname, sizeof(repname), "%s/pmns/root",
-						pmGetConfig("PCP_VAR_DIR"));
+	    int sep = __pmPathSeparator();
+	    snprintf(repname, sizeof(repname), "%s%c" "pmns" "%c" "root",
+		     pmGetConfig("PCP_VAR_DIR"), sep, sep);
 	    return repname;
 	}
     }
-    else
-	return filename;
+    return filename;
 }
 
 int

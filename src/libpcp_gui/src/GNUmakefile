@@ -19,7 +19,7 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-CFILES = timeclient.c
+CFILES = timeclient.c record.c
 LLDLIBS = -lpcp
 
 STATICLIBTARGET = libpcp_gui.a
@@ -34,6 +34,7 @@ endif
 ifneq "$(findstring $(TARGET_OS),cygwin mingw)" ""
 LIBTARGET = libpcp_gui.$(DSOSUFFIX)
 STATICLIBTARGET =
+SYMTARGET =
 endif
 
 LDIRT = $(SYMTARGET)

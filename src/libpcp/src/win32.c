@@ -55,7 +55,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     STARTUPINFO siStartInfo;
     LPTSTR cmdline = NULL;
     char *command;
-    int sz = 0;
+    int i, sz;
  
     ZeroMemory(&saAttr, sizeof(SECURITY_ATTRIBUTES));
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES); 
@@ -91,7 +91,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
     /* Flatten the argv array for the Windows CreateProcess API */
-    for (command = argv[0], sz = 0; *command; command++) {
+    for (command = argv[0], sz = i = 0; *command; command = argv[++i]) {
 	int length = strlen(command);
 	cmdline = realloc(cmdline, sz + length + 1); /* 1space or 1null */
 	strcpy(&cmdline[sz], command);

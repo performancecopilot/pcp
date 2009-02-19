@@ -170,10 +170,8 @@ $pmda->add_metric(pmda_pmid(2,4), PM_TYPE_U32, $now_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'simple.time.now', '', '');
 
-$pmda->add_indom( $color_indom, [0 => 'red', 1 => 'green', 2 => 'blue'],
-		  undef, undef );
-$now = $pmda->add_indom( $now_indom, [],	# initialized on-the-fly
-		  undef, undef );
+$pmda->add_indom($color_indom, [0 => 'red', 1 => 'green', 2 => 'blue'], '', '');
+$now = $pmda->add_indom($now_indom, [],	'', ''); # initialized on-the-fly
 $pmda->set_fetch( \&simple_fetch );
 $pmda->set_instance( \&simple_instance );
 $pmda->set_fetch_callback( \&simple_fetch_callback );

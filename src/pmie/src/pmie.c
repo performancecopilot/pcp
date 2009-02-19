@@ -199,6 +199,7 @@ load(char *fname)
     Symbol	s;
     Expr	*d;
     int		sts;
+    int		sep = __pmPathSeparator();
     char	config[MAXPATHLEN+1];
 
     /* search for configfile on configuration file path */
@@ -214,7 +215,8 @@ load(char *fname)
 	    fprintf(stderr, "load: cannot access config file %s: %s\n", fname, strerror(sts));
 	}
 #endif
-        snprintf(config, sizeof(config), "%s/config/pmie/%s", pmGetConfig("PCP_VAR_DIR"), fname);
+	snprintf(config, sizeof(config), "%s%c" "config" "%c" "pmie" "%c%s",
+		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, fname);
 	if (access(config, F_OK) != 0) {
 	    fprintf(stderr, "%s: cannot access config file as either %s or %s: %s\n",
 		    pmProgname, fname, config, strerror(sts));

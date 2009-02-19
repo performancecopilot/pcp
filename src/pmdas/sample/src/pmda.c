@@ -85,14 +85,15 @@ int
 main(int argc, char **argv)
 {
     int			errflag = 0;
+    int			sep = __pmPathSeparator();
     char		helppath[MAXPATHLEN];
     extern int		_isDSO;
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
 
-    snprintf(helppath, sizeof(helppath), "%s/pmdas/sample/help",
-		pmGetConfig("PCP_VAR_DIR"));
+    snprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, SAMPLE,
 		"sample.log", helppath);
 

@@ -109,9 +109,10 @@ mounts_config_file_check(void) {
 
   struct stat statbuf;
   static int  last_errno;
+  int sep = __pmPathSeparator();
 
-  snprintf(mypath, sizeof(mypath),
-		"%s/mounts/mounts.conf", pmGetConfig("PCP_PMDAS_DIR"));
+  snprintf(mypath, sizeof(mypath), "%s%c" "mounts" "%c" "mounts.conf",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
   if (stat(mypath, &statbuf) == -1) {
     if (errno != last_errno) {
       __pmNotifyErr(LOG_WARNING, "stat failed on %s: %s\n",
@@ -182,9 +183,10 @@ void mounts_grab_config_info() {
   char mount_name[1024];
   char *q;
   int mount_number = 0;
+  int sep = __pmPathSeparator();
 
-  snprintf(mypath, sizeof(mypath),
-		"%s/mounts/mounts.conf", pmGetConfig("PCP_PMDAS_DIR"));
+  snprintf(mypath, sizeof(mypath), "%s%c" "mounts" "%c" "mounts.conf",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
   if ((fp = fopen(mypath, "r")) == NULL) {
     __pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
 		  mypath, pmErrStr(-errno));
@@ -343,8 +345,9 @@ void
 mounts_init(pmdaInterface *dp)
 {
     if (isDSO) {
-      snprintf(mypath, sizeof(mypath),
-		"%s/mounts/help", pmGetConfig("PCP_PMDAS_DIR"));
+      int sep = __pmPathSeparator();
+      snprintf(mypath, sizeof(mypath), "%s%c" "mounts" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
       pmdaDSO(dp, PMDA_INTERFACE_2, "mounts DSO", mypath);
     }
 
@@ -380,14 +383,15 @@ usage(void)
 int
 main(int argc, char **argv)
 {
+    int			sep = __pmPathSeparator();
     int			err = 0;
     pmdaInterface	desc;
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
 
-    snprintf(mypath, sizeof(mypath),
-		"%s/mounts/help", pmGetConfig("PCP_PMDAS_DIR"));
+    snprintf(mypath, sizeof(mypath), "%s%c" "mounts" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, MOUNTS,
 		"mounts.log", mypath);
 

@@ -613,14 +613,17 @@ load_cache(hdr_t *h)
     char	buf[1024];	/* input line buffer, is this big enough? */
     char	*p;
     int		sts;
+    int		sep = __pmPathSeparator();
 
     if (vdp == NULL) {
 	vdp = pmGetConfig("PCP_VAR_DIR");
-	snprintf (filename, sizeof(filename), "%s/config/pmda", vdp);
+	snprintf(filename, sizeof(filename),
+		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
 	mkdir2(filename, 0755);
     }
 
-    snprintf (filename, sizeof(filename), "%s/config/pmda/%s", vdp, pmInDomStr(h->indom));
+    snprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
+		vdp, sep, sep, sep, pmInDomStr(h->indom));
     if ((fp = fopen(filename, "r")) == NULL)
 	return -errno;
     if (fgets(buf, sizeof(buf), fp) == NULL) {
@@ -690,6 +693,7 @@ save_cache(hdr_t *h, int hstate)
     entry_t	*e;
     int		cnt;
     time_t	now;
+    int		sep = __pmPathSeparator();
 
     if ((h->hstate & hstate) == 0) {
 	/* nothing to be done */
@@ -698,11 +702,13 @@ save_cache(hdr_t *h, int hstate)
 
     if (vdp == NULL) {
 	vdp = pmGetConfig("PCP_VAR_DIR");
-	snprintf (filename, sizeof(filename), "%s/config/pmda", vdp);
+	snprintf(filename, sizeof(filename),
+		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
 	mkdir2(filename, 0755);
     }
 
-    snprintf (filename, sizeof(filename), "%s/config/pmda/%s", vdp, pmInDomStr(h->indom));
+    snprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
+		vdp, sep, sep, sep, pmInDomStr(h->indom));
     if ((fp = fopen(filename, "w")) == NULL)
 	return -errno;
     fprintf(fp, "%d %d\n", VERSION, h->ins_mode);

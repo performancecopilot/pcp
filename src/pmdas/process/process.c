@@ -86,11 +86,12 @@ process_config_file_check(void) {
    * process_grab_config_info if the file has been updated.
    */
 
-  struct stat    statbuf;
-  static int     last_errno;
+  struct stat statbuf;
+  static int last_errno;
+  int sep = __pmPathSeparator();
 
-  snprintf(mypath, sizeof(mypath),
-		"%s/process/process.conf", pmGetConfig("PCP_PMDAS_DIR"));
+  snprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
   if (stat(mypath, &statbuf) == -1) {
     if (errno != last_errno) {
       __pmNotifyErr(LOG_WARNING, "stat failed on %s: %s\n", 
@@ -161,9 +162,10 @@ void process_grab_config_info() {
   char process_name[1024];
   char *q;
   int process_number = 0;
+  int sep = __pmPathSeparator();
 
-  snprintf(mypath, sizeof(mypath),
-		"%s/process/process.conf", pmGetConfig("PCP_PMDAS_DIR"));
+  snprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "process.conf",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
   if ((fp = fopen(mypath, "r")) == NULL) {
     __pmNotifyErr(LOG_ERR, "fopen on %s failed: %s\n",
         mypath, pmErrStr(-errno));
@@ -365,8 +367,9 @@ void
 process_init(pmdaInterface *dp)
 {
     if (isDSO) {
-      snprintf(mypath, sizeof(mypath),
-		"%s/process/help", pmGetConfig("PCP_PMDAS_DIR"));
+      int sep = __pmPathSeparator();
+      snprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
       pmdaDSO(dp, PMDA_INTERFACE_2, "process DSO", mypath);
     }
 
@@ -403,13 +406,14 @@ int
 main(int argc, char **argv)
 {
     int			err = 0;
+    int			sep = __pmPathSeparator();
     pmdaInterface	desc;
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
 
-    snprintf(mypath, sizeof(mypath),
-		"%s/process/help", pmGetConfig("PCP_PMDAS_DIR"));
+    snprintf(mypath, sizeof(mypath), "%s%c" "process" "%c" "help",
+	pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, PROCESS,
 		"process.log", mypath);
 

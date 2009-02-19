@@ -1,0 +1,77 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2008 Aconex.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMCONFIG 1 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMCONFIG 1 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMCONFIG 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMCONFIG 1 "" "\&"
+.if \nX=3 .ds x} PMCONFIG "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmconfig\f1 \- report Performance Co-Pilot configuration variables
+.SH SYNOPSIS
+.B pmconfig
+[\fB\-s\fR]
+[\fIvariable...\fR]
+.SH DESCRIPTION
+.B pmconfig
+reports the values of one or more of the PCP configuration variables.
+.PP
+Configuration variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+If
+.I variable
+is not specified, then all names and values for all variables
+is retrieved using
+.BR pmGetConfig (3).
+.PP
+Options which control the output produced by
+.B pmconfig
+are as follows:
+.TP 5
+.B \-a
+Use the default reporting format for configuration variables,
+which is simply NAME=VALUE, one on each line.
+.TP
+.B \-s
+Performance Co-Pilot configuration variables are printed in a form
+directly suitable for sourcing in a shell script.
+.PP
+.B pmconfig
+provides a service for shell scripts that
+mimics the logic used by Performance Co-Pilot applications
+when trying to determine the official name of a host.
+It is most useful when the
+.SH SEE ALSO
+.BR pmGetConfig (3),
+.BR pcp.conf (4)
+and
+.BR pcp.env (4).

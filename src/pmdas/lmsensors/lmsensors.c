@@ -933,14 +933,15 @@ usage(void)
 int
 main(int argc, char **argv)
 {
+    int			sep = __pmPathSeparator();
     int			err = 0;
     pmdaInterface	desc;
     char		mypath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
 
-    snprintf(mypath, sizeof(mypath),
-		"%s/lmsensors/help", pmGetConfig("PCP_PMDAS_DIR"));
+    snprintf(mypath, sizeof(mypath), "%s%c" "lmsensors" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, LMSENSORS,
 		"lmsensors.log", mypath);
 

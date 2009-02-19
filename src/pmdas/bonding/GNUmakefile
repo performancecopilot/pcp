@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -20,18 +20,16 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= systemtap
-DOMAIN	= SYSTEMTAP
+IAM	= bonding
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmda$(IAM).pl probes.stp
+LSRCFILES = Install Remove pmda$(IAM).pl
+LDIRT	= domain.h root pmns *.log $(MAN_PAGES)
 
 ifneq ($(POD2MAN),)
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 endif
-
-LDIRT = domain.h root pmns *.log $(MAN_PAGES)
 
 default: $(MAN_PAGES)
 
@@ -40,12 +38,14 @@ pmda$(IAM).1: pmda$(IAM).pl
 
 include $(BUILDRULES)
 
-install: default
 ifeq "$(TARGET_OS)" "linux"
+install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 probes.stp pmda$(IAM).pl $(PMDADIR)
+	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
 	@$(INSTALL_MAN)
+else
+install:
 endif
 
 default_pcp : default

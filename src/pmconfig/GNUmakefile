@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,38 +16,24 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
+# Contact information: Silicon Graphics, Inc., 1500 Crittenden Lane,
+# Mountain View, CA 94043, USA, or: http://www.sgi.com
+#
 
-TOPDIR = ../../..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= systemtap
-DOMAIN	= SYSTEMTAP
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmda$(IAM).pl probes.stp
+CFILES	= pmconfig.c
+LLDLIBS = -lpcp
+CMDTARGET = pmconfig$(EXECSUFFIX)
 
-ifneq ($(POD2MAN),)
-MAN_SECTION = 1
-MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
-MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
-endif
-
-LDIRT = domain.h root pmns *.log $(MAN_PAGES)
-
-default: $(MAN_PAGES)
-
-pmda$(IAM).1: pmda$(IAM).pl
-	$(POD_MAKERULE)
+default:	$(CMDTARGET)
 
 include $(BUILDRULES)
 
-install: default
-ifeq "$(TARGET_OS)" "linux"
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 probes.stp pmda$(IAM).pl $(PMDADIR)
-	@$(INSTALL_MAN)
-endif
+install:	$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 
-default_pcp : default
+default_pcp:	default
 
-install_pcp : install
+install_pcp:	install

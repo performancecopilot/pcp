@@ -1485,6 +1485,7 @@ main(int argc, char **argv)
 {
     pmdaInterface	dispatch;
     char		*p;
+    int			sep = __pmPathSeparator();
     int			infd;
     fd_set		fds;
     fd_set 		readyfds;        
@@ -1498,8 +1499,8 @@ main(int argc, char **argv)
     refresh_delta.tv_sec = 10;
     refresh_delta.tv_usec = 0;
 
-    snprintf(mypath, sizeof(mypath),
-		"%s/hotproc/help", pmGetConfig("PCP_PMDAS_DIR"));
+    snprintf(mypath, sizeof(mypath), "%s%c" "hotproc" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, HOTPROC,
 		"hotproc.log", mypath);
 

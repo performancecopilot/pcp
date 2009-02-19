@@ -502,13 +502,13 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			c, errflag = 0;
+    int			c, errflag = 0, sep = __pmPathSeparator();
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
-    snprintf(helppath, sizeof(helppath), "%s/apache/help",
-		pmGetConfig("PCP_PMDAS_DIR"));
+    snprintf(helppath, sizeof(helppath), "%s%c" "apache" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, APACHE, "apache.log",
 		helppath);
 

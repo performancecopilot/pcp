@@ -1606,7 +1606,6 @@ talk_to_pmtime(int *first)
 	    /*
 	     * safely and silently ignore these
 	     */
-	    case PM_TCTL_GUISTYLE:
 	    case PM_TCTL_GUISHOW:
 	    case PM_TCTL_GUIHIDE:
 	    case PM_TCTL_BOUNDS:

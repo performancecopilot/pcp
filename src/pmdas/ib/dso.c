@@ -31,9 +31,10 @@ void
 ib_init (pmdaInterface * dispatch)
 {
     char helppath[MAXPATHLEN];
+    int  sep = __pmPathSeparator();
 
-    snprintf(helppath, sizeof(helppath), "%s/pmdas/ib/help",
-	     pmGetConfig("PCP_VAR_DIR"));
+    snprintf(helppath, sizeof(helppath), "%s%c" "ib" "%c" "help",
+	     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDSO(dispatch, PMDA_INTERFACE_3, "ibpmda", helppath);
 
     ibpmda_init(NULL, dispatch);

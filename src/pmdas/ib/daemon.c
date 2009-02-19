@@ -42,20 +42,16 @@ int
 main(int argc, char **argv)
 {
     int err = 0;
-    pmdaInterface       dispatch;
+    int sep = __pmPathSeparator();
+    pmdaInterface dispatch;
     char helppath[MAXPATHLEN];
     char *confpath = NULL;
     char *p;
     int opt;
 
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-        if (*p == '/') 
-            pmProgname = p+1;
-    }
-
-    snprintf(helppath, sizeof(helppath), "%s/pmdas/ib/help", 
-	     pmGetConfig("PCP_VAR_DIR"));
+    pmProgname = __pmSetProgname(argv[0]);
+    snprintf(helppath, sizeof(helppath), "%s%c" "ib" "%c" "help", 
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, IB, "ib.log", helppath);
 
     if ((opt = pmdaGetOpt(argc, argv, "D:c:d:l:?", &dispatch, &err)) != EOF) {

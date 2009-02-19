@@ -240,6 +240,7 @@ int
 main(int argc, char **argv)
 {
     int			err = 0;
+    int			sep = __pmPathSeparator();
     int			c;
     int			sts;
     int			i;
@@ -254,8 +255,8 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     getcwd(startdir, sizeof(startdir));
 
-    snprintf(mypath, sizeof(mypath),
-		"%s/mailq/help", pmGetConfig("PCP_PMDAS_DIR"));
+    snprintf(mypath, sizeof(mypath), "%s%c" "mailq" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, MAILQ,
 		"mailq.log", mypath);
 

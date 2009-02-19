@@ -1188,8 +1188,10 @@ void
 darwin_init(pmdaInterface *dp)
 {
     if (_isDSO) {
+	int sep = __pmPathSeparator();
 	char helppath[MAXPATHLEN];
-	sprintf(helppath, "%s/pmdas/darwin/help", pmGetConfig("PCP_VAR_DIR"));
+	sprintf(helppath, "%s%c" "darwin" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_3, "darwin DSO", helppath);
     }
 
@@ -1232,13 +1234,15 @@ usage(void)
 int
 main(int argc, char **argv)
 {
+    int			sep = __pmPathSeparator();
     int			errflag = 0;
     char		helppath[MAXPATHLEN];
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
 
-    sprintf(helppath, "%s/pmdas/darwin/help", pmGetConfig("PCP_VAR_DIR"));
+    sprintf(helppath, "%s%c" "darwin" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, DARWIN, "darwin.log",
 		helppath);
 

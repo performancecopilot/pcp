@@ -9,7 +9,8 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(
-    pmda_pmid pmda_pmid_name pmda_pmid_text pmda_units pmda_config pmda_uptime
+    pmda_pmid pmda_pmid_name pmda_pmid_text pmid_inst_name
+    pmda_units pmda_config pmda_uptime
     PM_ID_NULL PM_INDOM_NULL PM_IN_NULL
     PM_SPACE_BYTE PM_SPACE_KBYTE PM_SPACE_MBYTE PM_SPACE_GBYTE PM_SPACE_TBYTE
     PM_TIME_NSEC PM_TIME_USEC PM_TIME_MSEC PM_TIME_SEC PM_TIME_MIN PM_TIME_HOUR
@@ -31,7 +32,7 @@ require DynaLoader;
 	PM_ERR_TOOSMALL PM_ERR_TOOBIG PM_ERR_NYI
 );
 @EXPORT_OK = qw();
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 # metric identification
 sub PM_ID_NULL		{ 0xffffffff; }

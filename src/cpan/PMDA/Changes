@@ -1,16 +1,19 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.01  Fri Feb 13 17:33:31 EST 2009
+	- Added simple instance name lookup routine.
+
 1.00  Thu Aug 20 08:48:14 EST 2008
-       - Added several API components, 1st stable version.
+	- Added several API components, 1st stable version.
 
 0.04  Mon Feb 25 15:01:33 EST 2008
-       - Smaller, but still incompatible, API refinements.
+	- Smaller, but still incompatible, API refinements.
 
 0.03  Sun Feb 24 09:06:39 EST 2008
-       - API changes, moved existing Perl PMDAs out into PCP.
+	- API changes, moved existing Perl PMDAs out into PCP.
 
 0.02  Wed Feb 20 16:38:38 EST 2008
-       - port forward to Perl API changes (circa Perl 5.6).
+	- port forward to Perl API changes (circa Perl 5.6).
 
 0.01  Mon Sep 20 09:01:16 EST 1999
 	- original version; created by h2xs 1.18

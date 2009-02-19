@@ -93,6 +93,7 @@ delpmns(__pmnsNode *base, char *name)
 int
 main(int argc, char **argv)
 {
+    int		sep = __pmPathSeparator();
     int		sts;
     int		c;
     int		dupok = 0;
@@ -108,7 +109,8 @@ main(int argc, char **argv)
     if ((p = getenv("PMNS_DEFAULT")) != NULL)
 	strcpy(pmnsfile, p);
     else
-	snprintf(pmnsfile, sizeof(pmnsfile), "%s/pmns/root", pmGetConfig("PCP_VAR_DIR"));
+	snprintf(pmnsfile, sizeof(pmnsfile), "%s%c" "pmns" "%c" "root",
+		pmGetConfig("PCP_VAR_DIR"), sep, sep);
 
     while ((c = getopt(argc, argv, "dD:n:?")) != EOF) {
 	switch (c) {
@@ -196,8 +198,8 @@ main(int argc, char **argv)
     pmns_output(root, outf);
     fclose(outf);
 
-    snprintf(cmd, sizeof(cmd), "%s/pmnscomp %s -f -n %s %s.bin",
-	pmGetConfig("PCP_BINADM_DIR"), dupok ? "-d" : "", outfname, outfname);
+    snprintf(cmd, sizeof(cmd), "%s%cpmnscomp %s -f -n %s %s.bin",
+	pmGetConfig("PCP_BINADM_DIR"), sep, dupok ? "-d" : "", outfname, outfname);
     sts = system(cmd);
 
     if (sts == 0) {

@@ -22,12 +22,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pmcd$(EXECSUFFIX)
 HFILES = client.h pmcd.h
-CFILES = pmcd.c config.c dofetch.c dopdus.c dostore.c client.c agent.c
-ifeq "$(findstring $(TARGET_OS),mingw)" ""
-CFILES += util.c 
-else
-LSRCFILES += util.c 
-endif
+CFILES = pmcd.c config.c dofetch.c dopdus.c dostore.c client.c agent.c util.c
 LLDLIBS	= -lpcp -lpcp_pmcd $(LIB_FOR_BASENAME) $(LIB_FOR_DLOPEN)
 
 PCP_LIBS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)

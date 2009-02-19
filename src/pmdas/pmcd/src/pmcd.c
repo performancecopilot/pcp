@@ -1441,9 +1441,10 @@ void
 pmcd_init(pmdaInterface *dp)
 {
     char helppath[MAXPATHLEN];
+    int sep = __pmPathSeparator();
  
-    snprintf(helppath, sizeof(helppath), "%s/pmdas/pmcd/help",
-	 	pmGetConfig("PCP_VAR_DIR"));
+    snprintf(helppath, sizeof(helppath), "%s%c" "pmcd" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDSO(dp, PMDA_INTERFACE_2, "pmcd", helppath);
 
     dp->version.two.profile = pmcd_profile;

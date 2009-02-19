@@ -638,14 +638,15 @@ int
 main(int argc, char **argv)
 {
     int			err = 0;
+    int			sep = __pmPathSeparator();
     char		*endnum;
     pmdaInterface	dispatch;
     int			c;
     char		helptext[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
-    snprintf(helptext, sizeof(helptext), "%s/jstat/help",
-		pmGetConfig("PCP_PMDAS_DIR"));
+    snprintf(helptext, sizeof(helptext), "%s%c" "jstat" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, JSTAT,
 		"jstat.log", helptext);
 
@@ -685,7 +686,7 @@ main(int argc, char **argv)
 	usage();
     else if ((argc - optind) == 1)
 	jstat_pcp_dir_name = argv[optind];
-    else
+    else	/* TODO: native path ... */
 	jstat_pcp_dir_name = "/var/tmp/jstat";
 
     if (java_home)

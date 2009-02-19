@@ -5080,7 +5080,9 @@ linux_init(pmdaInterface *dp)
     _pm_system_pagesize = getpagesize();
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
-	snprintf(helppath, sizeof(helppath), "%s/pmdas/linux/help", pmGetConfig("PCP_VAR_DIR"));
+	int sep = __pmPathSeparator();
+	snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     	pmdaDSO(dp, PMDA_INTERFACE_3, "linux DSO", helppath);
     }
 
@@ -5193,15 +5195,17 @@ usage(void)
 int
 main(int argc, char **argv)
 {
+    int			sep = __pmPathSeparator();
     int			err = 0;
-    int			c = 0;
+    int			c;
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
 
-    snprintf(helppath, sizeof(helppath), "%s/pmdas/linux/help", pmGetConfig("PCP_VAR_DIR"));
+    snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, LINUX, "linux.log", helppath);
 
     if ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err)) != EOF)

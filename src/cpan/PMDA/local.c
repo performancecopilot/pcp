@@ -326,7 +326,8 @@ local_pmns_root(void)
 {
     static char buffer[256];
 
-    snprintf(buffer, sizeof(buffer), "%s/pmns", pmGetConfig("PCP_TMP_DIR"));
+    snprintf(buffer, sizeof(buffer), "%s%c" "pmns",
+		pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator());
     rmdir(buffer);
     if (mkdir2(buffer, 0755) == 0)
 	return buffer;

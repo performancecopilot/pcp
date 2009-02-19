@@ -20,7 +20,8 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-HFILES = pmapi.h impl.h pmda.h trace.h trace_dev.h trace_hash.h pmtime.h
+HFILES = pmapi.h impl.h pmda.h pmtime.h pmafm.h \
+	 trace.h trace_dev.h trace_hash.h
 GENERATED_HFILES = pmdbg.h platform_defs.h
 CONFFILES = platform_defs.h builddefs pcp.conf
 

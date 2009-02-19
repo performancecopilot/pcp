@@ -65,6 +65,7 @@ int
 main(int argc, char **argv)
 {
     int			err = 0;
+    int			sep = __pmPathSeparator();
     char		*endnum;
     pmdaInterface	dispatch;
     int			n;
@@ -78,7 +79,8 @@ main(int argc, char **argv)
     pmDebug = DBG_TRACE_APPL0 | DBG_TRACE_APPL1;
 #endif
 
-    snprintf(helptext, sizeof(helptext), "%s/cisco/help", pmGetConfig("PCP_PMDAS_DIR"));
+    snprintf(helptext, sizeof(helptext), "%s%c" "cisco" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, CISCO,
 		"cisco.log", helptext);
 
