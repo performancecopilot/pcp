@@ -23,7 +23,7 @@ default:
 include $(BUILDRULES)
 
 install: default
-	$(INSTALL) -m 755 pmsignal.sh $(PCP_BIN_DIR)/pmsignal
+	$(INSTALL) -m 755 pmsignal.sh $(PCP_BINADM_DIR)/pmsignal
 
 default_pcp : default
 
