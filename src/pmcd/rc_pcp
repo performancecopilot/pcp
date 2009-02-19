@@ -132,7 +132,7 @@ _reboot_setup()
 	# remove entries without a pmlogger process
 	rm -f `comm -23 $tmp.ent $tmp.pid`
 	rm -f $tmp.ent $tmp.pid
-	cd $here
+	cd "$here"
     fi
     chmod 1777 $PCP_TMP_DIR/pmlogger
 
@@ -163,7 +163,7 @@ _reboot_setup()
 	    # The 'root' file does not get updated when data did not change,
 	    # so we must touch it to update date.
 	    [ $? -eq 0 ] && { rm -f .NeedRebuild; touch root; }
-	    cd $here
+	    cd "$here"
 	fi
     fi
 }
@@ -205,7 +205,7 @@ _pmda_setup()
 		cd $PCP_PMDAS_DIR
 	    fi
 	done
-	cd $here
+	cd "$here"
     fi
 }
 
