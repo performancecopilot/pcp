@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pcp-services.c pcp-setevent.c logger.c
-TARGETS = pcp-services.exe pcp-setevent.exe logger.exe
+CFILES = pcp-services.c pcp-setevent.c pcp-eventlog.c
+TARGETS = pcp-services.exe pcp-setevent.exe pcp-eventlog.exe
 LLDLIBS = -lpcp
 
 default:	build-me
@@ -32,8 +32,8 @@ build-me:
 install:
 endif
 
-logger.exe:	logger.o
-	$(CCF) -o $@ $(LDFLAGS) logger.o $(LDLIBS)
+pcp-eventlog.exe:	pcp-eventlog.o
+	$(CCF) -o $@ $(LDFLAGS) pcp-eventlog.o $(LDLIBS)
 
 pcp-setevent.exe:	pcp-setevent.o
 	$(CCF) -o $@ $(LDFLAGS) pcp-setevent.o $(LDLIBS)
