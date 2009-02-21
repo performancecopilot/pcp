@@ -609,14 +609,14 @@ fi
 AC_SUBST(pcp_ps_have_bsd)
 AC_SUBST(pcp_ps_all_flags)
 
-dnl set platform specific killall
-if test $target_os = solaris -o $target_os = cygwin
+dnl set platform specific event logger
+if test $target_os = mingw
 then
-    pcp_killall_prog=pkill
+    pcp_syslog_prog=pcp-eventlog
 else
-    pcp_killall_prog=killall
+    pcp_syslog_prog=logger
 fi
-AC_SUBST(pcp_killall_prog)
+AC_SUBST(pcp_syslog_prog)
 
 grep=grep
 if test $target_os = solaris

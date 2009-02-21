@@ -563,7 +563,7 @@ Shutdown(void)
 	}
     }
     if (HarvestAgents(SHUTDOWNWAIT) < 0) {
-	/* kill with prejudice any still remaining */
+	/* terminate with prejudice any still remaining */
 	for (i = 0; i < nAgents; i++) {
 	    AgentInfo *ap = &agent[i];
 	    if (ap->status.connected) {

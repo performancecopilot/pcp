@@ -900,6 +900,8 @@ log facilities \- see
 .BR logger (1),
 and
 .BR syslogd (1).
+On Windows, communication with the system event log is handled by 
+.BR pcp-eventlog (1).
 .P
 .B pmie
 fits into this model when rules use the
@@ -907,7 +909,9 @@ fits into this model when rules use the
 action.
 Note that if the action string begins with \-p (priority) and/or \-t (tag)
 then these are extracted from the string and treated in the same way as in
-.BR logger (1).
+.BR logger (1)
+and
+.BR pcp-eventlog (1).
 .P
 However, it is common to have other event monitoring frameworks also,
 into which you may wish to incorporate performance events from
@@ -1034,6 +1038,10 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (4).
+.SH UNIX SEE ALSO
+.BR logger (1).
+.SH WINDOWS SEE ALSO
+.BR pcp-eventlog (1).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

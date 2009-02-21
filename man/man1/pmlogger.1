@@ -586,7 +586,7 @@ so that it contains:
 
 \'stop\')
 # Add shutdown actions here
-killall \-INT pmlogger
+($PCP_BINADM_DIR/pmsignal -a -s TERM pmlogger &)
 ;;
 .ft
 .in

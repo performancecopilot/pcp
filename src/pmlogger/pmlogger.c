@@ -374,7 +374,7 @@ do_dialog(char cmd)
     if (cmd != 'Q') {
 	nchar = add_msg(&p, nchar, "\nAt any time this pmlogger process may be terminated with the\n");
 	nchar = add_msg(&p, nchar, "following command:\n");
-	nchar = add_msg(&p, nchar, "        $ kill -INT");
+	nchar = add_msg(&p, nchar, "        $ pmsignal -s TERM");
 	sprintf(lbuf, " %d\n", (int)getpid());
 	nchar = add_msg(&p, nchar, lbuf);
     }

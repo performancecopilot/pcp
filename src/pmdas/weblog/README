@@ -132,8 +132,8 @@ can be restarted as follows:
     To register any changes made to the weblog.conf file, the agent
     must be killed and restarted:
 
-	# killall -9 pmdaweblog
-	# killall -HUP pmcd
+	# pmsignal -a -s KILL pmdaweblog
+	# pmsignal -a -s HUP pmcd
 
     To register any changes to the $PCP_PMCDCONF_PATH file you must
     restart PMCD:

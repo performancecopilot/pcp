@@ -64,7 +64,7 @@ _trace_file()
 
 _syslog()
 {
-    logger -p user.alert -t PCP "$*"
+    $PCP_SYSLOG_PROG -p user.alert -t PCP "$*"
     _trace "$*"
 }
 
@@ -329,7 +329,7 @@ else
 
     # signal pmcd if it is running
     #
-    pminfo -v pmcd.version >/dev/null 2>&1 && killall -HUP pmcd
+    pminfo -v pmcd.version >/dev/null 2>&1 && pmsignal -a -s HUP pmcd
 
     if [ ! -z "$verbose" ] && $haveroot
     then

@@ -128,7 +128,7 @@ EOF
 #
 SHOWME=false
 RM=rm
-KILL=kill
+KILL=pmsignal
 VERBOSE=false
 VERY_VERBOSE=false
 MYARGS=""
@@ -437,8 +437,8 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	$SHOWME && echo "+ mv $logfile ${logfile}.{SUMMARY_LOGNAME}"
 	if mv $logfile ${logfile}.${SUMMARY_LOGNAME}
 	then
-	    $VERY_VERBOSE && echo "+ $KILL -HUP $pid"
-	    eval $KILL -HUP $pid
+	    $VERY_VERBOSE && echo "+ $KILL -s HUP $pid"
+	    eval $KILL -s HUP $pid
 	    echo ${logfile}.${SUMMARY_LOGNAME} >> $tmp.mail
 	else
 	    _error "problems moving logfile \"$logfile\" for host \"$host\""

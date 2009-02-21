@@ -218,7 +218,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    if (s == 0) {
 		__pmNotifyErr(LOG_INFO, "DoStore: select timeout");
 
-		/* Timeout, kill agents that haven't responded */
+		/* Timeout, terminate agents that haven't responded */
 		for (i = 0; i < nAgents; i++) {
 		    if (agent[i].status.busy) {
 			pmcd_trace(TR_RECV_TIMEOUT, agent[i].outFd, PDU_ERROR, 0);
