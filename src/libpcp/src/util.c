@@ -45,34 +45,6 @@ INTERN char	*pmProgname = "pcp";		/* the real McCoy */
 
 static int vpmprintf(const char *, va_list);
 
-int
-__pmSetProgname(const char *program)
-{
-    char	*p;
-
-    /* Trim command name of leading directory components */
-    if (program)
-	pmProgname = (char *)program;
-    for (p = pmProgname; pmProgname && *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
-#if defined(IS_MINGW)
-    _fmode = O_BINARY;
-
-    int sts;
-    WORD wVersionRequested = MAKEWORD(2, 2);
-    WSADATA wsaData;
-
-    /* If Windows networking is not setup, all networking calls fail;
-     * this even includes gethostname(2), if you can believe that. :[
-     */
-    if ((sts = WSAStartup(wVersionRequested, &wsaData)) != 0)
-	return sts;
-#endif
-    return 0;
-}
-
 /*
  * if onoff == 1, logging is to syslog and stderr, else logging is
  * just to stderr (this is the default)
@@ -1188,6 +1160,35 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	execvp(argv[0], argv);
 	fprintf(stderr, "execvp: %s\n", strerror(errno));
 	exit(1);
+    }
+    return 0;
+}
+
+int
+__pmResetSignalHandler(int sig, __pmSignalHandler func)
+{
+    signal(sig, func);
+    return 0;
+}
+
+int
+__pmSetSignalHandler(int sig, __pmSignalHandler func)
+{
+    signal(sig, func);
+    return 0;
+}
+
+int
+__pmSetProgname(const char *program)
+{
+    char	*p;
+
+    /* Trim command name of leading directory components */
+    if (program)
+	pmProgname = (char *)program;
+    for (p = pmProgname; pmProgname && *p; p++) {
+	if (*p == '/')
+	    pmProgname = p+1;
     }
     return 0;
 }

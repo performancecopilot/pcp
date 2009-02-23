@@ -869,19 +869,17 @@ SigIntProc(int sig, siginfo_t *sip, void *x)
 void SigIntProc(int sig)
 {
     killer_sig = sig;
-    signal(SIGINT, SigIntProc);
-    signal(SIGTERM, SigIntProc);
+    __pmResetSignalHandler(SIGINT, SigIntProc);
+    __pmResetSignalHandler(SIGTERM, SigIntProc);
     timeToDie = 1;
 }
 #endif
 
-#ifdef HAVE_SIGHUP
 void SigHupProc(int s)
 {
-    signal(SIGHUP, SigHupProc);
+    __pmResetSignalHandler(SIGHUP, SigHupProc);
     restart = 1;
 }
-#endif
 
 #if HAVE_TRACE_BACK_STACK
 /*
@@ -985,16 +983,12 @@ main(int argc, char *argv[])
     sigaction(SIGINT, &act, NULL);
     sigaction(SIGTERM, &act, NULL);
 #else
-    signal(SIGINT, SigIntProc);
-    signal(SIGTERM, SigIntProc);
+    __pmSetSignalHandler(SIGINT, SigIntProc);
+    __pmSetSignalHandler(SIGTERM, SigIntProc);
+    __pmSetSignalHandler(SIGHUP, SigHupProc);
+    __pmSetSignalHandler(SIGBUS, SigBad);
+    __pmSetSignalHandler(SIGSEGV, SigBad);
 #endif
-#ifdef HAVE_SIGHUP
-    signal(SIGHUP, SigHupProc);
-#endif
-#ifdef HAVE_SIGBUS
-    signal(SIGBUS, SigBad);
-#endif
-    signal(SIGSEGV, SigBad);
 
     /* seed random numbers for authorisation */
     srand48((long)time(0));

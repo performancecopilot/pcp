@@ -69,7 +69,7 @@ sigcore_handler(int sig)
     fprintf(stderr, "pmlogger: Signalled (signal=%d), exiting (core dumped)\n", sig);
 #endif
     cleanup();
-    signal(SIGABRT, SIG_DFL);		/* Don't come back here on SIGABRT */
+    __pmResetSignalHandler(SIGABRT, SIG_DFL);	/* Don't come back here */
     abort();
 }
 
@@ -77,9 +77,9 @@ static void
 sighup_handler(int sig)
 {
     /* SIGHUP is used to force a log volume change */
-    signal(SIGHUP, SIG_IGN);
+    __pmResetSignalHandler(SIGHUP, SIG_IGN);
     newvolume(VOL_SW_SIGHUP);
-    signal(SIGHUP, sighup_handler);
+    __pmResetSignalHandler(SIGHUP, sighup_handler);
 }
 
 static void
@@ -89,7 +89,7 @@ sigpipe_handler(int sig)
      * just ignore the signal, the write() will fail, and the PDU
      * xmit will return with an error
      */
-    signal(SIGPIPE, sigpipe_handler);
+    __pmResetSignalHandler(SIGPIPE, sigpipe_handler);
 }
 
 static void
@@ -97,7 +97,7 @@ sigusr1_handler(int sig)
 {
     /* set the flag ... flush occurs in x */
     wantflush = 1;
-    signal(SIGUSR1, sigusr1_handler);
+    __pmResetSignalHandler(SIGUSR1, sigusr1_handler);
 }
 
 
@@ -286,7 +286,7 @@ init_ports(void)
      * by trapping all the signals we can
      */
     for (i = 0; i < sizeof(sig_handler)/sizeof(sig_handler[0]); i++) {
-	signal(sig_handler[i].sig, sig_handler[i].func);
+	__pmSetSignalHandler(sig_handler[i].sig, sig_handler[i].func);
     }
     /*
      * install explicit handler for other signals ... we assume all
@@ -300,7 +300,7 @@ init_ports(void)
         }
         if (i == sizeof(sig_handler)/sizeof(sig_handler[0]))
 	    /* not special cased in seg_handler[] */
-	    signal(j, sigexit_handler);
+	    __pmSetSignalHandler(j, sigexit_handler);
     }
 
 #if defined(HAVE_ATEXIT)

@@ -44,6 +44,7 @@ extern fd_set		sockFds;		/* for select() */
 /* prototypes */
 extern ClientInfo *AcceptNewClient(int);
 extern void DeleteClient(ClientInfo *);
+extern void StartDaemon(int, char **);
 
 extern int	maxReqPortFd;	/* highest request port file descriptor */
 

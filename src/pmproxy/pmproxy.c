@@ -482,8 +482,8 @@ ClientLoop(void)
 static void
 SigIntProc(int s)
 {
-    signal(SIGINT, SigIntProc);
-    signal(SIGTERM, SigIntProc);
+    __pmResetSignalHandler(SIGINT, SigIntProc);
+    __pmResetSignalHandler(SIGTERM, SigIntProc);
     timeToDie = 1;
 }
 
@@ -495,40 +495,6 @@ SigBad(int sig)
     fflush(stderr);
     abort();
 }
-
-#ifndef IS_MINGW
-/* Based on Stevens (Unix Network Programming, p.83) */
-static void
-StartDaemon(void)
-{
-    int childpid;
-
-#if defined(HAVE_TERMIO_SIGNALS)
-    signal(SIGTTOU, SIG_IGN);
-    signal(SIGTTIN, SIG_IGN);
-    signal(SIGTSTP, SIG_IGN);
-#endif
-
-    if ((childpid = fork()) < 0)
-	__pmNotifyErr(LOG_ERR, "StartDaemon: fork");
-	/* but keep going */
-    else if (childpid > 0) {
-	/* parent, let her exit, but avoid ugly "Log finished" messages */
-	fclose(stderr);
-	exit(0);
-    }
-
-    /* not a process group leader, lose controlling tty */
-    if (setsid() == -1)
-	__pmNotifyErr(LOG_WARNING, "StartDaemon: setsid");
-	/* but keep going */
-
-    close(0);
-    /* don't close other fd's -- we know that only good ones are open! */
-
-    /* don't chdir("/") -- we still need to open pmcd.log */
-}
-#endif
 
 int
 main(int argc, char *argv[])
@@ -547,20 +513,14 @@ main(int argc, char *argv[])
 
     if (run_daemon) {
 	fflush(stderr);
-#ifndef IS_MINGW
-	StartDaemon();
-#endif
+	StartDaemon(argc, argv);
     }
 
-#ifdef HAVE_SIGHUP
-    signal(SIGHUP, SIG_IGN);
-#endif
-    signal(SIGINT, SigIntProc);
-    signal(SIGTERM, SigIntProc);
-#ifdef HAVE_SIGBUS
-    signal(SIGBUS, SigBad);
-#endif
-    signal(SIGSEGV, SigBad);
+    __pmSetSignalHandler(SIGHUP, SIG_IGN);
+    __pmSetSignalHandler(SIGINT, SigIntProc);
+    __pmSetSignalHandler(SIGTERM, SigIntProc);
+    __pmSetSignalHandler(SIGBUS, SigBad);
+    __pmSetSignalHandler(SIGSEGV, SigBad);
 
     /*
      * get optional stuff from environment ...

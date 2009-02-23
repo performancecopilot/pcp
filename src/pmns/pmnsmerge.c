@@ -263,11 +263,9 @@ Options:\n\
      * from here on, ignore SIGHUP, SIGINT and SIGTERM to protect
      * the integrity of the new ouput file
      */
-#if defined(HAVE_SIGHUP)
-    signal(SIGHUP, SIG_IGN);
-#endif
-    signal(SIGINT, SIG_IGN);
-    signal(SIGTERM, SIG_IGN);
+    __pmSetSignalHandler(SIGHUP, SIG_IGN);
+    __pmSetSignalHandler(SIGINT, SIG_IGN);
+    __pmSetSignalHandler(SIGTERM, SIG_IGN);
 
     if ((outf = fopen(argv[argc-1], "w+")) == NULL) {
 	fprintf(stderr, "%s: Error: cannot create output PMNS file \"%s\": %s\n", pmProgname, argv[argc-1], strerror(oserror()));

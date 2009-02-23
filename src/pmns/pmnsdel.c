@@ -173,11 +173,9 @@ main(int argc, char **argv)
      * from here on, ignore SIGHUP, SIGINT and SIGTERM to protect
      * the integrity of the new ouput file
      */
-#if defined(HAVE_SIGHUP)
-    signal(SIGHUP, SIG_IGN);
-#endif
-    signal(SIGINT, SIG_IGN);
-    signal(SIGTERM, SIG_IGN);
+    __pmSetSignalHandler(SIGHUP, SIG_IGN);
+    __pmSetSignalHandler(SIGINT, SIG_IGN);
+    __pmSetSignalHandler(SIGTERM, SIG_IGN);
 
     snprintf(outfname, sizeof(outfname), "%s.new", pmnsfile);
     if ((outf = fopen(outfname, "w")) == NULL) {

@@ -22,7 +22,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pmproxy$(EXECSUFFIX)
 HFILES = pmproxy.h
-CFILES = pmproxy.c client.c
+CFILES = pmproxy.c client.c util.c
 LSRCFILES = rc_pmproxy pmproxy.options
 
 LLDLIBS	= -lpcp $(LIB_FOR_BASENAME)

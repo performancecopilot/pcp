@@ -19,7 +19,7 @@
 . $PCP_DIR/etc/pcp.env
 
 prog=`basename $0`
-sigs="HUP USR TERM KILL"
+sigs="HUP USR1 TERM KILL"
 
 usage()
 {

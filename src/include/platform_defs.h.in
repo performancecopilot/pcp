@@ -512,6 +512,8 @@ typedef void (*SIG_PF) (int);
 
 #define MAP_FAILED	NULL
 #define O_NDELAY	0
+#define SIGHUP		(NSIG+1)
+#define SIGUSR1		(NSIG+2)
 
 #define fcntl(f, cmd, ...) 0
 #define mkdir2(path, mode) mkdir(path)

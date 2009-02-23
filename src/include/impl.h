@@ -1079,6 +1079,13 @@ extern int __pmProcessDataSize(unsigned long *);
 extern int __pmProcessRunTimes(double *, double *);
 
 /*
+ * platform independent signal handling routines
+ */
+typedef void (*__pmSignalHandler)(int);
+extern int __pmSetSignalHandler(int, __pmSignalHandler);
+extern int __pmResetSignalHandler(int, __pmSignalHandler);
+
+/*
  * platform independent environment and filesystem path access
  */
 typedef void (*__pmConfigCallback)(char *, char *, char *);

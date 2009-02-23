@@ -16,7 +16,7 @@
 
 enum {
     PCP_SIGHUP  = 1,
-    PCP_SIGUSR  = 2,
+    PCP_SIGUSR1 = 2,
     PCP_SIGTERM = 3,
     PCP_SIGKILL = 4,
 };
@@ -26,8 +26,8 @@ atosig(const char *sig)
 {
     if (strcmp(sig, "HUP") == 0)
 	return PCP_SIGHUP;
-    if (strcmp(sig, "USR") == 0)
-	return PCP_SIGUSR;
+    if (strcmp(sig, "USR1") == 0)
+	return PCP_SIGUSR1;
     if (strcmp(sig, "TERM") == 0)
 	return PCP_SIGTERM;
     if (strcmp(sig, "KILL") == 0)
@@ -52,7 +52,7 @@ main(int argc, char **argv)
 	error++;
 
     if (error) {
-	fprintf(stderr, "Usage: %s <HUP|USR|TERM|KILL> <PID>\n", pmProgname);
+	fprintf(stderr, "Usage: %s <HUP|USR1|TERM|KILL> <PID>\n", pmProgname);
 	return 2;
     }
 
