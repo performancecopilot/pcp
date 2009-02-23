@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -139,6 +139,7 @@ __pmSetSignalHandler(int sig, __pmSignalHandler func)
     if (func == SIG_IGN)
 	return 0;
 
+    sts = 0;
     snprintf(evname, sizeof(evname), "PCP/%d/%s", getpid(), signame);
     if (!(eventhdl = CreateEvent(NULL, FALSE, FALSE, TEXT(evname)))) {
 	sts = GetLastError();
@@ -184,7 +185,7 @@ sigterm_callback(int sig)
 int
 __pmSetProgname(const char *program)
 {
-    int	sts;
+    int	sts1, sts2;
     char *p;
     WORD wVersionRequested = MAKEWORD(2, 2);
     WSADATA wsaData;
@@ -207,16 +208,16 @@ __pmSetProgname(const char *program)
      * get a look-in, IOW.  Other signals (HUP/USR1) are handled
      * in a similar way, but only by processes that need them.
      */
-    sts = __pmSetSignalHandler(SIGTERM, sigterm_callback);
+    sts1 = __pmSetSignalHandler(SIGTERM, sigterm_callback);
 
     /*
      * If Windows networking is not setup, all networking calls fail;
      * this even includes gethostname(2), if you can believe that. :[
      */
-    if ((sts |= WSAStartup(wVersionRequested, &wsaData)) != 0)
+    if ((sts2 = WSAStartup(wVersionRequested, &wsaData)) != 0)
 	fprintf(stderr, "WSAStartup failed (%ld)\n", GetLastError());
 
-    return sts;
+    return sts1 | sts2;
 }
 
 int
