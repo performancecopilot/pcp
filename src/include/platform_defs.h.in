@@ -514,6 +514,7 @@ typedef void (*SIG_PF) (int);
 #define O_NDELAY	0
 #define SIGHUP		(NSIG+1)
 #define SIGUSR1		(NSIG+2)
+#define SIGBUS		(NSIG+3)
 
 #define fcntl(f, cmd, ...) 0
 #define mkdir2(path, mode) mkdir(path)
