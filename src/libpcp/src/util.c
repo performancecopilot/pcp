@@ -1165,13 +1165,6 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 }
 
 int
-__pmResetSignalHandler(int sig, __pmSignalHandler func)
-{
-    signal(sig, func);
-    return 0;
-}
-
-int
 __pmSetSignalHandler(int sig, __pmSignalHandler func)
 {
     signal(sig, func);

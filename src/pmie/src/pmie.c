@@ -378,8 +378,8 @@ startmonitor(void)
 static void
 sigintproc(int sig)
 {
-    __pmResetSignalHandler(SIGINT, SIG_IGN);
-    __pmResetSignalHandler(SIGTERM, SIG_IGN);
+    __pmSetSignalHandler(SIGINT, SIG_IGN);
+    __pmSetSignalHandler(SIGTERM, SIG_IGN);
     __pmNotifyErr(LOG_INFO, "%s caught SIGINT or SIGTERM\n", pmProgname);
     exit(1);
 }

@@ -34,14 +34,14 @@
  * defined below.  If that is in use it will keep adding one and trying again
  * until it allocates a port.
  */
-#define PORT_BASE	4330		/* Base of range for port numbers */
+#define PORT_BASE	4330	/* Base of range for port numbers */
 
-static char	*ctlfile = NULL;	/* Control directory/portmap name */
-static char	*linkfile = NULL;	/* Link name for primary logger */
+static char	*ctlfile;	/* Control directory/portmap name */
+static char	*linkfile;	/* Link name for primary logger */
 
-int		ctlfd;			/* fd for control port */
-int		ctlport;		/* pmlogger control port number */
-int		wantflush = 0;		/* flush via SIGUSR1 flag */
+int		ctlfd;		/* fd for control port */
+int		ctlport;	/* pmlogger control port number */
+int		wantflush;	/* flush via SIGUSR1 flag */
 
 static void
 cleanup(void)
@@ -68,8 +68,8 @@ sigcore_handler(int sig)
 #ifdef PCP_DEBUG
     fprintf(stderr, "pmlogger: Signalled (signal=%d), exiting (core dumped)\n", sig);
 #endif
+    __pmSetSignalHandler(SIGABRT, SIG_DFL);	/* Don't come back here */
     cleanup();
-    __pmResetSignalHandler(SIGABRT, SIG_DFL);	/* Don't come back here */
     abort();
 }
 
@@ -77,9 +77,9 @@ static void
 sighup_handler(int sig)
 {
     /* SIGHUP is used to force a log volume change */
-    __pmResetSignalHandler(SIGHUP, SIG_IGN);
+    __pmSetSignalHandler(SIGHUP, SIG_IGN);
     newvolume(VOL_SW_SIGHUP);
-    __pmResetSignalHandler(SIGHUP, sighup_handler);
+    __pmSetSignalHandler(SIGHUP, sighup_handler);
 }
 
 static void
@@ -89,17 +89,20 @@ sigpipe_handler(int sig)
      * just ignore the signal, the write() will fail, and the PDU
      * xmit will return with an error
      */
-    __pmResetSignalHandler(SIGPIPE, sigpipe_handler);
+    __pmSetSignalHandler(SIGPIPE, sigpipe_handler);
 }
 
 static void
 sigusr1_handler(int sig)
 {
     /* set the flag ... flush occurs in x */
+#ifdef IS_MINGW
+    do_flush();
+#else
     wantflush = 1;
-    __pmResetSignalHandler(SIGUSR1, sigusr1_handler);
+    signal(SIGUSR1, sigusr1_handler);
+#endif
 }
-
 
 /*
  * if we are launched from pmRecord*() in libpcp, then we

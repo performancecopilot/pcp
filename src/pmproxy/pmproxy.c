@@ -375,6 +375,14 @@ Shutdown(void)
     fflush(stderr);
 }
 
+void
+SignalShutdown(void)
+{
+    __pmNotifyErr(LOG_INFO, "pmproxy caught SIGINT or SIGTERM\n");
+    Shutdown();
+    exit(0);
+}
+
 #ifdef PCP_DEBUG
 /* Convert a file descriptor to a string describing what it is for. */
 char*
@@ -473,7 +481,7 @@ ClientLoop(void)
 	    break;
 	}
 	if (timeToDie) {
-	    __pmNotifyErr(LOG_INFO, "pmproxy caught SIGINT or SIGTERM\n");
+	    SignalShutdown();
 	    break;
 	}
     }
@@ -482,9 +490,13 @@ ClientLoop(void)
 static void
 SigIntProc(int s)
 {
-    __pmResetSignalHandler(SIGINT, SigIntProc);
-    __pmResetSignalHandler(SIGTERM, SigIntProc);
+#ifdef IS_MINGW
+    SignalShutdown();
+#else
+    signal(SIGINT, SigIntProc);
+    signal(SIGTERM, SigIntProc);
     timeToDie = 1;
+#endif
 }
 
 static void

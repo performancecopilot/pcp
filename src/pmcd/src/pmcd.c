@@ -28,9 +28,9 @@ extern void StartDaemon(int, char **);
 
 #define SHUTDOWNWAIT 12 /* < PMDAs wait previously used in rc_pcp */
 
-int		AgentDied = 0;		/* for updating mapdom[] */
-static int	timeToDie = 0;		/* For SIGINT handling */
-static int	restart = 0;		/* For SIGHUP restart */
+int		AgentDied;		/* for updating mapdom[] */
+static int	timeToDie;		/* For SIGINT handling */
+static int	restart;		/* For SIGHUP restart */
 static char	configFileName[MAXPATHLEN]; /* path to pmcd.conf */
 static char	*logfile = "pmcd.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
@@ -583,6 +583,76 @@ Shutdown(void)
     fflush(stderr);
 }
 
+static void
+SignalShutdown(void)
+{
+#ifdef HAVE_SA_SIGINFO
+#if DESPERATE
+    char	buf[256];
+#endif
+    if (killer_pid != 0) {
+	__pmNotifyErr(LOG_INFO, "pmcd caught %s from pid=%d uid=%d\n",
+	    killer_sig == SIGINT ? "SIGINT" : "SIGTERM", killer_pid, killer_uid);
+#if DESPERATE
+	__pmNotifyErr(LOG_INFO, "Try to find process in ps output ...\n");
+	sprintf(buf, "sh -c \". \\$PCP_DIR/etc/pcp.env; ( \\$PCP_PS_PROG \\$PCP_PS_ALL_FLAGS | \\$PCP_AWK_PROG 'NR==1 {print} \\$2==%d {print}' )\"", killer_pid);
+	system(buf);
+#endif
+    }
+    else {
+	__pmNotifyErr(LOG_INFO, "pmcd caught %s from unknown process\n",
+			killer_sig == SIGINT ? "SIGINT" : "SIGTERM");
+    }
+#else
+    __pmNotifyErr(LOG_INFO, "pmcd caught %s\n",
+		    killer_sig == SIGINT ? "SIGINT" : "SIGTERM");
+#endif
+    Shutdown();
+    exit(0);
+}
+
+void
+SignalRestart(void)
+{
+    time_t	now;
+
+    time(&now);
+    __pmNotifyErr(LOG_INFO, "\n\npmcd RESTARTED at %s", ctime(&now));
+    fprintf(stderr, "\nCurrent PMCD clients ...\n");
+    ShowClients(stderr);
+    ResetBadHosts();
+    ParseRestartAgents(configFileName);
+}
+
+void
+SignalReloadPMNS(void)
+{
+    int sts;
+
+    /* Reload PMNS if necessary. 
+     * Note: this will only stat() the base name i.e. ASCII pmns,
+     * typically $PCP_VAR_DIR/pmns/root and not $PCP_VAR_DIR/pmns/root.bin .
+     * This is considered a very low risk problem, as the binary
+     * PMNS is always compiled from the ASCII version;
+     * when one changes so should the other.
+     * This caveat was allowed to make the code a lot simpler. 
+     */
+    if (__pmHasPMNSFileChanged(pmnsfile)) {
+	__pmNotifyErr(LOG_INFO, "Reloading PMNS \"%s\"",
+	   (pmnsfile==PM_NS_DEFAULT)?"DEFAULT":pmnsfile);
+	pmUnloadNameSpace();
+	if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
+	    __pmNotifyErr(LOG_ERR, "PMNS \"%s\" load failed: %s",
+		(pmnsfile == PM_NS_DEFAULT) ? "DEFAULT" : pmnsfile,
+		pmErrStr(sts));
+	}
+    }
+    else {
+	__pmNotifyErr(LOG_INFO, "PMNS file \"%s\" is unchanged",
+		(pmnsfile == PM_NS_DEFAULT) ? "DEFAULT" : pmnsfile);
+    }
+}
+
 /* Process I/O on file descriptors from agents that were marked as not ready
  * to handle PDUs.
  */
@@ -782,66 +852,16 @@ ClientLoop(void)
 	    break;
 	}
 	if (restart) {
-	    time_t	now;
-
-	    reload_ns = 1;
 	    restart = 0;
-	    time(&now);
-	    __pmNotifyErr(LOG_INFO, "\n\npmcd RESTARTED at %s", ctime(&now));
-	    fprintf(stderr, "\nCurrent PMCD clients ...\n");
-	    ShowClients(stderr);
-	    ResetBadHosts();
-	    ParseRestartAgents(configFileName);
+	    reload_ns = 1;
+	    SignalRestart();
 	}
-
-	if ( reload_ns ) {
+	if (reload_ns) {
 	    reload_ns = 0;
-
-	    /* Reload PMNS if necessary. 
-	     * Note: this will only stat() the base name i.e. ASCII pmns,
-             * typically $PCP_VAR_DIR/pmns/root and not $PCP_VAR_DIR/pmns/root.bin .
-	     * This is considered a very low risk problem, as the binary
-	     * PMNS is always compiled from the ASCII version;
-	     * when one changes so should the other.
-	     * This caveat was allowed to make the code a lot simpler. 
-	     */
-	    if (__pmHasPMNSFileChanged(pmnsfile)) {
-	        __pmNotifyErr(LOG_INFO, "Reloading PMNS \"%s\"",
-		   (pmnsfile==PM_NS_DEFAULT)?"DEFAULT":pmnsfile);
-		pmUnloadNameSpace();
-		if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-		    fprintf(stderr, "pmcd: %s\n", pmErrStr(sts));
-		    break;
-		}
-	    }
-	    else {
-	        __pmNotifyErr(LOG_INFO, "PMNS file \"%s\" is unchanged",
-		   (pmnsfile==PM_NS_DEFAULT)?"DEFAULT":pmnsfile);
-	    }
+	    SignalReloadPMNS();
 	}
-
 	if (timeToDie) {
-#ifdef HAVE_SA_SIGINFO
-#if DESPERATE
-	    char	buf[256];
-#endif
-	    if (killer_pid != 0) {
-		__pmNotifyErr(LOG_INFO, "pmcd caught %s from pid=%d uid=%d\n",
-		    killer_sig == SIGINT ? "SIGINT" : "SIGTERM", killer_pid, killer_uid);
-#if DESPERATE
-		__pmNotifyErr(LOG_INFO, "Try to find process in ps output ...\n");
-		sprintf(buf, "sh -c \". \\$PCP_DIR/etc/pcp.env; ( \\$PCP_PS_PROG \\$PCP_PS_ALL_FLAGS | \\$PCP_AWK_PROG 'NR==1 {print} \\$2==%d {print}' )\"", killer_pid);
-		system(buf);
-#endif
-	    }
-	    else {
-		__pmNotifyErr(LOG_INFO, "pmcd caught %s from unknown process\n",
-		    killer_sig == SIGINT ? "SIGINT" : "SIGTERM");
-	    }
-#else
-	    __pmNotifyErr(LOG_INFO, "pmcd caught %s\n",
-		killer_sig == SIGINT ? "SIGINT" : "SIGTERM");
-#endif
+	    SignalShutdown();
 	    break;
 	}
 	if (AgentDied) {
@@ -869,16 +889,25 @@ SigIntProc(int sig, siginfo_t *sip, void *x)
 void SigIntProc(int sig)
 {
     killer_sig = sig;
-    __pmResetSignalHandler(SIGINT, SigIntProc);
-    __pmResetSignalHandler(SIGTERM, SigIntProc);
+#ifndef IS_MINGW
+    signal(SIGINT, SigIntProc);
+    signal(SIGTERM, SigIntProc);
     timeToDie = 1;
+#else
+    SignalShutdown();
+#endif
 }
 #endif
 
 void SigHupProc(int s)
 {
-    __pmResetSignalHandler(SIGHUP, SigHupProc);
+#ifndef IS_MINGW
+    SignalRestart();
+    SignalReloadPMNS();
+#else
+    signal(SIGHUP, SigHupProc);
     restart = 1;
+#endif
 }
 
 #if HAVE_TRACE_BACK_STACK

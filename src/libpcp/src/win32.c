@@ -159,23 +159,6 @@ __pmSetSignalHandler(int sig, __pmSignalHandler func)
     return sts;
 }
 
-int
-__pmResetSignalHandler(int sig, __pmSignalHandler func)
-{
-    int index;
-
-    if (!(MapSignals(sig, &index)))
-	return index;
-
-    if (func == SIG_IGN && signals[index].callback) {	/* remove old handler */
-	UnregisterWait(signals[index].waithandle);
-	CloseHandle(signals[index].eventhandle);
-	signals[index].callback = NULL;
-	signals[index].signal = -1;
-    }
-    return 0;	/* i.e. largely ignored on Win32, implemented differently */
-}
-
 static void
 sigterm_callback(int sig)
 {
