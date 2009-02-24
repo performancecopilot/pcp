@@ -13,21 +13,18 @@ http://oss.sgi.com/projects/pcp/ for additional details about these tools.
 
 === Planned for 2.0 ===
 
-    - Chart gadget (with Y-axis)
-    - Bar2d gadget (horizonal/vertical - gmemusage/grosview-like)
-    - Bar3d gadget (pmview-like)
+    - Movable charts (drag & drop)
+    - Chart gadget (with Y-axis - pmgadgets-like)
+    - Bar gadget (horizonal/vertical - pmgadgets/gmemusage/grosview-like)
     - LED gadget (pmgadgets-like)
     - Label gadget (pmgadgets-like)
     - Value gadget (new - optionally use QLCDNumber)
-
-    - Consider: extended pmchart view format (interim) or switch
-      to using script-based views in this release?  Probably too
-      much to take on for one release (not clear on the language
-      choice yet either - Perl or QtScript?).  Maybe release 2.0
-      without view format extension (i.e. no gadget support, and
-      no individual chart geometry support).  Then implement API
-      and script-language-view support in 3.0?
-
+    - Extended pmchart view format 
+	- chart positioning
+	- gadget panels
+	- "include <file>" syntax (for Overview view, and people
+	  like Nigel generating their own 'composite' views)
+	- support the pmgadgets configuration file syntax
     - Need to regenerate many screenshots (Tutorial/Manual) with
       whatever the final windows look like.
 
@@ -51,3 +48,6 @@ http://oss.sgi.com/projects/pcp/ for additional details about these tools.
     - Write automated QA for Save View (need a new command line option),
       then with -C and -c, open (multiple) views, save, then verify.
     - pmquery window initial sizing and resizing could use improvement.
+    - pmview code released by SGI - needs porting work
+	www.coin3d.org have an Inventor-compatible API, Qt bindings, and
+	support Mac/Windows/Linux - looks ideal for this.
