@@ -198,14 +198,14 @@ void setupEnvironment(void)
 	putenv(strdup("PCP_STDERR=DISPLAY"));
 
     QCoreApplication::setOrganizationName("PCP");
-    QCoreApplication::setApplicationName("pmchart");
+    QCoreApplication::setApplicationName(pmProgname);
 }
 
 void writeSettings(void)
 {
     QSettings userSettings;
 
-    userSettings.beginGroup("pmchart");
+    userSettings.beginGroup(pmProgname);
     if (globalSettings.chartDeltaModified) {
 	globalSettings.chartDeltaModified = false;
 	userSettings.setValue("chartDelta", globalSettings.chartDelta);
@@ -297,7 +297,7 @@ void checkHistory(int samples, int visible)
 void readSettings(void)
 {
     QSettings userSettings;
-    userSettings.beginGroup("pmchart");
+    userSettings.beginGroup(pmProgname);
 
     //
     // Parameters related to sampling
@@ -466,7 +466,7 @@ main(int argc, char ** argv)
     static const char	*options = "A:a:Cc:D:g:h:Lo:n:O:p:s:S:T:t:Vv:WzZ:?";
 
     gettimeofday(&origin, NULL);
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
     QApplication a(argc, argv);
     setupEnvironment();
     readSettings();
