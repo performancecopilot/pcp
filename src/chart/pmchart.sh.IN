@@ -1,2 +1,2 @@
 #!/bin/sh
-exec PKG_MAC_DIR/MacOS/kmchart "$@"
+exec PKG_MAC_DIR/MacOS/pmchart "$@"
