@@ -7,4 +7,5 @@ chart title "CPU Utilization [%h]" style utilization
 	optional-plot legend "Nice" color #c2f3c2 metric kernel.all.cpu.nice
 	optional-plot legend "Intr" color #cdcd00 metric kernel.all.cpu.intr
 	optional-plot legend "Wait" color #00cdcd metric kernel.all.cpu.wait.total
+	optional-plot legend "Steal" color #fba2f5 metric kernel.all.cpu.steal
 	plot legend "Idle" color #16d816 metric kernel.all.cpu.idle
