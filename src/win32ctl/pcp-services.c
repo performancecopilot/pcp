@@ -102,7 +102,8 @@ int
 pcpScript(const char *name, const char *act)
 {
     char cmd[MAXPATHLEN];
-    snprintf(cmd, sizeof(cmd), "sh %s/etc/%s %s", getenv("PCP_DIR"), name, act);
+    snprintf(cmd, sizeof(cmd),
+	    "sh.exe %s\\etc\\%s %s", getenv("PCP_DIR"), name, act);
     return system(cmd);
 }
 

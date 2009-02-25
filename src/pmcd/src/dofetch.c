@@ -418,7 +418,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	    if (sts == 0) {
 		__pmNotifyErr(LOG_INFO, "DoFetch: select timeout");
 
-		/* Timeout, kill agents with undelivered results */
+		/* Timeout, terminate agents with undelivered results */
 		for (i = 0; i < nAgents; i++) {
 		    if (agent[i].status.busy) {
 			/* Find entry in dList for this agent */

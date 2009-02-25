@@ -132,7 +132,7 @@ _reboot_setup()
 	# remove entries without a pmlogger process
 	rm -f `comm -23 $tmp.ent $tmp.pid`
 	rm -f $tmp.ent $tmp.pid
-	cd $here
+	cd "$here"
     fi
     chmod 1777 $PCP_TMP_DIR/pmlogger
 
@@ -163,7 +163,7 @@ _reboot_setup()
 	    # The 'root' file does not get updated when data did not change,
 	    # so we must touch it to update date.
 	    [ $? -eq 0 ] && { rm -f .NeedRebuild; touch root; }
-	    cd $here
+	    cd "$here"
 	fi
     fi
 }
@@ -205,7 +205,7 @@ _pmda_setup()
 		cd $PCP_PMDAS_DIR
 	    fi
 	done
-	cd $here
+	cd "$here"
     fi
 }
 
@@ -282,7 +282,7 @@ Warning: Performance Co-Pilot installation is incomplete (at least the
     $RC_STATUS -v
 }
 
-# Use $PCP_PMCDCONF_PATH to find and kill pipe/socket PMDAs created by PMCD.
+# Use $PCP_PMCDCONF_PATH to find and terminate pipe/socket PMDAs.
 # (First join up continued lines in config file)
 #
 _killpmdas()
@@ -304,7 +304,7 @@ tolower($3) == "pipe" && NF > 4		{ print $5; next }
 tolower($3) == "socket" && NF > 5	{ print $6; next }' \
 | sort -u`
     do
-	$PCP_KILLALL_PROG -TERM `basename $pmda` > /dev/null 2>&1 &
+	pmsignal -a -s TERM `basename $pmda` > /dev/null 2>&1 &
     done
     sleep 2
     for pmda in `$PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
@@ -316,7 +316,7 @@ tolower($3) == "pipe" && NF > 4		{ print $5; next }
 tolower($3) == "socket" && NF > 5	{ print $6; next }' \
 | sort -u`
     do
-	$PCP_KILLALL_PROG -KILL `basename $pmda` > /dev/null 2>&1 &
+	pmsignal -a -s KILL `basename $pmda` > /dev/null 2>&1 &
     done
 
     wait
@@ -336,18 +336,19 @@ _shutdown()
 
     # If pmcd is running but we can't find a pidfile, or a logfile at the
     # configured or default location, assume this script is being run via
-    # a chroot build environment (and hence we do not want to kill pmcd).
+    # a chroot build environment (and hence we do not want to signal pmcd).
     #
     logf=`_pmcd_logfile`
     [ -f $logf ] || logf=$RUNDIR/pmcd.log
     if [ ! -f $PCP_RUN_DIR/pmcd.pid -a ! -f $logf ]
     then
-	echo "PMCD process ... "`cat $tmp.tmp`
+	pmcdpid=`cat $tmp.tmp`
+	echo "PMCD process ... $pmcdpid"
         echo "$prog:
 Warning: found no $PCP_RUN_DIR/pmcd.pid
          and no $logf.
          Assuming an uninstall from a chroot: PMCD not killed.
-         If this is incorrect, kill -TERM can be applied to the above PID."
+         If this is incorrect, \"pmsignal -s TERM $pmcdpid\"  can be used."
         exit
     elif [ -f $PCP_RUN_DIR/pmcd.pid ]
     then
@@ -378,9 +379,9 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid is $TOKILL.
     do
 	if [ "x$TOKILL" = "x" ]
 	then
-	    $PCP_KILLALL_PROG -$SIG pmcd > /dev/null 2>&1
+	    pmsignal -a -s $SIG pmcd > /dev/null 2>&1
 	else
-	    kill -$SIG $TOKILL >/dev/null 2>&1
+	    pmsignal -s $SIG $TOKILL >/dev/null 2>&1
 	    rm -f $PCP_RUN_DIR/pmcd.pid
 	fi
 	while [ $delay -gt 0 ]

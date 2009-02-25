@@ -97,7 +97,7 @@ SHOWME=false
 MV=mv
 RM=rm
 CP=cp
-KILL=kill
+KILL=pmsignal
 TERSE=false
 VERBOSE=false
 VERY_VERBOSE=false
@@ -626,8 +626,8 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	# Send pmie a SIGTERM, which is noted as a pending shutdown.
 	# Add pid to list of pmies sent SIGTERM - may need SIGKILL later.
 	#
-	$VERY_VERBOSE && echo "+ $KILL -TERM $pid"
-	eval $KILL -TERM $pid
+	$VERY_VERBOSE && echo "+ $KILL -s TERM $pid"
+	eval $KILL -s TERM $pid
 	$PCP_ECHO_PROG $PCP_ECHO_N "$pid ""$PCP_ECHO_C" >> $tmp.pmies	
     fi
 
@@ -645,7 +645,7 @@ then
     if ps -p "$pmielist" >/dev/null 2>&1
     then
 	$VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ $KILL -KILL `cat $tmp.pmies` ...""$PCP_ECHO_C" )
-	eval $KILL -KILL $pmielist >/dev/null 2>&1
+	eval $KILL -s KILL $pmielist >/dev/null 2>&1
 	delay=30	# tenths of a second
 	while ps -f -p "$pmielist" >$tmp.alive 2>&1
 	do

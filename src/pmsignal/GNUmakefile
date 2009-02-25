@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -11,26 +11,19 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES = pcp.sh pmlogger.config
+LSRCFILES = pmsignal.sh
 
 default:
 
 include $(BUILDRULES)
 
-CONFIGDIR = $(PCP_VAR_DIR)/config/pmlogger
-
 install: default
-	$(INSTALL) -m 755 pcp.sh $(PCP_BIN_DIR)/pcp
-	$(INSTALL) -m 644 pmlogger.config $(CONFIGDIR)/config.pcp
+	$(INSTALL) -m 755 pmsignal.sh $(PCP_BINADM_DIR)/pmsignal
 
 default_pcp : default
 

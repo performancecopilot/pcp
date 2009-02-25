@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,22 +15,35 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-#
+# 
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES = pcp.sh pmlogger.config
+IAM = oracle
+PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+LSRCFILES = Install Remove pmda$(IAM).pl
 
-default:
+ifneq ($(POD2MAN),)
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+endif
+
+LDIRT = domain.h root pmns *.log $(MAN_PAGES)
+
+default: $(MAN_PAGES)
+
+pmda$(IAM).1: pmda$(IAM).pl
+	$(POD_MAKERULE)  
 
 include $(BUILDRULES)
 
-CONFIGDIR = $(PCP_VAR_DIR)/config/pmlogger
-
 install: default
-	$(INSTALL) -m 755 pcp.sh $(PCP_BIN_DIR)/pcp
-	$(INSTALL) -m 644 pmlogger.config $(CONFIGDIR)/config.pcp
+	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
+	@$(INSTALL_MAN)
 
 default_pcp : default
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,6 +23,185 @@
 #define MILLISEC_PER_SEC	1000
 #define NANOSEC_PER_MILLISEC	1000000
 #define NANOSEC_BOUND		(1000000000-1)
+#define MAX_SIGNALS		3	/* HUP, USR1, TERM */
+
+static struct {
+    int			signal;
+    HANDLE		eventhandle;
+    HANDLE		waithandle;
+    __pmSignalHandler	callback;
+} signals[MAX_SIGNALS];
+
+static HMODULE	kernel32;
+
+static void
+LoadKernel32(void)
+{
+    if (!kernel32 &&
+	(kernel32 = LoadLibraryEx("kernel32.dll", NULL, 0)) == NULL)
+	fprintf(stderr, "LoadKernel32 failed (%ld)\n", GetLastError());
+}
+
+typedef void(CALLBACK *WAITORTIMERCALLBACK)(PVOID,BOOLEAN);
+typedef BOOL (WINAPI * __RegisterWaitForSingleObject)
+    (PHANDLE, HANDLE, WAITORTIMERCALLBACK, PVOID, ULONG, ULONG);
+typedef BOOL (WINAPI * __UnregisterWait)(HANDLE);
+__RegisterWaitForSingleObject _RegisterWaitForSingleObject;
+__UnregisterWait _UnregisterWait;
+
+BOOL WINAPI
+RegisterWaitForSingleObject(PHANDLE phNewWaitObject, HANDLE hObject,
+			    WAITORTIMERCALLBACK Callback, PVOID Context,
+			    ULONG dwMilliseconds, ULONG dwFlags)
+{
+    if (_RegisterWaitForSingleObject == NULL) {
+	LoadKernel32();
+	_RegisterWaitForSingleObject = (__RegisterWaitForSingleObject)
+	    GetProcAddress(kernel32, "RegisterWaitForSingleObject");
+	if (_RegisterWaitForSingleObject == NULL) {
+	    fprintf(stderr, "Cannot locate RegisterWaitForSingleObject "
+			    "in kernel32.dll (%ld)\n", GetLastError());
+	    return FALSE;
+	}
+    }
+    return (_RegisterWaitForSingleObject)
+	(phNewWaitObject, hObject, Callback, Context, dwMilliseconds, dwFlags);
+}
+
+BOOL WINAPI
+UnregisterWait(HANDLE hWaitObject)
+{
+    if (_UnregisterWait == NULL) {
+	LoadKernel32();
+	_UnregisterWait = (__UnregisterWait)
+	    GetProcAddress(kernel32, "UnregisterWait");
+	if (_UnregisterWait == NULL) {
+	    fprintf(stderr, "Cannot locate UnregisterWait "
+			    "in kernel32.dll (%ld)\n", GetLastError());
+	    return FALSE;
+	}
+    }
+    return (_UnregisterWait)(hWaitObject);
+}
+
+VOID CALLBACK
+SignalCallback(PVOID param, BOOLEAN timerorwait)
+{
+    int index = (int)param;
+
+    if (index > 0 && index < MAX_SIGNALS)
+	signals[index].callback(signals[index].signal);
+    else
+	fprintf(stderr, "SignalCallback: bad signal index (%d)\n", index);
+}
+
+static char *
+MapSignals(int sig, int *index)
+{
+    static char name[8];
+
+    switch (sig) {
+    case SIGHUP:
+	*index = 0;
+	strcpy(name, "SIGHUP");
+	break;
+    case SIGUSR1:
+	*index = 1;
+	strcpy(name, "SIGUSR1");
+	break;
+    case SIGTERM:
+	*index = 2;
+	strcpy(name, "SIGTERM");
+	break;
+    default:
+	return NULL;
+    }
+    return name;
+}
+
+int
+__pmSetSignalHandler(int sig, __pmSignalHandler func)
+{
+    int sts, index;
+    char *signame, evname[64];
+    HANDLE eventhdl, waithdl;
+
+    if ((signame = MapSignals(sig, &index)) < 0)
+	return index;
+
+    if (signals[index].callback) {	/* remove old handler */
+	UnregisterWait(signals[index].waithandle);
+	CloseHandle(signals[index].eventhandle);
+	signals[index].callback = NULL;
+	signals[index].signal = -1;
+    }
+
+    if (func == SIG_IGN)
+	return 0;
+
+    sts = 0;
+    snprintf(evname, sizeof(evname), "PCP/%d/%s", getpid(), signame);
+    if (!(eventhdl = CreateEvent(NULL, FALSE, FALSE, TEXT(evname)))) {
+	sts = GetLastError();
+	fprintf(stderr, "CreateEvent::%s failed (%d)\n", signame, sts);
+    }
+    else if (!RegisterWaitForSingleObject(&waithdl, eventhdl,
+		SignalCallback, (PVOID)index, INFINITE, 0)) {
+	sts = GetLastError();
+	fprintf(stderr, "RegisterWait::%s failed (%d)\n", signame, sts);
+    }
+    else {
+	signals[index].eventhandle = eventhdl;
+	signals[index].waithandle = waithdl;
+	signals[index].callback = func;
+	signals[index].signal = sig;
+    }
+    return sts;
+}
+
+static void
+sigterm_callback(int sig)
+{
+    exit(0);	/* give atexit(3) handlers a look-in */
+}
+
+int
+__pmSetProgname(const char *program)
+{
+    int	sts1, sts2;
+    char *p;
+    WORD wVersionRequested = MAKEWORD(2, 2);
+    WSADATA wsaData;
+
+    /* Trim command name of leading directory components */
+    if (program)
+	pmProgname = (char *)program;
+    for (p = pmProgname; pmProgname && *p; p++) {
+	if (*p == '/')
+	    pmProgname = p + 1;
+    }
+
+    /* Deal with all files in binary mode - no EOL futzing */
+    _fmode = O_BINARY;
+
+    /*
+     * Here we are emulating POSIX signals using Event objects.
+     * For all processes we want a SIGTERM handler, which allows
+     * us an opportunity to cleanly shutdown: atexit(1) handlers
+     * get a look-in, IOW.  Other signals (HUP/USR1) are handled
+     * in a similar way, but only by processes that need them.
+     */
+    sts1 = __pmSetSignalHandler(SIGTERM, sigterm_callback);
+
+    /*
+     * If Windows networking is not setup, all networking calls fail;
+     * this even includes gethostname(2), if you can believe that. :[
+     */
+    if ((sts2 = WSAStartup(wVersionRequested, &wsaData)) != 0)
+	fprintf(stderr, "WSAStartup failed (%ld)\n", GetLastError());
+
+    return sts1 | sts2;
+}
 
 int
 __pmProcessExists(pid_t pid)

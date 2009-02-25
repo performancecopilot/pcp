@@ -378,8 +378,8 @@ startmonitor(void)
 static void
 sigintproc(int sig)
 {
-    signal(SIGINT, SIG_IGN);
-    signal(SIGTERM, SIG_IGN);
+    __pmSetSignalHandler(SIGINT, SIG_IGN);
+    __pmSetSignalHandler(SIGTERM, SIG_IGN);
     __pmNotifyErr(LOG_INFO, "%s caught SIGINT or SIGTERM\n", pmProgname);
     exit(1);
 }
@@ -686,18 +686,20 @@ getargs(int argc, char *argv[])
 	perf = &instrument;
 
     if (isdaemon) {			/* daemon mode */
+#if defined(HAVE_TERMIO_SIGNALS)
 	signal(SIGTTOU, SIG_IGN);
 	signal(SIGTTIN, SIG_IGN);
 	signal(SIGTSTP, SIG_IGN);
-	signal(SIGINT, sigintproc);
-	signal(SIGTERM, sigintproc);
-	signal(SIGBUS, sigbadproc);
-	signal(SIGSEGV, sigbadproc);
+#endif
+	__pmSetSignalHandler(SIGINT, sigintproc);
+	__pmSetSignalHandler(SIGTERM, sigintproc);
+	__pmSetSignalHandler(SIGBUS, sigbadproc);
+	__pmSetSignalHandler(SIGSEGV, sigbadproc);
     }
     else {
 	/* need to catch these so the atexit() processing is done */
-	signal(SIGINT, sigbye);
-	signal(SIGTERM, sigbye);
+	__pmSetSignalHandler(SIGINT, sigbye);
+	__pmSetSignalHandler(SIGTERM, sigbye);
     }
 
     if (commandlog != NULL) {
@@ -707,9 +709,9 @@ getargs(int argc, char *argv[])
 		    pmProgname, commandlog, strerror(oserror()));
 	    exit(1);
 	}
-	signal(SIGHUP, (isdaemon && !agent) ? sighupproc : SIG_IGN);
+	__pmSetSignalHandler(SIGHUP, (isdaemon && !agent) ? sighupproc : SIG_IGN);
     } else {
-	signal(SIGHUP, SIG_IGN);
+	__pmSetSignalHandler(SIGHUP, SIG_IGN);
     }
 
     /*

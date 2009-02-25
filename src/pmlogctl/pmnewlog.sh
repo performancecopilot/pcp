@@ -37,7 +37,7 @@ SHOWME=false
 CP=cp
 MV=mv
 RM=rm
-KILL=kill
+KILL=pmsignal
 primary=true
 myname="primary pmlogger"
 connect=primary
@@ -503,7 +503,7 @@ $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Terminating $myname ...""$PCP_ECHO_C"
 for sig in INT HUP KILL
 do
     $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N " SIG$sig ...""$PCP_ECHO_C"
-    eval $KILL -$sig $pid
+    eval $KILL -s $sig $pid
     sleep 5
     [ "`_check_pid $pid`" = "" ] && break
 done

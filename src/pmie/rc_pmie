@@ -108,7 +108,7 @@ _reboot_setup()
 	# remove entries without a pmie process
 	rm -f `comm -23 $tmp.ent $tmp.pid`
 	rm -f $tmp.ent $tmp.pid
-	cd $here
+	cd "$here"
     fi
     chmod 1777 $PCP_TMP_DIR/pmie
 

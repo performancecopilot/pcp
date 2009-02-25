@@ -307,7 +307,7 @@ END					{ exit status }'
 	#
 	if pminfo -h localhost -v pmcd.version >/dev/null 2>&1
 	then
-	    $PCP_KILLALL_PROG -HUP pmcd >/dev/null 2>&1
+	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	    __wait_for_pmcd
 	    $__pmcd_is_dead && __restore_pmcd
   	    # give PMDA a chance to cleanup, especially if a new one about
@@ -317,14 +317,14 @@ END					{ exit status }'
     fi
     rm -f /tmp/$$.pmcd.conf
 
-    # kill off any matching PMDA that is still running
+    # stop any matching PMDA that is still running
     #
     for __sig in INT TERM KILL
     do
 	__pids=`_get_pids_by_name pmda$1`
 	if [ ! -z "$__pids" ]
 	then
-	    kill -$__sig $__pids >/dev/null 2>&1
+	    pmsignal -s $__sig $__pids >/dev/null 2>&1
 	    sleep 3
 	else
 	    break
@@ -388,7 +388,7 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
     #
     if pminfo -h localhost -v pmcd.version >/dev/null 2>&1
     then
-	$PCP_KILLALL_PROG -HUP pmcd >/dev/null 2>&1
+	pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	__wait_for_pmcd
 	$__pmcd_is_dead && __restore_pmcd
     else
@@ -854,7 +854,7 @@ _install()
             cd $PMNSDIR
 	    if pmnsdel -n $PMNSROOT $__n >$tmp 2>&1
 	    then
-		$PCP_KILLALL_PROG -HUP pmcd >/dev/null 2>&1
+		pmsignal -a -s HUP pmcd >/dev/null 2>&1
 		# Make sure the PMNS timestamp will be different the next
 		# time the PMNS is updated (for Linux only 1 sec resolution)
 		sleep 2
@@ -894,7 +894,7 @@ _install()
         cd $PMNSDIR
 	if pmnsadd -n $PMNSROOT $__n
 	then
-	    $PCP_KILLALL_PROG -HUP pmcd >/dev/null 2>&1
+	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	    # Make sure the PMNS timestamp will be different the next
 	    # time the PMNS is updated (for Linux only 1 sec resolution)
 	    sleep 2
@@ -1093,7 +1093,7 @@ _remove()
 	if pmnsdel -n $PMNSROOT $__n >$tmp 2>&1
 	then
 	    rm -f $PMNSDIR/$__n
-	    $PCP_KILLALL_PROG -HUP pmcd >/dev/null 2>&1
+	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	    echo "done"
 	else
 	    if grep 'Non-terminal "'"$__n"'" not found' $tmp >/dev/null

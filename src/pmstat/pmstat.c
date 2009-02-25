@@ -34,8 +34,6 @@ struct statsrc_t {
     pmResult	* res[2];
 };
 
-char *pmProgname;
-
 static char * metrics[] = {
 #define LOADAVG 0
     "kernel.all.load",   

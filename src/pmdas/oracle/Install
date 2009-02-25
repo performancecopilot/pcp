@@ -1,6 +1,6 @@
-#!gmake
+#! /bin/sh
 #
-# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,23 +15,23 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# Install the Oracle PMDA
 #
 
-TOPDIR = ../..
-include $(TOPDIR)/src/include/builddefs
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-LSRCFILES = pcp.sh pmlogger.config
+iam=oracle
+perl_opt=true
+daemon_opt=false
 
-default:
+perl -e "use DBI" 2>/dev/null
+if test $? -ne 0; then
+    echo "Perl database interface (DBI) is not installed"
+    exit 1
+fi
 
-include $(BUILDRULES)
-
-CONFIGDIR = $(PCP_VAR_DIR)/config/pmlogger
-
-install: default
-	$(INSTALL) -m 755 pcp.sh $(PCP_BIN_DIR)/pcp
-	$(INSTALL) -m 644 pmlogger.config $(CONFIGDIR)/config.pcp
-
-default_pcp : default
-
-install_pcp : install
+pmdaSetup
+pmdaInstall
+exit 0

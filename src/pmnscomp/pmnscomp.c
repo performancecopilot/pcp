@@ -370,11 +370,9 @@ Options:\n\
      * from here on, ignore SIGHUP, SIGINT and SIGTERM to protect
      * the integrity of the new ouput file
      */
-#if defined(HAVE_SIGHUP)
-    signal(SIGHUP, SIG_IGN);
-#endif
-    signal(SIGINT, SIG_IGN);
-    signal(SIGTERM, SIG_IGN);
+    __pmSetSignalHandler(SIGHUP, SIG_IGN);
+    __pmSetSignalHandler(SIGINT, SIG_IGN);
+    __pmSetSignalHandler(SIGTERM, SIG_IGN);
 
     if ((outf = fopen(argv[optind], "w+")) == NULL) {
 	fprintf(stderr, "%s: cannot create \"%s\": %s\n", pmProgname, argv[optind], strerror(errno));

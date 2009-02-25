@@ -158,18 +158,18 @@ PCP_ECHO_PROG=@echo@
 PCP_ECHO_N=@echo_n@
 PCP_ECHO_C=@echo_c@
 
-# killall
-PCP_KILLALL_PROG=@pcp_killall_prog@
+# write to the system log
+PCP_SYSLOG_PROG=@pcp_syslog_prog@
 
-# ps
+# running process list
 PCP_PS_PROG=@pcp_ps_prog@
 PCP_PS_HAVE_BSD=@pcp_ps_have_bsd@
 PCP_PS_ALL_FLAGS=@pcp_ps_all_flags@
 
-# which
+# locate executables
 PCP_WHICH_PROG=@which@
 
-# host os
+# host operating system
 PCP_PLATFORM=@target_os@
 PCP_PLATFORM_PATHS=@pcp_platform_paths@
 

@@ -871,7 +871,7 @@ because it has terminated or the PMNS has been changed,
 may be reconfigured by sending it a SIGHUP, as in
 .PP
 .CS
-# killall \-HUP pmcd
+# pmsignal -a \-s HUP pmcd
 .CE
 .PP
 When
@@ -904,7 +904,9 @@ restarted.
 .PP
 Sometimes it is necessary to restart an agent that is still running, but
 malfunctioning.
-Simply kill the agent, then send
+Simply stop the agent (e.g. using SIGTERM from
+.BR pmsignal (1)),
+then send
 .B pmcd
 a SIGHUP, which will cause the agent to be restarted.
 .SH "STARTING AND STOPPING PMCD"
@@ -1095,9 +1097,9 @@ for tracing host access control (see below) and
 for tracing the configuration file scanner and parser.
 .SH CAVEATS
 .B pmcd
-does not kill its child agents, it only closes their pipes.
-If an agent never
-checks for a closed pipe it may not terminate.
+does not explicitly terminate its children (agents), it only
+closes their pipes.
+If an agent never checks for a closed pipe it may not terminate.
 .PP
 The configuration file parser will only read lines of less than 1200
 characters.

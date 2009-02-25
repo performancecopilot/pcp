@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -13,7 +13,8 @@
  * for more details.
  */
 
-#include "pmcd.h"
+#include "pmproxy.h"
+
 
 #ifdef IS_MINGW
 
