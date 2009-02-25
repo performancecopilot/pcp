@@ -707,7 +707,7 @@ main(int argc, char ** argv)
 	}
 	// move position to account for initial visible points
 	if (tcmp(&position, &realStartTime) <= 0)
-	    for (c = 0; c < globalSettings.sampleHistory - 2; c++)
+	    for (c = 0; c < globalSettings.visibleHistory - 2; c++)
 		tadd(&position, &delta);
 	if (tcmp(&position, &realEndTime) > 0)
 	    position = realEndTime;
