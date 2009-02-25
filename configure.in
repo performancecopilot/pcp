@@ -413,6 +413,21 @@ fi
 pod2man=$POD2MAN
 AC_SUBST(pod2man)
 
+dnl extra check for the Perl MakeMaker package
+AC_MSG_CHECKING([if ExtUtils::MakeMaker is installed])
+perl -e "use ExtUtils::MakeMaker" 2>/dev/null
+if test $? -eq 0
+then
+    AC_MSG_RESULT([ yes])
+else
+    AC_MSG_RESULT([ no])
+    echo
+    echo "FATAL ERROR: Perl ExtUtils::MakeMaker module missing."
+    echo "You can either install this from your distribution, or"
+    echo "download from CPAN (Comprehensive Perl Archive Network)."
+    exit 1
+fi
+
 dnl check if the gendist program is available
 if test -z "$GENDIST" ; then
    AC_PATH_PROG(GENDIST, gendist) 
