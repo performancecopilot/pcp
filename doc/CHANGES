@@ -1,3 +1,11 @@
+pcp-gui 1.3.2 (26 February 2009)
+    - Updates to CPU view for Linux virtualisation time,
+      and sync-up the Overview with CPU/Loadavg views.
+    - Fix path search for pmchart system views.
+    - Fix rpm spec file dependencies for new Qt4.
+    - Fix quirk in initial archive position setting.
+    - Fix Mac OS X specific pmchart wrapper script.
+
 pcp-gui 1.3.1 (17 February 2009)
     - Fix up image generation regression.
     - Correct use of pmquery within pmchart as xconfirm prog.
