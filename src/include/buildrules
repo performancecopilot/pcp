@@ -16,7 +16,6 @@ realclean distclean: clean
 	      $(TOPDIR)/src/include/version.h \
 	      $(TOPDIR)/src/libqmc/libqmc.pro \
 	      $(TOPDIR)/src/libqwt/libqwt.pro \
-	      $(TOPDIR)/src/libqwt3d/libqwt3d.pro \
 	      $(TOPDIR)/src/dumptext/pmdumptext.pro \
 	      $(TOPDIR)/src/query/pmquery.pro \
 	      $(TOPDIR)/src/chart/pmchart.pro \

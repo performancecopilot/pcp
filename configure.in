@@ -65,7 +65,6 @@ AC_OUTPUT( \
 	src/include/version.h \
 	src/libqmc/libqmc.pro \
 	src/libqwt/libqwt.pro \
-	src/libqwt3d/libqwt3d.pro \
 	src/dumptext/pmdumptext.pro \
 	src/query/pmquery.pro \
 	src/chart/pmchart.pro \
