@@ -28,7 +28,7 @@ DAEMON = pmclusterd
 LLDLIBS = -lpcp -lpcp_pmda
 LCFLAGS = -I.
 LSRCFILES = Install Remove $(DFILES) root GNUmakefile.install \
-	    etc_init.d_pmclusterd clusterns.pl
+	    rc_pmclusterd clusterns.pl
 IAM	= cluster
 DOMAIN	= CLUSTER
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
@@ -57,7 +57,7 @@ install: default
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 $(DFILES) pmns root help domain.h $(PMDADIR)
 	$(INSTALL) -m 755 pmclusterd $(PCP_BINADM_DIR)/pmclusterd
-	$(INSTALL) -m 755 etc_init.d_pmclusterd $(PCP_SHARE_DIR)/lib/rc.pmclusterd
+	$(INSTALL) -m 755 rc_pmclusterd $(PCP_SHARE_DIR)/lib/rc.pmclusterd
 else
 build-me:
 install:
