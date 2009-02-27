@@ -25,7 +25,7 @@ include $(TOPDIR)/src/include/builddefs
 # and should almost certainly be removed from SRCFILES once
 # the pmda is working.
 LSRCFILES = fixpmns.awk general.pmie help.fmt Install \
-	    Makefile.install pmns.hotproc Remove sample.conf \
+	    pmns.hotproc Remove sample.conf \
 	    general.conf help.hotproc Makefile README root 
 SUBDIRS = src
 
@@ -79,7 +79,6 @@ include $(BUILDRULES)
 #	$(INSTALL) -m 755 pmda$(IAM) $(PMDADIR)
 #	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 #	$(INSTALL) -m 644 README root help pmns domain.h sample.conf general.conf general.pmie $(PMDADIR)
-#	$(INSTALL) -m 644 Makefile.install $(PMDADIR)/Makefile
 #
 #$(IAM):	$(OBJECTS)
 #

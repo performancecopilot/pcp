@@ -26,8 +26,7 @@ TARGETS	= $(IAM)$(EXECSUFFIX)
 CFILES	= apache.c
 SCRIPTS	= Install Remove
 DFILES	= README
-LSRCFILES= $(SCRIPTS) pmns help root Apache.pmchart $(DFILES) \
-	GNUmakefile.install
+LSRCFILES= $(SCRIPTS) pmns help root Apache.pmchart $(DFILES)
 
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart
@@ -49,7 +48,6 @@ install: build-me
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 Apache.pmchart $(PMCHART)/Apache
 else
 build-me:

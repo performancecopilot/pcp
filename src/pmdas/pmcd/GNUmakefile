@@ -27,7 +27,7 @@ LTARGETS	= help.dir
 LDIRT		= *.log *.dir *.pag domain.h so_locations
 
 TARGETS = help.dir
-LSRCFILES = help root_pmcd GNUmakefile.install
+LSRCFILES = help root_pmcd
 
 SUBDIRS = src
 PMDADIR = $(PCP_PMDAS_DIR)/pmcd
@@ -47,7 +47,6 @@ install_pcp install :: $(SUBDIRS)
 install_pcp install :: $(SUBDIRS)
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 help.dir help.pag $(PMDADIR) 
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 root_pmcd $(PCP_VAR_DIR)/pmns/root_pmcd
 
 help.dir: help root_pmcd 

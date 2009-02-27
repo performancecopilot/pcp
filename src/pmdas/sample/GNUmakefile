@@ -27,8 +27,7 @@ include $(TOPDIR)/src/include/builddefs
 DOMAIN  = SAMPLE
 
 DFILES	= README help
-LSRCFILES = root pmns $(DFILES) GNUmakefile.install Install Remove \
-	    Sample.pmchart
+LSRCFILES = root pmns $(DFILES) Install Remove Sample.pmchart
 LDIRT = domain.h *.dir *.pag sample.log
 
 SUBDIRS = src
@@ -46,7 +45,6 @@ install_pcp install :: default
 	$(INSTALL) -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) pmns root domain.h $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 Sample.pmchart $(PCP_VAR_DIR)/config/pmchart/Sample
 
 include $(BUILDRULES)

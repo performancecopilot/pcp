@@ -28,7 +28,7 @@ LLDFLAGS = -L.
 LLDLIBS = -lmlan -lpcp -lpcp_pmda
 LCFLAGS = -I.
 DFILES	= README help
-LSRCFILES = Install Remove pmns $(DFILES) root GNUmakefile.install
+LSRCFILES = Install Remove pmns $(DFILES) root
 
 SUBDIRS = mlan
 
@@ -54,7 +54,6 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root pmns domain.h $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 endif
 
 domain.h: ../../pmns/stdpmid
