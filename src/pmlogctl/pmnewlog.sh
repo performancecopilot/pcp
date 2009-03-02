@@ -500,7 +500,7 @@ fi
 # kill off existing pmlogger
 #
 $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Terminating $myname ...""$PCP_ECHO_C"
-for sig in INT HUP KILL
+for sig in USR1 TERM KILL
 do
     $VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N " SIG$sig ...""$PCP_ECHO_C"
     eval $KILL -s $sig $pid
