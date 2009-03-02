@@ -3,8 +3,6 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: common,v 2.68 2004/05/18 23:15:00 pcpqa Exp $
-#
 
 # for _wait_for_pmlogger() and _change_config()
 . ./common.check 

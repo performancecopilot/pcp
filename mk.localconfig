@@ -4,8 +4,6 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: mk.localconfig,v 1.21 2004/06/23 18:07:37 kenmcd Exp $
-#
 
 # generic initialization
 . ./common.rc

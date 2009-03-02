@@ -6,8 +6,6 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: xlate_2_new_pmns,v 1.4 2002/10/18 22:30:50 kenmcd Exp $
-#
 
 _map()
 {

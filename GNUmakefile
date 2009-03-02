@@ -2,8 +2,6 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: GNUmakefile,v 1.10 2005/07/10 23:46:11 kenmcd Exp $
-#
 
 -include ./GNUlocaldefs
 

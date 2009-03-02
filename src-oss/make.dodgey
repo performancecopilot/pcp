@@ -4,7 +4,6 @@
 #
 # Make the various "dodgey" logs
 #
-# $Id: make.dodgey,v 1.1 2002/10/25 01:33:55 kenmcd Exp $
 
 . /etc/pcp.env
 

@@ -4,8 +4,6 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: new,v 2.40 2005/02/21 22:33:43 kenmcd Exp $
-#
 # Usage: new [base-seq-no group ...]
 #
 # base-seq-no defaults to 100 (for open src and sgi tests), and the other

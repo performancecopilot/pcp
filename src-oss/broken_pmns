@@ -1,7 +1,5 @@
 /*
  * Metrics for a broken PMDA
- *
- * $Id: broken_pmns,v 1.1 2002/10/25 01:33:55 kenmcd Exp $
  */
 
 broken {

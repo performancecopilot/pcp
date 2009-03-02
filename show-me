@@ -4,8 +4,6 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: show-me,v 2.36 2005/07/09 01:57:56 kenmcd Exp $
-#
 
 # generic initialization
 iam=show-me
