@@ -19,8 +19,6 @@ root-snarf:
 endif
 
 OBJSTYLE =
-INCPMC	= -I/usr/include/pcp/pmc
-LIBPMC = /usr/lib/libpcp_pmc.so.1
 
 ifeq ($(PCP_PLATFORM), solaris)
 LIBSOL = -lsocket
@@ -28,10 +26,6 @@ endif
 
 LIBPCP2 = -lpcp
 LIBPMDA2 = -lpcp_pmda
-
-HAVE_DYNAMIC	= $(shell grep DYNAMIC $(PCP_VAR_DIR)/pmns/stdpmid >/dev/null && echo 1; exit 0)
-
-HAVE_PMC	= $(shell [ -f $(LIBPMC) ] && echo 1; exit 0)
 
 LITE_LDLIBS	= -lpcp
 
@@ -90,10 +84,6 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 OLD_CFILES	= pmda_sproc.c sys5_ipc.c diowr.c pmie-lic.c \
 	   sysinfocounts.c load_o2000.c 
 
-ifeq ($(HAVE_DYNAMIC), 1)
-CFILES	+= dynamic_pmda.c
-endif
-
 CFILES_TARGETS = $(CFILES)
 
 TARGETS = \
@@ -106,15 +96,6 @@ TARGETS = \
 ifeq ($(HAVE_64), 1)
 TARGETS	+= pv64
 endif
-
-ifeq ($(HAVE_PMC), 1)
-TARGETS		+= pmc_list pmc_context \
-		pmc_format pmc_vector pmc_list pmc_string \
-		pmc_source pmc_desc pmc_indom pmc_metric pmc_group \
-		pmc_dynamic pmc_hosts
-endif
-
-HAVE_MONS_H := $(shell test -r /usr/include/pcp/pmapi_mon.h && echo "-DHAVE_SEPARATE_MONS_H")
 
 COPTS	=
 CDEFS	= $(DEBUG) $(HAVE_MONS_H)
@@ -136,7 +117,6 @@ endif
 LDIRT	= *.log domain.h help.pag help.dir mv-foo.? mv-bar.? mv-bigbin.? \
 	$(subst .c,.o,$(CFILES)) \
 	chkctx2_lite.c pmclient_src mv-interp.? fetchrate_lite.c \
-	real_dynamic_pmns dynamic.dir dynamic.pag \
 	broken_pmda_*.c real_broken_pmns broken_v?.dir broken_v?.pag \
 	broken_pmda_? pv64.c localconfig.h gmon.out
 
@@ -306,23 +286,6 @@ slow_af:	slow_af.c
 pmval:	pmval.c
 	rm -f $@
 	$(CC) $(CDEFS) $(COPTS) -o $@ $@.c  $(LDLIBS) -lm
-
-real_dynamic_pmns:	domain.h dynamic_pmns
-	cat domain.h >real_dynamic_pmns
-	echo >>real_dynamic_pmns
-	echo 'root {' >>real_dynamic_pmns
-	echo '  broken' >>real_dynamic_pmns
-	echo '}' >>real_dynamic_pmns
-	echo >>real_dynamic_pmns
-	cat dynamic_pmns >>real_dynamic_pmns
-
-dynamic.dir:	dynamic_help real_dynamic_pmns
-	rm -f dynamic.pag dynamic.dir
-	newhelp -n real_dynamic_pmns -v 2 -o dynamic dynamic_help
-
-dynamic_pmda: dynamic_pmda.c domain.h real_dynamic_pmns
-	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -DVERSION_2 -o $@ $@.c $(LDOPTS) -lpcp_pmda $(LDLIBS)
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #
@@ -672,6 +635,4 @@ localconfig.h:
 	cd ..; ./mk.localconfig && cp localconfig.h src-oss
 
 bozo:
-	@echo LIBPMC=$(LIBPMC)
-	@echo HAVE_PMC=$(HAVE_PMC)
 	@echo TARGETS=$(TARGETS)
