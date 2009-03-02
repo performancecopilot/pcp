@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -24,7 +26,7 @@ typedef struct {
 	unsigned int	g:12;
 } bits_t;
 
-bits_t	outbits = { 0xdead, 0x5f, 0x3, 0x5, 0xf, 0xc, 0xafe };
+bits_t	outbits = { 0xdead, 0x5f, 0x3, 0x5, 0x7, 0xc, 0xafe };
 
 int
 main(int argc, char *argv[])
