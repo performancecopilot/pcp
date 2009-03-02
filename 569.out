@@ -1,4 +1,4 @@
-Pmprobe with changes from pv. 807561
+Pmprobe with local context and changes from pv. 807561
 QA output created by 569
 
 ===  ===
@@ -552,9 +552,13 @@ Options:
   -h host      metrics source is PMCD on host
   -I           list external instance names
   -i           list internal instance numbers
+  -L           use local context instead of PMCD
   -n pmnsfile  use an alternative PMNS
+  -O time      origin for a fetch from the archive
   -V           report PDU operations (verbose)
   -v           list metric values
+  -Z timezone  set timezone for -O
+  -z           set timezone for -O to local time for host from -a
 
 === -iIv ===
 pmprobe: at most one of -v and (-i or -I) allowed
@@ -568,6 +572,10 @@ Options:
   -h host      metrics source is PMCD on host
   -I           list external instance names
   -i           list internal instance numbers
+  -L           use local context instead of PMCD
   -n pmnsfile  use an alternative PMNS
+  -O time      origin for a fetch from the archive
   -V           report PDU operations (verbose)
   -v           list metric values
+  -Z timezone  set timezone for -O
+  -z           set timezone for -O to local time for host from -a
