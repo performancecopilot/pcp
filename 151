@@ -21,7 +21,6 @@ echo "QA output created by $seq"
 
 # check for new version ... 
 #
-$PCP_BINADM_DIR/pmlogger_daily -\? 2>&1 >/tmp/eek
 if $PCP_BINADM_DIR/pmlogger_daily -\? 2>&1 | grep '^.*-o.*(old style)' >/dev/null
 then
     :
