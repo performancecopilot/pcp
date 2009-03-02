@@ -121,6 +121,7 @@ struct file_state filestatetab[] = {
 	{ { 0 , 0 } , "/proc/sys/lnet/peers", 0, 0, NULL}
 };
 
+static int	isDSO = 1;		/* =0 I am a daemon */
 static char	mypath[MAXPATHLEN];
 
 /*
@@ -238,11 +239,20 @@ lustrecomm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom
 void 
 lustrecomm_init(pmdaInterface *dp)
 {
+    if (isDSO) {
+	int sep = __pmPathSeparator();
+	snprintf(mypath, sizeof(mypath), "%s%c" "lustrecomm" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	pmdaDSO(dp, PMDA_INTERFACE_2, "lustrecomm DSO", mypath);
+    }
+
+    if (dp->status != 0)
+	return;
+
     pmdaSetFetchCallBack(dp, lustrecomm_fetchCallBack);
 
     pmdaInit(dp, NULL, 0, 
 	     metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
-
 }
 
 static void
@@ -256,7 +266,6 @@ usage(void)
     exit(1);
 }
 
-
 /*
  * Set up the agent if running as a daemon.
  */
@@ -264,18 +273,13 @@ int
 main(int argc, char **argv)
 {
     int			err = 0;
+    int			sep = __pmPathSeparator();
     pmdaInterface	desc;
-    char		*p;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
-
-    snprintf(mypath, sizeof(mypath),
-		"%s/lustrecomm/help", pmGetConfig("PCP_PMDAS_DIR"));
+    isDSO = 0;
+    __pmSetProgname(argv[0]);
+    snprintf(mypath, sizeof(mypath), "%s%c" "lustrecomm" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, LUSTRECOMM,
 		"lustrecomm.log", mypath);
 
@@ -291,5 +295,4 @@ main(int argc, char **argv)
     pmdaMain(&desc);
 
     exit(0);
-    /*NOTREACHED*/
 }

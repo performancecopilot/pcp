@@ -32,21 +32,23 @@ int refresh_file( struct file_state *f_s ){
 	struct timespec now, tmp;
 	int i;
 
-	/* get time */
-	if ( clock_gettime(CLOCK_MONOTONIC, &now) < 0 ) {
-		/* if we don't know what time it is */
-		/* there's nothing we can do with this */
-		return 0;
+	if (f_s->datap) {
+		/* get time */
+		if ( clock_gettime(CLOCK_MONOTONIC, &now) < 0 ) {
+			/* if we don't know what time it is */
+			/* there's nothing we can do with this */
+			return 0;
+		}
+		/* if time since last refresh > delta */
+		tmp = timespec_add( &f_s->ts, &file_time_offset);
+		if ( timespec_le( &now, &tmp) ) {
+			/* file is recent */
+			return 0;
+		}
+		f_s->ts = now;
+		/* clear old data, make errors obvious, autoterm trailing strings */
+		memset ( f_s->datap, 0,  f_s->datas );
 	}
-	/* if time since last refresh > delta */
-	tmp = timespec_add( &f_s->ts, &file_time_offset);
-	if ( timespec_le( &now, &tmp) ) {
-		/* file is recent */
-		return 0;
-	}
-	f_s->ts = now;
-	/* clear old data, make errors obvious, autoterm trailing strings */
-	memset ( f_s->datap, 0,  f_s->datas );
 	/* if fd is null open file */
 	if ( f_s->fd <= 0) { 
 		if (( f_s->fd = open (f_s->filename, O_RDONLY)) < 0) {

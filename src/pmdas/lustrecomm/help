@@ -34,8 +34,6 @@
 # blank lines before the @ line are ignored
 #
 
-@ LUSTRECOMM.1 lnet stats
-
 @ lustrecomm.timeout
 
 @ lustrecomm.ldlm_timeout
