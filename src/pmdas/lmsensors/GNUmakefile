@@ -29,7 +29,7 @@ CFILES	= lmsensors.c
 HFILES	= lmsensors.h
 SCRIPTS	= Install Remove
 DFILES	= README
-LSRCFILES = $(SCRIPTS) pmns help root $(DFILES) GNUmakefile.install
+LSRCFILES = $(SCRIPTS) pmns help root $(DFILES)
 
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
@@ -49,7 +49,6 @@ install : default
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 else
 build-me:
 install:

@@ -890,6 +890,7 @@ main(int argc, char *argv[])
     char		*pmnsfile = PM_NS_DEFAULT;
     char		*startstr = NULL;
     char		*endstr = NULL;
+    char		*endnum = NULL;
     char		*msg = NULL;
     int			errflag = 0;
     int			lflag = 0;		/* no label by default */
@@ -915,8 +916,8 @@ main(int argc, char *argv[])
 	    break;
 
 	case 'B':	/* number of distribution bins */
-	    sts = (int)strtol(optarg, &endstr, 10);
-	    if (*endstr != '\0' || sts < 0) {
+	    sts = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0' || sts < 0) {
 		fprintf(stderr, "%s: -B requires postive numeric argument\n", pmProgname);
 		errflag++;
 	    }
@@ -972,8 +973,8 @@ main(int argc, char *argv[])
 	    break;
 
 	case 'p':	/* number of digits after decimal point */
-	    precision = (unsigned int)strtol(optarg, &endstr, 10);
-	    if (*endstr != '\0') {
+	    precision = (unsigned int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0') {
 		fprintf(stderr, "%s: -p requires numeric argument\n", pmProgname);
 		errflag++;
 	    }

@@ -30,7 +30,7 @@ OTHERS	= README root help pmns sample.conf
 CHARTS	= shping.CPUTime.pmchart shping.RealTime.pmchart
 PMIECS	= shping.status.pmie shping.response.pmie
 
-LSRCFILES = $(OTHERS) $(CHARTS) $(PMIECS) Install Remove GNUmakefile.install
+LSRCFILES = $(OTHERS) $(CHARTS) $(PMIECS) Install Remove
 LLDLIBS	= -lpcp_pmda -lpcp $(PTHREAD_LIB)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
@@ -49,7 +49,6 @@ install:	build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM) 
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 $(OTHERS) domain.h $(PMDADIR)
 	$(INSTALL) -m 644 shping.CPUTime.pmchart $(PMCHART)/shping.CPUTime
 	$(INSTALL) -m 644 shping.RealTime.pmchart $(PMCHART)/shping.RealTime

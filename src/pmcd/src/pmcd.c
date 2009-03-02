@@ -902,11 +902,11 @@ void SigIntProc(int sig)
 void SigHupProc(int s)
 {
 #ifndef IS_MINGW
-    SignalRestart();
-    SignalReloadPMNS();
-#else
     signal(SIGHUP, SigHupProc);
     restart = 1;
+#else
+    SignalRestart();
+    SignalReloadPMNS();
 #endif
 }
 
@@ -1014,10 +1014,10 @@ main(int argc, char *argv[])
 #else
     __pmSetSignalHandler(SIGINT, SigIntProc);
     __pmSetSignalHandler(SIGTERM, SigIntProc);
+#endif
     __pmSetSignalHandler(SIGHUP, SigHupProc);
     __pmSetSignalHandler(SIGBUS, SigBad);
     __pmSetSignalHandler(SIGSEGV, SigBad);
-#endif
 
     /* seed random numbers for authorisation */
     srand48((long)time(0));

@@ -26,7 +26,7 @@ TARGETS	= $(IAM)$(EXECSUFFIX)
 CFILES	= jstat.c
 HFILES	= jstat.h 
 DFILES	= README
-LSRCFILES=Install Remove root pmns help $(DFILES) Makefile.install
+LSRCFILES=Install Remove root pmns help $(DFILES)
 
 LLDLIBS	= -lpcp_pmda -lpcp $(PTHREAD_LIB)
 
@@ -48,7 +48,6 @@ install:	build-me
 	$(INSTALL) -m 755 $(IAM)$(EXECSUFFIX) $(PMDADIR)/pmda$(IAM)$(EXECSUFFIX)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
-	$(INSTALL) -m 644 Makefile.install $(PMDADIR)/Makefile
 else
 build-me:
 install:
