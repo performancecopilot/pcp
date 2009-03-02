@@ -40,7 +40,7 @@ control.install: control
 
 include $(BUILDRULES)
 
-install: $(OTHERS) crontab
+install: default crontab
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMLOGGERCONTROL_PATH)`
 	$(INSTALL) -m 644 control.install $(PCP_PMLOGGERCONTROL_PATH)
 	$(INSTALL) -m 644 config.sar config.base crontab $(_confdir)
