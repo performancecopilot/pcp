@@ -1,9 +1,8 @@
-#!/usr/bin/perl
-#
-# A demo script which interface the LogSummary Perl module to the
+# A demo script which interfaces the LogSummary Perl module to the
 # WriteExcel module, with some real data, to show what it can do.
-# Author: Nathan Scott
-#
+# Author: Nathan Scott <nathans@debian.org>
+# Note: No #! line, as this pulls in an external dependency that
+#       we really don't want in packaging tools like rpm.
 
 use strict;
 use warnings;
