@@ -60,20 +60,22 @@ do
     cp $arch.meta $tmp.meta
 
     maxsz=`wc -c <$arch.0 | sed -e 's/ //g'`
-    sz=`expr $maxsz - 16 \* 1024`
+    minsz=`expr $maxsz - 16 \* 1024`
 
-    while [ $sz -lt $maxsz ]
+    cp $arch.0 $tmp.0
+    chmod u+w $tmp.0
+
+    sz=`expr $maxsz - 4`
+    while [ $sz -ge $minsz ]
     do
 	# echo $sz
-	cp $arch.0 $tmp.0
-	chmod u+w $tmp.0
-	if src-oss/torture-eol -a $tmp -t $sz
+	if src-oss/torture-eol -q -a $tmp -t $sz
 	then
 	    :
 	else
 	    echo "Failed @ $sz"
 	fi
-	sz=`expr $sz + 4`
+	sz=`expr $sz - 4`
     done
 done
 

@@ -17,7 +17,7 @@ printstamp(struct timeval *tp)
     static struct tm	*tmp;
 
     tmp = localtime(&tp->tv_sec);
-    printf("%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, tp->tv_usec/1000);
+    printf("%02d:%02d:%02d.%03d", (int)tmp->tm_hour, (int)tmp->tm_min, (int)tmp->tm_sec, (int)(tp->tv_usec/1000));
 }
 
 int
@@ -30,13 +30,14 @@ main(int argc, char **argv)
     int		errflag = 0;
     int		ahtype = 0;
     int		verbose = 0;
+    int		quick = 0;
     char	*host;
     extern char	*optarg;
     extern int	optind;
     extern int	pmDebug;
     pmResult	*result;
     pmResult	*prev = NULL;
-    struct timeval	start;
+    struct timeval	start = { 0,0 };
     struct timeval	end;
     int		tzh;
     off_t	trunc_size = 0;
@@ -48,7 +49,7 @@ main(int argc, char **argv)
 	    pmProgname = p+1;
     }
 
-    while ((c = getopt(argc, argv, "a:D:t:v?")) != EOF) {
+    while ((c = getopt(argc, argv, "a:D:t:qv?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
@@ -78,6 +79,10 @@ main(int argc, char **argv)
 	    trunc_size = atol(optarg);
 	    break;
 
+	case 'q':	/* quick */
+	    quick = 1;
+	    break;
+
 	case 'v':	/* verbose */
 	    verbose++;
 	    break;
@@ -96,6 +101,7 @@ main(int argc, char **argv)
 Options\n\
   -a   archive	  metrics source is an archive log\n\
   -t   size       truncate archive to size bytes\n\
+  -q              quick (read last 3 records, not the whole archive)\n\
   -v              verbose\n",
 		pmProgname);
 	exit(1);
@@ -184,11 +190,27 @@ Options\n\
 	    printf("\n");
 	    e_sts = 1;
 	}
+	start.tv_sec = result->timestamp.tv_sec;
+	start.tv_usec = result->timestamp.tv_usec;
 	pmFreeResult(result);
     }
 
-    start.tv_sec = 0;
-    start.tv_usec = 0;
+    if (quick && e_sts == 0) {
+	int	i;
+	for (i = 0; i < 2; i++) {
+	    sts = pmFetchArchive(&result);
+	    if (sts >= 0) {
+		start.tv_sec = result->timestamp.tv_sec;
+		start.tv_usec = result->timestamp.tv_usec;
+		pmFreeResult(result);
+	    }
+	}
+    }
+    else {
+	/* start from the epoch and move forward */
+	start.tv_sec = 0;
+	start.tv_usec = 0;
+    }
     sts = pmSetMode(PM_MODE_FORW, &start, 0);
     if (sts < 0) {
 	printf("pmSetMode PM_MODE_FORW: %s\n", pmErrStr(sts));
