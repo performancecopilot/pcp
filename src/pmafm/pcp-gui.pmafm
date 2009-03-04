@@ -1,4 +1,4 @@
-# pmafm support for pmchart
+# pmafm support for PCP GUI
 
 MULTI="pmchart pmdumptext"
 REPLAY="pmchart"

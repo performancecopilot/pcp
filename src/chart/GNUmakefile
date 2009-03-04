@@ -42,7 +42,7 @@ ICONLINKS = aboutpcp.png aboutqt.png aboutpmchart.png pmchart.png pmtime.png \
 	    stepfwd_archive.png stepback_archive.png fastfwd_archive.png \
 	    fastback_archive.png
 
-SUBDIRS = views pmafm
+SUBDIRS = views
 
 default: iconlinks wrappers
 	$(SUBDIRS_MAKERULE)
