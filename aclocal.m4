@@ -321,5 +321,47 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     test -z "$HDIUTIL" && AC_PATH_PROG(HDIUTIL, hdiutil)
     hdiutil=$HDIUTIL
     AC_SUBST(hdiutil)
-  ])
+
+    dnl check if user wants their own lex, yacc
+    if test -z "$YACC"; then
+	AC_PROG_YACC
+    fi
+    yacc=$YACC
+    AC_SUBST(yacc)
+    if test -z "$LEX"; then
+	AC_PROG_LEX
+    fi
+    lex=$LEX
+    AC_SUBST(lex)
+    
+    dnl extra check for lex and yacc as these are often not installed
+    AC_MSG_CHECKING([if yacc is executable])
+    binary=`echo $yacc | awk '{cmd=1; print $cmd}'`
+    binary=`which "$binary"`
+    if test -x "$binary"
+    then
+	AC_MSG_RESULT([ yes])
+    else
+	AC_MSG_RESULT([ no])
+	echo
+	echo "FATAL ERROR: did not find a valid yacc executable."
+	echo "You can either set \$YACC as the full path to yacc"
+	echo "in the environment, or install a yacc/bison package."
+	exit 1
+    fi
+    AC_MSG_CHECKING([if lex is executable])
+    binary=`echo $lex | awk '{cmd=1; print $cmd}'`
+    binary=`which "$binary"`
+    if test -x "$binary"
+    then
+	AC_MSG_RESULT([ yes])
+    else
+	AC_MSG_RESULT([ no])
+	echo
+	echo "FATAL ERROR: did not find a valid lex executable."
+	echo "You can either set \$LEX as the full path to lex"
+	echo "in the environment, or install a lex/flex package."
+	exit 1
+    fi
+])
 
