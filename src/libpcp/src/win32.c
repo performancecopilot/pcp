@@ -197,8 +197,7 @@ __pmSetProgname(const char *program)
      * If Windows networking is not setup, all networking calls fail;
      * this even includes gethostname(2), if you can believe that. :[
      */
-    if ((sts2 = WSAStartup(wVersionRequested, &wsaData)) != 0)
-	fprintf(stderr, "WSAStartup failed (%ld)\n", GetLastError());
+    sts2 = WSAStartup(wVersionRequested, &wsaData);
 
     return sts1 | sts2;
 }
