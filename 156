@@ -21,17 +21,12 @@ _wait_for_pmlogger
 
 _filter()
 {
+    _filter_pmda_install | \
     sed -e 's/ 1090 / 1090+ /' \
 	-e 's/ 109[1-9] / 1090+ /' \
 	-e 's/ 11[0-2][0-9] / 1090+ /' \
 	-e 's/ [8-9] warnings/ 8+ metrics/' \
 	-e 's/ [7-9][0-9] metrics/ 76+ metrics/' \
-	-e 's/.* \(hash table entries\)/  NNN \1/' \
-	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
-	-e 's/.* \(leaf nodes\)/  NNN \1/' \
-	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
-	-e '/^Performance/d' \
-	-e '/make: Nothing to be done/d'
 
 }
 
@@ -83,7 +78,7 @@ fi
 # make sure sample agent is running again at the end, so other QA tests
 # continue to work
 #
-trap "echo; echo 'Reinstall PMDA ...'; $here/sudo ./Install </dev/null >$tmp.out; _filter <$tmp.out; $here/sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "echo; echo 'Reinstall PMDA ...'; $here/sudo ./Install </dev/null >$tmp.out; _filter <$tmp.out; $here/sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH; $here/sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
