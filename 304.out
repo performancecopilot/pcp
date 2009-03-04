@@ -24,7 +24,7 @@ grow at the rate of SOME bytes per hour or SOME bytes per day.
 
 At any time this pmlogger process may be terminated with the
 following command:
-        $ pmsignal -TERM PID
+        $ pmsignal -s TERM PID
 
 Terminate this PCP recording session now?
 pmlogger: Recording session terminated, exiting
@@ -105,7 +105,7 @@ the rate of SOME bytes per hour or SOME bytes per day.
 
 At any time this pmlogger process may be terminated with the
 following command:
-        $ pmsignal -TERM PID
+        $ pmsignal -s TERM PID
 pmlogger: Signalled (signal=2), exiting
 
 Log finished DATE
@@ -129,7 +129,7 @@ archive of SOME bytes.
 
 At any time this pmlogger process may be terminated with the
 following command:
-        $ pmsignal -TERM PID
+        $ pmsignal -s TERM PID
 recording session control: eof
 
 Error: xconfirm(1) failed for recording session dialog
@@ -146,7 +146,7 @@ grow at the rate of SOME bytes per hour or SOME bytes per day.
 
 At any time this pmlogger process may be terminated with the
 following command:
-        $ pmsignal -TERM PID
+        $ pmsignal -s TERM PID
 
 Terminate this PCP recording session now?
 pmlogger: Recording session terminated, exiting
@@ -178,7 +178,7 @@ grow at the rate of SOME bytes per hour or SOME bytes per day.
 
 At any time this pmlogger process may be terminated with the
 following command:
-        $ pmsignal -TERM PID
+        $ pmsignal -s TERM PID
 
 Terminate this PCP recording session now?
 pmlogger: Recording session terminated, exiting

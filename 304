@@ -55,8 +55,7 @@ _do()
 	-e "s/$LOCALHOST/HOST/g" \
 	-e 's/[0-9][^ ]* [kmKM]*bytes/SOME bytes/g' \
 	-e 's/[0-9][^ ]* seconds/SOME seconds/g' \
-	-e 's/-INT [0-9][0-9]*/-INT PID/' \
-	-e '/xconfirm: Not found/d' \
+	-e 's/-s TERM [0-9][0-9]*/-s TERM PID/' \
     | _filter_pmlogger_log
 
 }
