@@ -30,23 +30,28 @@ OpenViewDialog::OpenViewDialog(QWidget *parent) : QDialog(parent)
     fileNameLineEdit->setCompleter(my.completer);
 
     QDir dir;
-    QString home = my.userDir = QDir::homePath();
-    my.userDir.append("/.pcp/kmchart");
-    if (!dir.exists(my.userDir)) {
-	my.userDir = home;
-	my.userDir.append("/.pcp/pmchart");
-    }
     QString sys = my.systemDir = pmGetConfig("PCP_VAR_DIR");
     my.systemDir.append("/config/kmchart");
-    if (!dir.exists(my.systemDir)) {
-	my.systemDir = sys;
-	my.systemDir.append("/config/pmchart");
-    }
-
-    pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
+    if (dir.exists(my.systemDir))
+	pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
 			  my.systemDir);
-    pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
+    my.systemDir = sys;
+    my.systemDir.append("/config/pmchart");
+    if (dir.exists(my.systemDir))
+	pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
+			  my.systemDir);
+
+    QString home = my.userDir = QDir::homePath();
+    my.userDir.append("/.pcp/kmchart");
+    if (dir.exists(my.userDir))
+	pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
 			  my.userDir);
+    my.userDir = home;
+    my.userDir.append("/.pcp/pmchart");
+    if (dir.exists(my.userDir))
+	pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
+			  my.userDir);
+
     pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
 			  home);
 }

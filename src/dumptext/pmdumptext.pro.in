@@ -7,4 +7,4 @@ LIBS		= -lpcp -L../libqmc -lqmc
 LIBS		+= -L../libqmc/@qt_release@ -L../libqmc/build/@qt_release@
 win32:LIBS	+= -L @pcp_dir@/local/bin -lwsock32
 QT		-= gui
-CONFIG		+= qt warn_on debug
+CONFIG		+= qt warn_on @qt_release@
