@@ -20,8 +20,7 @@ else
 PCP_DIR = $(shell echo $$PCP_DIR)
 include $(PCP_DIR)/etc/pcp.conf
 endif
-
-PATH    = $(shell . $$PCP_DIR/etc/pcp.env; echo $$PATH)
+include $(PCP_INC_DIR)/builddefs
 
 IAM	= dynamic
 CFILES	= $(IAM).c
@@ -29,22 +28,11 @@ CFILES	= $(IAM).c
 CMDTARGET = pmda$(IAM)
 TARGETS = $(LIBTARGET) $(CMDTARGET)
 
-DEBUG   = -DDEBUG
-CFLAGS	= $(DEBUG)
-LDOPTS	=
 LDLIBS	= -lpcp_pmda -lpcp
-
 LDIRT	= *.log help.dir help.pag
-
-INSTALL	= install
-CC	= $(PCP_CC_PROG)
 
 default: $(TARGETS)
 
 install: default
 
-$(CMDTARGET): $(CFILES)
-	$(CC) $(CFLAGS) $(CFILES) $(LDOPTS) $(LDLIBS) -o $@
-
-clean clobber:
-	rm -f $(LDIRT) $(TARGETS)
+include $(PCP_INC_DIR)/buildrules
