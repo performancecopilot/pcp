@@ -1110,7 +1110,7 @@ main(int argc, char *argv[])
 	DontStart();
     }
 
-    if (CreatePIDfile() < 0)
+    if (run_daemon && CreatePIDfile() < 0)
 	DontStart();
 
     PrintAgentInfo(stderr);

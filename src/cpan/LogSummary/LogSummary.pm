@@ -8,7 +8,7 @@ require Exporter;
 @ISA         = qw(Exporter);
 @EXPORT      = qw(new metric_instance);
 @EXPORT_OK   = qw( );
-$VERSION     = '1.00';
+$VERSION     = '1.01';
 
 sub new
 {
