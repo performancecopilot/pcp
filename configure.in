@@ -1756,11 +1756,11 @@ dnl
 dnl output files
 dnl
 
-AC_OUTPUT( \
+AC_OUTPUT(
 dnl   Build definitions for use in Makefiles
-    src/include/builddefs \
+    src/include/builddefs
 dnl   PCP paths and other defs
-    src/include/pcp.conf \
+    src/include/pcp.conf
 dnl   Linux Software Map entry
     pcp.lsm
 )
