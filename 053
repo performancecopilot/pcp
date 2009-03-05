@@ -40,7 +40,7 @@ NF == 3 && $2 == 1	{ print $3; exit }
 
 if [ "$ncpu" -eq 1 ]
 then
-    src-oss/pmclient -a $tmp | _filter
+    pmclient -a $tmp | _filter
     echo "..."
     # fake MP output
     cat <<End-of-File
@@ -62,5 +62,5 @@ pmclient: pmFetch: End of PCP archive log
 ... 5 numbers ...
 End-of-File
     echo "..."
-    src-oss/pmclient -a $tmp | _filter
+    pmclient -a $tmp | _filter
 fi

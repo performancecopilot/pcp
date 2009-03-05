@@ -1,6 +1,7 @@
 #!gmake
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
 #
 
 ifdef PCP_CONF
@@ -8,30 +9,11 @@ include $(PCP_CONF)
 else
 include /etc/pcp.conf
 endif
-PATH	= $(shell . /etc/pcp.env; echo $$PATH:/usr/local/bin/ptools)
-
-ifneq ($(ROOT)$(TOOLROOT), )
-root-snarf:
-	@echo 'unsetenv ROOT TOOLROOT'
-	@echo 'or unset ROOT TOOLROOT'
-	@echo 'and try again, bozo ...'
-	@false
-endif
-
-OBJSTYLE =
-
-ifeq ($(PCP_PLATFORM), solaris)
-LIBSOL = -lsocket
-endif
-
-LIBPCP2 = -lpcp
-LIBPMDA2 = -lpcp_pmda
-
-LITE_LDLIBS	= -lpcp
+PATH	= $(shell . /etc/pcp.env; echo $$PATH)
+include $(PCP_INC_DIR)/builddefs
 
 #DBG    = -DPCP_DEBUG -DDEBUG -DMALLOC_AUDIT -g
 DBG     = -DPCP_DEBUG -DDEBUG -g
-#DBG    = -DPCP_DEBUG -DDEBUG
 
 DEBUG   = $(DBG)
 
@@ -56,10 +38,6 @@ MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
 
 ARCH	= $(SRCARCH) $(MKARCH)
 
-# Try and keep this initial CFILES block the same in Makefile
-# and GNUmakefile for all common apps that are used in both IRIX
-# and Linux
-
 CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	ipc.c xval.c xxx.c chkopenlog.c chkconnect.c t_fetch.c \
 	proc_test.c hp-mib.c agenttimeout.c chkctx2.c pmcdgone.c chkhelp.c \
@@ -80,16 +58,12 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
 	matchInstanceName.c
 
-# TODO need re-writing for Linux?
-OLD_CFILES	= pmda_sproc.c sys5_ipc.c diowr.c pmie-lic.c \
-	   sysinfocounts.c load_o2000.c 
-
 CFILES_TARGETS = $(CFILES)
 
 TARGETS = \
 	$(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
-	pminfo_lite chkctx2_lite pmclient template \
-	fetchrate_lite pv pmval \
+	chkctx2_lite template \
+	fetchrate_lite pv \
 	broken_pmda_2_0 broken_v2.dir broken_pmda_2_1 broken_pmda_2_2 \
 	broken_pmda_2_3 broken_pmda_2_4 broken_pmda_2_5 
 
@@ -102,6 +76,7 @@ CDEFS	= $(DEBUG) $(HAVE_MONS_H)
 CFLAGS	= $(CDEFS) $(COPTS) 
 LDOPTS = 
 LDLIBS	= -lpcp
+LITE_LDLIBS = -lpcp
 
 # libpcp_trace is ready
 COPTS		+= -DHAVE_TRACE
@@ -116,20 +91,12 @@ endif
 #
 LDIRT	= *.log domain.h help.pag help.dir mv-foo.? mv-bar.? mv-bigbin.? \
 	$(subst .c,.o,$(CFILES)) \
-	chkctx2_lite.c pmclient_src mv-interp.? fetchrate_lite.c \
+	chkctx2_lite.c mv-interp.? fetchrate_lite.c \
 	broken_pmda_*.c real_broken_pmns broken_v?.dir broken_v?.pag \
-	broken_pmda_? pv64.c localconfig.h gmon.out
+	broken_pmda_? localconfig.h gmon.out
 
 .ORDER:	torture_api \
 	chkctx2 fetchrate
-
-LIB64PCP1 = /usr/lib64/libpcp.so.1
-LIB64PCP2 = /usr/lib64/libpcp.so.2
-LIBPCP1 = /usr/lib/libpcp.so.1
-LIBPMDA1 = /usr/lib/libpcp_pmda.so.1
-OPTS_V1 = -o32 -mips1
-
-COPTS1 = -fullwarn -I/usr/include/pcp1.x -I/usr/include/pcp1.x/pcp -MDupdate Makedepend
 
 default: $(CFILES_TARGETS) $(TARGETS) $(ARCH) ipcs_clear
 
@@ -164,10 +131,6 @@ pause:	pause.c
 
 errmap: errmap.c
 	$(CC) $(CDEFS) $(COPTS) -o errmap errmap.c
-
-sproc_mem_share:	sproc_mem_share.c
-	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ sproc_mem_share.c -lpthread
 
 cpuload:	cpuload.c
 	rm -f $@
@@ -233,7 +196,7 @@ exercise:	exercise.c
 
 pmdashutdown:	pmdashutdown.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ pmdashutdown.c $(LIBSOL) -lpcp_pmda $(LDLIBS)
+	$(CC) $(CDEFS) $(COPTS) -o $@ pmdashutdown.c -lpcp_pmda $(LDLIBS)
 
 chkacc1:	chkacc1.c
 	rm -f $@
@@ -251,17 +214,9 @@ ipc:	ipc.c
 	rm -f $@
 	$(CC) $(CDEFS) $(COPTS) -o $@ ipc.c  $(LDLIBS)
 
-auth_client:	auth_client.c
-	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ auth_client.c  $(LDLIBS)
-
-fakebrand:	fakebrand.c
-	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ fakebrand.c  -llmsgi $(LDLIBS)
-
 chk_memleak:	chk_memleak.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ chk_memleak.c -lpcp $(LDLIBS)
+	$(CC) $(CDEFS) $(COPTS) -o $@ chk_memleak.c $(LDLIBS)
 
 chknumval:	chknumval.c
 	rm -f $@
@@ -275,24 +230,16 @@ pmcdgone:	pmcdgone.c localconfig.h
 	rm -f $@
 	$(CC) $(CDEFS) $(COPTS) -o $@ pmcdgone.c  $(LDLIBS)
 
-pmbrand_qa:	pmbrand.c
-	rm -f $@
-	$(CC) -DQA=1 $(CDEFS) $(COPTS) -o $@ pmbrand.c  -llmsgi $(LDLIBS)
-
 slow_af:	slow_af.c
 	rm -f $@
 	$(CC) $(CDEFS) $(COPTS) -o $@ slow_af.c  $(LDLIBS)
-
-pmval:	pmval.c
-	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ $@.c  $(LDLIBS) -lm
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #
 
 fetchrate_lite:	fetchrate_lite.c
 	rm -f $@
-	$(CC) $(IRIX_OBJECT) $(CDEFS) -DLITE=1 $(COPTS) -o $@ fetchrate_lite.c $(LDOPTS) $(LITE_LDLIBS)
+	$(CC) $(CDEFS) -DLITE=1 $(COPTS) -o $@ fetchrate_lite.c $(LDOPTS) $(LITE_LDLIBS)
 
 fetchrate_lite.c:	fetchrate.c
 	rm -f $@
@@ -300,7 +247,7 @@ fetchrate_lite.c:	fetchrate.c
 
 chkctx2_lite:	chkctx2_lite.c
 	rm -f $@
-	$(CC) $(IRIX_OBJECT) $(CDEFS) -DLITE=1 $(COPTS) -o $@ chkctx2_lite.c $(LDOPTS) $(LITE_LDLIBS)
+	$(CC) $(CDEFS) -DLITE=1 $(COPTS) -o $@ chkctx2_lite.c $(LDOPTS) $(LITE_LDLIBS)
 
 chkctx2_lite.c:	chkctx2.c
 	rm -f $@
@@ -308,19 +255,15 @@ chkctx2_lite.c:	chkctx2.c
 
 hp-mib: hp-mib.c
 	rm -f $@
-	$(CC) $(IRIX_OBJECT) $(CDEFS) -DLITE=1 $(COPTS) -o $@ hp-mib.c $(LDOPTS) $(LITE_LDLIBS)
+	$(CC) $(CDEFS) -DLITE=1 $(COPTS) -o $@ hp-mib.c $(LDOPTS) $(LITE_LDLIBS)
 
 pcp_lite_crash: pcp_lite_crash.c
 	rm -f $@
-	$(CC) $(IRIX_OBJECT) $(CDEFS) -DLITE=1 $(COPTS) -o $@ pcp_lite_crash.c $(LDOPTS) $(LITE_LDLIBS)
+	$(CC) $(CDEFS) -DLITE=1 $(COPTS) -o $@ pcp_lite_crash.c $(LDOPTS) $(LITE_LDLIBS)
 
 store: store.c
 	rm -f $@
-	$(CC) $(IRIX_OBJECT) $(CDEFS) -DLITE=1 $(COPTS) -o $@ store.c $(LDOPTS) $(LITE_LDLIBS)
-
-pminfo_lite:	pminfo.c
-	rm -f $@
-	$(CC) $(IRIX_OBJECT) $(CDEFS) -DPM_USE_CONTEXT_LOCAL=1 -I/usr/include/pcp $(COPTS) -o $@ pminfo.c $(LDOPTS) $(LITE_LDLIBS)
+	$(CC) $(CDEFS) -DLITE=1 $(COPTS) -o $@ store.c $(LDOPTS) $(LITE_LDLIBS)
 
 # --- need libpcp_pmda
 #
@@ -439,18 +382,12 @@ tabort:	tabort.c
 	rm -f $@
 	$(CC) $(CDEFS) $(COPTS) -o $@ tabort.c $(TRACELIB) 
 
-# --- $(IRIX_OBJECT) format dependencies
+# --- binary format dependencies
 #
 
 ifeq ($(HAVE_64), 1)
 pv64: pv.c
-	rm -f $@ $@.c
-	ln -s pv.c $@.c
-	$(CC) $(CDEFS) $(COPTS) -o $@ $@.c $(LDOPTS) -lpcp
-else
-pv64:
-	rm -f $@
-	ln -s pv pv64
+	$(CC) $(CDEFS) $(COPTS) -o $@ pv.c $(LDOPTS) $(LDLIBS)
 endif
 
 # -- archives
@@ -595,33 +532,9 @@ reduce-gap.0:	reduce-1.0 reduce-2.0
 	rm -f reduce-gap.*
 	pmlogextract reduce-1 reduce-2 reduce-gap
 
-pmclient:	pmclient_src pmclient_src/pmclient.c \
-		pmclient_src/pmnsmap.spec pmclient_src/Makefile
-	rm -f pmclient pmclient_src/pmclient
-	cd pmclient_src ; $(MAKE) pmclient
-	ln pmclient_src/pmclient pmclient
-
-pmclient_src: $(PCP_DEMOS_DIR)/pmclient/pmclient.c
-	- rm -rf pmclient_src
-	mkdir pmclient_src
-	cp $(PCP_DEMOS_DIR)/pmclient/* pmclient_src
-	cd pmclient_src ; $(MAKE) clobber
-
-pmclient_src/pmclient.c:	$(PCP_DEMOS_DIR)/pmclient/pmclient.c
-	rm -f pmclient_src/pmclient.c
-	cp $(PCP_DEMOS_DIR)/pmclient/pmclient.c pmclient_src
-
-pmclient_src/pmnsmap.spec:	$(PCP_DEMOS_DIR)/pmclient/pmnsmap.spec
-	rm -f pmclient_src/pmnsmap.spec
-	cp $(PCP_DEMOS_DIR)/pmclient/pmnsmap.spec pmclient_src
-
-pmclient_src/Makefile:	$(PCP_DEMOS_DIR)/pmclient/Makefile
-	rm -f pmclient_src/Makefile
-	cp $(PCP_DEMOS_DIR)/pmclient/Makefile pmclient_src
-
 torture_indom: torture_indom.c
 	rm -f $@
-	$(CC) $(IRIX_OBJECT) $(CDEFS) $(COPTS) -o $@ torture_indom.c $(LDOPTS) $(LDLIBS)
+	$(CC) $(CDEFS) $(COPTS) -o $@ torture_indom.c $(LDOPTS) $(LDLIBS)
 
 # --- miscellaneous
 #

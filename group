@@ -537,7 +537,6 @@ dmf		pcpqa
 331 archive mem_leak local purify oss
 332 archive mem_leak local purify oss
 333 archive mem_leak local purify oss
-334 archive mem_leak local pmval purify oss
 336 trace local pmda.install oss
 337 pmlogextract local oss
 338 logutil local pmlogextract local oss

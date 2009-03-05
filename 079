@@ -41,25 +41,25 @@ echo ""
 TZ=EST-10
 export TZ
 echo "Local time, TZ=$TZ"
-src-oss/pmclient -a $ARCH | _filter
+pmclient -a $ARCH | _filter
 
 echo ""
 TZ=""
 echo "GMT time, TZ is empty"
-src-oss/pmclient -a $ARCH | _filter
+pmclient -a $ARCH | _filter
 
 echo ""
 echo "-Z UTC"
-src-oss/pmclient -a $ARCH -Z UTC | _filter
+pmclient -a $ARCH -Z UTC | _filter
 
 echo ""
 echo "-Z PDT8"
-src-oss/pmclient -a $ARCH -Z PDT8 | _filter
+pmclient -a $ARCH -Z PDT8 | _filter
 
 echo ""
 echo "local time at collection host"
-src-oss/pmclient -a $ARCH -z | _filter
+pmclient -a $ARCH -z | _filter
 
 echo ""
 echo "and again, but skip 15 seconds"
-src-oss/pmclient -a $ARCH -S 15 -z | _filter
+pmclient -a $ARCH -S 15 -z | _filter
