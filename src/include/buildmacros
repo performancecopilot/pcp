@@ -19,12 +19,6 @@ CDIRT = $(OBJECTS) $(LTOBJECTS) $(LTCOMMAND) $(LTLIBRARY)
 DIRT = $(LDIRT) $(DEPDIRT) $(MANDIRT) $(PODIRT) $(QTDIRT) $(CDIRT)
 DIRDIRT = $(LDIRDIRT) $(QTDIRDIRT)
 
-OBJECTS = $(ASFILES:.s=.o) \
-	  $(CPPFILES:.c=.o) \
-	  $(CFILES:.c=.o) \
-	  $(LFILES:.l=.o) \
-	  $(YFILES:%.y=%.tab.o)
-
 INSTALL	= $(TOPDIR)/install-sh -o $(PKG_USER) -g $(PKG_GROUP)
 
 ifeq "$(PCP_PLATFORM)" "mingw"

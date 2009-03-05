@@ -49,7 +49,6 @@ PKG_ICON_DIR	= $(datadir)/pixmaps
 PKG_DESKTOP_DIR	= $(datadir)/applications
 
 QMAKE		= @qmake@
-CC		= @cc@
 AWK		= @awk@
 SED		= @sed@
 TAR		= @tar@
@@ -71,10 +70,6 @@ QT_RELEASE	= @qt_release@
 
 HAVE_PM_SET_PROGNAME = @have_pm_set_progname@
 HAVE_ZIPPED_MANPAGES = @have_zipped_manpages@
-
-# additional libraries needed for particular functions
-LIB_FOR_BASENAME = @lib_for_basename@
-LIB_FOR_REGEX = @lib_for_regex@
 
 include $(TOPDIR)/src/include/buildmacros
 

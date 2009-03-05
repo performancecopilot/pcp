@@ -37,28 +37,6 @@ AC_SUBST(qt_release)
 dnl if regex functions come from libregex (mingw)
 AC_CHECK_HEADERS(regex.h)
 AC_CHECK_LIB(regex, regcomp)
-lib_for_regex=""
-if test $ac_cv_lib_regex_regcomp = yes
-then
-    lib_for_regex="-lregex"
-fi
-AC_SUBST(lib_for_regex)
-
-dnl check if basename and dirname need -lgen, -lpcp or nothing to work
-AC_CHECK_FUNCS(basename)
-if test $ac_cv_func_basename = yes
-then
-    lib_for_basename=""
-else
-    AC_CHECK_LIB(gen, basename)
-    if test $ac_cv_lib_gen_basename = yes
-    then
-	lib_for_basename="-lgen"
-    else
-	lib_for_basename="-lpcp"
-    fi
-fi
-AC_SUBST(lib_for_basename)
 
 AC_OUTPUT( \
 	src/include/builddefs \

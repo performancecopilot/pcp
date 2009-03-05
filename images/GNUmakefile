@@ -1,8 +1,8 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
-DESKTOP_ICONS = pmchart.png pmtime.png pmview.png
-HTMLDOC_ICONS = pmcharticon.png pmtimeicon.png pmviewicon.png
+DESKTOP_ICONS = pmchart.png pmtime.png
+HTMLDOC_ICONS = pmcharticon.png pmtimeicon.png
 
 INKSCAPE = inkscape
 SVGFILES = $(shell echo *.svg)

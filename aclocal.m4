@@ -199,39 +199,37 @@ AC_DEFUN([AC_PACKAGE_NEED_QT_MOC],
 #
 AC_DEFUN([AC_PACKAGE_NEED_UTILITY],
   [ if test -z "$2"; then
-        echo
-        echo FATAL ERROR: $3 does not seem to be installed.
-        echo $1 cannot be built without a working $4 installation.
-        exit 1
+	echo
+	echo FATAL ERROR: $3 does not seem to be installed.
+	echo $1 cannot be built without a working $4 installation.
+	exit 1
     fi
   ])
 
 #
 # Generic macro, sets up all of the global build variables.
 # The following environment variables may be set to override defaults:
-#  CC MAKE TAR MAKEDEPEND AWK SED ECHO SORT RPMBUILD DPKG
+#  MAKE TAR BZIP2 MAKEDEPEND AWK SED ECHO SORT RPMBUILD DPKG LEX YACC
 #
 AC_DEFUN([AC_PACKAGE_UTILITIES],
   [ AC_PROG_CXX
-    cc="$CXX"
-    AC_SUBST(cc)
-    AC_PACKAGE_NEED_UTILITY($1, "$cc", cc, [C++ compiler])
+    AC_PACKAGE_NEED_UTILITY($1, "$CXX", cc, [C++ compiler])
 
     if test -z "$MAKE"; then
-        AC_PATH_PROG(MAKE, mingw32-make,, /mingw/bin:/usr/bin:/usr/local/bin)
+	AC_PATH_PROG(MAKE, mingw32-make,, /mingw/bin:/usr/bin:/usr/local/bin)
     fi
     if test -z "$MAKE"; then
-        AC_PATH_PROG(MAKE, gmake,, /usr/bin:/usr/local/bin)
+	AC_PATH_PROG(MAKE, gmake,, /usr/bin:/usr/local/bin)
     fi
     if test -z "$MAKE"; then
-        AC_PATH_PROG(MAKE, make,, /usr/bin)
+	AC_PATH_PROG(MAKE, make,, /usr/bin)
     fi
     make=$MAKE
     AC_SUBST(make)
     AC_PACKAGE_NEED_UTILITY($1, "$make", make, [GNU make])
 
     if test -z "$TAR"; then
-        AC_PATH_PROG(TAR, tar,, /bin:/usr/local/bin:/usr/bin)
+	AC_PATH_PROG(TAR, tar,, /bin:/usr/local/bin:/usr/bin)
     fi
     tar=$TAR
     AC_SUBST(tar)
@@ -249,31 +247,31 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     AC_SUBST(bzip2)
 
     if test -z "$MAKEDEPEND"; then
-        AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
+	AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
     fi
     makedepend=$MAKEDEPEND
     AC_SUBST(makedepend)
 
     if test -z "$AWK"; then
-        AC_PATH_PROG(AWK, awk,, /bin:/usr/bin)
+	AC_PATH_PROG(AWK, awk,, /bin:/usr/bin)
     fi
     awk=$AWK
     AC_SUBST(awk)
 
     if test -z "$SED"; then
-        AC_PATH_PROG(SED, sed,, /bin:/usr/bin)
+	AC_PATH_PROG(SED, sed,, /bin:/usr/bin)
     fi
     sed=$SED
     AC_SUBST(sed)
 
     if test -z "$ECHO"; then
-        AC_PATH_PROG(ECHO, echo,, /bin:/usr/bin)
+	AC_PATH_PROG(ECHO, echo,, /bin:/usr/bin)
     fi
     echo=$ECHO
     AC_SUBST(echo)
 
     if test -z "$SORT"; then
-        AC_PATH_PROG(SORT, sort,, /bin:/usr/bin)
+	AC_PATH_PROG(SORT, sort,, /bin:/usr/bin)
     fi
     sort=$SORT
     AC_SUBST(sort)
@@ -301,14 +299,17 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     AC_MSG_CHECKING([for PackageMaker])
     if test -z "$PACKAGE_MAKER"
     then
-	if test -x /Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker       
-	then # Darwin 6.x
-	    package_maker=/Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	devapps=/Developer/Applications
+	darwin6=${devapps}/PackageMaker.app/Contents/MacOS
+	darwin7=${devapps}/Utilities/PackageMaker.app/Contents/MacOS
+	if test -x ${darwin6}/PackageMaker       
+	then
+	    package_maker=${darwin6}/PackageMaker
 	    AC_MSG_RESULT([ yes (darwin 6.x)])
-	elif test -x /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker
-	then # Darwin 7.x
+	elif test -x ${darwin7}/PackageMaker
+	then
 	    AC_MSG_RESULT([ yes (darwin 7.x)])
-	    package_maker=/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker
+	    package_maker=${darwin7}/PackageMaker
 	else
 	    AC_MSG_RESULT([ no])
 	fi
