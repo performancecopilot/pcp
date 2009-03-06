@@ -898,6 +898,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_NET_DEV,25), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_INSTANT, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* network.interface.running */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_DEV,26), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* network.interface.ipaddr */
     { NULL, 
       { PMDA_PMID(CLUSTER_NET_INET,0), PM_TYPE_STRING, NET_INET_INDOM, PM_SEM_INSTANT, 
@@ -4002,6 +4007,9 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 25: /* network.interface.up */
 	    atom->ul = netip->ioc.linkup;
+	    break;
+	case 26: /* network.interface.running */
+	    atom->ul = netip->ioc.running;
 	    break;
 	default:
 	    return PM_ERR_PMID;

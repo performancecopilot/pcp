@@ -23,6 +23,7 @@ typedef struct {
     uint32_t	speed;
     uint8_t	duplex;
     uint8_t	linkup;
+    uint8_t	running;
     uint8_t	pad;
 } net_dev_t;
 

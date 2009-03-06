@@ -61,8 +61,10 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
     }
     if (!(ioctl(fd, SIOCGIFMTU, &ifr) < 0))
 	netip->ioc.mtu = ifr.ifr_mtu;
-    if (!(ioctl(fd, SIOCGIFFLAGS, &ifr) < 0))
-	netip->ioc.linkup = (ifr.ifr_flags & IFF_UP);
+    if (!(ioctl(fd, SIOCGIFFLAGS, &ifr) < 0)) {
+	netip->ioc.linkup = !!(ifr.ifr_flags & IFF_UP);
+	netip->ioc.running = !!(ifr.ifr_flags & IFF_RUNNING);
+    }
 }
 
 void
