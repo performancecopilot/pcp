@@ -24,7 +24,7 @@ sigs="HUP USR1 TERM KILL"
 usage()
 {
     [ ! -z "$@" ] && echo $@ 1>&2
-    echo 1>&2 "Usage: $prog [options] [PID | name]
+    echo 1>&2 "Usage: $prog [options] [PID | name] ...
 
 Options:
   -a            send signal to all named processes (killall mode)
@@ -62,10 +62,17 @@ done
 
 shift `expr $OPTIND - 1`
 [ $# -lt 1 ] && usage "$prog: too few arguments"
-[ $# -gt 1 ] && usage "$prog: too many arguments"
 
-pids="$1"
-[ $aflag = true ] && pids=`_get_pids_by_name "$1"`
+if [ $aflag = true ]
+then
+    pids=""
+    for name in "$@"; do
+	pidlist=`_get_pids_by_name "$name"`
+	pids="$pids $pidlist"
+    done
+else
+    pids="$@"
+fi
 [ $nflag = true ] && echo "$pids" && exit 0
 
 sts=0
