@@ -67,13 +67,5 @@ qa_hosts:	qa_hosts.master mk.qa_hosts
 
 setup:
 
-PLATFORM=0
-ifeq ($(PCP_PLATFORM), irix)
-PLATFORM=1
-endif
-ifeq ($(PCP_PLATFORM), linux)
-PLATFORM=2
-endif
-
 localconfig:
 	PATH=$(PATH); ./mk.localconfig
