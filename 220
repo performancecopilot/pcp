@@ -52,7 +52,11 @@ ps $PCP_PS_ALL_FLAGS | grep 'pmlogger.* -P' | grep -v grep
 
 echo
 echo "primary port map? expect none"
-$here/my_ls -l $PCP_TMP_DIR/pmlogger/primary
+if [ -e $PCP_TMP_DIR/pmlogger/primary ]; then
+    echo "Eh?!  $PCP_TMP_DIR/pmlogger/primar exists and it should not"
+else
+    echo "not there - goodness."
+fi
 
 # all done
 exit
