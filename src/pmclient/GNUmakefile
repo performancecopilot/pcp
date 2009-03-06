@@ -45,7 +45,7 @@ pmclient.o:	pmnsmap.h
 pmnsmap.h:	pmnsmap.spec
 	sed -e "s;^\. .PCP_DIR.etc.pcp.env;. $(TOPDIR)/src/include/pcp.env;" \
 	../pmgenmap/pmgenmap.sh >runme.sh; \
-	sh $(RUN_IN_BUILD_ENV) ./runme.sh pmnsmap.spec >pmnsmap.h
+	$(RUN_IN_BUILD_ENV) sh ./runme.sh pmnsmap.spec >pmnsmap.h
 
 default_pcp:	default
 
