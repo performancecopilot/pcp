@@ -504,6 +504,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    /* The state of the local port used for queries is checked
 	     * once per fetch request */
 	    if (lp->needsupdate) {
+                umad_release_port(lp->ump);
 		if (umad_get_port (lp->ump->ca_name, lp->ump->portnum,
 				   lp->ump) != 0) {
 		    __pmNotifyErr (LOG_ERR, 
