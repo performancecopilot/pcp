@@ -25,43 +25,5 @@ else
     exit 1
 fi
 
-[ -d /usr/bsd ] && PATH=$PATH:/usr/bsd
-[ -d /usr/freeware/bin ] && PATH=$PATH:/usr/freeware/bin
-[ -d /usr/local/bin ] && PATH=$PATH:/usr/local/bin
-
-if [ "$PCP_PLATFORM" = irix ]
-then
-    if [ -f /var/flexlm/license.dat ]
-    then
-	HAVE_FLEXLM=true
-    else
-	HAVE_FLEXLM=false
-    fi
-else
-    HAVE_FLEXLM=false
-fi
-
-# some others that should have been in pcp.conf and hence /etc/pcp.env
-#
-if [ "$PCP_PLATFORM" = linux ]
-then
-    PCP_PMCD_PROG=$PCP_BINADM_DIR/pmcd
-    PCP_PMCDLOG_PATH=$PCP_LOG_DIR/pmcd/pmcd.log
-elif [ "$PCP_PLATFORM" = solaris ]
-then
-    PCP_PMCD_PROG=$PCP_BINADM_DIR/pmcd
-    PCP_PMCDLOG_PATH=$PCP_LOG_DIR/pmcd/pmcd.log
-elif [ "$PCP_PLATFORM" = irix ]
-then
-    PCP_PMCD_PROG=/usr/etc/pmcd
-    PCP_PMCDLOG_PATH=/var/adm/pcplog/pmcd.log
-else
-    echo "Error: Unknown \$PCP_PLATFORM=$PCP_PLATFORM" >&2
-    exit 1
-fi
-
-#  this is defined for use by common and common.cisco.install
-if [ "NDEF$PCP_QA_CISCOROUTER" = NDEF ]
-then
-    PCP_QA_CISCOROUTER=wanptg.melbourne.sgi.com
-fi
+PCP_PMCD_PROG=$PCP_BINADM_DIR/pmcd
+PCP_PMCDLOG_PATH=$PCP_LOG_DIR/pmcd/pmcd.log

@@ -70,28 +70,6 @@ _havesudo()
     fi
 }
 
-_havelicenses()
-{
-    if $HAVE_FLEXLM
-    then
-	(pmbrand -l 2>&1) | grep "PCP Monitor" > /tmp/tmp.mon 2>&1
-	(pmbrand -l 2>&1) | grep "PCP Collector" > /tmp/tmp.col 2>&1
-
-	if [ ! -s /tmp/tmp.mon -o ! -s /tmp/tmp.col ]
-	then
-	    # we are missing one (or both) licenses
-	    #
-	    echo "Error: you are missing one or both of the licenses."
-	    echo "       Please check /etc/flexlm/license.dat for Monitor and Collector licenses."
-	    rm -f /tmp/tmp.mon /tmp/tmp.col
-	    exit 1
-	fi
-
-	rm -f /tmp/tmp.mon /tmp/tmp.col
-	echo "Monitor and Collector licenses ok"
-    fi
-}
-
 _haveagents()
 {
     restart=false
@@ -695,7 +673,6 @@ else
     $OPTION_AGENTS && _haveagents
     $OPTION_LOGGER && _havelogger
     $OPTION_PMCD_TRACE && _havepmcdtrace
-    $OPTION_LICENSES && _havelicenses
 
     # make in the src and src-oss subdirectories
     #

@@ -219,38 +219,13 @@ _make_checkfiles()
 {
     if [ ! -f $tmp.checkfiles ]
     then
-	if [ $PCP_PLATFORM = irix ]
-	then
-	    _checkfiles="$PCP_PMCDCONF_PATH \
-		$PCP_VAR_DIR/config/pmlogger/control \
-		$PCP_VAR_DIR/config/pmlogger/config.default \
-		$PCP_VAR_DIR/config/pmie/control \
-		/etc/config/pmcd /etc/config/pmie \
-		/etc/config/pmlogger /etc/init.d/pcp \
-		/etc/config/pmcd.options \
-		/etc/pcp.conf /etc/pcp.env \
-		$PCP_PMDAS_DIR/sample/dsohelp.dir \
-		$PCP_PMDAS_DIR/sample/dsohelp.pag \
-		$PCP_PMDAS_DIR/sample/help.dir \
-		$PCP_PMDAS_DIR/sample/help.pag \
-		$PCP_PMDAS_DIR/simple/simple.conf \
-    		/var/flexlm/license.dat \
-    		/var/flexlm/license.db"
-
-    	    if [ ! -f $tmp.checkfiles ]
-    	    then
-    		showfiles -cs pcp\* | $PCP_AWK_PROG '{ print "/" $0 }' >$tmp.checkfiles 2>/dev/null
-    		_addfiles $tmp.checkfiles $_checkfiles
-    	    fi
-	elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
-	then
-	    [ -z "$PCP_PMCDOPTIONS_PATH" ] && \
+	[ -z "$PCP_PMCDOPTIONS_PATH" ] && \
 		PCP_PMCDOPTIONS_PATH="$PCP_VAR_DIR/config/pmcd/pmcd.options"
-	    [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
-	    [ -z "$PCP_PMIECONTROL_PATH" ] && \
+	[ -z "$PCP_PMIECONTROL_PATH" ] && \
 		PCP_PMIECONTROL_PATH="$PCP_VAR_DIR/config/pmie/control"
-	    _checkfiles="$PCP_PMCDCONF_PATH \
+	_checkfiles="$PCP_PMCDCONF_PATH \
 		$PCP_PMLOGGERCONTROL_PATH \
 		$PCP_VAR_DIR/config/pmlogger/config.default \
 		$PCP_PMLOGGERCONTROL_PATH \
@@ -262,9 +237,6 @@ _make_checkfiles()
 		$PCP_PMDAS_DIR/sample/help.dir \
 		$PCP_PMDAS_DIR/sample/help.pag \
 		$PCP_PMDAS_DIR/simple/simple.conf"
-	else
-	    bozo
-	fi
     fi
 }
 

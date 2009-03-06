@@ -6,12 +6,6 @@
 # set up, in case QA test is run stand alone (not from check or remake)
 #
 . ./common.setup
-
 . ./localconfig
 
-if [ $PCP_PLATFORM = irix ]
-then
-    PCP_PMCD_PATH=/usr/etc/pmcd
-else
-    PCP_PMCD_PATH=$PCP_BINADM_DIR/pmcd
-fi
+PCP_PMCD_PATH=$PCP_BINADM_DIR/pmcd
