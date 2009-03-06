@@ -40,8 +40,7 @@ LLDLIBS = -lpcp -lpcp_trace
 LDIRT	= *.log *.dir *.pag *.o $(APPS) pcp \
 	  pmtrace.c tmpcp
 
-LSRCFILES= $(SCRIPTS) $(OTHERS) $(DEMOS) $(DEMOFILES) $(DFILES) \
-	GNUmakefile.install
+LSRCFILES= $(SCRIPTS) $(OTHERS) $(DEMOS) $(DEMOFILES) $(DFILES)
 
 SUBDIRS	= src
 
@@ -58,7 +57,6 @@ install:	$(SUBDIRS)
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(OTHERS) $(DFILES) $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 755 -d $(DEMODIR)
 	$(INSTALL) -m 644 GNUmakefile.demos $(DEMODIR)/Makefile
 	$(INSTALL) -m 644 README.demos $(DEMODIR)/README

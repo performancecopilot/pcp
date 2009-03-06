@@ -26,7 +26,7 @@ DOMAIN	= MAILQ
 CMDTARGET = $(IAM)$(EXECSUFFIX)
 CFILES	= mailq.c
 DFILES	= README
-LSRCFILES = Install Remove root help pmns $(DFILES) GNUmakefile.install
+LSRCFILES = Install Remove root help pmns $(DFILES)
 LLDLIBS	= -lpcp_pmda -lpcp $(LIB_FOR_REGEX)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
@@ -41,7 +41,6 @@ install:	default
 	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/pmda$(CMDTARGET)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 
 mailq.o:	domain.h
 

@@ -26,7 +26,7 @@ TARGETS	= $(IAM)$(EXECSUFFIX)
 HFILES	= summary.h
 CFILES	= summary.c pmda.c mainloop.c
 
-LSRCFILES = Install README Remove help pmns root summary.pmie Makefile.install
+LSRCFILES = Install README Remove help pmns root summary.pmie
 LLDFLAGS= -L$(TOPDIR)/src/libpcp/src -L$(TOPDIR)/src/libpcp_pmda/src
 LLDLIBS	= -lpcp_pmda -lpcp
 LDIRT	= domain.h *.log *.dir *.pag  $(TARGETS)
@@ -46,7 +46,6 @@ install:	build-me
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 root README help pmns domain.h $(PMDADIR)
-	$(INSTALL) -m 644 Makefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 summary.pmie $(PMDADIR)/expr.pmie
 else
 build-me:

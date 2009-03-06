@@ -29,8 +29,7 @@ CHARTS	= Web.Alarms.pmchart Web.Requests.pmchart Web.Volume.pmchart \
 	  Web.Allservers.pmchart Web.Perserver.Bytes.pmchart \
 	  Web.Perserver.Requests.pmchart
 DFILES	= README
-LSRCFILES = pmns help $(DFILES) root $(SCRIPTS) check_match.c $(CHARTS) \
-	GNUmakefile.install
+LSRCFILES = pmns help $(DFILES) root $(SCRIPTS) check_match.c $(CHARTS)
 
 LDIRT	= domain.h $(TARGETS) check_match.o
 
@@ -54,7 +53,6 @@ install:	build-me
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 755 check_match $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 Web.Alarms.pmchart $(PMCHARTDIR)/Web.Alarms
 	$(INSTALL) -m 644 Web.Requests.pmchart $(PMCHARTDIR)/Web.Requests
 	$(INSTALL) -m 644 Web.Volume.pmchart $(PMCHARTDIR)/Web.Volume

@@ -10,17 +10,15 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
 # Common build rules for gmake
 #
 ifndef _BUILDRULES_INCLUDED_
 _BUILDRULES_INCLUDED_ = 1
 
+ifndef _BUILDDEFS_INCLUDED_
 include $(TOPDIR)/src/include/builddefs
+endif
 
 #
 # Standard targets
@@ -54,8 +52,7 @@ ifeq ($(TARGET_OS), freebsd)
 _SHAREDOPTS	= -shared -Wl'-soname $(LIBTARGET)'
 endif
 $(LIBTARGET) : $(SUBDIRS) $(OBJECTS)
-	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $(LIBTARGET) \
-		$(OBJECTS) $(LDLIBS) $(LIB_FOR_DLOPEN) $(LIB_FOR_BASENAME)
+	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $(LIBTARGET) $(OBJECTS) $(LDLIBS) $(LIB_FOR_DLOPEN) $(LIB_FOR_BASENAME)
 endif
 
 ifdef STATICLIBTARGET

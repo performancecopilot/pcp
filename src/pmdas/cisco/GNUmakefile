@@ -27,7 +27,7 @@ CFILES	= cisco.c pmda.c interface.c telnet.c
 HFILES	= cisco.h 
 DFILES	= README
 LSRCFILES=Install Remove root pmns Cisco.pmchart help Samples Tested $(DFILES) \
-	cisco.in_util.pmie cisco.out_util.pmie probe.c Makefile.install
+	cisco.in_util.pmie cisco.out_util.pmie probe.c
 
 LLDLIBS	= -lpcp_pmda -lpcp $(PTHREAD_LIB)
 
@@ -50,7 +50,6 @@ install:	build-me
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM) 
 	$(INSTALL) -m 755 probe parse Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
-	$(INSTALL) -m 644 Makefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 Cisco.pmchart $(PMCHART)/Cisco
 	$(INSTALL) -m 755 -d $(PMIE)
 	$(INSTALL) -m 644 cisco.in_util.pmie $(PMIE)/in_util

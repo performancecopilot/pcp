@@ -1,5 +1,4 @@
 #
-# Copyright (c) 2003 Moser, Inc. All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -11,10 +10,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
 
 SHELL	= sh
@@ -25,41 +20,20 @@ else
 PCP_DIR = $(shell echo $$PCP_DIR)
 include $(PCP_DIR)/etc/pcp.conf
 endif
-
-PATH    = $(shell . $$PCP_DIR/etc/pcp.env; echo $$PATH)
+include $(PCP_INC_DIR)/builddefs
 
 IAM	= simple
 CFILES	= $(IAM).c
 
-LIBTARGET = pmda_$(IAM).so
+LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 CMDTARGET = pmda$(IAM)
 TARGETS = $(LIBTARGET) $(CMDTARGET)
 
-DEBUG   = -DDEBUG
-CFLAGS	= $(DEBUG)
-LDOPTS	=
-LDLIBS	= -lpcp_pmda -lpcp
-
-ifeq "$(PCP_PLATFORM)" "solaris"
-DSOOPTS	= -fpic -shared 
-else
-DSOOPTS = -fPIC -shared -Wl,-soname,$(LIBTARGET)
-endif
-
-LDIRT	= so_locations *.log help.dir help.pag *.pmda_$(IAM).so
-
-INSTALL	= install
-CC	= $(PCP_CC_PROG)
+LLDLIBS	= -lpcp_pmda -lpcp
+LDIRT	= *.log help.dir help.pag
 
 default: $(TARGETS)
 
 install: default
 
-$(CMDTARGET): $(CFILES)
-	$(CC) $(CFLAGS) $(CFILES) $(LDOPTS) $(LDLIBS) -o $@
-
-$(LIBTARGET): $(CFILES)
-	$(CC) $(CFLAGS) $(DSOOPTS) $(LDOPTS) $(CFILES) $(LDLIBS) -o $@
-
-clean clobber:
-	rm -f $(LDIRT) $(TARGETS)
+include $(PCP_INC_DIR)/buildrules

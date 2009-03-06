@@ -611,6 +611,7 @@ to bytes/second.
 See also network.interface.speed for the Megbytes/second value.
 @ network.interface.duplex value one for half or two for full duplex interface
 @ network.interface.up boolean for whether interface is currently up or down
+@ network.interface.running boolean for whether interface has resources allocated
 @ network.interface.inet_addr string INET interface address (ifconfig style)
 @ network.sockstat.tcp.inuse instantaneous number of tcp sockets currently in use
 @ network.sockstat.tcp.highest highest number of tcp sockets in use at any one time since boot

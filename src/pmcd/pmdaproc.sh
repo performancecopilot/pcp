@@ -799,6 +799,30 @@ _setup()
     esac
 }
 
+_install_views()
+{
+    viewer="$1"
+    have_views=false
+
+    [ `echo *.$viewer` != "*.$viewer" ] && have_views=true
+    if [ -d $PCP_VAR_DIR/config/$viewer ]
+    then
+	$have_views && echo "Installing $viewer view(s) ..."
+	for __i in *.$viewer
+	do
+	    if [ "$__i" != "*.$viewer" ]
+	    then
+		__dest=$PCP_VAR_DIR/config/$viewer/`basename $__i .$viewer`
+		rm -f $__dest
+		cp $__i $__dest
+	    fi
+	done
+    else
+	$have_views && \
+	echo "Skip installing $viewer view(s) ... no \"$PCP_VAR_DIR/config/$viewer\" directory"
+    fi
+}
+
 # Configurable PMDA installation
 #
 # before calling _install,
@@ -910,43 +934,9 @@ _install()
     trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
     $PCP_SHARE_DIR/lib/unlockpmns $NAMESPACE
 
-    if [ -d $PCP_VAR_DIR/config/pmchart ]
-    then
-	if [ `echo *.pmchart` != "*.pmchart" ]
-	then
-	    echo "Installing pmchart view(s) ..."
-	fi
-	for __i in *.pmchart
-	do
-	    if [ "$__i" != "*.pmchart" ]
-	    then
-		__dest=$PCP_VAR_DIR/config/pmchart/`basename $__i .pmchart`
-		rm -f $__dest
-		cp $__i $__dest
-	    fi
-	done
-    else
-	echo "Skip installing pmchart view(s) ... no \"$PCP_VAR_DIR/config/pmchart\" directory"
-    fi
-
-    if [ -d $PCP_VAR_DIR/config/kmchart ]
-    then
-	if [ `echo *.kmchart` != "*.kmchart" ]
-	then
-	    echo "Installing kmchart view(s) ..."
-	fi
-	for __i in *.kmchart
-	do
-	    if [ "$__i" != "*.kmchart" ]
-	    then
-		__dest=$PCP_VAR_DIR/config/kmchart/`basename $__i .kmchart`
-		rm -f $__dest
-		cp $__i $__dest
-	    fi
-	done
-    else
-	echo "Skip installing kmchart view(s) ... no \"$PCP_VAR_DIR/config/kmchart\" directory"
-    fi
+    _install_views pmchart
+    _install_views kmchart
+    _install_views pmview
 
     if $do_pmda
     then

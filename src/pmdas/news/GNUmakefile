@@ -24,8 +24,7 @@ IAM = news
 DOMAIN = NEWSAGENT
 
 DFILES = README
-LSRCFILES = Install Remove pmns root $(DFILES) GNUmakefile.install \
-	   active news.agent pmda$(IAM).pl
+LSRCFILES = Install Remove pmns root $(DFILES) active news.agent pmda$(IAM).pl
 
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
@@ -41,7 +40,6 @@ install: default
 	$(INSTALL) -m 755 news.agent $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
 	$(INSTALL) -m 644 $(DFILES) active domain.h pmns root $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 
 domain.h:	../../pmns/stdpmid
 	rm -f domain.h

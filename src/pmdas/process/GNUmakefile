@@ -30,8 +30,7 @@ TARGETS	= $(IAM)
 CFILES	= process.c
 SCRIPTS	= Install Remove
 DFILES	= README
-LSRCFILES= $(SCRIPTS) pmns help root $(DFILES) \
-	GNUmakefile.install process.conf
+LSRCFILES= $(SCRIPTS) pmns help root $(DFILES) process.conf
 
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart
@@ -53,7 +52,6 @@ install install_pcp : default
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 process.conf $(PMDADIR)/process.conf
 else
 build-me:

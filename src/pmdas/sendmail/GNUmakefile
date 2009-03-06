@@ -27,8 +27,7 @@ LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 CFILES	= sendmail.c
 SCRIPTS	= Install Remove
 DFILES	= README
-LSRCFILES= $(SCRIPTS) pmns help root Sendmail.pmchart $(DFILES) \
-	GNUmakefile.install
+LSRCFILES= $(SCRIPTS) pmns help root Sendmail.pmchart $(DFILES)
 
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart
@@ -46,7 +45,6 @@ install install_pcp:	default
 	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/pmda$(IAM)$(EXECSUFFIX)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 Sendmail.pmchart $(PMCHART)/Sendmail
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)

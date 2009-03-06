@@ -185,20 +185,19 @@ __pmSetProgname(const char *program)
     _fmode = O_BINARY;
 
     /*
+     * If Windows networking is not setup, all networking calls fail;
+     * this even includes gethostname(2), if you can believe that. :[
+     */
+    sts1 = WSAStartup(wVersionRequested, &wsaData);
+
+    /*
      * Here we are emulating POSIX signals using Event objects.
      * For all processes we want a SIGTERM handler, which allows
      * us an opportunity to cleanly shutdown: atexit(1) handlers
      * get a look-in, IOW.  Other signals (HUP/USR1) are handled
      * in a similar way, but only by processes that need them.
      */
-    sts1 = __pmSetSignalHandler(SIGTERM, sigterm_callback);
-
-    /*
-     * If Windows networking is not setup, all networking calls fail;
-     * this even includes gethostname(2), if you can believe that. :[
-     */
-    if ((sts2 = WSAStartup(wVersionRequested, &wsaData)) != 0)
-	fprintf(stderr, "WSAStartup failed (%ld)\n", GetLastError());
+    sts2 = __pmSetSignalHandler(SIGTERM, sigterm_callback);
 
     return sts1 | sts2;
 }
