@@ -99,7 +99,7 @@ _check_core
 
 echo
 echo "=== pmlogsummary ==="
-pmlogsummary -n $here/src-oss/bigace.pmns bad 2>&1
+pmlogsummary -n $here/src-oss/bigace.pmns bad 2>&1 | sed -e 's/^\*//g'
 _check_core
 
 # success, all done

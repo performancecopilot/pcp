@@ -74,24 +74,6 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 # start from a known starting point
 $here/sudo ./Remove >/dev/null 2>&1
 
-if $here/sudo make clobber >$tmp.out 2>&1
-then
-    :
-else
-    cat $tmp.out
-    echo "Arrgh, make clobber failed"
-    exit
-fi
-
-if $here/sudo make >$tmp.out 2>&1
-then
-    :
-else
-    cat $tmp.out
-    echo "Arrgh, make failed"
-    exit
-fi
-
 echo
 echo "=== default $iam agent installation ==="
 $here/sudo ./Remove >$tmp.out 2>&1

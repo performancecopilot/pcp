@@ -3,38 +3,13 @@
 # $Revision: 1.18 $
 # exercise pmprobe, and pv 679693 in particular
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # creator
 owner=kenmcd
 
 seq=`basename $0`
-. ./localconfig
-if [ "$PCP_PLATFORM" = irix ]
-then
-    if [ $PCP_EOE_VER -ge 6513 ]
-    then
-	rm -f $seq.out && ln $seq.out.2 $seq.out || exit 1
-	echo "Pmprobe with changes from pv. 807561"
-    else
-	rm -f $seq.out && ln $seq.out.1 $seq.out || exit 1
-    fi
-else
-    # open source
-    if [ $PCP_EOE_VER -ge 2704 ]
-    then
-	rm -f $seq.out && ln $seq.out.3 $seq.out || exit 1
-	echo "Pmprobe with local context and changes from pv. 807561"
-    elif [ $PCP_EOE_VER -ge 2402 ]
-    then
-	rm -f $seq.out && ln $seq.out.2 $seq.out || exit 1
-	echo "Pmprobe with changes from pv. 807561"
-    else
-	rm -f $seq.out && ln $seq.out.1 $seq.out || exit 1
-    fi
-fi
-	 
+
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks

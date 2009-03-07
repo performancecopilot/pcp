@@ -2,8 +2,6 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: common.filter,v 2.114 2007/02/26 06:06:46 kimbrr Exp $
-#
 
 # pmcd log file
 #
@@ -192,9 +190,11 @@ _filter_isa()
 _filter_optional_pmdas()
 {
     sed \
+	-e '/pmdaaconex/d' \
 	-e '/pmdaapache/d' \
 	-e '/pmdaarray/d' \
 	-e '/pmdaash/d' \
+	-e '/pmdabonding/d' \
 	-e '/pmdabrocade/d' \
 	-e '/pmdacisco/d' \
 	-e '/pmdadbping/d' \
@@ -206,10 +206,12 @@ _filter_optional_pmdas()
 	-e '/pmdainfmx7/d' \
 	-e '/pmdainfmxping/d' \
 	-e '/pmdajstat/d' \
+	-e '/pmdakvm/d' \
 	-e '/pmdalab/d' \
 	-e '/pmdalmsensors/d' \
 	-e '/pmdalockstat/d' \
 	-e '/pmdalsf/d' \
+	-e '/pmdamaillog/d' \
 	-e '/pmdamailq/d' \
 	-e '/pmdamemcache/d' \
 	-e '/pmdammv/d' \
@@ -217,12 +219,14 @@ _filter_optional_pmdas()
 	-e '/pmdampi/d' \
 	-e '/pmdamysql/d' \
 	-e '/pmdanasavg/d' \
+	-e '/pmdanetfilter/d' \
 	-e '/pmdanetprobe/d' \
 	-e '/pmdanews/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
 	-e '/pmdapmcd/d' \
 	-e '/pmdaprocess/d' \
+	-e '/pmdaroomtemp/d' \
 	-e '/pmdasendmail/d' \
 	-e '/pmdashping/d' \
 	-e '/pmda_simple/d' \
@@ -610,6 +614,7 @@ _filter_torture_api()
 }' \
 	-e '/kernel\.all\.pswitch/s/valfmt: [01]/valfmt: 0-or-1/' \
 	-e '/kernel\.all\.cpu/s/valfmt: [01]/valfmt: 0-or-1/' \
+	-e '/^    aconex /d' \
 	-e '/^    apache /d' \
 	-e '/^    cihb /d' \
 	-e '/^    cms /d' \
@@ -622,6 +627,8 @@ _filter_torture_api()
 	-e '/^    kaio /d' \
 	-e '/^    kpreempt /d' \
 	-e '/^    kswitch /d' \
+	-e '/^    kvm /d' \
+	-e '/^    maillog /d' \
 	-e '/^    mounts /d' \
 	-e '/^    mt /d' \
 	-e '/^    nasavg /d' \
@@ -636,6 +643,7 @@ _filter_torture_api()
 	-e '/^    sysioctl /d' \
 	-e '/^    udf /d' \
 	-e '/^    vfs /d' \
+	-e '/^    vmware /d' \
 	-e '/^    waitio /d' \
 	-e '/^    xvm /d' \
 

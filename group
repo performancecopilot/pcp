@@ -170,10 +170,6 @@ pmda.linux	pcpqa
 #
 libpcp_dev	pcpqa
 
-# libpcp_pmc
-#
-libpcp_pmc	pcpqa
-
 # pmsocks
 #
 pmsocks		pcpqa
@@ -450,7 +446,6 @@ dmf		pcpqa
 227 folio local oss
 228 pmie local oss
 229 pmie local oss
-230 libpcp_pmc local oss
 231 pmie #421411 local oss
 232 libpcp local oss
 233 context_local local oss

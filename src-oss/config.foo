@@ -1,8 +1,6 @@
 #
 # this one is to make the "foo" archive(s) for PCP QA suite
 #
-# $Id: config.foo,v 1.1 2002/10/18 22:30:50 kenmcd Exp $
-#
 
 log mandatory on 1 sec {
 	sample.seconds

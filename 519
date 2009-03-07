@@ -65,7 +65,7 @@ hosts = ":'$other1' :'$other2'";
 
 some_host (
   some_inst (
-    ( 100 * irix.filesys.used \$hosts / irix.filesys.capacity \$hosts ) > 50 ) )
+    ( 100 * filesys.used \$hosts / filesys.capacity \$hosts ) > 50 ) )
 -> shell 15 "src-oss/show-args -c SYSMON -t PERF_INFO_SYSTEM -m 'file system over half-full" "\n%h:[%i] %v% " "'"
  & syslog 15 "-p daemon.info" "PCP QA - please ignore - ..." " %h:[%i] %v% ";
 
@@ -90,6 +90,7 @@ irix)
     ;;
 linux)
     SYSLOG=/var/log/messages;
+    [ -f /var/log/daemon.log ] && SYSLOG=/var/log/daemon.log
     ;;
 *)
     echo "Unknown platfrom - $PCP_PLATFORM";

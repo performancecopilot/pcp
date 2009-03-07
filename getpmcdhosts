@@ -10,8 +10,6 @@
 #
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# $Id: getpmcdhosts,v 1.41 2004/11/26 04:38:40 kenmcd Exp $
-#
 
 . ./common.rc
 

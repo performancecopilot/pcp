@@ -61,7 +61,7 @@ pmafm $tmp run pmlogcheck 2>&1 | _filter
 rm -f $tmp
 
 echo
-echo "Running pmlcient ... expect error from pmclient once pmafm starts it"
+echo "Running pmclient ... expect error from pmclient once pmafm starts it"
 mkaf `pwd`/src-oss/951127.23.01.* >$tmp
 pmafm $tmp run src-oss/pmclient -n src-oss/root_irix 2>&1 | _filter
 rm -f $tmp

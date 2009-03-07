@@ -4,8 +4,6 @@
 #
 # Install the broken PMDA and/or PMNS
 #
-# $Id: broken_Install,v 1.1 2002/10/25 01:33:55 kenmcd Exp $
-#
 
 # source the PCP configuration environment variables
 . /etc/pcp.env

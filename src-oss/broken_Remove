@@ -4,8 +4,6 @@
 #
 # Remove the broken PMDA
 #
-# $Id: broken_Remove,v 1.1 2002/10/25 01:33:55 kenmcd Exp $
-#
 
 # source the PCP configuration environment variables
 . /etc/pcp.env

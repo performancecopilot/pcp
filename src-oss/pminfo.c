@@ -2,8 +2,6 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: pminfo.c,v 1.2 2003/02/11 23:02:22 kenmcd Exp $"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <ctype.h>

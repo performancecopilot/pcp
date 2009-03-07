@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 169
-# $Revision: 2.25 $
 #
 # Test pmcd timeouts with the pmcd PMDA's pmcd.control.timeout
 #
@@ -118,8 +117,6 @@ EOF
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 cat >$tmp.tmp <<End-Of-File
 # QA test 169 dummy pmcd.conf (blame Jonathan if you find this!)
-#
-# $Id: 169,v 2.25 2007/02/26 06:06:46 kimbrr Exp $
 #
 dummyproc	$dummy_domain	pipe	binary 	$here/src-oss/dumb_pmda -d $dummy_domain $TAG
 End-Of-File

@@ -41,8 +41,7 @@ trap "_cleanup" 0 1 2 3 15
 _filter()
 {
     _filter_pmda_install | \
-    sed \
-	-e 's/^Install news as a daemon or perl agent? \[daemon] //' \
+    sed -e 's/^Install news as a daemon or perl agent? \[daemon] //'
 }
 
 _filter_info()

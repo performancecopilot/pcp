@@ -8,8 +8,6 @@
  *       privileges, e.g. to install a PMDA, start or stop pmcd, etc.
  */
 
-#ident "$Id: sudo.c,v 2.5 2002/10/18 22:30:50 kenmcd Exp $"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

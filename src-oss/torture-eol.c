@@ -1,8 +1,6 @@
 /*
  * Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
  *
- * "$Id: torture-eol.c,v 1.2 2005/06/23 07:38:16 pcpqa Exp $"
-
  * torture pmGetArchiveEnd
  */
 

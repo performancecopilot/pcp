@@ -5,8 +5,6 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#ident "$Id: pmval.c,v 1.1 2002/10/26 23:10:17 kenmcd Exp $"
-
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>		/* getopt, malloc, qsort and friends */
