@@ -56,23 +56,25 @@ cluster_init_metrictab()
 	return c;
     }
 
-    for (i=0; i < nmetrictab; i++) {
+    for (i=0; i < ncluster_mtab; i++) {
 	unsigned int subdom;
 	__pmInDom_int_subdomain *subindombits;
-	pmID orig_pmid_cluster = metrictab[i].m_desc.pmid;
-	__pmID_int_subdomain *sbits =
-	    __pmid_int_subdomain(&submetrictab[i]);
+	pmID orig_pmid_cluster = cluster_mtab[i].m_desc.pmid;
+	__pmID_int_subdomain *sbits;
 
-	mbits = __pmid_int(&metrictab[i].m_desc.pmid);
-	indom_int = (__pmInDom_int *)&(metrictab[i].m_desc.indom);
+	sbits = __pmid_int_subdomain(&subcluster_mtab[i]); 
 	subdom = sbits->subdomain;
-	sbits = __pmid_int_subdomain(&metrictab[i].m_desc.pmid);
+
+	mbits = __pmid_int(&cluster_mtab[i].m_desc.pmid);
+	indom_int = (__pmInDom_int *)&(cluster_mtab[i].m_desc.indom);
+	sbits = __pmid_int_subdomain(&cluster_mtab[i].m_desc.pmid);
+
 	if (subdom || (subdom = sbits->subdomain) 
 			>= num_subdom_dom_map) {
 	    fprintf(stderr,
 		    "cluster PMDA: warning: pmid for metric %s "
 		    "has bad subdomain bits=%d\n",
-		    (char *)metrictab[i].m_user, subdom);
+		    (char *)cluster_mtab[i].m_user, subdom);
 	    mbits->cluster = CLUSTER_BAD_CLUSTER;
 	    continue;
 	} 
@@ -80,24 +82,24 @@ cluster_init_metrictab()
 	 * map PMID in cluster PMDA's namespace to sub-PMDA's real
 	 * PMID and get descriptor for metric from sub-PMDA
 	 */
-	if ((e = pmLookupDesc(submetrictab[i], &metrictab[i].m_desc)) != 0) {
+	if ((e = pmLookupDesc(subcluster_mtab[i], &cluster_mtab[i].m_desc)) != 0) {
 	    fprintf(stderr,
 		    "cluster PMDA: warning: failed to lookup desc " 
 		    "for cluster pmid %d.%d.%d : %s\n",
 		    mbits->domain, mbits->cluster, mbits->item,
 		    pmErrStr(e));
 	}
-	metrictab[i].m_desc.pmid = orig_pmid_cluster;
-	subindombits = __pmindom_int_subdomain(&metrictab[i].m_desc.indom);
-	if (metrictab[i].m_desc.indom == PM_INDOM_NULL) {
+	cluster_mtab[i].m_desc.pmid = orig_pmid_cluster;
+	subindombits = __pmindom_int_subdomain(&cluster_mtab[i].m_desc.indom);
+	if (cluster_mtab[i].m_desc.indom == PM_INDOM_NULL) {
 	    subindombits->domain	= CLUSTER;
 	    subindombits->serial	= CLUSTER_INDOM;
 	} else if (subindombits->subdomain) {
 	    fprintf(stderr,
 		    "cluster PMDA: warning: indom for metric %s " 
 		    "has non-zero subdomain bits=%d indom=%d\n",
-		    (char *)metrictab[i].m_user, subindombits->subdomain,
-		    metrictab[i].m_desc.indom);
+		    (char *)cluster_mtab[i].m_user, subindombits->subdomain,
+		    cluster_mtab[i].m_desc.indom);
 	    mbits->cluster = CLUSTER_BAD_CLUSTER;
 	} else {
 	    subindombits->subdomain = subdom;
@@ -338,7 +340,7 @@ cluster_init(pmdaInterface *dp)
     	fprintf(stderr, "cluster PMDA: cluster_init_metrictab failed, err = %d\n", e);
 	exit(1);
     }
-    pmdaInit(dp, NULL, 0, metrictab, nmetrictab + CLUSTER_NUM_CONTROL_METRICS);
+    pmdaInit(dp, NULL, 0, cluster_mtab, ncluster_mtab + CLUSTER_NUM_CONTROL_METRICS);
 }
 
 static void

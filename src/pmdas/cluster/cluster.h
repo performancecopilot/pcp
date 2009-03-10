@@ -96,9 +96,9 @@ struct cluster_inst_s {
     int			client; /* index into cluster_clients */
 };
 
-extern int		nmetrictab;
-extern pmdaMetric	metrictab[];	/* length: nmetrictab + num.control metrics */
-extern pmID		submetrictab[];	/* length: nmetrictab  */
+extern int		ncluster_mtab;
+extern pmdaMetric	cluster_mtab[];		/* length: nmetrictab + num.control metrics */
+extern pmID		subcluster_mtab[];	/* length: nmetrictab  */
 
 extern int              n_cluster_clients;
 extern cluster_client_t   *cluster_clients;
@@ -232,10 +232,12 @@ __pmindom_int_subdomain(pmInDom *idp)
 
 extern size_t cluster_node_read(int fd, void *buf, size_t len);
 extern size_t cluster_node_write(int fd, void *buf, size_t len);
-static inline int cluster_node_read_ok(int fd, void *buf, size_t len) {
+static inline int cluster_node_read_ok(int fd, void *buf, size_t len)
+{
     return (cluster_node_read(fd, buf, len) == len);
 }
 
-static inline int cluster_node_write_ok(int fd, void *buf, size_t len) {
+static inline int cluster_node_write_ok(int fd, void *buf, size_t len)
+{
     return (cluster_node_write(fd, buf, len) == len);
 }

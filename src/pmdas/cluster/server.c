@@ -333,8 +333,8 @@ cluster_client_metrics_set(pmValue *valp, int delete)
 	cluster_delete_instances(instp);
 	return 0;
     }
-    for (i=0; i < nmetrictab; i++) {
-	if (strstr(valp->value.pval->vbuf, (char *)metrictab[i].m_user) == NULL)
+    for (i=0; i < ncluster_mtab; i++) {
+	if (strstr(valp->value.pval->vbuf, (char *)cluster_mtab[i].m_user) == NULL)
 	    continue;
 
 	/* Theres at least one valid metric: allow the change */
@@ -628,7 +628,7 @@ cluster_send_config(cluster_client_t *tc)
 	 * allocate buffer bug enough for all (non-control) metrics,
 	 * plus header
 	 */
-	sendbuf = (unsigned *)malloc((nmetrictab + 3) * sizeof(sendbuf[0]));
+	sendbuf = (unsigned *)malloc((ncluster_mtab + 3) * sizeof(sendbuf[0]));
 	if (!sendbuf) {
 	    perror("malloc failed");
 	    return -errno;
@@ -636,15 +636,15 @@ cluster_send_config(cluster_client_t *tc)
 	sendbuf[0] = htonl(CLUSTER_PDU_CONFIG);
 	sendbuf[1] = htonl(interval);
     }
-    for (i=0, j=3; i < nmetrictab; i++) {
+    for (i=0, j=3; i < ncluster_mtab; i++) {
 	if (pmDebug & DBG_TRACE_APPL2) {
 	    fprintf(stderr, "... sending config [%d] \"%s\" to client %d\n",
-		    i, (char *)metrictab[i].m_user, tc->fd);
+		    i, (char *)cluster_mtab[i].m_user, tc->fd);
 	}
 	if (strstr(cluster_client_metrics_cache(tc),
-		   (char *)metrictab[i].m_user) != NULL) {
+		   (char *)cluster_mtab[i].m_user) != NULL) {
 
-	    sendbuf[j++] = htonl(submetrictab[i]);
+	    sendbuf[j++] = htonl(subcluster_mtab[i]);
 	}
     }
     sendbuf[2] = htonl(j-3); /* number of configured metrics */
