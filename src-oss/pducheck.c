@@ -632,7 +632,7 @@ _z(int mode)
 				resname, indomlist[i].name);
 		    if ((resname == (char *)0 || indomlist[i].name == 0) &&
 			resname != indomlist[i].name)
-			    fprintf(stderr, "Botch: InstanceReq: name: got: %p expect: %p\n",
+			    fprintf(stderr, "Botch: InstanceReq: name: got: " PRINTF_P_PFX "%p expect: " PRINTF_P_PFX "%p\n",
 				resname, indomlist[i].name);
 		    if (resname != (char *)0)
 			free(resname);

@@ -188,7 +188,7 @@ main(int argc, char **argv)
 	__pmOptFetchAdd(&root, &req[i]);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_OPTFETCH) {
-	    fprintf(stdout, "\nAdd request %d @ 0x%08x\n", i, &req[i]);
+	    fprintf(stdout, "\nAdd request %d @ " PRINTF_P_PFX "%p\n", i, &req[i]);
 	    __pmOptFetchDump(stdout, root);
 	}
 #endif
@@ -223,7 +223,7 @@ main(int argc, char **argv)
 	__pmOptFetchDel(&root, &req[i]);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_OPTFETCH) {
-	    fprintf(stdout, "\nDelete request %d @ 0x%08x\n", i, &req[i]);
+	    fprintf(stdout, "\nDelete request %d @ " PRINTF_P_PFX "%p\n", i, &req[i]);
 	    __pmOptFetchDump(stdout, root);
 	}
 #endif
