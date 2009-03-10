@@ -38,6 +38,16 @@
 #define IBPMDA_MAX_HCAS (16)
 
 typedef struct local_port_s {
+	/*
+	 * Cache the ca_name and portnum to avoid a bug in libibumad that
+	 * leaks memory when umad_port_get() is called over and over.
+	 * With ca_name and portnum we can safely do umad_port_release()
+	 * first and then umad_port_get() without fear that some future
+	 * version of release() will deallocate port->ca_name and
+	 * port->portnum.
+	 */
+	char ca_name[UMAD_CA_NAME_LEN];
+	int portnum;
 	umad_port_t *ump;
 	void * hndl;
 	int needsupdate;
@@ -172,15 +182,18 @@ static void
 openumadport (hca_state_t *hst, umad_port_t *port, void *arg)
 {
     void *hndl = arg;
+    local_port_t *lp;
 
     if ((hndl = mad_rpc_open_port(port->ca_name, port->portnum, mgmt_classes,
                                   ARRAYSZ(mgmt_classes))) == NULL) {
 	__pmNotifyErr(LOG_ERR, "Cannot open port handle for %s:%d\n",
 			port->ca_name, port->portnum);
     }
-	
-    hst->lports[port->portnum].hndl = hndl;
-    hst->lports[port->portnum].ump = port;
+    lp = &hst->lports[port->portnum];
+    strcpy(lp->ca_name, port->ca_name);
+    lp->portnum = port->portnum;
+    lp->ump = port;
+    lp->hndl = hndl;
 }
 
 int
@@ -504,9 +517,8 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    /* The state of the local port used for queries is checked
 	     * once per fetch request */
 	    if (lp->needsupdate) {
-                umad_release_port(lp->ump);
-		if (umad_get_port (lp->ump->ca_name, lp->ump->portnum,
-				   lp->ump) != 0) {
+		umad_release_port(lp->ump);
+		if (umad_get_port(lp->ca_name, lp->portnum, lp->ump) != 0) {
 		    __pmNotifyErr (LOG_ERR, 
 				   "Cannot get state of the port %s:%d\n",
 				   lp->ump->ca_name, lp->ump->portnum);
