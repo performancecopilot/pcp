@@ -389,13 +389,13 @@ test_instance(void)
 	if (sscanf(all_names[i], proc_fmt, &inst) != 1) {
 	    printf("%s: Error: cannot get PID from instname\n", pmProgname);
 	    printf("%s: <id,name> = <%ld,\"%s\">\n", pmProgname,
-		   all_inst[i], all_names[i]);
+		   (long)all_inst[i], all_names[i]);
 	    exit(1);
 	}
 	if (inst != all_inst[i]) {
 	    printf("%s: Error: instname is wrong\n", pmProgname);
 	    printf("%s: <id,name> = <%ld,\"%s\"> != %d (fmt=%s)\n", pmProgname,
-		   all_inst[i], all_names[i], inst, proc_fmt);
+		   (long)all_inst[i], all_names[i], inst, proc_fmt);
 	    exit(1);
 	}
     }
