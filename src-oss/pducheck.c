@@ -287,10 +287,10 @@ _z(int mode)
     }
     if (resp->timestamp.tv_sec != rp->timestamp.tv_sec)
 	fprintf(stderr, "Botch: Result: tv_sec: got: %d expect: %d\n",
-	    resp->timestamp.tv_sec, rp->timestamp.tv_sec);
+	    (int)resp->timestamp.tv_sec, (int)rp->timestamp.tv_sec);
     if (resp->timestamp.tv_usec != rp->timestamp.tv_usec)
 	fprintf(stderr, "Botch: Result: tv_usec: got: %d expect: %d\n",
-	    resp->timestamp.tv_usec, rp->timestamp.tv_usec);
+	    (int)resp->timestamp.tv_usec, (int)rp->timestamp.tv_usec);
     if (resp->numpmid != rp->numpmid)
 	fprintf(stderr, "Botch: Result: numpmid: got: %d expect: %d\n",
 	    resp->numpmid, rp->numpmid);
@@ -632,7 +632,7 @@ _z(int mode)
 				resname, indomlist[i].name);
 		    if ((resname == (char *)0 || indomlist[i].name == 0) &&
 			resname != indomlist[i].name)
-			    fprintf(stderr, "Botch: InstanceReq: name: got: 0x%x expect: 0x%x\n",
+			    fprintf(stderr, "Botch: InstanceReq: name: got: %p expect: %p\n",
 				resname, indomlist[i].name);
 		    if (resname != (char *)0)
 			free(resname);
