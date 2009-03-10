@@ -30,7 +30,7 @@ pack-pcp-gui : pcp-gui.src
 	    ( echo "=== rpm ===" && $(MAKEF) -j 1 -C rpm $@ || exit $$? ); \
 	fi; \
 	if test ! -z "$(PACKAGE_MAKER)"; then \
-	    echo === mac === && $(MAKEF) -j 1 -C mac $@ || exit $$?; \
+	    ( echo "=== mac ===" && $(MAKEF) -j 1 -C mac $@ || exit $$? ); \
 	fi; \
 	test -z "$$KEEP_DIST_ROOT" || rm -rf $$DIST_ROOT; echo Done
 
