@@ -24,7 +24,7 @@ sigs="HUP USR1 TERM KILL"
 usage()
 {
     [ ! -z "$@" ] && echo $@ 1>&2
-    echo 1>&2 "Usage: $prog [options] [PID | name] ...
+    echo 1>&2 "Usage: $prog [options] PID ... | name ...
 
 Options:
   -a            send signal to all named processes (killall mode)
@@ -67,7 +67,8 @@ if [ $aflag = true ]
 then
     pids=""
     for name in "$@"; do
-	pidlist=`_get_pids_by_name "$name"`
+	program=`basename "$name"`
+	pidlist=`_get_pids_by_name "$program"`
 	pids="$pids $pidlist"
     done
 else

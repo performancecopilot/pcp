@@ -13,7 +13,7 @@ $VERSION     = '1.01';
 sub new
 {
     my ( $self, $archive, $metricsref, $start, $finish ) = @_;
-    my $opts    = '-F -z -biImMy -p6';
+    my $opts    = '-F -N -z -biImMy -p6';
     my @metrica = @{$metricsref};
     my $metrics = ' ';
     my %results;
@@ -27,7 +27,8 @@ sub new
 
     # metric,[inst],stocavg,timeavg,minimum,mintime,maximum,maxtime,count,units
     LINE: while (<SUMMARY>) {
-	m/^(\S+),(\S*),(\S+),(\S+),(\S+),(\S+),(\S+),(\S+),(\S+),(.*)$/
+	# print "Input line: $_\n";
+	m/^(\S.+),(.*),(\S+),(\S+),(\S+),(.+),(\S+),(.+),(\S+),(.*)$/
 		|| next LINE;
 
 	# If counter metric doesn't cover 90% of archive, metric name
@@ -35,7 +36,6 @@ sub new
 	my $metric = $1;
 	$metric =~ s/^\*//;
 	my $asterix = ($metric ne $1);
-	# print "metric=", $1, "\n";
 
 	my %result;
 	$result{'average'} = $3;
@@ -51,6 +51,8 @@ sub new
 	my $key = $1;
 	if ($2 ne "") { $key .= $2; }
 	$results{$key} = \%result;
+
+	# print "key=", $key, " average=$3\n";
     }
     close SUMMARY;
     return \%results;

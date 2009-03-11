@@ -54,7 +54,8 @@ cat <<End-of-File
 
 End-of-File
 
-$PCP_AWK_PROG <$1 '
+# Deal with either Windows or Unix variants of text files
+cat $1 | tr '\r\n' '\n' | $PCP_AWK_PROG '
 $1 == "#"	{ if (comment) text = text "\n *"
 		  comment++
 		  for (i = 2; i <= NF; i++)
