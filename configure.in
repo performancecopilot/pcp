@@ -1612,12 +1612,9 @@ else
 fi
 AC_SUBST(pcp_demos_dir)
 
-dnl Check for xconfirm
-dnl If found, use it, otherwise one would be installed in the "secret"
-dnl place.
 if test -z "$XCONFIRM" 
 then
-    AC_PATH_PROG(ac_xconfirm_prog, xconfirm, ${pcp_share_dir}/lib/xconfirm)
+    AC_PATH_PROG(ac_xconfirm_prog, xconfirm, pmconfirm)
 else
     ac_xconfirm_prog=$XCONFIRM
 fi

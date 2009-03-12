@@ -49,7 +49,7 @@ HFILES		= proc_stat.h proc_meminfo.h proc_loadavg.h \
 LSRCFILES 	= help root_linux root_irix
 LDIRT		= help.dir help.pag domain.h
 
-LLDLIBS		= -lpcp_pmda -lpcp -lpthread
+LLDLIBS		= -lpcp_pmda -lpcp
 
 # Uncomment these flags for profiling
 # LCFLAGS	= -pg
