@@ -2,7 +2,7 @@ Usenet News PMDA
 ================
 
 This PMDA is a sample, that illustrates how a simple PMDA might be
-constructed using the ASCII PDU interface to the PMCD.
+constructed using the Perl PMDA API.
 
 Although the metrics supported are simple, the framework in the script
 pmdanews is quite general, and could be re-used to implement other
@@ -36,9 +36,8 @@ Installation
  +  By default the script pmdanews operates on a small test-case copy a
     news "active" file, installed from here into
     $PCP_PMDAS_DIR/news/active.  If you wish to use a more realistic base
-    of Usenet data, edit pmdanews (see the for-loop ahead of the
-    assignment ACTIVE=$file) to make it use your "live active" file,
-    then
+    of Usenet data, edit pmdanews.pl to make it use your "live active"
+    groups, then
 
 	# ./Install.
 

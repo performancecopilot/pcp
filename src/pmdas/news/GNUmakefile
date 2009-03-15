@@ -24,7 +24,7 @@ IAM = news
 DOMAIN = NEWSAGENT
 
 DFILES = README
-LSRCFILES = Install Remove pmns root $(DFILES) active news.agent pmda$(IAM).pl
+LSRCFILES = Install Remove pmns root $(DFILES) active pmda$(IAM).pl
 
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
@@ -37,7 +37,6 @@ include $(BUILDRULES)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 755 news.agent $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
 	$(INSTALL) -m 644 $(DFILES) active domain.h pmns root $(PMDADIR)
 
