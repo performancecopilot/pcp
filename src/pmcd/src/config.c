@@ -1655,7 +1655,7 @@ GetAgentDso(AgentInfo *aPtr)
 #else
     fprintf(stderr, "Error attaching %s DSO at \"%s\"\n",
 		     aPtr->pmDomainLabel, dso->pathName);
-    fprintf(stderr, "No dynamic DSO/DLL support on this platform\n");
+    fprintf(stderr, "No dynamic shared library support on this platform\n");
     return -1;
 #endif
 
