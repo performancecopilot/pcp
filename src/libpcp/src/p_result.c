@@ -158,6 +158,8 @@ __pmDecodeResult(__pmPDU *pdubuf, int mode, pmResult **result)
 #if defined(HAVE_64BIT_PTR)
     char	*newbuf;
     int		valfmt;
+    int		numval;
+    pmID	pmid;
 /*
  * Note: all sizes are in units of bytes ... beware that pp->data is in
  *	 units of __pmPDU
