@@ -1,0 +1,321 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 1998-2008 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH PMIMPORT 3 "SGI" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} PMIMPORT 3 "SGI" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMIMPORT 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMIMPORT 3 "" "\&"
+.if \nX=3 .ds x} PMIMPORT "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3pmimport\f1 \- introduction to the pmimport plugin Application Programming Interface
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3#include <pcp/pmimport.h>\f1
+.PP
+The following functions constitute the
+.B pmimport
+API:
+.PP
+.B "int primeImportFile(const char *file, int *infile, char **host, char **timezone);"
+.PP
+.B "ResultStatus getPmResult(const int infile, pmResult **result);"
+.PP
+.B "int getPmDesc(const pmID id, pmDesc **desc, char **metricName);"
+.PP
+.B "int getIndom(const pmInDom id, InDomEntry **entryTable);"
+.SH DESCRIPTION
+.BR pmimport (1)
+will convert various data file types to Performance Co-Pilot (PCP)
+archive logs. Archive logs may be `played back' by other PCP tools (see
+.BR PCPIntro (1)).
+These logs form the basis of the VCR paradigm and retrospective
+performance analysis services common to the PCP toolkit.
+.PP
+.B pmimport
+is able to process various formats of input data files.  This
+functionality is provided by the use of so called `plugins'.
+Plugins are actually dynamic shared libraries, which are linked with
+the main
+.B pmimport
+program at run-time.  These plugins are responsible for reading the
+input data file, translating this information into PCP metrics and
+then passing these metrics to the main program.
+.B pmimport
+will write this information out to a PCP archive log, which can
+then be used by other PCP tools for retrospective analysis.
+.PP
+The
+.B pmimport
+Application Programming Interface (API) allows people to create their
+own plugin converters for
+.BR pmimport .
+The include file
+.B "pmimport.h"
+contains the C prototypes and typedefs required to support the
+API. This description provides an overview of the API and the steps
+required to build and use a
+.B pmimport
+converter.
+.SH WRITING A CUSTOM PLUGIN
+Your plugin can be as simple or as complex as you like.  It can do
+anything you code it to do.  The only requirements for it to work with
+.B pmimport
+is that it supports the functions required by the API.  These
+functions, as listed above, are described below:
+.PP
+.B primeImportFile
+is called once by the
+.B pmimport
+main program. It should open the input data file, referred to as
+.IR file ,
+validate its correctness, and assign values to
+.IR infile ,
+.I host
+and
+.I timezone
+where applicable.
+.I infile
+is a file descriptor for the opened input file.  In fact,
+.I infile
+is only used when calling
+.B getPmResult
+so it may contain whatever value the plugin requires to indentify the input 
+file.
+.I host
+is the name of the machine which was the source of the metrics.  If
+.B primeImportFile
+assigns the hostname (presumably based upon data stored within
+the input data file), then it is also responsible for allocating
+sufficient memory for the hostname.  The hostname should only be
+assigned if
+.I host
+is currently NULL, so that a user of
+.B pmimport
+can override the hostname at the command line level.  The
+.I timezone
+information should also be validated or assigned; and if assigned
+memory must be allocated.
+.PP
+.B primeImportFile
+should return
+.B PMIMPORT_API_VERSION
+(as defined in
+.BR pmimport.h )
+on success, or a negative number if the function failed.
+.PP
+.B getPmResult
+is the core of the interaction between the main program and the plugin.
+It is responsible for collecting a set of data and collating this into a
+.I pmResult
+structure.
+.I infile
+is the file descriptor for the open input data file, and
+.I result
+is the address of a pointer to a
+.I pmResult
+structure that will contain the metrics collected by
+.BR getPmResult .
+The memory allocation of the
+.I pmResult
+structure is controlled by
+.B getPmResult
+and is not de-allocated by the main program, and therefore this function
+should guard against memory leaks.
+.PP
+.B getPmResult
+will return a
+.I ResultStatus
+value, as defined by the following enum:
+.PP
+.ft CW
+.nf
+.in +0.25i
+typedef enum { RS_Error, RS_Ok, RS_Reset } ResultStatus;
+.in
+.fi
+.ft 1
+.PP
+This value will indicate whether an error was encountered and further
+processing should cease, or if the function worked as expected and the 
+.I pmResult
+can be processed normally.  
+.B getPmResult
+can also return
+.IR RS_Reset ,
+along with a valid
+.IR pmResult ,
+which would prompt the main program to write a mark record to the PCP
+archive log indicating that counter values have been reset.  The
+.I pmResult
+need only contain a valid timestamp indicating when the reset
+occurred.  If a timestamp of zero is returned, the main program will,
+by default, use the timestamp of the previously recorded
+.IR pmResult ,
+incremented by one millisecond.
+.PP
+.B getPmDesc
+is called whenever the main program encounters an unrecognised metric
+within the 
+.I pmResult
+returned by
+.BR getPmResult .
+When this function is called, it is passed a
+.I pmID
+and it is expected to provide the information contained in the
+.I pmDesc
+structure for that metric, and the metric's name as a string.  This
+information is then written to the PCP archive log by the main
+program.  The memory allocation of the
+.I pmDesc
+and the metric's name is the responsibility of this function.  This
+memory will not be de-allocated by the main program, and therefore
+this function should guard against memory leaks.
+.PP
+.B getPmDesc
+should return the number of metric names returned (typically 1), or,
+upon failure, a PCP error code.
+.PP
+.B getIndom
+takes a
+.I "pmInDom id"
+and should provide the address of an
+.I InDomEntry
+structure.  The
+.I InDomEntry
+structure contains information describing a particular instance
+domain.  The plugin is expected to update this information when
+required, normally when
+.B getPmResult
+is called, and to set the
+.I state
+variable whenever the data has been modified.  The
+.I InDomEntry
+structure is defined below:
+.PP
+.ft CW
+.nf
+.in +0.25i
+typedef struct {
+    pmInDom    id;
+    InDomState state;
+    int        numinst;
+    int        *instlist;
+    char       **namelist;
+} InDomEntry;
+.in
+.fi
+.ft 1
+.PP
+An instance domain entry is identified by the
+.IR "pmInDom id" ,
+and contains the number of instances the instance domain contains, and
+two synchronous arrays of internal instance identifiers and external
+instance names.  For example, for an instance domain of disks, the
+.I namelist
+might point to "disk01", "disk02" and "disk03", while the
+.I instlist
+would contain 0, 1 and 2. If an instance is not currently referred to
+but is to be kept in case it may be referred to in the future then its
+corresponding internal identifier can be set to -1, so that the main
+program does not include this instance in the archive log.  Should
+that instance become active again, then it is up to the plugin to
+restore the original internal identifier to the instance.  For
+example, if "disk02" was removed, then its internal identifier of 1
+would be changed to -1.  If the disk was then returned, the identifier
+should be set to 1 again, so that the main program will know that it
+is the same disk.
+.PP
+Whenever the instance domain changes, the plugin should set the
+.I "InDomState state"
+structure variable to
+.IR IS_Set ,
+normally within the
+.B getPmResult
+function.  Every time the main program processes a
+.IR pmResult ,
+it will call 
+.B getIndom
+and check the state of this variable, and if set it will update the
+instance domain information in the archive log.  Once it has processed
+whatever changes were made, it will set the
+.I state
+variable to
+.IR IS_Acknowledged .
+.PP
+.B getIndom
+should return the number of instances in the domain, or upon error,
+return a PCP error code.
+.SH COMPILING AND LINKING
+The plugin code should be compiled in the normal way to produce an
+object file. A shared library should then be created based on this
+file. Refer to the demonstration makefiles and programs shipped in
+.B $PCP_DEMOS_DIR/pmimport/
+.SH USING A CUSTOM PLUGIN WITH PMIMPORT
+To use a custom plugin with
+.B pmimport
+is quite simple. All one need do is specify the directory location of
+where the plugin is kept.  For example, assuming the custom plugin
+is stored in /tmp:
+.PP
+.ft CW
+.nf
+.in +0.25i
+$ pmimport /tmp/my_plugin datafile pcplog
+.in
+.fi
+.ft 1
+.SH FILES
+.TP
+.B $PCP_VAR_DIR/config/pmimport/
+default location of pmimport converter shared libraries.
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+Values for these variables may be obtained programatically
+using the
+.IR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmimport (1),
+.BR PMAPI (3)
+and
+.BR pmErrStr (3).
+.PP
+Also refer to the
+.IR "Performance Co-Pilot Programmer's Guide" .
