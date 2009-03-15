@@ -17,16 +17,18 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmimport.c
-CMDTARGETS = pmimport
+CMDTARGET = pmimport
 LLDLIBS = -lpcp
 SUBDIRS = demos
 
-default: $(CMDTARGETS)
+default: $(CMDTARGET)
+	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
 
 install:	default
 	# $(INSTALL) -m 755 pmimport $(PCP_BIN_DIR)/pmimport
+	$(SUBDIRS_MAKERULE)
 
 default_pcp:
 
