@@ -145,3 +145,53 @@ $pmda->set_fetch_callback(\&news_fetch_callback);
 
 &news_init;
 $pmda->run;
+
+=pod
+
+=head1 NAME
+
+pmdanews - sample Usenet news performance metrics domain agent (PMDA)
+
+=head1 DESCRIPTION
+
+B<pmdanews> is an example Performance Metrics Domain Agent (PMDA) which
+exports metric values related to a set of newsgroups.
+
+=head1 INSTALLATION
+
+If you want access to the names and values for the news performance
+metrics, do the following as root:
+
+	# cd $PCP_PMDAS_DIR/news
+	# ./Install
+
+If you want to undo the installation, do the following as root:
+
+	# cd $PCP_PMDAS_DIR/news
+	# ./Remove
+
+B<pmdanews> is launched by pmcd(1) and should never be executed
+directly.  The Install and Remove scripts notify pmcd(1) when
+the agent is installed or removed.
+
+=head1 FILES
+
+=over
+
+=item $PCP_PMDAS_DIR/news/Install
+
+installation script for the B<pmdanews> agent
+
+=item $PCP_PMDAS_DIR/news/Remove
+
+undo installation script for the B<pmdanews> agent
+
+=item $PCP_LOG_DIR/pmcd/news.log
+
+default log file for error messages from B<pmdanews>
+
+=back
+
+=head1 SEE ALSO
+
+pmcd(1).
