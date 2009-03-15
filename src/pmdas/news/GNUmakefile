@@ -22,7 +22,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM = news
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmns root README active pmda$(IAM).pl
+LSRCFILES = Install Remove README active pmda$(IAM).pl
 LDIRT	= domain.h root pmns *.log $(MAN_PAGES)
 
 ifneq ($(POD2MAN),)
