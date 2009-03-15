@@ -1201,8 +1201,6 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    switch (pmidp->item) {
 			case 0:		/* agent.type */
 			    atom.ul = agent[j].ipcType << 1;
-			    if (agent[j].pduProtocol == PDU_ASCII)
-				atom.ul |= 1;
 			    break;
 			case 1:		/* agent.status */
 			    if (agent[j].status.notReady)

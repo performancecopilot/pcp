@@ -22,8 +22,6 @@
 
 INTERN int	pmDebug = 0;		/* the real McCoy */
 
-#define ABUF_SIZE	1024	/* read buffer for reading ascii PDUs */
-
 /*
  * Performance Instrumentation
  *  ... counts binary PDUs received and sent by low 4 bits of PDU type
@@ -34,35 +32,8 @@ static unsigned int	outctrs[PDU_MAX+1] = { 0 };
 INTERN unsigned int	*__pmPDUCntIn = inctrs;
 INTERN unsigned int	*__pmPDUCntOut = outctrs;
 
-/*
- * unit of space allocation for PDU buffer ... actually defined in pdubuf.c,
- * it should have the same value here.
- */
-#define PDU_CHUNK	1024
-
-typedef struct {		/* this is like stdio for reading ascii PDUs */
-    int		fd;
-    int		timeout;
-    int		len;
-    int		next;
-    char	abuf[ABUF_SIZE];
-} ascii_ctl;
-
 static int		mypid = -1;
-static ascii_ctl	ac;
-
 static int              ceiling = PDU_CHUNK * 64;
-
-int
-__pmMoreInput(int fd)
-{
-    return 0;
-}
-
-void
-__pmNoMoreInput(int fd)
-{
-}
 
 static struct timeval	def_wait = { 10, 0 };
 static double		def_timeout = 10.0;
@@ -203,8 +174,8 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 	    }
 	    status = socketipc ? recv(fd, buf, len, 0) : read(fd, buf, len);
 	    __pmOverrideLastFd(fd);
-	    if (status <= 0 || mode == PDU_ASCII)
-		/* ASCII, EOF or error */
+	    if (status <= 0)
+		/* EOF or error */
 		return status;
 	    if (mode == -1)
 		/* special case, see __pmGetPDU */
@@ -221,7 +192,6 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 const char *
 __pmPDUTypeStr(int type)
 {
-    /* libpcp PDU names */
     if (type == PDU_ERROR) return "ERROR";
     else if (type == PDU_RESULT) return "RESULT";
     else if (type == PDU_PROFILE) return "PROFILE";
@@ -239,11 +209,9 @@ __pmPDUTypeStr(int type)
     else if (type == PDU_PMNS_NAMES) return "PMNS_NAMES";
     else if (type == PDU_PMNS_CHILD) return "PMNS_CHILD";
     else if (type == PDU_PMNS_TRAVERSE) return "PMNS_TRAVERSE";
-    /* pmlc <-> pmlogger PDU names from libpcp_dev */
     else if (type == PDU_LOG_CONTROL) return "LOG_CONTROL";
     else if (type == PDU_LOG_STATUS) return "LOG_STATUS";
     else if (type == PDU_LOG_REQUEST) return "LOG_REQUEST";
-    /* and anything else ... */
     else {
 	static char	buf[20];
 	snprintf(buf, sizeof(buf), "TYPE-%d?", type);
@@ -285,8 +253,6 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     int		off = 0;
     int		len;
     __pmPDUHdr	*php = (__pmPDUHdr *)pdubuf;
-
-    /* assume PDU_BINARY ... should not be here, otherwise */
 
     setup_sigpipe();
 
@@ -335,37 +301,13 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     php->type = ntohl(php->type);
 
     if (off != len)
-	return (errno) ? -errno : PM_ERR_IPC;
+	return errno ? -errno : PM_ERR_IPC;
 
     __pmOverrideLastFd(fd);
     if (php->type >= PDU_START && php->type <= PDU_FINISH)
 	__pmPDUCntOut[php->type-PDU_START]++;
 
     return off;
-}
-
-int
-__pmXmitAscii(int fd, const char *buf, int nbytes)
-{
-    int		socketipc = __pmSocketIPC(fd);
-    int		bytes;
-
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDU) {
-	fprintf(stderr, "[%d]pmXmitPDU: fd=%d ASCII (%d bytes): %s",
-	    mypid, fd, nbytes, buf);
-	if (buf[nbytes-1] != '\n')
-	    putc('\n', stderr);
-    }
-#endif
-
-    setup_sigpipe();
-
-    bytes = socketipc ? send(fd, buf, nbytes, 0) : write(fd, buf, nbytes);
-    __pmOverrideLastFd(fd);
-    if (bytes != nbytes)
-	return -errno;
-    return 0;
 }
 
 int
@@ -381,7 +323,7 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 
     if (mypid == -1)
 	mypid = getpid();
-    if ( (mode == PDU_BINARY) || (mode == PDU_CLIENT) ) {
+    if (mode != PDU_ASCII) {
 	if ((pdubuf = __pmFindPDUBuf(maxsize)) == NULL)
 	    return -errno;
 
@@ -403,13 +345,12 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 		     * down the connection (most likely becuase the host at
 		     * the other end just took a dive)
 		     *
-		     *
-		     * from irix/kern/fs/nfs/bds.c seems like all of the
+		     * from IRIX BDS kernel sources, seems like all of the
 		     * following are peers here:
 		     *  ECONNRESET (pmcd terminated?)
 		     *  ETIMEDOUT ENETDOWN ENETUNREACH EHOSTDOWN EHOSTUNREACH
 		     *  ECONNREFUSED
-		     * peers for bds but not here:
+		     * peers for BDS but not here:
 		     *  ENETRESET ENONET ESHUTDOWN (cache_fs only?)
 		     *  ECONNABORTED (accept, user req only?)
 		     *  ENOTCONN (udp?)
@@ -547,140 +488,21 @@ check_read_len:
 
 	return php->type;
     }
-    else {
-	/* assume PDU_ASCII */
-	if (ac.len && ac.next < ac.len) {
-	    __pmNotifyErr(LOG_WARNING, "__pmGetPDU: fd=%d extra ASCII PDU text discarded \"%s\"", fd, &ac.abuf[ac.next]);
-	}
-	ac.fd = fd;
-	ac.timeout = timeout;
-	ac.len = pduread(fd, ac.abuf, ABUF_SIZE-1, PDU_ASCII, timeout);
-	ac.next = 0;
-
-	/* expect at least one line, with magic PDU cookie at the start */
-	if (ac.len == PM_ERR_IPC || ac.len == PM_ERR_TIMEOUT)
-	    /* errno not always set */
-	    return ac.len;
-	else if (ac.len < 0)
-	    return -errno;
-	else if (ac.len == 0)
-	    return PM_ERR_EOF;
-	ac.abuf[ac.len] = '\0';
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDU) {
-	    fprintf(stderr, "[%d]pmGetPDU: fd=%d ASCII (%d bytes): %s",
-		mypid, fd, ac.len, ac.abuf);
-	    if (ac.abuf[ac.len-1] != '\n')
-		putc('\n', stderr);
-	}
-#endif
-
-	*result = (__pmPDU *)&ac;		/* ugly, but caller sees this as opaque */
-
-	if (strncmp(ac.abuf, "INSTANCE_REQ", 12) == 0)
-	    return PDU_INSTANCE_REQ;
-	else if (strncmp(ac.abuf, "CONTROL_REQ", 11) == 0)
-	    return PDU_CONTROL_REQ;
-	else if (strncmp(ac.abuf, "DESC_REQ", 8) == 0)
-	    return PDU_DESC_REQ;
-	else if (strncmp(ac.abuf, "INSTANCE", 8) == 0)
-	    return PDU_INSTANCE;
-	else if (strncmp(ac.abuf, "DESC_REQ", 8) == 0)
-	    return PDU_DESC_REQ;
-	else if (strncmp(ac.abuf, "TEXT_REQ", 8) == 0)
-	    return PDU_TEXT_REQ;
-	else if (strncmp(ac.abuf, "PROFILE", 7) == 0)
-	    return PDU_PROFILE;
-	else if (strncmp(ac.abuf, "RESULT", 6) == 0)
-	    return PDU_RESULT;
-	else if (strncmp(ac.abuf, "ERROR", 5) == 0)
-	    return PDU_ERROR;
-	else if (strncmp(ac.abuf, "FETCH", 5) == 0)
-	    return PDU_FETCH;
-	else if (strncmp(ac.abuf, "DESC", 4) == 0)
-	    return PDU_DESC;
-	else if (strncmp(ac.abuf, "TEXT", 4) == 0)
-	    return PDU_TEXT;
-	else {
-	    char	*p;
-
-	    for (p = ac.abuf; *p && *p != ' ' && *p != '\n'; p++)
-		;
-	    *p = '\0';
-	    __pmNotifyErr(LOG_WARNING, "__pmGetPDU: fd=%d ASCII type=\"%s\"?", fd, ac.abuf);
-	    return PM_ERR_IPC;
-	}
-    }
-}
-
-/*
- * deprecated old interface ...
- */
-int
-__pmRecvPDU(int fd, int mode, __pmPDU **result)
-{
-    return __pmGetPDU(fd, mode, TIMEOUT_NEVER, result);
-}
-
-/*
- * Fetch next line of input from an ASCII format PDU stream.
- *
- * Note: pdubuf is really an opaque pointer to the (ascii_ctl *) value
- * returned from an earlier call to __pmGetPDU.
- */
-int
-__pmRecvLine(__pmPDU *pdubuf, int maxch, char *lbuf)
-{
-    ascii_ctl	*ap = (ascii_ctl *)pdubuf;
-    char	*p = lbuf;
-    char	*lend = &lbuf[maxch];
-
-    for ( ; ; ) {
-	if (ap->next >= ap->len) {
-	    ap->len = pduread(ap->fd, ap->abuf, ABUF_SIZE, PDU_ASCII, ap->timeout);
-	    if (ap->len == PM_ERR_IPC || ap->len == PM_ERR_TIMEOUT)
-		/* errno not always set */
-		return ap->len;
-	    else if (ap->len < 0)
-		return -errno;
-	    else if (ap->len == 0)
-		return PM_ERR_EOF;
-	    ap->abuf[ac.len] = '\0';
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_PDU) {
-		fprintf(stderr, "[%d]pmRecvLine: ASCII (%d bytes): %s", mypid, ap->len, ap->abuf);
-		if (ap->abuf[ap->len-1] != '\n')
-		    putc('\n', stderr);
-	    }
-#endif
-	    ap->next = 0;
-	}
-	if (p >= lend)
-	    return PM_ERR_TOOBIG;
-	*p = ap->abuf[ap->next++];
-	if (*p == '\n')
-	    break;
-	p++;
-    }
-    *p = '\0';
-
-    return (int)(p - lbuf);
+    return PM_ERR_NOASCII;
 }
 
 int
-__pmGetPDUCeiling (void)
+__pmGetPDUCeiling(void)
 {
     return ceiling;
 }
 
 int
-__pmSetPDUCeiling (int newceiling)
+__pmSetPDUCeiling(int newceiling)
 {
-    if ( newceiling > 0 ) {
+    if (newceiling > 0)
 	return (ceiling = newceiling);
-    } else {
-	return (ceiling);
-    }
+    return ceiling;
 }
 
 void

@@ -35,32 +35,26 @@ __pmSendCreds(int fd, int mode, int credcount, const __pmCred *credlist)
     creds_t	*pp = NULL;
     int		i;
 
-    if ((credcount <= 0) || (credlist == NULL))
+    if (credcount <= 0 || credlist == NULL)
 	return PM_ERR_IPC;
-
-    if (mode == PDU_BINARY) {
-	need = sizeof(creds_t) + ((credcount-1) * sizeof(__pmCred));
-	if ((pp = (creds_t *)__pmFindPDUBuf((int)need)) == NULL)
-	    return -errno;
-	pp->hdr.len = (int)need;
-	pp->hdr.type = PDU_CREDS;
-	pp->numcreds = htonl(credcount);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT)
-	    for (i = 0; i < credcount; i++)
-		fprintf(stderr, "__pmSendCreds: #%d = %x\n", i, *(unsigned int*)&(credlist[i]));
-#endif
-	/* swab and fix bitfield order */
-	for (i = 0; i < credcount; i++) {
-	    pp->credlist[i] = __htonpmCred(credlist[i]);
-	}
-
-	return __pmXmitPDU(fd, (__pmPDU *)pp);
-    }
-    else {
-	/* Outgoing ASCII credentials PDUs not supported */
+    if (mode == PDU_ASCII)
 	return PM_ERR_NOASCII;
-    }
+
+    need = sizeof(creds_t) + ((credcount-1) * sizeof(__pmCred));
+    if ((pp = (creds_t *)__pmFindPDUBuf((int)need)) == NULL)
+	return -errno;
+    pp->hdr.len = (int)need;
+    pp->hdr.type = PDU_CREDS;
+    pp->numcreds = htonl(credcount);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	for (i = 0; i < credcount; i++)
+	    fprintf(stderr, "__pmSendCreds: #%d = %x\n", i, *(unsigned int*)&(credlist[i]));
+#endif
+    /* swab and fix bitfield order */
+    for (i = 0; i < credcount; i++)
+	pp->credlist[i] = __htonpmCred(credlist[i]);
+    return __pmXmitPDU(fd, (__pmPDU *)pp);
 }
 
 int
@@ -71,10 +65,8 @@ __pmDecodeCreds(__pmPDU *pdubuf, int mode, int *sender, int *credcount, __pmCred
     int		numcred;
     __pmCred	*list;
 
-    if (mode == PDU_ASCII) {
-	/* Incoming ASCII credentials PDUs not supported */
+    if (mode == PDU_ASCII)
 	return PM_ERR_NOASCII;
-    }
 
     pp = (creds_t *)pdubuf;
     numcred = ntohl(pp->numcreds);

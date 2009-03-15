@@ -771,11 +771,9 @@ ParsePipe(char *pmDomainLabel, int pmDomainId)
     FindNextToken();
     if (TokenIs("binary"))
 	pduProtocol = PDU_BINARY;
-    else if (TokenIs("text")) 
-	pduProtocol = PDU_ASCII;
     else {
 	fprintf(stderr,
-		     "pmcd: line %d, pipe PDU type expected (`binary' or `text')\n",
+		     "pmcd: line %d, pipe PDU type expected (`binary')\n",
 		     nLines);
 	return -1;
     }

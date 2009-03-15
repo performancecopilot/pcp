@@ -177,7 +177,6 @@ main(int argc, char **argv)
 			closedso();
 			break;
 		    
-		    case PDU_ASCII:
 		    case PDU_BINARY:
 			closepmda();
 			break;
@@ -195,7 +194,6 @@ main(int argc, char **argv)
 			dodso(PDU_DESC_REQ);
 			break;
 		    
-		    case PDU_ASCII:
 		    case PDU_BINARY:
 			dopmda(PDU_DESC_REQ);
 			break;
@@ -212,7 +210,6 @@ main(int argc, char **argv)
 			dodso(PDU_FETCH);
 			break;
 		    
-		    case PDU_ASCII:
 		    case PDU_BINARY:
 			dopmda(PDU_FETCH);
 			break;
@@ -229,7 +226,6 @@ main(int argc, char **argv)
 			dodso(PDU_INSTANCE_REQ);
 			break;
 		    
-		    case PDU_ASCII:
 		    case PDU_BINARY:
 			dopmda(PDU_INSTANCE_REQ);
 			break;
@@ -246,7 +242,6 @@ main(int argc, char **argv)
 			dodso(PDU_RESULT);
 			break;
 		    
-		    case PDU_ASCII:
 		    case PDU_BINARY:
 			dopmda(PDU_RESULT);
 			break;
@@ -281,7 +276,6 @@ main(int argc, char **argv)
 		    dodso(PDU_TEXT_REQ);
 		    break;
 
-		case PDU_ASCII:
 		case PDU_BINARY:
 		    dopmda(PDU_TEXT_REQ);
 		    break;

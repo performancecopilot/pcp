@@ -500,14 +500,10 @@ Where,
 is a string identifying the agent
 .TP 14
 .I domain-no
-is a unsigned integer specifying the agent's domain
+is an unsigned integer specifying the agent's domain
 .TP 14
 .I protocol
-specifies whether a text-based (ASCII) or a binary protocol should be used over the
-pipes.
-The two valid values for this parameter are
-.B text
-and
+The value for this parameter should be
 .BR binary .
 .sp
 .IP
@@ -516,26 +512,6 @@ to indicate that the agent must be marked as not being ready to process
 requests from \f3pmcd\f1. The agent will explictily notify the \f3pmcd\fP
 when it is ready to process the requests by sending \f3PM_ERR_PMDAREADY\fP 
 PDU.
-.sp
-.IP
-.BR Note :
-To the best of our knowledge, nothing but the demonstration PMDA news agent
-and the America's Cup San Diego water temperature agent
-has ever used the ASCII PDU interface to
-.BR pmcd .
-The current PCP libraries (in particular
-.I libpcp_pmda
-and
-.IR libpcp_trace )
-make building a real PMDA less effort than fighting with the ASCII PDUs
-in a
-.BR sh (1)
-script.
-Consequently, support for ASCII PDUs and hence the keyword
-.B text
-in the
-.B pmcd
-configuration file is discouraged.
 .PD
 .TP 14
 .I command

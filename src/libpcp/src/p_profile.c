@@ -47,89 +47,57 @@ __pmSendProfile(int fd, int mode, int ctxnum, __pmProfile *instprof)
     size_t		need;
     __pmPDU		*pdubuf;
 
-    if (mode == PDU_BINARY) {
-	/* work out how much space we need and then alloc a pdu buf */
-	need = sizeof(profile_t) + instprof->profile_len * sizeof(instprof_t);
-	for (prof=instprof->profile, p_end=prof+instprof->profile_len; prof < p_end; prof++)
-	    need += prof->instances_len * sizeof(int);
+    if (mode == PDU_ASCII)
+	return PM_ERR_NOASCII;
 
-	if ((pdubuf = __pmFindPDUBuf((int)need)) == NULL)
-	    return -errno;
+    /* work out how much space we need and then alloc a pdu buf */
+    need = sizeof(profile_t) + instprof->profile_len * sizeof(instprof_t);
+    for (prof = instprof->profile, p_end = prof + instprof->profile_len;
+	 prof < p_end;
+	 prof++)
+	need += prof->instances_len * sizeof(int);
 
-	p = (__pmPDU *)pdubuf;
+    if ((pdubuf = __pmFindPDUBuf((int)need)) == NULL)
+	return -errno;
 
-	/* First the profile itself */
-	pduProfile = (profile_t *)p;
-	pduProfile->hdr.len = (int)need;
-	pduProfile->hdr.type = PDU_PROFILE;
-	pduProfile->ctxnum = htonl(ctxnum);
-	pduProfile->g_state = htonl(instprof->state);
-	pduProfile->numprof = htonl(instprof->profile_len);
-	pduProfile->pad = 0;
+    p = (__pmPDU *)pdubuf;
 
-	p += sizeof(profile_t) / sizeof(__pmPDU);
+    /* First the profile itself */
+    pduProfile = (profile_t *)p;
+    pduProfile->hdr.len = (int)need;
+    pduProfile->hdr.type = PDU_PROFILE;
+    pduProfile->ctxnum = htonl(ctxnum);
+    pduProfile->g_state = htonl(instprof->state);
+    pduProfile->numprof = htonl(instprof->profile_len);
+    pduProfile->pad = 0;
 
-	if (instprof->profile_len) {
-	    /* Next all the profile entries (if any) in one block */
-	    for (prof=instprof->profile, p_end=prof+instprof->profile_len; prof < p_end; prof++) {
-		pduInstProf = (instprof_t *)p;
-		pduInstProf->indom = __htonpmInDom(prof->indom);
-		pduInstProf->state = htonl(prof->state);
-		pduInstProf->numinst = htonl(prof->instances_len);
-		pduInstProf->pad = 0;
-		p += sizeof(instprof_t) / sizeof(__pmPDU);
-	    }
+    p += sizeof(profile_t) / sizeof(__pmPDU);
 
-	    /* and then all the instances */
-	    for (prof=instprof->profile, p_end=prof+instprof->profile_len;
-			prof < p_end; prof++) {
-		int j;
-		/* and then the instances themselves (if any) */
-		for (j = 0; j < prof->instances_len; j++, p++)
-		    *p = htonl(prof->instances[j]);
-	    }
+    if (instprof->profile_len) {
+	/* Next all the profile entries (if any) in one block */
+	for (prof = instprof->profile, p_end = prof + instprof->profile_len;
+	     prof < p_end;
+	     prof++) {
+	    pduInstProf = (instprof_t *)p;
+	    pduInstProf->indom = __htonpmInDom(prof->indom);
+	    pduInstProf->state = htonl(prof->state);
+	    pduInstProf->numinst = htonl(prof->instances_len);
+	    pduInstProf->pad = 0;
+	    p += sizeof(instprof_t) / sizeof(__pmPDU);
 	}
 
-	return __pmXmitPDU(fd, pdubuf);
-    }
-    else {
-	/* assume PDU_ASCII */
-	int			i, j, sts;
-	__psint_t		nbytes;
-	__pmInDomProfile		*idp;
-	char			*q;
+	/* and then all the instances */
+	for (prof = instprof->profile, p_end = prof+instprof->profile_len;
+	     prof < p_end;
+	     prof++) {
+	    int j;
 
-	snprintf(__pmAbuf, sizeof(__pmAbuf), "PROFILE %d %d %d\n", ctxnum, instprof->state, instprof->profile_len);
-	nbytes = (int)strlen(__pmAbuf);
-	sts = __pmXmitAscii(fd, __pmAbuf, (int)nbytes);
-	if (sts < 0)
-	    return sts;
-	for (i = 0; i < instprof->profile_len; i++) {
-	    idp = &instprof->profile[i];
-	    snprintf(__pmAbuf, sizeof(__pmAbuf), ". %d %d %d", idp->indom, idp->state, idp->instances_len);
-	    q = &__pmAbuf[strlen(__pmAbuf)];
-	    for (j = 0; j < idp->instances_len; j++) {
-		if (j % 10 == 9) {
-		    *q++ = ' ';
-		    *q++ = '\\';
-		    *q++ = '\n';
-		    nbytes = q - __pmAbuf;
-		    sts = __pmXmitAscii(fd, __pmAbuf, (int)nbytes);
-		    if (sts < 0)
-			return sts;
-		    q = __pmAbuf;
-		}
-		snprintf(q, sizeof(__pmAbuf) - (q - __pmAbuf), " %d", idp->instances[j]);
-		while (*q) q++;
-	    }
-	    *q++ = '\n';
-	    nbytes = q - __pmAbuf;
-	    sts = __pmXmitAscii(fd, __pmAbuf, (int)nbytes);
-	    if (sts < 0)
-		return sts;
+	    /* and then the instances themselves (if any) */
+	    for (j = 0; j < prof->instances_len; j++, p++)
+		*p = htonl(prof->instances[j]);
 	}
-	return 0;
     }
+    return __pmXmitPDU(fd, pdubuf);
 }
 
 int
@@ -141,51 +109,52 @@ __pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
     instprof_t		*pduInstProf;
     __pmPDU		*p;
 
-    if (mode == PDU_BINARY) {
-	p = (__pmPDU *)pdubuf;
-
-	/* First the profile */
-	pduProfile = (profile_t *)p;
-	*ctxnum = ntohl(pduProfile->ctxnum);
-	if ((instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL)
-	    return -errno;
-	instprof->state = ntohl(pduProfile->g_state);
-	instprof->profile_len = ntohl(pduProfile->numprof);
-	p += sizeof(profile_t) / sizeof(__pmPDU);
-
-	if (instprof->profile_len > 0) {
-	    if ((instprof->profile = (__pmInDomProfile *)malloc(
-		instprof->profile_len * sizeof(__pmInDomProfile))) == NULL)
-		return -errno;
-
-	    /* Next the profiles (if any) all together */
-	    for (prof=instprof->profile, p_end=prof+instprof->profile_len; prof < p_end; prof++) {
-		pduInstProf = (instprof_t *)p;
-		prof->indom = __ntohpmInDom(pduInstProf->indom);
-		prof->state = ntohl(pduInstProf->state);
-		prof->instances_len = ntohl(pduInstProf->numinst);
-		p += sizeof(instprof_t) / sizeof(__pmPDU);
-	    }
-
-	    /* Finally, all the instances for all profiles (if any) together */
-	    for (prof=instprof->profile, p_end=prof+instprof->profile_len;
-			prof < p_end; prof++) {
-		int j;
-		prof->instances = (int *)malloc(prof->instances_len * sizeof(int));
-		if (prof->instances == NULL)
-		    return -errno;
-		for (j = 0; j < prof->instances_len; j++, p++)
-		    prof->instances[j] = ntohl(*p);
-	    }
-	}
-	else
-	    instprof->profile = NULL;
-
-	*result = instprof;
-	return 0;
-    }
-    else {
-	/* Incoming ASCII request PDUs not supported */
+    if (mode == PDU_ASCII)
 	return PM_ERR_NOASCII;
+
+    p = (__pmPDU *)pdubuf;
+
+    /* First the profile */
+    pduProfile = (profile_t *)p;
+    *ctxnum = ntohl(pduProfile->ctxnum);
+    if ((instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL)
+	return -errno;
+    instprof->state = ntohl(pduProfile->g_state);
+    instprof->profile_len = ntohl(pduProfile->numprof);
+    p += sizeof(profile_t) / sizeof(__pmPDU);
+
+    if (instprof->profile_len > 0) {
+	if ((instprof->profile = (__pmInDomProfile *)malloc(
+	     instprof->profile_len * sizeof(__pmInDomProfile))) == NULL)
+	    return -errno;
+
+	/* Next the profiles (if any) all together */
+	for (prof = instprof->profile, p_end = prof + instprof->profile_len;
+	     prof < p_end;
+	     prof++) {
+	    pduInstProf = (instprof_t *)p;
+	    prof->indom = __ntohpmInDom(pduInstProf->indom);
+	    prof->state = ntohl(pduInstProf->state);
+	    prof->instances_len = ntohl(pduInstProf->numinst);
+	    p += sizeof(instprof_t) / sizeof(__pmPDU);
+	}
+
+	/* Finally, all the instances for all profiles (if any) together */
+	for (prof = instprof->profile, p_end = prof+instprof->profile_len;
+	     prof < p_end;
+	     prof++) {
+	    int j;
+
+	    prof->instances = (int *)malloc(prof->instances_len * sizeof(int));
+	    if (prof->instances == NULL)
+		return -errno;
+	    for (j = 0; j < prof->instances_len; j++, p++)
+		prof->instances[j] = ntohl(*p);
+	}
     }
+    else
+	instprof->profile = NULL;
+
+    *result = instprof;
+    return 0;
 }
