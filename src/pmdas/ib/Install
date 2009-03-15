@@ -16,26 +16,15 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-# source the PCP configuration environment variables
 . /etc/pcp.env
-
-# Get the common procedures and variable assignments
-#
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-# The name of the PMDA
-#
 iam=ib
-
-# Using libpcp_pmda.so.3 and PMDA_INTERFACE_3
-#
 pmda_interface=3
-# controls for daemon PMDA installation procedures
-#
-daemon_opt=true         # can install as daemon
+daemon_opt=true
 dso_opt=false
-pipe_opt=true           # supports pipe IPC
-socket_opt=false        # force pipe IPC
+pipe_opt=true
+socket_opt=false
 
 #
 # override "choose mode"
@@ -49,7 +38,7 @@ __choose_mode()
 __choose_ipc()
 {
     ipc_type=pipe
-    type="pipe  $ipc_prot       $PCP_PMDAS_DIR/$iam/pmda$iam"
+    type="pipe  binary       $PCP_PMDAS_DIR/$iam/pmda$iam"
 }
 
 # Do it

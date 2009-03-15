@@ -124,7 +124,7 @@ pipe_opt=true
 #	If daemon, socket?  and default for Internet sockets?
 socket_opt=false
 socket_inet_def=''
-#	IPC Protocol for daemon (binary or text)
+#	IPC Protocol for daemon (binary only now)
 ipc_prot=binary
 #	Delay after install before checking (sec)
 check_delay=3
@@ -692,7 +692,7 @@ __choose_ipc()
 
     if [ $ipc_type = pipe ]
     then
-	type="pipe	$ipc_prot 		$_dir/$pmda_name"
+	type="pipe	binary 		$_dir/$pmda_name"
     else
 	while true
 	do
