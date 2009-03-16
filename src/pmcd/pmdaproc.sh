@@ -319,7 +319,7 @@ END					{ exit status }'
 
     # stop any matching PMDA that is still running
     #
-    for __sig in INT TERM KILL
+    for __sig in TERM KILL
     do
 	__pids=`_get_pids_by_name pmda$1`
 	if [ ! -z "$__pids" ]
@@ -330,7 +330,6 @@ END					{ exit status }'
 	    break
 	fi
     done
-
 }
 
 # __pmda_add "entry for $PCP_PMCDCONF_PATH"
@@ -754,6 +753,16 @@ END		{ if (warn) printf "%d warnings, ",warn
 		}'
 }
 
+__strip_pcp_dir()
+{
+    if [ "X$PCP_DIR" = X ]
+    then
+	echo "$1"
+    else
+	echo "$1" | sed -e "s,^$PCP_DIR,,"
+    fi
+}
+
 _setup()
 {
     # some more configuration controls
@@ -764,7 +773,7 @@ _setup()
     [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = mingw ] && dso_suffix=dll
     dso_name="${PCP_PMDAS_DIR}/${iam}/pmda_${iam}.${dso_suffix}"
     dso_entry=${iam}_init
-    pmda_dir="${PCP_PMDAS_DIR}/${iam}"
+    pmda_dir=`__strip_pcp_dir "${PCP_PMDAS_DIR}/${iam}"`
 
     # check the user is root 
     #
