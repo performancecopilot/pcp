@@ -20,10 +20,10 @@
 #include "impl.h"
 #include <ctype.h>
 
-static __pmLogPort *logport = NULL;
+static __pmLogPort *logport;
 					/* array of all known pmlogger ports */
-static int	nlogports = 0;		/* no. of elements used in logports array */
-static int	szlogport = 0;		/* size of logport array */
+static int	nlogports;		/* no. of elements used in logports array */
+static int	szlogport;		/* size of logport array */
 
 /* Make sure the logports array is large enough to hold newsize entries.  Free
  * any currently allocated names and zero the first newsize entries.

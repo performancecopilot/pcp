@@ -20,15 +20,15 @@
 #include "pmapi.h"
 #include "impl.h"
 
-INTERN int	pmDebug = 0;		/* the real McCoy */
+INTERN int	pmDebug;		/* the real McCoy */
 
 /*
  * Performance Instrumentation
  *  ... counts binary PDUs received and sent by low 4 bits of PDU type
  */
 
-static unsigned int	inctrs[PDU_MAX+1] = { 0 };
-static unsigned int	outctrs[PDU_MAX+1] = { 0 };
+static unsigned int	inctrs[PDU_MAX+1];
+static unsigned int	outctrs[PDU_MAX+1];
 INTERN unsigned int	*__pmPDUCntIn = inctrs;
 INTERN unsigned int	*__pmPDUCntOut = outctrs;
 

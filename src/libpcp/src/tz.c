@@ -19,15 +19,15 @@
 #include "pmapi.h"
 #include "impl.h"
 
-static char	*envtz = NULL;		/* buffer in env */
-static int	envtzlen = 0;
+static char	*envtz;		/* buffer in env */
+static int	envtzlen;
 
-static char	*savetz = NULL;		/* real $TZ from env */
+static char	*savetz;		/* real $TZ from env */
 static char	**savetzp;
 
 static int	nzone;				/* table of zones */
 static int	curzone = -1;
-static char	**zone = NULL;
+static char	**zone;
 
 #if !defined(HAVE_UNDERBAR_ENVIRON)
 #define _environ environ

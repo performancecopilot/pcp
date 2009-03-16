@@ -219,8 +219,7 @@ extern void __pmSyslog(int);
 extern void __pmNotifyErr(int, const char *, ...);
 
 /*
- * These ones are only for debugging and may not appear in the shipped
- * libpmapi ...
+ * These are for debugging only (but are present in the shipped libpcp)
  */
 EXTERN int	pmDebug;
 #define  DBG_TRACE_PDU		1	/* PDU send and receive */
@@ -252,6 +251,7 @@ extern void __pmPrintDesc(FILE *, const pmDesc *);
 extern void __pmFreeResultValues(pmResult *);
 extern const char *__pmPDUTypeStr(int);
 extern void __pmDumpNameSpace(FILE *, int);
+EXTERN int __pmLogReads;
 
 #ifdef PCP_DEBUG
 extern void __pmDumpIDList(FILE *, int, const pmID *);
