@@ -11,17 +11,16 @@ unset PCP_STDERR PCP_USE_STDERR
 unset PMCD_CONNECT_TIMEOUT PMCD_RECONNECT_TIMEOUT
 unset PMCD_REQUEST_TIMEOUT PMCD_WAIT_TIMEOUT
 unset PMNS_DEFAULT PCP_COUNTER_WRAP
-unset PCP_LICENCE_NOWARNING PCP_LICENSE_NOWARNING
 unset PMDA_PATH PMCD_PORT PMLOGGER_PORT
 unset PMDA_LOCAL_PROC PMDA_LOCAL_SAMPLE PMIECONF_PATH
 unset PMPROXY_PORT PMPROXY_HOST
 
 # source the PCP configuration environment variables
-if [ -r /etc/pcp.env ]
+if [ -r $PCP_DIR/etc/pcp.env ]
 then
-    . /etc/pcp.env
+    . $PCP_DIR/etc/pcp.env
 else
-    echo "Error: unable to read /etc/pcp.env!" >&2
+    echo "Error: unable to read $PCP_DIR/etc/pcp.env!" >&2
     exit 1
 fi
 
