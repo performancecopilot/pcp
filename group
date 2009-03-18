@@ -546,7 +546,6 @@ dmf		pcpqa
 348 pmda.kvm local pmda.install oss
 353 pmsocks remote oss
 355 trace local pmda.install oss
-356 pmda.news local oss
 357 other local oss
 363 logutil local oss
 365 pmcd remote oss
