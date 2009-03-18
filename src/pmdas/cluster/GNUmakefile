@@ -20,7 +20,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 DFILES	= config
-CFILES	= pmda.c server.c util.c pmcluster.c
+CFILES	= pmda.c server.c util.c pmclusterd.c
 HFILES  = cluster.h
 # These C files are automatically generated.
 AUTO_CFILES = metric_table.c subdomains.c
