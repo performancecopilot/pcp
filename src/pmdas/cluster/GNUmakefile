@@ -20,7 +20,8 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 DFILES	= config
-CFILES	= pmda.c server.c util.c
+CFILES	= pmda.c server.c util.c pmcluster.c
+HFILES  = cluster.h
 # These C files are automatically generated.
 AUTO_CFILES = metric_table.c subdomains.c
 CMDTARGET = pmdacluster$(EXECSUFFIX)
@@ -32,7 +33,7 @@ LSRCFILES = Install Remove $(DFILES) root GNUmakefile.install \
 IAM	= cluster
 DOMAIN	= CLUSTER
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-$(CMDTARGET)_OBJS = $(CFILES:.c=.o) $(AUTO_CFILES:.c=.o)
+$(CMDTARGET)_OBJS = pmda.o server.o util.o $(AUTO_CFILES:.c=.o)
 $(DAEMON)_OBJS = pmclusterd.o util.o $(AUTO_CFILES:.c=.o)
 
 # sub-PMDA namespace root nodes and help files
