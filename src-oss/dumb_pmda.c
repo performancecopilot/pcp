@@ -32,15 +32,9 @@ main(int argc, char **argv)
     int			err = 0;
     int			sts;
     pmdaInterface	desc;
-    char		*p;
     char		c;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     pmdaDaemon(&desc, PMDA_INTERFACE_3, pmProgname, desc.domain, "dumb_pmda.log", NULL);
     if (desc.status != 0) {

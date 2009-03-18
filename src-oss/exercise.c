@@ -96,30 +96,21 @@ char *argv[];
     int		c;
     int		sts;
     int		i;
-    char	*p;
     int		errflag = 0;
     char	*host = "localhost";
     char	*namespace = PM_NS_DEFAULT;
     char	*endnum;
-    char	*startend;
-    char	*end;
     int		iter = 1;
+    unsigned long datasize;
 #ifdef PCP_DEBUG
     static char	*debug = "[-D N]";
 #else
     static char	*debug = "";
 #endif
     static char	*usage = "[-h hostname] [-i iterations] [-n namespace] [-l licenseflag ] [name ...]";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmProcessDataSize(NULL);
+    __pmSetProgname(pmProgname);
 
     while ((c = getopt(argc, argv, "D:h:i:l:n:")) != EOF) {
 	switch (c) {
@@ -188,13 +179,11 @@ char *argv[];
 		pmTraversePMNS(argv[a], dometric);
 	    }
 	}
-	end = sbrk(0);
+	__pmProcessDataSize(&datasize);
 	printf("[%d] %d metrics, %d getindom, %d insitu, %d ptr",
 		i, _metrics, _indom, _insitu, _ptr);
-	if (i == 0)
-	    startend = end;
-	else if (end - startend)
-	    printf(", mem leak: %d Kbytes", (end - startend) / 1024);
+	if (datasize)
+	    printf(", mem leak: %ld Kbytes", datasize);
 	putchar('\n');
 	_metrics = _indom = _insitu = _ptr = 0;
     }

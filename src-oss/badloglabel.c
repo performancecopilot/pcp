@@ -12,19 +12,10 @@ main(int argc, char **argv)
 {
     int		sts;
     int		ch;
-    char	*p;
     int		errflag = 0;
     int		a, b, c;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((ch = getopt(argc, argv, "D:?")) != EOF) {
 	switch (ch) {

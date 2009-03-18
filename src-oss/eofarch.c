@@ -7,11 +7,10 @@
  * and after end
  */
 
-#include <sys/time.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-static int	vflag = 0;
+static int	vflag;
 
 int
 main(int argc, char **argv)
@@ -19,28 +18,18 @@ main(int argc, char **argv)
     int		c;
     int		sts;
     int		ctx;
-    char	*p;
     int		errflag = 0;
     char	*archive = "foo";
     char	*namespace = PM_NS_DEFAULT;
     static char	*usage = "[-a archive] [-n namespace] [-v]";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     pmResult		*resp;
     int			resnum = 0;
     pmID		pmid = 0;
     struct timeval	when;
     struct timeval	first;
     struct timeval	last;
-    extern int	__pmLogReads;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:n:v")) != EOF) {
 	switch (c) {

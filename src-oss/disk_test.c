@@ -30,16 +30,8 @@ main(int argc, char **argv)
     int		sts;
     char	*p;
     int		errflag = 0;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {

@@ -2,11 +2,6 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <limits.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -15,7 +10,6 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     int		type = 0;
     char	*host;
@@ -32,15 +26,9 @@ main(int argc, char **argv)
     int		tzh;				/* initial timezone handle */
     char	local[MAXHOSTNAMELEN];
     char	*pmnsfile = PM_NS_DEFAULT;
-#ifdef REAL_APP
-    char	*control_port = NULL;
-#endif
+    int		control_port = -1;
     int		samples = -1;
-    struct stat	statbuf;
     char	*endnum;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     struct timeval delta = { 1, 0 };
     struct timeval startTime;
     struct timeval endTime;
@@ -49,11 +37,7 @@ main(int argc, char **argv)
     struct timeval appOffset;
 
     /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:A:c:D:h:l:Ln:O:p:s:S:t:T:U:zZ:?")) != EOF) {
 	switch (c) {
@@ -129,25 +113,11 @@ main(int argc, char **argv)
 	    break;
 
 	case 'p':	/* port for slave of existing pmtime master */
-	    if ((sts = stat(optarg, &statbuf)) < 0) {
-		fprintf(stderr, "%s: Error: can not access time control port \"%s\": %s\n",
-		    pmProgname, optarg, pmErrStr(-errno));
+	    control_port = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0' || samples < 0) {
+		fprintf(stderr, "%s: -p requires numeric argument\n", pmProgname);
 		errflag++;
 	    }
-	    else if ((statbuf.st_mode & S_IFSOCK) != S_IFSOCK) {
-		fprintf(stderr, "%s: Error: time control port \"%s\" is not a socket\n",
-		    pmProgname, optarg);
-		errflag++;
-	    }
-#ifdef REAL_APP
-	    else
-		/*
-		 * in a real application this would be used later ... here it
-		 * simply produces a variable "control_port" was set but never
-		 * used compilation warning
-		 */
-		control_port = optarg;
-#endif
 	    break;
 
 	case 'O':	/* sample offset time */
@@ -167,10 +137,10 @@ main(int argc, char **argv)
 	    break;
 
 	case 't':	/* change update interval */
-	    if (pmParseInterval(optarg, &delta, &p) < 0) {
+	    if (pmParseInterval(optarg, &delta, &endnum) < 0) {
 		fprintf(stderr, "%s: illegal -t argument\n", pmProgname);
-		fputs(p, stderr);
-		free(p);
+		fputs(endnum, stderr);
+		free(endnum);
 		errflag++;
 	    }
 	    break;
@@ -340,10 +310,10 @@ Options:\n\
 
     sts = pmParseTimeWindow(start, finish, align, offset, &startTime,
 			    &endTime, &appStart, &appEnd, &appOffset,
-			    &p);
+			    &endnum);
 
     if (sts < 0) {
-	fprintf(stderr, "%s: illegal time window specification\n%s", pmProgname, p);
+	fprintf(stderr, "%s: illegal time window specification\n%s", pmProgname, endnum);
 	exit(1);
     }
 

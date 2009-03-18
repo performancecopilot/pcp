@@ -28,7 +28,6 @@ char *argv[];
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     char	*namespace = PM_NS_DEFAULT;
     int		ctx;		/* context for localhost */
@@ -39,16 +38,8 @@ char *argv[];
     static char	*debug = "";
 #endif
     static char	*usage = "[-n namespace] archive";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:n:")) != EOF) {
 	switch (c) {

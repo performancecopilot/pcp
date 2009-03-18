@@ -6,12 +6,11 @@
  * check open/close archive for mem leaks
  */
 
-#include <sys/time.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-static int	vflag = 0;
-static int	tflag = 0;
+static int	vflag;
+static int	tflag;
 
 void
 do_PMNS_op(char *msg)
@@ -33,25 +32,16 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     char	*archive = "foo";
     char	*host = "localhost";
     char	*namespace = PM_NS_DEFAULT;
     static char	*usage = "[-D N] [-L] [-h host] [-a archive] [-n namespace] [-v] [-i iterations]";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     int		niter=100;
     int		i;
     int		contype = PM_CONTEXT_HOST;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "Li:h:a:D:n:tv")) != EOF) {
 	switch (c) {

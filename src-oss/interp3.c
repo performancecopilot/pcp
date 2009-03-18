@@ -6,13 +6,11 @@
  * exercise archive-based pmFetch and pmSetMode ops in interpolate mode
  */
 
-#include <sys/time.h>
-#include <stdlib.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-static int	vflag = 0;
-static int	tflag = 0;
+static int	vflag;
+static int	tflag;
 static int	numpmid;
 static pmID	pmidlist[20];
 static char	*namelist[20];
@@ -89,32 +87,22 @@ main(int argc, char **argv)
     int		c;
     int		sts;
     int		ctx[2];
-    char	*p;
     int		errflag = 0;
     char	*archive = "foo";
     char	*namespace = PM_NS_DEFAULT;
     static char	*usage = "[-a archive] [-n namespace] [-T] [-t delta] [-v]";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
-    extern int	__pmLogReads;
-    int			i;
-    int			j;
-    int			k;
-    int			n;
-    pmLogLabel		loglabel;
-    pmResult		*resp;
-    pmResult		**resvec = (pmResult **)0;
-    int			resnum = 0;
+    int		i;
+    int		j;
+    int		k;
+    int		n;
+    pmLogLabel	loglabel;
+    pmResult	*resp;
+    pmResult	**resvec = (pmResult **)0;
+    int		resnum = 0;
     struct timeval	when;
-    int			done;
+    int		done;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:n:Tt:v")) != EOF) {
 	switch (c) {

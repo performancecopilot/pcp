@@ -6,7 +6,6 @@
  * pcp_lite_crash - crash pcp lite
  */
 
-#include <unistd.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -15,25 +14,16 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     char	local[MAXHOSTNAMELEN];
     char	*namespace = PM_NS_DEFAULT;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     pmID	pmid;
     pmDesc	desc;
     int		type = 0;
     char	*host = NULL;
     char	*metric = "kernel.all.cpu.idle";
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:h:Ln:")) != EOF) {
 	switch (c) {

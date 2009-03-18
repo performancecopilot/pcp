@@ -16,7 +16,6 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     int		type = 0;
     int 	verbose = 0;
@@ -33,16 +32,8 @@ main(int argc, char **argv)
     int		samples = -1;
     double	delta = 1.0;
     char	*endnum;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:c:D:h:l:Ln:s:t:U:VzZ:?")) != EOF) {
 	switch (c) {

@@ -4,10 +4,23 @@
  * torture pmGetArchiveEnd
  */
 
-#include <unistd.h>
-#include <sys/types.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+
+#ifdef IS_MINGW
+int
+truncate(const char *fname, off_t offset)
+{
+    int fd;
+
+    if ((fd = open(fname, O_WRONLY)) < 0)
+	return -1;
+    if (ftruncate(fd, offset) < 0)
+	return -1;
+    close(fd);
+    return 0;
+}
+#endif
 
 static void
 printstamp(struct timeval *tp)
@@ -24,15 +37,11 @@ main(int argc, char **argv)
     int		c;
     int		sts;
     int		e_sts = 0;
-    char	*p;
     int		errflag = 0;
     int		ahtype = 0;
     int		verbose = 0;
     int		quick = 0;
     char	*host;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     pmResult	*result;
     pmResult	*prev = NULL;
     struct timeval	start = { 0,0 };
@@ -40,12 +49,7 @@ main(int argc, char **argv)
     int		tzh;
     off_t	trunc_size = 0;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:t:qv?")) != EOF) {
 	switch (c) {

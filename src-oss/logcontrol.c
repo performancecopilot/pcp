@@ -20,7 +20,6 @@ main(int argc, char **argv)
     int		pid = PM_LOG_PRIMARY_PID;
     int		port = PM_LOG_NO_PORT;
     int		newstate;
-    char	*p;
     int		errflag = 0;
     char	*host = "localhost";
     char	*namespace = NULL;

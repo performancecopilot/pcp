@@ -40,110 +40,27 @@ _getversion()
     fi
 }
 
-if [ "$PCP_PLATFORM" = irix ]
-then
-
-    _getversion pcp.sw
-    PCP_VER=`cat $tmp.tmp`
-    [ -z "$PCP_VER" ] && PCP_VER=0
-
-    _getversion pcp_eoe_noship.sw
-    PCP_EOE_NOSHIP_VER=`cat $tmp.tmp`
-    
-    case `uname -r`
-    in
-	6.5|6.5-*)
-	    # Use KudzuNumbers for 6.5 - pcp_eoe does not necesseraly
-	    # match kernel ....
-	    _pcp10d=`versions -n pcp_eoe | grep '^I *pcp_eoe.sw ' \
-		    | sort -u | awk '{print $3}'`
-	    if [ -z "$_pcp10d" ] ; then
-	       echo "Cannot find version number for your pcp_eoe. "
-	       echo "Is it installed?"
-	       versions -n pcp_eoe
-	       exit 1
-	    fi
-	    if [ "$_pcp10d" -lt 1270000000 ] ; then
-	       echo "pcp_eoe installation is incorrect - expecting PCP_EOE"
-	       echo "from Irix 6.5"
-	       exit 1
-	    fi
-	    (echo "$_pcp10d 00-00 MyVersion"; 
-	     grep "^`echo $_pcp10d | cut -c1-3`" KudzuNumbers) | sort \
-	    | $PCP_AWK_PROG '
-$3 == "MyVersion" { real_after=after; next }
-	      { if ( real_after ) {
-		    if ( before ) { before = $3; }
-		} else {
-		    after = $3;
-		}
-	      }
-END		  { if ( real_after ) {
-		    if ( before ) { 
-			print before;
-		    } else {
-			print real_after + 1;
-		    } 
-		} else {
-		    print before;
-		}
-	      }' | read PCP_EOE_VER
-	    if [ "$PCP_EOE_VER" -eq 0 ] ; then
-		echo "Cannot decide about version for your pcp_eoe..."
-		exit 1
-	    fi
-	    ;;
-
-	*)
-	    PCP_EOE_VER=$PCP_VER
-	    ;;
-    esac
-
-    [ -z "$PCP_VER" ] && PCP_VER=0
-    [ -z "$PCP_EOE_VER" -a ! -z "$PCP_EOE_NOSHIP_VER" ] && PCP_EOE_VER=$PCP_EOE_NOSHIP_VER
-    [ -z "$PCP_EOE_VER" ] && PCP_EOE_VER=$PCP_VER
-    [ -z "$PCP_EOE_NOSHIP_VER" ] && PCP_EOE_NOSHIP_VER=$PCP_EOE_VER
-    PCP_PRO_VER=0
-
-elif [ "$PCP_PLATFORM" = linux ]
-then
-    PCP_VER=`echo $PCP_VERSION \
+PCP_VER=`echo $PCP_VERSION \
 	     | sed \
 		 -e '/^[^.]*\.[^.]*$/s/$/.0/' \
 		 -e 's/\.\([0-9]\)$/.0\1/' \
 		 -e 's/\.//g'`
-    [ -z "$PCP_VER" ] && PCP_VER=0
-    PCP_EOE_VER=$PCP_VER
-    PCP_EOE_NOSHIP_VER=0
-    if which rpm >/dev/null 2>&1
-    then
-	PCP_PRO_VER=0
-	rpm -q pcp-pro >/dev/null 2>&1
-	[ $? = 0 ] && {
-            PCP_PRO_VER=`rpm -q pcp-pro \
-                         | sed -e 's/pcp-pro-//' \
-                               -e 's/\.//g' \
-                               -e 's/-.*//' \
-                               -e 's/^\(..\)\(.\)$/\10\2/'`
-	}
-    else
-        PCP_PRO_VER=$PCP_VER
-    fi
-elif [ "$PCP_PLATFORM" = solaris ]
+[ -z "$PCP_VER" ] && PCP_VER=0
+PCP_EOE_VER=$PCP_VER
+PCP_EOE_NOSHIP_VER=0
+if which rpm >/dev/null 2>&1
 then
-    PCP_VER=`echo $PCP_VERSION \
-             | sed \
-                 -e '/^[^.]*\.[^.]*$/s/$/.0/' \
-                 -e 's/\.\([0-9]\)$/.0\1/' \
-                 -e 's/\.//g'`
-    [ -z "$PCP_VER" ] && PCP_VER=0
-    PCP_EOE_VER=$PCP_VER
-    PCP_EOE_NOSHIP_VER=0
     PCP_PRO_VER=0
-
+    rpm -q pcp-pro >/dev/null 2>&1
+    [ $? = 0 ] && {
+	PCP_PRO_VER=`rpm -q pcp-pro \
+		| sed -e 's/pcp-pro-//' \
+                              -e 's/\.//g' \
+                              -e 's/-.*//' \
+                              -e 's/^\(..\)\(.\)$/\10\2/'`
+	}
 else
-    echo "$0: Error: I don't understand your \$PCP_PLATFORM=\"$PCP_PLATFORM\""
-    exit 1
+    PCP_PRO_VER=$PCP_VER
 fi
 
 cat <<End-of-File >$tmp.out

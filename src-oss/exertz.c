@@ -2,7 +2,6 @@
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#include <unistd.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -11,7 +10,6 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     int		type = 0;
     int		force = 0;
@@ -27,19 +25,11 @@ main(int argc, char **argv)
     int		samples = -1;
     double	delta = 1.0;
     char	*endnum;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     time_t	now;
     int		tzh2;
     char	s[28];
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     now = 24 * 60 * 60;		/* epoch + 1 day */
     putenv("TZ=UTC");		/* sane starting point */

@@ -54,13 +54,9 @@
  * 
  */
 
-#include <stdlib.h>
 #include <ctype.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <sys/procfs.h>
-#include <dirent.h>
-#include <errno.h>
+#include <sys/wait.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -100,22 +96,13 @@ getargs(int argc, char **argv)
     static char	*usage = " [-h hostname] [-n pmnsfile] "
 			 "[-i iterations] [-t refresh] [-v] "
 			 "metric [metric ...]";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     int		errflag = 0;
     char	*endnum;
     int		c;
-    char	*p;
     int		i;
     int		sts;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:n:i:t:v")) != EOF) {
 	switch (c) {
@@ -208,7 +195,6 @@ USAGE:
 
     if (nmetrics <= 0)
 	goto USAGE;
-
 }
 
 
@@ -256,7 +242,7 @@ set_proc_fmt(void)
 	return;
     }
     proc_entry_len = -1;
-    for (rewinddir(procdir); directp=readdir(procdir);) {
+    for (rewinddir(procdir); (directp = readdir(procdir));) {
 	if (!isdigit(directp->d_name[0]))
 	    continue;
 	ndigit = (int)strlen(directp->d_name);
@@ -274,7 +260,6 @@ set_proc_fmt(void)
 	}
     }
     closedir(procdir);
-
 }
 
 /* 

@@ -6,7 +6,6 @@
  * interp1 - backward PM_MODE_INTERP exercises
  */
 
-#include <unistd.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -18,7 +17,6 @@ main(int argc, char **argv)
     int		j;
     int		k;
     double	tdiff;
-    char	*p;
     int		errflag = 0;
     int		ahtype = 0;
     char	*host;
@@ -28,9 +26,6 @@ main(int argc, char **argv)
     double	delta = 1.0;
     int		msec;
     char	*endnum;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     pmResult	*result;
     pmResult	*prev = (pmResult *)0;
     int		i;
@@ -39,16 +34,9 @@ main(int argc, char **argv)
     char	*name[] = { "sample.seconds", "sample.drift", "sample.milliseconds" };
     pmDesc	desc;
     int		type[3];
-    extern int	__pmLogReads;
-
     struct timeval tend = {0x7fffffff, 0};
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:n:s:t:?")) != EOF) {
 	switch (c) {

@@ -5,14 +5,12 @@
 /* Timeout test for FETCH PDUs in text mode.
 */
 
-#include <stdio.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
 #define StuffDom(metric, newdom) (((__pmID_int *)&(metric))->domain = (newdom))
 
 #define NMETRICS 3
-extern int pmDebug;
 
 int
 main(int argc, char *argv[])
@@ -24,14 +22,8 @@ main(int argc, char *argv[])
     int		s;
     long	dom;
     char	*end;
-    char	*p;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     if (argc < 2) {
 	fprintf(stderr, "Usage: %s domain ...\n", pmProgname);

@@ -16,9 +16,8 @@ static int	tflag = 0;
 int
 main(int argc, char **argv)
 {
-    int		c;
+    int		i, c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     char	*archive = "foo";
     char	*host = "localhost";
@@ -29,20 +28,13 @@ main(int argc, char **argv)
     static char	*debug = "";
 #endif
     static char	*usage = "[-D N] [-L] [-h host] [-a archive] [-n namespace] [-v] [-i iterations]";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
-    int			niter=100;
-    int			i;
-    char		*last_memusage;
-    int			contype = PM_CONTEXT_HOST;
+    int		niter = 100;
+    int		contype = PM_CONTEXT_HOST;
+    unsigned long first_memusage;
+    unsigned long last_memusage;
+    unsigned long memusage;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "Li:h:a:D:n:tv")) != EOF) {
 	switch (c) {
@@ -107,7 +99,7 @@ main(int argc, char **argv)
 	}
     }
 
-    for (i=0; i < niter; i++) {
+    for (i = 0; i < niter; i++) {
 	switch (contype) {
 	case PM_CONTEXT_LOCAL:
 	    if ((c = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0) {
@@ -131,16 +123,18 @@ main(int argc, char **argv)
 
 	pmDestroyContext(c);
 	if (i == 0) {
-	    last_memusage = sbrk(0);
+	    __pmProcessDataSize(&first_memusage);
 	}
-	else
-	if ((char *)sbrk(0) - last_memusage > 0) {
-	    if (i > 1)
-		printf("iteration %d: leaked %d bytes\n", i, (char *)sbrk(0) - last_memusage);
-	    last_memusage = sbrk(0);
+	else {
+	    __pmProcessDataSize(&memusage);
+	    if (memusage - first_memusage > 0) {
+		if (i > 1)
+		    printf("iteration %d: leaked %d bytes\n", i,
+			   memusage - last_memusage);
+		last_memusage = memusage;
+	    }
 	}
     }
-    sbrk(0);
 
     exit(0);
 }

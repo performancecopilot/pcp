@@ -10,15 +10,8 @@
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
 
-#include "localconfig.h"
-
-#if PCP_VER >= 2200
 static pmUnits	iu = PMDA_PMUNITS( 0, 1, 1, 0, PM_TIME_SEC, 0 );
 static pmUnits	ou = PMDA_PMUNITS( 0, 1, 1, 0, PM_TIME_SEC, 0 );
-#else
-static pmUnits	iu = {0, 1, 1, 0, PM_TIME_SEC, 0 };
-static pmUnits	ou = {0, 1, 1, 0, PM_TIME_SEC, 0 };
-#endif
 
 static int tval[] = { 1, 7200 };
 static int tscale[] =
@@ -32,7 +25,6 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     const char	*u;
 #ifdef PCP_DEBUG
@@ -41,10 +33,6 @@ main(int argc, char **argv)
     static char	*debug = "";
 #endif
     static char	*usage = "[-v]";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
-
     int		vflag = 0;
     pmAtomValue	iv;
     pmAtomValue	ov;
@@ -56,12 +44,7 @@ main(int argc, char **argv)
     int		l;
     int		underflow = 0;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:v")) != EOF) {
 	switch (c) {

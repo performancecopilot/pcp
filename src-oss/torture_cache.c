@@ -2,8 +2,6 @@
  * Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
@@ -12,7 +10,7 @@ static pmInDom		indom;
 static __pmInDom_int	*indomp;
 static char		*xxx = "xxxsomefunnyinstancenamestringthatcanbechoppedabout";
 static char		nbuf[80];	/* at least as big as xxx[] */
-static	int		ncount = 0;
+static	int		ncount;
 
 static void
 _a(int load, int verbose, int extra)
@@ -536,17 +534,8 @@ main(int argc, char **argv)
     int		errflag = 0;
     int		sts;
     int		c;
-    char	*p;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     indomp = (__pmInDom_int *)&indom;
 

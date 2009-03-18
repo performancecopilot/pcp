@@ -2,17 +2,9 @@
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-#include <errno.h>
-#include <syslog.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-extern int		errno;
 static fetchctl_t	*root;
 
 static optreq_t		*req;
@@ -82,7 +74,6 @@ int
 main(int argc, char **argv)
 {
     int			c;
-    char		*p;
     int			errflag = 0;
     int			sts;
 #ifdef PCP_DEBUG
@@ -99,16 +90,8 @@ main(int argc, char **argv)
     int			numfail;
     optcost_t		ocp = { 4, 1, 15, 10, 2, 0 };	/* my costs */
     fetchctl_t		*fp;
-    extern char		*optarg;
-    extern int		optind;
-    extern int		pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(pmProgname);
 
     while ((c = getopt(argc, argv, "D:")) != EOF) {
 	switch (c) {

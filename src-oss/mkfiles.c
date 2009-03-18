@@ -2,12 +2,6 @@
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -30,14 +24,8 @@ main(int argc, char* argv[])
     char	*namebuf;
     char	*extptr;
     int		i, sts;
-    char	*p;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     if (argc != 3)
 	usage();

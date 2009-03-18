@@ -2,10 +2,8 @@
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#include <stdio.h>
 #include <pcp/pmapi.h>
-
-extern char *pmProgname;
+#include <pcp/impl.h>
 
 int
 main(int argc, char *argv[])
@@ -13,7 +11,7 @@ main(int argc, char *argv[])
     double	d;
     char	*endptr;
 
-    pmProgname = basename(argv[0]);
+    __pmSetProgname(argv[0]);
     if (argc != 2) {
 	fprintf(stderr, "Usage: %s double\n", pmProgname);
 	exit(1);

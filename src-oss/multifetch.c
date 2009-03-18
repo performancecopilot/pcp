@@ -13,7 +13,6 @@ main(int argc, char **argv)
     int		c;
     int		sts;
     char	*cmd = argv[0];
-    char	*p;
     int		errflag = 0;
     int		type = 0;
     char	*host;
@@ -31,15 +30,8 @@ main(int argc, char **argv)
     int		numpmid;
     pmResult	*resp;
     char	*endnum;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim cmd name of leading directory components */
-    for (p = cmd; *p; p++) {
-	if (*p == '/')
-	    cmd = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:h:l:n:s:t:T:?")) != EOF) {
 	switch (c) {

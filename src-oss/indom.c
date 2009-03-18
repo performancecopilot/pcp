@@ -2,12 +2,11 @@
  * indom - exercise pmGetInDom, pmNameInDom and pmLookupInDom
  */
 
-#include <unistd.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-static int		type = 0;
-static int		inst = 0;
+static int	type;
+static int	inst;
 
 int
 dometric(char *name)
@@ -90,7 +89,6 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     int		force = 0;
     int 	verbose = 0;
@@ -106,16 +104,8 @@ main(int argc, char **argv)
     int		samples = -1;
     double	delta = 1.0;
     char	*endnum;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:c:D:fh:i:l:n:s:t:VzZ:?")) != EOF) {
 	switch (c) {

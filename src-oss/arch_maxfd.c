@@ -25,7 +25,6 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     int		i;
     int		j;
@@ -39,17 +38,8 @@ main(int argc, char **argv)
     struct rlimit	top;
     char	*start = NULL;
     char	*end;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
-    extern int	errno;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(pmProgname);
 
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {

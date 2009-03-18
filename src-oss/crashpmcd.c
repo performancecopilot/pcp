@@ -1,14 +1,6 @@
 /*
  * Crashes pmcd on IRIX. Linux seems to be OK. PV 935490.
  */
-#include <unistd.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/tcp.h>
-#include <netdb.h>
-#include <errno.h>
-#include <fcntl.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -63,6 +55,8 @@ main(int argc, char *argv[])
     int j;
     int k;
 
+    __pmSetProgname(argv[0]);
+
     target = argc == 2 ? argv[1] : "localhost";
 
     hdr.from = htonl(12345);
@@ -82,7 +76,6 @@ main(int argc, char *argv[])
 	    try(j);
 	}
     }
-
 
     exit(0);
 }

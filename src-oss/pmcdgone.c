@@ -238,7 +238,6 @@ main(int argc, char **argv)
     int		ctx0;
     int		ctx1;
     int		c;
-    char	*p;
     int		errflag = 0;
     char	*binadm = pmGetConfig("PCP_BINADM_DIR");
     char	path[MAXPATHLEN];
@@ -275,10 +274,12 @@ Options:\n\
 	exit(1);
     }
 
+#ifndef IS_MINGW
     if ((n = geteuid()) != 0) {
 	fprintf(stderr, "pmcdgone: Must be run as root, not uid %d!\n", n);
 	exit(1);
     }
+#endif
 
     if ((n = pmLoadNameSpace(PM_NS_DEFAULT)) < 0) {
 	fprintf(stderr, "pmLoadNameSpace: %s\n", pmErrStr(n));

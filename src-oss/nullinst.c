@@ -7,8 +7,6 @@
  * value with inst == PM_IN_NULL
  */
 
-#include <stdlib.h>
-#include <errno.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -43,8 +41,10 @@ dometric(const char *name)
 	}
 	/* ignore errors from unsupported metrics on this platform */
 	else if (rp->vset[0]->numval != PM_ERR_APPVERSION &&
-		 rp->vset[0]->numval != PM_ERR_AGAIN &&
-		 rp->vset[0]->numval != -ENOPKG)
+#ifdef ENOPKG
+		 rp->vset[0]->numval != -ENOPKG &&
+#endif
+		 rp->vset[0]->numval != PM_ERR_AGAIN)
 	    printf("%s: bad numval (%d)\n", name, rp->vset[0]->numval);
     }
     else
@@ -59,21 +59,12 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     char	*host = "localhost";
     char	*namespace = PM_NS_DEFAULT;
     static char	*usage = "[-n namespace] metric ...";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:n:")) != EOF) {
 	switch (c) {

@@ -3,7 +3,6 @@
  */
 
 #include <ctype.h>
-#include <errno.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -68,7 +67,6 @@ main(int argc, char **argv)
     int		type = PM_CONTEXT_HOST;
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     char	*host = "localhost";
     char	*namespace = PM_NS_DEFAULT;
@@ -78,9 +76,6 @@ main(int argc, char **argv)
     static char	*debug = "";
 #endif
     static char	*usage = "[-x] [-h hostname] [-n namespace]";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     int			i;
     int			n;
     char		*namelist[20];
@@ -89,12 +84,7 @@ main(int argc, char **argv)
     pmResult		*old;
     pmResult		*new;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:Ln:")) != EOF) {
 	switch (c) {

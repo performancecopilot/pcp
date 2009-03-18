@@ -10,7 +10,6 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     char	*host = "localhost";
     int		type = PM_CONTEXT_HOST;
@@ -23,16 +22,8 @@ main(int argc, char **argv)
     struct timeval      before, after;
     double	delta;
     static char	*usage = "[-h hostname] [-L] [-n namespace] [-i iterations] metric";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:Ln:i:")) != EOF) {
 	switch (c) {

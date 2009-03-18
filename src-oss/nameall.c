@@ -6,7 +6,6 @@
  * nameall - exercise pmNameAll
  */
 
-#include <stdlib.h>
 #include <ctype.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
@@ -14,10 +13,9 @@
 #if PMAPI_VERSION == 2
 static int 	pmns_style = 1;
 #endif
-static int	vflag = 0;
+static int	vflag;
 static char	*host = "localhost";
 static char	*namespace = PM_NS_DEFAULT;
-extern int	pmDebug;
 
 static void
 dometric(const char *name)
@@ -48,14 +46,11 @@ dometric(const char *name)
 void
 parse_args(int argc, char **argv)
 {
-    extern char	*optarg;
-    extern int	optind;
-    int	errflag = 0;
+    int		errflag = 0;
     int		c;
     int		sts;
     static char	*usage = "[-h hostname] [-n namespace] [-v]";
     char	*endnum;
-    char 	*p;
 
 #ifdef PCP_DEBUG
     static char	*debug = "[-D N]";
@@ -69,13 +64,7 @@ parse_args(int argc, char **argv)
     static char *style_str = "";
 #endif
 
-
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:h:n:s:v")) != EOF) {
 	switch (c) {
@@ -126,8 +115,6 @@ parse_args(int argc, char **argv)
 	printf("Usage: %s %s%s%s\n", pmProgname, debug, style_str, usage);
 	exit(1);
     }
-
-
 }
 
 void
@@ -167,23 +154,18 @@ test_nameall(int argc, char *argv[])
 int
 main(int argc, char **argv)
 {
-  parse_args(argc, argv);
+    parse_args(argc, argv);
 
-#if PMAPI_VERSION == 2
-  if (pmns_style == 2) {
-    /* test it the new way with distributed namespace */
-    /* i.e. no client loaded namespace */
-    test_nameall(argc, argv);
-  }
-  else {
-    /* test it the old way with namespace file */
-    load_namespace(namespace);
-    test_nameall(argc, argv);
-  }
-#else
-  load_namespace(namespace);
-  test_nameall(argc, argv);
-#endif
+    if (pmns_style == 2) {
+	/* test it the new way with distributed namespace */
+	/* i.e. no client loaded namespace */
+	test_nameall(argc, argv);
+    }
+    else {
+	/* test it the old way with namespace file */
+	load_namespace(namespace);
+	test_nameall(argc, argv);
+    }
 
-  exit(0);
-}/*main*/
+   exit(0);
+}

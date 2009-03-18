@@ -89,7 +89,13 @@ main()
 		    for (di = 0; di < 4; di++) {
 			char	buf[20];
 			sprintf(buf, "%d.%d.%d.%d", a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
+#ifdef IS_MINGW
+			unsigned long in;
+			in = inet_addr(buf);
+			inaddr.s_addr = in;
+#else
 			inet_aton(buf, &inaddr);
+#endif
 			s = __pmAccAddClient(&inaddr, &perm);
 			if (s < 0) {
 			    fprintf(stderr, "from %s error: %s\n",

@@ -18,7 +18,6 @@ char *argv[];
     int		c;
     int		fd;
     int		ctx;
-    char	*p;
     int		errflag = 0;
     int		e;
     int		sts;
@@ -26,16 +25,8 @@ char *argv[];
     __pmPDU	*pb;
     pmID	pmid;
     char	*name = "sample.seconds";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     if (argc > 1) {
 	while ((c = getopt(argc, argv, "D:")) != EOF) {

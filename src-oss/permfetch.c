@@ -6,7 +6,6 @@
  * permfetch - fetch, permute and fetch again - for a bunch of metrics
  */
 
-#include <unistd.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -19,7 +18,7 @@ typedef struct {
 } state_t;
 
 state_t		*todolist;
-static int	todo = 0;
+static int	todo;
 
 static void
 dometric(const char *name)
@@ -41,23 +40,14 @@ main(int argc, char **argv)
     int		numpmid;
     pmID	pmid;
     int		sts;
-    char	*p;
     int		errflag = 0;
     int		type = 0;
     int 	verbose = 0;
     char	*host;
     char	local[MAXHOSTNAMELEN];
     char	*namespace = PM_NS_DEFAULT;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:h:n:V?")) != EOF) {
 	switch (c) {

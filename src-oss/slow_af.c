@@ -3,6 +3,13 @@
 
 static struct timeval	start;
 
+#ifdef IS_MINGW
+void pause(void)
+{
+    sleep(0xffffffff);
+}
+#endif
+
 static void
 printstamp(struct timeval *tp)
 {
@@ -62,20 +69,11 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     struct timeval	delta = { 2, 500000 };
     struct timeval	now;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {

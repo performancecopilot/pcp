@@ -8,9 +8,6 @@
  *	+ if run remotely uses pdu-server at other end to echo PDUs
  */
 
-#include <stdio.h>
-#include <sys/time.h>
-#include <sys/errno.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pcp/trace.h>
@@ -1486,7 +1483,6 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     int		port = 4323;	/* default port for remote connection */
     char	env[100];

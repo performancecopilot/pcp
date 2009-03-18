@@ -4,7 +4,6 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#include <unistd.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -202,7 +201,6 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     int		type = 0;
     char	*host;
@@ -211,16 +209,8 @@ main(int argc, char **argv)
     char	local[MAXHOSTNAMELEN];
     char	*namespace = PM_NS_DEFAULT;
     char	*metricname = (char *)0;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:h:n:?")) != EOF) {
 	switch (c) {

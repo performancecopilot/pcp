@@ -2,10 +2,6 @@
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <netinet/in.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 

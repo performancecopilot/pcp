@@ -43,7 +43,13 @@ main()
     for (host = 0; host < WORD_BIT; host++) {
 	char	buf[20];
 	sprintf(buf, "%d.%d.%d.%d", 155, host * 3, 17+host, host);
+#ifdef IS_MINGW
+	unsigned long in;
+	in = inet_addr(buf);
+	inaddr.s_addr = in;
+#else
 	inet_aton(buf, &inaddr);
+#endif
 	sts = __pmAccAddClient(&inaddr, &i);
 	if (sts < 0) {
 	    printf("add client from host %d: %s\n", host, pmErrStr(sts));

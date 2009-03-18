@@ -6,7 +6,6 @@
  * storepast - illegal pmStore wrt to current
  */
 
-#include <unistd.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -15,7 +14,6 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     int		type = 0;
     char	*host;
@@ -24,16 +22,8 @@ main(int argc, char **argv)
     pmResult	req;
     char	*name = "sample.write_me";
     pmID	pmid;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:h:n:")) != EOF) {
 	switch (c) {

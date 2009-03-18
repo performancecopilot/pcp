@@ -10,7 +10,7 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-static int	vflag = 0;
+static int	vflag;
 static int	numpmid;
 static pmID	pmidlist[20];
 static char	*namelist[20];
@@ -89,7 +89,6 @@ main(int argc, char **argv)
     int		c;
     int		sts;
     int		ctx[2];
-    char	*p;
     int		errflag = 0;
     char	*archive = "foo";
     char	*namespace = PM_NS_DEFAULT;
@@ -99,19 +98,11 @@ main(int argc, char **argv)
     static char	*debug = "";
 #endif
     static char	*usage = "[-D N] [-a archive] [-n namespace] [-v]";
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
-    int			i;
-    pmLogLabel		loglabel;
-    pmLogLabel		duplabel;
+    int		i;
+    pmLogLabel	loglabel;
+    pmLogLabel	duplabel;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:n:v")) != EOF) {
 	switch (c) {

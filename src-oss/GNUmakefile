@@ -39,8 +39,8 @@ MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
 ARCH	= $(SRCARCH) $(MKARCH)
 
 CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
-	ipc.c xval.c xxx.c chkopenlog.c chkconnect.c t_fetch.c \
-	proc_test.c hp-mib.c agenttimeout.c chkctx2.c pmcdgone.c chkhelp.c \
+	xval.c xxx.c chkopenlog.c chkconnect.c t_fetch.c \
+	hp-mib.c agenttimeout.c chkctx2.c pmcdgone.c chkhelp.c \
 	scale.c chktrim.c store.c torture_api.c logcontrol.c xlog.c \
 	hex2nbo.c chknumval.c xarch.c eofarch.c defctx.c chkacc1.c chkacc2.c \
 	chkacc3.c storepast.c pmdashutdown.c exertz.c badpmcdpmid.c \
@@ -48,15 +48,28 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	interp0.c interp1.c interp2.c interp3.c interp4.c \
 	pcp_lite_crash.c compare.c mkfiles.c nameall.c nullinst.c \
 	storepdu.c fetchpdu.c badloglabel.c interp_bug2.c interp_bug.c \
-	xmktime.c descreqX2.c context_fd_leak.c recon.c torture_indom.c \
-	fetchrate.c stripmark.c obs.c broken_pmda.c pmnsinarchives.c \
-	endian.c chk_memleak.c chk_metric_types.c arch_maxfd.c mark-bug.c \
+	xmktime.c descreqX2.c recon.c torture_indom.c \
+	fetchrate.c stripmark.c broken_pmda.c pmnsinarchives.c \
+	endian.c chk_memleak.c chk_metric_types.c mark-bug.c \
 	pmnsunload.c parsemetricspec.c pdu-server.c parseinterval.c \
-	pmprintf.c pmsocks_objstyle.c torture_trace.c numberstr.c tstate.c \
-	read-bf.c write-bf.c slow_af.c tabort.c indom.c 779246.c tztest.c \
-	pmpost-exploit.c multifetch.c pmconvscale.c torture-eol.c \
+	pmprintf.c pmsocks_objstyle.c numberstr.c \
+	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
+	multifetch.c pmconvscale.c torture-eol.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
 	matchInstanceName.c
+
+POSIXFILES = \
+	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \
+	pmpost-exploit.c 779246.c 
+
+TRACEFILES = \
+	obs.c tstate.c tabort.c 
+
+ifneq "$(TARGET_OS)" "mingw"
+CFILES += $(POSIXFILES) $(TRACEFILES)
+else
+LSRCFILES += $(POSIXFILES) $(TRACEFILES)
+endif
 
 CFILES_TARGETS = $(CFILES)
 
@@ -71,20 +84,11 @@ ifeq ($(HAVE_64), 1)
 TARGETS	+= pv64
 endif
 
-COPTS	=
-CDEFS	= $(DEBUG) $(HAVE_MONS_H)
-CFLAGS	= $(CDEFS) $(COPTS) 
-LDOPTS = 
-LDLIBS	= -lpcp
-LITE_LDLIBS = -lpcp
+LCFLAGS = -DHAVE_TRACE
+LLDLIBS	= -lpcp
 
 # libpcp_trace is ready
-COPTS		+= -DHAVE_TRACE
 TRACELIB	= -lpcp_trace
-
-ifeq ($(HAVE_64), 1)
-COPTS += -fpic -fno-strict-aliasing
-endif
 
 # all archives, except the ones checked into the source tree,
 # then add executables beyond $(TARGETS)
@@ -127,119 +131,119 @@ arch:	$(ARCH)
 #
 
 pause:	pause.c
-	$(CC) $(CDEFS) $(COPTS) -o pause pause.c
+	$(CCF) $(CDEFS) -o pause pause.c
 
 errmap: errmap.c
-	$(CC) $(CDEFS) $(COPTS) -o errmap errmap.c
+	$(CCF) $(CDEFS) -o errmap errmap.c
 
 cpuload:	cpuload.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ cpuload.c
+	$(CCF) $(CDEFS) -o $@ cpuload.c
 
 load_o2000:	load_o2000.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ load_o2000.c
+	$(CCF) $(CDEFS) -o $@ load_o2000.c
 
 chain:	chain.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ chain.c
+	$(CCF) $(CDEFS) -o $@ chain.c
 
 syscall:	syscall.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ syscall.c
+	$(CCF) $(CDEFS) -o $@ syscall.c
 
 getpagesize:	getpagesize.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ getpagesize.c
+	$(CCF) $(CDEFS) -o $@ getpagesize.c
 
 rdwr:	rdwr.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ rdwr.c
+	$(CCF) $(CDEFS) -o $@ rdwr.c
 
 spawn:	spawn.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ spawn.c
+	$(CCF) $(CDEFS) -o $@ spawn.c
 
 diowr:	diowr.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ diowr.c
+	$(CCF) $(CDEFS) -o $@ diowr.c
 
 endian:	endian.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ endian.c
+	$(CCF) $(CDEFS) -o $@ endian.c
 
 pmlcmacro:	pmlcmacro.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ pmlcmacro.c
+	$(CCF) $(CDEFS) -o $@ pmlcmacro.c
 
 sys5_ipc:	sys5_ipc.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ sys5_ipc.c
+	$(CCF) $(CDEFS) -o $@ sys5_ipc.c
 
 stripmark: stripmark.c
-	$(CC) $(CDEFS) $(COPTS) -o $@ stripmark.c
+	$(CCF) $(CDEFS) -o $@ stripmark.c $(LDLIBS)
 
 # --- need libpcp
 #
 
 template:	template.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -I/usr/include/pcp -o $@ template.c $(LDLIBS)
+	$(CCF) $(CDEFS) -I/usr/include/pcp -o $@ template.c $(LDLIBS)
 
 pmie-lic:	pmie-lic.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ pmie-lic.c  -llmsgi $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pmie-lic.c  -llmsgi $(LDLIBS)
 
 exercise:	exercise.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ exercise.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ exercise.c  $(LDLIBS)
 
 pmdashutdown:	pmdashutdown.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ pmdashutdown.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pmdashutdown.c -lpcp_pmda $(LDLIBS)
 
 chkacc1:	chkacc1.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ chkacc1.c -lresolv  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ chkacc1.c $(LDLIBS)
 
 chkacc2:	chkacc2.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ chkacc2.c  -lresolv $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ chkacc2.c $(LDLIBS)
 
 chkacc3:	chkacc3.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ chkacc3.c -lresolv -lnsl $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ chkacc3.c $(LDLIBS)
 
 ipc:	ipc.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ ipc.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ ipc.c  $(LDLIBS)
 
 chk_memleak:	chk_memleak.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ chk_memleak.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ chk_memleak.c $(LDLIBS)
 
 chknumval:	chknumval.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ chknumval.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ chknumval.c  $(LDLIBS)
 
 logcontrol:	logcontrol.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ logcontrol.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ logcontrol.c  $(LDLIBS)
 
 pmcdgone:	pmcdgone.c localconfig.h
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ pmcdgone.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pmcdgone.c  $(LDLIBS)
 
 slow_af:	slow_af.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ slow_af.c  $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ slow_af.c  $(LDLIBS)
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #
 
 fetchrate_lite:	fetchrate_lite.c
 	rm -f $@
-	$(CC) $(CDEFS) -DLITE=1 $(COPTS) -o $@ fetchrate_lite.c $(LDOPTS) $(LITE_LDLIBS)
+	$(CCF) $(CDEFS) -DLITE=1 -o $@ fetchrate_lite.c $(LDLIBS)
 
 fetchrate_lite.c:	fetchrate.c
 	rm -f $@
@@ -247,7 +251,7 @@ fetchrate_lite.c:	fetchrate.c
 
 chkctx2_lite:	chkctx2_lite.c
 	rm -f $@
-	$(CC) $(CDEFS) -DLITE=1 $(COPTS) -o $@ chkctx2_lite.c $(LDOPTS) $(LITE_LDLIBS)
+	$(CCF) $(CDEFS) -DLITE=1 -o $@ chkctx2_lite.c $(LDLIBS)
 
 chkctx2_lite.c:	chkctx2.c
 	rm -f $@
@@ -255,15 +259,15 @@ chkctx2_lite.c:	chkctx2.c
 
 hp-mib: hp-mib.c
 	rm -f $@
-	$(CC) $(CDEFS) -DLITE=1 $(COPTS) -o $@ hp-mib.c $(LDOPTS) $(LITE_LDLIBS)
+	$(CCF) $(CDEFS) -DLITE=1 -o $@ hp-mib.c $(LDLIBS)
 
 pcp_lite_crash: pcp_lite_crash.c
 	rm -f $@
-	$(CC) $(CDEFS) -DLITE=1 $(COPTS) -o $@ pcp_lite_crash.c $(LDOPTS) $(LITE_LDLIBS)
+	$(CCF) $(CDEFS) -DLITE=1 -o $@ pcp_lite_crash.c $(LDLIBS)
 
 store: store.c
 	rm -f $@
-	$(CC) $(CDEFS) -DLITE=1 $(COPTS) -o $@ store.c $(LDOPTS) $(LITE_LDLIBS)
+	$(CCF) $(CDEFS) -DLITE=1 -o $@ store.c $(LDLIBS)
 
 # --- need libpcp_pmda
 #
@@ -277,7 +281,7 @@ domain.h:	$(PCP_VAR_DIR)/pmns/stdpmid
 	sed -n -e 's/[ 	]*$$//' -e '/define[ 	]DYNAMIC[ 	]/s/.*[ 	]/#define DYNAMIC /p' $(PCP_VAR_DIR)/pmns/stdpmid >>domain.h
 
 pmdacomatose: pmdacomatose.c domain.h
-	$(CC) $(CDEFS) $(COPTS) -o $@ $@.c $(LDOPTS) -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 broken_v2.dir:	broken_help real_broken_pmns
 	rm -f broken.pag broken.dir
@@ -295,46 +299,46 @@ real_broken_pmns:	domain.h broken_pmns
 broken_pmda_2_0: broken_pmda.c domain.h
 	rm -f $@ $@.c
 	ln -s broken_pmda.c $@.c
-	$(CC) $(CDEFS) $(COPTS) -DVERSION_2 -o $@ $@.c $(LDOPTS) -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -DVERSION_2 -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 broken_pmda_2_1: broken_pmda.c domain.h
 	rm -f $@ $@.c
 	ln -s broken_pmda.c $@.c
-	$(CC) $(CDEFS) $(COPTS) -DVERSION_2 -DBUG_1 -o $@ $@.c $(LDOPTS) -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -DVERSION_2 -DBUG_1 -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 broken_pmda_2_2: broken_pmda.c domain.h
 	rm -f $@ $@.c
 	ln -s broken_pmda.c $@.c
-	$(CC) $(CDEFS) $(COPTS) -DVERSION_2 -DBUG_2 -o $@ $@.c $(LDOPTS) -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -DVERSION_2 -DBUG_2 -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 broken_pmda_2_3: broken_pmda.c domain.h
 	rm -f $@ $@.c
 	ln -s broken_pmda.c $@.c
-	$(CC) $(CDEFS) $(COPTS) -DVERSION_2 -DBUG_3 -o $@ $@.c $(LDOPTS) -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -DVERSION_2 -DBUG_3 -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 broken_pmda_2_4: broken_pmda.c domain.h
 	rm -f $@ $@.c
 	ln -s broken_pmda.c $@.c
-	$(CC) $(CDEFS) $(COPTS) -DVERSION_2 -DBUG_4 -o $@ $@.c $(LDOPTS) -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -DVERSION_2 -DBUG_4 -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 broken_pmda_2_5: broken_pmda.c domain.h
 	rm -f $@ $@.c
 	ln -s broken_pmda.c $@.c
-	$(CC) $(CDEFS) $(COPTS) -DVERSION_2 -DBUG_5 -o $@ $@.c $(LDOPTS) -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -DVERSION_2 -DBUG_5 -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 dumb_pmda: dumb_pmda.c
-	$(CC) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LLDOPTS) -lpcp_pmda $(LLDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 # --- special cases - hand-crafted libraries required
 #
 
 xpmval: xpmval.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ xpmval.c $(LDOPTS) -lm $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ xpmval.c -lm $(LDLIBS)
 
 numberstr: numberstr.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ numberstr.c $(LDOPTS) $(LIBGEN) $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ numberstr.c $(LIBGEN) $(LDLIBS)
 
 # --- need libpcp_trace 
 #
@@ -356,38 +360,38 @@ pducheck.o pdu-server.o : trace_dev.h
 
 pducheck:	pducheck.o 
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ pducheck.o  $(TRACELIB) -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pducheck.o  $(TRACELIB) -lpcp_pmda $(LDLIBS)
 
 pdu-server:	pdu-server.o
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ pdu-server.o  $(TRACELIB) $(LIBSOL) $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pdu-server.o  $(TRACELIB) $(LIBSOL) $(LDLIBS)
 
 torture_cache:	torture_cache.o 
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ torture_cache.o -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ torture_cache.o -lpcp_pmda $(LDLIBS)
 
 obs:	obs.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ obs.c $(TRACELIB) 
+	$(CCF) $(CDEFS) -o $@ obs.c $(TRACELIB) 
 
 torture_trace:	torture_trace.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ torture_trace.c $(TRACELIB) 
+	$(CCF) $(CDEFS) -o $@ torture_trace.c $(TRACELIB) 
 
 tstate:	tstate.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ tstate.c $(TRACELIB) 
+	$(CCF) $(CDEFS) -o $@ tstate.c $(TRACELIB) 
 
 tabort:	tabort.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ tabort.c $(TRACELIB) 
+	$(CCF) $(CDEFS) -o $@ tabort.c $(TRACELIB) 
 
 # --- binary format dependencies
 #
 
 ifeq ($(HAVE_64), 1)
 pv64: pv.c
-	$(CC) $(CDEFS) $(COPTS) -o $@ pv.c $(LDOPTS) $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pv.c $(LDLIBS)
 endif
 
 # -- archives
@@ -534,7 +538,7 @@ reduce-gap.0:	reduce-1.0 reduce-2.0
 
 torture_indom: torture_indom.c
 	rm -f $@
-	$(CC) $(CDEFS) $(COPTS) -o $@ torture_indom.c $(LDOPTS) $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ torture_indom.c $(LDLIBS)
 
 # --- miscellaneous
 #

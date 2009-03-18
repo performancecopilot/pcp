@@ -570,7 +570,6 @@ main(int argc, char *argv[])
     struct linger	noLinger = {1, 0};
     char	*endnum;
     int		errflag = 0;
-    char	*p;
     __pmPDU	*pb;
     __pmPDUHdr	*php;
 

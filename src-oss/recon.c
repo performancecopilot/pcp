@@ -9,9 +9,7 @@
  * Has to be run as root to control pmcd
  */
 
-#include <unistd.h>
 #include <ctype.h>
-#include <errno.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -28,18 +26,9 @@ main(int argc, char **argv)
     int		ctx;
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:")) != EOF) {
 	switch (c) {

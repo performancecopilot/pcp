@@ -9,10 +9,6 @@
  * This was fixed by setting the close on exec flag in pmNewContext.
  */
 
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-#include <stdio.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -41,15 +37,9 @@ main(int argc, char* argv[])
     int		sts;
     long	run;
     char	*endp;
-    char	*p;
     int		fd;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     if (argc != 2) {
 	fprintf(stderr,

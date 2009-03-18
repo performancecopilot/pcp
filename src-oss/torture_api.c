@@ -6,21 +6,18 @@
  * main - general purpose exerciser of much of the PMAPI
  */
 
-#include <stdlib.h>
-#include <ctype.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
 static int	_op;  /* number of api operations */
 static int	_err; /* number of api errors */
-static int	vflag = 0;
+static int	vflag;
 static char	*context_name = "localhost";
-static int 	context_type = 0; /* archive, host or local */
+static int 	context_type; /* archive, host or local */
 static char	*namespace = PM_NS_DEFAULT;
 static int	all_children = 1; /* do the children of "" test */
-static int	root_children = 0; /* only do the children of "" test */
-static int	dump_metrics = 0; /* just dump the metrics and exit */
-extern int	pmDebug;
+static int	root_children; /* only do the children of "" test */
+static int	dump_metrics; /* just dump the metrics and exit */
 /*
  * pmns_style == 1 => do PMNS style loading the old way
  * pmns_style == 2 => try to use the distributed PMNS
@@ -59,7 +56,6 @@ compar_str(const void *a, const void *b)
     return strcmp(*ca, *cb);
 }
 
-#if PMAPI_VERSION == 2
 static int
 compar_name_status(const void *a, const void *b)
 {
@@ -67,7 +63,6 @@ compar_name_status(const void *a, const void *b)
     name_status	*cb = (name_status*)b;
     return strcmp(ca->name, cb->name);
 }
-#endif
 
 void
 do_chn(char *name)
@@ -89,7 +84,6 @@ do_chn(char *name)
 	has_children = 1;
     }
 
-#if PMAPI_VERSION == 2
     /* test out pmGetChildrenStatus */
     {
         char	**s_enfants = NULL;
@@ -125,7 +119,6 @@ do_chn(char *name)
 	if (s_enfants) free(s_enfants);
         if (status) free(status);
     }
-#endif
 
     if (has_children && vflag) {
 	printf("children of \"%s\" ...\n", name);
@@ -151,28 +144,16 @@ parse_args(int argc, char **argv)
     int		errflag = 0;
     int		c;
     static char	*usage = "[-a archive] [-m] [-h host] [-L] [-n namespace] [-v] [-b] [-c]";
-#if PMAPI_VERSION == 2
     static char *extra_usage = "[-L] [-s 1|2]";
-#else 
-    static char *extra_usage = "";
-#endif
     char	*endnum;
-    char 	*p;
     int		sts;
-
 #ifdef PCP_DEBUG
     static char	*debug = "[-D N]";
 #else
     static char	*debug = "";
 #endif
 
-
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:h:iLmn:s:vbc")) != EOF) {
 	switch (c) {
@@ -240,7 +221,6 @@ parse_args(int argc, char **argv)
 	    vflag++;
 	    break;
 
-#if PMAPI_VERSION == 2
 	case 's':	/* pmns style */
 	    pmns_style = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0') {
@@ -248,7 +228,6 @@ parse_args(int argc, char **argv)
 		errflag++;
 	    }
 	    break;
-#endif
 
 	case '?':
 	default:
@@ -261,11 +240,7 @@ parse_args(int argc, char **argv)
 	printf("Usage: %s %s%s%s\n", pmProgname, debug, extra_usage, usage);
 	exit(1);
     }
-
- 
-
 }
-
 
 void
 load_namespace(char *namespace)
@@ -281,14 +256,8 @@ load_namespace(char *namespace)
 	exit(1);
     }
     gettimeofday(&now, (struct timezone *)0);
-#if PMAPI_VERSION == 2
     printf("Name space load: %.2f msec\n", __pmtimevalSub(&now, &then)*1000);
-#else
-    printf("Name space load: %.2f msec\n", _timevalSub(&now, &then)*1000);
-#endif
 }
-
-
 
 void 
 test_api(void)
@@ -326,11 +295,7 @@ test_api(void)
 
     if (vflag > 1) {
 	_op++;
-#if PMAPI_VERSION == 2
 	__pmDumpNameSpace(stdout, 1);
-#else
-	_pmDumpNameSpace(stdout, 1);
-#endif
     }
 
 
@@ -487,11 +452,7 @@ test_api(void)
 		}
 		else {
 		    if (vflag)
-#if PMAPI_VERSION == 2
 			__pmDumpResult(stdout, resp);
-#else
-			_pmDumpResult(stdout, resp);
-#endif
 		    _op++;
 		    pmFreeResult(resp);
 		}
@@ -514,11 +475,7 @@ test_api(void)
 	    else {
 		if (vflag) {
 		    printf("\nReal-time result ...\n");
-#if PMAPI_VERSION == 2
 		    __pmDumpResult(stdout, resp);
-#else
-		    _pmDumpResult(stdout, resp);
-#endif
 		}
 		_op++;
 		pmFreeResult(resp);

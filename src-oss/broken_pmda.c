@@ -344,15 +344,8 @@ main(int argc, char **argv)
 {
     int			err = 0;
     pmdaInterface	desc;
-    char		*p;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
-
+    __pmSetProgname(argv[0]);
     _isDSO = 0;
 
 #if defined(BUG_5)

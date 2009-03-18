@@ -18,7 +18,6 @@ main(int argc, char **argv)
     int		ctx1 = -1;
     int		sts;
     int		inst;
-    char	*p;
     int		errflag = 0;
     int		type = 0;
     char	*host;
@@ -27,16 +26,8 @@ main(int argc, char **argv)
     pmID	pmid;
     char	*name = "sample.colour";
     pmResult	*resp;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:h:n:s:")) != EOF) {
 	switch (c) {

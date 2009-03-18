@@ -6,13 +6,9 @@
  * main - test the code which adds PMNS to archives
  */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <ctype.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-
-extern int	pmDebug;
 
 void
 parse_args(int argc, char **argv)
@@ -23,7 +19,6 @@ parse_args(int argc, char **argv)
     int		c;
     int		sts;
     static char	*usage = "[-v]";
-    char 	*p;
 
 #ifdef PCP_DEBUG
     static char	*debug = "[-D N]";
@@ -31,13 +26,7 @@ parse_args(int argc, char **argv)
     static char	*debug = "";
 #endif
 
-
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "D:?")) != EOF) {
 	switch (c) {

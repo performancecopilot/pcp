@@ -2,8 +2,6 @@
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
@@ -21,17 +19,10 @@ main(int argc, char *argv[])
     double	tolerance = 0.1;
     int		c;
     int		err = 0;
-    extern char	*optarg;
-    extern int	optind;
     int		nArgs;
     char	*p;
 
-    /* trim cmd name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "s:t:")) != EOF)
 	switch (c) {

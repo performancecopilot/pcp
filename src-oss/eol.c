@@ -6,7 +6,6 @@
  * eol - exercise _pmLogFindEOF
  */
 
-#include <unistd.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -24,28 +23,18 @@ main(int argc, char **argv)
 {
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
     int		ahtype = 0;
     char	*host;
     pmLogLabel	label;				/* get hostname for archives */
     char	*namespace = PM_NS_DEFAULT;
-    extern char	*optarg;
-    extern int	optind;
-    extern int	pmDebug;
     pmResult	*result;
     pmResult	*prev;
     struct timeval	end;
     int		numpmid = 3;
     char	*name[] = { "sample.seconds", "sample.drift", "sample.milliseconds" };
-    extern int	__pmLogReads;
 
-    /* trim command name of leading directory components */
-    pmProgname = argv[0];
-    for (p = pmProgname; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     while ((c = getopt(argc, argv, "a:D:n:s:?")) != EOF) {
 	switch (c) {
