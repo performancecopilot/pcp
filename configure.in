@@ -298,15 +298,6 @@ fi
 tar=$TAR
 AC_SUBST(tar)
 
-dnl check if xmessage is available on solaris
-AC_PATH_PROG(XMESSAGE, xmessage, NULL)
-if test $XMESSAGE = NULL -a $target_os = solaris
-then
-    AC_MSG_WARN(xmessage had not been installed)
-fi
-xmessage=$XMESSAGE
-AC_SUBST(xmessage)
-
 dnl check if the gzip program is available
 dnl (needed to gzip man pages on some platforms)
 if test -z "$ZIP"; then
@@ -1614,7 +1605,7 @@ AC_SUBST(pcp_demos_dir)
 
 if test -z "$XCONFIRM" 
 then
-    AC_PATH_PROG(ac_xconfirm_prog, xconfirm, pmconfirm)
+    AC_PATH_PROG(ac_xconfirm_prog, xconfirm, $pcp_bin_dir/pmconfirm)
 else
     ac_xconfirm_prog=$XCONFIRM
 fi
