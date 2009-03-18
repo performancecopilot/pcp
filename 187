@@ -22,6 +22,7 @@ tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 here=`pwd`
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 
 _burn_pids()
 {
@@ -77,7 +78,7 @@ this_pid=$!
 _wait_for_pmlogger $this_pid $tmp.log1
 mv $tmp.log1 $tmp.$this_pid
 
-trap "killall -INT pmlogger >/dev/null 2>&1; wait; rm -f $tmp.*; exit" 0 1 2 3 15
+trap "$signal -a pmlogger >/dev/null 2>&1; wait; rm -f $tmp.*; exit" 0 1 2 3 15
 
 _burn_pids
 

@@ -24,7 +24,10 @@ echo "QA output created by $seq"
 . ./common.filter
 
 tmp=/tmp/$$
-trap "./sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+here=`pwd`
+sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 status=1
 
 # used to debug qa test (tes:June/2000)
@@ -93,7 +96,7 @@ else
     echo "output from pmnewlog ..."
     cat $tmp.out
 fi
-killall -INT pmlogger >/dev/null 2>&1
+$signal -a -s TERM pmlogger >/dev/null 2>&1
 
 echo
 echo "=== no non-primary logger ==="
@@ -103,10 +106,10 @@ pmnewlog -p $! $tmp 2>&1 | _filter
 
 echo
 echo "=== no primary logger ==="
-./sudo killall -INT pmlogger
+$sudo $signal -a -s TERM pmlogger
 sleep 2
 pmnewlog $tmp 2>&1 | _filter
-./sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 
@@ -131,7 +134,7 @@ _wait_for_pmlogger $pid $tmp.log
 (( echo "connect $pid"; sleep 3 ) | pmlc ) &
 pmnewlog -p $pid $tmp 2>&1 | _filter \
 | sed -e "/\.save/s/.*/-- ps line removed --/" -e "s/$pid/PID/"
-kill -INT $pid
+$signal -s TERM $pid
 
 echo
 echo "=== primary logger busy ==="
@@ -166,12 +169,12 @@ pmnewlog -p $pid $tmp 2>&1 \
     -e '/Reason: Metric not supported by this version/d' \
     -e '/^$/d'
 
-kill -INT $pid
+$signal -s TERM $pid
 
 echo
 echo "=== wrong uid to kill pmlogger ==="
 rm -f $tmp.save.*
-./sudo pmlogger -L -c $tmp.config -l $tmp.log $tmp.save >$tmp.err 2>&1 &
+$sudo pmlogger -L -c $tmp.config -l $tmp.log $tmp.save >$tmp.err 2>&1 &
 parent=$!
 sleep 2
 
@@ -208,7 +211,7 @@ pmnewlog -p $pid $tmp 2>&1 \
     -e '/Reason: Metric not supported by this version/d' \
     -e '/^$/d'
 
-./sudo kill -INT $pid
+$sudo $signal -s TERM $pid
 
 status=0
 exit

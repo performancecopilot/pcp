@@ -11,15 +11,6 @@ owner=nathans
 
 seq=`basename $0`
 
-. ./localconfig
-
-if [ $PCP_VER -lt 2200 ]
-then
-    echo "test has extensions for PCP 2.2 and later, skipping" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 echo "QA output created by $seq"
 
 # ptools problem ... cannot revert to $seq.out, so keep irix version as
@@ -33,6 +24,12 @@ ln $seq.out.irix $seq.out
 . ./common.filter
 . ./common.check
 
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+
 _cleanup()
 {
     cd $here
@@ -40,7 +37,7 @@ _cleanup()
     then
 	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
     fi
-    $here/sudo rm -f $tmp.*
+    $sudo rm -f $tmp.*
     exit $status
 }
 
@@ -49,9 +46,6 @@ _my_filter_pmda_install()
     _filter_pmda_install | sed -e "s/$qahost/HOSTNAME/g"
 }
 
-tmp=/tmp/$$
-sudo=`pwd`/sudo
-status=1	# failure is the default!
 trap "_cleanup" 0 1 2 3 15
 
 if [ -n "$PCP_TRACE_HOST" ]
@@ -113,7 +107,7 @@ echo "=== first local trace PMDA config ===" >>$here/$seq.full
 cat $tmp.conf1 >>$here/$seq.full
 echo "===" >>$here/$seq.full
 
-$here/sudo ./Install -R / < $tmp.conf1 2>&1 \
+$sudo ./Install -R / < $tmp.conf1 2>&1 \
 | tee -a $here/$seq.full \
 | _my_filter_pmda_install
 _wait_for_pmcd
@@ -145,7 +139,7 @@ echo "=== second local trace PMDA config ===" >>$here/$seq.full
 cat $tmp.conf2 >>$here/$seq.full
 echo "===" >>$here/$seq.full
 
-$here/sudo ./Install -R / < $tmp.conf2 2>&1 \
+$sudo ./Install -R / < $tmp.conf2 2>&1 \
 | tee -a $here/$seq.full \
 | _my_filter_pmda_install
 _wait_for_pmcd
@@ -153,7 +147,7 @@ grep trace $PCP_PMCDCONF_PATH >>$here/$seq.full
 
 echo '=== Building demo program (app2) ==='
 cd $PCP_DEMOS_DIR/trace
-$here/sudo make app2 >$tmp.make 2>&1
+$sudo make app2 >$tmp.make 2>&1
 if [ $? -ne 0 ]
 then
     echo "trace app2 make failed.  Here is the make output ..."
@@ -175,7 +169,7 @@ pmtrace -h $qahost 'limit exceeded' 2>&1 \
 | sed \
     -e "s/Connection reset by peer/Cannot connect to PMDA - connection limit reached/"
 
-killall app2
+$signal -a -s KILL app2
 wait
 echo "=== app2 ===" >>$here/$seq.full
 cat $tmp.out >>$here/$seq.full
@@ -205,13 +199,13 @@ echo
 echo >>$here/$seq.full
 echo "=== Reinstall default config ===" >>$here/$seq.full
 cd $PCP_PMDAS_DIR/trace
-$here/sudo ./Install -R / < /dev/null 2>&1 \
+$sudo ./Install -R / < /dev/null 2>&1 \
 | tee -a $here/$seq.full \
 | _my_filter_pmda_install
 _wait_for_pmcd
 cd $here
 
-[ $remove -eq 1 ] && $here/sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
+[ $remove -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
 
 # success, all done
 status=0

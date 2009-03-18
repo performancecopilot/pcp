@@ -19,6 +19,8 @@ echo "QA output created by $seq"
 . ./common.filter
 
 tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 if [ -d $PCP_LOG_DIR/pmlogger ]
@@ -33,9 +35,9 @@ fi
 # in basename of archive between consecutive instances of the primary
 # logger.
 #
-./sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 sleep 60
-./sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 

@@ -1,7 +1,7 @@
 #! /bin/sh
 #
 
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 . ./common.check
 
 # get valid hostnames: $remote_1, $remote_2, etc.
@@ -597,7 +597,7 @@ cat >filter.kill.001 <<'End-of-File'
 #
 # Filter log from kill.001
 
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 echo "This is  `basename $0` "
 echo

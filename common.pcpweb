@@ -93,9 +93,8 @@ _restore_state()
             && $sudo mv $PCP_VAR_DIR/config/web/webdefaults.$seq $PCP_VAR_DIR/config/web/webdefaults
 
         # restart pmcd to pick up new configuration
-        $sudo killall -HUP pmcd
+        $sudo $PCP_BINADM_DIR/pmsignal -a -s HUP pmcd
         _wait_for_pmcd
-        
     fi
 
 }

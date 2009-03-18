@@ -36,7 +36,8 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 
-sudo=./sudo
+sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 config=$PCP_PMCDCONF_PATH
 oconfig=$tmp.pmcd.config
 log=$PCP_PMCDLOG_PATH
@@ -128,7 +129,7 @@ fi
 # tcp        0      0 0.0.0.0:2222            0.0.0.0:*               LISTEN
 #
 
-$sudo killall pmgadgets pmchart pmview >/dev/null 2>&1
+$sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
 src-oss/pmdashutdown -i 2222 -d 3 -l $tmp.pmdalog &
 pid=$!
 echo "pmdashutdown pid: $pid" >$seq.full
@@ -176,7 +177,7 @@ echo "pmda log (should have terminated):"
 _filter_pmda_log <$tmp.pmdalog
 echo
 
-$sudo killall -HUP pmcd
+$sudo $signal -a -s HUP pmcd
 
 # wait for PMCD to finish writing log (or 5 seconds)
 for t in 1 2 3 4 5

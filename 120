@@ -17,6 +17,8 @@ echo "QA output created by $seq"
 . ./common.filter
 
 tmp=/var/tmp/$$
+here=`pwd`
+sudo=$here/sudo
 rm -rf $tmp.*
 
 # Find an efs filesystem ... if you do not have one, abandon ship
@@ -32,11 +34,10 @@ then
     exit 0
 fi
 
-here=`pwd`
-[ ! -d $efs/$$ ] && $here/sudo mkdir $efs/$$
-$here/sudo chmod 777 $efs/$$
+[ ! -d $efs/$$ ] && $sudo mkdir $efs/$$
+$sudo chmod 777 $efs/$$
 
-trap "$here/sudo rm -rf $tmp.* $efs/$$" 0 1 2 3 15
+trap "$sudo rm -rf $tmp.* $efs/$$" 0 1 2 3 15
 #
 # real QA starts here
 
@@ -75,7 +76,7 @@ pminfo -f irix.resource.efs \
 # clean up mkfiles' handiwork
 #
 cd $here
-if $here/sudo rm -rf $efs/$$
+if $sudo rm -rf $efs/$$
 then
     :
 else

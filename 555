@@ -23,13 +23,14 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 
 cleanup()
 {
     if [ -f /etc/syslog.conf.$seq ]; then
 	$sudo mv /etc/syslog.conf.$seq /etc/syslog.conf
-	$sudo killall -HUP syslogd
+	$sudo $signal -a -s HUP syslogd
     fi
     rm -f $tmp.*
     $sudo rm -f /tmp/syslog
@@ -46,7 +47,7 @@ setup()
     $sudo mv /etc/syslog.conf /etc/syslog.conf.$seq || exit
     echo '*.*  /tmp/syslog' >$tmp.syslog.conf
     $sudo cp $tmp.syslog.conf /etc/syslog.conf || exit
-    $sudo killall -HUP syslogd || exit
+    $sudo $signal -a -s HUP syslogd || exit
 }
 
 # real QA test starts here

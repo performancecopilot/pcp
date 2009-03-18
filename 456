@@ -22,6 +22,7 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 LOCALHOST=`hostname | sed -e 's/\..*//'`
 if [ $PCP_PLATFORM = irix ]
@@ -46,9 +47,9 @@ _filter()
     | _filter_cron_scripts
 }
 
-_kill_loggers()
+_stop_loggers()
 {
-    $sudo killall -INT pmlogger
+    $sudo $signal -a -s TERM pmlogger
 }
 
 _cleanup()
@@ -56,7 +57,7 @@ _cleanup()
     echo
     echo "Cleaning up"
 
-    _kill_loggers >/dev/null 2>&1
+    _stop_loggers >/dev/null 2>&1
 
     cd # get out of tmp directory so we can delete it
     $sudo rm -rf $tmp
@@ -66,7 +67,7 @@ _cleanup()
 
 _setup()
 {
-    _kill_loggers
+    _stop_loggers
     cd
     rm -rf $tmp
     mkdir $tmp

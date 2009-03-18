@@ -106,7 +106,7 @@ the rate of SOME bytes per hour or SOME bytes per day.
 At any time this pmlogger process may be terminated with the
 following command:
         $ pmsignal -s TERM PID
-pmlogger: Signalled (signal=2), exiting
+pmlogger: Signalled (signal=15), exiting
 
 Log finished DATE
 

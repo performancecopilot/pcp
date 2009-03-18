@@ -16,6 +16,7 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 _needclean=true
 pmns="nameall.pmns"
 
@@ -30,7 +31,7 @@ cleanup()
     if $_needclean
     then
         _needclean=false
-	kill -TERM $pmcd
+	$signal -s TERM $pmcd
 	sleep 1
         echo "Restart and ping pmcd ..."
         $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start

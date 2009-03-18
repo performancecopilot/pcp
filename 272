@@ -30,6 +30,7 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+rsignal=pmsignal
 status=1	# failure is the default!
 
 # pmcd may be quite some distance away
@@ -240,7 +241,7 @@ ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port pminfo -h $me -f sample.long.
     -e 's/IPC protocol failure/PMCD connection limit for this host exceeded/'
 #DEBUG# echo "Trying connection limit pminfo again ..." >>$seq.full
 #DEBUG# ssh -q $other2 -n -l pcpqa "sh -c 'PMCD_PORT=$port par -s -SS pminfo -Dall -h $me -f sample.long.one'" >>$seq.full 2>&1
-ssh -q $other2 -n -l pcpqa killall pmval > /dev/null 2>&1
+ssh -q $other2 -n -l pcpqa $rsignal -a pmval > /dev/null 2>&1
 
 echo "pmcd.log:======="
 sed -n <$PCP_PMCDLOG_PATH -e '/endclient/{

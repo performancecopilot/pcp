@@ -12,15 +12,6 @@ owner=kenmcd
 
 seq=`basename $0`
 
-. ./localconfig
-if [ $PCP_EOE_VER -eq 2000 \
-    -o \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -le 6505 \) ]
-then
-    echo "need pmie with reconnect & don't dump core fix" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
@@ -41,6 +32,7 @@ _filter()
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -50,7 +42,7 @@ PMCD_RECONNECT_TIMEOUT=1,2
 export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT PMCD_RECONNECT_TIMEOUT
 
 SYSLOG=''
-for f in /var/adm/SYSLOG /var/log/messages
+for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages
 do
     if [ -f $f ]
     then
@@ -111,7 +103,7 @@ _wait_for_pmcd
 _wait_for_pmlogger
 
 sleep 15
-kill -INT $pmie_pid
+$signal -s TERM $pmie_pid
 wait
 
 echo "pmie output ..."

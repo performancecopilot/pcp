@@ -27,7 +27,6 @@ else
 fi
 
 tmp=/tmp/$$
-sudo=`pwd`/sudo
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

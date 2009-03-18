@@ -36,6 +36,7 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 errlist=''
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -245,7 +246,7 @@ _renew_pmcd()
     if [ -f $tmp.newconf ]
     then
 	$sudo cp $tmp.newconf $PCP_PMCDCONF_PATH
-	$sudo killall -HUP pmcd >/dev/null 2>&1
+	$sudo $signal -a -s HUP pmcd >/dev/null 2>&1
 	sleep 4
 	_wait_for_pmcd
     else
@@ -278,7 +279,7 @@ end-of-file
     fi
 
     $sudo cp $tmp.latest $PCP_PMCDCONF_PATH
-    $sudo killall -HUP pmcd >/dev/null 2>&1
+    $sudo $signal -a -s HUP pmcd >/dev/null 2>&1
     sleep 4
     _wait_for_pmcd
 
@@ -323,7 +324,7 @@ broken	$broken_domain	pipe	binary	$here/src-oss/$agent -d $broken_domain
 end-of-file
 
     $sudo cp $tmp.latest $PCP_PMCDCONF_PATH
-    $sudo killall -HUP pmcd >/dev/null 2>&1
+    $sudo $signal -a -s HUP pmcd >/dev/null 2>&1
     sleep 4
     _wait_for_pmcd
     
@@ -389,7 +390,7 @@ _renew_pmcd main
 
 # Start with a fresh pmcd log
 #
-$sudo "killall pmgadgets pmchart pmview" >/dev/null 2>&1
+$sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
 $sudo $PCP_RC_DIR/pcp start | _filter_init 2>&1
 _wait_for_pmcd
 

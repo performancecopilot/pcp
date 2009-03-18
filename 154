@@ -39,6 +39,8 @@ _filter_chk()
 }
 
 tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
@@ -50,10 +52,9 @@ then
     # here ... the only way to make this file appear is Install and Remove
     # the PMDA ... this should be a no-op, but may take a while
     #
-    here=`pwd`
     cd $PCP_PMDAS_DIR/cisco
     unset ROOT
-    $here/sudo ./Install </dev/null >/dev/null 2>&1
+    $sudo ./Install </dev/null >/dev/null 2>&1
     cd $here
     if [ ! -f $PCP_PMDAS_DIR/cisco/help.pag ]
     then
@@ -65,8 +66,8 @@ fi
 
 echo
 echo bad dbf
-ln -s `pwd`/sudo $tmp.pag
-ln -s `pwd`/sudo $tmp.dir
+ln -s $here/sudo $tmp.pag
+ln -s $here/sudo $tmp.dir
 echo "chkhelp bad-helpfile"
 chkhelp $tmp >$tmp.out 2>&1
 status=$?
@@ -134,10 +135,9 @@ if $cleanup
 then
     # see comments above when help.pag created for cisco PMDA
     #
-    here=`pwd`
     cd $PCP_PMDAS_DIR/cisco
     unset ROOT
-    $here/sudo ./Remove </dev/null >/dev/null 2>&1
+    $sudo ./Remove </dev/null >/dev/null 2>&1
     cd $here
 fi
 

@@ -23,6 +23,7 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 control=$PCP_PMDAS_DIR/sample/dynamic.indom
 logger_pid=-1
@@ -34,7 +35,7 @@ _cleanup()
 {
     if [ $logger_pid -gt 0 ]
     then
-	kill -INT $logger_pid
+	$signal -s TERM $logger_pid
 	logger_pid=-1
     fi
    

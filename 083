@@ -34,6 +34,7 @@ echo "this tests access control for pmlogger and exercises pmlc"
 #
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 tmp=/var/tmp/qa083.$$
 config=$tmp/pmlogger.conf
 log=$tmp/pmlogger.log
@@ -149,7 +150,7 @@ echo "other2=$other2" >>$seq.full
 
 # kill off any existing primary pmlogger
 #
-$sudo killall -INT pmlogger
+$sudo $signal -a -s TERM pmlogger
 _await_logger false
 
 if mkdir $tmp
@@ -261,7 +262,7 @@ disallow *: all;
 End-Of-File
 
 echo "killing pmlogger used for enquire tests..."
-killall -INT pmlogger
+$signal -a -s TERM pmlogger
 _await_logger false
 
 echo
@@ -334,7 +335,7 @@ fi
 # access)
 
 echo "killing pmlogger used for advisory tests..."
-killall -INT pmlogger
+$signal -a -s TERM pmlogger
 _await_logger false
 
 echo

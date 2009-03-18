@@ -21,6 +21,7 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 lhost=`hostname | sed -e 's/\..*//'`
 host=`_get_fqdn`
 remote=`./getpmcdhosts -n 1 -L 2>/dev/null`
@@ -120,7 +121,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.bak
 needclean=true
 $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH 
 
-$sudo killall -TERM pmie >/dev/null 2>&1
+$sudo $signal -a -s TERM pmie >/dev/null 2>&1
 _change_config pmcd on
 _change_config pmie off
 $sudo rm -f $PCP_TMP_DIR/pmie/*

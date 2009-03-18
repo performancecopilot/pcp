@@ -20,17 +20,18 @@ _cleanup()
 {
     echo "at end ..." >>$seq.full
     pid=`ps $PCP_PS_ALL_FLAGS | egrep '[x]confirm' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
-    [ -n "$pid" ] && kill -TERM $pid
+    [ -n "$pid" ] && $signal -s KILL $pid
     pid=`ps $PCP_PS_ALL_FLAGS | egrep '[x]message' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
-    [ -n "$pid" ] && kill -TERM $pid
+    [ -n "$pid" ] && $signal -s KILL $pid
     pid=`ps $PCP_PS_ALL_FLAGS | egrep '[p]mprintf' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
-    [ -n "$pid" ] && kill -TERM $pid
-    pid=`ps $PCP_PS_ALL_FLAGS | egrep '[k]mquery' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
-    [ -n "$pid" ] && kill -TERM $pid
+    [ -n "$pid" ] && $signal -s KILL $pid
+    pid=`ps $PCP_PS_ALL_FLAGS | egrep '[p]mquery' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
+    [ -n "$pid" ] && $signal -s KILL $pid
     rm -f $tmp.*
 }
 
 tmp=/tmp/$$
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 rm -f $seq.full

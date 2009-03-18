@@ -23,6 +23,7 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 control=$PCP_PMDAS_DIR/sample/dynamic.indom
 
@@ -80,7 +81,7 @@ End-of-File
     pmprobe -I sample.dynamic.counter
     sleep 2
 
-    kill -INT $pid
+    $signal -s TERM $pid
     wait
 
     uniq $tmp.out

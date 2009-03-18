@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
 
 _filter()
 {
@@ -37,7 +38,7 @@ End-of-File
 
 pmlogger -L -c $tmp.config -l $tmp.out -s 1 $tmp >$tmp.err 2>&1 &
 killer=$!
-((sleep 4; kill -TERM $killer)&) >/dev/null 2>&1
+((sleep 4; $signal -s TERM $killer)&) >/dev/null 2>&1
 wait
 
 cat $tmp.err $tmp.out | _filter

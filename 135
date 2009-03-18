@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
 
 _do_time()
 {
@@ -80,7 +81,7 @@ End-of-File
 done
 
 sleep 1
-kill -INT $logger_pid
+$signal -s TERM $logger_pid
 wait
 
 echo

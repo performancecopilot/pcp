@@ -16,6 +16,7 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
 
 _filter_pmlogger()
 {
@@ -89,7 +90,7 @@ End-of-File
 		logger_pid=$!
 		_wait_for_pmlogger $logger_pid $tmp.out
 		src-oss/logcontrol -p $logger_pid enquire sample.colour
-		kill -TERM $logger_pid
+		$signal -s TERM $logger_pid
 		wait
 		cat $tmp.err $tmp.out | _filter_pmlogger
 		if [ -s $tmp.0 ]

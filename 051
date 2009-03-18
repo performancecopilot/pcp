@@ -32,6 +32,7 @@ echo "QA output created by $seq"
 #
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 config=$PCP_PMCDCONF_PATH
 oconfig=$config.O
 log=./pmcd.log
@@ -185,7 +186,7 @@ do
     _filter_hostnames <$config \
     | sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;g"
     # Give pmcd 3 seconds to run
-    ((sleep 3; killall -INT pmcd)&) >/dev/null 2>&1
+    ((sleep 3; $signal -a -s TERM pmcd)&) >/dev/null 2>&1
     $PCP_PMCD_PROG -f
     echo "$t logfile----------------"
     echo "$t logfile----------------" >>$here/$seq.full

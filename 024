@@ -57,8 +57,6 @@ then
 else
     ln $seq.out.1 $seq.out
 fi
-sudo=""
-[ $PCP_PLATFORM = irix ] && sudo=./sudo
 
 echo "QA output created by $seq"
 
@@ -93,7 +91,7 @@ PCP_LITE_SAMPLE=yes
 export PCP_LITE_SAMPLE
 
 echo "=== try CONTEXT_LOCAL ==="
-$sudo src-oss/chkctx2_lite -D16 -L 2>&1 \
+src-oss/chkctx2_lite -D16 -L 2>&1 \
 | _filter \
 | _filter_pmcd_log \
 | _filter_bogus_disks

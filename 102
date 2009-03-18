@@ -30,12 +30,14 @@ _filter_pmlc()
 	-e 's/^Reason: Unknown or illegal.*$/Reason: No PMCD agent for domain of request/'
 }
 
+sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
+
 # real QA test starts here
 
 # unconditionally restart pmcd and pmlogger so avoid fd leak
 # problems in buggy flexlm code
 #
-sudo=`pwd`/sudo
 $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
@@ -80,7 +82,7 @@ log advisory on $delta sample.bin [100]
 End-of-File
 _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
-    kill -INT $pid
+    $signal -s TERM $pid
     wait
     _filter_pmlogger_log <$tmp.log
 done
@@ -94,7 +96,7 @@ End-of-File
 _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
 
-./sudo killall pmdasample
+$sudo $signal -a pmdasample
 sleep 2					# time to cleanup
 pminfo -f sample >/dev/null 2>&1	# and make sure pmcd notices
 
@@ -106,7 +108,7 @@ End-of-File
 _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
 
-./sudo killall -HUP pmcd
+$sudo $signal -a -s HUP pmcd
 sleep 2		# time to cleanup
 pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
 connect primary

@@ -39,19 +39,20 @@ _expect()
     echo ""
 }
 
+if test $PCP_PLATFORM = mingw
+then
+    echo "Process stop signal not available on Win32" > $seq.notrun
+    exit 1
+fi
+
 tmp=/var/tmp/qa041.$$
-sudo=./sudo
+here=`pwd`
+sudo=$here/sudo
 _needclean=true
 TAG=000666000magic
 status=1
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
-
-if [ ! -x $sudo ]
-then
-    echo "Couldn't find $sudo"
-    exit 1
-fi
 
 trap "_cleanup" 0 1 2 3 15
 

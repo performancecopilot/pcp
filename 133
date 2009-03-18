@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
 
 # real QA test starts here
 rm -f $tmp.*
@@ -41,9 +42,9 @@ new volume
 End-of-File
 
 sleep 2
-kill -HUP $pid
+$signal -s HUP $pid
 sleep 2
-kill -HUP $pid
+$signal -s HUP $pid
 
 sleep 2
 pmlc <<End-of-File
@@ -58,7 +59,7 @@ new volume
 End-of-File
 
 sleep 2
-kill -INT $pid
+$signal -s TERM $pid
 
 wait
 

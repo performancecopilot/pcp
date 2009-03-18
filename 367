@@ -19,11 +19,12 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-killall pdu-server >/dev/null 2>&1
+$signal -a -s KILL pdu-server >/dev/null 2>&1
 sleep 1
 
 port=`_get_port tcp 6666 6676`
@@ -43,7 +44,7 @@ src-oss/pducheck -p $port -i 1 localhost
 
 sleep 1
 
-kill -INT $server_pid
+$signal -s TERM $server_pid
 
 eval `sed -n <$tmp.out -e '/MYPID/{
 s/.*MYPID /server=/

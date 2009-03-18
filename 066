@@ -37,7 +37,8 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 
-sudo=./sudo
+sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 config=$PCP_PMCDCONF_PATH
 oconfig=$tmp.pmcd.config
 log=$PCP_PMCDLOG_PATH
@@ -161,7 +162,7 @@ fi
 
 cp $config $oconfig
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
-$sudo killall pmgadgets pmchart pmview >/dev/null 2>&1
+$sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
 $sudo cp $tmp $config
 $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 echo "first config:"
@@ -181,7 +182,7 @@ echo "second config:"
 _myfilter_config <$config
 
 echo
-$sudo killall -HUP pmcd
+$sudo $signal -a -s HUP pmcd
 _wait_for_pmcd
 
 # wait for PMCD to finish writing log (or 5 seconds)

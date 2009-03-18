@@ -23,6 +23,7 @@ _cleanup()
 
 tmp=/tmp/$$
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 sync
@@ -47,7 +48,7 @@ echo "=== check data file still exists..."
 echo "=== check log file after first exit..."
 _filter_pmie_log < $tmp.out | uniq
 
-kill -INT $pid
+$signal -s TERM $pid
 wait
 
 echo

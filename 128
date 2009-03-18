@@ -16,6 +16,7 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
 
 get_pminfo()
 {
@@ -66,7 +67,7 @@ cat > $tmp.workload << EOF
 ls -R /$mnt >/dev/null 2>/dev/null &
 KILL_PID=\$!
 sleep 3
-kill -9 \$KILL_PID >/dev/null 2>&1
+$signal -s KILL \$KILL_PID >/dev/null 2>&1
 EOF
 chmod u+x $tmp.workload
 

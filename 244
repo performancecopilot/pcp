@@ -95,6 +95,7 @@ LOGCONTROL=$PCP_PMLOGGERCONTROL_PATH
 SAVE_LOGCONTROL=$tmp/control.save
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 _needclean=true
 
 # for local PMNS to avoid conflict with pmcd tests
@@ -116,7 +117,7 @@ cleanup()
     if $_needclean
     then
 	_needclean=false
-	kill -TERM $pmcd
+	$signal -s TERM $pmcd
 	sleep 1
 	$sudo rm -f $CONFIG
 	$sudo cp $CONFIGSAVE $CONFIG
@@ -130,7 +131,7 @@ cleanup()
 	_wait_for_pmlogger
 	pmprobe pmcd.control.debug
 	sleepers=`ps $PCP_PS_ALL_FLAGS | grep $TAG | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
-	[ ! -z "$sleepers" ] && $sudo kill -INT $sleepers
+	[ ! -z "$sleepers" ] && $sudo $signal -s KILL $sleepers
     fi
     rm -rf $tmp
 }
@@ -140,13 +141,13 @@ trap cleanup 0 1 2 3 15
 # real QA test starts here
 
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
-$sudo killall pmgadgets pmchart pmview >/dev/null 2>&1
+$sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
 _disable_loggers
-$sudo killall -TERM pmie >/dev/null 2>&1
+$sudo $signal -a -s TERM pmie >/dev/null 2>&1
 
 # This value is passed to processes this script creates on the command line.
-# It's unlikely to occur anywhere in a ps output and is used as a tag to kill
-# or check for the existence of the processes later.
+# It's unlikely to occur anywhere in a ps output and is used as a tag for
+# termination or check for the existence of the processes later.
 #
 TAG=000000660066
 
@@ -209,7 +210,7 @@ sed <$CONFIG \
     -e '/^sample/s; [^ ]*pmdasample; ...pmdasample;'
 echo '<END>'
 
-kill -HUP $pmcd
+$signal -s HUP $pmcd
 _wait_for_pmcd
 
 echo "Expect \"Unknown or illegal metric identifier\" ..."
@@ -224,7 +225,7 @@ pmprobe $NAMESPACE -v sample.bin
 # that the sample agent has the same PID.
 # The bogus fake_sampledso agent should have been terminated because it is
 # no longer in the config file. 
-# That isn't enough to kill the sleep agent.
+# That isn't enough to terminate the sleep agent.
 #
 echo
 echo "Deleting, adding and keeping agents test"
@@ -236,7 +237,7 @@ ps -edf | grep $TAG | grep sed >/dev/null || echo "Error: phony fake_cisco agent
 
 $sudo cp $CONFIGSAVE $CONFIG
 
-kill -HUP $pmcd
+$signal -s HUP $pmcd
 _wait_for_pmcd
 
 ps -edf | grep $TAG | grep sed >/dev/null && echo "Error: sed agent still lives!"

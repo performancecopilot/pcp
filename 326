@@ -20,6 +20,7 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1
 done_clean=false
 LOCALHOST=`hostname | sed -e 's/\..*//'`
@@ -105,12 +106,12 @@ pmval -s 40 -t 0.5 -D fetch pmcd.numagents >$tmp.pmval 2>&1 &
 sleep 3
 
 echo "=== kill sample PMDA process ==="
-$sudo killall -TERM pmdasample
+$sudo $signal -a -s TERM pmdasample
 pminfo -v sample >/dev/null 2>&1
 sleep 3
 
 echo "=== SIGHUP PMCD ==="
-$sudo killall -HUP pmcd
+$sudo $signal -a -s HUP pmcd
 sleep 3
 
 echo "=== drop sample PMDA, like Remove ==="
@@ -119,7 +120,7 @@ cat <<End-of-File >$tmp.tmp
 pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
-$sudo killall -HUP pmcd
+$sudo $signal -a -s HUP pmcd
 sleep 3
 
 echo "=== add sample PMDA, like Install ==="
@@ -129,7 +130,7 @@ pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
 sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
-$sudo killall -HUP pmcd
+$sudo $signal -a -s HUP pmcd
 sleep 3
 
 wait

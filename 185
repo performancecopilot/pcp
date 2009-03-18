@@ -17,7 +17,8 @@ mkdir $tmpdir
 . ./common.filter
 
 tmp=$tmpdir/$$
-trap "killall -INT pmlogger >/dev/null 2>&1; cd; rm -rf $tmpdir; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
+trap "$signal -a pmlogger >/dev/null 2>&1; cd; rm -rf $tmpdir; exit" 0 1 2 3 15
 
 _filter_dumplog()
 {

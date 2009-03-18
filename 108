@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
 
 _filter()
 {
@@ -37,12 +38,9 @@ _silent_kill()
 {
     if [ $# -eq 1 ]
     then
-	(( kill $1 )&) >/dev/null 2>&1
-    elif [ $# -eq 2 ]
-    then
-	(( kill $1 $2 )&) >/dev/null 2>&1
+	(( $signal $1 )&) >/dev/null 2>&1
     else
-	echo "_silent_kill: needs 1 or 2 args, not $#"
+	echo "_silent_kill: needs 1 arg, not $#"
     fi
 }
 
@@ -59,7 +57,7 @@ rm -f $tmp.0 $tmp.meta $tmp.index
 pmlogger -c $tmp.config -s 1 $tmp >$tmp.tmp 2>&1 &
 killer=$!
 sleep 2
-_silent_kill -TERM $killer
+_silent_kill $killer
 
 echo "check sample pmda is still alive ..."
 pminfo -f sample.bin
@@ -81,7 +79,7 @@ rm -f $tmp.0 $tmp.meta $tmp.index
 pmlogger -c $tmp.config -s 1 $tmp >$tmp.tmp 2>&1 &
 killer=$!
 sleep 2
-_silent_kill -TERM $killer
+_silent_kill $killer
 
 echo "check simple pmda is still alive ..."
 pminfo -f simple.color | _filter
@@ -97,7 +95,7 @@ rm -f $tmp.0 $tmp.meta $tmp.index
 pmlogger -c $tmp.config -s 1 $tmp >$tmp.tmp 2>&1 &
 killer=$!
 sleep 2
-_silent_kill -TERM $killer 2>&1 >/dev/null
+_silent_kill $killer 2>&1 >/dev/null
 
 echo "check sampledso pmda is still alive ..."
 pminfo -f sampledso.bin

@@ -13,7 +13,8 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-sudo=./sudo
+here=`pwd`
+sudo=$here/sudo
 LOCALHOST=`hostname`
 _needclean=true
 status=0
@@ -60,7 +61,7 @@ PMLOGGER_PORT=43000
 export PMCD_PORT PMLOGGER_PORT
 
 echo "pmcd with PMCD_PORT=$PMCD_PORT, pmlogger with PMLOGGER_PORT=$PMLOGGER_PORT"
-./sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 
 echo

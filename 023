@@ -8,6 +8,13 @@
 
 seq=`basename $0`
 
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
 . ./localconfig
 rm -f $seq.out
 if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
@@ -16,13 +23,6 @@ then
 else
     ln $seq.out.1 $seq.out
 fi
-
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
-. ./common.check
 
 if which pmobjstyle >/dev/null 2>&1
 then
@@ -87,6 +87,7 @@ LOGCONTROL="$PCP_PMLOGGERCONTROL_PATH"
 SAVE_LOGCONTROL=$tmp/control.save
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 _needclean=true
 
 rm -rf $tmp
@@ -106,7 +107,7 @@ cleanup()
     if $_needclean
     then
 	_needclean=false
-	$sudo killall -TERM pmcd
+	$sudo $signal -a -s TERM pmcd
 
         [ -f $SAVE_CONFIG ] && $sudo mv $SAVE_CONFIG $CONFIG
 	echo "=== restored $CONFIG ===" >>$here/$seq.full
@@ -125,7 +126,7 @@ cleanup()
 	_wait_for_pmlogger
 	pmprobe pmcd.control.debug
 	sleepers=`ps $PCP_PS_ALL_FLAGS | grep $TAG | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
-	[ ! -z "$sleepers" ] && $sudo kill -INT $sleepers
+	[ ! -z "$sleepers" ] && $sudo $signal -s TERM $sleepers
     fi
     rm -rf $tmp
 }
@@ -150,8 +151,8 @@ fi
 
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 _change_config pmlogger off
-$sudo killall -TERM pmie 2>/dev/null
-$sudo killall -TERM pmlogger 2>/dev/null
+$sudo $signal -a -s TERM pmie 2>/dev/null
+$sudo $signal -a -s TERM pmlogger 2>/dev/null
 
 # Create a fake namespace to force pminfo to query the fake agent
 FAKE_NS=$tmp/$seq.fake_ns
@@ -160,8 +161,8 @@ echo 'root { hinv } ' > $FAKE_NS
 echo 'hinv { ncpu 1:0:1 }' >> $FAKE_NS
 
 # This value is passed to processes this script creates on the command line.
-# It's unlikely to occur anywhere in a ps output and is used as a tag to kill
-# or check for the existence of the processes later.
+# It's unlikely to occur anywhere in a ps output and is used as a tag to
+# terminate or check for the existence of the processes later.
 #
 TAG=000000660066
 
@@ -222,7 +223,7 @@ _filter_log
 echo "pmcd.log after pmcd first started" >>$here/$seq.full
 cat pmcd.log >>$here/$seq.full
 
-# Get pmcd to kill the fake_kernel PMDA by asking for a metric from it.
+# Get pmcd to stop the fake_kernel PMDA by asking for a metric from it.
 # Sleep won't do anything, so it'll be timed out returning an IPC protocol
 # failure.  The next fetch for the domain will return a "No agent for
 # domain..." error.
@@ -257,7 +258,7 @@ echo
 # Get PMCD to restart any deceased agents.  (The config file hasn't changed)
 #
 sleep 1
-kill -HUP $pmcd
+$signal -s HUP $pmcd
 
 # Sleep 3 sec for each fake pmda in the config
 sleep 15

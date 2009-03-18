@@ -36,6 +36,8 @@ echo "QA output created by $seq"
 . ./common.filter
 
 tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 _filter_pmids()
@@ -185,7 +187,7 @@ then
     echo ""
     echo "Exercise the stuff for the SNMP HP-UX MIB ..."
     PMDA_LOCAL_PROC=yes; export PMDA_LOCAL_PROC
-    ./sudo src-oss/hp-mib 2>$tmp.err.hpmib \
+    $sudo src-oss/hp-mib 2>$tmp.err.hpmib \
     | _inst_value_filter \
     | _filter_pmids \
     | sed \

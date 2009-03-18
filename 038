@@ -14,17 +14,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-os=bozoix.
-case `uname`
-in
-    *IRIX*|*Linux)
-	os=''
-	;;
-    *HP*)
-	os=hpux.
-	;;
-esac
-
 _filter_dumplog()
 {
     _filter_dumpresult_os | sed \
@@ -57,68 +46,68 @@ log mandatory on 1 sec {
     sample.recv_pdu
     sample.xmit_pdu
     sample.noinst
-    ${os}disk.all.read
-    ${os}disk.all.write
-    ${os}disk.all.total
-    ${os}disk.all.blkread
-    ${os}disk.all.blkwrite
-    ${os}disk.all.blktotal
-    ${os}disk.all.active
-    ${os}disk.all.response
-    ${os}disk.all.bytes
-    ${os}disk.all.read_bytes
-    ${os}disk.all.write_bytes
-    ${os}disk.all.avg_disk.active
-    ${os}disk.all.avg_disk.response
-    ${os}kernel.all.cpu.idle
-    ${os}kernel.all.cpu.intr
-    ${os}kernel.all.cpu.sys
-    ${os}kernel.all.cpu.sxbrk
-    ${os}kernel.all.cpu.user
-    ${os}kernel.all.cpu.wait.total
-    ${os}kernel.all.cpu.wait.gfxc
-    ${os}kernel.all.cpu.wait.gfxf
-    ${os}kernel.all.cpu.wait.io
-    ${os}kernel.all.cpu.wait.pio
-    ${os}kernel.all.cpu.wait.swap
-    ${os}kernel.all.io.iget
-    ${os}kernel.all.io.bread
-    ${os}kernel.all.io.bwrite
-    ${os}kernel.all.io.lread
-    ${os}kernel.all.io.lwrite
-    ${os}kernel.all.io.phread
-    ${os}kernel.all.io.phwrite
-    ${os}kernel.all.io.wcancel
-    ${os}kernel.all.io.namei
-    ${os}kernel.all.io.dirblk
-    ${os}kernel.all.swap.swpocc
-    ${os}kernel.all.swap.swpque
-    ${os}kernel.all.load
-    ${os}kernel.all.users
-    ${os}kernel.all.pswitch
-    ${os}kernel.all.readch
-    ${os}kernel.all.runocc
-    ${os}kernel.all.runque
-    ${os}kernel.all.syscall
-    ${os}kernel.all.sysexec
-    ${os}kernel.all.sysfork
-    ${os}kernel.all.sysread
-    ${os}kernel.all.syswrite
-    ${os}kernel.all.writech
-    ${os}kernel.all.tty.recvintr
-    ${os}kernel.all.tty.xmitintr
-    ${os}kernel.all.tty.mdmintr
-    ${os}kernel.all.tty.out
-    ${os}kernel.all.tty.raw
-    ${os}kernel.all.tty.canon
-    ${os}kernel.all.intr.vme
-    ${os}kernel.all.intr.non_vme
-    ${os}kernel.all.ipc.msg
-    ${os}kernel.all.ipc.sema
-    ${os}kernel.all.pty.masterch
-    ${os}kernel.all.pty.slavech
-    ${os}kernel.all.flock.alloc
-    ${os}kernel.all.flock.inuse
+    disk.all.read
+    disk.all.write
+    disk.all.total
+    disk.all.blkread
+    disk.all.blkwrite
+    disk.all.blktotal
+    disk.all.active
+    disk.all.response
+    disk.all.bytes
+    disk.all.read_bytes
+    disk.all.write_bytes
+    disk.all.avg_disk.active
+    disk.all.avg_disk.response
+    kernel.all.cpu.idle
+    kernel.all.cpu.intr
+    kernel.all.cpu.sys
+    kernel.all.cpu.sxbrk
+    kernel.all.cpu.user
+    kernel.all.cpu.wait.total
+    kernel.all.cpu.wait.gfxc
+    kernel.all.cpu.wait.gfxf
+    kernel.all.cpu.wait.io
+    kernel.all.cpu.wait.pio
+    kernel.all.cpu.wait.swap
+    kernel.all.io.iget
+    kernel.all.io.bread
+    kernel.all.io.bwrite
+    kernel.all.io.lread
+    kernel.all.io.lwrite
+    kernel.all.io.phread
+    kernel.all.io.phwrite
+    kernel.all.io.wcancel
+    kernel.all.io.namei
+    kernel.all.io.dirblk
+    kernel.all.swap.swpocc
+    kernel.all.swap.swpque
+    kernel.all.load
+    kernel.all.users
+    kernel.all.pswitch
+    kernel.all.readch
+    kernel.all.runocc
+    kernel.all.runque
+    kernel.all.syscall
+    kernel.all.sysexec
+    kernel.all.sysfork
+    kernel.all.sysread
+    kernel.all.syswrite
+    kernel.all.writech
+    kernel.all.tty.recvintr
+    kernel.all.tty.xmitintr
+    kernel.all.tty.mdmintr
+    kernel.all.tty.out
+    kernel.all.tty.raw
+    kernel.all.tty.canon
+    kernel.all.intr.vme
+    kernel.all.intr.non_vme
+    kernel.all.ipc.msg
+    kernel.all.ipc.sema
+    kernel.all.pty.masterch
+    kernel.all.pty.slavech
+    kernel.all.flock.alloc
+    kernel.all.flock.inuse
     hinv.ncpu
     hinv.dcache
     hinv.icache

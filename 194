@@ -21,6 +21,7 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -31,7 +32,7 @@ $sudo rm -f core*
 ( sh src-oss/dumb_pmda >$seq.full 2>&1 ) &
 
 sleep 15
-killall -9 dumb_pmda >/dev/null 2>&1
+$signal -a -s KILL dumb_pmda >/dev/null 2>&1
 
 wait
 

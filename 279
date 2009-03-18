@@ -22,6 +22,7 @@ tmp=/tmp/$$
 status=1	# failure is the default!
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 LOCALHOST=`hostname`
 _needclean=true
 
@@ -108,7 +109,7 @@ _wait_for_pmcd
 cat <<End-of-File >$tmp.cmd
 rm -f $PCP_PMCDCONF_PATH.prev
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
-__pmda_add "bogus	111	pipe	binary 		killall pmcd"
+__pmda_add "bogus	111	pipe	binary 		$signal -a pmcd"
 End-of-File
 
 echo
@@ -130,8 +131,8 @@ rm -f $PCP_PMCDCONF_PATH.prev
 __pmda_cull fungus 222
 End-of-File
 
-echo 'bogus 111     pipe    binary          killall pmcd' >>$tmp.conf
-echo 'fungus 222     pipe    binary         killall pmcd' >>$tmp.conf
+echo "bogus 111     pipe    binary          $signal -a pmcd" >>$tmp.conf
+echo "fungus 222     pipe    binary         $signal -a pmcd" >>$tmp.conf
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
 
 echo

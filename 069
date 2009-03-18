@@ -29,7 +29,10 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 status=0
-sudo=./sudo
+here=`pwd`
+sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
+usersignal=pmsignal	# not run as root, which may lose pcpqa PATH setting
 config=$PCP_PMCDCONF_PATH
 oconfig=${PCP_PMCDCONF_PATH}.save.$seq
 nconfig=$tmp.pmcd.conf.new
@@ -206,7 +209,7 @@ disallow *: all;
 End-of-File
 $sudo mv $nconfig $config
 
-$sudo killall -HUP pmcd
+$sudo $signal -a -s HUP pmcd
 sleep 5
 
 echo
@@ -250,7 +253,7 @@ if [ $cnt -ne 2 ]
 then
     cat $tmp.pminfo
 fi
-ssh -q pcpqa@$other1 killall pmval > /dev/null 2>&1
+ssh -q pcpqa@$other1 $usersignal -a pmval > /dev/null 2>&1
 echo
 echo "=== pmval output ===" >>$seq.full
 cat $tmp.pmval >>$seq.full
@@ -305,7 +308,7 @@ do
     sleep 1
 done
 $found || cat $tmp.pmstore
-ssh -q pcpqa@$other2 killall pmval > /dev/null 2>&1
+ssh -q pcpqa@$other2 $usersignal -a pmval > /dev/null 2>&1
 echo
 echo "=== pmval output ===" >>$seq.full
 cat $tmp.pmval >>$seq.full

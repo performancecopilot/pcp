@@ -27,12 +27,13 @@ _filter_trace()
 tmp=/tmp/$$
 trap "rm -f $tmp.* /tmp/bogus.* /tmp/fungus.* /tmp/fungus /tmp/bogus; exit 0" 0 1 2 3 15
 here=`pwd`
+sudo=$here/sudo
 
 # real QA test starts here
 echo "For PCP 1.1 Expect cannot open archive error message, and no core file ..."
 echo "For PCP 2.0 -l src-oss/foo.meta is a synonym for -l src-oss/foo, so this works ..."
 
-./sudo rm -f /tmp/bogus.* /tmp/fungus.* /tmp/fungus
+$sudo rm -f /tmp/bogus.* /tmp/fungus.* /tmp/fungus
 touch /tmp/bogus.verylongsuffix /tmp/fungus
 for dir in /etc /sbin /bin /usr/sbin /usr/bin
 do
@@ -50,7 +51,7 @@ do
     else
 	echo "=== $bad: does not exist ==="
     fi
-    ./sudo rm -f core*
+    $sudo rm -f core*
     pmdumplog -D 128 -l $bad 2>$tmp.err >$tmp.out
 
     _filter_pmdumplog <$tmp.out

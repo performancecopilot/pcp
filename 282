@@ -13,7 +13,8 @@ seq=`basename $0`
 
 . ./localconfig
 
-sudo=./sudo
+here=`pwd`
+sudo=$here/sudo
 $sudo rm -f $seq.out
 if [ $PCP_PLATFORM = linux ]
 then
@@ -27,18 +28,10 @@ then
     fi
     PCP_PMLOGGEROPTIONS_PATH=$PCP_VAR_DIR/config/pmcd/pmlogger.options
     SYSPMDA=$PCP_PMDAS_DIR/linux/pmda_linux.so
-elif [ $PCP_PLATFORM = irix ]
+elif [ $PCP_PLATFORM = mingw ]
 then
-    PCP_PMLOGGEROPTIONS_PATH=/etc/config/pmlogger.options
-    SYSPMDA=/usr/pcp/lib/`pmobjstyle`.libirixpmda.so 
-    if [ $PCP_EOE_VER -lt 2100 -o \( $PCP_EOE_VER -ge 6500 -a \
-         $PCP_EOE_VER -le 6501 \) ]
-    then
-        # old version for PCP_EOE 2.0 or PCP_EOE from Irix 6.5 and 6.5.1
-        ln $seq.out.pre-2.1 $seq.out
-    else
-        ln $seq.out.2.1 $seq.out
-    fi
+    echo "Cannot send STOP signal to Win32 process" > $seq.notrun
+    exit 0
 else
     echo "No clue what to do with PCP_PLATFORM=$PCP_PLATFORM!"
     exit 1

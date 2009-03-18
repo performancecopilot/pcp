@@ -22,6 +22,7 @@ tmp=/tmp/$$
 LOCALHOST=`hostname`
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 
 if [ -d $PCP_LOG_DIR/pmlogger ]
 then
@@ -52,8 +53,8 @@ rm -f $seq.full
 # real QA test starts here
 
 # This value is passed to processes this script creates on the command line.
-# It's unlikely to occur anywhere in a ps output and is used as a tag to kill
-# or check for the existence of the processes later.
+# It's unlikely to occur anywhere in a ps output and is used as a tag to
+# terminate or check for the existence of the processes later.
 #
 TAG=000000660066
 
@@ -191,7 +192,7 @@ fi
 
 # Restart pmcd and its agents
 _echo ""
-$sudo killall -HUP pmcd
+$sudo $signal -a -s HUP pmcd
 sleep 1
 _wait_for_pmcd
 if _check_pmcd_procs 1

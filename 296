@@ -19,7 +19,9 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 status=0	# success is the default!
-sudo=./sudo
+here=`pwd`
+sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 LOCALHOST=`hostname`
 _needclean=true
 
@@ -115,7 +117,7 @@ fi
 echo
 echo "unconfigure them all"
 $sudo cp $tmp.minconf $PCP_PMCDCONF_PATH
-$sudo killall -HUP pmcd
+$sudo $signal -a -s HUP pmcd
 sleep 5
 _wait_for_pmcd
 

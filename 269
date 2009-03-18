@@ -20,24 +20,24 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-
 
 rm -f $seq.full
 
 _reset()
 {
-pmstore sample.control -1 > /dev/null
-$sudo killall -HUP pmcd
-_wait_for_pmcd
+    pmstore sample.control -1 > /dev/null
+    $sudo $signal -a -s HUP pmcd
+    _wait_for_pmcd
 }
 
 
 _check_wrap_off()
 {
-tee -a $seq.full |\
-$PCP_AWK_PROG -v expected=$tmp.expected -v debug=$debug -v tolerance=$tolerance  -v num_samples=$num_samples -v mismatch_limit=$mismatch_limit '
+    tee -a $seq.full |\
+    $PCP_AWK_PROG -v expected=$tmp.expected -v debug=$debug -v tolerance=$tolerance  -v num_samples=$num_samples -v mismatch_limit=$mismatch_limit '
     BEGIN {
 	if (debug == "true")
 	    debug=1;
@@ -103,8 +103,8 @@ $PCP_AWK_PROG -v expected=$tmp.expected -v debug=$debug -v tolerance=$tolerance 
 
 _check_wrap_on()
 {
-tee -a $seq.full |\
-$PCP_AWK_PROG -v expected=$tmp.expected -v debug=$debug -v tolerance=$tolerance -v num_samples=$num_samples -v mismatch_limit=$mismatch_limit '
+    tee -a $seq.full |\
+    $PCP_AWK_PROG -v expected=$tmp.expected -v debug=$debug -v tolerance=$tolerance -v num_samples=$num_samples -v mismatch_limit=$mismatch_limit '
     BEGIN {
 	if (debug == "true")
 	    debug=1;

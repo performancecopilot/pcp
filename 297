@@ -20,13 +20,6 @@ else
     exit 0
 fi
 
-echo "QA output created by $seq"
-
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-
 if which pmproxy >/dev/null 2>&1
 then
     :
@@ -36,20 +29,19 @@ else
     exit 0
 fi
 
-. ./localconfig
+echo "QA output created by $seq"
 
-case "$PCP_PLATFORM" in
-irix)
-    PMCDLOG=$PCP_LOG_DIR/pmcd.log
-    ;;
-*)
-    PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
-    ;;
-esac
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
 
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 killpid=""
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
@@ -57,8 +49,8 @@ trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _cleanup()
 {
-    [ -n "$killpid" ] && kill $killpid
-    $sudo killall pmproxy >/dev/null 2>&1
+    [ -n "$killpid" ] && $signal $killpid
+    $sudo $signal -a pmproxy >/dev/null 2>&1
     $sudo /etc/init.d/pmproxy start >/dev/null 2>&1
 }
 
@@ -109,7 +101,7 @@ _filter_pmproxy()
 }
 
 $sudo /etc/init.d/pmproxy stop >/dev/null 2>&1
-$sudo killall pmproxy >/dev/null 2>&1
+$sudo $signal -a pmproxy >/dev/null 2>&1
 
 PMCD_RECONNECT_TIMEOUT=1
 export PMCD_RECONNECT_TIMEOUT
@@ -129,7 +121,7 @@ unset PMPROXY_HOST
 
 sleep 3
 echo "killing pmproxy ..."
-killall pmproxy >/dev/null 2>&1
+$signal -a pmproxy >/dev/null 2>&1
 sleep 2
 echo "1st pmproxy log" >$seq.full
 cat $tmp.log >>$seq.full
@@ -155,8 +147,6 @@ cat $tmp.log >>$seq.full
 echo >>$seq.full
 echo "2nd pmcd log" >>$seq.full
 cat $PMCDLOG >>$seq.full
-
-kill -INT $!
 
 echo >>$seq.full
 echo "pmdumptext output" >>$seq.full

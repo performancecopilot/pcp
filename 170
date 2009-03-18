@@ -14,13 +14,15 @@ echo "QA output created by $seq"
 . ./common.filter
 
 tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
 status=1
 
 _cleanup()
 {
-    [ -f $tmp.save ] && ./sudo mv $tmp.save $PCP_PMCDOPTIONS_PATH
-    ./sudo rm -f $tmp.*
-    ./sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+    [ -f $tmp.save ] && $sudo mv $tmp.save $PCP_PMCDOPTIONS_PATH
+    $sudo rm -f $tmp.*
+    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
     exit $status
@@ -32,7 +34,7 @@ trap _cleanup 0 1 2 3 15
 
 rm -rf $tmp.*
 echo "First, the standard logfile:"
-./sudo $PCP_RC_DIR/pcp start >$tmp.out
+$sudo $PCP_RC_DIR/pcp start >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger
 grep 'logfile is' $tmp.out | _filter_pcp_start
@@ -46,10 +48,10 @@ cat <<End-Of-File >>$tmp.options
 -l $tmp.1.pmcd.log
 -l $tmp.2.pmcd.log
 End-Of-File
-./sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
+$sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
 echo "The logfile from the hacked \$PCP_PMCDOPTIONS_PATH (pmcd.options):"
-./sudo $PCP_RC_DIR/pcp start >$tmp.out
+$sudo $PCP_RC_DIR/pcp start >$tmp.out
 _wait_for_pmcd
 _wait_for_pmlogger
 grep 'logfile is' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start

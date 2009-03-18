@@ -37,6 +37,7 @@ _filter()
 
 tmp=/tmp/$$
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -84,7 +85,7 @@ x=`pmdumplog $tmp | _filter`
 if [ -z "$x" ]
 then
     echo "Error: pmdumplog | filter produces nothing"
-    kill -INT $pid
+    $signal -s TERM $pid
     pmdumplog -a $tmp
 else
     echo "$x"
@@ -104,7 +105,7 @@ log advisory on once { proc.psinfo.ppid[$inst] }
 end-of-file
 
 cat <<end-of-file >$tmp.cmd
-. /etc/pcp.env
+. \$PCP_DIR/etc/pcp.env
 rm -f /tmp/\$\$.*
 ( \$PCP_BINADM_DIR/pmlogger -L -s 1 -c /dev/null -l /tmp/\$\$.log /tmp/\$\$ </dev/null >/dev/null 2>&1 ) &
 echo rem_pid=\$! rem_tmp=\$\$
@@ -137,7 +138,7 @@ x=`pmdumplog $tmp | _filter`
 if [ -z "$x" ]
 then
     echo "Error: pmdumplog | filter produces nothing"
-    kill -INT $pid
+    $signal -s TERM $pid
     pmdumplog -a $tmp
 else
     echo "$x"
@@ -193,7 +194,7 @@ x=`pmdumplog $tmp | _filter`
 if [ -z "$x" ]
 then
     echo "Error: pmdumplog | filter produces nothing"
-    kill -INT $pid
+    $signal -s TERM $pid
     pmdumplog -a $tmp
 else
     echo "$x"

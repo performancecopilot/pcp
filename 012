@@ -20,7 +20,8 @@ rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
 tmp=/tmp/$$
 trap "cd /; rm -rf $tmp $tmp.*; exit" 0 1 2 3 15
 here=`pwd`
-./sudo rm -f $tmp
+sudo=$here/sudo
+$sudo rm -f $tmp
 mkdir $tmp
 cd $tmp
 
@@ -28,7 +29,7 @@ _doit()
 {
     echo
     echo "--- fd=$fd ---"
-    $here/sudo rm -f /tmp/chk.fout
+    $sudo rm -f /tmp/chk.fout
     $here/src-oss/chkopenlog $fd tmp.log >$tmp.1 2>$tmp.2
     echo "stdout:" ; sed -f $tmp.sed $tmp.1
     echo "stderr:" ; sed -f $tmp.sed $tmp.2

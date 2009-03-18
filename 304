@@ -17,6 +17,7 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 LOCALHOST=`hostname`
@@ -40,7 +41,7 @@ _do()
 	    echo "- Error: pmlogger is still running, kill it off"
 	    echo "-----------------"
 	fi
-	kill -INT $!
+	$signal -s TERM $!
 	sleep 2
     else
 	if [ $1 = "alive" ]

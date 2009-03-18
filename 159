@@ -34,7 +34,10 @@ echo "QA output created by $seq"
 . ./common.filter
 
 status=1
+here=`pwd`
 tmp=/tmp/$$
+sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 trap _cleanup 0 1 2 3 15
 
 _cleanup()
@@ -59,7 +62,7 @@ _cleanup_agent()
     fi
 
     [ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-    $here/sudo killall -HUP pmcd
+    $sudo $signal -a -s HUP pmcd
 
     cd $here
 }
@@ -82,7 +85,6 @@ s/ [0-9][0-9]* values/ SOME values/
 }
 
 # real QA test starts here
-here=`pwd`
 home=$PCP_PMDAS_DIR
 iam=cisco
 configdir=$PCP_VAR_DIR/config/$iam
@@ -98,7 +100,7 @@ unset ROOT
 
 if [ -f Makefile ]
 then
-    if $here/sudo make clobber 2>&1 >$tmp.out
+    if $sudo make clobber 2>&1 >$tmp.out
     then
 	:
     else
@@ -112,13 +114,13 @@ fi
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
 # copy the agent config file to restore state later
-[ -f $configfile ] && $here/sudo mv $configfile $tmp_configfile
+[ -f $configfile ] && $sudo mv $configfile $tmp_configfile
 
 echo
 echo "=== remove agent ==="
 pmpost "start watching for qa/159"
 pmstore pmcd.control.tracenobuf 1>/dev/null 2>&1
-$here/sudo ./Remove \
+$sudo ./Remove \
 | sed -e 's/not found in Name Space, this is OK/done/'
 
 if pminfo -v cisco
@@ -164,13 +166,13 @@ End-of-File
 
 echo
 echo "=== install agent ==="
-$here/sudo ./Install <$tmp.in >$tmp.out 2>&1
+$sudo ./Install <$tmp.in >$tmp.out 2>&1
 _filter_ins <$tmp.out
 pminfo -v `pminfo cisco | grep -v bytes_out_bcast` || echo "... failed!"
 
 echo
 echo "=== re-install agent ==="
-$here/sudo ./Install <$tmp.in >$tmp.out 2>&1
+$sudo ./Install <$tmp.in >$tmp.out 2>&1
 _filter_ins <$tmp.out
 pminfo -v `pminfo cisco | grep -v bytes_out_bcast` || echo "... failed!"
 

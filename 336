@@ -20,6 +20,7 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 LOCALHOST=`hostname`
 _needclean=true
@@ -84,7 +85,7 @@ echo "=== Checking pmtrace without a PMDA listening ==="
 cd $PCP_PMDAS_DIR/trace
 $sudo ./Remove >/dev/null 2>&1
 # use a bigger hammer
-$sudo killall pmdatrace > /dev/null 2>&1
+$sudo $signal -a -s KILL pmdatrace > /dev/null 2>&1
 
 # Should produce a PMDA connect error ...
 pmtrace -h $LOCALHOST -q -v 1.1 foo

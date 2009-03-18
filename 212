@@ -27,6 +27,7 @@ status=0
 _needclean=true
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 trap "_cleanup" 0 1 2 3 15
 
 _cleanup()
@@ -82,11 +83,11 @@ do
 	ps $PCP_PS_ALL_FLAGS | grep pmdacisco
 	exit
     fi
-    ./sudo kill -INT $pid
+    $sudo $signal -s TERM $pid
     sleep 5
     [ "`echo core*`" != "core*" ] && _cleanup
     echo "Restart with SIGHUP"
-    ./sudo killall -HUP pmcd
+    $sudo $signal -a -s HUP pmcd
     sleep 5
 done
 
@@ -116,11 +117,11 @@ END	{ for (p in pid) {
 	ps $PCP_PS_ALL_FLAGS | grep pmdacisco
 	exit
     fi
-    $sudo kill -INT $pid
+    $sudo $signal -s TERM $pid
     sleep 5
     [ "`echo $PMCD_LOG_DIR/core*`" != "$PMCD_LOG_DIR/core*" ] && _cleanup
     echo "Restart with SIGHUP"
-    $sudo killall -HUP pmcd
+    $sudo $signal -a -s HUP pmcd
     sleep 5
 done
 
@@ -166,7 +167,7 @@ w!
 q
 End-of-File
     rm -f $PMCD_LOG_DIR/core*
-    $sudo killall -HUP pmcd
+    $sudo $signal -a -s HUP pmcd
     [ "`echo $PMCD_LOG_DIR/core*`" != "$PMCD_LOG_DIR/core*" ] && _cleanup
 done
 

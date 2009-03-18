@@ -18,6 +18,7 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -fr $tmp.* /tmp/$seq; exit \$status" 0 1 2 3 15
 
@@ -41,7 +42,7 @@ echo "=== pmie control ===" >>$seq.full
 cat $tmp.control >>$seq.full
 
 # real QA test starts here
-$sudo killall -TERM pmie 2>/dev/null
+$sudo $signal -a -s TERM pmie 2>/dev/null
 rm -fr /tmp/$seq && mkdir /tmp/$seq || exit 1
 pmstore simple.numfetch 0 >/dev/null
 

@@ -20,6 +20,7 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1
 LOCALHOST=`hostname`
 _needclean=true
@@ -107,7 +108,7 @@ else
 echo
 fi
 
-killall app2 2>&1 >/dev/null
+$signal -a -s KILL app2 2>&1 >/dev/null
 
 # xcheck observe problem where value of second observation of same tag
 # gives first calls value.

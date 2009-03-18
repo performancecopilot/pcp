@@ -36,15 +36,16 @@ echo "QA output created by $seq"
 . ./common.filter
 
 tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1
-
-unset ROOT TOOLROOT
 
 PMDA_LOG_PATH=`echo $PCP_PMCDLOG_PATH | sed -e 's/pmcd.log/simple.log/'`
 
 _cleanup()
 {
-	[ -f $tmp.conf.bak ] && $here/sudo cp $tmp.conf.bak $home/$iam/$iam.conf
+	[ -f $tmp.conf.bak ] && $sudo cp $tmp.conf.bak $home/$iam/$iam.conf
 	if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
 	then
 	    :
@@ -52,7 +53,7 @@ _cleanup()
 
 # do a default install which ensures the pmns and any views are installed
 
-	    $here/sudo ./Install < /dev/null > /dev/null 2>&1
+	    $sudo ./Install < /dev/null > /dev/null 2>&1
 
 # PMDA may have been installed differently to default. As everything is
 # installed we can use the old pmcd.conf file to restore state.
@@ -61,11 +62,11 @@ _cleanup()
 	    then
 		:
 	    else
-	    	[ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-		$here/sudo killall -HUP pmcd
+	    	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+		$sudo $signal -a -s HUP pmcd
 	    fi
 	fi
-	$here/sudo rm -f $tmp.*
+	$sudo rm -f $tmp.*
 	exit $status
 }
 
@@ -118,7 +119,6 @@ _full()
 rm -f $seq.full
 
 # real QA test starts here
-here=`pwd`
 home=$PCP_PMDAS_DIR
 iam=simple
 if [ ! -d $home/$iam ]
@@ -132,7 +132,7 @@ unset ROOT
 # copy the pmcd config file to restore state later.
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
-if $here/sudo make clobber >$tmp.out 2>&1
+if $sudo make clobber >$tmp.out 2>&1
 then
     :
 else
@@ -142,15 +142,15 @@ else
 fi
 
 # start from a known starting point
-$here/sudo ./Remove >/dev/null 2>&1
+$sudo ./Remove >/dev/null 2>&1
 
 echo
 echo "=== pipe daemon agent ==="
 echo "=== pipe daemon agent ===" >>$here/$seq.full
-$here/sudo ./Remove >$tmp.out 2>&1
+$sudo ./Remove >$tmp.out 2>&1
 echo 'both
 daemon
-pipe' | $here/sudo ./Install >>$tmp.out 2>&1
+pipe' | $sudo ./Install >>$tmp.out 2>&1
 _full
 
 _filter <$tmp.out
@@ -165,17 +165,17 @@ fi
 echo
 echo "=== Unix socket daemon agent ==="
 echo "=== Unix socket daemon agent ===" >>$here/$seq.full
-$here/sudo ./Remove >$tmp.out 2>&1
+$sudo ./Remove >$tmp.out 2>&1
 echo 'both
 daemon
 socket
 Unix
-'"$tmp.fifo-1" | $here/sudo ./Install >>$tmp.out 2>&1
+'"$tmp.fifo-1" | $sudo ./Install >>$tmp.out 2>&1
 echo 'both
 daemon
 socket
 Unix
-'"$tmp.fifo-2" | $here/sudo ./Install >>$tmp.out 2>&1
+'"$tmp.fifo-2" | $sudo ./Install >>$tmp.out 2>&1
 _full
 
 _filter <$tmp.out
@@ -190,7 +190,7 @@ fi
 echo
 echo "=== Internet socket daemon agent ==="
 echo "=== Internet socket daemon agent ===" >>$here/$seq.full
-$here/sudo ./Remove >$tmp.out 2>&1
+$sudo ./Remove >$tmp.out 2>&1
 
 # pick a tcp port that is not in use
 #
@@ -205,7 +205,7 @@ echo 'both
 daemon
 socket
 Internet
-'$port | $here/sudo ./Install >>$tmp.out 2>&1
+'$port | $sudo ./Install >>$tmp.out 2>&1
 
 # use next port this time
 port=`expr $port + 1`
@@ -214,7 +214,7 @@ echo 'both
 daemon
 socket
 Internet
-'$port | $here/sudo ./Install >>$tmp.out 2>&1
+'$port | $sudo ./Install >>$tmp.out 2>&1
 _full
 
 _filter <$tmp.out
@@ -229,11 +229,11 @@ fi
 echo
 echo "=== dso agent ==="
 echo "=== dso agent ===" >>$here/$seq.full
-$here/sudo ./Remove >$tmp.out 2>&1
+$sudo ./Remove >$tmp.out 2>&1
 echo 'both
-dso' | $here/sudo ./Install >>$tmp.out 2>&1
+dso' | $sudo ./Install >>$tmp.out 2>&1
 echo 'both
-dso' | $here/sudo ./Install >>$tmp.out 2>&1
+dso' | $sudo ./Install >>$tmp.out 2>&1
 _full
 
 _filter <$tmp.out
@@ -245,7 +245,7 @@ else
     _failed
 fi
 
-$here/sudo ./Remove >$tmp.out 2>&1
+$sudo ./Remove >$tmp.out 2>&1
 _filter <$tmp.out
 
 status=0

@@ -19,8 +19,9 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
-trap "cd /; rm -rf $tmp; killall -INT pmlogger >/dev/null 2>&1; exit \$status" 0 1 2 3 15
+trap "cd /; rm -rf $tmp; $signal -a -s TERM pmlogger >/dev/null 2>&1; exit \$status" 0 1 2 3 15
 
 mkdir $tmp
 cd $tmp
@@ -95,7 +96,7 @@ p
 
 done
 
-kill -INT $pmlogger_pid
+$signal -s TERM $pmlogger_pid
 sleep 2
 
 echo

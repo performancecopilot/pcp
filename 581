@@ -19,6 +19,7 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 control=$PCP_PMDAS_DIR/sample/dynamic.indom
 needclean=true
@@ -164,7 +165,7 @@ pminfo -f sample.dynamic.instant |_filter
 echo
 
 sleep $sleep_stop
-kill -INT $pid_pmie
+$signal -s TERM $pid_pmie
 wait
 
 cp $tmp.out $seq.full
@@ -174,7 +175,7 @@ echo "Expect only connection lost/re-established and DYN_* lines ..."
 echo
 
 # in addition to the regular filtering, some versions of Linux return
-# ECONNRESET on the write() when pmcd is killed, rather than waiting
+# ECONNRESET on the write() when pmcd is signald, rather than waiting
 # to return the error on the following read() ... as far as this test
 # is concerned, these are synonyms
 #

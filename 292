@@ -27,8 +27,9 @@ _filter()
 
 tmp=/tmp/$$
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
-trap "killall -INT pmlogger >/dev/null 2>&1; cd; rm -rf $tmp; exit \$status" 0 1 2 3 15
+trap "$signal -a -s TERM pmlogger >/dev/null 2>&1; cd; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 here=`pwd`
 rm -rf $tmp
@@ -49,10 +50,10 @@ pmlogger_check -V -c control >pmcheck.log 2>&1
 for i in 1 2 3 4
 do
     echo "kill and restart pmlogger ..."
-    $sudo killall -INT pmlogger
+    $sudo $signal -a -s TERM pmlogger
     pmlogger_check -V -c control >>pmcheck.log 2>&1
 done
-$sudo killall -INT pmlogger
+$sudo $signal -a -s TERM pmlogger
 
 echo
 echo "Checking ..."

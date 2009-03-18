@@ -17,11 +17,14 @@ echo "QA output created by $seq"
 . ./common.filter
 
 tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1
 
 _cleanup()
 {
-    [ -f $tmp.shping.conf ] && $here/sudo mv $tmp.shping.conf $PCP_VAR_DIR/config/shping/shping.conf
+    [ -f $tmp.shping.conf ] && $sudo mv $tmp.shping.conf $PCP_VAR_DIR/config/shping/shping.conf
 
     if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
     then
@@ -29,7 +32,7 @@ _cleanup()
     else
 # do a default install which ensures the pmns and any views are installed
 
-	$here/sudo ./Install < /dev/null > /dev/null 2>&1
+	$sudo ./Install < /dev/null > /dev/null 2>&1
 
 # PMDA may have been installed differently to default. As everything is
 # installed we can use the old pmcd.conf file to restore state.
@@ -38,8 +41,8 @@ _cleanup()
 	then
 	    :
 	else
-	    [ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	    $here/sudo killall -HUP pmcd
+	    [ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    $sudo $signal -a -s HUP pmcd
 	fi
     fi
     rm -f $tmp.*
@@ -71,7 +74,6 @@ _filter_info()
 }
 
 # real QA test starts here
-here=`pwd`
 home=$PCP_PMDAS_DIR
 iam=shping
 if [ ! -d $home/$iam ]
@@ -86,8 +88,8 @@ unset ROOT
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
 # start from a known starting point
-$here/sudo ./Remove >/dev/null 2>&1
-[ -f $PCP_VAR_DIR/config/$iam/$iam.conf ] && $here/sudo mv $PCP_VAR_DIR/config/$iam/$iam.conf $tmp.$iam.conf
+$sudo ./Remove >/dev/null 2>&1
+[ -f $PCP_VAR_DIR/config/$iam/$iam.conf ] && $sudo mv $PCP_VAR_DIR/config/$iam/$iam.conf $tmp.$iam.conf
 
 echo
 echo "=== install $iam agent ==="
@@ -100,7 +102,7 @@ timeout sleep 10
 
 60
 6' \
-| $here/sudo ./Install >$tmp.out 2>&1
+| $sudo ./Install >$tmp.out 2>&1
 
 _filter <$tmp.out
 
@@ -123,7 +125,7 @@ pminfo -f shping.time.real shping.time.cpu_usr shping.time.cpu_sys 2>&1 \
 
 echo
 echo "=== remove $iam agent ==="
-$here/sudo ./Remove >$tmp.out 2>&1
+$sudo ./Remove >$tmp.out 2>&1
 _filter <$tmp.out
 
 status=0

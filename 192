@@ -14,7 +14,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-sudo=./sudo
+here=`pwd`
+sudo=$here/sudo
 LOCALHOST=`hostname`
 _needclean=true
 status=0

@@ -17,7 +17,6 @@ echo "QA output created by $seq"
 . ./common.filter
 
 tmp=/tmp/$$
-sudo=./sudo
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # get standard filters

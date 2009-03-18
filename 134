@@ -16,6 +16,7 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
 
 # get standard filters
 . ./common.filter
@@ -183,7 +184,7 @@ LC_TIME=POSIX ls -l $tmp.? | tee -a $seq.full | _do_ls
 pmdumplog -lt $tmp | tee -a $seq.full | _do_time
 pmdumplog $tmp | tee -a $seq.full | _do_metrics
 
-kill -INT $pid
+$signal -s TERM $pid
 wait
 
 echo

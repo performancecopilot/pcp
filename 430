@@ -32,8 +32,9 @@ fi
 #  assumed that no $seq.out file exists already
 
 tmp=/tmp/$$
-sudo=`pwd`/sudo
 here=`pwd`
+sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 LOCALHOST=`hostname | sed -e 's/\..*//'`
 hostsfile="/etc/hosts"
@@ -54,9 +55,9 @@ _filter()
 	| _filter_cron_scripts
 }
 
-_kill_loggers()
+_stop_loggers()
 {
-    $sudo killall -INT pmlogger >/dev/null 2>&1
+    $sudo $signal -a -s TERM pmlogger >/dev/null 2>&1
 }
 
 _cleanup()
@@ -69,7 +70,7 @@ _cleanup()
        $sudo cp $tmp.etc.hosts.orig $hostsfile
     fi
 
-    _kill_loggers
+    _stop_loggers
 
     cd # get out of tmp directory so we can delete it
     $sudo rm -rf $tmp
@@ -80,7 +81,7 @@ _cleanup()
 
 _setup()
 {
-    _kill_loggers
+    _stop_loggers
     cd
     rm -rf $logdir
     rm -rf $logdir2
@@ -239,7 +240,7 @@ done
 echo
 echo "Restart tests while other pmloggers are running ..."
 
-# now for the 5. case, kill off the pmloggers one at a time and
+# now for the 5. case, terminate the pmloggers one at a time and
 # check the pmlogger_check restarts the right one
 #
 for log in $logdir.1 $logdir.2 $logdir.3 $logdir.4 $logdir.5 $logdir.6
@@ -247,7 +248,7 @@ do
     echo
     echo "Kill off one pmlogger ..."
     pid=`grep -l $log $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
-    kill -INT $pid
+    $signal -s TERM $pid
     echo "Check ..."
     $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control 2>&1 \
     | sed -e '/^... try /d' \

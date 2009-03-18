@@ -68,7 +68,7 @@ _cleanup()
     then
 	if [ ! -z "$pid" ]
 	then
-	    kill -INT $pid
+	    $signal -s TERM $pid
 	    sleep 1
 	    pid=''
 	fi
@@ -87,6 +87,7 @@ _cleanup()
 tmp=/tmp/$$
 need_clean=true
 sudo=`pwd`/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -133,10 +134,10 @@ _speak_to_me @$myhost "port $port"
 
 _speak_to_me @$rem_host $rem_pid
 
-# make sure the primary logger is killed off and stop pmcd
+# make sure the primary logger is terminated and stop pmcd
 #
 prim_pid=`ps $PCP_PS_ALL_FLAGS | grep pmlogger | grep ' -P' | $PCP_AWK_PROG '{ print $2 }'`
-[ ! -z "$prim_pid" ] && $sudo kill -INT $prim_pid
+[ ! -z "$prim_pid" ] && $sudo $signal -s TERM $prim_pid
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 
 echo

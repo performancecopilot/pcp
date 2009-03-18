@@ -14,8 +14,6 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. /etc/pcp.env
-
 . ./common.product
 . ./common.filter
 . ./common.check
@@ -23,6 +21,7 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -44,7 +43,7 @@ sleep 3
 $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 pmcd_wait
 sleep 10
-kill -INT $!
+$signal -s TERM $!
 
 _filter_pmie_log <$tmp.log \
 | sed -e "s/$HOST/HOST/g" > $tmp.flog

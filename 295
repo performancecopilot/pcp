@@ -2,7 +2,7 @@
 # PCP QA Test No. 295
 # $Revision: 1.7 $
 #
-# verify pmproxy cleans up correctly when clients are killed
+# verify pmproxy cleans up correctly when clients are terminated
 #
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
 
@@ -29,13 +29,14 @@ fi
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
+signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _cleanup()
 {
-    $sudo killall pmproxy >/dev/null 2>&1
+    $sudo $signal -a pmproxy >/dev/null 2>&1
     $sudo /etc/init.d/pmproxy start >/dev/null 2>&1
 }
 
@@ -51,7 +52,7 @@ _check()
 }
 
 $sudo /etc/init.d/pmproxy stop >/dev/null 2>&1
-$sudo killall pmproxy >/dev/null 2>&1
+$sudo $signal -a pmproxy >/dev/null 2>&1
 
 pmproxy -Dcontext -l $tmp.log 2>&1 | _filter_pmproxy
 
@@ -76,7 +77,7 @@ for pid in $pidlist
 do
     echo
     echo "kill off a client ..."
-    kill -KILL $pid
+    $signal -s KILL $pid
     sleep 1
     _check
 done

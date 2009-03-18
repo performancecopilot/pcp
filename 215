@@ -37,11 +37,12 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 status=0
+signal=$PCP_BINADM_DIR/pmsignal
 trap "_interrupt; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _interrupt()
 {
-    [ "X$KILLER" != "X" ] && kill -INT $KILLER
+    [ "X$KILLER" != "X" ] && $signal -s TERM $KILLER
 }
 
 _filter()
@@ -121,7 +122,7 @@ do
 done
 
 
-kill -INT $KILLER
+$signal -s TERM $KILLER
 sleep 2
 KILLER=
 
