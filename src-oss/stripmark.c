@@ -11,6 +11,7 @@
  * filter to copy archive.0 and strip mark records
  */
 
+int
 main(int argc, char *argv[])
 {
     int		*len;
@@ -44,7 +45,7 @@ main(int argc, char *argv[])
 		fprintf(stderr, "read error: %s\n", strerror(errno));
 	    else
 		fprintf(stderr, "read error: expected %d bytes, got %d\n",
-			sizeof(*len), nb);
+			(int)sizeof(*len), nb);
 	    exit(1);
 	}
 	if (htonl(*len) > buflen) {
@@ -59,13 +60,13 @@ main(int argc, char *argv[])
 		fprintf(stderr, "read error: %s\n", strerror(errno));
 	    else
 		fprintf(stderr, "read error: expected %d bytes, got %d\n",
-			htonl(*len)-sizeof(*len), nb);
+			(int)(htonl(*len)-sizeof(*len)), nb);
 	    exit(1);
 	}
 	if (htonl(*len) > sizeof(__pmPDUHdr) - sizeof(*len) + sizeof(__pmTimeval) + sizeof(int))
 	    write(out, buf, htonl(*len));
 	else
-	    fprintf(stderr, "Skip mark @ byte %d into input\n", (int)lseek(in, 0, SEEK_CUR) - sizeof(*len));
+	    fprintf(stderr, "Skip mark @ byte %d into input\n", (int)(lseek(in, 0, SEEK_CUR) - sizeof(*len)));
     }
     return 0;
 }

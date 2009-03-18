@@ -309,7 +309,7 @@ Options\n\
 	putchar(' ');
 	if (result->numpmid != N_PMID_A) {
 	    printf("Error: expected %d (got %d) value sets\n",
-		N_PMID_A, result->numpmid);
+		(int)(N_PMID_A), (int)result->numpmid);
 	    status = 1;
 	}
 	else {
@@ -351,7 +351,7 @@ Options\n\
 	putchar(' ');
 	if (result->numpmid != N_PMID_B) {
 	    printf("Error: expected %d (got %d) value sets\n",
-		N_PMID_B, result->numpmid);
+		(int)(N_PMID_B), result->numpmid);
 	    status = 1;
 	}
 	else {
@@ -394,7 +394,7 @@ Options\n\
 	putchar(' ');
 	if (result->numpmid != N_PMID_C) {
 	    printf("Error: expected %d (got %d) value sets\n",
-		N_PMID_C, result->numpmid);
+		(int)(N_PMID_C), result->numpmid);
 	    status = 1;
 	}
 	else {

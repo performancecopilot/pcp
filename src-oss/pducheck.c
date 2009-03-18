@@ -345,7 +345,7 @@ _z(int mode)
 		    memcpy(&xav.ull, xvbp->vbuf, sizeof(__uint64_t));
 		    if (gav.ull != xav.ull)
 			fprintf(stderr, "Botch: Result: vset[%d][%d].value.pval->ull: got %lld expect %lld\n",
-			    i, j, gav.ull, xav.ull);
+			    i, j, (long long)gav.ull, (long long)xav.ull);
 		    break;
 		case PM_TYPE_FLOAT:
 		    memcpy(&gav.f, gvbp->vbuf, sizeof(float));

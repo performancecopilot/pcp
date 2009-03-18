@@ -28,7 +28,6 @@ main(int argc, char **argv)
     int		numinst;
     int		c;
     int		sts;
-    char	*p;
     int		errflag = 0;
 
     __pmSetProgname(argv[0]);

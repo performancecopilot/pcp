@@ -129,7 +129,7 @@ main(int argc, char **argv)
 	    __pmProcessDataSize(&memusage);
 	    if (memusage - first_memusage > 0) {
 		if (i > 1)
-		    printf("iteration %d: leaked %d bytes\n", i,
+		    printf("iteration %d: leaked %lu bytes\n", i,
 			   memusage - last_memusage);
 		last_memusage = memusage;
 	    }

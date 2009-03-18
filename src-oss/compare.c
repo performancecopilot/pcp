@@ -20,7 +20,6 @@ main(int argc, char *argv[])
     int		c;
     int		err = 0;
     int		nArgs;
-    char	*p;
 
     __pmSetProgname(argv[0]);
 

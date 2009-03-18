@@ -24,10 +24,10 @@ _y(pmAtomValue *ap, int type)
 	    printf("%u", ap->ul);
 	    break;
 	case PM_TYPE_64:
-	    printf("%lld", ap->ll);
+	    printf("%lld", (long long)ap->ll);
 	    break;
 	case PM_TYPE_U64:
-	    printf("%llu", ap->ull);
+	    printf("%llu", (unsigned long long)ap->ull);
 	    break;
 	case PM_TYPE_FLOAT:
 	    printf("%e", (double)ap->f);
@@ -46,7 +46,8 @@ _y(pmAtomValue *ap, int type)
 	    if (lp == (long *)0)
 		printf("(void *)0");
 	    else
-		printf("%08x %08x %08x", lp[0], lp[1], lp[2]);
+		printf("%08x %08x %08x",
+			(unsigned)lp[0], (unsigned)lp[1], (unsigned)lp[2]);
 	    break;
     }
 }

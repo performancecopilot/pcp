@@ -1,7 +1,6 @@
-#include <stdio.h>
-#include <sys/time.h>
 #include <pcp/pmapi.h>
 
+int
 main(int argc, char *argv[])
 {
     int			sts;
@@ -16,7 +15,8 @@ main(int argc, char *argv[])
 	    free(err);
 	}
 	else if (sts == 0) {
-	    printf(" Time: %d.%06d sec\n", time.tv_sec, time.tv_usec);
+	    printf(" Time: %ld.%06ld sec\n",
+			(long)time.tv_sec, (long)time.tv_usec);
 	}
 	else {
 	    printf(" Bogus return value: %d\n", sts);
@@ -25,5 +25,5 @@ main(int argc, char *argv[])
 	argv++;
     }
 
-    exit(0);
+    return 0;
 }

@@ -29,7 +29,7 @@ printstamp(struct timeval *tp)
     static struct tm    tmp;
 
     pmLocaltime(&tp->tv_sec, &tmp);
-    printf("%02d:%02d:%02d.%03d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tp->tv_usec/1000);
+    printf("%02d:%02d:%02d.%03d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)(tp->tv_usec/1000));
 }
 
 
@@ -295,7 +295,7 @@ Options\n\
 	putchar(' ');
 	if (result->numpmid != N_PMID_A || result->vset[0]->numval != 1) {
 	    printf("expected %d (got %d) value sets, with one value in the first.\n",
-	    N_PMID_A, result->numpmid);
+	    (int)(N_PMID_A), result->numpmid);
 	    status = 1;
 	}
 	else {
@@ -332,7 +332,7 @@ Options\n\
 	putchar(' ');
 	if (result->numpmid != N_PMID_B || result->vset[0]->numval != 1) {
 	    printf("expected %d (got %d) value sets, with 1 (got %d) value in the first.\n",
-	    N_PMID_B, result->numpmid, result->vset[0]->numval);
+	    (int)(N_PMID_B), result->numpmid, result->vset[0]->numval);
 	    status = 1;
 	}
 	else {

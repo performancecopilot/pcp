@@ -21,6 +21,7 @@
 
 static char	*sfx[] = { "0", "index", "meta" };
 
+int
 main(int argc, char **argv)
 {
     int		c;
@@ -130,10 +131,10 @@ main(int argc, char **argv)
     end = sbrk(0);
 
     if (end - start > 16*1024) {
-	printf("Memory leak? after first pass, %d bytes per archive open-close\n",
-	    (end - start) / numopen);
-	printf("start: " PRINTF_P_PFX "%p end: " PRINTF_P_PFX "%p diff: %d numopen: %d\n", start, end,
-		end - start, numopen);
+	printf("Memory leak? after first pass, %ld bytes per archive open-close\n",
+	    (long)((end - start) / numopen));
+	printf("start: " PRINTF_P_PFX "%p end: " PRINTF_P_PFX "%p diff: %ld numopen: %d\n", start, end,
+		(long)(end - start), numopen);
     }
     
     return 0;

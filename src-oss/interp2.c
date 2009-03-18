@@ -30,7 +30,7 @@ printstamp(struct timeval *tp)
     static struct tm	*tmp;
 
     tmp = localtime(&tp->tv_sec);
-    printf("%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, tp->tv_usec/1000);
+    printf("%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)(tp->tv_usec/1000));
 }
 
 int

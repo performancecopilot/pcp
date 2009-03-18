@@ -52,7 +52,7 @@ main(int argc, char* argv[])
 
     for (i = 0; i < nfiles; i++) {
 	sprintf(extptr, "%04d", i);
-	if (sts = creat(namebuf, 0777) < 0) {
+	if ((sts = creat(namebuf, 0777)) < 0) {
 	    fprintf(stderr, "Error creating %s: %s\n", namebuf, strerror(errno));
 	    exit(1);
 	}

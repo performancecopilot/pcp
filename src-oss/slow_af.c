@@ -31,7 +31,7 @@ onevent(int afid, void *data)
     gettimeofday(&now, NULL);
 
     if (pmDebug & DBG_TRACE_AF) {
-	fprintf(stderr, "onevent(0x%x, 0x%x) called: ", afid, data);
+	fprintf(stderr, "onevent(0x%x, 0x%lx) called: ", afid, (unsigned long)data);
 	printstamp(&now);
 	fputc('\n', stderr);
     }

@@ -459,8 +459,8 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		foo.tv_usec = lsp->ls_timenow.tv_usec;
 		__pmPrintStamp(stderr, &foo);
 		fprintf(stderr, "\nstate=%d vol=%d size=%lld host=%s tz=\"%s\" tzlogger=\"%s\"\n",
-		    lsp->ls_state, lsp->ls_vol, lsp->ls_size, lsp->ls_hostname,
-		    lsp->ls_tz, lsp->ls_tzlogger);
+		    lsp->ls_state, lsp->ls_vol, (long long)lsp->ls_size,
+		    lsp->ls_hostname, lsp->ls_tz, lsp->ls_tzlogger);
 	    }
 #endif
 	    e = __pmSendLogStatus(fd, lsp);

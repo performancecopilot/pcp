@@ -175,14 +175,16 @@ main(int argc, char **argv)
 	for (i = 0; i < sizeof(pmLogLabel); i++) {
 	    if (*p++ != *q++) {
 		printf("Error: pmLogLabel mismatch\n");
-		printf("First context: magic=0x%x pid=%d start=%d.%06d\n",
+		printf("First context: magic=0x%x pid=%d start=%ld.%06ld\n",
 			loglabel.ll_magic, loglabel.ll_pid,
-			loglabel.ll_start.tv_sec, loglabel.ll_start.tv_usec);
+			(long)loglabel.ll_start.tv_sec,
+			(long)loglabel.ll_start.tv_usec);
 		printf("host=%s TZ=%s\n", loglabel.ll_hostname, loglabel.ll_tz);
 		printf("Error: pmLogLabel mismatch\n");
-		printf("Dup context: magic=0x%x pid=%d start=%d.%06d\n",
+		printf("Dup context: magic=0x%x pid=%d start=%ld.%06ld\n",
 			duplabel.ll_magic, duplabel.ll_pid,
-			duplabel.ll_start.tv_sec, duplabel.ll_start.tv_usec);
+			(long)duplabel.ll_start.tv_sec,
+			(long)duplabel.ll_start.tv_usec);
 		printf("host=%s TZ=%s\n", duplabel.ll_hostname, duplabel.ll_tz);
 		break;
 	    }

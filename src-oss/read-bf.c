@@ -31,7 +31,7 @@ main(int argc, char *argv[])
     __uint32_t	*ip;
     int		i;
 
-    fprintf(stderr, "sizeof(bits_t): %d\n", sizeof(bits_t));
+    fprintf(stderr, "sizeof(bits_t): %d\n", (int)sizeof(bits_t));
 
     if (strcmp(basename(argv[0]), "read-bf") == 0) {
 	read(0, &extbits, sizeof(ext_bits_t));

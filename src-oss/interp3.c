@@ -25,9 +25,9 @@ cmpres(int n, pmResult *e, pmResult *g)
 
     if (e->timestamp.tv_sec != g->timestamp.tv_sec ||
 	e->timestamp.tv_usec != g->timestamp.tv_usec) {
-	printf("[sample %d] pmResult.timestamp: expected %d.%06d, got %d.%06d\n",
-	    n, e->timestamp.tv_sec, e->timestamp.tv_usec,
-	    g->timestamp.tv_sec, g->timestamp.tv_usec);
+	printf("[sample %d] pmResult.timestamp: expected %ld.%06ld, got %ld.%06ld\n",
+	    n, (long)e->timestamp.tv_sec, (long)e->timestamp.tv_usec,
+	    (long)g->timestamp.tv_sec, (long)g->timestamp.tv_usec);
 	goto FAILED;
     }
     if (e->numpmid != g->numpmid) {
@@ -38,9 +38,9 @@ cmpres(int n, pmResult *e, pmResult *g)
 
     for (i = 0; i < e->numpmid; i++) {
 	if (e->vset[i]->pmid != g->vset[i]->pmid) {
-	    printf("[sample %d] pmResult.vset[%d].pmid: expected %d",
+	    printf("[sample %d] pmResult.vset[%d].pmid: expected %s",
 	    n, i, pmIDStr(e->vset[i]->pmid));
-	    printf(" got %d\n", pmIDStr(g->vset[i]->pmid));
+	    printf(" got %s\n", pmIDStr(g->vset[i]->pmid));
 	    err++;
 	}
 	if (e->vset[i]->numval != g->vset[i]->numval) {

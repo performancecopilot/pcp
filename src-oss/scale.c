@@ -104,9 +104,9 @@ main(int argc, char **argv)
 		    else {
 			if (vflag) {
 			    u = pmUnitsStr(&iu);
-			    printf("%lld %s", iv.ll, *u == '\0' ? "none" : u);
+			    printf("%lld %s", (long long)iv.ll, *u == '\0' ? "none" : u);
 			    u = pmUnitsStr(&ou);
-			    printf(" -> %lld %s\n", ov.ll, *u == '\0' ? "none" : u);
+			    printf(" -> %lld %s\n", (long long)ov.ll, *u == '\0' ? "none" : u);
 			}
 			if ((sts = pmConvScale(PM_TYPE_64, &ov, &ou, &tv, &iu)) < 0) {
 			    printf("reconvert: %s\n", pmErrStr(sts));
@@ -117,11 +117,11 @@ main(int argc, char **argv)
 				    underflow++;
 				else {
 				    u = pmUnitsStr(&iu);
-				    printf("error?  %lld %s", iv.ll, *u == '\0' ? "none" : u);
+				    printf("error?  %lld %s", (long long)iv.ll, *u == '\0' ? "none" : u);
 				    u = pmUnitsStr(&ou);
-				    printf(" -> %lld %s", ov.ll, *u == '\0' ? "none" : u);
+				    printf(" -> %lld %s", (long long)ov.ll, *u == '\0' ? "none" : u);
 				    u = pmUnitsStr(&iu);
-				    printf(" -> %lld %s\n", tv.ll, *u == '\0' ? "none" : u);
+				    printf(" -> %lld %s\n", (long long)tv.ll, *u == '\0' ? "none" : u);
 				}
 			    }
 			}
@@ -158,9 +158,9 @@ main(int argc, char **argv)
 			else {
 			    if (vflag) {
 				u = pmUnitsStr(&iu);
-				printf("%lld %s", iv.ll, *u == '\0' ? "none" : u);
+				printf("%lld %s", (long long)iv.ll, *u == '\0' ? "none" : u);
 				u = pmUnitsStr(&ou);
-				printf(" -> %lld %s\n", ov.ll, *u == '\0' ? "none" : u);
+				printf(" -> %lld %s\n", (long long)ov.ll, *u == '\0' ? "none" : u);
 			    }
 			    if ((sts = pmConvScale(PM_TYPE_64, &ov, &ou, &tv, &iu)) < 0) {
 				printf("reconvert: %s\n", pmErrStr(sts));
@@ -171,11 +171,11 @@ main(int argc, char **argv)
 					underflow++;
 				    else {
 					u = pmUnitsStr(&iu);
-					printf("error?  %lld %s", iv.ll, *u == '\0' ? "none" : u);
+					printf("error?  %lld %s", (long long)iv.ll, *u == '\0' ? "none" : u);
 					u = pmUnitsStr(&ou);
-					printf(" -> %lld %s", ov.ll, *u == '\0' ? "none" : u);
+					printf(" -> %lld %s", (long long)ov.ll, *u == '\0' ? "none" : u);
 					u = pmUnitsStr(&iu);
-					printf(" -> %lld %s\n", tv.ll, *u == '\0' ? "none" : u);
+					printf(" -> %lld %s\n", (long long)tv.ll, *u == '\0' ? "none" : u);
 				    }
 				}
 			    }

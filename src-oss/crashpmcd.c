@@ -49,7 +49,7 @@ try(int len)
     close(fd);
 }
 
-
+int
 main(int argc, char *argv[])
 {
     int j;
@@ -77,5 +77,5 @@ main(int argc, char *argv[])
 	}
     }
 
-    exit(0);
+    return 0;
 }

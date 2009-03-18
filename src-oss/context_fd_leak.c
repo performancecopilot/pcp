@@ -11,6 +11,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include <sys/wait.h>
 
 void
 printNextFd(void)
@@ -60,7 +61,7 @@ main(int argc, char* argv[])
     for (fd = 3; fd < 100; fd++)
 	close(fd);
 
-    printf("invocation %d: ", run);
+    printf("invocation %ld: ", run);
     fputs("    at startup, ", stdout);
     printNextFd();
     sts = pmNewContext(PM_CONTEXT_HOST, "localhost");
@@ -96,7 +97,7 @@ main(int argc, char* argv[])
 		perror("can't copy argv[1]\n");
 		exit(1);
 	    }
-	    sprintf(childArgv[1], "%d", run - 1);
+	    sprintf(childArgv[1], "%ld", run - 1);
 	    childArgv[2] = NULL;
 	    sts = execvp(childArgv[0], childArgv);
 	    if (sts < 0) {

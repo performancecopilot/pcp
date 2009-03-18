@@ -103,7 +103,7 @@ main(int argc, char **argv)
 		    npp->cluster = pp->cluster;
 		    npp->item = pp->item;
 		}
-		printf("%0*x", q-p, nval);
+		printf("%0*x", (int)(q-p), (unsigned)nval);
 		p = q;
 	    }
 	}

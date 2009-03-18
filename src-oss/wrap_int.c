@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #define NUM_SAMPLES 20
 

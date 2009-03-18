@@ -134,6 +134,6 @@ main(int argc, char *argv[])
 
     /* Size of struct sysinfo is different on different platforms, so
      * give a hint how many bytes are expected in the output */
-    printf ("+++ Expect %d bytes\n", sizeof (struct sysinfo));
+    printf("+++ Expect %d bytes\n", (int)sizeof(struct sysinfo));
     return dometric();
 }

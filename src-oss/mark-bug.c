@@ -320,10 +320,10 @@ Options\n\
 
     pmCtime(&appStart.tv_sec, timebuf);
     printf("archive %s\nstartTime: %.24s+%-8d\n",
-	    host, timebuf, appStart.tv_usec);
+	    host, timebuf, (int)appStart.tv_usec);
     pmCtime(&appEnd.tv_sec, timebuf);
     printf("endTime  : %.24s+%-8d\nsamples=%d delta=%dms\n",
-	    timebuf, appEnd.tv_usec, samples, (int)(delta * 1000));
+	    timebuf, (int)appEnd.tv_usec, samples, (int)(delta * 1000));
 
     /* play forwards over the mark */
     for (i=0; i < samples; i++) {
@@ -363,24 +363,24 @@ check_result(char *title, pmResult *result)
     if (result->numpmid != 2) {
 	pmCtime(&result->timestamp.tv_sec, timebuf);
 	printf("%s @ %.24s+%-8d numpmid=%d\n", title,
-		timebuf, result->timestamp.tv_usec, result->numpmid);
+		timebuf, (int)result->timestamp.tv_usec, result->numpmid);
 	err++;
     }
     if (result->numpmid >= 0 && result->vset[0]->numval != 1) {
 	pmCtime(&result->timestamp.tv_sec, timebuf);
 	printf("%s @ %.24s+%-8d vset[0]->numval=%d\n", title,
-		timebuf, result->timestamp.tv_usec, result->vset[0]->numval);
+		timebuf, (int)result->timestamp.tv_usec, result->vset[0]->numval);
 	err++;
     }
     if (result->numpmid >= 1 && result->vset[1]->numval != 1) {
 	pmCtime(&result->timestamp.tv_sec, timebuf);
 	printf("%s @ %.24s+%-8d vset[1]->numval=%d\n", title,
-		timebuf, result->timestamp.tv_usec, result->vset[0]->numval);
+		timebuf, (int)result->timestamp.tv_usec, result->vset[0]->numval);
 	err++;
     }
     if (err == 0) {
 	pmCtime(&result->timestamp.tv_sec, timebuf);
 	printf("fetch OK %s @ %.24s+%-8d\n", title,
-		timebuf, result->timestamp.tv_usec);
+		timebuf, (int)result->timestamp.tv_usec);
     }
 }
