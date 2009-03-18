@@ -65,7 +65,7 @@ hosts = ":'$other1' :'$other2'";
 
 some_host (
   some_inst (
-    ( 100 * filesys.used \$hosts / filesys.capacity \$hosts ) > 50 ) )
+    ( 100 * filesys.used \$hosts / filesys.capacity \$hosts ) > 0 ) )
 -> shell 15 "src-oss/show-args -c SYSMON -t PERF_INFO_SYSTEM -m 'file system over half-full" "\n%h:[%i] %v% " "'"
  & syslog 15 "-p daemon.info" "PCP QA - please ignore - ..." " %h:[%i] %v% ";
 
@@ -84,19 +84,20 @@ _filter <$tmp.err
 
 echo
 echo "SYSLOG ..."
-case "$PCP_PLATFORM" in
-irix)
-    SYSLOG=/var/adm/SYSLOG;
-    ;;
-linux)
-    SYSLOG=/var/log/messages;
-    [ -f /var/log/daemon.log ] && SYSLOG=/var/log/daemon.log
-    ;;
-*)
-    echo "Unknown platfrom - $PCP_PLATFORM";
+SYSLOG=''
+for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages
+do
+    if [ -f $f ]
+    then
+	SYSLOG=$f
+	break
+    fi
+done
+if [ -z "$SYSLOG" ]
+then
+    echo "Arrgh! Cannot find your syslog file"
     exit 1
-    ;;
-esac
+fi
  
 $sudo tail -100 $SYSLOG \
 | sed -n '/PCP QA - please ignore/s/\.\.\..*/.../p' \
