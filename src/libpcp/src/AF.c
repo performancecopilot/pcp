@@ -312,6 +312,7 @@ onalarm(int dummy)
 int
 __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *))
 {
+    int			sts;
     qelt		*qp;
     struct timeval	now;
 
@@ -322,7 +323,10 @@ __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *
 	signal(SIGALRM, onalarm);
     }
     if ((qp = (qelt *)malloc(sizeof(qelt))) == NULL) {
-	return -errno;
+	sts = -errno;
+	if (!block)
+	    sigrelse(SIGALRM);
+	return sts;
     }
     qp->q_afid = ++afid;
     qp->q_data = data;
