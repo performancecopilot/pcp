@@ -42,6 +42,7 @@ LoadKernel32(void)
 	fprintf(stderr, "LoadKernel32 failed (%ld)\n", GetLastError());
 }
 
+
 typedef void(CALLBACK *WAITORTIMERCALLBACK)(PVOID,BOOLEAN);
 typedef BOOL (WINAPI * __RegisterWaitForSingleObject)
     (PHANDLE, HANDLE, WAITORTIMERCALLBACK, PVOID, ULONG, ULONG);
@@ -622,36 +623,128 @@ pmLoopMain(void)
 
 
 /* AF.c */
+HANDLE WINAPI CreateTimerQueue(void);
+BOOL WINAPI CreateTimerQueueTimer(PHANDLE,HANDLE,WAITORTIMERCALLBACK,PVOID,DWORD,DWORD,ULONG);
+BOOL WINAPI DeleteTimerQueueTimer(HANDLE,HANDLE,HANDLE);
+typedef void (*AFfunc)(int, void *);
+static int AFnext = 0x8000;
+static int AFsetup;
+static int AFcount;
+static int AFqueuelen;
+static HANDLE AFmutex;
+static HANDLE AFqueue;
+struct {
+	int	id;
+	HANDLE	handle;
+	AFfunc	callback;
+	void	*data;
+} *AFtable;
+
+static void
+__pmAFsetup(void)
+{
+    if (AFsetup)
+	return;
+    AFmutex = CreateMutex(NULL, FALSE, NULL);
+    AFqueue = CreateTimerQueue();
+    AFsetup = 1;
+}
+
+VOID CALLBACK
+__pmAFcallback(PVOID lpParam, BOOLEAN timerOrWait)
+{
+    int i, afid = (int)lpParam;
+
+    WaitForSingleObject(AFmutex, INFINITE);
+    for (i = 0; i < AFcount; i++) {
+	if (AFtable[i].id == afid)
+	    AFtable[i].callback(afid, AFtable[i].data);
+    }
+    ReleaseMutex(AFmutex);
+}
 
 int
-__pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *))
+__pmAFregister(const struct timeval *delta, void *data, AFfunc func)
 {
-    /* TODO */
-    return -1;
+    int i, index, sts = 0;
+    HANDLE timer;
+    DWORD timeout = (delta->tv_sec * 1000) + (delta->tv_usec / 1000); /*msec*/
+
+    __pmAFsetup();
+
+    WaitForSingleObject(AFmutex, INFINITE);
+
+    for (index = i = 0; i < AFcount; i++)
+	if (AFtable[i].id == 0)	/* previously cleared slot, reuse it */
+	    break;
+
+    if (i < AFcount)
+	index = i;
+    else if ((AFtable = realloc(AFtable, (AFcount+1) * sizeof(*AFtable))))
+	sts = -1;
+    else
+	index = AFcount++;
+ 
+    if (sts == 0) {
+	i = AFnext++;
+	if (CreateTimerQueueTimer(&timer, AFqueue,
+				__pmAFcallback, (PVOID)i,
+				timeout, timeout, 0) == FALSE) {
+	    memset(&AFtable[AFcount], 0, sizeof(*AFtable));
+	    sts = -1;
+	}
+	else {
+	    AFtable[index].id = sts = i;
+	    AFtable[index].handle = timer;
+	    AFtable[index].callback = func;
+	    AFtable[index].data = data;
+	    AFqueuelen++;
+	}
+    }
+
+    ReleaseMutex(AFmutex);
+    return sts;
 }
 
 int
 __pmAFunregister(int afid)
 {
-    /* TODO */
-    return -1;
+    int i, sts = -ESRCH;
+
+    if (!AFsetup)
+	return sts;
+
+    WaitForSingleObject(AFmutex, INFINITE);
+
+    for (i = 0; i < AFcount; i++) {
+	if (AFtable[i].id == afid) {
+	    DeleteTimerQueueTimer(AFqueue, AFtable[i].handle, NULL);
+	    memset(&AFtable[i], 0, sizeof(*AFtable));
+	    AFqueuelen--;
+	    sts = 0;
+	}
+    }
+
+    ReleaseMutex(AFmutex);
+    return sts;
 }
 
 void
 __pmAFblock(void)
 {
-    /* TODO */
+    __pmAFsetup();
+    WaitForSingleObject(AFmutex, INFINITE);
 }
 
 void
 __pmAFunblock(void)
 {
-    /* TODO */
+    if (AFsetup)
+	ReleaseMutex(AFmutex);
 }
 
 int
 __pmAFisempty(void)
 {
-    /* TODO */
-    return -1;
+    return (AFqueuelen == 0);
 }
