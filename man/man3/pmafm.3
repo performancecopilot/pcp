@@ -74,7 +74,7 @@ typedef struct {
     int    fd_ipc;       /* IPC channel to pmlogger */
     char   *logfile;     /* full pathname for pmlogger error logfile */
     pid_t  pid;          /* process id for pmlogger */
-    int    status;       /* exit status, -1 if unknown */
+    int    status;       /* exit status, \-1 if unknown */
 } pmRecordHost;
 .in -0.25i
 .fi
@@ -366,7 +366,7 @@ or polling the
 .I status
 field that will contain the termination status from
 .BR waitpid (2)
-if known, else -1.
+if known, else \-1.
 .SH SEE ALSO
 .BR pmafm (1),
 .BR pmlogger (1),
