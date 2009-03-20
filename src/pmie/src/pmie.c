@@ -362,7 +362,7 @@ startmonitor(void)
 		pmProgname, perffile, strerror(oserror()));
 	exit(1);
     }
-    ptr = MapViewOfFile(handle, FILE_MAP_READWRITE, 0, 0, sizeof(pmiestats_t));
+    ptr = MapViewOfFile(handle, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(pmiestats_t));
 #endif
     if (ptr == MAP_FAILED) {
 	fprintf(stderr, "%s: mmap failed for stats file %s: %s\n",
