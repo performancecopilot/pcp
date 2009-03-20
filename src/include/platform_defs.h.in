@@ -124,6 +124,7 @@ extern "C" {
 #undef HAVE_REGEX_H
 #undef HAVE_TERMIOS_H
 #undef HAVE_SYS_TERMIOS_H
+#undef HAVE_SYS_IOCTL_H
 #undef HAVE_SYS_WAIT_H
 #undef HAVE_WINDOWS_H
 #undef HAVE_WINSOCK2_H
@@ -515,10 +516,16 @@ typedef void (*SIG_PF) (int);
 #define SIGHUP		(NSIG+1)
 #define SIGUSR1		(NSIG+2)
 #define SIGBUS		(NSIG+3)
+#define S_IRGRP		0
+#define S_IROTH		0
+#define S_IRWXG		0
+#define S_IRWXO		0
+#define S_ISVTX		0
 
 #define fcntl(f, cmd, ...) 0
 #define mkdir2(path, mode) mkdir(path)
 #define pipe(fds) _pipe(fds, 4*1024, O_BINARY)
+#define realpath(path, pp) strcpy(pp, path)
 
 extern void setlinebuf(FILE *);
 extern const char *hstrerror(int);
