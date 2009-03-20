@@ -69,7 +69,7 @@ mingw_rewrite_path(char *var, char *val, int msys)
 {
     char *p = (char *)rindex(var, '_');
 
-    if (p && (strcmp(p, "_PATH") == 0 || strcmp(p, "_DIR") == 0) {
+    if (p && (strcmp(p, "_PATH") == 0 || strcmp(p, "_DIR") == 0)) {
 	if (msys)
 	    return msys_native_path(val);
 	return mingw_native_path(val);
