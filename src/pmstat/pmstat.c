@@ -20,7 +20,9 @@
 #include "impl.h"
 #include "pmda.h"
 #include <ctype.h>
+#ifndef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
+#endif
 #ifdef HAVE_SYS_TERMIOS_H
 #include <sys/termios.h>
 #endif
@@ -264,7 +266,9 @@ main(int argc, char *argv[])
     int iter;
     struct timeval tv;
     char * endnum;
+#ifndef HAVE_SYS_IOCTL_H
     struct winsize win;
+#endif
     int rows = 21;
     char ** namelst = 0;
     int namecnt;
@@ -668,9 +672,10 @@ main(int argc, char *argv[])
 	ctxCnt = 1;
     }
 
+#ifndef HAVE_SYS_IOCTL_H
     if (ioctl(1, TIOCGWINSZ, &win) != -1 && win.ws_row > 0)
 	rows = win.ws_row - 3;
-
+#endif
 
     /* Do first fetch */
     for ( c=0; c < ctxCnt; c++ ) {
