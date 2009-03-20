@@ -18,26 +18,21 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <syslog.h>
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <time.h>
-#include <string.h>
-#include <limits.h>
+#include "pmapi.h"
+#include "impl.h"
 #include <math.h>
+#include <ctype.h>
+#include <limits.h>
+#ifdef HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
 #include "dstruct.h"
 #include "symbol.h"
 #include "pragmatics.h"
 #include "fun.h"
 #include "eval.h"
 #include "show.h"
-#include "impl.h"
+
 #if defined(HAVE_VALUES_H)
 #include <values.h>
 #endif
@@ -200,8 +195,8 @@ sleepTight(RealTime sched)
 {
     RealTime	delay;	/* interval to sleep */
     int		sts;
+#ifdef HAVE_WAITPID
     pid_t	pid;
-
 
     /* harvest terminated children */
     while ((pid = waitpid(-1, &sts, WNOHANG)) > (pid_t)0) {
@@ -217,6 +212,7 @@ sleepTight(RealTime sched)
 #endif
 	;
     }
+#endif
 
     if (!archives) {
 	struct timespec ts, tleft;
