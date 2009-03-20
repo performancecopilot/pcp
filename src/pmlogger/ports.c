@@ -62,6 +62,7 @@ sigexit_handler(int sig)
     exit(1);
 }
 
+#ifndef IS_MINGW
 static void
 sigcore_handler(int sig)
 {
@@ -72,6 +73,7 @@ sigcore_handler(int sig)
     cleanup();
     abort();
 }
+#endif
 
 static void
 sighup_handler(int sig)
@@ -82,6 +84,7 @@ sighup_handler(int sig)
     __pmSetSignalHandler(SIGHUP, sighup_handler);
 }
 
+#ifndef IS_MINGW
 static void
 sigpipe_handler(int sig)
 {
@@ -91,6 +94,7 @@ sigpipe_handler(int sig)
      */
     __pmSetSignalHandler(SIGPIPE, sigpipe_handler);
 }
+#endif
 
 static void
 sigusr1_handler(int sig)
@@ -104,6 +108,7 @@ sigusr1_handler(int sig)
 #endif
 }
 
+#ifndef IS_MINGW
 /*
  * if we are launched from pmRecord*() in libpcp, then we
  * may end up using popen() to run xconfirm(1), and then there
@@ -113,6 +118,7 @@ static void
 sigchld_handler(int sig)
 {
 }
+#endif
 
 typedef struct {
     int		sig;
@@ -124,14 +130,17 @@ typedef struct {
  */
 static sig_map_t	sig_handler[] = {
     { SIGHUP,	sighup_handler },	/* Exit   Hangup [see termio(7)] */
+#ifndef IS_MINGW
     { SIGINT,	sigexit_handler },	/* Exit   Interrupt [see termio(7)] */
     { SIGQUIT,	sigcore_handler },	/* Core   Quit [see termio(7)] */
     { SIGILL,	sigcore_handler },	/* Core   Illegal Instruction */
     { SIGTRAP,	sigcore_handler },	/* Core   Trace/Breakpoint Trap */
     { SIGABRT,	sigcore_handler },	/* Core   Abort */
+#endif
 #ifdef SIGEMT
     { SIGEMT,	sigcore_handler },	/* Core   Emulation Trap */
 #endif
+#ifndef IS_MINGW
     { SIGFPE,	sigcore_handler },	/* Core   Arithmetic Exception */
     { SIGKILL,	sigexit_handler },	/* Exit   Killed */
     { SIGBUS,	sigcore_handler },	/* Core   Bus Error */
@@ -139,8 +148,10 @@ static sig_map_t	sig_handler[] = {
     { SIGSYS,	sigcore_handler },	/* Core   Bad System Call */
     { SIGPIPE,	sigpipe_handler },	/* Exit   Broken Pipe */
     { SIGALRM,	sigexit_handler },	/* Exit   Alarm Clock */
+#endif
     { SIGTERM,	sigexit_handler },	/* Exit   Terminated */
     { SIGUSR1,	sigusr1_handler },	/* Exit   User Signal 1 */
+#ifndef IS_MINGW
     { SIGUSR2,	sigexit_handler },	/* Exit   User Signal 2 */
     { SIGCHLD,	sigchld_handler },	/* NOP    Child stopped or terminated */
 #ifdef SIGPWR
@@ -161,6 +172,7 @@ static sig_map_t	sig_handler[] = {
     { SIGPROF,	sigexit_handler },	/* Exit   Profiling Timer Expired */
     { SIGXCPU,	sigcore_handler },	/* Core   CPU time limit exceeded [see getrlimit(2)] */
     { SIGXFSZ,	sigcore_handler}	/* Core   File size limit exceeded [see getrlimit(2)] */
+#endif
 };
 
 /* Create socket for incoming connections and bind to it an address for
@@ -331,7 +343,7 @@ init_ports(void)
     strcpy(ctlfile, PM_LOG_PORT_DIR);
     
     /* try to create the port file directory. OK if it already exists */
-    sts = mkdir(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO);
+    sts = mkdir2(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO);
     if (sts < 0 && errno != EEXIST) {
 	fprintf(stderr, "%s: error creating port file dir %s: %s\n",
 		pmProgname, ctlfile, strerror(errno));
@@ -366,7 +378,12 @@ init_ports(void)
 	strcpy(linkfile, PM_LOG_PORT_DIR);
 	strcat(linkfile, "/");
 	strcat(linkfile, PM_LOG_PRIMARY_LINK);
-	if (symlink(ctlfile, linkfile) != 0) {
+#ifndef IS_MINGW
+	sts = symlink(ctlfile, linkfile);
+#else
+	sts = CreateHardLink(linkfile, ctlfile);
+#endif
+	if (sts != 0) {
 	    if (errno == EEXIST)
 		fprintf(stderr, "%s: there is already a primary pmlogger running\n", pmProgname);
 	    else

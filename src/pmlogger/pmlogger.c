@@ -807,8 +807,10 @@ Options:\n\
 
     fprintf(stderr, "Archive basename: %s\n", archBase);
 
+#ifndef IS_MINGW
     /* detach yourself from the launching process */
     setpgid(getpid(), 0);
+#endif
 
     /* set up control port */
     init_ports();
