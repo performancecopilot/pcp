@@ -28,14 +28,6 @@
  *   AND: if either side of the expression is false, expr is false
  ***********************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <syslog.h>
-#include <unistd.h>
-#include <limits.h>
 #include "pmapi.h"
 #include "dstruct.h"
 #include "pragmatics.h"

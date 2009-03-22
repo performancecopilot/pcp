@@ -40,7 +40,7 @@ LSRCFILES = $(SKELETAL) meta logger.h
 
 LDIRT += $(YFILES:%.y=%.tab.?) fun.c fun.o $(TARGET) grammar.h
 
-LLDLIBS = -lpcp -lm
+LLDLIBS = -lpcp -lm $(LIB_FOR_REGEX)
 
 default:	$(TARGET)
 

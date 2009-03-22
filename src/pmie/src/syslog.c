@@ -16,12 +16,8 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include <stdio.h>
 #include <ctype.h>
-#include <string.h>
-#include <unistd.h>
 #define	SYSLOG_NAMES
-#include <syslog.h>
 #include "dstruct.h"
 #include "eval.h"
 #include "syntax.h"

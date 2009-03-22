@@ -72,6 +72,18 @@ actShell(Expr *x)
 	EVALARG(arg1)
 	fflush(stdout);
 	fflush(stderr);
+#ifdef IS_MINGW
+	putenv("IFS=\t\n");
+	if (spawnvp(_P_DETACH, (char *)arg1->ring) < 0) {
+	    __pmNotifyErr(LOG_ERR, "spawn for shell failed\n");
+	    *(Truth *)x->ring = FALSE;
+	}
+	else {
+	    *(Truth *)x->ring = TRUE;
+	    x->smpls[0].stamp = now;
+	    x->valid = 0;
+	}
+#else /*POSIX*/
 	pid = fork();
 	if (pid == 0) {
 	    /* child, run the command */
@@ -114,6 +126,7 @@ actShell(Expr *x)
 	    __pmNotifyErr(LOG_ERR, "fork for shell failed\n");
 	    *(Truth *)x->ring = FALSE;
 	}
+#endif
 	perf->actions++;
     }
 }
@@ -126,7 +139,7 @@ void
 actAlarm(Expr *x)
 {
     static char *alarmv[] = {
-	NULL,			/* need path to xconfirm(1) here */
+	NULL,		/* path to PCP_XCONFIRM_PROG inserted here */
 	    "-header", "Performance Co-Pilot Alarm",
 	    "-b", "Cancel",
 	    "-icon", "warning",
@@ -146,11 +159,12 @@ actAlarm(Expr *x)
 	     */
 	    alarmv[0] = pmGetConfig("PCP_XCONFIRM_PROG");
 	    if (strcmp(alarmv[0], "") == 0) {
-		__pmNotifyErr(LOG_ERR, "path to xconfirm(1) for alarm not found, using echo(1)\n");
+		__pmNotifyErr(LOG_ERR, "PCP_XCONFIRM_PROG not found, using echo(1)\n");
 		alarmv[0] = "/bin/echo";
 	    }
     }
 
+#ifndef IS_MINGW
     /* if old alarm still active, don't post new one */
     if (x->valid != 0) {
 	pid_t   pid;
@@ -175,6 +189,7 @@ actAlarm(Expr *x)
 #endif
 	x->valid = 0;
     }
+#endif
 
     if ((arg2 == NULL) ||
 	(x->smpls[0].stamp == 0) ||
@@ -183,6 +198,19 @@ actAlarm(Expr *x)
 	EVALARG(arg1)
 	clock = (time_t)(now+0.5);
 	pmCtime(&clock, ctime);
+#ifdef IS_MINGW
+	alarmv[8] = ctime;
+	alarmv[10] = (char *)arg1->ring;
+	if (spawnvp(_P_DETACH, alarmv) < 0) {
+	    __pmNotifyErr(LOG_ERR, "spawn for PCP_XCONFIRM_PROG failed\n");
+	    *(Truth *)x->ring = FALSE;
+	}
+	else {
+	    *(Truth *)x->ring = TRUE;
+	    x->smpls[0].stamp = now;
+	    x->valid = 0;
+	}
+#else
 	sts = fork();
 	if (sts == 0) {
 	    alarmv[8] = ctime;
@@ -206,12 +234,13 @@ actAlarm(Expr *x)
 	    x->valid = sts;
 	    *(Truth *)x->ring = TRUE;
 	    x->smpls[0].stamp = now;
-	    perf->actions++;
 	}
 	else {
 	    __pmNotifyErr(LOG_ERR, "fork for alarm failed\n");
 	    *(Truth *)x->ring = FALSE;
 	}
+#endif
+	perf->actions++;
     }
 }
 
