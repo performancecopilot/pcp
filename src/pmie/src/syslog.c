@@ -28,8 +28,8 @@
 #include "syslog.h"
 #include "pmapi.h"
 
-#if defined(IS_SOLARIS) || defined(IS_AIX)
-#include "syslog_solaris.h"
+#if defined(IS_SOLARIS) || defined(IS_AIX) || defined(IS_MINGW)
+#include "logger.h"
 #endif
 
 /*

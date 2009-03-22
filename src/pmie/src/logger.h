@@ -21,13 +21,18 @@
 
 #define NOPRI 0x10 /* the "no priority" priority */
 #define LOG_MAKEPRI(f,p) (((f) << 3) + (p))
-#define LOG_AUTHPRIV (10<<3) /* security/authorization messages (private) */
-#define LOG_FTP (11<<3) /* ftp daemon */
 #define LOG_MARK LOG_MAKEPRI(LOG_NFACILITIES, 0) /* mark "facility" */
 
+#ifndef LOG_PRIMASK
+#define LOG_PRIMASK 0x07
+#endif
+#ifndef LOG_FACMASK
+#define LOG_FACMASK 0x03f8
+#endif
+
 typedef struct code {
-  char *c_name;
-  int c_val;
+  char	*c_name;
+  int	c_val;
 } CODE;
 
 struct code prioritynames[] = {
@@ -46,33 +51,22 @@ struct code prioritynames[] = {
   { NULL, -1 }
 };
 
-#ifdef ULTRIX_COMPAT
-#define       LOG_COMPAT      (15<<3) /* compatibility with 4.2 syslog */
-#endif
-
-/* reserved added so zephyr can use this table */
 struct code facilitynames[] = {
+  { "daemon", LOG_DAEMON },
+#ifndef IS_MINGW
   { "kern", LOG_KERN },
   { "user", LOG_USER },
   { "mail", LOG_MAIL },
-  { "daemon", LOG_DAEMON },
   { "auth", LOG_AUTH },
   { "syslog", LOG_SYSLOG },
   { "lpr", LOG_LPR },
   { "news", LOG_NEWS },
   { "uucp", LOG_UUCP },
   { "cron", LOG_CRON },
-  //  { "authpriv", LOG_AUTHPRIV },
-  { "ftp", LOG_FTP },
   { "reserved", -1 },
   { "reserved", -1 },
   { "reserved", -1 },
-#ifdef ULTRIX_COMPAT
-  { "compat", LOG_COMPAT },
-#endif
-#ifndef ULTRIX_COMPAT
   { "cron", LOG_CRON },
-#endif
   { "local0", LOG_LOCAL0 },
   { "local1", LOG_LOCAL1 },
   { "local2", LOG_LOCAL2 },
@@ -83,6 +77,7 @@ struct code facilitynames[] = {
   { "local7", LOG_LOCAL7 },
   { "security", LOG_AUTH },
   { "mark", LOG_MARK },
+#endif
   { NULL, -1 }
 };
 
