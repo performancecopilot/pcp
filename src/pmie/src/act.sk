@@ -62,7 +62,9 @@ actShell(Expr *x)
 {
     Expr    *arg1 = x->arg1;
     Expr    *arg2 = x->arg2;
+#ifndef IS_MINGW
     pid_t   pid;
+#endif
     int	    sts;
 
     if ((arg2 == NULL) ||
@@ -74,7 +76,8 @@ actShell(Expr *x)
 	fflush(stderr);
 #ifdef IS_MINGW
 	putenv("IFS=\t\n");
-	if (spawnvp(_P_DETACH, (char *)arg1->ring) < 0) {
+	sts = system((char *)arg1->ring);
+	if (sts < 0) {
 	    __pmNotifyErr(LOG_ERR, "spawn for shell failed\n");
 	    *(Truth *)x->ring = FALSE;
 	}
@@ -88,7 +91,7 @@ actShell(Expr *x)
 	if (pid == 0) {
 	    /* child, run the command */
 	    setsid();
-	    putenv("PATH=/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin");
+	    putenv("PATH=/usr/sbin:/sbin:/usr/bin:/bin");
 	    putenv("IFS=\t\n");
 	    sts = system((char *)arg1->ring);
 	    _exit(WEXITSTATUS(sts));	/* avoid atexit() handler */
@@ -201,7 +204,8 @@ actAlarm(Expr *x)
 #ifdef IS_MINGW
 	alarmv[8] = ctime;
 	alarmv[10] = (char *)arg1->ring;
-	if (spawnvp(_P_DETACH, alarmv) < 0) {
+	sts = spawnvp(_P_DETACH, alarmv[0], alarmv);
+	if (sts < 0) {
 	    __pmNotifyErr(LOG_ERR, "spawn for PCP_XCONFIRM_PROG failed\n");
 	    *(Truth *)x->ring = FALSE;
 	}
