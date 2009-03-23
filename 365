@@ -114,13 +114,7 @@ $here/sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
 
 _filter_pmcd_log <$PCP_PMCDLOG_PATH \
-| _filter_isa \
 | sed \
-    -e '/^irix/{
-s/     [12] dso/1-or-2 dso/
-s/lib=\/usr\//lib=\/usr-or-var\//
-s/lib=\/var\//lib=\/usr-or-var\//
-}' \
     -e '/^linux/{
 s/     [12] dso/1-or-2 dso/
 s/lib=\/usr\//lib=\/usr-or-var\//

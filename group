@@ -300,7 +300,6 @@ dmf		pcpqa
 070 other ostest remote oss
 071 context_local local ostest oss
 072 pmlogger ostest remote oss
-073 libirixpmda local oss
 074 pmda pmda.cisco pmda.pmcd local ostest oss
 075 pmval pmstore ostest remote oss
 076 pmda.pmcd local ostest oss

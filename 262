@@ -76,7 +76,7 @@ $PROG -t1 -s1 2>&1 | _filter_number
 
 echo
 echo "=== $PROG + PM_CONTEXT_LOCAL ==="
-./sudo $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_bogus_disks | _filter_pmcd_log
+./sudo $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_pmcd_log
 
 echo
 echo "=== $PROG + PM_CONTEXT_HOST + pmsocks ==="
@@ -84,7 +84,7 @@ echo "=== $PROG + PM_CONTEXT_HOST + pmsocks ==="
 
 echo
 echo "=== $PROG + PM_CONTEXT_LOCAL + pmsocks ==="
-./sudo pmsocks $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_bogus_disks | _filter_pmcd_log
+./sudo pmsocks $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_pmcd_log
 
 echo
 echo "Expect no error messages or ?'s from pmie"

@@ -74,7 +74,6 @@ _filter_ins()
 _filter_pmcd()
 {
     _filter_pmcd_log \
-    | _filter_isa \
     | sed \
     	-e "/^simple.*bin/s/$simple_domain[ 	]*[0-9]*[ 	]*[0-9]*[ 	]*[0-9]*/SIMPLE PID FD FD/" \
     	-e "/^simple.*dso/s/$simple_domain/SIMPLE/" \

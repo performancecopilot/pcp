@@ -78,7 +78,7 @@ fi
 
 # real QA test starts here
 echo "=== expected to pass ==="
-src-oss/chkctx2 -D16 2>&1 | _filter | _filter_bogus_disks
+src-oss/chkctx2 -D16 2>&1 | _filter
 echo ""
 src-oss/chkctx2 -D16 -h localhost 2>&1 | _filter
 echo ""
@@ -93,6 +93,5 @@ export PCP_LITE_SAMPLE
 echo "=== try CONTEXT_LOCAL ==="
 src-oss/chkctx2_lite -D16 -L 2>&1 \
 | _filter \
-| _filter_pmcd_log \
-| _filter_bogus_disks
+| _filter_pmcd_log
 echo ""

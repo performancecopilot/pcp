@@ -29,7 +29,6 @@ trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 _filter()
 {
     sed -e '/using .* kmem interface/d' \
-    | _filter_bogus_disks \
     | _filter_pmcd_log
 }
 

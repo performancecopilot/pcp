@@ -73,7 +73,7 @@ BEGIN				{ skip = 0 }
 skip == 1 && NF == 0		{ skip = 0 }
 skip == 1			{ next }
 				{ print }' \
-    | _filter_pmcd_log | _filter_isa
+    | _filter_pmcd_log
 }
 
 if [ -d $PCP_LOG_DIR/pmlogger ]

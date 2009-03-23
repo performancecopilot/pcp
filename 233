@@ -33,7 +33,7 @@ fi
     
 _filter()
 {
-    _filter_pmcd_log | _filter_bogus_disks | $PCP_AWK_PROG '
+    _filter_pmcd_log | $PCP_AWK_PROG '
     /^fetchrate.* fetches\/second$/ {
 	if ($4 >= '$1') {
 	    print "FETCHRATE:",$2,$3,">='$1'",$5;

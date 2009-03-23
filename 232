@@ -62,7 +62,6 @@ do
     status=$?
     sed -e '/using .* kmem interface/d' $tmp.out \
     | _filter_pmcd_log \
-    | _filter_bogus_disks \
     | _filter_dodgey_nfs_indom
     if [ $status != 0 ]
     then

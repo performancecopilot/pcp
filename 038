@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 
 _filter_dumplog()
 {
-    _filter_dumpresult_os | sed \
+    _filter_dumpresult | sed \
 	-e '/inst /{
 s;inst \[[0-9][0-9]* or ".*/dbs/.*\.dbf"];inst [FILE];
 }'
@@ -167,7 +167,7 @@ cat $tmp.out $tmp.log \
     -e '/success*/d' \
     -e 's/Log f.*/Log/g' \
     -e 's/searchindom/__localLogGetInDom/g' \
-| _filter_dumpresult_os \
+| _filter_dumpresult \
 | sed \
     -e 's/^\[[0-9][0-9]*]//' \
     -e '/^[0-9][0-9][0-9]:/d' \

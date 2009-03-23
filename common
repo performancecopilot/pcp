@@ -262,14 +262,9 @@ _havepmcdtrace()
     if $fix
     then
 	echo "fix options, and restart PMCD"
-	if [ $PCP_PLATFORM = irix ]
-	then
-	    PCPQA_PMCDOPTIONS=/etc/config/pmcd.options
-	else
-	    [ -z "PCP_PMCDOPTIONS_PATH" ] && \
-		PCP_PMCDOPTIONS_PATH="$PCP_VAR_DIR/config/pmcd/pmcd.options"
-	    PCPQA_PMCDOPTIONS="$PCP_PMCDOPTIONS_PATH"
-	fi
+	[ -z "PCP_PMCDOPTIONS_PATH" ] && \
+	      PCP_PMCDOPTIONS_PATH="$PCP_VAR_DIR/config/pmcd/pmcd.options"
+	PCPQA_PMCDOPTIONS="$PCP_PMCDOPTIONS_PATH"
 	$here/sudo chmod u+w $PCPQA_PMCDOPTIONS
 	$here/sudo ed - $PCPQA_PMCDOPTIONS <<'End-of-File'
 g/^-T/s/^/#/

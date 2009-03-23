@@ -31,7 +31,6 @@ do
     s=$?
 
     sed -e '/using .* kmem interface/d' $tmp.out \
-    | _filter_bogus_disks \
     | _filter_pmcd_log
 
     if [ "`echo core*`" != "core*" ]
