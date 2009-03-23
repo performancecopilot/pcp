@@ -90,7 +90,7 @@ SignalCallback(PVOID param, BOOLEAN timerorwait)
 {
     int index = (int)param;
 
-    if (index > 0 && index < MAX_SIGNALS)
+    if (index >= 0 && index < MAX_SIGNALS)
 	signals[index].callback(signals[index].signal);
     else
 	fprintf(stderr, "SignalCallback: bad signal index (%d)\n", index);
@@ -170,17 +170,21 @@ int
 __pmSetProgname(const char *program)
 {
     int	sts1, sts2;
-    char *p;
+    char *p, *suffix = NULL;
     WORD wVersionRequested = MAKEWORD(2, 2);
     WSADATA wsaData;
 
-    /* Trim command name of leading directory components */
+    /* Trim command name of leading directory components and ".exe" suffix */
     if (program)
 	pmProgname = (char *)program;
     for (p = pmProgname; pmProgname && *p; p++) {
-	if (*p == '/')
+	if (*p == '\\')
 	    pmProgname = p + 1;
+	if (*p == '.')
+	    suffix = p;
     }
+    if (suffix && strcmp(suffix, ".exe") == 0)
+	*suffix = '\0';
 
     /* Deal with all files in binary mode - no EOL futzing */
     _fmode = O_BINARY;
@@ -388,7 +392,7 @@ nanosleep(const struct timespec *req, struct timespec *rem)
     }
     milliseconds = req->tv_sec * MILLISEC_PER_SEC
 			+ req->tv_nsec / NANOSEC_PER_MILLISEC;
-    Sleep(milliseconds);
+    SleepEx(milliseconds, TRUE);
     if (rem)
 	memset(rem, 0, sizeof(*rem));
     return 0;
@@ -397,7 +401,7 @@ nanosleep(const struct timespec *req, struct timespec *rem)
 unsigned int
 sleep(unsigned int seconds)
 {
-    Sleep(seconds * 1000);
+    SleepEx(seconds * 1000, TRUE);
     return 0;
 }
 
@@ -640,6 +644,17 @@ struct {
 	void	*data;
 } *AFtable;
 
+#ifdef PCP_DEBUG
+static void
+printstamp(struct timeval *tp)
+{
+    time_t		tt =  (time_t)tp->tv_sec;
+    static struct tm    *tmp = localtime(&tt);
+
+    fprintf(stderr, "%02d:%02d:%02d.%06ld",
+	    tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (long)tp->tv_usec);
+}
+
 static void
 __pmAFsetup(void)
 {
@@ -654,6 +669,16 @@ VOID CALLBACK
 __pmAFcallback(PVOID lpParam, BOOLEAN timerOrWait)
 {
     int i, afid = (int)lpParam;
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_AF) {
+	struct timeval	now;
+	gettimeofday(&now, NULL);
+	printstamp(&now);
+	fprintf(stderr, " AFcallback(%d)\n", afid);
+	fflush(stderr);
+    }
+#endif
 
     WaitForSingleObject(AFmutex, INFINITE);
     for (i = 0; i < AFcount; i++) {
@@ -680,13 +705,13 @@ __pmAFregister(const struct timeval *delta, void *data, AFfunc func)
 
     if (i < AFcount)
 	index = i;
-    else if ((AFtable = realloc(AFtable, (AFcount+1) * sizeof(*AFtable))))
+    else if (!(AFtable = realloc(AFtable, (AFcount+1) * sizeof(*AFtable))))
 	sts = -1;
     else
 	index = AFcount++;
  
     if (sts == 0) {
-	i = AFnext++;
+	i = ++AFnext;
 	if (CreateTimerQueueTimer(&timer, AFqueue,
 				__pmAFcallback, (PVOID)i,
 				timeout, timeout, 0) == FALSE) {
@@ -699,6 +724,16 @@ __pmAFregister(const struct timeval *delta, void *data, AFfunc func)
 	    AFtable[index].callback = func;
 	    AFtable[index].data = data;
 	    AFqueuelen++;
+
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_AF) {
+		struct timeval	now;
+		gettimeofday(&now, NULL);
+		printstamp(&now);
+		fprintf(stderr, " AFregister(%d)\n", i);
+		fflush(stderr);
+	    }
+#endif
 	}
     }
 
@@ -722,6 +757,16 @@ __pmAFunregister(int afid)
 	    memset(&AFtable[i], 0, sizeof(*AFtable));
 	    AFqueuelen--;
 	    sts = 0;
+
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_AF) {
+		struct timeval	now;
+		gettimeofday(&now, NULL);
+		printstamp(&now);
+		fprintf(stderr, " AFregister(%d)\n", afid);
+		fflush(stderr);
+	    }
+#endif
 	}
     }
 

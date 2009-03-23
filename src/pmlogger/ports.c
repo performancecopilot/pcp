@@ -131,17 +131,15 @@ typedef struct {
  */
 static sig_map_t	sig_handler[] = {
     { SIGHUP,	sighup_handler },	/* Exit   Hangup [see termio(7)] */
-#ifndef IS_MINGW
     { SIGINT,	sigexit_handler },	/* Exit   Interrupt [see termio(7)] */
+#ifndef IS_MINGW
     { SIGQUIT,	sigcore_handler },	/* Core   Quit [see termio(7)] */
     { SIGILL,	sigcore_handler },	/* Core   Illegal Instruction */
     { SIGTRAP,	sigcore_handler },	/* Core   Trace/Breakpoint Trap */
     { SIGABRT,	sigcore_handler },	/* Core   Abort */
-#endif
 #ifdef SIGEMT
     { SIGEMT,	sigcore_handler },	/* Core   Emulation Trap */
 #endif
-#ifndef IS_MINGW
     { SIGFPE,	sigcore_handler },	/* Core   Arithmetic Exception */
     { SIGKILL,	sigexit_handler },	/* Exit   Killed */
     { SIGBUS,	sigcore_handler },	/* Core   Bus Error */
@@ -361,7 +359,7 @@ init_ports(void)
     chmod(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
 
     /* remove any existing port file with my name (it's old) */
-    sprintf(ctlfile + baselen, "%c%d", sep, (int)mypid);
+    sprintf(ctlfile + baselen + pcplen - 2, "%c%d", sep, (int)mypid);
     sts = unlink(ctlfile);
     if (sts == -1 && errno != ENOENT) {
 	fprintf(stderr, "%s: error removing %s: %s.  Exiting.\n",
@@ -382,14 +380,14 @@ init_ports(void)
 	linkfile = (char *)calloc(1, n);
 	if (linkfile == NULL)
 	    __pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
-	i = pcplen ? sprintf("%s", pcpdir) : 0;
+	i = pcplen ? sprintf(linkfile, "%s", pcpdir) : 0;
 	sprintf(linkfile + i, "%s%c%s",
 		PM_LOG_PORT_DIR, sep, PM_LOG_PRIMARY_LINK);
 	__pmNativePath(linkfile);
 #ifndef IS_MINGW
 	sts = symlink(ctlfile, linkfile);
 #else
-	sts = CreateHardLink(linkfile, ctlfile, NULL);
+	sts = (CreateHardLink(linkfile, ctlfile, NULL) == 0);
 #endif
 	if (sts != 0) {
 	    if (errno == EEXIST)
