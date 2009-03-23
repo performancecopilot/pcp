@@ -132,4 +132,9 @@ extern char pmlc_host[];
 #define LOG_DELTA_ONCE		-1
 #define LOG_DELTA_DEFAULT	-2
 
+/* command line parameters */
+extern char    	*archBase;		/* base name for log files */
+extern char	*pmcd_host;		/* collecting from PMCD on this host */
+extern int	primary;		/* Non-zero for primary logger */
+
 #endif /* _LOGGER_H */

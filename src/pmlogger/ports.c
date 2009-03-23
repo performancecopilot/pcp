@@ -17,6 +17,7 @@
  */
 #define _WIN32_WINNT	0x0500	/* for CreateHardLink */
 #include <math.h>
+#include <ctype.h>
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
@@ -189,8 +190,6 @@ GetPort(char *file)
     struct sockaddr_in	myAddr;
     static int		port_base = -1;
     struct hostent	*hep;
-    extern char	    	*archBase;		/* base name for log files */
-    extern char		*pmcd_host;		/* collecting from PMCD on this host */
 
     fd = __pmCreateSocket();
     if (fd < 0) {
@@ -265,16 +264,21 @@ GetPort(char *file)
     fprintf(mapstream, "%s\n", hep == NULL ? "" : hep->h_name);
 
     /* and finally the full pathname to the archive base */
-    if (*archBase == '/')
+    __pmNativePath(archBase);
+    if (archBase[0] == '/'
+#ifdef IS_MINGW
+	|| (strlen(archBase) > 2 && isalpha(archBase[0]) &&
+	    archBase[1] == ':' && archBase[2] == '\\')
+#endif
+	)
 	fprintf(mapstream, "%s\n", archBase);
     else {
 	char		path[MAXPATHLEN];
 	if (getcwd(path, MAXPATHLEN) == NULL)
 	    fprintf(mapstream, "\n");
 	else
-	    fprintf(mapstream, "%s/%s\n", path, archBase);
+	    fprintf(mapstream, "%s%c%s\n", path, __pmPathSeparator(), archBase);
     }
-
 
     fclose(mapstream);
     close(mapfd);
@@ -290,11 +294,11 @@ GetPort(char *file)
 void
 init_ports(void)
 {
-    int		i, n, sts;
-    int		j;
-    int		extlen, baselen;
+    int		i, j, n, sts;
+    int		sep = __pmPathSeparator();
+    int		extlen, baselen, pcplen = 0;
+    char	*pcpdir = getenv("PCP_DIR");
     pid_t	mypid = getpid();
-    extern int	primary;		/* Non-zero for primary logger */
 
     /*
      * make sure control port files are removed when pmlogger terminates
@@ -335,13 +339,18 @@ init_ports(void)
 	n /= 10;
     /* baselen is directory + trailing / */
     baselen = strlen(PM_LOG_PORT_DIR) + 1;
-    n = baselen + extlen + 1;
-    ctlfile = (char *)malloc(n);
-    if (ctlfile == NULL) {
+    /* likewise for PCP_DIR if it is set */
+    if (pcpdir)
+	pcplen = strlen(pcpdir) + 1;
+    n = pcplen + baselen + extlen + 1;
+    ctlfile = (char *)calloc(1, n);
+    if (ctlfile == NULL)
 	__pmNoMem("port file name", n, PM_FATAL_ERR);
-    }
-    strcpy(ctlfile, PM_LOG_PORT_DIR);
-    
+    if (pcplen)
+	strcat(ctlfile, pcpdir);
+    strcat(ctlfile, PM_LOG_PORT_DIR);
+    __pmNativePath(ctlfile);
+
     /* try to create the port file directory. OK if it already exists */
     sts = mkdir2(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO);
     if (sts < 0 && errno != EEXIST) {
@@ -352,8 +361,7 @@ init_ports(void)
     chmod(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
 
     /* remove any existing port file with my name (it's old) */
-    strcat(ctlfile, "/");
-    sprintf(ctlfile + baselen, "%d", (int)mypid);
+    sprintf(ctlfile + baselen, "%c%d", sep, (int)mypid);
     sts = unlink(ctlfile);
     if (sts == -1 && errno != ENOENT) {
 	fprintf(stderr, "%s: error removing %s: %s.  Exiting.\n",
@@ -370,14 +378,14 @@ init_ports(void)
      */
     if (primary) {
 	extlen = strlen(PM_LOG_PRIMARY_LINK);
-	n = baselen + extlen + 1;
-	linkfile = (char *)malloc(n);
-	if (linkfile == NULL) {
+	n = pcplen + baselen + extlen + 1;
+	linkfile = (char *)calloc(1, n);
+	if (linkfile == NULL)
 	    __pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
-	}
-	strcpy(linkfile, PM_LOG_PORT_DIR);
-	strcat(linkfile, "/");
-	strcat(linkfile, PM_LOG_PRIMARY_LINK);
+	i = pcplen ? sprintf("%s", pcpdir) : 0;
+	sprintf(linkfile + i, "%s%c%s",
+		PM_LOG_PORT_DIR, sep, PM_LOG_PRIMARY_LINK);
+	__pmNativePath(linkfile);
 #ifndef IS_MINGW
 	sts = symlink(ctlfile, linkfile);
 #else
