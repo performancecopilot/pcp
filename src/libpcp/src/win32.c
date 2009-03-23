@@ -649,11 +649,13 @@ static void
 printstamp(struct timeval *tp)
 {
     time_t		tt =  (time_t)tp->tv_sec;
-    static struct tm    *tmp = localtime(&tt);
+    static struct tm    *tmp;
 
+    tmp = localtime(&tt);
     fprintf(stderr, "%02d:%02d:%02d.%06ld",
 	    tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (long)tp->tv_usec);
 }
+#endif
 
 static void
 __pmAFsetup(void)
