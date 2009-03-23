@@ -4,10 +4,7 @@
 static struct timeval	start;
 
 #ifdef IS_MINGW
-void pause(void)
-{
-    sleep(0xffffffff);
-}
+void pause(void) { sleep(INFINITE); }
 #endif
 
 static void
@@ -62,6 +59,8 @@ onevent(int afid, void *data)
 	printstamp(&now);
 	fputc('\n', stderr);
     }
+
+    fflush(stderr);
 }
 
 int
@@ -117,6 +116,7 @@ Options\n\
     __pmAFunblock();
 
     for ( ; ; ) {
+	fflush(stderr);
 	pause();
 	if (pmDebug & DBG_TRACE_AF) {
 	    gettimeofday(&now, NULL);
