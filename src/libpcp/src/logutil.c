@@ -20,7 +20,7 @@
 #include "pmapi.h"
 #include "impl.h"
 
-INTERN int	__pmLogReads;
+INTERN int	__pmLogReads = 0;
 
 static char	*logfilename;
 static int	logfilenamelen;

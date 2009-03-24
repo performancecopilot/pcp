@@ -20,7 +20,7 @@
 #include "pmapi.h"
 #include "impl.h"
 
-INTERN int	pmDebug;		/* the real McCoy */
+INTERN int	pmDebug = 0;		/* the real McCoy */
 
 /*
  * Performance Instrumentation
