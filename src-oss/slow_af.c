@@ -4,7 +4,7 @@
 static struct timeval	start;
 
 #ifdef IS_MINGW
-void pause(void) { sleep(INFINITE); }
+void pause(void) { SleepEx(INFINITE, TRUE); }
 #endif
 
 static void
@@ -61,6 +61,7 @@ onevent(int afid, void *data)
     }
 
     fflush(stderr);
+    fflush(stdout);
 }
 
 int
