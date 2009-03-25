@@ -376,11 +376,6 @@ void PmTimeLive::setTime(PmTime::Packet *k, char *tzdata)
     }
 }
 
-void PmTimeLive::style(char *style, void *source)
-{
-    emit stylePulse(&my.pmtime, style, strlen(style) + 1, source);
-}
-
 void PmTimeLive::assistantError(const QString &msg)
 {
     QMessageBox::warning(this, pmProgname, msg);

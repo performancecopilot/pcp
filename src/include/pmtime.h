@@ -49,7 +49,6 @@ public:
 	GUIHide		= (1<<6),	// client -> server
 	Bounds		= (1<<7),	// client -> server
 	ACK		= (1<<8),	// client -> server (except handshake)
-	GUIStyle	= (1<<9),	// client <-> server (both ways)
     } Command;
 
     static const unsigned int Magic = 0x54494D45;	// "TIME"
@@ -65,7 +64,7 @@ public:
 	struct timeval	position;
 	struct timeval	start;		// archive only
 	struct timeval	end;		// archive only
-	unsigned char	data[0];	// arbitrary length ($TZ/style)
+	unsigned char	data[0];	// arbitrary length (e.g. $TZ)
     } Packet;
 
     typedef enum {

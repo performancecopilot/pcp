@@ -205,26 +205,6 @@ void TimeControl::hideArchiveTimeControl()
 		QApplication::tr("Quit") );
 }
 
-void TimeControl::styleTimeControl(char *style)
-{
-    int sz = sizeof(PmTime::Packet) + strlen(style) + 1;
-    PmTime::Packet *message = (PmTime::Packet *)calloc(1, sz);
-
-    if (!message)
-	nomem();
-    message->magic = PmTime::Magic;
-    message->source = PmTime::HostSource;
-    message->command = PmTime::GUIStyle;
-    message->length = sz;
-    strcpy((char *)message->data, style);
-    if (my.liveSocket->write((const char *)message, sz) < 0)
-	QMessageBox::warning(0,
-		QApplication::tr("Error"),
-		QApplication::tr("Cannot get pmtime to change style."),
-		QApplication::tr("Quit") );
-    free(message);
-}
-
 void TimeControl::endTimeControl(void)
 {
     QMessageBox::warning(0,
@@ -434,8 +414,6 @@ void TimeControl::protocolMessage(bool live,
 	    pmchart->VCRMode(live, msg, msg->command == PmTime::VCRModeDrag);
 	} else if (msg->command == PmTime::TZ) {
 	    pmchart->timeZone(live, msg, (char *)msg->data);
-	} else if (msg->command == PmTime::GUIStyle) {
-	    pmchart->setStyle((char *)msg->data);
 	}
 	break;
 

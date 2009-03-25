@@ -35,7 +35,6 @@ public:
     virtual void popup(bool hello_popetts);
     virtual void addTimezone(const char *string);
     virtual void setTime(PmTime::Packet *k, char *tzdata);
-    virtual void style(char *style, void *source);
     virtual void setupAssistant();
 
 public slots:
@@ -64,7 +63,6 @@ signals:
     void timePulse(PmTime::Packet *);
     void vcrModePulse(PmTime::Packet *, int);
     void tzPulse(PmTime::Packet *, char *, int, char *, int);
-    void stylePulse(PmTime::Packet *, char *, int, void *);
 
 protected:
     virtual void closeEvent(QCloseEvent *ce);

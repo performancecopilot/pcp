@@ -106,7 +106,6 @@ public slots:
     void boundsPulse(PmTime::Packet *k);
     void vcrModePulse(PmTime::Packet *k, int drag);
     void tzPulse(PmTime::Packet *k, char *t, int tlen, char *l, int llen);
-    void stylePulse(PmTime::Packet *k, char *style, int len, void *source);
 
 private:
     struct {

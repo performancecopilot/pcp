@@ -51,7 +51,6 @@ public slots:
     void hideLiveTimeControl();
     void showArchiveTimeControl();
     void hideArchiveTimeControl();
-    void styleTimeControl(char *);
     void endTimeControl();
 
     void readPortFromStdout();

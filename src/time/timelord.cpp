@@ -252,12 +252,6 @@ void TimeClient::readClient(void)
 	    break;
 	case PmTime::ACK:
 	    break;
-	case PmTime::GUIStyle:
-	    console->post(PmTime::DebugProtocol, "TimeClient::readClient "
-				"STYLE from client %p (msg=%s)", this, payload);
-	    QApplication::setStyle(tr(payload));
-	    my.hc->style(payload, this);
-	    break;
 	default:
 	    console->post(PmTime::DebugProtocol, "TimeClient::readClient "
 				"unknown command %d from client %p",
@@ -304,8 +298,6 @@ void TimeLord::setContext(PmTimeLive *live, PmTimeArch *arch)
     my.hc = live;
     connect(live, SIGNAL(timePulse(PmTime::Packet *)),
 		    SLOT(timePulse(PmTime::Packet *)));
-    connect(live, SIGNAL(stylePulse(PmTime::Packet *, char *, int, void *)),
-		    SLOT(stylePulse(PmTime::Packet *, char *, int, void *)));
     connect(live, SIGNAL(vcrModePulse(PmTime::Packet *, int)),
 		    SLOT(vcrModePulse(PmTime::Packet *, int)));
     connect(live, SIGNAL(tzPulse(PmTime::Packet *, char *, int, char *, int)),
@@ -400,18 +392,4 @@ void TimeLord::tzPulse(PmTime::Packet *packet,
     packet->command = PmTime::TZ;
     for (int i = 0; i < my.clientlist.size(); i++)
 	my.clientlist.at(i)->writeClient(packet, tz, tzlen, l, llen);
-}
-
-void TimeLord::stylePulse(PmTime::Packet *packet,
-				char *style, int len, void *source)
-{
-    console->post(PmTime::DebugProtocol, "TimeLord::stylePulse (%d-1 clients)"
-		" - %s", my.clientlist.count(), style, len);
-    packet->magic = PmTime::Magic;
-    packet->length = sizeof(PmTime::Packet) + len;
-    packet->command = PmTime::GUIStyle;
-    for (int i = 0; i < my.clientlist.size(); i++) {
-	if (my.clientlist.at(i) != (TimeClient *)source)
-	    my.clientlist.at(i)->writeClient(packet, style, len);
-    }
 }
