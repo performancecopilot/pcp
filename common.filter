@@ -500,7 +500,7 @@ _filter_torture_api()
 	-e '/Name space load/d' \
 	-e '/PMAPI operations/s/[0-9][0-9]* PMAPI/N PMAPI/' \
     | _filter_top_pmns \
-    | _filter_dumpresult_os \
+    | _filter_dumpresult \
     | sed -e '/PM_ID_NULL/{
 /No values returned!/s//No PMDA, no values [filtered]/
 /No PMCD agent for domain of request/s//No PMDA, no values [filtered]/
