@@ -4,12 +4,12 @@ Compiled PMNS contains
 	 1300 leaf nodes
 	  212 non-leaf nodes
 	11390 bytes of symbol table
-=== pmapi v2, 32-bit app, ascii format pmns ===
+=== pmapi v2, ascii format pmns ===
 differences relative to 031.out ...
 0a1
 > QA output created by 031
 
-=== pmapi v2, 32-bit app, binary format pmns ===
+=== pmapi v2, binary format pmns ===
 differences relative to 031.out ...
 0a1
 > QA output created by 031

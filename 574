@@ -2,10 +2,7 @@
 # PCP QA Test No. 574
 # $Revision: 1.8 $
 # Tests out the api (uses torture_api) in archive mode.
-# Main motivation is to test the PMNS in arhives for distrib-PMNS.
-#
-# See 702 for 64 bit comparison
-#
+# Main motivation is to test the PMNS in archives for distrib-PMNS.
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
