@@ -1,0 +1,8 @@
+/*
+ * Metrics for MMV PMDA
+ *
+ */
+
+mmv {
+	reload	MMV:0:0
+}
