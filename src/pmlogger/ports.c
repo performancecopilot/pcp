@@ -359,7 +359,10 @@ init_ports(void)
     chmod(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
 
     /* remove any existing port file with my name (it's old) */
-    sprintf(ctlfile + baselen + pcplen - 2, "%c%d", sep, (int)mypid);
+    n = baselen - 1;
+    if (pcplen)
+	n += (pcplen - 1);
+    sprintf(ctlfile + n, "%c%d", sep, (int)mypid);
     sts = unlink(ctlfile);
     if (sts == -1 && errno != ENOENT) {
 	fprintf(stderr, "%s: error removing %s: %s.  Exiting.\n",
