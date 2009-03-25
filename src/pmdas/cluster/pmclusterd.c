@@ -179,10 +179,6 @@ send_indoms(int fd, int npmidlist, pmID *pmidlist)
 	    continue;
 	}
 
-	if (pmDebug & DBG_TRACE_APPL2) {
-	    fprintf(stderr, "pmclusterd: indom %d has %d instances\n", indoms[i], n);
-	}
-
 	for (j=0; j < n; j++) {
 	    /*
 	     * 
@@ -219,6 +215,7 @@ daemonize(char *lflag)
 {
     int		childpid;
     char	logpath[128];
+    int		fd0, fd1;
 
     /*
      * Daemonize
@@ -248,7 +245,12 @@ daemonize(char *lflag)
     if (setsid() == -1)
         __pmNotifyErr(LOG_WARNING, "StartDaemon: setsid");
         /* but keep going */
+
+    /* Close stdin/stdout and reopen */
     close(0);
+    close(1);
+    fd0 = open("/dev/null", O_RDWR);
+    fd1 = dup(0);
 }
 
 int
@@ -451,7 +453,7 @@ usage:
 	    exit(1);
 	}
 	if (pmDebug & DBG_TRACE_APPL2) {
-	    fprintf(stderr, "Opened local context to Linux PMDA\n");
+	    fprintf(stderr, "Opened local context to PMDAs\n");
 	}
 
 	/*
