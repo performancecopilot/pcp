@@ -19,8 +19,9 @@
 
 prog=`basename $0`
 
-usage() {
-cat <<EOFEOF
+usage()
+{
+    cat <<EOFEOF
 Usage: $prog [-d] [-s stdpmid] [-D domain] [-t topdir] [-n pmns] [-o dir] [-v] -i IAM -c config
 Required options:
   -c config     required: input config file, see example below
@@ -182,19 +183,10 @@ install_g=install-generic.new
 #
 cat <<EOFEOF >$oflag/Install
 #! /bin/sh
-# source the PCP configuration environment variables
 . \$PCP_DIR/etc/pcp.env
-
-# Get the common procedures and variable assignments
-#
 . \$PCP_SHARE_DIR/lib/pmdaproc.sh
 
-# The name of the PMDA
-#
 iam=$iam
-
-# Using libpcp_pmda.so.3 and PMDA_INTERFACE_3
-#
 pmda_interface=3
 EOFEOF
 
@@ -203,17 +195,17 @@ then
     cat <<EOFEOF >>$oflag/Install
 # controls for daemon PMDA installation procedures
 #
-daemon_opt=true         # can install as daemon
+daemon_opt=true
 dso_opt=false
-pipe_opt=true           # supports pipe IPC
-socket_opt=false        # force pipe IPC
+pipe_opt=true
+socket_opt=false
 
 EOFEOF
 else
     cat <<EOFEOF >>$oflag/Install
 # controls for DSO installation procedures
 #
-daemon_opt=false        # can install as daemon
+daemon_opt=false
 dso_opt=true
 pipe_opt=false
 socket_opt=false
@@ -234,7 +226,7 @@ __choose_mode()
 __choose_ipc()
 {
     ipc_type=pipe
-    type="pipe  \$ipc_prot       \$PCP_PMDAS_DIR/\$iam/pmda\$iam"
+    type="pipe  binary       \$PCP_PMDAS_DIR/\$iam/pmda\$iam"
 }
 
 # Do it
@@ -254,19 +246,10 @@ $verbose && echo Wrote $oflag/Install
 
 cat <<EOFEOF >$oflag/Remove
 #! /bin/sh
-# source the PCP configuration environment variables
 . \$PCP_DIR/etc/pcp.env
-
-# Get the common procedures and variable assignments
-#
 . \$PCP_SHARE_DIR/lib/pmdaproc.sh
 
-# The name of the PMDA
-#
 iam=$iam
-
-# Do it
-#
 pmdaSetup
 pmdaRemove
 
@@ -623,8 +606,6 @@ END {
 	printf " %s.c", c >>cfiles
 
 	printf "/*\n" >>fetch_c
-	printf " * Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.\n" >>fetch_c
-	printf " *\n" >>fetch_c
 	printf " * Originally generated from \"%s\" using genpmda(1).\n","'$config'" >>fetch_c
 	printf " *\n" >>fetch_c
 	printf " * Refresh and fetch methods for the \"%s\" cluster.\n", c >>fetch_c
@@ -902,11 +883,6 @@ chmod 755 $install_g
 # Generate GNUmakefile
 #
 cat << EOFEOF >$gnumakefile
-# !gmake
-#
-# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-#
-
 TOPDIR = $tflag
 include \$(TOPDIR)/src/include/builddefs
 
@@ -971,10 +947,6 @@ EOFEOF
 # Generate GNUmakefile.generic
 #
 cat << EOFEOF >$gnumakefile_g
-# !gmake
-#
-# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-#
 IAM	= $iam
 CONFIG  = $config
 DOMAIN	= $domain

@@ -56,7 +56,7 @@ static char	*cpp_path[] = {
 #define MARK_BIT	0x40000000	/* mark bit */
 
 
-static int	lineno = 0;
+static int	lineno;
 static char	linebuf[256];
 static char	*linep;
 static char	fname[256];

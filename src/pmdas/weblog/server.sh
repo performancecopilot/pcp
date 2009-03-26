@@ -21,18 +21,8 @@
 . $PCP_DIR/etc/pcp.env
 
 # Setup some default paths 
-
-case "$PCP_PLATFORM" in
-    linux)
-	_logdir=/var/log
-	_msgfil=messages
-	;;
-
-    irix)
-	_logdir=/var/adm
-	_msgfil=SYSLOG
-	;;
-esac
+_logdir=/var/log
+_msgfil=messages
 
 #
 # Every supported server defines 10 variables which are used by addServer()
@@ -116,13 +106,8 @@ ZEUSPATH="${ZEUSPATH-/usr/local/zeus}"
 SQUIDPATH="${SQUIDPATH-/usr/local/squid}"
 
 # look for Apache servers here
-# On Linux they live under /etc/httpd
-# Apache from Irix Freeware keeps its stuff in /usr/freeware/apache/etc
-# And by default it's in /usr/apache.
-# On IRIX, the bundled Apache maintains its files below
-# /var/sgi_apache/httpd-outbox
 #
-APACHEPATH="${APACHEPATH-/etc/httpd:/usr/freeware/apache:/usr/apache:/var/sgi_apache/httpd-outbox}"
+APACHEPATH="${APACHEPATH-/etc/apache2:/etc/httpd}"
 
 # look for anonymous ftp here
 #
@@ -764,21 +749,30 @@ END			  { if (mode == 0)
 
 _apache_extract()
 {
-    for apchroot in `echo $APACHEPATH | sed -e 's/:/ /g'`
+    for apchroot in `echo "$APACHEPATH" | sed -e 's/:/ /g'`
     do
 	$debug && echo "_apache_extract: apachroot=$apchroot"
-	config=''
-	if [ -f $apchroot/conf/httpd.conf ]
+	if [ -d "$apchroot/sites-available" ]
 	then
-	    config=$apchroot/conf/httpd.conf
-	elif [ -f $apchroot/etc/httpd.conf ]
+	    config="$apchroot/sites-available/"
+	elif [ -d "$apchroot/vhosts.d" ]
 	then
-	    config=$apchroot/etc/httpd.conf
+	    config="$apchroot/vhosts.d/"
+	elif [ -d "$apchroot/conf" ]
+	then
+	    config="$apchroot/conf/"
+	elif [ -f "$apchroot/httpd.conf" ]
+	then
+	    config="$apchroot/httpd.conf"
+	else
+	    continue
 	fi
 
-	if [ ! -z "$config" ]
-	then
+	for config in `echo ${config}*`
+	do
 	    $debug && echo "_apache_extract: config=$config"
+	    [ -f "$config" ] || continue
+
 	    cat $config  \
 	    | sed -e's/#.*//' -e'/^$/d' \
 	    | $PCP_AWK_PROG -v def=`hostname` '
@@ -794,7 +788,7 @@ _apache_extract()
 			curnam=$2;
 			port=ports[def];
 		    } else {
-			if ( length (nm[1]) ) {
+			if ( length (nm[1]) && nm[1] != "*" ) {
 			    curnam = nm[1];
 			} else {
 			    curnam = def;
@@ -820,6 +814,13 @@ _apache_extract()
 			erlog[curnam] = $2;
 		    }
 		}
+		$1 == "DocumentRoot" {
+		    if ( match ($2, "/") != 1 ) {
+			docs[curnam] = sprintf ("%s/%s", "'$apchroot'", $2);
+		    } else {
+			docs[curnam] = $2;
+		    }
+		}
 		$1 == "TransferLog" {
 		    if ( match ($2, "/") != 1 ) {
 			tlog[curnam] = sprintf ("%s/%s", "'$apchroot'", $2);
@@ -836,61 +837,20 @@ _apache_extract()
 		}
 		END {
 		    for ( n in names ) {
-			 print names[n], ports[n], tlog[n], erlog[n]; 
+			 print names[n], ports[n], tlog[n], erlog[n], docs[n]; 
 		    }
 		}'\
-	     | while read serverName serverPort access errors ; do
-		$debug && echo "_apache_extract: serverName=$serverName serverPort=$serverPort access=$access errors=$errors"
-		if [ "$serverPort" = 443 ]
-		then
-		    # this is the SSL virtual server ... skip it until
-		    # we understand how to find its log files ...
-		    #
-		    continue
-		fi
+	     | while read serverName serverPort access errors docs ; do
+		$debug && echo "_apache_extract: serverName=$serverName serverPort=$serverPort access=$access errors=$errors docs=$docs"
+
 		accessRegex=CERN
 		errorRegex=CERN_err
 		serverPath="$apchroot"
 		serverDesc="Apache Server"
 
-		docs=""
-		for dir in conf etc
-		do
-		    for conf in srm.conf httpd.conf
-		    do
-			if [ -f "$apchroot/$dir/$conf" ]
-			then
-			    # TODO - need to be smarter here, may be many
-			    # DocumentRoot control lines in more than one
-			    # config file and more than one such line in
-			    # each file ... need to understand how Apache
-			    # really does this ... for the moment, first
-			    # match wins
-			    #
-			    docs=`grep "^DocumentRoot" $apchroot/$dir/$conf \
-			          | sed -e 's/"//g' \
-					-e 1q \
-				  | $PCP_AWK_PROG '{r=$2}END{print r}'`
-			fi
-			[ -n "$docs" ] && break
-		    done
-		done
-
-		if [ -z "$docs" ]
-		then
-		    docs=$apchroot/htdocs
-		    echo "Found $serverDesc at $serverPath"
-		    echo "${pfx}Warning: unable to determine document root, assuming:"
-		    echo "${pfx}	$docs"
-		    echo
-		elif [ ! -d $docs ]
-		then
-		    [ -d $apchroot/$docs ] && docs="$apchroot/$docs"
-		fi
-
 		_switchAction
 	    done
-	fi
+	done
     done
 }
 

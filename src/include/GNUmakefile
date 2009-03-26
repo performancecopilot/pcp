@@ -22,11 +22,12 @@ include $(TOPDIR)/src/include/builddefs
 
 HFILES = pmapi.h impl.h pmda.h pmtime.h pmafm.h \
 	 trace.h trace_dev.h trace_hash.h
+IMPORT = pmimport.h
 GENERATED_HFILES = pmdbg.h platform_defs.h
 CONFFILES = platform_defs.h builddefs pcp.conf
 
 LSRCFILES = platform_defs.h.in builddefs.in buildrules pcp.conf.in \
-	    pcp.env mk_pmdbg
+	    pcp.env mk_pmdbg $(IMPORT)
 
 LDIRT = builddefs.install
 

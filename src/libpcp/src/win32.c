@@ -42,6 +42,7 @@ LoadKernel32(void)
 	fprintf(stderr, "LoadKernel32 failed (%ld)\n", GetLastError());
 }
 
+
 typedef void(CALLBACK *WAITORTIMERCALLBACK)(PVOID,BOOLEAN);
 typedef BOOL (WINAPI * __RegisterWaitForSingleObject)
     (PHANDLE, HANDLE, WAITORTIMERCALLBACK, PVOID, ULONG, ULONG);
@@ -89,7 +90,7 @@ SignalCallback(PVOID param, BOOLEAN timerorwait)
 {
     int index = (int)param;
 
-    if (index > 0 && index < MAX_SIGNALS)
+    if (index >= 0 && index < MAX_SIGNALS)
 	signals[index].callback(signals[index].signal);
     else
 	fprintf(stderr, "SignalCallback: bad signal index (%d)\n", index);
@@ -169,17 +170,21 @@ int
 __pmSetProgname(const char *program)
 {
     int	sts1, sts2;
-    char *p;
+    char *p, *suffix = NULL;
     WORD wVersionRequested = MAKEWORD(2, 2);
     WSADATA wsaData;
 
-    /* Trim command name of leading directory components */
+    /* Trim command name of leading directory components and ".exe" suffix */
     if (program)
 	pmProgname = (char *)program;
     for (p = pmProgname; pmProgname && *p; p++) {
-	if (*p == '/')
+	if (*p == '\\')
 	    pmProgname = p + 1;
+	if (*p == '.')
+	    suffix = p;
     }
+    if (suffix && strcmp(suffix, ".exe") == 0)
+	*suffix = '\0';
 
     /* Deal with all files in binary mode - no EOL futzing */
     _fmode = O_BINARY;
@@ -387,7 +392,7 @@ nanosleep(const struct timespec *req, struct timespec *rem)
     }
     milliseconds = req->tv_sec * MILLISEC_PER_SEC
 			+ req->tv_nsec / NANOSEC_PER_MILLISEC;
-    Sleep(milliseconds);
+    SleepEx(milliseconds, TRUE);
     if (rem)
 	memset(rem, 0, sizeof(*rem));
     return 0;
@@ -396,7 +401,7 @@ nanosleep(const struct timespec *req, struct timespec *rem)
 unsigned int
 sleep(unsigned int seconds)
 {
-    Sleep(seconds * 1000);
+    SleepEx(seconds * 1000, TRUE);
     return 0;
 }
 
@@ -617,41 +622,5 @@ pmLoopStop(void)
 int
 pmLoopMain(void)
 {
-    return -1;
-}
-
-
-/* AF.c */
-
-int
-__pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *))
-{
-    /* TODO */
-    return -1;
-}
-
-int
-__pmAFunregister(int afid)
-{
-    /* TODO */
-    return -1;
-}
-
-void
-__pmAFblock(void)
-{
-    /* TODO */
-}
-
-void
-__pmAFunblock(void)
-{
-    /* TODO */
-}
-
-int
-__pmAFisempty(void)
-{
-    /* TODO */
     return -1;
 }

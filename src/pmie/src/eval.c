@@ -20,7 +20,6 @@
  */
 
 #include <limits.h>
-#include <sys/syslog.h>
 #include "dstruct.h"
 #include "eval.h"
 #include "fun.h"

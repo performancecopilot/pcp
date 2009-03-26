@@ -15,8 +15,9 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
-
+#define _WIN32_WINNT	0x0500	/* for CreateHardLink */
 #include <math.h>
+#include <ctype.h>
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
@@ -62,6 +63,7 @@ sigexit_handler(int sig)
     exit(1);
 }
 
+#ifndef IS_MINGW
 static void
 sigcore_handler(int sig)
 {
@@ -72,6 +74,7 @@ sigcore_handler(int sig)
     cleanup();
     abort();
 }
+#endif
 
 static void
 sighup_handler(int sig)
@@ -82,6 +85,7 @@ sighup_handler(int sig)
     __pmSetSignalHandler(SIGHUP, sighup_handler);
 }
 
+#ifndef IS_MINGW
 static void
 sigpipe_handler(int sig)
 {
@@ -91,6 +95,7 @@ sigpipe_handler(int sig)
      */
     __pmSetSignalHandler(SIGPIPE, sigpipe_handler);
 }
+#endif
 
 static void
 sigusr1_handler(int sig)
@@ -104,6 +109,7 @@ sigusr1_handler(int sig)
 #endif
 }
 
+#ifndef IS_MINGW
 /*
  * if we are launched from pmRecord*() in libpcp, then we
  * may end up using popen() to run xconfirm(1), and then there
@@ -113,6 +119,7 @@ static void
 sigchld_handler(int sig)
 {
 }
+#endif
 
 typedef struct {
     int		sig;
@@ -125,6 +132,7 @@ typedef struct {
 static sig_map_t	sig_handler[] = {
     { SIGHUP,	sighup_handler },	/* Exit   Hangup [see termio(7)] */
     { SIGINT,	sigexit_handler },	/* Exit   Interrupt [see termio(7)] */
+#ifndef IS_MINGW
     { SIGQUIT,	sigcore_handler },	/* Core   Quit [see termio(7)] */
     { SIGILL,	sigcore_handler },	/* Core   Illegal Instruction */
     { SIGTRAP,	sigcore_handler },	/* Core   Trace/Breakpoint Trap */
@@ -139,8 +147,10 @@ static sig_map_t	sig_handler[] = {
     { SIGSYS,	sigcore_handler },	/* Core   Bad System Call */
     { SIGPIPE,	sigpipe_handler },	/* Exit   Broken Pipe */
     { SIGALRM,	sigexit_handler },	/* Exit   Alarm Clock */
+#endif
     { SIGTERM,	sigexit_handler },	/* Exit   Terminated */
     { SIGUSR1,	sigusr1_handler },	/* Exit   User Signal 1 */
+#ifndef IS_MINGW
     { SIGUSR2,	sigexit_handler },	/* Exit   User Signal 2 */
     { SIGCHLD,	sigchld_handler },	/* NOP    Child stopped or terminated */
 #ifdef SIGPWR
@@ -161,6 +171,7 @@ static sig_map_t	sig_handler[] = {
     { SIGPROF,	sigexit_handler },	/* Exit   Profiling Timer Expired */
     { SIGXCPU,	sigcore_handler },	/* Core   CPU time limit exceeded [see getrlimit(2)] */
     { SIGXFSZ,	sigcore_handler}	/* Core   File size limit exceeded [see getrlimit(2)] */
+#endif
 };
 
 /* Create socket for incoming connections and bind to it an address for
@@ -177,8 +188,6 @@ GetPort(char *file)
     struct sockaddr_in	myAddr;
     static int		port_base = -1;
     struct hostent	*hep;
-    extern char	    	*archBase;		/* base name for log files */
-    extern char		*pmcd_host;		/* collecting from PMCD on this host */
 
     fd = __pmCreateSocket();
     if (fd < 0) {
@@ -253,16 +262,21 @@ GetPort(char *file)
     fprintf(mapstream, "%s\n", hep == NULL ? "" : hep->h_name);
 
     /* and finally the full pathname to the archive base */
-    if (*archBase == '/')
+    __pmNativePath(archBase);
+    if (archBase[0] == '/'
+#ifdef IS_MINGW
+	|| (strlen(archBase) > 2 && isalpha(archBase[0]) &&
+	    archBase[1] == ':' && archBase[2] == '\\')
+#endif
+	)
 	fprintf(mapstream, "%s\n", archBase);
     else {
 	char		path[MAXPATHLEN];
 	if (getcwd(path, MAXPATHLEN) == NULL)
 	    fprintf(mapstream, "\n");
 	else
-	    fprintf(mapstream, "%s/%s\n", path, archBase);
+	    fprintf(mapstream, "%s%c%s\n", path, __pmPathSeparator(), archBase);
     }
-
 
     fclose(mapstream);
     close(mapfd);
@@ -278,11 +292,11 @@ GetPort(char *file)
 void
 init_ports(void)
 {
-    int		i, n, sts;
-    int		j;
-    int		extlen, baselen;
+    int		i, j, n, sts;
+    int		sep = __pmPathSeparator();
+    int		extlen, baselen, pcplen = 0;
+    char	*pcpdir = getenv("PCP_DIR");
     pid_t	mypid = getpid();
-    extern int	primary;		/* Non-zero for primary logger */
 
     /*
      * make sure control port files are removed when pmlogger terminates
@@ -323,15 +337,20 @@ init_ports(void)
 	n /= 10;
     /* baselen is directory + trailing / */
     baselen = strlen(PM_LOG_PORT_DIR) + 1;
-    n = baselen + extlen + 1;
-    ctlfile = (char *)malloc(n);
-    if (ctlfile == NULL) {
+    /* likewise for PCP_DIR if it is set */
+    if (pcpdir)
+	pcplen = strlen(pcpdir) + 1;
+    n = pcplen + baselen + extlen + 1;
+    ctlfile = (char *)calloc(1, n);
+    if (ctlfile == NULL)
 	__pmNoMem("port file name", n, PM_FATAL_ERR);
-    }
-    strcpy(ctlfile, PM_LOG_PORT_DIR);
-    
+    if (pcplen)
+	strcat(ctlfile, pcpdir);
+    strcat(ctlfile, PM_LOG_PORT_DIR);
+    __pmNativePath(ctlfile);
+
     /* try to create the port file directory. OK if it already exists */
-    sts = mkdir(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO);
+    sts = mkdir2(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO);
     if (sts < 0 && errno != EEXIST) {
 	fprintf(stderr, "%s: error creating port file dir %s: %s\n",
 		pmProgname, ctlfile, strerror(errno));
@@ -340,8 +359,10 @@ init_ports(void)
     chmod(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
 
     /* remove any existing port file with my name (it's old) */
-    strcat(ctlfile, "/");
-    sprintf(ctlfile + baselen, "%d", (int)mypid);
+    n = baselen - 1;
+    if (pcplen)
+	n += (pcplen - 1);
+    sprintf(ctlfile + n, "%c%d", sep, (int)mypid);
     sts = unlink(ctlfile);
     if (sts == -1 && errno != ENOENT) {
 	fprintf(stderr, "%s: error removing %s: %s.  Exiting.\n",
@@ -358,15 +379,20 @@ init_ports(void)
      */
     if (primary) {
 	extlen = strlen(PM_LOG_PRIMARY_LINK);
-	n = baselen + extlen + 1;
-	linkfile = (char *)malloc(n);
-	if (linkfile == NULL) {
+	n = pcplen + baselen + extlen + 1;
+	linkfile = (char *)calloc(1, n);
+	if (linkfile == NULL)
 	    __pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
-	}
-	strcpy(linkfile, PM_LOG_PORT_DIR);
-	strcat(linkfile, "/");
-	strcat(linkfile, PM_LOG_PRIMARY_LINK);
-	if (symlink(ctlfile, linkfile) != 0) {
+	i = pcplen ? sprintf(linkfile, "%s", pcpdir) : 0;
+	sprintf(linkfile + i, "%s%c%s",
+		PM_LOG_PORT_DIR, sep, PM_LOG_PRIMARY_LINK);
+	__pmNativePath(linkfile);
+#ifndef IS_MINGW
+	sts = symlink(ctlfile, linkfile);
+#else
+	sts = (CreateHardLink(linkfile, ctlfile, NULL) == 0);
+#endif
+	if (sts != 0) {
 	    if (errno == EEXIST)
 		fprintf(stderr, "%s: there is already a primary pmlogger running\n", pmProgname);
 	    else

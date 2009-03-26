@@ -39,55 +39,39 @@ __pmSendInstanceReq(int fd, int mode, const __pmTimeval *when, pmInDom indom,
     instance_req_t	*pp;
     int			need;
 
-    if (mode == PDU_BINARY) {
-	need = sizeof(instance_req_t) - sizeof(int);
-	if (name != NULL)
-	    need += sizeof(__pmPDU)*((strlen(name) - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
-	if ((pp = (instance_req_t *)__pmFindPDUBuf(sizeof(need))) == NULL)
-	    return -errno;
-	pp->hdr.len = need;
-	pp->hdr.type = PDU_INSTANCE_REQ;
-	pp->when.tv_sec = htonl((__int32_t)when->tv_sec);
-	pp->when.tv_usec = htonl((__int32_t)when->tv_usec);
-	pp->indom = __htonpmInDom(indom);
-	pp->inst = htonl(inst);
-	if (name == NULL)
-	    pp->namelen = 0;
-	else {
-	    pp->namelen = (int)strlen(name);
-	    memcpy((void *)pp->name, (void *)name, pp->namelen);
-#ifdef PCP_DEBUG
-	    if ((pp->namelen % sizeof(__pmPDU)) != 0) {
-		/* for Purify */
-		int	pad;
-		char	*padp = pp->name + pp->namelen;
-		for (pad = sizeof(__pmPDU) - 1; pad >= (pp->namelen % sizeof(__pmPDU)); pad--)
-		    *padp++ = '~';	/* buffer end */
-	    }
-#endif
-	    pp->namelen = htonl(pp->namelen);
-	}
+    if (mode == PDU_ASCII)
+	return PM_ERR_NOASCII;
 
-	return __pmXmitPDU(fd, (__pmPDU *)pp);
-    }
+    need = sizeof(instance_req_t) - sizeof(int);
+    if (name != NULL)
+	need += sizeof(__pmPDU)*((strlen(name) - 1 + sizeof(__pmPDU))/sizeof(__pmPDU));
+    if ((pp = (instance_req_t *)__pmFindPDUBuf(sizeof(need))) == NULL)
+	return -errno;
+    pp->hdr.len = need;
+    pp->hdr.type = PDU_INSTANCE_REQ;
+    pp->when.tv_sec = htonl((__int32_t)when->tv_sec);
+    pp->when.tv_usec = htonl((__int32_t)when->tv_usec);
+    pp->indom = __htonpmInDom(indom);
+    pp->inst = htonl(inst);
+    if (name == NULL)
+	pp->namelen = 0;
     else {
-	/* assume PDU_ASCII */
-	int		nbytes, sts;
+	pp->namelen = (int)strlen(name);
+	memcpy((void *)pp->name, (void *)name, pp->namelen);
+#ifdef PCP_DEBUG
+	if ((pp->namelen % sizeof(__pmPDU)) != 0) {
+	    /* for Purify */
+	    int	pad;
+	    char	*padp = pp->name + pp->namelen;
 
-	if (name == NULL) {
-	    if (inst == PM_IN_NULL)
-		snprintf(__pmAbuf, sizeof(__pmAbuf), "INSTANCE_REQ %d ? ?\n", indom);
-	    else
-		snprintf(__pmAbuf, sizeof(__pmAbuf), "INSTANCE_REQ %d %d ?\n", indom, inst);
+	    for (pad = sizeof(__pmPDU) - 1; pad >= (pp->namelen % sizeof(__pmPDU)); pad--)
+		*padp++ = '~';	/* buffer end */
 	}
-	else
-	    snprintf(__pmAbuf, sizeof(__pmAbuf), "INSTANCE_REQ %d ? %s\n", indom, name);
-	nbytes = (int)strlen(__pmAbuf);
-	sts = __pmXmitAscii(fd, __pmAbuf, nbytes);
-	if (sts < 0)
-	    return sts;
-	return 0;
+#endif
+	pp->namelen = htonl(pp->namelen);
     }
+
+    return __pmXmitPDU(fd, (__pmPDU *)pp);
 }
 
 int
@@ -95,11 +79,8 @@ __pmDecodeInstanceReq(__pmPDU *pdubuf, int mode, __pmTimeval *when, pmInDom *ind
 {
     instance_req_t	*pp;
 
-    if (mode == PDU_ASCII) {
-	/* Incoming ASCII request PDUs not supported */
+    if (mode == PDU_ASCII)
 	return PM_ERR_NOASCII;
-    }
-
     pp = (instance_req_t *)pdubuf;
     when->tv_sec = ntohl(pp->when.tv_sec);
     when->tv_usec = ntohl(pp->when.tv_usec);
@@ -143,10 +124,8 @@ __pmSendInstance(int fd, int mode, __pmInResult *result)
     int			i;
     int			j;
 
-    if (mode == PDU_ASCII) {
-	/* Outgoing ASCII result PDUs not supported */
+    if (mode == PDU_ASCII)
 	return PM_ERR_NOASCII;
-    }
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_INDOM)
@@ -207,24 +186,22 @@ __pmDecodeInstance(__pmPDU *pdubuf, int mode, __pmInResult **result)
     int			j;
     instance_t		*rp;
     instlist_t		*ip;
-    __pmInResult		*res = NULL;
+    __pmInResult	*res = NULL;
     int			sts;
+    char		*p;
+    int			keep_instlist;
+    int			keep_namelist;
 
+    if (mode == PDU_ASCII)
+	return PM_ERR_NOASCII;
     if ((res = (__pmInResult *)malloc(sizeof(*res))) == NULL)
 	return -errno;
     res->instlist = NULL;
     res->namelist = NULL;
 
-    if (mode == PDU_BINARY) {
-	rp = (instance_t *)pdubuf;
-	res->indom = __ntohpmInDom(rp->indom);
-	res->numinst = ntohl(rp->numinst);
-    }
-    else {
-	/* assume PDU_ASCII */
-	if ((sts = __pmRecvLine(pdubuf, ABUFSIZE, __pmAbuf)) <= 0) goto badsts;
-	if (sscanf(__pmAbuf, "INSTANCE %d %d", &res->indom, &res->numinst) != 2) goto bad;
-    }
+    rp = (instance_t *)pdubuf;
+    res->indom = __ntohpmInDom(rp->indom);
+    res->numinst = ntohl(rp->numinst);
 
     if ((res->instlist = (int *)malloc(res->numinst * sizeof(res->instlist[0]))) == NULL) {
 	sts = -errno;
@@ -241,16 +218,12 @@ __pmDecodeInstance(__pmPDU *pdubuf, int mode, __pmInResult **result)
     for (i = 0; i < res->numinst; i++)
 	res->namelist[i] = NULL;
 
-    if (mode == PDU_BINARY) {
-	char	*p;
-	int	keep_instlist;
-	int	keep_namelist;
+    if (res->numinst == 1)
+	keep_instlist = keep_namelist = 0;
+    else
+	keep_instlist = keep_namelist = 1;
+    j = 0;
 
-	if (res->numinst == 1)
-	    keep_instlist = keep_namelist = 0;
-	else
-	    keep_instlist = keep_namelist = 1;
-	j = 0;
 	for (i = 0; i < res->numinst; i++) {
 	    ip = (instlist_t *)&rp->rest[j/sizeof(__pmPDU)];
 	    res->instlist[i] = ntohl(ip->inst);
@@ -278,28 +251,6 @@ __pmDecodeInstance(__pmPDU *pdubuf, int mode, __pmInResult **result)
 	    free(res->namelist);
 	    res->namelist = NULL;
 	}
-    }
-    else {
-	char	*q;
-	char	*qbase;
-
-	for (i = 0; i <res->numinst; i++) {
-	    if ((sts = __pmRecvLine(pdubuf, ABUFSIZE, __pmAbuf)) <= 0) goto badsts;
-	    q = &__pmAbuf[2];
-	    while (*q && isspace((int)*q)) q++;
-	    if (sscanf(q, "%d", &res->instlist[i]) != 1) goto bad;
-	    while (*q && !isspace((int)*q)) q++;
-	    while (*q && isspace((int)*q)) q++;
-	    qbase = q;
-	    while (*q && !isspace((int)*q)) q++;
-	    if ((res->namelist[i] = (char *)malloc(q - qbase + 1)) == NULL) {
-		sts = -errno;
-		goto badsts;
-	    }
-	    strncpy(res->namelist[i], qbase, q - qbase);
-	    res->namelist[i][q-qbase] = '\0';
-	}
-    }
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_INDOM)
@@ -307,11 +258,6 @@ __pmDecodeInstance(__pmPDU *pdubuf, int mode, __pmInResult **result)
 #endif
     *result = res;
     return 0;
-
-bad:
-    sts = PM_ERR_IPC;
-    __pmNotifyErr(LOG_WARNING, "__pmDecodeInstance: ASCII botch @ \"%s\"\n", __pmAbuf);
-    /* FALLTHRU */
 
 badsts:
     __pmFreeInResult(res);

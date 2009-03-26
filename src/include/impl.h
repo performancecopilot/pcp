@@ -219,8 +219,7 @@ extern void __pmSyslog(int);
 extern void __pmNotifyErr(int, const char *, ...);
 
 /*
- * These ones are only for debugging and may not appear in the shipped
- * libpmapi ...
+ * These are for debugging only (but are present in the shipped libpcp)
  */
 EXTERN int	pmDebug;
 #define  DBG_TRACE_PDU		1	/* PDU send and receive */
@@ -252,6 +251,7 @@ extern void __pmPrintDesc(FILE *, const pmDesc *);
 extern void __pmFreeResultValues(pmResult *);
 extern const char *__pmPDUTypeStr(int);
 extern void __pmDumpNameSpace(FILE *, int);
+EXTERN int __pmLogReads;
 
 #ifdef PCP_DEBUG
 extern void __pmDumpIDList(FILE *, int, const pmID *);
@@ -577,12 +577,7 @@ typedef struct {
 #define CVERSION        1
 #define CAUTH           2
 
-/* ASCII PDU line buffer */
-#define ABUFSIZE 256
-extern char __pmAbuf[ABUFSIZE];
-
 extern int __pmXmitPDU(int, __pmPDU *);
-extern int __pmXmitAscii(int, const char *, int);
 extern int __pmGetPDU(int, int, int, __pmPDU **);
 extern int __pmGetPDUCeiling (void);
 extern int __pmSetPDUCeiling (int);
@@ -595,9 +590,7 @@ extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 #define TIMEOUT_NEVER	 0
 #define TIMEOUT_DEFAULT	-1
 #define GETPDU_ASYNC	-2
-extern int __pmRecvPDU(int, int, __pmPDU **);	/* old interface to __pmGetPDU */
 
-extern int __pmRecvLine(__pmPDU *, int, char *);
 extern __pmPDU *__pmFindPDUBuf(int);
 extern void __pmPinPDUBuf(void *);
 extern int __pmUnpinPDUBuf(void *);
@@ -623,6 +616,11 @@ extern void __pmCountPDUBuf(int, int *, int *);
 #define PDU_PMNS_TRAVERSE	0x7010
 #define PDU_FINISH		0x7010
 #define PDU_MAX		 	(PDU_FINISH - PDU_START)
+
+/*
+ * Unit of space allocation for PDU buffer.
+ */
+#define PDU_CHUNK		1024
 
 /*
  * PDU encoding formats
@@ -877,13 +875,6 @@ extern double __pmtimevalSub(const struct timeval *, const struct timeval *);
 extern double __pmtimevalToReal(const struct timeval *);
 extern void __pmtimevalFromReal(double, struct timeval *);
 
-/*
- * interface to __pmGetPDU() controls
- */
-extern int __pmMoreInput(int);
-extern void __pmNoMoreInput(int);
-
-/* time control timezone */
 typedef struct {
     char		*label;		/* label to name tz */
     char		*tz;		/* env $TZ */

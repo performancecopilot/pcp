@@ -176,7 +176,7 @@ PCP_PLATFORM_PATHS=@pcp_platform_paths@
 # PCP version
 PCP_VERSION=@PACKAGE_VERSION@
 
-# xconfirm
+# confirmation dialog
 PCP_XCONFIRM_PROG=@ac_xconfirm_prog@
 
 # mpi

@@ -771,11 +771,9 @@ ParsePipe(char *pmDomainLabel, int pmDomainId)
     FindNextToken();
     if (TokenIs("binary"))
 	pduProtocol = PDU_BINARY;
-    else if (TokenIs("text")) 
-	pduProtocol = PDU_ASCII;
     else {
 	fprintf(stderr,
-		     "pmcd: line %d, pipe PDU type expected (`binary' or `text')\n",
+		     "pmcd: line %d, pipe PDU type expected (`binary')\n",
 		     nLines);
 	return -1;
     }
@@ -1657,7 +1655,7 @@ GetAgentDso(AgentInfo *aPtr)
 #else
     fprintf(stderr, "Error attaching %s DSO at \"%s\"\n",
 		     aPtr->pmDomainLabel, dso->pathName);
-    fprintf(stderr, "No dynamic DSO/DLL support on this platform\n");
+    fprintf(stderr, "No dynamic shared library support on this platform\n");
     return -1;
 #endif
 

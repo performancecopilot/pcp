@@ -14,33 +14,48 @@
 .\"
 .ie \(.g \{\
 .\" ... groff (hack for khelpcenter, man2html, etc.)
-.TH PMCONFIG 1 "PCP" "Performance Co-Pilot"
+.TH PMSIGNAL 1 "PCP" "Performance Co-Pilot"
 \}
 .el \{\
-.if \nX=0 .ds x} PMCONFIG 1 "PCP" "Performance Co-Pilot"
-.if \nX=1 .ds x} PMCONFIG 1 "Performance Co-Pilot"
-.if \nX=2 .ds x} PMCONFIG 1 "" "\&"
-.if \nX=3 .ds x} PMCONFIG "" "" "\&"
+.if \nX=0 .ds x} PMSIGNAL 1 "PCP" "Performance Co-Pilot"
+.if \nX=1 .ds x} PMSIGNAL 1 "Performance Co-Pilot"
+.if \nX=2 .ds x} PMSIGNAL 1 "" "\&"
+.if \nX=3 .ds x} PMSIGNAL "" "" "\&"
 .TH \*(x}
 .rr X
 \}
 .SH NAME
-\f3pmconfig\f1 \- Performance Co-Pilot configuration parameters
+\f3pmsignal\f1 \- send a signal to one or more processes
 .SH SYNOPSIS
-\f3$PCP_BINADM_DIR/pmconfig\f1
+\f3$PCP_BINADM_DIR/pmsignal\f1
 [\f3\-a\f1|\f3-l\f1]
-[\f3\-s\f1]
-[\f2name ...\f1]
+[\f3\-n\f1]
+[\f3\-s\f1 \fIsignal\fR]
+[\f2PID\f1 ...|\f2name\f1 ...]
 .SH DESCRIPTION
-.B pmconfig
-displays the values for some or all configuration parameters 
-of the local Performance Co-Pilot toolkit installation.
+.B pmsignal
+provides a cross-platform event signalling mechanism for use with
+tools from the Performance Co-Pilot toolkit.
+It can be used to send a named
+.I signal
+(only HUP, USR1, TERM, and KILL are accepted).
+to one or more processes.
+The processes are specified using PID or the binary name (with
+.B \-a
+option).
 .PP
-It is primarily used in conjunction with the
-.B $PCP_DIR
-environment variable to setup scripts running under the Windows
-operating system, where the filesystem hierarcy is very different
-to the of Linux/UNIX-based operating systems.
+If a
+.I signal
+is not specified, then the TERM signal will be sent.
+.PP
+On Linux and UNIX platforms,
+.I pmsignal
+is a simple wrapper around the
+.IR kill (1)
+command.
+On Windows, the is no direct equivalent to this mechanism, and
+so an alternate mechanism has been implemented \- this is only
+honoured by PCP tools, however, not all Windows utilities.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -56,7 +71,8 @@ configuration file,
 as described in
 .BR pcp.conf (4).
 .SH SEE ALSO
-.BR pmGetConfig (3),
+.BR kill (1),
+.BR killall (1),
 .BR pcp.conf (4)
 and
 .BR pcp.env (4).

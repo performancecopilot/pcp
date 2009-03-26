@@ -20,11 +20,11 @@
 #include "pmapi.h"
 #include "impl.h"
 
-int		__pmLogReads = 0;
+INTERN int	__pmLogReads = 0;
 
-static char	*logfilename = NULL;
-static int	logfilenamelen = 0;
-static int	seeking_end = 0;
+static char	*logfilename;
+static int	logfilenamelen;
+static int	seeking_end;
 
 /*
  * first two fields are made to look like a pmValueSet when no values are

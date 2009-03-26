@@ -298,15 +298,6 @@ fi
 tar=$TAR
 AC_SUBST(tar)
 
-dnl check if xmessage is available on solaris
-AC_PATH_PROG(XMESSAGE, xmessage, NULL)
-if test $XMESSAGE = NULL -a $target_os = solaris
-then
-    AC_MSG_WARN(xmessage had not been installed)
-fi
-xmessage=$XMESSAGE
-AC_SUBST(xmessage)
-
 dnl check if the gzip program is available
 dnl (needed to gzip man pages on some platforms)
 if test -z "$ZIP"; then
@@ -670,7 +661,7 @@ AC_CHECK_HEADERS(unistd.h stddef.h sched.h dlfcn.h dl.h ieeefp.h)
 AC_CHECK_HEADERS(sys/time.h sys/times.h sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h pthread.h getopt.h)
 AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
-AC_CHECK_HEADERS(pwd.h regex.h termios.h sys/termios.h sys/wait.h)
+AC_CHECK_HEADERS(pwd.h regex.h termios.h sys/termios.h sys/ioctl.h sys/wait.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h iptypes.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
 
@@ -1612,12 +1603,9 @@ else
 fi
 AC_SUBST(pcp_demos_dir)
 
-dnl Check for xconfirm
-dnl If found, use it, otherwise one would be installed in the "secret"
-dnl place.
 if test -z "$XCONFIRM" 
 then
-    AC_PATH_PROG(ac_xconfirm_prog, xconfirm, ${pcp_share_dir}/lib/xconfirm)
+    AC_PATH_PROG(ac_xconfirm_prog, xconfirm, $pcp_bin_dir/pmconfirm)
 else
     ac_xconfirm_prog=$XCONFIRM
 fi

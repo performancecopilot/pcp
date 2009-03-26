@@ -514,43 +514,6 @@ getXTBintervalFromTimeval(int *ival, int *mode, struct timeval *tval)
     }
 }
 
-#ifdef HAVE_PMTIME
-/*
- * Get the interval in seconds
- */
-static double
-getXTBinSeconds(int *ival, int *mode)
-{
-    double rval = 0.0;
-
-    switch(PM_XTB_GET(*mode)) {
-    case PM_TIME_NSEC:
-	rval = *ival / 1000000000.0;
-	break;
-    case PM_TIME_USEC:
-	rval = *ival / 1000000.0;
-	break;
-    case PM_TIME_SEC:
-	rval = (double)*ival;
-	break;
-    case PM_TIME_MIN:
-	rval = *ival * 60;
-	break;
-    case PM_TIME_HOUR:
-	rval = *ival * 3600;
-	break;
-    case PM_TIME_MSEC:
-    default:
-	/* default (not XTB) is milliseconds */
-	rval = *ival / 1000.0;
-	break;
-    }
-    
-    return rval;
-}
-#endif
-
-
 /* Print parameter values as output header. */
 static void
 printhdr(Context *x, long smpls, struct timeval delta, struct timeval first)
@@ -982,9 +945,6 @@ getargs(int		argc,		/* in - command line argument count */
     struct timeval  first;
     pmMetricSpec   *msp;
     char	    *msg;
-#ifdef HAVE_PMTIME
-    struct stat	statbuf;
-#endif
 
     /* fill in default values */
     cntxt->iall = 1;

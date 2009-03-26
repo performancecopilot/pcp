@@ -50,7 +50,7 @@ typedef struct {
 
 /* Mask of the operations defined by the user of the routines */
 
-static unsigned int	all_ops = 0;	/* mask of all operations specifiable */
+static unsigned int	all_ops;	/* mask of all operations specifiable */
 
 /* This allows the set of valid operations to be specified.
  * Operations must be powers of 2.
@@ -85,7 +85,7 @@ __pmAccAddOp(unsigned int op)
  * checking for incoming connections from localhost.
  */
 
-static int		gotMyHostId = 0;
+static int		gotMyHostId;
 static struct in_addr	myHostId;
 static char		myHostName[MAXHOSTNAMELEN+1];
 
@@ -111,13 +111,13 @@ GetMyHostId(void)
 
 /* This is the host access list */
 
-static HostInfo	*hostList = NULL;
-static int	nHosts = 0;
-static int	szHostList = 0;
+static HostInfo	*hostList;
+static int	nHosts;
+static int	szHostList;
 
 /* Used for saving the current state of the host access list */
 
-static int	saved = 0;
+static int	saved;
 static HostInfo	*oldHostList;
 static int	oldNHosts;
 static int	oldSzHostList;

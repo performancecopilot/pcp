@@ -124,7 +124,7 @@ pipe_opt=true
 #	If daemon, socket?  and default for Internet sockets?
 socket_opt=false
 socket_inet_def=''
-#	IPC Protocol for daemon (binary or text)
+#	IPC Protocol for daemon (binary only now)
 ipc_prot=binary
 #	Delay after install before checking (sec)
 check_delay=3
@@ -319,7 +319,7 @@ END					{ exit status }'
 
     # stop any matching PMDA that is still running
     #
-    for __sig in INT TERM KILL
+    for __sig in TERM KILL
     do
 	__pids=`_get_pids_by_name pmda$1`
 	if [ ! -z "$__pids" ]
@@ -330,7 +330,6 @@ END					{ exit status }'
 	    break
 	fi
     done
-
 }
 
 # __pmda_add "entry for $PCP_PMCDCONF_PATH"
@@ -692,7 +691,7 @@ __choose_ipc()
 
     if [ $ipc_type = pipe ]
     then
-	type="pipe	$ipc_prot 		$_dir/$pmda_name"
+	type="pipe	binary 		$_dir/$pmda_name"
     else
 	while true
 	do
@@ -754,6 +753,16 @@ END		{ if (warn) printf "%d warnings, ",warn
 		}'
 }
 
+__strip_pcp_dir()
+{
+    if [ "X$PCP_DIR" = X ]
+    then
+	echo "$1"
+    else
+	echo "$1" | sed -e "s,^$PCP_DIR,,"
+    fi
+}
+
 _setup()
 {
     # some more configuration controls
@@ -764,7 +773,7 @@ _setup()
     [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = mingw ] && dso_suffix=dll
     dso_name="${PCP_PMDAS_DIR}/${iam}/pmda_${iam}.${dso_suffix}"
     dso_entry=${iam}_init
-    pmda_dir="${PCP_PMDAS_DIR}/${iam}"
+    pmda_dir=`__strip_pcp_dir "${PCP_PMDAS_DIR}/${iam}"`
 
     # check the user is root 
     #

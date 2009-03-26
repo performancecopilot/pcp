@@ -23,16 +23,11 @@
  * by the shell-script './meta'.
  ***********************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/types.h>
+#include "pmapi.h"
+#include "impl.h"
+#if defined(HAVE_SYS_WAIT_H)
 #include <sys/wait.h>
-#include <syslog.h>
-#include <unistd.h>
-#include <limits.h>
-#include "pmapi.h"	/* _pmCtime only */
-#include "impl.h"	/* _pmCtime only */
+#endif
 #include "dstruct.h"
 #include "pragmatics.h"
 #include "fun.h"

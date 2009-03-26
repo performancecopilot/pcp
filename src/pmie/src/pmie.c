@@ -26,26 +26,21 @@
  *	APPL2	- expression execution
  */
 
-#include <stdlib.h>
 #include <ctype.h>
-#include <string.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/syslog.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <unistd.h>
 #include <limits.h>
+#include "pmapi.h"
+#include "impl.h"
+#include <sys/stat.h>
+#ifdef HAVE_SYS_MMAN_H
+#include <sys/mman.h>
+#endif
+
 #include "dstruct.h"
 #include "stomp.h"
 #include "syntax.h"
 #include "pragmatics.h"
 #include "eval.h"
 #include "show.h"
-#include "pmapi.h"
-#include "impl.h"
 
 #if HAVE_TRACE_BACK_STACK
 #define MAX_PCS 30	/* max callback procedure depth */
@@ -333,7 +328,7 @@ startmonitor(void)
     char		zero = '\0';
 
     /* try to create the port file directory. OK if it already exists */
-    if ( (mkdir(PMIE_DIR, S_IRWXU | S_IRWXG | S_IRWXO) < 0) &&
+    if ( (mkdir2(PMIE_DIR, S_IRWXU | S_IRWXG | S_IRWXO) < 0) &&
 	 (oserror() != EEXIST) ) {
 	fprintf(stderr, "%s: error creating stats file dir %s: %s\n",
 		pmProgname, PMIE_DIR, strerror(oserror()));
@@ -347,19 +342,31 @@ startmonitor(void)
     sprintf(perffile, "%s/%u", PMIE_DIR, (int)getpid());
     unlink(perffile);
     if ((fd = open(perffile, O_RDWR | O_CREAT | O_EXCL | O_TRUNC,
-			    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {
-	fprintf(stderr, "%s: cannot create stats file %s: %s\n", pmProgname, perffile,
-		strerror(oserror()));
+			     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {
+	fprintf(stderr, "%s: cannot create stats file %s: %s\n",
+		pmProgname, perffile, strerror(oserror()));
 	exit(1);
     }
     /* seek to struct size and write one zero */
     lseek(fd, sizeof(pmiestats_t)-1, SEEK_SET);
     write(fd, &zero, 1);
 
+#ifndef IS_MINGW
     /* mmap perffile & associate the instrumentation struct with it */
-    if ((ptr = mmap(0, sizeof(pmiestats_t), PROT_READ|PROT_WRITE,
-			MAP_SHARED, fd, 0)) == MAP_FAILED) {
-	fprintf(stderr, "%s: mmap failed for stats file %s: %s\n", pmProgname, perffile, strerror(oserror()));
+    ptr = mmap(0, sizeof(pmiestats_t), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+#else
+    HANDLE handle = CreateFileMapping((HANDLE)_get_osfhandle(fd),
+			NULL, PAGE_READWRITE, 0, sizeof(pmiestats_t), NULL);
+    if (handle == INVALID_HANDLE_VALUE) {
+	fprintf(stderr, "%s: CreateFileMapping failed for stats file %s: %s\n",
+		pmProgname, perffile, strerror(oserror()));
+	exit(1);
+    }
+    ptr = MapViewOfFile(handle, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(pmiestats_t));
+#endif
+    if (ptr == MAP_FAILED) {
+	fprintf(stderr, "%s: mmap failed for stats file %s: %s\n",
+		pmProgname, perffile, strerror(oserror()));
 	exit(1);
     }
     close(fd);
@@ -796,7 +803,9 @@ getargs(int argc, char *argv[])
 	 */
 	if (agent)
 	    close(fileno(stdin));
+#ifndef IS_MINGW
 	setsid();	/* not process group leader, lose controlling tty */
+#endif
     }
 
     if (stomping)

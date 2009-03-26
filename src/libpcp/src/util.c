@@ -35,11 +35,11 @@
 #include <ieeefp.h>
 #endif
 
-static FILE	**filelog = NULL;
-static int	nfilelog = 0;
-static int	dosyslog = 0;
+static FILE	**filelog;
+static int	nfilelog;
+static int	dosyslog;
 static int	pmState = PM_STATE_APPL;
-static int	done_exit = 0;
+static int	done_exit;
 
 INTERN char	*pmProgname = "pcp";		/* the real McCoy */
 

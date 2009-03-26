@@ -29,20 +29,13 @@ PMLOGGERCONFIG = $(PCP_VAR_DIR)/config/pmlogger
 
 LLDLIBS	= -lpcp
 
-default:	build-me
+default:	$(CMDTARGET)
 
 include $(BUILDRULES)
-
-ifneq "$(TARGET_OS)" "mingw"
-build-me:	$(CMDTARGET)
 
 install:	default
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 644 pmlogger.config $(PMLOGGERCONFIG)/config.pmstat
-else
-build-me:
-install:
-endif
 
 default_pcp:	default
 

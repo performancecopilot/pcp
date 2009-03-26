@@ -36,13 +36,13 @@ HFILES  = fun.h dstruct.h eval.h lexicon.h pmiestats.h pragmatics.h \
 SKELETAL = hdr.sk fetch.sk misc.sk aggregate.sk unary.sk binary.sk \
 	merge.sk act.sk
 
-LSRCFILES = $(SKELETAL) meta syslog_solaris.h
+LSRCFILES = $(SKELETAL) meta logger.h
 
 LDIRT += $(YFILES:%.y=%.tab.?) fun.c fun.o $(TARGET) grammar.h
 
-LLDLIBS = -lpcp -lm
+LLDLIBS = -lpcp -lm $(LIB_FOR_REGEX)
 
-default:	build-me
+default:	$(TARGET)
 
 YFILES = grammar.y
 grammar.h:	grammar.y
@@ -51,16 +51,9 @@ grammar.h:	grammar.y
 pmie$(EXECSUFFIX):	$(OBJECTS) fun.o
 	$(CCF) -o $@ $(LDFLAGS) $(OBJECTS) fun.o $(LDLIBS)
 
-ifneq "$(TARGET_OS)" "mingw"
-build-me:	$(TARGET)
-
 install:	default
 	$(INSTALL) -m 755 $(TARGET) $(PCP_BIN_DIR)/$(TARGET)
 	$(INSTALL) -m 644 pmiestats.h $(PCP_INC_DIR)/pmiestats.h
-else
-build-me:
-install:
-endif
 
 lexicon.o syntax.o:	grammar.h
 

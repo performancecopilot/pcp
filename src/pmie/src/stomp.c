@@ -16,10 +16,6 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include <stdlib.h>
-#include <sys/syslog.h>
-#include <sys/socket.h>
-#include <netinet/tcp.h>
 #include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"

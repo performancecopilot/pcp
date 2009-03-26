@@ -26,7 +26,7 @@ SUBDIRS = include \
 	  pmdate pmie pmpost pmprobe pmcdctl pmlock pmval pmlogger \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmlogctl \
 	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
-	  xconfirm pmtrace pmstat pmsocks pmdas pmafm procmemstat \
+	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
 	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
 	  autofsd-probe telnet-probe cpan win32ctl
 

@@ -20,10 +20,10 @@
 #include "impl.h"
 #include <ctype.h>
 
-static __pmLogPort *logport = NULL;
+static __pmLogPort *logport;
 					/* array of all known pmlogger ports */
-static int	nlogports = 0;		/* no. of elements used in logports array */
-static int	szlogport = 0;		/* size of logport array */
+static int	nlogports;		/* no. of elements used in logports array */
+static int	szlogport;		/* size of logport array */
 
 /* Make sure the logports array is large enough to hold newsize entries.  Free
  * any currently allocated names and zero the first newsize entries.
@@ -96,7 +96,7 @@ is_match(const_dirent *dep)
 int
 __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 {
-    static char		*dir = NULL;
+    static char		dir[MAXPATHLEN];
     static int		lendir;
     int			i, j, n;
     int			nf;		/* number of port files found */
@@ -113,9 +113,13 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     if (result == NULL)
 	return -EINVAL;
 
-    if (dir == NULL) {
-	dir = PM_LOG_PORT_DIR;
-	lendir = (int)strlen(dir);
+    if (lendir == 0) {
+	char *pcpdir = getenv("PCP_DIR");
+	if (pcpdir)
+	    strcat(dir, pcpdir);
+	strcat(dir, PM_LOG_PORT_DIR);
+	__pmNativePath(dir);
+	lendir = strlen(dir);
     }
 
     /* Set up the appropriate function to select files from the control port
@@ -187,7 +191,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
      */
     strcpy(namebuf, dir);
     p = namebuf + lendir;
-    *p++ = '/';
+    *p++ = __pmPathSeparator();
 
     /* open the file, try to read the port number and add the port to the
      * logport array if successful.

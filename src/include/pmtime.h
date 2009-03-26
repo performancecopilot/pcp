@@ -63,7 +63,7 @@ typedef struct {
     struct timeval	position;
     struct timeval	start;		/* archive only */
     struct timeval	end;		/* archive only */
-    char		data[0];	/* arbitrary length info ($TZ/style) */
+    char		data[0];	/* arbitrary length info (e.g. $TZ) */
 } pmTime;
 
 extern int pmTimeSendAck(int, struct timeval *);

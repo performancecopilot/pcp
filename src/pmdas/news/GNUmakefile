@@ -21,32 +21,29 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM = news
-DOMAIN = NEWSAGENT
-
-DFILES = README
-LSRCFILES = Install Remove pmns root $(DFILES) active news.agent pmda$(IAM).pl
-
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+LSRCFILES = Install Remove README active pmda$(IAM).pl
+LDIRT	= domain.h root pmns *.log $(MAN_PAGES)
 
-LDIRT	= domain.h
+ifneq ($(POD2MAN),)
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+endif
 
-default: domain.h $(TARGETS)
+default: $(MAN_PAGES)
+
+pmda$(IAM).1: pmda$(IAM).pl
+	$(POD_MAKERULE)
 
 include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 755 news.agent $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
-	$(INSTALL) -m 644 $(DFILES) active domain.h pmns root $(PMDADIR)
-
-domain.h:	../../pmns/stdpmid
-	rm -f domain.h
-	echo "/*" >domain.h
-	echo " * built from $(TOPDIR)/src/pmns/stdpmid" >>domain.h
-	echo " */" >>domain.h
-	sed -n -e 's/[ 	]*$$//' -e '/define[ 	]$(DOMAIN)[ 	]/s/.*[ 	]/#define $(DOMAIN) /p' ../../pmns/stdpmid >>domain.h
+	$(INSTALL) -m 644 README active $(PMDADIR)
+	@$(INSTALL_MAN)
 
 default_pcp : default
 

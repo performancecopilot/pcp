@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,7 +21,6 @@
  * general purpose asynchronous event management
  */
 
-#include <signal.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -38,7 +38,72 @@ typedef struct _qelt {
 static qelt		*root;
 static int		afid = 0x8000;
 static int		block;
-static struct itimerval	val;
+static void		onalarm(int);
+
+/*
+ * Platform dependent routines follow, Windows is very different
+ * to POSIX platforms in terms of signals and timers.  Note - we
+ * attempted to use CreateTimerQueue API on Windows, but it does
+ * not behave in the way we'd like unfortunately (QA slow_af.c -
+ * shows quite different results & its un-debuggable cos its all
+ * below the Win32 API).
+ */
+#ifdef IS_MINGW
+VOID CALLBACK ontimer(LPVOID arg, DWORD lo, DWORD hi)
+{
+    onalarm(14);	/* 14 == POSIX SIGALRM */
+}
+
+static HANDLE	afblock;	/* mutex protecting callback */
+static HANDLE	aftimer;	/* equivalent to ITIMER_REAL */
+static int	afsetup;	/* one-time-setup: done flag */
+
+static void AFsetup(void)
+{
+    if (afsetup)
+	return;
+    afsetup = 1;
+    afblock = CreateMutex(NULL, FALSE, NULL);
+    aftimer = CreateWaitableTimer(NULL, TRUE, NULL);
+}
+static void AFhold(void)
+{ 
+    AFsetup();
+    WaitForSingleObject(afblock, INFINITE);
+}
+static void AFrelse(void)
+{
+    if (afsetup)
+	ReleaseMutex(afblock);
+}
+static void AFrearm(void)
+{
+    /* do nothing, callback is always "armed" (except when not setup) */
+}
+
+static void AFsetitimer(struct timeval *interval)
+{
+    LARGE_INTEGER duetime;
+    long long inc;
+
+    AFsetup();
+
+    inc = interval->tv_sec * 10000000ULL;	/* sec -> 100 nsecs */
+    inc += (interval->tv_usec * 10ULL);		/* used -> 100 nsecs */
+    if (inc > 0)	/* negative is relative, positive absolute */
+	inc = -inc;	/* we will always want this to be relative */
+    duetime.QuadPart = inc;
+    SetWaitableTimer(aftimer, &duetime, 0, ontimer, NULL, FALSE);
+}
+
+#else /* POSIX */
+static void AFsetitimer(struct timeval *interval)
+{
+    static struct itimerval val;
+
+    val.it_value = *interval;
+    setitimer(ITIMER_REAL, &val, NULL);
+}
 
 #if !defined(HAVE_SIGHOLD)
 static int
@@ -78,6 +143,17 @@ sigrelse(int sig)
  */
 extern int sigrelse(int);
 #endif
+
+static void AFhold(void)  { sighold(SIGALRM); }
+static void AFrelse(void) { sigrelse(SIGALRM); }
+static void AFrearm(void) { signal(SIGALRM, onalarm); }
+
+#endif	/* POSIX */
+
+
+/*
+ * Platform independent code follows
+ */
 
 #ifdef PCP_DEBUG
 static void
@@ -194,10 +270,12 @@ onalarm(int dummy)
 {
     struct timeval	now;
     struct timeval	tmp;
+    struct timeval	interval;
     qelt		*qp;
 
     if (!block)
-	sighold(SIGALRM);
+	AFhold();
+
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_AF) {
 	gettimeofday(&now, NULL);
@@ -286,26 +364,26 @@ onalarm(int dummy)
 	}
 	else {
 	    /* set itimer for head of queue */
-	    val.it_value = root->q_when;
+	    interval = root->q_when;
 	    gettimeofday(&now, NULL);
-	    tsub(&val.it_value, &now);
-	    if (val.it_value.tv_sec == 0 && val.it_value.tv_usec < MIN_ITIMER_USEC)
+	    tsub(&interval, &now);
+	    if (interval.tv_sec == 0 && interval.tv_usec < MIN_ITIMER_USEC)
 		/* use minimal delay (platform dependent) */
-		val.it_value.tv_usec = MIN_ITIMER_USEC;
+		interval.tv_usec = MIN_ITIMER_USEC;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_AF) {
 		printstamp(&now);
 		fprintf(stderr, " AFsetitimer for delta ");
-		printdelta_pcp(&val.it_value);
+		printdelta_pcp(&interval);
 		fputc('\n', stderr);
 	    }
 #endif
-	    setitimer(ITIMER_REAL, &val, NULL);
+	    AFsetitimer(&interval);
 	}
     }
     if (!block) {
-	signal(SIGALRM, onalarm);
-	sigrelse(SIGALRM);
+	AFrearm();
+	AFrelse();
     }
 }
 
@@ -314,13 +392,12 @@ __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *
 {
     qelt		*qp;
     struct timeval	now;
+    struct timeval	interval;
 
     if (!block)
-	sighold(SIGALRM);
-    if (afid == 0x8000 && !block) {
-	/* first time */
-	signal(SIGALRM, onalarm);
-    }
+	AFhold();
+    if (afid == 0x8000 && !block)	/* first time */
+	AFrearm();
     if ((qp = (qelt *)malloc(sizeof(qelt))) == NULL) {
 	return -errno;
     }
@@ -334,27 +411,27 @@ __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *
     enqueue(qp);
     if (root == qp) {
 	/* we ended up at the head of the list, set itimer */
-	val.it_value = qp->q_when;
+	interval = qp->q_when;
 	gettimeofday(&now, NULL);
-	tsub(&val.it_value, &now);
+	tsub(&interval, &now);
 
-	if (val.it_value.tv_sec == 0 && val.it_value.tv_usec < MIN_ITIMER_USEC)
+	if (interval.tv_sec == 0 && interval.tv_usec < MIN_ITIMER_USEC)
 	    /* use minimal delay (platform dependent) */
-	    val.it_value.tv_usec = MIN_ITIMER_USEC;
+	    interval.tv_usec = MIN_ITIMER_USEC;
 
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_AF) {
 	    printstamp(&now);
 	    fprintf(stderr, " AFsetitimer for delta ");
-	    printdelta_pcp(&val.it_value);
+	    printdelta_pcp(&interval);
 	    fputc('\n', stderr);
 	}
 #endif
-	setitimer(ITIMER_REAL, &val, NULL);
+	AFsetitimer(&interval);
     }
 
     if (!block)
-	sigrelse(SIGALRM);
+	AFrelse();
     return qp->q_afid;
 }
 
@@ -364,15 +441,16 @@ __pmAFunregister(int afid)
     qelt		*qp;
     qelt		*priorp;
     struct timeval	now;
+    struct timeval	interval;
 
     if (!block)
-	sighold(SIGALRM);
+	AFhold();
     for (qp = root, priorp = NULL; qp != NULL && qp->q_afid != afid; qp = qp->q_next)
 	    priorp = qp;
 
     if (qp == NULL) {
 	if (!block)
-	    sigrelse(SIGALRM);
+	    AFrelse();
 	return -1;
     }
 
@@ -383,21 +461,21 @@ __pmAFunregister(int afid)
 	     * we removed the head of the queue, set itimer for the
 	     * new head of queue
 	     */
-	    val.it_value = root->q_when;
+	    interval = root->q_when;
 	    gettimeofday(&now, NULL);
-	    tsub(&val.it_value, &now);
-	    if (val.it_value.tv_sec == 0 && val.it_value.tv_usec == 0)
+	    tsub(&interval, &now);
+	    if (interval.tv_sec == 0 && interval.tv_usec == 0)
 		/* arbitrary 0.1 msec as minimal delay */
-		val.it_value.tv_usec = 100;
+		interval.tv_usec = 100;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_AF) {
 		printstamp(&now);
 		fprintf(stderr, " AFsetitimer for delta ");
-		printdelta_pcp(&val.it_value);
+		printdelta_pcp(&interval);
 		fputc('\n', stderr);
 	    }
 #endif
-	    setitimer(ITIMER_REAL, &val, NULL);
+	    AFsetitimer(&interval);
 	}
     }
     else
@@ -406,7 +484,7 @@ __pmAFunregister(int afid)
     free(qp);
 
     if (!block)
-	sigrelse(SIGALRM);
+	AFrelse();
     return 0;
 }
 
@@ -414,15 +492,15 @@ void
 __pmAFblock(void)
 {
     block = 1;
-    sighold(SIGALRM);
+    AFhold();
 }
 
 void
 __pmAFunblock(void)
 {
     block = 0;
-    signal(SIGALRM, onalarm);
-    sigrelse(SIGALRM);
+    AFrearm();
+    AFrelse();
 }
 
 int

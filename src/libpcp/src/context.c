@@ -22,13 +22,13 @@
 
 #define PM_CONTEXT_UNDEF	-1	/* current context is undefined */
 
-static __pmContext	*contexts = NULL;		/* array of contexts */
-static int		contexts_len = 0;		/* number of contexts */
+static __pmContext	*contexts;		/* array of contexts */
+static int		contexts_len;		/* number of contexts */
 static int		curcontext = PM_CONTEXT_UNDEF;	/* current context */
 
-static int	n_backoff = 0;
+static int	n_backoff;
 static int	def_backoff[] = {5, 10, 20, 40, 80};
-static int	*backoff = NULL;
+static int	*backoff;
 
 static void
 waitawhile(__pmPMCDCtl *ctl)

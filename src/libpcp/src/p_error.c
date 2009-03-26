@@ -42,11 +42,8 @@ __pmSendError(int fd, int mode, int code)
 {
     p_error_t	*pp;
 
-    if (mode == PDU_ASCII) {
-	/* Outgoing ASCII result PDUs not supported */
+    if (mode == PDU_ASCII)
 	return PM_ERR_NOASCII;
-    }
-
     if ((pp = (p_error_t *)__pmFindPDUBuf(sizeof(p_error_t))) == NULL)
 	return -errno;
     pp->hdr.len = sizeof(p_error_t);
@@ -75,9 +72,7 @@ __pmSendXtendError(int fd, int mode, int code, int datum)
     x_error_t	*pp;
 
     if (mode == PDU_ASCII)
-	/* ASCII PDUs not supported */
 	return PM_ERR_NOASCII;
-
     if ((pp = (x_error_t *)__pmFindPDUBuf(sizeof(x_error_t))) == NULL)
 	return -errno;
     pp->hdr.len = sizeof(x_error_t);
@@ -94,33 +89,19 @@ __pmDecodeError(__pmPDU *pdubuf, int mode, int *code)
 {
     p_error_t	*pp;
 
-    if (mode == PDU_BINARY) {
-	pp = (p_error_t *)pdubuf;
-	if (__pmLastVersionIPC() == PDU_VERSION1)
-	    *code = XLATE_ERR_1TO2((int)ntohl(pp->code));
-	else
-	    *code = ntohl(pp->code);
+    if (mode == PDU_ASCII)
+	return PM_ERR_NOASCII;
+    pp = (p_error_t *)pdubuf;
+    if (__pmLastVersionIPC() == PDU_VERSION1)
+	*code = XLATE_ERR_1TO2((int)ntohl(pp->code));
+    else
+	*code = ntohl(pp->code);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr,
 		"__pmDecodeError: got error PDU (code=%d, fromversion=%d)\n",
 		*code, __pmLastVersionIPC());
 #endif
-    }
-    else {
-	/* assume PDU_ASCII */
-	int	n;
-
-	n = __pmRecvLine(pdubuf, ABUFSIZE, __pmAbuf);
-	if (n <= 0)
-	    return n;
-	if ((n = sscanf(__pmAbuf, "ERROR %d", code)) != 1) {
-	    __pmNotifyErr(LOG_WARNING, "__pmDecodeError: ASCII botch @ \"%s\"\n", __pmAbuf);
-	    return PM_ERR_IPC;
-	}
-	if (__pmLastVersionIPC() == PDU_VERSION1)
-	    *code = XLATE_ERR_1TO2(*code);
-    }
     return 0;
 }
 
@@ -131,9 +112,7 @@ __pmDecodeXtendError(__pmPDU *pdubuf, int mode, int *code, int *datum)
     int		sts;
 
     if (mode == PDU_ASCII)
-	/* ASCII PDUs not supported */
 	return PM_ERR_NOASCII;
-
     /*
      * it is ALWAYS a PCP 1.x error code here
      */
