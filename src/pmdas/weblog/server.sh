@@ -107,7 +107,7 @@ SQUIDPATH="${SQUIDPATH-/usr/local/squid}"
 
 # look for Apache servers here
 #
-APACHEPATH="${APACHEPATH-/etc/apache2}"
+APACHEPATH="${APACHEPATH-/etc/apache2:/etc/httpd}"
 
 # look for anonymous ftp here
 #
@@ -752,10 +752,23 @@ _apache_extract()
     for apchroot in `echo "$APACHEPATH" | sed -e 's/:/ /g'`
     do
 	$debug && echo "_apache_extract: apachroot=$apchroot"
-	config=$apchroot/sites-available
-	[ -d "$config" ] || continue
+	if [ -d "$apchroot/sites-available" ]
+	then
+	    config="$apchroot/sites-available/"
+	elif [ -d "$apchroot/vhosts.d" ]
+	then
+	    config="$apchroot/vhosts.d/"
+	elif [ -d "$apchroot/conf" ]
+	then
+	    config="$apchroot/conf/"
+	elif [ -f "$apchroot/httpd.conf" ]
+	then
+	    config="$apchroot/httpd.conf"
+	else
+	    continue
+	fi
 
-	for config in `echo $config/*`
+	for config in `echo ${config}*`
 	do
 	    $debug && echo "_apache_extract: config=$config"
 	    [ -f "$config" ] || continue
