@@ -19,8 +19,9 @@
 
 prog=`basename $0`
 
-usage() {
-cat <<EOFEOF
+usage()
+{
+    cat <<EOFEOF
 Usage: $prog [-d] [-s stdpmid] [-D domain] [-t topdir] [-n pmns] [-o dir] [-v] -i IAM -c config
 Required options:
   -c config     required: input config file, see example below
@@ -605,8 +606,6 @@ END {
 	printf " %s.c", c >>cfiles
 
 	printf "/*\n" >>fetch_c
-	printf " * Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.\n" >>fetch_c
-	printf " *\n" >>fetch_c
 	printf " * Originally generated from \"%s\" using genpmda(1).\n","'$config'" >>fetch_c
 	printf " *\n" >>fetch_c
 	printf " * Refresh and fetch methods for the \"%s\" cluster.\n", c >>fetch_c
@@ -884,11 +883,6 @@ chmod 755 $install_g
 # Generate GNUmakefile
 #
 cat << EOFEOF >$gnumakefile
-# !gmake
-#
-# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-#
-
 TOPDIR = $tflag
 include \$(TOPDIR)/src/include/builddefs
 
@@ -953,10 +947,6 @@ EOFEOF
 # Generate GNUmakefile.generic
 #
 cat << EOFEOF >$gnumakefile_g
-# !gmake
-#
-# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-#
 IAM	= $iam
 CONFIG  = $config
 DOMAIN	= $domain
