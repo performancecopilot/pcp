@@ -383,7 +383,7 @@ do_dialog(char cmd)
 	nchar = add_msg(&p, nchar, "\nTerminate this PCP recording session now?\n");
 
     if (nchar > 0) {
-	char * xconfirm = pmGetConfig("PCP_XCONFIRM_PROG");
+	char * xconfirm = __pmNativePath(pmGetConfig("PCP_XCONFIRM_PROG"));
 	int fd = -1;
 
 	if ((msg = tmpnam(NULL)) == NULL ||

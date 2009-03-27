@@ -801,7 +801,7 @@ pmfstate(int state)
 	if ((ferr = getenv("PCP_STDERR")) != NULL) {
 	    if (strcasecmp(ferr, "DISPLAY") == 0) {
 		char * xconfirm = pmGetConfig("PCP_XCONFIRM_PROG");
-		if (access(xconfirm, X_OK) < 0) {
+		if (access(__pmNativePath(xconfirm), X_OK) < 0) {
 		    fprintf(stderr, "%s: using stderr - cannot access %s: %s\n",
 			    pmProgname, xconfirm, strerror(errno));
 		}
@@ -885,7 +885,7 @@ pmflush(void)
 	    /* If we're here, it means xconfirm has passed access test */
 	    snprintf(outbuf, sizeof(outbuf), "%s -file %s -c -B OK -icon info"
 		    " %s -header 'PCP Information' >/dev/null",
-		    pmGetConfig("PCP_XCONFIRM_PROG"), fname,
+		    __pmNativePath(pmGetConfig("PCP_XCONFIRM_PROG")), fname,
 		    (msgsize > 80 ? "-useslider" : ""));
 	    if (system(outbuf) < 0) {
 		fprintf(stderr, "%s: system failed: %s\n", pmProgname,
