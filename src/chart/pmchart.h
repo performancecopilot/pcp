@@ -11,8 +11,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef KMCHART_H
-#define KMCHART_H
+#ifndef PMCHART_H
+#define PMCHART_H
 
 #include "ui_pmchart.h"
 #include "statusbar.h"
@@ -182,4 +182,4 @@ private:
     void editTab(int index);
 };
 
-#endif	// KMCHART_H
+#endif	// PMCHART_H
