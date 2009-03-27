@@ -156,7 +156,6 @@ if [ -f $tmp.failed ] ; then
     fi
     exit 1
 else
-    $MAKE -C build dist > $LOGDIR/dist 2>&1 || exit 1
     if ! $verbose ; then
 	grep '^Wrote:' $LOGF | sed -e 's/\.\.\/\.\.\///'
     fi
