@@ -333,6 +333,9 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 
 	if (len < (int)sizeof(__pmPDUHdr)) {
 	    if (len == -1) {
+#if defined(IS_MINGW)	/* sometimes errno not even set on recv failure */
+		len = 0;
+#else
 		if (errno == ECONNRESET || errno == EPIPE || 
 		    errno == ETIMEDOUT || errno == ENETDOWN ||
 		    errno == ENETUNREACH || errno == EHOSTDOWN ||
@@ -359,6 +362,7 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 		    len = 0;
 		else
 		    __pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr(-errno));
+#endif
 	    }
 	    else if (len >= (int)sizeof(php->len)) {
 		/*
