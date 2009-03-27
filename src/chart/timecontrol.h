@@ -101,6 +101,4 @@ private:
     } my;
 };
 
-extern TimeControl *pmtime;
-
 #endif	// TIMECONTROL_H
