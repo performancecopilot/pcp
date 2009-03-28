@@ -44,6 +44,7 @@ void Tab::addGadget(Gadget *gadget)
     my.gadgetsList.append(gadget);
     if (my.currentGadget == -1)
 	setCurrentGadget(gadgetCount() - 1);
+    gadget->showWidget();
     console->post("Tab::addChart: [%d]->Chart %p", my.currentGadget, gadget);
 }
 
