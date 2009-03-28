@@ -18,6 +18,7 @@
  */
 #include <QtCore/QTimer>
 #include <QtCore/QLibraryInfo>
+#include <QtGui/QDesktopWidget>
 #include <QtGui/QApplication>
 #include <QtGui/QPrintDialog>
 #include <QtGui/QMessageBox>
@@ -208,7 +209,12 @@ int PmChart::defaultFontSize()
 void PmChart::updateHeight(int adjustment)
 {
     QSize newSize = size();
-    newSize.setHeight(newSize.height() + adjustment);	// may be negative
+    int ideal = newSize.height() + adjustment;	// may be negative
+    int sized = QApplication::desktop()->availableGeometry().height();
+
+    if (ideal > sized)
+	ideal = sized;
+    newSize.setHeight(ideal);
     resize(newSize);
 }
 
