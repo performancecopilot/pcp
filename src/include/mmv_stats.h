@@ -22,6 +22,7 @@
 #include <pcp/pmapi.h>
 
 #define MMV_VERSION_0   0
+#define MMV_NAMEMAX	64
 
 /* Whose entries should match PM_TYPE* from /usr/include/pcp/pmapi.h */
 typedef enum {
@@ -45,27 +46,27 @@ typedef enum {
 /* The way TOC is written into the file */
 typedef struct mmv_stats_toc_s {
     mmv_toc_type_t typ; /* What is it? */
-    off_t offset;	/* Offset of section from the start of the file */
     int cnt;		/* Number of entries */
+    __uint64_t offset;	/* Offset of section from the start of the file */
 } mmv_stats_toc_t ;
 
 typedef struct mmv_stats_inst_s {
-    int internal;	/* Internal instance ID for this domain */
-    char external[64];	/* External instance ID for this domain */
+    int internal;		/* Internal instance ID for this domain */
+    char external[MMV_NAMEMAX];	/* External instance ID for this domain */
 } mmv_stats_inst_t;
 
 /* This is the structure for mmv_stats_init */
 typedef struct mmv_stats_s {
-    char name[64];		/* Name of the metric */
+    char name[MMV_NAMEMAX];	/* Name of the metric */
     mmv_metric_type_t type;	/* Type of the metric */
     mmv_stats_inst_t * indom;	/* Pointer to the array of
-                                 * mmv_stats_inst_t, rterminated by
+                                 * mmv_stats_inst_t, terminated by
                                  * internal=-1, or NULL */
     pmUnits dimension;		/* Dimensions (TIME, SPACE, etc) */
 } mmv_stats_t;
 
 typedef struct mmv_stats_metric_s {
-    char name[64];
+    char name[MMV_NAMEMAX];
     mmv_metric_type_t type;
     int indom;
     pmUnits dimension;
@@ -81,7 +82,6 @@ typedef struct mmv_stats_value_s {
 	__uint64_t  u64;
 	float       f;
 	double      d;
-	int         cp;
     } val;
     __int64_t extra;    /* extra space for INTEGRAL and DISCRETE */
 } mmv_stats_value_t;
@@ -95,7 +95,7 @@ typedef struct mmv_stats_hdr_s {
     int dummy;	        /* not used */
 } mmv_stats_hdr_t;
 
-void		  * mmv_stats_init (const char *, mmv_stats_t *, int);
+void		  * mmv_stats_init (const char *, const mmv_stats_t *, int);
 mmv_stats_value_t * mmv_lookup_value_desc (void *, const char *, const char *);
 void		    mmv_inc_value (void *, mmv_stats_value_t *, double);
 

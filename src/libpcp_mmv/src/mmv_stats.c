@@ -27,6 +27,8 @@
 
 #include "mmv_stats.h"
 
+#define ROUNDUP_64(i) ((((i) + 63) >> 6) << 6)
+
 static char *pcpvardir = NULL;
 static char *pcptmpdir = NULL;
 static char statsdir[MAXPATHLEN];
@@ -38,7 +40,10 @@ typedef struct {
 } indom_t;
 
 /* getconfig: get pcpvardir and pcptmpdir from environment or pcp.conf
- *              returns 0 on success
+ *	      We cannot rely on PCP libraries to be linked into the
+ *	      application, MMV is desinged to work even if PCP is not
+ *	      available.
+ * Returns: 0 on success, 1 if cannot setup the environment
  */
 static int 
 getconfig(void)
@@ -48,7 +53,6 @@ getconfig(void)
     char *conf;
     
     /* check the environment */
-    
     if (!pcpvardir) pcpvardir = getenv("PCP_VAR_DIR");
     if (!pcptmpdir) pcptmpdir = getenv("PCP_TMP_DIR");
 
@@ -97,7 +101,7 @@ getconfig(void)
 }
 
 void * 
-mmv_stats_init (const char * fname, mmv_stats_t * st, int nstats)
+mmv_stats_init (const char * fname, const mmv_stats_t * st, int nstats)
 {
     int fd;
     void * addr = NULL;
@@ -107,6 +111,9 @@ mmv_stats_init (const char * fname, mmv_stats_t * st, int nstats)
     indom_t * indoms;
     FILE *conf;
     int activate = 0;
+    int nindoms = 0;
+    int i, sz;
+    int vcnt = 0;
     
     if (getconfig())
         return NULL;
@@ -150,79 +157,93 @@ mmv_stats_init (const char * fname, mmv_stats_t * st, int nstats)
 	return NULL;
     }
 
+    /* Get some idea about the size of the file we need */
+    for ( i=0; i < nstats; i++ ) {
+	if ((st[i].type < MMV_ENTRY_NOSUPPORT) || 
+	    (st[i].type > MMV_ENTRY_DISCRETE) ||
+	    (strlen (st[i].name) == 0)) {
+	    free (mlist);
+	    free (indoms);
+	    return NULL;
+	}
+
+	strcpy (mlist[i].name, st[i].name);
+	mlist[i].type = st[i].type;
+	mlist[i].dimension = st[i].dimension;
+
+	if ( st[i].indom != NULL ) {
+	    /* Lookup an indom */
+	    int j;
+
+	    for ( j=0; j < nindoms; j++ ) {
+		if ( indoms[j].inst == st[i].indom ) {
+		    vcnt += indoms[j].ninst;
+		    mlist[i].indom = j;
+		    break;
+		}
+	    }
+
+	    if ( j == nindoms ) {
+		indoms[nindoms].inst = st[i].indom;
+		indoms[nindoms].ninst = 0;
+
+		for ( j=0; st[i].indom[j].internal != -1; j++ )
+		    indoms[nindoms].ninst++;
+
+		vcnt += indoms[nindoms].ninst;
+		mlist[i].indom = nindoms++;
+	    }
+	} else {
+	    mlist[i].indom = -1;
+	    vcnt++;
+	}
+    }
+
+    if (vcnt == 0) {
+	free (mlist);
+	free (indoms);
+	return NULL;
+    }
+
+    /* Size of of the header + TOC with enough instances to
+     * accomodate nindoms instance lists plus metric list and value
+     * list */
+    sz = ROUNDUP_64(sizeof (mmv_stats_hdr_t) + 
+		    sizeof (mmv_stats_toc_t) * (nindoms+2));
+
+    /* Size of all indoms */
+    for (i=0; i < nindoms; i++ ) {
+	sz += ROUNDUP_64(indoms[i].ninst * sizeof (mmv_stats_inst_t));
+    }
+
+    /* Size of metrics list*/
+    sz += ROUNDUP_64(nstats * sizeof (mmv_stats_metric_t));
+
+    /* Size of values list */
+    sz += vcnt * sizeof (mmv_stats_value_t);
+
     sprintf (fullpath, "%s/%s", statsdir, fname);
     
     /* unlink will cause the pmda to reload on next fetch */
     unlink(fullpath);
 
     /* creat will cause the pmda to reload on next fetch */
-    if ( (fd = open (fullpath, O_RDWR | O_CREAT, 0644)) >= 0 ) {
-	/* Get some idea about the size of the file we need */
-	int nindoms = 0;
-	int i, sz;
-	int vcnt = 0;
-
-	for ( i=0; i < nstats; i++ ) {
-	    strcpy (mlist[i].name, st[i].name);
-	    mlist[i].type = st[i].type;
-	    mlist[i].dimension = st[i].dimension;
-
-	    if ( st[i].indom != NULL ) {
-		/* Lookup an indom */
-		int j;
-
-		for ( j=0; j < nindoms; j++ ) {
-		    if ( indoms[j].inst == st[i].indom ) {
-			vcnt += indoms[j].ninst;
-			mlist[i].indom = j;
-			break;
-		    }
-		}
-
-		if ( j == nindoms ) {
-		    indoms[nindoms].inst = st[i].indom;
-		    indoms[nindoms].ninst = 0;
-
-		    for ( j=0; st[i].indom[j].internal != -1; j++ )
-			indoms[nindoms].ninst++;
-
-		    vcnt += indoms[nindoms].ninst;
-		    mlist[i].indom = nindoms++;
-		}
-	    } else {
-		mlist[i].indom = -1;
-		vcnt++;
-	    }
+    if ( (fd = open (fullpath, O_RDWR | O_CREAT | O_EXCL, 0644)) >= 0 ) {
+	if (pwrite(fd, " ", 1, sz -1) <= 0) {
+	    free (mlist);
+	    free (indoms);
+	    close (fd);
+	    return NULL;
 	}
-
-	/* Size of of the header + TOC with enough instances to
-	 * accomodate nindoms instance lists plus metric list and value
-	 * list */
-	sz = ((sizeof (mmv_stats_hdr_t) + 
-	       sizeof (mmv_stats_toc_t) * (nindoms+2) + 63) >> 5) << 5;
-
-	/* Size of all indoms */
-	for (i=0; i < nindoms; i++ ) {
-	    sz += indoms[i].ninst * sizeof (mmv_stats_inst_t);
-	    sz = ((sz + 63) >> 5) << 5;
-	}
-
-	/* Size of metrics list*/
-	sz += nstats * sizeof (mmv_stats_metric_t);
-	sz = ((sz + 63) >> 5) << 5;
-
-	/* Size of values list */
-	sz += vcnt * sizeof (mmv_stats_value_t);
 
 	if ( (addr = mmap (0, sz, PROT_WRITE | PROT_READ, 
-			   MAP_SHARED | MAP_AUTOGROW, fd, 0)) != MAP_FAILED ) {
+			   MAP_SHARED, fd, 0)) != MAP_FAILED ) {
 	    mmv_stats_hdr_t * hdr = (mmv_stats_hdr_t *) addr;
 	    mmv_stats_value_t * val = NULL;
 	    mmv_stats_toc_t * toc = 
 		(mmv_stats_toc_t *)((char *)addr + sizeof (mmv_stats_hdr_t));
-	    int offset = ((sizeof (mmv_stats_hdr_t) + 
-			   (nindoms+2)*sizeof(mmv_stats_toc_t) + 63)>> 5)<< 5;
-
+	    int offset = ROUNDUP_64(sizeof (mmv_stats_hdr_t) + 
+				    (nindoms+2)*sizeof(mmv_stats_toc_t));
 
 	    /* We clobber stat file uncondtionally on each restart -
 	     * it's easier this way and pcp can deal with counter
@@ -242,7 +263,7 @@ mmv_stats_init (const char * fname, mmv_stats_t * st, int nstats)
 			sizeof (mmv_stats_inst_t) * indoms[i].ninst);
 
 		offset += sizeof (mmv_stats_inst_t) * indoms[i].ninst;
-		offset = ((offset + 63) >> 5) << 5;
+		offset = ROUNDUP_64(offset);
 	    }
 
 	    toc[i].typ = MMV_TOC_METRICS;
@@ -250,10 +271,10 @@ mmv_stats_init (const char * fname, mmv_stats_t * st, int nstats)
 	    toc[i].offset = offset;
 
 	    memcpy ((char *)addr + offset, mlist,  
-		    sizeof (mmv_stats_metric_t) * nstats);
+		    sizeof (mmv_stats_metric_t) * (nstats));
 
-	    offset += sizeof (mmv_stats_metric_t) * nstats;
-	    offset = ((offset + 63) >> 5) << 5;
+	    offset += sizeof (mmv_stats_metric_t) * (nstats);
+	    offset = ROUNDUP_64(offset);
 
 	    i++;
 
@@ -292,6 +313,8 @@ mmv_stats_init (const char * fname, mmv_stats_t * st, int nstats)
 
     free (mlist);
     free (indoms);
+    if (fd >= 0)
+	close (fd);
  
     return (addr);
 }
@@ -370,7 +393,6 @@ mmv_inc_value (void * addr, mmv_stats_value_t * v, double inc)
 	case MMV_ENTRY_DOUBLE:
 	    v->val.d += inc;
 	    break;
-
 	case MMV_ENTRY_INTEGRAL:
 	    v->val.i64 +=  (__int64_t)inc;
 	    if ( inc < 0 ) {
@@ -378,6 +400,9 @@ mmv_inc_value (void * addr, mmv_stats_value_t * v, double inc)
 	    } else {
 		v->extra--;
 	    }
+	    break;
+	default:
+	    break;
 	}
     }
 }

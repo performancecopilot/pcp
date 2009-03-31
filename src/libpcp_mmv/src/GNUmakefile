@@ -23,8 +23,13 @@ include $(TOPDIR)/src/include/builddefs
 CFILES	= mmv_stats.c
 
 STATICLIBTARGET	= libpcp_mmv.a
+DSOVERSION = 1
+ifeq "$(TARGET_OS)" "darwin"
+LIBTARGET = libpcp_mmv.$(DSOVERSION).$(DSOSUFFIX)
+else
 LIBTARGET = libpcp_mmv.$(DSOSUFFIX).$(DSOVERSION)
-SYMTARGET = libpcp_mmv.$(DSOSUFFIX) libpcp_mmv.$(DSOSUFFIX).2
+endif
+SYMTARGET = libpcp_mmv.$(DSOSUFFIX) 
 
 LCFLAGS = -I.
 LDIRT = $(SYMTARGET) pcp
@@ -46,4 +51,9 @@ install_pcp: install
 
 pcp:
 	$(LN_S) $(TOPDIR)/src/include pcp
+
+ifneq "$(SYMTARGET)" ""
+$(SYMTARGET):
+	$(LN_S) -f $(LIBTARGET) $@
+endif
 
