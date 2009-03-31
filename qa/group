@@ -13,7 +13,7 @@ libqmc
 config
 
 # pmdumptext command
-dumtpext
+dumptext
 
 # test-group association ... one line per test
 #
@@ -44,3 +44,4 @@ dumtpext
 025 dumptext
 026 dumptext
 027 dumptext
+028 dumptext
