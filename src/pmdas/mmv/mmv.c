@@ -30,6 +30,9 @@
 #include "mmv_stats.h"
 #include "./domain.h"
 #include <sys/stat.h>
+#ifdef HAVE_SYS_MMAN_H
+#include <sys/mman.h>
+#endif
 
 static pmdaInterface	dispatch;
 
