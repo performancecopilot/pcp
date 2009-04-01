@@ -595,13 +595,24 @@ then
     #
     i=0
     failed=true
-    while [ $i -lt 10 ]
+    WAIT_TIME=10
+    while [ $i -lt $WAIT_TIME ]
     do
 	if $SHOWME || [ -f $archive.0 -a -f $archive.meta -a $archive.index ]
 	then
-	    _do_cmd "mkaf $archive.0 >Latest"
-	    failed=false
-	    break
+	    _do_cmd "mkaf $archive.0 >Latest" 2>$tmp.err
+	    if [ -s $tmp.err ]
+	    then
+		# errors from mkaf typically result from race conditions
+		# at the start of pmlogger, e.g.
+		# Warning: cannot extract hostname from archive "..." ...
+		#
+		# simply keep trying
+		:
+	    else
+		failed=false
+		break
+	    fi
 	fi
 	sleep 1
 	i=`expr $i + 1`
@@ -609,7 +620,12 @@ then
 
     if $failed
     then
-	echo "Warning: pmlogger [pid=$new_pid] failed to create archive files within 20 seconds"
+	echo "Warning: pmlogger [pid=$new_pid] failed to create archive files within $WAIT_TIME seconds"
+	if [ -f $tmp.err ]
+	then
+	    echo "Warnings/errors from mkaf ..."
+	    cat $tmp.err
+	fi
     fi
 else
     _abandon
