@@ -49,12 +49,12 @@ main(int argc, char **argv)
     char *p;
     int opt;
 
-    pmProgname = __pmSetProgname(argv[0]);
+    __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "ib" "%c" "help", 
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, IB, "ib.log", helppath);
 
-    if ((opt = pmdaGetOpt(argc, argv, "D:c:d:l:?", &dispatch, &err)) != EOF) {
+    while ((opt = pmdaGetOpt(argc, argv, "D:c:d:l:?", &dispatch, &err)) != EOF) {
 	switch (opt) {
 	case 'c':
 	    confpath = optarg;

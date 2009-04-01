@@ -1,0 +1,237 @@
+#!/bin/sh
+#
+# Copyright (c) 2008-2009 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#
+# Start or Stop the Performance Co-Pilot (PCP) cluster daemon
+#
+# The following is for chkconfig on RedHat based systems
+# chkconfig: 2345 95 05
+# description: Control pmclusterd for PCP
+#
+# The following is for insserv(1) based systems,
+# e.g. SuSE, where chkconfig is a perl script.
+### BEGIN INIT INFO
+# Provides:       pmclusterd
+# Required-Start: $network
+# Required-Stop:
+# Default-Start:  2 3 5
+# Default-Stop:
+# Description:    Control pmclusterd for PCP
+### END INIT INFO
+
+
+# Get standard environment
+. /etc/pcp.env
+
+# Get the portable PCP rc script functions
+. $PCP_SHARE_DIR/lib/rc-proc.sh
+
+PMCLUSTERD=$PCP_BINADM_DIR/pmclusterd
+RUNDIR=$PCP_LOG_DIR
+prog=$PCP_RC_DIR/`basename $0`
+
+tmp=/var/tmp/$$
+status=1
+trap "rm -f $tmp.* ; exit \$status" 0 1 2 3 15
+
+# defaults
+#
+
+# on linux there is no flag for chkconfig "verbose"
+VERBOSE_CTL=on
+
+# standard Unix/Linux style test
+#
+ID=id
+test -f /usr/xpg4/bin/id && ID=/usr/xpg4/bin/id
+
+IAM=`$ID -u 2>/dev/null`
+if [ -z "$IAM" ]
+then
+    # do it the hardway
+    #
+    IAM=`$ID | sed -e 's/.*uid=//' -e 's/(.*//'`
+fi
+
+_shutdown()
+{
+    # Send pmclusterd a SIGTERM.
+    # TODO: this is to be noted by pmclusterd as a pending shutdown.
+    # When finished the currently active request, pmclusterd should close any
+    # connections and then exit.
+    # Wait for pmclusterd to terminate.
+    #
+    killall -TERM $PMCLUSTERD > /dev/null 2>&1
+    $ECHO $PCP_ECHO_N "Waiting for PMCLUSTERD to terminate ...""$PCP_ECHO_C"
+    gone=0
+    for i in 1 2 3 4 5 6
+    do
+	sleep 3
+	_get_pids_by_name pmclusterd >$tmp.tmp
+	if [ ! -s $tmp.tmp ]
+	then
+	    gone=1
+	    break
+	fi
+
+	# If pmclusterd doesn't go in 15 seconds, SIGKILL and sleep 1 more time
+	#
+	if [ $i = 5 ]
+	then
+	    $ECHO
+	    echo "Process ..."
+	    ps $PCP_PS_ALL_FLAGS >$tmp.ps
+	    sed 1q $tmp.ps
+	    for pid in `cat $tmp.tmp`
+	    do
+		$PCP_AWK_PROG <$tmp.ps "\$2 == $pid { print }"
+	    done
+	    echo "$prog: Warning: Forcing PMCLUSTERD to terminate!"
+	    killall -KILL $PMCLUSTERD > /dev/null 2>&1
+	else
+	    $ECHO $PCP_ECHO_N ".""$PCP_ECHO_C"
+	fi
+    done
+    if [ $gone != 1 ]	# It just WON'T DIE, give up.
+    then
+	echo "Process ..."
+	cat $tmp.tmp
+	echo "$prog: Warning: PMCLUSTERD won't die!"
+	exit
+    fi
+    $RC_STATUS -v 
+    pmpost "stop pmclusterd from $PCP_RC_DIR/pmclusterd"
+}
+
+_usage()
+{
+    echo "Usage: $PCP_RC_DIR/pmclusterd [-v] {start|restart|stop|status}"
+}
+
+while getopts v c
+do
+    case $c
+    in
+	v)  # force verbose
+	    VERBOSE_CTL=on
+	    ;;
+
+	*)
+	    _usage
+	    exit 1
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $VERBOSE_CTL = on ]
+then				# For a verbose startup and shutdown
+    ECHO=$PCP_ECHO_PROG
+else				# For a quiet startup and shutdown
+    ECHO=:
+fi
+
+if [ "$IAM" != 0 -a "$1" != "status" ]
+then
+    echo "$prog:"'
+Error: You must be root (uid 0) to start or stop the PCP pmclusterd daemon.'
+    exit
+fi
+
+# First reset status of this service
+$RC_RESET
+
+# Return values acc. to LSB for all commands but status:
+# 0 - success
+# 1 - misc error
+# 2 - invalid or excess args
+# 3 - unimplemented feature (e.g. reload)
+# 4 - insufficient privilege
+# 5 - program not installed
+# 6 - program not configured
+#
+# Note that starting an already running service, stopping
+# or restarting a not-running service as well as the restart
+# with force-reload (in case signalling is not supported) are
+# considered a success.
+case "$1" in
+
+  'start'|'restart')
+	_get_pids_by_name pmclusterd >$tmp.tmp
+	[ -s $tmp.tmp ] && _shutdown
+
+	# pmclusterd messages should go to stderr, not the GUI notifiers
+	#
+	unset PCP_STDERR
+
+	if [ -x $PMCLUSTERD ]
+	then
+	    [ ! -d $RUNDIR ] && mkdir -p $RUNDIR
+	    cd $RUNDIR
+
+	    # salvage the previous versions of any pmclusterd
+	    #
+	    if [ -f pmclusterd.log ]
+	    then
+		rm -f pmclusterdlog.log.prev
+		mv pmclusterd.log pmclusterd.log.prev
+	    fi
+
+	    $ECHO $PCP_ECHO_N "Performance Co-Pilot starting PMCLUSTERD (logfile is $RUNDIR/pmclusterd.log) ..." "$PCP_ECHO_C"
+
+	    $PMCLUSTERD
+	    $RC_STATUS -v
+
+	    pmpost "start pmclusterd from $PCP_RC_DIR/pmclusterd"
+
+	fi
+	status=0
+        ;;
+
+  'stop')
+	_shutdown
+	status=0
+        ;;
+
+  'status')
+	# NOTE: $RC_CHECKPROC returns LSB compliant status values.
+	$ECHO $PCP_ECHO_N "Checking for PMCLUSTERD:" "$PCP_ECHO_C"
+        if [ -r /etc/rc.status ]
+        then
+            # SuSE
+            $RC_CHECKPROC $PMCLUSTERD
+            $RC_STATUS -v
+            status=$?
+        else
+            # not SuSE
+            $RC_CHECKPROC $PMCLUSTERD
+            status=$?
+            if [ $status -eq 0 ]
+            then
+                $ECHO running
+            else
+                $ECHO stopped
+            fi
+        fi
+	;;
+
+  *)
+	_usage
+        ;;
+esac
+

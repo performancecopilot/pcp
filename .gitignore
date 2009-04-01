@@ -1,0 +1,11 @@
+*~
+*.o
+Logs
+autom4te.cache
+config.log
+config.status
+configure
+debugfiles.list
+debugsources.list
+pcp.lsm
+.census

@@ -891,7 +891,6 @@ extern void __pmEventTrace(const char *);
  */
 
 typedef int (*__pmConnectHostType)(int, int);
-extern __pmConnectHostType __pmConnectHostMethod;
 
 extern int __pmSetSocketIPC(int);
 extern int __pmSetVersionIPC(int, int);

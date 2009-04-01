@@ -1,0 +1,50 @@
+#
+# Default cluster PMDA config. This is the default list of metrics used
+# for any blade where cluster.control.metrics has never been set.
+# In that case metrics listed here will be fetched by each
+# blade and pushed to the cluster PMDA running on the leader. The cluster
+# namespace mimics the Linux namespace - metrics that are *not* listed
+# in this config file will return PM_ERR_PMID (Unknown or illegal metric
+# identifier) to clients.
+#
+cluster.kernel.percpu.cpu.user
+cluster.kernel.percpu.cpu.nice
+cluster.kernel.percpu.cpu.sys
+cluster.kernel.percpu.cpu.idle
+cluster.kernel.percpu.cpu.intr
+cluster.kernel.percpu.cpu.wait.total
+cluster.mem.util.free
+cluster.mem.util.bufmem
+cluster.mem.util.dirty
+cluster.mem.util.writeback
+cluster.mem.util.mapped
+cluster.mem.util.slab
+cluster.mem.util.cache_clean
+cluster.mem.util.anonpages
+cluster.infiniband.port.rate
+cluster.infiniband.port.in.bytes
+cluster.infiniband.port.in.packets
+cluster.infiniband.port.in.errors.drop
+cluster.infiniband.port.in.errors.filter
+cluster.infiniband.port.in.errors.local
+cluster.infiniband.port.in.errors.remote
+cluster.infiniband.port.out.bytes
+cluster.infiniband.port.out.packets
+cluster.infiniband.port.out.errors.drop
+cluster.infiniband.port.out.errors.filter
+cluster.infiniband.port.total.bytes
+cluster.infiniband.port.total.packets
+cluster.infiniband.port.total.errors.drop
+cluster.infiniband.port.total.errors.filter
+cluster.infiniband.port.total.errors.link
+cluster.infiniband.port.total.errors.recover
+cluster.infiniband.port.total.errors.integrity
+cluster.infiniband.port.total.errors.vl15
+cluster.infiniband.port.total.errors.overrun
+cluster.infiniband.port.total.errors.symbol
+cluster.network.interface.in.bytes
+cluster.network.interface.in.errors
+cluster.network.interface.in.drops
+cluster.network.interface.out.bytes
+cluster.network.interface.out.errors
+cluster.network.interface.out.drops

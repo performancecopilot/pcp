@@ -1,0 +1,87 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2009 Max Matveev
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+.\"
+.ie \(.g \{\
+.\" ... groff (hack for khelpcenter, man2html, etc.)
+.TH MMV_STATS_INIT 3 "" "Performance Co-Pilot"
+\}
+.el \{\
+.if \nX=0 .ds x} MMV_STATS_INIT 3 "" "Performance Co-Pilot"
+.if \nX=1 .ds x} MMV_STATS_INIT 3 "Performance Co-Pilot"
+.if \nX=2 .ds x} MMV_STATS_INIT 3 "" "\&"
+.if \nX=3 .ds x} MMV_STATS_INIT "" "" "\&"
+.TH \*(x}
+.rr X
+\}
+.SH NAME
+\f3mmv_stats_init\f1 - create and initialize MMV file
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/mmv_stats.h>
+.sp
+.nf
+void * mmv_stats_init(const char *name, const mmv_stats_t *stats, int nstats);
+.fi
+.sp
+cc ... \-lpcp_mmv
+.ft 1
+.SH DESCRIPTION
+.P
+\f3mmv_stats_init\f1 creates and initializes the content of the 
+\f2MMV\f1(4) file.
+.P
+The file is created in the $PCP_TMP_DIR/mmv directory, \f2name\f1
+argument is expected to be just a name of the file, not the full path.
+The file is only created if it is mentioned in the \f3mmv.conf\f1 file.
+The metadata content of the file does not change after the file has
+been created. 
+.P
+The old file is removed unconditionally unless there was an error.
+.P
+\f2stats\f1 is the array of \f3mmv_stats_t\f1 elements of the lenght
+\f2nstats\f1. Each element of the array describes one PCP metric.
+.P
+.nf
+        typedef struct mmv_stats_s {
+            char name[MMV_NAMEMAX];   /* Name of the metric */
+            mmv_metric_type_t type;   /* Type of the metric */
+            mmv_stats_inst_t *indom;  /* Array of mmv_stats_inst_t,
+                                       * terminated by internal=-1 
+                                       * or external=NULL */
+            pmUnits dimension;        /* Dimensions (TIME, SPACE, etc) */
+	} mmv_stats_t;
+.fi
+.P
+If \f2indom\f1 is not NULL then the metric has multiple values. 
+The instance domain identifiers are assigned in the order in 
+which metrics are listed. If one or more metrics use the same \f2indom\f1
+pointer then only one instance domain will be created.
+.P
+The \f2stats\f1 array cannot contain any elements which have no name -
+this is considered an error and no metrics will be exported in this case.
+.SH RETURNS
+The function returns the address of the mmap-ed region on success or
+NULL on failure.
+.SH NOTE
+\f3pcp_mmv\f1 library has been designed to work without \f3libpcp\f1,
+it has its own parser for the \f3pcp.conf\f1 file.
+.SH SEE ALSO
+.BR mmv (4),
+.BR pcp.conf (4),
+.BR mmv_lookup_value_desc (3),
+.BR mmv_inc_value (3)
