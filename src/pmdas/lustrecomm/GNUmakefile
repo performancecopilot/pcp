@@ -40,16 +40,27 @@ LCFLAGS = -I.
 
 LDIRT	= domain.h pcp *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
 
-default_pcp default:	pcp domain.h $(TARGETS)
+default: build-me
 
 include $(BUILDRULES)
 
-install install_pcp:	default
+ifeq "$(TARGET_OS)" "linux"
+build-me:	pcp domain.h $(TARGETS)
+
+install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
-#	$(INSTALL) -m 755 $(LIBTARGET) $(PMDADIR)/$(LIBTARGET)
+	#$(INSTALL) -m 755 $(LIBTARGET) $(PMDADIR)/$(LIBTARGET)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root pmns domain.h help $(PMDADIR)
+else
+build-me:
+install:
+endif
+
+default_pcp: default
+
+install_pcp: install
 
 domain.h:	../../pmns/stdpmid
 	rm -f domain.h
