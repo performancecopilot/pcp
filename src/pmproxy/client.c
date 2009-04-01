@@ -73,8 +73,8 @@ AcceptNewClient(int reqfd)
     addrlen = sizeof(client[i].addr);
     fd = accept(reqfd, (struct sockaddr *)&client[i].addr, &addrlen);
     if (fd == -1) {
-	fprintf(stderr, "AcceptNewClient(%d) accept: %s\n",
-	    reqfd, strerror(errno));
+	__pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) accept failed: %s",
+			reqfd, strerror(errno));
 	Shutdown();
 	exit(1);
     }
@@ -84,6 +84,7 @@ AcceptNewClient(int reqfd)
     FD_SET(fd, &sockFds);
 
     client[i].fd = fd;
+    client[i].pmcd_fd = -1;
     client[i].status.connected = 1;
     client[i].pmcd_hostname = NULL;
 
@@ -96,7 +97,7 @@ AcceptNewClient(int reqfd)
      *   recv pmcd hostname and pmcd port
      */
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
-	if (read(fd, bp, 1) != 1) {
+	if (recv(fd, bp, 1, 0) != 1) {
 	    *bp = '\0';		/* null terminate what we have */
 	    bp = &buf[MY_BUFLEN];	/* flag error */
 	    break;
@@ -116,25 +117,26 @@ AcceptNewClient(int reqfd)
     }
 
     if (!ok) {
-	fprintf(stderr, "AcceptNewClient: bad version string (");
+	__pmNotifyErr(LOG_WARNING, "Bad version string from client at %s",
+			inet_ntoa(client[i].addr.sin_addr));
+	fprintf(stderr, "AcceptNewClient: bad version string was \"");
 	for (bp = buf; *bp && bp < &buf[MY_BUFLEN]; bp++)
 	    fputc(*bp & 0xff, stderr);
-	fprintf(stderr, ") recv from client at %s\n",
-	    inet_ntoa(client[i].addr.sin_addr));
+	fprintf(stderr, "\"\n");
 	DeleteClient(&client[i]);
 	return NULL;
     }
 
-    if (write(fd, MY_VERSION, strlen(MY_VERSION)) != strlen(MY_VERSION)) {
-	fprintf(stderr, "AcceptNewClient: failed to send version string (%s) to client at %s\n",
-	    MY_VERSION, inet_ntoa(client[i].addr.sin_addr));
-
+    if (send(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
+	__pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to send version "
+			"string (%s) to client at %s\n",
+			MY_VERSION, inet_ntoa(client[i].addr.sin_addr));
 	DeleteClient(&client[i]);
 	return NULL;
     }
 
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
-	if (read(fd, bp, 1) != 1) {
+	if (recv(fd, bp, 1, 0) != 1) {
 	    *bp = '\0';		/* null terminate what we have */
 	    bp = &buf[MY_BUFLEN];	/* flag error */
 	    break;
@@ -149,28 +151,28 @@ AcceptNewClient(int reqfd)
 	/* looks OK so far ... get hostname and port */
 	for (bp = buf; *bp && *bp != ' '; bp++)
 	    ;
-	*bp = '\0';
-	client[i].pmcd_hostname = strdup(buf);
-	if (client[i].pmcd_hostname == NULL) {
-	    /* this is fatal folks */
-	    fprintf(stderr, "AcceptNewClient: PMCD hostname malloc failed: %s\n", pmErrStr(-errno));
-	    exit(1);
+	if (bp != buf) {
+	    *bp = '\0';
+	    client[i].pmcd_hostname = strdup(buf);
+	    if (client[i].pmcd_hostname == NULL)
+		__pmNoMem("PMCD.hostname", strlen(buf), PM_FATAL_ERR);
+	    bp++;
+	    client[i].pmcd_port = (int)strtoul(bp, &endp, 10);
+	    if (*endp != '\0') {
+		__pmNotifyErr(LOG_WARNING, "AcceptNewClient: bad pmcd port "
+				"\"%s\" from client at %s",
+				bp, inet_ntoa(client[i].addr.sin_addr));
+		DeleteClient(&client[i]);
+		return NULL;
+	    }
 	}
-	bp++;
-	client[i].pmcd_port = (int)strtoul(bp, &endp, 10);
-	if (*endp != '\0') {
-	    /* bad port number */
-	    fprintf(stderr, "AcceptNewClient: bad pmcd port \"%s\"", bp);
-	    fprintf(stderr, " recv from client at %s\n",
-		inet_ntoa(client[i].addr.sin_addr));
-	    DeleteClient(&client[i]);
-	    return NULL;
-	}
+	/* error, fall through */
     }
 
     if (client[i].pmcd_hostname == NULL) {
-	fprintf(stderr, "AcceptNewClient: failed to get PMCD hostname (%s) from client at %s\n",
-	    buf, inet_ntoa(client[i].addr.sin_addr));
+	__pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to get PMCD "
+				"hostname (%s) from client at %s",
+				buf, inet_ntoa(client[i].addr.sin_addr));
 	DeleteClient(&client[i]);
 	return NULL;
     }
@@ -208,14 +210,15 @@ DeleteClient(ClientInfo *cp)
 	fprintf(stderr, "DeleteClient [%d]\n", i);
 #endif
 
-    if (cp->fd != -1) {
+    if (cp->fd >= 0) {
 	__pmResetIPC(cp->fd);
 	FD_CLR(cp->fd, &sockFds);
 	close(cp->fd);
     }
     if (cp->pmcd_fd >= 0) {
-	close(cp->pmcd_fd);
+	__pmResetIPC(cp->pmcd_fd);
 	FD_CLR(cp->pmcd_fd, &sockFds);
+	close(cp->pmcd_fd);
     }
     if (i == nClients-1) {
 	i--;
