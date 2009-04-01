@@ -24,12 +24,15 @@ CFILES	= mmv_stats.c
 
 STATICLIBTARGET	= libpcp_mmv.a
 DSOVERSION = 1
+LIBTARGET = libpcp_mmv.$(DSOSUFFIX).$(DSOVERSION)
+SYMTARGET = libpcp_mmv.$(DSOSUFFIX) 
 ifeq "$(TARGET_OS)" "darwin"
 LIBTARGET = libpcp_mmv.$(DSOVERSION).$(DSOSUFFIX)
-else
-LIBTARGET = libpcp_mmv.$(DSOSUFFIX).$(DSOVERSION)
 endif
-SYMTARGET = libpcp_mmv.$(DSOSUFFIX) 
+ifneq "$(findstring $(TARGET_OS), cygwin mingw)" ""
+LIBTARGET = libpcp_mmv.$(DSOSUFFIX) 
+SYMTARGET =
+endif
 
 LCFLAGS = -I.
 LDIRT = $(SYMTARGET) pcp

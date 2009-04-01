@@ -20,10 +20,11 @@
  *    Implementation of simple API to export values via mmap-ed file.
  */
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/types.h>
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
+#ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
+#endif
 
 #include "mmv_stats.h"
 
@@ -98,6 +99,25 @@ getconfig(void)
     fclose(fp);
 
     return !(pcpvardir && pcptmpdir);
+}
+
+static void *
+memmap(int fd, int sz)
+{
+    void *addr;
+#ifdef IS_MINGW
+    HANDLE handle = CreateFileMapping((HANDLE)_get_osfhandle(fd),
+				NULL, PAGE_READWRITE, 0, sz, NULL);
+    if (handle == NULL)
+	addr = NULL;
+    else {
+	addr = MapViewOfFile(handle, FILE_MAP_ALL_ACCESS, 0, 0, sz);
+	CloseHandle(handle);
+    }
+#else
+    addr = mmap(0, sz, PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
+#endif
+    return addr;
 }
 
 void * 
@@ -229,15 +249,15 @@ mmv_stats_init (const char * fname, const mmv_stats_t * st, int nstats)
 
     /* creat will cause the pmda to reload on next fetch */
     if ( (fd = open (fullpath, O_RDWR | O_CREAT | O_EXCL, 0644)) >= 0 ) {
-	if (pwrite(fd, " ", 1, sz -1) <= 0) {
+	if (lseek(fd, sz - 1, SEEK_SET) < 0 ||
+	    write(fd, " ", 1) <= 0) {
 	    free (mlist);
 	    free (indoms);
 	    close (fd);
 	    return NULL;
 	}
 
-	if ( (addr = mmap (0, sz, PROT_WRITE | PROT_READ, 
-			   MAP_SHARED, fd, 0)) != MAP_FAILED ) {
+	if ( (addr = memmap(fd, sz)) != MAP_FAILED ) {
 	    mmv_stats_hdr_t * hdr = (mmv_stats_hdr_t *) addr;
 	    mmv_stats_value_t * val = NULL;
 	    mmv_stats_toc_t * toc = 

@@ -24,46 +24,31 @@
  * names for the metrics are prepended with mmv and name of the file.
  */
 
-#include <stdio.h>
-#include <ctype.h>
-#include <limits.h>
-#include <time.h>
-#include <string.h>
-#include <signal.h>
-#include <syslog.h>
-#include <errno.h>
-#include <sys/types.h>
-
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/times.h>
-#include <sys/mman.h>
-#include <sys/wait.h>
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
 #include "mmv_stats.h"
 #include "./domain.h"
+#include <sys/stat.h>
 
 static pmdaInterface	dispatch;
 
-static pmdaMetric * metrics = NULL;
-static int mcnt = 0;
-static pmdaIndom * indoms = NULL;
-static int incnt = 0;
-static int reload = 0;
+static pmdaMetric * metrics;
+static int mcnt;
+static pmdaIndom * indoms;
+static int incnt;
+static int reload;
 
 static time_t conf_ts = -1;         /* last mmv.conf timestamp */
 static time_t statsdir_ts = -1;     /* last statsdir timestamp */
 
-static char *pcpvardir = NULL;      /* probably /var/pcp */
-static char *pcptmpdir = NULL;      /* probably /var/tmp */
-static char *pcppmdasdir = NULL;    /* probably /var/pcp/pmdas */
+static char *pcpvardir;		/* probably /var/pcp */
+static char *pcptmpdir;		/* probably /var/tmp */
+static char *pcppmdasdir;	/* probably /var/pcp/pmdas */
 static char statsdir[MAXPATHLEN];   /* pcptmpdir/mmv */
 static char confpath[MAXPATHLEN];   /* pcpvardir/mmv/mmv.conf */
 
-struct stats_s {
+static struct stats_s {
     char * name;                /* strdup client name */
     void * addr;                /* mmap */
     mmv_stats_hdr_t *hdr;       /* header in mmap */
@@ -77,37 +62,53 @@ struct stats_s {
     int mcnt;			/* How many metrics have we got */
     int cluster;                /* cluster id */
     int gen;                    /* generation number on open */
-} * slist = NULL;
+} * slist;
 
-int scnt = 0;
+static int scnt;
 
+static void *
+memmap(int fd, int sz, char *client)
+{
+    void * m;
+
+#ifdef IS_MINGW
+    HANDLE hand = CreateFileMapping((HANDLE)_get_osfhandle(fd),
+				    NULL, PAGE_READONLY, 0, sz, NULL);
+    if (!hand) {
+        __pmNotifyErr(LOG_ERR, "%s: failed to mmap \"%s\" - %s",
+			      pmProgname, client, strerror(errno));
+	m = NULL;
+    } else {
+	m = MapViewOfFile(hand, FILE_MAP_READ, 0, 0, sz);
+	CloseHandle(hand);
+    }
+#else
+    m =  mmap (NULL, sz, PROT_READ, MAP_SHARED, fd, 0);
+#endif
+    return m;
+}
+
+static void
+memunmap(void *m, int sz)
+{
+#ifdef IS_MINGW
+    UnmapViewOfFile (m);
+#else
+    munmap (m, sz);
+#endif
+}
+    
 static int
 update_names(void)
 {
-    pid_t child = fork ();
+    char script[MAXPATHLEN];
+    int sep = __pmPathSeparator();
 
-    if ( child < 0) {
-	__pmNotifyErr (LOG_ERR, "%s: fork failed - %s(%d)", 
-		       pmProgname, strerror (errno), errno);
-	return (1);
-    } else if ( child ) {
-	int s = 0;
-
-	if ( waitpid (child, &s, 0) < 0 ) {
-	    __pmNotifyErr (LOG_ERR, "%s: cannot wait for child %d - %s(%d)", 
-			   pmProgname, child, strerror (errno), errno);
-	    exit (0);
-	} else if (s) {
-	    __pmNotifyErr (LOG_ERR, "%s: UpdateNames failed\n", pmProgname);
-	    exit (0);
-	}
-    } else { /* Child process */
-	char script[MAXPATHLEN];
-
-	sprintf (script, "%s/mmv/UpdateNames", pcppmdasdir);
-	execl (script, script, NULL);
+    snprintf (script, sizeof(script), "%s" "%c" "mmv" "%c" "UpdateNames",
+			pcppmdasdir, sep, sep);
+    if (system (script) == -1) {
 	__pmNotifyErr (LOG_ERR, "%s: cannot exec %s", pmProgname, script);
-	exit (1);
+	return 1;
     }
     return 0;
 }
@@ -162,7 +163,7 @@ map_stats(void)
 	for ( i=0; i < scnt; i++ ) {
 	    free (slist[i].name);
 	    free (slist[i].extra);
-	    munmap (slist[i].addr, slist[i].len);
+	    memunmap (slist[i].addr, slist[i].len);
 	    close (slist[i].fd);
 	}
 	free (slist);
@@ -197,6 +198,8 @@ map_stats(void)
 	    __pmNotifyErr(LOG_INFO, "%s: mmv client %d - \"%s\"",
 			  pmProgname, cluster, client);
                 
+	    /* TODO: handle Win32 path separation anxiety */
+
             if ( strchr (client, '/') == NULL ) {
 	        sprintf (path, "%s/%s", statsdir, client);
             } else {
@@ -207,9 +210,7 @@ map_stats(void)
 		int fd;
                
 		if ((fd = open(path, O_RDONLY)) >= 0) {
-		    void * m =  mmap (NULL, statbuf.st_size, PROT_READ, 
-				      MAP_SHARED, fd, 0);
-
+		    void * m = memmap(fd, statbuf.st_size, client);
 		    if ( m  == MAP_FAILED ) {
 		        __pmNotifyErr(LOG_ERR, 
 				      "%s: failed to mmap \"%s\" - %s",
@@ -222,7 +223,7 @@ map_stats(void)
 			int s;
 
 			if ( strcmp (hdr->magic, "MMV") ) {
-			    munmap (m, statbuf.st_size);
+			    memunmap (m, statbuf.st_size);
 			    close (fd);
 			    continue;
 			}
@@ -242,13 +243,13 @@ map_stats(void)
 			    int w;
 
 			    for (w=0; (w<10)&&(!hdr->g1 || hdr->g1 != hdr->g2); w++) {
-				struct timeval tv = {0, 100000};
-				select (0, NULL, NULL, NULL, &tv);
+				struct timespec rem, req = {0, 100000000};
+				nanosleep(&req, &rem);
 			    }
 
 			    if ( !hdr->g1 || hdr->g1 != hdr->g2 ) {
 				/* Daemon takes too long - ingore it */
-				munmap (m, statbuf.st_size);
+				memunmap (m, statbuf.st_size);
 				close (fd);
 				__pmNotifyErr(LOG_ERR, 
 					      "%s: waited too long for"
@@ -287,7 +288,7 @@ map_stats(void)
 				fprintf (f, "\t%s\n", client);
 			    }
 			} else {
-			    munmap (m, statbuf.st_size);
+			    memunmap (m, statbuf.st_size);
 			    close (fd);
 			}
 		    }
@@ -552,6 +553,8 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                                 }
                                 break;
 			    }
+			    case MMV_ENTRY_NOSUPPORT:
+				return PM_ERR_APPVERSION;
 
 			    }
 			    return 1;
