@@ -2,9 +2,7 @@
 # PCP QA Test No. 635
 # $Revision: 1.8 $
 #
-# Check network.interface metrics
-# This is the Linux version.  qa/123 is the IRIX version.
-#
+# Check Linux network.interface metrics
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -16,7 +14,7 @@ seq=`basename $0`
 . ./localconfig
 if [ $PCP_PLATFORM != linux ]
 then
-    echo "depends on Linux netstat -i output format (see qa/123 for IRIX dual)" >$seq.notrun
+    echo "depends on Linux netstat -i output format" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi
@@ -101,12 +99,8 @@ cat $tmp.net.1a >>$seq.full
 # Then recv packets, recv errors, recv drops, xmit packets, xmit errors
 # and xmit drops.
 #
-# Note.	The second sed expression is a complete hack to deal with this
-#	sort of overflow in the formatting of the netstat output (see
-#	Met and RX-OK for eth0 below) ...
-#
 #Iface     MTU Met   RX-OK RX-ERR RX-DRP RX-OVR   TX-OK TX-ERR TX-DRP TX-OVR Flg
-#eth0       1500   012263928      0      0      0 3273749      0      0      0 BMRU
+#eth0       1500   0 12263928      0      0      0 3273749      0      0      0 BMRU
 #lo        16436   0 3489788      0      0      0 3489788      0      0      0 LRU
 echo >>$seq.full
 echo "=== netstat for first counts ===" >>$seq.full
@@ -114,7 +108,6 @@ netstat -i \
     | tee -a $seq.full \
     | sed \
 	-e 's/\*/ /' \
-	-e 's/\([0-9]\)\([0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9] \)/\1 \2/g' \
     | $PCP_AWK_PROG 'NR > 2 { print $4, $5, $6, $8, $9, $10 }' \
     > $tmp.net.1b
 echo "===" >>$seq.full
@@ -198,7 +191,6 @@ netstat -i \
     | tee -a $seq.full \
     | sed \
 	-e 's/\*/ /' \
-	-e 's/\([0-9]\)\([0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9] \)/\1 \2/g' \
     | $PCP_AWK_PROG 'NR > 2 { print $4, $5, $6, $8, $9, $10 }' \
     > $tmp.net.2b
 echo "===" >>$seq.full
@@ -230,8 +222,8 @@ $PCP_AWK_PROG < $tmp.net.2 '
 	    print $8 >"'$tmp.net.out.drops.2'"
 	}'
 
-# Bring the two netstat snaps together and check the the pminfo data falls
-# withing the netstat data.
+# Bring the two netstat snaps together and check the pminfo data falls
+# within the netstat data.
 #
 for m in `cat $tmp.metrics`
 do
