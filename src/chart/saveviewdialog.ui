@@ -434,22 +434,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>dirListView</sender>
-   <signal>clicked(QModelIndex)</signal>
-   <receiver>SaveViewDialog</receiver>
-   <slot>dirListView_clicked(QModelIndex)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>202</x>
-     <y>102</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>202</x>
-     <y>120</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>preserveSizeCheckBox</sender>
    <signal>toggled(bool)</signal>
    <receiver>SaveViewDialog</receiver>

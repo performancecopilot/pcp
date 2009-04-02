@@ -29,6 +29,10 @@ OpenViewDialog::OpenViewDialog(QWidget *parent) : QDialog(parent)
     my.completer->setModel(my.dirModel);
     fileNameLineEdit->setCompleter(my.completer);
 
+    connect(dirListView->selectionModel(),
+	SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+	this, SLOT(dirListView_selectionChanged()));
+
     QDir dir;
     QString sys = my.systemDir = pmGetConfig("PCP_VAR_DIR");
     my.systemDir.append("/config/kmchart");
@@ -144,7 +148,7 @@ void OpenViewDialog::systemToolButton_clicked(bool enabled)
 	setPath(my.systemDir);
 }
 
-void OpenViewDialog::dirListView_clicked(const QModelIndex &)
+void OpenViewDialog::dirListView_selectionChanged()
 {
     QItemSelectionModel *selections = dirListView->selectionModel();
     QModelIndexList selectedIndexes = selections->selectedIndexes();

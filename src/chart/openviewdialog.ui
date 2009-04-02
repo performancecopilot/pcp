@@ -422,22 +422,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>dirListView</sender>
-   <signal>clicked(QModelIndex)</signal>
-   <receiver>OpenViewDialog</receiver>
-   <slot>dirListView_clicked(QModelIndex)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>243</x>
-     <y>109</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>409</x>
-     <y>196</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>userToolButton</sender>
    <signal>clicked(bool)</signal>
    <receiver>OpenViewDialog</receiver>
