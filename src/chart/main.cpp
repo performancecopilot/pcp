@@ -332,7 +332,9 @@ void readSettings(void)
     if (userSettings.contains("defaultColorScheme") == true)
 	colorList = userSettings.value("defaultColorScheme").toStringList();
     else
-	colorList << "yellow" << "blue" << "red" << "green" << "violet";
+	colorList
+	    << "#ffff00" << "#0000ff" << "#ff0000" << "#008000" << "#ee82ee"
+	    << "#aa5500" << "#666666" << "#aaff00" << "#aa00ff" << "#aaaa7f";
     globalSettings.defaultScheme.setName("#-cycle");
     globalSettings.defaultScheme.setModified(false);
     globalSettings.defaultScheme.setColorNames(colorList);
