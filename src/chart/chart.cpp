@@ -928,10 +928,12 @@ void Chart::redoPlotData(void)
 	    for (m = 0; m < my.plots.size(); m++)
 		maxCount = qMax(maxCount, my.plots[m]->dataCount);
 	    for (i = 0; i < maxCount; i++) {
-		if (i >= my.plots[0]->dataCount || my.plots[0]->hidden)
-		    my.plots[0]->plotData[i] = Curve::NaN();
-		else
-		    my.plots[0]->plotData[i] = my.plots[0]->data[i];
+		for (m = 0; m < my.plots.size(); m++) {
+		    if (i >= my.plots[m]->dataCount || my.plots[m]->hidden)
+			my.plots[m]->plotData[i] = Curve::NaN();
+		    else
+			my.plots[m]->plotData[i] = my.plots[m]->data[i];
+		}
 		sum = 0.0;
 		for (m = 0; m < my.plots.size(); m++) {
 		    if (!Curve::isNaN(my.plots[m]->plotData[i])) {
