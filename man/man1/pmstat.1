@@ -34,7 +34,7 @@
 .\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3pmstat\f1
-[\f3\-Llpz\f1]
+[\f3\-Llpxz\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-h\f1 \f2host\f1]
@@ -166,6 +166,11 @@ option prints the last 7 characters of a hostname in summaries involving
 more than one host (when more than one
 .B \-h
 option has been specified on the command line).
+.PP
+The
+.B \-x
+option (extended CPU metrics) causes two additional CPU metrics to be
+reported, namely wait for I/O ("wa") and virtualisation steal time ("st").
 .PP
 The output from
 .B pmstat

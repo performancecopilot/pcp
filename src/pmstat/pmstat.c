@@ -56,8 +56,11 @@ static char * metrics[] = {
 #define CPU 11
     "kernel.all.cpu.nice",  
     "kernel.all.cpu.user",  
+    "kernel.all.cpu.intr",
     "kernel.all.cpu.sys",
     "kernel.all.cpu.idle",
+    "kernel.all.cpu.wait.total",
+    "kernel.all.cpu.steal",
 };
 
 static char * metricSubst[] = {
@@ -80,11 +83,13 @@ static char * metricSubst[] = {
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
     NULL
 };
 
 static const int nummetrics = sizeof(metrics)/sizeof (metrics[0]);
-
+static int extra_cpu_stats;
 static char swap_op ='p';
 
 long long cntDiff(pmDesc * d, pmValueSet * now, pmValueSet * was)
@@ -299,7 +304,7 @@ main(int argc, char *argv[])
 	}
     }
 
-    while ((c = getopt(argc, argv, "A:a:D:h:H:lLn:O:ps:S:t:T:zZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, "A:a:D:h:H:lLn:O:ps:S:t:T:xzZ:?")) != EOF) {
 	switch (c) {
 	case 'A':	/* sample time alignment */
 	    Aflag = optarg;
@@ -460,12 +465,10 @@ main(int argc, char *argv[])
 	    Oflag = optarg;
 	    break;
 
-	    
 	case 'S':	/* time window start */
 	    Sflag = optarg;
 	    break;
 
-	    
 	case 'T':	/* time window end */
 	    if (samples) {
 		fprintf(stderr, "%s: at most one of -T and -s allowed\n",
@@ -473,6 +476,10 @@ main(int argc, char *argv[])
 		errflag++;
 	    }
 	    Tflag = optarg;
+	    break;
+
+	case 'x':	/* extended CPU reporting */
+	    extra_cpu_stats = 1;
 	    break;
 
 	case 'z':	/* timezone from host */
@@ -745,21 +752,30 @@ main(int argc, char *argv[])
 	    printf ("@ %s", pmCtime (&now, tbuf));
 
 	    if ( ctxCnt > 1 ) {
-		printf ("%-7s%8s%21s%10s%10s%10s%12s\n",
-			"node", "loadavg","memory","swap","io",
-			"system","cpu");
-		printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
-		       "", "1 min","swpd","buff","cache",
-		       swap_op,"i",swap_op,"o","bi","bo",
-		       "in","cs","us","sy","id");
+		printf("%-7s%8s%21s%10s%10s%10s%*s\n",
+			"node", "loadavg","memory","swap","io","system",
+			extra_cpu_stats ? 20 : 12, "cpu");
+		if (extra_cpu_stats)
+		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s\n",
+			"", "1 min","swpd","buff","cache", swap_op,"i",swap_op,"o","bi","bo",
+			"in","cs","us","sy","id","wa","st");
+		else
+		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
+			"", "1 min","swpd","buff","cache", swap_op,"i",swap_op,"o","bi","bo",
+			"in","cs","us","sy","id");
 
 	    } else {
-		printf("%8s%28s%10s%10s%10s%12s\n",
-		       "loadavg","memory","swap","io","system","cpu");
-		printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
-		       "1 min","swpd","free","buff","cache",
-		       swap_op,"i",swap_op,"o","bi","bo",
-		       "in","cs","us","sy","id");
+		printf("%8s%28s%10s%10s%10s%*s\n",
+		       "loadavg","memory","swap","io","system",
+			extra_cpu_stats ? 20 : 12, "cpu");
+		if (extra_cpu_stats)
+		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s\n",
+			"1 min","swpd","free","buff","cache", swap_op,"i",swap_op,"o","bi","bo",
+			"in","cs","us","sy","id","wa","st");
+		else
+		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
+			"1 min","swpd","free","buff","cache", swap_op,"i",swap_op,"o","bi","bo",
+			"in","cs","us","sy","id");
 	    }
 	}
 
@@ -771,7 +787,7 @@ main(int argc, char *argv[])
 	    int sts;
 	    int i;
 	    unsigned long long dtot = 0;
-	    unsigned long long diffs[4];
+	    unsigned long long diffs[7];
 	    pmAtomValue la;
 	    struct statsrc_t * s = ctxList[j];
 
@@ -905,13 +921,13 @@ main(int argc, char *argv[])
 		}
 
 		/* CPU utilization - report percentage */
-		for ( i=0; i < 4; i++ ) {
+		for ( i=0; i < 7; i++ ) {
 		    if (s->pmdesc[CPU+i].pmid == PM_ID_NULL || prev == NULL ||
 			cur->vset[CPU+i]->numval != 1 ||
 			prev->vset[CPU+i]->numval != 1) {
-			if ( i ) {
+			if ( i > 0 && i < 4 ) {
 			    break;
-			} else { /* Nice is optional */
+			} else { /* Nice, iowait, steal are optional */
 			    diffs[i] = 0;
 			}
 		    } else {
@@ -922,14 +938,27 @@ main(int argc, char *argv[])
 		    }
 		}
 
-		if ( i != 4 ) {
+		if (extra_cpu_stats) {
+		    if (i != 7 ) {
+			printf(" %3.3s %3.3s %3.3s %3.3s %3.3s",
+				"?", "?", "?", "?", "?");
+		    } else {
+			unsigned long long fill = dtot/2;
+			printf(" %3u %3u %3u %3u %3u",
+			   (unsigned int)((100*(diffs[0]+diffs[1])+fill)/dtot),
+			   (unsigned int)((100*(diffs[2]+diffs[3])+fill)/dtot),
+			   (unsigned int)((100*diffs[4]+fill)/dtot),
+			   (unsigned int)((100*diffs[5]+fill)/dtot),
+			   (unsigned int)((100*diffs[6]+fill)/dtot));
+		    }
+		} else if ( i != 7 ) {
 		    printf(" %3.3s %3.3s %3.3s", "?", "?", "?");
 		} else {
 		    unsigned long long fill = dtot/2;
 		    printf(" %3u %3u %3u",
 			   (unsigned int)((100*(diffs[0]+diffs[1])+fill)/dtot),
-			   (unsigned int)((100*diffs[2]+fill)/dtot),
-			   (unsigned int)((100*diffs[3]+fill)/dtot));
+			   (unsigned int)((100*(diffs[2]+diffs[3])+fill)/dtot),
+			   (unsigned int)((100*diffs[4]+fill)/dtot));
 		}
 
 		if ( prev != NULL ) {
