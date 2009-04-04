@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2000,2009 Silicon Graphics, Inc. All Rights Reserved.
+ * Copyright (c) 2009 Aconex. All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
  *
  * MMV PMDA
@@ -30,9 +27,6 @@
 #include "mmv_stats.h"
 #include "./domain.h"
 #include <sys/stat.h>
-#ifdef HAVE_SYS_MMAN_H
-#include <sys/mman.h>
-#endif
 
 static pmdaInterface	dispatch;
 
@@ -45,11 +39,12 @@ static int reload;
 static time_t conf_ts = -1;         /* last mmv.conf timestamp */
 static time_t statsdir_ts = -1;     /* last statsdir timestamp */
 
-static char *pcpvardir;		/* probably /var/pcp */
 static char *pcptmpdir;		/* probably /var/tmp */
+static char *pcpvardir;		/* probably /var/pcp */
 static char *pcppmdasdir;	/* probably /var/pcp/pmdas */
+static char pmnsdir[MAXPATHLEN];   /* pcpvardir/pmns */
 static char statsdir[MAXPATHLEN];   /* pcptmpdir/mmv */
-static char confpath[MAXPATHLEN];   /* pcpvardir/mmv/mmv.conf */
+static char confpath[MAXPATHLEN];   /* pcppmdasdir/mmv/mmv.conf */
 
 static struct stats_s {
     char * name;                /* strdup client name */
@@ -69,38 +64,6 @@ static struct stats_s {
 
 static int scnt;
 
-static void *
-memmap(int fd, int sz, char *client)
-{
-    void * m;
-
-#ifdef IS_MINGW
-    HANDLE hand = CreateFileMapping((HANDLE)_get_osfhandle(fd),
-				    NULL, PAGE_READONLY, 0, sz, NULL);
-    if (!hand) {
-        __pmNotifyErr(LOG_ERR, "%s: failed to mmap \"%s\" - %s",
-			      pmProgname, client, strerror(errno));
-	m = NULL;
-    } else {
-	m = MapViewOfFile(hand, FILE_MAP_READ, 0, 0, sz);
-	CloseHandle(hand);
-    }
-#else
-    m =  mmap (NULL, sz, PROT_READ, MAP_SHARED, fd, 0);
-#endif
-    return m;
-}
-
-static void
-memunmap(void *m, int sz)
-{
-#ifdef IS_MINGW
-    UnmapViewOfFile (m);
-#else
-    munmap (m, sz);
-#endif
-}
-    
 static int
 update_names(void)
 {
@@ -123,9 +86,11 @@ map_stats(void)
     char * fname;
     FILE * f;
     FILE * conf;
+    int sep = __pmPathSeparator();
     int i;
     
-    if ( (fname = tempnam (NULL, "mmv") ) != NULL ) {
+    unsetenv("TMPDIR");	/* temp file must be in pmnsdir, for rename */
+    if ( (fname = tempnam (pmnsdir, "mmv") ) != NULL ) {
 	if ( (f = fopen (fname, "w")) == NULL ) {
 	    __pmNotifyErr(LOG_ERR, "%s: failed to write \"%s\" - %s",
 			  pmProgname, fname, strerror(errno));
@@ -166,7 +131,7 @@ map_stats(void)
 	for ( i=0; i < scnt; i++ ) {
 	    free (slist[i].name);
 	    free (slist[i].extra);
-	    memunmap (slist[i].addr, slist[i].len);
+	    __pmMemoryUnmap(slist[i].addr, slist[i].len);
 	    close (slist[i].fd);
 	}
 	free (slist);
@@ -201,10 +166,8 @@ map_stats(void)
 	    __pmNotifyErr(LOG_INFO, "%s: mmv client %d - \"%s\"",
 			  pmProgname, cluster, client);
                 
-	    /* TODO: handle Win32 path separation anxiety */
-
-            if ( strchr (client, '/') == NULL ) {
-	        sprintf (path, "%s/%s", statsdir, client);
+            if ( strchr (client, sep) == NULL ) {
+	        sprintf (path, "%s%c%s", statsdir, sep, client);
             } else {
                 strcpy (path, client);
             }
@@ -213,20 +176,19 @@ map_stats(void)
 		int fd;
                
 		if ((fd = open(path, O_RDONLY)) >= 0) {
-		    void * m = memmap(fd, statbuf.st_size, client);
-		    if ( m  == MAP_FAILED ) {
+		    void *m = __pmMemoryMap(fd, statbuf.st_size, 0);
+		    if (m == NULL) {
 		        __pmNotifyErr(LOG_ERR, 
-				      "%s: failed to mmap \"%s\" - %s",
+				      "%s: failed to memory map \"%s\" - %s",
 				      pmProgname, client,
 				      strerror(errno));
 			close (fd);
-                        
                     } else {
 			mmv_stats_hdr_t * hdr = (mmv_stats_hdr_t *)m;
 			int s;
 
 			if ( strcmp (hdr->magic, "MMV") ) {
-			    memunmap (m, statbuf.st_size);
+			    __pmMemoryUnmap(m, statbuf.st_size);
 			    close (fd);
 			    continue;
 			}
@@ -252,7 +214,7 @@ map_stats(void)
 
 			    if ( !hdr->g1 || hdr->g1 != hdr->g2 ) {
 				/* Daemon takes too long - ingore it */
-				memunmap (m, statbuf.st_size);
+				__pmMemoryUnmap(m, statbuf.st_size);
 				close (fd);
 				__pmNotifyErr(LOG_ERR, 
 					      "%s: waited too long for"
@@ -291,7 +253,7 @@ map_stats(void)
 				fprintf (f, "\t%s\n", client);
 			    }
 			} else {
-			    memunmap (m, statbuf.st_size);
+			    __pmMemoryUnmap(m, statbuf.st_size);
 			    close (fd);
 			}
 		    }
@@ -425,15 +387,15 @@ map_stats(void)
 	    fputs ("}\n", f);
 	}
 
-        fclose (f);
-	sprintf (path, "%s/pmns/mmv.new", pcpvardir);
-	if ( rename (fname, path) < 0 ) {
-	    __pmNotifyErr(LOG_ERR, "%s: cannot rename %s to %s - %s"
-			  , pmProgname, fname, path, strerror (errno));
+	fclose (f);
+	sprintf (path, "%s%c" "mmv.new", pmnsdir, sep);
+	if ( rename2 (fname, path) < 0 ) {
+	    __pmNotifyErr(LOG_ERR, "%s: cannot rename %s to %s - %s",
+			  pmProgname, fname, path, strerror (errno));
 	}
     } else {
-	__pmNotifyErr(LOG_ERR, "%s: cannot open %s - %s"
-		      , pmProgname, confpath, strerror (errno));
+	__pmNotifyErr(LOG_ERR, "%s: cannot open %s - %s",
+		      pmProgname, confpath, strerror (errno));
     }
 
     reload = 0;
@@ -707,7 +669,6 @@ mmv_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     }
 }
 
-/*ARGSUSED2*/
 static int
 mmv_store(pmResult *result, pmdaExt *ep)
 {
@@ -791,14 +752,13 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			err = 0;
-    char		mypath[MAXPATHLEN];
+    int		err = 0;
+    int		sep = __pmPathSeparator();
+    char	mypath[MAXPATHLEN];
 
-    /* trim cmd name of leading directory components */
-    pmProgname = basename(argv[0]);
-
-    snprintf(mypath, sizeof(mypath),
-		"%s/mmv/help", pmGetConfig("PCP_PMDAS_DIR"));
+    __pmSetProgname(argv[0]);
+    snprintf(mypath, sizeof(mypath), "%s%c" "mmv" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, MMV,
 		"mmv.log", mypath);
 
@@ -807,12 +767,13 @@ main(int argc, char **argv)
         usage();
     }
 
-    pcpvardir = pmGetConfig ("PCP_VAR_DIR");
     pcptmpdir = pmGetConfig ("PCP_TMP_DIR");
+    pcpvardir = pmGetConfig ("PCP_VAR_DIR");
     pcppmdasdir = pmGetConfig ("PCP_PMDAS_DIR");
-    
-    sprintf(confpath, "%s/pmdas/mmv/mmv.conf", pcpvardir);
-    sprintf(statsdir, "%s/mmv", pcptmpdir);
+
+    sprintf(confpath, "%s%c" "mmv" "%c" "mmv.conf", pcppmdasdir, sep, sep);
+    sprintf(statsdir, "%s%c" "mmv", pcptmpdir, sep);
+    sprintf(pmnsdir, "%s%c" "pmns", pcpvardir, sep);
 
     pmdaOpenLog(&dispatch);
 
@@ -847,7 +808,5 @@ main(int argc, char **argv)
 
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
-
     exit(0);
-    /*NOTREACHED*/
 }
