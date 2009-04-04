@@ -14,8 +14,8 @@
  *
  * Memory Mapped Values PMDA Client API
  */
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "pmapi.h"
+#include "impl.h"
 #include "mmv_stats.h"
 
 #define ROUNDUP_64(i) ((((i) + 63) >> 6) << 6)

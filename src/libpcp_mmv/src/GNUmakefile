@@ -34,11 +34,10 @@ LIBTARGET = libpcp_mmv.$(DSOSUFFIX)
 SYMTARGET =
 endif
 
-LCFLAGS = -I.
 LLDLIBS = -lpcp
-LDIRT = $(SYMTARGET) pcp
+LDIRT = $(SYMTARGET)
 
-base default: pcp $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+base default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
 include $(BUILDRULES)
 
@@ -52,9 +51,6 @@ install: default
 default_pcp: default
 
 install_pcp: install
-
-pcp:
-	$(LN_S) $(TOPDIR)/src/include pcp
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET):
