@@ -207,6 +207,32 @@ __pmSetProgname(const char *program)
     return sts1 | sts2;
 }
 
+void *
+__pmMemoryMap(int fd, size_t sz, int writable)
+{
+    void *addr = NULL;
+    int cflags = writable ? PAGE_READWRITE : PAGE_READONLY;
+
+    HANDLE handle = CreateFileMapping((HANDLE)_get_osfhandle(fd),
+					NULL, cflags, 0, sz, NULL);
+    if (handle != NULL) {
+	int mflags = writable ? FILE_MAP_ALL_ACCESS : FILE_MAP_READ_ACCESS;
+
+	addr = MapViewOfFile(handle, mflags, 0, 0, sz);
+	CloseHandle(handle);
+	if (addr == MAP_FAILED)
+	    return NULL;
+    }
+    return addr;
+}
+
+void
+__pmMemoryUnmap(void *addr, size_t sz)
+{
+    (void)sz;
+    UnmapViewOfFile(addr);
+}
+
 int
 __pmProcessExists(pid_t pid)
 {

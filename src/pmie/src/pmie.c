@@ -31,9 +31,6 @@
 #include "pmapi.h"
 #include "impl.h"
 #include <sys/stat.h>
-#ifdef HAVE_SYS_MMAN_H
-#include <sys/mman.h>
-#endif
 
 #include "dstruct.h"
 #include "stomp.h"
@@ -338,8 +335,8 @@ startmonitor(void)
     chmod(PMIE_DIR, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
     atexit(stopmonitor);
 
-    /* create and initialize mmapped performance data file */
-    sprintf(perffile, "%s/%u", PMIE_DIR, (int)getpid());
+    /* create and initialize memory mapped performance data file */
+    sprintf(perffile, "%s%c%u", PMIE_DIR, __pmPathSeparator(), (int)getpid());
     unlink(perffile);
     if ((fd = open(perffile, O_RDWR | O_CREAT | O_EXCL | O_TRUNC,
 			     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {
@@ -351,21 +348,9 @@ startmonitor(void)
     lseek(fd, sizeof(pmiestats_t)-1, SEEK_SET);
     write(fd, &zero, 1);
 
-#ifndef IS_MINGW
-    /* mmap perffile & associate the instrumentation struct with it */
-    ptr = mmap(0, sizeof(pmiestats_t), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-#else
-    HANDLE handle = CreateFileMapping((HANDLE)_get_osfhandle(fd),
-			NULL, PAGE_READWRITE, 0, sizeof(pmiestats_t), NULL);
-    if (handle == INVALID_HANDLE_VALUE) {
-	fprintf(stderr, "%s: CreateFileMapping failed for stats file %s: %s\n",
-		pmProgname, perffile, strerror(oserror()));
-	exit(1);
-    }
-    ptr = MapViewOfFile(handle, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(pmiestats_t));
-#endif
-    if (ptr == MAP_FAILED) {
-	fprintf(stderr, "%s: mmap failed for stats file %s: %s\n",
+    /* map perffile & associate the instrumentation struct with it */
+    if ((ptr = __pmMemoryMap(fd, sizeof(pmiestats_t), 1)) == NULL) {
+	fprintf(stderr, "%s: memory map failed for stats file %s: %s\n",
 		pmProgname, perffile, strerror(oserror()));
 	exit(1);
     }

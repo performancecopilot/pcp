@@ -24,9 +24,6 @@
 #include "pmda.h"
 #include "domain.h"
 #include <sys/stat.h>
-#if defined(HAVE_SYS_MMAN_H)
-#include <sys/mman.h>
-#endif
 
 /*
  * Sendmail PMDA
@@ -50,9 +47,6 @@ static pmdaIndom indomtab[] = {
 static char		*statsfile = "/var/sendmail.st";
 static int		nmailer;
 static void		*ptr;
-#ifdef IS_MINGW
-static HANDLE		hdl;
-#endif
 static struct stat	laststatbuf;
 static time_t		*start_date;
 static __uint32_t	*msgs_from;
@@ -143,12 +137,7 @@ map_stats(void)
 	/* if sendmail not collecting stats this is expected */
 	if (ptr != NULL) {
 	    /* must have gone away */
-#ifdef IS_MINGW
-	    UnmapViewOfFile(ptr);
-	    CloseHandle(hdl);
-#else
-	    munmap(ptr, laststatbuf.st_size);
-#endif
+	    __pmMemoryUnmap(ptr, laststatbuf.st_size);
 	    close(fd);
 	    ptr = NULL;
 	    notified &= ~MAPSTATS_NOTV2STRUCT;
@@ -187,12 +176,7 @@ map_stats(void)
 	 */
 
 	if (ptr != NULL) {
-#ifdef IS_MINGW
-	    UnmapViewOfFile(ptr);
-	    CloseHandle(hdl);
-#else
-	    munmap(ptr, laststatbuf.st_size);
-#endif
+	    __pmMemoryUnmap(ptr, laststatbuf.st_size);
 	    close(fd);
 	    ptr = NULL;
 	    notified &= ~MAPSTATS_NOTV2STRUCT;
@@ -208,24 +192,10 @@ map_stats(void)
 			pmProgname, statsfile, strerror(errno));
 	    return;
 	}
-#ifdef IS_MINGW
-	if ((hdl = CreateFileMapping((HANDLE)_get_osfhandle(fd), NULL,
-			PAGE_READONLY, 0, statbuf.st_size, NULL)) == NULL) {
+	ptr = __pmMemoryMap(fd, statbuf.st_size, 0);
+	if (ptr == NULL) {
 	    if (!(notified & MAPSTATS_MAPFAIL)) {
-		__pmNotifyErr(LOG_ERR, "%s: map_stats: mapping %s failed: %s",
-			    pmProgname, statsfile, strerror(errno));
-	    }
-	    close(fd);
-	    notified |= MAPSTATS_MAPFAIL;
-	    return;
-	}
-	ptr = MapViewOfFile(hdl, FILE_MAP_READ, 0, 0, statbuf.st_size);
-#else
-	ptr = mmap(NULL, statbuf.st_size, PROT_READ, MAP_SHARED, fd, 0);
-#endif
-	if (ptr == MAP_FAILED) {
-	    if (!(notified & MAPSTATS_MAPFAIL)) {
-		__pmNotifyErr(LOG_ERR, "%s: map_stats: mmap of file %s failed: %s",
+		__pmNotifyErr(LOG_ERR, "%s: map_stats: memmap of %s failed: %s",
 			    pmProgname, statsfile, strerror(errno));
     	    }
 	    close(fd);
@@ -234,24 +204,6 @@ map_stats(void)
 	    return;
 	}
 
-	if (ptr == NULL) {
-	    /*
-	     * This case is required for when statsfile is of zero length
-	     * (mmap() where len = 0 returns NULL on Linux)
-	     */
-	    if (!(notified & MAPSTATS_NULL)) {
-		__pmNotifyErr(LOG_ERR,
-		  "%s: map_stats: mmap of file %s returns NULL pointer; no stats available",
-		  pmProgname, statsfile);
-	    	notified |= MAPSTATS_NULL;
-	    }
-	    close(fd);
-	    return;
-	}
-
-	/*
-	 * mmap() is OK
-	 */
 	laststatbuf = statbuf;		/* struct assignment */
 	notified &= ~(MAPSTATS_NULL | MAPSTATS_MAPFAIL);
 #ifdef PCP_DEBUG

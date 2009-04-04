@@ -2,6 +2,7 @@
  * General Utility Routines
  *
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -12,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include <stdarg.h>
@@ -30,6 +27,9 @@
 
 #if defined(HAVE_SYS_TIMES_H)
 #include <sys/times.h>
+#endif
+#if defined(HAVE_SYS_MMAN_H)
+#include <sys/mman.h> 
 #endif
 #if defined(HAVE_IEEEFP_H)
 #include <ieeefp.h>
@@ -1184,5 +1184,21 @@ __pmSetProgname(const char *program)
 	    pmProgname = p+1;
     }
     return 0;
+}
+
+void *
+__pmMemoryMap(int fd, size_t sz, int writable)
+{
+    int mflags = writable ? (PROT_READ | PROT_WRITE) : PROT_READ;
+    void *addr = mmap(NULL, sz, mflags, MAP_SHARED, fd, 0);
+    if (addr == MAP_FAILED)
+	return NULL;
+    return addr;
+}
+
+void
+__pmMemoryUnmap(void *addr, size_t sz)
+{
+    munmap(addr, sz);
 }
 #endif
