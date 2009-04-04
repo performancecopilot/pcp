@@ -216,8 +216,7 @@ __pmMemoryMap(int fd, size_t sz, int writable)
     HANDLE handle = CreateFileMapping((HANDLE)_get_osfhandle(fd),
 					NULL, cflags, 0, sz, NULL);
     if (handle != NULL) {
-	int mflags = writable ? FILE_MAP_ALL_ACCESS : FILE_MAP_READ_ACCESS;
-
+	int mflags = writable ? FILE_MAP_ALL_ACCESS : FILE_MAP_READ;
 	addr = MapViewOfFile(handle, mflags, 0, 0, sz);
 	CloseHandle(handle);
 	if (addr == MAP_FAILED)
