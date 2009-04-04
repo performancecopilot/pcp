@@ -29,7 +29,7 @@
 .rr X
 \}
 .SH NAME
-\f3mmv_lookup_value_desc\f1 - find a value in the MMV file
+\f3mmv_lookup_value_desc\f1 - find a value in the Memory Mapped Value file
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/mmv_stats.h>
@@ -69,9 +69,10 @@ The pointer returned points to the following structure:
 The caller is allowed to modify values if the \f2val\f1 and \f2extra\f1
 elements but not the \f2metric\f1 or \f2instance\f1.
 .SH RETURNS
-The function returns the address inside of the mmap-ed region on success or
-NULL on failure.
+The function returns the address inside of the memory mapped region
+on success or NULL on failure.
 .SH SEE ALSO
-.BR mmv (4),
 .BR mmv_stats_init (3),
 .BR mmv_inc_value (3)
+and
+BR mmv (4).

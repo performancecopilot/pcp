@@ -29,7 +29,7 @@
 .rr X
 \}
 .SH NAME
-\f3mmv_stats_init\f1 - create and initialize MMV file
+\f3mmv_stats_init\f1 - create and initialize Memory Mapped Value file
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/mmv_stats.h>
@@ -75,13 +75,10 @@ pointer then only one instance domain will be created.
 The \f2stats\f1 array cannot contain any elements which have no name -
 this is considered an error and no metrics will be exported in this case.
 .SH RETURNS
-The function returns the address of the mmap-ed region on success or
+The function returns the address of the memory mapped region on success or
 NULL on failure.
-.SH NOTE
-\f3pcp_mmv\f1 library has been designed to work without \f3libpcp\f1,
-it has its own parser for the \f3pcp.conf\f1 file.
 .SH SEE ALSO
-.BR mmv (4),
-.BR pcp.conf (4),
-.BR mmv_lookup_value_desc (3),
-.BR mmv_inc_value (3)
+.BR mmv_inc_value (3),
+.BR mmv_lookup_value_desc (3)
+and
+.BR mmv (4).
