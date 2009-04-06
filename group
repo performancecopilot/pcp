@@ -657,6 +657,7 @@ dmf		pcpqa
 644 pmns local oss
 645 pmlogger local oss
 646 pmda.mmv local oss
+651 pmproxy remote oss
 703 pcpweb local oss
 706 pcpweb local oss
 1000 pmda.shping dkvis mpvis nfsvis nodevis osvis oview pmchart pmdumpmineset pmdumptext pmgadgets pmgevctr pmgirix pmgshping pmgcisco pmie pminfo pmkstat pmlogcheck pmlogextract pmlogger pmlogmerge pmlogsummary pmprobe pmval pmview psmon routervis xbowvis local OSS-CONFLICT sgi
@@ -861,7 +862,6 @@ dmf		pcpqa
 1226 pmdas local sgi
 1227 pmda.shping remote sgi
 1228 pmda dbpmda pmda.proc help pmda.install local sgi
-1229 pmproxy remote sgi
 1230 pcpweb local sgi
 1231 logutil local pmsnap sgi
 1232 libpcp ostest remote sgi
