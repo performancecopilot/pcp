@@ -89,8 +89,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((fd = open(notices, O_WRONLY, 0)) < 0) {
-	if ((fd = open(notices, O_WRONLY|O_CREAT, 0644)) < 0) {
+    if ((fd = open(notices, O_WRONLY|O_APPEND, 0)) < 0) {
+	if ((fd = open(notices, O_WRONLY|O_CREAT|O_APPEND, 0644)) < 0) {
 	    fprintf(stderr, "pmpost: cannot create file \"%s\": %s\n",
 		notices, strerror(errno));
 	    exit(1);
