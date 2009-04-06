@@ -85,6 +85,7 @@ static char * metricSubst[] = {
     NULL,
     NULL,
     NULL,
+    NULL,
     NULL
 };
 
@@ -147,7 +148,9 @@ getNewContext (int type, char * host)
 			}
 			
 			if (metricSubst[i] == NULL) {
-			    fprintf(stderr, 
+			    /* skip these, as archives may not contain 'em */
+			    if (i != CPU+2 && i != CPU+5 && i != CPU+6)
+				fprintf(stderr, 
 				    "%s: %s: no metric \"%s\": %s\n",
 				    pmProgname, host, metrics[i],
 				    pmErrStr(sts));
@@ -925,9 +928,9 @@ main(int argc, char *argv[])
 		    if (s->pmdesc[CPU+i].pmid == PM_ID_NULL || prev == NULL ||
 			cur->vset[CPU+i]->numval != 1 ||
 			prev->vset[CPU+i]->numval != 1) {
-			if ( i > 0 && i < 4 ) {
+			if ( i > 0 && i < 4 && i != 2) {
 			    break;
-			} else { /* Nice, iowait, steal are optional */
+			} else { /* Nice, intr, iowait, steal are optional */
 			    diffs[i] = 0;
 			}
 		    } else {
