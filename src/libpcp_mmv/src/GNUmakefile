@@ -32,6 +32,7 @@ endif
 ifneq "$(findstring $(TARGET_OS), cygwin mingw)" ""
 LIBTARGET = libpcp_mmv.$(DSOSUFFIX) 
 SYMTARGET =
+STATICLIBTARGET	=
 endif
 
 LLDLIBS = -lpcp
@@ -43,10 +44,14 @@ include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+ifneq "$(SYMTARGET)" ""
 	for tt in $(SYMTARGET); do \
 		$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$$tt || exit 1; \
 	done
+endif
+ifneq "$(STATICLIBTARGET)" ""
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
+endif
 
 default_pcp: default
 
