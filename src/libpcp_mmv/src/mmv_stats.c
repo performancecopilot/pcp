@@ -43,8 +43,10 @@ mmv_active(const char *fname)
     }
 
     conf = fopen(confpath, "r");
-    if (!conf) 
-        return 0;
+    if (!conf) {
+	errno = ENOENT;
+	return 0;
+    }
 
     while ((fgets(buffer, sizeof(buffer)-1, conf)) != NULL) {
 	char *p = strchr(buffer,'#');	/* strip comments */
