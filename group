@@ -699,7 +699,6 @@ dmf		pcpqa
 1037 archive logutil local mpvis sgi
 1038 mpvis local sgi
 1039 xbowvis remote sgi
-1040 pmda.summary local pmda.install sgi
 1041 desktop local sgi
 1042 logutil pmsnap #467249 local sgi
 1043 pmlaunch local sgi
