@@ -10,21 +10,20 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.*
  */
-
-#ifndef _mmv_stats_h
-#define _mmv_stats_h
+#ifndef _MMV_STATS_H
+#define _MMV_STATS_H
 
 #include <pcp/pmapi.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define MMV_VERSION_0   0
 #define MMV_NAMEMAX	64
 
-/* Whose entries should match PM_TYPE* from /usr/include/pcp/pmapi.h */
+/* Initial entries should match PM_TYPE* from /usr/include/pcp/pmapi.h */
 typedef enum {
     MMV_ENTRY_NOSUPPORT = -1,       /* not implemented in this version */
     MMV_ENTRY_I32       =  0,       /* 32-bit signed integer */
@@ -43,7 +42,7 @@ typedef enum {
     MMV_TOC_VALUES	= 3
 } mmv_toc_type_t;
 
-/* The way TOC is written into the file */
+/* The way the Table Of Contents is written into the file */
 typedef struct mmv_stats_toc_s {
     mmv_toc_type_t typ; /* What is it? */
     int cnt;		/* Number of entries */
@@ -95,9 +94,9 @@ typedef struct mmv_stats_hdr_s {
     int dummy;	        /* not used */
 } mmv_stats_hdr_t;
 
-void		  * mmv_stats_init (const char *, const mmv_stats_t *, int);
-mmv_stats_value_t * mmv_lookup_value_desc (void *, const char *, const char *);
-void		    mmv_inc_value (void *, mmv_stats_value_t *, double);
+extern void * mmv_stats_init (const char *, const mmv_stats_t *, int);
+extern mmv_stats_value_t * mmv_lookup_value_desc (void *, const char *, const char *);
+extern void mmv_inc_value (void *, mmv_stats_value_t *, double);
 
 #ifndef MMV_STATS_STATIC_ADD
 #define MMV_STATS_STATIC_ADD(hndl,metric,instance,count)                  \
@@ -166,4 +165,8 @@ if ( vptr != NULL ) {                                                    \
 }
 #endif
 
-#endif /* _mmv_stats_h */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _MMV_STATS_H */
