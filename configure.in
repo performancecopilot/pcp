@@ -1535,9 +1535,9 @@ dnl logs
 if test -d /var/log
 then
     pcp_log_dir=/var/log/pcp
-elif test -d /var/adm
+elif test $target_os = mingw
 then
-    pcp_log_dir=/var/adm/pcplog
+    pcp_log_dir=/var/log
 else
     pcp_log_dir=$pcp_var_dir/pcplog
 fi
@@ -1547,6 +1547,9 @@ dnl pid files
 if test -d /var/run
 then
     pcp_run_dir=/var/run/pcp
+elif test $target_os = mingw
+then
+    pcp_run_dir=/var/run
 else
     pcp_run_dir=$pcp_var_dir/pcprun
 fi

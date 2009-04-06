@@ -116,15 +116,23 @@ END		{ print logf }'
 
 _reboot_setup()
 {
+    # base directories and house-keeping for daemon processes
+    #
+    if [ ! -d "$PCP_RUN_DIR" ]
+    then
+	mkdir -p "$PCP_RUN_DIR"
+	chmod 755 $PCP_RUN_DIR"
+    fi
+
     # base directories and house-keeping for pmlogger instances
     #
-    if [ ! -d $PCP_TMP_DIR/pmlogger ]
+    if [ ! -d "$PCP_TMP_DIR/pmlogger" ]
     then
-	mkdir -p $PCP_TMP_DIR/pmlogger
+	mkdir -p "$PCP_TMP_DIR/pmlogger"
     else
 	rm -rf $tmp.ent $tmp.pid
 	here=`pwd`
-	cd $PCP_TMP_DIR/pmlogger
+	cd "$PCP_TMP_DIR/pmlogger"
 	rm -f primary vcr
 	_get_pids_by_name pmlogger >$tmp.pid
 	ls [0-9]* 2>&1 | sed -e '/\[0-9]\*/d' \
@@ -134,9 +142,9 @@ _reboot_setup()
 	rm -f $tmp.ent $tmp.pid
 	cd "$here"
     fi
-    chmod 1777 $PCP_TMP_DIR/pmlogger
+    chmod 1777 "$PCP_TMP_DIR/pmlogger"
 
-    [ ! -d $LOGDIR ] && mkdir -p $LOGDIR
+    [ ! -d "$LOGDIR" ] && mkdir -p "$LOGDIR"
 
     # Rebuild PMNS?
     #
@@ -247,9 +255,6 @@ _start_pmcheck()
 
 _start_pmlogger()
 {
-    [ ! -d $PCP_TMP_DIR/pmlogger ] && mkdir $PCP_TMP_DIR/pmlogger
-    chmod 1777 $PCP_TMP_DIR/pmlogger
-
     if which pmlogger_check >/dev/null 2>&1
     then
 	# pmlogger_check uses $PMLOGCTRL to start everything that is needed
@@ -490,9 +495,8 @@ case "$1" in
 Error: PMCD control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start PMCD.'
 		exit
 	    fi
-	    [ ! -d $PCP_RUN_DIR ] && mkdir -p $PCP_RUN_DIR
-	    [ ! -d $RUNDIR ] && mkdir -p $RUNDIR
-	    cd $RUNDIR
+	    [ ! -d "$RUNDIR" ] && mkdir -p "$RUNDIR"
+	    cd "$RUNDIR"
 
 	    # salvage the previous versions of any PMCD and PMDA logfiles
 	    #
