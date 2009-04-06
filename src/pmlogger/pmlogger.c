@@ -415,7 +415,7 @@ do_dialog(char cmd)
 	}
 
 	if (fgets(lbuf, sizeof(lbuf), msgf) == NULL) {
-	    fprintf(stderr, "\n%s: xconfirm(1) failed for recording session dialog\n",
+	    fprintf(stderr, "\n%s: pmconfirm(1) failed for recording session dialog\n",
 		    cmd == '?' ? "Warning" : "Error");
 failed:
 	    fprintf(stderr, "Dialog:\n");
