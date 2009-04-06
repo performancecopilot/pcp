@@ -1,0 +1,48 @@
+QA output created by 420
+IPC error is expected as application waits until after pmlogger
+should be well finished ...
+
+
+sleeping ...
+
+pmRecordControl(..., PM_REC_OFF, ...): IPC protocol failure
+
+TIMESTAMP  29.0.6 (sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [800 or "bin-800"] value 800
+
+TIMESTAMP  29.0.6 (sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [800 or "bin-800"] value 800
+
+TIMESTAMP  29.0.6 (sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [800 or "bin-800"] value 800
+
+TIMESTAMP  29.0.6 (sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [800 or "bin-800"] value 800
+
+TIMESTAMP  29.0.6 (sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [800 or "bin-800"] value 800
+
+TIMESTAMP  29.0.6 (sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [800 or "bin-800"] value 800
+
+TIMESTAMP  29.0.6 (sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [800 or "bin-800"] value 800
+
+TIMESTAMP  29.0.6 (sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [800 or "bin-800"] value 800
+
+TIMESTAMP  29.0.6 (sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [800 or "bin-800"] value 800
+
+TIMESTAMP  29.0.6 (sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [800 or "bin-800"] value 800

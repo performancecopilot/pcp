@@ -547,6 +547,7 @@ dmf		pcpqa
 348 pmda.kvm local pmda.install oss
 349 pmda.summary local pmda.install oss
 353 pmsocks remote oss
+354 folio local oss
 355 trace local pmda.install oss
 357 other local oss
 363 logutil local oss
@@ -573,6 +574,7 @@ dmf		pcpqa
 417 archive local oss
 418 pmdumplog local oss
 419 pmdumplog local oss
+420 pmafm local oss
 421 trace local pmda.install oss
 425 wrap logutil local pmlogsummary oss
 426 trace local oss

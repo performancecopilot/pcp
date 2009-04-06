@@ -10,7 +10,7 @@ recording session control: "V0"
 recording session control: "Fmyfolio"
 recording session control: eof
 
-Error: xconfirm(1) failed for recording session dialog
+Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "myfolio" and the host
 "HOST" has been in progress for SOME seconds
@@ -41,7 +41,7 @@ recording session control: "V0"
 recording session control: "Fmyfolio"
 recording session control: "Q"
 
-Error: xconfirm(1) failed for recording session dialog
+Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "myfolio" and the host
 "HOST" has been in progress for SOME seconds
@@ -65,7 +65,7 @@ recording session control: "Fmyfolio"
 recording session control: "R"
 recording session control: "Q"
 
-Error: xconfirm(1) failed for recording session dialog
+Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "myfolio" and the host
 "HOST" has been in progress for SOME seconds
@@ -92,7 +92,7 @@ recording session control: "V0"
 recording session control: "Fmyfolio"
 recording session control: "D"
 
-Error: xconfirm(1) failed for recording session dialog
+Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "myfolio" and the host
 "HOST" has been in progress for SOME seconds
@@ -120,7 +120,7 @@ recording session control: "V0"
 recording session control: "Fmyfolio"
 recording session control: "?"
 
-Warning: xconfirm(1) failed for recording session dialog
+Warning: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "myfolio" and the host
 "HOST" has been in progress for SOME seconds
@@ -132,7 +132,7 @@ following command:
         $ pmsignal -s TERM PID
 recording session control: eof
 
-Error: xconfirm(1) failed for recording session dialog
+Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "myfolio" and the host
 "HOST" has been in progress for SOME seconds
@@ -164,7 +164,7 @@ recording session control: "Fmyfolio"
 recording session control: "Junk"
 Error: illegal recording session control message: "Junk"
 
-Error: xconfirm(1) failed for recording session dialog
+Error: pmconfirm(1) failed for recording session dialog
 Dialog:
 PCP recording for the archive folio "myfolio" and the host
 "HOST" has been in progress for SOME seconds

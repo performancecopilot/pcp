@@ -56,8 +56,8 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
 	multifetch.c pmconvscale.c torture-eol.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
-	matchInstanceName.c mmv_dumpstats.c mmv_genstats.c
-
+	matchInstanceName.c mmv_dumpstats.c mmv_genstats.c \
+	record.c record-setarg.c
 
 POSIXFILES = \
 	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \
@@ -329,6 +329,17 @@ broken_pmda_2_5: broken_pmda.c domain.h
 
 dumb_pmda: dumb_pmda.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+
+# --- need libpcp_gui
+#
+
+record:	record.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_gui $(LDLIBS)
+
+record-setarg: record-setarg.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_gui $(LDLIBS)
 
 # --- need libpcp_mmv
 #
