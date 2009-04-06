@@ -1,0 +1,11 @@
+QA output created by 646
+mmv_stats_init failed : No such process
+(is "TAG" in mmv.conf?)
+Version    = 0
+Generated  = TIMESTAMP
+Dumping 5 values ... 
+interval = TIME
+indom[0 or "zero"] = 42
+indom[1 or "unknown"] = 42
+discrete = 42 (cumulative)
+counter = 42

@@ -157,6 +157,8 @@ pmda.trivial	pcpqa
 pmda.sendmail	pcpqa
 # txmon PMDA
 pmda.txmon	pcpqa
+# MMV PMDA
+pmda.mmv	pcpqa
 
 # libirixpmda
 #
@@ -654,6 +656,7 @@ dmf		pcpqa
 643 pmda.trivial pmns local oss
 644 pmns local oss
 645 pmlogger local oss
+646 pmda.mmv local oss
 703 pcpweb local oss
 706 pcpweb local oss
 1000 pmda.shping dkvis mpvis nfsvis nodevis osvis oview pmchart pmdumpmineset pmdumptext pmgadgets pmgevctr pmgirix pmgshping pmgcisco pmie pminfo pmkstat pmlogcheck pmlogextract pmlogger pmlogmerge pmlogsummary pmprobe pmval pmview psmon routervis xbowvis local OSS-CONFLICT sgi
@@ -854,7 +857,6 @@ dmf		pcpqa
 1221 pmda.proc local sgi
 1222 libirixpmda local sgi
 1223 pmns local sgi
-1224 pmda.mmv local sgi
 1225 pmda local pmprobe sgi
 1226 pmdas local sgi
 1227 pmda.shping remote sgi

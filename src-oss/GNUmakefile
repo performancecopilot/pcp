@@ -56,7 +56,8 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
 	multifetch.c pmconvscale.c torture-eol.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
-	matchInstanceName.c
+	matchInstanceName.c mmv_dumpstats.c mmv_genstats.c
+
 
 POSIXFILES = \
 	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \
@@ -190,17 +191,9 @@ template:	template.c
 	rm -f $@
 	$(CCF) $(CDEFS) -I/usr/include/pcp -o $@ template.c $(LDLIBS)
 
-pmie-lic:	pmie-lic.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pmie-lic.c  -llmsgi $(LDLIBS)
-
 exercise:	exercise.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ exercise.c  $(LDLIBS)
-
-pmdashutdown:	pmdashutdown.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pmdashutdown.c -lpcp_pmda $(LDLIBS)
 
 chkacc1:	chkacc1.c
 	rm -f $@
@@ -229,6 +222,10 @@ chknumval:	chknumval.c
 logcontrol:	logcontrol.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ logcontrol.c  $(LDLIBS)
+
+numberstr: numberstr.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ numberstr.c $(LDLIBS)
 
 pmcdgone:	pmcdgone.c localconfig.h
 	rm -f $@
@@ -280,6 +277,10 @@ domain.h:	$(PCP_VAR_DIR)/pmns/stdpmid
 	sed -n -e 's/[ 	]*$$//' -e '/define[ 	]BROKEN[ 	]/s/.*[ 	]/#define BROKEN /p' $(PCP_VAR_DIR)/pmns/stdpmid >>domain.h
 	sed -n -e 's/[ 	]*$$//' -e '/define[ 	]DYNAMIC[ 	]/s/.*[ 	]/#define DYNAMIC /p' $(PCP_VAR_DIR)/pmns/stdpmid >>domain.h
 
+pmdashutdown:	pmdashutdown.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ pmdashutdown.c -lpcp_pmda $(LDLIBS)
+
 pmdacomatose: pmdacomatose.c domain.h
 	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
@@ -329,16 +330,16 @@ broken_pmda_2_5: broken_pmda.c domain.h
 dumb_pmda: dumb_pmda.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
-# --- special cases - hand-crafted libraries required
+# --- need libpcp_mmv
 #
 
-xpmval: xpmval.c
+mmv_dumpstats:	mmv_dumpstats.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ xpmval.c -lm $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
 
-numberstr: numberstr.c
+mmv_genstats:	mmv_genstats.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ numberstr.c $(LIBGEN) $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
 
 # --- need libpcp_trace 
 #
