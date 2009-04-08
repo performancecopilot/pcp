@@ -1,7 +1,7 @@
 /*
  * Windows PMDA
  *
- * Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,17 +12,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 #include "hypnotoad.h"
 #include <ctype.h>
 
 static int isDSO = 1;
-char windows_uname[32];
-char windows_build[32];
 unsigned long windows_pagesize;
 unsigned long long windows_physmem;
 
@@ -1549,7 +1543,7 @@ windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	atom->cp = "Windows";
 	return 1;
     case 113:	/* kernel.uname.machine */
-	atom->cp = "?";
+	atom->cp = windows_machine;
 	return 1;
     case 114:	/* kernel.uname.nodename */
 	atom->cp = "?";

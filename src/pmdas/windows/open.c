@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Parts of this file contributed by Ken McDonell
  * (kenj At internode DoT on DoT net)
@@ -13,14 +13,14 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "hypnotoad.h"
 #include <winbase.h>
+
+char *windows_uname;
+char *windows_build;
+char *windows_machine;
 
 /*
  * This block of functionality is required to map counter types from
@@ -167,21 +167,21 @@ _ctypestr(int ctype)
 	return "PERF_COUNTER_COUNTER";
     else if (ctype == PERF_RAW_FRACTION)
 	return "PERF_RAW_FRACTION";
-    else if (ctype ==PERF_COUNTER_LARGE_RAWCOUNT_HEX)
+    else if (ctype == PERF_COUNTER_LARGE_RAWCOUNT_HEX)
 	return "PERF_COUNTER_LARGE_RAWCOUNT_HEX";
-    else if (ctype ==PERF_COUNTER_LARGE_RAWCOUNT)
+    else if (ctype == PERF_COUNTER_LARGE_RAWCOUNT)
 	return "PERF_COUNTER_LARGE_RAWCOUNT";
-    else if (ctype ==PERF_PRECISION_100NS_TIMER)
+    else if (ctype == PERF_PRECISION_100NS_TIMER)
 	return "PERF_PRECISION_100NS_TIMER";
-    else if (ctype ==PERF_100NSEC_TIMER)
+    else if (ctype == PERF_100NSEC_TIMER)
 	return "PERF_100NSEC_TIMER";
-    else if (ctype ==PERF_COUNTER_BULK_COUNT)
+    else if (ctype == PERF_COUNTER_BULK_COUNT)
 	return "PERF_COUNTER_BULK_COUNT";
-    else if (ctype ==PERF_COUNTER_RAWCOUNT_HEX)
+    else if (ctype == PERF_COUNTER_RAWCOUNT_HEX)
 	return "PERF_COUNTER_RAWCOUNT_HEX";
-    else if (ctype ==PERF_COUNTER_RAWCOUNT)
+    else if (ctype == PERF_COUNTER_RAWCOUNT)
 	return "PERF_COUNTER_RAWCOUNT";
-    else if (ctype ==PERF_COUNTER_COUNTER)
+    else if (ctype == PERF_COUNTER_COUNTER)
 	return "PERF_COUNTER_COUNTER";
     else
     	return "UNKNOWN";
@@ -192,48 +192,54 @@ _ctypestr(int ctype)
  * http://msdn.microsoft.com/library/default.asp?
  * 		url=/library/en-us/sysinfo/base/osversioninfoex_str.asp
  */
-static char *
+static void
 format_uname(OSVERSIONINFOEX osv)
 {
-    static char		*name = NULL;
     char		tbuf[80];
 
     switch (osv.dwPlatformId) {
         case VER_PLATFORM_WIN32_NT:
 	    if (osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0) {
 		if (osv.wProductType == VER_NT_WORKSTATION)
-		    name = string_append(name, "Windows Vista");
+		    windows_name = string_append(name, "Windows 7");
 		else
-		    name = string_append(name, "Windows Server 2008");
+		    windows_name = string_append(name, "Windows Server 2008 R2");
+	    }
+	    else if (osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0) {
+		if (osv.wProductType == VER_NT_WORKSTATION)
+		    windows_name = string_append(name, "Windows Vista");
+		else
+		    windows_name = string_append(name, "Windows Server 2008");
 	    }
 	    else if (osv.dwMajorVersion == 5 && osv.dwMinorVersion == 2)
-		name = string_append(name, "Windows Server 2003");
+		windows_name = string_append(name, "Windows Server 2003");
 	    else if (osv.dwMajorVersion == 5 && osv.dwMinorVersion == 1)
-		name = string_append(name, "Windows XP");
+		windows_name = string_append(name, "Windows XP");
 	    else if (osv.dwMajorVersion == 5 && osv.dwMinorVersion == 0)
-		name = string_append(name, "Windows 2000");
+		windows_name = string_append(name, "Windows 2000");
 	    else if (osv.dwMajorVersion <= 4)
-		name = string_append(name, "Windows NT");
-            else {
+		windows_name = string_append(name, "Windows NT");
+	    else {
 		sprintf(tbuf, "Windows Unknown (%ld.%ld)",
 		    osv.dwMajorVersion, osv.dwMinorVersion); 
-		name = string_append(name, tbuf);
-    	    }
+		windows_name = string_append(name, tbuf);
+	    }
 
-            /* service pack and build number etc */
-            if (osv.szCSDVersion[0] != '\0') {
-		name = string_append(name, " ");
-		name = string_append(name, osv.szCSDVersion);
+	    /* service pack and build number etc */
+	    if (osv.szCSDVersion[0] != '\0') {
+		windows_name = string_append(name, " ");
+		windows_name = string_append(name, osv.szCSDVersion);
 	    }
 	    sprintf(tbuf, " Build %ld", osv.dwBuildNumber & 0xFFFF);
-	    name = string_append(name, tbuf);
+	    windows_build = windows_name + strlen(windows_name) + 2;
+	    windows_name = string_append(name, tbuf);
 	    break;
 
         default:
-	    name = string_append(name, "Windows - Platform Unknown");
+	    windows_name = "Windows - Platform Unknown";
+	    windows_build = "Unknown Build";
 	    break;
     }
-    return name;
 }
 
 void
@@ -263,6 +269,20 @@ setup_globals(void)
     ZeroMemory(&sysinfo, sizeof(SYSTEM_INFO));
     GetSystemInfo(&sysinfo);
     windows_pagesize = sysinfo.dwPageSize;
+    switch (sysinfo.wProcessorArchitecture) {
+    case PROCESSOR_ARCHITECTURE_AMD64:
+	windows_machine = "x86_64";
+	break;
+    case PROCESSOR_ARCHITECTURE_IA64:
+	windows_machine = "ia64";
+	break;
+    case PROCESSOR_ARCHITECTURE_INTEL:
+	windows_machine = "i686";
+	break;
+    default:
+	windows_machine = "Unknown";
+	break;
+    }
 
     ZeroMemory(&osversion, sizeof(OSVERSIONINFOEX));
     osversion.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
