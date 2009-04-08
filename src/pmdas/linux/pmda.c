@@ -14,10 +14,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -660,6 +656,27 @@ static pmdaMetric metrictab[] = {
     { NULL,
       { PMDA_PMID(CLUSTER_MEMINFO,31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.bounce */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,32), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.NFS_Unstable */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,33), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.slabReclaimable */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.slabUnreclaimable */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
 
 /* swap.length */
     { NULL,
@@ -3923,6 +3940,26 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	return 0; /* no values available */
 	    atom->ull = proc_meminfo.CommitLimit >> 10;
 	    break;
+	case 32: /* mem.util.bounce */
+	   if (!VALID_VALUE(proc_meminfo.Bounce))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Bounce >> 10;
+	   break;
+	case 33: /* mem.util.NFS_Unstable */
+	   if (!VALID_VALUE(proc_meminfo.NFS_Unstable))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.NFS_Unstable >> 10;
+	   break;
+	case 34: /* mem.util.slabReclaimable */
+	   if (!VALID_VALUE(proc_meminfo.SlabReclaimable))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.SlabReclaimable >> 10;
+	   break;
+	case 35: /* mem.util.slabUnreclaimable */
+	   if (!VALID_VALUE(proc_meminfo.SlabUnreclaimable))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.SlabUnreclaimable >> 10;
+	   break;
 	default:
 	    return PM_ERR_PMID;
 	}
