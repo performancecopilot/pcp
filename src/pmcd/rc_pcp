@@ -121,7 +121,7 @@ _reboot_setup()
     if [ ! -d "$PCP_RUN_DIR" ]
     then
 	mkdir -p "$PCP_RUN_DIR"
-	chmod 755 $PCP_RUN_DIR"
+	chmod 755 "$PCP_RUN_DIR"
     fi
 
     # base directories and house-keeping for pmlogger instances
