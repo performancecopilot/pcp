@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 031
-# $Revision: 2.25 $
 # general exerciser for local PCP
 #
 # NOTE: Output from 031 is also used by:
@@ -18,16 +17,7 @@ echo "QA output created by $seq"
 
 rm -f $seq.out $seq.full
 . ./localconfig
-if [ $PCP_PLATFORM = linux ]
-then
-    ln $seq.out.linux $seq.out
-elif [ $PCP_PLATFORM = irix ]
-then
-    ln $seq.out.irix $seq.out
-else
-    echo "Warning: no validated output for $PCP_PLATFORM"
-fi
-
+ln $seq.out.$PCP_PLATFORM $seq.out
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
