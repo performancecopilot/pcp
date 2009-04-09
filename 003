@@ -1,6 +1,5 @@
 #! /bin/sh
 # PCP QA Test No. 003
-# $Revision: 2.59 $
 # Check that we get the expected metrics failing for each OS
 # Will need to be updated with every libirixpmda change
 # Assumes that (???) and hw.r10kevctr are not active
@@ -8,19 +7,11 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-irix6_2=false
-irix6_5=false
 linux=false
 
 version=`uname -sr`
 case "$version"
 in
-    IRIX*6.2)
-	irix6_2=true
-	;;
-    IRIX*6.5|IRIX*6.5-ALPHA-*|IRIX*6.5-BETA-*)
-    	irix6_5=true
-	;;
     Linux*)
 	linux=true
 	;;
@@ -69,6 +60,8 @@ linux_filter()
     sed -e "/mem.vmstat.nr_slab_reclaimable: $unavailable/d" \
 	-e "/mem.vmstat.nr_slab_unreclaimable: $unavailable/d" \
 	-e "/mem.vmstat.nr_vmscan_write: $unavailable/d" \
+	-e "/mem.util.slabReclaimable: $unavailable/d" \
+	-e "/mem.util.slabUnreclaimable: $unavailable/d" \
 	-e "/swapdev.free: $unavailable/d" \
 	-e "/swapdev.length: $unavailable/d" \
 	-e "/swapdev.maxswap: $unavailable/d" \
@@ -118,131 +111,7 @@ do
     | pmie_filter \
     | count_filter >$tmp.tmp
 
-    if [ $irix6_2 = true ]
-    then
-	  sed <$tmp.tmp \
-	    -e "/irix\.kernel\..*\.sysother: $unknown/d" \
-	    -e "/network.ip.badvers: $unknown/d" \
-	    -e "/network.ip.rawout: $unknown/d" \
-	    -e "/nfs3\..*: $unknown/d" \
-	    -e "/resource.syssegsz: $nosupport/d" \
-	    -e "/resource.vnodes.vnodes: $nosupport/d" \
-	    -e "/mem.emptymem: $nosupport/d" \
-	    -e "/network.socket.type: $nosupport/d" \
-	    -e "/network.socket.state: $nosupport/d" \
-	    -e "/network.tcp.badsyn: $nosupport/d" \
-	    -e "/network.tcp.listendrop: $nosupport/d" \
-	    -e "/network.tcp.persistdrop: $nosupport/d" \
-	    -e "/network.tcp.synpurge: $nosupport/d" \
-	    -e "/xfs.attr_get: $unknown/d" \
-	    -e "/xfs.attr_set: $unknown/d" \
-	    -e "/xfs.attr_remove: $unknown/d" \
-	    -e "/xfs.attr_list: $unknown/d" \
-	    -e "/swap.alloc: $unknown/d" \
-	    -e "/swap.reserve: $unknown/d" \
-	    -e "/swap.used: $unknown/d" \
-	    -e "/swap.unused: $unknown/d" \
-	    -e "/ipc.msg.cbytes: $missing/d" \
-	    -e "/ipc.msg.cbytes: $explicit/d" \
-	    -e "/ipc.msg.qbytes: $missing/d" \
-	    -e "/ipc.msg.qbytes: $explicit/d" \
-	    -e "/ipc.msg.qnum: $missing/d" \
-	    -e "/ipc.msg.qnum: $explicit/d" \
-	    -e "/ipc.sem.ncnt: $explicit/d" \
-	    -e "/ipc.sem.nsems: $missing/d" \
-	    -e "/ipc.sem.nsems: $explicit/d" \
-	    -e "/ipc.sem.zcnt: $explicit/d" \
-	    -e "/ipc.shm.nattch: $explicit/d" \
-	    -e "/ipc.shm.nattch: $missing/d" \
-	    -e "/ipc.shm.segsz: $explicit/d" \
-	    -e "/ipc.shm.segsz: $missing/d" \
-	    -e "/hinv.disk_sn: $nosupport/d" \
-	    -e "/hinv.interconnect: $nosupport/d" \
-	    -e "/hinv.map./d" \
-	    -e "/hinv.nxbow: $nosupport/d" \
-	    -e "/hw./d" \
-	    -e "/mem\.lpage/d" \
-	    -e "/network\.mcr/d" \
-	    -e "/vnodes\.vnodes: $nosupport/d" \
-	    -e 's/748 metrics, 150 getindom, 526 insitu, 79 ptr/... expected irix counts, see .\/003/' \
-	    -e 's/748 metrics, 150 getindom, 520 insitu, 85 ptr/... expected irix counts, see .\/003/' \
-	    -e 's/59 metrics, 0 getindom, 1 insitu, 1 ptr/... expected hw counts, see .\/003/' \
-	    -e 's/59 metrics, 7 getindom, 53 insitu, 6 ptr/... expected pmcd counts, see .\/003/' \
-	    -e 's/30 metrics, 7 getindom, 20 insitu, 3 ptr/... expected hinv counts, see .\/003/'
-
-	    # note above, irix count repeated because 6 metrics are 32-bit or 
-	    # 64-bit depending on the booted kernel, hence insitu and ptr 
-	    # are +/ 6
-
-    elif $irix6_5
-    then
-	  # two irix sets, due to n32 vs 464 differences in libirixpmda
-	  # and differences in metric availability on the different
-	  # platforms
-	  # ditto for the hw and hinv metrics
-	  #
-	  sed <$tmp.tmp \
-	    -e "/irix\.kernel\..*\.sysother: $unknown/d" \
-	    -e "/network.ip.badvers: $unknown/d" \
-	    -e "/network.ip.rawout: $unknown/d" \
-	    -e "/nfs3\..*: $unknown/d" \
-	    -e "/resource.syssegsz: $nosupport/d" \
-	    -e "/resource.vnodes.vnodes: $nosupport/d" \
-	    -e "/mem.emptymem: $nosupport/d" \
-	    -e "/xfs.attr_get: $unknown/d" \
-	    -e "/xfs.attr_set: $unknown/d" \
-	    -e "/xfs.attr_remove: $unknown/d" \
-	    -e "/xfs.attr_list: $unknown/d" \
-	    -e "/swap.alloc: $unknown/d" \
-	    -e "/swap.reserve: $unknown/d" \
-	    -e "/swap.used: $unknown/d" \
-	    -e "/swap.unused: $unknown/d" \
-	    -e "/ipc.msg.cbytes: $missing/d" \
-	    -e "/ipc.msg.cbytes: $explicit/d" \
-	    -e "/ipc.msg.qbytes: $missing/d" \
-	    -e "/ipc.msg.qbytes: $explicit/d" \
-	    -e "/ipc.msg.qnum: $missing/d" \
-	    -e "/ipc.msg.qnum: $explicit/d" \
-	    -e "/ipc.sem.ncnt: $explicit/d" \
-	    -e "/ipc.sem.nsems: $missing/d" \
-	    -e "/ipc.sem.nsems: $explicit/d" \
-	    -e "/ipc.sem.zcnt: $explicit/d" \
-	    -e "/ipc.shm.nattch: $explicit/d" \
-	    -e "/ipc.shm.segsz: $explicit/d" \
-	    -e "/ipc.shm.nattch: $missing/d" \
-	    -e "/ipc.shm.segsz: $missing/d" \
-	    -e "/mem.zfree: $nosupport/d" \
-	    -e "/mem.zonemem: $nosupport/d" \
-	    -e "/mem.zreq: $nosupport/d" \
-	    -e "/network.tcp.pcbcachemiss: $nosupport/d" \
-	    -e "/network.udp.pcbcachemiss: $nosupport/d" \
-	    -e "/hw\.router\..*: $unavailable/d" \
-	    -e "/hw\.hub\..*: $unavailable/d" \
-	    -e "/hinv.disk_sn: $nosupport/d" \
-	    -e "/hinv.node_distance: $unavailable/d" \
-	    -e "/hinv.ntape: $unavailable/d" \
-	    -e "/hinv.interconnect: $unavailable/d" \
-	    -e "/hinv.map.node: $unavailable/d" \
-	    -e "/hinv.map.router: $unavailable/d" \
-	    -e "/hinv.map.routerport: $unavailable/d" \
-	    -e "/hinv.map.cpu: $unavailable/d" \
-	    -e "/hinv.map.xbow: $unavailable/d" \
-            -e "/hinv.xvm.ve_tree: $unavailable/d" \
-	    -e "/hw.r10kevctr.*: pmFetch: Try again. Information/d" \
-	    -e "/hw.r10kevctr.*: $nosupport/d" \
-	    -e "/hw.evctr.*: pmFetch: Try again. Information/d" \
-	    -e "/hw.evctr.*: $nosupport/d" \
-	    -e "/mem\.lpage/d" \
-	    -e "/vnodes\.vnodes: $nosupport/d" \
-	    -e 's/748 metrics, 234 getindom, 391 insitu, 251 ptr/... expected irix counts, see .\/003/' \
-	    -e 's/748 metrics, 234 getindom, 447 insitu, 255 ptr/... expected irix counts, see .\/003/' \
-	    -e 's/59 metrics, 26 getindom, 1 insitu, 1 ptr/... expected hw counts, see .\/003/' \
-	    -e 's/59 metrics, 26 getindom, 18 insitu, 10 ptr/... expected hw counts, see .\/003/' \
-	    -e 's/30 metrics, 12 getindom, 20 insitu, 4 ptr/... expected hinv counts, see .\/003/' \
-	    -e 's/30 metrics, 12 getindom, 20 insitu, 10 ptr/... expected hinv counts, see .\/003/' \
-	    -e 's/59 metrics, 7 getindom, 53 insitu, 6 ptr/... expected pmcd counts, see .\/003/'
-
-    elif $linux
+    if $linux
     then
 	  sed <$tmp.tmp \
 	    -e "/disk\.all\.avactive: $unavailable/d" \
