@@ -12,29 +12,15 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\" 
-.\" You should have received a copy of the GNU General Public License along
-.\" with this program; if not, write to the Free Software Foundation, Inc.,
-.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 .\"
-.ie \(.g \{\
-.\" ... groff (hack for khelpcenter, man2html, etc.)
 .TH PMSTAT 1 "SGI" "Performance Co-Pilot"
-\}
-.el \{\
-.if \nX=0 .ds x} PMSTAT 1 "SGI" "Performance Co-Pilot"
-.if \nX=1 .ds x} PMSTAT 1 "Performance Co-Pilot"
-.if \nX=2 .ds x} PMSTAT 1 "" "\&"
-.if \nX=3 .ds x} PMSTAT "" "" "\&"
-.TH \*(x}
-.rr X
-\}
 .SH NAME
 \f3pmstat\f1 \- high-level system performance overview
 .\" literals use .B or \f3
 .\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3pmstat\f1
-[\f3\-Llpz\f1]
+[\f3\-Llpxz\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-h\f1 \f2host\f1]
@@ -166,6 +152,11 @@ option prints the last 7 characters of a hostname in summaries involving
 more than one host (when more than one
 .B \-h
 option has been specified on the command line).
+.PP
+The
+.B \-x
+option (extended CPU metrics) causes two additional CPU metrics to be
+reported, namely wait for I/O ("wa") and virtualisation steal time ("st").
 .PP
 The output from
 .B pmstat

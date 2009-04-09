@@ -1,16 +1,5 @@
 '\"macro stdmacro
-.ie \(.g \{\
-.\" ... groff (hack for khelpcenter, man2html, etc.)
 .TH AUTOFSD-PROBE 1 "SGI" "Performance Co-Pilot"
-\}
-.el \{\
-.if \nX=0 .ds x} AUTOFSD-PROBE 1 "SGI" "Performance Co-Pilot"
-.if \nX=1 .ds x} AUTOFSD-PROBE 1 "Performance Co-Pilot"
-.if \nX=2 .ds x} AUTOFSD-PROBE 1 "" "\&"
-.if \nX=3 .ds x} AUTOFSD-PROBE "" "" "\&"
-.TH \*(x}
-.rr X
-\}
 .SH NAME
 \f3autofsd-probe\f1 \- probe AutoFS mount/unmount daemon
 .SH SYNOPSIS

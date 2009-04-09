@@ -1069,6 +1069,12 @@ extern int __pmProcessDataSize(unsigned long *);
 extern int __pmProcessRunTimes(double *, double *);
 
 /*
+ * platform independent memory mapped file handling
+ */
+extern void *__pmMemoryMap(int, size_t, int);
+extern void __pmMemoryUnmap(void *, size_t);
+
+/*
  * platform independent signal handling
  */
 typedef void (*__pmSignalHandler)(int);

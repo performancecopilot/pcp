@@ -12,14 +12,9 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
-# displays the Performance Co-Pilot configuration for a host running pmcd(1)
+# Displays the Performance Co-Pilot configuration for a host running pmcd(1)
 #
 
-# Get standard environment
 . $PCP_DIR/etc/pcp.env
 
 sts=2
@@ -30,13 +25,13 @@ rm -f $tmp.*
 errors=0
 prog=`basename $0`
 host=`pmhostname`
-for var in unknown version build numagents numclients simabi ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone status license
+for var in unknown version build numagents numclients ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone status
 do
     eval $var="unknown?"
 done
 
 # metrics
-metrics="pmcd.numagents pmcd.numclients pmcd.simabi pmcd.version pmcd.build pmcd.timezone pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
+metrics="pmcd.numagents pmcd.numclients pmcd.version pmcd.build pmcd.timezone pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
 pmiemetrics="pmcd.pmie.actions pmcd.pmie.eval.true pmcd.pmie.eval.false pmcd.pmie.eval.unknown pmcd.pmie.eval.expected"
 
 _usage()
@@ -184,7 +179,6 @@ mode == 3		{ inst(); next }
 /pmcd.build/		{ mode = 1; quote="build"; next }
 /pmcd.numagents/	{ mode = 1; quote="numagents"; next }
 /pmcd.numclients/	{ mode = 1; quote="numclients"; next }
-/pmcd.simabi/		{ mode = 1; quote="simabi"; next }
 /pmcd.timezone/		{ mode = 1; quote="timezone"; next }
 /pmcd.agent.status/	{ mode = 2; count = 0; quote="status"; next }
 /pmcd.pmlogger.archive/	{ mode = 3; count = 0; quote="log_archive"; next }
@@ -254,7 +248,6 @@ else
     uname="$uname "
 fi
 
-[ "$simabi" = $unknown ] && simabi=""
 [ "$timezone" = $unknown ] && timezone="Unknown"
 
 if [ "$cputype" = $unknown ]
@@ -353,7 +346,7 @@ fi
 echo "Performance Co-Pilot configuration on ${host}:"
 echo
 [ -n "$arch" ] && echo "  archive: $arch"
-echo " platform: ${uname}$simabi"
+echo " platform: ${uname}"
 echo " hardware: "`echo $hardware | _fmt`
 echo " timezone: $timezone"
 

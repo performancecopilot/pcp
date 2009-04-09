@@ -12,18 +12,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 /*
- * All fields in /proc/meminfo for 2.5.x
- * Note that 2.4 has fewer fields available, but we're only exporting
- * Mem{Total,Free,Shared,Buffers,Cached} and SwapTotal and SwapFree.
- *
- * Exporting the remaining fields * is TODO.
+ * All fields in /proc/meminfo
  */
 typedef struct {
     int64_t MemTotal;
@@ -50,6 +42,10 @@ typedef struct {
     int64_t PageTables;
     int64_t ReverseMaps;
     int64_t AnonPages;
+    int64_t Bounce;
+    int64_t NFS_Unstable;
+    int64_t SlabReclaimable;
+    int64_t SlabUnreclaimable;
 } proc_meminfo_t;
 
 extern int refresh_proc_meminfo(proc_meminfo_t *);

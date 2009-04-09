@@ -202,10 +202,7 @@ main(int argc, char **argv)
 
     if (sts == 0) {
 	/* rename the ascii PMNS */
-#if defined(IS_MINGW)
-	unlink(pmnsfile);	/* under Win32, rename fails if file exists */
-#endif
-	if (rename(outfname, pmnsfile) == -1) {
+	if (rename2(outfname, pmnsfile) == -1) {
 	    fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, strerror(errno));
 	    /* remove _both_ the ascii and binary versions of the new PMNS */
 	    unlink(outfname);
@@ -225,10 +222,7 @@ main(int argc, char **argv)
 	    chown(outfname, sbuf.st_uid, sbuf.st_gid);
 #endif
 	}
-#if defined(IS_MINGW)
-	unlink(pmnsfile);	/* under Win32, rename fails if file exists */
-#endif
-	if (rename(outfname, pmnsfile) == -1) {
+	if (rename2(outfname, pmnsfile) == -1) {
 	    fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, strerror(errno));
 	    /*
 	     * ascii file has been updated, remove the old binary file

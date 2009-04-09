@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <sys/types.h>
@@ -28,8 +24,6 @@
 
 #include "pmapi.h"
 #include "proc_meminfo.h"
-
-static int started = 0;
 
 static proc_meminfo_t moff;
 
@@ -60,6 +54,10 @@ static struct {
     { "PageTables",	&moff.PageTables },
     { "ReverseMaps",	&moff.ReverseMaps },
     { "AnonPages",	&moff.AnonPages },
+    { "Bounce",		&moff.Bounce },
+    { "NFS_Unstable",	&moff.NFS_Unstable },
+    { "SReclaimable",	&moff.SlabReclaimable },
+    { "SUnreclaim",	&moff.SlabUnreclaimable },
     { NULL, NULL }
 };
 
@@ -69,6 +67,7 @@ static struct {
 int
 refresh_proc_meminfo(proc_meminfo_t *proc_meminfo)
 {
+    static int	started;
     char	buf[1024];
     char	*bufp;
     int64_t	*p;
@@ -76,7 +75,7 @@ refresh_proc_meminfo(proc_meminfo_t *proc_meminfo)
     FILE	*fp;
 
     if (!started) {
-    	started = 1;
+	started = 1;
 	memset(proc_meminfo, 0, sizeof(proc_meminfo));
     }
 
@@ -85,9 +84,8 @@ refresh_proc_meminfo(proc_meminfo_t *proc_meminfo)
 	*p = -1; /* marked as "no value available" */
     }
 
-    if ((fp = fopen("/proc/meminfo", "r")) == (FILE *)0) {
-    	return -errno;
-    }
+    if ((fp = fopen("/proc/meminfo", "r")) == (FILE *)0)
+	return -errno;
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if ((bufp = strchr(buf, ':')) == NULL)

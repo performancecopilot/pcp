@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) International Business Machines Corp., 2002
-# Portions Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
+# Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,10 +12,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
 # Linux PMDA help file in the ASCII format
 #
@@ -454,6 +450,11 @@ you will get real memory on demand, and just as much as you use.
 @ mem.util.reverseMaps Kbytes in reverse mapped pages, from /proc/meminfo
 @ mem.util.cache_clean Kbytes cached and not dirty or writeback, derived from /proc/meminfo
 @ mem.util.anonpages Kbytes in user pages not backed by files, from /proc/meminfo
+@ mem.util.bounce Kbytes in bounce buffers, from /proc/meminfo
+@ mem.util.NFS_Unstable Kbytes in NFS unstable memory, from /proc/meminfo
+@ mem.util.slabReclaimable Kbytes in reclaimable slab pages, from /proc/meminfo
+@ mem.util.slabUnreclaimable Kbytes in unreclaimable slab pages, from /proc/meminfo
+
 User memory (Kbytes) in pages not backed by files, e.g. from malloc()
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat

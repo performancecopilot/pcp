@@ -49,7 +49,7 @@ Priority: extra
 Depends: libpcp3-dev
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library and headers
- libpcpgui-dev contains the Performance Co-Pilot (PCP) library and
+ libpcp-gui-dev contains the Performance Co-Pilot (PCP) library and
  header files needed to incorporate graphical time control (pmtime)
  into a monitoring application.
 
@@ -62,6 +62,26 @@ Description: Performance Co-Pilot graphical client tools library
  Contains the runtime environment required by a monitoring tool that
  makes use of the time control services of pmtime(1).
 
+Package: libpcp-mmv1-dev
+Section: libdevel
+Priority: extra
+Depends: libpcp3-dev
+Architecture: any
+Description: Performance Co-Pilot Memory Mapped Value library and headers
+ libpcp-mmv-dev contains the Performance Co-Pilot (PCP) library and
+ header files needed to utilise memory mapped value instrumentation
+ into a monitored application.
+
+Package: libpcp-mmv1
+Depends: ${shlibs:Depends}
+Section: libs
+Priority: extra
+Architecture: any
+Description: Performance Co-Pilot Memory Mapped Value client library
+ Contains the runtime environment required by a monitored application
+ that utilises Memory Mapped Value instrumentation to export runtime
+ instrumentation into the Performance Co-Pilot infrastructure.
+
 Package: libpcp-pmda3-dev
 Section: libdevel
 Priority: extra
@@ -69,7 +89,7 @@ Depends: libpcp3-dev
 Conflicts: pcp (< 2.7.4-20080507)
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library and headers
- libpcppmda-dev contains the Performance Co-Pilot (PCP) library and
+ libpcp-pmda-dev contains the Performance Co-Pilot (PCP) library and
  header files needed to develop Performance Metric Domain Agents
  (PMDAs).  A PMDA exports performance data for one specific domain,
  for example the operating system kernel, Cisco routers, a database,
@@ -93,7 +113,7 @@ Depends: libpcp3-dev
 Conflicts: pcp (< 2.7.4-20080507)
 Architecture: any
 Description: Performance Co-Pilot application tracing library and headers
- libpcptrace-dev contains the Performance Co-Pilot (PCP) library and
+ libpcp-trace-dev contains the Performance Co-Pilot (PCP) library and
  header files needed to directly instrument an application for event
  and value tracking by the pmdatrace(1) PCP Trace Performance Metric
  Domain Agent.

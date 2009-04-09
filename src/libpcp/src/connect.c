@@ -50,7 +50,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
 	return PM_ERR_IPC;
     }
     for (bp = buf; bp < &buf[MY_BUFLEN]; bp++) {
-	if (read(fd, bp, 1) != 1) {
+	if (recv(fd, bp, 1, 0) != 1) {
 	    *bp = '\0';
 	    bp = &buf[MY_BUFLEN];
 	    break;

@@ -15,6 +15,12 @@ DEVGUI_FILES = libpcp-gui1-dev.dirs libpcp-gui1-dev.install
 LIBGUI_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-gui1
 DEVGUI_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-gui1-dev
 
+LIBMMVPCP = libpcp-mmv1
+LIBMMV_FILES = libpcp-mmv1.install
+DEVMMV_FILES = libpcp-mmv1-dev.dirs libpcp-mmv1-dev.install
+LIBMMV_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-mmv1
+DEVMMV_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-mmv1-dev
+
 LIBPMDAPCP = libpcp-pmda3
 LIBPMDA_FILES = libpcp-pmda3.install
 DEVPMDA_FILES = libpcp-pmda3-dev.dirs libpcp-pmda3-dev.install
@@ -28,10 +34,12 @@ LIBTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2
 DEVTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2-dev
 
 LDIRT = *.debhelper *.substvars *.log pcp files $(LIBPCPPCP) $(LIBPCPPCP)-dev \
-	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev
+	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
+	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev
 LSRCFILES = changelog compat control copyright rules source.lintian-overrides \
 		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) shlibs.local \
 		$(LIBGUI_FILES) $(DEVGUI_FILES) \
+		$(LIBMMV_FILES) $(DEVMMV_FILES) \
 		$(LIBPMDA_FILES) $(DEVPMDA_FILES) \
 		$(LIBTRACE_FILES) $(DEVTRACE_FILES)
 
@@ -75,6 +83,20 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(DEVGUI_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(DEVGUI_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(DEVGUI_DOC_DIR)/changelog.Debian
+endif
+
+install-libmmv: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(LIBMMV_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(LIBMMV_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(LIBMMV_DOC_DIR)/changelog.Debian
+endif
+
+install-devmmv: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(DEVMMV_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(DEVMMV_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(DEVMMV_DOC_DIR)/changelog.Debian
 endif
 
 install-libpmda: default

@@ -1,0 +1,51 @@
+MMV (Memory Mapped Values) PMDA
+===============================
+
+General purpose PMDA to export values from appropriately formatted
+files.
+
+Metrics
+=======
+
+Since the entire name space for this PMDA in generated, there is no
+help files - just use your judgement and name your metrics such that
+one can understand what it supposed to mean from the names.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics
+
+	$ pminfo mmv
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/mmv
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose
+    another domain number.
+
+ +  Then simply use
+
+	# ./Install
+
+    provide the name of the directory with 'value' files, choose both
+    the "collector" and "monitor" installation configuration options.
+    Everything else is automated.
+
+De-installation
+===============
+
+ +  Simply use
+
+	# cd $PCP_PMDAS_DIR/mmv
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/mmv.log) should be checked for any warnings
+    or errors.

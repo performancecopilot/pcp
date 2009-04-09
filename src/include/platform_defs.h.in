@@ -507,6 +507,7 @@ typedef void (*SIG_PF) (int);
 #define ENODATA		WSANO_DATA
 
 #define HAVE_MKDIR2
+#define HAVE_RENAME2
 #define HAVE_DLOPEN
 #define HAVE_FNDELAY
 #define HAVE_HSTRERROR
@@ -524,6 +525,7 @@ typedef void (*SIG_PF) (int);
 
 #define fcntl(f, cmd, ...) 0
 #define mkdir2(path, mode) mkdir(path)
+#define rename2(a, b) (unlink(b), rename(a,b))
 #define pipe(fds) _pipe(fds, 4*1024, O_BINARY)
 #define realpath(path, pp) strcpy(pp, path)
 
@@ -603,6 +605,10 @@ extern int alphasort(const_dirent **, const_dirent **);
 
 #ifndef HAVE_MKDIR2
 #define mkdir2(path,mode) mkdir(path,mode)
+#endif
+
+#ifndef HAVE_RENAME2
+#define rename2(path,target) rename(path,target)
 #endif
 
 #ifndef __cplusplus      

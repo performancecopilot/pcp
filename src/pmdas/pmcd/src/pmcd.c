@@ -23,9 +23,6 @@
 #include "pmcd/src/client.h"
 #include "pmie/src/pmiestats.h"
 #include <sys/stat.h>
-#if defined(HAVE_SYS_MMAN_H)
-#include <sys/mman.h>
-#endif
 
 /*
  * Note: strange numbering for pmcd.pdu_{in,out}.total for
@@ -215,9 +212,6 @@ typedef struct {
     pid_t	pid;
     int		size;
     char	*name;
-#ifdef IS_MINGW
-    HANDLE	hdl;
-#endif
     void	*mmap;
 } pmie_t;
 static pmie_t		*pmies;
@@ -304,12 +298,7 @@ remove_pmie_indom(void)
 
     for (n = 0; n < npmies; n++) {
 	free(pmies[n].name);
-#ifdef IS_MINGW
-	UnmapViewOfFile(pmies[n].mmap);
-	CloseHandle(pmies[n].hdl);
-#else /* POSIX */
-	munmap(pmies[n].mmap, pmies[n].size);
-#endif
+	__pmMemoryUnmap(pmies[n].mmap, pmies[n].size);
     }
     free(pmies);
     pmies = NULL;
@@ -330,9 +319,6 @@ refresh_pmie_indom(void)
     void		*ptr;
     DIR			*pmiedir;
     int			fd;
-#ifdef IS_MINGW
-    HANDLE		hdl;
-#endif
 
     if (stat(PMIE_DIR, &statbuf) == 0) {
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
@@ -390,39 +376,18 @@ refresh_pmie_indom(void)
 		    free(endp);
 		    continue;
 		}
-#ifdef IS_MINGW
-		hdl = CreateFileMapping((HANDLE)_get_osfhandle(fd),
-				NULL, PAGE_READONLY, 0, statbuf.st_size, NULL);
-		if (hdl == INVALID_HANDLE_VALUE) {
-		    __pmNotifyErr(LOG_ERR, "pmcd pmda mapping of %s failed: %s",
-				fullpath, strerror(errno));
-		    free(endp);
-		    close(fd);
-		    continue;
-		}
-		ptr = MapViewOfFile(hdl, FILE_MAP_READ, 0, 0, statbuf.st_size);
-#else /* POSIX */
-		ptr = mmap(NULL, statbuf.st_size, PROT_READ, MAP_SHARED, fd, 0);
-#endif
+		ptr = __pmMemoryMap(fd, statbuf.st_size, 0);
 		close(fd);
-		if (ptr == MAP_FAILED) {
-		    __pmNotifyErr(LOG_ERR, "pmcd pmda mmap of %s failed: %s",
+		if (ptr == NULL) {
+		    __pmNotifyErr(LOG_ERR, "pmcd pmda memmap of %s failed: %s",
 				fullpath, strerror(errno));
-#ifdef IS_MINGW
-		    CloseHandle(hdl);
-#endif
 		    free(endp);
 		    continue;
 		}
 		else if (((pmiestats_t *)ptr)->version != 1) {
 		    __pmNotifyErr(LOG_WARNING, "incompatible pmie version: %s",
 				fullpath);
-#ifdef IS_MINGW
-		    UnmapViewOfFile(ptr);
-		    CloseHandle(hdl);
-#else
-		    munmap(ptr, statbuf.st_size);
-#endif
+		    __pmMemoryUnmap(ptr, statbuf.st_size);
 		    free(endp);
 		    continue;
 		}
@@ -430,9 +395,6 @@ refresh_pmie_indom(void)
 		pmies[npmies].name = endp;
 		pmies[npmies].size = statbuf.st_size;
 		pmies[npmies].mmap = ptr;
-#ifdef IS_MINGW
-		pmies[npmies].hdl  = hdl;
-#endif
 		npmies++;
 	    }
 	    closedir(pmiedir);

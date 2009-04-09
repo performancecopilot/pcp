@@ -22,6 +22,7 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = include \
 	  libpcp libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
+	  libpcp_mmv \
 	  pmconfig pmns newhelp pminfo pmnscomp pmcd pmerr pmdbg \
 	  pmdate pmie pmpost pmprobe pmcdctl pmlock pmval pmlogger \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmlogctl \

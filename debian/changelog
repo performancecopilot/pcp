@@ -1,3 +1,10 @@
+pcp (2.8.0) unstable; urgency=low
+
+  * New upstream release.
+  * New packages for Memory Mapped Value (MMV) library.
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 09 Apr 2009 12:26:40 +1000
+
 pcp (2.7.8-20090319) unstable; urgency=low
 
   * New upstream release.
