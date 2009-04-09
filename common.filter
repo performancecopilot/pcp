@@ -238,6 +238,7 @@ _filter_top_pmns()
 	-e '/^    aim /d' \
 	-e '/^    array /d' \
 	-e '/^    ash /d' \
+	-e '/^    bonding /d' \
 	-e '/^    brocade /d' \
 	-e '/^    broken /d' \
 	-e '/^    cisco /d' \
@@ -259,6 +260,7 @@ _filter_top_pmns()
 	-e '/^    mmv /d' \
 	-e '/^    mpi /d' \
 	-e '/^    mysql /d' \
+	-e '/^    netfilter /d' \
 	-e '/^    netprobe /d' \
 	-e '/^    news /d' \
 	-e '/^    oracle /d' \
@@ -509,6 +511,7 @@ _filter_torture_api()
 	-e '/kernel\.all\.cpu/s/valfmt: [01]/valfmt: 0-or-1/' \
 	-e '/^    aconex /d' \
 	-e '/^    apache /d' \
+	-e '/^    bonding /d' \
 	-e '/^    cihb /d' \
 	-e '/^    cms /d' \
 	-e '/^    cxfs /d' \
@@ -525,6 +528,7 @@ _filter_torture_api()
 	-e '/^    mounts /d' \
 	-e '/^    mt /d' \
 	-e '/^    nasavg /d' \
+	-e '/^    netfilter /d' \
 	-e '/^    numa /d' \
 	-e '/^    origin /d' \
 	-e '/^    p76 /d' \
