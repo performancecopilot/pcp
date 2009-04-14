@@ -55,27 +55,33 @@ int Tab::deleteCurrent(void)
 
 int Tab::deleteGadget(Gadget *gadget)
 {
-    for (int index = 0; index < gadgetCount() - 1; index++)
-	if (my.gadgetsList.at(index) == gadget)
-	    return deleteGadget(index);
+    for (int i = 0; i < gadgetCount(); i++)
+	if (my.gadgetsList.at(i) == gadget)
+	    return deleteGadget(i);
     return 0;
 }
 
 int Tab::deleteGadget(int index)
 {
     Gadget *gadget = my.gadgetsList.at(index);
+    int newCurrent = my.currentGadget;
+    int oldCurrent = my.currentGadget;
+    int oldCount = gadgetCount();
 
+    if (index < oldCurrent || index == oldCount - 1)
+	newCurrent--;
+    if (newCurrent < 0)
+	my.currentGadget = -1;
+    else
+	setCurrent(my.gadgetsList.at(newCurrent));
+
+    my.group->deleteGadget(gadget);
     my.gadgetsList.removeAt(index);
     delete gadget;
 
     if (gadgetCount() > 1)
 	pmchart->updateHeight(-(gadget->height()));
 
-    int newCurrent = my.currentGadget;
-    if (index < newCurrent || index == gadgetCount() - 1)
-	newCurrent--;
-    my.currentGadget = -1;
-    setCurrent(my.gadgetsList.at(newCurrent));
     return my.currentGadget;
 }
 

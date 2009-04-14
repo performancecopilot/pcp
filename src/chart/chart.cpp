@@ -569,11 +569,8 @@ int Chart::addPlot(pmMetricSpec *pmsp, const char *legend)
 
     plot->metric = mp;
     plot->name = QString(pmsp->metric);
-    if (pmsp->ninst == 1) {
-	plot->name.append("[");
-	plot->name.append(pmsp->inst[0]);
-	plot->name.append("]");
-    }
+    if (pmsp->ninst == 1)
+	plot->name.append("[").append(pmsp->inst[0]).append("]");
     plot->units = desc.units;
 
     //
@@ -713,10 +710,23 @@ void Chart::changeTitle(char *title, int expand)
 	if (expand && (strstr(title, "%h")) != NULL) {
 	    QString titleString = title;
 	    QString shortHost = activeGroup->context()->source().host();
+	    QStringList::Iterator host;
 
-	    int dot = shortHost.indexOf(QChar('.'));
-	    if (dot != -1)
-		shortHost.remove(dot, shortHost.size());
+	    /* shorten hostname(s) - may be multiple (proxied) */
+	    QStringList hosts = shortHost.split(QChar('@'));
+	    for (host = hosts.begin(); host != hosts.end(); ++host) {
+		/* decide whether or not to truncate this hostname */
+		int dot = host->indexOf(QChar('.'));
+		if (dot != -1)
+		    /* no change if it looks even vaguely like an IP address */
+		    if (!host->contains(QRegExp("^\\d+\\.")) &&	/* IPv4 */
+			!host->contains(QChar(':')))		/* IPv6 */
+			host->remove(dot, host->size());
+	    }
+	    host = hosts.begin();
+	    shortHost = *host++;
+	    for (; host != hosts.end(); ++host)
+	        shortHost.append(QString("@")).append(*host);
 	    titleString.replace(QRegExp("%h"), shortHost);
 	    setTitle(titleString);
 	}
@@ -918,10 +928,12 @@ void Chart::redoPlotData(void)
 	    for (m = 0; m < my.plots.size(); m++)
 		maxCount = qMax(maxCount, my.plots[m]->dataCount);
 	    for (i = 0; i < maxCount; i++) {
-		if (i >= my.plots[0]->dataCount || my.plots[0]->hidden)
-		    my.plots[0]->plotData[i] = Curve::NaN();
-		else
-		    my.plots[0]->plotData[i] = my.plots[0]->data[i];
+		for (m = 0; m < my.plots.size(); m++) {
+		    if (i >= my.plots[m]->dataCount || my.plots[m]->hidden)
+			my.plots[m]->plotData[i] = Curve::NaN();
+		    else
+			my.plots[m]->plotData[i] = my.plots[m]->data[i];
+		}
 		sum = 0.0;
 		for (m = 0; m < my.plots.size(); m++) {
 		    if (!Curve::isNaN(my.plots[m]->plotData[i])) {

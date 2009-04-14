@@ -28,6 +28,10 @@ SaveViewDialog::SaveViewDialog(QWidget* parent) : QDialog(parent)
     my.completer->setModel(my.dirModel);
     fileNameLineEdit->setCompleter(my.completer);
 
+    connect(dirListView->selectionModel(),
+	SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+	this, SLOT(dirListView_selectionChanged()));
+
     QDir dir;
     QString home = my.userDir = QDir::homePath();
     my.userDir.append("/.pcp/kmchart");
@@ -120,7 +124,7 @@ void SaveViewDialog::userToolButton_clicked(bool enabled)
     }
 }
 
-void SaveViewDialog::dirListView_clicked(const QModelIndex &)
+void SaveViewDialog::dirListView_selectionChanged()
 {
     QItemSelectionModel *selections = dirListView->selectionModel();
     QModelIndexList selectedIndexes = selections->selectedIndexes();

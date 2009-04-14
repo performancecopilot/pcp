@@ -1,3 +1,11 @@
+pcp-gui 1.3.5 (3 April 2009)
+    - Fix pmdumptext handling of config files with no final EOL.
+    - Improve hostname-truncation heuristic for chart titles.
+    - Fix logic error in Chart -> Delete causing SIGSEGV.
+    - Fix selection bug in View Open/Save dialogs.
+    - Fix stacked bar Y-axis scaling on plot enabling/disabling.
+    - Increase the default colour scheme to having ten colours.
+
 pcp-gui 1.3.4 (21 March 2009)
     - Fix a couple of MacOSX regressions, vanishing charts and
       vanishing toolbars.

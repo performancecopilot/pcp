@@ -287,7 +287,7 @@ int
 parseConfig(QString const& configName, FILE *configFile)
 {
     char	buf[1024];
-    char	*last = NULL;
+    char	*last;
     char	*msg;
     double	scale = 0.0;
     int		line = 0;
@@ -302,7 +302,8 @@ parseConfig(QString const& configName, FILE *configFile)
 	    line++;
 	    continue;
 	}
-	if (buf[len-1] != '\n') {
+	last = &buf[len-1];
+	if (*last != '\n' && !feof(configFile)) {
 	    pmprintf("%s: Line %d of %s was too long, skipping.\n",
 	    	     pmProgname, line, (const char *)configName.toAscii());
 	    while(buf[len-1] != '\n') {
@@ -313,8 +314,9 @@ parseConfig(QString const& configName, FILE *configFile)
 	    err++;
 	    continue;
 	}
+	if (*last == '\n')
+	    *last = '\0';
 	line++;
-	buf[len-1] = '\0';
 
 	last = strrchr(buf, ']');
 	if (last == NULL) {	// No instances

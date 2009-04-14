@@ -79,12 +79,9 @@ void GroupControl::addGadget(Gadget *gadget)
 
 void GroupControl::deleteGadget(Gadget *gadget)
 {
-    for (int index = 0; index < gadgetCount() - 1; index++) {
-	if (my.gadgetsList.at(index) != gadget)
-	    continue;
-	my.gadgetsList.removeAt(index);
-	break;
-    }
+    for (int i = 0; i < gadgetCount(); i++)
+	if (my.gadgetsList.at(i) == gadget)
+	    my.gadgetsList.removeAt(i);
 }
 
 int GroupControl::gadgetCount() const

@@ -1,16 +1,5 @@
 '\"macro stdmacro
-.ie \(.g \{\
-.\" ... groff (hack for khelpcenter, man2html, etc.)
 .TH PMDUMPTEXT 1 "SGI" "Performance Co-Pilot"
-\}
-.el \{\
-.if \nX=0 .ds x} PMDUMPTEXT 1 "" "Performance Co-Pilot"
-.if \nX=1 .ds x} PMDUMPTEXT 1 "Performance Co-Pilot"
-.if \nX=2 .ds x} PMDUMPTEXT 1 "" "\&"
-.if \nX=3 .ds x} PMDUMPTEXT "" "" "\&"
-.TH \*(x}
-.rr X
-\}
 .SH NAME
 \f3pmdumptext\f1 \- dump performance metrics to an ASCII table
 .\" literals use .B or \f3
@@ -222,7 +211,7 @@ Show all headers before dumping any metric values.  This is equivalent to
 Output the data in fixed width columns using fixed width values (see
 .BR \-F )
 so that it is human-readable.  This option may not be used with
-.B \-E
+.B \-P
 as fixed point values are not fixed width.  This option will also affect the
 output of 
 .BR \-m

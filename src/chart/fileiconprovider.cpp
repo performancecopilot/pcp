@@ -99,11 +99,13 @@ QIcon FileIconProvider::icon(const QFileInfo &fi) const
 	char block[9];
 	int count = file.read(block, sizeof(block)-1);
 	if (count == sizeof(block)-1) {
-	    static char viewmagic[] = "#kmchart";
+	    static const char *viewmagic[] = { "#kmchart", "#pmchart" };
 	    static char foliomagic[] = "PCPFolio";
 	    static char archmagic[] = "\0\0\0\204\120\5\46\2"; //PM_LOG_MAGIC|V2
 
-	    if (memcmp(viewmagic, block, sizeof(block)-1) == 0)
+	    if (memcmp(viewmagic[0], block, sizeof(block)-1) == 0)
+		return my.fileView;
+	    if (memcmp(viewmagic[1], block, sizeof(block)-1) == 0)
 		return my.fileView;
 	    if (memcmp(foliomagic, block, sizeof(block)-1) == 0)
 		return my.fileFolio;
