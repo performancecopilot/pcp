@@ -17,8 +17,9 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 #include <QtCore/QSettings>
-#include <QtGui/QApplication>
 #include <QtGui/QStatusBar>
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
 #include "main.h"
 #include "openviewdialog.h"
 
@@ -418,8 +419,9 @@ void setupViewGlobals()
 
     OpenViewDialog::globals(&w, &h, &points, &x, &y);
     if (w || h) {
-	QSize size = pmchart->size();
-	pmchart->resize(size.expandedTo(QSize(w, h)));
+	QSize size = pmchart->size().expandedTo(QSize(w, h));
+	QSize desk = QApplication::desktop()->availableGeometry().size();
+	pmchart->resize(size.boundedTo(desk));
     }
     if (x || y) {
 	QPoint pos = pmchart->pos();
