@@ -8,6 +8,7 @@ UIFILES = $(shell echo *.ui)
 SOURCES = pmdumptext.cpp
 CONFFILES = $(PROJECT)
 LSRCFILES = $(PROJECT).in $(SOURCES)
+LDIRT = $(COMMAND)
 
 default:
 	$(QTMAKE)
