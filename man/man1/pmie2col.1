@@ -18,7 +18,8 @@
 \f3pmie2col\f1 \- convert pmie output to multi-column format
 .SH SYNOPSIS
 \f3pmie2col\f1
-[\f3\-d\f1 \f2delim\f1]
+[\f3\-d\f1 \f2delimiter\f1]
+[\f3\-p\f1 \f2precision\f1]
 [\f3\-w\f1 \f2width\f1]
 .de EX
 .in +0.5i
@@ -49,6 +50,14 @@ delimiter using the
 .B \-d
 option (this is useful for importing the data into a spreadsheet,
 for example).
+.PP
+The precision of the tabulated values from
+.B pmie
+can be specified with the
+.B \-p
+option (default is 2 decimal places).
+This option can and will override any width setting in order to
+present the requested precision.
 .PP
 The
 .BR pmie (1)

@@ -40,19 +40,23 @@ esac
 
 _usage()
 {
-    echo "Usage: pmie2col [-w width] [-d delim]"
+    echo "Usage: pmie2col [-w width] [-d delimiter] [-p precision]"
     exit 1
 }
 
-wid=7
+pre=2	# floating point precision
+wid=7	# reporting column width
 delim=' '
 
-while getopts "d:w:?" c
+while getopts "d:p:w:?" c
 do
     case "$c"
     in
 	w)
 	    wid="$OPTARG"
+	    ;;
+	p)
+	    pre="$OPTARG"
 	    ;;
 	d)
 	    delim="$OPTARG"
@@ -91,7 +95,7 @@ NF == 0				{ if (state == 0) {
 					printf "%s%'$wid'.'$wid's",delim,"?"
 				    else if (v[i]+0 == v[i])
 					# number
-					printf "%s%'$wid'.2f",delim,v[i]
+					printf "%s%'$wid'.'$pre'f",delim,v[i]
 				    else
 					# string
 					printf "%s%'$wid'.'$wid's",delim,v[i]
