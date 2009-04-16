@@ -323,7 +323,7 @@ args="$args-l $logfile "
 #
 if $primary
 then
-    :
+    host=localhost
 else
     # start critical section ... no interrupts due to pmlogger SIGPIPE
     # bug in PCP 1.1
@@ -476,7 +476,7 @@ if [ "X$access" != X ]
 then
     if grep '\[access]' $config >/dev/null
     then
-	echo "$prog: Error: pmlogger configuratiuon file already contains an"
+	echo "$prog: Error: pmlogger configuration file already contains an"
 	echo "	access control section, specifications from \"$access\" cannot"
 	echo "	be applied."
 	_abandon
@@ -583,7 +583,8 @@ fi
 
 # stall a bit ...
 #
-sleep 10
+STALL_TIME=10
+sleep $STALL_TIME
 
 $VERBOSE && _message restart
 if _check_logger $new_pid || $SHOWME
@@ -620,7 +621,8 @@ then
 
     if $failed
     then
-	echo "Warning: pmlogger [pid=$new_pid] failed to create archive files within $WAIT_TIME seconds"
+	ELAPSED=`expr $STALL_TIME + $WAIT_TIME`
+	echo "Warning: pmlogger [pid=$new_pid host=$host] failed to create archive files within $ELAPSED seconds"
 	if [ -f $tmp.err ]
 	then
 	    echo "Warnings/errors from mkaf ..."
