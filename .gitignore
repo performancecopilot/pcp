@@ -9,3 +9,4 @@ debugfiles.list
 debugsources.list
 pcp.lsm
 .census
+cscope.*
