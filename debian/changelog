@@ -1,3 +1,9 @@
+pcp (2.8.1) unstable; urgency=low
+
+  * New upstream release (closes: #524451).
+
+ -- Nathan Scott <nathans@debian.org>  Sun, 19 Apr 2009 20:03:27 +1000
+
 pcp (2.8.0) unstable; urgency=low
 
   * New upstream release.
