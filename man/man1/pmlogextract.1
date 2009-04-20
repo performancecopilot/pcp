@@ -28,17 +28,6 @@ and merge Performance Co-Pilot archives
 [\f3\-v\f1 \f2volsamples\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 \f2input\f1 [...] \f2output\f1 
-
-On IRIX:
-
-\f3$PCP_BINADM_DIR/pmlogmerge\f1
-[\f3\-z\f1]
-[\f3\-S\f1 \f2starttime\f1]
-[\f3\-s\f1 \f2samples\f1]
-[\f3\-T\f1 \f2endtime\f1]
-[\f3\-v\f1 \f2volsamples\f1]
-[\f3\-Z\f1 \f2timezone\f1]
-\f2input\f1 [...] \f2output\f1
 .SH DESCRIPTION
 .B pmlogextract
 reads one or more Performance Co-Pilot (PCP) archive logs
@@ -51,16 +40,6 @@ archive logs, while the nature of data reduction is controlled by
 the command line arguments.  The input(s) must be PCP archive logs
 created by
 .BR pmlogger (1).
-.PP
-.B pmlogmerge
-provides a subset of the capabilities of
-.BR pmlogextract ,
-namely reading one or more PCP archive logs identified by
-.I input
-and creating a temporally merged PCP archive log in
-.IR output .
-.B pmlogmerge 
-is deprecated and is provided on Irix for backwards-compatibility.
 .PP
 If only one
 .I input
@@ -301,16 +280,6 @@ If any error is detected,
 .B pmlogextract
 will exit with a non-zero status.
 .SH CAVEATS
-.B pmlogmerge
-has been retained on Irix to provide backwards compatibility
-with earlier PCP releases, however, use of
-.B pmlogextract
-is encouraged in preference to
-.BR pmlogmerge ,
-and 
-.B pmlogmerge
-may not be supported in future PCP releases.
-.PP
 The preamble metrics (pmcd.pmlogger.archive, pmcd.pmlogger.host,
 and pmcd.pmlogger.port), which are automatically recorded by
 .B pmlogger

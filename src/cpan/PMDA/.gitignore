@@ -1,6 +1,6 @@
 COPYING
 Makefile
-PCP-PMDA-1.00.tar.gz
+PCP-PMDA-*.tar.gz
 PMDA.bs
 PMDA.c
 blib

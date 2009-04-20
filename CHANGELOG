@@ -1,3 +1,8 @@
+pcp-2.8.1 (19 April 2008)
+    - Fix build issue with libpcp_mmv - would not build-from-source
+      if <pcp/pmapi.h> was not in the root filesystem.
+    - Finer control of pmie2col(1) reporting precision.
+
 pcp-2.8.0 (9 April 2008)
     - Linux netfilter (IP connection tracking) PMDA included
     - Memory Mapped Value (MMV) PMDA and client library included

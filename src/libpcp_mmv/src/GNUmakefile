@@ -11,10 +11,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 # License for more details.
 # 
-# You should have received a copy of the GNU Lesser General Public License
-# along with this library; if not, write to the Free Software Foundation,
-# Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
-
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
@@ -35,10 +31,11 @@ SYMTARGET =
 STATICLIBTARGET	=
 endif
 
+LCFLAGS = -I.
 LLDLIBS = -lpcp
-LDIRT = $(SYMTARGET)
+LDIRT = pcp $(SYMTARGET)
 
-base default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+default: pcp $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
 include $(BUILDRULES)
 
@@ -62,3 +59,5 @@ $(SYMTARGET):
 	$(LN_S) -f $(LIBTARGET) $@
 endif
 
+pcp:
+	$(LN_S) -f $(TOPDIR)/src/include pcp
