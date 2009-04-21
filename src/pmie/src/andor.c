@@ -140,6 +140,11 @@ cndOr_n_1(Expr *x)
 	os->stamp = is1->stamp;
 	x->valid++;
     }
+    else if (arg2->valid && x->tspan > 0) {
+	*(Truth *)os->ptr = OR1(*(Truth *)is2->ptr);
+	os->stamp = is2->stamp;
+	x->valid++;
+    }
     else x->valid = 0;
 
 #if PCP_DEBUG
@@ -176,6 +181,11 @@ cndOr_1_n(Expr *x)
 	    ip2++;
 	}
 	os->stamp = (is1->stamp > is2->stamp) ? is1->stamp : is2->stamp;
+	x->valid++;
+    }
+    else if (arg1->valid && x->tspan > 0) {
+	*(Truth *)os->ptr = OR1(*(Truth *)is1->ptr);
+	os->stamp = is1->stamp;
 	x->valid++;
     }
     else if (arg2->valid && x->tspan > 0) {
@@ -340,6 +350,11 @@ cndAnd_n_1(Expr *x)
 	os->stamp = is1->stamp;
 	x->valid++;
     }
+    else if (arg2->valid && x->tspan > 0) {
+	*(Truth *)os->ptr = AND1(*(Truth *)is2->ptr);
+	os->stamp = is2->stamp;
+	x->valid++;
+    }
     else x->valid = 0;
 
 #if PCP_DEBUG
@@ -376,6 +391,11 @@ cndAnd_1_n(Expr *x)
 	    ip2++;
 	}
 	os->stamp = (is1->stamp > is2->stamp) ? is1->stamp : is2->stamp;
+	x->valid++;
+    }
+    else if (arg1->valid && x->tspan > 0) {
+	*(Truth *)os->ptr = AND1(*(Truth *)is1->ptr);
+	os->stamp = is1->stamp;
 	x->valid++;
     }
     else if (arg2->valid && x->tspan > 0) {
