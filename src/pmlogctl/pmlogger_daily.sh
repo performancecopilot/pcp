@@ -12,20 +12,11 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-#
-# Example daily administrative script for PCP archive logs
+# Daily administrative script for PCP archive logs
 #
 
-# Get standard environment
 . $PCP_DIR/etc/pcp.env
-
-# Get the portable PCP rc script functions
-if [ -f $PCP_SHARE_DIR/lib/rc-proc.sh ] ; then
-    . $PCP_SHARE_DIR/lib/rc-proc.sh
-fi
+. $PCP_SHARE_DIR/lib/rc-proc.sh
 
 # error messages should go to stderr, not the GUI notifiers
 #
@@ -38,6 +29,13 @@ status=0
 echo >$tmp.lock
 trap "rm -f \`[ -f $tmp.lock ] && cat $tmp.lock\` $tmp.*; exit \$status" 0 1 2 3 15
 prog=`basename $0`
+
+if is_chkconfig_on pcp
+then
+    PMLOGGER_CTL=on
+else
+    PMLOGGER_CTL=off
+fi
 
 # control file for pmlogger administration ... edit the entries in this
 # file to reflect your local configuration (see also -c option below)
@@ -483,61 +481,14 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
-        case "$PCP_PLATFORM" in
-        irix)
-	    if /sbin/chkconfig pmlogger
-	    then
-		:
-	    else
-		_warning "primary logging disabled via chkconfig for $host"
-		_unlock
-		continue
-	    fi
+	if [ "$PMLOGGER_CTL" = "off" ]
+	then
+	    $VERBOSE && _warning "primary logging disabled for $host"
+	    _unlock
+	    continue
+	fi
 
-	    test -l /var/tmp/pmlogger/primary
-	    ;;
-
-        linux)
-	    #
-	    # On linux, pmcd and (the primary) pmlogger are both controlled
-	    # by the "pcp" chkconfig flag.
-	    #
-	    PMLOGGER_CTL=off
-	    if is_chkconfig_on pcp
-	    then
-		PMLOGGER_CTL=on
-	    fi
-
-	    if [ "$PMLOGGER_CTL" = "off" ]
-	    then
-		_error "primary logging disabled for $host"
-		_unlock
-		continue
-	    fi
-
-	    test -L $PCP_TMP_DIR/pmlogger/primary
-
-	    ;;
-
-        solaris)
-	    PMLOGGER_CTL=off
-	    if is_chkconfig_on pcp
-	    then
-		PMLOGGER_CTL=on
-	    fi
-
-	    if [ "$PMLOGGER_CTL" = "off" ]
-	    then
-		_error "primary logging disabled for $host"
-		_unlock
-		continue
-	    fi
-
-	    test -h $PCP_TMP_DIR/pmlogger/primary
-
-	    ;;
-       
-	esac
+	test -e $PCP_TMP_DIR/pmlogger/primary
 
         if [ $? -eq 0 ]
 	then
@@ -588,7 +539,10 @@ END							{ print m }'`
 
     if [ -z "$pid" ]
     then
-	_error "no pmlogger instance running for host \"$host\""
+	if [ "$PMLOGGER_CTL" = "on" ]
+	then
+	    _error "no pmlogger instance running for host \"$host\""
+	fi
     else
 	if [ "`echo $pid | wc -w`" -gt 1 ]
 	then

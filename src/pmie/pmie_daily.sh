@@ -13,20 +13,11 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-#
-# Example daily administrative script for pmie logfiles
+# Daily administrative script for pmie logfiles
 #
 
-# Get standard environment
 . $PCP_DIR/etc/pcp.env
-
-# Get the portable PCP rc script functions
-if [ -f $PCP_SHARE_DIR/lib/rc-proc.sh ] ; then
-    . $PCP_SHARE_DIR/lib/rc-proc.sh
-fi
+. $PCP_SHARE_DIR/lib/rc-proc.sh
 
 # added to handle problem when /var/log/pcp is a symlink, as first
 # reported by Micah_Altman@harvard.edu in Nov 2001
@@ -55,6 +46,13 @@ status=0
 echo >$tmp.lock
 trap "rm -f \`[ -f $tmp.lock ] && cat $tmp.lock\` $tmp.*; exit \$status" 0 1 2 3 15
 prog=`basename $0`
+
+if is_chkconfig_on pmie
+then
+    PMIE_CTL=on
+else
+    PMIE_CTL=off
+fi
 
 # control file for pmie administration ... edit the entries in this
 # file to reflect your local configuration (see also -c option below)
@@ -422,7 +420,10 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 
     if [ -z "$pid" ]
     then
-	_error "no pmie instance running for host \"$host\""
+	if [ "$PMIE_CTL" = "on" ]
+	then
+	    _error "no pmie instance running for host \"$host\""
+	fi
     else
 	if [ "`echo $pid | wc -w`" -gt 1 ]
 	then
