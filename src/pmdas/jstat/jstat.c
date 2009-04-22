@@ -642,13 +642,13 @@ main(int argc, char **argv)
     char		*endnum;
     pmdaInterface	dispatch;
     int			c;
-    char		helptext[MAXPATHLEN];
+    char		path[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
-    snprintf(helptext, sizeof(helptext), "%s%c" "jstat" "%c" "help",
+    snprintf(path, sizeof(path), "%s%c" "jstat" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, JSTAT,
-		"jstat.log", helptext);
+		"jstat.log", path);
 
     while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:" "H:J:P:r:?",
 			   &dispatch, &err)) != EOF) {
@@ -686,11 +686,17 @@ main(int argc, char **argv)
 	usage();
     else if ((argc - optind) == 1)
 	jstat_pcp_dir_name = argv[optind];
-    else	/* TODO: native path ... */
-	jstat_pcp_dir_name = "/var/tmp/jstat";
+    else {
+	snprintf(path, sizeof(path), "%s%c" "jstat",
+		 pmGetConfig("PCP_TMP_DIR"), sep);
+	jstat_pcp_dir_name = path;
+    }
 
-    if (java_home)
-	setenv("JAVA_HOME", java_home, 1);
+    if (java_home) {
+	char home[MAXPATHLEN + 16];
+	snprintf(home, sizeof(home), "JAVA_HOME=%s", __pmNativePath(java_home));
+	putenv(home);
+    }
 
     pmdaOpenLog(&dispatch);
     jstat_init(&dispatch);
