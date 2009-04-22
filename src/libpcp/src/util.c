@@ -962,26 +962,6 @@ isnand(double d)
 }
 #endif
 
-#ifndef HAVE_UNSETENV
-int
-unsetenv(const char *name)
-{
-    extern char **_environ;
-    char	**ep;
-    int		len = (int)strlen(name);
-    int		found = 0;
-
-    for (ep = _environ; *ep != NULL; ep++) {
-	if (strncmp(*ep, name, len) == 0 && (*ep)[len] == '=') {
-	    found = 1;
-	}
-	if (found)
-	    ep[0] = ep[1];
-    }
-    return found;
-}
-#endif
-
 #ifndef HAVE_SCANDIR
 /*
  * Scan the directory dirname, building an array of pointers to

@@ -199,7 +199,6 @@ extern "C" {
 #undef HAVE_GETTIMEOFDAY
 #undef HAVE_MKTIME
 #undef HAVE_PUTENV
-#undef HAVE_UNSETENV
 
 #undef HAVE_GETHOSTNAME
 #undef HAVE_HSTRERROR

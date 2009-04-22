@@ -89,7 +89,7 @@ map_stats(void)
     int sep = __pmPathSeparator();
     int i;
     
-    unsetenv("TMPDIR");	/* temp file must be in pmnsdir, for rename */
+    putenv("TMPDIR=");	/* temp file must be in pmnsdir, for rename */
     if ( (fname = tempnam (pmnsdir, "mmv") ) != NULL ) {
 	if ( (f = fopen (fname, "w")) == NULL ) {
 	    __pmNotifyErr(LOG_ERR, "%s: failed to write \"%s\" - %s",
