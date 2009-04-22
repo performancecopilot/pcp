@@ -76,7 +76,7 @@ _shutdown()
     # connections and then exit.
     # Wait for pmclusterd to terminate.
     #
-    killall -TERM $PMCLUSTERD > /dev/null 2>&1
+    pmsignal -a -s TERM $PMCLUSTERD > /dev/null 2>&1
     $ECHO $PCP_ECHO_N "Waiting for PMCLUSTERD to terminate ...""$PCP_ECHO_C"
     gone=0
     for i in 1 2 3 4 5 6
@@ -102,7 +102,7 @@ _shutdown()
 		$PCP_AWK_PROG <$tmp.ps "\$2 == $pid { print }"
 	    done
 	    echo "$prog: Warning: Forcing PMCLUSTERD to terminate!"
-	    killall -KILL $PMCLUSTERD > /dev/null 2>&1
+	    pmsignal -a -s KILL $PMCLUSTERD > /dev/null 2>&1
 	else
 	    $ECHO $PCP_ECHO_N ".""$PCP_ECHO_C"
 	fi
