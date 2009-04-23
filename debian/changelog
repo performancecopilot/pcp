@@ -1,3 +1,10 @@
+pcp (2.8.2) unstable; urgency=low
+
+  * Fix a pmie && and || operator bug.
+  * Improve daily pmie/pmlogger script behaviour.
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 24 Apr 2009 09:35:55 +1000
+
 pcp (2.8.1) unstable; urgency=low
 
   * New upstream release (closes: #524451).
