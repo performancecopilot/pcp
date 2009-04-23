@@ -490,3 +490,12 @@ instances started through pmie_check(1) must have an associated log file.
 Minor part of the PCP build version numbering.  For example on Linux
 with RPM packaging, if the PCP RPM version is pcp-2.5.99-20070323 then
 pmcd.build returns the string "20070323".
+
+@ pmcd.client.whoami optional identification information for clients of pmcd
+This metric is defined over an instance domain containing one entry
+per active client of pmcd.  The instance number is a sequence number
+for each client (restarts at 0 each time pmcd is restarted).  The value
+of the metric by default is the IP address of the client.
+
+Clients can optionally use pmStore to modify their own "whoami" string
+to provide more useful information about the client.

@@ -186,6 +186,10 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(5,8), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,-1,1,0,PM_TIME_SEC,PM_COUNT_ONE) },
 /* pmie.eval.actual */
     { PMDA_PMID(5,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+
+/* client.whoami */
+    { PMDA_PMID(6,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }
 };
@@ -204,6 +208,8 @@ static pmInDom		pmdaindom;
 static pmInDom		pmieindom;
 #define INDOM_POOL	5
 static pmInDom		bufindom;
+#define INDOM_CLIENT	6
+static pmInDom		clientindom;
 
 #define NUMREG 16
 static int		reg[NUMREG];
@@ -230,6 +236,14 @@ static struct {
     {   8193,	"8192+" },
 };
 static int	nbufsz = sizeof(bufinst) / sizeof(bufinst[0]);
+
+typedef struct {
+    int		id;		/* index into client[] */
+    int		seq;
+    char	*value;
+} whoami_t;
+static whoami_t		*whoamis;
+static unsigned int	nwhoamis;
 
 /*
  * this routine is called at initialization to patch up any parts of the
@@ -264,6 +278,10 @@ init_tables(int dom)
     indomp->pad = 0;
     indomp->domain = dom;
     indomp->serial = INDOM_POOL;
+    indomp = (__pmInDom_int *)&clientindom;
+    indomp->pad = 0;
+    indomp->domain = dom;
+    indomp->serial = INDOM_CLIENT;
 
     /* merge performance domain id part into PMIDs in pmDesc table */
     for (i = 0; desctab[i].pmid != PM_ID_NULL; i++) {
@@ -279,6 +297,8 @@ init_tables(int dom)
 	    desctab[i].indom = pmdaindom;
 	else if (pmidp->cluster == 5)
 	    desctab[i].indom = pmieindom;
+	else if (pmidp->cluster == 6)
+	    desctab[i].indom = clientindom;
     }
     ndesc--;
 }
@@ -447,7 +467,7 @@ pmcd_instance_reg(int inst, char *name, __pmInResult **result)
 	/* return inst and name for everything */
 	for (i = 0; i < res->numinst; i++) {
 	    res->instlist[i] = i;
-	    sprintf(idx, "%d", i);
+	    snprintf(idx, sizeof(idx), "%d", i);
 	    if ((res->namelist[i] = strdup(idx)) == NULL) {
 		__pmFreeInResult(res);
 		return -errno;
@@ -457,7 +477,7 @@ pmcd_instance_reg(int inst, char *name, __pmInResult **result)
     else if (name == NULL) {
 	/* given an inst, return the name */
 	if (0 <= inst && inst < NUMREG) {
-	    sprintf(idx, "%d", inst);
+	    snprintf(idx, sizeof(idx), "%d", inst);
 	    if ((res->namelist[0] = strdup(idx)) == NULL) {
 		__pmFreeInResult(res);
 		return -errno;
@@ -579,7 +599,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	return pmcd_instance_reg(inst, name, result);
     else if (indom == bufindom)
 	return pmcd_instance_pool(inst, name, result);
-    else if (indom == logindom || indom == pmdaindom || indom == pmieindom) {
+    else if (indom == logindom || indom == pmdaindom || indom == pmieindom || indom == clientindom) {
 	res = (__pmInResult *)malloc(sizeof(__pmInResult));
 	if (res == NULL)
 	    return -errno;
@@ -606,10 +626,16 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 
 	    if (indom == logindom)
 		res->numinst = nports;
+	    else if (indom == pmdaindom)
+		res->numinst = nAgents;
 	    else if (indom == pmieindom)
 		res->numinst = pmiecount;
-	    else
-		res->numinst = nAgents;
+	    else if (indom == clientindom) {
+		res->numinst = 0;
+		for (i = 0; i < nClients; i++) {
+		    if (client[i].status.connected) res->numinst++;
+		}
+	    }
 	}
 	else {
 	    getname = name == NULL;
@@ -729,7 +755,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		res->instlist[0] = pmies[i].pid;
 	}
     }
-    else {
+    else if (indom == pmdaindom) {
 	res->indom = pmdaindom;
 
 	if (getall) {		/* get instance ids and names */
@@ -773,6 +799,62 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		sts = PM_ERR_INST;
 	    else
 		res->instlist[0] = agent[i].pmDomainId;
+	}
+    }
+    else if (indom == clientindom) {
+	res->indom = clientindom;
+
+	if (getall) {		/* get instance ids and names */
+	    for (i = 0; i < nClients; i++) {
+		char	buf[11];	/* enough for 32-bit client seq number */
+		if (!client[i].status.connected)
+		    continue;
+		res->instlist[i] = client[i].seq;
+		snprintf(buf, sizeof(buf), "%u", client[i].seq);
+		res->namelist[i] = strdup(buf);
+		if (res->namelist[i] == NULL) {
+		    sts = -errno;
+		    __pmNoMem("pmcd_instance pmGetInDom",
+			     strlen(buf), PM_RECOV_ERR);
+		    /* ensure pmFreeInResult only gets valid pointers */
+		    res->numinst = i;
+		    break;
+		}
+	    }
+	}
+	else if (getname) {	/* given id, get name */
+	    for (i = 0; i < nClients; i++) {
+		if (client[i].status.connected && inst == client[i].seq)
+		    break;
+	    }
+	    if (i == nClients) {
+		sts = PM_ERR_INST;
+		res->namelist[0] = NULL;
+	    }
+	    else {
+		char	buf[11];	/* enough for 32-bit client seq number */
+		snprintf(buf, sizeof(buf), "%u", (unsigned int)inst);
+		res->namelist[0] = strdup(buf);
+		if (res->namelist[0] == NULL) {
+		    sts = -errno;
+		    __pmNoMem("pmcd_instance pmNameInDom",
+			     strlen(buf), PM_RECOV_ERR);
+		}
+	    }
+	}
+	else {			/* given name, get id */
+	    char	buf[11];	/* enough for 32-bit client seq number */
+	    for (i = 0; i < nClients; i++) {
+		if (!client[i].status.connected)
+		    continue;
+		snprintf(buf, sizeof(buf), "%u", client[i].seq);
+		if (strcmp(name, buf) == 0)
+		    break;
+	    }
+	    if (i == nClients)
+		sts = PM_ERR_INST;
+	    else
+		res->instlist[0] = client[i].seq;
 	}
     }
 
@@ -1252,6 +1334,55 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    pmSortInstances(&sortme);
 		}
 		break;
+
+	    case 6:	/* client metrics */
+		for (j = numval = 0; j < nClients; j++) {
+		    if (!client[j].status.connected)
+			continue;
+		    if (__pmInProfile(clientindom, _profile, client[j].seq))
+			numval++;
+		}
+		if (numval != 1) {
+		    /* need a different vset size */
+		    if (vset_resize(res, i, 1, numval) == -1)
+			return -ENOMEM;
+		    vset = res->vset[i];
+		    vset->pmid = pmidlist[i];
+		}
+		for (j = numval = 0; j < nClients; ++j) {
+		    int		k;
+		    if (!client[j].status.connected)
+			continue;
+		    if (!__pmInProfile(clientindom, _profile, client[j].seq))
+			continue;
+		    vset->vlist[numval].inst = client[j].seq;
+		    switch (pmidp->item) {
+			case 0:		/* client.whoami */
+			    for (k = 0; k < nwhoamis; k++) {
+				if (whoamis[k].seq == client[j].seq) {
+				    atom.cp = strdup(whoamis[k].value);
+				    break;
+				}
+			    }
+			    if (k == nwhoamis) {
+				/* default is IP address */
+				atom.cp = strdup(inet_ntoa(client[j].addr.sin_addr));
+			    }
+			    break;
+		    }
+		    if ((sts = __pmStuffValue(&atom, 0,
+				&vset->vlist[numval], dp->type)) < 0)
+			break;
+		    valfmt = sts;
+		    numval++;
+		}
+		if (numval > 0) {
+		    pmResult	sortme;
+		    sortme.numpmid = 1;
+		    sortme.vset[0] = vset;
+		    pmSortInstances(&sortme);
+		}
+		break;
 	}
 
 	if (sts == 0 && valfmt == -1 && vset->numval == 1)
@@ -1381,6 +1512,56 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		__pmNotifyErr(LOG_INFO, "pmcd reset via pmcd.control.sighup");
 		raise(SIGHUP);
 #endif
+	    }
+	    else {
+		sts = PM_ERR_PMID;
+		break;
+	    }
+	}
+	else if (pmidp->cluster == 6) {
+	    if (pmidp->item == 0) {	/* pmcd.client.whoami */
+		/*
+		 * ignore the instance identifier use the first value in
+		 * the pmResult and change the value for the client[] that
+		 * matches the current pmcd client
+		 */
+		char	*cp = vsp->vlist[0].value.pval->vbuf;
+		int	j;
+		int	last_free = -1;
+		for (j = 0; j < nwhoamis; j++) {
+		    if (whoamis[j].id == -1) {
+			last_free = j;
+			continue;
+		    }
+		    if (whoamis[j].id == this_client_id &&
+		        whoamis[j].seq == client[this_client_id].seq) {
+			free(whoamis[j].value);
+			break;
+		    }
+		    if (!client[whoamis[j].id].status.connected ||
+		        client[whoamis[j].id].seq != whoamis[j].seq) {
+			/* old entry, mark as available for reuse */
+			free(whoamis[j].value);
+			whoamis[j].id = -1;
+			last_free = j;
+		    }
+		}
+		if (j == nwhoamis) {
+		    if (last_free != -1) {
+			j = last_free;
+		    }
+		    else {
+			nwhoamis++;
+			if ((whoamis = (whoami_t *)realloc(whoamis, nwhoamis*sizeof(whoamis[0]))) == NULL) {
+			    __pmNoMem("pmstore whoami", nwhoamis*sizeof(whoamis[0]), PM_RECOV_ERR);
+			    nwhoamis = 0;
+			    return -ENOMEM;
+			}
+		    }
+		    whoamis[j].id = this_client_id;
+		    whoamis[j].seq = client[this_client_id].seq;
+		}
+		whoamis[j].value = strdup(cp);
 	    }
 	    else {
 		sts = PM_ERR_PMID;

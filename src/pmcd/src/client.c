@@ -33,6 +33,7 @@ extern void	Shutdown(void);
 ClientInfo *
 AcceptNewClient(int reqfd)
 {
+    static unsigned int	seq = 0;
     int		i, fd;
     mysocklen_t	addrlen;
 
@@ -65,11 +66,18 @@ AcceptNewClient(int reqfd)
     client[i].fd = fd;
     client[i].status.connected = 1;
     client[i].status.changes = 0;
+    /*
+     * Note seq needs to be unique, but we're using a free running counter
+     * and not bothering to check here ... unless we churn through
+     * 4,294,967,296 (2^32) clients while one client remains connected
+     * we won't have a problem
+     */
+    client[i].seq = seq++;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);
 #endif
-    pmcd_trace(TR_ADD_CLIENT, client[i].addr.sin_addr.s_addr, fd, 0);
+    pmcd_trace(TR_ADD_CLIENT, client[i].addr.sin_addr.s_addr, fd, client[i].seq);
 
     return &client[i];
 }

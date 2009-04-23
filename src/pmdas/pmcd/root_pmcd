@@ -30,6 +30,7 @@ pmcd {
     openfds	PMCD:0:17
     pmie
     buf
+    client
 }
 
 pmcd.control {
@@ -125,5 +126,10 @@ pmcd.buf {
     alloc		PMCD:0:18
     free		PMCD:0:19
 }
+
+pmcd.client {
+    whoami		PMCD:6:0
+}
+
 
 #undef PMCD

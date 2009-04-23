@@ -156,7 +156,7 @@ pmcd_dump_trace(FILE *f)
 		    else {
 			fprintf(f, "%s", hp->h_name);
 		    }
-		    fprintf(f, ", fd=%d\n", trace[p].t_p1);
+		    fprintf(f, ", fd=%d, seq=%u\n", trace[p].t_p1, (unsigned int)trace[p].t_p2);
 		    break;
 
 		case TR_DEL_CLIENT:

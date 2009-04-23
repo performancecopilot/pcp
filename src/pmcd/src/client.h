@@ -35,12 +35,14 @@ typedef struct {
     int			szProfile;	/* Size of array */
     unsigned int	denyOps;	/* Disallowed operations for client */
     __pmPDUInfo		pduInfo;
+    unsigned int	seq;		/* client sequence number */
 } ClientInfo;
 
 PMCD_EXTERN ClientInfo	*client;		/* Array of clients */
 PMCD_EXTERN int		nClients;		/* Number of entries in array */
 extern int		maxClientFd;		/* largest fd for a client */
 extern fd_set		clientFds;		/* for client select() */
+PMCD_EXTERN int		this_client_id;		/* client for current request */
 
 /* prototypes */
 extern ClientInfo *AcceptNewClient(int);

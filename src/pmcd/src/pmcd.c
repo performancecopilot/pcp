@@ -430,6 +430,7 @@ HandleClientInput(fd_set *fdsPtr)
 	    continue;
 
 	cp = &client[i];
+	this_client_id = i;
 
 	sts = __pmGetPDU(cp->fd, PDU_CLIENT, _pmcd_timeout, &pb);
 	if (sts > 0 && _pmcd_trace_mask)
