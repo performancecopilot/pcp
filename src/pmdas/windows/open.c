@@ -196,47 +196,48 @@ static void
 format_uname(OSVERSIONINFOEX osv)
 {
     char		tbuf[80];
+    char		*name = NULL;
 
     switch (osv.dwPlatformId) {
         case VER_PLATFORM_WIN32_NT:
 	    if (osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0) {
 		if (osv.wProductType == VER_NT_WORKSTATION)
-		    windows_name = string_append(name, "Windows 7");
+		    name = string_append(name, "Windows 7");
 		else
-		    windows_name = string_append(name, "Windows Server 2008 R2");
+		    name = string_append(name, "Windows Server 2008 R2");
 	    }
 	    else if (osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0) {
 		if (osv.wProductType == VER_NT_WORKSTATION)
-		    windows_name = string_append(name, "Windows Vista");
+		    name = string_append(name, "Windows Vista");
 		else
-		    windows_name = string_append(name, "Windows Server 2008");
+		    name = string_append(name, "Windows Server 2008");
 	    }
 	    else if (osv.dwMajorVersion == 5 && osv.dwMinorVersion == 2)
-		windows_name = string_append(name, "Windows Server 2003");
+		name = string_append(name, "Windows Server 2003");
 	    else if (osv.dwMajorVersion == 5 && osv.dwMinorVersion == 1)
-		windows_name = string_append(name, "Windows XP");
+		name = string_append(name, "Windows XP");
 	    else if (osv.dwMajorVersion == 5 && osv.dwMinorVersion == 0)
-		windows_name = string_append(name, "Windows 2000");
+		name = string_append(name, "Windows 2000");
 	    else if (osv.dwMajorVersion <= 4)
-		windows_name = string_append(name, "Windows NT");
+		name = string_append(name, "Windows NT");
 	    else {
 		sprintf(tbuf, "Windows Unknown (%ld.%ld)",
 		    osv.dwMajorVersion, osv.dwMinorVersion); 
-		windows_name = string_append(name, tbuf);
+		name = string_append(name, tbuf);
 	    }
 
 	    /* service pack and build number etc */
 	    if (osv.szCSDVersion[0] != '\0') {
-		windows_name = string_append(name, " ");
-		windows_name = string_append(name, osv.szCSDVersion);
+		name = string_append(name, " ");
+		name = string_append(name, osv.szCSDVersion);
 	    }
 	    sprintf(tbuf, " Build %ld", osv.dwBuildNumber & 0xFFFF);
-	    windows_build = windows_name + strlen(windows_name) + 2;
-	    windows_name = string_append(name, tbuf);
+	    windows_build = name + strlen(name) + 2;
+	    windows_uname = string_append(name, tbuf);
 	    break;
 
         default:
-	    windows_name = "Windows - Platform Unknown";
+	    windows_uname = "Windows - Platform Unknown";
 	    windows_build = "Unknown Build";
 	    break;
     }

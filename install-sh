@@ -53,7 +53,7 @@ _chown ()
 {
     _st=255
     if [ $# -eq 3 ] ; then
-	chown $1:$2 $3
+	chown $1.$2 $3
 	_st=$?
 	if [ $_st -ne 0 ] ; then
 	    if [ $REAL_UID != '0' ] ; then
