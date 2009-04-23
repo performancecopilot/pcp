@@ -501,7 +501,11 @@ then
     do
 	[ -f $file ] && logs="$logs $file"
     done
-    if [ ! -z "$MAIL" ]
+    egrep -v '( OK | OK$|^$|^Log |^pmie: PID)' $logs > $tmp.logmail
+    if [ ! -s "$tmp.logmail" ]
+    then
+	:
+    elif [ ! -z "$MAIL" ]
     then
 	egrep -v '( OK | OK$|^$)' $logs | \
 	    $MAIL -s "PMIE summary for $LOCALHOSTNAME" $MAILME
@@ -509,7 +513,7 @@ then
 	echo "$prog: PMIE summary for $LOCALHOSTNAME ..."
 	egrep -v '( OK | OK$|^$)' $logs
     fi
-    rm -f $tmp.mail
+    rm -f $tmp.mail $tmp.logmail
 fi
 
 [ -f $tmp.err ] && status=1
