@@ -175,11 +175,11 @@ _do_cmd()
 #
 # pmlogger, without -V version which is redefined as -V (verbose)
 # and -s exit_size which is redefined as -s (pmsocks), and ignore
-# -T stop-time, -h host and -x fd as they make no sense in the args
-# part of the pmlogger control file for a long-running pmlogger
+# [ -h host ] and [ -x fd ] as they make no sense in the argument
+# part of the pmlogger control file for a long-running pmlogger.
 #
 
-while getopts "a:C:c:D:Ll:Nn:Pp:rst:Vv:" c
+while getopts "a:C:c:D:Ll:Nn:Pp:rst:T:Vv:" c
 do
     case $c
     in
@@ -257,7 +257,7 @@ do
 		args="$args-$c "
 		;;
 
-	D|t|v)
+	D|t|T|v)
 		args="$args-$c $OPTARG "
 		;;
 
@@ -375,7 +375,7 @@ else
     fi
 fi
 
-# extract/contruct config file if required
+# extract/construct config file if required
 #
 if [ "X$config" = X ]
 then
