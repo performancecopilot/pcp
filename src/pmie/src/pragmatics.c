@@ -33,6 +33,8 @@
 #include <ieeefp.h>
 #endif
 
+extern char	*clientid;
+
 int	dfltConn;	/* default context type */
 
 /* for initialization of pmUnits struct */
@@ -112,6 +114,9 @@ newContext(char *host)
 	}
 	sts = -1;
     }
+    else if (clientid != NULL)
+	/* register client id with pmcd */
+	__pmSetClientId(clientid);
     return sts;
 }
 
@@ -1011,6 +1016,9 @@ reconnect(Host *h)
     while (f) {
 	if (pmReconnectContext(f->handle) < 0)
 	    return 0;
+	if (clientid != NULL)
+	    /* re-register client id with pmcd */
+	    __pmSetClientId(clientid);
 	f = f->next;
     }
     return 1;

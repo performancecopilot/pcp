@@ -499,3 +499,7 @@ of the metric by default is the IP address of the client.
 
 Clients can optionally use pmStore to modify their own "whoami" string
 to provide more useful information about the client.
+
+@ pmcd.client.start_date date and time client connected to pmcd
+The date and time in ctime(2) format on which the client connected
+to pmcd.

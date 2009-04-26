@@ -34,8 +34,9 @@ ClientInfo *
 AcceptNewClient(int reqfd)
 {
     static unsigned int	seq = 0;
-    int		i, fd;
-    mysocklen_t	addrlen;
+    int			i, fd;
+    mysocklen_t		addrlen;
+    struct timeval	now;
 
     i = NewClient();
     addrlen = sizeof(client[i].addr);
@@ -73,6 +74,8 @@ AcceptNewClient(int reqfd)
      * we won't have a problem
      */
     client[i].seq = seq++;
+    gettimeofday(&now, NULL);
+    client[i].start = now.tv_sec;
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);

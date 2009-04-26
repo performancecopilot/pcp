@@ -36,6 +36,7 @@ typedef struct {
     unsigned int	denyOps;	/* Disallowed operations for client */
     __pmPDUInfo		pduInfo;
     unsigned int	seq;		/* client sequence number */
+    time_t		start;		/* time client connected */
 } ClientInfo;
 
 PMCD_EXTERN ClientInfo	*client;		/* Array of clients */

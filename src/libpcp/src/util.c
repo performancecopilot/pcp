@@ -913,6 +913,76 @@ pmflush(void)
 }
 
 /*
+ * Set the pmcd client identity as exported by pmcd.client.whoami
+ *
+ * Itentity is of the form
+ *	hostname (ipaddr) <id>
+ *
+ * Assumes you already have a current host context.
+ */
+int
+__pmSetClientId(char *id)
+{
+    char		*name = "pmcd.client.whoami";
+    pmID		pmid;
+    int			sts;
+    pmResult		res;
+    pmValueSet		pmvs;
+    pmValueBlock	*pmvb;
+    char        	host[MAXHOSTNAMELEN];
+    char        	ipaddr[16] = "";	/* IPv4 xxx.xxx.xxx.xxx */
+    struct hostent      *hep = NULL;
+    int			vblen;
+
+    if ((sts = pmLookupName(1, &name, &pmid)) < 0)
+	return sts;
+
+    (void)gethostname(host, MAXHOSTNAMELEN);
+    hep = gethostbyname(host);
+    if (hep != NULL) {
+        strcpy(host, hep->h_name);
+	if (hep->h_addrtype == AF_INET) {
+	    strcpy(ipaddr, inet_ntoa(*((struct in_addr *)hep->h_addr_list[0])));
+	}
+	vblen = strlen(host) + strlen(ipaddr) + strlen(id) + 5;
+    }
+    else
+	vblen = strlen(host) + strlen(id) + 2;
+
+    /* build pmResult for pmStore() */
+    pmvb = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE+vblen);
+    if (pmvb == NULL) {
+	__pmNoMem("__pmSetClientId", PM_VAL_HDR_SIZE+vblen, PM_RECOV_ERR);
+	return -ENOMEM;
+    }
+    pmvb->vtype = PM_TYPE_STRING;
+    pmvb->vlen = PM_VAL_HDR_SIZE+vblen;
+    strcpy(pmvb->vbuf, host);
+    strcat(pmvb->vbuf, " ");
+    if (ipaddr[0] != '\0') {
+	strcat(pmvb->vbuf, "(");
+	strcat(pmvb->vbuf, ipaddr);
+	strcat(pmvb->vbuf, ") ");
+    }
+    strcat(pmvb->vbuf, id);
+
+    pmvs.pmid = pmid;
+    pmvs.numval = 1;
+    pmvs.valfmt = PM_VAL_SPTR;
+    pmvs.vlist[0].value.pval = pmvb;
+    pmvs.vlist[0].inst = PM_IN_NULL;
+
+    res.numpmid = 1;
+    res.vset[0] = &pmvs;
+
+    sts = pmStore(&res);
+    free(pmvb);
+
+    return 0;
+}
+
+
+/*
  * Support for C environments that have lame libc implementations.
  * All of these developed from first principles, so no 3rd party
  * copyright or licensing issues.

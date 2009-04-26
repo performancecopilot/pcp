@@ -189,6 +189,8 @@ static pmDesc	desctab[] = {
 
 /* client.whoami */
     { PMDA_PMID(6,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* client.start_date */
+    { PMDA_PMID(6,1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }
@@ -805,14 +807,15 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	res->indom = clientindom;
 
 	if (getall) {		/* get instance ids and names */
+	    int		k = 0;
 	    for (i = 0; i < nClients; i++) {
 		char	buf[11];	/* enough for 32-bit client seq number */
 		if (!client[i].status.connected)
 		    continue;
-		res->instlist[i] = client[i].seq;
+		res->instlist[k] = client[i].seq;
 		snprintf(buf, sizeof(buf), "%u", client[i].seq);
-		res->namelist[i] = strdup(buf);
-		if (res->namelist[i] == NULL) {
+		res->namelist[k] = strdup(buf);
+		if (res->namelist[k] == NULL) {
 		    sts = -errno;
 		    __pmNoMem("pmcd_instance pmGetInDom",
 			     strlen(buf), PM_RECOV_ERR);
@@ -820,6 +823,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 		    res->numinst = i;
 		    break;
 		}
+		k++;
 	    }
 	}
 	else if (getname) {	/* given id, get name */
@@ -1364,10 +1368,15 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				    break;
 				}
 			    }
-			    if (k == nwhoamis) {
-				/* default is IP address */
-				atom.cp = strdup(inet_ntoa(client[j].addr.sin_addr));
-			    }
+			    if (k == nwhoamis)
+				/* no id registered, so no value */
+				atom.cp = strdup("");
+			    break;
+			case 1:		/* client.start_date */
+			    atom.cp = strdup(ctime(&client[j].start));
+			    /* trim trailing \n */
+			    k = strlen(atom.cp);
+			    atom.cp[k-1] = '\0';
 			    break;
 		    }
 		    if ((sts = __pmStuffValue(&atom, 0,
@@ -1521,26 +1530,33 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	else if (pmidp->cluster == 6) {
 	    if (pmidp->item == 0) {	/* pmcd.client.whoami */
 		/*
-		 * ignore the instance identifier use the first value in
-		 * the pmResult and change the value for the client[] that
-		 * matches the current pmcd client
+		 * Expect one value for one instance (PM_IN_NULL)
+		 *
+		 * Use the value from the pmResult to change the value
+		 * for the client[] that matches the current pmcd client.
 		 */
 		char	*cp = vsp->vlist[0].value.pval->vbuf;
 		int	j;
 		int	last_free = -1;
+
+		if (vsp->numval != 1 || vsp->vlist[0].inst != PM_IN_NULL) {
+		    return PM_ERR_INST;
+		}
 		for (j = 0; j < nwhoamis; j++) {
 		    if (whoamis[j].id == -1) {
+			/* slot in whoamis[] not in use */
 			last_free = j;
 			continue;
 		    }
 		    if (whoamis[j].id == this_client_id &&
 		        whoamis[j].seq == client[this_client_id].seq) {
+			/* found the one to replace */
 			free(whoamis[j].value);
 			break;
 		    }
 		    if (!client[whoamis[j].id].status.connected ||
 		        client[whoamis[j].id].seq != whoamis[j].seq) {
-			/* old entry, mark as available for reuse */
+			/* old whoamis[] entry, mark as available for reuse */
 			free(whoamis[j].value);
 			whoamis[j].id = -1;
 			last_free = j;
