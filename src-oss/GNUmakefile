@@ -57,7 +57,7 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	multifetch.c pmconvscale.c torture-eol.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
 	matchInstanceName.c mmv_dumpstats.c mmv_genstats.c \
-	record.c record-setarg.c
+	record.c record-setarg.c clientid.c
 
 POSIXFILES = \
 	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \

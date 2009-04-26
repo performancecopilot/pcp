@@ -8,8 +8,12 @@ Compiled PMNS contains
 differences relative to 031.out ...
 0a1
 > QA output created by 031
+9d9
+<     client              <s = 1>
 
 === pmapi v2, binary format pmns ===
 differences relative to 031.out ...
 0a1
 > QA output created by 031
+9d9
+<     client              <s = 1>
