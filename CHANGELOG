@@ -1,3 +1,7 @@
+pcp-2.8.2 (24 April 2008)
+    - Fix pmie bug in the handling of && and || operators.
+    - Improve daily pmie/pmlogger script behaviour.
+
 pcp-2.8.1 (19 April 2008)
     - Fix build issue with libpcp_mmv - would not build-from-source
       if <pcp/pmapi.h> was not in the root filesystem.
