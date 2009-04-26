@@ -525,20 +525,6 @@ typedef struct {
 
 #define __PM_MODE_MASK	0xffff
 
-#define pmXTBdeltaToTimeval(d, m, t) { \
-    (t)->tv_sec = 0; \
-    (t)->tv_usec = (long)0; \
-    switch(PM_XTB_GET(m)) { \
-    case PM_TIME_NSEC: (t)->tv_usec = (long)((d) / 1000); break; \
-    case PM_TIME_USEC: (t)->tv_usec = (long)(d); break; \
-    case PM_TIME_MSEC: (t)->tv_sec = (d) / 1000; (t)->tv_usec = (long)(1000 * ((d) % 1000)); break; \
-    case PM_TIME_SEC: (t)->tv_sec = (d); break; \
-    case PM_TIME_MIN: (t)->tv_sec = (d) * 60; break; \
-    case PM_TIME_HOUR: (t)->tv_sec = (d) * 360; break; \
-    default: (t)->tv_sec = (d) / 1000; (t)->tv_usec = (long)(1000 * ((d) % 1000)); break; \
-    } \
-}
-
 #define PM_CONTEXT_FREE		-1	/* special type */
 
 /* handle to __pmContext pointer */
@@ -874,6 +860,8 @@ extern double __pmtimevalAdd(const struct timeval *, const struct timeval *);
 extern double __pmtimevalSub(const struct timeval *, const struct timeval *);
 extern double __pmtimevalToReal(const struct timeval *);
 extern void __pmtimevalFromReal(double, struct timeval *);
+extern void __pmtimevalSleep(struct timeval);
+extern void __pmtimevalPause(struct timeval);
 
 typedef struct {
     char		*label;		/* label to name tz */

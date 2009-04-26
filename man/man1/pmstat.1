@@ -20,13 +20,14 @@
 .\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3pmstat\f1
-[\f3\-Llpxz\f1]
+[\f3\-gLlPxz\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-H\f1 \f2file\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-O\f1 \f2offset\f1]
+[\f3\-p\f1 \f2port\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-T\f1 \f2endtime\f1]
@@ -101,7 +102,7 @@ When the
 .B \-a
 flag is used,
 the
-.B \-p
+.B \-P
 flag may also be used to pause the output after each interval.
 .PP
 Standalone mode can only connect to the local host, using an archive implies
@@ -133,6 +134,25 @@ is 0 or
 is not specified, 
 .B pmstat
 will sample and report continuously \- this is the default behavior.
+.PP
+When processing an archive,
+.B pmstat
+may relinquish its own timing control, and operate as a ``slave'' of a
+.BR pmtime (1)
+process that uses a GUI dialog to provide timing control.
+In this case, either the
+.B \-g
+option should be used to start
+.B pmstat
+as the sole slave of a new
+.BR pmtime (1)
+instance, or
+.B \-p
+should be used to attach
+.B pmstat
+to an existing
+.BR pmtime (1)
+instance via the IPC channel identified by the port argument.
 .PP
 The
 .BR \-S ,
@@ -295,6 +315,7 @@ as described in
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmclient (1),
+.BR pmtime (1),
 .BR PMAPI (3),
 .BR pmNewContext (3),
 .BR pcp.conf (4)

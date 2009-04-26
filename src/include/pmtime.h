@@ -71,4 +71,41 @@ extern int pmTimeConnect(int, pmTime *);
 extern int pmTimeShowDialog(int, int);
 extern int pmTimeRecv(int, pmTime **);
 
+/*
+ * Time state management API for simple clients
+ */
+
+typedef void (*pmTimeStateResume)(void);
+typedef void (*pmTimeStateRewind)(void);
+typedef void (*pmTimeStateExited)(void);
+typedef void (*pmTimeStateBoundary)(void);
+typedef void (*pmTimeStatePosition)(struct timeval);
+typedef void (*pmTimeStateInterval)(struct timeval);
+typedef void (*pmTimeStateStepped)(struct timeval);
+typedef void (*pmTimeStateNewZone)(char *, char *);
+
+typedef struct {
+    pmTimeStateResume	resume;
+    pmTimeStateRewind	rewind;
+    pmTimeStateExited	exited;
+    pmTimeStateBoundary	boundary;
+    pmTimeStatePosition	position;
+    pmTimeStateInterval	interval;
+    pmTimeStateStepped	stepped;
+    pmTimeStateNewZone	newzone;
+    struct timeval	delta;
+    int			fd;
+    int			showgui;
+    int			context;
+    int			padding;
+} pmTimeControls;
+
+extern pmTime *pmTimeStateSetup(pmTimeControls *, int, int,
+			    struct timeval, struct timeval,
+			    struct timeval, struct timeval, char *, char *);
+extern void pmTimeStateAck(pmTimeControls *, pmTime *);
+extern void pmTimeStateMode(int, struct timeval, struct timeval *);
+extern int pmTimeStateVector(pmTimeControls *, pmTime *);
+extern void pmTimeStateBounds(pmTimeControls *, pmTime *);
+
 #endif	/* PMTIME_H */

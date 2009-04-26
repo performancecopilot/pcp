@@ -472,6 +472,20 @@ do_roll(__pmContext *ctxp, double t_req)
     }
 }
 
+#define pmXTBdeltaToTimeval(d, m, t) { \
+    (t)->tv_sec = 0; \
+    (t)->tv_usec = (long)0; \
+    switch(PM_XTB_GET(m)) { \
+    case PM_TIME_NSEC: (t)->tv_usec = (long)((d) / 1000); break; \
+    case PM_TIME_USEC: (t)->tv_usec = (long)(d); break; \
+    case PM_TIME_MSEC: (t)->tv_sec = (d) / 1000; (t)->tv_usec = (long)(1000 * ((d) % 1000)); break; \
+    case PM_TIME_SEC: (t)->tv_sec = (d); break; \
+    case PM_TIME_MIN: (t)->tv_sec = (d) * 60; break; \
+    case PM_TIME_HOUR: (t)->tv_sec = (d) * 360; break; \
+    default: (t)->tv_sec = (d) / 1000; (t)->tv_usec = (long)(1000 * ((d) % 1000)); break; \
+    } \
+}
+
 int
 __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
 {

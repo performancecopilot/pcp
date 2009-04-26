@@ -41,7 +41,6 @@ __pmtimevalSub(const struct timeval *ap, const struct timeval *bp)
 /*
  * convert a timeval to a double (units = seconds)
  */
-
 double
 __pmtimevalToReal(const struct timeval *val)
 {
@@ -53,10 +52,71 @@ __pmtimevalToReal(const struct timeval *val)
 /*
  * convert double to a timeval
  */
-
 void
 __pmtimevalFromReal(double dbl, struct timeval *val)
 {
     val->tv_sec = (time_t)dbl;
     val->tv_usec = (long)(((dbl - (double)val->tv_sec) * 1000000.0));
+}
+
+/*
+ * Sleep for a specified amount of time
+ */
+void
+__pmtimevalSleep(struct timeval interval)
+{
+    struct timespec delay;
+    struct timespec left;
+    int sts;
+
+    delay.tv_sec = interval.tv_sec;
+    delay.tv_nsec = interval.tv_usec * 1000;
+
+    for (;;) {		/* loop to catch early wakeup by nanosleep */
+	sts = nanosleep(&delay, &left);
+	if (sts == 0 || (sts < 0 && errno != EINTR))
+	    break;
+	delay = left;
+    }
+}
+
+/* subtract timevals */
+static struct timeval
+tsub(struct timeval t1, struct timeval t2)
+{
+    t1.tv_usec -= t2.tv_usec;
+    if (t1.tv_usec < 0) {
+	t1.tv_usec += 1000000;
+	t1.tv_sec--;
+    }
+    t1.tv_sec -= t2.tv_sec;
+    return t1;
+}
+
+/* convert timeval to timespec */
+static struct timespec *
+tospec(struct timeval tv, struct timespec *ts)
+{
+    ts->tv_nsec = tv.tv_usec * 1000;
+    ts->tv_sec = tv.tv_sec;
+    return ts;
+}
+
+/* sleep until given timeval */
+void
+__pmtimevalPause(struct timeval sched)
+{
+    int sts;
+    struct timeval curr;	/* current time */
+    struct timespec delay;	/* interval to sleep */
+    struct timespec left;	/* remaining sleep time */
+
+    gettimeofday(&curr, NULL);
+    tospec(tsub(sched, curr), &delay);
+    for (;;) {		/* loop to catch early wakeup by nanosleep */
+	sts = nanosleep(&delay, &left);
+	if (sts == 0 || (sts < 0 && errno != EINTR))
+	    break;
+	delay = left;
+    }
 }

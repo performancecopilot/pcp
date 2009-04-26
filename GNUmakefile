@@ -105,7 +105,6 @@ endif
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/pmns
 	$(INSTALL) -m 755 -d $(PCP_PMDAS_DIR)
 	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)
-	$(INSTALL) -m 755 -d $(PCP_RUN_DIR)
 	$(INSTALL) -m 755 -d $(PCP_DOC_DIR)
 	$(INSTALL) -m 755 -d $(PCP_DEMOS_DIR)
 	#

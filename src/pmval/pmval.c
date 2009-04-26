@@ -1,8 +1,8 @@
-/***************************************************************************
- * pmval - performance metrics value dumper
- ***************************************************************************
+/*
+ * pmval - simple performance metrics value dumper
  *
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <math.h>
@@ -24,24 +20,13 @@
 #include "impl.h"
 #include "pmtime.h"
 
-static void talk_to_pmtime(int *);
-
 /***************************************************************************
  * constants
  ***************************************************************************/
 
-#define FALSE	0
-#define TRUE	1
-
-#define	START	-1
-#define STANDBY	0
-#define FORW	1
-#define BACK	2
-#define MOVING	3
-#define ENDLOG	4
-
 #define ALL_SAMPLES	-1
 
+static char *options = "A:a:D:df:gh:i:n:O:p:rs:S:t:T:U:w:zZ:?";
 static char usage[] =
     "Usage: %s [options] metricname\n\n"
     "Options:\n"
@@ -102,107 +87,24 @@ typedef struct {
  * Globals
  ***************************************************************************/
 
-static char		*archive = NULL;
+static char		*archive;
 static pmLogLabel	label;
 static char		*pmnsfile = PM_NS_DEFAULT;
-static char		*rpt_tz = NULL;
-static char		*rpt_tz_label = NULL;
-static int		pauseFlag = 0;
-static int		raw = 0;
+static char		*rpt_tz;
+static char		*rpt_tz_label;
+static int		pauseFlag;
+static int		raw;
 static int		ahtype = PM_CONTEXT_HOST;	/* archive or host? */
+static int		firstSample = 1;		/* need first sample */
 static int		amode = PM_MODE_INTERP;		/* archive scan mode */
 static char		local[] = "localhost";
-static int		gui = 0;
-static int		rawarchive = 0;
-static int		state = START;
-static char		*control_port = NULL;
-static int		control_fd;
-static int		pmport;
+static int		gui;
+static int		rawarchive;
+static int		port = -1;
 static pmTime		*pmtime;
-static struct timeval	lastpmdelta;	/* from -t or pmtime.delta */
+static pmTimeControls	controls;
 static struct timeval	last = {INT_MAX, 999999};	/* end time for log */
 static int		fixed = -1;
-
-/***************************************************************************
- * timing functions
- ***************************************************************************/
-
-/* add timevals */
-static struct timeval
-tadd(struct timeval t1, struct timeval t2)
-{
-    t1.tv_sec += t2.tv_sec;
-    t1.tv_usec += t2.tv_usec;
-    if (t1.tv_usec > 1000000) {
-	(t1.tv_sec)++;
-	t1.tv_usec -= 1000000;
-    }
-    return t1;
-}
-
-/* subtract timevals */
-static struct timeval
-tsub(struct timeval t1, struct timeval t2)
-{
-    t1.tv_usec -= t2.tv_usec;
-    if (t1.tv_usec < 0) {
-	t1.tv_usec += 1000000;
-	t1.tv_sec--;
-    }
-    t1.tv_sec -= t2.tv_sec;
-    return t1;
-}
-
-/*
- * a : b for struct timevals ... <0 for a<b, ==0 for a==b, >0 for a>b
- */
-static int
-tcmp(struct timeval *a, struct timeval *b)
-{
-    int		res;
-
-    res = (int)(a->tv_sec - b->tv_sec);
-    if (res == 0)
-	res = (int)(a->tv_usec - b->tv_usec);
-    return res;
-}
-
-/* convert timeval to seconds */
-static double
-tosec(struct timeval t)
-{
-    return t.tv_sec + (t.tv_usec / 1000000.0);
-}
-
-/* convert timeval to timespec */
-static struct timespec *
-tospec(struct timeval tv, struct timespec *ts)
-{
-    ts->tv_nsec = tv.tv_usec * 1000;
-    ts->tv_sec = tv.tv_sec;
-    return ts;
-}
-
-
-/* sleep until given timeval */
-static void
-sleeptill(struct timeval sched)
-{
-    int sts;
-    struct timeval curr;	/* current time */
-    struct timespec delay;	/* interval to sleep */
-    struct timespec left;	/* remaining sleep time */
-
-    gettimeofday(&curr, NULL);
-    tospec(tsub(sched, curr), &delay);
-    for (;;) {		/* loop to catch early wakeup by nanosleep */
-	sts = nanosleep(&delay, &left);
-	if (sts == 0 || (sts < 0 && errno != EINTR))
-	    break;
-	delay = left;
-    }
-}
-
 
 /***************************************************************************
  * processing fetched values
@@ -218,7 +120,6 @@ compare(const void *pair1, const void *pair2)
     if (((InstPair *)pair1)->id > ((InstPair *)pair2)->id) return 1;
     return 0;
 }
-
 
 /* Does the Context have names for all instances in the pmValueSet? */
 static int		/* 1 yes, 0 no */
@@ -239,7 +140,6 @@ chkinsts(Context *x, pmValueSet *vs)
     }
     return 1;
 }
-
 
 /***************************************************************************
  * interface to performance metrics API
@@ -320,7 +220,6 @@ initinsts(Context *x)
     }
 }
 
-
 /* Initialize API and fill in internal description for given Context. */
 static void
 initapi(Context *x)
@@ -357,29 +256,6 @@ initapi(Context *x)
 	}
     }
 }
-
-static void
-ack_tctl(struct timeval *now)
-{
-    int		sts;
-
-    /*
-     * DO NOT send back ACKs for timestamps NOT sent from pmtime!  (i.e.
-     * we need to ignore the "now" parameter past in, for pmtime).  Old
-     * pmtime must allow different times? (not checking ACK timestamps?)
-     * The pmFetch seems to modify (at least) the tv_usec component when
-     * interpolating in live mode...
-     */
-    if ((sts = pmTimeSendAck(control_fd, &pmtime->position)) < 0) {
-	if (sts == -EPIPE)
-	    fprintf(stderr, "\n%s: Time Controller has exited, goodbye\n",
-		pmProgname);
-	else
-	    fprintf(stderr, "\n%s: pmTimeSendAck: %s\n", pmProgname, pmErrStr(sts));
-	exit(EXIT_FAILURE);
-    }
-}
-
 
 /* Fetch metric values. */
 static int
@@ -423,11 +299,7 @@ getvals(Context *x,		/* in - full pm description */
 
     if (e < 0) {
 	if (e == PM_ERR_EOL && gui) {
-	    ack_tctl(&last);
-	    if (state != ENDLOG) {
-		printf("\n[Time Control] End of Archive ...\n");
-		state = ENDLOG;
-	    }
+	    pmTimeStateBounds(&controls, pmtime);
 	    return -1;
 	}
 	if (rawarchive)
@@ -438,7 +310,7 @@ getvals(Context *x,		/* in - full pm description */
     }
 
     if (gui)
-	ack_tctl(&r->timestamp);
+	pmTimeStateAck(&controls, pmtime);
 
     if ((double)r->timestamp.tv_sec + (double)r->timestamp.tv_usec/1000000 >
 	(double)last.tv_sec + (double)last.tv_usec/1000000) {
@@ -470,6 +342,12 @@ getvals(Context *x,		/* in - full pm description */
     return i;
 }
 
+static void
+timestep(struct timeval delta)
+{
+    firstSample = 1;
+}
+
 
 /***************************************************************************
  * output
@@ -491,26 +369,6 @@ howide(int type)
     default:
 	fprintf(stderr, "pmval: unknown performance metric value type\n");
 	exit(EXIT_FAILURE);
-    }
-}
-
-/*
- * Get Extended Time Base interval and Units from a timeval
- */
-#define SECS_IN_24_DAYS 2073600.0
-
-static void
-getXTBintervalFromTimeval(int *ival, int *mode, struct timeval *tval)
-{
-    double tmp_ival = tval->tv_sec + tval->tv_usec / 1000000.0;
-
-    if (tmp_ival > SECS_IN_24_DAYS) {
-	*ival = (int)tmp_ival;
-	*mode = (*mode & 0x0000ffff) | PM_XTB_SET(PM_TIME_SEC);
-    }
-    else {
-	*ival = (int)(tmp_ival * 1000.0);
-	*mode = (*mode & 0x0000ffff) | PM_XTB_SET(PM_TIME_MSEC);
     }
 }
 
@@ -578,10 +436,9 @@ printhdr(Context *x, long smpls, struct timeval delta, struct timeval first)
     /* sample count */
     if (smpls == ALL_SAMPLES) printf("samples:   all\n");
     else printf("samples:   %ld\n", smpls);
-    if (smpls != ALL_SAMPLES && smpls > 1 && (ahtype != PM_CONTEXT_ARCHIVE || amode == PM_MODE_INTERP)) {
-	printf("interval:  %1.2f sec\n", tosec(delta));
-	lastpmdelta = delta;
-    }
+    if (smpls != ALL_SAMPLES && smpls > 1 &&
+	(ahtype != PM_CONTEXT_ARCHIVE || amode == PM_MODE_INTERP))
+	printf("interval:  %1.2f sec\n", __pmtimevalToReal(&delta));
 }
 
 /* Print instance identifier names as column labels. */
@@ -810,7 +667,8 @@ printrates(Context *x,
     double  delta;
 
     /* compute delta from timestamps and convert units */
-    delta = x->scale * (tosec(stamp1) - tosec(stamp2));
+    delta = x->scale *
+	    (__pmtimevalToReal(&stamp1) - __pmtimevalToReal(&stamp2));
 
     /* null instance domain */
     if (x->desc.indom == PM_INDOM_NULL) {
@@ -956,7 +814,7 @@ getargs(int		argc,		/* in - command line argument count */
     *cols = 0;
 
     /* extract command-line arguments */
-    while ((c = getopt(argc, argv, "A:a:D:df:gh:i:n:O:p:rs:S:t:T:U:w:zZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, options)) != EOF) {
 	switch (c) {
 
 	case 'A':		/* sample alignment */
@@ -1034,13 +892,12 @@ getargs(int		argc,		/* in - command line argument count */
 	    break;
 
 	case 'p':		/* port for slave of existing time control */
-	    pmport = (int)strtol(optarg, &endnum, 10);
-	    if (*endnum != '\0' || pmport < 0) {
+	    port = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0' || port < 0) {
 		fprintf(stderr, "%s: Error: invalid pmtime port \"%s\": %s\n",
 			pmProgname, optarg, pmErrStr(-errno));
 		errflag++;
-	    } else
-	    	control_port = optarg;
+	    }
 	    break;
 
 	case 'r':		/* raw */
@@ -1169,7 +1026,7 @@ getargs(int		argc,		/* in - command line argument count */
 	}
     }
     else {
-	if (gui == 1 && control_port != NULL) {
+	if (gui == 1 && port != -1) {
 	    fprintf(stderr, "%s: -g cannot be used with -p\n", pmProgname);
 	    errflag++;
 	}
@@ -1240,7 +1097,6 @@ getargs(int		argc,		/* in - command line argument count */
 	    printf("Note: timezone set to local timezone of host \"%s\"\n\n", host);
 	    rpt_tz_label = host;
 	}
-	pmWhichZone(&rpt_tz);
     }
     else if (tz != NULL) {
 	if ((tzh = pmNewZone(tz)) < 0) {
@@ -1249,9 +1105,12 @@ getargs(int		argc,		/* in - command line argument count */
 	    exit(EXIT_FAILURE);
 	}
 	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
-	pmWhichZone(&rpt_tz);
     }
     else printf("\n");
+
+    pmWhichZone(&rpt_tz);
+    if (!rpt_tz_label)
+	rpt_tz_label = local;
 
     if (pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag,
 			   &logStart, &last,
@@ -1260,9 +1119,13 @@ getargs(int		argc,		/* in - command line argument count */
 	exit(EXIT_FAILURE);
     }
 
-    if (!(gui || control_port != NULL) &&
-	*smpls == ALL_SAMPLES && last.tv_sec != INT_MAX && amode != PM_MODE_FORW) {
-	*smpls = (long)((tosec(last) - tosec(*posn)) / tosec(*delta));
+    if (!(gui || port != -1) &&
+	*smpls == ALL_SAMPLES &&
+	last.tv_sec != INT_MAX &&
+	amode != PM_MODE_FORW) {
+
+	*smpls = (long)((__pmtimevalToReal(&last) - __pmtimevalToReal(posn)) /
+		__pmtimevalToReal(delta));
 	/* if end is before start, no samples thanks */
 	if (*smpls < 0) *smpls = 0;
 	/* counters require 2 samples to produce reported sample */
@@ -1271,70 +1134,20 @@ getargs(int		argc,		/* in - command line argument count */
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL0)
 	    fprintf(stderr, "getargs: first=%.6f posn=%.6f last=%.6f\ngetargs: delta=%.6f samples=%ld\n",
-	    tosec(first), tosec(*posn), tosec(last), tosec(*delta), *smpls);
+	    __pmtimevalToReal(&first), __pmtimevalToReal(posn),
+	    __pmtimevalToReal(&last), __pmtimevalToReal(delta), *smpls);
 #endif
     }
 
-    if (gui || control_port != NULL) {
+    if (gui || port != -1) {
 	/* set up pmtime control */
-	if (gui)
-	    pmport = -1;
-	pmtime = malloc(sizeof(pmTime));
-	pmtime->magic = PMTIME_MAGIC;
-	pmtime->length = sizeof(pmTime);
-	pmtime->command = PM_TCTL_SET;
-	pmtime->delta = *delta;
-	if (msp->isarch == 1) {
-	    pmtime->source = PM_SOURCE_ARCHIVE;
-	    pmtime->position = *posn;
-	    pmtime->start = first;
-	    pmtime->end = last;
-	} else {
-	    pmtime->source = PM_SOURCE_HOST;
-	    gettimeofday(&pmtime->position, NULL);
-	}
-	if (rpt_tz == NULL) {
-	    rpt_tz = __pmTimezone();
-	    if (msp->isarch == 1) {
-		if ((sts = pmNewZone(rpt_tz)) < 0) {
-		    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-			pmProgname, rpt_tz, pmErrStr(sts));
-		    exit(EXIT_FAILURE);
-		}
-	    }
-	}
-	tzh = strlen(rpt_tz) + 1;
-	if (rpt_tz_label == NULL)
-	    rpt_tz_label = "localhost";
-	pmtime->length += tzh + strlen(rpt_tz_label) + 1;
-	pmtime = realloc(pmtime, pmtime->length);
-	if (!pmtime) {
-	    fprintf(stderr, "%s: realloc: %s\n", pmProgname, strerror(errno));
-	    exit(EXIT_FAILURE);
-	}
-	strcpy(pmtime->data, rpt_tz);
-	strcpy(pmtime->data + tzh, rpt_tz_label);
-	if ((control_fd = pmTimeConnect(pmport, pmtime)) < 0) {
-	    fprintf(stderr, "%s: pmTimeConnect: %s\n",
-		    pmProgname, pmErrStr(control_fd));
-	    exit(EXIT_FAILURE);
-	}
-	pmtime->length = sizeof(pmTime); /* reduce size to header only */
-	pmtime = realloc(pmtime, pmtime->length);
-	gui = 1;		/* means using pmtime control from here on */
+	pmtime = pmTimeStateSetup(&controls, ahtype, port, *delta, *posn,
+				    first, last, rpt_tz, rpt_tz_label);
+	controls.stepped = timestep;
+	gui = 1;	/* we're using pmtime control from here on */
     }
-    else
-	if (msp->isarch == 1) {
-	    /* archive, and no time control, go it alone */
-	    int tmp_ival;
-	    int tmp_mode;
-	    getXTBintervalFromTimeval(&tmp_ival, &tmp_mode, delta);
-	    tmp_mode = (tmp_mode & 0xffff0000) | (amode & __PM_MODE_MASK);
-	    if ((sts = pmSetMode(tmp_mode, posn, tmp_ival)) < 0) {
-		fprintf(stderr, "%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
-		exit(EXIT_FAILURE);
-	    }
-	}
+    else if (ahtype == PM_CONTEXT_ARCHIVE) /* no time control, go it alone */
+	pmTimeStateMode(amode, *delta, posn);
 }
 
 /***************************************************************************
@@ -1344,16 +1157,12 @@ int
 main(int argc, char *argv[])
 {
     struct timeval  delta;		/* sample interval */
-    struct timespec delay;		/* nanosleep interval */
-    struct timespec left;		/* nanosleep remainder */
     long	    smpls;		/* number of samples */
     int             cols;		/* width of output column */
     struct timeval  now;		/* current task start time */
-    struct timeval  sched;		/* next task scheduled time */
     Context	    cntxt;		/* performance metric description */
     pmResult	    *rslt1;		/* current values */
     pmResult	    *rslt2;		/* previous values */
-    int		    first = 1;		/* need first sample */
     int		    forever;
     int		    idx1;
     int		    idx2;
@@ -1367,31 +1176,28 @@ main(int argc, char *argv[])
     initapi(&cntxt);
     initinsts(&cntxt);
 
-    /* seems safe enough at this point to expose the Time Control dialog... */
-    if (gui)
-	pmTimeShowDialog(control_fd, 1);
-
     if (cols <= 0) cols = howide(cntxt.desc.type);
 
-    if ((fixed == 0 && fixed > cols) ||
-        (fixed > 0 && fixed > cols - 2)) {
-	fprintf(stderr, "%s: -f %d too large for column width %d\n", pmProgname, fixed, cols);
+    if ((fixed == 0 && fixed > cols) || (fixed > 0 && fixed > cols - 2)) {
+	fprintf(stderr, "%s: -f %d too large for column width %d\n",
+		pmProgname, fixed, cols);
 	exit(EXIT_FAILURE);
     }
 
     printhdr(&cntxt, smpls, delta, now);
 
     /* wait till time for first sample */
-    if (archive == NULL )
-	sleeptill(now);
+    if (archive == NULL)
+	__pmtimevalPause(now);
 
     /* main loop fetching and printing sample values */
     while (forever || (smpls-- > 0)) {
-	talk_to_pmtime(&first);
-	if (first) {
+	if (gui)
+	    pmTimeStateVector(&controls, pmtime);
+	if (firstSample) {
 	    if ((idx2 = getvals(&cntxt, &rslt2)) >= 0) {
 		/* first-time success */
-		first = 0;
+		firstSample = 0;
 		if (cntxt.desc.indom != PM_INDOM_NULL)
 		    printlabels(&cntxt, cols);
 		if (raw || (cntxt.desc.sem != PM_SEM_COUNTER)) {
@@ -1420,25 +1226,18 @@ main(int argc, char *argv[])
 	}
 
 	/* wait till time for sample */
-	if (pauseFlag) {
-	    nanosleep(tospec(delta, &delay), &left);
-	}
-	else if (archive == NULL) {
-	    sched = tadd(now,delta);
-	    now = sched;
-	    sleeptill(sched);
-	}
+	if (!gui && (pauseFlag || archive == NULL))
+	    __pmtimevalSleep(delta);
 
-	if (first)
-	    /* keep trying */
-	    continue;
+	if (firstSample)
+	    continue;	/* keep trying */
 
 	/* next sample */
 	if ((idx1 = getvals(&cntxt, &rslt1)) == -2)
 		/* out the end of the window */
 		break;
 	else if (idx1 < 0) {
-	    first = 1;
+	    firstSample = 1;
 	    continue;
 	}
 
@@ -1467,117 +1266,5 @@ main(int argc, char *argv[])
 	idx2 = idx1;
     }
 
-    exit(first == 0);
-}
-
-static void
-talk_to_pmtime(int *first)
-{
-    if (gui) {
-	for ( ; ; ) {
-	    int sts;
-	    int fetch = 0;
-	    int cmd = pmTimeRecv(control_fd, &pmtime);
-
-	    if (cmd < 0) {
-		fprintf(stderr, "\n%s: Time Control dialog exited, sorry.\n",
-			pmProgname);
-            	exit(EXIT_FAILURE);
-	    }
-
-	    switch (pmtime->command) {
-	    case PM_TCTL_SET:
-		if (state == ENDLOG)
-		    state = STANDBY;
-		else if (state == FORW)
-		    state = START;
-		break;
-
-	    case PM_TCTL_STEP:
-		if (pmtime->state == PM_STATE_BACKWARD) {
-		    if (state != BACK) {
-			printf("\n[Time Control] Rewind/Reverse ...\n");
-			state = BACK;
-		    }
-		}
-		else if (state != FORW && state != ENDLOG) {
-		    if (ahtype == PM_CONTEXT_ARCHIVE) {
-			if (state != STANDBY)
-			    printf("\n[Time Control] Repositioned in archive ...\n");
-		    } else {
-			printf("\n[Time Control] Resume ...\n");
-		    }
-		    if (tcmp(&pmtime->delta, &lastpmdelta) != 0)
-			printf("new interval:  %1.2f sec\n", tosec(pmtime->delta));
-
-		    if (ahtype == PM_CONTEXT_ARCHIVE) {
-			int setmode = PM_MODE_INTERP;
-			int delta = pmtime->delta.tv_sec;
-
-			if (pmtime->delta.tv_usec == 0) {
-			    setmode |= PM_XTB_SET(PM_TIME_SEC);
-			} else {
-			    delta = delta * 1000 + pmtime->delta.tv_usec / 1000;
-			    setmode |= PM_XTB_SET(PM_TIME_MSEC);
-			}
-			sts = pmSetMode(setmode, &pmtime->position, delta);
-			if (sts < 0) {
-			    fprintf(stderr, "%s: pmSetMode: %s\n",
-					pmProgname, pmErrStr(sts));
-			    exit(EXIT_FAILURE);
-			}
-		    }
-		    lastpmdelta = pmtime->delta;
-		    state = FORW;
-		    *first = 1;
-		}
-
-		if (state == BACK || state == ENDLOG) {
-		    /*
-		     * for EOL and reverse travel, no pmFetch,
-		     * so ack here
-		     */
-		    ack_tctl(&pmtime->position);
-		    break;
-		}
-		fetch = 1;
-		break;
-
-	    case PM_TCTL_TZ:
-		if ((sts = pmNewZone(pmtime->data)) < 0) {
-		    fprintf(stderr,
-			"%s: Warning: cannot set timezone to \"%s\": %s\n",
-			pmProgname, pmtime->data, pmErrStr(sts));
-		} else {
-		    printf("new timezone: %s (%s)\n", pmtime->data,
-			    pmtime->data + strlen(pmtime->data) + 1);
-		}
-		break;
-
-	    case PM_TCTL_VCRMODE:
-	    case PM_TCTL_VCRMODE_DRAG:
-		/* something has changed ... suppress reporting */
-		if (pmtime->state == PM_TCTL_VCRMODE_DRAG)
-		    state = MOVING;
-		else if (state != MOVING)
-		    state = STANDBY;
-		break;
-
-	    /*
-	     * safely and silently ignore these
-	     */
-	    case PM_TCTL_GUISHOW:
-	    case PM_TCTL_GUIHIDE:
-	    case PM_TCTL_BOUNDS:
-	    case PM_TCTL_ACK:
-		break;
-
-	    default:
-		printf("pmTimeRecv: cmd %x?\n", cmd);
-		break;
-	    }
-	    if (fetch)
-		break;
-	}
-    }
+    exit(firstSample == 0);
 }
