@@ -57,6 +57,7 @@
 static char *prompt = "pmie> ";
 static char *intro  = "Performance Co-Pilot Inference Engine (pmie), "
 		      "Version %s\n\n%s%s";
+char	*clientid = NULL;
 
 static FILE *logfp;
 static char logfile[MAXPATHLEN+1];
@@ -759,6 +760,26 @@ getargs(int argc, char *argv[])
 	fprintf(stderr, "%s: pmLoadNameSpace failed: %s\n", pmProgname,
 		pmErrStr(sts));
 	exit(1);
+    }
+
+    if (!agent) {
+	/*
+	 * not secret agent mode, so build string to register client id
+	 * with pmcd
+	 */
+	int	need = 0;
+	int	a;
+	for (a = 0; a < argc; a++)
+	    need += strlen(argv[a])+1;
+	clientid = (char *)malloc(need);
+	if (clientid != NULL) {
+	    clientid[0] = '\0';
+	    for (a = 0; a < argc; a++) {
+		strcat(clientid, argv[a]);
+		if (a < argc-1)
+		    strcat(clientid, " ");
+	    }
+	}
     }
 
     if (!interactive && optind == argc) {	/* stdin or config file */
