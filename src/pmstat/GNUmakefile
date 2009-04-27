@@ -27,7 +27,8 @@ LDIRT = $(CMDTARGET)
 
 PMLOGGERCONFIG = $(PCP_VAR_DIR)/config/pmlogger
 
-LLDLIBS	= -lpcp -lpcp_gui
+LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
+LLDLIBS = -lpcp_gui -lpcp
 
 default:	$(CMDTARGET)
 
