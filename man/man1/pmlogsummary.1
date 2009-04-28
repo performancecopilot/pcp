@@ -19,7 +19,7 @@
 \f3pmlogsummary\f1 \- calculate averages of metrics stored in a PCP archive
 .SH SYNOPSIS
 \f3pmlogsummary\f1
-[\f3\-abfFiIlmMNsxyz\f1]
+[\f3\-abfFHiIlmMNsvxyz\f1]
 [\f3\-B\f1 \f2nbins\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-p\f1 \f2precision\f1]
@@ -105,6 +105,9 @@ printed.  This option is intended to allow
 output to be imported directly into common spreadsheet applications which
 support the Comma Separated Value (.csv) format.
 .TP
+.B \-H
+Print a one-line header at the start showing what each field represents.
+.TP
 .B \-l
 Also print the archive label, showing the log format version,
 the time and date for the start and (current) end of the archive time window,
@@ -125,15 +128,18 @@ Also print the minimum logged value for each metric.
 Also print the maximum logged value for each metric.
 .TP
 .B \-s
-Also print the sum of all logged values for each metric.
+Print (only) the sum of all logged values for each metric.
 .TP
 .B \-N
-Suppress any warnings resulting from individual archive fetches.
+Suppress any warnings resulting from individual archive fetches (default).
 .TP
 .B \-p
 Print all floating point numbers with 
 .I precision
 digits after the decimal place.
+.TP
+.B \-v
+Report (verbosely) on warnings resulting from individual archive fetches.
 .TP
 .B \-x
 Print stochastic averages instead of the default (time averages).
