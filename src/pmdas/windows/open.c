@@ -18,6 +18,8 @@
 #include "hypnotoad.h"
 #include <winbase.h>
 
+#define roundup(x,y)	((((x) + ((y) - 1)) / (y)) * (y))
+
 char *windows_uname;
 char *windows_build;
 char *windows_machine;
@@ -498,12 +500,11 @@ windows_check_metric(pdh_metric_t *pmp)
     result_sz = pattern_sz;
     pdhsts = PdhExpandCounterPathA(pmp->pat, pattern, &result_sz);
     if (pdhsts == PDH_MORE_DATA) {
-	result_sz++;		// not sure if this is necessary?
-	pattern_sz = result_sz;
+	pattern_sz = roundup(result_sz, 64);
 	if ((pattern = (LPSTR)realloc(pattern, pattern_sz)) == NULL) {
 	    __pmNotifyErr(LOG_ERR, "windows_open: PdhExpandCounterPathA "
-				   "realloc (%d) failed @ metric %s: ",
-				(int)pattern_sz, pmIDStr(pmp->desc.pmid));
+				   "realloc (%ld) failed @ metric %s: ",
+				pattern_sz, pmIDStr(pmp->desc.pmid));
 	    errmsg();
 	    return -1;
 	}
