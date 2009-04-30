@@ -87,15 +87,20 @@ mingw_rewrite_path(char *var, char *val, int msys)
  *
  * Choose which way to go based on our environment (SHELL).
  */
+static int posix_style(void)
+{
+    char *s = getenv("SHELL");
+    return (s && strncmp(s, "/bin/", 5) == 0);
+}
+
 static void
 mingw_formatter(char *var, char *prefix, char *val)
 {
     char envbuf[MAXPATHLEN];
-    char *p, *s = getenv("SHELL");
-    int msys = (s && strcmp(s, "/bin/sh") == 0);
+    int msys = posix_style();
 
     if (prefix && mingw_rewrite_path(var, val, msys)) {
-	p = msys ? msys_native_path(prefix) : prefix;
+	char *p = msys ? msys_native_path(prefix) : prefix;
 	snprintf(envbuf, sizeof(envbuf), "%s=%s%s", var, p, val);
     }
     else {
@@ -106,7 +111,7 @@ mingw_formatter(char *var, char *prefix, char *val)
 
 INTERN __pmConfigCallback __pmNativeConfig = mingw_formatter;
 char *__pmNativePath(char *path) { return mingw_native_path(path); }
-int __pmPathSeparator() { return '\\'; }
+int __pmPathSeparator() { return posix_style() ? '/' : '\\'; }
 #else
 char *__pmNativePath(char *path) { return path; }
 int __pmPathSeparator() { return '/'; }
