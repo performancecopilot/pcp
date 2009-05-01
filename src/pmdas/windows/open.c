@@ -494,6 +494,7 @@ windows_check_metric(pdh_metric_t *pmp)
 	PdhRemoveCounter(pmp->vals[i].hdl);
     if (pmp->num_vals)
 	free(pmp->vals);
+    pmp->vals = NULL;
     pmp->num_vals = 0;
     pmp->flags &= ~(M_EXPANDED|M_NOVALUES);
 
