@@ -498,20 +498,24 @@ windows_check_metric(pdh_metric_t *pmp)
     pmp->num_vals = 0;
     pmp->flags &= ~(M_EXPANDED|M_NOVALUES);
 
-    result_sz = pattern_sz;
-    pdhsts = PdhExpandCounterPathA(pmp->pat, pattern, &result_sz);
+    result_sz = 0;
+    pdhsts = PdhExpandCounterPathA(pmp->pat, NULL, &result_sz);
     if (pdhsts == PDH_MORE_DATA) {
-	pattern_sz = roundup(result_sz, 64);
-	if ((pattern = (LPSTR)realloc(pattern, pattern_sz)) == NULL) {
-	    __pmNotifyErr(LOG_ERR, "windows_open: PdhExpandCounterPathA "
-				   "realloc (%ld) failed @ metric %s: ",
+	if (result_sz >= pattern_sz) {
+	    free(pattern);
+	    pattern_sz = roundup(result_sz, 64);
+	    if ((pattern = (LPSTR)realloc(pattern, pattern_sz)) == NULL) {
+		__pmNotifyErr(LOG_ERR, "windows_open: PdhExpandCounterPathA "
+					"realloc (%ld) failed @ metric %s: ",
 				pattern_sz, pmIDStr(pmp->desc.pmid));
-	    errmsg();
-	    return -1;
+		errmsg();
+		return -1;
+	    }
 	}
+	result_sz = pattern_sz;
 	pdhsts = PdhExpandCounterPathA(pmp->pat, pattern, &result_sz);
     }
-    if (pdhsts != ERROR_SUCCESS) {
+    if (pdhsts != PDH_CSTATUS_VALID_DATA) {
 	if (pmp->pat[0] == '\0') {
 	    /*
 	     * Empty path string.  Used to denote metrics that are
