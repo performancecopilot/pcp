@@ -71,15 +71,9 @@ main(int argc, char **argv)
 {
     int	i;
 
-    // Forms we're looking for ...
-    //    \object\counter
-    //    \object(parent/instance#index)\counter
-    //
-
     if (argc == 1) {
 	expand("\\*\\*");
-	expand("\\*(*)\\*");		// Windows Server 2008
-	expand("\\*(*/*#*)\\*");	// Windows Server 2003
+	expand("\\*(*)\\*");
 	return 0;
     }
 
