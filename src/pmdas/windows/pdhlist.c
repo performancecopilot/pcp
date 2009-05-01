@@ -1,7 +1,5 @@
 /*
- * List all Windows performance counters on the current platform
- *
- * Expected running mode is ./show-all-ctrs | sort >some file
+ * List Windows performance counters on the current platform.
  *
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  *
@@ -14,12 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- *
- * Contact information: Ken McDonell, kenj At internode DoT on DoT net
  */
 
 #include <windows.h>
@@ -28,36 +20,28 @@
 #include <stdlib.h>
 
 extern char *pdherrstr(int);
+#define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
 
 void
-_do(char *pat)
+expand(char *pat)
 {
-    LPSTR		buf;
-    DWORD		bufsz;
+    LPTSTR		ptr;
+    LPSTR		buf = NULL;
+    DWORD		bufsz = 0;
     int			i;
     PDH_STATUS  	pdhsts;
-    static PDH_HQUERY 	hQuery = NULL;
 
-    if (hQuery == NULL) {
-	pdhsts = PdhOpenQueryA(0,0, &hQuery);
-	if (pdhsts != ERROR_SUCCESS) {
-	    fprintf(stderr, "PdhOpenQueryA failed: %s\n", pdherrstr(pdhsts));
-	    return;
-	}
-    }
-
-    // Initial buffer size is 100% guess
-    bufsz = 100000;
-
-    // iterate because size grows in first couple of attempts!
+    // Iterate because size grows in first couple of attempts!
     for (i = 0; i < 5; i++) {
-	if ((buf = (LPSTR)malloc(bufsz)) == NULL) {
-	    fprintf(stderr, "Arrgh ... malloc %ld failed for pattern %s\n", bufsz, pat);
+	if (bufsz && (buf = (LPSTR)malloc(bufsz)) == NULL) {
+	    fprintf(stderr, "malloc %ld failed for pattern: %s\n", bufsz, pat);
 	    return;
 	}
+	if (verbose)
+	    fprintf(stderr, "ExpandCounters pattern: %s\n", pat);
 	if ((pdhsts = PdhExpandCounterPathA(pat, buf, &bufsz)) == PDH_MORE_DATA) {
 	    // bufsz has the required length (minus the last NULL)
-	    bufsz++;
+	    bufsz = roundup(bufsz + 1, 64);
 	    free(buf);
 	}
 	else
@@ -66,12 +50,10 @@ _do(char *pat)
 
     if (pdhsts == PDH_CSTATUS_VALID_DATA) {
 	// success, print all counters
-	LPTSTR ptr;
-
 	ptr = buf;
 	while (*ptr) {
 	    printf("%s\n", ptr);
-	    ptr += strlen(ptr)+1;
+	    ptr += strlen(ptr) + 1;
 	}
     }
     else {
@@ -79,24 +61,29 @@ _do(char *pat)
 	if (pdhsts == PDH_MORE_DATA)
 	    fprintf(stderr, "still need to resize buffer to %ld\n", bufsz);
     }
+
+    fflush(stderr);
+    fflush(stdin);
 }
 
 int
 main(int argc, char **argv)
 {
+    int	i;
+
     // Forms we're looking for ...
     //    \object\counter
     //    \object(parent/instance#index)\counter
     //
 
-    _do("\\*\\*");
-    _do("\\*(*/*#*)\\*");
+    if (argc == 1) {
+	expand("\\*\\*");
+	expand("\\*(*)\\*");		// Windows Server 2008
+	expand("\\*(*/*#*)\\*");	// Windows Server 2003
+	return 0;
+    }
+
+    for (i = 1; i < argc; i++)
+	expand(argv[i]);
     return 0;
 }
-
-/*
- * Avoid the symbol botch with newer compilers:
- * http://www.codeproject.com/tips/seccheck.asp
- */
-int __security_cookie;
-void __fastcall __security_check_cookie(void *stackAddress){}
