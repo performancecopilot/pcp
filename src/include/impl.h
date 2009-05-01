@@ -799,18 +799,6 @@ extern int __pmLogChangeVol(__pmLogCtl *, int);
 extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
 extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
 
-#if !defined(PM_LOG_PORT_DIR)
-/* This is the default directory where pmlogger creates the file containing the port
- * number it is using. It may be overridden in platform_defs.h
- */
-#define	PM_LOG_PORT_DIR		"/var/tmp/pmlogger"
-#endif
-
-/* The primary logger creates a symbolic link to its own port file
- * in PM_LOG_PORT_DIR.  This is the name of the link.
- */
-#define PM_LOG_PRIMARY_LINK	"primary"
-
 /* struct for maintaining information about pmlogger ports */
 typedef struct {
     int		pid;		/* process id of logger */
