@@ -234,7 +234,7 @@ format_uname(OSVERSIONINFOEX osv)
 		name = string_append(name, osv.szCSDVersion);
 	    }
 	    sprintf(tbuf, " Build %ld", osv.dwBuildNumber & 0xFFFF);
-	    windows_build = name + strlen(name) + 2;
+	    windows_build = name + strlen(name) + 1;
 	    windows_uname = string_append(name, tbuf);
 	    break;
 
