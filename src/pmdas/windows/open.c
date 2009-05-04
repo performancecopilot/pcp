@@ -502,7 +502,6 @@ windows_check_metric(pdh_metric_t *pmp)
     pdhsts = PdhExpandCounterPathA(pmp->pat, NULL, &result_sz);
     if (pdhsts == PDH_MORE_DATA) {
 	if (result_sz >= pattern_sz) {
-	    free(pattern);
 	    pattern_sz = roundup(result_sz, 64);
 	    if ((pattern = (LPSTR)realloc(pattern, pattern_sz)) == NULL) {
 		__pmNotifyErr(LOG_ERR, "windows_open: PdhExpandCounterPathA "
