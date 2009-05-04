@@ -315,7 +315,7 @@ windows_check_instance(char *path, pdh_metric_t *mp)
 	    p = strchr(path, '(');	// skip hostname and Process/Thread
 	    if (p != NULL) {
 		p++;
-		if ((strncmp(p, "_Total)", 7) == 0 ||
+		if ((strncmp(p, "_Total)", 7) == 0) ||
 		    (strncmp(p, "_Total/", 7) == 0)) {
 		    /*
 		     * The totals are done as independent metrics,
