@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static int verbose;
 extern char *pdherrstr(int);
 #define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
 
