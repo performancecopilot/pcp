@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Aconex.  All Rights Reserved.
+ * Copyright (C) 2008-2009 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,188 +39,39 @@ typedef DWORD WINAPI (*DISPATCHFUNC)(DWORD, DWORD, LPVOID, LPVOID);
 struct {
     TCHAR *			name;
     TCHAR *			script;
-    int				isManual;
     HANDLE			stopEvent;
     SERVICE_STATUS		status;
     SERVICE_STATUS_HANDLE	statusHandle;
     SETUPFUNC			setup;
     DISPATCHFUNC		dispatch;
-    TCHAR *			description;
 } services[3] = {
     {	.name		= "PCP Collector Processes",
 	.script		= "pcp",
-	.isManual	= 0,
 	.setup		= pcpCollectorsSetup,
 	.dispatch	= pcpCollectorsDispatch,
-	.description	= \
-"Provides metric collection and logging services for Performance Co-Pilot."
     },
     {	.name		= "PCP Inference Engines",
 	.script		= "pmie",
-	.isManual	= 1,
 	.setup		= pcpInferenceSetup,
 	.dispatch	= pcpInferenceDispatch,
-	.description	= \
-"Provides performance rule evaluation services for Performance Co-Pilot."
     },
     {	.name		= "PCP Collector Proxy",
 	.script		= "pmproxy",
-	.isManual	= 1,
 	.setup		= pcpProxySetup,
 	.dispatch	= pcpProxyDispatch,
-	.description	= \
-"Provides proxied access to Performance Co-Pilot collector processes."
     },
 };
 
-char *
-statusString(DWORD state)
-{
-    static char buffer[32];
-
-    switch (state) {
-    case SERVICE_CONTINUE_PENDING:
-	return "Continue Pending";
-    case SERVICE_PAUSE_PENDING:
-	return "Pause Pending";
-    case SERVICE_PAUSED:
-	return "Paused";
-    case SERVICE_RUNNING:
-	return "Running";
-    case SERVICE_START_PENDING:
-	return "Start Pending";
-    case SERVICE_STOP_PENDING:
-	return "Stop Pending";
-    case SERVICE_STOPPED:
-	return "Stopped";
-    }
-    snprintf(buffer, sizeof(buffer), "Unknown(%lu)", state);
-    return buffer;
-}
+static char pcpdir[MAXPATHLEN+16];	/* PCP_DIR environment variable */
+static char pcpconf[MAXPATHLEN+16];	/* PCP_CONF environment variable */
+static char pcpconfig[MAXPATHLEN+16];	/* PCP_CONFIG environment variable */
 
 int
-pcpScript(const char *name, const char *act)
+pcpScript(const char *name, const char *action)
 {
     char cmd[MAXPATHLEN];
-    snprintf(cmd, sizeof(cmd),
-	    "sh.exe %s\\etc\\%s %s", getenv("PCP_DIR"), name, act);
+    snprintf(cmd, sizeof(cmd), "%s\\bin\\sh.exe /etc/%s %s", pcpdir, name, action);
     return system(cmd);
-}
-
-int
-pcpQueryService(char *name)
-{
-    SERVICE_STATUS status;
-    SC_HANDLE manager;
-    SC_HANDLE service;
-    int c;
-
-    manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    if (!manager) {
-	fprintf(stderr, "%s: cannot open service manager: %s\n",
-			pmProgname, strerror(GetLastError()));
-	return 1;
-    }
-
-    for (c = 0; c < NUM_SERVICES; c++) {
-	if (strcmp(services[c].name, name) == 0 ||
-	    strcmp(services[c].script, name) == 0)
-	    break;
-    }
-    if (c == NUM_SERVICES) {
-	fprintf(stderr, "%s: cannot find service \"%s\"\n", pmProgname, name);
-	return 1;
-    }
-
-    service = OpenService(manager, services[c].name, SERVICE_QUERY_STATUS);
-    if (!service)
-	fprintf(stderr, "%s: OpenService failed on \"%s\": %s\n",
-			pmProgname, services[c].name, strerror(GetLastError()));
-    if (!QueryServiceStatus(service, &status))
-	fprintf(stderr, "%s: QueryServiceStatus failed for \"%s\": %s\n",
-			pmProgname, services[c].name, strerror(GetLastError()));
-    else
-	printf("Service status: %s\n", statusString(status.dwCurrentState));
-    if (service)
-	CloseServiceHandle(service);
-    CloseServiceHandle(manager);
-
-    return pcpScript(services[c].script, "status");
-}
-
-int
-pcpStartService(char *name)
-{
-    SC_HANDLE manager;
-    SC_HANDLE service;
-    int c;
-
-    manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    if (!manager) {
-	fprintf(stderr, "%s: cannot open service manager: %s\n",
-			pmProgname, strerror(GetLastError()));
-	return 1;
-    }
-
-    for (c = 0; c < NUM_SERVICES; c++) {
-	if (strcmp(services[c].name, name) == 0 ||
-	    strcmp(services[c].script, name) == 0)
-	    break;
-    }
-    if (c == NUM_SERVICES) {
-	fprintf(stderr, "%s: cannot find service \"%s\"\n", pmProgname, name);
-	return 1;
-    }
-
-    service = OpenService(manager, services[c].name, SERVICE_ALL_ACCESS);
-    if (!service)
-	fprintf(stderr, "%s: OpenService failed on \"%s\": %s\n",
-			pmProgname, services[c].name, strerror(GetLastError()));
-    if (!StartService(service, 0, NULL)) {
-	fprintf(stderr, "%s: QueryServiceStatus failed for \"%s\": %s\n",
-			pmProgname, services[c].name, strerror(GetLastError()));
-	CloseServiceHandle(service);
-    }
-    CloseServiceHandle(manager);
-    return 0;
-}
-
-int
-pcpStopService(char *name)
-{
-    SERVICE_STATUS ss;
-    SC_HANDLE manager;
-    SC_HANDLE service;
-    int c;
-
-    manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    if (!manager) {
-	fprintf(stderr, "%s: cannot open service manager: %s\n",
-			pmProgname, strerror(GetLastError()));
-	return 1;
-    }
-
-    for (c = 0; c < NUM_SERVICES; c++) {
-	if (strcmp(services[c].name, name) == 0 ||
-	    strcmp(services[c].script, name) == 0)
-	    break;
-    }
-    if (c == NUM_SERVICES) {
-	fprintf(stderr, "%s: cannot find service \"%s\"\n", pmProgname, name);
-	return 1;
-    }
-
-    service = OpenService(manager, services[c].name, SERVICE_ALL_ACCESS);
-    if (!service)
-	fprintf(stderr, "%s: OpenService failed on \"%s\": %s\n",
-			pmProgname, services[c].name, strerror(GetLastError()));
-    if (!ControlService(service, SERVICE_CONTROL_STOP, &ss)) {
-	fprintf(stderr, "%s: ControlService (stop) failed for \"%s\": %s\n",
-			pmProgname, services[c].name, strerror(GetLastError()));
-	CloseServiceHandle(service);
-    }
-    CloseServiceHandle(manager);
-    return 0;
 }
 
 VOID
@@ -245,90 +96,22 @@ pcpSetServiceState(PCPSERVICE s, DWORD state, DWORD code, DWORD waitHint)
     SetServiceStatus(services[s].statusHandle, &services[s].status);
 }
 
-int
-pcpInstallServices(void)
-{
-    SC_HANDLE manager;
-    SC_HANDLE service;
-    TCHAR path[MAX_PATH];
-    int c;
-
-    if (!GetModuleFileName(NULL, path, MAX_PATH)) {
-	fprintf(stderr, "%s: cannot install service: %s\n",
-			pmProgname, strerror(GetLastError()));
-	return 1;
-    }
-
-    manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    if (!manager) {
-	fprintf(stderr, "%s: cannot open service manager: %s\n",
-			pmProgname, strerror(GetLastError()));
-	return 1;
-    }
-
-    for (c = 0; c < NUM_SERVICES; c++) {
-	service = CreateService(manager,
-				services[c].name,
-				services[c].name,
-				SERVICE_ALL_ACCESS,
-				SERVICE_WIN32_SHARE_PROCESS,
-				services[c].isManual ?
-				SERVICE_DEMAND_START : SERVICE_AUTO_START,
-				SERVICE_ERROR_NORMAL,
-				path, NULL, NULL, NULL, NULL, NULL);
-	if (!service)
-	    fprintf(stderr, "%s: CreateService failed for \"%s\": %s\n",
-			pmProgname, services[c].name, strerror(GetLastError()));
-	else {
-	    SERVICE_DESCRIPTION sd;
-	    sd.lpDescription = services[c].description;
-	    ChangeServiceConfig2(service, SERVICE_CONFIG_DESCRIPTION, &sd);
-	    CloseServiceHandle(service);
-	}
-    }
-
-    CloseServiceHandle(manager);
-    return 0;
-}
-
-int
-pcpRemoveServices(void)
-{
-    SC_HANDLE manager;
-    SC_HANDLE service;
-    int c;
-
-    for (c = 0; c < NUM_SERVICES; c++) {
-	pcpSetServiceState(c, SERVICE_STOP_PENDING, NO_ERROR, 0);
-	pcpStopService(services[c].script);
-    }
-
-    manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    if (!manager) {
-	fprintf(stderr, "%s: cannot open service manager: %s\n",
-			pmProgname, strerror(GetLastError()));
-	return 1;
-    }
-
-    for (c = 0; c < NUM_SERVICES; c++) {
-	service = OpenService(manager, services[c].name, SERVICE_ALL_ACCESS);
-	if (!service)
-	    fprintf(stderr, "%s: OpenService failed on \"%s\": %s\n",
-			pmProgname, services[c].name, strerror(GetLastError()));
-	else if (!DeleteService(service))
-	    fprintf(stderr, "%s: DeleteService failed on \"%s\": %s\n",
-			pmProgname, services[c].name, strerror(GetLastError()));
-	else
-	    CloseServiceHandle(service);
-    }
-
-    CloseServiceHandle(manager);
-    return 0;
-}
-
 VOID
 pcpServiceMain(DWORD argc, LPTSTR *argv, PCPSERVICE s)
 {
+    if (argc != 2) {
+	fprintf(stderr, "%s: Insufficient arguments, need PCP_DIR for \"%s\": %s\n",
+		pmProgname, services[s].name);
+	return;
+    }
+    snprintf(pcpdir, sizeof(pcpdir), "PCP_DIR=%s", argv[1]);
+    snprintf(pcpconf, sizeof(pcpconf), "PCP_CONF=%s\\etc\\pcp.conf", argv[1]);
+    snprintf(pcpconfig, sizeof(pcpconfig),
+			"PCP_CONFIG=%s\\local\\bin\\pmconfig.exe", argv[1]);
+    putenv(pcpconfig);
+    putenv(pcpconf);
+    putenv(pcpdir);
+
     services[s].statusHandle = RegisterServiceCtrlHandlerEx(
 			services[s].name, services[s].dispatch, NULL);
     if (!services[s].statusHandle) {
@@ -341,9 +124,8 @@ pcpServiceMain(DWORD argc, LPTSTR *argv, PCPSERVICE s)
     pcpSetServiceState(s, SERVICE_START_PENDING, NO_ERROR, 0);
 
     /*
-     * Create an event. The control handler function
-     * signals this event when it receives the stop
-     * control code.
+     * Create an event. The control handler function signals
+     * this event when it receives the stop control code.
      */
     services[s].stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
     if (!services[s].stopEvent) {
@@ -447,40 +229,10 @@ pcpProxyDispatch(DWORD ctrl, DWORD type, LPVOID data, LPVOID ctxt)
 int
 main(int argc, char **argv)
 {
-    int error = 0, c;
     SERVICE_TABLE_ENTRY dispatchTable[NUM_SERVICES+1];
+    int c;
 
     __pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "iurq:s:S:?")) != EOF) {
-	switch (c) {
-	case 'i':
-	    return pcpInstallServices();
-	case 'u':
-	case 'r':
-	    return pcpRemoveServices();
-	case 'q':
-	    return pcpQueryService(optarg);
-	case 's':
-	    return pcpStartService(optarg);
-	case 'S':
-	    return pcpStopService(optarg);
-	default:
-	    error++;
-	}
-    }
-
-    if (error) {
-	fprintf(stderr, "Usage: %s [ options ]\n\n"
-			"Options:\n"
-			"  -i		install PCP services\n"
-			"  -u (or -r)	uninstall PCP services\n"
-			"  -q service	query status (pcp/pmie/pmproxy)\n"
-			"  -s service	start (pcp/pmie/pmproxy)\n"
-			"  -S service	stop (pcp/pmie/pmproxy)\n",
-		pmProgname);
-	return 2;
-    }
 
     /* setup dispatch table and sentinal */
     for (c = 0; c < NUM_SERVICES; c++) {
