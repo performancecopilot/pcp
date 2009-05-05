@@ -23,7 +23,13 @@ BuildRequires: qt4-devel >= 4.2
 %endif
 
 %description
-Visualisation tools for displaying Performance Co-Pilot metric values.
+The PCP GUI package primarily includes visualisation tools for
+monitoring systems using live and archived Performance Co-Pilot
+(PCP) sources.
+These tools have dependencies on graphics libraries which may or
+may not be installed on server machines, so PCP GUI is delivered,
+managed and maintained as a separate (source and binary) package
+to the core PCP infrastructure.
 
 %prep
 if [ -f .census ] ; then
