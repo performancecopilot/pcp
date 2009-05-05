@@ -320,7 +320,7 @@ void PmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
     QSize size;
     QRect rect;	// used for print layout calculations
 
-    qp->setFont(globalFont);
+    qp->setFont(*globalFont);
 
     console->post("painter() pw=%d ph=%d ngadgets=%d", pw, ph, ngadgets);
     for (i = 0; i < ngadgets; i++) {

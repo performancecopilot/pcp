@@ -49,13 +49,13 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
     enableAxis(xBottom, false);
 
     setLegendVisible(true);
-    legend()->contentsWidget()->setFont(globalFont);
+    legend()->contentsWidget()->setFont(*globalFont);
     connect(this, SIGNAL(legendChecked(QwtPlotItem *, bool)),
 	    SLOT(showCurve(QwtPlotItem *, bool)));
 
     // start with autoscale y axis
     setAxisAutoScale(QwtPlot::yLeft);
-    setAxisFont(QwtPlot::yLeft, globalFont);
+    setAxisFont(QwtPlot::yLeft, *globalFont);
 
     my.tab = chartTab;
     my.title = NULL;
@@ -480,7 +480,7 @@ void Chart::showCurve(QwtPlotItem *item, bool on)
 	if (w && w->inherits("QwtLegendItem")) {
 	    QwtLegendItem *li = (QwtLegendItem *)w;
 	    li->setChecked(on);
-	    li->setFont(globalFont);
+	    li->setFont(*globalFont);
 	}
     }
     // find matching plot and update hidden status if required
@@ -698,11 +698,11 @@ void Chart::changeTitle(char *title, int expand)
 	if (hadTitle)
 	    pmchart->updateHeight(titleLabel()->height());
 	QwtText t = titleLabel()->text();
-	t.setFont(globalFont);
+	t.setFont(*globalFont);
 	setTitle(t);
 	// have to set font for both QwtText and QwtTextLabel because of
 	// the way attributes are cached and restored when printing charts
-	QFont titleFont = globalFont;
+	QFont titleFont = *globalFont;
 	titleFont.setBold(true);
 	titleLabel()->setFont(titleFont);
 	my.title = strdup(title);
@@ -1000,7 +1000,7 @@ void Chart::setYAxisTitle(const char *p)
 	t = new QwtText(" ");	// for y-axis alignment (space is invisible)
     else
 	t = new QwtText(p);
-    t->setFont(globalFont);
+    t->setFont(*globalFont);
     t->setColor(globalSettings.chartHighlight);
     setAxisTitle(QwtPlot::yLeft, *t);
 }

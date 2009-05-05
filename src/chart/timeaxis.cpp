@@ -65,7 +65,7 @@ void TimeAxis::init()
     setMargin(1);
     setHideCanvas(true);
     setAutoReplot(false);
-    setAxisFont(QwtPlot::xBottom, globalFont);
+    setAxisFont(QwtPlot::xBottom, *globalFont);
     setAxisScaleDraw(QwtPlot::xBottom, new TimeScaleDraw());
     setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignHCenter | Qt::AlignBottom);
 }

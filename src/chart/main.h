@@ -72,7 +72,7 @@ extern int Lflag;
 extern int Wflag;
 extern char *outfile;
 extern char *outgeometry;
-extern QFont globalFont;
+extern QFont *globalFont;
 
 extern GroupControl *activeGroup;
 extern GroupControl *liveGroup;

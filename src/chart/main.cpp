@@ -30,7 +30,7 @@ int Lflag;
 int Wflag;
 char *outfile;
 char *outgeometry;
-QFont globalFont;
+QFont *globalFont;
 Settings globalSettings;
 
 // Globals used to provide single instances of classes used across pmchart
@@ -731,7 +731,7 @@ main(int argc, char ** argv)
     }
     console->post("Timezones and time window setup complete");
 
-    globalFont = QFont("Sans Serif", PmChart::defaultFontSize());
+    globalFont = new QFont("Sans Serif", PmChart::defaultFontSize());
     fileIconProvider = new FileIconProvider();
     pmchart = new PmChart;
     pmtime = new TimeControl;

@@ -18,7 +18,7 @@
 
 StatusBar::StatusBar()
 {
-    setFont(globalFont);
+    setFont(*globalFont);
     setFixedHeight(buttonSize());
     setSizeGripEnabled(false);
 
@@ -48,12 +48,12 @@ StatusBar::StatusBar()
     my.timeAxis = new TimeAxis(my.timeFrame);
     my.timeAxis->setFixedHeight(timeAxisHeight());
     my.gadgetLabel = new QLabel(my.timeFrame);
-    my.gadgetLabel->setFont(globalFont);
+    my.gadgetLabel->setFont(*globalFont);
     my.gadgetLabel->hide();	// shown with gadget Tabs
 
     my.dateLabel = new QLabel(my.timeFrame);
     my.dateLabel->setIndent(8);
-    my.dateLabel->setFont(globalFont);
+    my.dateLabel->setFont(*globalFont);
     my.dateLabel->setAlignment(Qt::AlignRight | Qt::AlignBottom);
 
     my.labelSpacer = new QSpacerItem(10, 0,
@@ -63,7 +63,7 @@ StatusBar::StatusBar()
 
     my.valueLabel = new QLabel(my.timeFrame);
     my.valueLabel->setIndent(8);
-    my.valueLabel->setFont(globalFont);
+    my.valueLabel->setFont(*globalFont);
     my.valueLabel->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
 
     my.grid = new QGridLayout;	// Grid of [5 x 3] cells
