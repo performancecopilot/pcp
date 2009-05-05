@@ -1248,7 +1248,7 @@ main(int argc, char *argv[])
     //
     if (group->defaultTZ() != QmcGroup::localTZ) {
 	tzEnv.append(tzString);
-	sts = putenv((char *)(const char *)tzEnv.toAscii());
+	sts = putenv(strdup((const char *)tzEnv.toAscii()));
 	if (sts < 0) {
 	    pmprintf("%s: Warning: Unable to set timezone in environment\n",
 		     pmProgname);
