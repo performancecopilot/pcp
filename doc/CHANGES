@@ -1,3 +1,9 @@
+pcp-gui 1.4.0 (5 May 2009)
+    - Finally fix the font issue that has plagued us for years,
+      causing many fonts to be displayed incorrectly in pmchart.
+    - Fix a timezone related reporting issue in pmdumptext, this
+      was causing -z and -Z options to misfire.
+
 pcp-gui 1.3.5 (3 April 2009)
     - Fix pmdumptext handling of config files with no final EOL.
     - Improve hostname-truncation heuristic for chart titles.
