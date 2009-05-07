@@ -313,6 +313,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,58), KERNEL_UTYPE, CPU_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/* kernel.percpu.cpu.guest */
+    { NULL,
+      { PMDA_PMID(CLUSTER_STAT,61), KERNEL_UTYPE, CPU_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
 /* disk.dev.read */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,4), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
@@ -456,6 +461,11 @@ static pmdaMetric metrictab[] = {
 /* kernel.all.cpu.steal */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,55), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.all.cpu.guest */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,60), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
 /* disk.all.read */
@@ -3635,6 +3645,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.p_steal[inst] / proc_stat.hz);
 	    break;
+	case 61: /* kernel.percpu.cpu.guest */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.p_guest[inst] / proc_stat.hz);
+	    break;
 
 	case 8: /* pagesin */
 	    if (_pm_have_proc_vmstat)
@@ -3706,6 +3720,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 55: /* kernel.all.cpu.steal */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.steal / proc_stat.hz);
+	    break;
+	case 60: /* kernel.all.cpu.guest */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.guest / proc_stat.hz);
 	    break;
 
 	case 32: /* hinv.ncpu */
@@ -5187,6 +5205,8 @@ linux_init(pmdaInterface *dp)
 	    case 56:	/* kernel.percpu.cpu.irq.soft */
 	    case 57:	/* kernel.percpu.cpu.irq.hard */
 	    case 58:	/* kernel.percpu.cpu.steal */
+	    case 60:	/* kernel.all.cpu.guest */
+	    case 61:	/* kernel.percpu.cpu.guest */
 		_pm_metric_type(metrictab[i].m_desc.type, _pm_cputime_size);
 		break;
 	    case 3:	/* kernel.percpu.cpu.idle */

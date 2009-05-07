@@ -71,7 +71,7 @@ is_portfile(const_dirent *dep)
     pid = (int)strtol(dep->d_name, &endp, 10);
     if (pid > 1)
 	return __pmProcessExists(pid);
-    return strcmp(dep->d_name, PM_LOG_PRIMARY_LINK) == 0;
+    return strcmp(dep->d_name, "primary") == 0;
 }
 
 /* The following function is used for selecting particular port files rather
@@ -113,14 +113,9 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     if (result == NULL)
 	return -EINVAL;
 
-    if (lendir == 0) {
-	char *pcpdir = getenv("PCP_DIR");
-	if (pcpdir)
-	    strcat(dir, pcpdir);
-	strcat(dir, PM_LOG_PORT_DIR);
-	__pmNativePath(dir);
-	lendir = strlen(dir);
-    }
+    if (lendir == 0)
+	lendir = snprintf(dir, sizeof(dir), "%s%cpmlogger",
+		pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator());
 
     /* Set up the appropriate function to select files from the control port
      * directory.  Anticipate that this will usually be an exact match for
@@ -129,7 +124,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     scanfn = is_match;
     switch (pid) {
 	case PM_LOG_PRIMARY_PID:	/* primary logger control (single) */
-	    strcpy(match, PM_LOG_PRIMARY_LINK);
+	    strcpy(match, "primary");
 	    break;
 
 	case PM_LOG_ALL_PIDS:		/* find all ports */
@@ -151,7 +146,10 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	    break;
     }
 
-    if ((nf = scandir(dir, &files, scanfn, alphasort)) == -1) {
+    nf = scandir(dir, &files, scanfn, alphasort);
+    if (nf == -1 && errno == ENOENT)
+	nf = 0;
+    else if (nf == -1) {
 	pmprintf("__pmLogFindLocalPorts: scandir: %s\n", strerror(errno));
 	pmflush();
 	return -errno;
@@ -174,7 +172,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     for (i = 1; i < nf; i++)
 	if ((j = (int)strlen(files[i]->d_name)) > len)
 	    len = j;
-    /* +1 for trailing /, +1 for null termination */
+    /* +1 for trailing path separator, +1 for null termination */
     len += lendir + 2;
     if (len > sznamebuf) {
 	if (namebuf != NULL)
@@ -232,7 +230,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 	    else {
 		lpp->pid = (int)strtol(fname, &endp, 10);
 		if (*endp != '\0') {
-		    if (strcmp(fname, PM_LOG_PRIMARY_LINK) == 0)
+		    if (strcmp(fname, "primary") == 0)
 			lpp->pid = PM_LOG_PRIMARY_PORT;
 		    else {
 			pmprintf("__pmLogFindLocalPorts: unrecognised pmlogger port file %s\n",

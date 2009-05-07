@@ -294,8 +294,8 @@ init_ports(void)
 {
     int		i, j, n, sts;
     int		sep = __pmPathSeparator();
-    int		extlen, baselen, pcplen = 0;
-    char	*pcpdir = getenv("PCP_DIR");
+    int		extlen, baselen;
+    char	path[MAXPATHLEN];
     pid_t	mypid = getpid();
 
     /*
@@ -336,18 +336,14 @@ init_ports(void)
     for (n = mypid, extlen = 1; n ; extlen++)
 	n /= 10;
     /* baselen is directory + trailing / */
-    baselen = strlen(PM_LOG_PORT_DIR) + 1;
+    snprintf(path, sizeof(path), "%s%cpmlogger", pmGetConfig("PCP_TMP_DIR"), sep);
+    baselen = strlen(path) + 1;
     /* likewise for PCP_DIR if it is set */
-    if (pcpdir)
-	pcplen = strlen(pcpdir) + 1;
-    n = pcplen + baselen + extlen + 1;
-    ctlfile = (char *)calloc(1, n);
+    n = baselen + extlen + 1;
+    ctlfile = (char *)malloc(n);
     if (ctlfile == NULL)
 	__pmNoMem("port file name", n, PM_FATAL_ERR);
-    if (pcplen)
-	strcat(ctlfile, pcpdir);
-    strcat(ctlfile, PM_LOG_PORT_DIR);
-    __pmNativePath(ctlfile);
+    strcpy(ctlfile, path);
 
     /* try to create the port file directory. OK if it already exists */
     sts = mkdir2(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO);
@@ -359,10 +355,7 @@ init_ports(void)
     chmod(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
 
     /* remove any existing port file with my name (it's old) */
-    n = baselen - 1;
-    if (pcplen)
-	n += (pcplen - 1);
-    sprintf(ctlfile + n, "%c%d", sep, (int)mypid);
+    snprintf(ctlfile + (baselen-1), n, "%c%d", sep, (int)mypid);
     sts = unlink(ctlfile);
     if (sts == -1 && errno != ENOENT) {
 	fprintf(stderr, "%s: error removing %s: %s.  Exiting.\n",
@@ -378,15 +371,13 @@ init_ports(void)
      * clients to connect specifically to it.
      */
     if (primary) {
-	extlen = strlen(PM_LOG_PRIMARY_LINK);
-	n = pcplen + baselen + extlen + 1;
-	linkfile = (char *)calloc(1, n);
+	baselen = snprintf(path, sizeof(path), "%s%cpmlogger",
+				pmGetConfig("PCP_TMP_DIR"), sep);
+	n = baselen + 9;	/* separator + "primary" + null */
+	linkfile = (char *)malloc(n);
 	if (linkfile == NULL)
 	    __pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
-	i = pcplen ? sprintf(linkfile, "%s", pcpdir) : 0;
-	sprintf(linkfile + i, "%s%c%s",
-		PM_LOG_PORT_DIR, sep, PM_LOG_PRIMARY_LINK);
-	__pmNativePath(linkfile);
+	snprintf(linkfile, n, "%s%cprimary", path, sep);
 #ifndef IS_MINGW
 	sts = symlink(ctlfile, linkfile);
 #else

@@ -525,20 +525,6 @@ typedef struct {
 
 #define __PM_MODE_MASK	0xffff
 
-#define pmXTBdeltaToTimeval(d, m, t) { \
-    (t)->tv_sec = 0; \
-    (t)->tv_usec = (long)0; \
-    switch(PM_XTB_GET(m)) { \
-    case PM_TIME_NSEC: (t)->tv_usec = (long)((d) / 1000); break; \
-    case PM_TIME_USEC: (t)->tv_usec = (long)(d); break; \
-    case PM_TIME_MSEC: (t)->tv_sec = (d) / 1000; (t)->tv_usec = (long)(1000 * ((d) % 1000)); break; \
-    case PM_TIME_SEC: (t)->tv_sec = (d); break; \
-    case PM_TIME_MIN: (t)->tv_sec = (d) * 60; break; \
-    case PM_TIME_HOUR: (t)->tv_sec = (d) * 360; break; \
-    default: (t)->tv_sec = (d) / 1000; (t)->tv_usec = (long)(1000 * ((d) % 1000)); break; \
-    } \
-}
-
 #define PM_CONTEXT_FREE		-1	/* special type */
 
 /* handle to __pmContext pointer */
@@ -813,18 +799,6 @@ extern int __pmLogChangeVol(__pmLogCtl *, int);
 extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
 extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
 
-#if !defined(PM_LOG_PORT_DIR)
-/* This is the default directory where pmlogger creates the file containing the port
- * number it is using. It may be overridden in platform_defs.h
- */
-#define	PM_LOG_PORT_DIR		"/var/tmp/pmlogger"
-#endif
-
-/* The primary logger creates a symbolic link to its own port file
- * in PM_LOG_PORT_DIR.  This is the name of the link.
- */
-#define PM_LOG_PRIMARY_LINK	"primary"
-
 /* struct for maintaining information about pmlogger ports */
 typedef struct {
     int		pid;		/* process id of logger */
@@ -874,6 +848,8 @@ extern double __pmtimevalAdd(const struct timeval *, const struct timeval *);
 extern double __pmtimevalSub(const struct timeval *, const struct timeval *);
 extern double __pmtimevalToReal(const struct timeval *);
 extern void __pmtimevalFromReal(double, struct timeval *);
+extern void __pmtimevalSleep(struct timeval);
+extern void __pmtimevalPause(struct timeval);
 
 typedef struct {
     char		*label;		/* label to name tz */
@@ -1182,6 +1158,13 @@ extern int __pmControlLog(int, const pmResult *, int, int, int, pmResult **);
         val = (val & 0xf) | (delta << 4)
 #define PMLC_GET_DELTA(val) \
         (((val & ~0xf) >> 4) & PMLC_MAX_DELTA)
+
+
+/*
+ * helper function to register client identity with pmcd for export
+ * via pmcd.client.whoami
+ */
+extern int __pmSetClientId(char *);
 
 #ifdef __cplusplus
 }

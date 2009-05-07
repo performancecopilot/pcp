@@ -32,7 +32,7 @@
  * NB: Only single drive letters allowed (Wikipedia says so)
  */
 char *
-mingw_native_path(char *path)
+dos_native_path(char *path)
 {
     char *p = path;
 
@@ -65,14 +65,14 @@ msys_native_path(char *path)
 }
 
 static char *
-mingw_rewrite_path(char *var, char *val, int msys)
+dos_rewrite_path(char *var, char *val, int msys)
 {
     char *p = (char *)rindex(var, '_');
 
     if (p && (strcmp(p, "_PATH") == 0 || strcmp(p, "_DIR") == 0)) {
 	if (msys)
 	    return msys_native_path(val);
-	return mingw_native_path(val);
+	return dos_native_path(val);
     }
     return NULL;
 }
@@ -87,15 +87,20 @@ mingw_rewrite_path(char *var, char *val, int msys)
  *
  * Choose which way to go based on our environment (SHELL).
  */
+static int posix_style(void)
+{
+    char *s = getenv("SHELL");
+    return (s && strncmp(s, "/bin/", 5) == 0);
+}
+
 static void
-mingw_formatter(char *var, char *prefix, char *val)
+dos_formatter(char *var, char *prefix, char *val)
 {
     char envbuf[MAXPATHLEN];
-    char *p, *s = getenv("SHELL");
-    int msys = (s && strcmp(s, "/bin/sh") == 0);
+    int msys = posix_style();
 
-    if (prefix && mingw_rewrite_path(var, val, msys)) {
-	p = msys ? msys_native_path(prefix) : prefix;
+    if (prefix && dos_rewrite_path(var, val, msys)) {
+	char *p = msys ? msys_native_path(prefix) : prefix;
 	snprintf(envbuf, sizeof(envbuf), "%s=%s%s", var, p, val);
     }
     else {
@@ -104,9 +109,9 @@ mingw_formatter(char *var, char *prefix, char *val)
     putenv(strdup(envbuf));
 }
 
-INTERN __pmConfigCallback __pmNativeConfig = mingw_formatter;
-char *__pmNativePath(char *path) { return mingw_native_path(path); }
-int __pmPathSeparator() { return '\\'; }
+INTERN __pmConfigCallback __pmNativeConfig = dos_formatter;
+char *__pmNativePath(char *path) { return dos_native_path(path); }
+int __pmPathSeparator() { return posix_style() ? '/' : '\\'; }
 #else
 char *__pmNativePath(char *path) { return path; }
 int __pmPathSeparator() { return '/'; }

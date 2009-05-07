@@ -9,11 +9,11 @@ DEVPCP_FILES = libpcp3-dev.dirs libpcp3-dev.install
 LIBPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3
 DEVPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3-dev
 
-LIBGUIPCP = libpcp-gui1
-LIBGUI_FILES = libpcp-gui1.install
-DEVGUI_FILES = libpcp-gui1-dev.dirs libpcp-gui1-dev.install
-LIBGUI_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-gui1
-DEVGUI_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-gui1-dev
+LIBGUIPCP = libpcp-gui2
+LIBGUI_FILES = libpcp-gui2.install
+DEVGUI_FILES = libpcp-gui2-dev.dirs libpcp-gui2-dev.install
+LIBGUI_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-gui2
+DEVGUI_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-gui2-dev
 
 LIBMMVPCP = libpcp-mmv1
 LIBMMV_FILES = libpcp-mmv1.install
