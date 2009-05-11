@@ -255,7 +255,7 @@ main(int argc, char **argv)
     char		local[MAXHOSTNAMELEN];
     char		*pmnsfile = PM_NS_DEFAULT;
     int			samples = -1;		/* number of samples */
-    float		delta = 5.0;		/* initial interval (seconds) */
+    struct timeval	delta = { 5, 0 };	/* initial interval (seconds) */
     int			pauseFlag=0;
     double		skipSeconds = 0.0;
     info_t		info;		/* values to report each sample */
@@ -267,7 +267,6 @@ main(int argc, char **argv)
     char		timebuf[26];		/* for pmCtime result */
     char		*endnum;
     char		*msg;			/* error message */
-    struct timeval	ttval;
 
     __pmSetProgname(argv[0]);
     setlinebuf(stdout);
@@ -332,13 +331,11 @@ main(int argc, char **argv)
 	    break;
 
 	case 't':       /* interval between samples */
-	    if ((sts = pmParseInterval(optarg, &ttval, &msg)) < 0) {
+	    if ((sts = pmParseInterval(optarg, &delta, &msg)) < 0) {
 		fprintf(stderr, "%s: illegal -t argument\n%s\n",
 			pmProgname, msg);
 		errflag++;
 	    }
-	    else
-		delta = ttval.tv_sec + (double)ttval.tv_usec / 1000000.0;
 	    break;
 
 	case 'z':	/* timezone from host */
@@ -489,7 +486,7 @@ X.XXX   XXX   X.XXX XXXXX.XXX XXXXXX  XXXX.XX XXXX.XX
 	    printf("  (Mbytes)   IOPS    1 Min  15 Min\n");
 	}
 	if (type != PM_CONTEXT_ARCHIVE || pauseFlag)
-            sginap((long)(delta * (double)CLK_TCK));
+	    __pmtimevalSleep(delta);
 	get_sample(&info);
 	printf("%5.2f", info.cpu_util);
 	if (ncpu > 1)

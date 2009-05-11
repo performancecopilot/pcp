@@ -380,26 +380,6 @@ bozo! need to find where MAXPATHLEN is defined for this platform
 bozo! need to find where MAXHOSTNAMELEN is defined for this platform
 #endif
 
-#ifndef CLK_TCK
-#ifdef CLOCKS_PER_SEC
-#define CLK_TCK CLOCKS_PER_SEC
-#else
-#error neither CLK_TCK or CLOCKS_PER_SEC are defined on this platform
-#endif
-#endif
-
-/* cast of result to (long) removed to avoid gcc warnings (PV 958413).
- * Only semantics guaranteed of the result is that zero means ok;
- * also use of usleep will fail for intervals >=1sec (PV 958949)
- */
-#ifndef HAVE_SGINAP
-#ifdef HAVE_USLEEP
-#define sginap(x) (usleep((long)((double)1000000.0 * x / CLK_TCK)),0)
-#else
-#define sginap(x) sleep(x/CLK_TCK)
-#endif
-#endif
-
 #ifndef HAVE_OSERROR
 #define oserror() errno
 #endif
