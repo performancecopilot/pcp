@@ -16,6 +16,11 @@ _pminfo_complete ()
         curpos_expand=1
         ;;
 
+        pmprobe) 
+        opt_regex="-[ahnOZ]"
+        curpos_expand=1
+        ;;
+
         pmdumptext) 
         opt_regex="-[AacdfhnOPRsStTUwZ]"
         curpos_expand=1
@@ -50,7 +55,7 @@ _pminfo_complete ()
             && ! [[ "${COMP_WORDS[$((COMP_CWORD-1))]}" =~ $opt_regex ]] 
         )
     then
-        COMPREPLY=(`compgen -W '$(command pminfo)' $cur`)
+        COMPREPLY=(`compgen -W '$(command pminfo -L)' $cur`)
     fi 
 
 }    # ----------  end of function _pminfo_complete  ----------
