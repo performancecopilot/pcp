@@ -1,13 +1,22 @@
-pcp-2.8.2 (24 April 2008)
+pcp-2.8.3 (11 May 2009)
+    - Bash auto-completion of metric names.
+    - Fix a memory leak in xfs project quotas metrics.
+    - Several Win32 fixes for Windows Server 2008.
+    - Add Linux per-CPU and aggregate "guest" CPU utilisation metrics.
+    - Add a pmlogsummary option to report a "header" line (-H).
+    - Add optional pmstat support for time control via pmtime.
+    - Add pmcd.client.* metrics for identifying connected clients.
+
+pcp-2.8.2 (24 April 2009)
     - Fix pmie bug in the handling of && and || operators.
     - Improve daily pmie/pmlogger script behaviour.
 
-pcp-2.8.1 (19 April 2008)
+pcp-2.8.1 (19 April 2009)
     - Fix build issue with libpcp_mmv - would not build-from-source
       if <pcp/pmapi.h> was not in the root filesystem.
     - Finer control of pmie2col(1) reporting precision.
 
-pcp-2.8.0 (9 April 2008)
+pcp-2.8.0 (9 April 2009)
     - Linux netfilter (IP connection tracking) PMDA included
     - Memory Mapped Value (MMV) PMDA and client library included
     - Linux bonding (bonded network interface) PMDA included
