@@ -1,3 +1,6 @@
+pcp-2.8.4 (12 May 2009)
+    - Descend into src/bashrc.  D'oh!
+
 pcp-2.8.3 (11 May 2009)
     - Bash auto-completion of metric names.
     - Fix a memory leak in xfs project quotas metrics.
