@@ -29,7 +29,7 @@ SUBDIRS = include \
 	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
 	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
 	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
-	  autofsd-probe telnet-probe cpan win32ctl
+	  autofsd-probe telnet-probe cpan win32ctl bashrc
 
 default :: default_pcp
 
