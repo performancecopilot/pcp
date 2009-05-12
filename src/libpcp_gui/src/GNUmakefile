@@ -19,15 +19,18 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-CFILES = timeclient.c record.c
+CFILES = timeclient.c timestate.c record.c
 LLDLIBS = -lpcp
 
 STATICLIBTARGET = libpcp_gui.a
 
-DSOVERSION = 1
+DSOVERSION = 2
 LIBTARGET = libpcp_gui.$(DSOSUFFIX).$(DSOVERSION)
-SYMTARGET = libpcp_gui.$(DSOSUFFIX)
+SYMTARGET = libpcp_gui.$(DSOSUFFIX) libpcp_gui.$(DSOSUFFIX).1
 
+ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
+SYMTARGET = libpcp_gui.$(DSOSUFFIX)
+endif
 ifeq "$(TARGET_OS)" "darwin"
 LIBTARGET = libpcp_gui.$(DSOVERSION).$(DSOSUFFIX)
 endif
@@ -43,7 +46,7 @@ default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET):
-	$(LN_S) -f $(LIBTARGET) $(SYMTARGET)
+	$(LN_S) -f $(LIBTARGET) $@
 endif
 
 include $(BUILDRULES)
@@ -51,7 +54,9 @@ include $(BUILDRULES)
 install: default
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 ifneq "$(SYMTARGET)" ""
-	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET)
+	for tt in $(SYMTARGET); do \
+	    $(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$$tt || exit 1; \
+	done
 endif
 ifneq "$(STATICLIBTARGET)" ""
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)

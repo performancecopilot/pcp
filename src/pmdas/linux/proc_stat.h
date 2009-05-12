@@ -20,18 +20,34 @@
  */
 
 typedef struct {
-	unsigned long long user, sys, nice, idle, wait, irq, sirq, steal;
-	unsigned int ncpu;
-	unsigned long long *p_user, *p_sys, *p_nice, *p_idle, *p_wait, *p_irq, *p_sirq, *p_steal;
-	unsigned int ndisk;
-	unsigned int page[2];	/* unused in 2.6, switched to /proc/vmstat */
-	unsigned int swap[2];	/* unused in 2.6, switched to /proc/vmstat */
-	unsigned long long intr;
-	unsigned long long ctxt;
-	unsigned long btime;
-	unsigned long processes;
-	pmdaIndom    *cpu_indom;
-	unsigned int hz;
+	unsigned long long	user;
+	unsigned long long	sys;
+	unsigned long long	nice;
+	unsigned long long	idle;
+	unsigned long long	wait;
+	unsigned long long	irq;
+	unsigned long long	sirq;
+	unsigned long long	steal;
+	unsigned long long	guest;
+	unsigned int		ncpu;
+	unsigned long long	*p_user;
+	unsigned long long	*p_sys;
+	unsigned long long	*p_nice;
+	unsigned long long	*p_idle;
+	unsigned long long	*p_wait;
+	unsigned long long	*p_irq;
+	unsigned long long	*p_sirq;
+	unsigned long long	*p_steal;
+	unsigned long long	*p_guest;
+	unsigned int		ndisk;
+	unsigned int		page[2]; /* unused in 2.6 now in /proc/vmstat */
+	unsigned int		swap[2]; /* unused in 2.6 now in /proc/vmstat */
+	unsigned long long	intr;
+	unsigned long long	ctxt;
+	unsigned long		btime;
+	unsigned long		processes;
+	pmdaIndom   		 *cpu_indom;
+	unsigned int		hz;
 } proc_stat_t;
 
 extern int refresh_proc_stat(proc_cpuinfo_t *, proc_stat_t *);

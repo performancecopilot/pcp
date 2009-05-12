@@ -22,6 +22,7 @@
 
 PMCD_INTERN ClientInfo	*client;
 PMCD_INTERN int		nClients;	/* Number in array, (not all in use) */
+PMCD_INTERN int		this_client_id;
 
 void
 ShowClients(FILE *f)

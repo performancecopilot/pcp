@@ -91,6 +91,7 @@ kernel.all.cpu {
     wait
     irq
     steal		60:0:55
+    guest		60:0:60
 }
 
 kernel.all.cpu.wait {
@@ -117,6 +118,7 @@ kernel.percpu.cpu {
     wait
     irq
     steal		60:0:58
+    guest		60:0:61
 }
 
 kernel.percpu.cpu.wait {

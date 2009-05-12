@@ -21,6 +21,24 @@ If you are using a RPM based distribution and have the binary rpm:
 	# rpm -Uvh pcp-*.rpm
 ... and skip to the final section (below) - "Post-install steps".
 
+Special note for Ubuntu 8.04, 8.10 and 9.04
+
+I've had to make the changes below to /usr/bin/dpkg-buildpackage.
+Without these two changes, my pcp builds produce bad binaries with a
+bizarre array of failure modes!
+
+#kenj# my $default_flags = defined $build_opts->{noopt} ? "-g -O0" : "-g
+-O2";
+my $default_flags = defined $build_opts->{noopt} ? "-g -O0" : "-g -O0";
+my %flags = ( CPPFLAGS => '',
+              CFLAGS   => $default_flags,
+              CXXFLAGS => $default_flags,
+              FFLAGS   => $default_flags,
+              #kenj# LDFLAGS  => '-Wl,-Bsymbolic-functions',
+              LDFLAGS  => '',
+    );
+
+-- Ken
 
 == A.2 Mac OS X Installation
 

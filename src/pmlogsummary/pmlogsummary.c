@@ -85,27 +85,27 @@ static __pmHashCtl	hashlist;
 static __pmHashCtl	errlist;
 
 /* output format flags */
-static unsigned int	stocaveflag = 0;	/* no stochastic counter ave */
-static unsigned int	timeaveflag = 1;	/* use time counter ave */
-static unsigned int	maxflag = 0;		/* no maximum */
-static unsigned int	minflag = 0;		/* no minimum */
-static unsigned int	sumflag = 0;		/* no sum */
-static unsigned int	maxtimeflag = 0;	/* no timestamp for maximum */
-static unsigned int	mintimeflag = 0;	/* no timestamp for minimum */
-static unsigned int	countflag = 0;		/* no count */
-static unsigned int	warnflag = 1;		/* warnings are on by default */
-static unsigned int	delimiter = ' ';	/* output field separator */
-static unsigned int	nbins = 0;		/* number of distribution bins */
-static unsigned int	precision = 3;		/* number of digits after "." */
+static unsigned int	stocaveflag;	/* no stochastic counter ave */
+static unsigned int	timeaveflag = 1;/* use time counter ave */
+static unsigned int	maxflag;	/* no maximum */
+static unsigned int	minflag;	/* no minimum */
+static unsigned int	sumflag;	/* no sum */
+static unsigned int	maxtimeflag;	/* no timestamp for maximum */
+static unsigned int	mintimeflag;	/* no timestamp for minimum */
+static unsigned int	countflag;	/* no count */
+static unsigned int	warnflag;	/* warnings are off by default */
+static unsigned int	delimiter = ' ';/* output field separator */
+static unsigned int	nbins;		/* number of distribution bins */
+static unsigned int	precision = 3;	/* number of digits after "." */
 
 /* time window stuff */
-static int		sflag = 0;
-static int		tflag = 0;
-static int		dayflag = 0;
-static struct timeval	logstart = {0, 0};
-static struct timeval   logend = {0, 0};
-static struct timeval	windowstart = {0, 0};
-static struct timeval   windowend = {0, 0};
+static int		sflag;
+static int		tflag;
+static int		dayflag;
+static struct timeval	logstart;
+static struct timeval   logend;
+static struct timeval	windowstart;
+static struct timeval   windowend;
 static char		timebuf[32];		/* for pmCtime result + .xxx */
 
 /* duration of log */
@@ -189,6 +189,31 @@ printstamp(struct timeval *stamp, int delimiter)
 	printf("%c", delimiter);
 	__pmPrintStamp(stdout, stamp);
     }
+}
+
+static void
+printheaders(void)
+{
+    printf("metric");
+    if (stocaveflag)
+	printf("%cstochastic_average", delimiter);
+    if (timeaveflag)
+	printf("%ctime_average", delimiter);
+    if (sumflag)
+	printf("%csum", delimiter);
+    if (minflag)
+	printf("%cminimum", delimiter);
+    if (mintimeflag)
+	printf("%cminimum_time", delimiter);
+    if (maxflag)
+	printf("%cmaximum", delimiter);
+    if (maxtimeflag)
+	printf("%cmaximum_time", delimiter);
+    if (countflag)
+	printf("%ccount", delimiter);
+    if (nbins)
+	printf("%cbins", delimiter);
+    printf("%cunits\n", delimiter);
 }
 
 static void
@@ -894,6 +919,7 @@ main(int argc, char *argv[])
     char		*msg = NULL;
     int			errflag = 0;
     int			lflag = 0;		/* no label by default */
+    int			Hflag = 0;		/* no header by default */
     pmResult		*result;
     pmLogLabel		label;			/* get hostname for archives */
     struct timeval 	timespan = {0, 0};
@@ -903,16 +929,18 @@ main(int argc, char *argv[])
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "abB:D:fFiIlmMNn:p:rsS:T:xyzZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, "abB:D:fFHiIlmMNn:p:rsS:T:xyzZ:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* provide all information */
 	    stocaveflag = timeaveflag = lflag = countflag = minflag = maxflag = 1;
+	    sumflag = 0;
 	    break;
 
 	case 'b':	/* use both averages */
 	    stocaveflag = 1;
 	    timeaveflag = 1;
+	    sumflag = 0;
 	    break;
 
 	case 'B':	/* number of distribution bins */
@@ -942,6 +970,10 @@ main(int argc, char *argv[])
 
 	case 'F':	/* spreadsheet format - use comma delimiters */
 	    delimiter = ',';
+	    break;
+
+	case 'H':	/* print columns headings */
+	    Hflag = 1;
 	    break;
 
 	case 'i':	/* print timestamp for minimum */
@@ -995,9 +1027,14 @@ main(int argc, char *argv[])
 	    tflag = 1;
 	    break;
 
+	case 'v':	/* verbose "fetch" warnings reported */
+	    warnflag = 1;
+	    break;
+
 	case 'x':	/* use only stochastic counter averages */
 	    stocaveflag = 1;
 	    timeaveflag = 0;
+	    sumflag = 0;
 	    break;
 
 	case 'y':	/* print sample count */
@@ -1187,6 +1224,9 @@ main(int argc, char *argv[])
 	fprintf(stderr, "%s: fetch failed: %s\n", pmProgname, pmErrStr(sts));
 	exitstatus = 1;
     }
+
+    if (Hflag)
+	printheaders();
 
     if (optind >= argc) {	/* print all results */
 	if ((sts = pmTraversePMNS("", printsummary)) < 0) {

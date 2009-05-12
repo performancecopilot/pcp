@@ -9,11 +9,11 @@ DEVPCP_FILES = libpcp3-dev.dirs libpcp3-dev.install
 LIBPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3
 DEVPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3-dev
 
-LIBGUIPCP = libpcp-gui1
-LIBGUI_FILES = libpcp-gui1.install
-DEVGUI_FILES = libpcp-gui1-dev.dirs libpcp-gui1-dev.install
-LIBGUI_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-gui1
-DEVGUI_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-gui1-dev
+LIBGUIPCP = libpcp-gui2
+LIBGUI_FILES = libpcp-gui2.install
+DEVGUI_FILES = libpcp-gui2-dev.dirs libpcp-gui2-dev.install
+LIBGUI_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-gui2
+DEVGUI_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-gui2-dev
 
 LIBMMVPCP = libpcp-mmv1
 LIBMMV_FILES = libpcp-mmv1.install
@@ -36,7 +36,7 @@ DEVTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2-dev
 LDIRT = *.debhelper *.substvars *.log pcp files $(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev
-LSRCFILES = changelog compat control copyright rules source.lintian-overrides \
+LSRCFILES = changelog compat control copyright rules \
 		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) shlibs.local \
 		$(LIBGUI_FILES) $(DEVGUI_FILES) \
 		$(LIBMMV_FILES) $(DEVMMV_FILES) \

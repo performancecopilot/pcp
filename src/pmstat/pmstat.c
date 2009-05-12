@@ -16,9 +16,11 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
+#include "pmtime.h"
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+
 #include <ctype.h>
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
@@ -92,6 +94,38 @@ static char * metricSubst[] = {
 static const int nummetrics = sizeof(metrics)/sizeof (metrics[0]);
 static int extra_cpu_stats;
 static char swap_op ='p';
+
+static int header;
+static float period;
+static struct timeval sleeptime = { 5, 0 };
+static pmTimeControls defaultcontrols;
+
+static char *options = "A:a:D:gh:H:lLn:O:Pp:s:S:t:T:xzZ:?";
+void usage()
+{
+    fprintf(stderr,
+	"Usage: %s [options]\n\n"
+	"Options:\n"
+	"  -A align	align sample times on natural boundaries\n"
+	"  -a name	read metrics from PCP log archive\n"
+	"  -g		start in GUI mode with new time control\n"
+	"  -h name	read metrics from PMCD on named host\n"
+	"  -H file	read host's names from the file\n"
+	"  -l		print last 7 charcters of the host name\n"
+	"  -L		use standalone connection to localhost\n"
+	"  -n pmnsfile	use an alternative PMNS\n"
+	"  -O offset	initial offset into the time window\n"
+	"  -P		pause between updates for archive replay\n"
+	"  -p port	port number for connection to existing time control\n"
+	"  -S starttime	start of the time window\n"
+	"  -s samples	terminate after this many iterations\n"
+	"  -t interval	sample interval [default 5 seconds]\n"
+	"  -T endtime	end of the time window\n"
+	"  -Z timezone	set reporting timezone\n"
+	"  -z		set reporting timezone to local time of\n"
+	"		metrics source\n",
+		pmProgname);
+}
 
 long long cntDiff(pmDesc * d, pmValueSet * now, pmValueSet * was)
 {
@@ -250,13 +284,46 @@ scale_n_print(long value)
     }
 }
 
+static void timeinterval(struct timeval delta)
+{
+    defaultcontrols.interval(delta);
+    sleeptime = delta;
+    period = (sleeptime.tv_sec * 1.0e6 + sleeptime.tv_usec) / 1e6;
+    header = 1;
+}
+static void timeresumed(void)
+{
+    defaultcontrols.resume();
+    header = 1;
+}
+static void timerewind(void)
+{
+    defaultcontrols.rewind();
+    header = 1;
+}
+static void timenewzone(char *tz, char *label)
+{
+    defaultcontrols.newzone(tz, label);
+    header = 1;
+}
+static void timeposition(struct timeval position)
+{
+    defaultcontrols.position(position);
+    header = 1;
+}
+
 int 
 main(int argc, char *argv[]) 
 {
     int tzh = -1;
     struct timeval start;
     struct timeval finish;
-    struct timeval point0;
+    struct timeval position;
+    struct timeval rend;
+    struct timeval offt;
+
+    pmTime * pmtime;
+    pmTimeControls controls;
 
     struct statsrc_t * pd;
     struct statsrc_t ** ctxList = & pd;
@@ -267,12 +334,13 @@ main(int argc, char *argv[])
     int ctxType = 0;
     char * nsFile = PM_NS_DEFAULT;
     int c;
+    int gui = 0;
+    int port = -1;
     int pauseFlag = 0;
     int errflag = 0;
     int j;
     int samples = 0;
     int iter;
-    struct timeval tv;
     char * endnum;
 #ifdef HAVE_SYS_IOCTL_H
     struct winsize win;
@@ -285,16 +353,13 @@ main(int argc, char *argv[])
     int printTail = 0;
     int zflag = 0;
     char * tz = NULL;
+    char * tzlabel = NULL;
     int allcnt = (argc-1)/2;
 
-    struct timespec sleeptime = {5, 0};
-    
     char * Tflag = NULL,
 	* Aflag = NULL,
 	* Sflag = NULL,
 	* Oflag = NULL;
-
-    float period;
 
     setlinebuf(stdout);
     __pmSetProgname(argv[0]);
@@ -307,7 +372,7 @@ main(int argc, char *argv[])
 	}
     }
 
-    while ((c = getopt(argc, argv, "A:a:D:h:H:lLn:O:ps:S:t:T:xzZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, options)) != EOF) {
 	switch (c) {
 	case 'A':	/* sample time alignment */
 	    Aflag = optarg;
@@ -325,7 +390,6 @@ main(int argc, char *argv[])
 		namelst[namecnt++] = optarg;
 	    }
 	    break;
-
 
 	case 'D':	/* debug flag */
 	    if ((j = __pmParseDebug(optarg)) < 0) {
@@ -429,7 +493,32 @@ main(int argc, char *argv[])
 	    nsFile = optarg;
 	    break;
 
-	case 'p':	/* pause between updates when replaying an archive */
+	case 'g':	/* gui time control mode */
+	    if (port != -1) {
+		fprintf(stderr, 
+			"%s: at most one of -g and -p allowed\n", pmProgname);
+		errflag++;
+	    }
+	    gui = 1;
+	    break;
+
+	case 'p':	/* time control port */
+	    if (gui) {
+		fprintf(stderr, 
+			"%s: at most one of -g and -p allowed\n", pmProgname);
+		errflag++;
+	    } else {
+		char * endnum;
+		port = (int)strtol(optarg, &endnum, 10);
+		if (*endnum != '\0' || port < 0) {
+		    fprintf(stderr, 
+			    "%s: -s requires numeric argument\n", pmProgname);
+		    errflag++;
+		}
+	    }
+	    break;
+
+	case 'P':	/* pause between updates when replaying an archive */
 	    pauseFlag++;
 	    break;
 
@@ -450,16 +539,13 @@ main(int argc, char *argv[])
 	    break;
 
 	case 't':	/* update interval */
-	    if (pmParseInterval(optarg, &tv, &endnum) < 0) {
+	    if (pmParseInterval(optarg, &sleeptime, &endnum) < 0) {
 		fprintf(stderr, 
 			"%s: -t argument not in pmParseInterval(3) format:\n",
 			pmProgname);
 		fprintf(stderr, "%s\n", endnum);
 		free(endnum);
 		errflag++;
-	    } else {
-		sleeptime.tv_sec = tv.tv_sec;
-		sleeptime.tv_nsec = tv.tv_usec * 1000;
 	    }
 		
 	    break;
@@ -516,7 +602,7 @@ main(int argc, char *argv[])
     }
 
     if (pauseFlag && (ctxType != PM_CONTEXT_ARCHIVE)) {
-	fprintf(stderr, "%s: -p can only be used with -a\n", pmProgname);
+	fprintf(stderr, "%s: -P can only be used with -a\n", pmProgname);
 	errflag++;
     }
 
@@ -535,26 +621,7 @@ main(int argc, char *argv[])
     }
 
     if (errflag) {
-	fprintf(stderr,
-		"Usage: %s [options]\n\n"
-		"Options:\n"
-		"  -A align	align sample times on natural boundaries\n"
-		"  -a name	read metrics from PCP log archive\n"
-		"  -l		print last 7 charcters of the host name\n"
-		"  -L		use standalone connection to localhost\n"
-		"  -h name	read metrics from PMCD on named host\n"
-		"  -H file	read host's names from the file\n"
-		"  -n pmnsfile	use an alternative PMNS\n"
-		"  -O offset	initial offset into the time window\n"
-		"  -p		pause between updates for archive replay\n"
-		"  -S starttime	start of the time window\n"
-		"  -s samples	terminate after this many iterations\n"
-		"  -t interval	sample interval [default 5 seconds]\n"
-		"  -T endtime	end of the time window\n"
-		"  -Z timezone	set reporting timezone\n"
-		"  -z		set reporting timezone to local time of\n"
-		"		metrics source\n"
-		, pmProgname);
+	usage();
 	exit(1);
     }
 
@@ -571,7 +638,7 @@ main(int argc, char *argv[])
 	}
     }
 
-    period = (sleeptime.tv_sec * 1.0e9 + sleeptime.tv_nsec ) / 1e9;
+    period = (sleeptime.tv_sec * 1.0e6 + sleeptime.tv_usec) / 1e6;
 
     if (namecnt) {
 	if ((ctxList = calloc (namecnt, sizeof(struct statsrc_t *))) != NULL) {
@@ -624,6 +691,8 @@ main(int argc, char *argv[])
 				    pmProgname, pmErrStr(sts));
 			    exit(1);
 			}
+			if (zflag)
+			    tzlabel = label.ll_hostname;
 
 			if ( early > (label.ll_start.tv_sec*1e6 + 
 				      label.ll_start.tv_usec)/1e6 ) {
@@ -662,7 +731,6 @@ main(int argc, char *argv[])
 	if ( ! ctxCnt ) {
 	    fprintf (stderr, "%s: No place to get data from!\n", pmProgname);
 	    exit(1);
-
 	}
     } else {
 	/* Read metrics from the local host. Note, that ctxType can be 
@@ -687,53 +755,52 @@ main(int argc, char *argv[])
 	rows = win.ws_row - 3;
 #endif
 
+    if (pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag, &start, &finish,
+			      &position, &rend, &offt, &msg) < 0) {
+	fprintf(stderr, "%s: %s", pmProgname, msg);
+	destroyContext (pd);
+    } else {
+	now = (time_t)(position.tv_sec + 0.5 + position.tv_usec / 1.0e6);
+
+	if (Tflag) {
+	    double rt = rend.tv_sec - offt.tv_sec + 
+			(rend.tv_usec - offt.tv_usec) / 1e6;
+	    if ( rt / period > samples )
+		samples = (int) (rt/period);
+	}
+    }
+	
+    if (gui || port != -1) {
+	pmWhichZone(&tz);
+	if (!tzlabel)
+	    tzlabel = "localhost";
+
+	pmtime = pmTimeStateSetup(&controls, ctxType, port,
+					sleeptime, position,
+					start, finish, tz, tzlabel);
+
+	/* keep pointers to some default time control functions */
+	defaultcontrols = controls;
+
+	/* custom time control routines */
+	controls.rewind = timerewind;
+	controls.resume = timeresumed;
+	controls.newzone = timenewzone;
+	controls.interval = timeinterval;
+	controls.position = timeposition;
+        gui = 1;
+    }
+
     /* Do first fetch */
     for ( c=0; c < ctxCnt; c++ ) {
 	int sts;
 	struct statsrc_t * pd = ctxList[c];
-	struct timeval rend;
-	struct timeval offt;
 
 	pmUseContext (pd->ctx);
 
-	if (pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag, &start, &finish,
-			      &point0, &rend, &offt, &msg) < 0) {
-	    fprintf(stderr, "%s: %s", pmProgname, msg);
-	    destroyContext (pd);
-	} else {
-	    now = (time_t)(point0.tv_sec + 0.5 + point0.tv_usec / 1.0e6);
+	if (! gui && ctxType == PM_CONTEXT_ARCHIVE )
+	    pmTimeStateMode(PM_MODE_INTERP, sleeptime, &position);
 
-	    if (Tflag) {
-		double rt = rend.tv_sec - offt.tv_sec + 
-		    (rend.tv_usec - offt.tv_usec) / 1e6;
-
-		if ( rt / period > samples ) {
-		    samples = (int) (rt/period);
-		}
-	    }
-
-	    if (ctxType == PM_CONTEXT_ARCHIVE) {
-		const int SECS_IN_24_DAYS = 2073600;
-		int step;
-		int mode;
-
-		if (sleeptime.tv_sec > SECS_IN_24_DAYS) {
-		    step = sleeptime.tv_sec;
-		    mode = PM_MODE_INTERP|PM_XTB_SET(PM_TIME_SEC);
-		} else {
-		    step = sleeptime.tv_sec * 1e3 + sleeptime.tv_nsec / 1e6;
-		    mode = PM_MODE_INTERP|PM_XTB_SET(PM_TIME_MSEC);
-		}
-			
-		if ((sts = pmSetMode(mode, &point0, step)) < 0) {
-		    fprintf(stderr, "%s: pmSetMode failed: %s\n", 
-			    pmProgname, pmErrStr(sts));
-		    destroyContext (pd);
-		} else {
-		}
-	    }
-	}
-	
 	if ( pd->ctx >= 0 ) {
 	    if ((sts = pmFetch(nummetrics, pd->pmids, pd->res+pd->flip)) < 0) {
 		pd->res[pd->flip] = NULL;
@@ -744,7 +811,10 @@ main(int argc, char *argv[])
     }
 
     for (iter=0; (samples==0) || (iter < samples); iter++ ) {
-	if ( (iter * ctxCnt) % rows < ctxCnt ) {
+	if ( (iter * ctxCnt) % rows < ctxCnt )
+	    header = 1;
+
+	if ( header ) {
 	    pmResult * r = ctxList[0]->res[1-ctxList[0]->flip];
 	    char tbuf[26];
 
@@ -780,11 +850,15 @@ main(int argc, char *argv[])
 			"1 min","swpd","free","buff","cache", swap_op,"i",swap_op,"o","bi","bo",
 			"in","cs","us","sy","id");
 	    }
+	    header = 0;
 	}
 
-	if ( ctxType != PM_CONTEXT_ARCHIVE  || pauseFlag ) {
-	    nanosleep (&sleeptime, NULL);
-	}
+	if ( gui )
+	    pmTimeStateVector(&controls, pmtime);
+	else if ( ctxType != PM_CONTEXT_ARCHIVE  || pauseFlag )
+	    __pmtimevalSleep(sleeptime);
+	if ( header )
+	    goto next;
 
 	for ( j=0; j < ctxCnt; j++ ) {
 	    int sts;
@@ -822,6 +896,9 @@ main(int argc, char *argv[])
 			s->res[1-s->flip] = NULL;
 		    }
 		    pmReconnectContext (s->ctx);
+		} else if ((ctxType == PM_CONTEXT_ARCHIVE) && 
+			   (sts == PM_ERR_EOL) && gui) {
+		    pmTimeStateBounds(&controls, pmtime);
 		} else if ((ctxType == PM_CONTEXT_ARCHIVE) && 
 			   (sts == PM_ERR_EOL) &&
 			   (s->res[0] == NULL) && (s->res[1] == NULL)) {
@@ -974,9 +1051,12 @@ main(int argc, char *argv[])
 	    }
 	}
 
+next:
+	if ( gui )
+	    pmTimeStateAck(&controls, pmtime);
+
 	now += (time_t)period;
-	
     }
-	
+
     exit(EXIT_SUCCESS);
 }

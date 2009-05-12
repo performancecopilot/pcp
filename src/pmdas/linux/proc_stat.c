@@ -2,6 +2,7 @@
  * Linux /proc/stat metrics cluster
  *
  * Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
+ * Portions Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -35,15 +32,6 @@ static char **bufindex;
 static int nbufindex;
 static int maxbufindex;
 
-/*
- * real time difference, *ap minus *bp
- */
-double
-tv_sub(struct timeval *ap, struct timeval *bp)
-{
-     return ap->tv_sec - bp->tv_sec + (double)(ap->tv_usec - bp->tv_usec)/1000000.0;
-}
-
 int
 refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 {
@@ -53,9 +41,8 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
     int i;
     int j;
 
-    if ((fd = open("/proc/stat", O_RDONLY)) < 0) {
-    	return -errno;
-    }
+    if ((fd = open("/proc/stat", O_RDONLY)) < 0)
+	return -errno;
 
     for (n=0;;) {
 	if (n >= maxstatbuf) {
@@ -72,20 +59,20 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 
     if (bufindex == NULL) {
 	maxbufindex = 4;
-    	bufindex = (char **)malloc(maxbufindex * sizeof(char *));
+	bufindex = (char **)malloc(maxbufindex * sizeof(char *));
     }
 
     nbufindex = 0;
     bufindex[nbufindex++] = statbuf;
     for (i=0; i < n; i++) {
-        if (statbuf[i] == '\n') {
-            statbuf[i] = '\0';
+	if (statbuf[i] == '\n') {
+	    statbuf[i] = '\0';
 	    if (nbufindex >= maxbufindex) {
 	    	maxbufindex += 4;
 		bufindex = (char **)realloc(bufindex, maxbufindex * sizeof(char *));
 	    }
-            bufindex[nbufindex++] = statbuf + i + 1;
-        }
+	    bufindex[nbufindex++] = statbuf + i + 1;
+	}
     }
 
     if (!started) {
@@ -125,6 +112,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	proc_stat->p_irq = (unsigned long long *)calloc(1, n);
 	proc_stat->p_sirq = (unsigned long long *)calloc(1, n);
 	proc_stat->p_steal = (unsigned long long *)calloc(1, n);
+	proc_stat->p_guest = (unsigned long long *)calloc(1, n);
     }
 
     /*
@@ -132,22 +120,19 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
      * 2.6 kernels have 3 additional fields
      * for wait, irq and soft_irq.
      */
-    strcpy(fmt, "cpu %llu %llu %llu %llu %llu %llu %llu %llu");
+    strcpy(fmt, "cpu %llu %llu %llu %llu %llu %llu %llu %llu %llu");
     n = sscanf((const char *)bufindex[0], fmt,
 	&proc_stat->user, &proc_stat->nice,
 	&proc_stat->sys, &proc_stat->idle,
 	&proc_stat->wait, &proc_stat->irq,
-	&proc_stat->sirq, &proc_stat->steal);
-    if (n < 7)
-    	proc_stat->wait = proc_stat->irq = proc_stat->sirq = 0;
-    if (n < 8)
-    	proc_stat->steal = 0;
+	&proc_stat->sirq, &proc_stat->steal,
+	&proc_stat->guest);
 
     /*
      * per-cpu stats
      * e.g. cpu0 95379 4 20053 6502503
-     * 2.6 kernels have 3 additional fields
-     * for wait, irq and soft_irq.
+     * 2.6 kernels have 3 additional fields for wait, irq and soft_irq.
+     * More recent (2008) 2.6 kernels have an extra field for guest.
      */
     if (proc_stat->ncpu == 1) {
 	/*
@@ -160,14 +145,14 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	proc_stat->p_nice[0] = proc_stat->nice;
 	proc_stat->p_sys[0] = proc_stat->sys;
 	proc_stat->p_idle[0] = proc_stat->idle;
-	proc_stat->p_steal[0] = proc_stat->steal;
 	proc_stat->p_wait[0] = proc_stat->wait;
 	proc_stat->p_irq[0] = proc_stat->irq;
 	proc_stat->p_sirq[0] = proc_stat->sirq;
 	proc_stat->p_steal[0] = proc_stat->steal;
+    	proc_stat->p_guest[0] = proc_stat->guest;
     }
     else {
-	strcpy(fmt, "cpu%d %llu %llu %llu %llu %llu %llu %llu %llu");
+	strcpy(fmt, "cpu%d %llu %llu %llu %llu %llu %llu %llu %llu %llu");
 	for (i=0; i < proc_stat->ncpu; i++) {
 	    for (j=0; j < nbufindex; j++) {
 		if (strncmp("cpu", bufindex[j], 3) == 0 && isdigit(bufindex[j][3])) {
@@ -182,19 +167,13 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 			    &proc_stat->p_wait[cpunum],
 			    &proc_stat->p_irq[cpunum],
 			    &proc_stat->p_sirq[cpunum],
-			    &proc_stat->p_steal[cpunum]);
-			if (n < 7)
-			    proc_stat->p_wait[cpunum] =
-			    proc_stat->p_irq[cpunum] =
-			    proc_stat->p_sirq[cpunum] = 0;
-			if (n < 8)
-			    proc_stat->p_steal[cpunum] = 0;
+			    &proc_stat->p_steal[cpunum],
+			    &proc_stat->p_guest[cpunum]);
 		    }
 		}
 	    }
-	    if (j == nbufindex) {
+	    if (j == nbufindex)
 		break;
-	    }
 	}
     }
 

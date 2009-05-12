@@ -26,15 +26,15 @@
 static void 
 refresh_filesys_projects(pmInDom qindom, filesys_t *fs)
 {
-    char 		buffer[MAXPATHLEN];
+    char		buffer[MAXPATHLEN];
     project_t		*qp;
     fs_quota_stat_t	s;
     fs_disk_quota_t	d;
     size_t		idsz, devsz;
     FILE		*projects;
-    char        	*p, *idend;
-    uint32_t    	prid;
-    int         	qcmd, sts;
+    char		*p, *idend;
+    uint32_t		prid;
+    int			qcmd, sts;
 
     qcmd = QCMD(Q_XGETQSTAT, XQM_PRJQUOTA);
     if (quotactl(qcmd, fs->device, 0, (void*)&s) < 0)
@@ -75,9 +75,11 @@ refresh_filesys_projects(pmInDom qindom, filesys_t *fs)
 	qp = NULL;
 	sts = pmdaCacheLookupName(qindom, p, NULL, (void **)&qp);
 	if (sts == PMDA_CACHE_ACTIVE)	/* repeated line in /etc/projects? */
-	    continue;
+	    goto next;
 	if (sts != PMDA_CACHE_INACTIVE) {
 	    qp = (project_t *)malloc(sizeof(project_t));
+	    if (!qp)
+		goto next;
 #if PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LIBPMDA)
 		fprintf(stderr, "refresh_filesys_projects: add \"%s\"\n", p);
@@ -92,6 +94,8 @@ refresh_filesys_projects(pmInDom qindom, filesys_t *fs)
 	qp->files_used = d.d_icount;
 	qp->files_time_left = d.d_itimer;
 	pmdaCacheStore(qindom, PMDA_CACHE_ADD, p, (void *)qp);
+next:
+	free(p);
     }
     fclose(projects);
 }

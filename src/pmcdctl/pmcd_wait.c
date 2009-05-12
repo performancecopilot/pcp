@@ -131,7 +131,6 @@ int
 main(int argc, char **argv)
 {
     int		sts;
-    int		onesec = CLK_TCK; /* really syscall */
     char	env[256];
     long	delta_count;
 
@@ -171,12 +170,14 @@ main(int argc, char **argv)
 	    exit(EXIT_STS_SUCCESS);
 	}
 	if (sts == -ECONNREFUSED || sts == PM_ERR_IPC) {
+	    static const struct timeval onesec = { 1, 0};
+
 	    delta_count--;
 	    if (delta_count < 0) {
 		PrintTimeout();	
 		exit(EXIT_STS_TIMEOUT);
 	    }
-	    sginap(onesec); 
+	    __pmtimevalSleep(onesec); 
         }
 	else if (sts == PM_ERR_TIMEOUT) {
 	    PrintTimeout();	
