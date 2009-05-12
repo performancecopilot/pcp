@@ -60,4 +60,4 @@ _pminfo_complete ()
 
 }    # ----------  end of function _pminfo_complete  ----------
 
-complete -F _pminfo_complete -o default pminfo pmdumptext pmdumplog pmlogsummary pmstore pmval
+complete -F _pminfo_complete -o default pminfo pmprobe pmdumptext pmdumplog pmlogsummary pmstore pmval
