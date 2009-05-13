@@ -330,17 +330,16 @@ pmRecordAddHost(const char *host, int isdefault, pmRecordHost **rhp)
     /* construct full pathname */
     rp->public.logfile = malloc(MAXPATHLEN);
     if (rp->public.logfile != NULL) {
-	if (dir != NULL && dir[0] == '/')
+	int sep = __pmPathSeparator();
+	if (dir != NULL && __pmAbsolutePath(dir))
 	    strcpy(rp->public.logfile, dir);
 	else
 	    getcwd(rp->public.logfile, MAXPATHLEN);
 
-	if (rp->public.logfile[strlen(rp->public.logfile)-1] != '/')
-	    strcat(rp->public.logfile, "/");
-	if (strncmp(rp->logfile, "./", 2) == 0)
-	    strcat(rp->public.logfile, &rp->logfile[1]);
-	else
-	    strcat(rp->public.logfile, rp->logfile);
+	sts = strlen(rp->public.logfile);
+	if (rp->public.logfile[sts - 1] != sep)
+	    rp->public.logfile[sts] = sep;
+	strcat(rp->public.logfile, rp->logfile);
     }
     else {
 	/* malloc failure ... */

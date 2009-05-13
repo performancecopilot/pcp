@@ -19,6 +19,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmdate.c
+LLDLIBS = -lpcp
 CMDTARGET = pmdate$(EXECSUFFIX)
 
 default:	$(CMDTARGET)

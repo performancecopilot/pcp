@@ -199,7 +199,7 @@ load(char *fname)
     /* search for configfile on configuration file path */
     if (fname && access(fname, F_OK) != 0) {
 	sts = oserror();	/* always report the first error */
-	if (fname[0] == '/') {
+	if (__pmAbsolutePath(fname)) {
 	    fprintf(stderr, "%s: cannot access config file %s: %s\n", pmProgname, 
 		    fname, strerror(sts));
 	    exit(1);

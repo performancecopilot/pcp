@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -382,6 +382,7 @@ local_pmns_path(const char *root)
 {
     static int offset;
     static char path[MAXPATHLEN];
+    int sep = __pmPathSeparator();
     char *p, *s;
 
     p = getcwd(path, sizeof(path));
@@ -391,7 +392,7 @@ local_pmns_path(const char *root)
     }
     p += offset + 1;		/* move past the tmpdir prefix */
     for (s = p; *s; s++)	/* replace path-pmns separator */
-	if (*s == '/' || *s == '\\')
+	if (*s == sep)
 	    *s = '.';
     return p;
 }

@@ -43,11 +43,7 @@ main(int argc, char *argv[])
     int		mo_delta = 0;
     int		yr_delta = 0;
 
-    /* trim command name of leading directory components */
-    for (p = pmProgname = argv[0]; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     if (argc < 2) {
 	fprintf(stderr, usage);
