@@ -29,6 +29,7 @@ LSRCFILES = Makepkgs aclocal.m4 install-sh README VERSION \
 
 LDIRT = config.log .dep config.status config.cache confdefs.h conftest* \
 	Logs/* built .census install.* install-dev.* *.gz
+LDIRDIRT = pcp-gui-*
 
 SUBDIRS = src m4 images doc man debian build
 
