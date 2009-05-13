@@ -150,15 +150,6 @@ enum {
     NUM_CLUSTERS		/* total number of clusters */
 };
 
-#ifdef HAVE_NQNFS_LEASES
-#define NQNFS_LEASE(x) x
-#define PM_TYPE_NQNFS_LEASE PM_TYPE_32
-#else
-static int lease;
-#define NQNFS_LEASE(x) &lease
-#define PM_TYPE_NQNFS_LEASE PM_TYPE_NOSUPPORT
-#endif
-
 static pmdaMetric metrictab[] = {
 
 /* hinv.pagesize */
@@ -662,18 +653,6 @@ static pmdaMetric metrictab[] = {
 /* rpc.server.cache.misses */
   { &mach_nfs.srvcache_misses,
     { PMDA_PMID(CLUSTER_NFS,122), PM_TYPE_32, PM_INDOM_NULL,
-      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* rpc.server.nqnfs.leases */
-  { NQNFS_LEASE(&mach_nfs.srvnqnfs_leases),
-    { PMDA_PMID(CLUSTER_NFS,123), PM_TYPE_NQNFS_LEASE, PM_INDOM_NULL,
-      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* rpc.server.nqnfs.maxleases */
-  { NQNFS_LEASE(&mach_nfs.srvnqnfs_maxleases),
-    { PMDA_PMID(CLUSTER_NFS,124), PM_TYPE_NQNFS_LEASE, PM_INDOM_NULL,
-      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* rpc.server.nqnfs.getleases */
-  { NQNFS_LEASE(&mach_nfs.srvnqnfs_getleases),
-    { PMDA_PMID(CLUSTER_NFS,125), PM_TYPE_NQNFS_LEASE, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.server.vopwrites */
   { &mach_nfs.srvvop_writes,

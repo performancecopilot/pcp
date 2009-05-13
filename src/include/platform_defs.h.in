@@ -114,8 +114,6 @@ extern "C" {
 #undef HAVE_GETOPT_H
 #undef HAVE_VALUES_H
 #undef HAVE_LIBGEN_H
-#undef HAVE_SGIDEFS_H
-#undef HAVE_ABI_MUTEX_H
 #undef HAVE_SYS_PARAM_H
 #undef HAVE_SYS_MMAN_H
 #undef HAVE_SYS_UN_H
@@ -135,9 +133,6 @@ extern "C" {
 #undef HAVE_NETINET_IN_H
 #undef HAVE_NETINET_TCP_H
 #undef HAVE_ARPA_INET_H
-
-#undef HAVE_IOSTREAM_H
-#undef HAVE_IOSTREAM
 
 #undef HAVE_SYS_ENDIAN_H
 #undef HAVE_SYS_MACHINE_H
@@ -593,8 +588,6 @@ extern int alphasort(const_dirent **, const_dirent **);
 #ifndef __cplusplus      
 #undef inline
 #endif
-
-#undef HAVE_NQNFS_LEASES
 
 #ifdef __cplusplus      
 }
