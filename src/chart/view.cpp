@@ -302,8 +302,13 @@ bool OpenViewDialog::openView(const char *path)
 				    "%s%c" "config%c" "kmchart%c" "%s",
 				    pmGetConfig("PCP_VAR_DIR"),
 				    sep, sep, sep, path);
-			if ((f = fopen(_fname, "r")) == NULL)
+			if ((f = fopen(_fname, "r")) == NULL) {
+			    snprintf(_fname, sizeof(_fname),
+					"%s%c" "config%c" "pmchart%c" "%s",
+					pmGetConfig("PCP_VAR_DIR"),
+					sep, sep, sep, path);
 			    goto noview;
+			}
 		    }
 		}
 	    }
