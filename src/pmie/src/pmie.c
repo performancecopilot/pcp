@@ -87,7 +87,7 @@ static char usage[] =
     "  -e           force timestamps to be reported when used with -V, -v or -W\n"
     "  -f           run in foreground\n"
     "  -h host      metrics source is PMCD on host\n"
-    "  -j stompfile stomp protocol (JMS) file [default %s/config/pmie/stomp]\n"
+    "  -j stompfile stomp protocol (JMS) file [default %s%cconfig%cpmie%cstomp]\n"
     "  -l logfile   send status and error messages to logfile\n"
     "  -n pmnsfile  use an alternative PMNS\n"
     "  -O offset    initial offset into the time window\n"
@@ -108,7 +108,8 @@ static char usage[] =
 static void
 usageMessage(void)
 {
-    fprintf(stderr, usage, pmProgname, pmGetConfig("PCP_VAR_DIR"));
+    int sep = __pmPathSeparator();
+    fprintf(stderr, usage, pmProgname, pmGetConfig("PCP_VAR_DIR"), sep,sep,sep);
     exit(1);
 }
 

@@ -579,6 +579,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     int		sts;
     int		blen;
     int		exists = 0;
+    int		sep = __pmPathSeparator();
     char	*q;
     char	*base;
     char	*tbuf;
@@ -631,7 +632,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 	}
     }
 
-    snprintf(filename, sizeof(filename), "%s/%s", dir, base);
+    snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, base);
     if ((lcp->l_name = strdup(filename)) == NULL) {
 	sts = -oserror();
 	free(tbuf);
@@ -661,14 +662,14 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 		continue;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG) {
-		snprintf(filename, sizeof(filename), "%s/%s", dir, direntp->d_name);
+		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		fprintf(stderr, "__pmLogOpen: inspect file \"%s\"\n", filename);
 	    }
 #endif
 	    tp = &direntp->d_name[blen+1];
 	    if (strcmp(tp, "index") == 0) {
 		exists = 1;
-		snprintf(filename, sizeof(filename), "%s/%s", dir, direntp->d_name);
+		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_tifp = fopen(filename, "r")) == NULL) {
 		    sts = -errno;
 		    goto cleanup;
@@ -676,7 +677,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 	    }
 	    else if (strcmp(tp, "meta") == 0) {
 		exists = 1;
-		snprintf(filename, sizeof(filename), "%s/%s", dir, direntp->d_name);
+		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_mdfp = fopen(filename, "r")) == NULL) {
 		    sts = -errno;
 		    goto cleanup;

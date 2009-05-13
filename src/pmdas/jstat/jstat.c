@@ -314,6 +314,7 @@ jstat_command(int pid)
 {
     size_t size;
     char *command;
+    int sep = __pmPathSeparator();
 
     size = (jstat_path == NULL) ? 0 : (strlen(jstat_path) + 1);
     size += strlen(JSTAT_COMMAND) + 32;
@@ -322,7 +323,7 @@ jstat_command(int pid)
     if (jstat_path == NULL)
 	sprintf(command, "%s%u", JSTAT_COMMAND, pid);
     else
-	sprintf(command, "%s/%s%u", jstat_path, JSTAT_COMMAND, pid);
+	sprintf(command, "%s%c%s%u", jstat_path, sep, JSTAT_COMMAND, pid);
     return command;
 }
 
@@ -388,6 +389,7 @@ void
 jstat_indom_check(void)
 {
     FILE *pp;
+    int sep = __pmPathSeparator();
     static int initialised;
     static char jps[BUFFER_MAXLEN];
 
@@ -395,7 +397,7 @@ jstat_indom_check(void)
 	if (jstat_path == NULL)
 	    strcpy(jps, "jps");
 	else
-	    sprintf(jps, "%s/jps", jstat_path);
+	    sprintf(jps, "%s%cjps", jstat_path, sep);
 	initialised = 1;
     }
 

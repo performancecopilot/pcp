@@ -341,6 +341,7 @@ refresh_pmie_indom(void)
     void		*ptr;
     DIR			*pmiedir;
     int			fd;
+    int			sep = __pmPathSeparator();
 
     if (stat(PMIE_DIR, &statbuf) == 0) {
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
@@ -375,7 +376,7 @@ refresh_pmie_indom(void)
 		    continue;
 		if (!__pmProcessExists(pmiepid))
 		    continue;
-		snprintf(fullpath, sizeof(fullpath), "%s/%s", PMIE_DIR, dp->d_name);
+		snprintf(fullpath, sizeof(fullpath), "%s%c%s", PMIE_DIR, sep, dp->d_name);
 		if (stat(fullpath, &statbuf) < 0) {
 		    __pmNotifyErr(LOG_WARNING, "pmcd pmda cannot stat %s: %s",
 				fullpath, strerror(errno));
