@@ -263,6 +263,7 @@ bool OpenViewDialog::openView(const char *path)
     int			h_mode;
     int			version;
     QString		errmsg;
+    int			sep = __pmPathSeparator();
     int			sts = 0;
 
     if (strcmp(path, "-") == 0) {
@@ -278,25 +279,29 @@ bool OpenViewDialog::openView(const char *path)
 	strcpy(_fname, path);
 	if ((f = fopen(_fname, "r")) == NULL) {
 	    // not found, start the great hunt
-	    // try user's kmchart dir ...
-	    strcpy(_fname, getenv("HOME"));
-	    strcat(_fname, "/.pcp/kmchart/");
-	    strcat(_fname, path);
+	    // try user's pmchart dir ...
+	    snprintf(_fname, sizeof(_fname),
+			"%s%c" ".pcp%c" "pmchart%c" "%s",
+			(const char *)QDir::homePath().toAscii(),
+			sep, sep, sep, path);
 	    if ((f = fopen(_fname, "r")) == NULL) {
-		// try system kmchart dir
-		strcpy(_fname, pmGetConfig("PCP_VAR_DIR"));
-		strcat(_fname, "/config/kmchart/");
-		strcat(_fname, path);
+		// try system pmchart dir
+		snprintf(_fname, sizeof(_fname),
+			    "%s%c" "config%c" "pmchart%c" "%s",
+			    pmGetConfig("PCP_VAR_DIR"),
+			    sep, sep, sep, path);
 		if ((f = fopen(_fname, "r")) == NULL) {
-		    // try user's pmchart dir
-		    strcpy(_fname, getenv("HOME"));
-		    strcat(_fname, "/.pcp/pmchart/");
-		    strcat(_fname, path);
+		    // try user's kmchart dir
+		    snprintf(_fname, sizeof(_fname),
+				"%s%c" ".pcp%c" "kmchart%c" "%s",
+				(const char *)QDir::homePath().toAscii(),
+				sep, sep, sep, path);
 		    if ((f = fopen(_fname, "r")) == NULL) {
-			// try system pmchart dir
-			strcpy(_fname, pmGetConfig("PCP_VAR_DIR"));
-			strcat(_fname, "/config/pmchart/");
-			strcat(_fname, path);
+			// try system kmchart dir
+			snprintf(_fname, sizeof(_fname),
+				    "%s%c" "config%c" "kmchart%c" "%s",
+				    pmGetConfig("PCP_VAR_DIR"),
+				    sep, sep, sep, path);
 			if ((f = fopen(_fname, "r")) == NULL)
 			    goto noview;
 		    }

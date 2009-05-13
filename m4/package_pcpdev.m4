@@ -48,6 +48,15 @@ AC_DEFUN([AC_PACKAGE_HAVE_PM_SET_PROGNAME],
   ])
 
 #
+# Check if we have the __pmPathSeparator routine in libpcp
+#
+AC_DEFUN([AC_PACKAGE_HAVE_PM_PATH_SEPARATOR],
+  [ AC_CHECK_LIB(pcp, __pmPathSeparator,
+    [ have_pm_path_separator=1 ], [ have_pm_path_separator=0 ])
+    AC_SUBST(have_pm_path_separator)
+  ])
+
+#
 # Check if we have the pmdaMain routine in libpcp_pmda
 #
 AC_DEFUN([AC_PACKAGE_NEED_LIBPCP_PMDA],

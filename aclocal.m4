@@ -1,4 +1,4 @@
-# generated automatically by aclocal 1.10.1 -*- Autoconf -*-
+# generated automatically by aclocal 1.10.2 -*- Autoconf -*-
 
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
 # 2005, 2006, 2007, 2008  Free Software Foundation, Inc.
@@ -149,6 +149,15 @@ AC_DEFUN([AC_PACKAGE_HAVE_PM_SET_PROGNAME],
   [ AC_CHECK_LIB(pcp, __pmSetProgname,
     [ have_pm_set_progname=1 ], [ have_pm_set_progname=0 ])
     AC_SUBST(have_pm_set_progname)
+  ])
+
+#
+# Check if we have the __pmPathSeparator routine in libpcp
+#
+AC_DEFUN([AC_PACKAGE_HAVE_PM_PATH_SEPARATOR],
+  [ AC_CHECK_LIB(pcp, __pmPathSeparator,
+    [ have_pm_path_separator=1 ], [ have_pm_path_separator=0 ])
+    AC_SUBST(have_pm_path_separator)
   ])
 
 #

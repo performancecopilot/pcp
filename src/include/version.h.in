@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2008, Aconex.  All Rights Reserved.
+ * Copyright (c) 2006-2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,8 @@
 #define VERSION "@pkg_version@"
 #define HTMLDIR "@pkg_html_dir@"
 
+#define PM_USE_CONTEXT_LOCAL 1
+
 #define HAVE_PM_SET_PROGNAME @have_pm_set_progname@
 #if HAVE_PM_SET_PROGNAME == 0
 #include <libgen.h>
@@ -26,6 +28,9 @@ extern char *pmProgname;
 static inline void __pmSetProgname(char *p) { pmProgname = basename(p); }
 #endif
 
-#define PM_USE_CONTEXT_LOCAL 1
+#define HAVE_PM_PATH_SEPARATOR @have_pm_path_separator@
+#if HAVE_PM_PATH_SEPARATOR == 0
+static inline void __pmPathSeparator(void) { return '/'; }
+#endif
 
 #endif // VERSION_H
