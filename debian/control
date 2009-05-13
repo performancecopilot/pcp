@@ -16,6 +16,7 @@ Description: Visualisation tools for the Performance Co-Pilot toolkit
  The PCP GUI package primarily includes visualisation tools for
  monitoring systems using live and archived Performance Co-Pilot
  (PCP) sources.
+ .
  These tools have dependencies on graphics libraries which may or
  may not be installed on server machines, so PCP GUI is delivered,
  managed and maintained as a separate (source and binary) package
