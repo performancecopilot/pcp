@@ -18,7 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
 
-. /etc/pcp.env
+. $PCP_DIR/etc/pcp.env
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15

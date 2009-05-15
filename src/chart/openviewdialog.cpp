@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,24 +34,37 @@ OpenViewDialog::OpenViewDialog(QWidget *parent) : QDialog(parent)
 	this, SLOT(dirListView_selectionChanged()));
 
     QDir dir;
+    QChar sep(__pmPathSeparator());
     QString sys = my.systemDir = pmGetConfig("PCP_VAR_DIR");
-    my.systemDir.append("/config/kmchart");
+    my.systemDir.append(sep);
+    my.systemDir.append("config");
+    my.systemDir.append(sep);
+    my.systemDir.append("kmchart");
     if (dir.exists(my.systemDir))
 	pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
 			  my.systemDir);
     my.systemDir = sys;
-    my.systemDir.append("/config/pmchart");
+    my.systemDir.append(sep);
+    my.systemDir.append("config");
+    my.systemDir.append(sep);
+    my.systemDir.append("pmchart");
     if (dir.exists(my.systemDir))
 	pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
 			  my.systemDir);
 
     QString home = my.userDir = QDir::homePath();
-    my.userDir.append("/.pcp/kmchart");
+    my.userDir.append(sep);
+    my.userDir.append(".pcp");
+    my.userDir.append(sep);
+    my.userDir.append("kmchart");
     if (dir.exists(my.userDir))
 	pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
 			  my.userDir);
     my.userDir = home;
-    my.userDir.append("/.pcp/pmchart");
+    my.userDir.append(sep);
+    my.userDir.append(".pcp");
+    my.userDir.append(sep);
+    my.userDir.append("pmchart");
     if (dir.exists(my.userDir))
 	pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
 			  my.userDir);

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2006-2008, Aconex.  All Rights Reserved.
+ * Copyright (c) 2006-2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -413,14 +413,18 @@ void PmChart::helpManual()
 {
     setupAssistant();
     QString documents = HTMLDIR;
-    my.assistant->showPage(documents.append("/index.html"));
+    documents.append(QChar(__pmPathSeparator()));
+    documents.append("index.html");
+    my.assistant->showPage(documents);
 }
 
 void PmChart::helpTutorial()
 {
     setupAssistant();
     QString documents = HTMLDIR;
-    my.assistant->showPage(documents.append("/tutorial.html"));
+    documents.append(QChar(__pmPathSeparator()));
+    documents.append("tutorial.html");
+    my.assistant->showPage(documents);
 }
 
 void PmChart::helpAbout()

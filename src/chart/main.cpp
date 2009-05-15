@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -193,7 +193,8 @@ void setupEnvironment(void)
 {
     QString confirm = pmGetConfig("PCP_BIN_DIR");
     confirm.prepend("PCP_XCONFIRM_PROG=");
-    confirm.append("/pmquery");
+    confirm.append(QChar(__pmPathSeparator()));
+    confirm.append("pmquery");
     putenv(strdup((const char *)confirm.toAscii()));
     if (getenv("PCP_STDERR") == NULL)	// do not overwrite, for QA
 	putenv(strdup("PCP_STDERR=DISPLAY"));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,16 +33,24 @@ void RecordDialog::languageChange()
 
 void RecordDialog::init(Tab *tab)
 {
-    QString	pmlogger = "~/.pcp/pmlogger/";
+    QChar	sep(__pmPathSeparator());
+    QString	pmlogger = QDir::homePath();
     QString	view, folio, archive;
 
+    pmlogger.append(sep);
+    pmlogger.append(".pcp");
+    pmlogger.append(sep);
+    pmlogger.append("pmlogger");
+    pmlogger.append(sep);
     view = folio = archive = pmlogger;
 
-    view.append(tr("[date].view"));
+    view.append("[date].view");
     viewLineEdit->setText(view);
-    folio.append(tr("[date].folio"));
+    folio.append("[date].folio");
     folioLineEdit->setText(folio);
-    archive.append(tr("[host]/[date]"));
+    archive.append("[host]");
+    archive.append(sep);
+    archive.append("[date]");
     archiveLineEdit->setText(archive);
 
     my.tab = tab;
@@ -77,7 +85,15 @@ void RecordDialog::viewPushButton_clicked()
 {
     RecordFileDialog view(this);
 
-    view.setDirectory(QDir::homePath().append("/.pcp/pmlogger/"));
+    QChar sep(__pmPathSeparator());
+    QString pmlogger = QDir::homePath();
+    pmlogger.append(sep);
+    pmlogger.append(".pcp");
+    pmlogger.append(sep);
+    pmlogger.append("pmlogger");
+    pmlogger.append(sep);
+
+    view.setDirectory(pmlogger);
     if (view.exec() == QDialog::Accepted)
 	viewLineEdit->setText(view.selectedFiles().at(0));
 }
@@ -86,7 +102,15 @@ void RecordDialog::folioPushButton_clicked()
 {
     RecordFileDialog folio(this);
 
-    folio.setDirectory(QDir::homePath().append("/.pcp/pmlogger/"));
+    QChar sep(__pmPathSeparator());
+    QString pmlogger = QDir::homePath();
+    pmlogger.append(sep);
+    pmlogger.append(".pcp");
+    pmlogger.append(sep);
+    pmlogger.append("pmlogger");
+    pmlogger.append(sep);
+
+    folio.setDirectory(pmlogger);
     if (folio.exec() == QDialog::Accepted)
 	folioLineEdit->setText(folio.selectedFiles().at(0));
 }
@@ -95,7 +119,15 @@ void RecordDialog::archivePushButton_clicked()
 {
     RecordFileDialog archive(this);
 
-    archive.setDirectory(QDir::homePath().append("/.pcp/pmlogger/"));
+    QChar sep(__pmPathSeparator());
+    QString pmlogger = QDir::homePath();
+    pmlogger.append(sep);
+    pmlogger.append(".pcp");
+    pmlogger.append(sep);
+    pmlogger.append("pmlogger");
+    pmlogger.append(sep);
+
+    archive.setDirectory(pmlogger);
     if (archive.exec() == QDialog::Accepted)
 	archiveLineEdit->setText(archive.selectedFiles().at(0));
 }
@@ -273,7 +305,9 @@ void RecordDialog::buttonOk_clicked()
 void RecordDialog::startLoggers()
 {
     QString pmlogger = pmGetConfig("PCP_BINADM_DIR");
-    pmlogger.append("/pmlogger");
+    QChar sep(__pmPathSeparator());
+    pmlogger.append(sep);
+    pmlogger.append("pmlogger");
 
     QString regex = "^";
     regex.append(QDir::homePath());

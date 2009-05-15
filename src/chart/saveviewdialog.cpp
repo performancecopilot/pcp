@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,11 +33,18 @@ SaveViewDialog::SaveViewDialog(QWidget* parent) : QDialog(parent)
 	this, SLOT(dirListView_selectionChanged()));
 
     QDir dir;
+    QChar sep(__pmPathSeparator());
     QString home = my.userDir = QDir::homePath();
-    my.userDir.append("/.pcp/kmchart");
+    my.userDir.append(sep);
+    my.userDir.append(".pcp");
+    my.userDir.append(sep);
+    my.userDir.append("kmchart");
     if (!dir.exists(my.userDir)) {
 	my.userDir = home;
-	my.userDir.append("/.pcp/pmchart");
+	my.userDir.append(sep);
+	my.userDir.append(".pcp");
+	my.userDir.append(sep);
+	my.userDir.append("pmchart");
     }
     my.hostDynamic = true;
     my.sizeDynamic = true;
@@ -181,10 +188,11 @@ bool SaveViewDialog::saveViewFile(const QString &filename)
 void SaveViewDialog::savePushButton_clicked()
 {
     QString msg, filename;
+    QChar sep(__pmPathSeparator());
 
     if (fileNameLineEdit->isModified()) {
 	filename = fileNameLineEdit->text().trimmed();
-	filename.prepend(my.dirModel->filePath(my.dirIndex).append("/"));
+	filename.prepend(my.dirModel->filePath(my.dirIndex).append(sep));
     } else {
 	QItemSelectionModel *selections = dirListView->selectionModel();
 	QModelIndexList selectedIndexes = selections->selectedIndexes();
