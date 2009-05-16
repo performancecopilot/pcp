@@ -285,7 +285,7 @@ pmdacomatose: pmdacomatose.c domain.h
 	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 broken_v2.dir:	broken_help real_broken_pmns
-	rm -f broken.pag broken.dir
+	rm -f broken_v2.pag broken_v2.dir
 	newhelp -n real_broken_pmns -v 2 -o broken_v2 broken_help
 
 real_broken_pmns:	domain.h broken_pmns

@@ -45,11 +45,12 @@ clobber cleanup:
 	    033.out 044.out 051.out 062.out 066.out 067.out 069.out 075.out \
 	    082.out 083.out 110.out 119.out 130.out 149.out 154.out \
 	    158.out 159.out 162.out 180.out 183.out 188.out 190.out \
-	    200.out 215.out 219.out 243.out 244.out 245.out 250.out 255.out \
-	    262.out 278.out 282.out 294.out 299.out 313.out 355.out 365.out 375.out \
+	    200.out 215.out 243.out 244.out 245.out 250.out 255.out \
+	    262.out 278.out 282.out 283.out \
+	    294.out 299.out 313.out 355.out 365.out 375.out \
 	    376.out 411.out 417.out 419.out 421.out 430.out 465.out 519.out \
 	    555.out 558.out 560.out 565.out 574.out \
-	    580.out 587.out 600.out 603.out 605.out
+	    580.out 587.out 597.out 600.out 603.out 605.out
 
 # 051 depends on this rule being here
 051.work/die.001: 051.setup
