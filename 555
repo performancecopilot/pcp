@@ -113,18 +113,17 @@ echo
 # note - agetty lines noticed on canary with SLES9 SP1 beta2
 # note - DHCPDISCOVER lines noticed on kenj-laptop with Ubuntu 8.10
 #
+echo "=== all of syslog ===" >>$seq.full
 cat /tmp/syslog >>$seq.full
-$sudo grep "\\[$!\\]:" /tmp/syslog \
+echo >>$seq.full
+echo "=== syslog for pid $! ===" >>$seq.full
+grep '\['$!']:' /tmp/syslog \
+| tee -a $seq.full \
 | sed \
     -e 's/^[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
     -e "s/\\[$!]/[PID]/" \
     -e "s/`hostname | sed -e 's/\..*//'` /HOST /" \
     -e 's/[0-9][A-Z]:HOST/HOST/' \
-    -e '/runpriv\[PID]:/d' \
-    -e '/agetty\[PID]:/d' \
-    -e '/ DHCPDISCOVER /d' \
-    -e '/sudo: /d' \
-    -e '/syslogd .* restart/d' \
 
 # success, all done
 status=0
