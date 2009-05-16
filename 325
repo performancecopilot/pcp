@@ -69,7 +69,7 @@ XCONFIRMCNT=`_countem`
 
 if [ $XCONFIRMCNT -gt $OLDXCONFIRMCNT ]
 then
-     echo "=== $PCP_XCONFIRM_PROG started OK ==="
+     echo '=== $PCP_XCONFIRM_PROG started OK ==='
 else
      echo "=== Urk, no change in number of $PCP_XCONFIRM_PROG - $XCONFIRMCNT ==="
      cat $tmp.count
