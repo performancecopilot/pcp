@@ -3,7 +3,6 @@
 # $Revision: 1.13 $
 # pmprintf checks
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # creator
@@ -55,6 +54,11 @@ src-oss/pmprintf foo bee doo
 # Expect something in an xconfirm
 export DISPLAY=$PCPQA_CLOSE_X_SERVER
 export PCP_STDERR=DISPLAY
+if [ -z "$PCP_XCONFIRM_PROG" ]
+then
+    echo 'Error: $PCP_XCONFIRM_PROG not set'
+    exit $status
+fi
 
 (src-oss/pmprintf some invisible text &)2>$tmp.err
 # wait for dialog to fire up
@@ -65,9 +69,9 @@ XCONFIRMCNT=`_countem`
 
 if [ $XCONFIRMCNT -gt $OLDXCONFIRMCNT ]
 then
-     echo "=== xconfirm started OK ==="
+     echo "=== $PCP_XCONFIRM_PROG started OK ==="
 else
-     echo "=== Urk, no change in number of xconfirms - $XCONFIRMCNT ==="
+     echo "=== Urk, no change in number of $PCP_XCONFIRM_PROG - $XCONFIRMCNT ==="
      cat $tmp.count
      echo
      echo "Errors from src-oss/pmprintf?"
