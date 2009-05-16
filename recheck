@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# Rerun check for all the tests that failed last time ... the
+# ones with a *.out.bad file
+#
+
+list=`echo *.out.bad | sed -e 's/.out.bad//g'`
+
+./check $list
