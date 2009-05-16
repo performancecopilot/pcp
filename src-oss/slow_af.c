@@ -24,6 +24,7 @@ onevent(int afid, void *data)
     static int		delay = -3;
     int			evnum;
     double		elapsed;
+    struct timeval	sec = { 0, 0 };
 
     gettimeofday(&now, NULL);
 
@@ -50,7 +51,14 @@ onevent(int afid, void *data)
     }
 
     if (delay > 6) exit(0);
-    if (delay > 0) sginap((long)(delay * CLK_TCK));
+    if (delay > 0) {
+	/*
+	 * was sginap(delay * CLK_TCK) ... usleep() for
+	 * delay*CLK_TCK*10^6/CLK_TCK microseconds so "delay" sec
+	 */
+	sec.tv_sec = delay;
+	__pmtimevalSleep(sec);
+    }
     delay++;
 
     if (pmDebug & DBG_TRACE_AF) {

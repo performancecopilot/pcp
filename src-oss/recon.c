@@ -27,6 +27,13 @@ main(int argc, char **argv)
     int		c;
     int		sts;
     int		errflag = 0;
+    static const struct timeval delay = { 0, 10000 };
+    /*
+     * was sginap(10) ... I think this dated from the sgi days when this
+     * was, 10 * 1/100 (1/HZ) seconds, so 100,000 usec or 100 msec ...
+     * but this is not reliable for the QA test (200), so changed to
+     * 10 msec
+     */
 
     __pmSetProgname(argv[0]);
 
@@ -99,7 +106,7 @@ Options:\n\
 	    break;
 	}
 	pmFreeResult(rp);
-	sginap(10);
+	__pmtimevalSleep(delay);
     }
 
     for ( ; ; ) {
@@ -109,7 +116,7 @@ Options:\n\
 	    fprintf(stderr, "delay: %.0f secs\n", __pmtimevalSub(&now, &then));
 	    break;
 	}
-	sginap(10);
+	__pmtimevalSleep(delay);
     }
 
     exit(0);
