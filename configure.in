@@ -1500,8 +1500,13 @@ fi
 AC_SUBST(pcp_inc_dir)
 
 dnl rc/startup files
-if test $target_os != darwin
+if test $target_os = darwin
 then
+    pcp_rc_dir=/Library/StartupItems/pcp
+elif test $target_distro = suse
+then
+    pcp_rc_dir=/etc/init.d
+else
     for d in /etc/rc.d/init.d /etc/init.d /sbin/init.d ; do
 	if test -d $d
 	then
@@ -1513,8 +1518,6 @@ then
     then
 	pcp_rc_dir=/etc
     fi
-else
-    pcp_rc_dir=/Library/StartupItems/pcp
 fi
 AC_SUBST(pcp_rc_dir)
 
