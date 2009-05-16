@@ -12,6 +12,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard filters
+. ./common.product
 . ./common.filter
 . ./common.check
 
@@ -28,6 +29,11 @@ _do()
     cat $tmp.ctl \
     | pmlogger -L -x 0 -c /dev/null -l $tmp.log -D appl2 $tmp &
     logger_pid=$!
+    if [ -z "$logger_pid" ]
+    then
+	echo "Arrgh ... failed to start pmlogger!"
+	exit $status
+    fi
     sleep 3
     alive=`ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == '"$logger_pid"' { print }'`
     if [ ! -z "$alive" ]
