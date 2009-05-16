@@ -7,6 +7,7 @@ children of "pmcd" ...
     agent               <s = 1>
     buf                 <s = 1>
     build               <s = 0>
+    client              <s = 1>
     control             <s = 1>
     datasize            <s = 0>
     license             <s = 0>
