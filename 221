@@ -26,7 +26,9 @@ cat $tmp.err $tmp.log \
 | tee $seq.full \
 | grep timestamp \
 | $PCP_AWK_PROG '
-	{ if (p != 0) {
+/Starting logger/	{ state = 1; next }
+state == 1		{
+	  if (p != 0) {
 		if ($6 < p)
 		    print "timestamp delta NEGATIVE!",p,$6
 		else if ($6 - p > 1)
