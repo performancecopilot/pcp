@@ -1093,7 +1093,9 @@ main(int argc, char *argv[])
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));
-    dup(fileno(stderr));
+    if (dup(fileno(stderr)) < 0)
+	/* tough luck, do nothing ... but makes gcc warning go away! */
+    	;
 
     if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
 	fprintf(stderr, "Error: pmLoadNameSpace: %s\n", pmErrStr(sts));
