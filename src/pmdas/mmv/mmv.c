@@ -84,21 +84,29 @@ map_stats(void)
 {
     char path[MAXPATHLEN];
     char * fname;
-    FILE * f;
+    FILE	*f = NULL;
     FILE * conf;
     int sep = __pmPathSeparator();
     int i;
+#if HAVE_MKSTEMP
+    int		fd;
+#endif
     
     putenv("TMPDIR=");	/* temp file must be in pmnsdir, for rename */
-    if ( (fname = tempnam (pmnsdir, "mmv") ) != NULL ) {
-	if ( (f = fopen (fname, "w")) == NULL ) {
-	    __pmNotifyErr(LOG_ERR, "%s: failed to write \"%s\" - %s",
+#if HAVE_MKSTEMP
+    sprintf(path, "%s%cmmvXXXXXX", pmnsdir, __pmPathSeparator());
+    fname = path;
+    fd = mkstemp(fname);
+    if (fd != -1)
+	f = fdopen(fd, "w");
+#else
+    fname = tempnam (pmnsdir, "mmv");
+    if (fname != NULL)
+	f = fopen(fname, "w");
+#endif
+    if (f == NULL ) {
+	__pmNotifyErr(LOG_ERR, "%s: failed to generate temporary file %s: %s",
 			  pmProgname, fname, strerror(errno));
-	    return;
-	}
-    } else {
-	__pmNotifyErr(LOG_ERR, "%s: failed to generate temporary filename",
-			  pmProgname, strerror(errno));
 	return;
     }
 
