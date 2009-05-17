@@ -299,14 +299,17 @@ add_msg(char **bp, int nchar, char *p)
 void
 do_dialog(char cmd)
 {
-    FILE	*msgf;
+    FILE	*msgf = NULL;
     time_t	now;
-    char	*msg;
     static char	lbuf[100+MAXPATHLEN];
     double	archsize;
     char	*q;
     char	*p = NULL;
     int		nchar;
+    char	*msg;
+#if HAVE_MKSTEMP
+    char	tmp[MAXPATHLEN];
+#endif
 
     /*
      * flush archive buffers so size is accurate
@@ -324,27 +327,27 @@ do_dialog(char cmd)
     nchar = add_msg(&p, 0, "");
     p[0] = '\0';
 
-    sprintf(lbuf, "PCP recording for the archive folio \"%s\" and the host\n", folio_name);
+    sprintf(lbuf, "PCP recording for the archive folio \"%s\" and the host", folio_name);
     nchar = add_msg(&p, nchar, lbuf);
-    sprintf(lbuf, "\"%s\" has been in progress for %ld %s\n",
+    sprintf(lbuf, " \"%s\" has been in progress for %ld %s",
 	pmcd_host,
 	now < 240 ? now : now/60, now < 240 ? "seconds" : "minutes");
     nchar = add_msg(&p, nchar, lbuf);
-    nchar = add_msg(&p, nchar, "and in that time the pmlogger process has created an\n");
-    nchar = add_msg(&p, nchar, "archive of ");
+    nchar = add_msg(&p, nchar, " and in that time the pmlogger process has created an");
+    nchar = add_msg(&p, nchar, " archive of ");
     q = do_size(archsize);
     nchar = add_msg(&p, nchar, q);
     nchar = add_msg(&p, nchar, ".\n");
     if (rsc_replay) {
 	nchar = add_msg(&p, nchar, "\nThis archive may be replayed with the following command:\n");
-	sprintf(lbuf, "        $ pmafm %s replay\n", folio_name);
+	sprintf(lbuf, "  $ pmafm %s replay\n", folio_name);
 	nchar = add_msg(&p, nchar, lbuf);
     }
 
     if (cmd == 'D') {
-	nchar = add_msg(&p, nchar, "\nThe application that launched pmlogger has asked pmlogger\n");
-	nchar = add_msg(&p, nchar, "to continue independently and the PCP archive will grow at\n");
-	nchar = add_msg(&p, nchar, "the rate of ");
+	nchar = add_msg(&p, nchar, "\nThe application that launched pmlogger has asked pmlogger");
+	nchar = add_msg(&p, nchar, " to continue independently and the PCP archive will grow at");
+	nchar = add_msg(&p, nchar, " the rate of ");
 	q = do_size((archsize * 3600) / now);
 	nchar = add_msg(&p, nchar, q);
 	nchar = add_msg(&p, nchar, " per hour or ");
@@ -354,10 +357,10 @@ do_dialog(char cmd)
     }
 
     if (cmd == 'X') {
-	nchar = add_msg(&p, nchar, "\nThe application that launched pmlogger has exited and you\n");
-	nchar = add_msg(&p, nchar, "must decide if the PCP recording session should be terminated\n");
-	nchar = add_msg(&p, nchar, "or continued.  If recording is continued the PCP archive will\n");
-	nchar = add_msg(&p, nchar, "grow at the rate of ");
+	nchar = add_msg(&p, nchar, "\nThe application that launched pmlogger has exited and you");
+	nchar = add_msg(&p, nchar, " must decide if the PCP recording session should be terminated");
+	nchar = add_msg(&p, nchar, " or continued.  If recording is continued the PCP archive will");
+	nchar = add_msg(&p, nchar, " grow at the rate of ");
 	q = do_size((archsize * 3600) / now);
 	nchar = add_msg(&p, nchar, q);
 	nchar = add_msg(&p, nchar, " per hour or ");
@@ -367,14 +370,14 @@ do_dialog(char cmd)
     }
 
     if (cmd == 'Q') {
-	nchar = add_msg(&p, nchar, "\nThe application that launched pmlogger has terminated\n");
-	nchar = add_msg(&p, nchar, "this PCP recording session.\n");
+	nchar = add_msg(&p, nchar, "\nThe application that launched pmlogger has terminated");
+	nchar = add_msg(&p, nchar, " this PCP recording session.\n");
     }
 
     if (cmd != 'Q') {
-	nchar = add_msg(&p, nchar, "\nAt any time this pmlogger process may be terminated with the\n");
-	nchar = add_msg(&p, nchar, "following command:\n");
-	nchar = add_msg(&p, nchar, "        $ pmsignal -s TERM");
+	nchar = add_msg(&p, nchar, "\nAt any time this pmlogger process may be terminated with the");
+	nchar = add_msg(&p, nchar, " following command:\n");
+	nchar = add_msg(&p, nchar, "  $ kill -s TERM");
 	sprintf(lbuf, " %d\n", (int)getpid());
 	nchar = add_msg(&p, nchar, lbuf);
     }
@@ -386,18 +389,26 @@ do_dialog(char cmd)
 	char * xconfirm = __pmNativePath(pmGetConfig("PCP_XCONFIRM_PROG"));
 	int fd = -1;
 
-	if ((msg = tmpnam(NULL)) == NULL ||
-	    (fd = open(msg, O_WRONLY|O_CREAT|O_EXCL, 0600)) < 0 ||
-	    (msgf = fdopen(fd, "w")) == NULL) {
+#if HAVE_MKSTEMP
+	sprintf(tmp, "%s%cmsgXXXXXX", pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator());
+	msg = tmp;
+	fd = mkstemp(tmp);
+#else
+	if ((msg = tmpnam(NULL)) != NULL)
+	    fd = open(msg, O_WRONLY|O_CREAT|O_EXCL, 0600);
+#endif
+	if (fd >= 0)
+	    msgf = fdopen(fd, "w");
+	if (msgf == NULL) {
 	    fprintf(stderr, "\nError: failed create temporary message file for recording session dialog\n");
 	    fprintf(stderr, "Reason? %s\n", strerror(errno));
 	    if (fd != -1)
 		close(fd);
 	    goto failed;
 	}
-
 	fputs(p, msgf);
 	fclose(msgf);
+	msgf = NULL;
 
 	if (cmd == 'X')
 	    sprintf(lbuf, "%s -c -header \"%s - %s\" -file %s -icon question "
@@ -429,7 +440,8 @@ failed:
 	    *q = '\0';
 	}
 
-	pclose(msgf);
+	if (msgf != NULL)
+	    pclose(msgf);
 	unlink(msg);
     }
     else {
