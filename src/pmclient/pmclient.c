@@ -250,7 +250,7 @@ main(int argc, char **argv)
     int			sts;
     int			errflag = 0;
     int			type = 0;
-    char		*host;
+    char		*host = NULL;		/* initialize to pander to gcc */
     char		*archive = NULL;
     char		local[MAXHOSTNAMELEN];
     char		*pmnsfile = PM_NS_DEFAULT;

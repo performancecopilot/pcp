@@ -337,7 +337,9 @@ local_pmns_root(void)
 static void
 lchdir(const char *path)
 {
-    (void)chdir(path);	/* debug hook, workaround rval compiler warning */
+    /* debug hook */
+    if (chdir(path) == -1)
+	__pmNotifyErr(LOG_ERR, "chdir(%s) failed: %s", path, strerror(errno));
 }
 
 /*
@@ -370,7 +372,8 @@ local_pmns_split(const char *root, const char *metric, const char *pmid)
 	    lchdir(path);
 	} else {
 	    fd = open(path, O_WRONLY|O_CREAT|O_EXCL, 0644);
-	    write(fd, mypmid, strlen(mypmid));
+	    if (write(fd, mypmid, strlen(mypmid)) != strlen(mypmid))
+		__pmNotifyErr(LOG_ERR, "mypmid write(,%s,) failed: %s", mypmid, strerror(errno));
 	    close(fd);
 	}
     } while (p);

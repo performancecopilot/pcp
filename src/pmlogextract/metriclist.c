@@ -188,7 +188,7 @@ searchmlist(pmResult *_Oresult)
     int		*ilist;
     int		*jlist;
     pmResult	*_Nresult;
-    pmValue	*vlistp;		/* temporary list of instances */
+    pmValue	*vlistp = NULL;		/* temporary list of instances */
     pmValueSet	*vsetp;			/* value set pointer */
 
     ilist = (int *) malloc(_Oresult->numpmid * sizeof(int));

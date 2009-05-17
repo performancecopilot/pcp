@@ -43,7 +43,9 @@ int file_single (char *filename, int type, int *base, void **vpp)
     /* overlarge */
     char b[80];
     /* this is bad - FIX */
-    struct stat sb;
+    struct stat sb = {
+    	.st_size = 0
+    };
 
     memset (b, 0, 80);
 

@@ -600,7 +600,7 @@ pmParseTimeWindow(
     struct timeval  aoffset;
     struct timeval  tval;
     const char	    *scan;
-    __int64_t	    delta;
+    __int64_t	    delta = 0;	/* initialize to pander to gcc */
     __int64_t 	    align;
     __int64_t 	    blign;
     int		    sts = 1;

@@ -82,11 +82,11 @@ pmParseMetricSpec(
     const char	    *h_start = NULL;	/* host name */
     const char	    *h_end = NULL;
     const char	    *a_start = NULL;	/* archive name */
-    const char	    *a_end;
+    const char	    *a_end = NULL;
     const char	    *m_start = NULL;	/* metric name */
-    const char	    *m_end;
+    const char	    *m_end = NULL;
     const char	    *i_start = NULL;	/* instance names */
-    const char	    *i_end;
+    const char	    *i_end = NULL;
     char	    *i_str = NULL;	/* temporary instance names */
     char	    *i_scan;
     int		    ninst;		/* number of instance names */

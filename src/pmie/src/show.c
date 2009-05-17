@@ -142,7 +142,7 @@ lookupHostInst(Expr *x, int nth, char **host, char **inst)
     int		sts = 0;
 #if PCP_DEBUG
     static Expr	*lastx = NULL;
-    int		dbg_dump;
+    int		dbg_dump = 0;
 #endif
 
 #if PCP_DEBUG
@@ -152,8 +152,6 @@ lookupHostInst(Expr *x, int nth, char **host, char **inst)
 	    lastx = x;
 	    dbg_dump = 1;
 	}
-	else
-	    dbg_dump = 0;
     }
 #endif
 

@@ -128,7 +128,7 @@ report(void)
     pmDesc	desc;
     pmResult	*result = NULL;
     pmResult	*xresult = NULL;
-    pmValueSet	*vsp;
+    pmValueSet	*vsp = NULL;
     char	*buffer;
     int		all_count;
     int		*all_inst;

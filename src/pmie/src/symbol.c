@@ -126,7 +126,7 @@ Symbol
 symIntern(SymbolTable *st, char *name)
 {
     SymUnion *bckt;
-    SymUnion *scoop;
+    SymUnion *scoop = NULL;
     char     *copy;
     int      i;
 

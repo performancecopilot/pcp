@@ -284,7 +284,7 @@ __pmDecodeNameList(__pmPDU *pdubuf, int mode, int *numnames,
 {
     namelist_t	*namelist_pdu;
     char        **names;
-    int		*status;
+    int		*status = NULL;
     int 	need;
     int		numstatus;
 
@@ -360,13 +360,13 @@ __pmDecodeNameList(__pmPDU *pdubuf, int mode, int *numnames,
     if (pmDebug & DBG_TRACE_PMNS) {
 	fprintf(stderr, "__pmDecodeNameList\n");
 	__pmDumpNameList(stderr, *numnames, names);
-	if (numstatus == 0)
+	if (status != NULL)
 	    __pmDumpStatusList(stderr, numstatus, status);
     }
 #endif
 
     *namelist = names;
-    if (numstatus > 0)
+    if (status != NULL)
 	*statuslist = status;
     return *numnames;
 }

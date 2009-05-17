@@ -2512,8 +2512,8 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
     pmAtomValue		atom;
     int			haveValue = 0;
     int			type;
-    __psint_t		m_offset;
-    int			m_type;
+    __psint_t		m_offset = 0;	/* initialize to pander to gcc */
+    int			m_type = 0;	/* initialize to pander to gcc */
     int			cluster;
     __uint32_t		tmp32;
     __uint64_t		tmp64;

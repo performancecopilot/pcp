@@ -129,7 +129,7 @@ void usage()
 
 long long cntDiff(pmDesc * d, pmValueSet * now, pmValueSet * was)
 {
-    long long diff;
+    long long diff = 0;		/* initialize to pander to gcc */
     pmAtomValue a;
     pmAtomValue b;
 
@@ -322,7 +322,7 @@ main(int argc, char *argv[])
     struct timeval rend;
     struct timeval offt;
 
-    pmTime * pmtime;
+    pmTime *pmtime = NULL;		/* initialize to pander to gcc */
     pmTimeControls controls;
 
     struct statsrc_t * pd;

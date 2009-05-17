@@ -209,7 +209,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
     int			namelen;
     int			err = 0;
     __pmInResult  	*res;
-    pmdaIndom		*idp;
+    pmdaIndom		*idp = NULL;	/* initialize to pander to gcc */
     int			have_cache = 0;
     int			myinst;
     char		*np;

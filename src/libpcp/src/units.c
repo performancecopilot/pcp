@@ -109,9 +109,9 @@ pmTypeStr(int type)
 const char *
 pmUnitsStr(const pmUnits *pu)
 {
-    char	*spacestr;
-    char	*timestr;
-    char	*countstr;
+    char	*spacestr = NULL;
+    char	*timestr = NULL;
+    char	*countstr = NULL;
     char	*p;
     char	sbuf[20];
     char	tbuf[20];

@@ -377,7 +377,7 @@ void SetBaudCOM(int new_baud)
 {
    struct termios t;               
    int rc;
-   speed_t baud;
+   speed_t baud = B0;
 
    // read the attribute structure
    rc = tcgetattr(fd, &t);

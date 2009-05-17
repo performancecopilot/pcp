@@ -498,7 +498,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     pmResult	*logrp;
     __pmHashCtl	*hcp = &ctxp->c_archctl->ac_pmid_hc;
     __pmHashNode	*hp;
-    pmidcntl_t	*pcp;
+    pmidcntl_t	*pcp = NULL;	/* initialize to pander to gcc */
     instcntl_t	*icp;
     int		back = 0;
     int		forw = 0;
@@ -590,6 +590,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    /* first time we've been asked for this one in this context */
 	    if ((pcp = (pmidcntl_t *)malloc(sizeof(pmidcntl_t))) == NULL) {
 		__pmNoMem("__pmLogFetchInterp.pmidcntl_t", sizeof(pmidcntl_t), PM_FATAL_ERR);
+		/*NOTREACHED*/
 	    }
 	    pcp->valfmt = -1;
 	    pcp->first = NULL;

@@ -1413,7 +1413,7 @@ CreateAgent(AgentInfo *aPtr)
     int		inPipe[2];	/* Pipe for input to child */
     int		outPipe[2];	/* For output to child */
     pid_t	childPid;
-    char	**argv;
+    char	**argv = NULL;
 
     if (aPtr->ipcType == AGENT_PIPE) {
 	argv = aPtr->ipc.pipe.argv;
@@ -1781,7 +1781,8 @@ GetAgentDso(AgentInfo *aPtr)
 static void
 ContactAgents(void)
 {
-    int		i, sts;
+    int		i;
+    int		sts = 0;
     int		createdSocketAgents = 0;
     AgentInfo	*aPtr;
 
