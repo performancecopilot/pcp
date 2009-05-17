@@ -96,6 +96,7 @@ do
     echo "=== PMCD_PORT=$PMCD_PORT pmcd_opt=$pmcd_opt ===" >>$seq.full
     pmcd -f -l $tmp.log $pmcd_opt &
     pmcd_pid=$!
+    sleep 1
 
     for client_o in 1 2
     do
