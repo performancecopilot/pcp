@@ -56,24 +56,28 @@ previous=`pmdate -1d %Y%m%d`
 $sudo $PCP_BINADM_DIR/pmie_daily -c $tmp.control
 sleep 3		# fill rotated log a bit
 
+echo "Shutdown pmie process"
+$sudo $PCP_BINADM_DIR/pmie_check -c $tmp.control -s
+
 grep rotated /tmp/$seq/1.good.log >/dev/null \
 	|| echo "First log not rotated?"
 grep rotated /tmp/$seq/1.good.log.$previous >/dev/null \
 	|| echo "New log not started?"
 
-echo "Shutdown pmie process"
-$sudo $PCP_BINADM_DIR/pmie_check -c $tmp.control -s
-
 # look for data in each log file, checking rotation actually did something
 oldlines=`wc -l < /tmp/$seq/1.good.log.$previous 2>/dev/null || echo 0`
 newlines=`wc -l < /tmp/$seq/1.good.log 2>/dev/null || echo 0`
-_within_tolerance "Old logfile line count" "$oldlines" 70 %40 -v
-_within_tolerance "New logfile line count" "$newlines" 30 %40 -v
+# 5 samples / sec x ~6 sec x 2 lines per sample + 6 lines for header and footer
+# so 66
+_within_tolerance "Old logfile line count" "$oldlines" 66 %40 -v
+# 5 samples / sec x ~3 sec x 2 lines per sample + 6 lines for header and footer
+# so 36
+_within_tolerance "New logfile line count" "$newlines" 36 %40 -v
 
-echo "=== current log ($oldlines lines) ===" >>$seq.full
-cat /tmp/$seq/1.good.log >>$seq.full
-echo "=== previous log ($newlines lines) ===" >>$seq.full
+echo "=== previous log ($oldlines lines) ===" >>$seq.full
 cat /tmp/$seq/1.good.log.$previous >>$seq.full
+echo "=== current log ($newlines lines) ===" >>$seq.full
+cat /tmp/$seq/1.good.log >>$seq.full
 
 # success, all done
 status=0
