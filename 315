@@ -53,7 +53,14 @@ cp $tmp.ctl $tmp.distdir/pmie.log.$FIVEMONTHS
 cp $tmp.ctl $tmp.relaydir/pmie.log.$FIVEMONTHS
 
 # real QA test starts here
+
+# "Error: ..." and "... unchanged" lines will only appear if pmie_daily
+# thinks pmie is "chkconfig on" ... and this is not guaranteed for the
+# QA platform, so cull 'em
+#
 pmie_daily -V -N -x 3 -X compress -c $tmp.ctl | sed \
+	-e '/Error: no pmie instance running/d' \
+	-e '/inference engine for host .* unchanged/d' \
 	-e "s/$TODAY/TODAY/g" \
 	-e "s/$FIVEDAYS/FIVEDAYS/g" \
 	-e "s/$FIVEMONTHS/FIVEMONTHS/g" \
