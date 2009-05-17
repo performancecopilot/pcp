@@ -191,7 +191,7 @@ load(char *fname)
 {
     Symbol	s;
     Expr	*d;
-    int		sts;
+    int		sts = 0;
     int		sep = __pmPathSeparator();
     char	config[MAXPATHLEN+1];
 
@@ -234,7 +234,7 @@ load(char *fname)
 	    strcpy(perf->config, "<stdin>");
 	else if (realpath(fname, perf->config) == NULL) {
 	    fprintf(stderr, "%s: failed to resolve realpath for %s: %s\n",
-		    pmProgname, fname, strerror(sts));
+		    pmProgname, fname, strerror(oserror()));
 	    exit(1);
 	}
     }
@@ -347,7 +347,10 @@ startmonitor(void)
     }
     /* seek to struct size and write one zero */
     lseek(fd, sizeof(pmiestats_t)-1, SEEK_SET);
-    write(fd, &zero, 1);
+    if (write(fd, &zero, 1) != 1) {
+	fprintf(stderr, "%s: Warning: write failed for stats file %s: %s\n",
+		pmProgname, perffile, strerror(oserror()));
+    }
 
     /* map perffile & associate the instrumentation struct with it */
     if ((ptr = __pmMemoryMap(fd, sizeof(pmiestats_t), 1)) == NULL) {
