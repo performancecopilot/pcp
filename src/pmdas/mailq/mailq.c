@@ -253,7 +253,11 @@ main(int argc, char **argv)
     char		mypath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
-    getcwd(startdir, sizeof(startdir));
+    if (getcwd(startdir, sizeof(startdir)) == NULL) {
+	fprintf(stderr, "%s: getcwd() failed: %s\n",
+	    pmProgname, pmErrStr(-errno));
+	exit(1);
+    }
 
     snprintf(mypath, sizeof(mypath), "%s%c" "mailq" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
