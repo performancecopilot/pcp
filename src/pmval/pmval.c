@@ -1115,7 +1115,7 @@ getargs(int		argc,		/* in - command line argument count */
     if (pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag,
 			   &logStart, &last,
 			   &first, &last, posn, &msg) < 0) {
-	fprintf(stderr, msg);
+	fprintf(stderr, "%s", msg);
 	exit(EXIT_FAILURE);
     }
 
@@ -1165,7 +1165,7 @@ main(int argc, char *argv[])
     pmResult	    *rslt2;		/* previous values */
     int		    forever;
     int		    idx1;
-    int		    idx2;
+    int		    idx2 = 0;		/* initialize to pander to gcc */
     int		    no_values = 0;
 
     __pmSetProgname(argv[0]);

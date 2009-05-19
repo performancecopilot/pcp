@@ -207,8 +207,8 @@ dumpTI(__pmContext *ctxp)
 {
     int		i;
     char	path[MAXPATHLEN];
-    off_t	meta_size;
-    off_t	log_size;
+    off_t	meta_size = -1;		/* initialize to pander to gcc */
+    off_t	log_size = -1;		/* initialize to pander to gcc */
     struct stat	sbuf;
     __pmLogTI	*tip;
     __pmLogTI	*lastp;
@@ -348,7 +348,7 @@ main(int argc, char *argv[])
     int			sts;
     int			errflag = 0;
     char		*pmnsfile = PM_NS_DEFAULT;
-    char		*rawfile;
+    char		*rawfile = NULL;	/* initialize to pander to gcc */
     int			i;
     int			n;
     int			first = 1;

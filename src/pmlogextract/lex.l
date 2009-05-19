@@ -67,6 +67,11 @@ int lineno = 1;
 int
 yywrap(void)
 {
+    if (lineno < 0) {
+	/* never executed, but removes compiler warnings! */
+	yyunput(1, "?");
+	input();
+    }
     return(1);
 }
 #endif

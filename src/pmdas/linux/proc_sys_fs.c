@@ -44,19 +44,25 @@ refresh_proc_sys_fs(proc_sys_fs_t *proc_sys_fs)
     }
     else {
 	proc_sys_fs->errcode = 0;
-	fscanf(filesp,  "%d %d %d",
+	if (fscanf(filesp,  "%d %d %d",
 			&proc_sys_fs->fs_files_count,
 			&proc_sys_fs->fs_files_free,
-			&proc_sys_fs->fs_files_max);
-	fscanf(inodep,  "%d %d",
+			&proc_sys_fs->fs_files_max) != 3)
+	    proc_sys_fs->errcode = PM_ERR_VALUE;
+	if (fscanf(inodep,  "%d %d",
 			&proc_sys_fs->fs_inodes_count,
-			&proc_sys_fs->fs_inodes_free);
-	fscanf(dentryp, "%d %d",
+			&proc_sys_fs->fs_inodes_free) != 2)
+	    proc_sys_fs->errcode = PM_ERR_VALUE;
+	if (fscanf(dentryp, "%d %d",
 			&proc_sys_fs->fs_dentry_count,
-			&proc_sys_fs->fs_dentry_free);
+			&proc_sys_fs->fs_dentry_free) != 2)
+	    proc_sys_fs->errcode = PM_ERR_VALUE;
 #if PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LIBPMDA) {
-	    fprintf(stderr, "refresh_proc_sys_fs: found vfs metrics\n");
+	    if (proc_sys_fs->errcode == 0)
+		fprintf(stderr, "refresh_proc_sys_fs: found vfs metrics\n");
+	    else
+		fprintf(stderr, "refresh_proc_sys_fs: botch! missing vfs metrics\n");
 	}
 #endif
     }

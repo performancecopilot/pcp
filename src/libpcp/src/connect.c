@@ -230,12 +230,12 @@ __pmConnectGetPorts(pmHostSpec *host)
 int
 __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 {
-    int		sts;
-    int		fd;	/* Fd for socket connection to pmcd */
+    int		sts = -1;
+    int		fd = -1;	/* Fd for socket connection to pmcd */
     int		*ports;
     int		nports;
     int		i;
-    int		version;
+    int		version = -1;
     int		proxyport;
     pmHostSpec	*proxyhost;
 

@@ -189,7 +189,9 @@ main(int argc, char **argv)
 	 */
 	chmod(outfname, sbuf.st_mode & ~S_IFMT);
 #if defined(HAVE_CHOWN)
-	chown(outfname, sbuf.st_uid, sbuf.st_gid);
+	if (chown(outfname, sbuf.st_uid, sbuf.st_gid) < 0)
+		fprintf(stderr, "%s: chown(%s, ...) failed: %s\n",
+		    pmProgname, outfname, strerror(errno));
 #endif
     }
 
@@ -219,7 +221,9 @@ main(int argc, char **argv)
 	     */
 	    chmod(outfname, sbuf.st_mode & ~S_IFMT);
 #if defined(HAVE_CHOWN)
-	    chown(outfname, sbuf.st_uid, sbuf.st_gid);
+	    if (chown(outfname, sbuf.st_uid, sbuf.st_gid) < 0)
+		fprintf(stderr, "%s: chown(%s, ...) failed: %s\n",
+		    pmProgname, outfname, strerror(errno));
 #endif
 	}
 	if (rename2(outfname, pmnsfile) == -1) {

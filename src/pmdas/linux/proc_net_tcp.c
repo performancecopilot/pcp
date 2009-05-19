@@ -47,7 +47,11 @@ refresh_proc_net_tcp(proc_net_tcp_t *proc_net_tcp)
     if ((fp = fopen("/proc/net/tcp", "r")) == NULL) {
     	return -errno;
     }
-    fgets(buf, sizeof(buf)-1, fp); /* skip header */
+    /* skip header */
+    if (fgets(buf, sizeof(buf), fp) == NULL) {
+    	/* oops, no header! */
+	return -errno;
+    }
     for (buf[0]='\0';;) {
 	q = strchrnul(p, '\n');
 	if (*q == '\n') {

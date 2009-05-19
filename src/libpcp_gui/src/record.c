@@ -333,8 +333,10 @@ pmRecordAddHost(const char *host, int isdefault, pmRecordHost **rhp)
 	int sep = __pmPathSeparator();
 	if (dir != NULL && __pmAbsolutePath(dir))
 	    strcpy(rp->public.logfile, dir);
-	else
-	    getcwd(rp->public.logfile, MAXPATHLEN);
+	else {
+	    if (getcwd(rp->public.logfile, MAXPATHLEN) == NULL)
+		goto failed;
+	}
 
 	sts = strlen(rp->public.logfile);
 	if (rp->public.logfile[sts - 1] != sep)

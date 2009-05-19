@@ -592,10 +592,10 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     int			sts = 0;
     __pmInResult	*res;
     int			getall = 0;
-    int			getname;
-    int			nports;
+    int			getname = 0;	/* initialize to pander to gcc */
+    int			nports = 0;	/* initialize to pander to gcc */
     __pmLogPort		*ports;
-    unsigned int	pmiecount;
+    unsigned int	pmiecount = 0;	/* initialize to pander to gcc */
     int			i;
 
     if (indom == regindom)
@@ -947,7 +947,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     static char		*hostname = NULL;
     pmiestats_t		*pmie;
     pmValueSet		*vset;
-    pmDesc		*dp;
+    pmDesc		*dp = NULL;	/* initialize to pander to gcc */
     __pmID_int		*pmidp;
     pmAtomValue		atom;
     __pmLogPort		*lpp;

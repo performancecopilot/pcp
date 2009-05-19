@@ -209,7 +209,7 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
     pmID	pmid;
     AgentInfo*	ap;
     pmDesc	desc;
-    int		fdfail;
+    int		fdfail = -1;
 
     if ((sts = __pmDecodeDescReq(pb, PDU_BINARY, &pmid)) < 0)
 	return sts;
@@ -272,7 +272,8 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
     }
     else
 	if (ap->ipcType != AGENT_DSO &&
-	    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE))
+	    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) &&
+	    fdfail != -1)
 	    CleanupAgent(ap, AT_COMM, fdfail);
 
     return sts;
@@ -288,7 +289,7 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     char		*name;
     __pmInResult		*inresult = NULL;
     AgentInfo		*ap;
-    int			fdfail;
+    int			fdfail = -1;
 
     __pmDecodeInstanceReq(pb, PDU_BINARY, &when, &indom, &inst, &name);
     if (when.tv_sec != 0 || when.tv_usec != 0) {
@@ -370,7 +371,8 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     }
     else
 	if (ap->ipcType != AGENT_DSO &&
-	    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE))
+	    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) &&
+	    fdfail != -1)
 	    CleanupAgent(ap, AT_COMM, fdfail);
 
     return sts;

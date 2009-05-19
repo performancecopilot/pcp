@@ -149,7 +149,7 @@ __pmDecodeResult(__pmPDU *pdubuf, int mode, pmResult **result)
 {
     int		numpmid;	/* number of metrics */
     int		sts;		/* function status */
-    int		i;		/* range of metrics */
+    int		i = 0;		/* range of metrics */
     int		j;		/* range over values */
     int		version;
     result_t	*pp;

@@ -623,7 +623,8 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 	    else if (strcmp(q, ".meta") == 0) strip = 1;
 	    else if (q[1] != '\0') {
 		char	*end;
-		(void)strtol(q+1, &end, 10);
+		long	tmpl;	/* NOTUSED, pander to gcc */
+		tmpl = strtol(q+1, &end, 10);
 		if (*end == '\0') strip = 1;
 	    }
 	}
@@ -1902,7 +1903,7 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 {
     struct stat	sbuf;
     FILE	*f;
-    long	save;
+    long	save = 0;
     pmResult	*rp = NULL;
     pmResult	*nrp;
     int		i;
@@ -1912,7 +1913,7 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
     long	offset;
     int		vol;
     __pm_off_t	logend;
-    __pm_off_t	physend;
+    __pm_off_t	physend = 0;
 
     /*
      * expect things to be stable, so l_maxvol is not empty, and

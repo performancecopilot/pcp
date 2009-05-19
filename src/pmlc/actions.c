@@ -146,7 +146,7 @@ ShowLoggers(char *hostname)
     int		i, n;
     int		ctx;
     int		primary = -1;		/* ports[] index for primary logger */
-    int		pport;			/* port for primary logger */
+    int		pport = -1;		/* port for primary logger */
     __pmLogPort	*ports;
 
     if ((n = __pmIsLocalhost(hostname)) == 0) {
@@ -577,6 +577,16 @@ void Status(int pid, int primary)
 	state = lsp->ls_state;
 	vol = lsp->ls_vol;
 	size = lsp->ls_size;
+    }
+    else {
+	tzlogger = NULL;
+	start = NULL;
+	last = NULL;
+	timenow = NULL;
+	hostname = NULL;
+	state = -1;
+	vol = -1;
+	size = -1;
     }
 
     if (tzchange) {

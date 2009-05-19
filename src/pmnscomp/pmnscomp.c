@@ -217,7 +217,7 @@ main(int argc, char **argv)
     int		htabcnt;	/* count of the number of htab[] entries */
     __int32_t	tmp;
     __int32_t	sum;
-    long	startsum;
+    long	startsum = 0;	/* initialize to pander to gcc */
 
     __pmSetProgname(argv[0]);
 

@@ -32,7 +32,7 @@ main(int argc, char **argv)
     int			shmid;
     int			n;
     char		*p;
-    stat_t		*sp;
+    stat_t		*sp = NULL;	/* initialize to pander to gcc */
 
     if (argc == 1 || (argc == 2 && strcmp(argv[1], "-?") == 0)) {
 	fprintf(stderr, "Usage: txrecord tx_type servtime [tx_type servtime ...]\n"

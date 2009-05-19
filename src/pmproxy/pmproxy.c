@@ -575,7 +575,9 @@ main(int argc, char *argv[])
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));
-    dup(fileno(stderr));
+    if (dup(fileno(stderr)) == -1) {
+	fprintf(stderr, "Warning: dup() failed: %s\n", pmErrStr(-errno));
+    }
 
     fprintf(stderr, "pmproxy: PID = %u", getpid());
     fprintf(stderr, ", PDU version = %u\n", PDU_VERSION);

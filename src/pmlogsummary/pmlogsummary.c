@@ -39,10 +39,11 @@ usage(void)
 "  -m            also print minimum values\n"
 "  -M            also print maximum values\n"
 "  -n pmnsfile   use an alternative PMNS\n"
-"  -N            suppress warnings from individual archive fetches\n"
+"  -N            suppress warnings from individual archive fetches [default]\n"
 "  -p precision  number of digits to display after the decimal point\n"
 "  -S starttime  start of the time window\n"
 "  -T endtime    end of the time window\n"
+"  -v            verbose, enable warnings from individual archive fetches\n"
 "  -x            print only stochastic averages for counter metrics\n"
 "  -y            print sample count for each metric\n"
 "  -z            set reporting timezone to local time of metrics source\n"
@@ -929,7 +930,7 @@ main(int argc, char *argv[])
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "abB:D:fFHiIlmMNn:p:rsS:T:xyzZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, "abB:D:fFHiIlmMNn:p:rsS:T:vxyzZ:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* provide all information */

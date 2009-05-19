@@ -211,7 +211,7 @@ static void stomp_parse(void)
     int sep = __pmPathSeparator();
 
     if (stompfile)
-	strncat(config, stompfile, sizeof(config));
+	strncat(config, stompfile, sizeof(config)-1);
     else
 	snprintf(config, sizeof(config),
 		"%s%c" "config" "%c" "pmie" "%c" "stomp",

@@ -58,7 +58,11 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 	slabinfo->caches[i].seen = 0;
     }
 
-    fgets(buf, sizeof(buf), fp);	/* heading */
+    /* skip header */
+    if (fgets(buf, sizeof(buf), fp) == NULL) {
+    	/* oops, no header! */
+	return -errno;
+    }
 
     if (major_version < 0) {
 	major_version = minor_version = 0;

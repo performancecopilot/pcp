@@ -86,7 +86,7 @@ main(int argc, char **argv)
     int		Vflag = 0;		/* -V for verbose */
     int		zflag = 0;		/* -z for archive timezone */
     int		errflag = 0;
-    char	*host;
+    char	*host = NULL;
     char	*msg;
     pmLogLabel	label;			/* get hostname for archives */
     struct timeval	start;		/* start of sample window */
@@ -395,6 +395,7 @@ Options:\n\
 	    continue;
 	}
 
+	fetch_sts = 0;
 	if (type == PM_CONTEXT_ARCHIVE) {
 	    /*
 	     * merics from archives are fetched one at a time, otherwise

@@ -381,7 +381,7 @@ op		: ADVISORY		{ opmask |= PM_OP_LOG_ADV; }
 void
 dometric(const char *name)
 {
-    int		sts;
+    int		sts = 0;	/* initialize to pander to gcc */
     int		inst;
     int		i;
     int		j;

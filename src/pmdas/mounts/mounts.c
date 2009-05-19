@@ -266,7 +266,10 @@ mounts_refresh_mounts(void) {
 #else
     while ((fscanf(fd, "%s %s %s %s", device, mount, type, options)) == 4) {
 #endif
-      fgets(junk, sizeof(junk), fd);
+      if (fgets(junk, sizeof(junk), fd) == NULL) {
+	/* early EOF? will be caught in next iteration */
+	;
+      }
 
       for(mount_name = 0; mount_name < indomtab[MOUNTS_INDOM].it_numinst; 
           mount_name++) {

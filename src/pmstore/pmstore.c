@@ -274,7 +274,7 @@ main(int argc, char **argv)
     char	*p;
     int		type = 0;
     int		force = 0;
-    char	*host;
+    char	*host = NULL;		/* initialize to pander to gcc */
     char	local[MAXHOSTNAMELEN];
     char	*pmnsfile = PM_NS_DEFAULT;
     int		errflag = 0;
