@@ -297,7 +297,7 @@ void ChartDialog::archiveButtonClicked()
     af->setAcceptMode(QFileDialog::AcceptOpen);
     af->setIconProvider(fileIconProvider);
     af->setWindowTitle(tr("Add Archive"));
-    af->setDirectory(QDir::homePath());
+    af->setDirectory(QDir::toNativeSeparators(QDir::homePath()));
 
     if (af->exec() == QDialog::Accepted)
 	al = af->selectedFiles();

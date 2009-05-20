@@ -52,7 +52,7 @@ OpenViewDialog::OpenViewDialog(QWidget *parent) : QDialog(parent)
 	pathComboBox->addItem(fileIconProvider->icon(QFileIconProvider::Folder),
 			  my.systemDir);
 
-    QString home = my.userDir = QDir::homePath();
+    QString home = my.userDir = QDir::toNativeSeparators(QDir::homePath());
     my.userDir.append(sep);
     my.userDir.append(".pcp");
     my.userDir.append(sep);
@@ -242,7 +242,7 @@ void OpenViewDialog::archiveAdd()
     af->setAcceptMode(QFileDialog::AcceptOpen);
     af->setWindowTitle(tr("Add Archive"));
     af->setIconProvider(fileIconProvider);
-    af->setDirectory(QDir::homePath());
+    af->setDirectory(QDir::toNativeSeparators(QDir::homePath()));
 
     if (af->exec() == QDialog::Accepted)
 	al = af->selectedFiles();

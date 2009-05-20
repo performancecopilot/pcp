@@ -276,25 +276,25 @@ bool OpenViewDialog::openView(const char *path)
 	    goto noview;
     }
     else {
+	QString homepath = QDir::toNativeSeparators(QDir::homePath());
+
 	strcpy(_fname, path);
 	if ((f = fopen(_fname, "r")) == NULL) {
 	    // not found, start the great hunt
 	    // try user's pmchart dir ...
 	    snprintf(_fname, sizeof(_fname),
 			"%s%c" ".pcp%c" "pmchart%c" "%s",
-			(const char *)QDir::homePath().toAscii(),
-			sep, sep, sep, path);
+			(const char *)homepath.toAscii(), sep, sep, sep, path);
 	    if ((f = fopen(_fname, "r")) == NULL) {
 		// try system pmchart dir
 		snprintf(_fname, sizeof(_fname),
 			    "%s%c" "config%c" "pmchart%c" "%s",
-			    pmGetConfig("PCP_VAR_DIR"),
-			    sep, sep, sep, path);
+			    pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, path);
 		if ((f = fopen(_fname, "r")) == NULL) {
 		    // try user's kmchart dir
 		    snprintf(_fname, sizeof(_fname),
 				"%s%c" ".pcp%c" "kmchart%c" "%s",
-				(const char *)QDir::homePath().toAscii(),
+				(const char *)homepath.toAscii(),
 				sep, sep, sep, path);
 		    if ((f = fopen(_fname, "r")) == NULL) {
 			// try system kmchart dir

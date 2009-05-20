@@ -34,7 +34,7 @@ void RecordDialog::languageChange()
 void RecordDialog::init(Tab *tab)
 {
     QChar	sep(__pmPathSeparator());
-    QString	pmlogger = QDir::homePath();
+    QString	pmlogger = QDir::toNativeSeparators(QDir::homePath());
     QString	view, folio, archive;
 
     pmlogger.append(sep);
@@ -86,7 +86,7 @@ void RecordDialog::viewPushButton_clicked()
     RecordFileDialog view(this);
 
     QChar sep(__pmPathSeparator());
-    QString pmlogger = QDir::homePath();
+    QString pmlogger = QDir::toNativeSeparators(QDir::homePath());
     pmlogger.append(sep);
     pmlogger.append(".pcp");
     pmlogger.append(sep);
@@ -103,7 +103,7 @@ void RecordDialog::folioPushButton_clicked()
     RecordFileDialog folio(this);
 
     QChar sep(__pmPathSeparator());
-    QString pmlogger = QDir::homePath();
+    QString pmlogger = QDir::toNativeSeparators(QDir::homePath());
     pmlogger.append(sep);
     pmlogger.append(".pcp");
     pmlogger.append(sep);
@@ -120,7 +120,7 @@ void RecordDialog::archivePushButton_clicked()
     RecordFileDialog archive(this);
 
     QChar sep(__pmPathSeparator());
-    QString pmlogger = QDir::homePath();
+    QString pmlogger = QDir::toNativeSeparators(QDir::homePath());
     pmlogger.append(sep);
     pmlogger.append(".pcp");
     pmlogger.append(sep);
@@ -238,7 +238,7 @@ void RecordDialog::buttonOk_clicked()
     QString today = QDateTime::currentDateTime().toString("yyyyMMdd.hh.mm.ss");
 
     QString view = viewLineEdit->text().trimmed();
-    view.replace(QRegExp("^~"), QDir::homePath());
+    view.replace(QRegExp("^~"), QDir::toNativeSeparators(QDir::homePath()));
     view.replace(QRegExp("\\[date\\]"), today);
     view.replace(QRegExp("\\[host\\]"), QmcSource::localHost);
     QFileInfo viewFile(view);
@@ -252,7 +252,7 @@ void RecordDialog::buttonOk_clicked()
     }
 
     QString folio = folioLineEdit->text().trimmed();
-    folio.replace(QRegExp("^~"), QDir::homePath());
+    folio.replace(QRegExp("^~"), QDir::toNativeSeparators(QDir::homePath()));
     folio.replace(QRegExp("\\[date\\]"), today);
     folio.replace(QRegExp("\\[host\\]"), QmcSource::localHost);
     QFileInfo folioFile(folio);
@@ -286,7 +286,8 @@ void RecordDialog::buttonOk_clicked()
 
     for (int h = 0; h < my.hosts.count(); h++) {
 	QString archive = archiveLineEdit->text().trimmed();
-	archive.replace(QRegExp("^~"), QDir::homePath());
+	QString rehomer = QDir::toNativeSeparators(QDir::homePath());
+	archive.replace(QRegExp("^~"), rehomer);
 	archive.replace(QRegExp("\\[host\\]"), my.hosts.at(h));
 	archive.replace(QRegExp("\\[date\\]"), today);
 	my.archives.append(archive);
@@ -310,7 +311,7 @@ void RecordDialog::startLoggers()
     pmlogger.append("pmlogger");
 
     QString regex = "^";
-    regex.append(QDir::homePath());
+    regex.append(QDir::toNativeSeparators(QDir::homePath()));
     my.folio.replace(QRegExp(regex), "~"); 
 
     Tab *tab = pmchart->activeTab();

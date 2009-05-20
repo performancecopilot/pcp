@@ -47,11 +47,13 @@ void ExportDialog::languageChange()
 
 void ExportDialog::init()
 {
-    QString imgfile = QDir::homePath();
+    QChar	sep(__pmPathSeparator());
+    QString	imgfile = QDir::toNativeSeparators(QDir::homePath());
 
     my.quality = 0;
     my.format = strdup("png");
-    imgfile.append("/export.png");
+    imgfile.append(sep);
+    imgfile.append("export.png");
     fileLineEdit->setText(imgfile);
 
     int png = 0;
@@ -121,7 +123,7 @@ void ExportDialog::filePushButton_clicked()
 {
     ExportFileDialog file(this);
 
-    file.setDirectory(QDir::homePath());
+    file.setDirectory(QDir::toNativeSeparators(QDir::homePath()));
     if (file.exec() == QDialog::Accepted)
 	fileLineEdit->setText(file.selectedFiles().at(0));
 }

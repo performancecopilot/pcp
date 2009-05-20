@@ -34,7 +34,7 @@ SaveViewDialog::SaveViewDialog(QWidget* parent) : QDialog(parent)
 
     QDir dir;
     QChar sep(__pmPathSeparator());
-    QString home = my.userDir = QDir::homePath();
+    QString home = my.userDir = QDir::toNativeSeparators(QDir::homePath());
     my.userDir.append(sep);
     my.userDir.append(".pcp");
     my.userDir.append(sep);
