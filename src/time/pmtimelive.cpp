@@ -254,16 +254,20 @@ void PmTimeLive::hideWindow()
 {
     if (isVisible())
 	hide();
-    else
+    else {
 	show();
+	raise();
+    }
 }
 
 void PmTimeLive::popup(bool hello_popetts)
 {
-    if (hello_popetts)
-	show();
-    else
+    if (!hello_popetts)
 	hide();
+    else {
+	show();
+	raise();
+    }
 }
 
 void PmTimeLive::closeEvent(QCloseEvent *ce)

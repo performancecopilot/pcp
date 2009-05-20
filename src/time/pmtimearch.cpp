@@ -508,16 +508,20 @@ void PmTimeArch::hideWindow()
 {
     if (isVisible())
 	hide();
-    else
+    else {
 	show();
+	raise();
+    }
 }
 
 void PmTimeArch::popup(bool hello_popetts)
 {
-    if (hello_popetts)
-	show();
-    else
+    if (!hello_popetts)
 	hide();
+    else {
+	show();
+	raise();
+    }
 }
 
 void PmTimeArch::closeEvent(QCloseEvent *ce)
