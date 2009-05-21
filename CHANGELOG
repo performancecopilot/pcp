@@ -1,3 +1,12 @@
+pcp-2.8.5 (21 May 2009)
+    - Packaging tweaks for Debian (builddefs/rules moved).
+    - Make timezone manipulation in Windows work (mimic MSYS).
+    - Numerous warnings fixed.
+    - Several changes to tempfile handling for Vista.
+    - Make setting pcp_rc_dir in configure.in more robust.
+    - Further pathname separator auditing for Windows.
+    - Fixed a libpcp_gui linker issue on Mac OS X.
+
 pcp-2.8.4 (12 May 2009)
     - Descend into src/bashrc.  D'oh!
 
