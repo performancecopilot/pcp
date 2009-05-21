@@ -18,8 +18,8 @@
  * Display offset date
  */
 
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "pmapi.h"
+#include "impl.h"
 
 #define usage "Usage: pmdate { +valueS | -valueS } ... format\n\
 \n\
