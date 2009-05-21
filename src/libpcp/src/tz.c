@@ -75,8 +75,10 @@ __pmSquashTZ(char *tzbuffer)
 {
     time_t	now = time(NULL);
     struct tm	*t;
-    time_t	offset; 
     char	*tzn;
+
+#ifndef IS_MINGW
+    time_t	offset; 
 
     tzset();
     t = localtime(&now);
@@ -121,9 +123,106 @@ __pmSquashTZ(char *tzbuffer)
 	strncpy(tzbuffer+3, tzn, PM_TZ_MAXLEN);
 	tzbuffer[PM_TZ_MAXLEN+4-1] = '\0';
     }
-
     putenv(tzbuffer);
     return tzbuffer+3;
+
+#else	/* IS_MINGW */
+    /*
+     * Use the native Win32 API to extract the timezone.  This is
+     * a Windows timezone, we want the POSIX style but there's no
+     * API, really.  What we've found works, is the same approach
+     * the MSYS dll takes - we set TZ their way (below) and then
+     * use tzset, then extract.  Note that the %Z and %z strftime
+     * parameters do not contain abbreviated names/offsets (they
+     * both contain Windows timezone, and both are the same with
+     * no TZ).  Note also that putting the Windows name into the
+     * environment as TZ does not do anything good (see the tzset
+     * MSDN docs).
+     */
+#define is_upper(c) ((unsigned)(c) - 'A' <= 26)
+
+    TIME_ZONE_INFORMATION tz;
+    static char wildabbr[] = "GMT";
+    char tzbuf[256], tzoff[64];
+    char *cp, *dst, *off;
+    wchar_t *src;
+    div_t d;
+
+    GetTimeZoneInformation(&tz);
+    dst = cp = tzbuf;
+    off = tzoff;
+    for (src = tz.StandardName; *src; src++)
+	if (is_upper(*src)) *dst++ = *src;
+    if (cp == dst) {
+	/* In Asian Windows, tz.StandardName may not contain
+	   the timezone name. */
+	strcpy(cp, wildabbr);
+	cp += strlen(wildabbr);
+    }
+    else
+	cp = dst;
+    d = div(tz.Bias+tz.StandardBias, 60);
+    sprintf(cp, "%d", d.quot);
+    sprintf(off, "%d", d.quot);
+    if (d.rem) {
+	sprintf(cp=strchr(cp, 0), ":%d", abs(d.rem));
+	sprintf(off=strchr(off, 0), ":%d", abs(d.rem));
+    }
+    if (tz.StandardDate.wMonth) {
+	cp = strchr(cp, 0);
+	dst = cp;
+	for (src = tz.DaylightName; *src; src++)
+	    if (is_upper(*src)) *dst++ = *src;
+	if (cp == dst) {
+	    /* In Asian Windows, tz.StandardName may not contain
+	       the daylight name. */
+	    strcpy(tzbuf, wildabbr);
+	    cp += strlen(wildabbr);
+	}
+	else
+	    cp = dst;
+	d = div(tz.Bias+tz.DaylightBias, 60);
+	sprintf(cp, "%d", d.quot);
+	if (d.rem)
+	    sprintf(cp=strchr(cp, 0), ":%d", abs(d.rem));
+	cp = strchr(cp, 0);
+	sprintf(cp=strchr(cp, 0), ",M%d.%d.%d/%d",
+		tz.DaylightDate.wMonth,
+		tz.DaylightDate.wDay,
+		tz.DaylightDate.wDayOfWeek,
+		tz.DaylightDate.wHour);
+	if (tz.DaylightDate.wMinute || tz.DaylightDate.wSecond)
+	    sprintf(cp=strchr(cp, 0), ":%d", tz.DaylightDate.wMinute);
+	if (tz.DaylightDate.wSecond)
+	    sprintf(cp=strchr(cp, 0), ":%d", tz.DaylightDate.wSecond);
+	cp = strchr(cp, 0);
+	sprintf(cp=strchr(cp, 0), ",M%d.%d.%d/%d",
+		tz.StandardDate.wMonth,
+		tz.StandardDate.wDay,
+		tz.StandardDate.wDayOfWeek,
+		tz.StandardDate.wHour);
+	if (tz.StandardDate.wMinute || tz.StandardDate.wSecond)
+	    sprintf(cp=strchr(cp, 0), ":%d", tz.StandardDate.wMinute);
+	if (tz.StandardDate.wSecond)
+	    sprintf(cp=strchr(cp, 0), ":%d", tz.StandardDate.wSecond);
+    }
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_TIMECONTROL)
+	fprintf(stderr, "Win32 TZ=%s\n", tzbuf);
+#endif
+
+    snprintf(tzbuffer+3, PM_TZ_MAXLEN+4, "%s", tzbuf);
+    putenv(tzbuffer);
+
+    tzset();
+    t = localtime(&now);
+    tzn = tzname[(t->tm_isdst > 0)];
+
+    snprintf(tzbuffer+3, PM_TZ_MAXLEN+4, "%s%s", tzn, tzoff);
+    putenv(tzbuffer);
+
+    return tzbuffer+3;
+#endif
 }
 
 /*
