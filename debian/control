@@ -25,8 +25,8 @@ Description: System level performance monitoring and performance management
 
 Package: libpcp3-dev
 Section: libdevel
-Depends: libc6-dev | libc-dev, libpcp3 (>= 2.7.4-20080507)
-Conflicts: pcp (< 2.7.4-20080507)
+Depends: libc6-dev | libc-dev, libpcp3 (>= 2.8.0)
+Conflicts: pcp (< 2.8.0)
 Architecture: any
 Description: Performance Co-Pilot library and headers
  libpcp-dev contains the base Performance Co-Pilot (PCP) library and
@@ -40,7 +40,7 @@ Description: Performance Co-Pilot library and headers
 
 Package: libpcp3
 Depends: ${shlibs:Depends}
-Conflicts: pgpool2, pcp (< 2.7.4-20080507)
+Conflicts: pgpool2, pcp (< 2.8.0), libpcp3-dev (< 2.8.5)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot library

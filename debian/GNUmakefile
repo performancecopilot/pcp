@@ -4,7 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 PCP_FILES = pcp.prerm pcp.postinst pcp.postrm
 
 LIBPCPPCP = libpcp3
-LIBPCP_FILES = libpcp3.install
+LIBPCP_FILES = libpcp3.dirs libpcp3.install
 DEVPCP_FILES = libpcp3-dev.dirs libpcp3-dev.install
 LIBPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3
 DEVPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3-dev
