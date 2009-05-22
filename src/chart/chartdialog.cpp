@@ -101,7 +101,7 @@ void ChartDialog::reset(Chart *chart, int style, QString scheme)
     antiAliasingOn->setChecked(false);
     antiAliasingOff->setChecked(false);
     antiAliasingAuto->setChecked(true);
-    setupAvailableMetricsTree(my.archiveSource);
+    setupAvailableMetricsTree(my.archiveSource == true);
     my.yMin = yAxisMinimum->value();
     my.yMax = yAxisMaximum->value();
 
@@ -598,6 +598,8 @@ void ChartDialog::setupAvailableMetricsTree(bool arch)
     availableMetricsTreeWidget->clear();
     for (unsigned int i = 0; i < group->numContexts(); i++) {
 	QmcContext *cp = group->context(i);
+	if (cp->status() < 0)
+	    continue;
 	NameSpace *name = new NameSpace(availableMetricsTreeWidget, cp);
 	name->setExpanded(true, true);
 	name->setSelectable(false);
@@ -606,7 +608,8 @@ void ChartDialog::setupAvailableMetricsTree(bool arch)
 	    current = name;
 	items.append(name);
     }
-    availableMetricsTreeWidget->insertTopLevelItems(0, items);
+    if (items.size() > 0)
+	availableMetricsTreeWidget->insertTopLevelItems(0, items);
     if (current)
 	availableMetricsTreeWidget->setCurrentItem(current);
 }
