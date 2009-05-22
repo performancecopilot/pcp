@@ -1,3 +1,13 @@
+pcp-gui 1.4.1 (22 May 2009)
+    - Fixes to pmchart problems (bugzilla bug numbers below):
+	824 - Able to select metrics for an invalid host 
+	825 - Default position of the PCP Live Time Control window 
+	826 - Disconnect between reported time-zone and displayed time
+	827 - Use of mixed path separators
+	829 - Improper handling of tab options in view-config files 
+	830 - Specifying a config file when starting Windows pmchart
+    - Note: Initial version of pmview merged into development branch
+
 pcp-gui 1.4.0 (5 May 2009)
     - Finally fix the font issue that has plagued us for years,
       causing many fonts to be displayed incorrectly in pmchart.

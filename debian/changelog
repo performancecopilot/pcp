@@ -1,3 +1,9 @@
+pcp-gui (1.4.1) unstable; urgency=low
+
+  * New pcp-gui (pmchart bugfix) release.
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 22 May 2009 12:59:19 +1000
+
 pcp-gui (1.4.0) unstable; urgency=low
 
   * New pcp-gui release (closes: #524030).
