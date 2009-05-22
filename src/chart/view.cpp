@@ -673,7 +673,7 @@ abort_chart:
 		}
 		globalSettings.colorSchemes.append(scheme);
 	    }
-	    else if (strcasecmp(w, "tab") == 0) {
+	    else if (strcasecmp(w, "view") == 0 || strcasecmp(w, "tab") == 0) {
 new_tab:
 		QString label, host;
 		int samples = globalSettings.sampleHistory;
@@ -690,6 +690,7 @@ new_tab:
 		w = getwd(f);
 		if (w == NULL || w[0] == '\n')
 		    goto done_tab;
+
 		// default "host" specification for the tab is optional
 		if (strcasecmp(w, "host") == 0) {
 		    w = getwd(f);
@@ -698,6 +699,9 @@ new_tab:
 			goto abandon;
 		    }
 		    host = w;
+		    w = getwd(f);
+		    if (w == NULL || w[0] == '\n')
+			goto done_tab;
 		}
 		if (strcasecmp(w, "points") != 0) {
 		    xpect("<tab points>", w);
@@ -740,18 +744,17 @@ done_tab:
 		if (tab->gadgetCount() == 0) {	// edit the initial tab
 		    TabWidget *tabWidget = pmchart->tabWidget();
 		    tabWidget->setTabText(tabWidget->currentIndex(), label);
-		    activeGroup->setSampleHistory(samples);
-		    activeGroup->setVisibleHistory(points);
 		}
 		else {		// create a completely new tab from scratch
 		    tab = new Tab;
-		    // TODO: samples, points?
 		    if (isArchive)
 			tab->init(pmchart->tabWidget(), archiveGroup, label);
 		    else
 			tab->init(pmchart->tabWidget(), liveGroup, label);
 		    pmchart->addActiveTab(tab);
 		}
+		activeGroup->setSampleHistory(samples);
+		activeGroup->setVisibleHistory(points);
 	    }
 	    else {
 		xpect("chart\", \"global\", \"scheme\" or \"tab", w);
@@ -775,7 +778,7 @@ done_tab:
 	    int		abort = 1;	// default @ skip
 
 	    memset(&pms, 0, sizeof(pms));
-	    if (strcasecmp(w, "tab") == 0) {
+	    if (strcasecmp(w, "view") == 0 || strcasecmp(w, "tab") == 0) {
 		// new tab
 		state = S_TOP;
 		goto new_tab;
