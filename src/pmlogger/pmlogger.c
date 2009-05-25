@@ -337,15 +337,15 @@ do_dialog(char cmd)
     nchar = add_msg(&p, nchar, " archive of ");
     q = do_size(archsize);
     nchar = add_msg(&p, nchar, q);
-    nchar = add_msg(&p, nchar, ".\n");
+    nchar = add_msg(&p, nchar, ".");
     if (rsc_replay) {
-	nchar = add_msg(&p, nchar, "\nThis archive may be replayed with the following command:\n");
-	sprintf(lbuf, "  $ pmafm %s replay\n", folio_name);
+	nchar = add_msg(&p, nchar, "\n\nThis archive may be replayed with the following command:\n");
+	sprintf(lbuf, "  $ pmafm %s replay", folio_name);
 	nchar = add_msg(&p, nchar, lbuf);
     }
 
     if (cmd == 'D') {
-	nchar = add_msg(&p, nchar, "\nThe application that launched pmlogger has asked pmlogger");
+	nchar = add_msg(&p, nchar, "\n\nThe application that launched pmlogger has asked pmlogger");
 	nchar = add_msg(&p, nchar, " to continue independently and the PCP archive will grow at");
 	nchar = add_msg(&p, nchar, " the rate of ");
 	q = do_size((archsize * 3600) / now);
@@ -353,11 +353,11 @@ do_dialog(char cmd)
 	nchar = add_msg(&p, nchar, " per hour or ");
 	q = do_size((archsize * 3600 * 24) / now);
 	nchar = add_msg(&p, nchar, q);
-	nchar = add_msg(&p, nchar, " per day.\n");
+	nchar = add_msg(&p, nchar, " per day.");
     }
 
     if (cmd == 'X') {
-	nchar = add_msg(&p, nchar, "\nThe application that launched pmlogger has exited and you");
+	nchar = add_msg(&p, nchar, "\n\nThe application that launched pmlogger has exited and you");
 	nchar = add_msg(&p, nchar, " must decide if the PCP recording session should be terminated");
 	nchar = add_msg(&p, nchar, " or continued.  If recording is continued the PCP archive will");
 	nchar = add_msg(&p, nchar, " grow at the rate of ");
@@ -366,16 +366,16 @@ do_dialog(char cmd)
 	nchar = add_msg(&p, nchar, " per hour or ");
 	q = do_size((archsize * 3600 * 24) / now);
 	nchar = add_msg(&p, nchar, q);
-	nchar = add_msg(&p, nchar, " per day.\n");
+	nchar = add_msg(&p, nchar, " per day.");
     }
 
     if (cmd == 'Q') {
-	nchar = add_msg(&p, nchar, "\nThe application that launched pmlogger has terminated");
+	nchar = add_msg(&p, nchar, "\n\nThe application that launched pmlogger has terminated");
 	nchar = add_msg(&p, nchar, " this PCP recording session.\n");
     }
 
     if (cmd != 'Q') {
-	nchar = add_msg(&p, nchar, "\nAt any time this pmlogger process may be terminated with the");
+	nchar = add_msg(&p, nchar, "\n\nAt any time this pmlogger process may be terminated with the");
 	nchar = add_msg(&p, nchar, " following command:\n");
 	nchar = add_msg(&p, nchar, "  $ kill -s TERM");
 	sprintf(lbuf, " %d\n", (int)getpid());
@@ -383,7 +383,7 @@ do_dialog(char cmd)
     }
 
     if (cmd == 'X')
-	nchar = add_msg(&p, nchar, "\nTerminate this PCP recording session now?\n");
+	nchar = add_msg(&p, nchar, "\n\nTerminate this PCP recording session now?");
 
     if (nchar > 0) {
 	char * xconfirm = __pmNativePath(pmGetConfig("PCP_XCONFIRM_PROG"));
@@ -421,7 +421,7 @@ do_dialog(char cmd)
 
 	if ((msgf = popen(lbuf, "r")) == NULL) {
 	    fprintf(stderr, "\nError: failed to start command for recording session dialog\n");
-	    fprintf(stderr, "Command: \"%s\"\n", msg);
+	    fprintf(stderr, "Command: \"%s\"\n", lbuf);
 	    goto failed;
 	}
 
