@@ -115,11 +115,6 @@ false		{ return FALSE; }
 	}
 
 .	{
-	    if (yylineno < 0) {
-		/* never executed, but removes compiler warnings! */
-		yyunput(1, "?");
-		input();
-	    }
 	    yyerror("Illegal character");
 	}
 %%
