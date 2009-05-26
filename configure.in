@@ -35,10 +35,6 @@ qt_release=release
 test -z "$QT_RELEASE" || qt_release="$QT_RELEASE"
 AC_SUBST(qt_release)
 
-dnl if regex functions come from libregex (mingw)
-AC_CHECK_HEADERS(regex.h)
-AC_CHECK_LIB(regex, regcomp)
-
 AC_OUTPUT( \
 	src/include/builddefs \
 	src/include/version.h \

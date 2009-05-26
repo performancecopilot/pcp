@@ -18,9 +18,6 @@
 #include <string.h>
 #include <sys/time.h>
 #include <sys/types.h>
-extern "C" {	// for the MinGW version of regex.h, avoids name mangling
-#include <regex.h>
-}
 #include "main.h"
 #include "openviewdialog.h"
 #include "saveviewdialog.h"
@@ -263,6 +260,7 @@ bool OpenViewDialog::openView(const char *path)
     int			h_mode;
     int			version;
     QString		errmsg;
+    QRegExp		regex;
     int			sep = __pmPathSeparator();
     int			sts = 0;
 
@@ -773,8 +771,6 @@ done_tab:
 	    int		*instlist = NULL;
 	    char	**namelist = NULL;
 	    pmMetricSpec pms;
-	    regex_t	preg;
-	    int		done_regex = 0;
 	    int		abort = 1;	// default @ skip
 
 	    memset(&pms, 0, sizeof(pms));
@@ -1016,17 +1012,14 @@ done_tab:
 			goto skip;
 		    }
 		    if (inst_match_type != IM_NONE) {
-			sts = regcomp(&preg, pms.inst[0], REG_EXTENDED|REG_NOSUB);
-			if (sts != 0) {
-			    QString	msg = QString();
-			    char	errbuf[1024];
-			    regerror(sts, &preg, errbuf, sizeof(errbuf));
-			    msg.sprintf("\nBad regular expression \"%s\"\n%s",
-				pms.inst[0], errbuf);
-			    errmsg.append(msg);
+			regex.setPattern(pms.inst[0]);
+			if (!regex.isValid()) {
+			    errmsg = "Invalid regular expression:\n  ";
+			    errmsg.append(pms.inst[0]);
+			    errmsg.append("\n\n");
+			    errmsg.append(regex.errorString());
 			    goto skip;
 			}
-			done_regex = 1;
 		    }
 		    pms.ninst = 1;
 		    if (pms.inst[0] != NULL) {
@@ -1039,26 +1032,18 @@ try_plot:
 		if (numinst > 0) {
 		    pms.inst[0] = NULL;
 		    for (nextinst++ ; nextinst < numinst; nextinst++) {
+			sts = 0;
 			if (inst_match_type == IM_MATCH ||
 			    inst_match_type == IM_NOT_MATCH) {
-			    sts = regexec(&preg, namelist[nextinst], 0, NULL, 0);
-			    if (sts != 0 && sts != REG_NOMATCH) {
-				QString	msg = QString();
-				char	errbuf[1024];
-				regerror(sts, &preg, errbuf, sizeof(errbuf));
-				msg.sprintf("\nRegular expression \"%s\" execution botch\n%s",
-				    pms.inst[0], errbuf);
-				errmsg.append(msg);
-				goto skip;
-			    }
+			    sts = regex.indexIn(QString(namelist[nextinst]));
 			}
 			switch (inst_match_type) {
 			    case IM_MATCH:
-				if (sts == 0)
+				if (sts != -1)
 				    pms.inst[0] = namelist[nextinst];
 				break;
 			    case IM_NOT_MATCH:
-				if (sts == REG_NOMATCH)
+				if (sts == -1)
 				    pms.inst[0] = namelist[nextinst];
 				break;
 			    case IM_NONE:
@@ -1130,7 +1115,6 @@ skip:
 	    if (pms.source != NULL) free(pms.source);
 	    if (pms.metric != NULL) free(pms.metric);
 	    if (pms.inst[0] != NULL) free(pms.inst[0]);
-	    if (done_regex) regfree(&preg);
 
 	    if (abort)
 		goto abandon;
