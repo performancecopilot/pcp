@@ -125,11 +125,6 @@ static int in = '\n';
 
 int yywrap(void)
 {
-    if (lineno < 0) {
-	/* never executed, but removes compiler warnings! */
-	yyunput(1, "?");
-	input();
-    }
     return in == EOF;
 }
 
