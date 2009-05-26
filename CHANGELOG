@@ -1,3 +1,9 @@
+pcp-2.8.6 (26 May 2009)
+    - Fix build on Mac OS X after lex warning cleanups.
+    - Fix pmdate build when PCP headers not in the root.
+    - A single PMNS domain number file now used in-tree.
+    - Added tmpfs filesystem metrics to Linux PMDA.
+
 pcp-2.8.5 (21 May 2009)
     - Packaging tweaks for Debian (builddefs/rules moved).
     - Make timezone manipulation in Windows work (mimic MSYS).
