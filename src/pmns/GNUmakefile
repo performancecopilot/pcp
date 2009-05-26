@@ -12,10 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-#
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
@@ -35,12 +31,10 @@ HFILES  = pmnsutil.h
 TARGETS = pmnsmerge$(EXECSUFFIX) pmnsdel$(EXECSUFFIX)
 SCRIPTS = pmnsadd
 LOCKERS	= lockpmns unlockpmns
-
-STDPMIDS= stdpmid.irix  stdpmid.linux stdpmid.add-on stdpmid.local \
-	stdpmid.pcp stdpmid.qa
+STDPMID = stdpmid.pcp stdpmid.local
 
 LSRCFILES = Make.stdpmid GNUmakefile.install Rebuild ReplacePmnsSubtree \
-	    $(STDPMIDS) $(SCRIPTS) $(LOCKERS)
+	    $(STDPMID) $(SCRIPTS) $(LOCKERS)
 
 LLDLIBS = -lpcp
 LDIRT	= *.log *.pmns stdpmid $(TARGETS)
@@ -66,9 +60,9 @@ install:	default
 	$(INSTALL) -m 644 GNUmakefile.install $(PMNS_VAR_DIR)/Makefile
 	$(INSTALL) -m 755 Rebuild $(PMNS_VAR_DIR)/Rebuild
 	$(INSTALL) -m 755 Make.stdpmid $(PMNS_VAR_DIR)/Make.stdpmid
-	$(INSTALL) -m 644 $(STDPMIDS) $(PMNS_VAR_DIR)
+	$(INSTALL) -m 644 $(STDPMID) $(PMNS_VAR_DIR)
 
-stdpmid:	$(STDPMIDS)
+stdpmid:	$(STDPMID)
 	PCP_CONF=$(TOPDIR)/src/include/pcp.conf export PCP_CONF; \
 	sed -e 's/\$PCP_DIR\/etc\/pcp\.env/\.\.\/\.\.\/src\/include\/pcp.env/' <Make.stdpmid >run; \
 	sh ./run; rm -f run

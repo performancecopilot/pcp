@@ -1,6 +1,0 @@
-# Domain numbers for IRIX PMDAs
-#
-# PMDA Name	Domain Number
-#
-IRIX		1
-KERN_DEV	31
