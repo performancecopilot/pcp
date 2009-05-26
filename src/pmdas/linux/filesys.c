@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -101,11 +97,12 @@ next:
 }
 
 int
-refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom)
+refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom, pmInDom tmpfs_indom)
 {
     char buf[MAXPATHLEN];
     char realdevice[MAXPATHLEN];
     filesys_t *fs;
+    pmInDom indom;
     FILE *fp;
     char *path;
     char *device;
@@ -113,17 +110,15 @@ refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom)
     int sts;
 
     pmdaCacheOp(quota_indom, PMDA_CACHE_INACTIVE);
+    pmdaCacheOp(tmpfs_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(filesys_indom, PMDA_CACHE_INACTIVE);
 
     if ((fp = fopen("/proc/mounts", "r")) == (FILE *)NULL)
 	return -errno;
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
-	if (( device = strtok(buf, " ")) == 0
-	   || strncmp(device, "/dev", 4) != 0)
+	if ((device = strtok(buf, " ")) == 0)
 	    continue;
-	if (realpath(device, realdevice) != NULL)
-	    device = realdevice;
 
 	path = strtok(NULL, " ");
 	type = strtok(NULL, " ");
@@ -134,11 +129,21 @@ refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom)
 	    strncmp(type, "auto", 4) == 0)
 	    continue;
 
-	sts = pmdaCacheLookupName(filesys_indom, device, NULL, (void **)&fs);
+	indom = filesys_indom;
+	if (strcmp(type, "tmpfs") == 0) {
+	    indom = tmpfs_indom;
+	    device = path;
+	}
+	else if (strncmp(device, "/dev", 4) != 0)
+	    continue;
+	if (realpath(device, realdevice) != NULL)
+	    device = realdevice;
+
+	sts = pmdaCacheLookupName(indom, device, NULL, (void **)&fs);
 	if (sts == PMDA_CACHE_ACTIVE)	/* repeated line in /proc/mounts? */
 	    continue;
 	if (sts == PMDA_CACHE_INACTIVE) { /* re-activate an old mount */
-	    pmdaCacheStore(filesys_indom, PMDA_CACHE_ADD, device, fs);
+	    pmdaCacheStore(indom, PMDA_CACHE_ADD, device, fs);
 	    if (strcmp(path, fs->path) != 0) {	/* old device, new path */
 		free(fs->path);
 		fs->path = strdup(path);
@@ -155,7 +160,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom)
 		    fs->path, device);
 	    }
 #endif
-	    pmdaCacheStore(filesys_indom, PMDA_CACHE_ADD, device, fs);
+	    pmdaCacheStore(indom, PMDA_CACHE_ADD, device, fs);
 	}
 	fs->flags = 0;
 

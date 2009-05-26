@@ -255,6 +255,7 @@ pmdaIndom indomtab[] = {
     { NFS4_SVR_INDOM, NR_RPC4_SVR_COUNTERS, nfs4_svr_indom_id },
     { QUOTA_PRJ_INDOM, 0, NULL },
     { NET_INET_INDOM, 0, NULL },
+    { TMPFS_INDOM, 0, NULL },
 };
 
 
@@ -1016,6 +1017,45 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_FILESYS,10), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_INSTANT,
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+/*
+ * tmpfs filesystem cluster
+ */
+
+/* tmpfs.capacity */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TMPFS,1), PM_TYPE_U64, TMPFS_INDOM, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* tmpfs.used */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TMPFS,2), PM_TYPE_U64, TMPFS_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* tmpfs.free */
+  { NULL,
+     { PMDA_PMID(CLUSTER_TMPFS,3), PM_TYPE_U64, TMPFS_INDOM, PM_SEM_INSTANT,
+     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* tmpfs.maxfiles */
+  { NULL,
+     { PMDA_PMID(CLUSTER_TMPFS,4), PM_TYPE_U32, TMPFS_INDOM, PM_SEM_DISCRETE,
+     PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* tmpfs.usedfiles */
+  { NULL,
+     { PMDA_PMID(CLUSTER_TMPFS,5), PM_TYPE_U32, TMPFS_INDOM, PM_SEM_INSTANT,
+     PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* tmpfs.freefiles */
+  { NULL,
+     { PMDA_PMID(CLUSTER_TMPFS,6), PM_TYPE_U32, TMPFS_INDOM, PM_SEM_INSTANT,
+     PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* tmpfs.full */
+  { NULL,
+     { PMDA_PMID(CLUSTER_TMPFS,7), PM_TYPE_DOUBLE, TMPFS_INDOM, PM_SEM_INSTANT,
+     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /*
  * swapdev cluster
@@ -3375,8 +3415,10 @@ linux_refresh(int *need_refresh)
     if (need_refresh[CLUSTER_NET_INET])
 	refresh_net_dev_inet(INDOM(NET_INET_INDOM));
 
-    if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_QUOTA])
-    	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(QUOTA_PRJ_INDOM));
+    if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_QUOTA] ||
+	need_refresh[CLUSTER_TMPFS])
+    	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(QUOTA_PRJ_INDOM),
+			INDOM(TMPFS_INDOM));
 
     if (need_refresh[CLUSTER_SWAPDEV])
 	refresh_swapdev(INDOM(SWAPDEV_INDOM));
@@ -3459,6 +3501,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case FILESYS_INDOM:
     	need_refresh[CLUSTER_FILESYS]++;
+	break;
+    case TMPFS_INDOM:
+    	need_refresh[CLUSTER_TMPFS]++;
 	break;
     case QUOTA_PRJ_INDOM:
     	need_refresh[CLUSTER_QUOTA]++;
@@ -4189,6 +4234,57 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 10: /* filesys.avail -- added by Mike Mason <mmlnx@us.ibm.com> */
 		ull = (__uint64_t)sbuf->f_bavail;
 		atom->ull = ull * sbuf->f_bsize / 1024;
+		break;
+	    default:
+		return PM_ERR_PMID;
+	    }
+	}
+	break;
+
+    case CLUSTER_TMPFS: {
+	    struct statfs *sbuf;
+	    struct filesys *fs;
+	    __uint64_t ull, used;
+
+	    sts = pmdaCacheLookup(INDOM(TMPFS_INDOM), inst, NULL, (void **)&fs);
+	    if (sts < 0)
+		return sts;
+	    if (sts != PMDA_CACHE_ACTIVE)
+	    	return PM_ERR_INST;
+
+	    sbuf = &fs->stats;
+	    if (!(fs->flags & FSF_FETCHED)) {
+		if (statfs(fs->path, sbuf) < 0)
+		    return -errno;
+		fs->flags |= FSF_FETCHED;
+	    }
+
+	    switch (idp->item) {
+	    case 1: /* tmpfs.capacity */
+	    	ull = (__uint64_t)sbuf->f_blocks;
+	    	atom->ull = ull * sbuf->f_bsize / 1024;
+		break;
+	    case 2: /* tmpfs.used */
+	    	used = (__uint64_t)(sbuf->f_blocks - sbuf->f_bfree);
+	    	atom->ull = used * sbuf->f_bsize / 1024;
+		break;
+	    case 3: /* tmpfs.free */
+	    	ull = (__uint64_t)sbuf->f_bfree;
+	    	atom->ull = ull * sbuf->f_bsize / 1024;
+		break;
+	    case 4: /* tmpfs.maxfiles */
+	    	atom->ul = sbuf->f_files;
+		break;
+	    case 5: /* tmpfs.usedfiles */
+	    	atom->ul = sbuf->f_files - sbuf->f_ffree;
+		break;
+	    case 6: /* tmpfs.freefiles */
+	    	atom->ul = sbuf->f_ffree;
+		break;
+	    case 7: /* tmpfs.full */
+		used = (__uint64_t)(sbuf->f_blocks - sbuf->f_bfree);
+		ull = used + (__uint64_t)sbuf->f_bavail;
+		atom->d = (100.0 * (double)used) / (double)ull;
 		break;
 	    default:
 		return PM_ERR_PMID;
