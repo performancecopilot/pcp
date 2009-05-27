@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include <ctype.h>
@@ -36,7 +33,7 @@ dos_native_path(char *path)
 {
     char *p = path;
 
-    if (path[0] == '/' && path[1] != '\0' && path[2] == '/') {
+    if (path[0] == '/' && isalpha(path[1]) && path[2] == '/') {
 	p[0] = tolower(p[1]);
 	p[1] = ':';
 	p += 2;
@@ -46,13 +43,19 @@ dos_native_path(char *path)
     return path;
 }
 
+static int
+dos_absolute_path(char *path)
+{
+    return (isalpha(path[0]) && path[1] == ':' && path[2] == '\\');
+}
+
 static char *
 msys_native_path(char *path)
 {
     char *p = path;
 
     /* Only single drive letters allowed (Wikipedia says so) */
-    if (path[0] != '\0' && path[1] == ':') {
+    if (isalpha(path[0]) && path[1] == ':') {
 	p[1] = tolower(p[0]);
 	p[0] = '/';
 	p += 2;
@@ -112,8 +115,10 @@ dos_formatter(char *var, char *prefix, char *val)
 INTERN __pmConfigCallback __pmNativeConfig = dos_formatter;
 char *__pmNativePath(char *path) { return dos_native_path(path); }
 int __pmPathSeparator() { return posix_style() ? '/' : '\\'; }
+int __pmAbsolutePath(char *path) { posix_style() ? '/' : dos_absolute_path(path); }
 #else
 char *__pmNativePath(char *path) { return path; }
+int __pmAbsolutePath(char *path) { return path[0] == '/'; }
 int __pmPathSeparator() { return '/'; }
 
 static void

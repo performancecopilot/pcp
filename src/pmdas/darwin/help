@@ -194,9 +194,6 @@ boot time (subject to counter wrap), summed over all disk devices.
 @ rpc.server.cache.nonidem
 @ rpc.server.cache.idem
 @ rpc.server.cache.misses
-@ rpc.server.nqnfs.leases
-@ rpc.server.nqnfs.maxleases
-@ rpc.server.nqnfs.getleases
 @ rpc.server.vopwrites
 @ rpc.server.pageins
 @ rpc.server.pageouts

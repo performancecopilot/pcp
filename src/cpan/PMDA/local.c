@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -337,7 +337,9 @@ local_pmns_root(void)
 static void
 lchdir(const char *path)
 {
-    (void)chdir(path);	/* debug hook, workaround rval compiler warning */
+    /* debug hook */
+    if (chdir(path) == -1)
+	__pmNotifyErr(LOG_ERR, "chdir(%s) failed: %s", path, strerror(errno));
 }
 
 /*
@@ -370,7 +372,8 @@ local_pmns_split(const char *root, const char *metric, const char *pmid)
 	    lchdir(path);
 	} else {
 	    fd = open(path, O_WRONLY|O_CREAT|O_EXCL, 0644);
-	    write(fd, mypmid, strlen(mypmid));
+	    if (write(fd, mypmid, strlen(mypmid)) != strlen(mypmid))
+		__pmNotifyErr(LOG_ERR, "mypmid write(,%s,) failed: %s", mypmid, strerror(errno));
 	    close(fd);
 	}
     } while (p);
@@ -382,6 +385,7 @@ local_pmns_path(const char *root)
 {
     static int offset;
     static char path[MAXPATHLEN];
+    int sep = __pmPathSeparator();
     char *p, *s;
 
     p = getcwd(path, sizeof(path));
@@ -391,7 +395,7 @@ local_pmns_path(const char *root)
     }
     p += offset + 1;		/* move past the tmpdir prefix */
     for (s = p; *s; s++)	/* replace path-pmns separator */
-	if (*s == '/' || *s == '\\')
+	if (*s == sep)
 	    *s = '.';
     return p;
 }

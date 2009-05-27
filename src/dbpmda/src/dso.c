@@ -206,9 +206,9 @@ dodso_desc(pmID pmid, pmDesc *desc)
 void
 dodso(int pdu)
 {
-    int			sts;
+    int			sts = 0;		/* initialize to pander to gcc */
     pmDesc		desc;
-    pmDesc		*desc_list;
+    pmDesc		*desc_list = NULL;	/* initialize to pander to gcc */
     pmResult		*result;
     __pmInResult		*inresult;
     int			i;

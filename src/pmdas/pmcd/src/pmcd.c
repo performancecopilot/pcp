@@ -341,6 +341,7 @@ refresh_pmie_indom(void)
     void		*ptr;
     DIR			*pmiedir;
     int			fd;
+    int			sep = __pmPathSeparator();
 
     if (stat(PMIE_DIR, &statbuf) == 0) {
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
@@ -375,7 +376,7 @@ refresh_pmie_indom(void)
 		    continue;
 		if (!__pmProcessExists(pmiepid))
 		    continue;
-		snprintf(fullpath, sizeof(fullpath), "%s/%s", PMIE_DIR, dp->d_name);
+		snprintf(fullpath, sizeof(fullpath), "%s%c%s", PMIE_DIR, sep, dp->d_name);
 		if (stat(fullpath, &statbuf) < 0) {
 		    __pmNotifyErr(LOG_WARNING, "pmcd pmda cannot stat %s: %s",
 				fullpath, strerror(errno));
@@ -591,10 +592,10 @@ pmcd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     int			sts = 0;
     __pmInResult	*res;
     int			getall = 0;
-    int			getname;
-    int			nports;
+    int			getname = 0;	/* initialize to pander to gcc */
+    int			nports = 0;	/* initialize to pander to gcc */
     __pmLogPort		*ports;
-    unsigned int	pmiecount;
+    unsigned int	pmiecount = 0;	/* initialize to pander to gcc */
     int			i;
 
     if (indom == regindom)
@@ -946,7 +947,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     static char		*hostname = NULL;
     pmiestats_t		*pmie;
     pmValueSet		*vset;
-    pmDesc		*dp;
+    pmDesc		*dp = NULL;	/* initialize to pander to gcc */
     __pmID_int		*pmidp;
     pmAtomValue		atom;
     __pmLogPort		*lpp;

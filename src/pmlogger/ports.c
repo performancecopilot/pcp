@@ -263,12 +263,7 @@ GetPort(char *file)
 
     /* and finally the full pathname to the archive base */
     __pmNativePath(archBase);
-    if (archBase[0] == '/'
-#ifdef IS_MINGW
-	|| (strlen(archBase) > 2 && isalpha(archBase[0]) &&
-	    archBase[1] == ':' && archBase[2] == '\\')
-#endif
-	)
+    if (__pmAbsolutePath(archBase))
 	fprintf(mapstream, "%s\n", archBase);
     else {
 	char		path[MAXPATHLEN];

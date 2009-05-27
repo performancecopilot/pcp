@@ -328,7 +328,7 @@ grab_cisco(intf_t *ip)
     int		style;
     int		next_state;
     int		state = NOISE;
-    int		skip;
+    int		skip = 0;		/* initialize to pander to gcc */
     int		i;
     int		namelen;
     char	*w;

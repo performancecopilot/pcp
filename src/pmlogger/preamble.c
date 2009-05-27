@@ -113,7 +113,7 @@ do_preamble(void)
 	     * the full pathname to the base of the archive, cloned
 	     * from GetPort() in ports.c
 	     */
-	    if (*archBase == '/')
+	    if (__pmAbsolutePath(archBase))
 		atom.cp = archBase;
 	    else {
 		if (getcwd(path, MAXPATHLEN) == NULL)

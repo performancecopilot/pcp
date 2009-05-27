@@ -265,7 +265,9 @@ refresh(void *dummy)
 #endif
 		if (sts == -1)
 		    open("/dev/null", O_WRONLY, 0);
-		dup(1);
+		if (dup(1) == -1) {
+		    fprintf(stderr, "Warning: dup() failed: %s\n", pmErrStr(-errno));
+		}
 		argv[2] = cmdlist[i].cmd;
 		sts = execv("/bin/sh", argv);
 		exit(-1);

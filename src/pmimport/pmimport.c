@@ -480,6 +480,7 @@ listPlugins ( char *path )
     struct stat		s;
     int			sts = 0;
     int			count = 0;
+    int			sep = __pmPathSeparator();
     char		buf[MAXNAMLEN] = "";
 
     dirp = opendir ( path ) ;
@@ -498,7 +499,7 @@ listPlugins ( char *path )
 	    continue;
 	}
 
-	sprintf ( buf, "%s/%s", path, direntp->d_name );
+	sprintf ( buf, "%s%c%s", path, sep, direntp->d_name );
 	if ( stat ( buf,  &s ) != 0 ) {
 	    continue;
 	}
@@ -519,12 +520,13 @@ listPlugins ( char *path )
 static void
 openPlugin ( char *plugin )
 {
+    int   sep = __pmPathSeparator();
     void  *handle;
     char  *p = NULL;
 
     if ( strchr ( plugin, '/' ) == NULL ) {
 	p = __e_malloc ( MAXNAMLEN, "openPlugin" );
-	sprintf ( p, "%s/%s", pluginPath, plugin );
+	sprintf ( p, "%s%c%s", pluginPath, sep, plugin );
 	plugin = p;
     }
 

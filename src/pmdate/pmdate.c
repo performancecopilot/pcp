@@ -18,11 +18,8 @@
  * Display offset date
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <string.h>
-#include <time.h>
+#include "pmapi.h"
+#include "impl.h"
 
 #define usage "Usage: pmdate { +valueS | -valueS } ... format\n\
 \n\
@@ -35,7 +32,7 @@ main(int argc, char *argv[])
     time_t	now;
     int		need;
     char	*buf;
-    char	*p, *pmProgname;
+    char	*p;
     char	*pend;
     struct tm	*tmp;
     int		sgn;
@@ -43,11 +40,7 @@ main(int argc, char *argv[])
     int		mo_delta = 0;
     int		yr_delta = 0;
 
-    /* trim command name of leading directory components */
-    for (p = pmProgname = argv[0]; *p; p++) {
-	if (*p == '/')
-	    pmProgname = p+1;
-    }
+    __pmSetProgname(argv[0]);
 
     if (argc < 2) {
 	fprintf(stderr, usage);

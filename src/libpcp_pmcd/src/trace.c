@@ -103,7 +103,7 @@ pmcd_dump_trace(FILE *f)
 {
     int			i;
     int			p;
-    struct tm		last;
+    struct tm		last = { 0, 0 };
     struct tm		*this;
     struct in_addr	addr;	/* internet address */
     struct hostent	*hp;

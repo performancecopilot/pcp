@@ -353,7 +353,7 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
     fetchctl_t		*fp;
     fetchctl_t		*tfp;
     indomctl_t		*idp;
-    pmidctl_t		*pmp;
+    pmidctl_t		*pmp = NULL;
     int			mincost;
     int			change;
     pmInDom		indom = new->r_desc->indom;

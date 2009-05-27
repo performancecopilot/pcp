@@ -1500,8 +1500,13 @@ fi
 AC_SUBST(pcp_inc_dir)
 
 dnl rc/startup files
-if test $target_os != darwin
+if test $target_os = darwin
 then
+    pcp_rc_dir=/Library/StartupItems/pcp
+elif test $target_distro = suse
+then
+    pcp_rc_dir=/etc/init.d
+else
     for d in /etc/rc.d/init.d /etc/init.d /sbin/init.d ; do
 	if test -d $d
 	then
@@ -1513,8 +1518,6 @@ then
     then
 	pcp_rc_dir=/etc
     fi
-else
-    pcp_rc_dir=/Library/StartupItems/pcp
 fi
 AC_SUBST(pcp_rc_dir)
 
@@ -1702,28 +1705,6 @@ int main () {
     return (0);
 }
 ], AC_DEFINE(HAVE_STRFTIME_z) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no),  0)
-
-dnl
-dnl On MacOSX 10.3 there is information about leases which is missing
-dnl on 10.4
-dnl
-if test "$target_os" = "darwin" ; then 
-AC_MSG_CHECKING([if there are data about NFS leases])
-AC_TRY_COMPILE(
-[
-#include <sys/types.h>
-#include <sys/time.h>
-#include <mach/mach.h>
-#include <sys/mount.h>
-#include <nfs/rpcv2.h>
-#include <nfs/nfsproto.h>
-#include <nfs/nfs.h>
-],
-[
-struct nfsstats         mach_nfs = { 0 };
-void *p = &mach_nfs.srvnqnfs_leases;
-], AC_DEFINE(HAVE_NQNFS_LEASES) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
-fi
 
 AC_CHECK_HEADER(infiniband/umad.h, [AC_SUBST(UMAD_H, yes)])
 AC_CHECK_HEADER(infiniband/mad.h, [AC_SUBST(MAD_H, yes)])

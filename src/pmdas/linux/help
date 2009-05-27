@@ -638,10 +638,17 @@ are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
 @ filesys.maxfiles Inodes capacity of mounted filesystem
 @ filesys.usedfiles Number of inodes allocated on mounted filesystem
 @ filesys.freefiles Number of unallocated inodes on mounted filesystem
-@ filesys.mountdir file system mount point
-@ filesys.full percentage of filesystem in use
+@ filesys.mountdir File system mount point
+@ filesys.full Percentage of filesystem in use
 @ filesys.blocksize Size of each block on mounted filesystem (Bytes)
 @ filesys.avail Total space free to non-superusers on mounted filesystem (Kbytes)
+@ tmpfs.capacity Total capacity of mounted tmpfs filesystem (Kbytes)
+@ tmpfs.used Total space used on mounted tmpfs filesystem (Kbytes)
+@ tmpfs.free Total space free on mounted tmpfs filesystem (Kbytes)
+@ tmpfs.maxfiles Inodes capacity of mounted tmpfs filesystem
+@ tmpfs.usedfiles Number of inodes allocated on mounted tmpfs filesystem
+@ tmpfs.freefiles Number of unallocated inodes on mounted tmpfs filesystem
+@ tmpfs.full Percentage of tmpfs filesystem in use
 @ swapdev.free physical swap free space
 @ swapdev.length physical swap size
 @ swapdev.maxswap maximum swap length (same as swapdev.length on Linux)

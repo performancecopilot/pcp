@@ -330,17 +330,18 @@ pmRecordAddHost(const char *host, int isdefault, pmRecordHost **rhp)
     /* construct full pathname */
     rp->public.logfile = malloc(MAXPATHLEN);
     if (rp->public.logfile != NULL) {
-	if (dir != NULL && dir[0] == '/')
+	int sep = __pmPathSeparator();
+	if (dir != NULL && __pmAbsolutePath(dir))
 	    strcpy(rp->public.logfile, dir);
-	else
-	    getcwd(rp->public.logfile, MAXPATHLEN);
+	else {
+	    if (getcwd(rp->public.logfile, MAXPATHLEN) == NULL)
+		goto failed;
+	}
 
-	if (rp->public.logfile[strlen(rp->public.logfile)-1] != '/')
-	    strcat(rp->public.logfile, "/");
-	if (strncmp(rp->logfile, "./", 2) == 0)
-	    strcat(rp->public.logfile, &rp->logfile[1]);
-	else
-	    strcat(rp->public.logfile, rp->logfile);
+	sts = strlen(rp->public.logfile);
+	if (rp->public.logfile[sts - 1] != sep)
+	    rp->public.logfile[sts] = sep;
+	strcat(rp->public.logfile, rp->logfile);
     }
     else {
 	/* malloc failure ... */
@@ -515,7 +516,7 @@ pmRecordControl(pmRecordHost *rhp, int request, const char *msg)
 		    close(mypipe[1]);
 		    snprintf(fdnum, sizeof(fdnum), "%d", mypipe[0]);
 		    if (dir != NULL) {
-			/* trim trailing '/' */
+			/* trim trailing separator */
 			dir[strlen(dir)-1] = '\0';
 			if (chdir(dir) < 0) {
 			    /* not good! */
@@ -568,7 +569,8 @@ fprintf(stderr, "Launching pmlogger:");
 for (i = 0; i < rp->argc+11; i++) fprintf(stderr, " %s", rp->argv[i]);
 fputc('\n', stderr);
 #endif
-		    snprintf(loggerpath, sizeof(loggerpath), "%s/bin/pmlogger", pmGetConfig("PCP_SHARE_DIR"));
+		    snprintf(loggerpath, sizeof(loggerpath), "%s%cpmlogger",
+			    pmGetConfig("PCP_BINADM_DIR"), __pmPathSeparator());
 		    execv(loggerpath, rp->argv);
 
 		    /* this is really bad! */

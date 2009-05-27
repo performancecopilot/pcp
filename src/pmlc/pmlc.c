@@ -63,7 +63,7 @@ int
 main(int argc, char **argv)
 {
     int			c;
-    int			sts;
+    int			sts = 0;	/* initialize to pander to gcc */
     int			errflag = 0;
     char		*host = NULL;
     char		local[MAXHOSTNAMELEN];

@@ -862,8 +862,9 @@ int
 pmflush(void)
 {
     int		sts = 0;
+    int		len;
     int		state;
-    FILE	*eptr;
+    FILE	*eptr = NULL;
 
     if (fptr != NULL && msgsize > 0) {
 	fflush(fptr);
@@ -878,8 +879,14 @@ pmflush(void)
 	switch (state) {
 	case PM_USESTDERR:
 	    rewind(fptr);
-	    while ((sts = (int)read(fileno(fptr), outbuf, MSGBUFLEN)) > 0)
-		write(fileno(stderr), outbuf, sts);
+	    while ((len = (int)read(fileno(fptr), outbuf, MSGBUFLEN)) > 0) {
+		sts = write(fileno(stderr), outbuf, len);
+		if (sts != len) {
+		    fprintf(stderr, "pmflush: write() failed: %s\n", 
+			strerror(errno));
+		}
+		sts = 0;
+	    }
 	    break;
 	case PM_USEDIALOG:
 	    /* If we're here, it means xconfirm has passed access test */
@@ -895,8 +902,14 @@ pmflush(void)
 	    break;
 	case PM_USEFILE:
 	    rewind(fptr);
-	    while ((sts = (int)read(fileno(fptr), outbuf, MSGBUFLEN)) > 0)
-		write(fileno(eptr), outbuf, sts);
+	    while ((len = (int)read(fileno(fptr), outbuf, MSGBUFLEN)) > 0) {
+		sts = write(fileno(eptr), outbuf, len);
+		if (sts != len) {
+		    fprintf(stderr, "pmflush: write() failed: %s\n", 
+			strerror(errno));
+		}
+		sts = 0;
+	    }
 	    fclose(eptr);
 	    break;
 	}
@@ -1179,8 +1192,10 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     int		out[2];
     pid_t	pid;
 
-    pipe(in);
-    pipe(out);
+    if (pipe(in) < 0)
+	return -errno;
+    if (pipe(out) < 0)
+	return -errno;
 
     pid = fork();
     if (pid < 0) {

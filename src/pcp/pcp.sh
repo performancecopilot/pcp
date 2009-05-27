@@ -245,7 +245,7 @@ if [ "$uname" = $unknown ]
 then
     uname=""
 else
-    uname="$uname "
+    uname="$uname"
 fi
 
 [ "$timezone" = $unknown ] && timezone="Unknown"

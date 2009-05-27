@@ -33,6 +33,7 @@ root {
     ipc 
     vfs
     quota
+    tmpfs
 }
 
 hinv {
@@ -459,6 +460,16 @@ filesys {
     full		60:5:8
     blocksize           60:5:9
     avail               60:5:10
+}
+
+tmpfs {
+    capacity		60:34:1
+    used		60:34:2
+    free		60:34:3
+    maxfiles		60:34:4
+    usedfiles		60:34:5
+    freefiles		60:34:6
+    full		60:34:7
 }
 
 swapdev {

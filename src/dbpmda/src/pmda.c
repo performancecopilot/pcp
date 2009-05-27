@@ -228,7 +228,7 @@ dopmda(int pdu)
 {
     int			sts;
     pmDesc		desc;
-    pmDesc		*desc_list;
+    pmDesc		*desc_list = NULL;	/* initialize to pander to gcc */
     pmResult		*result;
     __pmInResult	*inresult;
     __pmPDU		*pb;
@@ -464,7 +464,7 @@ fillResult(pmResult *result, int type)
 {
     int		i;
     int		sts = 0;
-    int		nbyte;
+    int		nbyte = 0;	/* initialize to pander to gcc */
     pmAtomValue	atom;
     pmValueSet	*vsp;
     char	*endbuf = NULL;

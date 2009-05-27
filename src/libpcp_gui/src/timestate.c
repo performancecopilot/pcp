@@ -19,7 +19,7 @@
 #include "pmapi.h"
 #include "impl.h"
 
-enum {
+static enum {
     START	= -1,
     STANDBY	= 0,
     FORW	= 1,

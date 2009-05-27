@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #ifndef _INDOM_H
@@ -37,6 +33,7 @@
 #define NFS4_SVR_INDOM		15
 #define QUOTA_PRJ_INDOM		16
 #define NET_INET_INDOM		17
+#define TMPFS_INDOM		18
 
 #define INDOM(x) (indomtab[x].it_indom)
 extern pmdaIndom indomtab[];

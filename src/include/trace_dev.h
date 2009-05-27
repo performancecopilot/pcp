@@ -19,10 +19,6 @@
 #ifndef _TRACE_DEV_H
 #define _TRACE_DEV_H
 
-#ifdef HAVE_SGIDEFS_H
-#include <sgidefs.h>
-#endif
-
 #ifndef _PLATFORM_DEFS_H
 #include "platform_defs.h"
 #endif

@@ -163,10 +163,11 @@ watch(char *fname)
 {
     char	cmd[200];
 
-    sprintf(cmd, "xwsh -hold -title \"dbpmda watch %s\" -geom 80x16 -bg dodgerblue4 -e tail -f %s &",
+    sprintf(cmd, "xterm -hold -title \"dbpmda watch %s\" -geom 80x16 -bg dodgerblue4 -e tail -f %s &",
 	fname, fname);
     
-    system(cmd);
+    if (system(cmd) != 0)
+	fprintf(stderr, "watch cmd: %s failed: %s\n", cmd, pmErrStr(-errno));
 }
 
 void

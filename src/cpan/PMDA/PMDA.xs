@@ -393,6 +393,7 @@ new(CLASS,name,domain)
 	char *	name
 	int	domain
     PREINIT:
+	int	sep;
 	char *	p;
 	char *	logfile;
 	char *	pmdaname;
@@ -403,12 +404,13 @@ new(CLASS,name,domain)
 	logfile = local_strdup_suffix(name, ".log");
 	pmdaname = local_strdup_prefix("pmda", name);
 	__pmSetProgname(pmdaname);
+	sep = __pmPathSeparator();
 	if ((p = getenv("PCP_PERL_DEBUG")) != NULL)
 	    if ((pmDebug = pmParseDebug(p)) < 0)
 		pmDebug = 0;
 	atexit(&local_atexit);
-	snprintf(helpfile, sizeof(helpfile), "%s/%s/help",
-			pmGetConfig("PCP_PMDAS_DIR"), name);
+	snprintf(helpfile, sizeof(helpfile), "%s%c%s%c" "help",
+			pmGetConfig("PCP_PMDAS_DIR"), sep, name, sep);
 	if (access(helpfile, R_OK) != 0) {
 	    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmdaname, domain,
 			logfile, NULL);

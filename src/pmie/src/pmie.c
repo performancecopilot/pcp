@@ -87,7 +87,7 @@ static char usage[] =
     "  -e           force timestamps to be reported when used with -V, -v or -W\n"
     "  -f           run in foreground\n"
     "  -h host      metrics source is PMCD on host\n"
-    "  -j stompfile stomp protocol (JMS) file [default %s/config/pmie/stomp]\n"
+    "  -j stompfile stomp protocol (JMS) file [default %s%cconfig%cpmie%cstomp]\n"
     "  -l logfile   send status and error messages to logfile\n"
     "  -n pmnsfile  use an alternative PMNS\n"
     "  -O offset    initial offset into the time window\n"
@@ -108,7 +108,8 @@ static char usage[] =
 static void
 usageMessage(void)
 {
-    fprintf(stderr, usage, pmProgname, pmGetConfig("PCP_VAR_DIR"));
+    int sep = __pmPathSeparator();
+    fprintf(stderr, usage, pmProgname, pmGetConfig("PCP_VAR_DIR"), sep,sep,sep);
     exit(1);
 }
 
@@ -191,14 +192,14 @@ load(char *fname)
 {
     Symbol	s;
     Expr	*d;
-    int		sts;
+    int		sts = 0;
     int		sep = __pmPathSeparator();
     char	config[MAXPATHLEN+1];
 
     /* search for configfile on configuration file path */
     if (fname && access(fname, F_OK) != 0) {
 	sts = oserror();	/* always report the first error */
-	if (fname[0] == '/') {
+	if (__pmAbsolutePath(fname)) {
 	    fprintf(stderr, "%s: cannot access config file %s: %s\n", pmProgname, 
 		    fname, strerror(sts));
 	    exit(1);
@@ -234,7 +235,7 @@ load(char *fname)
 	    strcpy(perf->config, "<stdin>");
 	else if (realpath(fname, perf->config) == NULL) {
 	    fprintf(stderr, "%s: failed to resolve realpath for %s: %s\n",
-		    pmProgname, fname, strerror(sts));
+		    pmProgname, fname, strerror(oserror()));
 	    exit(1);
 	}
     }
@@ -347,7 +348,10 @@ startmonitor(void)
     }
     /* seek to struct size and write one zero */
     lseek(fd, sizeof(pmiestats_t)-1, SEEK_SET);
-    write(fd, &zero, 1);
+    if (write(fd, &zero, 1) != 1) {
+	fprintf(stderr, "%s: Warning: write failed for stats file %s: %s\n",
+		pmProgname, perffile, strerror(oserror()));
+    }
 
     /* map perffile & associate the instrumentation struct with it */
     if ((ptr = __pmMemoryMap(fd, sizeof(pmiestats_t), 1)) == NULL) {

@@ -257,7 +257,14 @@ process_refresh_pid_checks()
        * first line is of the form:
        * Name:   <cmdname>
        */
-      fgets(cmd_line, sizeof(cmd_line), fd);
+      if (fgets(cmd_line, sizeof(cmd_line), fd) == NULL) {
+	/*
+	 * not expected, but not a disaster ... we'll just not try
+	 * to match this one
+	 */
+	fclose(fd);
+	continue;
+      }
       fclose(fd);
 
       for(proc_name = 0; proc_name < indomtab[PROC_INDOM].it_numinst; proc_name++) {

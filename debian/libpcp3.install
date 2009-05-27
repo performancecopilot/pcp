@@ -1,2 +1,4 @@
 etc/pcp.conf
 usr/lib/libpcp.so.3
+usr/include/pcp/builddefs
+usr/include/pcp/buildrules

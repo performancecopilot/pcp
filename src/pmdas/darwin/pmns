@@ -244,7 +244,6 @@ rpc.server {
     retfailed		DARWIN:11:117
     faults		DARWIN:11:118
     cache
-    nqnfs
     vopwrites		DARWIN:11:126
     pageins		DARWIN:11:127
     pageouts		DARWIN:11:128
@@ -255,10 +254,4 @@ rpc.server.cache {
     nonidem		DARWIN:11:120
     idem		DARWIN:11:121
     misses		DARWIN:11:122
-}
-
-rpc.server.nqnfs {
-    leases		DARWIN:11:123
-    maxleases		DARWIN:11:124
-    getleases		DARWIN:11:125
 }

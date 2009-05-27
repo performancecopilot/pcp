@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #ifndef _CLUSTERS_H
@@ -57,6 +53,7 @@ enum {
 	CLUSTER_PID_SCHEDSTAT,	/* 31 /proc/<pid>/schedstat */
 	CLUSTER_PID_IO,		/* 32 /proc/<pid>/io */
 	CLUSTER_NET_INET,	/* 33 /proc/net/dev and ioctl(SIOCGIFCONF) */
+	CLUSTER_TMPFS,		/* 34 /proc/mounts + statfs (tmpfs only) */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

@@ -319,8 +319,8 @@ log_callback(int afid, void *data)
     long		new_meta_offset;
     int			pdu_bytes = 0;
     int			pdu_metrics = 0;
-    pmID		pdu_first_pmid;
-    pmID		pdu_last_pmid;
+    pmID		pdu_first_pmid = 0;	/* initialize to pander to gcc */
+    pmID		pdu_last_pmid = 0;	/* initialize to pander to gcc */
     int			numinst;
     int			*instlist;
     char		**namelist;
