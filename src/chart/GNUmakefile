@@ -5,6 +5,8 @@ include $(TOPDIR)/src/include/builddefs
 
 WRAPPER = $(COMMAND).sh
 QRCFILE = $(COMMAND).qrc
+RCFILE  = $(COMMAND).rc
+ICOFILE = $(COMMAND).ico
 ICNFILE = $(COMMAND).icns
 DESKTOP = $(COMMAND).desktop
 UIFILES = $(shell echo *.ui)
@@ -19,12 +21,12 @@ HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
 	  groupcontrol.h gadget.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
 CONFFILES = $(PROJECT)
-LSRCFILES = $(PROJECT).in $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
+LSRCFILES = $(PROJECT).in $(QRCFILE) $(RCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
 	  $(DESKTOP) $(WRAPPER).IN
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER)
 
 ICONLINKS = aboutpcp.png aboutqt.png aboutpmchart.png pmchart.png pmtime.png \
-	    $(ICNFILE) document-close.png document-new.png document-open.png \
+	    document-close.png document-new.png document-open.png \
 	    document-print.png document-export.png document-properties.png \
 	    document-save.png emblem-system.png \
 	    edit-clear.png settings.png camera-video-close.png \
@@ -40,7 +42,8 @@ ICONLINKS = aboutpcp.png aboutqt.png aboutpmchart.png pmchart.png pmtime.png \
 	    play_live.png stop_live.png play_record.png stop_record.png \
 	    play_archive.png stop_archive.png back_archive.png \
 	    stepfwd_archive.png stepback_archive.png fastfwd_archive.png \
-	    fastback_archive.png
+	    fastback_archive.png \
+	    $(ICNFILE) $(ICOFILE)
 
 SUBDIRS = views
 

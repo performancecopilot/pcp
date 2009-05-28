@@ -27,6 +27,7 @@ FORMS		= aboutdialog.ui chartdialog.ui console.ui exportdialog.ui \
 		  searchdialog.ui seealsodialog.ui settingsdialog.ui \
 		  tabdialog.ui
 ICON		= pmchart.icns
+RC_FILE		= pmchart.rc
 RESOURCES	= pmchart.qrc
 INCLUDEPATH	+= ../include ../libqmc ../libqwt
 win32:INCLUDEPATH += @pcp_dir@/include @pcp_dir@/local/include

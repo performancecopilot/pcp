@@ -9,6 +9,7 @@ SOURCES		= aboutdialog.cpp console.cpp pmtimearch.cpp pmtimelive.cpp \
 FORMS		= aboutdialog.ui console.ui pmtimelive.ui pmtimearch.ui \
 		  seealsodialog.ui showboundsdialog.ui
 ICON		= pmtime.icns
+RC_FILE		= pmtime.rc
 RESOURCES	= pmtime.qrc
 INCLUDEPATH	+= ../include ../libqwt
 win32:INCLUDEPATH += @pcp_dir@/include

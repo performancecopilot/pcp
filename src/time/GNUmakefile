@@ -5,6 +5,8 @@ include $(TOPDIR)/src/include/builddefs
 
 WRAPPER = $(COMMAND).sh
 QRCFILE = $(COMMAND).qrc
+RCFILE  = $(COMMAND).rc
+ICOFILE  = $(COMMAND).ico
 ICNFILE = $(COMMAND).icns
 UIFILES = $(shell echo *.ui)
 HEADERS = aboutdialog.h console.h pmtimearch.h pmtimelive.h \
@@ -12,7 +14,7 @@ HEADERS = aboutdialog.h console.h pmtimearch.h pmtimelive.h \
 SOURCES = aboutdialog.cpp console.cpp pmtimearch.cpp pmtimelive.cpp \
 	  seealsodialog.cpp showboundsdialog.cpp timelord.cpp main.cpp
 CONFFILES = $(PROJECT)
-LSRCFILES = $(PROJECT).in $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
+LSRCFILES = $(PROJECT).in $(QRCFILE) $(RCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
 	  $(WRAPPER).IN
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER)
 
@@ -21,7 +23,7 @@ ICONLINKS = play_off.png play_on.png fastfwd_off.png fastfwd_on.png \
 	stepfwd_off.png stepfwd_on.png stepback_off.png stepback_on.png \
 	stop_off.png stop_on.png aboutpcp.png aboutqt.png aboutpmtime.png \
 	whatsthis.png edit-clear.png internet-web-browser.png pmtime.png \
-	$(ICNFILE)
+	$(ICNFILE) $(ICOFILE)
 
 default: iconlinks wrappers
 	$(QTMAKE)
