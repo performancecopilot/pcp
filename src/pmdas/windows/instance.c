@@ -13,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 #include "hypnotoad.h"
 #include <ctype.h>
@@ -44,7 +40,7 @@ windows_indom(int qid, int domain)
 void
 windows_instance_refresh(pmInDom indom)
 {
-    int		i;
+    int i;
 
     for (i = 0; i < metricdesc_sz; i++) {
 	pdh_metric_t *mp = &metricdesc[i];
@@ -53,18 +49,18 @@ windows_instance_refresh(pmInDom indom)
 	    continue;
 	if (mp->flags & M_REDO) {
 	    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-	    windows_check_metric(mp);
+	    windows_visit_metric(mp, NULL);
 	}
 	break;
     }
 }
 
 int
-windows_check_instance(char *path, pdh_metric_t *mp)
+windows_lookup_instance(char *path, pdh_metric_t *mp)
 {
     __pmInDom_int	*ip;
     char		*p, *q, *name;
-    int			ok = 0;
+    int			sts, ok = 0;
 
     if (mp->desc.indom == PM_INDOM_NULL)
 	return PM_IN_NULL;
@@ -357,5 +353,12 @@ windows_check_instance(char *path, pdh_metric_t *mp)
 	    return -1;
     }
 
+    sts = pmdaCacheLookupName(mp->desc.indom, name, &ok, NULL);
+    if (sts == PMDA_CACHE_ACTIVE || sts == PMDA_CACHE_INACTIVE) {
+	if (sts == PMDA_CACHE_INACTIVE)
+	    pmdaCacheStore(mp->desc.indom, PMDA_CACHE_ADD, name, NULL);
+	free(name);
+	return ok;
+    }
     return pmdaCacheStore(mp->desc.indom, PMDA_CACHE_ADD, name, NULL);
 }

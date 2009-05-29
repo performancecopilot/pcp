@@ -16,10 +16,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
 #ifndef LIBPDH_H
 #define LIBPDH_H
@@ -275,5 +271,8 @@ PdhGetRawCounterValue(PDH_HCOUNTER, LPDWORD, PDH_RAW_COUNTER *);
 
 PDH_STATUS WINAPI
 PdhOpenQueryA(LPCSTR, DWORD_PTR, PDH_HQUERY *);
+
+PDH_STATUS WINAPI
+PdhCloseQuery(PDH_HQUERY);
 
 #endif /* LIBPDH_H */
