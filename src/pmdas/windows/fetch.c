@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -11,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "hypnotoad.h"
@@ -22,42 +18,55 @@
 /*
  * Instantiate a value for a single metric-instance pair
  */
-static int
-pdh_fetch(pdh_metric_t *mp, int c)
+int
+windows_collect_metric(pdh_metric_t *mp, LPSTR pat, pdh_value_t *vp)
 {
-    PDH_STATUS		pdhsts;
     PDH_RAW_COUNTER	raw;
-    pdh_value_t		*vp = &mp->vals[c];
-
-    vp->flags &= ~V_COLLECTED;
+    PDH_STATUS  	pdhsts;
+    PDH_HQUERY		queryhdl = NULL;
+    PDH_HCOUNTER	counterhdl = NULL;
+    int			sts = -1;
 
     if (mp->flags & M_NOVALUES)
-	return 0;
+	return sts;
 
-    if ((querydesc[mp->qid].flags & Q_COLLECTED) == 0) {
-	pdhsts = PdhCollectQueryData(querydesc[mp->qid].hdl);
-	if (pdhsts == ERROR_SUCCESS)
-	    querydesc[mp->qid].flags |= Q_COLLECTED;
-	else {
-	    if ((querydesc[mp->qid].flags & Q_ERR_SEEN) == 0) {
-		__pmNotifyErr(LOG_ERR, "pdh_fetch: Error: PdhCollectQueryData "
-				"failed for querydesc[%d]: %s\n",
-				mp->qid, pdherrstr(pdhsts));
-		querydesc[mp->qid].flags |= Q_ERR_SEEN;
-	    }
-	    return 0;
-	}
+    pdhsts = PdhOpenQueryA(NULL, 0, &queryhdl);
+    if (pdhsts != ERROR_SUCCESS) {
+	__pmNotifyErr(LOG_ERR, "windows_open: PdhOpenQueryA failed: %s\n",
+			pdherrstr(pdhsts));
+	return sts;
     }
 
-    pdhsts = PdhGetRawCounterValue(vp->hdl, NULL, &raw);
+    pdhsts = PdhAddCounterA(queryhdl, pat, vp->inst, &counterhdl);
+    if (pdhsts != ERROR_SUCCESS) {
+	__pmNotifyErr(LOG_ERR, "windows_open: Warning: PdhAddCounterA "
+				"@ pmid=%s pat=\"%s\": %s\n",
+			    pmIDStr(mp->desc.pmid), pat, pdherrstr(pdhsts));
+	PdhCloseQuery(queryhdl);
+	return sts;
+    }
+
+    pdhsts = PdhCollectQueryData(queryhdl);
+    if (pdhsts != ERROR_SUCCESS) {
+	if ((vp->flags & V_ERROR_SEEN) == 0) {
+	    __pmNotifyErr(LOG_ERR, "pdh_fetch: Error: PdhCollectQueryData "
+				   "failed for metric %s pat %s: %s\n",
+			pmIDStr(mp->desc.pmid), pat, pdherrstr(pdhsts));
+	    vp->flags |= V_ERROR_SEEN;
+	}
+	goto done;
+    }
+
+    pdhsts = PdhGetRawCounterValue(counterhdl, NULL, &raw);
     if (pdhsts != ERROR_SUCCESS) {
 	__pmNotifyErr(LOG_ERR, "pdh_fetch: Error: PdhGetRawCounterValue "
 			"failed for metric %s inst %d: %s\n",
 			pmIDStr(mp->desc.pmid), vp->inst, pdherrstr(pdhsts));
 	/* no values for you! */
 	vp->flags = V_NONE;
-	return 0;
+	goto done;
     }
+
     switch (mp->ctype) {
 	/*
 	 * see also open.c for Pdh metric semantics
@@ -84,41 +93,49 @@ pdh_fetch(pdh_metric_t *mp, int c)
 	default:
 	    vp->atom.ull = raw.FirstValue;
     }
-    vp->flags |= V_COLLECTED;
-    return 1;
+    sts = 0;
+
+done:
+    PdhRemoveCounter(counterhdl);
+    PdhCloseQuery(queryhdl);
+    return sts;
+}
+
+void
+windows_collect_callback(pdh_metric_t *pmp, LPTSTR pat, pdh_value_t *pvp)
+{
+    windows_verify_callback(pmp, pat, pvp);
+
+    if (!(pvp->flags & V_COLLECTED))
+	if (windows_collect_metric(pmp, pat, pvp) == 0)
+	    pvp->flags |= V_COLLECTED;
 }
 
 /*
- * Called before each PMDA fetch ... force query groups to be refreshed if
- * we are asked for metrics covered by a query, and instantiates values.
+ * Called before each PMDA fetch ... force value refreshes for
+ * requested metrics here; special case derived filesys metrics.
  */
 void
 windows_fetch_refresh(int numpmid, pmID pmidlist[])
 {
-    int			i, v, extra_filesys = 0;
-    __pmID_int		*pmidp;
-    pdh_metric_t	*mp;
+    int	i, j, extra_filesys = 0;
 
-    for (i = 0; i < Q_NUMQUERIES; i++)
-	querydesc[i].flags &= ~Q_COLLECTED;
+    for (i = 0; i < metricdesc_sz; i++)
+	for (j = 0; j < metricdesc[i].num_vals; j++)
+	    metricdesc[i].vals[j].flags = V_NONE;
 
     for (i = 0; i < numpmid; i++) {
-	pmidp = (__pmID_int *)&pmidlist[i];
-	mp = &metricdesc[pmidp->item];
+	__pmID_int *pmidp = (__pmID_int *)&pmidlist[i];
+	int item = pmidp->item;
 
-	if (pmidp->item == 117 || pmidp->item == 118 || pmidp->item == 119)
-	    extra_filesys = 1;
+	if (item == 117 || item == 118 || item == 119)
+	    extra_filesys++;
 	else
-	    for (v = 0; v < mp->num_vals; v++)
-		pdh_fetch(mp, v);
+	    windows_visit_metric(&metricdesc[item], windows_collect_callback);
     }
 
     if (extra_filesys) {
-	mp = &metricdesc[120];
-	for (v = 0; v < mp->num_vals; v++)
-	    pdh_fetch(mp, v);
-	mp = &metricdesc[121];
-	for (v = 0; v < mp->num_vals; v++)
-	    pdh_fetch(mp, v);
+	windows_visit_metric(&metricdesc[120], windows_collect_callback);
+	windows_visit_metric(&metricdesc[121], windows_collect_callback);
     }
 }

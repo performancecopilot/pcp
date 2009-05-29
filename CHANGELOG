@@ -1,3 +1,7 @@
+pcp-2.8.7 (29 May 2009)
+    - Windows PMDA major rework to improve memory footprint.
+    - Yet another Mac OS X build issue resolution.
+
 pcp-2.8.6 (26 May 2009)
     - Fix build on Mac OS X after lex warning cleanups.
     - Fix pmdate build when PCP headers not in the root.

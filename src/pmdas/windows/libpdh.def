@@ -8,3 +8,4 @@ PdhExpandCounterPathA@12
 PdhGetCounterInfoA@16
 PdhGetRawCounterValue@12
 PdhOpenQueryA@12
+PdhCloseQuery@4

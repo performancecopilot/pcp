@@ -73,42 +73,17 @@ static struct {
 
 static int ctypetab_sz = sizeof(ctypetab) / sizeof(ctypetab[0]);
 
-char *
+static char *
 decode_ctype(DWORD ctype)
 {
     static char	unknown[20];
     int		i;
 
-    for (i = 0; i < ctypetab_sz; i++) {
-	if (ctype == ctypetab[i].type) {
+    for (i = 0; i < ctypetab_sz; i++)
+	if (ctype == ctypetab[i].type)
 	    return ctypetab[i].desc;
-	}
-    }
     sprintf(unknown, "0x%08x unknown", (int)ctype);
     return unknown;
-}
-
-/*
- * There has to be something like this hiding in the Windows DLLs,
- * but I cannot find it ... so roll your own.
- */
-void
-errmsg(void)
-{
-    LPVOID bufp;
-
-    FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-        NULL,
-        GetLastError(),
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPTSTR)&bufp,
-        0,
-	NULL);
-
-    fprintf(stderr, "%s\n", (const char *)bufp);
-
-    LocalFree(bufp);
 }
 
 static char *
@@ -162,7 +137,8 @@ _typestr(int type)
     }
 }
 
-char *
+#if 0	// debugging
+static char *
 _ctypestr(int ctype)
 {
     if (ctype == PERF_COUNTER_COUNTER)
@@ -188,6 +164,7 @@ _ctypestr(int ctype)
     else
     	return "UNKNOWN";
 }
+#endif
 
 /*
  * Based on documentation from ...
@@ -195,7 +172,7 @@ _ctypestr(int ctype)
  * 		url=/library/en-us/sysinfo/base/osversioninfoex_str.asp
  */
 static void
-format_uname(OSVERSIONINFOEX osv)
+windows_format_uname(OSVERSIONINFOEX osv)
 {
     char		tbuf[80];
     char		*name = NULL;
@@ -246,7 +223,7 @@ format_uname(OSVERSIONINFOEX osv)
 }
 
 void
-setup_globals(void)
+windows_setup_globals(void)
 {
     SYSTEM_INFO		sysinfo;
     OSVERSIONINFOEX	osversion;
@@ -292,14 +269,15 @@ setup_globals(void)
     if (!GetVersionEx((OSVERSIONINFO *)&osversion))
 	__pmNotifyErr(LOG_ERR, "GetVersionEx failed");
     else
-	format_uname(osversion);
+	windows_format_uname(osversion);
 }
 
-static int
-check_semantics(pdh_metric_t *mp, pdh_value_t *vp)
+static void
+windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 {
-    int		sts = 0;
     char	*ctr_type;
+
+    mp->ctype = infop->dwType;
 
     switch (mp->ctype) {
 	/*
@@ -339,6 +317,8 @@ check_semantics(pdh_metric_t *mp, pdh_value_t *vp)
 	 */
 	case PERF_COUNTER_COUNTER:
 	    /* 32-bit PM_SEM_COUNTER */
+	    if (mp->desc.type == PM_TYPE_UNKNOWN)
+		mp->desc.type = PM_TYPE_U32;
 	    if (mp->desc.type != PM_TYPE_32 && mp->desc.type != PM_TYPE_U32) {
 		__pmNotifyErr(LOG_ERR, "windows_open: PERF_COUNTER_COUNTER: "
 			"metric %s: rewrite type from %s to PM_TYPE_U32\n",
@@ -374,6 +354,8 @@ check_semantics(pdh_metric_t *mp, pdh_value_t *vp)
 	 */
 	case PERF_COUNTER_BULK_COUNT:
 	    /* 64-bit PM_SEM_COUNTER */
+	    if (mp->desc.type == PM_TYPE_UNKNOWN)
+		mp->desc.type = PM_TYPE_U64;
 	    if (mp->desc.type != PM_TYPE_64 && mp->desc.type != PM_TYPE_U64) {
 		__pmNotifyErr(LOG_ERR, "windows_open: PERF_COUNTER_BULK_COUNT:"
 			" metric %s: rewrite type from %s to PM_TYPE_U64\n",
@@ -470,33 +452,118 @@ check_semantics(pdh_metric_t *mp, pdh_value_t *vp)
 	    break;
 
 	default:
-	    sts = -1;
+	    __pmNotifyErr(LOG_ERR, "windows_open: Warning: metric %s: "
+				   "unexpected counter type: %s\n",
+			pmIDStr(mp->desc.pmid), decode_ctype(infop->dwType));
     }
     mp->flags |= M_EXPANDED;
-    return sts;
 }
 
 int
-windows_check_metric(pdh_metric_t *pmp)
+windows_inform_metric(pdh_metric_t *pmp, LPTSTR p, pdh_value_t *pvp,
+			BOOLEAN getExplainText, pdh_metric_inform_t informer)
 {
-    int			i, id;
+    int			sts = -1;
+    PDH_STATUS  	pdhsts;
+    PDH_HQUERY		queryhdl = NULL;
+    PDH_HCOUNTER	counterhdl = NULL;
+    DWORD		result_sz;
+    static DWORD	info_sz = 0;
+    static LPSTR	info = NULL;
+
+    pdhsts = PdhOpenQueryA(NULL, 0, &queryhdl);
+    if (pdhsts != ERROR_SUCCESS) {
+	__pmNotifyErr(LOG_ERR, "windows_open: PdhOpenQueryA failed: %s\n",
+			pdherrstr(pdhsts));
+	return sts;
+    }
+
+    pdhsts = PdhAddCounterA(queryhdl, p, pvp->inst, &counterhdl);
+    if (pdhsts != ERROR_SUCCESS) {
+	__pmNotifyErr(LOG_ERR, "windows_open: Warning: PdhAddCounterA "
+				"@ pmid=%s pat=\"%s\": %s\n",
+			    pmIDStr(pmp->desc.pmid), p, pdherrstr(pdhsts));
+	PdhCloseQuery(queryhdl);
+	return sts;
+    }
+
+    /*
+     * check PCP metric semantics against PDH info
+     */
+    if (info_sz == 0) {
+	/*
+	 * We've observed an initial call to PdhGetCounterInfoA()
+	 * hang with a zero sized buffer ... pander to this with
+	 * an initial buffer allocation ... (size is a 100% guess).
+	 */
+	info_sz = 256;
+	if ((info = (LPSTR)malloc(info_sz)) == NULL) {
+	    __pmNotifyErr(LOG_ERR, "windows_open: PdhGetCounterInfoA "
+				   "malloc (%d) failed @ metric %s: ",
+				(int)info_sz, pmIDStr(pmp->desc.pmid));
+	    goto done;
+	}
+    }
+    result_sz = info_sz;
+    pdhsts = PdhGetCounterInfoA(counterhdl, getExplainText, &result_sz,
+					(PDH_COUNTER_INFO_A *)info);
+    if (pdhsts == PDH_MORE_DATA) {
+	info_sz = result_sz;
+	if ((info = (LPSTR)realloc(info, info_sz)) == NULL) {
+	    __pmNotifyErr(LOG_ERR, "windows_open: PdhGetCounterInfoA "
+				   "realloc (%d) failed @ metric %s: ",
+				(int)info_sz, pmIDStr(pmp->desc.pmid));
+	    goto done;
+	}
+	pdhsts = PdhGetCounterInfoA(counterhdl, getExplainText, &result_sz,
+				    (PDH_COUNTER_INFO_A *)info);
+    }
+    if (pdhsts != ERROR_SUCCESS) {
+	__pmNotifyErr(LOG_ERR, "windows_open: PdhGetCounterInfoA "
+				"failed @ metric %s: %s\n",
+				pmIDStr(pmp->desc.pmid), pdherrstr(pdhsts));
+	goto done;
+    }
+    else {
+	informer(pmp, (PDH_COUNTER_INFO_A *)info);
+	sts = 0;
+    }
+
+done:
+    PdhRemoveCounter(counterhdl);
+    PdhCloseQuery(queryhdl);
+    return sts;
+}
+
+void
+windows_verify_callback(pdh_metric_t *pmp, LPSTR pat, pdh_value_t *pvp)
+{
+    int	v;
+
+    if (!(pmp->flags & M_VERIFIED)) {
+	v = windows_inform_metric(pmp, pat, pvp, FALSE, windows_verify_metric);
+	if (v == 0)
+	    pmp->flags |= M_VERIFIED;
+    }
+}
+
+
+/*
+ * General purpose metric regex iterator, call out on each instance
+ */
+int
+windows_visit_metric(pdh_metric_t *pmp, pdh_metric_visitor_t visitor)
+{
     size_t		size;
     PDH_STATUS  	pdhsts;
-    static LPSTR	pattern = NULL;
+    DWORD		result_sz;
     static DWORD	pattern_sz = 0;
-    static LPSTR	info = NULL;
-    static DWORD	info_sz = 0;
-    static DWORD	result_sz;
-    PDH_COUNTER_INFO_A	*infop;
-    LPTSTR      	p;
+    static LPSTR	pattern = NULL;
+    LPSTR      		p;
 
-    for (i = 0; i < pmp->num_vals; i++)
-	PdhRemoveCounter(pmp->vals[i].hdl);
-    if (pmp->num_vals)
-	free(pmp->vals);
-    pmp->vals = NULL;
-    pmp->num_vals = 0;
     pmp->flags &= ~(M_EXPANDED|M_NOVALUES);
+    memset(pmp->vals, 0, pmp->num_alloc * sizeof(pdh_value_t));
+    pmp->num_vals = 0;
 
     result_sz = 0;
     pdhsts = PdhExpandCounterPathA(pmp->pat, NULL, &result_sz);
@@ -507,7 +574,6 @@ windows_check_metric(pdh_metric_t *pmp)
 		__pmNotifyErr(LOG_ERR, "windows_open: PdhExpandCounterPathA "
 					"realloc (%ld) failed @ metric %s: ",
 				pattern_sz, pmIDStr(pmp->desc.pmid));
-		errmsg();
 		return -1;
 	    }
 	}
@@ -549,15 +615,19 @@ windows_check_metric(pdh_metric_t *pmp)
 	pdh_value_t	*pvp;
 
 	pmp->num_vals++;
-	size = pmp->num_vals * sizeof(pdh_value_t);
-	if ((pmp->vals = (pdh_value_t *)realloc(pmp->vals, size)) == NULL) {
-	    __pmNotifyErr(LOG_ERR, "windows_open: Error: values realloc "
+	if (pmp->num_vals > pmp->num_alloc) {
+	    size = pmp->num_vals * sizeof(pdh_value_t);
+	    if ((pmp->vals = (pdh_value_t *)realloc(pmp->vals, size)) == NULL) {
+		__pmNotifyErr(LOG_ERR, "windows_open: Error: values realloc "
 				   "(%d x %d) failed @ metric %s [%s]: ",
 				pmp->num_vals, sizeof(pdh_value_t),
 				pmIDStr(pmp->desc.pmid), p);
-	    errmsg();
-	    return -1;
+		pmp->num_alloc = 0;
+		return -1;
+	    }
+	    pmp->num_alloc = pmp->num_vals;
 	}
+
 	pvp = &pmp->vals[pmp->num_vals-1];
 	if (pmp->desc.indom == PM_INDOM_NULL) {
 	    /* singular instance */
@@ -590,7 +660,7 @@ windows_check_metric(pdh_metric_t *pmp)
 	     * indom type to extract instance name and number, and
 	     * add into indom cache data structures as needed.
 	     */
-	    if ((pvp->inst = windows_check_instance(p, pmp)) < 0) {
+	    if ((pvp->inst = windows_lookup_instance(p, pmp)) < 0) {
 		/*
 		 * error reported in windows_check_instance() ...
 		 * we cannot return any values for this instance if
@@ -604,99 +674,24 @@ windows_check_metric(pdh_metric_t *pmp)
 	    }
 	}
 
-	/*
-	 * Note.  Passing inst down here does not help much, as
-	 * I don't think we're ever going to navigate back from a PDH
-	 * counter into our data structures, and even if we do,
-	 * the instance id is not going to be unique enough.
-	 */
-	id = pmp->qid;
-	pdhsts = PdhAddCounterA(querydesc[id].hdl, p, pvp->inst, &pvp->hdl);
-	if (pdhsts != ERROR_SUCCESS) {
-	    __pmNotifyErr(LOG_ERR, "windows_open: Warning: PdhAddCounterA "
-				"@ pmid=%s inst=%d pat=\"%s\" hdl=%p: %s\n",
-			    pmIDStr(pmp->desc.pmid), pvp->inst, p, pvp->hdl,
-			    pdherrstr(pdhsts));
-	    pmp->flags |= M_NOVALUES;
-	    break;
-	}
-
 	if (p > pattern)
 	    continue;
-	if (pvp->flags & V_VERIFIED)
-	    continue;
 
-	/*
-	 * check PCP metric semantics against PDH info
-	 */
-	if (info_sz == 0) {
-	    /*
-	     * We've observed an initial call to PdhGetCounterInfoA()
-	     * hang with a zero sized buffer ... pander to this with
-	     * an initial buffer allocation ... (size is a 100% guess).
-	     */
-	    info_sz = 256;
-	    if ((info = (LPSTR)malloc(info_sz)) == NULL) {
-		__pmNotifyErr(LOG_ERR, "windows_open: PdhGetCounterInfoA "
-					"malloc (%d) failed @ metric %s: ",
-				(int)info_sz, pmIDStr(pmp->desc.pmid));
-		errmsg();
-		return -1;
-	    }
-	}
-	result_sz = info_sz;
-	pdhsts = PdhGetCounterInfoA(pvp->hdl, FALSE, &result_sz,
-					(PDH_COUNTER_INFO_A *)info);
-	if (pdhsts == PDH_MORE_DATA) {
-	    info_sz = result_sz;
-	    if ((info = (LPSTR)realloc(info, info_sz)) == NULL) {
-		__pmNotifyErr(LOG_ERR, "windows_open: PdhGetCounterInfoA "
-					"realloc (%d) failed @ metric %s: ",
-				(int)info_sz, pmIDStr(pmp->desc.pmid));
-		errmsg();
-		return -1;
-	    }
-	    pdhsts = PdhGetCounterInfoA(pvp->hdl, FALSE, &result_sz,
-					(PDH_COUNTER_INFO_A *)info);
-	}
-	if (pdhsts != ERROR_SUCCESS) {
-	    __pmNotifyErr(LOG_ERR, "windows_open: PdhGetCounterInfoA "
-					"failed @ metric %s: %s\n",
-				pmIDStr(pmp->desc.pmid), pdherrstr(pdhsts));
-	    continue;
-	}
-	infop = (PDH_COUNTER_INFO_A *)info;
-	pmp->ctype = infop->dwType;
-
-	if (check_semantics(pmp, pvp) == 0)
-	    pvp->flags |= V_VERIFIED;
-	else
-	    __pmNotifyErr(LOG_ERR, "windows_open: Warning: metric %s: "
-				   "unexpected counter type: %s\n",
-			pmIDStr(pmp->desc.pmid), decode_ctype(pmp->ctype));
+	if (visitor)
+	    visitor(pmp, p, pvp);
     }
+
     return 0;
 }
 
 void
 windows_open(void)
 {
-    int			i, sts = 0;
+    windows_setup_globals();
 
-    setup_globals();
-
-    memset(querydesc, 0, sizeof(pdh_query_t) * Q_NUMQUERIES);
-    for (i = 0; i < Q_NUMQUERIES; i++) {
-	sts = PdhOpenQueryA(NULL, 0, &querydesc[i].hdl);
-	if (sts != ERROR_SUCCESS) {
-	    __pmNotifyErr(LOG_ERR, "windows_open: PdhOpenQueryA "
-				    "failed @ query %d: %s\n",
-				    i, pdherrstr(sts));
-	    querydesc[i].flags |= Q_ERR_SEEN;
-	}
-    }
-
-    for (i = 0; i < metricdesc_sz; i++) {
-	windows_check_metric(&metricdesc[i]);
+    if (pmDebug & DBG_TRACE_LIBPMDA) {
+	int i;
+	for (i = 0; i < metricdesc_sz; i++)
+	    windows_visit_metric(&metricdesc[i], windows_verify_callback);
     }
 }
