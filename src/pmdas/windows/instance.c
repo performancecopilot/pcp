@@ -17,26 +17,6 @@
 #include "hypnotoad.h"
 #include <ctype.h>
 
-pmInDom
-windows_indom(int qid, int domain)
-{
-    int		serial;
-
-    switch (qid) {
-    case Q_DISK_DEV:		serial = DISK_INDOM; break;
-    case Q_PERCPU:		serial = CPU_INDOM; break;
-    case Q_NETWORK_IF:		serial = NETIF_INDOM; break;
-    case Q_LDISK:		serial = FILESYS_INDOM; break;
-    case Q_SQLSERVER_LOCK:	serial = SQL_LOCK_INDOM; break;
-    case Q_SQLSERVER_CACHE:	serial = SQL_CACHE_INDOM; break;
-    case Q_SQLSERVER_DB:	serial = SQL_DB_INDOM; break;
-    case Q_PROCESSES:		serial = PROCESS_INDOM; break;
-    case Q_THREADS:		serial = THREAD_INDOM; break;
-    default:			return PM_INDOM_NULL;
-    }
-    return INDOM(domain, serial);
-}
-
 void
 windows_instance_refresh(pmInDom indom)
 {

@@ -136,13 +136,13 @@ e. Metric semantics ... you'll need a complete metricdesc[i]
 
     /* sqlserver.cache_mgr.all.cache_hit_ratio */
 	{ { PMDA_PMID(0,81), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
-	  }, Q_SQLSERVER, M_NONE, "\\SQLServer:Cache Manager(_Total)\\Cache Hit Ratio"
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	  "\\SQLServer:Cache Manager(_Total)\\Cache Hit Ratio"
 	},
     /* sqlserver.cache_mgr.cache.cache_hit_ratio */
 	{ { PMDA_PMID(0,82), PM_TYPE_FLOAT, SQL_CACHE_INDOM, PM_SEM_INSTANT,
-	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
-	  }, Q_SQLSERVER, M_NONE, "\\SQLServer:Cache Manager(*/*#*)\\Cache Hit Ratio"
+	    PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	  "\\SQLServer:Cache Manager(*/*#*)\\Cache Hit Ratio"
 	},
 
 f. If you've added a new instance domain (SQL_CACHE_INDOM in the case

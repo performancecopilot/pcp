@@ -60,8 +60,7 @@ typedef enum {
 
 typedef struct {
     pmDesc		desc;		/* metric descriptor */
-    int			qid;		/* index into query group table */
-    pdh_metricflag_t	flags;	
+    pdh_metricflag_t	flags;		/* state of this metric */
     int			ctype;		/* PDH counter type */
     int			num_alloc;	/* high water allocation mark */
     int			num_vals;	/* one or more metric values */
