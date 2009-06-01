@@ -451,7 +451,6 @@ clobber:	/* overwrite entries we are done with */
     for (i = 0; i < num; i++) {
 	p = list[i]->d_name;
 	if (*p) {
-	    lchdir(path);
 	    if (local_pmns_write(p) < 0)
 		return -1;
 	    lchdir("..");
