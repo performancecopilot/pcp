@@ -67,6 +67,7 @@ use vars qw( @fd_values @imap_time_values @imap_count_values @soap_time_values
 
 sub zimbra_fd_parser
 {
+    ( $_ ) = @_;
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
 	chomp;
 	$fd_timestamp = $1;
@@ -76,6 +77,7 @@ sub zimbra_fd_parser
 
 sub zimbra_imap_parser
 {
+    ( $_ ) = @_;
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
 	chomp;
 	my $timestamp = $1;
@@ -95,6 +97,7 @@ sub zimbra_imap_parser
 
 sub zimbra_soap_parser
 {
+    ( $_ ) = @_;
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
 	chomp;
 	my $timestamp = $1;
@@ -114,6 +117,7 @@ sub zimbra_soap_parser
 
 sub zimbra_mailbox_parser
 {
+    ( $_ ) = @_;
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
 	chomp;
 	$mailbox_timestamp = $1;
@@ -123,6 +127,7 @@ sub zimbra_mailbox_parser
 
 sub zimbra_mtaqueue_parser
 {
+    ( $_ ) = @_;
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
 	chomp;
 	$mtaqueue_timestamp = $1;
@@ -141,6 +146,7 @@ sub zimbra_proc_parser
 
 sub zimbra_threads_parser
 {
+    ( $_ ) = @_;
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
 	chomp;
 	$threads_timestamp = $1;
@@ -210,61 +216,61 @@ $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	'/opt/zimbra/zmstat/fd.csv', 'Open file descriptors');
 
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, $imap_domain, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.imap.exec_count',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.imap.count',
 	'/opt/zimbra/zmstat/imap.csv',
 	'Count of Internet Message Access Protocol commands');
 $pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U32, $imap_domain, PM_SEM_INSTANT,
-	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.imap.exec_avgtime',
+	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.imap.avgtime',
 	'/opt/zimbra/zmstat/imap.csv',
 	'Time spent executing Internet Message Access Protocol commands');
 
 $pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U32, $soap_domain, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.soap.exec_count',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.soap.count',
 	'/opt/zimbra/zmstat/soap.csv',
 	'Count of Simple Object Access Protocol commands');
 $pmda->add_metric(pmda_pmid(2,1), PM_TYPE_U32, $soap_domain, PM_SEM_INSTANT,
-	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.imap.exec_avgtime',
+	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.soap.avgtime',
 	'/opt/zimbra/zmstat/soap.csv',
 	'Time spent executing Simple Object Access Protocol commands');
 
 $pmda->add_metric(pmda_pmid(3,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.lmtp_rcvd_msgs',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.lmtp.rcvd_msgs',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Received mail messages');
 $pmda->add_metric(pmda_pmid(3,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(1,0,0,PM_SPACE_BYTE,0,0), 'zimbra.mailboxd.lmtp_rcvd_bytes',
+	pmda_units(1,0,0,PM_SPACE_BYTE,0,0), 'zimbra.mailboxd.lmtp.rcvd_bytes',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Received bytes');
 $pmda->add_metric(pmda_pmid(3,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.lmtp_rcvd_rcpt',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.lmtp.rcvd_rcpt',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Received receipts');
 $pmda->add_metric(pmda_pmid(3,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.lmtp_dlvd_msgs',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.lmtp.dlvd_msgs',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Delivered messages');
 $pmda->add_metric(pmda_pmid(3,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.lmtp_dlvd_bytes',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.lmtp.dlvd_bytes',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Delivered bytes');
 $pmda->add_metric(pmda_pmid(3,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.db_conn_count',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.db_conn.count',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Database connection count');
 $pmda->add_metric(pmda_pmid(3,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.db_conn_ms_avg',
+	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.db_conn.time',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Database connection time');
 $pmda->add_metric(pmda_pmid(3,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.ldap_dc_count',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.ldap.dc_count',
 	'/opt/zimbra/zmstat/mailboxd.csv', '');
 $pmda->add_metric(pmda_pmid(3,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.ldap_dc_ms_avg',
+	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.ldap.dc_time',
 	'/opt/zimbra/zmstat/mailboxd.csv', '');
 $pmda->add_metric(pmda_pmid(3,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.mbox_add_msg_count',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.mbox.add_msg_count',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Mailbox message add count');
 $pmda->add_metric(pmda_pmid(3,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.mbox_add_msg_ms_avg',
+	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.mbox.add_msg_time',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Mailbox message add average time');
 $pmda->add_metric(pmda_pmid(3,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.mbox_get_count',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.mbox.get_count',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Mailbox get count');
 $pmda->add_metric(pmda_pmid(3,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.mbox_get_ms_avg',
+	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.mbox.get_time',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Mailbox average get time');
 $pmda->add_metric(pmda_pmid(3,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.mbox_cache',
@@ -276,22 +282,22 @@ $pmda->add_metric(pmda_pmid(3,15), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.mbox_item_cache',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Mailbox item cache');
 $pmda->add_metric(pmda_pmid(3,16), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.soap_count',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.soap.count',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Simple Object Access Protocol count');
 $pmda->add_metric(pmda_pmid(3,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.soap_ms_avg',
+	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.soap.time',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Simple Object Access Protocol time');
 $pmda->add_metric(pmda_pmid(3,18), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.imap_count',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.imap.count',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Internet Message Access Protocol count');
 $pmda->add_metric(pmda_pmid(3,19), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.imap_ms_avg',
+	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.imap.time',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Internet Message Access Protocol time');
 $pmda->add_metric(pmda_pmid(3,20), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.pop_count',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.pop.count',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Post Office Protocol count');
 $pmda->add_metric(pmda_pmid(3,21), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.pop_ms_avg',
+	pmda_units(0,1,0,0,PM_TIME_MSEC,0), 'zimbra.mailboxd.pop.time',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Post Office Protocol time');
 $pmda->add_metric(pmda_pmid(3,22), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.mailboxd.idx.wrt_avg',
@@ -303,13 +309,13 @@ $pmda->add_metric(pmda_pmid(3,24), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.idx.wrt_opened_cache_hit',
 	'/opt/zimbra/zmstat/mailboxd.csv', '');
 $pmda->add_metric(pmda_pmid(3,25), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.calcache_hit',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.calcache.hit',
 	'/opt/zimbra/zmstat/mailboxd.csv', '');
 $pmda->add_metric(pmda_pmid(3,26), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.calcache_mem_hit',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.calcache.mem_hit',
 	'/opt/zimbra/zmstat/mailboxd.csv', '');
 $pmda->add_metric(pmda_pmid(3,27), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.calcache_lru_size',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.calcache.lru_size',
 	'/opt/zimbra/zmstat/mailboxd.csv', '');
 $pmda->add_metric(pmda_pmid(3,28), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_BYTE,0,0), 'zimbra.mailboxd.idx.bytes_written',
@@ -336,19 +342,19 @@ $pmda->add_metric(pmda_pmid(3,35), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.innodb_bp_hit_rate',
 	'/opt/zimbra/zmstat/mailboxd.csv', '');
 $pmda->add_metric(pmda_pmid(3,36), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.pop_conn',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.pop.conn',
 	'/opt/zimbra/zmstat/mailboxd.csv', '');
 $pmda->add_metric(pmda_pmid(3,37), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.pop_ssl_conn',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.pop.ssl_conn',
 	'/opt/zimbra/zmstat/mailboxd.csv', '');
 $pmda->add_metric(pmda_pmid(3,38), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.imap_conn',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.imap.conn',
 	'/opt/zimbra/zmstat/mailboxd.csv', '');
 $pmda->add_metric(pmda_pmid(3,39), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.imap_ssl_conn',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.imap.ssl_conn',
 	'/opt/zimbra/zmstat/mailboxd.csv', '');
 $pmda->add_metric(pmda_pmid(3,40), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.soap_sessions',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.mailboxd.soap.sessions',
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Simple Object Access Protocol session count');
 # Zimbra duplicates four metrics here, so skip four for direct indexing
 $pmda->add_metric(pmda_pmid(3,45), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -627,7 +633,7 @@ $pmda->add_metric(pmda_pmid(6,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.threads.timer',
 	'/opt/zimbra/zmstat/threads.csv', '');
 $pmda->add_metric(pmda_pmid(6,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.threads.anon_io',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.threads.anonymous_io',
 	'/opt/zimbra/zmstat/threads.csv', '');
 $pmda->add_metric(pmda_pmid(6,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.threads.flap_processor',
@@ -653,13 +659,13 @@ $pmda->add_indom($imap_domain, \@imap_indom, 'IMAP operations',
 $pmda->add_indom($soap_domain, \@soap_indom, 'SOAP operation',
 		'Simple Object Access Protocol operations');
 
-$pmda->add_tail($stats . 'fd.csv', \&zimbra_fd_parser, undef);
-$pmda->add_tail($stats . 'imap.csv', \&zimbra_imap_parser, undef);
-$pmda->add_tail($stats . 'mailboxd.csv', \&zimbra_mailbox_parser, undef);
-$pmda->add_tail($stats . 'mtaqueue.csv', \&zimbra_mtaqueue_parser, undef);
-$pmda->add_tail($stats . 'proc.csv', \&zimbra_proc_parser, undef);
-$pmda->add_tail($stats . 'soap.csv', \&zimbra_soap_parser, undef);
-$pmda->add_tail($stats . 'threads.csv', \&zimbra_threads_parser, undef);
+$pmda->add_tail($stats . 'fd.csv', \&zimbra_fd_parser, 0);
+$pmda->add_tail($stats . 'imap.csv', \&zimbra_imap_parser, 0);
+$pmda->add_tail($stats . 'mailboxd.csv', \&zimbra_mailbox_parser, 0);
+$pmda->add_tail($stats . 'mtaqueue.csv', \&zimbra_mtaqueue_parser, 0);
+$pmda->add_tail($stats . 'proc.csv', \&zimbra_proc_parser, 0);
+$pmda->add_tail($stats . 'soap.csv', \&zimbra_soap_parser, 0);
+$pmda->add_tail($stats . 'threads.csv', \&zimbra_threads_parser, 0);
 
 $pmda->set_fetch_callback(\&zimbra_fetch_callback);
 $pmda->run;
