@@ -132,6 +132,9 @@ local_pipe(char *pipe, scalar_t *callback, int cookie)
     FILE *fp = popen(pipe, "r");
     int me;
 
+#if defined(HAVE_SIGPIPE)
+    signal(SIGPIPE, SIG_IGN);
+#endif
     if (!fp) {
 	__pmNotifyErr(LOG_ERR, "popen failed (%s): %s", pipe, strerror(errno));
 	exit(1);
@@ -158,6 +161,7 @@ local_tail(char *file, scalar_t *callback, int cookie)
     }
     me = local_file(FILE_TAIL, fileno(fp), callback, cookie);
     files[me].me.tail.file = fp;
+    files[me].me.tail.path = strdup(file);
     files[me].me.tail.dev = stats.st_dev;
     files[me].me.tail.ino = stats.st_ino;
     return me;
@@ -227,8 +231,12 @@ local_atexit(void)
 	--nfiles;
 	if (files[nfiles].type == FILE_PIPE)
 	    pclose(files[nfiles].me.pipe.file);
-	if (files[nfiles].type == FILE_TAIL)
+	if (files[nfiles].type == FILE_TAIL) {
 	    fclose(files[nfiles].me.tail.file);
+	    if (files[nfiles].me.tail.path)
+		free(files[nfiles].me.tail.path);
+	    files[nfiles].me.tail.path = NULL;
+	}
 	if (files[nfiles].type == FILE_SOCK) {
 	    __pmCloseSocket(files[nfiles].fd);
 	    if (files[nfiles].me.sock.host)
@@ -240,6 +248,63 @@ local_atexit(void)
 	free(files);
 	files = NULL;
     }
+}
+
+static void
+local_log_rotated(files_t *file)
+{
+    struct stat stats;
+
+    if (stat(file->me.tail.path, &stats) < 0)
+	return;
+    if (stats.st_ino == file->me.tail.ino && stats.st_dev == file->me.tail.dev)
+	return;
+
+    fclose(file->me.tail.file);
+    files->fd = -1;
+
+    file->me.tail.file = fopen(file->me.tail.path, "r");
+    if (file->me.tail.file == NULL) {
+	__pmNotifyErr(LOG_ERR, "fopen failed after log rotate (%s): %s",
+			file->me.tail.path, strerror(errno));
+	return;
+    }
+    files->fd = fileno(file->me.tail.file);
+    files->me.tail.dev = stats.st_dev;
+    files->me.tail.ino = stats.st_ino;
+}
+
+static int
+local_reconnector(files_t *file)
+{
+    struct sockaddr_in myaddr;
+    struct hostent *servinfo;
+    int fd;
+
+    if (file->fd != -1)		/* reconnect-needed flag */
+	return;
+    if ((servinfo = gethostbyname(file->me.sock.host)) == NULL)
+	return;
+    if ((fd = __pmCreateSocket()) < 0)
+	return;
+    memset(&myaddr, 0, sizeof(myaddr));
+    myaddr.sin_family = AF_INET;
+    memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
+    myaddr.sin_port = htons(files->me.sock.port);
+    if (connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr)) < 0) {
+	close(fd);
+	return;
+    }
+    files->fd = fd;
+}
+
+static void
+local_connection(files_t *file)
+{
+    if (file->type == FILE_TAIL)
+	local_log_rotated(file);
+    else if (file->type == FILE_TAIL)
+	local_reconnector(file);
 }
 
 void
@@ -270,10 +335,10 @@ local_pmdaMain(pmdaInterface *self)
 
     /* custom PMDA main loop */
     for (;;) {
+	struct timeval timeout = { 10, 0 };
+
 	memcpy(&readyfds, &fds, sizeof(readyfds));
-	nready = select(nfds, &readyfds, NULL, NULL, NULL);
-	if (nready == 0)
-	    continue;
+	nready = select(nfds, &readyfds, NULL, NULL, &timeout);
 	if (nready < 0) {
 	    if (errno != EINTR) {
 		__pmNotifyErr(LOG_ERR, "select failed: %s\n", strerror(errno));
@@ -293,15 +358,24 @@ local_pmdaMain(pmdaInterface *self)
 
 	for (i = 0; i < nfiles; i++) {
 	    fd = files[i].fd;
+	    /* check for log rotation or host reconnection needed */
+	    local_connection(&files[i]);
 	    if (!(FD_ISSET(fd, &readyfds)))
 		continue;
 	    bytes = read(fd, buffer, sizeof(buffer));
 	    if (bytes < 0) {
+		if (files[i].type == FILE_SOCK) {
+		    close(files[i].fd);
+		    files[i].fd = -1;
+		    continue;
+		}
 		__pmNotifyErr(LOG_ERR, "Data read error on %s: %s\n",
 				local_filetype(files[i].type), strerror(errno));
 		exit(1);
 	    }
 	    if (bytes == 0) {
+		if (files[i].type == FILE_TAIL)
+		    continue;
 		__pmNotifyErr(LOG_ERR, "No data to read - %s may be closed\n",
 				local_filetype(files[i].type));
 		exit(1);

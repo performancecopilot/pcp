@@ -17,8 +17,6 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-/* XXX - TODO: need to install a SIGCHLD signal handler when pipes in use */
-/* XXX - TODO: reconnect -- socket(host/port) and logrotate(inode/device) */
 /* XXX - TODO: Need POD updates to document all of the perl APIs & PMDAs. */
 
 #include "local.h"

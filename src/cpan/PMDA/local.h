@@ -40,12 +40,12 @@ typedef struct {
 
 typedef struct {
     FILE	*file;
+    char	*path;
     dev_t	dev;
     ino_t	ino;
 } tail_data_t;
 
 typedef struct {
-    FILE	*file;
     char	*host;
     int		port;
 } sock_data_t;
