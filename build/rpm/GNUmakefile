@@ -39,9 +39,11 @@ pack_pcp : rpmmacros $(SPEC)
 		rpmmacros 
 ifneq "$(CPANFLUTE)" ""
 	$(CPANFLUTE) --email="$(PACKAGE_BUILDER)" \
+		--noperlreqs --release=1 --outdir=$(TOPDIR)/build/rpm \
 		--descfile=pcp-pmda-perl.desc --buildrequires=pcp \
 		--buildall $(TOPDIR)/src/cpan/PMDA/PCP-PMDA-*.tar.gz
 	$(CPANFLUTE) --email="$(PACKAGE_BUILDER)" \
+		--noperlreqs --release=1 --outdir=$(TOPDIR)/build/rpm \
 		--descfile=pcp-logsummary-perl.desc --buildrequires=pcp \
 		--buildall $(TOPDIR)/src/cpan/LogSummary/PCP-LogSummary-*.tar.gz
 endif
