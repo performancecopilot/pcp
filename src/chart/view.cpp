@@ -1198,36 +1198,35 @@ static void saveScheme(FILE *f, QString scheme)
 
 void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 {
-    const char	*p;
-    char	*q, *qend;
+    const char	*s;
     double	ymin, ymax;
     bool	autoscale;
 
     fprintf(f, "chart");
-    p = cp->title();
-    if (p != NULL)
-	fprintf(f, " title \"%s\"", p);
+    s = cp->title();
+    if (s != NULL)
+	fprintf(f, " title \"%s\"", s);
     switch (cp->style()) {
 	case Chart::NoStyle:
-	    p = "none - botched in Save!";
+	    s = "none - botched in Save!";
     	    break;
 	case Chart::LineStyle:
-	    p = "plot";
+	    s = "plot";
 	    break;
 	case Chart::BarStyle:
-	    p = "bar";
+	    s = "bar";
 	    break;
 	case Chart::StackStyle:
-	    p ="stacking";
+	    s ="stacking";
 	    break;
 	case Chart::AreaStyle:
-	    p = "area";
+	    s = "area";
 	    break;
 	case Chart::UtilisationStyle:
-	    p = "utilization";
+	    s = "utilization";
 	    break;
     }
-    fprintf(f, " style %s", p);
+    fprintf(f, " style %s", s);
     if (cp->style() != Chart::UtilisationStyle) {
 	cp->scale(&autoscale, &ymin, &ymax);
 	if (!autoscale)
@@ -1239,6 +1238,8 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	fprintf(f, " antialiasing off");
     fputc('\n', f);
     for (int m = 0; m < cp->metricCount(); m++) {
+	char	*p, *q, *qend;
+
 	if (cp->activePlot(m) == false)
 	    continue;
 	fprintf(f, "\tplot");
