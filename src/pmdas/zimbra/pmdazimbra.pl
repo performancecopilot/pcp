@@ -52,22 +52,26 @@ sub zimbra_array_lookup
     my @indom = @$indomref;
     my $index;
 
-    for ($index = 0; $index < $#indom; $index++) {
-	return $index unless ($indom[$index] != $name);
+    for ($index = 1; $index < $#indom; $index += 2) {
+	return (($index-1) / 2) unless ($indom[$index] ne $name);
     }
-    return $#indom - 1;		# return the "other" bucket by default
+    return (($#indom-1) / 2);	# return the "other" bucket
 }
 
-use vars qw( $fd_timestamp $imap_timestamp $soap_timestamp
-	     $mailbox_timestamp $mtaqueue_timestamp $proc_timestamp
-	     $threads_timestamp );
 use vars qw( @fd_values @imap_time_values @imap_count_values @soap_time_values 
 	     @soap_count_values @mailbox_values @mtaqueue_values @proc_values
 	     @threads_values );
+use vars qw( $fd_timestamp $imap_timestamp $soap_timestamp
+	     $mailbox_timestamp $mtaqueue_timestamp $proc_timestamp
+	     $threads_timestamp );
+$fd_timestamp = $imap_timestamp = $soap_timestamp = $mailbox_timestamp =
+	     $mtaqueue_timestamp = $proc_timestamp = $threads_timestamp = 0;
 
 sub zimbra_fd_parser
 {
-    ( $_ ) = @_;
+    ( undef, $_ ) = @_;
+
+    # $pmda->log("zimbra_fd_parser got line: $_");
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
 	chomp;
 	$fd_timestamp = $1;
@@ -77,48 +81,58 @@ sub zimbra_fd_parser
 
 sub zimbra_imap_parser
 {
-    ( $_ ) = @_;
-    if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
+    ( undef, $_ ) = @_;
+
+    # $pmda->log("zimbra_imap_parser got line: $_");
+    if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d),||) {
 	chomp;
 	my $timestamp = $1;
 	my @values = split /,/;
 
-	if ($timestamp != $imap_timestamp) {
+	if ($timestamp ne $imap_timestamp) {
 	    $imap_timestamp = $timestamp;
 	    @imap_count_values = ();
+	    $imap_count_values[($#imap_indom-1)/2] = 0;
 	    @imap_time_values = ();
+	    $imap_time_values[($#imap_indom-1)/2] = 0;
 	}
 
-	my $index = zimbra_array_lookup(\@imap_indom, $1);
-	$imap_count_values[$index] = $values[0];
-	$imap_time_values[$index] = $values[1];
+	my $index = zimbra_array_lookup(\@imap_indom, $values[0]);
+	$imap_count_values[$index] = $values[1];
+	$imap_time_values[$index] = $values[2];
     }
 }
 
 sub zimbra_soap_parser
 {
-    ( $_ ) = @_;
-    if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
+    ( undef, $_ ) = @_;
+
+    # $pmda->log("zimbra_soap_parser got line: $_");
+    if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d),||) {
 	chomp;
 	my $timestamp = $1;
 	my @values = split /,/;
 
-	if ($timestamp != $soap_timestamp) {
+	if ($timestamp ne $soap_timestamp) {
 	    $soap_timestamp = $timestamp;
 	    @soap_count_values = ();
+	    $soap_count_values[($#soap_indom-1)/2] = 0;
 	    @soap_time_values = ();
+	    $soap_time_values[($#soap_indom-1)/2] = 0;
 	}
 
-	my $index = zimbra_array_lookup(\@soap_indom, $1);
-	$soap_count_values[$index] = $values[0];
-	$soap_time_values[$index] = $values[1];
+	my $index = zimbra_array_lookup(\@soap_indom, $values[0]);
+	$soap_count_values[$index] = $values[1];
+	$soap_time_values[$index] = $values[2];
     }
 }
 
 sub zimbra_mailbox_parser
 {
-    ( $_ ) = @_;
-    if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
+    ( undef, $_ ) = @_;
+
+    # $pmda->log("zimbra_mailbox_parser got line: $_");
+    if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d),||) {
 	chomp;
 	$mailbox_timestamp = $1;
 	@mailbox_values = split /,/;
@@ -127,7 +141,9 @@ sub zimbra_mailbox_parser
 
 sub zimbra_mtaqueue_parser
 {
-    ( $_ ) = @_;
+    ( undef, $_ ) = @_;
+
+    # $pmda->log("zimbra_mtaqueue_parser got line: $_");
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
 	chomp;
 	$mtaqueue_timestamp = $1;
@@ -137,17 +153,26 @@ sub zimbra_mtaqueue_parser
 
 sub zimbra_proc_parser
 {
+    ( undef, $_ ) = @_;
+
+    # $pmda->log("zimbra_proc_parser got line: $_");
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
 	chomp;
-	$mtaqueue_timestamp = $1;
-	@mtaqueue_values = split /,/;
+	$proc_timestamp = $1;
+	@proc_values = split /,/;
+	splice(@proc_values, 0, 5);	# ditch the "system" values
+	foreach my $proc ( reverse(0 .. 6) ) {
+	    splice(@proc_values, $proc * 8, 1);	# toss "name" field
+	}
     }
 }
 
 sub zimbra_threads_parser
 {
-    ( $_ ) = @_;
-    if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
+    ( undef, $_ ) = @_;
+
+    # $pmda->log("zimbra_threads_parser got line: $_");
+    if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d),||) {
 	chomp;
 	$threads_timestamp = $1;
 	@threads_values = split /,/;
@@ -158,54 +183,76 @@ sub zimbra_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
 
+    #$pmda->log("zimbra_fetch_callback for PMID: $cluster.$item ($inst)");
     if ($inst != PM_IN_NULL && $cluster != 1 && $cluster != 2) {
 	return (PM_ERR_INST, 0);
     }
 
     if ($cluster == 0) {			# fd.csv
-	if ($item >= 0 && $item < $#fd_values) {
+	if ($item >= 0 && $item <= 0) {
+	    return (PM_ERR_AGAIN, 0) unless defined($fd_values[$item]);
 	    return ($fd_values[$item], 1);
 	}
     }
     elsif ($cluster == 1 && $item == 0) {	# imap.csv
-	if ($inst >= 0 && $inst < $#imap_count_values) {
+	if ($inst >= 0 && $inst <= $#imap_indom) {
+	    return (PM_ERR_AGAIN, 0) unless defined($imap_count_values[$inst]);
 	    return ($imap_count_values[$inst], 1);
 	}
     }
     elsif ($cluster == 1 && $item == 1) {	# imap.csv
-	if ($inst >= 0 && $inst < $#imap_count_values) {
-	    return ($imap_count_values[$item], 1);
+	if ($inst >= 0 && $inst < $#imap_indom) {
+	    return (PM_ERR_AGAIN, 0) unless defined($imap_time_values[$inst]);
+	    return ($imap_time_values[$inst], 1);
 	}
     }
     elsif ($cluster == 2 && $item == 0) {	# soap.csv
-	if ($inst >= 0 && $inst < $#soap_count_values) {
-	    return ($soap_count_values[$item], 1);
+	if ($inst >= 0 && $inst < $#soap_indom) {
+	    return (PM_ERR_AGAIN, 0) unless defined($soap_count_values[$inst]);
+	    return ($soap_count_values[$inst], 1);
 	}
     }
     elsif ($cluster == 2 && $item == 1) {	# soap.csv
-	if ($inst >= 0 && $inst < $#soap_time_values) {
-	    return ($soap_time_values[$item], 1);
+	if ($inst >= 0 && $inst < $#soap_indom) {
+	    return (PM_ERR_AGAIN, 0) unless defined($soap_time_values[$inst]);
+	    return ($soap_time_values[$inst], 1);
 	}
     }
     elsif ($cluster == 3) {			# mailboxd.csv
-	if ($item >= 0 && $item < $#mailbox_values) {
+	if ($item >= 0 && $item <= 60) {
+	    return (PM_ERR_AGAIN, 0) unless defined($mailbox_values[$item]);
+	    if ($mailbox_values[$item] eq '') {
+		$mailbox_values[$item] = 0;
+	    }
 	    return ($mailbox_values[$item], 1);
 	}
     }
     elsif ($cluster == 4) {			# mtaqueue.csv
-	if ($item >= 0 && $item < $#mtaqueue_values) {
+	if ($item >= 0 && $item <= 1) {
+	    return (PM_ERR_AGAIN, 0) unless defined($mtaqueue_values[$item]);
 	    return ($mtaqueue_values[$item], 1);
 	}
     }
     elsif ($cluster == 5) {			# proc.csv
-	if ($item >= 0 && $item < $#proc_values) {
+	if ($item >= 0 && $item <= 48) {
+	    return (PM_ERR_AGAIN, 0) unless defined($proc_values[$item]);
 	    return ($proc_values[$item], 1);
 	}
     }
     elsif ($cluster == 6) {			# threads.csv
-	if ($item >= 0 && $item < $#threads_values) {
+	if ($item >= 0 && $item <= 13) {
+	    return (PM_ERR_AGAIN, 0) unless defined($threads_values[$item]);
 	    return ($threads_values[$item], 1);
 	}
+    }
+    elsif ($cluster == 7) {			# timestamps
+	return ($fd_timestamp, 1) unless ($item != 0);
+	return ($imap_timestamp, 1) unless ($item != 1);
+	return ($soap_timestamp, 1) unless ($item != 2);
+	return ($mailbox_timestamp, 1) unless ($item != 3);
+	return ($mtaqueue_timestamp, 1) unless ($item != 4);
+	return ($proc_timestamp, 1) unless ($item != 5);
+	return ($threads_timestamp, 1) unless ($item != 6);
     }
 
     return (PM_ERR_PMID, 0);
@@ -407,7 +454,7 @@ $pmda->add_metric(pmda_pmid(3,60), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 	'/opt/zimbra/zmstat/mailboxd.csv', 'Java heap space free');
 
 $pmda->add_metric(pmda_pmid(4,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(1,0,0,PM_SPACE_KBYTE,0,0), 'zimbra.mtaqueue.bytes',
+	pmda_units(1,0,0,PM_SPACE_KBYTE,0,0), 'zimbra.mtaqueue.size',
 	'/opt/zimbra/zmstat/mtaqueue.csv',
 	'Number of kilobytes queued to the Mail Transfer Agent');
 $pmda->add_metric(pmda_pmid(4,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
@@ -415,27 +462,27 @@ $pmda->add_metric(pmda_pmid(4,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	'/opt/zimbra/zmstat/mtaqueue.csv',
 	'Number of requests queued to the Mail Transfer Agent');
 
-$pmda->add_metric(pmda_pmid(5,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,0), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.mailbox.cputime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total time as a percentage spent executing the mailbox process');
-$pmda->add_metric(pmda_pmid(5,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,1), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.mailbox.utime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total user time as a percentage spent executing the mailbox process');
-$pmda->add_metric(pmda_pmid(5,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,2), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.mailbox.stime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total systime as a percentage spent executing the mailbox process');
-$pmda->add_metric(pmda_pmid(5,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,3), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.mailbox.total',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total virtual memory footprint of the mailbox processes');
-$pmda->add_metric(pmda_pmid(5,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,4), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.mailbox.rss',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Resident set size of the mailbox processes');
-$pmda->add_metric(pmda_pmid(5,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,5), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.mailbox.shared',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Shared memory space used by the mailbox processes');
@@ -443,27 +490,27 @@ $pmda->add_metric(pmda_pmid(5,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.proc.mailbox.count',
 	'/opt/zimbra/zmstat/proc.csv', 'Total number of mailbox processes');
 
-$pmda->add_metric(pmda_pmid(5,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,7), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.mysql.cputime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total time as a percentage spent executing the MySQL process');
-$pmda->add_metric(pmda_pmid(5,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,8), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.mysql.utime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total user time as a percentage spent executing the MySQL process');
-$pmda->add_metric(pmda_pmid(5,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,9), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.mysql.stime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total systime as a percentage spent executing the MySQL process');
-$pmda->add_metric(pmda_pmid(5,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,10), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.mysql.total',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total virtual memory footprint of the MySQL processes');
-$pmda->add_metric(pmda_pmid(5,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,11), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.mysql.rss',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Resident set size of the MySQL processes');
-$pmda->add_metric(pmda_pmid(5,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,12), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.mysql.shared',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Shared memory space used by the MySQL processes');
@@ -471,27 +518,27 @@ $pmda->add_metric(pmda_pmid(5,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.proc.mysql.count',
 	'/opt/zimbra/zmstat/proc.csv', 'Total number of MySQL processes');
 
-$pmda->add_metric(pmda_pmid(5,14), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,14), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.convertd.cputime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total time as a percentage spent executing the convertd process');
-$pmda->add_metric(pmda_pmid(5,15), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,15), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.convertd.utime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total user time as a percentage spent executing the convertd process');
-$pmda->add_metric(pmda_pmid(5,16), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,16), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.convertd.stime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total systime as a percentage spent executing the convertd process');
-$pmda->add_metric(pmda_pmid(5,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,17), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.convertd.total',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total virtual memory footprint of the convertd processes');
-$pmda->add_metric(pmda_pmid(5,18), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,18), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.convertd.rss',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Resident set size of the convertd processes');
-$pmda->add_metric(pmda_pmid(5,19), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,19), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.convertd.shared',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Shared memory space used by the convertd processes');
@@ -499,27 +546,27 @@ $pmda->add_metric(pmda_pmid(5,20), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.proc.convertd.count',
 	'/opt/zimbra/zmstat/proc.csv', 'Total number of convertd processes');
 
-$pmda->add_metric(pmda_pmid(5,21), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,21), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.ldap.cputime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total time as a percentage spent executing the LDAP process');
-$pmda->add_metric(pmda_pmid(5,22), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,22), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.ldap.utime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total user time as a percentage spent executing the LDAP process');
-$pmda->add_metric(pmda_pmid(5,23), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,23), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.ldap.stime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total systime as a percentage spent executing the LDAP process');
-$pmda->add_metric(pmda_pmid(5,24), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,24), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.ldap.total',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total virtual memory footprint of the LDAP processes');
-$pmda->add_metric(pmda_pmid(5,25), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,25), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.ldap.rss',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Resident set size of the LDAP processes');
-$pmda->add_metric(pmda_pmid(5,26), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,26), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.ldap.shared',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Shared memory space used by the LDAP processes');
@@ -527,27 +574,27 @@ $pmda->add_metric(pmda_pmid(5,27), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.proc.ldap.count',
 	'/opt/zimbra/zmstat/proc.csv', 'Total number of LDAP processes');
 
-$pmda->add_metric(pmda_pmid(5,28), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,28), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.postfix.cputime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total time as a percentage spent executing the postfix process');
-$pmda->add_metric(pmda_pmid(5,29), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,29), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.postfix.utime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total user time as a percentage spent executing the postfix process');
-$pmda->add_metric(pmda_pmid(5,30), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,30), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.postfix.stime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total systime as a percentage spent executing the postfix process');
-$pmda->add_metric(pmda_pmid(5,31), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,31), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.postfix.total',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total virtual memory footprint of the postfix processes');
-$pmda->add_metric(pmda_pmid(5,32), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,32), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.postfix.rss',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Resident set size of the postfix processes');
-$pmda->add_metric(pmda_pmid(5,33), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,33), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.postfix.shared',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Shared memory space used by the postfix processes');
@@ -555,27 +602,27 @@ $pmda->add_metric(pmda_pmid(5,34), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.proc.postfix.count',
 	'/opt/zimbra/zmstat/proc.csv', 'Total number of postfix processes');
 
-$pmda->add_metric(pmda_pmid(5,35), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,35), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.amavis.cputime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total time as a percentage spent executing the virus scanner');
-$pmda->add_metric(pmda_pmid(5,36), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,36), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.amavis.utime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total user time as a percentage spent executing the virus scanner');
-$pmda->add_metric(pmda_pmid(5,37), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,37), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.amavis.stime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total systime as a percentage spent executing the virus scanner');
-$pmda->add_metric(pmda_pmid(5,38), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,38), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.amavis.total',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total virtual memory footprint of the virus scanner process');
-$pmda->add_metric(pmda_pmid(5,39), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,39), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.amavis.rss',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Resident set size of the virus scanner process');
-$pmda->add_metric(pmda_pmid(5,40), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,40), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.amavis.shared',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Shared memory space used by the virus scanner processes');
@@ -583,27 +630,27 @@ $pmda->add_metric(pmda_pmid(5,41), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.proc.amavis.count',
 	'/opt/zimbra/zmstat/proc.csv', 'Total number of virus scanner processes');
 
-$pmda->add_metric(pmda_pmid(5,42), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,42), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.clam.cputime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total time as a percentage spent executing the anti-virus process');
-$pmda->add_metric(pmda_pmid(5,43), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,43), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.clam.utime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total user time as a percentage spent executing the anti-virus process');
-$pmda->add_metric(pmda_pmid(5,44), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,44), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,0,0,0,0), 'zimbra.proc.clam.stime',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total systime as a percentage spent executing the anti-virus process');
-$pmda->add_metric(pmda_pmid(5,45), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,45), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.clam.total',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Total virtual memory footprint of the anti-virus processes');
-$pmda->add_metric(pmda_pmid(5,46), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,46), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.clam.rss',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Resident set size of the clam processes');
-$pmda->add_metric(pmda_pmid(5,47), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+$pmda->add_metric(pmda_pmid(5,47), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(1,0,0,PM_SPACE_MBYTE,0,0), 'zimbra.proc.clam.shared',
 	'/opt/zimbra/zmstat/proc.csv',
 	'Shared memory space used by the anti-virus processes');
@@ -653,6 +700,21 @@ $pmda->add_metric(pmda_pmid(6,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 $pmda->add_metric(pmda_pmid(6,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'zimbra.threads.total',
 	'/opt/zimbra/zmstat/threads.csv', '');
+
+$pmda->add_metric(pmda_pmid(7,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.fd.timestamp', '', '');
+$pmda->add_metric(pmda_pmid(7,1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.imap.timestamp', '', '');
+$pmda->add_metric(pmda_pmid(7,2), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.soap.timestamp', '', '');
+$pmda->add_metric(pmda_pmid(7,3), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.mailbox.timestamp', '', '');
+$pmda->add_metric(pmda_pmid(7,4), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.mtaqueue.timestamp', '', '');
+$pmda->add_metric(pmda_pmid(7,5), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.proc.timestamp', '', '');
+$pmda->add_metric(pmda_pmid(7,6), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.threads.timestamp', '', '');
 
 $pmda->add_indom($imap_domain, \@imap_indom, 'IMAP operations',
 		'Internet Message Access Protocol operations');
