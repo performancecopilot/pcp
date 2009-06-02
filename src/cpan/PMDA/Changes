@@ -1,5 +1,9 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.02  Tue Jun  2 17:16:25 EST 2009
+	- Implemented log file rotation and host reconnect handling.
+	- Generally improved the file "tail" mode of operation.
+
 1.01  Fri Feb 13 17:33:31 EST 2009
 	- Added simple instance name lookup routine.
 

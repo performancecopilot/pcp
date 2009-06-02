@@ -25,8 +25,6 @@ static int ntimers;
 static files_t *files;
 static int nfiles;
 
-static char buffer[4096];
-
 extern void timer_callback(int, void *);
 extern void input_callback(scalar_t *, int, char *);
 
@@ -140,27 +138,26 @@ local_pipe(char *pipe, scalar_t *callback, int cookie)
 	exit(1);
     }
     me = local_file(FILE_PIPE, fileno(fp), callback, cookie);
-    files[me].me.tail.file = fp;
+    files[me].me.pipe.file = fp;
     return fileno(fp);
 }
 
 int
 local_tail(char *file, scalar_t *callback, int cookie)
 {
-    FILE *fp = fopen(file, "r");
+    int fd = open(file, O_RDONLY);
     struct stat stats;
     int me;
 
-    if (!fp) {
-	__pmNotifyErr(LOG_ERR, "fopen failed (%s): %s", file, strerror(errno));
+    if (fd < 0) {
+	__pmNotifyErr(LOG_ERR, "open failed (%s): %s", file, strerror(errno));
 	exit(1);
     }
-    if (stat(file, &stats) < 0) {
-	__pmNotifyErr(LOG_ERR, "stat failed (%s): %s", file, strerror(errno));
+    if (fstat(fd, &stats) < 0) {
+	__pmNotifyErr(LOG_ERR, "fstat failed (%s): %s", file, strerror(errno));
 	exit(1);
     }
-    me = local_file(FILE_TAIL, fileno(fp), callback, cookie);
-    files[me].me.tail.file = fp;
+    me = local_file(FILE_TAIL, fd, callback, cookie);
     files[me].me.tail.path = strdup(file);
     files[me].me.tail.dev = stats.st_dev;
     files[me].me.tail.ino = stats.st_ino;
@@ -232,7 +229,7 @@ local_atexit(void)
 	if (files[nfiles].type == FILE_PIPE)
 	    pclose(files[nfiles].me.pipe.file);
 	if (files[nfiles].type == FILE_TAIL) {
-	    fclose(files[nfiles].me.tail.file);
+	    close(files[nfiles].fd);
 	    if (files[nfiles].me.tail.path)
 		free(files[nfiles].me.tail.path);
 	    files[nfiles].me.tail.path = NULL;
@@ -260,16 +257,13 @@ local_log_rotated(files_t *file)
     if (stats.st_ino == file->me.tail.ino && stats.st_dev == file->me.tail.dev)
 	return;
 
-    fclose(file->me.tail.file);
-    files->fd = -1;
-
-    file->me.tail.file = fopen(file->me.tail.path, "r");
-    if (file->me.tail.file == NULL) {
+    close(file->fd);
+    file->fd = open(file->me.tail.path, O_RDONLY);
+    if (file->fd < 0) {
 	__pmNotifyErr(LOG_ERR, "fopen failed after log rotate (%s): %s",
 			file->me.tail.path, strerror(errno));
 	return;
     }
-    files->fd = fileno(file->me.tail.file);
     files->me.tail.dev = stats.st_dev;
     files->me.tail.ino = stats.st_ino;
 }
@@ -281,7 +275,7 @@ local_reconnector(files_t *file)
     struct hostent *servinfo;
     int fd;
 
-    if (file->fd != -1)		/* reconnect-needed flag */
+    if (file->fd >= 0)		/* reconnect-needed flag */
 	return;
     if ((servinfo = gethostbyname(file->me.sock.host)) == NULL)
 	return;
@@ -310,32 +304,34 @@ local_connection(files_t *file)
 void
 local_pmdaMain(pmdaInterface *self)
 {
-    int pmcdfd, nready, nfds, i, fd, maxfd = -1;
+    static char buffer[4096];
+    int pmcdfd, nready, nfds, i, j, count, fd, maxfd = -1;
     fd_set fds, readyfds;
-    size_t bytes;
+    size_t bytes, offset;
     char *s, *p;
 
     if ((pmcdfd = __pmdaInFd(self)) < 0)
 	exit(1);
 
-    FD_ZERO(&fds);
-    FD_SET(pmcdfd, &fds);
-    for (i = 0; i < nfiles; i++) {
-	fd = files[i].fd;
-	FD_SET(fd, &fds);
-	if (fd > maxfd)
-	    maxfd = fd;
-    }
-    nfds = ((pmcdfd > maxfd) ? pmcdfd : maxfd) + 1;
-
-    for (i = 0; i < ntimers; i++) {
+    for (i = 0; i < ntimers; i++)
 	timers[i].id = __pmAFregister(&timers[i].delta, &timers[i].cookie,
 					timer_callback);
-    }
 
     /* custom PMDA main loop */
-    for (;;) {
-	struct timeval timeout = { 10, 0 };
+    for (count = 0; ; count++) {
+	struct timeval timeout = { 1, 0 };
+
+	FD_ZERO(&fds);
+	FD_SET(pmcdfd, &fds);
+	for (i = 0; i < nfiles; i++) {
+	    if (files[i].type == FILE_TAIL)
+		continue;
+	    fd = files[i].fd;
+	    FD_SET(fd, &fds);
+	    if (fd > maxfd)
+		maxfd = fd;
+	}
+	nfds = ((pmcdfd > maxfd) ? pmcdfd : maxfd) + 1;
 
 	memcpy(&readyfds, &fds, sizeof(readyfds));
 	nready = select(nfds, &readyfds, NULL, NULL, &timeout);
@@ -359,10 +355,13 @@ local_pmdaMain(pmdaInterface *self)
 	for (i = 0; i < nfiles; i++) {
 	    fd = files[i].fd;
 	    /* check for log rotation or host reconnection needed */
-	    local_connection(&files[i]);
-	    if (!(FD_ISSET(fd, &readyfds)))
+	    if ((count % 10) == 0)	/* but only once every 10 */
+		local_connection(&files[i]);
+	    if (files[i].type != FILE_TAIL && !(FD_ISSET(fd, &readyfds)))
 		continue;
-	    bytes = read(fd, buffer, sizeof(buffer));
+	    offset = 0;
+multiread:
+	    bytes = read(fd, buffer + offset, sizeof(buffer)-1 - offset);
 	    if (bytes < 0) {
 		if (files[i].type == FILE_SOCK) {
 		    close(files[i].fd);
@@ -380,13 +379,24 @@ local_pmdaMain(pmdaInterface *self)
 				local_filetype(files[i].type));
 		exit(1);
 	    }
-	    buffer[bytes] = '\0';
-	    for (s = p = buffer; *s != '\0'; s++) {
+	    buffer[sizeof(buffer)-1] = '\0';
+	    for (s = p = buffer, j = 0;
+		 *s != '\0' && j < sizeof(buffer);
+		 s++, j++) {
 		if (*s != '\n')
 		    continue;
 		*s = '\0';
+		/*__pmNotifyErr(LOG_INFO, "Input callback: %s\n", p);*/
 		input_callback(files[i].callback, files[i].cookie, p);
 		p = s + 1;
+	    }
+	    if (files[i].type == FILE_TAIL) {
+		/* did we just do a full buffer read? */
+		if (j == sizeof(buffer)) {
+		    offset = sizeof(buffer) - (p - buffer);
+		    memmove(buffer, p, offset); 
+		    goto multiread;	/* read to eof */
+		}
 	    }
 	}
 
@@ -398,13 +408,13 @@ local_pmdaMain(pmdaInterface *self)
 char *
 local_pmns_root(void)
 {
-    static char buffer[256];
+    static char pmnspath[256];
 
-    snprintf(buffer, sizeof(buffer), "%s%c" "pmns",
+    snprintf(pmnspath, sizeof(pmnspath), "%s%c" "pmns",
 		pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator());
-    rmdir(buffer);
-    if (mkdir2(buffer, 0755) == 0)
-	return buffer;
+    rmdir(pmnspath);
+    if (mkdir2(pmnspath, 0755) == 0)
+	return pmnspath;
     return NULL;
 }
 
@@ -447,7 +457,8 @@ local_pmns_split(const char *root, const char *metric, const char *pmid)
 	} else {
 	    fd = open(path, O_WRONLY|O_CREAT|O_EXCL, 0644);
 	    if (write(fd, mypmid, strlen(mypmid)) != strlen(mypmid))
-		__pmNotifyErr(LOG_ERR, "mypmid write(,%s,) failed: %s", mypmid, strerror(errno));
+		__pmNotifyErr(LOG_ERR, "mypmid write(,%s,) failed: %s",
+				mypmid, strerror(errno));
 	    close(fd);
 	}
     } while (p);

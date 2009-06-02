@@ -39,7 +39,6 @@ typedef struct {
 } pipe_data_t;
 
 typedef struct {
-    FILE	*file;
     char	*path;
     dev_t	dev;
     ino_t	ino;
