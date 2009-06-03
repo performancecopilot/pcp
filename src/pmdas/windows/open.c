@@ -24,7 +24,6 @@ char *windows_uname;
 char *windows_build;
 char *windows_machine;
 unsigned long windows_pagesize;
-unsigned long long windows_physmem;
 
 /*
  * This block of functionality is required to map counter types from
@@ -229,12 +228,6 @@ windows_setup_globals(void)
 {
     SYSTEM_INFO		sysinfo;
     OSVERSIONINFOEX	osversion;
-    MEMORYSTATUSEX	memstat;
-
-    /* physical memory size (in units of bytes) */
-    ZeroMemory(&memstat, sizeof(MEMORYSTATUSEX));
-    GlobalMemoryStatusEx(&memstat);
-    windows_physmem = memstat.ullTotalPhys / (1024*1024);
 
     ZeroMemory(&sysinfo, sizeof(SYSTEM_INFO));
     GetSystemInfo(&sysinfo);

@@ -75,7 +75,8 @@ extern char *windows_uname;
 extern char *windows_build;
 extern char *windows_machine;
 extern unsigned long windows_pagesize;
-extern unsigned long long windows_physmem;
+extern MEMORYSTATUSEX windows_memstat;
+extern void windows_fetch_memstat(void);
 
 extern void windows_open();
 extern char *pdherrstr(int);

@@ -1189,6 +1189,47 @@ pdh_metric_t metricdesc[] = {
     { { PMDA_PMID(0,233), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_NONE, 0, 0, 0, NULL, ""
     },
+
+/* mem.physmem */
+    { { PMDA_PMID(1,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"The amount of actual physical memory"
+    },
+/* mem.freemem */
+    { { PMDA_PMID(1,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"The amount of physical memory currently available"
+    },
+/* mem.util.load */
+    { { PMDA_PMID(1,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"Approximate percentage of physical memory in use"
+    },
+/* mem.util.used */
+    { { PMDA_PMID(1,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"Amount of physical memory in use"
+    },
+/* mem.util.free */
+    { { PMDA_PMID(1,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"Amount of physical memory currently available"
+    },
+/* swap.length */
+    { { PMDA_PMID(1,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"The current committed memory limit for the system"
+    },
+/* swap.used */
+    { { PMDA_PMID(1,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"The current committed memory for the system"
+    },
+/* swap.free */
+    { { PMDA_PMID(1,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"The maximum amount of memory the system can commit"
+    },
 };
 int metricdesc_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);
 
@@ -1273,10 +1314,48 @@ filesys_fetch_callback(int item, int inst, pmAtomValue *atom)
 }
 
 static int
+memstat_fetch_callback(int item, int inst, pmAtomValue *atom)
+{
+    if (inst == PM_INDOM_NULL) {
+	switch (item) {
+	case 0:		/* mem.physmem */
+	    atom->ull = windows_memstat.ullTotalPhys / 1024;
+	    return 1;
+	case 1:		/* mem.freemem */
+	case 4:		/* mem.util.free */
+	    atom->ull = windows_memstat.ullAvailPhys / 1024;
+	    return 1;
+	case 2:		/* mem.util.load */
+	    atom->ul = windows_memstat.dwMemoryLoad;
+	    return 1;
+	case 3:		/* mem.util.used */
+	    atom->ull = windows_memstat.ullTotalPhys;
+	    atom->ull =- windows_memstat.ullAvailPhys;
+	    atom->ull /= 1024;
+	case 5:		/* swap.length */
+	    atom->ull = windows_memstat.ullTotalPageFile / 1024;
+	    return 1;
+	case 6:		/* swap.used */
+	    atom->ull = windows_memstat.ullTotalPageFile;
+	    atom->ull -= windows_memstat.ullAvailPageFile;
+	    atom->ull /= 1024;
+	    return 1;
+	case 7:		/* swap.free */
+	    atom->ull = windows_memstat.ullAvailPageFile / 1024;
+	    return 1;
+	}
+    }
+    return 0;
+}
+
+static int
 windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int		*pmidp = (__pmID_int *)&mdesc->m_desc.pmid;
     pdh_value_t		*vp;
+
+    if (pmidp->cluster == 1)
+	return memstat_fetch_callback(pmidp->item, inst, atom);
 
     if (pmidp->cluster != 0 || pmidp->item > metricdesc_sz ||
 	(pmidp->item == 120 || pmidp->item == 121)) /* dummies */
@@ -1287,7 +1366,7 @@ windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      */
     switch (pmidp->item) {
     case 106:	/* hinv.physmem */
-	atom->ul = windows_physmem;
+	atom->ul = (windows_memstat.ullTotalPhys / (1024 * 1024));
 	return 1;
     case 107:	/* hinv.ncpu */
 	atom->ul = pmdaCacheOp(INDOM(pmidp->domain, CPU_INDOM),

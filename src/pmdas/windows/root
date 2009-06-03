@@ -10,6 +10,7 @@ root {
     disk
     filesys
     mem
+    swap
     network
     sqlserver
     pmda

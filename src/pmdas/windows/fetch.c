@@ -15,6 +15,16 @@
 
 #include "hypnotoad.h"
 
+MEMORYSTATUSEX	windows_memstat;
+
+void
+windows_fetch_memstat(void)
+{
+    ZeroMemory(&windows_memstat, sizeof(MEMORYSTATUSEX));
+    windows_memstat.dwLength = sizeof(MEMORYSTATUSEX);
+    GlobalMemoryStatusEx(&windows_memstat);
+}
+
 /*
  * Instantiate a value for a single metric-instance pair
  */
@@ -118,7 +128,7 @@ windows_collect_callback(pdh_metric_t *pmp, LPTSTR pat, pdh_value_t *pvp)
 void
 windows_fetch_refresh(int numpmid, pmID pmidlist[])
 {
-    int	i, j, extra_filesys = 0;
+    int	i, j, extra_filesys = 0, extra_memstat = 0;
 
     for (i = 0; i < metricdesc_sz; i++)
 	for (j = 0; j < metricdesc[i].num_vals; j++)
@@ -126,13 +136,23 @@ windows_fetch_refresh(int numpmid, pmID pmidlist[])
 
     for (i = 0; i < numpmid; i++) {
 	__pmID_int *pmidp = (__pmID_int *)&pmidlist[i];
+	int cluster = pmidp->cluster;
 	int item = pmidp->item;
 
-	if (item == 117 || item == 118 || item == 119)
+	if (cluster == 1)
+	    extra_memstat++;
+	else if (cluster != 0)
+	    continue;
+	else if (item == 106)
+	    extra_memstat++;
+	else if (item == 117 || item == 118 || item == 119)
 	    extra_filesys++;
 	else
 	    windows_visit_metric(&metricdesc[item], windows_collect_callback);
     }
+
+    if (extra_memstat)
+	windows_fetch_memstat();
 
     if (extra_filesys) {
 	windows_visit_metric(&metricdesc[120], windows_collect_callback);
