@@ -23,6 +23,8 @@
 char *windows_uname;
 char *windows_build;
 char *windows_machine;
+unsigned long windows_pagesize;
+unsigned long long windows_physmem;
 
 /*
  * This block of functionality is required to map counter types from
@@ -227,28 +229,17 @@ windows_setup_globals(void)
 {
     SYSTEM_INFO		sysinfo;
     OSVERSIONINFOEX	osversion;
-#if (_WIN32_WINNT >= 0x0500)
     MEMORYSTATUSEX	memstat;
-#else
-    MEMORYSTATUS	memstat;
-#endif
 
     /* physical memory size (in units of bytes) */
-#if (_WIN32_WINNT >= 0x0500)
     ZeroMemory(&memstat, sizeof(MEMORYSTATUSEX));
-    if (!GlobalMemoryStatusEx(&memstat))
-	__pmNotifyErr(LOG_ERR, "GlobalMemoryStatusEx failed");
-    else
-	windows_physmem = memstat.ullTotalPhys / (1024*1024);
-#else
-    ZeroMemory(&memstat, sizeof(MEMORYSTATUS));
-    GlobalMemoryStatus(&memstat);
-    windows_physmem = memstat.dwTotalPhys / (1024*1024);
-#endif
+    GlobalMemoryStatusEx(&memstat);
+    windows_physmem = memstat.ullTotalPhys / (1024*1024);
 
     ZeroMemory(&sysinfo, sizeof(SYSTEM_INFO));
     GetSystemInfo(&sysinfo);
     windows_pagesize = sysinfo.dwPageSize;
+
     switch (sysinfo.wProcessorArchitecture) {
     case PROCESSOR_ARCHITECTURE_AMD64:
 	windows_machine = "x86_64";
@@ -266,10 +257,8 @@ windows_setup_globals(void)
 
     ZeroMemory(&osversion, sizeof(OSVERSIONINFOEX));
     osversion.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    if (!GetVersionEx((OSVERSIONINFO *)&osversion))
-	__pmNotifyErr(LOG_ERR, "GetVersionEx failed");
-    else
-	windows_format_uname(osversion);
+    GetVersionEx((OSVERSIONINFO *)&osversion);
+    windows_format_uname(osversion);
 }
 
 static void

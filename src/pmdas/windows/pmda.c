@@ -17,8 +17,6 @@
 #include <ctype.h>
 
 static int isDSO = 1;
-unsigned long windows_pagesize;
-unsigned long long windows_physmem;
 
 /*
  * Array of all metrics - the PMID item field indexes this directly.
