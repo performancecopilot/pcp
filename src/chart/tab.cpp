@@ -67,6 +67,7 @@ int Tab::deleteGadget(int index)
     int newCurrent = my.currentGadget;
     int oldCurrent = my.currentGadget;
     int oldCount = gadgetCount();
+    int height = gadget->height();
 
     if (index < oldCurrent || index == oldCount - 1)
 	newCurrent--;
@@ -80,7 +81,7 @@ int Tab::deleteGadget(int index)
     delete gadget;
 
     if (gadgetCount() > 1)
-	pmchart->updateHeight(-(gadget->height()));
+	pmchart->updateHeight(-height);
 
     return my.currentGadget;
 }
