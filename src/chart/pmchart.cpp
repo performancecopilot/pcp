@@ -150,6 +150,7 @@ void PmChart::quit()
 	my.assistant->closeAssistant();
     if (pmtime)
 	pmtime->quit();
+    pmflush();
 }
 
 void PmChart::setValueText(QString &string)

@@ -771,6 +771,7 @@ main(int argc, char ** argv)
     for (c = 0; c < configs.size(); c++)
 	OpenViewDialog::openView((const char *)configs[c].toAscii());
     setupViewGlobals();
+    pmflush();
 
     if (Cflag)	// done with -c config, quit
 	return 0;
