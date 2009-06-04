@@ -557,7 +557,7 @@ __pmNoMem(const char *where, size_t size, int fatal)
 }
 
 /*
- * this one is used just below the PMAPI to convert some Unix errors
+ * this one is used just below the PMAPI to convert platform errors
  * into more appropriate PMAPI error codes
  */
 int
@@ -565,6 +565,10 @@ __pmMapErrno(int sts)
 {
     if (sts == -EBADF || sts == -EPIPE)
 	sts = PM_ERR_IPC;
+#ifdef IS_MINGW
+    else if (sts == -EINVAL)
+	sts = PM_ERR_IPC;
+#endif
     return sts;
 }
 
