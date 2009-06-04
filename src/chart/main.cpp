@@ -389,8 +389,13 @@ void readSettings(void)
 
 void readSchemes(void)
 {
+    QChar sep(__pmPathSeparator());
     QString schemes = pmGetConfig("PCP_VAR_DIR");
-    QFileInfo fi(schemes.append("/config/pmchart/Schemes"));
+    schemes.append(sep).append("config");
+    schemes.append(sep).append("pmchart");
+    schemes.append(sep).append("Schemes");
+
+    QFileInfo fi(schemes);
     if (fi.exists())
 	OpenViewDialog::openView(schemes.toAscii());
 }
