@@ -9,6 +9,7 @@ WriteMakefile(
     LIBS		=> ['-lpcp_pmda -lpcp'],
     C			=> ['local.c', 'PMDA.c'],
     OBJECT		=> 'local.o PMDA.o',
+    OPTIMIZE		=> '-g',
     INC			=> '-I../../include -I/usr/include/pcp',
     DEFINE		=> '-DPERLIO_NOT_STDIO=0',     # e.g., '-DPCP_DEBUG'
     XSPROTOARG		=> '-noprototypes',
