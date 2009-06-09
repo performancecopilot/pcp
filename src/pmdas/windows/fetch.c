@@ -129,6 +129,7 @@ void
 windows_fetch_refresh(int numpmid, pmID pmidlist[])
 {
     int	i, j, extra_filesys = 0, extra_memstat = 0;
+    int extra_hinv_ncpu = -1, extra_hinv_ndisk = -1;
 
     for (i = 0; i < metricdesc_sz; i++)
 	for (j = 0; j < metricdesc[i].num_vals; j++)
@@ -140,20 +141,35 @@ windows_fetch_refresh(int numpmid, pmID pmidlist[])
 	int item = pmidp->item;
 
 	if (cluster == 1)
-	    extra_memstat++;
+	    extra_memstat = 1;
 	else if (cluster != 0)
 	    continue;
 	else if (item == 106)
-	    extra_memstat++;
-	else if (item == 117 || item == 118 || item == 119)
-	    extra_filesys++;
-	else
+	    extra_memstat = 1;
+	else if (item == 107 && extra_hinv_ncpu == -1)
+	    extra_hinv_ncpu = 1;
+	else if (item == 108 && extra_hinv_ndisk == -1)
+	    extra_hinv_ndisk = 1;
+	else if (item >= 117 || item <= 119)
+	    extra_filesys = 1;
+	else {
+	    if (item >= 4 && item <= 7)
+		extra_hinv_ncpu = 0;
+	    else if ((item >=  21 && item <=  26) || item ==  68 ||
+		     (item >= 217 && item <= 219) || item == 101 ||
+		     (item >= 226 && item <= 231) || item == 133)
+		extra_hinv_ndisk = 0;
+
 	    windows_visit_metric(&metricdesc[item], windows_collect_callback);
+	}
     }
 
     if (extra_memstat)
 	windows_fetch_memstat();
-
+    if (extra_hinv_ncpu == 1)
+	windows_visit_metric(&metricdesc[4], NULL);
+    if (extra_hinv_ndisk == 1)
+	windows_visit_metric(&metricdesc[21], NULL);
     if (extra_filesys) {
 	windows_visit_metric(&metricdesc[120], windows_collect_callback);
 	windows_visit_metric(&metricdesc[121], windows_collect_callback);
