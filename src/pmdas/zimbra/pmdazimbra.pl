@@ -17,6 +17,7 @@ use warnings;
 use PCP::PMDA;
 
 my $pmda = PCP::PMDA->new('zimbra', 98);
+my $probe = pmda_config('PCP_PMDAS_DIR') . '/zimbra/zimbraprobe';
 my $stats = '/opt/zimbra/zmstat/';
 
 # Zimbra instrumentation is exported through a series of CSV files.
@@ -60,12 +61,13 @@ sub zimbra_array_lookup
 
 use vars qw( @fd_values @imap_time_values @imap_count_values @soap_time_values 
 	     @soap_count_values @mailbox_values @mtaqueue_values @proc_values
-	     @threads_values );
+	     @threads_values @probe_values );
 use vars qw( $fd_timestamp $imap_timestamp $soap_timestamp
 	     $mailbox_timestamp $mtaqueue_timestamp $proc_timestamp
-	     $threads_timestamp );
+	     $threads_timestamp $probe_timestamp );
 $fd_timestamp = $imap_timestamp = $soap_timestamp = $mailbox_timestamp =
-	     $mtaqueue_timestamp = $proc_timestamp = $threads_timestamp = 0;
+	     $mtaqueue_timestamp = $proc_timestamp = $threads_timestamp =
+	     $probe_timestamp = 0;
 
 sub zimbra_fd_parser
 {
@@ -179,6 +181,33 @@ sub zimbra_threads_parser
     }
 }
 
+sub zimbra_probe_callback
+{
+    ( $_ ) = @_;
+
+    if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d)$||) {
+	$probe_timestamp = $1;
+    } else {
+	my ($service, $status) = split;
+
+	return unless defined($status);
+
+	$status = ($status eq 'Running') ? 1 : 0;
+	$probe_values[ 0] = $status unless ($service ne 'antivirus');
+	$probe_values[ 1] = $status unless ($service ne 'antispam');
+	$probe_values[ 2] = $status unless ($service ne 'archiving');
+	$probe_values[ 3] = $status unless ($service ne 'convertd');
+	$probe_values[ 4] = $status unless ($service ne 'mta');
+	$probe_values[ 5] = $status unless ($service ne 'mailbox');
+	$probe_values[ 6] = $status unless ($service ne 'logger');
+	$probe_values[ 7] = $status unless ($service ne 'snmp');
+	$probe_values[ 8] = $status unless ($service ne 'ldap');
+	$probe_values[ 9] = $status unless ($service ne 'spell');
+	$probe_values[10] = $status unless ($service ne 'imapproxy');
+	$probe_values[11] = $status unless ($service ne 'stats');
+    }
+}
+
 sub zimbra_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
@@ -253,6 +282,13 @@ sub zimbra_fetch_callback
 	return ($mtaqueue_timestamp, 1) unless ($item != 4);
 	return ($proc_timestamp, 1) unless ($item != 5);
 	return ($threads_timestamp, 1) unless ($item != 6);
+	return ($probe_timestamp, 1) unless ($item != 7);
+    }
+    elsif ($cluster == 8) {			# status probe
+	if ($item >= 0 && $item <= 11) {
+	    return (PM_ERR_AGAIN, 0) unless defined($probe_values[$item]);
+	    return ($probe_values[$item], 1);
+	}
     }
 
     return (PM_ERR_PMID, 0);
@@ -702,19 +738,66 @@ $pmda->add_metric(pmda_pmid(6,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	'/opt/zimbra/zmstat/threads.csv', '');
 
 $pmda->add_metric(pmda_pmid(7,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,0,0,0,0), 'zimbra.control.fd.timestamp', '', '');
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.fd.timestamp',
+	'Timestamp for completion of last fd value fetch', '');
 $pmda->add_metric(pmda_pmid(7,1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,0,0,0,0), 'zimbra.control.imap.timestamp', '', '');
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.imap.timestamp',
+	'Timestamp for completion of last imap value fetch', '');
 $pmda->add_metric(pmda_pmid(7,2), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,0,0,0,0), 'zimbra.control.soap.timestamp', '', '');
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.soap.timestamp', 
+	'Timestamp for completion of last soap value fetch', '');
 $pmda->add_metric(pmda_pmid(7,3), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,0,0,0,0), 'zimbra.control.mailbox.timestamp', '', '');
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.mailbox.timestamp',
+	'Timestamp for completion of last mailbox value fetch', '');
 $pmda->add_metric(pmda_pmid(7,4), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,0,0,0,0), 'zimbra.control.mtaqueue.timestamp', '', '');
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.mtaqueue.timestamp',
+	'Timestamp for completion of last mtaqueue value fetch', '');
 $pmda->add_metric(pmda_pmid(7,5), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,0,0,0,0), 'zimbra.control.proc.timestamp', '', '');
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.proc.timestamp',
+	'Timestamp for completion of last process value fetch', '');
 $pmda->add_metric(pmda_pmid(7,6), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,0,0,0,0), 'zimbra.control.threads.timestamp', '', '');
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.threads.timestamp',
+	'Timestamp for completion of last threads value fetch', '');
+$pmda->add_metric(pmda_pmid(7,7), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.control.status.timestamp',
+	'Timestamp for completion of last status probe', '');
+
+$pmda->add_metric(pmda_pmid(8,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.status.antivirus',
+	'Status for Zimbra antivirus service - 0=stopped, 1=running', '');
+$pmda->add_metric(pmda_pmid(8,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.status.antispam',
+	'Status for Zimbra antispam service - 0=stopped, 1=running', '');
+$pmda->add_metric(pmda_pmid(8,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.status.archiving',
+	'Status for Zimbra archiving service - 0=stopped, 1=running', '');
+$pmda->add_metric(pmda_pmid(8,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.status.convertd',
+	'Status for Zimbra convertd service - 0=stopped, 1=running', '');
+$pmda->add_metric(pmda_pmid(8,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.status.mta',
+	'Status for Zimbra MTA service - 0=stopped, 1=running', '');
+$pmda->add_metric(pmda_pmid(8,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.status.mailbox',
+	'Status for Zimbra mailbox service - 0=stopped, 1=running', '');
+$pmda->add_metric(pmda_pmid(8,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.status.logger',
+	'Status for Zimbra logger service - 0=stopped, 1=running', '');
+$pmda->add_metric(pmda_pmid(8,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.status.snmp',
+	'Status for Zimbra SNMP service - 0=stopped, 1=running', '');
+$pmda->add_metric(pmda_pmid(8,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.status.ldap',
+	'Status for Zimbra LDAP service - 0=stopped, 1=running', '');
+$pmda->add_metric(pmda_pmid(8,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.status.spell',
+	'Status for Zimbra spell service - 0=stopped, 1=running', '');
+$pmda->add_metric(pmda_pmid(8,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.status.imapproxy',
+	'Status for Zimbra imapproxy service - 0=stopped, 1=running', '');
+$pmda->add_metric(pmda_pmid(8,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,0,0,0,0), 'zimbra.status.stats',
+	'Status for Zimbra stats service - 0=stopped, 1=running', '');
 
 $pmda->add_indom($imap_domain, \@imap_indom, 'IMAP operations',
 		'Internet Message Access Protocol operations');
@@ -728,6 +811,8 @@ $pmda->add_tail($stats . 'mtaqueue.csv', \&zimbra_mtaqueue_parser, 0);
 $pmda->add_tail($stats . 'proc.csv', \&zimbra_proc_parser, 0);
 $pmda->add_tail($stats . 'soap.csv', \&zimbra_soap_parser, 0);
 $pmda->add_tail($stats . 'threads.csv', \&zimbra_threads_parser, 0);
+
+$pmda->add_pipe($probe, \&zimbra_probe_callback, 0);
 
 $pmda->set_fetch_callback(\&zimbra_fetch_callback);
 $pmda->run;
