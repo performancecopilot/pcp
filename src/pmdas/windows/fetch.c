@@ -150,7 +150,7 @@ windows_fetch_refresh(int numpmid, pmID pmidlist[])
 	    extra_hinv_ncpu = 1;
 	else if (item == 108 && extra_hinv_ndisk == -1)
 	    extra_hinv_ndisk = 1;
-	else if (item >= 117 || item <= 119)
+	else if (item >= 117 && item <= 119)
 	    extra_filesys = 1;
 	else {
 	    if (item >= 4 && item <= 7)
