@@ -213,38 +213,45 @@ pdh_metric_t metricdesc[] = {
       "\\Cache\\Async MDL Reads/sec"
     },
 /* network.interface.in.packets */
-    { { PMDA_PMID(0,38), PM_TYPE_UNKNOWN, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_REDO, 0, 0, 0, NULL,
+    { { PMDA_PMID(0,38), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets Received/sec"
     },
 /* network.interface.in.bytes */
-    { { PMDA_PMID(0,39), PM_TYPE_UNKNOWN, NETIF_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) }, M_REDO, 0, 0, 0, NULL,
+    { { PMDA_PMID(0,39), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0,0, PM_SPACE_BYTE, 0,0) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Bytes Received/sec"
     },
 /* network.interface.in.errors */
     { { PMDA_PMID(0,40), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets Received Errors"
     },
 /* network.interface.out.packets */
     { { PMDA_PMID(0,41), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets Sent/sec"
     },
 /* network.interface.out.bytes */
     { { PMDA_PMID(0,42), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0,0, PM_SPACE_BYTE, 0,0) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Bytes Sent/sec"
     },
 /* network.interface.out.errors */
     { { PMDA_PMID(0,43), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets Outbound Errors"
     },
 /* network.interface.total.packets */
     { { PMDA_PMID(0,44), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_NONE, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_NONE | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets/sec"
     },
 /* network.interface.total.bytes */
@@ -449,27 +456,32 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.databases.db.transactions */
     { { PMDA_PMID(0,85), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Databases(*)\\Transactions/sec"
     },
 /* sqlserver.sql.batch_requests */
     { { PMDA_PMID(0,86), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:SQL Statistics\\Batch Requests/sec"
     },
 /* sqlserver.latches.waits */
     { { PMDA_PMID(0,87), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Latches\\Latch Waits/sec"
     },
 /* sqlserver.latches.wait_time */
     { { PMDA_PMID(0,88), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Latches\\Total Latch Wait Time (ms)"
     },
 /* sqlserver.latches.avg_wait_time */
     { { PMDA_PMID(0,89), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Latches\\Average Latch Wait Time (ms)"
     },
 /* sqlserver.databases.all.data_file_size */
@@ -479,7 +491,8 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.databases.all.log_file_size */
     { { PMDA_PMID(0,91), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Databases(_Total)\\Log File(s) Size (KB)"
     },
 /* sqlserver.databases.all.log_file_used */
@@ -507,8 +520,7 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.sql.compilations */
     { { PMDA_PMID(0,96), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:SQL Statistics\\SQL Compilations/sec"
     },
 /* sqlserver.sql.re_compilations */
@@ -549,12 +561,14 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.databases.all.log_bytes_flushed */
     { { PMDA_PMID(0,104), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Databases(_Total)\\Log Bytes Flushed/sec"
     },
 /* sqlserver.databases.db.log_bytes_flushed */
     { { PMDA_PMID(0,105), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Databases(*)\\Log Bytes Flushed/sec"
     },
 /* hinv.physmem */
@@ -901,7 +915,8 @@ pdh_metric_t metricdesc[] = {
     },
 /* process.psinfo.cpu_time */
     { { PMDA_PMID(0,176), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Process(*)\\% Processor Time"
     },
 /* process.psinfo.elapsed_time */

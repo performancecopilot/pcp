@@ -20,14 +20,19 @@
 void
 windows_instance_refresh(pmInDom indom)
 {
-    int i;
+    static int indom_setup[NUMINDOMS];
+    int i, idx, setup;
+
+    idx = NODOMAIN(indom);
+    setup = indom_setup[idx];
+    indom_setup[idx] = 1;
 
     for (i = 0; i < metricdesc_sz; i++) {
 	pdh_metric_t *mp = &metricdesc[i];
 
 	if (indom != mp->desc.indom || mp->pat[0] == '\0')
 	    continue;
-	if (mp->flags & M_REDO) {
+	if (!setup || (mp->flags & M_REDO)) {
 	    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 	    windows_visit_metric(mp, NULL);
 	}

@@ -23,6 +23,7 @@
 
 #define MAX_M_PATH_LEN	80	/* pattern passed to PdhExpandCounterPath */
 #define INDOM(x,y)	(((x)<<22)|(y))	/* pmdaCache interfaces use indom */
+#define NODOMAIN(y)	((0x3ff) & (y))	/* pmdaCache interfaces use indom */
 
 enum {
     DISK_INDOM,
@@ -56,6 +57,7 @@ typedef enum {
     M_NOVALUES	= 0x4,		/* setup failed, don't bother with the fetch */
     M_OPTIONAL	= 0x8,		/* optional component, no values is expected */
     M_VERIFIED	= 0x10,		/* has this metrics semantics been checked */
+    M_AUTO64	= 0x20,		/* allow auto-modification on 64/32bit type */
 } pdh_metricflag_t;
 
 typedef struct {
