@@ -557,7 +557,7 @@ __pmNoMem(const char *where, size_t size, int fatal)
 }
 
 /*
- * this one is used just below the PMAPI to convert some Unix errors
+ * this one is used just below the PMAPI to convert platform errors
  * into more appropriate PMAPI error codes
  */
 int
@@ -565,6 +565,10 @@ __pmMapErrno(int sts)
 {
     if (sts == -EBADF || sts == -EPIPE)
 	sts = PM_ERR_IPC;
+#ifdef IS_MINGW
+    else if (sts == -EINVAL)
+	sts = PM_ERR_IPC;
+#endif
     return sts;
 }
 
@@ -823,7 +827,8 @@ vpmprintf(const char *msg, va_list arg)
     if (fptr == NULL && msgsize == 0) {		/* create scratch file */
 	int	fd = -1;
 
-	if ((fname = tmpnam(NULL)) == NULL ||
+	fname = tempnam(pmGetConfig("PCP_TMP_DIR"), "pcp-");
+	if (fname == NULL ||
 	    (fd = open(fname, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600)) < 0 ||
 	    (fptr = fdopen(fd, "a")) == NULL) {
 	    fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
@@ -916,6 +921,7 @@ pmflush(void)
 	fclose(fptr);
 	fptr = NULL;
 	unlink(fname);
+	free(fname);
 	if (sts >= 0)
 	    sts = msgsize;
     }

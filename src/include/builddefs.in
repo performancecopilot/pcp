@@ -91,6 +91,8 @@ EXECSUFFIX = .exe
 PLDLIBS = -lwsock32 -L$$PCP_DIR/local/bin -L$$PCP_DIR/local/lib -L$$PCP_DIR/lib
 endif
 ifeq "$(TARGET_OS)" "solaris"
+PCFLAGS = -fPIC -fno-strict-aliasing
+PLDLAGS = -fPIC
 PLDLIBS = -lnsl -lsocket -lresolv -ldl -lposix4
 DSOSUFFIX = so
 endif

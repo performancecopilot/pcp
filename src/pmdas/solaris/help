@@ -51,22 +51,22 @@
 @ disk.dev.read_bytes TODO
 @ disk.dev.write_bytes TODO
 @ disk.dev.total_bytes TODO
-@ mem.page_faults TODO
-@ mem.available TODO
-@ mem.committed_bytes TODO
-@ mem.pool.paged_bytes TODO
-@ mem.pool.non_paged_bytes TODO
-@ mem.cache.read_ahead TODO
-@ mem.cache.lazy_writes TODO
-@ mem.cache.lazy_write_pages TODO
-@ mem.cache.mdl.read TODO
-@ mem.cache.mdl.sync_read TODO
-@ mem.cache.mdl.async_read TODO
-@ network.interface.in.packets TODO
-@ network.interface.in.bytes TODO
-@ network.interface.in.errors TODO
-@ network.interface.out.packets TODO
-@ network.interface.out.bytes TODO
-@ network.interface.out.errors TODO
-@ network.interface.total.packets TODO
-@ network.interface.total.bytes TODO
+# #@ mem.page_faults TODO
+# #@ mem.available TODO
+# #@ mem.committed_bytes TODO
+# #@ mem.pool.paged_bytes TODO
+# #@ mem.pool.non_paged_bytes TODO
+# #@ mem.cache.read_ahead TODO
+# #@ mem.cache.lazy_writes TODO
+# #@ mem.cache.lazy_write_pages TODO
+# #@ mem.cache.mdl.read TODO
+# #@ mem.cache.mdl.sync_read TODO
+# #@ mem.cache.mdl.async_read TODO
+# #@ network.interface.in.packets TODO
+# #@ network.interface.in.bytes TODO
+# #@ network.interface.in.errors TODO
+# #@ network.interface.out.packets TODO
+# #@ network.interface.out.bytes TODO
+# #@ network.interface.out.errors TODO
+# #@ network.interface.total.packets TODO
+# #@ network.interface.total.bytes TODO

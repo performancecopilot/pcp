@@ -64,7 +64,7 @@ domain.h:	../../../pmns/stdpmid
 	echo "/*" >$@
 	echo " * built from $<" >>$@
 	echo " */" >>$@
-	$(PCP_AWK_PROG) <$< >>$@ '$$1="#define" && $$2=="$(DOMAIN)" { print "#define $(DOMAIN) " $$3 }'
+	$(PCP_AWK_PROG) <$< >>$@ '$$1=="#define" && $$2=="$(DOMAIN)" { print "#define $(DOMAIN) " $$3 }'
 
 default_pcp:	default
 

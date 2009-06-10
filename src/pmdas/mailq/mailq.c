@@ -46,7 +46,7 @@ static char	*queuedir = "/var/spool/mqueue";
 static char	startdir[MAXPATHLEN];
 
 static char	*regexstring;
-static regex_t	regex;
+static regex_t	mq_regex;
 
 /*
  * list of instance domains
@@ -158,7 +158,7 @@ mailq_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    for (i = 0; i < num; i++) {
 		p = list[i]->d_name;
 		/* only file names that match the regular expression */
-		if (regexstring && regexec(&regex, list[i]->d_name, 0, NULL, 0))
+		if (regexstring && regexec(&mq_regex, list[i]->d_name, 0, NULL, 0))
 		    goto next;
 		else if (!regexstring && (*p != 'd' || *(p+1) != 'f'))
 		    goto next;
@@ -287,9 +287,9 @@ main(int argc, char **argv)
 
 	    case 'r':
 		regexstring = optarg;
-		c = regcomp(&regex, regexstring, REG_EXTENDED | REG_NOSUB);
+		c = regcomp(&mq_regex, regexstring, REG_EXTENDED | REG_NOSUB);
 		if (c != 0) {
-		    regerror(c, &regex, mypath, sizeof(mypath));
+		    regerror(c, &mq_regex, mypath, sizeof(mypath));
 		    fprintf(stderr, "Cannot compile regular expression: %s\n",
 				    mypath);
 		    exit(1);

@@ -1,3 +1,11 @@
+pcp-2.8.8 (9 June 2009)
+    - Added a Zimbra Collaboration Suite PMDA.
+    - Build fixes for OpenSolaris.
+    - Perl PMDA fixes in tail mode.
+    - Correct physical memory reporting in Windows PMDA on 32 bit
+      machines.
+    - Other small tweaks and improvements to Windows PMDA also.
+
 pcp-2.8.7 (29 May 2009)
     - Windows PMDA major rework to improve memory footprint.
     - Yet another Mac OS X build issue resolution.

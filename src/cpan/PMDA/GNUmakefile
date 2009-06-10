@@ -31,19 +31,20 @@ LPKGDIRT = PCP-PMDA-*
 LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib blib \
 	Makefile.old local.o $(LPKGDIRT)
 
-ifeq "$(findstring $(TARGET_OS),cygwin mingw)" ""
 default: dist
-else
-default:
-endif
 
 ifeq ($(PACKAGE_DISTRIBUTION),debian)
 MAKEMAKER_OPTIONS = "INSTALLDIRS=vendor"
 INSTALLER_OPTIONS = DESTDIR=$$DIST_ROOT PREFIX=/usr
 endif
+ifeq ($(TARGET_OS),mingw)
+PERLMAKE = dmake.exe
+else
+PERLMAKE = $(MAKE)
+endif
 
 PMDA.o: Makefile PMDA.xs
-	$(MAKE) -f Makefile
+	$(PERLMAKE) -f Makefile
 
 Makefile: COPYING
 	perl Makefile.PL $(MAKEMAKER_OPTIONS)
@@ -53,14 +54,14 @@ COPYING:
 
 test dist: PMDA.o
 	rm -f $(LPKGDIRT)
-	$(MAKE) -f Makefile $@
+	$(PERLMAKE) -f Makefile $@
 
 include $(BUILDRULES)
 
 install: default
 
 install_perl:
-	$(MAKE) -f Makefile install $(INSTALLER_OPTIONS)
+	$(PERLMAKE) -f Makefile install $(INSTALLER_OPTIONS)
 
 default_pcp: default
 

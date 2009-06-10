@@ -70,8 +70,9 @@ update_names(void)
     char script[MAXPATHLEN];
     int sep = __pmPathSeparator();
 
-    snprintf (script, sizeof(script), "%s" "%c" "mmv" "%c" "UpdateNames",
-			pcppmdasdir, sep, sep);
+    snprintf (script, sizeof(script),
+		"%s%c" "lib" "%c" "ReplacePmnsSubtree mmv %s%c" "mmv.new",
+		pmGetConfig("PCP_SHARE_DIR"), sep, sep, pcppmdasdir, sep);
     if (system (script) == -1) {
 	__pmNotifyErr (LOG_ERR, "%s: cannot exec %s", pmProgname, script);
 	return 1;

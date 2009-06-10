@@ -17,8 +17,6 @@
 #include <ctype.h>
 
 static int isDSO = 1;
-unsigned long windows_pagesize;
-unsigned long long windows_physmem;
 
 /*
  * Array of all metrics - the PMID item field indexes this directly.
@@ -215,38 +213,45 @@ pdh_metric_t metricdesc[] = {
       "\\Cache\\Async MDL Reads/sec"
     },
 /* network.interface.in.packets */
-    { { PMDA_PMID(0,38), PM_TYPE_UNKNOWN, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_REDO, 0, 0, 0, NULL,
+    { { PMDA_PMID(0,38), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets Received/sec"
     },
 /* network.interface.in.bytes */
-    { { PMDA_PMID(0,39), PM_TYPE_UNKNOWN, NETIF_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) }, M_REDO, 0, 0, 0, NULL,
+    { { PMDA_PMID(0,39), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0,0, PM_SPACE_BYTE, 0,0) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Bytes Received/sec"
     },
 /* network.interface.in.errors */
     { { PMDA_PMID(0,40), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets Received Errors"
     },
 /* network.interface.out.packets */
     { { PMDA_PMID(0,41), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets Sent/sec"
     },
 /* network.interface.out.bytes */
     { { PMDA_PMID(0,42), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0,0, PM_SPACE_BYTE, 0,0) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Bytes Sent/sec"
     },
 /* network.interface.out.errors */
     { { PMDA_PMID(0,43), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets Outbound Errors"
     },
 /* network.interface.total.packets */
     { { PMDA_PMID(0,44), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_NONE, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_NONE | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets/sec"
     },
 /* network.interface.total.bytes */
@@ -451,27 +456,32 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.databases.db.transactions */
     { { PMDA_PMID(0,85), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Databases(*)\\Transactions/sec"
     },
 /* sqlserver.sql.batch_requests */
     { { PMDA_PMID(0,86), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:SQL Statistics\\Batch Requests/sec"
     },
 /* sqlserver.latches.waits */
     { { PMDA_PMID(0,87), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Latches\\Latch Waits/sec"
     },
 /* sqlserver.latches.wait_time */
     { { PMDA_PMID(0,88), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Latches\\Total Latch Wait Time (ms)"
     },
 /* sqlserver.latches.avg_wait_time */
     { { PMDA_PMID(0,89), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Latches\\Average Latch Wait Time (ms)"
     },
 /* sqlserver.databases.all.data_file_size */
@@ -481,7 +491,8 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.databases.all.log_file_size */
     { { PMDA_PMID(0,91), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Databases(_Total)\\Log File(s) Size (KB)"
     },
 /* sqlserver.databases.all.log_file_used */
@@ -509,8 +520,7 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.sql.compilations */
     { { PMDA_PMID(0,96), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:SQL Statistics\\SQL Compilations/sec"
     },
 /* sqlserver.sql.re_compilations */
@@ -551,12 +561,14 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.databases.all.log_bytes_flushed */
     { { PMDA_PMID(0,104), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Databases(_Total)\\Log Bytes Flushed/sec"
     },
 /* sqlserver.databases.db.log_bytes_flushed */
     { { PMDA_PMID(0,105), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) },
+	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
       "\\SQLServer:Databases(*)\\Log Bytes Flushed/sec"
     },
 /* hinv.physmem */
@@ -903,7 +915,8 @@ pdh_metric_t metricdesc[] = {
     },
 /* process.psinfo.cpu_time */
     { { PMDA_PMID(0,176), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0) },
+	M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Process(*)\\% Processor Time"
     },
 /* process.psinfo.elapsed_time */
@@ -1191,6 +1204,47 @@ pdh_metric_t metricdesc[] = {
     { { PMDA_PMID(0,233), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_NONE, 0, 0, 0, NULL, ""
     },
+
+/* mem.physmem */
+    { { PMDA_PMID(1,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"The amount of actual physical memory"
+    },
+/* mem.freemem */
+    { { PMDA_PMID(1,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"The amount of physical memory currently available"
+    },
+/* mem.util.load */
+    { { PMDA_PMID(1,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"Approximate percentage of physical memory in use"
+    },
+/* mem.util.used */
+    { { PMDA_PMID(1,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"Amount of physical memory in use"
+    },
+/* mem.util.free */
+    { { PMDA_PMID(1,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"Amount of physical memory currently available"
+    },
+/* swap.length */
+    { { PMDA_PMID(1,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"The current committed memory limit for the system"
+    },
+/* swap.used */
+    { { PMDA_PMID(1,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"The current committed memory for the system"
+    },
+/* swap.free */
+    { { PMDA_PMID(1,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	"The maximum amount of memory the system can commit"
+    },
 };
 int metricdesc_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);
 
@@ -1214,6 +1268,11 @@ find_instance_value(int item, int inst)
     pdh_metric_t	*mp = &metricdesc[item];
     int			i;
 
+    /* fast check for direct mapped instance ID */
+    if (inst < mp->num_vals && mp->vals[inst].inst == inst)
+	return (mp->vals[inst].flags & V_COLLECTED) ? &mp->vals[inst] : NULL;
+
+    /* scan iteratively through instance IDs looking for this one */
     for (i = 0; i < mp->num_vals; i++) {
 	if (mp->vals[i].inst != inst)
 	    continue;
@@ -1275,10 +1334,48 @@ filesys_fetch_callback(int item, int inst, pmAtomValue *atom)
 }
 
 static int
+memstat_fetch_callback(int item, int inst, pmAtomValue *atom)
+{
+    if (inst == PM_INDOM_NULL) {
+	switch (item) {
+	case 0:		/* mem.physmem */
+	    atom->ull = windows_memstat.ullTotalPhys / 1024;
+	    return 1;
+	case 1:		/* mem.freemem */
+	case 4:		/* mem.util.free */
+	    atom->ull = windows_memstat.ullAvailPhys / 1024;
+	    return 1;
+	case 2:		/* mem.util.load */
+	    atom->ul = windows_memstat.dwMemoryLoad;
+	    return 1;
+	case 3:		/* mem.util.used */
+	    atom->ull = windows_memstat.ullTotalPhys;
+	    atom->ull =- windows_memstat.ullAvailPhys;
+	    atom->ull /= 1024;
+	case 5:		/* swap.length */
+	    atom->ull = windows_memstat.ullTotalPageFile / 1024;
+	    return 1;
+	case 6:		/* swap.used */
+	    atom->ull = windows_memstat.ullTotalPageFile;
+	    atom->ull -= windows_memstat.ullAvailPageFile;
+	    atom->ull /= 1024;
+	    return 1;
+	case 7:		/* swap.free */
+	    atom->ull = windows_memstat.ullAvailPageFile / 1024;
+	    return 1;
+	}
+    }
+    return 0;
+}
+
+static int
 windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int		*pmidp = (__pmID_int *)&mdesc->m_desc.pmid;
     pdh_value_t		*vp;
+
+    if (pmidp->cluster == 1)
+	return memstat_fetch_callback(pmidp->item, inst, atom);
 
     if (pmidp->cluster != 0 || pmidp->item > metricdesc_sz ||
 	(pmidp->item == 120 || pmidp->item == 121)) /* dummies */
@@ -1289,7 +1386,7 @@ windows_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      */
     switch (pmidp->item) {
     case 106:	/* hinv.physmem */
-	atom->ul = windows_physmem;
+	atom->ul = (windows_memstat.ullTotalPhys / (1024 * 1024));
 	return 1;
     case 107:	/* hinv.ncpu */
 	atom->ul = pmdaCacheOp(INDOM(pmidp->domain, CPU_INDOM),

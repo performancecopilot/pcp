@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 TARGETS	= $(IAM)
 CFILES	= mmv.c
-LSRCFILES = pmns Install Remove UpdateNames README help root mmv.conf
+LSRCFILES = pmns Install Remove README help root mmv.conf
 
 LCFLAGS = -I.
 LDLIBS	= -lpcp_pmda -lpcp
@@ -35,7 +35,7 @@ include $(BUILDRULES)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
-	$(INSTALL) -m 755 Install Remove UpdateNames $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 mmv.conf README root help pmns domain.h $(PMDADIR)
 
 $(IAM):	$(OBJECTS)
@@ -47,7 +47,7 @@ domain.h:	../../pmns/stdpmid
 	echo "/*" >$@
 	echo " * built from $(PCP_VAR_DIR)/pmns/stdpmid" >>$@
 	echo " */" >>$@
-	$(PCP_AWK_PROG) <$< >>$@ '$$1="#define" && $$2=="$(DOMAIN)" { print "#define $(DOMAIN) " $$3 }'
+	$(PCP_AWK_PROG) <$< >>$@ '$$1=="#define" && $$2=="$(DOMAIN)" { print "#define $(DOMAIN) " $$3 }'
 
 default_pcp: default
 

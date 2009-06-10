@@ -23,6 +23,8 @@
 char *windows_uname;
 char *windows_build;
 char *windows_machine;
+unsigned long windows_pagesize;
+int windows_indom_setup[NUMINDOMS];
 
 /*
  * This block of functionality is required to map counter types from
@@ -227,28 +229,11 @@ windows_setup_globals(void)
 {
     SYSTEM_INFO		sysinfo;
     OSVERSIONINFOEX	osversion;
-#if (_WIN32_WINNT >= 0x0500)
-    MEMORYSTATUSEX	memstat;
-#else
-    MEMORYSTATUS	memstat;
-#endif
-
-    /* physical memory size (in units of bytes) */
-#if (_WIN32_WINNT >= 0x0500)
-    ZeroMemory(&memstat, sizeof(MEMORYSTATUSEX));
-    if (!GlobalMemoryStatusEx(&memstat))
-	__pmNotifyErr(LOG_ERR, "GlobalMemoryStatusEx failed");
-    else
-	windows_physmem = memstat.ullTotalPhys / (1024*1024);
-#else
-    ZeroMemory(&memstat, sizeof(MEMORYSTATUS));
-    GlobalMemoryStatus(&memstat);
-    windows_physmem = memstat.dwTotalPhys / (1024*1024);
-#endif
 
     ZeroMemory(&sysinfo, sizeof(SYSTEM_INFO));
     GetSystemInfo(&sysinfo);
     windows_pagesize = sysinfo.dwPageSize;
+
     switch (sysinfo.wProcessorArchitecture) {
     case PROCESSOR_ARCHITECTURE_AMD64:
 	windows_machine = "x86_64";
@@ -266,10 +251,8 @@ windows_setup_globals(void)
 
     ZeroMemory(&osversion, sizeof(OSVERSIONINFOEX));
     osversion.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    if (!GetVersionEx((OSVERSIONINFO *)&osversion))
-	__pmNotifyErr(LOG_ERR, "GetVersionEx failed");
-    else
-	windows_format_uname(osversion);
+    GetVersionEx((OSVERSIONINFO *)&osversion);
+    windows_format_uname(osversion);
 }
 
 static void
@@ -300,8 +283,6 @@ windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 	 *	    RATE	time rate converted
 	 *	    FRACTION	divide value by BASE
 	 *	    BASE	used for FRACTION
-	 *	    ELAPSED	subtract from current time
-	 *			(no support here)
 	 *	    QUEUELEN	magic internal queuelen() routines
 	 *			(you're joking, right?)
 	 *	    HISTOGRAM	counter begins or ends a histo (?)
@@ -317,10 +298,10 @@ windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 	 */
 	case PERF_COUNTER_COUNTER:
 	    /* 32-bit PM_SEM_COUNTER */
-	    if (mp->desc.type == PM_TYPE_UNKNOWN)
-		mp->desc.type = PM_TYPE_U32;
 	    if (mp->desc.type != PM_TYPE_32 && mp->desc.type != PM_TYPE_U32) {
-		__pmNotifyErr(LOG_ERR, "windows_open: PERF_COUNTER_COUNTER: "
+		if (!(mp->flags & M_AUTO64))
+		    __pmNotifyErr(LOG_ERR,
+			"windows_open: PERF_COUNTER_COUNTER: "
 			"metric %s: rewrite type from %s to PM_TYPE_U32\n",
 			pmIDStr(mp->desc.pmid), _typestr(mp->desc.type));
 		mp->desc.type = PM_TYPE_U32;
@@ -341,10 +322,12 @@ windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 		ctr_type = "PERF_COUNTER_RAWCOUNT_HEX";
 	    /* 32-bit PM_SEM_INSTANT or PM_SEM_DISCRETE */
 	    if (mp->desc.type != PM_TYPE_32 && mp->desc.type != PM_TYPE_U32) {
-		__pmNotifyErr(LOG_ERR, "windows_open: Warning: %s: metric %s: "
-					"rewrite type from %s to PM_TYPE_U32\n",
-					ctr_type, pmIDStr(mp->desc.pmid),
-					_typestr(mp->desc.type));
+		if (!(mp->flags & M_AUTO64))
+		    __pmNotifyErr(LOG_ERR,
+			"windows_open: Warning: %s: metric %s: "
+			"rewrite type from %s to PM_TYPE_U32\n",
+			ctr_type, pmIDStr(mp->desc.pmid),
+			_typestr(mp->desc.type));
 		mp->desc.type = PM_TYPE_U32;
 	    }
 	    break;
@@ -354,10 +337,10 @@ windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 	 */
 	case PERF_COUNTER_BULK_COUNT:
 	    /* 64-bit PM_SEM_COUNTER */
-	    if (mp->desc.type == PM_TYPE_UNKNOWN)
-		mp->desc.type = PM_TYPE_U64;
 	    if (mp->desc.type != PM_TYPE_64 && mp->desc.type != PM_TYPE_U64) {
-		__pmNotifyErr(LOG_ERR, "windows_open: PERF_COUNTER_BULK_COUNT:"
+		if (!(mp->flags & M_AUTO64))
+		    __pmNotifyErr(LOG_ERR,
+			"windows_open: PERF_COUNTER_BULK_COUNT:"
 			" metric %s: rewrite type from %s to PM_TYPE_U64\n",
 			pmIDStr(mp->desc.pmid), _typestr(mp->desc.type));
 		mp->desc.type = PM_TYPE_U64;
@@ -382,7 +365,8 @@ windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 	     * we shall export 'em as microseconds
 	     */
 	    if (mp->desc.type != PM_TYPE_64 && mp->desc.type != PM_TYPE_U64) {
-		__pmNotifyErr(LOG_ERR, "windows_open: Warning: %s: "
+		if (!(mp->flags & M_AUTO64))
+		    __pmNotifyErr(LOG_ERR, "windows_open: Warning: %s: "
 			"metric %s: rewrite type from %s to PM_TYPE_U64\n",
 		    ctr_type, pmIDStr(mp->desc.pmid), _typestr(mp->desc.type));
 		mp->desc.type = PM_TYPE_U64;
@@ -415,7 +399,8 @@ windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 	    /* 64-bit PM_SEM_INSTANT or PM_SEM_DISCRETE */
 	    if (mp->desc.type != PM_TYPE_64 &&
 		mp->desc.type != PM_TYPE_U64) {
-		__pmNotifyErr(LOG_ERR, "windows_open: Warning: "
+		if (!(mp->flags & M_AUTO64))
+		    __pmNotifyErr(LOG_ERR, "windows_open: Warning: "
 				"PERF_COUNTER_LARGE_RAWCOUNT: metric %s: "
 				"rewrite type from %s to PM_TYPE_U64\n",
 		    pmIDStr(mp->desc.pmid), _typestr(mp->desc.type));
@@ -444,12 +429,54 @@ windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 		mp->desc.sem = PM_SEM_INSTANT;
 	    }
 	    if (mp->desc.type != PM_TYPE_64 && mp->desc.type != PM_TYPE_U64) {
-		__pmNotifyErr(LOG_ERR, "windows_open: Warning: %s "
+		if (!(mp->flags & M_AUTO64))
+		    __pmNotifyErr(LOG_ERR, "windows_open: Warning: %s "
 			"metric %s: rewrite type from %s to PM_TYPE_U64\n",
 			ctr_type, pmIDStr(mp->desc.pmid), _typestr(mp->desc.type));
 		mp->desc.type = PM_TYPE_U64;
 	    }
 	    break;
+
+	case PERF_SAMPLE_COUNTER:
+	    /* floating point PM_SEM_INSTANT or PM_SEM_DISCRETE */
+	    if (mp->desc.sem != PM_SEM_INSTANT && mp->desc.sem != PM_SEM_DISCRETE) {
+		__pmNotifyErr(LOG_ERR, "windows_open: Warning: %s: "
+				       "metric %s: semantics %s (expected %s)\n",
+					ctr_type, pmIDStr(mp->desc.pmid),
+					_semstr(mp->desc.sem), _semstr(PM_SEM_INSTANT));
+		mp->desc.sem = PM_SEM_INSTANT;
+	    }
+	    if (mp->desc.type != PM_TYPE_FLOAT && mp->desc.type != PM_TYPE_DOUBLE) {
+		__pmNotifyErr(LOG_ERR, "windows_open: Warning: %s "
+			"metric %s: rewrite type from %s to PM_TYPE_FLOAT\n",
+			ctr_type, pmIDStr(mp->desc.pmid), _typestr(mp->desc.type));
+		mp->desc.type = PM_TYPE_FLOAT;
+	    }
+	    break;
+
+	case PERF_ELAPSED_TIME:
+	    if (mp->desc.units.dimSpace != 0 ||
+		mp->desc.units.dimTime != 1 ||
+		mp->desc.units.dimCount != 0 ||
+		mp->desc.units.scaleTime != PM_TIME_USEC) {
+		pmUnits units = mp->desc.units;
+		mp->desc.units.dimSpace = mp->desc.units.dimCount = 0;
+		mp->desc.units.scaleSpace = mp->desc.units.scaleCount = 0;
+		mp->desc.units.dimTime = 1;
+		mp->desc.units.scaleTime = PM_TIME_USEC;
+		__pmNotifyErr(LOG_ERR, "windows_open: Warning: %s: "
+			"metric %s: rewrite dimension and scale from %s to %s",
+		    ctr_type, pmIDStr(mp->desc.pmid), pmUnitsStr(&units),
+		    pmUnitsStr(&mp->desc.units));
+	    }
+	    if (mp->desc.type != PM_TYPE_64 && mp->desc.type != PM_TYPE_U64) {
+		if (!(mp->flags & M_AUTO64))
+		    __pmNotifyErr(LOG_ERR, "windows_open: Warning: %s "
+			"metric %s: rewrite type from %s to PM_TYPE_U64\n",
+			ctr_type, pmIDStr(mp->desc.pmid),
+			_typestr(mp->desc.type));
+		mp->desc.type = PM_TYPE_U64;
+	    }
 
 	default:
 	    __pmNotifyErr(LOG_ERR, "windows_open: Warning: metric %s: "
@@ -555,11 +582,17 @@ int
 windows_visit_metric(pdh_metric_t *pmp, pdh_metric_visitor_t visitor)
 {
     size_t		size;
+    int			index = 0;
     PDH_STATUS  	pdhsts;
     DWORD		result_sz;
     static DWORD	pattern_sz = 0;
     static LPSTR	pattern = NULL;
     LPSTR      		p;
+
+    if (pmp->desc.indom != PM_INDOM_NULL) {
+	index = pmInDom_serial(pmp->desc.indom);
+	pmdaCacheOp(pmp->desc.indom, PMDA_CACHE_INACTIVE);
+    }
 
     pmp->flags &= ~(M_EXPANDED|M_NOVALUES);
     memset(pmp->vals, 0, pmp->num_alloc * sizeof(pdh_value_t));
@@ -672,10 +705,8 @@ windows_visit_metric(pdh_metric_t *pmp, pdh_metric_visitor_t visitor)
 		/* move onto next instance */
 		continue;
 	    }
+	    windows_indom_setup[index] = 1;
 	}
-
-	if (p > pattern)
-	    continue;
 
 	if (visitor)
 	    visitor(pmp, p, pvp);

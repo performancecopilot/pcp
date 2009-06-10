@@ -17,8 +17,6 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-/* XXX - TODO: need to install a SIGCHLD signal handler when pipes in use */
-/* XXX - TODO: reconnect -- socket(host/port) and logrotate(inode/device) */
 /* XXX - TODO: Need POD updates to document all of the perl APIs & PMDAs. */
 
 #include "local.h"
@@ -406,7 +404,7 @@ new(CLASS,name,domain)
 	__pmSetProgname(pmdaname);
 	sep = __pmPathSeparator();
 	if ((p = getenv("PCP_PERL_DEBUG")) != NULL)
-	    if ((pmDebug = pmParseDebug(p)) < 0)
+	    if ((pmDebug = __pmParseDebug(p)) < 0)
 		pmDebug = 0;
 	atexit(&local_atexit);
 	snprintf(helpfile, sizeof(helpfile), "%s%c%s%c" "help",

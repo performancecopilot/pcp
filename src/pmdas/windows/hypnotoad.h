@@ -56,6 +56,7 @@ typedef enum {
     M_NOVALUES	= 0x4,		/* setup failed, don't bother with the fetch */
     M_OPTIONAL	= 0x8,		/* optional component, no values is expected */
     M_VERIFIED	= 0x10,		/* has this metrics semantics been checked */
+    M_AUTO64	= 0x20,		/* allow auto-modification on 64/32bit type */
 } pdh_metricflag_t;
 
 typedef struct {
@@ -74,8 +75,10 @@ extern int metricdesc_sz;
 extern char *windows_uname;
 extern char *windows_build;
 extern char *windows_machine;
+extern int windows_indom_setup[];
 extern unsigned long windows_pagesize;
-extern unsigned long long windows_physmem;
+extern MEMORYSTATUSEX windows_memstat;
+extern void windows_fetch_memstat(void);
 
 extern void windows_open();
 extern char *pdherrstr(int);
