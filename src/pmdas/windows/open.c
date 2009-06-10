@@ -24,6 +24,7 @@ char *windows_uname;
 char *windows_build;
 char *windows_machine;
 unsigned long windows_pagesize;
+int windows_indom_setup[NUMINDOMS];
 
 /*
  * This block of functionality is required to map counter types from
@@ -581,11 +582,17 @@ int
 windows_visit_metric(pdh_metric_t *pmp, pdh_metric_visitor_t visitor)
 {
     size_t		size;
+    int			index = 0;
     PDH_STATUS  	pdhsts;
     DWORD		result_sz;
     static DWORD	pattern_sz = 0;
     static LPSTR	pattern = NULL;
     LPSTR      		p;
+
+    if (pmp->desc.indom != PM_INDOM_NULL) {
+	index = pmInDom_serial(pmp->desc.indom);
+	pmdaCacheOp(pmp->desc.indom, PMDA_CACHE_INACTIVE);
+    }
 
     pmp->flags &= ~(M_EXPANDED|M_NOVALUES);
     memset(pmp->vals, 0, pmp->num_alloc * sizeof(pdh_value_t));
@@ -698,10 +705,8 @@ windows_visit_metric(pdh_metric_t *pmp, pdh_metric_visitor_t visitor)
 		/* move onto next instance */
 		continue;
 	    }
+	    windows_indom_setup[index] = 1;
 	}
-
-	if (p > pattern)
-	    continue;
 
 	if (visitor)
 	    visitor(pmp, p, pvp);

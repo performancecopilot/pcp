@@ -23,7 +23,6 @@
 
 #define MAX_M_PATH_LEN	80	/* pattern passed to PdhExpandCounterPath */
 #define INDOM(x,y)	(((x)<<22)|(y))	/* pmdaCache interfaces use indom */
-#define NODOMAIN(y)	((0x3ff) & (y))	/* pmdaCache interfaces use indom */
 
 enum {
     DISK_INDOM,
@@ -76,6 +75,7 @@ extern int metricdesc_sz;
 extern char *windows_uname;
 extern char *windows_build;
 extern char *windows_machine;
+extern int windows_indom_setup[];
 extern unsigned long windows_pagesize;
 extern MEMORYSTATUSEX windows_memstat;
 extern void windows_fetch_memstat(void);

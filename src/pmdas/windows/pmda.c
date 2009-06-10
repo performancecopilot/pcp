@@ -1268,6 +1268,11 @@ find_instance_value(int item, int inst)
     pdh_metric_t	*mp = &metricdesc[item];
     int			i;
 
+    /* fast check for direct mapped instance ID */
+    if (inst < mp->num_vals && mp->vals[inst].inst == inst)
+	return (mp->vals[inst].flags & V_COLLECTED) ? &mp->vals[inst] : NULL;
+
+    /* scan iteratively through instance IDs looking for this one */
     for (i = 0; i < mp->num_vals; i++) {
 	if (mp->vals[i].inst != inst)
 	    continue;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Parts of this file contributed by Ken McDonell
  * (kenj At internode DoT on DoT net)
@@ -20,22 +20,17 @@
 void
 windows_instance_refresh(pmInDom indom)
 {
-    static int indom_setup[NUMINDOMS];
-    int i, idx, setup;
+    int			i, setup;
 
-    idx = NODOMAIN(indom);
-    setup = indom_setup[idx];
-    indom_setup[idx] = 1;
+    setup = windows_indom_setup[pmInDom_serial(indom)];
 
     for (i = 0; i < metricdesc_sz; i++) {
 	pdh_metric_t *mp = &metricdesc[i];
 
 	if (indom != mp->desc.indom || mp->pat[0] == '\0')
 	    continue;
-	if (!setup || (mp->flags & M_REDO)) {
-	    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+	if (!setup || (mp->flags & M_REDO))
 	    windows_visit_metric(mp, NULL);
-	}
 	break;
     }
 }
@@ -69,7 +64,6 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		     */
 		    return -1;
 		}
-		// inst = atoi(p);
 		while (isascii(*p) && isdigit(*p)) p++;
 		if (*p == ' ') {
 		    p++;
@@ -128,10 +122,9 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		    return -1;
 		}
 		int inst = atoi(p);
-		name = (char *)malloc(6);	// "cpuNN"
-		if (name != NULL) {
+		name = (char *)malloc(8);	// "cpuNNNN"
+		if (name != NULL)
 		    sprintf(name, "cpu%d", inst);
-		}
 		ok = 1;
 	    }
 	    /*
@@ -339,11 +332,8 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
     }
 
     sts = pmdaCacheLookupName(mp->desc.indom, name, &ok, NULL);
-    if (sts == PMDA_CACHE_ACTIVE || sts == PMDA_CACHE_INACTIVE) {
-	if (sts == PMDA_CACHE_INACTIVE)
-	    pmdaCacheStore(mp->desc.indom, PMDA_CACHE_ADD, name, NULL);
-	free(name);
-	return ok;
-    }
-    return pmdaCacheStore(mp->desc.indom, PMDA_CACHE_ADD, name, NULL);
+    if (sts != PMDA_CACHE_ACTIVE)
+	ok = pmdaCacheStore(mp->desc.indom, PMDA_CACHE_ADD, name, NULL);
+    free(name);
+    return ok;
 }
