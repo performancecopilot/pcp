@@ -61,7 +61,6 @@ typedef struct {
     } me;
 } files_t;
 
-extern char *local_strdup_hashed(const char *string);
 extern char *local_strdup_suffix(const char *string, const char *suffix);
 extern char *local_strdup_prefix(const char *prefix, const char *string);
 

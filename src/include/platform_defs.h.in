@@ -500,8 +500,10 @@ typedef void (*SIG_PF) (int);
 #define fcntl(f, cmd, ...) 0
 #define mkdir2(path, mode) mkdir(path)
 #define rename2(a, b) (unlink(b), rename(a,b))
-#define pipe(fds) _pipe(fds, 4*1024, O_BINARY)
 #define realpath(path, pp) strcpy(pp, path)
+#ifndef pipe
+#define pipe(fds) _pipe(fds, 4*1024, O_BINARY)
+#endif
 
 extern void setlinebuf(FILE *);
 extern const char *hstrerror(int);

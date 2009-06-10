@@ -1,5 +1,9 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.03  Wed, 10 Jun 2009 14:53:05 +1000
+	- Incorporated Win32 build changes (paths, etc).
+	- Remove (unneeded) use of hsearch and <search.h>.
+
 1.02  Tue Jun  2 17:16:25 EST 2009
 	- Implemented log file rotation and host reconnect handling.
 	- Generally improved the file "tail" mode of operation.

@@ -25,15 +25,16 @@ SUBDIRS   = t
 LPKGDIRT = PCP-LogSummary-*
 LDIRT = Makefile COPYING pm_to_blib blib Makefile.old $(LPKGDIRT) *.xls
 
-ifeq "$(findstring $(TARGET_OS),cygwin mingw)" ""
 default: dist
-else
-default:
-endif
 
 ifeq ($(PACKAGE_DISTRIBUTION),debian)
 MAKEMAKER_OPTIONS = "INSTALLDIRS=vendor"
 INSTALLER_OPTIONS = DESTDIR=$$DIST_ROOT PREFIX=/usr
+endif
+ifeq ($(TARGET_OS),mingw)
+PERLMAKE = dmake.exe
+else
+PERLMAKE = $(MAKE)
 endif
 
 Makefile: COPYING
@@ -44,14 +45,14 @@ COPYING:
 
 test dist: Makefile
 	rm -f $(LPKGDIRT)
-	$(MAKE) -f Makefile $@
+	$(PERLMAKE) -f Makefile $@
 
 include $(BUILDRULES)
 
 install: default
 
 install_perl:
-	$(MAKE) -f Makefile install $(INSTALLER_OPTIONS)
+	$(PERLMAKE) -f Makefile install $(INSTALLER_OPTIONS)
 
 default_pcp: default
 

@@ -404,7 +404,7 @@ new(CLASS,name,domain)
 	__pmSetProgname(pmdaname);
 	sep = __pmPathSeparator();
 	if ((p = getenv("PCP_PERL_DEBUG")) != NULL)
-	    if ((pmDebug = pmParseDebug(p)) < 0)
+	    if ((pmDebug = __pmParseDebug(p)) < 0)
 		pmDebug = 0;
 	atexit(&local_atexit);
 	snprintf(helpfile, sizeof(helpfile), "%s%c%s%c" "help",

@@ -17,6 +17,7 @@
  */
 
 #include "local.h"
+#include <dirent.h>
 #include <search.h>
 #include <sys/stat.h>
 
@@ -27,24 +28,6 @@ static int nfiles;
 
 extern void timer_callback(int, void *);
 extern void input_callback(scalar_t *, int, char *);
-
-char *
-local_strdup_hashed(const char *string)
-{
-    static int local_hash;
-    ENTRY e;
-
-    if (!local_hash) {
-	local_hash = 1;
-	hcreate(500);
-    }
-    e.key = e.data = (char *)string;
-    if (!hsearch(e, FIND)) {
-	e.key = e.data = strdup(string);
-	hsearch(e, ENTER);
-    }
-    return e.key;
-}
 
 char *
 local_strdup_suffix(const char *string, const char *suffix)
@@ -442,7 +425,7 @@ local_pmns_split(const char *root, const char *metric, const char *pmid)
 
     /* Replace '.' with ':' in our local pmid string */
     p = mypmid;
-    while ((p = index(p, '.')))
+    while ((p = (char *)index(p, '.')))
 	*p++ = ':';
 
     mkdir2(root, 0777);

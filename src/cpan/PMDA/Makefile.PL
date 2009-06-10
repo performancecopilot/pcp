@@ -6,11 +6,11 @@ WriteMakefile(
     AUTHOR		=> 'Nathan Scott <nathans@debian.org>',
     VERSION_FROM	=> 'PMDA.pm', # finds $VERSION
     ABSTRACT_FROM	=> 'PMDA.pm', # retrieve abstract from module
-    LIBS		=> ['-lpcp_pmda -lpcp'],
     C			=> ['local.c', 'PMDA.c'],
-    OBJECT		=> 'local.o PMDA.o',
     OPTIMIZE		=> '-g',
-    INC			=> '-I../../include -I/usr/include/pcp',
-    DEFINE		=> '-DPERLIO_NOT_STDIO=0',     # e.g., '-DPCP_DEBUG'
     XSPROTOARG		=> '-noprototypes',
+    DEFINE		=> '-DPERLIO_NOT_STDIO=0 -DPCP_VERSION -DPCP_DEBUG',
+    LIBS		=> ["-L$ENV{PWD}/../../libpcp_pmda/src", '-lpcp_pmda', "-L$ENV{PWD}/../../libpcp/src", '-lpcp'],
+    OBJECT		=> "-L$ENV{PWD}/../../libpcp/src -lpcp -L$ENV{PWD}/../../libpcp_pmda/src -lpcp_pmda local.o PMDA.o",
+    INC			=> "-I../../include -I/usr/include/pcp -I$ENV{PCP_DIR}\\include\\pcp -I$ENV{PCP_DIR}\\c\\include",
 );
