@@ -9,8 +9,9 @@ WriteMakefile(
     C			=> ['local.c', 'PMDA.c'],
     OPTIMIZE		=> '-g',
     XSPROTOARG		=> '-noprototypes',
+    OBJECT		=> 'local.o PMDA.o',
     DEFINE		=> '-DPERLIO_NOT_STDIO=0 -DPCP_VERSION -DPCP_DEBUG',
-    LIBS		=> ["-L$ENV{PWD}/../../libpcp_pmda/src", '-lpcp_pmda', "-L$ENV{PWD}/../../libpcp/src", '-lpcp'],
-    OBJECT		=> "-L$ENV{PWD}/../../libpcp/src -lpcp -L$ENV{PWD}/../../libpcp_pmda/src -lpcp_pmda local.o PMDA.o",
+    LDFROM		=> "-L$ENV{PCP_DIR}\\local\\bin -lpcp_pmda -lpcp local.o PMDA.o",
     INC			=> "-I../../include -I/usr/include/pcp -I$ENV{PCP_DIR}\\include\\pcp -I$ENV{PCP_DIR}\\c\\include",
+    LIBS		=> ["-L$ENV{PCP_DIR}\\local\\bin", '-lpcp_pmda', '-lpcp'],
 );
