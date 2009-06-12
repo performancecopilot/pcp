@@ -33,17 +33,17 @@ c | c | c
 n | n | l.
 Offset	Length	Name
 _
-0	4	tag == "MMV\0"
+0	4	tag == "MMV\\0"
 _
 4	4	Version
 _
-8	4	Generation 1
+8	8	Generation 1
 _
-12	4	Generation 2
+16	8	Generation 2
 _
-16	4	Number of TOC entries
+24	4	Number of TOC entries
 _
-20	4	Zero pad
+28	4	Zero pad
 .TE
 .PP
 followed by at least 2 TOC sections: one section for metrics and
@@ -52,7 +52,7 @@ another for values. The TOC section has the following format:
 box,center;
 c | c | c
 n | n | l.
-Offset	Lenght	Value
+Offset	Length	Value
 _
 0	4	Section Type (see \f2mmv_stats.h\f1)
 _
@@ -75,7 +75,7 @@ Values
 The only mandatory sections are Metrics and Values, Instances section appears
 only if there are metrics with multiple instances.
 .PP
-The entries in the Metrics secion have the following format:
+The entries in the Metrics section have the following format:
 .TS
 box,center;
 c | c | c
@@ -91,7 +91,7 @@ _
 72	4	Dimensions (see \f2pmapi\f1(3))
 .TE
 .PP
-The entries in the Values secion have the following format:
+The entries in the Values section have the following format:
 .TS
 box,center;
 c | c | c
@@ -107,7 +107,7 @@ _
 16	8	Extra space for DISCRETE and INTEGRAL
 .TE
 .PP
-The entries in the Instances secion have the following format:
+The entries in the Instances section have the following format:
 .TS
 box,center;
 c | c | c

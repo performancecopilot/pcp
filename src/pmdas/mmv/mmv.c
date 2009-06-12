@@ -47,19 +47,19 @@ static char statsdir[MAXPATHLEN];   /* pcptmpdir/mmv */
 static char confpath[MAXPATHLEN];   /* pcppmdasdir/mmv/mmv.conf */
 
 static struct stats_s {
-    char * name;                /* strdup client name */
-    void * addr;                /* mmap */
-    mmv_stats_hdr_t *hdr;       /* header in mmap */
-    mmv_stats_value_t * values; /* values in mmap */
-    __int64_t * extra;          /* per value value. holds old DISCRETE value */
-    int vcnt;                   /* number of values */
-    int fd;                     /* mmap fd */
-    int len;                    /* mmap region len */
-    time_t ts;                  /* mmap file timestamp */
-    int moff;			/* Index of the first metric in the array */
-    int mcnt;			/* How many metrics have we got */
-    int cluster;                /* cluster id */
-    int gen;                    /* generation number on open */
+    char *	name;		/* strdup client name */
+    void *	addr;		/* mmap */
+    mmv_stats_hdr_t *	hdr;	/* header in mmap */
+    mmv_stats_value_t *	values;	/* values in mmap */
+    __int64_t *	extra;		/* per value value. holds old DISCRETE value */
+    int		vcnt;		/* number of values */
+    int		fd;		/* mmap fd */
+    int		len;		/* mmap region len */
+    time_t	ts;		/* mmap file timestamp */
+    int		moff;		/* Index of the first metric in the array */
+    int		mcnt;		/* How many metrics have we got */
+    int		cluster;	/* cluster id */
+    __uint64_t	gen;		/* generation number on open */
 } * slist;
 
 static int scnt;
@@ -83,27 +83,29 @@ update_names(void)
 static void
 map_stats(void)
 {
-    char path[MAXPATHLEN];
+    char path[MAXPATHLEN], tmppath[MAXPATHLEN];
     char * fname;
-    FILE	*f = NULL;
+    FILE *f = NULL;
     FILE * conf;
     int sep = __pmPathSeparator();
     int i;
-#if HAVE_MKSTEMP
-    int		fd;
-#endif
-    
+ 
     putenv("TMPDIR=");	/* temp file must be in pmnsdir, for rename */
+
 #if HAVE_MKSTEMP
-    sprintf(path, "%s%cmmvXXXXXX", pmnsdir, __pmPathSeparator());
-    fname = path;
-    fd = mkstemp(fname);
-    if (fd != -1)
-	f = fdopen(fd, "w");
+    sprintf(tmppath, "%s%cmmv-XXXXXX", pmnsdir, __pmPathSeparator());
+    fname = tmppath;
+    i = mkstemp(fname);
+    if (i != -1)
+	f = fdopen(i, "w");
 #else
     fname = tempnam (pmnsdir, "mmv");
-    if (fname != NULL)
+    if (fname != NULL) {
+	strncpy (tmppath, fname, sizeof(tmppath));
+	free (fname);
+	fname = tmppath;
 	f = fopen(fname, "w");
+    }
 #endif
     if (f == NULL ) {
 	__pmNotifyErr(LOG_ERR, "%s: failed to generate temporary file %s: %s",
@@ -118,15 +120,13 @@ map_stats(void)
 	mcnt = 1;
 	if ((metrics = realloc (metrics, sizeof (pmdaMetric)*mcnt)) == NULL) {
 	    mcnt = 0;
-	    goto unlink_and_return;
+	    goto close_and_return;
 	} else {
 	    fprintf (f, "\treload\t%d:0:0\n", MMV);
 	}
     }
 
     if ( indoms != NULL ) {
-	int i;
-
 	for (i=0; i < incnt; i++ ) {
 	    free (indoms[i].it_set);
 	}
@@ -136,7 +136,6 @@ map_stats(void)
     }
 
     if ( slist != NULL ) {
-	int i;
 	for ( i=0; i < scnt; i++ ) {
 	    free (slist[i].name);
 	    free (slist[i].extra);
@@ -408,13 +407,10 @@ map_stats(void)
     }
 
     reload = 0;
-    free (fname);
     return;
 
- unlink_and_return:
+ close_and_return:
     fclose (f);
-    unlink (fname);
-    free (fname);
     return;
 }
 
@@ -511,7 +507,7 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				gettimeofday (&tv, NULL); 
 				atom->ll = val[i].val.i64 + 
 				    val[i].extra*(tv.tv_sec*1e6 + tv.tv_usec);
-                                break;
+				break;
 			    case MMV_ENTRY_DISCRETE: {
                                 __int64_t new = val[i].val.i64; 
                                 __int64_t old = s->extra[i];

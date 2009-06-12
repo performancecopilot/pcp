@@ -203,7 +203,7 @@ mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats)
     memset(hdr, 0, sizeof(mmv_stats_hdr_t));
     strcpy(hdr->magic, "MMV");
     hdr->version = MMV_VERSION_0;
-    hdr->g1 = time(NULL);
+    hdr->g1 = (__uint64_t) time(NULL);
     hdr->tocs = nindoms+2;
 
     for (i = 0; i < nindoms; i++) {

@@ -44,54 +44,54 @@ typedef enum {
 
 /* The way the Table Of Contents is written into the file */
 typedef struct mmv_stats_toc_s {
-    mmv_toc_type_t typ; /* What is it? */
-    int cnt;		/* Number of entries */
-    __uint64_t offset;	/* Offset of section from the start of the file */
-} mmv_stats_toc_t ;
+    mmv_toc_type_t	typ;		/* What is it? */
+    __int32_t		cnt;		/* Number of entries */
+    __uint64_t		offset;		/* Offset of section from start of the file */
+} mmv_stats_toc_t;
 
 typedef struct mmv_stats_inst_s {
-    int internal;		/* Internal instance ID for this domain */
-    char external[MMV_NAMEMAX];	/* External instance ID for this domain */
+    __int32_t		internal;		/* Internal instance ID for this domain */
+    char		external[MMV_NAMEMAX];	/* External instance ID for this domain */
 } mmv_stats_inst_t;
 
 /* This is the structure for mmv_stats_init */
 typedef struct mmv_stats_s {
-    char name[MMV_NAMEMAX];	/* Name of the metric */
-    mmv_metric_type_t type;	/* Type of the metric */
-    mmv_stats_inst_t * indom;	/* Pointer to the array of
-                                 * mmv_stats_inst_t, terminated by
-                                 * internal=-1, or NULL */
-    pmUnits dimension;		/* Dimensions (TIME, SPACE, etc) */
+    char		name[MMV_NAMEMAX];	/* Name of the metric */
+    mmv_metric_type_t	type;			/* Type of the metric */
+    mmv_stats_inst_t *	indom;			/* Pointer to the array of
+						 * mmv_stats_inst_t, terminated by
+						 * internal=-1, or NULL */
+    pmUnits		dimension;		/* Dimensions (TIME, SPACE, etc) */
 } mmv_stats_t;
 
 typedef struct mmv_stats_metric_s {
-    char name[MMV_NAMEMAX];
-    mmv_metric_type_t type;
-    int indom;
-    pmUnits dimension;
+    char		name[MMV_NAMEMAX];
+    mmv_metric_type_t	type;
+    __int32_t		indom;
+    pmUnits		dimension;
 } mmv_stats_metric_t;
 
 typedef struct mmv_stats_value_s {
-    int metric;		/* Offset into the metric section */
-    int instance;	/* Offset into corresponding indom section */
+    __int32_t		metric;		/* Offset into the metric section */
+    __int32_t		instance;	/* Offset into corresponding indom section */
     union {
-	__int32_t   i32;
-	__uint32_t  u32;
-	__int64_t   i64;
-	__uint64_t  u64;
-	float       f;
-	double      d;
+	__int32_t	i32;
+	__uint32_t	u32;
+	__int64_t	i64;
+	__uint64_t	u64;
+	float		f;
+	double		d;
     } val;
-    __int64_t extra;    /* extra space for INTEGRAL and DISCRETE */
+    __int64_t		extra;		/* extra space for INTEGRAL and DISCRETE */
 } mmv_stats_value_t;
 
 typedef struct mmv_stats_hdr_s {
-    char magic[4];	/* MMV\0 */
-    int version;	/* version */
-    time_t g1;		/* Generation numbers - use time(2) to init those */
-    time_t g2;
-    int tocs;		/* Number of toc entries */
-    int dummy;	        /* not used */
+    char		magic[4];	/* MMV\0 */
+    __int32_t		version;	/* version */
+    __uint64_t		g1;		/* Generation numbers - use time(2) to init */
+    __uint64_t		g2;
+    __int32_t		tocs;		/* Number of toc entries */
+    __int32_t		dummy;	        /* not used */
 } mmv_stats_hdr_t;
 
 extern void * mmv_stats_init (const char *, const mmv_stats_t *, int);
@@ -149,9 +149,9 @@ if ( hndl != NULL ) {                                                    \
 	vptr = mmv_lookup_value_desc (hndl, #metric, instance);          \
     }                                                                    \
     if ( vptr != NULL ) {                                                \
-        struct timeval tv;                                               \
-        gettimeofday (&tv, NULL);                                        \
-        mmv_inc_value (hndl, vptr, -(tv.tv_sec*1e6 + tv.tv_usec));       \
+	struct timeval tv;                                               \
+	gettimeofday (&tv, NULL);                                        \
+	mmv_inc_value (hndl, vptr, -(tv.tv_sec*1e6 + tv.tv_usec));       \
     }                                                                    \
 }
 #endif
