@@ -72,7 +72,14 @@ update_names(void)
 
     snprintf (script, sizeof(script),
 		"%s%c" "lib" "%c" "ReplacePmnsSubtree mmv %s%c" "mmv.new",
-		pmGetConfig("PCP_SHARE_DIR"), sep, sep, pcppmdasdir, sep);
+		pmGetConfig("PCP_SHARE_DIR"), sep, sep, pmnsdir, sep);
+    if (system (script) == -1) {
+	__pmNotifyErr (LOG_ERR, "%s: cannot exec %s", pmProgname, script);
+	return 1;
+    }
+    snprintf (script, sizeof(script),
+		"%s%c" "pmsignal -a -s HUP pmcd",
+		pmGetConfig("PCP_BINADM_DIR"), sep);
     if (system (script) == -1) {
 	__pmNotifyErr (LOG_ERR, "%s: cannot exec %s", pmProgname, script);
 	return 1;
