@@ -538,6 +538,7 @@ _filter_torture_api()
 	-e '/^    softtemp /d' \
 	-e '/^    stream /d' \
 	-e '/^    sysioctl /d' \
+	-e '/^    tmpfs /d' \
 	-e '/^    udf /d' \
 	-e '/^    vfs /d' \
 	-e '/^    vmware /d' \
