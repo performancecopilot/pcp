@@ -31,7 +31,7 @@ new_instance(int id, char *name)
 }
 
 static mmv_stats_t *
-new_metric(char *name, unsigned int type, mmv_stats_inst_t *indom, unsigned int units)
+new_metric(char *name, unsigned int type, mmv_stats_inst_t *indom, unsigned int units, unsigned int semantics)
 {
     mmv_stats_t *metric;
 
@@ -40,6 +40,7 @@ new_metric(char *name, unsigned int type, mmv_stats_inst_t *indom, unsigned int 
 
     strncpy(metric->name, name, MMV_NAMEMAX);
     memcpy(&metric->dimension, &units, sizeof(pmUnits));
+    metric->semantics = semantics;
     metric->indom = indom;
     metric->type = type;
     return metric;
@@ -78,13 +79,14 @@ mmv_instance(id,name)
 	RETVAL
 
 mmv_stats_t *
-mmv_metric(name,type,insts,units)
+mmv_metric(name,type,insts,units,semantics)
 	char *			name
 	unsigned int		type
 	mmv_stats_inst_t *	insts
 	unsigned int		units
+	unsigned int		semantics
     CODE:
-	RETVAL = new_metric(name, type, insts, units);
+	RETVAL = new_metric(name, type, insts, units, semantics);
 	if (!RETVAL)
 	    XSRETURN_UNDEF;
     OUTPUT:

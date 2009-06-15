@@ -105,9 +105,10 @@ mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats)
     mmv_stats_value_t *val;
     mmv_stats_hdr_t *hdr;
     mmv_stats_toc_t *toc;
+    __uint64_t offset;
     indom_t *indoms;
     void *addr;
-    int i, sz, offset;
+    int i, sz;
     int nindoms = 0;
     int vcnt = 0;
 
@@ -134,6 +135,9 @@ mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats)
 	strcpy(mlist[i].name, st[i].name);
 	mlist[i].type = st[i].type;
 	mlist[i].dimension = st[i].dimension;
+	mlist[i].semantics = st[i].semantics;
+	if (st[i].semantics != MMV_SEM_INSTANT && st[i].semantics != MMV_SEM_DISCRETE)
+	    mlist[i].semantics = MMV_SEM_COUNTER;
 
 	if (st[i].indom != NULL) {
 	    /* Lookup an indom */
@@ -202,7 +206,7 @@ mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats)
      */
     memset(hdr, 0, sizeof(mmv_stats_hdr_t));
     strcpy(hdr->magic, "MMV");
-    hdr->version = MMV_VERSION_0;
+    hdr->version = MMV_VERSION;
     hdr->g1 = (__uint64_t) time(NULL);
     hdr->tocs = nindoms+2;
 

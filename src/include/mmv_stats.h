@@ -20,10 +20,10 @@
 extern "C" {
 #endif
 
-#define MMV_VERSION_0   0
+#define MMV_VERSION	1
 #define MMV_NAMEMAX	64
 
-/* Initial entries should match PM_TYPE* from /usr/include/pcp/pmapi.h */
+/* Initial entries should match PM_TYPE_* from /usr/include/pcp/pmapi.h */
 typedef enum {
     MMV_ENTRY_NOSUPPORT = -1,       /* not implemented in this version */
     MMV_ENTRY_I32       =  0,       /* 32-bit signed integer */
@@ -33,13 +33,20 @@ typedef enum {
     MMV_ENTRY_FLOAT     =  4,       /* 32-bit floating point */
     MMV_ENTRY_DOUBLE    =  5,       /* 64-bit floating point */
     MMV_ENTRY_INTEGRAL  = 10,       /* timestamp & number of outstanding */
-    MMV_ENTRY_DISCRETE  = 11        /* count & previous count */
+    MMV_ENTRY_DISCRETE  = 11,       /* count & previous count */
 } mmv_metric_type_t;
+
+/* These all directly match PM_SEM_* from /usr/include/pcp/pmapi.h */
+typedef enum {
+    MMV_SEM_COUNTER	= 1,       /* cumulative counter (monotonic increasing) */
+    MMV_SEM_INSTANT	= 3,       /* instantaneous value, continuous domain */
+    MMV_SEM_DISCRETE	= 4,       /* instantaneous value, discrete domain */
+} mmv_metric_sem_t;
 
 typedef enum {
     MMV_TOC_INDOM	= 1,
     MMV_TOC_METRICS	= 2,
-    MMV_TOC_VALUES	= 3
+    MMV_TOC_VALUES	= 3,
 } mmv_toc_type_t;
 
 /* The way the Table Of Contents is written into the file */
@@ -62,6 +69,7 @@ typedef struct mmv_stats_s {
 						 * mmv_stats_inst_t, terminated by
 						 * internal=-1, or NULL */
     pmUnits		dimension;		/* Dimensions (TIME, SPACE, etc) */
+    mmv_metric_sem_t	semantics;		/* Semantics (counter, discrete, etc) */
 } mmv_stats_t;
 
 typedef struct mmv_stats_metric_s {
@@ -69,11 +77,12 @@ typedef struct mmv_stats_metric_s {
     mmv_metric_type_t	type;
     __int32_t		indom;
     pmUnits		dimension;
+    mmv_metric_sem_t	semantics;
 } mmv_stats_metric_t;
 
 typedef struct mmv_stats_value_s {
-    __int32_t		metric;		/* Offset into the metric section */
-    __int32_t		instance;	/* Offset into corresponding indom section */
+    __uint64_t		metric;		/* Offset into the metric section */
+    __uint64_t		instance;	/* Offset into corresponding indom section */
     union {
 	__int32_t	i32;
 	__uint32_t	u32;

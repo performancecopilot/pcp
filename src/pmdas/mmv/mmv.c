@@ -54,7 +54,7 @@ static struct stats_s {
     __int64_t *	extra;		/* per value value. holds old DISCRETE value */
     int		vcnt;		/* number of values */
     int		fd;		/* mmap fd */
-    int		len;		/* mmap region len */
+    __int64_t	len;		/* mmap region len */
     time_t	ts;		/* mmap file timestamp */
     int		moff;		/* Index of the first metric in the array */
     int		mcnt;		/* How many metrics have we got */
@@ -208,12 +208,12 @@ map_stats(void)
 			    continue;
 			}
 
-			if ( hdr->version != MMV_VERSION_0 ) {
+			if ( hdr->version != MMV_VERSION ) {
 				close (fd);
 				__pmNotifyErr(LOG_ERR, 
 					      "%s: mmv client version %d "
-					      "not supported",
-					      pmProgname, hdr->version);
+					      "not supported (current is %d)",
+					      pmProgname, hdr->version, MMV_VERSION);
 				continue;
 			}
 
@@ -324,7 +324,7 @@ map_stats(void)
 			        metrics[mcnt].m_desc.sem = PM_SEM_DISCRETE;
 				metrics[mcnt].m_desc.type = MMV_ENTRY_I64;
 			    } else {
-    			        metrics[mcnt].m_desc.sem = PM_SEM_COUNTER;
+    			        metrics[mcnt].m_desc.sem = ml[k].semantics;
 				metrics[mcnt].m_desc.type = ml[k].type;
 			    }
 			    metrics[mcnt].m_desc.indom = 
