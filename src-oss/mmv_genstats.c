@@ -9,10 +9,14 @@ static mmv_stats_inst_t test_indom [] = {
 };
 
 static mmv_stats_t metrics[] = {
-    {"counter",      MMV_ENTRY_U32,      NULL,       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)},
-    {"discrete",     MMV_ENTRY_DISCRETE, NULL,       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)},
-    {"indom",        MMV_ENTRY_U32,      test_indom, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)},
-    {"interval",     MMV_ENTRY_INTEGRAL, NULL,       PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0)},
+    { "counter",	MMV_ENTRY_U32,		NULL,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE), MMV_SEM_COUNTER },
+    { "discrete",	MMV_ENTRY_DISCRETE,	NULL,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE), MMV_SEM_DISCRETE },
+    { "indom",		MMV_ENTRY_U32,		test_indom,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE), MMV_SEM_INSTANT },
+    { "interval",	MMV_ENTRY_INTEGRAL,	NULL,
+	PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0), MMV_SEM_COUNTER },
 };
 
 #define __METRIC_CNT (sizeof (metrics)/ sizeof (mmv_stats_metric_t))

@@ -33,9 +33,9 @@ main (int argc, char * argv[])
 		return 0;
 	    } else {
 		printf ("Version    = %d\n", hdr->version);
-		printf ("Generated  = %s", ctime (&hdr->g1));
+		printf ("Generated  = %s", ctime ((time_t *)&hdr->g1));
 	    }
-            if (hdr->version != MMV_VERSION_0) {
+            if (hdr->version != MMV_VERSION) {
                 printf ("version %d not supported\n", hdr->version);
                 return 0;
             }
