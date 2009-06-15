@@ -36,8 +36,8 @@ static pmdaIndom * indoms;
 static int incnt;
 static int reload;
 
-static time_t conf_ts = -1;         /* last mmv.conf timestamp */
-static time_t statsdir_ts = -1;     /* last statsdir timestamp */
+static time_t conf_ts;		/* last mmv.conf timestamp */
+static time_t statsdir_ts;	/* last statsdir timestamp */
 
 static char *pcptmpdir;		/* probably /var/tmp */
 static char *pcpvardir;		/* probably /var/pcp */
@@ -155,41 +155,41 @@ map_stats(void)
     }
   
     if ( (conf = fopen (confpath, "r")) != NULL) {
-        char buffer[MAXPATHLEN];
-        int cluster = 0;
+	char buffer[MAXPATHLEN];
+	int cluster = 0;
 
 	while ( (fgets(buffer, sizeof(buffer)-1, conf)) != NULL ) {
-            struct stat statbuf;
-            char client[MAXPATHLEN];
-            char *p;
+	    struct stat statbuf;
+	    char client[MAXPATHLEN];
+	    char *p;
 	    int ecluster;
 
-            /* strip comments */
-            p=strchr(buffer,'#');
-            if (p)
-                *p='\0';
-            
-            if ( (sscanf(buffer, "%[^ \t\n]", client) != 1) || !*client )
-                continue;
+	    /* strip comments */
+	    p=strchr(buffer,'#');
+	    if (p)
+		*p='\0';
+
+	    if ( (sscanf(buffer, "%[^ \t\n]", client) != 1) || !*client )
+		continue;
 
 	    if ( sscanf(buffer+strlen(client), "%d", &ecluster) != 1 ) {
 		cluster++;
 	    } else {
 		cluster = ecluster;
 	    }
-            
+
 	    __pmNotifyErr(LOG_INFO, "%s: mmv client %d - \"%s\"",
 			  pmProgname, cluster, client);
-                
-            if ( strchr (client, sep) == NULL ) {
+
+	    if ( strchr (client, sep) == NULL ) {
 	        sprintf (path, "%s%c%s", statsdir, sep, client);
-            } else {
-                strcpy (path, client);
-            }
+	    } else {
+		strcpy (path, client);
+	    }
 
 	    if (stat(path, &statbuf) >= 0 && S_ISREG(statbuf.st_mode) ) {
 		int fd;
-               
+
 		if ((fd = open(path, O_RDONLY)) >= 0) {
 		    void *m = __pmMemoryMap(fd, statbuf.st_size, 0);
 		    if (m == NULL) {
@@ -198,7 +198,7 @@ map_stats(void)
 				      pmProgname, client,
 				      strerror(errno));
 			close (fd);
-                    } else {
+		    } else {
 			mmv_stats_hdr_t * hdr = (mmv_stats_hdr_t *)m;
 			int s;
 
@@ -207,15 +207,15 @@ map_stats(void)
 			    close (fd);
 			    continue;
 			}
-                        
-                        if ( hdr->version != MMV_VERSION_0 ) {
+
+			if ( hdr->version != MMV_VERSION_0 ) {
 				close (fd);
 				__pmNotifyErr(LOG_ERR, 
 					      "%s: mmv client version %d "
-                                              "not supported",
+					      "not supported",
 					      pmProgname, hdr->version);
 				continue;
-                        }
+			}
 
 			if ( !hdr->g1 || hdr->g1 != hdr->g2 ) {
 			    /* Daemon is messing with us - give it a
@@ -239,7 +239,7 @@ map_stats(void)
 
 			    }
 			}
-                        
+
 			for (s=0; s < scnt; s++ ) {
 			    if (!strcmp(slist[s].name, client)) {
 				__pmNotifyErr(LOG_ERR, 
@@ -276,12 +276,12 @@ map_stats(void)
 		    __pmNotifyErr(LOG_ERR, 
 				  "%s: failed to open client file \"%s\" - %s",
 			          pmProgname, client, strerror(errno));
-                }
+		}
 	    } else {
 		__pmNotifyErr(LOG_ERR, 
 			      "%s: failed to stat client file \"%s\" - %s",
 			      pmProgname, client, strerror(errno));
-            }
+	    }
 	}
 
 	fputs ("}\n", f);
@@ -316,11 +316,11 @@ map_stats(void)
 			    metrics[mcnt].m_user = ml+k;
 			    metrics[mcnt].m_desc.pmid = 
 				PMDA_PMID(s->cluster,k);
-                            
+
 			    if ( ml[k].type == MMV_ENTRY_INTEGRAL ) {
     			        metrics[mcnt].m_desc.sem = PM_SEM_COUNTER;
 				metrics[mcnt].m_desc.type = MMV_ENTRY_I64;
-                            } else if ( ml[k].type == MMV_ENTRY_DISCRETE ) {
+			    } else if ( ml[k].type == MMV_ENTRY_DISCRETE ) {
 			        metrics[mcnt].m_desc.sem = PM_SEM_DISCRETE;
 				metrics[mcnt].m_desc.type = MMV_ENTRY_I64;
 			    } else {
@@ -384,7 +384,7 @@ map_stats(void)
 		    s->vcnt = toc[j].cnt;
 		    s->values = (mmv_stats_value_t *)((char *)s->addr + 
 						     toc[j].offset);
-                    s->extra = (__int64_t*)malloc(s->vcnt*sizeof(__int64_t));
+		    s->extra = (__int64_t*)malloc(s->vcnt*sizeof(__int64_t));
 		    if (!s->extra) {
 			__pmNotifyErr(LOG_ERR, 
 				      "%s: cannot get memory for values",
@@ -393,7 +393,7 @@ map_stats(void)
 		    } else {
 			int k;
 			for (k=0; k<s->vcnt; k++)
-			    s->extra[k]=-1;
+			    s->extra[k] = -1;
 		    }
 		    break;
 		}
@@ -478,7 +478,7 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    int i;
 
 		    /* There is no direct mapped instances, so we have
-                     * to search */
+		     * to search */
 		    for ( i=0; i < s->vcnt; i++ ) {
 			mmv_stats_metric_t * mt = 
 			    (mmv_stats_metric_t *)((char *)s->addr + 
@@ -516,19 +516,19 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				    val[i].extra*(tv.tv_sec*1e6 + tv.tv_usec);
 				break;
 			    case MMV_ENTRY_DISCRETE: {
-                                __int64_t new = val[i].val.i64; 
-                                __int64_t old = s->extra[i];
-                                
-                                s->extra[i]=new;
-                                
-                                if (old<0) {
-                                    return PM_ERR_AGAIN;
-                                } else {
-                                    atom->ll = new-old;
-                                    if (atom->ll < 0) 
-                                        return PM_ERR_CONV;
-                                }
-                                break;
+				__int64_t new = val[i].val.i64; 
+				__int64_t old = s->extra[i];
+
+				s->extra[i] = new;
+
+				if (old < 0) {
+				    return PM_ERR_AGAIN;
+				} else {
+				    atom->ll = new - old;
+				    if (atom->ll < 0) 
+					return PM_ERR_CONV;
+				}
+				break;
 			    }
 			    case MMV_ENTRY_NOSUPPORT:
 				return PM_ERR_APPVERSION;
@@ -557,7 +557,7 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
-mmv_reload_maybe (void)
+mmv_reload_maybe (int notready)
 {
     int i;
     struct stat s;
@@ -566,21 +566,21 @@ mmv_reload_maybe (void)
     /* check if any of the generation numbers have changed (unexpected) */
     for ( i=0; i < scnt; i++ ) {
 	if (slist[i].hdr->g1!=slist[i].gen || slist[i].hdr->g2!=slist[i].gen) {
-            need_reload++;
-            break;
-        }
+	    need_reload++;
+	    break;
+	}
     }
     
     /* check if the mmv.conf has been modified */
     if ( stat (confpath, &s) >= 0 && s.st_ctime != conf_ts ) {
-        need_reload++;
-        conf_ts = s.st_ctime;
+	need_reload++;
+	conf_ts = s.st_ctime;
     }
     
     /* check if the directory has been modified */
     if ( stat (statsdir, &s) >= 0 && s.st_ctime != statsdir_ts ) {
-        need_reload++;
-        statsdir_ts = s.st_ctime;
+	need_reload++;
+	statsdir_ts = s.st_ctime;
     }
 
     if ( need_reload ) {
@@ -588,8 +588,9 @@ mmv_reload_maybe (void)
 	int m;
 	pmdaExt * pmda = dispatch.version.two.ext; /* I know it V.2 */
 
-	__pmSendError(pmda->e_outfd, PDU_BINARY, PM_ERR_PMDANOTREADY);
-  	__pmNotifyErr(LOG_INFO, "%s: reloading", pmProgname);
+	if (notready)
+	    __pmSendError(pmda->e_outfd, PDU_BINARY, PM_ERR_PMDANOTREADY);
+	__pmNotifyErr(LOG_INFO, "%s: reloading", pmProgname);
 
 	map_stats();
 
@@ -640,51 +641,38 @@ mmv_reload_maybe (void)
 static int
 mmv_desc (pmID pmid, pmDesc *desc, pmdaExt *ep)
 {
-    /* mmv.reload is special, and the descriptior is always available */
-    if ( pmid != metrics[0].m_desc.pmid && mmv_reload_maybe () ) {
-	return PM_ERR_PMDAREADY;
-    } else {
-	return pmdaDesc (pmid, desc, ep);
-    }
+    if (pmid != metrics[0].m_desc.pmid)		/* mmv.reload is special */
+	mmv_reload_maybe (0);
+    return pmdaDesc (pmid, desc, ep);
 }
 
 /* Same as mmv_desc - intercept and reload_maybe */
 static int
 mmv_text(int ident, int type, char **buffer, pmdaExt *ep)
 {
-    if ( mmv_reload_maybe () ) {
-	return PM_ERR_PMDAREADY;
-    } else {
-	return pmdaText (ident, type, buffer, ep);
-    }
+    mmv_reload_maybe (0);
+    return pmdaText (ident, type, buffer, ep);
 }
 
 static int
 mmv_instance(pmInDom indom, int inst, char *name, 
 	     __pmInResult **result, pmdaExt *ep)
 {
-    if ( mmv_reload_maybe () ) {
-	return PM_ERR_PMDAREADY;
-    } else {
-	return pmdaInstance (indom, inst, name, result, ep);
-    }
+    mmv_reload_maybe (0);
+    return pmdaInstance (indom, inst, name, result, ep);
 }
 
 static int
 mmv_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    if (mmv_reload_maybe ()) {
-	return PM_ERR_PMDAREADY;
-    } else {
-        /* all ok - go fetch */
-        return pmdaFetch(numpmid, pmidlist, resp, pmda);
-    }
+    mmv_reload_maybe (0);
+    return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
 static int
 mmv_store(pmResult *result, pmdaExt *ep)
 {
-    if ( mmv_reload_maybe () ) {
+    if ( mmv_reload_maybe (1) ) {
 	return PM_ERR_PMDAREADY;
     } else {
 	int i;
@@ -776,7 +764,7 @@ main(int argc, char **argv)
 
     if ( (pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err) != EOF) || 
 	err || argc != optind ) {
-        usage();
+	usage();
     }
 
     pcptmpdir = pmGetConfig ("PCP_TMP_DIR");
