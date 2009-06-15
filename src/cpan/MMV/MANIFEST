@@ -1,0 +1,8 @@
+Changes
+COPYING
+Makefile.PL
+MANIFEST
+MMV.pm
+MMV.xs
+test.pl
+typemap

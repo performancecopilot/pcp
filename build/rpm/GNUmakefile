@@ -46,6 +46,10 @@ ifneq "$(CPANFLUTE)" ""
 		--noperlreqs --release=1 --outdir=$(TOPDIR)/build/rpm \
 		--descfile=pcp-logsummary-perl.desc --buildrequires=pcp \
 		--buildall $(TOPDIR)/src/cpan/LogSummary/PCP-LogSummary-*.tar.gz
+	$(CPANFLUTE) --email="$(PACKAGE_BUILDER)" \
+		--noperlreqs --release=1 --outdir=$(TOPDIR)/build/rpm \
+		--descfile=pcp-mmv-perl.desc --buildrequires=pcp \
+		--buildall $(TOPDIR)/src/cpan/PMDA/PCP-MMV-*.tar.gz
 endif
 
 rpmmacros : macros.template

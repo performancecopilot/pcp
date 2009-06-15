@@ -199,3 +199,18 @@ Description: Performance Co-Pilot historical log summary module
  all of the interesting performance data in a system, and allows
  client applications to easily retrieve and process any subset of
  that data.
+
+Package: libpcp-mmv-perl
+Section: perl
+Priority: optional
+Architecture: any
+Depends: ${perl:Depends}, ${shlibs:Depends}, libpcp-mmv1
+Description: Performance Co-Pilot Memory Mapped Value Perl module
+ The PCP::MMV module contains the Perl language bindings for
+ building scripts instrumented with the Performance Co-Pilot
+ (PCP) Memory Mapped Value (MMV) mechanism.
+ .
+ This mechanism allows arbitrary values to be exported from an
+ instrumented script into the PCP infrastructure for monitoring
+ and analysis with pmchart, pmie, pmlogger and other PCP tools.
+
