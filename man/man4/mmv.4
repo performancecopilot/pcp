@@ -43,7 +43,11 @@ _
 _
 24	4	Number of TOC entries
 _
-28	4	Zero pad
+28	4	Flags
+_
+32	4	Process identifier
+_
+34	4	Cluster identifier
 .TE
 .PP
 followed by at least 2 TOC sections: one section for metrics and
@@ -84,13 +88,21 @@ Offset	Length	Value
 _
 0	64	Metric Name
 _
-64	4	Metric Type (see \f2mmv_stats.h\f1)
+64	4	Metric Item (see \f2PMDA\f1(3))
 _
-68	4	Instance Domain ID (\-1 no instances)
+68	4	Metric Type (see \f2mmv_stats.h\f1)
 _
-72	4	Dimensions (see \f2PMAPI\f1(3))
+72	4	Semantics (see \f2PMAPI\f1(3))
 _
-76	4	Semantics (see \f2PMAPI\f1(3))
+76	4	Dimensions (see \f2PMAPI\f1(3))
+_
+80	4	Instance Domain ID (\-1 no instances)
+_
+84	4	Unused padding (zero filled)
+_
+88	8	Short help text offset
+_
+96	8	Long help text offset
 .TE
 .PP
 The entries in the Values section have the following format:
@@ -106,7 +118,7 @@ _
 _
 16	8	\f3pmAtom\f1 value (see \f2PMAPI\f1(3))
 _
-24	8	Extra space for DISCRETE and INTEGRAL
+24	8	Extra space for STRING and INTEGRAL
 .TE
 .PP
 The entries in the Instances section have the following format:

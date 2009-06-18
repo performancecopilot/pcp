@@ -21,7 +21,7 @@
 #include <pcp/mmv_stats.h>
 .sp
 .nf
-void * mmv_stats_init(const char *name, const mmv_stats_t *stats, int nstats);
+void * mmv_stats_init(const char *name, const mmv_stats_t *stats, int nstats, mmv_stats_flags_t flags, int cluster);
 .fi
 .sp
 cc ... \-lpcp_mmv
@@ -33,7 +33,6 @@ cc ... \-lpcp_mmv
 .P
 The file is created in the $PCP_TMP_DIR/mmv directory, \f2name\f1
 argument is expected to be just a name of the file, not the full path.
-The file is only created if it is mentioned in the \f3mmv.conf\f1 file.
 The metadata content of the file does not change after the file has
 been created. 
 .P
@@ -44,12 +43,16 @@ The old file is removed unconditionally unless there was an error.
 .P
 .nf
         typedef struct mmv_stats_s {
-            char name[MMV_NAMEMAX];   /* Name of the metric */
-            mmv_metric_type_t type;   /* Type of the metric */
-            mmv_stats_inst_t *indom;  /* Array of mmv_stats_inst_t,
-                                       * terminated by internal=-1 
-                                       * or external=NULL */
-            pmUnits dimension;        /* Dimensions (TIME, SPACE, etc) */
+            char name[MMV_NAMEMAX];     /* Name of the metric */
+            __uint32_t item;            /* Item component of PMID */
+            mmv_metric_type_t type;     /* Type of the metric */
+            mmv_metric_sem_t semantics; /* Semantics of the metric */
+            pmUnits dimension;          /* Dimensions (TIME, SPACE, etc) */
+            mmv_stats_inst_t *indom;    /* Array of mmv_stats_inst_t,
+                                         * terminated by internal=-1 
+                                         * or external=NULL */
+            char *shorttext;            /* Optional, one-line help */
+            char *helptext;             /* Optional, full help text */
 	} mmv_stats_t;
 .fi
 .P

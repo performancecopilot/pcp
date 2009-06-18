@@ -11,8 +11,10 @@ require PCP::PMDA;
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(
     MMV_ENTRY_NOSUPPORT
-    MMV_ENTRY_I32 MMV_ENTRY_U32 MMV_ENTRY_I64 MMV_ENTRY_U64
-    MMV_ENTRY_FLOAT MMV_ENTRY_DOUBLE MMV_ENTRY_INTEGRAL MMV_ENTRY_DISCRETE
+    MMV_ENTRY_I32 MMV_ENTRY_U32
+    MMV_ENTRY_I64 MMV_ENTRY_U64
+    MMV_ENTRY_FLOAT MMV_ENTRY_DOUBLE
+    MMV_ENTRY_STRING MMV_ENTRY_INTEGRAL
     MMV_SEM_COUNTER MMV_SEM_INSTANT MMV_SEM_DISCRETE
 );
 @EXPORT_OK = qw();
@@ -25,8 +27,8 @@ sub MMV_ENTRY_I64	{ 2; }		# 64-bit signed integer
 sub MMV_ENTRY_U64	{ 3; }		# 64-bit signed integer
 sub MMV_ENTRY_FLOAT	{ 4; }		# 32-bit floating point
 sub MMV_ENTRY_DOUBLE	{ 5; }		# 64-bit floating point
+sub MMV_ENTRY_STRING	{ 6; }		# null-terminated string
 sub MMV_ENTRY_INTEGRAL	{ 10; }		# timestamp & number of outstanding
-sub MMV_ENTRY_DISCRETE	{ 11; }		# count & previous count
 
 sub MMV_SEM_COUNTER	{ 1; }		# cumulative counter, monotonic increasing
 sub MMV_SEM_INSTANT	{ 3; }		# instantaneous value, continuous domain

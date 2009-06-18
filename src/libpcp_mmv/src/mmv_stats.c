@@ -25,47 +25,6 @@ typedef struct {
     int ninst;
 } indom_t;
 
-static int
-mmv_active(const char *fname)
-{
-    static int initialised;
-    char confpath[MAXPATHLEN];
-    char buffer[MAXPATHLEN];
-    char client[MAXPATHLEN];
-    FILE *conf;
-    int active = 0;
-
-    if (!initialised) {
-	int sep = __pmPathSeparator();
-	sprintf(confpath, "%s%c" "mmv" "%c" "mmv.conf",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	initialised = 1;
-    }
-
-    conf = fopen(confpath, "r");
-    if (!conf) {
-	errno = ENOENT;
-	return 0;
-    }
-
-    while ((fgets(buffer, sizeof(buffer)-1, conf)) != NULL) {
-	char *p = strchr(buffer,'#');	/* strip comments */
-	if (p)
-	    *p = '\0';
-	if ((sscanf(buffer, "%[^ \t\n]", client) != 1) || !*client)
-	    continue;
-	if (!strcmp(client, fname)) {
-	    active++;
-	    break;
-	}
-    }
-    fclose(conf);
-
-    if (!active)
-	errno = ESRCH;
-    return active;
-}
-
 static void *
 mmv_mapping(const char *fname, size_t size)
 {
@@ -98,22 +57,42 @@ finish:
     return addr;
 }
 
+static __uint64_t
+mmv_string(void *addr, int tocindex, int strindex, __uint64_t values_offset, char *data)
+{
+    mmv_stats_toc_t *	toc;
+    mmv_stats_string_t	*str;
+    __uint64_t		string_offset;
+
+    toc = (mmv_stats_toc_t *)((char *)addr + sizeof(mmv_stats_hdr_t)) + tocindex;
+    string_offset = values_offset + strindex * sizeof(mmv_stats_string_t);
+
+    toc->typ = MMV_TOC_STRING;
+    toc->cnt = 1;
+    toc->offset = string_offset;
+
+    if (data) {		/* optional initial value (help text) */
+	str = (mmv_stats_string_t *)((char *)addr + string_offset);
+	strncpy(str->payload, data, MMV_STRINGMAX);
+    }
+    return string_offset;
+}
+
 void * 
-mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats)
+mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats, mmv_stats_flags_t fl, int cl)
 {
     mmv_stats_metric_t *mlist;
-    mmv_stats_value_t *val;
+    mmv_stats_value_t *vlist;
     mmv_stats_hdr_t *hdr;
     mmv_stats_toc_t *toc;
+    __uint64_t soffset;
     __uint64_t offset;
     indom_t *indoms;
     void *addr;
-    int i, sz;
+    int i, j, sz, tocidx;
+    int nstrings = 0;
+    int nvalues = 0;
     int nindoms = 0;
-    int vcnt = 0;
-
-    if (mmv_active(fname) == 0)
-	return NULL;
 
     mlist = (mmv_stats_metric_t *)calloc(nstats, sizeof(mmv_stats_metric_t));
     if (mlist == NULL)
@@ -125,7 +104,7 @@ mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats)
 
     for (i = 0; i < nstats; i++) {
 	if ((st[i].type < MMV_ENTRY_NOSUPPORT) || 
-	    (st[i].type > MMV_ENTRY_DISCRETE) ||
+	    (st[i].type > MMV_ENTRY_INTEGRAL) ||
 	    (strlen(st[i].name) == 0)) {
 	    free(mlist);
 	    free(indoms);
@@ -133,19 +112,23 @@ mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats)
 	}
 
 	strcpy(mlist[i].name, st[i].name);
+	mlist[i].item = st[i].item;
 	mlist[i].type = st[i].type;
 	mlist[i].dimension = st[i].dimension;
 	mlist[i].semantics = st[i].semantics;
 	if (st[i].semantics != MMV_SEM_INSTANT && st[i].semantics != MMV_SEM_DISCRETE)
 	    mlist[i].semantics = MMV_SEM_COUNTER;
 
+	if (st[i].helptext)
+	    nstrings++;
+	if (st[i].shorttext)
+	    nstrings++;
+
 	if (st[i].indom != NULL) {
 	    /* Lookup an indom */
-	    int j;
-
 	    for (j = 0; j < nindoms; j++) {
 		if (indoms[j].inst == st[i].indom) {
-		    vcnt += indoms[j].ninst;
+		    sz = indoms[j].ninst;
 		    mlist[i].indom = j;
 		    break;
 		}
@@ -158,16 +141,21 @@ mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats)
 		for (j = 0; st[i].indom[j].internal != -1; j++)
 		    indoms[nindoms].ninst++;
 
-		vcnt += indoms[nindoms].ninst;
+		sz = indoms[nindoms].ninst;
 		mlist[i].indom = nindoms++;
 	    }
+	    if (mlist[i].type == MMV_ENTRY_STRING)
+		nstrings += sz;
+	    nvalues += sz;
 	} else {
 	    mlist[i].indom = -1;
-	    vcnt++;
+	    if (mlist[i].type == MMV_ENTRY_STRING)
+		nstrings++;
+	    nvalues++;
 	}
     }
 
-    if (vcnt == 0) {
+    if (nvalues == 0) {
 	free(mlist);
 	free(indoms);
 	return NULL;
@@ -177,7 +165,7 @@ mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats)
      * nindoms instance lists plus metric list and value list
      */
     sz = ROUNDUP_64(sizeof(mmv_stats_hdr_t) + 
-		    sizeof(mmv_stats_toc_t) * (nindoms+2));
+		    sizeof(mmv_stats_toc_t) * (nindoms + nstrings + 2));
 
     /* Size of all indoms */
     for (i = 0; i < nindoms; i++)
@@ -187,7 +175,10 @@ mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats)
     sz += ROUNDUP_64(nstats * sizeof(mmv_stats_metric_t));
 
     /* Size of values list */
-    sz += vcnt * sizeof(mmv_stats_value_t);
+    sz += nvalues * sizeof(mmv_stats_value_t);
+
+    /* Size of all string sections (values, short/long help text) */
+    sz += nstrings * sizeof(mmv_stats_string_t);
 
     if ((addr = mmv_mapping(fname, sz)) == NULL) {
 	free(mlist);
@@ -198,67 +189,80 @@ mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats)
     hdr = (mmv_stats_hdr_t *) addr;
     toc = (mmv_stats_toc_t *)((char *)addr + sizeof(mmv_stats_hdr_t));
     offset = ROUNDUP_64(sizeof(mmv_stats_hdr_t) + 
-			(nindoms + 2) * sizeof(mmv_stats_toc_t));
+			(nindoms + nstrings + 2) * sizeof(mmv_stats_toc_t));
 
-    /* We clobber stat file uncondtionally on each restart -
-     * it's easier this way and pcp can deal with counter
-     * wraps by itself
+    /* We unconditionally clobber the stat file on each restart -
+     * easier this way and the clients deal with counter wraps.
      */
     memset(hdr, 0, sizeof(mmv_stats_hdr_t));
-    strcpy(hdr->magic, "MMV");
+    strncpy(hdr->magic, "MMV", 4);
     hdr->version = MMV_VERSION;
     hdr->g1 = (__uint64_t) time(NULL);
-    hdr->tocs = nindoms+2;
+    hdr->tocs = nindoms + nstrings + 2;
+    hdr->flags = fl;
+    hdr->cluster = cl;
+    hdr->process = getpid();
 
-    for (i = 0; i < nindoms; i++) {
-	toc[i].typ = MMV_TOC_INDOM;
-	toc[i].cnt = indoms[i].ninst;
-	toc[i].offset = offset;
+    for (tocidx = 0; tocidx < nindoms; tocidx++) {
+	toc[tocidx].typ = MMV_TOC_INDOM;
+	toc[tocidx].cnt = indoms[tocidx].ninst;
+	toc[tocidx].offset = offset;
 
-	memcpy((char *)addr + offset, indoms[i].inst, 
-		sizeof(mmv_stats_inst_t) * indoms[i].ninst);
+	memcpy((char *)addr + offset, indoms[tocidx].inst, 
+		sizeof(mmv_stats_inst_t) * indoms[tocidx].ninst);
 
-	offset += sizeof(mmv_stats_inst_t) * indoms[i].ninst;
+	offset += sizeof(mmv_stats_inst_t) * indoms[tocidx].ninst;
 	offset = ROUNDUP_64(offset);
     }
 
-    toc[i].typ = MMV_TOC_METRICS;
-    toc[i].cnt = nstats;
-    toc[i].offset = offset;
+    toc[tocidx].typ = MMV_TOC_METRICS;
+    toc[tocidx].cnt = nstats;
+    toc[tocidx].offset = offset;
 
-    memcpy((char *)addr + offset, mlist,  
-	    sizeof(mmv_stats_metric_t) * nstats);
+    memcpy((char *)addr + offset, mlist,  sizeof(mmv_stats_metric_t) * nstats);
 
     offset += sizeof(mmv_stats_metric_t) * nstats;
     offset = ROUNDUP_64(offset);
 
-    i++;
+    tocidx++;
 
-    toc[i].typ = MMV_TOC_VALUES;
-    toc[i].cnt = vcnt;
-    toc[i].offset = offset;
+    toc[tocidx].typ = MMV_TOC_VALUES;
+    toc[tocidx].cnt = nvalues;
+    toc[tocidx].offset = offset;
 
-    val = (mmv_stats_value_t *)((char *)addr + offset);
+    vlist = (mmv_stats_value_t *)((char *)addr + offset);
+    soffset = offset + nvalues * sizeof(mmv_stats_value_t);
 
-    for (--vcnt, i = 0; i < nstats; i++) {
+    for (--nvalues, i = 0; i < nstats; i++) {
+	__uint64_t moffset = toc[nindoms].offset + i * sizeof(mmv_stats_metric_t);
+	mmv_stats_metric_t *mp = addr + moffset;
+	mmv_stats_value_t *value;
+
 	if (st[i].indom == NULL) {
-	    memset(val+vcnt, 0, sizeof(mmv_stats_value_t));
-
-	    val[vcnt].metric = 
-		toc[nindoms].offset + i * sizeof(mmv_stats_metric_t);
-	    val[vcnt--].instance = -1;
+	    value = &vlist[nvalues];
+	    memset(value, 0, sizeof(mmv_stats_value_t));
+	    value->metric = moffset;
+	    value->instance = -1;
+	    if (st[i].type == MMV_ENTRY_STRING)
+		value->extra = mmv_string(addr, ++tocidx, --nstrings, soffset, NULL);
+	    nvalues--;
 	} else {
 	    int j, idx = mlist[i].indom;
 
 	    for (j = indoms[idx].ninst - 1; j >= 0; j-- ) {
-		memset(val+vcnt, 0, sizeof(mmv_stats_value_t));
-
-		val[vcnt].metric = 
-		    toc[nindoms].offset + i * sizeof(mmv_stats_metric_t);
-		val[vcnt--].instance = 
-		    toc[idx].offset + j * sizeof(mmv_stats_inst_t);
+		value = &vlist[nvalues];
+		memset(value, 0, sizeof(mmv_stats_value_t));
+		value->metric = moffset;
+		value->instance = toc[idx].offset + j * sizeof(mmv_stats_inst_t);
+		if (st[i].type == MMV_ENTRY_STRING)
+		    value->extra = mmv_string(addr, ++tocidx, --nstrings, soffset, NULL);
+		nvalues--;
 	    }
 	}
+	if (st[i].shorttext)
+	    mp->shorttext = mmv_string(addr, ++tocidx, --nstrings, soffset, st[i].shorttext);
+	if (st[i].helptext)
+	    mp->helptext = mmv_string(addr, ++tocidx, --nstrings, soffset, st[i].helptext);
     }
 
     hdr->g2 = hdr->g1; /* Unlock the header - PMDA can read now */
@@ -327,8 +331,6 @@ mmv_inc_value(void *addr, mmv_stats_value_t *v, double inc)
 	case MMV_ENTRY_U32:
 	    v->val.u32 += (__uint32_t)inc;
 	    break;
-	case MMV_ENTRY_DISCRETE:
-            /* fall-through */
 	case MMV_ENTRY_I64:
 	    v->val.i64 += (__int64_t)inc;
 	    break;
@@ -350,6 +352,22 @@ mmv_inc_value(void *addr, mmv_stats_value_t *v, double inc)
 	    break;
 	default:
 	    break;
+	}
+    }
+}
+
+void
+mmv_set_string(void *addr, mmv_stats_value_t *v, const char *string, int size)
+{
+    if (v != NULL && addr != NULL && string != NULL) {
+	__uint64_t		soffset = v->extra;
+	mmv_stats_metric_t *	m = (mmv_stats_metric_t *)((char *)addr + v->metric);
+	mmv_stats_string_t	*str;
+    
+	if (m->type == MMV_ENTRY_STRING && size >= 0 && size < MMV_STRINGMAX-1) {
+	    str = (mmv_stats_string_t *)((char *)addr + soffset);
+	    strncpy(str->payload, string, size + 1);
+	    v->val.i32 = size;
 	}
     }
 }
