@@ -29,16 +29,16 @@ main (int argc, char * argv[])
 		(mmv_stats_toc_t *)((char *)addr + sizeof (mmv_stats_hdr_t));
 
 	    if ( strcmp (hdr->magic, "MMV") ) {
-		puts ("Not an MMV-kosher file\n");
+		printf ("Bad magic: %c%c%c\n", hdr->magic[0], hdr->magic[1], hdr->magic[2]);
 		return 0;
 	    } else {
 		printf ("Version    = %d\n", hdr->version);
 		printf ("Generated  = %s", ctime ((time_t *)&hdr->g1));
 	    }
-            if (hdr->version != MMV_VERSION) {
-                printf ("version %d not supported\n", hdr->version);
-                return 0;
-            }
+	    if (hdr->version != MMV_VERSION) {
+		printf ("version %d not supported\n", hdr->version);
+		return 0;
+	    }
 
 	    for ( i=0; i < hdr->tocs; i++ ) {
 		if ( toc[i].typ ==  MMV_TOC_VALUES ) {
@@ -48,13 +48,14 @@ main (int argc, char * argv[])
 
 		    printf ("Dumping %d values ... \n", toc[i].cnt);
 		    for ( j=0; j < toc[i].cnt; j++ ) {
+			mmv_stats_string_t * string;
 			mmv_stats_metric_t * m = 
 			    (mmv_stats_metric_t *)((char *)addr + 
 						  vals[j].metric);
 			mmv_stats_inst_t * indom =
 			    (mmv_stats_inst_t *)((char *)addr + 
 						 vals[j].instance);
-			printf ("%s", m->name);
+			printf ("[%u] %s", m->item, m->name);
 
 			if ( m->indom >= 0 ) {
 			    printf ("[%d or \"%s\"]",
@@ -72,20 +73,16 @@ main (int argc, char * argv[])
 			    printf (" = %lld", (long long)vals[j].val.i64);
 			    break;
 			case MMV_ENTRY_INTEGRAL: {
-                            struct timeval tv;
-                            long long t;
-                            
-                            gettimeofday (&tv, NULL);
-                            t = vals[j].val.i64 +
-                                vals[j].extra*(tv.tv_sec*1e6 + tv.tv_usec);
-                            
+			    struct timeval tv;
+			    long long t;
+			    
+			    gettimeofday (&tv, NULL);
+			    t = vals[j].val.i64 +
+				vals[j].extra*(tv.tv_sec*1e6 + tv.tv_usec);
+			    
 			    printf (" = %lld", t);
 			    break;
-                        }
-			case MMV_ENTRY_DISCRETE: {
-			    printf (" = %lld (cumulative)", (long long)vals[j].val.i64);
-			    break;
-                        }
+			}
 			case MMV_ENTRY_U64:
 			    printf (" = %llu", (unsigned long long)vals[j].val.u64);
 			    break;
@@ -95,10 +92,37 @@ main (int argc, char * argv[])
 			case MMV_ENTRY_DOUBLE:
 			    printf (" = %lf", vals[j].val.d);
 			    break;
+			case MMV_ENTRY_STRING:
+			    string = (mmv_stats_string_t *)((char *)addr + vals[j].extra);
+			    printf (" = \"%s\"", string->payload);
+			    break;
 			default:
 			    printf ("Unknown type %d", m->type);
 			}
 			putchar ('\n');
+		    }
+		}
+		if (toc[i].typ == MMV_TOC_METRICS) {
+		    int j;
+		    mmv_stats_string_t * string;
+		    mmv_stats_metric_t * base = (mmv_stats_metric_t *)
+					((char *)addr + toc[i].offset);
+
+		    printf ("Dumping help text ... \n");
+
+		    for (j = 0; j < toc[i].cnt; j++) {
+			mmv_stats_metric_t * m = base + j;
+
+			if (m->shorttext) {
+			    string = (mmv_stats_string_t *)
+					((char *)addr + m->shorttext);
+			    printf ("[%u] %s - %s\n", m->item, m->name, string->payload);
+			}
+			if (m->helptext) {
+			    string = (mmv_stats_string_t *)
+					((char *)addr + m->helptext);
+			    printf ("[%u] %s\n%s\n", m->item, m->name, string->payload);
+			}
 		    }
 		}
 	    }
