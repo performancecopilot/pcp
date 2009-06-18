@@ -89,7 +89,7 @@ mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats, mmv_stats_f
     __uint64_t offset;
     indom_t *indoms;
     void *addr;
-    int i, j, sz, tocidx;
+    int i, j, sz = 0, tocidx;
     int nstrings = 0;
     int nvalues = 0;
     int nindoms = 0;

@@ -114,7 +114,7 @@ mmv_handle(name,stats)
     CODE:
 	count = av_len(stats);
 	array = new_stats(stats, count);
-	RETVAL = mmv_stats_init(name, array, count);
+	RETVAL = mmv_stats_init(name, array, count, 0, 0);
 	free(array);
 	if (!RETVAL)
 	    XSRETURN_UNDEF;
