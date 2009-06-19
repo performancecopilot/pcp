@@ -387,175 +387,39 @@ multiread:
     }
 }
 
-/* Create a root for a local filesystem namespace tree */
-char *
-local_pmns_root(void)
-{
-    static char pmnspath[256];
-
-    snprintf(pmnspath, sizeof(pmnspath), "%s%c" "pmns",
-		pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator());
-    rmdir(pmnspath);
-    if (mkdir2(pmnspath, 0755) == 0)
-	return pmnspath;
-    return NULL;
-}
-
 static void
-lchdir(const char *path)
+local_pmns_path(__pmnsNode *base, FILE *f)
 {
-    /* debug hook */
-    if (chdir(path) == -1)
-	__pmNotifyErr(LOG_ERR, "chdir(%s) failed: %s", path, strerror(errno));
-}
-
-/*
- * Split "metric" up based on "." separators - for non-leaf nodes create a
- * directory, for each leaf node we create a regular file containing the PMID.
- */
-int
-local_pmns_split(const char *root, const char *metric, const char *pmid)
-{
-    char *p, *path, mypmid[32] = { 0 }, mymetric[256] = { 0 };
-    int fd;
-
-    /* Take copies, so we don't risk scribbling on Perl strings */
-    strncpy(mymetric, metric, sizeof(mymetric)-1);
-    strncpy(mypmid, pmid, sizeof(mypmid)-1);
-
-    /* Replace '.' with ':' in our local pmid string */
-    p = mypmid;
-    while ((p = (char *)index(p, '.')))
-	*p++ = ':';
-
-    mkdir2(root, 0777);
-    lchdir(root);
-    p = strtok(mymetric, ".");
-    do {
-	path = p;
-	p = strtok(NULL, ".");
-	if (p) {
-	    mkdir2(path, 0777);
-	    lchdir(path);
-	} else {
-	    fd = open(path, O_WRONLY|O_CREAT|O_EXCL, 0644);
-	    if (write(fd, mypmid, strlen(mypmid)) != strlen(mypmid))
-		__pmNotifyErr(LOG_ERR, "mypmid write(,%s,) failed: %s",
-				mypmid, strerror(errno));
-	    close(fd);
-	}
-    } while (p);
-    return 0;
-}
-
-static char *
-local_pmns_path(const char *root)
-{
-    static int offset;
-    static char path[MAXPATHLEN];
-    int sep = __pmPathSeparator();
-    char *p, *s;
-
-    p = getcwd(path, sizeof(path));
-    if (!offset) {		/* first call, we're at the root */
-	offset = strlen(root);
-	return NULL;
+    if (base && base->parent) {
+	local_pmns_path(base->parent, f);
+	fprintf(f, "%s.", base->name);
     }
-    p += offset + 1;		/* move past the tmpdir prefix */
-    for (s = p; *s; s++)	/* replace path-pmns separator */
-	if (*s == sep)
-	    *s = '.';
-    return p;
 }
 
 /*
  * Print out all entries at the current level, including leaf nodes
- * (with PMIDs) then recursively descend into subtrees.  Use chdir
- * and getcwd to avoid building up the path at each step of the way.
+ * (with PMIDs) then recursively descend into subtrees.
  */
-int
-local_pmns_write(const char *path)
+void
+local_pmns_write(__pmnsNode *base, FILE *f)
 {
-    struct dirent **list;
-    struct stat sbuf;
-    char *p, *pmns, pmid[32];
-    int i, fd, num;
+    __pmnsNode *np;
 
-    lchdir(path);
-    p = pmns = local_pmns_path(path);
-    if (p != NULL)
-	printf("%s {\n", local_pmns_path(p));
-    else if (strcmp(getenv("PCP_PERL_PMNS"), "root") == 0) {
-	pmns = "root";
-	printf("%s {\n", pmns);
-    }
+    /* Print out full path to this part of the tree */
+    local_pmns_path(base->parent, f);
+    fprintf(f, "%s {\n", base->name);
 
-    num = scandir(".", &list, NULL, NULL);
-    for (i = 0; i < num; i++) {
-	p = list[i]->d_name;
-	if (*p == '.')
-	    goto clobber;
-	if (stat(p, &sbuf) != 0)
-	    return -1;
-	if (S_ISDIR(sbuf.st_mode)) {
-	    if (pmns)
-		printf("\t%s\n", p);
-	    continue;	/* directories are not clobbered, descend later */
-	}
-	else {
-	    fd = open(p, O_RDONLY);
-	    memset(pmid, 0, sizeof(pmid));
-	    if (read(fd, pmid, sizeof(pmid)-1) < 0)
-		return -1;
-	    close(fd);
-	    printf("\t%s\t\t%s\n", p, pmid);
-	}
-clobber:	/* overwrite entries we are done with */
-	*p = '\0';
-    }
-    if (pmns)
-	printf("}\n\n");
-
-    for (i = 0; i < num; i++) {
-	p = list[i]->d_name;
-	if (*p) {
-	    if (local_pmns_write(p) < 0)
-		return -1;
-	    lchdir("..");
-	}
-	free(list[i]);
-    }
-    free(list);
-    return 0;
-}
-
-/*
- * Walk the tree depth-first, unlink files, rmdir directories (cleanup)
- */
-int
-local_pmns_clear(const char *root)
-{
-    struct dirent **list;
-    struct stat sbuf;
-    int i, num;
-    char *p;
-
-    lchdir(root);
-    num = scandir(".", &list, NULL, NULL);
-    for (i = 0; i < num; i++) {
-	p = list[i]->d_name;
-	if (*p == '.')
-	    ;
-	else if (stat(p, &sbuf) < 0)
-	    ;
-	else if (!S_ISDIR(sbuf.st_mode))
-	    unlink(p);
+    /* Print out nodes at this level of the tree */
+    for (np = base->first; np != NULL; np = np->next) {
+	if (np->pmid == PM_ID_NULL)
+	    fprintf(f, "\t%s\n", np->name);
 	else
-	    local_pmns_clear(p);
-	free(list[i]);
+	    fprintf(f, "\t%s\t\t%s\n", np->name, pmIDStr(np->pmid));
     }
-    free(list);
-    lchdir("..");
-    rmdir(root);
-    return 0;
+    printf(f, "}\n\n");
+
+    /* Print out all the children of this subtree */
+    for (np = base->first; np != NULL; np = np->next)
+	if (np->pmid == PM_ID_NULL)
+	    local_pmns_write(np, f);
 }
