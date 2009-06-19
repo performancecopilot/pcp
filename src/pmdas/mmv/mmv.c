@@ -64,7 +64,7 @@ static struct stats_s {
 static int scnt;
 
 static int
-update_names(void)
+update_namespace(void)
 {
     char script[MAXPATHLEN];
     int sep = __pmPathSeparator();
@@ -80,10 +80,47 @@ update_names(void)
     return 0;
 }
 
-static FILE *
-temp_pmnsfile(char **filename)
+static void
+write_pmnspath(__pmnsNode *base, FILE *f)
 {
-    static char tmppath[MAXPATHLEN];
+    if (base && base->parent) {
+        write_pmnspath(base->parent, f);
+        fprintf(f, "%s.", base->name);
+    }
+}
+
+static void
+write_pmnsnode(__pmnsNode *base, FILE *f)
+{
+    __pmnsNode *np;
+
+    /* Print out full path to this part of the tree */
+    write_pmnspath(base->parent, f);
+    fprintf(f, "%s {\n", base->name);
+
+    /* Print out nodes at this level of the tree */
+    for (np = base->first; np != NULL; np = np->next) {
+        if (np->pmid == PM_ID_NULL)
+            fprintf(f, "\t%s\n", np->name);
+        else
+            fprintf(f, "\t%s\t\t%u:%u:%u\n", np->name,
+			pmid_domain(np->pmid),
+			pmid_cluster(np->pmid),
+			pmid_item(np->pmid));
+    }
+    fprintf(f, "}\n\n");
+
+    /* Print out all the children of this subtree */
+    for (np = base->first; np != NULL; np = np->next)
+        if (np->pmid == PM_ID_NULL)
+            write_pmnsnode(np, f);
+}
+
+static void
+write_pmnsfile(__pmnsTree *pmns)
+{
+    char tmppath[MAXPATHLEN];
+    char path[MAXPATHLEN];
     char *fname = tmppath;
     FILE *f = NULL;
 
@@ -103,8 +140,20 @@ temp_pmnsfile(char **filename)
 	f = fopen(fname, "w");
     }
 #endif
-    *filename = fname;
-    return f;
+
+    if (f == NULL)
+	__pmNotifyErr(LOG_ERR, "%s: failed to generate temporary file %s: %s",
+			pmProgname, fname, strerror(errno));
+    else {
+	__pmnsNode *node;
+	for (node = pmns->root->first; node != NULL; node = node->next)
+	    write_pmnsnode(node, f);
+	fclose(f);
+	sprintf(path, "%s%c" "mmv.new", pmnsdir, __pmPathSeparator());
+	if (rename2(fname, path) < 0)
+	    __pmNotifyErr(LOG_ERR, "%s: cannot rename %s to %s - %s",
+			pmProgname, fname, path, strerror (errno));
+    }
 }
 
 /*
@@ -142,22 +191,19 @@ choose_cluster(int requested, const char *path)
 static void
 map_stats(void)
 {
+    __pmnsTree *pmns;
     struct dirent ** files;
-    char path[MAXPATHLEN];
-    char *fname, *client;
-    FILE *f;
-    int i, num, sep = __pmPathSeparator();
     int need_reload = 0;
- 
-    if ((f = temp_pmnsfile(&fname)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "%s: failed to generate temporary file %s: %s",
-			  pmProgname, fname, strerror(errno));
+    int i, sts, num;
+
+    if ((sts = __pmNewPMNS(&pmns)) < 0) {
+	__pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n",
+			pmProgname, pmErrStr(sts));
 	return;
     }
 
     mcnt = 1;
-    fputs("mmv {\n", f);
-    fprintf(f, "\treload\t%d:0:0\n", dispatch.domain);
+    __pmAddPMNSNode(pmns, pmid_build(dispatch.domain, 0, 0), "mmv.reload");
 
     if (indoms != NULL) {
 	for (i = 0; i < incnt; i++)
@@ -181,13 +227,15 @@ map_stats(void)
     num = scandir(statsdir, &files, NULL, NULL);
     for (i = 0; i < num; i++) {
 	struct stat statbuf;
+	char path[MAXPATHLEN];
+	char *client;
 
 	if (strncmp(files[i]->d_name, ".", 2) == 0 ||
 	    strncmp(files[i]->d_name, "..", 3) == 0)
 	    continue;
 
 	client = files[i]->d_name;
-	sprintf(path, "%s%c%s", statsdir, sep, client);
+	sprintf(path, "%s%c%s", statsdir, __pmPathSeparator(), client);
 
 	if (stat(path, &statbuf) >= 0 && S_ISREG(statbuf.st_mode)) {
 	    int fd;
@@ -239,7 +287,7 @@ map_stats(void)
 
 		    slist = realloc(slist, sizeof(struct stats_s)*(scnt+1));
 		    if (slist != NULL ) {
-			slist[scnt].name = strdup (client);
+			slist[scnt].name = strdup(client);
 			slist[scnt].addr = m;
 			slist[scnt].hdr = hdr;
 			slist[scnt].pid = hdr->process;
@@ -249,8 +297,6 @@ map_stats(void)
 			slist[scnt].moff = -1;
 			slist[scnt].gen = hdr->g1;
 			slist[scnt++].len = statbuf.st_size;
-
-			fprintf (f, "\t%s\n", client);		// TODO - names
 		    } else {
 			__pmNotifyErr(LOG_ERR, 
 					"%s: out of memory on client \"%s\" - %s",
@@ -275,8 +321,6 @@ map_stats(void)
     if (num)
 	free(files);
 
-    fputs ("}\n", f);						// TODO - names
-
     for (i = 0; i < scnt; i++) {
 	int j;
 	struct stats_s * s = slist + i;
@@ -284,9 +328,7 @@ map_stats(void)
 	mmv_stats_toc_t * toc = 
 		(mmv_stats_toc_t *)((char *)s->addr+sizeof(mmv_stats_hdr_t));
 
-	fprintf(f, "mmv.%s {\n", s->name);			// TODO - names
-
-	for (j=0; j < hdr->tocs; j++) {
+	for (j = 0; j < hdr->tocs; j++) {
 	    int k;
 
 	    switch (toc[j].typ) {
@@ -302,9 +344,13 @@ map_stats(void)
 		    s->mcnt += toc[j].cnt;
 
 		    for (k = 0; k < toc[j].cnt; k++) {
+			char name[MAXPATHLEN];
+
+			sprintf(name, "mmv.%s.", s->name);
+
 			metrics[mcnt].m_user = ml + k;
 			metrics[mcnt].m_desc.pmid =
-				pmid_build(dispatch.domain, slist[i].cluster, ml[k].item);
+				pmid_build(dispatch.domain, s->cluster, ml[k].item);
 
 			if (ml[k].type == MMV_ENTRY_INTEGRAL) {
 			    metrics[mcnt].m_desc.sem = PM_SEM_COUNTER;
@@ -316,15 +362,15 @@ map_stats(void)
 			metrics[mcnt].m_desc.indom =
 				(ml[k].indom == -1) ? PM_INDOM_NULL :
 				pmInDom_build(dispatch.domain,
-					(slist[i].cluster << 11) | ml[k].indom);
+					(s->cluster << 11) | ml[k].indom);
 			memcpy(&metrics[mcnt].m_desc.units,
 				&ml[k].dimension, sizeof(pmUnits));
 
-			fprintf(f, "\t%s\t%d:%d:%d\n",			// TODO - names?
-				ml[k].name, dispatch.domain,
-				slist[i].cluster,
-				pmid_item(ml[k].item));
-			    mcnt++;
+			strcat(name, ml[k].name);
+			__pmAddPMNSNode(pmns,
+				pmid_build(dispatch.domain, s->cluster, ml[k].item),
+				name);
+			mcnt++;
 		    }
 		} else {
 		    __pmNotifyErr(LOG_ERR, "%s: cannot grow metric list",
@@ -386,15 +432,10 @@ map_stats(void)
 		break;
 	    }
 	}
-
-	fputs("}\n", f);
     }
 
-    fclose(f);
-    sprintf(path, "%s%c" "mmv.new", pmnsdir, sep);
-    if (rename2(fname, path) < 0)
-	__pmNotifyErr(LOG_ERR, "%s: cannot rename %s to %s - %s",
-			pmProgname, fname, path, strerror (errno));
+    write_pmnsfile(pmns);
+    __pmFreePMNS(pmns);
 
     reload = need_reload;
 }
@@ -436,39 +477,12 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     __pmID_int * id = (__pmID_int *)&(mdesc->m_desc.pmid);
     int i;
 
-    if (id->cluster == 0) { /* Control cluster */
-	for (i = 0; i < mcnt; i++) {
-	    __pmID_int * mid = (__pmID_int *)&(metrics[i].m_desc.pmid);
-
-	    if (mid->cluster == 0) {
-		if (mid->item == id->item) {
-		    switch (metrics[i].m_desc.type ) {
-		    case PM_TYPE_32:
-			atom->l = *((int *) metrics[i].m_user);
-			break;
-		    case PM_TYPE_U32:
-			atom->ul = *((unsigned int *) metrics[i].m_user);
-			break;
-		    case PM_TYPE_64:
-			atom->ll = *((__int64_t *) metrics[i].m_user);
-			break;
-		    case PM_TYPE_U64:
-			atom->ull = *((__uint64_t *) metrics[i].m_user);
-			break;
-		    case PM_TYPE_FLOAT:
-			atom->f = *((float *) metrics[i].m_user);
-			break;
-		    case PM_TYPE_DOUBLE:
-			atom->d =  *((double *) metrics[i].m_user);
-			break;
-		    }
-
-		    return 1;
-		}
-	    } else {
-		break;
-	    }
+    if (id->cluster == 0) {
+	if (id->item == 0) {
+	    atom->l = reload;
+	    return 1;
 	}
+	return PM_ERR_PMID;
     } else if ( scnt > 0 ) { /* We have a least one source of metrics */
 	mmv_stats_metric_t * m;
 	mmv_stats_value_t * val;
@@ -570,7 +584,7 @@ mmv_reload_maybe(void)
 		      "%s: %d metrics and %d indoms after reload", 
 		      pmProgname, mcnt, incnt);
 
-	reload = update_names();
+	reload = update_namespace();
     }
 
     return need_reload;
@@ -638,65 +652,36 @@ mmv_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static int
 mmv_store(pmResult *result, pmdaExt *ep)
 {
-    if (mmv_reload_maybe()) {
+    int i, m;
+
+    if (mmv_reload_maybe())
 	return PM_ERR_PMDAREADY;
-    } else {
-	int i;
 
-	for (i = 0; i < result->numpmid; i++) {
-	    pmValueSet * vsp = result->vset[i];
-	    __pmID_int * id = (__pmID_int *)&vsp->pmid;
+    for (i = 0; i < result->numpmid; i++) {
+	pmValueSet * vsp = result->vset[i];
+	__pmID_int * id = (__pmID_int *)&vsp->pmid;
 
-	    if (id->cluster == 0) {
-		/* We only have values which could be modified in cluster 0 */
-		int m = 0;
+	if (id->cluster == 0 && id->item == 0) {
+	    for (m = 0; m < mcnt; m++) {
+		__pmID_int * mid = (__pmID_int *)&(metrics[m].m_desc.pmid);
 
-		for (m = 0; m < mcnt; m++) {
-		    __pmID_int * mid = (__pmID_int *)&(metrics[m].m_desc.pmid);
+		if (mid->cluster == 0 && mid->item == id->item) {
+		    pmAtomValue atom;
+		    int sts;
 
-		    if (mid->cluster == 0) {
-			if (mid->item == id->item) {
-			    int sts = 0;
-			    int type = metrics[m].m_desc.type;
-			    pmAtomValue atom;
+		    if (vsp->numval != 1 )
+			return PM_ERR_CONV;
 
-			    if (vsp->numval != 1 )
-				return (PM_ERR_CONV);
-
-			    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-						      type, &atom, type)) < 0)
-				return sts;
-
-			    switch (metrics[m].m_desc.type) {
-			    case PM_TYPE_32:
-				*((int *) metrics[i].m_user) = atom.l;
-				break;
-			    case PM_TYPE_U32:
-				*((unsigned int *) metrics[i].m_user)=atom.ul;
-				break;
-			    case PM_TYPE_64:
-				*((__int64_t *) metrics[i].m_user) = atom.ll;
-				break;
-			    case PM_TYPE_U64:
-				*((__uint64_t *) metrics[i].m_user)=atom.ull;
-				break;
-			    case PM_TYPE_FLOAT:
-				*((float *) metrics[i].m_user) = atom.f;
-				break;
-			    case PM_TYPE_DOUBLE:
-				*((double *) metrics[i].m_user) = atom.d;
-				break;
-			    }
-			    break;
-			}
-		    } else {
-			return PM_ERR_PMID;
-		    }
+		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+					      PM_TYPE_32, &atom, PM_TYPE_32)) < 0)
+			return sts;
+		    reload = atom.l;
 		}
 	    }
 	}
+	else
+	    return PM_ERR_PMID;
     }
-
     return 0;
 }
 
