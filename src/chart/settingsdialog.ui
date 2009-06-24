@@ -123,8 +123,8 @@
       </item>
       <item row="0" column="2" >
        <widget class="QLineEdit" name="chartDeltaLineEdit" >
-        <property name="layoutDirection" >
-         <enum>Qt::RightToLeft</enum>
+        <property name="maxLength" >
+         <number>6</number>
         </property>
        </widget>
       </item>
@@ -255,8 +255,8 @@
       </item>
       <item row="1" column="2" >
        <widget class="QLineEdit" name="loggerDeltaLineEdit" >
-        <property name="layoutDirection" >
-         <enum>Qt::RightToLeft</enum>
+        <property name="maxLength" >
+         <number>6</number>
         </property>
        </widget>
       </item>
