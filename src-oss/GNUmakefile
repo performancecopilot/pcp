@@ -56,7 +56,7 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
 	multifetch.c pmconvscale.c torture-eol.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
-	matchInstanceName.c mmv_dumpstats.c mmv_genstats.c \
+	matchInstanceName.c mmv_genstats.c \
 	record.c record-setarg.c clientid.c
 
 POSIXFILES = \
@@ -343,11 +343,6 @@ record-setarg: record-setarg.c
 
 # --- need libpcp_mmv
 #
-
-mmv_dumpstats:	mmv_dumpstats.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
-
 mmv_genstats:	mmv_genstats.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
