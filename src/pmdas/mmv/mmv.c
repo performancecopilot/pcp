@@ -159,35 +159,35 @@ write_pmnsfile(__pmnsTree *pmns)
 }
 
 /*
- * Choose an unused cluster ID while trying to honour specific requests
+ * Choose an unused cluster ID while honouring specific requests.
+ * If a specific (non-zero) cluster is requested we always use it.
  */
 static int
 choose_cluster(int requested, const char *path)
 {
-    int i, cluster, next_cluster = 1;
+    int i;
 
-    for (i = 1; i < scnt; i++) {
-	if (slist[i].cluster == next_cluster) {
-	    next_cluster++;
-	    i = 0;	/* restart */
+    if (!requested) {
+	int next_cluster = 1;
+
+	for (i = 0; i < scnt; i++) {
+	    if (slist[i].cluster == next_cluster) {
+		next_cluster++;
+		i = 0;	/* restart, we're filling holes */
+	    }
 	}
+	return next_cluster;
     }
 
-    if (!requested)
-	return next_cluster;
-
-    cluster = requested;
     for (i = 0; i < scnt; i++) {
-	if (slist[i].cluster == cluster) {
-	    __pmNotifyErr(LOG_WARNING,
-			    "%s: duplicate cluster %d requested "
-			    "(using %d instead) - \"%s\"",
-			    pmProgname, cluster, next_cluster, path);
-	    cluster = next_cluster;
+	if (slist[i].cluster == requested) {
+	    __pmNotifyErr(LOG_INFO,
+			  "%s: duplicate cluster %d in use",
+			  pmProgname, requested);
 	    break;
 	}
     }
-    return cluster;
+    return requested;
 }
 
 static void
@@ -212,7 +212,7 @@ map_stats(void)
     if (indoms != NULL) {
 	for (i = 0; i < incnt; i++)
 	    free(indoms[i].it_set);
-	free (indoms);
+	free(indoms);
 	indoms = NULL;
 	incnt = 0;
     }
@@ -371,8 +371,9 @@ map_stats(void)
 			    metrics[mcnt].m_desc.type = ml[k].type;
 			}
 			metrics[mcnt].m_desc.indom =
-				(ml[k].indom == -1) ? PM_INDOM_NULL :
-				pmInDom_build(dispatch.domain,
+				(!ml[k].indom || ml[k].indom == PM_INDOM_NULL) ?
+					PM_INDOM_NULL :
+					pmInDom_build(dispatch.domain,
 					(s->cluster << 11) | ml[k].indom);
 			memcpy(&metrics[mcnt].m_desc.units,
 				&ml[k].dimension, sizeof(pmUnits));
@@ -391,32 +392,37 @@ map_stats(void)
 		break;
 
 	    case MMV_TOC_INDOMS:
-		indoms = realloc(indoms, (incnt+1) * sizeof(pmdaIndom));
-
+		indoms = realloc(indoms,
+				sizeof(pmdaIndom) * (incnt + toc[j].count));
 		if (indoms != NULL) {
+		    int l;
+		    pmdaIndom *ip;
 		    mmv_disk_indom_t * id = (mmv_disk_indom_t *)
 				((char *)s->addr + toc[j].offset);
 
-		    indoms[incnt].it_indom = pmInDom_build(dispatch.domain,
-					(slist[i].cluster << 11) | id->serial);
-		    indoms[incnt].it_numinst = id->count;
-		    indoms[incnt].it_set = (pmdaInstid *)
-			calloc(id->count, sizeof(pmdaInstid));
+		    for (k = 0; k < toc[j].count; k++) {
+			ip = &indoms[incnt + k];
+			ip->it_indom = pmInDom_build(dispatch.domain,
+				(slist[i].cluster << 11) | id[k].serial);
+			ip->it_numinst = id[k].count;
+			ip->it_set = (pmdaInstid *)
+				calloc(id[k].count, sizeof(pmdaInstid));
 
-		    if (indoms[incnt].it_set != NULL) {
-			mmv_disk_instance_t * in = (mmv_disk_instance_t *)
-				((char *)s->addr + id->offset);
-			for (k = 0; k < indoms[incnt].it_numinst; k++) {
-			    indoms[incnt].it_set[k].i_inst = in[k].internal;
-			    indoms[incnt].it_set[k].i_name = in[k].external;
-			}
-		    } else {
-			__pmNotifyErr(LOG_ERR, 
+			if (ip->it_set != NULL) {
+			    mmv_disk_instance_t * in = (mmv_disk_instance_t *)
+					((char *)s->addr + id[k].offset);
+			    for (l = 0; l < ip->it_numinst; l++) {
+				ip->it_set[l].i_inst = in[l].internal;
+				ip->it_set[l].i_name = in[l].external;
+			    }
+			} else {
+			    __pmNotifyErr(LOG_ERR, 
 				"%s: cannot get memory for instance list",
 				pmProgname);
-			exit(1);
+			    exit(1);
+			}
 		    }
-		    incnt++;
+		    incnt += toc[j].count;
 		} else {
 		    __pmNotifyErr(LOG_ERR, "%s: cannot grow indom list",
 				  pmProgname);
@@ -510,7 +516,9 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    mmv_disk_instance_t * is = (mmv_disk_instance_t *)
 			((char *)s->addr + val[i].instance);
 
-	    if ((mt == m) && ((mt->indom < 0) || (is->internal == inst))) {
+	    if ((mt == m) &&
+		(mt->indom == PM_INDOM_NULL || mt->indom == 0 ||
+		 (is->internal == inst))) {
 		switch (m->type) {
 		    case MMV_ENTRY_I32:
 		    case MMV_ENTRY_U32:
@@ -699,9 +707,6 @@ usage(void)
     exit(1);
 }
 
-/*
- * Set up the agent if running as a daemon.
- */
 int
 main(int argc, char **argv)
 {

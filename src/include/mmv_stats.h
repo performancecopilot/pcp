@@ -145,7 +145,7 @@ mmv_stats_inc_fallback(void *__handle, const char *__metric,
     mmv_stats_add_fallback(__handle, __metric, __instance, __instance2, 1);
 }
 
-static inline void
+static inline pmAtomValue *
 mmv_stats_interval_start(void *__handle, pmAtomValue *__value,
 	const char *__metric, const char *__instance)
 {
@@ -158,6 +158,7 @@ mmv_stats_interval_start(void *__handle, pmAtomValue *__value,
 	    mmv_inc_value(__handle, __value, -(__tv.tv_sec*1e6 + __tv.tv_usec));
 	}
     }
+    return __value;
 }
 
 static inline void
