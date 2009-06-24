@@ -15,11 +15,11 @@
  *
  * MMV PMDA
  *
- * This PMDA uses specially formatted files in either /var/tmp/mmv or 
- * some other directory, as specified on the command line. Each file represent
+ * This PMDA uses specially formatted files in either /var/tmp/mmv or some
+ * other directory, as specified on the command line.  Each file represents
  * a separate "cluster" of values with flat name structure for each cluster.
  * Names for the metrics are optionally prepended with mmv and then the name
- * of the file.
+ * of the file (by default - this can be changed).
  */
 
 #include "mmv_dev.h"
@@ -37,12 +37,13 @@ static int incnt;
 
 static int reload;
 static time_t statsdir_ts;		/* last statsdir timestamp */
+static char * prefix = "mmv";
 
 static char * pcptmpdir;		/* probably /var/tmp */
 static char * pcpvardir;		/* probably /var/pcp */
 static char * pcppmdasdir;		/* probably /var/pcp/pmdas */
 static char pmnsdir[MAXPATHLEN];	/* pcpvardir/pmns */
-static char statsdir[MAXPATHLEN];	/* pcptmpdir/mmv */
+static char statsdir[MAXPATHLEN];	/* pcptmpdir/<prefix> */
 
 typedef struct {
     char *	name;		/* strdup client name */
@@ -70,8 +71,9 @@ update_namespace(void)
     int sep = __pmPathSeparator();
 
     snprintf(script, sizeof(script),
-		"%s%c" "lib" "%c" "ReplacePmnsSubtree mmv %s%c" "mmv.new",
-		pmGetConfig("PCP_SHARE_DIR"), sep, sep, pmnsdir, sep);
+		"%s%c" "lib" "%c" "ReplacePmnsSubtree %s %s%c" "%s.new",
+		pmGetConfig("PCP_SHARE_DIR"), sep, sep,
+		prefix, pmnsdir, sep, prefix);
     if (system(script) == -1) {
 	__pmNotifyErr (LOG_ERR, "%s: cannot exec %s", pmProgname, script);
 	return 1;
@@ -127,12 +129,12 @@ write_pmnsfile(__pmnsTree *pmns)
     putenv("TMPDIR=");	/* temp file must be in pmnsdir, for rename */
 
 #if HAVE_MKSTEMP
-    sprintf(tmppath, "%s%cmmv-XXXXXX", pmnsdir, __pmPathSeparator());
+    sprintf(tmppath, "%s%c%s-XXXXXX", pmnsdir, __pmPathSeparator(), prefix);
     int fd = mkstemp(tmppath);
     if (fd != -1)
 	f = fdopen(fd, "w");
 #else
-    fname = tempnam(pmnsdir, "mmv");
+    fname = tempnam(pmnsdir, prefix);
     if (fname != NULL) {
 	strncpy(tmppath, fname, sizeof(tmppath));
 	free(fname);
@@ -149,7 +151,7 @@ write_pmnsfile(__pmnsTree *pmns)
 	for (node = pmns->root->first; node != NULL; node = node->next)
 	    write_pmnsnode(node, f);
 	fclose(f);
-	sprintf(path, "%s%c" "mmv.new", pmnsdir, __pmPathSeparator());
+	sprintf(path, "%s%c" "%s.new", pmnsdir, __pmPathSeparator(), prefix);
 	if (rename2(fname, path) < 0)
 	    __pmNotifyErr(LOG_ERR, "%s: cannot rename %s to %s - %s",
 			pmProgname, fname, path, strerror (errno));
@@ -193,6 +195,7 @@ map_stats(void)
 {
     __pmnsTree *pmns;
     struct dirent ** files;
+    char name_reload[64];
     int need_reload = 0;
     int i, sts, num;
 
@@ -203,7 +206,8 @@ map_stats(void)
     }
 
     mcnt = 1;
-    __pmAddPMNSNode(pmns, pmid_build(dispatch.domain, 0, 0), "mmv.reload");
+    snprintf(name_reload, sizeof(name_reload), "%s.reload", prefix);
+    __pmAddPMNSNode(pmns, pmid_build(dispatch.domain, 0, 0), name_reload);
 
     if (indoms != NULL) {
 	for (i = 0; i < incnt; i++)
@@ -259,9 +263,10 @@ map_stats(void)
 
 		    if (hdr->version != MMV_VERSION) {
 			__pmNotifyErr(LOG_ERR, 
-					"%s: mmv client version %d "
+					"%s: %s client version %d "
 					"not supported (current is %d)",
-					pmProgname, hdr->version, MMV_VERSION);
+					pmProgname, prefix,
+					hdr->version, MMV_VERSION);
 			__pmMemoryUnmap(m, statbuf.st_size);
 			continue;
 		    }
@@ -282,8 +287,8 @@ map_stats(void)
 
 		    /* all checks out, we'll use this one */
 		    cluster = choose_cluster(hdr->cluster, path);
-		    __pmNotifyErr(LOG_INFO, "%s: loading mmv client: %d \"%s\"",
-				    pmProgname, cluster, path);
+		    __pmNotifyErr(LOG_INFO, "%s: loading %s client: %d \"%s\"",
+				    pmProgname, prefix, cluster, path);
 
 		    slist = realloc(slist, sizeof(stats_t)*(scnt+1));
 		    if (slist != NULL ) {
@@ -346,7 +351,10 @@ map_stats(void)
 		    for (k = 0; k < toc[j].count; k++) {
 			char name[MAXPATHLEN];
 
-			sprintf(name, "mmv.%s.", s->name);
+			if (hdr->flags & MMV_FLAG_NOPREFIX)
+			    sprintf(name, "%s.", prefix);
+			else
+			    sprintf(name, "%s.%s.", prefix, s->name);
 
 			metrics[mcnt].m_user = ml + k;
 			metrics[mcnt].m_desc.pmid = pmid_build(
@@ -700,12 +708,15 @@ main(int argc, char **argv)
     int		err = 0;
     int		sep = __pmPathSeparator();
     char	mypath[MAXPATHLEN];
+    char	logfile[32];
 
     __pmSetProgname(argv[0]);
-    snprintf(mypath, sizeof(mypath), "%s%c" "mmv" "%c" "help",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, MMV,
-		"mmv.log", mypath);
+    if (strncmp(pmProgname, "pmda", 4) == 0 && strlen(pmProgname) > 4)
+	prefix = pmProgname + 4;
+    snprintf(mypath, sizeof(mypath), "%s%c" "%s%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, prefix, sep);
+    snprintf(logfile, sizeof(logfile), "%s.log", prefix);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, MMV, logfile, mypath);
 
     if ((pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err) != EOF) ||
 	err || argc != optind)
@@ -715,7 +726,7 @@ main(int argc, char **argv)
     pcpvardir = pmGetConfig("PCP_VAR_DIR");
     pcppmdasdir = pmGetConfig("PCP_PMDAS_DIR");
 
-    sprintf(statsdir, "%s%c" "mmv", pcptmpdir, sep);
+    sprintf(statsdir, "%s%c%s", pcptmpdir, sep, prefix);
     sprintf(pmnsdir, "%s%c" "pmns", pcpvardir, sep);
 
     pmdaOpenLog(&dispatch);

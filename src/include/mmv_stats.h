@@ -75,6 +75,7 @@ typedef struct {
 #endif
 
 typedef enum {
+    MMV_FLAG_NOPREFIX	= 0x1,	/* Don't prefix metric names by filename */
     MMV_FLAG_PROCESS	= 0x2,	/* Indicates process check on PID needed */
 } mmv_stats_flags_t;
 
