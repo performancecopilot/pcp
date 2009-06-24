@@ -416,7 +416,7 @@ local_pmns_write(__pmnsNode *base, FILE *f)
 	else
 	    fprintf(f, "\t%s\t\t%s\n", np->name, pmIDStr(np->pmid));
     }
-    printf(f, "}\n\n");
+    fprintf(f, "}\n\n");
 
     /* Print out all the children of this subtree */
     for (np = base->first; np != NULL; np = np->next)

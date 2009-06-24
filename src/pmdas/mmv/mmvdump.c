@@ -26,11 +26,11 @@ dump_metrics(void *addr, int idx, __uint64_t offset, __int32_t count)
 				((char *)addr + offset);
 
     printf("\nTOC[%d]: offset %lld, metrics section (%d entries)\n",
-		idx, offset, count);
+		idx, (long long)offset, count);
 
     for (i = 0; i < count; i++) {
 	__uint64_t off = offset + i * sizeof(mmv_disk_metric_t);
-	printf("  [%u/%llu] %s\n", m[i].item, off, m[i].name);
+	printf("  [%u/%lld] %s\n", m[i].item, (long long)off, m[i].name);
 	printf("       type=0x%x, sem=0x%x, pad=0x%x\n",
 		m[i].type, m[i].semantics, m[i].padding);
 	printf("       units=%s\n", pmUnitsStr(&m[i].dimension));
@@ -63,7 +63,7 @@ dump_values(void *addr, int idx, __uint64_t offset, __int32_t count)
 			((char *)addr + offset);
 
     printf("\nTOC[%d]: offset %lld, values section (%d entries)\n",
-		idx, offset, count);
+		idx, (long long)offset, count);
 
     for (i = 0; i < count; i++) {
 	mmv_disk_string_t * string;
@@ -71,7 +71,7 @@ dump_values(void *addr, int idx, __uint64_t offset, __int32_t count)
 				((char *)addr + vals[i].metric);
 	__uint64_t off = offset + i * sizeof(mmv_disk_value_t);
 
-	printf("  [%u/%llu] %s", m->item, off, m->name);
+	printf("  [%u/%lld] %s", m->item, (long long)off, m->name);
 	if (m->indom && m->indom != PM_IN_NULL) {
 	    mmv_disk_instance_t *indom = (mmv_disk_instance_t *)
 				((char *)addr + vals[i].instance);
@@ -128,12 +128,13 @@ dump_indoms(void *addr, int idx, __uint64_t offset, __int32_t count)
 			((char *)addr + offset);
 
     printf("\nTOC[%d]: offset %lld, indoms section (%d entries)\n",
-		idx, offset, count);
+		idx, (long long)offset, count);
 
     for (i = 0; i < count; i++) {
 	__uint64_t off = offset + i * sizeof(mmv_disk_indom_t);
-	printf("  [%u/%llu] %d instances, starting at offset %llu\n",
-		indom[i].serial, off, indom[i].count, indom[i].offset);
+	printf("  [%u/%lld] %d instances, starting at offset %lld\n",
+		indom[i].serial, (long long)off,
+		indom[i].count, (long long)indom[i].offset);
 	if (indom[i].shorttext) {
 	    string = (mmv_disk_string_t *)
 			((char *)addr + indom[i].shorttext);
@@ -159,12 +160,13 @@ dump_instances(void *addr, int idx, __uint64_t offset, __int32_t count)
 			((char *)addr + offset);
 
     printf("\nTOC[%d]: offset %lld, instances section (%d entries)\n",
-		idx, offset, count);
+		idx, (long long)offset, count);
 
     for (i = 0; i < count; i++)
-	printf("  [%u/%llu] indom offset %llu - %d/%s\n",
-		i, offset + i * sizeof(mmv_disk_instance_t),
-		inst[i].indom, inst[i].internal, inst[i].external);
+	printf("  [%u/%lld] indom offset %lld - %d/%s\n",
+		i, (long long)offset + i * sizeof(mmv_disk_instance_t),
+		(long long)inst[i].indom,
+		inst[i].internal, inst[i].external);
 }
 
 void
@@ -175,11 +177,11 @@ dump_string(void *addr, int idx, __uint64_t offset, __int32_t count)
 			((char *)addr + offset);
 
     printf("\nTOC[%d]: offset %lld, string section (%d entries)\n",
-		idx, offset, count);
+		idx, (long long)offset, count);
 
     for (i = 0; i < count; i++)
-	printf("  [%u/%llu] %s\n",
-		i, offset + i * sizeof(mmv_disk_string_t), 
+	printf("  [%u/%lld] %s\n",
+		i, (long long)offset + i * sizeof(mmv_disk_string_t), 
 		string->payload);
 }
 
