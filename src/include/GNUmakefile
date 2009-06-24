@@ -21,7 +21,7 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 HFILES = pmapi.h impl.h pmda.h pmtime.h pmafm.h \
-	 trace.h trace_dev.h trace_hash.h mmv_stats.h
+	 trace.h trace_dev.h trace_hash.h mmv_stats.h mmv_dev.h
 IMPORT = pmimport.h
 GENERATED_HFILES = pmdbg.h platform_defs.h
 CONFFILES = platform_defs.h builddefs pcp.conf

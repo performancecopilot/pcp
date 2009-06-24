@@ -10,6 +10,13 @@ require PCP::PMDA;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(
+    mmv_units mmv_metric mmv_indom mmv_stats_init
+	mmv_lookup_value_desc mmv_inc_value mmv_set_string
+	mmv_stats_static_add mmv_stats_static_inc
+	mmv_stats_add mmv_stats_inc
+	mmv_stats_add_fallback mmv_stats_inc_fallback
+	mmv_stats_interval_start mmv_stats_interval_end
+	mmv_stats_set_string
     MMV_ENTRY_NOSUPPORT
     MMV_ENTRY_I32 MMV_ENTRY_U32
     MMV_ENTRY_I64 MMV_ENTRY_U64

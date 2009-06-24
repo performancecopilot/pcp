@@ -17,58 +17,61 @@
 #include "perl.h"
 #include "XSUB.h"
 
-static mmv_stats_inst_t *
-new_instance(int id, char *name)
+static mmv_metric_t *
+new_metric_list(AV *array, int count)
 {
-    mmv_stats_inst_t *instance;
+    SV			**entry;
+    int			index;
+    mmv_metric_t	*table, *data;
 
-    if ((instance = malloc(sizeof(mmv_stats_inst_t))) == NULL)
-	return NULL;
-
-    strncpy(instance->external, name, MMV_NAMEMAX);
-    instance->internal = id;
-    return instance;
-}
-
-static mmv_stats_t *
-new_metric(char *name,
-	   unsigned int type, unsigned int item,
-	   mmv_stats_inst_t *indom,
-	   unsigned int units, unsigned int semantics,
-	   char *shorttext, char *helptext)
-{
-    mmv_stats_t *metric;
-
-    if ((metric = malloc(sizeof(mmv_stats_t))) == NULL)
-	return NULL;
-
-    strncpy(metric->name, name, MMV_NAMEMAX);
-    memcpy(&metric->dimension, &units, sizeof(pmUnits));
-    metric->semantics = semantics;
-    metric->indom = indom;
-    metric->type = type;
-    metric->item = item;
-    if (shorttext)
-	metric->shorttext = strdup(shorttext);
-    if (helptext)
-	metric->helptext = strdup(helptext);
-    return metric;
-}
-
-static mmv_stats_t *
-new_stats(AV *array, int count)
-{
-    SV		**entry;
-    int		index;
-    mmv_stats_t	*table, *tmp;
-
-    if ((table = malloc(count * sizeof(mmv_stats_t))) == NULL)
+    if ((table = calloc(count, sizeof(mmv_metric_t))) == NULL)
 	return NULL;
 
     for (index = 0; index < count; index++) {
 	entry = av_fetch(array, index, 0);
-	tmp = (mmv_stats_t *) (*entry);
-	table[index] = *tmp;
+	data = (mmv_metric_t *) (*entry);
+	table[index] = *data;
+    }
+    return table;
+}
+
+static mmv_indom_t *
+new_indom_list(AV *array, int count)
+{
+    SV			**entry;
+    int			index;
+    mmv_indom_t		*table, *data;
+
+    if ((table = calloc(count, sizeof(mmv_indom_t))) == NULL)
+	return NULL;
+
+    for (index = 0; index < count; index++) {
+	entry = av_fetch(array, index, 0);
+	data = (mmv_indom_t *) (*entry);
+	table[index] = *data;
+    }
+    return table;
+}
+
+static mmv_instances_t *
+new_instance_list(AV *array, int count)
+{
+    SV			**entry;
+    int			index;
+    char		*data;
+    mmv_instances_t	*table;
+
+    if (count % 2)	/* must be internal/external *pairs* */
+	return NULL;
+    if ((table = calloc(count, sizeof(mmv_instances_t))) == NULL)
+	return NULL;
+    for (index = 0; index < count; index++) {
+	entry = av_fetch(array, index, 0);
+	data = (char *) (*entry);
+	if ((index % 2) == 0)	/* internal identifier */
+	    table[index / 2].internal = atoi(data);
+	else			/* external identifier */
+	    strncpy(table[index / 2].external, data, MMV_NAMEMAX);
     }
     return table;
 }
@@ -76,117 +79,233 @@ new_stats(AV *array, int count)
 
 MODULE = PCP::MMV		PACKAGE = PCP::MMV
 
-mmv_stats_inst_t *
-mmv_instance(id,name)
-	int			id
-	char *			name
+mmv_indom_t *
+mmv_indom(serial,shorttext,helptext,instlist)
+	int			serial
+	char *			shorttext
+	char *			helptext
+	AV *			instlist
+    PREINIT:
+	int			count;
+	mmv_indom_t *		indom;
+	mmv_instances_t *	instances;
     CODE:
-	RETVAL = new_instance(id, name);
-	if (!RETVAL)
+	count = av_len(instlist);
+	instances = new_instance_list(instlist, count);
+	if (!instances)
 	    XSRETURN_UNDEF;
+	if ((indom = calloc(1, sizeof(mmv_indom_t))) == NULL) {
+	    free(instances);
+	    XSRETURN_UNDEF;
+	}
+	indom->serial = serial;
+	indom->count = count;
+	indom->instances = instances;
+	if (shorttext)
+	    indom->shorttext = strdup(shorttext);
+	if (helptext)
+	    indom->helptext = strdup(helptext);
+	RETVAL = indom;
     OUTPUT:
 	RETVAL
 
-mmv_stats_t *
-mmv_metric(name,item,type,insts,units,semantics,shorttext,helptext)
+mmv_metric_t *
+mmv_metric(name,item,type,indom,units,semantics,shorttext,helptext)
 	char *			name
 	unsigned int		item
 	unsigned int		type
-	mmv_stats_inst_t *	insts
+	unsigned int		indom
 	unsigned int		units
 	unsigned int		semantics
 	char *			shorttext
 	char *			helptext
+    PREINIT:
+	mmv_metric_t *		metric;
     CODE:
-	RETVAL = new_metric(name, item, type, insts, units, semantics, shorttext, helptext);
-	if (!RETVAL)
+	if ((metric = calloc(1, sizeof(mmv_metric_t))) == NULL)
 	    XSRETURN_UNDEF;
+	strncpy(metric->name, name, MMV_NAMEMAX);
+	memcpy(&metric->dimension, &units, sizeof(pmUnits));
+	metric->semantics = semantics;
+	metric->indom = indom;
+	metric->type = type;
+	metric->item = item;
+	if (shorttext)
+	    metric->shorttext = strdup(shorttext);
+	if (helptext)
+	    metric->helptext = strdup(helptext);
+	RETVAL = metric;
     OUTPUT:
 	RETVAL
 
 void *
-mmv_handle(name,stats)
+mmv_stats_init(name,cl,fl,metrics,indoms)
 	char *			name
-	AV *			stats
+	int 			cl
+	int 			fl
+	AV *			metrics
+	AV *			indoms
     PREINIT:
-	int			count;
-	mmv_stats_t *		array;
+	int			i;
+	int			mcount;
+	int			icount;
+	mmv_metric_t *		mlist;
+	mmv_indom_t *		ilist;
     CODE:
-	count = av_len(stats);
-	array = new_stats(stats, count);
-	RETVAL = mmv_stats_init(name, array, count, 0, 0);
-	free(array);
+	mcount = av_len(metrics);
+	mlist = new_metric_list(metrics, mcount);
+	icount = av_len(indoms);
+	ilist = new_indom_list(indoms, icount);
+
+	RETVAL = mmv_stats_init(name, cl, fl, mlist, mcount, ilist, icount);
+
+	for (i = 0; i < icount; i++) {
+	    if (ilist[i].shorttext) free(ilist[i].shorttext);
+	    if (ilist[i].helptext) free(ilist[i].helptext);
+	    free(ilist[i].instances);
+	}
+	free(ilist);
+	for (i = 0; i < mcount; i++) {
+	    if (mlist[i].shorttext) free(mlist[i].shorttext);
+	    if (mlist[i].helptext) free(mlist[i].helptext);
+	}
+	free(mlist);
+
 	if (!RETVAL)
 	    XSRETURN_UNDEF;
     OUTPUT:
 	RETVAL
 
+int
+mmv_units(dim_space,dim_time,dim_count,scale_space,scale_time,scale_count)
+	unsigned int		dim_space
+	unsigned int		dim_time
+	unsigned int		dim_count
+	unsigned int		scale_space
+	unsigned int		scale_time
+	unsigned int		scale_count
+    PREINIT:
+	pmUnits			units;
+    CODE:
+	units.pad = 0;
+	units.dimSpace = dim_space;	units.scaleSpace = scale_space;
+	units.dimTime = dim_time;	units.scaleTime = scale_time;
+	units.dimCount = dim_count;	units.scaleCount = scale_count;
+	RETVAL = *(int *)(&units);
+    OUTPUT:
+	RETVAL
+
+pmAtomValue *
+mmv_lookup_value_desc(handle,metric,instance)
+	void *			handle
+	char *			metric
+	char *			instance
+    CODE:
+	RETVAL = mmv_lookup_value_desc(handle, metric, instance);
+    OUTPUT:
+	RETVAL
+
 void
-mmv_stats_static_add(hndl,metric,instance,count)
-	void *			hndl
+mmv_inc_value(handle,atom,value)
+	void *			handle
+	pmAtomValue *		atom
+	double			value
+    CODE:
+	mmv_inc_value(handle, atom, value);
+
+void
+mmv_set_string(handle,atom,string)
+	void *			handle
+	pmAtomValue *		atom
+	SV *			string
+    PREINIT:
+	int			length;
+	char *			data;
+    CODE:
+	data = SvPV_nolen(string);
+	length = strlen(data);
+	mmv_set_string(handle, atom, data, length);
+
+void
+mmv_stats_static_add(handle,metric,instance,count)
+	void *			handle
 	char *			metric
 	char *			instance
 	double			count
     CODE:
-	MMV_STATS_STATIC_ADD(hndl, metric, instance, count);
+	mmv_stats_static_add(handle, metric, instance, count);
 
 void
-mmv_stats_static_inc(hndl,metric,instance)
-	void *			hndl
+mmv_static_inc(handle,metric,instance)
+	void *			handle
 	char *			metric
 	char *			instance
     CODE:
-	MMV_STATS_STATIC_INC(hndl, metric, instance);
+	mmv_stats_static_inc(handle, metric, instance);
 
 void
-mmv_stats_add(hndl,metric,instance,count)
-	void *			hndl
+mmv_stats_add(handle,metric,instance,count)
+	void *			handle
 	char *			metric
 	char *			instance
 	double			count
     CODE:
-	MMV_STATS_ADD(hndl, metric, instance, count);
+	mmv_stats_add(handle, metric, instance, count);
 
 void
-mmv_stats_inc(hndl,metric,instance)
-	void *			hndl
+mmv_stats_inc(handle,metric,instance)
+	void *			handle
 	char *			metric
 	char *			instance
     CODE:
-	MMV_STATS_INC(hndl, metric, instance);
+	mmv_stats_inc(handle, metric, instance);
 
 void
-mmv_stats_add_fallback(hndl,metric,instance,instance2,count)
-	void *			hndl
+mmv_stats_add_fallback(handle,metric,instance,instance2,count)
+	void *			handle
 	char *			metric
 	char *			instance
 	char *			instance2
 	double			count
     CODE:
-	MMV_STATS_ADD_FALLBACK(hndl, metric, instance, instance2, count);
+	mmv_stats_add_fallback(handle, metric, instance, instance2, count);
 
 void
-mmv_stats_inc_fallback(hndl,metric,instance,instance2)
-	void *			hndl
+mmv_stats_inc_fallback(handle,metric,instance,instance2)
+	void *			handle
 	char *			metric
 	char *			instance
 	char *			instance2
     CODE:
-	MMV_STATS_INC_FALLBACK(hndl, metric, instance, instance2);
+	mmv_stats_inc_fallback(handle, metric, instance, instance2);
 
 void
-mmv_stats_interval_start(hndl,vptr,metric,instance)
-	void *			hndl
-	mmv_stats_value_t *	vptr
+mmv_stats_interval_start(handle,value,metric,instance)
+	void *			handle
+	pmAtomValue *		value
 	char *			metric
 	char *			instance
     CODE:
-	MMV_STATS_INTERVAL_START(hndl, vptr, metric, instance);
+	mmv_stats_interval_start(handle, value, metric, instance);
 
 void
-mmv_stats_interval_end(hndl, vptr)
-	void *			hndl
-	mmv_stats_value_t *	vptr
+mmv_stats_interval_end(handle, value)
+	void *			handle
+	pmAtomValue *		value
     CODE:
-	MMV_STATS_INTERVAL_END(hndl, vptr);
+	mmv_stats_interval_end(handle, value);
+
+void
+mmv_stats_set_string(handle,metric,instance,string)
+	void *			handle
+	char *			metric
+	char *			instance
+	SV *			string
+    PREINIT:
+	int			length;
+	char *			data;
+    CODE:
+	data = SvPV_nolen(string);
+	length = strlen(data);
+	mmv_stats_set_strlen(handle, metric, instance, data, length);
 

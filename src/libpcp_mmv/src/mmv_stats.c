@@ -14,16 +14,8 @@
  *
  * Memory Mapped Values PMDA Client API
  */
-#include "pmapi.h"
+#include "mmv_dev.h"
 #include "impl.h"
-#include "mmv_stats.h"
-
-#define ROUNDUP_64(i) ((((i) + 63) >> 6) << 6)
-
-typedef struct {
-    mmv_stats_inst_t *inst;
-    int ninst;
-} indom_t;
 
 static void *
 mmv_mapping(const char *fname, size_t size)
@@ -47,252 +39,317 @@ mmv_mapping(const char *fname, size_t size)
     if (fd < 0)
 	return NULL;
 
-    if (lseek(fd, size - 1, SEEK_SET) < 0)
-	goto finish;
-    if (write(fd, " ", 1) <= 0)
-	goto finish;
-    addr = __pmMemoryMap(fd, size, 1);
-finish:
+    if (ftruncate(fd, size) != -1)
+	addr = __pmMemoryMap(fd, size, 1);
+
     close(fd);
     return addr;
 }
 
 static __uint64_t
-mmv_string(void *addr, int tocindex, int strindex, __uint64_t values_offset, char *data)
+mmv_string(void *addr, mmv_disk_string_t *slist, int strindex,
+	   mmv_disk_toc_t *toc, int tocindex, const char *data)
 {
-    mmv_stats_toc_t *	toc;
-    mmv_stats_string_t	*str;
-    __uint64_t		string_offset;
+    __uint64_t offset = strindex * sizeof(mmv_disk_string_t);
 
-    toc = (mmv_stats_toc_t *)((char *)addr + sizeof(mmv_stats_hdr_t)) + tocindex;
-    string_offset = values_offset + strindex * sizeof(mmv_stats_string_t);
+    offset += ((char *)slist - (char *)addr);
 
-    toc->typ = MMV_TOC_STRING;
-    toc->cnt = 1;
-    toc->offset = string_offset;
+    toc[tocindex].type = MMV_TOC_STRING;
+    toc[tocindex].count = 1;
+    toc[tocindex].offset = offset;
 
     if (data) {		/* optional initial value (help text) */
-	str = (mmv_stats_string_t *)((char *)addr + string_offset);
-	strncpy(str->payload, data, MMV_STRINGMAX);
+	mmv_disk_string_t *string;
+
+	string = (mmv_disk_string_t *)((char *)addr + offset);
+	strncpy(string->payload, data, MMV_STRINGMAX);
     }
-    return string_offset;
+    return offset;
+}
+
+static mmv_disk_indom_t *
+mmv_lookup_disk_indom(__int32_t indom, mmv_disk_indom_t *in, int nindoms)
+{
+    int i;
+
+    for (i = 0; i < nindoms; i++)
+	if (in[i].serial == indom)
+	    return &in[i];
+    return NULL;
+}
+
+static const mmv_indom_t *
+mmv_lookup_indom(__int32_t indom, const mmv_indom_t *in, int nindoms)
+{
+    int i;
+
+    for (i = 0; i < nindoms; i++)
+	if (in[i].serial == indom)
+	    return &in[i];
+    return NULL;
 }
 
 void * 
-mmv_stats_init(const char *fname, const mmv_stats_t *st, int nstats, mmv_stats_flags_t fl, int cl)
+mmv_stats_init(const char *fname,
+		int cluster, mmv_stats_flags_t fl,
+		const mmv_metric_t *st, int nmetrics,
+		const mmv_indom_t *in, int nindoms)
 {
-    mmv_stats_metric_t *mlist;
-    mmv_stats_value_t *vlist;
-    mmv_stats_hdr_t *hdr;
-    mmv_stats_toc_t *toc;
-    __uint64_t soffset;
-    __uint64_t offset;
-    indom_t *indoms;
+    mmv_disk_instance_t *inlist;
+    mmv_disk_indom_t *domlist;
+    mmv_disk_metric_t *mlist;
+    mmv_disk_string_t *slist;
+    mmv_disk_value_t *vlist;
+    mmv_disk_header_t *hdr;
+    mmv_disk_toc_t *toc;
+    __uint64_t indoms_offset;		/* anchor start of indoms section */
+    __uint64_t instances_offset;	/* anchor start of instances section */
+    __uint64_t metrics_offset;		/* anchor start of metrics section */
+    __uint64_t values_offset;		/* anchor start of values section */
+    __uint64_t strings_offset;		/* anchor start of any/all strings */
     void *addr;
-    int i, j, sz = 0, tocidx;
+    size_t size;
+    int i, j, k, tocidx, stridx;
+    int ninstances = 0;
     int nstrings = 0;
     int nvalues = 0;
-    int nindoms = 0;
 
-    mlist = (mmv_stats_metric_t *)calloc(nstats, sizeof(mmv_stats_metric_t));
-    if (mlist == NULL)
-	return NULL;
-    if ((indoms = (indom_t *)calloc(nstats, sizeof(indom_t*))) == NULL) {
-	free(mlist);
-	return NULL;
+    for (i = 0; i < nindoms; i++) {
+	if (in[i].serial == 0 || in[i].serial == PM_INDOM_NULL)
+	    return NULL;
+	ninstances += in[i].count;
+	if (in[i].shorttext)
+	    nstrings++;
+	if (in[i].helptext)
+	    nstrings++;
     }
 
-    for (i = 0; i < nstats; i++) {
+    for (i = 0; i < nmetrics; i++) {
 	if ((st[i].type < MMV_ENTRY_NOSUPPORT) || 
-	    (st[i].type > MMV_ENTRY_INTEGRAL) ||
-	    (strlen(st[i].name) == 0)) {
-	    free(mlist);
-	    free(indoms);
+	    (st[i].type > MMV_ENTRY_INTEGRAL) || strlen(st[i].name) == 0)
 	    return NULL;
-	}
-
-	strcpy(mlist[i].name, st[i].name);
-	mlist[i].item = st[i].item;
-	mlist[i].type = st[i].type;
-	mlist[i].dimension = st[i].dimension;
-	mlist[i].semantics = st[i].semantics;
-	if (st[i].semantics != MMV_SEM_INSTANT && st[i].semantics != MMV_SEM_DISCRETE)
-	    mlist[i].semantics = MMV_SEM_COUNTER;
 
 	if (st[i].helptext)
 	    nstrings++;
 	if (st[i].shorttext)
 	    nstrings++;
 
-	if (st[i].indom != NULL) {
-	    /* Lookup an indom */
-	    for (j = 0; j < nindoms; j++) {
-		if (indoms[j].inst == st[i].indom) {
-		    sz = indoms[j].ninst;
-		    mlist[i].indom = j;
-		    break;
-		}
-	    }
+	if (st[i].indom && st[i].indom != PM_INDOM_NULL) {
+	    const mmv_indom_t * mi;
 
-	    if (j == nindoms) {
-		indoms[nindoms].inst = st[i].indom;
-		indoms[nindoms].ninst = 0;
-
-		for (j = 0; st[i].indom[j].internal != -1; j++)
-		    indoms[nindoms].ninst++;
-
-		sz = indoms[nindoms].ninst;
-		mlist[i].indom = nindoms++;
-	    }
-	    if (mlist[i].type == MMV_ENTRY_STRING)
-		nstrings += sz;
-	    nvalues += sz;
+	    if ((mi = mmv_lookup_indom(st[i].indom, in, nindoms)) == NULL)
+		return NULL;
+	    if (st[i].type == MMV_ENTRY_STRING)
+		nstrings += mi->count;
+	    nvalues += mi->count;
 	} else {
-	    mlist[i].indom = -1;
-	    if (mlist[i].type == MMV_ENTRY_STRING)
+	    if (st[i].type == MMV_ENTRY_STRING)
 		nstrings++;
 	    nvalues++;
 	}
     }
 
-    if (nvalues == 0) {
-	free(mlist);
-	free(indoms);
+    if (nvalues == 0)
 	return NULL;
-    }
 
-    /* Size of the header + TOC with enough instances to accomodate
-     * nindoms instance lists plus metric list and value list
-     */
-    sz = ROUNDUP_64(sizeof(mmv_stats_hdr_t) + 
-		    sizeof(mmv_stats_toc_t) * (nindoms + nstrings + 2));
+    /* TOC follows header, with enough entries to hold */
+    /* indoms, instances, metrics, values, and strings */
+    size = sizeof(mmv_disk_toc_t) * 2;
+    if (nindoms)
+	size += sizeof(mmv_disk_toc_t) * 2;
+    if (nstrings)
+	size += sizeof(mmv_disk_toc_t) * nstrings;
+    indoms_offset = sizeof(mmv_disk_header_t) + size;
 
-    /* Size of all indoms */
-    for (i = 0; i < nindoms; i++)
-	sz += ROUNDUP_64(indoms[i].ninst * sizeof(mmv_stats_inst_t));
+    /* Following the indom definitions are the actual instances */
+    size = sizeof(mmv_disk_indom_t) * nindoms;
+    instances_offset = indoms_offset + size;
 
-    /* Size of metrics list */
-    sz += ROUNDUP_64(nstats * sizeof(mmv_stats_metric_t));
+    /* Following the instances are the metric definitions */
+    for (size = 0, i = 0; i < nindoms; i++)
+	size += in[i].count * sizeof(mmv_disk_instance_t);
+    metrics_offset = instances_offset + size;
 
-    /* Size of values list */
-    sz += nvalues * sizeof(mmv_stats_value_t);
+    /* Following metric definitions are the actual values */
+    size = nmetrics * sizeof(mmv_disk_metric_t);
+    values_offset = metrics_offset + size;
 
-    /* Size of all string sections (values, short/long help text) */
-    sz += nstrings * sizeof(mmv_stats_string_t);
+    /* Following the values are the string values and/or help text */
+    size = nvalues * sizeof(mmv_disk_value_t);
+    strings_offset = values_offset + size;
 
-    if ((addr = mmv_mapping(fname, sz)) == NULL) {
-	free(mlist);
-	free(indoms);
+    /* End of file follows all of the actual strings */
+    size = strings_offset + nstrings * sizeof(mmv_disk_string_t);
+
+    if ((addr = mmv_mapping(fname, size)) == NULL)
 	return NULL;
-    }
 
-    hdr = (mmv_stats_hdr_t *) addr;
-    toc = (mmv_stats_toc_t *)((char *)addr + sizeof(mmv_stats_hdr_t));
-    offset = ROUNDUP_64(sizeof(mmv_stats_hdr_t) + 
-			(nindoms + nstrings + 2) * sizeof(mmv_stats_toc_t));
-
-    /* We unconditionally clobber the stat file on each restart -
+    /*
+     * We unconditionally clobber the stats file on each restart;
      * easier this way and the clients deal with counter wraps.
+     * We also write from the start going forward through the file
+     * with an occassional step back to (re)write the TOC page -
+     * this gives the kernel a decent shot at laying out the file
+     * contiguously ondisk (hopefully we dont do much disk I/O on
+     * this file, but it will be written to disk at times so lets
+     * try to minimise that I/O traffic, eh?).
      */
-    memset(hdr, 0, sizeof(mmv_stats_hdr_t));
+
+    hdr = (mmv_disk_header_t *) addr;
     strncpy(hdr->magic, "MMV", 4);
     hdr->version = MMV_VERSION;
     hdr->g1 = (__uint64_t) time(NULL);
-    hdr->tocs = nindoms + nstrings + 2;
+    hdr->g2 = 0;
+    hdr->tocs = nstrings + 2;
+    if (nindoms)
+	hdr->tocs += 2;
     hdr->flags = fl;
-    hdr->cluster = cl;
+    hdr->cluster = cluster;
     hdr->process = getpid();
 
-    for (tocidx = 0; tocidx < nindoms; tocidx++) {
-	toc[tocidx].typ = MMV_TOC_INDOM;
-	toc[tocidx].cnt = indoms[tocidx].ninst;
-	toc[tocidx].offset = offset;
+    toc = (mmv_disk_toc_t *)((char *)addr + sizeof(mmv_disk_header_t));
+    tocidx = 0;
 
-	memcpy((char *)addr + offset, indoms[tocidx].inst, 
-		sizeof(mmv_stats_inst_t) * indoms[tocidx].ninst);
-
-	offset += sizeof(mmv_stats_inst_t) * indoms[tocidx].ninst;
-	offset = ROUNDUP_64(offset);
+    if (nindoms) {
+	toc[tocidx].type = MMV_TOC_INDOMS;
+	toc[tocidx].count = nindoms;
+	toc[tocidx].offset = indoms_offset;
+	tocidx++;
+	toc[tocidx].type = MMV_TOC_INSTANCES;
+	toc[tocidx].count = ninstances;
+	toc[tocidx].offset = instances_offset;
+	tocidx++;
     }
-
-    toc[tocidx].typ = MMV_TOC_METRICS;
-    toc[tocidx].cnt = nstats;
-    toc[tocidx].offset = offset;
-
-    memcpy((char *)addr + offset, mlist,  sizeof(mmv_stats_metric_t) * nstats);
-
-    offset += sizeof(mmv_stats_metric_t) * nstats;
-    offset = ROUNDUP_64(offset);
-
+    toc[tocidx].type = MMV_TOC_METRICS;
+    toc[tocidx].count = nmetrics;
+    toc[tocidx].offset = metrics_offset;
+    tocidx++;
+    toc[tocidx].type = MMV_TOC_VALUES;
+    toc[tocidx].count = nvalues;
+    toc[tocidx].offset = values_offset;
     tocidx++;
 
-    toc[tocidx].typ = MMV_TOC_VALUES;
-    toc[tocidx].cnt = nvalues;
-    toc[tocidx].offset = offset;
-
-    vlist = (mmv_stats_value_t *)((char *)addr + offset);
-    soffset = offset + nvalues * sizeof(mmv_stats_value_t);
-
-    for (--nvalues, i = 0; i < nstats; i++) {
-	__uint64_t moffset = toc[nindoms].offset + i * sizeof(mmv_stats_metric_t);
-	mmv_stats_metric_t *mp = addr + moffset;
-	mmv_stats_value_t *value;
-
-	if (st[i].indom == NULL) {
-	    value = &vlist[nvalues];
-	    memset(value, 0, sizeof(mmv_stats_value_t));
-	    value->metric = moffset;
-	    value->instance = -1;
-	    if (st[i].type == MMV_ENTRY_STRING)
-		value->extra = mmv_string(addr, ++tocidx, --nstrings, soffset, NULL);
-	    nvalues--;
-	} else {
-	    int j, idx = mlist[i].indom;
-
-	    for (j = indoms[idx].ninst - 1; j >= 0; j-- ) {
-		value = &vlist[nvalues];
-		memset(value, 0, sizeof(mmv_stats_value_t));
-		value->metric = moffset;
-		value->instance = toc[idx].offset + j * sizeof(mmv_stats_inst_t);
-		if (st[i].type == MMV_ENTRY_STRING)
-		    value->extra = mmv_string(addr, ++tocidx, --nstrings, soffset, NULL);
-		nvalues--;
-	    }
-	}
-	if (st[i].shorttext)
-	    mp->shorttext = mmv_string(addr, ++tocidx, --nstrings, soffset, st[i].shorttext);
-	if (st[i].helptext)
-	    mp->helptext = mmv_string(addr, ++tocidx, --nstrings, soffset, st[i].helptext);
+    /* Indom section */
+    domlist = (mmv_disk_indom_t *)((char *)addr + indoms_offset);
+    for (i = 0; i < nindoms; i++) {
+	domlist[i].serial = in[i].serial;
+	domlist[i].count = in[i].count;
+	domlist[i].offset = 0;		/* filled in below */
+	domlist[i].shorttext = 0;	/* filled in later */
+	domlist[i].helptext = 0;	/* filled in later */
     }
 
-    hdr->g2 = hdr->g1; /* Unlock the header - PMDA can read now */
+    /* Instances section */
+    inlist = (mmv_disk_instance_t *)((char *)addr + instances_offset);
+    for (i = 0; i < nindoms; i++) {
+	mmv_instances_t *insts = in[i].instances;
+	domlist[i].offset = ((char *)inlist - (char *)addr);
+	for (j = 0; j < domlist[i].count; j++) {
+	    inlist->indom = indoms_offset + (i * sizeof(mmv_disk_indom_t));
+	    inlist->padding = 0;
+	    inlist->internal = insts[j].internal;
+	    strncpy(inlist->external, insts[j].external, MMV_NAMEMAX);
+ 	    inlist++;
+	}
+    }
 
-    free(mlist);
-    free(indoms);
+    /* Metrics section */
+    mlist = (mmv_disk_metric_t *)((char *)addr + metrics_offset);
+    for (i = 0; i < nmetrics; i++) {
+	strncpy(mlist[i].name, st[i].name, MMV_NAMEMAX);
+	mlist[i].item = st[i].item;
+	mlist[i].type = st[i].type;
+	mlist[i].indom = st[i].indom;
+	mlist[i].dimension = st[i].dimension;
+	mlist[i].semantics = st[i].semantics;
+	mlist[i].shorttext = 0;		/* filled in later */
+	mlist[i].helptext = 0;		/* filled in later */
+	mlist[i].padding = 0;
+    }
+
+    /* Values section */
+    vlist = (mmv_disk_value_t *)((char *)addr + values_offset);
+    for (i = j = 0; i < nmetrics; i++) {
+	__uint64_t off = metrics_offset + i * sizeof(mmv_disk_metric_t);
+
+	if (st[i].indom == 0 || st[i].indom == PM_INDOM_NULL) {
+	    memset(&vlist[j], 0, sizeof(mmv_disk_value_t));
+	    vlist[j].metric = off;
+	    j++;
+	} else {
+	    __uint64_t ioff;
+	    mmv_disk_indom_t *indom;
+
+	    indom = mmv_lookup_disk_indom(st[i].indom, domlist, nindoms);
+	    for (k = 0; k < indom->count; k++) {
+		ioff = indom->offset + sizeof(mmv_disk_instance_t) * k;
+		memset(&vlist[j], 0, sizeof(mmv_disk_value_t));
+		vlist[j].metric = off;
+		vlist[j].instance = ioff;
+		j++;
+	    }
+	}
+    }
+
+    /* Strings section */
+    slist = (mmv_disk_string_t *)((char *)addr + strings_offset);
+    stridx = 0;
+
+    /*
+     * Involves creating new sections and updating offsets (rewrites)
+     * 3 phases: all string values, any metric help, any indom help.
+     */
+    for (i = 0; i < nvalues; i++) {
+	mmv_disk_metric_t * metric = (mmv_disk_metric_t *)
+			((char *)(addr + vlist[i].metric));
+	if (metric->type == MMV_ENTRY_STRING)
+	    vlist[i].extra = mmv_string(addr, slist, stridx++,
+					toc, tocidx++, NULL);
+    }
+    for (i = 0; i < nmetrics; i++) {
+	if (st[i].shorttext)
+	    mlist[i].shorttext = mmv_string(addr, slist, stridx++,
+					toc, tocidx++, st[i].shorttext);
+	if (st[i].helptext)
+	    mlist[i].helptext = mmv_string(addr, slist, stridx++,
+					toc, tocidx++, st[i].helptext);
+    }
+    for (i = 0; i < nindoms; i++) {
+	if (in[i].shorttext)
+	    domlist[i].shorttext = mmv_string(addr, slist, stridx++,
+					toc, tocidx++, st[i].shorttext);
+	if (in[i].helptext)
+	    domlist[i].helptext = mmv_string(addr, slist, stridx++,
+					toc, tocidx++, st[i].helptext);
+    }
+
+    /* Complete - unlock the header, PMDA can read now */
+    hdr->g2 = hdr->g1;
+
     return addr;
 }
 
-mmv_stats_value_t *
+pmAtomValue *
 mmv_lookup_value_desc(void *addr, const char *metric, const char *inst)
 {
     if (addr != NULL && metric != NULL) {
 	int i;
-	mmv_stats_hdr_t *hdr = (mmv_stats_hdr_t *)addr;
-	mmv_stats_toc_t *toc = 
-	    (mmv_stats_toc_t *)((char *)addr + sizeof(mmv_stats_hdr_t));
+	mmv_disk_header_t *hdr = (mmv_disk_header_t *)addr;
+	mmv_disk_toc_t *toc = (mmv_disk_toc_t *)
+			((char *)addr + sizeof(mmv_disk_header_t));
 
 	for (i = 0; i < hdr->tocs; i++) {
-	    if (toc[i].typ ==  MMV_TOC_VALUES) {
+	    if (toc[i].type == MMV_TOC_VALUES) {
 		int j;
-		mmv_stats_value_t *v = 
-		    (mmv_stats_value_t *)((char *)addr + toc[i].offset);
+		mmv_disk_value_t *v = (mmv_disk_value_t *)
+				((char *)addr + toc[i].offset);
 
-		for (j = 0; j < toc[i].cnt; j++) {
-		    mmv_stats_metric_t *m = 
-			(mmv_stats_metric_t *)((char *)addr + v[j].metric);
-		    if (!strcmp(m->name, metric)) {
+		for (j = 0; j < toc[i].count; j++) {
+		    mmv_disk_metric_t *m = (mmv_disk_metric_t *)
+					((char *)addr + v[j].metric);
+		    if (strcmp(m->name, metric) == 0) {
 			if (m->indom < 0) {  /* Singular metric */
-			    return v+j;
+			    return &v[j].value;
  			} else {
 			    if (inst == NULL) {
 				/* Metric has multiple instances, but
@@ -301,11 +358,11 @@ mmv_lookup_value_desc(void *addr, const char *metric, const char *inst)
 				 */
 				return NULL;
 			    } else {
-				mmv_stats_inst_t * in = 
-				    (mmv_stats_inst_t *)((char *)addr + 
-							 v[j].instance);
-				if (!strcmp(in->external, inst))
-				    return v+j;
+				mmv_disk_instance_t * in = 
+				    (mmv_disk_instance_t *)
+					((char *)addr + v[j].instance);
+				if (strcmp(in->external, inst) == 0)
+				    return &v[j].value;
 			    }
 			}
 		    }
@@ -318,33 +375,33 @@ mmv_lookup_value_desc(void *addr, const char *metric, const char *inst)
 }
 
 void
-mmv_inc_value(void *addr, mmv_stats_value_t *v, double inc)
+mmv_inc_value(void *addr, pmAtomValue *av, double inc)
 {
-    if (v != NULL && addr != NULL) {
-	mmv_stats_metric_t * m = 
-	    (mmv_stats_metric_t *)((char *)addr + v->metric);
-    
+    if (av != NULL && addr != NULL) {
+	mmv_disk_value_t * v = (mmv_disk_value_t *) av;
+	mmv_disk_metric_t * m = (mmv_disk_metric_t *)
+					((char *)addr + v->metric);
 	switch (m->type) {
 	case MMV_ENTRY_I32:
-	    v->val.i32 += (__int32_t)inc;
+	    v->value.l += (__int32_t)inc;
 	    break;
 	case MMV_ENTRY_U32:
-	    v->val.u32 += (__uint32_t)inc;
+	    v->value.ul += (__uint32_t)inc;
 	    break;
 	case MMV_ENTRY_I64:
-	    v->val.i64 += (__int64_t)inc;
+	    v->value.ll += (__int64_t)inc;
 	    break;
 	case MMV_ENTRY_U64:
-	    v->val.i32 += (__uint64_t)inc;
+	    v->value.ull += (__uint64_t)inc;
 	    break;
 	case MMV_ENTRY_FLOAT:
-	    v->val.f += (float)inc;
+	    v->value.f += (float)inc;
 	    break;
 	case MMV_ENTRY_DOUBLE:
-	    v->val.d += inc;
+	    v->value.d += inc;
 	    break;
 	case MMV_ENTRY_INTEGRAL:
-	    v->val.i64 +=  (__int64_t)inc;
+	    v->value.ll +=  (__int64_t)inc;
 	    if (inc < 0)
 		v->extra++;
 	    else
@@ -357,17 +414,22 @@ mmv_inc_value(void *addr, mmv_stats_value_t *v, double inc)
 }
 
 void
-mmv_set_string(void *addr, mmv_stats_value_t *v, const char *string, int size)
+mmv_set_string(void *addr, pmAtomValue *av, const char *string, int size)
 {
-    if (v != NULL && addr != NULL && string != NULL) {
-	__uint64_t		soffset = v->extra;
-	mmv_stats_metric_t *	m = (mmv_stats_metric_t *)((char *)addr + v->metric);
-	mmv_stats_string_t	*str;
+    if (av != NULL && addr != NULL && string != NULL) {
+	mmv_disk_value_t * v = (mmv_disk_value_t *) av;
+	mmv_disk_metric_t * m = (mmv_disk_metric_t *)
+					((char *)addr + v->metric);
     
-	if (m->type == MMV_ENTRY_STRING && size >= 0 && size < MMV_STRINGMAX-1) {
-	    str = (mmv_stats_string_t *)((char *)addr + soffset);
-	    strncpy(str->payload, string, size + 1);
-	    v->val.i32 = size;
+	if (m->type == MMV_ENTRY_STRING &&
+	    (size >= 0 && size < MMV_STRINGMAX - 1)) {
+	    __uint64_t soffset = v->extra;
+	    mmv_disk_string_t * s;
+
+	    s = (mmv_disk_string_t *)((char *)addr + soffset);
+	    strncpy(s->payload, string, size);
+	    s->payload[size] = '\0';
+	    v->value.l = size;
 	}
     }
 }

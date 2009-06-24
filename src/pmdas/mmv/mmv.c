@@ -22,10 +22,9 @@
  * of the file.
  */
 
-#include "pmapi.h"
+#include "mmv_dev.h"
 #include "impl.h"
 #include "pmda.h"
-#include "mmv_stats.h"
 #include "./domain.h"
 #include <sys/stat.h>
 
@@ -35,21 +34,21 @@ static pmdaMetric * metrics;
 static int mcnt;
 static pmdaIndom * indoms;
 static int incnt;
+
 static int reload;
+static time_t statsdir_ts;		/* last statsdir timestamp */
 
-static time_t statsdir_ts;	/* last statsdir timestamp */
+static char * pcptmpdir;		/* probably /var/tmp */
+static char * pcpvardir;		/* probably /var/pcp */
+static char * pcppmdasdir;		/* probably /var/pcp/pmdas */
+static char pmnsdir[MAXPATHLEN];	/* pcpvardir/pmns */
+static char statsdir[MAXPATHLEN];	/* pcptmpdir/mmv */
 
-static char *pcptmpdir;		/* probably /var/tmp */
-static char *pcpvardir;		/* probably /var/pcp */
-static char *pcppmdasdir;	/* probably /var/pcp/pmdas */
-static char pmnsdir[MAXPATHLEN];   /* pcpvardir/pmns */
-static char statsdir[MAXPATHLEN];   /* pcptmpdir/mmv */
-
-static struct stats_s {
+typedef struct {
     char *	name;		/* strdup client name */
     void *	addr;		/* mmap */
-    mmv_stats_hdr_t *	hdr;	/* header in mmap */
-    mmv_stats_value_t *	values;	/* values in mmap */
+    mmv_disk_header_t *	hdr;	/* header in mmap */
+    mmv_disk_value_t *	values;	/* values in mmap */
     __int64_t *	extra;		/* per-value value: str offset / old time */
     int		vcnt;		/* number of values */
     int		pid;		/* process identifier */
@@ -59,8 +58,9 @@ static struct stats_s {
     int		mcnt;		/* How many metrics have we got */
     int		cluster;	/* cluster identifier */
     __uint64_t	gen;		/* generation number on open */
-} * slist;
+} stats_t;
 
+static stats_t * slist;
 static int scnt;
 
 static int
@@ -219,7 +219,7 @@ map_stats(void)
 	    free(slist[i].extra);
 	    __pmMemoryUnmap(slist[i].addr, slist[i].len);
 	}
-	free (slist);
+	free(slist);
 	slist = NULL;
 	scnt = 0;
     }
@@ -249,7 +249,7 @@ map_stats(void)
 				  "%s: failed to memory map \"%s\" - %s",
 				  pmProgname, path, strerror(errno));
 		} else {
-		    mmv_stats_hdr_t * hdr = (mmv_stats_hdr_t *)m;
+		    mmv_disk_header_t * hdr = (mmv_disk_header_t *)m;
 		    int cluster;
 
 		    if (strncmp(hdr->magic, "MMV", 4)) {
@@ -274,7 +274,7 @@ map_stats(void)
 		    }
 
 		    /* optionally verify the creator PID is running */
-		    if ((hdr->flags & MMV_FLAG_PROCESS) &&
+		    if (hdr->process && (hdr->flags & MMV_FLAG_PROCESS) &&
 			!__pmProcessExists(hdr->process)) {
 			__pmMemoryUnmap(m, statbuf.st_size);
 			continue;
@@ -282,10 +282,10 @@ map_stats(void)
 
 		    /* all checks out, we'll use this one */
 		    cluster = choose_cluster(hdr->cluster, path);
-		    __pmNotifyErr(LOG_INFO, "%s: loading mmv client - %d \"%s\"",
+		    __pmNotifyErr(LOG_INFO, "%s: loading mmv client: %d \"%s\"",
 				    pmProgname, cluster, path);
 
-		    slist = realloc(slist, sizeof(struct stats_s)*(scnt+1));
+		    slist = realloc(slist, sizeof(stats_t)*(scnt+1));
 		    if (slist != NULL ) {
 			slist[scnt].name = strdup(client);
 			slist[scnt].addr = m;
@@ -323,40 +323,43 @@ map_stats(void)
 
     for (i = 0; i < scnt; i++) {
 	int j;
-	struct stats_s * s = slist + i;
-	mmv_stats_hdr_t * hdr = (mmv_stats_hdr_t *)s->addr;
-	mmv_stats_toc_t * toc = 
-		(mmv_stats_toc_t *)((char *)s->addr+sizeof(mmv_stats_hdr_t));
+	stats_t * s = slist + i;
+	mmv_disk_header_t * hdr = (mmv_disk_header_t *)s->addr;
+	mmv_disk_toc_t * toc = (mmv_disk_toc_t *)
+			((char *)s->addr + sizeof(mmv_disk_header_t));
 
 	for (j = 0; j < hdr->tocs; j++) {
 	    int k;
 
-	    switch (toc[j].typ) {
+	    switch (toc[j].type) {
 	    case MMV_TOC_METRICS:
 		metrics = realloc(metrics,
-				  sizeof(pmdaMetric) * (mcnt + toc[j].cnt));
+				  sizeof(pmdaMetric) * (mcnt + toc[j].count));
 		if (metrics != NULL) {
-		    mmv_stats_metric_t *ml = (mmv_stats_metric_t *)
-						((char *)s->addr + toc[j].offset);
+		    mmv_disk_metric_t *ml = (mmv_disk_metric_t *)
+					((char *)s->addr + toc[j].offset);
 
 		    if (s->moff < 0)
 			s->moff = mcnt;
-		    s->mcnt += toc[j].cnt;
+		    s->mcnt += toc[j].count;
 
-		    for (k = 0; k < toc[j].cnt; k++) {
+		    for (k = 0; k < toc[j].count; k++) {
 			char name[MAXPATHLEN];
 
 			sprintf(name, "mmv.%s.", s->name);
 
 			metrics[mcnt].m_user = ml + k;
-			metrics[mcnt].m_desc.pmid =
-				pmid_build(dispatch.domain, s->cluster, ml[k].item);
+			metrics[mcnt].m_desc.pmid = pmid_build(
+				dispatch.domain, s->cluster, ml[k].item);
 
 			if (ml[k].type == MMV_ENTRY_INTEGRAL) {
 			    metrics[mcnt].m_desc.sem = PM_SEM_COUNTER;
 			    metrics[mcnt].m_desc.type = MMV_ENTRY_I64;
 			} else {
-			    metrics[mcnt].m_desc.sem = ml[k].semantics;
+			    if (ml[k].semantics)
+				metrics[mcnt].m_desc.sem = ml[k].semantics;
+			    else
+				metrics[mcnt].m_desc.sem = PM_SEM_COUNTER;
 			    metrics[mcnt].m_desc.type = ml[k].type;
 			}
 			metrics[mcnt].m_desc.indom =
@@ -367,8 +370,8 @@ map_stats(void)
 				&ml[k].dimension, sizeof(pmUnits));
 
 			strcat(name, ml[k].name);
-			__pmAddPMNSNode(pmns,
-				pmid_build(dispatch.domain, s->cluster, ml[k].item),
+			__pmAddPMNSNode(pmns, pmid_build(
+				dispatch.domain, s->cluster, ml[k].item),
 				name);
 			mcnt++;
 		    }
@@ -379,23 +382,25 @@ map_stats(void)
 		}
 		break;
 
-	    case MMV_TOC_INDOM:
+	    case MMV_TOC_INDOMS:
 		indoms = realloc(indoms, (incnt+1) * sizeof(pmdaIndom));
 
 		if (indoms != NULL) {
-		    mmv_stats_inst_t * id = (mmv_stats_inst_t *)
+		    mmv_disk_indom_t * id = (mmv_disk_indom_t *)
 				((char *)s->addr + toc[j].offset);
 
-		    indoms[incnt].it_indom =
-			pmInDom_build(dispatch.domain, (slist[i].cluster << 11) | j);
-		    indoms[incnt].it_numinst = toc[j].cnt;
+		    indoms[incnt].it_indom = pmInDom_build(dispatch.domain,
+					(slist[i].cluster << 11) | id->serial);
+		    indoms[incnt].it_numinst = id->count;
 		    indoms[incnt].it_set = (pmdaInstid *)
-			calloc(toc[j].cnt, sizeof(pmdaInstid));
+			calloc(id->count, sizeof(pmdaInstid));
 
 		    if (indoms[incnt].it_set != NULL) {
-			for ( k=0; k < indoms[incnt].it_numinst; k++ ) {
-			    indoms[incnt].it_set[k].i_inst = id[k].internal;
-			    indoms[incnt].it_set[k].i_name = id[k].external;
+			mmv_disk_instance_t * in = (mmv_disk_instance_t *)
+				((char *)s->addr + id->offset);
+			for (k = 0; k < indoms[incnt].it_numinst; k++) {
+			    indoms[incnt].it_set[k].i_inst = in[k].internal;
+			    indoms[incnt].it_set[k].i_name = in[k].external;
 			}
 		    } else {
 			__pmNotifyErr(LOG_ERR, 
@@ -409,14 +414,13 @@ map_stats(void)
 				  pmProgname);
 		    exit(1);
 		}
-
 		break;
 
 	    case MMV_TOC_VALUES: 
-		s->vcnt = toc[j].cnt;
-		s->values = (mmv_stats_value_t *)
+		s->vcnt = toc[j].count;
+		s->values = (mmv_disk_value_t *)
 			((char *)s->addr + toc[j].offset);
-		s->extra = (__int64_t*)malloc(s->vcnt*sizeof(__int64_t));
+		s->extra = (__int64_t *)malloc(s->vcnt * sizeof(__int64_t));
 		if (!s->extra) {
 		    __pmNotifyErr(LOG_ERR, 
 				  "%s: cannot get memory for values",
@@ -440,12 +444,12 @@ map_stats(void)
     reload = need_reload;
 }
 
-static mmv_stats_metric_t *
-mmv_lookup_metric(pmID pmid, struct stats_s **sout)
+static mmv_disk_metric_t *
+mmv_lookup_metric(pmID pmid, stats_t **sout)
 {
     __pmID_int * id = (__pmID_int *)&pmid;
-    mmv_stats_metric_t * m;
-    struct stats_s * s;
+    mmv_disk_metric_t * m;
+    stats_t * s;
     int c, i;
 
     for (c = 0; c < scnt; c++) {
@@ -457,7 +461,7 @@ mmv_lookup_metric(pmID pmid, struct stats_s **sout)
 	return NULL;
 
     for (i = 0; i < s->mcnt; i++) {
-	m = (mmv_stats_metric_t *)metrics[s->moff + i].m_user;
+	m = (mmv_disk_metric_t *)metrics[s->moff + i].m_user;
 	if (m->item == id->item)
 	    break;
     }
@@ -483,57 +487,46 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return 1;
 	}
 	return PM_ERR_PMID;
-    } else if ( scnt > 0 ) { /* We have a least one source of metrics */
-	mmv_stats_metric_t * m;
-	mmv_stats_value_t * val;
-	struct stats_s * s;
+    } else if (scnt > 0) {	/* We have a least one source of metrics */
+	mmv_disk_metric_t * m;
+	mmv_disk_value_t * val;
+	stats_t * s;
 
 	if ((m = mmv_lookup_metric(mdesc->m_desc.pmid, &s)) == NULL)
 	    return PM_ERR_PMID;
 
 	val = s->values;
 	for (i = 0; i < s->vcnt; i++) {
-	    mmv_stats_metric_t * mt = (mmv_stats_metric_t *)
+	    mmv_disk_metric_t * mt = (mmv_disk_metric_t *)
 			((char *)s->addr + val[i].metric);
-	    mmv_stats_inst_t * is = (mmv_stats_inst_t *)
+	    mmv_disk_instance_t * is = (mmv_disk_instance_t *)
 			((char *)s->addr + val[i].instance);
 
 	    if ((mt == m) && ((mt->indom < 0) || (is->internal == inst))) {
-		switch (m->type ) {
+		switch (m->type) {
 		    case MMV_ENTRY_I32:
-			atom->l = val[i].val.i32;
-			break;
 		    case MMV_ENTRY_U32:
-			atom->ul = val[i].val.u32;
-			break;
 		    case MMV_ENTRY_I64:
-			atom->ll = val[i].val.i64;
-			break;
 		    case MMV_ENTRY_U64:
-			atom->ull = val[i].val.u64;
-			break;
 		    case MMV_ENTRY_FLOAT:
-			atom->f = val[i].val.f;
-			break;
 		    case MMV_ENTRY_DOUBLE:
-			atom->d = val[i].val.d;
+			memcpy(atom, &val[i].value, sizeof(pmAtomValue));
 			break;
 		    case MMV_ENTRY_INTEGRAL: {
 			struct timeval tv; 
 			gettimeofday (&tv, NULL); 
-			atom->ll = val[i].val.i64 + 
+			atom->ll = val[i].value.ll + 
 			    val[i].extra * (tv.tv_sec*1e6 + tv.tv_usec);
 			break;
 		    }
 		    case MMV_ENTRY_STRING: {
-			mmv_stats_string_t * string = (mmv_stats_string_t *)
+			mmv_disk_string_t * string = (mmv_disk_string_t *)
 					((char *)s->addr + val[i].extra);
 			atom->cp = string->payload;
 			break;
 		    }
 		    case MMV_ENTRY_NOSUPPORT:
 			return PM_ERR_APPVERSION;
-
 		}
 		return 1;
 	    }
@@ -553,7 +546,8 @@ mmv_reload_maybe(void)
 
     /* check if any of the generation numbers have changed (unexpected) */
     for (i = 0; i < scnt; i++) {
-	if (slist[i].hdr->g1 != slist[i].gen || slist[i].hdr->g2 != slist[i].gen) {
+	if (slist[i].hdr->g1 != slist[i].gen ||
+	    slist[i].hdr->g2 != slist[i].gen) {
 	    need_reload++;
 	    break;
 	}
@@ -610,20 +604,20 @@ mmv_text(int ident, int type, char **buffer, pmdaExt *ep)
     else if (pmid_cluster(ident) == 0)
 	return pmdaText(ident, type, buffer, ep);
     else {
-	mmv_stats_metric_t * m;
-	mmv_stats_string_t * s;
-	struct stats_s * stats;
+	mmv_disk_metric_t * m;
+	mmv_disk_string_t * s;
+	stats_t * stats;
 
 	if ((m = mmv_lookup_metric(ident, &stats)) == NULL)
 	    return PM_ERR_PMID;
 
 	if ((type & PM_TEXT_ONELINE) && m->shorttext) {
-	    s = (mmv_stats_string_t *)((char *)stats->addr + m->shorttext);
+	    s = (mmv_disk_string_t *)((char *)stats->addr + m->shorttext);
 	    *buffer = strdup(s->payload);
 	    return (*buffer == NULL) ? -ENOMEM : 0;
 	}
 	if ((type & PM_TEXT_HELP) && m->helptext) {
-	    s = (mmv_stats_string_t *)((char *)stats->addr + m->helptext);
+	    s = (mmv_disk_string_t *)((char *)stats->addr + m->helptext);
 	    *buffer = strdup(s->payload);
 	    return (*buffer == NULL) ? -ENOMEM : 0;
 	}
@@ -673,7 +667,7 @@ mmv_store(pmResult *result, pmdaExt *ep)
 			return PM_ERR_CONV;
 
 		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-					      PM_TYPE_32, &atom, PM_TYPE_32)) < 0)
+					PM_TYPE_32, &atom, PM_TYPE_32)) < 0)
 			return sts;
 		    reload = atom.l;
 		}
@@ -737,7 +731,8 @@ main(int argc, char **argv)
 	    memset (&metrics[mcnt].m_desc.units, 0, sizeof(pmUnits));
 	    mcnt = 1;
 	} else {
-	    __pmNotifyErr(LOG_ERR, "%s: pmdaInit - out of memory\n", pmProgname);
+	    __pmNotifyErr(LOG_ERR, "%s: pmdaInit - out of memory\n",
+				pmProgname);
 	    exit(0);
 	}
 
