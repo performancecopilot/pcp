@@ -359,22 +359,24 @@ map_stats(void)
 				dispatch.domain, s->cluster, ml[k].item);
 
 			if (ml[k].type == MMV_TYPE_ELAPSED) {
+			    pmUnits unit = PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0);
 			    metrics[mcnt].m_desc.sem = PM_SEM_COUNTER;
 			    metrics[mcnt].m_desc.type = MMV_TYPE_I64;
+			    metrics[mcnt].m_desc.units = unit;
 			} else {
 			    if (ml[k].semantics)
 				metrics[mcnt].m_desc.sem = ml[k].semantics;
 			    else
 				metrics[mcnt].m_desc.sem = PM_SEM_COUNTER;
 			    metrics[mcnt].m_desc.type = ml[k].type;
+			    memcpy(&metrics[mcnt].m_desc.units,
+				   &ml[k].dimension, sizeof(pmUnits));
 			}
 			metrics[mcnt].m_desc.indom =
 				(!ml[k].indom || ml[k].indom == PM_INDOM_NULL) ?
 					PM_INDOM_NULL :
 					pmInDom_build(dispatch.domain,
 					(s->cluster << 11) | ml[k].indom);
-			memcpy(&metrics[mcnt].m_desc.units,
-				&ml[k].dimension, sizeof(pmUnits));
 
 			strcat(name, ml[k].name);
 			__pmAddPMNSNode(pmns, pmid_build(
@@ -735,7 +737,7 @@ main(int argc, char **argv)
 	    metrics[mcnt].m_desc.type = PM_TYPE_32;
 	    metrics[mcnt].m_desc.indom = PM_INDOM_NULL;
 	    metrics[mcnt].m_desc.sem = PM_SEM_INSTANT;
-	    memset (&metrics[mcnt].m_desc.units, 0, sizeof(pmUnits));
+	    memset(&metrics[mcnt].m_desc.units, 0, sizeof(pmUnits));
 	    mcnt = 1;
 	} else {
 	    __pmNotifyErr(LOG_ERR, "%s: pmdaInit - out of memory\n",
