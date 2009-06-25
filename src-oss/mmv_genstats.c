@@ -1,3 +1,4 @@
+#include <pcp/pmapi.h>
 #include <pcp/mmv_stats.h>
 
 static mmv_instances_t test_instances [] = {
