@@ -125,8 +125,8 @@ mmv_stats_init(const char *fname,
     }
 
     for (i = 0; i < nmetrics; i++) {
-	if ((st[i].type < MMV_ENTRY_NOSUPPORT) || 
-	    (st[i].type > MMV_ENTRY_INTEGRAL) || strlen(st[i].name) == 0)
+	if ((st[i].type < MMV_TYPE_NOSUPPORT) || 
+	    (st[i].type > MMV_TYPE_ELAPSED) || strlen(st[i].name) == 0)
 	    return NULL;
 
 	if (st[i].helptext)
@@ -139,11 +139,11 @@ mmv_stats_init(const char *fname,
 
 	    if ((mi = mmv_lookup_indom(st[i].indom, in, nindoms)) == NULL)
 		return NULL;
-	    if (st[i].type == MMV_ENTRY_STRING)
+	    if (st[i].type == MMV_TYPE_STRING)
 		nstrings += mi->count;
 	    nvalues += mi->count;
 	} else {
-	    if (st[i].type == MMV_ENTRY_STRING)
+	    if (st[i].type == MMV_TYPE_STRING)
 		nstrings++;
 	    nvalues++;
 	}
@@ -302,7 +302,7 @@ mmv_stats_init(const char *fname,
     for (i = 0; i < nvalues; i++) {
 	mmv_disk_metric_t * metric = (mmv_disk_metric_t *)
 			((char *)(addr + vlist[i].metric));
-	if (metric->type == MMV_ENTRY_STRING)
+	if (metric->type == MMV_TYPE_STRING)
 	    vlist[i].extra = mmv_string(addr, slist, stridx++,
 					toc, tocidx++, NULL);
     }
@@ -382,30 +382,67 @@ mmv_inc_value(void *addr, pmAtomValue *av, double inc)
 	mmv_disk_metric_t * m = (mmv_disk_metric_t *)
 					((char *)addr + v->metric);
 	switch (m->type) {
-	case MMV_ENTRY_I32:
+	case MMV_TYPE_I32:
 	    v->value.l += (__int32_t)inc;
 	    break;
-	case MMV_ENTRY_U32:
+	case MMV_TYPE_U32:
 	    v->value.ul += (__uint32_t)inc;
 	    break;
-	case MMV_ENTRY_I64:
+	case MMV_TYPE_I64:
 	    v->value.ll += (__int64_t)inc;
 	    break;
-	case MMV_ENTRY_U64:
+	case MMV_TYPE_U64:
 	    v->value.ull += (__uint64_t)inc;
 	    break;
-	case MMV_ENTRY_FLOAT:
+	case MMV_TYPE_FLOAT:
 	    v->value.f += (float)inc;
 	    break;
-	case MMV_ENTRY_DOUBLE:
+	case MMV_TYPE_DOUBLE:
 	    v->value.d += inc;
 	    break;
-	case MMV_ENTRY_INTEGRAL:
-	    v->value.ll +=  (__int64_t)inc;
+	case MMV_TYPE_ELAPSED:
 	    if (inc < 0)
-		v->extra++;
-	    else
-		v->extra--;
+		v->extra = (__int64_t)inc;
+	    else {
+		v->value.ll += v->extra + (__int64_t)inc;
+		v->extra = 0;
+	    }
+	    break;
+	default:
+	    break;
+	}
+    }
+}
+
+void
+mmv_set_value(void *addr, pmAtomValue *av, double val)
+{
+    if (av != NULL && addr != NULL) {
+	mmv_disk_value_t * v = (mmv_disk_value_t *) av;
+	mmv_disk_metric_t * m = (mmv_disk_metric_t *)
+					((char *)addr + v->metric);
+	switch (m->type) {
+	case MMV_TYPE_I32:
+	    v->value.l = (__int32_t)val;
+	    break;
+	case MMV_TYPE_U32:
+	    v->value.ul = (__uint32_t)val;
+	    break;
+	case MMV_TYPE_I64:
+	    v->value.ll = (__int64_t)val;
+	    break;
+	case MMV_TYPE_U64:
+	    v->value.ull = (__uint64_t)val;
+	    break;
+	case MMV_TYPE_FLOAT:
+	    v->value.f = (float)val;
+	    break;
+	case MMV_TYPE_DOUBLE:
+	    v->value.d = val;
+	    break;
+	case MMV_TYPE_ELAPSED:
+	    v->value.ll = (__int64_t)val;
+	    v->extra = 0;
 	    break;
 	default:
 	    break;
@@ -420,8 +457,8 @@ mmv_set_string(void *addr, pmAtomValue *av, const char *string, int size)
 	mmv_disk_value_t * v = (mmv_disk_value_t *) av;
 	mmv_disk_metric_t * m = (mmv_disk_metric_t *)
 					((char *)addr + v->metric);
-    
-	if (m->type == MMV_ENTRY_STRING &&
+ 
+	if (m->type == MMV_TYPE_STRING &&
 	    (size >= 0 && size < MMV_STRINGMAX - 1)) {
 	    __uint64_t soffset = v->extra;
 	    mmv_disk_string_t * s;
@@ -431,5 +468,109 @@ mmv_set_string(void *addr, pmAtomValue *av, const char *string, int size)
 	    s->payload[size] = '\0';
 	    v->value.l = size;
 	}
+    }
+}
+
+/*
+ * Simple wrapper routines
+ */
+
+void
+mmv_stats_add(void *addr,
+	const char *metric, const char *instance, double count)
+{
+    if (addr) {
+	pmAtomValue * mmv_metric;
+	mmv_metric = mmv_lookup_value_desc(addr, metric, instance);
+	if (mmv_metric)
+	    mmv_inc_value(addr, mmv_metric, count);
+    }
+}
+
+void
+mmv_stats_inc(void *addr, const char *metric, const char *instance)
+{
+    mmv_stats_add(addr, metric, instance, 1);
+}
+
+void
+mmv_stats_set(void *addr,
+	const char *metric, const char *instance, double value)
+{
+    if (addr) {
+	pmAtomValue * mmv_metric;
+	mmv_metric = mmv_lookup_value_desc(addr, metric, instance);
+	if (mmv_metric)
+	    mmv_set_value(addr, mmv_metric, value);
+    }
+}
+
+void
+mmv_stats_add_fallback(void *addr, const char *metric,
+	const char *instance, const char *instance2, double count)
+{
+    if (addr) {
+	pmAtomValue * mmv_metric;
+	mmv_metric = mmv_lookup_value_desc(addr, metric, instance);
+	if (mmv_metric == NULL)
+	    mmv_metric = mmv_lookup_value_desc(addr,metric,instance2);
+	if (mmv_metric)
+	    mmv_inc_value(addr, mmv_metric, count);
+    }
+}
+
+void
+mmv_stats_inc_fallback(void *addr, const char *metric,
+	const char *instance, const char *instance2)
+{
+    mmv_stats_add_fallback(addr, metric, instance, instance2, 1);
+}
+
+pmAtomValue *
+mmv_stats_interval_start(void *addr, pmAtomValue *value,
+	const char *metric, const char *instance)
+{
+    if (addr) {
+	if (value == NULL)
+	    value = mmv_lookup_value_desc(addr, metric, instance);
+	if (value) {
+	    struct timeval tv;
+	    gettimeofday(&tv, NULL);
+	    mmv_inc_value(addr, value, -(tv.tv_sec*1e6 + tv.tv_usec));
+	}
+    }
+    return value;
+}
+
+void
+mmv_stats_interval_end(void *addr, pmAtomValue *value)
+{
+    if (value && addr) {
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	mmv_inc_value(addr, value, (tv.tv_sec*1e6 + tv.tv_usec));
+    }
+}
+
+void
+mmv_stats_set_string(void *addr, const char *metric,
+	const char *instance, const char *string)
+{
+    if (addr) {
+	size_t len = strlen(string);
+	pmAtomValue *mmv_metric;
+	mmv_metric = mmv_lookup_value_desc(addr, metric, instance);
+	mmv_set_string(addr, mmv_metric, string, len);
+    }
+}
+
+void
+mmv_stats_set_strlen(void *addr, const char *metric,
+	const char *instance, const char *string, size_t len)
+{
+    if (addr) {
+	pmAtomValue *mmv_metric;
+	mmv_metric = mmv_lookup_value_desc(addr, metric, instance);
+	mmv_set_string(addr, mmv_metric, string, len);
     }
 }

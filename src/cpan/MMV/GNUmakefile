@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 PERLMOD   = MMV.pm
 INTERFACE = MMV.xs typemap
-TESTCODE  = test.pl
+TESTCODE  = test.pl server.pl
 PERLDOCS  = Changes MANIFEST
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 

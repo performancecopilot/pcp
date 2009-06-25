@@ -214,6 +214,14 @@ mmv_inc_value(handle,atom,value)
 	mmv_inc_value(handle, atom, value);
 
 void
+mmv_set_value(handle,atom,value)
+	void *			handle
+	pmAtomValue *		atom
+	double			value
+    CODE:
+	mmv_set_value(handle, atom, value);
+
+void
 mmv_set_string(handle,atom,string)
 	void *			handle
 	pmAtomValue *		atom
@@ -225,23 +233,6 @@ mmv_set_string(handle,atom,string)
 	data = SvPV_nolen(string);
 	length = strlen(data);
 	mmv_set_string(handle, atom, data, length);
-
-void
-mmv_stats_static_add(handle,metric,instance,count)
-	void *			handle
-	char *			metric
-	char *			instance
-	double			count
-    CODE:
-	mmv_stats_static_add(handle, metric, instance, count);
-
-void
-mmv_static_inc(handle,metric,instance)
-	void *			handle
-	char *			metric
-	char *			instance
-    CODE:
-	mmv_stats_static_inc(handle, metric, instance);
 
 void
 mmv_stats_add(handle,metric,instance,count)

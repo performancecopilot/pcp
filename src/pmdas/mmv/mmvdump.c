@@ -80,35 +80,35 @@ dump_values(void *addr, int idx, __uint64_t offset, __int32_t count)
 	}
 
 	switch (m->type) {
-	case MMV_ENTRY_I32:
+	case MMV_TYPE_I32:
 	    printf(" = %d", vals[i].value.l);
 	    break;
-	case MMV_ENTRY_U32:
+	case MMV_TYPE_U32:
 	    printf(" = %u", vals[i].value.ul);
 	    break;
-	case MMV_ENTRY_I64:
+	case MMV_TYPE_I64:
 	    printf(" = %lld", (long long)vals[i].value.ll);
 	    break;
-	case MMV_ENTRY_U64:
+	case MMV_TYPE_U64:
 	    printf(" = %llu", (unsigned long long)vals[i].value.ull);
 	    break;
-	case MMV_ENTRY_FLOAT:
+	case MMV_TYPE_FLOAT:
 	    printf(" = %f", vals[i].value.f);
 	    break;
-	case MMV_ENTRY_DOUBLE:
+	case MMV_TYPE_DOUBLE:
 	    printf(" = %lf", vals[i].value.d);
 	    break;
-	case MMV_ENTRY_STRING:
+	case MMV_TYPE_STRING:
 	    string = (mmv_disk_string_t *)((char *)addr + vals[i].extra);
 	    printf(" = \"%s\"", string->payload);
 	    break;
-	case MMV_ENTRY_INTEGRAL: {
+	case MMV_TYPE_ELAPSED: {
 	    struct timeval tv;
 	    long long t;
 
 	    gettimeofday(&tv, NULL);
 	    t = vals[i].value.ll +
-		vals[i].extra * (tv.tv_sec*1e6 + tv.tv_usec);
+		vals[i].extra + (tv.tv_sec*1e6 + tv.tv_usec);
 	    printf(" = %lld", t);
 	    break;
 	}

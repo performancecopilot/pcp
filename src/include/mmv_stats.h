@@ -24,24 +24,22 @@ extern "C" {
 #define MMV_NAMEMAX	64
 #define MMV_STRINGMAX	256
 
-/* Initial entries should match PM_TYPE_* from <pcp/pmapi.h> */
 typedef enum {
-    MMV_ENTRY_NOSUPPORT = -1,	/* Not implemented in this version */
-    MMV_ENTRY_I32       =  0,	/* 32-bit signed integer */
-    MMV_ENTRY_U32       =  1,	/* 32-bit unsigned integer */
-    MMV_ENTRY_I64       =  2,	/* 64-bit signed integer */
-    MMV_ENTRY_U64       =  3,	/* 64-bit unsigned integer */
-    MMV_ENTRY_FLOAT     =  4,	/* 32-bit floating point */
-    MMV_ENTRY_DOUBLE    =  5,	/* 64-bit floating point */
-    MMV_ENTRY_STRING    =  6,	/* NULL-terminate string */
-    MMV_ENTRY_INTEGRAL  = 10,	/* Timestamp & number of outstanding */
+    MMV_TYPE_NOSUPPORT = PM_TYPE_NOSUPPORT,
+    MMV_TYPE_I32       = PM_TYPE_32,	/* 32-bit signed integer */
+    MMV_TYPE_U32       = PM_TYPE_U32,	/* 32-bit unsigned integer */
+    MMV_TYPE_I64       = PM_TYPE_64,	/* 64-bit signed integer */
+    MMV_TYPE_U64       = PM_TYPE_U64,	/* 64-bit unsigned integer */
+    MMV_TYPE_FLOAT     = PM_TYPE_FLOAT,	/* 32-bit floating point */
+    MMV_TYPE_DOUBLE    = PM_TYPE_DOUBLE,/* 64-bit floating point */
+    MMV_TYPE_STRING    = PM_TYPE_STRING,/* NULL-terminate string */
+    MMV_TYPE_ELAPSED   = 9,		/* 64-bit elapsed time */
 } mmv_metric_type_t;
 
-/* These all directly match PM_SEM_* from <pcp/pmapi.h> */
 typedef enum {
-    MMV_SEM_COUNTER	= 1,	/* Cumulative counter (monotonic increasing) */
-    MMV_SEM_INSTANT	= 3,	/* Instantaneous value, continuous domain */
-    MMV_SEM_DISCRETE	= 4,	/* Instantaneous value, discrete domain */
+    MMV_SEM_COUNTER	= PM_SEM_COUNTER,
+    MMV_SEM_INSTANT	= PM_SEM_INSTANT,
+    MMV_SEM_DISCRETE	= PM_SEM_DISCRETE,
 } mmv_metric_sem_t;
 
 typedef struct {
@@ -84,115 +82,23 @@ extern void * mmv_stats_init(const char *, int, mmv_stats_flags_t,
 				const mmv_indom_t *, int);
 extern pmAtomValue * mmv_lookup_value_desc(void *, const char *, const char *);
 extern void mmv_inc_value(void *, pmAtomValue *, double);
+extern void mmv_set_value(void *, pmAtomValue *, double);
 extern void mmv_set_string(void *, pmAtomValue *, const char *, int);
 
-static inline void
-mmv_stats_static_add(void *__handle,
-	const char *__metric, const char *__instance, double __count)
-{
-    if (__handle) {
-	static pmAtomValue * __mmv_metric;
-	__mmv_metric = mmv_lookup_value_desc(__handle, __metric, __instance);
-	if (__mmv_metric)
-	    mmv_inc_value(__handle, __mmv_metric, __count);
-    }
-}
-
-static inline void
-mmv_stats_static_inc(void *__handle,
-	const char *__metric, const char *__instance)
-{
-    mmv_stats_static_add(__handle, __metric, __instance, 1);
-}
-
-static inline void
-mmv_stats_add(void *__handle,
-	const char *__metric, const char *__instance, double __count)
-{
-    if (__handle) {
-	pmAtomValue * __mmv_metric;
-	__mmv_metric = mmv_lookup_value_desc(__handle, __metric, __instance);
-	if (__mmv_metric)
-	    mmv_inc_value(__handle, __mmv_metric, __count);
-    }
-}
-
-static inline void
-mmv_stats_inc(void *__handle,
-	const char *__metric, const char *__instance)
-{
-    mmv_stats_add(__handle, __metric, __instance, 1);
-}
-
-static inline void
-mmv_stats_add_fallback(void *__handle, const char *__metric,
-	const char *__instance, const char *__instance2, double __count)
-{
-    if (__handle) {
-	pmAtomValue * __mmv_metric;
-	__mmv_metric = mmv_lookup_value_desc(__handle, __metric, __instance);
-	if (__mmv_metric == NULL)
-	    __mmv_metric = mmv_lookup_value_desc(__handle,__metric,__instance2);
-	if (__mmv_metric)
-	    mmv_inc_value(__handle, __mmv_metric, __count);
-    }
-}
-
-static inline void
-mmv_stats_inc_fallback(void *__handle, const char *__metric,
-	const char *__instance, const char *__instance2)
-{
-    mmv_stats_add_fallback(__handle, __metric, __instance, __instance2, 1);
-}
-
-static inline pmAtomValue *
-mmv_stats_interval_start(void *__handle, pmAtomValue *__value,
-	const char *__metric, const char *__instance)
-{
-    if (__handle) {
-	if (__value == NULL)
-	    __value = mmv_lookup_value_desc(__handle, __metric, __instance);
-	if (__value) {
-	    struct timeval __tv;
-	    gettimeofday(&__tv, NULL);
-	    mmv_inc_value(__handle, __value, -(__tv.tv_sec*1e6 + __tv.tv_usec));
-	}
-    }
-    return __value;
-}
-
-static inline void
-mmv_stats_interval_end(void *__handle, pmAtomValue *__value)
-{
-    if (__value && __handle) {
-	struct timeval __tv;
-	gettimeofday(&__tv, NULL);
-	mmv_inc_value(__handle, __value, (__tv.tv_sec*1e6 + __tv.tv_usec));
-    }
-}
-
-static inline void
-mmv_stats_set_string(void *__handle, const char *__metric,
-	const char *__instance, const char *__string)
-{
-    if (__handle) {
-	size_t __len = strlen(__string);
-	pmAtomValue *__mmv_metric;
-	__mmv_metric = mmv_lookup_value_desc(__handle, __metric, __instance);
-	mmv_set_string(__handle, __mmv_metric, __string, __len);
-    }
-}
-
-static inline void
-mmv_stats_set_strlen(void *__handle, const char *__metric,
-	const char *__instance, const char *__string, size_t __len)
-{
-    if (__handle) {
-	pmAtomValue *__mmv_metric;
-	__mmv_metric = mmv_lookup_value_desc(__handle, __metric, __instance);
-	mmv_set_string(__handle, __mmv_metric, __string, __len);
-    }
-}
+extern void mmv_stats_add(void *, const char *, const char *, double);
+extern void mmv_stats_inc(void *, const char *, const char *);
+extern void mmv_stats_set(void *, const char *, const char *, double);
+extern void mmv_stats_add_fallback(void *, const char *, const char *,
+				const char *, double);
+extern void mmv_stats_inc_fallback(void *, const char *, const char *,
+				const char *);
+extern pmAtomValue * mmv_stats_interval_start(void *, pmAtomValue *,
+				const char *, const char *);
+extern void mmv_stats_interval_end(void *, pmAtomValue *);
+extern void mmv_stats_set_string(void *, const char *,
+				const char *, const char *);
+extern void mmv_stats_set_strlen(void *, const char *,
+				const char *, const char *, size_t);
 
 #ifdef __cplusplus
 }

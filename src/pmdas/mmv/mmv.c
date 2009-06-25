@@ -360,9 +360,9 @@ map_stats(void)
 			metrics[mcnt].m_desc.pmid = pmid_build(
 				dispatch.domain, s->cluster, ml[k].item);
 
-			if (ml[k].type == MMV_ENTRY_INTEGRAL) {
+			if (ml[k].type == MMV_TYPE_ELAPSED) {
 			    metrics[mcnt].m_desc.sem = PM_SEM_COUNTER;
-			    metrics[mcnt].m_desc.type = MMV_ENTRY_I64;
+			    metrics[mcnt].m_desc.type = MMV_TYPE_I64;
 			} else {
 			    if (ml[k].semantics)
 				metrics[mcnt].m_desc.sem = ml[k].semantics;
@@ -520,28 +520,28 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		(mt->indom == PM_INDOM_NULL || mt->indom == 0 ||
 		 (is->internal == inst))) {
 		switch (m->type) {
-		    case MMV_ENTRY_I32:
-		    case MMV_ENTRY_U32:
-		    case MMV_ENTRY_I64:
-		    case MMV_ENTRY_U64:
-		    case MMV_ENTRY_FLOAT:
-		    case MMV_ENTRY_DOUBLE:
+		    case MMV_TYPE_I32:
+		    case MMV_TYPE_U32:
+		    case MMV_TYPE_I64:
+		    case MMV_TYPE_U64:
+		    case MMV_TYPE_FLOAT:
+		    case MMV_TYPE_DOUBLE:
 			memcpy(atom, &val[i].value, sizeof(pmAtomValue));
 			break;
-		    case MMV_ENTRY_INTEGRAL: {
+		    case MMV_TYPE_ELAPSED: {
 			struct timeval tv; 
 			gettimeofday (&tv, NULL); 
 			atom->ll = val[i].value.ll + 
-			    val[i].extra * (tv.tv_sec*1e6 + tv.tv_usec);
+			    (val[i].extra + (tv.tv_sec*1e6 + tv.tv_usec));
 			break;
 		    }
-		    case MMV_ENTRY_STRING: {
+		    case MMV_TYPE_STRING: {
 			mmv_disk_string_t * string = (mmv_disk_string_t *)
 					((char *)s->addr + val[i].extra);
 			atom->cp = string->payload;
 			break;
 		    }
-		    case MMV_ENTRY_NOSUPPORT:
+		    case MMV_TYPE_NOSUPPORT:
 			return PM_ERR_APPVERSION;
 		}
 		return 1;
