@@ -22,6 +22,8 @@
  * of the file (by default - this can be changed).
  */
 
+#include "pmapi.h"
+#include "mmv_stats.h"
 #include "mmv_dev.h"
 #include "impl.h"
 #include "pmda.h"

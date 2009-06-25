@@ -13,8 +13,10 @@
  * for more details.
  */
 
-#include <pcp/mmv_dev.h>
-#include <pcp/impl.h>
+#include "pmapi.h"
+#include "mmv_stats.h"
+#include "mmv_dev.h"
+#include "impl.h"
 #include <sys/stat.h>
 
 void

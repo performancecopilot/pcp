@@ -15,8 +15,6 @@
 #ifndef _MMV_STATS_H
 #define _MMV_STATS_H
 
-#include <pcp/pmapi.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -15,8 +15,6 @@
 #ifndef _MMV_DEV_H
 #define _MMV_DEV_H
 
-#include <pcp/mmv_stats.h>
-
 #define MMV_VERSION	1
 
 typedef enum {

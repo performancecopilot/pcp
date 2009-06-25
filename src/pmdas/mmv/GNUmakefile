@@ -20,7 +20,8 @@ CFILES	= mmv.c
 LSRCFILES = pmns Install Remove README help root mmvdump.c
 
 LCFLAGS = -I.
-LDLIBS	= -lpcp_pmda -lpcp
+LLDFLAGS= -L$(TOPDIR)/src/libpcp_mmv/src
+LLDLIBS	= -lpcp_pmda -lpcp
 
 IAM	= mmv
 DOMAIN	= MMV
@@ -57,4 +58,4 @@ pcp :
 	$(LN_S) -f $(TOPDIR)/src/include pcp
 
 mmvdump$(EXECSUFFIX):    mmvdump.o
-	$(CCF) -o $@ mmvdump.o -lpcp -lpcp_mmv
+	$(CCF) -o $@ mmvdump.o $(LDFLAGS) -lpcp -lpcp_mmv

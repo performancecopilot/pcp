@@ -14,6 +14,8 @@
  *
  * Memory Mapped Values PMDA Client API
  */
+#include "pmapi.h"
+#include "mmv_stats.h"
 #include "mmv_dev.h"
 #include "impl.h"
 

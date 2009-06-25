@@ -12,6 +12,7 @@
  * for more details.
  */
 
+#include "pmapi.h"
 #include "mmv_stats.h"
 #include "EXTERN.h"
 #include "perl.h"
