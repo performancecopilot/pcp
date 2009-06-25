@@ -67,6 +67,12 @@ mmv_string(void *addr, mmv_disk_string_t *slist, int strindex,
     return offset;
 }
 
+static int
+mmv_singular(__int32_t indom)
+{
+    return (indom == 0 || indom == PM_INDOM_NULL);
+}
+
 static mmv_disk_indom_t *
 mmv_lookup_disk_indom(__int32_t indom, mmv_disk_indom_t *in, int nindoms)
 {
@@ -115,7 +121,7 @@ mmv_stats_init(const char *fname,
     int nvalues = 0;
 
     for (i = 0; i < nindoms; i++) {
-	if (in[i].serial == 0 || in[i].serial == PM_INDOM_NULL)
+	if (mmv_singular(in[i].serial))
 	    return NULL;
 	ninstances += in[i].count;
 	if (in[i].shorttext)
@@ -134,7 +140,7 @@ mmv_stats_init(const char *fname,
 	if (st[i].shorttext)
 	    nstrings++;
 
-	if (st[i].indom && st[i].indom != PM_INDOM_NULL) {
+	if (!mmv_singular(st[i].indom)) {
 	    const mmv_indom_t * mi;
 
 	    if ((mi = mmv_lookup_indom(st[i].indom, in, nindoms)) == NULL)
@@ -272,7 +278,7 @@ mmv_stats_init(const char *fname,
     for (i = j = 0; i < nmetrics; i++) {
 	__uint64_t off = metrics_offset + i * sizeof(mmv_disk_metric_t);
 
-	if (st[i].indom == 0 || st[i].indom == PM_INDOM_NULL) {
+	if (mmv_singular(st[i].indom)) {
 	    memset(&vlist[j], 0, sizeof(mmv_disk_value_t));
 	    vlist[j].metric = off;
 	    j++;
@@ -317,10 +323,10 @@ mmv_stats_init(const char *fname,
     for (i = 0; i < nindoms; i++) {
 	if (in[i].shorttext)
 	    domlist[i].shorttext = mmv_string(addr, slist, stridx++,
-					toc, tocidx++, st[i].shorttext);
+					toc, tocidx++, in[i].shorttext);
 	if (in[i].helptext)
 	    domlist[i].helptext = mmv_string(addr, slist, stridx++,
-					toc, tocidx++, st[i].helptext);
+					toc, tocidx++, in[i].helptext);
     }
 
     /* Complete - unlock the header, PMDA can read now */
@@ -348,7 +354,7 @@ mmv_lookup_value_desc(void *addr, const char *metric, const char *inst)
 		    mmv_disk_metric_t *m = (mmv_disk_metric_t *)
 					((char *)addr + v[j].metric);
 		    if (strcmp(m->name, metric) == 0) {
-			if (m->indom < 0) {  /* Singular metric */
+			if (mmv_singular(m->indom)) {  /* Singular metric */
 			    return &v[j].value;
  			} else {
 			    if (inst == NULL) {
