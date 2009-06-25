@@ -108,6 +108,42 @@ multiple instances.
 String sections only appear if there are metrics with string values,
 or when Metrics or Indoms are defined with help text.
 .PP
+The entries in the Indoms section have the following format:
+.TS
+box,center;
+c | c | c
+n | n | l.
+Offset	Length	Value
+_
+0	4	Unique serial number for this domain
+_
+4	4	Number of entries in the domain
+_
+8	8	Offset to first instance
+_
+16	8	Short help text offset
+_
+24	8	Long help text offset
+.TE
+.PP
+.PP
+The entries in the Instances section have the following format:
+.TS
+box,center;
+c | c | c
+n | n | l.
+Offset	Length	Value
+_
+0	8	Offset into the indom section
+_
+8	4	Unused padding (zero filled)
+_
+12	4	Internal instance identifier
+_
+16	64	External instance identifier
+.TE
+.PP
+.PP
 The entries in the Metrics section have the following format:
 .TS
 box,center;
@@ -152,44 +188,9 @@ _
 .TE
 .PP
 .PP
-The entries in the Indom section have the following format:
-.TS
-box,center;
-c | c | c
-n | n | l.
-Offset	Length	Value
-_
-0	4	Unique serial number for this domain
-_
-4	4	Number of entries in the domain
-_
-8	8	Offset to first instance
-_
-16	8	Short help text offset
-_
-24	8	Long help text offset
-.TE
-.PP
-.PP
-The entries in the Instances section have the following format:
-.TS
-box,center;
-c | c | c
-n | n | l.
-Offset	Length	Value
-_
-0	8	Offset into the indom section
-_
-8	4	Unused padding (zero filled)
-_
-12	4	Internal instance identifier
-_
-16	64	External instance identifier
-.TE
-.PP
-.PP
 The entries in the string sections are NULL-terminated character
-arrays with a maximum length of 256 bytes (one string in each section).
+arrays containing one array each.  Each string (array) has a maximum
+length of 256 bytes which includes the terminating NULL.
 .PP
 .SH SEE ALSO
 .BR PCPIntro (1),
