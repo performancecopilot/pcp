@@ -50,7 +50,6 @@ typedef struct {
     void *	addr;		/* mmap */
     mmv_disk_header_t *	hdr;	/* header in mmap */
     mmv_disk_value_t *	values;	/* values in mmap */
-    __int64_t *	extra;		/* per-value value: str offset / old time */
     int		vcnt;		/* number of values */
     int		pid;		/* process identifier */
     __int64_t	len;		/* mmap region len */
@@ -220,7 +219,6 @@ map_stats(void)
     if (slist != NULL) {
 	for (i = 0; i < scnt; i++) {
 	    free(slist[i].name);
-	    free(slist[i].extra);
 	    __pmMemoryUnmap(slist[i].addr, slist[i].len);
 	}
 	free(slist);
@@ -434,16 +432,6 @@ map_stats(void)
 		s->vcnt = toc[j].count;
 		s->values = (mmv_disk_value_t *)
 			((char *)s->addr + toc[j].offset);
-		s->extra = (__int64_t *)malloc(s->vcnt * sizeof(__int64_t));
-		if (!s->extra) {
-		    __pmNotifyErr(LOG_ERR, 
-				  "%s: cannot get memory for values",
-				  pmProgname);
-		    exit(1);
-		} else {
-		    for (k = 0; k < s->vcnt; k++)
-			s->extra[k] = -1;
-		}
 		break;
 
 	    default:
@@ -529,10 +517,13 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			memcpy(atom, &val[i].value, sizeof(pmAtomValue));
 			break;
 		    case MMV_TYPE_ELAPSED: {
-			struct timeval tv; 
-			gettimeofday (&tv, NULL); 
-			atom->ll = val[i].value.ll + 
-			    (val[i].extra + (tv.tv_sec*1e6 + tv.tv_usec));
+			atom->ll = val[i].value.ll;
+			if (val[i].extra < 0) {	/* inside a timed section */
+			    struct timeval tv; 
+			    gettimeofday(&tv, NULL); 
+			    atom->ll += (tv.tv_sec * 1e6 + tv.tv_usec) +
+					val[i].extra;
+			}
 			break;
 		    }
 		    case MMV_TYPE_STRING: {

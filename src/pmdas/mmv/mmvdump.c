@@ -107,9 +107,13 @@ dump_values(void *addr, int idx, __uint64_t offset, __int32_t count)
 	    long long t;
 
 	    gettimeofday(&tv, NULL);
-	    t = vals[i].value.ll +
-		vals[i].extra + (tv.tv_sec*1e6 + tv.tv_usec);
-	    printf(" = %lld", t);
+	    t = vals[i].value.ll;
+	    if (vals[i].extra < 0)
+		t += ((tv.tv_sec*1e6 + tv.tv_usec) + vals[i].extra);
+	    printf(" = %lld (value=%lld/extra=%lld)", t,
+		    (long long)vals[i].value.ll, (long long)vals[i].extra);
+	    if (vals[i].extra > 0)
+		printf("Bad ELAPSED 'extra' value found!");
 	    break;
 	}
 	default:
