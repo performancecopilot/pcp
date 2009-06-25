@@ -1198,9 +1198,9 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
     int		out[2];
     pid_t	pid;
 
-    if (pipe(in) < 0)
+    if (pipe2(in, 0) < 0)
 	return -errno;
-    if (pipe(out) < 0)
+    if (pipe2(out, 0) < 0)
 	return -errno;
 
     pid = fork();
