@@ -1,11 +1,12 @@
 #! /bin/sh
 # PCP QA Test No. 646
-# minimal testing for libpcp_mmv functionality
+# Testing of libpcp_mmv functionality (ondisk format)
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
 #
 # creator
-owner=makc
+owner=nathans
 
 seq=`basename $0`
 
@@ -23,10 +24,15 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; $sudo rm -f /var/tmp/mmv/test$$; exit \$status" 0 1 2 3 15
 
-$sudo src-oss/mmv_genstats test$$
+$sudo src-oss/mmv_genstats test$$ &
+pid=$!
+wait
 $PCP_PMDAS_DIR/mmv/mmvdump $PCP_TMP_DIR/mmv/test$$ | \
     sed \
+	-e "s,test$$,testPID,g" \
+	-e "s,^Process.*= $pid,Process    = PID,g" \
 	-e 's/interval = [0-9][0-9]*/interval = TIME/' \
+	-e 's/eggs"] = [0-9][0-9]* (value=[0-9][0-9]*/eggs"] = N (value=N/' \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9]*/TIMESTAMP/'
 
 status=0

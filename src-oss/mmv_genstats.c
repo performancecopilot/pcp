@@ -97,7 +97,7 @@ main(int ac, char * av[])
     atom = mmv_stats_interval_start(addr, NULL, "interval", "eggs");
 
     /* add ... */
-    mmv_stats_add(addr, "counter", "", 41);
+    mmv_stats_add(addr, "counter", "", 40);
     /* add 1 ... */
     mmv_stats_inc(addr, "counter", "");
 
@@ -114,9 +114,7 @@ main(int ac, char * av[])
 
     /* add to instance or another if first doesn't exist */
     mmv_stats_add_fallback(addr, "indom", "foobar", "unknown", 42);
-
-    /* add to instance or another if first doesn't exist */
-    mmv_stats_add_fallback(addr, "indom", "zero", "unknown", 42);
+    mmv_stats_add_fallback(addr, "indom", "zero", "unknown", 43);
 
     sleep(sleeper);
 

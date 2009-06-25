@@ -1,11 +1,106 @@
 QA output created by 646
-mmv_stats_init failed : No such process
-(is "TAG" in mmv.conf?)
-Version    = 0
+MMV file   = /var/tmp/mmv/testPID
+Version    = 1
 Generated  = TIMESTAMP
-Dumping 5 values ... 
-interval = TIME
-indom[0 or "zero"] = 42
-indom[1 or "unknown"] = 42
-discrete = 42 (cumulative)
-counter = 42
+TOC count  = 15
+Cluster    = 0
+Process    = PID
+Flags      = 0x0
+
+TOC[0]: offset 280, indoms section (2 entries)
+  [1/280] 2 instances, starting at offset 344
+       shorttext=We can be heroes
+       helptext=We can be heroes, just for one day
+  [2/312] 3 instances, starting at offset 504
+       (no shorttext)
+       (no helptext)
+
+TOC[1]: offset 344, instances section (5 entries)
+  [0/344] indom offset 280 - 0/zero
+  [1/424] indom offset 280 - 1/hero
+  [2/504] indom offset 312 - 0/bird
+  [3/584] indom offset 312 - 1/tree
+  [4/664] indom offset 312 - 2/eggs
+
+TOC[2]: offset 744, metrics section (6 entries)
+  [1/744] counter
+       type=0x1, sem=0x1, pad=0x0
+       units=count
+       (no indom)
+       shorttext=test counter metric
+       helptext=Yes, this is a test counter metric
+  [2/848] discrete
+       type=0x0, sem=0x4, pad=0x0
+       units=
+       (no indom)
+       shorttext=test discrete metric
+       helptext=Yes, this is a test discrete metric
+  [3/952] indom
+       type=0x1, sem=0x3, pad=0x0
+       units=count
+       indom=1
+       (no shorttext)
+       (no helptext)
+  [4/1056] interval
+       type=0x9, sem=0x1, pad=0x0
+       units=microsec
+       indom=2
+       (no shorttext)
+       (no helptext)
+  [5/1160] string
+       type=0x6, sem=0x3, pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       (no helptext)
+  [6/1264] strings
+       type=0x6, sem=0x3, pad=0x0
+       units=
+       indom=1
+       shorttext=test string metrics
+       helptext=Yes, this is a test string metric with instances
+
+TOC[3]: offset 1368, values section (10 entries)
+  [1/1368] counter = 41
+  [2/1400] discrete = 42
+  [3/1432] indom[0 or "zero"] = 43
+  [3/1464] indom[1 or "hero"] = 0
+  [4/1496] interval[0 or "bird"] = 0 (value=0/extra=0)
+  [4/1528] interval[1 or "tree"] = 0 (value=0/extra=0)
+  [4/1560] interval[2 or "eggs"] = N (value=N/extra=0)
+  [5/1592] string = "g'day world"
+  [6/1624] strings[0 or "zero"] = "00oo00"
+  [6/1656] strings[1 or "hero"] = ""
+
+TOC[4]: offset 1688, string section (1 entries)
+  [0/1688] g'day world
+
+TOC[5]: offset 1944, string section (1 entries)
+  [0/1944] 00oo00
+
+TOC[6]: offset 2200, string section (1 entries)
+  [0/2200] 
+
+TOC[7]: offset 2456, string section (1 entries)
+  [0/2456] test counter metric
+
+TOC[8]: offset 2712, string section (1 entries)
+  [0/2712] Yes, this is a test counter metric
+
+TOC[9]: offset 2968, string section (1 entries)
+  [0/2968] test discrete metric
+
+TOC[10]: offset 3224, string section (1 entries)
+  [0/3224] Yes, this is a test discrete metric
+
+TOC[11]: offset 3480, string section (1 entries)
+  [0/3480] test string metrics
+
+TOC[12]: offset 3736, string section (1 entries)
+  [0/3736] Yes, this is a test string metric with instances
+
+TOC[13]: offset 3992, string section (1 entries)
+  [0/3992] We can be heroes
+
+TOC[14]: offset 4248, string section (1 entries)
+  [0/4248] We can be heroes, just for one day
