@@ -20,15 +20,15 @@
 #include <sys/stat.h>
 
 void
-dump_metrics(void *addr, int idx, __uint64_t offset, __int32_t count)
+dump_metrics(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
 {
     int i;
     mmv_disk_string_t * string;
     mmv_disk_metric_t * m = (mmv_disk_metric_t *)
 				((char *)addr + offset);
 
-    printf("\nTOC[%d]: offset %lld, metrics section (%d entries)\n",
-		idx, (long long)offset, count);
+    printf("\nTOC[%d]: toc offset %ld, metrics offset %lld (%d entries)\n",
+		idx, base, (long long)offset, count);
 
     for (i = 0; i < count; i++) {
 	__uint64_t off = offset + i * sizeof(mmv_disk_metric_t);
@@ -58,14 +58,14 @@ dump_metrics(void *addr, int idx, __uint64_t offset, __int32_t count)
 }
 
 void
-dump_values(void *addr, int idx, __uint64_t offset, __int32_t count)
+dump_values(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
 {
     int i;
     mmv_disk_value_t * vals = (mmv_disk_value_t *)
 			((char *)addr + offset);
 
-    printf("\nTOC[%d]: offset %lld, values section (%d entries)\n",
-		idx, (long long)offset, count);
+    printf("\nTOC[%d]: offset %ld, values offset %lld (%d entries)\n",
+		idx, base, (long long)offset, count);
 
     for (i = 0; i < count; i++) {
 	mmv_disk_string_t * string;
@@ -126,15 +126,15 @@ dump_values(void *addr, int idx, __uint64_t offset, __int32_t count)
 }
 
 void
-dump_indoms(void *addr, int idx, __uint64_t offset, __int32_t count)
+dump_indoms(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
 {
     int i;
     mmv_disk_string_t * string;
     mmv_disk_indom_t * indom = (mmv_disk_indom_t *)
 			((char *)addr + offset);
 
-    printf("\nTOC[%d]: offset %lld, indoms section (%d entries)\n",
-		idx, (long long)offset, count);
+    printf("\nTOC[%d]: offset %ld, indoms offset %lld (%d entries)\n",
+		idx, base, (long long)offset, count);
 
     for (i = 0; i < count; i++) {
 	__uint64_t off = offset + i * sizeof(mmv_disk_indom_t);
@@ -159,35 +159,38 @@ dump_indoms(void *addr, int idx, __uint64_t offset, __int32_t count)
 }
 
 void
-dump_instances(void *addr, int idx, __uint64_t offset, __int32_t count)
+dump_insts(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
 {
     int i;
     mmv_disk_instance_t * inst = (mmv_disk_instance_t *)
 			((char *)addr + offset);
 
-    printf("\nTOC[%d]: offset %lld, instances section (%d entries)\n",
-		idx, (long long)offset, count);
+    printf("\nTOC[%d]: offset %ld, instances offset %lld (%d entries)\n",
+		idx, base, (long long)offset, count);
 
-    for (i = 0; i < count; i++)
-	printf("  [%u/%lld] indom offset %lld - %d/%s\n",
-		i, (long long)offset + i * sizeof(mmv_disk_instance_t),
-		(long long)inst[i].indom,
+    for (i = 0; i < count; i++) {
+	mmv_disk_indom_t * indom = (mmv_disk_indom_t *)
+			((char *)addr + inst[i].indom);
+	printf("  [%u/%lld] instance = [%d or \"%s\"]\n",
+		indom->serial,
+		(long long)(offset + i * sizeof(mmv_disk_instance_t)),
 		inst[i].internal, inst[i].external);
+    }
 }
 
 void
-dump_string(void *addr, int idx, __uint64_t offset, __int32_t count)
+dump_string(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
 {
     int i;
     mmv_disk_string_t * string = (mmv_disk_string_t *)
 			((char *)addr + offset);
 
-    printf("\nTOC[%d]: offset %lld, string section (%d entries)\n",
-		idx, (long long)offset, count);
+    printf("\nTOC[%d]: offset %ld, string offset %lld (%d entries)\n",
+		idx, base, (long long)offset, count);
 
     for (i = 0; i < count; i++)
 	printf("  [%u/%lld] %s\n",
-		i, (long long)offset + i * sizeof(mmv_disk_string_t), 
+		i+1, (long long)offset + i * sizeof(mmv_disk_string_t), 
 		string->payload);
 }
 
@@ -223,21 +226,22 @@ dump(const char *file, void *addr)
     printf("Flags      = 0x%x\n", hdr->flags);
 
     for (i = 0; i < hdr->tocs; i++) {
+	__uint64_t base = ((char *)&toc[i] - (char *)addr);
 	switch (toc[i].type) {
 	case MMV_TOC_VALUES:
-	    dump_values(addr, i, toc[i].offset, toc[i].count);
+	    dump_values(addr, i, base, toc[i].offset, toc[i].count);
 	    break;
 	case MMV_TOC_METRICS:
-	    dump_metrics(addr, i, toc[i].offset, toc[i].count);
+	    dump_metrics(addr, i, base, toc[i].offset, toc[i].count);
 	    break;
 	case MMV_TOC_INDOMS:
-	    dump_indoms(addr, i, toc[i].offset, toc[i].count);
+	    dump_indoms(addr, i, base, toc[i].offset, toc[i].count);
 	    break;
 	case MMV_TOC_INSTANCES:
-	    dump_instances(addr, i, toc[i].offset, toc[i].count);
+	    dump_insts(addr, i, base, toc[i].offset, toc[i].count);
 	    break;
 	case MMV_TOC_STRING:
-	    dump_string(addr, i, toc[i].offset, toc[i].count);
+	    dump_string(addr, i, base, toc[i].offset, toc[i].count);
 	    break;
 	default:
 	    printf("Unrecognised TOC[%d] type: 0x%x\n", i, toc[i].type);
