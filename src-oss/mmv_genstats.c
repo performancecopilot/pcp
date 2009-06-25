@@ -28,7 +28,7 @@ static mmv_indom_t indoms[] = {
 static mmv_metric_t metrics[] = {
     {	.name = "counter",
 	.item = 1,
-	.type = MMV_ENTRY_U32,
+	.type = MMV_TYPE_U32,
 	.semantics = MMV_SEM_COUNTER,
 	.dimension = MMV_UNITS(0,0,1,0,0,PM_COUNT_ONE),
 	.shorttext = "test counter metric",
@@ -36,7 +36,7 @@ static mmv_metric_t metrics[] = {
     },
     {	.name = "discrete",
 	.item = 2,
-	.type = MMV_ENTRY_I32,
+	.type = MMV_TYPE_I32,
 	.semantics = MMV_SEM_DISCRETE,
 	.dimension = MMV_UNITS(0,0,0,0,0,0),
 	.shorttext = "test discrete metric",
@@ -44,7 +44,7 @@ static mmv_metric_t metrics[] = {
     },
     {	.name = "indom",
 	.item = 3,
-	.type = MMV_ENTRY_U32,	
+	.type = MMV_TYPE_U32,	
 	.semantics = MMV_SEM_INSTANT,
 	.dimension = MMV_UNITS(0,0,1,0,0,PM_COUNT_ONE),
 	.indom = 1,
@@ -52,7 +52,7 @@ static mmv_metric_t metrics[] = {
     },
     {	.name = "interval",
 	.item = 4,
-	.semantics = MMV_ENTRY_INTEGRAL,
+	.type = MMV_TYPE_ELAPSED,
 	.semantics = MMV_SEM_COUNTER,
 	.dimension = MMV_UNITS(0,1,0,0,PM_TIME_USEC,0),
 	.indom = 2,
@@ -60,14 +60,14 @@ static mmv_metric_t metrics[] = {
     },
     {	.name = "string",
 	.item = 5,
-	.type = MMV_ENTRY_STRING,
+	.type = MMV_TYPE_STRING,
 	.dimension = MMV_UNITS(0,0,0,0,0,0),
 	.semantics = MMV_SEM_INSTANT,
 	/* exercise no-help-text, string value case */
     },
     {	.name = "strings",
 	.item = 6,
-	.type = MMV_ENTRY_STRING,
+	.type = MMV_TYPE_STRING,
 	.semantics = MMV_SEM_INSTANT,
 	.dimension = MMV_UNITS(0,0,0,0,0,0),
 	.indom = 1,
@@ -95,7 +95,7 @@ main(int ac, char * av[])
 
     /* start an interval */
     atom = mmv_stats_interval_start(addr, NULL, "interval", "eggs");
-    
+
     /* add ... */
     mmv_stats_add(addr, "counter", "", 41);
     /* add 1 ... */
@@ -105,13 +105,12 @@ main(int ac, char * av[])
     mmv_stats_set_string(addr, "string", "", "g'day world");
     mmv_stats_set_strlen(addr, "strings", "zero", "00oo00oo00", 10);
     mmv_stats_set_strlen(addr, "strings", "zero", "00oo00oo00", 6);
-    mmv_stats_set_strlen(addr, "strings", "hero", "ZERO", 10);
+    mmv_stats_set_strlen(addr, "strings", "hero", "ZERO", 4);
     mmv_stats_set_strlen(addr, "strings", "hero", "", 0);
 
-    /* add (instance must be static) ... */
-    mmv_stats_static_add(addr, "discrete", "", 41);
-    /* add 1 (instance must be static) ... */
-    mmv_stats_static_inc(addr, "discrete", "");
+    /* set discrete value ... */
+    mmv_stats_set(addr, "discrete", "", 41);
+    mmv_stats_inc(addr, "discrete", "");
 
     /* add to instance or another if first doesn't exist */
     mmv_stats_add_fallback(addr, "indom", "foobar", "unknown", 42);
