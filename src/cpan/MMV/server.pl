@@ -10,47 +10,49 @@ use PCP::MMV;
 
 my @db_instances = ( 0 => "tempdb", 1 => "datadb" );
 
-my $db = 1;
+my $db_indom = 1;
 my @indoms = (
-	mmv_indom( $db,
-		'Database instances',
-		'An instance domain for each database used by this server.',
-		\@db_instances ),
+    [ $db_indom, \@db_instances,
+	'Database instances',
+	'An instance domain for each database used by this server.',
+    ],
 );
 
 my @metrics = (
-	mmv_metric( 'response_time.requests',
-		1, MMV_TYPE_U64, MMV_INDOM_NULL,
-		mmv_units(0,0,1,0,0,MMV_COUNT_ONE), MMV_SEM_COUNTER,
-		'Number of server requests processed', '' ),
-	mmv_metric( 'response_time.total',
-		2, MMV_TYPE_U64, MMV_INDOM_NULL,
-		mmv_units(0,0,1,0,0,MMV_COUNT_ONE), MMV_SEM_COUNTER,
-		'Maximum observed response time in milliseconds', ''),
-	mmv_metric( 'response_time.maximum',
-		3, MMV_TYPE_DOUBLE, MMV_INDOM_NULL,
-		mmv_units(0,1,0,0,MMV_TIME_MSEC,0), MMV_SEM_INSTANT,
-		'Maximum observed response time in milliseconds', ''),
-	mmv_metric( 'version',
-		4, MMV_TYPE_STRING, MMV_INDOM_NULL,
-		mmv_units(0,0,0,0,0,0), MMV_SEM_DISCRETE,
-		'Version number of the server process', ''),
-	mmv_metric( 'database.transactions.count',
-		5, MMV_TYPE_U64, $db,
-		mmv_units(0,0,1,0,0,MMV_COUNT_ONE), MMV_SEM_COUNTER,
-		'Number of requests issued to each database', ''),
-	mmv_metric( 'database.transactions.time',
-		6, MMV_TYPE_U64, $db,
-		mmv_units(0,1,0,0,MMV_TIME_MSEC,0), MMV_SEM_COUNTER,
-		'Total time spent waiting for results from each database', ''),
+    [ 'response_time.requests',
+	1, MMV_TYPE_U64, MMV_INDOM_NULL,
+	mmv_units(0,0,1,0,0,MMV_COUNT_ONE), MMV_SEM_COUNTER,
+	'Number of server requests processed', ''
+    ],
+    [ 'response_time.total',
+	2, MMV_TYPE_U64, MMV_INDOM_NULL,
+	mmv_units(0,0,1,0,0,MMV_COUNT_ONE), MMV_SEM_COUNTER,
+	'Maximum observed response time in milliseconds', ''
+    ],
+    [ 'response_time.maximum',
+	3, MMV_TYPE_DOUBLE, MMV_INDOM_NULL,
+	mmv_units(0,1,0,0,MMV_TIME_MSEC,0), MMV_SEM_INSTANT,
+	'Maximum observed response time in milliseconds', ''
+    ],
+    [ 'version',
+	4, MMV_TYPE_STRING, MMV_INDOM_NULL,
+	mmv_units(0,0,0,0,0,0), MMV_SEM_DISCRETE,
+	'Version number of the server process', ''
+    ],
+    [ 'database.transactions.count',
+	5, MMV_TYPE_U64, $db_indom,
+	mmv_units(0,0,1,0,0,MMV_COUNT_ONE), MMV_SEM_COUNTER,
+	'Number of requests issued to each database', ''
+    ],
+    [ 'database.transactions.time',
+	6, MMV_TYPE_U64, $db_indom,
+	mmv_units(0,1,0,0,MMV_TIME_MSEC,0), MMV_SEM_COUNTER,
+	'Total time spent waiting for results from each database', ''
+    ],
 );
 
-my $file = "perlserver";
-
-my $handle = mmv_stats_init($file, 0, 0, \@metrics, \@indoms);
-if (!defined($handle)) {
-	die("mmv_stats_init failed: $!\n");
-}
+my $handle = mmv_stats_init('server', 0, MMV_FLAG_PROCESS, \@metrics, \@indoms);
+die("mmv_stats_init failed: $!\n") unless (defined($handle));
 
 mmv_stats_set_string($handle, 'version', '', '7.4.2-5');
 

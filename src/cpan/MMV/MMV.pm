@@ -9,7 +9,7 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(
-    mmv_units mmv_metric mmv_indom mmv_stats_init
+    mmv_stats_init mmv_units
 	mmv_lookup_value_desc
 	mmv_inc_value mmv_set_value mmv_set_string
 	mmv_stats_add mmv_stats_inc

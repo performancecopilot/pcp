@@ -18,159 +18,216 @@
 #include "perl.h"
 #include "XSUB.h"
 
-static mmv_metric_t *
-new_metric_list(AV *array, int count)
+static int
+list_to_metric(SV *list, mmv_metric_t *metric)
 {
-    SV			**entry;
-    int			index;
-    mmv_metric_t	*table, *data;
+    int		i, len;
+    SV		**entry[8];
+    AV		*mlist = (AV *) SvRV(list);
 
-    if ((table = calloc(count, sizeof(mmv_metric_t))) == NULL)
-	return NULL;
-
-    for (index = 0; index < count; index++) {
-	entry = av_fetch(array, index, 0);
-	data = (mmv_metric_t *) (*entry);
-	table[index] = *data;
+    if (SvTYPE((SV *)mlist) != SVt_PVAV) {
+	warn("metric declaration is not an array reference");
+	return -1;
     }
-    return table;
+    len = av_len(mlist);
+    if (len < 6) {
+	warn("too few entries in metric array reference");
+	return -1;
+    }
+    if (len > 8) {
+	warn("too many entries in metric array reference");
+	return -1;
+    }
+    for (i = 0; i < len; i++)
+	entry[i] = av_fetch(mlist, i, 0);
+
+    strncpy(metric->name, SvPV_nolen(*entry[0]), MMV_NAMEMAX);
+    metric->item = SvIV(*entry[1]);
+    metric->type = SvIV(*entry[2]);
+    metric->semantics = SvIV(*entry[3]);
+    i = SvIV(*entry[4]);
+    memcpy(&metric->dimension, &i, sizeof(pmUnits));
+    metric->indom = SvIV(*entry[5]);
+    if (len > 6)
+	metric->shorttext = strdup(SvPV_nolen(*entry[6]));
+    else
+	metric->shorttext = NULL;
+    if (len > 7)
+	metric->helptext = strdup(SvPV_nolen(*entry[7]));
+    else
+	metric->helptext = NULL;
+    return 0;
 }
 
-static mmv_indom_t *
-new_indom_list(AV *array, int count)
+static int
+list_to_instances(SV *list, mmv_instances_t **insts)
 {
-    SV			**entry;
-    int			index;
-    mmv_indom_t		*table, *data;
+    mmv_instances_t	*instances;
+    int			i, len;
+    AV			*inlist = (AV *) SvRV(list);
 
-    if ((table = calloc(count, sizeof(mmv_indom_t))) == NULL)
-	return NULL;
-
-    for (index = 0; index < count; index++) {
-	entry = av_fetch(array, index, 0);
-	data = (mmv_indom_t *) (*entry);
-	table[index] = *data;
+    if (SvTYPE((SV *)inlist) != SVt_PVAV) {
+	warn("instances declaration is not an array reference");
+	return -1;
     }
-    return table;
+    len = av_len(inlist);
+    if (len++ % 2) {
+	warn("odd number of entries in instance array reference");
+	return -1;
+    }
+
+    len /= 2;
+    instances = (mmv_instances_t *)calloc(len, sizeof(mmv_instances_t));
+    if (instances == NULL) {
+	warn("insufficient memory for instance array");
+	return -1;
+    }
+    for (i = 0; i < len; i++) {
+	SV **id = av_fetch(inlist, i*2, 0);
+	SV **name = av_fetch(inlist, i*2+1, 0);
+	instances[i].internal = SvIV(*id);
+	strncpy(instances[i].external, SvPV_nolen(*name), MMV_NAMEMAX);
+    }
+    *insts = instances;
+    return len;
 }
 
-static mmv_instances_t *
-new_instance_list(AV *array, int count)
+static int
+list_to_indom(SV *list, mmv_indom_t *indom)
 {
-    SV			**entry;
-    int			index;
-    char		*data;
-    mmv_instances_t	*table;
+    int		i, len;
+    SV		**entry[4];
+    AV		*ilist = (AV *) SvRV(list);
 
-    if (count % 2)	/* must be internal/external *pairs* */
-	return NULL;
-    if ((table = calloc(count, sizeof(mmv_instances_t))) == NULL)
-	return NULL;
-    for (index = 0; index < count; index++) {
-	entry = av_fetch(array, index, 0);
-	data = (char *) (*entry);
-	if ((index % 2) == 0)	/* internal identifier */
-	    table[index / 2].internal = atoi(data);
-	else			/* external identifier */
-	    strncpy(table[index / 2].external, data, MMV_NAMEMAX);
+    if (SvTYPE((SV *)ilist) != SVt_PVAV) {
+	warn("indom declaration is not an array reference");
+	return -1;
     }
-    return table;
+    len = av_len(ilist);
+    if (len < 2) {
+	warn("too few entries in indom array reference");
+	return -1;
+    }
+    if (len > 4) {
+	warn("too many entries in indom array reference");
+	return -1;
+    }
+    for (i = 0; i < len; i++)
+	entry[i] = av_fetch(ilist, i, 0);
+
+    indom->serial = SvIV(*entry[0]);
+    indom->count = list_to_instances(*entry[1], &indom->instances);
+    if (indom->count < 0)
+	return -1;
+    if (len > 2)
+	indom->shorttext = strdup(SvPV_nolen(*entry[2]));
+    else
+	indom->shorttext = NULL;
+    if (len > 3)
+	indom->helptext = strdup(SvPV_nolen(*entry[3]));
+    else
+	indom->helptext = NULL;
+    return 0;
+}
+
+static int
+list_to_metrics(SV *list, mmv_metric_t **metriclist, int *mcount)
+{
+    mmv_metric_t	*metrics;
+    int			i, len;
+    AV			*mlist = (AV *) SvRV(list);
+
+    if (SvTYPE((SV *)mlist) != SVt_PVAV) {
+	warn("metrics list is not an array reference");
+	return -1;
+    }
+    len = av_len(mlist);
+    metrics = (mmv_metric_t *)calloc(len, sizeof(mmv_metric_t));
+    if (metrics == NULL) {
+	warn("insufficient memory for metrics array");
+	return -1;
+    }
+    for (i = 0; i < len; i++) {
+	SV **entry = av_fetch(mlist, i, 0);
+	if (list_to_metric(*entry, &metrics[i]) < 0)
+	    break;
+    }
+    *metriclist = metrics;
+    *mcount = len;
+    return (i == len);
+}
+
+static int
+list_to_indoms(SV *list, mmv_indom_t **indomlist, int *icount)
+{
+    mmv_indom_t		*indoms;
+    int			i, len;
+    AV			*ilist = (AV *) SvRV(list);
+
+    if (SvTYPE((SV *)ilist) != SVt_PVAV) {
+	warn("indoms list is not an array reference");
+	return -1;
+    }
+    len = av_len(ilist);
+    indoms = (mmv_indom_t *)calloc(len, sizeof(mmv_indom_t));
+    if (indoms == NULL) {
+	warn("insufficient memory for indoms array");
+	return -1;
+    }
+    for (i = 0; i < len; i++) {
+	SV **entry = av_fetch(ilist, i, 0);
+	if (list_to_indom(*entry, &indoms[i]) < 0)
+	    break;
+    }
+    *indomlist = indoms;
+    *icount = len;
+    return (i == len);
 }
 
 
 MODULE = PCP::MMV		PACKAGE = PCP::MMV
-
-mmv_indom_t *
-mmv_indom(serial,shorttext,helptext,instlist)
-	int			serial
-	char *			shorttext
-	char *			helptext
-	AV *			instlist
-    PREINIT:
-	int			count;
-	mmv_indom_t *		indom;
-	mmv_instances_t *	instances;
-    CODE:
-	count = av_len(instlist);
-	instances = new_instance_list(instlist, count);
-	if (!instances)
-	    XSRETURN_UNDEF;
-	if ((indom = calloc(1, sizeof(mmv_indom_t))) == NULL) {
-	    free(instances);
-	    XSRETURN_UNDEF;
-	}
-	indom->serial = serial;
-	indom->count = count;
-	indom->instances = instances;
-	if (shorttext)
-	    indom->shorttext = strdup(shorttext);
-	if (helptext)
-	    indom->helptext = strdup(helptext);
-	RETVAL = indom;
-    OUTPUT:
-	RETVAL
-
-mmv_metric_t *
-mmv_metric(name,item,type,indom,units,semantics,shorttext,helptext)
-	char *			name
-	unsigned int		item
-	unsigned int		type
-	unsigned int		indom
-	unsigned int		units
-	unsigned int		semantics
-	char *			shorttext
-	char *			helptext
-    PREINIT:
-	mmv_metric_t *		metric;
-    CODE:
-	if ((metric = calloc(1, sizeof(mmv_metric_t))) == NULL)
-	    XSRETURN_UNDEF;
-	strncpy(metric->name, name, MMV_NAMEMAX);
-	memcpy(&metric->dimension, &units, sizeof(pmUnits));
-	metric->semantics = semantics;
-	metric->indom = indom;
-	metric->type = type;
-	metric->item = item;
-	if (shorttext)
-	    metric->shorttext = strdup(shorttext);
-	if (helptext)
-	    metric->helptext = strdup(helptext);
-	RETVAL = metric;
-    OUTPUT:
-	RETVAL
 
 void *
 mmv_stats_init(name,cl,fl,metrics,indoms)
 	char *			name
 	int 			cl
 	int 			fl
-	AV *			metrics
-	AV *			indoms
+	SV *			metrics
+	SV *			indoms
     PREINIT:
-	int			i;
+	int			i, j;
 	int			mcount;
 	int			icount;
 	mmv_metric_t *		mlist;
 	mmv_indom_t *		ilist;
     CODE:
-	mcount = av_len(metrics);
-	mlist = new_metric_list(metrics, mcount);
-	icount = av_len(indoms);
-	ilist = new_indom_list(indoms, icount);
+	i = list_to_metrics(metrics, &mlist, &mcount);
+	j = list_to_indoms(indoms, &ilist, &icount);
 
-	RETVAL = mmv_stats_init(name, cl, fl, mlist, mcount, ilist, icount);
+	if (i != 0 || j != 0)
+	    RETVAL = NULL;
+	else
+	    RETVAL = mmv_stats_init(name, cl, fl, mlist, mcount, ilist, icount);
 
 	for (i = 0; i < icount; i++) {
-	    if (ilist[i].shorttext) free(ilist[i].shorttext);
-	    if (ilist[i].helptext) free(ilist[i].helptext);
+	    if (ilist[i].shorttext)
+		free(ilist[i].shorttext);
+	    if (ilist[i].helptext)
+		free(ilist[i].helptext);
+	    for (j = 0; j < ilist[i].count; j++)
+		free(ilist[i].instances[j].external);
 	    free(ilist[i].instances);
 	}
-	free(ilist);
+	if (ilist)
+	    free(ilist);
 	for (i = 0; i < mcount; i++) {
-	    if (mlist[i].shorttext) free(mlist[i].shorttext);
-	    if (mlist[i].helptext) free(mlist[i].helptext);
+	    if (mlist[i].shorttext)
+		free(mlist[i].shorttext);
+	    if (mlist[i].helptext)
+		free(mlist[i].helptext);
 	}
-	free(mlist);
+	if (mlist)
+	    free(mlist);
 
 	if (!RETVAL)
 	    XSRETURN_UNDEF;
