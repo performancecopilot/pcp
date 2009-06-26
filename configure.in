@@ -720,10 +720,10 @@ AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(gettimeofday mktime nanosleep putenv)
 AC_CHECK_FUNCS(gethostname hstrerror select socket)
-AC_CHECK_FUNCS(uname syslog brk sbrk __clone fcntl)
+AC_CHECK_FUNCS(uname syslog pipe2 __clone fcntl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown getcwd scandir mkstemp getpwnam)
-AC_CHECK_FUNCS(memalign valloc)
+AC_CHECK_FUNCS(brk sbrk memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strerror strtod strtol strtoll strtoull)
