@@ -48,27 +48,6 @@ mmv_mapping(const char *fname, size_t size)
     return addr;
 }
 
-static __uint64_t
-mmv_string(void *addr, mmv_disk_string_t *slist, int strindex,
-	   mmv_disk_toc_t *toc, int tocindex, const char *data)
-{
-    __uint64_t offset = strindex * sizeof(mmv_disk_string_t);
-
-    offset += ((char *)slist - (char *)addr);
-
-    toc[tocindex].type = MMV_TOC_STRING;
-    toc[tocindex].count = 1;
-    toc[tocindex].offset = offset;
-
-    if (data) {		/* optional initial value (help text) */
-	mmv_disk_string_t *string;
-
-	string = (mmv_disk_string_t *)((char *)addr + offset);
-	strncpy(string->payload, data, MMV_STRINGMAX);
-    }
-    return offset;
-}
-
 static int
 mmv_singular(__int32_t indom)
 {
@@ -166,7 +145,7 @@ mmv_stats_init(const char *fname,
     if (nindoms)
 	size += sizeof(mmv_disk_toc_t) * 2;
     if (nstrings)
-	size += sizeof(mmv_disk_toc_t) * nstrings;
+	size += sizeof(mmv_disk_toc_t) * 1;
     indoms_offset = sizeof(mmv_disk_header_t) + size;
 
     /* Following the indom definitions are the actual instances */
@@ -208,9 +187,11 @@ mmv_stats_init(const char *fname,
     hdr->version = MMV_VERSION;
     hdr->g1 = (__uint64_t) time(NULL);
     hdr->g2 = 0;
-    hdr->tocs = nstrings + 2;
+    hdr->tocs = 2;
     if (nindoms)
 	hdr->tocs += 2;
+    if (nstrings)
+	hdr->tocs += 1;
     hdr->flags = fl;
     hdr->cluster = cluster;
     hdr->process = getpid();
@@ -236,6 +217,12 @@ mmv_stats_init(const char *fname,
     toc[tocidx].count = nvalues;
     toc[tocidx].offset = values_offset;
     tocidx++;
+    if (nstrings) {
+	toc[tocidx].type = MMV_TOC_STRINGS;
+	toc[tocidx].count = nstrings;
+	toc[tocidx].offset = strings_offset;
+	tocidx++;
+    }
 
     /* Indom section */
     domlist = (mmv_disk_indom_t *)((char *)addr + indoms_offset);
@@ -304,31 +291,44 @@ mmv_stats_init(const char *fname,
     stridx = 0;
 
     /*
-     * Involves creating new sections and updating offsets (rewrites)
      * 3 phases: all string values, any metric help, any indom help.
      */
     for (i = 0; i < nvalues; i++) {
 	mmv_disk_metric_t * metric = (mmv_disk_metric_t *)
 			((char *)(addr + vlist[i].metric));
-	if (metric->type == MMV_TYPE_STRING)
-	    vlist[i].extra = mmv_string(addr, slist, stridx++,
-					toc, tocidx++, NULL);
+	if (metric->type == MMV_TYPE_STRING) {
+	    vlist[i].extra = strings_offset +
+				(stridx * sizeof(mmv_disk_string_t));
+	    stridx++;
+	}
     }
     for (i = 0; i < nmetrics; i++) {
-	if (st[i].shorttext)
-	    mlist[i].shorttext = mmv_string(addr, slist, stridx++,
-					toc, tocidx++, st[i].shorttext);
-	if (st[i].helptext)
-	    mlist[i].helptext = mmv_string(addr, slist, stridx++,
-					toc, tocidx++, st[i].helptext);
+	if (st[i].shorttext) {
+	    mlist[i].shorttext = strings_offset +
+				(stridx * sizeof(mmv_disk_string_t));
+	    strncpy(slist[stridx].payload, st[i].shorttext, MMV_STRINGMAX);
+	    stridx++;
+	}
+	if (st[i].helptext) {
+	    mlist[i].helptext = strings_offset +
+				(stridx * sizeof(mmv_disk_string_t));
+	    strncpy(slist[stridx].payload, st[i].helptext, MMV_STRINGMAX);
+	    stridx++;
+	}
     }
     for (i = 0; i < nindoms; i++) {
-	if (in[i].shorttext)
-	    domlist[i].shorttext = mmv_string(addr, slist, stridx++,
-					toc, tocidx++, in[i].shorttext);
-	if (in[i].helptext)
-	    domlist[i].helptext = mmv_string(addr, slist, stridx++,
-					toc, tocidx++, in[i].helptext);
+	if (in[i].shorttext) {
+	    domlist[i].shorttext = strings_offset +
+				(stridx * sizeof(mmv_disk_string_t));
+	    strncpy(slist[stridx].payload, in[i].shorttext, MMV_STRINGMAX);
+	    stridx++;
+	}
+	if (in[i].helptext) {
+	    domlist[i].helptext = strings_offset +
+				(stridx * sizeof(mmv_disk_string_t));
+	    strncpy(slist[stridx].payload, in[i].helptext, MMV_STRINGMAX);
+	    stridx++;
+	}
     }
 
     /* Complete - unlock the header, PMDA can read now */

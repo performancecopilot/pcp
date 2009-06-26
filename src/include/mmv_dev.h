@@ -19,10 +19,10 @@
 
 typedef enum {
     MMV_TOC_INDOMS	= 1,	/* mmv_disk_indom_t */
-    MMV_TOC_METRICS	= 2,	/* mmv_disk_metric_t */
-    MMV_TOC_VALUES	= 3,	/* mmv_disk_value_t */
-    MMV_TOC_STRING	= 4,	/* mmv_disk_string_t */
-    MMV_TOC_INSTANCES	= 5,	/* mmv_disk_instance_t */
+    MMV_TOC_INSTANCES	= 2,	/* mmv_disk_instance_t */
+    MMV_TOC_METRICS	= 3,	/* mmv_disk_metric_t */
+    MMV_TOC_VALUES	= 4,	/* mmv_disk_value_t */
+    MMV_TOC_STRINGS	= 5,	/* mmv_disk_string_t */
 } mmv_toc_type_t;
 
 /* The way the Table Of Contents is written into the file */
