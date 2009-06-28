@@ -330,7 +330,7 @@ bozo! need to find where MAXNAMELEN is defined for this platform
 #endif
 
 /*
- * MAXPATHLEN hides in may places and may have alias names ...
+ * MAXPATHLEN hides in many places and may have alias names ...
  */
 #ifndef MAXPATHLEN
 #ifdef HAVE_SYS_PARAM_H
@@ -349,7 +349,7 @@ bozo! need to find where MAXPATHLEN is defined for this platform
 #endif
 
 /*
- * MAXHOSTNAMELEN hides in may places ...
+ * MAXHOSTNAMELEN hides in many places and may also have aliases ...
  */
 #ifndef MAXHOSTNAMELEN
 #ifdef HAVE_SYS_PARAM_H
