@@ -19,7 +19,7 @@
 \f3pmie\f1 \- inference engine for performance metrics
 .SH SYNOPSIS
 \f3pmie\f1
-[\f3\-bCdefVvWxz\f1]
+[\f3\-bCdefHVvWxz\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-c\f1 \f2filename\f1]
@@ -138,6 +138,13 @@ The
 option forces
 .B pmie
 to be run in the foreground, independent of any other options.
+.TP
+.B \-H
+The default hostname written to the stats file will not be looked up via
+.BR gethostbyname (3),
+rather it will be written as-is.
+This option can be useful when host name aliases are in use at a site,
+and the logical name is more important than the physical host name.
 .TP
 .B \-h
 By default performance data is fetched from the local host (in real-time mode)
