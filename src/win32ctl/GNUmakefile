@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = pcp-services.c pcp-setevent.c pcp-eventlog.c
 TARGETS = pcp-services.exe pcp-setevent.exe pcp-eventlog.exe
-WRAPPERS = pcp.bat pmafm.bat mkaf.bat
+WRAPPERS = pcp.bat pmafm.bat mkaf.bat pmsignal.bat
 LLDLIBS = -lpcp
 LSRCFILES = $(WRAPPERS)
 
