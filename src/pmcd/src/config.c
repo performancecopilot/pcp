@@ -526,8 +526,12 @@ BuildArgv(void)
     do {
 	/* Make result big enough for new arg and terminating NULL pointer */
 	result = (char **)realloc(result, (nArgs + 2) * sizeof(char *));
-	if (result != NULL)
-	    result[nArgs] = CopyToken();
+	if (result != NULL) {
+	    if (*token != '/')
+		result[nArgs] = CopyToken();
+	    else if ((result[nArgs] = CopyPathToken(getenv("PCP_DIR"))))
+		__pmNativePath(result[nArgs]);
+	}
 	if (result == NULL || result[nArgs] == NULL) {
 	    fprintf(stderr, "pmcd config: line %d, error building argument list\n",
 		    nLines);
