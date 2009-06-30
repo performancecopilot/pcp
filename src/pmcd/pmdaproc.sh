@@ -772,6 +772,7 @@ _setup()
     [ "$PCP_PLATFORM" = darwin ] && dso_suffix=dylib
     [ "$PCP_PLATFORM" = mingw  ] && dso_suffix=dll
     dso_name="${PCP_PMDAS_DIR}/${iam}/pmda_${iam}.${dso_suffix}"
+    dso_name=`__strip_pcp_dir "$dso_name"`
     dso_entry=${iam}_init
     pmda_dir=`__strip_pcp_dir "${PCP_PMDAS_DIR}/${iam}"`
 
@@ -784,6 +785,7 @@ _setup()
     if $perl_opt
     then
 	perl_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.pl"
+	perl_name=`__strip_pcp_dir "$perl_name"`
 	perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns"
 	perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h"
 	test -s "$perl_dom" || \
