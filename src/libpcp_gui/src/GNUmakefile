@@ -34,7 +34,7 @@ endif
 ifeq "$(TARGET_OS)" "darwin"
 LIBTARGET = libpcp_gui.$(DSOVERSION).$(DSOSUFFIX)
 endif
-ifneq "$(findstring $(TARGET_OS),cygwin mingw)" ""
+ifeq "$(TARGET_OS)" "mingw"
 LIBTARGET = libpcp_gui.$(DSOSUFFIX)
 STATICLIBTARGET =
 SYMTARGET =

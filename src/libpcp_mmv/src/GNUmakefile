@@ -25,7 +25,7 @@ SYMTARGET = libpcp_mmv.$(DSOSUFFIX)
 ifeq "$(TARGET_OS)" "darwin"
 LIBTARGET = libpcp_mmv.$(DSOVERSION).$(DSOSUFFIX)
 endif
-ifneq "$(findstring $(TARGET_OS), cygwin mingw)" ""
+ifeq "$(TARGET_OS)" "mingw"
 LIBTARGET = libpcp_mmv.$(DSOSUFFIX) 
 SYMTARGET =
 STATICLIBTARGET	=

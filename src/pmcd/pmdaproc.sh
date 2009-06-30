@@ -70,7 +70,7 @@ rm -f $tmp
 
 # chown/chmod is not always helpful
 #
-if [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = mingw ]
+if [ "$PCP_PLATFORM" = mingw ]
 then
     CHOWN=": skip chown"
     CHMOD=chmod
@@ -770,7 +770,7 @@ _setup()
     pmda_name=pmda$iam
     dso_suffix=so
     [ "$PCP_PLATFORM" = darwin ] && dso_suffix=dylib
-    [ "$PCP_PLATFORM" = cygwin -o "$PCP_PLATFORM" = mingw ] && dso_suffix=dll
+    [ "$PCP_PLATFORM" = mingw  ] && dso_suffix=dll
     dso_name="${PCP_PMDAS_DIR}/${iam}/pmda_${iam}.${dso_suffix}"
     dso_entry=${iam}_init
     pmda_dir=`__strip_pcp_dir "${PCP_PMDAS_DIR}/${iam}"`
@@ -1166,7 +1166,7 @@ _check_userroot()
 {
     case "$PCP_PLATFORM"
     in
-	cygwin|mingw)
+	mingw)
 	    # nothing we can usefully do here, skip the test
 	    #
 	    ;;

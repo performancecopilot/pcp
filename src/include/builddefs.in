@@ -79,11 +79,6 @@ PCFLAGS = -fPIC -no-cpp-precomp -fno-strict-aliasing
 DSOSUFFIX = dylib
 CASE_INSENSITIVE_FS=1
 endif
-ifeq "$(TARGET_OS)" "cygwin"
-PCFLAGS = -fno-strict-aliasing
-DSOSUFFIX = dll
-EXECSUFFIX = .exe
-endif
 ifeq "$(TARGET_OS)" "mingw"
 PCFLAGS = -fno-strict-aliasing -I$$PCP_DIR/local/include -I$$PCP_DIR/include
 DSOSUFFIX = dll

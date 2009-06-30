@@ -45,7 +45,7 @@ include $(BUILDRULES)
 
 
 # This PMDA is only valid on platforms with a mount table (e.g. /proc/mounts)
-ifeq "$(findstring $(TARGET_OS),cygwin mingw darwin)" ""
+ifeq "$(findstring $(TARGET_OS),mingw darwin)" ""
 build-me:	$(TARGETS)
 
 install:	default

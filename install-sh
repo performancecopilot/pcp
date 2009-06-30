@@ -201,7 +201,7 @@ else
 	destfile=`basename $2`
 	if [ -f $f -a -f $f.exe ]
 	then
-	    # Cygwin hack ... executables present as foo and foo.exe,
+	    # Windows hack -- executables present as foo and foo.exe,
 	    # the foo one is visible to test(1) and ls(1), but not to
 	    # cat(1)/cp(1) ... need to $RM/$CP the foo.exe one
 	    #
@@ -264,7 +264,7 @@ else
 	do
 	    if [ -f $f -a -f $f.exe ]
 	    then
-		# Cygwin hack ... executables present as foo and foo.exe,
+		# Windows hack -- executables present as foo and foo.exe,
 		# the foo one is visible to test(1) and ls(1), but not to
 		# cat(1)/cp(1) ... need to $RM/$CP the foo.exe one
 		#

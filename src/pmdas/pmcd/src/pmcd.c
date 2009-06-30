@@ -919,12 +919,12 @@ simabi()
 # else
     return SIM_ABI;	/* SIM_ABI is defined in the linux Makefile */
 # endif /* __linux__ */
-#elif defined(IS_SOLARIS) || defined(IS_INTERIX) || defined(IS_FREEBSD)
+#elif defined(IS_SOLARIS) || defined(IS_FREEBSD)
     return "elf";
 #elif defined(IS_DARWIN)
     return "Mach-O";
-#elif defined(IS_CYGWIN) || defined(IS_MINGW)
-    return "i386";
+#elif defined(IS_MINGW)
+    return "i386";	// TODO: need to handle x86_64 too
 #elif defined(IS_AIX)
     return "powerpc";
 #else

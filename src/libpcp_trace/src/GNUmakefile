@@ -32,7 +32,7 @@ SYMTARGET = libpcp_trace.$(DSOSUFFIX)
 ifeq "$(TARGET_OS)" "darwin"
 LIBTARGET = libpcp_trace.$(DSOVERSION).$(DSOSUFFIX)
 endif
-ifneq "$(findstring $(TARGET_OS),cygwin mingw)" ""
+ifeq "$(TARGET_OS)" "mingw"
 STATICLIBTARGET =
 LIBTARGET = libpcp_trace.$(DSOSUFFIX)
 SYMTARGET =

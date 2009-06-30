@@ -44,7 +44,7 @@ default: build-me
 include $(BUILDRULES)
 
 # This PMDA is only valid on platforms with a procfs
-ifeq "$(findstring $(TARGET_OS),cygwin mingw darwin)" ""
+ifeq "$(findstring $(TARGET_OS),mingw darwin)" ""
 build-me: $(TARGETS)
 
 install install_pcp : default

@@ -39,9 +39,6 @@ ifeq ($(TARGET_OS), darwin)
 # libtool doesnt understand -dynamiclib so we need both
 _SHAREDOPTS	= -fPIC -dynamic -dynamiclib -flat_namespace -undefined suppress -headerpad_max_install_names 
 endif
-ifeq ($(TARGET_OS), cygwin)
-_SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
-endif
 ifeq ($(TARGET_OS), mingw)
 _SHAREDOPTS	= -shared -Wl,-export-all-symbols,-soname,$(LIBTARGET)
 endif
@@ -71,9 +68,9 @@ endif
 %.tab.c : %.y
 	$(YACC) -d -b `basename $< .y` $<
 
-ifeq ($(TARGET_OS), cygwin)
+ifeq ($(TARGET_OS), mingw)
 #
-# .exe rule for Cygwin
+# .exe rule for Windows
 #
 .SUFFIXES:	.exe
 .o.exe:

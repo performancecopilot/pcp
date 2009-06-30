@@ -457,10 +457,7 @@ typedef void (*SIG_PF) (int);
 #define isnanf(d) isnan(d)	/* isnan is a type-independent macro */
 #endif
 
-/* Determine if we are on a Windows box with Cygwin */
-#undef IS_CYGWIN
-
-/* Determine if we are on Windows with MinGW compilers */
+/* Determine if we are on Windows with MinGW compiler */
 #undef IS_MINGW
 #ifdef IS_MINGW
 #define isnand(d) isnan(d)	/* isnan is a type-independent macro */
