@@ -1297,7 +1297,7 @@ fi
 AC_SUBST(pcp_var_dir)
 
 dnl pmcd control and options files
-if test $target_os = darwin -o $target_distro = debian
+if test $target_os = darwin -o $target_distro = debian -o $target_os = mingw
 then
     pcp_pmcdconf_path=/etc/pmcd/pmcd.conf
     pcp_pmcdrclocal_path=/etc/pmcd/rc.local
