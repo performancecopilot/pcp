@@ -49,7 +49,7 @@ ifneq "$(CPANFLUTE)" ""
 	$(CPANFLUTE) --email="$(PACKAGE_BUILDER)" \
 		--noperlreqs --release=1 --outdir=$(TOPDIR)/build/rpm \
 		--descfile=pcp-mmv-perl.desc --buildrequires=pcp \
-		--buildall $(TOPDIR)/src/cpan/PMDA/PCP-MMV-*.tar.gz
+		--buildall $(TOPDIR)/src/cpan/MMV/PCP-MMV-*.tar.gz
 endif
 
 rpmmacros : macros.template
