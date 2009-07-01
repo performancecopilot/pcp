@@ -23,7 +23,7 @@ include $(TOPDIR)/src/include/builddefs
 SPEC = pcp.spec
 LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros 
 
-PERLFILES = pcp-pmda-perl.desc pcp-logsummary-perl.desc
+PERLFILES = pcp-pmda-perl.desc pcp-logsummary-perl.desc pcp-mmv-perl.desc
 LSRCFILES = macros.template pcp.spec.in $(PERLFILES)
 
 default install :
