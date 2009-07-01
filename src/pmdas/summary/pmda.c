@@ -137,7 +137,7 @@ main(int argc, char **argv)
     /*
      * open a pipe to the command
      */
-    if (pipe2(clientPipe, 0) < 0) {
+    if (pipe1(clientPipe) < 0) {
 	perror("pipe");
 	exit(errno);
     }

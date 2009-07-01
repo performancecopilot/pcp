@@ -1421,14 +1421,14 @@ CreateAgent(AgentInfo *aPtr)
 
     if (aPtr->ipcType == AGENT_PIPE) {
 	argv = aPtr->ipc.pipe.argv;
-	if (pipe2(inPipe, 0) < 0) {
+	if (pipe1(inPipe) < 0) {
 	    fprintf(stderr,
 			 "pmcd: input pipe create failed for \"%s\" agent: %s\n",
 			 aPtr->pmDomainLabel, strerror(errno));
 	    return -1;
 	}
 
-	if (pipe2(outPipe, 0) < 0) {
+	if (pipe1(outPipe) < 0) {
 	    fprintf(stderr,
 			 "pmcd: output pipe create failed for \"%s\" agent: %s\n",
 			 aPtr->pmDomainLabel, strerror(errno));

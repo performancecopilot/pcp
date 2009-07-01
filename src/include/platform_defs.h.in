@@ -202,7 +202,6 @@ extern "C" {
 
 #undef HAVE_UNAME
 #undef HAVE_SYSLOG
-#undef HAVE_PIPE2
 #undef HAVE___CLONE
 #undef HAVE_FCNTL
 
@@ -478,7 +477,7 @@ typedef void (*SIG_PF) (int);
 #define EMSGSIZE	WSAEMSGSIZE
 #define ENODATA		WSANO_DATA
 
-#define HAVE_PIPE2
+#define HAVE_PIPE1
 #define HAVE_MKDIR2
 #define HAVE_RENAME2
 #define HAVE_DLOPEN
@@ -500,7 +499,7 @@ typedef void (*SIG_PF) (int);
 #define mkdir2(path, mode) mkdir(path)
 #define rename2(a, b) (unlink(b), rename(a,b))
 #define realpath(path, pp) strcpy(pp, path)
-#define pipe2(fds,fl) _pipe(fds, 4*1024, O_BINARY)
+#define pipe1(fds) _pipe(fds, 4096, O_BINARY)
 
 extern void setlinebuf(FILE *);
 extern const char *hstrerror(int);
@@ -584,8 +583,8 @@ extern int alphasort(const_dirent **, const_dirent **);
 #define rename2(path,target) rename(path,target)
 #endif
 
-#ifndef HAVE_PIPE2
-#define pipe2(fds,flags) pipe(fds)
+#ifndef HAVE_PIPE1
+#define pipe1(fds) pipe(fds)
 #endif
 
 #ifndef __cplusplus      
