@@ -1,3 +1,15 @@
+pcp-2.8.9 (1 July 2009)
+    - Remove Cygwin support, we're now committed to native Win32
+      port - first production install yesterday, hooray!
+    - Further Win32 work - wrapper batch files for shell scripts
+      run as commands, moved daemon configs into $PCP_DIR/etc,
+      bug fixes to process creation code.
+    - Significant work on the MMV PMDA, including revamped API,
+      Perl API, updated on-disk support with string values and
+      help text support, amongst other changes.
+    - Fix build of Perl PMDA module when PCP not installed.
+    - Fix Zimbra PMDA status metrics.
+
 pcp-2.8.8 (9 June 2009)
     - Added a Zimbra Collaboration Suite PMDA.
     - Build fixes for OpenSolaris.
