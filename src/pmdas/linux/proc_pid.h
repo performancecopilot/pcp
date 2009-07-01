@@ -204,8 +204,6 @@ typedef struct {
     pmdaIndom		*indom;		/* instance domain table */
 } proc_pid_t;
 
-extern size_t system_pagesize;
-
 /* refresh the proc indom, reset all "fetched" flags */
 extern int refresh_proc_pid(proc_pid_t *);
 

@@ -35,7 +35,6 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
     int instcount;
     char *w, *p;
     int old_cache;
-    static int pagesz;
     static int next_id = -1;
     static int major_version = -1;
     static int minor_version = 0;
@@ -44,7 +43,6 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 	/* one trip initialization */
 	next_id = 0;
 
-	pagesz = getpagesize();
 	slabinfo->ncaches = 0;
 	slabinfo->caches = (slab_cache_t *)malloc(sizeof(slab_cache_t));
 	slabinfo->indom->it_numinst = 0;
@@ -121,7 +119,7 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 	    if (n != 7)
 		return PM_ERR_APPVERSION;
 
-	    sbuf.total_size = sbuf.pages_per_slab * sbuf.num_active_slabs * pagesz;
+	    sbuf.total_size = sbuf.pages_per_slab * sbuf.num_active_slabs * _pm_system_pagesize;
 	}
 	else if (major_version == 2 && minor_version >= 0 && minor_version <= 1) {
 	    /* 
@@ -137,7 +135,7 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 	    if (n != 6)
 		return PM_ERR_APPVERSION;
 
-	    sbuf.total_size = sbuf.pages_per_slab * sbuf.num_active_objs * pagesz / sbuf.objects_per_slab;
+	    sbuf.total_size = sbuf.pages_per_slab * sbuf.num_active_objs * _pm_system_pagesize / sbuf.objects_per_slab;
 	}
 	else {
 	    /* no support */

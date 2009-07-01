@@ -47,5 +47,7 @@ typedef struct {
     pmdaIndom		*indom;
 } proc_slabinfo_t;
 
+extern size_t _pm_system_pagesize;
+
 extern int refresh_proc_slabinfo(proc_slabinfo_t *);
 
