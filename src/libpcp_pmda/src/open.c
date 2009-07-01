@@ -457,18 +457,18 @@ __pmdaSetupPDU(int infd, int outfd, char *agentname)
     handshake[0].c_valb = 0;
     handshake[0].c_valc = 0;
     if ((sts = __pmSendCreds(outfd, PDU_BINARY, 1, handshake)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: %s\n", agentname, pmErrStr(sts));
+	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s send creds: %s\n", agentname, pmErrStr(sts));
 	return -1;
     }
 
     if ((sts = __pmGetPDU(infd, PDU_BINARY, TIMEOUT_DEFAULT, &pb)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: %s\n", agentname, pmErrStr(sts));
+	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s getting creds: %s\n", agentname, pmErrStr(sts));
 	return -1;
     }
 
     if (sts == PDU_CREDS) {
 	if ((sts = __pmDecodeCreds(pb, PDU_BINARY, &sender, &credcount, &credlist)) < 0) {
-	    __pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: %s\n", agentname, pmErrStr(sts));
+	    __pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s decode creds: %s\n", agentname, pmErrStr(sts));
 	    return -1;
 	}
 
