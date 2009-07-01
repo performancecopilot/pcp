@@ -1,3 +1,6 @@
+pcp-2.8.10 (1 July 2009)
+    - RPM packaging fixes for Perl modules.
+
 pcp-2.8.9 (1 July 2009)
     - Remove Cygwin support, we're now committed to native Win32
       port - first production install yesterday, hooray!
