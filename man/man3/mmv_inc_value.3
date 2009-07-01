@@ -1,6 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2009 Max Matveev
+.\" Copyright (c) 2009 Aconex.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -15,16 +16,17 @@
 .\"
 .TH MMV_INC_VALUE 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3mmv_lookup_value_desc\f1 - update a value in a Memory Mapped Value file
+\f3mmv_inc_value\f1 - update a value in a Memory Mapped Value file
 .SH "C SYNOPSIS"
 .ft 3
+#include <pcp/pmapi.h>
 #include <pcp/mmv_stats.h>
 .sp
 .nf
-void mmv_inc_value (void *addr, mmv_stats_value_t *val, double inc)
+void mmv_inc_value(void *addr, pmAtomValue *val, double inc)
 .fi
 .sp
-cc ... \-lpcp_mmv
+cc ... \-lpcp_mmv \-lpcp
 .ft 1
 .SH DESCRIPTION
 .P

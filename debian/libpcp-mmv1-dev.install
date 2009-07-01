@@ -1,4 +1,5 @@
 usr/include/pcp/mmv_stats.h
+usr/include/pcp/mmv_dev.h
 usr/lib/libpcp_mmv.a
 usr/lib/libpcp_mmv.so
 usr/share/man/man3/mmv_inc_value.3.gz

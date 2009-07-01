@@ -17,7 +17,9 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = pcp-services.c pcp-setevent.c pcp-eventlog.c
 TARGETS = pcp-services.exe pcp-setevent.exe pcp-eventlog.exe
+WRAPPERS = pcp.bat pmafm.bat mkaf.bat pmsignal.bat
 LLDLIBS = -lpcp
+LSRCFILES = $(WRAPPERS)
 
 default:	build-me
 
@@ -27,6 +29,7 @@ ifeq "$(TARGET_OS)" "mingw"
 build-me:	$(TARGETS)
 install:	default
 	$(INSTALL) -m 755 $(TARGETS) $(PCP_BIN_DIR)
+	$(INSTALL) -m 755 $(WRAPPERS) $(PCP_BIN_DIR)
 else
 build-me:
 install:

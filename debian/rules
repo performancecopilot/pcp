@@ -11,6 +11,7 @@ libpcp_gui = libpcp-gui2
 libpcp_guidev = libpcp-gui2-dev
 libpcp_mmv = libpcp-mmv1
 libpcp_mmvdev = libpcp-mmv1-dev
+libpcp_mmv_perl = libpcp-mmv-perl
 libpcp_trace = libpcp-trace2
 libpcp_tracedev = libpcp-trace2-dev
 
@@ -25,13 +26,14 @@ dirlibpcp_gui = debian/$(libpcp_gui)
 dirlibpcp_guidev = debian/$(libpcp_guidev)
 dirlibpcp_mmv = debian/$(libpcp_mmv)
 dirlibpcp_mmvdev = debian/$(libpcp_mmvdev)
+dirlibpcp_mmv_perl = debian/$(libpcp_mmv_perl)
 dirlibpcp_trace = debian/$(libpcp_trace)
 dirlibpcp_tracedev = debian/$(libpcp_tracedev)
-alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(dirlibpcp_pmda) \
-		$(dirlibpcp_pmdadev) $(dirlibpcp_pmda_perl) \
+alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) \
+		$(dirlibpcp_pmda) $(dirlibpcp_pmdadev) $(dirlibpcp_pmda_perl) \
 		$(dirlibpcp_trace) $(dirlibpcp_tracedev) \
 		$(dirlibpcp_gui) $(dirlibpcp_guidev) \
-		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) \
+		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) $(dirlibpcp_mmv_perl) \
 		$(dirpcp_logsummary_perl)
 
 zip = @export GZIP=-9q
@@ -41,6 +43,7 @@ pkglibpcp_gui = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_gui);
 pkglibpcp_mmv = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_mmv);
 pkglibpcp_pmda = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
 pkglibpcp_trace = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_trace);
+pkglibpcp_mmv_perl = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_mmv_perl);
 pkglibpcp_pmda_perl = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda_perl);
 pkgpcp_logsummary_perl = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_logsummary_perl);
 
@@ -78,6 +81,7 @@ binary-arch: checkroot built
 	-rm -rf $(alldir)
 	$(pkgpcp) $(MAKE) -C . install
 	$(pkgpcp) $(MAKE) -C build pcp.src
+	$(pkglibpcp_mmv_perl) $(MAKE) -C src/cpan/MMV install_perl
 	$(pkglibpcp_pmda_perl) $(MAKE) -C src/cpan/PMDA install_perl
 	$(pkgpcp_logsummary_perl) $(MAKE) -C src/cpan/LogSummary install_perl
 
@@ -100,6 +104,7 @@ binary-arch: checkroot built
 	dh_makeshlibs --package $(libpcp_gui)
 	dh_makeshlibs -N $(libpcp_mmv)
 	dh_makeshlibs --package $(libpcp_mmv)
+	dh_perl -p $(libpcp_mmv_perl)
 	dh_perl -p $(libpcp_pmda_perl)
 	dh_perl -p $(pcp_logsummary_perl)
 	dh_installdeb

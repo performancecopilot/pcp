@@ -27,7 +27,7 @@
 #
 case "$PCP_PLATFORM"
 in
-    linux|mingw|cygwin)
+    linux|mingw)
 	SED="sed -u"
 	;;
     freebsd|darwin)

@@ -72,9 +72,6 @@ then
 elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN)
-elif test $target_os = cygwin
-then
-    AC_DEFINE(IS_CYGWIN)
 elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW)
@@ -101,7 +98,6 @@ in
     aix)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
     linux)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
     mingw)	pcp_platform_paths='/mingw/bin:/perl/bin:/usr/local/bin';;
-    cygwin)	pcp_platform_paths='/cygdrive/c/WINDOWS/system32';;
     darwin)	pcp_platform_paths='/usr/local/bin';;
     solaris)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin';;
     freebsd)	pcp_platform_paths='/usr/bin/X11:/usr/bsd';;
@@ -536,9 +532,6 @@ dnl set platform specific ps
 if test -n "$PROCPS"
 then
     pcp_ps_prog="$PROCPS"
-elif test $target_os = cygwin
-then
-    pcp_ps_prog=procps
 else
     pcp_ps_prog=ps
 fi
@@ -558,10 +551,7 @@ NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/etc\/init/ { print "OK"; exit }
 # Fedora 9
-$2 == 1 && / \/sbin\/init/ { print "OK"; exit }
-# Cygwin
-/ \/usr\/bin\/cygrunsrv/ { print "OK"; exit }
-/ \/usr\/sbin\/inetd/	{  print "OK"; exit }'`
+$2 == 1 && / \/sbin\/init/ { print "OK"; exit }'`
     if test "$ans" = OK
     then
 	pcp_ps_have_bsd=false
@@ -720,10 +710,10 @@ AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(gettimeofday mktime nanosleep putenv)
 AC_CHECK_FUNCS(gethostname hstrerror select socket)
-AC_CHECK_FUNCS(uname syslog brk sbrk __clone fcntl)
+AC_CHECK_FUNCS(uname syslog __clone fcntl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown getcwd scandir mkstemp getpwnam)
-AC_CHECK_FUNCS(memalign valloc)
+AC_CHECK_FUNCS(brk sbrk memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strerror strtod strtol strtoll strtoull)
@@ -1167,13 +1157,7 @@ dnl				time_t tv_sec;
 dnl				long tv_nsec;
 dnl			};
 dnl
-dnl cygwin just cannot work this out correctly ... too many different
-dnl headers, and the AC_EGREP_HEADER() macro gets confused ... be
-dnl autocratic!
-if test $target_os = cygwin
-then
-    AC_DEFINE(HAVE_STAT_TIMESPEC_T)
-elif test $target_os = freebsd
+if test $target_os = freebsd
 then
     # just too hard to work out for FreeBSD
     AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC)
@@ -1327,10 +1311,7 @@ pcp_pmdas_dir=$pcp_var_dir/pmdas
 AC_SUBST(pcp_pmdas_dir)
 
 dnl runtime shared libraries
-if test $target_os = cygwin
-then
-    pcp_lib_dir=/cygdrive/c/WINDOWS/system32
-elif test $target_os = mingw
+if test $target_os = mingw
 then
     pcp_lib_dir=/local/bin
     pcp_lib32_dir=/local/bin

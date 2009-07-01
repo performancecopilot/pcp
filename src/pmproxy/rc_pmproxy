@@ -56,7 +56,7 @@ fi
 
 case "$PCP_PLATFORM"
 in
-    cygwin|mingw)
+    mingw)
 	# nothing we can usefully do here, skip the test
 	#
 	;;

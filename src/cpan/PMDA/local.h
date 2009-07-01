@@ -76,9 +76,6 @@ extern void local_atexit(void);
 extern int local_files_get_descriptor(int id);
 extern void local_pmdaMain(pmdaInterface *self);
 
-extern char *local_pmns_root(void);
-extern int local_pmns_split(const char *root, const char *name, const char *id);
-extern int local_pmns_write(const char *root);
-extern int local_pmns_clear(const char *root);
+extern void local_pmns_write(__pmnsNode *, FILE *f);
 
 #endif /* LOCAL_H */

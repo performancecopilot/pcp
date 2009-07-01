@@ -1,6 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2009 Max Matveev
+.\" Copyright (c) 2009 Aconex.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -18,14 +19,15 @@
 \f3mmv_lookup_value_desc\f1 - find a value in the Memory Mapped Value file
 .SH "C SYNOPSIS"
 .ft 3
+#include <pcp/pmapi.h>
 #include <pcp/mmv_stats.h>
 .sp
 .nf
-mmv_stats_value_t * 
+pmAtomValue * 
 mmv_lookup_value_desc(void *addr, const char *metric, const char *inst);
 .fi
 .sp
-cc ... \-lpcp_mmv
+cc ... \-lpcp_mmv \-lpcp
 .ft 1
 .SH DESCRIPTION
 .P
@@ -34,26 +36,24 @@ identified by the external instance name \f2inst\f1 of the metric
 \f2metric\f1 in the \f3MMV\f1(4) file.
 \f2addr\f1 is the address returned from \f3mmv_stats_init\f1().
 .P
-The pointer returned points to the following structure:
+The pointer returned points to a pmAtomValue union, which is
+defined as follows:
 .P
 .nf
-    typedef struct mmv_stats_value_s {
-        int metric;        /* Offset into the metric section */
-        int instance;      /* Offset into corresponding indom section */
-        union {
-            __int32_t   i32;
-            __uint32_t  u32;
-            __int64_t   i64;
-            __uint64_t  u64;
-            float       f;
-            double      d;
-        } val;
-        __int64_t extra;   /* extra space for INTEGRAL and DISCRETE */
-    } mmv_stats_value_t;
+    typedef union {
+        __int32_t   l;      /* 32-bit signed */
+        __uint32_t  ul;     /* 32-bit unsigned */
+        __int64_t   ll;     /* 64-bit signed */
+        __uint64_t  ull;    /* 64-bit unsigned */
+        float       f;      /* 32-bit floating point */
+        double      d;      /* 64-bit floating point */
+        char         *cp;   /* char ptr */
+        void         *vp;   /* void ptr */
+    } pmAtomValue;
 .fi
 .P
-The caller is allowed to modify values if the \f2val\f1 and \f2extra\f1
-elements but not the \f2metric\f1 or \f2instance\f1.
+MMV string values should be set using either of the
+\f3mmv_set_string\f1 or \f3mmv_set_strlen\f1 routines.
 .SH RETURNS
 The function returns the address inside of the memory mapped region
 on success or NULL on failure.

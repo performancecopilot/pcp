@@ -1079,7 +1079,7 @@ main(int argc, char **argv)
 	for (n=1; n<=wl_numSprocs; n++) {
 	    proc = &wl_sproc[n];
 
-	    sts = pipe(proc->inFD);
+	    sts = pipe1(proc->inFD);
 	    if (sts) {
 	    	logmessage(LOG_ERR, 
 			     "Cannot allocate fileDes 1 for sproc[%d]", 
@@ -1096,7 +1096,7 @@ main(int argc, char **argv)
 			      n);
 #endif
 
-	    sts = pipe(proc->outFD);
+	    sts = pipe1(proc->outFD);
 	    if (sts) {
 	    	logmessage(LOG_ERR, 
 			     "Cannot allocate fileDes 2 for sproc[%d]", 

@@ -15,12 +15,13 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-TARGETS	= $(IAM)
+TARGETS	= $(IAM) mmvdump$(EXECSUFFIX)
 CFILES	= mmv.c
-LSRCFILES = pmns Install Remove README help root mmv.conf
+LSRCFILES = pmns Install Remove README help root mmvdump.c
 
 LCFLAGS = -I.
-LDLIBS	= -lpcp_pmda -lpcp
+LLDFLAGS= -L$(TOPDIR)/src/libpcp_mmv/src
+LLDLIBS	= -lpcp_pmda -lpcp
 
 IAM	= mmv
 DOMAIN	= MMV
@@ -35,8 +36,8 @@ include $(BUILDRULES)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 mmv.conf README root help pmns domain.h $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove mmvdump$(EXECSUFFIX) $(PMDADIR)
+	$(INSTALL) -m 644 README root help pmns domain.h $(PMDADIR)
 
 $(IAM):	$(OBJECTS)
 
@@ -55,3 +56,6 @@ install_pcp: install
 
 pcp :
 	$(LN_S) -f $(TOPDIR)/src/include pcp
+
+mmvdump$(EXECSUFFIX):    mmvdump.o
+	$(CCF) -o $@ mmvdump.o $(LDFLAGS) -lpcp -lpcp_mmv

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -11,15 +11,11 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
 
 TOPDIR	= ../..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS	= PMDA LogSummary
+SUBDIRS	= PMDA LogSummary MMV
 
 default: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

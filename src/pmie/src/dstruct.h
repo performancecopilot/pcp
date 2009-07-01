@@ -406,7 +406,7 @@ extern int	   isdaemon;	/* run as a daemon */
 extern int         agent;	/* secret agent mode? */
 extern int         applet;	/* applet mode? */
 extern int	   dowrap;	/* counter wrap? default no */
-extern int	   licensed;	/* pmie licensed? default no */
+extern int         noDnsFlag;	/* hostname DNS lookup needed? */
 extern pmiestats_t *perf;	/* pmie performance data ptr */
 extern pmiestats_t instrument;	/* pmie performance data struct */
 

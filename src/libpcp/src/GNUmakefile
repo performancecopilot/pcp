@@ -61,11 +61,6 @@ ifeq "$(TARGET_OS)" "darwin"
 LIBTARGET = libpcp.$(DSOVERSION).$(DSOSUFFIX)
 SYMTARGET = libpcp.$(DSOSUFFIX)
 endif
-ifeq "$(TARGET_OS)" "cygwin"
-STATICLIBTARGET =
-LIBTARGET = libpcp.$(DSOSUFFIX)
-SYMTARGET =
-endif
 ifeq "$(TARGET_OS)" "mingw"
 STATICLIBTARGET = 
 LIBTARGET = libpcp.$(DSOSUFFIX)
@@ -85,10 +80,10 @@ include $(BUILDRULES)
 
 connect.o: dsotbl.h
 
-ifeq "$(findstring $(TARGET_OS),cygwin mingw)" ""
-kernel_pmda_dso	= $(TARGET_OS)
-else
+ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows
+else
+kernel_pmda_dso	= $(TARGET_OS)
 endif
 
 ifeq ($(HAVE_IBDEV),1)

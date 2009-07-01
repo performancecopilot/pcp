@@ -310,17 +310,28 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
 void
 pmns(void)
 {
-    char *key, *root = local_pmns_root();
-    I32 keysize;
+    __pmnsTree *pmns;
+    char *pmid;
+    I32 idsize;
     SV *metric;
 
-    if (!root)
-	croak("failed to create pmns root");
+    if (__pmNewPMNS(&pmns) < 0)
+	croak("failed to create namespace root");
+
     hv_iterinit(metric_names);
-    while ((metric = hv_iternextsv(metric_names, &key, &keysize)) != NULL)
-	local_pmns_split(root, SvPV_nolen(metric), key);
-    local_pmns_write(root);
-    local_pmns_clear(root);
+    while ((metric = hv_iternextsv(metric_names, &pmid, &idsize)) != NULL)
+	if (__pmAddPMNSNode(pmns, atoi(pmid), SvPV_nolen(metric)) < 0)
+	    croak("failed to add metric to namespace");
+
+    if (strcmp(getenv("PCP_PERL_PMNS"), "root") == 0)
+	local_pmns_write(pmns->root, stdout);
+    else {
+	__pmnsNode *node;
+	for (node = pmns->root->first; node != NULL; node = node->next)
+	    local_pmns_write(node, stdout);
+    }
+
+    __pmFreePMNS(pmns);
 }
 
 void

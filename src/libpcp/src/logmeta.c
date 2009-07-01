@@ -195,7 +195,6 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
     
     if (version2) {
        if ((sts = __pmNewPMNS(&(lcp->l_pmns))) < 0) {
-          sts = -errno;
           goto end;
        }
     }

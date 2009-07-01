@@ -26,7 +26,7 @@ CFILES = data.c trace.c client.c
 LCFLAGS = -I$(TOPDIR)/src/pmcd/src -DPMCD_INTERNAL
 LLDLIBS = -lpcp
 
-ifneq "$(findstring $(TARGET_OS),cygwin mingw)" ""
+ifeq "$(TARGET_OS)" "mingw"
 LIBTARGET = libpcp_pmcd.$(DSOSUFFIX)
 LDIRT	+= libpcp_pmcd.a
 else
@@ -39,7 +39,7 @@ default : $(LIBTARGET) $(STATICLIBTARGET)
 include $(BUILDRULES)
 
 install : default
-ifneq "$(findstring $(TARGET_OS),cygwin mingw)" ""
+ifeq "$(TARGET_OS)" "mingw"
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 endif
 

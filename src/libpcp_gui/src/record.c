@@ -497,7 +497,7 @@ pmRecordControl(pmRecordHost *rhp, int request, const char *msg)
 		    continue;
 		fclose(rp->public.f_config);
 		rp->public.f_config = NULL;
-		if (pipe(mypipe) < 0) {
+		if (pipe1(mypipe) < 0) {
 		    sts = -errno;
 		    break;
 		}

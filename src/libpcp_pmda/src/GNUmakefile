@@ -47,7 +47,7 @@ LIBTARGET_V2 =
 endif
 LIBTARGET = $(LIBTARGET_V3)
 
-ifneq "$(findstring $(TARGET_OS),cygwin mingw)" ""
+ifeq "$(TARGET_OS)" "mingw"
 LIBTARGET = libpcp_pmda.$(DSOSUFFIX)
 STATICLIBTARGET =
 LIBTARGET_V1 =

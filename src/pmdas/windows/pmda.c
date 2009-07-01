@@ -580,7 +580,7 @@ pdh_metric_t metricdesc[] = {
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_NONE, 0, 0, 0, NULL, ""
     },
 /* hinv.ndisk */
-    { { PMDA_PMID(0,108), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { { PMDA_PMID(0,108), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_NONE, 0, 0, 0, NULL, ""
     },
 /* kernel.uname.distro */

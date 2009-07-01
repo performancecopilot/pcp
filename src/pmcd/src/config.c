@@ -526,8 +526,12 @@ BuildArgv(void)
     do {
 	/* Make result big enough for new arg and terminating NULL pointer */
 	result = (char **)realloc(result, (nArgs + 2) * sizeof(char *));
-	if (result != NULL)
-	    result[nArgs] = CopyToken();
+	if (result != NULL) {
+	    if (*token != '/')
+		result[nArgs] = CopyToken();
+	    else if ((result[nArgs] = CopyPathToken(getenv("PCP_DIR"))))
+		__pmNativePath(result[nArgs]);
+	}
 	if (result == NULL || result[nArgs] == NULL) {
 	    fprintf(stderr, "pmcd config: line %d, error building argument list\n",
 		    nLines);
@@ -1417,14 +1421,14 @@ CreateAgent(AgentInfo *aPtr)
 
     if (aPtr->ipcType == AGENT_PIPE) {
 	argv = aPtr->ipc.pipe.argv;
-	if (pipe(inPipe) < 0) {
+	if (pipe1(inPipe) < 0) {
 	    fprintf(stderr,
 			 "pmcd: input pipe create failed for \"%s\" agent: %s\n",
 			 aPtr->pmDomainLabel, strerror(errno));
 	    return -1;
 	}
 
-	if (pipe(outPipe) < 0) {
+	if (pipe1(outPipe) < 0) {
 	    fprintf(stderr,
 			 "pmcd: output pipe create failed for \"%s\" agent: %s\n",
 			 aPtr->pmDomainLabel, strerror(errno));

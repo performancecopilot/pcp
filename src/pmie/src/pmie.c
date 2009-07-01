@@ -86,6 +86,7 @@ static char usage[] =
     "  -d           interactive debugging mode\n"
     "  -e           force timestamps to be reported when used with -V, -v or -W\n"
     "  -f           run in foreground\n"
+    "  -H           do not do a name lookup on the default hostname\n"
     "  -h host      metrics source is PMCD on host\n"
     "  -j stompfile stomp protocol (JMS) file [default %s%cconfig%cpmie%cstomp]\n"
     "  -l logfile   send status and error messages to logfile\n"
@@ -321,7 +322,7 @@ stopmonitor(void)
 static void
 startmonitor(void)
 {
-    struct hostent	*hep = gethostbyname(dfltHost);
+    struct hostent	*hep = noDnsFlag ? NULL : gethostbyname(dfltHost);
     void		*ptr;
     int			fd;
     char		zero = '\0';
@@ -484,7 +485,7 @@ getargs(int argc, char *argv[])
     memset(&tv2, 0, sizeof(tv2));
     dstructInit();
 
-    while ((c=getopt(argc, argv, "a:A:bc:CdD:efh:j:l:n:O:S:t:T:vVWXxzZ:?")) != EOF) {
+    while ((c=getopt(argc, argv, "a:A:bc:CdD:efHh:j:l:n:O:S:t:T:vVWXxzZ:?")) != EOF) {
         switch (c) {
 
 	case 'a':			/* archives */
@@ -561,6 +562,10 @@ getargs(int argc, char *argv[])
 
 	case 'f':			/* in foreground, not as daemon */
 	    foreground = 1;
+	    break;
+
+	case 'H': 			/* no name lookup on exported host */
+	    noDnsFlag = 1;
 	    break;
 
 	case 'h': 			/* default host name */

@@ -20,13 +20,7 @@
 TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
 
-ifeq "$(TARGET_OS)" "cygwin"
-# unresolved symbols from dso pmda back to pmcd binary is an unsolved
-# problem for Cygwin at this stage
-LIBTARGET =
-else
 LIBTARGET = pmda_pmcd.$(DSOSUFFIX)
-endif
 
 CFILES	= pmcd.c
 LSRCFILES = objstyle
@@ -45,21 +39,18 @@ endif
 
 LCFLAGS += -DBUILD=\"$(BUILD)\"
 LLDLIBS = -lpcp_pmda -lpcp
-ifneq "$(findstring $(TARGET_OS),cygwin mingw)" ""
+ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lpcp_pmcd
-PCP_LIBS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)
+PCP_LIBS += -L$(TOPDIR)/src/libpcp_pmcd/src
 endif
 
 default: $(LIBTARGET)
 
 install: default
-ifneq "$(TARGET_OS)" "cygwin"
 	$(INSTALL) -m 755 -d $(PCP_PMDAS_DIR)/pmcd
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_PMDAS_DIR)/pmcd/$(LIBTARGET)
-endif
 
 include $(BUILDRULES)
-
 
 default_pcp : default
 

@@ -183,8 +183,9 @@ sub zimbra_threads_parser
 
 sub zimbra_probe_callback
 {
-    ( $_ ) = @_;
+    ( undef, $_ ) = @_;
 
+    # $pmda->log("zimbra_probe_callback got line: $_");
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d)$||) {
 	$probe_timestamp = $1;
     } else {
@@ -286,7 +287,7 @@ sub zimbra_fetch_callback
     }
     elsif ($cluster == 8) {			# status probe
 	if ($item >= 0 && $item <= 11) {
-	    return (PM_ERR_AGAIN, 0) unless defined($probe_values[$item]);
+	    return (PM_ERR_APPVERSION, 0) unless defined($probe_values[$item]);
 	    return ($probe_values[$item], 1);
 	}
     }

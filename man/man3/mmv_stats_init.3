@@ -1,6 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2009 Max Matveev
+.\" Copyright (c) 2009 Aconex.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -18,13 +19,17 @@
 \f3mmv_stats_init\f1 - create and initialize Memory Mapped Value file
 .SH "C SYNOPSIS"
 .ft 3
+#include <pcp/pmapi.h>
 #include <pcp/mmv_stats.h>
 .sp
 .nf
-void * mmv_stats_init(const char *name, const mmv_stats_t *stats, int nstats);
+void * mmv_stats_init(const char *name,
+			int cluster, mmv_stats_flags_t flags,
+			const mmv_metric_t *stats, int nstats,
+			mmv_indom_t *indoms, int nindoms);
 .fi
 .sp
-cc ... \-lpcp_mmv
+cc ... \-lpcp_mmv \-lpcp
 .ft 1
 .SH DESCRIPTION
 .P
@@ -33,33 +38,60 @@ cc ... \-lpcp_mmv
 .P
 The file is created in the $PCP_TMP_DIR/mmv directory, \f2name\f1
 argument is expected to be just a name of the file, not the full path.
-The file is only created if it is mentioned in the \f3mmv.conf\f1 file.
 The metadata content of the file does not change after the file has
 been created. 
 .P
 The old file is removed unconditionally unless there was an error.
 .P
-\f2stats\f1 is the array of \f3mmv_stats_t\f1 elements of length
+\f2cluster\f1 is the preferred MMV PMDA cluster ID to be used for
+the metrics originating from this call to \f3mmv_stats_init\f1.
+The \f2flags\f1 provide additional control over the behaviour
+of the MMV PMDA - e.g. use of MMV_FLAG_PROCESS will ensure values
+are only exported when the instrumented application is running \-
+this is verified on each request for new values.
+.P
+\f2stats\f1 is the array of \f3mmv_metric_t\f1 elements of length
 \f2nstats\f1. Each element of the array describes one PCP metric.
 .P
 .nf
-        typedef struct mmv_stats_s {
-            char name[MMV_NAMEMAX];   /* Name of the metric */
-            mmv_metric_type_t type;   /* Type of the metric */
-            mmv_stats_inst_t *indom;  /* Array of mmv_stats_inst_t,
-                                       * terminated by internal=-1 
-                                       * or external=NULL */
-            pmUnits dimension;        /* Dimensions (TIME, SPACE, etc) */
-	} mmv_stats_t;
+        typedef struct {
+            char name[MMV_NAMEMAX];     /* Name of the metric */
+            __uint32_t item;            /* Item component of PMID */
+            mmv_metric_type_t type;     /* Type of the metric */
+            mmv_metric_sem_t semantics; /* Semantics of the metric */
+            pmUnits dimension;          /* Dimensions (TIME,SPACE,etc) */
+            __uint32_t indom;           /* Instance domain identifier */
+            char *shorttext;            /* Optional, one-line help */
+            char *helptext;             /* Optional, full help text */
+        } mmv_metric_t;
 .fi
 .P
-If \f2indom\f1 is not NULL then the metric has multiple values. 
-The instance domain identifiers are assigned in the order in 
-which metrics are listed. If one or more metrics use the same \f2indom\f1
-pointer then only one instance domain will be created.
+If \f3indom\f1 is not zero and not PM_INDOM_NULL, then the metric has
+multiple values and there must be a corresponding \f2indom\f1 entry
+in the \f2indom\f1 list (uniquely identified by \f3serial\f1 number).
 .P
 The \f2stats\f1 array cannot contain any elements which have no name -
 this is considered an error and no metrics will be exported in this case.
+.P
+\f2indoms\f1 is the array of \f3mmv_indom_t\f1 elements of length
+\f2nindoms\f1. Each element of the array describes one PCP instance
+domain.
+.P
+.nf
+        typedef struct {
+            __int32_t internal;
+            char external[MMV_NAMEMAX];
+        } mmv_instances_t;
+
+        typedef struct {
+            __uint32_t serial;          /* Unique serial number */
+            __uint32_t count;           /* Number of instances */
+            mmv_instances_t *instances; /* Internal/external IDs */
+            char *shorttext;            /* Short help text */
+            char *helptext;             /* Long help text */
+        } mmv_indom_t;
+.fi
+.P
 .SH RETURNS
 The function returns the address of the memory mapped region on success or
 NULL on failure.

@@ -202,8 +202,6 @@ extern "C" {
 
 #undef HAVE_UNAME
 #undef HAVE_SYSLOG
-#undef HAVE_BRK
-#undef HAVE_SBRK
 #undef HAVE___CLONE
 #undef HAVE_FCNTL
 
@@ -219,6 +217,8 @@ extern "C" {
 #undef HAVE_MKSTEMP
 #undef HAVE_GETPWNAM
 
+#undef HAVE_BRK
+#undef HAVE_SBRK
 #undef HAVE_MEMALIGN
 #undef HAVE_VALLOC
 
@@ -329,7 +329,7 @@ bozo! need to find where MAXNAMELEN is defined for this platform
 #endif
 
 /*
- * MAXPATHLEN hides in may places and may have alias names ...
+ * MAXPATHLEN hides in many places and may have alias names ...
  */
 #ifndef MAXPATHLEN
 #ifdef HAVE_SYS_PARAM_H
@@ -348,7 +348,7 @@ bozo! need to find where MAXPATHLEN is defined for this platform
 #endif
 
 /*
- * MAXHOSTNAMELEN hides in may places ...
+ * MAXHOSTNAMELEN hides in many places and may also have aliases ...
  */
 #ifndef MAXHOSTNAMELEN
 #ifdef HAVE_SYS_PARAM_H
@@ -456,10 +456,7 @@ typedef void (*SIG_PF) (int);
 #define isnanf(d) isnan(d)	/* isnan is a type-independent macro */
 #endif
 
-/* Determine if we are on a Windows box with Cygwin */
-#undef IS_CYGWIN
-
-/* Determine if we are on Windows with MinGW compilers */
+/* Determine if we are on Windows with MinGW compiler */
 #undef IS_MINGW
 #ifdef IS_MINGW
 #define isnand(d) isnan(d)	/* isnan is a type-independent macro */
@@ -480,6 +477,7 @@ typedef void (*SIG_PF) (int);
 #define EMSGSIZE	WSAEMSGSIZE
 #define ENODATA		WSANO_DATA
 
+#define HAVE_PIPE1
 #define HAVE_MKDIR2
 #define HAVE_RENAME2
 #define HAVE_DLOPEN
@@ -501,9 +499,7 @@ typedef void (*SIG_PF) (int);
 #define mkdir2(path, mode) mkdir(path)
 #define rename2(a, b) (unlink(b), rename(a,b))
 #define realpath(path, pp) strcpy(pp, path)
-#ifndef pipe
-#define pipe(fds) _pipe(fds, 4*1024, O_BINARY)
-#endif
+#define pipe1(fds) _pipe(fds, 4096, O_BINARY)
 
 extern void setlinebuf(FILE *);
 extern const char *hstrerror(int);
@@ -585,6 +581,10 @@ extern int alphasort(const_dirent **, const_dirent **);
 
 #ifndef HAVE_RENAME2
 #define rename2(path,target) rename(path,target)
+#endif
+
+#ifndef HAVE_PIPE1
+#define pipe1(fds) pipe(fds)
 #endif
 
 #ifndef __cplusplus      

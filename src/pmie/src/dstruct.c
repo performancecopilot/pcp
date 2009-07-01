@@ -56,24 +56,25 @@ double	mynan;				/* not-a-number run time initialized */
  ***********************************************************************/
 
 char		*pmnsfile = PM_NS_DEFAULT;	/* alternate name space */
-Archive		*archives = NULL;		/* list of open archives */
+Archive		*archives;			/* list of open archives */
 RealTime	first = -1;			/* archive starting point */
 RealTime	last = 0.0;			/* archive end point */
 char		*dfltHost;			/* default host */
 RealTime	dfltDelta = DELTA_DFLT;		/* default sample interval */
-char		*startFlag = NULL;		/* start time specified? */
-char		*stopFlag = NULL;		/* end time specified? */
-char		*alignFlag = NULL;		/* align time specified? */
-char		*offsetFlag = NULL;		/* offset time specified? */
+char		*startFlag;			/* start time specified? */
+char		*stopFlag;			/* end time specified? */
+char		*alignFlag;			/* align time specified? */
+char		*offsetFlag;			/* offset time specified? */
 RealTime	runTime;			/* run time interval */
-int		hostZone = 0;			/* timezone from host? */
-char		*timeZone = NULL;		/* timezone from command line */
-int		verbose = 0;			/* verbosity 0, 1 or 2 */
-int		interactive = 0;		/* interactive mode, -d */
-int		isdaemon = 0;			/* run as a daemon */
-int		agent = 0;			/* secret agent mode? */
-int		applet = 0;			/* applet mode? */
-int		dowrap = 0;			/* counter wrap? default no */
+int		hostZone;			/* timezone from host? */
+char		*timeZone;			/* timezone from command line */
+int		verbose;			/* verbosity 0, 1 or 2 */
+int		interactive;			/* interactive mode, -d */
+int		isdaemon;			/* run as a daemon */
+int		agent;				/* secret agent mode? */
+int		applet;				/* applet mode? */
+int		dowrap;				/* counter wrap? default no */
+int		noDnsFlag;			/* do a default name lookup? */
 pmiestats_t	*perf;				/* live performance data */
 pmiestats_t	instrument;			/* used if no mmap (archive) */
 

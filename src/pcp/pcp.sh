@@ -62,7 +62,7 @@ _plural()
 
 _fmt()
 {
-    fmt -64 | tr -s '\n' | $PCP_AWK_PROG '
+    fmt -64 | tr -d '\r' | tr -s '\n' | $PCP_AWK_PROG '
 NR > 1	{ printf "           %s\n", $0; next }
 	{ print }'
 }

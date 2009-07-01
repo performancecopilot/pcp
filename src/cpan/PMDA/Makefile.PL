@@ -11,7 +11,7 @@ WriteMakefile(
     XSPROTOARG		=> '-noprototypes',
     OBJECT		=> 'local.o PMDA.o',
     DEFINE		=> '-DPERLIO_NOT_STDIO=0 -DPCP_VERSION -DPCP_DEBUG',
-    LDFROM		=> "-L$ENV{PCP_DIR}\\local\\bin -lpcp_pmda -lpcp local.o PMDA.o",
+    LDFROM		=> "-L../../libpcp/src -L../../libpcp_pmda/src -L$ENV{PCP_DIR}\\local\\bin -lpcp_pmda -lpcp local.o PMDA.o",
     INC			=> "-I../../include -I/usr/include/pcp -I$ENV{PCP_DIR}\\include\\pcp -I$ENV{PCP_DIR}\\c\\include",
     LIBS		=> ["-L$ENV{PCP_DIR}\\local\\bin", '-lpcp_pmda', '-lpcp'],
 );
