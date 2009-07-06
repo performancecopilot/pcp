@@ -311,7 +311,7 @@ void
 pmns(void)
 {
     __pmnsTree *pmns;
-    char *pmid;
+    char *pmid, *next;
     I32 idsize;
     SV *metric;
 
@@ -319,9 +319,15 @@ pmns(void)
 	croak("failed to create namespace root");
 
     hv_iterinit(metric_names);
-    while ((metric = hv_iternextsv(metric_names, &pmid, &idsize)) != NULL)
-	if (__pmAddPMNSNode(pmns, atoi(pmid), SvPV_nolen(metric)) < 0)
+    while ((metric = hv_iternextsv(metric_names, &pmid, &idsize)) != NULL) {
+	unsigned int domain, cluster, item, id;
+	domain = strtoul(pmid, &next, 10);
+	cluster = strtoul(next+1, &next, 10);
+	item = strtoul(next+1, &next, 10);
+	id = pmid_build(domain, cluster, item);
+	if (__pmAddPMNSNode(pmns, id, SvPV_nolen(metric)) < 0)
 	    croak("failed to add metric to namespace");
+    }
 
     if (strcmp(getenv("PCP_PERL_PMNS"), "root") == 0)
 	local_pmns_write(pmns->root, stdout);

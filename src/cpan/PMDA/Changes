@@ -1,6 +1,9 @@
 Revision history for Perl extension PCP::PMDA.
 
-1.03  Wed, 10 Jun 2009 14:53:05 +1000
+1.04  Mon Jul  6 11:08:20 EST 2009
+	- Rewrote PMNS file generation to use libpcp routines.
+
+1.03  Wed Jun 10 14:53:05 EST 2009
 	- Incorporated Win32 build changes (paths, etc).
 	- Remove (unneeded) use of hsearch and <search.h>.
 

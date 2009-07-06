@@ -1,3 +1,6 @@
+pcp-2.8.11 (6 July 2009)
+    - Rework namespace file generation for Perl PMDAs.
+
 pcp-2.8.10 (1 July 2009)
     - RPM packaging fixes for Perl modules.
 
