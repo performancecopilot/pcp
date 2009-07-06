@@ -414,7 +414,10 @@ local_pmns_write(__pmnsNode *base, FILE *f)
 	if (np->pmid == PM_ID_NULL)
 	    fprintf(f, "\t%s\n", np->name);
 	else
-	    fprintf(f, "\t%s\t\t%s\n", np->name, pmIDStr(np->pmid));
+	    fprintf(f, "\t%s\t\t%u:%u:%u\n", np->name,
+			pmid_domain(np->pmid),
+			pmid_cluster(np->pmid),
+			pmid_item(np->pmid));
     }
     fprintf(f, "}\n\n");
 
