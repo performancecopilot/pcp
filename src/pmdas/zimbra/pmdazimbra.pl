@@ -161,11 +161,39 @@ sub zimbra_proc_parser
     if (s|^(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d), ||) {
 	chomp;
 	$proc_timestamp = $1;
-	@proc_values = split /,/;
-	splice(@proc_values, 0, 5);	# ditch the "system" values
-	foreach my $proc ( reverse(0 .. 6) ) {
-	    splice(@proc_values, $proc * 8, 1);	# toss "name" field
+	@proc_values = ();
+	my @values = split /,/;
+	splice(@values, 0, 5);	# ditch "system" values
+
+	# 7 values for mailbox,mysql,convertd,ldap,postfix,amavis,clam
+	# seems sometimes not all are installed/available/whatever, so
+	# take care to handle that case.
+
+	while ($#values >= 7) {
+	    my $offset = 0;
+	    my @chunk = splice(@values, 0, 8);
+	    if (defined($chunk[0])) {
+		$chunk[0] =~ s/\s//g;
+	    }
+	    if (!defined($chunk[0])) {
+		$pmda->log("zimbra_proc_parser unexpected input: $_");
+	    }
+	    elsif ($chunk[0] eq 'mailbox')		{ $offset = 0; }
+	    elsif ($chunk[0] eq 'mysql')	{ $offset = 7; }
+	    elsif ($chunk[0] eq 'convertd')	{ $offset = 14; }
+	    elsif ($chunk[0] eq 'ldap')		{ $offset = 21; }
+	    elsif ($chunk[0] eq 'postfix')	{ $offset = 28; }
+	    elsif ($chunk[0] eq 'amavis')	{ $offset = 35; }
+	    elsif ($chunk[0] eq 'clam')		{ $offset = 42; }
+	    else {
+		$pmda->log("zimbra_proc_parser unexpected data: $chunk[0]");
+	    }
+	    shift @chunk;	# remove the chunk name - then add values
+	    splice(@proc_values, $offset, 7, @chunk);	# to correct spot
 	}
+    }
+    else {
+	$pmda->log("zimbra_proc_parser could not parse line: $_");
     }
 }
 
