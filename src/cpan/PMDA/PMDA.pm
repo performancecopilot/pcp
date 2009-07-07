@@ -32,7 +32,7 @@ require DynaLoader;
 	PM_ERR_TOOSMALL PM_ERR_TOOBIG PM_ERR_NYI
 );
 @EXPORT_OK = qw();
-$VERSION = '1.04';
+$VERSION = '1.05';
 
 # metric identification
 sub PM_ID_NULL		{ 0xffffffff; }
@@ -164,7 +164,7 @@ Further details can be found at http://oss.sgi.com/projects/pcp
 
 Nathan Scott, E<lt>nathans@debian.orgE<gt>
 
-Copyright (C) 2008 by Aconex.
+Copyright (C) 2008-2009 by Aconex.
 Copyright (C) 2004 by Silicon Graphics, Inc.
 
 This library is free software; you can redistribute it and/or modify

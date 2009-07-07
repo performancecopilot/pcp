@@ -74,15 +74,28 @@ clustertab_scratch()
 }
 
 void
-refresh(int numpmid, pmID *pmidlist)
+clustertab_refresh(int index)
 {
     dSP;
-    int i, numclusters = 0;
-    __pmID_int *pmid;
-
     ENTER;
     SAVETMPS;
     PUSHMARK(sp);
+    XPUSHs(sv_2mortal(newSVuv(clustertab[index])));
+    PUTBACK;
+
+    perl_call_sv(refresh_func, G_VOID);
+
+    SPAGAIN;
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+}
+
+void
+refresh(int numpmid, pmID *pmidlist)
+{
+    int i, numclusters = 0;
+    __pmID_int *pmid;
 
     /* Create list of affected clusters from pmidlist
      * Note: we overwrite the initial cluster array here, to avoid
@@ -99,14 +112,22 @@ refresh(int numpmid, pmID *pmidlist)
     }
 
     /* For each unique cluster, call the cluster refresh method */
-    for (i = 0; i < numclusters; i++) {
-	PUSHMARK(sp);
-	XPUSHs(sv_2mortal(newSVuv(clustertab[i])));
-	PUTBACK;
-	perl_call_sv(refresh_func, G_VOID|G_DISCARD);
-	SPAGAIN;
-    }
+    for (i = 0; i < numclusters; i++)
+	clustertab_refresh(i);
+}
 
+void
+prefetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
+{
+    dSP;
+    ENTER;
+    SAVETMPS;
+    PUSHMARK(sp);
+    PUTBACK;
+
+    perl_call_sv(fetch_func, G_VOID|G_NOARGS);
+
+    SPAGAIN;
     PUTBACK;
     FREETMPS;
     LEAVE;
@@ -115,23 +136,34 @@ refresh(int numpmid, pmID *pmidlist)
 int
 fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 {
-    dSP;
-    PUSHMARK(sp);
-    perl_call_sv(fetch_func, G_DISCARD|G_NOARGS);
+    prefetch(numpmid, pmidlist, rp, pmda);
     if (refresh_func)
 	refresh(numpmid, pmidlist);
     return pmdaFetch(numpmid, pmidlist, rp, pmda);
 }
 
-int
-instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
+void
+preinstance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
 {
     dSP;
+    ENTER;
+    SAVETMPS;
     PUSHMARK(sp);
     XPUSHs(sv_2mortal(newSVuv(indom)));
     PUTBACK;
 
-    perl_call_sv(instance_func, G_VOID|G_DISCARD);
+    perl_call_sv(instance_func, G_VOID);
+
+    SPAGAIN;
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+}
+
+int
+instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
+{
+    preinstance(indom, a, b, rp, pmda);
     return pmdaInstance(indom, a, b, rp, pmda);
 }
 
@@ -139,23 +171,37 @@ void
 timer_callback(int afid, void *data)
 {
     dSP;
+    ENTER;
+    SAVETMPS;
     PUSHMARK(sp);
     XPUSHs(sv_2mortal(newSViv(local_timer_get_cookie(afid))));
     PUTBACK;
 
-    perl_call_sv(local_timer_get_callback(afid), G_VOID|G_DISCARD);
+    perl_call_sv(local_timer_get_callback(afid), G_VOID);
+
+    SPAGAIN;
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
 }
 
 void
 input_callback(SV *input_cb_func, int data, char *string)
 {
     dSP;
+    ENTER;
+    SAVETMPS;
     PUSHMARK(sp);
     XPUSHs(sv_2mortal(newSViv(data)));
     XPUSHs(sv_2mortal(newSVpv(string,0)));
     PUTBACK;
 
-    perl_call_sv(input_cb_func, G_VOID|G_DISCARD);
+    perl_call_sv(input_cb_func, G_VOID);
+
+    SPAGAIN;
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
 }
 
 int
@@ -212,18 +258,52 @@ fetch_end:
 }
 
 int
-store(pmResult *result, pmdaExt *pmda)
+store_callback(__pmID_int *pmid, unsigned int inst, pmAtomValue av, int type)
 {
     dSP;
+    int sts;
+    ENTER;
+    SAVETMPS;
+    PUSHMARK(sp);
+    XPUSHs(sv_2mortal(newSVuv(pmid->cluster)));
+    XPUSHs(sv_2mortal(newSVuv(pmid->item)));
+    XPUSHs(sv_2mortal(newSVuv(inst)));
+    switch (type) {
+	case PM_TYPE_32:     XPUSHs(sv_2mortal(newSViv(av.l))); break;
+	case PM_TYPE_U32:    XPUSHs(sv_2mortal(newSVuv(av.ul))); break;
+	case PM_TYPE_64:     XPUSHs(sv_2mortal(newSVuv(av.ul))); break;
+	case PM_TYPE_U64:    XPUSHs(sv_2mortal(newSVuv(av.ull))); break;
+	case PM_TYPE_FLOAT:  XPUSHs(sv_2mortal(newSVnv(av.f))); break;
+	case PM_TYPE_DOUBLE: XPUSHs(sv_2mortal(newSVnv(av.d))); break;
+	case PM_TYPE_STRING: XPUSHs(sv_2mortal(newSVpv(av.cp,0)));break;
+    }
+    PUTBACK;
+
+    sts = perl_call_sv(store_cb_func, G_SCALAR);
+    SPAGAIN;	/* refresh local perl stack pointer after call */
+    if (sts != 1) {
+	croak("store CB error (returned %d values, expected 1)", sts); 
+	sts = -EINVAL;
+	goto store_end;
+    }
+    sts = POPi;				/* pop function return status */
+
+store_end:
+    PUTBACK;
+    FREETMPS;
+    LEAVE;	/* fix up the perl stack, freeing anything we created */
+    return sts;
+}
+
+int
+store(pmResult *result, pmdaExt *pmda)
+{
     int		i, j;
     int		type;
-    int		sts = 0;
+    int		sts;
     pmAtomValue	av;
     pmValueSet	*vsp;
     __pmID_int	*pmid;
-
-    ENTER;
-    SAVETMPS;	/* allows us to tidy our perl stack changes later */
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
@@ -233,49 +313,20 @@ store(pmResult *result, pmdaExt *pmda)
 	for (j = 0; j < mtab_size; j++)
 	    if (metrictab[j].m_desc.pmid == *(pmID *)pmid)
 		break;
-	if (j == mtab_size) {
-	    sts = PM_ERR_PMID;
-	    goto store_end;
-	}
+	if (j == mtab_size)
+	    return PM_ERR_PMID;
 	type = metrictab[j].m_desc.type;
 
 	for (j = 0; j < vsp->numval; j++) {
-	    PUSHMARK(sp);
-	    XPUSHs(sv_2mortal(newSVuv(pmid->cluster)));
-	    XPUSHs(sv_2mortal(newSVuv(pmid->item)));
-	    XPUSHs(sv_2mortal(newSVuv(vsp->vlist[j].inst)));
-	    sts = pmExtractValue(vsp->valfmt, &vsp->vlist[j],type, &av,type);
+	    sts = pmExtractValue(vsp->valfmt, &vsp->vlist[j],type, &av, type);
 	    if (sts < 0)
-		goto store_end;
-	    switch (type) {
-		case PM_TYPE_32:     XPUSHs(sv_2mortal(newSViv(av.l))); break;
-		case PM_TYPE_U32:    XPUSHs(sv_2mortal(newSVuv(av.ul))); break;
-		case PM_TYPE_64:     XPUSHs(sv_2mortal(newSVuv(av.ul))); break;
-		case PM_TYPE_U64:    XPUSHs(sv_2mortal(newSVuv(av.ull))); break;
-		case PM_TYPE_FLOAT:  XPUSHs(sv_2mortal(newSVnv(av.f))); break;
-		case PM_TYPE_DOUBLE: XPUSHs(sv_2mortal(newSVnv(av.d))); break;
-		case PM_TYPE_STRING: XPUSHs(sv_2mortal(newSVpv(av.cp,0)));break;
-	    }
-	    PUTBACK;
-
-	    sts = perl_call_sv(store_cb_func, G_SCALAR);
-	    SPAGAIN;	/* refresh local perl stack pointer after call */
-	    if (sts != 1) {
-		croak("store CB error (returned %d values, expected 1)", sts); 
-		sts = -EINVAL;
-		goto store_end;
-	    }
-	    sts = POPi;				/* pop function return status */
+		return sts;
+	    sts = store_callback(pmid, vsp->vlist[j].inst, av, type);
 	    if (sts < 0)
-		goto store_end;
+		return sts;
 	}
     }
-
-store_end:
-    PUTBACK;
-    FREETMPS;
-    LEAVE;	/* fix up the perl stack, freeing anything we created */
-    return sts;
+    return 0;
 }
 
 int
