@@ -228,6 +228,8 @@ local_atexit(void)
 	free(files);
 	files = NULL;
     }
+    /* take out any children we created */
+    __pmProcessTerminate(0, 0);
 }
 
 static void
@@ -364,7 +366,7 @@ multiread:
 	    }
 	    buffer[sizeof(buffer)-1] = '\0';
 	    for (s = p = buffer, j = 0;
-		 *s != '\0' && j < sizeof(buffer);
+		 *s != '\0' && j < sizeof(buffer)-1;
 		 s++, j++) {
 		if (*s != '\n')
 		    continue;
@@ -375,10 +377,12 @@ multiread:
 	    }
 	    if (files[i].type == FILE_TAIL) {
 		/* did we just do a full buffer read? */
-		if (j == sizeof(buffer)) {
-		    offset = sizeof(buffer) - (p - buffer);
+		if (p == buffer) {
+		    __pmNotifyErr(LOG_ERR, "Ignoring long line: \"%s\"\n", p);
+		} else if (j == sizeof(buffer) - 1) {
+		    offset = sizeof(buffer)-1 - (p - buffer);
 		    memmove(buffer, p, offset); 
-		    goto multiread;	/* read to eof */
+		    goto multiread;	/* read rest of line */
 		}
 	    }
 	}
