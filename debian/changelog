@@ -1,8 +1,8 @@
-pcp (2.8.11) unstable; urgency=low
+pcp (2.8.12) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Mon, 06 Jul 2009 11:19:57 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 08 Jul 2009 16:38:44 +1000
 
 pcp (2.8.10) unstable; urgency=low
 
