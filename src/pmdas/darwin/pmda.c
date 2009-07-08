@@ -654,6 +654,18 @@ static pmdaMetric metrictab[] = {
   { &mach_nfs.srvcache_misses,
     { PMDA_PMID(CLUSTER_NFS,122), PM_TYPE_32, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* rpc.server.nqnfs.leases -- deprecated */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NFS,123), PM_TYPE_NOSUPPORT, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* rpc.server.nqnfs.maxleases -- deprecated */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NFS,124), PM_TYPE_NOSUPPORT, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* rpc.server.nqnfs.getleases -- deprecated */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NFS,125), PM_TYPE_NOSUPPORT, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.server.vopwrites */
   { &mach_nfs.srvvop_writes,
     { PMDA_PMID(CLUSTER_NFS,126), PM_TYPE_32, PM_INDOM_NULL,
@@ -1082,6 +1094,10 @@ fetch_nfs(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_INST;
 	atom->l = mach_nfs.srvrpccnt[inst];
 	return 1;
+    case 123:	/* rpc.server.nqnfs.leases    -- deprecated */
+    case 124:	/* rpc.server.nqnfs.maxleases -- deprecated */
+    case 125:	/* rpc.server.nqnfs.getleases -- deprecated */
+	return PM_ERR_APPVERSION;
     }
     return PM_ERR_PMID;
 }
@@ -1183,9 +1199,10 @@ darwin_init(pmdaInterface *dp)
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]),
 		metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
-    /* Make sure we have a direct metric table lookup */
+
+    /* We should have a direct metric table lookup */
     if (!dp->version.two.ext->e_direct)
-	abort();
+	__pmNotifyErr(LOG_INFO, "pmdadarwin: direct metric lookup disabled\n");
 
     mach_host = mach_host_self();
     host_page_size(mach_host, &mach_page_size);
