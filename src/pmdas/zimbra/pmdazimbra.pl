@@ -178,7 +178,7 @@ sub zimbra_proc_parser
 	    if (!defined($chunk[0])) {
 		$pmda->log("zimbra_proc_parser unexpected input: $_");
 	    }
-	    elsif ($chunk[0] eq 'mailbox')		{ $offset = 0; }
+	    elsif ($chunk[0] eq 'mailbox')	{ $offset = 0; }
 	    elsif ($chunk[0] eq 'mysql')	{ $offset = 7; }
 	    elsif ($chunk[0] eq 'convertd')	{ $offset = 14; }
 	    elsif ($chunk[0] eq 'ldap')		{ $offset = 21; }
@@ -193,7 +193,8 @@ sub zimbra_proc_parser
 	}
     }
     else {
-	$pmda->log("zimbra_proc_parser could not parse line: $_");
+	# This includes the initial header line, so just debug:
+	# $pmda->log("zimbra_proc_parser could not parse line: $_");
     }
 }
 
