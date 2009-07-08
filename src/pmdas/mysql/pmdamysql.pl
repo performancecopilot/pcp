@@ -1249,7 +1249,7 @@ $pmda->add_metric(pmda_pmid(1,108), PM_TYPE_STRING, PM_INDOM_NULL,
 $pmda->add_metric(pmda_pmid(1,109), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.variables.locked_in_memory', '', '');
-$pmda->add_metric(pmda_pmid(1,110), PM_TYPE_U32, PM_INDOM_NULL,
+$pmda->add_metric(pmda_pmid(1,110), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.variables.log', '', '');
 $pmda->add_metric(pmda_pmid(1,111), PM_TYPE_STRING, PM_INDOM_NULL,

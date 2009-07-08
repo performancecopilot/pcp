@@ -354,8 +354,11 @@ extern int pmReconnectContext(int);
 
 extern int pmGetContextFD(int);
 extern int pmGetContextTimeout(int, int*);
+
+struct sockaddr;
 extern int pmContextConnectTo(int, const struct sockaddr *);
 extern int pmContextConnectChangeState(int);
+
 extern void pmContextUndef (void);
 
 /*

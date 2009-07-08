@@ -1,5 +1,11 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.05  Tue Jul  8 16:19:49 EST 2009
+	- Explicitly free all local temporaries immediately
+	  for routines that call Perl from C (fixes memleak).
+	- Fix an off-by-one when handling long input lines.
+	- Terminate any children started by the PMDA at exit.
+
 1.04  Mon Jul  6 11:08:20 EST 2009
 	- Rewrote PMNS file generation to use libpcp routines.
 
