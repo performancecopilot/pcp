@@ -10,3 +10,11 @@ debugsources.list
 pcp.lsm
 .census
 cscope.*
+BUILDROOT
+base_files.rpm
+debuglinks.list
+devel_files
+devel_files.rpm
+libs_files
+libs_files.rpm
+
