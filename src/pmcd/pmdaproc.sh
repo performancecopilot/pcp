@@ -872,6 +872,14 @@ _install()
 		exit 1
 	    fi
 	fi
+	if $perl_opt
+	then
+	    perl -e 'use PCP::PMDA' 2>/dev/null
+	    if test $? -ne 0; then
+		echo 'Error: Perl PCP::PMDA module is not installed'
+		exit 1
+	    fi
+	fi
     fi
 
     $PCP_SHARE_DIR/lib/lockpmns $NAMESPACE
