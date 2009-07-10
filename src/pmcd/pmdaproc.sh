@@ -1045,6 +1045,12 @@ _install()
 	#
 	if [ -f Makefile -o -f makefile -o -f GNUmakefile ]
 	then
+	    if [ ! -f "$PCP_MAKE_PROG" -o ! -f "$PCP_INC_DIR/pmda.h" ]
+	    then
+		echo "$prog: Arrgh, PCP devel environment required to install this PMDA"
+		exit 1
+	    fi
+
 	    echo "Installing files ..."
 	    if $PCP_MAKE_PROG install
 	    then

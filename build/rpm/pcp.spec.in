@@ -153,16 +153,16 @@ PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
 . $BACKDIR/src/include/pcp.env
 
-FILELIST=`echo $BACKDIR/debian/*.{install,dirs}`
-DEVFILELIST=`echo $BACKDIR/debian/*-dev.{install,dirs}`
+LIBFILELIST=`ls -1 $BACKDIR/debian/*.{install,dirs} | fgrep -v -- -dev.`
+DEVFILELIST=`ls -1 $BACKDIR/debian/*-dev.{install,dirs}`
 
 #
 # Package split: pcp, pcp-libs, pcp-devel
 # -libs gets first pick, then -devel. Base package catches-all remaining.
 #
-sed -e 's/^/\//' $FILELIST | grep 'usr\/lib*\/lib.*\.so' >libs_files
+sed -e 's/^/\//' $LIBFILELIST >libs_files
 sed -e 's/^/\//' $DEVFILELIST >devel_files
-%ifarch ia64 x86_64
+%ifarch ia64 x86_64 ppc64
 sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
 %endif
