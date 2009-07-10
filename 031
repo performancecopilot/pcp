@@ -17,6 +17,11 @@ echo "QA output created by $seq"
 
 rm -f $seq.out $seq.full
 . ./localconfig
+if [ ! -f $seq.out.$PCP_PLATFORM ]
+then
+    echo "Error: no validated output for this platform ($seq.out.$PCP_PLATFORM)"
+    exit 1
+fi
 ln $seq.out.$PCP_PLATFORM $seq.out
 
 tmp=/tmp/$$
