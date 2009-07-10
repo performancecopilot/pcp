@@ -478,7 +478,7 @@ new(CLASS,name,domain)
 	snprintf(helpfile, sizeof(helpfile), "%s%c%s%c" "help",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, name, sep);
 	if (access(helpfile, R_OK) != 0) {
-	    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmdaname, domain,
+	    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmdaname, domain,
 			logfile, NULL);
 	    dispatch.version.two.text = text;
 	}
