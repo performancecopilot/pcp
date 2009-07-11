@@ -852,7 +852,7 @@ init_tables(int dom)
     pmDesc	*dp;
 
     /* serial numbering is arbitrary, but must be unique in this PMD */
-    b_indom.pad = 0;
+    b_indom.flag = 0;
     b_indom.domain = dom;
     b_indom.serial = 1;
     indomp = (__pmInDom_int *)&indomtab[COLOUR_INDOM].it_indom;

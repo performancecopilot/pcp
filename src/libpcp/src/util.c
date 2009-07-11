@@ -267,7 +267,17 @@ pmIDStr(pmID pmid)
     __pmID_int*	p = (__pmID_int*)&pmid;
     if (pmid == PM_ID_NULL)
 	return "PM_ID_NULL";
-    snprintf(pbuf, sizeof(pbuf), "%d.%d.%d", p->domain, p->cluster, p->item);
+    if (p->domain == DYNAMIC_PMID)
+	/*
+	 * this PMID represents the base of a dynamic subtree in the PMNS
+	 * ... identified by setting the domain field to the reserved
+	 * value DYNAMIC_PMID and storing the real domain of the PMDA
+	 * that can enumerate the subtree in the cluster field, while
+	 * the item field is not used
+	 */
+	snprintf(pbuf, sizeof(pbuf), "%d.*.*", p->cluster);
+    else
+	snprintf(pbuf, sizeof(pbuf), "%d.%d.%d", p->domain, p->cluster, p->item);
     return pbuf;
 }
 

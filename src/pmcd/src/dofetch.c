@@ -203,6 +203,32 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
     int			bad = 0;
     int			i;
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL0) {
+	fprintf(stderr, "SendFetch %d metrics to PMDA domain %d ",
+	    dpList->listSize, dpList->domain);
+	switch (aPtr->ipcType) {
+	case AGENT_DSO:
+	    fprintf(stderr, "(dso)\n");
+	    break;
+
+	case AGENT_SOCKET:
+	    fprintf(stderr, "(socket)\n");
+	    break;
+
+	case AGENT_PIPE:
+	    fprintf(stderr, "(pipe)\n");
+	    break;
+
+	default:
+	    fprintf(stderr, "(type %d unknown!)\n", aPtr->ipcType);
+	    break;
+	}
+	for (i = 0; i < dpList->listSize; i++)
+	    fprintf(stderr, "  pmid[%d] %s\n", i, pmIDStr(dpList->list[i]));
+    }
+#endif
+
     /* status.madeDsoResult is only used for DSO agents so don't waste time by
      * checking that the agent is a DSO first.
      */

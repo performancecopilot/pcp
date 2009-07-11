@@ -52,8 +52,12 @@ static char	*cpp_path[] = {
 #define BOGUS	10
 
 #define UNKNOWN_MARK_STATE -1           /* tree not all marked the same way */
-#define PMID_MASK	0x3fffffff	/* 30 bits of PMID */
-#define MARK_BIT	0x40000000	/* mark bit */
+/*
+ * Note: bit masks below are designed to clear and set the "flag" field
+ *       of a __pmID_int (i.e. a PMID)
+ */
+#define PMID_MASK	0x7fffffff	/* 31 bits of PMID */
+#define MARK_BIT	0x80000000	/* mark bit */
 
 
 static int	lineno;
@@ -343,7 +347,7 @@ lex(int reset)
     char	*tp;
     int		colon;
     int		type;
-    int		d, c, e;
+    int		d, c, i;
     __pmID_int	pmid_int;
 
     if (reset) {
@@ -484,23 +488,65 @@ skipline:
 	if (*tp == ':') {
 	    if (++colon > 3) return BOGUS;
 	}
-	else if (!isdigit((int)*tp)) return BOGUS;
+	else if (!isdigit((int)*tp) && *tp != '*') return BOGUS;
     }
 
     /*
      * Internal PMID format
-     * domain 8 bits
+     * domain 9 bits
      * cluster 12 bits
-     * enumerator 10 bits
+     * item 10 bits
      */
-    if (sscanf(tokbuf, "%d:%d:%d", &d, &c, &e) != 3 || d > 255 || c > 4095 || e > 1023) {
-	err("Illegal PMID");
-	return BOGUS;
+    if (sscanf(tokbuf, "%d:%d:%d", &d, &c, &i) == 3) {
+	if (d > 510) {
+	    err("Illegal domain field in PMID");
+	    return BOGUS;
+	}
+	else if (c > 4095) {
+	    err("Illegal cluster field in PMID");
+	    return BOGUS;
+	}
+	else if (i > 1023) {
+	    err("Illegal item field in PMID");
+	    return BOGUS;
+	}
+	pmid_int.flag = 0;
+	pmid_int.domain = d;
+	pmid_int.cluster = c;
+	pmid_int.item = i;
     }
-    pmid_int.pad = 0;
-    pmid_int.domain = d;
-    pmid_int.cluster = c;
-    pmid_int.item = e;
+    else {
+	for (tp = tokbuf; *tp; tp++) {
+	    if (*tp == ':') {
+		if (strcmp("*:*", ++tp) != 0) {
+		    err("Illegal PMID");
+		    return BOGUS;
+		}
+		break;
+	    }
+	}
+	if (sscanf(tokbuf, "%d:", &d) != 1) {
+	    err("Illegal PMID");
+	    return BOGUS;
+	}
+	if (d > 510) {
+	    err("Illegal domain field in dynamic PMID");
+	    return BOGUS;
+	}
+	else {
+	    /*
+	     * this node is the base of a dynamic subtree in the PMNS
+	     * ... identified by setting the domain field to the reserved
+	     * value DYNAMIC_PMID and storing the real domain of the PMDA
+	     * that can enumerate the subtree in the cluster field, while
+	     * the item field is not used
+	     */
+	    pmid_int.flag = 0;
+	    pmid_int.domain = DYNAMIC_PMID;
+	    pmid_int.cluster = d;
+	    pmid_int.item = 0;
+	}
+    }
     tokpmid = *(pmID *)&pmid_int;
 
     return PMID;

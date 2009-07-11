@@ -478,12 +478,12 @@ new(CLASS,name,domain)
 	snprintf(helpfile, sizeof(helpfile), "%s%c%s%c" "help",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, name, sep);
 	if (access(helpfile, R_OK) != 0) {
-	    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmdaname, domain,
+	    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmdaname, domain,
 			logfile, NULL);
 	    dispatch.version.two.text = text;
 	}
 	else {
-	    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmdaname, domain,
+	    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmdaname, domain,
 			logfile, helpfile);
 	}
 	if (!getenv("PCP_PERL_PMNS") && !getenv("PCP_PERL_DOMAIN")) {

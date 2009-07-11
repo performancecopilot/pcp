@@ -337,7 +337,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
 	serial = pmda->e_indoms[i].it_indom;
 	indomp = (__pmInDom_int *)&(pmda->e_indoms[i].it_indom);
 	indomp->serial = serial;
-	indomp->pad = 0;
+	indomp->flag = 0;
 	indomp->domain = dispatch->domain;
     }
 
@@ -347,7 +347,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
 	    serial = pmda->e_metrics[i].m_desc.indom;
 	    indomp = (__pmInDom_int *)&(pmda->e_metrics[i].m_desc.indom);
 	    indomp->serial = serial;
-	    indomp->pad = 0;
+	    indomp->flag = 0;
 	    indomp->domain = dispatch->domain;
 	}
     }

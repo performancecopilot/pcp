@@ -93,7 +93,7 @@ newentry(char *buf)
 	    ii.domain = domain;
 	    ii.serial = serial;
 	    /* set a bit here to disambiguate pmInDom from pmID */
-	    ii.pad = 1;
+	    ii.flag = 1;
 	    ip = (int *)&ii;
 	    pmid = (pmID)*ip;
 	}
@@ -118,10 +118,10 @@ newentry(char *buf)
 	    __pmInDom_int	*kp = (__pmInDom_int *)&pmid;
 	    fprintf(stderr, "%s: [%s:%d] duplicate key (", 
 		    pmProgname, filename, ln);
-	    if (kp->pad == 0)
+	    if (kp->flag == 0)
 		fprintf(stderr, "%s", pmIDStr(pmid));
 	    else {
-		kp->pad = 0;
+		kp->flag = 0;
 		fprintf(stderr, "%s", pmInDomStr((pmInDom)pmid));
 	    }
 	    fprintf(stderr, ") entry abandoned\n");
@@ -218,11 +218,25 @@ newentry(char *buf)
 static int
 idcomp(const void *a, const void *b)
 {
-    help_idx_t	*ia, *ib;
+    /*
+     * comparing 32-bit keys here ... want PMIDs to go first the
+     * InDoms, sort by low order bits ... serial from InDom is easier
+     * than cluster and item from PMID, so use InDom format
+     */
+    __pmInDom_int	*iiap, *iibp;
 
-    ia = (help_idx_t *)a;
-    ib = (help_idx_t *)b;
-    return ia->pmid - ib->pmid;
+    iiap = (__pmInDom_int *)(&((help_idx_t *)a)->pmid);
+    iibp = (__pmInDom_int *)(&((help_idx_t *)b)->pmid);
+
+    if (iiap->flag == iibp->flag)
+	/* both of the same type, use serial to order */
+	return iiap->serial - iibp->serial;
+    else if (iiap->flag == 0)
+	/* a is the PMID, b is an InDom */
+	return -1;
+    else
+	/* b is the PMID, a is an InDom */
+	return 1;
 }
 
 int
