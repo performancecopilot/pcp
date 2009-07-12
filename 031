@@ -28,4 +28,4 @@ tmp=/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 # real QA test starts here
-src-oss/torture_api -v | _filter_torture_api
+src-oss/torture_api -v 2>&1 | tee $seq.full | _filter_torture_api

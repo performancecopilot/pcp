@@ -43,7 +43,7 @@ pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
    value 4.3000001e+21
   0.4095.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 4.56e+123
-  122.2930.766 (<noname>): Generic error, already reported above
+  378.2930.766 (<noname>): Generic error, already reported above
 + PDU_RESULT:
 pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
   0.55.685 (<noname>): numval: 1 valfmt: 0 vlist[]:
@@ -60,7 +60,7 @@ pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
    value 4.3000001e+21
   0.4095.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 4.56e+123
-  122.2930.766 (<noname>): Generic error, already reported above
+  378.2930.766 (<noname>): Generic error, already reported above
 pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
   0.55.685 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 1234 0 0x4d2
@@ -76,7 +76,7 @@ pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
    value 4.3000001e+21
   0.4095.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 4.56e+123
-  122.2930.766 (<noname>): Generic error, already reported above
+  378.2930.766 (<noname>): Generic error, already reported above
 [SERVER]pmXmitPDU: RESULT fd=<n> len=208
 000:       d0     7001   SERVER    1a5e0    1e240        7     dead        1 
 008:        0 ffffffff      4d2     beef        3        0        2      929 
@@ -93,7 +93,7 @@ pdu-server: waiting ...
 016:        2      400 
 + PDU_PROFILE: ctxnum=42
 Dump Instance Profile state=EXCLUDE, 2 profiles
-	Profile [0] indom=-559035650 [122.3001086] state=INCLUDE 2 instances
+	Profile [0] indom=-559035650 [378.3001086] state=INCLUDE 2 instances
 		Instances: [1] [2]
 	Profile [1] indom=64206 [0.64206] state=EXCLUDE 1 instances
 		Instances: [1024]
@@ -115,7 +115,7 @@ pdu-server: waiting ...
 pdu-server: waiting ...
 [SERVER]pmGetPDU: DESC_REQ fd=<n> len=16 from=CLIENT
 000:       10     7004   CLIENT deadbeef 
-+ PDU_DESC_REQ: pmid=122.2927.751
++ PDU_DESC_REQ: pmid=378.2927.751
 [SERVER]pmXmitPDU: DESC_REQ fd=<n> len=16
 000:       10     7004   SERVER deadbeef 
 
