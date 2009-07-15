@@ -71,8 +71,7 @@ $here/sudo rm -f pmns domain.h
 
 echo
 echo "=== $iam agent installation ==="
-$here/sudo ./Install </dev/null >>$tmp.out 2>&1
-
+$here/sudo ./Install </dev/null >$tmp.out 2>&1
 _filter_pmda_install <$tmp.out
 
 if pminfo -v $iam
@@ -105,7 +104,8 @@ fi
 
 echo
 echo "=== remove $iam agent ==="
-$here/sudo ./Remove
+$here/sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
 
 status=0
 exit
