@@ -65,6 +65,7 @@ pminfo -v sample \
 | sed \
     -e '/sample.dynamic/d' \
     -e '/sample.darkness/d' \
+    -e '/sample.secret/d' \
     -e '/sample.sysinfo/d'
 echo ""
 
@@ -103,6 +104,7 @@ pminfo -v sampledso \
 | sed \
     -e '/sampledso.dynamic/d' \
     -e '/sampledso.darkness/d' \
+    -e '/sampledso.secret/d' \
     -e '/sampledso.sysinfo/d'
 echo ""
 

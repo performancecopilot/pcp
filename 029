@@ -39,6 +39,7 @@ _filter()
 	-e '/sample\.kbyte_/d' \
 	-e '/sample\.datasize/d' \
 	-e '/sample\.darkness/d' \
+	-e '/sample\.secret/d' \
 
 }
 

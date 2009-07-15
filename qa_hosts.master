@@ -37,6 +37,10 @@ farawaypmcd.scott.net.au
 socksserver.scott.net.au
 butt.scott.net.au
 
+# Kenj Section
+bozo
+bozo-laptop
+
 # sort control lines
 # each line here is a specification that includes the keyword #order and
 # then two or more strings in the style of fgrep
@@ -57,3 +61,5 @@ butt.scott.net.au
 #order	.engr.acx		.acx			.localdomain	.aconex.com
 #order	.aconex.com		.acx			.localdomain	.aconex.com
 #order .localdomain		.localdomain		.acx
+# Kenj Section
+#order	bozo	bozo-laptop

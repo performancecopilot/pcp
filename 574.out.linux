@@ -1,12 +1,13 @@
 QA output created by 574
 
-pmid: 0xf00001d name: disk.all.total
+pmid: 60.0.29 name: disk.all.total
 
-pmid: 0xffffffff name: pmcd
+pmid: PM_ID_NULL name: pmcd
 children of "pmcd" ...
     agent               <s = 1>
     buf                 <s = 1>
     build               <s = 0>
+    client              <s = 1>
     control             <s = 1>
     datasize            <s = 0>
     license             <s = 0>
@@ -21,15 +22,15 @@ children of "pmcd" ...
     timezone            <s = 0>
     version             <s = 0>
 
-pmid: 0xf00000d name: kernel.all.pswitch
+pmid: 60.0.13 name: kernel.all.pswitch
 
-pmid: 0xf000014 name: kernel.all.cpu.user
+pmid: 60.0.20 name: kernel.all.cpu.user
 
-pmid: 0xf000023 name: kernel.all.cpu.wait.total
+pmid: 60.0.35 name: kernel.all.cpu.wait.total
 
-pmid: 0xf000020 name: hinv.ncpu
+pmid: 60.0.32 name: hinv.ncpu
 
-pmid: 0xffffffff name: pmcd.control
+pmid: PM_ID_NULL name: pmcd.control
 children of "pmcd.control" ...
     debug               <s = 0>
     dumpconn            <s = 0>
@@ -42,13 +43,13 @@ children of "pmcd.control" ...
     tracenobuf          <s = 0>
     tracepdu            <s = 0>
 
-pmid: 0x7800022 name: sampledso.aggregate.hullo
+pmid: 30.0.34 name: sampledso.aggregate.hullo
 
-pmid: 0x7400002 name: sample.seconds
+pmid: 29.0.2 name: sample.seconds
 
-pmid: 0x7400005 name: sample.colour
+pmid: 29.0.5 name: sample.colour
 
-pmid: 0xffffffff name: sample.longlong
+pmid: PM_ID_NULL name: sample.longlong
 children of "sample.longlong" ...
     hundred             <s = 0>
     million             <s = 0>
@@ -56,7 +57,7 @@ children of "sample.longlong" ...
     ten                 <s = 0>
     write_me            <s = 0>
 
-pmid: 0xffffffff name: bozo.the.clown
+pmid: PM_ID_NULL name: bozo.the.clown
 
 children of "" ...
     disk                <s = 1>

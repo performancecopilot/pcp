@@ -81,6 +81,7 @@ sample_filter()
 	-e "/sample.dynamic.discrete: $unavailable/d" \
 	-e "/sample.dynamic.instant: $unavailable/d" \
 	-e "/sample.darkness: $unavailable/d" \
+	-e "/sample.secret: $unknown/d" \
 	-e "/sampledso.bad.nosupport: $nosupport/d" \
 	-e "/sampledso.bad.unknown: $unknown/d" \
 	-e "/sampledso.needprofile: $explicit/d" \
@@ -88,7 +89,8 @@ sample_filter()
 	-e "/sampledso.dynamic.counter: $unavailable/d" \
 	-e "/sampledso.dynamic.discrete: $unavailable/d" \
 	-e "/sampledso.dynamic.instant: $unavailable/d" \
-	-e "/sampledso.darkness: $unavailable/d"
+	-e "/sampledso.darkness: $unavailable/d" \
+	-e "/sampledso.secret: $unknown/d"
 }
 
 count_filter()

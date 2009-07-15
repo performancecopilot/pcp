@@ -1,16 +1,14 @@
 /*
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
- */
-
-/*
- * main - general purpose exerciser of much of the PMAPI
+ * Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+ *
+ * Exercise just the PMNS functions ... intended for dyanmic PMNS testing
+ * ... this is really torture_api re-tweaked
  */
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-static int	_op;  /* number of api operations */
-static int	_err; /* number of api errors */
 static int	vflag;
 static char	*context_name = "localhost";
 static int 	context_type; /* archive, host or local */
@@ -26,18 +24,7 @@ static int pmns_style = 1;
 
 /* The list of metrics to test out */
 static char *namelist[] = {
-    "disk.all.total",
-    "pmcd",
-    "kernel.all.pswitch",
-    "kernel.all.cpu.user",
-    "kernel.all.cpu.wait.total",
-    "hinv.ncpu",
-    "pmcd.control",
-    "sampledso.aggregate.hullo",
-    "sample.seconds",
-    "sample.colour",
-    "sample.longlong",
-    "bozo.the.clown"
+    "sample.secret"
 };
 
 #define MAXNAMES (sizeof(namelist)/sizeof(char*))
@@ -73,10 +60,8 @@ do_chn(char *name)
     name_status *ns_table = NULL;
     int 	has_children = 0;
 
-    _op++;
     n = pmGetChildren(name, &enfants);
     if (n < 0) {
-	_err++;
 	printf("pmGetChildren: %s\n", pmErrStr(n));
     }
     else if (n > 0) {
@@ -89,10 +74,8 @@ do_chn(char *name)
         char	**s_enfants = NULL;
         int	*status = NULL;
 
-        _op++;
         n = pmGetChildrenStatus(name, &s_enfants, &status);
 	if (n < 0) {
-	    _err++;
 	    printf("pmGetChildrenStatus: %s\n", pmErrStr(n));
 	}
 	else if (n > 0) {
@@ -143,7 +126,7 @@ parse_args(int argc, char **argv)
     extern int	optind;
     int		errflag = 0;
     int		c;
-    static char	*usage = "[-bcLmv] [-a archive] [-h host] [-n namespace] [-s 1|2]";
+    static char	*usage = "[-bcLmvx] [-a archive] [-h host] [-n namespace] [-s 1|2]";
     char	*endnum;
     int		sts;
 #ifdef PCP_DEBUG
@@ -154,11 +137,11 @@ parse_args(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:D:h:iLmn:s:vbc")) != EOF) {
+    while ((c = getopt(argc, argv, "a:bcD:h:iLmn:s:vx")) != EOF) {
 	switch (c) {
 	case 'a':	/* archive name for context */
             if (context_type != 0) {
-	        fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n",
+	        fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n",
                         pmProgname);
 		errflag++;
 	    }
@@ -187,7 +170,7 @@ parse_args(int argc, char **argv)
 
 	case 'h':	/* context_namename for live context */
             if (context_type != 0) {
-	        fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n",
+	        fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n",
                         pmProgname);
 		errflag++;
 	    }
@@ -200,7 +183,7 @@ parse_args(int argc, char **argv)
 
 	case 'L':	/* LOCAL context */
             if (context_type != 0) {
-	        fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n",
+	        fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n",
                         pmProgname);
 		errflag++;
 	    }
@@ -218,6 +201,16 @@ parse_args(int argc, char **argv)
 
 	case 'v':	/* verbose */
 	    vflag++;
+	    break;
+
+	case 'x':	/* NO context */
+            if (context_type != 0) {
+	        fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n",
+                        pmProgname);
+		errflag++;
+	    }
+	    context_type = -1;
+	    context_name = NULL;
 	    break;
 
 	case 's':	/* pmns style */
@@ -248,9 +241,7 @@ load_namespace(char *namespace)
     int sts;
 
     gettimeofday(&then, (struct timezone *)0);
-    _op++;
     if ((sts = pmLoadNameSpace(namespace)) < 0) {
-	_err++;
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);
     }
@@ -272,46 +263,42 @@ test_api(void)
     pmResult		*resp;
     pmDesc		desc;
 
-    _op++;
     
-    if (context_type == 0) {
-	char local[MAXHOSTNAMELEN];
-	context_type = PM_CONTEXT_HOST;
-	gethostname(local, sizeof(local));
-	context_name = local;
-    }
+    if (context_type != -1) {
+	if (context_type == 0) {
+	    char local[MAXHOSTNAMELEN];
+	    context_type = PM_CONTEXT_HOST;
+	    gethostname(local, sizeof(local));
+	    context_name = local;
+	}
 
-    if ((sts = pmNewContext(context_type, context_name)) < 0) {
-	_err++;
-	printf("%s: Error in creating %s context for \"%s\": %s\n", 
-	       pmProgname, 
-	       context_type == PM_CONTEXT_HOST ? "host" :
-	       context_type == PM_CONTEXT_ARCHIVE ? "archive" :
-	       "local", 
-	       context_name,
-	       pmErrStr(sts));
+	if ((sts = pmNewContext(context_type, context_name)) < 0) {
+	    printf("%s: Error in creating %s context for \"%s\": %s\n", 
+		   pmProgname, 
+		   context_type == PM_CONTEXT_HOST ? "host" :
+		   context_type == PM_CONTEXT_ARCHIVE ? "archive" :
+		   "local", 
+		   context_name,
+		   pmErrStr(sts));
+	}
     }
 
     if (vflag > 1) {
-	_op++;
 	__pmDumpNameSpace(stdout, 1);
     }
 
 
-    _op++;
-    n = pmLookupName(numpmid, namelist, midlist);
-    if (n != PM_ERR_NAME) {	/* expect failure due to bozo */
-	_err++;
-	printf("pmLookupName: Unexpected error: %s\n", pmErrStr(n));
-    }
+#define REPORT(str, sts) \
+printf("%s() returns %d", str, sts);\
+if (sts < 0) printf(" (%s)", pmErrStr(sts));\
+putchar('\n');
 
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
-      for (i = 0; i < numpmid; i++) {
-        printf("%s: id[%d] = %d\n", namelist[i], i, midlist[i]);
-      }
+    n = pmLookupName(numpmid, namelist, midlist);
+    REPORT("pmLookupName", n);
+
+    for (i = 0; i < numpmid; i++) {
+        printf("%s: id[%d] = %s\n", namelist[i], i, pmIDStr(midlist[i]));
     }
-#endif
 
     /* Set mode for archive so that an indom can be retrieved 
      * if necessary.
@@ -322,94 +309,77 @@ test_api(void)
     if (context_type == PM_CONTEXT_ARCHIVE) {
 	struct timeval	when;
 
-	_op++;
-	if ((n = pmGetArchiveEnd(&when)) < 0) {
-	    _err++;
-	    printf("pmGetArchiveEnd: %s\n", pmErrStr(n));
-	}
+	n = pmGetArchiveEnd(&when);
+	REPORT("pmGetArchiveEnd", n);
 
-	_op++;
-	if ((n = pmSetMode(PM_MODE_BACK, &when, 1000)) < 0) {
-	    _err++;
-	    printf("pmSetMode(PM_MODE_BACK): %s\n", pmErrStr(n));
-	}
+	n = pmSetMode(PM_MODE_BACK, &when, 1000);
+	REPORT("pmSetMode", n);
     }
 
     for (i = 0; i < numpmid && !root_children; i++) {
 	putchar('\n');
-	if (vflag) printf("pmid: %s ", pmIDStr(midlist[i]));
-	printf("name: %s\n", namelist[i]);
-	if (strcmp(namelist[i], "bozo.the.clown") != 0)
-	    do_chn(namelist[i]);
+	if (vflag) {
+	    printf("name: %s", namelist[i]);
+	    printf(" pmid: %s\n", pmIDStr(midlist[i]));
+	}
 	if (midlist[i] != PM_ID_NULL) {
-	    _op++;
 	    n = pmNameID(midlist[i], &back);
-	    if (n < 0) {
-		_err++;
-		printf("pmNameID: %s\n", pmErrStr(n));
-	    }
-	    else {
+	    REPORT("pmNameID", n);
+	    if (n >= 0) {
+		if (vflag) {
+		    printf("pmid: %s ", pmIDStr(midlist[i]));
+		    printf(" name: %s\n", back);
+		}
 		if (strcmp(namelist[i], back) != 0 &&
 		    strcmp(&namelist[i][5], back) != 0) {
-		    _err++;
 		    printf("pmNameID botch: expected \"%s\", got \"%s\"\n",
 			namelist[i], back);
 		}
 		free(back);
 	    }
-	    _op++;
-	    if ((n = pmLookupDesc(midlist[i], &desc)) < 0) {
-		_err++;
-		printf("pmLookupDesc: %s\n", pmErrStr(n));
-	    }
-	    else {
-		if (vflag > 1) {
-		    const char	*u = pmUnitsStr(&desc.units);
-		    printf("desc: type=%d indom=0x%x sem=%d units=%s\n",
-			desc.type, desc.indom, desc.sem,
-			*u == '\0' ? "none" : u);
-		}
-		if (desc.indom == PM_INDOM_NULL)
-		    continue;
-		_op++;
-		if ((n = pmGetInDom(desc.indom, &instlist, &inamelist)) < 0) {
-		    _err++;
-		    printf("pmGetInDom: %s\n", pmErrStr(n));
-		}
-		else {
-		    int		j;
-		    int		numinst = n;
-		    char	*name;
-		    for (j = 0; j < numinst; j++) {
-			if (vflag > 1)
-			    printf("  instance id: 0x%x\n", instlist[j]);
-			_op++;
-			if ((n = pmNameInDom(desc.indom, instlist[j], &name)) < 0) {
-			    _err++;
-			    printf("pmNameInDom: %s\n", pmErrStr(n));
-			}
-			else {
-			    if (vflag > 1)
-				printf(" %s (== %s?)\n", name, inamelist[j]);
-			    _op++;
-			    if ((n = pmLookupInDom(desc.indom, name)) < 0) {
-				_err++;
-				printf("pmLookupInDom: %s\n", pmErrStr(n));
-			    }
-			    else {
-				if (n != instlist[j]) {
-				    _err++;
-				    printf("botch: pmLookupInDom returns 0x%x, expected 0x%x\n",
-					n, instlist[j]);
-				}
-			    }
-			    free(name);
-			}
+	    if (context_type != -1) {
+		n = pmLookupDesc(midlist[i], &desc);
+		REPORT("pmLookupDesc", n);
+		if (n >= 0) {
+		    if (vflag > 1) {
+			const char	*u = pmUnitsStr(&desc.units);
+			printf("desc: type=%d indom=0x%x sem=%d units=%s\n",
+			    desc.type, desc.indom, desc.sem,
+			    *u == '\0' ? "none" : u);
 		    }
-		    free(instlist);
-		    free(inamelist);
+		    if (desc.indom == PM_INDOM_NULL)
+			continue;
+		    n = pmGetInDom(desc.indom, &instlist, &inamelist);
+		    REPORT("pmGetInDom", n);
+		    if (n >= 0) {
+			int		j;
+			int		numinst = n;
+			char	*name;
+			for (j = 0; j < numinst; j++) {
+			    if (vflag > 1)
+				printf("  instance id: 0x%x\n", instlist[j]);
+			    n = pmNameInDom(desc.indom, instlist[j], &name);
+			    REPORT("pmNameInDom", n);
+			    if (n >= 0) {
+				if (vflag > 1)
+				    printf(" %s (== %s?)\n", name, inamelist[j]);
+				n = pmLookupInDom(desc.indom, name);
+				REPORT("pmLookupInDom", n);
+				if (n >= 0) {
+				    if (n != instlist[j]) {
+					printf("botch: pmLookupInDom returns 0x%x, expected 0x%x\n",
+					    n, instlist[j]);
+				    }
+				}
+				free(name);
+			    }
+			}
+			free(instlist);
+			free(inamelist);
+		    }
 		}
 	    }
+	    do_chn(namelist[i]);
 	}
     }/*for each named metric*/ 
 
@@ -436,23 +406,18 @@ test_api(void)
         for (i = 0; i < numpmid; i++) {
 	    if (midlist[i] == PM_ID_NULL)
 		continue; 
-	    _op++;
 	    if ((n = pmSetMode(PM_MODE_FORW, &when, 0)) < 0) {
-		_err++;
 		printf("pmSetMode(PM_MODE_FORW): %s\n", pmErrStr(n));
 	    }
 	    else {
-		_op++;
                 if (vflag)
                     printf("Fetch of %s:\n", namelist[i]);
 		if ((n = pmFetch(1, &midlist[i], &resp)) < 0) {
-		    _err++;
 		    printf("Archive pmFetch: %s\n", pmErrStr(n));
 		}
 		else {
 		    if (vflag)
 			__pmDumpResult(stdout, resp);
-		    _op++;
 		    pmFreeResult(resp);
 		}
 	    }
@@ -460,15 +425,11 @@ test_api(void)
     }
 
     else if (context_type == PM_CONTEXT_HOST) {
-	_op++;
 	if ((n = pmSetMode(PM_MODE_LIVE, (struct timeval *)0, 0)) < 0) {
-	    _err++;
 	    printf("pmSetMode(PM_MODE_LIVE): %s\n", pmErrStr(n));
 	}
 	else {
-	    _op++;
 	    if ((n = pmFetch(numpmid, midlist, &resp)) < 0) {
-		_err++;
 		printf("real-time pmFetch: %s\n", pmErrStr(n));
 	    }
 	    else {
@@ -476,7 +437,6 @@ test_api(void)
 		    printf("\nReal-time result ...\n");
 		    __pmDumpResult(stdout, resp);
 		}
-		_op++;
 		pmFreeResult(resp);
 	    }
 	}
@@ -508,6 +468,5 @@ main(int argc, char **argv)
     test_api();
   }
 
-  printf("\nUnexpected failure for %d of %d PMAPI operations\n", _err, _op);
   exit(0);
 }
