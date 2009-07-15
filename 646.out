@@ -2,105 +2,85 @@ QA output created by 646
 MMV file   = /var/tmp/mmv/testPID
 Version    = 1
 Generated  = TIMESTAMP
-TOC count  = 15
+TOC count  = 5
 Cluster    = 0
 Process    = PID
 Flags      = 0x0
 
-TOC[0]: offset 40, indoms offset 280 (2 entries)
-  [1/280] 2 instances, starting at offset 344
+TOC[0]: offset 40, indoms offset 120 (2 entries)
+  [1/120] 2 instances, starting at offset 184
        shorttext=We can be heroes
        helptext=We can be heroes, just for one day
-  [2/312] 3 instances, starting at offset 504
+  [2/152] 3 instances, starting at offset 344
        (no shorttext)
        (no helptext)
 
-TOC[1]: offset 56, instances offset 344 (5 entries)
-  [1/344] instance = [0 or "zero"]
-  [1/424] instance = [1 or "hero"]
-  [2/504] instance = [0 or "bird"]
-  [2/584] instance = [1 or "tree"]
-  [2/664] instance = [2 or "eggs"]
+TOC[1]: offset 56, instances offset 184 (5 entries)
+  [1/184] instance = [0 or "zero"]
+  [1/264] instance = [1 or "hero"]
+  [2/344] instance = [0 or "bird"]
+  [2/424] instance = [1 or "tree"]
+  [2/504] instance = [2 or "eggs"]
 
-TOC[2]: toc offset 72, metrics offset 744 (6 entries)
-  [1/744] counter
+TOC[2]: toc offset 72, metrics offset 584 (6 entries)
+  [1/584] counter
        type=0x1, sem=0x1, pad=0x0
        units=count
        (no indom)
        shorttext=test counter metric
        helptext=Yes, this is a test counter metric
-  [2/848] discrete
+  [2/688] discrete
        type=0x0, sem=0x4, pad=0x0
        units=
        (no indom)
        shorttext=test discrete metric
        helptext=Yes, this is a test discrete metric
-  [3/952] indom
+  [3/792] indom
        type=0x1, sem=0x3, pad=0x0
        units=count
        indom=1
        (no shorttext)
        (no helptext)
-  [4/1056] interval
+  [4/896] interval
        type=0x9, sem=0x1, pad=0x0
        units=microsec
        indom=2
        (no shorttext)
        (no helptext)
-  [5/1160] string
+  [5/1000] string
        type=0x6, sem=0x3, pad=0x0
        units=
        (no indom)
        (no shorttext)
        (no helptext)
-  [6/1264] strings
+  [6/1104] strings
        type=0x6, sem=0x3, pad=0x0
        units=
        indom=1
        shorttext=test string metrics
        helptext=Yes, this is a test string metric with instances
 
-TOC[3]: offset 88, values offset 1368 (10 entries)
-  [1/1368] counter = 41
-  [2/1400] discrete = 42
-  [3/1432] indom[0 or "zero"] = 43
-  [3/1464] indom[1 or "hero"] = 0
-  [4/1496] interval[0 or "bird"] = 0 (value=0/extra=0)
-  [4/1528] interval[1 or "tree"] = 0 (value=0/extra=0)
-  [4/1560] interval[2 or "eggs"] = N (value=N/extra=0)
-  [5/1592] string = "g'day world"
-  [6/1624] strings[0 or "zero"] = "00oo00"
-  [6/1656] strings[1 or "hero"] = ""
+TOC[3]: offset 88, values offset 1208 (10 entries)
+  [1/1208] counter = 41
+  [2/1240] discrete = 42
+  [3/1272] indom[0 or "zero"] = 43
+  [3/1304] indom[1 or "hero"] = 0
+  [4/1336] interval[0 or "bird"] = 0 (value=0/extra=0)
+  [4/1368] interval[1 or "tree"] = 0 (value=0/extra=0)
+  [4/1400] interval[2 or "eggs"] = N (value=N/extra=0)
+  [5/1432] string = "g'day world"
+  [6/1464] strings[0 or "zero"] = "00oo00"
+  [6/1496] strings[1 or "hero"] = ""
 
-TOC[4]: offset 104, string offset 1688 (1 entries)
-  [1/1688] g'day world
-
-TOC[5]: offset 120, string offset 1944 (1 entries)
-  [1/1944] 00oo00
-
-TOC[6]: offset 136, string offset 2200 (1 entries)
-  [1/2200] 
-
-TOC[7]: offset 152, string offset 2456 (1 entries)
-  [1/2456] test counter metric
-
-TOC[8]: offset 168, string offset 2712 (1 entries)
-  [1/2712] Yes, this is a test counter metric
-
-TOC[9]: offset 184, string offset 2968 (1 entries)
-  [1/2968] test discrete metric
-
-TOC[10]: offset 200, string offset 3224 (1 entries)
-  [1/3224] Yes, this is a test discrete metric
-
-TOC[11]: offset 216, string offset 3480 (1 entries)
-  [1/3480] test string metrics
-
-TOC[12]: offset 232, string offset 3736 (1 entries)
-  [1/3736] Yes, this is a test string metric with instances
-
-TOC[13]: offset 248, string offset 3992 (1 entries)
-  [1/3992] We can be heroes
-
-TOC[14]: offset 264, string offset 4248 (1 entries)
-  [1/4248] We can be heroes, just for one day
+TOC[4]: offset 104, string offset 1528 (11 entries)
+  [1/1528] g'day world
+  [2/1784] 00oo00
+  [3/2040] 
+  [4/2296] test counter metric
+  [5/2552] Yes, this is a test counter metric
+  [6/2808] test discrete metric
+  [7/3064] Yes, this is a test discrete metric
+  [8/3320] test string metrics
+  [9/3576] Yes, this is a test string metric with instances
+  [10/3832] We can be heroes
+  [11/4088] We can be heroes, just for one day

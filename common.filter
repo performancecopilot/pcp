@@ -401,6 +401,16 @@ Terminate PMDA if already installed ...\
 Updating the PMCD control file, and notifying PMCD ...'
 }
 
+_filter_pmda_remove()
+{
+    _filter_pmda_install |
+    sed \
+	-e '/Removing files/d' \
+	-e '/Updating the PMCD control file/c\
+Updating the PMCD control file, and notifying PMCD ...\
+[...removing files...]'
+}
+
 # Make sure that quotes which span multiple lines get appended onto
 # the one line, separated by \\n (instead of newlines).
 # This allows for easier sed processing.
