@@ -35,7 +35,6 @@ typedef struct {
     int			bus;
     char		cpu_char;
     int			node;
-    int			cnode;		/* compact node for /hw/nodenum */
     float		clock;
     char		*vendor;
     char		*model;
