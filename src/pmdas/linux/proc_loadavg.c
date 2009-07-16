@@ -28,15 +28,14 @@
 
 #include "proc_loadavg.h"
 
-static int started = 0;
-
 int
 refresh_proc_loadavg(proc_loadavg_t *proc_loadavg)
 {
-    char buf[1024];
     char fmt[64];
     int fd;
     int n;
+    static int started;
+    static char buf[1024];
 
     if (!started) {
 	started = 1;
@@ -48,6 +47,8 @@ refresh_proc_loadavg(proc_loadavg_t *proc_loadavg)
 
     n = read(fd, buf, sizeof(buf));
     close(fd);
+    if (n < 0)
+	return -errno;
 
     buf[sizeof(buf)-1] = '\0';
 
