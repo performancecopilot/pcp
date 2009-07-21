@@ -297,7 +297,7 @@ ib_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 void
-ibpmda_init(const char *confpath, pmdaInterface *dp)
+ibpmda_init(const char *confpath, int writeconf, pmdaInterface *dp)
 {
     char defconf[MAXPATHLEN];
     int sep = __pmPathSeparator();
@@ -320,7 +320,7 @@ ibpmda_init(const char *confpath, pmdaInterface *dp)
     }
 
 
-    if ((dp->status = ib_load_config (confpath, indomtab, ARRAYSZ(indomtab))))
+    if ((dp->status = ib_load_config(confpath, writeconf, indomtab, ARRAYSZ(indomtab))))
 	return;
 
     for (i=0; i < ARRAYSZ(indomtab); i++) {
