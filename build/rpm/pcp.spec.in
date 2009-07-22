@@ -18,7 +18,9 @@ Name: @package_name@
 Version: @package_version@
 Release: @package_release@@package_sgirelease@
 Distribution: @package_distribution@
+%if %sgi_chroot_build
 Packager: Silicon Graphics, Inc. <http://www.sgi.com/>
+%endif
 BuildRoot: @build_root@ 
 BuildRequires: gcc-c++ libstdc++-devel procps autoconf bison flex ncurses-devel
 
@@ -57,10 +59,10 @@ Obsoletes: pcp <= @package_version@
 Provides: pcp = @package_version@
 %endif
 
-Requires: pcp-libs >= @package_version@
+Requires: pcp-libs = @package_version@
 
-Summary: System-level performance monitoring and performance management. 
-License: GPL/LGPL
+Summary: System-level performance monitoring and performance management
+License: GPL+ and LGPLv2+
 Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
@@ -74,15 +76,17 @@ Summary: Performance Co-Pilot run-time libraries
 Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp/
 
-Provides: libpcp.so.2
+Provides: libpcp.so.2 = @package_version@
 %ifarch ia64 x86_64
-Provides: libpcp.so.2()(64bit)
+Provides: libpcp.so.2()(64bit) = @package_version@
 %endif
 
-Provides: libpcp_pmda.so.2
+Provides: libpcp_pmda.so.2 = @package_version@
 %ifarch ia64 x86_64
-Provides: libpcp_pmda.so.2()(64bit)
+Provides: libpcp_pmda.so.2()(64bit) = @package_version@
 %endif
+
+Obsoletes: pcp < 3.0
 
 #
 # pcp-devel
@@ -93,7 +97,7 @@ Summary: Performance Co-Pilot (PCP) development headers and static libraries
 Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp/
 
-Requires: pcp-libs >= @package_version@
+Requires: pcp-libs = @package_version@
 
 %description
 Performance Co-Pilot (PCP) is a framework and services to
@@ -124,10 +128,10 @@ if [ -f .census ] ; then
       ln -s . ${RPM_PACKAGE_NAME}-${RPM_PACKAGE_VERSION}
    fi
 else
-%setup
+%setup -q
 touch .census
 autoconf
-./configure && touch config.done
+./configure --libdir=%{_libdir} && touch config.done
 fi
 %if %sgi_issp_build
 %{_sgi_find_crypto}
@@ -136,11 +140,13 @@ fi
 
 %clean
 [ ! -z "$DIST_ROOT" ] && rm -rf $DIST_ROOT
+rm -Rf $RPM_BUILD_ROOT
 
 %build
 @make@ default_pcp
 
 %install
+rm -Rf $RPM_BUILD_ROOT
 BACKDIR=`pwd`;
 DIST_ROOT=$RPM_BUILD_ROOT
 DIST_MANIFEST=`pwd`/install.manifest
@@ -192,10 +198,13 @@ $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
 set -x
 
 %files -f base_files.rpm
+%defattr(-,root,root)
 
 %files libs -f libs_files.rpm
+%defattr(-,root,root)
 
 %files devel -f devel_files.rpm
+%defattr(-,root,root)
 
 %pre
 exit 0
@@ -206,7 +215,7 @@ then
     #
     # Stop daemons before erasing the package
     #
-    if [ -f /etc/pcp.env ] ; then
+    if [ -f /etc/pcp.env -a -f /etc/pcp.conf ] ; then
 	. /etc/pcp.env
 	$PCP_RC_DIR/pcp stop >/dev/null 2>&1
 	$PCP_RC_DIR/pmie stop >/dev/null 2>&1
@@ -236,7 +245,7 @@ exit 0
 exit 0
 
 %post
-if [ -f /etc/pcp.env ] ; then
+if [ -f /etc/pcp.env -a -f /etc/pcp.conf ] ; then
     . /etc/pcp.env
     . $PCP_SHARE_DIR/lib/rc-proc.sh
     touch $PCP_VAR_DIR/pmns/.NeedRebuild
