@@ -474,6 +474,9 @@ new(CLASS,name,domain)
 	if ((p = getenv("PCP_PERL_DEBUG")) != NULL)
 	    if ((pmDebug = __pmParseDebug(p)) < 0)
 		pmDebug = 0;
+#ifndef IS_MINGW
+	setsid();
+#endif
 	atexit(&local_atexit);
 	snprintf(helpfile, sizeof(helpfile), "%s%c%s%c" "help",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, name, sep);

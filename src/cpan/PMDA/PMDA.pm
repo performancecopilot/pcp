@@ -32,7 +32,7 @@ require DynaLoader;
 	PM_ERR_TOOSMALL PM_ERR_TOOBIG PM_ERR_NYI
 );
 @EXPORT_OK = qw();
-$VERSION = '1.05';
+$VERSION = '1.06';
 
 # metric identification
 sub PM_ID_NULL		{ 0xffffffff; }
