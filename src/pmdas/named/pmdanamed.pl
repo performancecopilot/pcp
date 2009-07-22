@@ -30,7 +30,7 @@ sub named_parser
 {
     ( undef, $_ ) = @_;
 
-    $pmda->log("named_parser got line: $_");
+    #$pmda->log("named_parser got line: $_");
     if (m|^\+\+\+ Statistics Dump \+\+\+ \((\d+)\)$|) {
 	$timestamp_then = $timestamp_now;
 	$timestamp_now = $1;
@@ -47,7 +47,7 @@ sub named_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
 
-    $pmda->log("named_fetch_callback for PMID: $cluster.$item ($inst)");
+    #$pmda->log("named_fetch_callback for PMID: $cluster.$item ($inst)");
     if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
     if ($cluster != 0)		{ return (PM_ERR_PMID, 0); }
 
