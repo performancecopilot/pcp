@@ -1288,9 +1288,6 @@ $pmda->add_metric(pmda_pmid(1,121), PM_TYPE_U32, PM_INDOM_NULL,
 $pmda->add_metric(pmda_pmid(1,122), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'mysql.variables.max_allowed_packet', '', '');
-$pmda->add_metric(pmda_pmid(1,123), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-		  'mysql.variables.max_allowed_packet', '', '');
 $pmda->add_metric(pmda_pmid(1,124), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'mysql.variables.max_binlog_cache_size', '', '');
