@@ -1379,7 +1379,9 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	len = (int)sizeof(addr.sun_family) + (int)strlen(addr.sun_path);
 	sts = connect(fd, (struct sockaddr *) &addr, len);
 #else
-	errno = EOPNOTSUPP;
+	fprintf(stderr, "pmcd: UNIX sockets are not supported : \"%s\" agent\n",
+		     aPtr->pmDomainLabel);
+	goto error;
 #endif
     }
     if (sts < 0) {
