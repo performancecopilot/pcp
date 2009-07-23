@@ -18,7 +18,9 @@ Name: @package_name@
 Version: @package_version@
 Release: @package_release@@package_sgirelease@
 Distribution: @package_distribution@
+%if %sgi_chroot_build
 Packager: Silicon Graphics, Inc. <http://www.sgi.com/>
+%endif
 BuildRoot: @build_root@ 
 BuildRequires: gcc-c++ libstdc++-devel procps autoconf bison flex ncurses-devel
 
@@ -57,21 +59,45 @@ Obsoletes: pcp <= @package_version@
 Provides: pcp = @package_version@
 %endif
 
-Provides: libpcp.so.2
-%ifarch ia64 x86_64
-Provides: libpcp.so.2()(64bit)
-%endif
+Requires: pcp-libs = @package_version@
 
-Provides: libpcp_pmda.so.2
-%ifarch ia64 x86_64
-Provides: libpcp_pmda.so.2()(64bit)
-%endif
-
-Summary: System-level performance monitoring and performance management. 
-License: GPL/LGPL
+Summary: System-level performance monitoring and performance management
+License: GPL+ and LGPLv2+
 Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
+
+#
+# pcp-libs
+#
+%package libs
+Group: Applications/System
+Summary: Performance Co-Pilot run-time libraries
+Vendor: Silicon Graphics, Inc.
+URL: http://oss.sgi.com/projects/pcp/
+
+Provides: libpcp.so.2 = @package_version@
+%ifarch ia64 x86_64
+Provides: libpcp.so.2()(64bit) = @package_version@
+%endif
+
+Provides: libpcp_pmda.so.2 = @package_version@
+%ifarch ia64 x86_64
+Provides: libpcp_pmda.so.2()(64bit) = @package_version@
+%endif
+
+Obsoletes: pcp < 3.0
+
+#
+# pcp-devel
+#
+%package devel
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) development headers and static libraries
+Vendor: Silicon Graphics, Inc.
+URL: http://oss.sgi.com/projects/pcp/
+
+Requires: pcp-libs = @package_version@
 
 %description
 Performance Co-Pilot (PCP) is a framework and services to
@@ -82,6 +108,13 @@ The PCP open source release provides a unifying abstraction for
 all of the interesting performance data in a system, and allows
 client applications to easily retrieve and process any subset of
 that data. 
+
+%description libs
+Performance Co-Pilot (PCP) run-time libraries
+
+%description devel
+Performance Co-Pilot (PCP) headers, static libraries, documentation
+and tools for development.
 
 %if %sgi_chroot_build
 %debug_package
@@ -95,10 +128,10 @@ if [ -f .census ] ; then
       ln -s . ${RPM_PACKAGE_NAME}-${RPM_PACKAGE_VERSION}
    fi
 else
-%setup
+%setup -q
 touch .census
 autoconf
-./configure && touch config.done
+./configure --libdir=%{_libdir} && touch config.done
 fi
 %if %sgi_issp_build
 %{_sgi_find_crypto}
@@ -107,11 +140,13 @@ fi
 
 %clean
 [ ! -z "$DIST_ROOT" ] && rm -rf $DIST_ROOT
+rm -Rf $RPM_BUILD_ROOT
 
 %build
 @make@ default_pcp
 
 %install
+rm -Rf $RPM_BUILD_ROOT
 BACKDIR=`pwd`;
 DIST_ROOT=$RPM_BUILD_ROOT
 DIST_MANIFEST=`pwd`/install.manifest
@@ -123,8 +158,33 @@ set +x
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
 . $BACKDIR/src/include/pcp.env
-sort $DIST_MANIFEST | uniq | $PCP_AWK_PROG ' 
-$1 == "d" { printf ("%%%%dir %%%%attr(%s,root,root) %s\n", $2, $5); } 
+
+LIBFILELIST=`ls -1 $BACKDIR/debian/*.{install,dirs} | fgrep -v -- -dev.`
+DEVFILELIST=`ls -1 $BACKDIR/debian/*-dev.{install,dirs}`
+
+#
+# Package split: pcp, pcp-libs, pcp-devel
+# -libs gets first pick, then -devel. Base package catches-all remaining.
+#
+sed -e 's/^/\//' $LIBFILELIST >libs_files
+sed -e 's/^/\//' $DEVFILELIST >devel_files
+%ifarch ia64 x86_64 ppc64
+sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
+sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
+%endif
+
+rm -f devel_files.rpm libs_files.rpm base_files.rpm
+sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
+BEGIN {
+    while( getline < "libs_files") lib[$0]=1;
+    while( getline < "devel_files") dev[$0]=1;
+}
+{
+    if (lib[$NF]) f="libs_files.rpm";
+    else if (dev[$NF]) f="devel_files.rpm";
+    else f="base_files.rpm"
+}
+$1 == "d" { printf ("%%%%dir %%%%attr(%s,root,root) %s\n", $2, $5) >> f } 
 $1 == "f" { if ( match ($6, "'$PCP_VAR_DIR'/config") ||
 		 match ($6, "'$PCP_SYSCONFIG_DIR'") ) {
 	       printf ("%%%%config(noreplace) ");
@@ -132,13 +192,19 @@ $1 == "f" { if ( match ($6, "'$PCP_VAR_DIR'/config") ||
 	    if (match ($6, "'$PCP_MAN_DIR'") || match ($6, "'$PCP_DOC_DIR'")) {
 		printf ("%%%%doc ");
 	    }
-	    printf ("%%%%attr(%s,root,root) %s\n", $2, $6); }
-$1 == "l" { print "%attr(0777,root,root)", $3; }' > files.rpm
+	    printf ("%%%%attr(%s,root,root) %s\n", $2, $6) >> f }
+$1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
 
 set -x
 
-#
-%files -f files.rpm
+%files -f base_files.rpm
+%defattr(-,root,root)
+
+%files libs -f libs_files.rpm
+%defattr(-,root,root)
+
+%files devel -f devel_files.rpm
+%defattr(-,root,root)
 
 %pre
 exit 0
@@ -149,7 +215,7 @@ then
     #
     # Stop daemons before erasing the package
     #
-    if [ -f /etc/pcp.env ] ; then
+    if [ -f /etc/pcp.env -a -f /etc/pcp.conf ] ; then
 	. /etc/pcp.env
 	$PCP_RC_DIR/pcp stop >/dev/null 2>&1
 	$PCP_RC_DIR/pmie stop >/dev/null 2>&1
@@ -179,7 +245,7 @@ exit 0
 exit 0
 
 %post
-if [ -f /etc/pcp.env ] ; then
+if [ -f /etc/pcp.env -a -f /etc/pcp.conf ] ; then
     . /etc/pcp.env
     . $PCP_SHARE_DIR/lib/rc-proc.sh
     touch $PCP_VAR_DIR/pmns/.NeedRebuild
