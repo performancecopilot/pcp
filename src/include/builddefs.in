@@ -67,7 +67,7 @@ PCP_LIBS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
 
 # platform-specific CFLAGS, LDLIBS, and shared library extension
 ifeq "$(TARGET_OS)" "linux"
-PCFLAGS = -fpic -fno-strict-aliasing -D_GNU_SOURCE -fstack-protector-all
+PCFLAGS = -fpic -fno-strict-aliasing -D_GNU_SOURCE
 DSOSUFFIX = so
 endif
 ifeq "$(TARGET_OS)" "freebsd"
