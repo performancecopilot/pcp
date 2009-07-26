@@ -83,11 +83,11 @@ $pmda->add_metric(pmda_pmid(0,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 $pmda->add_metric(pmda_pmid(0,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
                 pmda_units(0,0,1,0,0,PM_COUNT_ONE),
                 "pdns.packetcache_miss", '', '');
-$pmda->add_metric(pmda_pmid(0,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-                pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+$pmda->add_metric(pmda_pmid(0,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+                pmda_units(0,0,0,0,0,0),
                 "pdns.packetcache_size", '', '');
-$pmda->add_metric(pmda_pmid(0,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-                pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+$pmda->add_metric(pmda_pmid(0,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+                pmda_units(0,0,0,0,0,0),
                 "pdns.qsize_q", '', '');
 $pmda->add_metric(pmda_pmid(0,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
                 pmda_units(0,0,1,0,0,PM_COUNT_ONE),
