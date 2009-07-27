@@ -475,7 +475,7 @@ BuildCmdLine(char **argv)
     if (argv == NULL)
 	return NULL;
     for (i = 0; argv[i] != NULL; i++) {
-	cmdLen += strlen(argv[i]) + 1;	/* +1 for space spearator or null */
+	cmdLen += strlen(argv[i]) + 1;	/* +1 for space separator or null */
 	/* any arg with whitespace appears in quotes */
 	if (strpbrk(argv[i], " \t") != NULL)
 	    cmdLen += 2;
