@@ -1408,17 +1408,14 @@ error:
     return -1;
 }
 
-/* Create the specified agent running at the end of a pair of pipes. */
-static int
-CreateAgent(AgentInfo *aPtr)
-{
 #ifndef IS_MINGW
+static int
+CreateAgentPOSIX(AgentInfo *aPtr)
+{
     int		i;
-#endif
-    int		sts;
     int		inPipe[2];	/* Pipe for input to child */
     int		outPipe[2];	/* For output to child */
-    pid_t	childPid;
+    pid_t	childPid = (pid_t)-1;
     char	**argv = NULL;
 
     if (aPtr->ipcType == AGENT_PIPE) {
@@ -1448,14 +1445,7 @@ CreateAgent(AgentInfo *aPtr)
 	argv = aPtr->ipc.socket.argv;
 
     if (argv != NULL) {			/* Start a new agent if required */
-	fflush(stderr);
-	fflush(stdout);
-
-#ifdef IS_MINGW
-	childPid = __pmProcessCreate(argv, &aPtr->inFd, &aPtr->outFd);
-#else
 	childPid = fork();
-#endif
 	if (childPid == (pid_t)-1) {
 	    fprintf(stderr, "pmcd: creating child for \"%s\" agent: %s\n",
 			 aPtr->pmDomainLabel, strerror(errno));
@@ -1468,12 +1458,6 @@ CreateAgent(AgentInfo *aPtr)
 	    return -1;
 	}
 
-#ifdef IS_MINGW
-	if (aPtr->ipcType == AGENT_SOCKET) {
-	    close(aPtr->inFd);
-	    close(aPtr->outFd);
-	}
-#else
 	if (childPid) {
 	    /* This is the parent (PMCD) */
 	    if (aPtr->ipcType == AGENT_PIPE) {
@@ -1519,29 +1503,134 @@ CreateAgent(AgentInfo *aPtr)
 	    /* avoid atexit() processing, so _exit not exit */
 	    _exit(1);
 	}
+    }
+    return childPid;
+}
+
+#else
+
+static int
+CreateAgentWin32(AgentInfo *aPtr)
+{
+    SECURITY_ATTRIBUTES saAttr;
+    PROCESS_INFORMATION piProcInfo;
+    STARTUPINFO siStartInfo;
+    HANDLE hChildStdinRd, hChildStdinWr, hChildStdoutRd, hChildStdoutWr;
+    BOOL bSuccess = FALSE;
+    LPTSTR command = NULL;
+
+    if (aPtr->ipcType == AGENT_PIPE)
+	command = (LPTSTR)aPtr->ipc.pipe.commandLine;
+    else if (aPtr->ipcType == AGENT_SOCKET)
+	command = (LPTSTR)aPtr->ipc.socket.commandLine;
+
+    // Set the bInheritHandle flag so pipe handles are inherited
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    // Create a pipe for the child process's STDOUT.
+    if (!CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0)) {
+	fprintf(stderr, "pmcd: stdout CreatePipe failed, \"%s\" agent: %s\n",
+			aPtr->pmDomainLabel, strerror(errno));
+	return -1;
+    }
+    // Ensure the read handle to the pipe for STDOUT is not inherited.
+    if (!SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0)) {
+	fprintf(stderr, "pmcd: stdout SetHandleInformation, \"%s\" agent: %s\n",
+			aPtr->pmDomainLabel, strerror(errno));
+	return -1;
+    }
+
+    // Create a pipe for the child process's STDIN.
+    if (!CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0)) {
+	fprintf(stderr, "pmcd: stdin CreatePipe failed, \"%s\" agent: %s\n",
+			aPtr->pmDomainLabel, strerror(errno));
+	return -1;
+    }
+    // Ensure the write handle to the pipe for STDIN is not inherited.
+    if (!SetHandleInformation(hChildStdinWr, HANDLE_FLAG_INHERIT, 0)) {
+	fprintf(stderr, "pmcd: stdin SetHandleInformation, \"%s\" agent: %s\n",
+			aPtr->pmDomainLabel, strerror(errno));
+	return -1;
+    }
+
+    // Create the child process.
+
+    ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
+    ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
+    siStartInfo.cb = sizeof(STARTUPINFO);
+    siStartInfo.hStdOutput = hChildStdoutWr;
+    siStartInfo.hStdError = hChildStdoutWr;
+    siStartInfo.hStdInput = hChildStdinRd;
+    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+
+    bSuccess = CreateProcess(NULL, command,
+			NULL,          // process security attributes
+			NULL,          // primary thread security attributes
+			TRUE,          // handles are inherited
+			0,             // creation flags
+			NULL,          // use parent's environment
+			NULL,          // use parent's current directory
+			&siStartInfo,  // STARTUPINFO pointer
+			&piProcInfo);  // receives PROCESS_INFORMATION
+    if (!bSuccess) {
+	fprintf(stderr, "pmcd: CreateProcess for \"%s\" agent: %s: %s\n",
+			aPtr->pmDomainLabel, command, strerror(errno));
+	return -1;
+    }
+
+    aPtr->inFd = _open_osfhandle((intptr_t)hChildStdinRd, _O_WRONLY);
+    aPtr->outFd = _open_osfhandle((intptr_t)hChildStdoutWr, _O_RDONLY);
+    if (aPtr->outFd > max_seen_fd) {
+	max_seen_fd = aPtr->outFd;
+	PMCD_OPENFDS_SETHI(aPtr->outFd);
+    }
+
+    CloseHandle(piProcInfo.hProcess);
+    CloseHandle(piProcInfo.hThread);
+    CloseHandle(hChildStdoutRd);
+    CloseHandle(hChildStdinWr);
+    return piProcInfo.dwProcessId;
+}
 #endif
 
-	/* Only pmcd (parent) executes this */
+/* Create the specified agent running at the end of a pair of pipes. */
+static int
+CreateAgent(AgentInfo *aPtr)
+{
+    pid_t	childPid;
+    int		sts;
 
-	aPtr->status.isChild = 1;
-	if (aPtr->ipcType == AGENT_PIPE) {
-	    aPtr->ipc.pipe.agentPid = childPid;
-	    /* ready for version negotiation */
-	    if ((sts = AgentNegotiate(aPtr)) < 0) {
-		close(aPtr->inFd);
-		close(aPtr->outFd);
-		return sts;
-	    }
+    fflush(stderr);
+    fflush(stdout);
+
+#ifdef IS_MINGW
+    childPid = CreateAgentWin32(aPtr);
+#else
+    childPid = CreateAgentPOSIX(aPtr);
+#endif
+    if (childPid < 0)
+	return childPid;
+
+    aPtr->status.isChild = 1;
+    if (aPtr->ipcType == AGENT_PIPE) {
+	aPtr->ipc.pipe.agentPid = childPid;
+	/* ready for version negotiation */
+	if ((sts = AgentNegotiate(aPtr)) < 0) {
+	    close(aPtr->inFd);
+	    close(aPtr->outFd);
+	    return sts;
 	}
-	else if (aPtr->ipcType == AGENT_SOCKET)
-	    aPtr->ipc.socket.agentPid = childPid;
+    }
+    else if (aPtr->ipcType == AGENT_SOCKET)
+	aPtr->ipc.socket.agentPid = childPid;
 
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
-	    fprintf(stderr, "pmcd: started PMDA %s (%d), pid=%d\n",
+    if (pmDebug & DBG_TRACE_APPL0)
+	fprintf(stderr, "pmcd: started PMDA %s (%d), pid=%d\n",
 	        aPtr->pmDomainLabel, aPtr->pmDomainId, (int)childPid);
 #endif
-    }
     return 0;
 }
 
