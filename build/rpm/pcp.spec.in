@@ -57,6 +57,9 @@ Obsoletes: pcp <= @package_version@
 Provides: pcp = @package_version@
 %endif
 
+Provides: pcp-libs = @package_version@
+Provides: pcp-devel = @package_version@
+
 Provides: libpcp.so.2
 %ifarch ia64 x86_64
 Provides: libpcp.so.2()(64bit)
