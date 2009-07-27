@@ -37,5 +37,5 @@ ib_init (pmdaInterface * dispatch)
 	     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDSO(dispatch, PMDA_INTERFACE_3, "ibpmda", helppath);
 
-    ibpmda_init(NULL, dispatch);
+    ibpmda_init(NULL, 0, dispatch);
 }

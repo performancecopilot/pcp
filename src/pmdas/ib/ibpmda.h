@@ -22,10 +22,10 @@
 #include "domain.h"
 
 
-void ibpmda_init (const char *configpath, pmdaInterface *);
+void ibpmda_init (const char *configpath, int, pmdaInterface *);
 
 int ib_fetch_val(pmdaMetric *, unsigned int, pmAtomValue *);
-int ib_load_config(const char *, pmdaIndom *, unsigned int);
+int ib_load_config(const char *, int, pmdaIndom *, unsigned int);
 void ib_rearm_for_update(void *);
 void ib_reset_perfcounters (void *);
 int ib_store(pmResult *, pmdaExt *);

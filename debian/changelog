@@ -1,3 +1,10 @@
+pcp (2.9.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Updated MMV and other package descriptions (closes: #537563).
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 27 Jul 2009 15:25:57 +1000
+
 pcp (2.8.12) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
