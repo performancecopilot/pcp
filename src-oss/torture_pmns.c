@@ -11,7 +11,7 @@
 
 static int	vflag;
 static char	*context_name = "localhost";
-static int 	context_type; /* archive, host or local */
+static int 	context_type = 0; /* archive, host or local */
 static char	*namespace = PM_NS_DEFAULT;
 static int	all_children = 1; /* do the children of "" test */
 static int	root_children; /* only do the children of "" test */
@@ -20,20 +20,21 @@ static int	dump_metrics; /* just dump the metrics and exit */
  * pmns_style == 1 => do PMNS style loading the old way
  * pmns_style == 2 => try to use the distributed PMNS
  */
-static int pmns_style = 1;
+static int pmns_style = 2;
 
-/* The list of metrics to test out */
-static char *namelist[] = {
-    "sample.secret"
-};
-
-#define MAXNAMES (sizeof(namelist)/sizeof(char*))
-
+static int	numpmid = 0;
+static char 	**namelist;	/* The list of metrics to test out */
+static pmID	*midlist;
 
 typedef struct name_status {
   char *name;
   int status;
 }name_status;
+
+#define REPORT(str, sts) \
+printf("%s() returns %d", str, sts);\
+if (sts < 0) printf(" (%s)", pmErrStr(sts));\
+putchar('\n');
 
 static int
 compar_str(const void *a, const void *b)
@@ -61,10 +62,8 @@ do_chn(char *name)
     int 	has_children = 0;
 
     n = pmGetChildren(name, &enfants);
-    if (n < 0) {
-	printf("pmGetChildren: %s\n", pmErrStr(n));
-    }
-    else if (n > 0) {
+    REPORT("pmGetChildren", n);
+    if (n > 0) {
 	qsort(enfants, n, sizeof(enfants[0]), compar_str);
 	has_children = 1;
     }
@@ -75,10 +74,8 @@ do_chn(char *name)
         int	*status = NULL;
 
         n = pmGetChildrenStatus(name, &s_enfants, &status);
-	if (n < 0) {
-	    printf("pmGetChildrenStatus: %s\n", pmErrStr(n));
-	}
-	else if (n > 0) {
+	REPORT("pmGetChildrenStatus", n);
+	if (n > 0) {
 	    /* create a ns_table for sorting */
             ns_table = (name_status*)malloc(sizeof(name_status)*n);
 	    if (ns_table == 0) {
@@ -126,7 +123,7 @@ parse_args(int argc, char **argv)
     extern int	optind;
     int		errflag = 0;
     int		c;
-    static char	*usage = "[-bcLmvx] [-a archive] [-h host] [-n namespace] [-s 1|2]";
+    static char	*usage = "[-bcLmvx] [-a archive] [-h host] [-n namespace] [-s 1|2] metricname ...";
     char	*endnum;
     int		sts;
 #ifdef PCP_DEBUG
@@ -228,6 +225,26 @@ parse_args(int argc, char **argv)
 	}
     }
 
+    if (context_type == 0) context_type = PM_CONTEXT_HOST;
+
+    numpmid = argc - optind;
+    if (numpmid < 1) {
+	errflag++;
+    }
+    else {
+	int	i;
+	if ((midlist = (pmID *)malloc(numpmid*sizeof(pmID *))) == NULL) {
+	    fprintf(stderr, "malloc failed for midlist[]: %s\n", strerror(errno));
+	    exit(1);
+	}
+	if ((namelist = (char **)malloc(numpmid*sizeof(char *))) == NULL) {
+	    fprintf(stderr, "malloc failed for namelist[]: %s\n", strerror(errno));
+	    exit(1);
+	}
+	for (i = 0; i < numpmid; i++)
+	    namelist[i] = argv[optind+i];
+    }
+
     if (errflag) {
 	printf("Usage: %s %s%s\n", pmProgname, debug, usage);
 	exit(1);
@@ -254,11 +271,9 @@ test_api(void)
 {
     int			sts;
     int			i;
-    pmID		midlist[MAXNAMES];
     int			*instlist;
     char		**inamelist;
     int			n;
-    int			numpmid = MAXNAMES;
     char		*back;
     pmResult		*resp;
     pmDesc		desc;
@@ -287,12 +302,6 @@ test_api(void)
 	__pmDumpNameSpace(stdout, 1);
     }
 
-
-#define REPORT(str, sts) \
-printf("%s() returns %d", str, sts);\
-if (sts < 0) printf(" (%s)", pmErrStr(sts));\
-putchar('\n');
-
     n = pmLookupName(numpmid, namelist, midlist);
     REPORT("pmLookupName", n);
 
@@ -319,8 +328,7 @@ putchar('\n');
     for (i = 0; i < numpmid && !root_children; i++) {
 	putchar('\n');
 	if (vflag) {
-	    printf("name: %s", namelist[i]);
-	    printf(" pmid: %s\n", pmIDStr(midlist[i]));
+	    printf("=== metric %d === name: %s pmid %s\n", i, namelist[i], pmIDStr(midlist[i]));
 	}
 	if (midlist[i] != PM_ID_NULL) {
 	    n = pmNameID(midlist[i], &back);
@@ -379,9 +387,9 @@ putchar('\n');
 		    }
 		}
 	    }
-	    do_chn(namelist[i]);
 	}
-    }/*for each named metric*/ 
+	do_chn(namelist[i]);
+    } /* for each named metric */ 
 
     if (all_children || root_children) {
 	/* root check */
@@ -451,7 +459,7 @@ main(int argc, char **argv)
 
     if (dump_metrics == 1) {
 	int i;
-	for(i = 0; i < MAXNAMES; i++) {
+	for(i = 0; i < numpmid; i++) {
 	    printf("%s\n", namelist[i]);
 	}
 	exit(0);
