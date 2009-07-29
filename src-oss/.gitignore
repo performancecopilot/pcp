@@ -93,8 +93,8 @@ logcontrol
 mark-bug
 matchInstanceName
 mkfiles
-mmv_dumpstats
 mmv_genstats
+mmv_instances
 multifetch
 mv-bar.[0-9]
 mv-bar.index
@@ -142,6 +142,8 @@ pmprintf
 pmsocks_objstyle
 proc_test
 pv
+pv64
+pv64.c
 read-bf
 real_broken_pmns
 recon
