@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2009 Aconex.  All Rights Reserved.
+ */
+
 #include <pcp/pmapi.h>
 #include <pcp/mmv_stats.h>
 
