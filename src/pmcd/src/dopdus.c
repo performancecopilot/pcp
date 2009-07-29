@@ -80,11 +80,15 @@ DoText(ClientInfo *cp, __pmPDU* pb)
 	return PM_ERR_NOAGENT;
 
     if (ap->ipcType == AGENT_DSO) {
-	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-	    sts = ap->ipc.dso.dispatch.version.one.text(ident, type, &buffer);
-	else
+	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    sts = ap->ipc.dso.dispatch.version.three.text(ident, type, &buffer,
+					  ap->ipc.dso.dispatch.version.three.ext);
+	else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+	         ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
 	    sts = ap->ipc.dso.dispatch.version.two.text(ident, type, &buffer,
 					  ap->ipc.dso.dispatch.version.two.ext);
+	else
+	    sts = ap->ipc.dso.dispatch.version.one.text(ident, type, &buffer);
 	if (sts < 0 &&
 	    ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		sts = XLATE_ERR_1TO2(sts);
@@ -220,11 +224,15 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
 	return PM_ERR_NOAGENT;
 
     if (ap->ipcType == AGENT_DSO) {
-	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-	    sts = ap->ipc.dso.dispatch.version.one.desc(pmid, &desc);
-	else
+	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    sts = ap->ipc.dso.dispatch.version.three.desc(pmid, &desc,
+					ap->ipc.dso.dispatch.version.three.ext);
+	else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+	         ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
 	    sts = ap->ipc.dso.dispatch.version.two.desc(pmid, &desc,
 					ap->ipc.dso.dispatch.version.two.ext);
+	else
+	    sts = ap->ipc.dso.dispatch.version.one.desc(pmid, &desc);
 	if (sts < 0 &&
 	    ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		sts = XLATE_ERR_1TO2(sts);
@@ -313,13 +321,18 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     }
 
     if (ap->ipcType == AGENT_DSO) {
-	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-	    sts = ap->ipc.dso.dispatch.version.one.instance(indom, inst, name, 
-							     &inresult);
-	else
+	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    sts = ap->ipc.dso.dispatch.version.three.instance(indom, inst, name,
+					&inresult,
+					ap->ipc.dso.dispatch.version.three.ext);
+	else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+	         ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
 	    sts = ap->ipc.dso.dispatch.version.two.instance(indom, inst, name,
 					&inresult,
 					ap->ipc.dso.dispatch.version.two.ext);
+	else
+	    sts = ap->ipc.dso.dispatch.version.one.instance(indom, inst, name, 
+							     &inresult);
 	if (sts < 0 &&
 	    ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		sts = XLATE_ERR_1TO2(sts);
@@ -390,12 +403,35 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
     int 	numnames = 0;
     pmID	idlist[1];
     char	**namelist = NULL;
+    AgentInfo*	ap;
 
     if ((sts = __pmDecodeIDList(pb, PDU_BINARY, 1, idlist, &op_sts)) < 0)
 	goto fail;
 
-    if ((sts = pmNameAll(idlist[0], &namelist)) < 0)
-    	goto fail;
+    if ((sts = pmNameAll(idlist[0], &namelist)) < 0) {
+	if ((ap = FindDomainAgent(((__pmID_int *)&idlist[0])->domain)) == NULL) {
+	    sts = PM_ERR_NOAGENT;
+	    goto fail;
+	}
+	if (!ap->status.connected) {
+	    sts = PM_ERR_NOAGENT;
+	    goto fail;
+	}
+	if (ap->ipcType == AGENT_DSO) {
+	    if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+		sts = ap->ipc.dso.dispatch.version.three.name(idlist[0], &namelist, 
+				  ap->ipc.dso.dispatch.version.three.ext);
+	    }
+	    else {
+		sts = PM_ERR_PMID;
+	    }
+	}
+	else {
+	    /* TODO daemon case */
+	    sts = PM_ERR_PMID;
+	}
+	if (sts < 0) goto fail;
+    }
 
     numnames = sts;
 
@@ -406,8 +442,7 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
 	CleanupClient(cp, sts);
     	goto fail;
     }
-
-    return sts;
+    /* fall through OK */
 
 fail:
     if (namelist) free(namelist);
@@ -424,6 +459,8 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
     int		numids = 0;
     pmID	*idlist = NULL;
     char	**namelist = NULL;
+    int		i;
+    AgentInfo*	ap;
 
     if ((sts = __pmDecodeNameList(pb, PDU_BINARY, &numids, &namelist, NULL)) < 0)
 	goto done;
@@ -433,12 +470,54 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 	goto done;
     }
 
-    if ((sts = pmLookupName(numids, namelist, idlist)) < 0) {
+    sts = pmLookupName(numids, namelist, idlist);
+    for (i = 0; i < numids; i++) {
+	if (idlist[i] < 0) continue;
+	if (((__pmID_int *)&idlist[i])->domain == DYNAMIC_PMID) {
+	    int		lsts;
+	    int		domain = ((__pmID_int *)&idlist[i])->cluster;
+	    /*
+	     * don't return <domain>.*.* ... all return paths from here
+	     * must either set a valid PMID in idlist[i] or indicate
+	     * an error
+	     */
+	    idlist[i] = PM_ID_NULL;
+	    if ((ap = FindDomainAgent(domain)) == NULL) {
+		if (sts > 0) sts = PM_ERR_NOAGENT;
+		continue;
+	    }
+	    if (!ap->status.connected) {
+		if (sts > 0) sts = PM_ERR_NOAGENT;
+		continue;
+	    }
+	    if (ap->ipcType == AGENT_DSO) {
+		if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+		    lsts = ap->ipc.dso.dispatch.version.three.pmid(namelist[i], &idlist[i],
+				      ap->ipc.dso.dispatch.version.three.ext);
+		}
+		else {
+		    /* not INTERFACE_4 */
+		    lsts = PM_ERR_NAME;
+		}
+	    }
+	    else {
+		/* TODO daemon case */
+		lsts = PM_ERR_NAME;
+	    }
+	    /*
+	     * only set error status to the current error status
+	     * if this is the first error for this set of metrics
+	     */
+	    if (lsts < 0 && sts > 0) sts = lsts;
+	}
+    }
+
+    if (sts < 0) {
         /* If get an error which should be passed back along
          * with valid data to the client
          * then do NOT fail -> return status with the id-list.
          */
-    	if (sts != PM_ERR_NAME && sts != PM_ERR_NONLEAF)
+    	if (sts != PM_ERR_NAME && sts != PM_ERR_NONLEAF && sts != PM_ERR_NOAGENT)
 	  goto done;
     }
 
@@ -469,17 +548,59 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
     char	**offspring = NULL;
     int		*statuslist = NULL;
     int		subtype;
+    char	*namelist[1];
+    pmID	idlist[1];
 
     if ((sts = __pmDecodeChildReq(pb, PDU_BINARY, &name, &subtype)) < 0)
-	goto fail;
+	goto done;
   
-    if (subtype == 0) {
-	if ((sts = pmGetChildren(name, &offspring)) < 0)
-	    goto fail;
+    namelist[0] = name;
+    sts = pmLookupName(1, namelist, idlist);
+fprintf(stderr, "dso children(%s) pmid %s\n", name, pmIDStr(idlist[0]));
+    if (sts == 1 && ((__pmID_int *)&idlist[0])->domain == DYNAMIC_PMID) {
+	int		domain = ((__pmID_int *)&idlist[0])->cluster;
+	AgentInfo*	ap;
+	if ((ap = FindDomainAgent(domain)) == NULL) {
+	    sts = PM_ERR_NOAGENT;
+	    goto done;
+	}
+	if (!ap->status.connected) {
+	    sts = PM_ERR_NOAGENT;
+	    goto done;
+	}
+	if (ap->ipcType == AGENT_DSO) {
+	    if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+		sts = ap->ipc.dso.dispatch.version.three.children(name, &offspring, &statuslist,
+				  ap->ipc.dso.dispatch.version.three.ext);
+fprintf(stderr, "dso children(%s) -> %d\n", name, sts);
+		if (sts < 0)
+		    goto done;
+		if (subtype == 0) {
+		    if (statuslist) free(statuslist);
+		    statuslist = NULL;
+		}
+	    }
+	    else {
+		/* not INTERFACE_4 */
+		sts = PM_ERR_NAME;
+		goto done;
+	    }
+	}
+	else {
+	    /* TODO daemon case */
+	    sts = PM_ERR_NAME;
+	    goto done;
+	}
     }
     else {
-	if ((sts = pmGetChildrenStatus(name, &offspring, &statuslist)) < 0)
-	    goto fail;
+	if (subtype == 0) {
+	    if ((sts = pmGetChildren(name, &offspring)) < 0)
+		goto done;
+	}
+	else {
+	    if ((sts = pmGetChildrenStatus(name, &offspring, &statuslist)) < 0)
+		goto done;
+	}
     }
 
     numnames = sts;
@@ -488,14 +609,13 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
     if ((sts = __pmSendNameList(cp->fd, PDU_BINARY, numnames, offspring, statuslist)) < 0) {
 	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_NAMES, sts);
 	CleanupClient(cp, sts);
-    	goto fail;
+	sts = 0;
     }
 
-    return sts;
-
-fail:
+done:
     if (name) free(name);
     if (offspring) free(offspring);
+    if (statuslist) free(statuslist);
     return sts;
 }
 

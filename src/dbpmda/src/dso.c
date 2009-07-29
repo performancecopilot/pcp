@@ -148,9 +148,9 @@ opendso(char *dso, char *init, int domain)
 		connmode = PDU_DSO;
 		reset_profile();
 
-		if (pmdaName != NULL)
-		    free(pmdaName);
-		pmdaName = strdup(dso);
+		if (myPmdaName != NULL)
+		    free(myPmdaName);
+		myPmdaName = strdup(dso);
 	    }
 	}
     }
@@ -187,10 +187,13 @@ dodso_desc(pmID pmid, pmDesc *desc)
     if (pmDebug & DBG_TRACE_PDU)
 	fprintf(stderr, "DSO desc()\n");
 #endif
-    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-	sts = dispatch.version.one.desc(pmid, desc);
-    else
+    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	sts = dispatch.version.three.desc(pmid, desc, dispatch.version.three.ext);
+    else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+             dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 	sts = dispatch.version.two.desc(pmid, desc, dispatch.version.two.ext);
+    else
+	sts = dispatch.version.one.desc(pmid, desc);
     if (sts < 0 && dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 	sts = XLATE_ERR_1TO2(sts);
 
@@ -256,10 +259,13 @@ dodso(int pdu)
 		if (pmDebug & DBG_TRACE_PDU)
 		    fprintf(stderr, "DSO profile()\n");
 #endif
-		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		    sts = dispatch.version.one.profile(profile);
-		else
+		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		    sts = dispatch.version.three.profile(profile, dispatch.version.three.ext);
+		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+		         dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    sts = dispatch.version.two.profile(profile, dispatch.version.two.ext);
+		else
+		    sts = dispatch.version.one.profile(profile);
 
 		if (sts < 0) {
 		    if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
@@ -274,12 +280,16 @@ dodso(int pdu)
 		if (pmDebug & DBG_TRACE_PDU)
 		    fprintf(stderr, "DSO fetch()\n");
 #endif
-		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		    sts = dispatch.version.one.fetch(param.numpmid, param.pmidlist, 
-						     &result);
-		else
+		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		    sts = dispatch.version.three.fetch(param.numpmid, param.pmidlist, 
+						     &result, dispatch.version.three.ext);
+		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+		         dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    sts = dispatch.version.two.fetch(param.numpmid, param.pmidlist, 
 						     &result, dispatch.version.two.ext);
+		else
+		    sts = dispatch.version.one.fetch(param.numpmid, param.pmidlist, 
+						     &result);
 
 		if (sts >= 0) {
 		    if (result != NULL &&
@@ -310,13 +320,18 @@ dodso(int pdu)
 		fprintf(stderr, "DSO instance()\n");
 #endif
 
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		sts = dispatch.version.one.instance(param.indom, param.number, 
-						    param.name, &inresult);
-	    else
+	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		sts = dispatch.version.three.instance(param.indom, param.number, 
+						    param.name, &inresult,
+						    dispatch.version.three.ext);
+	    else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+	             dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		sts = dispatch.version.two.instance(param.indom, param.number, 
 						    param.name, &inresult,
 						    dispatch.version.two.ext);
+	    else
+		sts = dispatch.version.one.instance(param.indom, param.number, 
+						    param.name, &inresult);
 
 	    if (sts >= 0)
 		printindom(stdout, inresult);
@@ -338,10 +353,13 @@ dodso(int pdu)
 
 	    if (profile_changed) {
 		printf("Sending Profile...\n");
-		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		    sts = dispatch.version.one.profile(profile);
-		else
+		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		    sts = dispatch.version.three.profile(profile, dispatch.version.three.ext);
+		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+			 dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    sts = dispatch.version.two.profile(profile, dispatch.version.two.ext);
+		else
+		    sts = dispatch.version.one.profile(profile);
 
 		if (sts < 0) {
 		    if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
@@ -354,11 +372,15 @@ dodso(int pdu)
 	    }
 
 	    printf("Getting Result Structure...\n");
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		sts = dispatch.version.one.fetch(1, &(desc.pmid), &result); 
-	    else
+	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		sts = dispatch.version.three.fetch(1, &(desc.pmid), &result,
+						    dispatch.version.three.ext);
+	    else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+	             dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		sts = dispatch.version.two.fetch(1, &(desc.pmid), &result,
 						    dispatch.version.two.ext);
+	    else
+		sts = dispatch.version.one.fetch(1, &(desc.pmid), &result); 
 	    
 	    if (sts < 0) {
 		if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
@@ -385,10 +407,13 @@ dodso(int pdu)
 		return;
 	    }
 
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		sts = dispatch.version.one.store(result);
-	    else
+	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		sts = dispatch.version.three.store(result, dispatch.version.three.ext);
+	    else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+	             dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		sts = dispatch.version.two.store(result, dispatch.version.two.ext);
+	    else
+		sts = dispatch.version.one.store(result);
 	    
 	    if (sts < 0) {
 		if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
@@ -417,10 +442,13 @@ dodso(int pdu)
 		    param.number |= PM_TEXT_HELP;
 		}
 
-		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		    sts = dispatch.version.one.text(i, param.number, &buffer);
-		else
+		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		    sts = dispatch.version.three.text(i, param.number, &buffer, dispatch.version.three.ext);
+		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+			 dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    sts = dispatch.version.two.text(i, param.number, &buffer, dispatch.version.two.ext);
+		else
+		    sts = dispatch.version.one.text(i, param.number, &buffer);
 
 		if (sts >= 0) {
 		    if (j == 0) {

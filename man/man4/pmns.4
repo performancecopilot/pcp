@@ -145,8 +145,8 @@ The general syntax for a non-leaf node in the PMNS is as follows
 .ft CW
 .nf
 pathname {
-	name      [pmid]
-	...
+        name      [pmid]
+        ...
 }
 .fi
 .ft R
@@ -197,6 +197,17 @@ a standard include file, e.g. \c
 .IR $PCP_VAR_DIR/pmns/stdpmid ,
 or in the current source file.
 .PP
+To support dynamic metrics, where the existence of a metric is known to
+a PMDA, but not visible in the PMNS, a variant syntax for the
+.CW pmid
+is supported, namely a domain number followed by asterisks for the other
+components of the
+.CW pmid ,
+e.g. 14:*:*.
+The corresponding metric name forms the root of a subtree of dynamic
+metric names defined in the corresponding PMDA as identified by the domain
+number.
+.PP
 The current allocation of the high-order (PMD or domain) component
 of PMIDs is as follows.
 .TS
@@ -207,7 +218,7 @@ Range	Allocation
 _
 0	reserved
 _
-1-31	SGI internal
+1-31	PMDAs from the PCP base product and/or IRIX
 _
 32-39	Oracle
 _
@@ -215,35 +226,43 @@ _
 _
 48-55	Informix
 _
-60	Linux
+56-58	SNMP Gateway PMDA
 _
-56-127	ISV Performance Metrics
+59-63	Linux PMDAs
 _
-128-254	End-user applications
+64-69	ISV PMDAs
+_
+70-128	more PMDAs from the PCP base product and/or IRIX
+_
+129-510	End-user PMDAs and demo PMDAs
+_
+511	RESERVED
 .TE
 .SH EXAMPLE
 .ft CW
 .nf
 #define IRIX 1
+#define FOO 317
 root {
     network
     cpu
+    dynamic     FOO:*:*
 }
 
 #define NETWORK 26
 network {
-    intrate	IRIX:NETWORK:1
+    intrate     IRIX:NETWORK:1
     packetrate
 }
 
 network.packetrate {
-    in		IRIX:NETWORK:35
-    out		IRIX:NETWORK:36
+    in          IRIX:NETWORK:35
+    out         IRIX:NETWORK:36
 }
 
 #define CPU 10
 cpu {
-    syscallrate	IRIX:CPU:10
+    syscallrate IRIX:CPU:10
     util
 }
 
@@ -252,9 +271,9 @@ cpu {
 #define IDLE 22
 
 cpu.util {
-    user	IRIX:CPU:USER
-    sys		IRIX:CPU:KERNEL
-    idle	IRIX:CPU:IDLE
+    user        IRIX:CPU:USER
+    sys         IRIX:CPU:KERNEL
+    idle        IRIX:CPU:IDLE
 }
 .fi
 .ft R

@@ -27,12 +27,15 @@ extern int __pmdaSetupPDU(int, int, char *);
 int
 __pmdaInFd(pmdaInterface *dispatch)
 {
-    if (!HAVE_V_TWO(dispatch->comm.pmda_interface)) {
+    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
+	return dispatch->version.three.ext->e_infd;
+    else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
+	return dispatch->version.two.ext->e_infd;
+    else {
 	__pmNotifyErr(LOG_CRIT, "PMDA interface version %d not supported",
 		     dispatch->comm.pmda_interface);
         return -1;
     }
-    return dispatch->version.two.ext->e_infd;
 }
 
 int
@@ -65,13 +68,16 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    __pmNotifyErr(LOG_ERR, "PMDA Initialisation Failed");
 	    return -1;
 	}
-	if (!HAVE_V_TWO(dispatch->comm.pmda_interface)) {
+	if (HAVE_V_THREE(dispatch->comm.pmda_interface))
+	    pmda = dispatch->version.three.ext; /* Interface V.3 dynamic PMNS */
+	else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
+	    pmda = dispatch->version.two.ext; /* Interface V.2 Extensions */
+	else {
 	    __pmNotifyErr(LOG_CRIT, "PMDA interface version %d not supported",
 			 dispatch->comm.pmda_interface);
 	    return -1;
 	}
 	dispatch->comm.pmapi_version = PMAPI_VERSION;
-	pmda = dispatch->version.two.ext; /* interface Ver 2 Extensions */
 	first_time = 0;
     }
 
@@ -119,7 +125,11 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	if (__pmDecodeProfile(pb, PDU_BINARY, &ctxnum, &new_profile) < 0) 
 	   break;
 
-	if (dispatch->version.two.profile(new_profile, pmda) < 0) {
+	if (HAVE_V_THREE(dispatch->comm.pmda_interface))
+	    sts = dispatch->version.three.profile(new_profile, pmda);
+	else
+	    sts = dispatch->version.two.profile(new_profile, pmda);
+	if (sts < 0) {
 	    __pmFreeProfile(new_profile);
 	} else {
 	    __pmFreeProfile(profile);
@@ -143,7 +153,10 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 
 	/* Ignore "when"; pmcd should intercept archive log requests */
 	if (sts >= 0) {
-	    sts = dispatch->version.two.fetch(npmids, pmidlist, &result, pmda);
+	    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
+		sts = dispatch->version.three.fetch(npmids, pmidlist, &result, pmda);
+	    else
+		sts = dispatch->version.two.fetch(npmids, pmidlist, &result, pmda);
 
 	    __pmUnpinPDUBuf(pmidlist);
 	}
@@ -167,7 +180,10 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 #endif
 
 	if ((sts = __pmDecodeDescReq(pb, PDU_BINARY, &pmid)) >= 0) {
-	    sts = dispatch->version.two.desc(pmid, &desc, pmda);
+	    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
+		sts = dispatch->version.three.desc(pmid, &desc, pmda);
+	    else
+		sts = dispatch->version.two.desc(pmid, &desc, pmda);
 	}
 	if (sts < 0)
 	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
@@ -192,8 +208,10 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	     *		cases).
 	     */
 
-	    sts = dispatch->version.two.instance(indom, inst, iname, &inres, 
-						 pmda);
+	    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
+		sts = dispatch->version.three.instance(indom, inst, iname, &inres, pmda);
+	    else
+		sts = dispatch->version.two.instance(indom, inst, iname, &inres, pmda);
 	}
 	if (sts < 0)
 	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
@@ -214,7 +232,10 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 #endif
 
 	if ((sts = __pmDecodeTextReq(pb, PDU_BINARY, &ident, &type)) >= 0) {
-	    sts = dispatch->version.two.text(ident, type, &buffer, pmda);
+	    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
+		sts = dispatch->version.three.text(ident, type, &buffer, pmda);
+	    else
+		sts = dispatch->version.two.text(ident, type, &buffer, pmda);
 	}
 	if (sts < 0)
 	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
@@ -231,7 +252,10 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 #endif
 
 	if ((sts = __pmDecodeResult(pb, PDU_BINARY, &result)) >= 0) {
-	    sts = dispatch->version.two.store(result, pmda);
+	    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
+		sts = dispatch->version.three.store(result, pmda);
+	    else
+		sts = dispatch->version.two.store(result, pmda);
 	}
 	__pmSendError(pmda->e_outfd, PDU_BINARY, sts);
 	pmFreeResult(result);
@@ -291,7 +315,9 @@ pmdaMain(pmdaInterface *dispatch)
 void
 pmdaSetResultCallBack(pmdaInterface *dispatch, pmdaResultCallBack callback)
 {
-    if (HAVE_V_TWO(dispatch->comm.pmda_interface))
+    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
+	dispatch->version.three.ext->e_resultCallBack = callback;
+    else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
 	dispatch->version.two.ext->e_resultCallBack = callback;
     else {
 	__pmNotifyErr(LOG_CRIT, "Unable to set result callback for PMDA interface version %d.",
@@ -303,7 +329,9 @@ pmdaSetResultCallBack(pmdaInterface *dispatch, pmdaResultCallBack callback)
 void
 pmdaSetFetchCallBack(pmdaInterface *dispatch, pmdaFetchCallBack callback)
 {
-    if (HAVE_V_TWO(dispatch->comm.pmda_interface))
+    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
+	dispatch->version.three.ext->e_fetchCallBack = callback;
+    else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
 	dispatch->version.two.ext->e_fetchCallBack = callback;
     else {
 	__pmNotifyErr(LOG_CRIT, "Unable to set fetch callback for PMDA interface version %d.",
@@ -315,7 +343,9 @@ pmdaSetFetchCallBack(pmdaInterface *dispatch, pmdaFetchCallBack callback)
 void
 pmdaSetCheckCallBack(pmdaInterface *dispatch, pmdaCheckCallBack callback)
 {
-    if (HAVE_V_TWO(dispatch->comm.pmda_interface))
+    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
+	dispatch->version.three.ext->e_checkCallBack = callback;
+    else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
 	dispatch->version.two.ext->e_checkCallBack = callback;
     else {
 	__pmNotifyErr(LOG_CRIT, "Unable to set check callback for PMDA interface version %d.",
@@ -327,7 +357,9 @@ pmdaSetCheckCallBack(pmdaInterface *dispatch, pmdaCheckCallBack callback)
 void
 pmdaSetDoneCallBack(pmdaInterface *dispatch, pmdaDoneCallBack callback)
 {
-    if (HAVE_V_TWO(dispatch->comm.pmda_interface))
+    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
+	dispatch->version.three.ext->e_doneCallBack = callback;
+    else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
 	dispatch->version.two.ext->e_doneCallBack = callback;
     else {
 	__pmNotifyErr(LOG_CRIT, "Unable to set done callback for PMDA interface version %d.",

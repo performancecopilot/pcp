@@ -192,9 +192,9 @@ typedef struct {
 	    int	    (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
 	    int	    (*store)(pmResult *, pmdaExt *);
-	    int     (*pmns_pmid)(char *, pmID *);
-	    int     (*pmns_name)(pmID, char **);
-	    int     (*pmns_children)(char *, char ***, int **);
+	    int     (*pmid)(char *, pmID *, pmdaExt *);
+	    int     (*name)(pmID, char ***, pmdaExt *);
+	    int     (*children)(char *, char ***, int **, pmdaExt *);
 	} three;
 
     } version;
@@ -319,6 +319,17 @@ extern void pmdaSetDoneCallBack(pmdaInterface *, pmdaDoneCallBack);
  *
  * pmdaStore
  *	Store a value into a metric. This is a no-op.
+ *
+ * pmdaPMID
+ *	Return the PMID for a named dynamic metric.
+ *
+ * pmdaName
+ *	Return the name of alll matching dynamic metrics, given a PMID.
+ *
+ * pmdaChildren
+ *	Return the names of all the descendent children and their
+ *	status, given a named metric in a dynamic subtree of the PMNS.
+ *
  */
 
 extern int pmdaProfile(__pmProfile *, pmdaExt *);
@@ -327,6 +338,9 @@ extern int pmdaInstance(pmInDom, int, char *, __pmInResult **, pmdaExt *);
 extern int pmdaDesc(pmID, pmDesc *, pmdaExt *);
 extern int pmdaText(int, int, char **, pmdaExt *);
 extern int pmdaStore(pmResult *, pmdaExt *);
+extern int pmdaPMID(char *, pmID *, pmdaExt *);
+extern int pmdaName(pmID, char ***, pmdaExt *);
+extern int pmdaChildren(char *, char ***, int **, pmdaExt *);
 
 /*
  * PMDA "help" text manipulation

@@ -401,10 +401,10 @@ dostatus(void)
             printf("%s\n", pmnsfile);
     }
 
-    if (pmdaName == NULL || connmode == PDU_NOT)
+    if (myPmdaName == NULL || connmode == PDU_NOT)
 	printf("PMDA:                   none\n");
     else {
-	printf("PMDA:                   %s\n", pmdaName);
+	printf("PMDA:                   %s\n", myPmdaName);
 	printf("Connection:             ");
 	switch (connmode) {
 	case PDU_DSO:

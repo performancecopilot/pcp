@@ -100,26 +100,40 @@ typedef struct {
     int status;         /* return initialization status here */
 
     union {
-	struct {                              /* PMDA_INTERFACE_1 */
-	    int (*profile)(__pmProfile *);
-	    int (*fetch)(int, pmID *, pmResult **);
-	    int (*desc)(pmID, pmDesc *);
-	    int (*instance)(pmInDom, int, char *, __pmInResult **);
-	    int (*text)(int, int, char **);
-	    int (*control)(pmResult *, int, int, int);
-	    int (*store)(pmResult *);
-	} one;
+        struct {                              /* PMDA_INTERFACE_1 */
+            int (*profile)(__pmProfile *);
+            int (*fetch)(int, pmID *, pmResult **);
+            int (*desc)(pmID, pmDesc *);
+            int (*instance)(pmInDom, int, char *, __pmInResult **);
+            int (*text)(int, int, char **);
+            int (*control)(pmResult *, int, int, int);
+            int (*store)(pmResult *);
+        } one;
 
-	struct {                              /* PMDA_INTERFACE_2 or later */
-	    pmdaExt *e_ext;
-	    int (*profile)(__pmProfile *, pmdaExt *);
-	    int (*fetch)(int, pmID *, pmResult **, pmdaExt *);
-	    int (*desc)(pmID, pmDesc *, pmdaExt *);
-	    int (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
-	    int (*text)(int, int, char **, pmdaExt *);
-	    int (*store)(pmResult *, pmdaExt *);
-	} two;
+        struct {                              /* PMDA_INTERFACE_2 or _3 */
+            pmdaExt *e_ext;
+            int (*profile)(__pmProfile *, pmdaExt *);
+            int (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+            int (*desc)(pmID, pmDesc *, pmdaExt *);
+            int (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
+            int (*text)(int, int, char **, pmdaExt *);
+            int (*store)(pmResult *, pmdaExt *);
+        } two;
+
+        struct {                              /* PMDA_INTERFACE_4 */
+            pmdaExt *ext;
+            int     (*profile)(__pmProfile *, pmdaExt *);
+            int     (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+            int     (*desc)(pmID, pmDesc *, pmdaExt *);
+            int     (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
+            int     (*text)(int, int, char **, pmdaExt *);
+            int     (*store)(pmResult *, pmdaExt *);
+            int     (*pmid)(char *, pmID *);
+            int     (*name)(pmID, char **);
+            int     (*children)(char *, char ***, int **);
+        } three;
     } version;
+
 } pmdaInterface;
 .fi
 .PP
@@ -137,12 +151,22 @@ will force
 .B pmdaMain
 to use the callbacks in the
 .I version.one
-structure.  A setting of
+structure.
+A setting of
 .B PMDA_INTERFACE_2
-or later will force
+or
+.B PMDA_INTERFACE_3
+will force 
 .B pmdaMain
 to use the callbacks in the
 .I version.two
+structure.
+A setting of
+.B PMDA_INTERFACE_4
+will force 
+.B pmdaMain
+to use the callbacks in the
+.I version.three
 structure.  Any other value will result in an error and termination of
 .BR pmdaMain .
 .PP

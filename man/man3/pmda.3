@@ -612,9 +612,18 @@ field of the
 structure be set to
 .B PMDA_INTERFACE_2
 or later.
-This implies that the 
+.B PMDA_INTERFACE_2
+or
+.B PMDA_INTERFACE_3
+implies that the 
 .I version.two
-fields are correctly initialized (see
+fields are correctly initialized,
+while
+.B PMDA_INTERFACE_4
+implies that the 
+.I version.three
+fields are correctly initialized
+(see
 .BR pmdaDaemon (3)
 and
 .BR pmdaDSO (3)).

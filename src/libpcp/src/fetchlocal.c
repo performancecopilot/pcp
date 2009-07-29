@@ -109,11 +109,15 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 			    "__pmFetchLocal: calling ???_profile(domain: %d), "
 			    "context: %d\n", dp->domain, ctx);
 #endif
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		    sts = dp->dispatch.version.one.profile(ctxp->c_instprof);
-		else
+		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		    sts = dp->dispatch.version.three.profile(ctxp->c_instprof,
+							   dp->dispatch.version.three.ext);
+		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    sts = dp->dispatch.version.two.profile(ctxp->c_instprof,
 							   dp->dispatch.version.two.ext);
+		else
+		    sts = dp->dispatch.version.one.profile(ctxp->c_instprof);
 		if (sts >= 0)
 		    ctxp->c_sent = dp->domain;
 	    }
@@ -128,11 +132,15 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 	}
 
 	if (sts >= 0) {
-	    if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		sts = dp->dispatch.version.one.fetch(cnt, splitlist, &tmp_ans);
-	    else
+	    if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		sts = dp->dispatch.version.three.fetch(cnt, splitlist, &tmp_ans,
+						     dp->dispatch.version.three.ext);
+	    else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+		     dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		sts = dp->dispatch.version.two.fetch(cnt, splitlist, &tmp_ans,
 						     dp->dispatch.version.two.ext);
+	    else
+		sts = dp->dispatch.version.one.fetch(cnt, splitlist, &tmp_ans);
 	}
 
 	/* Copy results back

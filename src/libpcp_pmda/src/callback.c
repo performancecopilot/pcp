@@ -553,12 +553,13 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		/*
 		 * PMDA_INTERFACE_2
 		 *	>= 0 => OK
-		 * PMDA_INTERFACE_3
+		 * PMDA_INTERFACE_3 or PMDA_INTERFACE_4
 		 *	== 0 => no values
 		 *	> 0  => OK
 		 */
 		if (extp->pmda_interface == PMDA_INTERFACE_2 ||
-		    (extp->pmda_interface == PMDA_INTERFACE_3 && sts > 0)) {
+		    (extp->pmda_interface == PMDA_INTERFACE_3 && sts > 0) ||
+		    (extp->pmda_interface == PMDA_INTERFACE_4 && sts > 0)) {
 
 		    if ((sts = __pmStuffValue(&atom, 0, &vset->vlist[j], 
 					     type)) == PM_ERR_GENERIC) {
@@ -664,4 +665,22 @@ int
 pmdaStore(pmResult *result, pmdaExt *pmda)
 {
     return -EACCES;
+}
+
+int
+pmdaPMID(char *name, pmID *pmid, pmdaExt *pmda)
+{
+    return PM_ERR_NYI;
+}
+
+int
+pmdaName(pmID pmid, char ***name, pmdaExt *pmda)
+{
+    return PM_ERR_NYI;
+}
+
+int
+pmdaChildren(char *name, char ***offspring, int **status, pmdaExt *pmda)
+{
+    return PM_ERR_NYI;
 }

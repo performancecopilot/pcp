@@ -1738,7 +1738,10 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
         __pmnsNode	*np;
 
 	for (i = 0; i < numpmid; i++) {
-            /* if we locate it and its a leaf */
+            /*
+	     * if we locate the name and it is a leaf in the PMNS
+	     * this is good
+	     */
 	    if ((np = locate(namelist[i], curr_pmns->root)) != NULL ) {
                if (np->first == NULL)
 		  pmidlist[i] = np->pmid;
@@ -1748,8 +1751,28 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
                }
             }
 	    else {
-		sts = PM_ERR_NAME;
-		pmidlist[i] = PM_ID_NULL;
+		/*
+		 * did not match name ... return PM_ERR_NAME, unless name
+		 * prefix matches a name that is the root of a dynamic
+		 * subtree of the PMNS
+		 */
+		char	*p;
+		for (p = namelist[i]; *p; p++) {
+		    if (*p == '.') {
+			*p = '\0';
+			np = locate(namelist[i], curr_pmns->root);
+			*p = '.';
+			if (np != NULL && np->first == NULL &&
+			   ((__pmID_int *)&np->pmid)->domain == DYNAMIC_PMID) {
+			  pmidlist[i] = np->pmid;
+			  break;
+			}
+		    }
+		}
+		if (*p == '\0') {
+		    sts = PM_ERR_NAME;
+		    pmidlist[i] = PM_ID_NULL;
+		}
 	    }
 	}
 
@@ -2137,8 +2160,11 @@ pmNameID(pmID pmid, char **name)
     else if (pmns_location == PMNS_LOCAL) {
     	__pmnsNode	*np;
 	for (np = curr_pmns->htab[pmid % curr_pmns->htabsize]; np != NULL; np = np->hash) {
-	    if (np->pmid == pmid)
-		return backname(np, name);
+	    if (np->pmid == pmid) {
+		if (((__pmID_int *)&np->pmid)->domain != DYNAMIC_PMID)
+		    return backname(np, name);
+		return PM_ERR_PMID;
+	    }
 	}
     	return PM_ERR_PMID;
     }

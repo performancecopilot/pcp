@@ -122,15 +122,21 @@ pmLookupInDom(pmInDom indom, const char *name)
 		n = PM_ERR_NOAGENT;
 	    else {
 		/* We can safely cast away const here */
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		    n = dp->dispatch.version.one.instance(indom, PM_IN_NULL, 
+		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		    n = dp->dispatch.version.three.instance(indom, PM_IN_NULL, 
 							  (char *)name, 
-							  &result);
-		else
+							  &result, 
+							  dp->dispatch.version.three.ext);
+		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    n = dp->dispatch.version.two.instance(indom, PM_IN_NULL, 
 							  (char *)name, 
 							  &result, 
 							  dp->dispatch.version.two.ext);
+		else
+		    n = dp->dispatch.version.one.instance(indom, PM_IN_NULL, 
+							  (char *)name, 
+							  &result);
 		if (n < 0 && dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		    n = XLATE_ERR_1TO2(n);
 	    }
@@ -215,10 +221,13 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 	    if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		    n = dp->dispatch.version.one.instance(indom, inst, NULL, &result);
-		else
+		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		    n = dp->dispatch.version.three.instance(indom, inst, NULL, &result, dp->dispatch.version.three.ext);
+		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    n = dp->dispatch.version.two.instance(indom, inst, NULL, &result, dp->dispatch.version.two.ext);
+		else
+		    n = dp->dispatch.version.one.instance(indom, inst, NULL, &result);
 		if (n < 0 &&
 		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 			n = XLATE_ERR_1TO2(n);
@@ -357,13 +366,18 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 	    if ((dp = __pmLookupDSO(((__pmInDom_int *)&indom)->domain)) == NULL)
 		n = PM_ERR_NOAGENT;
 	    else {
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		    n = dp->dispatch.version.one.instance(indom, PM_IN_NULL, NULL,
-					      &result);
-		else
+		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		    n = dp->dispatch.version.three.instance(indom, PM_IN_NULL, NULL,
+					       &result,
+					       dp->dispatch.version.three.ext);
+		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    n = dp->dispatch.version.two.instance(indom, PM_IN_NULL, NULL,
 					       &result,
 					       dp->dispatch.version.two.ext);
+		else
+		    n = dp->dispatch.version.one.instance(indom, PM_IN_NULL, NULL,
+					      &result);
 		if (n < 0 &&
 		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 			n = XLATE_ERR_1TO2(n);

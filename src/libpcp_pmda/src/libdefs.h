@@ -20,6 +20,7 @@
 #define LIBDEFS_H
 
 #define HAVE_V_TWO(interface) (interface == PMDA_INTERFACE_2 || interface == PMDA_INTERFACE_3)
+#define HAVE_V_THREE(interface) (interface == PMDA_INTERFACE_4)
 
 /*
  * Auxilliary structure used to save data from pmdaDSO or pmdaDaemon and

@@ -161,11 +161,15 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	/* If it's in a "good" list, pmID has agent that is connected */
 
 	if (ap->ipcType == AGENT_DSO) {
-	    if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		s = ap->ipc.dso.dispatch.version.one.store(dResult[i]);
-	    else
+	    if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		s = ap->ipc.dso.dispatch.version.three.store(dResult[i],
+				       ap->ipc.dso.dispatch.version.three.ext);
+	    else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+	        ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
 		s = ap->ipc.dso.dispatch.version.two.store(dResult[i],
 				       ap->ipc.dso.dispatch.version.two.ext);
+	    else
+		s = ap->ipc.dso.dispatch.version.one.store(dResult[i]);
 	    if (s < 0 &&
 		ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		    s = XLATE_ERR_1TO2(s);

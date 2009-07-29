@@ -33,7 +33,7 @@ static __pmTimeval	now = { 0, 0 };
 
 int			infd;
 int			outfd;
-char			*pmdaName = 0;
+char			*myPmdaName = 0;
 
 extern int		_creds_timeout;
 
@@ -123,7 +123,7 @@ pmdaversion(void)
     if (sts == PDU_CREDS) {
 	if ((sts = agent_creds(ack)) < 0) {
 	    fprintf(stderr, "Warning: version exchange failed "
-		"for PMDA %s: %s\n", pmdaName, pmErrStr(sts));
+		"for PMDA %s: %s\n", myPmdaName, pmErrStr(sts));
 	    return;
 	}
     }
@@ -131,7 +131,7 @@ pmdaversion(void)
 	if (sts < 0)
 	    fprintf(stderr, "__pmGetPDU(%d): %s\n", infd, pmErrStr(sts));
 	fprintf(stderr, "Warning: no version exchange with PMDA %s: "
-			"assuming PCP 1.x PMDA.\n", pmdaName);
+			"assuming PCP 1.x PMDA.\n", myPmdaName);
 	__pmSetVersionIPC(infd, PDU_VERSION1);
 	__pmSetVersionIPC(outfd, PDU_VERSION1);
     }
@@ -163,9 +163,9 @@ openpmda(char *fname)
     else {
 	connmode = PDU_BINARY;
 	reset_profile();
-	if (pmdaName != NULL)
-	    free(pmdaName);
-	pmdaName = strdup(fname);
+	if (myPmdaName != NULL)
+	    free(myPmdaName);
+	myPmdaName = strdup(fname);
 	pmdaversion();
     }
 }
@@ -178,9 +178,9 @@ closepmda(void)
 	close(infd);
 	__pmResetIPC(infd);
 	connmode = PDU_NOT;
-	if (pmdaName != NULL) {
-	    free(pmdaName);
-	    pmdaName = NULL;
+	if (myPmdaName != NULL) {
+	    free(myPmdaName);
+	    myPmdaName = NULL;
 	}
     }
 }
