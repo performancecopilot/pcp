@@ -61,6 +61,7 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
     my.tab = chartTab;
     my.title = NULL;
     my.autoScale = true;
+    my.rateConvert = true;
     my.antiAliasing = true;
     my.style = NoStyle;
     my.scheme = QString::null;
@@ -191,7 +192,8 @@ void Chart::updateValues(bool forward, bool visible)
 	    // convert raw value to current chart scale
 	    pmAtomValue	raw;
 	    pmAtomValue	scaled;
-	    raw.d = plot->metric->value(0);
+	    raw.d = my.rateConvert ?
+			plot->metric->value(0) : plot->metric->currentValue(0);
 	    pmConvScale(PM_TYPE_DOUBLE, &raw, &plot->units, &scaled, &my.units);
 	    value = scaled.d * plot->scale;
 	}
@@ -292,7 +294,9 @@ void Chart::updateValues(bool forward, bool visible)
 #if DESPERATE
     for (m = 0; m < my.plots.size(); m++)
 	console->post(PmChart::DebugForce, "metric[%d] value %f plot %f", m,
-		my.plots[m]->metric->value(0), my.plots[m]->plotData[0]);
+		my.plots[m]->metric->value(0), my.rateConvert ?
+			plot->metric->value(0) : plot->metric->currentValue(0),
+		my.plots[m]->plotData[0]);
 #endif
 
     if (visible) {
@@ -539,13 +543,13 @@ int Chart::addPlot(pmMetricSpec *pmsp, const char *legend)
     if (mp->status() < 0)
 	return mp->status();
     desc = mp->desc().desc();
-    if (desc.sem == PM_SEM_COUNTER) {
+    if (my.rateConvert && desc.sem == PM_SEM_COUNTER) {
 	if (desc.units.dimTime == 0) {
 	    desc.units.dimTime = -1;
 	    desc.units.scaleTime = PM_TIME_SEC;
 	}
 	else if (desc.units.dimTime == 1) {
-	    desc.units.dimTime = 0 ;
+	    desc.units.dimTime = 0;
 	    // don't play with scaleTime, need native per plot scaleTime
 	    // so we can apply correct scaling via plot->scale, e.g. in
 	    // the msec -> msec/sec after rate conversion ... see the
@@ -991,6 +995,16 @@ void Chart::setScale(bool autoScale, double yMin, double yMax)
 	setAxisScale(QwtPlot::yLeft, yMin, yMax);
     replot();
     redoScale();
+}
+
+bool Chart::rateConvert()
+{
+    return my.rateConvert;
+}
+
+void Chart::setRateConvert(bool rateConvert)
+{
+    my.rateConvert = rateConvert;
 }
 
 void Chart::setYAxisTitle(const char *p)

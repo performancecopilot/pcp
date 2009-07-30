@@ -121,10 +121,6 @@ void PmChart::setupDialogs(void)
 				this, SLOT(acceptEditTab()));
     connect(my.samples->buttonOk, SIGNAL(clicked()),
 				this, SLOT(acceptEditSamples()));
-    connect(my.newchart->buttonOk, SIGNAL(clicked()),
-				this, SLOT(acceptNewChart()));
-    connect(my.editchart->buttonOk, SIGNAL(clicked()),
-				this, SLOT(acceptEditChart()));
     connect(my.exporter->buttonOk, SIGNAL(clicked()),
 				this, SLOT(acceptExport()));
     my.dialogsSetup = true;
@@ -200,7 +196,7 @@ void PmChart::updateBackground(void)
 
 int PmChart::defaultFontSize()
 {
-#ifdef IS_DARWIN
+#if defined(IS_DARWIN) || defined(IS_MINGW)
     return 9;
 #else
     return 7;
@@ -212,6 +208,10 @@ void PmChart::updateHeight(int adjustment)
     QSize newSize = size();
     int ideal = newSize.height() + adjustment;	// may be negative
     int sized = QApplication::desktop()->availableGeometry().height();
+
+    console->post(PmChart::DebugUi,
+	"upateHeight() oldsize h=%d,w=%d maximum=%d proposed=%d",
+	newSize.height(), newSize.width(), sized, ideal);
 
     if (ideal > sized)
 	ideal = sized;
@@ -513,6 +513,11 @@ void PmChart::createNewChart(Chart::Style style)
     my.newchart->show();
 }
 
+//
+// Note: Called from both Accept and OK on New Chart dialog
+// Must only called when the changes are definately going to
+// be applied, so all input validation must be done by now.
+//
 void PmChart::acceptNewChart()
 {
     bool yAutoScale;
@@ -529,6 +534,7 @@ void PmChart::acceptNewChart()
 	cp->changeTitle(newTitle, true);
     cp->setLegendVisible(my.newchart->legend());
     cp->setAntiAliasing(my.newchart->antiAliasing());
+    cp->setRateConvert(my.newchart->rateConvert());
     if (my.newchart->setupChartPlotsShortcut(cp) == false)
 	my.newchart->setupChartPlots(cp);
     my.newchart->scale(&yAutoScale, &yMin, &yMax);
@@ -538,10 +544,6 @@ void PmChart::acceptNewChart()
 
     activeGroup->setupWorldView();
     activeTab()->showGadgets();
-
-    // TODO: teardown TreeViews and free up memory (both?  chartList only?)
-    // TODO: might be an idea to keep available once its built, to optimise
-    // subsequent accesses to the metric selection process...
 
     enableUi();
 }
@@ -567,6 +569,7 @@ void PmChart::editChart()
     my.editchart->antiAliasingAuto->setChecked(false);
     cp->scale(&yAutoScale, &yMin, &yMax);
     my.editchart->setScale(yAutoScale, yMin, yMax);
+    my.editchart->setRateConvert(cp->rateConvert());
     my.editchart->setScheme(cp->scheme(), cp->sequence());
     my.editchart->show();
 }
@@ -584,6 +587,7 @@ void PmChart::acceptEditChart()
 	cp->changeTitle(editTitle, true);
     cp->setLegendVisible(my.editchart->legend());
     cp->setAntiAliasing(my.editchart->antiAliasing());
+    cp->setRateConvert(my.editchart->rateConvert());
     my.editchart->scale(&yAutoScale, &yMin, &yMax);
     cp->setScale(yAutoScale, yMin, yMax);
     my.editchart->setupChartPlots(cp);
@@ -595,14 +599,6 @@ void PmChart::acceptEditChart()
     }
     else
 	activeTab()->deleteGadget(cp);
-
-    // TODO: need a flag on "cp" that says "currently being edited" so
-    // the Chart Delete menu option doesn't shoot it down before we're
-    // done here.  Both Cancel and OK will need to clear that flag.
-
-    // TODO: teardown TreeViews and free up memory (both?  chartList only?)
-    // TODO: might be an idea to keep available once its built, to optimise
-    // subsequent accesses to the metric selection process...
 
     enableUi();
 }

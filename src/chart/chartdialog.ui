@@ -695,6 +695,16 @@
               </item>
              </layout>
             </item>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="rateConvertCheckBox" >
+              <property name="text" >
+               <string>Rate convert counter metrics</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -929,6 +939,12 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize" >
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
            <property name="maximumSize" >
             <size>
              <width>32</width>
@@ -975,6 +991,12 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize" >
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
            <property name="maximumSize" >
             <size>
              <width>32</width>
@@ -1017,6 +1039,12 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="minimumSize" >
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
            </property>
            <property name="maximumSize" >
             <size>
@@ -1755,6 +1783,32 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="buttonApply" >
+       <property name="text" >
+        <string>&amp;Apply</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="autoDefault" >
+        <bool>true</bool>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QPushButton" name="buttonOk" >
        <property name="text" >
         <string>&amp;OK</string>
@@ -1823,6 +1877,22 @@
   <include location="pmchart.qrc" />
  </resources>
  <connections>
+  <connection>
+   <sender>buttonApply</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>buttonApply_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
   <connection>
    <sender>buttonOk</sender>
    <signal>clicked()</signal>
@@ -2036,6 +2106,22 @@
    <signal>valueChanged(double)</signal>
    <receiver>ChartDialog</receiver>
    <slot>yAxisMaximumValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rateConvertCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>ChartDialog</receiver>
+   <slot>rateConvertClicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>

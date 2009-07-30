@@ -70,6 +70,8 @@ public:
 			// return autoscale state and fixed scale parameters
     void setScale(bool, double, double);
 			// set autoscale state and fixed scale parameters
+    bool rateConvert();
+    void setRateConvert(bool);
     void setYAxisTitle(const char *);
     bool legendVisible();
     void setLegendVisible(bool);
@@ -146,6 +148,7 @@ private:
 	QString scheme;
 	int sequence;
 	bool autoScale;
+	bool rateConvert;
 	bool antiAliasing;
 	double yMin;
 	double yMax;

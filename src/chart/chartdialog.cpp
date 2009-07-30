@@ -79,11 +79,15 @@ void ChartDialog::reset(Chart *chart, int style, QString scheme)
 	setWindowTitle(tr("New Chart"));
 	tabWidget->setCurrentIndex(1);
 	chartMetricsTreeWidget->clear();
+	rateConvertCheckBox->setChecked(true);
+	rateConvertCheckBox->setEnabled(true);
     }
     else {
 	setWindowTitle(tr("Edit Chart"));
 	tabWidget->setCurrentIndex(0);
 	setupChartMetricsTree();
+	rateConvertCheckBox->setChecked(chart->rateConvert());
+	rateConvertCheckBox->setEnabled(false);
     }
     if ((my.archiveSource = pmchart->isArchiveTab()) == true) {
 	sourceButton->setToolTip(tr("Add archives"));
@@ -147,13 +151,14 @@ void ChartDialog::enableUi()
     }
 }
 
-void ChartDialog::buttonOk_clicked()
+//
+// Verify user input and don't dismiss dialog (OK) if problems found.
+// Needs to handle many cases: New Chart (!my.chart) and Edit Chart,
+// as well as Apply and OK.
+//
+bool ChartDialog::validate(QString &message, int &index)
 {
-    // Verify user input and don't dismiss the dialog if problems found.
-    // Needs to handle both cases: New Chart (!my.chart) and Edit Chart.
-    bool validInput = true;
-    QString message;
-    int index = 0;
+    bool validInput;
 
     // Check some plots have been selected.
     if (!my.chart && chartMetricsTreeWidget->topLevelItemCount() == 0 &&
@@ -179,9 +184,44 @@ void ChartDialog::buttonOk_clicked()
 	validInput = false;
 	index = 1;
     }
+    else {
+	validInput = true;
+	index = 0;
+    }
+    return validInput;
+}
 
-    if (validInput)
+void ChartDialog::buttonOk_clicked()
+{
+    QString message;
+    int index;
+
+    if (validate(message, index)) {
+	if (my.chart)
+	    pmchart->acceptEditChart();
+	else
+	    pmchart->acceptNewChart();
 	QDialog::accept();
+    } else {
+	tabWidget->setCurrentIndex(index);
+	QMessageBox::warning(this, pmProgname, message,
+		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
+		    Qt::NoButton, Qt::NoButton);
+    }
+}
+
+void ChartDialog::buttonApply_clicked()
+{
+    QString message;
+    int index;
+
+    if (validate(message, index)) {
+	if (my.chart)
+	    pmchart->acceptEditChart();
+	else
+	    pmchart->acceptNewChart();
+	reset(my.chart, typeComboBox->currentIndex(), my.scheme);
+    }
     else {
 	tabWidget->setCurrentIndex(index);
 	QMessageBox::warning(this, pmProgname, message,
@@ -457,6 +497,21 @@ void ChartDialog::yAxisMinimumValueChanged(double value)
 void ChartDialog::yAxisMaximumValueChanged(double value)
 {
     my.yMax = value;
+}
+
+void ChartDialog::rateConvertClicked()
+{
+    my.rateConvert = rateConvertCheckBox->isChecked();
+}
+
+bool ChartDialog::rateConvert()
+{
+    return my.rateConvert;
+}
+
+void ChartDialog::setRateConvert(bool rateConvert)
+{
+    my.rateConvert = rateConvert;
 }
 
 // Sets all widgets to display h,s,v

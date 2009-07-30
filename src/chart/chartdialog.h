@@ -32,6 +32,8 @@ public:
     virtual bool antiAliasing(void);
     virtual void scale(bool *, double *, double *);
     virtual void setScale(bool, double, double);
+    virtual bool rateConvert();
+    virtual void setRateConvert(bool);
     virtual void scheme(QString *, int *);
     virtual void setScheme(QString, int);
     virtual void setHsv(int h, int s, int v);
@@ -52,6 +54,7 @@ public:
 
 public slots:
     virtual void buttonOk_clicked();
+    virtual void buttonApply_clicked();
     virtual void chartMetricsItemSelectionChanged();
     virtual void availableMetricsItemSelectionChanged();
     virtual void availableMetricsItemExpanded(QTreeWidgetItem *);
@@ -69,6 +72,7 @@ public slots:
     virtual void antiAliasingOffClicked();
     virtual void autoScaleOnClicked();
     virtual void autoScaleOffClicked();
+    virtual void rateConvertClicked();
     virtual void antiAliasingAutoClicked();
     virtual void yAxisMinimumValueChanged(double);
     virtual void yAxisMaximumValueChanged(double);
@@ -102,6 +106,7 @@ private:
 	double yMin;
 	double yMax;
 	Chart *chart;
+	bool rateConvert;
 	int sequence;
 	QString scheme;
 
@@ -110,6 +115,8 @@ private:
 	int val;
 	QRgb currentColor;
     } my;
+
+    bool validate(QString &, int &);
 };
 
 #endif	// CHARTDIALOG_H
