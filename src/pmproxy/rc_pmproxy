@@ -19,7 +19,7 @@
 # Start or Stop the Performance Co-Pilot (PCP) proxy daemon for pmcd
 #
 # The following is for chkconfig on RedHat based systems
-# chkconfig: 2345 95 05
+# chkconfig: - 95 05
 # description: Control pmproxy for PCP
 #
 # The following is for insserv(1) based systems,
@@ -28,7 +28,7 @@
 # Provides:       pmproxy
 # Required-Start: $network $local_fs
 # Required-Stop:
-# Default-Start:  2 3 5
+# Default-Start:
 # Default-Stop:
 # Short-Description:   Control the pmproxy daemon
 # Description:    Control the Performance Co-Pilot protocol proxy daemon
