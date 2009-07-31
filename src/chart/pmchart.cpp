@@ -196,8 +196,10 @@ void PmChart::updateBackground(void)
 
 int PmChart::defaultFontSize()
 {
-#if defined(IS_DARWIN) || defined(IS_MINGW)
+#if defined(IS_DARWIN)
     return 9;
+#elif defined(IS_MINGW)
+    return 8;
 #else
     return 7;
 #endif
