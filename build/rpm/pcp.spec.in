@@ -298,9 +298,6 @@ if [ -f /etc/pcp.env -a -f /etc/pcp.conf ] ; then
 	    rm -f $f
 	fi
     done
-
-    x=$PCP_SHARE_DIR/lib/.migrate_pcp_var_dir
-    [ -x $x ] && $x
 fi
 exit 0
 
