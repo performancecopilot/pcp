@@ -70,25 +70,60 @@ void ChartDialog::init()
 	SIGNAL(newCol(QRgb)), this, SLOT(newColorTypedIn(QRgb)));
 }
 
-void ChartDialog::reset(Chart *chart, int style, QString scheme)
+void ChartDialog::reset()
 {
+    my.chart = NULL;
+
+    setWindowTitle(tr("New Chart"));
+    tabWidget->setCurrentIndex(1);
+    chartMetricsTreeWidget->clear();
+    titleLineEdit->setText(tr(""));
+    typeComboBox->setCurrentIndex((int)Chart::LineStyle - 1);
+    legendOn->setChecked(true);
+    legendOff->setChecked(false);
+    antiAliasingOn->setChecked(false);
+    antiAliasingOff->setChecked(false);
+    antiAliasingAuto->setChecked(true);
+    rateConvertCheckBox->setChecked(true);
+    rateConvertCheckBox->setEnabled(true);
+    setCurrentScheme(QString::null);
     my.sequence = 0;
-    my.scheme = scheme;
-    my.chart = chart;
-    if (!chart) {
-	setWindowTitle(tr("New Chart"));
-	tabWidget->setCurrentIndex(1);
-	chartMetricsTreeWidget->clear();
-	rateConvertCheckBox->setChecked(true);
-	rateConvertCheckBox->setEnabled(true);
-    }
-    else {
-	setWindowTitle(tr("Edit Chart"));
-	tabWidget->setCurrentIndex(0);
-	setupChartMetricsTree();
-	rateConvertCheckBox->setChecked(chart->rateConvert());
-	rateConvertCheckBox->setEnabled(false);
-    }
+
+    resetCommon();
+}
+
+void ChartDialog::reset(Chart *cp)
+{
+    bool yAutoScale;
+    double yMin, yMax;
+
+    my.chart = cp;
+
+    setWindowTitle(tr("Edit Chart"));
+    tabWidget->setCurrentIndex(0);
+    setupChartMetricsTree();
+    titleLineEdit->setText(cp->title());
+    typeComboBox->setCurrentIndex(cp->style() - 1);
+    legendOn->setChecked(cp->legendVisible());
+    legendOff->setChecked(!cp->legendVisible());
+    antiAliasingOn->setChecked(cp->antiAliasing());
+    antiAliasingOff->setChecked(!cp->antiAliasing());
+    antiAliasingAuto->setChecked(false);
+    rateConvertCheckBox->setChecked(cp->rateConvert());
+    rateConvertCheckBox->setEnabled(false);
+    cp->scale(&yAutoScale, &yMin, &yMax);
+    setScale(yAutoScale, yMin, yMax);
+    setScheme(cp->scheme(), cp->sequence());
+    setupSchemeComboBox();
+
+    resetCommon();
+}
+
+//
+// Code paths common to both Create/Edit dialog uses
+//
+void ChartDialog::resetCommon()
+{
     if ((my.archiveSource = pmchart->isArchiveTab()) == true) {
 	sourceButton->setToolTip(tr("Add archives"));
 	sourceButton->setIcon(QIcon(":/archive.png"));
@@ -97,18 +132,9 @@ void ChartDialog::reset(Chart *chart, int style, QString scheme)
 	sourceButton->setToolTip(tr("Add a host"));
 	sourceButton->setIcon(QIcon(":/computer.png"));
     }
-    titleLineEdit->setText(tr(""));
-    typeComboBox->setCurrentIndex(style);
-    setupSchemeComboBox();
-    legendOn->setChecked(true);
-    legendOff->setChecked(false);
-    antiAliasingOn->setChecked(false);
-    antiAliasingOff->setChecked(false);
-    antiAliasingAuto->setChecked(true);
     setupAvailableMetricsTree(my.archiveSource == true);
     my.yMin = yAxisMinimum->value();
     my.yMax = yAxisMaximum->value();
-
     my.chartTreeSelected = false;
     my.availableTreeSelected = false;
     my.chartTreeSingleSelected = NULL;
@@ -216,11 +242,14 @@ void ChartDialog::buttonApply_clicked()
     int index;
 
     if (validate(message, index)) {
-	if (my.chart)
+	if (my.chart) {
 	    pmchart->acceptEditChart();
-	else
+	    reset(my.chart);
+	}
+	else {
 	    pmchart->acceptNewChart();
-	reset(my.chart, typeComboBox->currentIndex(), my.scheme);
+	    reset();
+	}
     }
     else {
 	tabWidget->setCurrentIndex(index);

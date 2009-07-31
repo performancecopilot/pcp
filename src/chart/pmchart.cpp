@@ -506,10 +506,10 @@ void PmChart::optionsNewPmchart()
     buddy->start("pmchart", arguments);
 }
 
-void PmChart::createNewChart(Chart::Style style)
+void PmChart::createNewChart()
 {
     setupDialogs();
-    my.newchart->reset(NULL, (int)style - 1, QString::null);
+    my.newchart->reset();
     my.newchart->show();
 }
 
@@ -550,27 +550,15 @@ void PmChart::acceptNewChart()
 
 void PmChart::fileNewChart()
 {
-    createNewChart(Chart::LineStyle);
+    createNewChart();
 }
 
 void PmChart::editChart()
 {
-    bool yAutoScale;
-    double yMin, yMax;
     Chart *cp = (Chart *)activeTab()->currentGadget();
 
     setupDialogs();
-    my.editchart->reset(cp, cp->style() - 1, cp->scheme());
-    my.editchart->titleLineEdit->setText(cp->title());
-    my.editchart->legendOn->setChecked(cp->legendVisible());
-    my.editchart->legendOff->setChecked(!cp->legendVisible());
-    my.editchart->antiAliasingOn->setChecked(cp->antiAliasing());
-    my.editchart->antiAliasingOff->setChecked(!cp->antiAliasing());
-    my.editchart->antiAliasingAuto->setChecked(false);
-    cp->scale(&yAutoScale, &yMin, &yMax);
-    my.editchart->setScale(yAutoScale, yMin, yMax);
-    my.editchart->setRateConvert(cp->rateConvert());
-    my.editchart->setScheme(cp->scheme(), cp->sequence());
+    my.editchart->reset(cp);
     my.editchart->show();
 }
 

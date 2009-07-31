@@ -24,7 +24,8 @@ public:
     ChartDialog(QWidget* parent);
 
     virtual void init();
-    virtual void reset(Chart *, int, QString);
+    virtual void reset();
+    virtual void reset(Chart *);
     virtual void enableUi();
     virtual Chart *chart(void);
     virtual QString title(void);
@@ -116,6 +117,7 @@ private:
 	QRgb currentColor;
     } my;
 
+    void resetCommon();
     bool validate(QString &, int &);
 };
 

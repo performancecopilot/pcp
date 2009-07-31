@@ -72,7 +72,7 @@ public:
     virtual void setStyle(char *style);
     virtual void setupAssistant();
     virtual void updateHeight(int);
-    virtual void createNewChart(Chart::Style style);
+    virtual void createNewChart();
     virtual void metricInfo(QString src, QString m, QString inst, bool archive);
     virtual void metricSearch(QTreeWidget *pmns);
     virtual void createNewTab(bool liveMode);
