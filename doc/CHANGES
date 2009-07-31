@@ -1,3 +1,14 @@
+pcp-gui 1.4.4 (31 July 2009)
+    - Fix bug 843 - Confused state of AutoScale and Min/Max fields.
+    - Add an "Apply" button to Create/Edit chart dialogs.
+    - Allow New charts to be non-rate-converted.
+    - Tweaked default font size on Windows
+    - Fixed a bug where pressing OK on New Chart with no selected
+      metrics would popup an error, but continue creating an (empty)
+      new chart anyway.
+    - Fix a longstanding chart alignment problem.
+    - Fix bad right-to-left layout in preferences dialog fields.
+
 pcp-gui 1.4.3 (10 June 2009)
     - Fix use-after-free issue on deleting a chart.
     - Improve temporary file cleanup on Win32.
