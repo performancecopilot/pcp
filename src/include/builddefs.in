@@ -164,6 +164,7 @@ POD2MAN = @pod2man@
 GENDIST	= @gendist@
 DPKG	= @dpkg@
 GENPMDA	= $(TOPDIR)/src/genpmda/genpmda
+PKGMK	= @pkgmk@
 
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@

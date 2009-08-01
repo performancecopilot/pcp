@@ -356,6 +356,13 @@ fi
 mkinstallp=$MKINSTALLP
 AC_SUBST(mkinstallp)
 
+dnl check for pmgmk - Solaris' package maker
+if test -z "$PKGMK"; then
+    AC_PATH_PROG(PKGMK, pkgmk)
+fi
+pkgmk=$PKGMK
+AC_SUBST(pkgmk)
+
 dnl check if the dlltool program is available
 if test -z "$DLLTOOL"; then
     AC_PATH_PROG(DLLTOOL, dlltool)
