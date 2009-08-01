@@ -164,11 +164,11 @@ dnl output header with cpp defs HAVE_*, etc
 AC_CONFIG_HEADER(src/include/platform_defs.h)
 
 dnl check if user wants their own C compiler
-if test -z "$CC"; then
-    AC_PROG_CC
-fi
+AC_PROG_CC
 cc=$CC
 AC_SUBST(cc)
+cc_is_gcc=$GCC
+AC_SUBST(cc_is_gcc)
 
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax

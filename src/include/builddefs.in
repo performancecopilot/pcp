@@ -86,7 +86,13 @@ EXECSUFFIX = .exe
 PLDLIBS = -lwsock32 -L$$PCP_DIR/local/bin -L$$PCP_DIR/local/lib -L$$PCP_DIR/lib
 endif
 ifeq "$(TARGET_OS)" "solaris"
-PCFLAGS = -fPIC -fno-strict-aliasing
+PCFLAGS = -fPIC
+ifeq "@cc_is_gcc@" "yes"
+PCFLAGS += -fno-strict-aliasing
+else
+# Assume that is's the Sun compiler which does not grok -Wall
+WARN_OFF =
+endif
 PLDLAGS = -fPIC
 PLDLIBS = -lnsl -lsocket -lresolv -ldl -lposix4
 DSOSUFFIX = so
