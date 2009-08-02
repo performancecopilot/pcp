@@ -40,7 +40,7 @@ pkginfo : $(_FORCE)
 	@rm -f $@
 	@echo "PKG=$(PACKAGE_NAME)" > $@
 	@echo "NAME=Performance Co-Pilot" >> $@
-	@echo "ARCH=x86" >> $@
+	@echo "ARCH=$(TARGET_CPU)" >> $@
 	@echo "VERSION=$(PACKAGE_VERSION)" >> $@
 	@echo "EMAIL=pcp@oss.sgi.com" >> $@
 	@echo "CATEGORY=application" >> $@
