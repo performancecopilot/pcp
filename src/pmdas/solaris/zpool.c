@@ -1,0 +1,132 @@
+/*
+ * Copyright (C) Max Matveev.  ALL RIGHTS RESERVED 
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ */
+
+#include <libzfs.h>
+
+#include "common.h"
+
+struct zpool_stats {
+    int vdev_stats_fresh;
+    vdev_stat_t vds;
+};
+
+static libzfs_handle_t *zh;
+static int zp_added;
+
+void
+zpool_init(int first)
+{
+    if (zh)
+	return;
+
+    zh = libzfs_init();
+    pmdaCacheOp(indomtab[ZPOOL_INDOM].it_indom, PMDA_CACHE_LOAD);
+}
+
+/*
+ * For each zpool check the name in the instance cache, if it's not there then
+ * add it to the cache. Regardless if it's the first time we've seen this one
+ * or if it was in the cache before refresh the stats
+ */
+static int
+zp_cache_pool(zpool_handle_t *zp, void *arg)
+{
+        nvlist_t *cfg = zpool_get_config(zp, NULL);
+	char *zpname = (char *)zpool_get_name(zp);
+	struct zpool_stats *zps;
+	pmInDom zpindom = indomtab[ZPOOL_INDOM].it_indom;
+        uint_t cnt = 0;
+        vdev_stat_t *vds;
+	int rv;
+        nvlist_t *vdt;
+
+	if (pmdaCacheLookupName(zpindom, zpname, &rv,
+				(void **)&zps) != PMDA_CACHE_ACTIVE) {
+	    zps = malloc(sizeof(*zps));
+	    if (zps == NULL) {
+		__pmNotifyErr(LOG_WARNING, 
+			      "Cannot allocated memory for hold stats for "
+			      "zpool '%s'\n",
+			      zpname);
+		return 0;
+	    }
+
+	    rv = pmdaCacheStore(zpindom, PMDA_CACHE_ADD, zpname, zps);
+	    if (rv < 0) {
+		__pmNotifyErr(LOG_WARNING, 
+			      "Cannot add '%s' to the cache "
+			      "for instance domain %s: %s\n",
+			      zpname, pmInDomStr(zpindom), pmErrStr(rv));
+		free(zps);
+		return 0;
+	    }
+	    zp_added++;
+	}
+
+	rv = nvlist_lookup_nvlist(cfg, ZPOOL_CONFIG_VDEV_TREE, &vdt);
+	if (rv != 0) {
+	    __pmNotifyErr(LOG_ERR, "Cannot get vdev tree for '%s': %d %d\n",
+			  zpname, rv, errno);
+	    zps->vdev_stats_fresh = 0;
+	    return 0;
+	}
+
+	rv = nvlist_lookup_uint64_array(vdt, ZPOOL_CONFIG_STATS,
+				       (uint64_t **)&vds, &cnt);
+	if (rv == 0) {
+	    memcpy(&zps->vds, vds, sizeof(zps->vds));
+	    zps->vdev_stats_fresh = 1;
+	} else {
+	    __pmNotifyErr(LOG_ERR, "Cannot get zpool stats for '%s': %d %d\n",
+			  zpname, rv, errno);
+	    zps->vdev_stats_fresh = 0;
+	}
+
+	return 0;
+}
+
+void
+zpool_refresh(void)
+{
+    zp_added = 0;
+
+    zpool_iter(zh, zp_cache_pool, NULL);
+
+    if (zp_added) {
+	pmdaCacheOp(indomtab[ZPOOL_INDOM].it_indom, PMDA_CACHE_SAVE);
+    }
+}
+
+int
+zpool_fetch(pmdaMetric *pm, int inst, pmAtomValue *atom)
+{
+    struct zpool_stats *zps;
+    char *zpname;
+    metricdesc_t *md = pm->m_user;
+
+    if (pmdaCacheLookup(indomtab[ZPOOL_INDOM].it_indom, inst, &zpname,
+			(void **)&zps) != PMDA_CACHE_ACTIVE)
+	return PM_ERR_INST;
+
+    if (zps->vdev_stats_fresh) {
+	memcpy(&atom->ull, ((char *)&zps->vds) + md->md_offset,
+	       sizeof(atom->ull));
+    }
+
+    return zps->vdev_stats_fresh;
+}

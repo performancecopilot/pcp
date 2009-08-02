@@ -70,3 +70,14 @@
 # #@ network.interface.out.errors TODO
 # #@ network.interface.total.packets TODO
 # #@ network.interface.total.bytes TODO
+
+@zpool.capacity	Total capacity of a zpool in bytes
+@zpool.used Total space used on a pool
+@zpool.checksum_errors Number of checksum errors per zpool
+@zpool.self_healed Number of bytes healed
+@zpool.in.bytes	Counter of bytes read from a zpool
+@zpool.out.bytes Counter of bytes written to a zpool
+@zpool.in.ops Counter of reads per zpool
+@zpool.out.ops Counter of writes per zpool
+@zpool.in.errors Counter of read errors per zpool
+@zpool.out.errors Counter of write errors per zpool

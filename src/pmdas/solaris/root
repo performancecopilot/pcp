@@ -10,6 +10,7 @@ root {
 	mem
 	network
 	hinv
+	zpool
 }
 
 #include "pmns.kernel"
@@ -17,4 +18,5 @@ root {
 #include "pmns.mem"
 #include "pmns.network"
 #include "pmns.hinv"
+#include "pmns.zpool"
 

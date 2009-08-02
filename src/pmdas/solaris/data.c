@@ -20,6 +20,7 @@
 
 #include "common.h"
 #include <ctype.h>
+#include <libzfs.h>
 
 /*
  * List of instance domains ... we expect the *_INDOM macros
@@ -28,7 +29,8 @@
 pmdaIndom indomtab[] = {
     { DISK_INDOM, 0, NULL },
     { CPU_INDOM, 0, NULL },
-    { NETIF_INDOM, 0, NULL }
+    { NETIF_INDOM, 0, NULL },
+    { ZPOOL_INDOM, 0, NULL }
 };
 int indomtab_sz = sizeof(indomtab) / sizeof(indomtab[0]);
 
@@ -36,12 +38,15 @@ pmdaMetric *metrictab;
 
 method_t methodtab[] = {
     { sysinfo_init, sysinfo_prefetch, sysinfo_fetch },	// M_SYSINFO
-    { disk_init, disk_prefetch, disk_fetch }		// M_DISK
+    { disk_init, disk_prefetch, disk_fetch },		// M_DISK
+    { NULL, NULL, NULL},
+    { zpool_init, zpool_refresh, zpool_fetch }
 };
 int methodtab_sz = sizeof(methodtab) / sizeof(methodtab[0]);
 
 #define SYSINFO_OFF(field) ((int)&((cpu_stat_t *)0)->cpu_sysinfo.field)
 #define KSTAT_IO_OFF(field) ((int)&((kstat_io_t *)0)->field)
+#define VDEV_OFFSET(field) ((int)&((vdev_stat_t *)0)->field)
 
 /*
  * all metrics supported in this PMDA - one table entry for each metric
@@ -336,8 +341,47 @@ metricdesc_t metricdesc[] = {
 /* hinv.ndisk */
     { { PMDA_PMID(0,57), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, M_DISK, -1 /* derived */ }
-
+      }, M_DISK, -1 /* derived */ },
+/* zpool.capacity */
+    { { PMDA_PMID(0,58), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZPOOL, VDEV_OFFSET(vs_space) },
+/* zpool.used */
+    { { PMDA_PMID(0,59), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZPOOL, VDEV_OFFSET(vs_alloc) },
+/* zpool.in.bytes */
+    { { PMDA_PMID(0,60), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZPOOL, VDEV_OFFSET(vs_bytes[ZIO_TYPE_READ]) },
+/* zpool.out.bytes */
+    { { PMDA_PMID(0,61), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZPOOL, VDEV_OFFSET(vs_bytes[ZIO_TYPE_WRITE]) },
+/* zpool.in.ops */
+    { { PMDA_PMID(0,62), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_ZPOOL, VDEV_OFFSET(vs_ops[ZIO_TYPE_READ]) },
+/* zpool.out.ops */
+    { { PMDA_PMID(0,63), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_ZPOOL, VDEV_OFFSET(vs_bytes[ZIO_TYPE_WRITE]) },
+/* zpool.in.errors */
+    { { PMDA_PMID(0,64), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_ZPOOL, VDEV_OFFSET(vs_read_errors) },
+/* zpool.out.errors */
+    { { PMDA_PMID(0,65), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_ZPOOL, VDEV_OFFSET(vs_write_errors) },
+/* zpool.checksum_errors */
+    { { PMDA_PMID(0,66), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_ZPOOL, VDEV_OFFSET(vs_checksum_errors) },
+/* zpool.self_healed */
+    { { PMDA_PMID(0,67), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZPOOL, VDEV_OFFSET(vs_self_healed) }
 /* remember to add trailing comma before adding more entries ... */
 };
 int metrictab_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);
@@ -389,6 +433,9 @@ init_data(int domain)
     /*
      * initialize each of the methods
      */
-    for (i = 0; i < methodtab_sz; i++)
-	methodtab[i].m_init(1);
+    for (i = 0; i < methodtab_sz; i++) {
+	if (methodtab[i].m_init) {
+	    methodtab[i].m_init(1);
+	}
+    }
 }

@@ -27,13 +27,13 @@ CMDTARGET = pmdasolaris
 LIBTARGET = pmda_solaris.so
 CONF_LINE = "solaris	75	dso	solaris_init	$(PMDADIR)/$(LIBTARGET)"
 
-CFILES	= solaris.c data.c sysinfo.c disk.c
+CFILES	= solaris.c data.c sysinfo.c disk.c zpool.c
 
-PMNS	= pmns.disk pmns.kernel pmns.mem pmns.network pmns.hinv
+PMNS	= pmns.disk pmns.kernel pmns.mem pmns.network pmns.hinv pmns.zpool
 LSRCFILES = $(PMNS) help root common.h
 LDIRT	= domain.h *.log *.dir *.pag root_solaris
 
-LLDLIBS = -lpcp -lpcp_pmda -lkstat
+LLDLIBS = -lpcp -lpcp_pmda -lkstat -lzfs -lnvpair
 
 default: build-me
 
