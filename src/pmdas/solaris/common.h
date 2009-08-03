@@ -38,6 +38,7 @@
 #define M_DISK		1
 #define M_NETIF		2
 #define M_ZPOOL		3
+#define M_ZFS		4
 
 typedef struct {
     void	(*m_init)(int);
@@ -62,6 +63,10 @@ void zpool_init(int);
 void zpool_refresh(void);
 int zpool_fetch(pmdaMetric *, int, pmAtomValue *);
 
+void zfs_init(int);
+void zfs_refresh(void);
+int zfs_fetch(pmdaMetric *, int, pmAtomValue *);
+
 /*
  * metric descriptions
  */
@@ -79,6 +84,7 @@ extern int		metrictab_sz;
 #define CPU_INDOM	1
 #define NETIF_INDOM	2
 #define ZPOOL_INDOM	3
+#define ZFS_INDOM	4
 
 extern pmdaIndom	indomtab[];
 extern int		indomtab_sz;

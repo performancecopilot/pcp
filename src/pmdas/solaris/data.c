@@ -30,7 +30,8 @@ pmdaIndom indomtab[] = {
     { DISK_INDOM, 0, NULL },
     { CPU_INDOM, 0, NULL },
     { NETIF_INDOM, 0, NULL },
-    { ZPOOL_INDOM, 0, NULL }
+    { ZPOOL_INDOM, 0, NULL },
+    { ZFS_INDOM, 0, NULL }
 };
 int indomtab_sz = sizeof(indomtab) / sizeof(indomtab[0]);
 
@@ -40,7 +41,8 @@ method_t methodtab[] = {
     { sysinfo_init, sysinfo_prefetch, sysinfo_fetch },	// M_SYSINFO
     { disk_init, disk_prefetch, disk_fetch },		// M_DISK
     { NULL, NULL, NULL},
-    { zpool_init, zpool_refresh, zpool_fetch }
+    { zpool_init, zpool_refresh, zpool_fetch },
+    { zfs_init, zfs_refresh, zfs_fetch }
 };
 int methodtab_sz = sizeof(methodtab) / sizeof(methodtab[0]);
 
@@ -381,7 +383,44 @@ metricdesc_t metricdesc[] = {
 /* zpool.self_healed */
     { { PMDA_PMID(0,67), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
-      }, M_ZPOOL, VDEV_OFFSET(vs_self_healed) }
+      }, M_ZPOOL, VDEV_OFFSET(vs_self_healed) },
+/* zfs.used.total */
+    { { PMDA_PMID(0,68), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS, ZFS_PROP_USED },
+/* zfs.available */
+    { { PMDA_PMID(0,69), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS, ZFS_PROP_AVAILABLE },
+/* zfs.quota */
+    { { PMDA_PMID(0,70), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS, ZFS_PROP_QUOTA },
+/* zfs.reservation */
+    { { PMDA_PMID(0,71), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS, ZFS_PROP_RESERVATION },
+/* zfs.compression */
+    { { PMDA_PMID(0,72), PM_TYPE_DOUBLE, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ZFS, ZFS_PROP_COMPRESSRATIO },
+/* zfs.copies */
+    { { PMDA_PMID(0,73), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ZFS, ZFS_PROP_COPIES },
+/* zfs.used.byme */
+    { { PMDA_PMID(0,74), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS, ZFS_PROP_USEDDS },
+/* zfs.used.bysnapshots */
+    { { PMDA_PMID(0,75), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS, ZFS_PROP_USEDSNAP },
+/* zfs.used.bychildren */
+    { { PMDA_PMID(0,76), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS, ZFS_PROP_USEDCHILD }
+
 /* remember to add trailing comma before adding more entries ... */
 };
 int metrictab_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);
@@ -421,13 +460,18 @@ init_data(int domain)
 	metrictab[i].m_desc = metricdesc[i].md_desc;
 	ip = (__pmID_int *)&metricdesc[i].md_desc.pmid;
 	ip->domain = domain;
+
 	if (metricdesc[i].md_desc.indom != PM_INDOM_NULL) {
 	    serial = metricdesc[i].md_desc.indom;
-	    iip = (__pmInDom_int *)&metricdesc[i].md_desc.indom;
-	    iip->serial = serial;
-	    iip->pad = 0;
-	    iip->domain = domain;
+	    metricdesc[i].md_desc.indom = pmInDom_build(domain, serial);
 	}
+    }
+
+    /* Bless indoms with our own domain - usually pmdaInit will do it for
+     * us but we need properly setup indoms for pmdaCache which means that
+     * we have to do it ourselves */
+    for (i = 0; i < indomtab_sz; i++) {
+	    __pmindom_int(&indomtab[i].it_indom)->domain = domain;
     }
 
     /*

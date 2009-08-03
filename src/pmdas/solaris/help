@@ -81,3 +81,44 @@
 @zpool.out.ops Counter of writes per zpool
 @zpool.in.errors Counter of read errors per zpool
 @zpool.out.errors Counter of write errors per zpool
+
+@zfs.available Amount of space available to the dataset
+The amount of space available to the dataset (a filesystem, 
+a snapshot or a volume) and all its children. This is usually
+the amount of space available in the zpool which houses the
+dataset.
+
+@zfs.used.total Amount of space used by the dataset and its children
+The amount of space consumed by the filesystem, snapshot or
+volume and all its children. This amount does not include
+any reservation made by the dataset itself but do include
+the reservation of the children.
+
+@zfs.used.byme Amount of space used by the dataset itself.
+This amount exclude any space used by the children of this dataset
+or any of its snapshots.
+
+@zfs.used.bysnapshots Amount of space used by the snapshots of the dataset
+The amount of space consumed by the snapshots of this dataset.
+
+@zfs.used.bychildren Amount of space used by decendents of the dataset
+The amount of space consumed by all the decendants of this dataset.
+
+@zfs.quota Maximum amount of space a dataset can use
+Quotas are used to restrict the growth of the datasets. If
+the quota is set to 0 then the size of the dataset is limited only
+by the size of the pool which houses this dataset.
+
+@zfs.reservation Minimum amount of space guaranteed to a dataset
+The amount of space which dataset and its decendents are guaranteed
+to be available for them to use. This amount of taken off the quota
+of the parent of the dataset.
+
+@zfs.compression Compression ratio of the dataset
+Compression ratio is expressed as multiplier. To estimate how much data
+will be used by the uncompressed data multiply the amount of space used
+by the dataset by the compression ratio.
+
+@zfs.copies Number of redundant copies of data
+The number of redundant copies does not include any copies made as
+part of the pool redundancy.

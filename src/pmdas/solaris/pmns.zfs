@@ -1,0 +1,15 @@
+zfs {
+	used
+	available	SOLARIS:0:69
+	quota		SOLARIS:0:70
+	reservation	SOLARIS:0:71
+	compression	SOLARIS:0:72
+	copies		SOLARIS:0:73
+}
+
+zfs.used {
+	total		SOLARIS:0:68
+	byme		SOLARIS:0:74
+	bysnapshots	SOLARIS:0:75
+	bychildren	SOLARIS:0:76
+}

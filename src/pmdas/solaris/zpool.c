@@ -28,16 +28,6 @@ struct zpool_stats {
 static libzfs_handle_t *zh;
 static int zp_added;
 
-void
-zpool_init(int first)
-{
-    if (zh)
-	return;
-
-    zh = libzfs_init();
-    pmdaCacheOp(indomtab[ZPOOL_INDOM].it_indom, PMDA_CACHE_LOAD);
-}
-
 /*
  * For each zpool check the name in the instance cache, if it's not there then
  * add it to the cache. Regardless if it's the first time we've seen this one
@@ -129,4 +119,18 @@ zpool_fetch(pmdaMetric *pm, int inst, pmAtomValue *atom)
     }
 
     return zps->vdev_stats_fresh;
+}
+
+void
+zpool_init(int first)
+{
+    if (zh)
+	return;
+
+    zh = libzfs_init();
+    if (zh) {
+	pmdaCacheOp(indomtab[ZPOOL_INDOM].it_indom, PMDA_CACHE_LOAD);
+	zpool_iter(zh, zp_cache_pool, NULL);
+	pmdaCacheOp(indomtab[ZPOOL_INDOM].it_indom, PMDA_CACHE_SAVE);
+    }
 }
