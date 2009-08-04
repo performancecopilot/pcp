@@ -73,7 +73,7 @@ int zfs_fetch(pmdaMetric *, int, pmAtomValue *);
 typedef struct {
     pmDesc	md_desc;	// PMDA's idea of the semantics
     int		md_method;	// specific kstat method
-    int		md_offset;	// offset into kstat stats structure
+    ptrdiff_t	md_offset;	// offset into kstat stats structure
 } metricdesc_t;
 
 extern metricdesc_t	metricdesc[];

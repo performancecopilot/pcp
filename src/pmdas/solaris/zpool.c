@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Max Matveev.  ALL RIGHTS RESERVED 
+ * Copyright (C) 2009 Max Matveev.  All rights reserved. 
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the

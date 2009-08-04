@@ -19,6 +19,7 @@
  */
 
 #include "common.h"
+#include "netmib2.h"
 #include <ctype.h>
 #include <libzfs.h>
 
@@ -40,15 +41,17 @@ pmdaMetric *metrictab;
 method_t methodtab[] = {
     { sysinfo_init, sysinfo_prefetch, sysinfo_fetch },	// M_SYSINFO
     { disk_init, disk_prefetch, disk_fetch },		// M_DISK
-    { NULL, NULL, NULL},
+    { netmib2_init, netmib2_refresh, netmib2_fetch },
     { zpool_init, zpool_refresh, zpool_fetch },
     { zfs_init, zfs_refresh, zfs_fetch }
 };
 int methodtab_sz = sizeof(methodtab) / sizeof(methodtab[0]);
 
-#define SYSINFO_OFF(field) ((int)&((cpu_stat_t *)0)->cpu_sysinfo.field)
-#define KSTAT_IO_OFF(field) ((int)&((kstat_io_t *)0)->field)
-#define VDEV_OFFSET(field) ((int)&((vdev_stat_t *)0)->field)
+#define SYSINFO_OFF(field) ((ptrdiff_t)&((cpu_stat_t *)0)->cpu_sysinfo.field)
+#define KSTAT_IO_OFF(field) ((ptrdiff_t)&((kstat_io_t *)0)->field)
+#define VDEV_OFFSET(field) ((ptrdiff_t)&((vdev_stat_t *)0)->field)
+#define NM2_UDP_OFFSET(field) ((ptrdiff_t)&(nm2_udp.field))
+#define NM2_NETIF_OFFSET(field) ((ptrdiff_t)&((nm2_netif_stats_t *)0)->field)
 
 /*
  * all metrics supported in this PMDA - one table entry for each metric
@@ -419,7 +422,89 @@ metricdesc_t metricdesc[] = {
 /* zfs.used.bychildren */
     { { PMDA_PMID(0,76), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
-      }, M_ZFS, ZFS_PROP_USEDCHILD }
+      }, M_ZFS, ZFS_PROP_USEDCHILD },
+
+/* network.udp.ipackets */
+    { { PMDA_PMID(0,77), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_UDP_OFFSET(ipackets) },
+/* network.udp.opackets */
+    { { PMDA_PMID(0,78), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_UDP_OFFSET(opackets) },
+/* network.udp.ierrors */
+    { { PMDA_PMID(0,79), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_UDP_OFFSET(ierrors) },
+/* network.udp.oerrors */
+    { { PMDA_PMID(0,80), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_UDP_OFFSET(oerrors) },
+
+/* network.interface.mtu */
+    { { PMDA_PMID(0,81), PM_TYPE_U32, NETIF_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_NETIF, NM2_NETIF_OFFSET(mtu) },
+/* network.interface.in.bytes */
+    { { PMDA_PMID(0,82), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_NETIF, NM2_NETIF_OFFSET(ibytes) },
+/* network.interface.out.bytes */
+    { { PMDA_PMID(0,83), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_NETIF, NM2_NETIF_OFFSET(obytes) },
+/* network.interface.in.packets */
+    { { PMDA_PMID(0,84), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_NETIF_OFFSET(ipackets) },
+/* network.interface.out.packets */
+    { { PMDA_PMID(0,85), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_NETIF_OFFSET(opackets) },
+/* network.interface.in.bcasts */
+    { { PMDA_PMID(0,86), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_NETIF_OFFSET(ibcast) },
+/* network.interface.out.bcasts */
+    { { PMDA_PMID(0,87), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_NETIF_OFFSET(obcast) },
+/* network.interface.in.mcasts */
+    { { PMDA_PMID(0,88), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_NETIF_OFFSET(imcast) },
+/* network.interface.out.mcasts */
+    { { PMDA_PMID(0,89), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_NETIF_OFFSET(omcast) },
+/* network.interface.in.errors */
+    { { PMDA_PMID(0,90), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_NETIF_OFFSET(ierrors) },
+/* network.interface.out.errors */
+    { { PMDA_PMID(0,91), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_NETIF_OFFSET(oerrors) },
+/* network.interface.in.drops */
+    { { PMDA_PMID(0,92), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_NETIF_OFFSET(idrops) },
+/* network.interface.out.drops */
+    { { PMDA_PMID(0,93), PM_TYPE_U32, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_NETIF_OFFSET(odrops) },
+/* network.interface.in.delivers */
+    { { PMDA_PMID(0,94), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_NETIF_OFFSET(delivered) },
+/* network.udp.noport */
+    { { PMDA_PMID(0,95), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_UDP_OFFSET(noports) },
+/* network.udp.overflows */
+    { { PMDA_PMID(0,96), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETIF, NM2_UDP_OFFSET(overflows) }
 
 /* remember to add trailing comma before adding more entries ... */
 };

@@ -62,12 +62,43 @@
 # #@ mem.cache.mdl.read TODO
 # #@ mem.cache.mdl.sync_read TODO
 # #@ mem.cache.mdl.async_read TODO
-# #@ network.interface.in.packets TODO
-# #@ network.interface.in.bytes TODO
-# #@ network.interface.in.errors TODO
-# #@ network.interface.out.packets TODO
-# #@ network.interface.out.bytes TODO
-# #@ network.interface.out.errors TODO
+@ network.interface.mtu Maximum Transmission Unit of a network interface
+Maximum Transmision Unit is the largest size of IP datagram which can be
+transferred over the data link.
+@ network.interface.in.bytes Number of bytes received by a network interface
+@ network.interface.in.errors Number of receive errors per network interface
+Number of receive errors per network interface. The errors counted towards
+this metric are: IP header errors, packets larger then the link MTU, packets
+delivered to the unknown address, packets sent to the unknown IP protocol,
+truncated packets, packets discarded due to not having a route for
+the destination.
+@ network.interface.in.drops Number of packets droped by a network interface
+Number of packets discared due to lack of space during the input processing.
+@ network.interface.in.delivers Number of packets delivered to ULPs
+Number of packets delivered for further processing by the upper-layer
+protocols.
+@ network.interface.in.bcasts Number of broadcast packets received by a network interface
+@ network.interface.in.packets Number of IP packets received by a network interface
+@ network.interface.in.mcasts Number of multicast packets received by a network interface
+@ network.interface.out.packets Number of packets sent by a network interface
+@ network.interface.out.bytes Number of bytes sent by a network interface
+@ network.interface.out.errors Number of send errors per network interface
+@ network.interface.out.bcasts Number of broadcast packets sent by a network interface
+@ network.interface.out.mcasts Number of multicast packets sent by a network interface
+@ network.interface.out.drops Number of packets discared by a network interface
+Number of packets discared due to lack of space during the output processing.
+@ network.udp.ipackets Number of UDP packets received
+@ network.udp.opackets Number of UDP packets sent
+@ network.udp.ierrors Number of receive errors in UDP processing
+@ network.udp.oerrors Number of send erros in UDP processing
+@ network.udp.noports Number of UDP packets received on unknown UDP port
+Number of UDP packets received for which here is no port can be found.
+This counter is reported on the per-interface basis and aggregated by the PMDA.
+
+@ network.udp.overflows Number of UDP packets droped due to queue overflow
+Number of UDP packets droped due to queue overflow. 
+This counter is reported on the per-interface basis and aggregated by the PMDA.
+
 # #@ network.interface.total.packets TODO
 # #@ network.interface.total.bytes TODO
 
