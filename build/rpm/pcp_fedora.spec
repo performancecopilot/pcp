@@ -5,7 +5,7 @@ Release: 2%{?dist}
 License: GPL+ and LGPLv2+
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
-Source0: ftp://oss.sgi.com/projects/pcp/download/v3/pcp-3.0.0-1.src.tar.gz
+Source0: ftp://oss.sgi.com/projects/pcp/download/v3/pcp-3.0.0-2.src.tar.gz
 
 # Infiniband monitoring support turned off (for now)
 %define have_ibdev 0
