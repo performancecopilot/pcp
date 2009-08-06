@@ -42,7 +42,6 @@ applications to easily retrieve and process any subset of that data.
 %package libs
 Group: Applications/System
 Summary: Performance Co-Pilot run-time libraries
-Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp/
 
 #
@@ -61,7 +60,6 @@ Performance Co-Pilot (PCP) run-time libraries
 %package devel
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) development headers and static libraries
-Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp/
 
 Requires: pcp-libs = %{version}
@@ -223,6 +221,9 @@ touch %{_localstatedir}/lib/pcp/pmns/.NeedRebuild
 %postun libs -p /sbin/ldconfig
 
 %changelog
+* Thu Aug 06 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-2
+- updates following community review
+
 * Fri Jul 31 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-1
 - initial import into Fedora
 
