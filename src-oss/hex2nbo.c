@@ -11,15 +11,15 @@
  */
 typedef struct {
 	unsigned int	serial : 22;		/* unique within PMD */
-	unsigned int	domain : 8;		/* the administrative PMD */
-	int		pad : 2;
+	unsigned int	domain : 9;		/* the administrative PMD */
+	int		flag : 1;
 } __pmInDom_rev;
 
 typedef struct {
 	unsigned int	item : 10;
 	unsigned int	cluster : 12;
-	unsigned int	domain : 8;
-	int		pad : 2;
+	unsigned int	domain : 9;
+	int		flag : 1;
 } __pmID_rev;
 
 int
@@ -90,7 +90,7 @@ main(int argc, char **argv)
 		    /* instance domain */
 		    ip = (__pmInDom_int *)&val;
 		    nip = (__pmInDom_rev *)&nval;
-		    nip->pad = ip->pad;
+		    nip->flag = ip->flag;
 		    nip->domain = ip->domain;
 		    nip->serial = ip->serial;
 		}
@@ -98,7 +98,7 @@ main(int argc, char **argv)
 		    /* metric identifier */
 		    pp = (__pmID_int *)&val;
 		    npp = (__pmID_rev *)&nval;
-		    npp->pad = pp->pad;
+		    npp->flag = pp->flag;
 		    npp->domain = pp->domain;
 		    npp->cluster = pp->cluster;
 		    npp->item = pp->item;

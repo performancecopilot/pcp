@@ -2,9 +2,11 @@
 # cleaned up in "make clobber" should also be mentioned here ...
 #
 *.full
+*.notrun
 *.full.ok
 *.out.bad
 *.bak
+*.new
 *.raw
 *.log
 commit-id.*

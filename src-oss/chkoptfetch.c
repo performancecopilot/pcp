@@ -23,11 +23,11 @@ setup(int i, int pmid_d, int pmid_i, int indom_d, int indom_s, int loinst, int h
     static __pmID_int	*pmidp = (__pmID_int *)&pmid;
     static __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
 
-    pmidp->pad = 0;
+    pmidp->flag = 0;
     pmidp->domain = pmid_d;
     pmidp->cluster = 0;
     pmidp->item = pmid_i;
-    indomp->pad = 0;
+    indomp->flag = 0;
     indomp->domain = indom_d;
     indomp->serial = indom_s;
 

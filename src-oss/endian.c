@@ -69,8 +69,8 @@ main()
     printf("__pmID_int: ");
     ip = (int *)&pmid;
     *ip = 0;
-    pmid.pad = 0x2;
-    pmid.domain = (0x123 >> 2) & 0xff;
+    pmid.flag = 0x1;
+    pmid.domain = (0x123 >> 2) & 0x1ff;
     pmid.cluster = (0x3456 >> 2) & 0xfff;
     pmid.item = 0x678 & 0x3ff;
 
@@ -84,8 +84,8 @@ main()
     printf("__pmInDom_int: ");
     ip = (int *)&indom;
     *ip = 0;
-    indom.pad = 0x2;
-    indom.domain = (0x123 >> 2) & 0xff;
+    indom.flag = 0x1;
+    indom.domain = (0x123 >> 2) & 0x1ff;
     indom.serial = 0x345678 & 0x3fffff;
 
     if (*ip == 0x92345678)

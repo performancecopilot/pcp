@@ -141,13 +141,22 @@ cat <<End-of-File | sed -e '/revision/s//Revision: 1.1 /' >$id
 # creator
 owner=$USER
 
-seq=\`basename \$0\`
-echo "QA output created by \$seq"
-
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+seq=\`basename \$0\`
+
+#if test something
+#then
+#    :
+#else
+#    echo "No support for something" >$seq.notrun
+#    echo "$seq: [not run] `cat $seq.notrun`"
+#    exit 0
+#fi
+echo "QA output created by \$seq"
 
 tmp=/tmp/\$\$
 here=\`pwd\`

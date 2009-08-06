@@ -4,18 +4,28 @@
 #
 # Exercise dynamic PMNS features
 #
-# Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
 
 # creator
 owner=kenj
 
 seq=`basename $0`
-echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+if grep -q ' RESERVED_DO_NOT_USE[ 	]*511' $PCP_VAR_DIR/pmns/stdpmid
+then
+    :
+else
+    echo "No support for dynamic PMNS entries" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
 
 tmp=/tmp/$$
 here=`pwd`
@@ -62,7 +72,7 @@ for name in sampledso.secret \
 	sampledso.secret.foo.bar \
 	sampledso.secret.foo.bar.grunt \
 	sampledso.secret.foo.bar.grunt.snort \
-	sampledso.secret.foo.bar.grunt.snort.seven
+	sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
 do
     src-oss/torture_pmns -b -v $name \
 | _filter

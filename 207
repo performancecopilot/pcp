@@ -3,7 +3,7 @@
 #
 # Simple PMNS exerciser after dynamic PMNS changes
 #
-# Copyright (c) 2009, Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
 
 # creator
 owner=kenj
@@ -15,7 +15,7 @@ seq=`basename $0`
 . ./common.filter
 . ./common.check
 
-if grep -q RESERVED_DYN $PCP_VAR_DIR/pmns/stdpmid
+if grep -q ' RESERVED_DO_NOT_USE[ 	]*511' $PCP_VAR_DIR/pmns/stdpmid
 then
     :
 else

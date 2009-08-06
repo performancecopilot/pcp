@@ -2,7 +2,6 @@
 # cleaned up in "make clobber" should also be mentioned here ...
 #
 *.o
-broken_pmda_?_?.c
 779246
 agenttimeout
 archinst
@@ -21,6 +20,7 @@ broken_pmda_2_2
 broken_pmda_2_3
 broken_pmda_2_4
 broken_pmda_2_5
+broken_pmda_?_?.c
 broken_v2.dir
 broken_v2.pag
 chkacc1
@@ -93,6 +93,7 @@ logcontrol
 mark-bug
 matchInstanceName
 mkfiles
+mmv_dumpstats
 mmv_genstats
 mmv_instances
 multifetch
@@ -165,6 +166,7 @@ torture_api
 torture_cache
 torture-eol
 torture_indom
+torture_pmns
 torture_trace
 truncbin.0
 truncbin.index
@@ -179,4 +181,3 @@ xlog
 xmktime
 xval
 xxx
-
