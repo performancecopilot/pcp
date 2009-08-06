@@ -1,7 +1,7 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
 Version: 3.0.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL+ and LGPLv2+
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
