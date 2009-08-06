@@ -141,6 +141,70 @@ typedef struct port_state_s {
 	char pcap[IB_ALLPORTCAPSTRLEN]; 
 } port_state_t;
 
+static char confpath[MAXPATHLEN];
+static int portcount;
+/* Line number while parsing the config file */
+static FILE *fconf;
+static int lcnt;
+
+#define print_parse_err(loglevel, fmt, args...) \
+    if (fconf) { \
+	__pmNotifyErr(loglevel, "%s(%d): " fmt, fconf, lcnt, args); \
+    } else { \
+	__pmNotifyErr(loglevel, fmt, args); \
+    }
+
+static void
+monitor_guid(pmdaIndom *itab, char *name, long long guid, int rport,
+	    char *local, int lport)
+{
+    int inst;
+    hca_state_t *hca = NULL;
+    port_state_t *ps;
+    
+    if (pmdaCacheLookupName(itab[IB_HCA_INDOM].it_indom, local, NULL, 
+			   (void**)&hca) != PMDA_CACHE_ACTIVE) {
+	print_parse_err(LOG_ERR, "unknown HCA '%s' in 'via' clause\n", local);
+	return;
+    }
+
+    if ((lport >= UMAD_CA_MAX_PORTS) || (lport < 0)) {
+	print_parse_err(LOG_ERR, 
+		       "port number %d is out of bounds for HCA %s\n",
+			lport, local);
+	return;
+    }
+    
+    if (hca->lports[lport].hndl == NULL) {
+	print_parse_err(LOG_ERR, 
+		       "port %s:%d has failed initialization\n",
+			local, lport);
+	return;
+    }
+    
+    if ((ps = (port_state_t *)calloc(1, sizeof(port_state_t))) == NULL) {
+	__pmNotifyErr (LOG_ERR, "Out of memory to save state for %s\n", name);
+	return;
+    }
+
+    ps->guid = guid;
+    ps->remport = rport;
+    ps->lport = hca->lports + lport;
+    ps->portid.lid = -1;
+    ps->timeout = 1000;
+
+    if ((inst = pmdaCacheStore(itab[IB_PORT_INDOM].it_indom,
+			    PMDA_CACHE_ADD, name, ps)) < 0) {
+	__pmNotifyErr(LOG_ERR, "Cannot add %s to the cache - %s\n",
+			name, pmErrStr(inst));
+	free (ps);
+	return;
+    }
+
+    portcount++;
+}
+
+
 static int
 foreachport(hca_state_t *hst, void (*cb)(hca_state_t *, umad_port_t *, void *),
 	    void *closure)
@@ -166,15 +230,28 @@ foreachport(hca_state_t *hst, void (*cb)(hca_state_t *, umad_port_t *, void *),
 static void
 printportconfig (hca_state_t *hst, umad_port_t *port, void *arg)
 {
-    FILE *fconf = arg;
     uint64_t hguid = port->port_guid;
 
     __ntohll((char *)&hguid);
 
     fprintf (fconf, "%s:%d 0x%llx %d via %s:%d\n",
-	     port->ca_name, port->portnum, hguid, port->portnum,
-	     hst->ca.ca_name, port->portnum);
+	     port->ca_name, port->portnum, (unsigned long long)hguid,
+	     port->portnum, hst->ca.ca_name, port->portnum);
 }
+
+static void
+monitorport(hca_state_t *hst, umad_port_t *port, void *arg)
+{
+    pmdaIndom *itab = arg;
+    uint64_t hguid = port->port_guid;
+    char name[128];
+
+    __ntohll((char *)&hguid);
+    sprintf(name, "%s:%d", port->ca_name, port->portnum);
+
+    monitor_guid(itab, name, hguid, port->portnum, port->ca_name, port->portnum);
+}
+
 
 static int mgmt_classes[] = {IB_SMI_CLASS, IB_SMI_DIRECT_CLASS, 
                              IB_SA_CLASS, IB_PERFORMANCE_CLASS};
@@ -196,74 +273,10 @@ openumadport (hca_state_t *hst, umad_port_t *port, void *arg)
     lp->hndl = hndl;
 }
 
-int
-ib_load_config(const char *confpath, pmdaIndom *itab, unsigned int nindoms)
+static void
+parse_config(pmdaIndom *itab)
 {
-    char hcas[IBPMDA_MAX_HCAS][UMAD_CA_NAME_LEN];
-    hca_state_t *st = NULL;
-    int i, n;
-    int lcnt = 0;
     char buffer[2048];
-    FILE *fconf;
-    int (*closef)(FILE *) = fclose;
-    int portcount = 0;
-
-    if (nindoms <= IB_CNT_INDOM) {
-	return (-EINVAL);
-    }	
-
-    if (umad_init()) {
-	return (-EIO);
-    } 
-
-    if ((n = umad_get_cas_names(hcas, ARRAYSZ(hcas)))) {
-	if ((st = calloc (n, sizeof(hca_state_t))) == NULL) {
-	    return (-ENOMEM);
-	}
-    } else {
-	return (0);
-    }
-
-    for (i=0; i < n; i++) {
-	if (umad_get_ca(hcas[i], &st[i].ca) == 0) {
-	    int e = pmdaCacheStore (itab[IB_HCA_INDOM].it_indom, PMDA_CACHE_ADD,
-				    st[i].ca.ca_name, &st[i].ca);
-
-	    if (e >= 0) {
-		foreachport (st+i, openumadport, NULL);
-	    } else {
-		__pmNotifyErr (LOG_ERR, 
-				"Cannot add instance for %s to the "
-				"cache - %s\n",
-				 st[i].ca.ca_name, pmErrStr(e));
-	    }
-	}
-    }
-
-    /* Process config file - if the executable bit is set then assume
-     * that user wants it to be a script and run it, otherwise try loading
-     * it. If it cannot be loaded then create a default one and 
-     * process it again */
-    if (access(confpath, X_OK)) {
-	/* Not an executable, just read it */
-	if ((fconf = fopen (confpath, "r")) == NULL) {
-	    if ((fconf = fopen (confpath, "w+")) != NULL) {
-		for (i=0; i < n; i++) {
-		    foreachport (st+i, printportconfig, fconf);
-		}
-		fseek (fconf, 0, SEEK_SET);
-	    }
-	}
-    } else {
-	fconf = popen(confpath, "r");
-	closef = pclose;
-    }
-
-    if (fconf == NULL) {
-	__pmNotifyErr (LOG_CRIT, "Cannot open configuration file %s\n",
-			confpath);
-	return (-ENOENT);
-    }	
 
     while ((fgets(buffer, sizeof(buffer)-1, fconf)) != NULL) {
 	char *p;
@@ -285,64 +298,102 @@ ib_load_config(const char *confpath, pmdaIndom *itab, unsigned int nindoms)
 	    int rport;
 	    char local[128];
 	    int lport;
-	    hca_state_t *hca = NULL;
-	    port_state_t *ps;
 
 	    if (sscanf(p, "%[^ \t]%llx%d via %[^:]:%d",
                        name, &guid, &rport, local, &lport) != 5) {
 		__pmNotifyErr (LOG_ERR, "%s(%d): cannot parse the line\n",
 			       confpath, lcnt);
-	    } else if (pmdaCacheLookupName(itab[IB_HCA_INDOM].it_indom,
-					   local, NULL, 
-					   (void**)&hca) != PMDA_CACHE_ACTIVE) {
-		__pmNotifyErr (LOG_ERR, 
-			       "%s(%d): unknown HCA '%s' in 'via' clause\n",
-			       confpath, lcnt, local);
-	    } else if ((lport >= UMAD_CA_MAX_PORTS) || (lport < 0)) {
-		__pmNotifyErr (LOG_ERR, 
-			       "%s(%d): port number %d is out of bounds for "
-			       "HCA %s\n",
-				confpath, lcnt, lport, local);
-	    } else if (hca->lports[lport].hndl == NULL) {
-		__pmNotifyErr (LOG_ERR, 
-			       "%s(%d): port %s:%d has failed initialization\n",
-				confpath, lcnt, local, lport);
-	    } else if ((ps = (port_state_t *)calloc(1, sizeof(port_state_t))) == NULL) {
-		__pmNotifyErr (LOG_ERR, "Out of memory to save state for %s\n",
-				name);
-	    } else {
-		int inst;
-		ps->guid = guid;
-		ps->remport = rport;
-		ps->lport = hca->lports + lport;
-		ps->portid.lid = -1;
-		ps->timeout = 1000;
-
-		if ((inst = pmdaCacheStore (itab[IB_PORT_INDOM].it_indom,
-				    	    PMDA_CACHE_ADD, name, ps)) < 0) {
-			__pmNotifyErr (LOG_ERR, 
-				       "Cannot add %s to the cache - %s\n",
-					name, pmErrStr(inst));
-			free (ps);
-		} else {
-			portcount++;
-		}
+		continue;
 	    }
+  
+	    monitor_guid(itab, name, guid, rport, local, lport);
 	}
     }
-    (*closef) (fconf);
+}
+
+int
+ib_load_config(const char *cp, int writeconf, pmdaIndom *itab, unsigned int nindoms)
+{
+    char hcas[IBPMDA_MAX_HCAS][UMAD_CA_NAME_LEN];
+    hca_state_t *st = NULL;
+    int i, n;
+    int (*closef)(FILE *) = fclose;
+
+    if (nindoms <= IB_CNT_INDOM)
+	return -EINVAL;
+
+    if (umad_init())
+	return -EIO;
+
+    if ((n = umad_get_cas_names(hcas, ARRAYSZ(hcas)))) {
+	if ((st = calloc (n, sizeof(hca_state_t))) == NULL)
+	    return -ENOMEM;
+    } else
+	/* No HCAs */
+	return 0;
+
+    /* Open config file - if the executable bit is set then assume that
+     * user wants it to be a script and run it, otherwise try loading it.
+     */
+    strcpy(confpath, cp);
+    if (access(confpath, F_OK) == 0) {
+	if (writeconf) {
+	    __pmNotifyErr(LOG_ERR,
+		    "Config file exists and writeconf arg was given to pmdaib.  Aborting.");
+	    exit(1);
+	}
+
+	if (access(confpath, X_OK)) {
+	    /* Not an executable, just read it */
+	    fconf = fopen (confpath, "r");
+	} else {
+	    fconf = popen(confpath, "r");
+	    closef = pclose;
+	} 
+    } else if (writeconf) {
+	fconf = fopen(confpath, "w");
+    }
+    /* else no config file: Just monitor local ports */
+
+    for (i=0; i < n; i++) {
+	if (umad_get_ca(hcas[i], &st[i].ca) == 0) {
+	    int e = pmdaCacheStore(itab[IB_HCA_INDOM].it_indom, PMDA_CACHE_ADD,
+				    st[i].ca.ca_name, &st[i].ca);
+
+	    if (e < 0) {
+		__pmNotifyErr(LOG_ERR, 
+			"Cannot add instance for %s to the cache - %s\n",
+			 st[i].ca.ca_name, pmErrStr(e));
+		continue;
+	    }
+
+	    foreachport(st+i, openumadport, NULL);
+	    if (fconf == NULL)
+		/* No config file - monitor local ports */
+		foreachport(st+i, monitorport, itab);
+	    if (writeconf)
+		foreachport(st+i, printportconfig, fconf);
+	}
+    }
+
+    if (fconf) {
+	parse_config(itab);
+	(*closef)(fconf);
+    }
+
+    if (writeconf)
+	/* Config file is now written.  Exit. */
+	exit(0);
 
     if (!portcount) {
-	__pmNotifyErr (LOG_INFO, 
-		       "No ports found in configuration file %s\n",
-		       confpath);
+	__pmNotifyErr(LOG_INFO, "No IB ports found to monitor");
     }
-		
+
     itab[IB_CNT_INDOM].it_set = (pmdaInstid *)calloc(ARRAYSZ(mad_cnt_descriptors), 
 						     sizeof(pmdaInstid));
 
     if (itab[IB_CNT_INDOM].it_set == NULL) {
-	return (-ENOMEM);
+	return -ENOMEM;
     }
 
     itab[IB_CNT_INDOM].it_numinst = ARRAYSZ(mad_cnt_descriptors);
@@ -351,8 +402,8 @@ ib_load_config(const char *confpath, pmdaIndom *itab, unsigned int nindoms)
 	itab[IB_CNT_INDOM].it_set[i].i_name = mad_cnt_descriptors[i].name;
 
     }
-	
-    return (0);
+
+    return 0;
 }
 
 static char *
@@ -869,7 +920,7 @@ ib_store(pmResult *result, pmdaExt *pmda)
 		    return (PM_ERR_INST);
 		}
 		break;
-	    
+
 	    case METRIC_ib_control_hiwat:
 		if ((id < 0) ||
 		    (id > pmda->e_indoms[IB_CNT_INDOM].it_numinst)) {
@@ -884,7 +935,7 @@ ib_store(pmResult *result, pmdaExt *pmda)
 	    }
         }
     }
-    return (0);
+    return 0;
 }
 
 

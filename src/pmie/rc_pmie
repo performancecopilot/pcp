@@ -13,7 +13,7 @@
 # for more details.
 # 
 # The following is for chkconfig on RedHat based systems
-# chkconfig: 2345 95 05
+# chkconfig: - 95 05
 # description: pmie is a performance monitoring inference engine
 #
 # The following is for insserv(1) based systems,
@@ -22,7 +22,7 @@
 # Provides:       pmie
 # Required-Start: $network $local_fs
 # Required-Stop:
-# Default-Start:  2 3 5
+# Default-Start:
 # Default-Stop:
 # Short-Description:   Control PCP inference engines
 # Description:   Configures the performance monitoring inference engine

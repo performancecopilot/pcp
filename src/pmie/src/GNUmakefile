@@ -45,7 +45,7 @@ LLDLIBS = -lpcp -lm $(LIB_FOR_REGEX)
 default:	$(TARGET)
 
 YFILES = grammar.y
-grammar.h:	grammar.y
+grammar.h grammar.tab.c:	grammar.y
 	$(YACC) -d -b `basename $< .y` $< && cp `basename $@ .h`.tab.h $@
 
 pmie$(EXECSUFFIX):	$(OBJECTS) fun.o

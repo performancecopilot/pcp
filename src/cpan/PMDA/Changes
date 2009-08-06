@@ -1,5 +1,10 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.06  Wed Jul 22 12:49:43 EST 2009
+	- Ensure the process runs in its own process group,
+	  and block SIGTERM in atexit handler.  This resolves
+	  a regression in the 1.05 fix for reaping children.
+
 1.05  Tue Jul  8 16:19:49 EST 2009
 	- Explicitly free all local temporaries immediately
 	  for routines that call Perl from C (fixes memleak).

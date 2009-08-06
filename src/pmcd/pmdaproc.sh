@@ -872,6 +872,14 @@ _install()
 		exit 1
 	    fi
 	fi
+	if $perl_opt
+	then
+	    perl -e 'use PCP::PMDA' 2>/dev/null
+	    if test $? -ne 0; then
+		echo 'Error: Perl PCP::PMDA module is not installed'
+		exit 1
+	    fi
+	fi
     fi
 
     $PCP_SHARE_DIR/lib/lockpmns $NAMESPACE
@@ -1045,6 +1053,12 @@ _install()
 	#
 	if [ -f Makefile -o -f makefile -o -f GNUmakefile ]
 	then
+	    if [ ! -f "$PCP_MAKE_PROG" -o ! -f "$PCP_INC_DIR/pmda.h" ]
+	    then
+		echo "$prog: Arrgh, PCP devel environment required to install this PMDA"
+		exit 1
+	    fi
+
 	    echo "Installing files ..."
 	    if $PCP_MAKE_PROG install
 	    then

@@ -29,9 +29,9 @@ Depends: libc6-dev | libc-dev, libpcp3 (>= 2.8.0)
 Conflicts: pcp (< 2.8.0)
 Architecture: any
 Description: Performance Co-Pilot library and headers
- libpcp-dev contains the base Performance Co-Pilot (PCP) library and
- header files needed to develop both collector and monitor programs
- which make use of PCP services.
+ The libpcp-dev package contains the base Performance Co-Pilot (PCP)
+ library and header files needed to develop collector and monitor
+ programs which make use of PCP services.
  .
  The Performance Co-Pilot provides a unifying abstraction for
  all of the interesting performance data in a system, and allows
@@ -44,8 +44,8 @@ Conflicts: pgpool2, pcp (< 2.8.0), libpcp3-dev (< 2.8.5)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot library
- Contains the runtime environment required by programs that make use
- of Performance Co-Pilot services.
+ The libpcp package contains the runtime environment required by
+ programs that make use of Performance Co-Pilot (PCP) services.
  .
  The Performance Co-Pilot provides a unifying abstraction for
  all of the interesting performance data in a system, and allows
@@ -58,9 +58,9 @@ Depends: libpcp3-dev
 Conflicts: libpcp-gui1-dev
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library and headers
- libpcp-gui-dev contains the Performance Co-Pilot (PCP) library and
- header files needed to incorporate graphical time control (pmtime)
- into a monitoring application.
+ The libpcp-gui-dev package contains the Performance Co-Pilot (PCP)
+ library and header files needed to incorporate graphical time control
+ (pmtime) into a monitoring application.
  .
  The Performance Co-Pilot provides a unifying abstraction for
  all of the interesting performance data in a system, and allows
@@ -72,8 +72,8 @@ Depends: ${shlibs:Depends}
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library
- Contains the runtime environment required by a monitoring tool that
- makes use of the time control services of pmtime(1).
+ The libpcp-gui package contains the runtime environment required by any
+ monitoring tool that makes use of the time control services of pmtime(1).
  .
  The Performance Co-Pilot provides a unifying abstraction for
  all of the interesting performance data in a system, and allows
@@ -85,9 +85,9 @@ Section: libdevel
 Depends: libpcp3-dev
 Architecture: any
 Description: Performance Co-Pilot Memory Mapped Value library and headers
- libpcp-mmv-dev contains the Performance Co-Pilot (PCP) library and
- header files needed to utilise memory mapped value instrumentation
- into a monitored application.
+ The libpcp-mmv-dev package contains the Performance Co-Pilot (PCP)
+ library and header files needed to utilise memory mapped value
+ instrumentation into a monitored application.
  .
  The Performance Co-Pilot provides a unifying abstraction for
  all of the interesting performance data in a system, and allows
@@ -99,9 +99,9 @@ Depends: ${shlibs:Depends}
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot Memory Mapped Value client library
- Contains the runtime environment required by a monitored application
- that utilises Memory Mapped Value instrumentation to export runtime
- instrumentation into the Performance Co-Pilot infrastructure.
+ The libpcp-mmv package contains the runtime environment required by an
+ application that utilises Memory Mapped Value instrumentation to export
+ runtime instrumentation into the Performance Co-Pilot infrastructure.
  .
  The Performance Co-Pilot provides a unifying abstraction for
  all of the interesting performance data in a system, and allows
@@ -114,9 +114,9 @@ Depends: libpcp3-dev
 Conflicts: pcp (< 2.7.4-20080507)
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library and headers
- libpcp-pmda-dev contains the Performance Co-Pilot (PCP) library and
- header files needed to develop Performance Metric Domain Agents
- (PMDAs).  A PMDA exports performance data for one specific domain,
+ The libpcp-pmda-dev package contains the Performance Co-Pilot (PCP)
+ library and header files needed to develop Performance Metric Domain
+ Agents (PMDAs).  Each PMDA exports performance data for one domain;
  for example the operating system kernel, Cisco routers, a database,
  an application, etc.
  .
@@ -130,10 +130,10 @@ Depends: ${shlibs:Depends}
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library
- Contains the runtime environment required by a Performance Metric
- Domain Agent (PMDAs).  A PMDA exports performance data for one
- specific domain, for example the operating system kernel, Cisco
- routers, a database, an application, etc.
+ The libpcp-pmda package contains the runtime environment required by
+ a Performance Metric Domain Agent (PMDA).  A PMDA exports performance
+ data for one specific domain, for example the operating system kernel,
+ DNS, SMTP, Cisco router, a database, an application, etc.
 
 Package: libpcp-trace2-dev
 Section: libdevel
@@ -141,10 +141,10 @@ Depends: libpcp3-dev
 Conflicts: pcp (< 2.7.4-20080507)
 Architecture: any
 Description: Performance Co-Pilot application tracing library and headers
- libpcp-trace-dev contains the Performance Co-Pilot (PCP) library and
- header files needed to directly instrument an application for event
- and value tracking by the pmdatrace(1) PCP Trace Performance Metric
- Domain Agent.
+ The libpcp-trace-dev package contains the Performance Co-Pilot (PCP)
+ library and header files needed to directly instrument an application
+ for event and value tracking by the pmdatrace(1) PCP Trace Performance
+ Metric Domain Agent.
  .
  The Performance Co-Pilot provides a unifying abstraction for
  all of the interesting performance data in a system, and allows
@@ -156,9 +156,9 @@ Depends: ${shlibs:Depends}
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot application tracing library
- Contains the runtime environment required by an application that is
- directly instrumented for event and value tracking by pmdatrace(3),
- the Trace Performance Metric Domain Agent.
+ The libpcp-trace package contains the runtime environment required by
+ an application that is directly instrumented for event and value
+ tracking by pmdatrace(3), the Trace Performance Metric Domain Agent.
  .
  The Performance Co-Pilot provides a unifying abstraction for
  all of the interesting performance data in a system, and allows
@@ -169,7 +169,7 @@ Package: libpcp-pmda-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: ${perl:Depends}, ${shlibs:Depends}, libpcp-pmda3
+Depends: ${shlibs:Depends}, libpcp-pmda3, perl (>= 5)
 Description: Performance Co-Pilot Domain Agent Perl module
  The PCP::PMDA Perl module contains the language bindings for
  building Performance Metric Domain Agents (PMDAs) using Perl.
@@ -186,7 +186,7 @@ Package: libpcp-logsummary-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: pcp
+Depends: pcp, perl (>= 5)
 Description: Performance Co-Pilot historical log summary module
  The PCP::LogSummary module provides a Perl module for using the
  statistical summary data produced by the Performance Co-Pilot
@@ -204,7 +204,7 @@ Package: libpcp-mmv-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: ${perl:Depends}, ${shlibs:Depends}, libpcp-mmv1
+Depends: libpcp-mmv1, perl (>= 5)
 Description: Performance Co-Pilot Memory Mapped Value Perl module
  The PCP::MMV module contains the Perl language bindings for
  building scripts instrumented with the Performance Co-Pilot

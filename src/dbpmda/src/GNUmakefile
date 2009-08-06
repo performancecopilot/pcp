@@ -41,7 +41,7 @@ install:	$(CMDTARGET)
 dbpmda.o:	gram.h
 lex.o:		gram.tab.h
 
-gram.tab.h:	gram.y
+gram.tab.h gram.tab.c:	gram.y
 
 gram.h:		gram.tab.h
 	rm -f $@ && $(LN_S) $< $@

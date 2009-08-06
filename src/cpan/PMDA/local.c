@@ -229,6 +229,9 @@ local_atexit(void)
 	files = NULL;
     }
     /* take out any children we created */
+#ifdef HAVE_SIGNAL
+    signal(SIGTERM, SIG_IGN);
+#endif
     __pmProcessTerminate(0, 0);
 }
 

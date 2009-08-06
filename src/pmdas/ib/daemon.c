@@ -33,7 +33,8 @@ usage(void)
     fputs("Options:\n"
           "  -d domain  use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile write log into logfile rather than using default log name\n"
-	  "  -c path to configuration file\n",
+	  "  -c path to configuration file\n"
+	  "  -w write the basic configuration file\n",
           stderr);
     exit(1);
 }
@@ -46,18 +47,21 @@ main(int argc, char **argv)
     pmdaInterface dispatch;
     char helppath[MAXPATHLEN];
     char *confpath = NULL;
-    char *p;
     int opt;
+    int writeconf = 0;
 
     __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "ib" "%c" "help", 
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, IB, "ib.log", helppath);
 
-    while ((opt = pmdaGetOpt(argc, argv, "D:c:d:l:?", &dispatch, &err)) != EOF) {
+    while ((opt = pmdaGetOpt(argc, argv, "D:c:d:l:w?", &dispatch, &err)) != EOF) {
 	switch (opt) {
 	case 'c':
 	    confpath = optarg;
+	    break;
+	case 'w':
+	    writeconf = 1;
 	    break;
 	default:
 	    err++;
@@ -68,8 +72,14 @@ main(int argc, char **argv)
         usage();
     }
 
-    pmdaOpenLog(&dispatch);
-    ibpmda_init(confpath, &dispatch);
+    if (!writeconf) {
+	/* If writeconf is specified, then errors should go to stdout
+	 * since the PMDA daemon will exit immediately after writing
+	 * out the default config file
+	 */
+	pmdaOpenLog(&dispatch);
+    }
+    ibpmda_init(confpath, writeconf, &dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
 

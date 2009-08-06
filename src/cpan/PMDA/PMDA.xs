@@ -365,9 +365,10 @@ pmns(void)
     char *pmid, *next;
     I32 idsize;
     SV *metric;
+    int sts;
 
-    if (__pmNewPMNS(&pmns) < 0)
-	croak("failed to create namespace root");
+    if ((sts = __pmNewPMNS(&pmns)) < 0)
+	croak("failed to create namespace root: %s", pmErrStr(sts));
 
     hv_iterinit(metric_names);
     while ((metric = hv_iternextsv(metric_names, &pmid, &idsize)) != NULL) {
@@ -376,8 +377,9 @@ pmns(void)
 	cluster = strtoul(next+1, &next, 10);
 	item = strtoul(next+1, &next, 10);
 	id = pmid_build(domain, cluster, item);
-	if (__pmAddPMNSNode(pmns, id, SvPV_nolen(metric)) < 0)
-	    croak("failed to add metric to namespace");
+	if ((sts = __pmAddPMNSNode(pmns, id, SvPV_nolen(metric))) < 0)
+	    croak("failed to add metric %s(%s) to namespace: %s",
+		SvPV_nolen(metric), pmIDStr(id), pmErrStr(sts));
     }
 
     if (strcmp(getenv("PCP_PERL_PMNS"), "root") == 0)
@@ -474,6 +476,9 @@ new(CLASS,name,domain)
 	if ((p = getenv("PCP_PERL_DEBUG")) != NULL)
 	    if ((pmDebug = __pmParseDebug(p)) < 0)
 		pmDebug = 0;
+#ifndef IS_MINGW
+	setsid();
+#endif
 	atexit(&local_atexit);
 	snprintf(helpfile, sizeof(helpfile), "%s%c%s%c" "help",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, name, sep);
