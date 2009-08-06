@@ -17,4 +17,4 @@ devel_files
 devel_files.rpm
 libs_files
 libs_files.rpm
-
+gram*.tab.c
