@@ -108,6 +108,16 @@ GUID.  E.g., to monitor port 13 of a remote switch which is connected to the fab
 on the first port of the second HCA:
 .PP
 switch13 0xfeeffeefabcdabcd 13 via mthca1:1
+.SH LOCAL CONTEXT
+The IB pmda also supports accessing the metrics via
+.B PM_CONTEXT_LOCAL
+when using the PMAPI interface.  In order to use the IB pmda in this way,
+set the environment variable
+.B PMDA_LOCAL_IB
+prior to calling
+.B pmNewContext(3).
 .SH SEE ALSO
-.BR pmcd (1),
+.BR pmcd(1),
+.BR PMAPI(3),
+.BR pmContextNew(3),
 .BR ibnetdiscover(8).
