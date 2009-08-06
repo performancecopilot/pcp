@@ -11,19 +11,21 @@ Source0: ftp://oss.sgi.com/projects/pcp/download/v3/pcp-3.0.0-1.src.tar.gz
 %define have_ibdev 0
 
 %if %{have_ibdev}
-%define ib_prereqs libibmad libibumad  libibcommon 
-%define ib_build_prereqs %{ib_prereqs} libibmad-devel libibumad-devel libibcommon-devel
+%define ib_build_prereqs libibmad-devel libibumad-devel libibcommon-devel
 %endif
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: gcc-c++ libstdc++-devel procps autoconf bison flex ncurses-devel %{?ib_build_prereqs}
+BuildRequires: procps autoconf bison flex ncurses-devel %{?ib_build_prereqs}
+BuildRequires: perl-ExtUtils-MakeMaker
 
-Requires: bash gawk sed grep fileutils findutils cpp initscripts %{?ib_prereqs}
+Requires: bash gawk sed grep fileutils findutils cpp initscripts
 
-%ifarch ia64
-Requires: libunwind
-%endif
-
+#
+# Prior to v3, the PCP package implicitly "provides" -libs and -devel.
+# Strictly, pcp-libs should obsolete the v2.x PCP package, but since
+# pcp requires pcp-libs, pcp can just obsolete itself. This is thus
+# redundant dependency, but included for clarity.
+Obsoletes: pcp < 3.0
 Requires: pcp-libs = %{version}
 
 %description
@@ -44,10 +46,11 @@ Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp/
 
 #
-# Prior to v3, the PCP package implicitly "provides" -libs and -devel.
-# So pcp-libs needs to obsolete the entire v2 PCP package. Note that
-# pcp-devel doesn't need to do this because it requires pcp-libs.
-Obsoletes: pcp < 3.0
+# The following is not strictly needed - dependent packages
+# such as pcp-gui will work with just pcp-libs installed.
+# The dependency is here because the Fedora packaging guidelines
+# insist that the -libs sub-package requires the base package.
+Requires: pcp = %{version}
 
 %description libs
 Performance Co-Pilot (PCP) run-time libraries
@@ -71,7 +74,8 @@ and tools for development.
 %setup -q
 autoconf
 
-# the %configure macro should be used here
+# The standard 'configure' macro should be used here, but configure.in
+# needs some tweaks before that will work correctly (TODO).
 ./configure --libdir=%{_libdir}
 
 %clean
@@ -85,11 +89,13 @@ rm -Rf $RPM_BUILD_ROOT
 export DIST_ROOT=$RPM_BUILD_ROOT
 %makeinstall
 
-# Remove stuff we don't want to ship
+# Fix stuff we do/don't want to ship
 rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
+mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/run/pcp
 
 %files
 %defattr(-,root,root)
+%doc CHANGELOG COPYING INSTALL README VERSION.pcp pcp.lsm
 
 %dir %{_defaultdocdir}/pcp-*
 %dir %{_libdir}*/pcp
@@ -99,6 +105,7 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
 %dir %{_datadir}/pcp/examples
 %dir %{_datadir}/pcp/examples/*
 %dir %{_datadir}/pcp/lib
+%dir %{_localstatedir}/run/pcp
 %dir %{_localstatedir}/lib/pcp
 %dir %{_localstatedir}/lib/pcp/config
 %dir %{_localstatedir}/lib/pcp/config/*
@@ -110,9 +117,9 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
 %dir %{_localstatedir}/log/pcp
 %dir %{_localstatedir}/log/pcp/pmcd
 %dir %{_localstatedir}/log/pcp/pmproxy
+
 %{_bindir}/*
 %{_libdir}*/pcp/bin/*
-%{_defaultdocdir}/pcp-*/*
 %{_datadir}/pcp/demos/*/*
 %{_datadir}/pcp/examples/*/*
 %{_datadir}/pcp/lib/*
@@ -121,8 +128,8 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
 %{_initrddir}/pmproxy
 %{_mandir}/man1/*
 %{_mandir}/man4/*
-%{_sysconfdir}/bash_completion.d/pcp
-%{_sysconfdir}/pcp.env
+%config %{_sysconfdir}/bash_completion.d/pcp
+%config %{_sysconfdir}/pcp.env
 %{_localstatedir}/lib/pcp/pmns/Makefile
 %{_localstatedir}/lib/pcp/pmns/Make.stdpmid
 %{_localstatedir}/lib/pcp/pmns/Rebuild
@@ -154,6 +161,11 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmlogger/crontab
 %{_localstatedir}/lib/pcp/config/pmlogger/Makefile
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmproxy/pmproxy.options
+
+# Note: there are some headers (e.g. domain.h) and in a few cases some
+# C source files, that match the following pattern. rpmlint complains
+# about this, but note: these are not devel files, but rather they are
+# (slightly obscure) PMDA config files.
 %{_localstatedir}/lib/pcp/pmdas/*/*
 
 %files libs
@@ -189,72 +201,28 @@ then
     #
     # Stop daemons before erasing the package
     #
-    if [ -f /etc/pcp.env -a -f /etc/pcp.conf ] ; then
-	. /etc/pcp.env
-	/sbin/service pcp stop >/dev/null 2>&1
-	/sbin/service pmie stop >/dev/null 2>&1
-	/sbin/service pmproxy stop >/dev/null 2>&1
-	rm -f $PCP_VAR_DIR/pmns/.NeedRebuild
-    fi
+    /sbin/service pcp stop >/dev/null 2>&1
+    /sbin/service pmie stop >/dev/null 2>&1
+    /sbin/service pmproxy stop >/dev/null 2>&1
+
+    rm -f %{_localstatedir}/lib/pcp/pmns/.NeedRebuild
 
     /sbin/chkconfig --del pcp >/dev/null 2>&1
     /sbin/chkconfig --del pmie >/dev/null 2>&1
     /sbin/chkconfig --del pmproxy >/dev/null 2>&1
 fi
-exit 0
-
-%postun
-exit 0
 
 %post
-if [ -f /etc/pcp.env -a -f /etc/pcp.conf ] ; then
-    . /etc/pcp.env
-    . $PCP_SHARE_DIR/lib/rc-proc.sh
-    touch $PCP_VAR_DIR/pmns/.NeedRebuild
-    chmod 644 $PCP_VAR_DIR/pmns/.NeedRebuild
+touch %{_localstatedir}/lib/pcp/pmns/.NeedRebuild
 
-    if [ ! -f $PCP_VAR_DIR/pmns/root ]
-    then
-	if [ -f $PCP_VAR_DIR/pmns/root.saved ]
-	then
-	    # restore the previous pmns after upgrade
-	    mv $PCP_VAR_DIR/pmns/root.saved $PCP_VAR_DIR/pmns/root
-	else
-	    # empty initial name space (prior to Rebuild)
-	    echo "root {" >$PCP_VAR_DIR/pmns/root
-	    echo "}" >>$PCP_VAR_DIR/pmns/root
-	fi
-	chmod 644 $PCP_VAR_DIR/pmns/root
-    else
-	# root pmns already exists, so we need to restore
-	# pmcd.conf and pmcd.options if they were saved.
-	for f in $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH
-	do
-	    if [ -f $f -a -f $f.rpmsave ]
-	    then
-		mv $f $f.rpmnew
-		mv $f.rpmsave $f
-	    fi
-	done
-    fi
+/sbin/chkconfig --add pcp >/dev/null 2>&1
+/sbin/chkconfig --add pmie >/dev/null 2>&1
+/sbin/chkconfig --add pmproxy >/dev/null 2>&1
 
-    /sbin/chkconfig --add pcp >/dev/null 2>&1
-    /sbin/chkconfig --add pmie >/dev/null 2>&1
-    /sbin/chkconfig --add pmproxy >/dev/null 2>&1
-
-    #
-    # delete *.rpmorig turds that are the same as their new version
-    find $PCP_VAR_DIR/config -name \*.rpmorig -print \
-    | while read f
-    do
-	if diff $f `basename $f .rpmorig` >/dev/null 2>&1
-	then
-	    rm -f $f
-	fi
-    done
-fi
-exit 0
+%post libs -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
 
 %changelog
 * Fri Jul 31 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-1
 - initial import into Fedora
+
