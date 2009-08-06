@@ -90,6 +90,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 	exit(1);
     }
     __pmCloseSocket(sfd);
+    __pmSetSocketIPC(*infd);
     *outfd = *infd;
 }
 

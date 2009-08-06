@@ -76,15 +76,8 @@ Summary: Performance Co-Pilot run-time libraries
 Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp/
 
-Provides: libpcp.so.2 = @package_version@
-%ifarch ia64 x86_64
-Provides: libpcp.so.2()(64bit) = @package_version@
-%endif
-
-Provides: libpcp_pmda.so.2 = @package_version@
-%ifarch ia64 x86_64
-Provides: libpcp_pmda.so.2()(64bit) = @package_version@
-%endif
+Provides: pcp-libs = @package_version@
+Provides: pcp-devel = @package_version@
 
 Obsoletes: pcp < 3.0
 

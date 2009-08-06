@@ -1,7 +1,17 @@
-pcp-3.0.0 (9 July 2009)
+pcp-3.0.0 (6 Aug 2009)
     - packaging split into pcp, pcp-libs and pcp-devel
       pcp-libs is common - it's required by pcp and by pcp-devel but
       pcp and pcp-devel can be installed with or without each other.
+
+pcp-2.9.0 (27 July 2009)
+    - Fix Linux PMDA issue with -fstack-protector gcc option.
+    - Get socket daemon PMDAs working with Win32 pmcd.
+    - Bind 9.4 PMDA.
+    - PowerDNS PMDA.
+    - Fix atexit handling in the Perl PMDA module.
+    - Fix a duplicate PMID in the MySQL PMDA.
+    - Infiniband PMDA improvements and man page.
+    - Minor packaging tweaks for rpm and deb formats.
 
 pcp-2.8.12 (8 July 2009)
     - Bug fixes in Zimbra and MySQL PMDAs.
