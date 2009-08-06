@@ -667,20 +667,32 @@ pmdaStore(pmResult *result, pmdaExt *pmda)
     return -EACCES;
 }
 
+/*
+ * Expect these ones ...
+ *	pmdaPMID()
+ *	pmdaName()
+ *	pmdaChildren()
+ * to be overridden with real routines for any PMDA that is
+ * using PMDA_INTERFACE_4 and supporting dynamic metrics.
+ *
+ * These implementations are stubs that return appropriate errors
+ * if they are ever called.
+ */
+
 int
 pmdaPMID(char *name, pmID *pmid, pmdaExt *pmda)
 {
-    return PM_ERR_NYI;
+    return PM_ERR_NAME;
 }
 
 int
-pmdaName(pmID pmid, char ***name, pmdaExt *pmda)
+pmdaName(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
-    return PM_ERR_NYI;
+    return PM_ERR_PMID;
 }
 
 int
-pmdaChildren(char *name, char ***offspring, int **status, pmdaExt *pmda)
+pmdaChildren(char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
 {
-    return PM_ERR_NYI;
+    return PM_ERR_NAME;
 }

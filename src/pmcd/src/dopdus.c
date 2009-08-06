@@ -428,6 +428,10 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
 	}
 	else {
 	    /* TODO daemon case */
+	    if (ap->status.notReady)
+		return PM_ERR_AGAIN;
+	    if (_pmcd_trace_mask)
+		pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_NAMES, 1);
 	    sts = PM_ERR_PMID;
 	}
 	if (sts < 0) goto fail;
@@ -553,10 +557,9 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 
     if ((sts = __pmDecodeChildReq(pb, PDU_BINARY, &name, &subtype)) < 0)
 	goto done;
-  
+
     namelist[0] = name;
     sts = pmLookupName(1, namelist, idlist);
-fprintf(stderr, "dso children(%s) pmid %s\n", name, pmIDStr(idlist[0]));
     if (sts == 1 && ((__pmID_int *)&idlist[0])->domain == DYNAMIC_PMID) {
 	int		domain = ((__pmID_int *)&idlist[0])->cluster;
 	AgentInfo*	ap;
@@ -570,9 +573,8 @@ fprintf(stderr, "dso children(%s) pmid %s\n", name, pmIDStr(idlist[0]));
 	}
 	if (ap->ipcType == AGENT_DSO) {
 	    if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
-		sts = ap->ipc.dso.dispatch.version.three.children(name, &offspring, &statuslist,
+		sts = ap->ipc.dso.dispatch.version.three.children(name, 0, &offspring, &statuslist,
 				  ap->ipc.dso.dispatch.version.three.ext);
-fprintf(stderr, "dso children(%s) -> %d\n", name, sts);
 		if (sts < 0)
 		    goto done;
 		if (subtype == 0) {
@@ -630,7 +632,7 @@ static int travNL_i;      /* array index */
 static void
 AddLengths(const char *name)
 {
-  travNL_strlen += strlen(name);
+  travNL_strlen += strlen(name) + 1;
   travNL_num++;
 }
 
@@ -640,6 +642,140 @@ BuildNameList(const char *name)
   travNL[travNL_i++] = travNL_ptr;
   strcpy(travNL_ptr, name);
   travNL_ptr += strlen(name) + 1;
+}
+
+/*
+ * handle dynamic PMNS entries in remote version of pmTraversePMNS.
+ *
+ * num_names and names[] is the result of pmTraversePMNS for the
+ * loaded PMNS ... need to preserve the semantics of this in the
+ * end result, so names[] and all of the name[i] strings are in a
+ * single malloc block
+ */
+static void
+traverse_dynamic(char *start, int *num_names, char ***names)
+{
+    int		sts;
+    int		i;
+    char	**offspring;
+    int		*statuslist;
+    char	*namelist[1];
+    pmID	idlist[1];
+
+    /*
+     * if we get any errors in the setup (unexpected), simply skip
+     * that name[i] entry and move on ... any client using the associated
+     * name[i] will get an error later, e.g. when trying to fetch the
+     * pmDesc
+     *
+     * process in reverse order so stitching does not disturb the ones
+     * we've not processed yet
+     */
+    if (*num_names == 0) {
+	/*
+	 * special case, where starting point is _below_ the dynamic
+	 * node in the PMNS known to pmcd ... fake a single name in the
+	 * list so far ... names[] does not hold the string value as
+	 * well, but this is OK because names[0] will be rebuilt
+	 * replacing "name" ... note travNL_strlen initialization so
+	 * resize below is correct
+	 */
+	*names = (char **)malloc(sizeof((*names)[0]));
+	if (*names == NULL)
+	    return;
+	(*names)[0] = start;
+	*num_names = 1;
+	travNL_strlen = strlen(start) + 1;
+    }
+    for (i = *num_names-1; i >= 0; i--) {
+	offspring = NULL;
+	namelist[0] = (*names)[i];
+	sts = pmLookupName(1, namelist, idlist);
+	if (sts < 1)
+	    continue;
+	if (((__pmID_int *)&idlist[0])->domain == DYNAMIC_PMID) {
+	    int		domain = ((__pmID_int *)&idlist[0])->cluster;
+	    AgentInfo*	ap;
+	    if ((ap = FindDomainAgent(domain)) == NULL)
+		continue;
+	    if (!ap->status.connected)
+		continue;
+	    if (ap->ipcType == AGENT_DSO) {
+		if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+		    sts = ap->ipc.dso.dispatch.version.three.children(namelist[0], 1, &offspring, &statuslist,
+				      ap->ipc.dso.dispatch.version.three.ext);
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_PMNS) {
+			fprintf(stderr, "expand dynamic PMNS entry %s (%s) -> ", namelist[0], pmIDStr(idlist[0]));
+			if (sts < 0)
+			    fprintf(stderr, "%s\n", pmErrStr(sts));
+			else {
+			    int		j;
+			    fprintf(stderr, "%d names\n", sts);
+			    for (j = 0; j < sts; j++) {
+				fprintf(stderr, "    %s\n", offspring[j]);
+			    }
+			}
+		    }
+#endif
+		    if (sts < 0)
+			continue;
+		    if (statuslist) free(statuslist);
+		}
+		else {
+		    /* not INTERFACE_4 */
+		    continue;
+		}
+	    }
+	    else {
+		/* TODO daemon case */
+		continue;
+	    }
+	}
+	/* Stitching ... remove names[i] and add sts names from offspring[] */
+	if (offspring) {
+	    int		j;
+	    int		k;		/* index for copying to new[] */
+	    int		ii;		/* index for copying from names[] */
+	    char	**new;
+	    char	*p;		/* string copy dest ptr */
+	    int		new_len;
+
+	    new_len = travNL_strlen - strlen(namelist[0]) - 1;
+	    for (j = 0; j < sts; j++)
+		new_len += strlen(offspring[j]) + 1;
+	    new = (char **)malloc(new_len + (*num_names - 1 + sts)*sizeof(new[0]));
+	    if (new == NULL) {
+		/* tough luck! */
+		free(offspring);
+		continue;
+	    }
+	    *num_names = *num_names - 1 + sts;
+	    p = (char *)&new[*num_names];
+	    ii = 0;
+	    for (k = 0; k < *num_names; k++) {
+		if (k < i || k >= i+sts) {
+		    /* copy across old name */
+		    if (k == i+sts)
+			ii++;	/* skip name than new ones replaced */
+		    strcpy(p, (*names)[ii]);
+		    ii++;
+		}
+		else {
+		    /* stitch in new name */
+		    strcpy(p, offspring[k-i]);
+		}
+		new[k] = p;
+		p += strlen(p) + 1;
+	    }
+
+	    free(offspring);
+	    free(*names);
+	    *names = new;
+	    travNL_strlen = new_len;
+	}
+    }
+
 }
 
 /*
@@ -667,11 +803,10 @@ DoPMNSTraverse(ClientInfo *cp, __pmPDU *pb)
     travNL_strlen = 0;
     travNL_num = 0;
     if ((sts = pmTraversePMNS(name, AddLengths)) < 0)
-    	goto done;
+    	goto check;
 
     /* for each ptr, string bytes, and string terminators */
-    travNL_need = travNL_num * (int)sizeof(char*) + travNL_strlen +
-                  travNL_num;
+    travNL_need = travNL_num * (int)sizeof(char*) + travNL_strlen;
 
     if ((travNL = (char**)malloc(travNL_need)) == NULL) {
       sts = -errno;
@@ -680,8 +815,18 @@ DoPMNSTraverse(ClientInfo *cp, __pmPDU *pb)
 
     travNL_i = 0;
     travNL_ptr = (char*)&travNL[travNL_num];
-    if ((sts = pmTraversePMNS(name, BuildNameList)) < 0)
-    	goto done;
+    sts = pmTraversePMNS(name, BuildNameList);
+
+check:
+    /*
+     * sts here is last result of calling pmTraversePMNS() ... may need
+     * this later
+     * for dynamic PMNS entries, travNL_num will be 0 (PM_ERR_PMID from
+     * pmTraversePMNS()).
+     */
+    traverse_dynamic(name, &travNL_num, &travNL);
+    if (travNL_num < 1)
+	goto done;
 
     if (_pmcd_trace_mask)
 	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_NAMES, travNL_num);

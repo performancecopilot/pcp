@@ -130,7 +130,7 @@ typedef struct {
             int     (*store)(pmResult *, pmdaExt *);
             int     (*pmid)(char *, pmID *);
             int     (*name)(pmID, char **);
-            int     (*children)(char *, char ***, int **);
+            int     (*children)(char *, int, char ***, int **);
         } three;
     } version;
 

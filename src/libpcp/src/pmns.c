@@ -1759,9 +1759,18 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		char	*p;
 		for (p = namelist[i]; *p; p++) {
 		    if (*p == '.') {
-			*p = '\0';
-			np = locate(namelist[i], curr_pmns->root);
-			*p = '.';
+			char	*pfx;
+			int	pfx_len;
+			pfx_len = p - namelist[i];
+			pfx = strndup(namelist[i], pfx_len+1);
+			if (pfx == NULL) {
+			    /* not sure this is recoverable ... */
+			    sts = -errno;
+			    break;
+			}
+			pfx[pfx_len] = '\0';
+			np = locate(pfx, curr_pmns->root);
+			free(pfx);
 			if (np != NULL && np->first == NULL &&
 			   ((__pmID_int *)&np->pmid)->domain == DYNAMIC_PMID) {
 			  pmidlist[i] = np->pmid;
@@ -1985,8 +1994,18 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	    for (i = 0, tnp = np->first; tnp != NULL; tnp = tnp->next) {
 	        if ((tnp->pmid & MARK_BIT) == 0) {
 		    result[i] = p;
-		    if (statuslist != NULL) 
-		      status[i] = (tnp->first != NULL); /* has children */
+		    /*
+		     * a name at the root of a dynamic metrics subtree
+		     * needs some special handling ... they will have a
+		     * "special" PMID, but need the status set to indicate
+		     * they are not a leaf node of the PMNS
+		     */
+		    if (statuslist != NULL) {
+			if (((__pmID_int *)&tnp->pmid)->domain == DYNAMIC_PMID)
+			  status[i] = 1;
+			else
+			  status[i] = (tnp->first != NULL); /* has children */
+		    }
 		    strcpy(result[i], tnp->name);
 		    p += strlen(tnp->name) + 1;
 		    i++;

@@ -85,17 +85,29 @@ newentry(char *buf)
     if ((n = pmLookupName(1, &name, &pmid)) < 0) {
 	/* apparently not a metric name */
 	int	domain;
+	int	cluster;
+	int	item;
 	int	serial;
-	if (sscanf(buf, "%d.%d", &domain, &serial) == 2) {
+	pmID	*pmidp;
+	if (sscanf(buf, "%d.%d.%d", &domain, &cluster, &item) == 3) {
+	    /* a numeric pmid */
+	    __pmID_int	ii;
+	    ii.domain = domain;
+	    ii.cluster = cluster;
+	    ii.item = item;
+	    ii.flag = 0;
+	    pmidp = (pmID *)&ii;
+	    pmid = *pmidp;
+	}
+	else if (sscanf(buf, "%d.%d", &domain, &serial) == 2) {
 	    /* an entry for an instance domain */
 	    __pmInDom_int	ii;
-	    int			*ip;
 	    ii.domain = domain;
 	    ii.serial = serial;
 	    /* set a bit here to disambiguate pmInDom from pmID */
 	    ii.flag = 1;
-	    ip = (int *)&ii;
-	    pmid = (pmID)*ip;
+	    pmidp = (pmID *)&ii;
+	    pmid = *pmidp;
 	}
 	else {
 	    fprintf(stderr, "%s: [%s:%d] %s: %s, entry abandoned\n",
