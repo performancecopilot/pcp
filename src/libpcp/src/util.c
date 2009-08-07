@@ -1157,16 +1157,7 @@ __pmProcessExists(pid_t pid)
 int
 __pmProcessTerminate(pid_t pid, int force)
 {
-    if (pid != 0 && pid != -1)
-	return kill(pid, force ? SIGKILL : SIGTERM);
-    else {
-	/*
-	 * sending KILL or TERM to all processes in a process group
-	 * is just too dangerous ...
-	 */
-	return -EINVAL;
-    }
-
+    return kill(pid, force ? SIGKILL : SIGTERM);
 }
 #elif !defined(IS_MINGW)
 !bozo!
