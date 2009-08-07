@@ -19,7 +19,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-DFILES	= config
+DFILES	= config README
 CFILES	= pmda.c server.c util.c pmclusterd.c
 HFILES  = cluster.h
 # These C files are automatically generated.

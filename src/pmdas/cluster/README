@@ -41,8 +41,12 @@ o Cluster PMDA
            - metric config file sent to each cluster node daemon
              when it connects.
            - see /var/lib/pcp/pmdas/cluster/config
-           - Metrics list is configurable per-node, by storing
-             the desired metric config into cluster.control.metrics
+           - Metrics list is configurable per-node by
+             creating a /var/lib/pcp/pmdas/cluster/nodes/<hostname>
+             file in the same format as the global 'config' file.
+           - The metric list can be modified for a node on-the-fly
+             by storing the desired metric config into the correct
+             cluster.control.metrics instance.
         - Receives and caches performance data from the cluster
           nodes
 
