@@ -35,28 +35,42 @@ zfs_cache_inst(zfs_handle_t *zf, void *arg)
 {
     char *fsname = (char *)zfs_get_name(zf);
     pmInDom zfindom = indomtab[ZFS_INDOM].it_indom;
-    zfs_handle_t *cached;
+    zfs_handle_t *cached = NULL;
     uint_t cnt = 0;
     vdev_stat_t *vds;
-    int rv;
+    int inst, rv;
     nvlist_t *vdt;
 
-    if (pmdaCacheLookupName(zfindom, fsname, &rv,
-				(void **)&cached) != PMDA_CACHE_ACTIVE) {
-	rv = pmdaCacheStore(zfindom, PMDA_CACHE_ADD, fsname, zf);
-	if (rv < 0) {
-	    __pmNotifyErr(LOG_WARNING, 
-			  "Cannot cache ZFS handle for '%s': %s\n",
-			  fsname, pmErrStr(rv));
-	    return 0;
-	}
-	zf_added++;
-    } else {
+    if ((rv = pmdaCacheLookupName(zfindom, fsname, &inst,
+				  (void **)&cached)) == PMDA_CACHE_ACTIVE) {
 	zfs_close(zf);
 	if (arg == NULL)
 	    zfs_refresh_properties(cached);
 
 	zf = cached;
+    } else if ((rv == PMDA_CACHE_INACTIVE) && cached) {
+	rv = pmdaCacheStore(zfindom, PMDA_CACHE_ADD, fsname, cached);
+	if (rv < 0) {
+	    __pmNotifyErr(LOG_WARNING, 
+			  "Cannot reactivate cached ZFS handle for '%s': %s\n",
+			  fsname, pmErrStr(rv));
+	    zfs_close(zf);
+	    return 0;
+	}
+	zfs_close(zf);
+	if (arg == NULL)
+	    zfs_refresh_properties(cached);
+	zf = cached;
+    } else {
+	rv = pmdaCacheStore(zfindom, PMDA_CACHE_ADD, fsname, zf);
+	if (rv < 0) {
+	    __pmNotifyErr(LOG_WARNING, 
+			  "Cannot cache ZFS handle for '%s': %s\n",
+			  fsname, pmErrStr(rv));
+	    zfs_close(zf);
+	    return 0;
+	}
+	zf_added++;
     }
 
     zfs_iter_filesystems(zf, zfs_cache_inst, NULL);
@@ -69,6 +83,7 @@ zfs_refresh(void)
 {
     zf_added = 0;
 
+    pmdaCacheOp(indomtab[ZFS_INDOM].it_indom, PMDA_CACHE_INACTIVE);
     zfs_iter_root(zh, zfs_cache_inst, NULL);
 
     if (zf_added) {

@@ -38,22 +38,27 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 {
         nvlist_t *cfg = zpool_get_config(zp, NULL);
 	char *zpname = (char *)zpool_get_name(zp);
-	struct zpool_stats *zps;
+	struct zpool_stats *zps = NULL;
 	pmInDom zpindom = indomtab[ZPOOL_INDOM].it_indom;
         uint_t cnt = 0;
         vdev_stat_t *vds;
 	int rv;
+	int inst;
         nvlist_t *vdt;
 
-	if (pmdaCacheLookupName(zpindom, zpname, &rv,
-				(void **)&zps) != PMDA_CACHE_ACTIVE) {
-	    zps = malloc(sizeof(*zps));
-	    if (zps == NULL) {
-		__pmNotifyErr(LOG_WARNING, 
-			      "Cannot allocated memory for hold stats for "
-			      "zpool '%s'\n",
-			      zpname);
-		return 0;
+	if ((rv = pmdaCacheLookupName(zpindom, zpname, &inst,
+					(void **)&zps)) != PMDA_CACHE_ACTIVE) {
+	    int newpool = (zps == NULL);
+
+	    if (rv != PMDA_CACHE_INACTIVE || zps == NULL) {
+		zps = malloc(sizeof(*zps));
+		if (zps == NULL) {
+		    __pmNotifyErr(LOG_WARNING, 
+				  "Cannot allocate memory to hold stats for "
+				  "zpool '%s'\n",
+				  zpname);
+		    return 0;
+		}
 	    }
 
 	    rv = pmdaCacheStore(zpindom, PMDA_CACHE_ADD, zpname, zps);
@@ -65,7 +70,7 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 		free(zps);
 		return 0;
 	    }
-	    zp_added++;
+	    zp_added += newpool;
 	}
 
 	rv = nvlist_lookup_nvlist(cfg, ZPOOL_CONFIG_VDEV_TREE, &vdt);
@@ -95,6 +100,7 @@ zpool_refresh(void)
 {
     zp_added = 0;
 
+    pmdaCacheOp(indomtab[ZPOOL_INDOM].it_indom, PMDA_CACHE_INACTIVE);
     zpool_iter(zh, zp_cache_pool, NULL);
 
     if (zp_added) {
