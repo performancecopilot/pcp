@@ -1,16 +1,16 @@
 /*
- * Copyright (C) 2009 Max Matveev.  All rights reserved. 
- * 
+ * Copyright (C) 2009 Max Matveev.  All rights reserved.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
@@ -53,7 +53,7 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 	    if (rv != PMDA_CACHE_INACTIVE || zps == NULL) {
 		zps = malloc(sizeof(*zps));
 		if (zps == NULL) {
-		    __pmNotifyErr(LOG_WARNING, 
+		    __pmNotifyErr(LOG_WARNING,
 				  "Cannot allocate memory to hold stats for "
 				  "zpool '%s'\n",
 				  zpname);
@@ -63,7 +63,7 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 
 	    rv = pmdaCacheStore(zpindom, PMDA_CACHE_ADD, zpname, zps);
 	    if (rv < 0) {
-		__pmNotifyErr(LOG_WARNING, 
+		__pmNotifyErr(LOG_WARNING,
 			      "Cannot add '%s' to the cache "
 			      "for instance domain %s: %s\n",
 			      zpname, pmInDomStr(zpindom), pmErrStr(rv));

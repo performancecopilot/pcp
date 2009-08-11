@@ -1,16 +1,16 @@
 /*
- * Copyright (C) 2009 Max Matveev. All Rights Reserved 
- * 
+ * Copyright (C) 2009 Max Matveev. All Rights Reserved
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
@@ -51,7 +51,7 @@ zfs_cache_inst(zfs_handle_t *zf, void *arg)
     } else if ((rv == PMDA_CACHE_INACTIVE) && cached) {
 	rv = pmdaCacheStore(zfindom, PMDA_CACHE_ADD, fsname, cached);
 	if (rv < 0) {
-	    __pmNotifyErr(LOG_WARNING, 
+	    __pmNotifyErr(LOG_WARNING,
 			  "Cannot reactivate cached ZFS handle for '%s': %s\n",
 			  fsname, pmErrStr(rv));
 	    zfs_close(zf);
@@ -64,7 +64,7 @@ zfs_cache_inst(zfs_handle_t *zf, void *arg)
     } else {
 	rv = pmdaCacheStore(zfindom, PMDA_CACHE_ADD, fsname, zf);
 	if (rv < 0) {
-	    __pmNotifyErr(LOG_WARNING, 
+	    __pmNotifyErr(LOG_WARNING,
 			  "Cannot cache ZFS handle for '%s': %s\n",
 			  fsname, pmErrStr(rv));
 	    zfs_close(zf);

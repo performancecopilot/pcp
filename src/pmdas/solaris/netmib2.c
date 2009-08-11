@@ -1,16 +1,16 @@
 /*
- * Copyright (C) 2009 Max Matveev. All rights reserved. 
- * 
+ * Copyright (C) 2009 Max Matveev. All rights reserved.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
@@ -56,7 +56,7 @@ netif_cache_inst(const char *ifname)
 
 	rv = pmdaCacheStore(indom, PMDA_CACHE_ADD, (char *)ifname, ist);
 	if (rv < 0) {
-	    __pmNotifyErr(LOG_WARNING, 
+	    __pmNotifyErr(LOG_WARNING,
 			  "Cannot create instance for '%s': %s\n",
 			  ifname, pmErrStr(rv));
 	    free(ist);
@@ -94,7 +94,7 @@ ipv4_ifstats(const void *data, int sz)
 
     while (sz > 0) {
 	/* index 0 is a pseudo-interface */
-	if (ips->ipIfStatsIfIndex) { 
+	if (ips->ipIfStatsIfIndex) {
 	    nm2_netif_stats_t *ist;
 	    char name[64];
 
@@ -112,7 +112,7 @@ ipv4_ifstats(const void *data, int sz)
 		ist->delivered = ips->ipIfStatsHCInDelivers;
 		ist->idrops = ips->ipIfStatsInDiscards;
 		ist->odrops = ips->ipIfStatsOutDiscards;
-		ist->ierrors = 
+		ist->ierrors =
 		    + (uint64_t)ips->ipIfStatsInHdrErrors
 		    + ips->ipIfStatsInTooBigErrors
 		    + ips->ipIfStatsInNoRoutes
@@ -284,7 +284,7 @@ netmib2_fetch(pmdaMetric *pm, int inst, pmAtomValue *av)
 	case PM_TYPE_U32:
 	    av->ul = *(uint32_t *)(ist + md->md_offset);
 	    return 1;
-	    
+ 
 	case PM_TYPE_U64:
 	    av->ull = *(uint64_t *)(ist + md->md_offset);
 	    return 1;
