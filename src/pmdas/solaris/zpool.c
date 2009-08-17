@@ -57,7 +57,7 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 				  "Cannot allocate memory to hold stats for "
 				  "zpool '%s'\n",
 				  zpname);
-		    return 0;
+		    goto done;
 		}
 	    }
 
@@ -68,7 +68,7 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 			      "for instance domain %s: %s\n",
 			      zpname, pmInDomStr(zpindom), pmErrStr(rv));
 		free(zps);
-		return 0;
+		goto done;
 	    }
 	    zp_added += newpool;
 	}
@@ -78,20 +78,22 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 	    __pmNotifyErr(LOG_ERR, "Cannot get vdev tree for '%s': %d %d\n",
 			  zpname, rv, errno);
 	    zps->vdev_stats_fresh = 0;
-	    return 0;
-	}
-
-	rv = nvlist_lookup_uint64_array(vdt, ZPOOL_CONFIG_STATS,
-				       (uint64_t **)&vds, &cnt);
-	if (rv == 0) {
-	    memcpy(&zps->vds, vds, sizeof(zps->vds));
-	    zps->vdev_stats_fresh = 1;
 	} else {
-	    __pmNotifyErr(LOG_ERR, "Cannot get zpool stats for '%s': %d %d\n",
-			  zpname, rv, errno);
-	    zps->vdev_stats_fresh = 0;
+	    rv = nvlist_lookup_uint64_array(vdt, ZPOOL_CONFIG_STATS,
+					    (uint64_t **)&vds, &cnt);
+	    if (rv == 0) {
+		memcpy(&zps->vds, vds, sizeof(zps->vds));
+		zps->vdev_stats_fresh = 1;
+	    } else {
+		__pmNotifyErr(LOG_ERR,
+			      "Cannot get zpool stats for '%s': %d %d\n",
+			      zpname, rv, errno);
+		zps->vdev_stats_fresh = 0;
+	    }
 	}
 
+done:
+	zpool_close(zp);
 	return 0;
 }
 
