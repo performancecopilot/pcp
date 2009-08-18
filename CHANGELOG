@@ -1,7 +1,10 @@
-pcp-3.0.0 (6 Aug 2009)
+pcp-3.0.0 (18 Aug 2009)
     - packaging split into pcp, pcp-libs and pcp-devel
       pcp-libs is common - it's required by pcp and by pcp-devel but
       pcp and pcp-devel can be installed with or without each other.
+    - clean-up and simplify the %post scriptlets
+    - don't install static libraries, we have debuginfo for that
+    - numerous other minor changes, mostly for inclusion in Fedora
 
 pcp-2.9.0 (27 July 2009)
     - Fix Linux PMDA issue with -fstack-protector gcc option.

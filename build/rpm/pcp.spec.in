@@ -1,8 +1,26 @@
-# norootforbuild
+Summary: System-level performance monitoring and performance management
+Name: @package_name@
+Version: @package_version@
+Release: @package_release@@package_sgirelease@
+License: GPLv2
+Vendor: Silicon Graphics, Inc.
+URL: http://oss.sgi.com/projects/pcp
+Group: Applications/System
 
 %define sgi_chroot_build @sgi_chroot_build@
 %define sgi_issp_build @sgi_issp_build@
 %define have_ibdev @have_ibdev@
+
+%if %{have_ibdev}
+%define ib_build_prereqs libibmad-devel libibumad-devel libibcommon-devel
+%endif
+
+%if %sgi_chroot_build
+Source: @package_name@-@package_version@.tar.bz2
+BuildRequires: gcc-c++ libstdc++-devel %{?ib_build_prereqs}
+%else
+Source: @package_name@-@package_version@-@package_release@.src.tar.gz
+%endif
 
 %if %{sgi_chroot_build}
 %define ib_prereqs libibmad-pp >= 1.1.6-1.ofed20080604r1.3.1sgi601 libibumad-pp >= 1.1.7  libibcommon-pp 
@@ -14,40 +32,18 @@
 %endif
 %endif
 
-Name: @package_name@
-Version: @package_version@
-Release: @package_release@@package_sgirelease@
 Distribution: @package_distribution@
 %if %sgi_chroot_build
 Packager: Silicon Graphics, Inc. <http://www.sgi.com/>
 %endif
 BuildRoot: @build_root@ 
-BuildRequires: gcc-c++ libstdc++-devel procps autoconf bison flex ncurses-devel
-
-%if %sgi_chroot_build
-Source: @package_name@-@package_version@.tar.bz2
-BuildRequires: gcc-c++ libstdc++-devel %{?ib_build_prereqs}
-
-#
-# Try not building 32bit libs for x86_64 & see who screams 
-#%ifarch x86_64
-#BuildRequires: glibc-devel-32bit
-#%endif
-%else
-Source: @package_name@-@package_version@-@package_release@.src.tar.gz
-%endif
+BuildRequires: procps autoconf bison flex ncurses-devel %{?ib_build_prereqs}
+BuildRequires: perl-ExtUtils-MakeMaker
 
 Conflicts: pcp-pro < 2.2
 
 # Stuff used indirectly e.g. by shell scripts we install
 Requires: bash gawk sed grep fileutils findutils cpp
-
-# RPMs supplying "direct" requirements
-Requires: glibc libgcc libstdc++ %{?ib_prereqs}
-%ifarch ia64
-Requires: libunwind
-%endif
-
 %if "%{_vendor}" == "suse"
 Requires: sysconfig
 %else
@@ -58,56 +54,44 @@ Requires: initscripts
 Obsoletes: pcp <= @package_version@
 Provides: pcp = @package_version@
 %endif
-
 Requires: pcp-libs = @package_version@
 
-Summary: System-level performance monitoring and performance management
-License: GPL+ and LGPLv2+
-Vendor: Silicon Graphics, Inc.
-URL: http://oss.sgi.com/projects/pcp
-Group: Applications/System
+%description
+Performance Co-Pilot (PCP) provides a framework and services to support
+system-level performance monitoring and performance management. 
+
+The PCP open source release provides a unifying abstraction for all of
+the interesting performance data in a system, and allows client
+applications to easily retrieve and process any subset of that data. 
 
 #
 # pcp-libs
 #
 %package libs
+License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot run-time libraries
 Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp/
 
-Provides: pcp-libs = @package_version@
-Provides: pcp-devel = @package_version@
-
 Obsoletes: pcp < 3.0
+
+%description libs
+Performance Co-Pilot (PCP) run-time libraries
 
 #
 # pcp-devel
 #
 %package devel
+License: GPLv2
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) development headers and static libraries
-Vendor: Silicon Graphics, Inc.
+Summary: Performance Co-Pilot (PCP) development headers and documentation
 URL: http://oss.sgi.com/projects/pcp/
 
 Requires: pcp-libs = @package_version@
 
-%description
-Performance Co-Pilot (PCP) is a framework and services to
-support system-level performance monitoring and performance
-management. 
-
-The PCP open source release provides a unifying abstraction for
-all of the interesting performance data in a system, and allows
-client applications to easily retrieve and process any subset of
-that data. 
-
-%description libs
-Performance Co-Pilot (PCP) run-time libraries
-
 %description devel
-Performance Co-Pilot (PCP) headers, static libraries, documentation
-and tools for development.
+Performance Co-Pilot (PCP) headers, documentation and tools for development.
 
 %if %sgi_chroot_build
 %debug_package
@@ -199,8 +183,6 @@ set -x
 %files devel -f devel_files.rpm
 %defattr(-,root,root)
 
-%pre
-exit 0
 
 %preun
 if [ "$1" -eq 0 ]
@@ -208,150 +190,27 @@ then
     #
     # Stop daemons before erasing the package
     #
-    if [ -f /etc/pcp.env -a -f /etc/pcp.conf ] ; then
-	. /etc/pcp.env
-	$PCP_RC_DIR/pcp stop >/dev/null 2>&1
-	$PCP_RC_DIR/pmie stop >/dev/null 2>&1
-	[ -x $PCP_RC_DIR/pmproxy ] && PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
-	rm -f $PCP_VAR_DIR/pmns/.NeedRebuild
-    else
-	PCP_WHICH_PROG=type
-    fi
+    /sbin/service pcp stop >/dev/null 2>&1
+    /sbin/service pmie stop >/dev/null 2>&1
+    /sbin/service pmproxy stop >/dev/null 2>&1
 
-    if $PCP_WHICH_PROG chkconfig >/dev/null 2>&1
-    then
-	chkconfig --del pcp >/dev/null 2>&1
-	chkconfig --del pmie >/dev/null 2>&1
-	chkconfig --del pmproxy >/dev/null 2>&1
-    else
-	rm -f /etc/rc.d/rc?.d/S*pcp >/dev/null 2>&1
-	rm -f /etc/rc.d/rc?.d/K*pcp >/dev/null 2>&1
-	rm -f /etc/rc.d/rc?.d/S*pmie >/dev/null 2>&1
-	rm -f /etc/rc.d/rc?.d/K*pmie >/dev/null 2>&1
-	rm -f /etc/rc.d/rc?.d/S*pmproxy >/dev/null 2>&1
-	rm -f /etc/rc.d/rc?.d/K*pmproxy >/dev/null 2>&1
-    fi
+    rm -f %{_localstatedir}/lib/pcp/pmns/.NeedRebuild
+
+    /sbin/chkconfig --del pcp >/dev/null 2>&1
+    /sbin/chkconfig --del pmie >/dev/null 2>&1
+    /sbin/chkconfig --del pmproxy >/dev/null 2>&1
 fi
-exit 0
-
-%postun
-exit 0
 
 %post
-if [ -f /etc/pcp.env -a -f /etc/pcp.conf ] ; then
-    . /etc/pcp.env
-    . $PCP_SHARE_DIR/lib/rc-proc.sh
-    touch $PCP_VAR_DIR/pmns/.NeedRebuild
-    chmod 644 $PCP_VAR_DIR/pmns/.NeedRebuild
+touch %{_localstatedir}/lib/pcp/pmns/.NeedRebuild
 
-    if [ ! -f $PCP_VAR_DIR/pmns/root ]
-    then
-	if [ -f $PCP_VAR_DIR/pmns/root.saved ]
-	then
-	    # restore the previous pmns after upgrade
-	    mv $PCP_VAR_DIR/pmns/root.saved $PCP_VAR_DIR/pmns/root
-	else
-	    # empty initial name space (prior to Rebuild)
-	    echo "root {" >$PCP_VAR_DIR/pmns/root
-	    echo "}" >>$PCP_VAR_DIR/pmns/root
-	fi
-	chmod 644 $PCP_VAR_DIR/pmns/root
-    else
-	# root pmns already exists, so we need to restore
-	# pmcd.conf and pmcd.options if they were saved.
-	for f in $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH
-	do
-	    if [ -f $f -a -f $f.rpmsave ]
-	    then
-		mv $f $f.rpmnew
-		mv $f.rpmsave $f
-	    fi
-	done
-    fi
+/sbin/chkconfig --add pcp >/dev/null 2>&1
+/sbin/chkconfig --add pmie >/dev/null 2>&1
+/sbin/chkconfig --add pmproxy >/dev/null 2>&1
 
-    if $PCP_WHICH_PROG chkconfig >/dev/null 2>&1
-    then
-	chkconfig --add pcp >/dev/null 2>&1
-	chkconfig --add pmie >/dev/null 2>&1
-	chkconfig --add pmproxy >/dev/null 2>&1
-    fi
+%post libs -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
 
-    # pcp (pmcd and pmlogger) is on by default, pmie/pmproxy are off.
-    # we don't switch anything off though, in case admin has enabled
-    # those things and we're just upgrading pcp.
-    chkconfig_on pcp >/dev/null 2>&1
-
-    #
-    # delete *.rpmorig turds that are the same as their new version
-    find $PCP_VAR_DIR/config -name \*.rpmorig -print \
-    | while read f
-    do
-	if diff $f `basename $f .rpmorig` >/dev/null 2>&1
-	then
-	    rm -f $f
-	fi
-    done
-fi
-exit 0
-
-%triggerpostun -- pcp < 2.1.9
-#
-# Fix for bug where pcp-2.1.6 %postun script would chkconfig pcp off
-# and remove the .NeedRebuild and .NeedUpdate files. This was done
-# *after* the %post script of the new version, causing upgrade havoc.
-#
-if [ "$1" -gt 0 ]
-then
-    . /etc/pcp.env
-    . $PCP_SHARE_DIR/lib/rc-proc.sh
-    touch $PCP_VAR_DIR/pmns/.NeedRebuild
-    chmod 644 $PCP_VAR_DIR/pmns/.NeedRebuild
-
-    if which chkconfig >/dev/null 2>&1
-    then
-	chkconfig --add pcp >/dev/null 2>&1
-	chkconfig --add pmie >/dev/null 2>&1
-    fi
-
-    # pcp (pmcd and pmlogger) is on by default
-    # pmie is off by default
-    chkconfig_on pcp >/dev/null 2>&1
-fi
-exit 0
-
-%triggerun -- pcp < 2.2.0-18
-#
-# first half of fix for bug #825229 where upgrade
-# clobbers $PCP_VAR_DIR/pmns/root
-#
-if [ "$1" -gt 0 ]
-then
-    . /etc/pcp.env
-    if [ -f $PCP_VAR_DIR/pmns/root ]
-    then
-	cp $PCP_VAR_DIR/pmns/root $PCP_VAR_DIR/pmns/root.saved 
-    fi
-fi
-exit 0
-
-%triggerpostun -- pcp < 2.2.0-18
-#
-# second half of the fix for bug #825229
-#
-if [ "$1" -gt 0 ]
-then
-    . /etc/pcp.env
-    if [ ! -f $PCP_VAR_DIR/pmns/root ]
-    then
-	if [ -f $PCP_VAR_DIR/pmns/root.saved ]
-	then
-	    mv $PCP_VAR_DIR/pmns/root.saved $PCP_VAR_DIR/pmns/root
-	else
-	    # empty initial name space (prior to Rebuild)
-	    echo "root {" >$PCP_VAR_DIR/pmns/root
-	    echo "}" >>$PCP_VAR_DIR/pmns/root
-	fi
-	chmod 644 $PCP_VAR_DIR/pmns/root
-    fi
-fi
-exit 0
+%changelog
+* Tue Aug 18 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-3
+- bump to v3.0.0 and reconcile spec with Fedora spec

@@ -1,11 +1,11 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
 Version: 3.0.0
-Release: 2%{?dist}
-License: GPL+ and LGPLv2+
+Release: 3%{?dist}
+License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
-Source0: ftp://oss.sgi.com/projects/pcp/download/v3/pcp-3.0.0-2.src.tar.gz
+Source0: ftp://oss.sgi.com/projects/pcp/download/v3/pcp-3.0.0-3.src.tar.gz
 
 # Infiniband monitoring support turned off (for now)
 %define have_ibdev 0
@@ -19,13 +19,6 @@ BuildRequires: procps autoconf bison flex ncurses-devel %{?ib_build_prereqs}
 BuildRequires: perl-ExtUtils-MakeMaker
 
 Requires: bash gawk sed grep fileutils findutils cpp initscripts
-
-#
-# Prior to v3, the PCP package implicitly "provides" -libs and -devel.
-# Strictly, pcp-libs should obsolete the v2.x PCP package, but since
-# pcp requires pcp-libs, pcp can just obsolete itself. This is thus
-# redundant dependency, but included for clarity.
-Obsoletes: pcp < 3.0
 Requires: pcp-libs = %{version}
 
 %description
@@ -40,16 +33,10 @@ applications to easily retrieve and process any subset of that data.
 # pcp-libs
 #
 %package libs
+License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot run-time libraries
 URL: http://oss.sgi.com/projects/pcp/
-
-#
-# The following is not strictly needed - dependent packages
-# such as pcp-gui will work with just pcp-libs installed.
-# The dependency is here because the Fedora packaging guidelines
-# insist that the -libs sub-package requires the base package.
-Requires: pcp = %{version}
 
 %description libs
 Performance Co-Pilot (PCP) run-time libraries
@@ -58,15 +45,15 @@ Performance Co-Pilot (PCP) run-time libraries
 # pcp-devel
 #
 %package devel
+License: GPLv2
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) development headers and static libraries
+Summary: Performance Co-Pilot (PCP) development headers and documentation
 URL: http://oss.sgi.com/projects/pcp/
 
 Requires: pcp-libs = %{version}
 
 %description devel
-Performance Co-Pilot (PCP) headers, static libraries, documentation
-and tools for development.
+Performance Co-Pilot (PCP) headers, documentation and tools for development.
 
 %prep
 %setup -q
@@ -221,9 +208,5 @@ touch %{_localstatedir}/lib/pcp/pmns/.NeedRebuild
 %postun libs -p /sbin/ldconfig
 
 %changelog
-* Thu Aug 06 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-2
-- updates following community review
-
-* Fri Jul 31 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-1
+* Tue Aug 18 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-3
 - initial import into Fedora
-
