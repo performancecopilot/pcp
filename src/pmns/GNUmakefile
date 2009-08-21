@@ -37,10 +37,10 @@ LSRCFILES = Make.stdpmid GNUmakefile.install Rebuild ReplacePmnsSubtree \
 	    $(STDPMID) $(SCRIPTS) $(LOCKERS)
 
 LLDLIBS = -lpcp
-LDIRT	= *.log *.pmns stdpmid $(TARGETS)
+LDIRT	= *.log *.pmns stdpmid .NeedRebuild $(TARGETS)
 
 default:	$(SCRIPTS) $(LOCKERS) $(TARGETS) \
-		GNUmakefile.install Rebuild ReplacePmnsSubtree stdpmid
+		GNUmakefile.install .NeedRebuild Rebuild ReplacePmnsSubtree stdpmid
 
 include $(BUILDRULES)
 
@@ -49,6 +49,9 @@ pmnsmerge$(EXECSUFFIX):      pmnsmerge.o pmnsutil.o
 
 pmnsdel$(EXECSUFFIX):        pmnsdel.o pmnsutil.o
 	$(CCF) -o $@ $(LDFLAGS) pmnsdel.o pmnsutil.o $(LDLIBS)
+
+.NeedRebuild:
+	touch .NeedRebuild
 
 # All PMNS config stuff goes in $PCP_VAR_DIR/pmns
 # For platforms with packaging, the .NeedRebuild hook is added there,
@@ -60,7 +63,7 @@ install:	default
 	$(INSTALL) -m 644 GNUmakefile.install $(PMNS_VAR_DIR)/Makefile
 	$(INSTALL) -m 755 Rebuild $(PMNS_VAR_DIR)/Rebuild
 	$(INSTALL) -m 755 Make.stdpmid $(PMNS_VAR_DIR)/Make.stdpmid
-	$(INSTALL) -m 644 $(STDPMID) $(PMNS_VAR_DIR)
+	$(INSTALL) -m 644 .NeedRebuild $(STDPMID) $(PMNS_VAR_DIR)
 
 stdpmid:	$(STDPMID)
 	PCP_CONF=$(TOPDIR)/src/include/pcp.conf export PCP_CONF; \
