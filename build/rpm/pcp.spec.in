@@ -80,9 +80,9 @@ Obsoletes: pcp < 3.0
 Performance Co-Pilot (PCP) run-time libraries
 
 #
-# pcp-devel
+# pcp-libs-dvel
 #
-%package devel
+%package libs-devel
 License: GPLv2
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) development headers and documentation
@@ -90,7 +90,7 @@ URL: http://oss.sgi.com/projects/pcp/
 
 Requires: pcp-libs = @package_version@
 
-%description devel
+%description libs-devel
 Performance Co-Pilot (PCP) headers, documentation and tools for development.
 
 %if %sgi_chroot_build
@@ -113,7 +113,6 @@ fi
 %if %sgi_issp_build
 %{_sgi_find_crypto}
 %endif
-
 
 %clean
 [ ! -z "$DIST_ROOT" ] && rm -rf $DIST_ROOT
@@ -174,16 +173,6 @@ $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
 
 set -x
 
-%files -f base_files.rpm
-%defattr(-,root,root)
-
-%files libs -f libs_files.rpm
-%defattr(-,root,root)
-
-%files devel -f devel_files.rpm
-%defattr(-,root,root)
-
-
 %preun
 if [ "$1" -eq 0 ]
 then
@@ -194,16 +183,12 @@ then
     /sbin/service pmie stop >/dev/null 2>&1
     /sbin/service pmproxy stop >/dev/null 2>&1
 
-    rm -f %{_localstatedir}/lib/pcp/pmns/.NeedRebuild
-
     /sbin/chkconfig --del pcp >/dev/null 2>&1
     /sbin/chkconfig --del pmie >/dev/null 2>&1
     /sbin/chkconfig --del pmproxy >/dev/null 2>&1
 fi
 
 %post
-touch %{_localstatedir}/lib/pcp/pmns/.NeedRebuild
-
 /sbin/chkconfig --add pcp >/dev/null 2>&1
 /sbin/chkconfig --add pmie >/dev/null 2>&1
 /sbin/chkconfig --add pmproxy >/dev/null 2>&1
@@ -211,6 +196,15 @@ touch %{_localstatedir}/lib/pcp/pmns/.NeedRebuild
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
 
+%files -f base_files.rpm
+%defattr(-,root,root)
+
+%files libs -f libs_files.rpm
+%defattr(-,root,root)
+
+%files libs-devel -f devel_files.rpm
+%defattr(-,root,root)
+
 %changelog
-* Tue Aug 18 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-3
+* Fri Aug 21 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-4
 - bump to v3.0.0 and reconcile spec with Fedora spec
