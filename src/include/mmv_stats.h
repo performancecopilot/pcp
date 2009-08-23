@@ -78,6 +78,8 @@ typedef enum {
 extern void * mmv_stats_init(const char *, int, mmv_stats_flags_t,
 				const mmv_metric_t *, int,
 				const mmv_indom_t *, int);
+extern void mmv_stats_stop(const char *, void *);
+
 extern pmAtomValue * mmv_lookup_value_desc(void *, const char *, const char *);
 extern void mmv_inc_value(void *, pmAtomValue *, double);
 extern void mmv_set_value(void *, pmAtomValue *, double);
