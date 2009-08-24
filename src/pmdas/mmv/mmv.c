@@ -234,8 +234,7 @@ map_stats(void)
 	char path[MAXPATHLEN];
 	char *client;
 
-	if (strncmp(files[i]->d_name, ".", 2) == 0 ||
-	    strncmp(files[i]->d_name, "..", 3) == 0)
+	if (files[i]->d_name[0] == '.')
 	    continue;
 
 	client = files[i]->d_name;
