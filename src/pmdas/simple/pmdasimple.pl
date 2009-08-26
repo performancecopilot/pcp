@@ -168,7 +168,7 @@ $pmda->add_metric(pmda_pmid(1,3), PM_TYPE_DOUBLE, PM_INDOM_NULL,
 		  'simple.time.sys', '', '');
 $pmda->add_metric(pmda_pmid(2,4), PM_TYPE_U32, $now_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'simple.time.now', '', '');
+		  'simple.now', '', '');
 
 $pmda->add_indom($color_indom, [0 => 'red', 1 => 'green', 2 => 'blue'], '', '');
 $now = $pmda->add_indom($now_indom, [],	'', ''); # initialized on-the-fly
