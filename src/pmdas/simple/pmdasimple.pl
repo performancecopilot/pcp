@@ -50,7 +50,7 @@ sub simple_fetch_callback	# must return array of value,status
 {
     my ($cluster, $item, $inst) = @_;
 
-    return (PM_ERR_INST, 0) unless ( $inst == -1
+    return (PM_ERR_INST, 0) unless ( $inst == PM_IN_NULL
 				    || ($cluster == 0 && $item == 1)
 				    || ($cluster == 2 && $item == 4) );
     if ($cluster == 0) {
