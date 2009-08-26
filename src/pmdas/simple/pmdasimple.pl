@@ -27,7 +27,7 @@ my ( $color_indom, $now_indom ) = ( 0, 1 );
 my ( $red, $green, $blue ) = ( 0, 100, 200 );
 
 # simple.now instance domain stuff...
-my $simple_config = '/var/lib/pcp/pmdas/simple/simple.conf';
+my $simple_config = pmda_config('PCP_PMDAS_DIR') . '/simple/simple.conf';
 # timeslice array format: value, instance id, instance name
 my @timeslices = ( [0, 1, 'sec'], [0, 60, 'min'], [0, 3600, 'hour'] );
 my $file_change = 0;
