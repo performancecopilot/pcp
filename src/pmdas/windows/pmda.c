@@ -1205,6 +1205,12 @@ pdh_metric_t metricdesc[] = {
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_NONE, 0, 0, 0, NULL, ""
     },
 
+/* kernel.all.uptime */
+    { { PMDA_PMID(0,234), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, M_REDO, 0, 0, 0, NULL,
+      "\\System\\System Up Time"
+    },
+
 /* mem.physmem */
     { { PMDA_PMID(1,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
