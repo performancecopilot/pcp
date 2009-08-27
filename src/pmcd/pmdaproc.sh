@@ -24,60 +24,79 @@
 tmp=/var/tmp/$$
 trap "rm -f $tmp; exit" 0 1 2 3 15
 
-# Try to catch some truly evil preconditions.  If you cannot reach
-# localhost, all bets are off!
-#
-if which ping >/dev/null 2>&1
-then
-    __opt=''
-    # Larry Wall style hunt for the version of ping that is first
-    # on our path
+_setup_platform()
+{
+    case "$PCP_PLATFORM"
+    in
+	mingw)
+	    uid=0	# no permissions we can usefully test here
+	    dso_suffix=dll
+	    default_pipe_opt=false
+	    default_socket_opt=true
+	    CHOWN=": skip chown"
+	    CHMOD=chmod
+	    ;;
+	*)
+	    eval `id | sed -e 's/(.*//'`
+	    dso_suffix=so
+	    [ "$PCP_PLATFORM" = darwin ] && dso_suffix=dylib
+	    default_pipe_opt=true
+	    default_socket_opt=false
+	    CHOWN=chown
+	    CHMOD=chmod
+	    ;;
+    esac
+}
+
+_setup_localhost()
+{
+    # Try to catch some truly evil preconditions.  If you cannot reach
+    # localhost, all bets are off!
     #
-    ping --help >$tmp 2>&1
-    if grep '.-c count' $tmp >/dev/null 2>&1
+    if which ping >/dev/null 2>&1
     then
-	__opt='-c 1 localhost'
-    elif grep '.-n count' $tmp >/dev/null 2>&1
-    then
-	__opt='-n 1 localhost'
-    elif grep 'host .*packetsize .*count' $tmp >/dev/null 2>&1
-    then
-	__opt='localhost 56 1'
-    fi
-    if [ -z "$__opt" ]
-    then
-	echo "Warning: can't find a ping(1) that I understand ... pushing on"
-    else
-	if ping $__opt >$tmp 2>&1
+	__opt=''
+	# Larry Wall style hunt for the version of ping that is first
+	# on our path
+	#
+	ping --help >$tmp 2>&1
+	if grep '.-c count' $tmp >/dev/null 2>&1
 	then
-	    :
+	    __opt='-c 1 localhost'
+	elif grep '.-n count' $tmp >/dev/null 2>&1
+	then
+	    __opt='-n 1 localhost'
+	elif grep 'host .*packetsize .*count' $tmp >/dev/null 2>&1
+	then
+	    __opt='localhost 56 1'
+	fi
+	if [ -z "$__opt" ]
+	then
+	    echo "Warning: can't find a ping(1) that I understand ... pushing on"
 	else
-	    # failing that, try 3 pings ... failure means all 3 were lost,
-	    # and so there is no hope of continuing
-	    #
-	    __opt=`echo "$__opt" | sed -e 's/1/3/'`
-	    if ping $__opt >/dev/null 2>&1
+	    if ping $__opt >$tmp 2>&1
 	    then
 		:
 	    else
-		echo "Error: no route to localhost, pmcd reconfiguration abandoned" 
-		exit 1
+		# failing that, try 3 pings ... failure means all 3 were lost,
+		# and so there is no hope of continuing
+		#
+		__opt=`echo "$__opt" | sed -e 's/1/3/'`
+		if ping $__opt >/dev/null 2>&1
+		then
+		    :
+		else
+		    echo "Error: no route to localhost, pmcd reconfiguration abandoned" 
+		    exit 1
+		fi
 	    fi
 	fi
     fi
-fi
-rm -f $tmp
+}
 
-# chown/chmod is not always helpful
-#
-if [ "$PCP_PLATFORM" = mingw ]
-then
-    CHOWN=": skip chown"
-    CHMOD=chmod
-else
-    CHOWN=chown
-    CHMOD=chmod
-fi
+_setup_localhost
+_setup_platform
+rm -f $tmp
 
 # some useful common variables for Install/Remove scripts
 #
@@ -120,9 +139,9 @@ perl_opt=false
 #	Can install as daemon?
 daemon_opt=true
 #	If daemon, pipe?
-pipe_opt=true
+pipe_opt=$default_pipe_opt
 #	If daemon, socket?  and default for Internet sockets?
-socket_opt=false
+socket_opt=$default_socket_opt
 socket_inet_def=''
 #	IPC Protocol for daemon (binary only now)
 ipc_prot=binary
@@ -768,9 +787,6 @@ _setup()
     # some more configuration controls
     pmns_name=${pmns_name-$iam}
     pmda_name=pmda$iam
-    dso_suffix=so
-    [ "$PCP_PLATFORM" = darwin ] && dso_suffix=dylib
-    [ "$PCP_PLATFORM" = mingw  ] && dso_suffix=dll
     dso_name="${PCP_PMDAS_DIR}/${iam}/pmda_${iam}.${dso_suffix}"
     dso_name=`__strip_pcp_dir "$dso_name"`
     dso_entry=${iam}_init
@@ -788,10 +804,11 @@ _setup()
 	perl_name=`__strip_pcp_dir "$perl_name"`
 	perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns"
 	perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h"
-	test -s "$perl_dom" || \
-		eval PCP_PERL_DOMAIN=1 perl "$perl_name" > "$perl_dom"
-	test -s "$perl_pmns" || \
-		eval PCP_PERL_PMNS=1 perl "$perl_name" > "$perl_pmns"
+	perl -e 'use PCP::PMDA' 2>/dev/null
+	if test $? -eq 0; then
+	    eval PCP_PERL_DOMAIN=1 perl "$perl_name" > "$perl_dom"
+	    eval PCP_PERL_PMNS=1 perl "$perl_name" > "$perl_pmns"
+	fi
     fi
 
     # Set $domain and $SYMDOM from domain.h
@@ -869,14 +886,6 @@ _install()
 		:
 	    else
 		echo 'Botch: must set at least one of $pipe_opt or $socket_opt to "true"'
-		exit 1
-	    fi
-	fi
-	if $perl_opt
-	then
-	    perl -e 'use PCP::PMDA' 2>/dev/null
-	    if test $? -ne 0; then
-		echo 'Error: Perl PCP::PMDA module is not installed'
 		exit 1
 	    fi
 	fi
@@ -1010,7 +1019,12 @@ _install()
 		    break
 		elif [ "X$pmda_type" = Xperl ]
 		then
-		    break
+		    perl -e 'use PCP::PMDA' 2>/dev/null
+		    if test $? -ne 0; then
+			echo 'Perl PCP::PMDA module is not installed, install it and try again'
+		    else
+			break
+		    fi
 		else
 		    echo "Must choose one of $pmda_options, please try again"
 		fi
@@ -1174,24 +1188,11 @@ _remove()
 
 _check_userroot()
 {
-    case "$PCP_PLATFORM"
-    in
-	mingw)
-	    # nothing we can usefully do here, skip the test
-	    #
-	    ;;
-
-	*)
-	    # standard Unix/Linux style test
-	    #
-	    eval `id | sed -e 's/(.*//'`
-	    if [ "$uid" -ne 0 ]
-	    then
-		echo "Error: You must be root (uid 0) to update the PCP collector configuration."
-		exit 1
-	    fi
-	    ;;
-    esac
+    if [ "$uid" -ne 0 ]
+    then
+	echo "Error: You must be root (uid 0) to update the PCP collector configuration."
+	exit 1
+    fi
 }
 
 # preferred public interfaces
