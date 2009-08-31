@@ -34,6 +34,7 @@ void ChartDialog::languageChange()
 
 void ChartDialog::init()
 {
+    my.rateConvert = true;
     my.chartTreeSelected = false;
     my.availableTreeSelected = false;
     my.chartTreeSingleSelected = NULL;
@@ -109,7 +110,8 @@ void ChartDialog::reset(Chart *cp)
     antiAliasingOn->setChecked(cp->antiAliasing());
     antiAliasingOff->setChecked(!cp->antiAliasing());
     antiAliasingAuto->setChecked(false);
-    rateConvertCheckBox->setChecked(cp->rateConvert());
+    my.rateConvert = cp->rateConvert();
+    rateConvertCheckBox->setChecked(my.rateConvert);
     rateConvertCheckBox->setEnabled(false);
     cp->scale(&yAutoScale, &yMin, &yMax);
     setScale(yAutoScale, yMin, yMax);
