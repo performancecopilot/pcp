@@ -47,6 +47,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     pmDesc		desc;
     int			npmids;
     pmID		*pmidlist;
+    char		**namelist;
     pmResult		*result;
     int			ctxnum;
     __pmTimeval		when;
@@ -169,6 +170,35 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    __pmSendResult(pmda->e_outfd, PDU_BINARY, result);
 	    (pmda->e_resultCallBack)(result);
 	}
+	break;
+
+    case PDU_PMNS_NAMES:
+
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LIBPMDA) {
+	    __pmNotifyErr(LOG_DEBUG, "Received PDU_PMNS_NAMES\n");
+	}
+#endif
+
+	if ((sts = __pmDecodeNameList(pb, PDU_BINARY, &npmids, &namelist, NULL)) >= 0) {
+	    if (HAVE_V_THREE(dispatch->comm.pmda_interface)) {
+		if (npmids != 1)
+		    /*
+		     * expect only one name at a time to be sent to the
+		     * pmda from pmcd
+		     */
+		    sts = PM_ERR_IPC;
+		else
+		    sts = dispatch->version.three.pmid(namelist[0], pmidlist, pmda);
+	    }
+	    else
+		sts = PM_ERR_PMID;
+	    __pmUnpinPDUBuf(namelist);
+	}
+	if (sts < 0)
+	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
+	else
+	    __pmSendIDList(pmda->e_outfd, PDU_BINARY, npmids, pmidlist, sts);
 	break;
 
     case PDU_DESC_REQ:

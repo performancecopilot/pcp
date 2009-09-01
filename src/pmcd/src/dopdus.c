@@ -483,9 +483,9 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 	    /*
 	     * don't return <domain>.*.* ... all return paths from here
 	     * must either set a valid PMID in idlist[i] or indicate
-	     * an error
+	     * the first error in the return from pmLookupName
 	     */
-	    idlist[i] = PM_ID_NULL;
+	    idlist[i] = PM_ID_NULL;	/* default case if cannot translate */
 	    if ((ap = FindDomainAgent(domain)) == NULL) {
 		if (sts > 0) sts = PM_ERR_NOAGENT;
 		continue;
@@ -505,8 +505,45 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 		}
 	    }
 	    else {
-		/* TODO daemon case */
-		lsts = PM_ERR_NAME;
+		/* daemon case */
+		int		xsts;
+		int		fdfail = -1;
+		if (ap->status.notReady)
+		    lsts = PM_ERR_AGAIN;
+		else {
+		    if (_pmcd_trace_mask)
+			pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_NAMES, 1);
+		    lsts = __pmSendNameList(ap->inFd, ap->pduProtocol, 1, &namelist[i], NULL);
+		    if (lsts >= 0) {
+			lsts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+			if (lsts > 0 && _pmcd_trace_mask)
+			    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+			if (lsts == PDU_PMNS_IDS) {
+			    lsts = __pmDecodeIDList(pb, ap->pduProtocol, 1, &idlist[i], &xsts);
+			    if (lsts >= 0)
+				lsts = xsts;
+			}
+			else if (lsts == PDU_ERROR) {
+			    __pmDecodeError(pb, ap->pduProtocol, &lsts);
+			    if (_pmcd_trace_mask)
+				pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_DESC, lsts);
+			}
+			else {
+			    if (_pmcd_trace_mask)
+				pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_IDS, sts);
+			    lsts = PM_ERR_IPC;	/* Wrong PDU type */
+			    fdfail = ap->outFd;
+			}
+		    }
+		    else {
+			/* __pmSendNameList failed */
+			lsts = __pmMapErrno(lsts);
+			/* TODO */
+			pmcd_trace(TR_XMIT_ERR, ap->inFd, PDU_PMNS_NAMES, sts);
+			fdfail = ap->inFd;
+		    }
+		    /* TODO - error handling and cleanup */
+		}
 	    }
 	    /*
 	     * only set error status to the current error status
@@ -590,8 +627,50 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 	}
 	else {
 	    /* TODO daemon case */
-	    sts = PM_ERR_NAME;
-	    goto done;
+	    int		lsts;
+	    int		fdfail = -1;
+	    if (ap->status.notReady)
+		lsts = PM_ERR_AGAIN;
+	    else {
+		if (_pmcd_trace_mask)
+		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_CHILD, 1);
+		lsts = __pmSendChildReq(ap->inFd, PDU_BINARY, name, subtype);
+		if (lsts >= 0) {
+		    lsts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+		    if (lsts > 0 && _pmcd_trace_mask)
+			pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+		    if (lsts == PDU_PMNS_NAMES) {
+			lsts = __pmDecodeNameList(pb, PDU_BINARY, &numnames,
+			                               &offspring, &statuslist);
+			if (lsts >= 0) {
+			    lsts = numnames;
+			    if (subtype == 0) {
+				free(statuslist);
+				statuslist = NULL;
+			    }
+			}
+		    }
+		    else if (lsts == PDU_ERROR) {
+			__pmDecodeError(pb, ap->pduProtocol, &lsts);
+			if (_pmcd_trace_mask)
+			    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_NAMES, lsts);
+		    }
+		    else {
+			if (_pmcd_trace_mask)
+			    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_IDS, sts);
+			lsts = PM_ERR_IPC;	/* Wrong PDU type */
+			fdfail = ap->outFd;
+		    }
+		}
+		else {
+		    /* __pmSendChildReq failed */
+		    lsts = __pmMapErrno(lsts);
+		    /* TODO */
+		    pmcd_trace(TR_XMIT_ERR, ap->inFd, PDU_PMNS_CHILD, lsts);
+		    fdfail = ap->inFd;
+		}
+		/* TODO - error handling and cleanup */
+	    }
 	}
     }
     else {
