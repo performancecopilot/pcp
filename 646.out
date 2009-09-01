@@ -4,7 +4,7 @@ Version    = 1
 Generated  = TIMESTAMP
 TOC count  = 5
 Cluster    = 0
-Process    = PID
+Process    = SOME_PID
 Flags      = 0x0
 
 TOC[0]: offset 40, indoms offset 120 (2 entries)

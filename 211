@@ -1,8 +1,8 @@
 #! /bin/sh
-# PCP QA Test No. 210
+# PCP QA Test No. 211
 # $Revision: 1.1 $
 #
-# Check dynamic metrics work with PMAPI clients - DSO PMDA version
+# Check dynamic metrics work with PMAPI clients - DAEMON PMDA version
 #
 # Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
 
@@ -38,7 +38,7 @@ rm -f $seq.full
 _filter_probe()
 {
     $PCP_AWK_PROG '
-# sample ... sampledso.secret.foo.bar.max.redirect 8 0 0 0 0 0 0 4 0
+# sample ... sample.secret.foo.bar.max.redirect 8 0 0 0 0 0 0 4 0
 /secret\.foo\.bar\.max\.redirect/	{ if ($2 > 3 )
 					    print $1,"> 3 values ..."
 					  else
@@ -77,18 +77,18 @@ _do() {
 # real QA test starts here
 
 echo "PMNS traversal tests ..."
-pminfo sampledso | grep '\.secret\.' | LC_COLLATE=POSIX sort
-_do sampledso.secret
-_do sampledso.secret.bar sampledso.secret.foo
-_do sampledso.secret.foo.bar.grunt
+pminfo sample | grep '\.secret\.' | LC_COLLATE=POSIX sort
+_do sample.secret
+_do sample.secret.bar sample.secret.foo
+_do sample.secret.foo.bar.grunt
 
 echo
 echo "pmval ..."
-pmval -s 3 -t 0.1 sampledso.secret.foo.bar.grunt.five
+pmval -s 3 -t 0.1 sample.secret.foo.bar.grunt.five
 
 echo
 echo "pmie ..."
-echo 'sampledso.secret.foo.bar.four == 4 -> print "Bingo!"' \
+echo 'sample.secret.foo.bar.four == 4 -> print "Bingo!"' \
 | pmie -t 0.1 -T 0.3 2>&1 \
 | _filter_pmie_log \
 | sed -e '/.* Info: evaluator exiting/d' \
@@ -98,12 +98,12 @@ echo
 echo "pmlogger ..."
 cat <<'End-of-File' >$tmp.config
 log mandatory on 100 msec {
-    sampledso.secret.bar
-    sampledso.secret.foo.one
-    sampledso.secret.foo.two
-    sampledso.secret.foo.bar.three
-    sampledso.secret.foo.bar.four
-    sampledso.secret.foo.bar.grunt
+    sample.secret.bar
+    sample.secret.foo.one
+    sample.secret.foo.two
+    sample.secret.foo.bar.three
+    sample.secret.foo.bar.four
+    sample.secret.foo.bar.grunt
 }
 End-of-File
 pmlogger -T 0.3 -c $tmp.config $tmp -l $tmp.log

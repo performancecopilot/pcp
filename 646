@@ -31,6 +31,7 @@ $PCP_PMDAS_DIR/mmv/mmvdump $PCP_TMP_DIR/mmv/test$$ | \
     sed \
 	-e "s,test$$,testPID,g" \
 	-e "s,^Process.*= $pid,Process    = PID,g" \
+	-e "s,^Process.*= [0-9][0-9]*,Process    = SOME_PID,g" \
 	-e 's/interval = [0-9][0-9]*/interval = TIME/' \
 	-e 's/eggs"] = [0-9][0-9]* (value=[0-9][0-9]*/eggs"] = N (value=N/' \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9]*/TIMESTAMP/'
