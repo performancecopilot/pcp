@@ -1,3 +1,7 @@
+pcp-gui 1.4.5 (2 September 2009)
+    - Fix problem with latest autoconf handling of AC_CONF_LEX.
+    - Fix uninit'd variable causing spurious non-rate-conversion.
+
 pcp-gui 1.4.4 (31 July 2009)
     - Fix bug 843 - Confused state of AutoScale and Min/Max fields.
     - Add an "Apply" button to Create/Edit chart dialogs.
