@@ -1,4 +1,4 @@
-# generated automatically by aclocal 1.10.2 -*- Autoconf -*-
+# generated automatically by aclocal 1.10.1 -*- Autoconf -*-
 
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
 # 2005, 2006, 2007, 2008  Free Software Foundation, Inc.
@@ -333,14 +333,10 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     AC_SUBST(hdiutil)
 
     dnl check if user wants their own lex, yacc
-    if test -z "$YACC"; then
-	AC_PROG_YACC
-    fi
+    AC_PROG_YACC
     yacc=$YACC
     AC_SUBST(yacc)
-    if test -z "$LEX"; then
-	AC_PROG_LEX
-    fi
+    AC_PROG_LEX
     lex=$LEX
     AC_SUBST(lex)
     

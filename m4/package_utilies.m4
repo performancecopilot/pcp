@@ -128,14 +128,10 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     AC_SUBST(hdiutil)
 
     dnl check if user wants their own lex, yacc
-    if test -z "$YACC"; then
-	AC_PROG_YACC
-    fi
+    AC_PROG_YACC
     yacc=$YACC
     AC_SUBST(yacc)
-    if test -z "$LEX"; then
-	AC_PROG_LEX
-    fi
+    AC_PROG_LEX
     lex=$LEX
     AC_SUBST(lex)
     
