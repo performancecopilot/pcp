@@ -1269,7 +1269,7 @@ windows_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static pdh_value_t *
-find_instance_value(int item, int inst)
+find_instance_value(unsigned int item, unsigned int inst)
 {
     pdh_metric_t	*mp = &metricdesc[item];
     int			i;
@@ -1290,7 +1290,7 @@ find_instance_value(int item, int inst)
 }
 
 static int
-filesys_fetch_callback(int item, int inst, pmAtomValue *atom)
+filesys_fetch_callback(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
     pdh_value_t		*vp;
     unsigned long long	used, avail, capacity;
@@ -1340,7 +1340,7 @@ filesys_fetch_callback(int item, int inst, pmAtomValue *atom)
 }
 
 static int
-memstat_fetch_callback(int item, int inst, pmAtomValue *atom)
+memstat_fetch_callback(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
     if (inst == PM_INDOM_NULL) {
 	switch (item) {
