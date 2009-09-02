@@ -44,7 +44,6 @@ s/entry=[^ ]*/entry=[OS]_init/
 	-e '/NOTICE: using \/proc\/diskstats for disk I\/O stats/d' \
 	-e '/NOTICE: detected slabinfo version/d' \
 	-e '/Warning: xfs metrics are not available/d' \
-	-e '/Warning: pagebuf metrics are not available/d' \
 	-e '/Warning: cihb_getstats: info+recv init: /d' \
 	-e '/Warning: cihb_getstats: V0 api probe: Not supported/d' \
 	-e '/Warning: cihb_getstats: V0 api probe: Invalid argument/d' \
@@ -62,9 +61,6 @@ s/entry=[^ ]*/entry=[OS]_init/
 	-e '/Warning: cms_getstats: could not retrieve stats version Invalid argument/d' \
 	-e '/Warning: cms_reload: No cms instrumentation in this kernel:/d' \
 	-e '/Error: Cannot open stat device \/hw\/tape/d' \
-	-e '/Error: counters not supported on R5000 CPUs/d' \
-	-e '/Error: reload_shm: __shmstatus returns -1: No such process/d' \
-	-e '/Error: reload_sem: __semstatus returns -1: No such process/d' \
 	-e '/Note: computed HZ=/d' \
 	-e '/Warning: Symbol address mismatch between System.map/d' \
 	-e '/Warning: mismatch for .* between System.map/d' \
@@ -198,15 +194,18 @@ _filter_optional_pmdas()
 	-e '/pmdamounts/d' \
 	-e '/pmdampi/d' \
 	-e '/pmdamysql/d' \
+	-e '/pmdanamed/d' \
 	-e '/pmdanasavg/d' \
 	-e '/pmdanetfilter/d' \
 	-e '/pmdanetprobe/d' \
 	-e '/pmdanews/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
+	-e '/pmdapdns/d' \
 	-e '/pmdapmcd/d' \
 	-e '/pmdaprocess/d' \
 	-e '/pmdaroomtemp/d' \
+	-e '/pmdasamba/d' \
 	-e '/pmdasendmail/d' \
 	-e '/pmdashping/d' \
 	-e '/pmda_simple/d' \
@@ -226,6 +225,7 @@ _filter_optional_pmdas()
 	-e '/pmdaweblog/d' \
 	-e '/pmdawebping/d' \
 	-e '/pmdaxvm/d' \
+	-e '/pmdazimbra/d' \
 
 }
 
@@ -260,11 +260,14 @@ _filter_top_pmns()
 	-e '/^    mmv /d' \
 	-e '/^    mpi /d' \
 	-e '/^    mysql /d' \
+	-e '/^    named /d' \
 	-e '/^    netfilter /d' \
 	-e '/^    netprobe /d' \
 	-e '/^    news /d' \
 	-e '/^    oracle /d' \
 	-e '/^    oraping /d' \
+	-e '/^    pdns /d' \
+	-e '/^    samba /d' \
 	-e '/^    sendmail /d' \
 	-e '/^    shping /d' \
 	-e '/^    simple /d' \
@@ -282,6 +285,7 @@ _filter_top_pmns()
 	-e '/^    vmware /d' \
 	-e '/^    web /d' \
 	-e '/^    webping /d' \
+	-e '/^    zimbra /d' \
 	-e 's/ $//'
 
 }
@@ -537,14 +541,16 @@ _filter_torture_api()
 	-e '/^    maillog /d' \
 	-e '/^    mounts /d' \
 	-e '/^    mt /d' \
+	-e '/^    named /d' \
 	-e '/^    nasavg /d' \
 	-e '/^    netfilter /d' \
 	-e '/^    numa /d' \
 	-e '/^    origin /d' \
+	-e '/^    pdns /d' \
 	-e '/^    p76 /d' \
-	-e '/^    pagebuf /d' \
 	-e '/^    process /d' \
 	-e '/^    roomtemp /d' \
+	-e '/^    samba /d' \
 	-e '/^    softtemp /d' \
 	-e '/^    stream /d' \
 	-e '/^    sysioctl /d' \
@@ -554,6 +560,7 @@ _filter_torture_api()
 	-e '/^    vmware /d' \
 	-e '/^    waitio /d' \
 	-e '/^    xvm /d' \
+	-e '/^    zimbra /d' \
 
 }
 
