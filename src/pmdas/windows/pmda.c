@@ -1205,6 +1205,12 @@ pdh_metric_t metricdesc[] = {
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_NONE, 0, 0, 0, NULL, ""
     },
 
+/* kernel.all.uptime */
+    { { PMDA_PMID(0,234), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, M_REDO, 0, 0, 0, NULL,
+      "\\System\\System Up Time"
+    },
+
 /* mem.physmem */
     { { PMDA_PMID(1,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
@@ -1263,7 +1269,7 @@ windows_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static pdh_value_t *
-find_instance_value(int item, int inst)
+find_instance_value(unsigned int item, unsigned int inst)
 {
     pdh_metric_t	*mp = &metricdesc[item];
     int			i;
@@ -1284,7 +1290,7 @@ find_instance_value(int item, int inst)
 }
 
 static int
-filesys_fetch_callback(int item, int inst, pmAtomValue *atom)
+filesys_fetch_callback(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
     pdh_value_t		*vp;
     unsigned long long	used, avail, capacity;
@@ -1334,7 +1340,7 @@ filesys_fetch_callback(int item, int inst, pmAtomValue *atom)
 }
 
 static int
-memstat_fetch_callback(int item, int inst, pmAtomValue *atom)
+memstat_fetch_callback(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
     if (inst == PM_INDOM_NULL) {
 	switch (item) {

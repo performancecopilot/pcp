@@ -19,32 +19,36 @@
 #include "mmv_dev.h"
 #include "impl.h"
 
-static void *
-mmv_mapping(const char *fname, size_t size)
+static void
+mmv_stats_path(const char *fname, char *fullpath, size_t pathlen)
 {
-    static int initialised;
-    static char statsdir[MAXPATHLEN];
-    char fullpath[MAXPATHLEN];
-    void *addr = NULL;
-    int fd;
+    int sep = __pmPathSeparator();
 
-    if (!initialised) {
-	sprintf(statsdir, "%s%c" "mmv",
-		pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator());
-	initialised = 1;
-    }
+    snprintf(fullpath, pathlen, "%s%c" "mmv" "%c%s",
+		pmGetConfig("PCP_TMP_DIR"), sep, sep, fname);
+}
+
+static void *
+mmv_mapping_init(const char *fname, size_t size)
+{
+    char path[MAXPATHLEN];
+    void *addr = NULL;
+    int fd, sts = 0;
 
     /* unlink+creat will cause the pmda to reload on next fetch */
-    sprintf(fullpath, "%s%c%s", statsdir, __pmPathSeparator(), fname);
-    unlink(fullpath);
-    fd = open(fullpath, O_RDWR | O_CREAT | O_EXCL, 0644);
+    mmv_stats_path(fname, path, sizeof(path));
+    unlink(path);
+    fd = open(path, O_RDWR | O_CREAT | O_EXCL, 0644);
     if (fd < 0)
 	return NULL;
 
     if (ftruncate(fd, size) != -1)
 	addr = __pmMemoryMap(fd, size, 1);
+    else
+	sts = errno;
 
     close(fd);
+    errno = sts;
     return addr;
 }
 
@@ -102,8 +106,10 @@ mmv_stats_init(const char *fname,
     int nvalues = 0;
 
     for (i = 0; i < nindoms; i++) {
-	if (mmv_singular(in[i].serial))
+	if (mmv_singular(in[i].serial)) {
+	    errno = ESRCH;
 	    return NULL;
+	}
 	ninstances += in[i].count;
 	if (in[i].shorttext)
 	    nstrings++;
@@ -113,8 +119,10 @@ mmv_stats_init(const char *fname,
 
     for (i = 0; i < nmetrics; i++) {
 	if ((st[i].type < MMV_TYPE_NOSUPPORT) || 
-	    (st[i].type > MMV_TYPE_ELAPSED) || strlen(st[i].name) == 0)
+	    (st[i].type > MMV_TYPE_ELAPSED) || strlen(st[i].name) == 0) {
+	    errno = EINVAL;
 	    return NULL;
+	}
 
 	if (st[i].helptext)
 	    nstrings++;
@@ -124,8 +132,10 @@ mmv_stats_init(const char *fname,
 	if (!mmv_singular(st[i].indom)) {
 	    const mmv_indom_t * mi;
 
-	    if ((mi = mmv_lookup_indom(st[i].indom, in, nindoms)) == NULL)
+	    if ((mi = mmv_lookup_indom(st[i].indom, in, nindoms)) == NULL) {
+		errno = ESRCH;
 		return NULL;
+	    }
 	    if (st[i].type == MMV_TYPE_STRING)
 		nstrings += mi->count;
 	    nvalues += mi->count;
@@ -136,8 +146,10 @@ mmv_stats_init(const char *fname,
 	}
     }
 
-    if (nvalues == 0)
+    if (nvalues == 0) {
+	errno = ERANGE;
 	return NULL;
+    }
 
     /* TOC follows header, with enough entries to hold */
     /* indoms, instances, metrics, values, and strings */
@@ -168,7 +180,7 @@ mmv_stats_init(const char *fname,
     /* End of file follows all of the actual strings */
     size = strings_offset + nstrings * sizeof(mmv_disk_string_t);
 
-    if ((addr = mmv_mapping(fname, size)) == NULL)
+    if ((addr = mmv_mapping_init(fname, size)) == NULL)
 	return NULL;
 
     /*
@@ -335,6 +347,20 @@ mmv_stats_init(const char *fname,
     hdr->g2 = hdr->g1;
 
     return addr;
+}
+
+void
+mmv_stats_stop(const char *fname, void *addr)
+{
+    char path[MAXPATHLEN];
+    struct stat sbuf;
+
+    mmv_stats_path(fname, path, sizeof(path));
+    if (stat(path, &sbuf) < 0)
+	sbuf.st_size = (size_t)-1;
+    else
+	unlink(path);
+    __pmMemoryUnmap(addr, sbuf.st_size);
 }
 
 pmAtomValue *
