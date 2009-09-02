@@ -181,7 +181,7 @@ windows_format_uname(OSVERSIONINFOEX osv)
 
     switch (osv.dwPlatformId) {
         case VER_PLATFORM_WIN32_NT:
-	    if (osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0) {
+	    if (osv.dwMajorVersion == 6 && osv.dwMinorVersion == 1) {
 		if (osv.wProductType == VER_NT_WORKSTATION)
 		    name = string_append(name, "Windows 7");
 		else
