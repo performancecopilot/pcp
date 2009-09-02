@@ -450,16 +450,12 @@ if test $target_os = mingw; then
 fi
 
 dnl check if user wants their own lex, yacc
-if test -z "$YACC"; then
-    AC_PROG_YACC
-fi
-yacc=$YACC
-AC_SUBST(yacc)
-if test -z "$LEX"; then
-    AC_PROG_LEX
-fi
+AC_PROG_LEX
 lex=$LEX
 AC_SUBST(lex)
+AC_PROG_YACC
+yacc=$YACC
+AC_SUBST(yacc)
 
 dnl extra check for lex and yacc as these are often not installed
 AC_MSG_CHECKING([if yacc is executable])
