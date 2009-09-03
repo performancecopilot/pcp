@@ -169,7 +169,7 @@ Package: libpcp-pmda-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: ${shlibs:Depends}, libpcp-pmda3, perl (>= 5)
+Depends: ${shlibs:Depends}, libpcp-pmda3, ${perl:Depends}
 Description: Performance Co-Pilot Domain Agent Perl module
  The PCP::PMDA Perl module contains the language bindings for
  building Performance Metric Domain Agents (PMDAs) using Perl.
@@ -186,7 +186,7 @@ Package: libpcp-logsummary-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: pcp, perl (>= 5)
+Depends: pcp, ${perl:Depends}
 Description: Performance Co-Pilot historical log summary module
  The PCP::LogSummary module provides a Perl module for using the
  statistical summary data produced by the Performance Co-Pilot
@@ -204,7 +204,7 @@ Package: libpcp-mmv-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: libpcp-mmv1, perl (>= 5)
+Depends: ${shlibs:Depends}, libpcp-mmv1, ${perl:Depends}
 Description: Performance Co-Pilot Memory Mapped Value Perl module
  The PCP::MMV module contains the Perl language bindings for
  building scripts instrumented with the Performance Co-Pilot
