@@ -40,7 +40,7 @@ include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(INSTTARGET) Install Remove $(PMDADIR)
+	$(INSTALL) -m 755 $(INSTTARGETS) Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 README root help pmns domain.h $(PMDADIR)
 
 $(CMDTARGET):	$(OBJECTS)
