@@ -1119,6 +1119,9 @@ getargs(int		argc,		/* in - command line argument count */
 	exit(EXIT_FAILURE);
     }
 
+    initapi(cntxt);
+    initinsts(cntxt);
+
     if (!(gui || port != -1) &&
 	*smpls == ALL_SAMPLES &&
 	last.tv_sec != INT_MAX &&
@@ -1129,7 +1132,7 @@ getargs(int		argc,		/* in - command line argument count */
 	/* if end is before start, no samples thanks */
 	if (*smpls < 0) *smpls = 0;
 	/* counters require 2 samples to produce reported sample */
-	if (*smpls > 0 && cntxt->desc.sem != PM_SEM_COUNTER)
+	if (*smpls > 0 && cntxt->desc.sem == PM_SEM_COUNTER)
 	    (*smpls)++;
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL0)
@@ -1173,8 +1176,6 @@ main(int argc, char *argv[])
 
     getargs(argc, argv, &cntxt, &now, &delta, &smpls, &cols);
     forever = (smpls == ALL_SAMPLES || gui);
-    initapi(&cntxt);
-    initinsts(&cntxt);
 
     if (cols <= 0) cols = howide(cntxt.desc.type);
 
