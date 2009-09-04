@@ -51,7 +51,7 @@ pmnsdel$(EXECSUFFIX):        pmnsdel.o pmnsutil.o
 	$(CCF) -o $@ $(LDFLAGS) pmnsdel.o pmnsutil.o $(LDLIBS)
 
 .NeedRebuild:
-	touch .NeedRebuild
+	echo "This file flags the rc scripts to rebuild the PMNS" > .NeedRebuild
 
 # All PMNS config stuff goes in $PCP_VAR_DIR/pmns
 # For platforms with packaging, the .NeedRebuild hook is added there,
