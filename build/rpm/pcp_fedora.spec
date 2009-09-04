@@ -1,11 +1,11 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
 Version: 3.0.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
-Source0: ftp://oss.sgi.com/projects/pcp/download/v3/pcp-3.0.0-4.src.tar.gz
+Source0: ftp://oss.sgi.com/projects/pcp/download/v3/pcp-3.0.0-5.src.tar.gz
 
 # Infiniband monitoring support turned off (for now)
 %define have_ibdev 0
@@ -20,6 +20,8 @@ BuildRequires: perl-ExtUtils-MakeMaker
 
 Requires: bash gawk sed grep fileutils findutils cpp initscripts
 Requires: pcp-libs = %{version}
+
+%define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
@@ -78,6 +80,10 @@ export DIST_ROOT=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
 mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/run/pcp
 
+# list of PMDAs in the base pkg
+ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} | egrep -v 'simple|sample|trivial|txmon' |\
+sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
+
 %preun
 if [ "$1" -eq 0 ]
 then
@@ -101,36 +107,31 @@ fi
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
 
-%files
+%files -f base_pmdas.list
+#
+# Note: there are some headers (e.g. domain.h) and in a few cases some
+# C source files that rpmlint complains about. These are not devel files,
+# but rather they are (slightly obscure) PMDA config files.
+#
 %defattr(-,root,root)
 %doc CHANGELOG COPYING INSTALL README VERSION.pcp pcp.lsm
 
-%dir %{_defaultdocdir}/pcp-*
+%dir %{_pmdasdir}
 %dir %{_libdir}*/pcp
 %dir %{_libdir}*/pcp/bin
-%dir %{_datadir}/pcp/demos
-%dir %{_datadir}/pcp/demos/*
-%dir %{_datadir}/pcp/examples
-%dir %{_datadir}/pcp/examples/*
-%dir %{_datadir}/pcp/lib
+%dir %{_datadir}/pcp
 %dir %{_localstatedir}/run/pcp
 %dir %{_localstatedir}/lib/pcp
 %dir %{_localstatedir}/lib/pcp/config
 %dir %{_localstatedir}/lib/pcp/config/*
 %dir %{_localstatedir}/lib/pcp/config/pmie/cisco
 %dir %{_localstatedir}/lib/pcp/config/pmieconf/shping
-%dir %{_localstatedir}/lib/pcp/pmdas
-%dir %{_localstatedir}/lib/pcp/pmdas/*
-%dir %{_localstatedir}/lib/pcp/pmns
-%dir %{_localstatedir}/log/pcp
-%dir %{_localstatedir}/log/pcp/pmcd
-%dir %{_localstatedir}/log/pcp/pmproxy
 
 %{_bindir}/*
 %{_libdir}*/pcp/bin/*
-%{_datadir}/pcp/demos/*/*
-%{_datadir}/pcp/examples/*/*
-%{_datadir}/pcp/lib/*
+%{_datadir}/pcp/lib
+%{_localstatedir}/log/pcp
+%{_localstatedir}/lib/pcp/pmns
 %{_initrddir}/pcp
 %{_initrddir}/pmie
 %{_initrddir}/pmproxy
@@ -138,14 +139,6 @@ fi
 %{_mandir}/man4/*
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
-%{_localstatedir}/lib/pcp/pmns/Makefile
-%{_localstatedir}/lib/pcp/pmns/Make.stdpmid
-%{_localstatedir}/lib/pcp/pmns/.NeedRebuild
-%{_localstatedir}/lib/pcp/pmns/Rebuild
-%{_localstatedir}/lib/pcp/pmns/root_linux
-%{_localstatedir}/lib/pcp/pmns/root_pmcd
-%{_localstatedir}/lib/pcp/pmns/stdpmid.local
-%{_localstatedir}/lib/pcp/pmns/stdpmid.pcp
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmcd/pmcd.conf
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmcd/pmcd.options
 %{_localstatedir}/lib/pcp/config/pmcd/rc.local
@@ -165,17 +158,10 @@ fi
 %{_localstatedir}/lib/pcp/config/pmlogger/config.pmclient
 %{_localstatedir}/lib/pcp/config/pmlogger/config.pmstat
 %{_localstatedir}/lib/pcp/config/pmlogger/config.sar
-
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmlogger/control
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmlogger/crontab
 %{_localstatedir}/lib/pcp/config/pmlogger/Makefile
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmproxy/pmproxy.options
-
-# Note: there are some headers (e.g. domain.h) and in a few cases some
-# C source files, that match the following pattern. rpmlint complains
-# about this, but note: these are not devel files, but rather they are
-# (slightly obscure) PMDA config files.
-%{_localstatedir}/lib/pcp/pmdas/*/*
 
 %files libs
 %defattr(-,root,root)
@@ -203,7 +189,16 @@ fi
 %{_libdir}/libpcp_trace.so
 %{_includedir}/pcp/*.h
 %{_mandir}/man3/*
+%{_datadir}/pcp/demos
+%{_datadir}/pcp/examples
+
+# PMDAs that ship src and are not for production use
+# straight out-of-the-box, for devel or QA use only.
+%{_localstatedir}/lib/pcp/pmdas/simple
+%{_localstatedir}/lib/pcp/pmdas/sample
+%{_localstatedir}/lib/pcp/pmdas/trivial
+%{_localstatedir}/lib/pcp/pmdas/txmon
 
 %changelog
-* Fri Aug 21 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-4
+* Fri Sep 04 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-5
 - initial import into Fedora
