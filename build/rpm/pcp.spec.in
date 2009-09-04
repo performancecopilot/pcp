@@ -139,8 +139,9 @@ LIBFILELIST=`ls -1 $BACKDIR/debian/*.{install,dirs} | fgrep -v -- -dev.`
 DEVFILELIST=`ls -1 $BACKDIR/debian/*-dev.{install,dirs}`
 
 #
-# Package split: pcp, pcp-libs, pcp-devel
-# -libs gets first pick, then -devel. Base package catches-all remaining.
+# Package split: pcp, pcp-libs, pcp-libs-devel
+# -libs gets first pick, then libs-devel.
+# The base package catches-all remaining.
 #
 sed -e 's/^/\//' $LIBFILELIST >libs_files
 sed -e 's/^/\//' $DEVFILELIST >devel_files
@@ -148,6 +149,11 @@ sed -e 's/^/\//' $DEVFILELIST >devel_files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
 %endif
+
+#
+# some special cases for devel
+awk '{print $NF}' $DIST_MANIFEST |\
+egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)' >>devel_files
 
 rm -f devel_files.rpm libs_files.rpm base_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
@@ -206,5 +212,5 @@ fi
 %defattr(-,root,root)
 
 %changelog
-* Fri Aug 21 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-4
+* Fri Sep 04 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-5
 - bump to v3.0.0 and reconcile spec with Fedora spec
