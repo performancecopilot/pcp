@@ -27,7 +27,7 @@ my ( $color_indom, $now_indom ) = ( 0, 1 );
 my ( $red, $green, $blue ) = ( 0, 100, 200 );
 
 # simple.now instance domain stuff...
-my $simple_config = '/var/lib/pcp/pmdas/simple/simple.conf';
+my $simple_config = pmda_config('PCP_PMDAS_DIR') . '/simple/simple.conf';
 # timeslice array format: value, instance id, instance name
 my @timeslices = ( [0, 1, 'sec'], [0, 60, 'min'], [0, 3600, 'hour'] );
 my $file_change = 0;
@@ -50,7 +50,7 @@ sub simple_fetch_callback	# must return array of value,status
 {
     my ($cluster, $item, $inst) = @_;
 
-    return (PM_ERR_INST, 0) unless ( $inst == -1
+    return (PM_ERR_INST, 0) unless ( $inst == PM_IN_NULL
 				    || ($cluster == 0 && $item == 1)
 				    || ($cluster == 2 && $item == 4) );
     if ($cluster == 0) {
@@ -168,7 +168,7 @@ $pmda->add_metric(pmda_pmid(1,3), PM_TYPE_DOUBLE, PM_INDOM_NULL,
 		  'simple.time.sys', '', '');
 $pmda->add_metric(pmda_pmid(2,4), PM_TYPE_U32, $now_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-		  'simple.time.now', '', '');
+		  'simple.now', '', '');
 
 $pmda->add_indom($color_indom, [0 => 'red', 1 => 'green', 2 => 'blue'], '', '');
 $now = $pmda->add_indom($now_indom, [],	'', ''); # initialized on-the-fly

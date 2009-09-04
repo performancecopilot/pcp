@@ -164,11 +164,11 @@ dnl output header with cpp defs HAVE_*, etc
 AC_CONFIG_HEADER(src/include/platform_defs.h)
 
 dnl check if user wants their own C compiler
-if test -z "$CC"; then
-    AC_PROG_CC
-fi
+AC_PROG_CC
 cc=$CC
 AC_SUBST(cc)
+cc_is_gcc=$GCC
+AC_SUBST(cc_is_gcc)
 
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax
@@ -356,6 +356,13 @@ fi
 mkinstallp=$MKINSTALLP
 AC_SUBST(mkinstallp)
 
+dnl check for pmgmk - Solaris' package maker
+if test -z "$PKGMK"; then
+    AC_PATH_PROG(PKGMK, pkgmk)
+fi
+pkgmk=$PKGMK
+AC_SUBST(pkgmk)
+
 dnl check if the dlltool program is available
 if test -z "$DLLTOOL"; then
     AC_PATH_PROG(DLLTOOL, dlltool)
@@ -443,16 +450,12 @@ if test $target_os = mingw; then
 fi
 
 dnl check if user wants their own lex, yacc
-if test -z "$YACC"; then
-    AC_PROG_YACC
-fi
-yacc=$YACC
-AC_SUBST(yacc)
-if test -z "$LEX"; then
-    AC_PROG_LEX
-fi
+AC_PROG_LEX
 lex=$LEX
 AC_SUBST(lex)
+AC_PROG_YACC
+yacc=$YACC
+AC_SUBST(yacc)
 
 dnl extra check for lex and yacc as these are often not installed
 AC_MSG_CHECKING([if yacc is executable])
@@ -981,9 +984,11 @@ echo "./conftest -> \"$ans\"" >&5
 AC_MSG_RESULT($ans)
 if test $ans -eq 4; then
     AC_DEFINE(HAVE_32BIT_PTR)
+    PCP_PTR_SIZE=32
 fi
 if test $ans -eq 8; then
     AC_DEFINE(HAVE_64BIT_PTR)
+    PCP_PTR_SIZE=64
 fi
 rm -f conftest conftest.*
 
@@ -1321,6 +1326,15 @@ then
     # enforces that convention) but $libdir lies about it.
     pcp_lib_dir=/usr/lib64
     pcp_lib32_dir=/usr/lib
+elif test $target_os = "solaris"
+then
+    if test "$PCP_PTR_SIZE" -eq 64
+    then 
+	    pcp_lib_dir=/usr/lib/64
+	    pcp_lib32_dir=/usr/lib
+    else
+	    pcp_lib_dir=/usr/lib
+    fi
 else
     pcp_lib_dir=`eval echo $libdir`
     pcp_lib_dir=`eval echo $pcp_lib_dir`

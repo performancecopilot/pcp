@@ -50,6 +50,9 @@ pack_pcp : pcp.src
 	if test ! -z "$(MKINSTALLP)"; then \
 	    echo === aix === && $(MAKEF) -j 1 -C aix $@ || exit $$?; \
 	fi; \
+	if test ! -z "$(PKGMK)" ; then \
+	    echo === sun === && $(MAKEF) -j 1 -C sun $@ || exit $$?; \
+	fi; \
 	test -z "$$KEEP_DIST_ROOT" && rm -rf $$DIST_ROOT; echo Done
 
 # Either a symlink in the TOPDIR is used to pack files relative to

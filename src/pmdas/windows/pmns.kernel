@@ -10,6 +10,7 @@ kernel.all {
     cpu
     file
     pswitch		WINDOWS:0:10
+    uptime		WINDOWS:0:234
 }
 
 kernel.all.cpu {

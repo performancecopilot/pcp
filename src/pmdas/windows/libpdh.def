@@ -7,5 +7,6 @@ PdhCollectQueryData@4
 PdhExpandCounterPathA@12
 PdhGetCounterInfoA@16
 PdhGetRawCounterValue@12
+PdhGetFormattedCounterValue@16
 PdhOpenQueryA@12
 PdhCloseQuery@4

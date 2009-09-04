@@ -3,3 +3,6 @@ libpcp.a
 libpcp.so
 libpcp.so.2
 libpcp.so.3
+libpcp.3.dylib
+libpcp.dylib
+libpcp.dll

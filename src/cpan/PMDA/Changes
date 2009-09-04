@@ -1,5 +1,8 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.07  Fri Aug 21 09:27:51 EST 2009
+	- Add helper routines to determine native long sizes.
+
 1.06  Wed Jul 22 12:49:43 EST 2009
 	- Ensure the process runs in its own process group,
 	  and block SIGTERM in atexit handler.  This resolves
