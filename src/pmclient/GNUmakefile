@@ -38,7 +38,7 @@ install:	$(CMDTARGET)
 	$(INSTALL) -m 644 pmlogger.config $(PMLOGGERCONFIG)/config.pmclient
 	$(INSTALL) -m 755 -d $(DEMODIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(DEMODIR)/Makefile
-	$(INSTALL) -m 644 pmclient.c README pmnsmap.spec $(DEMODIR)
+	$(INSTALL) -m 644 $(CFILES) README pmnsmap.spec $(DEMODIR)
 
 pmclient.o:	pmnsmap.h
 
