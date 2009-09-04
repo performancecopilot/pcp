@@ -956,52 +956,52 @@ pdh_metric_t metricdesc[] = {
     },
 /* process.memory.size */
     { { PMDA_PMID(0,184), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Pool Paged Bytes"
     },
 /* process.memory.rss */
     { { PMDA_PMID(0,185), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Working Set"
     },
 /* process.memory.rss_peak */
     { { PMDA_PMID(0,186), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Working Set Peak"
     },
 /* process.memory.virtual */
     { { PMDA_PMID(0,187), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Virtual Bytes"
     },
 /* process.memory.virtual_peak */
     { { PMDA_PMID(0,188), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Virtual Bytes Peak"
     },
 /* process.memory.page_file */
     { { PMDA_PMID(0,189), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Page File Bytes"
     },
 /* process.memory.page_file_peak */
     { { PMDA_PMID(0,190), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Page File Bytes Peak"
     },
 /* process.memory.private */
     { { PMDA_PMID(0,191), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Private Bytes"
     },
 /* process.memory.pool_paged */
     { { PMDA_PMID(0,192), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Pool Paged Bytes"
     },
 /* process.memory.pool_nonpaged */
     { { PMDA_PMID(0,193), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Pool Nonpaged Bytes"
     },
 /* process.io.reads */
