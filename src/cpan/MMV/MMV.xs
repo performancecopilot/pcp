@@ -29,7 +29,7 @@ list_to_metric(SV *list, mmv_metric_t *metric)
 	warn("metric declaration is not an array reference");
 	return -1;
     }
-    len = av_len(mlist);
+    len = av_len(mlist) + 1;
     if (len < 6) {
 	warn("too few entries in metric array reference");
 	return -1;
@@ -44,10 +44,10 @@ list_to_metric(SV *list, mmv_metric_t *metric)
     strncpy(metric->name, SvPV_nolen(*entry[0]), MMV_NAMEMAX);
     metric->item = SvIV(*entry[1]);
     metric->type = SvIV(*entry[2]);
-    metric->semantics = SvIV(*entry[3]);
+    metric->indom = SvIV(*entry[3]);
     i = SvIV(*entry[4]);
     memcpy(&metric->dimension, &i, sizeof(pmUnits));
-    metric->indom = SvIV(*entry[5]);
+    metric->semantics = SvIV(*entry[5]);
     if (len > 6)
 	metric->shorttext = strdup(SvPV_nolen(*entry[6]));
     else
@@ -70,7 +70,7 @@ list_to_instances(SV *list, mmv_instances_t **insts)
 	warn("instances declaration is not an array reference");
 	return -1;
     }
-    len = av_len(inlist);
+    len = av_len(inlist) + 1;
     if (len++ % 2) {
 	warn("odd number of entries in instance array reference");
 	return -1;
@@ -103,7 +103,7 @@ list_to_indom(SV *list, mmv_indom_t *indom)
 	warn("indom declaration is not an array reference");
 	return -1;
     }
-    len = av_len(ilist);
+    len = av_len(ilist) + 1;
     if (len < 2) {
 	warn("too few entries in indom array reference");
 	return -1;
@@ -141,7 +141,7 @@ list_to_metrics(SV *list, mmv_metric_t **metriclist, int *mcount)
 	warn("metrics list is not an array reference");
 	return -1;
     }
-    len = av_len(mlist);
+    len = av_len(mlist) + 1;
     metrics = (mmv_metric_t *)calloc(len, sizeof(mmv_metric_t));
     if (metrics == NULL) {
 	warn("insufficient memory for metrics array");
@@ -168,7 +168,7 @@ list_to_indoms(SV *list, mmv_indom_t **indomlist, int *icount)
 	warn("indoms list is not an array reference");
 	return -1;
     }
-    len = av_len(ilist);
+    len = av_len(ilist) + 1;
     indoms = (mmv_indom_t *)calloc(len, sizeof(mmv_indom_t));
     if (indoms == NULL) {
 	warn("insufficient memory for indoms array");
@@ -204,18 +204,21 @@ mmv_stats_init(name,cl,fl,metrics,indoms)
 	i = list_to_metrics(metrics, &mlist, &mcount);
 	j = list_to_indoms(indoms, &ilist, &icount);
 
-	if (i != 0 || j != 0)
+	if (i <= 0 || j <= 0) {
+	    warn("mmv_stats_init: bad list conversion: metrics=%d indoms=%d\n", i, j);
 	    RETVAL = NULL;
-	else
+	}
+	else {
 	    RETVAL = mmv_stats_init(name, cl, fl, mlist, mcount, ilist, icount);
+	    if (RETVAL == NULL)
+		warn("mmv_stats_init failed: %s\n", strerror(errno));
+	}
 
 	for (i = 0; i < icount; i++) {
 	    if (ilist[i].shorttext)
 		free(ilist[i].shorttext);
 	    if (ilist[i].helptext)
 		free(ilist[i].helptext);
-	    for (j = 0; j < ilist[i].count; j++)
-		free(ilist[i].instances[j].external);
 	    free(ilist[i].instances);
 	}
 	if (ilist)
@@ -233,6 +236,13 @@ mmv_stats_init(name,cl,fl,metrics,indoms)
 	    XSRETURN_UNDEF;
     OUTPUT:
 	RETVAL
+
+void
+mmv_stats_stop(handle,name)
+	void *			handle
+	char *			name
+    CODE:
+	mmv_stats_stop(handle, name);
 
 int
 mmv_units(dim_space,dim_time,dim_count,scale_space,scale_time,scale_count)
@@ -308,6 +318,15 @@ mmv_stats_inc(handle,metric,instance)
 	char *			instance
     CODE:
 	mmv_stats_inc(handle, metric, instance);
+
+void
+mmv_stats_set(handle,metric,instance, value)
+	void *			handle
+	char *			metric
+	char *			instance
+	double			value
+    CODE:
+	mmv_stats_set(handle, metric, instance, value);
 
 void
 mmv_stats_add_fallback(handle,metric,instance,instance2,count)

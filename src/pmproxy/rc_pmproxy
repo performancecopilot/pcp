@@ -26,8 +26,8 @@
 # e.g. SuSE, where chkconfig is a perl script.
 ### BEGIN INIT INFO
 # Provides:       pmproxy
-# Required-Start: $network $local_fs
-# Required-Stop:
+# Required-Start: $network $remote_fs $syslog
+# Required-Stop:  $remote_fs $syslog
 # Default-Start:
 # Default-Stop:
 # Short-Description:   Control the pmproxy daemon

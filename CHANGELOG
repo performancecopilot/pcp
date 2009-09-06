@@ -1,4 +1,4 @@
-pcp-3.0.0 (4 Sep 2009)
+pcp-3.0.0 (7 September 2009)
     - packaging split into pcp, pcp-libs and pcp-libs-devel
       pcp-libs is common - it's required by pcp and by pcp-libs-devel but
       pcp and pcp-devel can be installed with or without each other.
@@ -29,6 +29,24 @@ pcp-3.0.0 (4 Sep 2009)
     - reconciled build/rpm/pcp.spec.in with build/rpm/pcp_fedora.spec
     - git merged the final 2.9.1 source tree
     - numerous other minor changes, mostly for inclusion in Fedora
+
+pcp-2.9.1 (2 September 2009)
+    - Fix a long-standing pmval sample count miscalculation.
+    - Add missing runlevels and dependencies in start scripts.
+    - Fix a segv observed in the Windows PMDA accessing SQL Server metrics.
+    - Fix logic error causing wrong Windows version to be reported sometimes.
+    - Add kernel.all.uptime to the Windows kernel agent.
+    - Initial version of the (perl-based) Samba PMDA.
+    - Fixes to pmdasimple.pl so it functions correctly on all platforms.
+    - Add PCP::PMDA helper routines for determining native long sizes.
+    - Extend MMV to allow teardown of MMV file, and set errno on failure.
+    - Initial stable (1.00) version of MMV Perl interface.
+    - Correct the metric units for several Windows per-process memory metrics.
+    - Add network metrics to Solaris PMDA
+    - Report ZFS statistics from Solaris PMDA
+    - Export zpool stats from Solaris PMDA
+    - Generate packages for Solaris
+    - Allow user to choose her compiler (proper use of AC_PROG_CC)
 
 pcp-2.9.0 (27 July 2009)
     - Fix Linux PMDA issue with -fstack-protector gcc option.

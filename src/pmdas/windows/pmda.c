@@ -956,52 +956,52 @@ pdh_metric_t metricdesc[] = {
     },
 /* process.memory.size */
     { { PMDA_PMID(0,184), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Pool Paged Bytes"
     },
 /* process.memory.rss */
     { { PMDA_PMID(0,185), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Working Set"
     },
 /* process.memory.rss_peak */
     { { PMDA_PMID(0,186), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Working Set Peak"
     },
 /* process.memory.virtual */
     { { PMDA_PMID(0,187), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Virtual Bytes"
     },
 /* process.memory.virtual_peak */
     { { PMDA_PMID(0,188), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Virtual Bytes Peak"
     },
 /* process.memory.page_file */
     { { PMDA_PMID(0,189), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Page File Bytes"
     },
 /* process.memory.page_file_peak */
     { { PMDA_PMID(0,190), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Page File Bytes Peak"
     },
 /* process.memory.private */
     { { PMDA_PMID(0,191), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Private Bytes"
     },
 /* process.memory.pool_paged */
     { { PMDA_PMID(0,192), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Pool Paged Bytes"
     },
 /* process.memory.pool_nonpaged */
     { { PMDA_PMID(0,193), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Pool Nonpaged Bytes"
     },
 /* process.io.reads */
@@ -1205,6 +1205,12 @@ pdh_metric_t metricdesc[] = {
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_NONE, 0, 0, 0, NULL, ""
     },
 
+/* kernel.all.uptime */
+    { { PMDA_PMID(0,234), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, M_REDO, 0, 0, 0, NULL,
+      "\\System\\System Up Time"
+    },
+
 /* mem.physmem */
     { { PMDA_PMID(1,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
@@ -1263,7 +1269,7 @@ windows_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static pdh_value_t *
-find_instance_value(int item, int inst)
+find_instance_value(unsigned int item, unsigned int inst)
 {
     pdh_metric_t	*mp = &metricdesc[item];
     int			i;
@@ -1284,7 +1290,7 @@ find_instance_value(int item, int inst)
 }
 
 static int
-filesys_fetch_callback(int item, int inst, pmAtomValue *atom)
+filesys_fetch_callback(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
     pdh_value_t		*vp;
     unsigned long long	used, avail, capacity;
@@ -1334,7 +1340,7 @@ filesys_fetch_callback(int item, int inst, pmAtomValue *atom)
 }
 
 static int
-memstat_fetch_callback(int item, int inst, pmAtomValue *atom)
+memstat_fetch_callback(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
     if (inst == PM_INDOM_NULL) {
 	switch (item) {

@@ -627,6 +627,26 @@ pmda_uptime(now)
     OUTPUT:
 	RETVAL
 
+int
+pmda_long()
+    CODE:
+	if (sizeof(long) == 32)
+	    RETVAL = PM_TYPE_32;
+	else
+	    RETVAL = PM_TYPE_64;
+    OUTPUT:
+	RETVAL
+
+int
+pmda_ulong()
+    CODE:
+	if (sizeof(unsigned long) == 32)
+	    RETVAL = PM_TYPE_U32;
+	else
+	    RETVAL = PM_TYPE_U64;
+    OUTPUT:
+	RETVAL
+
 
 void
 error(self,message)

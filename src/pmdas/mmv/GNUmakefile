@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2000-2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,16 +16,20 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-TARGETS	= $(IAM) mmvdump$(EXECSUFFIX)
-CFILES	= mmv.c
-LSRCFILES = pmns Install Remove README help root mmvdump.c
+IAM		= mmv
+DOMAIN		= MMV
+CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
+LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
+TARGETS		= $(CMDTARGET) $(LIBTARGET) mmvdump$(EXECSUFFIX)
+INSTTARGETS	= $(CMDTARGET) mmvdump$(EXECSUFFIX)
 
-LCFLAGS = -I.
-LLDFLAGS= -L$(TOPDIR)/src/libpcp_mmv/src
-LLDLIBS	= -lpcp_pmda -lpcp
+CFILES		= mmv.c
+LSRCFILES	= pmns Install Remove README help root mmvdump.c
 
-IAM	= mmv
-DOMAIN	= MMV
+LCFLAGS		= -I.
+LLDFLAGS	= -L$(TOPDIR)/src/libpcp_mmv/src
+LLDLIBS		= -lpcp_pmda -lpcp
+
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 LDIRT	= *.o $(TARGETS) domain.h *.log *.dir *.pag \
 	  so_locations a.out parse.? pcp
@@ -35,11 +40,10 @@ include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
-	$(INSTALL) -m 755 Install Remove mmvdump$(EXECSUFFIX) $(PMDADIR)
+	$(INSTALL) -m 755 $(INSTTARGETS) Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 README root help pmns domain.h $(PMDADIR)
 
-$(IAM):	$(OBJECTS)
+$(CMDTARGET):	$(OBJECTS)
 
 $(IAM).o : domain.h pcp
 

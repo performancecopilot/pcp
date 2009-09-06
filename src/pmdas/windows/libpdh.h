@@ -201,6 +201,12 @@ typedef HANDLE PDH_HQUERY;
 typedef HANDLE PDH_HCOUNTER;
 typedef HANDLE PDH_HLOG;
 
+#define PDH_FMT_LONG	0x00000100
+#define PDH_FMT_DOUBLE	0x00000200
+#define PDH_FMT_LARGE	0x00000400
+#define PDH_FMT_NOSCALE	0x00001000
+#define PDH_FMT_1000	0x00002000
+
 typedef struct {
     DWORD    CStatus;
     FILETIME TimeStamp;
@@ -251,6 +257,17 @@ typedef struct {
     DWORD DataBuffer[1];
 } PDH_COUNTER_INFO_A;
 
+typedef struct {
+    DWORD     CStatus;
+    union {
+        LONG  longValue;
+        double doubleValue;
+        LONGLONG largeValue;
+        LPCSTR AnsiStringValue;
+        LPCWSTR WideStringValue;
+    };
+} PDH_FMT_COUNTERVALUE;
+
 PDH_STATUS WINAPI
 PdhAddCounterA(PDH_HQUERY, LPCSTR, DWORD_PTR, PDH_HCOUNTER *);
 
@@ -268,6 +285,9 @@ PdhGetCounterInfoA(PDH_HCOUNTER, BOOLEAN, LPDWORD, PDH_COUNTER_INFO_A *);
 
 PDH_STATUS WINAPI
 PdhGetRawCounterValue(PDH_HCOUNTER, LPDWORD, PDH_RAW_COUNTER *);
+
+PDH_STATUS WINAPI
+PdhGetFormattedCounterValue(PDH_HCOUNTER, DWORD, LPDWORD, PDH_FMT_COUNTERVALUE *);
 
 PDH_STATUS WINAPI
 PdhOpenQueryA(LPCSTR, DWORD_PTR, PDH_HQUERY *);
