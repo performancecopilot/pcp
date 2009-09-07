@@ -1151,7 +1151,7 @@ AC_TRY_LINK([#include <sys/wait.h>],
     SIGRET x = SIG_IGN;
 ], AC_DEFINE(HAVE_WAIT_INCLUDES_SIGNAL))
 
-dnl check for type of fields in struct stat
+dnl check for name and type of time fields in struct stat
 dnl IRIX example	timespec_t st_mtim;	
 dnl Linux example 	struct timespec st_mtim;
 dnl Darwin example 	struct timespec st_mtimespec;
@@ -1162,38 +1162,57 @@ dnl				time_t tv_sec;
 dnl				long tv_nsec;
 dnl			};
 dnl
+have_stat_type=false
+have_stat_name=false
 if test $target_os = freebsd
 then
     # just too hard to work out for FreeBSD
     AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC)
     AC_DEFINE(HAVE_STAT_TIMESPEC)
-else
+    have_stat_type=true
+    have_stat_name=true
+fi
+if test $have_stat_name = false
+then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtimespec>>changequote([, ]),
-    sys/stat.h, AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC))
-
-    if test $target_os != darwin
-    then
-	AC_EGREP_HEADER(
-	changequote(<<, >>)<<[ 	]st_mtime>>changequote([, ]),
-	sys/stat.h, AC_DEFINE(HAVE_ST_MTIME_WITH_E))
-    fi
-
+    sys/stat.h, [ have_stat_name=true; AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC) ])
+fi
+if test $have_stat_name = false -a $target_os != darwin
+then
+    AC_EGREP_HEADER(
+    changequote(<<, >>)<<[ 	]st_mtime>>changequote([, ]),
+    sys/stat.h, [ have_stat_name=true; AC_DEFINE(HAVE_ST_MTIME_WITH_E) ])
+fi
+if test $have_stat_type = false
+then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<timestruc_t[ 	][ 	]*st_mtim>>changequote([, ]),
-    sys/stat.h, AC_DEFINE(HAVE_STAT_TIMESTRUC))
-
+    sys/stat.h, [ have_stat_type=true; AC_DEFINE(HAVE_STAT_TIMESTRUC) ])
+fi
+if test $have_stat_type = false
+then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<timespec_t[ 	][ 	]*st_mtim>>changequote([, ]),
-    sys/stat.h, AC_DEFINE(HAVE_STAT_TIMESPEC_T))
-
+    sys/stat.h, [ have_stat_type=true; AC_DEFINE(HAVE_STAT_TIMESPEC_T) ])
+fi
+if test $have_stat_type = false
+then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<timespec[ 	][ 	]*st_mtim>>changequote([, ]),
-    sys/stat.h, AC_DEFINE(HAVE_STAT_TIMESPEC))
-
+    sys/stat.h, [ have_stat_type=true; AC_DEFINE(HAVE_STAT_TIMESPEC) ])
+fi
+if test $have_stat_type = false
+then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<time_t[ 	][ 	]*st_mtim>>changequote([, ]),
-    sys/stat.h, AC_DEFINE(HAVE_STAT_TIME_T))
+    sys/stat.h, [ have_stat_type=true; AC_DEFINE(HAVE_STAT_TIME_T) ])
+fi
+if test $have_stat_type = false
+then
+    echo 'FATAL ERROR: Cannot determine stuct stat time types.'
+    echo 'Please send a copy of sys/stat.h to pcp@oss.sgi.com.'
+    exit 1
 fi
 
 dnl

@@ -30,6 +30,11 @@ pcp-3.0.0 (7 September 2009)
     - git merged the final 2.9.1 source tree
     - numerous other minor changes, mostly for inclusion in Fedora
 
+pcp-2.9.2 (7 September 2009)
+    - Final iteration on pmval sample count changes.
+    - Build fallout on Mac/Win32 in MMV client library.
+    - Tidy configure.in sys/stat time field/types handling for Alpha builds.
+
 pcp-2.9.1 (2 September 2009)
     - Fix a long-standing pmval sample count miscalculation.
     - Add missing runlevels and dependencies in start scripts.

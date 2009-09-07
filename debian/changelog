@@ -1,3 +1,10 @@
+pcp (2.9.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Attempt to resolve Alpha platform build issues for Debian.
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 07 Sep 2009 16:26:54 +1000
+
 pcp (2.9.1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

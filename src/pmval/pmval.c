@@ -433,7 +433,7 @@ printhdr(Context *x, long smpls, struct timeval delta, struct timeval first)
     }
     putchar('\n');
 
-    /* sample count */
+    /* sample count and interval */
     if (smpls == ALL_SAMPLES) printf("samples:   all\n");
     else printf("samples:   %ld\n", smpls);
     if (smpls != ALL_SAMPLES && smpls > 1 &&
@@ -1129,16 +1129,48 @@ getargs(int		argc,		/* in - command line argument count */
 
 	*smpls = (long)((__pmtimevalToReal(&last) - __pmtimevalToReal(posn)) /
 		__pmtimevalToReal(delta));
+	if (*smpls < 0) 
 	/* if end is before start, no samples thanks */
-	if (*smpls < 0) *smpls = 0;
-	/* counters require 2 samples to produce reported sample */
-	if (*smpls > 0 && cntxt->desc.sem == PM_SEM_COUNTER)
+	    *smpls = 0;
+	else {
+	    /*
+	     * p stands for posn
+	     * + p         + p+delta   + p+2*delta + p+3*delta        + last
+	     * |           |           |           |              |   |
+	     * +-----------+-----------+-----------+-- ...... ----+---+---> time
+	     *             1           2           3              smpls
+	     *
+	     * So we will perform smpls+1 fetches ... the number of reported
+	     * values cannot be determined as it is usually (but not always
+	     * thanks to interpolation mode in archives) one less for
+	     * PM_SEM_COUNTER metrics.
+	     *
+	     * samples: as reported in the header output is the number
+	     * of fetches to be attempted.
+	     */
 	    (*smpls)++;
+	}
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
-	    fprintf(stderr, "getargs: first=%.6f posn=%.6f last=%.6f\ngetargs: delta=%.6f samples=%ld\n",
-	    __pmtimevalToReal(&first), __pmtimevalToReal(posn),
-	    __pmtimevalToReal(&last), __pmtimevalToReal(delta), *smpls);
+	if (pmDebug & DBG_TRACE_APPL0) {
+	    char		tbfr[26];
+	    char		*tp;
+	    fprintf(stderr, "getargs: first=%.6f", __pmtimevalToReal(&first));
+	    tp = pmCtime((time_t *)&first.tv_sec, tbfr);
+	    /*
+	     * tp -> Ddd Mmm DD HH:MM:SS YYYY\n
+	     *       0   4   8  1      1 2  2 2
+	     *                  1      8 0  3 4
+	     */
+	    fprintf(stderr, "[%8.8s]\n", &tp[11]);
+	    fprintf(stderr, "getargs: posn=%.6f", __pmtimevalToReal(posn));
+	    tp = pmCtime((time_t *)&posn->tv_sec, tbfr);
+	    fprintf(stderr, "[%8.8s]\n", &tp[11]);
+	    fprintf(stderr, "getargs: last=%.6f", __pmtimevalToReal(&last));
+	    tp = pmCtime((time_t *)&last.tv_sec, tbfr);
+	    fprintf(stderr, "[%8.8s]\n", &tp[11]);
+	    fprintf(stderr, "getargs: delta=%.6f samples=%ld\n",
+	    __pmtimevalToReal(delta), *smpls);
+	}
 #endif
     }
 
