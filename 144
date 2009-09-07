@@ -77,12 +77,12 @@ do
     echo "=== $metric ==="
     echo "=== $metric ===" >>$seq.full
     echo "--- original ---" >>$seq.full
-    pmval -a src-oss/naslog -t 30sec -A 30sec $metric 2>&1 \
+    pmval -z -a src-oss/naslog -t 30sec -A 30sec $metric 2>&1 \
     | tee -a $seq.full \
     | _filter >$tmp.in
 
     echo "--- reduced ---" >>$seq.full
-    pmval -a $tmp -t 30sec -A 30sec $metric 2>&1 \
+    pmval -z -a $tmp -t 30sec -A 30sec $metric 2>&1 \
     | tee -a $seq.full \
     | _filter >$tmp.out
     diff $tmp.in $tmp.out
