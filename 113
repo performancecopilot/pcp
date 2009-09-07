@@ -11,13 +11,15 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+sudo=`pwd`/sudo
+
 # get standard filters
 . ./common.product
 . ./common.filter
 
 status=0
 tmp=/tmp/$$
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+#trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 rm -f $seq.full
 
@@ -138,7 +140,7 @@ do
 		}' 
     elif [ $PCP_PLATFORM = linux ]
     then
-	df -lk $f \
+	$sudo df -lk $f \
 	| $PCP_AWK_PROG '
 /^Filesystem/	{ dev="'$f'"
 		  next
@@ -154,7 +156,7 @@ NF == 5		{ printf "%s_%s %d\n", "filesys.capacity",  dev, $1
 		  printf "%s_%s %d\n", "filesys.free", dev, $3
 		  printf "%s_%s %d\n", "filesys.mountdir", dev, $5
 		}'
-	df -li $f \
+	$sudo df -li $f \
 	| $PCP_AWK_PROG '
 /^Filesystem/	{ dev="'$f'"
 		  next

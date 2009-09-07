@@ -34,12 +34,19 @@ get_pminfo()
 get_nfsstat()
 {
     LC_ALL=C perl -e '
+    	$prefix = "";
 	open STATS, "nfsstat -n |" || die "nfsstat: $!";
 	while (<STATS>) {
 	    if (m/server nfs v2/i)          { $prefix = "nfs2_server_reqs_"; }
 	    elsif (m/server nfs v3/i)       { $prefix = "nfs3_server_reqs_"; }
 	    elsif (m/client nfs v2/i)       { $prefix = "nfs2_client_reqs_"; }
 	    elsif (m/client nfs v3/i)       { $prefix = "nfs3_client_reqs_"; }
+	    # NFSv4 unsupported.  Reset prefix to "" to ensure
+	    # that NFSv4 stats are not incorrectly attributed to
+	    # another NFS version.
+	    elsif (m/client nfs v4/i)       { $prefix = ""; }
+	    elsif (m/server nfs v4/i)	    { $prefix = ""; }
+    	    elsif ($prefix == "")	    { next; }
 	    elsif (m/((\d+)\s+\d+%)+/g) {
 		@values = split(/\s+/);
 		#print "found - @values, @instances\n";
@@ -87,10 +94,11 @@ get_pminfo nfs.server.reqs nfs2_server_reqs  | tee -a $seq.full >$tmp.info
 get_pminfo nfs3.server.reqs nfs3_server_reqs | tee -a $seq.full >>$tmp.info
 get_pminfo nfs.client.reqs nfs2_client_reqs  | tee -a $seq.full >>$tmp.info
 get_pminfo nfs3.client.reqs nfs3_client_reqs | tee -a $seq.full >>$tmp.info
+LC_COLLATE=POSIX sort -d < $tmp.info > $tmp.info2
 
 echo | tee -a $seq.full
 echo "comparing all values... (details in $seq.full)" | tee -a $seq.full
-join $tmp.info $tmp.stat | while read metric nfsvalue pmvalue
+join $tmp.info2 $tmp.stat | while read metric nfsvalue pmvalue
 do
 	_within_tolerance $metric $nfsvalue $pmvalue 2% -v >>$seq.full
 	[ $? -eq 1 ] && echo failed cross check on $metric: $nfsvalue $pmvalue
