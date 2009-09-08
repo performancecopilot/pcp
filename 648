@@ -47,6 +47,10 @@ _delay_for_pmns()
     sleep 2		# give pmcd some time to rebuild the pmns
 }
 
+echo "Tests functionality which is not yet complete" >$seq.notrun
+echo "$seq: [not run] `cat $seq.notrun`"
+exit 0
+
 # real QA test starts here
 here=`pwd`
 home="$PCP_PMDAS_DIR"
