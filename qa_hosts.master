@@ -40,6 +40,7 @@ butt.scott.net.au
 # Kenj Section
 bozo
 bozo-laptop
+comma
 
 # sort control lines
 # each line here is a specification that includes the keyword #order and
@@ -62,4 +63,5 @@ bozo-laptop
 #order	.aconex.com		.acx			.localdomain	.aconex.com
 #order .localdomain		.localdomain		.acx
 # Kenj Section
-#order	bozo	bozo-laptop
+#order	bozo			bozo-laptop		comma
+#order	bozo-laptop		bozo			comma
