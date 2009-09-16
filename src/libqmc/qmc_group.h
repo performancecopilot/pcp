@@ -37,7 +37,7 @@ public:
     // Index to the active context
     unsigned int contextIndex() const { return my.use; }
 
-    int use(int type, QString &source);
+    int use(int type, const QString &source);
     int use(unsigned int index) { my.use = index; return useContext(); }
     bool defaultDefined() const { return (numContexts() > 0); }
     int useDefault();

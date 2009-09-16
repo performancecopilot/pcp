@@ -71,10 +71,11 @@ QmcGroup::~QmcGroup()
 }
 
 int
-QmcGroup::use(int type, QString &source)
+QmcGroup::use(int type, const QString &theSource)
 {
     int sts = 0;
     unsigned int i;
+    QString source(theSource);
 
     if (type == PM_CONTEXT_LOCAL) {
 	for (i = 0; i < numContexts(); i++)
@@ -176,8 +177,7 @@ QmcGroup::use(int type, QString &source)
 	if (newContext->handle() < 0) {
 	    sts = newContext->handle();
 	    pmprintf("%s: Error: %s: %s\n", pmProgname,
-		     (const char *)newContext->source().descAscii(), 
-		     pmErrStr(sts));
+		     (const char *)source.toAscii(), pmErrStr(sts));
 	    delete newContext;
 	    return sts;
 	}
@@ -216,7 +216,7 @@ QmcGroup::use(int type, QString &source)
 	sts = useContext();
 	if (sts < 0) {
 	    pmprintf("%s: Error: Unable to use context to %s: %s\n", pmProgname,
-		     context()->source().descAscii(), pmErrStr(sts));
+		     context()->source().sourceAscii(), pmErrStr(sts));
 	    return sts;
 	}
 
@@ -441,7 +441,7 @@ QmcGroup::useContext()
     int sts = pmUseContext(context()->handle());
     if (sts < 0)
 	pmprintf("%s: Error: Unable to reuse context to %s: %s\n",
-		 pmProgname, context()->source().descAscii(), pmErrStr(sts));
+		 pmProgname, context()->source().sourceAscii(), pmErrStr(sts));
     return sts;
 }
 
@@ -499,7 +499,7 @@ QmcGroup::setArchiveMode(int mode, const struct timeval *when, int interval)
 	sts = pmUseContext(my.contexts[i]->handle());
 	if (sts < 0) {
 	    pmprintf("%s: Error: Unable to switch to context for %s: %s\n",
-		     pmProgname, my.contexts[i]->source().descAscii(),
+		     pmProgname, my.contexts[i]->source().sourceAscii(),
 		     pmErrStr(sts));
 	    result = sts;
 	    continue;
@@ -507,7 +507,7 @@ QmcGroup::setArchiveMode(int mode, const struct timeval *when, int interval)
 	sts = pmSetMode(mode, when, interval);
 	if (sts < 0) {
 	    pmprintf("%s: Error: Unable to set context mode for %s: %s\n",
-		     pmProgname, my.contexts[i]->source().descAscii(),
+		     pmProgname, my.contexts[i]->source().sourceAscii(),
 		     pmErrStr(sts));
 	    result = sts;
 	}
