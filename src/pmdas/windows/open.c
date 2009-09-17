@@ -181,7 +181,7 @@ windows_format_uname(OSVERSIONINFOEX osv)
 
     switch (osv.dwPlatformId) {
         case VER_PLATFORM_WIN32_NT:
-	    if (osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0) {
+	    if (osv.dwMajorVersion == 6 && osv.dwMinorVersion == 1) {
 		if (osv.wProductType == VER_NT_WORKSTATION)
 		    name = string_append(name, "Windows 7");
 		else
@@ -420,6 +420,10 @@ windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 
 	case PERF_AVERAGE_BULK:
 	case PERF_AVERAGE_TIMER:
+	    if (mp->ctype == PERF_AVERAGE_BULK)
+		ctr_type = "PERF_AVERAGE_BULK";
+	    else
+		ctr_type = "PERF_AVERAGE_TIMER";
 	    /* 64-bit PM_SEM_INSTANT or PM_SEM_DISCRETE */
 	    if (mp->desc.sem != PM_SEM_INSTANT && mp->desc.sem != PM_SEM_DISCRETE) {
 		__pmNotifyErr(LOG_ERR, "windows_open: Warning: %s: "
@@ -438,6 +442,7 @@ windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 	    break;
 
 	case PERF_SAMPLE_COUNTER:
+	    ctr_type = "PERF_SAMPLE_COUNTER";
 	    /* floating point PM_SEM_INSTANT or PM_SEM_DISCRETE */
 	    if (mp->desc.sem != PM_SEM_INSTANT && mp->desc.sem != PM_SEM_DISCRETE) {
 		__pmNotifyErr(LOG_ERR, "windows_open: Warning: %s: "
@@ -455,15 +460,16 @@ windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 	    break;
 
 	case PERF_ELAPSED_TIME:
+	    ctr_type = "PERF_ELAPSED_TIME";
 	    if (mp->desc.units.dimSpace != 0 ||
 		mp->desc.units.dimTime != 1 ||
 		mp->desc.units.dimCount != 0 ||
-		mp->desc.units.scaleTime != PM_TIME_USEC) {
+		mp->desc.units.scaleTime != PM_TIME_SEC) {
 		pmUnits units = mp->desc.units;
 		mp->desc.units.dimSpace = mp->desc.units.dimCount = 0;
 		mp->desc.units.scaleSpace = mp->desc.units.scaleCount = 0;
 		mp->desc.units.dimTime = 1;
-		mp->desc.units.scaleTime = PM_TIME_USEC;
+		mp->desc.units.scaleTime = PM_TIME_SEC;
 		__pmNotifyErr(LOG_ERR, "windows_open: Warning: %s: "
 			"metric %s: rewrite dimension and scale from %s to %s",
 		    ctr_type, pmIDStr(mp->desc.pmid), pmUnitsStr(&units),
@@ -477,6 +483,7 @@ windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 			_typestr(mp->desc.type));
 		mp->desc.type = PM_TYPE_U64;
 	    }
+	    break;
 
 	default:
 	    __pmNotifyErr(LOG_ERR, "windows_open: Warning: metric %s: "

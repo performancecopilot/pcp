@@ -18,18 +18,18 @@
 # 
 # Start or Stop the Performance Co-Pilot Daemon(s)
 #
-# The following is for chkconfig on Red Hat based systems
-# chkconfig: - 95 05
+# The following is for chkconfig on RedHat based systems
+# chkconfig: 2345 95 05
 # description: PCP is a system level performance monitoring package
 #
 # The following is for insserv(1) based systems,
 # e.g. SuSE, where chkconfig is a perl script.
 ### BEGIN INIT INFO
 # Provides:       pcp
-# Required-Start: $network $local_fs
-# Required-Stop:
-# Default-Start:
-# Default-Stop:
+# Required-Start: $network $remote_fs $syslog
+# Required-Stop:  $remote_fs $syslog
+# Default-Start:  2 3 4 5
+# Default-Stop:   0 1 6
 # Short-Description:   Control pmcd and pmlogger daemons
 # Description:    Configure the Performance Co-Pilot and starts logging.
 ### END INIT INFO

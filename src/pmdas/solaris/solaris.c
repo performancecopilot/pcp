@@ -38,8 +38,11 @@ solaris_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int		i;
 
     /* TODO: this should only fetch values in pmidlist */
-    for (i = 0; i < methodtab_sz; i++)
-	methodtab[i].m_prefetch();
+    for (i = 0; i < methodtab_sz; i++) {
+	if (methodtab[i].m_prefetch) {
+	    methodtab[i].m_prefetch();
+	}
+    }
 
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
