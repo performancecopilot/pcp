@@ -154,7 +154,7 @@ pmTimeShowDialog(int fd, int show)
     data.command = show ? PM_TCTL_GUISHOW : PM_TCTL_GUIHIDE;
     sts = send(fd, (const void *)&data, sizeof(data), 0);
     if (sts >= 0 && sts != sizeof(data)) {
-	errno = ENODATA;
+	errno = ENOMSG;
 	sts = -1;
     }
     return sts;
@@ -169,7 +169,7 @@ pmTimeRecv(int fd, pmTime **datap)
     memset(k, 0, sizeof(pmTime));
     sts = recv(fd, (void *)k, sizeof(pmTime), 0);
     if (sts >= 0 && sts != sizeof(pmTime)) {
-	errno = ENODATA;
+	errno = ENOMSG;
 	sts = -1;
     } else if (k->length > sizeof(pmTime)) {	/* double dipping */
 	remains = k->length - sizeof(pmTime);
