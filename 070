@@ -37,6 +37,7 @@ _myprog()
     echo "Trying ... $args"
     $prog $* 2>&1 \
     | sed \
+	-e "s/'//g" \
 	-e '/Broken pipe/d' \
 	-e 's;src-oss/template: option;Option;' \
 	-e 's;src-oss/template: invalid;Illegal;' \

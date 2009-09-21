@@ -102,6 +102,7 @@ else
 fi
 
 cd $PCP_PMDAS_DIR/idiot
+mv pmdasimple.pl pmdaidiot.pl
 mv simple.c idiot.c
 mv simple.conf idiot.conf
 for file in *
