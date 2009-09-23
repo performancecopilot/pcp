@@ -1,3 +1,7 @@
+pcp-2.9.3 (23 September 2009)
+    - configure.in fix for Windows iptypes.h header.
+    - Fixup Windows SQL Server metrics on 64 bit platforms.
+
 pcp-2.9.2 (7 September 2009)
     - Final iteration on pmval sample count changes.
     - Build fallout on Mac/Win32 in MMV client library.
