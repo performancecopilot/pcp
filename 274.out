@@ -285,7 +285,7 @@ broken pmda Debug: Received PDU_TEXT_REQ
 
 Log finished
 dbpmda> open pipe src-oss/broken_pmda_2_5 -D47104 -l logfile
-[DATE] broken_pmda_2_5(PID) Critical: __pmdaSetup: broken_pmda_2_5 PMDA: interface version 4 not supported (domain=249)
+[DATE] broken_pmda_2_5(PID) Critical: __pmdaSetup: broken_pmda_2_5 PMDA: interface version 77 not supported (domain=249)
 pmdaDaemon() failed!
 Warning: no version exchange with PMDA ./src-oss/broken_pmda_2_5: assuming PCP 1.x PMDA.
 Start broken_pmda_2_5 PMDA: ./src-oss/broken_pmda_2_5 -D47104 -l logfile
