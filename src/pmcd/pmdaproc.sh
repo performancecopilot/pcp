@@ -797,17 +797,21 @@ _setup()
     _check_userroot
 
     # automatically generate files for those lazy Perl programmers
+    # ... if they are not already present
     #
-    if $perl_opt
+    if [ ! -f ${PCP_PMDAS_DIR}/${iam}/pmns ]
     then
-	perl_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.pl"
-	perl_name=`__strip_pcp_dir "$perl_name"`
-	perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns"
-	perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h"
-	perl -e 'use PCP::PMDA' 2>/dev/null
-	if test $? -eq 0; then
-	    eval PCP_PERL_DOMAIN=1 perl "$perl_name" > "$perl_dom"
-	    eval PCP_PERL_PMNS=1 perl "$perl_name" > "$perl_pmns"
+	if $perl_opt
+	then
+	    perl_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.pl"
+	    perl_name=`__strip_pcp_dir "$perl_name"`
+	    perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns"
+	    perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h"
+	    perl -e 'use PCP::PMDA' 2>/dev/null
+	    if test $? -eq 0; then
+		eval PCP_PERL_DOMAIN=1 perl "$perl_name" > "$perl_dom"
+		eval PCP_PERL_PMNS=1 perl "$perl_name" > "$perl_pmns"
+	    fi
 	fi
     fi
 
