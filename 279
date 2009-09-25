@@ -22,7 +22,7 @@ tmp=/tmp/$$
 status=1	# failure is the default!
 here=`pwd`
 sudo=$here/sudo
-signal=$PCP_BINADM_DIR/pmsignal
+killer=`pwd`/src-oss/killparent
 LOCALHOST=`hostname`
 _needclean=true
 
@@ -102,6 +102,9 @@ pmcd	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
 fi
+echo "=== initial pmcd.conf ===" >>$seq.full
+cat $tmp.conf >>$seq.full
+echo "=== ===" >>$seq.full
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
 $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
@@ -109,7 +112,7 @@ _wait_for_pmcd
 cat <<End-of-File >$tmp.cmd
 rm -f $PCP_PMCDCONF_PATH.prev
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
-__pmda_add "bogus	111	pipe	binary 		$signal -a pmcd"
+__pmda_add "bogus	111	pipe	binary 		$killer"
 End-of-File
 
 echo
@@ -117,9 +120,13 @@ echo "__pmda_add test: expect this to fail and revert to the status quo ..."
 echo "__pmda_add test: expect this to fail and revert to the status quo ..." >>$seq.full
 echo
 
-$sudo sh $tmp.cmd \
+$sudo sh $tmp.cmd 2>&1 \
 | tee -a $seq.full \
 | _filter
+
+echo "=== pmcd.conf after bogus install ===" >>$seq.full
+cat $PCP_PMCDCONF_PATH >>$seq.full
+echo "=== ===" >>$seq.full
 
 echo "\$PCP_PMCDCONF_PATH should be put back the way it was ... diffs ..."
 diff $PCP_PMCDCONF_PATH $tmp.conf
@@ -131,8 +138,11 @@ rm -f $PCP_PMCDCONF_PATH.prev
 __pmda_cull fungus 222
 End-of-File
 
-echo "bogus 111     pipe    binary          $signal -a pmcd" >>$tmp.conf
-echo "fungus 222     pipe    binary         $signal -a pmcd" >>$tmp.conf
+echo "bogus 111     pipe    binary          $killer" >>$tmp.conf
+echo "fungus 222     pipe    binary         $killer" >>$tmp.conf
+echo "=== next pmcd.conf ===" >>$seq.full
+cat $tmp.conf >>$seq.full
+echo "=== ===" >>$seq.full
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
 
 echo
@@ -140,9 +150,13 @@ echo "__pmda_cull test: expect this to fail and restoration to fail ..."
 echo "__pmda_cull test: expect this to fail and restoration to fail ..." >>$seq.full
 echo
 
-$sudo sh $tmp.cmd \
+$sudo sh $tmp.cmd 2>&1 \
 | tee -a $seq.full \
 | _filter
+
+echo "=== pmcd.conf after fungus remove ===" >>$seq.full
+cat $PCP_PMCDCONF_PATH >>$seq.full
+echo "=== ===" >>$seq.full
 
 # success, all done
 status=0
