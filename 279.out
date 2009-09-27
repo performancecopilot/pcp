@@ -27,6 +27,10 @@ Performance Co-Pilot starting archive loggers ...
 Arrgghhh ... PMCD failed to start after 60 seconds
 Here is the PMCD logfile ($PCP_LOG_DIR/pmcd.log):
 [logfile deleted]
+Sorry, failed to restart PMCD.
+Arrgghhh ... PMCD failed to start after 60 seconds
+Here is the PMCD logfile ($PCP_LOG_DIR/pmcd.log):
+[logfile deleted]
 
 Restoring real $PCP_PMCDCONF_PATH ...
 Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) ...

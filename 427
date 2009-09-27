@@ -30,6 +30,9 @@ sudo=`pwd`/sudo
 status=1	# failure is the default!
 needclean=true
 
+[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
+	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+
 trap "_cleanup" 0 1 2 3 15
 
 _cleanup()
@@ -41,7 +44,7 @@ _cleanup()
 	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	fi
         [ -f $tmp.control ] && \
-            $sudo cp $tmp.control $PCP_VAR_DIR/config/pmlogger/control
+            $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
 	needclean=false
 	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
@@ -60,7 +63,7 @@ _cleanup()
 
 # disable all pmloggers ... Linux does not have "chkconfig pmlogger off"
 #
-$sudo cp $PCP_VAR_DIR/config/pmlogger/control $tmp.control
+$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
 if [ -d $PCP_LOG_DIR/pmlogger ]
 then
     LOGDIR=$PCP_LOG_DIR/pmlogger/LOCALHOSTNAME
@@ -74,7 +77,7 @@ cat <<End-of-File >$tmp.tmp
 \$version=1.1
 LOCALHOSTNAME y n $LOGDIR -c /dev/null
 End-of-File
-$sudo cp $tmp.tmp $PCP_VAR_DIR/config/pmlogger/control
+$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 
 # backup $PCP_PMCDCONF_PATH
 $sudo cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf

@@ -1,0 +1,76 @@
+#! /bin/sh
+# PCP QA Test No. 213
+# $Revision: 1.1 $
+#
+# exercise dbpmda with dynamic metrics
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+
+# creator
+owner=kenj
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if echo help | dbpmda | grep -q children
+then
+    :
+else
+    echo "No dynamic metric support in dbpmda" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;"
+}
+
+
+# real QA test starts here
+echo "=== DSO PMDA test ==="
+cat <<End-of-File | dbpmda -ei 2>&1 | _filter
+open dso $PCP_PMDAS_DIR/sample/pmda_sample.so sample_init 30
+name 30.0.1001
+name 30.0.1007
+name 2.4.1
+pmid sampledso.secret.foo.two
+pmid sampledso.secret.foo.bar.grunt.snort.six
+pmid sampledso.secret.foo.bar.max.redirect
+children sampledso.secret.foo
+traverse sampledso.secret.foo
+children sampledso.secret.foo.bar
+traverse sampledso.secret.foo.bar
+End-of-File
+
+echo
+echo "=== Daemon PMDA test ==="
+cat <<End-of-File | dbpmda -ei 2>&1 | _filter
+open pipe $PCP_PMDAS_DIR/sample/pmdasample 29
+name 29.0.1001
+name 29.0.1007
+name 2.4.1
+pmid sample.secret.foo.two
+pmid sample.secret.foo.bar.grunt.snort.six
+pmid sample.secret.foo.bar.max.redirect
+children sample.secret.foo
+traverse sample.secret.foo
+children sample.secret.foo.bar
+traverse sample.secret.foo.bar
+End-of-File
+
+# success, all done
+exit

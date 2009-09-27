@@ -2,6 +2,7 @@ QA output created by 617
 dbpmda> help
 help [ command ]
 
+children metric-name
 close
 debug all | none
 debug flag [ flag ... ] (flag is decimal or symbolic name)
@@ -9,9 +10,11 @@ desc metric
 fetch metric [ metric ... ]
 getdesc on | off
 instance indom# [ number | name | "name" ]
+name pmid#
 namespace fname
 open dso dsoname init_routine [ domain# ]
 open pipe execname [ arg ... ]
+pmid metric-name
 profile indom# [ all | none ]
 profile indom# [ add | delete ] number
 quit
@@ -20,6 +23,7 @@ store metric "value"
 text metric
 text indom indom#
 timer on | off
+traverse metric-name
 wait seconds
 watch logfilename
 

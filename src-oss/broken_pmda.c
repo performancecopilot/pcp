@@ -284,11 +284,14 @@ broken_init(pmdaInterface *dp)
 {
 #if defined(BUG_5)
     if (_isDSO)
-	/* we don't grok PMDA_INTERFACE_4 ... */
+	/*
+	 * we don't grok PMDA_INTERFACE_77 ... 77 is arbitrary, just needs
+	 * to be bigger than currently validand supported
+	 */
 #if defined(VERSION_1)
-	pmdaDSO(dp, 4, "broken DSO", BROKEN, _helpText);
+	pmdaDSO(dp, 77, "broken DSO", BROKEN, _helpText);
 #else
-	pmdaDSO(dp, 4, "broken DSO", _helpText);
+	pmdaDSO(dp, 77, "broken DSO", _helpText);
 #endif
 #elif defined(VERSION_1)
     if (_isDSO)
@@ -349,8 +352,11 @@ main(int argc, char **argv)
     _isDSO = 0;
 
 #if defined(BUG_5)
-    /* we don't grok PMDA_INTERFACE_4 ... */
-    pmdaDaemon(&desc, 4, pmProgname, BROKEN, _logFile,
+    /*
+     * we don't grok PMDA_INTERFACE_77 ... 77 is arbitrary, just needs
+     * to be bigger than currently validand supported
+     */
+    pmdaDaemon(&desc, 77, pmProgname, BROKEN, _logFile,
 	       _helpText);
 #elif defined(VERSION_1)
     pmdaDaemon(&desc, PMDA_PROTOCOL_2, pmProgname, BROKEN, _logFile,

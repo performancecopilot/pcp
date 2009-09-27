@@ -61,6 +61,15 @@ sample.not_ready
 sample.rapid
 sample.error_code
 sample.error_check
+sample.secret.foo.bar.max.redirect
+sample.secret.bar
+sample.secret.foo.one
+sample.secret.foo.two
+sample.secret.foo.bar.three
+sample.secret.foo.bar.four
+sample.secret.foo.bar.grunt.five
+sample.secret.foo.bar.grunt.snort.six
+sample.secret.foo.bar.grunt.snort.huff.puff.seven
 sample.long.one
 sample.long.ten
 sample.long.hundred

@@ -167,6 +167,7 @@ pmnewlog -p $pid $tmp 2>&1 \
     -e '/errors from talking/d' \
     -e '/continuing/d' \
     -e '/Reason: Metric not supported by this version/d' \
+    -e '/Reason: IPC protocol failure/d' \
     -e '/^$/d'
 
 $signal -s TERM $pid
@@ -209,6 +210,7 @@ pmnewlog -p $pid $tmp 2>&1 \
     -e '/errors from talking/d' \
     -e '/continuing/d' \
     -e '/Reason: Metric not supported by this version/d' \
+    -e '/Reason: Broken pipe/d' \
     -e '/^$/d'
 
 $sudo $signal -s TERM $pid

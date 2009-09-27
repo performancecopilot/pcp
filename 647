@@ -50,7 +50,7 @@ _delay_for_pmns()
 {
     sleep 2		# remove all this with new PMNS PDU types
     pminfo -df $iam >/dev/null 2>&1	# get past ready/notready
-    sleep 2		# give pmcd some time to rebuild the pmns
+    sleep 3		# give pmcd some time to rebuild the pmns
 }
 
 # real QA test starts here

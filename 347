@@ -95,7 +95,7 @@ fi
 
 echo
 echo "=== validate values ==="
-pminfo -f $iam >$tmp.out
+pminfo -f `pminfo $iam | LC_COLLATE=POSIX sort` >$tmp.out
 _filter_info <$tmp.out
 
 if fgrep -s "No PMCD agent" $tmp.out >/dev/null 2>&1
