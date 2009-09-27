@@ -401,7 +401,7 @@ SendNameReq(int fd, int mode, const char *name, int pdu_type, int subtype)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS)
-	fprintf(stderr, "SendNameReq: name=\"%s\"\n", name);
+	fprintf(stderr, "SendNameReq: name=\"%s\" pdu=%s subtype=%d\n", name, __pmPDUTypeStr(pdu_type), subtype);
 #endif
 
     namelen = (int)strlen(name);

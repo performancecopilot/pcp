@@ -188,7 +188,7 @@ dodso_desc(pmID pmid, pmDesc *desc)
 	fprintf(stderr, "DSO desc()\n");
 #endif
     if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-	sts = dispatch.version.three.desc(pmid, desc, dispatch.version.three.ext);
+	sts = dispatch.version.four.desc(pmid, desc, dispatch.version.four.ext);
     else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
              dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 	sts = dispatch.version.two.desc(pmid, desc, dispatch.version.two.ext);
@@ -219,6 +219,9 @@ dodso(int pdu)
     char		*buffer;
     struct timeval	start;
     struct timeval	end;
+    char		**namelist;
+    int			*statuslist;
+    pmID		pmid;
 
     if (timer != 0)
 	gettimeofday(&start, NULL);
@@ -260,7 +263,7 @@ dodso(int pdu)
 		    fprintf(stderr, "DSO profile()\n");
 #endif
 		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		    sts = dispatch.version.three.profile(profile, dispatch.version.three.ext);
+		    sts = dispatch.version.four.profile(profile, dispatch.version.four.ext);
 		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    sts = dispatch.version.two.profile(profile, dispatch.version.two.ext);
@@ -281,8 +284,8 @@ dodso(int pdu)
 		    fprintf(stderr, "DSO fetch()\n");
 #endif
 		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		    sts = dispatch.version.three.fetch(param.numpmid, param.pmidlist, 
-						     &result, dispatch.version.three.ext);
+		    sts = dispatch.version.four.fetch(param.numpmid, param.pmidlist, 
+						     &result, dispatch.version.four.ext);
 		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    sts = dispatch.version.two.fetch(param.numpmid, param.pmidlist, 
@@ -321,9 +324,9 @@ dodso(int pdu)
 #endif
 
 	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		sts = dispatch.version.three.instance(param.indom, param.number, 
+		sts = dispatch.version.four.instance(param.indom, param.number, 
 						    param.name, &inresult,
-						    dispatch.version.three.ext);
+						    dispatch.version.four.ext);
 	    else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 	             dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		sts = dispatch.version.two.instance(param.indom, param.number, 
@@ -354,7 +357,7 @@ dodso(int pdu)
 	    if (profile_changed) {
 		printf("Sending Profile...\n");
 		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		    sts = dispatch.version.three.profile(profile, dispatch.version.three.ext);
+		    sts = dispatch.version.four.profile(profile, dispatch.version.four.ext);
 		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 			 dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    sts = dispatch.version.two.profile(profile, dispatch.version.two.ext);
@@ -373,8 +376,8 @@ dodso(int pdu)
 
 	    printf("Getting Result Structure...\n");
 	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		sts = dispatch.version.three.fetch(1, &(desc.pmid), &result,
-						    dispatch.version.three.ext);
+		sts = dispatch.version.four.fetch(1, &(desc.pmid), &result,
+						    dispatch.version.four.ext);
 	    else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 	             dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		sts = dispatch.version.two.fetch(1, &(desc.pmid), &result,
@@ -408,7 +411,7 @@ dodso(int pdu)
 	    }
 
 	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		sts = dispatch.version.three.store(result, dispatch.version.three.ext);
+		sts = dispatch.version.four.store(result, dispatch.version.four.ext);
 	    else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 	             dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		sts = dispatch.version.two.store(result, dispatch.version.two.ext);
@@ -443,7 +446,7 @@ dodso(int pdu)
 		}
 
 		if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		    sts = dispatch.version.three.text(i, param.number, &buffer, dispatch.version.three.ext);
+		    sts = dispatch.version.four.text(i, param.number, &buffer, dispatch.version.four.ext);
 		else if (dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 			 dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    sts = dispatch.version.two.text(i, param.number, &buffer, dispatch.version.two.ext);
@@ -471,7 +474,99 @@ dodso(int pdu)
 	    }
 	    break;
 
-	}
+	case PDU_PMNS_IDS:
+	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1 ||
+		dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+		dispatch.comm.pmda_interface == PMDA_INTERFACE_3) {
+		printf("Error: PMDA Interface %d does not support dynamic metric names\n", dispatch.comm.pmda_interface);
+		break;
+	    }
+            printf("PMID: %s\n", pmIDStr(param.pmid));
+	    sts = dispatch.version.four.name(param.pmid, &namelist, dispatch.version.four.ext);
+	    if (sts > 0) {
+		for (i = 0; i < sts; i++) {
+		    printf("   %s\n", namelist[i]);
+		}
+		free(namelist);
+	    }
+	    else if (sts == 0) {
+		printf("Warning: DSO name() returns 0\n");
+	    }
+	    else {
+		printf("Error: DSO name() failed: %s\n", pmErrStr(sts));
+	    }
+	    break;
+
+	case PDU_PMNS_NAMES:
+	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1 ||
+		dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+		dispatch.comm.pmda_interface == PMDA_INTERFACE_3) {
+		printf("Error: PMDA Interface %d does not support dynamic metric names\n", dispatch.comm.pmda_interface);
+		break;
+	    }
+            printf("Metric: %s\n", param.name);
+	    sts = dispatch.version.four.pmid(param.name, &pmid, dispatch.version.four.ext);
+	    if (sts >= 0) {
+		printf("   %s\n", pmIDStr(pmid));
+	    }
+	    else {
+		printf("Error: DSO pmid() failed: %s\n", pmErrStr(sts));
+	    }
+	    break;
+
+	case PDU_PMNS_CHILD:
+	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1 ||
+		dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+		dispatch.comm.pmda_interface == PMDA_INTERFACE_3) {
+		printf("Error: PMDA Interface %d does not support dynamic metric names\n", dispatch.comm.pmda_interface);
+		break;
+	    }
+            printf("Metric: %s\n", param.name);
+	    sts = dispatch.version.four.children(param.name, 0, &namelist, &statuslist, dispatch.version.four.ext);
+	    if (sts > 0) {
+		for (i = 0; i < sts; i++) {
+		    printf("   %8.8s %s\n", statuslist[i] == 1 ? "non-leaf" : "leaf", namelist[i]);
+		}
+		free(namelist);
+		free(statuslist);
+	    }
+	    else if (sts == 0) {
+		printf("Warning: DSO children() returns 0\n");
+	    }
+	    else {
+		printf("Error: DSO children() failed: %s\n", pmErrStr(sts));
+	    }
+	    break;
+
+	case PDU_PMNS_TRAVERSE:
+	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1 ||
+		dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+		dispatch.comm.pmda_interface == PMDA_INTERFACE_3) {
+		printf("Error: PMDA Interface %d does not support dynamic metric names\n", dispatch.comm.pmda_interface);
+		break;
+	    }
+            printf("Metric: %s\n", param.name);
+	    sts = dispatch.version.four.children(param.name, 1, &namelist, &statuslist, dispatch.version.four.ext);
+	    if (sts > 0) {
+		for (i = 0; i < sts; i++) {
+		    printf("   %8.8s %s\n", statuslist[i] == 1 ? "non-leaf" : "leaf", namelist[i]);
+		}
+		free(namelist);
+		free(statuslist);
+	    }
+	    else if (sts == 0) {
+		printf("Warning: DSO children() returns 0\n");
+	    }
+	    else {
+		printf("Error: DSO children() failed: %s\n", pmErrStr(sts));
+	    }
+	    break;
+
+	default:
+	    printf("Error: DSO PDU (%s) botch!\n", __pmPDUTypeStr(pdu));
+	    break;
+
+    }
 	   
     if (sts >= 0 && timer != 0) {
 	gettimeofday(&end, NULL);

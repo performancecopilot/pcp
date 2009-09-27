@@ -162,8 +162,8 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 
 	if (ap->ipcType == AGENT_DSO) {
 	    if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		s = ap->ipc.dso.dispatch.version.three.store(dResult[i],
-				       ap->ipc.dso.dispatch.version.three.ext);
+		s = ap->ipc.dso.dispatch.version.four.store(dResult[i],
+				       ap->ipc.dso.dispatch.version.four.ext);
 	    else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
 	        ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
 		s = ap->ipc.dso.dispatch.version.two.store(dResult[i],

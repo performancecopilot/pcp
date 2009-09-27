@@ -132,8 +132,8 @@ pmStore(const pmResult *result)
 		    tmpvset.valfmt = result->vset[n]->valfmt;
 		    tmpvset.vlist[0] = result->vset[n]->vlist[0];
 		    if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-			sts = dp->dispatch.version.three.store(&tmp,
-						dp->dispatch.version.three.ext);
+			sts = dp->dispatch.version.four.store(&tmp,
+						dp->dispatch.version.four.ext);
 		    else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 			     dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 			sts = dp->dispatch.version.two.store(&tmp,

@@ -110,8 +110,8 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 			    "context: %d\n", dp->domain, ctx);
 #endif
 		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		    sts = dp->dispatch.version.three.profile(ctxp->c_instprof,
-							   dp->dispatch.version.three.ext);
+		    sts = dp->dispatch.version.four.profile(ctxp->c_instprof,
+							   dp->dispatch.version.four.ext);
 		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    sts = dp->dispatch.version.two.profile(ctxp->c_instprof,
@@ -133,8 +133,8 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 
 	if (sts >= 0) {
 	    if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		sts = dp->dispatch.version.three.fetch(cnt, splitlist, &tmp_ans,
-						     dp->dispatch.version.three.ext);
+		sts = dp->dispatch.version.four.fetch(cnt, splitlist, &tmp_ans,
+						     dp->dispatch.version.four.ext);
 	    else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		     dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		sts = dp->dispatch.version.two.fetch(cnt, splitlist, &tmp_ans,

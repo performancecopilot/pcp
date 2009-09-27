@@ -104,7 +104,7 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 		n = PM_ERR_NOAGENT;
 	    else {
 		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		    n = dp->dispatch.version.three.desc(pmid, desc, dp->dispatch.version.three.ext);
+		    n = dp->dispatch.version.four.desc(pmid, desc, dp->dispatch.version.four.ext);
 		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    n = dp->dispatch.version.two.desc(pmid, desc, dp->dispatch.version.two.ext);

@@ -109,8 +109,10 @@ rather than
 .ft CW
 kernel.all.cpu.idle
 .ft 1
-in the example above.  Other than for dynamic metrics (where the name of
-the metric cannot be known to
+in the example above.  Other than for dynamic metrics
+(where the existence of a metric is known to
+a PMDA, but not visible in the PMNS and hence has no name that
+could be known to
 .IR newhelp )
 use of this syntactic variant is not encouraged.
 .PP
@@ -119,7 +121,7 @@ are ignored, as are blank lines in the file before the first ``@''.
 The verbose help text is optional.
 .PP
 As a special case,
-a ``metric'' name with two numeric components of the form 
+a ``metric'' name of the form 
 .I NNN.MM
 (for numeric 
 .I NNN

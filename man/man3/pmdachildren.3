@@ -25,7 +25,7 @@
 .br
 #include <pcp/pmda.h>
 .sp
-int pmdaChildren(char *name, int traverse, char ***offspring, pmdaExt *pmda)
+int pmdaChildren(char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
 .sp
 cc ... \-lpcp_pmda \-lpcp
 .ft 1
@@ -49,20 +49,24 @@ is a skeleton implementation that returns
 A PMDA that supports dynamic performance metrics will provide a private
 callback that replaces
 .B pmdaChildren
-(by assignment to ...version.three.children)
+(by assignment to
+.I version.four.children
+of the
+.I pmdaInterface
+structure)
 and takes the initial metric
 .I name
 and returns names via
-.I offspring
+.IR offspring []
 and the leaf or non-leaf status of each via
-.IR status .
+.IR status [].
 .PP
 If
 .I traverse
 is 0, then the behaviour is akin to
 .BR pmGetChildren (3)
 and
-.I offspring
+.IR offspring []
 contains the relative name component for the immediate descendents of
 .IR name.
 .PP
@@ -71,15 +75,38 @@ If
 is 1, then the behaviour is akin to
 .BR pmTraversePMNS (3)
 and
-.I offspring contains the absolute names of all dynamic metrics that are decendents
+.IR offspring []
+contains the absolute names of all dynamic metrics that are decendents
 of
 .IR name .
+.PP
+The resulting list of pointers
+.I offspring
+.B and
+the values
+(the names) that the pointers reference will have been
+allocated by
+.B pmdaChildren
+with a single call to
+.BR malloc (3C),
+and the
+caller of
+.B pmdaChildren
+will call
+.BR free (\c
+.IR offspring )
+to release the space
+when it is no longer required.
+The same holds true for the 
+.I status
+array.
 .SH DIAGNOSTICS
 .B 
 pmdaChildren
 returns
 .B PM_ERR_NAME
-if the name is not recognized or cannot be translated.
+if the name is not recognized or cannot be translated,
+otherwise the number of descendent metric names found.
 .SH CAVEAT
 The PMDA must be using 
 .B PMDA_PROTOCOL_4 
@@ -92,6 +119,7 @@ or
 .BR PMDA (3),
 .BR pmdaDaemon (3),
 .BR pmdaDSO (3),
+.BR pmdaMain (3),
 .BR pmGetChildren (3)
 and
 .BR pmTraversePMNS (3).

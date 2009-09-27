@@ -32,7 +32,7 @@
 cc ... \-lpcp_pmda \-lpcp
 .sp
 .ft 2
-PMDA Interface 2
+PMDA Interface 2 or higher
 .ft 3
 .sp
 void pmdaMain(pmdaInterface *dispatch);
@@ -128,16 +128,18 @@ typedef struct {
             int     (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
             int     (*text)(int, int, char **, pmdaExt *);
             int     (*store)(pmResult *, pmdaExt *);
-            int     (*pmid)(char *, pmID *);
-            int     (*name)(pmID, char **);
-            int     (*children)(char *, int, char ***, int **);
-        } three;
+            int     (*pmid)(char *, pmID *, pmdaExt *);
+            int     (*name)(pmID, char ***, pmdaExt *);
+            int     (*children)(char *, int, char ***, int **, pmdaExt *);
+        } four;
     } version;
 
 } pmdaInterface;
 .fi
 .PP
-This structure has been extended to incorporate the two interface versions. For
+This structure has been extended to incorporate the multiple interface versions
+that have evolved over time.
+For
 .BR pmdaMain,
 .I dispatch->domain
 and
@@ -166,7 +168,7 @@ A setting of
 will force 
 .B pmdaMain
 to use the callbacks in the
-.I version.three
+.I version.four
 structure.  Any other value will result in an error and termination of
 .BR pmdaMain .
 .PP
@@ -178,7 +180,7 @@ and the methods of the PMDA allows each PMDA to be implemented as
 though it were a DSO, with
 .B pmdaMain
 providing a convenient wrapper that may be used to convert from the
-DSO interface to the binary PDU interface.
+DSO interface to the binary PDU (daemon PMDA) interface.
 .PP
 .B pmdaMainLoop
 provided two additional callbacks, 

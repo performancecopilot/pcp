@@ -93,7 +93,7 @@ again:
 	    else {
 again_local:
 		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		    n = dp->dispatch.version.three.text(ident, type, buffer, dp->dispatch.version.three.ext);
+		    n = dp->dispatch.version.four.text(ident, type, buffer, dp->dispatch.version.four.ext);
 		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    n = dp->dispatch.version.two.text(ident, type, buffer, dp->dispatch.version.two.ext);

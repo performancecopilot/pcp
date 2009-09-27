@@ -123,10 +123,10 @@ pmLookupInDom(pmInDom indom, const char *name)
 	    else {
 		/* We can safely cast away const here */
 		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		    n = dp->dispatch.version.three.instance(indom, PM_IN_NULL, 
+		    n = dp->dispatch.version.four.instance(indom, PM_IN_NULL, 
 							  (char *)name, 
 							  &result, 
-							  dp->dispatch.version.three.ext);
+							  dp->dispatch.version.four.ext);
 		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    n = dp->dispatch.version.two.instance(indom, PM_IN_NULL, 
@@ -222,7 +222,7 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 		n = PM_ERR_NOAGENT;
 	    else {
 		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		    n = dp->dispatch.version.three.instance(indom, inst, NULL, &result, dp->dispatch.version.three.ext);
+		    n = dp->dispatch.version.four.instance(indom, inst, NULL, &result, dp->dispatch.version.four.ext);
 		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    n = dp->dispatch.version.two.instance(indom, inst, NULL, &result, dp->dispatch.version.two.ext);
@@ -367,9 +367,9 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 		n = PM_ERR_NOAGENT;
 	    else {
 		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		    n = dp->dispatch.version.three.instance(indom, PM_IN_NULL, NULL,
+		    n = dp->dispatch.version.four.instance(indom, PM_IN_NULL, NULL,
 					       &result,
-					       dp->dispatch.version.three.ext);
+					       dp->dispatch.version.four.ext);
 		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
 		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    n = dp->dispatch.version.two.instance(indom, PM_IN_NULL, NULL,

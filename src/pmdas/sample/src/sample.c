@@ -1147,7 +1147,7 @@ int
 sample_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
     size_t	len = 0;
-    int		nmatch;
+    int		nmatch = 0;
     int		i;
     char	*pfx;
     char	*p;
@@ -1216,8 +1216,18 @@ sample_children(char *name, int traverse, char ***offspring, int **status, pmdaE
     nmatch = 0;
     for (i = 0; i < numdyn; i++) {
 	q = dynamic_ones[i].name;
-	if (strncmp(p, q, namelen) != 0 || q[namelen] != '.') {
-	    /* no match */
+	if (strncmp(p, q, namelen) != 0) {
+	    /* no prefix match */
+	    dynamic_ones[i].mark = 0;
+	    continue;
+	}
+	if (traverse == 0 && q[namelen] != '.') {
+	    /* cannot be a child of name */
+	    dynamic_ones[i].mark = 0;
+	    continue;
+	}
+	if (traverse == 1 && q[namelen] != '.' && q[namelen] != '\0') {
+	    /* cannot be name itself, not a child of name */
 	    dynamic_ones[i].mark = 0;
 	    continue;
 	}
@@ -1229,7 +1239,6 @@ sample_children(char *name, int traverse, char ***offspring, int **status, pmdaE
 	    for (j = 0; j < nmatch; j++) {
 		if (strncmp(&q[namelen+1], chn[j], tlen) == 0) {
 		    /* already seen this child ... skip it */
-		    fprintf(stderr, "match dup %s : %s\n", name, chn[j]);
 		    break;
 		}
 	    }
@@ -1278,7 +1287,6 @@ sample_children(char *name, int traverse, char ***offspring, int **status, pmdaE
 		sts[nmatch-1] = PMNS_LEAF_STATUS;
 	    }
 	    len += tlen + 1;
-	    fprintf(stderr, "match new[%d] %s : %s len=%d\n", nmatch-1, name, chn[nmatch-1], tlen);
 	}
     }
     if (nmatch == 0) {
@@ -2299,15 +2307,15 @@ void sample_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    dp->version.three.fetch = sample_fetch;
-    dp->version.three.desc = sample_desc;
-    dp->version.three.instance = sample_instance;
-    dp->version.three.text = sample_text;
-    dp->version.three.store = sample_store;
-    dp->version.three.profile = sample_profile;
-    dp->version.three.pmid = sample_pmid;
-    dp->version.three.name = sample_name;
-    dp->version.three.children = sample_children;
+    dp->version.four.fetch = sample_fetch;
+    dp->version.four.desc = sample_desc;
+    dp->version.four.instance = sample_instance;
+    dp->version.four.text = sample_text;
+    dp->version.four.store = sample_store;
+    dp->version.four.profile = sample_profile;
+    dp->version.four.pmid = sample_pmid;
+    dp->version.four.name = sample_name;
+    dp->version.four.children = sample_children;
 
     pmdaInit(dp, NULL, 0, NULL, 0);	/* don't use indomtab or metrictab */
 

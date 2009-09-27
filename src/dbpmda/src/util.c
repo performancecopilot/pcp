@@ -213,20 +213,24 @@ dohelp(int command, int full)
 {
     if (command < 0) {
 	puts("help [ command ]\n");
+	dohelp(PMNS_CHILDREN, HELP_USAGE);
 	dohelp(CLOSE, HELP_USAGE);
 	dohelp(DBG, HELP_USAGE);
 	dohelp(DESC, HELP_USAGE);
 	dohelp(FETCH, HELP_USAGE);
 	dohelp(GETDESC, HELP_USAGE);
 	dohelp(INSTANCE, HELP_USAGE);
+	dohelp(PMNS_NAME, HELP_USAGE);
 	dohelp(NAMESPACE, HELP_USAGE);
 	dohelp(OPEN, HELP_USAGE);
+	dohelp(PMNS_PMID, HELP_USAGE);
 	dohelp(PROFILE, HELP_USAGE);
 	dohelp(QUIT, HELP_USAGE);
 	dohelp(STATUS, HELP_USAGE);
 	dohelp(STORE, HELP_USAGE);
 	dohelp(INFO, HELP_USAGE);
 	dohelp(TIMER, HELP_USAGE);
+	dohelp(PMNS_TRAVERSE, HELP_USAGE);
 	dohelp(WAIT, HELP_USAGE);
 	dohelp(WATCH, HELP_USAGE);
 	putchar('\n');
@@ -243,6 +247,9 @@ dohelp(int command, int full)
 	case CLOSE:
 	    puts("close");
 	    break;
+	case PMNS_CHILDREN:
+	    puts("children metric-name");
+	    break;
 	case DESC:
 	    puts("desc metric");
 	    break;
@@ -252,15 +259,24 @@ dohelp(int command, int full)
 	case GETDESC:
 	    puts("getdesc on | off");
 	    break;
+	case PMNS_NAME:
+	    puts("name pmid#");
+	    break;
 	case NAMESPACE:
 	    puts("namespace fname");
 	    break;
 	case INSTANCE:
 	    puts("instance indom# [ number | name | \"name\" ]");
 	    break;
+	case PMNS_PMID:
+	    puts("pmid metric-name");
+	    break;
 	case PROFILE:
 	    puts("profile indom# [ all | none ]");
 	    puts("profile indom# [ add | delete ] number");
+	    break;
+	case PMNS_TRAVERSE:
+	    puts("traverse metric-name");
 	    break;
 	case WATCH:
 	    puts("watch logfilename");

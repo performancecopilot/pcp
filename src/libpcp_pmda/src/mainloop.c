@@ -27,8 +27,8 @@ extern int __pmdaSetupPDU(int, int, char *);
 int
 __pmdaInFd(pmdaInterface *dispatch)
 {
-    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-	return dispatch->version.three.ext->e_infd;
+    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+	return dispatch->version.four.ext->e_infd;
     else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
 	return dispatch->version.two.ext->e_infd;
     else {
@@ -43,11 +43,16 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 {
     __pmPDU		*pb;
     int			sts;
+    int			op_sts;
     pmID		pmid;
     pmDesc		desc;
     int			npmids;
     pmID		*pmidlist;
-    char		**namelist;
+    char		**namelist = NULL;
+    char		*name;
+    char		**offspring = NULL;
+    int			*statuslist = NULL;
+    int			subtype;
     pmResult		*result;
     int			ctxnum;
     __pmTimeval		when;
@@ -56,7 +61,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     pmInDom		indom;
     int			inst;
     char		*iname;
-    __pmInResult		*inres;
+    __pmInResult	*inres;
     char		*buffer;
     __pmProfile  	*new_profile;
     static __pmProfile	*profile = NULL;
@@ -69,10 +74,20 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    __pmNotifyErr(LOG_ERR, "PMDA Initialisation Failed");
 	    return -1;
 	}
-	if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-	    pmda = dispatch->version.three.ext; /* Interface V.3 dynamic PMNS */
+	if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
+	    pmda = dispatch->version.four.ext; /* PMDA Interface V.4 dynamic PMNS */
+#if 0
+/* TODO ... not needed now? */
+	    /*
+	     * need PMNS loaded ... if this fails, don't worry as the
+	     * errors will come later and be reported in a PDU interchange
+	     * context when the PMNS is needed, but not loaded
+	     */
+	    pmLoadNameSpace(PM_NS_DEFAULT);
+#endif
+	}
 	else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
-	    pmda = dispatch->version.two.ext; /* Interface V.2 Extensions */
+	    pmda = dispatch->version.two.ext; /* PMDA Interface V.2 or V.3 Extensions */
 	else {
 	    __pmNotifyErr(LOG_CRIT, "PMDA interface version %d not supported",
 			 dispatch->comm.pmda_interface);
@@ -126,8 +141,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	if (__pmDecodeProfile(pb, PDU_BINARY, &ctxnum, &new_profile) < 0) 
 	   break;
 
-	if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-	    sts = dispatch->version.three.profile(new_profile, pmda);
+	if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+	    sts = dispatch->version.four.profile(new_profile, pmda);
 	else
 	    sts = dispatch->version.two.profile(new_profile, pmda);
 	if (sts < 0) {
@@ -154,8 +169,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 
 	/* Ignore "when"; pmcd should intercept archive log requests */
 	if (sts >= 0) {
-	    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-		sts = dispatch->version.three.fetch(npmids, pmidlist, &result, pmda);
+	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+		sts = dispatch->version.four.fetch(npmids, pmidlist, &result, pmda);
 	    else
 		sts = dispatch->version.two.fetch(npmids, pmidlist, &result, pmda);
 
@@ -181,7 +196,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 #endif
 
 	if ((sts = __pmDecodeNameList(pb, PDU_BINARY, &npmids, &namelist, NULL)) >= 0) {
-	    if (HAVE_V_THREE(dispatch->comm.pmda_interface)) {
+	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
 		if (npmids != 1)
 		    /*
 		     * expect only one name at a time to be sent to the
@@ -189,16 +204,104 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 		     */
 		    sts = PM_ERR_IPC;
 		else
-		    sts = dispatch->version.three.pmid(namelist[0], pmidlist, pmda);
+		    sts = dispatch->version.four.pmid(namelist[0], &pmid, pmda);
 	    }
-	    else
+	    else {
+		/* Not INTERFACE_4 */
 		sts = PM_ERR_PMID;
+	    }
 	    __pmUnpinPDUBuf(namelist);
 	}
 	if (sts < 0)
 	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
 	else
-	    __pmSendIDList(pmda->e_outfd, PDU_BINARY, npmids, pmidlist, sts);
+	    __pmSendIDList(pmda->e_outfd, PDU_BINARY, 1, &pmid, sts);
+	break;
+
+    case PDU_PMNS_CHILD:
+
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LIBPMDA) {
+	    __pmNotifyErr(LOG_DEBUG, "Received PDU_PMNS_CHILD\n");
+	}
+#endif
+
+	if ((sts = __pmDecodeChildReq(pb, PDU_BINARY, &name, &subtype)) >= 0) {
+	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
+		sts = dispatch->version.four.children(name, 0, &offspring, &statuslist, pmda);
+		if (sts >= 0) {
+		    if (subtype == 0) {
+			if (statuslist) free(statuslist);
+			statuslist = NULL;
+		    }
+		}
+	    }
+	    else {
+		/* Not INTERFACE_4 */
+		sts = PM_ERR_NAME;
+	    }
+	}
+	if (sts < 0)
+	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
+	else
+	    __pmSendNameList(pmda->e_outfd, PDU_BINARY, sts, offspring, statuslist);
+	if (offspring) free(offspring);
+	if (statuslist) free(statuslist);
+	break;
+
+    case PDU_PMNS_TRAVERSE:
+
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LIBPMDA) {
+	    __pmNotifyErr(LOG_DEBUG, "Received PDU_PMNS_TRAVERSE\n");
+	}
+#endif
+
+	if ((sts = __pmDecodeTraversePMNSReq(pb, PDU_BINARY, &name)) >= 0) {
+	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
+		sts = dispatch->version.four.children(name, 1, &offspring, &statuslist, pmda);
+		if (sts >= 0) {
+		    if (statuslist) free(statuslist);
+		    statuslist = NULL;
+		}
+	    }
+	    else {
+		/* Not INTERFACE_4 */
+		sts = PM_ERR_NAME;
+	    }
+	}
+	if (sts < 0)
+	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
+	else
+	    __pmSendNameList(pmda->e_outfd, PDU_BINARY, sts, offspring, NULL);
+	if (offspring) free(offspring);
+	break;
+
+    case PDU_PMNS_IDS:
+
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LIBPMDA) {
+	    __pmNotifyErr(LOG_DEBUG, "Received PDU_PMNS_IDS\n");
+	}
+#endif
+
+	sts = __pmDecodeIDList(pb, PDU_BINARY, 1, &pmid, &op_sts);
+	if (sts >= 0)
+	    sts = op_sts;
+	if (sts >= 0) {
+	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
+		sts = dispatch->version.four.name(pmid, &namelist, pmda);
+	    }
+	    else {
+		/* Not INTERFACE_4 */
+		sts = PM_ERR_PMID;
+	    }
+	}
+	if (sts < 0)
+	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
+	else
+	    __pmSendNameList(pmda->e_outfd, PDU_BINARY, sts, namelist, NULL);
+	if (namelist) free(namelist);
 	break;
 
     case PDU_DESC_REQ:
@@ -210,8 +313,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 #endif
 
 	if ((sts = __pmDecodeDescReq(pb, PDU_BINARY, &pmid)) >= 0) {
-	    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-		sts = dispatch->version.three.desc(pmid, &desc, pmda);
+	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+		sts = dispatch->version.four.desc(pmid, &desc, pmda);
 	    else
 		sts = dispatch->version.two.desc(pmid, &desc, pmda);
 	}
@@ -238,8 +341,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	     *		cases).
 	     */
 
-	    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-		sts = dispatch->version.three.instance(indom, inst, iname, &inres, pmda);
+	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+		sts = dispatch->version.four.instance(indom, inst, iname, &inres, pmda);
 	    else
 		sts = dispatch->version.two.instance(indom, inst, iname, &inres, pmda);
 	}
@@ -262,8 +365,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 #endif
 
 	if ((sts = __pmDecodeTextReq(pb, PDU_BINARY, &ident, &type)) >= 0) {
-	    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-		sts = dispatch->version.three.text(ident, type, &buffer, pmda);
+	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+		sts = dispatch->version.four.text(ident, type, &buffer, pmda);
 	    else
 		sts = dispatch->version.two.text(ident, type, &buffer, pmda);
 	}
@@ -282,8 +385,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 #endif
 
 	if ((sts = __pmDecodeResult(pb, PDU_BINARY, &result)) >= 0) {
-	    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-		sts = dispatch->version.three.store(result, pmda);
+	    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+		sts = dispatch->version.four.store(result, pmda);
 	    else
 		sts = dispatch->version.two.store(result, pmda);
 	}
@@ -317,8 +420,8 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 
     default:
 	__pmNotifyErr(LOG_ERR,
-		      "%s: Unrecognised pdu type: 0x%0x?\n",
-		      pmda->e_name, sts);
+		      "%s: Unrecognised pdu type: %s?\n",
+		      pmda->e_name, __pmPDUTypeStr(sts));
 	break;
     }
 
@@ -345,8 +448,8 @@ pmdaMain(pmdaInterface *dispatch)
 void
 pmdaSetResultCallBack(pmdaInterface *dispatch, pmdaResultCallBack callback)
 {
-    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-	dispatch->version.three.ext->e_resultCallBack = callback;
+    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+	dispatch->version.four.ext->e_resultCallBack = callback;
     else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
 	dispatch->version.two.ext->e_resultCallBack = callback;
     else {
@@ -359,8 +462,8 @@ pmdaSetResultCallBack(pmdaInterface *dispatch, pmdaResultCallBack callback)
 void
 pmdaSetFetchCallBack(pmdaInterface *dispatch, pmdaFetchCallBack callback)
 {
-    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-	dispatch->version.three.ext->e_fetchCallBack = callback;
+    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+	dispatch->version.four.ext->e_fetchCallBack = callback;
     else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
 	dispatch->version.two.ext->e_fetchCallBack = callback;
     else {
@@ -373,8 +476,8 @@ pmdaSetFetchCallBack(pmdaInterface *dispatch, pmdaFetchCallBack callback)
 void
 pmdaSetCheckCallBack(pmdaInterface *dispatch, pmdaCheckCallBack callback)
 {
-    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-	dispatch->version.three.ext->e_checkCallBack = callback;
+    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+	dispatch->version.four.ext->e_checkCallBack = callback;
     else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
 	dispatch->version.two.ext->e_checkCallBack = callback;
     else {
@@ -387,8 +490,8 @@ pmdaSetCheckCallBack(pmdaInterface *dispatch, pmdaCheckCallBack callback)
 void
 pmdaSetDoneCallBack(pmdaInterface *dispatch, pmdaDoneCallBack callback)
 {
-    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-	dispatch->version.three.ext->e_doneCallBack = callback;
+    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+	dispatch->version.four.ext->e_doneCallBack = callback;
     else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
 	dispatch->version.two.ext->e_doneCallBack = callback;
     else {

@@ -184,8 +184,8 @@ pmdaGetOpt(int argc, char *const *argv, const char *optstring, pmdaInterface *di
 	return EOF;
     }
 
-    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-	pmda = dispatch->version.three.ext;
+    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+	pmda = dispatch->version.four.ext;
     else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
 	pmda = dispatch->version.two.ext;
     else {
@@ -289,8 +289,8 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
     pmdaExt	        *pmda = NULL;
     int			serial;
 
-    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-	pmda = dispatch->version.three.ext;
+    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+	pmda = dispatch->version.four.ext;
     else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
 	pmda = dispatch->version.two.ext;
     else {
@@ -510,8 +510,8 @@ pmdaConnect(pmdaInterface *dispatch)
     pmdaExt	*pmda = NULL;
     int		sts;
 
-    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-	pmda = dispatch->version.three.ext;
+    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+	pmda = dispatch->version.four.ext;
     else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
 	pmda = dispatch->version.two.ext;
     else {
@@ -567,7 +567,7 @@ pmdaConnect(pmdaInterface *dispatch)
 	    exit(1);
     }
 
-    if (HAVE_V_THREE(dispatch->comm.pmda_interface) ||
+    if (HAVE_V_FOUR(dispatch->comm.pmda_interface) ||
         HAVE_V_TWO(dispatch->comm.pmda_interface)) {
 	if ((sts = __pmdaSetupPDU(pmda->e_infd, pmda->e_outfd, pmda->e_name)) < 0)
 	    dispatch->status = sts;
@@ -586,7 +586,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
     pmdaExt	*pmda = NULL;
     e_ext_t	*extp;
 
-    if (!HAVE_V_THREE(version) && !HAVE_V_TWO(version)) {
+    if (!HAVE_V_FOUR(version) && !HAVE_V_TWO(version)) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetup: %s PMDA: interface version %d not supported (domain=%d)",
 		     name, version, dispatch->domain);
 	dispatch->status = PM_ERR_GENERIC;
@@ -608,17 +608,17 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
     dispatch->comm.pmapi_version = PMAPI_VERSION;
     dispatch->comm.flags = 0;
 
-    if (HAVE_V_THREE(version)) {
-	dispatch->version.three.profile = pmdaProfile;
-	dispatch->version.three.fetch = pmdaFetch;
-	dispatch->version.three.desc = pmdaDesc;
-	dispatch->version.three.instance = pmdaInstance;
-	dispatch->version.three.text = pmdaText;
-	dispatch->version.three.store = pmdaStore;
-	dispatch->version.three.pmid = pmdaPMID;
-	dispatch->version.three.name = pmdaName;
-	dispatch->version.three.children = pmdaChildren;
-	dispatch->version.three.ext = pmda;
+    if (HAVE_V_FOUR(version)) {
+	dispatch->version.four.profile = pmdaProfile;
+	dispatch->version.four.fetch = pmdaFetch;
+	dispatch->version.four.desc = pmdaDesc;
+	dispatch->version.four.instance = pmdaInstance;
+	dispatch->version.four.text = pmdaText;
+	dispatch->version.four.store = pmdaStore;
+	dispatch->version.four.pmid = pmdaPMID;
+	dispatch->version.four.name = pmdaName;
+	dispatch->version.four.children = pmdaChildren;
+	dispatch->version.four.ext = pmda;
     }
     else {
 	dispatch->version.two.profile = pmdaProfile;
@@ -658,8 +658,8 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
 		     "%s: Unable to allocate memory for e_ext_t structure (%d bytes)",
 		     name, sizeof(*extp));
 	free(pmda);
-	if (HAVE_V_THREE(version))
-	    dispatch->version.three.ext = NULL;
+	if (HAVE_V_FOUR(version))
+	    dispatch->version.four.ext = NULL;
 	else
 	    dispatch->version.two.ext = NULL;
 	dispatch->status = PM_ERR_GENERIC;
@@ -693,8 +693,8 @@ pmdaDaemon(pmdaInterface *dispatch, int version, char *name, int domain,
     if (dispatch->status < 0)
 	return;
 
-    if (HAVE_V_THREE(version))
-	pmda = dispatch->version.three.ext;
+    if (HAVE_V_FOUR(version))
+	pmda = dispatch->version.four.ext;
     else
 	pmda = dispatch->version.two.ext;
     pmda->e_logfile = logfile;
@@ -716,8 +716,8 @@ pmdaDSO(pmdaInterface *dispatch, int version, char *name, char *helptext)
     if (dispatch->status < 0)
 	return;
 
-    if (HAVE_V_THREE(version))
-	dispatch->version.three.ext->e_helptext = helptext;
+    if (HAVE_V_FOUR(version))
+	dispatch->version.four.ext->e_helptext = helptext;
     else
 	dispatch->version.two.ext->e_helptext = helptext;
 }
@@ -734,7 +734,7 @@ pmdaOpenLog(pmdaInterface *dispatch)
     if (dispatch->status != 0)
 	return;
 
-    if (!HAVE_V_THREE(dispatch->comm.pmda_interface) &&
+    if (!HAVE_V_FOUR(dispatch->comm.pmda_interface) &&
         !HAVE_V_TWO(dispatch->comm.pmda_interface)) {
 	__pmNotifyErr(LOG_CRIT, "pmdaOpenLog: PMDA interface version %d not supported (domain=%d)",
 		     dispatch->comm.pmda_interface, dispatch->domain);
@@ -742,9 +742,9 @@ pmdaOpenLog(pmdaInterface *dispatch)
 	return;
     }
 
-    if (HAVE_V_THREE(dispatch->comm.pmda_interface))
-	__pmOpenLog(dispatch->version.three.ext->e_name, 
-    	       dispatch->version.three.ext->e_logfile, stderr, &c);
+    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
+	__pmOpenLog(dispatch->version.four.ext->e_name, 
+    	       dispatch->version.four.ext->e_logfile, stderr, &c);
     else
 	__pmOpenLog(dispatch->version.two.ext->e_name, 
     	       dispatch->version.two.ext->e_logfile, stderr, &c);

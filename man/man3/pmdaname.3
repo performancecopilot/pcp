@@ -51,7 +51,11 @@ is a skeleton implementation that returns
 A PMDA that supports dynamic performance metrics will provide a private
 callback that replaces
 .B pmdaName
-(by assignment to ...version.three.name)
+(by assignment to
+.I version.four.name
+of the
+.I pmdaInterface
+structure)
 and implements the translation from a
 .I pmid
 to a set of dynamic performance metric names returned via
@@ -66,6 +70,7 @@ pmdaName
 returns
 .B PM_ERR_PMID
 if the name is not recognized or cannot be translated.
+otherwise the number of metric names found (most commonly 1).
 .SH CAVEAT
 The PMDA must be using 
 .B PMDA_PROTOCOL_4 
@@ -78,6 +83,7 @@ or
 .BR PMDA (3),
 .BR pmdaDaemon (3),
 .BR pmdaDSO (3),
+.BR pmdaMain (3),
 .BR pmNameAll (3)
 and
 .BR pmNameID (3).

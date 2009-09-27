@@ -237,8 +237,8 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
     if (aPtr->profClient != cPtr || ctxnum != aPtr->profIndex) {
 	if (aPtr->ipcType == AGENT_DSO) {
 	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		sts = aPtr->ipc.dso.dispatch.version.three.profile(cPtr->profile[ctxnum],
-				     aPtr->ipc.dso.dispatch.version.three.ext);
+		sts = aPtr->ipc.dso.dispatch.version.four.profile(cPtr->profile[ctxnum],
+				     aPtr->ipc.dso.dispatch.version.four.ext);
 	    else if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
 	        aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
 		sts = aPtr->ipc.dso.dispatch.version.two.profile(cPtr->profile[ctxnum],
@@ -271,9 +271,9 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
     if (sts >= 0) {
 	if (aPtr->ipcType == AGENT_DSO) {
 	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
-		sts = aPtr->ipc.dso.dispatch.version.three.fetch(dpList->listSize,
+		sts = aPtr->ipc.dso.dispatch.version.four.fetch(dpList->listSize,
 				   dpList->list, &result, 
-				   aPtr->ipc.dso.dispatch.version.three.ext);
+				   aPtr->ipc.dso.dispatch.version.four.ext);
 	    else if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
 	        aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
 		sts = aPtr->ipc.dso.dispatch.version.two.fetch(dpList->listSize,

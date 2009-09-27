@@ -165,8 +165,8 @@ typedef struct {
 	} one;
 
 /*
- * Interface Version 2 (PCP 2.0)
- * PMDA_INTERFACE_2, PMDA_INTERFACE_3
+ * Interface Version 2 and 3 (PCP 2.0)
+ * PMDA_INTERFACE_2 and PMDA_INTERFACE_3
  */
 
 	struct {
@@ -180,7 +180,7 @@ typedef struct {
 	} two;
 
 /*
- * Interface Version 3 (dynamic pmns support)
+ * Interface Version 4 (dynamic pmns support)
  * PMDA_INTERFACE_4
  */
 
@@ -195,7 +195,7 @@ typedef struct {
 	    int     (*pmid)(char *, pmID *, pmdaExt *);
 	    int     (*name)(pmID, char ***, pmdaExt *);
 	    int     (*children)(char *, int, char ***, int **, pmdaExt *);
-	} three;
+	} four;
 
     } version;
 
@@ -321,17 +321,19 @@ extern void pmdaSetDoneCallBack(pmdaInterface *, pmdaDoneCallBack);
  *	Store a value into a metric. This is a no-op.
  *
  * pmdaPMID
- *	Return the PMID for a named dynamic metric.
+ *	Return the PMID for a named metric within a dynamic subtree
+ *	of the PMNS.
  *
  * pmdaName
- *	Return the name of alll matching dynamic metrics, given a PMID.
+ *	Given a PMID, return the names of all matching metrics within a
+ *	dynamic subtree of the PMNS.
  *
  * pmdaChildren
  *	If traverse == 0, return the names of all the descendent children
  *      and their status, given a named metric in a dynamic subtree of
  *	the PMNS (this is the pmGetChildren or pmGetChildrenStatus variant).
  *	If traverse == 1, return the full names of all descendent metrics
- *	(this is the pmTraversePMNS variant)
+ *	(this is the pmTraversePMNS variant, with the status added)
  */
 
 extern int pmdaProfile(__pmProfile *, pmdaExt *);
