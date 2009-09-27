@@ -28,6 +28,15 @@ sample.not_ready 1
 sample.rapid 1
 sample.error_code 1
 sample.error_check 1
+sample.secret.foo.bar.max.redirect NUMBER ...
+sample.secret.bar 1
+sample.secret.foo.one 1
+sample.secret.foo.two 1
+sample.secret.foo.bar.three 1
+sample.secret.foo.bar.four 1
+sample.secret.foo.bar.grunt.five 1
+sample.secret.foo.bar.grunt.snort.six 1
+sample.secret.foo.bar.grunt.snort.huff.puff.seven 1
 sample.long.one 1
 sample.long.ten 1
 sample.long.hundred 1
@@ -105,6 +114,15 @@ sample.not_ready 1 PM_IN_NULL
 sample.rapid 1 PM_IN_NULL
 sample.error_code 1 PM_IN_NULL
 sample.error_check 1 PM_IN_NULL
+sample.secret.foo.bar.max.redirect NUMBER ...
+sample.secret.bar 1 PM_IN_NULL
+sample.secret.foo.one 1 PM_IN_NULL
+sample.secret.foo.two 1 PM_IN_NULL
+sample.secret.foo.bar.three 1 PM_IN_NULL
+sample.secret.foo.bar.four 1 PM_IN_NULL
+sample.secret.foo.bar.grunt.five 1 PM_IN_NULL
+sample.secret.foo.bar.grunt.snort.six 1 PM_IN_NULL
+sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 PM_IN_NULL
 sample.long.one 1 PM_IN_NULL
 sample.long.ten 1 PM_IN_NULL
 sample.long.hundred 1 PM_IN_NULL
@@ -212,6 +230,15 @@ sample.not_ready 1 PM_IN_NULL
 sample.rapid 1 PM_IN_NULL
 sample.error_code 1 PM_IN_NULL
 sample.error_check 1 PM_IN_NULL
+sample.secret.foo.bar.max.redirect NUMBER ...
+sample.secret.bar 1 PM_IN_NULL
+sample.secret.foo.one 1 PM_IN_NULL
+sample.secret.foo.two 1 PM_IN_NULL
+sample.secret.foo.bar.three 1 PM_IN_NULL
+sample.secret.foo.bar.four 1 PM_IN_NULL
+sample.secret.foo.bar.grunt.five 1 PM_IN_NULL
+sample.secret.foo.bar.grunt.snort.six 1 PM_IN_NULL
+sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 PM_IN_NULL
 sample.long.one 1 PM_IN_NULL
 sample.long.ten 1 PM_IN_NULL
 sample.long.hundred 1 PM_IN_NULL
@@ -325,6 +352,15 @@ sample.not_ready 1 0
 sample.rapid 1 NUMBER
 sample.error_code 1 0
 sample.error_check 1 0
+sample.secret.foo.bar.max.redirect NUMBER ...
+sample.secret.bar 1 "foo"
+sample.secret.foo.one 1 1
+sample.secret.foo.two 1 2
+sample.secret.foo.bar.three 1 3
+sample.secret.foo.bar.four 1 4
+sample.secret.foo.bar.grunt.five 1 5
+sample.secret.foo.bar.grunt.snort.six 1 6
+sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 7
 sample.long.one 1 1
 sample.long.ten 1 10
 sample.long.hundred 1 100
@@ -424,6 +460,15 @@ sample.not_ready 1 PM_IN_NULL PM_IN_NULL
 sample.rapid 1 PM_IN_NULL PM_IN_NULL
 sample.error_code 1 PM_IN_NULL PM_IN_NULL
 sample.error_check 1 PM_IN_NULL PM_IN_NULL
+sample.secret.foo.bar.max.redirect NUMBER ...
+sample.secret.bar 1 PM_IN_NULL PM_IN_NULL
+sample.secret.foo.one 1 PM_IN_NULL PM_IN_NULL
+sample.secret.foo.two 1 PM_IN_NULL PM_IN_NULL
+sample.secret.foo.bar.three 1 PM_IN_NULL PM_IN_NULL
+sample.secret.foo.bar.four 1 PM_IN_NULL PM_IN_NULL
+sample.secret.foo.bar.grunt.five 1 PM_IN_NULL PM_IN_NULL
+sample.secret.foo.bar.grunt.snort.six 1 PM_IN_NULL PM_IN_NULL
+sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 PM_IN_NULL PM_IN_NULL
 sample.long.one 1 PM_IN_NULL PM_IN_NULL
 sample.long.ten 1 PM_IN_NULL PM_IN_NULL
 sample.long.hundred 1 PM_IN_NULL PM_IN_NULL

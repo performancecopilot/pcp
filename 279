@@ -55,6 +55,7 @@ _filter()
     $PCP_AWK_PROG '
 BEGIN		{ skip = 0 }
 /Save current/	{ print ""; skip = 0 }
+/Sorry, failed/	{ print ""; skip = 0 }
 skip == 0	{ print }
 /Here is the PMCD logfile/	{ print "[logfile deleted]"; skip = 1; next }' \
     | sed \
@@ -121,8 +122,9 @@ echo "__pmda_add test: expect this to fail and revert to the status quo ..." >>$
 echo
 
 $sudo sh $tmp.cmd 2>&1 \
-| tee -a $seq.full \
+| tee $tmp.out \
 | _filter
+cat $tmp.out >>$seq.full
 
 echo "=== pmcd.conf after bogus install ===" >>$seq.full
 cat $PCP_PMCDCONF_PATH >>$seq.full
@@ -151,8 +153,9 @@ echo "__pmda_cull test: expect this to fail and restoration to fail ..." >>$seq.
 echo
 
 $sudo sh $tmp.cmd 2>&1 \
-| tee -a $seq.full \
+| tee $tmp.out \
 | _filter
+cat $tmp.out >>$seq.full
 
 echo "=== pmcd.conf after fungus remove ===" >>$seq.full
 cat $PCP_PMCDCONF_PATH >>$seq.full

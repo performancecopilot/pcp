@@ -12,8 +12,15 @@ echo "QA output created by $seq"
 
 _filter()
 {
+    # Note
+    #	... already using all instances ... line comes from dynamic PMNS
+    #	support where sample.secret.foo.bar.max.redirect and
+    #   sampledso.secret.foo.bar.max.redirect are aliases (i.e. have the
+    #   same PMID) for pmcd.agent.status ... so the Warning is expected
+    #
     echo "Checking for errors in $1 ..."
     sed <$1 \
+	-e '/Warning: already using all instances for pmcd.agent.status/d' \
 	-e '/^$/d' \
 	-e '/^disk[^:]*$/d' \
 	-e '/^network[^:]*$/d' \
@@ -39,7 +46,7 @@ tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-pmlc <<End-of-File >$seq.full
+pmlc <<End-of-File >$seq.full 2>&1
 connect primary
 query { disk network kernel pmcd sample sampledso }
 End-of-File

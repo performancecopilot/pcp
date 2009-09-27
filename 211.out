@@ -29,7 +29,7 @@ sample.secret.foo.bar.max.redirect > 3 values ...
 sample.secret.foo.bar.three 1 3
 sample.secret.foo.one 1 1
 sample.secret.foo.two 1 2
-Time bozo:sample.secret.bar bozo:sample.secret.foo.one bozo:sample.secret.foo.two bozo:sample.secret.foo.bar.three bozo:sample.secret.foo.bar.four bozo:sample.secret.foo.bar.grunt.five bozo:sample.secret.foo.bar.grunt.snort.six bozo:sample.secret.foo.bar.grunt.snort.huff.puff.seven 
+Time HOST:sample.secret.bar HOST:sample.secret.foo.one HOST:sample.secret.foo.two HOST:sample.secret.foo.bar.three HOST:sample.secret.foo.bar.four HOST:sample.secret.foo.bar.grunt.five HOST:sample.secret.foo.bar.grunt.snort.six HOST:sample.secret.foo.bar.grunt.snort.huff.puff.seven 
 ? 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 
 none none count count count count count count count 
 DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
@@ -55,7 +55,7 @@ sample.secret.foo.bar.max.redirect > 3 values ...
 sample.secret.foo.bar.three 1 3
 sample.secret.foo.one 1 1
 sample.secret.foo.two 1 2
-Time bozo:sample.secret.bar bozo:sample.secret.foo.one bozo:sample.secret.foo.two bozo:sample.secret.foo.bar.three bozo:sample.secret.foo.bar.four bozo:sample.secret.foo.bar.grunt.five bozo:sample.secret.foo.bar.grunt.snort.six bozo:sample.secret.foo.bar.grunt.snort.huff.puff.seven 
+Time HOST:sample.secret.bar HOST:sample.secret.foo.one HOST:sample.secret.foo.two HOST:sample.secret.foo.bar.three HOST:sample.secret.foo.bar.four HOST:sample.secret.foo.bar.grunt.five HOST:sample.secret.foo.bar.grunt.snort.six HOST:sample.secret.foo.bar.grunt.snort.huff.puff.seven 
 ? 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 
 none none count count count count count count count 
 DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
@@ -69,7 +69,7 @@ sample.secret.foo.bar.grunt.snort.six
 sample.secret.foo.bar.grunt.five 1 5
 sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 7
 sample.secret.foo.bar.grunt.snort.six 1 6
-Time bozo:sample.secret.foo.bar.grunt.five bozo:sample.secret.foo.bar.grunt.snort.six bozo:sample.secret.foo.bar.grunt.snort.huff.puff.seven 
+Time HOST:sample.secret.foo.bar.grunt.five HOST:sample.secret.foo.bar.grunt.snort.six HOST:sample.secret.foo.bar.grunt.snort.huff.puff.seven 
 ? 0.000 0.000 0.000 
 none count count count 
 DATE 5.000 6.000 7.000 

@@ -26,9 +26,6 @@ Check news metrics have appeared ... 8 metrics and 16 values
 
 === validate values ===
 
-news.articles.total
-    value NUMBER
-
 news.articles.count
     inst [1 or "comp.sys.sgi"] value NUMBER
     inst [2 or "comp.sys.sgi.graphics"] value NUMBER
@@ -43,19 +40,22 @@ news.articles.last
     inst [4 or "sgi.bad-attitude"] value NUMBER
     inst [5 or "sgi.engr.all"] value NUMBER
 
-news.readers.xrn
-    value NUMBER
-
-news.readers.rn
+news.articles.total
     value NUMBER
 
 news.readers.nnrpd
+    value NUMBER
+
+news.readers.rn
     value NUMBER
 
 news.readers.trn
     value NUMBER
 
 news.readers.vn
+    value NUMBER
+
+news.readers.xrn
     value NUMBER
 
 === remove news agent ===

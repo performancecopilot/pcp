@@ -56,7 +56,14 @@ done
 echo
 echo "=== PMNS_REMOTE (daemon PMDA) ==="
 
-for name in sample.secret sample.secret.bar sample.secret.foo.one
+for name in sample.secret \
+	sample.secret.bar \
+	sample.secret.foo \
+	sample.secret.foo.one \
+	sample.secret.foo.bar \
+	sample.secret.foo.bar.grunt \
+	sample.secret.foo.bar.grunt.snort \
+	sample.secret.foo.bar.grunt.snort.huff.puff.seven
 do
     src-oss/torture_pmns -b -v $name \
 | _filter

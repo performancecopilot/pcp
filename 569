@@ -87,6 +87,9 @@ s/ NUMBER/ 1/
 }' \
 	-e '/sample\.lights /s/ ".*"/ "STRING"/g' \
 	-e '/sample\.sysinfo 1/d' \
+	-e '/sample\.secret\.foo\.bar\.max\.redirect/{
+s/ [0-9][0-9.]*.*/ NUMBER .../g
+}' \
     | fold -w160
 }
 

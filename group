@@ -234,7 +234,6 @@ dmf		pcpqa
 # test-group association ... one line per test
 # ... use sort -n from here on down to tidy up this mess
 #
-
 000 other pmcd local ostest oss
 001 pdu local ostest oss
 002 pdu pmcd local ostest oss
@@ -388,6 +387,7 @@ dmf		pcpqa
 157 pmlogger local oss
 158 pmval pmie local oss
 159 pmda.cisco pmda.proc remote pmda.install oss
+160 libpcp local oss
 161 pmlogger local oss
 162 pmda pmda.proc local pmda.shping pmda.install oss
 163 archive local oss
@@ -434,8 +434,13 @@ dmf		pcpqa
 204 pmlogger local oss
 205 pdu local oss
 206 archive pmval local oss
+207 pmns local oss
+208 pmns local oss
 209 pmval local oss
+210 pmns local oss
+211 pmns local oss
 212 pmda pmda.cisco local oss
+213 dbpmda pmns local oss
 215 other pmsocks pmval remote oss
 217 folio local oss
 218 archive logutil local pmlogextract oss
@@ -541,6 +546,7 @@ dmf		pcpqa
 336 trace local pmda.install oss
 337 pmlogextract local oss
 338 logutil pmlogextract local oss
+339 pmie local oss
 340 pmcd remote oss
 346 pmda.mailq local pmda.install oss
 347 pmda.news local pmda.install oss
@@ -873,9 +879,3 @@ dmf		pcpqa
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
-339 pmie local oss
-160 libpcp local oss
-207 pmns local oss
-208 pmns local oss
-210 pmns local oss
-211 pmns local oss
