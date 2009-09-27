@@ -334,7 +334,7 @@ END					{ exit status }'
 	    then
 		__restore_pmcd
 		# give PMCD a chance to get back into original state
-		sleep 3
+	    sleep 3
 		__wait_for_pmcd
 	    fi
 	fi
@@ -804,22 +804,18 @@ _setup()
     #
     _check_userroot
 
-    # Perl setup and automatically generate files for those lazy Perl
-    # programmers ... if they are not already present
+    # automatically generate files for those lazy Perl programmers
     #
     if $perl_opt
     then
 	perl_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.pl"
 	perl_name=`__strip_pcp_dir "$perl_name"`
-	if [ ! -f ${PCP_PMDAS_DIR}/${iam}/pmns -o ! -f ${PCP_PMDAS_DIR}/${iam}/domain.h ]
-	then
-	    perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns"
-	    perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h"
-	    perl -e 'use PCP::PMDA' 2>/dev/null
-	    if test $? -eq 0; then
-		eval PCP_PERL_DOMAIN=1 perl "$perl_name" > "$perl_dom"
-		eval PCP_PERL_PMNS=1 perl "$perl_name" > "$perl_pmns"
-	    fi
+	perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns"
+	perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h"
+	perl -e 'use PCP::PMDA' 2>/dev/null
+	if test $? -eq 0; then
+	    eval PCP_PERL_DOMAIN=1 perl "$perl_name" > "$perl_dom"
+	    eval PCP_PERL_PMNS=1 perl "$perl_name" > "$perl_pmns"
 	fi
     fi
 
