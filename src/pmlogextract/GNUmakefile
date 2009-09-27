@@ -39,7 +39,7 @@ pmlogextract:	$(OBJECTS)
 install:	$(CMDTARGET)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 
-gram.tab.h:	gram.y
+gram.tab.h gram.tab.c:	gram.y
 
 lex.o gram.tab.o:	gram.tab.h
 

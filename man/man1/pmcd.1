@@ -328,7 +328,7 @@ may not be broken across lines unless a
 (backslash) is used to continue the line.
 .PP
 Each agent specification must start with a textual label (string) followed by
-an integer in the range 1 to 254.
+an integer in the range 1 to 510.
 The label is a tag used to refer to the
 agent and the integer specifies the domain for which the agent supplies data.
 This domain identifier corresponds to the domain portion of the PMIDs handled
@@ -348,7 +348,7 @@ Where,
 is a string identifying the agent
 .TP 14
 .I domain-no
-is an unsigned integer specifying the agent's domain in the range 1 to 254
+is an unsigned integer specifying the agent's domain in the range 1 to 510
 .TP 14
 .I entry-point
 is the name of an initialization function which will be called when the DSO is
@@ -417,7 +417,7 @@ Where,
 is a string identifying the agent
 .TP 14
 .I domain-no
-is an unsigned integer specifying the agent's domain in the range 1 to 254
+is an unsigned integer specifying the agent's domain in the range 1 to 510
 .TP 14
 .I addr-family
 designates whether the socket is in the

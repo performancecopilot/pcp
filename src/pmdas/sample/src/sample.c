@@ -235,6 +235,25 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,92), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* bigid */
     { PMDA_PMID(0,1023), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/*
+ * dynamic PMNS ones
+ * secret.bar
+ */
+    { PMDA_PMID(0,1000), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/*  secret.foo.one */
+    { PMDA_PMID(0,1001), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/*  secret.foo.two */
+    { PMDA_PMID(0,1002), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/*  secret.foo.bar.three */
+    { PMDA_PMID(0,1003), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/*  secret.foo.bar.four */
+    { PMDA_PMID(0,1004), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/*  secret.foo.bar.grunt.five */
+    { PMDA_PMID(0,1005), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/*  secret.foo.bar.grunt.snort.six */
+    { PMDA_PMID(0,1006), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
+/*  secret.foo.bar.grunt.snort.seven */
+    { PMDA_PMID(0,1007), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, { 0, 0, 0, 0, 0, 0 } }
@@ -464,6 +483,27 @@ static struct timeval	const_rate_timestamp = {0,0};
 int			not_ready = 0;	/* sleep interval in seconds */
 
 int			_isDSO = 1;	/* =0 I am a daemon */
+
+/*
+ * dynamic PMNS metrics ... nothing to do with redo_dynamic() and dynamic
+ * InDoms
+ */
+static struct {
+    char	*name;
+    pmID	pmid;
+    int		mark;
+} dynamic_ones[] = {
+    { "secret.foo.bar.max.redirect", PMDA_PMID(0,0) },
+    { "secret.bar", PMDA_PMID(0,1000) },
+    { "secret.foo.one", PMDA_PMID(0,1001) },
+    { "secret.foo.two", PMDA_PMID(0,1002) },
+    { "secret.foo.bar.three", PMDA_PMID(0,1003) },
+    { "secret.foo.bar.four", PMDA_PMID(0,1004) },
+    { "secret.foo.bar.grunt.five", PMDA_PMID(0,1005) },
+    { "secret.foo.bar.grunt.snort.six", PMDA_PMID(0,1006) },
+    { "secret.foo.bar.grunt.snort.huff.puff.seven", PMDA_PMID(0,1007) }
+};
+static int	numdyn = sizeof(dynamic_ones)/sizeof(dynamic_ones[0]);
 
 static int
 redo_dynamic(void)
@@ -852,7 +892,7 @@ init_tables(int dom)
     pmDesc	*dp;
 
     /* serial numbering is arbitrary, but must be unique in this PMD */
-    b_indom.pad = 0;
+    b_indom.flag = 0;
     b_indom.domain = dom;
     b_indom.serial = 1;
     indomp = (__pmInDom_int *)&indomtab[COLOUR_INDOM].it_indom;
@@ -1082,6 +1122,194 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
     return 0;
 }
 
+int
+sample_pmid(char *name, pmID *pmid, pmdaExt *pmda)
+{
+    int		i;
+    char	*p;
+
+    /* skip the sample. or sampledso. part */
+    for (p = name; *p != '.' && *p; p++)
+	;
+    if (*p == '.') p++;
+    
+    for (i = 0; i < numdyn; i++) {
+	if (strcmp(p, dynamic_ones[i].name) == 0) {
+	    *pmid = dynamic_ones[i].pmid;
+	    return 0;
+	}
+    }
+
+    return PM_ERR_NAME;
+}
+
+int
+sample_name(pmID pmid, char ***nameset, pmdaExt *pmda)
+{
+    size_t	len = 0;
+    int		nmatch = 0;
+    int		i;
+    char	*pfx;
+    char	*p;
+    char	**list;
+
+    if (_isDSO)
+	pfx = "sampledso.";
+    else
+	pfx = "sample.";
+
+    for (i = 0; i < numdyn; i++) {
+	if (dynamic_ones[i].pmid == pmid) {
+	    nmatch++;
+	    len += strlen(pfx)+strlen(dynamic_ones[i].name)+1;
+	}
+    }
+
+    if (nmatch == 0)
+	return PM_ERR_PMID;
+
+    len += nmatch*sizeof(char *);	/* pointers to names */
+
+    if ((list = (char **)malloc(len)) == NULL)
+	return -errno;
+
+    p = (char *)&list[nmatch];
+    nmatch = 0;
+    for (i = 0; i < numdyn; i++) {
+	if (dynamic_ones[i].pmid == pmid) {
+	    list[nmatch++] = p;
+	    strcpy(p, pfx);
+	    p += strlen(pfx);
+	    strcpy(p, dynamic_ones[i].name);
+	    p += strlen(dynamic_ones[i].name);
+	    *p++ = '\0';
+	}
+    }
+    *nameset = list;
+
+    return nmatch;
+}
+
+int
+sample_children(char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
+{
+    int		i;
+    int		j;
+    int		nmatch;
+    int		pfxlen;
+    int		namelen;
+    char	*p;
+    char	*q;
+    char	*qend;
+    char	**chn = NULL;
+    int		*sts = NULL;
+    size_t	len = 0;
+    size_t	tlen;
+
+    /* skip the sample. or sampledso. part */
+    for (p = name; *p != '.' && *p; p++)
+	;
+    pfxlen = p - name;
+    if (*p == '.') p++;
+    namelen = strlen(p);
+
+    nmatch = 0;
+    for (i = 0; i < numdyn; i++) {
+	q = dynamic_ones[i].name;
+	if (strncmp(p, q, namelen) != 0) {
+	    /* no prefix match */
+	    dynamic_ones[i].mark = 0;
+	    continue;
+	}
+	if (traverse == 0 && q[namelen] != '.') {
+	    /* cannot be a child of name */
+	    dynamic_ones[i].mark = 0;
+	    continue;
+	}
+	if (traverse == 1 && q[namelen] != '.' && q[namelen] != '\0') {
+	    /* cannot be name itself, not a child of name */
+	    dynamic_ones[i].mark = 0;
+	    continue;
+	}
+	if (traverse == 0) {
+	    qend = &q[namelen+1];
+	    while (*qend && *qend != '.')
+		qend++;
+	    tlen = qend - &q[namelen+1];
+	    for (j = 0; j < nmatch; j++) {
+		if (strncmp(&q[namelen+1], chn[j], tlen) == 0) {
+		    /* already seen this child ... skip it */
+		    break;
+		}
+	    }
+	}
+	else {
+	    /* traversal ... need this one */
+	    j = nmatch;
+	}
+	if (j == nmatch) {
+	    nmatch++;
+	    if ((chn = (char **)realloc(chn, nmatch*sizeof(chn[0]))) == NULL)
+		/* TODO cleanup */
+		return -errno;
+	    if ((sts = (int *)realloc(sts, nmatch*sizeof(sts[0]))) == NULL) {
+		/* TODO cleanup */
+		return -errno;
+	    }
+	    if (traverse == 0) {
+		/*
+		 * descendents only ... just want the next component of
+		 * PMNS name
+		 */
+		if ((chn[nmatch-1] = strndup(&q[namelen+1], tlen)) == NULL) {
+		    /* TODO cleanup */
+		    return -errno;
+		}
+		if (*qend == '.')
+		    sts[nmatch-1] = PMNS_NONLEAF_STATUS;
+		else
+		    sts[nmatch-1] = PMNS_LEAF_STATUS;
+	    }
+	    else {
+		/*
+		 * traversal ... want the whole name including the prefix
+		 * part
+		 */
+		tlen = pfxlen + strlen(dynamic_ones[i].name) + 2;
+		if ((chn[nmatch-1] = malloc(tlen)) == NULL) {
+		    /* TODO cleanup */
+		    return -errno;
+		}
+		strncpy(chn[nmatch-1], name, pfxlen);
+		chn[nmatch-1][pfxlen] = '.';
+		chn[nmatch-1][pfxlen+1] = '\0';
+		strcat(chn[nmatch-1], dynamic_ones[i].name);
+		sts[nmatch-1] = PMNS_LEAF_STATUS;
+	    }
+	    len += tlen + 1;
+	}
+    }
+    if (nmatch == 0) {
+	*offspring = NULL;
+	*status = NULL;
+    }
+    else {
+	if ((chn = (char **)realloc(chn, nmatch*sizeof(chn[0])+len)) == NULL)
+	    /* TODO cleanup */
+	    return -errno;
+	q = (char *)&chn[nmatch];
+	for (j = 0; j < nmatch; j++) {
+	    strcpy(q, chn[j]);
+	    free(chn[j]);
+	    chn[j] = q;
+	    q += strlen(chn[j])+1;
+	}
+	*offspring = chn;
+	*status = sts;
+    }
+    return nmatch;
+}
+
 /*
  * high precision counter
  */
@@ -1144,7 +1372,7 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
 	    free(res);
 	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
 	need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
-	if ((res = (pmResult *) malloc(need)) == NULL)
+	if ((res = (pmResult *)malloc(need)) == NULL)
 	    return -errno;
 	maxnpmids = numpmid;
     }
@@ -1755,6 +1983,30 @@ doit:
 		    __pmProcessDataSize(&ul);
 		    atom.ul = ul;
 		    break;
+		case 1000:	/* secret.bar */
+		    atom.cp = "foo";
+		    break;
+		case 1001:	/* secret.foo.one */
+		    atom.l = 1;
+		    break;
+		case 1002:	/* secret.foo.two */
+		    atom.l = 2;
+		    break;
+		case 1003:	/* secret.foo.bar.three */
+		    atom.l = 3;
+		    break;
+		case 1004:	/* secret.foo.bar.four */
+		    atom.l = 4;
+		    break;
+		case 1005:	/* secret.foo.bar.grunt.five */
+		    atom.l = 5;
+		    break;
+		case 1006:	/* secret.foo.bar.grunt.snort.six */
+		    atom.l = 6;
+		    break;
+		case 1007:	/* secret.foo.bar.grunt.snort.seven */
+		    atom.l = 7;
+		    break;
 		case 1023: /* bigid */
 		    atom.l = 4194303;
 		    break;
@@ -1774,7 +2026,7 @@ done:
 	vset->numval = j;
     }
     *resp = res;
-    return 0;
+    return 1;
 }
 
 static int
@@ -2039,13 +2291,14 @@ sample_store(pmResult *result, pmdaExt *ep)
 
 void sample_init(pmdaInterface *dp)
 {
-    char helppath[MAXPATHLEN];
+    char	helppath[MAXPATHLEN];
+    int		i;
 
     if (_isDSO) {
 	int sep = __pmPathSeparator();
 	snprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "dsohelp",
 			pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_2, "sample DSO", helppath);
+	pmdaDSO(dp, PMDA_INTERFACE_4, "sample DSO", helppath);
     }
     else {
 	__pmProcessDataSize(NULL);
@@ -2054,12 +2307,15 @@ void sample_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    dp->version.two.fetch = sample_fetch;
-    dp->version.two.desc = sample_desc;
-    dp->version.two.instance = sample_instance;
-    dp->version.two.text = sample_text;
-    dp->version.two.store = sample_store;
-    dp->version.two.profile = sample_profile;
+    dp->version.four.fetch = sample_fetch;
+    dp->version.four.desc = sample_desc;
+    dp->version.four.instance = sample_instance;
+    dp->version.four.text = sample_text;
+    dp->version.four.store = sample_store;
+    dp->version.four.profile = sample_profile;
+    dp->version.four.pmid = sample_pmid;
+    dp->version.four.name = sample_name;
+    dp->version.four.children = sample_children;
 
     pmdaInit(dp, NULL, 0, NULL, 0);	/* don't use indomtab or metrictab */
 
@@ -2068,6 +2324,18 @@ void sample_init(pmdaInterface *dp)
     init_tables(dp->domain);
     redo_mirage();
     redo_dynamic();
+
+    /* initialization of domain in PMIDs for dynamic PMNS entries */
+    for (i = 0; i < numdyn; i++) {
+	((__pmID_int *)&dynamic_ones[i].pmid)->domain = dp->domain;
+    }
+    /*
+     * Max Matveev wanted this sort of redirection, so first entry is
+     * actually a redirect to PMID 2.4.1 (pmcd.agent.status)
+     */
+    ((__pmID_int *)&dynamic_ones[0].pmid)->domain = 2;
+    ((__pmID_int *)&dynamic_ones[0].pmid)->cluster = 4;
+    ((__pmID_int *)&dynamic_ones[0].pmid)->item = 1;
 
     /*
      * for gcc/egcs, statically initializing these cased the strings

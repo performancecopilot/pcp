@@ -446,3 +446,27 @@ This metric returns the amount of memory in kilobytes allocated for the
 data segment of the PMDA.
 
 This is handy for tracing memory utilization (and leaks) in libpcp_pmda.
+
+@ SAMPLE.0.1000 dynamic *.secret.bar metric
+Value "foo".
+
+@ SAMPLE.0.1001 dynamic *.secret.foo.one metric
+Value 1.
+
+@ SAMPLE.0.1002 dynamic *.secret.foo.two metric
+Value 2.
+
+@ SAMPLE.0.1003 dynamic *.secret.foo.bar.three metric
+Value 3.
+
+@ SAMPLE.0.1004 dynamic *.secret.foo.bar.four metric
+Value 4.
+
+@ SAMPLE.0.1005 dynamic *.secret.foo.bar.grunt.five metric
+Value 5.
+
+@ SAMPLE.0.1006 dynamic *.secret.foo.bar.grunt.snort.six metric
+Value 6.
+
+@ SAMPLE.0.1007 dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric
+Value 7.

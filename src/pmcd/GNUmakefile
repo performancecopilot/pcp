@@ -24,7 +24,7 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = src
 LSRCFILES = pmdaproc.sh rc_pcp rc_local pmcd.options \
-	    rc-proc.sh rc-proc.sh.minimal migrate_pcp_var_dir
+	    rc-proc.sh rc-proc.sh.minimal
 
 default : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -45,9 +45,6 @@ endif
 	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)/pmcd
 ifneq ($(PACKAGE_DISTRIBUTION),debian)
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmcd
-ifeq ($(TARGET_OS),linux)
-	$(INSTALL) -m 755 migrate_pcp_var_dir $(PCP_SHARE_DIR)/lib/.migrate_pcp_var_dir
-endif
 endif
 
 include $(BUILDRULES)

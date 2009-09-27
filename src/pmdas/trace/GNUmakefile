@@ -62,9 +62,6 @@ install:	$(SUBDIRS)
 	$(INSTALL) -m 644 README.demos $(DEMODIR)/README
 	$(INSTALL) -m 644 GNUmakefile.stub $(DEMODIR)/Makefile.stub
 	$(INSTALL) -m 644 stub.c pmtrace.c $(DEMOS) $(DEMODIR)
-ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
-	$(INSTALL) -m 755 $(APPS) $(DEMODIR)
-endif
 
 else
 build-me:

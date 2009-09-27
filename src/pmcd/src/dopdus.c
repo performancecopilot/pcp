@@ -68,7 +68,7 @@ DoText(ClientInfo *cp, __pmPDU* pb)
     int		sts, s;
     int		ident;
     int		type;
-    AgentInfo*	ap;
+    AgentInfo	*ap;
     char	*buffer;
 
     if ((sts = __pmDecodeTextReq(pb, PDU_BINARY, &ident, &type)) < 0)
@@ -80,11 +80,15 @@ DoText(ClientInfo *cp, __pmPDU* pb)
 	return PM_ERR_NOAGENT;
 
     if (ap->ipcType == AGENT_DSO) {
-	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-	    sts = ap->ipc.dso.dispatch.version.one.text(ident, type, &buffer);
-	else
+	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    sts = ap->ipc.dso.dispatch.version.four.text(ident, type, &buffer,
+					  ap->ipc.dso.dispatch.version.four.ext);
+	else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+	         ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
 	    sts = ap->ipc.dso.dispatch.version.two.text(ident, type, &buffer,
 					  ap->ipc.dso.dispatch.version.two.ext);
+	else
+	    sts = ap->ipc.dso.dispatch.version.one.text(ident, type, &buffer);
 	if (sts < 0 &&
 	    ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		sts = XLATE_ERR_1TO2(sts);
@@ -207,7 +211,7 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
 {
     int		sts, s;
     pmID	pmid;
-    AgentInfo*	ap;
+    AgentInfo	*ap;
     pmDesc	desc;
     int		fdfail = -1;
 
@@ -220,11 +224,15 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
 	return PM_ERR_NOAGENT;
 
     if (ap->ipcType == AGENT_DSO) {
-	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-	    sts = ap->ipc.dso.dispatch.version.one.desc(pmid, &desc);
-	else
+	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    sts = ap->ipc.dso.dispatch.version.four.desc(pmid, &desc,
+					ap->ipc.dso.dispatch.version.four.ext);
+	else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+	         ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
 	    sts = ap->ipc.dso.dispatch.version.two.desc(pmid, &desc,
 					ap->ipc.dso.dispatch.version.two.ext);
+	else
+	    sts = ap->ipc.dso.dispatch.version.one.desc(pmid, &desc);
 	if (sts < 0 &&
 	    ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		sts = XLATE_ERR_1TO2(sts);
@@ -313,13 +321,18 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     }
 
     if (ap->ipcType == AGENT_DSO) {
-	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-	    sts = ap->ipc.dso.dispatch.version.one.instance(indom, inst, name, 
-							     &inresult);
-	else
+	if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+	    sts = ap->ipc.dso.dispatch.version.four.instance(indom, inst, name,
+					&inresult,
+					ap->ipc.dso.dispatch.version.four.ext);
+	else if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+	         ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
 	    sts = ap->ipc.dso.dispatch.version.two.instance(indom, inst, name,
 					&inresult,
 					ap->ipc.dso.dispatch.version.two.ext);
+	else
+	    sts = ap->ipc.dso.dispatch.version.one.instance(indom, inst, name, 
+							     &inresult);
 	if (sts < 0 &&
 	    ap->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		sts = XLATE_ERR_1TO2(sts);
@@ -390,12 +403,69 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
     int 	numnames = 0;
     pmID	idlist[1];
     char	**namelist = NULL;
+    AgentInfo	*ap = NULL;
+    int		fdfail = -1;
 
     if ((sts = __pmDecodeIDList(pb, PDU_BINARY, 1, idlist, &op_sts)) < 0)
 	goto fail;
 
-    if ((sts = pmNameAll(idlist[0], &namelist)) < 0)
-    	goto fail;
+    if ((sts = pmNameAll(idlist[0], &namelist)) < 0) {
+	/*
+	 * failure may be a real failure, or could be a metric within a
+	 * dynamic sutree of the PMNS
+	 */
+	if ((ap = FindDomainAgent(((__pmID_int *)&idlist[0])->domain)) == NULL) {
+	    sts = PM_ERR_NOAGENT;
+	    goto fail;
+	}
+	if (!ap->status.connected) {
+	    sts = PM_ERR_NOAGENT;
+	    goto fail;
+	}
+	if (ap->ipcType == AGENT_DSO) {
+	    if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+		sts = ap->ipc.dso.dispatch.version.four.name(idlist[0], &namelist, 
+				  ap->ipc.dso.dispatch.version.four.ext);
+	    }
+	    else {
+		/* Not PMDA_INTERFACE_4 */
+		sts = PM_ERR_PMID;
+	    }
+	}
+	else {
+	    /* daemon PMDA ... ship request on */
+	    if (ap->status.notReady)
+		return PM_ERR_AGAIN;
+	    if (_pmcd_trace_mask)
+		pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_IDS, 1);
+	    sts = __pmSendIDList(ap->inFd, ap->pduProtocol, 1, &idlist[0], 0);
+	    if (sts >= 0) {
+		sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+		if (sts > 0 && _pmcd_trace_mask)
+		    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+		if (sts == PDU_PMNS_NAMES) {
+		    sts = __pmDecodeNameList(pb, ap->pduProtocol, &numnames, &namelist, NULL);
+		}
+		else if (sts == PDU_ERROR) {
+		    __pmDecodeError(pb, ap->pduProtocol, &sts);
+		    if (_pmcd_trace_mask)
+			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_NAMES, sts);
+		}
+		else {
+		    if (_pmcd_trace_mask)
+			pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_NAMES, sts);
+		    sts = PM_ERR_IPC;	/* Wrong PDU type */
+		    fdfail = ap->outFd;
+		}
+	    }
+	    else {
+		/* __pmSendIDList failed */
+		sts = __pmMapErrno(sts);
+		fdfail = ap->inFd;
+	    }
+	}
+	if (sts < 0) goto fail;
+    }
 
     numnames = sts;
 
@@ -406,10 +476,13 @@ DoPMNSIDs(ClientInfo *cp, __pmPDU *pb)
 	CleanupClient(cp, sts);
     	goto fail;
     }
-
-    return sts;
+    /* fall through OK */
 
 fail:
+    if (ap != NULL && ap->ipcType != AGENT_DSO &&
+	(sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) &&
+	fdfail != -1)
+	CleanupAgent(ap, AT_COMM, fdfail);
     if (namelist) free(namelist);
     return sts;
 }
@@ -424,6 +497,8 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
     int		numids = 0;
     pmID	*idlist = NULL;
     char	**namelist = NULL;
+    int		i;
+    AgentInfo	*ap = NULL;
 
     if ((sts = __pmDecodeNameList(pb, PDU_BINARY, &numids, &namelist, NULL)) < 0)
 	goto done;
@@ -433,12 +508,93 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 	goto done;
     }
 
-    if ((sts = pmLookupName(numids, namelist, idlist)) < 0) {
+    sts = pmLookupName(numids, namelist, idlist);
+    for (i = 0; i < numids; i++) {
+	if (idlist[i] < 0) continue;
+	if (((__pmID_int *)&idlist[i])->domain == DYNAMIC_PMID) {
+	    int		lsts;
+	    int		domain = ((__pmID_int *)&idlist[i])->cluster;
+	    /*
+	     * don't return <domain>.*.* ... all return paths from here
+	     * must either set a valid PMID in idlist[i] or indicate
+	     * the first error in the return from pmLookupName
+	     */
+	    idlist[i] = PM_ID_NULL;	/* default case if cannot translate */
+	    if ((ap = FindDomainAgent(domain)) == NULL) {
+		if (sts > 0) sts = PM_ERR_NOAGENT;
+		continue;
+	    }
+	    if (!ap->status.connected) {
+		if (sts > 0) sts = PM_ERR_NOAGENT;
+		continue;
+	    }
+	    if (ap->ipcType == AGENT_DSO) {
+		if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+		    lsts = ap->ipc.dso.dispatch.version.four.pmid(namelist[i], &idlist[i],
+				      ap->ipc.dso.dispatch.version.four.ext);
+		}
+		else {
+		    /* Not PMDA_INTERFACE_4 */
+		    lsts = PM_ERR_NAME;
+		}
+	    }
+	    else {
+		/* daemon PMDA ... ship request on */
+		int		fdfail = -1;
+		if (ap->status.notReady)
+		    lsts = PM_ERR_AGAIN;
+		else {
+		    if (_pmcd_trace_mask)
+			pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_NAMES, 1);
+		    lsts = __pmSendNameList(ap->inFd, ap->pduProtocol, 1, &namelist[i], NULL);
+		    if (lsts >= 0) {
+			lsts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+			if (lsts > 0 && _pmcd_trace_mask)
+			    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+			if (lsts == PDU_PMNS_IDS) {
+			    int		xsts;
+			    lsts = __pmDecodeIDList(pb, ap->pduProtocol, 1, &idlist[i], &xsts);
+			    if (lsts >= 0)
+				lsts = xsts;
+			}
+			else if (lsts == PDU_ERROR) {
+			    __pmDecodeError(pb, ap->pduProtocol, &lsts);
+			    if (_pmcd_trace_mask)
+				pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_IDS, lsts);
+			}
+			else {
+			    if (_pmcd_trace_mask)
+				pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_IDS, sts);
+			    lsts = PM_ERR_IPC;	/* Wrong PDU type */
+			    fdfail = ap->outFd;
+			}
+		    }
+		    else {
+			/* __pmSendNameList failed */
+			lsts = __pmMapErrno(lsts);
+			pmcd_trace(TR_XMIT_ERR, ap->inFd, PDU_PMNS_NAMES, lsts);
+			fdfail = ap->inFd;
+		    }
+		}
+		if (ap != NULL && ap->ipcType != AGENT_DSO &&
+		    (lsts == PM_ERR_IPC || lsts == PM_ERR_TIMEOUT || lsts == -EPIPE) &&
+		    fdfail != -1)
+		    CleanupAgent(ap, AT_COMM, fdfail);
+	    }
+	    /*
+	     * only set error status to the current error status
+	     * if this is the first error for this set of metrics
+	     */
+	    if (lsts < 0 && sts > 0) sts = lsts;
+	}
+    }
+
+    if (sts < 0) {
         /* If get an error which should be passed back along
          * with valid data to the client
          * then do NOT fail -> return status with the id-list.
          */
-    	if (sts != PM_ERR_NAME && sts != PM_ERR_NONLEAF)
+    	if (sts != PM_ERR_NAME && sts != PM_ERR_NONLEAF && sts != PM_ERR_NOAGENT)
 	  goto done;
     }
 
@@ -469,17 +625,99 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
     char	**offspring = NULL;
     int		*statuslist = NULL;
     int		subtype;
+    char	*namelist[1];
+    pmID	idlist[1];
 
     if ((sts = __pmDecodeChildReq(pb, PDU_BINARY, &name, &subtype)) < 0)
-	goto fail;
-  
-    if (subtype == 0) {
-	if ((sts = pmGetChildren(name, &offspring)) < 0)
-	    goto fail;
+	goto done;
+
+    namelist[0] = name;
+    sts = pmLookupName(1, namelist, idlist);
+    if (sts == 1 && ((__pmID_int *)&idlist[0])->domain == DYNAMIC_PMID) {
+	int		domain = ((__pmID_int *)&idlist[0])->cluster;
+	AgentInfo	*ap = NULL;
+	if ((ap = FindDomainAgent(domain)) == NULL) {
+	    sts = PM_ERR_NOAGENT;
+	    goto done;
+	}
+	if (!ap->status.connected) {
+	    sts = PM_ERR_NOAGENT;
+	    goto done;
+	}
+	if (ap->ipcType == AGENT_DSO) {
+	    if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+		sts = ap->ipc.dso.dispatch.version.four.children(name, 0, &offspring, &statuslist,
+				  ap->ipc.dso.dispatch.version.four.ext);
+		if (sts < 0)
+		    goto done;
+		if (subtype == 0) {
+		    if (statuslist) free(statuslist);
+		    statuslist = NULL;
+		}
+	    }
+	    else {
+		/* Not PMDA_INTERFACE_4 */
+		sts = PM_ERR_NAME;
+		goto done;
+	    }
+	}
+	else {
+	    /* daemon PMDA ... ship request on */
+	    int		fdfail = -1;
+	    if (ap->status.notReady)
+		sts = PM_ERR_AGAIN;
+	    else {
+		if (_pmcd_trace_mask)
+		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_CHILD, 1);
+		sts = __pmSendChildReq(ap->inFd, ap->pduProtocol, name, subtype);
+		if (sts >= 0) {
+		    sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+		    if (sts > 0 && _pmcd_trace_mask)
+			pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+		    if (sts == PDU_PMNS_NAMES) {
+			sts = __pmDecodeNameList(pb, ap->pduProtocol, &numnames,
+			                               &offspring, &statuslist);
+			if (sts >= 0) {
+			    sts = numnames;
+			    if (subtype == 0) {
+				free(statuslist);
+				statuslist = NULL;
+			    }
+			}
+		    }
+		    else if (sts == PDU_ERROR) {
+			__pmDecodeError(pb, ap->pduProtocol, &sts);
+			if (_pmcd_trace_mask)
+			    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_NAMES, sts);
+		    }
+		    else {
+			if (_pmcd_trace_mask)
+			    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_NAMES, sts);
+			sts = PM_ERR_IPC;	/* Wrong PDU type */
+			fdfail = ap->outFd;
+		    }
+		}
+		else {
+		    /* __pmSendChildReq failed */
+		    sts = __pmMapErrno(sts);
+		    fdfail = ap->inFd;
+		}
+	    }
+	    if (ap != NULL && ap->ipcType != AGENT_DSO &&
+		(sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) &&
+		fdfail != -1)
+		CleanupAgent(ap, AT_COMM, fdfail);
+	}
     }
     else {
-	if ((sts = pmGetChildrenStatus(name, &offspring, &statuslist)) < 0)
-	    goto fail;
+	if (subtype == 0) {
+	    if ((sts = pmGetChildren(name, &offspring)) < 0)
+		goto done;
+	}
+	else {
+	    if ((sts = pmGetChildrenStatus(name, &offspring, &statuslist)) < 0)
+		goto done;
+	}
     }
 
     numnames = sts;
@@ -488,14 +726,12 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
     if ((sts = __pmSendNameList(cp->fd, PDU_BINARY, numnames, offspring, statuslist)) < 0) {
 	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_NAMES, sts);
 	CleanupClient(cp, sts);
-    	goto fail;
     }
 
-    return sts;
-
-fail:
+done:
     if (name) free(name);
     if (offspring) free(offspring);
+    if (statuslist) free(statuslist);
     return sts;
 }
 
@@ -510,7 +746,7 @@ static int travNL_i;      /* array index */
 static void
 AddLengths(const char *name)
 {
-  travNL_strlen += strlen(name);
+  travNL_strlen += strlen(name) + 1;
   travNL_num++;
 }
 
@@ -520,6 +756,210 @@ BuildNameList(const char *name)
   travNL[travNL_i++] = travNL_ptr;
   strcpy(travNL_ptr, name);
   travNL_ptr += strlen(name) + 1;
+}
+
+/*
+ * handle dynamic PMNS entries in remote version of pmTraversePMNS.
+ *
+ * num_names and names[] is the result of pmTraversePMNS for the
+ * loaded PMNS ... need to preserve the semantics of this in the
+ * end result, so names[] and all of the name[i] strings are in a
+ * single malloc block
+ */
+static void
+traverse_dynamic(char *start, int *num_names, char ***names)
+{
+    int		sts;
+    int		i;
+    char	**offspring;
+    int		*statuslist;
+    char	*namelist[1];
+    pmID	idlist[1];
+    int		fake = 0;
+
+    /*
+     * if we get any errors in the setup (unexpected), simply skip
+     * that name[i] entry and move on ... any client using the associated
+     * name[i] will get an error later, e.g. when trying to fetch the
+     * pmDesc
+     *
+     * process in reverse order so stitching does not disturb the ones
+     * we've not processed yet
+     */
+    if (*num_names == 0) {
+	/*
+	 * special case, where starting point is _below_ the dynamic
+	 * node in the PMNS known to pmcd  (or name is simply invalid) ...
+	 * fake a single name in the list so far ... names[] does not hold
+	 * the string value as well, but this is OK because names[0] will
+	 * be rebuilt * replacing "name" (or cleaned up at the end) ...
+	 * note travNL_strlen initialization so resize below is correct
+	 */
+	fake = 1;
+	*names = (char **)malloc(sizeof((*names)[0]));
+	if (*names == NULL)
+	    return;
+	(*names)[0] = start;
+	*num_names = 1;
+	travNL_strlen = strlen(start) + 1;
+    }
+    for (i = *num_names-1; i >= 0; i--) {
+	offspring = NULL;
+	namelist[0] = (*names)[i];
+	sts = pmLookupName(1, namelist, idlist);
+	if (sts < 1)
+	    continue;
+	if (((__pmID_int *)&idlist[0])->domain == DYNAMIC_PMID) {
+	    int		domain = ((__pmID_int *)&idlist[0])->cluster;
+	    AgentInfo	*ap;
+	    if ((ap = FindDomainAgent(domain)) == NULL)
+		continue;
+	    if (!ap->status.connected)
+		continue;
+	    if (ap->ipcType == AGENT_DSO) {
+		if (ap->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+		    sts = ap->ipc.dso.dispatch.version.four.children(namelist[0], 1, &offspring, &statuslist,
+				      ap->ipc.dso.dispatch.version.four.ext);
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_PMNS) {
+			fprintf(stderr, "traverse_dynamic: DSO PMDA: expand dynamic PMNS entry %s (%s) -> ", namelist[0], pmIDStr(idlist[0]));
+			if (sts < 0)
+			    fprintf(stderr, "%s\n", pmErrStr(sts));
+			else {
+			    int		j;
+			    fprintf(stderr, "%d names\n", sts);
+			    for (j = 0; j < sts; j++) {
+				fprintf(stderr, "    %s\n", offspring[j]);
+			    }
+			}
+		    }
+#endif
+		    if (sts < 0)
+			continue;
+		    if (statuslist) free(statuslist);
+		}
+		else {
+		    /* Not PMDA_INTERFACE_4 */
+		    continue;
+		}
+	    }
+	    else {
+		/* daemon PMDA ... ship request on */
+		int		fdfail = -1;
+		if (ap->status.notReady)
+		    continue;
+		if (_pmcd_trace_mask)
+		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_PMNS_TRAVERSE, 1);
+		sts = __pmSendTraversePMNSReq(ap->inFd, ap->pduProtocol, namelist[0]);
+		if (sts >= 0) {
+		    int		numnames;
+		    __pmPDU	*pb;
+		    sts = __pmGetPDU(ap->outFd, ap->pduProtocol, _pmcd_timeout, &pb);
+		    if (sts > 0 && _pmcd_trace_mask)
+			pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+		    if (sts == PDU_PMNS_NAMES) {
+			sts = __pmDecodeNameList(pb, ap->pduProtocol, &numnames,
+						       &offspring, &statuslist);
+#ifdef PCP_DEBUG
+			if (pmDebug & DBG_TRACE_PMNS) {
+			    fprintf(stderr, "traverse_dynamic: daemon PMDA: expand dynamic PMNS entry %s (%s) -> ", namelist[0], pmIDStr(idlist[0]));
+			    if (sts < 0)
+				fprintf(stderr, "%s\n", pmErrStr(sts));
+			    else {
+				int		j;
+				fprintf(stderr, "%d names\n", sts);
+				for (j = 0; j < sts; j++) {
+				    fprintf(stderr, "    %s\n", offspring[j]);
+				}
+			    }
+			}
+#endif
+			if (statuslist) {
+			    free(statuslist);
+			    statuslist = NULL;
+			}
+			if (sts >= 0) {
+			    sts = numnames;
+			}
+		    }
+		    else if (sts == PDU_ERROR) {
+			__pmDecodeError(pb, ap->pduProtocol, &sts);
+			if (_pmcd_trace_mask)
+			    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_PMNS_NAMES, sts);
+		    }
+		    else {
+			if (_pmcd_trace_mask)
+			    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_PMNS_IDS, sts);
+			sts = PM_ERR_IPC;	/* Wrong PDU type */
+			fdfail = ap->outFd;
+		    }
+		}
+		else {
+		    /* __pmSendChildReq failed */
+		    sts = __pmMapErrno(sts);
+		    fdfail = ap->inFd;
+		}
+		if (ap != NULL && ap->ipcType != AGENT_DSO &&
+		    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) &&
+		    fdfail != -1)
+		    CleanupAgent(ap, AT_COMM, fdfail);
+	    }
+	}
+	/* Stitching ... remove names[i] and add sts names from offspring[] */
+	if (offspring) {
+	    int		j;
+	    int		k;		/* index for copying to new[] */
+	    int		ii;		/* index for copying from names[] */
+	    char	**new;
+	    char	*p;		/* string copy dest ptr */
+	    int		new_len;
+
+	    fake = 0;			/* don't need to undo faking */
+	    new_len = travNL_strlen - strlen(namelist[0]) - 1;
+	    for (j = 0; j < sts; j++)
+		new_len += strlen(offspring[j]) + 1;
+	    new = (char **)malloc(new_len + (*num_names - 1 + sts)*sizeof(new[0]));
+	    if (new == NULL) {
+		/* tough luck! */
+		free(offspring);
+		continue;
+	    }
+	    *num_names = *num_names - 1 + sts;
+	    p = (char *)&new[*num_names];
+	    ii = 0;
+	    for (k = 0; k < *num_names; k++) {
+		if (k < i || k >= i+sts) {
+		    /* copy across old name */
+		    if (k == i+sts)
+			ii++;	/* skip name than new ones replaced */
+		    strcpy(p, (*names)[ii]);
+		    ii++;
+		}
+		else {
+		    /* stitch in new name */
+		    strcpy(p, offspring[k-i]);
+		}
+		new[k] = p;
+		p += strlen(p) + 1;
+	    }
+
+	    free(offspring);
+	    free(*names);
+	    *names = new;
+	    travNL_strlen = new_len;
+	}
+    }
+
+    if (fake == 1) {
+	/*
+	 * need to undo initial faking as this name is simply not valid!
+	 */
+	*num_names = 0;
+	free(*names);
+	*names = NULL;
+	travNL_strlen = 0;
+    }
+
 }
 
 /*
@@ -547,11 +987,15 @@ DoPMNSTraverse(ClientInfo *cp, __pmPDU *pb)
     travNL_strlen = 0;
     travNL_num = 0;
     if ((sts = pmTraversePMNS(name, AddLengths)) < 0)
-    	goto done;
+    	goto check;
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMNS) {
+	fprintf(stderr, "DoPMNSTraverse: %d names below %s after pmTraversePMNS\n", travNL_num, name);
+    }
+#endif
 
     /* for each ptr, string bytes, and string terminators */
-    travNL_need = travNL_num * (int)sizeof(char*) + travNL_strlen +
-                  travNL_num;
+    travNL_need = travNL_num * (int)sizeof(char*) + travNL_strlen;
 
     if ((travNL = (char**)malloc(travNL_need)) == NULL) {
       sts = -errno;
@@ -560,8 +1004,18 @@ DoPMNSTraverse(ClientInfo *cp, __pmPDU *pb)
 
     travNL_i = 0;
     travNL_ptr = (char*)&travNL[travNL_num];
-    if ((sts = pmTraversePMNS(name, BuildNameList)) < 0)
-    	goto done;
+    sts = pmTraversePMNS(name, BuildNameList);
+
+check:
+    /*
+     * sts here is last result of calling pmTraversePMNS() ... may need
+     * this later
+     * for dynamic PMNS entries, travNL_num will be 0 (PM_ERR_PMID from
+     * pmTraversePMNS()).
+     */
+    traverse_dynamic(name, &travNL_num, &travNL);
+    if (travNL_num < 1)
+	goto done;
 
     if (_pmcd_trace_mask)
 	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_NAMES, travNL_num);

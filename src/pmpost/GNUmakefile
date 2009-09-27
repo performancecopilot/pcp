@@ -26,7 +26,7 @@ LLDLIBS = -lpcp $(LIB_FOR_BASENAME)
 default:	$(CMDTARGET)
 
 install:	default
-	$(INSTALL) -m 4755 -o root $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 -o root $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 
 include $(BUILDRULES)
 
