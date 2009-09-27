@@ -70,7 +70,7 @@ static int scnt;
 static int
 update_namespace(void)
 {
-    char script[MAXPATHLEN];
+    char script[3*MAXPATHLEN];
     int sep = __pmPathSeparator();
 
     snprintf(script, sizeof(script),

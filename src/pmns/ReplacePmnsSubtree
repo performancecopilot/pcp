@@ -90,12 +90,16 @@ restore=false			# restore backup namespace files in cleanup()
 
 haveLock=false
 
+# signals we need to be careful of ... HUP, INT, QUIT, PIPE, ALRM, TERM
+#
+STD_SIGNALS="1 2 3 13 14 15"
+
 cleanup()
 {
     # Release namespace lock as early as possible.  Ignore signals to avoid
     # releasing a lock already released.
+    trap "" $STD_SIGNALS
 
-    trap 1 2 3 4 5 6 7 8 10 11 12 13 14 15 16 17 18
     if $restore
     then
 	for f in $backups
@@ -115,7 +119,7 @@ cleanup()
     fi
 }
 
-trap "cleanup; exit" 0 1 2 3 4 5 6 7 8 10 11 12 13 14 15 16 17 18
+trap "cleanup; exit" 0 $STD_SIGNALS
 
 # "haveLock=true" is duplicated in both "if" and "else" to minimise the window
 # for a signal leaving an orphaned lock if the "else" condition fires (we
