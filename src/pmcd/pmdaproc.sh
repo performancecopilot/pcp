@@ -327,11 +327,16 @@ END					{ exit status }'
 	if pminfo -h localhost -v pmcd.version >/dev/null 2>&1
 	then
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
+	    # allow signal processing to be done before checking status
+	    sleep 2
 	    __wait_for_pmcd
-	    $__pmcd_is_dead && __restore_pmcd
-  	    # give PMDA a chance to cleanup, especially if a new one about
-	    # to be installed
-	    sleep 3
+	    if $__pmcd_is_dead
+	    then
+		__restore_pmcd
+		# give PMCD a chance to get back into original state
+		sleep 3
+		__wait_for_pmcd
+	    fi
 	fi
     fi
     rm -f /tmp/$$.pmcd.conf
@@ -344,7 +349,8 @@ END					{ exit status }'
 	if [ ! -z "$__pids" ]
 	then
 	    pmsignal -s $__sig $__pids >/dev/null 2>&1
-	    sleep 3
+	    # allow signal processing to be done
+	    sleep 2
 	else
 	    break
 	fi
@@ -407,6 +413,8 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
     if pminfo -h localhost -v pmcd.version >/dev/null 2>&1
     then
 	pmsignal -a -s HUP pmcd >/dev/null 2>&1
+	# allow signal processing to be done before checking status
+	sleep 2
 	__wait_for_pmcd
 	$__pmcd_is_dead && __restore_pmcd
     else
@@ -796,15 +804,15 @@ _setup()
     #
     _check_userroot
 
-    # automatically generate files for those lazy Perl programmers
-    # ... if they are not already present
+    # Perl setup and automatically generate files for those lazy Perl
+    # programmers ... if they are not already present
     #
-    if [ ! -f ${PCP_PMDAS_DIR}/${iam}/pmns ]
+    if $perl_opt
     then
-	if $perl_opt
+	perl_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.pl"
+	perl_name=`__strip_pcp_dir "$perl_name"`
+	if [ ! -f ${PCP_PMDAS_DIR}/${iam}/pmns -o ! -f ${PCP_PMDAS_DIR}/${iam}/domain.h ]
 	then
-	    perl_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.pl"
-	    perl_name=`__strip_pcp_dir "$perl_name"`
 	    perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns"
 	    perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h"
 	    perl -e 'use PCP::PMDA' 2>/dev/null
@@ -1127,6 +1135,7 @@ _remove()
 	then
 	    rm -f $PMNSDIR/$__n
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
+	    sleep 2
 	    echo "done"
 	else
 	    if grep 'Non-terminal "'"$__n"'" not found' $tmp >/dev/null
