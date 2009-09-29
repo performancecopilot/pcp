@@ -38,7 +38,7 @@ Packager: Silicon Graphics, Inc. <http://www.sgi.com/>
 %endif
 BuildRoot: @build_root@ 
 BuildRequires: procps autoconf bison flex ncurses-devel %{?ib_build_prereqs}
-BuildRequires: perl-ExtUtils-MakeMaker
+BuildRequires: perl(ExtUtils::MakeMaker)
 
 Conflicts: pcp-pro < 2.2
 
@@ -93,11 +93,64 @@ Requires: pcp-libs = @package_version@
 %description libs-devel
 Performance Co-Pilot (PCP) headers, documentation and tools for development.
 
+#
+# perl-PCP-PMDA. This is the PCP agent perl binding.
+#
+%package -n perl-PCP-PMDA
+License: GPLv2
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp >= @package_version@
+
+%description -n perl-PCP-PMDA
+The PCP::PMDA Perl module contains the language bindings for
+building Performance Metric Domain Agents (PMDAs) using Perl.
+Each PMDA exports performance data for one specific domain, for
+example the operating system kernel, Cisco routers, a database,
+an application, etc.
+
+#
+# perl-PCP-SUMMARY
+#
+%package -n perl-PCP-LogSummary
+License: GPLv2
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) Perl bindings for pmlogsummary
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp >= @package_version@
+
+%description -n perl-PCP-LogSummary
+The PCP::LogSummary module provides a Perl module for using the
+statistical summary data produced by the Performance Co-Pilot
+pmlogsummary utility.  This utility produces various averages,
+minima, maxima, and other calculations based on the performance
+data stored in a PCP archive.  The Perl interface is ideal for
+exporting this data into third-party tools (e.g. spreadsheets).
+
+#
+# perl-PCP-MMV
+#
+%package -n perl-PCP-MMV
+License: GPLv2
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp >= @package_version@
+
+%description -n perl-PCP-MMV
+The PCP::MMV module contains the Perl language bindings for
+building scripts instrumented with the Performance Co-Pilot
+(PCP) Memory Mapped Value (MMV) mechanism.
+This mechanism allows arbitrary values to be exported from an
+instrumented script into the PCP infrastructure for monitoring
+and analysis with pmchart, pmie, pmlogger and other PCP tools.
+
 %if %sgi_chroot_build
 %debug_package
 %endif
 
-# In .census is exist, then no setup is necessary, just go and do the build,
+# If .census exists, then no setup is necessary, just go and do the build,
 # otherwise run setup
 %prep
 if [ -f .census ] ; then
@@ -211,6 +264,15 @@ fi
 %files libs-devel -f devel_files.rpm
 %defattr(-,root,root)
 
+%files -n perl-PCP-PMDA -f perl-pcp-pmda.list
+%defattr(-,root,root)
+
+%files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
+%defattr(-,root,root)
+
+%files -n perl-PCP-MMV -f perl-pcp-mmv.list
+%defattr(-,root,root)
+
 %changelog
-* Fri Sep 04 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-5
+* Mon Sep 28 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-6
 - bump to v3.0.0 and reconcile spec with Fedora spec

@@ -1,7 +1,7 @@
-pcp-3.0.0 (7 September 2009)
+pcp-3.0.0 (28 September 2009)
     - packaging split into pcp, pcp-libs and pcp-libs-devel
       pcp-libs is common - it's required by pcp and by pcp-libs-devel but
-      pcp and pcp-devel can be installed with or without each other.
+      pcp and pcp-libs-devel can be installed with or without each other.
     - added separate specific licenses for the new subpackages,
       particularly pcp-libs, which is LGPL.
     - added ldconfig %post and %postun scriptlets for -libs
@@ -29,6 +29,12 @@ pcp-3.0.0 (7 September 2009)
     - reconciled build/rpm/pcp.spec.in with build/rpm/pcp_fedora.spec
     - git merged the final 2.9.1 source tree
     - numerous other minor changes, mostly for inclusion in Fedora
+    - integrated RPM packaging support for perl-PCP-PMDA, perl-PCP-MMV and
+      perl-PCP-LogSummary (still need to nuke cpanflute)
+    - RPM build requires perl(ExtUtils::MakeMaker) rather than perl-extutils-makemaker
+      (this is the standard notation)
+    - For easier upgrades, the perl PMDAs only really require pcp >= package version
+      (until we change or extend an API).
 
 pcp-2.9.2 (7 September 2009)
     - Final iteration on pmval sample count changes.
