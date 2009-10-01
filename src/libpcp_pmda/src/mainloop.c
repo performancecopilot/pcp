@@ -76,15 +76,6 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 	if (HAVE_V_FOUR(dispatch->comm.pmda_interface)) {
 	    pmda = dispatch->version.four.ext; /* PMDA Interface V.4 dynamic PMNS */
-#if 0
-/* TODO ... not needed now? */
-	    /*
-	     * need PMNS loaded ... if this fails, don't worry as the
-	     * errors will come later and be reported in a PDU interchange
-	     * context when the PMNS is needed, but not loaded
-	     */
-	    pmLoadNameSpace(PM_NS_DEFAULT);
-#endif
 	}
 	else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
 	    pmda = dispatch->version.two.ext; /* PMDA Interface V.2 or V.3 Extensions */
