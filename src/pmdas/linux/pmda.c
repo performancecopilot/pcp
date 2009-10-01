@@ -4747,6 +4747,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			"/etc/fedora-release",
 			"/etc/redhat-release",
 			"/etc/SuSE-release",
+			"/etc/slackware-version",
 			NULL
 		};
 		for (r=0; rfiles[r] != NULL; r++) {
