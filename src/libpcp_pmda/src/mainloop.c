@@ -199,7 +199,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    }
 	    else {
 		/* Not INTERFACE_4 */
-		sts = PM_ERR_PMID;
+		sts = PM_ERR_NAME;
 	    }
 	    __pmUnpinPDUBuf(namelist);
 	}

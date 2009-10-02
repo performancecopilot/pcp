@@ -306,6 +306,78 @@ command is equivalent to
 .B sleep (1)
 and takes a single integer argument.
 .PP
+The introduction of dynamic subtrees in the 
+PMNS and PMDA_INTERFACE_4 in
+.I libpcp_pmda
+has led to additional commands being supported in
+.B dbpmda
+to exercise the associated dynamic PMNS services.  The examples below are based
+on the
+.I sample
+PMDA.
+.PP
+.nf
+.ft CW
+.in +0.5i
+$ dbpmda
+dbpmda> open pipe /var/lib/pcp/pmdas/sample/pmdasample -d 29
+dbpmda> Start pmdasample PMDA: /var/lib/pcp/pmdas/sample/pmdasample -d 29
+dbpmda> children sample.secret
+Metric: sample.secret
+   non-leaf foo
+       leaf bar
+dbpmda> traverse sample.secret.foo
+Metric: sample.secret.foo
+   sample.secret.foo.bar.max.redirect
+   sample.secret.foo.one
+   sample.secret.foo.two
+   sample.secret.foo.bar.three
+   sample.secret.foo.bar.four
+   sample.secret.foo.bar.grunt.five
+   sample.secret.foo.bar.grunt.snort.six
+   sample.secret.foo.bar.grunt.snort.huff.puff.seven
+dbpmda> pmid sample.secret.foo.bar.four
+Metric: sample.secret.foo.bar.four
+   29.0.1004
+dbpmda> name 29.0.1006
+PMID: 29.0.1006
+   sample.secret.foo.bar.grunt.snort.six
+.fi
+.in
+.PP
+The
+.B children
+command returns the next name component for all the direct descendents
+of a node within a dynamic subtree of the PMNS.
+The related
+.B traverse
+command returns the full metric names for all leaf nodes in the PMNS
+below the specified non-leaf node in a dynamic subtree of the PMNS.
+.PP
+The
+.B name
+and
+.B pmid
+commands exercise the translation of metric names to PMIDs (and vice
+versa) for metrics within a dynamic subtree of the PMNS.
+.PP
+If the commands
+.BR children ,
+.BR traverse ,
+.B pmid
+or
+.B name
+are used with a PMDA that is
+.B not
+using PMDA_INTERFACE_4 or with performance metric names that
+are not part of a dynamic subtree of the PMNS, then the PMDA
+would be expected to return errors
+(PM_ERR_NAME or PM_ERR_PMID) to reflect the fact that
+the operation is in error (outside a dynamic subtree of the PMNS
+it is
+.BR pmcd (1)
+and not the PMDA that
+is responsible for implementing these functions).
 .SH CAVEATS
 A value cannot be stored into a metric of type 
 .BR PM_TYPE_AGGREGATE .
