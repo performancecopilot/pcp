@@ -65,21 +65,21 @@ typedef unsigned int	pmInDom;	/* Instance-Domain */
  */
 typedef struct {
 #ifdef HAVE_BITFIELDS_LTOR
-    int	dimSpace : 4;	/* space dimension */
-    int	dimTime : 4;	/* time dimension */
-    int	dimCount : 4;	/* event dimension */
-    int	scaleSpace : 4;	/* one of PM_SPACE_* below */
-    int	scaleTime : 4;	/* one of PM_TIME_* below */
-    int	scaleCount : 4;	/* one of PM_COUNT_* below */
-    int pad : 8;
+    signed int		dimSpace : 4;	/* space dimension */
+    signed int		dimTime : 4;	/* time dimension */
+    signed int		dimCount : 4;	/* event dimension */
+    unsigned int	scaleSpace : 4;	/* one of PM_SPACE_* below */
+    unsigned int	scaleTime : 4;	/* one of PM_TIME_* below */
+    unsigned int	scaleCount : 4;	/* one of PM_COUNT_* below */
+    unsigned int	pad : 8;
 #else
-    int pad : 8;
-    int	scaleCount : 4;	/* one of PM_COUNT_* below */
-    int	scaleTime : 4;	/* one of PM_TIME_* below */
-    int	scaleSpace : 4;	/* one of PM_SPACE_* below */
-    int	dimCount : 4;	/* event dimension */
-    int	dimTime : 4;	/* time dimension */
-    int	dimSpace : 4;	/* space dimension */
+    unsigned int	pad : 8;
+    unsigned int	scaleCount : 4;	/* one of PM_COUNT_* below */
+    unsigned int	scaleTime : 4;	/* one of PM_TIME_* below */
+    unsigned int	scaleSpace : 4;	/* one of PM_SPACE_* below */
+    signed int		dimCount : 4;	/* event dimension */
+    signed int		dimTime : 4;	/* time dimension */
+    signed int		dimSpace : 4;	/* space dimension */
 #endif
 } pmUnits;			/* dimensional units and scale of value */
 
