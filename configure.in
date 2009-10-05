@@ -1165,21 +1165,13 @@ dnl			};
 dnl
 have_stat_type=false
 have_stat_name=false
-if test $target_os = freebsd
-then
-    # just too hard to work out for FreeBSD
-    AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC)
-    AC_DEFINE(HAVE_STAT_TIMESPEC)
-    have_stat_type=true
-    have_stat_name=true
-fi
 if test $have_stat_name = false
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtimespec>>changequote([, ]),
     sys/stat.h, [ have_stat_name=true; AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC) ])
 fi
-if test $have_stat_name = false -a $target_os != darwin
+if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtime>>changequote([, ]),
