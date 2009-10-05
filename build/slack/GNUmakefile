@@ -18,14 +18,20 @@ include $(TOPDIR)/src/include/builddefs
 TEMPLATES = pcp.info.in pcp.SlackBuild.in
 CONFFILES = pcp.info pcp.SlackBuild
 LDIRT += $(CONFFILES)
-LSRCFILES = $(TEMPLATES) $(CONFIGURE) README slack-desc
+LSRCFILES = $(TEMPLATES) README slack-desc
+SRC_MD5SUM = $(shell cat ../tar/pcp.md5sum.src 2>/dev/null)
 
-default install : $(CONFFILES)
+default default_pcp :
+
+install install_pcp :
 
 pack_pcp : 
 
+md5sum_pcp : $(CONFFILES)
+
 pcp.info: pcp.info.in
 	sed -e's|@package_name@|$(PACKAGE_NAME)|g' \
+	    -e's|@sources_md5sum@|$(SRC_MD5SUM)|g' \
 	    -e's|@package_version@|$(PACKAGE_VERSION)|g' < $? > $@
 
 pcp.SlackBuild: pcp.SlackBuild.in

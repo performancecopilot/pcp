@@ -26,9 +26,11 @@ LDIRT = $(wildcard *.src.tar.gz) pack_pcp.bin pcp.src \
 	pack_pro.bin pro.src deb
 
 # for clean and clobber
-SUBDIRS = tar rpm mac aix sun
+SUBDIRS = tar rpm mac aix sun slack
 
-# nothing to build here (it's all packaging)
+# generate scripts/configs
+MD5DIR = slack
+
 default install default_pcp install_pcp :
 
 pack :: pack_pcp
@@ -75,8 +77,11 @@ pcp.src : $(_FORCE)
 	else \
 	    sed -e "s;^\.;$$SRC_ROOT;" </tmp/$$$$.makesrc >$$CDIR/$@ ;\
 	    rm -f /tmp/$$$$.makesrc; \
-	    unset TAPE; SRCTAR=$${PKG_ROOT}-$(PACKAGE_BUILD).src.tar.gz;\
-	    $(TAR) -T $$CDIR/$@ -cf - | gzip > $$CDIR/tar/$$SRCTAR; \
+	    unset TAPE; MD5=$$CDIR/tar/pcp.md5sum.src; \
+	    SRCTAR=$$CDIR/tar/$${PKG_ROOT}-$(PACKAGE_BUILD).src.tar.gz;\
+	    $(TAR) -T $$CDIR/$@ -cf - | gzip > $$SRCTAR; \
+	    $(MD5SUM) -b $$SRCTAR | sed -e 's/ .*//g' > $$MD5; \
+	    $(MAKE) -j 1 -C $$CDIR/$(MD5DIR) md5sum_pcp; \
 	    test -f .census || touch .census; \
 	    if [ ! -L $$SRC_ROOT -a "$(TARGET_OS)" != mingw ] ; then \
 		if [ -n "$$SRC_ROOT" ]; then \
