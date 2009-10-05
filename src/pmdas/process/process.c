@@ -100,12 +100,14 @@ process_config_file_check(void) {
     }
   } else {
     last_errno = 0;
-#ifdef HAVE_ST_MTIME_WITH_E
-    if (statbuf.st_mtime != file_change.st_mtime) {
-#else    
-    if (statbuf.st_mtim.tv_sec != file_change.st_mtim.tv_sec ||
-        statbuf.st_mtim.tv_nsec != file_change.st_mtim.tv_nsec) {
+#if defined(HAVE_ST_MTIME_WITH_E)
+    if (memcmp(&statbuf.st_mtime, &file_change.st_mtime, sizeof(statbuf.st_mtime)) != 0)
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
+    if (memcmp(&statbuf.st_mtimespec, &file_change.st_mtimespec, sizeof(statbuf.st_mtimespec)) != 0)
+#else
+    if (memcmp(&statbuf.st_mtim, &file_change.st_mtim, sizeof(statbuf.st_mtim)) != 0)
 #endif
+    {
       process_clear_config_info();
       process_grab_config_info();
       file_change = statbuf;
