@@ -45,34 +45,38 @@ static int dbpmdaFlexInput (char *, int);
 
 %%
 
-instance	{ return INSTANCE; }
-profile		{ return PROFILE; }
-delete		{ return DEL; }
-close		{ return CLOSE; }
-debug		{ return DBG; }
-fetch		{ return FETCH; }
-watch		{ BEGIN FNAME; return WATCH; }
-desc		{ return DESC; }
-getdesc		{ return GETDESC; }
-exit		{ return QUIT; }
-help		{ return HELP; }
-namespace	{ BEGIN FNAME; return NAMESPACE; }
-none		{ return NONE; }
-open		{ return OPEN; }
-pipe		{ BEGIN FNAME; return PIPE; }
-quit		{ return QUIT; }
-q		{ return QUIT; }
-status		{ return STATUS; }
 add		{ return ADD; }
 all		{ return ALL; }
+children	{ return PMNS_CHILDREN; }
+close		{ return CLOSE; }
+debug		{ return DBG; }
+delete		{ return DEL; }
+desc		{ return DESC; }
 dso		{ BEGIN FNAME; return DSO; }
+exit		{ return QUIT; }
+fetch		{ return FETCH; }
+getdesc		{ return GETDESC; }
+help		{ return HELP; }
+indom		{ return INDOM; }
+instance	{ return INSTANCE; }
+name		{ return PMNS_NAME; }
+namespace	{ BEGIN FNAME; return NAMESPACE; }
+none		{ return NONE; }
+off		{ return OFF; }
+on		{ return ON; }
+open		{ return OPEN; }
+pipe		{ BEGIN FNAME; return PIPE; }
+pmid		{ return PMNS_PMID; }
+profile		{ return PROFILE; }
+q		{ return QUIT; }
+quit		{ return QUIT; }
+status		{ return STATUS; }
 store		{ return STORE; }
 text		{ return INFO; }
-indom		{ return INDOM; }
 timer		{ return TIMER; }
-on		{ return ON; }
-off		{ return OFF; }
+traverse	{ return PMNS_TRAVERSE; }
 wait		{ return WAIT; }
+watch		{ BEGIN FNAME; return WATCH; }
 \?		{ return HELP; }
 \=		{ return EQUAL; }
 \,		{ return COMMA; }

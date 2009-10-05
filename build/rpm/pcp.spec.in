@@ -274,5 +274,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Mon Oct 5 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-7
+- merged Kenj's tree with PMDA_INTERFACE_4 and dynamic PMNS
+- ReplacePmnsSubtree fix bad signal handling botch
+
 * Mon Sep 28 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-6
 - bump to v3.0.0 and reconcile spec with Fedora spec

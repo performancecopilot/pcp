@@ -327,11 +327,16 @@ END					{ exit status }'
 	if pminfo -h localhost -v pmcd.version >/dev/null 2>&1
 	then
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
+	    # allow signal processing to be done before checking status
+	    sleep 2
 	    __wait_for_pmcd
-	    $__pmcd_is_dead && __restore_pmcd
-  	    # give PMDA a chance to cleanup, especially if a new one about
-	    # to be installed
+	    if $__pmcd_is_dead
+	    then
+		__restore_pmcd
+		# give PMCD a chance to get back into original state
 	    sleep 3
+		__wait_for_pmcd
+	    fi
 	fi
     fi
     rm -f /tmp/$$.pmcd.conf
@@ -344,7 +349,8 @@ END					{ exit status }'
 	if [ ! -z "$__pids" ]
 	then
 	    pmsignal -s $__sig $__pids >/dev/null 2>&1
-	    sleep 3
+	    # allow signal processing to be done
+	    sleep 2
 	else
 	    break
 	fi
@@ -407,6 +413,8 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
     if pminfo -h localhost -v pmcd.version >/dev/null 2>&1
     then
 	pmsignal -a -s HUP pmcd >/dev/null 2>&1
+	# allow signal processing to be done before checking status
+	sleep 2
 	__wait_for_pmcd
 	$__pmcd_is_dead && __restore_pmcd
     else
@@ -1050,7 +1058,7 @@ _install()
 	    help_version=1
 	    case $pmda_interface
 	    in
-		2|3)	# PMDA_INTERFACE_2 or PMDA_INTERFACE_3
+		2|3|4)	# PMDA_INTERFACE_2 or PMDA_INTERFACE_3 or PMDA_INTERFACE_4
 			help_version=2
 			;;
 	    esac
@@ -1123,6 +1131,7 @@ _remove()
 	then
 	    rm -f $PMNSDIR/$__n
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
+	    sleep 2
 	    echo "done"
 	else
 	    if grep 'Non-terminal "'"$__n"'" not found' $tmp >/dev/null

@@ -261,27 +261,27 @@ init_tables(int dom)
 
     /* set domain in instance domain correctly */
     indomp = (__pmInDom_int *)&logindom;
-    indomp->pad = 0;
+    indomp->flag = 0;
     indomp->domain = dom;
     indomp->serial = INDOM_PMLOGGERS;
     indomp = (__pmInDom_int *)&regindom;
-    indomp->pad = 0;
+    indomp->flag = 0;
     indomp->domain = dom;
     indomp->serial = INDOM_REGISTER;
     indomp = (__pmInDom_int *)&pmdaindom;
-    indomp->pad = 0;
+    indomp->flag = 0;
     indomp->domain = dom;
     indomp->serial = INDOM_PMDAS;
     indomp = (__pmInDom_int *)&pmieindom;
-    indomp->pad = 0;
+    indomp->flag = 0;
     indomp->domain = dom;
     indomp->serial = INDOM_PMIES;
     indomp = (__pmInDom_int *)&bufindom;
-    indomp->pad = 0;
+    indomp->flag = 0;
     indomp->domain = dom;
     indomp->serial = INDOM_POOL;
     indomp = (__pmInDom_int *)&clientindom;
-    indomp->pad = 0;
+    indomp->flag = 0;
     indomp->domain = dom;
     indomp->serial = INDOM_CLIENT;
 

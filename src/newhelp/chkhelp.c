@@ -70,12 +70,14 @@ next(int *ident, int *type)
     pmid = hp->index[nextidx].pmid;
     nextidx++;
 
-    if (pi->pad == 0) {
+    if (pi->flag == 0) {
+	/* real PMID */
 	*ident = (int)pmid;
 	*type = 1;
     }
     else {
-	pi->pad = 0;
+        /* special hack, this is encoding a domain id, not a PMID */
+	pi->flag = 0;
 	*ident = (int)pmid;
 	*type = 2;
     }

@@ -166,7 +166,7 @@ pmdaGetInDomHelp(int handle, pmInDom indom, int type)
      * set a bit here to disambiguate pmInDom from pmID
      * -- this "hack" is shared between here and newhelp/newhelp.c
      */
-    pip->pad = 1;
+    pip->flag = 1;
 
     /* search backwards ... pmInDom entries are at the end */
     for (i = hp->numidx; i >= 1; i--) {

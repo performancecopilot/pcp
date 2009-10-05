@@ -79,7 +79,7 @@ extern __pmProfile	*profile;
 extern int		profile_changed;
 
 /* status info */
-extern char		*pmdaName;
+extern char		*myPmdaName;
 
 /* help text formats */
 #define HELP_USAGE	0

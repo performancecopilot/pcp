@@ -52,8 +52,12 @@ static char	*cpp_path[] = {
 #define BOGUS	10
 
 #define UNKNOWN_MARK_STATE -1           /* tree not all marked the same way */
-#define PMID_MASK	0x3fffffff	/* 30 bits of PMID */
-#define MARK_BIT	0x40000000	/* mark bit */
+/*
+ * Note: bit masks below are designed to clear and set the "flag" field
+ *       of a __pmID_int (i.e. a PMID)
+ */
+#define PMID_MASK	0x7fffffff	/* 31 bits of PMID */
+#define MARK_BIT	0x80000000	/* mark bit */
 
 
 static int	lineno;
@@ -343,7 +347,7 @@ lex(int reset)
     char	*tp;
     int		colon;
     int		type;
-    int		d, c, e;
+    int		d, c, i;
     __pmID_int	pmid_int;
 
     if (reset) {
@@ -484,23 +488,65 @@ skipline:
 	if (*tp == ':') {
 	    if (++colon > 3) return BOGUS;
 	}
-	else if (!isdigit((int)*tp)) return BOGUS;
+	else if (!isdigit((int)*tp) && *tp != '*') return BOGUS;
     }
 
     /*
      * Internal PMID format
-     * domain 8 bits
+     * domain 9 bits
      * cluster 12 bits
-     * enumerator 10 bits
+     * item 10 bits
      */
-    if (sscanf(tokbuf, "%d:%d:%d", &d, &c, &e) != 3 || d > 255 || c > 4095 || e > 1023) {
-	err("Illegal PMID");
-	return BOGUS;
+    if (sscanf(tokbuf, "%d:%d:%d", &d, &c, &i) == 3) {
+	if (d > 510) {
+	    err("Illegal domain field in PMID");
+	    return BOGUS;
+	}
+	else if (c > 4095) {
+	    err("Illegal cluster field in PMID");
+	    return BOGUS;
+	}
+	else if (i > 1023) {
+	    err("Illegal item field in PMID");
+	    return BOGUS;
+	}
+	pmid_int.flag = 0;
+	pmid_int.domain = d;
+	pmid_int.cluster = c;
+	pmid_int.item = i;
     }
-    pmid_int.pad = 0;
-    pmid_int.domain = d;
-    pmid_int.cluster = c;
-    pmid_int.item = e;
+    else {
+	for (tp = tokbuf; *tp; tp++) {
+	    if (*tp == ':') {
+		if (strcmp("*:*", ++tp) != 0) {
+		    err("Illegal PMID");
+		    return BOGUS;
+		}
+		break;
+	    }
+	}
+	if (sscanf(tokbuf, "%d:", &d) != 1) {
+	    err("Illegal PMID");
+	    return BOGUS;
+	}
+	if (d > 510) {
+	    err("Illegal domain field in dynamic PMID");
+	    return BOGUS;
+	}
+	else {
+	    /*
+	     * this node is the base of a dynamic subtree in the PMNS
+	     * ... identified by setting the domain field to the reserved
+	     * value DYNAMIC_PMID and storing the real domain of the PMDA
+	     * that can enumerate the subtree in the cluster field, while
+	     * the item field is not used
+	     */
+	    pmid_int.flag = 0;
+	    pmid_int.domain = DYNAMIC_PMID;
+	    pmid_int.cluster = d;
+	    pmid_int.item = 0;
+	}
+    }
     tokpmid = *(pmID *)&pmid_int;
 
     return PMID;
@@ -1692,7 +1738,10 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
         __pmnsNode	*np;
 
 	for (i = 0; i < numpmid; i++) {
-            /* if we locate it and its a leaf */
+            /*
+	     * if we locate the name and it is a leaf in the PMNS
+	     * this is good
+	     */
 	    if ((np = locate(namelist[i], curr_pmns->root)) != NULL ) {
                if (np->first == NULL)
 		  pmidlist[i] = np->pmid;
@@ -1702,8 +1751,37 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
                }
             }
 	    else {
-		sts = PM_ERR_NAME;
-		pmidlist[i] = PM_ID_NULL;
+		/*
+		 * did not match name ... return PM_ERR_NAME, unless name
+		 * prefix matches a name that is the root of a dynamic
+		 * subtree of the PMNS
+		 */
+		char	*p;
+		for (p = namelist[i]; *p; p++) {
+		    if (*p == '.') {
+			char	*pfx;
+			int	pfx_len;
+			pfx_len = p - namelist[i];
+			pfx = strndup(namelist[i], pfx_len+1);
+			if (pfx == NULL) {
+			    /* not sure this is recoverable ... */
+			    sts = -errno;
+			    break;
+			}
+			pfx[pfx_len] = '\0';
+			np = locate(pfx, curr_pmns->root);
+			free(pfx);
+			if (np != NULL && np->first == NULL &&
+			   ((__pmID_int *)&np->pmid)->domain == DYNAMIC_PMID) {
+			  pmidlist[i] = np->pmid;
+			  break;
+			}
+		    }
+		}
+		if (*p == '\0') {
+		    sts = PM_ERR_NAME;
+		    pmidlist[i] = PM_ID_NULL;
+		}
 	    }
 	}
 
@@ -1916,8 +1994,18 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	    for (i = 0, tnp = np->first; tnp != NULL; tnp = tnp->next) {
 	        if ((tnp->pmid & MARK_BIT) == 0) {
 		    result[i] = p;
-		    if (statuslist != NULL) 
-		      status[i] = (tnp->first != NULL); /* has children */
+		    /*
+		     * a name at the root of a dynamic metrics subtree
+		     * needs some special handling ... they will have a
+		     * "special" PMID, but need the status set to indicate
+		     * they are not a leaf node of the PMNS
+		     */
+		    if (statuslist != NULL) {
+			if (((__pmID_int *)&tnp->pmid)->domain == DYNAMIC_PMID)
+			  status[i] = 1;
+			else
+			  status[i] = (tnp->first != NULL); /* has children */
+		    }
 		    strcpy(result[i], tnp->name);
 		    p += strlen(tnp->name) + 1;
 		    i++;
@@ -2091,8 +2179,11 @@ pmNameID(pmID pmid, char **name)
     else if (pmns_location == PMNS_LOCAL) {
     	__pmnsNode	*np;
 	for (np = curr_pmns->htab[pmid % curr_pmns->htabsize]; np != NULL; np = np->hash) {
-	    if (np->pmid == pmid)
-		return backname(np, name);
+	    if (np->pmid == pmid) {
+		if (((__pmID_int *)&np->pmid)->domain != DYNAMIC_PMID)
+		    return backname(np, name);
+		return PM_ERR_PMID;
+	    }
 	}
     	return PM_ERR_PMID;
     }

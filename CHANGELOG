@@ -1,5 +1,5 @@
-pcp-3.0.0 (28 September 2009)
-    - packaging split into pcp, pcp-libs and pcp-libs-devel
+pcp-3.0.0 (5 October 2009)
+    - RPM packaging split into pcp, pcp-libs and pcp-libs-devel
       pcp-libs is common - it's required by pcp and by pcp-libs-devel but
       pcp and pcp-libs-devel can be installed with or without each other.
     - added separate specific licenses for the new subpackages,
@@ -20,21 +20,27 @@ pcp-3.0.0 (28 September 2009)
     - nuke the migrate_pcp_var_dir, script and it's %post scriptlet
     - default "chkconfig off" for all PCP services (retain settings on upgrade)
     - clean-up and simplify the %post scriptlets (rather dramatically)
-    - don't install static libraries, we have the debug package for that
+    - don't ship static libraries in Fedora, we have the debug package for that
     - install .NeedRebuild, add to %files and remove crud from %post scriptlets
     - added %changelog in RPM spec and moved %files to end just before %changelog
     - move demos, examples and demo PMDAS to the libs-devel package since they
       are not used for production (but are useful for devel and needed for QA).
     - dont install trace demo binaries since src is installed anyway
     - reconciled build/rpm/pcp.spec.in with build/rpm/pcp_fedora.spec
-    - git merged the final 2.9.1 source tree
-    - numerous other minor changes, mostly for inclusion in Fedora
     - integrated RPM packaging support for perl-PCP-PMDA, perl-PCP-MMV and
       perl-PCP-LogSummary (still need to nuke cpanflute)
     - RPM build requires perl(ExtUtils::MakeMaker) rather than perl-extutils-makemaker
       (this is the standard notation)
     - For easier upgrades, the perl PMDAs only really require pcp >= package version
       (until we change or extend an API).
+    - merge Kenj's tree, which includes commits from 2.9.3
+    - PMDA_INTERFACE_4 and the support of dynamic subtrees of the PMNS
+      where the PMDA (not PMCD) maintains knowledge of the PMNS.
+    - ReplacePmnsSubtree fix bad signal handling botch
+
+pcp-2.9.3 (23 September 2009)
+    - configure.in fix for Windows iptypes.h header.
+    - Fixup Windows SQL Server metrics on 64 bit platforms.
 
 pcp-2.9.2 (7 September 2009)
     - Final iteration on pmval sample count changes.

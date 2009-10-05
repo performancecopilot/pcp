@@ -63,17 +63,27 @@ windows_collect_metric(pdh_metric_t *mp, LPSTR pat, pdh_value_t *vp)
 			pmIDStr(mp->desc.pmid), pat, pdherrstr(pdhsts));
 	    vp->flags |= V_ERROR_SEEN;
 	}
-    } else if (mp->ctype == PERF_ELAPSED_TIME) {
+    } else if ((mp->ctype == PERF_ELAPSED_TIME) ||
+		mp->ctype == PERF_LARGE_RAW_FRACTION) {
 	PDH_FMT_COUNTERVALUE fmt;
+	DWORD type;
 
-	pdhsts = PdhGetFormattedCounterValue(counthdl, PDH_FMT_LARGE, 0, &fmt);
+	if (mp->ctype == PERF_ELAPSED_TIME)
+	    type = PDH_FMT_LARGE;
+	else	/* PERF_LARGE_RAW_FRACTION */
+	    type = PDH_FMT_DOUBLE;
+
+	pdhsts = PdhGetFormattedCounterValue(counthdl, type, NULL, &fmt);
 	if (pdhsts != ERROR_SUCCESS) {
-	    __pmNotifyErr(LOG_ERR, "pdh_fetch: Error: PdhGetRawCounterValue "
+	    __pmNotifyErr(LOG_ERR, "Error: PdhGetFormattedCounterValue "
 			"failed for metric %s inst %d: %s\n",
 			pmIDStr(mp->desc.pmid), vp->inst, pdherrstr(pdhsts));
 	    vp->flags = V_NONE;	/* no values for you! */
-	} else {
+	} else if (mp->ctype == PERF_ELAPSED_TIME) {
 	    vp->atom.ull = fmt.largeValue;
+	    sts = 0;
+	} else {	/* PERF_LARGE_RAW_FRACTION */
+	    vp->atom.d = fmt.doubleValue;
 	    sts = 0;
 	}
     } else {
@@ -87,9 +97,6 @@ windows_collect_metric(pdh_metric_t *mp, LPSTR pat, pdh_value_t *vp)
 	    vp->flags = V_NONE;	/* no values for you! */
 	} else {
 	    switch (mp->ctype) {
-		/*
-		 * see also open.c for Pdh metric semantics
-		 */
 		case PERF_COUNTER_COUNTER:
 		case PERF_COUNTER_RAWCOUNT:
 		    /* these counters are only 32-bit */

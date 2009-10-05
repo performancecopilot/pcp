@@ -488,7 +488,7 @@ new(CLASS,name,domain)
 	    dispatch.version.two.text = text;
 	}
 	else {
-	    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmdaname, domain,
+	    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmdaname, domain,
 			logfile, helpfile);
 	}
 	if (!getenv("PCP_PERL_PMNS") && !getenv("PCP_PERL_DOMAIN")) {
