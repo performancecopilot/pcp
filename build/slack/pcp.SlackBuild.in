@@ -3,7 +3,7 @@
 # Slackware build script for pcp
 
 # Roman Revyakin <rrevyakin@aconex.com> 
-# ver 1.0 2009-10-01 
+# ver 1.1 2009-10-06 
 
 PRGNAM=@package_name@
 VERSION=@package_version@
@@ -50,6 +50,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --mandir=/usr/man \
   --infodir=/usr/info \
   --datadir="/usr/share/$PRGNAM" \
+  --includedir="/usr/include/$PRGNAM" \
   --build=$ARCH-slackware-linux
 
 DIST_ROOT="$PKG" make install || exit 1 
