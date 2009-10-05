@@ -5,10 +5,10 @@
 # Roman Revyakin <rrevyakin@aconex.com> 
 # ver 1.0 2009-10-01 
 
-PRGNAM=pcp
-VERSION=2.9.2
+PRGNAM=@package_name@
+VERSION=@package_version@
 ARCH=${ARCH:-i486}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-@package_build@}
 TAG=${TAG:-_SBo}
 
 CWD=$(pwd)
