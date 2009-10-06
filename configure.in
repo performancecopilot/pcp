@@ -436,6 +436,13 @@ fi
 makedepend=$MAKEDEPEND
 AC_SUBST(makedepend)
 
+dnl check if the md5sum program is available
+if test -z "$MD5SUM"; then
+   AC_PATH_PROG(MD5SUM, md5sum, /bin/true)
+fi
+md5sum=$MD5SUM
+AC_SUBST(md5sum)
+
 dnl check if the dpkg program is available
 if test -z "$DPKG"; then
    AC_PATH_PROG(DPKG, dpkg)
