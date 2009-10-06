@@ -1,6 +1,8 @@
 pcp (3.0.0) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Original Alpha build issue resolved (closes: #541547)
+  * More recent Alpha build issue resolved too (closes: #545851)
 
  -- Nathan Scott <nathans@debian.org>  Wed, 07 Oct 2009 09:12:39 +1100
 
