@@ -1,4 +1,6 @@
 pcp-3.0.0 (5 October 2009)
+    - PMDA_INTERFACE_4 and the support of dynamic subtrees of the PMNS
+      where the PMDA (not PMCD) maintains knowledge of the PMNS.
     - RPM packaging split into pcp, pcp-libs and pcp-libs-devel
       pcp-libs is common - it's required by pcp and by pcp-libs-devel but
       pcp and pcp-libs-devel can be installed with or without each other.
@@ -17,27 +19,24 @@ pcp-3.0.0 (5 October 2009)
       Arch dependent binaries should not be installed below /usr/share.
     - Delete unneeded "explicit script interpreter" in several places
       to keep rpmlint happy
-    - remove setuid from pmpost, not needed (and not in debian either)
-    - nuke the migrate_pcp_var_dir, script and it's %post scriptlet
-    - default "chkconfig off" for all PCP services (retain settings on upgrade)
-    - clean-up and simplify the %post scriptlets (rather dramatically)
-    - don't ship static libraries in Fedora, we have the debug package for that
-    - install .NeedRebuild, add to %files and remove crud from %post scriptlets
-    - added %changelog in RPM spec and moved %files to end just before %changelog
-    - move demos, examples and demo PMDAS to the libs-devel package since they
+    - Remove setuid from pmpost, not needed (and not in debian either)
+    - Nuke the migrate_pcp_var_dir, script and it's %post scriptlet
+    - Default "chkconfig off" for all PCP services (retain settings on upgrade)
+    - Clean-up and simplify the %post scriptlets (rather dramatically)
+    - Don't ship static libraries in Fedora, we have the debug package for that
+    - Install .NeedRebuild, add to %files and remove crud from %post scriptlets
+    - Added %changelog in RPM spec and moved %files to end before %changelog
+    - Move demos, examples and demo PMDAS to the libs-devel package since they
       are not used for production (but are useful for devel and needed for QA).
-    - dont install trace demo binaries since src is installed anyway
-    - reconciled build/rpm/pcp.spec.in with build/rpm/pcp_fedora.spec
-    - integrated RPM packaging support for perl-PCP-PMDA, perl-PCP-MMV and
+    - Don't install trace demo binaries since src is installed anyway
+    - Reconciled build/rpm/pcp.spec.in with build/rpm/pcp_fedora.spec
+    - Integrated RPM packaging support for perl-PCP-PMDA, perl-PCP-MMV and
       perl-PCP-LogSummary (still need to nuke cpanflute)
-    - RPM build requires perl(ExtUtils::MakeMaker) rather than perl-extutils-makemaker
-      (this is the standard notation)
-    - For easier upgrades, the perl PMDAs only really require pcp >= package version
-      (until we change or extend an API).
-    - merge Kenj's tree, which includes commits from 2.9.3
-    - PMDA_INTERFACE_4 and the support of dynamic subtrees of the PMNS
-      where the PMDA (not PMCD) maintains knowledge of the PMNS.
-    - ReplacePmnsSubtree fix bad signal handling botch
+    - RPM build requires perl(ExtUtils::MakeMaker) rather than
+      perl-extutils-makemaker (this is the standard notation)
+    - For easier upgrades, the perl PMDAs only really require pcp >= package
+      version (until we change or extend an API).
+    - ReplacePmnsSubtree fix bad signal handling botch (affecting MMV PMDA)
 
 pcp-2.9.3 (23 September 2009)
     - configure.in fix for Windows iptypes.h header.
