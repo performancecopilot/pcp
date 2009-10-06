@@ -393,13 +393,6 @@ else
 fi
 AC_SUBST(rpmprog)
 
-dnl check if the cpanflute2 program is available (perl rpm builder)
-if test -z "$CPANFLUTE"; then
-    AC_PATH_PROG(CPANFLUTE, cpanflute2)
-fi
-cpanflute=$CPANFLUTE
-AC_SUBST(cpanflute)
-
 dnl check if the pod2man program is available (perl man page builder)
 if test -z "$POD2MAN"; then
     AC_PATH_PROG(POD2MAN, pod2man)

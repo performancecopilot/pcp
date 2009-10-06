@@ -159,7 +159,6 @@ MKINSTALLP = @mkinstallp@
 DLLTOOL = @dlltool@
 RPMBUILD= @rpmbuild@
 RPM	= @rpm@
-CPANFLUTE = @cpanflute@
 POD2MAN = @pod2man@
 GENDIST	= @gendist@
 DPKG	= @dpkg@
