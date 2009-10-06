@@ -349,7 +349,7 @@ _check_agent()
     sts=0
 
     pminfo -f $agent 2>&1 | _filter $agent > $tmp.fetch 2>&1
-    pminfo -v $agent > $tmp.verify 2>&1
+    pminfo -v $agent 2>&1 | LC_COLLATE=POSIX sort >$tmp.verify
     cat $tmp.fetch
     if grep warnings $tmp.fetch > /dev/null 2>&1
     then
