@@ -1249,22 +1249,25 @@ sample_children(char *name, int traverse, char ***offspring, int **status, pmdaE
 	}
 	if (j == nmatch) {
 	    nmatch++;
-	    if ((chn = (char **)realloc(chn, nmatch*sizeof(chn[0]))) == NULL)
-		/* TODO cleanup */
-		return -errno;
-	    if ((sts = (int *)realloc(sts, nmatch*sizeof(sts[0]))) == NULL) {
-		/* TODO cleanup */
-		return -errno;
+	    if ((chn = (char **)realloc(chn, nmatch*sizeof(chn[0]))) == NULL) {
+		j = -errno;
+		goto fail;
+	    }
+	    if ((sts = (int *)realloc(sts, nmatch*sizeof(sts[0]))) == NULL) { 
+		j = -errno;
+		goto fail;
 	    }
 	    if (traverse == 0) {
 		/*
 		 * descendents only ... just want the next component of
 		 * PMNS name
 		 */
-		if ((chn[nmatch-1] = strndup(&q[namelen+1], tlen)) == NULL) {
-		    /* TODO cleanup */
-		    return -errno;
+		if ((chn[nmatch-1] = (char *)malloc(tlen+1)) == NULL) {
+		    j = -errno;
+		    goto fail;
 		}
+		strncpy(chn[nmatch-1], &q[namelen+1], tlen);
+		chn[nmatch-1][tlen] = '\0';
 		if (*qend == '.')
 		    sts[nmatch-1] = PMNS_NONLEAF_STATUS;
 		else
@@ -1277,8 +1280,8 @@ sample_children(char *name, int traverse, char ***offspring, int **status, pmdaE
 		 */
 		tlen = pfxlen + strlen(dynamic_ones[i].name) + 2;
 		if ((chn[nmatch-1] = malloc(tlen)) == NULL) {
-		    /* TODO cleanup */
-		    return -errno;
+		    j = -errno;
+		    goto fail;
 		}
 		strncpy(chn[nmatch-1], name, pfxlen);
 		chn[nmatch-1][pfxlen] = '.';
@@ -1294,9 +1297,10 @@ sample_children(char *name, int traverse, char ***offspring, int **status, pmdaE
 	*status = NULL;
     }
     else {
-	if ((chn = (char **)realloc(chn, nmatch*sizeof(chn[0])+len)) == NULL)
-	    /* TODO cleanup */
-	    return -errno;
+	if ((chn = (char **)realloc(chn, nmatch*sizeof(chn[0])+len)) == NULL) {
+	    j = -errno;
+	    goto fail;
+	}
 	q = (char *)&chn[nmatch];
 	for (j = 0; j < nmatch; j++) {
 	    strcpy(q, chn[j]);
@@ -1308,6 +1312,20 @@ sample_children(char *name, int traverse, char ***offspring, int **status, pmdaE
 	*status = sts;
     }
     return nmatch;
+
+fail:
+    /*
+     * come here with j as -errno, and some allocation failure for
+     * sts[] or chn[] or chn[nmatch-1][]
+     */
+     if (sts != NULL) free(sts);
+     if (chn != NULL) {
+	for (i = 0; i < nmatch-1; i++) {
+	    if (chn[i] != NULL) free(chn[i]);
+	}
+	free(chn);
+     }
+     return j;
 }
 
 /*
