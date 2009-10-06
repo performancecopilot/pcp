@@ -88,6 +88,7 @@ interp_bug2
 interp.index
 interp.meta
 ipc
+killparent
 localconfig.h
 logcontrol
 mark-bug
