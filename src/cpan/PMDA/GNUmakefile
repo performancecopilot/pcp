@@ -62,7 +62,7 @@ install: default
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
 	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT
 	find $$DIST_ROOT -name .packlist -exec mv '{}' $(TOPDIR)/perl-pcp-pmda.list ';'
-	sed -e s@$$DIST_ROOT@@ -e 's/\.[0-9]pm$$/&.gz/' -i $(TOPDIR)/perl-pcp-pmda.list
+	sed -e s@$$DIST_ROOT@@ -e 's/\.[0-9]pm$$/&.gz/' -i.tmp $(TOPDIR)/perl-pcp-pmda.list
 	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';'
 endif
 
