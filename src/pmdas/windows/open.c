@@ -636,13 +636,10 @@ windows_visit_metric(pdh_metric_t *pmp, pdh_metric_visitor_t visitor)
 	pdhsts = PdhExpandCounterPathA(pmp->pat, pattern, &result_sz);
     }
     if (pdhsts != PDH_CSTATUS_VALID_DATA) {
-	if (pmp->pat[0] == '\0') {
+	if (pmp->pat[0] != '\\') {
 	    /*
-	     * Empty path string.  Used to denote metrics that are
-	     * derived and do not have an explicit path or retrieval
-	     * need, other than to make sure the qid value will
-	     * force the corresponding query to be run before a PCP
-	     * fetch ... do nothing here
+	     * Skip metrics that are derived and do not have an explicit
+	     * PDH API retrieval needed ... do nothing here.
 	     */
 	    ;
 	}
