@@ -127,7 +127,7 @@ make default_pcp
 %install
 rm -Rf $RPM_BUILD_ROOT
 export DIST_ROOT=$RPM_BUILD_ROOT
-%makeinstall
+make install_pcp
 
 # Fix stuff we do/don't want to ship
 rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
