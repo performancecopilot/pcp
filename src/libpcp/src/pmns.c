@@ -1762,12 +1762,13 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 			char	*pfx;
 			int	pfx_len;
 			pfx_len = p - namelist[i];
-			pfx = strndup(namelist[i], pfx_len+1);
+			pfx = (char *)malloc(pfx_len+1);
 			if (pfx == NULL) {
 			    /* not sure this is recoverable ... */
 			    sts = -errno;
 			    break;
 			}
+			strncpy(pfx, namelist[i], pfx_len);
 			pfx[pfx_len] = '\0';
 			np = locate(pfx, curr_pmns->root);
 			free(pfx);
