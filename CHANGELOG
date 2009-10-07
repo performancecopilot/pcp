@@ -4,7 +4,7 @@ pcp-3.0.0 (5 October 2009)
     - RPM packaging split into pcp, pcp-libs and pcp-libs-devel
       pcp-libs is common - it's required by pcp and by pcp-libs-devel but
       pcp and pcp-libs-devel can be installed with or without each other.
-    - added separate specific licenses for the new subpackages,
+    - Added separate specific licenses for the new subpackages,
       particularly pcp-libs, which is LGPL.
     - Added ldconfig %post and %postun scriptlets for -libs
     - Don't explicitly require Infiniband libs, since they're libs and RPM
@@ -37,6 +37,8 @@ pcp-3.0.0 (5 October 2009)
     - For easier upgrades, the perl PMDAs only really require pcp >= package
       version (until we change or extend an API).
     - ReplacePmnsSubtree fix bad signal handling botch (affecting MMV PMDA)
+    - Fix pmcd.timezone metric such that value updates on daylight savings
+      (or other timezone) changes.
 
 pcp-2.9.3 (23 September 2009)
     - configure.in fix for Windows iptypes.h header.
