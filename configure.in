@@ -713,7 +713,7 @@ dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(gettimeofday mktime nanosleep putenv)
+AC_CHECK_FUNCS(gettimeofday mktime nanosleep unsetenv)
 AC_CHECK_FUNCS(gethostname hstrerror select socket)
 AC_CHECK_FUNCS(uname syslog __clone fcntl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
