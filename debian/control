@@ -5,7 +5,7 @@ Homepage: http://oss.sgi.com/projects/pcp
 Maintainer: Nathan Scott <nathans@debian.org>
 Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
 Build-Depends: autoconf, bison, flex, gawk, procps, debhelper (>= 5), perl (>= 5.6)
-Standards-Version: 3.8.1
+Standards-Version: 3.8.3
 
 Package: pcp
 Depends: ${shlibs:Depends}, gawk, procps, sysv-rc-conf, cpp
@@ -169,7 +169,7 @@ Package: libpcp-pmda-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: ${shlibs:Depends}, libpcp-pmda3, ${perl:Depends}
+Depends: ${shlibs:Depends}, libpcp-pmda3, perl (>= 5)
 Description: Performance Co-Pilot Domain Agent Perl module
  The PCP::PMDA Perl module contains the language bindings for
  building Performance Metric Domain Agents (PMDAs) using Perl.
@@ -186,7 +186,7 @@ Package: libpcp-logsummary-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: pcp, ${perl:Depends}
+Depends: pcp, perl (>= 5)
 Description: Performance Co-Pilot historical log summary module
  The PCP::LogSummary module provides a Perl module for using the
  statistical summary data produced by the Performance Co-Pilot
@@ -204,7 +204,7 @@ Package: libpcp-mmv-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: ${shlibs:Depends}, libpcp-mmv1, ${perl:Depends}
+Depends: libpcp-mmv1, perl (>= 5)
 Description: Performance Co-Pilot Memory Mapped Value Perl module
  The PCP::MMV module contains the Perl language bindings for
  building scripts instrumented with the Performance Co-Pilot

@@ -103,8 +103,12 @@ typedef struct {
 PMCD_EXTERN AgentInfo	*agent;		/* Array of domain agent structs */
 PMCD_EXTERN int		nAgents;	/* Number of agents in array */
 
-/* DomainId-to-AgentIndex map */
-#define MAXDOMID	254		/* 8 bits of DomainId, 255 is special */
+/*
+ * DomainId-to-AgentIndex map
+ * 9 bits of DomainId, max value is 510 because 511 is special (see
+ * DYNAMIC_PMID in impl.h)
+ */
+#define MAXDOMID	510
 extern int		mapdom[];	/* the map */
 
 /* Domain agent-PMCD connection types (AgentInfo.ipcType) */

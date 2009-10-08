@@ -261,27 +261,27 @@ init_tables(int dom)
 
     /* set domain in instance domain correctly */
     indomp = (__pmInDom_int *)&logindom;
-    indomp->pad = 0;
+    indomp->flag = 0;
     indomp->domain = dom;
     indomp->serial = INDOM_PMLOGGERS;
     indomp = (__pmInDom_int *)&regindom;
-    indomp->pad = 0;
+    indomp->flag = 0;
     indomp->domain = dom;
     indomp->serial = INDOM_REGISTER;
     indomp = (__pmInDom_int *)&pmdaindom;
-    indomp->pad = 0;
+    indomp->flag = 0;
     indomp->domain = dom;
     indomp->serial = INDOM_PMDAS;
     indomp = (__pmInDom_int *)&pmieindom;
-    indomp->pad = 0;
+    indomp->flag = 0;
     indomp->domain = dom;
     indomp->serial = INDOM_PMIES;
     indomp = (__pmInDom_int *)&bufindom;
-    indomp->pad = 0;
+    indomp->flag = 0;
     indomp->domain = dom;
     indomp->serial = INDOM_POOL;
     indomp = (__pmInDom_int *)&clientindom;
-    indomp->pad = 0;
+    indomp->flag = 0;
     indomp->domain = dom;
     indomp->serial = INDOM_CLIENT;
 
@@ -932,6 +932,22 @@ simabi()
 #endif
 }
 
+static char *
+tzinfo(void)
+{
+    /*
+     * __pmTimezone() caches its result in $TZ - pmcd is long running,
+     * however, and we *really* want to see changes in the timezone or
+     * daylight savings state via pmcd.timezone, so we clear TZ first.
+     */
+#ifdef HAVE_UNSETENV
+    unsetenv("TZ");
+#else	/* MINGW */
+    putenv("TZ=");
+#endif
+    return __pmTimezone();
+}
+
 static int
 pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
@@ -951,7 +967,6 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     __pmID_int		*pmidp;
     pmAtomValue		atom;
     __pmLogPort		*lpp;
-    static char		*tz;
 
     if (numpmid > maxnpmids) {
 	if (res != NULL)
@@ -1024,8 +1039,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.ul = _pmcd_timeout;
 				break;
 			case 5:		/* timezone $TZ */
-				tz = __pmTimezone();
-				atom.cp = tz;
+				atom.cp = tzinfo();
 				break;
 			case 6:		/* simabi (pmcd calling convention) */
 				atom.cp = simabi();

@@ -39,7 +39,7 @@ install:	$(CMDTARGET) $(OTHERS)
 	$(INSTALL) -m 755 pmlogger $(PCP_BINADM_DIR)/pmlogger
 
 YFLAGS += -v
-gram.tab.h:	gram.y
+gram.tab.h gram.tab.c:	gram.y
 	$(YACC) -d -b `basename $< .y` $<
 
 lex.o gram.tab.o:	gram.tab.h

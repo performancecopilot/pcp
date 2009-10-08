@@ -94,7 +94,7 @@ main(int argc, char **argv)
 
     snprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, SAMPLE,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, SAMPLE,
 		"sample.log", helppath);
 
     if (pmdaGetOpt(argc, argv, "D:d:i:l:pu:?", &dispatch, &errflag) != EOF)

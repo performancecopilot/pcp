@@ -66,6 +66,7 @@ then
     test -f /etc/fedora-release && target_distro=fedora
     test -f /etc/redhat-release && target_distro=redhat
     test -f /etc/debian_version && target_distro=debian
+    test -f /etc/slackware-version && target_distro=slackware
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS)
@@ -393,13 +394,6 @@ else
 fi
 AC_SUBST(rpmprog)
 
-dnl check if the cpanflute2 program is available (perl rpm builder)
-if test -z "$CPANFLUTE"; then
-    AC_PATH_PROG(CPANFLUTE, cpanflute2)
-fi
-cpanflute=$CPANFLUTE
-AC_SUBST(cpanflute)
-
 dnl check if the pod2man program is available (perl man page builder)
 if test -z "$POD2MAN"; then
     AC_PATH_PROG(POD2MAN, pod2man)
@@ -435,6 +429,13 @@ if test -z "$MAKEDEPEND"; then
 fi
 makedepend=$MAKEDEPEND
 AC_SUBST(makedepend)
+
+dnl check if the md5sum program is available
+if test -z "$MD5SUM"; then
+   AC_PATH_PROG(MD5SUM, md5sum, /bin/true)
+fi
+md5sum=$MD5SUM
+AC_SUBST(md5sum)
 
 dnl check if the dpkg program is available
 if test -z "$DPKG"; then
@@ -655,8 +656,9 @@ AC_CHECK_HEADERS(sys/time.h sys/times.h sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h pthread.h getopt.h)
 AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
 AC_CHECK_HEADERS(pwd.h regex.h termios.h sys/termios.h sys/ioctl.h sys/wait.h)
-AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h iptypes.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
+AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
+AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
 
 dnl Check if we have <sys/endian.h> ... standard way
 AC_MSG_CHECKING([for sys/endian.h ])
@@ -711,7 +713,7 @@ dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(gettimeofday mktime nanosleep putenv)
+AC_CHECK_FUNCS(gettimeofday mktime nanosleep unsetenv)
 AC_CHECK_FUNCS(gethostname hstrerror select socket)
 AC_CHECK_FUNCS(uname syslog __clone fcntl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
@@ -1164,21 +1166,13 @@ dnl			};
 dnl
 have_stat_type=false
 have_stat_name=false
-if test $target_os = freebsd
-then
-    # just too hard to work out for FreeBSD
-    AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC)
-    AC_DEFINE(HAVE_STAT_TIMESPEC)
-    have_stat_type=true
-    have_stat_name=true
-fi
 if test $have_stat_name = false
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtimespec>>changequote([, ]),
     sys/stat.h, [ have_stat_name=true; AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC) ])
 fi
-if test $have_stat_name = false -a $target_os != darwin
+if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtime>>changequote([, ]),
@@ -1275,6 +1269,14 @@ then
     elif test $target_os = mingw
     then
         pcp_binadm_dir=/local/bin
+    elif test $target_os = linux
+    then
+	if test "`echo $target_cpu | sed -e 's/.*64/64/'`" = 64
+	then
+	    pcp_binadm_dir=/usr/lib64/pcp/bin
+	else
+	    pcp_binadm_dir=/usr/lib/pcp/bin
+	fi
     else
         pcp_binadm_dir=$pcp_share_dir/bin
     fi

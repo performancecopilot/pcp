@@ -53,7 +53,9 @@ LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	pcp-pro-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
 	pcp-sgi-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
 	root-*/include root-*/lib root-*/*.rpm root-*/default_pro \
-	autom4te.cache install.manifest install_pro.manifest
+	autom4te.cache install.manifest install_pro.manifest \
+	debug*.list devel_files libs_files base_files.rpm libs_files.rpm \
+	devel_files.rpm perl-pcp*.list*
 
 SUBDIRS = src man build debian
 ifeq "$(MAKECMDGOALS)" "clobber"

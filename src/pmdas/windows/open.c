@@ -68,6 +68,7 @@ static struct {
     { PERF_PRECISION_SYSTEM_TIMER, "PERF_PRECISION_SYSTEM_TIMER" },
     { PERF_RAW_BASE, "PERF_RAW_BASE" },
     { PERF_RAW_FRACTION, "PERF_RAW_FRACTION" },
+    { PERF_LARGE_RAW_FRACTION, "PERF_LARGE_RAW_FRACTION" },
     { PERF_SAMPLE_BASE, "PERF_SAMPLE_BASE" },
     { PERF_SAMPLE_COUNTER, "PERF_SAMPLE_COUNTER" },
     { PERF_SAMPLE_FRACTION, "PERF_SAMPLE_FRACTION" }
@@ -147,6 +148,8 @@ _ctypestr(int ctype)
 	return "PERF_COUNTER_COUNTER";
     else if (ctype == PERF_RAW_FRACTION)
 	return "PERF_RAW_FRACTION";
+    else if (ctype == PERF_LARGE_RAW_FRACTION)
+	return "PERF_LARGE_RAW_FRACTION";
     else if (ctype == PERF_COUNTER_LARGE_RAWCOUNT_HEX)
 	return "PERF_COUNTER_LARGE_RAWCOUNT_HEX";
     else if (ctype == PERF_COUNTER_LARGE_RAWCOUNT)
@@ -408,13 +411,27 @@ windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 	    }
 	    break;
 
-	case PERF_RAW_FRACTION:	/* Float PM_SEM_INSTANT or PM_SEM_DISCRETE */
+	case PERF_RAW_FRACTION:
+	    /* Float PM_SEM_INSTANT or PM_SEM_DISCRETE */
 	    if (mp->desc.type != PM_TYPE_FLOAT) {
-		__pmNotifyErr(LOG_ERR, "windows_open: Warning: "
+		if (!(mp->flags & M_AUTO64))
+		   __pmNotifyErr(LOG_ERR, "windows_open: Warning: "
 				"PERF_RAW_FRACTION: metric %s: "
 				"rewrite type from %s to PM_TYPE_FLOAT\n",
-		    pmIDStr(mp->desc.pmid), _typestr(mp->desc.type));
+			pmIDStr(mp->desc.pmid), _typestr(mp->desc.type));
 		mp->desc.type = PM_TYPE_FLOAT;
+	    }
+ 	    break;
+
+	case PERF_LARGE_RAW_FRACTION:
+	    /* Double PM_SEM_INSTANT or PM_SEM_DISCRETE */
+	    if (mp->desc.type != PM_TYPE_DOUBLE) {
+		if (!(mp->flags & M_AUTO64))
+		    __pmNotifyErr(LOG_ERR, "windows_open: Warning: "
+				"PERF_LARGE_RAW_FRACTION: metric %s: "
+				"rewrite type from %s to PM_TYPE_DOUBLE\n",
+			pmIDStr(mp->desc.pmid), _typestr(mp->desc.type));
+		mp->desc.type = PM_TYPE_DOUBLE;
 	    }
 	    break;
 
@@ -463,13 +480,11 @@ windows_verify_metric(pdh_metric_t *mp, PDH_COUNTER_INFO_A *infop)
 	    ctr_type = "PERF_ELAPSED_TIME";
 	    if (mp->desc.units.dimSpace != 0 ||
 		mp->desc.units.dimTime != 1 ||
-		mp->desc.units.dimCount != 0 ||
-		mp->desc.units.scaleTime != PM_TIME_SEC) {
+		mp->desc.units.dimCount != 0) {
 		pmUnits units = mp->desc.units;
 		mp->desc.units.dimSpace = mp->desc.units.dimCount = 0;
 		mp->desc.units.scaleSpace = mp->desc.units.scaleCount = 0;
 		mp->desc.units.dimTime = 1;
-		mp->desc.units.scaleTime = PM_TIME_SEC;
 		__pmNotifyErr(LOG_ERR, "windows_open: Warning: %s: "
 			"metric %s: rewrite dimension and scale from %s to %s",
 		    ctr_type, pmIDStr(mp->desc.pmid), pmUnitsStr(&units),
@@ -621,13 +636,10 @@ windows_visit_metric(pdh_metric_t *pmp, pdh_metric_visitor_t visitor)
 	pdhsts = PdhExpandCounterPathA(pmp->pat, pattern, &result_sz);
     }
     if (pdhsts != PDH_CSTATUS_VALID_DATA) {
-	if (pmp->pat[0] == '\0') {
+	if (pmp->pat[0] != '\\') {
 	    /*
-	     * Empty path string.  Used to denote metrics that are
-	     * derived and do not have an explicit path or retrieval
-	     * need, other than to make sure the qid value will
-	     * force the corresponding query to be run before a PCP
-	     * fetch ... do nothing here
+	     * Skip metrics that are derived and do not have an explicit
+	     * PDH API retrieval needed ... do nothing here.
 	     */
 	    ;
 	}
@@ -725,11 +737,20 @@ windows_visit_metric(pdh_metric_t *pmp, pdh_metric_visitor_t visitor)
 void
 windows_open(void)
 {
+    int i;
+
     windows_setup_globals();
 
-    if (pmDebug & DBG_TRACE_LIBPMDA) {
-	int i;
-	for (i = 0; i < metricdesc_sz; i++)
+    /*
+     * This initialisation can take a long time - we have many metrics
+     * now for Windows.  Better to delay this until we need to do it,
+     * and then only for the metrics needed.  However, we cannot delay
+     * for those metrics that may change descriptors depending on the
+     * type of platform (64/32 bit, kernel version, etc), so those we
+     * verify up-front.
+     */
+    for (i = 0; i < metricdesc_sz; i++) {
+	if ((metricdesc[i].flags & M_AUTO64) || (pmDebug & DBG_TRACE_LIBPMDA))
 	    windows_visit_metric(&metricdesc[i], windows_verify_callback);
     }
 }

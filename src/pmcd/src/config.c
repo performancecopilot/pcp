@@ -42,12 +42,12 @@
 extern int	_creds_timeout;
 
 /* Config file modification time */
-#if defined(HAVE_STAT_TIMESPEC_T)
-static timespec_t       configFileTime;
-#elif defined(HAVE_STAT_TIMESTRUC)
+#if defined(HAVE_STAT_TIMESTRUC)
 static struct timestruc configFileTime;
 #elif defined(HAVE_STAT_TIMESPEC)
 static struct timespec  configFileTime;
+#elif defined(HAVE_STAT_TIMESPEC_T)
+static timespec_t       configFileTime;
 #elif defined(HAVE_STAT_TIME_T)
 static time_t   	configFileTime;
 #else
@@ -1957,19 +1957,26 @@ ParseInitAgents(char *fileName)
 	fprintf(stderr, "ParseInitAgents: stat(%s): %s\n",
 		     fileName, strerror(errno));
     else {
-#if defined(HAVE_STAT_TIMESPEC_T) || defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC)
-	configFileTime = statBuf.st_mtim; /* struct assignment */
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL0)
-	    fprintf(stderr, "ParseInitAgents: configFileTime=%ld.%09ld sec\n",
-	        (long)configFileTime.tv_sec, (long)configFileTime.tv_nsec);
-#endif
-#elif defined(HAVE_STAT_TIME_T)
+#if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
 	configFileTime = statBuf.st_mtime;
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL0)
 	    fprintf(stderr, "ParseInitAgents: configFileTime=%ld sec\n",
 	        (long)configFileTime);
+#endif
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
+	configFileTime = statBuf.st_mtimespec; /* struct assignment */
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL0)
+	    fprintf(stderr, "ParseInitAgents: configFileTime=%ld.%09ld sec\n",
+	        (long)configFileTime.tv_sec, (long)configFileTime.tv_nsec);
+#endif
+#elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
+	configFileTime = statBuf.st_mtim; /* struct assignment */
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL0)
+	    fprintf(stderr, "ParseInitAgents: configFileTime=%ld.%09ld sec\n",
+	        (long)configFileTime.tv_sec, (long)configFileTime.tv_nsec);
 #endif
 #else
 !bozo!

@@ -28,8 +28,8 @@
 # Provides:       pmproxy
 # Required-Start: $network $remote_fs $syslog
 # Required-Stop:  $remote_fs $syslog
-# Default-Start:  2 3 4 5
-# Default-Stop:   0 1 6
+# Default-Start:
+# Default-Stop:
 # Short-Description:   Control the pmproxy daemon
 # Description:    Control the Performance Co-Pilot protocol proxy daemon
 ### END INIT INFO

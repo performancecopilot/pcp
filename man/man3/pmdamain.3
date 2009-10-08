@@ -32,7 +32,7 @@
 cc ... \-lpcp_pmda \-lpcp
 .sp
 .ft 2
-PMDA Interface 2
+PMDA Interface 2 or higher
 .ft 3
 .sp
 void pmdaMain(pmdaInterface *dispatch);
@@ -100,30 +100,46 @@ typedef struct {
     int status;         /* return initialization status here */
 
     union {
-	struct {                              /* PMDA_INTERFACE_1 */
-	    int (*profile)(__pmProfile *);
-	    int (*fetch)(int, pmID *, pmResult **);
-	    int (*desc)(pmID, pmDesc *);
-	    int (*instance)(pmInDom, int, char *, __pmInResult **);
-	    int (*text)(int, int, char **);
-	    int (*control)(pmResult *, int, int, int);
-	    int (*store)(pmResult *);
-	} one;
+        struct {                              /* PMDA_INTERFACE_1 */
+            int (*profile)(__pmProfile *);
+            int (*fetch)(int, pmID *, pmResult **);
+            int (*desc)(pmID, pmDesc *);
+            int (*instance)(pmInDom, int, char *, __pmInResult **);
+            int (*text)(int, int, char **);
+            int (*control)(pmResult *, int, int, int);
+            int (*store)(pmResult *);
+        } one;
 
-	struct {                              /* PMDA_INTERFACE_2 or later */
-	    pmdaExt *e_ext;
-	    int (*profile)(__pmProfile *, pmdaExt *);
-	    int (*fetch)(int, pmID *, pmResult **, pmdaExt *);
-	    int (*desc)(pmID, pmDesc *, pmdaExt *);
-	    int (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
-	    int (*text)(int, int, char **, pmdaExt *);
-	    int (*store)(pmResult *, pmdaExt *);
-	} two;
+        struct {                              /* PMDA_INTERFACE_2 or _3 */
+            pmdaExt *e_ext;
+            int (*profile)(__pmProfile *, pmdaExt *);
+            int (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+            int (*desc)(pmID, pmDesc *, pmdaExt *);
+            int (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
+            int (*text)(int, int, char **, pmdaExt *);
+            int (*store)(pmResult *, pmdaExt *);
+        } two;
+
+        struct {                              /* PMDA_INTERFACE_4 */
+            pmdaExt *ext;
+            int     (*profile)(__pmProfile *, pmdaExt *);
+            int     (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+            int     (*desc)(pmID, pmDesc *, pmdaExt *);
+            int     (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
+            int     (*text)(int, int, char **, pmdaExt *);
+            int     (*store)(pmResult *, pmdaExt *);
+            int     (*pmid)(char *, pmID *, pmdaExt *);
+            int     (*name)(pmID, char ***, pmdaExt *);
+            int     (*children)(char *, int, char ***, int **, pmdaExt *);
+        } four;
     } version;
+
 } pmdaInterface;
 .fi
 .PP
-This structure has been extended to incorporate the two interface versions. For
+This structure has been extended to incorporate the multiple interface versions
+that have evolved over time.
+For
 .BR pmdaMain,
 .I dispatch->domain
 and
@@ -137,12 +153,22 @@ will force
 .B pmdaMain
 to use the callbacks in the
 .I version.one
-structure.  A setting of
+structure.
+A setting of
 .B PMDA_INTERFACE_2
-or later will force
+or
+.B PMDA_INTERFACE_3
+will force 
 .B pmdaMain
 to use the callbacks in the
 .I version.two
+structure.
+A setting of
+.B PMDA_INTERFACE_4
+will force 
+.B pmdaMain
+to use the callbacks in the
+.I version.four
 structure.  Any other value will result in an error and termination of
 .BR pmdaMain .
 .PP
@@ -154,7 +180,7 @@ and the methods of the PMDA allows each PMDA to be implemented as
 though it were a DSO, with
 .B pmdaMain
 providing a convenient wrapper that may be used to convert from the
-DSO interface to the binary PDU interface.
+DSO interface to the binary PDU (daemon PMDA) interface.
 .PP
 .B pmdaMainLoop
 provided two additional callbacks, 

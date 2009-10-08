@@ -76,18 +76,25 @@ extern int __pmGetInternalState(void);
 
 /*
  * Internally, this is how to decode a PMID!
+ * - flag is to denote state internally in some operations
+ * - domain is usually the unique domain number of a PMDA, but DYNAMIC_PMID
+ *   (number 511) is reserved for PMIDs representing the root of a
+ *   dynamic subtree in the PMNS (and in this case the real domain number
+ *   is encoded in the cluster field)
+ * - cluster and item together uniquely identify a metric within a domain
  */
+#define DYNAMIC_PMID	511
 typedef struct {
 #ifdef HAVE_BITFIELDS_LTOR
-	int		pad : 2;
-	unsigned int	domain : 8;
+	unsigned int	flag : 1;
+	unsigned int	domain : 9;
 	unsigned int	cluster : 12;
 	unsigned int	item : 10;
 #else
 	unsigned int	item : 10;
 	unsigned int	cluster : 12;
-	unsigned int	domain : 8;
-	int		pad : 2;
+	unsigned int	domain : 9;
+	unsigned int	flag : 1;
 #endif
 } __pmID_int;
 
@@ -128,16 +135,20 @@ pmid_build(unsigned int domain, unsigned int cluster, unsigned int item)
 
 /*
  * Internally, this is how to decode an Instance Domain Identifier
+ * - flag is to denote state internally in some operations
+ * - domain is usually the unique domain number of a PMDA, but DYNAMIC_PMID
+ *   (number 511) is reserved (see above for PMID encoding rules)
+ * - serial uniquely identifies an InDom within a domain
  */
 typedef struct {
 #ifdef HAVE_BITFIELDS_LTOR
-	int		pad : 2;
-	unsigned int	domain : 8;		/* the administrative PMD */
-	unsigned int	serial : 22;		/* unique within PMD */
+	int		flag : 1;
+	unsigned int	domain : 9;
+	unsigned int	serial : 22;
 #else
-	unsigned int	serial : 22;		/* unique within PMD */
-	unsigned int	domain : 8;		/* the administrative PMD */
-	int		pad : 2;
+	unsigned int	serial : 22;
+	unsigned int	domain : 9;
+	int		flag : 1;
 #endif
 } __pmInDom_int;
 

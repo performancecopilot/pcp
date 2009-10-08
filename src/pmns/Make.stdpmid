@@ -120,12 +120,12 @@ cat <<'End-of-File' >$NEW
  *	 59-63			Linux PMDAs
  *	 64-69			ISV PMDAs
  *	 70-128			production PMDAs from PCP and/or IRIX (#2)
- *	129-254			End-User PMDAs and demo PMDAs
- *	255			reserved -- DO NOT USE
+ *	129-510			End-User PMDAs and demo PMDAs
+ *	511			reserved for dynamic PMNS entries -- DO NOT USE
  *
  * A Performance Metrics Identifier (PMID) is internally encoded as
- *	 2 bits	- reserved
- *	 8 bits	- the Performance Metric Domain Agent (PMDA) domain number
+ *	 1 bits	- flag reserved for internal use
+ *	 9 bits	- the Performance Metric Domain Agent (PMDA) domain number
  *		  from the list below
  *	12 bits	- cluster within domain
  *	10 bits	- serial within cluster

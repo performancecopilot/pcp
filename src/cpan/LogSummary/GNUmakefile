@@ -27,10 +27,9 @@ LDIRT = Makefile COPYING pm_to_blib blib Makefile.old $(LPKGDIRT) *.xls
 
 default: dist
 
-ifeq ($(PACKAGE_DISTRIBUTION),debian)
 MAKEMAKER_OPTIONS = "INSTALLDIRS=vendor"
 INSTALLER_OPTIONS = DESTDIR=$$DIST_ROOT PREFIX=/usr
-endif
+
 ifeq ($(TARGET_OS),mingw)
 PERLMAKE = dmake.exe
 else

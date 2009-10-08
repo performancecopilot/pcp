@@ -1,3 +1,17 @@
+pcp (3.0.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Original Alpha build issue resolved (closes: #541547)
+  * More recent Alpha build issue resolved too (closes: #545851)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 07 Oct 2009 09:12:39 +1100
+
+pcp (2.9.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 23 Sep 2009 17:03:07 +1000
+
 pcp (2.9.2) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

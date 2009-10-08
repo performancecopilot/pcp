@@ -28,10 +28,9 @@ LDIRT = Makefile COPYING MMV.bs MMV.c MMV.o pm_to_blib blib \
 
 default: dist
 
-ifeq ($(PACKAGE_DISTRIBUTION),debian)
 MAKEMAKER_OPTIONS = "INSTALLDIRS=vendor"
 INSTALLER_OPTIONS = DESTDIR=$$DIST_ROOT PREFIX=/usr
-endif
+
 ifeq ($(TARGET_OS),mingw)
 PERLMAKE = dmake.exe
 else
@@ -55,6 +54,14 @@ test dist: MMV.o
 include $(BUILDRULES)
 
 install: default
+ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
+	$(PERLMAKE) -f Makefile pure_install PERL_INSTALL_ROOT=$$DIST_ROOT
+	find $$DIST_ROOT -name .packlist -exec mv '{}' $(TOPDIR)/perl-pcp-mmv.list ';'
+	sed -e s@$$DIST_ROOT@@ -e 's/\.[0-9]pm$$/&.gz/' -e '/\.bs$$/d' -i.tmp $(TOPDIR)/perl-pcp-mmv.list
+	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';'
+	find $$DIST_ROOT -name \*.bs  -exec rm -f '{}' ';'
+	find $$DIST_ROOT \( -name server.pl -o -name MMV.so \) -exec chmod 755 '{}' ';'
+endif
 
 install_perl:
 	$(PERLMAKE) -f Makefile install $(INSTALLER_OPTIONS)

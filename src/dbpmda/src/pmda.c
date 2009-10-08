@@ -33,7 +33,7 @@ static __pmTimeval	now = { 0, 0 };
 
 int			infd;
 int			outfd;
-char			*pmdaName = 0;
+char			*myPmdaName = 0;
 
 extern int		_creds_timeout;
 
@@ -123,7 +123,7 @@ pmdaversion(void)
     if (sts == PDU_CREDS) {
 	if ((sts = agent_creds(ack)) < 0) {
 	    fprintf(stderr, "Warning: version exchange failed "
-		"for PMDA %s: %s\n", pmdaName, pmErrStr(sts));
+		"for PMDA %s: %s\n", myPmdaName, pmErrStr(sts));
 	    return;
 	}
     }
@@ -131,7 +131,7 @@ pmdaversion(void)
 	if (sts < 0)
 	    fprintf(stderr, "__pmGetPDU(%d): %s\n", infd, pmErrStr(sts));
 	fprintf(stderr, "Warning: no version exchange with PMDA %s: "
-			"assuming PCP 1.x PMDA.\n", pmdaName);
+			"assuming PCP 1.x PMDA.\n", myPmdaName);
 	__pmSetVersionIPC(infd, PDU_VERSION1);
 	__pmSetVersionIPC(outfd, PDU_VERSION1);
     }
@@ -163,9 +163,9 @@ openpmda(char *fname)
     else {
 	connmode = PDU_BINARY;
 	reset_profile();
-	if (pmdaName != NULL)
-	    free(pmdaName);
-	pmdaName = strdup(fname);
+	if (myPmdaName != NULL)
+	    free(myPmdaName);
+	myPmdaName = strdup(fname);
 	pmdaversion();
     }
 }
@@ -178,9 +178,9 @@ closepmda(void)
 	close(infd);
 	__pmResetIPC(infd);
 	connmode = PDU_NOT;
-	if (pmdaName != NULL) {
-	    free(pmdaName);
-	    pmdaName = NULL;
+	if (myPmdaName != NULL) {
+	    free(myPmdaName);
+	    myPmdaName = NULL;
 	}
     }
 }
@@ -238,6 +238,10 @@ dopmda(int pdu)
     char		*buffer;
     struct timeval	start;
     struct timeval	end;
+    char		**namelist;
+    int			*statuslist;
+    int			numnames;
+    pmID		pmid;
 
     if (timer != 0)
 	gettimeofday(&start, NULL);
@@ -451,6 +455,114 @@ dopmda(int pdu)
 	    
 	    }
 	    break;
+
+	case PDU_PMNS_IDS:
+            printf("PMID: %s\n", pmIDStr(param.pmid));
+	    if ((sts = __pmSendIDList(outfd, connmode, 1, &param.pmid, 0)) >= 0) {
+		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_PMNS_NAMES) {
+		    if ((sts = __pmDecodeNameList(pb, connmode, &numnames, &namelist, NULL)) >= 0) {
+			for (i = 0; i < sts; i++) {
+			    printf("   %s\n", namelist[i]);
+			}
+			free(namelist);
+		    }
+		    else
+			printf("Error: __pmDecodeNameList() failed: %s\n", pmErrStr(sts));
+		}
+		else if (sts == PDU_ERROR) {
+		    if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0)
+			printf("Error PDU: %s\n", pmErrStr(sts));
+		    else
+			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
+		}
+		else
+		    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
+	    }
+	    else
+		printf("Error: __pmSendIDList() failed: %s\n", pmErrStr(sts));
+	    break;
+
+	case PDU_PMNS_NAMES:
+            printf("Metric: %s\n", param.name);
+	    if ((sts = __pmSendNameList(outfd, connmode, 1, &param.name, NULL)) >= 0) {
+		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_PMNS_IDS) {
+		    int		xsts;
+		    if ((sts = __pmDecodeIDList(pb, connmode, 1, &pmid, &xsts)) >= 0) {
+			printf("   %s\n", pmIDStr(pmid));
+		    }
+		    else
+			printf("Error: __pmDecodeIDList() failed: %s\n", pmErrStr(sts));
+		}
+		else if (sts == PDU_ERROR) {
+		    if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0)
+			printf("Error PDU: %s\n", pmErrStr(sts));
+		    else
+			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
+		}
+		else
+		    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
+	    }
+	    else
+		printf("Error: __pmSendIDList() failed: %s\n", pmErrStr(sts));
+	    break;
+
+	case PDU_PMNS_CHILD:
+            printf("Metric: %s\n", param.name);
+	    if ((sts = __pmSendChildReq(outfd, connmode, param.name, 1)) >= 0) {
+		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_PMNS_NAMES) {
+		    if ((sts = __pmDecodeNameList(pb, connmode, &numnames, &namelist, &statuslist)) >= 0) {
+			for (i = 0; i < numnames; i++) {
+			    printf("   %8.8s %s\n", statuslist[i] == 1 ? "non-leaf" : "leaf", namelist[i]);
+			}
+			free(namelist);
+			free(statuslist);
+		    }
+		    else
+			printf("Error: __pmDecodeNameList() failed: %s\n", pmErrStr(sts));
+		}
+		else if (sts == PDU_ERROR) {
+		    if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0)
+			printf("Error PDU: %s\n", pmErrStr(sts));
+		    else
+			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
+		}
+		else
+		    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
+	    }
+	    else
+		printf("Error: __pmSendChildReq() failed: %s\n", pmErrStr(sts));
+	    break;
+
+	case PDU_PMNS_TRAVERSE:
+            printf("Metric: %s\n", param.name);
+	    if ((sts = __pmSendTraversePMNSReq(outfd, connmode, param.name)) >= 0) {
+		if ((sts = __pmGetPDU(infd, connmode, TIMEOUT_NEVER, &pb)) == PDU_PMNS_NAMES) {
+		    if ((sts = __pmDecodeNameList(pb, connmode, &numnames, &namelist, &statuslist)) >= 0) {
+			for (i = 0; i < numnames; i++) {
+			    printf("   %s\n", namelist[i]);
+			}
+			free(namelist);
+		    }
+		    else
+			printf("Error: __pmDecodeNameList() failed: %s\n", pmErrStr(sts));
+		}
+		else if (sts == PDU_ERROR) {
+		    if ((i = __pmDecodeError(pb, connmode, &sts)) >= 0)
+			printf("Error PDU: %s\n", pmErrStr(sts));
+		    else
+			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
+		}
+		else
+		    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
+	    }
+	    else
+		printf("Error: __pmSendTraversePMNS() failed: %s\n", pmErrStr(sts));
+	    break;
+
+	default:
+	    printf("Error: Daemon PDU (%s) botch!\n", __pmPDUTypeStr(pdu));
+	    break;
+
 	}
 
     if (sts >= 0 && timer != 0) {

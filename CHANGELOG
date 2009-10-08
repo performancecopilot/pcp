@@ -1,3 +1,50 @@
+pcp-3.0.0 (8 October 2009)
+    - PMDA_INTERFACE_4 and the support of dynamic subtrees of the PMNS
+      where the PMDA (not PMCD) maintains knowledge of the PMNS.
+    - RPM packaging split into pcp, pcp-libs and pcp-libs-devel
+      pcp-libs is common - it's required by pcp and by pcp-libs-devel but
+      pcp and pcp-libs-devel can be installed with or without each other.
+    - Added separate specific licenses for the new subpackages,
+      particularly pcp-libs, which is LGPL.
+    - Added ldconfig %post and %postun scriptlets for -libs
+    - Don't explicitly require Infiniband libs, since they're libs and RPM
+      figures it out
+    - No need to explicitly BuildRequire gcc-c++ libstdc++-devel
+    - Add BuildRequires on perl-ExtUtils-MakeMaker
+    - Remove explicit ia64 Requires: libunwind
+    - Preserve generated gram.tab.c in several places since debuginfo needs it
+    - Create %{_localstatedir}/run/pcp and ship it (so it'll be removed)
+    - Use %doc in spec for CHANGELOG COPYING INSTALL README VERSION.pcp pcp.lsm
+    - Tweak configure to move PCP_BINADM_DIR out of /usr/share, into /usr/lib.
+      Arch dependent binaries should not be installed below /usr/share.
+    - Delete unneeded "explicit script interpreter" in several places
+      to keep rpmlint happy
+    - Remove setuid from pmpost, not needed (and not in debian either)
+    - Nuke the migrate_pcp_var_dir, script and it's %post scriptlet
+    - Default "chkconfig off" for all PCP services (retain settings on upgrade)
+    - Clean-up and simplify the %post scriptlets (rather dramatically)
+    - Don't ship static libraries in Fedora, we have the debug package for that
+    - Install .NeedRebuild, add to %files and remove crud from %post scriptlets
+    - Added %changelog in RPM spec and moved %files to end before %changelog
+    - Move demos, examples and demo PMDAS to the libs-devel package since they
+      are not used for production (but are useful for devel and needed for QA).
+    - Don't install trace demo binaries since src is installed anyway
+    - Reconciled build/rpm/pcp.spec.in with build/rpm/pcp_fedora.spec
+    - Integrated RPM packaging support for perl-PCP-PMDA and perl-PCP-MMV
+      (but perl-PCP-Logsummary is not currently shipped in RPM packages)
+    - RPM build requires perl(ExtUtils::MakeMaker) rather than
+      perl-extutils-makemaker (this is the standard notation)
+    - For easier upgrades, the perl PMDAs only really require pcp >= package
+      version (until we change or extend an API).
+    - ReplacePmnsSubtree fix bad signal handling botch (affecting MMV PMDA)
+    - Fix pmcd.timezone metric such that value updates on daylight savings
+      (or other timezone) changes.
+    - bumped to 3.0.0-8 as the PCP 3.0 release candidate.
+
+pcp-2.9.3 (23 September 2009)
+    - configure.in fix for Windows iptypes.h header.
+    - Fixup Windows SQL Server metrics on 64 bit platforms.
+
 pcp-2.9.2 (7 September 2009)
     - Final iteration on pmval sample count changes.
     - Build fallout on Mac/Win32 in MMV client library.

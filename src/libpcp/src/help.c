@@ -92,10 +92,13 @@ again:
 		n = PM_ERR_NOAGENT;
 	    else {
 again_local:
-		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		    n = dp->dispatch.version.one.text(ident, type, buffer);
-		else
+		if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		    n = dp->dispatch.version.four.text(ident, type, buffer, dp->dispatch.version.four.ext);
+		else if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_3 ||
+		         dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_2)
 		    n = dp->dispatch.version.two.text(ident, type, buffer, dp->dispatch.version.two.ext);
+		else
+		    n = dp->dispatch.version.one.text(ident, type, buffer);
 		if (n == 0 && (*buffer)[0] == '\0' && (type & PM_TEXT_HELP)) {
 		    /* fall back to oneline, if possible */
 		    free(*buffer);
