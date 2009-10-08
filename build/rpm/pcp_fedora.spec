@@ -75,24 +75,6 @@ example the operating system kernel, Cisco routers, a database,
 an application, etc.
 
 #
-# perl-PCP-SUMMARY
-#
-%package -n perl-PCP-LogSummary
-License: GPLv2
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) Perl bindings for pmlogsummary
-URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp >= %{version}
-
-%description -n perl-PCP-LogSummary
-The PCP::LogSummary module provides a Perl module for using the
-statistical summary data produced by the Performance Co-Pilot
-pmlogsummary utility.  This utility produces various averages,
-minima, maxima, and other calculations based on the performance
-data stored in a PCP archive.  The Perl interface is ideal for
-exporting this data into third-party tools (e.g. spreadsheets).
-
-#
 # perl-PCP-MMV
 #
 %package -n perl-PCP-MMV
@@ -253,9 +235,6 @@ fi
 %{_localstatedir}/lib/pcp/pmdas/txmon
 
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
-%defattr(-,root,root)
-
-%files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
 %defattr(-,root,root)
 
 %files -n perl-PCP-MMV -f perl-pcp-mmv.list

@@ -1,4 +1,4 @@
-pcp-3.0.0 (5 October 2009)
+pcp-3.0.0 (8 October 2009)
     - PMDA_INTERFACE_4 and the support of dynamic subtrees of the PMNS
       where the PMDA (not PMCD) maintains knowledge of the PMNS.
     - RPM packaging split into pcp, pcp-libs and pcp-libs-devel
@@ -30,8 +30,8 @@ pcp-3.0.0 (5 October 2009)
       are not used for production (but are useful for devel and needed for QA).
     - Don't install trace demo binaries since src is installed anyway
     - Reconciled build/rpm/pcp.spec.in with build/rpm/pcp_fedora.spec
-    - Integrated RPM packaging support for perl-PCP-PMDA, perl-PCP-MMV and
-      perl-PCP-LogSummary (still need to nuke cpanflute)
+    - Integrated RPM packaging support for perl-PCP-PMDA and perl-PCP-MMV
+      (but perl-PCP-Logsummary is not currently shipped in RPM packages)
     - RPM build requires perl(ExtUtils::MakeMaker) rather than
       perl-extutils-makemaker (this is the standard notation)
     - For easier upgrades, the perl PMDAs only really require pcp >= package
