@@ -357,7 +357,7 @@ fi
 mkinstallp=$MKINSTALLP
 AC_SUBST(mkinstallp)
 
-dnl check for pmgmk - Solaris' package maker
+dnl check for the Solaris pmgmk package maker
 if test -z "$PKGMK"; then
     AC_PATH_PROG(PKGMK, pkgmk)
 fi
@@ -416,7 +416,7 @@ else
     exit 1
 fi
 
-dnl check if the gendist program is available
+dnl check if the IRIX gendist program is available
 if test -z "$GENDIST" ; then
    AC_PATH_PROG(GENDIST, gendist) 
 fi
@@ -437,12 +437,19 @@ fi
 md5sum=$MD5SUM
 AC_SUBST(md5sum)
 
-dnl check if the dpkg program is available
+dnl check if the Debian dpkg program is available
 if test -z "$DPKG"; then
    AC_PATH_PROG(DPKG, dpkg)
 fi
 dpkg=$DKPG
 AC_SUBST(dpkg)
+
+dnl check for the Slackware makepkg packaging tool
+if test -z "$MAKEPKG"; then
+   AC_PATH_PROG(MAKEPKG, makepkg)
+fi
+makepkg=$MAKEKPG
+AC_SUBST(makepkg)
 
 dnl check if symbolic links are supported
 AC_PROG_LN_S

@@ -162,6 +162,7 @@ RPM	= @rpm@
 POD2MAN = @pod2man@
 GENDIST	= @gendist@
 DPKG	= @dpkg@
+MAKEKPG	= @makepkg@
 GENPMDA	= $(TOPDIR)/src/genpmda/genpmda
 PKGMK	= @pkgmk@
 MD5SUM	= @md5sum@
