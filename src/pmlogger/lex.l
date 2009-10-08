@@ -23,11 +23,11 @@
 
 int lineno=1;
 
+#include "gram.tab.h"
+
 #ifdef FLEX_SCANNER
 #define YY_NO_UNPUT
-#include "gram.tab.h"
 #else
-#include "gram.h"
 #undef input
 #define input() ((yytchar=fgetc(yyin)) == EOF ? 0 : yytchar)
 #undef unput
@@ -111,10 +111,8 @@ on		{ return ctx(ON); }
 		}
 %%
 
-#ifdef FLEX_SCANNER
 int 
 yywrap (void)
 {
 	return 1;
 }
-#endif
