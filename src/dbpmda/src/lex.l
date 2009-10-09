@@ -34,6 +34,7 @@ static int dbpmdaFlexInput (char *, int);
 #undef input
 #undef unput
 #undef yywrap
+#undef yyinput
 #include "./gram.h"
 #endif
 
@@ -42,6 +43,7 @@ static int dbpmdaFlexInput (char *, int);
 %}
 
 %s FNAME
+%a 2050
 
 %%
 

@@ -470,7 +470,7 @@ Options\n\
 		printf("Archive: %s, ", archive);
 	    printf("Host: %s, %d cpu(s), %s",
 		    host, ncpu,
-		    pmCtime((time_t *)&info.timestamp.tv_sec, timebuf));
+		    pmCtime(&info.timestamp.tv_sec, timebuf));
 /* - report format
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min

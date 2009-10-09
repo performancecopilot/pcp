@@ -91,6 +91,7 @@ ipv4_ifstats(const void *data, int sz)
     const mib2_ipIfStatsEntry_t *ips = data;
 
     nm2_udp.noports = 0;
+    nm2_udp.overflows = 0;
 
     while (sz > 0) {
 	/* index 0 is a pseudo-interface */
