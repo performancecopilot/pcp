@@ -4,7 +4,7 @@ pcp (3.0.0) unstable; urgency=low
   * Original Alpha build issue resolved (closes: #541547)
   * More recent Alpha build issue resolved too (closes: #545851)
 
- -- Nathan Scott <nathans@debian.org>  Wed, 07 Oct 2009 09:12:39 +1100
+ -- Nathan Scott <nathans@debian.org>  Fri, 09 Oct 2009 12:55:12 +1100
 
 pcp (2.9.3) unstable; urgency=low
 

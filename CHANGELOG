@@ -1,4 +1,4 @@
-pcp-3.0.0 (8 October 2009)
+pcp-3.0.0 (9 October 2009)
     - PMDA_INTERFACE_4 and the support of dynamic subtrees of the PMNS
       where the PMDA (not PMCD) maintains knowledge of the PMNS.
     - RPM packaging split into pcp, pcp-libs and pcp-libs-devel
@@ -39,7 +39,7 @@ pcp-3.0.0 (8 October 2009)
     - ReplacePmnsSubtree fix bad signal handling botch (affecting MMV PMDA)
     - Fix pmcd.timezone metric such that value updates on daylight savings
       (or other timezone) changes.
-    - bumped to 3.0.0-8 as the PCP 3.0 release candidate.
+    - Initial packaging work for Slackware Linux, thanks to Roman Revyakin.
 
 pcp-2.9.3 (23 September 2009)
     - configure.in fix for Windows iptypes.h header.
