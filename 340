@@ -98,7 +98,7 @@ $sudo cp $config $oconfig
 other1=bogus
 other2=bogus
 
-other1=`./getpmcdhosts -n 1 -L -v pcp=1 2>$tmp.err`
+other1=`./getpmcdhosts -n 1 -L -v 'pcp=1' 2>$tmp.err`
 if [ -z "$other1" ]
 then
     echo "[test configuration only for v2 hosts]"
@@ -108,7 +108,7 @@ else
     rm -f $seq.out ; ln $seq-v1v2.out $seq.out
 fi
 
-other2=`./getpmcdhosts -n 1 -L -v pcp=2 2>$tmp.err`
+other2=`./getpmcdhosts -n 1 -L -v 'pcp>=2' 2>$tmp.err`
 if [ -z "$other2" ]
 then
     cat $tmp.err

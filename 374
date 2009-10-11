@@ -45,7 +45,7 @@ then
     . $PCP_DIR/etc/pcp.env
 else
     echo "Error: unable to read $PCP_DIR/etc/pcp.env!" >&2
-    exit 1
+    exit
 fi
 rm -f /tmp/$$.*
 ( pmlogger -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
@@ -79,7 +79,7 @@ End-of-File
 	    if [ $i = 10 ]
 	    then
 		echo "Arrgh ... pmlogger (pid=$pid) on host $host failed to start after 20 seconds"
-		exit 1
+		exit
 	    fi
 	fi
 	sleep 2
@@ -168,15 +168,14 @@ rm -f $seq.full
 
 # real QA test starts here
 
-for type in "-b 64 -v pcp=2"
+for type in "-b 64 -v pcp>=2"
 do
     host=`./getpmcdhosts -L -n 1 $type 2>/dev/null`
     if [ -z "$host" ]
     then
 	echo "Cannot find a 64-bit host running PCP" >$seq.notrun
-	echo "$seq: [not run] `cat $seq.notrun`"
 	need_clean=false
-	exit 0
+	exit
     else
 	echo
 	echo "=== pmlogger host type: $type ==="

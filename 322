@@ -143,7 +143,6 @@ _cleanup()
 	need_clean=false
     fi
     rm -f $tmp.*
-    exit
 }
 
 tmp=/tmp/$$
@@ -166,14 +165,14 @@ rm -f $seq.full
 
 # real QA test starts here
 
-for type in "-v pcp=2"
+for type in "-v pcp>=2"
 do
     echo
     echo "=== pmlogger host type: $type ==="
     host=`./getpmcdhosts -L -n 1 $type`
     if [ -z "$host" ]
     then
-	cat $tmp.out >$seq.notrun
+	echo "./getpmcdhosts failed to find a suitable host" >$seq.notrun
 	exit
     else
 	echo "$type => $host" >>$seq.full

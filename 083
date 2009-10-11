@@ -132,7 +132,7 @@ echo "Running the access tests"
 # but even that has been dropped now that single CPU systems are so
 # rare
 #
-eval `./getpmcdhosts -L -n2 -v pcp=2 | sed -e 's/^/other1=/' -e 's/ / other2=/'`
+eval `./getpmcdhosts -L -n2 -v 'pcp>=2' | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 if [ -z "$other1" ]
 then
     echo "Error: cannot find first remote host running pmcd v2.x"

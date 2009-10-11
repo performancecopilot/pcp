@@ -124,14 +124,14 @@ pid=''
 
 # real QA test starts here
 
-for type in "-b 32 -v pcp=2" "-b 64 -v pcp=2"
+for type in "-b 32 -v pcp>=2" "-b 64 -v pcp>=2"
 do
     echo
     echo "=== pmlc host type: $type ==="
     host=`./getpmcdhosts -L -n 1 $type`
     if [ -z "$host" ]
     then
-	cat $tmp.out >$seq.notrun
+	echo "Cannot find a 64-bit host running PCP" >$seq.notrun
 	exit
     else
 	# echo $host

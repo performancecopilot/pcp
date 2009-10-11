@@ -13,7 +13,7 @@ seq=`basename $0`
 
 # preliminary check
 #
-./getpmcdhosts -n 2 -L -a sample -v pcp=2 -s IRIX64 2>$seq.notrun >/dev/null
+./getpmcdhosts -n 2 -L -a sample -v 'pcp>=2' -s IRIX64 2>$seq.notrun >/dev/null
 if [ $? -eq 1 ]; then
     echo "$seq: [not run] `cat $seq.notrun`"
     exit
@@ -144,14 +144,14 @@ $sudo cp $config $oconfig
 other1=bogus
 other2=bogus
 
-eval `./getpmcdhosts -n 2 -L -a sample -v pcp=2 -s IRIX64 2>/dev/null \
+eval `./getpmcdhosts -n 2 -L -a sample -v 'pcp>=2' -s IRIX64 2>/dev/null \
       | $PCP_AWK_PROG '{ if (NF >= 2) printf("other1=%s other2=%s\n",$1,$2); }'`
 
 if [ "X$other1" = Xbogus -o "X$other2" = Xbogus ]
 then
     echo "Error: Unable to find two hosts configured with the sample PMDA"
-    echo "+ ./getpmcdhosts -D -n 2 -L -a sample -v pcp=2 -s IRIX64 "
-    ./getpmcdhosts -D -n 2 -L -a sample -v pcp=2 -s IRIX64
+    echo "+ ./getpmcdhosts -D -n 2 -L -a sample -v 'pcp>=2' -s IRIX64 "
+    ./getpmcdhosts -D -n 2 -L -a sample -v 'pcp>=2' -s IRIX64
     echo "Desperate: check all hosts in qa_hosts ..."
     cat $tmp.hosts \
     | while read host
