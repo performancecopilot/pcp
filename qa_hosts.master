@@ -40,6 +40,7 @@ butt.scott.net.au
 # Kenj Section
 bozo
 bozo-laptop
+bozo-laptop.localdomain
 comma
 
 # sort control lines
@@ -64,4 +65,4 @@ comma
 #order .localdomain		.localdomain		.acx
 # Kenj Section
 #order	bozo			bozo-laptop		comma
-#order	bozo-laptop		bozo			comma
+#order	bozo-laptop		.localdomain		bozo			comma
