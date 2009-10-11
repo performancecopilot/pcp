@@ -472,7 +472,6 @@ do
 	if [ -f $seq.notrun ]
 	then
 	    echo " [not run] `cat $seq.notrun`"
-	    rm -f $seq.notrun
 	    notrun="$notrun $seq"
 	else
 	    if [ $sts -ne 0 ]
@@ -529,6 +528,7 @@ do
 	$OPTION_LOGGER && _havelogger
     fi
     [ -f $seq.notrun ] || try=`expr $try + 1`
+    rm -f $seq.notrun
 done
 
 interrupt=false
