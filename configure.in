@@ -45,6 +45,7 @@ else
     dnl  build and build_os. Squash all x86 cpus into one LCD form - i386
     target=`echo $target | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
     target_os=`echo $target_os | sed '[s/solaris2\..*/solaris/]'`
+    target_os=`echo $target_os | sed '[s/kfreebsd/freebsd/]'`
     target_os=`echo $target_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]' | sed '[s/[\.0-9]*//g]'`
     target_cpu=`echo $target_cpu | sed '[s/i[3-6]86/i386/]'`
 
@@ -86,6 +87,7 @@ then
 elif test $target_os = freebsd
 then
     AC_DEFINE(IS_FREEBSD)
+    test -f /etc/debian_version && target_distro=debian
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
@@ -730,7 +732,7 @@ if test $target_os != solaris; then
 fi
 
 dnl only define readdir64 on non-linux platforms that support it
-if test $target_os != linux; then
+if test $target_os != linux -a $target_os != freebsd; then
     AC_CHECK_FUNCS(readdir64)
 fi
 
