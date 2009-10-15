@@ -322,8 +322,11 @@ ib_load_config(const char *cp, int writeconf, pmdaIndom *itab, unsigned int nind
     if (nindoms <= IB_CNT_INDOM)
 	return -EINVAL;
 
-    if (umad_init())
+    if (umad_init()) {
+	__pmNotifyErr(LOG_ERR,
+		"umad_init() failed.  No IB kernel support or incorrect ABI version\n");
 	return -EIO;
+    }
 
     if ((n = umad_get_cas_names(hcas, ARRAYSZ(hcas)))) {
 	if ((st = calloc (n, sizeof(hca_state_t))) == NULL)
