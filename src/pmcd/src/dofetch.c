@@ -203,6 +203,32 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
     int			bad = 0;
     int			i;
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL0) {
+	fprintf(stderr, "SendFetch %d metrics to PMDA domain %d ",
+	    dpList->listSize, dpList->domain);
+	switch (aPtr->ipcType) {
+	case AGENT_DSO:
+	    fprintf(stderr, "(dso)\n");
+	    break;
+
+	case AGENT_SOCKET:
+	    fprintf(stderr, "(socket)\n");
+	    break;
+
+	case AGENT_PIPE:
+	    fprintf(stderr, "(pipe)\n");
+	    break;
+
+	default:
+	    fprintf(stderr, "(type %d unknown!)\n", aPtr->ipcType);
+	    break;
+	}
+	for (i = 0; i < dpList->listSize; i++)
+	    fprintf(stderr, "  pmid[%d] %s\n", i, pmIDStr(dpList->list[i]));
+    }
+#endif
+
     /* status.madeDsoResult is only used for DSO agents so don't waste time by
      * checking that the agent is a DSO first.
      */
@@ -210,11 +236,15 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 
     if (aPtr->profClient != cPtr || ctxnum != aPtr->profIndex) {
 	if (aPtr->ipcType == AGENT_DSO) {
-	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		sts = aPtr->ipc.dso.dispatch.version.one.profile(cPtr->profile[ctxnum]);
-	    else
+	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		sts = aPtr->ipc.dso.dispatch.version.four.profile(cPtr->profile[ctxnum],
+				     aPtr->ipc.dso.dispatch.version.four.ext);
+	    else if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+	        aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
 		sts = aPtr->ipc.dso.dispatch.version.two.profile(cPtr->profile[ctxnum],
 				     aPtr->ipc.dso.dispatch.version.two.ext);
+	    else
+		sts = aPtr->ipc.dso.dispatch.version.one.profile(cPtr->profile[ctxnum]);
 	    if (sts < 0 &&
 		aPtr->ipc.dso.dispatch.comm.pmapi_version == PMAPI_VERSION_1)
 		    sts = XLATE_ERR_1TO2(sts);
@@ -240,13 +270,18 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 
     if (sts >= 0) {
 	if (aPtr->ipcType == AGENT_DSO) {
-	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
-		sts = aPtr->ipc.dso.dispatch.version.one.fetch(dpList->listSize,
-				   dpList->list, &result);
-	    else
+	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_4)
+		sts = aPtr->ipc.dso.dispatch.version.four.fetch(dpList->listSize,
+				   dpList->list, &result, 
+				   aPtr->ipc.dso.dispatch.version.four.ext);
+	    else if (aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
+	        aPtr->ipc.dso.dispatch.comm.pmda_interface == PMDA_INTERFACE_3)
 		sts = aPtr->ipc.dso.dispatch.version.two.fetch(dpList->listSize,
 				   dpList->list, &result, 
 				   aPtr->ipc.dso.dispatch.version.two.ext);
+	    else
+		sts = aPtr->ipc.dso.dispatch.version.one.fetch(dpList->listSize,
+				   dpList->list, &result);
 	    if (sts >= 0) {
 		if (result == NULL) {
 		    __pmNotifyErr(LOG_WARNING,

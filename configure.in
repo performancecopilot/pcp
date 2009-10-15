@@ -66,6 +66,7 @@ then
     test -f /etc/fedora-release && target_distro=fedora
     test -f /etc/redhat-release && target_distro=redhat
     test -f /etc/debian_version && target_distro=debian
+    test -f /etc/slackware-version && target_distro=slackware
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS)
@@ -164,11 +165,11 @@ dnl output header with cpp defs HAVE_*, etc
 AC_CONFIG_HEADER(src/include/platform_defs.h)
 
 dnl check if user wants their own C compiler
-if test -z "$CC"; then
-    AC_PROG_CC
-fi
+AC_PROG_CC
 cc=$CC
 AC_SUBST(cc)
+cc_is_gcc=$GCC
+AC_SUBST(cc_is_gcc)
 
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax
@@ -356,6 +357,13 @@ fi
 mkinstallp=$MKINSTALLP
 AC_SUBST(mkinstallp)
 
+dnl check for the Solaris pmgmk package maker
+if test -z "$PKGMK"; then
+    AC_PATH_PROG(PKGMK, pkgmk)
+fi
+pkgmk=$PKGMK
+AC_SUBST(pkgmk)
+
 dnl check if the dlltool program is available
 if test -z "$DLLTOOL"; then
     AC_PATH_PROG(DLLTOOL, dlltool)
@@ -386,13 +394,6 @@ else
 fi
 AC_SUBST(rpmprog)
 
-dnl check if the cpanflute2 program is available (perl rpm builder)
-if test -z "$CPANFLUTE"; then
-    AC_PATH_PROG(CPANFLUTE, cpanflute2)
-fi
-cpanflute=$CPANFLUTE
-AC_SUBST(cpanflute)
-
 dnl check if the pod2man program is available (perl man page builder)
 if test -z "$POD2MAN"; then
     AC_PATH_PROG(POD2MAN, pod2man)
@@ -415,13 +416,6 @@ else
     exit 1
 fi
 
-dnl check if the gendist program is available
-if test -z "$GENDIST" ; then
-   AC_PATH_PROG(GENDIST, gendist) 
-fi
-gendist=$GENDIST
-AC_SUBST(gendist)
-
 dnl check if the makedepend program is available
 if test -z "$MAKEDEPEND"; then
     AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
@@ -429,12 +423,26 @@ fi
 makedepend=$MAKEDEPEND
 AC_SUBST(makedepend)
 
-dnl check if the dpkg program is available
+dnl check if the md5sum program is available
+if test -z "$MD5SUM"; then
+   AC_PATH_PROG(MD5SUM, md5sum, /bin/true)
+fi
+md5sum=$MD5SUM
+AC_SUBST(md5sum)
+
+dnl check if the Debian dpkg program is available
 if test -z "$DPKG"; then
    AC_PATH_PROG(DPKG, dpkg)
 fi
 dpkg=$DKPG
 AC_SUBST(dpkg)
+
+dnl check for the Slackware makepkg packaging tool
+if test -z "$MAKEPKG"; then
+   AC_PATH_PROG(MAKEPKG, makepkg)
+fi
+makepkg=$MAKEPKG
+AC_SUBST(makepkg)
 
 dnl check if symbolic links are supported
 AC_PROG_LN_S
@@ -443,16 +451,12 @@ if test $target_os = mingw; then
 fi
 
 dnl check if user wants their own lex, yacc
-if test -z "$YACC"; then
-    AC_PROG_YACC
-fi
-yacc=$YACC
-AC_SUBST(yacc)
-if test -z "$LEX"; then
-    AC_PROG_LEX
-fi
+AC_PROG_LEX
 lex=$LEX
 AC_SUBST(lex)
+AC_PROG_YACC
+yacc=$YACC
+AC_SUBST(yacc)
 
 dnl extra check for lex and yacc as these are often not installed
 AC_MSG_CHECKING([if yacc is executable])
@@ -652,8 +656,9 @@ AC_CHECK_HEADERS(sys/time.h sys/times.h sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h pthread.h getopt.h)
 AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
 AC_CHECK_HEADERS(pwd.h regex.h termios.h sys/termios.h sys/ioctl.h sys/wait.h)
-AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h iptypes.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
+AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
+AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
 
 dnl Check if we have <sys/endian.h> ... standard way
 AC_MSG_CHECKING([for sys/endian.h ])
@@ -708,7 +713,7 @@ dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(gettimeofday mktime nanosleep putenv)
+AC_CHECK_FUNCS(gettimeofday mktime nanosleep unsetenv)
 AC_CHECK_FUNCS(gethostname hstrerror select socket)
 AC_CHECK_FUNCS(uname syslog __clone fcntl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
@@ -981,9 +986,11 @@ echo "./conftest -> \"$ans\"" >&5
 AC_MSG_RESULT($ans)
 if test $ans -eq 4; then
     AC_DEFINE(HAVE_32BIT_PTR)
+    PCP_PTR_SIZE=32
 fi
 if test $ans -eq 8; then
     AC_DEFINE(HAVE_64BIT_PTR)
+    PCP_PTR_SIZE=64
 fi
 rm -f conftest conftest.*
 
@@ -1146,7 +1153,7 @@ AC_TRY_LINK([#include <sys/wait.h>],
     SIGRET x = SIG_IGN;
 ], AC_DEFINE(HAVE_WAIT_INCLUDES_SIGNAL))
 
-dnl check for type of fields in struct stat
+dnl check for name and type of time fields in struct stat
 dnl IRIX example	timespec_t st_mtim;	
 dnl Linux example 	struct timespec st_mtim;
 dnl Darwin example 	struct timespec st_mtimespec;
@@ -1157,38 +1164,49 @@ dnl				time_t tv_sec;
 dnl				long tv_nsec;
 dnl			};
 dnl
-if test $target_os = freebsd
+have_stat_type=false
+have_stat_name=false
+if test $have_stat_name = false
 then
-    # just too hard to work out for FreeBSD
-    AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC)
-    AC_DEFINE(HAVE_STAT_TIMESPEC)
-else
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtimespec>>changequote([, ]),
-    sys/stat.h, AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC))
-
-    if test $target_os != darwin
-    then
-	AC_EGREP_HEADER(
-	changequote(<<, >>)<<[ 	]st_mtime>>changequote([, ]),
-	sys/stat.h, AC_DEFINE(HAVE_ST_MTIME_WITH_E))
-    fi
-
+    sys/stat.h, [ have_stat_name=true; AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC) ])
+fi
+if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux
+then
+    AC_EGREP_HEADER(
+    changequote(<<, >>)<<[ 	]st_mtime>>changequote([, ]),
+    sys/stat.h, [ have_stat_name=true; AC_DEFINE(HAVE_ST_MTIME_WITH_E) ])
+fi
+if test $have_stat_type = false
+then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<timestruc_t[ 	][ 	]*st_mtim>>changequote([, ]),
-    sys/stat.h, AC_DEFINE(HAVE_STAT_TIMESTRUC))
-
+    sys/stat.h, [ have_stat_type=true; AC_DEFINE(HAVE_STAT_TIMESTRUC) ])
+fi
+if test $have_stat_type = false
+then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<timespec_t[ 	][ 	]*st_mtim>>changequote([, ]),
-    sys/stat.h, AC_DEFINE(HAVE_STAT_TIMESPEC_T))
-
+    sys/stat.h, [ have_stat_type=true; AC_DEFINE(HAVE_STAT_TIMESPEC_T) ])
+fi
+if test $have_stat_type = false
+then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<timespec[ 	][ 	]*st_mtim>>changequote([, ]),
-    sys/stat.h, AC_DEFINE(HAVE_STAT_TIMESPEC))
-
+    sys/stat.h, [ have_stat_type=true; AC_DEFINE(HAVE_STAT_TIMESPEC) ])
+fi
+if test $have_stat_type = false
+then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<time_t[ 	][ 	]*st_mtim>>changequote([, ]),
-    sys/stat.h, AC_DEFINE(HAVE_STAT_TIME_T))
+    sys/stat.h, [ have_stat_type=true; AC_DEFINE(HAVE_STAT_TIME_T) ])
+fi
+if test $have_stat_type = false
+then
+    echo 'FATAL ERROR: Cannot determine stuct stat time types.'
+    echo 'Please send a copy of sys/stat.h to pcp@oss.sgi.com.'
+    exit 1
 fi
 
 dnl
@@ -1329,6 +1347,15 @@ then
     # enforces that convention) but $libdir lies about it.
     pcp_lib_dir=/usr/lib64
     pcp_lib32_dir=/usr/lib
+elif test $target_os = "solaris"
+then
+    if test "$PCP_PTR_SIZE" -eq 64
+    then 
+	    pcp_lib_dir=/usr/lib/64
+	    pcp_lib32_dir=/usr/lib
+    else
+	    pcp_lib_dir=/usr/lib
+    fi
 else
     pcp_lib_dir=`eval echo $libdir`
     pcp_lib_dir=`eval echo $pcp_lib_dir`

@@ -31,6 +31,8 @@
 #include <sys/stat.h>
 
 static pmdaInterface dispatch;
+static char mypath[MAXPATHLEN];
+static int isDSO = 1;
 
 static pmdaMetric * metrics;
 static int mcnt;
@@ -68,7 +70,7 @@ static int scnt;
 static int
 update_namespace(void)
 {
-    char script[MAXPATHLEN];
+    char script[3*MAXPATHLEN];
     int sep = __pmPathSeparator();
 
     snprintf(script, sizeof(script),
@@ -234,8 +236,7 @@ map_stats(void)
 	char path[MAXPATHLEN];
 	char *client;
 
-	if (strncmp(files[i]->d_name, ".", 2) == 0 ||
-	    strncmp(files[i]->d_name, "..", 3) == 0)
+	if (files[i]->d_name[0] == '.')
 	    continue;
 
 	client = files[i]->d_name;
@@ -574,9 +575,10 @@ mmv_reload_maybe(void)
 	/* something changed - reload */
 	pmdaExt * pmda = dispatch.version.two.ext; /* we know it is V.2 */
 
+	/* Note: this line means we cannot run as shared library */
 	__pmSendError(pmda->e_outfd, PDU_BINARY, PM_ERR_PMDANOTREADY);
-	__pmNotifyErr(LOG_INFO, "%s: reloading", pmProgname);
 
+	__pmNotifyErr(LOG_INFO, "%s: reloading", pmProgname);
 	map_stats();
 
 	pmda->e_indoms = indoms;
@@ -690,6 +692,58 @@ mmv_store(pmResult *result, pmdaExt *ep)
     return 0;
 }
 
+
+void
+mmv_init(pmdaInterface *dp)
+{
+    int sep = __pmPathSeparator();
+
+    if (isDSO) {
+	snprintf(mypath, sizeof(mypath), "%s%c" "mmv" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	pmdaDSO(dp, PMDA_INTERFACE_3, "MMV DSO", mypath);
+    }
+
+    pcptmpdir = pmGetConfig("PCP_TMP_DIR");
+    pcpvardir = pmGetConfig("PCP_VAR_DIR");
+    pcppmdasdir = pmGetConfig("PCP_PMDAS_DIR");
+
+    sprintf(statsdir, "%s%c%s", pcptmpdir, sep, prefix);
+    sprintf(pmnsdir, "%s%c" "pmns", pcpvardir, sep);
+
+    /* Initialize internal dispatch table */
+    if (dp->status == 0) {
+	if ((metrics = malloc(sizeof(pmdaMetric))) != NULL) {
+	    metrics[mcnt].m_user = & reload;
+	    metrics[mcnt].m_desc.pmid = pmid_build(dp->domain, 0, 0);
+	    metrics[mcnt].m_desc.type = PM_TYPE_32;
+	    metrics[mcnt].m_desc.indom = PM_INDOM_NULL;
+	    metrics[mcnt].m_desc.sem = PM_SEM_INSTANT;
+	    memset(&metrics[mcnt].m_desc.units, 0, sizeof(pmUnits));
+	    mcnt = 1;
+	} else {
+	    __pmNotifyErr(LOG_ERR, "%s: pmdaInit - out of memory\n",
+				pmProgname);
+	    if (isDSO)
+		return;
+	    exit(0);
+	}
+
+	dp->version.two.fetch = mmv_fetch;
+	dp->version.two.store = mmv_store;
+	dp->version.two.desc = mmv_desc;
+	dp->version.two.text = mmv_text;
+	dp->version.two.instance = mmv_instance;
+
+	pmdaSetFetchCallBack(dp, mmv_fetchCallBack);
+
+	__pmNotifyErr(LOG_INFO, "%s: pmdaInit - %d metrics and %d indoms", 
+		      pmProgname, mcnt, incnt);
+
+	pmdaInit(dp, indoms, incnt, metrics, mcnt);
+    }
+}
+
 static void
 usage(void)
 {
@@ -707,9 +761,9 @@ main(int argc, char **argv)
 {
     int		err = 0;
     int		sep = __pmPathSeparator();
-    char	mypath[MAXPATHLEN];
     char	logfile[32];
 
+    isDSO = 0;
     __pmSetProgname(argv[0]);
     if (strncmp(pmProgname, "pmda", 4) == 0 && strlen(pmProgname) > 4)
 	prefix = pmProgname + 4;
@@ -722,45 +776,8 @@ main(int argc, char **argv)
 	err || argc != optind)
 	usage();
 
-    pcptmpdir = pmGetConfig("PCP_TMP_DIR");
-    pcpvardir = pmGetConfig("PCP_VAR_DIR");
-    pcppmdasdir = pmGetConfig("PCP_PMDAS_DIR");
-
-    sprintf(statsdir, "%s%c%s", pcptmpdir, sep, prefix);
-    sprintf(pmnsdir, "%s%c" "pmns", pcpvardir, sep);
-
     pmdaOpenLog(&dispatch);
-
-    /* Initialize internal dispatch table */
-    if (dispatch.status == 0) {
-	if ((metrics = malloc(sizeof(pmdaMetric))) != NULL) {
-	    metrics[mcnt].m_user = & reload;
-	    metrics[mcnt].m_desc.pmid = pmid_build(dispatch.domain, 0, 0);
-	    metrics[mcnt].m_desc.type = PM_TYPE_32;
-	    metrics[mcnt].m_desc.indom = PM_INDOM_NULL;
-	    metrics[mcnt].m_desc.sem = PM_SEM_INSTANT;
-	    memset(&metrics[mcnt].m_desc.units, 0, sizeof(pmUnits));
-	    mcnt = 1;
-	} else {
-	    __pmNotifyErr(LOG_ERR, "%s: pmdaInit - out of memory\n",
-				pmProgname);
-	    exit(0);
-	}
-
-	dispatch.version.two.fetch = mmv_fetch;
-	dispatch.version.two.store = mmv_store;
-	dispatch.version.two.desc = mmv_desc;
-	dispatch.version.two.text = mmv_text;
-	dispatch.version.two.instance = mmv_instance;
-
-	pmdaSetFetchCallBack(&dispatch, mmv_fetchCallBack);
-
-	__pmNotifyErr(LOG_INFO, "%s: pmdaInit - %d metrics and %d indoms", 
-		      pmProgname, mcnt, incnt);
-
-	pmdaInit(&dispatch, indoms, incnt, metrics, mcnt);
-    }
-
+    mmv_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
     exit(0);

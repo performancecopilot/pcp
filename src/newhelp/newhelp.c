@@ -85,17 +85,29 @@ newentry(char *buf)
     if ((n = pmLookupName(1, &name, &pmid)) < 0) {
 	/* apparently not a metric name */
 	int	domain;
+	int	cluster;
+	int	item;
 	int	serial;
-	if (sscanf(buf, "%d.%d", &domain, &serial) == 2) {
+	pmID	*pmidp;
+	if (sscanf(buf, "%d.%d.%d", &domain, &cluster, &item) == 3) {
+	    /* a numeric pmid */
+	    __pmID_int	ii;
+	    ii.domain = domain;
+	    ii.cluster = cluster;
+	    ii.item = item;
+	    ii.flag = 0;
+	    pmidp = (pmID *)&ii;
+	    pmid = *pmidp;
+	}
+	else if (sscanf(buf, "%d.%d", &domain, &serial) == 2) {
 	    /* an entry for an instance domain */
 	    __pmInDom_int	ii;
-	    int			*ip;
 	    ii.domain = domain;
 	    ii.serial = serial;
 	    /* set a bit here to disambiguate pmInDom from pmID */
-	    ii.pad = 1;
-	    ip = (int *)&ii;
-	    pmid = (pmID)*ip;
+	    ii.flag = 1;
+	    pmidp = (pmID *)&ii;
+	    pmid = *pmidp;
 	}
 	else {
 	    fprintf(stderr, "%s: [%s:%d] %s: %s, entry abandoned\n",
@@ -118,10 +130,10 @@ newentry(char *buf)
 	    __pmInDom_int	*kp = (__pmInDom_int *)&pmid;
 	    fprintf(stderr, "%s: [%s:%d] duplicate key (", 
 		    pmProgname, filename, ln);
-	    if (kp->pad == 0)
+	    if (kp->flag == 0)
 		fprintf(stderr, "%s", pmIDStr(pmid));
 	    else {
-		kp->pad = 0;
+		kp->flag = 0;
 		fprintf(stderr, "%s", pmInDomStr((pmInDom)pmid));
 	    }
 	    fprintf(stderr, ") entry abandoned\n");
@@ -218,11 +230,25 @@ newentry(char *buf)
 static int
 idcomp(const void *a, const void *b)
 {
-    help_idx_t	*ia, *ib;
+    /*
+     * comparing 32-bit keys here ... want PMIDs to go first the
+     * InDoms, sort by low order bits ... serial from InDom is easier
+     * than cluster and item from PMID, so use InDom format
+     */
+    __pmInDom_int	*iiap, *iibp;
 
-    ia = (help_idx_t *)a;
-    ib = (help_idx_t *)b;
-    return ia->pmid - ib->pmid;
+    iiap = (__pmInDom_int *)(&((help_idx_t *)a)->pmid);
+    iibp = (__pmInDom_int *)(&((help_idx_t *)b)->pmid);
+
+    if (iiap->flag == iibp->flag)
+	/* both of the same type, use serial to order */
+	return iiap->serial - iibp->serial;
+    else if (iiap->flag == 0)
+	/* a is the PMID, b is an InDom */
+	return -1;
+    else
+	/* b is the PMID, a is an InDom */
+	return 1;
 }
 
 int

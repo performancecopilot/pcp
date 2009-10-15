@@ -1,3 +1,31 @@
+pcp (3.0.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Original Alpha build issue resolved (closes: #541547)
+  * More recent Alpha build issue resolved too (closes: #545851)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 09 Oct 2009 12:55:12 +1100
+
+pcp (2.9.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 23 Sep 2009 17:03:07 +1000
+
+pcp (2.9.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Attempt to resolve Alpha platform build issues for Debian.
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 07 Sep 2009 16:26:54 +1000
+
+pcp (2.9.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Add Petters start script enhancements (closes: #544350)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 02 Sep 2009 13:30:31 +1000
+
 pcp (2.9.0) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

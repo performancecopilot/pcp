@@ -9,10 +9,10 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(
-    mmv_stats_init mmv_units
+    mmv_stats_init mmv_stats_stop mmv_units
 	mmv_lookup_value_desc
 	mmv_inc_value mmv_set_value mmv_set_string
-	mmv_stats_add mmv_stats_inc
+	mmv_stats_add mmv_stats_inc mmv_stats_set
 	mmv_stats_add_fallback mmv_stats_inc_fallback
 	mmv_stats_interval_start mmv_stats_interval_end
 	mmv_stats_set_string
@@ -31,7 +31,7 @@ require DynaLoader;
     MMV_TIME_SEC MMV_TIME_MIN MMV_TIME_HOUR
 );
 @EXPORT_OK = qw();
-$VERSION = '0.01';
+$VERSION = '1.00';
 
 sub MMV_INDOM_NULL	{ 0xffffffff; }
 

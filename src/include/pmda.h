@@ -31,7 +31,8 @@ extern "C" {
 #define PMDA_INTERFACE_1	1	/* initial argument style */
 #define PMDA_INTERFACE_2	2	/* new function arguments */
 #define PMDA_INTERFACE_3	3	/* 3-state return from fetch callback */
-#define PMDA_INTERFACE_LATEST	3
+#define PMDA_INTERFACE_4	4	/* dynamic pmns */
+#define PMDA_INTERFACE_LATEST	4
 
 /*
  * Type of I/O connection to PMCD (pmdaUnknown defaults to pmdaPipe)
@@ -164,8 +165,8 @@ typedef struct {
 	} one;
 
 /*
- * Interface Version 2 (PCP 2.0) or later
- * PMDA_INTERFACE_2, PMDA_INTERFACE_3, ...
+ * Interface Version 2 and 3 (PCP 2.0)
+ * PMDA_INTERFACE_2 and PMDA_INTERFACE_3
  */
 
 	struct {
@@ -177,6 +178,24 @@ typedef struct {
 	    int	    (*text)(int, int, char **, pmdaExt *);
 	    int	    (*store)(pmResult *, pmdaExt *);
 	} two;
+
+/*
+ * Interface Version 4 (dynamic pmns support)
+ * PMDA_INTERFACE_4
+ */
+
+	struct {
+	    pmdaExt *ext;
+	    int	    (*profile)(__pmProfile *, pmdaExt *);
+	    int	    (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+	    int	    (*desc)(pmID, pmDesc *, pmdaExt *);
+	    int	    (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
+	    int	    (*text)(int, int, char **, pmdaExt *);
+	    int	    (*store)(pmResult *, pmdaExt *);
+	    int     (*pmid)(char *, pmID *, pmdaExt *);
+	    int     (*name)(pmID, char ***, pmdaExt *);
+	    int     (*children)(char *, int, char ***, int **, pmdaExt *);
+	} four;
 
     } version;
 
@@ -300,6 +319,21 @@ extern void pmdaSetDoneCallBack(pmdaInterface *, pmdaDoneCallBack);
  *
  * pmdaStore
  *	Store a value into a metric. This is a no-op.
+ *
+ * pmdaPMID
+ *	Return the PMID for a named metric within a dynamic subtree
+ *	of the PMNS.
+ *
+ * pmdaName
+ *	Given a PMID, return the names of all matching metrics within a
+ *	dynamic subtree of the PMNS.
+ *
+ * pmdaChildren
+ *	If traverse == 0, return the names of all the descendent children
+ *      and their status, given a named metric in a dynamic subtree of
+ *	the PMNS (this is the pmGetChildren or pmGetChildrenStatus variant).
+ *	If traverse == 1, return the full names of all descendent metrics
+ *	(this is the pmTraversePMNS variant, with the status added)
  */
 
 extern int pmdaProfile(__pmProfile *, pmdaExt *);
@@ -308,6 +342,9 @@ extern int pmdaInstance(pmInDom, int, char *, __pmInResult **, pmdaExt *);
 extern int pmdaDesc(pmID, pmDesc *, pmdaExt *);
 extern int pmdaText(int, int, char **, pmdaExt *);
 extern int pmdaStore(pmResult *, pmdaExt *);
+extern int pmdaPMID(char *, pmID *, pmdaExt *);
+extern int pmdaName(pmID, char ***, pmdaExt *);
+extern int pmdaChildren(char *, int, char ***, int **, pmdaExt *);
 
 /*
  * PMDA "help" text manipulation

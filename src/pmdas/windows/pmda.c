@@ -214,104 +214,116 @@ pdh_metric_t metricdesc[] = {
     },
 /* network.interface.in.packets */
     { { PMDA_PMID(0,38), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
-	M_REDO | M_AUTO64, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets Received/sec"
     },
 /* network.interface.in.bytes */
     { { PMDA_PMID(0,39), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1, 0,0, PM_SPACE_BYTE, 0,0) },
-	M_REDO | M_AUTO64, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0,0, PM_SPACE_BYTE, 0,0)
+      }, M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Bytes Received/sec"
     },
 /* network.interface.in.errors */
     { { PMDA_PMID(0,40), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
-	M_REDO | M_AUTO64, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets Received Errors"
     },
 /* network.interface.out.packets */
     { { PMDA_PMID(0,41), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
-	M_REDO | M_AUTO64, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets Sent/sec"
     },
 /* network.interface.out.bytes */
     { { PMDA_PMID(0,42), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1, 0,0, PM_SPACE_BYTE, 0,0) },
-	M_REDO | M_AUTO64, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0,0, PM_SPACE_BYTE, 0,0)
+      }, M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Bytes Sent/sec"
     },
 /* network.interface.out.errors */
     { { PMDA_PMID(0,43), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
-	M_REDO | M_AUTO64, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets Outbound Errors"
     },
 /* network.interface.total.packets */
     { { PMDA_PMID(0,44), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
-	M_NONE | M_AUTO64, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NONE | M_AUTO64, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Packets/sec"
     },
 /* network.interface.total.bytes */
     { { PMDA_PMID(0,45), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) },
+	M_NONE, 0, 0, 0, NULL,
       "\\Network Interface(*)\\Bytes Total/sec"
     },
 /* sqlserver.buf_mgr.cache_hit_ratio */
     { { PMDA_PMID(0,46), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Buffer cache hit ratio"
     },
 /* sqlserver.buf_mgr.page_lookups */
     { { PMDA_PMID(0,47), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Page lookups/sec"
     },
 /* sqlserver.buf_mgr.free_list_stalls */
     { { PMDA_PMID(0,48), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Free list stalls/sec"
     },
 /* sqlserver.buf_mgr.free_pages */
     { { PMDA_PMID(0,49), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Free pages"
     },
 /* sqlserver.buf_mgr.total_pages */
     { { PMDA_PMID(0,50), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Total pages"
     },
 /* sqlserver.buf_mgr.target_pages */
     { { PMDA_PMID(0,51), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Target pages"
     },
 /* sqlserver.buf_mgr.database_pages */
     { { PMDA_PMID(0,52), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Database pages"
     },
 /* sqlserver.buf_mgr.reserved_pages */
     { { PMDA_PMID(0,53), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Reserved pages"
     },
 /* sqlserver.buf_mgr.stolen_pages */
     { { PMDA_PMID(0,54), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Stolen pages"
     },
 /* sqlserver.buf_mgr.lazy_writes */
     { { PMDA_PMID(0,55), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Lazy writes/sec"
     },
 /* sqlserver.buf_mgr.readahead_pages */
     { { PMDA_PMID(0,56), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Readahead pages/sec"
     },
 /* sqlserver.buf_mgr.procedure_cache_pages */
@@ -321,47 +333,56 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.buf_mgr.page_reads */
     { { PMDA_PMID(0,58), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Page reads/sec"
     },
 /* sqlserver.buf_mgr.page_writes */
     { { PMDA_PMID(0,59), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Page writes/sec"
     },
 /* sqlserver.buf_mgr.checkpoint_pages */
     { { PMDA_PMID(0,60), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Checkpoint pages/sec"
     },
 /*  sqlserver.buf_mgr.awe.lookup_maps */
     { { PMDA_PMID(0,61), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\AWE lookup maps/sec"
     },
 /* sqlserver.buf_mgr.awe.stolen_maps */
     { { PMDA_PMID(0,62), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\AWE stolen maps/sec"
     },
 /* sqlserver.buf_mgr.awe.write_maps */
     { { PMDA_PMID(0,63), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\AWE write maps/sec"
     },
 /* sqlserver.buf_mgr.awe.unmap_calls */
     { { PMDA_PMID(0,64), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\AWE unmap calls/sec"
     },
 /* sqlserver.buf_mgr.awe.unmap_pages */
     { { PMDA_PMID(0,65), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\AWE unmap pages/sec"
     },
 /* sqlserver.buf_mgr.page_life_expectancy */
     { { PMDA_PMID(0,66), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Buffer Manager\\Page life expectancy"
     },
 /* filesys.full */
@@ -376,62 +397,74 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.locks.all.requests */
     { { PMDA_PMID(0,69), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Locks(_Total)\\Lock Requests/sec"
     },
 /* sqlserver.locks.all.waits */
     { { PMDA_PMID(0,70), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Locks(_Total)\\Lock Waits/sec"
     },
 /* sqlserver.locks.all.deadlocks */
     { { PMDA_PMID(0,71), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Locks(_Total)\\Number of Deadlocks/sec"
     },
 /* sqlserver.locks.all.timeouts */
     { { PMDA_PMID(0,72), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Locks(_Total)\\Lock Timeouts/sec"
     },
 /* sqlserver.locks.all.wait_time */
     { { PMDA_PMID(0,73), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Locks(_Total)\\Lock Wait Time (ms)"
     },
-/* sqlserver.locks.all.avg_wait */
+/* sqlserver.locks.all.avg_wait_time */
     { { PMDA_PMID(0,74), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Locks(_Total)\\Average Wait Time (ms)"
     },
 /* sqlserver.locks.region.requests */
     { { PMDA_PMID(0,75), PM_TYPE_U32, SQL_LOCK_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Locks(*)\\Lock Requests/sec"
     },
 /* sqlserver.locks.region.waits */
     { { PMDA_PMID(0,76), PM_TYPE_U32, SQL_LOCK_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Locks(*)\\Lock Waits/sec"
     },
 /* sqlserver.locks.region.deadlocks */
     { { PMDA_PMID(0,77), PM_TYPE_U32, SQL_LOCK_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Locks(*)\\Number of Deadlocks/sec"
     },
 /* sqlserver.locks.region.timeouts */
     { { PMDA_PMID(0,78), PM_TYPE_U32, SQL_LOCK_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Locks(*)\\Lock Timeouts/sec"
     },
 /* sqlserver.locks.region.wait_time */
     { { PMDA_PMID(0,79), PM_TYPE_U32, SQL_LOCK_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Locks(*)\\Lock Wait Time (ms)"
     },
 /* sqlserver.locks.region.avg_wait */
     { { PMDA_PMID(0,80), PM_TYPE_FLOAT, SQL_LOCK_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Locks(*)\\Average Wait Time (ms)"
     },
 /* sqlserver.cache_mgr.all.cache_hit_ratio */
@@ -446,101 +479,110 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.connections */
     { { PMDA_PMID(0,83), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:General Statistics\\User Connections"
     },
 /* sqlserver.databases.all.transactions */
     { { PMDA_PMID(0,84), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(_Total)\\Transactions/sec"
     },
 /* sqlserver.databases.db.transactions */
     { { PMDA_PMID(0,85), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
-	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_REDO | M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(*)\\Transactions/sec"
     },
 /* sqlserver.sql.batch_requests */
     { { PMDA_PMID(0,86), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
-	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_REDO | M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:SQL Statistics\\Batch Requests/sec"
     },
 /* sqlserver.latches.waits */
     { { PMDA_PMID(0,87), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) },
-	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_REDO | M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Latches\\Latch Waits/sec"
     },
 /* sqlserver.latches.wait_time */
     { { PMDA_PMID(0,88), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) },
-	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
+      }, M_REDO | M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Latches\\Total Latch Wait Time (ms)"
     },
 /* sqlserver.latches.avg_wait_time */
     { { PMDA_PMID(0,89), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) },
-	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0)
+      }, M_REDO | M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Latches\\Average Latch Wait Time (ms)"
     },
 /* sqlserver.databases.all.data_file_size */
     { { PMDA_PMID(0,90), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(_Total)\\Data File(s) Size (KB)"
     },
 /* sqlserver.databases.all.log_file_size */
     { { PMDA_PMID(0,91), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) },
-	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+      }, M_REDO | M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(_Total)\\Log File(s) Size (KB)"
     },
 /* sqlserver.databases.all.log_file_used */
     { { PMDA_PMID(0,92), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(_Total)\\Log File(s) Used Size (KB)"
     },
 /* sqlserver.databases.db.data_file_size */
     { { PMDA_PMID(0,93), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
-      }, M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
+      }, M_REDO | M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(*)\\Data File(s) Size (KB)"
     },
 /* sqlserver.databases.db.log_file_size */
     { { PMDA_PMID(0,94), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
-      }, M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
+      }, M_REDO | M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(*)\\Log File(s) Size (KB)"
     },
 /* sqlserver.databases.db.log_file_used */
     { { PMDA_PMID(0,95), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
-      }, M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
+      }, M_REDO | M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(*)\\Log File(s) Used Size (KB)"
     },
 /* sqlserver.sql.compilations */
     { { PMDA_PMID(0,96), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:SQL Statistics\\SQL Compilations/sec"
     },
 /* sqlserver.sql.re_compilations */
     { { PMDA_PMID(0,97), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:SQL Statistics\\SQL Re-Compilations/sec"
     },
 /* sqlserver.access.full_scans */
     { { PMDA_PMID(0,98), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Access Methods\\Full Scans/sec"
     },
 /* sqlserver.access.pages_allocated */
     { { PMDA_PMID(0,99), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Access Methods\\Pages Allocated/sec"
     },
 /* sqlserver.access.table_lock_escalations */
     { { PMDA_PMID(0,100), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Access Methods\\Table Lock Escalations/sec"
     },
 /* disk.dev.queuelen */
@@ -550,25 +592,26 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.databases.all.log_flushes */
     { { PMDA_PMID(0,102), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(_Total)\\Log Flushes/sec"
     },
 /* sqlserver.databases.db.log_flushes */
     { { PMDA_PMID(0,103), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
+      }, M_REDO | M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(*)\\Log Flushes/sec"
     },
 /* sqlserver.databases.all.log_bytes_flushed */
     { { PMDA_PMID(0,104), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) },
-	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_REDO | M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(_Total)\\Log Bytes Flushed/sec"
     },
 /* sqlserver.databases.db.log_bytes_flushed */
     { { PMDA_PMID(0,105), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) },
-	M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_REDO | M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(*)\\Log Bytes Flushed/sec"
     },
 /* hinv.physmem */
@@ -640,7 +683,8 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.access.page_splits */
     { { PMDA_PMID(0,122), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Access Methods\\Page Splits/sec"
     },
 /* network.tcp.activeopens */
@@ -702,13 +746,14 @@ pdh_metric_t metricdesc[] = {
 
 /* sqlserver.databases.all.active_transactions */
     { { PMDA_PMID(0,134), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(_Total)\\Active Transactions"
     },
 /* sqlserver.databases.db.active_transactions */
     { { PMDA_PMID(0,135), PM_TYPE_U32, SQL_DB_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, M_REDO | M_OPTIONAL, 0, 0, 0, NULL,
+      }, M_REDO | M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Databases(*)\\Active Transactions"
     },
 
@@ -800,62 +845,74 @@ pdh_metric_t metricdesc[] = {
 
 /* sqlserver.mem_mgr.connection_memory */
     { { PMDA_PMID(0,153), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Memory Manager\\Connection Memory (KB)"
     },
 /* sqlserver.mem_mgr.granted_workspace */
     { { PMDA_PMID(0,154), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Memory Manager\\Granted Workspace Memory (KB)"
     },
 /* sqlserver.mem_mgr.lock_memory */
     { { PMDA_PMID(0,155), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Memory Manager\\Lock Memory (KB)"
     },
 /* sqlserver.mem_mgr.lock_blocks_allocated */
     { { PMDA_PMID(0,156), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Memory Manager\\Lock Blocks Allocated"
     },
 /* sqlserver.mem_mgr.lock_owner_blocks_allocated */
     { { PMDA_PMID(0,157), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Memory Manager\\Lock Owner Blocks Allocated"
     },
 /* sqlserver.mem_mgr.lock_blocks */
     { { PMDA_PMID(0,158), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Memory Manager\\Lock Blocks"
     },
 /* sqlserver.mem_mgr.lock_owner_blocks */
     { { PMDA_PMID(0,159), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Memory Manager\\Lock Owner Blocks"
     },
 /* sqlserver.mem_mgr.maximum_workspace_memory */
     { { PMDA_PMID(0,160), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Memory Manager\\Maximum Workspace Memory (KB)"
     },
 /* sqlserver.mem_mgr.memory_grants_outstanding */
     { { PMDA_PMID(0,161), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Memory Manager\\Memory Grants Outstanding"
     },
 /* sqlserver.mem_mgr.memory_grants_pending */
     { { PMDA_PMID(0,162), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Memory Manager\\Memory Grants Pending"
     },
 /* sqlserver.mem_mgr.optimizer_memory */
     { { PMDA_PMID(0,163), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Memory Manager\\Optimizer Memory (KB)"
     },
 /* sqlserver.mem_mgr.sql_cache_memory */
     { { PMDA_PMID(0,164), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Memory Manager\\SQL Cache Memory (KB)"
     },
 /* sqlserver.mem_mgr.target_server_memory */
@@ -865,7 +922,8 @@ pdh_metric_t metricdesc[] = {
     },
 /* sqlserver.mem_mgr.total_server_memory */
     { { PMDA_PMID(0,166), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0) }, M_OPTIONAL, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,PM_SPACE_KBYTE,0,0,0)
+      }, M_OPTIONAL | M_AUTO64, 0, 0, 0, NULL,
       "\\SQLServer:Memory Manager\\Total Server Memory (KB)"
     },
 /* sqlserver.cache_mgr.all.cache_pages */
@@ -915,12 +973,12 @@ pdh_metric_t metricdesc[] = {
     },
 /* process.psinfo.cpu_time */
     { { PMDA_PMID(0,176), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0) },
-	M_REDO | M_AUTO64, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\Process(*)\\% Processor Time"
     },
 /* process.psinfo.elapsed_time */
-    { { PMDA_PMID(0,177), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_COUNTER, 
+    { { PMDA_PMID(0,177), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Elapsed Time"
     },
@@ -956,52 +1014,52 @@ pdh_metric_t metricdesc[] = {
     },
 /* process.memory.size */
     { { PMDA_PMID(0,184), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Pool Paged Bytes"
     },
 /* process.memory.rss */
     { { PMDA_PMID(0,185), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Working Set"
     },
 /* process.memory.rss_peak */
     { { PMDA_PMID(0,186), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Working Set Peak"
     },
 /* process.memory.virtual */
     { { PMDA_PMID(0,187), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Virtual Bytes"
     },
 /* process.memory.virtual_peak */
     { { PMDA_PMID(0,188), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Virtual Bytes Peak"
     },
 /* process.memory.page_file */
     { { PMDA_PMID(0,189), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Page File Bytes"
     },
 /* process.memory.page_file_peak */
     { { PMDA_PMID(0,190), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Page File Bytes Peak"
     },
 /* process.memory.private */
     { { PMDA_PMID(0,191), PM_TYPE_U64, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Private Bytes"
     },
 /* process.memory.pool_paged */
     { { PMDA_PMID(0,192), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Pool Paged Bytes"
     },
 /* process.memory.pool_nonpaged */
     { { PMDA_PMID(0,193), PM_TYPE_U32, PROCESS_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_REDO, 0, 0, 0, NULL,
       "\\Process(*)\\Pool Nonpaged Bytes"
     },
 /* process.io.reads */
@@ -1205,6 +1263,12 @@ pdh_metric_t metricdesc[] = {
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, M_NONE, 0, 0, 0, NULL, ""
     },
 
+/* kernel.all.uptime */
+    { { PMDA_PMID(0,234), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, M_REDO, 0, 0, 0, NULL,
+      "\\System\\System Up Time"
+    },
+
 /* mem.physmem */
     { { PMDA_PMID(1,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0) }, M_NONE, 0, 0, 0, NULL,
@@ -1263,7 +1327,7 @@ windows_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static pdh_value_t *
-find_instance_value(int item, int inst)
+find_instance_value(unsigned int item, unsigned int inst)
 {
     pdh_metric_t	*mp = &metricdesc[item];
     int			i;
@@ -1284,7 +1348,7 @@ find_instance_value(int item, int inst)
 }
 
 static int
-filesys_fetch_callback(int item, int inst, pmAtomValue *atom)
+filesys_fetch_callback(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
     pdh_value_t		*vp;
     unsigned long long	used, avail, capacity;
@@ -1334,7 +1398,7 @@ filesys_fetch_callback(int item, int inst, pmAtomValue *atom)
 }
 
 static int
-memstat_fetch_callback(int item, int inst, pmAtomValue *atom)
+memstat_fetch_callback(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
     if (inst == PM_INDOM_NULL) {
 	switch (item) {
@@ -1465,6 +1529,8 @@ windows_init(pmdaInterface *dp)
 	return;
     }
 
+    windows_open();
+
     for (i = 0; i < metrictab_sz; i++) {
 	/* rewrite pmid & indom, now that we know what the domain number is */
 	pdh_metric_t *mp = &metricdesc[i];
@@ -1479,8 +1545,6 @@ windows_init(pmdaInterface *dp)
 	metrictab[i].m_desc = mp->desc;
 	metrictab[i].m_user = NULL;
     }
-
-    windows_open();
 
     dp->version.two.fetch = windows_fetch;
     dp->version.two.instance = windows_instance;

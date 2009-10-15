@@ -312,6 +312,70 @@ main(int argc, char **argv)
 	    case EOL:
 		break;
 
+	    case PMNS_NAME:
+		switch (connmode) {
+		    case PDU_DSO:
+			dodso(PDU_PMNS_IDS);
+			break;
+		    
+		    case PDU_BINARY:
+			dopmda(PDU_PMNS_IDS);
+			break;
+		    
+		    case PDU_NOT:
+			yywarn("No PMDA currently opened");
+			break;
+		}
+		break;
+
+	    case PMNS_PMID:
+		switch (connmode) {
+		    case PDU_DSO:
+			dodso(PDU_PMNS_NAMES);
+			break;
+		    
+		    case PDU_BINARY:
+			dopmda(PDU_PMNS_NAMES);
+			break;
+		    
+		    case PDU_NOT:
+			yywarn("No PMDA currently opened");
+			break;
+		}
+		break;
+
+	    case PMNS_CHILDREN:
+		switch (connmode) {
+		    case PDU_DSO:
+			dodso(PDU_PMNS_CHILD);
+			break;
+		    
+		    case PDU_BINARY:
+			dopmda(PDU_PMNS_CHILD);
+			break;
+		    
+		    case PDU_NOT:
+			yywarn("No PMDA currently opened");
+			break;
+		}
+		break;
+
+	    case PMNS_TRAVERSE:
+		switch (connmode) {
+		    case PDU_DSO:
+			dodso(PDU_PMNS_TRAVERSE);
+			break;
+		    
+		    case PDU_BINARY:
+			dopmda(PDU_PMNS_TRAVERSE);
+			break;
+		    
+		    case PDU_NOT:
+			yywarn("No PMDA currently opened");
+			break;
+		}
+		break;
+
 	    default:
 		printf("Unexpected result (%d) from parser?\n", stmt_type);
 		break;

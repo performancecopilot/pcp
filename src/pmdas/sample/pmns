@@ -75,6 +75,7 @@ sample {
     kbyte_rate	SAMPLE:0:84
     byte_rate_perhour	SAMPLE:0:85
     datasize	SAMPLE:0:91
+    secret	SAMPLE:*:*
 }
 
 sample.long {

@@ -18,3 +18,4 @@ devel_files.rpm
 libs_files
 libs_files.rpm
 gram*.tab.c
+perl-pcp-*.list

@@ -34,6 +34,7 @@
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-T\f1 \f2endtime\f1]
 [\f3\-t\f1 \f2interval\f1]
+[\f3\-U\f1 \f2archive\f1]
 [\f3\-w\f1 \f2width\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 \f2metricname\f1
@@ -67,7 +68,9 @@ Unless directed to another host by the
 option,
 or to an archive by the
 .B \-a
-option,
+or
+.B \-U
+options,
 .B pmval
 will contact the Performance Metrics Collector Daemon (PMCD)
 on the local host to obtain the required information.
@@ -232,6 +235,26 @@ argument follows the syntax described in
 and in the simplest form may be an unsigned integer (the implied
 units in this case are seconds).
 .TP
+.B \-U
+Performance metric values are retrieved from the Performance Co-Pilot (PCP)
+archive log file identified by the base name
+.IR archive ,
+although unlike
+.B \-a
+every recorded value in the archive for the selected metric
+and instances is reported (so no interpolation mode, and the sample
+interval (\c
+.B \-t
+option) is ignored.
+.RS +5n
+.PP
+At most one of the options
+.B \-a
+and
+.B \-U
+may be specified.
+.RE
+.TP
 .B \-w
 Set the width of each column of output to be
 .I width
@@ -261,6 +284,8 @@ the source of the performance metrics, as identified via either the
 .B \-h
 or
 .B \-a
+of
+.B \-U
 options.
 .PP
 The following symbols may occasionally appear, in place of a metric value, in

@@ -20,7 +20,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-LDIRT = $(wildcard pcp*.tar.gz)
+LDIRT = $(wildcard pcp*.tar.gz pcp*.md5sum.src)
 
 default install :
 

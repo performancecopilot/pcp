@@ -5,7 +5,7 @@ Homepage: http://oss.sgi.com/projects/pcp
 Maintainer: Nathan Scott <nathans@debian.org>
 Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
 Build-Depends: autoconf, bison, flex, gawk, procps, debhelper (>= 5), perl (>= 5.6)
-Standards-Version: 3.8.1
+Standards-Version: 3.8.3
 
 Package: pcp
 Depends: ${shlibs:Depends}, gawk, procps, sysv-rc-conf, cpp

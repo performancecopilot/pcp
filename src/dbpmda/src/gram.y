@@ -70,6 +70,7 @@ param_t	param;
 %term	COMMA EQUAL
 	OPEN CLOSE DESC GETDESC FETCH INSTANCE PROFILE HELP 
 	WATCH DBG QUIT STATUS STORE INFO TIMER NAMESPACE WAIT
+	PMNS_NAME PMNS_PMID PMNS_CHILDREN PMNS_TRAVERSE
 	DSO PIPE
 	ADD DEL ALL NONE INDOM ON OFF
 	PLUS EOL
@@ -79,6 +80,7 @@ param_t	param;
 	indom
 	optdomain
 	debug
+	raw_pmid
 
 %type <y_str>
 	fname
@@ -215,6 +217,38 @@ stmt	: OPEN EOL				{
 	| WATCH fname EOL			{
 		watch($2);
 		stmt_type = WATCH; YYACCEPT;
+	    }
+	| PMNS_NAME EOL				{
+		param.number = PMNS_NAME; param.pmid = HELP_USAGE;
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| PMNS_NAME raw_pmid EOL		{
+		param.pmid = $2;
+		stmt_type = PMNS_NAME; YYACCEPT;
+	    }
+	| PMNS_PMID EOL				{
+		param.number = PMNS_PMID; param.pmid = HELP_USAGE;
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| PMNS_PMID NAME EOL			{
+		param.name = $2;
+		stmt_type = PMNS_PMID; YYACCEPT;
+	    }
+	| PMNS_CHILDREN EOL				{
+		param.number = PMNS_CHILDREN; param.pmid = HELP_USAGE;
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| PMNS_CHILDREN NAME EOL			{
+		param.name = $2;
+		stmt_type = PMNS_CHILDREN; YYACCEPT;
+	    }
+	| PMNS_TRAVERSE EOL				{
+		param.number = PMNS_TRAVERSE; param.pmid = HELP_USAGE;
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| PMNS_TRAVERSE NAME EOL			{
+		param.name = $2;
+		stmt_type = PMNS_TRAVERSE; YYACCEPT;
 	    }
 	| NAMESPACE fname EOL			{
 		param.name = $2;
@@ -418,6 +452,15 @@ indom	: NUMBER				{
 		indom.part.domain = $1.num1;
 		indom.part.serial = $1.num2;
 		$$ = (int)indom.whole;
+	    }
+	;
+
+raw_pmid: NUMBER3D 				{
+		pmid.whole = 0;
+		pmid.part.domain = $1.num1;
+		pmid.part.cluster = $1.num2;
+		pmid.part.item = $1.num3;
+		$$ = (int)pmid.whole;
 	    }
 	;
 

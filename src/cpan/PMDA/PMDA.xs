@@ -488,7 +488,7 @@ new(CLASS,name,domain)
 	    dispatch.version.two.text = text;
 	}
 	else {
-	    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmdaname, domain,
+	    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmdaname, domain,
 			logfile, helpfile);
 	}
 	if (!getenv("PCP_PERL_PMNS") && !getenv("PCP_PERL_DOMAIN")) {
@@ -624,6 +624,26 @@ pmda_uptime(now)
 	else
 	    snprintf(s, sz, "%02d:%02d:%02d", hours, mins, secs);
 	RETVAL = s;
+    OUTPUT:
+	RETVAL
+
+int
+pmda_long()
+    CODE:
+	if (sizeof(long) == 32)
+	    RETVAL = PM_TYPE_32;
+	else
+	    RETVAL = PM_TYPE_64;
+    OUTPUT:
+	RETVAL
+
+int
+pmda_ulong()
+    CODE:
+	if (sizeof(unsigned long) == 32)
+	    RETVAL = PM_TYPE_U32;
+	else
+	    RETVAL = PM_TYPE_U64;
     OUTPUT:
 	RETVAL
 

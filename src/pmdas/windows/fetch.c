@@ -31,10 +31,9 @@ windows_fetch_memstat(void)
 int
 windows_collect_metric(pdh_metric_t *mp, LPSTR pat, pdh_value_t *vp)
 {
-    PDH_RAW_COUNTER	raw;
     PDH_STATUS  	pdhsts;
     PDH_HQUERY		queryhdl = NULL;
-    PDH_HCOUNTER	counterhdl = NULL;
+    PDH_HCOUNTER	counthdl = NULL;
     int			sts = -1;
 
     if (mp->flags & M_NOVALUES)
@@ -47,7 +46,7 @@ windows_collect_metric(pdh_metric_t *mp, LPSTR pat, pdh_value_t *vp)
 	return sts;
     }
 
-    pdhsts = PdhAddCounterA(queryhdl, pat, vp->inst, &counterhdl);
+    pdhsts = PdhAddCounterA(queryhdl, pat, vp->inst, &counthdl);
     if (pdhsts != ERROR_SUCCESS) {
 	__pmNotifyErr(LOG_ERR, "windows_open: Warning: PdhAddCounterA "
 				"@ pmid=%s pat=\"%s\": %s\n",
@@ -64,49 +63,66 @@ windows_collect_metric(pdh_metric_t *mp, LPSTR pat, pdh_value_t *vp)
 			pmIDStr(mp->desc.pmid), pat, pdherrstr(pdhsts));
 	    vp->flags |= V_ERROR_SEEN;
 	}
-	goto done;
-    }
+    } else if ((mp->ctype == PERF_ELAPSED_TIME) ||
+		mp->ctype == PERF_LARGE_RAW_FRACTION) {
+	PDH_FMT_COUNTERVALUE fmt;
+	DWORD type;
 
-    pdhsts = PdhGetRawCounterValue(counterhdl, NULL, &raw);
-    if (pdhsts != ERROR_SUCCESS) {
-	__pmNotifyErr(LOG_ERR, "pdh_fetch: Error: PdhGetRawCounterValue "
+	if (mp->ctype == PERF_ELAPSED_TIME)
+	    type = PDH_FMT_LARGE;
+	else	/* PERF_LARGE_RAW_FRACTION */
+	    type = PDH_FMT_DOUBLE;
+
+	pdhsts = PdhGetFormattedCounterValue(counthdl, type, NULL, &fmt);
+	if (pdhsts != ERROR_SUCCESS) {
+	    __pmNotifyErr(LOG_ERR, "Error: PdhGetFormattedCounterValue "
 			"failed for metric %s inst %d: %s\n",
 			pmIDStr(mp->desc.pmid), vp->inst, pdherrstr(pdhsts));
-	/* no values for you! */
-	vp->flags = V_NONE;
-	goto done;
+	    vp->flags = V_NONE;	/* no values for you! */
+	} else if (mp->ctype == PERF_ELAPSED_TIME) {
+	    vp->atom.ull = fmt.largeValue;
+	    sts = 0;
+	} else {	/* PERF_LARGE_RAW_FRACTION */
+	    vp->atom.d = fmt.doubleValue;
+	    sts = 0;
+	}
+    } else {
+	PDH_RAW_COUNTER	raw;
+
+	pdhsts = PdhGetRawCounterValue(counthdl, NULL, &raw);
+	if (pdhsts != ERROR_SUCCESS) {
+	    __pmNotifyErr(LOG_ERR, "pdh_fetch: Error: PdhGetRawCounterValue "
+				"failed for metric %s inst %d: %s\n",
+			pmIDStr(mp->desc.pmid), vp->inst, pdherrstr(pdhsts));
+	    vp->flags = V_NONE;	/* no values for you! */
+	} else {
+	    switch (mp->ctype) {
+		case PERF_COUNTER_COUNTER:
+		case PERF_COUNTER_RAWCOUNT:
+		    /* these counters are only 32-bit */
+		    vp->atom.ul = (__uint32_t)raw.FirstValue;
+		    break;
+
+		case PERF_100NSEC_TIMER:
+		case PERF_PRECISION_100NS_TIMER:
+		    /* convert 100nsec units to usec */
+		    vp->atom.ull = raw.FirstValue / 10;
+		    break;
+
+		case PERF_RAW_FRACTION:
+		    /* v1 / v2 as percentage */
+		    vp->atom.f = (float)raw.FirstValue / raw.SecondValue;
+		    break;
+
+		case PERF_COUNTER_BULK_COUNT:
+		case PERF_COUNTER_LARGE_RAWCOUNT:
+		default:
+		    vp->atom.ull = raw.FirstValue;
+	    }
+	    sts = 0;
+	}
     }
-
-    switch (mp->ctype) {
-	/*
-	 * see also open.c for Pdh metric semantics
-	 */
-	case PERF_COUNTER_COUNTER:
-	case PERF_COUNTER_RAWCOUNT:
-	    /* these counters are only 32-bit */
-	    vp->atom.ul = (__uint32_t)raw.FirstValue;
-	    break;
-
-	case PERF_100NSEC_TIMER:
-	case PERF_PRECISION_100NS_TIMER:
-	    /* convert 100nsec units to usec */
-	    vp->atom.ull = raw.FirstValue / 10;
-	    break;
-
-	case PERF_RAW_FRACTION:
-	    /* v1 / v2 as percentage */
-	    vp->atom.f = (float)raw.FirstValue / raw.SecondValue;
-	    break;
-
-	case PERF_COUNTER_BULK_COUNT:
-	case PERF_COUNTER_LARGE_RAWCOUNT:
-	default:
-	    vp->atom.ull = raw.FirstValue;
-    }
-    sts = 0;
-
-done:
-    PdhRemoveCounter(counterhdl);
+    PdhRemoveCounter(counthdl);
     PdhCloseQuery(queryhdl);
     return sts;
 }

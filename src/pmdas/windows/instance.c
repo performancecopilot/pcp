@@ -27,7 +27,7 @@ windows_instance_refresh(pmInDom indom)
     for (i = 0; i < metricdesc_sz; i++) {
 	pdh_metric_t *mp = &metricdesc[i];
 
-	if (indom != mp->desc.indom || mp->pat[0] == '\0')
+	if (indom != mp->desc.indom || mp->pat[0] != '\\')
 	    continue;
 	if (!setup || (mp->flags & M_REDO))
 	    windows_visit_metric(mp, NULL);

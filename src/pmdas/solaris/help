@@ -62,11 +62,94 @@
 # #@ mem.cache.mdl.read TODO
 # #@ mem.cache.mdl.sync_read TODO
 # #@ mem.cache.mdl.async_read TODO
-# #@ network.interface.in.packets TODO
-# #@ network.interface.in.bytes TODO
-# #@ network.interface.in.errors TODO
-# #@ network.interface.out.packets TODO
-# #@ network.interface.out.bytes TODO
-# #@ network.interface.out.errors TODO
+@ network.interface.mtu Maximum Transmission Unit of a network interface
+Maximum Transmision Unit is the largest size of IP datagram which can be
+transferred over the data link.
+@ network.interface.in.bytes Number of bytes received by a network interface
+@ network.interface.in.errors Number of receive errors per network interface
+Number of receive errors per network interface. The errors counted towards
+this metric are: IP header errors, packets larger then the link MTU, packets
+delivered to the unknown address, packets sent to the unknown IP protocol,
+truncated packets, packets discarded due to not having a route for
+the destination.
+@ network.interface.in.drops Number of packets droped by a network interface
+Number of packets discared due to lack of space during the input processing.
+@ network.interface.in.delivers Number of packets delivered to ULPs
+Number of packets delivered for further processing by the upper-layer
+protocols.
+@ network.interface.in.bcasts Number of broadcast packets received by a network interface
+@ network.interface.in.packets Number of IP packets received by a network interface
+@ network.interface.in.mcasts Number of multicast packets received by a network interface
+@ network.interface.out.packets Number of packets sent by a network interface
+@ network.interface.out.bytes Number of bytes sent by a network interface
+@ network.interface.out.errors Number of send errors per network interface
+@ network.interface.out.bcasts Number of broadcast packets sent by a network interface
+@ network.interface.out.mcasts Number of multicast packets sent by a network interface
+@ network.interface.out.drops Number of packets discared by a network interface
+Number of packets discared due to lack of space during the output processing.
+@ network.udp.ipackets Number of UDP packets received
+@ network.udp.opackets Number of UDP packets sent
+@ network.udp.ierrors Number of receive errors in UDP processing
+@ network.udp.oerrors Number of send erros in UDP processing
+@ network.udp.noports Number of UDP packets received on unknown UDP port
+Number of UDP packets received for which here is no port can be found.
+This counter is reported on the per-interface basis and aggregated by the PMDA.
+
+@ network.udp.overflows Number of UDP packets droped due to queue overflow
+Number of UDP packets droped due to queue overflow. 
+This counter is reported on the per-interface basis and aggregated by the PMDA.
+
 # #@ network.interface.total.packets TODO
 # #@ network.interface.total.bytes TODO
+
+@zpool.capacity	Total capacity of a zpool in bytes
+@zpool.used Total space used on a pool
+@zpool.checksum_errors Number of checksum errors per zpool
+@zpool.self_healed Number of bytes healed
+@zpool.in.bytes	Counter of bytes read from a zpool
+@zpool.out.bytes Counter of bytes written to a zpool
+@zpool.in.ops Counter of reads per zpool
+@zpool.out.ops Counter of writes per zpool
+@zpool.in.errors Counter of read errors per zpool
+@zpool.out.errors Counter of write errors per zpool
+
+@zfs.available Amount of space available to the dataset
+The amount of space available to the dataset (a filesystem, 
+a snapshot or a volume) and all its children. This is usually
+the amount of space available in the zpool which houses the
+dataset.
+
+@zfs.used.total Amount of space used by the dataset and its children
+The amount of space consumed by the filesystem, snapshot or
+volume and all its children. This amount does not include
+any reservation made by the dataset itself but do include
+the reservation of the children.
+
+@zfs.used.byme Amount of space used by the dataset itself.
+This amount exclude any space used by the children of this dataset
+or any of its snapshots.
+
+@zfs.used.bysnapshots Amount of space used by the snapshots of the dataset
+The amount of space consumed by the snapshots of this dataset.
+
+@zfs.used.bychildren Amount of space used by decendents of the dataset
+The amount of space consumed by all the decendants of this dataset.
+
+@zfs.quota Maximum amount of space a dataset can use
+Quotas are used to restrict the growth of the datasets. If
+the quota is set to 0 then the size of the dataset is limited only
+by the size of the pool which houses this dataset.
+
+@zfs.reservation Minimum amount of space guaranteed to a dataset
+The amount of space which dataset and its decendents are guaranteed
+to be available for them to use. This amount of taken off the quota
+of the parent of the dataset.
+
+@zfs.compression Compression ratio of the dataset
+Compression ratio is expressed as multiplier. To estimate how much data
+will be used by the uncompressed data multiply the amount of space used
+by the dataset by the compression ratio.
+
+@zfs.copies Number of redundant copies of data
+The number of redundant copies does not include any copies made as
+part of the pool redundancy.

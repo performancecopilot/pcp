@@ -139,6 +139,7 @@
  *	network.udp.fullsock
  *	network.udp.opackets
  *	network.udp.pcbcachemiss
+
  *	network.interface.collisions
  *	network.interface.mtu
  *	network.interface.noproto
@@ -148,6 +149,7 @@
  *	network.interface.in.bytes
  *	network.interface.in.mcasts
  *	network.interface.in.drops
+
  *	network.interface.out.errors
  *	network.interface.out.packets
  *	network.interface.out.bytes
@@ -233,19 +235,48 @@
 
 network {
     interface
+    udp
 }
 
 network.interface {
     in
     out
     total
+    mtu		SOLARIS:0:81
+/*
+*    collisions	SOLARIS:0:xx
+*    noproto	SOLARIS:0:xx
+*/
 }
 
 network.interface.in {
+	errors		SOLARIS:0:90
+	packets		SOLARIS:0:84
+	bytes		SOLARIS:0:82
+	bcasts		SOLARIS:0:86
+	mcasts		SOLARIS:0:88
+	drops		SOLARIS:0:92
+	delivers	SOLARIS:0:94
 }
 
 network.interface.out {
+	errors		SOLARIS:0:91
+	packets		SOLARIS:0:85
+	bytes		SOLARIS:0:83
+	bcasts		SOLARIS:0:87
+	mcasts		SOLARIS:0:89
+	drops		SOLARIS:0:93
 }
 
 network.interface.total {
 }
+
+network.udp {
+	ipackets    SOLARIS:0:77
+	opackets    SOLARIS:0:78
+	ierrors     SOLARIS:0:79
+	oerrors     SOLARIS:0:80
+        noports     SOLARIS:0:95
+        overflows   SOLARIS:0:96
+}
+

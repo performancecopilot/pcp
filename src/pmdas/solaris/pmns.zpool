@@ -1,0 +1,20 @@
+zpool {
+	capacity	SOLARIS:0:58
+	used		SOLARIS:0:59
+	checksum_errors	SOLARIS:0:66
+	self_healed	SOLARIS:0:67
+	in
+	out
+}
+
+zpool.in {
+	bytes		SOLARIS:0:60
+	ops		SOLARIS:0:62
+	errors		SOLARIS:0:64
+}
+
+zpool.out {
+	bytes		SOLARIS:0:61
+	ops		SOLARIS:0:63
+	errors		SOLARIS:0:65
+}

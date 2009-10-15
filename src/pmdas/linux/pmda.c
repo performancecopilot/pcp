@@ -4747,11 +4747,13 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			"/etc/fedora-release",
 			"/etc/redhat-release",
 			"/etc/SuSE-release",
+			"/etc/slackware-version",
 			NULL
 		};
 		for (r=0; rfiles[r] != NULL; r++) {
 		    if (stat(rfiles[r], &sbuf) == 0 && S_ISREG(sbuf.st_mode)) {
 			fd = open(rfiles[r], O_RDONLY);
+			break;
 		    }
 		}
 		if (fd != -1) {
@@ -4774,7 +4776,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			    distro_name = NULL;
 			} else {
 			    char *nl;
-			    distro_name[r] = '\0';
+			    distro_name[r + len] = '\0';
 			    if ((nl = strchr (distro_name, '\n')) != NULL) {
 				*nl = '\0';
 			    }
