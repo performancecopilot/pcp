@@ -21,7 +21,7 @@
 # the most significant 4 bits of __pmID_int.cluster for all metrics, and in
 # the most significant 4 bits of __pmInDom_int.serial for all indoms.
 #
-# This restriction leaves the sub-PMDA 256 pmid clusters (each with 1024
+# This restriction leaves the sub-PMDA 511 pmid clusters (each with 1024
 # metrics), and 2^18 instance domains.
 #
 # The cluster PMDA uses the 4 bits internally to distinguish up to 15
@@ -258,8 +258,8 @@ EOT
 #                                           #
 #################### end ####################
 
-my $numPmidDomBits = 8;
-my $subDomsSize = (1 << $numPmidDomBits); # 8 bits -> 256 values.
+my $numPmidDomBits = 9;
+my $subDomsSize = (1 << $numPmidDomBits); # 9 bits -> 512 values.
 
 for (my $i = 0; $i < $subDomsSize - 1; $i++) {
     my $nPerLine = 5;

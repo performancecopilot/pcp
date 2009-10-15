@@ -29,7 +29,7 @@
 #define CLUSTER_CLIENT_VERSION	101
 
 /* singular instance domain translation */
-#define CLUSTER_INDOM		0x3fffff
+#define CLUSTER_INDOM		0x3ffff
 
 /* cluster for local (non-translated) metrics */
 #define CLUSTER_CLUSTER		0xfff
@@ -164,8 +164,8 @@ extern int cluster_client_metrics_set(pmValue*, int /*delete*/);
  * most significant bits of the cluster field.
  */
 
-#define FIELD_PAD_WIDTH		2
-#define FIELD_DOMAIN_WIDTH	8
+#define FIELD_FLAG_WIDTH	1
+#define FIELD_DOMAIN_WIDTH	9
 #define FIELD_SUBDOMAIN_WIDTH	4
 #define FIELD_CLUSTER_WIDTH	8
 #define FIELD_ITEM_WIDTH	10
@@ -173,7 +173,7 @@ extern int cluster_client_metrics_set(pmValue*, int /*delete*/);
 
 typedef struct {
 #ifdef HAVE_BITFIELDS_LTOR
-    int             pad		: FIELD_PAD_WIDTH;
+    int             flag	: FIELD_FLAG_WIDTH;
     unsigned int    domain	: FIELD_DOMAIN_WIDTH;
     unsigned int    subdomain	: FIELD_SUBDOMAIN_WIDTH;
     unsigned int    cluster	: FIELD_CLUSTER_WIDTH;
@@ -183,7 +183,7 @@ typedef struct {
     unsigned int    cluster	: FIELD_CLUSTER_WIDTH;
     unsigned int    subdomain	: FIELD_SUBDOMAIN_WIDTH;
     unsigned int    domain	: FIELD_DOMAIN_WIDTH;
-    int             pad		: FIELD_PAD_WIDTH;
+    int             flag	: FIELD_FLAG_WIDTH;
 #endif
 } __pmID_int_subdomain;
 
@@ -196,7 +196,7 @@ __pmid_int_subdomain(pmID *idp)
 
 typedef struct {
 #ifdef HAVE_BITFIELDS_LTOR
-    int             pad		: FIELD_PAD_WIDTH;
+    int             flag	: FIELD_FLAG_WIDTH;
     unsigned int    domain	: FIELD_DOMAIN_WIDTH;
     unsigned int    subdomain	: FIELD_SUBDOMAIN_WIDTH;
     unsigned int    serial	: FIELD_SERIAL_WIDTH;
@@ -204,7 +204,7 @@ typedef struct {
     unsigned int    serial	: FIELD_SERIAL_WIDTH;
     unsigned int    subdomain	: FIELD_SUBDOMAIN_WIDTH;
     unsigned int    domain	: FIELD_DOMAIN_WIDTH;
-    int             pad		: FIELD_PAD_WIDTH;
+    int             flag	: FIELD_FLAG_WIDTH;
 #endif
 } __pmInDom_int_subdomain;
 
