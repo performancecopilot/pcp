@@ -55,11 +55,11 @@ install: default
 	$(INSTALL) -m 644 pmns root domain.h $(PMDADIR)
 	$(INSTALL) -m 644 help help.pag help.dir $(PMDADIR)
 else
-build-me:
+build-me: domain.h
 install:
 endif
 
-domain.h:       ../../pmns/stdpmid
+domain.h: ../../pmns/stdpmid
 	rm -f $@
 	egrep "#define +$(DOMAIN)" $? > $@
 

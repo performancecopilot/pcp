@@ -48,7 +48,7 @@ default: build-me
 
 include $(BUILDRULES)
 
-ifeq ($(HAVE_IBDEV),1)
+#ifeq ($(HAVE_IBDEV),1)
 build-me:	help pmns pcp domain.h subdomains.c \
 			$(CMDTARGET) $(DAEMON)
 install: default
@@ -59,10 +59,10 @@ install: default
 	$(INSTALL) -m 644 $(DFILES) pmns root help domain.h $(PMDADIR)
 	$(INSTALL) -m 755 pmclusterd $(PCP_BINADM_DIR)/pmclusterd
 	$(INSTALL) -m 755 rc_pmclusterd $(PCP_SHARE_DIR)/lib/rc.pmclusterd
-else
-build-me:
-install:
-endif
+#else
+#build-me:
+#install:
+#endif
 
 PMNSDIR    = $(TOPDIR)/src/pmns
 STDPMID	   = $(PMNSDIR)/stdpmid
