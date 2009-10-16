@@ -845,6 +845,7 @@ else
    AC_MSG_RESULT(yes)
 fi
 rm -f conftest.c conftest.o conftest
+rm -rf conftest.dSYM
 
 dnl check if argument to user's select() method in scandir call is const
 AC_MSG_CHECKING([whether const arg for scandir() select method])
@@ -918,7 +919,7 @@ then
     else
 	AC_MSG_RESULT(unknown)
 	echo "FATAL ERROR: could not coerce your getopt() work correctly"
-	rm -f conftest conftest.*
+	rm -rf conftest conftest.*
 	exit 1
     fi
 elif test "$ans" = y
@@ -927,10 +928,10 @@ then
 else
     AC_MSG_RESULT(unknown)
     echo "FATAL ERROR: could not make your getopt() work at all"
-    rm -f conftest conftest.*
+    rm -rf conftest conftest.*
     exit 1
 fi
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check if printf %p has 0x prefix
 AC_MSG_CHECKING([if printf %p produces 0x prefix])
@@ -952,7 +953,7 @@ in
 	AC_MSG_RESULT(no)
 	;;
 esac
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
@@ -971,7 +972,7 @@ fi
 if test $ans -eq 8; then
     AC_DEFINE(HAVE_64BIT_LONG)
 fi
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check sizeof pointer
 AC_MSG_CHECKING([sizeof pointer])
@@ -992,7 +993,7 @@ if test $ans -eq 8; then
     AC_DEFINE(HAVE_64BIT_PTR)
     PCP_PTR_SIZE=64
 fi
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check sizeof int. If not 32, we die
 AC_MSG_CHECKING([sizeof int])
@@ -1011,6 +1012,7 @@ then
     echo "FATAL ERROR: sizeof(int) is not 32 bits, cannot proceed."
     exit 1
 fi
+rm -rf conftest conftest.*
 
 dnl check bit field allocation order within a word
 AC_MSG_CHECKING([if bit fields allocated left-to-right])
@@ -1042,7 +1044,7 @@ in
 	exit 1
 	;;
 esac
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check if compile can cast __uint64_t to double
 AC_TRY_LINK(
