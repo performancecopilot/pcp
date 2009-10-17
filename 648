@@ -8,6 +8,11 @@
 owner=nathans
 
 seq=`basename $0`
+
+echo "Tests functionality which is not yet complete" >$seq.notrun
+echo "$seq: [not run] `cat $seq.notrun`"
+exit 0
+
 echo "QA output created by $seq"
 
 # get standard filters
@@ -19,6 +24,7 @@ tmp=/tmp/$$
 status=1
 done_clean=false
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
+here=`pwd`
 
 _cleanup()
 {
@@ -47,12 +53,7 @@ _delay_for_pmns()
     sleep 2		# give pmcd some time to rebuild the pmns
 }
 
-echo "Tests functionality which is not yet complete" >$seq.notrun
-echo "$seq: [not run] `cat $seq.notrun`"
-exit 0
-
 # real QA test starts here
-here=`pwd`
 home="$PCP_PMDAS_DIR"
 iam=mmv
 if [ ! -d "$home/$iam" ]
