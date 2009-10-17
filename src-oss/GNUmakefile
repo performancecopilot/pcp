@@ -98,7 +98,7 @@ LDIRT	= *.log domain.h help.pag help.dir mv-foo.? mv-bar.? mv-bigbin.? \
 	$(subst .c,.o,$(CFILES)) \
 	chkctx2_lite.c mv-interp.? fetchrate_lite.c \
 	broken_pmda_*.c real_broken_pmns broken_v?.dir broken_v?.pag \
-	broken_pmda_? localconfig.h gmon.out
+	broken_pmda_? localconfig.h gmon.out pmtimzone.so pmtimezone.o
 
 .ORDER:	torture_api \
 	chkctx2 fetchrate
@@ -555,6 +555,9 @@ torture_indom: torture_indom.c
 #
 getpid.so:	getpid.o
 	$(LD) -shared -o getpid.so -nostdlib getpid.o
+
+pmtimezone.so:	pmtimezone.o
+	$(LD) -shared -o pmtimezone.so -nostdlib pmtimezone.o
 
 arch_maxfd.o:	localconfig.h
 scale.o:	localconfig.h
