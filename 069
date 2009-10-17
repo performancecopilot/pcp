@@ -9,6 +9,27 @@
 
 seq=`basename $0`
 
+# ideally want a host with only 1 network interface ... getpmcdhosts
+# cannot express this, so we used to go for 1 CPU as a likely co-condition,
+# but even that has been dropped now that single CPU systems are so
+# rare
+#
+eval `./getpmcdhosts -L -n2 | sed -e 's/^/other1=/' -e 's/ / other2=/'`
+
+if [ -z "$other1" ]
+then
+    echo "Cannot find first remote host running pmcd" >$seq.notrun
+    status=1
+    exit
+fi
+
+if [ -z "$other2" ]
+then
+    echo "Cannot find second remote host running pmcd" >$seq.notrun
+    status=1
+    exit
+fi
+
 . ./localconfig
 rm -f $seq.out
 if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
@@ -140,27 +161,6 @@ _get_hex_addr()
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 
-# ideally want a host with only 1 network interface ... getpmcdhosts
-# cannot express this, so we used to go for 1 CPU as a likely co-condition,
-# but even that has been dropped now that single CPU systems are so
-# rare
-#
-eval `./getpmcdhosts -L -n2 | sed -e 's/^/other1=/' -e 's/ / other2=/'`
-
-if [ -z "$other1" ]
-then
-    echo "Error: cannot find first remote host running pmcd"
-    status=1
-    exit
-fi
-
-if [ -z "$other2" ]
-then
-    echo "Error: cannot find second remote host running pmcd"
-    status=1
-    exit
-fi
-
 echo "host1 = $other1" >>$seq.full
 echo "host2 = $other2" >>$seq.full
 
@@ -208,6 +208,9 @@ allow $other2: all, maximum 1 connections;
 disallow *: all;
 End-of-File
 $sudo mv $nconfig $config
+
+echo "=== local pmcd.conf ===" >>$seq.full
+cat $config >>$seq.full
 
 $sudo $signal -a -s HUP pmcd
 sleep 5

@@ -11,7 +11,6 @@
 owner=kenmcd
 
 seq=`basename $0`
-echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
@@ -40,6 +39,20 @@ sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+eval `./getpmcdhosts -L -n 2 | sed -e 's/ / host2=/' -e 's/^/host1=/'`
+if [ -z "$host1" ]
+then
+    echo "Cannot get first remote pmcd host" >$seq.notrun
+    exit
+fi
+if [ -z "$host2" ]
+then
+    echo "Cannot get second remote pmcd host" >$seq.notrun
+    exit
+fi
+
+echo "QA output created by $seq"
 
 # real QA test starts here
 
@@ -93,7 +106,7 @@ fi
 
 echo
 echo "pmlc local, pmcd and pmlogger remote ..."
-eval `./getpmcdhosts -L -n 2 | sed -e 's/ / host2=/' -e 's/^/host1=/'`
+
 inst=`pminfo -F -h $host1 proc.psinfo.ppid \
       | sed -n -e '/inst \[1 /{
 s/^[^"]*"/"/

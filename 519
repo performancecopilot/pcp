@@ -15,8 +15,6 @@ seq=`basename $0`
 . ./localconfig
 rm -f $seq.out && ln $seq.${PCP_PLATFORM} $seq.out || exit 1
 
-echo "QA output created by $seq"
-
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
@@ -45,14 +43,16 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 eval `./getpmcdhosts -n 2 -L | sed -e 's/ / other2=/' -e 's/^/other1=/'`
 if [ -z "$other1" ]
 then
-    echo "Error: cannot find first remote host running pmcd"
+    echo "Cannot find first remote host running pmcd" >$seq.notrun
     exit
 fi
 if [ -z "$other2" ]
 then
-    echo "Error: cannot find second remote host running pmcd"
+    echo "Cannot find second remote host running pmcd" >$seq.notrun
     exit
 fi
+
+echo "QA output created by $seq"
 
 # real QA test starts here
 $sudo rm -f core* $seq.core*

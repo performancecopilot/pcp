@@ -10,7 +10,6 @@
 owner=kenmcd
 
 seq=`basename $0`
-echo "QA output created by $seq"
 
 . ./localconfig
 
@@ -59,18 +58,19 @@ localhost=`hostname | sed -e 's/\..*//'`
 eval `./getpmcdhosts -L -n 2 2>$tmp.out | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 if [ -z "$other1" ]
 then
-    echo "Error: cannot find first remote host running pmcd"
+    echo "Cannot find first remote host running pmcd" >$seq.notrun
     cat $tmp.out
-    status=1
     exit
 fi
 if [ -z "$other2" ]
 then
-    echo "Error: cannot find second remote host running pmcd"
+    echo "Cannot find second remote host running pmcd" >$seq.notrun
     cat $tmp.out
-    status=1
     exit
 fi
+
+echo "QA output created by $seq"
+
 rm -f $seq.full
 echo "other1=$other1" >$seq.full
 echo "other2=$other2" >>$seq.full

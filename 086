@@ -27,7 +27,7 @@ eval `./getpmcdhosts -L -n 2 \
 
 if [ "X$other1" = Xbogus -o "X$other2" = Xbogus ]
 then
-    echo "Error: Unable to find two other hosts"
+    echo "Unable to find two other hosts" >$seq.notrun
     exit 1
 fi
 

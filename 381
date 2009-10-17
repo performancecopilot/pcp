@@ -10,6 +10,15 @@
 owner=kenmcd
 
 seq=`basename $0`
+
+rem_host=`./getpmcdhosts -L -n 1 -P 2>$seq.notrun`
+if [ -z "$rem_host" ]
+then
+    cat $seq.notrun
+    exit
+fi
+rm -f $seq.notrun
+
 echo "QA output created by $seq"
 
 # get standard filters
@@ -96,12 +105,6 @@ pid=''
 
 rm -f $tmp.*
 
-rem_host=`./getpmcdhosts -L -n 1 -P`
-if [ -z "$rem_host" ]
-then
-    echo "Error: cannot find a remote host running PMCD and primary pmlogger!"
-    exit
-fi
 rem_pid=`pminfo -f -h $rem_host pmcd.pmlogger.port \
 	 | sed -n -e '/primary/d' -e '/ value 4330 *$/{
 s/.* "//

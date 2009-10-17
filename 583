@@ -12,6 +12,18 @@ owner=kenmcd
 
 seq=`basename $0`
 
+eval `./getpmcdhosts -n 2 -L | sed -e 's/ / other2=/' -e 's/^/other1=/'`
+if [ -z "$other1" ]
+then
+    echo "Cannot find first remote host running pmcd" >$seq.notrun
+    exit
+fi
+if [ -z "$other2" ]
+then
+    echo "Cannot find second remote host running pmcd" >$seq.notrun
+    exit
+fi
+
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
@@ -61,18 +73,6 @@ $sudo rm -f core* $seq.core*
 
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 sleep 3
-
-eval `./getpmcdhosts -n 2 -L | sed -e 's/ / other2=/' -e 's/^/other1=/'`
-if [ -z "$other1" ]
-then
-    echo "Error: cannot find first remote host running pmcd"
-    exit
-fi
-if [ -z "$other2" ]
-then
-    echo "Error: cannot find second remote host running pmcd"
-    exit
-fi
 
 # note the following is time sensitive, run it too long
 # and we'll get extraneous output...
