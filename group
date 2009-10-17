@@ -442,6 +442,7 @@ dmf		pcpqa
 211 pmns local oss
 212 pmda pmda.cisco local oss
 213 dbpmda pmns local oss
+214 pmlogextract local oss
 215 other pmsocks pmval remote oss
 217 folio local oss
 218 archive logutil local pmlogextract oss
