@@ -1,11 +1,11 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
 Version: 3.0.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
-Source0: ftp://oss.sgi.com/projects/pcp/download/v3/pcp-3.0.0-7.src.tar.gz
+Source0: ftp://oss.sgi.com/projects/pcp/download/v3/pcp-3.0.0-8.src.tar.gz
 
 # Infiniband monitoring support turned off (for now)
 %define have_ibdev 0
@@ -73,24 +73,6 @@ building Performance Metric Domain Agents (PMDAs) using Perl.
 Each PMDA exports performance data for one specific domain, for
 example the operating system kernel, Cisco routers, a database,
 an application, etc.
-
-#
-# perl-PCP-SUMMARY
-#
-%package -n perl-PCP-LogSummary
-License: GPLv2
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) Perl bindings for pmlogsummary
-URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp >= %{version}
-
-%description -n perl-PCP-LogSummary
-The PCP::LogSummary module provides a Perl module for using the
-statistical summary data produced by the Performance Co-Pilot
-pmlogsummary utility.  This utility produces various averages,
-minima, maxima, and other calculations based on the performance
-data stored in a PCP archive.  The Perl interface is ideal for
-exporting this data into third-party tools (e.g. spreadsheets).
 
 #
 # perl-PCP-MMV
@@ -255,15 +237,10 @@ fi
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
 %defattr(-,root,root)
 
-%files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
-%defattr(-,root,root)
-
 %files -n perl-PCP-MMV -f perl-pcp-mmv.list
 %defattr(-,root,root)
 
 %changelog
-* Mon Oct 5 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-7
-- merged Kenj's PMDA_INTERFACE_4 and dynamic PMNS
-
-* Mon Sep 28 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-6
-- initial import for Fedora
+* Thu Oct 8 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-8
+- This is the initial import for Fedora
+- See 3.0.0 details in CHANGELOG
