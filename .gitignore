@@ -13,6 +13,7 @@ commit-id.*
 commit-msg.*
 tmp.*
 134.full.*
+051.work/*
 151.work/*
 008.out
 012.out
@@ -58,6 +59,7 @@ tmp.*
 294.out
 299.out
 313.out
+340.out
 355.out
 365.out
 375.out
@@ -68,6 +70,7 @@ tmp.*
 421.out
 430.out
 465.out
+501.out
 519.out
 555.out
 558.out
