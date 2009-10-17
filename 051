@@ -37,6 +37,7 @@ config=$PCP_PMCDCONF_PATH
 oconfig=$config.O
 log=./pmcd.log
 me=`hostname`
+tmp=/tmp/$$
 
 rm -f $here/$seq.full
 
@@ -80,6 +81,7 @@ $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
 interrupt()
 {
     echo "Interrupted"
+    rm -f $tmp.*
     exit
 }
 
@@ -93,6 +95,7 @@ cleanup()
     $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
+    rm -f $tmp.*
 }
 
 trap interrupt 1 2 3 15
