@@ -610,7 +610,7 @@ main(int argc, char *argv[])
 	printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
 	printf("Performance metrics from host %s\n", label.ll_hostname);
 
-	ddmm = pmCtime((const time_t *)&label.ll_start.tv_sec, timebuf);
+	ddmm = pmCtime(&label.ll_start.tv_sec, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  commencing %s ", ddmm);
@@ -622,7 +622,7 @@ main(int argc, char *argv[])
 	    printf("  ending     UNKNOWN\n");
 	}
 	else {
-	    ddmm = pmCtime((const time_t *)&endTime.tv_sec, timebuf);
+	    ddmm = pmCtime(&endTime.tv_sec, timebuf);
 	    ddmm[10] = '\0';
 	    yr = &ddmm[20];
 	    printf("  ending     %s ", ddmm);
@@ -669,7 +669,7 @@ main(int argc, char *argv[])
 		break;
 	    if (first && mode == PM_MODE_BACK) {
 		first = 0;
-		printf("\nLog finished at %24.24s - dump in reverse order\n", pmCtime((const time_t *)&result->timestamp.tv_sec, timebuf));
+		printf("\nLog finished at %24.24s - dump in reverse order\n", pmCtime(&result->timestamp.tv_sec, timebuf));
 	    }
 	    current = result->timestamp.tv_sec + (double)(result->timestamp.tv_usec)/1000000;
 	    if ((mode == PM_MODE_FORW && current > done) ||
