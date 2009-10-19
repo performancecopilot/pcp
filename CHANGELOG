@@ -1,4 +1,7 @@
 pcp-3.0.1 (currently in development)
+    - reverted rc scripts default start/stop settings back to how
+      it was in 2.9.3-1, for Debian bug #544350. Still need to tweak
+      this for Red Hat platforms so we're chkconfig off by default.
 
 pcp-3.0.0 (9 October 2009)
     - PMDA_INTERFACE_4 and the support of dynamic subtrees of the PMNS
