@@ -1,11 +1,11 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.0.0
-Release: 9%{?dist}
+Version: 3.0.1
+Release: 1%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
-Source0: ftp://oss.sgi.com/projects/pcp/download/pcp-3.0.0-9.src.tar.gz
+Source0: ftp://oss.sgi.com/projects/pcp/download/pcp-3.0.1-1.src.tar.gz
 
 # Infiniband monitoring support turned off (for now)
 %define have_ibdev 0

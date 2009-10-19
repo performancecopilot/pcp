@@ -1,3 +1,5 @@
+pcp-3.0.1 (currently in development)
+
 pcp-3.0.0 (9 October 2009)
     - PMDA_INTERFACE_4 and the support of dynamic subtrees of the PMNS
       where the PMDA (not PMCD) maintains knowledge of the PMNS.
