@@ -110,7 +110,7 @@ q		{ return ctx(QUIT); }
 \#[^\n]*		{ }
 \n			{ if (!(mystate & INSPECLIST)) return EOL; }
 
-[ \t]+			{ }
+[ \r\t]+		{ }
 
 .			{
 			    char emess[160];

@@ -441,9 +441,6 @@ typedef void (*SIG_PF) (int);
 
 /* Determine if we are on a Solaris box */
 #undef IS_SOLARIS
-#ifdef IS_SOLARIS
-#define FLEX_SCANNER	/* Solaris lex needs gram.tab.h */
-#endif
 
 /* Determine if we are on a Mac OS X box */
 #undef IS_DARWIN

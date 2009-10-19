@@ -178,7 +178,7 @@ printstamp(struct timeval *stamp, int delimiter)
 	char	*ddmm;
 	char	*yr;
 
-	ddmm = pmCtime((const time_t *)&stamp->tv_sec, timebuf);
+	ddmm = pmCtime(&stamp->tv_sec, timebuf);
 	ddmm[10] = ' ';
 	ddmm[11] = '\0';
 	yr = &ddmm[20];
@@ -1160,14 +1160,14 @@ main(int argc, char *argv[])
 	printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
 	printf("Performance metrics from host %s\n", label.ll_hostname);
 
-	ddmm = pmCtime((const time_t *)&windowstart.tv_sec, timebuf);
+	ddmm = pmCtime(&windowstart.tv_sec, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  commencing %s ", ddmm);
 	__pmPrintStamp(stdout, &windowstart);
 	printf(" %4.4s\n", yr);
 
-	ddmm = pmCtime((const time_t *)&windowend.tv_sec, timebuf);
+	ddmm = pmCtime(&windowend.tv_sec, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  ending     %s ", ddmm);

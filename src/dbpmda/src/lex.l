@@ -34,6 +34,7 @@ static int dbpmdaFlexInput (char *, int);
 #undef input
 #undef unput
 #undef yywrap
+#undef yyinput
 #include "./gram.h"
 #endif
 
@@ -42,6 +43,7 @@ static int dbpmdaFlexInput (char *, int);
 %}
 
 %s FNAME
+%a 2050
 
 %%
 
@@ -135,7 +137,7 @@ watch		{ BEGIN FNAME; return WATCH; }
 
 \#.*\n	{ return EOL; }
 
-[\t ]+	{ }
+[\r\t ]+	{ }
 
 \n	{ return EOL; }
 

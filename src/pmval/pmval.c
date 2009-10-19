@@ -377,7 +377,6 @@ static void
 printhdr(Context *x, long smpls, struct timeval delta, struct timeval first)
 {
     pmUnits		units;
-    time_t		t;
     char		tbfr[26];
     const char		*u;
 
@@ -392,10 +391,9 @@ printhdr(Context *x, long smpls, struct timeval delta, struct timeval first)
     else {
 	printf("archive:   %s\n", archive);
 	printf("host:      %s\n", label.ll_hostname);
-	t = (time_t) first.tv_sec;
-	printf("start:     %s", pmCtime(&t, tbfr));
+	printf("start:     %s", pmCtime(&first.tv_sec, tbfr));
 	if (last.tv_sec != INT_MAX)
-	    printf("end:       %s", pmCtime((const time_t *)&last.tv_sec, tbfr));
+	    printf("end:       %s", pmCtime(&last.tv_sec, tbfr));
     }
 
     /* semantics */
@@ -1155,7 +1153,7 @@ getargs(int		argc,		/* in - command line argument count */
 	    char		tbfr[26];
 	    char		*tp;
 	    fprintf(stderr, "getargs: first=%.6f", __pmtimevalToReal(&first));
-	    tp = pmCtime((time_t *)&first.tv_sec, tbfr);
+	    tp = pmCtime(&first.tv_sec, tbfr);
 	    /*
 	     * tp -> Ddd Mmm DD HH:MM:SS YYYY\n
 	     *       0   4   8  1      1 2  2 2
@@ -1163,10 +1161,10 @@ getargs(int		argc,		/* in - command line argument count */
 	     */
 	    fprintf(stderr, "[%8.8s]\n", &tp[11]);
 	    fprintf(stderr, "getargs: posn=%.6f", __pmtimevalToReal(posn));
-	    tp = pmCtime((time_t *)&posn->tv_sec, tbfr);
+	    tp = pmCtime(&posn->tv_sec, tbfr);
 	    fprintf(stderr, "[%8.8s]\n", &tp[11]);
 	    fprintf(stderr, "getargs: last=%.6f", __pmtimevalToReal(&last));
-	    tp = pmCtime((time_t *)&last.tv_sec, tbfr);
+	    tp = pmCtime(&last.tv_sec, tbfr);
 	    fprintf(stderr, "[%8.8s]\n", &tp[11]);
 	    fprintf(stderr, "getargs: delta=%.6f samples=%ld\n",
 	    __pmtimevalToReal(delta), *smpls);

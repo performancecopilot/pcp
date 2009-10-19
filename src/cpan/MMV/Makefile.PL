@@ -14,4 +14,6 @@ WriteMakefile(
     LDFROM		=> "-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_mmv/src -L$ENV{PCP_DIR}\\local\\bin -lpcp_mmv -lpcp MMV.o",
     INC			=> "-I$ENV{PCP_TOPDIR}/src/include -I/usr/include/pcp -I$ENV{PCP_DIR}\\include\\pcp -I$ENV{PCP_DIR}\\c\\include",
     LIBS		=> ["-L$ENV{PCP_DIR}\\local\\bin", '-lpcp_mmv', '-lpcp'],
+    CC			=> $ENV{"CC"},
+    LD			=> $ENV{"CC"},
 );
