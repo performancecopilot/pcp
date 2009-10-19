@@ -137,7 +137,7 @@ watch		{ BEGIN FNAME; return WATCH; }
 
 \#.*\n	{ return EOL; }
 
-[\t ]+	{ }
+[\r\t ]+	{ }
 
 \n	{ return EOL; }
 

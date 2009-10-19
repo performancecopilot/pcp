@@ -100,7 +100,7 @@ on		{ return ctx(ON); }
 
 \#.*		{ }
 
-[ \t]+		{ }
+[ \t\r]+	{ }
 
 \n		{ lineno++; }
 
