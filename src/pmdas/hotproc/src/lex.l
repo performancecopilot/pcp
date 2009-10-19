@@ -107,7 +107,7 @@ false		{ return FALSE; }
 
 \#.*\n	{ }
 
-[\t \n]+ { }
+[\t \r\n]+ { }
 
 
 [a-zA-Z]+ {

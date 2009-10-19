@@ -45,6 +45,7 @@ else
     dnl  build and build_os. Squash all x86 cpus into one LCD form - i386
     target=`echo $target | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
     target_os=`echo $target_os | sed '[s/solaris2\..*/solaris/]'`
+    target_os=`echo $target_os | sed '[s/kfreebsd/freebsd/]'`
     target_os=`echo $target_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]' | sed '[s/[\.0-9]*//g]'`
     target_cpu=`echo $target_cpu | sed '[s/i[3-6]86/i386/]'`
 
@@ -86,6 +87,7 @@ then
 elif test $target_os = freebsd
 then
     AC_DEFINE(IS_FREEBSD)
+    test -f /etc/debian_version && target_distro=debian
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
@@ -730,7 +732,7 @@ if test $target_os != solaris; then
 fi
 
 dnl only define readdir64 on non-linux platforms that support it
-if test $target_os != linux; then
+if test $target_os != linux -a $target_os != freebsd; then
     AC_CHECK_FUNCS(readdir64)
 fi
 
@@ -845,6 +847,7 @@ else
    AC_MSG_RESULT(yes)
 fi
 rm -f conftest.c conftest.o conftest
+rm -rf conftest.dSYM
 
 dnl check if argument to user's select() method in scandir call is const
 AC_MSG_CHECKING([whether const arg for scandir() select method])
@@ -918,7 +921,7 @@ then
     else
 	AC_MSG_RESULT(unknown)
 	echo "FATAL ERROR: could not coerce your getopt() work correctly"
-	rm -f conftest conftest.*
+	rm -rf conftest conftest.*
 	exit 1
     fi
 elif test "$ans" = y
@@ -927,10 +930,10 @@ then
 else
     AC_MSG_RESULT(unknown)
     echo "FATAL ERROR: could not make your getopt() work at all"
-    rm -f conftest conftest.*
+    rm -rf conftest conftest.*
     exit 1
 fi
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check if printf %p has 0x prefix
 AC_MSG_CHECKING([if printf %p produces 0x prefix])
@@ -952,7 +955,7 @@ in
 	AC_MSG_RESULT(no)
 	;;
 esac
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
@@ -971,7 +974,7 @@ fi
 if test $ans -eq 8; then
     AC_DEFINE(HAVE_64BIT_LONG)
 fi
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check sizeof pointer
 AC_MSG_CHECKING([sizeof pointer])
@@ -992,7 +995,7 @@ if test $ans -eq 8; then
     AC_DEFINE(HAVE_64BIT_PTR)
     PCP_PTR_SIZE=64
 fi
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check sizeof int. If not 32, we die
 AC_MSG_CHECKING([sizeof int])
@@ -1011,6 +1014,7 @@ then
     echo "FATAL ERROR: sizeof(int) is not 32 bits, cannot proceed."
     exit 1
 fi
+rm -rf conftest conftest.*
 
 dnl check bit field allocation order within a word
 AC_MSG_CHECKING([if bit fields allocated left-to-right])
@@ -1042,7 +1046,7 @@ in
 	exit 1
 	;;
 esac
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check if compile can cast __uint64_t to double
 AC_TRY_LINK(
