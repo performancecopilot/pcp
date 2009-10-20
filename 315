@@ -57,6 +57,8 @@ cp $tmp.ctl $tmp.relaydir/pmie.log.$FIVEMONTHS
 # "Error: ..." and "... unchanged" lines will only appear if pmie_daily
 # thinks pmie is "chkconfig on" ... and this is not guaranteed for the
 # QA platform, so cull 'em
+# Similarly the + rm -f TMP/pmie/<pid> lines come from defunct pmie
+# processes that don't have anything to do with this QA test
 #
 pmie_daily -V -N -x 3 -X compress -c $tmp.ctl | sed \
 	-e '/Error: no pmie instance running/d' \
@@ -67,6 +69,7 @@ pmie_daily -V -N -x 3 -X compress -c $tmp.ctl | sed \
 	-e "s/$$/PID/g" \
 	-e "s,/var/tmp,TMP,g" \
 	-e "s,/tmp,TMP,g" \
+	-e '/^+ rm -f TMP\/pmie\/[0-9][0-9]*$/d' \
 
 # success, all done
 status=0
