@@ -9,27 +9,12 @@ Group: Applications/System
 
 %define sgi_chroot_build @sgi_chroot_build@
 %define sgi_issp_build @sgi_issp_build@
-%define have_ibdev @have_ibdev@
-
-%if %{have_ibdev}
-%define ib_build_prereqs libibmad-devel libibumad-devel libibcommon-devel
-%endif
 
 %if %sgi_chroot_build
 Source: @package_name@-@package_version@.tar.bz2
-BuildRequires: gcc-c++ libstdc++-devel %{?ib_build_prereqs}
+BuildRequires: gcc-c++ libstdc++-devel
 %else
 Source: @package_name@-@package_version@-@package_release@.src.tar.gz
-%endif
-
-%if %{sgi_chroot_build}
-%define ib_prereqs libibmad-pp >= 1.1.6-1.ofed20080604r1.3.1sgi601 libibumad-pp >= 1.1.7  libibcommon-pp 
-%define ib_build_prereqs %{ib_prereqs} libibmad-pp-devel libibumad-pp-devel libibcommon-pp-devel
-%else
-%if %{have_ibdev}
-%define ib_prereqs libibmad libibumad  libibcommon 
-%define ib_build_prereqs %{ib_prereqs} libibmad-devel libibumad-devel libibcommon-devel
-%endif
 %endif
 
 Distribution: @package_distribution@
@@ -37,7 +22,7 @@ Distribution: @package_distribution@
 Packager: Silicon Graphics, Inc. <http://www.sgi.com/>
 %endif
 BuildRoot: @build_root@ 
-BuildRequires: procps autoconf bison flex ncurses-devel %{?ib_build_prereqs}
+BuildRequires: procps autoconf bison flex ncurses-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 Conflicts: pcp-pro < 2.2
@@ -253,6 +238,11 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Mon Oct 19 2009 Martin Hicks <mort@sgi.com> - 3.0.1-2
+- Remove IB dependencies.  The Infiniband PMDA is being moved to
+  a stand-alone package.
+- Move cluster PMDA to a stand-alone package.
+
 * Mon Oct 5 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-7
 - merged Kenj's tree with PMDA_INTERFACE_4 and dynamic PMNS
 - ReplacePmnsSubtree fix bad signal handling botch

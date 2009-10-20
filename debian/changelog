@@ -1,3 +1,9 @@
+pcp (3.0.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Martin Hicks <mort@sgi.com>  Mon, 19 Oct 2009 12:03:12 -0500
+
 pcp (3.0.0) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

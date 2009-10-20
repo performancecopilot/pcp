@@ -74,7 +74,6 @@ pcp.spec: pcp.spec.in
 	sed -e's|@package_sgirelease@|$(SGIRELEASENUMBER)|g' \
 	    -e's|@sgi_chroot_build@|$(SGI_CHROOT_BUILD)|g' \
 	    -e's|@sgi_issp_build@|$(SGI_ISSP_BUILD)|g' \
-	    -e's|@have_ibdev@|$(HAVE_IBDEV)|g' \
 	    -e's|@package_name@|$(PACKAGE_NAME)|g' \
 	    -e's|@package_version@|$(PACKAGE_VERSION)|g' \
 	    -e's|@package_release@|$(PACKAGE_BUILD)|g' \

@@ -10,6 +10,7 @@ pcp-3.0.1 (currently in development)
     - improved support for Slackware distro makepkg packaging
     - solaris fixes: pass information about compiler into Perl PMDA makefiles,
       don't change pointer types of pmCtime's arguments, deal with default lex
+    - Move Infiniband and Cluster PMDAs to a stand-alone packages
 
 pcp-3.0.0 (9 October 2009)
     - PMDA_INTERFACE_4 and the support of dynamic subtrees of the PMNS
