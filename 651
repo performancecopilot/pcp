@@ -35,10 +35,17 @@ sudo=$here/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    rm -f $tmp.*
+    $sudo $signal -a pmproxy
+}
 
 # real QA test starts here
 $sudo $signal -a pmproxy
+sleep 1
 
 PMPROXY_HOST=`hostname`
 export PMPROXY_HOST
