@@ -54,10 +54,12 @@ _speak_to_me()
 {
     echo
     echo "=== _host=$1 _logger_id=$2 ===" >$tmp.out
+    echo >>$seq.full
+    echo "=== _host=$1 _logger_id=$2 ===" >>$seq.full
     # allow pmlogger socket to be closed and ready to accept()
     #
     sleep 2
-    cat <<End-of-File | pmlc -ei >>$tmp.out 2>&1
+    cat <<End-of-File | pmlc $DEBUG -ei >>$tmp.out 2>&1
 connect primary $1
 status
 query sample.drift
@@ -68,6 +70,7 @@ connect $2 $1
 status
 flush
 End-of-File
+    cat $tmp.out >>$seq.full
     _filter <$tmp.out
 }
 
@@ -98,6 +101,7 @@ need_clean=true
 sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
+DEBUG=''
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 myhost=`hostname`
@@ -117,6 +121,7 @@ then
     exit
 fi
 
+
 ( pmlogger -h $rem_host -L -c /dev/null -l $tmp.log $tmp </dev/null >/dev/null 2>&1 ) &
 pid=$!
 
@@ -126,6 +131,10 @@ port=`pminfo -f pmcd.pmlogger.port \
       | sed -n -e '/primary/d' -e '/\['$pid' /{
 s/.* value //p
 }'`
+
+rm -f $seq.full
+echo "Remote host: $rem_host [pid: $rem_pid]" >>$seq.full
+echo "Local host: $myhost [pid: $pid port: $port]" >>$seq.full
 
 # real QA test starts here
 
@@ -146,6 +155,7 @@ $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 echo
 _speak_to_me "" $pid
 _speak_to_me "" "port $port"
+#debug# DEBUG="-D all"
 _speak_to_me @$rem_host $rem_pid
 
 # success, all done
