@@ -40,24 +40,28 @@ signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-eval `./getpmcdhosts -L -n 2 | sed -e 's/ / host2=/' -e 's/^/host1=/'`
+eval `./getpmcdhosts -L -n 2 -m 'proc.psinfo.ppid>=0' | sed -e 's/ / host2=/' -e 's/^/host1=/'`
 if [ -z "$host1" ]
 then
-    echo "Cannot get first remote pmcd host" >$seq.notrun
+    echo "Cannot get first remote pmcd host with proc.psinfo.ppid metrics" >$seq.notrun
     exit
 fi
 if [ -z "$host2" ]
 then
-    echo "Cannot get second remote pmcd host" >$seq.notrun
+    echo "Cannot get second remote pmcd host with proc.psinfo.ppid metrics" >$seq.notrun
     exit
 fi
 
 echo "QA output created by $seq"
 
+rm -f $seq.full
+echo "host1=$host1" >>$seq.full
+echo "host2=$host2" >>$seq.full
+
 # real QA test starts here
 
-echo
-echo "pmlogger directly ..."
+echo | tee -a $seq.full
+echo "pmlogger directly ..." | tee -a $seq.full
 inst=`pminfo -F proc.psinfo.ppid \
       | sed -n -e '/inst \[1 /{
 s/^[^"]*"/"/
@@ -65,9 +69,15 @@ s/] value .*//
 p
 }'`
 
+echo "inst=$inst" >>$seq.full
+ps $PCP_PS_ALL_FLAGS | egrep "PID|$inst" >>$seq.full
+
 cat <<end-of-file >$tmp.conf
 log advisory on once { proc.psinfo.ppid[$inst] }
 end-of-file
+
+echo "=== pmlogger config ===" >>$seq.full
+cat $tmp.conf >>$seq.full
 
 rm -f $tmp.0 $tmp.index $tmp.meta
 pmlogger -s 1 -c $tmp.conf -l $tmp.log $tmp
@@ -86,8 +96,8 @@ else
     echo "$x"
 fi
 
-echo
-echo "pmlc for local pmlogger ..."
+echo | tee -a $seq.full
+echo "pmlc for local pmlogger ..." | tee -a $seq.full
 rm -f $tmp.0 $tmp.index $tmp.meta $tmp.log
 pmlogger -L -s 1 -c /dev/null -l $tmp.log $tmp &
 pid=$!
@@ -104,8 +114,8 @@ else
     echo "$x"
 fi
 
-echo
-echo "pmlc local, pmcd and pmlogger remote ..."
+echo | tee -a $seq.full
+echo "pmlc local, pmcd and pmlogger remote ..." | tee -a $seq.full
 
 inst=`pminfo -F -h $host1 proc.psinfo.ppid \
       | sed -n -e '/inst \[1 /{
@@ -116,6 +126,11 @@ p
 cat <<end-of-file >$tmp.conf
 log advisory on once { proc.psinfo.ppid[$inst] }
 end-of-file
+
+echo "inst=$inst" >>$seq.full
+ssh -q pcpqa@$host1 ps -e | egrep "PID|$inst" >>$seq.full
+echo "=== pmlogger config ===" >>$seq.full
+cat $tmp.conf >>$seq.full
 
 cat <<end-of-file >$tmp.cmd
 . \$PCP_DIR/etc/pcp.env
@@ -158,9 +173,8 @@ else
 fi
 ssh -q pcpqa@$host1 "rm -f /tmp/$rem_tmp.*"
 
-echo
-echo "pmlc local, pmcd remote on one host, pmlogger remote on a different host ..."
-eval `./getpmcdhosts -L -n 2 | sed -e 's/ / host2=/' -e 's/^/host1=/'`
+echo | tee -a $seq.full
+echo "pmlc local, pmcd remote on one host, pmlogger remote on a different host ..." | tee -a $seq.full
 # need this in the format of the pmcd that pmlogger is connected to
 #
 inst=`pminfo -F -h $host2 proc.psinfo.ppid \
@@ -172,6 +186,11 @@ p
 cat <<end-of-file >$tmp.conf
 log advisory on once { proc.psinfo.ppid[$inst] }
 end-of-file
+
+echo "inst=$inst" >>$seq.full
+ssh -q pcpqa@$host2 ps -e | egrep "PID|$inst" >>$seq.full
+echo "=== pmlogger config ===" >>$seq.full
+cat $tmp.conf >>$seq.full
 
 cat <<end-of-file >$tmp.cmd
 . /etc/pcp.env
