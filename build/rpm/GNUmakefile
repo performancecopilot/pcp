@@ -37,23 +37,6 @@ pack_pcp : rpmmacros $(SPEC)
 		--clean $(SPEC)
 	rm -f $(SPEC) $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm \
 		rpmmacros 
-ifneq "$(CPANFLUTE)" ""
-	export PCP_TOPDIR=`pwd`/$(TOPDIR); \
-	$(CPANFLUTE) --email="$(PACKAGE_BUILDER)" \
-		--noperlreqs --release=1 --outdir=$(TOPDIR)/build/rpm \
-		--descfile=pcp-pmda-perl.desc --buildrequires=pcp \
-		--buildall $(TOPDIR)/src/cpan/PMDA/PCP-PMDA-*.tar.gz
-	export PCP_TOPDIR=`pwd`/$(TOPDIR); \
-	$(CPANFLUTE) --email="$(PACKAGE_BUILDER)" \
-		--noperlreqs --release=1 --outdir=$(TOPDIR)/build/rpm \
-		--descfile=pcp-logsummary-perl.desc --buildrequires=pcp \
-		--buildall $(TOPDIR)/src/cpan/LogSummary/PCP-LogSummary-*.tar.gz
-	export PCP_TOPDIR=`pwd`/$(TOPDIR); \
-	$(CPANFLUTE) --email="$(PACKAGE_BUILDER)" \
-		--noperlreqs --release=1 --outdir=$(TOPDIR)/build/rpm \
-		--descfile=pcp-mmv-perl.desc --buildrequires=pcp \
-		--buildall $(TOPDIR)/src/cpan/MMV/PCP-MMV-*.tar.gz
-endif
 
 rpmmacros : macros.template
 	@TREEROOT=`cd ${TOPDIR}; pwd`; \
