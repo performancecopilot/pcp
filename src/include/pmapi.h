@@ -70,11 +70,11 @@ typedef struct {
     signed int		dimCount : 4;	/* event dimension */
     unsigned int	scaleSpace : 4;	/* one of PM_SPACE_* below */
     unsigned int	scaleTime : 4;	/* one of PM_TIME_* below */
-    unsigned int	scaleCount : 4;	/* one of PM_COUNT_* below */
+    signed int		scaleCount : 4;	/* one of PM_COUNT_* below */
     unsigned int	pad : 8;
 #else
     unsigned int	pad : 8;
-    unsigned int	scaleCount : 4;	/* one of PM_COUNT_* below */
+    signed int		scaleCount : 4;	/* one of PM_COUNT_* below */
     unsigned int	scaleTime : 4;	/* one of PM_TIME_* below */
     unsigned int	scaleSpace : 4;	/* one of PM_SPACE_* below */
     signed int		dimCount : 4;	/* event dimension */
