@@ -1,3 +1,11 @@
+pcp (3.0.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Resolved issues with the Debian kFreeBSD build.
+  * Reverted Fedora rc script changes (closes: #544350)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 23 Oct 2009 15:00:00 +1100
+
 pcp (3.0.0) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
