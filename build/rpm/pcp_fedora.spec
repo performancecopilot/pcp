@@ -5,7 +5,7 @@ Release: 2%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
-Source0: ftp://oss.sgi.com/projects/pcp/download/pcp-3.0.1-1.src.tar.gz
+Source0: ftp://oss.sgi.com/projects/pcp/download/pcp-3.0.1-2.src.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: procps autoconf bison flex ncurses-devel
