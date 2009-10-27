@@ -61,14 +61,19 @@ rm -rf $ns1 $pcp $ns2
 
 _get_netstat()
 {
+    # have to skip the ICMP input histogram metrics, the ICMP output
+    # histogram metrics and the IcmpMsg metrics as their presence is
+    # not deterministic (the 8 leading spaces pattern matches most of
+    # these)
+    #
     netstat -s \
 	| tee -a $seq.full \
 	| sed \
-	    -e 's/^[ 	]*//' \
-	    -e 's/[ 	]*$//' \
-	    -e 's/ times$//' \
 	    -e '/ICMP input histogram:/d' \
 	    -e '/ICMP output histogram:/d' \
+	    -e '/^        /d' \
+	    -e 's/^[ 	]*//' \
+	    -e 's/[ 	]*$//' \
 	| $PCP_AWK_PROG '
 $1 == "UdpLite:"	{ exit }
 NF == 1		{ next }
@@ -158,7 +163,10 @@ _get_netstat >$ns1
 # Use hinv.ncpu for missing PCP metrics, and hinv.ndisk for metrics
 # that cannot be tested in this framework
 #
-sed -e '/^#/d' -e 's/	#.*//' <<END  >$tmp.metrics
+sed \
+    -e '/^#/d' \
+    -e 's/	#.*//' \
+<<END  >$tmp.metrics
 network.ip.inreceives		# Ip: total packets received
 network.ip.forwdatagrams	# Ip: forwarded
 network.ip.indiscards		# Ip: incoming packets discarded
@@ -167,18 +175,8 @@ network.ip.outrequests		# Ip: requests sent out
 network.ip.outnoroutes		# Ip: dropped because of missing route
 network.icmp.inmsgs		# Icmp: messages received
 network.icmp.inerrors		# Icmp: input message failed
-network.icmp.indestunreachs	# Icmp: input histogram: destination unreachable
-network.icmp.intimeexcds	# Icmp: input histogram: timeout in transit
-network.icmp.inechoreps		# Icmp: input histogram: echo replies
 network.icmp.outmsgs		# Icmp: messages sent
 network.icmp.outerrors		# Icmp: messages failed
-network.icmp.outdestunreachs	# Icmp: output histogram: destination unreachable
-network.icmp.outechos		# Icmp: output histogram: echo request
-hinv.ncpu			# IcmpMsg: InType0
-hinv.ncpu			# IcmpMsg: InType3
-hinv.ncpu			# IcmpMsg: InType11
-hinv.ncpu			# IcmpMsg: OutType3
-hinv.ncpu			# IcmpMsg: OutType8
 network.tcp.activeopens		# Tcp: active connections openings
 network.tcp.passiveopens	# Tcp: passive connection openings
 network.tcp.attemptfails	# Tcp: failed connection attempts
@@ -196,6 +194,9 @@ network.udp.noports		# Udp: packets to unknown port received
 network.udp.inerrors		# Udp: packet receive errors
 network.udp.outdatagrams	# Udp: packets sent
 END
+
+echo "=== Filtered first netstat ===" >>$seq.full
+paste -d"   \n" $ns1 $tmp.metrics >>$seq.full
 
 echo '#!/bin/sh' >$tmp.pminfo.sh
 echo -n 'true' >>$tmp.pminfo.sh
@@ -221,6 +222,8 @@ fi
 
 echo "=== Second netstat ===" >>$seq.full
 _get_netstat >$ns2
+echo "=== Filtered second netstat ===" >>$seq.full
+paste -d"   \n" $ns2 $tmp.metrics >>$seq.full
 
 nm=`wc -l $tmp.metrics | $PCP_AWK_PROG '{print $1}'`
 nn=`wc -l $ns2  | $PCP_AWK_PROG '{print $1}'`
@@ -261,6 +264,8 @@ NF == 4	{
     >>$tmp.sh
 echo "exit $sts" >>$tmp.sh
 chmod u+x $tmp.sh
+
+cat $tmp.sh >>$seq.full
 
 # for debugging
 # if sh -x $tmp.sh
