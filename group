@@ -350,7 +350,7 @@ dmf		pcpqa
 120 libirixpmda local oss
 121 pmlogconf #893249 local oss
 121 pmlogconf #893249 local oss
-122 pmtrace local #893884 remote oss
+122 trace local #893884 remote oss
 123 libpcp local oss
 124 pmie local #870661 oss
 125 pmval archive
@@ -444,6 +444,7 @@ dmf		pcpqa
 213 dbpmda pmns local oss
 214 pmlogextract local oss
 215 other pmsocks pmval remote oss
+216 pmda.linux local oss
 217 folio local oss
 218 archive logutil local pmlogextract oss
 220 pmlogger local oss

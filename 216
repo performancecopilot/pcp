@@ -1,0 +1,274 @@
+#! /bin/sh
+# PCP QA Test No. 216
+# $Revision: 1.1 $
+#
+# Verify network.<protocol> statistics
+# (Linux version, see 117 for non-Linux version)
+#
+# Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
+
+# creator
+owner=kenj
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+seq=`basename $0`
+
+if [ $PCP_PLATFORM != linux ]
+then
+    echo "network.* checks for non-linux done in test 117" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+#debug# tmp=/tmp/$$
+tmp=`pwd`/tmp
+compare=`pwd`/src-oss/compare
+here=`pwd`
+sudo=$here/sudo
+status=0	# success is the default!
+$sudo rm -rf $tmp.*
+#debug# trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+if [ ! -x $compare ]
+then
+    echo "Can't find compare, giving up"
+    exit 1
+fi
+
+if pminfo network.ip >/dev/null
+then
+    :
+else
+    echo "pminfo network.ip not working, giving up"
+    exit 1
+fi
+
+ns1=$tmp.netstat1
+pcp=$tmp.pcp
+ns2=$tmp.netstat2
+
+rm -f $seq.full
+rm -rf $ns1 $pcp $ns2
+
+# real QA test starts here
+
+_get_netstat()
+{
+    netstat -s \
+	| tee -a $seq.full \
+	| sed \
+	    -e 's/^[ 	]*//' \
+	    -e 's/[ 	]*$//' \
+	    -e 's/ times$//' \
+	    -e '/ICMP input histogram:/d' \
+	    -e '/ICMP output histogram:/d' \
+	| $PCP_AWK_PROG '
+$1 == "UdpLite:"	{ exit }
+NF == 1		{ next }
+/^[0-9]/	{ print $1; next }
+/[0-9]$/	{ print $NF; next }
+		{ print "Botched netstat parsing:",$0 }'
+}
+
+echo "=== First netstat ===" >>$seq.full
+_get_netstat >$ns1
+
+# Fetch metrics in the same order as they appear in netstat output
+#
+# Ip:
+#     344977 total packets received
+#     0 forwarded
+#     0 incoming packets discarded
+#     344201 incoming packets delivered
+#     224440 requests sent out
+#     601 dropped because of missing route
+# Icmp:
+#     621 ICMP messages received
+#     57 input ICMP message failed.
+#     ICMP input histogram:
+#         destination unreachable: 501
+#         timeout in transit: 118
+#         echo replies: 2
+#     6 ICMP messages sent
+#     0 ICMP messages failed
+#     ICMP output histogram:
+#         destination unreachable: 4
+#         echo request: 2
+# IcmpMsg:
+#         InType0: 2
+#         InType3: 501
+#         InType11: 118
+#         OutType3: 4
+#         OutType8: 2
+# Tcp:
+#     18218 active connections openings
+#     516 passive connection openings
+#     1779 failed connection attempts
+#     249 connection resets received
+#     8 connections established
+#     303968 segments received
+#     189142 segments send out
+#     463 segments retransmited
+#     0 bad segments received.
+#     466 resets sent
+# Udp:
+#     36864 packets received
+#     2 packets to unknown port received.
+#     0 packet receive errors
+#     34398 packets sent
+# UdpLite:
+# TcpExt:
+#     160 ICMP packets dropped because they were out-of-window
+#     350 TCP sockets finished time wait in fast timer
+#     20 time wait sockets recycled by time stamp
+#     3560 delayed acks sent
+#     Quick ack mode was activated 195 times
+#     881 packets directly queued to recvmsg prequeue.
+#     545976 bytes directly received in process context from prequeue
+#     34885 packet headers predicted
+#     355 packets header predicted and directly queued to user
+#     3948 acknowledgments not containing data payload received
+#     137845 predicted acknowledgments
+#     86 congestion windows recovered without slow start after partial ack
+#     8 timeouts after SACK recovery
+#     5 timeouts in loss state
+#     1 retransmits in slow start
+#     251 other TCP timeouts
+#     162 DSACKs sent for old packets
+#     95 DSACKs received
+#     233 connections reset due to unexpected data
+#     128 connections aborted due to timeout
+#     TCPDSACKIgnoredOld: 4
+#     TCPDSACKIgnoredNoUndo: 36
+# IpExt:
+#     InMcastPkts: 2842
+#     OutMcastPkts: 477
+#     InBcastPkts: 14230
+#     OutBcastPkts: 11330
+# 
+# 
+
+# Use hinv.ncpu for missing PCP metrics, and hinv.ndisk for metrics
+# that cannot be tested in this framework
+#
+sed -e '/^#/d' -e 's/	#.*//' <<END  >$tmp.metrics
+network.ip.inreceives		# Ip: total packets received
+network.ip.forwdatagrams	# Ip: forwarded
+network.ip.indiscards		# Ip: incoming packets discarded
+network.ip.indelivers		# Ip: incoming packets delivered
+network.ip.outrequests		# Ip: requests sent out
+network.ip.outnoroutes		# Ip: dropped because of missing route
+network.icmp.inmsgs		# Icmp: messages received
+network.icmp.inerrors		# Icmp: input message failed
+network.icmp.indestunreachs	# Icmp: input histogram: destination unreachable
+network.icmp.intimeexcds	# Icmp: input histogram: timeout in transit
+network.icmp.inechoreps		# Icmp: input histogram: echo replies
+network.icmp.outmsgs		# Icmp: messages sent
+network.icmp.outerrors		# Icmp: messages failed
+network.icmp.outdestunreachs	# Icmp: output histogram: destination unreachable
+network.icmp.outechos		# Icmp: output histogram: echo request
+hinv.ncpu			# IcmpMsg: InType0
+hinv.ncpu			# IcmpMsg: InType3
+hinv.ncpu			# IcmpMsg: InType11
+hinv.ncpu			# IcmpMsg: OutType3
+hinv.ncpu			# IcmpMsg: OutType8
+network.tcp.activeopens		# Tcp: active connections openings
+network.tcp.passiveopens	# Tcp: passive connection openings
+network.tcp.attemptfails	# Tcp: failed connection attempts
+network.tcp.estabresets		# Tcp: connection resets received
+# cannot be tested
+# network.tcp.currestab		# Tcp: connections established
+hinv.ndisk			# Tcp: connections established
+network.tcp.insegs		# Tcp: segments received
+network.tcp.outsegs		# Tcp: segments send out
+network.tcp.retranssegs		# Tcp: segments retransmited
+network.tcp.inerrs		# Tcp: bad segments received
+network.tcp.outrsts		# Tcp: resets sent
+network.udp.indatagrams		# Udp: packets received
+network.udp.noports		# Udp: packets to unknown port received
+network.udp.inerrors		# Udp: packet receive errors
+network.udp.outdatagrams	# Udp: packets sent
+END
+
+echo '#!/bin/sh' >$tmp.pminfo.sh
+echo -n 'true' >>$tmp.pminfo.sh
+$PCP_AWK_PROG < $tmp.metrics >>$tmp.pminfo.sh '
+line % 5 == 0	{ printf " || exit 1\npminfo -f "; line++; }
+		{ printf "%s ", $1; line++; }
+END		{ print " || exit 1" }
+'
+
+echo "=== pminfo ===" >>$seq.full
+if sh $tmp.pminfo.sh \
+    | tee -a $seq.full \
+    | sed -e '/^No/s/.*/    value -666/' \
+    | grep ' value ' \
+    | $PCP_AWK_PROG '{ print $2 }' \
+    > $pcp
+then
+    :
+else
+    echo "pminfo fetches failed, giving up"
+    exit 1
+fi
+
+echo "=== Second netstat ===" >>$seq.full
+_get_netstat >$ns2
+
+nm=`wc -l $tmp.metrics | $PCP_AWK_PROG '{print $1}'`
+nn=`wc -l $ns2  | $PCP_AWK_PROG '{print $1}'`
+if [ $nm -lt $nn ]
+then
+    echo "Update list! fewer metrics ($nm) than netstat statistics ($nn)"
+    while [ $nm -lt $nn ]
+    do
+	# would prefer -1, but that messes up src-oss/compare and 0
+	# happens too often ... 42424242 has only a 1 in 2^31 chance
+	# of hitting a false match!
+	#
+	echo "42424242" >>$pcp
+	echo "unknown.pcp.metric" >>$tmp.metrics
+	nm=`expr $nm + 1`
+    done
+elif [ $nm -gt $nn ]
+then
+    echo "Update list! more metrics ($nm) than netstat statistics ($nn)"
+fi
+
+echo "#!/bin/sh" >>$tmp.sh
+echo "sts=0" >>$tmp.sh
+paste -d"   \n" $ns1 $pcp $ns2 $tmp.metrics \
+| tee $tmp.debug \
+    | $PCP_AWK_PROG '
+NF == 4	{
+	  if ($4 == "hinv.ncpu") next
+	  if ($4 == "hinv.ndisk") next
+	  printf "if '$compare' %d %d %d; then :; else ", $1, $2, $3;
+	  printf "sts=1; echo \"%s = %d out of range %d..%d\"; fi\n", $4, $2, $1, $3
+	  next
+	}
+	{
+	  print "echo \"Test botch:",$0,"\""
+	  next
+	}' \
+    >>$tmp.sh
+echo "exit $sts" >>$tmp.sh
+chmod u+x $tmp.sh
+
+# for debugging
+# if sh -x $tmp.sh
+
+if sh $tmp.sh
+then
+    exit 0
+else
+    echo "Bad network.* metrics"
+    exit 1
+fi

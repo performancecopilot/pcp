@@ -2,7 +2,7 @@
 # PCP QA Test No. 117
 # $Revision: 2.9 $
 #
-# Verify network.ip statistics
+# Verify network.ip statistics (Non-linux version, see 216 for Linux version)
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -24,7 +24,7 @@ trap "rm -rf $tmp.*" 0 1 2 3 15
 
 if [ $PCP_PLATFORM = linux ]
 then
-    echo "TODO network.ip checks for linux" >$seq.notrun
+    echo "network.ip checks for linux done in test 216" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi
