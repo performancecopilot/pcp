@@ -111,7 +111,7 @@ cleanup()
         _needclean=false
 	if [ -f $oconfig ]
 	then
-	    $sudo mv $oconfig $config
+	    $sudo cp $oconfig $config
 	fi
 	unset PMCD_PORT # don't worry about preserving just get rid of it
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
@@ -189,7 +189,7 @@ egrep '^(linux|irix)' $config >>$nconfig
 grep '^pmcd' $config >>$nconfig
 
 $sudo cp $config $oconfig
-$sudo mv $nconfig $config
+$sudo cp $nconfig $config
 PMCD_CONNECT_TIMEOUT=30
 PMCD_PORT=$port
 export PMCD_CONNECT_TIMEOUT PMCD_PORT
@@ -207,7 +207,7 @@ allow $other1: all except store, maximum 1 connections;
 allow $other2: all, maximum 1 connections;
 disallow *: all;
 End-of-File
-$sudo mv $nconfig $config
+$sudo cp $nconfig $config
 
 echo "=== local pmcd.conf ===" >>$seq.full
 cat $config >>$seq.full
@@ -230,6 +230,7 @@ echo
 
 echo "expect two connection limit errors:"
 cmd1='sh -c "PMCD_CONNECT_TIMEOUT=30 PMCD_PORT='$PMCD_PORT'; export PMCD_CONNECT_TIMEOUT PMCD_PORT; pmval -h '$LOCALHOST_FULL' pmcd.numclients"'
+echo "cmd1: $cmd1" >>$seq.full
 (ssh -q pcpqa@$other1 $cmd1  &) 1>$tmp.pmval 2>&1
 sleep 5
 
@@ -237,11 +238,13 @@ sleep 5
 # and connected to pmcd so be prepared to try a few times ...
 #
 cmd2='sh -c "PMCD_CONNECT_TIMEOUT=30 PMCD_PORT='$PMCD_PORT'; export PMCD_CONNECT_TIMEOUT PMCD_PORT; pminfo -h '$LOCALHOST_FULL' -f pmcd.numclients"'
+echo "cmd2: $cmd2" >>$seq.full
 cnt=0
 echo >$tmp.pminfo
 for i in 1 2 3 4 5 6 7 8 9 10
 do
     ssh -q pcpqa@$other1 $cmd2 >$tmp.tmp 2>&1
+    echo "--- attempt $i ---" >>$tmp.pminfo
     cat $tmp.tmp >>$tmp.pminfo
     if grep 'connection limit' $tmp.tmp >/dev/null
     then
@@ -264,7 +267,7 @@ echo "=== pminfo output ===" >>$seq.full
 cat $tmp.pminfo >>$seq.full
 
 echo "expect two connection limit errors:"
-(ssh -q pcpqa@$other2 pcpqa $cmd1 &) > $tmp.pmval 2>&1
+(ssh -q pcpqa@$other2 $cmd1 &) > $tmp.pmval 2>&1
 sleep 5
 
 # not sure how long it takes to get the remote pmval command started
@@ -275,6 +278,7 @@ echo >$tmp.pminfo
 for i in 1 2 3 4 5 6 7 8 9 10
 do
     ssh -q pcpqa@$other2 $cmd2 >$tmp.tmp 2>&1
+    echo "--- attempt $i ---" >>$tmp.pminfo
     cat $tmp.tmp >>$tmp.pminfo
     if grep 'connection limit' $tmp.tmp >/dev/null
     then
@@ -292,6 +296,7 @@ $found || cat $tmp.pminfo
 # gets to attempt the store.
 #
 cmd3='sh -c "PMCD_CONNECT_TIMEOUT=30 PMCD_PORT='$PMCD_PORT'; export PMCD_CONNECT_TIMEOUT PMCD_PORT; pmstore -h '$LOCALHOST_FULL' pmcd.control.debug 1"'
+echo "cmd3: $cmd3" >>$seq.full
 # not sure how long it takes to get the remote pmval command started
 # and connected to pmcd so be prepared to try a few times ...
 #
@@ -300,6 +305,7 @@ echo >$tmp.pmstore
 for i in 1 2 3 4 5 6 7 8 9 10
 do
     ssh -q pcpqa@$other2 $cmd3 >$tmp.tmp 2>&1
+    echo "--- attempt $i ---" >>$tmp.pminfo
     cat $tmp.tmp >>$tmp.pmstore
     if grep 'connection limit' $tmp.tmp >/dev/null
     then
