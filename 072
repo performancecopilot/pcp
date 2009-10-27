@@ -43,7 +43,7 @@ mandatory on 50 msecs {
 	kernel.all.load
 	disk.dev.total
 	network.interface.in.bytes
-	swap.in
+	pmcd.pdu_in.fetch
 	disk.dev.total # note repeated set of metrics
 	mem.freemem
 }
