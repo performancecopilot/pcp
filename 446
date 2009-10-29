@@ -51,7 +51,7 @@ else
     echo make succeeded.
 fi
 
-get_syms /usr/lib/libpcp_trace.so.$libmajor > $tmp.actual
+get_syms $PCP_LIB_DIR/libpcp_trace.so.$libmajor > $tmp.actual
 get_syms $PCP_DEMOS_DIR/trace/lib/libpcp_trace.so.$libmajor > $tmp.stub
 
 diff $tmp.actual $tmp.stub >/dev/null
