@@ -29,7 +29,10 @@ elif [ $PCP_PLATFORM = linux ] ; then
     then
 	case `cat /etc/SuSE-release`
 	in
-	    'SUSE LINUX Enterprise Server 9 '*|'SUSE Linux Enterprise Server 10 '*)
+	    'SUSE LINUX Enterprise Server 9 '*|\
+	    'SUSE Linux Enterprise Server 10 '*|\
+	    'SUSE Linux Enterprise Server 11 '*|\
+	    'openSUSE 11'*)
 		ln $seq.linux $seq.out
 		;;
 	esac
