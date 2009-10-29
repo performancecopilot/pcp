@@ -168,9 +168,10 @@ rm -f $seq.full
 
 # real QA test starts here
 
-for type in "-b 64 -v pcp>=2"
+for type in '-b 64 -v pcp\>=2'
 do
-    host=`./getpmcdhosts -L -n 1 $type 2>/dev/null`
+    cmd="./getpmcdhosts -L -n 1 $type 2>/dev/null"
+    host=`eval $cmd`
     if [ -z "$host" ]
     then
 	echo "Cannot find a 64-bit host running PCP" >$seq.notrun
@@ -178,7 +179,7 @@ do
 	exit
     else
 	echo
-	echo "=== pmlogger host type: $type ==="
+	echo "=== pmlogger host type: $type ===" | sed 's/\\>//'
 	echo "$type => $host" >>$seq.full
 	_speak_to_me $host
     fi
