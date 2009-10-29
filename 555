@@ -26,6 +26,12 @@ sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 
+if [ ! -f /etc/syslog.conf ]; then
+    echo "No /etc/syslog.conf -- probably using a different syslog package" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
 cleanup()
 {
     if [ -f /etc/syslog.conf.$seq ]; then
