@@ -4,28 +4,6 @@
 # entries are fully qualified domain names, in any order
 # the only pre-requisite is that they be running some version of PCP.
 #
-# SGI Section
-babylon.engr.sgi.com
-bimini.engr.sgi.com
-#boing.melbourne.sgi.com
-#duh.engr.sgi.com
-groan.engr.sgi.com
-grunt.melbourne.sgi.com
-#liz.melbourne.sgi.com
-#mazur.melbourne.sgi.com
-#moomba.melbourne.sgi.com
-rattle.melbourne.sgi.com
-sandpit.melbourne.sgi.com
-#kenj-pc.melbourne.sgi.com
-sherman.melbourne.sgi.com
-snort.melbourne.sgi.com
-chook.melbourne.sgi.com
-kao1.melbourne.sgi.com
-#snowy.melbourne.sgi.com
-#bruce.melbourne.sgi.com
-#tokyo.engr.sgi.com
-whirr.engr.sgi.com
-wobbly.melbourne.sgi.com
 
 # Aconex Section
 forge.scott.net.au
@@ -41,6 +19,13 @@ butt.scott.net.au
 bozo.localdomain
 bozo-laptop.localdomain
 comma.localdomain
+
+# Mort Section
+opensuse11-1.bork.org
+fedora11.bork.org
+sles11.bork.org
+ubuntu-smp.bork.org
+deb32.bork.org
 
 # sort control lines
 # each line here is a specification that includes the keyword #order and
@@ -65,3 +50,5 @@ comma.localdomain
 # Kenj Section
 #order	bozo.localdomain	.localdomain
 #order	bozo-laptop.localdomain	.localdomain
+# Mort Section
+#order .bork.org .bork.org
