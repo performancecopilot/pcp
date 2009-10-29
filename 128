@@ -78,7 +78,7 @@ $signal -s KILL \$KILL_PID >/dev/null 2>&1
 EOF
 chmod u+x $tmp.workload
 
-$tmp.workload
+$tmp.workload >/dev/null 2>&1
 sleep 2
 
 rm -f $tmp.info $tmp.stat $tmp.join $seq.full
