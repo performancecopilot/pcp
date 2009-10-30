@@ -175,11 +175,31 @@ sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
 awk '{print $NF}' $DIST_MANIFEST |\
 egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)' >>devel_files
 
+#
+# Patterns for files to be marked %config(noreplace).
+# Note: /etc/pcp.conf is %config, but not noreplace
+# and is treated specially below.
+cat >conf_files <<EOFEOF
+etc/pcp.env
+pmcd/pmcd.conf
+pmcd/pmcd.options
+pmcd/rc.local
+pmie/config.default
+pmie/control
+pmie/crontab
+pmlogger/config.default
+pmlogger/control
+pmlogger/crontab
+pmproxy/pmproxy.options
+bash_completion.d/pcp
+EOFEOF
+
 rm -f devel_files.rpm libs_files.rpm base_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
 BEGIN {
     while( getline < "libs_files") lib[$0]=1;
     while( getline < "devel_files") dev[$0]=1;
+    while( getline < "conf_files") conf[nconf++]=$0;
 }
 {
     if (lib[$NF]) f="libs_files.rpm";
@@ -187,9 +207,14 @@ BEGIN {
     else f="base_files.rpm"
 }
 $1 == "d" { printf ("%%%%dir %%%%attr(%s,root,root) %s\n", $2, $5) >> f } 
-$1 == "f" { if ( match ($6, "'$PCP_VAR_DIR'/config") ||
-		 match ($6, "'$PCP_SYSCONFIG_DIR'") ) {
-	       printf ("%%%%config(noreplace) ") >> f;
+
+$1 == "f" && $6 ~ "etc/pcp.conf" { printf ("%%%%config ") >> f; }
+$1 == "f" {
+	    for (i=0; i < nconf; i++) {
+	    	if ($6 ~ conf[i]) {
+		    printf ("%%%%config(noreplace) ") >> f;
+		    break;
+		}
 	    }
 	    if (match ($6, "'$PCP_MAN_DIR'") || match ($6, "'$PCP_DOC_DIR'")) {
 		printf ("%%%%doc ") >> f;
