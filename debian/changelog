@@ -1,6 +1,5 @@
 pcp (3.0.1) unstable; urgency=low
 
-  * New release (full details in CHANGELOG).
   * Resolved issues with the Debian kFreeBSD build.
   * Reverted Fedora rc script changes (closes: #544350)
   * Add missing libpcp-mmv-perl perl dependency (closes: #552670)

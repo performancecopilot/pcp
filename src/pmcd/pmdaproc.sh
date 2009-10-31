@@ -260,7 +260,7 @@ __restore_pmcd()
 	echo "Restoring previous PMCD control file, and trying to restart PMCD ..."
 	cp $tmp.pmcd.conf.save $PCP_PMCDCONF_PATH
 	eval $CHOWN root $PCP_PMCDCONF_PATH
-	eval $CHMOD 444 $PCP_PMCDCONF_PATH
+	eval $CHMOD 644 $PCP_PMCDCONF_PATH
 	rm -f $tmp.pmcd.conf.save
 	$PCP_RC_DIR/pcp start
 	__wait_for_pmcd
@@ -320,7 +320,7 @@ END					{ exit status }'
 	cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf.save
 	cp /tmp/$$.pmcd.conf $PCP_PMCDCONF_PATH
 	eval $CHOWN root $PCP_PMCDCONF_PATH
-	eval $CHMOD 444 $PCP_PMCDCONF_PATH
+	eval $CHMOD 644 $PCP_PMCDCONF_PATH
 
 	# signal pmcd if it is running
 	#
@@ -402,7 +402,7 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
     ) >$PCP_PMCDCONF_PATH
     rm -f /tmp/$$.pmcd.access /tmp/$$.pmcd.body
     eval $CHOWN root $PCP_PMCDCONF_PATH
-    eval $CHMOD 444 $PCP_PMCDCONF_PATH
+    eval $CHMOD 644 $PCP_PMCDCONF_PATH
 
     # log change to pcplog/NOTICES
     #
