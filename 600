@@ -64,7 +64,14 @@ then
 	ls -l /lib/libc-*.so
 	exit 1
     fi
-    if [ "$a" -lt 2 ]
+
+    # Suse systems seem to work with linux.1
+    if [ -f /etc/SuSE-release ]
+    then
+	ln $seq.out.linux.1 $seq.out
+
+    # Otherwise use glibc version
+    elif [ "$a" -lt 2 ]
     then
 	# a.?.?, a < 2
 	ln $seq.out.linux.0 $seq.out
