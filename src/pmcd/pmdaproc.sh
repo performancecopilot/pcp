@@ -718,7 +718,9 @@ __choose_ipc()
 
     if [ $ipc_type = pipe ]
     then
-	type="pipe	binary 		$_dir/$pmda_name"
+	# This defaults to binary unless the Install file
+	# specifies ipc_prot="binary notready"   -- See pmcd(1)
+	type="pipe	$ipc_prot 		$_dir/$pmda_name"
     else
 	while true
 	do
