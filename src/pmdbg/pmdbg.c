@@ -67,8 +67,14 @@ static struct {
     		"Trace Time Control API" },
     { DBG_TRACE_PMC,		"PMC",
     		"Trace metrics class operations" },
+    { DBG_TRACE_DERIVE,		"DERIVE",
+    		"Derived metrics operations" },
     { DBG_TRACE_INTERP,		"INTERP",
 		"Diags for value interpolation in archives" },
+    { DBG_TRACE_CONFIG,		"CONFIG",
+		"Trace config initialization from pmGetConfig" },
+    { DBG_TRACE_LOOP,		"LOOP",
+		"Diags for pmLoop* services" },
 };
 
 static int	nfoo = sizeof(foo) / sizeof(foo[0]);
