@@ -2003,9 +2003,10 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 		     */
 		    if (statuslist != NULL) {
 			if (((__pmID_int *)&tnp->pmid)->domain == DYNAMIC_PMID)
-			  status[i] = 1;
+			  status[i] = PMNS_NONLEAF_STATUS;
 			else
-			  status[i] = (tnp->first != NULL); /* has children */
+			  /* node has children? */
+			  status[i] = (tnp->first == NULL ? PMNS_NONLEAF_STATUS : PMNS_LEAF_STATUS);
 		    }
 		    strcpy(result[i], tnp->name);
 		    p += strlen(tnp->name) + 1;
