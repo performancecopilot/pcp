@@ -165,6 +165,13 @@ do_pmda=true
 do_check=true
 __here=`pwd`
 __pmcd_is_dead=false
+__verbose=false
+if [ "$prog" = "Install" ]
+then
+    __usage="Usage: $prog [-NQV] [-n namespace] [-R rootdir]"
+else
+    __usage="Usage: $prog [-NVQ] [-n namespace]"
+fi
 
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
@@ -197,7 +204,7 @@ do
 	-R)	# $ROOT
 	    if [ "$prog" = "Remove" ]
 	    then
-		echo "Usage: $prog [-N] [-n namespace] [-Q]"
+		echo "$__usage"
 		exit 1
 	    fi
 	    if [ $# -lt 2 ]
@@ -209,13 +216,12 @@ do
 	    shift
 	    ;;
 
+	-V)	# verbose
+	    __verbose=true
+	    ;;
+
 	*)
-	    if [ "$prog" = "Install" ]
-	    then
-		echo "Usage: $prog [-N] [-n namespace] [-Q] [-R rootdir]"
-	    else
-		echo "Usage: $prog [-N] [-n namespace] [-Q]"
-	    fi
+	    echo "$__usage"
 	    exit 1
 	    ;;
     esac
@@ -324,7 +330,7 @@ END					{ exit status }'
 
 	# signal pmcd if it is running
 	#
-	if pminfo -h localhost -v pmcd.version >/dev/null 2>&1
+	if pminfo -v pmcd.version >/dev/null 2>&1
 	then
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	    # allow signal processing to be done before checking status
@@ -410,7 +416,7 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
 
     # signal pmcd if it is running, else start it
     #
-    if pminfo -h localhost -v pmcd.version >/dev/null 2>&1
+    if pminfo -v pmcd.version >/dev/null 2>&1
     then
 	pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	# allow signal processing to be done before checking status
@@ -909,7 +915,7 @@ _install()
 
     for __n in $pmns_name
     do
-	if pminfo -h localhost -n $NAMESPACE $__n >/dev/null 2>&1
+	if pminfo $__n >/dev/null 2>&1
 	then
             cd $PMNSDIR
 	    if pmnsdel -n $PMNSROOT $__n >$tmp 2>&1
@@ -1105,7 +1111,12 @@ _install()
 	    for __n in $pmns_name
 	    do
 		$PCP_ECHO_PROG $PCP_ECHO_N "Check $__n metrics have appeared ... ""$PCP_ECHO_C"
-		pminfo -n $NAMESPACE -f $__n | __filter $__n
+		pminfo -f $__n | tee $tmp.verbose | __filter $__n
+		if $__verbose
+		then
+		    echo "pminfo output ..."
+		    cat $tmp.verbose
+		fi
 	    done
 	fi
     else
@@ -1184,7 +1195,7 @@ _remove()
 	    for __n in $pmns_name
 	    do
 		$PCP_ECHO_PROG $PCP_ECHO_N "Check $__n metrics have gone away ... ""$PCP_ECHO_C"
-		if pminfo -n $NAMESPACE -f $__n >$tmp 2>&1
+		if pminfo -f $__n >$tmp 2>&1
 		then
 		    echo "Arrgh, something has gone wrong!"
 		    cat $tmp
