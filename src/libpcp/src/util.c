@@ -267,7 +267,7 @@ pmIDStr(pmID pmid)
     __pmID_int*	p = (__pmID_int*)&pmid;
     if (pmid == PM_ID_NULL)
 	return "PM_ID_NULL";
-    if (p->domain == DYNAMIC_PMID)
+    if (p->domain == DYNAMIC_PMID && p->item == 0)
 	/*
 	 * this PMID represents the base of a dynamic subtree in the PMNS
 	 * ... identified by setting the domain field to the reserved

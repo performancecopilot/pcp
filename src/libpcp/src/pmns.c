@@ -539,7 +539,7 @@ skipline:
 	     * ... identified by setting the domain field to the reserved
 	     * value DYNAMIC_PMID and storing the real domain of the PMDA
 	     * that can enumerate the subtree in the cluster field, while
-	     * the item field is not used
+	     * the item field is not used (and set to zero)
 	     */
 	    pmid_int.flag = 0;
 	    pmid_int.domain = DYNAMIC_PMID;
@@ -1817,6 +1817,22 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	ctxp = __pmHandleToPtr(n);
 	if ((sts = request_names (ctxp, numpmid, namelist)) >= 0) {
 	    sts = receive_names(ctxp, numpmid, pmidlist);
+	    if (sts == PM_ERR_NAME) {
+		/* try derived metrics for any remaining unknown pmids */
+		int		nsts;
+		int		nfail = 0;
+		int		i;
+		sts = 0;
+		for (i = 0; i < numpmid; i++) {
+		    if (pmidlist[i] == PM_ID_NULL) {
+			nsts = __dmgetpmid(namelist[i], &pmidlist[i]);
+			if (nsts < 0) {
+			    if (nfail == 0) sts = nsts;
+			    nfail++;
+			}
+		    }
+		}
+	    }
 	}
     }
 
@@ -2382,10 +2398,13 @@ pmReceiveTraversePMNS (int ctxid, void(*func)(const char *name))
     }
     else if (n == PDU_ERROR) {
 	__pmDecodeError(pb, PDU_BINARY, &n);
+	/* TODO - PM_ERR_NAME check for derived metrics */
     }
     else if (n != PM_ERR_TIMEOUT) {
 	n = PM_ERR_IPC;
     }
+
+    /* TODO - derived metrics stuff */
 
     ctxp->c_pmcd->pc_curpdu = 0;
     ctxp->c_pmcd->pc_tout_sec = 0;
@@ -2407,44 +2426,65 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
     if (pmns_location == PMNS_LOCAL)
 	return TraversePMNS_local(name, func);
     else { 
-	int         n;
+	int         sts;
 	__pmPDU      *pb;
 	__pmContext  *ctxp;
 
         /* As we have PMNS_REMOTE there must be
          * a current host context.
          */
-	n = pmWhichContext();
-	assert(n >= 0);
-	ctxp = __pmHandleToPtr(n);
-	if ((n = request_traverse_pmns (ctxp, name)) < 0) {
-	    return (n);
+	sts = pmWhichContext();
+	assert(sts >= 0);
+	ctxp = __pmHandleToPtr(sts);
+	if ((sts = request_traverse_pmns (ctxp, name)) < 0) {
+	    return (sts);
 	} else {
-	    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
+	    int		numnames;
+	    int		i;
+	    int		xtra;
+	    char	**namelist;
+
+	    sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
                           TIMEOUT_DEFAULT, &pb);
-	    if (n == PDU_PMNS_NAMES) {
-		int numnames;
-		int i;
-                char **namelist;
+	    if (sts == PDU_PMNS_NAMES) {
 
-		n = __pmDecodeNameList(pb, PDU_BINARY, &numnames, 
+		sts = __pmDecodeNameList(pb, PDU_BINARY, &numnames, 
 		                      &namelist, NULL);
-		if (n < 0)
-		  return n;
-
-		for (i=0; i<numnames; i++) {
-                    func(namelist[i]);
-                }
-		free(namelist);
-                return n;
+		if (sts > 0) {
+		    for (i=0; i<numnames; i++) {
+			func(namelist[i]);
+		    }
+		    numnames = sts;
+		    free(namelist);
+		}
+		else
+		    return sts;
 	    }
-	    else if (n == PDU_ERROR) {
-		__pmDecodeError(pb, PDU_BINARY, &n);
-		return n;
+	    else if (sts == PDU_ERROR) {
+		__pmDecodeError(pb, PDU_BINARY, &sts);
+		if (sts != PM_ERR_NAME)
+		    return sts;
+		numnames = 0;
             }
-	    else if (n != PM_ERR_TIMEOUT)
+	    else if (sts != PM_ERR_TIMEOUT)
 		return PM_ERR_IPC;
-            return n;
+
+	    /*
+	     * add any derived metrics that have "name" as
+	     * their prefix
+	     */
+
+	    xtra = __dmtraverse(name, &namelist);
+	    if (xtra > 0) {
+		sts = 0;
+		for (i=0; i<xtra; i++) {
+		    func(namelist[i]);
+		}
+		numnames += xtra;
+		free(namelist);
+	    }
+
+	    return sts > 0 ? numnames : sts;
 	}
     }
 }

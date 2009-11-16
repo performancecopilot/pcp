@@ -1176,6 +1176,12 @@ extern int __pmControlLog(int, const pmResult *, int, int, int, pmResult **);
  */
 extern int __pmSetClientId(char *);
 
+/*
+ * internal methods to support callbacks for derved metrics
+ */
+extern int __dmtraverse(const char *, char ***);
+extern int __dmgetpmid(const char *, pmID *);
+
 #ifdef __cplusplus
 }
 #endif
