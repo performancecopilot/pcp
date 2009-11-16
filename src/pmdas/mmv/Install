@@ -18,7 +18,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=mmv
-dso_opt=false
+dso_opt=true
 socket_opt=true
 socket_inet_def=2081
 pmda_interface=3
