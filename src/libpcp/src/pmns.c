@@ -2006,7 +2006,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 			  status[i] = PMNS_NONLEAF_STATUS;
 			else
 			  /* node has children? */
-			  status[i] = (tnp->first == NULL ? PMNS_NONLEAF_STATUS : PMNS_LEAF_STATUS);
+			  status[i] = (tnp->first == NULL ? PMNS_LEAF_STATUS : PMNS_NONLEAF_STATUS);
 		    }
 		    strcpy(result[i], tnp->name);
 		    p += strlen(tnp->name) + 1;
