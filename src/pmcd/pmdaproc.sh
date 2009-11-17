@@ -165,6 +165,8 @@ do_pmda=true
 do_check=true
 __here=`pwd`
 __pmcd_is_dead=false
+__verbose=false
+__ns_opt=''
 
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
@@ -187,6 +189,7 @@ do
 	    NAMESPACE=$2
 	    PMNSROOT=`basename $NAMESPACE`
 	    PMNSDIR=`dirname $NAMESPACE`
+	    __ns_opt="-n $2" 
 	    shift
 	    ;;
 
@@ -197,7 +200,7 @@ do
 	-R)	# $ROOT
 	    if [ "$prog" = "Remove" ]
 	    then
-		echo "Usage: $prog [-N] [-n namespace] [-Q]"
+		echo "Usage: $prog [-NQV] [-n namespace]"
 		exit 1
 	    fi
 	    if [ $# -lt 2 ]
@@ -209,12 +212,16 @@ do
 	    shift
 	    ;;
 
+	-V)	# verbose
+	    __verbose=true
+	    ;;
+
 	*)
 	    if [ "$prog" = "Install" ]
 	    then
-		echo "Usage: $prog [-N] [-n namespace] [-Q] [-R rootdir]"
+		echo "Usage: $prog [-NQV] [-n namespace] [-R rootdir]"
 	    else
-		echo "Usage: $prog [-N] [-n namespace] [-Q]"
+		echo "Usage: $prog [-NQV] [-n namespace]"
 	    fi
 	    exit 1
 	    ;;
@@ -229,7 +236,7 @@ __wait_for_pmcd()
 {
     # 60 seconds default seems like a reasonble max time to get going
     [ -z "$_can_wait" ] && __can_wait=${1-60}
-    if pmcd_wait -h localhost -t $__can_wait
+    if pmcd_wait -t $__can_wait
     then
 	:
     else
@@ -324,7 +331,7 @@ END					{ exit status }'
 
 	# signal pmcd if it is running
 	#
-	if pminfo -h localhost -v pmcd.version >/dev/null 2>&1
+	if pminfo -v pmcd.version >/dev/null 2>&1
 	then
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	    # allow signal processing to be done before checking status
@@ -410,7 +417,7 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
 
     # signal pmcd if it is running, else start it
     #
-    if pminfo -h localhost -v pmcd.version >/dev/null 2>&1
+    if pminfo -v pmcd.version >/dev/null 2>&1
     then
 	pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	# allow signal processing to be done before checking status
@@ -909,7 +916,7 @@ _install()
 
     for __n in $pmns_name
     do
-	if pminfo -h localhost -n $NAMESPACE $__n >/dev/null 2>&1
+	if pminfo $__ns_opt $__n >/dev/null 2>&1
 	then
             cd $PMNSDIR
 	    if pmnsdel -n $PMNSROOT $__n >$tmp 2>&1
@@ -1105,7 +1112,12 @@ _install()
 	    for __n in $pmns_name
 	    do
 		$PCP_ECHO_PROG $PCP_ECHO_N "Check $__n metrics have appeared ... ""$PCP_ECHO_C"
-		pminfo -n $NAMESPACE -f $__n | __filter $__n
+		pminfo -f $__ns_opt $__n | tee $tmp.verbose | __filter $__n
+		if $__verbose
+		then
+		    echo "pminfo output ..."
+		    cat $tmp.verbose
+		fi
 	    done
 	fi
     else
