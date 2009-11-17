@@ -721,7 +721,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		memcpy((void *)&usrc, (void *)ap, sizeof(usrc));
 		switch (otype) {
 		    case PM_TYPE_32:
-			if (src > 0x7fffffff)
+			if (usrc > 0x7fffffff)
 			    sts = PM_ERR_TRUNC;
 			else
 			    oval->l = (__int32_t)usrc;
