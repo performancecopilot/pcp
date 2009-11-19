@@ -257,7 +257,7 @@ local_log_rotated(files_t *file)
     files->me.tail.ino = stats.st_ino;
 }
 
-static int
+static void
 local_reconnector(files_t *file)
 {
     struct sockaddr_in myaddr;

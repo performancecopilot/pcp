@@ -1,9 +1,0 @@
-/*
- * Generated code, do not edit!
- */
-#define PCP_PMNS
-#include "domain.h"
-
-root { infiniband }
-
-#include "pmns"
