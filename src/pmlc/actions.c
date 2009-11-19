@@ -78,7 +78,17 @@ ConnectPMCD(void)
 		fprintf(stderr, "%s\n", pmErrStr(sts));
 	    goto done;
 	} 
-	srchost = strdup(lsp->ls_fqdn);
+	if (strcmp(lsp->ls_fqdn, "localhost") == 0) {
+	    /*
+	     * if pmcd host is "localhost" then use hostname that was
+	     * used to contact pmlogger, as from here (where pmlc is
+	     * running) "localhost" is likely to connect us to the wrong
+	     * pmcd or no pmcd at all
+	     */
+	    srchost = strdup(lasthost);
+	}
+	else
+	    srchost = strdup(lsp->ls_fqdn);
     }
 
     if ((sts = pmNewContext(PM_CONTEXT_HOST, srchost)) < 0) {
