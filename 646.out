@@ -4,7 +4,7 @@ Version    = 1
 Generated  = TIMESTAMP
 TOC count  = 5
 Cluster    = 0
-Process    = SOME_PID
+Process    = PID
 Flags      = 0x0
 
 TOC[0]: offset 40, indoms offset 120 (2 entries)
@@ -24,37 +24,37 @@ TOC[1]: offset 56, instances offset 184 (5 entries)
 
 TOC[2]: toc offset 72, metrics offset 584 (6 entries)
   [1/584] counter
-       type=0x1, sem=0x1, pad=0x0
+       type=32-bit unsigned int (0x1), sem=counter (0x1), pad=0x0
        units=count
        (no indom)
        shorttext=test counter metric
        helptext=Yes, this is a test counter metric
   [2/688] discrete
-       type=0x0, sem=0x4, pad=0x0
+       type=32-bit int (0x0), sem=discrete (0x4), pad=0x0
        units=
        (no indom)
        shorttext=test discrete metric
        helptext=Yes, this is a test discrete metric
   [3/792] indom
-       type=0x1, sem=0x3, pad=0x0
+       type=32-bit unsigned int (0x1), sem=instant (0x3), pad=0x0
        units=count
        indom=1
        (no shorttext)
        (no helptext)
   [4/896] interval
-       type=0x9, sem=0x1, pad=0x0
+       type=elapsed (0x9), sem=counter (0x1), pad=0x0
        units=microsec
        indom=2
        (no shorttext)
        (no helptext)
   [5/1000] string
-       type=0x6, sem=0x3, pad=0x0
+       type=string (0x6), sem=instant (0x3), pad=0x0
        units=
        (no indom)
        (no shorttext)
        (no helptext)
   [6/1104] strings
-       type=0x6, sem=0x3, pad=0x0
+       type=string (0x6), sem=instant (0x3), pad=0x0
        units=
        indom=1
        shorttext=test string metrics
