@@ -1,7 +1,6 @@
-#! /bin/sh
+#!/bin/sh
 #
-# Copyright (C) 1997,2009 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (C) 2009 Aconex.  All Rights Reserved.
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -13,23 +12,30 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
+# Install the DTS (Data Transformation Services) dtsrun log file PMDA
+#
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-iam=mmv
-dso_opt=true
-socket_opt=true
-socket_inet_def=2081
-pmda_interface=3
-
-if [ ! -e "$PCP_TMP_DIR/mmv" ]
-then
-    echo "creating $PCP_TMP_DIR/mmv"
-    mkdir -p "$PCP_TMP_DIR/mmv"
-    chmod 1777 "$PCP_TMP_DIR/mmv"
-fi
+iam=dtsrun
+perl_opt=true
+daemon_opt=false
 
 pmdaSetup
+
+if $do_pmda
+then
+    while true
+    do
+	echo
+	$PCP_ECHO_PROG $PCP_ECHO_N "DTS log filename? ""$PCP_ECHO_C"
+	read logfile
+	[ ! -z "$logfile" ] && break
+	echo
+    done
+    args="$args logfile"
+fi
+
 pmdaInstall
 exit 0

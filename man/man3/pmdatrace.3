@@ -215,13 +215,13 @@ cf(R) | cf(R)
 lf(CW) | lf(R).
 State Flags	Semantics
 _
-0  PMTRACE_STATE_NONE	Synchronous PDUs and no diagnostics (default)
-1  PMTRACE_STATE_API	Shows processing just below the API (debug)
-2  PMTRACE_STATE_COMMS	Shows network-related activity (debug)
-4  PMTRACE_STATE_PDU	Shows app<->PMDA IPC traffic (debug)
-8  PMTRACE_STATE_PDUBUF	Shows internal IPC buffer management (debug)
-16 PMTRACE_STATE_NOAGENT	No PMDA communications at all (debug)
-32 PMTRACE_STATE_ASYNC	Use the asynchronous PDU protocol (control)
+0  NONE	Synchronous PDUs and no diagnostics (default)
+1  API	Shows processing just below the API (debug)
+2  COMMS	Shows network-related activity (debug)
+4  PDU	Shows app<->PMDA IPC traffic (debug)
+8  PDUBUF	Shows internal IPC buffer management (debug)
+16 NOAGENT	No PMDA communications at all (debug)
+32 ASYNC	Use the asynchronous PDU protocol (control)
 .TE
 .PP
 Should any of the

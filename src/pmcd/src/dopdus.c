@@ -392,7 +392,7 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
 }
 
 /*
- * This handler is for remote versions of pmNameAll or pmNameId.
+ * This handler is for remote versions of pmNameAll or pmNameID.
  * Note: only one pmid for the list should be sent.
  */
 int

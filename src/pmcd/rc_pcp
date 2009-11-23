@@ -226,7 +226,7 @@ _start_pmcheck()
 	wait_option=''
     fi
 
-    if pmcd_wait -h localhost $wait_option
+    if pmcd_wait $wait_option
     then
 	pmlogger_check >$tmp.pmcheck 2>&1
 	if [ -s $tmp.pmcheck ]

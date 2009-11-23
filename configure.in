@@ -1275,7 +1275,8 @@ then
         pcp_binadm_dir=/local/bin
     elif test $target_os = linux
     then
-	if test "`echo $target_cpu | sed -e 's/.*64/64/'`" = 64
+	if test "`echo $target_cpu | sed -e 's/.*64/64/'`" = 64 \
+		-a $target_cpu != ia64
 	then
 	    pcp_binadm_dir=/usr/lib64/pcp/bin
 	else

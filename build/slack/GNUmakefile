@@ -30,12 +30,12 @@ pack_pcp :
 md5sum_pcp : $(CONFFILES)
 
 pcp.info: pcp.info.in
-	sed -e's|@package_name@|$(PACKAGE_NAME)|g' \
+	@sed -e's|@package_name@|$(PACKAGE_NAME)|g' \
 	    -e's|@sources_md5sum@|$(SRC_MD5SUM)|g' \
 	    -e's|@package_version@|$(PACKAGE_VERSION)|g' < $? > $@
 
 pcp.SlackBuild: pcp.SlackBuild.in
-	sed -e's|@package_name@|$(PACKAGE_NAME)|g' \
+	@sed -e's|@package_name@|$(PACKAGE_NAME)|g' \
 	    -e's|@package_build@|$(PACKAGE_BUILD)|g' \
 	    -e's|@package_version@|$(PACKAGE_VERSION)|g' < $? > $@
 
