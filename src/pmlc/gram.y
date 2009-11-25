@@ -36,6 +36,7 @@ char	emess[160];
 char	*hostname;
 int	state;
 int	control;
+int	qa_case;
 
 static int	sts;
 
@@ -70,6 +71,7 @@ extern int	errno;
 	NEW VOLUME
 
 	SYNC
+	QA
 
 %token<str>	NAME HOSTNAME STRING
 %token<lval>	NUMBER
@@ -139,6 +141,12 @@ stmt   		: dowhat
 		| SYNC EOL
 		{
 		    parse_stmt = SYNC;
+		    YYACCEPT;
+		}
+		| QA NUMBER EOL
+		{
+		    parse_stmt = QA;
+		    qa_case = $2;
 		    YYACCEPT;
 		}
 		| EOL

@@ -958,7 +958,7 @@ no_info:
     return vsp;
 }
 
-static void
+static int
 do_control(__pmPDU *pb)
 {
     int			sts;
@@ -982,7 +982,7 @@ do_control(__pmPDU *pb)
      * TODO	- encoding for logging interval in requests and results?
      */
     if ((sts = __pmDecodeLogControl(pb, &request, &control, &state, &delta)) < 0)
-	return;
+	return sts;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
@@ -1042,7 +1042,7 @@ do_control(__pmPDU *pb)
 			 "do_control: error sending Error PDU to client: %s\n",
 			 pmErrStr(sts));
 	pmFreeResult(request);
-	return;
+	return sts;
     }
 
     /* handle everything except PM_LOG_ENQUIRE */
@@ -1244,6 +1244,8 @@ do_control(__pmPDU *pb)
 	free(result);
     }
     pmFreeResult(request);
+
+    return 0;
 }
 
 /*
@@ -1343,7 +1345,31 @@ do_request(__pmPDU *pb)
 	    __pmSendError(clientfd, PDU_BINARY, sts);
 	    break;
 
+	/*
+	 * QA support ... intended for error injection
+	 * If the request is > QA_OFF then this is a code to enable
+	 * a specific style of error behaviour.  If the request
+	 * is QA_OFF, this disables the error behaviour.
+	 *
+	 * Supported behaviours.
+	 * QA_SLEEPY
+	 *	After this exchange with pmlc, sleep for 5 seconds
+	 * 	after each incoming pmlc request ... allows testing
+	 * 	of timeout logic in pmlc
+	 */
+
+	case QA_OFF:
+	    qa_case = 0;
+	    __pmSendError(clientfd, PDU_BINARY, 0);
+	    break;
+
+	case QA_SLEEPY:
+	    qa_case = type;
+	    __pmSendError(clientfd, PDU_BINARY, 0);
+	    break;
+
 	default:
+	    fprintf(stderr, "do_request: bad request type %d\n", type);
 	    sts = PM_ERR_IPC;
 	    break;
     }
@@ -1405,18 +1431,22 @@ client_req(void)
 	clientfd = -1;
 	return 1;
     }
+    if (qa_case == QA_SLEEPY) {
+	/* error injection - delay before processing and responding */
+	sleep(5);
+    }
     php = (__pmPDUHdr *)pb;
     sts = 0;
 
     switch (php->type) {
 	case PDU_CREDS:		/* version 2 PDU */
-	    do_creds(pb);
+	    sts = do_creds(pb);
 	    break;
 	case PDU_LOG_REQUEST:	/* version 2 PDU */
-	    do_request(pb);
+	    sts = do_request(pb);
 	    break;
 	case PDU_LOG_CONTROL:	/* version 2 PDU */
-	    do_control(pb);
+	    sts = do_control(pb);
 	    break;
 	default:		/*  unknown PDU  */
 	    fprintf(stderr, "client_req: bad PDU type 0x%x\n", php->type);
