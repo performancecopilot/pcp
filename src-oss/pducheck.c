@@ -105,7 +105,6 @@ _z(int mode)
     pmValueBlock	*gvbp;
     pmValueBlock	*xvbp;
     pmAtomValue		av;
-    int			level;
     int			ident;
     int			type;
     char		*buffer;
@@ -738,7 +737,7 @@ _z(int mode)
 		else {
 		    if (state != PM_LOG_MAYBE)
 			fprintf(stderr, "Botch: ControlReq: numval=%d state: got: %d expect: %d\n",
-			    nv, level, PM_LOG_MAYBE);
+			    nv, state, PM_LOG_MAYBE);
 		    if (control != PM_LOG_MANDATORY)
 			fprintf(stderr, "Botch: ControlReq: numval=%d control: got: %d expect: %d\n",
 			    nv, control, PM_LOG_MANDATORY);
@@ -1234,7 +1233,7 @@ _z(int mode)
 		else {
 		    if (state != PM_LOG_MAYBE)
 			fprintf(stderr, "Botch: LogControl: numval=%d state: got: %d expect: %d\n",
-			    nv, level, PM_LOG_MAYBE);
+			    nv, state, PM_LOG_MAYBE);
 		    if (control != PM_LOG_MANDATORY)
 			fprintf(stderr, "Botch: LogControl: numval=%d control: got: %d expect: %d\n",
 			    nv, control, PM_LOG_MANDATORY);
