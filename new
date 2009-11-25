@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 #
 # Make a new PCP QA test
 #
@@ -129,10 +129,9 @@ fi
 
 echo -n "Creating skeletal script for you to edit ..."
 
-cat <<End-of-File | sed -e '/revision/s//Revision: 1.1 /' >$id
-#! /bin/sh
+cat <<End-of-File >$id
+#!/bin/sh
 # PCP QA Test No. $id
-# \$revision\$
 #
 # what am I here for?
 #
@@ -180,6 +179,13 @@ exit
 # success, all done
 exit
 End-of-File
+
+if [ "$LOGNAME" = kenj ]
+then
+    sed <$id >$tmp.tmp \
+	-e '/Copyright/s/Silicon Graphics, Inc/Ken McDonell/'
+    mv $tmp.tmp $id
+fi
 
 sleep 2		# latency to read messages to this point
 echo ""

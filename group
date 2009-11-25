@@ -230,6 +230,10 @@ libpcp_mpiread	pcpqa
 #
 dmf		pcpqa
 
+# derived metrics
+#
+derive		pcpqa
+
 
 # test-group association ... one line per test
 # ... use sort -n from here on down to tidy up this mess
@@ -447,14 +451,18 @@ dmf		pcpqa
 216 pmda.linux local oss
 217 folio local oss
 218 archive logutil local pmlogextract oss
+219 other local oss
 220 pmlogger local oss
 221 pmlogger local oss
 222 other local oss
 223 pmns local oss
 224 pmcd local oss
+225 derive local oss
+226 dbpmda local oss
 227 folio local oss
 228 pmie local oss
 229 pmie local oss
+230 pmlogger pmlc local oss
 231 pmie #421411 local oss
 232 libpcp local oss
 233 context_local local oss

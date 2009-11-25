@@ -1,0 +1,56 @@
+QA output created by 225
+line: myname.a:: disk.dev.read
+
+Expr dump from <addr->...
+<addr-> node type=2 left=(nil) right=(nil) ref=<addr> [name=disk.dev.read]
+line: myname.b:: disk.dev.read + disk.dev.write
+
+Expr dump from <addr-1>...
+<addr-1> node type=4 left=<addr-2> right=<addr-3> ref=(nil) [+]
+<addr-2> node type=2 left=(nil) right=(nil) ref=<addr> [name=disk.dev.read]
+<addr-3> node type=2 left=(nil) right=(nil) ref=<addr> [name=disk.dev.write]
+line: myname.c:: disk.dev.read + disk.dev.write + sample.long.writeme
+
+Expr dump from <addr-4>...
+<addr-4> node type=4 left=<addr-5> right=<addr-8> ref=(nil) [+]
+<addr-5> node type=4 left=<addr-6> right=<addr-7> ref=(nil) [+]
+<addr-6> node type=2 left=(nil) right=(nil) ref=<addr> [name=disk.dev.read]
+<addr-7> node type=2 left=(nil) right=(nil) ref=<addr> [name=disk.dev.write]
+<addr-8> node type=2 left=(nil) right=(nil) ref=<addr> [name=sample.long.writeme]
+line: myname.d:: (disk.dev.read)
+
+Expr dump from <addr-9>...
+<addr-9> node type=2 left=(nil) right=(nil) ref=<addr> [name=disk.dev.read]
+line: myname.e:: 2 * disk.dev.write + sample.long.writeme
+
+Expr dump from <addr-10>...
+<addr-10> node type=4 left=<addr-11> right=<addr-14> ref=(nil) [+]
+<addr-11> node type=6 left=<addr-12> right=<addr-13> ref=(nil) [*]
+<addr-12> node type=1 left=(nil) right=(nil) ref=<addr> [number=2]
+<addr-13> node type=2 left=(nil) right=(nil) ref=<addr> [name=disk.dev.write]
+<addr-14> node type=2 left=(nil) right=(nil) ref=<addr> [name=sample.long.writeme]
+line: myname.f:: 2 + disk.dev.write * sample.long.writeme
+
+Expr dump from <addr-15>...
+<addr-15> node type=6 left=<addr-16> right=<addr-19> ref=(nil) [*]
+<addr-16> node type=4 left=<addr-17> right=<addr-18> ref=(nil) [+]
+<addr-17> node type=1 left=(nil) right=(nil) ref=<addr> [number=2]
+<addr-18> node type=2 left=(nil) right=(nil) ref=<addr> [name=disk.dev.write]
+<addr-19> node type=2 left=(nil) right=(nil) ref=<addr> [name=sample.long.writeme]
+line: myname.g:: ( 2 + disk.dev.write ) * sample.long.writeme
+
+Expr dump from <addr-20>...
+<addr-20> node type=6 left=<addr-21> right=<addr-24> ref=(nil) [*]
+<addr-21> node type=4 left=<addr-22> right=<addr-23> ref=(nil) [+]
+<addr-22> node type=1 left=(nil) right=(nil) ref=<addr> [number=2]
+<addr-23> node type=2 left=(nil) right=(nil) ref=<addr> [name=disk.dev.write]
+<addr-24> node type=2 left=(nil) right=(nil) ref=<addr> [name=sample.long.writeme]
+line: myname.h:: 2 + ( disk.dev.write * sample.long.writeme )
+
+Expr dump from <addr-25>...
+<addr-25> node type=4 left=<addr-26> right=<addr-27> ref=(nil) [+]
+<addr-26> node type=1 left=(nil) right=(nil) ref=<addr> [number=2]
+<addr-27> node type=6 left=<addr-28> right=<addr-29> ref=(nil) [*]
+<addr-28> node type=2 left=(nil) right=(nil) ref=<addr> [name=disk.dev.write]
+<addr-29> node type=2 left=(nil) right=(nil) ref=<addr> [name=sample.long.writeme]
+Error: myname: Unknown metric name
