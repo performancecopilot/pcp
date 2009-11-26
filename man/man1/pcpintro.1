@@ -732,7 +732,7 @@ running
 crashes, or the network connection is lost.  By setting the environment
 variable
 .B PMCD_REQUEST_TIMEOUT
-to a real number of seconds, requests to
+to a number of seconds, requests to
 .B pmcd
 will timeout after this number of seconds.  The default behavior is
 to be willing to wait 10 seconds for a response from every
@@ -831,10 +831,10 @@ This may be over-ridden by setting
 .B PMCD_PORT
 to a different port number, or a comma-separated list of port numbers.
 If a non-default port is used when
-.BR pmcd (1)
+.B pmcd
 is started, then
 every monitoring application connecting to that
-.BR pmcd (1)
+.B pmcd
 must also have
 .B PMCD_PORT
 set in their environment before attempting a connection.
@@ -856,7 +856,31 @@ The default base port number is 4330.
 When used,
 .B PMLOGGER_PORT
 should be set in the environment before
-.BR pmlogger (1)
+.B pmlogger
+is executed.
+.TP
+.B PMLOGGER_REQUEST_TIMEOUT
+When
+.BR pmlc (1)
+connects to
+.BR pmlogger (1),
+there is a remote possibility of
+.BR pmlc
+\&"hanging" on a request
+for information as a consequence of a failure of the network or
+.BR pmlogger .
+By setting the environment
+variable
+.B PMLOGGER_REQUEST_TIMEOUT
+to a number of seconds, requests to
+.B pmlogger
+will timeout after this number of seconds.  The default behavior is
+to be willing to wait forever for a response from each request to a
+.BR pmlogger .
+When used,
+.B PMLOGGER_REQUEST_TIMEOUT
+should be set in the environment before
+.B pmlc
 is executed.
 .PP
 If you have the PCP product installed, then the following
@@ -1015,6 +1039,7 @@ as described in
 .BR pmie (1),
 .BR pmie_daily (1),
 .BR pminfo (1),
+.BR pmlc (1),
 .BR pmlogger (1),
 .BR pmlogger_daily (1),
 .BR pmstat (1),

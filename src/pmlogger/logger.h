@@ -137,4 +137,9 @@ extern char    	*archBase;		/* base name for log files */
 extern char	*pmcd_host;		/* collecting from PMCD on this host */
 extern int	primary;		/* Non-zero for primary logger */
 
+/* QA testing and error injection support ... see do_request() */
+extern int	qa_case;
+#define QA_OFF		100
+#define QA_SLEEPY	101
+
 #endif /* _LOGGER_H */
