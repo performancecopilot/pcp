@@ -28,6 +28,38 @@
 #endif
 
 /*
+ * Return timeout (in seconds) to be used when pmlc is communicating
+ * with pmlogger ... used externally from pmlc and internally from
+ * __pmConnectLogger() and __pmControlLogger()
+ */
+int
+__pmLoggerTimeout(void)
+{
+    static int		timeout = TIMEOUT_NEVER;
+    static int		done_default = 0;
+
+    if (!done_default) {
+	char	*timeout_str;
+	char	*end_ptr;
+	if ((timeout_str = getenv("PMLOGGER_REQUEST_TIMEOUT")) != NULL) {
+	    /*
+	     * Only a positive integer (the unit is seconds) is OK
+	     */
+	    timeout = strtol(timeout_str, &end_ptr, 10);
+	    if (*end_ptr != '\0' || timeout < 0) {
+		__pmNotifyErr(LOG_WARNING,
+			      "ignored bad PMLOGGER_REQUEST_TIMEOUT = '%s'\n",
+			      timeout_str);
+		timeout = TIMEOUT_NEVER;
+	    }
+	}
+	done_default = 1;
+    }
+
+    return timeout;
+}
+
+/*
  * expect one of pid or port to be 0 ... if port is 0, use
  * hostname+pid to find port, assuming pmcd is running there
  */
@@ -121,7 +153,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     }
 
     /* Expect an error PDU back: ACK/NACK for connection */
-    sts = __pmGetPDU(fd, PDU_BINARY, TIMEOUT_NEVER, &pb);
+    sts = __pmGetPDU(fd, PDU_BINARY, __pmLoggerTimeout(), &pb);
     if (sts == PDU_ERROR) {
 	__pmOverrideLastFd(PDU_OVERRIDE2);	/* don't dink with the value */
 	__pmDecodeError(pb, PDU_BINARY, &sts);
@@ -146,10 +178,22 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	}
 	*pid = php->from;
     }
+    else if (sts < 0) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    if (sts == PM_ERR_TIMEOUT)
+		fprintf(stderr, "__pmConnectLogger: timeout (after %d secs)\n", __pmLoggerTimeout());
+	    else
+		fprintf(stderr, "__pmConnectLogger: Error: %s\n", pmErrStr(sts));
+	}
+#endif
+	;	/* fall through */
+    }
     else {
+	/* wrong PDU type! */
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
-	    fprintf(stderr, "__pmConnectLogger: ACK PDU type=%d?\n", sts);
+	    fprintf(stderr, "__pmConnectLogger: ACK botch PDU type=%d not PDU_ERROR?\n", sts);
 #endif
 	sts = PM_ERR_IPC;
     }

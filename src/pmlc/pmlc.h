@@ -40,6 +40,7 @@ extern char	*hostname;
 extern int	state;
 extern int	control;
 extern int	mystate;
+extern int	qa_case;
 
 extern void yyerror(char *);
 extern void yywarn(char *);

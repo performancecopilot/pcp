@@ -63,7 +63,7 @@ ConnectPMCD(void)
 	    fprintf(stderr, "%s\n", pmErrStr(sts));
 	    return sts;
 	}
-	if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, TIMEOUT_NEVER, &pb)) <= 0) {
+	if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, __pmLoggerTimeout(), &pb)) <= 0) {
 	    if (sts == 0)
 		/* end of file! */
 		sts = PM_ERR_IPC;
@@ -289,7 +289,7 @@ Query(void)
 	return;
 
     if ((i = __pmControlLog(logger_fd, logreq, PM_LOG_ENQUIRE, 0, 0, &res)) < 0) {
-	fprintf(stderr, "Error: ");
+	fprintf(stderr, "Error receiving response from pmlogger: ");
 	if (still_connected(i))
 	    fprintf(stderr, "%s\n", pmErrStr(i));
 	return;
@@ -372,7 +372,7 @@ void LogCtl(int control, int state, int delta)
 
     i = __pmControlLog(logger_fd, logreq, control, state, delta, &res);
     if (i < 0 && i != PM_ERR_GENERIC) {
-	fprintf(stderr, "Error: ");
+	fprintf(stderr, "Error receiving response from pmlogger: ");
 	if (still_connected(i))
 	    fprintf(stderr, "%s\n", pmErrStr(i));
 	return;
@@ -564,7 +564,7 @@ void Status(int pid, int primary)
 		fprintf(stderr, "%s\n", pmErrStr(sts));
 	    return;
 	}
-	if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, TIMEOUT_NEVER, &pb)) <= 0) {
+	if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, __pmLoggerTimeout(), &pb)) <= 0) {
 	    if (sts == 0)
 		/* end of file! */
 		sts = PM_ERR_IPC;
@@ -682,7 +682,50 @@ Sync(void)
 	}
     }
 
-    if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, TIMEOUT_NEVER, &pb)) != PDU_ERROR) {
+    if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, __pmLoggerTimeout(), &pb)) != PDU_ERROR) {
+	if (sts == 0)
+	    /* end of file! */
+	    sts = PM_ERR_IPC;
+	fprintf(stderr, "Error receiving response from pmlogger: ");
+	if (still_connected(sts))
+	    fprintf(stderr, "%s\n", pmErrStr(sts));
+	return;
+    }
+    __pmDecodeError(pb, PDU_BINARY, &sts);
+    if (sts < 0) {
+	fprintf(stderr, "Error decoding response from pmlogger: ");
+	if (still_connected(sts))
+	    fprintf(stderr, "%s\n", pmErrStr(sts));
+	return;
+    }
+
+    __pmUnpinPDUBuf(pb);
+    return;
+}
+
+void
+Qa(void)
+{
+    int			sts;
+    __pmPDU		*pb;
+
+    if (!connected())
+	return;
+
+    if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_PDU)
+	    fprintf(stderr, "pmlc: sending version 2 qa request\n");
+#endif
+	if ((sts = __pmSendLogRequest(logger_fd, 100+qa_case)) < 0) {
+	    fprintf(stderr, "Error sending qa request to pmlogger: ");
+	    if (still_connected(sts))
+		fprintf(stderr, "%s\n", pmErrStr(sts));
+	    return;
+	}
+    }
+
+    if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, __pmLoggerTimeout(), &pb)) != PDU_ERROR) {
 	if (sts == 0)
 	    /* end of file! */
 	    sts = PM_ERR_IPC;
@@ -725,7 +768,7 @@ NewVolume(void)
 	}
     }
 
-    if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, TIMEOUT_NEVER, &pb)) != PDU_ERROR) {
+    if ((sts = __pmGetPDU(logger_fd, PDU_BINARY, __pmLoggerTimeout(), &pb)) != PDU_ERROR) {
 	if (sts == 0)
 	    /* end of file! */
 	    sts = PM_ERR_IPC;
@@ -762,8 +805,13 @@ connected(void)
 int
 still_connected(int sts)
 {
-    if (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) {
+    if (sts == PM_ERR_IPC || sts == -EPIPE) {
 	fprintf(stderr, "Lost connection to the pmlogger instance\n");
+	DisconnectLogger();
+	return 0;
+    }
+    if (sts == PM_ERR_TIMEOUT) {
+	fprintf(stderr, "Timeout, closed connection to the pmlogger instance\n");
 	DisconnectLogger();
 	return 0;
     }
