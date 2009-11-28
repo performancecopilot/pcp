@@ -9,9 +9,6 @@ owner=kenmcd
 
 seq=`basename $0`
 
-echo "Not yet working - libpcp_gui recording" > $seq.notrun
-exit 0
-
 echo "QA output created by $seq"
 
 # get standard filters
