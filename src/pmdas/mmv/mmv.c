@@ -32,7 +32,6 @@
 
 #define NONLEAF(node)	((node)->pmid == PM_ID_NULL)
 
-static char mypath[MAXPATHLEN];
 static int isDSO = 1;
 
 static pmdaMetric * metrics;
@@ -560,8 +559,20 @@ mmv_text(int ident, int type, char **buffer, pmdaExt *ep)
 	return PM_ERR_TEXT;
 
     mmv_reload_maybe(ep);
-    if (pmid_cluster(ident) == 0)
-	return pmdaText(ident, type, buffer, ep);
+    if (pmid_cluster(ident) == 0) {
+	if (pmid_item(ident) == 0) {
+	    /* mmv.reload */
+	    if (type & PM_TEXT_ONELINE)
+		*buffer = strdup("Control maps reloading");
+	    else
+		*buffer = strdup(
+"Writing anything other then 0 to this metric will result in\n"
+"re-reading directory and re-mapping files.");
+		return (*buffer == NULL) ? -ENOMEM : 0;
+	}
+	else
+	    return PM_ERR_PMID;
+    }
     else {
 	mmv_disk_metric_t * m;
 	mmv_disk_string_t * s;
@@ -853,9 +864,7 @@ mmv_init(pmdaInterface *dp)
     int sep = __pmPathSeparator();
 
     if (isDSO) {
-	snprintf(mypath, sizeof(mypath), "%s%c" "mmv" "%c" "help",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_4, "mmv", mypath);
+	pmdaDSO(dp, PMDA_INTERFACE_4, "mmv", NULL);
     }
 
     pcptmpdir = pmGetConfig("PCP_TMP_DIR");
@@ -917,7 +926,6 @@ int
 main(int argc, char **argv)
 {
     int		err = 0;
-    int		sep = __pmPathSeparator();
     char	logfile[32];
     pmdaInterface dispatch = { 0 };
 
@@ -925,10 +933,8 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     if (strncmp(pmProgname, "pmda", 4) == 0 && strlen(pmProgname) > 4)
 	prefix = pmProgname + 4;
-    snprintf(mypath, sizeof(mypath), "%s%c" "%s%c" "help",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, prefix, sep);
     snprintf(logfile, sizeof(logfile), "%s.log", prefix);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, MMV, logfile, mypath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, MMV, logfile, NULL);
 
     if ((pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err) != EOF) ||
 	err || argc != optind)
