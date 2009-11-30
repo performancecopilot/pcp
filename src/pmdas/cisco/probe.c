@@ -102,6 +102,7 @@ probe_cisco(cisco_t * cp)
     char	*w;
     int		fd;
     int		first = 1;
+    char	*pass = NULL;
     int		defer;
     int		state = PREAMBLE;
     int		i;
@@ -122,7 +123,7 @@ probe_cisco(cisco_t * cp)
 	    /*
 	     * Username stuff ...
 	     */
-	    if (dousername(fin, fout, cp->username, cp->host) == 0) {
+	    if (dousername(fin, fout, cp->username, cp->host, &pass) == 0) {
 		exit(1);
 	    }
 	}
@@ -130,7 +131,7 @@ probe_cisco(cisco_t * cp)
 	    /*
 	     * User-level password stuff ...
 	     */
-	    if (dopasswd(fin, fout, cp->passwd, cp->host) == 0) {
+	    if (dopasswd(fin, fout, cp->passwd, cp->host, pass) == 0) {
 		exit(1);
 	    }
 	}

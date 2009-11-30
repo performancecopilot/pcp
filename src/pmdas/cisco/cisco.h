@@ -74,8 +74,8 @@ extern pmdaInstid	*_router;
 
 extern int conn_cisco(cisco_t *);
 extern int grab_cisco(intf_t *);
-extern int dousername(FILE *, FILE *, char *, char *);
-extern int dopasswd(FILE *, FILE *, char *, char *);
+extern int dousername(FILE *, FILE *, char *, char *, char **);
+extern int dopasswd(FILE *, FILE *, char *, char *, char *);
 extern char *mygetwd(FILE *);
 
 #endif /* _CISCO_H */
