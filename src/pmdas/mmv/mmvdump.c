@@ -72,6 +72,65 @@ dump_insts(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
     }
 }
 
+static char *
+metrictype(int mtype)
+{
+    char *type;
+
+    switch (mtype) {
+    case MMV_TYPE_I32:
+	type = "32-bit int";
+	break;
+    case MMV_TYPE_U32:
+	type = "32-bit unsigned int";
+	break;
+    case MMV_TYPE_I64:
+	type = "64-bit int";
+	break;
+    case MMV_TYPE_U64:
+	type = "64-bit unsigned int";
+	break;
+    case MMV_TYPE_FLOAT:
+	type = "float";
+	break;
+    case MMV_TYPE_DOUBLE:
+	type = "double";
+	break;
+    case MMV_TYPE_STRING:
+	type = "string";
+	break;
+    case MMV_TYPE_ELAPSED:
+	type = "elapsed";
+	break;
+    default:
+	type = "?";
+	break;
+    }
+    return type;
+}
+
+static char *
+metricsem(int msem)
+{
+    char *sem;
+
+    switch (msem) {
+    case PM_SEM_COUNTER:
+	sem = "counter";
+	break;
+    case PM_SEM_INSTANT:
+	sem = "instant";
+	break;
+    case PM_SEM_DISCRETE:
+	sem = "discrete";
+	break;
+    default:
+	sem = "?";
+	break;
+    }
+    return sem;
+}
+
 void
 dump_metrics(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
 {
@@ -86,8 +145,10 @@ dump_metrics(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
     for (i = 0; i < count; i++) {
 	__uint64_t off = offset + i * sizeof(mmv_disk_metric_t);
 	printf("  [%u/%lld] %s\n", m[i].item, (long long)off, m[i].name);
-	printf("       type=0x%x, sem=0x%x, pad=0x%x\n",
-		m[i].type, m[i].semantics, m[i].padding);
+	printf("       type=%s (0x%x), sem=%s (0x%x), pad=0x%x\n",
+		metrictype(m[i].type), m[i].type,
+		metricsem(m[i].semantics), m[i].semantics,
+		m[i].padding);
 	printf("       units=%s\n", pmUnitsStr(&m[i].dimension));
 	if (m[i].indom != PM_INDOM_NULL && m[i].indom != 0)
 	    printf("       indom=%d\n", m[i].indom);

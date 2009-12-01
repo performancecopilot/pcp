@@ -1,6 +1,11 @@
-pcp (3.0.1) unstable; urgency=low
+pcp (3.0.2) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 19 Nov 2009 15:17:39 +1100
+
+pcp (3.0.1) unstable; urgency=low
+
   * Resolved issues with the Debian kFreeBSD build.
   * Reverted Fedora rc script changes (closes: #544350)
   * Add missing libpcp-mmv-perl perl dependency (closes: #552670)

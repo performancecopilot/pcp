@@ -1,21 +1,15 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.0.1
-Release: 1%{?dist}
+Version: 3.0.2
+%define buildversion 2
+Release: %{buildversion}%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
-Source0: ftp://oss.sgi.com/projects/pcp/download/pcp-3.0.1-1.src.tar.gz
-
-# Infiniband monitoring support turned off (for now)
-%define have_ibdev 0
-
-%if %{have_ibdev}
-%define ib_build_prereqs libibmad-devel libibumad-devel libibcommon-devel
-%endif
+Source0: ftp://oss.sgi.com/projects/pcp/download/pcp-%{version}-%{buildversion}.src.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: procps autoconf bison flex ncurses-devel %{?ib_build_prereqs}
+BuildRequires: procps autoconf bison flex ncurses-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 Requires: bash gawk sed grep fileutils findutils cpp initscripts
@@ -115,6 +109,11 @@ make install_pcp
 rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
 mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/run/pcp
 
+# default chkconfig off for Fedora and RHEL
+for f in $RPM_BUILD_ROOT/%{_sysconfdir}/rc.d/init.d/{pcp,pmie,pmproxy}; do
+	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
+done
+
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} | egrep -v 'simple|sample|trivial|txmon' |\
 sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
@@ -176,7 +175,7 @@ fi
 %config %{_sysconfdir}/pcp.env
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmcd/pmcd.conf
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmcd/pmcd.options
-%{_localstatedir}/lib/pcp/config/pmcd/rc.local
+%config(noreplace) %{_localstatedir}/lib/pcp/config/pmcd/rc.local
 %{_localstatedir}/lib/pcp/config/pmchart/*
 %{_localstatedir}/lib/pcp/config/pmafm/*
 %{_localstatedir}/lib/pcp/config/pmie/cisco/in_util
@@ -204,7 +203,7 @@ fi
 %dir %{_includedir}/pcp
 %{_includedir}/pcp/builddefs
 %{_includedir}/pcp/buildrules
-%config(noreplace) %{_sysconfdir}/pcp.conf
+%config %{_sysconfdir}/pcp.conf
 %{_libdir}/libpcp.so.3
 %{_libdir}/libpcp_gui.so.2
 %{_libdir}/libpcp_mmv.so.1
@@ -241,6 +240,11 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Mon Oct 19 2009 Martin Hicks <mort@sgi.com> - 3.0.1-2
+- Remove IB dependencies.  The Infiniband PMDA is being moved to
+  a stand-alone package.
+- Move cluster PMDA to a stand-alone package.
+
 * Fri Oct 9 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-9
 - This is the initial import for Fedora
 - See 3.0.0 details in CHANGELOG

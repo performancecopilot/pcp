@@ -552,22 +552,24 @@ pmda_inst_name(indom,instance)
 	pmdaInstid	*instp;
 	int		i, instc;
     CODE:
-	for (i = 0; i < itab_size; i++) {
-	    if (indomtab[i].it_indom != indom)
-		continue;
-	    break;
-	}
+	indom = pmInDom_build(dispatch.domain, indom);
+	for (i = 0; i < itab_size; i++)
+	    if (indomtab[i].it_indom == indom)
+		break;
 	if (i == itab_size)
 	    XSRETURN_UNDEF;
 	instp = indomtab[i].it_set;
 	instc = indomtab[i].it_numinst;
-	for (i = 0; i < instc; i++) {
-	    if (instance != instp[i].i_inst)
-		continue;
-	    break;
+
+	/* Optimistic (fast) direct lookup first, then iterate */
+	i = instance;
+	if (i > instc || i < 0 || instance != instp[i].i_inst) {
+	    for (i = 0; i < instc; i++)
+		if (instance == instp[i].i_inst)
+		    break;
+	    if (i == instc)
+		XSRETURN_UNDEF;
 	}
-	if (i == instc)
-	    XSRETURN_UNDEF;
 	RETVAL = newSVpv(instp[i].i_name,0);
     OUTPUT:
 	RETVAL

@@ -96,6 +96,7 @@ static int extra_cpu_stats;
 static char swap_op ='p';
 
 static int header;
+static int rows = 21;
 static float period;
 static struct timeval sleeptime = { 5, 0 };
 static pmTimeControls defaultcontrols;
@@ -312,6 +313,19 @@ static void timeposition(struct timeval position)
     header = 1;
 }
 
+#ifdef HAVE_SYS_IOCTL_H
+static void
+resize(int sig)
+{
+    struct winsize win;
+
+    if (ioctl(1, TIOCGWINSZ, &win) != -1 && win.ws_row > 0)
+	rows = win.ws_row - 3;
+}
+#else
+#define resize(a)
+#endif
+
 int 
 main(int argc, char *argv[]) 
 {
@@ -342,10 +356,6 @@ main(int argc, char *argv[])
     int samples = 0;
     int iter;
     char * endnum;
-#ifdef HAVE_SYS_IOCTL_H
-    struct winsize win;
-#endif
-    int rows = 21;
     char ** namelst = 0;
     int namecnt;
     time_t now;
@@ -363,6 +373,9 @@ main(int argc, char *argv[])
 
     setlinebuf(stdout);
     __pmSetProgname(argv[0]);
+#ifdef SIGWINCH
+    __pmSetSignalHandler(SIGWINCH, resize);
+#endif
 
     namecnt = 0;
     if ( argc > 2 ) {
@@ -750,10 +763,7 @@ main(int argc, char *argv[])
 	ctxCnt = 1;
     }
 
-#ifdef HAVE_SYS_IOCTL_H
-    if (ioctl(1, TIOCGWINSZ, &win) != -1 && win.ws_row > 0)
-	rows = win.ws_row - 3;
-#endif
+    resize(0);
 
     if (pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag, &start, &finish,
 			      &position, &rend, &offt, &msg) < 0) {

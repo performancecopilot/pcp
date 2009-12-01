@@ -1,8 +1,5 @@
 /*
- * Metrics for MMV PMDA
- *
+ * Metrics for MMV PMDA - all dynamic!
  */
 
-mmv {
-	reload	MMV:0:0
-}
+mmv	MMV:*:*

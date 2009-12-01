@@ -21,10 +21,9 @@ DOMAIN		= MMV
 CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 TARGETS		= $(CMDTARGET) $(LIBTARGET) mmvdump$(EXECSUFFIX)
-INSTTARGETS	= $(CMDTARGET) mmvdump$(EXECSUFFIX)
 
 CFILES		= mmv.c
-LSRCFILES	= pmns Install Remove README help root mmvdump.c
+LSRCFILES	= pmns Install Remove README root mmvdump.c
 
 LCFLAGS		= -I.
 LLDFLAGS	= -L$(TOPDIR)/src/libpcp_mmv/src
@@ -40,8 +39,8 @@ include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(INSTTARGETS) Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 README root help pmns domain.h $(PMDADIR)
+	$(INSTALL) -m 755 $(TARGETS) Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 README root pmns domain.h $(PMDADIR)
 
 $(CMDTARGET):	$(OBJECTS)
 
