@@ -147,7 +147,7 @@ static void
 map_stats(pmdaExt *pmda)
 {
     struct dirent ** files;
-    char name_reload[64];
+    char name[64];
     int need_reload = 0;
     int i, sts, num;
 
@@ -161,9 +161,11 @@ map_stats(pmdaExt *pmda)
 	return;
     }
 
-    mcnt = 1;
-    snprintf(name_reload, sizeof(name_reload), "%s.reload", prefix);
-    __pmAddPMNSNode(pmns, pmid_build(pmda->e_domain, 0, 0), name_reload);
+    /* hard-coded metrics (not from mmap'd files */
+    snprintf(name, sizeof(name), "%s.reload", prefix);
+    __pmAddPMNSNode(pmns, pmid_build(pmda->e_domain, 0, 0), name);
+    snprintf(name, sizeof(name), "%s.debug", prefix);
+    __pmAddPMNSNode(pmns, pmid_build(pmda->e_domain, 0, 1), name);
 
     if (indoms != NULL) {
 	for (i = 0; i < incnt; i++)
@@ -338,6 +340,12 @@ map_stats(pmdaExt *pmda)
 			__pmAddPMNSNode(pmns, pmid_build(
 				pmda->e_domain, s->cluster, ml[k].item),
 				name);
+#ifdef PCP_DEBUG
+			if (pmDebug & DBG_TRACE_PMNS) {
+			    fprintf(stderr, "map_stats: add metric[%d] %s %s\n", mcnt, name, pmIDStr(pmid_build(pmda->e_domain, s->cluster, ml[k].item)));
+
+			}
+#endif
 			mcnt++;
 		    }
 		} else {
@@ -448,6 +456,10 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     if (id->cluster == 0) {
 	if (id->item == 0) {
 	    atom->l = reload;
+	    return 1;
+	}
+	if (id->item == 1) {
+	    atom->l = pmDebug;
 	    return 1;
 	}
 	return PM_ERR_PMID;
@@ -570,6 +582,15 @@ mmv_text(int ident, int type, char **buffer, pmdaExt *ep)
 "re-reading directory and re-mapping files.");
 		return (*buffer == NULL) ? -ENOMEM : 0;
 	}
+	else if (pmid_item(ident) == 1) {
+	    /* mmv.debug */
+	    if (type & PM_TEXT_ONELINE)
+		*buffer = strdup("Debug flag");
+	    else
+		*buffer = strdup(
+"See pmdbg(1).  pmstore into this metric to change the debug value.\n");
+		return (*buffer == NULL) ? -ENOMEM : 0;
+	}
 	else
 	    return PM_ERR_PMID;
     }
@@ -622,7 +643,7 @@ mmv_store(pmResult *result, pmdaExt *ep)
 	pmValueSet * vsp = result->vset[i];
 	__pmID_int * id = (__pmID_int *)&vsp->pmid;
 
-	if (id->cluster == 0 && id->item == 0) {
+	if (id->cluster == 0) {
 	    for (m = 0; m < mcnt; m++) {
 		__pmID_int * mid = (__pmID_int *)&(metrics[m].m_desc.pmid);
 
@@ -636,12 +657,17 @@ mmv_store(pmResult *result, pmdaExt *ep)
 		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 					PM_TYPE_32, &atom, PM_TYPE_32)) < 0)
 			return sts;
+		    if (id->item == 0)
 		    reload = atom.l;
+		    else if (id->item == 1)
+		    	pmDebug = atom.l;
+		    else
+			return -EACCES;
 		}
 	    }
 	}
 	else
-	    return PM_ERR_PMID;
+	    return -EACCES;
     }
     return 0;
 }
@@ -861,6 +887,7 @@ mmv_children(char *name, int traverse, char ***offspring, int **status, pmdaExt 
 void
 mmv_init(pmdaInterface *dp)
 {
+    int	m;
     int sep = __pmPathSeparator();
 
     if (isDSO) {
@@ -876,14 +903,26 @@ mmv_init(pmdaInterface *dp)
 
     /* Initialize internal dispatch table */
     if (dp->status == 0) {
-	if ((metrics = malloc(sizeof(pmdaMetric))) != NULL) {
-	    metrics[mcnt].m_user = & reload;
-	    metrics[mcnt].m_desc.pmid = pmid_build(dp->domain, 0, 0);
-	    metrics[mcnt].m_desc.type = PM_TYPE_32;
-	    metrics[mcnt].m_desc.indom = PM_INDOM_NULL;
-	    metrics[mcnt].m_desc.sem = PM_SEM_INSTANT;
-	    memset(&metrics[mcnt].m_desc.units, 0, sizeof(pmUnits));
-	    mcnt = 1;
+	/*
+	 * number of hard-coded metrics here has to match initializer
+	 * cases below, and pmns initialization in map_stats()
+	 */
+	mcnt = 2;
+	if ((metrics = malloc(mcnt*sizeof(pmdaMetric))) != NULL) {
+	    /*
+	     * all the hard-coded metrics have the same semantics
+	     */
+	    for (m = 0; m < mcnt; m++) {
+		if (m == 0)
+		    metrics[m].m_user = &reload;
+		else if (m == 1)
+		    metrics[m].m_user = &pmDebug;
+		metrics[m].m_desc.pmid = pmid_build(dp->domain, 0, m);
+		metrics[m].m_desc.type = PM_TYPE_32;
+		metrics[m].m_desc.indom = PM_INDOM_NULL;
+		metrics[m].m_desc.sem = PM_SEM_INSTANT;
+		memset(&metrics[m].m_desc.units, 0, sizeof(pmUnits));
+	    }
 	} else {
 	    __pmNotifyErr(LOG_ERR, "%s: pmdaInit - out of memory\n",
 				pmProgname);
