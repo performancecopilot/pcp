@@ -23,7 +23,7 @@ TEMPLATE = pcp.template
 LDIRT += $(TEMPLATE) $(TEMPLATE).i
 LSRCFILES = $(TEMPLATE).in
 
-default install :
+default install install_pcp default_pcp :
 
 pack_pcp : $(TEMPLATE)
 	$(MKINSTALLP) -d $${DIST_ROOT} -T $(TEMPLATE)

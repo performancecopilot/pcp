@@ -26,7 +26,7 @@ LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros
 PERLFILES = pcp-pmda-perl.desc pcp-logsummary-perl.desc pcp-mmv-perl.desc
 LSRCFILES = macros.template pcp.spec.in $(PERLFILES)
 
-default install :
+default install install_pcp default_pcp :
 
 # Blow the spec away after rpm has finished its work - it IS
 # going to make sure it'll be rebuild next time we come here

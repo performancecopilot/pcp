@@ -31,7 +31,8 @@ SUBDIRS = tar rpm mac aix sun slack
 # generate scripts/configs
 MD5DIR = slack
 
-default install default_pcp install_pcp :
+default install default_pcp install_pcp : $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 
 pack :: pack_pcp
 
