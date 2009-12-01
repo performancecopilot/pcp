@@ -1275,7 +1275,15 @@ then
         pcp_binadm_dir=/local/bin
     elif test $target_os = linux
     then
-	if test "`echo $target_cpu | sed -e 's/.*64/64/'`" = 64 \
+	if test -d "$libexecdir"
+	then
+dnl	    User explicitly specified --libexec=something, which must exist
+	    pcp_binadm_dir=$libexecdir/pcp/bin
+	elif test -d /usr/libexec
+	then
+dnl	    Use /usr/libexec for platforms that support it
+	    pcp_binadm_dir=/usr/libexec/pcp/bin
+	elif test "`echo $target_cpu | sed -e 's/.*64/64/'`" = 64 \
 		-a $target_cpu != ia64
 	then
 	    pcp_binadm_dir=/usr/lib64/pcp/bin
@@ -1283,10 +1291,12 @@ then
 	    pcp_binadm_dir=/usr/lib/pcp/bin
 	fi
     else
+dnl	Unknown non-linux platform.
         pcp_binadm_dir=$pcp_share_dir/bin
     fi
 fi
 AC_SUBST(pcp_binadm_dir)
+echo configure PCP_BINADM_DIR=\"$pcp_binadm_dir\"
 
 dnl non-shared (i.e. system local) PCP files
 pcp_var_dir=`eval echo $localstatedir`

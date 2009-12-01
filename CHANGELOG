@@ -6,6 +6,8 @@ pcp-3.0.2 (currently in development)
     - Separate out the Infiniband and cluster PMDAs into their own
       package - removing dependencies and configure complexities from
       pcp into specialised, layered packages.
+    - configure packaging to use libexecdir for private pcp binaries,
+      if supported on the platform
 
 pcp-3.0.1 (19 October 2009)
     - Reverted rc scripts default start/stop settings back to how
