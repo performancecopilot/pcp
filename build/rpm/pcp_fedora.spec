@@ -1,7 +1,7 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
 Version: 3.0.2
-%define buildversion 2
+%define buildversion 1
 Release: %{buildversion}%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
@@ -92,7 +92,7 @@ autoconf
 
 # The standard 'configure' macro should be used here, but configure.in
 # needs some tweaks before that will work correctly (TODO).
-./configure --libdir=%{_libdir}
+./configure --libdir=%{_libdir} --libexecdir=%{_libexecdir}
 
 %clean
 rm -Rf $RPM_BUILD_ROOT
@@ -151,8 +151,6 @@ fi
 %doc CHANGELOG COPYING INSTALL README VERSION.pcp pcp.lsm
 
 %dir %{_pmdasdir}
-%dir %{_libdir}*/pcp
-%dir %{_libdir}*/pcp/bin
 %dir %{_datadir}/pcp
 %dir %{_localstatedir}/run/pcp
 %dir %{_localstatedir}/lib/pcp
@@ -162,7 +160,7 @@ fi
 %dir %{_localstatedir}/lib/pcp/config/pmieconf/shping
 
 %{_bindir}/*
-%{_libdir}*/pcp/bin/*
+%{_libexecdir}/pcp
 %{_datadir}/pcp/lib
 %{_localstatedir}/log/pcp
 %{_localstatedir}/lib/pcp/pmns
