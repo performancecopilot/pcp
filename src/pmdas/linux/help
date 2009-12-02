@@ -1316,3 +1316,6 @@ If non-zero, stop collecting perf stats this many secs after last fetch
 @ quota.project.files.soft file count soft limit for this project and filesys
 @ quota.project.files.used file count for this project and filesys
 @ quota.project.files.time_left when soft limit is exceeded, seconds until it is enacted
+
+@udev.events counter of the number of uevents processed by the udev subsystem
+@udev.seqnum udev sequence number, instantaneous number of uevents processed by the udev subsystem
