@@ -34,7 +34,7 @@ root {
     vfs
     quota
     tmpfs
-    udev
+    sysfs
 }
 
 hinv {
@@ -1032,7 +1032,10 @@ quota.project.files {
     time_left  		60:30:13
 }
 
-udev {
-    events  		60:35:0
-    seqnum  		60:35:1
+sysfs {
+    kernel
+}
+
+sysfs.kernel {
+    uevent_seqnum	60:35:0
 }

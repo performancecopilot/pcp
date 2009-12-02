@@ -1,5 +1,5 @@
 /*
- * Linux dev_udev cluster
+ * Linux sysfs_kernel cluster
  *
  * Copyright (c) 2009, Red Hat, Inc.  All Rights Reserved.
  * 
@@ -18,24 +18,24 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include "dev_udev.h"
+#include "sysfs_kernel.h"
 
 int
-refresh_dev_udev(dev_udev_t *ud)
+refresh_sysfs_kernel(sysfs_kernel_t *sk)
 {
     char buf[64];
     int fd;
 
     if ((fd = open("/sys/kernel/uevent_seqnum", O_RDONLY)) < 0) {
-    	ud->valid = 0;
+    	sk->valid_uevent_seqnum = 0;
 	return -errno;
     }
 
     if (read(fd, buf, sizeof(buf)) <= 0)
-    	ud->valid = 0;
+    	sk->valid_uevent_seqnum = 0;
     else {
-    	sscanf(buf, "%llu", (long long unsigned int *)&ud->seqnum);
-	ud->valid = 1;
+    	sscanf(buf, "%llu", (long long unsigned int *)&sk->uevent_seqnum);
+	sk->valid_uevent_seqnum = 1;
     }
     close(fd);
 

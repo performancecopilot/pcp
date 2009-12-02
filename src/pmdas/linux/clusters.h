@@ -54,7 +54,7 @@ enum {
 	CLUSTER_PID_IO,		/* 32 /proc/<pid>/io */
 	CLUSTER_NET_INET,	/* 33 /proc/net/dev and ioctl(SIOCGIFCONF) */
 	CLUSTER_TMPFS,		/* 34 /proc/mounts + statfs (tmpfs only) */
-	CLUSTER_UDEV,		/* 35 udev metrics, from /dev/.udev */
+	CLUSTER_SYSFS_KERNEL,	/* 35 /sys/kernel metrics */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
