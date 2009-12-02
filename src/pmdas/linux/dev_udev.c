@@ -26,7 +26,7 @@ refresh_dev_udev(dev_udev_t *ud)
     char buf[64];
     int fd;
 
-    if ((fd = open("/dev/.udev/uevent_seqnum", O_RDONLY)) < 0) {
+    if ((fd = open("/sys/kernel/uevent_seqnum", O_RDONLY)) < 0) {
     	ud->valid = 0;
 	return -errno;
     }
