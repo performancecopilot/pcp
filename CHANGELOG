@@ -6,9 +6,9 @@ pcp-3.0.2 (2 December 2009)
     - Separate out the Infiniband and cluster PMDAs into their own
       package - removing dependencies and configure complexities from
       pcp into specialised, layered packages.
-    - configure packaging to use libexecdir for private pcp binaries,
+    - Configure packaging to use libexecdir for private pcp binaries,
       if supported on the platform (also honour --libexecdir configure flag)
-    - Add udev.{events,seqnum} metrics to Linux PMDA for monitoring udev events
+    - Add sysfs.kernel metrics cluster to Linux PMDA.
 
 pcp-3.0.1 (19 October 2009)
     - Reverted rc scripts default start/stop settings back to how

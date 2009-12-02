@@ -1275,13 +1275,14 @@ then
         pcp_binadm_dir=/local/bin
     elif test -d /usr/libexec
     then
-        pcp_binadm_dir=/usr/libexec
+        pcp_binadm_dir=/usr/libexec/pcp/bin
     else
         pcp_binadm_dir=$pcp_share_dir/bin
     fi
+else
+   pcp_binadm_dir=`eval echo $pcp_binadm_dir/pcp/bin`
 fi
 AC_SUBST(pcp_binadm_dir)
-echo configure PCP_BINADM_DIR=\"$pcp_binadm_dir\"
 
 dnl non-shared (i.e. system local) PCP files
 pcp_var_dir=`eval echo $localstatedir`
