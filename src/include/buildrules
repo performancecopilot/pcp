@@ -37,7 +37,7 @@ _SHAREDOPTS	= -shared -fpic
 endif
 ifeq ($(TARGET_OS), darwin)
 # libtool doesnt understand -dynamiclib so we need both
-_SHAREDOPTS	= -fPIC -dynamic -dynamiclib -flat_namespace -undefined suppress -headerpad_max_install_names -arch i386 -arch x86_64
+_SHAREDOPTS	= -fPIC -dynamic -dynamiclib -flat_namespace -undefined suppress -headerpad_max_install_names -arch i386 -arch $(BUILD_CPU)
 endif
 ifeq ($(TARGET_OS), mingw)
 _SHAREDOPTS	= -shared -Wl,-export-all-symbols,-soname,$(LIBTARGET)
