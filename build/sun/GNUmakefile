@@ -19,6 +19,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
+LSRCFILES = pcp.xml postinstall preremove
 LDIRT += pkginfo proto pcp pcp-$(PACKAGE_VERSION)
 
 default install default_pcp :
