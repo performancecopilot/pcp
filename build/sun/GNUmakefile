@@ -21,7 +21,10 @@ include $(TOPDIR)/src/include/builddefs
 
 LDIRT += pkginfo proto pcp pcp-$(PACKAGE_VERSION)
 
-default install :
+default install default_pcp :
+
+install_pcp :
+	$(INSTALL) -m644 pcp.xml /var/svc/manifest/application/pcp.xml
 
 pack_pcp : proto pkginfo
 	@rm -rf pcp
@@ -31,7 +34,10 @@ pack_pcp : proto pkginfo
 proto : $(_FORCE)
 	@rm -f $@
 	@sort -u ../pack_pcp.bin | \
-	    awk 'BEGIN { print "i pkginfo=pkginfo"; } \
+	    awk 'BEGIN { print "i pkginfo=pkginfo"; \
+	    		 print "i preremove=preremove"; \
+	    		 print "i postinstall=postinstall"; \
+			} \
 	     $$1 == "l" {printf "s none %s=%s\n", substr($$3, 2), $$2; next; } \
 	     {printf "%s none %s 0%d %s %s\n", \
 		 $$1, substr($$NF, 2) , $$2, $$3, $$4}' > $@

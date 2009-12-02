@@ -22,7 +22,7 @@ include $(TOPDIR)/src/include/builddefs
 
 LDIRT = $(wildcard pcp*.tar.gz pcp*.md5sum.src)
 
-default install :
+default install install_pcp default_pcp :
 
 .PHONY: pack_pcp
 pack_pcp : 
