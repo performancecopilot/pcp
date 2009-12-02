@@ -34,6 +34,7 @@ root {
     vfs
     quota
     tmpfs
+    udev
 }
 
 hinv {
@@ -1029,4 +1030,9 @@ quota.project.files {
     soft  		60:30:11
     used  		60:30:12
     time_left  		60:30:13
+}
+
+udev {
+    events  		60:35:0
+    seqnum  		60:35:1
 }

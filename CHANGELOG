@@ -8,6 +8,7 @@ pcp-3.0.2 (currently in development)
       pcp into specialised, layered packages.
     - configure packaging to use libexecdir for private pcp binaries,
       if supported on the platform
+    - add udev.{events,seqnum} metrics to Linux PMDA for monitoring udev events
 
 pcp-3.0.1 (19 October 2009)
     - Reverted rc scripts default start/stop settings back to how
