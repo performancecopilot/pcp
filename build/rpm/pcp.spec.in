@@ -128,7 +128,7 @@ else
 %setup -q
 touch .census
 autoconf
-./configure --libdir=%{_libdir} && touch config.done
+./configure --libdir=%{_libdir} --libexecdir=%{_libexecdir} && touch config.done
 fi
 %if %sgi_issp_build
 %{_sgi_find_crypto}

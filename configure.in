@@ -1263,7 +1263,7 @@ fi
 AC_SUBST(pcp_share_dir)
 
 dnl private PCP executables
-pcp_binadm_dir=`eval echo $sbindir`
+pcp_binadm_dir=`eval echo $libexecdir`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
 if test "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`" = NONE
 then
@@ -1273,25 +1273,10 @@ then
     elif test $target_os = mingw
     then
         pcp_binadm_dir=/local/bin
-    elif test $target_os = linux
+    elif test -d /usr/libexec
     then
-	if test -d "$libexecdir"
-	then
-dnl	    User explicitly specified --libexec=something, which must exist
-	    pcp_binadm_dir=$libexecdir/pcp/bin
-	elif test -d /usr/libexec
-	then
-dnl	    Use /usr/libexec for platforms that support it
-	    pcp_binadm_dir=/usr/libexec/pcp/bin
-	elif test "`echo $target_cpu | sed -e 's/.*64/64/'`" = 64 \
-		-a $target_cpu != ia64
-	then
-	    pcp_binadm_dir=/usr/lib64/pcp/bin
-	else
-	    pcp_binadm_dir=/usr/lib/pcp/bin
-	fi
+        pcp_binadm_dir=/usr/libexec
     else
-dnl	Unknown non-linux platform.
         pcp_binadm_dir=$pcp_share_dir/bin
     fi
 fi
