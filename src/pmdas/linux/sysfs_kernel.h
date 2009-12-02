@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2007,2008 Silicon Graphics, Inc. All Rights Reserved.
+ * Linux sysfs_kernel cluster
+ *
+ * Copyright (c) 2009, Red Hat, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,28 +16,23 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- *
- * DSO initialization routine
  */
 
-#include <stdio.h>
-#include <limits.h>
+#ifndef _SYSFS_KERNEL_H
+#define _SYSFS_KERNEL_H
 
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include <ctype.h>
 
-#include "ibpmda.h"
+typedef struct {
+	int		valid_uevent_seqnum;
+	uint64_t	uevent_seqnum; /* /sys/kernel/uevent_seqnum */
+	/* TODO queue length, event type counters and other metrics */
+} sysfs_kernel_t;
 
-void
-ib_init (pmdaInterface * dispatch)
-{
-    char helppath[MAXPATHLEN];
-    int  sep = __pmPathSeparator();
+/* refresh sysfs_kernel */
+extern int refresh_sysfs_kernel(sysfs_kernel_t *);
 
-    snprintf(helppath, sizeof(helppath), "%s%c" "ib" "%c" "help",
-	     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDSO(dispatch, PMDA_INTERFACE_3, "ibpmda", helppath);
-
-    ibpmda_init(NULL, 0, dispatch);
-}
+#endif /* _SYSFS_KERNEL_H */

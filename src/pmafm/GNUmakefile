@@ -34,8 +34,8 @@ default_pro : $(TARGETS)
 install :: install_pcp
 
 install_pcp : default_pcp
-	$(INSTALL) -m 755 pmafm $(PCP_BIN_DIR)/pmafm
-	$(INSTALL) -m 755 mkaf $(PCP_BINADM_DIR)/mkaf
+	$(INSTALL) -m 755 pmafm $(PCP_BIN_DIR)/pmafm$(SHELLSUFFIX)
+	$(INSTALL) -m 755 mkaf $(PCP_BINADM_DIR)/mkaf$(SHELLSUFFIX)
 	$(INSTALL) -m 755 -d $(AFM_DIR)
 	$(INSTALL) -m 644 pmafm.pcp $(AFM_DIR)/pcp
 

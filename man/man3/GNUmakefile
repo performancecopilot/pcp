@@ -45,6 +45,7 @@ MAN_PAGES	= \
 	pmusecontext.3 pmusezone.3 pmwhichcontext.3 pmwhichzone.3 \
 	pmdacache.3 pmdahelp.3 pmloop.3 pmcontextundef.3 \
 	pmgetcontextfd.3 pmcontextconnectto.3 pmafm.3 pmtime.3 \
+	pmdaname.3 pmdachildren.3 pmdapmid.3 \
 	mmv_inc_value.3 mmv_lookup_value_desc.3 mmv_stats_init.3
 
 # IMPL_MANPAGES from IRIX

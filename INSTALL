@@ -21,7 +21,7 @@ If you are using a RPM based distribution and have the binary rpm:
 	# rpm -Uvh pcp-*.rpm
 ... and skip to the final section (below) - "Post-install steps".
 
-Special note for Ubuntu 8.04, 8.10 and 9.04
+Special note for Ubuntu 8.04, 8.10, 9.04 and 9.10
 
 I've had to make the changes below to /usr/bin/dpkg-buildpackage.
 Without these two changes, my pcp builds produce bad binaries with a

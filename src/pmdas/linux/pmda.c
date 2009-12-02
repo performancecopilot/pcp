@@ -59,6 +59,7 @@
 #include "ksym.h"
 #include "proc_sys_fs.h"
 #include "proc_vmstat.h"
+#include "sysfs_kernel.h"
 
 /*
  * Legacy value from deprecated infiniband.h, preserved for backward
@@ -90,6 +91,7 @@ static shm_limits_t		shm_limits;
 static proc_uptime_t		proc_uptime;
 static proc_sys_fs_t		proc_sys_fs;
 static proc_vmstat_t		proc_vmstat;
+static sysfs_kernel_t		sysfs_kernel;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 
@@ -3386,6 +3388,13 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_QUOTA,13), PM_TYPE_32, QUOTA_PRJ_INDOM, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
 
+/*
+ * sysfs_kernel cluster
+ */
+    /* sysfs.kernel.uevent_seqnum */
+    { &sysfs_kernel.uevent_seqnum,
+    {PMDA_PMID(CLUSTER_SYSFS_KERNEL,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 };
 
 static void
@@ -3472,6 +3481,9 @@ linux_refresh(int *need_refresh)
 
     if (need_refresh[CLUSTER_VMSTAT])
     	refresh_proc_vmstat(&proc_vmstat);
+
+    if (need_refresh[CLUSTER_SYSFS_KERNEL])
+    	refresh_sysfs_kernel(&sysfs_kernel);
 }
 
 static int
@@ -3608,6 +3620,13 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (idp->cluster == CLUSTER_XFS && proc_fs_xfs.errcode != 0) {
 	    /* no values available for XFS metrics */
 	    return 0;
+	}
+	else
+	if (idp->cluster == CLUSTER_SYSFS_KERNEL) {
+	    /* no values available for udev metrics */
+	    if (idp->item == 0 && !sysfs_kernel.valid_uevent_seqnum) {
+		return 0;
+	    }
 	}
 
 	switch (mdesc->m_desc.type) {

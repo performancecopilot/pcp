@@ -22,8 +22,8 @@
 # Provides:       pmie
 # Required-Start: $network $remote_fs $syslog
 # Required-Stop:  $remote_fs $syslog
-# Default-Start:
-# Default-Stop:
+# Default-Start:  2 3 4 5
+# Default-Stop:   0 1 6
 # Short-Description:   Control PCP inference engines
 # Description:   Configures the performance monitoring inference engine
 ### END INIT INFO

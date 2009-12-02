@@ -260,6 +260,7 @@ main(int argc, char **argv)
 	extern void	Status(int, int);
 	extern void	NewVolume(void);
 	extern void	Sync(void);
+	extern void	Qa(void);
 	extern int	yywrap(void);
 
 	parse_stmt = -1;
@@ -359,6 +360,13 @@ fprintf(stderr, "Logging delta (%d msec) cannot be bigger than %d msec\n", logfr
 	    case SYNC:
 		Sync();
 		break;
+
+	    case QA:
+		if (qa_case == 0)
+		    fprintf(stderr, "QA Test Case deactivated\n");
+		else
+		    fprintf(stderr, "QA Test Case #%d activated\n", qa_case);
+		Qa();
 	}
 
 	if (hostname != NULL) {

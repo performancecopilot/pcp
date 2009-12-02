@@ -1416,6 +1416,7 @@ memstat_fetch_callback(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	    atom->ull = windows_memstat.ullTotalPhys;
 	    atom->ull =- windows_memstat.ullAvailPhys;
 	    atom->ull /= 1024;
+	    return 1;
 	case 5:		/* swap.length */
 	    atom->ull = windows_memstat.ullTotalPageFile / 1024;
 	    return 1;

@@ -9,27 +9,12 @@ Group: Applications/System
 
 %define sgi_chroot_build @sgi_chroot_build@
 %define sgi_issp_build @sgi_issp_build@
-%define have_ibdev @have_ibdev@
-
-%if %{have_ibdev}
-%define ib_build_prereqs libibmad-devel libibumad-devel libibcommon-devel
-%endif
 
 %if %sgi_chroot_build
 Source: @package_name@-@package_version@.tar.bz2
-BuildRequires: gcc-c++ libstdc++-devel %{?ib_build_prereqs}
+BuildRequires: gcc-c++ libstdc++-devel
 %else
 Source: @package_name@-@package_version@-@package_release@.src.tar.gz
-%endif
-
-%if %{sgi_chroot_build}
-%define ib_prereqs libibmad-pp >= 1.1.6-1.ofed20080604r1.3.1sgi601 libibumad-pp >= 1.1.7  libibcommon-pp 
-%define ib_build_prereqs %{ib_prereqs} libibmad-pp-devel libibumad-pp-devel libibcommon-pp-devel
-%else
-%if %{have_ibdev}
-%define ib_prereqs libibmad libibumad  libibcommon 
-%define ib_build_prereqs %{ib_prereqs} libibmad-devel libibumad-devel libibcommon-devel
-%endif
 %endif
 
 Distribution: @package_distribution@
@@ -37,7 +22,7 @@ Distribution: @package_distribution@
 Packager: Silicon Graphics, Inc. <http://www.sgi.com/>
 %endif
 BuildRoot: @build_root@ 
-BuildRequires: procps autoconf bison flex ncurses-devel %{?ib_build_prereqs}
+BuildRequires: procps autoconf bison flex ncurses-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 Conflicts: pcp-pro < 2.2
@@ -143,7 +128,7 @@ else
 %setup -q
 touch .census
 autoconf
-./configure --libdir=%{_libdir} && touch config.done
+./configure --libdir=%{_libdir} --libexecdir=%{_libexecdir} && touch config.done
 fi
 %if %sgi_issp_build
 %{_sgi_find_crypto}
@@ -190,11 +175,31 @@ sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
 awk '{print $NF}' $DIST_MANIFEST |\
 egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)' >>devel_files
 
+#
+# Patterns for files to be marked %config(noreplace).
+# Note: /etc/pcp.conf is %config, but not noreplace
+# and is treated specially below.
+cat >conf_files <<EOFEOF
+etc/pcp.env
+pmcd/pmcd.conf
+pmcd/pmcd.options
+pmcd/rc.local
+pmie/config.default
+pmie/control
+pmie/crontab
+pmlogger/config.default
+pmlogger/control
+pmlogger/crontab
+pmproxy/pmproxy.options
+bash_completion.d/pcp
+EOFEOF
+
 rm -f devel_files.rpm libs_files.rpm base_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
 BEGIN {
     while( getline < "libs_files") lib[$0]=1;
     while( getline < "devel_files") dev[$0]=1;
+    while( getline < "conf_files") conf[nconf++]=$0;
 }
 {
     if (lib[$NF]) f="libs_files.rpm";
@@ -202,12 +207,17 @@ BEGIN {
     else f="base_files.rpm"
 }
 $1 == "d" { printf ("%%%%dir %%%%attr(%s,root,root) %s\n", $2, $5) >> f } 
-$1 == "f" { if ( match ($6, "'$PCP_VAR_DIR'/config") ||
-		 match ($6, "'$PCP_SYSCONFIG_DIR'") ) {
-	       printf ("%%%%config(noreplace) ");
+
+$1 == "f" && $6 ~ "etc/pcp.conf" { printf ("%%%%config ") >> f; }
+$1 == "f" {
+	    for (i=0; i < nconf; i++) {
+	    	if ($6 ~ conf[i]) {
+		    printf ("%%%%config(noreplace) ") >> f;
+		    break;
+		}
 	    }
 	    if (match ($6, "'$PCP_MAN_DIR'") || match ($6, "'$PCP_DOC_DIR'")) {
-		printf ("%%%%doc ");
+		printf ("%%%%doc ") >> f;
 	    }
 	    printf ("%%%%attr(%s,root,root) %s\n", $2, $6) >> f }
 $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
@@ -253,6 +263,11 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Mon Oct 19 2009 Martin Hicks <mort@sgi.com> - 3.0.1-2
+- Remove IB dependencies.  The Infiniband PMDA is being moved to
+  a stand-alone package.
+- Move cluster PMDA to a stand-alone package.
+
 * Mon Oct 5 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-7
 - merged Kenj's tree with PMDA_INTERFACE_4 and dynamic PMNS
 - ReplacePmnsSubtree fix bad signal handling botch

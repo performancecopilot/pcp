@@ -75,7 +75,7 @@ PCFLAGS = -fpic -fno-strict-aliasing
 DSOSUFFIX = so
 endif
 ifeq "$(TARGET_OS)" "darwin"
-PCFLAGS = -fPIC -no-cpp-precomp -fno-strict-aliasing 
+PCFLAGS = -fPIC -no-cpp-precomp -fno-strict-aliasing -arch i386 -arch x86_64
 DSOSUFFIX = dylib
 CASE_INSENSITIVE_FS=1
 endif
@@ -83,6 +83,7 @@ ifeq "$(TARGET_OS)" "mingw"
 PCFLAGS = -fno-strict-aliasing -I$$PCP_DIR/local/include -I$$PCP_DIR/include
 DSOSUFFIX = dll
 EXECSUFFIX = .exe
+SHELLSUFFIX = .sh
 PLDLIBS = -lwsock32 -L$$PCP_DIR/local/bin -L$$PCP_DIR/local/lib -L$$PCP_DIR/lib
 endif
 ifeq "$(TARGET_OS)" "solaris"
@@ -160,8 +161,8 @@ DLLTOOL = @dlltool@
 RPMBUILD= @rpmbuild@
 RPM	= @rpm@
 POD2MAN = @pod2man@
-GENDIST	= @gendist@
 DPKG	= @dpkg@
+MAKEPKG	= @makepkg@
 GENPMDA	= $(TOPDIR)/src/genpmda/genpmda
 PKGMK	= @pkgmk@
 MD5SUM	= @md5sum@
@@ -289,6 +290,5 @@ PCP_X11_APPDEFS_DIR = @pcp_x11_appdefs_dir@
 PCP_LIBIBMAD = @LIBIBMAD@
 PCP_LIBIBCOMMON = @LIBIBCOMMON@
 PCP_LIBIBUMAD = @LIBIBUMAD@
-HAVE_IBDEV = @HAVE_IBDEV@
 
 endif # _BUILDDEFS_INCLUDED_

@@ -140,6 +140,7 @@ local_tail(char *file, scalar_t *callback, int cookie)
 	__pmNotifyErr(LOG_ERR, "fstat failed (%s): %s", file, strerror(errno));
 	exit(1);
     }
+    lseek(fd, 0L, SEEK_END);
     me = local_file(FILE_TAIL, fd, callback, cookie);
     files[me].me.tail.path = strdup(file);
     files[me].me.tail.dev = stats.st_dev;
@@ -256,7 +257,7 @@ local_log_rotated(files_t *file)
     files->me.tail.ino = stats.st_ino;
 }
 
-static int
+static void
 local_reconnector(files_t *file)
 {
     struct sockaddr_in myaddr;

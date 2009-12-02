@@ -45,6 +45,8 @@ usage (void)
 "Usage: %s [options] input-archive output-archive\n\
 \n\
 Options:\n\
+  -f             choose timezone from first archive [default is to use\n\
+                 timezone from last archive]\n\
   -S starttime   start of the time window\n\
   -s samples     terminate after this many log records have been written\n\
   -T endtime     end of the time window\n\
@@ -62,6 +64,8 @@ Options:\n\
 Options:\n\
   -c configfile  file to load configuration from\n\
   -d             desperate, save output after fatal error\n\
+  -f             choose timezone from first archive [default is to use\n\
+                 timezone from last archive]\n\
   -n pmnsfile    use an alternative PMNS\n\
   -S starttime   start of the time window\n\
   -s samples     terminate after this many log records have been written\n\
@@ -199,6 +203,7 @@ static double	logend_time = -1.0;		/* log end time */
 
 /* command line args */
 char	*configfile = NULL;		/* -c arg - name of config file */
+int	farg = 0;			/* -f arg - use first timezone */
 char	*pmnsfile = PM_NS_DEFAULT;	/* -n arg - alternate namespace */
 int	sarg = -1;			/* -s arg - finish after X samples */
 char	*Sarg = NULL;			/* -S arg - window start */
@@ -327,10 +332,21 @@ newlabel(void)
     lp->ill_magic = iap->label.ll_magic;
     lp->ill_pid = getpid();
     strncpy(lp->ill_hostname, iap->label.ll_hostname, PM_LOG_MAXHOSTLEN);
-    strcpy(lp->ill_tz, iap->label.ll_tz);
+    if (farg) {
+	/*
+	 * use timezone from first archive ... this is the OLD default
+	 */
+	strcpy(lp->ill_tz, iap->label.ll_tz);
+    }
+    else {
+	/*
+	 * use timezone from last archive ... this is the NEW default
+	 */
+	strcpy(lp->ill_tz, inarch[inarchnum-1].label.ll_tz);
+    }
 
     /* reset outarch as appropriate, depending on other input archives */
-    for (i=1; i<inarchnum; i++) {
+    for (i=0; i<inarchnum; i++) {
 	iap = &inarch[i];
 
 	/* Ensure all archives of the same version number */
@@ -360,10 +376,18 @@ newlabel(void)
 	    fprintf(stderr,
 		"%s: Warning: timezone mismatch for input archives\n",
 		    pmProgname);
-	    fprintf(stderr, "archive: %s timezone: %s [will be used]\n",
+	    if (farg) {
+		fprintf(stderr, "archive: %s timezone: %s [will be used]\n",
 		    inarch[0].name, lp->ill_tz);
-	    fprintf(stderr, "archive: %s timezone: %s [will be ignored]\n",
+		fprintf(stderr, "archive: %s timezone: %s [will be ignored]\n",
 		    iap->name, iap->label.ll_tz);
+	    }
+	    else {
+		fprintf(stderr, "archive: %s timezone: %s [will be used]\n",
+		    inarch[inarchnum-1].name, lp->ill_tz);
+		fprintf(stderr, "archive: %s timezone: %s [will be ignored]\n",
+		    iap->name, iap->label.ll_tz);
+	    }
 	}
     } /*for(i)*/
 }
@@ -1150,7 +1174,7 @@ parseargs(int argc, char *argv[])
     char		*endnum;
     struct stat		sbuf;
 
-    while ((c = getopt(argc, argv, "c:D:dn:S:s:T:v:wZ:z?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:D:dfn:S:s:T:v:wZ:z?")) != EOF) {
 	switch (c) {
 
 	case 'c':	/* config file */
@@ -1176,6 +1200,10 @@ parseargs(int argc, char *argv[])
 
 	case 'd':	/* desperate to save output archive, even after error */
 	    desperate = 1;
+	    break;
+
+	case 'f':	/* use timezone from first archive */
+	    farg = 1;
 	    break;
 
 	case 'n':	/* namespace */

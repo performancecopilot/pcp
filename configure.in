@@ -45,6 +45,7 @@ else
     dnl  build and build_os. Squash all x86 cpus into one LCD form - i386
     target=`echo $target | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
     target_os=`echo $target_os | sed '[s/solaris2\..*/solaris/]'`
+    target_os=`echo $target_os | sed '[s/kfreebsd/freebsd/]'`
     target_os=`echo $target_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]' | sed '[s/[\.0-9]*//g]'`
     target_cpu=`echo $target_cpu | sed '[s/i[3-6]86/i386/]'`
 
@@ -86,6 +87,7 @@ then
 elif test $target_os = freebsd
 then
     AC_DEFINE(IS_FREEBSD)
+    test -f /etc/debian_version && target_distro=debian
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
@@ -357,7 +359,7 @@ fi
 mkinstallp=$MKINSTALLP
 AC_SUBST(mkinstallp)
 
-dnl check for pmgmk - Solaris' package maker
+dnl check for the Solaris pmgmk package maker
 if test -z "$PKGMK"; then
     AC_PATH_PROG(PKGMK, pkgmk)
 fi
@@ -416,13 +418,6 @@ else
     exit 1
 fi
 
-dnl check if the gendist program is available
-if test -z "$GENDIST" ; then
-   AC_PATH_PROG(GENDIST, gendist) 
-fi
-gendist=$GENDIST
-AC_SUBST(gendist)
-
 dnl check if the makedepend program is available
 if test -z "$MAKEDEPEND"; then
     AC_PATH_PROG(MAKEDEPEND, makedepend, /bin/true)
@@ -437,12 +432,19 @@ fi
 md5sum=$MD5SUM
 AC_SUBST(md5sum)
 
-dnl check if the dpkg program is available
+dnl check if the Debian dpkg program is available
 if test -z "$DPKG"; then
    AC_PATH_PROG(DPKG, dpkg)
 fi
 dpkg=$DKPG
 AC_SUBST(dpkg)
+
+dnl check for the Slackware makepkg packaging tool
+if test -z "$MAKEPKG"; then
+   AC_PATH_PROG(MAKEPKG, makepkg)
+fi
+makepkg=$MAKEPKG
+AC_SUBST(makepkg)
 
 dnl check if symbolic links are supported
 AC_PROG_LN_S
@@ -730,7 +732,7 @@ if test $target_os != solaris; then
 fi
 
 dnl only define readdir64 on non-linux platforms that support it
-if test $target_os != linux; then
+if test $target_os != linux -a $target_os != freebsd; then
     AC_CHECK_FUNCS(readdir64)
 fi
 
@@ -845,6 +847,7 @@ else
    AC_MSG_RESULT(yes)
 fi
 rm -f conftest.c conftest.o conftest
+rm -rf conftest.dSYM
 
 dnl check if argument to user's select() method in scandir call is const
 AC_MSG_CHECKING([whether const arg for scandir() select method])
@@ -918,7 +921,7 @@ then
     else
 	AC_MSG_RESULT(unknown)
 	echo "FATAL ERROR: could not coerce your getopt() work correctly"
-	rm -f conftest conftest.*
+	rm -rf conftest conftest.*
 	exit 1
     fi
 elif test "$ans" = y
@@ -927,10 +930,10 @@ then
 else
     AC_MSG_RESULT(unknown)
     echo "FATAL ERROR: could not make your getopt() work at all"
-    rm -f conftest conftest.*
+    rm -rf conftest conftest.*
     exit 1
 fi
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check if printf %p has 0x prefix
 AC_MSG_CHECKING([if printf %p produces 0x prefix])
@@ -952,7 +955,7 @@ in
 	AC_MSG_RESULT(no)
 	;;
 esac
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
@@ -971,7 +974,7 @@ fi
 if test $ans -eq 8; then
     AC_DEFINE(HAVE_64BIT_LONG)
 fi
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check sizeof pointer
 AC_MSG_CHECKING([sizeof pointer])
@@ -992,7 +995,7 @@ if test $ans -eq 8; then
     AC_DEFINE(HAVE_64BIT_PTR)
     PCP_PTR_SIZE=64
 fi
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check sizeof int. If not 32, we die
 AC_MSG_CHECKING([sizeof int])
@@ -1011,6 +1014,7 @@ then
     echo "FATAL ERROR: sizeof(int) is not 32 bits, cannot proceed."
     exit 1
 fi
+rm -rf conftest conftest.*
 
 dnl check bit field allocation order within a word
 AC_MSG_CHECKING([if bit fields allocated left-to-right])
@@ -1042,7 +1046,7 @@ in
 	exit 1
 	;;
 esac
-rm -f conftest conftest.*
+rm -rf conftest conftest.*
 
 dnl check if compile can cast __uint64_t to double
 AC_TRY_LINK(
@@ -1259,7 +1263,7 @@ fi
 AC_SUBST(pcp_share_dir)
 
 dnl private PCP executables
-pcp_binadm_dir=`eval echo $sbindir`
+pcp_binadm_dir=`eval echo $libexecdir`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
 if test "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`" = NONE
 then
@@ -1269,17 +1273,14 @@ then
     elif test $target_os = mingw
     then
         pcp_binadm_dir=/local/bin
-    elif test $target_os = linux
+    elif test -d /usr/libexec
     then
-	if test "`echo $target_cpu | sed -e 's/.*64/64/'`" = 64
-	then
-	    pcp_binadm_dir=/usr/lib64/pcp/bin
-	else
-	    pcp_binadm_dir=/usr/lib/pcp/bin
-	fi
+        pcp_binadm_dir=/usr/libexec/pcp/bin
     else
         pcp_binadm_dir=$pcp_share_dir/bin
     fi
+else
+   pcp_binadm_dir=`eval echo $pcp_binadm_dir/pcp/bin`
 fi
 AC_SUBST(pcp_binadm_dir)
 
@@ -1721,23 +1722,6 @@ int main () {
     return (0);
 }
 ], AC_DEFINE(HAVE_STRFTIME_z) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no),  0)
-
-AC_CHECK_HEADER(infiniband/umad.h, [AC_SUBST(UMAD_H, yes)])
-AC_CHECK_HEADER(infiniband/mad.h, [AC_SUBST(MAD_H, yes)])
-
-AC_CHECK_LIB(ibcommon, ibwarn, [AC_SUBST(LIBIBCOMMON,-libcommon)])
-AC_CHECK_LIB(ibmad, madrpc_init, [AC_SUBST(LIBIBMAD,-libmad)])
-AC_CHECK_LIB(ibumad, umad_init, [AC_SUBST(LIBIBUMAD,-libumad)])
-
-HAVE_IBDEV=0
-if test -n "$UMAD_H" -a \ 
-	-n "$MAD_H" -a \
-	-n "$LIBIBCOMMON" -a \
-	-n "$LIBIBUMAD" -a \
-	-n "$LIBIBMAD" ; then
-	HAVE_IBDEV=1
-fi
-AC_SUBST(HAVE_IBDEV)
 
 dnl
 dnl output files

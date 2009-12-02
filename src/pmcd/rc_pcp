@@ -28,8 +28,8 @@
 # Provides:       pcp
 # Required-Start: $network $remote_fs $syslog
 # Required-Stop:  $remote_fs $syslog
-# Default-Start:
-# Default-Stop:
+# Default-Start:  2 3 4 5
+# Default-Stop:   0 1 6
 # Short-Description:   Control pmcd and pmlogger daemons
 # Description:    Configure the Performance Co-Pilot and starts logging.
 ### END INIT INFO
@@ -226,7 +226,7 @@ _start_pmcheck()
 	wait_option=''
     fi
 
-    if pmcd_wait -h localhost $wait_option
+    if pmcd_wait $wait_option
     then
 	pmlogger_check >$tmp.pmcheck 2>&1
 	if [ -s $tmp.pmcheck ]

@@ -90,6 +90,7 @@ log		{ return ctx(LOG); }
 new		{ return ctx(NEW); }
 off		{ return ctx(OFF); }
 on		{ return ctx(ON); }
+qa		{ return ctx(QA); }
 at		{ return ctx(AT); }
 h		{ return ctx(HELP); }
 q		{ return ctx(QUIT); }
@@ -110,7 +111,7 @@ q		{ return ctx(QUIT); }
 \#[^\n]*		{ }
 \n			{ if (!(mystate & INSPECLIST)) return EOL; }
 
-[ \t]+			{ }
+[ \r\t]+		{ }
 
 .			{
 			    char emess[160];

@@ -125,10 +125,15 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
 	*p = c;
     }
     strcat(tbuf, "XXXXXX");
-    mktemp(tbuf);
+#if HAVE_MKSTEMP
+    fd = mkstemp(tbuf);
+#else
+    if (mktemp(tbuf) == NULL)
+	goto failed;
 
     if ((fd = open(tbuf, O_CREAT | O_EXCL | O_RDWR, 0644)) < 0)
 	goto failed;
+#endif
 
     if (dir == NULL)
 	p = tbuf;
