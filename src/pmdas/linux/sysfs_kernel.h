@@ -1,5 +1,5 @@
 /*
- * Linux dev_udev cluster
+ * Linux sysfs_kernel cluster
  *
  * Copyright (c) 2009, Red Hat, Inc.  All Rights Reserved.
  * 
@@ -18,8 +18,8 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#ifndef _DEV_UDEV_H
-#define _DEV_UDEV_H
+#ifndef _SYSFS_KERNEL_H
+#define _SYSFS_KERNEL_H
 
 #include "pmapi.h"
 #include "impl.h"
@@ -27,12 +27,12 @@
 #include <ctype.h>
 
 typedef struct {
-	int		valid;
-	uint64_t	seqnum; /* /dev/.udev/uevent_seqnum */
+	int		valid_uevent_seqnum;
+	uint64_t	uevent_seqnum; /* /sys/kernel/uevent_seqnum */
 	/* TODO queue length, event type counters and other metrics */
-} dev_udev_t;
+} sysfs_kernel_t;
 
-/* refresh dev_udev */
-extern int refresh_dev_udev(dev_udev_t *);
+/* refresh sysfs_kernel */
+extern int refresh_sysfs_kernel(sysfs_kernel_t *);
 
-#endif /* _DEV_UDEV_H */
+#endif /* _SYSFS_KERNEL_H */
