@@ -18,7 +18,7 @@ Compiled PMNS contains
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check mmv metrics have appeared ... 1 metrics and 1 values
+Check mmv metrics have appeared ... 2 metrics and 2 values
 new value: 5
 new value: 6
 new value: 7
