@@ -82,13 +82,16 @@ $here/sudo ./Install </dev/null >$tmp.out 2>&1
 _filter_pmda_install <$tmp.out
 
 $here/src-oss/mmv_genstats
-_delay_for_pmns
+#not needed with dynamic PMNS changes# _delay_for_pmns
 
 echo
 echo "=== validate values ==="
-if pminfo -fdmtT $iam | _filter_mmv_values
+if pminfo $iam | LC_COLLATE=POSIX sort >$tmp.names
 then
-     :
+    for name in `cat $tmp.names`
+    do
+	pminfo -fdmtT $name | _filter_mmv_values
+    done
 else
     echo "... failed! ... here is the Install log ..."
     cat $tmp.out
