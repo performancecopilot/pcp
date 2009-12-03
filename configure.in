@@ -75,8 +75,8 @@ elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN)
     target_distro=macosx
-    version=`sw_vers -productVersion | sed -e 's/\.//g'`
-    test $version -ge 1060 && target_distro=cocoa
+    version=`sw_vers -productVersion | sed -e 's/\.//' -e 's/\..*//g'`
+    test $version -ge 106 && target_distro=cocoa
 elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW)
