@@ -25,7 +25,9 @@ LDIRT += pkginfo proto pcp pcp-$(PACKAGE_VERSION)
 default install default_pcp :
 
 install_pcp :
+ifeq "$(TARGET_OS)" "solaris" 
 	$(INSTALL) -m644 pcp.xml /var/svc/manifest/application/pcp.xml
+endif
 
 pack_pcp : proto pkginfo
 	@rm -rf pcp
