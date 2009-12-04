@@ -1,0 +1,8 @@
+#!/bin/sh
+# Stop PCP related services before removing the package
+svcs -H svc:/application/pcp/\* | while read state ts svc; do
+	if [ "$state" = "online" ] ; then 
+		svcadm disable $svc
+	fi
+	svccfg delete -f $svc
+done
