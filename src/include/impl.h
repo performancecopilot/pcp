@@ -529,6 +529,7 @@ typedef struct {
     int			c_delta;	/* for updating origin */
     int			c_sent;		/* profile has been sent to pmcd */
     __pmProfile		*c_instprof;	/* instance profile */
+    void		*c_dm;		/* derived metrics, if any */
 } __pmContext;
 
 #define __PM_MODE_MASK	0xffff
@@ -1184,6 +1185,9 @@ extern int __pmSetClientId(char *);
  */
 extern int __dmtraverse(const char *, char ***);
 extern int __dmgetpmid(const char *, pmID *);
+extern void __dmopencontext(__pmContext *);
+extern void __dmclosecontext(__pmContext *);
+extern int __dmdesc(pmID, pmDesc *);
 
 #ifdef __cplusplus
 }

@@ -2473,7 +2473,6 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
 	     * add any derived metrics that have "name" as
 	     * their prefix
 	     */
-
 	    xtra = __dmtraverse(name, &namelist);
 	    if (xtra > 0) {
 		sts = 0;

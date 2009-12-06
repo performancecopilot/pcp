@@ -1,8 +1,42 @@
+/*
+ * Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+ * 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
+ */
+
+/*
+ * TODO
+ *
+ *	if pmRegister called _after_ context is open, then iterate
+ *	over all contexts and expand the ctl_t struct and call
+ *	bind_expr and check_expr to add new dm for each context
+ *
+ *	Need to handle
+ *	  pmRegister before any context is open
+ *	  new contexts after pmRegister is called (the initial implementation)
+ *	  intermixed pmRegister and newContext calls
+ *
+ *	pmFetch pre- and post- callbacks
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -10,20 +44,39 @@
  * Derived Metrics support
  */
 
+typedef struct {		/* dynamic information for an expression node */
+    pmID	pmid;
+    int		numval;
+    int		valfmt;
+    pmValue	*vlist;
+} info_t;
+
 typedef struct node {		/* expression tree node */
     int		type;
+    pmDesc	desc;
     struct node	*left;
     struct node	*right;
-    void	*ref;
+    char	*value;
+    info_t	*info;
 } node_t;
 
-typedef struct {		/* map for all derived metrics */
+typedef struct {		/* one derived metric */
     char	*name;
     pmID	pmid;
     node_t	*expr;
 } dm_t;
-static dm_t	*metriclist = NULL;
-static int	nmetric = 0;
+
+/*
+ * Control structure for a set of derived metrics.
+ * This is used for the static definitions (registered) and the dynamic
+ * tree of expressions maintained per context.
+ */
+typedef struct {
+    int		nmetric;
+    dm_t	*mlist;
+} ctl_t;
+
+static ctl_t	registered;
 
 /* parser and lexer variables */
 static char	*tokbuf = NULL;
@@ -48,10 +101,13 @@ static char	*errmsg;
 #define L_RPAREN	9
 #define L_DELTA		10
 
+static char *type_dbg[] = { "ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "EQUALS", "PLUS", "MINUS", "STAR", "SLASH", "LPAREN", "RPAREN", "DELTA" };
+static char type_c[] = { '\0', '\0', '\0', '\0', '\0', '=', '+', '-', '*', '/', '(', ')', '\0' };
+
 /* function table for lexer */
 static struct {
-    int		type;
-    char	*name;
+    int		f_type;
+    char	*f_name;
 } func[] = {
     { L_DELTA,	"delta" },
     { L_UNDEF,	NULL }
@@ -60,8 +116,11 @@ static struct {
 /* parser states */
 #define P_INIT		0
 #define P_LEAF		1
-#define P_BINOP		2
+#define P_LEAF_PAREN	2
+#define P_BINOP		3
 #define P_END		99
+
+static char *state_dbg[] = { "INIT", "LEAF", "LEAF_PAREN", "BINOP" };
 
 static void
 unget(int c)
@@ -80,15 +139,12 @@ get()
 	return c;
     }
     if (eof) return L_EOF;
-    do {
-	c = *string;
-	if (c == '\0') {
-	    return L_EOF;
-	    eof = 1;
-	}
-	else
-	    string++;
-    } while (c == ' ' || c == '\t' || c == '\n' || c == '\r');
+    c = *string;
+    if (c == '\0') {
+	return L_EOF;
+	eof = 1;
+    }
+    string++;
     return c;
 }
 
@@ -97,18 +153,19 @@ lex(void)
 {
     int		c;
     char	*p = tokbuf;
-    int		type = L_UNDEF;
+    int		ltype = L_UNDEF;
     int		i;
     int		firstch = 1;
 
     for ( ; ; ) {
 	c = get();
 	if (firstch) {
+	    if (isspace(c)) continue;
 	    this = &string[-1];
 	    firstch = 0;
 	}
 	if (c == L_EOF) {
-	    if (type != L_UNDEF) {
+	    if (ltype != L_UNDEF) {
 		/* force end of last token */
 		c = 0;
 	    }
@@ -136,11 +193,11 @@ lex(void)
 
 	*p++ = (char)c;
 
-	if (type == L_UNDEF) {
+	if (ltype == L_UNDEF) {
 	    if (isdigit(c))
-		type = L_NUMBER;
+		ltype = L_NUMBER;
 	    else if (isalpha(c))
-		type = L_NAME;
+		ltype = L_NAME;
 	    else {
 		switch (c) {
 		    case '=':
@@ -185,24 +242,24 @@ lex(void)
 	    }
 	}
 	else {
-	    if (type == L_NUMBER) {
+	    if (ltype == L_NUMBER) {
 		if (!isdigit(c)) {
 		    unget(c);
 		    p[-1] = '\0';
 		    return L_NUMBER;
 		}
 	    }
-	    else if (type == L_NAME) {
+	    else if (ltype == L_NAME) {
 		if (isalpha(c) || isdigit(c) || c == '_' || c == '.')
 		    continue;
 		if (c == '(') {
 		    /* check for functions ... */
 		    int		namelen = p - tokbuf - 1;
-		    for (i = 0; func[i].name != NULL; i++) {
-			if (namelen == strlen(func[i].name) &&
-			    strncmp(tokbuf, func[i].name, namelen) == 0) {
+		    for (i = 0; func[i].f_name != NULL; i++) {
+			if (namelen == strlen(func[i].f_name) &&
+			    strncmp(tokbuf, func[i].f_name, namelen) == 0) {
 			    *p = '\0';
-			    return func[i].type;
+			    return func[i].f_type;
 			}
 		    }
 		}
@@ -228,7 +285,8 @@ newnode(int type)
     np->type = type;
     np->left = NULL;
     np->right = NULL;
-    np->ref = NULL;
+    np->value = NULL;
+    np->info = NULL;
     return np;
 }
 
@@ -238,38 +296,295 @@ free_expr(node_t *np)
     if (np == NULL) return;
     if (np->left != NULL) free_expr(np->left);
     if (np->right != NULL) free_expr(np->right);
-    if (np->ref != NULL) free(np->ref);
+    /* value is only allocated once for the static nodes */
+    if (np->info == NULL && np->value != NULL) free(np->value);
+    if (np->info != NULL) free(np->info);
     free(np);
+}
+
+/*
+ * copy a static expression tree to make the dynamic per context
+ * expression tree and initialize the info block
+ */
+static node_t *
+bind_expr(int n, node_t *np)
+{
+    node_t	*new;
+
+    assert(np != NULL);
+    new = newnode(np->type);
+    if (np->left != NULL) {
+	if ((new->left = bind_expr(n, np->left)) == NULL) {
+	    /* error, reported deeper in the recursion, clean up */
+	    free(new);
+	    return(NULL);
+	}
+    }
+    if (np->right != NULL) {
+	if ((new->right = bind_expr(n, np->right)) == NULL) {
+	    /* error, reported deeper in the recursion, clean up */
+	    free(new);
+	    return(NULL);
+	}
+    }
+    if ((new->info = (info_t *)malloc(sizeof(info_t))) == NULL) {
+	__pmNoMem("bind_expr: info block", sizeof(info_t), PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    new->info->pmid = PM_ID_NULL;
+    new->info->numval = 0;
+    new->info->valfmt = PM_VAL_INSITU;
+    new->info->vlist = NULL;
+
+    /*
+     * need info to be non-null to protect copy of value in free_expr
+     */
+    new->value = np->value;
+
+    if (new->type == L_NAME) {
+	int	sts;
+
+	sts = pmLookupName(1, &new->value, &new->info->pmid);
+	if (sts < 0) {
+	    pmprintf("Error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr(sts));
+	    pmflush();
+	    free(new->info);
+	    free(new);
+	    return NULL;
+	}
+	sts = pmLookupDesc(new->info->pmid, &new->desc);
+	if (sts < 0) {
+	    pmprintf("Error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr(new->info->pmid), pmErrStr(sts));
+	    pmflush();
+	    free(new->info);
+	    free(new);
+	    return NULL;
+	}
+    }
+    else if (new->type == L_NUMBER) {
+	new->desc = np->desc;
+    }
+
+    return new;
+}
+
+/* type promotion */
+static int promote[6][6] = {
+    { PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
+    { PM_TYPE_U32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
+    { PM_TYPE_64, PM_TYPE_64, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
+    { PM_TYPE_U64, PM_TYPE_U64, PM_TYPE_U64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
+    { PM_TYPE_FLOAT, PM_TYPE_FLOAT, PM_TYPE_FLOAT, PM_TYPE_FLOAT, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
+    { PM_TYPE_DOUBLE, PM_TYPE_DOUBLE, PM_TYPE_DOUBLE, PM_TYPE_DOUBLE, PM_TYPE_DOUBLE, PM_TYPE_DOUBLE }
+};
+
+static int
+map_desc(int n, node_t *np)
+{
+    /*
+     * pmDesc mapping for binary operators ...
+     *
+     * semantics		acceptable operators
+     * counter, counter		+ -
+     * non-counter, non-counter	+ - * /
+     * counter, non-counter	* /
+     * non-counter, counter	*
+     *
+     * type promotion (similar to ANSI C)
+     * PM_TYPE_STRING, PM_TYPE_AGGREGATE and PM_TYPE_AGGREGATE_STATIC are
+     * illegal operands
+     * PM_TYPE_DOUBLE & any type => PM_TYPE_DOUBLE
+     * PM_TYPE_FLOAT & any type => PM_TYPE_FLOAT
+     * PM_TYPE_U64 & any type => PM_TYPE_U64
+     * PM_TYPE_64 & any type => PM_TYPE_64
+     * PM_TYPE_U32 & any type => PM_TYPE_U32
+     * (otherwise) PM_TYPE_32 & any type => PM_TYPE_32
+     *
+     * units mapping
+     * operator			checks
+     * +, -			identical
+     *				(TODO relax to union compatible and scale)
+     * *, /			if one is counter, non-counter must
+     *				have pmUnits of "none"
+     */
+    pmDesc	*right = &np->right->desc;
+    pmDesc	*left = &np->left->desc;
+    char	*errmsg;
+
+    if (left->sem == PM_SEM_COUNTER) {
+	if (right->sem == PM_SEM_COUNTER) {
+	    if (np->type != L_PLUS && np->type != L_MINUS) {
+		errmsg = "Illegal operator for counters";
+		goto bad;
+	    }
+	}
+	else {
+	    if (np->type != L_STAR && np->type != L_SLASH) {
+		errmsg = "Illegal operator for counter and non-counter";
+		goto bad;
+	    }
+	}
+    }
+    else {
+	if (right->sem == PM_SEM_COUNTER) {
+	    if (np->type != L_STAR) {
+		errmsg = "Illegal operator for non-counter and counter";
+		goto bad;
+	    }
+	}
+	else {
+	    if (np->type != L_PLUS && np->type != L_MINUS &&
+		np->type != L_STAR && np->type != L_SLASH) {
+		/*
+		 * this is not possible at the present since only
+		 * arithmetic operators are supported and all are
+		 * acceptable here ... check added for completeness
+		 */
+		errmsg = "Illegal operator for non-counters";
+		goto bad;
+	    }
+	}
+    }
+
+    /*
+     * Choose candidate descriptor ... prefer metric or expression
+     * over constant
+     */
+    if (np->left->type != L_NUMBER)
+	np->desc = *left;	/* struct copy */
+    else
+	np->desc = *right;	/* struct copy */
+
+    /*
+     * type checking and promotion
+     */
+    switch (left->type) {
+	case PM_TYPE_32:
+	case PM_TYPE_U32:
+	case PM_TYPE_64:
+	case PM_TYPE_U64:
+	case PM_TYPE_FLOAT:
+	case PM_TYPE_DOUBLE:
+	    break;
+	default:
+	    errmsg = "Non-arithmetic type for left operand";
+	    goto bad;
+    }
+    switch (right->type) {
+	case PM_TYPE_32:
+	case PM_TYPE_U32:
+	case PM_TYPE_64:
+	case PM_TYPE_U64:
+	case PM_TYPE_FLOAT:
+	case PM_TYPE_DOUBLE:
+	    break;
+	default:
+	    errmsg = "Non-arithmetic type for right operand";
+	    goto bad;
+    }
+    np->desc.type = promote[left->type][right->type];
+
+    /* TODO finish off ... sem checking */
+    return 0;
+
+bad:
+    pmprintf("Semantic error: derived metric %s: ", registered.mlist[n].name);
+    if (np->left->type == L_NUMBER || np->left->type == L_NAME)
+	pmprintf("%s ", np->left->value);
+    else
+	pmprintf("<expr> ");
+    pmprintf("%c ", type_c[np->type+2]);
+    if (np->right->type == L_NUMBER || np->right->type == L_NAME)
+	pmprintf("%s", np->right->value);
+    else
+	pmprintf("<expr>");
+    pmprintf(": %s\n", errmsg);
+    pmflush();
+    return -1;
+}
+
+static int
+check_expr(int n, node_t *np)
+{
+    int		sts;
+
+    assert(np != NULL);
+    if (np->type == L_NUMBER || np->type == L_NAME)
+	return 0;
+    if (np->left != NULL)
+	if ((sts = check_expr(n, np->left)) < 0)
+	    return sts;
+    if (np->right != NULL)
+	if ((sts = check_expr(n, np->right)) < 0)
+	    return sts;
+    if (np->left == NULL) {
+	np->desc = np->right->desc;	/* struct copy */
+    }
+    else if (np->right == NULL) {
+	np->desc = np->left->desc;	/* struct copy */
+    }
+    else {
+	/* build pmDesc from pmDesc of both operands */
+	if ((sts = map_desc(n, np)) < 0) {
+	    return sts;
+	}
+    }
+    return 0;
 }
 
 static void
 dump_expr(node_t *np, int level)
 {
-    if (level == 0) fprintf(stderr, "\nExpr dump from %p...\n", np);
+    if (level == 0) fprintf(stderr, "Expr dump from %p...\n", np);
     if (np == NULL) return;
-    fprintf(stderr, "%p node type=%d left=%p right=%p ref=%p", np, np->type, np->left, np->right, np->ref);
-    if (np->type == L_NAME) fprintf(stderr, " [name=%s]", (char *)np->ref);
-    if (np->type == L_NUMBER) fprintf(stderr, " [number=%s]", (char *)np->ref);
+    fprintf(stderr, "%p node type=%d left=%p right=%p", np, np->type, np->left, np->right);
+    if (np->type == L_NAME) fprintf(stderr, " master=%d [name=%s]", np->info == NULL ? 1 : 0, np->value);
+    if (np->type == L_NUMBER) fprintf(stderr, " master=%d [number=%s]", np->info == NULL ? 1 : 0, np->value);
     if (np->type == L_PLUS) fprintf(stderr, " [+]");
     if (np->type == L_MINUS) fprintf(stderr, " [-]");
     if (np->type == L_STAR) fprintf(stderr, " [*]");
     if (np->type == L_SLASH) fprintf(stderr, " [/]");
     fputc('\n', stderr);
+    /* TODO - include np->desc? */
+    if (np->info) {
+	fprintf(stderr, "  pmid=%s numval=%d\n", pmIDStr(np->info->pmid), np->info->numval);
+	/* TODO - include vlist[]? */
+    }
     if (np->left != NULL) dump_expr(np->left, level+1);
     if (np->right != NULL) dump_expr(np->right, level+1);
 }
 
+/*
+ * Parser FSA
+ * state	lex		new state
+ * P_INIT	L_NAME or	P_LEAF
+ * 		L_NUMBER
+ * P_INIT	L_LPAREN	if parse() != NULL then P_LEAF
+ * P_LEAF	L_PLUS or	P_BINOP
+ * 		L_MINUS or
+ * 		L_STAR or
+ * 		L_SLASH
+ * P_BINOP	L_NAME or	P_LEAF
+ * 		L_NUMBER
+ * P_BINOP	L_LPAREN	if parse() != NULL then P_LEAF
+ * P_LEAF_PAREN	same as P_LEAF, but no precedence rules at next operator
+ */
 static node_t *
-parse(void)
+parse(int level)
 {
     int		state = P_INIT;
     int		type;
     node_t	*expr = NULL;
+    node_t	*curr = NULL;
     node_t	*np;
 
     for ( ; ; ) {
 	type = lex();
-	// fprintf(stderr, "lex -> %d %s\n", type, type == L_EOF ? "" : tokbuf);
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+	    fprintf(stderr, "parse(%d) state=P_%s type=L_%s \"%s\"\n", level, state_dbg[state], type_dbg[type+2], type == L_EOF ? "" : tokbuf);
+	}
+#endif
 	/* handle lexicons that terminate the parsing */
 	switch (type) {
 	    case L_ERROR:
@@ -278,14 +593,14 @@ parse(void)
 		return NULL;
 		break;
 	    case L_EOF:
-		if (state == P_LEAF)
+		if (state == P_LEAF || state == P_LEAF_PAREN)
 		    return expr;
 		errmsg = "End of input";
 		free_expr(expr);
 		return NULL;
 		break;
 	    case L_RPAREN:
-		if (state == P_LEAF)
+		if (state == P_LEAF || state == P_LEAF_PAREN)
 		    return expr;
 		errmsg = "Unexpected ')'";
 		free_expr(expr);
@@ -296,28 +611,53 @@ parse(void)
 	switch (state) {
 	    case P_INIT:
 		if (type == L_NAME || type == L_NUMBER) {
-		    expr = newnode(type);
-		    if ((expr->ref = (void *)strdup(tokbuf)) == NULL) {
+		    expr = curr = newnode(type);
+		    if ((curr->value = strdup(tokbuf)) == NULL) {
 			__pmNoMem("pmRegisterDerived: leaf node", strlen(tokbuf)+1, PM_FATAL_ERR);
 			/*NOTREACHED*/
+		    }
+		    if (type == L_NUMBER) {
+			curr->desc.pmid = PM_ID_NULL;
+			curr->desc.type = PM_TYPE_U32;
+			curr->desc.indom = PM_INDOM_NULL;
+			curr->desc.sem = PM_SEM_DISCRETE;
+			memset(&curr->desc.units, 0, sizeof(pmUnits));
 		    }
 		    state = P_LEAF;
 		}
 		else if (type == L_LPAREN) {
-		    expr = parse();
+		    expr = curr = parse(level+1);
 		    if (expr == NULL)
 			return NULL;
-		    state = P_LEAF;
+		    state = P_LEAF_PAREN;
 		}
 		else
 		    return NULL;
 		break;
 
+	    case P_LEAF_PAREN:	/* fall through */
 	    case P_LEAF:
 		if (type == L_PLUS || type == L_MINUS || type == L_STAR || type == L_SLASH) {
 		    np = newnode(type);
-		    np->left = expr;
-		    expr = np;
+		    if (state == P_LEAF_PAREN ||
+		        (curr->type == L_NAME || curr->type == L_NUMBER) ||
+		        (type == L_PLUS || type == L_MINUS)) {
+			/*
+			 * first operator or equal or lower precedence
+			 * make new root of tree and push previous
+			 * expr down left descendent branch
+			 */
+			np->left = curr;
+			expr = curr = np;
+		    }
+		    else {
+			/*
+			 * push previous right branch down one level
+			 */
+			np->left = curr->right;
+			curr->right = np;
+			curr = np;
+		    }
 		    state = P_BINOP;
 		}
 		else {
@@ -329,19 +669,27 @@ parse(void)
 	    case P_BINOP:
 		if (type == L_NAME || type == L_NUMBER) {
 		    np = newnode(type);
-		    expr->right = np;
-		    if ((np->ref = (void *)strdup(tokbuf)) == NULL) {
+		    if ((np->value = strdup(tokbuf)) == NULL) {
 			__pmNoMem("pmRegisterDerived: leaf node", strlen(tokbuf)+1, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
+		    if (type == L_NUMBER) {
+			np->desc.pmid = PM_ID_NULL;
+			np->desc.type = PM_TYPE_U32;
+			np->desc.indom = PM_INDOM_NULL;
+			np->desc.sem = PM_SEM_DISCRETE;
+			memset(&np->desc.units, 0, sizeof(pmUnits));
+		    }
+		    curr->right = np;
+		    curr = expr;
 		    state = P_LEAF;
 		}
 		else if (type == L_LPAREN) {
-		    np = parse();
+		    np = parse(level+1);
 		    if (np == NULL)
 			return NULL;
-		    expr->right = np;
-		    state = P_LEAF;
+		    curr->right = np;
+		    state = P_LEAF_PAREN;
 		}
 		else {
 		    free_expr(expr);
@@ -356,39 +704,67 @@ parse(void)
     }
 }
 
+static int
+checkname(char *p)
+{
+    int	firstch = 1;
+
+    for ( ; *p; p++) {
+	if (firstch) {
+	    firstch = 0;
+	    if (isalpha(*p)) continue;
+	    return -1;
+	}
+	else {
+	    if (isalpha(*p) || isdigit(*p) || *p == '_') continue;
+	    if (*p == '.') {
+		firstch = 1;
+		continue;
+	    }
+	    return -1;
+	}
+    }
+    return 0;
+}
+
 char *
 pmRegisterDerived(char *name, char *expr)
 {
     node_t		*np;
     static __pmID_int	pmid;
 
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+	fprintf(stderr, "pmRegisterDerived: name=\"%s\" expr=\"%s\"\n", name, expr);
+    }
+#endif
     errmsg = NULL;
     string = expr;
-    np = parse();
+    np = parse(1);
     if (np == NULL) {
 	/* parser error */
 	return this;
     }
 
-    nmetric++;
-    metriclist = (dm_t *)realloc(metriclist, nmetric*sizeof(metriclist[0]));
-    if (metriclist == NULL) {
-	__pmNoMem("pmRegisterDerived: metriclist", nmetric*sizeof(metriclist[0]), PM_FATAL_ERR);
+    registered.nmetric++;
+    registered.mlist = (dm_t *)realloc(registered.mlist, registered.nmetric*sizeof(dm_t));
+    if (registered.mlist == NULL) {
+	__pmNoMem("pmRegisterDerived: registered mlist", registered.nmetric*sizeof(dm_t), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
-    if (nmetric == 1) {
+    if (registered.nmetric == 1) {
 	pmid.flag = 0;
 	pmid.domain = DYNAMIC_PMID;
 	pmid.cluster = 0;
     }
-    metriclist[nmetric-1].name = strdup(name);
-    pmid.item = nmetric;
-    metriclist[nmetric-1].pmid = *((pmID *)&pmid);
-    metriclist[nmetric-1].expr = np;
+    registered.mlist[registered.nmetric-1].name = strdup(name);
+    pmid.item = registered.nmetric;
+    registered.mlist[registered.nmetric-1].pmid = *((pmID *)&pmid);
+    registered.mlist[registered.nmetric-1].expr = np;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DERIVE) {
-	fprintf(stderr, "pmRegisterDerived: register metric[%d] %s\n", nmetric-1, name);
+	fprintf(stderr, "pmRegisterDerived: register metric[%d] %s = %s\n", registered.nmetric-1, name, expr);
 	if (pmDebug & DBG_TRACE_APPL2)
 	    dump_expr(np, 0);
     }
@@ -435,20 +811,26 @@ pmLoadDerivedConfig(char *fname)
 	    eq = p - buf;
 	}
 	if (c == '\n') {
+	    if (buf[0] == '#') {
+		/* comment line, skip it ... */
+		goto next_line;
+	    }
 	    *p = '\0';
 	    if (eq != -1) {
-		char	*np;
+		char	*np;	/* copy of name */
+		char	*ep;	/* start of expression */
 		char	*q;
 		char	*errp;
-		/* terminate and trim white from metric name */
 		buf[eq] = '\0';
 		if ((np = strdup(buf)) == NULL) {
 		    __pmNoMem("pmLoadDerivedConfig: dupname", strlen(buf), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
+		/* trim white space from tail of metric name */
 		q = &np[eq-1];
 		while (q >= np && isspace(*q))
 		    *q-- = '\0';
+		/* trim white space from head of metric name */
 		q = np;
 		while (*q && isspace(*q))
 		    q++;
@@ -456,32 +838,50 @@ pmLoadDerivedConfig(char *fname)
 		    buf[eq] = '=';
 		    pmprintf("[%s:%d] Error: pmLoadDerivedConfig: derived metric name missing\n%s\n", fname, lineno, buf);
 		    pmflush();
+		    free(np);
+		    goto next_line;
 		}
-		else {
-		    errp = pmRegisterDerived(q, &buf[eq+1]);
-		    if (errp != NULL) {
-			pmprintf("[%s:%d] Error: pmRegisterDerived(%s, ...) syntax error\n", fname, lineno, np);
-			pmprintf("%s\n", &buf[eq+1]);
-			for (q = &buf[eq+1]; *q; q++) {
-			    if (q == errp) *q = '^';
-			    else if (!isspace(*q)) *q = ' ';
-			}
-			pmprintf("%s\n", &buf[eq+1]);
-			q = pmDerivedErrStr();
-			if (q != NULL) pmprintf("%s\n", q);
-			pmflush();
+		if (checkname(q) < 0) {
+		    pmprintf("[%s:%d] Error: pmLoadDerivedConfig: illegal derived metric name (%s)\n", fname, lineno, q);
+		    pmflush();
+		    free(np);
+		    goto next_line;
+		}
+		ep = &buf[eq+1];
+		while (*ep != '\0' && isspace(*ep))
+		    ep++;
+		if (*ep == '\0') {
+		    buf[eq] = '=';
+		    pmprintf("[%s:%d] Error: pmLoadDerivedConfig: expression missing\n%s\n", fname, lineno, buf);
+		    pmflush();
+		    free(np);
+		    goto next_line;
+		}
+		errp = pmRegisterDerived(q, ep);
+		if (errp != NULL) {
+		    pmprintf("[%s:%d] Error: pmRegisterDerived(%s, ...) syntax error\n", fname, lineno, q);
+		    pmprintf("%s\n", &buf[eq+1]);
+		    for (q = &buf[eq+1]; *q; q++) {
+			if (q == errp) *q = '^';
+			else if (!isspace(*q)) *q = ' ';
 		    }
-		    else
-			sts++;
+		    pmprintf("%s\n", &buf[eq+1]);
+		    q = pmDerivedErrStr();
+		    if (q != NULL) pmprintf("%s\n", q);
+		    pmflush();
 		}
+		else
+		    sts++;
+		free(np);
 	    }
 	    else {
 		/*
 		 * error ... no = in the line, so no derived metric name
 		 */
-		pmprintf("[%s:%d] Error: pmLoadDerivedConfig: derived metric name missing\n%s\n", fname, lineno, buf);
+		pmprintf("[%s:%d] Error: pmLoadDerivedConfig: missing ``='' after derived metric name\n%s\n", fname, lineno, buf);
 		pmflush();
 	    }
+next_line:
 	    lineno++;
 	    p = buf;
 	    eq = -1;
@@ -510,20 +910,20 @@ __dmtraverse(const char *name, char ***namelist)
     char	**list = NULL;
     int		matchlen = strlen(name);
 
-    for (i = 0; i < nmetric; i++) {
+    for (i = 0; i < registered.nmetric; i++) {
 	/*
 	 * prefix match ... if name is "", then all names match
 	 */
 	if (matchlen == 0 ||
-	    (strncmp(name, metriclist[i].name, matchlen) == 0 &&
-	     (metriclist[i].name[matchlen] == '.' ||
-	      metriclist[i].name[matchlen] == '\0'))) {
+	    (strncmp(name, registered.mlist[i].name, matchlen) == 0 &&
+	     (registered.mlist[i].name[matchlen] == '.' ||
+	      registered.mlist[i].name[matchlen] == '\0'))) {
 	    sts++;
 	    if ((list = (char **)realloc(list, sts*sizeof(list[0]))) == NULL) {
 		__pmNoMem("__dmtraverse: list", sts*sizeof(list[0]), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
-	    list[sts-1] = metriclist[i].name;
+	    list[sts-1] = registered.mlist[i].name;
 	}
     }
     *namelist = list;
@@ -536,11 +936,107 @@ __dmgetpmid(const char *name, pmID *dp)
 {
     int		i;
 
-    for (i = 0; i < nmetric; i++) {
-	if (strcmp(name, metriclist[i].name) == 0) {
-	    *dp = metriclist[i].pmid;
+    for (i = 0; i < registered.nmetric; i++) {
+	if (strcmp(name, registered.mlist[i].name) == 0) {
+	    *dp = registered.mlist[i].pmid;
 	    return 0;
 	}
     }
     return PM_ERR_NAME;
+}
+
+void
+__dmopencontext(__pmContext *ctxp)
+{
+    int		i;
+    int		sts;
+    ctl_t	*cp;
+
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+	fprintf(stderr, "__dmopencontext() called\n");
+    }
+#endif
+    if (registered.nmetric == 0) {
+	ctxp->c_dm = NULL;
+	return;
+    }
+    if ((cp = (void *)malloc(sizeof(ctl_t))) == NULL) {
+	__pmNoMem("pmNewContext: derived metrics (ctl)", sizeof(ctl_t), PM_FATAL_ERR);
+	/* NOTREACHED */
+    }
+    ctxp->c_dm = (void *)cp;
+    cp->nmetric = registered.nmetric;
+    if ((cp->mlist = (dm_t *)malloc(cp->nmetric*sizeof(dm_t))) == NULL) {
+	__pmNoMem("pmNewContext: derived metrics (mlist)", cp->nmetric*sizeof(dm_t), PM_FATAL_ERR);
+	/* NOTREACHED */
+    }
+    for (i = 0; i < cp->nmetric; i++) {
+	cp->mlist[i].name = registered.mlist[i].name;
+	cp->mlist[i].pmid = registered.mlist[i].pmid;
+	if (registered.mlist[i].expr != NULL) {
+	    /* failures must be reported in bind_expr() or below */
+	    cp->mlist[i].expr = bind_expr(i, registered.mlist[i].expr);
+	    if (cp->mlist[i].expr != NULL) {
+		/* failures must be reported in check_expr() or below */
+		sts = check_expr(i, cp->mlist[i].expr);
+		if (sts < 0) {
+		    free_expr(cp->mlist[i].expr);
+		    cp->mlist[i].expr = NULL;
+		}
+	    }
+	}
+	else
+	    cp->mlist[i].expr = NULL;
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_DERIVE) && cp->mlist[i].expr != NULL) {
+	    fprintf(stderr, "__dmopencontext: bind metric[%d] %s\n", i, registered.mlist[i].name);
+	    if (pmDebug & DBG_TRACE_APPL2)
+		dump_expr(cp->mlist[i].expr, 0);
+	}
+#endif
+    }
+}
+
+void
+__dmclosecontext(__pmContext *ctxp)
+{
+    int		i;
+    ctl_t	*cp = (ctl_t *)ctxp->c_dm;
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DERIVE) {
+	fprintf(stderr, "__dmclosecontext() called dm->%p %d metrics\n", cp, cp == NULL ? -1 : cp->nmetric);
+    }
+#endif
+    if (cp == NULL) return;
+    for (i = 0; i < cp->nmetric; i++) {
+	free_expr(cp->mlist[i].expr); 
+    }
+    free(cp->mlist);
+    free(cp);
+    ctxp->c_dm = NULL;
+}
+
+int
+__dmdesc(pmID pmid, pmDesc *desc)
+{
+    int		i;
+    __pmContext	*ctxp;
+    ctl_t	*cp;
+
+    if ((ctxp = __pmHandleToPtr(pmWhichContext())) == NULL)
+	return PM_ERR_NOCONTEXT;
+    cp = (ctl_t *)ctxp->c_dm;
+
+    for (i = 0; i < cp->nmetric; i++) {
+	if (cp->mlist[i].pmid == pmid) {
+	    if (cp->mlist[i].expr == NULL)
+		/* bind failed for some reason, reported earlier */
+		return PM_ERR_NAME;
+	    *desc = cp->mlist[i].expr->desc;
+	    return 0;
+	}
+    }
+    return PM_ERR_PMID;
 }
