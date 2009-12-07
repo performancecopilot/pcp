@@ -368,11 +368,15 @@ extern char *pmdaGetInDomHelp(int, pmInDom, int);
  * pmdaTreeRebuildHash
  *	iterate over a pmns tree and (re)build the hash table for any
  *	subsequent PMID -> name (reverse) lookups
+ *
+ * pmdaTreeSize
+ *	returns the numbers of entries in a __pmnsTree.
  */
 extern int pmdaTreePMID(__pmnsTree *, char *, pmID *);
 extern int pmdaTreeName(__pmnsTree *, pmID, char ***);
 extern int pmdaTreeChildren(__pmnsTree *, char *, int, char ***, int **);
 extern void pmdaTreeRebuildHash(__pmnsTree *, int);
+extern int pmdaTreeSize(__pmnsTree *);
 
 /*
  * PMDA instance domain cache support

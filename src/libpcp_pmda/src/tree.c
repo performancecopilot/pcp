@@ -61,6 +61,28 @@ pmdaTreeRebuildHash(__pmnsTree *tree, int numpmid)
 	__pmdaTreeReindexHash(tree, tree->root);
 }
 
+static int
+__pmdaNodeCount(__pmnsNode *parent)
+{
+    __pmnsNode *np;
+    int count;
+
+    if (!parent)
+	return 1;	/* leaf */
+    count = 0;
+    for (np = parent->first; np != NULL; np = np->next)
+	count += __pmdaNodeCount(np);
+    return count;
+}
+
+int
+pmdaTreeSize(__pmnsTree *pmns)
+{
+    if (!pmns)
+	return 0;
+    return __pmdaNodeCount(pmns->root);
+}
+
 static __pmnsNode *
 __pmdaNodeLookup(__pmnsNode *node, char *name)
 {
