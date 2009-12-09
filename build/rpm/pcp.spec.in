@@ -23,7 +23,7 @@ Packager: Silicon Graphics, Inc. <http://www.sgi.com/>
 %endif
 BuildRoot: @build_root@ 
 BuildRequires: procps autoconf bison flex ncurses-devel
-BuildRequires: perl(ExtUtils::MakeMaker)
+BuildRequires: perl(ExtUtils::MakeMaker) initscripts
 
 Conflicts: pcp-pro < 2.2
 
