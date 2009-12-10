@@ -1,7 +1,8 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.0.2
+Version: 3.0.3
 %define buildversion 1
+
 Release: %{buildversion}%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
@@ -10,8 +11,9 @@ Source0: ftp://oss.sgi.com/projects/pcp/download/pcp-%{version}-%{buildversion}.
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: procps autoconf bison flex ncurses-devel
-BuildRequires: perl(ExtUtils::MakeMaker) initscripts
-
+BuildRequires: perl(ExtUtils::MakeMaker)
+BuildRequires: initscripts
+ 
 Requires: bash gawk sed grep fileutils findutils cpp initscripts
 Requires: pcp-libs = %{version}
 
@@ -238,6 +240,12 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Thu Dec 10 2009 Mark Goodwin - 3.0.3-1
+- BuildRequires: initscripts for FC12.
+
+* Wed Dec 02 2009 Mark Goodwin - 3.0.2-1
+- Added sysfs.kernel metrics, rebased to minor community release.
+
 * Mon Oct 19 2009 Martin Hicks <mort@sgi.com> - 3.0.1-2
 - Remove IB dependencies.  The Infiniband PMDA is being moved to
   a stand-alone package.
