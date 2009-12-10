@@ -1,3 +1,6 @@
+pcp-3.0.3 (in development)
+    - BuildRequires initscripts for %{_vendor} == redhat
+
 pcp-3.0.2 (2 December 2009)
     - Improvements and fixes to PCP::PMDA perl module.
     - Added the SQL Server dtsrun log file parser PMDA.
