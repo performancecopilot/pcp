@@ -14,6 +14,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
+ *
+ * Debug Flags
+ *	DERIVE - high-level diagnostics
+ *	DERIVE & APPL0 - configuration and static syntax analysis
+ *	DERIVE & APPL1 - expression binding and semantic analysis
+ *	DERIVE & APPL2 - fetch handling
  */
 
 /*
@@ -29,6 +35,10 @@
  *	  intermixed pmRegister and newContext calls
  *
  *	pmFetch pre- and post- callbacks
+ *
+ *      reverse name lookup (check pmResult dumps in QA/249)
+ *
+ * 	delta() support --  any other functions?
  */
 
 #include <stdio.h>
@@ -44,11 +54,17 @@
  * Derived Metrics support
  */
 
+typedef struct {		/* one value in the expression tree */
+    int		inst;
+    pmAtomValue	value;
+    int		vlen;		/* from vlen of pmValueBlock for string and aggregates */
+} val_t;
+
 typedef struct {		/* dynamic information for an expression node */
     pmID	pmid;
     int		numval;
-    int		valfmt;
-    pmValue	*vlist;
+    int		iv_alloc;	/* set if ivlist is allocated from this node */
+    val_t	*ivlist;	/* instance-value pairs */
 } info_t;
 
 typedef struct node {		/* expression tree node */
@@ -72,8 +88,10 @@ typedef struct {		/* one derived metric */
  * tree of expressions maintained per context.
  */
 typedef struct {
-    int		nmetric;
+    int		nmetric;	/* derived metrics */
     dm_t	*mlist;
+    int		fetch_has_dm;	/* ==1 if pmResult rewrite needed */
+    int		numpmid;	/* from pmFetch before rewrite */
 } ctl_t;
 
 static ctl_t	registered;
@@ -333,8 +351,7 @@ bind_expr(int n, node_t *np)
     }
     new->info->pmid = PM_ID_NULL;
     new->info->numval = 0;
-    new->info->valfmt = PM_VAL_INSITU;
-    new->info->vlist = NULL;
+    new->info->ivlist = NULL;
 
     /*
      * need info to be non-null to protect copy of value in free_expr
@@ -392,13 +409,14 @@ map_desc(int n, node_t *np)
      *
      * type promotion (similar to ANSI C)
      * PM_TYPE_STRING, PM_TYPE_AGGREGATE and PM_TYPE_AGGREGATE_STATIC are
-     * illegal operands
-     * PM_TYPE_DOUBLE & any type => PM_TYPE_DOUBLE
-     * PM_TYPE_FLOAT & any type => PM_TYPE_FLOAT
-     * PM_TYPE_U64 & any type => PM_TYPE_U64
-     * PM_TYPE_64 & any type => PM_TYPE_64
-     * PM_TYPE_U32 & any type => PM_TYPE_U32
-     * (otherwise) PM_TYPE_32 & any type => PM_TYPE_32
+     * illegal operands except for renaming (no operator involved)
+     * for the integer type operands, division => PM_TYPE_FLOAT
+     * else PM_TYPE_DOUBLE & any type => PM_TYPE_DOUBLE
+     * else PM_TYPE_FLOAT & any type => PM_TYPE_FLOAT
+     * else PM_TYPE_U64 & any type => PM_TYPE_U64
+     * else PM_TYPE_64 & any type => PM_TYPE_64
+     * else PM_TYPE_U32 & any type => PM_TYPE_U32
+     * else PM_TYPE_32 & any type => PM_TYPE_32
      *
      * units mapping
      * operator			checks
@@ -483,6 +501,10 @@ map_desc(int n, node_t *np)
 	    goto bad;
     }
     np->desc.type = promote[left->type][right->type];
+    if (np->type == L_SLASH && np->desc.type != PM_TYPE_FLOAT && np->desc.type != PM_TYPE_DOUBLE) {
+	/* for division result is real number */
+	np->desc.type = PM_TYPE_FLOAT;
+    }
 
     /* TODO finish off ... sem checking */
     return 0;
@@ -548,7 +570,7 @@ dump_expr(node_t *np, int level)
     /* TODO - include np->desc? */
     if (np->info) {
 	fprintf(stderr, "  pmid=%s numval=%d\n", pmIDStr(np->info->pmid), np->info->numval);
-	/* TODO - include vlist[]? */
+	/* TODO - include ivlist[]? */
     }
     if (np->left != NULL) dump_expr(np->left, level+1);
     if (np->right != NULL) dump_expr(np->right, level+1);
@@ -581,7 +603,7 @@ parse(int level)
     for ( ; ; ) {
 	type = lex();
 #ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+	if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL0)) {
 	    fprintf(stderr, "parse(%d) state=P_%s type=L_%s \"%s\"\n", level, state_dbg[state], type_dbg[type+2], type == L_EOF ? "" : tokbuf);
 	}
 #endif
@@ -617,6 +639,7 @@ parse(int level)
 			/*NOTREACHED*/
 		    }
 		    if (type == L_NUMBER) {
+			/* TODO check value is small enough to fit in a 32-bit int */
 			curr->desc.pmid = PM_ID_NULL;
 			curr->desc.type = PM_TYPE_U32;
 			curr->desc.indom = PM_INDOM_NULL;
@@ -734,10 +757,13 @@ pmRegisterDerived(char *name, char *expr)
     static __pmID_int	pmid;
 
 #ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL0)) {
 	fprintf(stderr, "pmRegisterDerived: name=\"%s\" expr=\"%s\"\n", name, expr);
     }
 #endif
+
+    /* TODO check for and reject duplicate names */
+
     errmsg = NULL;
     string = expr;
     np = parse(1);
@@ -765,7 +791,7 @@ pmRegisterDerived(char *name, char *expr)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DERIVE) {
 	fprintf(stderr, "pmRegisterDerived: register metric[%d] %s = %s\n", registered.nmetric-1, name, expr);
-	if (pmDebug & DBG_TRACE_APPL2)
+	if (pmDebug & DBG_TRACE_APPL0)
 	    dump_expr(np, 0);
     }
 #endif
@@ -953,7 +979,7 @@ __dmopencontext(__pmContext *ctxp)
     ctl_t	*cp;
 
 #ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
 	fprintf(stderr, "__dmopencontext() called\n");
     }
 #endif
@@ -991,7 +1017,7 @@ __dmopencontext(__pmContext *ctxp)
 #ifdef PCP_DEBUG
 	if ((pmDebug & DBG_TRACE_DERIVE) && cp->mlist[i].expr != NULL) {
 	    fprintf(stderr, "__dmopencontext: bind metric[%d] %s\n", i, registered.mlist[i].name);
-	    if (pmDebug & DBG_TRACE_APPL2)
+	    if (pmDebug & DBG_TRACE_APPL1)
 		dump_expr(cp->mlist[i].expr, 0);
 	}
 #endif
@@ -1019,15 +1045,12 @@ __dmclosecontext(__pmContext *ctxp)
 }
 
 int
-__dmdesc(pmID pmid, pmDesc *desc)
+__dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
 {
     int		i;
-    __pmContext	*ctxp;
-    ctl_t	*cp;
+    ctl_t	*cp = (ctl_t *)ctxp->c_dm;
 
-    if ((ctxp = __pmHandleToPtr(pmWhichContext())) == NULL)
-	return PM_ERR_NOCONTEXT;
-    cp = (ctl_t *)ctxp->c_dm;
+    if (cp == NULL) return PM_ERR_PMID;
 
     for (i = 0; i < cp->nmetric; i++) {
 	if (cp->mlist[i].pmid == pmid) {
@@ -1039,4 +1062,536 @@ __dmdesc(pmID pmid, pmDesc *desc)
 	}
     }
     return PM_ERR_PMID;
+}
+
+static void
+get_pmids(node_t *np, int *cnt, pmID **list)
+{
+    assert(np != NULL);
+    if (np->left != NULL) get_pmids(np->left, cnt, list);
+    if (np->right != NULL) get_pmids(np->right, cnt, list);
+    if (np->type == L_NAME) {
+	(*cnt)++;
+	if ((*list = (pmID *)realloc(*list, (*cnt)*sizeof(pmID))) == NULL) {
+	    __pmNoMem("__dmprefetch: realloc xtralist", (*cnt)*sizeof(pmID), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	(*list)[*cnt-1] = np->info->pmid;
+    }
+}
+
+/*
+ * Walk the pmidlist[] from pmFetch.
+ * For each derived metric found in the list add all the operand metrics,
+ * and build a combined pmID list (newlist).
+ * Return the number of pmIDs in the combined list.
+ *
+ * The derived metric pmIDs are left in the combined list (they will
+ * return PM_ERR_NOAGENT from the fetch) to simplify the post-processing
+ * of the pmResult in __dmpostfetch()
+ */
+int
+__dmprefetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmID **newlist)
+{
+    int		i;
+    int		j;
+    int		m;
+    int		xtracnt = 0;
+    pmID	*xtralist = NULL;
+    pmID	*list;
+    ctl_t	*cp = (ctl_t *)ctxp->c_dm;
+
+    if (cp == NULL) return numpmid;
+
+    /*
+     * save numpmid to be used in __dmpostfetch() ... works because calls
+     * to pmFetch cannot be nested (at all, but certainly for the same
+     * context).
+     * Ditto for the fast path flag (fetch_has_dm).
+     */
+    cp->numpmid = numpmid;
+    cp->fetch_has_dm = 0;
+
+    for (m = 0; m < numpmid; m++) {
+	if (pmid_domain(pmidlist[m]) != DYNAMIC_PMID)
+	    continue;
+	for (i = 0; i < cp->nmetric; i++) {
+	    if (pmidlist[m] == cp->mlist[i].pmid) {
+		if (cp->mlist[i].expr != NULL) {
+		    get_pmids(cp->mlist[i].expr, &xtracnt, &xtralist);
+		    cp->fetch_has_dm = 1;
+		}
+		break;
+	    }
+	}
+    }
+    if (xtracnt == 0) return numpmid;
+
+    /*
+     * Some of the "extra" ones, may already be in the caller's pmFetch 
+     * list, or repeated in xtralist[] (if the same metric operand appears
+     * more than once as a leaf node in the expression tree.
+     * Remove these duplicates
+     */
+    j = 0;
+    for (i = 0; i < xtracnt; i++) {
+	for (m = 0; m < numpmid; m++) {
+	    if (xtralist[i] == pmidlist[m])
+		/* already in pmFetch list */
+		break;
+	}
+	if (m < numpmid) continue;
+	for (m = 0; m < j; m++) {
+	    if (xtralist[i] == xtralist[m])
+	    	/* already in xtralist[] */
+		break;
+	}
+	if (m == j)
+	    xtralist[j++] = xtralist[i];
+    }
+    xtracnt = j;
+    if (xtracnt == 0) return numpmid;
+
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+	fprintf(stderr, "derived metrics prefetch added %d metrics:", xtracnt);
+	for (i = 0; i < xtracnt; i++)
+	    fprintf(stderr, " %s", pmIDStr(xtralist[i]));
+	fputc('\n', stderr);
+    }
+#endif
+    if ((list = (pmID *)malloc((numpmid+xtracnt)*sizeof(pmID))) == NULL) {
+	__pmNoMem("__dmprefetch: alloc list", (numpmid+xtracnt)*sizeof(pmID), PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    for (m = 0; m < numpmid; m++) {
+	list[m] = pmidlist[m];
+    }
+    for (i = 0; i < xtracnt; i++) {
+	list[m++] = xtralist[i];
+    }
+    free(xtralist);
+    *newlist = list;
+
+    return m;
+}
+
+/*
+ * Free the old ivlist[] (if any) ... may need to walk the list because
+ * the pmAtomValues may have buffers attached in the type STRING and
+ * type AGGREGATE* cases
+ */
+void static
+free_ivlist(node_t *np)
+{
+    int		i;
+
+    assert(np->info != NULL);
+
+    if (np->info->ivlist != NULL) {
+	if (np->desc.type == PM_TYPE_STRING ||
+	    np->desc.type == PM_TYPE_AGGREGATE ||
+	    np->desc.type == PM_TYPE_AGGREGATE_STATIC) {
+	    for (i = 0; i < np->info->numval; i++) {
+		if (np->info->ivlist[i].value.vp != NULL)
+		    free(np->info->ivlist[i].value.vp);
+	    }
+	}
+	free(np->info->ivlist);
+	np->info->ivlist = NULL;
+    }
+}
+
+/*
+ * Walk an expression tree, filling in operand values from the
+ * pmResult at the leaf nodes and propagating the computed values
+ * towards the root node of the tree.
+ *
+ * The control variable iv_alloc determines if the ivlist[] entries
+ * are allocated with the current node, or the current node points
+ * to ivlist[] entries allocated in another node.
+ */
+static int
+eval_expr(node_t *np, pmResult *rp, int level)
+{
+    int		sts;
+    int		i;
+    int		j;
+    size_t	need;
+    node_t	*src;
+
+    assert(np != NULL);
+    if (np->left != NULL) {
+	sts = eval_expr(np->left, rp, level+1);
+	if (sts <= 0) return sts;
+    }
+    if (np->right != NULL) {
+	sts = eval_expr(np->right, rp, level+1);
+	if (sts <= 0) return sts;
+    }
+
+    switch (np->type) {
+
+	case L_NUMBER:
+	    if (np->info->numval == 0) {
+		/* initialize ivlist[] for singular instance first time through */
+		np->info->numval = 1;
+		if ((np->info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
+		    __pmNoMem("eval_expr: number ivlist", sizeof(val_t), PM_FATAL_ERR);
+		    /*NOTREACHED*/
+		}
+		np->info->iv_alloc = 1;
+		np->info->ivlist[0].inst = PM_INDOM_NULL;
+		/* don't need error checking, done in the lexical scanner */
+		np->info->ivlist[0].value.l = atoi(np->value);
+	    }
+	    return 1;
+
+	case L_NAME:
+	    /*
+	     * Extract instance-values from pmResult and store them in
+	     * ivlist[] as <int, pmAtomValue> pairs
+	     */
+	    for (j = 0; j < rp->numpmid; j++) {
+		if (np->info->pmid == rp->vset[j]->pmid) {
+		    free_ivlist(np);
+		    np->info->numval = rp->vset[j]->numval;
+		    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
+			__pmNoMem("eval_expr: metric ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    for (i = 0; i < np->info->numval; i++) {
+			np->info->ivlist[i].inst = rp->vset[j]->vlist[i].inst;
+			switch (np->desc.type) {
+			    case PM_TYPE_32:
+			    case PM_TYPE_U32:
+				np->info->ivlist[i].value.l = rp->vset[j]->vlist[i].value.lval;
+				break;
+
+			    case PM_TYPE_64:
+			    case PM_TYPE_U64:
+				memcpy((void *)&np->info->ivlist[i].value.ll, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(__int64_t));
+				break;
+
+			    case PM_TYPE_FLOAT:
+				if (rp->vset[j]->valfmt == PM_VAL_INSITU) {
+				    /* old style insitu float */
+				    np->info->ivlist[i].value.l = rp->vset[j]->vlist[i].value.lval;
+				}
+				else {
+				    assert(rp->vset[j]->vlist[i].value.pval->vtype == PM_TYPE_FLOAT);
+				    memcpy((void *)&np->info->ivlist[i].value.f, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(float));
+				}
+				break;
+
+			    case PM_TYPE_DOUBLE:
+				memcpy((void *)&np->info->ivlist[i].value.d, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(double));
+				break;
+
+			    case PM_TYPE_STRING:
+				need = rp->vset[j]->vlist[i].value.pval->vlen-PM_VAL_HDR_SIZE;
+				if ((np->info->ivlist[i].value.cp = (char *)malloc(need)) == NULL) {
+				    __pmNoMem("eval_expr: string value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
+				    /*NOTREACHED*/
+				}
+				memcpy((void *)np->info->ivlist[i].value.cp, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, need);
+				np->info->ivlist[i].vlen = need;
+				break;
+
+			    case PM_TYPE_AGGREGATE:
+			    case PM_TYPE_AGGREGATE_STATIC:
+				if ((np->info->ivlist[i].value.vp = (void *)malloc(rp->vset[j]->vlist[i].value.pval->vlen)) == NULL) {
+				    __pmNoMem("eval_expr: aggregate value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
+				    /*NOTREACHED*/
+				}
+				memcpy(np->info->ivlist[i].value.vp, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, rp->vset[j]->vlist[i].value.pval->vlen-PM_VAL_HDR_SIZE);
+				np->info->ivlist[i].vlen = rp->vset[j]->vlist[i].value.pval->vlen-PM_VAL_HDR_SIZE;
+				break;
+
+			    default:
+				/*
+				 * really only PM_TYPE_NOSUPPORT should
+				 * end up here
+				 */
+				return PM_ERR_APPVERSION;
+			}
+		    }
+		    return np->info->numval;
+		}
+	    }
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_DERIVE) {
+		fprintf(stderr, "eval_expr: botch: operand %s not in the extended pmResult\n", pmIDStr(np->info->pmid));
+		__pmDumpResult(stderr, rp);
+	    }
+#endif
+	    return PM_ERR_PMID;
+
+	default:
+	    src = NULL;
+	    if (np->left == NULL) {
+		/* copy right pmValues */
+		src = np->right;
+	    }
+	    else if (np->right == NULL) {
+		/* copy left pmValues */
+		src = np->left;
+	    }
+	    if (src != NULL) {
+		np->info->numval = src->info->numval;
+		np->info->iv_alloc = 0;
+		np->info->ivlist = src->info->ivlist;
+		return np->info->numval;
+	    }
+	    else {
+		free_ivlist(np);
+		/* TODO arithmetic ... */
+		return PM_ERR_GENERIC;
+	    }
+    }
+    /*NOTREACHED*/
+}
+
+/*
+ * Algorithm here is complicated by trying to re-write the pmResult.
+ *
+ * On entry the pmResult is likely to be built over a pinned PDU buffer,
+ * which means individual pmValueSets cannot be selectively replaced
+ * (this would come to tears badly in pmFreeResult() where as soon as
+ * one pmValueSet is found to be in a pinned PDU buffer it is assumed
+ * they are all so ... leaving a memory leak for any ones we'd modified
+ * here).
+ *
+ * So the only option is to COPY the pmResult, selectively replacing
+ * the pmValueSets for the derived metrics, and then calling
+ * pmFreeResult() to free the input structure and return the new one.
+ *
+ * In making the COPY it is critical that we reverse the algorithm
+ * used in pmFreeResult() so that a later call to pmFreeResult() will
+ * not cause a memory leak.
+ * This means ...
+ * - malloc() the pmResult (padded out to the right number of vset[]
+ *   entries)
+ * - if valfmt is not PM_VAL_INSITU use PM_VAL_DPTR (not PM_VAL_SPTR),
+ *   so anything we point to is going to be released when our caller
+ *   calls pmFreeResult()
+ * - if numval == 1,  use __pmPoolAlloc() for the pmValueSet;
+ *   otherwise use one malloc() for each pmValueSet with vlist[] sized
+ *   to be 0 if numval < 0 else numval
+ * - pmValueBlocks for 64-bit integers, doubles or anything with a
+ *   length equal to the size of a 64-bit integer are from
+ *   __pmPoolAlloc(); otherwise pmValueBlocks are from malloc()
+ *
+ * For reference, the same logic appears in __pmLogFetchInterp() to
+ * sythesize a pmResult there.
+ */
+void
+__dmpostfetch(__pmContext *ctxp, pmResult **result)
+{
+    int		i;
+    int		j;
+    int		m;
+    int		numval;
+    size_t	need;
+    int		rewrite;
+    ctl_t	*cp = (ctl_t *)ctxp->c_dm;
+    pmResult	*rp = *result;
+    pmResult	*newrp;
+
+    if (cp == NULL || cp->fetch_has_dm == 0) return;
+
+    newrp = (pmResult *)malloc(sizeof(pmResult)+(cp->numpmid-1)*sizeof(pmValueSet *));
+    if (newrp == NULL) {
+	__pmNoMem("__dmpostfetch: newrp", sizeof(pmResult)+(cp->numpmid-1)*sizeof(pmValueSet *), PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    newrp->timestamp = rp->timestamp;
+    newrp->numpmid = cp->numpmid;
+
+    for (j = 0; j < newrp->numpmid; j++) {
+	numval = rp->vset[j]->numval;
+	rewrite = 0;
+	if (pmid_domain(rp->vset[j]->pmid) == DYNAMIC_PMID) {
+	    for (m = 0; m < cp->nmetric; m++) {
+		if (rp->vset[j]->pmid == cp->mlist[m].pmid) {
+		    rewrite = 1;
+		    if (cp->mlist[m].expr == NULL) {
+			numval = PM_ERR_PMID;
+		    }
+		    else {
+			int	k;
+			numval = eval_expr(cp->mlist[m].expr, rp, 1);
+    fprintf(stderr, "root node: numval=%d", cp->mlist[m].expr->info->numval);
+    for (k = 0; k < cp->mlist[m].expr->info->numval; k++) {
+	fprintf(stderr, " vset[%d]: inst=%d", k, cp->mlist[m].expr->info->ivlist[k].inst);
+	if (cp->mlist[m].expr->desc.type == PM_TYPE_32)
+	    fprintf(stderr, " l=%d", cp->mlist[m].expr->info->ivlist[k].value.l);
+	else if (cp->mlist[m].expr->desc.type == PM_TYPE_U32)
+	    fprintf(stderr, " u=%u", cp->mlist[m].expr->info->ivlist[k].value.ul);
+	else if (cp->mlist[m].expr->desc.type == PM_TYPE_64)
+	    fprintf(stderr, " ll=%lld", cp->mlist[m].expr->info->ivlist[k].value.ll);
+	else if (cp->mlist[m].expr->desc.type == PM_TYPE_U64)
+	    fprintf(stderr, " ul=%llu", cp->mlist[m].expr->info->ivlist[k].value.ull);
+	else if (cp->mlist[m].expr->desc.type == PM_TYPE_FLOAT)
+	    fprintf(stderr, " f=%f", (double)cp->mlist[m].expr->info->ivlist[k].value.f);
+	else if (cp->mlist[m].expr->desc.type == PM_TYPE_DOUBLE)
+	    fprintf(stderr, " d=%f", cp->mlist[m].expr->info->ivlist[k].value.f);
+	else if (cp->mlist[m].expr->desc.type == PM_TYPE_STRING) {
+	    fprintf(stderr, " cp=%s (len=%d)", cp->mlist[m].expr->info->ivlist[k].value.cp, cp->mlist[m].expr->info->ivlist[k].vlen);
+	}
+	else {
+	    fprintf(stderr, " vp=%p (len=%d)", cp->mlist[m].expr->info->ivlist[k].value.vp, cp->mlist[m].expr->info->ivlist[k].vlen);
+	}
+	fputc('\n', stderr);
+    }
+		    }
+		    break;
+		}
+	    }
+	}
+
+	if (numval < 0) {
+	    /* only need pmid and numval */
+	    need = sizeof(pmValueSet) - sizeof(pmValue);
+	}
+	else if (numval == 1) {
+	    /* special case for single value */
+	    newrp->vset[j] = (pmValueSet *)__pmPoolAlloc(sizeof(pmValueSet));
+	    need = 0;
+	}
+	else {
+	    /* already one pmValue in a pmValueSet */
+	    need = sizeof(pmValueSet) + (numval - 1)*sizeof(pmValue);
+	}
+	if (need > 0) {
+	    if ((newrp->vset[j] = (pmValueSet *)malloc(need)) == NULL) {
+		__pmNoMem("__dmpostfetch: vset", need, PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	}
+	newrp->vset[j]->pmid = rp->vset[j]->pmid;
+	newrp->vset[j]->numval = numval;
+	if (numval < 0)
+	    continue;
+
+	if (rewrite) {
+	    if (cp->mlist[m].expr->desc.type == PM_TYPE_32 ||
+		cp->mlist[m].expr->desc.type == PM_TYPE_U32)
+		newrp->vset[j]->valfmt = PM_VAL_INSITU;
+	    else
+		newrp->vset[j]->valfmt = PM_VAL_DPTR;
+	    }
+	else {
+	    newrp->vset[j]->valfmt = rp->vset[j]->valfmt;
+	}
+
+	for (i = 0; i < numval; i++) {
+	    pmValueBlock	*vp;
+
+	    if (!rewrite) {
+		newrp->vset[j]->vlist[i].inst = rp->vset[j]->vlist[i].inst;
+		if (newrp->vset[j]->valfmt == PM_VAL_INSITU) {
+		    newrp->vset[j]->vlist[i].value.lval = rp->vset[j]->vlist[i].value.lval;
+		}
+		else {
+		    need = rp->vset[j]->vlist[i].value.pval->vlen;
+		    if (need == PM_VAL_HDR_SIZE + sizeof(__int64_t))
+			vp = (pmValueBlock *)__pmPoolAlloc(need);
+		    else
+			vp = (pmValueBlock *)malloc(need);
+		    if (vp == NULL) {
+			__pmNoMem("__dmpostfetch: copy value", need, PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    memcpy((void *)vp, (void *)rp->vset[j]->vlist[i].value.pval, need);
+		    newrp->vset[j]->vlist[i].value.pval = vp;
+		}
+		continue;
+	    }
+
+	    newrp->vset[j]->vlist[i].inst = cp->mlist[m].expr->info->ivlist[i].inst;
+	    switch (cp->mlist[m].expr->desc.type) {
+		case PM_TYPE_32:
+		case PM_TYPE_U32:
+		    newrp->vset[j]->vlist[i].value.lval = cp->mlist[m].expr->info->ivlist[i].value.l;
+		    break;
+
+		case PM_TYPE_64:
+		case PM_TYPE_U64:
+		    need = PM_VAL_HDR_SIZE + sizeof(__int64_t);
+		    if ((vp = (pmValueBlock *)__pmPoolAlloc(need)) == NULL) {
+			__pmNoMem("__dmpostfetch: 64-bit int value", need, PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    vp->vlen = need;
+		    vp->vtype = cp->mlist[m].expr->desc.type;
+		    memcpy((void *)vp->vbuf, (void *)&cp->mlist[m].expr->info->ivlist[i].value.ll, sizeof(__int64_t));
+		    newrp->vset[j]->vlist[i].value.pval = vp;
+		    break;
+
+		case PM_TYPE_FLOAT:
+		    need = PM_VAL_HDR_SIZE + sizeof(float);
+		    if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
+			__pmNoMem("__dmpostfetch: float value", need, PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    vp->vlen = need;
+		    vp->vtype = PM_TYPE_FLOAT;
+		    memcpy((void *)vp->vbuf, (void *)&cp->mlist[m].expr->info->ivlist[i].value.f, sizeof(float));
+		    newrp->vset[j]->vlist[i].value.pval = vp;
+		    break;
+
+		case PM_TYPE_DOUBLE:
+		    need = PM_VAL_HDR_SIZE + sizeof(double);
+		    if ((vp = (pmValueBlock *)__pmPoolAlloc(need)) == NULL) {
+			__pmNoMem("__dmpostfetch: double value", need, PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    vp->vlen = need;
+		    vp->vtype = PM_TYPE_DOUBLE;
+		    memcpy((void *)vp->vbuf, (void *)&cp->mlist[m].expr->info->ivlist[i].value.f, sizeof(double));
+		    newrp->vset[j]->vlist[i].value.pval = vp;
+		    break;
+
+		case PM_TYPE_STRING:
+		case PM_TYPE_AGGREGATE:
+		case PM_TYPE_AGGREGATE_STATIC:
+		    need = PM_VAL_HDR_SIZE + cp->mlist[m].expr->info->ivlist[i].vlen;
+		    if (need == PM_VAL_HDR_SIZE + sizeof(__int64_t))
+			vp = (pmValueBlock *)__pmPoolAlloc(need);
+		    else
+			vp = (pmValueBlock *)malloc(need);
+		    if (vp == NULL) {
+			__pmNoMem("__dmpostfetch: string or aggregate value", need, PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    vp->vlen = need;
+		    vp->vtype = cp->mlist[m].expr->desc.type;
+		    memcpy((void *)vp->vbuf, cp->mlist[m].expr->info->ivlist[i].value.vp, cp->mlist[m].expr->info->ivlist[i].vlen);
+		    newrp->vset[j]->vlist[i].value.pval = vp;
+		    break;
+
+		default:
+		    /*
+		     * really nothing should end up here ...
+		     * do nothing as numval should have been < 0
+		     */
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_DERIVE) {
+			fprintf(stderr, "__dmpostfetch: botch: drived metric[%d]: operand %s has odd type (%d)\n", m, pmIDStr(rp->vset[j]->pmid), cp->mlist[m].expr->desc.type);
+		    }
+#endif
+		    break;
+	    }
+
+	}
+    }
+
+    /*
+     * cull the original pmResult and return the rewritten one
+     */
+    pmFreeResult(rp);
+    *result = newrp;
+
+    return;
 }

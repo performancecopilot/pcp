@@ -1187,7 +1187,9 @@ extern int __dmtraverse(const char *, char ***);
 extern int __dmgetpmid(const char *, pmID *);
 extern void __dmopencontext(__pmContext *);
 extern void __dmclosecontext(__pmContext *);
-extern int __dmdesc(pmID, pmDesc *);
+extern int __dmdesc(__pmContext *, pmID, pmDesc *);
+extern int __dmprefetch(__pmContext *, int, pmID *, pmID **);
+extern void __dmpostfetch(__pmContext *, pmResult **);
 
 #ifdef __cplusplus
 }

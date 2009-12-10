@@ -123,7 +123,7 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 
     if (n == PM_ERR_PMID) {
 	/* check for derived metric ... */
-	n = __dmdesc(pmid, desc);
+	n = __dmdesc(ctxp, pmid, desc);
     }
 
     return n;

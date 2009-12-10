@@ -25,6 +25,8 @@ static int
 request_fetch (int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
 {
     int n;
+    int		newcnt;
+    pmID	*newlist;
 
     if (ctxp->c_pmcd->pc_curpdu != 0) {
 	return (PM_ERR_CTXBUSY);
@@ -49,7 +51,13 @@ request_fetch (int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
 	    ctxp->c_sent = 1;
     }
 
-    n = __pmSendFetch(ctxp->c_pmcd->pc_fd, PDU_BINARY, ctxid, 
+    /* for derived metrics, need to rewrite the pmidlist */
+    newcnt = __dmprefetch(ctxp, numpmid, pmidlist, &newlist);
+    if (newcnt > numpmid)
+	n = __pmSendFetch(ctxp->c_pmcd->pc_fd, PDU_BINARY, ctxid, 
+		      &ctxp->c_origin, newcnt, newlist);
+    else
+	n = __pmSendFetch(ctxp->c_pmcd->pc_fd, PDU_BINARY, ctxid, 
 		      &ctxp->c_origin, numpmid, pmidlist);
     if (n < 0) {
 	    n = __pmMapErrno(n);
@@ -148,6 +156,7 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 		ctxp->c_origin.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
 	    }
 	}
+	__dmpostfetch(ctxp, result);
     }
 
 #ifdef PCP_DEBUG
