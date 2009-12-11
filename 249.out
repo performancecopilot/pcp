@@ -1,0 +1,662 @@
+QA output created by 249
+No errors here ...
+
+# simple constant, no arithmetic
+myname.const = 123456
+# simple renaming to test all data types ... no arithmetic
+myname.a = sample.long.million
+myname.b = sample.longlong.million
+myname.c = sample.float.million
+myname.d = sample.double.million
+myname.e = sample.string.null
+myname.f = sample.string.hullo
+myname.g = sample.string.write_me
+# simple arithmetic
+myname.h = sample.long.million + sample.long.hundred + sample.long.ten + sample.long.one
+myname.i = sample.longlong.million - sample.longlong.hundred - sample.longlong.ten - sample.longlong.one
+myname.j = sample.float.million - sample.float.hundred * sample.float.ten / sample.float.one
+myname.k = sample.long.million - ( sample.float.hundred * sample.double.hundred * sample.longlong.hundred ) + sample.long.one
+# arithmetic over sets of values (instance domains)
+myname.l = sample.bin / 50
+myname.m = 3*sample.bin
+myname.n = sample.bin + sample.bucket*2 - (sample.bin + 100) - sample.bucket
+
+=== myname.const ===
+__dmopencontext: bind metric[0] myname.const
+__dmopencontext: bind metric[1] myname.a
+__dmopencontext: bind metric[2] myname.b
+__dmopencontext: bind metric[3] myname.c
+__dmopencontext: bind metric[4] myname.d
+__dmopencontext: bind metric[5] myname.e
+__dmopencontext: bind metric[6] myname.f
+__dmopencontext: bind metric[7] myname.g
+__dmopencontext: bind metric[8] myname.h
+__dmopencontext: bind metric[9] myname.i
+__dmopencontext: bind metric[10] myname.j
+__dmopencontext: bind metric[11] myname.k
+__dmopencontext: bind metric[12] myname.l
+__dmopencontext: bind metric[13] myname.m
+__dmopencontext: bind metric[14] myname.n
+__dmpostfetch: [0] root node 511.0.1: numval=1 vset[0]: inst=-1 u=123456
+pmFetch returns ...
+TIMESTAMP ... numpmid: 1
+  511.0.1 (myname.const): numval: 1 valfmt: 0 vlist[]:
+   value 123456
+
+myname.const
+    value 123456
+
+=== myname.a ===
+__dmopencontext: bind metric[0] myname.const
+__dmopencontext: bind metric[1] myname.a
+__dmopencontext: bind metric[2] myname.b
+__dmopencontext: bind metric[3] myname.c
+__dmopencontext: bind metric[4] myname.d
+__dmopencontext: bind metric[5] myname.e
+__dmopencontext: bind metric[6] myname.f
+__dmopencontext: bind metric[7] myname.g
+__dmopencontext: bind metric[8] myname.h
+__dmopencontext: bind metric[9] myname.i
+__dmopencontext: bind metric[10] myname.j
+__dmopencontext: bind metric[11] myname.k
+__dmopencontext: bind metric[12] myname.l
+__dmopencontext: bind metric[13] myname.m
+__dmopencontext: bind metric[14] myname.n
+derived metrics prefetch added 1 metrics: 29.0.13
+__dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
+pmFetch returns ...
+TIMESTAMP ... numpmid: 1
+  511.0.2 (myname.a): numval: 1 valfmt: 0 vlist[]:
+   value 1000000
+
+myname.a
+    value 1000000
+
+=== myname ===
+__dmopencontext: bind metric[0] myname.const
+__dmopencontext: bind metric[1] myname.a
+__dmopencontext: bind metric[2] myname.b
+__dmopencontext: bind metric[3] myname.c
+__dmopencontext: bind metric[4] myname.d
+__dmopencontext: bind metric[5] myname.e
+__dmopencontext: bind metric[6] myname.f
+__dmopencontext: bind metric[7] myname.g
+__dmopencontext: bind metric[8] myname.h
+__dmopencontext: bind metric[9] myname.i
+__dmopencontext: bind metric[10] myname.j
+__dmopencontext: bind metric[11] myname.k
+__dmopencontext: bind metric[12] myname.l
+__dmopencontext: bind metric[13] myname.m
+__dmopencontext: bind metric[14] myname.n
+derived metrics prefetch added 19 metrics: 29.0.13 29.0.23 29.0.18 29.0.28 29.0.30 29.0.31 29.0.32 29.0.12 29.0.11 29.0.10 29.0.22 29.0.21 29.0.20 29.0.17 29.0.16 29.0.15 29.0.27 29.0.6 29.0.48
+__dmpostfetch: [0] root node 511.0.1: numval=1 vset[0]: inst=-1 u=123456
+__dmpostfetch: [1] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
+__dmpostfetch: [2] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=1000000
+__dmpostfetch: [3] root node 511.0.4: numval=1 vset[0]: inst=-1 f=1000000.000000
+__dmpostfetch: [4] root node 511.0.5: numval=1 vset[0]: inst=-1 d=0.000000
+__dmpostfetch: [5] root node 511.0.6: numval=1 vset[0]: inst=-1 cp= (len=1)
+__dmpostfetch: [6] root node 511.0.7: numval=1 vset[0]: inst=-1 cp=hullo world! (len=13)
+__dmpostfetch: [7] root node 511.0.8: numval=1 vset[0]: inst=-1 cp=13 (len=3)
+__dmpostfetch: [8] root node 511.0.9: numval=1 vset[0]: inst=-1 l=1000111
+__dmpostfetch: [9] root node 511.0.10: numval=1 vset[0]: inst=-1 ll=999889
+__dmpostfetch: [10] root node 511.0.11: numval=1 vset[0]: inst=-1 f=999000.000000
+__dmpostfetch: [11] root node 511.0.12: numval=1 vset[0]: inst=-1 d=0.000000
+__dmpostfetch: [12] root node 511.0.13: numval=9 vset[0]: inst=100 f=2.000000 vset[1]: inst=200 f=4.000000 vset[2]: inst=300 f=6.000000 vset[3]: inst=400 f=8.000000 vset[4]: inst=500 f=10.000000 vset[5]: inst=600 f=12.000000 vset[6]: inst=700 f=14.000000 vset[7]: inst=800 f=16.000000 vset[8]: inst=900 f=18.000000
+__dmpostfetch: [13] root node 511.0.14: numval=9 vset[0]: inst=100 u=300 vset[1]: inst=200 u=600 vset[2]: inst=300 u=900 vset[3]: inst=400 u=1200 vset[4]: inst=500 u=1500 vset[5]: inst=600 u=1800 vset[6]: inst=700 u=2100 vset[7]: inst=800 u=2400 vset[8]: inst=900 u=2700
+__dmpostfetch: [14] root node 511.0.15: numval=9 vset[0]: inst=100 u=0 vset[1]: inst=200 u=100 vset[2]: inst=300 u=200 vset[3]: inst=400 u=300 vset[4]: inst=500 u=400 vset[5]: inst=600 u=500 vset[6]: inst=700 u=600 vset[7]: inst=800 u=700 vset[8]: inst=900 u=800
+pmFetch returns ...
+TIMESTAMP ... numpmid: 15
+  511.0.1 (myname.const): numval: 1 valfmt: 0 vlist[]:
+   value 123456
+  511.0.2 (myname.a): numval: 1 valfmt: 0 vlist[]:
+   value 1000000
+  511.0.3 (myname.b): numval: 1 valfmt: 1 vlist[]:
+   value 1000000
+  511.0.4 (myname.c): numval: 1 valfmt: 1 vlist[]:
+   value 1000000
+  511.0.5 (myname.d): numval: 1 valfmt: 1 vlist[]:
+   value 1000000
+  511.0.6 (myname.e): numval: 1 valfmt: 1 vlist[]:
+   value ""
+  511.0.7 (myname.f): numval: 1 valfmt: 1 vlist[]:
+   value "hullo world!"
+  511.0.8 (myname.g): numval: 1 valfmt: 1 vlist[]:
+   value "13"
+  511.0.9 (myname.h): numval: 1 valfmt: 0 vlist[]:
+   value 1000111
+  511.0.10 (myname.i): numval: 1 valfmt: 1 vlist[]:
+   value 999889
+  511.0.11 (myname.j): numval: 1 valfmt: 1 vlist[]:
+   value 999000
+  511.0.12 (myname.k): numval: 1 valfmt: 1 vlist[]:
+   value 1
+  511.0.13 (myname.l): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 2
+    inst [200 or "bin-200"] value 4
+    inst [300 or "bin-300"] value 6
+    inst [400 or "bin-400"] value 8
+    inst [500 or "bin-500"] value 10
+    inst [600 or "bin-600"] value 12
+    inst [700 or "bin-700"] value 14
+    inst [800 or "bin-800"] value 16
+    inst [900 or "bin-900"] value 18
+  511.0.14 (myname.m): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value 300
+    inst [200 or "bin-200"] value 600
+    inst [300 or "bin-300"] value 900
+    inst [400 or "bin-400"] value 1200
+    inst [500 or "bin-500"] value 1500
+    inst [600 or "bin-600"] value 1800
+    inst [700 or "bin-700"] value 2100
+    inst [800 or "bin-800"] value 2400
+    inst [900 or "bin-900"] value 2700
+  511.0.15 (myname.n): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value 0
+    inst [200 or "bin-200"] value 100
+    inst [300 or "bin-300"] value 200
+    inst [400 or "bin-400"] value 300
+    inst [500 or "bin-500"] value 400
+    inst [600 or "bin-600"] value 500
+    inst [700 or "bin-700"] value 600
+    inst [800 or "bin-800"] value 700
+    inst [900 or "bin-900"] value 800
+
+myname.const
+    value 123456
+
+myname.a
+    value 1000000
+
+myname.b
+    value 1000000
+
+myname.c
+    value 1000000
+
+myname.d
+    value 1000000
+
+myname.e
+    value ""
+
+myname.f
+    value "hullo world!"
+
+myname.g
+    value "13"
+
+myname.h
+    value 1000111
+
+myname.i
+    value 999889
+
+myname.j
+    value 999000
+
+myname.k
+    value 1
+
+myname.l
+    inst [100 or "bin-100"] value 2
+    inst [200 or "bin-200"] value 4
+    inst [300 or "bin-300"] value 6
+    inst [400 or "bin-400"] value 8
+    inst [500 or "bin-500"] value 10
+    inst [600 or "bin-600"] value 12
+    inst [700 or "bin-700"] value 14
+    inst [800 or "bin-800"] value 16
+    inst [900 or "bin-900"] value 18
+
+myname.m
+    inst [100 or "bin-100"] value 300
+    inst [200 or "bin-200"] value 600
+    inst [300 or "bin-300"] value 900
+    inst [400 or "bin-400"] value 1200
+    inst [500 or "bin-500"] value 1500
+    inst [600 or "bin-600"] value 1800
+    inst [700 or "bin-700"] value 2100
+    inst [800 or "bin-800"] value 2400
+    inst [900 or "bin-900"] value 2700
+
+myname.n
+    inst [100 or "bin-100"] value 0
+    inst [200 or "bin-200"] value 100
+    inst [300 or "bin-300"] value 200
+    inst [400 or "bin-400"] value 300
+    inst [500 or "bin-500"] value 400
+    inst [600 or "bin-600"] value 500
+    inst [700 or "bin-700"] value 600
+    inst [800 or "bin-800"] value 700
+    inst [900 or "bin-900"] value 800
+
+=== myname.a sample.long ===
+__dmopencontext: bind metric[0] myname.const
+__dmopencontext: bind metric[1] myname.a
+__dmopencontext: bind metric[2] myname.b
+__dmopencontext: bind metric[3] myname.c
+__dmopencontext: bind metric[4] myname.d
+__dmopencontext: bind metric[5] myname.e
+__dmopencontext: bind metric[6] myname.f
+__dmopencontext: bind metric[7] myname.g
+__dmopencontext: bind metric[8] myname.h
+__dmopencontext: bind metric[9] myname.i
+__dmopencontext: bind metric[10] myname.j
+__dmopencontext: bind metric[11] myname.k
+__dmopencontext: bind metric[12] myname.l
+__dmopencontext: bind metric[13] myname.m
+__dmopencontext: bind metric[14] myname.n
+__dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
+pmFetch returns ...
+TIMESTAMP ... numpmid: 6
+  511.0.2 (myname.a): numval: 1 valfmt: 0 vlist[]:
+   value 1000000
+  29.0.10 (sample.long.one): numval: 1 valfmt: 0 vlist[]:
+   value 1
+  29.0.11 (sample.long.ten): numval: 1 valfmt: 0 vlist[]:
+   value 10
+  29.0.12 (sample.long.hundred): numval: 1 valfmt: 0 vlist[]:
+   value 100
+  29.0.13 (sample.long.million): numval: 1 valfmt: 0 vlist[]:
+   value 1000000
+  29.0.14 (sample.long.write_me): numval: 1 valfmt: 0 vlist[]:
+   value 13
+
+myname.a
+    value 1000000
+
+sample.long.one
+    value 1
+
+sample.long.ten
+    value 10
+
+sample.long.hundred
+    value 100
+
+sample.long.million
+    value 1000000
+
+sample.long.write_me
+    value 13
+
+=== sample.long myname.a ===
+__dmopencontext: bind metric[0] myname.const
+__dmopencontext: bind metric[1] myname.a
+__dmopencontext: bind metric[2] myname.b
+__dmopencontext: bind metric[3] myname.c
+__dmopencontext: bind metric[4] myname.d
+__dmopencontext: bind metric[5] myname.e
+__dmopencontext: bind metric[6] myname.f
+__dmopencontext: bind metric[7] myname.g
+__dmopencontext: bind metric[8] myname.h
+__dmopencontext: bind metric[9] myname.i
+__dmopencontext: bind metric[10] myname.j
+__dmopencontext: bind metric[11] myname.k
+__dmopencontext: bind metric[12] myname.l
+__dmopencontext: bind metric[13] myname.m
+__dmopencontext: bind metric[14] myname.n
+__dmpostfetch: [5] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
+pmFetch returns ...
+TIMESTAMP ... numpmid: 6
+  29.0.10 (sample.long.one): numval: 1 valfmt: 0 vlist[]:
+   value 1
+  29.0.11 (sample.long.ten): numval: 1 valfmt: 0 vlist[]:
+   value 10
+  29.0.12 (sample.long.hundred): numval: 1 valfmt: 0 vlist[]:
+   value 100
+  29.0.13 (sample.long.million): numval: 1 valfmt: 0 vlist[]:
+   value 1000000
+  29.0.14 (sample.long.write_me): numval: 1 valfmt: 0 vlist[]:
+   value 13
+  511.0.2 (myname.a): numval: 1 valfmt: 0 vlist[]:
+   value 1000000
+
+sample.long.one
+    value 1
+
+sample.long.ten
+    value 10
+
+sample.long.hundred
+    value 100
+
+sample.long.million
+    value 1000000
+
+sample.long.write_me
+    value 13
+
+myname.a
+    value 1000000
+
+=== sample.longlong myname.a myname.b sample.long ===
+__dmopencontext: bind metric[0] myname.const
+__dmopencontext: bind metric[1] myname.a
+__dmopencontext: bind metric[2] myname.b
+__dmopencontext: bind metric[3] myname.c
+__dmopencontext: bind metric[4] myname.d
+__dmopencontext: bind metric[5] myname.e
+__dmopencontext: bind metric[6] myname.f
+__dmopencontext: bind metric[7] myname.g
+__dmopencontext: bind metric[8] myname.h
+__dmopencontext: bind metric[9] myname.i
+__dmopencontext: bind metric[10] myname.j
+__dmopencontext: bind metric[11] myname.k
+__dmopencontext: bind metric[12] myname.l
+__dmopencontext: bind metric[13] myname.m
+__dmopencontext: bind metric[14] myname.n
+__dmpostfetch: [5] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
+__dmpostfetch: [6] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=1000000
+pmFetch returns ...
+TIMESTAMP ... numpmid: 12
+  29.0.20 (sample.longlong.one): numval: 1 valfmt: 1 vlist[]:
+   value 1
+  29.0.21 (sample.longlong.ten): numval: 1 valfmt: 1 vlist[]:
+   value 10
+  29.0.22 (sample.longlong.hundred): numval: 1 valfmt: 1 vlist[]:
+   value 100
+  29.0.23 (sample.longlong.million): numval: 1 valfmt: 1 vlist[]:
+   value 1000000
+  29.0.24 (sample.longlong.write_me): numval: 1 valfmt: 1 vlist[]:
+   value 13
+  511.0.2 (myname.a): numval: 1 valfmt: 0 vlist[]:
+   value 1000000
+  511.0.3 (myname.b): numval: 1 valfmt: 1 vlist[]:
+   value 1000000
+  29.0.10 (sample.long.one): numval: 1 valfmt: 0 vlist[]:
+   value 1
+  29.0.11 (sample.long.ten): numval: 1 valfmt: 0 vlist[]:
+   value 10
+  29.0.12 (sample.long.hundred): numval: 1 valfmt: 0 vlist[]:
+   value 100
+  29.0.13 (sample.long.million): numval: 1 valfmt: 0 vlist[]:
+   value 1000000
+  29.0.14 (sample.long.write_me): numval: 1 valfmt: 0 vlist[]:
+   value 13
+
+sample.longlong.one
+    value 1
+
+sample.longlong.ten
+    value 10
+
+sample.longlong.hundred
+    value 100
+
+sample.longlong.million
+    value 1000000
+
+sample.longlong.write_me
+    value 13
+
+myname.a
+    value 1000000
+
+myname.b
+    value 1000000
+
+sample.long.one
+    value 1
+
+sample.long.ten
+    value 10
+
+sample.long.hundred
+    value 100
+
+sample.long.million
+    value 1000000
+
+sample.long.write_me
+    value 13
+
+=== sample.string myname.f sample.bin myname ===
+__dmopencontext: bind metric[0] myname.const
+__dmopencontext: bind metric[1] myname.a
+__dmopencontext: bind metric[2] myname.b
+__dmopencontext: bind metric[3] myname.c
+__dmopencontext: bind metric[4] myname.d
+__dmopencontext: bind metric[5] myname.e
+__dmopencontext: bind metric[6] myname.f
+__dmopencontext: bind metric[7] myname.g
+__dmopencontext: bind metric[8] myname.h
+__dmopencontext: bind metric[9] myname.i
+__dmopencontext: bind metric[10] myname.j
+__dmopencontext: bind metric[11] myname.k
+__dmopencontext: bind metric[12] myname.l
+__dmopencontext: bind metric[13] myname.m
+__dmopencontext: bind metric[14] myname.n
+derived metrics prefetch added 15 metrics: 29.0.13 29.0.23 29.0.18 29.0.28 29.0.12 29.0.11 29.0.10 29.0.22 29.0.21 29.0.20 29.0.17 29.0.16 29.0.15 29.0.27 29.0.48
+__dmpostfetch: [3] root node 511.0.7: numval=1 vset[0]: inst=-1 cp=hullo world! (len=13)
+__dmpostfetch: [5] root node 511.0.1: numval=1 vset[0]: inst=-1 u=123456
+__dmpostfetch: [6] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
+__dmpostfetch: [7] root node 511.0.3: numval=1 vset[0]: inst=-1 ll=1000000
+__dmpostfetch: [8] root node 511.0.4: numval=1 vset[0]: inst=-1 f=1000000.000000
+__dmpostfetch: [9] root node 511.0.5: numval=1 vset[0]: inst=-1 d=0.000000
+__dmpostfetch: [10] root node 511.0.6: numval=1 vset[0]: inst=-1 cp= (len=1)
+__dmpostfetch: [11] root node 511.0.7: numval=1 vset[0]: inst=-1 cp=hullo world! (len=13)
+__dmpostfetch: [12] root node 511.0.8: numval=1 vset[0]: inst=-1 cp=13 (len=3)
+__dmpostfetch: [13] root node 511.0.9: numval=1 vset[0]: inst=-1 l=1000111
+__dmpostfetch: [14] root node 511.0.10: numval=1 vset[0]: inst=-1 ll=999889
+__dmpostfetch: [15] root node 511.0.11: numval=1 vset[0]: inst=-1 f=999000.000000
+__dmpostfetch: [16] root node 511.0.12: numval=1 vset[0]: inst=-1 d=0.000000
+__dmpostfetch: [17] root node 511.0.13: numval=9 vset[0]: inst=100 f=2.000000 vset[1]: inst=200 f=4.000000 vset[2]: inst=300 f=6.000000 vset[3]: inst=400 f=8.000000 vset[4]: inst=500 f=10.000000 vset[5]: inst=600 f=12.000000 vset[6]: inst=700 f=14.000000 vset[7]: inst=800 f=16.000000 vset[8]: inst=900 f=18.000000
+__dmpostfetch: [18] root node 511.0.14: numval=9 vset[0]: inst=100 u=300 vset[1]: inst=200 u=600 vset[2]: inst=300 u=900 vset[3]: inst=400 u=1200 vset[4]: inst=500 u=1500 vset[5]: inst=600 u=1800 vset[6]: inst=700 u=2100 vset[7]: inst=800 u=2400 vset[8]: inst=900 u=2700
+__dmpostfetch: [19] root node 511.0.15: numval=9 vset[0]: inst=100 u=0 vset[1]: inst=200 u=100 vset[2]: inst=300 u=200 vset[3]: inst=400 u=300 vset[4]: inst=500 u=400 vset[5]: inst=600 u=500 vset[6]: inst=700 u=600 vset[7]: inst=800 u=700 vset[8]: inst=900 u=800
+pmFetch returns ...
+TIMESTAMP ... numpmid: 20
+  29.0.30 (sample.string.null): numval: 1 valfmt: 1 vlist[]:
+   value ""
+  29.0.31 (sample.string.hullo): numval: 1 valfmt: 1 vlist[]:
+   value "hullo world!"
+  29.0.32 (sample.string.write_me): numval: 1 valfmt: 1 vlist[]:
+   value "13"
+  511.0.7 (myname.f): numval: 1 valfmt: 1 vlist[]:
+   value "hullo world!"
+  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+  511.0.1 (myname.const): numval: 1 valfmt: 0 vlist[]:
+   value 123456
+  511.0.2 (myname.a): numval: 1 valfmt: 0 vlist[]:
+   value 1000000
+  511.0.3 (myname.b): numval: 1 valfmt: 1 vlist[]:
+   value 1000000
+  511.0.4 (myname.c): numval: 1 valfmt: 1 vlist[]:
+   value 1000000
+  511.0.5 (myname.d): numval: 1 valfmt: 1 vlist[]:
+   value 1000000
+  511.0.6 (myname.e): numval: 1 valfmt: 1 vlist[]:
+   value ""
+  511.0.7 (myname.f): numval: 1 valfmt: 1 vlist[]:
+   value "hullo world!"
+  511.0.8 (myname.g): numval: 1 valfmt: 1 vlist[]:
+   value "13"
+  511.0.9 (myname.h): numval: 1 valfmt: 0 vlist[]:
+   value 1000111
+  511.0.10 (myname.i): numval: 1 valfmt: 1 vlist[]:
+   value 999889
+  511.0.11 (myname.j): numval: 1 valfmt: 1 vlist[]:
+   value 999000
+  511.0.12 (myname.k): numval: 1 valfmt: 1 vlist[]:
+   value 1
+  511.0.13 (myname.l): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value 2
+    inst [200 or "bin-200"] value 4
+    inst [300 or "bin-300"] value 6
+    inst [400 or "bin-400"] value 8
+    inst [500 or "bin-500"] value 10
+    inst [600 or "bin-600"] value 12
+    inst [700 or "bin-700"] value 14
+    inst [800 or "bin-800"] value 16
+    inst [900 or "bin-900"] value 18
+  511.0.14 (myname.m): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value 300
+    inst [200 or "bin-200"] value 600
+    inst [300 or "bin-300"] value 900
+    inst [400 or "bin-400"] value 1200
+    inst [500 or "bin-500"] value 1500
+    inst [600 or "bin-600"] value 1800
+    inst [700 or "bin-700"] value 2100
+    inst [800 or "bin-800"] value 2400
+    inst [900 or "bin-900"] value 2700
+  511.0.15 (myname.n): numval: 9 valfmt: 0 vlist[]:
+    inst [100 or "bin-100"] value 0
+    inst [200 or "bin-200"] value 100
+    inst [300 or "bin-300"] value 200
+    inst [400 or "bin-400"] value 300
+    inst [500 or "bin-500"] value 400
+    inst [600 or "bin-600"] value 500
+    inst [700 or "bin-700"] value 600
+    inst [800 or "bin-800"] value 700
+    inst [900 or "bin-900"] value 800
+
+sample.string.null
+    value ""
+
+sample.string.hullo
+    value "hullo world!"
+
+sample.string.write_me
+    value "13"
+
+myname.f
+    value "hullo world!"
+
+sample.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+myname.const
+    value 123456
+
+myname.a
+    value 1000000
+
+myname.b
+    value 1000000
+
+myname.c
+    value 1000000
+
+myname.d
+    value 1000000
+
+myname.e
+    value ""
+
+myname.f
+    value "hullo world!"
+
+myname.g
+    value "13"
+
+myname.h
+    value 1000111
+
+myname.i
+    value 999889
+
+myname.j
+    value 999000
+
+myname.k
+    value 1
+
+myname.l
+    inst [100 or "bin-100"] value 2
+    inst [200 or "bin-200"] value 4
+    inst [300 or "bin-300"] value 6
+    inst [400 or "bin-400"] value 8
+    inst [500 or "bin-500"] value 10
+    inst [600 or "bin-600"] value 12
+    inst [700 or "bin-700"] value 14
+    inst [800 or "bin-800"] value 16
+    inst [900 or "bin-900"] value 18
+
+myname.m
+    inst [100 or "bin-100"] value 300
+    inst [200 or "bin-200"] value 600
+    inst [300 or "bin-300"] value 900
+    inst [400 or "bin-400"] value 1200
+    inst [500 or "bin-500"] value 1500
+    inst [600 or "bin-600"] value 1800
+    inst [700 or "bin-700"] value 2100
+    inst [800 or "bin-800"] value 2400
+    inst [900 or "bin-900"] value 2700
+
+myname.n
+    inst [100 or "bin-100"] value 0
+    inst [200 or "bin-200"] value 100
+    inst [300 or "bin-300"] value 200
+    inst [400 or "bin-400"] value 300
+    inst [500 or "bin-500"] value 400
+    inst [600 or "bin-600"] value 500
+    inst [700 or "bin-700"] value 600
+    inst [800 or "bin-800"] value 700
+    inst [900 or "bin-900"] value 800
+
+Errors and empty results here ...
+
+myname.a = sample.needprofile
+myname.b = 100 + sample.long.hundred * ( 2 - sample.needprofile )
+myname.c = sample.needprofile - sample.not_ready
+myname.d = sample.not_ready - sample.needprofile
+myname.e = sample.noinst
+myname.f = ( sample.long.hundred + sample.long.one ) * ( sample.noinst - 1 )
+
+=== myname ===
+__dmopencontext: bind metric[0] myname.a
+__dmopencontext: bind metric[1] myname.b
+__dmopencontext: bind metric[2] myname.c
+__dmopencontext: bind metric[3] myname.d
+__dmopencontext: bind metric[4] myname.e
+__dmopencontext: bind metric[5] myname.f
+derived metrics prefetch added 5 metrics: 29.0.49 29.0.12 29.0.56 29.0.9 29.0.10
+__dmpostfetch: [0] root node 511.0.1: numval=-12365
+__dmpostfetch: [1] root node 511.0.2: numval=-12365
+__dmpostfetch: [2] root node 511.0.3: numval=-12365
+__dmpostfetch: [3] root node 511.0.4: numval=-12365
+__dmpostfetch: [4] root node 511.0.5: numval=0
+__dmpostfetch: [5] root node 511.0.6: numval=0
+pmFetch returns ...
+TIMESTAMP ... numpmid: 6
+  511.0.1 (myname.a): Explicit instance identifier(s) required
+  511.0.2 (myname.b): Explicit instance identifier(s) required
+  511.0.3 (myname.c): Explicit instance identifier(s) required
+  511.0.4 (myname.d): Explicit instance identifier(s) required
+  511.0.5 (myname.e): No values returned!
+  511.0.6 (myname.f): No values returned!
+
+myname.a
+Error: Explicit instance identifier(s) required
+
+myname.b
+Error: Explicit instance identifier(s) required
+
+myname.c
+Error: Explicit instance identifier(s) required
+
+myname.d
+Error: Explicit instance identifier(s) required
+
+myname.e
+No value(s) available!
+
+myname.f
+No value(s) available!

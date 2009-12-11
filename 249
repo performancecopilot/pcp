@@ -1,0 +1,103 @@
+#!/bin/sh
+# PCP QA Test No. 249
+#
+# Derived metrics - exercise pmFetch processing
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+
+# creator
+owner=kenj
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if grep -q 'pmRegisterDerived' /usr/include/pcp/pmapi.h
+then
+    :
+else
+    echo "No derived metric support" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/'
+
+}
+
+# real QA test starts here
+
+echo "No errors here ..."
+cat <<End-of-File >$tmp.config
+# simple constant, no arithmetic
+myname.const = 123456
+# simple renaming to test all data types ... no arithmetic
+myname.a = sample.long.million
+myname.b = sample.longlong.million
+myname.c = sample.float.million
+myname.d = sample.double.million
+myname.e = sample.string.null
+myname.f = sample.string.hullo
+myname.g = sample.string.write_me
+# simple arithmetic
+myname.h = sample.long.million + sample.long.hundred + sample.long.ten + sample.long.one
+myname.i = sample.longlong.million - sample.longlong.hundred - sample.longlong.ten - sample.longlong.one
+myname.j = sample.float.million - sample.float.hundred * sample.float.ten / sample.float.one
+myname.k = sample.long.million - ( sample.float.hundred * sample.double.hundred * sample.longlong.hundred ) + sample.long.one
+# arithmetic over sets of values (instance domains)
+myname.l = sample.bin / 50
+myname.m = 3*sample.bin
+myname.n = sample.bin + sample.bucket*2 - (sample.bin + 100) - sample.bucket
+End-of-File
+echo
+cat $tmp.config
+
+for args in myname.const myname.a myname "myname.a sample.long" \
+	"sample.long myname.a" "sample.longlong myname.a myname.b sample.long" \
+	"sample.string myname.f sample.bin myname"
+do
+    echo
+    echo "=== $args ==="
+    pminfo -c $tmp.config -Dfetch,derive,appl2 -f $args 2>&1 | _filter
+done
+
+echo
+echo "Errors and empty results here ..."
+cat <<End-of-File >$tmp.config
+myname.a = sample.needprofile
+myname.b = 100 + sample.long.hundred * ( 2 - sample.needprofile )
+myname.c = sample.needprofile - sample.not_ready
+myname.d = sample.not_ready - sample.needprofile
+myname.e = sample.noinst
+myname.f = ( sample.long.hundred + sample.long.one ) * ( sample.noinst - 1 )
+End-of-File
+echo
+cat $tmp.config
+
+for args in myname
+do
+    echo
+    echo "=== $args ==="
+    pminfo -c $tmp.config -Dfetch,derive,appl0,appl2 -f $args 2>&1 | _filter
+done
+
+# success, all done
+exit
+
+# success, all done
+exit
