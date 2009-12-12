@@ -1,0 +1,74 @@
+QA output created by 253
+No errors here ...
+
+myname.const = 123456
+myname.a = sample.bin / 50
+myname.b = 3*sample.bin
+myname.c = sample.bin + sample.bucket*2 - (sample.bin + 100) - sample.bucket
+
+=== myname.const ===
+myname.const
+=== -d myname.const ===
+=== -f myname.const ===
+
+=== myname.a ===
+myname.a
+=== -d myname.a ===
+=== -f myname.a ===
+
+=== myname ===
+myname.const
+myname.a
+myname.b
+myname.c
+=== -d myname ===
+=== -f myname ===
+
+=== myname.a sample.milliseconds ===
+myname.a
+sample.milliseconds
+=== -d myname.a sample.milliseconds ===
+
+sample.milliseconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+=== -f myname.a sample.milliseconds ===
+
+sample.milliseconds
+    value 421255.693
+
+=== sample.milliseconds myname.b ===
+sample.milliseconds
+myname.b
+=== -d sample.milliseconds myname.b ===
+
+sample.milliseconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+=== -f sample.milliseconds myname.b ===
+
+sample.milliseconds
+    value 421255.693
+
+=== sample.milliseconds myname.a myname.b sample.milliseconds myname.c ===
+sample.milliseconds
+myname.a
+myname.b
+sample.milliseconds
+myname.c
+=== -d sample.milliseconds myname.a myname.b sample.milliseconds myname.c ===
+
+sample.milliseconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+
+sample.milliseconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+=== -f sample.milliseconds myname.a myname.b sample.milliseconds myname.c ===
+
+sample.milliseconds
+    value 421255.693
+
+sample.milliseconds
+    value 421255.693
