@@ -36,7 +36,7 @@ static int zp_added;
 static int
 zp_cache_pool(zpool_handle_t *zp, void *arg)
 {
-        nvlist_t *cfg = zpool_get_config(zp, NULL);
+	nvlist_t *cfg = zpool_get_config(zp, NULL);
 	char *zpname = (char *)zpool_get_name(zp);
 	struct zpool_stats *zps = NULL;
 	pmInDom zpindom = indomtab[ZPOOL_INDOM].it_indom;

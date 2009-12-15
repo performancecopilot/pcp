@@ -12,6 +12,7 @@ root {
 	hinv
 	zpool
 	zfs
+	zpool_perdisk
 }
 
 #include "pmns.kernel"
@@ -21,3 +22,4 @@ root {
 #include "pmns.hinv"
 #include "pmns.zpool"
 #include "pmns.zfs"
+#include "pmns.zpool_perdisk"

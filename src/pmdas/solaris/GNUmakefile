@@ -27,9 +27,9 @@ CMDTARGET = pmdasolaris
 LIBTARGET = pmda_solaris.so
 CONF_LINE = "solaris	75	dso	solaris_init	$(PMDADIR)/$(LIBTARGET)"
 
-CFILES	= solaris.c data.c sysinfo.c disk.c zpool.c zfs.c netmib2.c
+CFILES	= solaris.c data.c sysinfo.c disk.c zpool.c zfs.c zpool_perdisk.c netmib2.c
 
-BARE_NS = disk kernel mem network hinv zpool zfs
+BARE_NS = disk kernel mem network hinv zpool zfs zpool_perdisk
 PMNS	= $(BARE_NS:%=pmns.%)
 LSRCFILES = $(PMNS) help root common.h
 LDIRT	= domain.h *.log *.dir *.pag root_solaris
@@ -67,7 +67,7 @@ help.dir help.pag: help root_solaris
 
 root_solaris: ../../pmns/stdpmid $(PMNS)
 	rm -f root_solaris
-	cpp -I../../pmns < root | sed -e '/^#/d' > root_solaris
+	$(CPP_SIMPLE) -I../../pmns < root | sed -e '/^#/d' > root_solaris
 
 domain.h:	../../pmns/stdpmid
 	rm -f domain.h
