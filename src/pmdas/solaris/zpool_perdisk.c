@@ -23,6 +23,7 @@
 struct vdev_stats {
     int vdev_stats_fresh;
     vdev_stat_t vds;
+    uint32_t state_combined;
 };
 
 static libzfs_handle_t *zh;
@@ -109,6 +110,7 @@ zp_get_vdevs(zpool_handle_t *zp, char *zpname, nvlist_t *vdt,
 		goto free_out;
 	    }
 	    new_vdev_names[nelem - 1] = NULL;
+	    *vdev_names = new_vdev_names;
 
 	    new_vds = realloc(*vds, nelem * sizeof(*new_vds));
 	    if (new_vds == NULL) {
@@ -119,7 +121,6 @@ zp_get_vdevs(zpool_handle_t *zp, char *zpname, nvlist_t *vdt,
 	    new_vds[nelem - 1] = stats;
 	    new_vdev_names[nelem - 1] = name;
 
-	    *vdev_names = new_vdev_names;
 	    *vds = new_vds;
 	    *num = nelem;
 	    goto out;
@@ -213,6 +214,7 @@ zp_cache_vdevs(zpool_handle_t *zp, void *arg)
 
 	    if (rv >= 0) {
 	        memcpy(&zps->vds, vds[i], sizeof(zps->vds));
+		zps->state_combined = (vds[i]->vs_state << 8) | vds[i]->vs_aux;
 	        zps->vdev_stats_fresh = 1;
 	    } else {
 		__pmNotifyErr(LOG_ERR,

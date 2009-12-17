@@ -1,6 +1,7 @@
 zpool {
 	state		SOLARIS:0:97
 	state_aux	SOLARIS:0:98
+	state_combined	SOLARIS:0:99
 	capacity	SOLARIS:0:58
 	used		SOLARIS:0:59
 	checksum_errors	SOLARIS:0:66

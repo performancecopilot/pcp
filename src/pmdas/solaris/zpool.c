@@ -23,6 +23,7 @@
 struct zpool_stats {
     int vdev_stats_fresh;
     vdev_stat_t vds;
+    uint32_t state_combined;
 };
 
 static libzfs_handle_t *zh;
@@ -83,6 +84,7 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 					    (uint64_t **)&vds, &cnt);
 	    if (rv == 0) {
 		memcpy(&zps->vds, vds, sizeof(zps->vds));
+		zps->state_combined = (vds->vs_state << 8) | vds->vs_aux;
 		zps->vdev_stats_fresh = 1;
 	    } else {
 		__pmNotifyErr(LOG_ERR,
