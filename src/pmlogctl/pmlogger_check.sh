@@ -389,11 +389,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     else
 	# demand mutual exclusion
 	#
-	rm -f $tmp.stamp
+	rm -f $tmp.stamp $tmp.out
 	delay=200	# tenths of a second
 	while [ $delay -gt 0 ]
 	do
-	    if pmlock -v lock >$tmp.out
+	    if pmlock -v lock >>$tmp.out 2>&1
 	    then
 		echo $dir/lock >$tmp.lock
 		break
@@ -401,9 +401,18 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		[ -f $tmp.stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp.stamp
 		if [ -z "`find lock -newer $tmp.stamp -print 2>/dev/null`" ]
 		then
-		    echo "$prog: Warning: removing lock file older than 30 minutes"
-		    LC_TIME=POSIX ls -l $dir/lock
-		    rm -f lock
+		    if [ -f lock ]
+		    then
+			echo "$prog: Warning: removing lock file older than 30 minutes"
+			LC_TIME=POSIX ls -l $dir/lock
+			rm -f lock
+		    else
+			# there is a small timing window here where pmlock
+			# might fail, but the lock file has been removed by
+			# the time we get here, so just keep trying
+			#
+			:
+		    fi
 		fi
 	    fi
 	    pmsleep 0.1

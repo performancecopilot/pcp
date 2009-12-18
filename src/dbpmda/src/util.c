@@ -240,15 +240,12 @@ dohelp(int command, int full)
 	    putchar('\n');
 
 	switch (command) {
-	case OPEN:
-	    puts("open dso dsoname init_routine [ domain# ]");
-	    puts("open pipe execname [ arg ... ]");
-	    break;
 	case CLOSE:
 	    puts("close");
 	    break;
-	case PMNS_CHILDREN:
-	    puts("children metric-name");
+	case DBG:
+	    puts("debug all | none");
+	    puts("debug flag [ flag ... ] (flag is decimal or symbolic name)");
 	    break;
 	case DESC:
 	    puts("desc metric");
@@ -259,31 +256,35 @@ dohelp(int command, int full)
 	case GETDESC:
 	    puts("getdesc on | off");
 	    break;
-	case PMNS_NAME:
-	    puts("name pmid#");
-	    break;
-	case NAMESPACE:
-	    puts("namespace fname");
+	case INFO:
+	    puts("text metric");
+	    puts("text indom indom#");
 	    break;
 	case INSTANCE:
 	    puts("instance indom# [ number | name | \"name\" ]");
 	    break;
+	case NAMESPACE:
+	    puts("namespace fname");
+	    break;
+	case OPEN:
+	    puts("open dso dsoname init_routine [ domain# ]");
+	    puts("open pipe execname [ arg ... ]");
+	    break;
+	case PMNS_CHILDREN:
+	    puts("children metric-name");
+	    break;
+	case PMNS_NAME:
+	    puts("name pmid#");
+	    break;
 	case PMNS_PMID:
 	    puts("pmid metric-name");
-	    break;
-	case PROFILE:
-	    puts("profile indom# [ all | none ]");
-	    puts("profile indom# [ add | delete ] number");
 	    break;
 	case PMNS_TRAVERSE:
 	    puts("traverse metric-name");
 	    break;
-	case WATCH:
-	    puts("watch logfilename");
-	    break;
-	case DBG:
-	    puts("debug all | none");
-	    puts("debug flag [ flag ... ] (flag is decimal or symbolic name)");
+	case PROFILE:
+	    puts("profile indom# [ all | none ]");
+	    puts("profile indom# [ add | delete ] number");
 	    break;
 	case QUIT:
 	    puts("quit");
@@ -294,9 +295,8 @@ dohelp(int command, int full)
 	case STORE:
 	    puts("store metric \"value\"");
 	    break;
-	case INFO:
-	    puts("text metric");
-	    puts("text indom indom#");
+	case WATCH:
+	    puts("watch logfilename");
 	    break;
 	case TIMER:
 	    puts("timer on | off");
@@ -311,17 +311,17 @@ dohelp(int command, int full)
 	if (full == HELP_FULL) {
 	    putchar('\n');
 	    switch (command) {
-	    case OPEN:
-		puts(
-"Open a PMDA as either a DSO or a daemon (connected with a pipe).  The\n"
-"'dsoname' and 'execname' fields are the path to the PMDA shared object file\n"
-"or executable.  The arguments to this command are similar to a line in the\n"
-"pmcd.conf file.\n");
-		break;
 	    case CLOSE:
 		puts(
 "Close the pipe to a daemon PMDA or dlclose(3) a DSO PMDA. dbpmda does not\n"
 "exit, allowing another PMDA to be opened.\n");
+		break;
+	    case DBG:
+		puts(
+"Specify which debugging flags should be active (see pmdbg(1)).  Flags may\n"
+"be specified as integers or by name, with multiple flags separated by\n"
+"white space.  All flags may be selected or deselected if 'all' or 'none' is\n"
+"specified.  The current setting is displayed by the status command.\n\n");
 		break;
 	    case DESC:
 		puts(
@@ -338,32 +338,60 @@ dohelp(int command, int full)
 "Before doing a fetch, get the descriptor so that the result of a fetch\n"
 "can be printed out correctly.\n");
 		break;
-	    case NAMESPACE:
+	    case INFO:
 		puts(
-"Unload the current Name Space and load up the given Name Space.\n"
-"If unsuccessful then will try to reload the previous Name Space.\n");
+"Retrieve the help text for the 'metric' or 'indom' from the PMDA.  The one\n"
+"line message is shown between '[' and ']' with the long message on the next\n"
+"line.  To get the help text for an instance domain requires the word\n"
+"``indom'' before the indom number\n");
 		break;
 	    case INSTANCE:
 		puts(
 "List the instances in 'indom'.  The list may be restricted to a specific\n"
 "instance 'name' or 'number'.\n");
 		break;
+	    case NAMESPACE:
+		puts(
+"Unload the current Name Space and load up the given Name Space.\n"
+"If unsuccessful then will try to reload the previous Name Space.\n");
+		break;
+	    case OPEN:
+		puts(
+"Open a PMDA as either a DSO or a daemon (connected with a pipe).  The\n"
+"'dsoname' and 'execname' fields are the path to the PMDA shared object file\n"
+"or executable.  The arguments to this command are similar to a line in the\n"
+"pmcd.conf file.\n");
+		break;
+	    case PMNS_CHILDREN:
+	        puts(
+"Fetch and print the next name component of the direct decendents of\n"
+"metric-name in the PMNS, reporting for each if it is a leaf node or a\n"
+"non-leaf node.\n"
+"Most useful for PMDAs that support dynamic metrics in the PMNS.\n");
+		break;
+	    case PMNS_NAME:
+		puts(
+"Print the name of the metric with PMID pmid#.  The pmid# syntax follows\n"
+"the source PMNS syntax, namely 3 numbers separated by '.' to encode\n"
+"the domain, cluster and item components of the PMID, e.g.\n"
+"    name 29.0.1004\n"
+"Most useful for PMDAs that support dynamic metrics in the PMNS.\n");
+		break;
+	    case PMNS_PMID:
+		puts(
+"Print the PMID for the named metric\n"
+"Most useful for PMDAs that support dynamic metrics in the PMNS.\n");
+		break;
+	    case PMNS_TRAVERSE:
+		puts(
+"Fetch and print all of the decendent metric names below metric-name\n"
+"in the PMNS.\n"
+"Most useful for PMDAs that support dynamic metrics in the PMNS.\n");
+		break;
 	    case PROFILE:
 		puts(
 "For the instance domain specified, the profile may be changed to include\n"
 "'all' instances, no instances, add an instance or delete an instance.\n");
-		break;
-	    case WATCH:
-		puts(
-"A xwsh window is opened which tails the specified log file.  This window\n"
-"must be closed by the user when no longer required.\n");
-		break;
-	    case DBG:
-		puts(
-"Specify which debugging flags should be active (see pmdbg(1)).  Flags may\n"
-"be specified as integers or by name, with multiple flags separated by\n"
-"white space.  All flags may be selected or deselected if 'all' or 'none' is\n"
-"specified.  The current setting is displayed by the status command.\n\n");
 		break;
 	    case QUIT:
 		puts("Exit dbpmda.  This also closes any open PMDAs.\n");
@@ -382,16 +410,14 @@ dohelp(int command, int full)
 "interpret the value, and to allocate the PDU for transmitting the value,\n"
 "respectively.  The current profile will be used.\n");
 		break;
-	    case INFO:
-		puts(
-"Retrieve the help text for the 'metric' or 'indom' from the PMDA.  The one\n"
-"line message is shown between '[' and ']' with the long message on the next\n"
-"line.  To get the help text for an instance domain requires the word\n"
-"``indom'' before the indom number\n");
-		break;
 	    case TIMER:
 		puts(
 "Report the response time of the PMDA when sending and receiving PDUs.\n");
+		break;
+	    case WATCH:
+		puts(
+"A xwsh window is opened which tails the specified log file.  This window\n"
+"must be closed by the user when no longer required.\n");
 		break;
 	    case WAIT:
 		puts("Sleep for this number of seconds\n");

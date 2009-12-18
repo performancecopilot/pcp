@@ -24,7 +24,7 @@ SUBDIRS = English.lproj installer-resources
 LSRCFILES = StartupParameters.plist build-installer \
 	    installer-description installer-info install-pcp uninstall-pcp
 
-default install :
+default install install_pcp default_pcp :
 
 .PHONY: pack_pcp
 pack_pcp : extrabits

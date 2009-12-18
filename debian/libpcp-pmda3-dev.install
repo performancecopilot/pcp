@@ -32,3 +32,6 @@ usr/share/man/man3/pmdaOpenLog.3.gz
 usr/share/man/man3/pmdaProfile.3.gz
 usr/share/man/man3/pmdaStore.3.gz
 usr/share/man/man3/pmdaText.3.gz
+usr/share/man/man3/pmdaName.3.gz
+usr/share/man/man3/pmdaPMID.3.gz
+usr/share/man/man3/pmdaChildren.3.gz

@@ -22,8 +22,8 @@
 int
 __pmControlLog(int fd, const pmResult *request, int control, int state, int delta, pmResult **status)
 {
-    int         n;
-    __pmPDU     *pb;
+    int         	n;
+    __pmPDU     	*pb;
 
     if (request->numpmid < 1)
         return PM_ERR_TOOSMALL;
@@ -34,7 +34,7 @@ __pmControlLog(int fd, const pmResult *request, int control, int state, int delt
 	n = __pmMapErrno(n);
     else {
 	/* get the reply */
-	n = __pmGetPDU(fd, PDU_BINARY, TIMEOUT_NEVER, &pb);
+	n = __pmGetPDU(fd, PDU_BINARY, __pmLoggerTimeout(), &pb);
 	if (n == PDU_RESULT) {
 	    n = __pmDecodeResult(pb, PDU_BINARY, status);
 	}

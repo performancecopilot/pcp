@@ -1,5 +1,20 @@
-pcp-3.0.1 (currently in development)
-    - reverted rc scripts default start/stop settings back to how
+pcp-3.0.3 (in development)
+    - BuildRequires initscripts for %{_vendor} == redhat
+
+pcp-3.0.2 (2 December 2009)
+    - Improvements and fixes to PCP::PMDA perl module.
+    - Added the SQL Server dtsrun log file parser PMDA.
+    - Switch MMV PMDA to use dynamic namespace interfaces, which resolves
+      long-standing spurious EAGAIN error on reconfiguration.
+    - Separate out the Infiniband and cluster PMDAs into their own
+      package - removing dependencies and configure complexities from
+      pcp into specialised, layered packages.
+    - Configure packaging to use libexecdir for private pcp binaries,
+      if supported on the platform (also honour --libexecdir configure flag)
+    - Add sysfs.kernel metrics cluster to Linux PMDA.
+
+pcp-3.0.1 (19 October 2009)
+    - Reverted rc scripts default start/stop settings back to how
       it was in 2.9.3-1, for Debian bug #544350. On Red Hat platforms,
       the RPM spec overrides this to be chkconfig off by default.
     - Lexical analyser tweaks (various tools) to work on Windows.
@@ -7,11 +22,11 @@ pcp-3.0.1 (currently in development)
     - configure.in clean up more thoroughly on Mac OS X
     - Get pcp building on Debian GNU/kFreeBSD port.
     - Add missing return statement causing incorrect mem.util on Win32.
-    - improved support for Slackware distro makepkg packaging
-    - solaris fixes: pass information about compiler into Perl PMDA makefiles,
+    - Improved support for Slackware distro makepkg packaging
+    - Solaris fixes: pass information about compiler into Perl PMDA makefiles,
       don't change pointer types of pmCtime's arguments, deal with default lex
     - Move Infiniband and Cluster PMDAs to a stand-alone packages
-    - trim the set of RPM files marked as %config to just those
+    - Trim the set of RPM files marked as %config to just those
       that are actually likely to be edited (rpm -qlcv pcp pcp-libs).
 
 pcp-3.0.0 (9 October 2009)

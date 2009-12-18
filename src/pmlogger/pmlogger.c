@@ -44,6 +44,7 @@ int		linger = 0;		/* linger with no tasks/events */
 int		rflag = 0;		/* report sizes */
 struct timeval	delta = { 60, 0 };	/* default logging interval */
 int		unbuffered = 0;		/* is -u specified? */
+int		qa_case = 0;		/* QA error injection state */
 
 static int 	    pmcdfd;		/* comms to pmcd */
 static int	    ctx;		/* handle correspondong to ctxp below */
@@ -900,6 +901,7 @@ Options:\n\
 		    /* client closed connection */
 		    FD_CLR(fd, &fds);
 		    numfds = maxfd() + 1;
+		    qa_case = 0;
 		}
 	    }
 	    if (pmcdfd >= 0 && FD_ISSET(pmcdfd, &readyfds)) {

@@ -226,9 +226,19 @@ txmon_init(pmdaInterface *dp)
     dp->version.two.store = txmon_store;
 
     pmdaSetFetchCallBack(dp, txmon_fetchCallBack);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL0) {
+	fprintf(stderr, "after pmdaSetFetchCallBack() control @ %p\n", control);
+    }
+#endif
 
-    pmdaInit(dp, indomtab, control->n_tx, metrictab,
+    pmdaInit(dp, indomtab, 1, metrictab,
 	     sizeof(metrictab)/sizeof(metrictab[0]));
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL0) {
+	fprintf(stderr, "after pmdaInit() control @ %p\n", control);
+    }
+#endif
 }
 static void
 usage(void)
@@ -318,6 +328,11 @@ main(int argc, char **argv)
 	fprintf(stderr, "shmat: %s\n", strerror(errno));
 	exit(1);
     }
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL0) {
+	fprintf(stderr, "shmat -> control @ %p\n", control);
+    }
+#endif
 
     /*
      * set up the shm control info and directory
@@ -341,6 +356,11 @@ main(int argc, char **argv)
 	sp->count = 0;
 	sp->max_time = -1.0;
 	sp->sum_time = 0.0;
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL0) {
+	    fprintf(stderr, "index[%d]=%d @ %p name=\"%s\"\n", n, control->index[n], p, sp->type);
+	}
+#endif
 	p += RND_TO_CACHE_LINE(sizeof(stat_t));
 
 	/*

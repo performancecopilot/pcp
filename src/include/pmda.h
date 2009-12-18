@@ -13,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <stdarg.h>
@@ -353,6 +349,34 @@ extern int pmdaOpenHelp(char *);
 extern void pmdaCloseHelp(int);
 extern char *pmdaGetHelp(int, pmID, int);
 extern char *pmdaGetInDomHelp(int, pmInDom, int);
+
+/*
+ * Dynamic names interface (version 4) helper routines.
+ *
+ * pmdaTreePMID
+ *	when a __pmnsTree implementation is being used, this provides
+ *	an implementation for the four.pmid() interface.
+ *
+ * pmdaTreeName
+ *	when a __pmnsTree implementation is being used, this provides
+ *	an implementation for the four.name() interface.
+ *
+ * pmdaTreeChildren
+ *	when a __pmnsTree implementation is being used, this provides
+ *	an implementation for the four.children() interface.
+ *
+ * pmdaTreeRebuildHash
+ *	iterate over a pmns tree and (re)build the hash table for any
+ *	subsequent PMID -> name (reverse) lookups
+ *
+ * pmdaTreeSize
+ *	returns the numbers of entries in a __pmnsTree.
+ */
+extern int pmdaTreePMID(__pmnsTree *, char *, pmID *);
+extern int pmdaTreeName(__pmnsTree *, pmID, char ***);
+extern int pmdaTreeChildren(__pmnsTree *, char *, int, char ***, int **);
+extern void pmdaTreeRebuildHash(__pmnsTree *, int);
+extern int pmdaTreeSize(__pmnsTree *);
 
 /*
  * PMDA instance domain cache support

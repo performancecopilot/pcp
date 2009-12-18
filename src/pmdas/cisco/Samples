@@ -184,9 +184,6 @@ Serial1/0 is up, line protocol is up
      0 output buffer failures, 0 output buffers swapped out
      35 carrier transitions     DCD=up  DSR=up  DTR=up  RTS=up  CTS=up
 
-# rate sampling changed (wanptg Jan 2000)
-
-wanptg.melbourne>show int s1/0
 Serial1/0 is up, line protocol is up 
   Hardware is M4T
   Description: frame-relay using subinterfaces 
@@ -211,7 +208,7 @@ Serial1/0 is up, line protocol is up
      0 output buffer failures, 0 output buffers swapped out
      3 carrier transitions     DCD=up  DSR=up  DTR=up  RTS=up  CTS=up
 
-wanmelbourne>show int s2/2.1
+>show int s2/2.1
 Serial2/2.1 is up, line protocol is up 
   Hardware is M4T
   Description: Frame Relay to Sydney (134.14.63.129)
@@ -226,7 +223,7 @@ This number is hand typed, but there is no alternative for the CIR.
 
 For FrameRelay, utilization > 50% of CIR for alarm.
 
-wanmelbourne>show frame pvc int s2/3.7
+>show frame pvc int s2/3.7
 
 PVC Statistics for interface Serial2/3.7 (Frame Relay DTE)
 
@@ -244,7 +241,7 @@ DLCI = 17, DLCI USAGE = LOCAL, PVC STATUS = ACTIVE, INTERFACE = Serial2/3.7
   out bcast pkts 43801      out bcast bytes 13172828  
   pvc create time 8w3d, last time pvc status changed 1w2d
 
-b31-11-cisco1>show int Vlan256
+>show int Vlan256
 Vlan256 is up, line protocol is up 
   Hardware is Cat6k RP Virtual Ethernet, address is 0030.b630.b318 (bia 0030.b630.b318)
   Description: Uplink to CTC tipctc2 (Area 2)
@@ -266,8 +263,7 @@ Vlan256 is up, line protocol is up
      0 output errors, 3 interface resets
      0 output buffer failures, 0 output buffers swapped out
 
-melbourne-l0.wan.sgi.com
-wanmelbourne>show int e1/0
+>show int e1/0
 Ethernet1/0 is up, line protocol is up
   Hardware is AmdP2, address is 0050.7343.f011 (bia 0050.7343.f011)
   Description: >>> Connecion to melbourne pix-e1 <<<

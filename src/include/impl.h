@@ -198,8 +198,8 @@ typedef struct {
     __pmnsNode *root;  /* root of tree structure */
     __pmnsNode **htab; /* hash table of nodes keyed on pmid */
     int htabsize;     /* number of nodes in the table */
-    char *symbol;     /* store all names contiguosly */
-    int contiguous;   /* is data stored contiguosly ? */
+    char *symbol;     /* store all names contiguously */
+    int contiguous;   /* is data stored contiguously ? */
     int mark_state;   /* the total mark value for trimming */
 } __pmnsTree;
 
@@ -502,7 +502,6 @@ extern int __pmConnectTo (int, const struct sockaddr *, int);
 extern int __pmConnectCheckError(int);
 extern int __pmConnectRestoreFlags (int, int);
 extern int __pmConnectHandshake(int);
-extern const struct timeval *__pmConnectTimeout(void);
 
 
 /*
@@ -539,7 +538,11 @@ typedef struct {
 extern __pmContext *__pmHandleToPtr(int);
 extern int __pmGetHostContextByID(int, __pmContext **);
 extern int __pmGetBusyHostContextByID(int, __pmContext **, int);
+
+/* timeout helper functions */
 extern const struct timeval * __pmDefaultRequestTimeout(void);
+extern const struct timeval *__pmConnectTimeout(void);
+extern int __pmLoggerTimeout(void);
 
 /*
  * Protocol data unit support

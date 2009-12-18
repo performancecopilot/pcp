@@ -25,6 +25,10 @@ BuildRoot: @build_root@
 BuildRequires: procps autoconf bison flex ncurses-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
+%if "%{_vendor}" == "redhat"
+BuildRequires: initscripts
+%endif
+
 Conflicts: pcp-pro < 2.2
 
 # Stuff used indirectly e.g. by shell scripts we install
@@ -128,7 +132,7 @@ else
 %setup -q
 touch .census
 autoconf
-./configure --libdir=%{_libdir} && touch config.done
+./configure --libdir=%{_libdir} --libexecdir=%{_libexecdir} && touch config.done
 fi
 %if %sgi_issp_build
 %{_sgi_find_crypto}

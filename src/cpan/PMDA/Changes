@@ -1,5 +1,14 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.08  Thu Nov 19 10:37:26 EST 2009
+	- Fix typo on name export for pmda_inst_name.
+	- Add a fast path lookup in pmda_inst_name for direct
+	  instance identifier to offset case (common).
+	- When tailing logfiles, seek to end initially so we
+	  don't spend potentially copious amounts of time on
+	  scanning the entire log file - we only want events
+	  that happen after PMDA startup to be counted too.
+
 1.07  Fri Aug 21 09:27:51 EST 2009
 	- Add helper routines to determine native long sizes.
 

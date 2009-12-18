@@ -74,6 +74,9 @@ then
 elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN)
+    target_distro=macosx
+    version=`sw_vers -productVersion | sed -e 's/\.//' -e 's/\..*//g'`
+    test $version -ge 106 && target_distro=cocoa
 elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW)
@@ -1263,7 +1266,7 @@ fi
 AC_SUBST(pcp_share_dir)
 
 dnl private PCP executables
-pcp_binadm_dir=`eval echo $sbindir`
+pcp_binadm_dir=`eval echo $libexecdir`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
 if test "`echo $pcp_binadm_dir | sed 's;/.*\$;;'`" = NONE
 then
@@ -1273,18 +1276,14 @@ then
     elif test $target_os = mingw
     then
         pcp_binadm_dir=/local/bin
-    elif test $target_os = linux
+    elif test -d /usr/libexec
     then
-	if test "`echo $target_cpu | sed -e 's/.*64/64/'`" = 64 \
-		-a $target_cpu != ia64
-	then
-	    pcp_binadm_dir=/usr/lib64/pcp/bin
-	else
-	    pcp_binadm_dir=/usr/lib/pcp/bin
-	fi
+        pcp_binadm_dir=/usr/libexec/pcp/bin
     else
         pcp_binadm_dir=$pcp_share_dir/bin
     fi
+else
+   pcp_binadm_dir=`eval echo $pcp_binadm_dir/pcp/bin`
 fi
 AC_SUBST(pcp_binadm_dir)
 

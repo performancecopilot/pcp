@@ -34,7 +34,8 @@ CFILES		= pmda.c proc_stat.c proc_meminfo.c proc_loadavg.c \
 		  proc_net_snmp.c proc_scsi.c proc_fs_xfs.c \
 		  proc_cpuinfo.c proc_net_tcp.c \
 		  proc_slabinfo.c sem_limits.c msg_limits.c shm_limits.c \
-		  proc_uptime.c ksym.c proc_sys_fs.c proc_vmstat.c
+		  proc_uptime.c ksym.c proc_sys_fs.c proc_vmstat.c \
+		  sysfs_kernel.c
 
 HFILES		= proc_stat.h proc_meminfo.h proc_loadavg.h \
 		  proc_net_dev.h proc_interrupts.h filesys.h swapdev.h \
@@ -44,7 +45,7 @@ HFILES		= proc_stat.h proc_meminfo.h proc_loadavg.h \
 		  proc_cpuinfo.h proc_net_tcp.h proc_slabinfo.h \
 		  sem_limits.h msg_limits.h shm_limits.h proc_uptime.h \
 		  ksym.h proc_sys_fs.h proc_vmstat.h clusters.h indom.h \
-		  convert.h
+		  convert.h sysfs_kernel.h
 
 LSRCFILES 	= help root_linux root_irix
 LDIRT		= help.dir help.pag domain.h

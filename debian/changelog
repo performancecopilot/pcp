@@ -1,8 +1,14 @@
-pcp (3.0.2) unstable; urgency=log
+pcp (3.0.3) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
 
- -- Martin Hicks <mort@sgi.com>  Fri, 06 Nov 2009 09:09:15 -0500
+ -- Nathan Scott <nathans@debian.org>  Thu, 10 Dec 2009 17:44:53 +1100
+
+pcp (3.0.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 02 Dec 2009 12:48:38 +1100
 
 pcp (3.0.1) unstable; urgency=low
 

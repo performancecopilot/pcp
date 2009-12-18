@@ -75,7 +75,10 @@ PCFLAGS = -fpic -fno-strict-aliasing
 DSOSUFFIX = so
 endif
 ifeq "$(TARGET_OS)" "darwin"
-PCFLAGS = -fPIC -no-cpp-precomp -fno-strict-aliasing 
+PCFLAGS = -fPIC -no-cpp-precomp -fno-strict-aliasing -arch i386
+ifeq "$(PACKAGE_DISTRIBUTION)" "cocoa"
+PCFLAGS += -arch x86_64
+endif
 DSOSUFFIX = dylib
 CASE_INSENSITIVE_FS=1
 endif
@@ -83,6 +86,7 @@ ifeq "$(TARGET_OS)" "mingw"
 PCFLAGS = -fno-strict-aliasing -I$$PCP_DIR/local/include -I$$PCP_DIR/include
 DSOSUFFIX = dll
 EXECSUFFIX = .exe
+SHELLSUFFIX = .sh
 PLDLIBS = -lwsock32 -L$$PCP_DIR/local/bin -L$$PCP_DIR/local/lib -L$$PCP_DIR/lib
 endif
 ifeq "$(TARGET_OS)" "solaris"

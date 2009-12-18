@@ -1200,11 +1200,11 @@ sample_children(char *name, int traverse, char ***offspring, int **status, pmdaE
     int		namelen;
     char	*p;
     char	*q;
-    char	*qend;
+    char	*qend = NULL;
     char	**chn = NULL;
     int		*sts = NULL;
     size_t	len = 0;
-    size_t	tlen;
+    size_t	tlen = 0;
 
     /* skip the sample. or sampledso. part */
     for (p = name; *p != '.' && *p; p++)

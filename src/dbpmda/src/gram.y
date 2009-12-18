@@ -254,16 +254,17 @@ stmt	: OPEN EOL				{
 		param.name = $2;
 		stmt_type = NAMESPACE; YYACCEPT;
 	    }
+
 	| HELP EOL				{ 
 		param.number = -1; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT; 
 	    }
-	| HELP OPEN EOL				{
-		param.number = OPEN; param.pmid = HELP_FULL; 
-		stmt_type = HELP; YYACCEPT;
-	    }
 	| HELP CLOSE EOL			{
 		param.number = CLOSE; param.pmid = HELP_FULL; 
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| HELP DBG EOL				{
+		param.number = DBG; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
 	| HELP DESC EOL				{
@@ -278,6 +279,10 @@ stmt	: OPEN EOL				{
 		param.number = GETDESC; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
+	| HELP INFO EOL				{
+		param.number = INFO; param.pmid = HELP_FULL;
+		stmt_type = HELP; YYACCEPT;
+	    }
 	| HELP INSTANCE EOL			{
 		param.number = INSTANCE; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
@@ -286,16 +291,28 @@ stmt	: OPEN EOL				{
 		param.number = NAMESPACE; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
+	| HELP OPEN EOL				{
+		param.number = OPEN; param.pmid = HELP_FULL; 
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| HELP PMNS_CHILDREN EOL			{
+		param.number = PMNS_CHILDREN; param.pmid = HELP_FULL; 
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| HELP PMNS_NAME EOL			{
+		param.number = PMNS_NAME; param.pmid = HELP_FULL; 
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| HELP PMNS_PMID EOL			{
+		param.number = PMNS_PMID; param.pmid = HELP_FULL; 
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| HELP PMNS_TRAVERSE EOL			{
+		param.number = PMNS_TRAVERSE; param.pmid = HELP_FULL; 
+		stmt_type = HELP; YYACCEPT;
+	    }
 	| HELP PROFILE EOL			{
 		param.number = PROFILE; param.pmid = HELP_FULL; 
-		stmt_type = HELP; YYACCEPT;
-	    }
-	| HELP WATCH EOL			{
-		param.number = WATCH; param.pmid = HELP_FULL; 
-		stmt_type = HELP; YYACCEPT;
-	    }
-	| HELP DBG EOL				{
-		param.number = DBG; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
 	| HELP QUIT EOL				{
@@ -310,10 +327,6 @@ stmt	: OPEN EOL				{
 		param.number = STORE; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
-	| HELP INFO EOL				{
-		param.number = INFO; param.pmid = HELP_FULL;
-		stmt_type = HELP; YYACCEPT;
-	    }
 	| HELP TIMER EOL				{
 		param.number = TIMER; param.pmid = HELP_FULL;
 		stmt_type = HELP; YYACCEPT;
@@ -322,6 +335,11 @@ stmt	: OPEN EOL				{
 		param.number = WAIT; param.pmid = HELP_FULL;
 		stmt_type = HELP; YYACCEPT;
 	    }
+	| HELP WATCH EOL			{
+		param.number = WATCH; param.pmid = HELP_FULL; 
+		stmt_type = HELP; YYACCEPT;
+	    }
+
 	| QUIT EOL				{ stmt_type = QUIT; YYACCEPT; }
 	| DBG EOL				{
 		param.number = DBG; param.pmid = HELP_USAGE; 

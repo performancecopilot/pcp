@@ -152,10 +152,10 @@ static char *statestr[] = {
 #endif
 
 int
-dousername(FILE *fin, FILE *fout, char *username, char *host)
+dousername(FILE *fin, FILE *fout, char *username, char *host, char **pass)
 {
     char	*w;
-    int		done = 0;
+    int		len, done = 0;
 
     for ( ; ; ) {
 	w = mygetwd(fin);
@@ -173,8 +173,11 @@ dousername(FILE *fin, FILE *fout, char *username, char *host)
 		if (w == NULL || strcmp(w, USERPROMPT) == 0)
 		    /* closed connection or Username re-prompt */
 		    break;
-		if (w[strlen(w)-1] == '>') {
-		    /* command prompt */
+		len = strlen(w) - 1;
+		if (w[len] == '>' || w[len] == ':') {
+		    /* command prompt or passwd */
+		    if (w[len] == ':')
+			*pass = w;
 		    done = 1;
 		    break;
 		}
@@ -199,13 +202,17 @@ host, USERPROMPT, username);
 }
 
 int
-dopasswd(FILE *fin, FILE *fout, char *passwd, char *host)
+dopasswd(FILE *fin, FILE *fout, char *passwd, char *host, char *pass)
 {
     char	*w;
     int		done = 0;
 
     for ( ; ; ) {
-	w = mygetwd(fin);
+	if (pass)	/* dousername may have read passwd prompt */
+	    w = pass;
+	else
+	    w = mygetwd(fin);
+	pass = NULL;
 	if (w == NULL || w[strlen(w)-1] == '>')
 	    break;
 #ifdef PCP_DEBUG
@@ -331,6 +338,7 @@ grab_cisco(intf_t *ip)
     int		skip = 0;		/* initialize to pander to gcc */
     int		i;
     int		namelen;
+    char	*pass = NULL;
     char	*w;
     int		fd;
     int		nval = 0;
@@ -379,7 +387,7 @@ grab_cisco(intf_t *ip)
 		/*
 		 * Username stuff ...
 		 */
-		if (dousername(cp->fin, cp->fout, cp->username, cp->host) == 0) {
+		if (dousername(cp->fin, cp->fout, cp->username, cp->host, &pass) == 0) {
 		    fclose(cp->fin);
 		    fclose(cp->fout);
 		    cp->fin = NULL;
@@ -390,7 +398,7 @@ grab_cisco(intf_t *ip)
 		/*
 		 * User-level password stuff ...
 		 */
-		if (dopasswd(cp->fin, cp->fout, cp->passwd, cp->host) == 0) {
+		if (dopasswd(cp->fin, cp->fout, cp->passwd, cp->host, pass) == 0) {
 		    fclose(cp->fin);
 		    fclose(cp->fout);
 		    cp->fin = NULL;
