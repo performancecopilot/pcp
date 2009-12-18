@@ -67,7 +67,7 @@ build-me: domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help.dir help.pag $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help help.dir help.pag $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root_linux $(PCP_VAR_DIR)/pmns/root_linux
 else

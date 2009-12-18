@@ -1275,7 +1275,8 @@ then
         pcp_binadm_dir=/local/bin
     elif test $target_os = linux
     then
-	if test "`echo $target_cpu | sed -e 's/.*64/64/'`" = 64
+	if test "`echo $target_cpu | sed -e 's/.*64/64/'`" = 64 \
+		-a $target_cpu != ia64
 	then
 	    pcp_binadm_dir=/usr/lib64/pcp/bin
 	else
@@ -1725,23 +1726,6 @@ int main () {
     return (0);
 }
 ], AC_DEFINE(HAVE_STRFTIME_z) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no),  0)
-
-AC_CHECK_HEADER(infiniband/umad.h, [AC_SUBST(UMAD_H, yes)])
-AC_CHECK_HEADER(infiniband/mad.h, [AC_SUBST(MAD_H, yes)])
-
-AC_CHECK_LIB(ibcommon, ibwarn, [AC_SUBST(LIBIBCOMMON,-libcommon)])
-AC_CHECK_LIB(ibmad, madrpc_init, [AC_SUBST(LIBIBMAD,-libmad)])
-AC_CHECK_LIB(ibumad, umad_init, [AC_SUBST(LIBIBUMAD,-libumad)])
-
-HAVE_IBDEV=0
-if test -n "$UMAD_H" -a \ 
-	-n "$MAD_H" -a \
-	-n "$LIBIBCOMMON" -a \
-	-n "$LIBIBUMAD" -a \
-	-n "$LIBIBMAD" ; then
-	HAVE_IBDEV=1
-fi
-AC_SUBST(HAVE_IBDEV)
 
 dnl
 dnl output files
