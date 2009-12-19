@@ -1,0 +1,142 @@
+#!/bin/sh
+# PCP QA Test No. 256
+#
+# Derived metrics and PMNS operations
+#
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+
+# creator
+owner=kenj
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if grep -q 'pmRegisterDerived' /usr/include/pcp/pmapi.h
+then
+    :
+else
+    echo "No derived metric support" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+unset PCP_DERIVED_CONFIG
+
+echo "QA output created by $seq"
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/'
+
+}
+
+# real QA test starts here
+
+echo "HOST context ..."
+cat <<End-of-File >$tmp.config
+myname.one = sample.long.one
+myname.suba.two = 2*sample.long.one
+myname.suba.three = 3*sample.long.one
+myname.suba.subb.four = 4*sample.long.one
+myname.suba.subb.subc.subd.five = 5*sample.long.one
+myname.suba.subb.subc.subd.six = 6*sample.long.one
+End-of-File
+echo
+cat $tmp.config
+
+for args in myname.suba.subb.subc.subd.six myname.suba.subb myname \
+    myname.one.bad myname.suba.subb.subc.bad
+do
+    echo
+    echo "=== $args ==="
+    pminfo -h localhost -c $tmp.config $args 2>&1 | _filter
+    echo "=== -f $args ==="
+    pminfo -h localhost -c $tmp.config -f $args 2>&1 | _filter
+done
+
+echo
+echo "ARCHIVE context ..."
+cat <<End-of-File >$tmp.config
+sample.one = sample.longlong.one
+sample.suba.two = 2*sample.longlong.one
+sample.suba.three = 3*sample.longlong.one
+sample.suba.subb.four = 4*sample.longlong.one
+sample.suba.subb.subc.subd.five = 5*sample.longlong.one
+sample.suba.subb.subc.subd.six = 6*sample.longlong.one
+End-of-File
+echo
+cat $tmp.config
+
+for args in sample.suba.subb.subc.subd.six sample.suba.subb sample \
+    sample.one.bad sample.suba.subb.subc.bad
+do
+    echo
+    echo "=== $args ==="
+    pminfo -a src-oss/reduce-1 -c $tmp.config $args 2>&1 | _filter
+    echo "=== -f $args ==="
+    pminfo -a src-oss/reduce-1 -c $tmp.config -f $args 2>&1 | _filter
+done
+
+echo
+echo "LOCAL context ..."
+cat <<End-of-File >$tmp.config
+sampledso.one = sampledso.longlong.one
+sampledso.suba.two = 2*sampledso.longlong.one
+sampledso.suba.three = 3*sampledso.longlong.one
+sampledso.suba.subb.four = 4*sampledso.longlong.one
+sampledso.suba.subb.subc.subd.five = 5*sampledso.longlong.one
+sampledso.suba.subb.subc.subd.six = 6*sampledso.longlong.one
+End-of-File
+echo
+cat $tmp.config
+export PMDA_LOCAL_SAMPLE=yes
+
+for args in sampledso.suba.subb.subc.subd.six sampledso.suba.subb sampledso \
+    sampledso.one.bad sampledso.suba.subb.subc.bad
+do
+    echo
+    echo "=== $args ==="
+    pminfo -L -c $tmp.config $args 2>&1 | _filter
+    echo "=== -f $args ==="
+    pminfo -L -c $tmp.config -f $args 2>&1 | _filter \
+    | $PCP_AWK_PROG '
+NF == 0	{ want = 0; next }
+$1 == "sampledso.one"	{ print ""; want = 1 }
+$1 ~ /^sampledso\.suba\./	{ print ""; want = 1 }
+want == 1		{ print }'
+done
+
+echo
+echo "Splice-n-dice into existing PMNS ..."
+cat <<End-of-File >$tmp.config
+derived = sample.long.one
+derived_tree.ten = sample.long.ten
+derived_tree.hundred = sample.long.hundred
+derived_tree.sample.long.million = sample.long.million
+sample.long.derived = sample.long.one
+sample.long.foo.bar.derived = sample.long.one
+End-of-File
+cat $tmp.config
+
+for args in "" derived derived_tree sample
+do
+    echo
+    echo "=== $args ==="
+    pminfo -c $tmp.config $args 2>&1 | grep derived
+done
+
+
+# success, all done
+exit

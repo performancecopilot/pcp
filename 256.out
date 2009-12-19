@@ -1,0 +1,436 @@
+QA output created by 256
+HOST context ...
+
+myname.one = sample.long.one
+myname.suba.two = 2*sample.long.one
+myname.suba.three = 3*sample.long.one
+myname.suba.subb.four = 4*sample.long.one
+myname.suba.subb.subc.subd.five = 5*sample.long.one
+myname.suba.subb.subc.subd.six = 6*sample.long.one
+
+=== myname.suba.subb.subc.subd.six ===
+myname.suba.subb.subc.subd.six
+=== -f myname.suba.subb.subc.subd.six ===
+
+myname.suba.subb.subc.subd.six
+    value 6
+
+=== myname.suba.subb ===
+myname.suba.subb.four
+myname.suba.subb.subc.subd.five
+myname.suba.subb.subc.subd.six
+=== -f myname.suba.subb ===
+
+myname.suba.subb.four
+    value 4
+
+myname.suba.subb.subc.subd.five
+    value 5
+
+myname.suba.subb.subc.subd.six
+    value 6
+
+=== myname ===
+myname.one
+myname.suba.two
+myname.suba.three
+myname.suba.subb.four
+myname.suba.subb.subc.subd.five
+myname.suba.subb.subc.subd.six
+=== -f myname ===
+
+myname.one
+    value 1
+
+myname.suba.two
+    value 2
+
+myname.suba.three
+    value 3
+
+myname.suba.subb.four
+    value 4
+
+myname.suba.subb.subc.subd.five
+    value 5
+
+myname.suba.subb.subc.subd.six
+    value 6
+
+=== myname.one.bad ===
+Error: myname.one.bad: Unknown metric name
+=== -f myname.one.bad ===
+Error: myname.one.bad: Unknown metric name
+
+=== myname.suba.subb.subc.bad ===
+Error: myname.suba.subb.subc.bad: Unknown metric name
+=== -f myname.suba.subb.subc.bad ===
+Error: myname.suba.subb.subc.bad: Unknown metric name
+
+ARCHIVE context ...
+
+sample.one = sample.longlong.one
+sample.suba.two = 2*sample.longlong.one
+sample.suba.three = 3*sample.longlong.one
+sample.suba.subb.four = 4*sample.longlong.one
+sample.suba.subb.subc.subd.five = 5*sample.longlong.one
+sample.suba.subb.subc.subd.six = 6*sample.longlong.one
+
+=== sample.suba.subb.subc.subd.six ===
+sample.suba.subb.subc.subd.six
+=== -f sample.suba.subb.subc.subd.six ===
+
+sample.suba.subb.subc.subd.six
+    value 6
+
+=== sample.suba.subb ===
+sample.suba.subb.four
+sample.suba.subb.subc.subd.five
+sample.suba.subb.subc.subd.six
+=== -f sample.suba.subb ===
+
+sample.suba.subb.four
+    value 4
+
+sample.suba.subb.subc.subd.five
+    value 5
+
+sample.suba.subb.subc.subd.six
+    value 6
+
+=== sample ===
+sample.milliseconds
+sample.load
+sample.colour
+sample.drift
+sample.float.one
+sample.float.ten
+sample.float.hundred
+sample.float.million
+sample.float.write_me
+sample.longlong.one
+sample.longlong.ten
+sample.longlong.hundred
+sample.longlong.million
+sample.longlong.write_me
+sample.double.one
+sample.double.ten
+sample.double.hundred
+sample.double.million
+sample.double.write_me
+sample.string.null
+sample.string.hullo
+sample.string.write_me
+sample.aggregate.null
+sample.aggregate.hullo
+sample.aggregate.write_me
+sample.wrap.ulong
+sample.wrap.longlong
+sample.step_counter
+sample.one
+sample.suba.two
+sample.suba.three
+sample.suba.subb.four
+sample.suba.subb.subc.subd.five
+sample.suba.subb.subc.subd.six
+=== -f sample ===
+
+sample.milliseconds
+    value 3388275.115
+
+sample.load
+    value 42
+
+sample.colour
+    inst [0 or "red"] value 181
+    inst [1 or "green"] value 282
+    inst [2 or "blue"] value 383
+
+sample.drift
+    value 515
+
+sample.float.one
+    value 1
+
+sample.float.ten
+    value 10
+
+sample.float.hundred
+    value 100
+
+sample.float.million
+    value 1000000
+
+sample.float.write_me
+    value 13
+
+sample.longlong.one
+    value 1
+
+sample.longlong.ten
+    value 10
+
+sample.longlong.hundred
+    value 100
+
+sample.longlong.million
+    value 1000000
+
+sample.longlong.write_me
+    value 13
+
+sample.double.one
+    value 1
+
+sample.double.ten
+    value 10
+
+sample.double.hundred
+    value 100
+
+sample.double.million
+    value 1000000
+
+sample.double.write_me
+    value 13
+
+sample.string.null
+    value ""
+
+sample.string.hullo
+    value "hullo world!"
+
+sample.string.write_me
+    value "13"
+
+sample.aggregate.null
+    value "" []
+
+sample.aggregate.hullo
+    value "hullo world!" [68756c6c6f20776f726c6421]
+
+sample.aggregate.write_me
+    value "13" [3133]
+
+sample.wrap.ulong
+    value 2147483526
+
+sample.wrap.longlong
+    value 4611686018427387782
+
+sample.step_counter
+    value 2260
+
+sample.one
+    value 1
+
+sample.suba.two
+    value 2
+
+sample.suba.three
+    value 3
+
+sample.suba.subb.four
+    value 4
+
+sample.suba.subb.subc.subd.five
+    value 5
+
+sample.suba.subb.subc.subd.six
+    value 6
+
+=== sample.one.bad ===
+Error: sample.one.bad: Unknown metric name
+=== -f sample.one.bad ===
+Error: sample.one.bad: Unknown metric name
+
+=== sample.suba.subb.subc.bad ===
+Error: sample.suba.subb.subc.bad: Unknown metric name
+=== -f sample.suba.subb.subc.bad ===
+Error: sample.suba.subb.subc.bad: Unknown metric name
+
+LOCAL context ...
+
+sampledso.one = sampledso.longlong.one
+sampledso.suba.two = 2*sampledso.longlong.one
+sampledso.suba.three = 3*sampledso.longlong.one
+sampledso.suba.subb.four = 4*sampledso.longlong.one
+sampledso.suba.subb.subc.subd.five = 5*sampledso.longlong.one
+sampledso.suba.subb.subc.subd.six = 6*sampledso.longlong.one
+
+=== sampledso.suba.subb.subc.subd.six ===
+sampledso.suba.subb.subc.subd.six
+=== -f sampledso.suba.subb.subc.subd.six ===
+
+sampledso.suba.subb.subc.subd.six
+    value 6
+
+=== sampledso.suba.subb ===
+sampledso.suba.subb.four
+sampledso.suba.subb.subc.subd.five
+sampledso.suba.subb.subc.subd.six
+=== -f sampledso.suba.subb ===
+
+sampledso.suba.subb.four
+    value 4
+
+sampledso.suba.subb.subc.subd.five
+    value 5
+
+sampledso.suba.subb.subc.subd.six
+    value 6
+
+=== sampledso ===
+sampledso.control
+sampledso.daemon_pid
+sampledso.seconds
+sampledso.milliseconds
+sampledso.load
+sampledso.colour
+sampledso.darkness
+sampledso.bin
+sampledso.bucket
+sampledso.part_bin
+sampledso.bogus_bin
+sampledso.drift
+sampledso.step
+sampledso.step_counter
+sampledso.mirage
+sampledso.mirage_longlong
+sampledso.write_me
+sampledso.lights
+sampledso.magnitude
+sampledso.sysinfo
+sampledso.pdu
+sampledso.recv_pdu
+sampledso.xmit_pdu
+sampledso.noinst
+sampledso.needprofile
+sampledso.not_ready
+sampledso.rapid
+sampledso.error_code
+sampledso.error_check
+sampledso.bigid
+sampledso.byte_ctr
+sampledso.byte_rate
+sampledso.kbyte_ctr
+sampledso.kbyte_rate
+sampledso.byte_rate_perhour
+sampledso.datasize
+sampledso.secret
+sampledso.long.one
+sampledso.long.ten
+sampledso.long.hundred
+sampledso.long.million
+sampledso.long.write_me
+sampledso.longlong.one
+sampledso.longlong.ten
+sampledso.longlong.hundred
+sampledso.longlong.million
+sampledso.longlong.write_me
+sampledso.float.one
+sampledso.float.ten
+sampledso.float.hundred
+sampledso.float.million
+sampledso.float.write_me
+sampledso.double.one
+sampledso.double.ten
+sampledso.double.hundred
+sampledso.double.million
+sampledso.double.write_me
+sampledso.string.null
+sampledso.string.hullo
+sampledso.string.write_me
+sampledso.aggregate.null
+sampledso.aggregate.hullo
+sampledso.aggregate.write_me
+sampledso.hordes.one
+sampledso.hordes.two
+sampledso.bad.unknown
+sampledso.bad.nosupport
+sampledso.wrap.long
+sampledso.wrap.ulong
+sampledso.wrap.longlong
+sampledso.wrap.ulonglong
+sampledso.dodgey.control
+sampledso.dodgey.value
+sampledso.dynamic.counter
+sampledso.dynamic.discrete
+sampledso.dynamic.instant
+sampledso.dynamic.meta.metric
+sampledso.dynamic.meta.pmdesc.type
+sampledso.dynamic.meta.pmdesc.indom
+sampledso.dynamic.meta.pmdesc.sem
+sampledso.dynamic.meta.pmdesc.units
+sampledso.scale_step.bytes_up
+sampledso.scale_step.bytes_down
+sampledso.scale_step.count_up
+sampledso.scale_step.count_down
+sampledso.scale_step.time_up_secs
+sampledso.scale_step.time_up_nanosecs
+sampledso.scale_step.none_up
+sampledso.const_rate.value
+sampledso.const_rate.gradient
+sampledso.many.count
+sampledso.many.int
+sampledso.one
+sampledso.suba.two
+sampledso.suba.three
+sampledso.suba.subb.four
+sampledso.suba.subb.subc.subd.five
+sampledso.suba.subb.subc.subd.six
+=== -f sampledso ===
+
+sampledso.one
+    value 1
+
+sampledso.suba.two
+    value 2
+
+sampledso.suba.three
+    value 3
+
+sampledso.suba.subb.four
+    value 4
+
+sampledso.suba.subb.subc.subd.five
+    value 5
+
+sampledso.suba.subb.subc.subd.six
+    value 6
+
+=== sampledso.one.bad ===
+Error: sampledso.one.bad: Unknown metric name
+=== -f sampledso.one.bad ===
+
+=== sampledso.suba.subb.subc.bad ===
+Error: sampledso.suba.subb.subc.bad: Unknown metric name
+=== -f sampledso.suba.subb.subc.bad ===
+
+Splice-n-dice into existing PMNS ...
+derived = sample.long.one
+derived_tree.ten = sample.long.ten
+derived_tree.hundred = sample.long.hundred
+derived_tree.sample.long.million = sample.long.million
+sample.long.derived = sample.long.one
+sample.long.foo.bar.derived = sample.long.one
+
+===  ===
+derived
+derived_tree.ten
+derived_tree.hundred
+derived_tree.sample.long.million
+sample.long.derived
+sample.long.foo.bar.derived
+
+=== derived ===
+derived
+
+=== derived_tree ===
+derived_tree.ten
+derived_tree.hundred
+derived_tree.sample.long.million
+
+=== sample ===
+sample.long.derived
+sample.long.foo.bar.derived
