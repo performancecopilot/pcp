@@ -157,10 +157,10 @@ by the dataset by the compression ratio.
 The number of redundant copies does not include any copies made as
 part of the pool redundancy.
 
-@zpool_perdisk.state Current state of per disk in zpool
-@zpool_perdisk.state_aux Current state (aux) of per disk in zpool
-@zpool_perdisk.state_combined state << 8 | state_aux
-@zpool_perdisk.checksum_errors Number of checksum errors per disk in zpool
-@zpool_perdisk.self_healed Number of bytes healed per disk in zpool
-@zpool_perdisk.in.errors Counter of read errors per disk in zpool
-@zpool_perdisk.out.errors Counter of write errors per disk in zpool
+@zpool.perdisk.state Current state of per disk in zpool
+@zpool.perdisk.state_aux Current state (aux) of per disk in zpool
+@zpool.perdisk.state_combined state << 8 | state_aux
+@zpool.perdisk.checksum_errors Number of checksum errors per disk in zpool
+@zpool.perdisk.self_healed Number of bytes healed per disk in zpool
+@zpool.perdisk.in.errors Counter of read errors per disk in zpool
+@zpool.perdisk.out.errors Counter of write errors per disk in zpool

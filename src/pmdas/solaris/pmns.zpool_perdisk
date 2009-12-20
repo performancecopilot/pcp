@@ -1,4 +1,4 @@
-zpool_perdisk {
+zpool.perdisk {
 	state		SOLARIS:0:100
 	state_aux	SOLARIS:0:101
 	state_combined	SOLARIS:0:102
@@ -8,10 +8,10 @@ zpool_perdisk {
 	out
 }
 
-zpool_perdisk.in {
+zpool.perdisk.in {
 	errors		SOLARIS:0:105
 }
 
-zpool_perdisk.out {
+zpool.perdisk.out {
 	errors		SOLARIS:0:106
 }

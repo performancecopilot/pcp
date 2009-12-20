@@ -6,6 +6,7 @@ zpool {
 	used		SOLARIS:0:59
 	checksum_errors	SOLARIS:0:66
 	self_healed	SOLARIS:0:67
+	perdisk
 	in
 	out
 }

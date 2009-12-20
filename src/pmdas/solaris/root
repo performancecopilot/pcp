@@ -12,7 +12,6 @@ root {
 	hinv
 	zpool
 	zfs
-	zpool_perdisk
 }
 
 #include "pmns.kernel"
