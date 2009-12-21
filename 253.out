@@ -124,7 +124,7 @@ myname.a
     inst [900 or "bin-900"] value 18
 
 sample.milliseconds
-    value 421255.693
+value <number>
 
 === sample.milliseconds myname.b ===
 sample.milliseconds
@@ -141,7 +141,7 @@ myname.b
 === -f sample.milliseconds myname.b ===
 
 sample.milliseconds
-    value 421255.693
+value <number>
 
 myname.b
     inst [100 or "bin-100"] value 300
@@ -184,7 +184,7 @@ myname.c
 === -f sample.milliseconds myname.a myname.b sample.milliseconds myname.c ===
 
 sample.milliseconds
-    value 421255.693
+value <number>
 
 myname.a
     inst [100 or "bin-100"] value 2
@@ -209,7 +209,7 @@ myname.b
     inst [900 or "bin-900"] value 2700
 
 sample.milliseconds
-    value 421255.693
+value <number>
 
 myname.c
     inst [100 or "bin-100"] value 0
