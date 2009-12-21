@@ -164,7 +164,7 @@ _shutdown()
     $RC_STATUS -v
     rm -fr $tmp.pmie $PCP_TMP_DIR/pmie
     pmpost "stop pmie from $pmprog"
-    [ x`uname` -eq xSunOS ] && pkill pmie
+    [ x`uname` == xSunOS ] && pkill pmie
 }
 
 while getopts v c
@@ -201,7 +201,7 @@ case "$1" in
 
 	if which pmie >/dev/null 2>&1
 	then
-	    if [ x`uname` -eq xSunOS ] || is_chkconfig_on pmie
+	    if is_chkconfig_on pmie
 	    then
 		[ ! -d "$RUNDIR" ] && mkdir -p "$RUNDIR"
 		cd $RUNDIR
