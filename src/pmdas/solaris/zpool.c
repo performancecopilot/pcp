@@ -23,7 +23,6 @@
 struct zpool_stats {
     int vdev_stats_fresh;
     vdev_stat_t vds;
-    uint32_t state_combined;
 };
 
 static libzfs_handle_t *zh;
@@ -84,7 +83,6 @@ zp_cache_pool(zpool_handle_t *zp, void *arg)
 					    (uint64_t **)&vds, &cnt);
 	    if (rv == 0) {
 		memcpy(&zps->vds, vds, sizeof(zps->vds));
-		zps->state_combined = (vds->vs_state << 8) | vds->vs_aux;
 		zps->vdev_stats_fresh = 1;
 	    } else {
 		__pmNotifyErr(LOG_ERR,
@@ -118,16 +116,26 @@ zpool_fetch(pmdaMetric *pm, int inst, pmAtomValue *atom)
     struct zpool_stats *zps;
     char *zpname;
     metricdesc_t *md = pm->m_user;
+    char *s;
 
     if (pmdaCacheLookup(indomtab[ZPOOL_INDOM].it_indom, inst, &zpname,
 			(void **)&zps) != PMDA_CACHE_ACTIVE)
 	return PM_ERR_INST;
 
     if (zps->vdev_stats_fresh) {
-	memcpy(&atom->ull, ((char *)&zps->vds) + md->md_offset,
-	       sizeof(atom->ull));
+	switch (pmid_item(md->md_desc.pmid)) {
+	case 97: /* zpool.state */
+	    s = zpool_state_to_name(zps->vds.vs_state, zps->vds.vs_aux);
+	    atom->cp = strdup(s);
+	    break;
+	case 98:
+	    atom->ul = (zps->vds.vs_aux << 8) | zps->vds.vs_state;
+	    break;
+	default:
+	    memcpy(&atom->ull, ((char *)&zps->vds) + md->md_offset,
+			sizeof(atom->ull));
+	}
     }
-
     return zps->vdev_stats_fresh;
 }
 

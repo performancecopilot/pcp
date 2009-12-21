@@ -23,7 +23,6 @@
 struct vdev_stats {
     int vdev_stats_fresh;
     vdev_stat_t vds;
-    uint32_t state_combined;
 };
 
 static libzfs_handle_t *zh;
@@ -214,7 +213,6 @@ zp_cache_vdevs(zpool_handle_t *zp, void *arg)
 
 	    if (rv >= 0) {
 	        memcpy(&zps->vds, vds[i], sizeof(zps->vds));
-		zps->state_combined = (vds[i]->vs_state << 8) | vds[i]->vs_aux;
 	        zps->vdev_stats_fresh = 1;
 	    } else {
 		__pmNotifyErr(LOG_ERR,
@@ -252,14 +250,25 @@ zpool_perdisk_fetch(pmdaMetric *pm, int inst, pmAtomValue *atom)
     struct vdev_stats *stats;
     char *vdev_name;
     metricdesc_t *md = pm->m_user;
+    char *s;
 
     if (pmdaCacheLookup(indomtab[ZPOOL_PERDISK_INDOM].it_indom, inst,
 			&vdev_name, (void **)&stats) != PMDA_CACHE_ACTIVE)
 	return PM_ERR_INST;
 
     if (stats->vdev_stats_fresh) {
-	memcpy(&atom->ull, ((char *)&stats->vds) + md->md_offset,
-	       sizeof(atom->ull));
+	switch (pmid_item(md->md_desc.pmid)) {
+	case 99: /* zpool.perdisk.state */
+	    s = zpool_state_to_name(stats->vds.vs_state, stats->vds.vs_aux);
+	    atom->cp = strdup(s);
+	    break;
+	case 100: /* zpool.perdisk.state_int */
+	    atom->ul = (stats->vds.vs_aux << 8) | stats->vds.vs_state;
+	    break;
+	default:
+	    memcpy(&atom->ull, ((char *)&stats->vds) + md->md_offset,
+		    sizeof(atom->ull));
+	}
     }
 
     return stats->vdev_stats_fresh;
