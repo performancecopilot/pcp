@@ -46,6 +46,12 @@ _cleanup()
 
 trap "_cleanup" 0 1 2 3 15
 
+_filter_mmv_values()
+{
+    cat
+}
+
+
 _delay_for_pmns()
 {
     sleep 2		# remove all this with new PMNS PDU types
@@ -83,13 +89,16 @@ _filter_pmda_install <$tmp.out
 $here/src-oss/mmv_instances cats
 $here/src-oss/mmv_instances dogs
 $here/src-oss/mmv_instances mice
-_delay_for_pmns
+#not needed with dynamic PMNS changes# _delay_for_pmns
 
 echo
 echo "=== validate values ==="
-if pminfo -fdmtT $iam
+if pminfo $iam | LC_COLLATE=POSIX sort >$tmp.names
 then
-     :
+    for name in `cat $tmp.names`
+    do
+	pminfo -fdmtT $name | _filter_mmv_values
+    done
 else
     echo "... failed! ... here is the Install log ..."
     cat $tmp.out
