@@ -266,6 +266,7 @@ EXTERN int __pmLogReads;
 extern void __pmDumpIDList(FILE *, int, const pmID *);
 extern void __pmDumpNameList(FILE *, int, char **);
 extern void __pmDumpStatusList(FILE *, int, const int *);
+extern void __pmDumpNameandStatusList(FILE *, int, char **, int *);
 #endif
 
 /*
@@ -1184,7 +1185,9 @@ extern int __pmSetClientId(char *);
  * internal methods to support callbacks for derved metrics
  */
 extern int __dmtraverse(const char *, char ***);
+extern int __dmchildren(const char *, char ***, int **);
 extern int __dmgetpmid(const char *, pmID *);
+extern int __dmgetname(pmID, char **);
 extern void __dmopencontext(__pmContext *);
 extern void __dmclosecontext(__pmContext *);
 extern int __dmdesc(__pmContext *, pmID, pmDesc *);

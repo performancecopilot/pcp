@@ -141,7 +141,8 @@ __dmprefetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmID **newlist)
 /*
  * Free the old ivlist[] (if any) ... may need to walk the list because
  * the pmAtomValues may have buffers attached in the type STRING and
- * type AGGREGATE* cases
+ * type AGGREGATE* cases.
+ * Includes logic to save one history sample (for delta()).
  */
 static void
 free_ivlist(node_t *np)
@@ -150,17 +151,65 @@ free_ivlist(node_t *np)
 
     assert(np->info != NULL);
 
-    if (np->info->ivlist != NULL) {
-	if (np->desc.type == PM_TYPE_STRING ||
-	    np->desc.type == PM_TYPE_AGGREGATE ||
-	    np->desc.type == PM_TYPE_AGGREGATE_STATIC) {
-	    for (i = 0; i < np->info->numval; i++) {
-		if (np->info->ivlist[i].value.vp != NULL)
-		    free(np->info->ivlist[i].value.vp);
+    if (np->save_last) {
+	if (np->info->last_ivlist != NULL) {
+	    if (np->desc.type == PM_TYPE_STRING ||
+		np->desc.type == PM_TYPE_AGGREGATE ||
+		np->desc.type == PM_TYPE_AGGREGATE_STATIC) {
+		for (i = 0; i < np->info->last_numval; i++) {
+		    if (np->info->last_ivlist[i].value.vp != NULL)
+			free(np->info->last_ivlist[i].value.vp);
+		}
+	    }
+	    free(np->info->last_ivlist);
+	}
+	np->info->last_numval = np->info->numval;
+	if (np->info->iv_alloc == 0) {
+	    /*
+	     * saved last values has to be copied to avoid clobbering
+	     * at next fetch
+	     */
+	    if ((np->info->last_ivlist = (val_t *)malloc(np->info->last_numval*sizeof(val_t))) == NULL) {
+		__pmNoMem("free_ivlist: last ivlist", np->info->last_numval*sizeof(val_t), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    for (i = 0; i < np->info->last_numval; i++) {
+		np->info->last_ivlist[i].inst = np->info->ivlist[i].inst;
+		np->info->last_ivlist[i].vlen = np->info->ivlist[i].vlen;
+		if (np->desc.type == PM_TYPE_STRING ||
+		    np->desc.type == PM_TYPE_AGGREGATE ||
+		    np->desc.type == PM_TYPE_AGGREGATE_STATIC) {
+		    if ((np->info->last_ivlist[i].value.vp = (void *)malloc(np->info->last_ivlist[i].vlen)) == NULL) {
+			__pmNoMem("free_ivlist: last value", np->info->last_ivlist[i].vlen, PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    memcpy(np->info->last_ivlist[i].value.vp, np->info->ivlist[i].value.vp, np->info->last_ivlist[i].vlen);
+		}
+		else
+		    memcpy((void *)&np->info->last_ivlist[i].value, (void *)&np->info->ivlist[i].value, sizeof(np->info->last_ivlist[0].value));
 	    }
 	}
-	free(np->info->ivlist);
+	else {
+	    np->info->last_ivlist = np->info->ivlist;
+	}
+    }
+    else {
+	/* no history */
+	if (np->info->iv_alloc == 1)  {
+	    if (np->info->ivlist != NULL) {
+		if (np->desc.type == PM_TYPE_STRING ||
+		    np->desc.type == PM_TYPE_AGGREGATE ||
+		    np->desc.type == PM_TYPE_AGGREGATE_STATIC) {
+		    for (i = 0; i < np->info->numval; i++) {
+			if (np->info->ivlist[i].value.vp != NULL)
+			    free(np->info->ivlist[i].value.vp);
+		    }
+		}
+	    }
+	    free(np->info->ivlist);
+	}
 	np->info->ivlist = NULL;
+	np->info->numval = 0;
     }
 }
 
@@ -452,6 +501,70 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    }
 	    return 1;
 
+	case L_DELTA:
+	    /*
+	     * this and the last values are in the left expr
+	     */
+	    free_ivlist(np);
+	    np->info->numval = np->left->info->numval <= np->left->info->last_numval ? np->left->info->numval : np->left->info->last_numval;
+	    if (np->info->numval <= 0)
+		return np->info->numval;
+	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
+		__pmNoMem("eval_expr: delta() ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    np->info->iv_alloc = 1;
+	    for (i = k = 0; k < np->info->numval; i++) {
+		if (i >= np->left->info->numval) {
+		    /* run out of current instances */
+		    np->info->numval = k;
+		    break;
+		}
+		j = i;
+		if (j >= np->left->info->last_numval ||
+		    np->left->info->ivlist[i].inst != np->left->info->last_ivlist[j].inst) {
+		    /* current ith inst != last jth inst ... search in last */
+		    for (j = 0; j < np->left->info->last_numval; j++) {
+			if (np->left->info->ivlist[i].inst == np->left->info->last_ivlist[j].inst)
+			    break;
+		    }
+		    if (j == np->left->info->last_numval) {
+			/* no match, one less result instance */
+			np->info->numval--;
+			continue;
+		    }
+		}
+		np->info->ivlist[k].inst = np->left->info->ivlist[i].inst;
+		switch (np->desc.type) {
+		    case PM_TYPE_32:
+			np->info->ivlist[k].value.l = np->left->info->ivlist[i].value.l - np->left->info->last_ivlist[j].value.l;
+			break;
+		    case PM_TYPE_U32:
+			np->info->ivlist[k].value.ul = np->left->info->ivlist[i].value.ul - np->left->info->last_ivlist[j].value.ul;
+			break;
+		    case PM_TYPE_64:
+			np->info->ivlist[k].value.ll = np->left->info->ivlist[i].value.ll - np->left->info->last_ivlist[j].value.ll;
+			break;
+		    case PM_TYPE_U64:
+			np->info->ivlist[k].value.ull = np->left->info->ivlist[i].value.ull - np->left->info->last_ivlist[j].value.ull;
+			break;
+		    case PM_TYPE_FLOAT:
+			np->info->ivlist[k].value.f = np->left->info->ivlist[i].value.f - np->left->info->last_ivlist[j].value.f;
+			break;
+		    case PM_TYPE_DOUBLE:
+			np->info->ivlist[k].value.d = np->left->info->ivlist[i].value.d - np->left->info->last_ivlist[j].value.d;
+			break;
+		    default:
+			/*
+			 * Nothing should end up here as check_expr() checks
+			 * for numeric data type at bind time
+			 */
+			return PM_ERR_CONV;
+		}
+		k++;
+	    }
+	    return np->info->numval;
+
 	case L_NAME:
 	    /*
 	     * Extract instance-values from pmResult and store them in
@@ -467,6 +580,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 			__pmNoMem("eval_expr: metric ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
+		    np->info->iv_alloc = 1;
 		    for (i = 0; i < np->info->numval; i++) {
 			np->info->ivlist[i].inst = rp->vset[j]->vlist[i].inst;
 			switch (np->desc.type) {
@@ -534,6 +648,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 #endif
 	    return PM_ERR_PMID;
 
+
 	default:
 	    src = NULL;
 	    if (np->left == NULL) {
@@ -593,10 +708,13 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		    __pmNoMem("eval_expr: expr ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
+		np->info->iv_alloc = 1;
 		/*
 		 * ivlist[k] = left-ivlist[i] <op> right-ivlist[j]
+		 *
+		 * TODO - not quit right ... the zero-trip case may pick
+		 * different instances
 		 */
-		i = j = k = 0;
 		for (i = j = k = 0; ; k++) {
 		    np->info->ivlist[k].value =
 			bin_op(np->desc.type, np->type,
@@ -752,6 +870,8 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	    }
 	}
 	fputc('\n', stderr);
+	if (cp->mlist[m].expr->info != NULL)
+	    __dmdumpexpr(cp->mlist[m].expr, 1);
     }
 #endif
 		    }

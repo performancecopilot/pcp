@@ -37,14 +37,18 @@ typedef struct {		/* one value in the expression tree */
 
 typedef struct {		/* dynamic information for an expression node */
     pmID	pmid;
-    int		numval;
+    int		numval;		/* length of ivlist[] */
     int		iv_alloc;	/* set if ivlist is allocated from this node */
     val_t	*ivlist;	/* instance-value pairs */
+    int		last_numval;	/* length of last_ivlist[] */
+    val_t	*last_ivlist;	/* values from previous fetch for delta() */
+
 } info_t;
 
 typedef struct node {		/* expression tree node */
     int		type;
     pmDesc	desc;
+    int		save_last;
     struct node	*left;
     struct node	*right;
     char	*value;
@@ -83,3 +87,5 @@ typedef struct {
 #define L_LPAREN	8
 #define L_RPAREN	9
 #define L_DELTA		10
+
+void __dmdumpexpr(node_t *, int);
