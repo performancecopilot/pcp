@@ -24,11 +24,11 @@ _filter()
     _filter_pmda_install | \
     sed -e 's/ 1090 / 1090+ /' \
 	-e 's/ 109[1-9] / 1090+ /' \
-	-e 's/ 11[0-2][0-9] / 1090+ /' \
+	-e 's/ 11[0-4][0-9] / 1090+ /' \
 	-e 's/ [8-9] warnings/ 8+ metrics/' \
 	-e 's/ 1[0] warnings/ 8+ metrics/' \
 	-e 's/ [7-9][0-9] metrics/ 76+ metrics/' \
-
+	-e 's/ 10[0-9] metrics/ 76+ metrics/'
 }
 
 _filter_rem()
