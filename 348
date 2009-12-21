@@ -72,7 +72,13 @@ $here/sudo rm -f pmns domain.h
 echo
 echo "=== $iam agent installation ==="
 $here/sudo ./Install </dev/null >$tmp.out 2>&1
-_filter_pmda_install <$tmp.out
+# Check kvm metrics have appeared ... X metrics and Y values
+_filter_pmda_install <$tmp.out \
+| $PCP_AWK_PROG '
+/Check kvm metrics have appeared/	{ if ($7 >= 30 && $7 <= 40) $7 = "X"
+					  if ($10 >= 30 && $10 <= 40) $10 = "Y"
+					}
+					{ print }'
 
 if pminfo -v $iam
 then
