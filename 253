@@ -24,6 +24,8 @@ else
     exit 0
 fi
 
+unset PCP_DERIVED_CONFIG
+
 echo "QA output created by $seq"
 
 tmp=/tmp/$$
@@ -63,9 +65,6 @@ do
     echo "=== -f $args ==="
     pminfo -c $tmp.config -a src-oss/bigbin -f $args 2>&1 | _filter
 done
-
-# success, all done
-exit
 
 # success, all done
 exit

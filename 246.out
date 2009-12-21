@@ -1,7 +1,8 @@
 QA output created by 246
-pmRegisterDerived: register metric[0] myname.a
-pmRegisterDerived: register metric[1] myname.b
-pmRegisterDerived: register metric[2] myname.c
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: register metric[0] myname.a = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million + sample.longlong.one + sample.longlong.ten + sample.longlong.hundred + sample.longlong.million
+pmRegisterDerived: register metric[1] myname.b = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million - sample.longlong.one - sample.longlong.ten - sample.longlong.hundred - sample.longlong.million
+pmRegisterDerived: register metric[2] myname.c = sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten + sample.long.hundred * sample.longlong.hundred + sample.long.million * sample.longlong.million
 open myname.a ...
 open myname.a ...
 open myname.a ...

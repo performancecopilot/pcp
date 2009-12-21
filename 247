@@ -24,6 +24,8 @@ else
     exit 0
 fi
 
+unset PCP_DERIVED_CONFIG
+
 echo "QA output created by $seq"
 
 tmp=/tmp/$$
@@ -36,7 +38,8 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 _filter()
 {
     cat $tmp.out >>$seq.full
-    cat $tmp.out
+    sed <$tmp.out \
+	-e "s;$tmp;TMP;"
 }
 
 # real QA test starts here

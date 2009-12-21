@@ -126,9 +126,13 @@ then
 	then
 	    # 2.b.?, b > 3 and b < 8
 	    ln $seq.out.linux.1 $seq.out
-	else
-	    # 2.b.?, b >= 8
+	elif [ "$b" -lt 10 ]
+	then
+	    # 2.b.?, b == 8 or 9
 	    ln $seq.out.linux.3 $seq.out
+	else
+	    # 2.b.?, b >= 10
+	    ln $seq.out.linux.4 $seq.out
 	fi
     else
 	# a.?.?, a > 2

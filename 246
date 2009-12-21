@@ -25,20 +25,22 @@ else
     exit 0
 fi
 
+unset PCP_DERIVED_CONFIG
+
 echo "QA output created by $seq"
 
 tmp=/tmp/$$
 here=`pwd`
 sudo=$here/sudo
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
+$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # Note
 #	addresses from malloc are obviously dependent on the implementation
 #	but if there is no memory leaks, we expect the SAME addresses to be
 #	allocated over and over ... we're arbitrarily picking a pool of
-#	up to the first 20 unique addresses we encounter (see the variable
+#	up to the first 40 unique addresses we encounter (see the variable
 #	PICK in the awk below) and this works for glibc 2.10.1 ... this
 #	number may need to be increased for other malloc implementations
 #
@@ -50,7 +52,7 @@ _filter()
 	-e 's/()//' \
 	-e 's/->/ /' \
     | awk >$tmp.sed '
-BEGIN				{ n = 0; PICK = 20 }
+BEGIN				{ n = 0; PICK = 40 }
 $1 == "__dmclosecontext"	{ if (map[$4] != "") next
 				  if (n >= PICK) next
 				  print "s/" $4 "/<addr>/"; n++ }
@@ -65,6 +67,7 @@ s/$/ .../
 }' \
 	-e '/__dmopencontext/s/__dmopencontext:/open/' \
 	-e '/__dmclosecontext/s/__dmclosecontext() called dm->/close /' \
+	-e "s;$tmp;TMP;" \
     | sed -f $tmp.sed
 }
 

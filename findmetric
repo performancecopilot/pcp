@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# find metrics in the QA archives
+#
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+pat=""
+for arg
+do
+    if [ -z "$pat" ]
+    then
+	pat="($arg)"
+    else
+	pat="$pat|($arg)"
+    fi
+done
+
+for arch in src-oss/*.0
+do
+    pminfo -a $arch 2>&1 | egrep "$pat" >$tmp.out
+
+    if [ -s $tmp.out ]
+    then
+	echo "`basename $arch .0`:"
+	sed -e 's/^/    /' <$tmp.out
+    fi
+done
