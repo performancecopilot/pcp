@@ -90,8 +90,7 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo)
 
 	/* count number of nodes */
 	if ((ndir = opendir("/sys/devices/system/node/")) == NULL) {
-	    fprintf(stderr, "%s: unable to initialize: %s\n",
-		    __FUNCTION__, strerror(errno));
+	   /* No NUMA statistics available */
 	    return -1;
 	}
 
