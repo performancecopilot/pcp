@@ -111,10 +111,10 @@ __dmgetpmid: metric "myname.d" -> PMID 511.0.4
 __dmgetpmid: metric "myname.e" -> PMID 511.0.5
 __dmgetpmid: metric "myname.f" -> PMID 511.0.6
 __dmgetpmid: metric "myname.e" -> PMID 511.0.5
-myname.a: pmLookupDesc: Unknown metric name
-myname.b: pmLookupDesc: Unknown metric name
-myname.c: pmLookupDesc: Unknown metric name
-myname.d: pmLookupDesc: Unknown metric name
-myname.e: pmLookupDesc: Unknown metric name
-myname.f: pmLookupDesc: Unknown metric name
-myname.e: pmLookupDesc: Unknown metric name
+myname.a: pmLookupDesc: Unknown or illegal metric identifier
+myname.b: pmLookupDesc: Unknown or illegal metric identifier
+myname.c: pmLookupDesc: Unknown or illegal metric identifier
+myname.d: pmLookupDesc: Unknown or illegal metric identifier
+myname.e: pmLookupDesc: Unknown or illegal metric identifier
+myname.f: pmLookupDesc: Unknown or illegal metric identifier
+myname.e: pmLookupDesc: Unknown or illegal metric identifier

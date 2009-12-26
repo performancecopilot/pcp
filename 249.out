@@ -1562,9 +1562,10 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.noinst] ma
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 expr node <addr> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0 [copied]
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1 [allocated]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+[0] inst=-1, val=1
 pmFetch returns ...
 TIMESTAMP ... numpmid: 6
   511.0.1 (myname.a): Explicit instance identifier(s) required

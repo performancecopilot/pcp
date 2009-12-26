@@ -299,8 +299,24 @@ expr node <addr-106> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlo
 expr node <addr-107> type=STAR left=<addr-108> right=<addr-109> save_last=0
 expr node <addr-108> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=1
 expr node <addr-109> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] master=1
+pmRegisterDerived: name="myname.p" expr="pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total )"
+parse(1) state=P_INIT type=L_NAME "pmcd.pdu_in.total"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "pmcd.pdu_in.total"
+parse(2) state=P_LEAF type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_NAME "pmcd.pdu_out.total"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_EOF ""
+pmRegisterDerived: register metric[16] myname.p = pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total )
+Derived metric expr dump from <addr-110>...
+expr node <addr-110> type=SLASH left=<addr-111> right=<addr-112> save_last=0
+expr node <addr-111> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pdu_in.total] master=1
+expr node <addr-112> type=PLUS left=<addr-113> right=<addr-114> save_last=0
+expr node <addr-113> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pdu_in.total] master=1
+expr node <addr-114> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pdu_out.total] master=1
 pmGetChildren(name="") 1 regular children, 1 derived children
-pmGetChildren(name="myname") no regular children (Unknown metric name), 16 derived children
+pmGetChildren(name="myname") no regular children (Unknown metric name), 17 derived children
 pmGetChildren(name="myname.a") no regular children (Unknown metric name), derived leaf
 pmGetChildren(name="myname.b") no regular children (Unknown metric name), derived leaf
 pmGetChildren(name="myname.c") no regular children (Unknown metric name), derived leaf
@@ -319,6 +335,7 @@ pmGetChildren(name="myname.ABC") no regular children (Unknown metric name), 1 de
 pmGetChildren(name="myname.ABC.k42") no regular children (Unknown metric name), 1 derived children
 pmGetChildren(name="myname.ABC.k42.x_1_3") no regular children (Unknown metric name), derived leaf
 pmGetChildren(name="myname.o") no regular children (Unknown metric name), derived leaf
+pmGetChildren(name="myname.p") no regular children (Unknown metric name), derived leaf
 local_pmns_no_pmcd_connection
 myname.a
 myname.b
@@ -336,6 +353,7 @@ myname.m
 myname.n
 myname.ABC.k42.x_1_3
 myname.o
+myname.p
 
 Syntax errors ...
 pmLoadDerivedConfig("TMP.config")
@@ -371,5 +389,30 @@ myname.e sample.long.one + sample.long.ten
 [TMP.config:8] Error: pmLoadDerivedConfig: illegal derived metric name (bad-name-xyz)
 [TMP.config:9] Error: pmLoadDerivedConfig: illegal derived metric name (123_really_bad_name)
 [TMP.config:10] Error: pmLoadDerivedConfig: illegal derived metric name (tricky._bad_name)
+pmRegisterDerived: name="myname.f" expr="pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total"
+parse(1) state=P_INIT type=L_NAME "pmcd.pdu_in.total"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "pmcd.pdu_in.total"
+parse(2) state=P_LEAF type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_NAME "pmcd.pdu_out.total"
+parse(2) state=P_LEAF type=L_EOF ""
+[TMP.config:11] Error: pmRegisterDerived(myname.f, ...) syntax error
+  pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total
+                                                             ^
+End of input
+pmRegisterDerived: name="myname.g" expr="pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total ) )"
+parse(1) state=P_INIT type=L_NAME "pmcd.pdu_in.total"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "pmcd.pdu_in.total"
+parse(2) state=P_LEAF type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_NAME "pmcd.pdu_out.total"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_RPAREN ")"
+[TMP.config:12] Error: pmRegisterDerived(myname.g, ...) syntax error
+  pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total ) )
+                                                                 ^
+Unexpected ')'
 pmGetChildren(name="") 1 regular children, no derived children (Unknown metric name)
 local_pmns_no_pmcd_connection

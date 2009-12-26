@@ -5,7 +5,7 @@
 # Basic parsing for derived metric definitions ... no binding, so no
 # semantic checks
 #
-# Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
 
 # creator
 owner=kenj
@@ -73,6 +73,7 @@ myname.m = sample.long.one * sample.longlong.one + sample.long.ten * sample.long
 myname.n = sample.long.one + sample.longlong.one * sample.long.ten + sample.longlong.ten
 myname.ABC.k42.x_1_3	=		disk.dev.write*disk.dev.read	+	sample.long.one*sample.long.ten	
 myname.o= sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten + sample.long.hundred * sample.longlong.hundred + sample.long.million * sample.longlong.million
+myname.p =  pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total )
 End-of-File
 
 pminfo -Dderive,appl0 -c $tmp.config -n $tmp.pmns >$tmp.out 2>&1
@@ -91,6 +92,8 @@ myname.e sample.long.one + sample.long.ten
 bad-name-xyz = sample.long.one
 123_really_bad_name = sample.long.one
 tricky._bad_name = sample.long.one
+myname.f =  pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total
+myname.g =  pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total ) )
 End-of-File
 
 pminfo -Dderive,appl0 -c $tmp.config -n $tmp.pmns >$tmp.out 2>&1
