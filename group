@@ -442,8 +442,8 @@ derive		pcpqa
 207 pmns local oss
 208 pmns local oss
 209 pmval local oss
-210 pmns local oss
-211 pmns local oss
+210 pmns local oss pmval pmie
+211 pmns local oss pmval pmie
 212 pmda pmda.cisco local oss
 213 dbpmda pmns local oss
 214 pmlogextract local oss
@@ -473,16 +473,22 @@ derive		pcpqa
 238 pmns local oss
 239 pmns local oss
 240 pmns local oss
+241 pmda.mmv local oss pmval
 242 pmlogger local oss
 243 pmcd local pmprobe oss
 244 pmcd local pmprobe oss
 245 pmns local oss
+246 derive local oss
+247 derive local oss
 248 pmlogger local oss
+249 derive local oss
 250 pmns local oss
 251 archive pmval local oss
 252 pmlogger local oss
+253 derive local oss
 254 libpcp pmns local oss
 255 compat pmda #508731 #509091 pmda.proc help pmda.install local pmda.simple oss
+256 derive pmns local oss
 257 libpcp pmns compat remote oss
 258 trace local pmda.install oss
 261 logutil pmdumplog pmval local pmlogextract oss
@@ -492,7 +498,7 @@ derive		pcpqa
 266 logutil #466346 patch2140 patch2141 local pmlogextract oss
 267 pmlogger local oss
 268 interop local oss
-269 wrap pmval pmie pmkstat local oss
+269 wrap pmval pmkstat local oss
 270 pmlogextract logutil local oss
 271 archive local oss
 272 pmcd pmval pmprobe remote oss
@@ -514,7 +520,7 @@ derive		pcpqa
 291 logutil local pmlogextract oss
 292 pmlogextract logutil pmval local oss
 293 pmstat #939275 local oss
-294 pmproxy local oss pmval
+294 pmproxy local oss pmval pmie
 295 pmproxy local oss pmval
 296 pmcd local oss
 297 pmproxy local oss
@@ -890,9 +896,5 @@ derive		pcpqa
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
-241 pmda.mmv local oss
-246 derive local oss
-247 derive local oss
-249 derive local oss
-253 derive local oss
-256 derive pmns local oss
+259 derive pmval local oss
+260 derive pmie local oss
