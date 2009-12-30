@@ -74,6 +74,7 @@ myname.n = sample.long.one + sample.longlong.one * sample.long.ten + sample.long
 myname.ABC.k42.x_1_3	=		disk.dev.write*disk.dev.read	+	sample.long.one*sample.long.ten	
 myname.o= sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten + sample.long.hundred * sample.longlong.hundred + sample.long.million * sample.longlong.million
 myname.p =  pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total )
+myname.biggest.const = 4294967295
 End-of-File
 
 pminfo -Dderive,appl0 -c $tmp.config -n $tmp.pmns >$tmp.out 2>&1
@@ -94,6 +95,9 @@ bad-name-xyz = sample.long.one
 tricky._bad_name = sample.long.one
 myname.f =  pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total
 myname.g =  pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total ) )
+myname.a = 1
+myname.a = dup.name.a
+myname.h = 4294967296
 End-of-File
 
 pminfo -Dderive,appl0 -c $tmp.config -n $tmp.pmns >$tmp.out 2>&1

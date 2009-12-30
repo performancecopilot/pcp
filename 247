@@ -78,7 +78,14 @@ myname.e = sample.long.hundred - 100 / sample.byte_ctr
 # bad semantics - non-counters ... not possible at the moment
 # bad semantics - non-arithmetic metrics
 myname.f = 3 + sample.lights
-myname.e = sample.sysinfo - 42
+myname.g = sample.sysinfo - 42
+# pmUnits checks and metric semantic checks
+myname.h = disk.dev.total + sample.long.hundred
+myname.i = sample.long.hundred - disk.dev.total
+myname.j = sample.mirage * sample.step_counter
+myname.k = sample.step_counter / sample.mirage_longlong
+# indom checks
+myname.l = sample.bin + sample.darkness
 End-of-File
 
 #debug# pminfo -D derive,appl0,appl1 -d -c $tmp.config myname >$tmp.out 2>&1

@@ -2,9 +2,9 @@ QA output created by 260
 === expression trees and pmDesc propagation ===
 
 delta.m1 = delta(pmcd.pdu_in.total)
-delta.m2 = delta(pmcd.pdu_out.total) + 1
-delta.m3 = 1 - delta(pmcd.pdu_out.total)
-delta.m4 = 1 - 3 * delta(pmcd.pdu_out.total) / sample.long.ten
+delta.m2 = delta(pmcd.pdu_out.total) + sample.bigid
+delta.m3 = sample.bigid - delta(pmcd.pdu_out.total)
+delta.m4 = sample.bigid - 3 * delta(pmcd.pdu_out.total) / sample.long.ten
 delta.m5 =  delta(pmcd.pdu_in.total) / ( delta(pmcd.pdu_in.total) + delta(pmcd.pdu_out.total) )
 delta.m6 =  delta(pmcd.pdu_in.total) / delta(pmcd.pdu_in.total) - delta(pmcd.pdu_out.total) * delta(pmcd.pdu_in.total)
 
@@ -20,34 +20,34 @@ pmRegisterDerived: register metric[0] delta.m1 = delta(pmcd.pdu_in.total)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=DELTA left=<addr-1> right=(nil) save_last=0
 expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=1
-pmRegisterDerived: name="delta.m2" expr="delta(pmcd.pdu_out.total) + 1"
+pmRegisterDerived: name="delta.m2" expr="delta(pmcd.pdu_out.total) + sample.bigid"
 parse(1) state=P_INIT type=L_DELTA "delta("
 parse(1) state=P_FUNC_OP type=L_NAME "pmcd.pdu_out.total"
 parse(1) state=P_FUNC_END type=L_RPAREN ")"
 parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NUMBER "1"
+parse(1) state=P_BINOP type=L_NAME "sample.bigid"
 parse(1) state=P_LEAF type=L_EOF ""
-pmRegisterDerived: register metric[1] delta.m2 = delta(pmcd.pdu_out.total) + 1
+pmRegisterDerived: register metric[1] delta.m2 = delta(pmcd.pdu_out.total) + sample.bigid
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=PLUS left=<addr-3> right=<addr-5> save_last=0
 expr node <addr-3> type=DELTA left=<addr-4> right=(nil) save_last=0
 expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.total] master=1
-expr node <addr-5> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=1
-pmRegisterDerived: name="delta.m3" expr="1 - delta(pmcd.pdu_out.total)"
-parse(1) state=P_INIT type=L_NUMBER "1"
+expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=1
+pmRegisterDerived: name="delta.m3" expr="sample.bigid - delta(pmcd.pdu_out.total)"
+parse(1) state=P_INIT type=L_NAME "sample.bigid"
 parse(1) state=P_LEAF type=L_MINUS "-"
 parse(1) state=P_BINOP type=L_DELTA "delta("
 parse(1) state=P_FUNC_OP type=L_NAME "pmcd.pdu_out.total"
 parse(1) state=P_FUNC_END type=L_RPAREN ")"
 parse(1) state=P_LEAF type=L_EOF ""
-pmRegisterDerived: register metric[2] delta.m3 = 1 - delta(pmcd.pdu_out.total)
+pmRegisterDerived: register metric[2] delta.m3 = sample.bigid - delta(pmcd.pdu_out.total)
 Derived metric expr dump from <addr-6>...
 expr node <addr-6> type=MINUS left=<addr-7> right=<addr-8> save_last=0
-expr node <addr-7> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=1
+expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=1
 expr node <addr-8> type=DELTA left=<addr-9> right=(nil) save_last=0
 expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.total] master=1
-pmRegisterDerived: name="delta.m4" expr="1 - 3 * delta(pmcd.pdu_out.total) / sample.long.ten"
-parse(1) state=P_INIT type=L_NUMBER "1"
+pmRegisterDerived: name="delta.m4" expr="sample.bigid - 3 * delta(pmcd.pdu_out.total) / sample.long.ten"
+parse(1) state=P_INIT type=L_NAME "sample.bigid"
 parse(1) state=P_LEAF type=L_MINUS "-"
 parse(1) state=P_BINOP type=L_NUMBER "3"
 parse(1) state=P_LEAF type=L_STAR "*"
@@ -57,10 +57,10 @@ parse(1) state=P_FUNC_END type=L_RPAREN ")"
 parse(1) state=P_LEAF type=L_SLASH "/"
 parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
 parse(1) state=P_LEAF type=L_EOF ""
-pmRegisterDerived: register metric[3] delta.m4 = 1 - 3 * delta(pmcd.pdu_out.total) / sample.long.ten
+pmRegisterDerived: register metric[3] delta.m4 = sample.bigid - 3 * delta(pmcd.pdu_out.total) / sample.long.ten
 Derived metric expr dump from <addr-10>...
 expr node <addr-10> type=MINUS left=<addr-11> right=<addr-12> save_last=0
-expr node <addr-11> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=1
+expr node <addr-11> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=1
 expr node <addr-12> type=SLASH left=<addr-13> right=<addr-17> save_last=0
 expr node <addr-13> type=STAR left=<addr-14> right=<addr-15> save_last=0
 expr node <addr-14> type=NUMBER left=(nil) right=(nil) save_last=0 [3] master=1
@@ -147,20 +147,20 @@ expr node <addr-41> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_out.t
     PMID: 2.2.16 (2.2.16 from pmDesc) numval: 0 [copied]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
-expr node <addr-42> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0 [copied]
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+expr node <addr-42> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=0
+    PMID: 29.0.1023 (29.0.1023 from pmDesc) numval: 0 [copied]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
 __dmopencontext: bind metric[2] delta.m3
 Derived metric expr dump from <addr-43>...
 expr node <addr-43> type=MINUS left=<addr-44> right=<addr-45> save_last=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0 [copied]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
-expr node <addr-44> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0 [copied]
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+expr node <addr-44> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=0
+    PMID: 29.0.1023 (29.0.1023 from pmDesc) numval: 0 [copied]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
 expr node <addr-45> type=DELTA left=<addr-46> right=(nil) save_last=0
     PMID: PM_ID_NULL (2.2.16 from pmDesc) numval: 0 [copied]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -175,10 +175,10 @@ expr node <addr-47> type=MINUS left=<addr-48> right=<addr-49> save_last=0
     PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0 [copied]
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
-expr node <addr-48> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
-    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0 [copied]
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+expr node <addr-48> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=0
+    PMID: 29.0.1023 (29.0.1023 from pmDesc) numval: 0 [copied]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
 expr node <addr-49> type=SLASH left=<addr-50> right=<addr-54> save_last=0
     PMID: PM_ID_NULL (2.2.16 from pmDesc) numval: 0 [copied]
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff

@@ -315,8 +315,14 @@ expr node <addr-111> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pdu_in.t
 expr node <addr-112> type=PLUS left=<addr-113> right=<addr-114> save_last=0
 expr node <addr-113> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pdu_in.total] master=1
 expr node <addr-114> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pdu_out.total] master=1
+pmRegisterDerived: name="myname.biggest.const" expr="4294967295"
+parse(1) state=P_INIT type=L_NUMBER "4294967295"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[17] myname.biggest.const = 4294967295
+Derived metric expr dump from <addr-115>...
+expr node <addr-115> type=NUMBER left=(nil) right=(nil) save_last=0 [4294967295] master=1
 pmGetChildren(name="") 1 regular children, 1 derived children
-pmGetChildren(name="myname") no regular children (Unknown metric name), 17 derived children
+pmGetChildren(name="myname") no regular children (Unknown metric name), 18 derived children
 pmGetChildren(name="myname.a") no regular children (Unknown metric name), derived leaf
 pmGetChildren(name="myname.b") no regular children (Unknown metric name), derived leaf
 pmGetChildren(name="myname.c") no regular children (Unknown metric name), derived leaf
@@ -336,6 +342,8 @@ pmGetChildren(name="myname.ABC.k42") no regular children (Unknown metric name), 
 pmGetChildren(name="myname.ABC.k42.x_1_3") no regular children (Unknown metric name), derived leaf
 pmGetChildren(name="myname.o") no regular children (Unknown metric name), derived leaf
 pmGetChildren(name="myname.p") no regular children (Unknown metric name), derived leaf
+pmGetChildren(name="myname.biggest") no regular children (Unknown metric name), 1 derived children
+pmGetChildren(name="myname.biggest.const") no regular children (Unknown metric name), derived leaf
 local_pmns_no_pmcd_connection
 myname.a
 myname.b
@@ -354,6 +362,7 @@ myname.n
 myname.ABC.k42.x_1_3
 myname.o
 myname.p
+myname.biggest.const
 
 Syntax errors ...
 pmLoadDerivedConfig("TMP.config")
@@ -414,5 +423,25 @@ parse(1) state=P_LEAF_PAREN type=L_RPAREN ")"
   pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total ) )
                                                                  ^
 Unexpected ')'
-pmGetChildren(name="") 1 regular children, no derived children (Unknown metric name)
+pmRegisterDerived: name="myname.a" expr="1"
+parse(1) state=P_INIT type=L_NUMBER "1"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[0] myname.a = 1
+Derived metric expr dump from <addr->...
+expr node <addr-> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=1
+pmRegisterDerived: name="myname.a" expr="dup.name.a"
+[TMP.config:14] Error: pmRegisterDerived(myname.a, ...) syntax error
+ dup.name.a
+ ^         
+Duplicate derived metric name
+pmRegisterDerived: name="myname.h" expr="4294967296"
+parse(1) state=P_INIT type=L_NUMBER "4294967296"
+[TMP.config:15] Error: pmRegisterDerived(myname.h, ...) syntax error
+ 4294967296
+ ^         
+Constant value too large
+pmGetChildren(name="") 1 regular children, 1 derived children
+pmGetChildren(name="myname") no regular children (Unknown metric name), 1 derived children
+pmGetChildren(name="myname.a") no regular children (Unknown metric name), derived leaf
 local_pmns_no_pmcd_connection
+myname.a
