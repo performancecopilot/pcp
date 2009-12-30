@@ -86,6 +86,11 @@ typedef struct {
 #define L_SLASH		7
 #define L_LPAREN	8
 #define L_RPAREN	9
-#define L_DELTA		10
+#define L_AVG		10
+#define L_COUNT		11
+#define L_DELTA		12
+#define L_MAX		13
+#define L_MIN		14
+#define L_SUM		15
 
 void __dmdumpexpr(node_t *, int);

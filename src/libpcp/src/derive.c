@@ -38,17 +38,15 @@
  *	bind_expr and check_expr to add new dm for each context
  *
  *	Need to handle
- *	  pmRegister before any context is open
  *	  new contexts after pmRegister is called (the initial implementation)
  *	  intermixed pmRegister and newContext calls
  *
  *	pmUnregister - ?
  *
- * 	delta() support --  any other functions?
- *		 - map ctr to instant
+ * 	delta() support
+ *		- all other functions - avg, count, max, min, sum
  *
- *	skip blank lines in lexer/parser
- *
+ *	when evaluating expressions, deal with scale conversions
  */
 
 #include "derive.h"
@@ -64,7 +62,7 @@ static int	lexpeek = 0;
 static char	*string;
 static char	*errmsg;
 
-static char *type_dbg[] = { "ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "EQUALS", "PLUS", "MINUS", "STAR", "SLASH", "LPAREN", "RPAREN", "DELTA" };
+static char *type_dbg[] = { "ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "EQUALS", "PLUS", "MINUS", "STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA", "MAX", "MIN", "SUM" };
 static char type_c[] = { '\0', '\0', '\0', '\0', '\0', '=', '+', '-', '*', '/', '(', ')', '\0' };
 
 /* function table for lexer */
@@ -72,7 +70,12 @@ static struct {
     int		f_type;
     char	*f_name;
 } func[] = {
+    { L_AVG,	"avg" },
+    { L_COUNT,	"count" },
     { L_DELTA,	"delta" },
+    { L_MAX,	"max" },
+    { L_MIN,	"min" },
+    { L_SUM,	"sum" },
     { L_UNDEF,	NULL }
 };
 
@@ -358,6 +361,42 @@ bind_expr(int n, node_t *np)
     return new;
 }
 
+static
+void report_sem_error(char *name, node_t *np)
+{
+    pmprintf("Semantic error: derived metric %s: ", name);
+    switch (np->type) {
+	case L_PLUS:
+	case L_MINUS:
+	case L_STAR:
+	case L_SLASH:
+	    if (np->left->type == L_NUMBER || np->left->type == L_NAME)
+		pmprintf("%s ", np->left->value);
+	    else
+		pmprintf("<expr> ");
+	    pmprintf("%c ", type_c[np->type+2]);
+	    if (np->right->type == L_NUMBER || np->right->type == L_NAME)
+		pmprintf("%s", np->right->value);
+	    else
+		pmprintf("<expr>");
+	    break;
+	case L_AVG:
+	case L_COUNT:
+	case L_DELTA:
+	case L_MAX:
+	case L_MIN:
+	case L_SUM:
+	    pmprintf("%s(%s)", type_dbg[np->type+2], np->left->value);
+	    break;
+	default:
+	    pmprintf("%s???", type_dbg[np->type+2]);
+	    break;
+    }
+    pmprintf(": %s\n", errmsg);
+    pmflush();
+    errmsg = NULL;
+}
+
 /* type promotion */
 static int promote[6][6] = {
     { PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
@@ -393,14 +432,12 @@ map_desc(int n, node_t *np)
      *
      * units mapping
      * operator			checks
-     * +, -			identical
-     *				(TODO relax to union compatible and scale)
+     * +, -			same dimension
      * *, /			if one is counter, non-counter must
      *				have pmUnits of "none"
      */
     pmDesc	*right = &np->right->desc;
     pmDesc	*left = &np->left->desc;
-    char	*errmsg;
 
     if (left->sem == PM_SEM_COUNTER) {
 	if (right->sem == PM_SEM_COUNTER) {
@@ -479,22 +516,56 @@ map_desc(int n, node_t *np)
 	np->desc.type = PM_TYPE_FLOAT;
     }
 
-    /* TODO finish off ... sem checking */
+    if (np->type == L_PLUS || np->type == L_MINUS) {
+	/*
+	 * unit dimensions have to be identical
+	 */
+	if (left->units.dimCount != right->units.dimCount ||
+	    left->units.dimTime != right->units.dimTime ||
+	    left->units.dimSpace != right->units.dimSpace) {
+	    errmsg = "Dimensions are not the same";
+	    goto bad;
+	}
+	/* TODO determine scale factor */
+    }
+
+    /*
+     * if counter and non-counter, then non-counter needs to be
+     * dimensionless
+     */
+    if (np->type == L_STAR || np->type == L_SLASH) {
+	if (left->sem == PM_SEM_COUNTER && right->sem != PM_SEM_COUNTER) {
+	    if (right->units.dimCount != 0 ||
+	        right->units.dimTime != 0 ||
+	        right->units.dimSpace != 0) {
+		errmsg = "Non-counter and not dimensionless for right operand";
+		goto bad;
+	    }
+	}
+	if (left->sem != PM_SEM_COUNTER && right->sem == PM_SEM_COUNTER) {
+	    if (left->units.dimCount != 0 ||
+	        left->units.dimTime != 0 ||
+	        left->units.dimSpace != 0) {
+		errmsg = "Non-counter and not dimensionless for left operand";
+		goto bad;
+	    }
+	}
+	/* TODO determine dimension and scale factor */
+    }
+
+    /*
+     * if not both singular, then both operands must have the same
+     * instance domain
+     */
+    if (left->indom != PM_INDOM_NULL && right->indom != PM_INDOM_NULL && left->indom != right->indom) {
+	errmsg = "Operands should have the same instance domain";
+	goto bad;
+    }
+
     return 0;
 
 bad:
-    pmprintf("Semantic error: derived metric %s: ", registered.mlist[n].name);
-    if (np->left->type == L_NUMBER || np->left->type == L_NAME)
-	pmprintf("%s ", np->left->value);
-    else
-	pmprintf("<expr> ");
-    pmprintf("%c ", type_c[np->type+2]);
-    if (np->right->type == L_NUMBER || np->right->type == L_NAME)
-	pmprintf("%s", np->right->value);
-    else
-	pmprintf("<expr>");
-    pmprintf(": %s\n", errmsg);
-    pmflush();
+    report_sem_error(registered.mlist[n].name, np);
     return -1;
 }
 
@@ -519,11 +590,43 @@ check_expr(int n, node_t *np)
 	np->desc = np->left->desc;	/* struct copy */
 	/*
 	 * special cases for functions ...
-	 * delta	expect counter operand, result is instantaneous
+	 * delta	expect numeric operand, result is instantaneous
+	 * aggr funcs	expect numeric operand, result is instantaneous
+	 *		and singular
 	 */
-	if (np->type == L_DELTA) {
-	    /* TODO check counter and check type is numeric */
+	if (np->type == L_AVG || np->type == L_COUNT || np->type == L_DELTA
+	    || np->type == L_MAX || np->type == L_MIN || np->type == L_SUM) {
+	    if (np->type == L_COUNT) {
+		/* count() has its own type and units */
+		np->desc.type = PM_TYPE_U32;
+		memset((void *)&np->desc.units, 0, sizeof(np->desc.units));
+		np->desc.units.dimCount = 1;
+		np->desc.units.scaleCount = PM_COUNT_ONE;
+	    }
+	    else {
+		/* others inherit, but need arithmetic operand */
+		switch (np->left->desc.type) {
+		    case PM_TYPE_32:
+		    case PM_TYPE_U32:
+		    case PM_TYPE_64:
+		    case PM_TYPE_U64:
+		    case PM_TYPE_FLOAT:
+		    case PM_TYPE_DOUBLE:
+			break;
+		    default:
+			errmsg = "Non-arithmetic operand for function";
+			report_sem_error(registered.mlist[n].name, np);
+			return -1;
+		}
+	    }
 	    np->desc.sem = PM_SEM_INSTANT;
+	    if (np->type != L_DELTA)
+		/* all the others are aggregate funcs with a singular value */
+		np->desc.indom = PM_INDOM_NULL;
+	    if (np->type == L_AVG) {
+		/* avg() returns float result */
+		np->desc.type = PM_TYPE_FLOAT;
+	    }
 	}
     }
     else {
@@ -632,6 +735,7 @@ __dmdumpexpr(node_t *np, int level)
  * P_BINOP	L_NAME or	P_LEAF
  * 		L_NUMBER
  * P_BINOP	L_LPAREN	if parse() != NULL then P_LEAF
+ * P_BINOP	L_<func>	P_FUNC_OP
  * P_LEAF_PAREN	same as P_LEAF, but no precedence rules at next operator
  * P_FUNC_OP	L_NAME		P_FUNC_END
  * P_FUNC_END	L_RPAREN	P_LEAF
@@ -660,14 +764,18 @@ parse(int level)
 		return NULL;
 		break;
 	    case L_EOF:
-		if (state == P_LEAF || state == P_LEAF_PAREN)
+		if (level == 1 && (state == P_LEAF || state == P_LEAF_PAREN))
 		    return expr;
 		errmsg = "End of input";
 		free_expr(expr);
 		return NULL;
 		break;
 	    case L_RPAREN:
-		if (state == P_LEAF || state == P_LEAF_PAREN || state == P_FUNC_END)
+		if (state == P_FUNC_END) {
+		    state = P_LEAF;
+		    continue;
+		}
+		if ((level > 1 && state == P_LEAF_PAREN) || state == P_LEAF)
 		    return expr;
 		errmsg = "Unexpected ')'";
 		free_expr(expr);
@@ -684,7 +792,14 @@ parse(int level)
 			/*NOTREACHED*/
 		    }
 		    if (type == L_NUMBER) {
-			/* TODO check value is small enough to fit in a 32-bit int */
+			char		*endptr;
+			uint64_t	check;
+			check = strtoull(tokbuf, &endptr, 10);
+			if (*endptr != '\0' || check > ULONG_MAX) {
+			    errmsg = "Constant value too large";
+			    free_expr(expr);
+			    return NULL;
+			}
 			curr->desc.pmid = PM_ID_NULL;
 			curr->desc.type = PM_TYPE_U32;
 			curr->desc.indom = PM_INDOM_NULL;
@@ -699,7 +814,8 @@ parse(int level)
 			return NULL;
 		    state = P_LEAF_PAREN;
 		}
-		else if (type == L_DELTA) {
+		else if (type == L_AVG || type == L_COUNT || type == L_DELTA
+		         || type == L_MAX || type == L_MIN || type == L_SUM) {
 		    expr = curr = newnode(type);
 		    state = P_FUNC_OP;
 		}
@@ -712,8 +828,11 @@ parse(int level)
 		if (type == L_PLUS || type == L_MINUS || type == L_STAR || type == L_SLASH) {
 		    np = newnode(type);
 		    if (state == P_LEAF_PAREN ||
-		        (curr->type == L_NAME || curr->type == L_NUMBER) ||
-		        (type == L_PLUS || type == L_MINUS)) {
+		        curr->type == L_NAME || curr->type == L_NUMBER ||
+			curr->type == L_AVG || curr->type == L_COUNT ||
+			curr->type == L_DELTA || curr->type == L_MAX ||
+			curr->type == L_MIN || curr->type == L_SUM ||
+		        type == L_PLUS || type == L_MINUS) {
 			/*
 			 * first operator or equal or lower precedence
 			 * make new root of tree and push previous
@@ -763,6 +882,13 @@ parse(int level)
 		    curr->right = np;
 		    state = P_LEAF_PAREN;
 		}
+		else if (type == L_AVG || type == L_COUNT || type == L_DELTA
+		         || type == L_MAX || type == L_MIN || type == L_SUM) {
+		    np = newnode(type);
+		    curr->right = np;
+		    curr = np;
+		    state = P_FUNC_OP;
+		}
 		else {
 		    free_expr(expr);
 		    return NULL;
@@ -778,6 +904,7 @@ parse(int level)
 		    }
 		    np->save_last = 1;
 		    curr->left = np;
+		    curr = expr;
 		    state = P_FUNC_END;
 		}
 		else {
@@ -821,6 +948,7 @@ pmRegisterDerived(char *name, char *expr)
 {
     node_t		*np;
     static __pmID_int	pmid;
+    int			i;
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL0)) {
@@ -828,7 +956,13 @@ pmRegisterDerived(char *name, char *expr)
     }
 #endif
 
-    /* TODO check for and reject duplicate names */
+    for (i = 0; i < registered.nmetric; i++) {
+	if (strcmp(name, registered.mlist[i].name) == 0) {
+	    /* oops, duplicate name ... */
+	    errmsg = "Duplicate derived metric name";
+	    return expr;
+	}
+    }
 
     errmsg = NULL;
     string = expr;
@@ -909,8 +1043,8 @@ pmLoadDerivedConfig(char *fname)
 	    eq = p - buf;
 	}
 	if (c == '\n') {
-	    if (buf[0] == '#') {
-		/* comment line, skip it ... */
+	    if (p == buf || buf[0] == '#') {
+		/* comment or empty line, skip it ... */
 		goto next_line;
 	    }
 	    *p = '\0';
