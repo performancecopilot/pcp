@@ -31,7 +31,7 @@ SRCARCH	= mirage.0 moomba.client.0 babylon.percpu.0 omen.client.0 \
 	uwrap.0 20041125.0 ac15.0 conn20070309.0 logsummary-bug.0 \
 	mirage-1.0 mirage-2.0 \
 	tzchange-10-a.0 tzchange-10-b.0 tzchange-11-a.0 tzchange-11-b.0 \
-	tzchange-12-a.0 tzchange-12-b.0
+	tzchange-12-a.0 tzchange-12-b.0 sample_expr.0
 
 MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
 	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 null.0 \
