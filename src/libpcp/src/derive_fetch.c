@@ -562,6 +562,9 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		/*NOTREACHED*/
 	    }
 	    np->info->iv_alloc = 1;
+	    /*
+	     * ivlist[k] = left-ivlist[i] - left-last-ivlist[j]
+	     */
 	    for (i = k = 0; k < np->info->numval; i++) {
 		if (i >= np->left->info->numval) {
 		    /* run out of current instances */
@@ -949,12 +952,16 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		    np->info->numval = np->left->info->numval;
 		else {
 		    /*
-		     * Should have the same number of instances because
+		     * Generally have the same number of instances because
 		     * both operands are over the same instance domain,
-		     * fetched with the same profile.
+		     * fetched with the same profile.  When not the case,
+		     * the result can contain no more instances than in
+		     * the smaller of the operands.
 		     */
-		    assert(np->left->info->numval == np->right->info->numval);
-		    np->info->numval = np->left->info->numval;
+		    if (np->left->info->numval <= np->right->info->numval)
+			np->info->numval = np->left->info->numval;
+		    else
+			np->info->numval = np->right->info->numval;
 		}
 		if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
 		    __pmNoMem("eval_expr: expr ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
@@ -963,11 +970,45 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		np->info->iv_alloc = 1;
 		/*
 		 * ivlist[k] = left-ivlist[i] <op> right-ivlist[j]
-		 *
-		 * TODO - not quit right ... the zero-trip case may pick
-		 * different instances
 		 */
-		for (i = j = k = 0; ; k++) {
+		for (i = j = k = 0; k < np->info->numval; ) {
+		    if (i >= np->left->info->numval || j >= np->right->info->numval) {
+			/* run out of operand instances, quit */
+			np->info->numval = k;
+			break;
+		    }
+		    if (np->left->desc.indom != PM_INDOM_NULL &&
+			np->right->desc.indom != PM_INDOM_NULL) {
+			if (np->left->info->ivlist[i].inst != np->right->info->ivlist[j].inst) {
+			    /* left ith inst != right jth inst ... search in right */
+#ifdef PCP_DEBUG
+			    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+				fprintf(stderr, "eval_expr: inst[%d] mismatch left [%d]=%d right [%d]=%d\n", k, i, np->left->info->ivlist[i].inst, j, np->right->info->ivlist[j].inst);
+			    }
+#endif
+			    for (j = 0; j < np->right->info->numval; j++) {
+				if (np->left->info->ivlist[i].inst == np->right->info->ivlist[j].inst)
+				    break;
+			    }
+			    if (j == np->right->info->numval) {
+				/*
+				 * no match, so next instance on left operand,
+				 * and reset to start from first instance of
+				 * right operand
+				 */
+				i++;
+				j = 0;
+				continue;
+			    }
+#ifdef PCP_DEBUG
+			    else {
+				if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+				    fprintf(stderr, "eval_expr: recover @ right [%d]=%d\n", j, np->right->info->ivlist[j].inst);
+				}
+			    }
+#endif
+			}
+		    }
 		    np->info->ivlist[k].value =
 			bin_op(np->desc.type, np->type,
 			       np->left->info->ivlist[i].value, np->left->desc.type, np->left->info->mul_scale, np->left->info->div_scale,
@@ -976,31 +1017,15 @@ eval_expr(node_t *np, pmResult *rp, int level)
 			np->info->ivlist[k].inst = np->left->info->ivlist[i].inst;
 		    else
 			np->info->ivlist[k].inst = np->right->info->ivlist[j].inst;
-		    if (k == np->info->numval - 1)
-			break;
+		    k++;
 		    if (np->left->desc.indom != PM_INDOM_NULL) {
 			i++;
 			if (np->right->desc.indom != PM_INDOM_NULL) {
 			    j++;
-			    if (np->left->info->ivlist[i].inst == np->right->info->ivlist[j].inst)
-				continue;
-			    /*
-			     * Should not happen ... both metrics are over
-			     * the same instance domain, fetched with the
-			     * same profile, so it is reasonable to assume
-			     * instances will be returned in the same order
-			     * for both metrics ... if it does happen, skip
-			     * this instance, but there is likely to be a
-			     * "knock on" effect with the following instances
-			     * for this expression failing this same test
-			     */
-#ifdef PCP_DEBUG
-			    if (pmDebug & DBG_TRACE_DERIVE) {
-				fprintf(stderr, "eval_expr: %s inst mismatch left [%d]=%d right [%d]=%d\n", pmIDStr(np->info->pmid), i, np->left->info->ivlist[i].inst, j, np->right->info->ivlist[j].inst);
+			    if (j >= np->right->info->numval) {
+				/* rescan if need be */
+				j = 0;
 			    }
-#endif
-			    np->info->numval--;
-			    k--;
 			}
 		    }
 		    else if (np->right->desc.indom != PM_INDOM_NULL) {
