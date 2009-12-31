@@ -260,6 +260,10 @@ INIT_CONTEXT:
 	    new->c_pmcd->pc_nhosts = nhosts;
 	    new->c_pmcd->pc_tout_sec = __pmConvertTimeout(TIMEOUT_DEFAULT) / 1000;
 	}
+	else {
+	    /* duplicate of an existing context, don't need the __pmHostSpec */
+	    __pmFreeHostSpec(hosts, nhosts);
+	}
 	new->c_pmcd->pc_refcnt++;
     }
     else if (type == PM_CONTEXT_LOCAL) {
@@ -318,6 +322,9 @@ INIT_CONTEXT:
 #endif
 	return PM_ERR_NOCONTEXT;
     }
+
+    /* bind defined metrics if any ... */
+    __dmopencontext(new);
 
     /* return the handle to the new (current) context */
 #ifdef PCP_DEBUG
@@ -419,6 +426,12 @@ pmReconnectContext(int handle)
 	 */
 	;
     }
+
+    /*
+     * clear any derived metrics and re-bind
+     */
+    __dmclosecontext(ctxp);
+    __dmopencontext(ctxp);
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -583,6 +596,7 @@ pmDestroyContext(int handle)
 	curcontext = PM_CONTEXT_UNDEF;
 
     __pmFreeProfile(ctxp->c_instprof);
+    __dmclosecontext(ctxp);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr, "pmDestroyContext(%d) -> 0, curcontext=%d\n",

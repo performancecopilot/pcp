@@ -45,7 +45,7 @@ install_pcp : default_pcp
 	$(INSTALL) -m 644 $(HFILES) $(GENERATED_HFILES) buildrules $(PCP_INC_DIR)
 	$(INSTALL) -m 644 builddefs.install $(PCP_INC_DIR)/builddefs
 
-pmdbg.h : pmapi.h
+pmdbg.h : pmapi.h impl.h
 	./mk_pmdbg
 
 builddefs.install : builddefs

@@ -233,6 +233,51 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,91), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
 /* darkness */
     { PMDA_PMID(0,92), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulong.one */
+    { PMDA_PMID(0,93), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulong.ten */
+    { PMDA_PMID(0,94), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulong.hundred */
+    { PMDA_PMID(0,95), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulong.million */
+    { PMDA_PMID(0,96), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulong.write_me */
+    { PMDA_PMID(0,97), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulonglong.one */
+    { PMDA_PMID(0,98), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulonglong.ten */
+    { PMDA_PMID(0,99), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulonglong.hundred */
+    { PMDA_PMID(0,100), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulonglong.million */
+    { PMDA_PMID(0,101), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulonglong.write_me */
+    { PMDA_PMID(0,102), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* long.bin */
+    { PMDA_PMID(0,103), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* long.bin_ctr */
+    { PMDA_PMID(0,104), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* ulong.bin */
+    { PMDA_PMID(0,105), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulong.bin_ctr */
+    { PMDA_PMID(0,106), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* float.bin */
+    { PMDA_PMID(0,107), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* float.bin_ctr */
+    { PMDA_PMID(0,108), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* longlong.bin */
+    { PMDA_PMID(0,109), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* longlong.bin_ctr */
+    { PMDA_PMID(0,110), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* ulonglong.bin */
+    { PMDA_PMID(0,111), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulonglong.bin_ctr */
+    { PMDA_PMID(0,112), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* double.bin */
+    { PMDA_PMID(0,113), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* double.bin_ctr */
+    { PMDA_PMID(0,114), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+
 /* bigid */
     { PMDA_PMID(0,1023), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /*
@@ -432,7 +477,9 @@ static int		_sign = -1;	/* up/down for drift */
 static int		_step = 20;	/* magnitude of step */
 static int		_write_me = 2;	/* constant, but modifiable */
 static __int32_t	_long = 13;	/* long.write_me */
+static __uint32_t	_ulong = 13;	/* ulong.write_me */
 static __int64_t	_longlong = 13;	/* longlong.write_me */
+static __uint64_t	_ulonglong = 13;/* ulonglong.write_me */
 static float		_float = 13;	/* float.write_me */
 static double		_double = 13;	/* double.write_me */
 static char		*_string;	/* string.write_me */
@@ -929,6 +976,18 @@ init_tables(int dom)
 	    case PMDA_PMID(0,48):	/* bucket */
 	    case PMDA_PMID(0,50):	/* part_bin */
 	    case PMDA_PMID(0,51):	/* bogus_bin */
+	    case PMDA_PMID(0,103):	/* long.bin */
+	    case PMDA_PMID(0,104):	/* long.bin_ctr */
+	    case PMDA_PMID(0,105):	/* ulong.bin */
+	    case PMDA_PMID(0,106):	/* ulong.bin_ctr */
+	    case PMDA_PMID(0,107):	/* float.bin */
+	    case PMDA_PMID(0,108):	/* float.bin_ctr */
+	    case PMDA_PMID(0,109):	/* longlong.bin */
+	    case PMDA_PMID(0,110):	/* longlong.bin_ctr */
+	    case PMDA_PMID(0,111):	/* ulonglong.bin */
+	    case PMDA_PMID(0,112):	/* ulonglong.bin_ctr */
+	    case PMDA_PMID(0,113):	/* double.bin */
+	    case PMDA_PMID(0,114):	/* double.bin_ctr */
 		dp->indom = indomtab[BIN_INDOM].it_indom;
 		break;
 	    case PMDA_PMID(0,37):	/* mirage */
@@ -1582,8 +1641,31 @@ doit:
 		case 48:
 		case 50:
 		case 51:
+		case 103:		/* long.bin & long.bin_ctr */
+		case 104:
 		    /* the value is the instance identifier (sic) */
 		    atom.l = inst;
+		    break;
+		    /* and ditto for all the other type variants of "bin" */
+		case 105:		/* ulong.bin & ulong.bin_ctr */
+		case 106:
+		    atom.ul = inst;
+		    break;
+		case 107:		/* float.bin & float.bin_ctr */
+		case 108:
+		    atom.f = inst;
+		    break;
+		case 109:		/* longlong.bin & longlong.bin_ctr */
+		case 110:
+		    atom.ll = inst;
+		    break;
+		case 111:		/* ulonglong.bin & ulonglong.bin_ctr */
+		case 112:
+		    atom.ull = inst;
+		    break;
+		case 113:		/* double.bin & double.bin_ctr */
+		case 114:
+		    atom.d = inst;
 		    break;
 		case 7:
 		    /* drift */
@@ -1704,7 +1786,7 @@ doit:
 			    break;
 		    }
 		    break;
-		case 10:
+		case 10:		/* long.* group */
 		    atom.l = 1;
 		    break;
 		case 11:
@@ -1719,7 +1801,7 @@ doit:
 		case 14:
 		    atom.l = (__int32_t)_long;
 		    break;
-		case 20:
+		case 20:		/* longlong.* group */
 #if !defined(HAVE_CONST_LONGLONG)
 		    atom.ll = 1;
 #else
@@ -1750,7 +1832,7 @@ doit:
 		case 24:
 		    atom.ll = _longlong;
 		    break;
-		case 15:
+		case 15:		/* float.* group */
 		    atom.f = 1;
 		    break;
 		case 16:
@@ -1765,7 +1847,7 @@ doit:
 		case 19:
 		    atom.f = _float;
 		    break;
-		case 25:
+		case 25:		/* double.* group */
 		    atom.d = 1;
 		    break;
 		case 26:
@@ -2001,6 +2083,53 @@ doit:
 		    __pmProcessDataSize(&ul);
 		    atom.ul = ul;
 		    break;
+		/* no case 92 for darkeness, handled above */
+		case 93:		/* ulong.* group */
+		    atom.ul = 1;
+		    break;
+		case 94:
+		    atom.ul = 10;
+		    break;
+		case 95:
+		    atom.ul = 100;
+		    break;
+		case 96:
+		    atom.ul = 1000000;
+		    break;
+		case 97:
+		    atom.ul = (__int32_t)_ulong;
+		    break;
+		case 98:		/* ulonglong.* group */
+#if !defined(HAVE_CONST_LONGLONG)
+		    atom.ull = 1;
+#else
+		    atom.ull = 1ULL;
+#endif
+		    break;
+		case 99:
+#if !defined(HAVE_CONST_LONGLONG)
+		    atom.ull = 10;
+#else
+		    atom.ull = 10ULL;
+#endif
+		    break;
+		case 100:
+#if !defined(HAVE_CONST_LONGLONG)
+		    atom.ull = 100;
+#else
+		    atom.ull = 100ULL;
+#endif
+		    break;
+		case 101:
+#if !defined(HAVE_CONST_LONGLONG)
+		    atom.ull = 1000000;
+#else
+		    atom.ull = 1000000ULL;
+#endif
+		    break;
+		case 102:
+		    atom.ull = _ulonglong;
+		    break;
 		case 1000:	/* secret.bar */
 		    atom.cp = "foo";
 		    break;
@@ -2166,6 +2295,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 29:	/* double.write_me */
 	    case 32:	/* string.write_me */
 	    case 35:	/* aggregate.write_me */
+	    case 102:	/* ulonglong.write_me */
 		if (vsp->numval != 1 || vsp->valfmt == PM_VAL_INSITU)
 		    sts = PM_ERR_CONV;
 		break;
@@ -2187,6 +2317,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 88:	/* dynamic.meta.pmdesc.indom */
 	    case 89:	/* dynamic.meta.pmdesc.sem */
 	    case 90:	/* dynamic.meta.pmdesc.units */
+	    case 97:	/* ulong.write_me */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		    sts = PM_ERR_CONV;
 		break;
@@ -2298,6 +2429,12 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 90:	/* dynamic.meta.pmdesc.units */
 		lp = (__int32_t *)&magic.units;
 		*lp = av.l;
+	    case 97:	/* ulong.write_me */
+		_ulong = av.ul;
+		break;
+	    case 102:	/* ulonglong.write_me */
+		_ulonglong = av.ull;
+		break;
 	    default:
 		sts = -EACCES;
 		break;

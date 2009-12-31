@@ -181,6 +181,16 @@ __pmDumpStatusList(FILE *f, int numstatus, const int statuslist[])
     fprintf(f, "  status[%d]: %d\n", i, statuslist[i]);
   }
 }
+
+void
+__pmDumpNameandStatusList(FILE *f, int numnames, char *namelist[], int statuslist[])
+{
+  int i;
+  fprintf(f, "namelist & statuslist dump: numnames = %d\n", numnames);
+  for(i=0; i<numnames; i++) {
+    fprintf(f, "  name[%d]: \"%s\" (%s)\n", i, namelist[i], statuslist[i] == PMNS_LEAF_STATUS ? "leaf" : "non-leaf");
+  }
+}
 #endif
 
 /*

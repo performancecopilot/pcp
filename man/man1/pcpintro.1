@@ -646,6 +646,23 @@ described in the
 section below,
 the following environment variables apply to all installations.
 .TP
+.B PCP_DERIVED_CONFIG
+When set, this variable defines the path to a file that contains
+definitions of derived metrics as per the syntax described in
+.BR pmLoadDerivedConfig (3).
+Derived metrics may be used to extend the available metrics with
+new (derived) metrics using simple arithmetic expressions.
+.RS
+.PP
+If 
+.B PCP_DERIVED_CONFIG
+is set, the derived metric definitions are processed automatically
+as each new source of performance metrics is established (i.e. each
+time a
+.BR pmNewContext (3)
+is called) or when requests are made against the PMNS.
+.RE
+.TP
 .B PCP_STDERR
 Many PCP tools support the environment variable
 .BR PCP_STDERR ,
