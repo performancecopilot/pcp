@@ -42,21 +42,43 @@ sample.long.ten 1
 sample.long.hundred 1
 sample.long.million 1
 sample.long.write_me 1
+sample.long.bin 9
+sample.long.bin_ctr 9
+sample.ulong.one 1
+sample.ulong.ten 1
+sample.ulong.hundred 1
+sample.ulong.million 1
+sample.ulong.write_me 1
+sample.ulong.bin 9
+sample.ulong.bin_ctr 9
 sample.longlong.one 1
 sample.longlong.ten 1
 sample.longlong.hundred 1
 sample.longlong.million 1
 sample.longlong.write_me 1
+sample.longlong.bin 9
+sample.longlong.bin_ctr 9
+sample.ulonglong.one 1
+sample.ulonglong.ten 1
+sample.ulonglong.hundred 1
+sample.ulonglong.million 1
+sample.ulonglong.write_me 1
+sample.ulonglong.bin 9
+sample.ulonglong.bin_ctr 9
 sample.float.one 1
 sample.float.ten 1
 sample.float.hundred 1
 sample.float.million 1
 sample.float.write_me 1
+sample.float.bin 9
+sample.float.bin_ctr 9
 sample.double.one 1
 sample.double.ten 1
 sample.double.hundred 1
 sample.double.million 1
 sample.double.write_me 1
+sample.double.bin 9
+sample.double.bin_ctr 9
 sample.string.null 1
 sample.string.hullo 1
 sample.string.write_me 1
@@ -128,21 +150,43 @@ sample.long.ten 1 PM_IN_NULL
 sample.long.hundred 1 PM_IN_NULL
 sample.long.million 1 PM_IN_NULL
 sample.long.write_me 1 PM_IN_NULL
+sample.long.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.long.bin_ctr 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.ulong.one 1 PM_IN_NULL
+sample.ulong.ten 1 PM_IN_NULL
+sample.ulong.hundred 1 PM_IN_NULL
+sample.ulong.million 1 PM_IN_NULL
+sample.ulong.write_me 1 PM_IN_NULL
+sample.ulong.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.ulong.bin_ctr 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
 sample.longlong.one 1 PM_IN_NULL
 sample.longlong.ten 1 PM_IN_NULL
 sample.longlong.hundred 1 PM_IN_NULL
 sample.longlong.million 1 PM_IN_NULL
 sample.longlong.write_me 1 PM_IN_NULL
+sample.longlong.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.longlong.bin_ctr 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.ulonglong.one 1 PM_IN_NULL
+sample.ulonglong.ten 1 PM_IN_NULL
+sample.ulonglong.hundred 1 PM_IN_NULL
+sample.ulonglong.million 1 PM_IN_NULL
+sample.ulonglong.write_me 1 PM_IN_NULL
+sample.ulonglong.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.ulonglong.bin_ctr 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
 sample.float.one 1 PM_IN_NULL
 sample.float.ten 1 PM_IN_NULL
 sample.float.hundred 1 PM_IN_NULL
 sample.float.million 1 PM_IN_NULL
 sample.float.write_me 1 PM_IN_NULL
+sample.float.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.float.bin_ctr 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
 sample.double.one 1 PM_IN_NULL
 sample.double.ten 1 PM_IN_NULL
 sample.double.hundred 1 PM_IN_NULL
 sample.double.million 1 PM_IN_NULL
 sample.double.write_me 1 PM_IN_NULL
+sample.double.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.double.bin_ctr 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
 sample.string.null 1 PM_IN_NULL
 sample.string.hullo 1 PM_IN_NULL
 sample.string.write_me 1 PM_IN_NULL
@@ -244,21 +288,43 @@ sample.long.ten 1 PM_IN_NULL
 sample.long.hundred 1 PM_IN_NULL
 sample.long.million 1 PM_IN_NULL
 sample.long.write_me 1 PM_IN_NULL
+sample.long.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.long.bin_ctr 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.ulong.one 1 PM_IN_NULL
+sample.ulong.ten 1 PM_IN_NULL
+sample.ulong.hundred 1 PM_IN_NULL
+sample.ulong.million 1 PM_IN_NULL
+sample.ulong.write_me 1 PM_IN_NULL
+sample.ulong.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.ulong.bin_ctr 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
 sample.longlong.one 1 PM_IN_NULL
 sample.longlong.ten 1 PM_IN_NULL
 sample.longlong.hundred 1 PM_IN_NULL
 sample.longlong.million 1 PM_IN_NULL
 sample.longlong.write_me 1 PM_IN_NULL
+sample.longlong.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.longlong.bin_ctr 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.ulonglong.one 1 PM_IN_NULL
+sample.ulonglong.ten 1 PM_IN_NULL
+sample.ulonglong.hundred 1 PM_IN_NULL
+sample.ulonglong.million 1 PM_IN_NULL
+sample.ulonglong.write_me 1 PM_IN_NULL
+sample.ulonglong.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.ulonglong.bin_ctr 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
 sample.float.one 1 PM_IN_NULL
 sample.float.ten 1 PM_IN_NULL
 sample.float.hundred 1 PM_IN_NULL
 sample.float.million 1 PM_IN_NULL
 sample.float.write_me 1 PM_IN_NULL
+sample.float.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.float.bin_ctr 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
 sample.double.one 1 PM_IN_NULL
 sample.double.ten 1 PM_IN_NULL
 sample.double.hundred 1 PM_IN_NULL
 sample.double.million 1 PM_IN_NULL
 sample.double.write_me 1 PM_IN_NULL
+sample.double.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.double.bin_ctr 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
 sample.string.null 1 PM_IN_NULL
 sample.string.hullo 1 PM_IN_NULL
 sample.string.write_me 1 PM_IN_NULL
@@ -366,21 +432,43 @@ sample.long.ten 1 10
 sample.long.hundred 1 100
 sample.long.million 1 1000000
 sample.long.write_me 1 NUMBER
+sample.long.bin 9 100 200 300 400 500 600 700 800 900
+sample.long.bin_ctr 9 100 200 300 400 500 600 700 800 900
+sample.ulong.one 1 1
+sample.ulong.ten 1 10
+sample.ulong.hundred 1 100
+sample.ulong.million 1 1000000
+sample.ulong.write_me 1 NUMBER
+sample.ulong.bin 9 100 200 300 400 500 600 700 800 900
+sample.ulong.bin_ctr 9 100 200 300 400 500 600 700 800 900
 sample.longlong.one 1 1
 sample.longlong.ten 1 10
 sample.longlong.hundred 1 100
 sample.longlong.million 1 1000000
 sample.longlong.write_me 1 NUMBER
+sample.longlong.bin 9 100 200 300 400 500 600 700 800 900
+sample.longlong.bin_ctr 9 100 200 300 400 500 600 700 800 900
+sample.ulonglong.one 1 1
+sample.ulonglong.ten 1 10
+sample.ulonglong.hundred 1 100
+sample.ulonglong.million 1 1000000
+sample.ulonglong.write_me 1 NUMBER
+sample.ulonglong.bin 9 100 200 300 400 500 600 700 800 900
+sample.ulonglong.bin_ctr 9 100 200 300 400 500 600 700 800 900
 sample.float.one 1 1
 sample.float.ten 1 10
 sample.float.hundred 1 100
 sample.float.million 1 1000000
 sample.float.write_me 1 NUMBER
+sample.float.bin 9 100 200 300 400 500 600 700 800 900
+sample.float.bin_ctr 9 100 200 300 400 500 600 700 800 900
 sample.double.one 1 1
 sample.double.ten 1 10
 sample.double.hundred 1 100
 sample.double.million 1 1000000
 sample.double.write_me 1 NUMBER
+sample.double.bin 9 100 200 300 400 500 600 700 800 900
+sample.double.bin_ctr 9 100 200 300 400 500 600 700 800 900
 sample.string.null 1 ""
 sample.string.hullo 1 "hullo world!"
 sample.string.write_me 1 "STRING"
@@ -474,21 +562,44 @@ sample.long.ten 1 PM_IN_NULL PM_IN_NULL
 sample.long.hundred 1 PM_IN_NULL PM_IN_NULL
 sample.long.million 1 PM_IN_NULL PM_IN_NULL
 sample.long.write_me 1 PM_IN_NULL PM_IN_NULL
+sample.long.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
+sample.long.bin_ctr 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
+sample.ulong.one 1 PM_IN_NULL PM_IN_NULL
+sample.ulong.ten 1 PM_IN_NULL PM_IN_NULL
+sample.ulong.hundred 1 PM_IN_NULL PM_IN_NULL
+sample.ulong.million 1 PM_IN_NULL PM_IN_NULL
+sample.ulong.write_me 1 PM_IN_NULL PM_IN_NULL
+sample.ulong.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
+sample.ulong.bin_ctr 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
 sample.longlong.one 1 PM_IN_NULL PM_IN_NULL
 sample.longlong.ten 1 PM_IN_NULL PM_IN_NULL
 sample.longlong.hundred 1 PM_IN_NULL PM_IN_NULL
 sample.longlong.million 1 PM_IN_NULL PM_IN_NULL
 sample.longlong.write_me 1 PM_IN_NULL PM_IN_NULL
+sample.longlong.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
+sample.longlong.bin_ctr 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
+sample.ulonglong.one 1 PM_IN_NULL PM_IN_NULL
+sample.ulonglong.ten 1 PM_IN_NULL PM_IN_NULL
+sample.ulonglong.hundred 1 PM_IN_NULL PM_IN_NULL
+sample.ulonglong.million 1 PM_IN_NULL PM_IN_NULL
+sample.ulonglong.write_me 1 PM_IN_NULL PM_IN_NULL
+sample.ulonglong.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
+sample.ulonglong.bin_ctr 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900
+"
 sample.float.one 1 PM_IN_NULL PM_IN_NULL
 sample.float.ten 1 PM_IN_NULL PM_IN_NULL
 sample.float.hundred 1 PM_IN_NULL PM_IN_NULL
 sample.float.million 1 PM_IN_NULL PM_IN_NULL
 sample.float.write_me 1 PM_IN_NULL PM_IN_NULL
+sample.float.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
+sample.float.bin_ctr 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
 sample.double.one 1 PM_IN_NULL PM_IN_NULL
 sample.double.ten 1 PM_IN_NULL PM_IN_NULL
 sample.double.hundred 1 PM_IN_NULL PM_IN_NULL
 sample.double.million 1 PM_IN_NULL PM_IN_NULL
 sample.double.write_me 1 PM_IN_NULL PM_IN_NULL
+sample.double.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
+sample.double.bin_ctr 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
 sample.string.null 1 PM_IN_NULL PM_IN_NULL
 sample.string.hullo 1 PM_IN_NULL PM_IN_NULL
 sample.string.write_me 1 PM_IN_NULL PM_IN_NULL

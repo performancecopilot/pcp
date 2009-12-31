@@ -51,6 +51,8 @@ pmid: 29.0.5 name: sample.colour
 
 pmid: PM_ID_NULL name: sample.longlong
 children of "sample.longlong" ...
+    bin                 <s = 0>
+    bin_ctr             <s = 0>
     hundred             <s = 0>
     million             <s = 0>
     one                 <s = 0>
