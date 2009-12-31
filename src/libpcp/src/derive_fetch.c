@@ -215,9 +215,17 @@ free_ivlist(node_t *np)
 
 /*
  * Binary arithmetic.
+ *
+ * result = <a> <op> <b>
+ * ltype, rtype and type are the types of <a>, <b> and the result
+ * respectively
+ *
+ * If type is PM_TYPE_DOUBLE then lmul, ldiv, rmul and rdiv are
+ * the scale factors for units scale conversion of <a> and <b>
+ * respectively, so lmul*<a>/ldiv ... all are 1 in the common cases.
  */
 static pmAtomValue
-bin_op(int type, int op, pmAtomValue a, int ltype, pmAtomValue b, int rtype)
+bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomValue b, int rtype, int rmul, int rdiv)
 {
     static pmAtomValue	res;
     pmAtomValue		l;
@@ -358,6 +366,7 @@ bin_op(int type, int op, pmAtomValue a, int ltype, pmAtomValue b, int rtype)
 		default:
 		    assert(ltype == -100);	/* botch, so always true! */
 	    }
+	    l.d = (l.d / ldiv) * lmul;
 	    switch (rtype) {
 		case PM_TYPE_32:
 		    r.d = b.l;
@@ -380,6 +389,7 @@ bin_op(int type, int op, pmAtomValue a, int ltype, pmAtomValue b, int rtype)
 		default:
 		    assert(rtype == -100);	/* botch, so always true! */
 	    }
+	    r.d = (r.d / rdiv) * rmul;
 	    break;
 	default:
 fprintf(stderr, "%s: botch type=%d\n", __FUNCTION__, type);
@@ -960,8 +970,8 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		for (i = j = k = 0; ; k++) {
 		    np->info->ivlist[k].value =
 			bin_op(np->desc.type, np->type,
-			       np->left->info->ivlist[i].value, np->left->desc.type,
-			       np->right->info->ivlist[j].value, np->right->desc.type);
+			       np->left->info->ivlist[i].value, np->left->desc.type, np->left->info->mul_scale, np->left->info->div_scale,
+			       np->right->info->ivlist[j].value, np->right->desc.type, np->right->info->mul_scale, np->right->info->div_scale);
 		    if (np->left->desc.indom != PM_INDOM_NULL)
 			np->info->ivlist[k].inst = np->left->info->ivlist[i].inst;
 		    else
@@ -1103,7 +1113,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_FLOAT)
 		fprintf(stderr, " f=%f", (double)cp->mlist[m].expr->info->ivlist[k].value.f);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_DOUBLE)
-		fprintf(stderr, " d=%f", cp->mlist[m].expr->info->ivlist[k].value.f);
+		fprintf(stderr, " d=%f", cp->mlist[m].expr->info->ivlist[k].value.d);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_STRING) {
 		fprintf(stderr, " cp=%s (len=%d)", cp->mlist[m].expr->info->ivlist[k].value.cp, cp->mlist[m].expr->info->ivlist[k].vlen);
 	    }

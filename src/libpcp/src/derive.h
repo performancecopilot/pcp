@@ -38,6 +38,8 @@ typedef struct {		/* one value in the expression tree */
 typedef struct {		/* dynamic information for an expression node */
     pmID	pmid;
     int		numval;		/* length of ivlist[] */
+    int		mul_scale;	/* scale multiplier */
+    int		div_scale;	/* scale divisor */
     int		iv_alloc;	/* set if ivlist is allocated from this node */
     val_t	*ivlist;	/* instance-value pairs */
     int		last_numval;	/* length of last_ivlist[] */

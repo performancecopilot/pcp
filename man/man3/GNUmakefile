@@ -47,7 +47,7 @@ MAN_PAGES	= \
 	pmgetcontextfd.3 pmcontextconnectto.3 pmafm.3 pmtime.3 \
 	pmdaname.3 pmdachildren.3 pmdapmid.3 \
 	mmv_inc_value.3 mmv_lookup_value_desc.3 mmv_stats_init.3 \
-	pmloadderivedconfig.3 pmregisterderived.3
+	pmloadderivedconfig.3 pmregisterderived.3 pmderivederrstr.3
 
 # IMPL_MANPAGES from IRIX
 MAN_PAGES += \

@@ -22,31 +22,19 @@
  *	DERIVE & APPL2 - fetch handling
  *
  * Caveats
+ * 0.	No unary negation operator.
  * 1.	No derived metrics for pmFetchArchive() as this routine does
  *	not use a target pmidlist[]
  * 2.	Derived metrics will not work with pmRequestTraversePMNS() and
  *	pmReceiveTraversePMNS() because the by the time the list of
  *	names is received, the original name at the root of the search
  *	is no longer available.
- */
-
-/*
- * TODO
- *
- *	if pmRegister called _after_ context is open, then iterate
- *	over all contexts and expand the ctl_t struct and call
- *	bind_expr and check_expr to add new dm for each context
- *
- *	Need to handle
- *	  new contexts after pmRegister is called (the initial implementation)
- *	  intermixed pmRegister and newContext calls
- *
- *	pmUnregister - ?
- *
- * 	delta() support
- *		- all other functions - avg, count, max, min, sum
- *
- *	when evaluating expressions, deal with scale conversions
+ * 3.	pmRegisterDerived() does not apply retrospectively to any open
+ * 	contexts, so the normal use would be to make all calls to
+ * 	pmRegisterDerived() (possibly via pmLoadDerivedConfig()) and then
+ * 	call pmNewContext().
+ * 4.	There is no pmUnregisterDerived(), so once registered a derived
+ * 	metric persists for the life of the application.
  */
 
 #include "derive.h"
@@ -325,6 +313,7 @@ bind_expr(int n, node_t *np)
     }
     new->info->pmid = PM_ID_NULL;
     new->info->numval = 0;
+    new->info->mul_scale = new->info->div_scale = 1;
     new->info->ivlist = NULL;
     new->info->last_numval = 0;
     new->info->last_ivlist = NULL;
@@ -407,6 +396,134 @@ static int promote[6][6] = {
     { PM_TYPE_DOUBLE, PM_TYPE_DOUBLE, PM_TYPE_DOUBLE, PM_TYPE_DOUBLE, PM_TYPE_DOUBLE, PM_TYPE_DOUBLE }
 };
 
+/* time scale conversion factors */
+static int timefactor[] = {
+    1000,		/* NSEC -> USEC */
+    1000,		/* USEC -> MSEC */
+    1000,		/* MSEC -> SEC */
+    60,			/* SEC -> MIN */
+    60,			/* MIN -> HOUR */
+};
+
+/*
+ * mapping pmUnits for the result, and refining pmDesc as we go ...
+ * we start with the pmDesc from the left operand and adjust as
+ * necessary
+ *
+ * scale conversion rules ...
+ * Count - choose larger, divide/multiply smaller by 10^(difference)
+ * Time - choose larger, divide/multiply smaller by appropriate scale
+ * Space - choose larger, divide/multiply smaller by 1024^(difference)
+ * and result is of type PM_TYPE_DOUBLE
+ *
+ * Need inverted logic to deal with numerator (dimension > 0) and
+ * denominator (dimension < 0) cases.
+ */
+static void
+map_units(node_t *np)
+{
+    pmDesc	*right = &np->right->desc;
+    pmDesc	*left = &np->left->desc;
+    int		diff;
+    int		i;
+
+    if (left->units.dimCount != 0 && right->units.dimCount != 0) {
+	diff = left->units.scaleCount - right->units.scaleCount;
+	if (diff > 0) {
+	    /* use the left scaleCount, scale the right operand */
+	    for (i = 0; i < diff; i++) {
+		if (right->units.dimCount > 0)
+		    np->right->info->div_scale *= 10;
+		else
+		    np->right->info->mul_scale *= 10;
+	    }
+	    np->desc.type = PM_TYPE_DOUBLE;
+	}
+	else if (diff < 0) {
+	    /* use the right scaleCount, scale the left operand */
+	    np->desc.units.scaleCount = right->units.scaleCount;
+	    for (i = diff; i < 0; i++) {
+		if (left->units.dimCount > 0)
+		    np->left->info->div_scale *= 10;
+		else
+		    np->left->info->mul_scale *= 10;
+	    }
+	    np->desc.type = PM_TYPE_DOUBLE;
+	}
+    }
+    if (left->units.dimTime != 0 && right->units.dimTime != 0) {
+	diff = left->units.scaleTime - right->units.scaleTime;
+	if (diff > 0) {
+	    /* use the left scaleTime, scale the right operand */
+	    for (i = right->units.scaleTime; i < left->units.scaleTime; i++) {
+		if (right->units.dimTime > 0)
+		    np->right->info->div_scale *= timefactor[i];
+		else
+		    np->right->info->mul_scale *= timefactor[i];
+	    }
+	    np->desc.type = PM_TYPE_DOUBLE;
+	}
+	else if (diff < 0) {
+	    /* use the right scaleTime, scale the left operand */
+	    np->desc.units.scaleTime = right->units.scaleTime;
+	    for (i = left->units.scaleTime; i < right->units.scaleTime; i++) {
+		if (right->units.dimTime > 0)
+		    np->left->info->div_scale *= timefactor[i];
+		else
+		    np->left->info->mul_scale *= timefactor[i];
+	    }
+	    np->desc.type = PM_TYPE_DOUBLE;
+	}
+    }
+    if (left->units.dimSpace != 0 && right->units.dimSpace != 0) {
+	diff = left->units.scaleSpace - right->units.scaleSpace;
+	if (diff > 0) {
+	    /* use the left scaleSpace, scale the right operand */
+	    for (i = 0; i < diff; i++) {
+		if (right->units.dimSpace > 0)
+		    np->right->info->div_scale *= 1024;
+		else
+		    np->right->info->mul_scale *= 1024;
+	    }
+	    np->desc.type = PM_TYPE_DOUBLE;
+	}
+	else if (diff < 0) {
+	    /* use the right scaleSpace, scale the left operand */
+	    np->desc.units.scaleSpace = right->units.scaleSpace;
+	    for (i = diff; i < 0; i++) {
+		if (right->units.dimSpace > 0)
+		    np->left->info->div_scale *= 1024;
+		else
+		    np->left->info->mul_scale *= 1024;
+	    }
+	    np->desc.type = PM_TYPE_DOUBLE;
+	}
+    }
+
+    if (np->type == L_STAR) {
+	np->desc.units.dimCount = left->units.dimCount + right->units.dimCount;
+	np->desc.units.dimTime = left->units.dimTime + right->units.dimTime;
+	np->desc.units.dimSpace = left->units.dimSpace + right->units.dimSpace;
+    }
+    else if (np->type == L_SLASH) {
+	np->desc.units.dimCount = left->units.dimCount - right->units.dimCount;
+	np->desc.units.dimTime = left->units.dimTime - right->units.dimTime;
+	np->desc.units.dimSpace = left->units.dimSpace - right->units.dimSpace;
+    }
+    
+    /*
+     * for division and multiplication, dimension may have come from
+     * right operand, need to pick up scale from there also
+     */
+    if (np->desc.units.dimCount != 0 && left->units.dimCount == 0)
+	np->desc.units.scaleCount = right->units.scaleCount;
+    if (np->desc.units.dimTime != 0 && left->units.dimTime == 0)
+	np->desc.units.scaleTime = right->units.scaleTime;
+    if (np->desc.units.dimSpace != 0 && left->units.dimSpace == 0)
+	np->desc.units.scaleSpace = right->units.scaleSpace;
+
+}
+
 static int
 map_desc(int n, node_t *np)
 {
@@ -419,10 +536,14 @@ map_desc(int n, node_t *np)
      * counter, non-counter	* /
      * non-counter, counter	*
      *
+     * in the non-counter and non-counter case, the semantics for the
+     * result are PM_SEM_INSTANT, unless both operands are
+     * PM_SEM_DISCRETE in which case the result is also PM_SEM_DISCRETE
+     *
      * type promotion (similar to ANSI C)
      * PM_TYPE_STRING, PM_TYPE_AGGREGATE and PM_TYPE_AGGREGATE_STATIC are
      * illegal operands except for renaming (no operator involved)
-     * for the integer type operands, division => PM_TYPE_FLOAT
+     * for all operands, division => PM_TYPE_DOUBLE
      * else PM_TYPE_DOUBLE & any type => PM_TYPE_DOUBLE
      * else PM_TYPE_FLOAT & any type => PM_TYPE_FLOAT
      * else PM_TYPE_U64 & any type => PM_TYPE_U64
@@ -433,7 +554,7 @@ map_desc(int n, node_t *np)
      * units mapping
      * operator			checks
      * +, -			same dimension
-     * *, /			if one is counter, non-counter must
+     * *, /			if only one is a counter, non-counter must
      *				have pmUnits of "none"
      */
     pmDesc	*right = &np->right->desc;
@@ -484,6 +605,16 @@ map_desc(int n, node_t *np)
 	np->desc = *right;	/* struct copy */
 
     /*
+     * most non-counter expressions produce PM_SEM_INSTANT results
+     */
+    if (left->sem != PM_SEM_COUNTER && right->sem != PM_SEM_COUNTER) {
+	if (left->sem == PM_SEM_DISCRETE && right->sem == PM_SEM_DISCRETE)
+	    np->desc.sem = PM_SEM_DISCRETE;
+	else
+	    np->desc.sem = PM_SEM_INSTANT;
+    }
+
+    /*
      * type checking and promotion
      */
     switch (left->type) {
@@ -511,9 +642,9 @@ map_desc(int n, node_t *np)
 	    goto bad;
     }
     np->desc.type = promote[left->type][right->type];
-    if (np->type == L_SLASH && np->desc.type != PM_TYPE_FLOAT && np->desc.type != PM_TYPE_DOUBLE) {
+    if (np->type == L_SLASH) {
 	/* for division result is real number */
-	np->desc.type = PM_TYPE_FLOAT;
+	np->desc.type = PM_TYPE_DOUBLE;
     }
 
     if (np->type == L_PLUS || np->type == L_MINUS) {
@@ -526,14 +657,14 @@ map_desc(int n, node_t *np)
 	    errmsg = "Dimensions are not the same";
 	    goto bad;
 	}
-	/* TODO determine scale factor */
+	map_units(np);
     }
 
-    /*
-     * if counter and non-counter, then non-counter needs to be
-     * dimensionless
-     */
     if (np->type == L_STAR || np->type == L_SLASH) {
+	/*
+	 * if multiply or divide and operands are a counter and a non-counter,
+	 * then non-counter needs to be dimensionless
+	 */
 	if (left->sem == PM_SEM_COUNTER && right->sem != PM_SEM_COUNTER) {
 	    if (right->units.dimCount != 0 ||
 	        right->units.dimTime != 0 ||
@@ -550,7 +681,7 @@ map_desc(int n, node_t *np)
 		goto bad;
 	    }
 	}
-	/* TODO determine dimension and scale factor */
+	map_units(np);
     }
 
     /*
@@ -694,7 +825,14 @@ __dmdumpexpr(node_t *np, int level)
 	fprintf(stderr, " [%s] master=%d", np->value, np->info == NULL ? 1 : 0);
     fputc('\n', stderr);
     if (np->info) {
-	fprintf(stderr, "    PMID: %s (%s from pmDesc) numval: %d [%s]\n", pmIDStr(np->info->pmid), pmIDStr(np->desc.pmid), np->info->numval, np->info->iv_alloc ? "allocated" : "copied");
+	fprintf(stderr, "    PMID: %s (%s from pmDesc) numval: %d", pmIDStr(np->info->pmid), pmIDStr(np->desc.pmid), np->info->numval);
+	if (np->info->div_scale != 1)
+	    fprintf(stderr, " div_scale: %d", np->info->div_scale);
+	if (np->info->mul_scale != 1)
+	    fprintf(stderr, " mul_scale: %d", np->info->mul_scale);
+	if (np->info->ivlist)
+	    fprintf(stderr, " [%s]", np->info->iv_alloc ? "allocated" : "copied");
+	fputc('\n', stderr);
 	__pmPrintDesc(stderr, &np->desc);
 	if (np->info->ivlist) {
 	    int		j;
