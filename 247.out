@@ -72,7 +72,7 @@ myname.d
     Semantics: instant  Units: none
 
 myname.e
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 
 myname.f

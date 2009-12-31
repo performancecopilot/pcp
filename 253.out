@@ -23,7 +23,7 @@ myname.a
 === -d myname.a ===
 
 myname.a
-    Data Type: float  InDom: 29.2 0x7400002
+    Data Type: double  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 === -f myname.a ===
 
@@ -50,7 +50,7 @@ myname.const
     Semantics: discrete  Units: none
 
 myname.a
-    Data Type: float  InDom: 29.2 0x7400002
+    Data Type: double  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 
 myname.b
@@ -104,7 +104,7 @@ sample.milliseconds
 === -d myname.a sample.milliseconds ===
 
 myname.a
-    Data Type: float  InDom: 29.2 0x7400002
+    Data Type: double  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 
 sample.milliseconds
@@ -167,7 +167,7 @@ sample.milliseconds
     Semantics: counter  Units: millisec
 
 myname.a
-    Data Type: float  InDom: 29.2 0x7400002
+    Data Type: double  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 
 myname.b

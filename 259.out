@@ -23,7 +23,7 @@ interval:  0.25 sec
 derived metrics prefetch added 1 metrics: 29.0.23
 __dmpostfetch: [0] root node 511.0.1: numval=0
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0 [copied]
+    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.million] master=0
@@ -104,7 +104,7 @@ interval:  0.25 sec
 derived metrics prefetch added 1 metrics: 2.1.16
 __dmpostfetch: [0] root node 511.0.2: numval=0
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0 [copied]
+    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
