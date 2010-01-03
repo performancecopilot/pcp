@@ -71,7 +71,7 @@ cat <<'End-of-File' >$tmp.map
 #notreported#Forwarding|Forwarding is %s|network.ip.forwarding
 #notreported#DefaultTTL|Default TTL is NNN|network.ip.defaultttl
 InReceives|NNN total packets received|network.ip.inreceives
-InHdrErrors|with invalid headers|network.ip.inhdrerrors
+InHdrErrors|NNN with invalid headers|network.ip.inhdrerrors
 InAddrErrors|NNN with invalid addresses|network.ip.inaddrerrors
 ForwDatagrams|NNN forwarded|network.ip.forwdatagrams
 InUnknownProtos|NNN with unknown protocol|network.ip.inunknownprotos
@@ -163,6 +163,7 @@ skip == 1			{ next }
     | sed -e 's/NNN/\\\\([0-9][0-9]*\\\\)/' \
     | while read pat
     do
+	echo "pat=$pat" >>$seq.full
 	sed -n -e 's/^[ 	]*//' -e "/$pat/s//\\1/p" <$tmp.out >$tmp.tmp
 	if [ -s $tmp.tmp ]
 	then

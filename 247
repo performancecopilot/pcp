@@ -86,6 +86,11 @@ myname.j = sample.mirage * sample.step_counter
 myname.k = sample.step_counter / sample.mirage_longlong
 # indom checks
 myname.l = sample.bin + sample.darkness
+# from here on down, test cases driven by gcov analysis ...
+myname.gcov.a = 42 + sample.bad.unknown
+myname.gcov.b = (disk.all.total + disk.dev.total) + 42 
+myname.gcov.c = 42 - (disk.all.total + disk.dev.total)
+myname.gcov.d = (sample.bin + sample.darkness)+42
 End-of-File
 
 #debug# pminfo -D derive,appl0,appl1 -d -c $tmp.config myname >$tmp.out 2>&1

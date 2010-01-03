@@ -27,7 +27,7 @@ expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.million] master=0
-    PMID: 29.0.23 (29.0.23 from pmDesc) numval: 1 [allocated]
+    PMID: 29.0.23 (29.0.23 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<number>
@@ -38,12 +38,12 @@ No values available
 derived metrics prefetch added 1 metrics: 29.0.23
 __dmpostfetch: [0] root node 511.0.1: numval=1 vset[0]: inst=-1 ll=0
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 1 [allocated]
+    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<number>
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.million] master=0
-    PMID: 29.0.23 (29.0.23 from pmDesc) numval: 1 [allocated]
+    PMID: 29.0.23 (29.0.23 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<number> (last inst=-1, val=<number>)
@@ -55,12 +55,12 @@ TIMESTAMP ... numpmid: 1
 derived metrics prefetch added 1 metrics: 29.0.23
 __dmpostfetch: [0] root node 511.0.1: numval=1 vset[0]: inst=-1 ll=0
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 1 [allocated]
+    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<number>
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.million] master=0
-    PMID: 29.0.23 (29.0.23 from pmDesc) numval: 1 [allocated]
+    PMID: 29.0.23 (29.0.23 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<number> (last inst=-1, val=<number>)
@@ -72,12 +72,12 @@ TIMESTAMP ... numpmid: 1
 derived metrics prefetch added 1 metrics: 29.0.23
 __dmpostfetch: [0] root node 511.0.1: numval=1 vset[0]: inst=-1 ll=0
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 1 [allocated]
+    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<number>
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.million] master=0
-    PMID: 29.0.23 (29.0.23 from pmDesc) numval: 1 [allocated]
+    PMID: 29.0.23 (29.0.23 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=<number> (last inst=-1, val=<number>)
@@ -108,7 +108,7 @@ expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
-    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 1 [allocated]
+    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 [0] inst=-1, val=<number>
@@ -119,12 +119,12 @@ No values available
 derived metrics prefetch added 1 metrics: 2.1.16
 __dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 u=2
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 1 [allocated]
+    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 [0] inst=-1, val=<number>
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
-    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 1 [allocated]
+    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 [0] inst=-1, val=<number> (last inst=-1, val=<number>)
@@ -136,12 +136,12 @@ TIMESTAMP ... numpmid: 1
 derived metrics prefetch added 1 metrics: 2.1.16
 __dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 u=3
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 1 [allocated]
+    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 [0] inst=-1, val=<number>
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
-    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 1 [allocated]
+    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 [0] inst=-1, val=<number> (last inst=-1, val=<number>)
@@ -153,12 +153,12 @@ TIMESTAMP ... numpmid: 1
 derived metrics prefetch added 1 metrics: 2.1.16
 __dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 u=3
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
-    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 1 [allocated]
+    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 [0] inst=-1, val=<number>
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
-    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 1 [allocated]
+    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 [0] inst=-1, val=<number> (last inst=-1, val=<number>)

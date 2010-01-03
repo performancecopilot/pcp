@@ -83,6 +83,10 @@ cat <<End-of-File >$tmp.config
 d1 = delta(pmcd.pdu_in.total)
 d2 = delta(pmcd.pdu_out.total)
 ratio =  delta(pmcd.pdu_in.total) / ( delta(pmcd.pdu_in.total) + delta(pmcd.pdu_out.total) )
+delta_l = delta(sample.long.hundred)
+delta_ull = delta(sample.ulonglong.hundred)
+delta_f = delta(sample.float.hundred)
+delta_d = delta(sample.double.hundred)
 End-of-File
 
 cat <<End-of-File \
@@ -90,6 +94,10 @@ cat <<End-of-File \
 | sed \
     -e 's/.*Info: evaluator exiting/pmie: note - evaluator exiting/g'
 r = ratio;
+l = delta_l;
+ull = delta_ull;
+f = delta_f;
+d = delta_d;
 // in = pmcd.pdu_in.total;
 // out = pmcd.pdu_out.total;
 End-of-File

@@ -101,6 +101,10 @@ pmRegisterDerived: register metric[8] myname.i = sample.long.hundred - disk.dev.
 pmRegisterDerived: register metric[9] myname.j = sample.mirage * sample.step_counter
 pmRegisterDerived: register metric[10] myname.k = sample.step_counter / sample.mirage_longlong
 pmRegisterDerived: register metric[11] myname.l = sample.bin + sample.darkness
+pmRegisterDerived: register metric[12] myname.gcov.a = 42 + sample.bad.unknown
+pmRegisterDerived: register metric[13] myname.gcov.b = (disk.all.total + disk.dev.total) + 42 
+pmRegisterDerived: register metric[14] myname.gcov.c = 42 - (disk.all.total + disk.dev.total)
+pmRegisterDerived: register metric[15] myname.gcov.d = (sample.bin + sample.darkness)+42
 __dmgetpmid: metric "no.such.metric" -> Unknown metric name
 Error: derived metric myname.a: operand: no.such.metric: Unknown metric name
 Error: derived metric myname.b: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
@@ -114,6 +118,10 @@ Semantic error: derived metric myname.i: sample.long.hundred - disk.dev.total: I
 Semantic error: derived metric myname.j: sample.mirage * sample.step_counter: Non-counter and not dimensionless for left operand
 Semantic error: derived metric myname.k: sample.step_counter / sample.mirage_longlong: Non-counter and not dimensionless for right operand
 Semantic error: derived metric myname.l: sample.bin + sample.darkness: Operands should have the same instance domain
+Error: derived metric myname.gcov.a: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+Semantic error: derived metric myname.gcov.b: <expr> + 42: Illegal operator for counter and non-counter
+Semantic error: derived metric myname.gcov.c: 42 - <expr>: Illegal operator for non-counter and counter
+Semantic error: derived metric myname.gcov.d: sample.bin + sample.darkness: Operands should have the same instance domain
 __dmgetpmid: metric "myname.a" -> PMID 511.0.1
 __dmgetpmid: metric "myname.b" -> PMID 511.0.2
 __dmgetpmid: metric "myname.c" -> PMID 511.0.3
@@ -126,6 +134,10 @@ __dmgetpmid: metric "myname.i" -> PMID 511.0.9
 __dmgetpmid: metric "myname.j" -> PMID 511.0.10
 __dmgetpmid: metric "myname.k" -> PMID 511.0.11
 __dmgetpmid: metric "myname.l" -> PMID 511.0.12
+__dmgetpmid: metric "myname.gcov.a" -> PMID 511.0.13
+__dmgetpmid: metric "myname.gcov.b" -> PMID 511.0.14
+__dmgetpmid: metric "myname.gcov.c" -> PMID 511.0.15
+__dmgetpmid: metric "myname.gcov.d" -> PMID 511.0.16
 myname.a: pmLookupDesc: Unknown or illegal metric identifier
 myname.b: pmLookupDesc: Unknown or illegal metric identifier
 myname.c: pmLookupDesc: Unknown or illegal metric identifier
@@ -138,3 +150,7 @@ myname.i: pmLookupDesc: Unknown or illegal metric identifier
 myname.j: pmLookupDesc: Unknown or illegal metric identifier
 myname.k: pmLookupDesc: Unknown or illegal metric identifier
 myname.l: pmLookupDesc: Unknown or illegal metric identifier
+myname.gcov.a: pmLookupDesc: Unknown or illegal metric identifier
+myname.gcov.b: pmLookupDesc: Unknown or illegal metric identifier
+myname.gcov.c: pmLookupDesc: Unknown or illegal metric identifier
+myname.gcov.d: pmLookupDesc: Unknown or illegal metric identifier

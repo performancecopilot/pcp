@@ -29,6 +29,5 @@ pmlogextract: Error: metric sample.dynamic.meta.metric: semantics changed from 4
 Archive "TMP.out" not created.
 Change metric units ...
 sample.dynamic.meta.pmdesc.units old value=520105984 new value=0
-sample.dynamic.meta.pmdesc.units: pmStore: Permission denied
 pmlogextract: Error: metric sample.dynamic.meta.metric: units changed from byte / sec to !
 Archive "TMP.out" not created.

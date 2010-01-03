@@ -98,10 +98,23 @@ myname.g =  pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total ) )
 myname.a = 1
 myname.a = dup.name.a
 myname.h = 4294967296
+# extra tests here from gcov analysis
+myname.gcov.a = foo = bar
+# very long source lines to test buffer handling in parser
+myname.gcov.b = sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + "bogus"
+myname.gcov.c = sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million + "bogus"
+   myname.gcov.d = 3 * space
+	myname.gcov.e = tab
+myname.gcov.f = ( 1 + foo + ( ?
+myname.gcov.g = /
+
 End-of-File
 
 pminfo -Dderive,appl0 -c $tmp.config -n $tmp.pmns >$tmp.out 2>&1
 _filter
+
+export PCP_DERIVED_CONFIG=/no/such/file
+pminfo -Dderive -d no.such.metric
 
 # success, all done
 exit

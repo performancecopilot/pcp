@@ -94,7 +94,6 @@ sample	89	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 89
 sample	99	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 99
 sample	109	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 109
 End-of-File
-$sudo cp $tmp.out $PCP_PMCDCONF_PATH.$seq
 $sudo cp $tmp.out $PCP_PMCDCONF_PATH
 $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd

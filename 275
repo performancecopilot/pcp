@@ -107,6 +107,27 @@ echo
 
 pminfo -f -a src-oss/sample_expr
 
+# suggested by gcov analysis
+echo
+echo "=== some more scale conversion tests ==="
+
+cat <<End-of-File >$tmp.config
+gcov.a = ( 1 / sample.mirage_longlong ) / (1 / sample.mirage )
+gcov.b = ( 1 / sample.mirage ) / (1 / sample.mirage_longlong )
+gcov.c = sample.seconds + disk.all.total
+gcov.d = sample.ulong.count.base - sample.ulong.count.kilo
+gcov.e = sample.ulong.count.mega - sample.ulong.count.kilo
+gcov.f = (1/sample.ulong.count.base) - (1/sample.ulong.count.kilo)
+gcov.g = (1/sample.ulong.count.mega) - (1/sample.ulong.count.kilo)
+End-of-File
+echo
+cat $tmp.config
+
+pminfo -Dderive,appl1 -d gcov >$tmp.out 2>&1
+_filter | _filter2
+
+pminfo -f gcov.d gcov.e gcov.f gcov.g
+
 exit
 
 # don't have any semantic checking at this stage ... all done earlier

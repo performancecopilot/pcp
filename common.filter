@@ -553,6 +553,7 @@ _filter_torture_api()
 	-e '/^    samba /d' \
 	-e '/^    softtemp /d' \
 	-e '/^    stream /d' \
+	-e '/^    sysfs /d' \
 	-e '/^    sysioctl /d' \
 	-e '/^    tmpfs /d' \
 	-e '/^    udf /d' \

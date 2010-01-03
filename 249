@@ -120,6 +120,28 @@ arith.ll = sample.longlong.hundred - sample.longlong.hundred + sample.longlong.h
 arith.ull = sample.ulonglong.hundred - sample.ulonglong.hundred + sample.ulonglong.hundred / sample.ulonglong.hundred * sample.ulonglong.hundred - sample.ulonglong.hundred
 arith.f = sample.float.hundred - sample.float.hundred + sample.float.hundred / sample.float.hundred * sample.float.hundred - sample.float.hundred
 arith.d = sample.double.hundred - sample.double.hundred + sample.double.hundred / sample.double.hundred * sample.double.hundred - sample.double.hundred
+arith.promote.l_l_r_ll = sample.long.one + sample.longlong.hundred
+arith.promote.l_ll_r_l = sample.longlong.hundred + sample.long.one
+arith.promote.l_ll_r_ul = sample.longlong.hundred + sample.ulong.one
+arith.promote.l_ull_r_l = sample.ulonglong.hundred + sample.long.one
+arith.promote.l_l_r_ull = sample.long.one + sample.ulonglong.hundred
+arith.promote.l_ul_r_ull = sample.ulong.one + sample.ulonglong.hundred
+arith.promote.l_ull_r_ul = sample.ulonglong.hundred + sample.ulong.one
+arith.promote.l_l_r_f = sample.long.one + sample.float.hundred
+arith.promote.l_ul_r_f = sample.ulong.one + sample.float.hundred
+arith.promote.l_ll_r_f = sample.longlong.one + sample.float.hundred
+arith.promote.l_ull_r_f = sample.ulonglong.one + sample.float.hundred
+arith.promote.l_f_r_l = sample.float.hundred + sample.long.one
+arith.promote.l_f_r_ul = sample.float.hundred + sample.ulong.one
+arith.promote.l_f_r_ll = sample.float.hundred + sample.longlong.one
+arith.promote.l_f_r_ull = sample.float.hundred + sample.ulonglong.one
+arith.eval.mul.l_l_r_l = sample.long.ten * sample.long.hundred
+arith.eval.mul.l_ull_r_ull = sample.ulonglong.ten * sample.ulonglong.hundred
+arith.eval.div.l_f_r_f = sample.float.hundred / sample.float.ten
+arith.eval.div.l_zero_f_r_f = 0 / sample.float.ten
+arith.eval.div.l_zero_d_r_d = 0 / sample.double.ten
+arith.eval.op.l_err = sample.needprofile + 1
+arith.eval.op.r_err = 1 + sample.needprofile
 End-of-File
 echo
 cat $tmp.config

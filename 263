@@ -87,6 +87,8 @@ aggr.maxuf_minuf = max(sample.float.million) - min(sample.float.million)
 aggr.maxud_minud = max(sample.double.million) - min(sample.double.million)
 aggr.count32 = count(sample.bin)
 aggr.avg32 = avg(sample.bin)
+aggr.max32_x = max(sample.bin)
+aggr.min32_x = min(sample.bin)
 aggr.sum32 = sum(sample.bin)
 aggr.avgu32 = avg(sample.ulong.bin_ctr)
 aggr.countu32 = count(sample.ulong.bin_ctr)
@@ -113,6 +115,9 @@ aggr.countd = count(sample.double.bin)
 aggr.maxd = max(sample.double.bin)
 aggr.mind = min(sample.double.bin)
 aggr.sumd = sum(sample.double.bin)
+aggr.count_err = count(sample.needprofile)
+aggr.sum_err = sum(sample.needprofile)
+aggr.countblob = count(sample.sysinfo)
 End-of-File
 echo
 cat $tmp.config
