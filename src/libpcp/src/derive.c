@@ -50,8 +50,8 @@ static int	lexpeek = 0;
 static char	*string;
 static char	*errmsg;
 
-static char *type_dbg[] = { "ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "EQUALS", "PLUS", "MINUS", "STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA", "MAX", "MIN", "SUM" };
-static char type_c[] = { '\0', '\0', '\0', '\0', '\0', '=', '+', '-', '*', '/', '(', ')', '\0' };
+static char *type_dbg[] = { "ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS", "STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA", "MAX", "MIN", "SUM" };
+static char type_c[] = { '\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '(', ')', '\0' };
 
 /* function table for lexer */
 static struct {
@@ -179,11 +179,6 @@ lex(void)
 		ltype = L_NAME;
 	    else {
 		switch (c) {
-		    case '=':
-			*p = '\0';
-			return L_EQUALS;
-			break;
-
 		    case '+':
 			*p = '\0';
 			return L_PLUS;
@@ -378,7 +373,11 @@ void report_sem_error(char *name, node_t *np)
 	    pmprintf("%s(%s)", type_dbg[np->type+2], np->left->value);
 	    break;
 	default:
-	    pmprintf("%s???", type_dbg[np->type+2]);
+	    /* should never get here ... */
+	    if (np->type+2 >= 0 && np->type+2 < sizeof(type_dbg)/sizeof(type_dbg[0]))
+		pmprintf("botch @ node type %s?", type_dbg[np->type+2]);
+	    else
+		pmprintf("botch @ node type #%d?", np->type);
 	    break;
     }
     pmprintf(": %s\n", errmsg);
@@ -714,10 +713,10 @@ check_expr(int n, node_t *np)
     if (np->right != NULL)
 	if ((sts = check_expr(n, np->right)) < 0)
 	    return sts;
-    if (np->left == NULL) {
-	np->desc = np->right->desc;	/* struct copy */
-    }
-    else if (np->right == NULL) {
+    /*
+     * np->left is never NULL ...
+     */
+    if (np->right == NULL) {
 	np->desc = np->left->desc;	/* struct copy */
 	/*
 	 * special cases for functions ...
@@ -830,8 +829,6 @@ __dmdumpexpr(node_t *np, int level)
 	    fprintf(stderr, " div_scale: %d", np->info->div_scale);
 	if (np->info->mul_scale != 1)
 	    fprintf(stderr, " mul_scale: %d", np->info->mul_scale);
-	if (np->info->ivlist)
-	    fprintf(stderr, " [%s]", np->info->iv_alloc ? "allocated" : "copied");
 	fputc('\n', stderr);
 	__pmPrintDesc(stderr, &np->desc);
 	if (np->info->ivlist) {
@@ -1454,24 +1451,21 @@ __dmopencontext(__pmContext *ctxp)
     for (i = 0; i < cp->nmetric; i++) {
 	cp->mlist[i].name = registered.mlist[i].name;
 	cp->mlist[i].pmid = registered.mlist[i].pmid;
-	if (registered.mlist[i].expr != NULL) {
-	    /* failures must be reported in bind_expr() or below */
-	    cp->mlist[i].expr = bind_expr(i, registered.mlist[i].expr);
-	    if (cp->mlist[i].expr != NULL) {
-		/* failures must be reported in check_expr() or below */
-		sts = check_expr(i, cp->mlist[i].expr);
-		if (sts < 0) {
-		    free_expr(cp->mlist[i].expr);
-		    cp->mlist[i].expr = NULL;
-		}
-		else {
-		    /* set correct PMID in pmDesc at the top level */
-		    cp->mlist[i].expr->desc.pmid = cp->mlist[i].pmid;
-		}
+	assert(registered.mlist[i].expr != NULL);
+	/* failures must be reported in bind_expr() or below */
+	cp->mlist[i].expr = bind_expr(i, registered.mlist[i].expr);
+	if (cp->mlist[i].expr != NULL) {
+	    /* failures must be reported in check_expr() or below */
+	    sts = check_expr(i, cp->mlist[i].expr);
+	    if (sts < 0) {
+		free_expr(cp->mlist[i].expr);
+		cp->mlist[i].expr = NULL;
+	    }
+	    else {
+		/* set correct PMID in pmDesc at the top level */
+		cp->mlist[i].expr->desc.pmid = cp->mlist[i].pmid;
 	    }
 	}
-	else
-	    cp->mlist[i].expr = NULL;
 #ifdef PCP_DEBUG
 	if ((pmDebug & DBG_TRACE_DERIVE) && cp->mlist[i].expr != NULL) {
 	    fprintf(stderr, "__dmopencontext: bind metric[%d] %s\n", i, registered.mlist[i].name);

@@ -153,61 +153,25 @@ free_ivlist(node_t *np)
 
     if (np->save_last) {
 	if (np->info->last_ivlist != NULL) {
-	    if (np->desc.type == PM_TYPE_STRING ||
-		np->desc.type == PM_TYPE_AGGREGATE ||
-		np->desc.type == PM_TYPE_AGGREGATE_STATIC) {
-		for (i = 0; i < np->info->last_numval; i++) {
-		    if (np->info->last_ivlist[i].value.vp != NULL)
-			free(np->info->last_ivlist[i].value.vp);
-		}
-	    }
+	    /* no STRING or AGGREGATE types for delta(), so simple free() */
 	    free(np->info->last_ivlist);
 	}
 	np->info->last_numval = np->info->numval;
-	if (np->info->iv_alloc == 0) {
-	    /*
-	     * saved last values has to be copied to avoid clobbering
-	     * at next fetch
-	     */
-	    if ((np->info->last_ivlist = (val_t *)malloc(np->info->last_numval*sizeof(val_t))) == NULL) {
-		__pmNoMem("free_ivlist: last ivlist", np->info->last_numval*sizeof(val_t), PM_FATAL_ERR);
-		/*NOTREACHED*/
-	    }
-	    for (i = 0; i < np->info->last_numval; i++) {
-		np->info->last_ivlist[i].inst = np->info->ivlist[i].inst;
-		np->info->last_ivlist[i].vlen = np->info->ivlist[i].vlen;
-		if (np->desc.type == PM_TYPE_STRING ||
-		    np->desc.type == PM_TYPE_AGGREGATE ||
-		    np->desc.type == PM_TYPE_AGGREGATE_STATIC) {
-		    if ((np->info->last_ivlist[i].value.vp = (void *)malloc(np->info->last_ivlist[i].vlen)) == NULL) {
-			__pmNoMem("free_ivlist: last value", np->info->last_ivlist[i].vlen, PM_FATAL_ERR);
-			/*NOTREACHED*/
-		    }
-		    memcpy(np->info->last_ivlist[i].value.vp, np->info->ivlist[i].value.vp, np->info->last_ivlist[i].vlen);
-		}
-		else
-		    memcpy((void *)&np->info->last_ivlist[i].value, (void *)&np->info->ivlist[i].value, sizeof(np->info->last_ivlist[0].value));
-	    }
-	}
-	else {
-	    np->info->last_ivlist = np->info->ivlist;
-	}
+	np->info->last_ivlist = np->info->ivlist;
     }
     else {
 	/* no history */
-	if (np->info->iv_alloc == 1)  {
-	    if (np->info->ivlist != NULL) {
-		if (np->desc.type == PM_TYPE_STRING ||
-		    np->desc.type == PM_TYPE_AGGREGATE ||
-		    np->desc.type == PM_TYPE_AGGREGATE_STATIC) {
-		    for (i = 0; i < np->info->numval; i++) {
-			if (np->info->ivlist[i].value.vp != NULL)
-			    free(np->info->ivlist[i].value.vp);
-		    }
+	if (np->info->ivlist != NULL) {
+	    if (np->desc.type == PM_TYPE_STRING ||
+		np->desc.type == PM_TYPE_AGGREGATE ||
+		np->desc.type == PM_TYPE_AGGREGATE_STATIC) {
+		for (i = 0; i < np->info->numval; i++) {
+		    if (np->info->ivlist[i].value.vp != NULL)
+			free(np->info->ivlist[i].value.vp);
 		}
 	    }
-	    free(np->info->ivlist);
 	}
+	free(np->info->ivlist);
 	np->info->ivlist = NULL;
 	np->info->numval = 0;
     }
@@ -255,8 +219,6 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case PM_TYPE_U64:
 		    /* do nothing */
 		    break;
-		default:
-		    assert(ltype == -100);	/* botch, so always true! */
 	    }
 	    switch (rtype) {
 		case PM_TYPE_32:
@@ -269,8 +231,6 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case PM_TYPE_U64:
 		    /* do nothing */
 		    break;
-		default:
-		    assert(rtype == -100);	/* botch, so always true! */
 	    }
 	    break;
 	case PM_TYPE_U64:
@@ -285,8 +245,6 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case PM_TYPE_U64:
 		    /* do nothing */
 		    break;
-		default:
-		    assert(ltype == -100);	/* botch, so always true! */
 	    }
 	    switch (rtype) {
 		case PM_TYPE_32:
@@ -299,8 +257,6 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case PM_TYPE_U64:
 		    /* do nothing */
 		    break;
-		default:
-		    assert(rtype == -100);	/* botch, so always true! */
 	    }
 	    break;
 	case PM_TYPE_FLOAT:
@@ -320,8 +276,6 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case PM_TYPE_FLOAT:
 		    /* do nothing */
 		    break;
-		default:
-		    assert(ltype == -100);	/* botch, so always true! */
 	    }
 	    switch (rtype) {
 		case PM_TYPE_32:
@@ -339,8 +293,6 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case PM_TYPE_FLOAT:
 		    /* do nothing */
 		    break;
-		default:
-		    assert(rtype == -100);	/* botch, so always true! */
 	    }
 	    break;
 	case PM_TYPE_DOUBLE:
@@ -363,8 +315,6 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case PM_TYPE_DOUBLE:
 		    /* do nothing */
 		    break;
-		default:
-		    assert(ltype == -100);	/* botch, so always true! */
 	    }
 	    l.d = (l.d / ldiv) * lmul;
 	    switch (rtype) {
@@ -386,14 +336,9 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case PM_TYPE_DOUBLE:
 		    /* do nothing */
 		    break;
-		default:
-		    assert(rtype == -100);	/* botch, so always true! */
 	    }
 	    r.d = (r.d / rdiv) * rmul;
 	    break;
-	default:
-fprintf(stderr, "%s: botch type=%d\n", __FUNCTION__, type);
-	    assert(type == -100);	/* botch, so always true! */
     }
 
     /*
@@ -467,12 +412,7 @@ fprintf(stderr, "%s: botch type=%d\n", __FUNCTION__, type);
 		case L_STAR:
 		    res.f = l.f * r.f;
 		    break;
-		case L_SLASH:
-		    if (l.f == 0)
-			res.f = 0;
-		    else
-			res.f = l.f / r.f;
-		    break;
+		/* semantics enforce no L_SLASH for float results */
 	    }
 	    break;
 	case PM_TYPE_DOUBLE:
@@ -494,8 +434,6 @@ fprintf(stderr, "%s: botch type=%d\n", __FUNCTION__, type);
 		    break;
 	    }
 	    break;
-	default:
-	    assert(type == -100);	/* botch, so always true! */
     }
 
     return res;
@@ -506,10 +444,6 @@ fprintf(stderr, "%s: botch type=%d\n", __FUNCTION__, type);
  * Walk an expression tree, filling in operand values from the
  * pmResult at the leaf nodes and propagating the computed values
  * towards the root node of the tree.
- *
- * The control variable iv_alloc determines if the ivlist[] entries
- * are allocated with the current node, or the current node points
- * to ivlist[] entries allocated in another node.
  */
 static int
 eval_expr(node_t *np, pmResult *rp, int level)
@@ -519,7 +453,6 @@ eval_expr(node_t *np, pmResult *rp, int level)
     int		j;
     int		k;
     size_t	need;
-    node_t	*src;
 
     assert(np != NULL);
     if (np->left != NULL) {
@@ -541,7 +474,6 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		    __pmNoMem("eval_expr: number ivlist", sizeof(val_t), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
-		np->info->iv_alloc = 1;
 		np->info->ivlist[0].inst = PM_INDOM_NULL;
 		/* don't need error checking, done in the lexical scanner */
 		np->info->ivlist[0].value.l = atoi(np->value);
@@ -561,7 +493,6 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		__pmNoMem("eval_expr: delta() ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
-	    np->info->iv_alloc = 1;
 	    /*
 	     * ivlist[k] = left-ivlist[i] - left-last-ivlist[j]
 	     */
@@ -629,21 +560,13 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		    /*NOTREACHED*/
 		}
 		np->info->ivlist[0].inst = PM_IN_NULL;
-		np->info->iv_alloc = 1;
 	    }
 	    /*
 	     * values are in the left expr
 	     */
 	    if (np->type == L_COUNT) {
-		if (np->left->info->numval >= 0) {
-		    np->info->numval = 1;
-		    np->info->ivlist[0].value.l = np->left->info->numval;
-		}
-		else
-		    np->info->numval = np->left->info->numval;
-	    }
-	    else if (np->left->info->numval <= 0) {
-		np->info->numval = 0;
+		np->info->numval = 1;
+		np->info->ivlist[0].value.l = np->left->info->numval;
 	    }
 	    else {
 		np->info->numval = 1;
@@ -835,7 +758,6 @@ eval_expr(node_t *np, pmResult *rp, int level)
 			__pmNoMem("eval_expr: metric ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
-		    np->info->iv_alloc = 1;
 		    for (i = 0; i < np->info->numval; i++) {
 			np->info->ivlist[i].inst = rp->vset[j]->vlist[i].inst;
 			switch (np->desc.type) {
@@ -903,137 +825,117 @@ eval_expr(node_t *np, pmResult *rp, int level)
 #endif
 	    return PM_ERR_PMID;
 
-
 	default:
-	    src = NULL;
-	    if (np->left == NULL) {
-		/* copy right pmValues */
-		src = np->right;
-	    }
-	    else if (np->right == NULL) {
-		/* copy left pmValues */
-		src = np->left;
-	    }
-	    if (src != NULL) {
-		np->info->numval = src->info->numval;
-		np->info->iv_alloc = 0;
-		np->info->ivlist = src->info->ivlist;
+	    /*
+	     * binary operator cases ... always have a left and right
+	     * operand and no errors (these are caught earlier when the
+	     * recursive call on each of the operands would may have
+	     * returned an error
+	     */
+	    assert(np->left != NULL);
+	    assert(np->right != NULL);
+
+	    free_ivlist(np);
+	    /*
+	     * empty result cases first
+	     */
+	    if (np->left->info->numval == 0) {
+		np->info->numval = 0;
 		return np->info->numval;
 	    }
+	    if (np->right->info->numval == 0) {
+		np->info->numval = 0;
+		return np->info->numval;
+	    }
+	    /*
+	     * really got some work to do ...
+	     */
+	    if (np->left->desc.indom == PM_INDOM_NULL)
+		np->info->numval = np->right->info->numval;
+	    else if (np->right->desc.indom == PM_INDOM_NULL)
+		np->info->numval = np->left->info->numval;
 	    else {
-		free_ivlist(np);
 		/*
-		 * Error cases first ... if both are in error, arbitrarily
-		 * choose the left error code.
-		 * Then the empty result cases.
+		 * Generally have the same number of instances because
+		 * both operands are over the same instance domain,
+		 * fetched with the same profile.  When not the case,
+		 * the result can contain no more instances than in
+		 * the smaller of the operands.
 		 */
-		if (np->left->info->numval < 0) {
+		if (np->left->info->numval <= np->right->info->numval)
 		    np->info->numval = np->left->info->numval;
-		    return np->info->numval;
-		}
-		if (np->right->info->numval < 0) {
+		else
 		    np->info->numval = np->right->info->numval;
-		    return np->info->numval;
-		}
-		if (np->left->info->numval == 0) {
-		    np->info->numval = 0;
-		    return np->info->numval;
-		}
-		if (np->right->info->numval == 0) {
-		    np->info->numval = 0;
-		    return np->info->numval;
-		}
-		/*
-		 * really got some work to do ...
-		 */
-		if (np->left->desc.indom == PM_INDOM_NULL)
-		    np->info->numval = np->right->info->numval;
-		else if (np->right->desc.indom == PM_INDOM_NULL)
-		    np->info->numval = np->left->info->numval;
-		else {
-		    /*
-		     * Generally have the same number of instances because
-		     * both operands are over the same instance domain,
-		     * fetched with the same profile.  When not the case,
-		     * the result can contain no more instances than in
-		     * the smaller of the operands.
-		     */
-		    if (np->left->info->numval <= np->right->info->numval)
-			np->info->numval = np->left->info->numval;
-		    else
-			np->info->numval = np->right->info->numval;
-		}
-		if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-		    __pmNoMem("eval_expr: expr ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
-		    /*NOTREACHED*/
-		}
-		np->info->iv_alloc = 1;
-		/*
-		 * ivlist[k] = left-ivlist[i] <op> right-ivlist[j]
-		 */
-		for (i = j = k = 0; k < np->info->numval; ) {
-		    if (i >= np->left->info->numval || j >= np->right->info->numval) {
-			/* run out of operand instances, quit */
-			np->info->numval = k;
-			break;
-		    }
-		    if (np->left->desc.indom != PM_INDOM_NULL &&
-			np->right->desc.indom != PM_INDOM_NULL) {
-			if (np->left->info->ivlist[i].inst != np->right->info->ivlist[j].inst) {
-			    /* left ith inst != right jth inst ... search in right */
-#ifdef PCP_DEBUG
-			    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
-				fprintf(stderr, "eval_expr: inst[%d] mismatch left [%d]=%d right [%d]=%d\n", k, i, np->left->info->ivlist[i].inst, j, np->right->info->ivlist[j].inst);
-			    }
-#endif
-			    for (j = 0; j < np->right->info->numval; j++) {
-				if (np->left->info->ivlist[i].inst == np->right->info->ivlist[j].inst)
-				    break;
-			    }
-			    if (j == np->right->info->numval) {
-				/*
-				 * no match, so next instance on left operand,
-				 * and reset to start from first instance of
-				 * right operand
-				 */
-				i++;
-				j = 0;
-				continue;
-			    }
-#ifdef PCP_DEBUG
-			    else {
-				if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
-				    fprintf(stderr, "eval_expr: recover @ right [%d]=%d\n", j, np->right->info->ivlist[j].inst);
-				}
-			    }
-#endif
-			}
-		    }
-		    np->info->ivlist[k].value =
-			bin_op(np->desc.type, np->type,
-			       np->left->info->ivlist[i].value, np->left->desc.type, np->left->info->mul_scale, np->left->info->div_scale,
-			       np->right->info->ivlist[j].value, np->right->desc.type, np->right->info->mul_scale, np->right->info->div_scale);
-		    if (np->left->desc.indom != PM_INDOM_NULL)
-			np->info->ivlist[k].inst = np->left->info->ivlist[i].inst;
-		    else
-			np->info->ivlist[k].inst = np->right->info->ivlist[j].inst;
-		    k++;
-		    if (np->left->desc.indom != PM_INDOM_NULL) {
-			i++;
-			if (np->right->desc.indom != PM_INDOM_NULL) {
-			    j++;
-			    if (j >= np->right->info->numval) {
-				/* rescan if need be */
-				j = 0;
-			    }
-			}
-		    }
-		    else if (np->right->desc.indom != PM_INDOM_NULL) {
-			j++;
-		    }
-		}
-		return np->info->numval;
 	    }
+	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
+		__pmNoMem("eval_expr: expr ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    /*
+	     * ivlist[k] = left-ivlist[i] <op> right-ivlist[j]
+	     */
+	    for (i = j = k = 0; k < np->info->numval; ) {
+		if (i >= np->left->info->numval || j >= np->right->info->numval) {
+		    /* run out of operand instances, quit */
+		    np->info->numval = k;
+		    break;
+		}
+		if (np->left->desc.indom != PM_INDOM_NULL &&
+		    np->right->desc.indom != PM_INDOM_NULL) {
+		    if (np->left->info->ivlist[i].inst != np->right->info->ivlist[j].inst) {
+			/* left ith inst != right jth inst ... search in right */
+#ifdef PCP_DEBUG
+			if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+			    fprintf(stderr, "eval_expr: inst[%d] mismatch left [%d]=%d right [%d]=%d\n", k, i, np->left->info->ivlist[i].inst, j, np->right->info->ivlist[j].inst);
+			}
+#endif
+			for (j = 0; j < np->right->info->numval; j++) {
+			    if (np->left->info->ivlist[i].inst == np->right->info->ivlist[j].inst)
+				break;
+			}
+			if (j == np->right->info->numval) {
+			    /*
+			     * no match, so next instance on left operand,
+			     * and reset to start from first instance of
+			     * right operand
+			     */
+			    i++;
+			    j = 0;
+			    continue;
+			}
+#ifdef PCP_DEBUG
+			else {
+			    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+				fprintf(stderr, "eval_expr: recover @ right [%d]=%d\n", j, np->right->info->ivlist[j].inst);
+			    }
+			}
+#endif
+		    }
+		}
+		np->info->ivlist[k].value =
+		    bin_op(np->desc.type, np->type,
+			   np->left->info->ivlist[i].value, np->left->desc.type, np->left->info->mul_scale, np->left->info->div_scale,
+			   np->right->info->ivlist[j].value, np->right->desc.type, np->right->info->mul_scale, np->right->info->div_scale);
+		if (np->left->desc.indom != PM_INDOM_NULL)
+		    np->info->ivlist[k].inst = np->left->info->ivlist[i].inst;
+		else
+		    np->info->ivlist[k].inst = np->right->info->ivlist[j].inst;
+		k++;
+		if (np->left->desc.indom != PM_INDOM_NULL) {
+		    i++;
+		    if (np->right->desc.indom != PM_INDOM_NULL) {
+			j++;
+			if (j >= np->right->info->numval) {
+			    /* rescan if need be */
+			    j = 0;
+			}
+		    }
+		}
+		else if (np->right->desc.indom != PM_INDOM_NULL) {
+		    j++;
+		}
+	    }
+	    return np->info->numval;
     }
     /*NOTREACHED*/
 }

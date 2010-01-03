@@ -40,7 +40,6 @@ typedef struct {		/* dynamic information for an expression node */
     int		numval;		/* length of ivlist[] */
     int		mul_scale;	/* scale multiplier */
     int		div_scale;	/* scale divisor */
-    int		iv_alloc;	/* set if ivlist is allocated from this node */
     val_t	*ivlist;	/* instance-value pairs */
     int		last_numval;	/* length of last_ivlist[] */
     val_t	*last_ivlist;	/* values from previous fetch for delta() */
@@ -81,18 +80,17 @@ typedef struct {
 #define L_UNDEF		0
 #define L_NUMBER	1
 #define L_NAME		2
-#define L_EQUALS	3
-#define L_PLUS		4
-#define L_MINUS		5
-#define L_STAR		6
-#define L_SLASH		7
-#define L_LPAREN	8
-#define L_RPAREN	9
-#define L_AVG		10
-#define L_COUNT		11
-#define L_DELTA		12
-#define L_MAX		13
-#define L_MIN		14
-#define L_SUM		15
+#define L_PLUS		3
+#define L_MINUS		4
+#define L_STAR		5
+#define L_SLASH		6
+#define L_LPAREN	7
+#define L_RPAREN	8
+#define L_AVG		9
+#define L_COUNT		10
+#define L_DELTA		11
+#define L_MAX		12
+#define L_MIN		13
+#define L_SUM		14
 
 void __dmdumpexpr(node_t *, int);

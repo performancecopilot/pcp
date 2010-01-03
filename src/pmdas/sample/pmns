@@ -1,7 +1,7 @@
 /*
  * Metrics for sample PMDA
  *
- * Next pmid SAMPLE:0:115
+ * Next pmid SAMPLE:0:120
  * (SAMPLE:0:1023 is taken)
  *
  * Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
@@ -96,6 +96,15 @@ sample.ulong {
     write_me	SAMPLE:0:97
     bin		SAMPLE:0:105
     bin_ctr	SAMPLE:0:106
+    count
+}
+
+sample.ulong.count {
+    base	SAMPLE:0:115
+    deca	SAMPLE:0:116
+    hecto	SAMPLE:0:117
+    kilo	SAMPLE:0:118
+    mega	SAMPLE:0:119
 }
 
 sample.float {

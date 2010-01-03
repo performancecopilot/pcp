@@ -220,6 +220,12 @@ For testing, only.  This metric is known, but no value is ever available
 @ sample.ulong.bin like sample.bin but type U32
 @ sample.ulong.bin_ctr like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE
 
+@ sample.ulong.count.base count scale is 1, value is 42,000,000
+@ sample.ulong.count.deca count scale is 10, value is 4,200,000
+@ sample.ulong.count.hecto count scale is 10, value is 420,000
+@ sample.ulong.count.kilo count scale is 10, value is 42,000
+@ sample.ulong.count.mega count scale is 10, value is 42
+
 @ sample.longlong.one 1 as a 64-bit integer
 @ sample.longlong.ten 10 as a 64-bit integer
 @ sample.longlong.hundred 100 as a 64-bit integer

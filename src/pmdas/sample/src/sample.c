@@ -277,6 +277,16 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,113), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* double.bin_ctr */
     { PMDA_PMID(0,114), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* sample.ulong.count.base */
+    { PMDA_PMID(0,115), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(-1,0,1,PM_SPACE_MBYTE,0,PM_COUNT_ONE) },
+/* sample.ulong.count.deca */
+    { PMDA_PMID(0,116), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(-1,0,1,PM_SPACE_MBYTE,0,PM_COUNT_ONE+1) },
+/* sample.ulong.count.hecto */
+    { PMDA_PMID(0,117), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(-1,0,1,PM_SPACE_MBYTE,0,PM_COUNT_ONE+2) },
+/* sample.ulong.count.kilo */
+    { PMDA_PMID(0,118), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(-1,0,1,PM_SPACE_MBYTE,0,PM_COUNT_ONE+3) },
+/* sample.ulong.count.mega */
+    { PMDA_PMID(0,119), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(-1,0,1,PM_SPACE_MBYTE,0,PM_COUNT_ONE+6) },
 
 /* bigid */
     { PMDA_PMID(0,1023), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -2129,6 +2139,21 @@ doit:
 		    break;
 		case 102:
 		    atom.ull = _ulonglong;
+		    break;
+		case 115:	/* ulong.count.base */
+		    atom.ul = 42000000;
+		    break;
+		case 116:	/* ulong.count.deca */
+		    atom.ul = 4200000;
+		    break;
+		case 117:	/* ulong.count.hecto */
+		    atom.ul = 420000;
+		    break;
+		case 118:	/* ulong.count.kilo */
+		    atom.ul = 42000;
+		    break;
+		case 119:	/* ulong.count.mega */
+		    atom.ul = 42;
 		    break;
 		case 1000:	/* secret.bar */
 		    atom.cp = "foo";
