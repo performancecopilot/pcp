@@ -496,25 +496,32 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    /*
 	     * ivlist[k] = left-ivlist[i] - left-last-ivlist[j]
 	     */
-	    for (i = k = 0; k < np->info->numval; i++) {
-		if (i >= np->left->info->numval) {
-		    /* run out of current instances */
-		    np->info->numval = k;
-		    break;
-		}
+	    for (i = k = 0; i < np->left->info->numval; i++) {
 		j = i;
-		if (j >= np->left->info->last_numval ||
-		    np->left->info->ivlist[i].inst != np->left->info->last_ivlist[j].inst) {
+		if (j >= np->left->info->last_numval)
+		    j = 0;
+		if (np->left->info->ivlist[i].inst != np->left->info->last_ivlist[j].inst) {
 		    /* current ith inst != last jth inst ... search in last */
+#ifdef PCP_DEBUG
+		    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+			fprintf(stderr, "eval_expr: inst[%d] mismatch left [%d]=%d last [%d]=%d\n", k, i, np->left->info->ivlist[i].inst, j, np->left->info->last_ivlist[j].inst);
+		    }
+#endif
 		    for (j = 0; j < np->left->info->last_numval; j++) {
 			if (np->left->info->ivlist[i].inst == np->left->info->last_ivlist[j].inst)
 			    break;
 		    }
 		    if (j == np->left->info->last_numval) {
-			/* no match, one less result instance */
-			np->info->numval--;
+			/* no match, skip this instance from this result */
 			continue;
 		    }
+#ifdef PCP_DEBUG
+		    else {
+			if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
+			    fprintf(stderr, "eval_expr: recover @ last [%d]=%d\n", j, np->left->info->last_ivlist[j].inst);
+			}
+		    }
+#endif
 		}
 		np->info->ivlist[k].inst = np->left->info->ivlist[i].inst;
 		switch (np->desc.type) {
@@ -545,6 +552,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		}
 		k++;
 	    }
+	    np->info->numval = k;
 	    return np->info->numval;
 	    break;
 
