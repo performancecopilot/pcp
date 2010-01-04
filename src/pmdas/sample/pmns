@@ -1,7 +1,7 @@
 /*
  * Metrics for sample PMDA
  *
- * Next pmid SAMPLE:0:120
+ * Next pmid SAMPLE:0:122
  * (SAMPLE:0:1023 is taken)
  *
  * Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
@@ -76,6 +76,7 @@ sample {
     byte_rate_perhour	SAMPLE:0:85
     datasize	SAMPLE:0:91
     secret	SAMPLE:*:*
+    scramble
 }
 
 sample.long {
@@ -218,4 +219,9 @@ sample.dynamic.meta.pmdesc {
 sample.many {
     count	SAMPLE:0:79
     int		SAMPLE:0:80
+}
+
+sample.scramble {
+    version	SAMPLE:0:120
+    bin		SAMPLE:0:121
 }

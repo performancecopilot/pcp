@@ -500,3 +500,15 @@ Value 6.
 
 @ SAMPLE.0.1007 dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric
 Value 7.
+
+@ sample.scramble.bin Several constant instances, instances scrambled
+Like sample.bin, except
+1. instances are missing with probability 0.33
+2. order of the instances from pmFetch is random
+
+Designed to help testing instance matching between pmFetch calls
+for PCP clients.
+
+@ sample.scramble.version Current state version and reset for sample.scramble.bin
+To make the order of instances seen from sample.scramble.bin
+deterministic, use pmstore(1) to trigger a reset.
