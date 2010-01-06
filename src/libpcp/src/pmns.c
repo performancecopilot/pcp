@@ -1829,17 +1829,21 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		fprintf(stderr, "pmLookupName: receive_names( , %d, ) -> %s\n", numpmid, pmErrStr(sts));
 	}
 #endif
+	    /*
+	     * the return status is a little tricky ... prefer the
+	     * status from receive_names(), unless all of the remaining
+	     * unknown PMIDs are resolved by __dmgetpmid() in which case
+	     * success (numpmid) is the right return status
+	     */
 	    if (sts < 0) {
 		/* try derived metrics for any remaining unknown pmids */
 		int		nsts;
 		int		nfail = 0;
 		int		i;
-		sts = numpmid;	/* be optimistic */
 		for (i = 0; i < numpmid; i++) {
 		    if (pmidlist[i] == PM_ID_NULL) {
 			nsts = __dmgetpmid(namelist[i], &pmidlist[i]);
 			if (nsts < 0) {
-			    if (nfail == 0) sts = nsts;
 			    nfail++;
 			}
 #ifdef PCP_DEBUG
@@ -1853,6 +1857,8 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 #endif
 		    }
 		}
+		if (nfail == 0)
+		    sts = numpmid;
 	    }
 	}
     }
