@@ -71,7 +71,10 @@ want == 1 && $3 == "val"	{ if (seen[$4] != "y") {
 $1 == "expr"		{ want = 0 }'
     echo "=== sed2 ===" >>$seq.full
     cat $tmp.sed2 >>$seq.full
-    sed -f $tmp.sed2
+    sed -f $tmp.sed2 \
+    | sed \
+	-e '/pmGetChildren(name="")/s/ [0-9][0-9]* regular/ N regular/' \
+	-e '/pmGetChildren/s/returns [0-9][0-9]/returns N/'
 }
 
 # real QA test starts here

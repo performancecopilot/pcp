@@ -141,9 +141,9 @@ sample.bin
 
 Goodbye
 Errors:
-Error: No permission to perform requested operation
-Error: No permission to perform requested operation
-Error: No permission to perform requested operation
+Error receiving response from pmlogger: No permission to perform requested operation
+Error receiving response from pmlogger: No permission to perform requested operation
+Error receiving response from pmlogger: No permission to perform requested operation
 killing pmlogger used for advisory tests...
 primary pmlogger terminated
 
@@ -238,9 +238,9 @@ sample.bin
 
 Goodbye
 Errors:
-Error: No permission to perform requested operation
-Error: No permission to perform requested operation
-Error: No permission to perform requested operation
+Error receiving response from pmlogger: No permission to perform requested operation
+Error receiving response from pmlogger: No permission to perform requested operation
+Error receiving response from pmlogger: No permission to perform requested operation
 
 ================
 checking 2nd pmlc for pmlogger (should fail)...

@@ -84,6 +84,11 @@ sample.ulong.million
 sample.ulong.write_me
 sample.ulong.bin
 sample.ulong.bin_ctr
+sample.ulong.count.base
+sample.ulong.count.deca
+sample.ulong.count.hecto
+sample.ulong.count.kilo
+sample.ulong.count.mega
 sample.longlong.one
 sample.longlong.ten
 sample.longlong.hundred
@@ -135,4 +140,6 @@ sample.scale_step.time_up_nanosecs
 sample.scale_step.none_up
 sample.const_rate.value
 sample.const_rate.gradient
+sample.scramble.version
+sample.scramble.bin
 pmlc> 

@@ -95,6 +95,8 @@ PMID: 29.0.2 (sample.seconds)
 0 sample.scale_step.none_up
 0 sample.scale_step.time_up_nanosecs
 0 sample.scale_step.time_up_secs
+0 sample.scramble.bin
+0 sample.scramble.version
 0 sample.seconds
 0 sample.step
 0 sample.step_counter
@@ -104,6 +106,11 @@ PMID: 29.0.2 (sample.seconds)
 0 sample.sysinfo
 0 sample.ulong.bin
 0 sample.ulong.bin_ctr
+0 sample.ulong.count.base
+0 sample.ulong.count.deca
+0 sample.ulong.count.hecto
+0 sample.ulong.count.kilo
+0 sample.ulong.count.mega
 0 sample.ulong.hundred
 0 sample.ulong.million
 0 sample.ulong.one
@@ -202,6 +209,8 @@ PMID: 29.0.2 (sample.seconds)
 2 sample.scale_step.none_up
 2 sample.scale_step.time_up_nanosecs
 2 sample.scale_step.time_up_secs
+2 sample.scramble.bin
+2 sample.scramble.version
 2 sample.seconds
 2 sample.step
 2 sample.step_counter
@@ -211,6 +220,11 @@ PMID: 29.0.2 (sample.seconds)
 2 sample.sysinfo
 2 sample.ulong.bin
 2 sample.ulong.bin_ctr
+2 sample.ulong.count.base
+2 sample.ulong.count.deca
+2 sample.ulong.count.hecto
+2 sample.ulong.count.kilo
+2 sample.ulong.count.mega
 2 sample.ulong.hundred
 2 sample.ulong.million
 2 sample.ulong.one

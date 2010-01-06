@@ -32,6 +32,7 @@ _filter()
 	-e '/sample\.dynamic\.meta/d' \
 	-e '/sample\.datasize/d' \
 	-e '/sample\.darkness/d' \
+	-e '/sample\.scramble/d' \
 	-e '/^sample\.mirage/s/ [0-9].*/ NUMVAL VAL or INST .../' \
 	-e '/^sample\.dynamic\./s/ [0-9].*/ NUMVAL VAL or INST .../' \
 	-e '/sample\.wrap\./{

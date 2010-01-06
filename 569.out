@@ -51,6 +51,11 @@ sample.ulong.million 1
 sample.ulong.write_me 1
 sample.ulong.bin 9
 sample.ulong.bin_ctr 9
+sample.ulong.count.base 1
+sample.ulong.count.deca 1
+sample.ulong.count.hecto 1
+sample.ulong.count.kilo 1
+sample.ulong.count.mega 1
 sample.longlong.one 1
 sample.longlong.ten 1
 sample.longlong.hundred 1
@@ -159,6 +164,11 @@ sample.ulong.million 1 PM_IN_NULL
 sample.ulong.write_me 1 PM_IN_NULL
 sample.ulong.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
 sample.ulong.bin_ctr 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.ulong.count.base 1 PM_IN_NULL
+sample.ulong.count.deca 1 PM_IN_NULL
+sample.ulong.count.hecto 1 PM_IN_NULL
+sample.ulong.count.kilo 1 PM_IN_NULL
+sample.ulong.count.mega 1 PM_IN_NULL
 sample.longlong.one 1 PM_IN_NULL
 sample.longlong.ten 1 PM_IN_NULL
 sample.longlong.hundred 1 PM_IN_NULL
@@ -297,6 +307,11 @@ sample.ulong.million 1 PM_IN_NULL
 sample.ulong.write_me 1 PM_IN_NULL
 sample.ulong.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
 sample.ulong.bin_ctr 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.ulong.count.base 1 PM_IN_NULL
+sample.ulong.count.deca 1 PM_IN_NULL
+sample.ulong.count.hecto 1 PM_IN_NULL
+sample.ulong.count.kilo 1 PM_IN_NULL
+sample.ulong.count.mega 1 PM_IN_NULL
 sample.longlong.one 1 PM_IN_NULL
 sample.longlong.ten 1 PM_IN_NULL
 sample.longlong.hundred 1 PM_IN_NULL
@@ -441,6 +456,11 @@ sample.ulong.million 1 1000000
 sample.ulong.write_me 1 NUMBER
 sample.ulong.bin 9 100 200 300 400 500 600 700 800 900
 sample.ulong.bin_ctr 9 100 200 300 400 500 600 700 800 900
+sample.ulong.count.base 1 42000000
+sample.ulong.count.deca 1 4200000
+sample.ulong.count.hecto 1 420000
+sample.ulong.count.kilo 1 42000
+sample.ulong.count.mega 1 42
 sample.longlong.one 1 1
 sample.longlong.ten 1 10
 sample.longlong.hundred 1 100
@@ -571,6 +591,11 @@ sample.ulong.million 1 PM_IN_NULL PM_IN_NULL
 sample.ulong.write_me 1 PM_IN_NULL PM_IN_NULL
 sample.ulong.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
 sample.ulong.bin_ctr 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
+sample.ulong.count.base 1 PM_IN_NULL PM_IN_NULL
+sample.ulong.count.deca 1 PM_IN_NULL PM_IN_NULL
+sample.ulong.count.hecto 1 PM_IN_NULL PM_IN_NULL
+sample.ulong.count.kilo 1 PM_IN_NULL PM_IN_NULL
+sample.ulong.count.mega 1 PM_IN_NULL PM_IN_NULL
 sample.longlong.one 1 PM_IN_NULL PM_IN_NULL
 sample.longlong.ten 1 PM_IN_NULL PM_IN_NULL
 sample.longlong.hundred 1 PM_IN_NULL PM_IN_NULL

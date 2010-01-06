@@ -400,6 +400,8 @@ sampledso.const_rate.value
 sampledso.const_rate.gradient
 sampledso.many.count
 sampledso.many.int
+sampledso.scramble.version
+sampledso.scramble.bin
 sampledso.one
 sampledso.suba.two
 sampledso.suba.three
@@ -545,15 +547,15 @@ __dmchildren: offspring[4] b (status=1)
 pmGetChildren(name="derived.tree") no regular children (Unknown metric name), 5 derived children
 __dmchildren: offspring[0] derived (status=1)
 __dmchildren: offspring[1] sample (status=1)
-pmGetChildren(name="") 27 regular children, 2 derived children
+pmGetChildren(name="") N regular children, 2 derived children
 __dmchildren: offspring[0] derived (status=1)
 __dmchildren: offspring[1] sample (status=1)
-pmGetChildren(name="") 27 regular children, 2 derived children
+pmGetChildren(name="") N regular children, 2 derived children
 pmLookupName() returns -12357 (Unknown metric name)
 derived.tree: id[0] = PM_ID_NULL
 
 pmGetChildren() returns 5
 pmGetChildrenStatus() returns 5
 
-pmGetChildren() returns 28
-pmGetChildrenStatus() returns 28
+pmGetChildren() returns N
+pmGetChildrenStatus() returns N

@@ -491,8 +491,11 @@ derive		pcpqa
 256 derive pmns local oss
 257 libpcp pmns compat remote oss
 258 trace local pmda.install oss
+259 derive pmval local oss
+260 derive pmie local oss
 261 logutil pmdumplog pmval local pmlogextract oss
 262 context_local pmie pmsocks remote pmstat oss
+263 derive local oss
 264 pmns local oss
 265 util_lib local oss
 266 logutil #466346 patch2140 patch2141 local pmlogextract oss
@@ -503,6 +506,7 @@ derive		pcpqa
 271 archive local oss
 272 pmcd pmval pmprobe remote oss
 274 pmda help local pmda.install oss
+275 derive local oss
 277 libpcp pdu interop local oss
 278 other help local oss
 279 pmcd local oss
@@ -560,6 +564,8 @@ derive		pcpqa
 331 archive mem_leak local purify oss
 332 archive mem_leak local purify oss
 333 archive mem_leak local purify oss
+334 derive local oss
+335 derive local oss
 336 trace local pmda.install oss
 337 pmlogextract local oss pmval
 338 logutil pmlogextract local oss
@@ -896,9 +902,3 @@ derive		pcpqa
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
-259 derive pmval local oss
-260 derive pmie local oss
-263 derive local oss
-275 derive local oss
-334 derive local oss
-335 derive local oss
