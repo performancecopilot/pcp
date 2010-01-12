@@ -34,6 +34,7 @@
 #define QUOTA_PRJ_INDOM		16
 #define NET_INET_INDOM		17
 #define TMPFS_INDOM		18
+#define NODE_INDOM		19
 
 #define INDOM(x) (indomtab[x].it_indom)
 extern pmdaIndom indomtab[];
