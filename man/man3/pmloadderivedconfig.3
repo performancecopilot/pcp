@@ -1,0 +1,68 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMLOADDERIVEDCONFIG 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmLoadDerivedConfig\f1 \- load derived metric definitions from a file
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmLoadDerivedConfig(char *fname)
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.PP
+Each line of the file
+.I fname
+is either a comment line (with a ``#'' in the first position of the line)
+or the declaration of a derived performance metric, specified as:
+.IP * 2n
+the name of the derived metric, using the same ``dot notation'' syntax
+that is used for PCP performance metrics, see
+.BR PCPIntro (1)
+and
+.BR pmns (4).
+.IP * 2n
+an equals sign (``='')
+.IP * 2n
+a valid expression for a derived metric, as described in
+.BR pmRegisterDerived (3).
+.PP
+White space is ignored in the lines.
+.PP
+For each line containing a derived metric definition,
+BR pmRegisterDerived (3)
+is called to register the new derived metric.
+.PP
+The result from
+.B pmLoadDerivedConfig
+will be the number of derived metrics loaded from
+.I fname
+else a value less than zero in the case of an error.
+.SH EXAMPLE
+.nf
+# sample derived metric definitions
+bad_in_pkts = network.interface.in.errors + network.interface.in.drops
+# note the following would need to be on a single line ...
+disk.dev.read_pct = 100 * disk.dev.read /
+            (delta(disk.dev.read) + delta(disk.dev.write))
+.fi
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR PMAPI (3)
+and
+.BR pmRegisterDerived (3).

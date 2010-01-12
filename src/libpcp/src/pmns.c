@@ -539,7 +539,7 @@ skipline:
 	     * ... identified by setting the domain field to the reserved
 	     * value DYNAMIC_PMID and storing the real domain of the PMDA
 	     * that can enumerate the subtree in the cluster field, while
-	     * the item field is not used
+	     * the item field is not used (and set to zero)
 	     */
 	    pmid_int.flag = 0;
 	    pmid_int.domain = DYNAMIC_PMID;
@@ -1099,6 +1099,7 @@ loadbinary(void)
 	    symbol = (char *)malloc(symbsize);
 	    if (symbol == NULL) {
 		__pmNoMem("loadbinary-symbol", symbsize, PM_FATAL_ERR);
+		/*NOTREACHED*/
 	    }
 	    if (fread(symbol, sizeof(symbol[0]), 
 	        symbsize, fbin) != symbsize) goto bad;
@@ -1135,6 +1136,7 @@ loadbinary(void)
 			 htabsize * sizeof(htab[0]) + 
 			 nodecnt * sizeof(*root),
 			 PM_FATAL_ERR);
+		/*NOTREACHED*/
 	    }
 
 	    if (fread(htab, sizeof(htab[0]), htabsize, fbin) != htabsize) goto bad;
@@ -1692,7 +1694,7 @@ receive_names (__pmContext *ctxp, int numpmid, pmID pmidlist[])
 	n = PM_ERR_IPC;
     }
 
-    return (n);
+    return n;
 }
 
 int
@@ -1780,8 +1782,10 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		    }
 		}
 		if (*p == '\0') {
-		    sts = PM_ERR_NAME;
-		    pmidlist[i] = PM_ID_NULL;
+		    /* try derived metrics for an unknown metric */
+		    sts = __dmgetpmid(namelist[i], &pmidlist[i]);
+		    if (sts < 0)
+			pmidlist[i] = PM_ID_NULL;
 		}
 	    }
 	}
@@ -1817,8 +1821,57 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	ctxp = __pmHandleToPtr(n);
 	if ((sts = request_names (ctxp, numpmid, namelist)) >= 0) {
 	    sts = receive_names(ctxp, numpmid, pmidlist);
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_PMNS) {
+	    if (sts >= 0)
+		fprintf(stderr, "pmLookupName: receive_names( , %d, ) -> %d\n", numpmid, sts);
+	    else
+		fprintf(stderr, "pmLookupName: receive_names( , %d, ) -> %s\n", numpmid, pmErrStr(sts));
+	}
+#endif
+	    /*
+	     * the return status is a little tricky ... prefer the
+	     * status from receive_names(), unless all of the remaining
+	     * unknown PMIDs are resolved by __dmgetpmid() in which case
+	     * success (numpmid) is the right return status
+	     */
+	    if (sts < 0) {
+		/* try derived metrics for any remaining unknown pmids */
+		int		nsts;
+		int		nfail = 0;
+		int		i;
+		for (i = 0; i < numpmid; i++) {
+		    if (pmidlist[i] == PM_ID_NULL) {
+			nsts = __dmgetpmid(namelist[i], &pmidlist[i]);
+			if (nsts < 0) {
+			    nfail++;
+			}
+#ifdef PCP_DEBUG
+			if (pmDebug & DBG_TRACE_DERIVE) {
+			    fprintf(stderr, "__dmgetpmid: metric \"%s\" -> ", namelist[i]);
+			    if (nsts < 0)
+				fprintf(stderr, "%s\n", pmErrStr(nsts));
+			    else
+				fprintf(stderr, "PMID %s\n", pmIDStr(pmidlist[i]));
+			}
+#endif
+		    }
+		}
+		if (nfail == 0)
+		    sts = numpmid;
+	    }
 	}
     }
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMNS) {
+	fprintf(stderr, "pmLookupName(%d, ...) -> ", numpmid);
+	if (sts < 0)
+	    fprintf(stderr, "%s\n", pmErrStr(sts));
+	else
+	    fprintf(stderr, "%d\n", sts);
+    }
+#endif
 
     return sts;
 }
@@ -1919,8 +1972,12 @@ GetChildrenStatusRemote(__pmContext *ctxp, const char *name,
 int
 pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 {
-    int *status = NULL;
-    int pmns_location = GetLocation();
+    int		*status = NULL;
+    int		pmns_location = GetLocation();
+    int		num;
+    int		dm_num;
+    char	**dm_offspring;
+    int		*dm_statuslist;
 
     if (pmns_location < 0 )
 	return pmns_location;
@@ -1935,7 +1992,6 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	int		i;
 	int		j;
 	int		need;
-	int		num;
 	char		**result;
 	char		*p;
 
@@ -1957,13 +2013,17 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	if (*name == '\0')
 	    np = curr_pmns->root; /* use "" to name the root of the PMNS */
 
-	else if ((np = locate(name, curr_pmns->root)) == NULL)
-	   return PM_ERR_NAME;
+	else if ((np = locate(name, curr_pmns->root)) == NULL) {
+	   num = PM_ERR_NAME;
+	   goto check;
+	}
 
         if (np != NULL && num_xlch == 0)
-	    if (np->first == NULL)
+	    if (np->first == NULL) {
 	       /* this is a leaf node */
-	       return 0;
+		num = 0;
+		goto report;
+	    }
 
 	need = 0;
 	num = 0;
@@ -1981,12 +2041,16 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
             need += sizeof(**offspring) + strlen(xlch[i]) + 1;
         }
 
-	if ((result = (char **)malloc(need)) == NULL)
-	    return -errno;
+	if ((result = (char **)malloc(need)) == NULL) {
+            num = -errno;
+	    goto report;
+	}
 
         if (statuslist != NULL) {
-          if ((status = (int *)malloc(num*sizeof(int))) == NULL)
-            return -errno;
+          if ((status = (int *)malloc(num*sizeof(int))) == NULL) {
+            num = -errno;
+	    goto report;
+	  }
         }
 
 	p = (char *)&result[num];
@@ -2032,17 +2096,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	*offspring = result;
 	if (statuslist != NULL)
 	  *statuslist = status;
-
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PMNS) {
-	    fprintf(stderr, "pmGetChildren -> ");
-	    __pmDumpNameList(stderr, num, result);
-	}
-#endif
-
-	return num;
     }
-
     else {
 	/* assume PMNS_REMOTE */
 	int         n;
@@ -2054,8 +2108,132 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	n = pmWhichContext();
 	assert(n >= 0);
 	ctxp = __pmHandleToPtr(n);
-        return GetChildrenStatusRemote(ctxp, name, offspring, statuslist);
+        num = GetChildrenStatusRemote(ctxp, name, offspring, statuslist);
     }
+
+check:
+    /*
+     * see if there are derived metrics that qualify
+     */
+    dm_num = __dmchildren(name, &dm_offspring, &dm_statuslist);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DERIVE) {
+	if (num < 0)
+	    fprintf(stderr, "pmGetChildren(name=\"%s\") no regular children (%s)", name, pmErrStr(num));
+	else
+	    fprintf(stderr, "pmGetChildren(name=\"%s\") %d regular children", name, num);
+	if (dm_num < 0)
+	    fprintf(stderr, ", no derived children (%s)\n", pmErrStr(dm_num));
+	else if (dm_num == 0)
+	    fprintf(stderr, ", derived leaf\n");
+	else
+	    fprintf(stderr, ", %d derived children\n", dm_num);
+    }
+#endif
+    if (dm_num == 0)
+       /* this is a leaf node */
+	return 0;
+
+    if (dm_num > 0) {
+	/*
+	 * so this gets tricky ... need to stitch the derived metric
+	 * data onto the end of the normal data (if any) after removing
+	 * any duplicates (!) ... and honour the bizarre pmGetChildren
+	 * contract in terms of malloc'ing the result arrays
+	 */
+	int	r_num;
+	char	**r_offspring;
+	int	*r_statuslist = NULL;
+	int	i;
+	int	j;
+	char	*q;
+	size_t	need;
+
+	if (num > 0)
+	    r_num = num + dm_num;
+	else
+	    r_num = dm_num;
+
+	for (i = 0; i < dm_num; i++) {
+	    for (j = 0; j < num; j++) {
+		if (strcmp(dm_offspring[i], (*offspring)[j]) == 0) {
+		    /* duplicate ... bugger */
+		    r_num--;
+		    free(dm_offspring[i]);
+		    dm_offspring[i] = NULL;
+		    break;
+		}
+	    }
+	}
+
+	need = r_num*sizeof(char *);
+	for (j = 0; j < num; j++) {
+	    need += strlen((*offspring)[j]) + 1;
+	}
+	for (i = 0; i < dm_num; i++) {
+	    if (dm_offspring[i] != NULL) {
+		need += strlen(dm_offspring[i]) + 1;
+	    }
+	}
+	if ((r_offspring = (char **)malloc(need)) == NULL) {
+	    __pmNoMem("pmGetChildrenStatus: r_offspring", need, PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	if (statuslist != NULL) {
+	    if ((r_statuslist = (int *)malloc(r_num*sizeof(r_statuslist[0]))) == NULL) {
+		__pmNoMem("pmGetChildrenStatus: r_statuslist", r_num*sizeof(r_statuslist[0]), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	}
+	q = (char *)&r_offspring[r_num];
+	for (j = 0; j < num; j++) {
+	    r_offspring[j] = q;
+	    strcpy(q, (*offspring)[j]);
+	    q += strlen(r_offspring[j]) + 1;
+	    if (statuslist != NULL)
+		r_statuslist[j] = (*statuslist)[j];
+	}
+	for (i = 0; i < dm_num; i++) {
+	    if (dm_offspring[i] != NULL) {
+		r_offspring[j] = q;
+		strcpy(q, dm_offspring[i]);
+		q += strlen(r_offspring[j]) + 1;
+		if (statuslist != NULL)
+		    r_statuslist[j] = dm_statuslist[i];
+		j++;
+	    }
+	}
+	if (num > 0) {
+	    free(*offspring);
+	    if (statuslist != NULL)
+		free(*statuslist);
+	}
+	num = r_num;
+	if (statuslist != NULL)
+	    *statuslist = r_statuslist;
+	*offspring = r_offspring;
+	free(dm_offspring);
+	free(dm_statuslist);
+    }
+
+report:
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_PMNS) {
+	fprintf(stderr, "pmGetChildren(name=\"%s\") -> ", name);
+	if (num == 0)
+	    fprintf(stderr, "leaf\n");
+	else if (num > 0) {
+	    if (statuslist != NULL)
+		__pmDumpNameandStatusList(stderr, num, *offspring, *statuslist);
+	    else
+		__pmDumpNameList(stderr, num, *offspring);
+	}
+	else
+	    fprintf(stderr, "%s\n", pmErrStr(num));
+    }
+#endif
+
+    return num;
 }
 
 int
@@ -2187,7 +2365,8 @@ pmNameID(pmID pmid, char **name)
 		return PM_ERR_PMID;
 	    }
 	}
-    	return PM_ERR_PMID;
+	/* not found so far, try derived metrics ... */
+    	return __dmgetname(pmid, name);
     }
 
     else {
@@ -2205,7 +2384,8 @@ pmNameID(pmID pmid, char **name)
 	if ((n = request_namebypmid (ctxp, pmid)) >= 0) {
 	    n = receive_a_name(ctxp, name);
 	}
-	return n;
+	if (n >= 0) return n;
+    	return __dmgetname(pmid, name);
     }
 }
 
@@ -2339,6 +2519,16 @@ request_traverse_pmns (__pmContext *ctxp, const char *name)
     return n;
 }
 
+/*
+ * Note: derived metrics will not work with pmRequestTraversePMNS() and
+ * pmReceiveTraversePMNS() because the by the time the list of names
+ * is received, the original name at the root of the search is no
+ * longer available.
+ *
+ * Probably not an issue as no application or library in the open source
+ * PCP tree uses this pair of routines.
+ */
+
 int
 pmRequestTraversePMNS (int ctx, const char *name)
 {
@@ -2407,44 +2597,64 @@ pmTraversePMNS(const char *name, void(*func)(const char *name))
     if (pmns_location == PMNS_LOCAL)
 	return TraversePMNS_local(name, func);
     else { 
-	int         n;
+	int         sts;
 	__pmPDU      *pb;
 	__pmContext  *ctxp;
 
         /* As we have PMNS_REMOTE there must be
          * a current host context.
          */
-	n = pmWhichContext();
-	assert(n >= 0);
-	ctxp = __pmHandleToPtr(n);
-	if ((n = request_traverse_pmns (ctxp, name)) < 0) {
-	    return (n);
+	sts = pmWhichContext();
+	assert(sts >= 0);
+	ctxp = __pmHandleToPtr(sts);
+	if ((sts = request_traverse_pmns (ctxp, name)) < 0) {
+	    return (sts);
 	} else {
-	    n = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
+	    int		numnames;
+	    int		i;
+	    int		xtra;
+	    char	**namelist;
+
+	    sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, PDU_BINARY, 
                           TIMEOUT_DEFAULT, &pb);
-	    if (n == PDU_PMNS_NAMES) {
-		int numnames;
-		int i;
-                char **namelist;
+	    if (sts == PDU_PMNS_NAMES) {
 
-		n = __pmDecodeNameList(pb, PDU_BINARY, &numnames, 
+		sts = __pmDecodeNameList(pb, PDU_BINARY, &numnames, 
 		                      &namelist, NULL);
-		if (n < 0)
-		  return n;
-
-		for (i=0; i<numnames; i++) {
-                    func(namelist[i]);
-                }
-		free(namelist);
-                return n;
+		if (sts > 0) {
+		    for (i=0; i<numnames; i++) {
+			func(namelist[i]);
+		    }
+		    numnames = sts;
+		    free(namelist);
+		}
+		else
+		    return sts;
 	    }
-	    else if (n == PDU_ERROR) {
-		__pmDecodeError(pb, PDU_BINARY, &n);
-		return n;
+	    else if (sts == PDU_ERROR) {
+		__pmDecodeError(pb, PDU_BINARY, &sts);
+		if (sts != PM_ERR_NAME)
+		    return sts;
+		numnames = 0;
             }
-	    else if (n != PM_ERR_TIMEOUT)
+	    else if (sts != PM_ERR_TIMEOUT)
 		return PM_ERR_IPC;
-            return n;
+
+	    /*
+	     * add any derived metrics that have "name" as
+	     * their prefix
+	     */
+	    xtra = __dmtraverse(name, &namelist);
+	    if (xtra > 0) {
+		sts = 0;
+		for (i=0; i<xtra; i++) {
+		    func(namelist[i]);
+		}
+		numnames += xtra;
+		free(namelist);
+	    }
+
+	    return sts > 0 ? numnames : sts;
 	}
     }
 }

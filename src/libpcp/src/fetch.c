@@ -121,7 +121,19 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	return PM_ERR_TOOSMALL;
 
     if ((n = pmWhichContext()) >= 0) {
-	__pmContext *ctxp = __pmHandleToPtr(n);
+	__pmContext	*ctxp = __pmHandleToPtr(n);
+	int		newcnt;
+	pmID		*newlist;
+
+	/* for derived metrics, may need to rewrite the pmidlist */
+	newcnt = __dmprefetch(ctxp, numpmid, pmidlist, &newlist);
+	if (newcnt > numpmid) {
+	    /* replace args passed into pmFetch */
+	    numpmid = newcnt;
+	    pmidlist = newlist;
+	}
+	else
+	    newlist = NULL;
 
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
 	    if ((n = request_fetch (n, ctxp, numpmid, pmidlist)) >= 0) {
@@ -148,6 +160,11 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 		ctxp->c_origin.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
 	    }
 	}
+
+	/* process derived metrics, if any */
+	__dmpostfetch(ctxp, result);
+	if (newlist != NULL)
+	    free(newlist);
     }
 
 #ifdef PCP_DEBUG

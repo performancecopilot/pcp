@@ -267,7 +267,7 @@ pmIDStr(pmID pmid)
     __pmID_int*	p = (__pmID_int*)&pmid;
     if (pmid == PM_ID_NULL)
 	return "PM_ID_NULL";
-    if (p->domain == DYNAMIC_PMID)
+    if (p->domain == DYNAMIC_PMID && p->item == 0)
 	/*
 	 * this PMID represents the base of a dynamic subtree in the PMNS
 	 * ... identified by setting the domain field to the reserved
@@ -613,8 +613,8 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 {
     char	*type;
     char	*sem;
-    int		sem_ok;
     static char	*unknownVal = "???";
+    const char	*units;
 
     if (desc->type == PM_TYPE_NOSUPPORT) {
 	fprintf(f, "    Data Type: Not Supported\n");
@@ -650,8 +650,12 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 	    type = unknownVal;
 	    break;
     }
+    fprintf(f, "    Data Type: %s", type);
+    if (type == unknownVal)
+	fprintf(f, " (%d)", desc->type);
 
-    sem_ok = 1;
+    fprintf(f,"  InDom: %s 0x%x\n", pmInDomStr(desc->indom), desc->indom);
+
     switch (desc->sem) {
 	case PM_SEM_COUNTER:
 	    sem = "counter";
@@ -664,23 +668,19 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 	    break;
 	default:
 	    sem = unknownVal;
-	    sem_ok = 0;
 	    break;
     }
 
-    fprintf(f, "    Data Type: %s  InDom: %s 0x%x\n", type, pmInDomStr(desc->indom), desc->indom);
-    fprintf(f, "    Semantics: %s  Units: ", sem);
-    if (sem_ok) {
-	const char	*units = pmUnitsStr(&desc->units);
-	if (*units == '\0')
-	    fprintf(f, "none\n");
-	else
-	    fprintf(f, "%s\n", units);
-    }
-    else {
-	int	*ip = (int *)&desc->units;
-	fprintf(f, "0x%x???\n", *ip);
-    }
+    fprintf(f, "    Semantics: %s", sem);
+    if (sem == unknownVal)
+	fprintf(f, " (%d)", desc->sem);
+
+    fprintf(f, "  Units: ");
+    units = pmUnitsStr(&desc->units);
+    if (*units == '\0')
+	fprintf(f, "none\n");
+    else
+	fprintf(f, "%s\n", units);
 }
 
 /*

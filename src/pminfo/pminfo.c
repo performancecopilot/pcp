@@ -334,6 +334,7 @@ PrintUsage(void)
 Options:\n\
   -a archive    metrics source is a PCP log archive\n\
   -b batchsize	fetch this many metrics at a time for -f or -v (default 20)\n\
+  -c dmfile	load derived metric definitions from dmfile\n\
   -d		get and print metric description\n\
   -f		fetch and print value(s) for all instances\n\
   -F		fetch and print values for non-enumerable indoms too\n\
@@ -362,9 +363,9 @@ ParseOptions(int argc, char *argv[])
     int		errflag = 0;
     char	*endnum;
 #ifdef PM_USE_CONTEXT_LOCAL
-    char	*opts = "a:b:dD:Ffn:h:LMmO:tTvzZ:?";
+    char	*opts = "a:b:c:dD:Ffn:h:LMmO:tTvzZ:?";
 #else
-    char	*opts = "a:b:dD:Ffn:h:MmO:tTvzZ:?";
+    char	*opts = "a:b:c:dD:Ffn:h:MmO:tTvzZ:?";
 #endif
 
     while ((c = getopt(argc, argv, opts)) != EOF) {
@@ -389,6 +390,14 @@ ParseOptions(int argc, char *argv[])
 		if (*endnum != '\0') {
 		    fprintf(stderr, "%s: -b requires numeric argument\n", pmProgname);
 		    errflag++;
+		}
+		break;
+
+	    case 'c':		/* derived metrics config file */
+		sts = pmLoadDerivedConfig(optarg);
+		if (sts < 0) {
+		    fprintf(stderr, "%s: -c error: %s\n", pmProgname, pmErrStr(sts));
+		    /* errors are not necessarily fatal ... */
 		}
 		break;
 
