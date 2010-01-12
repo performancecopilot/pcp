@@ -98,7 +98,7 @@ dsotbl.h:	$(TOPDIR)/src/pmns/stdpmid
 	echo ' * It contains list of DSO, supported by the CONTEXT_LOCAL' >> $@
 	echo ' */' >> $@
 	echo 'static __pmDSO dsotab[] = {' >> $@
-	for dso in $(kernel_pmda_dso) $(infiniband_pmda_dso) sample ; do \
+	for dso in $(kernel_pmda_dso) $(infiniband_pmda_dso) mmv sample ; do \
 		udso=`echo $$dso | tr '[:lower:]' '[:upper:]' | sed -e's/SAMPLE/SAMPLEDSO/'` ; \
 		domnum=`$(PCP_AWK_PROG) < $^ '$$1=="#define" && $$2=="'$$udso'" { print $$3 }'` ;\
 		echo '#define ' `echo $$dso | tr '[:lower:]' '[:upper:]'`_DSO $$domnum ; \
