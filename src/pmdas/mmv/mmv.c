@@ -703,12 +703,7 @@ mmv_init(pmdaInterface *dp)
 	dp->version.four.pmid = mmv_pmid;
 	dp->version.four.name = mmv_name;
 	dp->version.four.children = mmv_children;
-
 	pmdaSetFetchCallBack(dp, mmv_fetchCallBack);
-
-	__pmNotifyErr(LOG_INFO, "%s: pmdaInit - %d metrics and %d indoms", 
-		      pmProgname, mcnt, incnt);
-
 	pmdaInit(dp, indoms, incnt, metrics, mcnt);
     }
 }
