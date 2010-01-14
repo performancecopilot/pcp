@@ -157,7 +157,7 @@ pmda.trivial	pcpqa
 pmda.sendmail	pcpqa
 # txmon PMDA
 pmda.txmon	pcpqa
-# MMV PMDA
+# mmv PMDA
 pmda.mmv	pcpqa
 
 # libirixpmda
@@ -445,7 +445,7 @@ derive		pcpqa
 210 pmns local oss pmval pmie
 211 pmns local oss pmval pmie
 212 pmda pmda.cisco local oss
-213 dbpmda pmns local oss
+213 dbpmda pmns local oss pmda.sample pmda.mmv
 214 pmlogextract local oss
 215 other pmsocks pmval remote oss
 216 pmda.linux local oss

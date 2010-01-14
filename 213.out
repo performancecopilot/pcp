@@ -102,3 +102,71 @@ Metric: sample.secret.foo.bar
    sample.secret.foo.bar.grunt.snort.six
    sample.secret.foo.bar.grunt.snort.huff.puff.seven
 dbpmda> 
+
+=== MMV PMDA test ===
+installed mmv files ...
+PCP_TMP_DIR/mmv/test
+dbpmda> desc mmv.test.strings
+Warning: No PMDA currently opened
+dbpmda> fetch mmv.test.strings mmv.test.counter
+Warning: No PMDA currently opened
+dbpmda> text mmv.test.strings
+Warning: No PMDA currently opened
+dbpmda> store mmv.reload "1"
+Warning: No PMDA currently opened
+dbpmda> open pipe $PCP_PMDAS_DIR/mmv/pmdammv
+Start pmdammv PMDA: $PCP_PMDAS_DIR/mmv/pmdammv
+dbpmda> desc mmv.test.strings
+PMID: 70.1.6
+    Data Type: string  InDom: 70.2049 0x11800801
+    Semantics: instant  Units: none
+dbpmda> fetch mmv.test.strings mmv.test.counter
+PMID(s): 70.1.6 70.1.1
+pmResult ... numpmid: 2
+  70.1.6 (<noname>): numval: 2 valfmt: 1 vlist[]:
+    inst [0 or ???] value STRING
+    inst [1 or ???] value STRING
+  70.1.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER NUMBER HEXNUMBER
+dbpmda> text mmv.test.strings
+PMID: 70.1.6
+[test string metrics]
+Yes, this is a test string metric with instances
+dbpmda> store mmv.reload "1"
+PMID: 70.0.0
+Getting description...
+Getting Result Structure...
+70.0.0: 0 -> 1
+Sending Result...
+dbpmda> desc mmv.no.such.metric
+                              ^ at or near here
+Error: Unknown metric name
+Type 'help' for a list of commands.
+dbpmda> close
+dbpmda> open dso $PCP_PMDAS_DIR/mmv/pmda_mmv.so mmv_init 70
+[DATE] dbpmda(PID) Info: dbpmda: pmdaInit - 2 metrics and 0 indoms
+dbpmda> desc mmv.test.strings
+[DATE] dbpmda(PID) Info: dbpmda: reloading
+[DATE] dbpmda(PID) Info: dbpmda: loading mmv client: 1 "$PCP_TMP_DIR/mmv/test"
+[DATE] dbpmda(PID) Info: dbpmda: 8 metrics and 2 indoms after reload
+PMID: 70.1.6
+    Data Type: string  InDom: 70.2049 0x11800801
+    Semantics: instant  Units: none
+dbpmda> fetch mmv.test.strings mmv.test.counter
+PMID(s): 70.1.6 70.1.1
+pmResult ... numpmid: 2
+  70.1.6 (<noname>): numval: 2 valfmt: 1 vlist[]:
+    inst [0 or ???] value STRING
+    inst [1 or ???] value STRING
+  70.1.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER NUMBER HEXNUMBER
+dbpmda> text mmv.test.strings
+PMID: 70.1.6
+[test string metrics]
+Yes, this is a test string metric with instances
+dbpmda> store mmv.reload "1"
+PMID: 70.0.0
+Getting description...
+Getting Result Structure...
+70.0.0: 0 -> 1
+dbpmda> 
