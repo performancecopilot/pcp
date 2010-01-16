@@ -164,7 +164,6 @@ _shutdown()
     $RC_STATUS -v
     rm -fr $tmp.pmie $PCP_TMP_DIR/pmie
     pmpost "stop pmie from $pmprog"
-    [ x`uname` == xSunOS ] && pkill pmie
 }
 
 while getopts v c
