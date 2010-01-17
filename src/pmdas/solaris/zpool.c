@@ -36,7 +36,7 @@ static int zp_added;
 static int
 zp_cache_pool(zpool_handle_t *zp, void *arg)
 {
-        nvlist_t *cfg = zpool_get_config(zp, NULL);
+	nvlist_t *cfg = zpool_get_config(zp, NULL);
 	char *zpname = (char *)zpool_get_name(zp);
 	struct zpool_stats *zps = NULL;
 	pmInDom zpindom = indomtab[ZPOOL_INDOM].it_indom;
@@ -116,16 +116,26 @@ zpool_fetch(pmdaMetric *pm, int inst, pmAtomValue *atom)
     struct zpool_stats *zps;
     char *zpname;
     metricdesc_t *md = pm->m_user;
+    char *s;
 
     if (pmdaCacheLookup(indomtab[ZPOOL_INDOM].it_indom, inst, &zpname,
 			(void **)&zps) != PMDA_CACHE_ACTIVE)
 	return PM_ERR_INST;
 
     if (zps->vdev_stats_fresh) {
-	memcpy(&atom->ull, ((char *)&zps->vds) + md->md_offset,
-	       sizeof(atom->ull));
+	switch (pmid_item(md->md_desc.pmid)) {
+	case 97: /* zpool.state */
+	    s = zpool_state_to_name(zps->vds.vs_state, zps->vds.vs_aux);
+	    atom->cp = strdup(s);
+	    break;
+	case 98:
+	    atom->ul = (zps->vds.vs_aux << 8) | zps->vds.vs_state;
+	    break;
+	default:
+	    memcpy(&atom->ull, ((char *)&zps->vds) + md->md_offset,
+			sizeof(atom->ull));
+	}
     }
-
     return zps->vdev_stats_fresh;
 }
 

@@ -464,7 +464,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	p_pmcd_host=""
 
 	# throw away stderr in case $file has been removed by now
-	eval `tr '\0' '\012' < $file 2>/dev/null | sed -e '/^$/d' | sed -e 3q \
+	eval `strings $file 2>/dev/null | sed -e '/^$/d' | sed -e 3q \
 	| $PCP_AWK_PROG '
 NR == 2	{ printf "p_logfile=\"%s\"\n", $0; next }
 NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }

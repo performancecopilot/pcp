@@ -32,7 +32,8 @@ pmdaIndom indomtab[] = {
     { CPU_INDOM, 0, NULL },
     { NETIF_INDOM, 0, NULL },
     { ZPOOL_INDOM, 0, NULL },
-    { ZFS_INDOM, 0, NULL }
+    { ZFS_INDOM, 0, NULL },
+    { ZPOOL_PERDISK_INDOM, 0, NULL }
 };
 int indomtab_sz = sizeof(indomtab) / sizeof(indomtab[0]);
 
@@ -43,7 +44,8 @@ method_t methodtab[] = {
     { disk_init, disk_prefetch, disk_fetch },		// M_DISK
     { netmib2_init, netmib2_refresh, netmib2_fetch },
     { zpool_init, zpool_refresh, zpool_fetch },
-    { zfs_init, zfs_refresh, zfs_fetch }
+    { zfs_init, zfs_refresh, zfs_fetch },
+    { zpool_perdisk_init, zpool_perdisk_refresh, zpool_perdisk_fetch }
 };
 int methodtab_sz = sizeof(methodtab) / sizeof(methodtab[0]);
 
@@ -387,6 +389,8 @@ metricdesc_t metricdesc[] = {
     { { PMDA_PMID(0,67), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
       }, M_ZPOOL, VDEV_OFFSET(vs_self_healed) },
+/* zpool continued at 97 */
+
 /* zfs.used.total */
     { { PMDA_PMID(0,68), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
@@ -504,7 +508,42 @@ metricdesc_t metricdesc[] = {
 /* network.udp.overflows */
     { { PMDA_PMID(0,96), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, M_NETIF, NM2_UDP_OFFSET(overflows) }
+      }, M_NETIF, NM2_UDP_OFFSET(overflows) },
+
+/* zpool.state */
+    { { PMDA_PMID(0,97), PM_TYPE_STRING, ZPOOL_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ZPOOL, 0 },
+
+/* zpool.state_combined */
+    { { PMDA_PMID(0,98), PM_TYPE_U32, ZPOOL_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ZPOOL, 0 },
+
+/* zpool.perdisk.state */
+    { { PMDA_PMID(0,99), PM_TYPE_STRING, ZPOOL_PERDISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ZPOOL_PERDISK, VDEV_OFFSET(vs_state) },
+/* zpool.perdisk.state_int */
+    { { PMDA_PMID(0,100), PM_TYPE_U32, ZPOOL_PERDISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ZPOOL_PERDISK, 0 },
+/* zpool.perdisk.checksum_errors */
+    { { PMDA_PMID(0,101), PM_TYPE_U64, ZPOOL_PERDISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_ZPOOL_PERDISK, VDEV_OFFSET(vs_checksum_errors) },
+/* zpool.perdisk.self_healed */
+    { { PMDA_PMID(0,102), PM_TYPE_U64, ZPOOL_PERDISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZPOOL_PERDISK, VDEV_OFFSET(vs_self_healed) },
+/* zpool.perdisk.in.errors */
+    { { PMDA_PMID(0,103), PM_TYPE_U64, ZPOOL_PERDISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_ZPOOL_PERDISK, VDEV_OFFSET(vs_read_errors) },
+/* zpool.perdisk.out.errors */
+    { { PMDA_PMID(0,104), PM_TYPE_U64, ZPOOL_PERDISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_ZPOOL_PERDISK, VDEV_OFFSET(vs_write_errors) }
 
 /* remember to add trailing comma before adding more entries ... */
 };

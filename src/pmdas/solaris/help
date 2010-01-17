@@ -112,6 +112,8 @@ This counter is reported on the per-interface basis and aggregated by the PMDA.
 @zpool.out.ops Counter of writes per zpool
 @zpool.in.errors Counter of read errors per zpool
 @zpool.out.errors Counter of write errors per zpool
+@zpool.state Current state of zpool
+@zpool.state_int vs_aux << 8 | vs_state
 
 @zfs.available Amount of space available to the dataset
 The amount of space available to the dataset (a filesystem, 
@@ -153,3 +155,10 @@ by the dataset by the compression ratio.
 @zfs.copies Number of redundant copies of data
 The number of redundant copies does not include any copies made as
 part of the pool redundancy.
+
+@zpool.perdisk.state Current state per disk in zpool
+@zpool.perdisk.state_int vs_aux << 8 | vs_state
+@zpool.perdisk.checksum_errors Number of checksum errors per disk in zpool
+@zpool.perdisk.self_healed Number of bytes healed per disk in zpool
+@zpool.perdisk.in.errors Counter of read errors per disk in zpool
+@zpool.perdisk.out.errors Counter of write errors per disk in zpool
