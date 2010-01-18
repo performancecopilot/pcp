@@ -388,7 +388,7 @@ mmv_lookup_metric(pmID pmid, stats_t **sout)
 	if (m->item == id->item)
 	    break;
     }
-    if (i == mcnt)
+    if (i == s->mcnt)
 	return NULL;
 
     *sout = s;
@@ -414,7 +414,7 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return 1;
 	}
 	return PM_ERR_PMID;
-    } else if (scnt > 0) {	/* We have a least one source of metrics */
+    } else if (scnt > 0) {	/* We have at least one source of metrics */
 	mmv_disk_metric_t * m;
 	mmv_disk_value_t * val;
 	stats_t * s;
