@@ -51,7 +51,6 @@ static char statsdir[MAXPATHLEN];	/* pcptmpdir/<prefix> */
 typedef struct {
     char *	name;		/* strdup client name */
     void *	addr;		/* mmap */
-    mmv_disk_header_t *	hdr;	/* header in mmap */
     mmv_disk_value_t *	values;	/* values in mmap */
     int		vcnt;		/* number of values */
     int		pid;		/* process identifier */
@@ -205,7 +204,6 @@ map_stats(pmdaExt *pmda)
 		    if (slist != NULL ) {
 			slist[scnt].name = strdup(client);
 			slist[scnt].addr = m;
-			slist[scnt].hdr = hdr;
 			slist[scnt].pid = hdr->process;
 			slist[scnt].ts = statbuf.st_ctime;
 			slist[scnt].cluster = cluster;
@@ -266,6 +264,7 @@ map_stats(pmdaExt *pmda)
 			    sprintf(name, "%s.", prefix);
 			else
 			    sprintf(name, "%s.%s.", prefix, s->name);
+			strcat(name, ml[k].name);
 
 			metrics[mcnt].m_user = ml + k;
 			metrics[mcnt].m_desc.pmid = pmid_build(
@@ -291,10 +290,7 @@ map_stats(pmdaExt *pmda)
 					pmInDom_build(pmda->e_domain,
 					(s->cluster << 11) | ml[k].indom);
 
-			strcat(name, ml[k].name);
-			__pmAddPMNSNode(pmns, pmid_build(
-				pmda->e_domain, s->cluster, ml[k].item),
-				name);
+			__pmAddPMNSNode(pmns, metrics[mcnt].m_desc.pmid, name);
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_PMNS) {
 			    fprintf(stderr, "map_stats: add metric[%d] %s %s\n", mcnt, name, pmIDStr(pmid_build(pmda->e_domain, s->cluster, ml[k].item)));
@@ -482,8 +478,8 @@ mmv_reload_maybe(pmdaExt *pmda)
 
     /* check if any of the generation numbers have changed (unexpected) */
     for (i = 0; i < scnt; i++) {
-	if (slist[i].hdr->g1 != slist[i].gen ||
-	    slist[i].hdr->g2 != slist[i].gen) {
+	mmv_disk_header_t *hdr = (mmv_disk_header_t *)slist[i].addr;
+	if (hdr->g1 != slist[i].gen || hdr->g2 != slist[i].gen) {
 	    need_reload++;
 	    break;
 	}
