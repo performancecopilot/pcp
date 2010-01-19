@@ -89,7 +89,7 @@ root {
     mmv	70:*:*
 }
 End-of-File
-cat <<End-of-File | dbpmda -ei 2>&1 | _filter
+cat <<End-of-File | dbpmda -ei -n $tmp.pmns 2>&1 | _filter
 desc mmv.test.strings
 fetch mmv.test.strings mmv.test.counter
 text mmv.test.strings
