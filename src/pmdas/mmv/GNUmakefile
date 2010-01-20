@@ -21,7 +21,7 @@ DOMAIN		= MMV
 CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 TARGETS		= $(CMDTARGET) $(LIBTARGET) mmvdump$(EXECSUFFIX)
-LDIRT		= domain.h *.log *.dir *.pag so_locations
+LDIRT		= domain.h *.log *.dir *.pag so_locations mmvdump mmvdump.o pcp
 
 CFILES		= mmv.c
 LSRCFILES	= Install Remove mmvdump.c root_mmv
