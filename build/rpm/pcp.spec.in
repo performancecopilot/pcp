@@ -22,7 +22,7 @@ Distribution: @package_distribution@
 Packager: Silicon Graphics, Inc. <http://www.sgi.com/>
 %endif
 BuildRoot: @build_root@ 
-BuildRequires: procps autoconf bison flex ncurses-devel
+BuildRequires: procps autoconf bison flex ncurses-devel readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 %if "%{_vendor}" == "redhat"
