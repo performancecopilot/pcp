@@ -270,6 +270,13 @@ map_stats(pmdaExt *pmda)
 			metrics[mcnt].m_desc.pmid = pmid_build(
 				pmda->e_domain, s->cluster, ml[k].item);
 
+			/* verify item is legitimate */
+			if (pmid_item(ml[k].item) != ml[k].item) {
+			    __pmNotifyErr(LOG_ERR, "invalid item %u in %s: %s",
+					  ml[k].item, s->name, name);
+			    continue;
+			}
+
 			if (ml[k].type == MMV_TYPE_ELAPSED) {
 			    pmUnits unit = PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0);
 			    metrics[mcnt].m_desc.sem = PM_SEM_COUNTER;
@@ -300,8 +307,8 @@ map_stats(pmdaExt *pmda)
 			mcnt++;
 		    }
 		} else {
-		    __pmNotifyErr(LOG_ERR, "%s: cannot grow metric list",
-				  pmProgname);
+		    __pmNotifyErr(LOG_ERR, "cannot grow MMV metric list: %s\n",
+				  s->name);
 		    if (isDSO)
 			return;
 		    exit(1);
