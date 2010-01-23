@@ -33,7 +33,8 @@ pmdaIndom indomtab[] = {
     { NETIF_INDOM, 0, NULL },
     { ZPOOL_INDOM, 0, NULL },
     { ZFS_INDOM, 0, NULL },
-    { ZPOOL_PERDISK_INDOM, 0, NULL }
+    { ZPOOL_PERDISK_INDOM, 0, NULL },
+    { NETLINK_INDOM}
 };
 int indomtab_sz = sizeof(indomtab) / sizeof(indomtab[0]);
 
@@ -45,7 +46,8 @@ method_t methodtab[] = {
     { netmib2_init, netmib2_refresh, netmib2_fetch },
     { zpool_init, zpool_refresh, zpool_fetch },
     { zfs_init, zfs_refresh, zfs_fetch },
-    { zpool_perdisk_init, zpool_perdisk_refresh, zpool_perdisk_fetch }
+    { zpool_perdisk_init, zpool_perdisk_refresh, zpool_perdisk_fetch },
+    { netlink_init, netlink_refresh, netlink_fetch }
 };
 int methodtab_sz = sizeof(methodtab) / sizeof(methodtab[0]);
 
@@ -543,7 +545,72 @@ metricdesc_t metricdesc[] = {
 /* zpool.perdisk.out.errors */
     { { PMDA_PMID(0,104), PM_TYPE_U64, ZPOOL_PERDISK_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, M_ZPOOL_PERDISK, VDEV_OFFSET(vs_write_errors) }
+      }, M_ZPOOL_PERDISK, VDEV_OFFSET(vs_write_errors) },
+
+/* network.link.in.errors */
+    { { PMDA_PMID(0,114), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"ierrors" },
+/* network.link.in.packets */
+    { { PMDA_PMID(0,115), PM_TYPE_U64, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"ipackets64" },
+/* network.link.in.bytes */
+    { { PMDA_PMID(0,116), PM_TYPE_U64, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_NETLINK, (ptrdiff_t)"rbytes64" },
+/* network.link.in.bcasts */
+    { { PMDA_PMID(0,117), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"brdcstrcv" },
+/* network.link.in.mcasts */
+    { { PMDA_PMID(0,118), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"multircv" },
+/* network.link.in.nobufs */
+    { { PMDA_PMID(0,119), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"norcvbuf" },
+/* network.link.out.errors */
+    { { PMDA_PMID(0,120), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"oerrors" },
+/* network.link.out.packets */
+    { { PMDA_PMID(0,121), PM_TYPE_U64, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"opackets64" },
+/* network.link.out.bytes */
+    { { PMDA_PMID(0,122), PM_TYPE_U64, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_NETLINK, (ptrdiff_t)"obytes64" },
+/* network.link.out.bcasts */
+    { { PMDA_PMID(0,123), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"brdcstxmt" },
+/* network.link.out.mcasts */
+    { { PMDA_PMID(0,124), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"multixmt" },
+/* network.link.out.nobufs */
+    { { PMDA_PMID(0,125), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"noxmtbuf" },
+/* network.link.collisions */
+    { { PMDA_PMID(0,110), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"collisions" },
+/* network.link.state */
+    { { PMDA_PMID(0,111), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"link_state" },
+/* network.link.duplex */
+    { { PMDA_PMID(0,112), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"link_duplex" },
+/* network.link.speed */
+    { { PMDA_PMID(0,113), PM_TYPE_U64, NETLINK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"ifspeed" }
 
 /* remember to add trailing comma before adding more entries ... */
 };

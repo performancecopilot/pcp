@@ -235,6 +235,7 @@
 
 network {
     interface
+    link
     udp
 }
 
@@ -278,5 +279,32 @@ network.udp {
 	oerrors     SOLARIS:0:80
         noports     SOLARIS:0:95
         overflows   SOLARIS:0:96
+}
+
+network.link {
+	in
+	out
+	collisions	SOLARIS:0:110
+	state		SOLARIS:0:111
+	duplex		SOLARIS:0:112
+	speed		SOLARIS:0:113
+}
+
+network.link.in {
+	errors		SOLARIS:0:114
+	packets		SOLARIS:0:115
+	bytes		SOLARIS:0:116
+	bcasts		SOLARIS:0:117
+	mcasts		SOLARIS:0:118
+	nobufs		SOLARIS:0:119
+}
+
+network.link.out {
+	errors		SOLARIS:0:120
+	packets		SOLARIS:0:121
+	bytes		SOLARIS:0:122
+	bcasts		SOLARIS:0:123
+	mcasts		SOLARIS:0:124
+	nobufs		SOLARIS:0:125
 }
 
