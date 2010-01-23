@@ -23,7 +23,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-static __uint32_t hash(char *, int, __uint32_t);
+static __uint32_t hash(const char *, int, __uint32_t);
 
 /*
  * simple linked list for each cache at this stage
@@ -74,9 +74,9 @@ static char	*vdp;		/* first trip mkdir for load/save */
  * first
  */
 static int
-get_hashlen(char *str)
+get_hashlen(const char *str)
 {
-    char	*q = str;
+    const char	*q = str;
 
     while (*q && *q != ' ')
 	q++;
@@ -84,7 +84,7 @@ get_hashlen(char *str)
 }
 
 static unsigned int
-hash_str(char *str, int len)
+hash_str(const char *str, int len)
 {
     return hash(str, len, 0);
 }
@@ -103,7 +103,7 @@ hash_str(char *str, int len)
  *
  */
 static int
-name_eq(entry_t *e, char *name, int hashlen)
+name_eq(entry_t *e, const char *name, int hashlen)
 {
     if (e->hashlen != hashlen)
 	return 0;
@@ -240,7 +240,7 @@ dump(FILE *fp, hdr_t *h, int do_hash)
 }
 
 static entry_t *
-find_name(hdr_t *h, char *name, int *sts)
+find_name(hdr_t *h, const char *name, int *sts)
 {
     entry_t	*e;
     int		hashlen = get_hashlen(name);
@@ -275,7 +275,7 @@ find_inst(hdr_t *h, int inst)
  * find by instance name
  */
 static entry_t *
-find_entry(hdr_t *h, char *name, int inst, int *sts)
+find_entry(hdr_t *h, const char *name, int inst, int *sts)
 {
     entry_t	*e;
 
@@ -484,7 +484,7 @@ reorder:
  * and there is no choice, but to walk the list.
  */
 static entry_t *
-insert_cache(hdr_t *h, char *name, int inst, int *sts)
+insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 {
     entry_t	*e;
     entry_t	*last_e = NULL;
@@ -763,7 +763,7 @@ __pmdaCacheDump(FILE *fp, pmInDom indom, int do_hash)
 }
 
 int
-pmdaCacheStore(pmInDom indom, int flags, char *name, void *private)
+pmdaCacheStore(pmInDom indom, int flags, const char *name, void *private)
 {
     hdr_t	*h;
     entry_t	*e;
@@ -931,7 +931,7 @@ int pmdaCacheOp(pmInDom indom, int op)
     }
 }
 
-int pmdaCacheLookupName(pmInDom indom, char *name, int *inst, void **private)
+int pmdaCacheLookupName(pmInDom indom, const char *name, int *inst, void **private)
 {
     hdr_t	*h;
     entry_t	*e;
@@ -1091,7 +1091,7 @@ acceptable.  Do NOT use for cryptographic purposes.
 */
 
 static __uint32_t
-hash(char *k, int length, __uint32_t initval)
+hash(const char *k, int length, __uint32_t initval)
 {
    __uint32_t a,b,c,len;
 

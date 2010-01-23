@@ -29,11 +29,11 @@
 .br
 #include <pcp/pmda.h>
 .sp
-int pmdaCacheStore(pmInDom indom, int flags, char *name, void *private)
+int pmdaCacheStore(pmInDom indom, int flags, const char *name, void *private)
 .br
 int pmdaCacheLookup(pmInDom indom, int inst, char **name, void **private)
 .br
-int pmdaCacheLookupName(pmInDom indom, char *name, int *inst, void **private)
+int pmdaCacheLookupName(pmInDom indom, const char *name, int *inst, void **private)
 .br
 int pmdaCacheOp(pmInDom indom, int op)
 .br
