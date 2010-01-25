@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.0.3
+Version: 3.1.0
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -240,6 +240,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Wed Jan 27 2010 Mark Goodwin - 3.1.0-1
+- BuildRequires: initscripts for %{_vendor} == redhat.
+
 * Thu Dec 10 2009 Mark Goodwin - 3.0.3-1
 - BuildRequires: initscripts for FC12.
 

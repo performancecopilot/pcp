@@ -1,5 +1,16 @@
-pcp-3.0.3 (in development)
-    - BuildRequires initscripts for %{_vendor} == redhat
+pcp-3.1.0 (27 January 2010)
+    - Derived metric support.
+    - MMV PMDA (DSO) is now installed and enabled by default.
+    - Extract information about network links on Solaris.
+    - Add packaging dependencies for readline (ahead of code).
+    - Bug fix in pmdammv which was capable of causing SIGSEGV.
+    - Add in -Z option to pmwtf, to pass through to pmlogsummary.
+    - Export NUMA memory statistics from the linux kernel.
+    - Make pmie_check work on Solaris.
+    - Make perdisk stats part of the zpool hierarchy.
+    - dbpmda fix for name lookup and dynamic metrics.
+    - Add a new PMDA exporting the Postfix queue lengths.
+    - BuildRequires initscripts for %{_vendor} == redhat.
 
 pcp-3.0.2 (2 December 2009)
     - Improvements and fixes to PCP::PMDA perl module.
