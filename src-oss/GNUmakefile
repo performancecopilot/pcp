@@ -58,7 +58,8 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
 	multifetch.c pmconvscale.c torture-eol.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
-	matchInstanceName.c mmv_genstats.c torture_pmns.c mmv_instances.c \
+	matchInstanceName.c torture_pmns.c \
+	mmv_genstats.c mmv_instances.c mmv_poke.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c
 
 POSIXFILES = \
@@ -184,7 +185,7 @@ sys5_ipc:	sys5_ipc.c
 	$(CCF) $(CDEFS) -o $@ sys5_ipc.c
 
 stripmark: stripmark.c
-	$(CCF) $(CDEFS) -o $@ stripmark.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ stripmark.c
 
 # --- need libpcp
 #
@@ -236,6 +237,10 @@ pmcdgone:	pmcdgone.c localconfig.h
 slow_af:	slow_af.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ slow_af.c  $(LDLIBS)
+
+mmv_poke:	mmv_poke.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ mmv_poke.c $(LDLIBS)
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #
