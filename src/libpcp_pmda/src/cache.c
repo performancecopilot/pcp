@@ -490,25 +490,44 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
     entry_t	*last_e = NULL;
     char	*dup;
     int		i;
+    int		hashlen = get_hashlen(name);
 
-    if ((dup = strdup(name)) == NULL) {
-	__pmNotifyErr(LOG_ERR, 
-	     "cache_insert: indom %s: unable to allocate %d bytes for name: %s\n",
-	     pmInDomStr(h->indom), strlen(name), name);
-	*sts = PM_ERR_GENERIC;
-	return NULL;
-    }
+    *sts = 0;
 
     if (inst != PM_IN_NULL) {
 	/* load_cache case, inst is known */
 	walk_cache(h, PMDA_CACHE_WALK_REWIND);
 	while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
-	    if (e->inst > inst)
-		break;
-	    last_e = e;
+	    /*
+	     * check if instance id or instance name already in cache
+	     * ... if id and name are the the same, keep the existing
+	     * one and ignore the one from load_cache (in particular
+	     * state is not reset to inactive), otherwise do nothing
+	     * and return an error indication
+	     */
+	    if (e->inst == inst) {
+		if (name_eq(e, name, hashlen) != 1)
+		    *sts = PM_ERR_INST;
+		return e;
+	    }
+	    if (name_eq(e, name, hashlen) == 1) {
+		*sts = PM_ERR_INST;
+		return e;
+	    }
+	    if (e->inst < inst)
+		last_e = e;
 	}
     }
-    else {
+
+    if ((dup = strdup(name)) == NULL) {
+	__pmNotifyErr(LOG_ERR, 
+	     "insert_cache: indom %s: unable to allocate %d bytes for name: %s\n",
+	     pmInDomStr(h->indom), strlen(name), name);
+	*sts = PM_ERR_GENERIC;
+	return NULL;
+    }
+
+    if (inst == PM_IN_NULL) {
 	if (h->ins_mode == 0) {
 	    last_e = h->last;
 	    if (last_e == NULL)
@@ -551,7 +570,7 @@ retry:
 
     if ((e = (entry_t *)malloc(sizeof(entry_t))) == NULL) {
 	__pmNotifyErr(LOG_ERR, 
-	     "cache_insert: indom %s: unable to allocate memory for entry_t",
+	     "insert_cache: indom %s: unable to allocate memory for entry_t",
 	     pmInDomStr(h->indom));
 	*sts = PM_ERR_GENERIC;
 	return NULL;
@@ -670,8 +689,14 @@ bad:
 		 filename, buf);
 	    return PM_ERR_GENERIC;
 	}
-	if ((e = insert_cache(h, p, inst, &sts)) == NULL)
+	e = insert_cache(h, p, inst, &sts);
+	if (e == NULL)
 	    return sts;
+	if (sts != 0) {
+	    __pmNotifyErr(LOG_WARNING,
+		"pmdaCacheOp: %s: loading instance %d (\"%s\") ignored, already in cache as %d (\"%s\")",
+		filename, inst, p, e->inst, e->name);
+	}
 	e->stamp = x;
     }
     fclose(fp);
@@ -925,6 +950,10 @@ int pmdaCacheOp(pmInDom indom, int op)
 		    return e->inst;
 	    }
 	    return -1;
+
+	case PMDA_CACHE_DUMP:
+	    dump(stderr, h, 1);
+	    return 0;
 
 	default:
 	    return -EINVAL;
