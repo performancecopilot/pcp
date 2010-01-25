@@ -558,6 +558,10 @@ torture_indom: torture_indom.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ torture_indom.c $(LDLIBS)
 
+torture_pmns: torture_pmns.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ torture_pmns.c $(LDLIBS)
+
 # --- miscellaneous
 #
 getpid.so:	getpid.o
