@@ -22,6 +22,7 @@ dso_opt=true
 socket_opt=true
 socket_inet_def=2081
 pmda_interface=4
+pmns_source=root_mmv
 
 if [ ! -e "$PCP_TMP_DIR/mmv" ]
 then
