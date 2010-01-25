@@ -297,10 +297,22 @@ The cache can optionally be maintained as a persistent external file,
 so that the mapping of instance names to instance identifiers is persistent
 across executions of a PMDA.
 This operation loads the cache from the external file, and then
-all cache entries are marked
+all new cache entries are marked
 .BR inactive ,
 and the additional
-data pointer is set to NULL.  Consequently, a PMDA is only likely to
+data pointer is set to NULL.
+Entries loaded from the external file are checked against the current
+cache contents and if the instance name and instance identifiers match
+then the state in the cache (\c
+.B active
+or
+.BR inactive )
+is not changed. Should a mismatch be found (same instance name and
+different instance identifier, or same instance identifier and different
+instance name) then the entry from the external file is ignored
+and a warning is issued on
+.IR stderr .
+Typically a PMDA would only
 perform this operation once per execution.
 .TP
 PMDA_CACHE_SAVE
@@ -414,6 +426,10 @@ PMDA_CACHE_SIZE_INACTIVE
 Return the number of
 .B inactive
 entries in the cache.
+.TP
+PMDA_CACHE_DUMP
+Dump the current state of the cache on
+.IR stderr .
 .PP
 .B pmdaCacheOp
 returns a non-negative value on success, and failure is indicated

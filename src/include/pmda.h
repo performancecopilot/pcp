@@ -421,6 +421,7 @@ extern int pmdaCachePurge(pmInDom, time_t);
 #define PMDA_CACHE_CHECK		16
 #define PMDA_CACHE_REORG		17
 #define PMDA_CACHE_SYNC			18
+#define PMDA_CACHE_DUMP			19
 
 /*
  * Internal libpcp_pmda routines.
