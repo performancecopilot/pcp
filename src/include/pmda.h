@@ -398,9 +398,9 @@ extern int pmdaTreeSize(__pmnsTree *);
  * pmdaCachePurge
  *	cull inactive entries
  */
-extern int pmdaCacheStore(pmInDom, int, char *, void *);
+extern int pmdaCacheStore(pmInDom, int, const char *, void *);
 extern int pmdaCacheLookup(pmInDom, int, char **, void **);
-extern int pmdaCacheLookupName(pmInDom, char *, int *, void **);
+extern int pmdaCacheLookupName(pmInDom, const char *, int *, void **);
 extern int pmdaCacheOp(pmInDom, int);
 extern int pmdaCachePurge(pmInDom, time_t);
 
