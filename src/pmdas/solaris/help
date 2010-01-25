@@ -162,3 +162,30 @@ part of the pool redundancy.
 @zpool.perdisk.self_healed Number of bytes healed per disk in zpool
 @zpool.perdisk.in.errors Counter of read errors per disk in zpool
 @zpool.perdisk.out.errors Counter of write errors per disk in zpool
+
+@network.link.in.errors Number of input errors per link
+Counts input errors per link
+@network.link.in.packets Numbe of datagrams received by a link
+@network.link.in.bytes Number of bytes received by a link
+Counts number of bytes received by a link. For the physical links
+this is the raw counter of bytes received, for the aggregated links
+this is the number of bytes received by all links in the aggregation
+group
+@network.link.in.bcasts Number of broadcast datagrams received by a link
+@network.link.in.mcasts Number of multicast datagrams
+Counts multicast datagram recieved by a link.
+@network.link.in.nobufs Number of inpit packets discared
+Counts number of packets discared because of failure to allocate buffers
+@network.link.out.errors Number of output errors per link
+@network.link.out.packets Number of packets sent from a link
+@network.link.out.bytes Number of bytes sent from a link
+@network.link.out.bcasts Number of broadcast datagrams sent from a link
+@network.link.out.mcasts Number of multicast datagrams sent from a link
+@network.link.out.nobufs Number of output packets discared
+Counts number of packets discared because of failure to allocate buffers
+@network.link.collisions Number of collisions detected per link
+@network.link.state Link state
+1 - Link is up, 2 - Link is down, 0 - unknown state
+@network.link.duplex Link duplex
+1 - Half duplex, 2 - Full duplex
+@network.link.speed Link speed in bytes per second
