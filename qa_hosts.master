@@ -6,14 +6,12 @@
 #
 
 # Aconex Section
-forge.scott.net.au
-furnace.scott.net.au
-edge.scott.net.au
-verge.scott.net.au
-some-host.scott.net.au
-farawaypmcd.scott.net.au
-socksserver.scott.net.au
-butt.scott.net.au
+forge.engr.acx
+furnace.engr.acx
+edge.engr.acx
+verge.yarra.acx
+nathan-laptop.yarra.acx
+web1.drp.acx
 
 # Kenj Section
 bozo.localdomain
@@ -43,10 +41,11 @@ deb32.bork.org
 #order	.engr.sgi.com		.engr.sgi.com		.melbourne.sgi
 #order	.americas.sgi.com	.americas.sgi.com	.engr.sgi.com	.melbourne.sgi
 # Aconex Section
-#order	.scott.net.au		.scott.net.au
-#order	.engr.acx		.acx			.localdomain	.aconex.com
-#order	.aconex.com		.acx			.localdomain	.aconex.com
-#order .localdomain		.localdomain		.acx
+#order	edge			.engr.acx
+#order	.engr.acx		.localdomain
+#order	.yarra.acx		.localdomain
+#order	.aconex.com		.localdomain	.aconex.com
+#order	.localdomain		.localdomain
 # Kenj Section
 #order	bozo.localdomain	.localdomain
 #order	bozo-laptop.localdomain	.localdomain
