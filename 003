@@ -71,7 +71,6 @@ linux_filter()
 	-e "/mem.util.lowTotal: $unavailable/d" \
 	-e "/mem.util.slabReclaimable: $unavailable/d" \
 	-e "/mem.util.slabUnreclaimable: $unavailable/d" \
-	-e "/mem.numa.*: $unavailable/d" \
 	-e "/swapdev.free: $unavailable/d" \
 	-e "/swapdev.length: $unavailable/d" \
 	-e "/swapdev.maxswap: $unavailable/d" \
@@ -156,7 +155,7 @@ do
 	    -e "/mem\.slabinfo\.slabs\.total: $unavailable/d" \
 	    -e "/mem\.slabinfo\.slabs\.total_size: $unavailable/d" \
 	    -e "/mem\.vmstat\.nr_slab: $unavailable/d" \
-	    -e "/mem\.numa\.*: $unavailable/d" \
+	    -e "/mem\.numa\..*: $unavailable/d" \
 	    -e "/mem\.util\.other: $unavailable/d" \
 	    -e "/mem\.util\.reverseMaps: $unavailable/d" \
 	    -e "/mem\.util\.shared: $unavailable/d" \
