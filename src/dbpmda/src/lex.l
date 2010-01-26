@@ -20,9 +20,15 @@
 #include "pmapi.h"
 #include "impl.h"
 
-int lineno = 0;
+static int lineno = 0;
+static int using_readline = 0;
 
 #include "./lex.h"
+
+#ifdef HAVE_READLINE
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif
 
 #ifdef FLEX_SCANNER
 #define YY_NO_UNPUT
@@ -178,36 +184,90 @@ dbpmdaGetc (char * inbuf)
 {
     int inch;
 
-    while ((inch = fgetc (yyin)) != EOF ) {
+#ifdef HAVE_READLINE
+    char rl_prompt_storage[64];
+    char *rl_prompt = rl_prompt_storage;
+    static char	*str = NULL;
+    static int	strpos = 0;
+
+    if (using_readline) {
+	if (iflag)
+	    snprintf(rl_prompt_storage, 64, "%s> ", prompt);
+	else
+	    rl_prompt = NULL; 
+
+	rl_instream = yyin;
+
+	if (!str) {
+	    do {
+		str = readline(rl_prompt);
+		if (!str) {
+		    /* EOF */
+		    inbuf[0] = inch = '\0';
+		    goto done;
+		}
+	    } while (!str[0]);
+	}
+
+	inch = str[strpos++];
+	if (inch == '\r')
+	    inch = str[strpos++];
+
+	if (!inch) {
+	    /* end of input line, fake out \n so parser notices */
+	    inch = '\n';
+	    /* and setup to call readline() next time */
+	    free(str);
+	    str = NULL;
+	    strpos = 0;
+	}
+
+	inbuf[0] = inch;
+	goto done;
+    }
+    /* else fall through to the non-readline method */
+#endif
+
+    while ((inch = fgetc (yyin)) != EOF) {
 	inbuf[0] = inch & 0xFFU;
 	if (inbuf[0] == '\r') {
 	    /* for windows, eat carriage returns */
 	    continue;
 	}
 	if (eflag) {
-	    putchar (inch);
-	    fflush (stdout);
+	    putchar(inch);
+	    fflush(stdout);
 	}
 	break;
     }
     if (inch == EOF)
 	inch = '\0';
 
-    return (inch);
+#ifdef HAVE_READLINE
+done:
+#endif
+#ifdef DESPERATE
+    fprintf(stderr, "dbpmdaGetc: yyin=%p (%d) using_readline=%d inch=%x \"%c\"\n", yyin, fileno(yyin), using_readline, inch & 0xff, inch);
+#endif
+    return inch;
 }
 
 static int 
 dbpmdaFlexInput (char * inbuf, int ms)
 {
     static FILE * inf = NULL;
+    static int first = 1;
     static int save_iflag, save_eflag;
 
-    if (inf == NULL ) {
-	if ( ! access (".dbpmdarc", R_OK) ) {
+    if (first) {
+	first = 0;
+	if (!access (".dbpmdarc", R_OK)) {
 	    inf = yyin;
 	    if ((yyin = fopen (".dbpmdarc", "r")) != NULL) {
-		save_iflag = iflag;
 		save_eflag = eflag;
+		save_iflag = iflag;
+		eflag = 1;
+		iflag = 1;
 		prompt = ".dbpmdarc";
 		configfile = ".dbpmdarc";
 		lineno = 0;
@@ -215,10 +275,24 @@ dbpmdaFlexInput (char * inbuf, int ms)
 		yyin = inf;
 	    }
 	}
+#ifdef HAVE_READLINE
+	else {
+	    using_readline = isatty(fileno(yyin));
+	}
+#endif
     }
 
-    if ( lastc == '\n' ) {
-	if ( iflag ) {
+    if (lastc == '\n') {
+#ifdef HAVE_READLINE
+	if (line != NULL && *line != '\0' && *line != '\n') {
+	    /* line is not empty, push it into history */
+	    char *newline = strchr(line, '\n');
+	    if (newline != NULL) *newline = '\0';
+	    add_history(line);
+	    if (newline != NULL) *newline = '\n';
+	}
+#endif
+	if (iflag && !using_readline) {
 	    printf ("%s> ", prompt);
 	    fflush (stdout);
 	}
@@ -226,7 +300,7 @@ dbpmdaFlexInput (char * inbuf, int ms)
 	linepos = 0;
     }
 
-    if ( linepos == linelen ) {
+    if (linepos == linelen) {
 	linelen = (linelen) ? linelen * 2 : 128;
 	if ((line = (char *)realloc(line, linelen * sizeof(char))) == NULL) {
 	    fprintf(stderr, "%s: Lexer internal error\n", pmProgname);
@@ -234,9 +308,9 @@ dbpmdaFlexInput (char * inbuf, int ms)
 	}
     }
 
-    if (ms > 0 ) {
+    if (ms > 0) {
 	while (1) {
-	    if ( (lastc = dbpmdaGetc(inbuf)) ) {
+	    if ((lastc = dbpmdaGetc(inbuf))) {
 		line[linepos++] = inbuf[0];
 		return (1);
 	    } else {
@@ -244,21 +318,28 @@ dbpmdaFlexInput (char * inbuf, int ms)
 		if ((inf != NULL) && (inf != yyin)) {
 		    yyin = inf;
 		    lineno = 1;
+#ifdef HAVE_READLINE
+		    using_readline = isatty(fileno(yyin));
+#endif
 		    prompt = "dbpmda";
 		    configfile = NULL;
-		    if ( (iflag = save_iflag) ) {
-			printf ("%s >", prompt);
-			fflush (stdout);
+		    iflag = save_iflag;
+		    if (iflag) {
+			if (using_readline)
+			    putchar('\n');
+			else
+			    printf("%s> ", prompt);
+		        fflush(stdout);
 		    }
 		    eflag = save_eflag;
 		} else {
-		    return (0);
+		    return 0;
 		}
 	    }
         }
     }
 
-    return (ms);
+    return ms;
 }
 
 #else /* AT&T Lex */
