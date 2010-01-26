@@ -6,6 +6,7 @@ keep1 PMID: 1.0.1
 keep2 PMID: 2.0.2
 
 Serial additions ...
+	   13 leaf nodes
 	   12 leaf nodes
 	   11 leaf nodes
 	   10 leaf nodes
@@ -15,6 +16,7 @@ Serial additions ...
 	    6 leaf nodes
 	    5 leaf nodes
 
+d1 PMID: 1.1.1
 keep1 PMID: 1.0.1
 keep2 PMID: 2.0.2
 one.d2 PMID: 2.1.2
@@ -29,6 +31,7 @@ two.d9 PMID: 9.1.9
 two.keep3 PMID: 3.0.3
 
 Parallel additions ...
+	   13 leaf nodes
 	   12 leaf nodes
 	   11 leaf nodes
 	   10 leaf nodes
@@ -38,6 +41,7 @@ Parallel additions ...
 	    6 leaf nodes
 	    5 leaf nodes
 
+d1 PMID: 1.1.1
 keep1 PMID: 1.0.1
 keep2 PMID: 2.0.2
 one.d2 PMID: 2.1.2
