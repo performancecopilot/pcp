@@ -930,7 +930,7 @@ parse(int level)
 			char		*endptr;
 			uint64_t	check;
 			check = strtoull(tokbuf, &endptr, 10);
-			if (*endptr != '\0' || check > ULONG_MAX) {
+			if (*endptr != '\0' || check > 0xffffffffUL) {
 			    errmsg = "Constant value too large";
 			    free_expr(expr);
 			    return NULL;
