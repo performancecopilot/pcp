@@ -1042,9 +1042,9 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_U32)
 		fprintf(stderr, " u=%u", cp->mlist[m].expr->info->ivlist[k].value.ul);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_64)
-		fprintf(stderr, " ll=%lld", cp->mlist[m].expr->info->ivlist[k].value.ll);
+		fprintf(stderr, " ll=%lld", (long long)cp->mlist[m].expr->info->ivlist[k].value.ll);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_U64)
-		fprintf(stderr, " ul=%llu", cp->mlist[m].expr->info->ivlist[k].value.ull);
+		fprintf(stderr, " ul=%llu", (unsigned long long)cp->mlist[m].expr->info->ivlist[k].value.ull);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_FLOAT)
 		fprintf(stderr, " f=%f", (double)cp->mlist[m].expr->info->ivlist[k].value.f);
 	    else if (cp->mlist[m].expr->desc.type == PM_TYPE_DOUBLE)
