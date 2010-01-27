@@ -35,6 +35,7 @@ write_flags(char *flags)
 	hdr->flags |= MMV_FLAG_PROCESS;
     if (strcmp(flags, "none") == 0)
 	hdr->flags = 0;
+    hdr->g1 = ++hdr->g2;
 }
 
 void
@@ -43,6 +44,7 @@ write_pid(int pid)
     mmv_disk_header_t *hdr = (mmv_disk_header_t *)addr;
 
     hdr->process = pid;
+    hdr->g1 = ++hdr->g2;
 }
 
 int
@@ -50,7 +52,7 @@ main(int argc, char **argv)
 {
     struct stat sbuf;
     char *file, *flags = NULL;
-    int c, err = 0, pid = 0;
+    int c, err = 0, pid = -1;
 
     __pmSetProgname(argv[0]);
     while ((c = getopt(argc, argv, "f:p:")) != EOF) {
@@ -84,7 +86,7 @@ main(int argc, char **argv)
     if (flags)
 	write_flags(flags);
 
-    if (pid)
+    if (pid != -1)
 	write_pid(pid);
 
     __pmMemoryUnmap(addr, sbuf.st_size);

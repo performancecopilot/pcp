@@ -1,0 +1,65 @@
+#! /bin/sh
+# PCP QA Test No. 649
+# Testing MMV client flags behaviour
+#
+# Copyright (c) 2010 Aconex.  All Rights Reserved.
+#
+# creator
+owner=nathans
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.check
+. ./common.filter
+
+tmp=/tmp/$$
+status=1
+MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
+here=`pwd`
+sudo=$here/sudo
+
+_cleanup()
+{
+    if [ -d $MMV_STATS_DIR.old ]
+    then
+	rm -fr $MMV_STATS_DIR
+	$sudo mv $MMV_STATS_DIR.old $MMV_STATS_DIR
+    fi
+    exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/^mmv.test.interval/d' \
+	-e '/^mmv.interval/d' \
+    #
+}
+
+# real QA starts here
+$sudo mv "$MMV_STATS_DIR" "$MMV_STATS_DIR.old"
+mkdir -p "$MMV_STATS_DIR"
+chmod 1777 "$MMV_STATS_DIR"
+src-oss/mmv_genstats
+
+echo
+echo "=== Listing with a valid process and with prefix ==="
+src-oss/mmv_poke -p $$ -f process "$MMV_STATS_DIR/test"
+pmprobe -v mmv | _filter
+
+echo "=== Listing with a valid process and without prefix ==="
+src-oss/mmv_poke -p $$ -f noprefix "$MMV_STATS_DIR/test"
+pmprobe -v mmv | _filter
+
+echo "=== Listing without a valid process ==="
+src-oss/mmv_poke -p 0 -f process "$MMV_STATS_DIR/test"
+pmprobe -v mmv | _filter
+
+status=0
+exit
