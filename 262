@@ -45,7 +45,6 @@ _filter_number()
 
 
 tmp=/tmp/$$
-cp /dev/null ./pmie.conf
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
