@@ -116,7 +116,6 @@ zpool_fetch(pmdaMetric *pm, int inst, pmAtomValue *atom)
     struct zpool_stats *zps;
     char *zpname;
     metricdesc_t *md = pm->m_user;
-    char *s;
 
     if (pmdaCacheLookup(indomtab[ZPOOL_INDOM].it_indom, inst, &zpname,
 			(void **)&zps) != PMDA_CACHE_ACTIVE)
@@ -125,8 +124,7 @@ zpool_fetch(pmdaMetric *pm, int inst, pmAtomValue *atom)
     if (zps->vdev_stats_fresh) {
 	switch (pmid_item(md->md_desc.pmid)) {
 	case 97: /* zpool.state */
-	    s = zpool_state_to_name(zps->vds.vs_state, zps->vds.vs_aux);
-	    atom->cp = strdup(s);
+	    atom->cp = zpool_state_to_name(zps->vds.vs_state, zps->vds.vs_aux);
 	    break;
 	case 98:
 	    atom->ul = (zps->vds.vs_aux << 8) | zps->vds.vs_state;

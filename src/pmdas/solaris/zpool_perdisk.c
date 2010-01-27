@@ -250,7 +250,6 @@ zpool_perdisk_fetch(pmdaMetric *pm, int inst, pmAtomValue *atom)
     struct vdev_stats *stats;
     char *vdev_name;
     metricdesc_t *md = pm->m_user;
-    char *s;
 
     if (pmdaCacheLookup(indomtab[ZPOOL_PERDISK_INDOM].it_indom, inst,
 			&vdev_name, (void **)&stats) != PMDA_CACHE_ACTIVE)
@@ -259,8 +258,8 @@ zpool_perdisk_fetch(pmdaMetric *pm, int inst, pmAtomValue *atom)
     if (stats->vdev_stats_fresh) {
 	switch (pmid_item(md->md_desc.pmid)) {
 	case 99: /* zpool.perdisk.state */
-	    s = zpool_state_to_name(stats->vds.vs_state, stats->vds.vs_aux);
-	    atom->cp = strdup(s);
+	    atom->cp = zpool_state_to_name(stats->vds.vs_state,
+					   stats->vds.vs_aux);
 	    break;
 	case 100: /* zpool.perdisk.state_int */
 	    atom->ul = (stats->vds.vs_aux << 8) | stats->vds.vs_state;
