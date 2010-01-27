@@ -17,6 +17,7 @@
  */
 
 #include "common.h"
+#include <sys/utsname.h>
 
 typedef struct {
     int		fetched;
@@ -26,8 +27,10 @@ typedef struct {
 
 static int		ncpu;
 static int		hz;
+static long		pagesize;
 static cpu_stat_t	*cpustat;
 static ctl_t		*ctl;
+static char		uname_full[SYS_NMLN * 5];
 
 void
 sysinfo_init(int first)
@@ -69,6 +72,7 @@ sysinfo_init(int first)
     }
 
     hz = (int)sysconf(_SC_CLK_TCK);
+    pagesize = sysconf(_SC_PAGESIZE);
 
 #ifdef PCP_DEBUG
     if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
@@ -131,6 +135,38 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
     int			i;
     int			ok;
     int			offset;
+    kstat_t		*ks;
+    struct utsname	u;
+
+    /* Special processing of metrics which notionally belong
+     * to sysinfo category */
+    switch (pmid_item(mdesc->m_desc.pmid)) {
+    case 109: /* hinv.physmem */
+	if ((ks = kstat_lookup(kc, "unix", -1, "system_pages")) != NULL) {
+	    kstat_named_t *kn;
+
+	    kstat_read(kc, ks, NULL);
+
+	    if ((kn = kstat_data_lookup(ks, "physmem")) != NULL) {
+		atom->ull = (((uint64_t)kn->value.ui32) * pagesize) >> 20;
+		return 1;
+	    }
+	}
+	return 0;
+
+    case 108: /* hinv.pagesize */
+	atom->ul = pagesize;
+	return 1;
+
+    case 107: /* pmda.uname */
+	if (uname(&u) < 0) 
+	    return 0;
+
+	snprintf(uname_full, sizeof(uname_full), "%s %s %s %s %s",
+		 u.sysname, u.nodename, u.release, u.version, u.machine);
+	atom->cp = uname_full;
+	return 1;
+    }	
 
     ok = 1;
     for (i = 0; i < ncpu; i++) {

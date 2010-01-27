@@ -351,6 +351,22 @@ metricdesc_t metricdesc[] = {
     { { PMDA_PMID(0,57), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
       }, M_DISK, -1 /* derived */ },
+
+/* pmda.uname */
+    { { PMDA_PMID(0,107), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_SYSINFO, -1 /* derived */ },
+
+/* hinv.pagesize */
+    { { PMDA_PMID(0,108), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_SYSINFO, -1 /* derived */ },
+
+/* hinv.physmem */
+    { { PMDA_PMID(0,109), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_MBYTE, 0, 0)
+      }, M_SYSINFO, -1 /* derived */ },
+
 /* zpool.capacity */
     { { PMDA_PMID(0,58), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
