@@ -44,7 +44,7 @@ netif_cache_inst(const char *ifname)
     nm2_netif_stats_t *ist;
     int rv;
 
-    if (pmdaCacheLookupName(indom, (char *)ifname, &rv,
+    if (pmdaCacheLookupName(indom, ifname, &rv,
 			    (void **)&ist) != PMDA_CACHE_ACTIVE) {
 	ist = malloc(sizeof(*ist));
 	if (ist == NULL) {
@@ -54,7 +54,7 @@ netif_cache_inst(const char *ifname)
 	    return NULL;
 	}
 
-	rv = pmdaCacheStore(indom, PMDA_CACHE_ADD, (char *)ifname, ist);
+	rv = pmdaCacheStore(indom, PMDA_CACHE_ADD, ifname, ist);
 	if (rv < 0) {
 	    __pmNotifyErr(LOG_WARNING,
 			  "Cannot create instance for '%s': %s\n",
@@ -260,7 +260,6 @@ netmib2_fetch(pmdaMetric *pm, int inst, pmAtomValue *av)
     char *fsname;
     metricdesc_t *md = pm->m_user;
     char *ist;
-    uint64_t v;
 
     if (pm->m_desc.indom == PM_INDOM_NULL) {
 	switch (pm->m_desc.type) {
