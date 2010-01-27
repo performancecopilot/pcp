@@ -144,7 +144,6 @@ Error: Unknown metric name
 Type 'help' for a list of commands.
 dbpmda> close
 dbpmda> open dso $PCP_PMDAS_DIR/mmv/pmda_mmv.so mmv_init 70
-[DATE] dbpmda(PID) Info: dbpmda: pmdaInit - 2 metrics and 0 indoms
 dbpmda> desc mmv.test.strings
 [DATE] dbpmda(PID) Info: dbpmda: reloading
 [DATE] dbpmda(PID) Info: dbpmda: loading mmv client: 1 "$PCP_TMP_DIR/mmv/test"
