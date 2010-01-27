@@ -27,8 +27,11 @@ _cleanup()
 	:
     else
 	[ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	[ -d $tmp.mmv.dir ] && rm -fr "$MMV_STATS_DIR"
-	[ -d $tmp.mmv.dir ] && $here/sudo mv $tmp.mmv.dir $MMV_STATS_DIR
+	if [ -d $tmp.mmv.dir ]
+	then
+	    rm -fr "$MMV_STATS_DIR"
+	    $here/sudo mv $tmp.mmv.dir $MMV_STATS_DIR
+	fi
 	rm -f $tmp.*
 	$here/sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
