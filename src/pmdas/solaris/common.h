@@ -46,6 +46,7 @@ typedef struct {
     void	(*m_init)(int);
     void	(*m_prefetch)(void);
     int		(*m_fetch)(pmdaMetric *, int, pmAtomValue *);
+    int		fetched;
 } method_t;
 
 extern method_t		methodtab[];
