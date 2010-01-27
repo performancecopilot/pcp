@@ -148,7 +148,24 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    kstat_read(kc, ks, NULL);
 
 	    if ((kn = kstat_data_lookup(ks, "physmem")) != NULL) {
-		atom->ull = (((uint64_t)kn->value.ui32) * pagesize) >> 20;
+		switch (kn->data_type) {
+		case KSTAT_DATA_UINT64:
+		    atom->ull = kn->value.ui64;
+		    break;
+		case KSTAT_DATA_INT64:
+		    atom->ull = kn->value.i64;
+		    break;
+		case KSTAT_DATA_UINT32:
+		    atom->ull = kn->value.ui32;
+		    break;
+		case KSTAT_DATA_INT32:
+		    atom->ull = kn->value.i32;
+		    break;
+		default:
+		    return 0;
+		}
+
+		atom->ull = (atom->ull * pagesize) >> 20;
 		return 1;
 	    }
 	}
