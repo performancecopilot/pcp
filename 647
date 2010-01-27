@@ -46,13 +46,6 @@ _filter_mmv_values()
 	's/"eggs"\] value .*/"eggs"] value USEC/g'
 }
 
-_delay_for_pmns()
-{
-    sleep 2		# remove all this with new PMNS PDU types
-    pminfo -df $iam >/dev/null 2>&1	# get past ready/notready
-    sleep 3		# give pmcd some time to rebuild the pmns
-}
-
 # real QA test starts here
 here=`pwd`
 home="$PCP_PMDAS_DIR"
@@ -82,7 +75,6 @@ $here/sudo ./Install </dev/null >$tmp.out 2>&1
 _filter_pmda_install <$tmp.out
 
 $here/src-oss/mmv_genstats
-#not needed with dynamic PMNS changes# _delay_for_pmns
 
 echo
 echo "=== validate values ==="

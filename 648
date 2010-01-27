@@ -32,9 +32,15 @@ _cleanup()
     then
 	:
     else
-	[ -f $tmp.pmcd.conf ] && $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	[ -d $tmp.mmv.dir ] && rm -fr "$MMV_STATS_DIR"
-	[ -d $tmp.mmv.dir ] && $here/sudo mv $tmp.mmv.dir $MMV_STATS_DIR
+	if [ -f $tmp.pmcd.conf ]
+	then
+	    $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	fi
+	if [ -d $tmp.mmv.dir ]
+	then
+	    rm -fr "$MMV_STATS_DIR"
+	    $here/sudo mv $tmp.mmv.dir $MMV_STATS_DIR
+	fi
 	rm -f $tmp.*
 	$here/sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
@@ -52,21 +58,9 @@ _filter_mmv_values()
 }
 
 
-_delay_for_pmns()
-{
-    sleep 2		# remove all this with new PMNS PDU types
-    pminfo -df $iam >/dev/null 2>&1	# get past ready/notready
-    sleep 2		# give pmcd some time to rebuild the pmns
-}
-
 # real QA test starts here
 home="$PCP_PMDAS_DIR"
 iam=mmv
-if [ ! -d "$home/$iam" ]
-then
-    echo "Where is $home/$iam?"
-    exit 1
-fi
 cd "$home/$iam"
 unset ROOT
 
@@ -89,7 +83,6 @@ _filter_pmda_install <$tmp.out
 $here/src-oss/mmv_instances cats
 $here/src-oss/mmv_instances dogs
 $here/src-oss/mmv_instances mice
-#not needed with dynamic PMNS changes# _delay_for_pmns
 
 echo
 echo "=== validate values ==="
