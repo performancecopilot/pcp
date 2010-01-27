@@ -58,7 +58,7 @@ src-oss/mmv_poke -p $$ -f noprefix "$MMV_STATS_DIR/test"
 pmprobe -v mmv | _filter
 
 echo "=== Listing without a valid process ==="
-src-oss/mmv_poke -p 0 -f process "$MMV_STATS_DIR/test"
+src-oss/mmv_poke -p 4294967295 -f process "$MMV_STATS_DIR/test"
 pmprobe -v mmv | _filter
 
 status=0

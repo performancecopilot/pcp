@@ -52,7 +52,7 @@ main(int argc, char **argv)
 {
     struct stat sbuf;
     char *file, *flags = NULL;
-    int c, err = 0, pid = -1;
+    int c, err = 0, pid = 0;
 
     __pmSetProgname(argv[0]);
     while ((c = getopt(argc, argv, "f:p:")) != EOF) {
@@ -86,7 +86,7 @@ main(int argc, char **argv)
     if (flags)
 	write_flags(flags);
 
-    if (pid != -1)
+    if (pid)
 	write_pid(pid);
 
     __pmMemoryUnmap(addr, sbuf.st_size);
