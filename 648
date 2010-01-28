@@ -9,10 +9,6 @@ owner=nathans
 
 seq=`basename $0`
 
-echo "Tests functionality which is not yet complete" >$seq.notrun
-echo "$seq: [not run] `cat $seq.notrun`"
-exit 0
-
 echo "QA output created by $seq"
 
 # get standard filters
@@ -52,12 +48,6 @@ _cleanup()
 
 trap "_cleanup" 0 1 2 3 15
 
-_filter_mmv_values()
-{
-    cat
-}
-
-
 # real QA test starts here
 home="$PCP_PMDAS_DIR"
 iam=mmv
@@ -90,7 +80,7 @@ if pminfo $iam | LC_COLLATE=POSIX sort >$tmp.names
 then
     for name in `cat $tmp.names`
     do
-	pminfo -fdmtT $name | _filter_mmv_values
+	pminfo -fdmtT $name | LC_COLLATE=POSIX sort -n
     done
 else
     echo "... failed! ... here is the Install log ..."

@@ -18,16 +18,30 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 status=1
+done_clean=false
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
 here=`pwd`
-sudo=$here/sudo
 
 _cleanup()
 {
-    if [ -d $MMV_STATS_DIR.old ]
+    if $done_clean
     then
-	rm -fr $MMV_STATS_DIR
-	$sudo mv $MMV_STATS_DIR.old $MMV_STATS_DIR
+	:
+    else
+	if [ -f $tmp.pmcd.conf ]
+	then
+	    $here/sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	fi
+	if [ -d $tmp.mmv.dir ]
+	then
+	    rm -fr "$MMV_STATS_DIR"
+	    $here/sudo mv $tmp.mmv.dir $MMV_STATS_DIR
+	fi
+	rm -f $tmp.*
+	$here/sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_clean=true
     fi
     exit $status
 }
@@ -43,23 +57,46 @@ _filter()
 }
 
 # real QA starts here
-$sudo mv "$MMV_STATS_DIR" "$MMV_STATS_DIR.old"
-mkdir -p "$MMV_STATS_DIR"
+home="$PCP_PMDAS_DIR"
+iam=mmv
+cd "$home/$iam"
+unset ROOT
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH "$tmp.pmcd.conf"
+# move the MMV directory to restore contents later.
+[ -d $MMV_STATS_DIR ] && $here/sudo mv -f $MMV_STATS_DIR $tmp.mmv.dir
+
+# start from a known starting point
+$here/sudo ./Remove >/dev/null 2>&1
+
+mkdir "$MMV_STATS_DIR"
 chmod 1777 "$MMV_STATS_DIR"
-src-oss/mmv_genstats
+
+echo
+echo "=== $iam agent installation ==="
+$here/sudo ./Install </dev/null >$tmp.out 2>&1
+_filter_pmda_install <$tmp.out
+
+$here/src-oss/mmv_genstats
 
 echo
 echo "=== Listing with a valid process and with prefix ==="
-src-oss/mmv_poke -p $$ -f process "$MMV_STATS_DIR/test"
+$here/src-oss/mmv_poke -p $$ -f process "$MMV_STATS_DIR/test"
 pmprobe -v mmv | _filter
 
 echo "=== Listing with a valid process and without prefix ==="
-src-oss/mmv_poke -p $$ -f noprefix "$MMV_STATS_DIR/test"
+$here/src-oss/mmv_poke -p $$ -f noprefix "$MMV_STATS_DIR/test"
 pmprobe -v mmv | _filter
 
 echo "=== Listing without a valid process ==="
-src-oss/mmv_poke -p 4294967295 -f process "$MMV_STATS_DIR/test"
+$here/src-oss/mmv_poke -p 4294967295 -f process "$MMV_STATS_DIR/test"
 pmprobe -v mmv | _filter
+
+echo
+echo "=== remove $iam agent ==="
+$here/sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
 
 status=0
 exit

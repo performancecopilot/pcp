@@ -1,5 +1,25 @@
 QA output created by 649
 
+=== mmv agent installation ===
+You will need to choose an appropriate configuration for installation of
+the "mmv" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] 
+Updating the Performance Metrics Name Space (PMNS) ...
+Compiled PMNS contains
+  NNN hash table entries
+  NNN leaf nodes
+  NNN non-leaf nodes
+  NNN bytes of symbol table
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check mmv metrics have appeared ... 2 metrics and 2 values
+
 === Listing with a valid process and with prefix ===
 mmv.test.strings 2 "00oo00" ""
 mmv.test.string 1 "g'day world"
@@ -19,3 +39,13 @@ mmv.reload 1 0
 === Listing without a valid process ===
 mmv.debug 1 0
 mmv.reload 1 0
+
+=== remove mmv agent ===
+Culling the Performance Metrics Name Space ...
+mmv ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check mmv metrics have gone away ... OK
+Waiting for PMCD to terminate ...
+Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) ...
+Performance Co-Pilot starting archive loggers ...
