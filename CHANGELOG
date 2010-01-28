@@ -1,9 +1,11 @@
-pcp-3.1.0 (27 January 2010)
+pcp-3.1.0 (28 January 2010)
     - Derived metric support.
-    - MMV PMDA (DSO) is now installed and enabled by default.
+    - Fix a memory leak in the Solaris kernel PMDA.
     - Extract information about network links on Solaris.
-    - Add packaging dependencies for readline (ahead of code).
+    - MMV PMDA (DSO) is now installed and enabled by default.
+    - Reintroduced MMV support for cross-(mmap-)file instances.
     - Bug fix in pmdammv which was capable of causing SIGSEGV.
+    - Add dbpmda readline support (and packaging dependencies).
     - Add in -Z option to pmwtf, to pass through to pmlogsummary.
     - Export NUMA memory statistics from the linux kernel.
     - Make pmie_check work on Solaris.
