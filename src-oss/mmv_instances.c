@@ -84,7 +84,7 @@ main(int argc, char * argv[])
     }
 
     for (i = 0; i < indoms[0].count; i++) {
-	mmv_stats_set(addr, "animals",
+	mmv_stats_set(addr, "animals.tag",
 		indoms[0].instances[i].external, indoms[0].instances[i].internal);
     }
 
