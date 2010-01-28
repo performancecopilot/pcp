@@ -1,4 +1,6 @@
 hinv {
     ncpu	SOLARIS:0:56
     ndisk	SOLARIS:0:57
+    pagesize	SOLARIS:0:108
+    physmem	SOLARIS:0:109
 }

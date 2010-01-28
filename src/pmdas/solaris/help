@@ -189,3 +189,11 @@ Counts number of packets discared because of failure to allocate buffers
 @network.link.duplex Link duplex
 1 - Half duplex, 2 - Full duplex
 @network.link.speed Link speed in bytes per second
+@hinv.pagesize Memory page size
+The memory page size of the running kernel in bytes.
+@hinv.physmem Total physical system memory
+Total physical system memory size rounded down to the nearest page size
+boundary
+@pmda.uname identity and type of current system
+Identity and type of current system.  The concatenation of the values
+returned from utsname(2), also similar to uname -a.

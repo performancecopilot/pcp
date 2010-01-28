@@ -391,6 +391,12 @@ Fetch the next
 instance identifier from the cache.  Requires a prior
 call using PMDA_CACHE_WALK_REWIND and will return \-1 when all instances
 have been processed.
+.RS
+.PP
+Only one cache walk can be active at any given time, nesting calls
+to PMDA_CACHE_WALK and PMDA_CACHE_REWIND will interfere with each
+other.
+.RE
 .TP
 PMDA_CACHE_ACTIVE
 Changes

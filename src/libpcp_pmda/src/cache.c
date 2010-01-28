@@ -206,8 +206,7 @@ dump(FILE *fp, hdr_t *h, int do_hash)
 
     fprintf(fp, "pmdaCacheDump: indom %s: nentry=%d ins_mode=%d hstate=%d hsize=%d\n",
 	pmInDomStr(h->indom), h->nentry, h->ins_mode, h->hstate, h->hsize);
-    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+    for (e = h->first; e != NULL; e = e->next) {
 	if (e->state == PMDA_CACHE_EMPTY) {
 	    fprintf(fp, "(%10d) %8s\n", e->inst, "empty");
 	}
@@ -246,8 +245,7 @@ find_name(hdr_t *h, const char *name, int *sts)
     int		hashlen = get_hashlen(name);
 
     *sts = 0;
-    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+    for (e = h->first; e != NULL; e = e->next) {
 	if (e->state != PMDA_CACHE_EMPTY) {
 	    if ((*sts = name_eq(e, name, hashlen)))
 		break;
@@ -261,8 +259,7 @@ find_inst(hdr_t *h, int inst)
 {
     entry_t	*e;
 
-    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+    for (e = h->first; e != NULL; e = e->next) {
 	if (e->state != PMDA_CACHE_EMPTY && e->inst == inst)
 	    break;
     }
@@ -496,8 +493,7 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 
     if (inst != PM_IN_NULL) {
 	/* load_cache case, inst is known */
-	walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	for (e = h->first; e != NULL; e = e->next) {
 	    /*
 	     * check if instance id or instance name already in cache
 	     * ... if id and name are the the same, keep the existing
@@ -548,8 +544,7 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 	else {
 retry:
 	    inst = 0;
-	    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	    for (e = h->first; e != NULL; e = e->next) {
 		if (inst < e->inst)
 		    break;
 		if (inst == 0x7fffffff) {
@@ -740,8 +735,7 @@ save_cache(hdr_t *h, int hstate)
 
     now = time(NULL);
     cnt = 0;
-    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+    for (e = h->first; e != NULL; e = e->next) {
 	if (e->state == PMDA_CACHE_EMPTY)
 	    continue;
 	if (e->stamp == 0)
@@ -876,8 +870,7 @@ int pmdaCacheOp(pmInDom indom, int op)
 
 	case PMDA_CACHE_ACTIVE:
 	    sts = 0;
-	    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	    for (e = h->first; e != NULL; e = e->next) {
 		if (e->state == PMDA_CACHE_INACTIVE) {
 		    e->state = PMDA_CACHE_ACTIVE;
 		    sts++;
@@ -888,8 +881,7 @@ int pmdaCacheOp(pmInDom indom, int op)
 
 	case PMDA_CACHE_INACTIVE:
 	    sts = 0;
-	    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	    for (e = h->first; e != NULL; e = e->next) {
 		if (e->state == PMDA_CACHE_ACTIVE) {
 		    e->state = PMDA_CACHE_INACTIVE;
 		    sts++;
@@ -900,8 +892,7 @@ int pmdaCacheOp(pmInDom indom, int op)
 
 	case PMDA_CACHE_CULL:
 	    sts = 0;
-	    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	    for (e = h->first; e != NULL; e = e->next) {
 		if (e->state != PMDA_CACHE_EMPTY) {
 		    e->state = PMDA_CACHE_EMPTY;
 		    sts++;
@@ -916,8 +907,7 @@ int pmdaCacheOp(pmInDom indom, int op)
 
 	case PMDA_CACHE_SIZE_ACTIVE:
 	    sts = 0;
-	    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	    for (e = h->first; e != NULL; e = e->next) {
 		if (e->state == PMDA_CACHE_ACTIVE)
 		    sts++;
 	    }
@@ -925,8 +915,7 @@ int pmdaCacheOp(pmInDom indom, int op)
 
 	case PMDA_CACHE_SIZE_INACTIVE:
 	    sts = 0;
-	    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	    for (e = h->first; e != NULL; e = e->next) {
 		if (e->state == PMDA_CACHE_INACTIVE)
 		    sts++;
 	    }
@@ -1017,8 +1006,7 @@ int pmdaCachePurge(pmInDom indom, time_t recent)
 	return sts;
 
     cnt = 0;
-    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+    for (e = h->first; e != NULL; e = e->next) {
 	/*
 	 * e->stamp == 0 => recently ACTIVE and no subsequent SAVE ...
 	 * keep these ones

@@ -12,6 +12,11 @@ root {
 	hinv
 	zpool
 	zfs
+	pmda
+}
+
+pmda {
+	uname SOLARIS:0:107
 }
 
 #include "pmns.kernel"
