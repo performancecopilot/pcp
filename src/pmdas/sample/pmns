@@ -1,7 +1,7 @@
 /*
  * Metrics for sample PMDA
  *
- * Next pmid SAMPLE:0:93
+ * Next pmid SAMPLE:0:122
  * (SAMPLE:0:1023 is taken)
  *
  * Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
@@ -20,8 +20,6 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
- * Next pmid SAMPLE:0:93
- * (SAMPLE:0:1023 is taken)
  */
 
 sample {
@@ -51,7 +49,9 @@ sample {
     noinst	SAMPLE:0:9
     needprofile	SAMPLE:0:49
     long
+    ulong
     longlong
+    ulonglong
     float
     double
     string
@@ -76,6 +76,7 @@ sample {
     byte_rate_perhour	SAMPLE:0:85
     datasize	SAMPLE:0:91
     secret	SAMPLE:*:*
+    scramble
 }
 
 sample.long {
@@ -84,6 +85,27 @@ sample.long {
     hundred	SAMPLE:0:12
     million	SAMPLE:0:13
     write_me	SAMPLE:0:14
+    bin		SAMPLE:0:103
+    bin_ctr	SAMPLE:0:104
+}
+
+sample.ulong {
+    one		SAMPLE:0:93
+    ten		SAMPLE:0:94
+    hundred	SAMPLE:0:95
+    million	SAMPLE:0:96
+    write_me	SAMPLE:0:97
+    bin		SAMPLE:0:105
+    bin_ctr	SAMPLE:0:106
+    count
+}
+
+sample.ulong.count {
+    base	SAMPLE:0:115
+    deca	SAMPLE:0:116
+    hecto	SAMPLE:0:117
+    kilo	SAMPLE:0:118
+    mega	SAMPLE:0:119
 }
 
 sample.float {
@@ -92,6 +114,8 @@ sample.float {
     hundred	SAMPLE:0:17
     million	SAMPLE:0:18
     write_me	SAMPLE:0:19
+    bin		SAMPLE:0:107
+    bin_ctr	SAMPLE:0:108
 }
 
 sample.longlong {
@@ -100,6 +124,18 @@ sample.longlong {
     hundred	SAMPLE:0:22
     million	SAMPLE:0:23
     write_me	SAMPLE:0:24
+    bin		SAMPLE:0:109
+    bin_ctr	SAMPLE:0:110
+}
+
+sample.ulonglong {
+    one		SAMPLE:0:98
+    ten		SAMPLE:0:99
+    hundred	SAMPLE:0:100
+    million	SAMPLE:0:101
+    write_me	SAMPLE:0:102
+    bin		SAMPLE:0:111
+    bin_ctr	SAMPLE:0:112
 }
 
 sample.double {
@@ -108,6 +144,8 @@ sample.double {
     hundred	SAMPLE:0:27
     million	SAMPLE:0:28
     write_me	SAMPLE:0:29
+    bin		SAMPLE:0:113
+    bin_ctr	SAMPLE:0:114
 }
 
 sample.string {
@@ -181,4 +219,9 @@ sample.dynamic.meta.pmdesc {
 sample.many {
     count	SAMPLE:0:79
     int		SAMPLE:0:80
+}
+
+sample.scramble {
+    version	SAMPLE:0:120
+    bin		SAMPLE:0:121
 }

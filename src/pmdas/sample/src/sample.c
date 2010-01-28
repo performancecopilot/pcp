@@ -233,6 +233,65 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,91), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
 /* darkness */
     { PMDA_PMID(0,92), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulong.one */
+    { PMDA_PMID(0,93), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulong.ten */
+    { PMDA_PMID(0,94), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulong.hundred */
+    { PMDA_PMID(0,95), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulong.million */
+    { PMDA_PMID(0,96), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulong.write_me */
+    { PMDA_PMID(0,97), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulonglong.one */
+    { PMDA_PMID(0,98), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulonglong.ten */
+    { PMDA_PMID(0,99), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulonglong.hundred */
+    { PMDA_PMID(0,100), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulonglong.million */
+    { PMDA_PMID(0,101), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulonglong.write_me */
+    { PMDA_PMID(0,102), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* long.bin */
+    { PMDA_PMID(0,103), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* long.bin_ctr */
+    { PMDA_PMID(0,104), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* ulong.bin */
+    { PMDA_PMID(0,105), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulong.bin_ctr */
+    { PMDA_PMID(0,106), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* float.bin */
+    { PMDA_PMID(0,107), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* float.bin_ctr */
+    { PMDA_PMID(0,108), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* longlong.bin */
+    { PMDA_PMID(0,109), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* longlong.bin_ctr */
+    { PMDA_PMID(0,110), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* ulonglong.bin */
+    { PMDA_PMID(0,111), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* ulonglong.bin_ctr */
+    { PMDA_PMID(0,112), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* double.bin */
+    { PMDA_PMID(0,113), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* double.bin_ctr */
+    { PMDA_PMID(0,114), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
+/* sample.ulong.count.base */
+    { PMDA_PMID(0,115), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(-1,0,1,PM_SPACE_MBYTE,0,PM_COUNT_ONE) },
+/* sample.ulong.count.deca */
+    { PMDA_PMID(0,116), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(-1,0,1,PM_SPACE_MBYTE,0,PM_COUNT_ONE+1) },
+/* sample.ulong.count.hecto */
+    { PMDA_PMID(0,117), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(-1,0,1,PM_SPACE_MBYTE,0,PM_COUNT_ONE+2) },
+/* sample.ulong.count.kilo */
+    { PMDA_PMID(0,118), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(-1,0,1,PM_SPACE_MBYTE,0,PM_COUNT_ONE+3) },
+/* sample.ulong.count.mega */
+    { PMDA_PMID(0,119), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(-1,0,1,PM_SPACE_MBYTE,0,PM_COUNT_ONE+6) },
+/* scramble.version */
+    { PMDA_PMID(0,120), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* scramble.bin */
+    { PMDA_PMID(0,121), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+
 /* bigid */
     { PMDA_PMID(0,1023), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /*
@@ -276,17 +335,25 @@ typedef struct {
 } indom_t;
 
 static instid_t	_colour[] = {
-    { 0, "red" }, { 1, "green"}, { 2, "blue" }
+    { 0, "red" }, { 1, "green" }, { 2, "blue" }
 };
 
 static instid_t	_bin[] = {
-    { 100, "bin-100" }, { 200, "bin-200"}, { 300, "bin-300"},
-    { 400, "bin-400" }, { 500, "bin-500"}, { 600, "bin-600"},
-    { 700, "bin-700" }, { 800, "bin-800"}, { 900, "bin-900"}
+    { 100, "bin-100" }, { 200, "bin-200" }, { 300, "bin-300" },
+    { 400, "bin-400" }, { 500, "bin-500" }, { 600, "bin-600" },
+    { 700, "bin-700" }, { 800, "bin-800" }, { 900, "bin-900" }
 };
 
+static instid_t	_scramble[] = {
+    { 100, "bin-100" }, { 200, "bin-200" }, { 300, "bin-300" },
+    { 400, "bin-400" }, { 500, "bin-500" }, { 600, "bin-600" },
+    { 700, "bin-700" }, { 800, "bin-800" }, { 900, "bin-900" }
+};
+
+static long scramble_ver = 0;
+
 static instid_t	_family[] = {
-    { 0, "colleen" }, { 1, "terry"}, { 2, "emma" }, { 3, "cathy" }, { 4, "fat bald bastard" }
+    { 0, "colleen" }, { 1, "terry" }, { 2, "emma" }, { 3, "cathy" }, { 4, "fat bald bastard" }
 };
 
 static instid_t	_dodgey[] = {
@@ -294,106 +361,106 @@ static instid_t	_dodgey[] = {
 };
 
 static instid_t _hordes[] = {
-    {  0, "0"}, {  1, "1"}, {  2, "2"}, {  3, "3"}, {  4, "4"},
-    {  5, "5"}, {  6, "6"}, {  7, "7"}, {  8, "8"}, {  9, "9"},
-    { 10, "10"}, { 11, "11"}, { 12, "12"}, { 13, "13"}, { 14, "14"},
-    { 15, "15"}, { 16, "16"}, { 17, "17"}, { 18, "18"}, { 19, "19"},
-    { 20, "20"}, { 21, "21"}, { 22, "22"}, { 23, "23"}, { 24, "24"},
-    { 25, "25"}, { 26, "26"}, { 27, "27"}, { 28, "28"}, { 29, "29"},
-    { 30, "30"}, { 31, "31"}, { 32, "32"}, { 33, "33"}, { 34, "34"},
-    { 35, "35"}, { 36, "36"}, { 37, "37"}, { 38, "38"}, { 39, "39"},
-    { 40, "40"}, { 41, "41"}, { 42, "42"}, { 43, "43"}, { 44, "44"},
-    { 45, "45"}, { 46, "46"}, { 47, "47"}, { 48, "48"}, { 49, "49"},
-    { 50, "50"}, { 51, "51"}, { 52, "52"}, { 53, "53"}, { 54, "54"},
-    { 55, "55"}, { 56, "56"}, { 57, "57"}, { 58, "58"}, { 59, "59"},
-    { 60, "60"}, { 61, "61"}, { 62, "62"}, { 63, "63"}, { 64, "64"},
-    { 65, "65"}, { 66, "66"}, { 67, "67"}, { 68, "68"}, { 69, "69"},
-    { 70, "70"}, { 71, "71"}, { 72, "72"}, { 73, "73"}, { 74, "74"},
-    { 75, "75"}, { 76, "76"}, { 77, "77"}, { 78, "78"}, { 79, "79"},
-    { 80, "80"}, { 81, "81"}, { 82, "82"}, { 83, "83"}, { 84, "84"},
-    { 85, "85"}, { 86, "86"}, { 87, "87"}, { 88, "88"}, { 89, "89"},
-    { 90, "90"}, { 91, "91"}, { 92, "92"}, { 93, "93"}, { 94, "94"},
-    { 95, "95"}, { 96, "96"}, { 97, "97"}, { 98, "98"}, { 99, "99"},
-    {100, "100"}, {101, "101"}, {102, "102"}, {103, "103"}, {104, "104"},
-    {105, "105"}, {106, "106"}, {107, "107"}, {108, "108"}, {109, "109"},
-    {110, "110"}, {111, "111"}, {112, "112"}, {113, "113"}, {114, "114"},
-    {115, "115"}, {116, "116"}, {117, "117"}, {118, "118"}, {119, "119"},
-    {120, "120"}, {121, "121"}, {122, "122"}, {123, "123"}, {124, "124"},
-    {125, "125"}, {126, "126"}, {127, "127"}, {128, "128"}, {129, "129"},
-    {130, "130"}, {131, "131"}, {132, "132"}, {133, "133"}, {134, "134"},
-    {135, "135"}, {136, "136"}, {137, "137"}, {138, "138"}, {139, "139"},
-    {140, "140"}, {141, "141"}, {142, "142"}, {143, "143"}, {144, "144"},
-    {145, "145"}, {146, "146"}, {147, "147"}, {148, "148"}, {149, "149"},
-    {150, "150"}, {151, "151"}, {152, "152"}, {153, "153"}, {154, "154"},
-    {155, "155"}, {156, "156"}, {157, "157"}, {158, "158"}, {159, "159"},
-    {160, "160"}, {161, "161"}, {162, "162"}, {163, "163"}, {164, "164"},
-    {165, "165"}, {166, "166"}, {167, "167"}, {168, "168"}, {169, "169"},
-    {170, "170"}, {171, "171"}, {172, "172"}, {173, "173"}, {174, "174"},
-    {175, "175"}, {176, "176"}, {177, "177"}, {178, "178"}, {179, "179"},
-    {180, "180"}, {181, "181"}, {182, "182"}, {183, "183"}, {184, "184"},
-    {185, "185"}, {186, "186"}, {187, "187"}, {188, "188"}, {189, "189"},
-    {190, "190"}, {191, "191"}, {192, "192"}, {193, "193"}, {194, "194"},
-    {195, "195"}, {196, "196"}, {197, "197"}, {198, "198"}, {199, "199"},
-    {200, "200"}, {201, "201"}, {202, "202"}, {203, "203"}, {204, "204"},
-    {205, "205"}, {206, "206"}, {207, "207"}, {208, "208"}, {209, "209"},
-    {210, "210"}, {211, "211"}, {212, "212"}, {213, "213"}, {214, "214"},
-    {215, "215"}, {216, "216"}, {217, "217"}, {218, "218"}, {219, "219"},
-    {220, "220"}, {221, "221"}, {222, "222"}, {223, "223"}, {224, "224"},
-    {225, "225"}, {226, "226"}, {227, "227"}, {228, "228"}, {229, "229"},
-    {230, "230"}, {231, "231"}, {232, "232"}, {233, "233"}, {234, "234"},
-    {235, "235"}, {236, "236"}, {237, "237"}, {238, "238"}, {239, "239"},
-    {240, "240"}, {241, "241"}, {242, "242"}, {243, "243"}, {244, "244"},
-    {245, "245"}, {246, "246"}, {247, "247"}, {248, "248"}, {249, "249"},
-    {250, "250"}, {251, "251"}, {252, "252"}, {253, "253"}, {254, "254"},
-    {255, "255"}, {256, "256"}, {257, "257"}, {258, "258"}, {259, "259"},
-    {260, "260"}, {261, "261"}, {262, "262"}, {263, "263"}, {264, "264"},
-    {265, "265"}, {266, "266"}, {267, "267"}, {268, "268"}, {269, "269"},
-    {270, "270"}, {271, "271"}, {272, "272"}, {273, "273"}, {274, "274"},
-    {275, "275"}, {276, "276"}, {277, "277"}, {278, "278"}, {279, "279"},
-    {280, "280"}, {281, "281"}, {282, "282"}, {283, "283"}, {284, "284"},
-    {285, "285"}, {286, "286"}, {287, "287"}, {288, "288"}, {289, "289"},
-    {290, "290"}, {291, "291"}, {292, "292"}, {293, "293"}, {294, "294"},
-    {295, "295"}, {296, "296"}, {297, "297"}, {298, "298"}, {299, "299"},
-    {300, "300"}, {301, "301"}, {302, "302"}, {303, "303"}, {304, "304"},
-    {305, "305"}, {306, "306"}, {307, "307"}, {308, "308"}, {309, "309"},
-    {310, "310"}, {311, "311"}, {312, "312"}, {313, "313"}, {314, "314"},
-    {315, "315"}, {316, "316"}, {317, "317"}, {318, "318"}, {319, "319"},
-    {320, "320"}, {321, "321"}, {322, "322"}, {323, "323"}, {324, "324"},
-    {325, "325"}, {326, "326"}, {327, "327"}, {328, "328"}, {329, "329"},
-    {330, "330"}, {331, "331"}, {332, "332"}, {333, "333"}, {334, "334"},
-    {335, "335"}, {336, "336"}, {337, "337"}, {338, "338"}, {339, "339"},
-    {340, "340"}, {341, "341"}, {342, "342"}, {343, "343"}, {344, "344"},
-    {345, "345"}, {346, "346"}, {347, "347"}, {348, "348"}, {349, "349"},
-    {350, "350"}, {351, "351"}, {352, "352"}, {353, "353"}, {354, "354"},
-    {355, "355"}, {356, "356"}, {357, "357"}, {358, "358"}, {359, "359"},
-    {360, "360"}, {361, "361"}, {362, "362"}, {363, "363"}, {364, "364"},
-    {365, "365"}, {366, "366"}, {367, "367"}, {368, "368"}, {369, "369"},
-    {370, "370"}, {371, "371"}, {372, "372"}, {373, "373"}, {374, "374"},
-    {375, "375"}, {376, "376"}, {377, "377"}, {378, "378"}, {379, "379"},
-    {380, "380"}, {381, "381"}, {382, "382"}, {383, "383"}, {384, "384"},
-    {385, "385"}, {386, "386"}, {387, "387"}, {388, "388"}, {389, "389"},
-    {390, "390"}, {391, "391"}, {392, "392"}, {393, "393"}, {394, "394"},
-    {395, "395"}, {396, "396"}, {397, "397"}, {398, "398"}, {399, "399"},
-    {400, "400"}, {401, "401"}, {402, "402"}, {403, "403"}, {404, "404"},
-    {405, "405"}, {406, "406"}, {407, "407"}, {408, "408"}, {409, "409"},
-    {410, "410"}, {411, "411"}, {412, "412"}, {413, "413"}, {414, "414"},
-    {415, "415"}, {416, "416"}, {417, "417"}, {418, "418"}, {419, "419"},
-    {420, "420"}, {421, "421"}, {422, "422"}, {423, "423"}, {424, "424"},
-    {425, "425"}, {426, "426"}, {427, "427"}, {428, "428"}, {429, "429"},
-    {430, "430"}, {431, "431"}, {432, "432"}, {433, "433"}, {434, "434"},
-    {435, "435"}, {436, "436"}, {437, "437"}, {438, "438"}, {439, "439"},
-    {440, "440"}, {441, "441"}, {442, "442"}, {443, "443"}, {444, "444"},
-    {445, "445"}, {446, "446"}, {447, "447"}, {448, "448"}, {449, "449"},
-    {450, "450"}, {451, "451"}, {452, "452"}, {453, "453"}, {454, "454"},
-    {455, "455"}, {456, "456"}, {457, "457"}, {458, "458"}, {459, "459"},
-    {460, "460"}, {461, "461"}, {462, "462"}, {463, "463"}, {464, "464"},
-    {465, "465"}, {466, "466"}, {467, "467"}, {468, "468"}, {469, "469"},
-    {470, "470"}, {471, "471"}, {472, "472"}, {473, "473"}, {474, "474"},
-    {475, "475"}, {476, "476"}, {477, "477"}, {478, "478"}, {479, "479"},
-    {480, "480"}, {481, "481"}, {482, "482"}, {483, "483"}, {484, "484"},
-    {485, "485"}, {486, "486"}, {487, "487"}, {488, "488"}, {489, "489"},
-    {490, "490"}, {491, "491"}, {492, "492"}, {493, "493"}, {494, "494"},
-    {495, "495"}, {496, "496"}, {497, "497"}, {498, "498"}, {499, "499"}
+    {  0, "0" }, {  1, "1" }, {  2, "2" }, {  3, "3" }, {  4, "4" },
+    {  5, "5" }, {  6, "6" }, {  7, "7" }, {  8, "8" }, {  9, "9" },
+    { 10, "10" }, { 11, "11" }, { 12, "12" }, { 13, "13" }, { 14, "14" },
+    { 15, "15" }, { 16, "16" }, { 17, "17" }, { 18, "18" }, { 19, "19" },
+    { 20, "20" }, { 21, "21" }, { 22, "22" }, { 23, "23" }, { 24, "24" },
+    { 25, "25" }, { 26, "26" }, { 27, "27" }, { 28, "28" }, { 29, "29" },
+    { 30, "30" }, { 31, "31" }, { 32, "32" }, { 33, "33" }, { 34, "34" },
+    { 35, "35" }, { 36, "36" }, { 37, "37" }, { 38, "38" }, { 39, "39" },
+    { 40, "40" }, { 41, "41" }, { 42, "42" }, { 43, "43" }, { 44, "44" },
+    { 45, "45" }, { 46, "46" }, { 47, "47" }, { 48, "48" }, { 49, "49" },
+    { 50, "50" }, { 51, "51" }, { 52, "52" }, { 53, "53" }, { 54, "54" },
+    { 55, "55" }, { 56, "56" }, { 57, "57" }, { 58, "58" }, { 59, "59" },
+    { 60, "60" }, { 61, "61" }, { 62, "62" }, { 63, "63" }, { 64, "64" },
+    { 65, "65" }, { 66, "66" }, { 67, "67" }, { 68, "68" }, { 69, "69" },
+    { 70, "70" }, { 71, "71" }, { 72, "72" }, { 73, "73" }, { 74, "74" },
+    { 75, "75" }, { 76, "76" }, { 77, "77" }, { 78, "78" }, { 79, "79" },
+    { 80, "80" }, { 81, "81" }, { 82, "82" }, { 83, "83" }, { 84, "84" },
+    { 85, "85" }, { 86, "86" }, { 87, "87" }, { 88, "88" }, { 89, "89" },
+    { 90, "90" }, { 91, "91" }, { 92, "92" }, { 93, "93" }, { 94, "94" },
+    { 95, "95" }, { 96, "96" }, { 97, "97" }, { 98, "98" }, { 99, "99" },
+    {100, "100" }, {101, "101" }, {102, "102" }, {103, "103" }, {104, "104" },
+    {105, "105" }, {106, "106" }, {107, "107" }, {108, "108" }, {109, "109" },
+    {110, "110" }, {111, "111" }, {112, "112" }, {113, "113" }, {114, "114" },
+    {115, "115" }, {116, "116" }, {117, "117" }, {118, "118" }, {119, "119" },
+    {120, "120" }, {121, "121" }, {122, "122" }, {123, "123" }, {124, "124" },
+    {125, "125" }, {126, "126" }, {127, "127" }, {128, "128" }, {129, "129" },
+    {130, "130" }, {131, "131" }, {132, "132" }, {133, "133" }, {134, "134" },
+    {135, "135" }, {136, "136" }, {137, "137" }, {138, "138" }, {139, "139" },
+    {140, "140" }, {141, "141" }, {142, "142" }, {143, "143" }, {144, "144" },
+    {145, "145" }, {146, "146" }, {147, "147" }, {148, "148" }, {149, "149" },
+    {150, "150" }, {151, "151" }, {152, "152" }, {153, "153" }, {154, "154" },
+    {155, "155" }, {156, "156" }, {157, "157" }, {158, "158" }, {159, "159" },
+    {160, "160" }, {161, "161" }, {162, "162" }, {163, "163" }, {164, "164" },
+    {165, "165" }, {166, "166" }, {167, "167" }, {168, "168" }, {169, "169" },
+    {170, "170" }, {171, "171" }, {172, "172" }, {173, "173" }, {174, "174" },
+    {175, "175" }, {176, "176" }, {177, "177" }, {178, "178" }, {179, "179" },
+    {180, "180" }, {181, "181" }, {182, "182" }, {183, "183" }, {184, "184" },
+    {185, "185" }, {186, "186" }, {187, "187" }, {188, "188" }, {189, "189" },
+    {190, "190" }, {191, "191" }, {192, "192" }, {193, "193" }, {194, "194" },
+    {195, "195" }, {196, "196" }, {197, "197" }, {198, "198" }, {199, "199" },
+    {200, "200" }, {201, "201" }, {202, "202" }, {203, "203" }, {204, "204" },
+    {205, "205" }, {206, "206" }, {207, "207" }, {208, "208" }, {209, "209" },
+    {210, "210" }, {211, "211" }, {212, "212" }, {213, "213" }, {214, "214" },
+    {215, "215" }, {216, "216" }, {217, "217" }, {218, "218" }, {219, "219" },
+    {220, "220" }, {221, "221" }, {222, "222" }, {223, "223" }, {224, "224" },
+    {225, "225" }, {226, "226" }, {227, "227" }, {228, "228" }, {229, "229" },
+    {230, "230" }, {231, "231" }, {232, "232" }, {233, "233" }, {234, "234" },
+    {235, "235" }, {236, "236" }, {237, "237" }, {238, "238" }, {239, "239" },
+    {240, "240" }, {241, "241" }, {242, "242" }, {243, "243" }, {244, "244" },
+    {245, "245" }, {246, "246" }, {247, "247" }, {248, "248" }, {249, "249" },
+    {250, "250" }, {251, "251" }, {252, "252" }, {253, "253" }, {254, "254" },
+    {255, "255" }, {256, "256" }, {257, "257" }, {258, "258" }, {259, "259" },
+    {260, "260" }, {261, "261" }, {262, "262" }, {263, "263" }, {264, "264" },
+    {265, "265" }, {266, "266" }, {267, "267" }, {268, "268" }, {269, "269" },
+    {270, "270" }, {271, "271" }, {272, "272" }, {273, "273" }, {274, "274" },
+    {275, "275" }, {276, "276" }, {277, "277" }, {278, "278" }, {279, "279" },
+    {280, "280" }, {281, "281" }, {282, "282" }, {283, "283" }, {284, "284" },
+    {285, "285" }, {286, "286" }, {287, "287" }, {288, "288" }, {289, "289" },
+    {290, "290" }, {291, "291" }, {292, "292" }, {293, "293" }, {294, "294" },
+    {295, "295" }, {296, "296" }, {297, "297" }, {298, "298" }, {299, "299" },
+    {300, "300" }, {301, "301" }, {302, "302" }, {303, "303" }, {304, "304" },
+    {305, "305" }, {306, "306" }, {307, "307" }, {308, "308" }, {309, "309" },
+    {310, "310" }, {311, "311" }, {312, "312" }, {313, "313" }, {314, "314" },
+    {315, "315" }, {316, "316" }, {317, "317" }, {318, "318" }, {319, "319" },
+    {320, "320" }, {321, "321" }, {322, "322" }, {323, "323" }, {324, "324" },
+    {325, "325" }, {326, "326" }, {327, "327" }, {328, "328" }, {329, "329" },
+    {330, "330" }, {331, "331" }, {332, "332" }, {333, "333" }, {334, "334" },
+    {335, "335" }, {336, "336" }, {337, "337" }, {338, "338" }, {339, "339" },
+    {340, "340" }, {341, "341" }, {342, "342" }, {343, "343" }, {344, "344" },
+    {345, "345" }, {346, "346" }, {347, "347" }, {348, "348" }, {349, "349" },
+    {350, "350" }, {351, "351" }, {352, "352" }, {353, "353" }, {354, "354" },
+    {355, "355" }, {356, "356" }, {357, "357" }, {358, "358" }, {359, "359" },
+    {360, "360" }, {361, "361" }, {362, "362" }, {363, "363" }, {364, "364" },
+    {365, "365" }, {366, "366" }, {367, "367" }, {368, "368" }, {369, "369" },
+    {370, "370" }, {371, "371" }, {372, "372" }, {373, "373" }, {374, "374" },
+    {375, "375" }, {376, "376" }, {377, "377" }, {378, "378" }, {379, "379" },
+    {380, "380" }, {381, "381" }, {382, "382" }, {383, "383" }, {384, "384" },
+    {385, "385" }, {386, "386" }, {387, "387" }, {388, "388" }, {389, "389" },
+    {390, "390" }, {391, "391" }, {392, "392" }, {393, "393" }, {394, "394" },
+    {395, "395" }, {396, "396" }, {397, "397" }, {398, "398" }, {399, "399" },
+    {400, "400" }, {401, "401" }, {402, "402" }, {403, "403" }, {404, "404" },
+    {405, "405" }, {406, "406" }, {407, "407" }, {408, "408" }, {409, "409" },
+    {410, "410" }, {411, "411" }, {412, "412" }, {413, "413" }, {414, "414" },
+    {415, "415" }, {416, "416" }, {417, "417" }, {418, "418" }, {419, "419" },
+    {420, "420" }, {421, "421" }, {422, "422" }, {423, "423" }, {424, "424" },
+    {425, "425" }, {426, "426" }, {427, "427" }, {428, "428" }, {429, "429" },
+    {430, "430" }, {431, "431" }, {432, "432" }, {433, "433" }, {434, "434" },
+    {435, "435" }, {436, "436" }, {437, "437" }, {438, "438" }, {439, "439" },
+    {440, "440" }, {441, "441" }, {442, "442" }, {443, "443" }, {444, "444" },
+    {445, "445" }, {446, "446" }, {447, "447" }, {448, "448" }, {449, "449" },
+    {450, "450" }, {451, "451" }, {452, "452" }, {453, "453" }, {454, "454" },
+    {455, "455" }, {456, "456" }, {457, "457" }, {458, "458" }, {459, "459" },
+    {460, "460" }, {461, "461" }, {462, "462" }, {463, "463" }, {464, "464" },
+    {465, "465" }, {466, "466" }, {467, "467" }, {468, "468" }, {469, "469" },
+    {470, "470" }, {471, "471" }, {472, "472" }, {473, "473" }, {474, "474" },
+    {475, "475" }, {476, "476" }, {477, "477" }, {478, "478" }, {479, "479" },
+    {480, "480" }, {481, "481" }, {482, "482" }, {483, "483" }, {484, "484" },
+    {485, "485" }, {486, "486" }, {487, "487" }, {488, "488" }, {489, "489" },
+    {490, "490" }, {491, "491" }, {492, "492" }, {493, "493" }, {494, "494" },
+    {495, "495" }, {496, "496" }, {497, "497" }, {498, "498" }, {499, "499" }
 };
 
 /* all domains supported in this PMD - one entry each */
@@ -414,6 +481,8 @@ static indom_t	indomtab[] = {
     { 0, 0, NULL },
 #define MANY_INDOM	7
     { 0, 5, NULL },
+#define SCRAMBLE_INDOM	8
+    { 0, 9, _scramble },
 
     { PM_INDOM_NULL, 0, 0 }
 };
@@ -432,7 +501,9 @@ static int		_sign = -1;	/* up/down for drift */
 static int		_step = 20;	/* magnitude of step */
 static int		_write_me = 2;	/* constant, but modifiable */
 static __int32_t	_long = 13;	/* long.write_me */
+static __uint32_t	_ulong = 13;	/* ulong.write_me */
 static __int64_t	_longlong = 13;	/* longlong.write_me */
+static __uint64_t	_ulonglong = 13;/* ulonglong.write_me */
 static float		_float = 13;	/* float.write_me */
 static double		_double = 13;	/* double.write_me */
 static char		*_string;	/* string.write_me */
@@ -824,9 +895,11 @@ cntinst(pmInDom indom)
 
 /*
  * commence a new round of instance selection
+ * flag == 1 for prefetch instance counting
+ * flag == 0 for iteration over instances to retrieve values
  */
 static void
-startinst(pmInDom indom)
+startinst(pmInDom indom, int flag)
 {
     _ordinal = _singular = -1;
     if (indom == PM_INDOM_NULL) {
@@ -838,6 +911,45 @@ startinst(pmInDom indom)
 	if (_idp->it_indom == indom) {
 	    /* multiple values are possible */
 	    _ordinal = 0;
+	    if (flag == 1 && _idp == &indomtab[SCRAMBLE_INDOM]) {
+		/*
+		 * indomtab[BIN_INDOM].it_set[] is the same size as
+		 * indomtab[SCRAMBLE_INDOM].it_set[] (maxnuminst
+		 * entries)
+		 */
+		int	i;
+		int	k = 0;
+		int	maxnuminst = indomtab[BIN_INDOM].it_numinst;
+		srand48((scramble_ver << 10) + 13);
+		scramble_ver++;
+		for (i = 0; i < maxnuminst; i++)
+		    indomtab[SCRAMBLE_INDOM].it_set[i].i_inst = PM_IN_NULL;
+		for (i = 0; i < maxnuminst; i++) {
+		    /* skip 1/3 of instances */
+		    if ((lrand48() % 100) < 33) continue;
+		    /* order of instances is random */
+		    for ( ; ; ) {
+			k = lrand48() % maxnuminst;
+			if (indomtab[SCRAMBLE_INDOM].it_set[k].i_inst != PM_IN_NULL)
+			    continue;
+			indomtab[SCRAMBLE_INDOM].it_set[k].i_inst = indomtab[BIN_INDOM].it_set[i].i_inst;
+			indomtab[SCRAMBLE_INDOM].it_set[k].i_name = indomtab[BIN_INDOM].it_set[i].i_name;
+			break;
+		    }
+		}
+		/* pack to remove skipped instances */
+		k = 0;
+		for (i = 0; i < maxnuminst; i++) {
+		    if (indomtab[SCRAMBLE_INDOM].it_set[i].i_inst == PM_IN_NULL)
+			continue;
+		    if (k < i) {
+			indomtab[SCRAMBLE_INDOM].it_set[k].i_inst = indomtab[SCRAMBLE_INDOM].it_set[i].i_inst;
+			indomtab[SCRAMBLE_INDOM].it_set[k].i_name = indomtab[SCRAMBLE_INDOM].it_set[i].i_name;
+		    }
+		    k++;
+		}
+		indomtab[SCRAMBLE_INDOM].it_numinst = k;
+	    }
 	    break;
 	}
     }
@@ -918,6 +1030,9 @@ init_tables(int dom)
     b_indom.serial++;
     indomp = (__pmInDom_int *)&indomtab[MANY_INDOM].it_indom;
     *indomp = b_indom;
+    b_indom.serial++;
+    indomp = (__pmInDom_int *)&indomtab[SCRAMBLE_INDOM].it_indom;
+    *indomp = b_indom;
 
     for (dp = desctab; dp->pmid != PM_ID_NULL; dp++) {
 	switch (dp->pmid) {
@@ -929,6 +1044,18 @@ init_tables(int dom)
 	    case PMDA_PMID(0,48):	/* bucket */
 	    case PMDA_PMID(0,50):	/* part_bin */
 	    case PMDA_PMID(0,51):	/* bogus_bin */
+	    case PMDA_PMID(0,103):	/* long.bin */
+	    case PMDA_PMID(0,104):	/* long.bin_ctr */
+	    case PMDA_PMID(0,105):	/* ulong.bin */
+	    case PMDA_PMID(0,106):	/* ulong.bin_ctr */
+	    case PMDA_PMID(0,107):	/* float.bin */
+	    case PMDA_PMID(0,108):	/* float.bin_ctr */
+	    case PMDA_PMID(0,109):	/* longlong.bin */
+	    case PMDA_PMID(0,110):	/* longlong.bin_ctr */
+	    case PMDA_PMID(0,111):	/* ulonglong.bin */
+	    case PMDA_PMID(0,112):	/* ulonglong.bin_ctr */
+	    case PMDA_PMID(0,113):	/* double.bin */
+	    case PMDA_PMID(0,114):	/* double.bin_ctr */
 		dp->indom = indomtab[BIN_INDOM].it_indom;
 		break;
 	    case PMDA_PMID(0,37):	/* mirage */
@@ -954,6 +1081,9 @@ init_tables(int dom)
 		break;
 	    case PMDA_PMID(0,80):	/* many.int */
 		dp->indom = indomtab[MANY_INDOM].it_indom;
+		break;
+	    case PMDA_PMID(0,121):	/* scramble.bin */
+		dp->indom = indomtab[SCRAMBLE_INDOM].it_indom;
 		break;
 	}
     }
@@ -1469,7 +1599,7 @@ doit:
 		}
 		if (numval == 0) {
 		    /* count instances in indom */
-		    startinst(dp->indom);
+		    startinst(dp->indom, 1);
 		    while (nextinst(&inst)) {
 			/* special case ... not all here for part_bin */
 			if (pmidp->item == 50 && inst % 200 == 0)
@@ -1516,7 +1646,7 @@ doit:
 	if (dp->indom == PM_INDOM_NULL)
 	    inst = PM_IN_NULL;
 	else {
-	    startinst(dp->indom);
+	    startinst(dp->indom, 0);
 	    nextinst(&inst);
 	}
 	type = dp->type;
@@ -1582,8 +1712,32 @@ doit:
 		case 48:
 		case 50:
 		case 51:
+		case 103:		/* long.bin & long.bin_ctr */
+		case 104:
+		case 121:		/* scramble.bin */
 		    /* the value is the instance identifier (sic) */
 		    atom.l = inst;
+		    break;
+		    /* and ditto for all the other type variants of "bin" */
+		case 105:		/* ulong.bin & ulong.bin_ctr */
+		case 106:
+		    atom.ul = inst;
+		    break;
+		case 107:		/* float.bin & float.bin_ctr */
+		case 108:
+		    atom.f = inst;
+		    break;
+		case 109:		/* longlong.bin & longlong.bin_ctr */
+		case 110:
+		    atom.ll = inst;
+		    break;
+		case 111:		/* ulonglong.bin & ulonglong.bin_ctr */
+		case 112:
+		    atom.ull = inst;
+		    break;
+		case 113:		/* double.bin & double.bin_ctr */
+		case 114:
+		    atom.d = inst;
 		    break;
 		case 7:
 		    /* drift */
@@ -1704,7 +1858,7 @@ doit:
 			    break;
 		    }
 		    break;
-		case 10:
+		case 10:		/* long.* group */
 		    atom.l = 1;
 		    break;
 		case 11:
@@ -1719,7 +1873,7 @@ doit:
 		case 14:
 		    atom.l = (__int32_t)_long;
 		    break;
-		case 20:
+		case 20:		/* longlong.* group */
 #if !defined(HAVE_CONST_LONGLONG)
 		    atom.ll = 1;
 #else
@@ -1750,7 +1904,7 @@ doit:
 		case 24:
 		    atom.ll = _longlong;
 		    break;
-		case 15:
+		case 15:		/* float.* group */
 		    atom.f = 1;
 		    break;
 		case 16:
@@ -1765,7 +1919,7 @@ doit:
 		case 19:
 		    atom.f = _float;
 		    break;
-		case 25:
+		case 25:		/* double.* group */
 		    atom.d = 1;
 		    break;
 		case 26:
@@ -2001,6 +2155,71 @@ doit:
 		    __pmProcessDataSize(&ul);
 		    atom.ul = ul;
 		    break;
+		/* no case 92 for darkeness, handled above */
+		case 93:		/* ulong.* group */
+		    atom.ul = 1;
+		    break;
+		case 94:
+		    atom.ul = 10;
+		    break;
+		case 95:
+		    atom.ul = 100;
+		    break;
+		case 96:
+		    atom.ul = 1000000;
+		    break;
+		case 97:
+		    atom.ul = (__int32_t)_ulong;
+		    break;
+		case 98:		/* ulonglong.* group */
+#if !defined(HAVE_CONST_LONGLONG)
+		    atom.ull = 1;
+#else
+		    atom.ull = 1ULL;
+#endif
+		    break;
+		case 99:
+#if !defined(HAVE_CONST_LONGLONG)
+		    atom.ull = 10;
+#else
+		    atom.ull = 10ULL;
+#endif
+		    break;
+		case 100:
+#if !defined(HAVE_CONST_LONGLONG)
+		    atom.ull = 100;
+#else
+		    atom.ull = 100ULL;
+#endif
+		    break;
+		case 101:
+#if !defined(HAVE_CONST_LONGLONG)
+		    atom.ull = 1000000;
+#else
+		    atom.ull = 1000000ULL;
+#endif
+		    break;
+		case 102:
+		    atom.ull = _ulonglong;
+		    break;
+		case 115:	/* ulong.count.base */
+		    atom.ul = 42000000;
+		    break;
+		case 116:	/* ulong.count.deca */
+		    atom.ul = 4200000;
+		    break;
+		case 117:	/* ulong.count.hecto */
+		    atom.ul = 420000;
+		    break;
+		case 118:	/* ulong.count.kilo */
+		    atom.ul = 42000;
+		    break;
+		case 119:	/* ulong.count.mega */
+		    atom.ul = 42;
+		    break;
+		case 120:	/* scramble.version */
+		    atom.ll = scramble_ver;
+		    break;
 		case 1000:	/* secret.bar */
 		    atom.cp = "foo";
 		    break;
@@ -2166,6 +2385,8 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 29:	/* double.write_me */
 	    case 32:	/* string.write_me */
 	    case 35:	/* aggregate.write_me */
+	    case 102:	/* ulonglong.write_me */
+	    case 120:	/* scramble.ver */
 		if (vsp->numval != 1 || vsp->valfmt == PM_VAL_INSITU)
 		    sts = PM_ERR_CONV;
 		break;
@@ -2187,6 +2408,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 88:	/* dynamic.meta.pmdesc.indom */
 	    case 89:	/* dynamic.meta.pmdesc.sem */
 	    case 90:	/* dynamic.meta.pmdesc.units */
+	    case 97:	/* ulong.write_me */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		    sts = PM_ERR_CONV;
 		break;
@@ -2298,6 +2520,20 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 90:	/* dynamic.meta.pmdesc.units */
 		lp = (__int32_t *)&magic.units;
 		*lp = av.l;
+	    case 97:	/* ulong.write_me */
+		_ulong = av.ul;
+		break;
+	    case 102:	/* ulonglong.write_me */
+		_ulonglong = av.ull;
+		break;
+	    case 120:	/* scramble.version */
+		scramble_ver = 0;
+		for (i = 0; i < indomtab[BIN_INDOM].it_numinst; i++) {
+		    indomtab[SCRAMBLE_INDOM].it_set[i].i_inst = indomtab[BIN_INDOM].it_set[i].i_inst;
+		    indomtab[SCRAMBLE_INDOM].it_set[i].i_name = indomtab[BIN_INDOM].it_set[i].i_name;
+		}
+		indomtab[SCRAMBLE_INDOM].it_numinst = indomtab[BIN_INDOM].it_numinst;
+		break;
 	    default:
 		sts = -EACCES;
 		break;

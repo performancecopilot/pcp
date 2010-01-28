@@ -137,6 +137,7 @@ extern "C" {
 #undef HAVE_SYS_ENDIAN_H
 #undef HAVE_SYS_MACHINE_H
 #undef HAVE_MACHINE_ENDIAN_H
+#undef HAVE_READLINE
 
 #if defined(HAVE_MALLOC_H)
 #include <malloc.h>

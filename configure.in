@@ -1726,6 +1726,37 @@ int main () {
 }
 ], AC_DEFINE(HAVE_STRFTIME_z) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no),  0)
 
+dnl first check for readline on its own then with curses
+savedLIBS=$LIBS
+LIBS=
+lib_for_curses=
+lib_for_readline=
+AC_CHECK_FUNC(readline,,
+    [
+	AC_CHECK_LIB(readline, readline,,
+	    [
+		dnl AC seems to cache lib/func results
+		dnl so use another readline func here
+		AC_CHECK_LIB(readline, add_history,,,[-lcurses])
+	    ])
+    ])
+if test $ac_cv_func_readline = yes
+then
+    AC_DEFINE(HAVE_READLINE)
+elif test $ac_cv_lib_readline_readline = yes
+then
+    AC_DEFINE(HAVE_READLINE)
+    lib_for_readline=-lreadline
+elif test $ac_cv_lib_readline_add_history = yes
+then
+    AC_DEFINE(HAVE_READLINE)
+    lib_for_curses=-lcurses
+    lib_for_readline=-lreadline
+fi
+AC_SUBST(lib_for_readline)
+AC_SUBST(lib_for_curses)
+LIBS=$savedLIBS
+
 dnl
 dnl output files
 dnl

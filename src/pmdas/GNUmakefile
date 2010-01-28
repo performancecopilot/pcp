@@ -22,7 +22,7 @@ SUBDIRS = pmcd linux solaris aix darwin windows \
 	lmsensors process roomtemp summary hotproc jstat \
 	dbping memcache systemtap mysql vmware kvm \
 	bonding lustrecomm mmv netfilter zimbra \
-	named pdns samba dtsrun
+	named pdns samba dtsrun postfix
 
 LDIRT = pmcd.conf
 

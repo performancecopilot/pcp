@@ -28,7 +28,10 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
         sortinst.c logmeta.c logportmap.c logutil.c tz.c interp.c \
 	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
         stuffvalue.c endian.c config.c access.c authcookie.c auxconnect.c \
-	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c
+	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
+	derive.c derive_fetch.c
+
+HFILES = derive.h
 
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += loop.c
@@ -80,6 +83,8 @@ include $(BUILDRULES)
 
 connect.o: dsotbl.h
 
+derive.o derive_fetch.o: derive.h
+
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows
 else
@@ -98,7 +103,7 @@ dsotbl.h:	$(TOPDIR)/src/pmns/stdpmid
 	echo ' * It contains list of DSO, supported by the CONTEXT_LOCAL' >> $@
 	echo ' */' >> $@
 	echo 'static __pmDSO dsotab[] = {' >> $@
-	for dso in $(kernel_pmda_dso) $(infiniband_pmda_dso) sample ; do \
+	for dso in $(kernel_pmda_dso) $(infiniband_pmda_dso) mmv sample ; do \
 		udso=`echo $$dso | tr '[:lower:]' '[:upper:]' | sed -e's/SAMPLE/SAMPLEDSO/'` ; \
 		domnum=`$(PCP_AWK_PROG) < $^ '$$1=="#define" && $$2=="'$$udso'" { print $$3 }'` ;\
 		echo '#define ' `echo $$dso | tr '[:lower:]' '[:upper:]'`_DSO $$domnum ; \

@@ -146,6 +146,14 @@ _reboot_setup()
 
     [ ! -d "$LOGDIR" ] && mkdir -p "$LOGDIR"
 
+    # base directory for Memory Mapped Value PMDA and clients
+    #
+    if [ ! -d "$PCP_TMP_DIR/mmv" ]
+    then
+	mkdir -p "$PCP_TMP_DIR/mmv"
+	chmod 1777 "$PCP_TMP_DIR/mmv"
+    fi
+
     # Rebuild PMNS?
     #
     PMNSDIR=$PCP_VAR_DIR/pmns

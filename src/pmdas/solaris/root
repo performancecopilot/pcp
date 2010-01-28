@@ -12,6 +12,11 @@ root {
 	hinv
 	zpool
 	zfs
+	pmda
+}
+
+pmda {
+	uname SOLARIS:0:107
 }
 
 #include "pmns.kernel"
@@ -21,3 +26,4 @@ root {
 #include "pmns.hinv"
 #include "pmns.zpool"
 #include "pmns.zfs"
+#include "pmns.zpool_perdisk"

@@ -5,3 +5,4 @@ PMDA.bs
 PMDA.c
 blib
 pm_to_blib
+META.yml

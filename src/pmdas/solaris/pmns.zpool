@@ -1,8 +1,11 @@
 zpool {
+	state		SOLARIS:0:97
+	state_int	SOLARIS:0:98
 	capacity	SOLARIS:0:58
 	used		SOLARIS:0:59
 	checksum_errors	SOLARIS:0:66
 	self_healed	SOLARIS:0:67
+	perdisk
 	in
 	out
 }

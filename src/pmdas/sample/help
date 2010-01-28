@@ -209,24 +209,54 @@ For testing, only.  This metric is known, but no value is ever available
 @ sample.long.hundred 100 as a 32-bit integer
 @ sample.long.million 1000000 as a 32-bit integer
 @ sample.long.write_me a 32-bit integer that can be modified
+@ sample.long.bin like sample.bin but type 32
+@ sample.long.bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
+
+@ sample.ulong.one 1 as a 32-bit unsigned integer
+@ sample.ulong.ten 10 as a 32-bit unsigned integer
+@ sample.ulong.hundred 100 as a 32-bit unsigned integer
+@ sample.ulong.million 1000000 as a 32-bit unsigned integer
+@ sample.ulong.write_me a 32-bit unsigned integer that can be modified
+@ sample.ulong.bin like sample.bin but type U32
+@ sample.ulong.bin_ctr like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE
+
+@ sample.ulong.count.base count scale is 1, value is 42,000,000
+@ sample.ulong.count.deca count scale is 10, value is 4,200,000
+@ sample.ulong.count.hecto count scale is 10, value is 420,000
+@ sample.ulong.count.kilo count scale is 10, value is 42,000
+@ sample.ulong.count.mega count scale is 10, value is 42
 
 @ sample.longlong.one 1 as a 64-bit integer
 @ sample.longlong.ten 10 as a 64-bit integer
 @ sample.longlong.hundred 100 as a 64-bit integer
 @ sample.longlong.million 1000000 as a 64-bit integer
 @ sample.longlong.write_me a 64-bit integer that can be modified
+@ sample.longlong.bin like sample.bin but type 64
+@ sample.longlong.bin_ctr like sample.bin but type 64, SEM_COUNTER and SPACE_KBYTE
+
+@ sample.ulonglong.one 1 as a 64-bit unsigned integer
+@ sample.ulonglong.ten 10 as a 64-bit unsigned integer
+@ sample.ulonglong.hundred 100 as a 64-bit unsigned integer
+@ sample.ulonglong.million 1000000 as a 64-bit unsigned integer
+@ sample.ulonglong.write_me a 64-bit unsigned integer that can be modified
+@ sample.ulonglong.bin like sample.bin but type U64
+@ sample.ulonglong.bin_ctr like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE
 
 @ sample.float.one 1 as a 32-bit floating point value
 @ sample.float.ten 10 as a 32-bit floating point value
 @ sample.float.hundred 100 as a 32-bit floating point value
 @ sample.float.million 1000000 as a 32-bit floating point value
 @ sample.float.write_me a 32-bit floating-point value that can be modified
+@ sample.float.bin like sample.bin but type FLOAT
+@ sample.float.bin_ctr like sample.bin but type FLOAT, SEM_COUNTER and SPACE_KBYTE
 
 @ sample.double.one 1 as a 64-bit floating point value
 @ sample.double.ten 10 as a 64-bit floating point value
 @ sample.double.hundred 100 as a 64-bit floating point value
 @ sample.double.million 1000000 as a 64-bit floating point value
 @ sample.double.write_me a 64-bit floating-point value that can be modified
+@ sample.double.bin like sample.bin but type DOUBLE
+@ sample.double.bin_ctr like sample.bin but type DOUBLE, SEM_COUNTER and SPACE_KBYTE
 
 @ sample.string.null a zero length string
 @ sample.string.hullo K&R have a lot to answer for
@@ -470,3 +500,15 @@ Value 6.
 
 @ SAMPLE.0.1007 dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric
 Value 7.
+
+@ sample.scramble.bin Several constant instances, instances scrambled
+Like sample.bin, except
+1. instances are missing with probability 0.33
+2. order of the instances from pmFetch is random
+
+Designed to help testing instance matching between pmFetch calls
+for PCP clients.
+
+@ sample.scramble.version Current state version and reset for sample.scramble.bin
+To make the order of instances seen from sample.scramble.bin
+deterministic, use pmstore(1) to trigger a reset.

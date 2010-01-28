@@ -37,6 +37,7 @@ _usage()
     echo "  -E end     end time, second archive (optional)"
     echo "  -x metric  egrep(1) pattern of metric(s) to be excluded"
     echo "  -z         use local timezone, see PCPIntro(1)"
+    echo "  -Z zone    set reporting timezone"
     sts=1
     exit $sts
 }
@@ -58,7 +59,7 @@ start1=""
 start2=""
 finish1=""
 finish2=""
-while getopts dq:S:T:B:E:x:z? c
+while getopts dq:S:T:B:E:x:zZ:? c
 do
     case $c
     in
@@ -88,6 +89,9 @@ do
 	    ;;
 	z)
 	    opts="$opts -z"
+	    ;;
+	Z)
+	    opts="$opts -Z $OPTARG"
 	    ;;
 	?)
 	    _usage

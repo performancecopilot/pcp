@@ -21,26 +21,30 @@ DOMAIN		= MMV
 CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 TARGETS		= $(CMDTARGET) $(LIBTARGET) mmvdump$(EXECSUFFIX)
+LDIRT		= domain.h *.log *.dir *.pag so_locations mmvdump mmvdump.o pcp
 
 CFILES		= mmv.c
-LSRCFILES	= pmns Install Remove README root mmvdump.c
+LSRCFILES	= Install Remove mmvdump.c root_mmv
 
 LCFLAGS		= -I.
 LLDFLAGS	= -L$(TOPDIR)/src/libpcp_mmv/src
 LLDLIBS		= -lpcp_pmda -lpcp
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
-LDIRT	= *.o $(TARGETS) domain.h *.log *.dir *.pag \
-	  so_locations a.out parse.? pcp
+CONF_LINE = "mmv	70	dso	mmv_init	$(PCP_PMDAS_DIR)/mmv/pmda_mmv.$(DSOSUFFIX)"
 
-default: $(TARGETS)
+default_pcp default: $(TARGETS)
+	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	fi
 
 include $(BUILDRULES)
 
-install: default
+install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(TARGETS) Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 README root pmns domain.h $(PMDADIR)
+	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
+	$(INSTALL) -m 755 $(TARGETS) Install Remove root_mmv $(PMDADIR)
+	$(INSTALL) -m 644 root_mmv $(PCP_VAR_DIR)/pmns/root_mmv
 
 $(CMDTARGET):	$(OBJECTS)
 
@@ -52,10 +56,6 @@ domain.h:	../../pmns/stdpmid
 	echo " * built from $(PCP_VAR_DIR)/pmns/stdpmid" >>$@
 	echo " */" >>$@
 	$(PCP_AWK_PROG) <$< >>$@ '$$1=="#define" && $$2=="$(DOMAIN)" { print "#define $(DOMAIN) " $$3 }'
-
-default_pcp: default
-
-install_pcp: install
 
 pcp :
 	$(LN_S) -f $(TOPDIR)/src/include pcp

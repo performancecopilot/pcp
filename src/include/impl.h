@@ -248,6 +248,7 @@ EXTERN int	pmDebug;
 #define  DBG_TRACE_LIBPMDA	(1<<15)	/* libpcp_pmda */
 #define  DBG_TRACE_TIMECONTROL	(1<<16)	/* time control api */
 #define  DBG_TRACE_PMC		(1<<17)	/* metrics class */
+#define  DBG_TRACE_DERIVE	(1<<18)	/* derived metrics */
 #define  DBG_TRACE_INTERP	(1<<20)	/* interpolate mode for archives */
 #define  DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
 #define  DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
@@ -265,6 +266,7 @@ EXTERN int __pmLogReads;
 extern void __pmDumpIDList(FILE *, int, const pmID *);
 extern void __pmDumpNameList(FILE *, int, char **);
 extern void __pmDumpStatusList(FILE *, int, const int *);
+extern void __pmDumpNameandStatusList(FILE *, int, char **, int *);
 #endif
 
 /*
@@ -528,6 +530,7 @@ typedef struct {
     int			c_delta;	/* for updating origin */
     int			c_sent;		/* profile has been sent to pmcd */
     __pmProfile		*c_instprof;	/* instance profile */
+    void		*c_dm;		/* derived metrics, if any */
 } __pmContext;
 
 #define __PM_MODE_MASK	0xffff
@@ -1177,6 +1180,19 @@ extern int __pmControlLog(int, const pmResult *, int, int, int, pmResult **);
  * via pmcd.client.whoami
  */
 extern int __pmSetClientId(char *);
+
+/*
+ * internal methods to support callbacks for derved metrics
+ */
+extern int __dmtraverse(const char *, char ***);
+extern int __dmchildren(const char *, char ***, int **);
+extern int __dmgetpmid(const char *, pmID *);
+extern int __dmgetname(pmID, char **);
+extern void __dmopencontext(__pmContext *);
+extern void __dmclosecontext(__pmContext *);
+extern int __dmdesc(__pmContext *, pmID, pmDesc *);
+extern int __dmprefetch(__pmContext *, int, pmID *, pmID **);
+extern void __dmpostfetch(__pmContext *, pmResult **);
 
 #ifdef __cplusplus
 }

@@ -30,8 +30,6 @@
 #include "./domain.h"
 #include <sys/stat.h>
 
-#define NONLEAF(node)	((node)->pmid == PM_ID_NULL)
-
 static int isDSO = 1;
 
 static pmdaMetric * metrics;
@@ -53,7 +51,6 @@ static char statsdir[MAXPATHLEN];	/* pcptmpdir/<prefix> */
 typedef struct {
     char *	name;		/* strdup client name */
     void *	addr;		/* mmap */
-    mmv_disk_header_t *	hdr;	/* header in mmap */
     mmv_disk_value_t *	values;	/* values in mmap */
     int		vcnt;		/* number of values */
     int		pid;		/* process identifier */
@@ -98,49 +95,6 @@ choose_cluster(int requested, const char *path)
 	}
     }
     return requested;
-}
-
-/*
- * Fixup the parent pointers of the tree.
- * Fill in the hash table with nodes from the tree.
- * Hashing is done on pmid.
- */
-static void
-mmv_reindex_hash(__pmnsTree *tree, __pmnsNode *root)
-{
-    __pmnsNode	*np;
-
-    for (np = root->first; np != NULL; np = np->next) {
-	np->parent = root;
-	if (np->pmid != PM_ID_NULL) {
-	    int i = np->pmid % tree->htabsize;
-	    np->hash = tree->htab[i];
-	    tree->htab[i] = np;
-	}
-	mmv_reindex_hash(tree, np);
-    }
-}
-
-/*
- * "Make the average hash list no longer than 5, and the number
- * of hash table entries not a multiple of 2, 3 or 5."
- * [From __pmFixPMNSHashTab; without mark_all, dinks with pmids]
- */
-static void
-mmv_rebuild_hash(__pmnsTree *tree, int numpmid)
-{
-    int htabsize = numpmid / 5;
-
-    if (htabsize % 2 == 0) htabsize++;
-    if (htabsize % 3 == 0) htabsize += 2;
-    if (htabsize % 5 == 0) htabsize += 2;
-    tree->htabsize = htabsize;
-    tree->htab = (__pmnsNode **)calloc(htabsize, sizeof(__pmnsNode *));
-    if (tree->htab == NULL)
-	__pmNotifyErr(LOG_ERR, "%s: out of memory in pmns rebuild - %s",
-			pmProgname, strerror(errno));
-    else
-	mmv_reindex_hash(tree, tree->root);
 }
 
 static void
@@ -250,7 +204,6 @@ map_stats(pmdaExt *pmda)
 		    if (slist != NULL ) {
 			slist[scnt].name = strdup(client);
 			slist[scnt].addr = m;
-			slist[scnt].hdr = hdr;
 			slist[scnt].pid = hdr->process;
 			slist[scnt].ts = statbuf.st_ctime;
 			slist[scnt].cluster = cluster;
@@ -311,10 +264,18 @@ map_stats(pmdaExt *pmda)
 			    sprintf(name, "%s.", prefix);
 			else
 			    sprintf(name, "%s.%s.", prefix, s->name);
+			strcat(name, ml[k].name);
 
 			metrics[mcnt].m_user = ml + k;
 			metrics[mcnt].m_desc.pmid = pmid_build(
 				pmda->e_domain, s->cluster, ml[k].item);
+
+			/* verify item is legitimate */
+			if (pmid_item(ml[k].item) != ml[k].item) {
+			    __pmNotifyErr(LOG_ERR, "invalid item %u in %s: %s",
+					  ml[k].item, s->name, name);
+			    continue;
+			}
 
 			if (ml[k].type == MMV_TYPE_ELAPSED) {
 			    pmUnits unit = PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0);
@@ -336,10 +297,7 @@ map_stats(pmdaExt *pmda)
 					pmInDom_build(pmda->e_domain,
 					(s->cluster << 11) | ml[k].indom);
 
-			strcat(name, ml[k].name);
-			__pmAddPMNSNode(pmns, pmid_build(
-				pmda->e_domain, s->cluster, ml[k].item),
-				name);
+			__pmAddPMNSNode(pmns, metrics[mcnt].m_desc.pmid, name);
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_PMNS) {
 			    fprintf(stderr, "map_stats: add metric[%d] %s %s\n", mcnt, name, pmIDStr(pmid_build(pmda->e_domain, s->cluster, ml[k].item)));
@@ -349,8 +307,8 @@ map_stats(pmdaExt *pmda)
 			mcnt++;
 		    }
 		} else {
-		    __pmNotifyErr(LOG_ERR, "%s: cannot grow metric list",
-				  pmProgname);
+		    __pmNotifyErr(LOG_ERR, "cannot grow MMV metric list: %s\n",
+				  s->name);
 		    if (isDSO)
 			return;
 		    exit(1);
@@ -412,7 +370,7 @@ map_stats(pmdaExt *pmda)
 	}
     }
 
-    mmv_rebuild_hash(pmns, mcnt);	/* for reverse (pmid->name) lookups */
+    pmdaTreeRebuildHash(pmns, mcnt);	/* for reverse (pmid->name) lookups */
     reload = need_reload;
 }
 
@@ -437,7 +395,7 @@ mmv_lookup_metric(pmID pmid, stats_t **sout)
 	if (m->item == id->item)
 	    break;
     }
-    if (i == mcnt)
+    if (i == s->mcnt)
 	return NULL;
 
     *sout = s;
@@ -463,7 +421,7 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return 1;
 	}
 	return PM_ERR_PMID;
-    } else if (scnt > 0) {	/* We have a least one source of metrics */
+    } else if (scnt > 0) {	/* We have at least one source of metrics */
 	mmv_disk_metric_t * m;
 	mmv_disk_value_t * val;
 	stats_t * s;
@@ -527,8 +485,8 @@ mmv_reload_maybe(pmdaExt *pmda)
 
     /* check if any of the generation numbers have changed (unexpected) */
     for (i = 0; i < scnt; i++) {
-	if (slist[i].hdr->g1 != slist[i].gen ||
-	    slist[i].hdr->g2 != slist[i].gen) {
+	mmv_disk_header_t *hdr = (mmv_disk_header_t *)slist[i].addr;
+	if (hdr->g1 != slist[i].gen || hdr->g2 != slist[i].gen) {
 	    need_reload++;
 	    break;
 	}
@@ -672,216 +630,25 @@ mmv_store(pmResult *result, pmdaExt *ep)
     return 0;
 }
 
-static __pmnsNode *
-mmv_lookup_node(__pmnsNode *node, char *name)
-{
-    while (node != NULL) {
-	size_t length = strlen(node->name);
-	if (strncmp(name, node->name, length) == 0) {
-	    if (name[length] == '\0')
-		return node;
-	    if (name[length] == '.' && NONLEAF(node))
-		return mmv_lookup_node(node->first, name + length + 1);
-	}
-	node = node->next;
-    }
-    return NULL;
-}
-
 static int
 mmv_pmid(char *name, pmID *pmid, pmdaExt *pmda)
 {
-    __pmnsNode *node;
-
     mmv_reload_maybe(pmda);
-    if ((node = mmv_lookup_node(pmns->root->first, name)) == NULL)
-	return PM_ERR_NAME;
-    if (NONLEAF(node))
-	return PM_ERR_NAME;
-    *pmid = node->pmid;
-    return 0;
-}
-
-static char *
-mmv_absolute_name(__pmnsNode *node, char *buffer)
-{
-    if (node && node->parent) {
-	buffer = mmv_absolute_name(node->parent, buffer);
-	strcpy(buffer, node->name);
-	buffer += strlen(node->name);
-	*buffer++ = '.';
-    }
-    return buffer;
+    return pmdaTreePMID(pmns, name, pmid);
 }
 
 static int
 mmv_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
-    __pmnsNode *hashchain, *node, *parent;
-    int nmatch = 0, length = 0;
-    char *p, **list;
-
     mmv_reload_maybe(pmda);
-    if (!pmns)
-	return PM_ERR_PMID;
-
-    hashchain = pmns->htab[pmid % pmns->htabsize];
-    for (node = hashchain; node != NULL; node = node->hash) {
-	if (node->pmid == pmid) {
-	    for (parent = node; parent->parent; parent = parent->parent)
-		length += strlen(parent->name) + 1;
-	    nmatch++;
-	}
-    }
-
-    if (nmatch == 0)
-	return PM_ERR_PMID;
-
-    length += nmatch * sizeof(char *);		/* pointers to names */
-
-    if ((list = (char **)malloc(length)) == NULL)
-	return -errno;
-
-    p = (char *)&list[nmatch];
-    nmatch = 0;
-    for (node = hashchain; node != NULL; node = node->hash) {
-	if (node->pmid == pmid) {
-	    list[nmatch++] = p;
-	    p = mmv_absolute_name(node, p);
-	    *(p-1) = '\0';	/* overwrite final '.' */
-	}
-    }
-
-    *nameset = list;
-    return nmatch;
+    return pmdaTreeName(pmns, pmid, nameset);
 }
 
 static int
-mmv_children_relative(__pmnsNode *base, char ***offspring, int **status)
+mmv_children(char *name, int traverse, char ***kids, int **sts, pmdaExt *pmda)
 {
-    __pmnsNode *node;
-    char **list, *p;
-    int *leaf, length = 0, nmatch = 0;
- 
-    for (node = base; node != NULL; node = node->next, nmatch++)
-	length += strlen(node->name) + 1;
-    length += nmatch * sizeof(char *);	/* pointers to names */
-    if ((list = (char **)malloc(length)) == NULL)
-	return -errno;
-    if ((leaf = (int *)malloc(nmatch * sizeof(int*))) == NULL) {
-	free(list);
-	return -errno;
-    }
-    p = (char *)&list[nmatch];
-    nmatch = 0;
-    for (node = base; node != NULL; node = node->next, nmatch++) {
-	leaf[nmatch] = NONLEAF(node) ? PMNS_NONLEAF_STATUS : PMNS_LEAF_STATUS;
-	list[nmatch] = p;
-	strcpy(p, node->name);
-	p += strlen(node->name);
-	*p++ = '\0';
-    }
-
-    *offspring = list;
-    *status = leaf;
-    return nmatch;
-}
-
-static void
-mmv_children_getsize(__pmnsNode *base, int kids, int *length, int *nmetrics)
-{
-    __pmnsNode *node, *parent;
-
-    /* walk to every leaf & then add its (absolute name) length */
-    for (node = base; node != NULL; node = node->next) {
-	if (NONLEAF(node)) {
-	    mmv_children_getsize(node->first, 1, length, nmetrics);
-	    continue;
-	}
-	for (parent = node; parent->parent; parent = parent->parent)
-	    *length += strlen(parent->name) + 1;
-	(*nmetrics)++;
-	if (!kids)
-	    break;
-    }
-}
-
-/*
- * Fill the pmdaChildren buffers - names and leaf status.  Called recursively
- * to descend down to all leaf nodes.  Offset parameter is the current offset
- * into the name list buffer, and its also returned at the end of each call -
- * it keeps track of where the next name is to start in (list) output buffer.
- */
-static char *
-mmv_children_getlist(__pmnsNode *base, int kids, int *nmetrics, char *p, char **list, int *leaf)
-{
-    __pmnsNode *node;
-    int count = *nmetrics;
-    char *start = p;
-
-    for (node = base; node != NULL; node = node->next) {
-	if (NONLEAF(node)) {
-	    p = mmv_children_getlist(node->first, 1, &count, p, list, leaf);
-	    start = p;
-	    continue;
-	}
-	leaf[count] = PMNS_LEAF_STATUS;
-	list[count] = start;
-	p = mmv_absolute_name(node, p);
-	*(p-1) = '\0';	/* overwrite final '.' */
-	start = p;
-	count++;
-	if (!kids)
-	    break;
-    }
-    *nmetrics = count;
-    return p;
-}
-
-static int
-mmv_children_absolute(__pmnsNode *node, char ***offspring, int **status)
-{
-    char *p, **list;
-    int *leaf, descend = 0, length = 0, nmetrics = 0;
-
-    if (NONLEAF(node)) {
-	node = node->first;
-	descend = 1;
-    }
-    mmv_children_getsize(node, descend, &length, &nmetrics);
- 
-    length += nmetrics * sizeof(char *);	/* pointers to names */
-    if ((list = (char **)malloc(length)) == NULL)
-	return -errno;
-    if ((leaf = (int *)malloc(nmetrics * sizeof(int*))) == NULL) {
-	free(list);
-	return -errno;
-    }
-
-    p = (char *)&list[nmetrics];
-    nmetrics = 0;	/* start at the start */
-    mmv_children_getlist(node, descend, &nmetrics, p, list, leaf);
-
-    *offspring = list;
-    *status = leaf;
-    return nmetrics;
-}
-
-static int
-mmv_children(char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
-{
-    __pmnsNode *node;
-
     mmv_reload_maybe(pmda);
-    if (!pmns)
-	return PM_ERR_NAME;
-
-    if ((node = mmv_lookup_node(pmns->root->first, name)) == NULL)
-	return PM_ERR_NAME;
-
-    if (traverse == 0)
-	return mmv_children_relative(node->first, offspring, status);
-    return mmv_children_absolute(node, offspring, status);
+    return pmdaTreeChildren(pmns, name, traverse, kids, sts);
 }
 
 void
@@ -939,12 +706,7 @@ mmv_init(pmdaInterface *dp)
 	dp->version.four.pmid = mmv_pmid;
 	dp->version.four.name = mmv_name;
 	dp->version.four.children = mmv_children;
-
 	pmdaSetFetchCallBack(dp, mmv_fetchCallBack);
-
-	__pmNotifyErr(LOG_INFO, "%s: pmdaInit - %d metrics and %d indoms", 
-		      pmProgname, mcnt, incnt);
-
 	pmdaInit(dp, indoms, incnt, metrics, mcnt);
     }
 }

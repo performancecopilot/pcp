@@ -1,3 +1,16 @@
+pcp (3.1.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Added build dependency on readline library.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 27 Jan 2010 11:39:52 +1100
+
+pcp (3.0.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 10 Dec 2009 17:44:53 +1100
+
 pcp (3.0.2) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

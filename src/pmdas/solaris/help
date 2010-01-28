@@ -112,6 +112,8 @@ This counter is reported on the per-interface basis and aggregated by the PMDA.
 @zpool.out.ops Counter of writes per zpool
 @zpool.in.errors Counter of read errors per zpool
 @zpool.out.errors Counter of write errors per zpool
+@zpool.state Current state of zpool
+@zpool.state_int vs_aux << 8 | vs_state
 
 @zfs.available Amount of space available to the dataset
 The amount of space available to the dataset (a filesystem, 
@@ -153,3 +155,45 @@ by the dataset by the compression ratio.
 @zfs.copies Number of redundant copies of data
 The number of redundant copies does not include any copies made as
 part of the pool redundancy.
+
+@zpool.perdisk.state Current state per disk in zpool
+@zpool.perdisk.state_int vs_aux << 8 | vs_state
+@zpool.perdisk.checksum_errors Number of checksum errors per disk in zpool
+@zpool.perdisk.self_healed Number of bytes healed per disk in zpool
+@zpool.perdisk.in.errors Counter of read errors per disk in zpool
+@zpool.perdisk.out.errors Counter of write errors per disk in zpool
+
+@network.link.in.errors Number of input errors per link
+Counts input errors per link
+@network.link.in.packets Numbe of datagrams received by a link
+@network.link.in.bytes Number of bytes received by a link
+Counts number of bytes received by a link. For the physical links
+this is the raw counter of bytes received, for the aggregated links
+this is the number of bytes received by all links in the aggregation
+group
+@network.link.in.bcasts Number of broadcast datagrams received by a link
+@network.link.in.mcasts Number of multicast datagrams
+Counts multicast datagram recieved by a link.
+@network.link.in.nobufs Number of inpit packets discared
+Counts number of packets discared because of failure to allocate buffers
+@network.link.out.errors Number of output errors per link
+@network.link.out.packets Number of packets sent from a link
+@network.link.out.bytes Number of bytes sent from a link
+@network.link.out.bcasts Number of broadcast datagrams sent from a link
+@network.link.out.mcasts Number of multicast datagrams sent from a link
+@network.link.out.nobufs Number of output packets discared
+Counts number of packets discared because of failure to allocate buffers
+@network.link.collisions Number of collisions detected per link
+@network.link.state Link state
+1 - Link is up, 2 - Link is down, 0 - unknown state
+@network.link.duplex Link duplex
+1 - Half duplex, 2 - Full duplex
+@network.link.speed Link speed in bytes per second
+@hinv.pagesize Memory page size
+The memory page size of the running kernel in bytes.
+@hinv.physmem Total physical system memory
+Total physical system memory size rounded down to the nearest page size
+boundary
+@pmda.uname identity and type of current system
+Identity and type of current system.  The concatenation of the values
+returned from utsname(2), also similar to uname -a.

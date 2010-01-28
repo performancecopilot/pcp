@@ -136,7 +136,7 @@ is_chkconfig_on()
     _cmds_exist $_flag
     $_have_runlevel && _rl=`runlevel | $PCP_AWK_PROG '{print $2}'`
 
-    if [ "$PCP_PLATFORM" = mingw ]
+    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = solaris ]
     then
 	# no chkconfig, just do it
 	#

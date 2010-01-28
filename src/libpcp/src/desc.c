@@ -119,6 +119,17 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 	    /* assume PM_CONTEXT_ARCHIVE */
 	    n = __pmLogLookupDesc(ctxp->c_archctl->ac_log, pmid, desc);
 	}
+
+	if (n == PM_ERR_PMID || n == PM_ERR_PMID_LOG || n == PM_ERR_NOAGENT) {
+	    int		sts;
+	    /*
+	     * check for derived metric ... keep error status from above
+	     * unless we have success with the derived metrics
+	     */
+	    sts = __dmdesc(ctxp, pmid, desc);
+	    if (sts >= 0)
+		n = sts;
+	}
     }
 
     return n;

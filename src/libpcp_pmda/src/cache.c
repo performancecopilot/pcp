@@ -23,7 +23,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-static __uint32_t hash(char *, int, __uint32_t);
+static __uint32_t hash(const char *, int, __uint32_t);
 
 /*
  * simple linked list for each cache at this stage
@@ -74,9 +74,9 @@ static char	*vdp;		/* first trip mkdir for load/save */
  * first
  */
 static int
-get_hashlen(char *str)
+get_hashlen(const char *str)
 {
-    char	*q = str;
+    const char	*q = str;
 
     while (*q && *q != ' ')
 	q++;
@@ -84,7 +84,7 @@ get_hashlen(char *str)
 }
 
 static unsigned int
-hash_str(char *str, int len)
+hash_str(const char *str, int len)
 {
     return hash(str, len, 0);
 }
@@ -103,7 +103,7 @@ hash_str(char *str, int len)
  *
  */
 static int
-name_eq(entry_t *e, char *name, int hashlen)
+name_eq(entry_t *e, const char *name, int hashlen)
 {
     if (e->hashlen != hashlen)
 	return 0;
@@ -206,8 +206,7 @@ dump(FILE *fp, hdr_t *h, int do_hash)
 
     fprintf(fp, "pmdaCacheDump: indom %s: nentry=%d ins_mode=%d hstate=%d hsize=%d\n",
 	pmInDomStr(h->indom), h->nentry, h->ins_mode, h->hstate, h->hsize);
-    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+    for (e = h->first; e != NULL; e = e->next) {
 	if (e->state == PMDA_CACHE_EMPTY) {
 	    fprintf(fp, "(%10d) %8s\n", e->inst, "empty");
 	}
@@ -240,14 +239,13 @@ dump(FILE *fp, hdr_t *h, int do_hash)
 }
 
 static entry_t *
-find_name(hdr_t *h, char *name, int *sts)
+find_name(hdr_t *h, const char *name, int *sts)
 {
     entry_t	*e;
     int		hashlen = get_hashlen(name);
 
     *sts = 0;
-    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+    for (e = h->first; e != NULL; e = e->next) {
 	if (e->state != PMDA_CACHE_EMPTY) {
 	    if ((*sts = name_eq(e, name, hashlen)))
 		break;
@@ -261,8 +259,7 @@ find_inst(hdr_t *h, int inst)
 {
     entry_t	*e;
 
-    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+    for (e = h->first; e != NULL; e = e->next) {
 	if (e->state != PMDA_CACHE_EMPTY && e->inst == inst)
 	    break;
     }
@@ -275,7 +272,7 @@ find_inst(hdr_t *h, int inst)
  * find by instance name
  */
 static entry_t *
-find_entry(hdr_t *h, char *name, int inst, int *sts)
+find_entry(hdr_t *h, const char *name, int inst, int *sts)
 {
     entry_t	*e;
 
@@ -484,31 +481,49 @@ reorder:
  * and there is no choice, but to walk the list.
  */
 static entry_t *
-insert_cache(hdr_t *h, char *name, int inst, int *sts)
+insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 {
     entry_t	*e;
     entry_t	*last_e = NULL;
     char	*dup;
     int		i;
+    int		hashlen = get_hashlen(name);
+
+    *sts = 0;
+
+    if (inst != PM_IN_NULL) {
+	/* load_cache case, inst is known */
+	for (e = h->first; e != NULL; e = e->next) {
+	    /*
+	     * check if instance id or instance name already in cache
+	     * ... if id and name are the the same, keep the existing
+	     * one and ignore the one from load_cache (in particular
+	     * state is not reset to inactive), otherwise do nothing
+	     * and return an error indication
+	     */
+	    if (e->inst == inst) {
+		if (name_eq(e, name, hashlen) != 1)
+		    *sts = PM_ERR_INST;
+		return e;
+	    }
+	    if (name_eq(e, name, hashlen) == 1) {
+		*sts = PM_ERR_INST;
+		return e;
+	    }
+	    if (e->inst < inst)
+		last_e = e;
+	}
+    }
 
     if ((dup = strdup(name)) == NULL) {
 	__pmNotifyErr(LOG_ERR, 
-	     "cache_insert: indom %s: unable to allocate %d bytes for name: %s\n",
+	     "insert_cache: indom %s: unable to allocate %d bytes for name: %s\n",
 	     pmInDomStr(h->indom), strlen(name), name);
 	*sts = PM_ERR_GENERIC;
 	return NULL;
     }
 
-    if (inst != PM_IN_NULL) {
-	/* load_cache case, inst is known */
-	walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
-	    if (e->inst > inst)
-		break;
-	    last_e = e;
-	}
-    }
-    else {
+    if (inst == PM_IN_NULL) {
 	if (h->ins_mode == 0) {
 	    last_e = h->last;
 	    if (last_e == NULL)
@@ -529,8 +544,7 @@ insert_cache(hdr_t *h, char *name, int inst, int *sts)
 	else {
 retry:
 	    inst = 0;
-	    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	    for (e = h->first; e != NULL; e = e->next) {
 		if (inst < e->inst)
 		    break;
 		if (inst == 0x7fffffff) {
@@ -551,7 +565,7 @@ retry:
 
     if ((e = (entry_t *)malloc(sizeof(entry_t))) == NULL) {
 	__pmNotifyErr(LOG_ERR, 
-	     "cache_insert: indom %s: unable to allocate memory for entry_t",
+	     "insert_cache: indom %s: unable to allocate memory for entry_t",
 	     pmInDomStr(h->indom));
 	*sts = PM_ERR_GENERIC;
 	return NULL;
@@ -670,8 +684,14 @@ bad:
 		 filename, buf);
 	    return PM_ERR_GENERIC;
 	}
-	if ((e = insert_cache(h, p, inst, &sts)) == NULL)
+	e = insert_cache(h, p, inst, &sts);
+	if (e == NULL)
 	    return sts;
+	if (sts != 0) {
+	    __pmNotifyErr(LOG_WARNING,
+		"pmdaCacheOp: %s: loading instance %d (\"%s\") ignored, already in cache as %d (\"%s\")",
+		filename, inst, p, e->inst, e->name);
+	}
 	e->stamp = x;
     }
     fclose(fp);
@@ -715,8 +735,7 @@ save_cache(hdr_t *h, int hstate)
 
     now = time(NULL);
     cnt = 0;
-    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+    for (e = h->first; e != NULL; e = e->next) {
 	if (e->state == PMDA_CACHE_EMPTY)
 	    continue;
 	if (e->stamp == 0)
@@ -763,7 +782,7 @@ __pmdaCacheDump(FILE *fp, pmInDom indom, int do_hash)
 }
 
 int
-pmdaCacheStore(pmInDom indom, int flags, char *name, void *private)
+pmdaCacheStore(pmInDom indom, int flags, const char *name, void *private)
 {
     hdr_t	*h;
     entry_t	*e;
@@ -851,8 +870,7 @@ int pmdaCacheOp(pmInDom indom, int op)
 
 	case PMDA_CACHE_ACTIVE:
 	    sts = 0;
-	    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	    for (e = h->first; e != NULL; e = e->next) {
 		if (e->state == PMDA_CACHE_INACTIVE) {
 		    e->state = PMDA_CACHE_ACTIVE;
 		    sts++;
@@ -863,8 +881,7 @@ int pmdaCacheOp(pmInDom indom, int op)
 
 	case PMDA_CACHE_INACTIVE:
 	    sts = 0;
-	    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	    for (e = h->first; e != NULL; e = e->next) {
 		if (e->state == PMDA_CACHE_ACTIVE) {
 		    e->state = PMDA_CACHE_INACTIVE;
 		    sts++;
@@ -875,8 +892,7 @@ int pmdaCacheOp(pmInDom indom, int op)
 
 	case PMDA_CACHE_CULL:
 	    sts = 0;
-	    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	    for (e = h->first; e != NULL; e = e->next) {
 		if (e->state != PMDA_CACHE_EMPTY) {
 		    e->state = PMDA_CACHE_EMPTY;
 		    sts++;
@@ -891,8 +907,7 @@ int pmdaCacheOp(pmInDom indom, int op)
 
 	case PMDA_CACHE_SIZE_ACTIVE:
 	    sts = 0;
-	    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	    for (e = h->first; e != NULL; e = e->next) {
 		if (e->state == PMDA_CACHE_ACTIVE)
 		    sts++;
 	    }
@@ -900,8 +915,7 @@ int pmdaCacheOp(pmInDom indom, int op)
 
 	case PMDA_CACHE_SIZE_INACTIVE:
 	    sts = 0;
-	    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+	    for (e = h->first; e != NULL; e = e->next) {
 		if (e->state == PMDA_CACHE_INACTIVE)
 		    sts++;
 	    }
@@ -926,12 +940,16 @@ int pmdaCacheOp(pmInDom indom, int op)
 	    }
 	    return -1;
 
+	case PMDA_CACHE_DUMP:
+	    dump(stderr, h, 1);
+	    return 0;
+
 	default:
 	    return -EINVAL;
     }
 }
 
-int pmdaCacheLookupName(pmInDom indom, char *name, int *inst, void **private)
+int pmdaCacheLookupName(pmInDom indom, const char *name, int *inst, void **private)
 {
     hdr_t	*h;
     entry_t	*e;
@@ -988,8 +1006,7 @@ int pmdaCachePurge(pmInDom indom, time_t recent)
 	return sts;
 
     cnt = 0;
-    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
+    for (e = h->first; e != NULL; e = e->next) {
 	/*
 	 * e->stamp == 0 => recently ACTIVE and no subsequent SAVE ...
 	 * keep these ones
@@ -1091,7 +1108,7 @@ acceptable.  Do NOT use for cryptographic purposes.
 */
 
 static __uint32_t
-hash(char *k, int length, __uint32_t initval)
+hash(const char *k, int length, __uint32_t initval)
 {
    __uint32_t a,b,c,len;
 

@@ -619,6 +619,13 @@ int pmLoopMain(void);
 extern int pmLoopDebug;
 
 /*
+ * Derived Metrics support
+ */
+int pmLoadDerivedConfig(char *);
+char *pmRegisterDerived(char *, char *);
+char *pmDerivedErrStr(void);
+
+/*
  * Asynchronous versions of main pmapi client routines - each one
  * either sends or receives a PDU.
  */ 

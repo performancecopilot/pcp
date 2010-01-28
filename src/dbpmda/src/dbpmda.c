@@ -82,7 +82,7 @@ main(int argc, char **argv)
 	    break;
 
 	case 'i':		/* be interactive */
-	    iflag++;
+	    iflag = 1;
 	    break;
 
 	case 'n':		/* alternative name space file */
