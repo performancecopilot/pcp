@@ -53,7 +53,8 @@ $sudo src-oss/pmdacache -D indom -s eek -s urk -s foo -h eek -h foo -s bar -L -d
 
 echo
 echo "error case ..."
-$sudo src-oss/pmdacache -D indom -s urk\\ a\\ bit\\ tricky -s eek -L -d 2>&1 | _filter
+echo "src-oss/pmdacache -D indom -s 'urk a bit tricky' -s eek -L -d" \
+| $sudo sh 2>&1 | _filter
 
 # success, all done
 exit
