@@ -25,6 +25,11 @@
 #endif
 #include <float.h>
 
+#include <sys/socket.h>
+#if HAVE_SYS_UN_H
+#include <sys/un.h>
+#endif
+
 #include "./dbpmda.h"
 #include "./lex.h"
 #include "./gram.h"
@@ -169,6 +174,59 @@ openpmda(char *fname)
 	pmdaversion();
     }
 }
+
+#if HAVE_SYS_UN_H
+void
+opensocket(char *fname)
+{
+    int			fd;
+    struct stat		buf;
+    struct sockaddr_un	s_un;
+    int 		len;
+
+    if (stat(fname, &buf) < 0) {
+	fprintf(stderr, "opensocket: %s: %s\n", fname, strerror(errno));
+	return;
+    }
+
+    fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (fd < 0) {
+	fprintf(stderr, "opensocket: socket: %s\n", strerror(errno));
+	return;
+    }
+
+    memset(&s_un, 0, sizeof(s_un));
+    s_un.sun_family = AF_UNIX;
+    strncpy(s_un.sun_path, fname, strlen(fname));
+    len = sizeof(s_un.sun_family) + strlen(fname);
+
+    closepmda();
+
+    if (connect(fd, (struct sockaddr *)&s_un, len) < 0) {
+	fprintf(stderr, "opensocket: connect: %s\n", strerror(errno));
+	close(fd);
+	return;
+    }
+
+    infd = fd;
+    outfd = fd;
+
+    printf("Connect to PDMA on socket %s\n", fname);
+
+    connmode = PDU_BINARY;
+    reset_profile();
+    if (myPmdaName != NULL)
+	free(myPmdaName);
+    myPmdaName = strdup(fname);
+    pmdaversion();
+}
+#else
+void
+opensocket(char *fname)
+{
+	__pmNotifyErr(LOG_CRIT, "UNIX domain sockets unsupported\n");
+}
+#endif
 
 void
 closepmda(void)
