@@ -26,7 +26,7 @@
 #include <float.h>
 
 #include <sys/socket.h>
-#if HAVE_SYS_UN_H
+#ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
 #endif
 
@@ -175,7 +175,7 @@ openpmda(char *fname)
     }
 }
 
-#if HAVE_SYS_UN_H
+#ifdef HAVE_SYS_UN_H
 void
 opensocket(char *fname)
 {
