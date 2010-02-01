@@ -372,9 +372,9 @@ extern char *pmdaGetInDomHelp(int, pmInDom, int);
  * pmdaTreeSize
  *	returns the numbers of entries in a __pmnsTree.
  */
-extern int pmdaTreePMID(__pmnsTree *, char *, pmID *);
+extern int pmdaTreePMID(__pmnsTree *, const char *, pmID *);
 extern int pmdaTreeName(__pmnsTree *, pmID, char ***);
-extern int pmdaTreeChildren(__pmnsTree *, char *, int, char ***, int **);
+extern int pmdaTreeChildren(__pmnsTree *, const char *, int, char ***, int **);
 extern void pmdaTreeRebuildHash(__pmnsTree *, int);
 extern int pmdaTreeSize(__pmnsTree *);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2009-2010 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -84,7 +84,7 @@ pmdaTreeSize(__pmnsTree *pmns)
 }
 
 static __pmnsNode *
-__pmdaNodeLookup(__pmnsNode *node, char *name)
+__pmdaNodeLookup(__pmnsNode *node, const char *name)
 {
     while (node != NULL) {
 	size_t length = strlen(node->name);
@@ -100,7 +100,7 @@ __pmdaNodeLookup(__pmnsNode *node, char *name)
 }
 
 int
-pmdaTreePMID(__pmnsTree *pmns, char *name, pmID *pmid)
+pmdaTreePMID(__pmnsTree *pmns, const char *name, pmID *pmid)
 {
     __pmnsNode *node;
 
@@ -277,7 +277,7 @@ __pmdaNodeAbsoluteChildren(__pmnsNode *node, char ***offspring, int **status)
 }
 
 int
-pmdaTreeChildren(__pmnsTree *pmns, char *name, int traverse, char ***offspring, int **status)
+pmdaTreeChildren(__pmnsTree *pmns, const char *name, int traverse, char ***offspring, int **status)
 {
     __pmnsNode *node;
 
