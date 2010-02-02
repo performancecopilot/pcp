@@ -124,7 +124,7 @@ create_client_stat(const char *client, const char *path, size_t size)
 				"not supported (current is %d)",
 				pmProgname, prefix, hdr->version, MMV_VERSION);
 		__pmMemoryUnmap(m, size);
-		return -ENOTSUP;
+		return -ENOSYS;
 	    }
 
 	    if (!hdr->g1 || hdr->g1 != hdr->g2) {
