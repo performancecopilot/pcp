@@ -1251,9 +1251,9 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	    fprintf(f, " host %s", (const char *)
 			cp->metricContext(m)->source().host().toAscii());
 	p = (char *)(const char *)cp->name(m).toAscii();
-	if ((q = strstr(p, "[")) != NULL) {
+	if ((q = strchr(p, '[')) != NULL) {
 	    // metric with an instance
-	    if ((qend = strstr(q, "]")) == NULL) {
+	    if ((qend = strrchr(q, ']')) == NULL) {
 		QString	msg;
 		msg.sprintf("Botch @ metric name: \"%s\"", p);
 		err(E_CRIT, false, msg);
