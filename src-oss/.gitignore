@@ -98,6 +98,7 @@ mkfiles
 mmv_dumpstats
 mmv_genstats
 mmv_instances
+mmv_noinit
 mmv_poke
 multifetch
 mv-bar.[0-9]

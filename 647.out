@@ -83,6 +83,30 @@ Yes, this is a test string metric with instances
     inst [0 or "zero"] value "00oo00"
     inst [1 or "hero"] value ""
 
+=== validate metrics ===
+
+mmv.debug PMID: 70.0.1 [Debug flag]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+See pmdbg(1).  pmstore into this metric to change the debug value.
+    value 0
+
+mmv.reload PMID: 70.0.0 [Control maps reloading]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Writing anything other then 0 to this metric will result in
+re-reading directory and re-mapping files.
+    value 0
+
+mmv.test.noinit PMID: 70.1.1 One-line Help: Error: One-line or help text is not available
+
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Full Help: Error: One-line or help text is not available
+    value 42
+
 === remove mmv agent ===
 Culling the Performance Metrics Name Space ...
 mmv ... done

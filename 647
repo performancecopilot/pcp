@@ -92,6 +92,21 @@ else
     cat $tmp.out
 fi
 
+$here/src-oss/mmv_noinit
+
+echo
+echo "=== validate metrics ==="
+if pminfo $iam | LC_COLLATE=POSIX sort >$tmp.names
+then
+    for name in `cat $tmp.names`
+    do
+	pminfo -fdmtT $name
+    done
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
 echo
 echo "=== remove $iam agent ==="
 $here/sudo ./Remove >$tmp.out 2>&1
