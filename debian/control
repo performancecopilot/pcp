@@ -9,9 +9,9 @@ Standards-Version: 3.8.3
 
 Package: pcp
 Depends: ${shlibs:Depends}, gawk, procps, sysv-rc-conf, cpp
-Suggests: libpcp-pmda-perl, tsocks
+Suggests: tsocks
 Conflicts: pgpool2
-Recommends: pcp-gui
+Recommends: libpcp-pmda-perl, pcp-gui
 Architecture: any
 Description: System level performance monitoring and performance management
  Performance Co-Pilot (PCP) is a framework and services to
