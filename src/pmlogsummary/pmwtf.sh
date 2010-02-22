@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -29,6 +29,7 @@ _usage()
     echo
     echo "Options:"
     echo "  -d         debug, keep temp files"
+    echo "  -p digits  number of digits to display after the decimal point"
     echo "  -q thres   change interesting threshold to be > thres or < 1/thres"
     echo "             [default 2]"
     echo "  -S start   start time, see PCPIntro(1)"
@@ -59,7 +60,8 @@ start1=""
 start2=""
 finish1=""
 finish2=""
-while getopts dq:S:T:B:E:x:zZ:? c
+precision=3
+while getopts dp:q:S:T:B:E:x:zZ:? c
 do
     case $c
     in
@@ -68,6 +70,10 @@ do
 	    otmp="$tmp"
 	    tmp=`pwd`/tmp
 	    mv $otmp.exclude $tmp.exclude
+	    ;;
+	p)
+	    precision="$OPTARG"
+	    opts="$opts -p $precision"
 	    ;;
 	q)
 	    thres="$OPTARG"
@@ -171,16 +177,20 @@ join -t\| $tmp.1 $tmp.2 \
 | awk -F\| '
 function doval(v)
 {
+    precision='"$precision"'
+    if (precision < 3 || precision > 12)
+	precision=3
+    extra=precision-3
     if (v > 99999999)
-	printf "%12.0f ",v
+	printf "%*.*f%*s",12+extra,0,v,1," "
     else if (v > 999)
-	printf "%8.0f     ",v
+	printf "%*.*f%*s",8,0,v,2+precision," "
     else if (v > 99)
-	printf "%10.1f   ",v
+	printf "%*.*f%*s",10+extra,1+extra,v,3," "
     else if (v > 9)
-	printf "%11.2f  ",v
+	printf "%*.*f%*s",11+extra,2+extra,v,2," "
     else
-	printf "%12.3f ",v
+	printf "%*.*f%*s",12+extra,precision,v,1," "
 }
 $3+0 == 0			{ next }
 $2+0 == 0			{ next }

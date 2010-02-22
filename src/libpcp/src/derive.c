@@ -928,7 +928,7 @@ parse(int level)
 		    }
 		    if (type == L_NUMBER) {
 			char		*endptr;
-			uint64_t	check;
+			__uint64_t	check;
 			check = strtoull(tokbuf, &endptr, 10);
 			if (*endptr != '\0' || check > 0xffffffffUL) {
 			    errmsg = "Constant value too large";

@@ -124,7 +124,7 @@ create_client_stat(const char *client, const char *path, size_t size)
 				"not supported (current is %d)",
 				pmProgname, prefix, hdr->version, MMV_VERSION);
 		__pmMemoryUnmap(m, size);
-		return -ENOTSUP;
+		return -ENOSYS;
 	    }
 
 	    if (!hdr->g1 || hdr->g1 != hdr->g2) {
@@ -384,6 +384,7 @@ map_stats(pmdaExt *pmda)
     __pmAddPMNSNode(pmns, pmid_build(pmda->e_domain, 0, 0), name);
     snprintf(name, sizeof(name), "%s.debug", prefix);
     __pmAddPMNSNode(pmns, pmid_build(pmda->e_domain, 0, 1), name);
+    mcnt = 2;
 
     if (indoms != NULL) {
 	for (i = 0; i < incnt; i++)
