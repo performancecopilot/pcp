@@ -9,7 +9,7 @@ Standards-Version: 3.8.3
 
 Package: pcp
 Depends: ${shlibs:Depends}, gawk, procps, sysv-rc-conf, cpp
-Suggests: tsocks
+Suggests: libpcp-pmda-perl, tsocks
 Conflicts: pgpool2
 Recommends: pcp-gui
 Architecture: any
