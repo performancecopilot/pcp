@@ -216,7 +216,7 @@ mpi		pcpqa
 
 # mpi PMDA
 #
-pmdampi		pcpqa
+pmda.mpi	pcpqa
 
 # mpi library
 #
@@ -505,7 +505,7 @@ derive		pcpqa
 270 pmlogextract logutil local oss
 271 archive local oss
 272 pmcd pmval pmprobe remote oss
-274 pmda help local pmda.install oss
+274 pmda help local pmda.install oss dbpmda
 275 derive local oss
 277 libpcp pdu interop local oss
 278 other help local oss
@@ -761,32 +761,32 @@ derive		pcpqa
 1073 pmval pmdumplog local OSS-CONFLICT sgi
 1079 mpi libpcp_mpi local sgi
 1080 mpi libpcp_mpiread local sgi
-1081 mpi pmdampi libpcp_mpiread local sgi
-1082 mpi pmdampi local sgi
+1081 mpi pmda.mpi libpcp_mpiread local sgi
+1082 mpi pmda.mpi local sgi
 1083 mpi ashlist local purify sgi
 1084 mpi libpcp_mpiread local sgi
 1085 mpi libpcp_mpi libpcp_mpiread local sgi
-1086 mpi pmdampi libpcp_mpiread local sgi
-1087 mpi libpcp_mpiread pmdampi local sgi
-1088 mpi libpcp_mpiread pmdampi local sgi
-1089 mpi pmdampi local sgi
-1090 mpi pmdampi local sgi
-1091 mpi pmdampi local sgi
+1086 mpi pmda.mpi libpcp_mpiread local sgi
+1087 mpi libpcp_mpiread pmda.mpi local sgi
+1088 mpi libpcp_mpiread pmda.mpi local sgi
+1089 mpi pmda.mpi local sgi
+1090 mpi pmda.mpi local sgi
+1091 mpi pmda.mpi local sgi
 1092 mpi libpcp_mpi local sgi
 1093 mpi libpcp_mpiread local sgi
 1094 mpi libpcp_mpiread local sgi
-1095 mpi pmdampi local sgi
-1096 mpi pmdampi local sgi
-1097 mpi pmdampi local sgi
-1098 mpi pmdampi local sgi
+1095 mpi pmda.mpi local sgi
+1096 mpi pmda.mpi local sgi
+1097 mpi pmda.mpi local sgi
+1098 mpi pmda.mpi local sgi
 1099 mpi local sgi
 1100 mpi local sgi
 1101 dmf local sgi
-1102 mpi pmdampi local purify sgi
+1102 mpi pmda.mpi local purify sgi
 1103 mpi libpcp_mpi local purify sgi
 1104 mpi libpcp_mpi local sgi
 1105 mpi libpcp_mpi local sgi
-1106 pmdampi mpi local sgi
+1106 pmda.mpi mpi local sgi
 1107 pmsocks #816862 local sgi
 1108 logutil local folio sgi
 1109 interop local ostest sgi
@@ -904,3 +904,4 @@ derive		pcpqa
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
 341 pmda local oss
+342 other remote oss

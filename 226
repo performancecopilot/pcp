@@ -26,13 +26,11 @@ $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-cat <<End-of-File | dbpmda 2>&1 | tee $tmp.cmds
-help
-quit
-End-of-File
+echo help | dbpmda 2>&1 | tee $tmp.cmds
 
-cat $tmp.cmds \
-| while read cmd args
+sed -e 's/ .*//' <$tmp.cmds \
+| LC_COLLATE=POSIX sort -u \
+| while read cmd
 do
     [ -z "$cmd" ] && continue
     [ "$cmd" = help ] && continue
