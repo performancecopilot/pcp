@@ -269,6 +269,7 @@ dohelp(int command, int full)
 	case OPEN:
 	    puts("open dso dsoname init_routine [ domain# ]");
 	    puts("open pipe execname [ arg ... ]");
+	    puts("open socket sockname");
 	    break;
 	case PMNS_CHILDREN:
 	    puts("children metric-name");
@@ -357,10 +358,12 @@ dohelp(int command, int full)
 		break;
 	    case OPEN:
 		puts(
-"Open a PMDA as either a DSO or a daemon (connected with a pipe).  The\n"
-"'dsoname' and 'execname' fields are the path to the PMDA shared object file\n"
-"or executable.  The arguments to this command are similar to a line in the\n"
-"pmcd.conf file.\n");
+"Open a PMDA as either a DSO, via UNIX domain socket (named pipe), or as a\n"
+"daemon (connected with a pipe).  The 'dsoname' and 'execname' fields are\n"
+"the path to the PMDA shared object file or executable.  The 'sockname'\n"
+"field is the path of a named pipe where a PMDA is listening for connections.\n"
+"The arguments to this command are similar to a line in the pmcd.conf file.\n");
+
 		break;
 	    case PMNS_CHILDREN:
 	        puts(
