@@ -384,6 +384,7 @@ map_stats(pmdaExt *pmda)
     __pmAddPMNSNode(pmns, pmid_build(pmda->e_domain, 0, 0), name);
     snprintf(name, sizeof(name), "%s.debug", prefix);
     __pmAddPMNSNode(pmns, pmid_build(pmda->e_domain, 0, 1), name);
+    mcnt = 2;
 
     if (indoms != NULL) {
 	for (i = 0; i < incnt; i++)
