@@ -1,3 +1,10 @@
+pcp (3.1.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Added package Recommends line on pcp for PCP Perl PMDA module.
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 23 Feb 2010 08:19:41 +1100
+
 pcp (3.1.0) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
