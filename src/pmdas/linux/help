@@ -447,6 +447,19 @@ you will get real memory on demand, and just as much as you use.
 @ mem.util.NFS_Unstable Kbytes in NFS unstable memory, from /proc/meminfo
 @ mem.util.slabReclaimable Kbytes in reclaimable slab pages, from /proc/meminfo
 @ mem.util.slabUnreclaimable Kbytes in unreclaimable slab pages, from /proc/meminfo
+@ mem.util.active_anon anonymous Active list LRU memory
+@ mem.util.inactive_anon anonymous Inactive list LRU memory
+@ mem.util.active_file file-backed Active list LRU memory
+@ mem.util.inactive_file file-backed Inactive list LRU memory
+@ mem.util.unevictable kbytes of memory that is unevictable
+@ mem.util.mlocked kbytes of memory that is pinned via mlock()
+@ mem.util.shmem kbytes of shmem
+@ mem.util.kernelStack kbytes of memory used for kernel stacks
+@ mem.util.hugepagesTotal a count of total hugepages
+@ mem.util.hugepagesFree a count of free hugepages
+@ mem.util.hugepagesSurp a count of surplus hugepages
+@ mem.util.directMap4k amount of memory that is directly mapped in 4kB pages
+@ mem.util.directMap2M amount of memory that is directly mapped in 2MB pages
 
 User memory (Kbytes) in pages not backed by files, e.g. from malloc()
 @ mem.numa.util.total per-node total memory
@@ -458,27 +471,29 @@ User memory (Kbytes) in pages not backed by files, e.g. from malloc()
 @ mem.numa.util.inactive_anon per-node anonymous Inactive list LRU memory
 @ mem.numa.util.active_file per-node file-backed Active list LRU memory
 @ mem.numa.util.inactive_file per-node file-backed Inactive list LRU memory
-@ mem.numa.util.hightotal per-node highmem total
-@ mem.numa.util.highfree per-node highmem free
-@ mem.numa.util.lowtotal per-node lowmem total
-@ mem.numa.util.lowfree per-node lowmem free
+@ mem.numa.util.highTotal per-node highmem total
+@ mem.numa.util.highFree per-node highmem free
+@ mem.numa.util.lowTotal per-node lowmem total
+@ mem.numa.util.lowFree per-node lowmem free
 @ mem.numa.util.unevictable per-node Unevictable memory
 @ mem.numa.util.mlocked per-node count of Mlocked memory
 @ mem.numa.util.dirty per-node dirty memory
 @ mem.numa.util.writeback per-node count of memory locked for writeback to stable storage
-@ mem.numa.util.filepages per-node count of memory backed by files
+@ mem.numa.util.filePages per-node count of memory backed by files
 @ mem.numa.util.mapped per-node mapped memory
 @ mem.numa.util.anonpages per-node anonymous memory
 @ mem.numa.util.shmem per-node amount of shared memory
-@ mem.numa.util.kernelstack per-node memory used as kernel stacks
-@ mem.numa.util.pagetables per-node memory used for pagetables
-@ mem.numa.util.nfs_unstable per-node memory holding NFS data that needs writeback
+@ mem.numa.util.kernelStack per-node memory used as kernel stacks
+@ mem.numa.util.pageTables per-node memory used for pagetables
+@ mem.numa.util.NFS_Unstable per-node memory holding NFS data that needs writeback
+@ mem.numa.util.bounce per-node memory used for bounce buffers
+@ mem.numa.util.writebackTmp per-node temporary memory used for writeback
 @ mem.numa.util.slab per-node memory used for slab objects
-@ mem.numa.util.slab_reclaimable per-node memory used for slab objects that can be reclaimed
-@ mem.numa.util.slab_unreclaimable per-node memory used for slab objects that is unreclaimable
-@ mem.numa.util.hugepages_total per-node hugepages total
-@ mem.numa.util.hugepages_free per-node hugepages free
-@ mem.numa.util.hugepages_surp per-node hugepages surplus?
+@ mem.numa.util.slabReclaimable per-node memory used for slab objects that can be reclaimed
+@ mem.numa.util.slabUnreclaimable per-node memory used for slab objects that is unreclaimable
+@ mem.numa.util.hugepagesTotal per-node total count of hugepages
+@ mem.numa.util.hugepagesFree per-node count of free hugepages
+@ mem.numa.util.hugepagesSurp per-node count of surplus hugepages
 @ mem.numa.alloc.hit per-node count of times a task wanted alloc on local node and succeeded
 @ mem.numa.alloc.miss per-node count of times a task wanted alloc on local node but got another node
 @ mem.numa.alloc.foreign count of times a task on another node alloced on that node, but got this node
