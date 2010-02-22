@@ -73,7 +73,7 @@ typedef struct {
 typedef struct {
     char		magic[4];	/* MMV\0 */
     __int32_t		version;	/* version */
-    __uint64_t		g1;		/* Generation numbers - time(2) */
+    __uint64_t		g1;		/* Generation numbers */
     __uint64_t		g2;
     __int32_t		tocs;		/* Number of toc entries */
     mmv_stats_flags_t	flags;
