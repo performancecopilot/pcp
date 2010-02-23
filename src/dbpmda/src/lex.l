@@ -78,7 +78,7 @@ pmid		{ return PMNS_PMID; }
 profile		{ return PROFILE; }
 q		{ return QUIT; }
 quit		{ return QUIT; }
-socket		{ BEGIN FNAME; return SOCKET; }
+socket		{ BEGIN FNAME; return SOCK; }
 status		{ return STATUS; }
 store		{ return STORE; }
 text		{ return INFO; }

@@ -24,8 +24,9 @@
 #include <values.h>
 #endif
 #include <float.h>
-
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
 #endif

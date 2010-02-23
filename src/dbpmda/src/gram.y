@@ -111,7 +111,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 	OPEN CLOSE DESC GETDESC FETCH INSTANCE PROFILE HELP 
 	WATCH DBG QUIT STATUS STORE INFO TIMER NAMESPACE WAIT
 	PMNS_NAME PMNS_PMID PMNS_CHILDREN PMNS_TRAVERSE
-	DSO PIPE SOCKET
+	DSO PIPE SOCK
 	ADD DEL ALL NONE INDOM ON OFF
 	PLUS EOL
 
@@ -141,7 +141,7 @@ stmt	: OPEN EOL				{
 		openpmda($3);
 		stmt_type = OPEN; YYACCEPT;
 	    }
-	| OPEN SOCKET fname			{
+	| OPEN SOCK fname			{
 		opensocket($3);
 		stmt_type = OPEN; YYACCEPT;
 	    }
