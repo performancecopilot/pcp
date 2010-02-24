@@ -686,12 +686,97 @@ static pmdaMetric metrictab[] = {
 
 /* mem.util.slabReclaimable */
     { NULL,
-      { PMDA_PMID(CLUSTER_MEMINFO,34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_MEMINFO,34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* mem.util.slabUnreclaimable */
     { NULL,
-      { PMDA_PMID(CLUSTER_MEMINFO,35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_MEMINFO,35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.active_anon */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.inactive_anon */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.active_file */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.inactive_file */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.unevictable */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.mlocked */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.shmem */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.kernelStack */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,43), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.hugepagesTotal */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* mem.util.hugepagesFree */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,45), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* mem.util.hugepagesRsvd */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,46), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* mem.util.hugepagesSurp */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,47), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* mem.util.directMap4k */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,48), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.directMap2M */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,49), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.vmallocTotal */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,50), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.vmallocUsed */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,51), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.vmallocChunk */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* mem.numa.util.total */
@@ -739,22 +824,22 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,8), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* mem.numa.util.hightotal */
+/* mem.numa.util.highTotal */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,9), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* mem.numa.util.highfree */
+/* mem.numa.util.highFree */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,10), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* mem.numa.util.lowtotal */
+/* mem.numa.util.lowTotal */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,11), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* mem.numa.util.lowfree */
+/* mem.numa.util.lowFree */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,12), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
@@ -779,7 +864,7 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,16), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* mem.numa.util.filepages */
+/* mem.numa.util.filePages */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,17), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
@@ -799,17 +884,17 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,20), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* mem.numa.util.kernelstack */
+/* mem.numa.util.kernelStack */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,21), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* mem.numa.util.pagetables */
+/* mem.numa.util.pageTables */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,22), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* mem.numa.util.nfs_unstable */
+/* mem.numa.util.NFS_Unstable */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,23), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
@@ -819,7 +904,7 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,24), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* mem.numa.util.writebacktmp */
+/* mem.numa.util.writebackTmp */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,25), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
@@ -829,27 +914,27 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,26), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* mem.numa.util.slab_reclaimable */
+/* mem.numa.util.slabReclaimable */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,27), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* mem.numa.util.slab_unreclaimable */
+/* mem.numa.util.slabUnreclaimable */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,28), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* mem.numa.util.hugepages_total */
+/* mem.numa.util.hugepagesTotal */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,29), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* mem.numa.util.hugepages_free */
+/* mem.numa.util.hugepagesFree */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,30), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* mem.numa.util.hugepages_surp */
+/* mem.numa.util.hugepagesSurp */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,31), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
@@ -4242,6 +4327,91 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.SlabUnreclaimable >> 10;
 	   break;
+	case 36: /* mem.util.active_anon */
+	   if (!VALID_VALUE(proc_meminfo.Active_anon))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Active_anon >> 10;
+	   break;
+	case 37: /* mem.util.inactive_anon */
+	   if (!VALID_VALUE(proc_meminfo.Inactive_anon))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Inactive_anon >> 10;
+	   break;
+	case 38: /* mem.util.active_file */
+	   if (!VALID_VALUE(proc_meminfo.Active_file))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Active_file >> 10;
+	   break;
+	case 39: /* mem.util.inactive_file */
+	   if (!VALID_VALUE(proc_meminfo.Inactive_file))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Inactive_file >> 10;
+	   break;
+	case 40: /* mem.util.unevictable */
+	   if (!VALID_VALUE(proc_meminfo.Unevictable))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Unevictable >> 10;
+	   break;
+	case 41: /* mem.util.mlocked */
+	   if (!VALID_VALUE(proc_meminfo.Mlocked))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Mlocked >> 10;
+	   break;
+	case 42: /* mem.util.shmem */
+	   if (!VALID_VALUE(proc_meminfo.Shmem))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Shmem >> 10;
+	   break;
+	case 43: /* mem.util.kernelStack */
+	   if (!VALID_VALUE(proc_meminfo.KernelStack))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.KernelStack >> 10;
+	   break;
+	case 44: /* mem.util.hugepagesTotal */
+	   if (!VALID_VALUE(proc_meminfo.HugepagesTotal))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HugepagesTotal;
+	   break;
+	case 45: /* mem.util.hugepagesFree */
+	   if (!VALID_VALUE(proc_meminfo.HugepagesFree))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HugepagesFree;
+	   break;
+	case 46: /* mem.util.hugepagesRsvd */
+	   if (!VALID_VALUE(proc_meminfo.HugepagesRsvd))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HugepagesRsvd;
+	   break;
+	case 47: /* mem.util.hugepagesSurp */
+	   if (!VALID_VALUE(proc_meminfo.HugepagesSurp))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HugepagesSurp;
+	   break;
+	case 48: /* mem.util.directMap4k */
+	   if (!VALID_VALUE(proc_meminfo.directMap4k))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.directMap4k >> 10;
+	   break;
+	case 49: /* mem.util.directMap2M */
+	   if (!VALID_VALUE(proc_meminfo.directMap2M))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.directMap2M >> 10;
+	   break;
+	case 50: /* mem.util.vmallocTotal */
+	   if (!VALID_VALUE(proc_meminfo.VmallocTotal))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.VmallocTotal >> 10;
+	   break;
+	case 51: /* mem.util.vmallocUsed */
+	   if (!VALID_VALUE(proc_meminfo.VmallocUsed))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.VmallocUsed >> 10;
+	   break;
+	case 52: /* mem.util.vmallocChunk */
+	   if (!VALID_VALUE(proc_meminfo.VmallocChunk))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.VmallocChunk >> 10;
+	   break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -5372,66 +5542,66 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sts = linux_table_lookup("MemTotal:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
-   	case 1: /* mem.numa.util.free */
+	case 1: /* mem.numa.util.free */
 	    sts = linux_table_lookup("MemFree:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
-    
+
 	case 2: /* mem.numa.util.used */
 	    sts = linux_table_lookup("MemUsed:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
-   
+
 	case 3: /* mem.numa.util.active */
 	    sts = linux_table_lookup("Active:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
-  
+
 	case 4: /* mem.numa.util.inactive */
 	    sts = linux_table_lookup("Inactive:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
- 
+
 	case 5: /* mem.numa.util.active_anon */
 	    sts = linux_table_lookup("Active(anon):", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
- 
+
 	case 6: /* mem.numa.util.inactive_anon */
 	    sts = linux_table_lookup("Inactive(anon):", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
- 
+
 	case 7: /* mem.numa.util.active_file */
 	    sts = linux_table_lookup("Active(file):", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
- 
+
 	case 8: /* mem.numa.util.inactive_file */
 	    sts = linux_table_lookup("Inactive(file):", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
- 
-	case 9: /* mem.numa.util.hightotal */
+
+	case 9: /* mem.numa.util.highTotal */
 	    sts = linux_table_lookup("HighTotal:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
-    
-	case 10: /* mem.numa.util.highfree */
+
+	case 10: /* mem.numa.util.highFree */
 	    sts = linux_table_lookup("HighFree:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
-    
-	case 11: /* mem.numa.util.lowtotal */
+
+	case 11: /* mem.numa.util.lowTotal */
 	    sts = linux_table_lookup("LowTotal:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
-    
-	case 12: /* mem.numa.util.lowfree */
+
+	case 12: /* mem.numa.util.lowFree */
 	    sts = linux_table_lookup("LowFree:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
-    
+
 	case 13: /* mem.numa.util.unevictable */
 	    sts = linux_table_lookup("Unevictable:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
@@ -5441,48 +5611,48 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sts = linux_table_lookup("Mlocked:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
- 
- 	case 15: /* mem.numa.util.dirty */
+
+	case 15: /* mem.numa.util.dirty */
 	    sts = linux_table_lookup("Dirty:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
-    
+
 	case 16: /* mem.numa.util.writeback */
 	    sts = linux_table_lookup("Writeback:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
- 
-	case 17: /* mem.numa.util.filepages */
+
+	case 17: /* mem.numa.util.filePages */
 	    sts = linux_table_lookup("FilePages:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
-    
+
 	case 18: /* mem.numa.util.mapped */
 	    sts = linux_table_lookup("Mapped:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
-    
-	case 19: /* mem.numa.util.anonpages */
+
+	case 19: /* mem.numa.util.anonPages */
 	    sts = linux_table_lookup("AnonPages:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
-   
+
 	case 20: /* mem.numa.util.shmem */
 	    sts = linux_table_lookup("Shmem:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
 
- 	case 21: /* mem.numa.util.kernelstack */
+	case 21: /* mem.numa.util.kernelStack */
 	    sts = linux_table_lookup("KernelStack:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
 
-	case 22: /* mem.numa.util.pagetables */
+	case 22: /* mem.numa.util.pageTables */
 	    sts = linux_table_lookup("PageTables:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
 
-	case 23: /* mem.numa.util.nfs_unstable */
+	case 23: /* mem.numa.util.NFS_Unstable */
 	    sts = linux_table_lookup("nfs_unstable:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
@@ -5492,7 +5662,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    &atom->ull);
 	    break;
 
- 	case 25: /* mem.numa.util.writebacktmp */
+	case 25: /* mem.numa.util.writebackTmp */
 	    sts = linux_table_lookup("WritebackTmp:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
@@ -5501,28 +5671,28 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sts = linux_table_lookup("Slab:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
- 
-	case 27: /* mem.numa.util.slab_reclaimable */
+
+	case 27: /* mem.numa.util.slabReclaimable */
 	    sts = linux_table_lookup("SReclaimable:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
 
-	case 28: /* mem.numa.util.slab_unreclaimable */
+	case 28: /* mem.numa.util.slabUnreclaimable */
 	    sts = linux_table_lookup("SUnreclaim:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
 
-	case 29: /* mem.numa.util.hugepages_total */
+	case 29: /* mem.numa.util.hugepagesTotal */
 	    sts = linux_table_lookup("HugePages_Total:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
-    
-	case 30: /* mem.numa.util.hugepages_free */
+
+	case 30: /* mem.numa.util.hugepagesFree */
 	    sts = linux_table_lookup("HugePages_Free:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
 
-	case 31: /* mem.numa.util.hugepages_surp */
+	case 31: /* mem.numa.util.hugepagesSurp */
 	    sts = linux_table_lookup("HugePages_Surp:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;

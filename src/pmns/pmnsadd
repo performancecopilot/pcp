@@ -76,7 +76,7 @@ then
     exit
 fi
 
-if grep -q '^root {' "$1"
+if grep '^root {' "$1" >/dev/null
 then
     # Special case ... if the PMDA only supplies metrics at the root of
     # the PMNS, e.g. the MMV PMDA with all dynamic metrics, the input
