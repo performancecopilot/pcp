@@ -7,20 +7,9 @@ Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
 
-%define sgi_chroot_build @sgi_chroot_build@
-%define sgi_issp_build @sgi_issp_build@
-
-%if %sgi_chroot_build
-Source: @package_name@-@package_version@.tar.bz2
-BuildRequires: gcc-c++ libstdc++-devel
-%else
 Source: @package_name@-@package_version@-@package_release@.src.tar.gz
-%endif
 
 Distribution: @package_distribution@
-%if %sgi_chroot_build
-Packager: Silicon Graphics, Inc. <http://www.sgi.com/>
-%endif
 BuildRoot: @build_root@ 
 BuildRequires: procps autoconf bison flex ncurses-devel readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
@@ -39,10 +28,6 @@ Requires: sysconfig
 Requires: initscripts
 %endif
 
-%if %sgi_chroot_build
-Obsoletes: pcp <= @package_version@
-Provides: pcp = @package_version@
-%endif
 Requires: pcp-libs = @package_version@
 
 %description
@@ -121,22 +106,10 @@ and analysis with pmchart, pmie, pmlogger and other PCP tools.
 %debug_package
 %endif
 
-# If .census exists, then no setup is necessary, just go and do the build,
-# otherwise run setup
 %prep
-if [ -f .census ] ; then
-   if [ ! -d ${RPM_PACKAGE_NAME}-${RPM_PACKAGE_VERSION} ] ; then
-      ln -s . ${RPM_PACKAGE_NAME}-${RPM_PACKAGE_VERSION}
-   fi
-else
 %setup -q
-touch .census
 autoconf
 ./configure --libdir=%{_libdir} --libexecdir=%{_libexecdir} && touch config.done
-fi
-%if %sgi_issp_build
-%{_sgi_find_crypto}
-%endif
 
 %clean
 [ ! -z "$DIST_ROOT" ] && rm -rf $DIST_ROOT
@@ -158,7 +131,6 @@ set +x
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
 . $BACKDIR/src/include/pcp.env
-
 LIBFILELIST=`ls -1 $BACKDIR/debian/*.{install,dirs} | fgrep -v -- -dev.`
 DEVFILELIST=`ls -1 $BACKDIR/debian/*-dev.{install,dirs}`
 
@@ -267,6 +239,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Thu Feb 25 2010 Martin Hicks <mort@sgi.com>
+- Remove SGI cruft from specfile.
+
 * Tue Feb 23 2010 Nathan Scott <nathans@aconex.com> - 3.1.1-1
 - Update to latest PCP sources.
 
