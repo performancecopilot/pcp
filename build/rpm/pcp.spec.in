@@ -102,10 +102,6 @@ This mechanism allows arbitrary values to be exported from an
 instrumented script into the PCP infrastructure for monitoring
 and analysis with pmchart, pmie, pmlogger and other PCP tools.
 
-%if %sgi_chroot_build
-%debug_package
-%endif
-
 %prep
 %setup -q
 autoconf
