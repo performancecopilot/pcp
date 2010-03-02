@@ -20,25 +20,6 @@ ifneq (,)
 This makefile requires GNU Make.
 endif
 
-ifeq ($(shell [ -f $(WORKAREA)/linuxmeister/release ] && echo 1),1)
-
-include $(WORKAREA)/linuxmeister/release
-
-ifeq ($(PROJECT),mangrove)
-include GNUissp
-else
-ifeq ($(SUBPRO),)
-include VERSION.pro
-
-build-sgi clean::
-	$(MAKE) -f GNUmakefile $@ SUBPRO=GNUissp PCP_DIST=$(PRO_DISTRIBUTION)
-	$(MAKE) -f GNUmakefile $@ SUBPRO=GNUpropack
-else
-include $(SUBPRO)
-endif
-endif
-else
-
 TOPDIR = .
 -include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
@@ -58,11 +39,6 @@ LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	devel_files.rpm perl-pcp*.list* conf_files
 
 SUBDIRS = src man build debian
-ifeq "$(MAKECMDGOALS)" "clobber"
-ifeq ($(shell [ -d qa ] && echo 1),1)
-SUBDIRS	+= qa
-endif
-endif
 
 default :: default_pcp
 
@@ -125,11 +101,9 @@ ifdef BUILDRULES
 include $(BUILDRULES)
 else
 # if src/include/builddefs doesn't exist, we are pristine (hence also clean)
-realclean distclean clean clobber clean-lbs clean-sgi:
+realclean distclean clean clobber:
 	@true
 endif
-
-endif # -f $(WORKAREA)/linuxmeister/release
 
 configure_pcp: pcp.lsm
 
