@@ -204,8 +204,13 @@ static char *namedup(const char *name, const char *suffix)
 {
     char *n;
 
-    n = (char *)malloc(strlen(name) + 1 + strlen(suffix) + 1);
-    sprintf(n, "%s.%s", name, suffix);
+    if (strlen(name) > 0) {
+	n = (char *)malloc(strlen(name) + 1 + strlen(suffix) + 1);
+	sprintf(n, "%s.%s", name, suffix);
+    }
+    else {
+	n = strdup(suffix);
+    }
     return n;
 }
 
