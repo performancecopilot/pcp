@@ -42,7 +42,7 @@ private:
     struct {
 	bool pminfoStarted;
 	bool pmvalStarted;
-	bool sourceType;
+	int sourceType;
 	QString source;
 	QString metric;
 	QString instance;
