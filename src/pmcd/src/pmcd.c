@@ -1166,7 +1166,7 @@ AddBadHost(struct in_addr *hostId)
     if (nBadHosts == szBadHosts) {
 	szBadHosts += 8;
 	need = szBadHosts * (int)sizeof(badHost[0]);
-	if ((badHost = (struct in_addr *)malloc(need)) == NULL) {
+	if ((badHost = (struct in_addr *)realloc(badHost, need)) == NULL) {
 	    __pmNoMem("pmcd.AddBadHost", need, PM_FATAL_ERR);
 	}
     }
