@@ -100,7 +100,7 @@ my @postfix_queues_dom = (    0 => 'total',
 		6 => '80-160 mins',
 		7 => '160-320 mins',
 		8 => '320-640 mins',
-		9 => '640-1280 <callto:+1640-1280> mins',
+		9 => '640-1280 mins',
 		10=> '1280+ mins',
 	     );
 
