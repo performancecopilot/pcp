@@ -260,7 +260,7 @@ ParseOptions(int argc, char *argv[])
 		    port = (int)strtol(p, &endptr, 0);
 		    if ((*endptr != '\0' && *endptr != ',') || port < 0) {
 			fprintf(stderr,
-				"pmcd: -p requires a postive numeric argument (%s)\n", optarg);
+				"pmcd: -p requires a positive numeric argument (%s)\n", optarg);
 			errflag++;
 			break;
 		    }
@@ -281,7 +281,7 @@ ParseOptions(int argc, char *argv[])
 		val = (int)strtol(optarg, &endptr, 10);
 		if (*endptr != '\0' || val <= 0.0) {
 		    fprintf(stderr,
-			    "pmcd: -q requires a postive numeric argument\n");
+			    "pmcd: -q requires a positive numeric argument\n");
 		    errflag++;
 		}
 		else
@@ -292,7 +292,7 @@ ParseOptions(int argc, char *argv[])
 		val = (int)strtol(optarg, &endptr, 10);
 		if (*endptr != '\0' || val < 0.0) {
 		    fprintf(stderr,
-			    "pmcd: -t requires a postive numeric argument\n");
+			    "pmcd: -t requires a positive numeric argument\n");
 		    errflag++;
 		}
 		else
@@ -303,7 +303,7 @@ ParseOptions(int argc, char *argv[])
 		val = (int)strtol(optarg, &endptr, 10);
 		if (*endptr != '\0' || val < 0) {
 		    fprintf(stderr,
-			    "pmcd: -T requires a postive numeric argument\n");
+			    "pmcd: -T requires a positive numeric argument\n");
 		    errflag++;
 		}
 		else
