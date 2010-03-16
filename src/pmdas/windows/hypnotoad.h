@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -76,13 +76,14 @@ extern char *windows_uname;
 extern char *windows_build;
 extern char *windows_machine;
 extern int windows_indom_setup[];
+extern int windows_indom_reset[];
 extern unsigned long windows_pagesize;
 extern MEMORYSTATUSEX windows_memstat;
 extern void windows_fetch_memstat(void);
 
-extern void windows_open();
+extern void windows_open(int);
+extern int windows_indom_fixed(pmInDom);
 extern char *pdherrstr(int);
-extern pmInDom windows_indom(int, int);
 
 typedef void (*pdh_metric_inform_t)(pdh_metric_t *, PDH_COUNTER_INFO_A *);
 typedef void (*pdh_metric_visitor_t)(pdh_metric_t *, LPSTR, pdh_value_t *);

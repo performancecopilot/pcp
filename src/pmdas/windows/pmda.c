@@ -1,7 +1,7 @@
 /*
  * Windows PMDA
  *
- * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1530,7 +1530,7 @@ windows_init(pmdaInterface *dp)
 	return;
     }
 
-    windows_open();
+    windows_open(dp->domain);
 
     for (i = 0; i < metrictab_sz; i++) {
 	/* rewrite pmid & indom, now that we know what the domain number is */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Parts of this file contributed by Ken McDonell
  * (kenj At internode DoT on DoT net)
@@ -17,12 +17,20 @@
 #include "hypnotoad.h"
 #include <ctype.h>
 
+int
+windows_indom_fixed(pmInDom indom)
+{
+    return (indom != PROCESS_INDOM && indom != THREAD_INDOM);
+}
+
 void
 windows_instance_refresh(pmInDom indom)
 {
-    int			i, setup;
+    int			i, index, setup;
 
-    setup = windows_indom_setup[pmInDom_serial(indom)];
+    index = pmInDom_serial(indom);
+    windows_indom_reset[index] = 0;
+    setup = windows_indom_setup[index];
 
     for (i = 0; i < metricdesc_sz; i++) {
 	pdh_metric_t *mp = &metricdesc[i];
@@ -33,6 +41,10 @@ windows_instance_refresh(pmInDom indom)
 	    windows_visit_metric(mp, NULL);
 	break;
     }
+
+    /* Do we want to persist this instance domain to disk? */
+    if (windows_indom_reset[index] && windows_indom_fixed(indom))
+	pmdaCacheOp(indom, PMDA_CACHE_SAVE);
 }
 
 int
@@ -332,8 +344,10 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
     }
 
     sts = pmdaCacheLookupName(mp->desc.indom, name, &ok, NULL);
-    if (sts != PMDA_CACHE_ACTIVE)
+    if (sts != PMDA_CACHE_ACTIVE) {
 	ok = pmdaCacheStore(mp->desc.indom, PMDA_CACHE_ADD, name, NULL);
+	windows_indom_reset[pmInDom_serial(mp->desc.indom)] = 1;
+    }
     free(name);
     return ok;
 }
