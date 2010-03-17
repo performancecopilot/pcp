@@ -18,9 +18,9 @@
 #include <ctype.h>
 
 int
-windows_indom_fixed(pmInDom indom)
+windows_indom_fixed(int serial)
 {
-    return (indom != PROCESS_INDOM && indom != THREAD_INDOM);
+    return (serial != PROCESS_INDOM && serial != THREAD_INDOM);
 }
 
 void
@@ -43,7 +43,7 @@ windows_instance_refresh(pmInDom indom)
     }
 
     /* Do we want to persist this instance domain to disk? */
-    if (windows_indom_reset[index] && windows_indom_fixed(indom))
+    if (windows_indom_reset[index] && windows_indom_fixed(index))
 	pmdaCacheOp(indom, PMDA_CACHE_SAVE);
 }
 
@@ -51,6 +51,8 @@ int
 windows_lookup_instance(char *path, pdh_metric_t *mp)
 {
     __pmInDom_int	*ip;
+    static void		*seen = (void *)0xfeedbabe;
+    void		*sp;
     char		*p, *q, *name;
     int			sts, ok = 0;
 
@@ -343,10 +345,11 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	    return -1;
     }
 
-    sts = pmdaCacheLookupName(mp->desc.indom, name, &ok, NULL);
+    sts = pmdaCacheLookupName(mp->desc.indom, name, &ok, &sp);
     if (sts != PMDA_CACHE_ACTIVE) {
-	ok = pmdaCacheStore(mp->desc.indom, PMDA_CACHE_ADD, name, NULL);
-	windows_indom_reset[pmInDom_serial(mp->desc.indom)] = 1;
+	if (sp != seen)	/* new instance, never seen before, mark it */
+	    windows_indom_reset[pmInDom_serial(mp->desc.indom)] = 1;
+	ok = pmdaCacheStore(mp->desc.indom, PMDA_CACHE_ADD, name, seen);
     }
     free(name);
     return ok;

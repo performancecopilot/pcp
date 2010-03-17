@@ -82,7 +82,7 @@ extern MEMORYSTATUSEX windows_memstat;
 extern void windows_fetch_memstat(void);
 
 extern void windows_open(int);
-extern int windows_indom_fixed(pmInDom);
+extern int windows_indom_fixed(int);
 extern char *pdherrstr(int);
 
 typedef void (*pdh_metric_inform_t)(pdh_metric_t *, PDH_COUNTER_INFO_A *);
@@ -93,7 +93,7 @@ extern int windows_inform_metric(pdh_metric_t *, LPTSTR, pdh_value_t *,
 
 extern void windows_instance_refresh(pmInDom);
 extern int windows_lookup_instance(char *, pdh_metric_t *);
-extern void windows_fetch_refresh(int numpmid, pmID pmidlist[]);
+extern void windows_fetch_refresh(int numpmid, pmID pmidlist[], pmdaExt *);
 extern void windows_verify_callback(pdh_metric_t *, LPSTR, pdh_value_t *);
 
 extern int windows_help(int, int, char **, pmdaExt *);

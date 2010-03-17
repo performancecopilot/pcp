@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -142,10 +142,13 @@ windows_collect_callback(pdh_metric_t *pmp, LPTSTR pat, pdh_value_t *pvp)
  * requested metrics here; special case derived filesys metrics.
  */
 void
-windows_fetch_refresh(int numpmid, pmID pmidlist[])
+windows_fetch_refresh(int numpmid, pmID pmidlist[], pmdaExt *pmda)
 {
     int	i, j, extra_filesys = 0, extra_memstat = 0;
     int extra_hinv_ncpu = -1, extra_hinv_ndisk = -1;
+
+    for (i = 0; i < NUMINDOMS; i++)
+	windows_indom_reset[i] = 0;
 
     for (i = 0; i < metricdesc_sz; i++)
 	for (j = 0; j < metricdesc[i].num_vals; j++)
@@ -189,5 +192,11 @@ windows_fetch_refresh(int numpmid, pmID pmidlist[])
     if (extra_filesys) {
 	windows_visit_metric(&metricdesc[120], windows_collect_callback);
 	windows_visit_metric(&metricdesc[121], windows_collect_callback);
+    }
+
+    for (i = 0; i < NUMINDOMS; i++) {
+	/* Do we want to persist this instance domain to disk? */
+	if (windows_indom_reset[i] && windows_indom_fixed(i))
+	    pmdaCacheOp(INDOM(pmda->e_domain, i), PMDA_CACHE_SAVE);
     }
 }

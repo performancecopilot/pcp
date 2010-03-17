@@ -745,6 +745,7 @@ windows_open(int domain)
     for (i = 0; i < NUMINDOMS; i++) {
 	if (windows_indom_fixed(i))
 	    pmdaCacheOp(INDOM(domain, i), PMDA_CACHE_LOAD);
+	windows_indom_reset[i] = 0;
     }
 
     /*
@@ -758,5 +759,11 @@ windows_open(int domain)
     for (i = 0; i < metricdesc_sz; i++) {
 	if ((metricdesc[i].flags & M_AUTO64) || (pmDebug & DBG_TRACE_LIBPMDA))
 	    windows_visit_metric(&metricdesc[i], windows_verify_callback);
+    }
+
+    for (i = 0; i < NUMINDOMS; i++) {
+	/* Do we want to persist this instance domain to disk? */
+	if (windows_indom_reset[i] && windows_indom_fixed(i))
+	    pmdaCacheOp(INDOM(domain, i), PMDA_CACHE_SAVE);
     }
 }
