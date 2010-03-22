@@ -613,10 +613,15 @@ mmv_reload_maybe(pmdaExt *pmda)
     struct stat s;
     int need_reload = reload;
 
-    /* check if any of the generation numbers have changed (unexpected) */
+    /* check if generation numbers changed or monitored process exited */
     for (i = 0; i < scnt; i++) {
 	mmv_disk_header_t *hdr = (mmv_disk_header_t *)slist[i].addr;
 	if (hdr->g1 != slist[i].gen || hdr->g2 != slist[i].gen) {
+	    need_reload++;
+	    break;
+	}
+	if (hdr->process && (hdr->flags & MMV_FLAG_PROCESS) &&
+	    !__pmProcessExists(hdr->process)) {
 	    need_reload++;
 	    break;
 	}
