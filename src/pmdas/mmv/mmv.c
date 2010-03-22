@@ -510,6 +510,7 @@ mmv_lookup_stat_metric_value(pmID pmid, unsigned int inst,
     mmv_disk_value_t * v;
     stats_t * s;
     int si, mi, vi;
+    int sts = PM_ERR_PMID;
 
     for (si = 0; si < scnt; si++) {
 	s = &slist[si];
@@ -521,6 +522,7 @@ mmv_lookup_stat_metric_value(pmID pmid, unsigned int inst,
 	    if (m[mi].item != id->item)
 		continue;
 
+	    sts = PM_ERR_INST;
 	    v = s->values;
 	    for (vi = 0; vi < s->vcnt; vi++) {
 		mmv_disk_metric_t * mt = (mmv_disk_metric_t *)
@@ -539,7 +541,7 @@ mmv_lookup_stat_metric_value(pmID pmid, unsigned int inst,
 	    }
 	}
     }
-    return -ENOENT;
+    return sts;
 }
 
 /*
@@ -566,9 +568,11 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	mmv_disk_metric_t * m;
 	mmv_disk_value_t * v;
 	stats_t * s;
+	int rv;
 
-	if (mmv_lookup_stat_metric_value(mdesc->m_desc.pmid, inst, &s, &m, &v) != 0)
-	    return PM_ERR_PMID;
+	rv = mmv_lookup_stat_metric_value(mdesc->m_desc.pmid, inst, &s, &m, &v);
+	if (rv < 0)
+	    return rv;
 
 	switch (m->type) {
 	    case MMV_TYPE_I32:
