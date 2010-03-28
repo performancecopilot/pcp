@@ -1,0 +1,80 @@
+#!/bin/sh
+# PCP QA Test No. 344
+#
+# exercise __pmAddLocalPMDA functionality
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+
+# creator
+owner=kenj
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+if grep __pmAddLocalPMDA /usr/include/pcp/impl.h >/dev/null
+then
+    :
+else
+    echo "No libpcp support for __pmAddLocalPMDA" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
+
+echo "QA output created by $seq"
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.pmns
+root {
+    qa
+    sample
+}
+
+qa {
+    pid		400:0:1
+    colour	400:0:5
+}
+
+sample {
+    colour	30:0:5
+}
+End-of-File
+
+# real QA test starts here
+pminfo -f -n $tmp.pmns -l 400,$PCP_VAR_DIR/pmdas/sample/pmda_sample.so,sample_init -L qa.colour
+
+echo
+pminfo -f -n $tmp.pmns -l 400,$PCP_VAR_DIR/pmdas/sample/pmda_sample.so,sample_init -L qa.pid >$tmp.out &
+expect=$!
+wait
+got=`sed -n $tmp.out -e '/value/s/.*value //p'`
+if [ "$got" != "$expect" ]
+then
+    echo "Error: expecting pid $expect, got $got from"
+    cat $tmp.out
+else
+    echo "PID check passes"
+fi
+
+echo
+echo "=== expect no sample metrics ==="
+pminfo -fm -n $tmp.pmns -l 400,$PCP_VAR_DIR/pmdas/sample/pmda_sample.so,sample_init -L qa.colour sample.colour
+
+echo
+echo "=== sample metrics this time ==="
+# need to copy DSO so running sample_init() only once per DSO
+cp $PCP_VAR_DIR/pmdas/sample/pmda_sample.so $tmp.so
+export PMDA_LOCAL_SAMPLE=yes
+pminfo -fm -n $tmp.pmns -l 400,$tmp.so,sample_init -L qa.colour sample.colour
+
+# success, all done
+exit

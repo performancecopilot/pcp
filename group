@@ -905,3 +905,5 @@ derive		pcpqa
 1236 #935639 pmchart local sgi
 341 pmda local oss
 342 other remote oss
+343 pmlogreduce local oss
+344 context_local local oss

@@ -1,0 +1,28 @@
+QA output created by 344
+
+qa.colour
+    inst [0 or "red"] value 101
+    inst [1 or "green"] value 202
+    inst [2 or "blue"] value 303
+
+PID check passes
+
+=== expect no sample metrics ===
+
+qa.colour PMID: 400.0.5
+    inst [0 or "red"] value 101
+    inst [1 or "green"] value 202
+    inst [2 or "blue"] value 303
+sample.colour: pmLookupDesc: No PMCD agent for domain of request
+
+=== sample metrics this time ===
+
+qa.colour PMID: 400.0.5
+    inst [0 or "red"] value 101
+    inst [1 or "green"] value 202
+    inst [2 or "blue"] value 303
+
+sample.colour PMID: 30.0.5
+    inst [0 or "red"] value 101
+    inst [1 or "green"] value 202
+    inst [2 or "blue"] value 303
