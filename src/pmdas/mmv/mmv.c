@@ -150,7 +150,7 @@ create_client_stat(const char *client, const char *path, size_t size)
 	    if (slist != NULL) {
 		slist[scnt].name = strdup(client);
 		slist[scnt].addr = m;
-		slist[scnt].pid = hdr->process;
+		slist[scnt].pid = (hdr->flags & MMV_FLAG_PROCESS)? hdr->process : 0;
 		slist[scnt].cluster = cluster;
 		slist[scnt].mcnt = 0;
 		slist[scnt].gen = hdr->g1;
@@ -620,8 +620,7 @@ mmv_reload_maybe(pmdaExt *pmda)
 	    need_reload++;
 	    break;
 	}
-	if (hdr->process && (hdr->flags & MMV_FLAG_PROCESS) &&
-	    !__pmProcessExists(hdr->process)) {
+	if (slist[i].pid && !__pmProcessExists(slist[i].pid)) {
 	    need_reload++;
 	    break;
 	}
