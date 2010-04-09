@@ -11,7 +11,7 @@ seq=`basename $0`
 
 . ./localconfig
 rm -f $seq.out
-if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a postive numeric argument' >/dev/null
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
 then
     if test $PCP_EOE_VER -ge 2704
     then
@@ -148,16 +148,21 @@ disallow *: all;
 
 End-of-File
 
-other1=bogus
-other2=bogus
-
 eval `./getpmcdhosts -L -n 2 \
       | $PCP_AWK_PROG '{ if (NF == 2) printf("other1=%s other2=%s\n",$1,$2); }'`
 
-if [ "X$other1" = Xbogus -o "X$other2" = Xbogus ]
+if [ -z "$other1" ]
 then
-    echo "Error: Unable to find two other hosts"
-    exit 1
+    echo "Cannot find first remote host running pmcd" >$seq.notrun
+    status=1
+    exit
+fi
+
+if [ -z "$other2" ]
+then
+    echo "Cannot find second remote host running pmcd" >$seq.notrun
+    status=1
+    exit
 fi
 
 cp $config $oconfig
