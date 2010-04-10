@@ -282,16 +282,16 @@ newvolume(char *base, __pmTimeval *tvp)
 {
     FILE		*newfp;
     int			nextvol = logctl.l_curvol + 1;
-    struct timeval	stamp;
 
     if ((newfp = __pmLogNewFile(base, nextvol)) != NULL) {
+	struct timeval	stamp;
 	fclose(logctl.l_mfp);
 	logctl.l_mfp = newfp;
 	logctl.l_label.ill_vol = logctl.l_curvol = nextvol;
 	__pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
 	fflush(logctl.l_mfp);
-	stamp.tv_sec = tvp->tv_sec;
-	stamp.tv_usec = tvp->tv_usec;
+	stamp.tv_sec = ntohl(tvp->tv_sec);
+	stamp.tv_usec = ntohl(tvp->tv_usec);
 	fprintf(stderr, "%s: New log volume %d, at ", pmProgname, nextvol);
 	__pmPrintStamp(stderr, &stamp);
 	fputc('\n', stderr);
@@ -768,7 +768,7 @@ write_metareclist(pmResult *result, int *needti)
 	if (curr_desc == NULL) {
 	    /* descriptor has not been found - this is bad
 	     */
-	    fprintf(stderr, "%s: Error: meta data (TYPE_DESC) for pmid %d has not been found.\n", pmProgname, pmid);
+	    fprintf(stderr, "%s: Error: meta data (TYPE_DESC) for pmid %s has not been found.\n", pmProgname, pmIDStr(pmid));
 	    abandon();
 	}
 	else {
@@ -785,8 +785,8 @@ write_metareclist(pmResult *result, int *needti)
 		/* descriptor is in list, has not been written, but no pdu
 		 *  - this is bad
 		 */
-		fprintf(stderr, "%s: Error: missing pdu for pmid %d\n",
-			pmProgname, pmid);
+		fprintf(stderr, "%s: Error: missing pdu for pmid %s\n",
+			pmProgname, pmIDStr(pmid));
 	        abandon();
 	    }
 	    else {
@@ -1902,6 +1902,10 @@ main(int argc, char **argv)
 
 	current.tv_sec = (long)now;
 	current.tv_usec = (now - (double)current.tv_sec) * 1000000.0;
+	if (current.tv_usec < 0) {
+	    current.tv_usec += 1000000;
+	    current.tv_sec--;
+	}
 
 	/* prepare to write out log record
 	 */
