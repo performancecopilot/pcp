@@ -21,6 +21,8 @@
 #include "pmda.h"
 #include "dsotbl.h"
 
+static __pmDSO *dsotab = dsotab_i;
+
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
 #endif
@@ -405,7 +407,6 @@ __pmLookupDSO(int domain)
 int
 __pmConnectLocal(void)
 {
-    static int		done_init = 0;
     int			i;
     __pmDSO		*dp;
     char		pathbuf[MAXPATHLEN];
@@ -415,11 +416,10 @@ __pmConnectLocal(void)
     void		(*initp)(pmdaInterface *);
 #endif
 
-    if (done_init)
-	return 0;
-
     for (i = 0; i < numdso; i++) {
 	dp = &dsotab[i];
+	if (dp->domain == -1 || dp->handle != NULL)
+	    continue;
 	if (dp->domain == SAMPLE_DSO) {
 	    /*
 	     * only attach sample pmda dso if env var PCP_LITE_SAMPLE
@@ -451,47 +451,47 @@ __pmConnectLocal(void)
 	    }
 	}
 #endif
-#if defined(IB_DSO)
-	if (dp->domain == IB_DSO) {
-	    /*
-	     * only attach infiniband pmda dso if env var PMDA_LOCAL_IB is
-	     * set
-	     */
-	    if (getenv("PMDA_LOCAL_IB") == NULL) {
-		/* no infiniband pmda */
-		dp->domain = -1;
-		continue;
-	    }
-	}
-#endif
 
+	/*
+	 * __pmLocalPMDA() means the path to the DSO may be something
+	 * other than relative to $PCP_PMDAS_DIR ... need to try both
+	 * options and also with and without DSO_SUFFIX (so, dll, etc)
+	 */
 	snprintf(pathbuf, sizeof(pathbuf), "%s%c%s",
 		 pmGetConfig("PCP_PMDAS_DIR"), __pmPathSeparator(), dp->name);
 	if ((path = __pmFindPMDA(pathbuf)) == NULL) {
-	    pmprintf("__pmConnectLocal: Warning: cannot find DSO \"%s\"\n", 
-		     pathbuf);
-	    pmflush();
-	    dp->domain = -1;
-	    dp->handle = NULL;
-	}
-	else {
-#if defined(HAVE_DLOPEN)
-            dp->handle = dlopen(path, RTLD_NOW);
-	    if (dp->handle == NULL) {
-		pmprintf("__pmConnectLocal: Warning: error attaching DSO "
-			 "\"%s\"\n%s\n\n", path, dlerror());
-		pmflush();
-		dp->domain = -1;
+	    snprintf(pathbuf, sizeof(pathbuf), "%s%c%s.%s",
+		 pmGetConfig("PCP_PMDAS_DIR"), __pmPathSeparator(), dp->name, DSO_SUFFIX);
+	    if ((path = __pmFindPMDA(pathbuf)) == NULL) {
+		if ((path = __pmFindPMDA(dp->name)) == NULL) {
+		    snprintf(pathbuf, sizeof(pathbuf), "%s.%s", dp->name, DSO_SUFFIX);
+		    if ((path = __pmFindPMDA(pathbuf)) == NULL) {
+			pmprintf("__pmConnectLocal: Warning: cannot find DSO at \"%s\" or \"%s\"\n", 
+			     pathbuf, dp->name);
+			pmflush();
+			dp->domain = -1;
+			dp->handle = NULL;
+			continue;
+		    }
+		}
 	    }
-#else	/* ! HAVE_DLOPEN */
-	    dp->handle = NULL;
-	    pmprintf("__pmConnectLocal: Warning: error attaching DSO \"%s\"\n",
-		     path);
-	    pmprintf("No dynamic DSO/DLL support on this platform\n\n");
+	}
+#if defined(HAVE_DLOPEN)
+	dp->handle = dlopen(path, RTLD_NOW);
+	if (dp->handle == NULL) {
+	    pmprintf("__pmConnectLocal: Warning: error attaching DSO "
+		     "\"%s\"\n%s\n\n", path, dlerror());
 	    pmflush();
 	    dp->domain = -1;
-#endif
 	}
+#else	/* ! HAVE_DLOPEN */
+	dp->handle = NULL;
+	pmprintf("__pmConnectLocal: Warning: error attaching DSO \"%s\"\n",
+		 path);
+	pmprintf("No dynamic DSO/DLL support on this platform\n\n");
+	pmflush();
+	dp->domain = -1;
+#endif
 
 	if (dp->handle == NULL)
 	    continue;
@@ -500,7 +500,10 @@ __pmConnectLocal(void)
 	/*
 	 * rest of this only makes sense if the dlopen() worked
 	 */
-	initp = (void (*)(pmdaInterface *))dlsym(dp->handle, dp->init);
+	if (dp->init == NULL)
+	    initp = NULL;
+	else
+	    initp = (void (*)(pmdaInterface *))dlsym(dp->handle, dp->init);
 	if (initp == NULL) {
 	    pmprintf("__pmConnectLocal: Warning: couldn't find init function "
 		     "\"%s\" in DSO \"%s\"\n", dp->init, path);
@@ -586,7 +589,152 @@ __pmConnectLocal(void)
 #endif	/* HAVE_DLOPEN */
     }
 
-    done_init = 1;
-
     return 0;
+}
+
+int
+__pmLocalPMDA(int op, int domain, const char *name, const char *init)
+{
+    int		sts = 0;
+    int		i;
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_CONTEXT) {
+	fprintf(stderr, "__pmLocalPMDA(op=");
+	if (op == PM_LOCAL_ADD) fprintf(stderr, "ADD");
+	else if (op == PM_LOCAL_DEL) fprintf(stderr, "DEL");
+	else if (op == PM_LOCAL_CLEAR) fprintf(stderr, "CLEAR");
+	else fprintf(stderr, "%d ???", op);
+	fprintf(stderr, ", domain=%d, name=%s, init=%s)\n", domain, name, init);
+    }
+#endif
+
+    if (dsotab == dsotab_i) {
+	/*
+	 * first call, so promote dsotab[] to be a malloc'd copy of
+	 * dsotab_i[] so we can realloc from here on ...
+	 */
+	if ((dsotab = (__pmDSO *)malloc(numdso*sizeof(__pmDSO))) == NULL) {
+	    sts = -errno;
+	    __pmNoMem("__pmAddLocalPMDA malloc", numdso*sizeof(__pmDSO), PM_RECOV_ERR);
+	    dsotab = dsotab_i;
+	    return sts;
+	}
+	memcpy((void *)dsotab, (void *)dsotab_i, numdso*sizeof(__pmDSO));
+	/*
+	 * need to strdup name and init so PM_LOCAL_CLEAR works for
+	 * all entries
+	 */
+	for (i = 0; i < numdso; i++) {
+	    if ((dsotab[i].name = strdup(dsotab_i[i].name)) == NULL) {
+		sts = -errno;
+		__pmNoMem("__pmAddLocalPMDA init name", strlen(dsotab_i[i].name)+1, PM_RECOV_ERR);
+		i--;
+		while (i >= 0) {
+		    free(dsotab[i].name);
+		    free(dsotab[i].init);
+		    i--;
+		}
+		free(dsotab);
+		dsotab = dsotab_i;
+		return sts;
+	    }
+	    if ((dsotab[i].init = strdup(dsotab_i[i].init)) == NULL) {
+		sts = -errno;
+		__pmNoMem("__pmAddLocalPMDA init", strlen(dsotab_i[i].init)+1, PM_RECOV_ERR);
+		free(dsotab[i].name);
+		i--;
+		while (i >= 0) {
+		    free(dsotab[i].name);
+		    free(dsotab[i].init);
+		    i--;
+		}
+		free(dsotab);
+		dsotab = dsotab_i;
+		return sts;
+	    }
+	}
+    }
+
+    switch (op) {
+	case PM_LOCAL_ADD:
+	    if ((dsotab = (__pmDSO *)realloc(dsotab, (numdso+1)*sizeof(__pmDSO))) == NULL) {
+		__pmNoMem("__pmAddLocalPMDA realloc", (numdso+1)*sizeof(__pmDSO), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    dsotab[numdso].domain = domain;
+	    if (name == NULL) {
+		/* odd, will fail later at dlopen */
+		dsotab[numdso].name = NULL;
+	    }
+	    else {
+		if ((dsotab[numdso].name = strdup(name)) == NULL) {
+		    sts = -errno;
+		    __pmNoMem("__pmAddLocalPMDA name", strlen(name)+1, PM_RECOV_ERR);
+		    return sts;
+		}
+	    }
+	    if (init == NULL) {
+		/* odd, will fail later at initialization call */
+		dsotab[numdso].init = NULL;
+	    }
+	    else {
+		if ((dsotab[numdso].init = strdup(init)) == NULL) {
+		    sts = -errno;
+		    __pmNoMem("__pmAddLocalPMDA init", strlen(init)+1, PM_RECOV_ERR);
+		    return sts;
+		}
+	    }
+	    dsotab[numdso].handle = NULL;
+	    numdso++;
+	    break;
+
+	case PM_LOCAL_DEL:
+	    sts = PM_ERR_INDOM;
+	    for (i = 0; i < numdso; i++) {
+		if ((domain != -1 && dsotab[i].domain == domain) ||
+		    (name != NULL && strcmp(dsotab[i].name, name) == 0)) {
+		    if (dsotab[i].handle) {
+			dlclose(dsotab[i].handle);
+			dsotab[i].handle = NULL;
+		    }
+		    dsotab[i].domain = -1;
+		    sts = 0;
+		}
+	    }
+	    break;
+
+	case PM_LOCAL_CLEAR:
+	    for (i = 0; i < numdso; i++) {
+		free(dsotab[i].name);
+	    	free(dsotab[i].init);
+		if (dsotab[i].handle)
+		    dlclose(dsotab[i].handle);
+	    }
+	    free(dsotab);
+	    dsotab = NULL;
+	    numdso = 0;
+	    break;
+
+	default:
+	    sts = PM_ERR_CONV;
+	    break;
+    }
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_CONTEXT) {
+	if (sts != 0)
+	    fprintf(stderr, "__pmLocalPMDA -> %s\n", pmErrStr(sts));
+	fprintf(stderr, "Local Context PMDA Table");
+	if (numdso == 0)
+	    fprintf(stderr, " ... empty");
+	fputc('\n', stderr);
+	for (i = 0; i < numdso; i++) {
+	    fprintf(stderr, "%p [%d] domain=%d name=%s init=%s handle=%p\n",
+		&dsotab[i], i, dsotab[i].domain, dsotab[i].name, dsotab[i].init, dsotab[i].handle);
+	}
+    }
+#endif
+
+    return sts;
 }

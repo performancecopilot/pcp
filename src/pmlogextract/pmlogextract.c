@@ -1902,10 +1902,6 @@ main(int argc, char **argv)
 
 	current.tv_sec = (long)now;
 	current.tv_usec = (now - (double)current.tv_sec) * 1000000.0;
-	if (current.tv_usec < 0) {
-	    current.tv_usec += 1000000;
-	    current.tv_sec--;
-	}
 
 	/* prepare to write out log record
 	 */
