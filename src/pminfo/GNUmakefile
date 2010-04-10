@@ -19,9 +19,8 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pminfo.c
+CFILES = pminfo.c do_local_spec.c
 LLDLIBS = -lpcp
-LCFLAGS = -DPM_USE_CONTEXT_LOCAL
 CMDTARGET = pminfo$(EXECSUFFIX)
 
 default : $(CMDTARGET)
