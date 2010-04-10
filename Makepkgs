@@ -59,7 +59,7 @@ tmp=/tmp/$$
 trap "rm -f $tmp.*;" 0 1 2 3 15
 
 # Sanity checks ... this is sick, but I'm really tired of QA failing
-# because of bad binaries being built by the Ubuntu toolchain.
+# because of bad binaries being built from the Ubuntu toolchain.
 # - Ken McDonell Apr 2010
 #
 if [ -f /etc/lsb-release ]
