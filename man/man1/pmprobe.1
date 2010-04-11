@@ -18,9 +18,10 @@
 \f3pmprobe\f1 \- lightweight probe for performance metrics
 .SH SYNOPSIS
 \f3pmprobe\f1
-[\f3\-fIiVvz\f1]
+[\f3\-fIiLVvz\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-h\f1 \f2hostname\f1]
+[\f3\-K\f1 \f2spec\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-O\f1 \f2time\f1]
 [\f3\-Z\f1 \f2timezone\f1]
@@ -72,6 +73,18 @@ and
 .B \-h
 options are mutually exclusive.
 .PP
+The
+.B \-L
+option causes
+.B pmprobe
+to use a local context to collect metrics from PMDAs on the local host
+without PMCD.  Only some metrics are available in this mode.
+The
+.BR \-a , \-h
+and
+.B \-L
+options are mutually exclusive.
+.PP
 Normally
 .B pmprobe
 operates on the distributed Performance Metrics Name Space (PMNS),
@@ -106,6 +119,47 @@ in decimal and prefixed by ``?''.  As a special case, the literal
 string
 .B PM_IN_NULL
 is reported for singular metrics.
+.TP
+.B \-K
+When using the
+.B \-L
+option to fetch metrics from a local context, the
+.B \-K
+option may be used to control the DSO PMDAs that should be
+made accessible.  The
+.I spec
+argument specifies one or more DSO PMDAs using up to four fields separated by colons
+(``:''), namely:
+.RS 5
+.PD 0
+.TP 3n
+.IP \-
+an opcode with one of the values
+.B add
+(add a new entry),
+.B del
+(delete an existing entry) or
+.B clear
+(clear all entries from the table).
+.IP \-
+the PMDA's domain number
+.IP \-
+the path to the PMDA DSO (may
+be absolute or relative to the $PCP_VAR_DIR/pmdas directory and
+the DSO suffix is optional), and
+.IP \-
+the
+name of the PMDA's initialization routine.
+.PD
+.PP
+All fields are required to add a new entry.  To delete an entry the opcode
+is required plus either or both of the domain number and path fields.
+To clear all entries, only the opcode is required.
+.PP
+More than one
+.B \-K
+option may be used.
+.RE
 .TP
 .B \-O
 When used in conjunction with an archive source of metrics and

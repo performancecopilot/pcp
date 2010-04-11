@@ -103,11 +103,12 @@ __pmSendProfile(int fd, int mode, int ctxnum, __pmProfile *instprof)
 int
 __pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
 {
-    __pmProfile		*instprof;
+    __pmProfile		*instprof = NULL;
     __pmInDomProfile	*prof, *p_end;
     profile_t		*pduProfile;
     instprof_t		*pduInstProf;
     __pmPDU		*p;
+    int			sts = 0;
 
     if (mode == PDU_ASCII)
 	return PM_ERR_NOASCII;
@@ -120,13 +121,16 @@ __pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
     if ((instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL)
 	return -errno;
     instprof->state = ntohl(pduProfile->g_state);
+    instprof->profile = NULL;
     instprof->profile_len = ntohl(pduProfile->numprof);
     p += sizeof(profile_t) / sizeof(__pmPDU);
 
     if (instprof->profile_len > 0) {
 	if ((instprof->profile = (__pmInDomProfile *)malloc(
-	     instprof->profile_len * sizeof(__pmInDomProfile))) == NULL)
-	    return -errno;
+	     instprof->profile_len * sizeof(__pmInDomProfile))) == NULL) {
+	    sts = -errno;
+	    goto fail;
+	}
 
 	/* Next the profiles (if any) all together */
 	for (prof = instprof->profile, p_end = prof + instprof->profile_len;
@@ -135,6 +139,7 @@ __pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
 	    pduInstProf = (instprof_t *)p;
 	    prof->indom = __ntohpmInDom(pduInstProf->indom);
 	    prof->state = ntohl(pduInstProf->state);
+	    prof->instances = NULL;
 	    prof->instances_len = ntohl(pduInstProf->numinst);
 	    p += sizeof(instprof_t) / sizeof(__pmPDU);
 	}
@@ -145,11 +150,17 @@ __pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
 	     prof++) {
 	    int j;
 
-	    prof->instances = (int *)malloc(prof->instances_len * sizeof(int));
-	    if (prof->instances == NULL)
-		return -errno;
-	    for (j = 0; j < prof->instances_len; j++, p++)
-		prof->instances[j] = ntohl(*p);
+	    if (prof->instances_len > 0) {
+		prof->instances = (int *)malloc(prof->instances_len * sizeof(int));
+		if (prof->instances == NULL) {
+		    sts = -errno;
+		    goto fail;
+		}
+		for (j = 0; j < prof->instances_len; j++, p++)
+		    prof->instances[j] = ntohl(*p);
+	    }
+	    else
+		prof->instances = NULL;
 	}
     }
     else
@@ -157,4 +168,19 @@ __pmDecodeProfile(__pmPDU *pdubuf, int mode, int *ctxnum, __pmProfile **result)
 
     *result = instprof;
     return 0;
+
+fail:
+    if (instprof != NULL) {
+	if (instprof->profile != NULL) {
+	    for (prof = instprof->profile, p_end = prof+instprof->profile_len;
+		 prof < p_end;
+		 prof++) {
+		if (prof->instances != NULL)
+		    free(prof->instances);
+	    }
+	    free(instprof->profile);
+	}
+	free(instprof);
+    }
+    return sts;
 }

@@ -18,10 +18,12 @@
 \f3pminfo\f1 \- display information about performance metrics
 .SH SYNOPSIS
 \f3pminfo\f1
-[\f3\-dfFMmtTvz\f1]
+[\f3\-dfFLmMtTvz\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-b\f1 \f2batchsize\f1]
+[\f3\-c\f1 \f2dmfile\f1]
 [\f3\-h\f1 \f2hostname\f1]
+[\f3\-K\f1 \f2spec\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-O\f1 \f2time\f1]
 [\f3\-Z\f1 \f2timezone\f1]
@@ -54,7 +56,7 @@ argument is given, the root of the PMNS is used.
 .PP
 Unless directed to another host by the
 .B \-h
-option,
+option, by default
 .B pminfo
 will contact the Performance Metrics Collector Daemon
 (PMCD) on the local host.
@@ -74,6 +76,18 @@ and
 options are mutually exclusive.
 .PP
 The
+.B \-L
+option causes
+.B pminfo
+to use a local context to collect metrics from PMDAs on the local host
+without PMCD.  Only some metrics are available in this mode.
+The
+.BR \-a , \-h
+and
+.B \-L
+options are mutually exclusive.
+.PP
+The
 .B \-b
 option may be used to define the maximum size of the group of metrics to
 be fetched in a single request for the
@@ -86,6 +100,27 @@ is 20.
 .PP
 Other options control the specific information to be reported.
 .TP 5
+.B \-c
+The
+.I dmfile
+argument specfies a file that contains derived metric definitions
+in the format described for
+.BR pmLoadDerivedConfig (3).
+The
+.B \-c
+option provides a way to load derived metric definitions
+that is an alternative to the more generic use of the
+.B PCP_DERIVED_CONFIG
+environment variable as described in
+.BR PCPIntro (1).
+Using the
+.B \-c
+option and the
+.B PCP_DERIVED_CONFIG
+environment variable to specify the
+.B same
+configuration is a bad idea, so choose one or the other method.
+.TP
 .B \-d
 Metric descriptions detailing the PMID, data type, data semantics, units,
 scale and associated instance domain.
@@ -106,6 +141,47 @@ Same as
 but try harder to fetch instances for metrics which have non-enumerable
 instance domains (e.g. metrics in the ``proc'' subtree of the default
 PMNS).
+.TP
+.B \-K
+When using the
+.B \-L
+option to fetch metrics from a local context, the
+.B \-K
+option may be used to control the DSO PMDAs that should be
+made accessible.  The
+.I spec
+argument specifies one or more DSO PMDAs using up to four fields separated by colons
+(``:''), namely:
+.RS 5
+.PD 0
+.TP 3n
+.IP \-
+an opcode with one of the values
+.B add
+(add a new entry),
+.B del
+(delete an existing entry) or
+.B clear
+(clear all entries from the table).
+.IP \-
+the PMDA's domain number
+.IP \-
+the path to the PMDA DSO (may
+be absolute or relative to the $PCP_VAR_DIR/pmdas directory and
+the DSO suffix is optional), and
+.IP \-
+the
+name of the PMDA's initialization routine.
+.PD
+.PP
+All fields are required to add a new entry.  To delete an entry the opcode
+is required plus either or both of the domain number and path fields.
+To clear all entries, only the opcode is required.
+.PP
+More than one
+.B \-K
+option may be used.
+.RE
 .TP
 .B \-m
 Print the PMID in terse mode.
@@ -201,6 +277,7 @@ as described in
 .BR pmdumptext (1),
 .BR pmprobe (1),
 .BR pmval (1),
+.BR pmLoadDerivedConfig (3),
 .BR pcp.conf (4),
 .BR pcp.env (4)
 and
