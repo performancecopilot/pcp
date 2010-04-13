@@ -20,10 +20,9 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pmval.c do_local_spec.c
+CFILES = pmval.c
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
 LLDLIBS = -lpcp_gui -lpcp -lm
-LDIRT = do_local_spec.c
 
 CMDTARGET = pmval$(EXECSUFFIX)
 
@@ -38,10 +37,3 @@ default_pcp:	default
 
 install_pcp:	install
 
-do_local_spec.c:	../pminfo/do_local_spec.c
-	rm -f do_local_spec.c
-	@echo "/********************************************************" >do_local_spec.c
-	@echo " * copied from ../pminfo/do_local_spec.c -- DO NOT EDIT *" >>do_local_spec.c
-	@echo " ********************************************************/" >>do_local_spec.c
-	cat ../pminfo/do_local_spec.c >>do_local_spec.c
-	chmod 444 do_local_spec.c

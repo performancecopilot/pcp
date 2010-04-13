@@ -772,8 +772,6 @@ getinstance(char *p)
     return start;
 }
 
-extern int do_local_spec(const char *);
-
 /* extract command line arguments - exits on error */
 static void
 getargs(int		argc,		/* in - command line argument count */
@@ -793,6 +791,7 @@ getargs(int		argc,		/* in - command line argument count */
     char	*host = local;
     int		sts;
     char        *endnum;
+    char        *errmsg;
 
     char	    *Sflag = NULL;		/* argument of -S flag */
     char	    *Tflag = NULL;		/* argument of -T flag */
@@ -886,7 +885,10 @@ getargs(int		argc,		/* in - command line argument count */
 	    break;
 
 	case 'K':	/* update local PMDA table */
-	    errflag += do_local_spec(optarg);
+	    if ((errmsg = __pmSpecLocalPMDA(optarg)) != NULL) {
+		fprintf(stderr, "%s: __pmSpecLocalPMDA failed\n%s\n", pmProgname, errmsg);
+		errflag++;
+	    }
 	    break;
 
 	case 'n':		/* alternative name space file */

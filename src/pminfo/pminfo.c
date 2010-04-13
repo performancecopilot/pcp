@@ -45,8 +45,6 @@ static int	zflag;		/* for -z */
 static char 	*tz;		/* for -Z timezone */
 static struct timeval 	start;	/* start of time window */
 
-extern int do_local_spec(const char *);
-
 /*
  * stolen from pmprobe.c ... cache all of the most recently requested
  * pmInDom ...
@@ -364,6 +362,7 @@ ParseOptions(int argc, char *argv[])
     int		sts;
     int		errflag = 0;
     char	*endnum;
+    char	*errmsg;
     char	*opts = "a:b:c:dD:Ffn:h:K:LMmO:tTvzZ:?";
 
     while ((c = getopt(argc, argv, opts)) != EOF) {
@@ -435,7 +434,10 @@ ParseOptions(int argc, char *argv[])
 		break;
 
 	    case 'K':	/* update local PMDA table */
-		errflag += do_local_spec(optarg);
+		if ((errmsg = __pmSpecLocalPMDA(optarg)) != NULL) {
+		    fprintf(stderr, "%s: __pmSpecLocalPMDA failed: %s\n", pmProgname, errmsg);
+		    errflag++;
+		}
 		break;
 
 	    case 'L':	/* local PMDA connection, no PMCD */
