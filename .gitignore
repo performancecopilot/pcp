@@ -1,5 +1,6 @@
 *~
 *.o
+*.exe
 Logs
 autom4te.cache
 config.log
