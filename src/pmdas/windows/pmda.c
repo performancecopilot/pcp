@@ -1,7 +1,7 @@
 /*
  * Windows PMDA
  *
- * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1322,7 +1322,7 @@ windows_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmd
 static int
 windows_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    windows_fetch_refresh(numpmid, pmidlist);
+    windows_fetch_refresh(numpmid, pmidlist, pmda);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
@@ -1530,20 +1530,20 @@ windows_init(pmdaInterface *dp)
 	return;
     }
 
-    windows_open();
-
+    /* rewrite pmid & indom, now that we know what the domain number is */
     for (i = 0; i < metrictab_sz; i++) {
-	/* rewrite pmid & indom, now that we know what the domain number is */
 	pdh_metric_t *mp = &metricdesc[i];
 	pmID pmid = mp->desc.pmid;
-
-	mp->desc.pmid = pmid_build(dp->domain,
-				   pmid_cluster(pmid), pmid_item(pmid));
+	mp->desc.pmid = pmid_build(dp->domain, pmid_cluster(pmid), pmid_item(pmid));
 	if (mp->desc.indom != PM_INDOM_NULL)
 	    mp->desc.indom = INDOM(dp->domain, mp->desc.indom);
+    }
 
-	/* write the metrictab entry for this metric */
-	metrictab[i].m_desc = mp->desc;
+    windows_open(dp->domain);
+
+    /* write the metrictab entry for this metric, descriptor now setup */
+    for (i = 0; i < metrictab_sz; i++) {
+	metrictab[i].m_desc = metricdesc[i].desc;
 	metrictab[i].m_user = NULL;
     }
 

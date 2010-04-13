@@ -81,6 +81,18 @@ mmv_lookup_indom(__int32_t indom, const mmv_indom_t *in, int nindoms)
     return NULL;
 }
 
+static __uint64_t
+mmv_generation(void)
+{
+    struct timeval now;
+    __uint32_t gen1, gen2;
+
+    gettimeofday(&now, NULL);
+    gen1 = now.tv_sec;
+    gen2 = now.tv_usec;
+    return (((__uint64_t)gen1 << 32) | (__uint64_t)gen2);
+}
+
 void * 
 mmv_stats_init(const char *fname,
 		int cluster, mmv_stats_flags_t fl,
@@ -198,7 +210,7 @@ mmv_stats_init(const char *fname,
     hdr = (mmv_disk_header_t *) addr;
     strncpy(hdr->magic, "MMV", 4);
     hdr->version = MMV_VERSION;
-    hdr->g1 = (__uint64_t) time(NULL);
+    hdr->g1 = mmv_generation();
     hdr->g2 = 0;
     hdr->tocs = 2;
     if (nindoms)

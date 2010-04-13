@@ -1,3 +1,18 @@
+pcp-3.1.2 (22 March 2010)
+    - Add indom save and restore logic into Windows PMDA.
+    - Fix a typo in the Postfix PMDA.
+    - Update and extend /proc/meminfo stats on Linux.
+    - Improve handling of monitored process in pmdammv, especially
+      when the monitored process exits (pmns not cleaned up before).
+
+pcp-3.1.1 (23 February 2010)
+    - Use a better MMV generation number, using all bits available.
+    - Fix a metric count calculation error in pmdammv.
+    - Add precision argument (-p) to pmwtf.
+    - Added an open socket sockname command to dbpmda.
+    - Remove use of grep -q, unavailable on OpenSolaris.
+    - Couple of trivial build fixes for the Win32 platform.
+
 pcp-3.1.0 (28 January 2010)
     - Derived metric support.
     - Fix a memory leak in the Solaris kernel PMDA.

@@ -52,6 +52,7 @@ extern void openpmda(char *);
 extern void closepmda(void);
 extern void dopmda(int);
 extern void watch(char *);
+extern void opensocket(char *);
 
 /*
  * make sure these are different to PDU_BINARY or PDU_ASCII

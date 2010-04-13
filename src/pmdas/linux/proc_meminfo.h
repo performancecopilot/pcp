@@ -26,6 +26,12 @@ typedef struct {
     int64_t SwapCached;
     int64_t Active;
     int64_t Inactive;
+    int64_t Active_anon;
+    int64_t Inactive_anon;
+    int64_t Active_file;
+    int64_t Inactive_file;
+    int64_t Unevictable;
+    int64_t Mlocked;
     int64_t HighTotal;
     int64_t HighFree;
     int64_t LowTotal;
@@ -36,7 +42,9 @@ typedef struct {
     int64_t Dirty;
     int64_t Writeback;
     int64_t Mapped;
+    int64_t Shmem;
     int64_t Slab;
+    int64_t KernelStack;
     int64_t CommitLimit;
     int64_t Committed_AS;
     int64_t PageTables;
@@ -46,6 +54,16 @@ typedef struct {
     int64_t NFS_Unstable;
     int64_t SlabReclaimable;
     int64_t SlabUnreclaimable;
+    int64_t WritebackTmp;
+    int64_t VmallocTotal;
+    int64_t VmallocUsed;
+    int64_t VmallocChunk;
+    int64_t HugepagesTotal;
+    int64_t HugepagesFree;
+    int64_t HugepagesRsvd;
+    int64_t HugepagesSurp;
+    int64_t directMap4k;
+    int64_t directMap2M;
 } proc_meminfo_t;
 
 extern int refresh_proc_meminfo(proc_meminfo_t *);

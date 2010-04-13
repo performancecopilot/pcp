@@ -822,9 +822,16 @@ _setup()
 	perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns"
 	perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h"
 	perl -e 'use PCP::PMDA' 2>/dev/null
-	if test $? -eq 0; then
+	if test $? -eq 0
+	then
 	    eval PCP_PERL_DOMAIN=1 perl "$perl_name" > "$perl_dom"
 	    eval PCP_PERL_PMNS=1 perl "$perl_name" > "$perl_pmns"
+	elif $dso_opt || $daemon_opt
+	then
+	    :	# we have an alternative, so continue on
+	else
+	    echo 'Perl PCP::PMDA module is not installed, install it and try again'
+	    exit 1
 	fi
     fi
 
@@ -1037,7 +1044,8 @@ _install()
 		elif [ "X$pmda_type" = Xperl ]
 		then
 		    perl -e 'use PCP::PMDA' 2>/dev/null
-		    if test $? -ne 0; then
+		    if test $? -ne 0
+		    then
 			echo 'Perl PCP::PMDA module is not installed, install it and try again'
 		    else
 			break

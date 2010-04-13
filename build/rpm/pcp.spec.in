@@ -267,6 +267,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Tue Feb 23 2010 Nathan Scott <nathans@aconex.com> - 3.1.1-1
+- Update to latest PCP sources.
+
 * Mon Oct 19 2009 Martin Hicks <mort@sgi.com> - 3.0.1-2
 - Remove IB dependencies.  The Infiniband PMDA is being moved to
   a stand-alone package.

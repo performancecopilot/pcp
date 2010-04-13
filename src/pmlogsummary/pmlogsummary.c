@@ -947,7 +947,7 @@ main(int argc, char *argv[])
 	case 'B':	/* number of distribution bins */
 	    sts = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0' || sts < 0) {
-		fprintf(stderr, "%s: -B requires postive numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -B requires positive numeric argument\n", pmProgname);
 		errflag++;
 	    }
 	    else
