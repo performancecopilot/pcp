@@ -172,6 +172,7 @@ MD5SUM	= @md5sum@
 
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
+NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 CPP_SIMPLE = @cpp_simple@
 CPP_SIMPLE_ARGS = @cpp_simple_args@
 RDYNAMIC_FLAG = @rdynamic_flag@
@@ -241,15 +242,19 @@ INSTALL_MAN = \
 	    [ -z "$$m" -o "$$m" = "\\" ] && continue; \
 	    t=$(MAN_DEST)/$$m.$(MAN_SECTION); \
 	    if $$first; then \
+		_tfx= ;\
+		if $(NEED_OLD_TBL_HEADER) ; then \
+		    $(SED) -e "1s/^'\\\\\"! tbl.*/'\\\\\" t/" $$d > $$d.tmp; _tfx=.tmp; \
+		fi; \
 		if $(HAVE_GZIPPED_MANPAGES) ; then \
-		    $(ZIP) -c $$d > $$d.gz; _sfx=.gz; \
+		    $(ZIP) -c $$d$$_tfx > $$d.gz; _tfx=.gz; _sfx=.gz; \
 		fi; \
 		if $(HAVE_BZIP2ED_MANPAGES) ; then \
-		    $(BZIP2) -c $$d > $$d.bz2; _sfx=.bz2; \
+		    $(BZIP2) -c $$d$$_tfx > $$d.bz2; _tfx=.bz2; _sfx=.bz2; \
 		fi; \
 		u=$$m.$(MAN_SECTION)$$_sfx; \
-		echo $(INSTALL) -m 644 $${d}$$_sfx $${t}$$_sfx; \
-		$(INSTALL) -m 644 $${d}$$_sfx $${t}$$_sfx; \
+		echo $(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
+		$(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 	    else \
 		if test ! -z $(CASE_INSENSITIVE_FS) -a $(CASE_INSENSITIVE_FS); then \
 		    if test "`echo $$u | tr 'a-z' 'A-Z'`" != "`basename $${t}$$_sfx | tr 'a-z' 'A-Z'`"; then \
