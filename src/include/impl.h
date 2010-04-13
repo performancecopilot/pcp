@@ -1202,6 +1202,7 @@ extern void __dmpostfetch(__pmContext *, pmResult **);
 #define PM_LOCAL_DEL	2
 #define PM_LOCAL_CLEAR	3
 extern int __pmLocalPMDA(int, int, const char *, const char *);
+extern char *__pmSpecLocalPMDA(const char *);
 
 #ifdef __cplusplus
 }

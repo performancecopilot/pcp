@@ -159,7 +159,10 @@ main(int argc, char **argv)
 	    break;
 
 	case 'K':	/* update local PMDA table */
-	    errflag += do_local_spec(optarg);
+	    if ((msg = __pmSpecLocalPMDA(optarg)) != NULL) {
+		fprintf(stderr, "%s: __pmSpecLocalPMDA failed\n%s\n", pmProgname, msg);
+		errflag++;
+	    }
 	    break;
 
 	case 'L':	/* local PMDA connection, no PMCD */

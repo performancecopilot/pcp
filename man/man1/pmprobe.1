@@ -128,38 +128,11 @@ option to fetch metrics from a local context, the
 option may be used to control the DSO PMDAs that should be
 made accessible.  The
 .I spec
-argument specifies one or more DSO PMDAs using up to four fields separated by colons
-(``:''), namely:
-.RS 5
-.PD 0
-.TP 3n
-.IP \-
-an opcode with one of the values
-.B add
-(add a new entry),
-.B del
-(delete an existing entry) or
-.B clear
-(clear all entries from the table).
-.IP \-
-the PMDA's domain number
-.IP \-
-the path to the PMDA DSO (may
-be absolute or relative to the $PCP_VAR_DIR/pmdas directory and
-the DSO suffix is optional), and
-.IP \-
-the
-name of the PMDA's initialization routine.
-.PD
-.PP
-All fields are required to add a new entry.  To delete an entry the opcode
-is required plus either or both of the domain number and path fields.
-To clear all entries, only the opcode is required.
-.PP
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA (3).
 More than one
 .B \-K
 option may be used.
-.RE
 .TP
 .B \-O
 When used in conjunction with an archive source of metrics and
@@ -287,6 +260,7 @@ as described in
 .BR pminfo (1),
 .BR PMAPI (3),
 .BR pmErrStr (3),
+.BR __pmSpecLocalPMDA (3),
 .BR pcp.conf (4),
 .BR pcp.env (4)
 and
