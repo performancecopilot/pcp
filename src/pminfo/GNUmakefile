@@ -21,7 +21,6 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = pminfo.c
 LLDLIBS = -lpcp
-LCFLAGS = -DPM_USE_CONTEXT_LOCAL
 CMDTARGET = pminfo$(EXECSUFFIX)
 
 default : $(CMDTARGET)

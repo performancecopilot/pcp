@@ -113,7 +113,7 @@ void usage()
 	"  -h name	read metrics from PMCD on named host\n"
 	"  -H file	read host's names from the file\n"
 	"  -l		print last 7 charcters of the host name\n"
-	"  -L		use standalone connection to localhost\n"
+	"  -L		metrics source is local connection to PMDA, no PMCD\n"
 	"  -n pmnsfile	use an alternative PMNS\n"
 	"  -O offset	initial offset into the time window\n"
 	"  -P		pause between updates for archive replay\n"
@@ -492,7 +492,7 @@ main(int argc, char *argv[])
 	    printTail++;
 	    break;
 
-	case 'L':	/* standalone, no PMCD */
+	case 'L':	/* local PMDA connection, no PMCD */
 	    if (ctxType) {
 		fprintf(stderr, "%s: -a, -h and -L are mutually exclusive\n",
 			pmProgname);

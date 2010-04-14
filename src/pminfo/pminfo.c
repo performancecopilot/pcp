@@ -338,11 +338,11 @@ Options:\n\
   -d		get and print metric description\n\
   -f		fetch and print value(s) for all instances\n\
   -F		fetch and print values for non-enumerable indoms too\n\
-  -h host	metrics source is PMCD on host\n"
-#ifdef PM_USE_CONTEXT_LOCAL
-"  -L		metrics source is local, no PMCD\n"
-#endif
-"  -m		print PMID\n\
+  -h host	metrics source is PMCD on host\n\
+  -K spec	optional additional PMDA spec for local connection\n\
+		spec is of the form op,domain,dso-path,init-routine\n\
+  -L		metrics source is local connection to PMDA, no PMCD\n\
+  -m		print PMID\n\
   -M		print PMID in verbose format\n\
   -n pmnsfile 	use an alternative PMNS\n\
   -O time	origin for a fetch from the archive\n\
@@ -362,22 +362,15 @@ ParseOptions(int argc, char *argv[])
     int		sts;
     int		errflag = 0;
     char	*endnum;
-#ifdef PM_USE_CONTEXT_LOCAL
-    char	*opts = "a:b:c:dD:Ffn:h:LMmO:tTvzZ:?";
-#else
-    char	*opts = "a:b:c:dD:Ffn:h:MmO:tTvzZ:?";
-#endif
+    char	*errmsg;
+    char	*opts = "a:b:c:dD:Ffn:h:K:LMmO:tTvzZ:?";
 
     while ((c = getopt(argc, argv, opts)) != EOF) {
 	switch (c) {
 
 	    case 'a':	/* archive name */
 		if (type != 0) {
-#ifdef PM_USE_CONTEXT_LOCAL
 		    fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
-#else
-		    fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
-#endif
 		    errflag++;
 		}
 		type = PM_CONTEXT_ARCHIVE;
@@ -432,11 +425,7 @@ ParseOptions(int argc, char *argv[])
 
 	    case 'h':	/* contact PMCD on this hostname */
 		if (type != 0) {
-#ifdef PM_USE_CONTEXT_LOCAL
 		    fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
-#else
-		    fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
-#endif
 		    errflag++;
 		}
 		hostname = optarg;
@@ -444,8 +433,14 @@ ParseOptions(int argc, char *argv[])
 		need_context = 1;
 		break;
 
-#ifdef PM_USE_CONTEXT_LOCAL
-	    case 'L':
+	    case 'K':	/* update local PMDA table */
+		if ((errmsg = __pmSpecLocalPMDA(optarg)) != NULL) {
+		    fprintf(stderr, "%s: __pmSpecLocalPMDA failed: %s\n", pmProgname, errmsg);
+		    errflag++;
+		}
+		break;
+
+	    case 'L':	/* local PMDA connection, no PMCD */
 		if (type != 0) {
 		    fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
 		    errflag++;
@@ -454,7 +449,6 @@ ParseOptions(int argc, char *argv[])
 		type = PM_CONTEXT_LOCAL;
 		need_context = 1;
 		break;
-#endif
 
 	    case 'M':
 		p_fullmid = 1;
@@ -594,11 +588,9 @@ main(int argc, char **argv)
 	    if (type == PM_CONTEXT_HOST)
 		fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
 			pmProgname, hostname, pmErrStr(sts));
-#ifdef PM_USE_CONTEXT_LOCAL
 	    else if (type == PM_CONTEXT_LOCAL)
 		fprintf(stderr, "%s: Cannot make standalone connection on localhost: %s\n",
 			pmProgname, pmErrStr(sts));
-#endif
 	    else
 		fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
 			pmProgname, hostname, pmErrStr(sts));

@@ -27,6 +27,7 @@
 [\f3\-f\f1 \f2N\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-i\f1 \f2instances\f1]
+[\f3\-K\f1 \f2spec\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-O\f1 \f2offset\f1]
 [\f3\-p\f1 \f2port\f1]
@@ -74,6 +75,30 @@ options,
 .B pmval
 will contact the Performance Metrics Collector Daemon (PMCD)
 on the local host to obtain the required information.
+.PP
+The
+.I metricname
+argument may also be given in the metric specification syntax, as
+described in
+.BR PCPIntro (1),
+where the source, metric and instance may all be included in the
+.IR metricname ,
+e.g. thathost:kernel.all.load["1 minute"].
+When this format is used, none of the
+.B \-h
+or
+.B \-a
+or
+.B \-U
+options maye be specificed.
+.PP
+When using the metric specification syntax, the ``hostname''
+.B @
+is treated specially and
+causes
+.B pmval
+to use a local context to collect metrics from PMDAs on the local host
+without PMCD.  Only some metrics are available in this mode.
 .PP
 When processing an archive,
 .B pmval
@@ -179,8 +204,22 @@ $ pmval \-i "'1 minute','5 minute'" kernel.all.load
 $ pmval \-i '"1 minute","5 minute"' kernel.all.load
 $ pmval \-i "'1 minute' '5 minute'" kernel.all.load
 $ pmval \-i "'1 minute'" \-i "'5 minute'" kernel.all.load
+$ pmval 'localhost:kernel.all.load["1 minute","5 minute"]'
 .EE
 .RE
+.TP
+.B \-K
+When
+fetching metrics from a local context, the
+.B \-K
+option may be used to control the DSO PMDAs that should be
+made accessible.  The
+.I spec
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA (3).
+More than one
+.B \-K
+option may be used.
 .TP
 .B \-n
 Normally
@@ -281,10 +320,12 @@ as described in
 .B \-z
 Change the reporting timezone to the local timezone at the host that is
 the source of the performance metrics, as identified via either the
+.I metricname
+or the
 .B \-h
 or
 .B \-a
-of
+or
 .B \-U
 options.
 .PP
@@ -325,6 +366,8 @@ as described in
 .BR pminfo (1),
 .BR pmlogger (1),
 .BR pmtime (1),
+.BR PMAPI (3),
+.BR __pmSpecLocalPMDA (3),
 .BR pcp.conf (4)
 and
 .BR pcp.env (4).

@@ -1194,6 +1194,16 @@ extern int __dmdesc(__pmContext *, pmID, pmDesc *);
 extern int __dmprefetch(__pmContext *, int, pmID *, pmID **);
 extern void __dmpostfetch(__pmContext *, pmResult **);
 
+/*
+ * Adding/deleting/clearing the list of DSO PMDAs supported for
+ * PM_CONTEXT_LOCAL contexts
+ */
+#define PM_LOCAL_ADD	1
+#define PM_LOCAL_DEL	2
+#define PM_LOCAL_CLEAR	3
+extern int __pmLocalPMDA(int, int, const char *, const char *);
+extern char *__pmSpecLocalPMDA(const char *);
+
 #ifdef __cplusplus
 }
 #endif
