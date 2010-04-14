@@ -50,11 +50,15 @@ _filter()
     # for Linux sometimes see "Connection reset by peer" ... this is believed
     # to be a timing issue, and the results are semantically equivalent for
     # the purposes of this test, so ...
+    # and the "receiving response from pmlogger" part of the no permission
+    # error message may not be there for older pmlc versions, so ...
+    #
     sed -e "s/$me/ME/" \
 	-e "s/$shortme/ME/" \
 	-e "s/$other1/OTHER1/" \
 	-e "s/$other2/OTHER2/" \
-        -e 's/Connection reset by peer/Address already in use/'
+        -e 's/Connection reset by peer/Address already in use/' \
+	-e '/No permission to perform/s/ receiving response from pmlogger//'
 }
 
 # Wait for appearance ($1 is true) or disappearance ($1 is false) of primary
