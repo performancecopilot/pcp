@@ -1,3 +1,12 @@
+pcp (3.1.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Changes to PM_CONTEXT_LOCAL to allow available PMDAs to be
+    determined at run-time from pmcd.conf rather than the previous
+    compile-time regime.
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 18 Mar 2010 08:35:56 +1100
+
 pcp (3.1.2) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

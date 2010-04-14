@@ -1,3 +1,8 @@
+pcp-3.1.3 (14 April 2010)
+    - rework PM_CONTEXT_LOCAL to retire $PMDA_LOCAL_*, build DSO table
+      from pmcd.conf at run-time, new __pmLocalPMDA and __pmSpecLocalPMDA
+      routines in libpcp, -K options for pminfo, pmval and pmprobe
+
 pcp-3.1.2 (22 March 2010)
     - Add indom save and restore logic into Windows PMDA.
     - Fix a typo in the Postfix PMDA.

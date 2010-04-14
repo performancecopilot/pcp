@@ -905,20 +905,42 @@ environment variables are relevant to the Performance Metrics
 Domain Agents (PMDAs).
 .TP
 .B PMDA_LOCAL_PROC
-If set, then a context established with the
+Use this variable has been deprecated and it is now ignored.
+If the ``proc'' PMDA is configured as a DSO for use with
+.BR pmcd (1)
+on the local host then all of the ``proc'' metrics will be
+available to applications using a
+.B PM_CONTEXT_LOCAL
+context.
+.RS
+.PP
+The previous behaviour was that
+if this variable was set, then a context established with the
 .I type
 of
 .B PM_CONTEXT_LOCAL
 will have access to the ``proc'' PMDA to retrieve performance metrics
 about individual processes.
+.RE
 .TP
 .B PMDA_LOCAL_SAMPLE
-If set, then a context established with the
+Use this variable has been deprecated and it is now ignored.
+If the ``sample'' PMDA is configured as a DSO for use with
+.BR pmcd (1)
+on the local host then all of the ``sample'' metrics will be
+available to applications using a
+.B PM_CONTEXT_LOCAL
+context.
+.RS
+.PP
+The previous behaviour was that
+if this variable was set, then a context established with the
 .I type
 of
 .B PM_CONTEXT_LOCAL
 will have access to the ``sample'' PMDA if this optional PMDA has
 been installed locally.
+.RE
 .TP
 .B PMIECONF_PATH
 If set,
