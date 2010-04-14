@@ -732,7 +732,9 @@ Options:
   -h host      metrics source is PMCD on host
   -I           list external instance names
   -i           list internal instance numbers
-  -L           use local context instead of PMCD
+  -K spec      optional additional PMDA spec for local connection
+               spec is of the form op,domain,dso-path,init-routine
+  -L           metrics source is local connection to PMDA, no PMCD
   -n pmnsfile  use an alternative PMNS
   -O time      origin for a fetch from the archive
   -V           report PDU operations (verbose)
@@ -752,7 +754,9 @@ Options:
   -h host      metrics source is PMCD on host
   -I           list external instance names
   -i           list internal instance numbers
-  -L           use local context instead of PMCD
+  -K spec      optional additional PMDA spec for local connection
+               spec is of the form op,domain,dso-path,init-routine
+  -L           metrics source is local connection to PMDA, no PMCD
   -n pmnsfile  use an alternative PMNS
   -O time      origin for a fetch from the archive
   -V           report PDU operations (verbose)
