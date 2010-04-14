@@ -57,7 +57,17 @@ pmie_filter()
 
 linux_filter()
 {
-    sed -e "/mem.vmstat.nr_slab_reclaimable: $unavailable/d" \
+    sed \
+	-e "/mem.util.directMap2M: $unavailable/d" \
+	-e "/mem.util.highFree: $unavailable/d" \
+	-e "/mem.util.highTotal: $unavailable/d" \
+	-e "/mem.util.kernelStack: $unavailable/d" \
+	-e "/mem.util.lowFree: $unavailable/d" \
+	-e "/mem.util.lowTotal: $unavailable/d" \
+	-e "/mem.util.shmem: $unavailable/d" \
+	-e "/mem.util.slabReclaimable: $unavailable/d" \
+	-e "/mem.util.slabUnreclaimable: $unavailable/d" \
+	-e "/mem.vmstat.nr_slab_reclaimable: $unavailable/d" \
 	-e "/mem.vmstat.nr_slab_unreclaimable: $unavailable/d" \
 	-e "/mem.vmstat.nr_vmscan_write: $unavailable/d" \
 	-e "/mem.vmstat.pgalloc_high: $unavailable/d" \
@@ -65,19 +75,14 @@ linux_filter()
 	-e "/mem.vmstat.pgscan_direct_high: $unavailable/d" \
 	-e "/mem.vmstat.pgscan_kswapd_high: $unavailable/d" \
 	-e "/mem.vmstat.pgsteal_high: $unavailable/d" \
-	-e "/mem.util.highFree: $unavailable/d" \
-	-e "/mem.util.highTotal: $unavailable/d" \
-	-e "/mem.util.lowFree: $unavailable/d" \
-	-e "/mem.util.lowTotal: $unavailable/d" \
-	-e "/mem.util.slabReclaimable: $unavailable/d" \
-	-e "/mem.util.slabUnreclaimable: $unavailable/d" \
 	-e "/swapdev.free: $unavailable/d" \
 	-e "/swapdev.length: $unavailable/d" \
 	-e "/swapdev.maxswap: $unavailable/d" \
-	-e "/swapdev.vlength: $unavailable/d" \
 	-e "/swapdev.priority: $unavailable/d" \
+	-e "/swapdev.vlength: $unavailable/d" \
 	-e "/swap.in: $nosupport/d" \
 	-e "/swap.out: $nosupport/d"
+
 }
 
 sample_filter()
