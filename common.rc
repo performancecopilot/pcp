@@ -26,3 +26,17 @@ fi
 
 PCP_PMCD_PROG=$PCP_BINADM_DIR/pmcd
 PCP_PMCDLOG_PATH=$PCP_LOG_DIR/pmcd/pmcd.log
+
+case $PCP_PLATFORM
+in
+    linux|freebsd|solaris|aix)
+    	DSO_SUFFIX=so
+	;;
+    darwin)
+	DSO_SUFFIX=dylib
+	;;
+    mingw)
+	DSO_SUFFIX=dll
+	;;
+esac
+
