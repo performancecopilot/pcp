@@ -49,7 +49,7 @@ static int dbpmdaFlexInput (char *, int);
 %}
 
 %s FNAME
-%a 2100
+%a 2200
 
 %%
 

@@ -69,6 +69,9 @@ _setup_localhost()
 	elif grep 'host .*packetsize .*count' $tmp >/dev/null 2>&1
 	then
 	    __opt='localhost 56 1'
+	elif grep 'host .*data_size.*npackets' $tmp >/dev/null 2>&1
+	then
+	    __opt='localhost 56 1'
 	fi
 	if [ -z "$__opt" ]
 	then
