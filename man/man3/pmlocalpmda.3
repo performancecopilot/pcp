@@ -26,7 +26,7 @@ Historically the table of PMDAs available for use with
 was hardcoded to the following:
 .IP * 2n
 The PMDA (or PMDAs) that export the operating system performance data
-and data about process activity.  On Irix, the per-process data is only
+and data about process activity.  On Irix, the per-process data was only
 available if
 .B $PMDA_LOCAL_PROC
 is set in the environment.
@@ -44,7 +44,18 @@ or
 .B $PMDA_LOCAL_SAMPLE
 is set in the environment \- used mostly for QA and testing.
 .PD
-.P
+.PP
+The initial table of PMDAs available for use with
+.B PM_CONTEXT_LOCAL
+is now generated dynamically from all those PMDAs that have been
+installed as DSOs on the local host.
+The one exception is the ``pmcd''
+PMDA which only operates correctly in the address space of a running
+.BR pmcd (1)
+process and so is not available to an application using a
+.B PM_CONTEXT_LOCAL
+context.
+.PP
 .B __pmLocalPMDA
 provides a number of services to amend the table of PMDAs
 available for use with
