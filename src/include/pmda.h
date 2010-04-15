@@ -188,9 +188,9 @@ typedef struct {
 	    int	    (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
 	    int	    (*store)(pmResult *, pmdaExt *);
-	    int     (*pmid)(char *, pmID *, pmdaExt *);
+	    int     (*pmid)(const char *, pmID *, pmdaExt *);
 	    int     (*name)(pmID, char ***, pmdaExt *);
-	    int     (*children)(char *, int, char ***, int **, pmdaExt *);
+	    int     (*children)(const char *, int, char ***, int **, pmdaExt *);
 	} four;
 
     } version;

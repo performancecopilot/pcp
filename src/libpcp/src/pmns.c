@@ -22,6 +22,7 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "pmda.h"
 
 /*
  *  %s fields in CPP_FMT
@@ -2018,12 +2019,47 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	   goto check;
 	}
 
-        if (np != NULL && num_xlch == 0)
+        if (np != NULL && num_xlch == 0) {
 	    if (np->first == NULL) {
-	       /* this is a leaf node */
+		/*
+		 * this is a leaf node ... if it is the root of a dynamic
+		 * subtree of the PMNS and we have an existing context
+		 * of type PM_CONTEXT_LOCAL than we should chase the
+		 * relevant PMDA to provide the details
+		 */
+		if (((__pmID_int *)&np->pmid)->domain == DYNAMIC_PMID) {
+		    int         n = pmWhichContext();
+		    if (n >= 0) {
+			__pmContext *ctxp = __pmHandleToPtr(n);
+			if (ctxp->c_type == PM_CONTEXT_LOCAL) {
+			    int		domain = ((__pmID_int *)&np->pmid)->cluster;
+			    __pmDSO	*dp;
+			    if ((dp = __pmLookupDSO(domain)) == NULL) {
+				num = PM_ERR_NOAGENT;
+				goto report;
+			    }
+			    if (dp->dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+				char	**offspring = NULL;
+				int	*statuslist = NULL;
+				int	i;
+				num = dp->dispatch.version.four.children(name, 0, &offspring, &statuslist, dp->dispatch.version.four.ext);
+
+fprintf(stderr, "DEBUG name %s -> pmid %s domain=%d num=%d\n", name, pmIDStr(np->pmid), domain, num);
+				for (i = 0; i < num; i++)
+				    fprintf(stderr, "[%d] %s %d\n", i, offspring[i], statuslist[i]);
+			    }
+			    else {
+				/* Not PMDA_INTERFACE_4 */
+				num = PM_ERR_NAME;
+				goto report;
+			    }
+			}
+		    }
+		}
 		num = 0;
 		goto report;
 	    }
+	}
 
 	need = 0;
 	num = 0;
