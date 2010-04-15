@@ -5673,7 +5673,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 
 	case 23: /* mem.numa.util.NFS_Unstable */
-	    sts = linux_table_lookup("nfs_unstable:", numa_meminfo.node_info[inst].meminfo,
+	    sts = linux_table_lookup("NFS_Unstable:", numa_meminfo.node_info[inst].meminfo,
 		    &atom->ull);
 	    break;
 
