@@ -22,6 +22,7 @@
 #include "domain.h"
 
 #define MAX_M_PATH_LEN	80	/* pattern passed to PdhExpandCounterPath */
+#define MAX_M_TEXT_LEN	512	/* longest long-text string that we allow */
 #define INDOM(x,y)	(((x)<<22)|(y))	/* pmdaCache interfaces use indom */
 
 enum {
