@@ -248,8 +248,8 @@ mem.util {
     used		60:1:1
     free		60:1:2
     shared		60:1:3
-    cached		60:1:5
     bufmem		60:1:4
+    cached		60:1:5
     other		60:1:12
     swapCached		60:1:13
     active		60:1:14
@@ -291,6 +291,10 @@ mem.util {
     vmallocTotal	60:1:50
     vmallocUsed		60:1:51
     vmallocChunk	60:1:52
+    mmap_copy		60:1:53
+    quicklists		60:1:54
+    corrupthardware	60:1:55
+    anonhugepages	60:1:56
 }
 
 mem.numa {

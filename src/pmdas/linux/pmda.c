@@ -4412,6 +4412,26 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.VmallocChunk >> 10;
 	   break;
+	case 53: /* mem.util.mmap_copy */
+	   if (!VALID_VALUE(proc_meminfo.MmapCopy))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.MmapCopy >> 10;
+	   break;
+	case 54: /* mem.util.quicklists */
+	   if (!VALID_VALUE(proc_meminfo.Quicklists))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Quicklists >> 10;
+	   break;
+	case 55: /* mem.util.corrupthardware */
+	   if (!VALID_VALUE(proc_meminfo.HardwareCorrupted))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HardwareCorrupted >> 10;
+	   break;
+	case 56: /* mem.util.anonhugepages */
+	   if (!VALID_VALUE(proc_meminfo.AnonHugePages))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.AnonHugePages >> 10;
+	   break;
 	default:
 	    return PM_ERR_PMID;
 	}

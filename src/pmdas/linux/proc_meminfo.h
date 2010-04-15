@@ -36,6 +36,7 @@ typedef struct {
     int64_t HighFree;
     int64_t LowTotal;
     int64_t LowFree;
+    int64_t MmapCopy;
     int64_t SwapTotal;
     int64_t SwapFree;
     int64_t SwapUsed; /* computed */
@@ -44,20 +45,23 @@ typedef struct {
     int64_t Mapped;
     int64_t Shmem;
     int64_t Slab;
+    int64_t SlabReclaimable;
+    int64_t SlabUnreclaimable;
     int64_t KernelStack;
     int64_t CommitLimit;
     int64_t Committed_AS;
     int64_t PageTables;
+    int64_t Quicklists;
     int64_t ReverseMaps;
     int64_t AnonPages;
     int64_t Bounce;
     int64_t NFS_Unstable;
-    int64_t SlabReclaimable;
-    int64_t SlabUnreclaimable;
     int64_t WritebackTmp;
     int64_t VmallocTotal;
     int64_t VmallocUsed;
     int64_t VmallocChunk;
+    int64_t HardwareCorrupted;
+    int64_t AnonHugePages;
     int64_t HugepagesTotal;
     int64_t HugepagesFree;
     int64_t HugepagesRsvd;
