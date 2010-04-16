@@ -17,9 +17,6 @@
 #include "impl.h"
 #include "pmda.h"
 #include <ctype.h>
-#if defined(HAVE_SYS_MMAN_H)
-#include <sys/mman.h> 
-#endif
 
 static __pmDSO *dsotab;
 static int	numdso = -1;
@@ -67,10 +64,16 @@ build_dsotab(void)
     if (configFile == NULL) {
 	return -errno;
     }
-    if ((config = mmap(NULL, sbuf.st_size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fileno(configFile), 0)) == MAP_FAILED) {
+    if ((config = malloc(sbuf.st_size+1)) == NULL) {
+	__pmNoMem("build_dsotbl:", sbuf.st_size+1, PM_RECOV_ERR);
 	fclose(configFile);
 	return -errno;
     }
+    if (fread(config, 1, sbuf.st_size, configFile) != sbuf.st_size) {
+	fclose(configFile);
+	return -errno;
+    }
+    config[sbuf.st_size] = '\0';
 
     p = config;
     while (*p != '\0') {
@@ -137,7 +140,7 @@ eatline:
     }
 
     fclose(configFile);
-    munmap(config, sbuf.st_size);
+    free(config);
     return 0;
 }
 
