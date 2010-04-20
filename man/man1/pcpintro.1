@@ -639,6 +639,36 @@ or a PCP archive.
 Thus in PCP version 2, the version number is used to determine if
 the PMNS to use is from the default local file or from the actual
 current source of the metrics.
+.SH PMCD HOSTNAME SPECIFICATION
+Since PCP version 3, the
+.BR pmcd (1)
+hostname specification has been extended to allow an optional
+.B pmcd
+port number, and also optional
+.BR pmproxy (1)
+hostname and port number.
+These supercede (and override) the old-style PMCD_PORT, PMPROXY_HOST
+and PMPROXY_PORT environment variables.
+.PP
+The following are valid hostname specifications that specify connections to
+.B pmcd
+on host
+.I nas1.servers.com
+with/without a list of ports and with/without a
+.BR pmproxy (1)
+connection through a firewall.
+.PP
+.in +0.5i
+.nf
+.ft CW
+$ pcp -h nas1.servers.com:44321,4321@firewall.servers.com:44322
+$ pcp -h nas1.servers.com:44321@firewall.servers.com:44322
+$ pcp -h nas1.servers.com:44321@firewall.servers.com
+$ pcp -h nas1.servers.com@firewall.servers.com
+$ pcp -h nas1.servers.com:44321
+.ft R
+.fi
+.in
 .SH ENVIRONMENT
 In addition to the PCP run-time environment and configuration variables
 described in the 
