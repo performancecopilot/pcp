@@ -9,8 +9,9 @@
 <service name='application/pcp/pmcd' type='service' version='1'>
 	<create_default_instance enabled='false' />
 	<single_instance />
-	<dependency name='network' grouping='require_all' restart_on='none'
+	<dependency name='root' grouping='require_all' restart_on='none'
 	    type='service'>
+		<service_fmri value='svc:/system/filesystem/local:default'/>
 		<service_fmri value='svc:/milestone/network:default'/>
 	</dependency>
 	<exec_method type='method' name='start' exec='/etc/init.d/pcp start'
@@ -27,15 +28,16 @@
 		<documentation>
 			<manpage title='pmcd' section='1'
 				manpath='/usr/share/man' />
-		</documentation> 
+		</documentation>
 	</template>
 </service>
 
 <service name='application/pcp/pmie' type='service' version='1'>
 	<create_default_instance enabled='false' />
 	<single_instance />
-	<dependency name='network' grouping='require_all' restart_on='none'
+	<dependency name='root' grouping='require_all' restart_on='none'
 	    type='service'>
+		<service_fmri value='svc:/system/filesystem/local:default'/>
 		<service_fmri value='svc:/milestone/network:default'/>
 	</dependency>
 	<exec_method type='method' name='start' exec='/etc/init.d/pmie start'
@@ -59,8 +61,9 @@
 <service name='application/pcp/pmproxy' type='service' version='1'>
 	<create_default_instance enabled='false' />
 	<single_instance />
-	<dependency name='network' grouping='require_all' restart_on='none'
+	<dependency name='root' grouping='require_all' restart_on='none'
 	    type='service'>
+		<service_fmri value='svc:/system/filesystem/local:default'/>
 		<service_fmri value='svc:/milestone/network:default'/>
 	</dependency>
 	<exec_method type='method' name='start' exec='/etc/init.d/pmproxy start'
