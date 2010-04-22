@@ -17,6 +17,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include <ctype.h>
+#include <sys/stat.h>
 
 static __pmDSO *dsotab;
 static int	numdso = -1;
