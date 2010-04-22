@@ -1771,6 +1771,10 @@ AC_SUBST(lib_for_readline)
 AC_SUBST(lib_for_curses)
 LIBS=$savedLIBS
 
+dnl Do you have git installed?
+AC_CHECK_PROGS(GIT,git)
+AC_SUBST(GIT)
+
 dnl
 dnl output files
 dnl

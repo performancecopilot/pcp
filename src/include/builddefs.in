@@ -285,7 +285,7 @@ ifeq ($(PCP_LIB_DIR),$(PCP_LIB32_DIR))
 PCP_ALTLIBS =
 else
 ifneq "$(findstring $(MAKECMDGOALS),clean clobber src-pcp)" ""
-PCP_ALTLIBS = 
+PCP_ALTLIBS =
 endif
 endif
 endif
@@ -300,5 +300,7 @@ PCP_X11_APPDEFS_DIR = @pcp_x11_appdefs_dir@
 PCP_LIBIBMAD = @LIBIBMAD@
 PCP_LIBIBCOMMON = @LIBIBCOMMON@
 PCP_LIBIBUMAD = @LIBIBUMAD@
+
+GIT=@GIT@
 
 endif # _BUILDDEFS_INCLUDED_
