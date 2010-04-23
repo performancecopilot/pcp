@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2000-2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2009 Aconex.  All Rights Reserved.
+# Copyright (c) 2009-2010 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,7 +21,8 @@ DOMAIN		= MMV
 CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 TARGETS		= $(CMDTARGET) $(LIBTARGET) mmvdump$(EXECSUFFIX)
-LDIRT		= domain.h *.log *.dir *.pag so_locations mmvdump mmvdump.o pcp
+DUMPDIRT	= mmvdump$(EXECSUFFIX) mmvdump.o
+LDIRT		= domain.h *.log *.dir *.pag so_locations $(DUMPDIRT) pmns pcp
 
 CFILES		= mmv.c
 LSRCFILES	= Install Remove mmvdump.c root_mmv
@@ -33,7 +34,7 @@ LLDLIBS		= -lpcp_pmda -lpcp
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE = "mmv	70	dso	mmv_init	$(PCP_PMDAS_DIR)/mmv/pmda_mmv.$(DSOSUFFIX)"
 
-default_pcp default: $(TARGETS)
+default_pcp default: $(TARGETS) pmns
 	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
 	fi
@@ -43,7 +44,8 @@ include $(BUILDRULES)
 install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
-	$(INSTALL) -m 755 $(TARGETS) Install Remove root_mmv $(PMDADIR)
+	$(INSTALL) -m 755 $(TARGETS) Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 pmns $(PMDADIR)/root_mmv
 	$(INSTALL) -m 644 root_mmv $(PCP_VAR_DIR)/pmns/root_mmv
 
 $(CMDTARGET):	$(OBJECTS)
@@ -59,6 +61,9 @@ domain.h:	../../pmns/stdpmid
 
 pcp :
 	$(LN_S) -f $(TOPDIR)/src/include pcp
+
+pmns :
+	$(LN_S) -f root_mmv pmns
 
 mmvdump$(EXECSUFFIX):    mmvdump.o
 	$(CCF) -o $@ mmvdump.o $(LDFLAGS) -lpcp -lpcp_mmv
