@@ -128,6 +128,7 @@ LDLIBS = $(LLDLIBS) $(PLDLIBS)
 MAKEOPTS = --no-print-directory
 DIRT = $(LDIRT) dep dep.bak $(OBJECTS) $(CMDTARGET) $(LIBTARGET) \
 	$(STATICLIBTARGET) *.[1-9].gz
+DIRDIRT = $(LDIRDIRT)
 
 OBJECTS = $(ASFILES:.s=.o) \
           $(CFILES:.c=.o) \
