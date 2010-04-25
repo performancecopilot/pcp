@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
+#debug# tmp=`pwd`/tmp
 
 _filter()
 {
@@ -54,6 +55,8 @@ END				{ printf "%d",rec
 				}'
 }
 
+rm -f $seq.full $tmp.*
+
 # real QA test starts here
 cat >$tmp.a.config <<End-of-File
 log mandatory on 600 msec sample.bin
@@ -81,23 +84,29 @@ pmlogger -c $tmp.a.config -l $tmp.a.log -s 25 $tmp.a >$tmp.a.err 2>&1 &
 pmlogger -c $tmp.b.config -l $tmp.b.log -s 20 $tmp.b >$tmp.b.err 2>&1 &
 
 wait
-cat $tmp.a.err $tmp.a.log | _filter_pmlogger_log
-cat $tmp.b.err $tmp.b.log | _filter_pmlogger_log
+echo "log for archive 'a' ..." >>$seq.full
+cat $tmp.a.err $tmp.a.log | tee -a $seq.full | _filter_pmlogger_log
+echo >>$seq.full
+echo "log for archive 'b' ..." >>$seq.full
+cat $tmp.b.err $tmp.b.log | tee -a $seq.full | _filter_pmlogger_log
 
 # c later
 #
 pmlogger -c $tmp.c.config -l $tmp.c.log -s 10 $tmp.c >$tmp.c.err 2>&1
-cat $tmp.c.err $tmp.c.log | _filter_pmlogger_log
+echo >>$seq.full
+echo "log for archive 'c' ..." >>$seq.full
+cat $tmp.c.err $tmp.c.log | tee -a $seq.full | _filter_pmlogger_log
 
 echo "Full merge ..."
 rm -f $tmp.merge.*
 pmlogextract $tmp.a $tmp.b $tmp.c $tmp.merge
-echo "Log record counts ..."
-rm -f $seq.full
+echo >>$seq.full
+echo "Log record counts ..." | tee -a $seq.full
 for i in a b c merge
 do
     echo -n "$i: "
-    pmdumplog -m $tmp.$i | _count_rec
+    ( echo; echo "=== $i ===" ) >>$seq.full
+    pmdumplog -m $tmp.$i | tee -a $seq.full | _count_rec
 done
 
 echo
@@ -115,44 +124,49 @@ echo "sample.drift ... expect 30 samples"
 pmval -U $tmp.merge sample.drift 2>&1 \
 | _filter
 
-echo
-echo "merge -s 10"
+echo | tee -a $seq.full
+echo "merge -s 10" | tee -a $seq.full
 rm -f $tmp.merge.*
 pmlogextract -s 10 $tmp.a $tmp.b $tmp.c $tmp.merge
 echo -n "merge (expect 10): "
 pmdumplog -m $tmp.merge \
-| _count_rec
+| tee -a $seq.full \
+| _count_rec 
 
 # all of b + 11 from a
 #
-echo
-echo "merge -T 6.9"
+echo | tee -a $seq.full
+echo "merge -T 6.9" | tee -a $seq.full
 rm -f $tmp.merge.*
 pmlogextract -T 6.9 $tmp.a $tmp.b $tmp.c $tmp.merge
 echo -n "merge (expect 31 + 2 preamble + 1 mark): "
 pmdumplog -m $tmp.merge \
+| tee -a $seq.full \
 | _count_rec
 
 # tail of a (less 1), none of b or c
-echo
-echo "merge -S 6.9 -T 7.2"
+echo | tee -a $seq.full
+echo "merge -S 6.9 -T 7.2" | tee -a $seq.full
 rm -f $tmp.merge.*
 pmlogextract -S 6.9 -T 7.2 $tmp.a $tmp.b $tmp.c $tmp.merge
 echo -n "merge (expect 12): "
 pmdumplog -m $tmp.merge \
+| tee -a $seq.full \
 | _count_rec
 
-echo
-echo "Full merge with volume switch ..."
+echo | tee -a $seq.full
+echo "Full merge with volume switch ..." | tee -a $seq.full
 rm -f $tmp.merge.*
 pmlogextract -v 15 $tmp.a $tmp.b $tmp.c $tmp.merge 2>&1 \
 | tee -a $seq.full \
 | _stamp
-echo "Log record counts ..."
+echo "Log record counts ..." | tee -a $seq.full
 for i in a b c merge
 do
     echo -n "$i: "
+    ( echo; echo "=== $i ===" ) >>$seq.full
     pmdumplog -m $tmp.$i \
+    | tee -a $seq.full \
     | _count_rec
 done
 
