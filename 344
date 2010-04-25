@@ -1,7 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 344
 #
-# exercise __pmAddLocalPMDA functionality
+# exercise __pmLocalPMDA functionality
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 
@@ -15,11 +15,11 @@ owner=kenj
 
 seq=`basename $0`
 
-if grep __pmAddLocalPMDA /usr/include/pcp/impl.h >/dev/null
+if grep __pmLocalPMDA /usr/include/pcp/impl.h >/dev/null
 then
     :
 else
-    echo "No libpcp support for __pmAddLocalPMDA" >$seq.notrun
+    echo "No libpcp support for __pmLocalPMDA" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi
@@ -37,23 +37,66 @@ cat <<End-of-File >$tmp.pmns
 root {
     qa
     sample
+    tmpsample
 }
 
 qa {
     pid		400:0:1
     colour	400:0:5
+    bin		400:0:6
+    string
+}
+
+qa.string {
+    write_me	400:0:29
 }
 
 sample {
     colour	30:0:5
+    bin		30:0:6
+    string
+}
+
+sample.string {
+    write_me	30:0:29
+}
+
+tmpsample {
+    colour	130:0:5
+    bin		130:0:6
+    string
+}
+
+tmpsample.string {
+    write_me	130:0:29
 }
 End-of-File
 
+_filter()
+{
+    tee -a $seq.full \
+    | sed \
+	-e "/^pmWhichContext/d" \
+	-e "/^pmNewContext/d" \
+	-e "/^Dump /d" \
+	-e "/^Context\[/d" \
+	-e "/^Local Context PMDA Table/d" \
+	-e "s;$tmp;TMP;g" \
+	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
+	-e "s/\.$DSO_SUFFIX/\$DSO_SUFFIX/g" \
+	-e '/^0*x*[0-9a-f][0-9a-f]* /d' \
+	-e '/^\[[0-9][0-9]*]/d' \
+	-e '/^__pmLocalPMDA(/d'
+}
+
+# -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+# -e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;g" \
+
 # real QA test starts here
-pminfo -f -n $tmp.pmns -l 400,$PCP_VAR_DIR/pmdas/sample/pmda_sample.so,sample_init -L qa.colour
+pminfo -fL -n $tmp.pmns -K clear -K add,400,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,sample_init qa.colour
 
 echo
-pminfo -f -n $tmp.pmns -l 400,$PCP_VAR_DIR/pmdas/sample/pmda_sample.so,sample_init -L qa.pid >$tmp.out &
+pminfo -fL -n $tmp.pmns -K clear -K add,400,$PCP_VAR_DIR/pmdas/sample/pmda_sample,sample_init qa.pid >$tmp.out &
 expect=$!
 wait
 got=`sed -n $tmp.out -e '/value/s/.*value //p'`
@@ -67,14 +110,52 @@ fi
 
 echo
 echo "=== expect no sample metrics ==="
-pminfo -fm -n $tmp.pmns -l 400,$PCP_VAR_DIR/pmdas/sample/pmda_sample.so,sample_init -L qa.colour sample.colour
+pminfo -fmL -n $tmp.pmns -K clear -K add,400,sample/pmda_sample.$DSO_SUFFIX,sample_init qa.colour sample.colour
 
 echo
 echo "=== sample metrics this time ==="
 # need to copy DSO so running sample_init() only once per DSO
-cp $PCP_VAR_DIR/pmdas/sample/pmda_sample.so $tmp.so
+cp $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX $tmp.$DSO_SUFFIX
 export PMDA_LOCAL_SAMPLE=yes
-pminfo -fm -n $tmp.pmns -l 400,$tmp.so,sample_init -L qa.colour sample.colour
+pminfo -fmL -n $tmp.pmns -K add,400,$tmp.$DSO_SUFFIX,sample_init qa.colour sample.colour
+
+echo
+echo "=== -K spec parsing in pminfo ==="
+for spec in \
+	    clear clear, clear,400 clear,400, clear,400,$tmp clear,400,$tmp, \
+	    clear,400,$tmp,sample_init clear,,$tmp,sample_init clear,,,sample_init \
+	    clear,,$tmp,sample_init clear,400,,sample_init \
+	    add add, add,400 add,400, add,400,$tmp add,400,$tmp, \
+	    add,400,$tmp,sample_init \
+	    del del, del,30 del,30, del,,sample/pmda_sample.$DSO_SUFFIX \
+	    del,30,sample/pmda_sample.$DSO_SUFFIX, \
+	    del,30,sample/pmda_sample.$DSO_SUFFIX,sample_init
+do
+    echo "+++ -K $spec +++" | _filter
+    pminfo -Dcontext -fmL -n $tmp.pmns -K $spec \
+	sample.string.write_me qa.string.write_me 2>&1 \
+    | _filter
+done
+
+echo
+echo "=== some __pmLocalPMDA() exercises ==="
+pminfo -Dcontext -fmL -n $tmp.pmns -K clear \
+    -K add,30,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,sample_init \
+    -K add,400,$tmp.$DSO_SUFFIX,sample_init \
+    -K del,30,0,0 \
+    -K clear \
+    -K add,30,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,sample_init \
+    -K del,0,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,0 \
+    -K add,130,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,sample_init \
+    -K add,400,$tmp,sample_init \
+    tmpsample.bin 2>&1 \
+| _filter
+
+echo
+echo "=== other tools than know about -K ..."
+pmval -s 3 -t 0.1 -K clear -K add,30,sample/pmda_sample.so,sample_init '@:sampledso.bin["bin-100","bin-900"]'
+echo
+pmprobe -K clear -K add,30,sample/pmda_sample.so,sample_init -I sampledso.bin
 
 # success, all done
 exit
