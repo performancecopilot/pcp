@@ -338,9 +338,9 @@ extern int pmdaInstance(pmInDom, int, char *, __pmInResult **, pmdaExt *);
 extern int pmdaDesc(pmID, pmDesc *, pmdaExt *);
 extern int pmdaText(int, int, char **, pmdaExt *);
 extern int pmdaStore(pmResult *, pmdaExt *);
-extern int pmdaPMID(char *, pmID *, pmdaExt *);
+extern int pmdaPMID(const char *, pmID *, pmdaExt *);
 extern int pmdaName(pmID, char ***, pmdaExt *);
-extern int pmdaChildren(char *, int, char ***, int **, pmdaExt *);
+extern int pmdaChildren(const char *, int, char ***, int **, pmdaExt *);
 
 /*
  * PMDA "help" text manipulation

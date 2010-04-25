@@ -768,7 +768,7 @@ mmv_store(pmResult *result, pmdaExt *ep)
 }
 
 static int
-mmv_pmid(char *name, pmID *pmid, pmdaExt *pmda)
+mmv_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
     mmv_reload_maybe(pmda);
     return pmdaTreePMID(pmns, name, pmid);
@@ -782,7 +782,7 @@ mmv_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 }
 
 static int
-mmv_children(char *name, int traverse, char ***kids, int **sts, pmdaExt *pmda)
+mmv_children(const char *name, int traverse, char ***kids, int **sts, pmdaExt *pmda)
 {
     mmv_reload_maybe(pmda);
     return pmdaTreeChildren(pmns, name, traverse, kids, sts);
