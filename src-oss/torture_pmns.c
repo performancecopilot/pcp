@@ -2,7 +2,7 @@
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
  *
- * Exercise just the PMNS functions ... intended for dyanmic PMNS testing
+ * Exercise just the PMNS functions ... intended for dynamic PMNS testing
  * ... this is really torture_api re-tweaked
  */
 
@@ -273,11 +273,11 @@ test_api(void)
     int			i;
     int			*instlist;
     char		**inamelist;
+    char		**allnames;
     int			n;
     char		*back;
     pmResult		*resp;
     pmDesc		desc;
-
     
     if (context_type != -1) {
 	if (context_type == 0) {
@@ -338,12 +338,27 @@ test_api(void)
 		    printf("pmid: %s ", pmIDStr(midlist[i]));
 		    printf(" name: %s\n", back);
 		}
-		if (strcmp(namelist[i], back) != 0 &&
-		    strcmp(&namelist[i][5], back) != 0) {
+		if (strcmp(namelist[i], back) != 0) {
 		    printf("pmNameID botch: expected \"%s\", got \"%s\"\n",
 			namelist[i], back);
 		}
 		free(back);
+	    }
+	    n = pmNameAll(midlist[i], &allnames);
+	    REPORT("pmNameAll", n);
+	    if (n >= 0) {
+		int		j;
+		for (j = 0; j < n; j++) {
+		    if (vflag) {
+			printf("pmid: %s ", pmIDStr(midlist[i]));
+			printf(" name: %s\n", allnames[j]);
+		    }
+		    if (strcmp(namelist[i], allnames[j]) != 0) {
+			printf("pmNameAll info: expected \"%s\", got \"%s\"\n",
+			    namelist[i], allnames[j]);
+		    }
+		}
+		free(allnames);
 	    }
 	    if (context_type != -1) {
 		n = pmLookupDesc(midlist[i], &desc);
