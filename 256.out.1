@@ -8,18 +8,18 @@ myname.suba.subb.four = 4*sample.long.one
 myname.suba.subb.subc.subd.five = 5*sample.long.one
 myname.suba.subb.subc.subd.six = 6*sample.long.one
 
-=== myname.suba.subb.subc.subd.six ===
+=== -h localhost myname.suba.subb.subc.subd.six ===
 myname.suba.subb.subc.subd.six
-=== -f myname.suba.subb.subc.subd.six ===
+=== -h localhost -f myname.suba.subb.subc.subd.six ===
 
 myname.suba.subb.subc.subd.six
     value 6
 
-=== myname.suba.subb ===
+=== -h localhost myname.suba.subb ===
 myname.suba.subb.four
 myname.suba.subb.subc.subd.five
 myname.suba.subb.subc.subd.six
-=== -f myname.suba.subb ===
+=== -h localhost -f myname.suba.subb ===
 
 myname.suba.subb.four
     value 4
@@ -30,14 +30,14 @@ myname.suba.subb.subc.subd.five
 myname.suba.subb.subc.subd.six
     value 6
 
-=== myname ===
+=== -h localhost myname ===
 myname.one
 myname.suba.two
 myname.suba.three
 myname.suba.subb.four
 myname.suba.subb.subc.subd.five
 myname.suba.subb.subc.subd.six
-=== -f myname ===
+=== -h localhost -f myname ===
 
 myname.one
     value 1
@@ -57,14 +57,14 @@ myname.suba.subb.subc.subd.five
 myname.suba.subb.subc.subd.six
     value 6
 
-=== myname.one.bad ===
+=== -h localhost myname.one.bad ===
 Error: myname.one.bad: Unknown metric name
-=== -f myname.one.bad ===
+=== -h localhost -f myname.one.bad ===
 Error: myname.one.bad: Unknown metric name
 
-=== myname.suba.subb.subc.bad ===
+=== -h localhost myname.suba.subb.subc.bad ===
 Error: myname.suba.subb.subc.bad: Unknown metric name
-=== -f myname.suba.subb.subc.bad ===
+=== -h localhost -f myname.suba.subb.subc.bad ===
 Error: myname.suba.subb.subc.bad: Unknown metric name
 
 ARCHIVE context ...
@@ -76,18 +76,18 @@ sample.suba.subb.four = 4*sample.longlong.one
 sample.suba.subb.subc.subd.five = 5*sample.longlong.one
 sample.suba.subb.subc.subd.six = 6*sample.longlong.one
 
-=== sample.suba.subb.subc.subd.six ===
+=== -a src-oss/reduce-1 sample.suba.subb.subc.subd.six ===
 sample.suba.subb.subc.subd.six
-=== -f sample.suba.subb.subc.subd.six ===
+=== -a src-oss/reduce-1 -f sample.suba.subb.subc.subd.six ===
 
 sample.suba.subb.subc.subd.six
     value 6
 
-=== sample.suba.subb ===
+=== -a src-oss/reduce-1 sample.suba.subb ===
 sample.suba.subb.four
 sample.suba.subb.subc.subd.five
 sample.suba.subb.subc.subd.six
-=== -f sample.suba.subb ===
+=== -a src-oss/reduce-1 -f sample.suba.subb ===
 
 sample.suba.subb.four
     value 4
@@ -98,7 +98,7 @@ sample.suba.subb.subc.subd.five
 sample.suba.subb.subc.subd.six
     value 6
 
-=== sample ===
+=== -a src-oss/reduce-1 sample ===
 sample.milliseconds
 sample.load
 sample.colour
@@ -133,7 +133,7 @@ sample.suba.three
 sample.suba.subb.four
 sample.suba.subb.subc.subd.five
 sample.suba.subb.subc.subd.six
-=== -f sample ===
+=== -a src-oss/reduce-1 -f sample ===
 
 sample.milliseconds
     value 3388275.115
@@ -239,14 +239,14 @@ sample.suba.subb.subc.subd.five
 sample.suba.subb.subc.subd.six
     value 6
 
-=== sample.one.bad ===
+=== -a src-oss/reduce-1 sample.one.bad ===
 Error: sample.one.bad: Unknown metric name
-=== -f sample.one.bad ===
+=== -a src-oss/reduce-1 -f sample.one.bad ===
 Error: sample.one.bad: Unknown metric name
 
-=== sample.suba.subb.subc.bad ===
+=== -a src-oss/reduce-1 sample.suba.subb.subc.bad ===
 Error: sample.suba.subb.subc.bad: Unknown metric name
-=== -f sample.suba.subb.subc.bad ===
+=== -a src-oss/reduce-1 -f sample.suba.subb.subc.bad ===
 Error: sample.suba.subb.subc.bad: Unknown metric name
 
 LOCAL context ...
@@ -258,18 +258,18 @@ sampledso.suba.subb.four = 4*sampledso.longlong.one
 sampledso.suba.subb.subc.subd.five = 5*sampledso.longlong.one
 sampledso.suba.subb.subc.subd.six = 6*sampledso.longlong.one
 
-=== sampledso.suba.subb.subc.subd.six ===
+=== -L sampledso.suba.subb.subc.subd.six ===
 sampledso.suba.subb.subc.subd.six
-=== -f sampledso.suba.subb.subc.subd.six ===
+=== -L -f sampledso.suba.subb.subc.subd.six ===
 
 sampledso.suba.subb.subc.subd.six
     value 6
 
-=== sampledso.suba.subb ===
+=== -L sampledso.suba.subb ===
 sampledso.suba.subb.four
 sampledso.suba.subb.subc.subd.five
 sampledso.suba.subb.subc.subd.six
-=== -f sampledso.suba.subb ===
+=== -L -f sampledso.suba.subb ===
 
 sampledso.suba.subb.four
     value 4
@@ -280,7 +280,7 @@ sampledso.suba.subb.subc.subd.five
 sampledso.suba.subb.subc.subd.six
     value 6
 
-=== sampledso ===
+=== -L sampledso ===
 sampledso.control
 sampledso.daemon_pid
 sampledso.seconds
@@ -408,7 +408,7 @@ sampledso.suba.three
 sampledso.suba.subb.four
 sampledso.suba.subb.subc.subd.five
 sampledso.suba.subb.subc.subd.six
-=== -f sampledso ===
+=== -L -f sampledso ===
 
 sampledso.one
     value 1
@@ -428,15 +428,16 @@ sampledso.suba.subb.subc.subd.five
 sampledso.suba.subb.subc.subd.six
     value 6
 
-=== sampledso.one.bad ===
+=== -L sampledso.one.bad ===
 Error: sampledso.one.bad: Unknown metric name
-=== -f sampledso.one.bad ===
+=== -L -f sampledso.one.bad ===
 
-=== sampledso.suba.subb.subc.bad ===
+=== -L sampledso.suba.subb.subc.bad ===
 Error: sampledso.suba.subb.subc.bad: Unknown metric name
-=== -f sampledso.suba.subb.subc.bad ===
+=== -L -f sampledso.suba.subb.subc.bad ===
 
 Splice-n-dice into existing PMNS ...
+
 derived = sample.long.one
 derived_tree.ten = sample.long.ten
 derived_tree.hundred = sample.long.hundred
