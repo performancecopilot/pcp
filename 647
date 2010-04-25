@@ -112,5 +112,13 @@ echo "=== remove $iam agent ==="
 $here/sudo ./Remove >$tmp.out 2>&1
 _filter_pmda_remove <$tmp.out
 
+echo
+echo "=== $iam agent re-installation ==="
+cat <<End-of-File | $here/sudo ./Install >$tmp.out 2>&1
+b
+dso
+End-of-File
+_filter_pmda_install <$tmp.out
+
 status=0
 exit

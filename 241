@@ -101,7 +101,10 @@ End-of-File
 
 echo
 echo "=== $iam agent installation ==="
-$here/sudo ./Install </dev/null >$tmp.out 2>&1
+cat <<End-of-File | $here/sudo ./Install >$tmp.out 2>&1
+b
+dso
+End-of-File
 _filter_pmda_install <$tmp.out
 
 value=5
