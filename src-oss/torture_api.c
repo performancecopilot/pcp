@@ -300,7 +300,7 @@ test_api(void)
 
     _op++;
     n = pmLookupName(numpmid, namelist, midlist);
-    if (n != PM_ERR_NAME) {	/* expect failure due to bozo */
+    if (n != PM_ERR_NONLEAF) {	/* expect failure due to pmcd */
 	_err++;
 	printf("pmLookupName: Unexpected error: %s\n", pmErrStr(n));
     }
