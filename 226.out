@@ -13,6 +13,7 @@ name pmid#
 namespace fname
 open dso dsoname init_routine [ domain# ]
 open pipe execname [ arg ... ]
+open socket sockname
 pmid metric-name
 profile indom# [ all | none ]
 profile indom# [ add | delete ] number
@@ -41,17 +42,6 @@ close
 
 Close the pipe to a daemon PMDA or dlclose(3) a DSO PMDA. dbpmda does not
 exit, allowing another PMDA to be opened.
-
-dbpmda> help debug
-
-debug all | none
-debug flag [ flag ... ] (flag is decimal or symbolic name)
-
-Specify which debugging flags should be active (see pmdbg(1)).  Flags may
-be specified as integers or by name, with multiple flags separated by
-white space.  All flags may be selected or deselected if 'all' or 'none' is
-specified.  The current setting is displayed by the status command.
-
 
 dbpmda> help debug
 
@@ -113,21 +103,13 @@ dbpmda> help open
 
 open dso dsoname init_routine [ domain# ]
 open pipe execname [ arg ... ]
+open socket sockname
 
-Open a PMDA as either a DSO or a daemon (connected with a pipe).  The
-'dsoname' and 'execname' fields are the path to the PMDA shared object file
-or executable.  The arguments to this command are similar to a line in the
-pmcd.conf file.
-
-dbpmda> help open
-
-open dso dsoname init_routine [ domain# ]
-open pipe execname [ arg ... ]
-
-Open a PMDA as either a DSO or a daemon (connected with a pipe).  The
-'dsoname' and 'execname' fields are the path to the PMDA shared object file
-or executable.  The arguments to this command are similar to a line in the
-pmcd.conf file.
+Open a PMDA as either a DSO, via UNIX domain socket (named pipe), or as a
+daemon (connected with a pipe).  The 'dsoname' and 'execname' fields are
+the path to the PMDA shared object file or executable.  The 'sockname'
+field is the path of a named pipe where a PMDA is listening for connections.
+The arguments to this command are similar to a line in the pmcd.conf file.
 
 dbpmda> help pmid
 
@@ -135,14 +117,6 @@ pmid metric-name
 
 Print the PMID for the named metric
 Most useful for PMDAs that support dynamic metrics in the PMNS.
-
-dbpmda> help profile
-
-profile indom# [ all | none ]
-profile indom# [ add | delete ] number
-
-For the instance domain specified, the profile may be changed to include
-'all' instances, no instances, add an instance or delete an instance.
 
 dbpmda> help profile
 
@@ -175,16 +149,6 @@ be stored must be enclosed in quotes.  Unlike the other commands, a store
 must request a metric description and fetch the metric to determine how to
 interpret the value, and to allocate the PDU for transmitting the value,
 respectively.  The current profile will be used.
-
-dbpmda> help text
-
-text metric
-text indom indom#
-
-Retrieve the help text for the 'metric' or 'indom' from the PMDA.  The one
-line message is shown between '[' and ']' with the long message on the next
-line.  To get the help text for an instance domain requires the word
-``indom'' before the indom number
 
 dbpmda> help text
 
