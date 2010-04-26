@@ -22,10 +22,10 @@ _filter()
     sed -e '/Note: timezone set to local timezone of host/d'
 }
 
-host=`./getpmcdhosts -p single -n 1 -v 'pcp>=2'`
-if [ "X$host" = X ]
+host=`./getpmcdhosts -p single -n 1 -v 'pcp>=2' 2>$tmp.out`
+if [ -z "$host" ]
 then
-    echo "Unable to get a single CPU host running PMCD"
+    cat $tmp.out >$seq.notrun
     exit
 fi
 
