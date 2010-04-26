@@ -2,8 +2,6 @@ QA output created by 343
 ==============================================
 -S +8h -T +3h -t 20min ... expect 10 results
 ==============================================
-Input Time Window: Fri Mar  9 00:10:47 2007
-Output Time Window: Fri Mar  9 08:10:47 2007
 metric: "aconex.connections.inuse" (129.0.12)
 input descriptor:
     Data Type: 64-bit int  InDom: 129.0 0x20400000
@@ -40,8 +38,6 @@ Note: timezone set to local timezone of host "app1" from archive
 ==============================================
 -A 15m -S +8h -T +2h -t 15min ... expect 9 results
 ==============================================
-Input Time Window: Fri Mar  9 00:10:47 2007
-Output Time Window: Fri Mar  9 08:15:00 2007
 metric: "aconex.connections.inuse" (129.0.12)
 input descriptor:
     Data Type: 64-bit int  InDom: 129.0 0x20400000
@@ -76,8 +72,6 @@ Note: timezone set to local timezone of host "app1" from archive
 ==============================================
 -Z UTC -S @16:00:00 -T +2h -t 15min ... expect 9 results
 ==============================================
-Input Time Window: Thu Mar  8 13:10:47 2007
-Output Time Window: Thu Mar  8 16:00:00 2007
 metric: "aconex.connections.inuse" (129.0.12)
 input descriptor:
     Data Type: 64-bit int  InDom: 129.0 0x20400000
