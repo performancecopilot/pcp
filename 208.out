@@ -6,6 +6,7 @@ sample.secret: id[0] = 29.*.*
 
 === metric 0 === name: sample.secret pmid 29.*.*
 pmNameID() returns -12358 (Unknown or illegal metric identifier)
+pmNameAll() returns -12358 (Unknown or illegal metric identifier)
 pmGetChildren() returns 0
 pmGetChildrenStatus() returns 0
 Name space load: NNN msec
@@ -14,6 +15,7 @@ sample.secret.bar: id[0] = 29.*.*
 
 === metric 0 === name: sample.secret.bar pmid 29.*.*
 pmNameID() returns -12358 (Unknown or illegal metric identifier)
+pmNameAll() returns -12358 (Unknown or illegal metric identifier)
 pmGetChildren() returns -12357 (Unknown metric name)
 pmGetChildrenStatus() returns -12357 (Unknown metric name)
 Name space load: NNN msec
@@ -22,6 +24,7 @@ sample.secret.foo.one: id[0] = 29.*.*
 
 === metric 0 === name: sample.secret.foo.one pmid 29.*.*
 pmNameID() returns -12358 (Unknown or illegal metric identifier)
+pmNameAll() returns -12358 (Unknown or illegal metric identifier)
 pmGetChildren() returns -12357 (Unknown metric name)
 pmGetChildrenStatus() returns -12357 (Unknown metric name)
 
@@ -44,6 +47,8 @@ sample.secret.bar: id[0] = 29.0.1000
 
 === metric 0 === name: sample.secret.bar pmid 29.0.1000
 pmNameID() returns 0
+pmid: 29.0.1000  name: sample.secret.bar
+pmNameAll() returns 1
 pmid: 29.0.1000  name: sample.secret.bar
 pmLookupDesc() returns 0
 
@@ -70,6 +75,8 @@ sample.secret.foo.one: id[0] = 29.0.1001
 
 === metric 0 === name: sample.secret.foo.one pmid 29.0.1001
 pmNameID() returns 0
+pmid: 29.0.1001  name: sample.secret.foo.one
+pmNameAll() returns 1
 pmid: 29.0.1001  name: sample.secret.foo.one
 pmLookupDesc() returns 0
 
@@ -124,6 +131,8 @@ sample.secret.foo.bar.grunt.snort.huff.puff.seven: id[0] = 29.0.1007
 === metric 0 === name: sample.secret.foo.bar.grunt.snort.huff.puff.seven pmid 29.0.1007
 pmNameID() returns 0
 pmid: 29.0.1007  name: sample.secret.foo.bar.grunt.snort.huff.puff.seven
+pmNameAll() returns 1
+pmid: 29.0.1007  name: sample.secret.foo.bar.grunt.snort.huff.puff.seven
 pmLookupDesc() returns 0
 
 Real-time result ...
@@ -151,6 +160,8 @@ sampledso.secret.bar: id[0] = 30.0.1000
 === metric 0 === name: sampledso.secret.bar pmid 30.0.1000
 pmNameID() returns 0
 pmid: 30.0.1000  name: sampledso.secret.bar
+pmNameAll() returns 1
+pmid: 30.0.1000  name: sampledso.secret.bar
 pmLookupDesc() returns 0
 
 Real-time result ...
@@ -176,6 +187,8 @@ sampledso.secret.foo.one: id[0] = 30.0.1001
 
 === metric 0 === name: sampledso.secret.foo.one pmid 30.0.1001
 pmNameID() returns 0
+pmid: 30.0.1001  name: sampledso.secret.foo.one
+pmNameAll() returns 1
 pmid: 30.0.1001  name: sampledso.secret.foo.one
 pmLookupDesc() returns 0
 
@@ -229,6 +242,8 @@ sampledso.secret.foo.bar.grunt.snort.huff.puff.seven: id[0] = 30.0.1007
 
 === metric 0 === name: sampledso.secret.foo.bar.grunt.snort.huff.puff.seven pmid 30.0.1007
 pmNameID() returns 0
+pmid: 30.0.1007  name: sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
+pmNameAll() returns 1
 pmid: 30.0.1007  name: sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
 pmLookupDesc() returns 0
 
