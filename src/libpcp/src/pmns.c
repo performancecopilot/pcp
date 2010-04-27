@@ -1813,9 +1813,12 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	    }
 	    free(xname);
 	    if (xp == NULL || sts < 0) {
-		/* try derived metrics for an unknown metric */
-		lsts = __dmgetpmid(namelist[i], &pmidlist[i]);
-		if (sts < 0 && lsts >=0) sts = 0;
+		/*
+		 * try derived metrics for a metric that is
+		 * still unknown ... we'll set sts to 0 if we
+		 * find one, else PM_ERR_NAME
+		 */
+		sts = __dmgetpmid(namelist[i], &pmidlist[i]);
 	    }
 	}
 
