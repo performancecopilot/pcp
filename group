@@ -693,6 +693,7 @@ derive		pcpqa
 647 pmda.mmv local oss
 648 pmda.mmv local oss
 649 pmda.mmv local oss
+650 pmlogger local oss
 651 pmproxy remote oss
 703 pcpweb local oss
 706 pcpweb local oss
