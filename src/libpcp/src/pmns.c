@@ -1815,10 +1815,11 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	    if (xp == NULL || sts < 0) {
 		/*
 		 * try derived metrics for a metric that is
-		 * still unknown ... we'll set sts to 0 if we
-		 * find one, else PM_ERR_NAME
+		 * still unknown ... on failure we'll set sts to 
+		 * PM_ERR_NAME if this is the first error
 		 */
-		sts = __dmgetpmid(namelist[i], &pmidlist[i]);
+		lsts = __dmgetpmid(namelist[i], &pmidlist[i]);
+		if (lsts < 0 && sts >= 0) sts = lsts;
 	    }
 	}
 
@@ -2314,6 +2315,10 @@ check:
 	stitch_list(&num, offspring, statuslist, dm_num, dm_offspring, dm_statuslist);
 	free(dm_offspring);
 	free(dm_statuslist);
+    }
+    else if (dm_num == 0 && num < 0) {
+	/* leaf node and derived metric */
+	num = 0;
     }
 
 report:
