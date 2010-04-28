@@ -75,7 +75,8 @@ __dmprefetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmID **newlist)
     cp->fetch_has_dm = 0;
 
     for (m = 0; m < numpmid; m++) {
-	if (pmid_domain(pmidlist[m]) != DYNAMIC_PMID)
+	if (pmid_domain(pmidlist[m]) != DYNAMIC_PMID ||
+	    pmid_item(pmidlist[m]) == 0)
 	    continue;
 	for (i = 0; i < cp->nmetric; i++) {
 	    if (pmidlist[m] == cp->mlist[i].pmid) {
@@ -1016,7 +1017,8 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	 * which case m is well-defined
 	 */
 	m = 0;
-	if (pmid_domain(rp->vset[j]->pmid) == DYNAMIC_PMID) {
+	if (pmid_domain(rp->vset[j]->pmid) == DYNAMIC_PMID &&
+	    pmid_item(rp->vset[j]->pmid) != 0) {
 	    for (m = 0; m < cp->nmetric; m++) {
 		if (rp->vset[j]->pmid == cp->mlist[m].pmid) {
 		    rewrite = 1;

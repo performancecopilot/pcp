@@ -680,7 +680,7 @@ pmdaStore(pmResult *result, pmdaExt *pmda)
  */
 
 int
-pmdaPMID(char *name, pmID *pmid, pmdaExt *pmda)
+pmdaPMID(const char *name, pmID *pmid, pmdaExt *pmda)
 {
     return PM_ERR_NAME;
 }
@@ -692,7 +692,7 @@ pmdaName(pmID pmid, char ***nameset, pmdaExt *pmda)
 }
 
 int
-pmdaChildren(char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
+pmdaChildren(const char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
 {
     return PM_ERR_NAME;
 }

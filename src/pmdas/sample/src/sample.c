@@ -1253,10 +1253,10 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
 }
 
 int
-sample_pmid(char *name, pmID *pmid, pmdaExt *pmda)
+sample_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
     int		i;
-    char	*p;
+    const char	*p;
 
     /* skip the sample. or sampledso. part */
     for (p = name; *p != '.' && *p; p++)
@@ -1321,14 +1321,14 @@ sample_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 }
 
 int
-sample_children(char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
+sample_children(const char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
 {
     int		i;
     int		j;
     int		nmatch;
     int		pfxlen;
     int		namelen;
-    char	*p;
+    const char	*p;
     char	*q;
     char	*qend = NULL;
     char	**chn = NULL;
