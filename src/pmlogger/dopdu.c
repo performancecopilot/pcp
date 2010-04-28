@@ -263,14 +263,17 @@ add_metric(pmValueSet *vsp, task_t **result)
     task_t	*tp = *result;
     optreq_t	*rqp;
     pmDesc	*dp;
-    int		sts, need = 0;
+    char	*name;
+    int		sts, i, need = 0;
 
     dp = (pmDesc *)malloc(sizeof(pmDesc));
     if (dp == NULL) {
 	__pmNoMem("add_metric: new pmDesc malloc", sizeof(pmDesc), PM_FATAL_ERR);
     }
     if ((sts = pmLookupDesc(pmid, dp)) < 0)
-	return sts;
+	die("add_metric: lookup desc", sts);
+    if ((sts = pmNameID(pmid, &name)) < 0)
+	die("add_metric: lookup name", sts);
 
     /* allocate a new task if null task pointer passed in */
     if (tp == NULL) {
@@ -282,25 +285,19 @@ add_metric(pmValueSet *vsp, task_t **result)
     }
 
     /* add metric (and any instances specified) to task */
-    tp->t_numpmid++;
+    i = tp->t_numpmid++;
     need = tp->t_numpmid * sizeof(pmID);
-    tp->t_pmidlist = (pmID *)realloc(tp->t_pmidlist, need);
-    if (tp->t_pmidlist == NULL) {
+    if (!(tp->t_pmidlist = (pmID *)realloc(tp->t_pmidlist, need)))
 	__pmNoMem("add_metric: new task pmidlist realloc", need, PM_FATAL_ERR);
-    }
     need = tp->t_numpmid * sizeof(char *);
-    tp->t_namelist = (char **)realloc(tp->t_namelist, need);
-    if (tp->t_namelist == NULL) {
+    if (!(tp->t_namelist = (char **)realloc(tp->t_namelist, need)))
 	__pmNoMem("add_metric: new task namelist realloc", need, PM_FATAL_ERR);
-    }
     need = tp->t_numpmid * sizeof(pmDesc);
-    tp->t_desclist = (pmDesc *)realloc(tp->t_desclist, need);
-    if (tp->t_desclist == NULL) {
+    if (!(tp->t_desclist = (pmDesc *)realloc(tp->t_desclist, need)))
 	__pmNoMem("add_metric: new task desclist realloc", need, PM_FATAL_ERR);
-    }
-    tp->t_namelist[tp->t_numpmid-1] = NULL;	/* name not known here */
-    tp->t_pmidlist[tp->t_numpmid-1] = pmid;
-    tp->t_desclist[tp->t_numpmid-1] = *dp;	/* struct assignment */
+    tp->t_pmidlist[i] = pmid;
+    tp->t_namelist[i] = name;
+    tp->t_desclist[i] = *dp;	/* struct assignment */
 
     rqp = (optreq_t *)calloc(1, sizeof(optreq_t));
     if (rqp == NULL) {
@@ -316,8 +313,6 @@ add_metric(pmValueSet *vsp, task_t **result)
     if (dp->indom != PM_INDOM_NULL)
 	need = rqp->r_numinst = vsp->numval;
     if (need) {
-	int	i;
-
 	need *= sizeof(rqp->r_instlist[0]);
 	rqp->r_instlist = (int *)malloc(need);
 	if (rqp->r_instlist == NULL) {
@@ -448,8 +443,11 @@ del_insts(pmID pmid)
 		if (tp->t_pmidlist[i] == pmid)
 		    break;
 	    keep = (tp->t_numpmid - 1 - i) * sizeof(tp->t_pmidlist[0]);
-	    if (keep)
+	    if (keep) {
 		memmove(&tp->t_pmidlist[i], &tp->t_pmidlist[i+1], keep);
+		memmove(&tp->t_desclist[i], &tp->t_desclist[i+1], keep);
+		memmove(&tp->t_namelist[i], &tp->t_namelist[i+1], keep);
+	    }
 
 	    /* don't bother shrinking the pmidlist */
 	    tp->t_numpmid--;
@@ -477,6 +475,7 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
     int		i, j, inst;
     int		sts, need = 0;
     int		addpmid = 0;
+    int		freedp;
 
     /* allocate a new task if null task pointer passed in */
     if (ntp == NULL) {
@@ -527,9 +526,8 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 		return 1;		/* can't turn "all" into specific insts */
 
 	    for (i = 0; i < vsp->numval; i++) {
-		int	freedp = 0;
-		pmDesc	*dp = NULL;
-
+		dp = NULL;
+		freedp = 0;
 		inst = vsp->vlist[i].inst;
 		rqp = findoptreq(pmid, inst);
 		if (rqp != NULL) {
@@ -732,14 +730,28 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
 	if (pmid == ntp->t_pmidlist[i])
 	    break;
     if (i >= ntp->t_numpmid) {
+	pmDesc	desc;
+	char	*name;
 	int	need;
 
+	if ((sts = pmLookupDesc(pmid, &desc)) < 0)
+	    die("update_metric: cannot lookup desc", sts);
+	if ((sts = pmNameID(pmid, &name)) < 0)
+	    die("update_metric: cannot lookup name", sts);
+
 	need = (ntp->t_numpmid + 1) * sizeof(pmID);
-	ntp->t_pmidlist = (pmID *)realloc(ntp->t_pmidlist, need);
-	if (ntp->t_pmidlist == NULL) {
+	if (!(ntp->t_pmidlist = (pmID *)realloc(ntp->t_pmidlist, need)))
 	    __pmNoMem("update_metric: grow task pmidlist", need, PM_FATAL_ERR);
-	}
-	ntp->t_pmidlist[ntp->t_numpmid] = pmid;
+	need = (ntp->t_numpmid + 1) * sizeof(char *);
+	if (!(ntp->t_namelist = (char **)realloc(ntp->t_namelist, need)))
+	    __pmNoMem("update_metric: grow task namelist", need, PM_FATAL_ERR);
+	need = (ntp->t_numpmid + 1) * sizeof(pmDesc);
+	if (!(ntp->t_desclist = (pmDesc *)realloc(ntp->t_desclist, need)))
+	    __pmNoMem("update_metric: grow task desclist", need, PM_FATAL_ERR);
+	i = ntp->t_numpmid;
+	ntp->t_pmidlist[i] = pmid;
+	ntp->t_namelist[i] = name;
+	ntp->t_desclist[i] = desc;
 	ntp->t_numpmid++;
     }
     return 0;
