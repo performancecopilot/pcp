@@ -89,7 +89,9 @@ main(int argc, char **argv)
     pmResult	*orp;		/* output pmResult */
     __pmPDU	*pb;		/* pdu buffer */
     struct timeval	unused;
+#ifdef DESPERATE
     char	buf[26];
+#endif
 
     __pmSetProgname(argv[0]);
 
