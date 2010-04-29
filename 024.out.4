@@ -90,6 +90,7 @@ pmUseContext(1) -> 0
 pmDestroyContext(1) -> 0, curcontext=-1
 pmUseContext(0) -> 0
 
+
 === try CONTEXT_LOCAL ===
 __pmSetSocketIPC: fd=<n>
 IPC table fd(PDU version):
@@ -103,21 +104,7 @@ Dump Contexts: current context = 0
 Context[0] host <localhost>: pmcd=CONNECTED profile=NOT_SENT fd=<n> refcnt=1 origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 build_dsotab: parsing $PCP_PMCDCONF_PATH
-[N] domain=N, name=OS_PMDA, ...
-__pmLocalPMDA(op=ADD, domain=60, name=OS_PMDA, ...)
-Local Context PMDA Table
-ADDR [N] domain=N name=OS_PMDA, ...
-[N] domain=30, name=$PCP_PMDAS_DIR/sample/pmda_sample.so, init=sample_init
-__pmLocalPMDA(op=ADD, domain=30, name=$PCP_PMDAS_DIR/sample/pmda_sample.so, init=sample_init)
-Local Context PMDA Table
-ADDR [N] domain=N name=OS_PMDA, ...
-ADDR [N] domain=30 name=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX init=sample_init handle=(nil)
-[N] domain=70, name=$PCP_PMDAS_DIR/mmv/pmda_mmv.so, init=mmv_init
-__pmLocalPMDA(op=ADD, domain=70, name=$PCP_PMDAS_DIR/mmv/pmda_mmv.so, init=mmv_init)
-Local Context PMDA Table
-ADDR [N] domain=N name=OS_PMDA, ...
-ADDR [N] domain=30 name=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX init=sample_init handle=(nil)
-ADDR [N] domain=70 name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX init=mmv_init handle=(nil)
+<stripped lines>
 pmNewContext(3, (null)) -> 1
 Dump Contexts: current context = 1
 Context[1] standalone: profile=NOT_SENT
@@ -126,3 +113,19 @@ pmUseContext(1) -> 0
 pmDestroyContext(1) -> 0, curcontext=-1
 pmUseContext(0) -> 0
 
+sorted stripped lines ...
+ADDR [N] domain=30 name=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX init=sample_init handle=(nil)
+ADDR [N] domain=70 name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX init=mmv_init handle=(nil)
+ADDR [N] domain=70 name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX init=mmv_init handle=(nil)
+ADDR [N] domain=N name=OS_PMDA, ...
+ADDR [N] domain=N name=OS_PMDA, ...
+ADDR [N] domain=N name=OS_PMDA, ...
+Local Context PMDA Table
+Local Context PMDA Table
+Local Context PMDA Table
+[N] domain=30, name=$PCP_PMDAS_DIR/sample/pmda_sample.so, init=sample_init
+[N] domain=70, name=$PCP_PMDAS_DIR/mmv/pmda_mmv.so, init=mmv_init
+[N] domain=N, name=OS_PMDA, ...
+__pmLocalPMDA(op=ADD, domain=30, name=$PCP_PMDAS_DIR/sample/pmda_sample.so, init=sample_init)
+__pmLocalPMDA(op=ADD, domain=70, name=$PCP_PMDAS_DIR/mmv/pmda_mmv.so, init=mmv_init)
+__pmLocalPMDA(op=ADD, domain=N, name=OS_PMDA, ...)

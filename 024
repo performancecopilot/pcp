@@ -51,8 +51,20 @@ s/\[[0-9][0-9]*]/[N]/
 s;=[0-9].*/OS/.*;=N name=OS_PMDA, ...;
 }' \
 	-e '/^\[N] .*\/OS\//s/.*/[N] domain=N, name=OS_PMDA, .../' \
-	-e '/^__pmLocalPMDA(.*\/OS\//s/name=.*/name=OS_PMDA, ...)/'
+	-e '/^__pmLocalPMDA(.*\/OS\//{
+s/name=.*/name=OS_PMDA, ...)/
+s/domain=[0-9][0-9]*/domain=N/
+}'
 
+}
+
+_filter2()
+{
+    $PCP_AWK_PROG '
+/build_dsotab:/			{ strip=1; print; print "<stripped lines>"; next }
+strip == 1 && /pmNewContext/	{ strip=0 }
+strip == 1			{ print >"'$tmp.tmp'"; next }
+				{ print }'
 }
 
 seq=`basename $0`
@@ -74,6 +86,8 @@ else
     ln $seq.out.1 $seq.out
 fi
 
+
+
 echo "QA output created by $seq"
 
 # get standard filters
@@ -81,7 +95,10 @@ echo "QA output created by $seq"
 . ./common.filter
 
 tmp=/tmp/$$
+here=`pwd`
+sudo=$here/sudo
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
+$sudo rm -rf $tmp.* $seq.full
 
 . ./common.filter
 
@@ -106,8 +123,15 @@ echo ""
 PCP_LITE_SAMPLE=yes
 export PCP_LITE_SAMPLE
 
-echo "=== try CONTEXT_LOCAL ==="
+echo | tee -a $seq.full
+echo "=== try CONTEXT_LOCAL ===" | tee -a $seq.full
 src-oss/chkctx2_lite -D16 -L 2>&1 \
+| tee -a $seq.full \
 | _filter \
+| _filter2 \
 | _filter_pmcd_log
-echo ""
+
+echo
+echo "sorted stripped lines ..."
+LC_COLLATE=POSIX sort $tmp.tmp
+
