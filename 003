@@ -58,7 +58,18 @@ pmie_filter()
 linux_filter()
 {
     sed \
+	-e "/mem.util.active_anon: $unavailable/d" \
+	-e "/mem.util.active_file: $unavailable/d" \
+	-e "/mem.util.inactive_anon: $unavailable/d" \
+	-e "/mem.util.inactive_file: $unavailable/d" \
+	-e "/mem.util.anonhugepages: $unavailable/d" \
+	-e "/mem.util.corrupthardware: $unavailable/d" \
 	-e "/mem.util.directMap2M: $unavailable/d" \
+	-e "/mem.util.directMap4k: $unavailable/d" \
+	-e "/mem.util.mlocked: $unavailable/d" \
+	-e "/mem.util.mmap_copy: $unavailable/d" \
+	-e "/mem.util.quicklists: $unavailable/d" \
+	-e "/mem.util.unevictable: $unavailable/d" \
 	-e "/mem.util.highFree: $unavailable/d" \
 	-e "/mem.util.highTotal: $unavailable/d" \
 	-e "/mem.util.kernelStack: $unavailable/d" \
@@ -67,6 +78,10 @@ linux_filter()
 	-e "/mem.util.shmem: $unavailable/d" \
 	-e "/mem.util.slabReclaimable: $unavailable/d" \
 	-e "/mem.util.slabUnreclaimable: $unavailable/d" \
+	-e "/mem.util.hugepagesFree: $unavailable/d" \
+	-e "/mem.util.hugepagesRsvd: $unavailable/d" \
+	-e "/mem.util.hugepagesSurp: $unavailable/d" \
+	-e "/mem.util.hugepagesTotal: $unavailable/d" \
 	-e "/mem.vmstat.nr_slab_reclaimable: $unavailable/d" \
 	-e "/mem.vmstat.nr_slab_unreclaimable: $unavailable/d" \
 	-e "/mem.vmstat.nr_vmscan_write: $unavailable/d" \
