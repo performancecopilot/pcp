@@ -909,3 +909,4 @@ derive		pcpqa
 343 pmlogreduce local oss
 344 context_local local oss
 345 pmns derive local oss
+350 pmda.simple pmda local oss
