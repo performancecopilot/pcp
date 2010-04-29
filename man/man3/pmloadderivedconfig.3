@@ -58,7 +58,7 @@ else a value less than zero in the case of an error.
 # sample derived metric definitions
 bad_in_pkts = network.interface.in.errors + network.interface.in.drops
 # note the following would need to be on a single line ...
-disk.dev.read_pct = 100 * disk.dev.read /
+disk.dev.read_pct = 100 * delta(disk.dev.read) /
             (delta(disk.dev.read) + delta(disk.dev.write))
 .fi
 .SH SEE ALSO

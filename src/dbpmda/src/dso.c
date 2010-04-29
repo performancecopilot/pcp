@@ -464,7 +464,6 @@ dodso(int pdu)
 			printf("%s\n", buffer);
 		    else
 			printf("<no help text specified>\n");
-		    free(buffer);
 		}
 		else {
 		    if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)
