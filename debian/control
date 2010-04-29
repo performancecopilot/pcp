@@ -5,10 +5,10 @@ Homepage: http://oss.sgi.com/projects/pcp
 Maintainer: Nathan Scott <nathans@debian.org>
 Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
 Build-Depends: autoconf, bison, flex, gawk, procps, debhelper (>= 5), perl (>= 5.6), libreadline-dev
-Standards-Version: 3.8.3
+Standards-Version: 3.8.4
 
 Package: pcp
-Depends: ${shlibs:Depends}, gawk, procps, sysv-rc-conf, cpp
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf, cpp
 Suggests: tsocks
 Conflicts: pgpool2
 Recommends: libpcp-pmda-perl, pcp-gui
@@ -25,8 +25,7 @@ Description: System level performance monitoring and performance management
 
 Package: libpcp3-dev
 Section: libdevel
-Depends: libc6-dev | libc-dev, libpcp3 (>= 2.8.0)
-Conflicts: pcp (< 2.8.0)
+Depends: ${misc:Depends}, pcp (= ${binary:Version}), libc6-dev | libc-dev
 Architecture: any
 Description: Performance Co-Pilot library and headers
  The libpcp-dev package contains the base Performance Co-Pilot (PCP)
@@ -39,8 +38,8 @@ Description: Performance Co-Pilot library and headers
  that data.
 
 Package: libpcp3
-Depends: ${shlibs:Depends}
-Conflicts: pgpool2, pcp (< 2.8.0), libpcp3-dev (< 2.8.5)
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: pgpool2, pcp (<< 2.8.0), libpcp3-dev (<< 2.8.5)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot library
@@ -54,7 +53,7 @@ Description: Performance Co-Pilot library
 
 Package: libpcp-gui2-dev
 Section: libdevel
-Depends: libpcp3-dev
+Depends: ${misc:Depends}, libpcp3-dev
 Conflicts: libpcp-gui1-dev
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library and headers
@@ -68,7 +67,7 @@ Description: Performance Co-Pilot graphical client tools library and headers
  that data.
 
 Package: libpcp-gui2
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library
@@ -82,7 +81,7 @@ Description: Performance Co-Pilot graphical client tools library
 
 Package: libpcp-mmv1-dev
 Section: libdevel
-Depends: libpcp3-dev
+Depends: ${misc:Depends}, libpcp3-dev
 Architecture: any
 Description: Performance Co-Pilot Memory Mapped Value library and headers
  The libpcp-mmv-dev package contains the Performance Co-Pilot (PCP)
@@ -95,7 +94,7 @@ Description: Performance Co-Pilot Memory Mapped Value library and headers
  that data.
 
 Package: libpcp-mmv1
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot Memory Mapped Value client library
@@ -110,8 +109,8 @@ Description: Performance Co-Pilot Memory Mapped Value client library
 
 Package: libpcp-pmda3-dev
 Section: libdevel
-Depends: libpcp3-dev
-Conflicts: pcp (< 2.7.4-20080507)
+Depends: ${misc:Depends}, libpcp3-dev
+Conflicts: pcp (<< 2.8.0)
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library and headers
  The libpcp-pmda-dev package contains the Performance Co-Pilot (PCP)
@@ -126,7 +125,7 @@ Description: Performance Co-Pilot Domain Agent library and headers
  that data.
 
 Package: libpcp-pmda3
-Depends: ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library
@@ -137,8 +136,8 @@ Description: Performance Co-Pilot Domain Agent library
 
 Package: libpcp-trace2-dev
 Section: libdevel
-Depends: libpcp3-dev
-Conflicts: pcp (< 2.7.4-20080507)
+Depends: ${misc:Depends}, libpcp3-dev
+Conflicts: pcp (<< 2.8.0)
 Architecture: any
 Description: Performance Co-Pilot application tracing library and headers
  The libpcp-trace-dev package contains the Performance Co-Pilot (PCP)
@@ -152,7 +151,7 @@ Description: Performance Co-Pilot application tracing library and headers
  that data.
 
 Package: libpcp-trace2
-Depends: ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot application tracing library
@@ -169,7 +168,7 @@ Package: libpcp-pmda-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: ${shlibs:Depends}, libpcp-pmda3, ${perl:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, libpcp-pmda3
 Description: Performance Co-Pilot Domain Agent Perl module
  The PCP::PMDA Perl module contains the language bindings for
  building Performance Metric Domain Agents (PMDAs) using Perl.
@@ -186,7 +185,7 @@ Package: libpcp-logsummary-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: pcp, ${perl:Depends}
+Depends: ${misc:Depends}, ${perl:Depends}, pcp
 Description: Performance Co-Pilot historical log summary module
  The PCP::LogSummary module provides a Perl module for using the
  statistical summary data produced by the Performance Co-Pilot
@@ -204,7 +203,7 @@ Package: libpcp-mmv-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: ${shlibs:Depends}, libpcp-mmv1, ${perl:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends}, libpcp-mmv1
 Description: Performance Co-Pilot Memory Mapped Value Perl module
  The PCP::MMV module contains the Perl language bindings for
  building scripts instrumented with the Performance Co-Pilot
