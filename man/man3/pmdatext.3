@@ -89,11 +89,12 @@ for the full help text.
 .PP
 The
 .I buffer
-is allocated using
+must be managed internally by the PMDA (usually it is cached),
+in particular it should not be allocated via
 .BR malloc (3)
-and should be released by the caller of
+as the
 .B pmdaText
-with a call to
+caller will not be calling
 .BR free (3).
 .SH DIAGNOSTICS
 If the requested help text
