@@ -105,8 +105,11 @@ again_local:
 		    type |= PM_TEXT_ONELINE;
 		    goto again_local;
 		}
-		if (n == 0) {
-		    /* PMDAs don't allocate this space, but the caller will free it */
+		if (n == 0 && dp->dispatch.comm.pmda_interface != PMDA_INTERFACE_1) {
+		    /*
+		     * PMDAs after PMDA_INTERFACE_1 don't malloc the buffer
+		     * but the caller will free it, so malloc and copy
+		     */
 		    *buffer = strdup(*buffer);
 		} else if (n < 0 &&
 		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1) {
