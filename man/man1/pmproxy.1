@@ -51,12 +51,16 @@ hosts of interest where
 .BR pmcd (1)
 is running.
 .PP
-The behaviour of the PCP monitoring clients is controlled by the
+The behaviour of the PCP monitoring clients is controlled by either the
 .B PMPROXY_HOST
-environment variable.
-If this is unset, clients will make their connections directly to
+environment variable or through the extended hostname specification
+(see
+.BR PCPIntro (1)
+for details).
+If neither of these mechanisms is used, clients will make their
+connections directly to
 .BR pmcd (1).
-If
+If the proxy hostname syntax is used or
 .B PMPROXY_HOST
 is set, then this should be the hostname or IP address of the system
 where
@@ -185,9 +189,7 @@ may be used to specify an alternative port number.  If
 .B PMPROXY_PORT
 is used, care should be taken to ensure the environment variable is set before
 .B pmproxy
-is started, and also in the environment of any client application that
-will connect to
-.BR pmproxy .
+is started.
 .SH FILES
 .PD 0
 .TP
@@ -232,6 +234,11 @@ For the PCP monitoring client this is the hostname or IP address of the
 host where
 .B pmproxy
 is running.
+In recent versions of PCP (since version 3) this has been superceded by
+the extended hostname syntax
+(see
+.BR PCPIntro (1)
+for details).
 .TP
 .B PMPROXY_PORT
 For the PCP monitoring client this is the port on which

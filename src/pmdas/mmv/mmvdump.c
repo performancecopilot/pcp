@@ -276,9 +276,9 @@ dump(const char *file, void *addr)
 
     printf("MMV file   = %s\n", file);
     printf("Version    = %d\n", hdr->version);
-    printf("Generated  = %llu\n", hdr->g1);
+    printf("Generated  = %llu\n", (unsigned long long)hdr->g1);
     if (hdr->g1 != hdr->g2) {
-	printf("Generated2 = %llu\n", hdr->g2);
+	printf("Generated2 = %llu\n", (unsigned long long)hdr->g2);
 	printf("Mismatched generation numbers\n");
 	return 1;
     }

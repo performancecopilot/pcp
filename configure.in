@@ -1419,6 +1419,8 @@ AC_SUBST(pcp_x11_appdefs_dir)
 dnl man pages (source)
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
+need_old_tbl_header=false
+man_header=
 pcp_man_dir=`eval echo $mandir`
 pcp_man_dir=`eval echo $pcp_man_dir`
 if test "`echo $pcp_man_dir | sed 's;/.*\$;;'`" = NONE
@@ -1443,33 +1445,41 @@ then
 	then
 	    have_gzipped_manpages=true
 	    pcp_man_dir=$d
+	    man_header=`$ZIP -d < $d/man1/man.1.gz | head -1`
 	    break
 	elif test -f $d/man1/man.1.bz2
 	then
 	    have_bzip2ed_manpages=true
 	    pcp_man_dir=$d
+	    man_header=`$BZIP2 -d < $d/man1/man.1.bz2 | head -1`
 	    break
 	elif test -f $d/man1/man.1
 	then
 	    pcp_man_dir=$d
+	    man_header=`head -1 $d/man1/man.1`
 	    break
 	elif test -f $d/sman1/man.1.gz
 	then
 	    have_gzipped_manpages=true
 	    pcp_man_dir=$d
+	    man_header=`$ZIP -d < $d/sman1/man.1.gz | head -1`
 	    break
 	elif test -f $d/sman1/man.1.bz2
 	then
 	    have_bzip2ed_manpages=true
 	    pcp_man_dir=$d
+	    man_header=`$BZIP2 -d < $d/sman1/man.1.bz2 | head -1`
 	    break
 	elif test -f $d/sman1/man.1
 	then
 	    pcp_man_dir=$d
+	    man_header=`head -1 $d/sman1/man.1`
 	    break
 	elif test -f $d/cat1/man.1
 	then
 	    pcp_man_dir=$d
+	    # cannot deduce troff meta control from formatted man
+	    # pages, so leave $man_header empty
 	    break
 	fi
     done
@@ -1484,9 +1494,13 @@ then
     echo "FATAL ERROR: could not find pcp_man_dir directory."
     exit 1
 fi
+if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
+    need_old_tbl_header=true
+fi
 AC_SUBST(pcp_man_dir)
 AC_SUBST(have_gzipped_manpages)
 AC_SUBST(have_bzip2ed_manpages)
+AC_SUBST(need_old_tbl_header)
 
 dnl public binaries
 pcp_bin_dir=`eval echo $bindir`
@@ -1523,7 +1537,7 @@ dnl rc/startup files
 if test $target_os = darwin
 then
     pcp_rc_dir=/Library/StartupItems/pcp
-elif test $target_distro = suse
+elif test $target_distro = suse -o $target_distro = debian
 then
     pcp_rc_dir=/etc/init.d
 else
@@ -1756,6 +1770,10 @@ fi
 AC_SUBST(lib_for_readline)
 AC_SUBST(lib_for_curses)
 LIBS=$savedLIBS
+
+dnl Do you have git installed?
+AC_CHECK_PROGS(GIT,git)
+AC_SUBST(GIT)
 
 dnl
 dnl output files

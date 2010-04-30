@@ -464,7 +464,9 @@ dodso(int pdu)
 			printf("%s\n", buffer);
 		    else
 			printf("<no help text specified>\n");
-		    free(buffer);
+		    /* only PMDA_INTERFACE_1 uses a malloc'd buffer */
+		    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_1)
+			free(buffer);
 		}
 		else {
 		    if (dispatch.comm.pmapi_version == PMAPI_VERSION_1)

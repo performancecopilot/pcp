@@ -1,3 +1,31 @@
+pcp-3.2.0 (29 April 2010)
+    - Change how PM_CONTEXT_LOCAL determines available PMDAs:
+      rework local context code to retire $PMDA_LOCAL_*, build DSO table
+      from pmcd.conf at run-time, new __pmLocalPMDA and __pmSpecLocalPMDA
+      routines in libpcp, -K options for pminfo, pmval and pmprobe.
+    - Make some pmda dynamic name operations take (const char *) args.
+    - Fix bash completion so dynamic names expanded, and stderr culled
+      (culling DSO agent initialisation messages).
+    - Improve pmlogger handling of alias names (same PMID, different names).
+    - Honour the -T command line option in pmlogreduce.
+    - Resolve an MMV issue evident in the Mac OS X installer, which resulted
+      in failed dmg (binary) installation attempts.
+    - Solaris startup script improvements.
+    - Add details of the extended hostname syntax to pcpintro(1).
+    - Fix a memory leak in pmdawindows help text handling.
+    - Fix a memory leak in pmdammv help text handling.
+    - Add anonymous huge page Linux memory utilisation metric.
+    - Fix local context reporting of help text.
+    - Solaris man page build changes.
+    - Clean up diagnostic messages in pmlogextract.
+    - Teach pmdaproc about Solaris' ping.
+    - If pmstat fails to connect to local pmcd, fallback to local context.
+    - Mark as const the final (requested units) pmConvScale argument
+    - Clean out SGI-isms from build related files (no longer used by SGI).
+    - Fix mem.numa.util.NFS_Unstable metric.
+    - Removed pmdajstat, this has long been superceded by the capabilities
+      of the Parfait package for instrumenting Java applications with PCP.
+
 pcp-3.1.2 (22 March 2010)
     - Add indom save and restore logic into Windows PMDA.
     - Fix a typo in the Postfix PMDA.

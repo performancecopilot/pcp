@@ -82,9 +82,10 @@ endif
 
 clean clobber :: $(SUBDIRS) $(PRO_SUBDIRS) $(SNIA_SUBDIRS)
 	rm -rf $(DIRT)
+	@rm -fr $(DIRDIRT)
 	$(SUBDIRS_MAKERULE)
 
-clean-lbs clean-sgi realclean distclean: clean
+realclean distclean: clean
 	rm -f $(TOPDIR)/src/include/builddefs \
 	      $(TOPDIR)/src/include/pcp.conf \
 	      $(TOPDIR)/src/include/platform_defs.h \

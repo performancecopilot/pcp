@@ -26,7 +26,7 @@
 
 #define ALL_SAMPLES	-1
 
-static char *options = "A:a:D:df:gh:i:n:O:p:rs:S:t:T:U:w:zZ:?";
+static char *options = "A:a:D:df:gh:i:K:n:O:p:rs:S:t:T:U:w:zZ:?";
 static char usage[] =
     "Usage: %s [options] metricname\n\n"
     "Options:\n"
@@ -39,6 +39,8 @@ static char usage[] =
     "  -h host       metrics source is PMCD on host\n"
     "  -i instance   metric instance or list of instances - elements in an\n"
     "                instance list are separated by commas or whitespace\n"
+    "  -K spec       optional additional PMDA spec for local connection\n"
+    "                spec is of the form op,domain,dso-path,init-routine\n"
     "  -n pmnsfile   use an alternative PMNS\n"
     "  -O offset     initial offset into the time window\n"
     "  -p port       port number for connection to existing time control\n"
@@ -789,6 +791,7 @@ getargs(int		argc,		/* in - command line argument count */
     char	*host = local;
     int		sts;
     char        *endnum;
+    char        *errmsg;
 
     char	    *Sflag = NULL;		/* argument of -S flag */
     char	    *Tflag = NULL;		/* argument of -T flag */
@@ -879,6 +882,13 @@ getargs(int		argc,		/* in - command line argument count */
 		subopt = getinstance(NULL);
 	    }
 	    cntxt->inum = i;
+	    break;
+
+	case 'K':	/* update local PMDA table */
+	    if ((errmsg = __pmSpecLocalPMDA(optarg)) != NULL) {
+		fprintf(stderr, "%s: __pmSpecLocalPMDA failed\n%s\n", pmProgname, errmsg);
+		errflag++;
+	    }
 	    break;
 
 	case 'n':		/* alternative name space file */

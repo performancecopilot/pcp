@@ -21,7 +21,6 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmprobe.c
 LLDLIBS = -lpcp
-LCFLAGS += -DPM_USE_CONTEXT_LOCAL
 CMDTARGET = pmprobe$(EXECSUFFIX)
 
 default:	$(CMDTARGET)
@@ -34,3 +33,4 @@ install:	default
 default_pcp:	default
 
 install_pcp:	install
+

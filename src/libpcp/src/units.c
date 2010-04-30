@@ -263,7 +263,7 @@ pmUnitsStr(const pmUnits *pu)
 /* Scale conversion, based on value format, value type and scale */
 int
 pmConvScale(int type, const pmAtomValue *ival, const pmUnits *iunit,
-	    pmAtomValue *oval, pmUnits *ounit)
+	    pmAtomValue *oval, const pmUnits *ounit)
 {
     int			sts;
     int			k;
