@@ -41,7 +41,7 @@ _cleanup()
     _start >/dev/null 2>&1
     _wait_for_pmcd
     _wait_for_pmlogger
-    rm -f $tmp
+    rm -f $tmp.*
 }
 
 _filter()

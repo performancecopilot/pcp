@@ -20,7 +20,7 @@ echo "QA output created by $seq"
 tmp=/tmp/$$
 sudo=`pwd`/sudo
 status=1	# failure is the default!
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "rm -f $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 HOME=`cd $HOME; pwd`
 

@@ -58,7 +58,7 @@ skipv == 2			{ next }
 
 echo "Test case - one metric, remapped ID"
 rm -f $tmp.log
-cat <<End-of-File | pmlogger -s 5 -l $tmp.log ${tmp}1 &
+cat <<End-of-File | pmlogger -s 5 -l $tmp.log $tmp.1 &
 log advisory on 200 msec {
     sample.secret.foo.bar.max.redirect
 }
@@ -66,15 +66,15 @@ End-of-File
 wait
 pid=$!
 echo "= metric names recorded"
-pminfo -a ${tmp}1
+pminfo -a $tmp.1
 echo "= archive contents..."
-pmdumplog -a ${tmp}1 | _filter $pid
+pmdumplog -a $tmp.1 | _filter $pid
 echo "= pmlogger log"
 _filter_pmlogger_log <$tmp.log
 
 echo "Test case - two metric names, common PMID, one group"
 rm -f $tmp.log
-cat <<End-of-File | pmlogger -s 5 -l $tmp.log ${tmp}2 &
+cat <<End-of-File | pmlogger -s 5 -l $tmp.log $tmp.2 &
 log advisory on 200 msec {
     sample.secret.foo.bar.max.redirect
     pmcd.agent.status
@@ -83,15 +83,15 @@ End-of-File
 wait
 pid=$!
 echo "= metric names recorded"
-pminfo -a ${tmp}2
+pminfo -a $tmp.2
 echo "= archive contents..."
-pmdumplog -a ${tmp}2 | _filter $pid
+pmdumplog -a $tmp.2 | _filter $pid
 echo "= pmlogger log"
 _filter_pmlogger_log <$tmp.log
 
 echo "Test case - two metric names, common PMID, two groups"
 rm -f $tmp.log
-cat <<End-of-File | pmlogger -s 5 -l $tmp.log ${tmp}3 &
+cat <<End-of-File | pmlogger -s 5 -l $tmp.log $tmp.3 &
 log advisory on 200 msec {
     sample.secret.foo.bar.max.redirect
 }
@@ -102,9 +102,9 @@ End-of-File
 wait
 pid=$!
 echo "= metric names recorded"
-pminfo -a ${tmp}3
+pminfo -a $tmp.3
 echo "= archive contents..."
-pmdumplog -a ${tmp}3 | _filter $pid
+pmdumplog -a $tmp.3 | _filter $pid
 echo "= pmlogger log"
 _filter_pmlogger_log <$tmp.log
 
