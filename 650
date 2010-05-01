@@ -41,6 +41,15 @@ s/value [0-9][0-9]*/value INTEGER/
         -e '/pmcd.pmlogger.archive/s/value ".*/value "PATH"/' \
     | $PCP_AWK_PROG '
 $1 == "TIMESTAMP" && NF == 4    { print "TIMESTAMP       0       OFFSET       OFFSET"; next }
+/^InDom: 2.3/			{ print; skipi = 1; next }
+skipi == 1			{ print "TIMESTAMP <some> instances"; skipi = 2; next }
+skipi != 0 && $1 == "InDom:"	{ skipi = 0 }
+skipi == 2			{ print "                 ..."; skipi = 3; next }
+skipi == 3			{ next }
+$1 == "TIMESTAMP" && $2 == "2.4.1"	{ print; skipv = 1; next }
+skipv != 0 && NF == 0		{ skipv = 0 }
+skipv == 1			{ print "                <some values>"; skipv = 2; next }
+skipv == 2			{ next }
                                 { print }' \
     | src-oss/hex2nbo
 }
@@ -50,7 +59,7 @@ $1 == "TIMESTAMP" && NF == 4    { print "TIMESTAMP       0       OFFSET       OF
 echo "Test case - one metric, remapped ID"
 rm -f $tmp.log
 cat <<End-of-File | pmlogger -s 5 -l $tmp.log ${tmp}1 &
-log advisory on 1 sec {
+log advisory on 200 msec {
     sample.secret.foo.bar.max.redirect
 }
 End-of-File
@@ -66,7 +75,7 @@ _filter_pmlogger_log <$tmp.log
 echo "Test case - two metric names, common PMID, one group"
 rm -f $tmp.log
 cat <<End-of-File | pmlogger -s 5 -l $tmp.log ${tmp}2 &
-log advisory on 1 sec {
+log advisory on 200 msec {
     sample.secret.foo.bar.max.redirect
     pmcd.agent.status
 }
@@ -83,10 +92,10 @@ _filter_pmlogger_log <$tmp.log
 echo "Test case - two metric names, common PMID, two groups"
 rm -f $tmp.log
 cat <<End-of-File | pmlogger -s 5 -l $tmp.log ${tmp}3 &
-log advisory on 1 sec {
+log advisory on 200 msec {
     sample.secret.foo.bar.max.redirect
 }
-log advisory on 2 sec {
+log advisory on 100 msec {
     pmcd.agent.status
 }
 End-of-File
