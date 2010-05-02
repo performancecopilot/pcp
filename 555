@@ -26,17 +26,63 @@ sudo=`pwd`/sudo
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 
-if [ ! -f /etc/syslog.conf ]; then
-    echo "No /etc/syslog.conf -- probably using a different syslog package" >$seq.notrun
+update_config=true
+if [ -f /etc/rsyslog.conf -a -f /var/run/rsyslogd.pid ]
+then
+    # smells like rsyslogd
+    #
+    daemon=rsyslogd
+    config=/etc/rsyslog.d/pcpqa.conf
+    update_config=false
+    # For Ubuntu 9.10 (at least) SIGHUP to rsyslogd does not really
+    # restart rsyslogd ... worse, /etc/init.d/rsyslogd may have been
+    # converted to use "upstart"
+    #
+    if [ -L /etc/init.d/rsyslog ]
+    then
+	upstart=true
+    elif [ -f /etc/init.d/rsyslog ]
+    then
+	upstart=false
+    else
+	echo "Botch: using rsyslog, but I don't know how to stop/start it"
+	exit 1
+    fi
+elif [ -f /etc/syslog.conf ]
+then
+    # regular old syslogd
+    #
+    daemon=syslogd
+    config=/etc/syslog.conf
+else
+    echo "No /etc/*syslog.conf -- probably using a different syslog package" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi
 
 cleanup()
 {
-    if [ -f /etc/syslog.conf.$seq ]; then
-	$sudo mv /etc/syslog.conf.$seq /etc/syslog.conf
-	$sudo $signal -a -s HUP syslogd
+    if [ -f $config.$seq ]; then
+	if $update_config
+	then
+	    $sudo mv $config.$seq $config
+	else
+	    $sudo rm $config.$seq $config
+	fi
+	if [ $daemon = rsyslogd ]
+	then
+	    if $upstart
+	    then
+		$sudo service rsyslog restart >>$seq.full 2>&1
+	    else
+		# kill should be enough, but restart to be sure
+		#
+		# $sudo kill -HUP `cat /var/run/rsyslogd.pid` || exit
+		$sudo /etc/init.d/rsyslog restart >>$seq.full 2>&1
+	    fi
+	else
+	    $sudo $signal -a -s HUP $daemon || exit
+	fi
     fi
     rm -f $tmp.*
     $sudo rm -f /tmp/syslog
@@ -50,10 +96,28 @@ setup()
 {
     $sudo cp /dev/null /tmp/syslog || exit
     $sudo chmod 666 /tmp/syslog || exit
-    $sudo mv /etc/syslog.conf /etc/syslog.conf.$seq || exit
+    if $update_config
+    then
+	$sudo mv $config $config.$seq || exit
+    else
+	$sudo touch $config.$seq
+    fi
     echo '*.*  /tmp/syslog' >$tmp.syslog.conf
-    $sudo cp $tmp.syslog.conf /etc/syslog.conf || exit
-    $sudo $signal -a -s HUP syslogd || exit
+    $sudo cp $tmp.syslog.conf $config || exit
+    if [ $daemon = rsyslogd ]
+    then
+	if $upstart
+	then
+	    $sudo service rsyslog restart >>$seq.full 2>&1
+	else
+	    # kill should be enough, but restart to be sure
+	    #
+	    # $sudo kill -HUP `cat /var/run/rsyslogd.pid` || exit
+	    $sudo /etc/init.d/rsyslog restart >>$seq.full 2>&1
+	fi
+    else
+	$sudo $signal -a -s HUP $daemon || exit
+    fi
 }
 
 # real QA test starts here
