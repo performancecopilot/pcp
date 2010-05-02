@@ -33,7 +33,7 @@ echo "QA output created by $seq"
 . ./localconfig
 
 tmp=/tmp/$$
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 
@@ -97,7 +97,7 @@ cleanup()
 	_wait_for_pmlogger
 	_needclean=false
     fi
-    rm -f $tmp.*
+    rm -f $tmp $tmp.*
 }
 
 _myfilter_config()
