@@ -67,11 +67,13 @@ __pmdaNodeCount(__pmnsNode *parent)
     __pmnsNode *np;
     int count;
 
-    if (!parent)
-	return 1;	/* leaf */
     count = 0;
-    for (np = parent->first; np != NULL; np = np->next)
-	count += __pmdaNodeCount(np);
+    for (np = parent->first; np != NULL; np = np->next) {
+	if (np->pmid != PM_ID_NULL)
+	    count++;
+	else
+	    count += __pmdaNodeCount(np);
+    }
     return count;
 }
 

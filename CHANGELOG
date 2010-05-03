@@ -1,3 +1,7 @@
+pcp-3.2.1 (3 May 2010)
+    - Export information about ZFS snapshots
+    - Correct accounting of PMNS size in a libpcp_pmda helper routine.
+
 pcp-3.2.0 (29 April 2010)
     - Change how PM_CONTEXT_LOCAL determines available PMDAs:
       rework local context code to retire $PMDA_LOCAL_*, build DSO table

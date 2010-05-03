@@ -34,7 +34,8 @@ pmdaIndom indomtab[] = {
     { ZPOOL_INDOM, 0, NULL },
     { ZFS_INDOM, 0, NULL },
     { ZPOOL_PERDISK_INDOM, 0, NULL },
-    { NETLINK_INDOM}
+    { NETLINK_INDOM},
+    { ZFS_SNAP_INDOM }
 };
 int indomtab_sz = sizeof(indomtab) / sizeof(indomtab[0]);
 
@@ -626,7 +627,45 @@ metricdesc_t metricdesc[] = {
 /* network.link.speed */
     { { PMDA_PMID(0,113), PM_TYPE_U64, NETLINK_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, M_NETLINK, (ptrdiff_t)"ifspeed" }
+      }, M_NETLINK, (ptrdiff_t)"ifspeed" },
+
+/* zfs.recordsize */
+    { { PMDA_PMID(0,126), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_RECORDSIZE },
+/* zfs.refquota */
+    { { PMDA_PMID(0,127), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_REFQUOTA },
+/* zfs.refreservation */
+    { { PMDA_PMID(0,128), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_REFRESERVATION },
+/* zfs.used.byrefreservation */
+    { { PMDA_PMID(0,129), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_USEDREFRESERV },
+/* zfs.referenced */
+    { { PMDA_PMID(0,130), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_REFERENCED },
+
+/* zfs.nsnapshots */
+    { { PMDA_PMID(0,131), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
+      }, M_ZFS,  -1 },
+/* zfs.snapshot.used */
+    { { PMDA_PMID(0,132), PM_TYPE_U64, ZFS_SNAP_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_USED },
+/* zfs.snapshot.referenced */
+    { { PMDA_PMID(0,133), PM_TYPE_U64, ZFS_SNAP_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_REFERENCED },
+/* zfs.snapshot.compression */
+    { { PMDA_PMID(0,134), PM_TYPE_DOUBLE, ZFS_SNAP_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ZFS, ZFS_PROP_COMPRESSRATIO }
 
 /* remember to add trailing comma before adding more entries ... */
 };

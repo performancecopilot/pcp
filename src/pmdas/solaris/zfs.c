@@ -23,49 +23,72 @@
 static libzfs_handle_t *zh;
 static int zf_added;
 
+struct zfs_data {
+    zfs_handle_t *zh;
+    uint64_t nsnaps;
+};
+
 /*
- * For each zfs check if the name is in the instance cache.  If it's
- * not there then add it to the cache. If we've cached the new
- * instance then we keep the zfs_handle which we've received in the
- * argument, otherwise we need to close it - zfs_iter_root() expects that
- * from us.
+ * For each filesystem or snapshot check if the name is in the
+ * corresponding instance cache.  If it's not there then add it to the
+ * cache. If we've cached the new instance then we keep the zfs_handle
+ * which we've received in the argument, otherwise we need to close it
+ * - zfs_iter_root() expects that from us.
+ *
+ * For filesystems iterate over their snapshots and update snapshot
+ * count which is stored in the cached data for the instances in ZFS_INDOM
+ * domain.
  */
 static int
 zfs_cache_inst(zfs_handle_t *zf, void *arg)
 {
-    char *fsname = (char *)zfs_get_name(zf);
-    pmInDom zfindom = indomtab[ZFS_INDOM].it_indom;
+    const char *fsname = zfs_get_name(zf);
+    pmInDom zfindom;
     zfs_handle_t *cached = NULL;
     uint_t cnt = 0;
-    vdev_stat_t *vds;
     int inst, rv;
-    nvlist_t *vdt;
+    struct zfs_data *zdata = NULL;
+    uint64_t *snapcnt = arg;
+
+    switch (zfs_get_type(zf)) {
+    case ZFS_TYPE_FILESYSTEM:
+	zfindom = indomtab[ZFS_INDOM].it_indom;
+	break;
+    case ZFS_TYPE_SNAPSHOT:
+	(*snapcnt)++;
+	zfindom = indomtab[ZFS_SNAP_INDOM].it_indom;
+	break;
+    }
 
     if ((rv = pmdaCacheLookupName(zfindom, fsname, &inst,
-				  (void **)&cached)) == PMDA_CACHE_ACTIVE) {
+				  (void **)&zdata)) == PMDA_CACHE_ACTIVE) {
 	zfs_close(zf);
-	if (arg == NULL)
-	    zfs_refresh_properties(cached);
-
-	zf = cached;
-    } else if ((rv == PMDA_CACHE_INACTIVE) && cached) {
-	rv = pmdaCacheStore(zfindom, PMDA_CACHE_ADD, fsname, cached);
+	zfs_refresh_properties(zdata->zh);
+	zf = zdata->zh;
+    } else if ((rv == PMDA_CACHE_INACTIVE) && zdata) {
+	rv = pmdaCacheStore(zfindom, PMDA_CACHE_ADD, fsname, zdata);
 	if (rv < 0) {
 	    __pmNotifyErr(LOG_WARNING,
-			  "Cannot reactivate cached ZFS handle for '%s': %s\n",
+			  "Cannot reactivate cached data for '%s': %s\n",
 			  fsname, pmErrStr(rv));
 	    zfs_close(zf);
 	    return 0;
 	}
 	zfs_close(zf);
-	if (arg == NULL)
-	    zfs_refresh_properties(cached);
-	zf = cached;
+	zfs_refresh_properties(zdata->zh);
+	zf = zdata->zh;
     } else {
-	rv = pmdaCacheStore(zfindom, PMDA_CACHE_ADD, fsname, zf);
+	if ((zdata = calloc(1, sizeof(*zdata))) == NULL) {
+	    __pmNotifyErr(LOG_WARNING,
+			  "Out of memory for data of %s\n", fsname);
+	    zfs_close(zf);
+	    return 0;
+	}
+	zdata->zh = zf;
+	rv = pmdaCacheStore(zfindom, PMDA_CACHE_ADD, fsname, zdata);
 	if (rv < 0) {
 	    __pmNotifyErr(LOG_WARNING,
-			  "Cannot cache ZFS handle for '%s': %s\n",
+			  "Cannot cache data for '%s': %s\n",
 			  fsname, pmErrStr(rv));
 	    zfs_close(zf);
 	    return 0;
@@ -74,6 +97,10 @@ zfs_cache_inst(zfs_handle_t *zf, void *arg)
     }
 
     zfs_iter_filesystems(zf, zfs_cache_inst, NULL);
+    if (zfs_get_type(zf) == ZFS_TYPE_FILESYSTEM) {
+	zdata->nsnaps = 0;
+	zfs_iter_snapshots(zf, zfs_cache_inst, &zdata->nsnaps);
+    }
 
     return 0;
 }
@@ -84,10 +111,12 @@ zfs_refresh(void)
     zf_added = 0;
 
     pmdaCacheOp(indomtab[ZFS_INDOM].it_indom, PMDA_CACHE_INACTIVE);
+    pmdaCacheOp(indomtab[ZFS_SNAP_INDOM].it_indom, PMDA_CACHE_INACTIVE);
     zfs_iter_root(zh, zfs_cache_inst, NULL);
 
     if (zf_added) {
 	pmdaCacheOp(indomtab[ZFS_INDOM].it_indom, PMDA_CACHE_SAVE);
+	pmdaCacheOp(indomtab[ZFS_SNAP_INDOM].it_indom, PMDA_CACHE_SAVE);
     }
 }
 
@@ -96,17 +125,22 @@ zfs_fetch(pmdaMetric *pm, int inst, pmAtomValue *atom)
 {
     char *fsname;
     metricdesc_t *md = pm->m_user;
-    zfs_handle_t *zf;
+    struct zfs_data *zdata;
     uint64_t v;
 
-    if (pmdaCacheLookup(indomtab[ZFS_INDOM].it_indom, inst, &fsname,
-			(void **)&zf) != PMDA_CACHE_ACTIVE)
+    if (pmdaCacheLookup(pm->m_desc.indom, inst, &fsname,
+			(void **)&zdata) != PMDA_CACHE_ACTIVE)
 	return PM_ERR_INST;
 
-    v = zfs_prop_get_int(zf, md->md_offset);
+    if (md->md_offset == -1) { /* nsnapshot */
+	atom->ull = zdata->nsnaps;
+	return 1;
+    }
 
-    /* Special processing - compression ratio is in precent, we export it
-     * as multiplier */
+    v = zfs_prop_get_int(zdata->zh, md->md_offset);
+
+    /* Special processing - compression ratio is in precent, we export
+     * it as multiplier */
     switch (md->md_offset) {
     case ZFS_PROP_COMPRESSRATIO:
 	atom->d = v / 100.0;
@@ -128,7 +162,9 @@ zfs_init(int first)
     zh = libzfs_init();
     if (zh) {
 	pmdaCacheOp(indomtab[ZFS_INDOM].it_indom, PMDA_CACHE_LOAD);
+	pmdaCacheOp(indomtab[ZFS_SNAP_INDOM].it_indom, PMDA_CACHE_LOAD);
 	zfs_iter_root(zh, zfs_cache_inst, &first);
 	pmdaCacheOp(indomtab[ZFS_INDOM].it_indom, PMDA_CACHE_SAVE);
+	pmdaCacheOp(indomtab[ZFS_SNAP_INDOM].it_indom, PMDA_CACHE_SAVE);
     }
 }
