@@ -20,6 +20,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "domain.h"
+#include "dynamic.h"
 
 #include <ctype.h>
 #include <sys/vfs.h>
@@ -62,6 +63,7 @@
 #include "sysfs_kernel.h"
 #include "linux_table.h"
 #include "numa_meminfo.h"
+#include "cgroups.h"
 
 /*
  * Legacy value from deprecated infiniband.h, preserved for backward
@@ -5855,6 +5857,23 @@ linux_store(pmResult *result, pmdaExt *pmda)
     return sts;
 }
 
+static int
+linux_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
+{
+    return pmdaTreePMID(linux_dynamic_lookup_name(name), name, pmid);
+}
+
+static int
+linux_name(pmID pmid, char ***nameset, pmdaExt *pmda)
+{
+    return pmdaTreeName(linux_dynamic_lookup_pmid(pmid), pmid, nameset);
+}
+
+static int
+linux_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
+{
+    return pmdaTreeChildren(linux_dynamic_lookup_name(name), name, flag, kids, sts);
+}
 
 /*
  * Initialise the agent (both daemon and DSO).
@@ -5873,7 +5892,7 @@ linux_init(pmdaInterface *dp)
 	int sep = __pmPathSeparator();
 	snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    	pmdaDSO(dp, PMDA_INTERFACE_3, "linux DSO", helppath);
+    	pmdaDSO(dp, PMDA_INTERFACE_4, "linux DSO", helppath);
     }
 
     if (dp->status != 0)
@@ -5882,6 +5901,9 @@ linux_init(pmdaInterface *dp)
     dp->version.two.instance = linux_instance;
     dp->version.two.store = linux_store;
     dp->version.two.fetch = linux_fetch;
+    dp->version.four.pmid = linux_pmid;
+    dp->version.four.name = linux_name;
+    dp->version.four.children = linux_children;
     pmdaSetFetchCallBack(dp, linux_fetchCallBack);
 
     proc_interrupts.indom = &indomtab[PROC_INTERRUPTS_INDOM];
@@ -5961,6 +5983,10 @@ linux_init(pmdaInterface *dp)
      */
     read_ksym_sources();
 
+    /* Register our dynamic namespace subtrees */
+    linux_dynamic_pmns("cgroup.subsys.", CLUSTER_CGROUP_SUBSYS, cgroup_subsys_update);
+    linux_dynamic_pmns("cgroup.groups.", CLUSTER_CGROUP_GROUPS, cgroup_groups_update);
+
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), metrictab,
              sizeof(metrictab)/sizeof(metrictab[0]));
 
@@ -5999,7 +6025,7 @@ main(int argc, char **argv)
 
     snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, LINUX, "linux.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, LINUX, "linux.log", helppath);
 
     if ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err)) != EOF)
     	err++;

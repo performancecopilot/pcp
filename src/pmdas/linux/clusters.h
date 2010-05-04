@@ -56,6 +56,8 @@ enum {
 	CLUSTER_TMPFS,		/* 34 /proc/mounts + statfs (tmpfs only) */
 	CLUSTER_SYSFS_KERNEL,	/* 35 /sys/kernel metrics */
 	CLUSTER_NUMA_MEMINFO,	/* 36 /sys/devices/system/node* NUMA memory */
+	CLUSTER_CGROUP_SUBSYS,	/* 37 /proc/cgroups control group subsystems */
+	CLUSTER_CGROUP_GROUPS,	/* 38 /proc/mounts + cgroup mount points */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
