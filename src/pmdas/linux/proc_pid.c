@@ -26,8 +26,6 @@
 #include <sys/stat.h>
 #include "proc_pid.h"
 
-int _pm_pid_io_fields;
-
 static int
 compare_pid(const void *pa, const void *pb) {
     int a = *(int *)pa;
@@ -584,52 +582,61 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid)
 proc_pid_entry_t *
 fetch_proc_pid_io(int id, proc_pid_t *proc_pid)
 {
-    int fd;
     int sts = 0;
-    int n;
     __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
     proc_pid_entry_t *ep;
-    char buf[1024];
-    char *p;
 
     if (node == NULL)
-    	return NULL;
+	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
     if (ep->io_fetched == 0) {
+	int	fd;
+	int	n;
+	char	buf[1024];
+	char	*curline;
+
 	sprintf(buf, "/proc/%d/io", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
 	    sts = -errno;
-	else
-	if ((n = read(fd, buf, sizeof(buf))) < 0)
+	else if ((n = read(fd, buf, sizeof(buf))) < 0)
 	    sts = -errno;
 	else {
 	    if (n == 0)
-		/* eh? */
-	    	sts = -1;
+		sts = -1;
 	    else {
-		if (ep->io_buflen <= n) {
+		if (ep->io_buflen < n) {
 		    ep->io_buflen = n;
 		    ep->io_buf = (char *)realloc(ep->io_buf, n);
 		}
-		memcpy(ep->io_buf, buf, n);
-		ep->io_buf[n-1] = '\0';
-		/* count the number of fields - expecting either 3 or 7 */
-		if (!_pm_pid_io_fields) {
-		    _pm_pid_io_fields = 1;
-		    for (p = buf; *p != '\0' && *p != '\n'; p++)
-			if (isspace(*p))
-			    _pm_pid_io_fields++;
+
+		if (ep->io_buf == NULL)
+		    sts = -1;
+		else {
+		    memcpy(ep->io_buf, buf, n);
+		    ep->io_buf[n-1] = '\0';
 		}
 	    }
 	}
-	close(fd);
-	ep->io_fetched = 1;
+
+	if (sts == 0) {
+	    /* assign pointers to individual lines in buffer */
+	    curline = ep->io_buf;
+	    ep->io_lines.rchar = strsep(&curline, "\n");
+	    ep->io_lines.wchar = strsep(&curline, "\n");
+	    ep->io_lines.syscr = strsep(&curline, "\n");
+	    ep->io_lines.syscw = strsep(&curline, "\n");
+	    ep->io_lines.readb = strsep(&curline, "\n");
+	    ep->io_lines.writeb = strsep(&curline, "\n");
+	    ep->io_lines.cancel = strsep(&curline, "\n");
+	}
+	if (fd >= 0)
+	    close(fd);
     }
 
-    if (sts < 0)
-	return NULL;
-    return ep;
+    ep->io_fetched = 1;
+
+    return (sts < 0) ? NULL : ep;
 }
 
 /*

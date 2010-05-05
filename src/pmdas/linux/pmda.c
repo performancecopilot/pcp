@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) International Business Machines Corp., 2002
- * Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
+ * Portions Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -5051,29 +5051,57 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     	break;
 
     case CLUSTER_PID_IO:
-	if (_pm_pid_io_fields != NR_PROC_PID_IO_MINIMUM &&
-	    _pm_pid_io_fields != NR_PROC_PID_IO)
-	    return PM_ERR_APPVERSION;
 	if ((entry = fetch_proc_pid_io(inst, &proc_pid)) == NULL)
-	    return (errno == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
-
-	if (idp->item >= 0 && idp->item < NR_PROC_PID_IO) {
-	    int off = 0;
-	    if (_pm_pid_io_fields == NR_PROC_PID_IO_MINIMUM) {
-		off = 4;
-		if (idp->item > NR_PROC_PID_IO_MINIMUM)
-		    return PM_ERR_APPVERSION;
-	    }
-	    if ((f = _pm_getfield(entry->io_buf, idp->item - off)) == NULL)
 		return PM_ERR_INST;
-#if defined(HAVE_64BIT_PTR)
-	    sscanf(f, "%lu", &atom->ull); /* 64bit address */
-#else
-	    sscanf(f, "%u", &atom->ul);    /* 32bit address */
-#endif
-	}
-	else
+
+	switch (idp->item) {
+
+	case PROC_PID_IO_RCHAR:
+	    if ((f = _pm_getfield(entry->io_lines.rchar, 1)) == NULL)
+		atom->ull = 0;
+	    else
+		sscanf(f, "%llu", &atom->ull);
+	    break;
+	case PROC_PID_IO_WCHAR:
+	    if ((f = _pm_getfield(entry->io_lines.wchar, 1)) == NULL)
+		atom->ull = 0;
+	    else
+		sscanf(f, "%llu", &atom->ull);
+	    break;
+	case PROC_PID_IO_SYSCR:
+	    if ((f = _pm_getfield(entry->io_lines.syscr, 1)) == NULL)
+		atom->ull = 0;
+	    else
+		sscanf(f, "%llu", &atom->ull);
+	    break;
+	case PROC_PID_IO_SYSCW:
+	    if ((f = _pm_getfield(entry->io_lines.syscw, 1)) == NULL)
+		atom->ull = 0;
+	    else
+		sscanf(f, "%llu", &atom->ull);
+	    break;
+	case PROC_PID_IO_READ_BYTES:
+	    if ((f = _pm_getfield(entry->io_lines.readb, 1)) == NULL)
+		atom->ull = 0;
+	    else
+		sscanf(f, "%llu", &atom->ull);
+	    break;
+	case PROC_PID_IO_WRITE_BYTES:
+	    if ((f = _pm_getfield(entry->io_lines.writeb, 1)) == NULL)
+		atom->ull = 0;
+	    else
+		sscanf(f, "%llu", &atom->ull);
+	    break;
+	case PROC_PID_IO_CANCELLED_BYTES:
+	    if ((f = _pm_getfield(entry->io_lines.cancel, 1)) == NULL)
+		atom->ull = 0;
+	    else
+		sscanf(f, "%llu", &atom->ull);
+	    break;
+
+	default:
 	    return PM_ERR_PMID;
+	}
 	break;
 
     case CLUSTER_SLAB:
