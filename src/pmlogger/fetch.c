@@ -62,6 +62,20 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
     }
 
     if (n >= 0) {
+	int		newcnt;
+	pmID		*newlist;
+	int		have_dm;
+
+	/* for derived metrics, may need to rewrite the pmidlist */
+	have_dm = newcnt = __dmprefetch(ctxp, numpmid, pmidlist, &newlist);
+	if (newcnt > numpmid) {
+	    /* replace args passed into myFetch */
+	    numpmid = newcnt;
+	    pmidlist = newlist;
+	}
+	else
+	    newlist = NULL;
+
 	n = __pmSendFetch(ctxp->c_pmcd->pc_fd, PDU_BINARY, ctx, &ctxp->c_origin, numpmid, pmidlist);
 	if (n >= 0){
 	    int		changed = 0;
@@ -75,9 +89,37 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		 *        < 0 (local error or IPC problem)
 		 *        other (bogus PDU)
 		 */
-		if (n == PDU_RESULT)
-		    /* success */
-		    *pdup = pb;
+		if (n == PDU_RESULT) {
+		    /*
+		     * Success with a pmResult in a pdubuf.
+		     *
+		     * Need to process derived metrics, if any.
+		     * This is ugly, we need to decode the pdubuf, rebuild
+		     * the pmResult and encode back into a pdubuf ... the
+		     * fastpath of not doing all of this needs to be
+		     * preserved in the common case where derived metrics
+		     * are not being logged.
+		     */
+		    if (have_dm) {
+			pmResult	*result;
+			__pmPDU		*npb;
+			int		sts;
+			if ((sts = __pmDecodeResult(pb, PDU_BINARY, &result)) < 0) {
+			    n = sts;
+			}
+			else {
+			    __dmpostfetch(ctxp, &result);
+			    __pmPinPDUBuf(pb);
+			    if ((sts = __pmEncodeResult(ctxp->c_pmcd->pc_fd, result, &npb)) < 0)
+				n = sts;
+			    else
+				*pdup = npb;
+			    __pmUnpinPDUBuf(pb);
+			}
+		    }
+		    else
+			*pdup = pb;
+		}
 		else if (n == PDU_ERROR) {
 		    __pmDecodeError(pb, PDU_BINARY, &n);
 		    if (n > 0) {
@@ -123,6 +165,8 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		}
 	    }
 	}
+	if (newlist != NULL)
+	    free(newlist);
     }
 
     if (n < 0 && ctxp->c_pmcd->pc_fd != -1) {
