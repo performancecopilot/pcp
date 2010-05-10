@@ -1021,16 +1021,16 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	    pmid_item(rp->vset[j]->pmid) != 0) {
 	    for (m = 0; m < cp->nmetric; m++) {
 		if (rp->vset[j]->pmid == cp->mlist[m].pmid) {
+		    if (cp->mlist[m].expr == NULL) {
+			numval = PM_ERR_PMID;
+		    }
+		    else {
 		    rewrite = 1;
 		    if (cp->mlist[m].expr->desc.type == PM_TYPE_32 ||
 			cp->mlist[m].expr->desc.type == PM_TYPE_U32)
 			valfmt = PM_VAL_INSITU;
 		    else
 			valfmt = PM_VAL_DPTR;
-		    if (cp->mlist[m].expr == NULL) {
-			numval = PM_ERR_PMID;
-		    }
-		    else {
 			numval = eval_expr(cp->mlist[m].expr, rp, 1);
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
