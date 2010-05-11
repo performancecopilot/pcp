@@ -44,7 +44,9 @@ get_pmids(node_t *np, int *cnt, pmID **list)
  * Walk the pmidlist[] from pmFetch.
  * For each derived metric found in the list add all the operand metrics,
  * and build a combined pmID list (newlist).
- * Return the number of pmIDs in the combined list.
+ *
+ * Return 0 if no derived metrics in the list, else the number of pmIDs
+ * in the combined list.
  *
  * The derived metric pmIDs are left in the combined list (they will
  * return PM_ERR_NOAGENT from the fetch) to simplify the post-processing
@@ -63,7 +65,7 @@ __dmprefetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmID **newlist)
 
     /* if needed, init() called in __dmopencontext beforehand */
 
-    if (cp == NULL) return numpmid;
+    if (cp == NULL) return 0;
 
     /*
      * save numpmid to be used in __dmpostfetch() ... works because calls
@@ -88,7 +90,12 @@ __dmprefetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmID **newlist)
 	    }
 	}
     }
-    if (xtracnt == 0) return numpmid;
+    if (xtracnt == 0) {
+	if (cp->fetch_has_dm)
+	    return numpmid;
+	else
+	    return 0;
+    }
 
     /*
      * Some of the "extra" ones, may already be in the caller's pmFetch 
@@ -113,7 +120,10 @@ __dmprefetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmID **newlist)
 	    xtralist[j++] = xtralist[i];
     }
     xtracnt = j;
-    if (xtracnt == 0) return numpmid;
+    if (xtracnt == 0) {
+	free(xtralist);
+	return numpmid;
+    }
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
@@ -1021,16 +1031,16 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 	    pmid_item(rp->vset[j]->pmid) != 0) {
 	    for (m = 0; m < cp->nmetric; m++) {
 		if (rp->vset[j]->pmid == cp->mlist[m].pmid) {
-		    rewrite = 1;
-		    if (cp->mlist[m].expr->desc.type == PM_TYPE_32 ||
-			cp->mlist[m].expr->desc.type == PM_TYPE_U32)
-			valfmt = PM_VAL_INSITU;
-		    else
-			valfmt = PM_VAL_DPTR;
 		    if (cp->mlist[m].expr == NULL) {
 			numval = PM_ERR_PMID;
 		    }
 		    else {
+			rewrite = 1;
+			if (cp->mlist[m].expr->desc.type == PM_TYPE_32 ||
+			    cp->mlist[m].expr->desc.type == PM_TYPE_U32)
+			    valfmt = PM_VAL_INSITU;
+			else
+			    valfmt = PM_VAL_DPTR;
 			numval = eval_expr(cp->mlist[m].expr, rp, 1);
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL2)) {
