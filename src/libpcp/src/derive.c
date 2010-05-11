@@ -323,16 +323,22 @@ bind_expr(int n, node_t *np)
 
 	sts = pmLookupName(1, &new->value, &new->info->pmid);
 	if (sts < 0) {
-	    pmprintf("Error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr(sts));
-	    pmflush();
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_DERIVE) {
+		fprintf(stderr, "bind_expr: error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr(sts));
+	    }
+#endif
 	    free(new->info);
 	    free(new);
 	    return NULL;
 	}
 	sts = pmLookupDesc(new->info->pmid, &new->desc);
 	if (sts < 0) {
-	    pmprintf("Error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr(new->info->pmid), pmErrStr(sts));
-	    pmflush();
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_DERIVE) {
+		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr(new->info->pmid), pmErrStr(sts));
+	    }
+#endif
 	    free(new->info);
 	    free(new);
 	    return NULL;
