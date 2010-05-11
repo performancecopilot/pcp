@@ -571,10 +571,18 @@ derive		pcpqa
 338 logutil pmlogextract local oss
 339 pmie local oss
 340 pmcd remote oss
+341 pmda local oss
+342 other remote oss
+343 pmlogreduce local oss
+344 context_local local oss
+345 pmns derive local oss
 346 pmda.mailq local pmda.install oss
 347 pmda.news local pmda.install oss
 348 pmda.kvm local pmda.install oss
 349 pmda.summary local pmda.install oss
+350 pmda.simple pmda local oss
+351 derive local oss
+352 derive pmlogger local oss
 353 pmsocks remote oss
 354 folio local oss
 355 trace local pmda.install oss
@@ -904,9 +912,3 @@ derive		pcpqa
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
-341 pmda local oss
-342 other remote oss
-343 pmlogreduce local oss
-344 context_local local oss
-345 pmns derive local oss
-350 pmda.simple pmda local oss
