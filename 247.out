@@ -106,8 +106,8 @@ pmRegisterDerived: register metric[13] myname.gcov.b = (disk.all.total + disk.de
 pmRegisterDerived: register metric[14] myname.gcov.c = 42 - (disk.all.total + disk.dev.total)
 pmRegisterDerived: register metric[15] myname.gcov.d = (sample.bin + sample.darkness)+42
 __dmgetpmid: metric "no.such.metric" -> Unknown metric name
-Error: derived metric myname.a: operand: no.such.metric: Unknown metric name
-Error: derived metric myname.b: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+bind_expr: error: derived metric myname.a: operand: no.such.metric: Unknown metric name
+bind_expr: error: derived metric myname.b: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
 Semantic error: derived metric myname.c: disk.dev.read * disk.dev.write: Illegal operator for counters
 Semantic error: derived metric myname.d: sample.byte_ctr + sample.long.hundred: Illegal operator for counter and non-counter
 Semantic error: derived metric myname.e: 100 / sample.byte_ctr: Illegal operator for non-counter and counter
@@ -118,7 +118,7 @@ Semantic error: derived metric myname.i: sample.long.hundred - disk.dev.total: I
 Semantic error: derived metric myname.j: sample.mirage * sample.step_counter: Non-counter and not dimensionless for left operand
 Semantic error: derived metric myname.k: sample.step_counter / sample.mirage_longlong: Non-counter and not dimensionless for right operand
 Semantic error: derived metric myname.l: sample.bin + sample.darkness: Operands should have the same instance domain
-Error: derived metric myname.gcov.a: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+bind_expr: error: derived metric myname.gcov.a: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
 Semantic error: derived metric myname.gcov.b: <expr> + 42: Illegal operator for counter and non-counter
 Semantic error: derived metric myname.gcov.c: 42 - <expr>: Illegal operator for non-counter and counter
 Semantic error: derived metric myname.gcov.d: sample.bin + sample.darkness: Operands should have the same instance domain

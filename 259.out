@@ -189,7 +189,7 @@ pmRegisterDerived: register metric[0] myname.b = delta + 3
  delta(12345)
        ^     
 __dmgetpmid: metric "delta" -> Unknown metric name
-Error: derived metric myname.b: operand: delta: Unknown metric name
+bind_expr: error: derived metric myname.b: operand: delta: Unknown metric name
 
 __dmgetpmid: metric "myname" -> Unknown metric name
 pmval: pmLookupName(myname): Unknown metric name
