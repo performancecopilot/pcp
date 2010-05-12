@@ -1537,7 +1537,7 @@ dnl rc/startup files
 if test $target_os = darwin
 then
     pcp_rc_dir=/Library/StartupItems/pcp
-elif test $target_distro = suse
+elif test $target_distro = suse -o $target_distro = debian
 then
     pcp_rc_dir=/etc/init.d
 else
@@ -1770,6 +1770,10 @@ fi
 AC_SUBST(lib_for_readline)
 AC_SUBST(lib_for_curses)
 LIBS=$savedLIBS
+
+dnl Do you have git installed?
+AC_CHECK_PROGS(GIT,git)
+AC_SUBST(GIT)
 
 dnl
 dnl output files

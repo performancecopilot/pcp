@@ -47,7 +47,7 @@ HFILES		= proc_stat.h proc_meminfo.h proc_loadavg.h \
 		  ksym.h proc_sys_fs.h proc_vmstat.h clusters.h indom.h \
 		  convert.h sysfs_kernel.h linux_table.h numa_meminfo.h
 
-LSRCFILES 	= help root_linux root_irix
+LSRCFILES 	= help root_linux
 LDIRT		= help.dir help.pag domain.h
 
 LLDLIBS		= -lpcp_pmda -lpcp

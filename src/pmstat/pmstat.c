@@ -155,15 +155,16 @@ long long cntDiff(pmDesc * d, pmValueSet * now, pmValueSet * was)
 }
 
 struct statsrc_t *
-getNewContext (int type, char * host)
+getNewContext (int type, char * host, int quiet)
 {
     struct statsrc_t * s;
 
     if ((s = (struct statsrc_t *)malloc(sizeof (struct statsrc_t))) != NULL) {
 	if ((s->ctx = pmNewContext (type, host)) < 0 ) {
-	    fprintf(stderr, 
-		    "%s: Cannot create context to get data from %s: %s\n",
-		    pmProgname, host, pmErrStr(s->ctx));
+	    if (!quiet)
+		fprintf(stderr, 
+			"%s: Cannot create context to get data from %s: %s\n",
+			pmProgname, host, pmErrStr(s->ctx));
 	    free (s);
 	    s = NULL;
 	} else {
@@ -638,9 +639,8 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    if ( ! ctxType ) { /* Default is to talk to PMCD */
+    if ( ! ctxType )
 	ctxType = PM_CONTEXT_HOST;
-    }
 
     if (nsFile != PM_NS_DEFAULT) { 
 	int sts;
@@ -660,7 +660,7 @@ main(int argc, char *argv[])
 	    double late = 0;
 
 	    for (ct=0; ct < namecnt; ct++ ) {
-		if ((pd = getNewContext (ctxType, namelst[ct])) != NULL) {
+		if ((pd = getNewContext (ctxType, namelst[ct], 0)) != NULL) {
 		    int sts;
 
 		    /* tzh is used as an initialization flag */
@@ -748,11 +748,18 @@ main(int argc, char *argv[])
     } else {
 	/* Read metrics from the local host. Note, that ctxType can be 
 	 * either PM_CONTEXT_LOCAL or PM_CONTEXT_HOST, but not 
-	 * PM_CONTEXT_ARCHIVE */
+	 * PM_CONTEXT_ARCHIVE.  If we fail to talk to pmcd we fallback
+	 * to local context mode automagically.
+	 */
 	char local[MAXHOSTNAMELEN];
 	gethostname (local, MAXHOSTNAMELEN);
 	local[MAXHOSTNAMELEN-1] = '\0';
-	if ((pd = getNewContext (ctxType, local)) == NULL ) {
+
+	if ((pd = getNewContext (ctxType, local, 1)) == NULL) {
+	    ctxType = PM_CONTEXT_LOCAL;
+	    pd = getNewContext (ctxType, local, 0);
+	}
+	if (!pd) {
 	    exit (1);
 	} else {
 	    gettimeofday (&start, NULL);

@@ -82,6 +82,7 @@ endif
 
 clean clobber :: $(SUBDIRS) $(PRO_SUBDIRS) $(SNIA_SUBDIRS)
 	rm -rf $(DIRT)
+	@rm -fr $(DIRDIRT)
 	$(SUBDIRS_MAKERULE)
 
 realclean distclean: clean

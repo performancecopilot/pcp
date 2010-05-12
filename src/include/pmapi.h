@@ -517,7 +517,7 @@ extern void pmPrintValue(FILE *, int, int, const pmValue *, int);
 
 /* Scale conversion, based on value format, value type and scale */
 extern int pmConvScale(int, const pmAtomValue *, const pmUnits *, pmAtomValue *, 
-		       pmUnits *);
+		       const pmUnits *);
 
 /* Sort instances for each metric within a pmResult */
 extern void pmSortInstances(pmResult *);

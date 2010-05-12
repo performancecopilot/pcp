@@ -17,6 +17,7 @@
 #include "hypnotoad.h"
 
 static char	*text;	/* filled in by iterator callback routine */
+static char	texts[MAX_M_TEXT_LEN];	/* static callback buffer */
 
 /*
  * Replace backslashes in the help string returned from Pdh APIs.
@@ -74,15 +75,13 @@ windows_help(int ident, int type, char **buf, pmdaExt *pmda)
     if (type & PM_TEXT_ONELINE) {
 	if (metricdesc[i].pat[0] == '\0')
 	    return PM_ERR_TEXT;
-	text = &metricdesc[i].pat[0];
+	*buf = windows_fmt(strncpy(texts, sizeof(texts), &metricdesc[i].pat[0]));
     } else {
 	text = NULL;
 	windows_visit_metric(&metricdesc[i], windows_helptext_callback);
+	if (!text)
+	    return -ESRCH;
+	*buf = windows_fmt(strncpy(texts, sizeof(texts), text));
     }
-    if (!text)
-	return -ESRCH;
-    *buf = windows_fmt(strdup(text));
-    if (*buf == NULL)
-	return -ENOMEM;
     return 0;
 }

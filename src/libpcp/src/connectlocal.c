@@ -16,10 +16,134 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "dsotbl.h"
 #include <ctype.h>
+#include <sys/stat.h>
 
-static __pmDSO *dsotab = dsotab_i;
+static __pmDSO *dsotab;
+static int	numdso = -1;
+
+static int
+build_dsotab(void)
+{
+    /*
+     * parse pmcd's config file extracting details from dso lines
+     *
+     * very little syntactic checking here ... pmcd(1) does that job
+     * nicely and even if we get confused, the worst thing that happens
+     * is we don't include one or more of the DSO PMDAs in dsotab[]
+     *
+     * lines for DSO PMDAs generally look like this ...
+     * Name	Domain	Type	Init Routine	Path
+     * mmv	70	dso	mmv_init	/var/lib/pcp/pmdas/mmv/pmda_mmv.so 
+     *
+     */
+    char	configFileName[MAXPATHLEN];
+    FILE	*configFile;
+    char	*config;
+    char	*p;
+    char	*q;
+    struct stat	sbuf;
+    int		lineno = 1;
+    int		domain;
+    char	*init;
+    char	*name;
+    char	peekc;
+
+    numdso = 0;
+    dsotab = NULL;
+
+    strcpy(configFileName, pmGetConfig("PCP_PMCDCONF_PATH"));
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_CONTEXT) {
+	fprintf(stderr, "build_dsotab: parsing %s\n", configFileName);
+    }
+#endif
+    if (stat(configFileName, &sbuf) < 0) {
+	return -errno;
+    }
+    configFile = fopen(configFileName, "r");
+    if (configFile == NULL) {
+	return -errno;
+    }
+    if ((config = malloc(sbuf.st_size+1)) == NULL) {
+	__pmNoMem("build_dsotbl:", sbuf.st_size+1, PM_RECOV_ERR);
+	fclose(configFile);
+	return -errno;
+    }
+    if (fread(config, 1, sbuf.st_size, configFile) != sbuf.st_size) {
+	fclose(configFile);
+	return -errno;
+    }
+    config[sbuf.st_size] = '\0';
+
+    p = config;
+    while (*p != '\0') {
+	/* each time through here we're at the start of a new line */
+	if (*p == '#')
+	    goto eatline;
+	if (strncmp(p, "pmcd", 4) == 0) {
+	    /*
+	     * the pmcd PMDA is an exception ... it makes reference to
+	     * symbols in pmcd, and only makes sense when attached to the
+	     * pmcd process, so we skip this one
+	     */
+	    goto eatline;
+	}
+	/* skip the PMDA's name */
+	while (*p != '\0' && *p != '\n' && !isspace(*p))
+	    p++;
+	while (*p != '\0' && *p != '\n' && isspace(*p))
+	    p++;
+	/* extract domain number */
+	domain = (int)strtol(p, &q, 10);
+	p = q;
+	while (*p != '\0' && *p != '\n' && isspace(*p))
+	    p++;
+	/* only interested if the type is "dso" */
+	if (strncmp(p, "dso", 3) != 0)
+	    goto eatline;
+	p += 3;
+	while (*p != '\0' && *p != '\n' && isspace(*p))
+	    p++;
+	/* up to the init routine name */
+	init = p;
+	while (*p != '\0' && *p != '\n' && !isspace(*p))
+	    p++;
+	*p = '\0';
+	p++;
+	while (*p != '\0' && *p != '\n' && isspace(*p))
+	    p++;
+	/* up to the dso pathname */
+	name = p;
+	while (*p != '\0' && *p != '\n' && !isspace(*p))
+	    p++;
+	peekc = *p;
+	*p = '\0';
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    fprintf(stderr, "[%d] domain=%d, name=%s, init=%s\n", lineno, domain, name, init);
+	}
+#endif
+	/*
+	 * a little be recursive if we got here via __pmLocalPMDA(),
+	 * but numdso has been set correctly, so this is OK
+	 */
+	__pmLocalPMDA(PM_LOCAL_ADD, domain, name, init);
+	*p = peekc;
+
+eatline:
+	while (*p != '\0' && *p != '\n')
+	    p++;
+	if (*p == '\n') {
+	    lineno++;
+	    p++;
+	}
+    }
+
+    fclose(configFile);
+    free(config);
+    return 0;
+}
 
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
@@ -58,42 +182,16 @@ __pmConnectLocal(void)
     void		(*initp)(pmdaInterface *);
 #endif
 
+    if (numdso == -1) {
+	int	sts;
+	sts = build_dsotab();
+	if (sts < 0) return sts;
+    }
+
     for (i = 0; i < numdso; i++) {
 	dp = &dsotab[i];
 	if (dp->domain == -1 || dp->handle != NULL)
 	    continue;
-	if (dp->domain == SAMPLE_DSO) {
-	    /*
-	     * only attach sample pmda dso if env var PCP_LITE_SAMPLE
-	     * or PMDA_LOCAL_SAMPLE is set
-	     */
-	    if (getenv("PCP_LITE_SAMPLE") == NULL &&
-		getenv("PMDA_LOCAL_SAMPLE") == NULL) {
-		/* no sample pmda */
-		dp->domain = -1;
-		continue;
-	    }
-	}
-#if defined(PROC_DSO)
-	/*
-	 * For Linux (and perhaps anything other than IRIX), the proc
-	 * PMDA is part of the OS PMDA, so this one cannot be optional
-	 * ... the makefile will ensure dsotbl.h is set up correctly
-	 * and PROC_DSO will or will not be defined as required
-	 */
-	if (dp->domain == PROC_DSO) {
-	    /*
-	     * only attach proc pmda dso if env var PMDA_LOCAL_PROC
-	     * is set
-	     */
-	    if (getenv("PMDA_LOCAL_PROC") == NULL) {
-		/* no proc pmda */
-		dp->domain = -1;
-		continue;
-	    }
-	}
-#endif
-
 	/*
 	 * __pmLocalPMDA() means the path to the DSO may be something
 	 * other than relative to $PCP_PMDAS_DIR ... need to try both
@@ -251,51 +349,9 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
     }
 #endif
 
-    if (dsotab == dsotab_i) {
-	/*
-	 * first call, so promote dsotab[] to be a malloc'd copy of
-	 * dsotab_i[] so we can realloc from here on ...
-	 */
-	if ((dsotab = (__pmDSO *)malloc(numdso*sizeof(__pmDSO))) == NULL) {
-	    sts = -errno;
-	    __pmNoMem("__pmLocalPMDA malloc", numdso*sizeof(__pmDSO), PM_RECOV_ERR);
-	    dsotab = dsotab_i;
-	    return sts;
-	}
-	memcpy((void *)dsotab, (void *)dsotab_i, numdso*sizeof(__pmDSO));
-	/*
-	 * need to strdup name and init so PM_LOCAL_CLEAR works for
-	 * all entries
-	 */
-	for (i = 0; i < numdso; i++) {
-	    if ((dsotab[i].name = strdup(dsotab_i[i].name)) == NULL) {
-		sts = -errno;
-		__pmNoMem("__pmLocalPMDA init name", strlen(dsotab_i[i].name)+1, PM_RECOV_ERR);
-		i--;
-		while (i >= 0) {
-		    free(dsotab[i].name);
-		    free(dsotab[i].init);
-		    i--;
-		}
-		free(dsotab);
-		dsotab = dsotab_i;
-		return sts;
-	    }
-	    if ((dsotab[i].init = strdup(dsotab_i[i].init)) == NULL) {
-		sts = -errno;
-		__pmNoMem("__pmLocalPMDA init", strlen(dsotab_i[i].init)+1, PM_RECOV_ERR);
-		free(dsotab[i].name);
-		i--;
-		while (i >= 0) {
-		    free(dsotab[i].name);
-		    free(dsotab[i].init);
-		    i--;
-		}
-		free(dsotab);
-		dsotab = dsotab_i;
-		return sts;
-	    }
-	}
+    if (numdso == -1) {
+	sts = build_dsotab();
+	if (sts < 0) return sts;
     }
 
     switch (op) {

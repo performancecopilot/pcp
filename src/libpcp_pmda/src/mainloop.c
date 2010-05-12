@@ -363,8 +363,12 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	}
 	if (sts < 0)
 	    __pmSendError(pmda->e_outfd, PDU_BINARY, sts);
-	else
+	else {
 	    __pmSendText(pmda->e_outfd, PDU_BINARY, ident, buffer);
+	    /* only PMDA_INTERFACE_1 malloc's the buffer */
+	    if (HAVE_V_ONE(dispatch->comm.pmda_interface))
+		free(buffer);
+	}
 	break;
 
     case PDU_RESULT:

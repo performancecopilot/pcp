@@ -779,6 +779,26 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_MEMINFO,52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/* mem.util.mmap_copy */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,53), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.quicklists */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,54), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.corrupthardware */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,55), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.mmap_copy */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,56), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
 /* mem.numa.util.total */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,0), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
@@ -4411,6 +4431,26 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	   if (!VALID_VALUE(proc_meminfo.VmallocChunk))
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.VmallocChunk >> 10;
+	   break;
+	case 53: /* mem.util.mmap_copy */
+	   if (!VALID_VALUE(proc_meminfo.MmapCopy))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.MmapCopy >> 10;
+	   break;
+	case 54: /* mem.util.quicklists */
+	   if (!VALID_VALUE(proc_meminfo.Quicklists))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Quicklists >> 10;
+	   break;
+	case 55: /* mem.util.corrupthardware */
+	   if (!VALID_VALUE(proc_meminfo.HardwareCorrupted))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HardwareCorrupted >> 10;
+	   break;
+	case 56: /* mem.util.anonhugepages */
+	   if (!VALID_VALUE(proc_meminfo.AnonHugePages))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.AnonHugePages >> 10;
 	   break;
 	default:
 	    return PM_ERR_PMID;

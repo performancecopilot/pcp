@@ -150,7 +150,7 @@ create_client_stat(const char *client, const char *path, size_t size)
 	    if (slist != NULL) {
 		slist[scnt].name = strdup(client);
 		slist[scnt].addr = m;
-		slist[scnt].pid = hdr->process;
+		slist[scnt].pid = (hdr->flags & MMV_FLAG_PROCESS)? hdr->process : 0;
 		slist[scnt].cluster = cluster;
 		slist[scnt].mcnt = 0;
 		slist[scnt].gen = hdr->g1;
@@ -620,8 +620,7 @@ mmv_reload_maybe(pmdaExt *pmda)
 	    need_reload++;
 	    break;
 	}
-	if (hdr->process && (hdr->flags & MMV_FLAG_PROCESS) &&
-	    !__pmProcessExists(hdr->process)) {
+	if (slist[i].pid && !__pmProcessExists(slist[i].pid)) {
 	    need_reload++;
 	    break;
 	}
@@ -667,23 +666,21 @@ mmv_text(int ident, int type, char **buffer, pmdaExt *ep)
     mmv_reload_maybe(ep);
     if (pmid_cluster(ident) == 0) {
 	if (pmid_item(ident) == 0) {
-	    /* mmv.reload */
-	    if (type & PM_TEXT_ONELINE)
-		*buffer = strdup("Control maps reloading");
-	    else
-		*buffer = strdup(
+	    static char reloadoneline[] = "Control maps reloading";
+	    static char reloadtext[] = 
 "Writing anything other then 0 to this metric will result in\n"
-"re-reading directory and re-mapping files.");
-		return (*buffer == NULL) ? -ENOMEM : 0;
+"re-reading directory and re-mapping files.\n";
+
+	    *buffer = (type & PM_TEXT_ONELINE) ? reloadoneline : reloadtext;
+	    return 0;
 	}
 	else if (pmid_item(ident) == 1) {
-	    /* mmv.debug */
-	    if (type & PM_TEXT_ONELINE)
-		*buffer = strdup("Debug flag");
-	    else
-		*buffer = strdup(
-"See pmdbg(1).  pmstore into this metric to change the debug value.\n");
-		return (*buffer == NULL) ? -ENOMEM : 0;
+	    static char debugoneline[] = "Debug flag";
+	    static char debugtext[] =
+"See pmdbg(1).  pmstore into this metric to change the debug value.\n";
+
+	    *buffer = (type & PM_TEXT_ONELINE) ? debugoneline : debugtext;
+	    return 0;
 	}
 	else
 	    return PM_ERR_PMID;
@@ -699,13 +696,13 @@ mmv_text(int ident, int type, char **buffer, pmdaExt *ep)
 
 	if ((type & PM_TEXT_ONELINE) && m->shorttext) {
 	    str = (mmv_disk_string_t *)((char *)s->addr + m->shorttext);
-	    *buffer = strdup(str->payload);
-	    return (*buffer == NULL) ? -ENOMEM : 0;
+	    *buffer = str->payload;
+	    return 0;
 	}
 	if ((type & PM_TEXT_HELP) && m->helptext) {
 	    str = (mmv_disk_string_t *)((char *)s->addr + m->helptext);
-	    *buffer = strdup(str->payload);
-	    return (*buffer == NULL) ? -ENOMEM : 0;
+	    *buffer = str->payload;
+	    return 0;
 	}
     }
 
@@ -768,7 +765,7 @@ mmv_store(pmResult *result, pmdaExt *ep)
 }
 
 static int
-mmv_pmid(char *name, pmID *pmid, pmdaExt *pmda)
+mmv_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
     mmv_reload_maybe(pmda);
     return pmdaTreePMID(pmns, name, pmid);
@@ -782,7 +779,7 @@ mmv_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 }
 
 static int
-mmv_children(char *name, int traverse, char ***kids, int **sts, pmdaExt *pmda)
+mmv_children(const char *name, int traverse, char ***kids, int **sts, pmdaExt *pmda)
 {
     mmv_reload_maybe(pmda);
     return pmdaTreeChildren(pmns, name, traverse, kids, sts);
