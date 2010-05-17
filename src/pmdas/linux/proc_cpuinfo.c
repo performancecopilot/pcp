@@ -31,70 +31,19 @@
 
 #include "proc_cpuinfo.h"
 
-static void
-map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
-{
-    int i, j;
-    int high_node = 0;
-    unsigned int node_module;
-    unsigned int node_slot;
-    unsigned int node_slab;
-    char nodenum[1024];
-    char cpunum[1024];
-    char *nodehwg;
-    char *cpuhwg;
-    cpuinfo_t *c;
-
-    for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst; i++) {
-	c = &proc_cpuinfo->cpuinfo[i];
-	c->module = -1;
-    }
-
-    snprintf(cpunum, sizeof(cpunum), "/hw/cpunum");
-    if (access(cpunum, R_OK) != 0)
-	return;
-
-    for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst; i++) {
-	c = &proc_cpuinfo->cpuinfo[i];
-	snprintf(cpunum, sizeof(cpunum), "/hw/cpunum/%d", i);
-	if ((cpuhwg = realpath(cpunum, NULL))) {
-	    sscanf(cpuhwg, "/hw/module/%dc%d/slab/%d/node/cpubus/%d/%c",
-	    	&c->module, &c->slot, &c->slab, &c->bus, &c->cpu_char);
-	    free(cpuhwg);
-	    /* now find the matching node number */
-	    for (j=0; ; j++) {
-	    	snprintf(nodenum, sizeof(nodenum), "/hw/nodenum/%d", j);
-		if (access(nodenum, F_OK) != 0 || (nodehwg = realpath(nodenum, NULL)) == NULL)
-		    break;
-		sscanf(nodehwg, "/hw/module/%dc%d/slab/%d/node",
-		    &node_module, &node_slot, &node_slab);
-		free(nodehwg);
-		if (node_module == c->module && node_slot == c->slot && node_slab == c->slab) {
-		    proc_cpuinfo->cpuinfo[i].node = j;
-		    if (proc_cpuinfo->cpuinfo[i].node > high_node)
-			high_node = proc_cpuinfo->cpuinfo[i].node;
-		    break;
-		}
-	    }
-	}
-    }
-}
-
 char *
 cpu_name(proc_cpuinfo_t *proc_cpuinfo, int c)
 {
     char name[1024];
-    char *s = NULL;
     char *p;
     FILE *f;
     static int started = 0;
 
     if (!started) {
-    	refresh_proc_cpuinfo(proc_cpuinfo);
-	map_cpu_nodes(proc_cpuinfo);
+	refresh_proc_cpuinfo(proc_cpuinfo);
 
 	proc_cpuinfo->machine = NULL;
-    	if ((f = fopen("/proc/sgi_prominfo/node0/version", "r")) != NULL) {
+	if ((f = fopen("/proc/sgi_prominfo/node0/version", "r")) != NULL) {
 	    while (fgets(name, sizeof(name), f)) {
 		if (strncmp(name, "SGI", 3) == 0) {
 		    if ((p = strstr(name, " IP")) != NULL)
@@ -110,23 +59,8 @@ cpu_name(proc_cpuinfo_t *proc_cpuinfo, int c)
 	started = 1;
     }
 
-    if (proc_cpuinfo->cpuinfo[c].module >= 0) {
-	/* SGI SNIA CPU names */
-	snprintf(name, sizeof(name), "cpu:%d.%d.%d.%c", 
-		proc_cpuinfo->cpuinfo[c].module,
-		proc_cpuinfo->cpuinfo[c].slot,
-		proc_cpuinfo->cpuinfo[c].slab,
-		proc_cpuinfo->cpuinfo[c].cpu_char);
-	s = name;
-    }
-    
-    if (s == NULL) {
-	/* flat namespace for cpu names */
-	snprintf(name, sizeof(name), "cpu%d", c);
-	s = name;
-    }
-
-    return strdup(s);
+    snprintf(name, sizeof(name), "cpu%d", c);
+    return strdup(name);
 }
 
 int

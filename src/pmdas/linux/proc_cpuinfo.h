@@ -29,10 +29,6 @@ typedef struct {
     int			cpu_num;
     char		*sapic;
     char		*name;
-    int			module;
-    int			slot;
-    int			slab;
-    int			bus;
     char		cpu_char;
     int			node;
     float		clock;
