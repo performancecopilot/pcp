@@ -28,8 +28,85 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-
+#include "indom.h"
 #include "proc_cpuinfo.h"
+
+
+static void
+decode_map(proc_cpuinfo_t *proc_cpuinfo, char *cp, int node, int offset)
+{
+    uint32_t map = strtoul(cp, NULL, 16);
+
+    while (map) {
+	int i;
+	
+	if ((i = ffsl(map))) {
+	    /* the kernel returns 32bit words in the map file */
+	    int cpu = i - 1 + 32*offset;
+
+	    proc_cpuinfo->cpuinfo[cpu].node = node;
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "cpu %d -> node %d\n",
+			cpu, node);
+	    }
+	    map &= ~(1 << (i-1));
+	}
+    }
+}
+
+static void
+map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
+{
+    int i, j;
+    char *node_path = "/sys/devices/system/node";
+    char path[1024];
+    char cpumap[4096];
+    DIR *nodes;
+    FILE *f;
+    struct dirent *de;
+    int node, max_node = -1;
+    char *cp;
+    pmdaIndom *idp = &indomtab[NODE_INDOM];
+
+    for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst; i++)
+	proc_cpuinfo->cpuinfo[i].node = -1;
+
+    if ((nodes = opendir(node_path)) == NULL)
+	return;
+
+    while ((de = readdir(nodes)) != NULL) {
+	if (sscanf(de->d_name, "node%d", &node) != 1)
+	    continue;
+
+	if (node > max_node)
+	    max_node = node;
+
+	sprintf(path, "%s/%s/cpumap", node_path, de->d_name);
+	if ((f = fopen(path, "r")) == NULL)
+	    continue;
+	fscanf(f, "%s", cpumap);
+	fclose(f);
+
+	for (j = 0; (cp = strrchr(cpumap, ',')); j++) {
+	    decode_map(proc_cpuinfo, cp+1, node, j);
+	    *cp = '\0';
+	}
+	decode_map(proc_cpuinfo, cpumap, node, j);
+    }
+    closedir(nodes);
+
+    /* initialize node indom */
+    idp->it_numinst = max_node + 1;
+    idp->it_set = calloc(max_node, sizeof(pmdaInstid));
+    for (i = 0; i <= max_node; i++) {
+	char node_name[256];
+
+	sprintf(node_name, "node%d", i);
+	idp->it_set[i].i_inst = i;
+	idp->it_set[i].i_name = strdup(node_name);
+    }
+    proc_cpuinfo->node_indom = idp;
+}
 
 char *
 cpu_name(proc_cpuinfo_t *proc_cpuinfo, int c)
@@ -41,6 +118,7 @@ cpu_name(proc_cpuinfo_t *proc_cpuinfo, int c)
 
     if (!started) {
 	refresh_proc_cpuinfo(proc_cpuinfo);
+	map_cpu_nodes(proc_cpuinfo);
 
 	proc_cpuinfo->machine = NULL;
 	if ((f = fopen("/proc/sgi_prominfo/node0/version", "r")) != NULL) {

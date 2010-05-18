@@ -43,6 +43,7 @@ typedef struct {
     char		*machine;
     cpuinfo_t		*cpuinfo;
     pmdaIndom		*cpuindom;
+    pmdaIndom		*node_indom;
 } proc_cpuinfo_t;
 
 extern int refresh_proc_cpuinfo(proc_cpuinfo_t *);

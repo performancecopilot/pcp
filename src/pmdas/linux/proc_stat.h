@@ -30,6 +30,7 @@ typedef struct {
 	unsigned long long	steal;
 	unsigned long long	guest;
 	unsigned int		ncpu;
+	/* per-cpu */
 	unsigned long long	*p_user;
 	unsigned long long	*p_sys;
 	unsigned long long	*p_nice;
@@ -39,6 +40,17 @@ typedef struct {
 	unsigned long long	*p_sirq;
 	unsigned long long	*p_steal;
 	unsigned long long	*p_guest;
+	/* per-node */
+	unsigned long long	*n_user;
+	unsigned long long	*n_sys;
+	unsigned long long	*n_nice;
+	unsigned long long	*n_idle;
+	unsigned long long	*n_wait;
+	unsigned long long	*n_irq;
+	unsigned long long	*n_sirq;
+	unsigned long long	*n_steal;
+	unsigned long long	*n_guest;
+
 	unsigned int		ndisk;
 	unsigned int		page[2]; /* unused in 2.6 now in /proc/vmstat */
 	unsigned int		swap[2]; /* unused in 2.6 now in /proc/vmstat */
