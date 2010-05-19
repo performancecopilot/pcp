@@ -29,10 +29,6 @@ typedef struct {
     int			cpu_num;
     char		*sapic;
     char		*name;
-    int			module;
-    int			slot;
-    int			slab;
-    int			bus;
     char		cpu_char;
     int			node;
     float		clock;
@@ -47,6 +43,7 @@ typedef struct {
     char		*machine;
     cpuinfo_t		*cpuinfo;
     pmdaIndom		*cpuindom;
+    pmdaIndom		*node_indom;
 } proc_cpuinfo_t;
 
 extern int refresh_proc_cpuinfo(proc_cpuinfo_t *);

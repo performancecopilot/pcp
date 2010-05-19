@@ -76,7 +76,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
     }
 
     if (!started) {
-    	started = 1;
+	started = 1;
 	memset(proc_stat, 0, sizeof(proc_stat));
 
 	/* hz of running kernel */
@@ -94,9 +94,9 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 		proc_stat->ncpu * sizeof(pmdaInstid));
 	/*
 	 * Map out the CPU instance domain.
-	 * If we have "sapic" in /proc/cpuinfo,
-	 * then use cpu:M.S.C naming (Module, Slot, Cpu)
-	 * else just use cpu[0-9]* naming
+	 *
+	 * The first call to cpu_name() does initialization on the
+	 * proc_cpuinfo structure.
 	 */
 	for (i=0; i < proc_stat->ncpu; i++) {
 	    proc_stat->cpu_indom->it_set[i].i_inst = i;
@@ -113,7 +113,30 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	proc_stat->p_sirq = (unsigned long long *)calloc(1, n);
 	proc_stat->p_steal = (unsigned long long *)calloc(1, n);
 	proc_stat->p_guest = (unsigned long long *)calloc(1, n);
+
+	n = proc_cpuinfo->node_indom->it_numinst * sizeof(unsigned long long);
+	proc_stat->n_user = calloc(1, n);
+	proc_stat->n_nice = calloc(1, n);
+	proc_stat->n_sys = calloc(1, n);
+	proc_stat->n_idle = calloc(1, n);
+	proc_stat->n_wait = calloc(1, n);
+	proc_stat->n_irq = calloc(1, n);
+	proc_stat->n_sirq = calloc(1, n);
+	proc_stat->n_steal = calloc(1, n);
+	proc_stat->n_guest = calloc(1, n);
     }
+
+    /* reset per-node stats */
+    n = proc_cpuinfo->node_indom->it_numinst * sizeof(unsigned long long);
+    memset(proc_stat->n_user, 0, n);
+    memset(proc_stat->n_nice, 0, n);
+    memset(proc_stat->n_sys, 0, n);
+    memset(proc_stat->n_idle, 0, n);
+    memset(proc_stat->n_wait, 0, n);
+    memset(proc_stat->n_irq, 0, n);
+    memset(proc_stat->n_sirq, 0, n);
+    memset(proc_stat->n_steal, 0, n);
+    memset(proc_stat->n_guest, 0, n);
 
     /*
      * cpu  95379 4 20053 6502503
@@ -158,6 +181,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 		if (strncmp("cpu", bufindex[j], 3) == 0 && isdigit(bufindex[j][3])) {
 		    int c;
 		    int cpunum = atoi(&bufindex[j][3]);
+		    int node;
 		    if (cpunum >= 0 && cpunum < proc_stat->ncpu) {
 			n = sscanf(bufindex[j], fmt, &c,
 			    &proc_stat->p_user[cpunum],
@@ -169,6 +193,19 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 			    &proc_stat->p_sirq[cpunum],
 			    &proc_stat->p_steal[cpunum],
 			    &proc_stat->p_guest[cpunum]);
+			if ((node = proc_cpuinfo->cpuinfo[cpunum].node) != -1) {
+			    fprintf(stderr, "Adding cpu %d totals to node %d\n",
+				    cpunum, node);
+			    proc_stat->n_user[node] += proc_stat->p_user[cpunum];
+			    proc_stat->n_nice[node] += proc_stat->p_nice[cpunum];
+			    proc_stat->n_sys[node] += proc_stat->p_sys[cpunum];
+			    proc_stat->n_idle[node] += proc_stat->p_idle[cpunum];
+			    proc_stat->n_wait[node] += proc_stat->p_wait[cpunum];
+			    proc_stat->n_irq[node] += proc_stat->p_irq[cpunum];
+			    proc_stat->n_sirq[node] += proc_stat->p_sirq[cpunum];
+			    proc_stat->n_steal[node] += proc_stat->p_steal[cpunum];
+			    proc_stat->n_guest[node] += proc_stat->p_guest[cpunum];
+			}
 		    }
 		}
 	    }

@@ -28,73 +28,100 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-
+#include "indom.h"
 #include "proc_cpuinfo.h"
+
+
+static void
+decode_map(proc_cpuinfo_t *proc_cpuinfo, char *cp, int node, int offset)
+{
+    uint32_t map = strtoul(cp, NULL, 16);
+
+    while (map) {
+	int i;
+	
+	if ((i = ffsl(map))) {
+	    /* the kernel returns 32bit words in the map file */
+	    int cpu = i - 1 + 32*offset;
+
+	    proc_cpuinfo->cpuinfo[cpu].node = node;
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "cpu %d -> node %d\n",
+			cpu, node);
+	    }
+	    map &= ~(1 << (i-1));
+	}
+    }
+}
 
 static void
 map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
 {
     int i, j;
-    int high_node = 0;
-    unsigned int node_module;
-    unsigned int node_slot;
-    unsigned int node_slab;
-    char nodenum[1024];
-    char cpunum[1024];
-    char *nodehwg;
-    char *cpuhwg;
-    cpuinfo_t *c;
+    char *node_path = "/sys/devices/system/node";
+    char path[1024];
+    char cpumap[4096];
+    DIR *nodes;
+    FILE *f;
+    struct dirent *de;
+    int node, max_node = -1;
+    char *cp;
+    pmdaIndom *idp = &indomtab[NODE_INDOM];
 
-    for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst; i++) {
-	c = &proc_cpuinfo->cpuinfo[i];
-	c->module = -1;
-    }
+    for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst; i++)
+	proc_cpuinfo->cpuinfo[i].node = -1;
 
-    snprintf(cpunum, sizeof(cpunum), "/hw/cpunum");
-    if (access(cpunum, R_OK) != 0)
+    if ((nodes = opendir(node_path)) == NULL)
 	return;
 
-    for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst; i++) {
-	c = &proc_cpuinfo->cpuinfo[i];
-	snprintf(cpunum, sizeof(cpunum), "/hw/cpunum/%d", i);
-	if ((cpuhwg = realpath(cpunum, NULL))) {
-	    sscanf(cpuhwg, "/hw/module/%dc%d/slab/%d/node/cpubus/%d/%c",
-	    	&c->module, &c->slot, &c->slab, &c->bus, &c->cpu_char);
-	    free(cpuhwg);
-	    /* now find the matching node number */
-	    for (j=0; ; j++) {
-	    	snprintf(nodenum, sizeof(nodenum), "/hw/nodenum/%d", j);
-		if (access(nodenum, F_OK) != 0 || (nodehwg = realpath(nodenum, NULL)) == NULL)
-		    break;
-		sscanf(nodehwg, "/hw/module/%dc%d/slab/%d/node",
-		    &node_module, &node_slot, &node_slab);
-		free(nodehwg);
-		if (node_module == c->module && node_slot == c->slot && node_slab == c->slab) {
-		    proc_cpuinfo->cpuinfo[i].node = j;
-		    if (proc_cpuinfo->cpuinfo[i].node > high_node)
-			high_node = proc_cpuinfo->cpuinfo[i].node;
-		    break;
-		}
-	    }
+    while ((de = readdir(nodes)) != NULL) {
+	if (sscanf(de->d_name, "node%d", &node) != 1)
+	    continue;
+
+	if (node > max_node)
+	    max_node = node;
+
+	sprintf(path, "%s/%s/cpumap", node_path, de->d_name);
+	if ((f = fopen(path, "r")) == NULL)
+	    continue;
+	fscanf(f, "%s", cpumap);
+	fclose(f);
+
+	for (j = 0; (cp = strrchr(cpumap, ',')); j++) {
+	    decode_map(proc_cpuinfo, cp+1, node, j);
+	    *cp = '\0';
 	}
+	decode_map(proc_cpuinfo, cpumap, node, j);
     }
+    closedir(nodes);
+
+    /* initialize node indom */
+    idp->it_numinst = max_node + 1;
+    idp->it_set = calloc(max_node, sizeof(pmdaInstid));
+    for (i = 0; i <= max_node; i++) {
+	char node_name[256];
+
+	sprintf(node_name, "node%d", i);
+	idp->it_set[i].i_inst = i;
+	idp->it_set[i].i_name = strdup(node_name);
+    }
+    proc_cpuinfo->node_indom = idp;
 }
 
 char *
 cpu_name(proc_cpuinfo_t *proc_cpuinfo, int c)
 {
     char name[1024];
-    char *s = NULL;
     char *p;
     FILE *f;
     static int started = 0;
 
     if (!started) {
-    	refresh_proc_cpuinfo(proc_cpuinfo);
+	refresh_proc_cpuinfo(proc_cpuinfo);
 	map_cpu_nodes(proc_cpuinfo);
 
 	proc_cpuinfo->machine = NULL;
-    	if ((f = fopen("/proc/sgi_prominfo/node0/version", "r")) != NULL) {
+	if ((f = fopen("/proc/sgi_prominfo/node0/version", "r")) != NULL) {
 	    while (fgets(name, sizeof(name), f)) {
 		if (strncmp(name, "SGI", 3) == 0) {
 		    if ((p = strstr(name, " IP")) != NULL)
@@ -110,23 +137,8 @@ cpu_name(proc_cpuinfo_t *proc_cpuinfo, int c)
 	started = 1;
     }
 
-    if (proc_cpuinfo->cpuinfo[c].module >= 0) {
-	/* SGI SNIA CPU names */
-	snprintf(name, sizeof(name), "cpu:%d.%d.%d.%c", 
-		proc_cpuinfo->cpuinfo[c].module,
-		proc_cpuinfo->cpuinfo[c].slot,
-		proc_cpuinfo->cpuinfo[c].slab,
-		proc_cpuinfo->cpuinfo[c].cpu_char);
-	s = name;
-    }
-    
-    if (s == NULL) {
-	/* flat namespace for cpu names */
-	snprintf(name, sizeof(name), "cpu%d", c);
-	s = name;
-    }
-
-    return strdup(s);
+    snprintf(name, sizeof(name), "cpu%d", c);
+    return strdup(name);
 }
 
 int
