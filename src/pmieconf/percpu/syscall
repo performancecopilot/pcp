@@ -1,0 +1,80 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+#
+
+rule	per_cpu.syscall
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_host (
+    some_inst (
+	kernel.percpu.syscall $hosts$ > $threshold$ count/sec
+    )
+    && hinv.ncpu $hosts$ > 1
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"The number of system calls per second for at least one CPU
+exceeded threshold over the past sample interval.
+
+This rule only applies to multi-processor systems, for
+single-processor systems refer to the cpu.syscall rule.
+
+For Origin 200 and Origin 2000 systems, use the command
+    $ pminfo -f hinv.map.cpu
+to discover the abbreviated PCP names of the installed CPUs and
+their corresponding full names in the /hw file system.";
+
+string	rule
+	default	= "High per CPU system call rate"
+	modify	= no
+	display	= no;
+
+double	threshold
+	default	= 12000
+	help	=
+"The threshold of system calls per second per CPU.  The appropriate
+value here is a function of the processor type and the workload, but
+here are some indicative figures of sustained system call rates for a
+single process:
+	getpid()                        - 380000 syscalls/sec
+	lseek() to start of file        - 280000 syscalls/sec
+	gettimeofday()                  - 200000 syscalls/sec
+	read() at end of file           -  83000 syscalls/sec
+	file creat() and close()        -  65000 syscalls/sec
+	socket(), connect() and close() -   7000 syscalls/sec
+(generated using an otherwise idle system with 180MHz R10000 processors).";
+
+string	action_expand
+	default	= %vscall/s[%i]@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h CPU: %i syscalls/sec: %v"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200057"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= per_cpu.syscall
+	display	= no
+	modify = no;
+string	enln_units
+	default	= scall/s[%i]
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

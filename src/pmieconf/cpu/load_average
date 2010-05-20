@@ -1,0 +1,73 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+#
+
+rule	cpu.load_average
+	summary = "$rule$"
+	predicate =
+"some_host (
+    // threshold scales with the number of CPUs (works better for
+    // large systems) and there is an absolute lower bound,
+    // especially for small systems
+    kernel.all.load $hosts$ #'1 minute' > hinv.ncpu $hosts$ * $per_cpu_load$
+    && kernel.all.load $hosts$ #'1 minute' > $min_load$
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"The current 1-minute load average is higher than the larger of
+min_load and ( per_cpu_load times the number of CPUs ).
+The load average measures the number of processes that are running,
+runnable or soon to be runnable (i.e. in short term sleep).";
+
+string	rule
+	default = "High 1-minute load average"
+	modify	= no
+	display	= no;
+
+double	per_cpu_load
+	default	= 3
+	help	=
+"The multiplier per CPU for the minimum load to make the rule true,
+when expressed as a function of the number of CPUs.  Typically in
+the range 1.0 (very light load) to 8.0 (very heavy load ).";
+
+double	min_load
+	default	= 4
+	help	=
+"The minimum load average before the rule is true.  Most useful for
+single-processor systems or where the desired threshold is
+absolute, rather than a function of the number of CPUs.";
+
+string	action_expand
+	default	= %vload@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h load average: %v"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200042"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= cpu.load_average
+	display	= no
+	modify = no;
+string	enln_units
+	default	= load
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

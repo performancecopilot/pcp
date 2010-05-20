@@ -1,0 +1,13 @@
+# Metrics missing from Linux
+#
+# rule: buffer_cache
+#   kernel.all.io.bread -12357 Unknown metric name
+#   kernel.all.io.lread -12357 Unknown metric name
+#
+# rule: dnlc_miss
+#   name_cache.enters -12357 Unknown metric name
+#   name_cache.misses -12357 Unknown metric name
+#   name_cache.removes -12357 Unknown metric name
+#   name_cache.searches -12357 Unknown metric name
+#
+RFILES = filling

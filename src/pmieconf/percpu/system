@@ -1,0 +1,84 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+#
+
+rule	per_cpu.system
+	summary	= "$rule$"
+	enumerate = hosts
+	# need first conjunct to get %v in actions...
+	predicate =
+"some_host (
+    some_inst (
+	// first term is always true, but provides %v for actions ...
+	( 100 * kernel.percpu.cpu.sys $hosts$ ) > 0
+	&& 100 * ( kernel.percpu.cpu.user $hosts$ +
+		   kernel.percpu.cpu.sys $hosts$ ) > $busy$
+	&& 100 * kernel.percpu.cpu.sys $hosts$ /
+	    ( kernel.percpu.cpu.user $hosts$ + kernel.percpu.cpu.sys $hosts$ )
+		> $threshold$
+    )
+    && hinv.ncpu $hosts$ > 1
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"Over the last sample interval, at least one CPU was active for
+busy percent or more, and the ratio of system time to busy time
+exceeded threshold percent.  Only applies to multi-processor
+systems, for single-processor systems refer to the cpu.system
+rule.
+For Origin 200 and Origin 2000 systems, use the command
+    $ pminfo -f hinv.map.cpu
+to discover the abbreviated PCP names of the installed CPUs and
+their corresponding full names in the /hw file system.";
+
+string	rule
+	default	= "Some CPU busy executing in system mode"
+	modify	= no
+	display	= no;
+
+percent	busy
+	default	= 75
+	help	=
+"Busy percentage for average CPU utilization, in the range 0 (idle)
+to 100 (completely busy), independent of the number of CPUs.";
+
+percent	threshold
+	default	= 80
+	help	=
+"Threshold percentage for system time as a fraction of the non-idle
+CPU time, in the range 0 (no system time) to 100 (all system time),
+independent of the number of CPUs.";
+
+string	action_expand
+	default	= %v%sys[%i]@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h CPU: %i system mode: %v%"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200058"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= per_cpu.system
+	display	= no
+	modify = no;
+string	enln_units
+	default	= %sys[%i]
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
