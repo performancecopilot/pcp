@@ -19,9 +19,9 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "pmiestats.h"
 #include "pmcd/src/pmcd.h"
 #include "pmcd/src/client.h"
-#include "pmie/src/pmiestats.h"
 #include <sys/stat.h>
 
 /*
