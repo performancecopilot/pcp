@@ -34,6 +34,7 @@ LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib blib \
 default: dist
 
 MAKEMAKER_OPTIONS = "INSTALLDIRS=vendor"
+
 INSTALLER_OPTIONS = DESTDIR=$$DIST_ROOT PREFIX=/usr
 
 ifeq ($(TARGET_OS),mingw)
@@ -47,7 +48,7 @@ PMDA.o: Makefile PMDA.xs
 
 Makefile: COPYING Makefile.PL
 	export PCP_TOPDIR=`pwd`/$(TOPDIR); \
-	CC="$(CC)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
+	CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_OPTIONS)
 
 COPYING:
 	$(LN_S) $(TOPDIR)/COPYING COPYING

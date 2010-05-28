@@ -23,6 +23,13 @@ AC_INIT(src/include/pmapi.h)
 dnl Irix build issue ... use the tools from the local filesystems
 unset ROOT TOOLROOT
 
+AC_ARG_WITH(
+    [64bit],
+    [AS_HELP_STRING(
+	    [--with-64bit],
+	    [turn on 64 bit compilation node (default is platform dependent)])],
+    [use_64bit=$withval])
+
 #
 # Note: the following environment variables may be
 # set to override the defaults.
@@ -71,6 +78,7 @@ then
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS)
+    export PATH="$PATH:/opt/SunStudioExpress/bin"
 elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN)
@@ -170,15 +178,41 @@ dnl output header with cpp defs HAVE_*, etc
 AC_CONFIG_HEADER(src/include/platform_defs.h)
 
 dnl check if user wants their own C compiler
-AC_PROG_CC
-cc=$CC
+cflags_abi=
+AC_PROG_CC(suncc gcc cc)
+if test $target_os = solaris
+then
+    AC_PATH_PROG(CCPATH,$CC,$CC)
+    cc=$CCPATH
+    if test "$use_64bit" = "no"
+    then
+	:
+    else
+	AC_MSG_CHECKING([for 64 bit Solaris host])
+	case `isainfo -k`
+	in
+	    amd64|sparcv9)
+		cflags_abi=-m64
+		CFLAGS="$CFLAGS -m64"
+		LDFLAGS="$LDFLAGS -m64"
+		AC_MSG_RESULT(yes)
+		;;
+	    *)
+		AC_MSG_RESULT(no)
+		;;
+	esac
+    fi
+else
+    cc=$CC
+fi
 AC_SUBST(cc)
 cc_is_gcc=$GCC
 AC_SUBST(cc_is_gcc)
+AC_SUBST(cflags_abi)
 
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax
-if test -z "$MAKE" 
+if test -z "$MAKE"
 then
     AC_PATH_PROG(MAKE, gmake)
     if test -z "$MAKE" 
@@ -209,7 +243,7 @@ then
 	    fi
 	fi
 	AC_MSG_RESULT($MAKE)
-    fi            
+    fi 
 fi
 make=$MAKE
 AC_SUBST(make)
