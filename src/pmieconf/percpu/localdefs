@@ -1,0 +1,8 @@
+RFILES		= syscall some_util many_util context_switch system
+
+# Metrics missing from Linux
+#
+# rule: context_switch
+#   kernel.percpu.pswitch -12357 Unknown metric name
+#
+LINUX_RFILES	= syscall some_util many_util                system

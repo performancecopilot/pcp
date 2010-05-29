@@ -156,6 +156,42 @@ by the dataset by the compression ratio.
 The number of redundant copies does not include any copies made as
 part of the pool redundancy.
 
+@zfs.recordsize Recommendend block size for files in filesystems
+By using recommended block size applications which deal with fixed size
+records can improve I/O performance.
+
+@zfs.used.byrefreservation Space used by refreservation
+The amount of space used by a refreservation set on this
+filesystem,  which would be freed if the refreservation was
+removed.
+
+@zfs.refreservation Minimum amount of space guaranteed to a filesystem
+The minimum amount of space guaranteed to a dataset, not
+including its descendents. Unlike reservation refreservation is
+counted towards the total used space of a dataset.
+
+@zfs.refquota Amount of space a filesystem can consume
+The hard limit on the amount of space a filesystem but not its descendants
+can consume from the pool.
+
+@zfs.referenced Amount of space referenced by the filesystem
+The amount of data that is accessible by  the filesystem. The data
+may be shared with other datasets in the pool.
+
+@zfs.nsnapshots Number of snapshots in the filesystem
+
+@zfs.snapshot.compression Compression ratio of the data in the snapshot
+Compression ratio is expressed as multiplier. To estimate how much data
+will be used by the uncompressed data multiply the amount of space used
+by the snapshot by the compression ratio.
+
+@zfs.snapshot.used Amount of space used by the snapshot
+
+@zfs.snapshot.referenced Amount of space referenced by the snapshot
+The amount of data that is accessible by  the snapshot. The data
+may be shared with other datasets in the filesystem.
+
+
 @zpool.perdisk.state Current state per disk in zpool
 @zpool.perdisk.state_int vs_aux << 8 | vs_state
 @zpool.perdisk.checksum_errors Number of checksum errors per disk in zpool
