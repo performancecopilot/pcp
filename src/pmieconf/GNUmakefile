@@ -27,7 +27,9 @@ LSRCFILES = GNUmakefile.rules check-rules pmie_email xtractnames $(RFILES)
 
 LLDLIBS = -lpcp
 LDIRT = rules local $(TARGET) rate-syscalls \
-	pmlogger.tmp pmlogger.config
+	pmlogger.tmp pmlogger.config \
+	cpu/GNUmakefile filesys/GNUmakefile memory/GNUmakefile \
+	percpu/GNUmakefile pernetif/GNUmakefile
 
 default_pcp: $(TARGET) makefiles rules pmlogger.config
 

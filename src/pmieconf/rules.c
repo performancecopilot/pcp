@@ -1431,8 +1431,8 @@ expand_action(FILE *f, int count, rule_t *rule, atom_t *atom)
 	    fprintf(f, " -> ");
 	else
 	    fprintf(f, "\n  & ");
-	fprintf(f, action_string(atom->type));
-	fprintf(f, str);
+	fprintf(f, "%s", action_string(atom->type));
+	fprintf(f, "%s", str);
 	free(str);
 	if ((str = dollar_expand(rule, atom->data, 0)) == NULL) {
 	    fprintf(stderr, "Warning - failed to expand action for rule %s\n"
@@ -2194,7 +2194,7 @@ initialise(char *in_rules, char *in_pmie, char *warning)
 	    strcpy(rulepath, p);
     }
     else
-	snprintf(rulepath, sizeof(rulepath), in_rules);
+	snprintf(rulepath, sizeof(rulepath), "%s", in_rules);
 
     memset(&global, 0, sizeof(rule_t));
     global.self.name = global_name;
