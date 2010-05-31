@@ -14,6 +14,7 @@ kernel.all {
     sysvfork		SOLARIS:0:35
     sysread		SOLARIS:0:36
     syswrite		SOLARIS:0:37
+    load		SOLARIS:0:135
 }
 
 kernel.all.cpu {

@@ -18,6 +18,7 @@
 
 #include "common.h"
 #include <sys/utsname.h>
+#include <sys/loadavg.h>
 
 typedef struct {
     int		fetched;
@@ -31,6 +32,8 @@ static long		pagesize;
 static cpu_stat_t	*cpustat;
 static ctl_t		*ctl;
 static char		uname_full[SYS_NMLN * 5];
+static int		nloadavgs;
+static double		loadavgs[3];
 
 void
 sysinfo_init(int first)
@@ -115,7 +118,7 @@ sysinfo_derived(pmdaMetric *mdesc, int inst)
 	    pmIDStr(mdesc->m_desc.pmid), inst, val);
     }
 #endif
-    
+
     return val;
 }
 
@@ -124,6 +127,7 @@ sysinfo_prefetch(void)
 {
     int		i;
 
+    nloadavgs = -1;
     for (i = 0; i < ncpu; i++)
 	ctl[i].fetched = 0;
 }
@@ -176,14 +180,32 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	return 1;
 
     case 107: /* pmda.uname */
-	if (uname(&u) < 0) 
+	if (uname(&u) < 0)
 	    return 0;
 
 	snprintf(uname_full, sizeof(uname_full), "%s %s %s %s %s",
 		 u.sysname, u.nodename, u.release, u.version, u.machine);
 	atom->cp = uname_full;
 	return 1;
-    }	
+    case 135: /* kernel.all.load */
+	if (nloadavgs < 0) {
+		if ((nloadavgs = getloadavg(loadavgs, 3)) < 0)
+			return 0;
+	}
+
+	switch (inst) {
+	case 1:
+		atom->f = (float)loadavgs[LOADAVG_1MIN];
+		return nloadavgs > LOADAVG_1MIN;
+	case 5:
+		atom->f = (float)loadavgs[LOADAVG_5MIN];
+		return nloadavgs > LOADAVG_5MIN;
+	case 15:
+		atom->f = (float)loadavgs[LOADAVG_15MIN];
+		return nloadavgs > LOADAVG_15MIN;
+	}
+	return PM_ERR_INST;
+    }
 
     ok = 1;
     for (i = 0; i < ncpu; i++) {
