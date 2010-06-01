@@ -6005,6 +6005,7 @@ linux_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmd
     return pmdaTreeChildren(linux_dynamic_lookup_name(name), name, flag, kids, sts);
 }
 
+
 /*
  * Initialise the agent (both daemon and DSO).
  */
@@ -6012,7 +6013,6 @@ linux_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmd
 void 
 linux_init(pmdaInterface *dp)
 {
-    int		need_refresh[NUM_CLUSTERS];
     int		i, major, minor;
     __pmID_int	*idp;
 
@@ -6129,10 +6129,6 @@ linux_init(pmdaInterface *dp)
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), metrictab,
              sizeof(metrictab)/sizeof(metrictab[0]));
-
-    /* initially refresh all clusters */
-    memset(need_refresh, 1, sizeof(need_refresh));
-    linux_refresh(need_refresh);
 }
 
 
