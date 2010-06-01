@@ -761,12 +761,7 @@ AC_CHECK_FUNCS(brk sbrk memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strerror strtod strtol strtoll strtoull)
-
-dnl sysinfo() is not everywhere, and not necessarily useful even when
-dnl it is there
-if test $target_os != solaris; then
-    AC_CHECK_FUNCS(sysinfo)
-fi
+AC_CHECK_FUNCS(sysinfo)
 
 dnl only define readdir64 on non-linux platforms that support it
 if test $target_os != linux -a $target_os != freebsd; then
