@@ -6039,7 +6039,7 @@ linux_init(pmdaInterface *dp)
     proc_interrupts.indom = &indomtab[PROC_INTERRUPTS_INDOM];
     proc_pid.indom = &indomtab[PROC_INDOM];
     proc_stat.cpu_indom = proc_cpuinfo.cpuindom = &indomtab[CPU_INDOM];
-    numa_meminfo.node_indom = &indomtab[NODE_INDOM];
+    numa_meminfo.node_indom = proc_cpuinfo.node_indom = &indomtab[NODE_INDOM];
     proc_scsi.scsi_indom = &indomtab[SCSI_INDOM];
     proc_slabinfo.indom = &indomtab[SLAB_INDOM];
 
