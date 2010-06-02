@@ -325,6 +325,56 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,61), KERNEL_UTYPE, CPU_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/* kernel.pernode.cpu.user */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,62), KERNEL_UTYPE, NODE_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.pernode.cpu.nice */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,63), KERNEL_UTYPE, NODE_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.pernode.cpu.sys */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,64), KERNEL_UTYPE, NODE_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.pernode.cpu.idle */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,65), KERNEL_UTYPE, NODE_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.pernode.cpu.wait.total */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,69), KERNEL_UTYPE, NODE_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.pernode.cpu.intr */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,66), KERNEL_UTYPE, NODE_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.pernode.cpu.irq.soft */
+    { NULL,
+      { PMDA_PMID(CLUSTER_STAT,70), KERNEL_UTYPE, NODE_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.pernode.cpu.irq.hard */
+    { NULL,
+      { PMDA_PMID(CLUSTER_STAT,71), KERNEL_UTYPE, NODE_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.pernode.cpu.steal */
+    { NULL,
+      { PMDA_PMID(CLUSTER_STAT,67), KERNEL_UTYPE, NODE_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* kernel.pernode.cpu.guest */
+    { NULL,
+      { PMDA_PMID(CLUSTER_STAT,68), KERNEL_UTYPE, NODE_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
 /* disk.dev.read */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,4), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
@@ -1242,13 +1292,13 @@ static pmdaMetric metrictab[] = {
  */
 
 /* kernel.percpu.interrupts */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_INTERRUPTS, 0), PM_TYPE_U32, PROC_INTERRUPTS_INDOM, PM_SEM_COUNTER, 
+    { NULL,
+      { PMDA_PMID(CLUSTER_INTERRUPTS, 0), PM_TYPE_U32, PROC_INTERRUPTS_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* kernel.all.syscall */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_INTERRUPTS,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+    { NULL,
+      { PMDA_PMID(CLUSTER_INTERRUPTS,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* kernel.percpu.syscall */
@@ -3122,7 +3172,7 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_CPUINFO, 5), PM_TYPE_FLOAT, CPU_INDOM, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
-/* hinv.map.cpu */
+/* hinv.map.cpu_num */
   { NULL,
     { PMDA_PMID(CLUSTER_CPUINFO, 6), PM_TYPE_U32, CPU_INDOM, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
@@ -3130,6 +3180,11 @@ static pmdaMetric metrictab[] = {
 /* hinv.machine */
   { NULL,
     { PMDA_PMID(CLUSTER_CPUINFO, 7), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* hinv.map.cpu_node */
+  { NULL,
+    { PMDA_PMID(CLUSTER_CPUINFO, 8), PM_TYPE_U32, CPU_INDOM, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /*
@@ -4018,6 +4073,50 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.p_guest[inst] / proc_stat.hz);
 	    break;
+
+
+	case 62: /* kernel.pernode.cpu.user */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.n_user[inst] / proc_stat.hz);
+	    break;
+	case 63: /* kernel.pernode.cpu.nice */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.n_nice[inst] / proc_stat.hz);
+	    break;
+	case 64: /* kernel.pernode.cpu.sys */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.n_sys[inst] / proc_stat.hz);
+	    break;
+	case 65: /* kernel.pernode.cpu.idle */
+	    _pm_assign_utype(_pm_idletime_size, atom,
+			1000 * (double)proc_stat.n_idle[inst] / proc_stat.hz);
+	    break;
+	case 69: /* kernel.pernode.cpu.wait.total */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.n_wait[inst] / proc_stat.hz);
+	    break;
+	case 66: /* kernel.pernode.cpu.intr */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * ((double)proc_stat.n_irq[inst] +
+				(double)proc_stat.n_sirq[inst]) / proc_stat.hz);
+	    break;
+	case 70: /* kernel.pernode.cpu.irq.soft */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.n_sirq[inst] / proc_stat.hz);
+	    break;
+	case 71: /* kernel.pernode.cpu.irq.hard */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.n_irq[inst] / proc_stat.hz);
+	    break;
+	case 67: /* kernel.pernode.cpu.steal */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.n_steal[inst] / proc_stat.hz);
+	    break;
+	case 68: /* kernel.pernode.cpu.guest */
+	    _pm_assign_utype(_pm_cputime_size, atom,
+			1000 * (double)proc_stat.n_guest[inst] / proc_stat.hz);
+	    break;
+
 
 	case 8: /* pagesin */
 	    if (_pm_have_proc_vmstat)
@@ -5255,6 +5354,9 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 7: /* hinv.machine */
 	    atom->cp = proc_cpuinfo.machine;
 	    break;
+	case 8: /* hinv.map.cpu_node */
+	    atom->ul = proc_cpuinfo.cpuinfo[inst].node;
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -5935,10 +6037,20 @@ linux_init(pmdaInterface *dp)
 	    case 58:	/* kernel.percpu.cpu.steal */
 	    case 60:	/* kernel.all.cpu.guest */
 	    case 61:	/* kernel.percpu.cpu.guest */
+	    case 62:	/* kernel.pernode.cpu.user */
+	    case 63:	/* kernel.pernode.cpu.nice */
+	    case 64:	/* kernel.pernode.cpu.sys */
+	    case 69:	/* kernel.pernode.cpu.wait.total */
+	    case 66:	/* kernel.pernode.cpu.intr */
+	    case 70:	/* kernel.pernode.cpu.irq.soft */
+	    case 71:	/* kernel.pernode.cpu.irq.hard */
+	    case 67:	/* kernel.pernode.cpu.steal */
+	    case 68:	/* kernel.pernode.cpu.guest */
 		_pm_metric_type(metrictab[i].m_desc.type, _pm_cputime_size);
 		break;
 	    case 3:	/* kernel.percpu.cpu.idle */
 	    case 23:	/* kernel.all.cpu.idle */
+	    case 65:	/* kernel.pernode.cpu.idle */
 		_pm_metric_type(metrictab[i].m_desc.type, _pm_idletime_size);
 		break;
 	    case 12:	/* kernel.all.intr */
