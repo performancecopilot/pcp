@@ -96,6 +96,7 @@ ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
 	$(INSTALL) -m 644 $(LICFILES) $(PCP_DOC_DIR)/$(LICFILES)
 endif
 	$(INSTALL) -m 644 pcp.lsm $(DOCFILES) $(PCP_DOC_DIR)
+	$(INSTALL) -m 755 install-sh $(PCP_BINADM_DIR)/install-sh
 
 ifdef BUILDRULES
 include $(BUILDRULES)

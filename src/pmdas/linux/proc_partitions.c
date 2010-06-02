@@ -376,7 +376,9 @@ _pm_ioscheduler(const char *device)
      */
     sprintf(path, "/sys/block/%s/queue/scheduler", device);
     if ((fp = fopen(path, "r")) != NULL) {
-	if (!fgets(buf, sizeof(buf), fp))
+	p = fgets(buf, sizeof(buf), fp);
+	fclose(fp);
+	if (!p)
 	    goto unknown;
 	for (p = q = buf; p && *p && *p != ']'; p++) {
 	    if (*p == '[')

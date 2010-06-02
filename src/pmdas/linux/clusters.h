@@ -56,6 +56,13 @@ enum {
 	CLUSTER_TMPFS,		/* 34 /proc/mounts + statfs (tmpfs only) */
 	CLUSTER_SYSFS_KERNEL,	/* 35 /sys/kernel metrics */
 	CLUSTER_NUMA_MEMINFO,	/* 36 /sys/devices/system/node* NUMA memory */
+	CLUSTER_CGROUP_SUBSYS,	/* 37 /proc/cgroups control group subsystems */
+	CLUSTER_CGROUP_MOUNTS,	/* 38 /proc/mounts active control groups */
+	CLUSTER_CGROUP_CPUSET,	/* 39 cpuset control groups */
+	CLUSTER_CGROUP_CPUACCT,	/* 40 cpu accounting control groups */
+	CLUSTER_CGROUP_CPUSCHED,/* 41 scheduler control groups */
+	CLUSTER_CGROUP_MEMORY,	/* 42 memory control groups */
+	CLUSTER_CGROUP_NET_CLS,	/* 43 network classification control groups */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

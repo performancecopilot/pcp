@@ -164,10 +164,10 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 
 	/* process derived metrics, if any */
 	if (have_dm) {
-	    __dmpostfetch(ctxp, result);
-	    if (newlist != NULL) {
+	    if (n >= 0)
+		__dmpostfetch(ctxp, result);
+	    if (newlist != NULL)
 		free(newlist);
-	    }
 	}
     }
 
