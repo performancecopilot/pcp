@@ -108,7 +108,9 @@ static int	ncommands = (sizeof(commands)/sizeof(commands[0]));
 /* io-related stuff */
 extern void setio(int);
 extern void setscroll(void);
+#ifdef HAVE_SYS_IOCTL_H
 extern void onwinch(int);
+#endif
 extern int pprintf(char *, ...);
 extern void error(char *, ...);
 
@@ -847,7 +849,9 @@ main(int argc, char **argv)
 	    interactive = 0;
 	else if (isatty(1)) {	/* be $PAGER, handle window-resize */
 	    setscroll();
+#ifdef HAVE_SYS_IOCTL_H
 	    onwinch(0);
+#endif
 	}
 	interact();
     }

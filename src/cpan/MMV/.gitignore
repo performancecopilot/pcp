@@ -1,8 +1,11 @@
+blib
 COPYING
+dll.base
+dll.exp
 Makefile
-PCP-MMV-*.tar.gz
+META.yml
 MMV.bs
 MMV.c
-blib
+MMV.def
+PCP-MMV-*.tar.gz
 pm_to_blib
-META.yml

@@ -27,9 +27,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
-#include <termios.h>
+#include "pmapi.h"
+#ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
+#endif
+#ifdef HAVE_TERMIOS_H
+#include <termios.h>
+#endif
+#ifdef HAVE_TERMIO_H
 #include <termio.h>
+#endif
 
 #define MINCOLS	80
 #define MINROWS	24
@@ -43,7 +50,9 @@ static int	ncols;
 static char	shortmsg[] = "more? (h=help) ";
 static char	longmsg[] = \
 	"[q or n to stop, y or <space> to go on, <enter> to step] more? ";
+#ifdef HAVE_TERMIO_H
 static struct termio	otty;
+#endif
 
 extern char	*pmProgname;
 
@@ -52,6 +61,7 @@ void setio(int reset)	{ neols = 0; skiprest = reset; }
 void setscroll(void)	{ needscroll = 1; }
 int  resized(void)	{ return needresize; }
 
+#ifdef HAVE_SYS_IOCTL_H
 /* looks after window resizing for the printing routine */
 /*ARGSUSED*/
 void
@@ -60,6 +70,7 @@ onwinch(int dummy)
     signal(SIGWINCH, onwinch);
     needresize = 1;
 }
+#endif
 
 /* in interactive mode scrolling, if no more wanted skiprest is set */
 static void
@@ -70,9 +81,12 @@ promptformore(void)
     int			sts = 1;
     char		c;
     char		*prompt;
+#ifdef HAVE_TERMIO_H
     static int		first = 1;
     struct termio	ntty;
+#endif
 
+#ifdef HAVE_TERMIO_H
     if (first) {
 	if (ioctl(0, TCGETA, &otty) < 0) {
 	    fprintf(stderr, "%s: TCGETA ioctl failed: %s\n", pmProgname,
@@ -92,6 +106,7 @@ promptformore(void)
 		strerror(errno));
 	exit(1);
     }
+#endif
 
     prompt = shortmsg;
     while (sts == 1) {
@@ -99,7 +114,7 @@ promptformore(void)
 	for (i = 0; i < ncols-1; i++)
 	    putchar(' ');
 	putchar('\r');
-	printf(prompt);
+	printf("%s", prompt);
 	fflush(stdout);
 
 	if (read(0, &c, 1) != 1) {
@@ -128,11 +143,13 @@ promptformore(void)
     }
 
 reset_tty:
+#ifdef HAVE_TERMIO_H
     if (ioctl(0, TCSETAW, &otty) < 0) {
 	fprintf(stderr, "%s: reset TCSETAW ioctl failed: %s\n", pmProgname,
 		strerror(errno));
 	exit(1);
     }
+#endif
 
     putchar('\r');
     for (i = 0; i < ncols-1; i++)
@@ -151,14 +168,21 @@ pprintf(char *format, ...)
 {
     char		*p;
     va_list		args;
+#ifdef HAVE_SYS_IOCTL_H
     struct winsize	geom;
+#endif
     static int		first = 1;
 
     if (first == 1) {	/* first time thru */
 	first = 0;
+#ifdef HAVE_SYS_IOCTL_H
 	ioctl(0, TIOCGWINSZ, &geom);
 	nrows = (geom.ws_row < MINROWS? MINROWS : geom.ws_row);
 	ncols = (geom.ws_col < MINCOLS? MINCOLS : geom.ws_col);
+#else
+	nrows = MINROWS;
+	ncols = MINCOLS;
+#endif
     }
 
     if (skiprest)
@@ -185,11 +209,13 @@ pprintf(char *format, ...)
 	vfprintf(stdout, format, args);
     va_end(args);
     if (needresize) {
+#ifdef HAVE_SYS_IOCTL_H
 	ioctl(0, TIOCGWINSZ, &geom);
 	nrows = (geom.ws_row < MINROWS? MINROWS : geom.ws_row);
 	ncols = (geom.ws_col < MINCOLS? MINCOLS : geom.ws_col);
 #ifdef PMIECONF_DEBUG
 	printf("debug - reset size: cols=%d rows=%d\n", ncols, nrows);
+#endif
 #endif
 	needresize = 0;
     }

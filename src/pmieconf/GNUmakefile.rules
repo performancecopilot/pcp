@@ -40,10 +40,10 @@ rules:
 	@rm -f ../rules/$(GROUP)/*
 	@for f in IGNORE_DUMMY_RULE $(DEFAULT); do \
 	    [ $$f = IGNORE_DUMMY_RULE ] && continue; \
-	    ln -s ../../$(GROUP)/$$f ../rules/$(GROUP)/$$f; \
+	    cp ../$(GROUP)/$$f ../rules/$(GROUP)/$$f; \
 	done
 
 pmlogger.config:
-	@if [ -n "$(CONFIGS)" ]; then /bin/sh ../xtractnames $(CONFIGS); fi
+	@if [ -n "$(CONFIGS)" ]; then sh ../xtractnames $(CONFIGS); fi
 
 include $(BUILDRULES)

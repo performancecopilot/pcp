@@ -23,11 +23,20 @@
 #define RULES_H
 
 /* defaults relative to $PCP_VAR_DIR */
+#ifdef IS_MINGW
+#define DEFAULT_RULES          "config\\pmieconf"
+#define DEFAULT_ROOT_PMIE      "config\\pmie\\config.default"
+#else 
 #define DEFAULT_RULES		"config/pmieconf"
 #define DEFAULT_ROOT_PMIE	"config/pmie/config.default"
+#endif
 
 /* default relative to $HOME */
+#ifdef IS_MINGW
+#define DEFAULT_USER_PMIE      ".pcp\\pmie\\config.pmie"
+#else
 #define DEFAULT_USER_PMIE	".pcp/pmie/config.pmie"
+#endif
 
 #define TYPE_STRING		0	/* arbitrary string (default) */
 #define TYPE_DOUBLE		1	/* real number */

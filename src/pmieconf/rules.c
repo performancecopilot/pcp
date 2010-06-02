@@ -27,13 +27,19 @@
 #include <string.h>
 #include <dirent.h>
 #include <fcntl.h>
-#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/param.h>
 #include <sys/types.h>
 #include "pmapi.h"
+#include "impl.h"
 #include "rules.h"
 #include "pmiestats.h" 
+
+#ifdef IS_MINGW
+#define SEP '\\'
+#else
+#define SEP '/'
+#endif
 
 
 #define PMIE_FILE	"pmieconf-pmie"
@@ -1296,7 +1302,7 @@ read_rule_subdir(char *subdir)
 	while ((dp = readdir(dirp)) != NULL) {	  /* groups */
 	    if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
 		continue;
-	    snprintf(fullpath, sizeof(fullpath), "%s/%s", subdir, dp->d_name);
+	    snprintf(fullpath, sizeof(fullpath), "%s%c%s", subdir, SEP, dp->d_name);
 	    if (read_rule_subdir(fullpath) != NULL) {	/* recurse */
 		closedir(dirp);
 		return errmsg;
@@ -2112,6 +2118,7 @@ read_pmiefile(char *warning)
     char	*tmp = NULL;
     char	*p, *home;
     FILE	*f;
+    char	*rule_path_sep;
 
     if ((f = fopen(get_pmiefile(), "r")) == NULL) {
 	if (errno == ENOENT)
@@ -2132,14 +2139,19 @@ read_pmiefile(char *warning)
 	snprintf(errmsg, sizeof(errmsg), "insufficient memory for pmie file parsing");
 	return errmsg;
     }
-    p = strtok(home, ":");
+#ifdef IS_MINGW
+    rule_path_sep = ";";
+#else
+    rule_path_sep = ":";
+#endif
+    p = strtok(home, rule_path_sep);
     while (p != NULL) {
 	if (access(p, F_OK) < 0) {
 	    free(home);
 	    snprintf(errmsg, sizeof(errmsg), "cannot access rules path component: \"%s\"", p);
 	    return errmsg;
 	}
-	p = strtok(NULL, ":");
+	p = strtok(NULL, rule_path_sep);
     }
     free(home);
 
@@ -2163,11 +2175,23 @@ initialise(char *in_rules, char *in_pmie, char *warning)
     char	*p;
     char	*home;
     rule_t	global;
+    char	*rule_path_sep;
 
     /* setup pointers to the configuration files */
+#ifdef IS_MINGW
+    if ((home = getenv("USERPROFILE")) == NULL) {
+	snprintf(errmsg, sizeof(errmsg), "USERPROFILE undefined in environment");
+	return errmsg;
+    }
+    if (in_pmie == NULL)
+	snprintf(pmiefile, sizeof(pmiefile), "%s\\%s", home, DEFAULT_USER_PMIE);
+    else
+	strcpy(pmiefile, in_pmie);
+    rule_path_sep = ";";
+#else
     if (getuid() == 0) {
 	if (in_pmie == NULL)
-	    snprintf(pmiefile, sizeof(pmiefile), "%s/%s", pmGetConfig("PCP_VAR_DIR"), DEFAULT_ROOT_PMIE);
+	    snprintf(pmiefile, sizeof(pmiefile), "%s%c%s", pmGetConfig("PCP_VAR_DIR"), SEP, DEFAULT_ROOT_PMIE);
 	else if (realpath(in_pmie, pmiefile) == NULL && errno != ENOENT) {
 	    snprintf(errmsg, sizeof(errmsg), "failed to resolve realpath for %s: %s",
 		    in_pmie, strerror(errno));
@@ -2182,14 +2206,16 @@ initialise(char *in_rules, char *in_pmie, char *warning)
 	    return errmsg;
 	}
 	if (in_pmie == NULL)
-	    snprintf(pmiefile, sizeof(pmiefile), "%s/%s", home, DEFAULT_USER_PMIE);
+	    snprintf(pmiefile, sizeof(pmiefile), "%s%c%s", home, SEP, DEFAULT_USER_PMIE);
 	else
 	    strcpy(pmiefile, in_pmie);
     }
+    rule_path_sep = ":";
+#endif
 
     if (in_rules == NULL) {
 	if ((p = getenv("PMIECONF_PATH")) == NULL)
-	    snprintf(rulepath, sizeof(rulepath), "%s/%s", pmGetConfig("PCP_VAR_DIR"), DEFAULT_RULES);
+	    snprintf(rulepath, sizeof(rulepath), "%s%c%s", pmGetConfig("PCP_VAR_DIR"), SEP, DEFAULT_RULES);
 	else
 	    strcpy(rulepath, p);
     }
@@ -2210,13 +2236,13 @@ initialise(char *in_rules, char *in_pmie, char *warning)
 	snprintf(errmsg, sizeof(errmsg), "insufficient memory for rules path parsing");
 	return errmsg;
     }
-    p = strtok(home, ":");
+    p = strtok(home, rule_path_sep);
     while (p != NULL) {
 	if (read_rule_subdir(p) != NULL) {
 	    free(home);
 	    return errmsg;
 	}
-	p = strtok(NULL, ":");
+	p = strtok(NULL, rule_path_sep);
     }
     free(home);
 
@@ -2260,9 +2286,9 @@ lookup_processes(int *count, char ***processes)
 	    continue;
 	if ((fd = open(proc, O_RDONLY)) < 0)
 	    continue;
-	ptr = mmap(0, statbuf.st_size, PROT_READ, MAP_SHARED, fd, 0);
+	ptr = __pmMemoryMap(fd, statbuf.st_size, 0);
 	close(fd);
-	if (ptr == MAP_FAILED)
+	if (ptr == NULL)
 	    continue;
 	stats = (pmiestats_t *)ptr;
 	if (strcmp(stats->config, get_pmiefile()) != 0)

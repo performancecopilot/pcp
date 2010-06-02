@@ -35,23 +35,28 @@ default_pcp: $(TARGET) makefiles rules pmlogger.config
 
 $(TARGET) : $(OBJECTS)
 
+pmieconf.o rules.o:    rules.h
+
 makefiles:
 	@for d in $(MKFILE_SUBDIRS); do \
 	    rm -f $$d/GNUmakefile; \
 	    cp GNUmakefile.rules $$d/GNUmakefile; \
 	done
 
+# setting PATH below before running ./pmieconf is needed in the MinGW world
+# as an alternative to LD_LIBRARY_PATH
+#
 rules: $(SUBDIRS)
 	rm -fr rules local; mkdir rules; exit 0
 	$(SUBDIRS_MAKERULE)
-	LD_LIBRARY_PATH=../libpcp/src ./pmieconf -F -r rules -f local
+	LD_LIBRARY_PATH=../libpcp/src PATH=$$PATH:../libpcp/src ./pmieconf -F -r rules -f local
 
 pmlogger.config: $(SUBDIRS)
 	@rm -f pmlogger.config
 	@echo "# extracted from pmieconf rules in source tree" >pmlogger.config
 	@echo >>pmlogger.config
 	@echo "log advisory on default {" >>pmlogger.config
-	$(SUBDIRS_MAKERULE) 2>/dev/null | grep -v '===' >pmlogger.tmp
+	$(SUBDIRS_MAKERULE) | grep -v '===' >pmlogger.tmp
 	@sort -u pmlogger.tmp | sed -e 's/^/    /' >>pmlogger.config
 	@echo "}" >>pmlogger.config
 
