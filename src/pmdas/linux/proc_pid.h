@@ -211,8 +211,17 @@ typedef struct {
     pmdaIndom		*indom;		/* instance domain table */
 } proc_pid_t;
 
+typedef struct {
+    int			count;		/* number of processes in the list */
+    int			size;		/* size of the buffer (pids) allocated */
+    int			*pids;		/* array of process identifiers */
+} proc_pid_list_t;
+
 /* refresh the proc indom, reset all "fetched" flags */
 extern int refresh_proc_pid(proc_pid_t *);
+
+/* refresh a proc indom (subset), reset all "fetched" flags */
+extern int refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *);
 
 /* fetch a proc/<pid>/stat entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_stat(int, proc_pid_t *);

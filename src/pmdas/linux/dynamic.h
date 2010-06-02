@@ -15,9 +15,9 @@
  */
 
 /* function to refresh a specific subtree */
-typedef void (*pmnsUpdate)(__pmnsTree *);
+typedef void (*pmnsUpdate)(pmInDom, __pmnsTree **);
 
-extern void linux_dynamic_pmns(const char *prefix, int cluster, pmnsUpdate update);
-extern __pmnsTree *linux_dynamic_lookup_pmid(pmID pmid);
-extern __pmnsTree *linux_dynamic_lookup_name(const char *name);
+extern void linux_dynamic_pmns(const char *, int *, int, pmInDom, pmnsUpdate);
+extern __pmnsTree *linux_dynamic_lookup_name(const char *);
+extern __pmnsTree *linux_dynamic_lookup_pmid(pmID);
 

@@ -96,22 +96,39 @@ next:
     fclose(projects);
 }
 
+char *
+scan_filesys_options(const char *options, const char *option)
+{
+    static char buffer[128];
+    char *s;
+
+    strncpy(buffer, options, sizeof(buffer));
+
+    s = strtok(buffer, ",");
+    while (s) {
+	if (strcmp(s, option) == 0)
+	    return s;
+        s = strtok(NULL, ",");
+    }
+    return NULL;
+}
+
 int
-refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom, pmInDom tmpfs_indom)
+refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom,
+		pmInDom tmpfs_indom, pmInDom cgroups_indom)
 {
     char buf[MAXPATHLEN];
     char realdevice[MAXPATHLEN];
     filesys_t *fs;
     pmInDom indom;
     FILE *fp;
-    char *path;
-    char *device;
-    char *type;
+    char *path, *device, *type, *options;
     int sts;
 
     pmdaCacheOp(quota_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(tmpfs_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(filesys_indom, PMDA_CACHE_INACTIVE);
+    pmdaCacheOp(cgroups_indom, PMDA_CACHE_INACTIVE);
 
     if ((fp = fopen("/proc/mounts", "r")) == (FILE *)NULL)
 	return -errno;
@@ -122,6 +139,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom, pmInDom tmpfs_indom)
 
 	path = strtok(NULL, " ");
 	type = strtok(NULL, " ");
+	options = strtok(NULL, " ");
 	if (strcmp(type, "proc") == 0 ||
 	    strcmp(type, "nfs") == 0 ||
 	    strcmp(type, "devfs") == 0 ||
@@ -132,6 +150,10 @@ refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom, pmInDom tmpfs_indom)
 	indom = filesys_indom;
 	if (strcmp(type, "tmpfs") == 0) {
 	    indom = tmpfs_indom;
+	    device = path;
+	}
+	else if (strcmp(type, "cgroup") == 0) {
+	    indom = cgroups_indom;
 	    device = path;
 	}
 	else if (strncmp(device, "/dev", 4) != 0)
@@ -148,12 +170,17 @@ refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom, pmInDom tmpfs_indom)
 		free(fs->path);
 		fs->path = strdup(path);
 	    }
+	    if (strcmp(options, fs->options) != 0) {	/* old device, new opts */
+		free(fs->options);
+		fs->options = strdup(options);
+	    }
 	}
 	else {	/* new mount */
 	    if ((fs = malloc(sizeof(filesys_t))) == NULL)
 		continue;
 	    fs->device = strdup(device);
 	    fs->path = strdup(path);
+	    fs->options = strdup(options);
 #if PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LIBPMDA) {
 		fprintf(stderr, "refresh_filesys: add \"%s\" \"%s\"\n",

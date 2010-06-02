@@ -264,6 +264,8 @@ pmdaIndom indomtab[] = {
     { NET_INET_INDOM, 0, NULL },
     { TMPFS_INDOM, 0, NULL },
     { NODE_INDOM, 0, NULL },
+    { CGROUP_SUBSYS_INDOM, 0, NULL },
+    { CGROUP_MOUNTS_INDOM, 0, NULL },
 };
 
 
@@ -1357,19 +1359,20 @@ static pmdaMetric metrictab[] = {
      { PMDA_PMID(CLUSTER_FILESYS,8), PM_TYPE_DOUBLE, FILESYS_INDOM, PM_SEM_INSTANT,
      PMDA_PMUNITS(0,0,0,0,0,0) } },
 
-/*
- * Blocksize and avail added by Mike Mason <mmlnx@us.ibm.com>
- */
-
 /* filesys.blocksize */
   { NULL,
     { PMDA_PMID(CLUSTER_FILESYS,9), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_INSTANT,
-    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
-/* filesys.avail -- space available to non-superusers */
+/* filesys.avail */
   { NULL,
     { PMDA_PMID(CLUSTER_FILESYS,10), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_INSTANT,
-    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* filesys.readonly */
+  { NULL,
+    { PMDA_PMID(CLUSTER_FILESYS,10), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /*
  * tmpfs filesystem cluster
@@ -3751,6 +3754,98 @@ static pmdaMetric metrictab[] = {
     { &sysfs_kernel.uevent_seqnum,
     {PMDA_PMID(CLUSTER_SYSFS_KERNEL,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/*
+ * control groups cluster
+ */
+    /* cgroups.subsys.hierarchy */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_SUBSYS,0), PM_TYPE_U32,
+    CGROUP_SUBSYS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    
+    /* cgroups.subsys.count */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_SUBSYS,1), PM_TYPE_U32,
+    PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* cgroups.mounts.subsys */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_MOUNTS,0), PM_TYPE_STRING,
+    CGROUP_MOUNTS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* cgroups.mounts.count */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_MOUNTS,1), PM_TYPE_U32,
+    PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* cgroup.groups.cpuset.[<group>.]tasks.pid */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_CPUSET,0), PM_TYPE_U32,
+    PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* cgroup.groups.cpuset.[<group>.]cpus */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_CPUSET,1), PM_TYPE_STRING,
+    PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* cgroup.groups.cpuset.[<group>.]mems */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_CPUSET,2), PM_TYPE_STRING,
+    PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* cgroup.groups.cpuacct.[<group>.]tasks.pid */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_CPUACCT,0), PM_TYPE_U32,
+    PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* cgroup.groups.cpuacct.[<group>.]stat.user */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_CPUACCT,1), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* cgroup.groups.cpuacct.[<group>.]stat.system */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_CPUACCT,2), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* cgroup.groups.cpuacct.[<group>.]usage */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_CPUACCT,3), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+
+    /* cgroup.groups.cpuacct.[<group>.]usage_percpu */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_CPUACCT,4), PM_TYPE_U64,
+    CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+
+    /* cgroup.groups.memory.[<group>.]tasks.pid */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_MEMORY,0), PM_TYPE_U32,
+    PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* cgroup.groups.memory.[<group>.]stat.cache */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_MEMORY,1), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* cgroup.groups.memory.[<group>.]stat.rss */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_MEMORY,2), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* cgroup.groups.memory.[<group>.]stat.pgin */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_MEMORY,3), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* cgroup.groups.memory.[<group>.]stat.pgout */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_MEMORY,4), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* cgroup.groups.memory.[<group>.]stat.active_anon */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_MEMORY,5), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* cgroup.groups.memory.[<group>.]stat.inactive_anon */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_MEMORY,6), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* cgroup.groups.memory.[<group>.]stat.active_file */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_MEMORY,7), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* cgroup.groups.memory.[<group>.]stat.inactive_file */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_MEMORY,8), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* cgroup.groups.memory.[<group>.]stat.unevictable */
+    { NULL, {PMDA_PMID(CLUSTER_CGROUP_MEMORY,9), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
 };
 
 static void
@@ -3783,10 +3878,22 @@ linux_refresh(int *need_refresh)
     if (need_refresh[CLUSTER_NET_INET])
 	refresh_net_dev_inet(INDOM(NET_INET_INDOM));
 
-    if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_QUOTA] ||
-	need_refresh[CLUSTER_TMPFS])
-    	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(QUOTA_PRJ_INDOM),
-			INDOM(TMPFS_INDOM));
+    if (need_refresh[CLUSTER_CGROUP_SUBSYS] ||
+	need_refresh[CLUSTER_CGROUP_MOUNTS] ||
+	need_refresh[CLUSTER_CGROUP_CPUSET] ||
+	need_refresh[CLUSTER_CGROUP_CPUACCT] || 
+	need_refresh[CLUSTER_CGROUP_CPUSCHED] ||
+	need_refresh[CLUSTER_CGROUP_MEMORY] ||
+        need_refresh[CLUSTER_CGROUP_NET_CLS]) {
+	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(QUOTA_PRJ_INDOM),
+			INDOM(TMPFS_INDOM), INDOM(CGROUP_MOUNTS_INDOM));
+	refresh_cgroup_subsys(INDOM(CGROUP_SUBSYS_INDOM));
+	refresh_cgroup_groups(INDOM(CGROUP_MOUNTS_INDOM), NULL);
+    }
+    else if (need_refresh[CLUSTER_FILESYS] ||
+	need_refresh[CLUSTER_QUOTA] || need_refresh[CLUSTER_TMPFS])
+	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(QUOTA_PRJ_INDOM),
+			INDOM(TMPFS_INDOM), INDOM(CGROUP_MOUNTS_INDOM));
 
     if (need_refresh[CLUSTER_SWAPDEV])
 	refresh_swapdev(INDOM(SWAPDEV_INDOM));
@@ -3904,6 +4011,12 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     case SLAB_INDOM:
     	need_refresh[CLUSTER_SLAB]++;
 	break;
+    case CGROUP_SUBSYS_INDOM:
+    	need_refresh[CLUSTER_CGROUP_SUBSYS]++;
+	break;
+    case CGROUP_MOUNTS_INDOM:
+    	need_refresh[CLUSTER_CGROUP_MOUNTS]++;
+	break;
     /* no default label : pmdaInstance will pick up errors */
     }
 
@@ -3947,6 +4060,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     char		*f;
     long		sl;
     unsigned long	ul;
+    struct filesys	*fs;
     proc_pid_entry_t	*entry;
     net_inet_t		*inetp;
     net_interface_t	*netip;
@@ -4712,7 +4826,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = pmdaCacheOp(INDOM(FILESYS_INDOM), PMDA_CACHE_SIZE_ACTIVE);
 	else {
 	    struct statfs *sbuf;
-	    struct filesys *fs;
 	    __uint64_t ull, used;
 
 	    sts = pmdaCacheLookup(INDOM(FILESYS_INDOM), inst, NULL, (void **)&fs);
@@ -4765,6 +4878,9 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		ull = (__uint64_t)sbuf->f_bavail;
 		atom->ull = ull * sbuf->f_bsize / 1024;
 		break;
+	    case 11: /* filesys.readonly */
+	    	atom->ul = (scan_filesys_options(fs->options, "ro") != NULL);
+		break;
 	    default:
 		return PM_ERR_PMID;
 	    }
@@ -4773,7 +4889,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_TMPFS: {
 	    struct statfs *sbuf;
-	    struct filesys *fs;
 	    __uint64_t ull, used;
 
 	    sts = pmdaCacheLookup(INDOM(TMPFS_INDOM), inst, NULL, (void **)&fs);
@@ -5645,7 +5760,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_QUOTA:
 	if (idp->item <= 5) {
-	    struct filesys *fs;
 	    sts = pmdaCacheLookup(INDOM(FILESYS_INDOM), inst, NULL,
 					(void **)&fs);
 	    if (sts < 0)
@@ -5903,7 +6017,49 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PMID;
 	}
 	return sts;
-    
+
+    case CLUSTER_CGROUP_SUBSYS:
+	switch (idp->item) {
+	case 0:	/* cgroup.subsys.hierarchy */
+	    sts = pmdaCacheLookup(INDOM(CGROUP_SUBSYS_INDOM), inst, NULL, (void **)&i);
+	    if (sts < 0)
+		return sts;
+	    if (sts != PMDA_CACHE_ACTIVE)
+	    	return PM_ERR_INST;
+	    atom->ul = i;
+	    break;
+
+	case 1: /* cgroup.subsys.count */
+	    atom->ul = pmdaCacheOp(INDOM(CGROUP_SUBSYS_INDOM), PMDA_CACHE_SIZE_ACTIVE);
+	    break;
+	}
+	break;
+
+    case CLUSTER_CGROUP_MOUNTS:
+	switch (idp->item) {
+	case 0:	/* cgroup.mounts.subsys */
+	    sts = pmdaCacheLookup(INDOM(CGROUP_MOUNTS_INDOM), inst, NULL, (void **)&fs);
+	    if (sts < 0)
+		return sts;
+	    if (sts != PMDA_CACHE_ACTIVE)
+	    	return PM_ERR_INST;
+	    atom->cp = cgroup_find_subsys(INDOM(CGROUP_SUBSYS_INDOM), fs->options);
+	    break;
+
+	case 1: /* cgroup.mounts.count */
+	    atom->ul = pmdaCacheOp(INDOM(CGROUP_MOUNTS_INDOM), PMDA_CACHE_SIZE_ACTIVE);
+	    break;
+	}
+	break;
+
+    case CLUSTER_CGROUP_CPUSET:
+    case CLUSTER_CGROUP_CPUACCT:
+    case CLUSTER_CGROUP_CPUSCHED:
+    case CLUSTER_CGROUP_MEMORY:
+    case CLUSTER_CGROUP_NET_CLS:
+	/* TODO */
+	return PM_ERR_PMID;
+
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -6123,9 +6279,7 @@ linux_init(pmdaInterface *dp)
      */
     read_ksym_sources();
 
-    /* Register our dynamic namespace subtrees */
-    linux_dynamic_pmns("cgroup.subsys.", CLUSTER_CGROUP_SUBSYS, cgroup_subsys_update);
-    linux_dynamic_pmns("cgroup.groups.", CLUSTER_CGROUP_GROUPS, cgroup_groups_update);
+    cgroup_init();
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), metrictab,
              sizeof(metrictab)/sizeof(metrictab[0]));

@@ -2,6 +2,7 @@
  * Linux proc/<pid>/{stat,statm,status,maps} Clusters
  *
  * Copyright (c) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -26,54 +23,50 @@
 #include <sys/stat.h>
 #include "proc_pid.h"
 
+static proc_pid_list_t allpids;
+
 static int
-compare_pid(const void *pa, const void *pb) {
+compare_pid(const void *pa, const void *pb)
+{
     int a = *(int *)pa;
     int b = *(int *)pb;
     return a - b;
 }
 
-static int npidlist = 0;
-static int maxpidlist = 0;
-static int *pidlist = NULL;
-
 static void
-pidlist_append(struct dirent *dp)
+pidlist_append(proc_pid_list_t *list, const char *pidname)
 {
-    if (npidlist >= maxpidlist) {
-	maxpidlist += 16;
-	if (!(pidlist = (int *)realloc(pidlist, maxpidlist * sizeof(int)))) {
-		perror("pidlist_append: out of memory");
-		exit(1); /* no recovery from this */
+    if (list->count >= list->size) {
+	list->size += 64;
+	if (!(list->pids = (int *)realloc(list->pids, list->size * sizeof(int)))) {
+	    perror("pidlist_append: out of memory");
+	    exit(1); /* no recovery from this */
 	}
     }
-    pidlist[npidlist++] = atoi(dp->d_name);
+    list->pids[list->count++] = atoi(pidname);
 }
 
 static int
 refresh_pidlist()
 {
-    DIR *dirp = opendir("/proc");
-    DIR *taskdirp;
+    DIR *dirp, *taskdirp;
+    struct dirent *dp, *tdp;
     char taskpath[1024];
-    struct dirent *dp;
-    struct dirent *tdp;
 
-    if (dirp == NULL) {
+    if ((dirp = opendir("/proc")) == NULL)
 	return -errno;
-    }
 
-    npidlist = 0;
+    allpids.count = 0;
     while ((dp = readdir(dirp)) != NULL) {
 	if (isdigit(dp->d_name[0])) {
-	    pidlist_append(dp);
+	    pidlist_append(&allpids, dp->d_name);
 	    /* readdir on /proc ignores threads */ 
 	    sprintf(taskpath, "/proc/%s/task", dp->d_name);
 	    if ((taskdirp = opendir(taskpath)) != NULL) {
 		while ((tdp = readdir(taskdirp)) != NULL) {
 		    if (!isdigit(tdp->d_name[0]) || strcmp(dp->d_name, tdp->d_name) == 0)
 		    	continue;
-		    pidlist_append(tdp);
+		    pidlist_append(&allpids, tdp->d_name);
 		}
 		closedir(taskdirp);
 	    }
@@ -81,12 +74,12 @@ refresh_pidlist()
     }
     closedir(dirp);
 
-    qsort(pidlist, npidlist, sizeof(int), compare_pid);
-    return npidlist;
+    qsort(allpids.pids, allpids.count, sizeof(int), compare_pid);
+    return allpids.count;
 }
 
 int
-refresh_proc_pid(proc_pid_t *proc_pid)
+refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
 {
     int i;
     int fd;
@@ -96,19 +89,10 @@ refresh_proc_pid(proc_pid_t *proc_pid)
     proc_pid_entry_t *ep;
     pmdaIndom *indomp = proc_pid->indom;
 
-    if (refresh_pidlist() <= 0)
-    	return -errno;
-
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LIBPMDA) {
-	fprintf(stderr, "refresh_proc_pid: found %d pids\n", npidlist);
-    }
-#endif
-
-    if (indomp->it_numinst < npidlist)
+    if (indomp->it_numinst < pidlist->count)
 	indomp->it_set = (pmdaInstid *)realloc(indomp->it_set,
-						npidlist * sizeof(pmdaInstid));
-    indomp->it_numinst = npidlist;
+						pidlist->count * sizeof(pmdaInstid));
+    indomp->it_numinst = pidlist->count;
 
     /*
      * invalidate all entries so we can harvest pids that have exited
@@ -131,19 +115,19 @@ refresh_proc_pid(proc_pid_t *proc_pid)
      * walk pidlist and add new pids to the hash table,
      * marking entries valid as we go ...
      */
-    for (i=0; i < npidlist; i++) {
-	node = __pmHashSearch(pidlist[i], &proc_pid->pidhash);
+    for (i=0; i < pidlist->count; i++) {
+	node = __pmHashSearch(pidlist->pids[i], &proc_pid->pidhash);
 	if (node == NULL) {
 	    int k = 0;
 
 	    ep = (proc_pid_entry_t *)malloc(sizeof(proc_pid_entry_t));
 	    memset(ep, 0, sizeof(proc_pid_entry_t));
 
-	    ep->id = pidlist[i];
+	    ep->id = pidlist->pids[i];
 
-	    sprintf(buf, "/proc/%d/cmdline", pidlist[i]);
+	    sprintf(buf, "/proc/%d/cmdline", pidlist->pids[i]);
 	    if ((fd = open(buf, O_RDONLY)) >= 0) {
-		sprintf(buf, "%06d ", pidlist[i]);
+		sprintf(buf, "%06d ", pidlist->pids[i]);
 		if ((k = read(fd, buf+7, sizeof(buf)-8)) > 0) {
 		    p = buf + k +7;
 		    *p-- = '\0';
@@ -169,7 +153,7 @@ refresh_proc_pid(proc_pid_t *proc_pid)
 		 * returns an empty string so we have to get it
 		 * from /proc/<pid>/status or /proc/<pid>/stat
 		 */
-		sprintf(buf, "/proc/%d/status", pidlist[i]);
+		sprintf(buf, "/proc/%d/status", pidlist->pids[i]);
 		if ((fd = open(buf, O_RDONLY)) >= 0) {
 		    /* We engage in a bit of a hanky-panky here:
 		     * the string should look like "123456 (name)",
@@ -191,7 +175,7 @@ refresh_proc_pid(proc_pid_t *proc_pid)
 			    p = buf+k;
 			p[0] = ')'; 
 			p[1] = '\0';
-			bc = sprintf(buf, "%06d ", pidlist[i]); 
+			bc = sprintf(buf, "%06d ", pidlist->pids[i]); 
 			buf[bc] = '(';
 		    }
 		    close(fd);
@@ -200,12 +184,12 @@ refresh_proc_pid(proc_pid_t *proc_pid)
 
 	    if (k <= 0) {
 		/* hmm .. must be exiting */
-	    	sprintf(buf, "%06d <exiting>", pidlist[i]);
+	    	sprintf(buf, "%06d <exiting>", pidlist->pids[i]);
 	    }
 
 	    ep->name = strdup(buf);
 
-	    __pmHashAdd(pidlist[i], (void *)ep, &proc_pid->pidhash);
+	    __pmHashAdd(pidlist->pids[i], (void *)ep, &proc_pid->pidhash);
 	    // fprintf(stderr, "## ADDED \"%s\" to hash table\n", buf);
 	}
 	else
@@ -262,7 +246,21 @@ refresh_proc_pid(proc_pid_t *proc_pid)
 	}
     }
 
-    return npidlist;
+    return pidlist->count;
+}
+
+int
+refresh_proc_pid(proc_pid_t *proc_pid)
+{
+    if (refresh_pidlist() <= 0)
+    	return -errno;
+
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	fprintf(stderr, "refresh_proc_pid: found %d pids\n", allpids.count);
+#endif
+
+    return refresh_proc_pidlist(proc_pid, &allpids);
 }
 
 

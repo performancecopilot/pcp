@@ -12,6 +12,7 @@
  * for more details.
  */
 
-extern void cgroup_subsys_update(__pmnsTree *);
-extern void cgroup_groups_update(__pmnsTree *);
-
+extern int refresh_cgroup_subsys(pmInDom);
+extern char *cgroup_find_subsys(pmInDom indom, const char *);
+extern void refresh_cgroup_groups(pmInDom indom, __pmnsTree **);
+extern void cgroup_init(void);

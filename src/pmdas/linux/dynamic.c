@@ -17,19 +17,24 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "indom.h"
 #include "dynamic.h"
+#include "clusters.h"
 
 static struct dynamic {
     const char	*prefix;
-    int		cluster;	/* NB: each group must have a UNIQUE cluster */
     int		prefixlen;
+    int		clusters[NUM_CLUSTERS];
+    int		nclusters;
+    pmInDom	indom;
     pmnsUpdate	update;
     __pmnsTree 	*pmns;
 } *dynamic;
 static int dynamic_count;
 
 void
-linux_dynamic_pmns(const char *prefix, int cluster, pmnsUpdate update)
+linux_dynamic_pmns(const char *prefix, int *clusters, int nclusters,
+		    pmInDom indom, pmnsUpdate update)
 {
     int size = (dynamic_count+1) * sizeof(struct dynamic);
 
@@ -38,8 +43,10 @@ linux_dynamic_pmns(const char *prefix, int cluster, pmnsUpdate update)
 	return;
     }
     dynamic[dynamic_count].prefix = prefix;
-    dynamic[dynamic_count].cluster = cluster;
     dynamic[dynamic_count].prefixlen = strlen(prefix);
+    memcpy(dynamic[dynamic_count].clusters, clusters, nclusters * sizeof(int));
+    dynamic[dynamic_count].nclusters = nclusters;
+    dynamic[dynamic_count].indom = indom;
     dynamic[dynamic_count].update = update;
     dynamic[dynamic_count].pmns = NULL;
     dynamic_count++;
@@ -52,7 +59,7 @@ linux_dynamic_lookup_name(const char *name)
 
     for (i = 0; i < sizeof(dynamic) / sizeof(dynamic[0]); i++)
 	if (strncmp(name, dynamic[i].prefix, dynamic[i].prefixlen) == 0) {
-	    dynamic[i].update(dynamic[i].pmns);
+	    dynamic[i].update(dynamic[i].indom, &dynamic[i].pmns);
 	    return dynamic[i].pmns;
 	}
     return NULL;
@@ -61,13 +68,15 @@ linux_dynamic_lookup_name(const char *name)
 __pmnsTree *
 linux_dynamic_lookup_pmid(pmID pmid)
 {
-    int i;
+    int i, j;
     int cluster = pmid_cluster(pmid);
 
     for (i = 0; i < sizeof(dynamic) / sizeof(dynamic[0]); i++)
-	if (cluster == dynamic[i].cluster) {
-	    dynamic[i].update(dynamic[i].pmns);
-	    return dynamic[i].pmns;
+	for (j = 0; j < dynamic[i].nclusters; j++) {
+	    if (cluster == dynamic[i].clusters[j]) {
+		dynamic[i].update(dynamic[i].indom, &dynamic[i].pmns);
+		return dynamic[i].pmns;
+	    }
 	}
     return NULL;
 }
