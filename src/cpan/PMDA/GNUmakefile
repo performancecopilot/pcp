@@ -53,7 +53,7 @@ COPYING:
 	$(LN_S) $(TOPDIR)/COPYING COPYING
 
 test dist: PMDA.o
-	rm -f $(LPKGDIRT)
+	rm -rf $(LPKGDIRT)
 	$(PERLMAKE) -f Makefile $@
 
 include $(BUILDRULES)

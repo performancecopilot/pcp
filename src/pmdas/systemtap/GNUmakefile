@@ -33,7 +33,9 @@ endif
 
 LDIRT = domain.h root pmns *.log $(MAN_PAGES)
 
-default: $(MAN_PAGES)
+mydomain = $(shell sed -n pmda$(IAM).pl -e '/PCP::PMDA->new/s/[^0-9]*$$//' -e '/PCP::PMDA->new/s/^[^0-9]*//p')
+
+default: check_domain $(MAN_PAGES)
 
 pmda$(IAM).1: pmda$(IAM).pl
 	$(POD_MAKERULE)
@@ -51,3 +53,13 @@ endif
 default_pcp : default
 
 install_pcp : install
+
+check_domain:	../../pmns/stdpmid
+	@$(PCP_AWK_PROG) <$< '\
+BEGIN	{ domain = toupper("$(IAM)") }\
+$$1=="#define" && $$2 == domain { pmd=$$3; found++ }\
+END	{ if (found == 0) { print "Botch: no #define for domain " domain " in $<";  exit(1) }\
+          if (found > 1) { print "Botch: multiple #defines for domain " domain " in $<"; exit(1) }\
+	  if (pmd != $(mydomain)) { print "Botch: domain number in ../../pmns/stdpmid (" pmd ") does not match domain number in Perl source ($(mydomain))"; exit(1) }\
+	  exit(0)\
+	}'

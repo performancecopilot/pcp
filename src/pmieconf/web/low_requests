@@ -1,0 +1,50 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# 
+
+rule	web.low_requests
+	default	= "$rule$"
+	predicate =
+"some_host (
+    60 * web.allservers.requests.total $hosts$
+	< 60 * $threshold$ count/minute
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"The aggregate request rate for all web servers on the target host is
+below threshold requests per minute over the last sample interval.";
+
+string	rule
+	default	= "Low aggregate rate of web requests"
+	display	= no
+	modify	= no;
+
+double	threshold
+	default	= 1
+	help	=
+"Threshold minimum web requests per minute for all web servers on the
+target hosts.";
+
+string	action_expand
+	default	= "%vreqs@%h"
+	display	= no
+	modify	= no;
+
+string  email_expand
+	default	= "host: %h low web server request rate: %v/min"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string  esp_type
+	default	= "0x2000A5"
+	display	= no
+	modify	= no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

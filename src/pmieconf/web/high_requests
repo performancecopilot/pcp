@@ -1,0 +1,50 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# 
+
+rule	web.high_requests
+	default	= "$rule$"
+	predicate =
+"some_host (
+    web.allservers.requests.total $hosts$
+	> $threshold$ count/second
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"The aggregate request rate for all web servers on the target host is
+above threshold requests per second over the last sample interval.";
+
+string	rule
+	default	= "High aggregate rate of web requests"
+	display	= no
+	modify	= no;
+
+double	threshold
+	default	= 10
+	help	=
+"Threshold web requests per second for all web servers on the target
+hosts.";
+
+string	action_expand
+	default	= "%vreqs@%h"
+	display	= no
+	modify	= no;
+
+string  email_expand
+	default	= "host: %h high web server request rate: %v/sec"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string  esp_type
+	default	= "0x2000A4"
+	display	= no
+	modify	= no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

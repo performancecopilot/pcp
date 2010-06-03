@@ -1,3 +1,4 @@
 domain.h
+pmda_sendmail.dll
 pmda_sendmail.so
 sendmail

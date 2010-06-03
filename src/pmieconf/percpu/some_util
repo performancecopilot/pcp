@@ -1,0 +1,83 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+#
+
+rule	per_cpu.some_util
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_host (
+    some_inst (
+      ( 100 * ( kernel.percpu.cpu.user $hosts$ +
+		kernel.percpu.cpu.sys $hosts$ +
+		kernel.percpu.cpu.intr $hosts$ ) )
+	    > $threshold$
+    )
+    && hinv.ncpu $hosts$ > 1
+    && hinv.ncpu $hosts$ <= $max_cpu_count$
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"The processor utilization for at least one CPU exceeded threshold
+percent during the last sample interval.  Only applies to
+multi-processor systems with less than max_cpu_count processors -
+for single-processor systems refer to the cpu.util rule, and for
+multi-processor systems with more than max_cpu_count processors
+refer to the cpu.many_util rule.
+For Origin 200 and Origin 2000 systems, use the command
+  $ pminfo -f hinv.map.cpu
+to discover the abbreviated PCP names of the installed CPUs and
+their corresponding full names in the /hw file system.";
+
+string	rule
+	default	= "High per CPU processor utilization"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 95
+	help	=
+"Threshold percentage for CPU saturation, in the range 0 (idle)
+to 100 (completely busy)";
+
+unsigned	max_cpu_count
+	default	= 4
+	help	=
+"Upper limit on number of processors for this rule - this rule will
+apply to configurations of between two and max_cpu_count CPUs.
+For larger processor counts, the per_cpu.many_util rule may be more
+appropriate.";
+
+string	action_expand
+	default	= %v%util[%i]@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h CPU: %i utilization: %v%"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200059"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= per_cpu.some_util
+	display	= no
+	modify = no;
+string	enln_units
+	default	= %util[%i]
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

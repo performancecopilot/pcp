@@ -67,7 +67,13 @@ done \
 | sort -n -k2,3 \
 | uniq >$tmp.tmp
 
-error=false
+if [ -s "$tmp.tmp" ]
+then
+    error=false
+else
+    echo "$prog: Error: failed to create temporary file"
+    exit
+fi
 
 # scan for duplicate domain name, but different domain number
 #

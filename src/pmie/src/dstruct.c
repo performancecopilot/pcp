@@ -217,10 +217,21 @@ sleepTight(RealTime sched)
 
     if (!archives) {
 	struct timespec ts, tleft;
+	RealTime cur = getReal();
 
-	delay = sched - getReal();
+	delay = sched - cur;
+	if (delay < 0) {
+	    fprintf(stderr, "sleepTight: negative delay (%f). sched=%f, cur=%f\n",
+			delay, sched, cur);
+	}
+	
 	unrealizenano(delay, &ts);
 	for (;;) {	/* loop to catch early wakeup from nanosleep */
+	    if (ts.tv_sec < 0 || ts.tv_nsec > 999999999) {
+		fprintf(stderr, "sleepTight: invalid args: %ld %ld\n",
+			ts.tv_sec, ts.tv_nsec);
+		break;
+	    }
 	    sts = nanosleep(&ts, &tleft);
 	    if (sts == 0 || (sts < 0 && errno != EINTR))
 		break;

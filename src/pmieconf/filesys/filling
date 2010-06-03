@@ -1,0 +1,99 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# 
+
+rule	filesys.filling
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_host (
+    some_inst (
+	( 100 * filesys.used $hosts$ / filesys.capacity $hosts$ ) > $threshold$
+	&& filesys.used $hosts$ + 
+	    $lead_time$ * ( rate filesys.used $hosts$ ) >
+		filesys.capacity $hosts$
+    )
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"Filesystem is at least threshold percent full and the used space
+is growing at a rate that would see the filesystem full within
+lead_time.";
+
+string	rule
+	default	= "File system is filling up"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 95
+	help	=
+"The threshold of filesystem fullness expressed as a percentage,
+usually in the range 90 to 99.";
+
+string	lead_time
+	default = "20 min"
+	help =
+"The rule is true if the filesystem would be full within this time
+given the recent rate of growth.  Normally requires a scale such as
+\"sec\", \"min\" or \"hr\", otherwise the value is interpreted as
+meaning seconds.";
+
+string	delta
+	default = "4 mins"
+	help =
+"Sample interval between evaluations of this rule.  The calculation
+of the projected rate of growth is sensitive to variations in the
+observed fullness of the filesystem.  Adjust this parameter to be
+smaller if the filesystems' fullness are very stable and you want
+earlier warning of impending filling.  Else make the parameter
+larger to avoid false warnings if the filesystems are close to full
+in the normal state and subject to bursts of file creation and
+deletion.";
+
+string	action_expand
+	default	= %v%used[%i]@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h filesystem: %i used: %v%"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x20004A"
+	display	= no
+	modify	= no;
+
+# for HP OpenView integration:
+string	ov_severity
+	display	= no
+	default	= "Critical";
+
+# for CA/Unicenter TNG integration:
+string	tngfw_color
+	display	= no
+	default	= "Red";
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= filesys.filling
+	display	= no
+	modify = no;
+string	enln_units
+	default	= %used[%i]
+	display	= no
+	modify = no;
+unsigned	enln_severity
+	display = no
+	default = 5;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

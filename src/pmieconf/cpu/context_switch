@@ -1,0 +1,59 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+#
+
+rule	cpu.context_switch
+	summary	= "$rule$"
+	predicate =
+"some_host (
+    kernel.all.pswitch $hosts$
+	> hinv.ncpu $hosts$ * $threshold$ count/sec
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"Average number of context switches per CPU per second exceeded
+threshold over the past sample interval.";
+
+string	rule
+	default	= "High aggregate context switch rate"
+	modify	= no
+	display	= no;
+
+double	threshold
+	default	= 4000
+	help	=
+"The threshold number of process context switches per second.";
+
+string	action_expand
+	default	= %vctxsw/s@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h aggregate context switches: %v/sec"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x20005C"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default = cpu.context_switch
+	display = no
+	modify = no;
+string	enln_units
+	default	= ctxsw/s
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
