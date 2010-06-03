@@ -341,7 +341,16 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
 #endif
 
                     if ((sts = __pmAddPMNSNode(lcp->l_pmns, dp->pmid, name)) < 0) {
-			goto end;
+			/*
+			 * If we see a duplicate PMID, its a recoverable error.
+			 * We wont be able to see all of the data in the log, but
+			 * its better to provide access to some rather than none,
+			 * esp. when only one or two metric IDs may be corrupted
+			 * in this way (which we may not be interested in anyway).
+			 */
+			if (sts != PM_ERR_PMID)
+			    goto end;
+			sts = 0;
 		    } 
 		}/*for*/
             }/*version2*/
