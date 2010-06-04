@@ -33,6 +33,9 @@ LDIRT = rules local $(TARGET) rate-syscalls \
 
 default_pcp: $(TARGET) makefiles rules pmlogger.config
 
+# for src-link-pcp target from buildrules
+$(SUBDIRS):	makefiles
+
 $(TARGET) : $(OBJECTS)
 
 pmieconf.o rules.o:    rules.h
