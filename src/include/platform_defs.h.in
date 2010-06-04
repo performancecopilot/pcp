@@ -507,7 +507,11 @@ extern const char *rindex(const char *, int);
 extern long int lrand48(void);
 extern void srand48(long int);
 
+#ifndef _TIMESPEC_DEFINED
+#define _TIMESPEC_DEFINED
 struct timespec { time_t tv_sec; long tv_nsec; };
+struct itimerspec { struct timespec it_interval; struct timespec it_value; };
+#endif
 extern int nanosleep(const struct timespec *, struct timespec *);
 extern unsigned int sleep(unsigned int);
 
