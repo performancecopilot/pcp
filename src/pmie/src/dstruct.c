@@ -220,10 +220,18 @@ sleepTight(RealTime sched)
 	RealTime cur = getReal();
 
 	delay = sched - cur;
-	if (delay < 0) {
+	if (delay <= -1) {
 	    fprintf(stderr, "sleepTight: negative delay (%f). sched=%f, cur=%f\n",
 			delay, sched, cur);
 	}
+#if PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL2) {
+	    if (delay < 0 && delay > -1) {
+		fprintf(stderr, "sleepTight: small negative delay (%f). sched=%f, cur=%f\n",
+			    delay, sched, cur);
+	    }
+	}
+#endif
 	
 	unrealizenano(delay, &ts);
 	for (;;) {	/* loop to catch early wakeup from nanosleep */
