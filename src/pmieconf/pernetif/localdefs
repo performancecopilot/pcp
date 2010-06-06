@@ -1,6 +1,8 @@
+RFILES = collisions errors packets util
+
 # Metrics missing from Linux
 #
 # rule: util
 #   network.interface.baudrate -12357 Unknown metric name
 #
-RFILES = errors packets collisions
+LINUX_RFILES = errors packets collisions

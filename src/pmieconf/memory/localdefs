@@ -1,1 +1,1 @@
-LINUX_RFILES	= swap_low exhausted
+FILES	= swap_low exhausted

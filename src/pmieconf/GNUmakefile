@@ -63,7 +63,9 @@ pmlogger.config: $(SUBDIRS)
 	@sort -u pmlogger.tmp | sed -e 's/^/    /' >>pmlogger.config
 	@echo "}" >>pmlogger.config
 
-install_pcp: default_pcp $(SUBDIRS)
+install_pcp: install
+
+install: default_pcp $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 $(TARGET) $(PCP_BIN_DIR)/$(TARGET)
 	$(INSTALL) -m 755 pmie_email $(PCP_BINADM_DIR)/pmie_email

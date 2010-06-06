@@ -1,3 +1,5 @@
+RFILES = buffer_cache dnlc_miss filling
+
 # Metrics missing from Linux
 #
 # rule: buffer_cache
@@ -10,4 +12,5 @@
 #   name_cache.removes -12357 Unknown metric name
 #   name_cache.searches -12357 Unknown metric name
 #
-RFILES = filling
+LINUX_RFILES = filling
+

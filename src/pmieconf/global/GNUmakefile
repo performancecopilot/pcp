@@ -32,7 +32,9 @@ CONFIGS	= $(subst "./","",$(DEFAULT))
 
 default_pcp: $(DEFAULT)
 
-install_pcp: default_pcp
+install_pcp: install
+
+install: default_pcp
 	$(INSTALL) -d $(RULES)/$(GROUP)
 	@for f in $(CONFIGS); do \
 	    $(INSTALL) -m 644 ../rules/$(GROUP)/$$f $(RULES)/$(GROUP)/$$f; \
