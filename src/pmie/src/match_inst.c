@@ -53,6 +53,12 @@ cndMatch_inst(Expr *x)
     }
 #endif
 
+    if (arg2->sem != SEM_REGEX) {
+	fprintf(stderr, "cndMatch_inst: internal botch arg2 not SEM_REGEX?\n");
+	dumpExpr(arg2);
+	exit(1);
+    }
+
     if (arg1->tspan > 0) {
 
 	mi = 0;

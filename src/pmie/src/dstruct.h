@@ -232,6 +232,7 @@ typedef struct task {
 #define SEM_TRUTH	11	/* truth value */
 #define SEM_CHAR	12	/* character (string) */
 #define SEM_NUMCONST	13	/* numeric constant value */
+#define SEM_REGEX	14	/* compiled regular expression */
 
 /* Expr operator (op) tokens */
 typedef int Op;
