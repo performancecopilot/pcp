@@ -61,12 +61,11 @@ int  resized(void)	{ return needresize; }
 
 #ifdef HAVE_SYS_IOCTL_H
 /* looks after window resizing for the printing routine */
-/*ARGSUSED*/
 void
 onwinch(int dummy)
 {
 #ifdef SIGWINCH
-    __pmSetSignalHandler(SIGWINCH, resize);
+    __pmSetSignalHandler(SIGWINCH, onwinch);
 #endif
     needresize = 1;
 }
