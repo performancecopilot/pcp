@@ -458,7 +458,7 @@ char *
 index(const char *string, int marker)
 {
     char *p;
-    for (p = string; *p != '\0'; p++)
+    for (p = (char *)string; *p != '\0'; p++)
 	if (*p == marker)
 	    return p;
     return NULL;
@@ -468,7 +468,7 @@ char *
 rindex(const char *string, int marker)
 {
     char *p;
-    for (p = string; *p != '\0'; p++)
+    for (p = (char *)string; *p != '\0'; p++)
 	;
     for (--p; p != string; p--)
 	if (*p == marker)
