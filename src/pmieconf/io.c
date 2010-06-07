@@ -67,7 +67,9 @@ int  resized(void)	{ return needresize; }
 void
 onwinch(int dummy)
 {
-    signal(SIGWINCH, onwinch);
+#ifdef SIGWINCH
+    __pmSetSignalHandler(SIGWINCH, resize);
+#endif
     needresize = 1;
 }
 #endif
