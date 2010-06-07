@@ -23,13 +23,20 @@ RULES	= $(PCP_VAR_DIR)/config/pmieconf
 LSRCFILES = localdefs $(RFILES)
 
 LDIRT	= GNUmakefile
+
+ifeq ($(TARGET_OS), linux)
+DEFAULT	= $(LINUX_RFILES)
+else
 DEFAULT	= $(RFILES)
+endif
 
 CONFIGS	= $(subst "./","",$(DEFAULT))
 
 default_pcp: $(DEFAULT)
 
-install_pcp: default_pcp
+install_pcp: install
+
+install: default_pcp
 	$(INSTALL) -d $(RULES)/$(GROUP)
 	@for f in $(CONFIGS); do \
 	    $(INSTALL) -m 644 $$f $(RULES)/$(GROUP)/$$f; \

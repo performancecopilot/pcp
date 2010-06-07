@@ -53,7 +53,13 @@ cndMatch_inst(Expr *x)
     }
 #endif
 
-    if (x->tspan > 0) {
+    if (arg2->sem != SEM_REGEX) {
+	fprintf(stderr, "cndMatch_inst: internal botch arg2 not SEM_REGEX?\n");
+	dumpExpr(arg2);
+	exit(1);
+    }
+
+    if (arg1->tspan > 0) {
 
 	mi = 0;
 	m = &arg1->metrics[mi++];
@@ -61,7 +67,7 @@ cndMatch_inst(Expr *x)
 	ip1 = (Truth *)(&arg1->smpls[0])->ptr;
 	op = (Truth *)(&x->smpls[0])->ptr;
 
-	for (n = 0; n < x->tspan; n++) {
+	for (n = 0; n < arg1->tspan; n++) {
 
 	    if (!arg2->valid || !arg1->valid) {
 		*op++ = DUNNO;

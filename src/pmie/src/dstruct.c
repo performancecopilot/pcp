@@ -220,10 +220,18 @@ sleepTight(RealTime sched)
 	RealTime cur = getReal();
 
 	delay = sched - cur;
-	if (delay < 0) {
+	if (delay <= -1) {
 	    fprintf(stderr, "sleepTight: negative delay (%f). sched=%f, cur=%f\n",
 			delay, sched, cur);
 	}
+#if PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL2) {
+	    if (delay < 0 && delay > -1) {
+		fprintf(stderr, "sleepTight: small negative delay (%f). sched=%f, cur=%f\n",
+			    delay, sched, cur);
+	    }
+	}
+#endif
 	
 	unrealizenano(delay, &ts);
 	for (;;) {	/* loop to catch early wakeup from nanosleep */
@@ -1015,6 +1023,7 @@ static struct {
     { SEM_NUMCONST,	"NUMCONST" },
     { SEM_TRUTH,	"TRUTH" },
     { SEM_CHAR,		"CHAR" },
+    { SEM_REGEX,	"REGEX" },
     { PM_SEM_COUNTER,	"COUNTER" },
     { PM_SEM_INSTANT,	"INSTANT" },
     { PM_SEM_DISCRETE,	"DISCRETE" },
@@ -1059,47 +1068,49 @@ __dumpExpr(int level, Expr *x)
     if (sem_map[j].name == NULL)
 	fprintf(stderr, "%d", x->sem);
     fprintf(stderr, " units=%s\n", pmUnitsStr(&x->units));
-    if (x->valid > 0 &&
-	(x->sem == SEM_TRUTH || x->sem == SEM_CHAR ||
-	 x->sem == SEM_NUMVAR || x->sem == SEM_NUMCONST ||
-	 x->sem == PM_SEM_COUNTER || x->sem == PM_SEM_INSTANT ||
-	 x->sem == PM_SEM_DISCRETE)) {
-	for (j = 0; j < x->nsmpls; j++) {
-	    for (i = 0; i < level; i++) fprintf(stderr, ".. ");
-	    fprintf(stderr, "  smpls[%d].ptr " PRINTF_P_PFX "%p ", j, x->smpls[j].ptr);
-	    for (k = 0; k < x->tspan; k++) {
-		if (x->tspan > 1) {
-		    if (k > 0)
-			fprintf(stderr, ", ");
-		    fprintf(stderr, "{%d} ", k);
+    if (x->valid > 0) {
+	if (x->sem == SEM_TRUTH || x->sem == SEM_CHAR ||
+	    x->sem == SEM_NUMVAR || x->sem == SEM_NUMCONST ||
+	    x->sem == PM_SEM_COUNTER || x->sem == PM_SEM_INSTANT ||
+	    x->sem == PM_SEM_DISCRETE) {
+	    for (j = 0; j < x->nsmpls; j++) {
+		for (i = 0; i < level; i++) fprintf(stderr, ".. ");
+		fprintf(stderr, "  smpls[%d].ptr " PRINTF_P_PFX "%p ", j, x->smpls[j].ptr);
+		for (k = 0; k < x->tspan; k++) {
+		    if (x->tspan > 1 && x->sem != SEM_CHAR) {
+			if (k > 0)
+			    fprintf(stderr, ", ");
+			fprintf(stderr, "{%d} ", k);
+		    }
+		    if (x->sem == SEM_TRUTH) {
+			char 	c = *((char *)x->smpls[j].ptr+k);
+			if ((int)c == TRUE)
+			    fprintf(stderr, "true");
+			else if ((int)c == FALSE)
+			    fprintf(stderr, "false");
+			else if ((int)c == DUNNO)
+			    fprintf(stderr, "unknown");
+			else
+			    fprintf(stderr, "bogus (0x%x)", c & 0xff);
+		    }
+		    else if (x->sem == SEM_CHAR) {
+			if (k == 0)
+			    fprintf(stderr, "\"%s\"", (char *)x->smpls[j].ptr);
+		    }
+		    else {
+			double	v = *((double *)x->smpls[j].ptr+k);
+			if (isnand(v))
+			    fputc('?', stderr);
+			else
+			    fprintf(stderr, "%g", v);
+		    }
 		}
-		if (x->sem == SEM_TRUTH) {
-		    char 	c = *((char *)x->smpls[j].ptr+k);
-		    if ((int)c == TRUE)
-			fprintf(stderr, "true");
-		    else if ((int)c == FALSE)
-			fprintf(stderr, "false");
-		    else if ((int)c == DUNNO)
-			fprintf(stderr, "unknown");
-		    else
-			fprintf(stderr, "bogus (0x%x)", c & 0xff);
-		}
-		else if (x->sem == SEM_CHAR) {
-		    char 	c = *((char *)x->smpls[j].ptr+k);
-		    if (isprint((int)c))
-			fprintf(stderr, "'%c'", c);
-		    else
-			fprintf(stderr, "0x%x", c & 0xff);
-		}
-		else {
-		    double	v = *((double *)x->smpls[j].ptr+k);
-		    if (isnand(v))
-			fputc('?', stderr);
-		    else
-			fprintf(stderr, "%g", v);
-		}
+		fputc('\n', stderr);
 	    }
-	    fputc('\n', stderr);
+	}
+	else if (x->sem == SEM_REGEX) {
+	    for (i = 0; i < level; i++) fprintf(stderr, ".. ");
+	    fprintf(stderr, "  handle=" PRINTF_P_PFX "%p\n", x->ring);
 	}
     }
 }

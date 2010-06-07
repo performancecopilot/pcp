@@ -305,7 +305,10 @@ actArgList(Expr *arg1, char *str)
     /* construct expression node for an action argument string */
     x = (Expr *) zalloc(sizeof(Expr));
     x->op = NOP;
-    x->ring = sdup(str);
+    x->smpls[0].ptr = x->ring = sdup(str);
+    x->valid = x->nsmpls = x->nvals = 1;
+    x->tspan = strlen(str);
+    x->sem = SEM_CHAR;
     if (arg1) {
 	x->arg1 = arg1;
 	arg1->parent = x;
@@ -387,8 +390,14 @@ binaryExpr(int op, Expr *arg1, Expr *arg2)
 	    fprintf(stderr, "binaryExpr: regex=\"%s\" handle=" PRINTF_P_PFX "%p\n", (char *)arg2->ring, pat);
 	}
 #endif
+	/*
+	 * change operand from the string form of the pattern to the
+	 * compiled regex
+	 */
 	free(arg2->ring);
+	arg2->tspan = 1;
 	arg2->ring = pat;
+	arg2->sem = SEM_REGEX;
 	sts = 1;
 	arg = arg1;
     }
@@ -690,9 +699,10 @@ strConst(char *s)
     Expr    *x;
     int	    n = (int) strlen(s) + 1;
 
-    x = newExpr(NOP, NULL, NULL, -1, n, -1, 1, SEM_CHAR);
+    x = newExpr(NOP, NULL, NULL, -1, -1, -1, 1, SEM_CHAR);
+    x->valid = 1;
+    x->tspan = n;
     newRingBfr(x);
-    x->valid = n;
     strcpy((char *)x->ring, s);
     return x;
 }
