@@ -168,14 +168,14 @@ pprintf(char *format, ...)
 {
     char		*p;
     va_list		args;
-#ifdef HAVE_SYS_IOCTL_H
+#ifdef HAVE_TIOCGWINSZ
     struct winsize	geom;
 #endif
     static int		first = 1;
 
     if (first == 1) {	/* first time thru */
 	first = 0;
-#ifdef HAVE_SYS_IOCTL_H
+#ifdef HAVE_TIOCGWINSZ
 	ioctl(0, TIOCGWINSZ, &geom);
 	nrows = (geom.ws_row < MINROWS? MINROWS : geom.ws_row);
 	ncols = (geom.ws_col < MINCOLS? MINCOLS : geom.ws_col);
@@ -209,7 +209,7 @@ pprintf(char *format, ...)
 	vfprintf(stdout, format, args);
     va_end(args);
     if (needresize) {
-#ifdef HAVE_SYS_IOCTL_H
+#ifdef HAVE_TIOCGWINSZ
 	ioctl(0, TIOCGWINSZ, &geom);
 	nrows = (geom.ws_row < MINROWS? MINROWS : geom.ws_row);
 	ncols = (geom.ws_col < MINCOLS? MINCOLS : geom.ws_col);

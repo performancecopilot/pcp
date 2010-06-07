@@ -314,7 +314,7 @@ static void timeposition(struct timeval position)
     header = 1;
 }
 
-#ifdef HAVE_SYS_IOCTL_H
+#ifdef HAVE_TIOCGWINSZ
 static void
 resize(int sig)
 {

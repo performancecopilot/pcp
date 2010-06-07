@@ -721,7 +721,7 @@ AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(gettimeofday mktime nanosleep unsetenv)
 AC_CHECK_FUNCS(gethostname hstrerror select socket)
-AC_CHECK_FUNCS(uname syslog __clone fcntl)
+AC_CHECK_FUNCS(uname syslog __clone fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown getcwd scandir mkstemp getpwnam)
 AC_CHECK_FUNCS(brk sbrk memalign valloc)
@@ -811,9 +811,7 @@ AC_TRY_LINK(
     char **x = _environ;
 ], AC_DEFINE(HAVE_UNDERBAR_ENVIRON))
 
-dnl check for PR_TERMCHILD and PR_SET_PDEATHSIG in prctl
-dnl since autconf like to be unreasonable, it's going to be cut&paste
-dnl programming
+dnl check for PR_TERMCHILD and PR_SET_PDEATHSIG in <sys/prctl.h>
 if test "$ac_cv_func_prctl" = "yes"
 then
 AC_MSG_CHECKING([for PR_TERMCHILD constants in sys/prctl.h])
@@ -832,6 +830,19 @@ AC_TRY_COMPILE(
 [
     int i = PR_SET_PDEATHSIG;
 ], AC_DEFINE(HAVE_PR_SET_PDEATHSIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+fi
+
+dnl check for TIOCGWINSZ in <sys/ioctl.h>
+if test "$ac_cv_func_ioctl" = "yes"
+then
+AC_MSG_CHECKING([for TIOCGWINSZ constant in sys/ioctl.h])
+AC_TRY_COMPILE(
+[
+    #include <sys/ioctl.h>
+],
+[
+    int i = TIOCGWINSZ;
+], AC_DEFINE(HAVE_TIOCGWINSZ) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 fi
 
 dnl check if linker needs -rdynamic for dynamically loaded shared

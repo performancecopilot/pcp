@@ -51,8 +51,6 @@ static int	numvalid;
 static int	warn = 1;
 
 extern int	lineno;
-extern int	errno;
-
 
 typedef struct _hl {
     struct _hl	*hl_next;

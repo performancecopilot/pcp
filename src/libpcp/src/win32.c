@@ -454,20 +454,20 @@ srand48(long int seed)
     srand(seed);
 }
 
-const char *
+char *
 index(const char *string, int marker)
 {
-    const char *p;
+    char *p;
     for (p = string; *p != '\0'; p++)
 	if (*p == marker)
 	    return p;
     return NULL;
 }
 
-const char *
+char *
 rindex(const char *string, int marker)
 {
-    const char *p;
+    char *p;
     for (p = string; *p != '\0'; p++)
 	;
     for (--p; p != string; p--)

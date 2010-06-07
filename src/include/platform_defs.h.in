@@ -231,6 +231,7 @@ extern "C" {
 #undef HAVE_SIGHOLD
 #undef HAVE_SIGRELSE
 #undef HAVE_TCGETATTR
+#undef HAVE_TIOCGWINSZ
 
 #undef HAVE_REGEX
 #undef HAVE_REGCMP
@@ -502,8 +503,8 @@ typedef void (*SIG_PF) (int);
 
 extern void setlinebuf(FILE *);
 extern const char *hstrerror(int);
-extern const char *index(const char *, int);
-extern const char *rindex(const char *, int);
+extern char *index(const char *, int);
+extern char *rindex(const char *, int);
 extern long int lrand48(void);
 extern void srand48(long int);
 
