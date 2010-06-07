@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include "pmapi.h"
+#include "impl.h"
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
@@ -53,9 +54,6 @@ static char	longmsg[] = \
 #ifdef HAVE_TERMIO_H
 static struct termio	otty;
 #endif
-
-extern char	*pmProgname;
-
 
 void setio(int reset)	{ neols = 0; skiprest = reset; }
 void setscroll(void)	{ needscroll = 1; }
