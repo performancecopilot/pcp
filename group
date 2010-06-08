@@ -26,7 +26,7 @@ pmdumplog	pcpqa
 pmlogger	pcpqa
 # pmview app
 pmview		pcpqa
-# pmie app, sample rules, pmrules, pmieconf and friends
+# pmie app, sample rules and friends
 pmie		pcpqa
 # dbpmda app
 dbpmda		pcpqa
