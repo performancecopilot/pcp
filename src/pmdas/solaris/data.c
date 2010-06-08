@@ -23,6 +23,12 @@
 #include <ctype.h>
 #include <libzfs.h>
 
+static pmdaInstid loadavg_insts[] = {
+	{1, "1 minute"},
+	{5, "5 minutes"},
+	{15, "15 minutes"}
+};
+
 /*
  * List of instance domains ... we expect the *_INDOM macros
  * to index into this table.
@@ -35,8 +41,10 @@ pmdaIndom indomtab[] = {
     { ZFS_INDOM, 0, NULL },
     { ZPOOL_PERDISK_INDOM, 0, NULL },
     { NETLINK_INDOM},
-    { ZFS_SNAP_INDOM }
+    { ZFS_SNAP_INDOM },
+    { LOADAVG_INDOM, 3, loadavg_insts}
 };
+
 int indomtab_sz = sizeof(indomtab) / sizeof(indomtab[0]);
 
 pmdaMetric *metrictab;
@@ -665,13 +673,17 @@ metricdesc_t metricdesc[] = {
 /* zfs.snapshot.compression */
     { { PMDA_PMID(0,134), PM_TYPE_DOUBLE, ZFS_SNAP_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
-      }, M_ZFS, ZFS_PROP_COMPRESSRATIO }
+      }, M_ZFS, ZFS_PROP_COMPRESSRATIO },
+/* kernel.all.load */
+    { { PMDA_PMID(0,135), PM_TYPE_FLOAT, LOADAVG_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_SYSINFO, 0 }
 
 /* remember to add trailing comma before adding more entries ... */
 };
 int metrictab_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);
 
-kstat_ctl_t 		*kc;
+kstat_ctl_t		*kc;
 
 void
 init_data(int domain)
