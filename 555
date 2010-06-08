@@ -194,6 +194,8 @@ grep '\['$!']:' /tmp/syslog \
     -e "s/\\[$!]/[PID]/" \
     -e "s/`hostname | sed -e 's/\..*//'` /HOST /" \
     -e 's/[0-9][A-Z]:HOST/HOST/' \
+    | LC_COLLATE=POSIX sort \
+    | uniq
 
 # success, all done
 status=0
