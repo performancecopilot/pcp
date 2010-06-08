@@ -1,1 +1,2 @@
-FILES	= swap_low exhausted
+RFILES	= swap_low exhausted
+LINUX_RFILES = $(RFILES)

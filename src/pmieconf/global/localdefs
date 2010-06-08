@@ -1,1 +1,2 @@
 RFILES = enln_actions tngfw_actions parameters ov_actions pcp_actions
+LINUX_RFILES = 

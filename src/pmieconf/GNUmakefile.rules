@@ -20,8 +20,6 @@ WORKDIR	:= $(shell pwd)
 GROUP	:= $(shell basename $(WORKDIR))
 RULES	= $(PCP_VAR_DIR)/config/pmieconf
 
-LSRCFILES = localdefs $(RFILES)
-
 LDIRT	= GNUmakefile
 
 ifeq ($(TARGET_OS), linux)
@@ -29,6 +27,8 @@ DEFAULT	= $(LINUX_RFILES)
 else
 DEFAULT	= $(RFILES)
 endif
+
+LSRCFILES = localdefs $(DEFAULT)
 
 CONFIGS	= $(subst "./","",$(DEFAULT))
 

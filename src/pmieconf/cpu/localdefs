@@ -1,2 +1,3 @@
-FILES = util syscall context_switch system load_average \
+RFILES = util syscall context_switch system load_average \
 	excess_fpe low_util
+LINUX_RFILES = $(RFILES)
