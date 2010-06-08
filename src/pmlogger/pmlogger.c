@@ -19,32 +19,30 @@
 #include <ctype.h>
 #include <limits.h>
 #include <sys/stat.h>
-#include "pmapi.h"
-#include "impl.h"
 #include "logger.h"
 
-char		*configfile = NULL;
+char		*configfile;
 __pmLogCtl	logctl;
 int		exit_samples = -1;       /* number of samples 'til exit */
 long		exit_bytes = -1;         /* number of bytes 'til exit */
-long		vol_bytes = 0;		/* total in earlier volumes */
+long		vol_bytes;		 /* total in earlier volumes */
 struct timeval  exit_time;               /* time interval 'til exit */
 int		vol_switch_samples = -1; /* number of samples 'til vol switch */
 long		vol_switch_bytes = -1;   /* number of bytes 'til vol switch */
 struct timeval	vol_switch_time;         /* time interval 'til vol switch */
-int		vol_samples_counter = 0; /* Counts samples - reset for new vol*/
+int		vol_samples_counter;     /* Counts samples - reset for new vol*/
 int		vol_switch_afid = -1;    /* afid of event for vol switch */
-int		parse_done = 0;
-int		primary = 0;		/* Non-zero for primary pmlogger */
+int		parse_done;
+int		primary;		/* Non-zero for primary pmlogger */
 char	    	*archBase;		/* base name for log files */
-char		*pmcd_host = NULL;
+char		*pmcd_host;
 struct timeval	epoch;
 int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
-int		linger = 0;		/* linger with no tasks/events */
-int		rflag = 0;		/* report sizes */
+int		linger;			/* linger with no tasks/events */
+int		rflag;			/* report sizes */
 struct timeval	delta = { 60, 0 };	/* default logging interval */
-int		unbuffered = 0;		/* is -u specified? */
-int		qa_case = 0;		/* QA error injection state */
+int		unbuffered;		/* is -u specified? */
+int		qa_case;		/* QA error injection state */
 
 static int 	    pmcdfd;		/* comms to pmcd */
 static int	    ctx;		/* handle correspondong to ctxp below */
@@ -52,11 +50,8 @@ static __pmContext  *ctxp;		/* pmlogger has just this one context */
 static fd_set	    fds;		/* file descriptors mask for select */
 static int	    numfds;		/* number of file descriptors in mask */
 
-extern struct timeval	last_stamp;
-extern int		ctlfd, clientfd;
-
 static int	rsc_fd = -1;	/* recording session control see -x */
-static int	rsc_replay = 0;
+static int	rsc_replay;
 static time_t	rsc_start;
 static char	*rsc_prog = "<unknown>";
 static char	*folio_name = "<unknown>";
@@ -480,7 +475,6 @@ main(int argc, char **argv)
     int			i;
     task_t		*tp;
     optcost_t		ocp;
-    extern void		init_ports(void);
     fd_set		readyfds;
     char		*p;
     char		*runtime = NULL;
@@ -707,9 +701,9 @@ Options:\n\
      */
     ctxp = __pmHandleToPtr(ctx);
     pmcdfd = ctxp->c_pmcd->pc_fd;
+    pmcd_host = ctxp->c_pmcd->pc_hosts[0].name;
 
     if (configfile != NULL) {
-	extern FILE * yyin;
 	if ((yyin = fopen(configfile, "r")) == NULL) {
 	    fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
 		pmProgname, configfile, strerror(errno));
@@ -732,7 +726,6 @@ Options:\n\
 	exit(1);
 
     if ( configfile != NULL ) {
-	extern FILE * yyin;
 	fclose(yyin);
     }
 
@@ -864,8 +857,6 @@ Options:\n\
 
     for ( ; ; ) {
 	int		nready;
-	extern int	control_req(void);
-	extern int	client_req(void);
 
 	memcpy(&readyfds, &fds, sizeof(readyfds));
 	nready = select(numfds, &readyfds, NULL, NULL, NULL);
