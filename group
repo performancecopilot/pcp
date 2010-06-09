@@ -590,7 +590,12 @@ derive		pcpqa
 353 pmsocks remote oss
 354 folio local oss sanity
 355 trace local pmda.install oss sanity
+356 derive local oss
 357 other local oss
+358 pmie local oss
+359 pmcd pminfo sanity local oss
+360 pmie remote oss
+361 pmda.linux local oss
 363 logutil local oss
 365 pmcd remote oss
 367 pdu local trace oss
@@ -916,7 +921,3 @@ derive		pcpqa
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
-356 derive local oss
-358 pmie local oss
-359 pmcd pminfo sanity local oss
-360 pmie remote oss

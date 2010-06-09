@@ -1,0 +1,20 @@
+QA output created by 361
+initial fetch, starting with a clean slate
+cgroup.mounts.subsys 0
+cgroup.mounts.count 1 0
+cpuset metrics fetch, no user groups defined, single controller
+cgroup.mounts.subsys PMID: 60.38.0
+cgroup.mounts.count PMID: 60.38.1
+cgroup.groups.cpuset.tasks.pid PMID: 60.40.0
+cgroup.groups.cpuset.mems PMID: 60.39.2
+cgroup.groups.cpuset.cpus PMID: 60.39.1
+cpuacct and cpuset fetch, no user groups defined, dual controllers
+cgroup.mounts.subsys PMID: 60.38.0
+cgroup.mounts.count PMID: 60.38.1
+cgroup.groups.cpuacct.tasks.pid PMID: 60.42.0
+cgroup.groups.cpuacct.usage PMID: 60.41.5
+cgroup.groups.cpuacct.usage_percpu PMID: 60.41.4
+cgroup.groups.cpuacct.stat PMID: 60.41.3
+cgroup.groups.cpuset.tasks.pid PMID: 60.40.0
+cgroup.groups.cpuset.mems PMID: 60.39.2
+cgroup.groups.cpuset.cpus PMID: 60.39.1
