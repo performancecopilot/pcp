@@ -1,0 +1,42 @@
+#pmieconf-rules 1
+#
+
+rule	network.tcp_dropped_conns
+	default	= "$rule$"
+	predicate =
+"some_host (
+  ( 100 * ( network.tcp.drops $hosts$ +
+	network.tcp.conndrops $hosts$ +
+	    network.tcp.timeoutdrop $hosts$ ) /
+		network.tcp.connects $hosts$ ) > $threshold$ &&
+  network.tcp.connects $hosts$ > 20 count/minute
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"There is some TCP connection activity (at least 20 connections
+per minute) and the average ratio of TCP dropped connections to
+successful connections exceeds threshold percent during the last
+sample interval.
+High drop rates indicate either network congestion (check the packet
+retransmission rate) or an application like a Web browser that is
+prone to terminating TCP connections prematurely, perhaps due to
+sluggish response or user impatience.";
+
+string	rule
+	default	= "high number of dropped TCP connections"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 20
+	help	=
+"Maximum acceptable percentage of dropped TCP connections per new
+TCP connection, in the range 0 (not expecting any connections to be
+dropped) to 100 (expect most connections to be dropped).";
+
+string	action_expand
+	default	= "%v%@%h"
+	display	= no
+	modify	= no;
+

@@ -1,0 +1,39 @@
+#pmieconf-rules 1
+#
+
+rule	network.tcp_retransmit
+	default	= "$rule$"
+	predicate =
+"some_host (
+  ( 100 * ( network.tcp.sndrexmitpack $hosts$ +
+    network.tcp.rexmttimeo $hosts$ ) /
+        network.tcp.sndpack $hosts$ ) > $threshold$ &&
+  network.tcp.sndpack $hosts$ > 100 count/second
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"There is some network output activity (at least 100 TCP packets per
+second) and the average ratio of retransmitted TCP packets to output
+TCP packets exceeds threshold percent during the last sample
+interval.
+High retransmission rates are suggestive of network congestion, or
+long latency between the end-points of the TCP connections.";
+
+string	rule
+	default	= "high number of TCP packet retransmissions"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 20
+	help	=
+"Maximum acceptable percentage of retransmiited TCP packets per TCP
+output packet, in the range 0 (not expecting any retransmission) to
+100 (chronic saturation on the network).";
+
+string	action_expand
+	default	= "%v%@%h"
+	display	= no
+	modify	= no;
+

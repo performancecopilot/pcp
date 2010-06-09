@@ -1,0 +1,10 @@
+#pmieconf-rules 1
+# 
+
+shell	global.sss_action
+	enabled	= no
+	default	= "/usr/bin/sslogger -cSSTOOLS -tPERFORMANCE -m '$rule$^ $action_expand$^'"
+	help	=
+"The SSS (System Support Software) framework for the support of SGI
+systems will be notified when the rule condition is true.";
+
