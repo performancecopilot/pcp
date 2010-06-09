@@ -241,6 +241,7 @@ _filter_top_pmns()
 	-e '/^    bonding /d' \
 	-e '/^    brocade /d' \
 	-e '/^    broken /d' \
+	-e '/^    cgroup /d' \
 	-e '/^    cisco /d' \
 	-e '/^    datatape /d' \
 	-e '/^    dbping /d' \
