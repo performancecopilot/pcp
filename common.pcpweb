@@ -8,20 +8,6 @@
 . ./localconfig
 . ./common.product
 
-_notrun()
-{
-    echo "$1" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-}
-
-_fail()
-{
-    echo "FAIL: $1" 1>&2
-    status=1
-    exit 0
-}
-
 _installed()
 {
     versions $1 | fgrep $1 > /dev/null 2>&1
@@ -49,13 +35,13 @@ _save_state()
     if [ -f $PCP_VAR_DIR/config/web/webping.conf ]
     then
         $sudo cp $PCP_VAR_DIR/config/web/webping.conf $PCP_VAR_DIR/config/web/webping.conf.$seq \
-            || _fail "couln't save webping.conf"
+            || _fail "couldn't save webping.conf"
     fi
     
     if [ -f $PCP_VAR_DIR/config/web/webdefaults ]
     then
         $sudo cp $PCP_VAR_DIR/config/web/webdefaults $PCP_VAR_DIR/config/web/webdefaults.$seq \
-            || _fail "couln't save webdefaults"
+            || _fail "couldn't save webdefaults"
     fi
 }
 

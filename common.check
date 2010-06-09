@@ -4,6 +4,26 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+# common routine for preventing a test from running on some platforms
+# use: _notrun "Reason for not running this test is ..."
+# 
+_notrun()
+{
+    echo $@ >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+}
+
+# common routine for failing a test in a standard way
+# use: _fail "Reason for failing this test is ..."
+#
+_fail()
+{
+    echo FAIL: $@ 1>&2
+    status=1
+    exit $status
+}
+
 # host(1) examples
 #
 # 6:39 pcpqa@soggy ~ 10% host 134.14.55.202
@@ -331,8 +351,6 @@ _run_purify()
 
 _filter_purify()
 {
-
-    
     $PCP_AWK_PROG '
 state == 0 && /License successfully checked out/	{ state = 1; next }
 state == 0 && /Purify checking enabled/			{ state = 1; next }
@@ -358,23 +376,10 @@ extra != "" && /Current file descriptors/	{ print "..."; skip = 1 }' \
 
 _check_purify()
 {
-    if [ $# -ne 1 ]
-    then
-	echo "_check_purify needs executable as argument" >$seq.notrun
-	echo "$seq: [not run] `cat $seq.notrun`"
-	exit 1
-    fi
-
+    [ $# -eq 1 ] || _notrun "_check_purify needs executable as argument"
     _path=$1
-
-    if which purify >/dev/null 2>&1
-    then
-	:
-    else
-	echo "No purify found" >$seq.notrun
-	echo "$seq: [not run] `cat $seq.notrun`"
-	exit 0
-    fi
+    which purify >/dev/null 2>&1
+    [ $? -eq 0 ] || _notrun "No purify binary found"
 }
 
 #

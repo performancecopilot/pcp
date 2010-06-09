@@ -11,7 +11,7 @@ trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 PMCD_CONNECT_TIMEOUT=10
 export PMCD_CONNECT_TIMEOUT
 
-_fail()
+_fail_check()
 {
     echo "... check failed!"
     exit 1
@@ -107,7 +107,7 @@ done
 
 # no point proceeding if any of these files are missing
 #
-$fail && _fail
+$fail && _fail_check
 
 if [ ! -f localconfig ]
 then
@@ -118,12 +118,12 @@ then
 	make setup | egrep -v 'Entering|Leaving|Nothing'
     else
 	echo "$0: Error: need to fix failure in mk.localconfig"
-	_fail
+	_fail_check
     fi
     if [ ! -f localconfig ]
     then
 	echo "$0: Error: mk.localconfig failed to create the file \"localconfig\""
-	_fail
+	_fail_check
     fi
 fi
 
@@ -238,7 +238,7 @@ done
 
 # no point proceeding if any of these files are missing
 #
-$fail && _fail
+$fail && _fail_check
 
 # down to the common.config things ... these are the most contentious
 # and the ones that need local tuning ...
@@ -271,7 +271,7 @@ done
 
 # no point proceeding if any of these variables are not set
 #
-$fail && _fail
+$fail && _fail_check
 
 # the other pmcd's we think we can talk to ...
 #
@@ -279,7 +279,7 @@ make qa_hosts >/dev/null 2>&1
 if [ ! -f qa_hosts ]
 then
     echo "$0: Error: make failed to create the file \"qa_hosts\""
-    _fail
+    _fail_check
 fi
 
 # failures here are not fatal ... some of the hosts may be off with the
@@ -357,14 +357,14 @@ done
 
 # no point proceeding if any of these cannot be contacted
 #
-$fail && _fail
+$fail && _fail_check
 
 echo "Check the sanity of these:"
 echo -n "  \$PCP_PLATFORM=$PCP_PLATFORM [y] ? "
 read ans
-[ ! -z "$ans" -a "$ans" != y ] && _fail
+[ ! -z "$ans" -a "$ans" != y ] && _fail_check
 echo -n "  \$PCP_VERSION=$PCP_VERSION [y] ? "
 read ans
-[ ! -z "$ans" -a "$ans" != y ] && _fail
+[ ! -z "$ans" -a "$ans" != y ] && _fail_check
 
 exit 0
