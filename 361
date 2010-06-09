@@ -27,7 +27,7 @@ sudo=`pwd`/sudo
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-[ $PCP_PLATFORM == linux ] || _notrun "Tests pmdalinux functionality on Linux"
+[ $PCP_PLATFORM = linux ] || _notrun "Tests pmdalinux functionality on Linux"
 [ -f /proc/cgroups ] || _notrun "No support for cgroups in the running kernel"
 grep -q cgroup /proc/mounts && _notrun "One or more cgroups already in use"
 grep -q cpuacct /proc/cgroups || _notrun "No cpuacct cgroup support"
