@@ -2,7 +2,7 @@
 # PCP QA Test No. 055
 # $Revision: 2.17 $
 # pmie basic expression evaluation and scheduling
-# (pmie gets metrics from other hosts and cannot be in the local group)
+# for remote version using other hosts, see 360
 #
 owner=ania
 #
@@ -25,12 +25,6 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 rm -f $seq.full
 
 # here are the exercises
-echo " `./getpmcdhosts -L -v 'pcp>=2' -n 2 -a sample`" \
-| sed >$tmp.config \
-    -e "s/ \([^ ][^ ]*\)/ :'\1'/g" \
-    -e 's/^/hosts = "/' \
-    -e 's/$/";/'
-
 cat >>$tmp.config << \EOF
 delta = 1 sec;
 
@@ -93,26 +87,9 @@ time_gt4     = sample.float.ten @0..2 > sample.float.ten @0..2 + 1;
 
 delta = 2 sec;
 
-// host domain exercises
-host_fetch   = sample.long.ten $hosts;
-host_neg     = -sample.long.ten $hosts;
-host_sum     = sum_host sample.long.ten $hosts;
-host_avg     = avg_host sample.long.ten $hosts;
-host_max     = max_host sample.long.ten $hosts;
-host_min     = min_host sample.long.ten $hosts;
-host_count   = count_host sample.long.ten $hosts >= 10;
-host_add1    = sample.long.ten $hosts + sample.long.ten $hosts;
-host_add2    = sample.long.ten $hosts + 1;
-host_add3    = 1 + sample.long.ten $hosts;
-host_gt1     = sample.long.ten $hosts + 1 > sample.long.ten $hosts;
-host_gt2     = sample.long.ten $hosts > 11;
-
 // multiple domains
 multi1       = sum_sample avg_inst sample.bin @0..2;
 multi2       = avg_inst sum_sample sample.bin @0..2;
-multi3       = max_sample sum_host avg_inst sample.bin $hosts @0..2;
-multi4       = sum_host max_sample avg_inst sample.bin $hosts @0..2;
-multi5       = avg_host min_sample count_inst sample.bin $hosts @0..2 > 400;
 
 delta = 3 sec;
 
