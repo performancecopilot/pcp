@@ -587,6 +587,7 @@ derive		pcpqa
 354 folio local oss
 355 trace local pmda.install oss
 357 other local oss
+358 pmda.linux local oss
 363 logutil local oss
 365 pmcd remote oss
 367 pdu local trace oss
