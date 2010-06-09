@@ -60,8 +60,6 @@
 #define PROC_DIR	"/proc/pinfo"
 #endif
 
-extern int	errno;
-
 char	errmsg[512];		/* error message buffer */
 char	rulepath[MAXPATHLEN+1];	/* root of rules files  */
 char	pmiefile[MAXPATHLEN+1];	/* pmie configuration file */

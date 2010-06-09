@@ -24,17 +24,17 @@
 static struct dynamic {
     const char	*prefix;
     int		prefixlen;
-    int		clusters[NUM_CLUSTERS];
     int		nclusters;
-    pmInDom	indom;
+    int		clusters[NUM_CLUSTERS];
     pmnsUpdate	update;
     __pmnsTree 	*pmns;
 } *dynamic;
+
 static int dynamic_count;
 
 void
 linux_dynamic_pmns(const char *prefix, int *clusters, int nclusters,
-		    pmInDom indom, pmnsUpdate update)
+		    pmnsUpdate update)
 {
     int size = (dynamic_count+1) * sizeof(struct dynamic);
 
@@ -44,39 +44,40 @@ linux_dynamic_pmns(const char *prefix, int *clusters, int nclusters,
     }
     dynamic[dynamic_count].prefix = prefix;
     dynamic[dynamic_count].prefixlen = strlen(prefix);
-    memcpy(dynamic[dynamic_count].clusters, clusters, nclusters * sizeof(int));
     dynamic[dynamic_count].nclusters = nclusters;
-    dynamic[dynamic_count].indom = indom;
+    memcpy(dynamic[dynamic_count].clusters, clusters, nclusters * sizeof(int));
     dynamic[dynamic_count].update = update;
     dynamic[dynamic_count].pmns = NULL;
     dynamic_count++;
 }
 
 __pmnsTree *
-linux_dynamic_lookup_name(const char *name)
+linux_dynamic_lookup_name(pmdaExt *pmda, const char *name)
 {
     int i;
 
-    for (i = 0; i < sizeof(dynamic) / sizeof(dynamic[0]); i++)
+    for (i = 0; i < dynamic_count; i++) {
 	if (strncmp(name, dynamic[i].prefix, dynamic[i].prefixlen) == 0) {
-	    dynamic[i].update(dynamic[i].indom, &dynamic[i].pmns);
+	    dynamic[i].update(pmda, &dynamic[i].pmns);
 	    return dynamic[i].pmns;
 	}
+    }
     return NULL;
 }
 
 __pmnsTree *
-linux_dynamic_lookup_pmid(pmID pmid)
+linux_dynamic_lookup_pmid(pmdaExt *pmda, pmID pmid)
 {
     int i, j;
     int cluster = pmid_cluster(pmid);
 
-    for (i = 0; i < sizeof(dynamic) / sizeof(dynamic[0]); i++)
+    for (i = 0; i < dynamic_count; i++) {
 	for (j = 0; j < dynamic[i].nclusters; j++) {
 	    if (cluster == dynamic[i].clusters[j]) {
-		dynamic[i].update(dynamic[i].indom, &dynamic[i].pmns);
+		dynamic[i].update(pmda, &dynamic[i].pmns);
 		return dynamic[i].pmns;
 	    }
 	}
+    }
     return NULL;
 }

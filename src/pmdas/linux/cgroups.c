@@ -15,30 +15,97 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "cgroups.h"
 #include "filesys.h"
 #include "dynamic.h"
 #include "clusters.h"
+#include <strings.h>
+#include <ctype.h>
 
-typedef void (*cgroup_names_t)(__pmnsTree *, int, const char *, const char *);
+typedef void (*cgroup_names_t)(__pmnsTree *, int, int, const char *);
 typedef void (*cgroup_fetch_t)(int, int);
 
-void cgroup_names_tasks(__pmnsTree *pmns, int index, const char *mnt, const char *grp) {}
-void cgroup_fetch_tasks(int index, int item) {}
+typedef struct {
+    int		item;
+    char	*suffix;
+} cgroup_metrics_t;
 
-void cgroup_names_cpusched(__pmnsTree *pmns, int index, const char *mnt, const char *grp) {}
-void cgroup_fetch_cpusched(int index, int item) {}
+cgroup_metrics_t cpusched_metrics[] = {
+	{ 0, "shares" }
+};
+static void cgroup_fetch_cpusched(int id, int item) { }
 
-void cgroup_names_cpuset(__pmnsTree *pmns, int index, const char *mnt, const char *grp) {}
-void cgroup_fetch_cpuset(int index, int item) {}
+cgroup_metrics_t cpuacct_metrics[] = {
+	{ 0, "stat" },
+	{ 1, "usage_percpu" },
+	{ 2, "usage" }
+};
+static void cgroup_fetch_cpuacct(int id, int item) { }
 
-void cgroup_names_cpuacct(__pmnsTree *pmns, int index, const char *mnt, const char *grp) {}
-void cgroup_fetch_cpuacct(int index, int item) {}
+cgroup_metrics_t cpuset_metrics[] = {
+	{ 0, "cpus" },
+	{ 1, "mems" }
+};
+static void cgroup_fetch_cpuset(int id, int item) { }
 
-void cgroup_names_memory(__pmnsTree *pmns, int index, const char *mnt, const char *grp) {}
-void cgroup_fetch_memory(int index, int item) {}
+cgroup_metrics_t memory_metrics[] = {
+	{ 0, "cache" },
+	{ 1, "rss" },
+	{ 2, "pgin" },
+	{ 3, "pgout" },
+	{ 4, "active_anon" },
+	{ 5, "inactive_anon" },
+	{ 6, "active_file" },
+	{ 7, "inactive_file" },
+	{ 8, "unevictable" },
+};
+static void cgroup_fetch_memory(int id, int item) { }
 
-void cgroup_names_netclass(__pmnsTree *pmns, int index, const char *mnt, const char *grp) {}
-void cgroup_fetch_netclass(int index, int item) {}
+cgroup_metrics_t netclass_metrics[] = {
+	{ 0, "classid" },
+};
+static void cgroup_fetch_netclass(int id, int item) { }
+
+static void
+translate(char *dest, const char *src, size_t size)
+{
+    char *p;
+
+    if (*src != '\0')	/* non-root */
+	*dest = '.';
+    strncpy(dest, src, size);
+    for (p = dest; *p; p++) {
+	if (*p == '/')
+	    *p = '.';
+    }
+}
+
+static int
+namespace(__pmnsTree *pmns, const char *cgrp, const char *grp, int proc_cluster,
+	  int domain, int cluster, int id, cgroup_metrics_t *mp, int count)
+{
+    int i;
+    pmID pmid;
+    char group[128];
+    char name[MAXPATHLEN];
+
+    translate(&group[0], grp, sizeof(group));
+
+    for (i = 0; i < count; i++) {
+	pmid = cgroup_pmid_build(domain, cluster, 0, ++id);
+	snprintf(name, sizeof(name), "cgroup.groups.%s%s.%s",
+					cgrp, group, mp[i].suffix);
+	__pmAddPMNSNode(pmns, pmid, name);
+    }
+
+    /* Any proc.* metric subset could be added here.  Just PIDs for now */
+    i = -1;	/* proc metric item */
+    pmid = cgroup_pmid_build(domain, proc_cluster, 0, ++i);
+    snprintf(name, sizeof(name), "cgroup.groups.%s%s.tasks.pid", cgrp, group);
+    __pmAddPMNSNode(pmns, pmid, name);
+    
+    return id;
+}
 
 int
 refresh_cgroup_subsys(pmInDom indom)
@@ -108,64 +175,135 @@ cgroup_find_subsys(pmInDom indom, const char *options)
 
 static struct {
     const char		*name;
-    cgroup_names_t	names;
+    int			cluster;
+    int			processes;
+    int			count;
+    int			padding;
+    cgroup_metrics_t	*metrics;
     cgroup_fetch_t	fetch;
 } controllers[] = {
-    { "cpu", cgroup_names_cpusched, cgroup_fetch_cpusched },
-    { "cpuset", cgroup_names_cpuset, cgroup_fetch_cpuset },
-    { "cpuacct", cgroup_names_cpuacct, cgroup_fetch_cpuacct },
-    { "memory", cgroup_names_memory, cgroup_fetch_memory },
-    { "net_cls", cgroup_names_netclass, cgroup_fetch_netclass },
+    {	.name = "cpu",
+	.cluster = CLUSTER_CPUSCHED_GROUPS,
+	.processes = CLUSTER_CPUSCHED_PROCS,
+	.metrics = cpusched_metrics,
+	.count = sizeof(cpusched_metrics) / sizeof(cpusched_metrics[0]),
+	.fetch = cgroup_fetch_cpusched,
+    },
+    {	.name = "cpuset",
+	.cluster = CLUSTER_CPUSET_GROUPS,
+	.processes = CLUSTER_CPUSET_PROCS,
+	.metrics = cpuset_metrics,
+	.count = sizeof(cpuset_metrics) / sizeof(cpuset_metrics[0]),
+	.fetch = cgroup_fetch_cpuset,
+    },
+    {	.name = "cpuacct",
+	.cluster = CLUSTER_CPUACCT_GROUPS,
+	.processes = CLUSTER_CPUACCT_PROCS,
+	.metrics = cpuacct_metrics,
+	.count = sizeof(cpuacct_metrics) / sizeof(cpuacct_metrics[0]),
+	.fetch = cgroup_fetch_cpuacct,
+    },
+    {	.name = "memory",
+	.cluster = CLUSTER_MEMORY_GROUPS,
+	.processes = CLUSTER_MEMORY_PROCS,
+	.metrics = memory_metrics,
+	.count = sizeof(memory_metrics) / sizeof(memory_metrics[0]),
+	.fetch = cgroup_fetch_memory,
+    },
+    {	.name = "net_cls",
+	.cluster = CLUSTER_NET_CLS_GROUPS,
+	.processes = CLUSTER_NET_CLS_PROCS,
+	.metrics = netclass_metrics,
+	.count = sizeof(netclass_metrics) / sizeof(netclass_metrics[0]),
+	.fetch = cgroup_fetch_netclass,
+    },
 };
 
+/* Ensure cgroup name can be used as a PCP namespace entry, ignore it if not */
 static int
-cgroup_scan(const char *mnt, const char *path, const char *options, int index, __pmnsTree *pmns)
+valid_pmns_name(char *name)
+{
+    if (!isalpha(name[0]))
+	return 0;
+    for (; *name != '\0'; name++)
+	if (!isalnum(*name) && *name != '_')
+	    return 0;
+    return 1;
+}
+
+static int
+cgroup_namespace(__pmnsTree *pmns, const char *options,
+		const char *cgrouppath, const char *cgroupname,
+		int domain, int id)
 {
     int i;
+
+    /* use options to tell which cgroup controller(s) are active here */
+    for (i = 0; i < sizeof(controllers)/sizeof(controllers[0]); i++) {
+	if (scan_filesys_options(options, controllers[i].name) == NULL)
+	    continue;
+	id = namespace(pmns, controllers[i].name, cgroupname,
+			     controllers[i].processes, domain,
+			     controllers[i].cluster, id,
+			     controllers[i].metrics, controllers[i].count);
+    }
+    return id;
+}
+
+static int
+cgroup_scan(const char *mnt, const char *path, const char *options,
+	    int domain, int id, __pmnsTree *pmns, int root)
+{
+    int length;
     DIR *dirp;
     struct stat sbuf;
     struct dirent *dp;
+    char *cgroupname;
     char cgrouppath[MAXPATHLEN];
 
-    if ((dirp = opendir(path)) == NULL)
+    if (root)
+	strncpy(cgrouppath, mnt, sizeof(cgrouppath));
+    else
+	snprintf(cgrouppath, sizeof(cgrouppath), "%s/%s", mnt, path);
+
+    if ((dirp = opendir(cgrouppath)) == NULL)
 	return -errno;
 
+    length = strlen(cgrouppath);
+    cgroupname = &cgrouppath[length];
+
+    id = cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain, id);
+
     /*
-     * readdir - descend into directories to find all cgroups - populate namespace
-     * with <groupname>/metrics-for-each-active-controller.  Normalise group name!
+     * readdir - descend into directories to find all cgroups, then
+     * populate namespace with <controller>[.<groupname>].<metrics>
      */
     while ((dp = readdir(dirp)) != NULL) {
-	if (dp->d_name[0] == '.')
+	if (!valid_pmns_name(dp->d_name))
 	    continue;
-	sprintf(cgrouppath, "%s/%s", path, dp->d_name);
+	snprintf(cgrouppath, sizeof(cgrouppath), "%s/%s/%s",
+			mnt, path, dp->d_name);
+	cgroupname = &cgrouppath[length];
 	if (stat(cgrouppath, &sbuf) < 0)
 	    continue;
 	if (!(S_ISDIR(sbuf.st_mode)))
 	    continue;
 
-	cgroup_names_tasks(pmns, index, mnt, cgrouppath);
-
-	/* use options to tell what controllers are active (and hence which metrics) */
-	for (i = 0; i < sizeof(controllers)/sizeof(controllers[0]); i++) {
-	    if (scan_filesys_options(options, controllers[i].name) == NULL)
-		continue;
-	    controllers[i].names(pmns, index, mnt, cgrouppath);
-	}
-	index++;
+        id = cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain, id);
 
 	/* also scan for any child cgroups */
-        index = cgroup_scan(mnt, cgrouppath, options, index, pmns);
+        id = cgroup_scan(mnt, cgrouppath, options, domain, id, pmns, 0);
     }
     closedir(dirp);
 
-    return index;
+    return id;
 }
 
 void
-refresh_cgroup_groups(pmInDom mounts, __pmnsTree **pmns)
+refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 {
     filesys_t *fs;
-    int sts, count = 0;
+    int sts, count = 0, domain = pmda->e_domain;
     __pmnsTree *tree = pmns ? *pmns : NULL;
 
     if (tree)
@@ -183,9 +321,8 @@ refresh_cgroup_groups(pmInDom mounts, __pmnsTree **pmns)
     while ((sts = pmdaCacheOp(mounts, PMDA_CACHE_WALK_NEXT)) != -1) {
 	if (!pmdaCacheLookup(mounts, sts, NULL, (void **)&fs))
 	    continue;
-
 	/* walk this cgroup mount finding groups (subdirs) */
-	count = cgroup_scan(fs->path, "", fs->options, count, tree);
+	count = cgroup_scan(fs->path, "", fs->options, domain, count, tree, 1);
     }
 
     if (pmns)
@@ -195,12 +332,14 @@ refresh_cgroup_groups(pmInDom mounts, __pmnsTree **pmns)
 }
 
 void
-cgroup_init(pmInDom subsys, pmInDom mounts)
+cgroup_init(void)
 {
-    int cgroups[] = { CLUSTER_CGROUP_CPUSET, 
-		      CLUSTER_CGROUP_CPUACCT, CLUSTER_CGROUP_CPUSCHED, 
-		      CLUSTER_CGROUP_MEMORY, CLUSTER_CGROUP_NET_CLS };
+    int set[] = { CLUSTER_CPUSET_GROUPS, CLUSTER_CPUSET_PROCS,
+		  CLUSTER_CPUACCT_GROUPS, CLUSTER_CPUACCT_PROCS,
+		  CLUSTER_CPUSCHED_GROUPS, CLUSTER_CPUSCHED_PROCS,
+		  CLUSTER_MEMORY_GROUPS, CLUSTER_MEMORY_PROCS,
+		  CLUSTER_NET_CLS_GROUPS, CLUSTER_NET_CLS_PROCS,
+		};
 
-    linux_dynamic_pmns("cgroup.groups.", cgroups, sizeof(cgroups),
-			mounts, refresh_cgroup_groups);
+    linux_dynamic_pmns("cgroup.groups", set, sizeof(set), refresh_cgroups);
 }

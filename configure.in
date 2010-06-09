@@ -23,6 +23,13 @@ AC_INIT(src/include/pmapi.h)
 dnl Irix build issue ... use the tools from the local filesystems
 unset ROOT TOOLROOT
 
+AC_ARG_WITH(
+    [64bit],
+    [AS_HELP_STRING(
+	    [--with-64bit],
+	    [turn on 64 bit compilation node (default is platform dependent)])],
+    [use_64bit=$withval])
+
 #
 # Note: the following environment variables may be
 # set to override the defaults.
@@ -71,6 +78,7 @@ then
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS)
+    export PATH="$PATH:/opt/SunStudioExpress/bin"
 elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN)
@@ -170,15 +178,41 @@ dnl output header with cpp defs HAVE_*, etc
 AC_CONFIG_HEADER(src/include/platform_defs.h)
 
 dnl check if user wants their own C compiler
-AC_PROG_CC
-cc=$CC
+cflags_abi=
+AC_PROG_CC(suncc gcc cc)
+if test $target_os = solaris
+then
+    AC_PATH_PROG(CCPATH,$CC,$CC)
+    cc=$CCPATH
+    if test "$use_64bit" = "no"
+    then
+	:
+    else
+	AC_MSG_CHECKING([for 64 bit Solaris host])
+	case `isainfo -k`
+	in
+	    amd64|sparcv9)
+		cflags_abi=-m64
+		CFLAGS="$CFLAGS -m64"
+		LDFLAGS="$LDFLAGS -m64"
+		AC_MSG_RESULT(yes)
+		;;
+	    *)
+		AC_MSG_RESULT(no)
+		;;
+	esac
+    fi
+else
+    cc=$CC
+fi
 AC_SUBST(cc)
 cc_is_gcc=$GCC
 AC_SUBST(cc_is_gcc)
+AC_SUBST(cflags_abi)
 
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax
-if test -z "$MAKE" 
+if test -z "$MAKE"
 then
     AC_PATH_PROG(MAKE, gmake)
     if test -z "$MAKE" 
@@ -209,7 +243,7 @@ then
 	    fi
 	fi
 	AC_MSG_RESULT($MAKE)
-    fi            
+    fi 
 fi
 make=$MAKE
 AC_SUBST(make)
@@ -721,19 +755,14 @@ AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(gettimeofday mktime nanosleep unsetenv)
 AC_CHECK_FUNCS(gethostname hstrerror select socket)
-AC_CHECK_FUNCS(uname syslog __clone fcntl)
+AC_CHECK_FUNCS(uname syslog __clone fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown getcwd scandir mkstemp getpwnam)
 AC_CHECK_FUNCS(brk sbrk memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strerror strtod strtol strtoll strtoull)
-
-dnl sysinfo() is not everywhere, and not necessarily useful even when
-dnl it is there
-if test $target_os != solaris; then
-    AC_CHECK_FUNCS(sysinfo)
-fi
+AC_CHECK_FUNCS(sysinfo)
 
 dnl only define readdir64 on non-linux platforms that support it
 if test $target_os != linux -a $target_os != freebsd; then
@@ -811,9 +840,7 @@ AC_TRY_LINK(
     char **x = _environ;
 ], AC_DEFINE(HAVE_UNDERBAR_ENVIRON))
 
-dnl check for PR_TERMCHILD and PR_SET_PDEATHSIG in prctl
-dnl since autconf like to be unreasonable, it's going to be cut&paste
-dnl programming
+dnl check for PR_TERMCHILD and PR_SET_PDEATHSIG in <sys/prctl.h>
 if test "$ac_cv_func_prctl" = "yes"
 then
 AC_MSG_CHECKING([for PR_TERMCHILD constants in sys/prctl.h])
@@ -832,6 +859,19 @@ AC_TRY_COMPILE(
 [
     int i = PR_SET_PDEATHSIG;
 ], AC_DEFINE(HAVE_PR_SET_PDEATHSIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+fi
+
+dnl check for TIOCGWINSZ in <sys/ioctl.h>
+if test "$ac_cv_func_ioctl" = "yes"
+then
+AC_MSG_CHECKING([for TIOCGWINSZ constant in sys/ioctl.h])
+AC_TRY_COMPILE(
+[
+    #include <sys/ioctl.h>
+],
+[
+    int i = TIOCGWINSZ;
+], AC_DEFINE(HAVE_TIOCGWINSZ) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 fi
 
 dnl check if linker needs -rdynamic for dynamically loaded shared

@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include "pmapi.h"
+#include "impl.h"
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
@@ -54,20 +55,18 @@ static char	longmsg[] = \
 static struct termio	otty;
 #endif
 
-extern char	*pmProgname;
-
-
 void setio(int reset)	{ neols = 0; skiprest = reset; }
 void setscroll(void)	{ needscroll = 1; }
 int  resized(void)	{ return needresize; }
 
 #ifdef HAVE_SYS_IOCTL_H
 /* looks after window resizing for the printing routine */
-/*ARGSUSED*/
 void
 onwinch(int dummy)
 {
-    signal(SIGWINCH, onwinch);
+#ifdef SIGWINCH
+    __pmSetSignalHandler(SIGWINCH, onwinch);
+#endif
     needresize = 1;
 }
 #endif
@@ -168,14 +167,14 @@ pprintf(char *format, ...)
 {
     char		*p;
     va_list		args;
-#ifdef HAVE_SYS_IOCTL_H
+#ifdef HAVE_TIOCGWINSZ
     struct winsize	geom;
 #endif
     static int		first = 1;
 
     if (first == 1) {	/* first time thru */
 	first = 0;
-#ifdef HAVE_SYS_IOCTL_H
+#ifdef HAVE_TIOCGWINSZ
 	ioctl(0, TIOCGWINSZ, &geom);
 	nrows = (geom.ws_row < MINROWS? MINROWS : geom.ws_row);
 	ncols = (geom.ws_col < MINCOLS? MINCOLS : geom.ws_col);
@@ -209,7 +208,7 @@ pprintf(char *format, ...)
 	vfprintf(stdout, format, args);
     va_end(args);
     if (needresize) {
-#ifdef HAVE_SYS_IOCTL_H
+#ifdef HAVE_TIOCGWINSZ
 	ioctl(0, TIOCGWINSZ, &geom);
 	nrows = (geom.ws_row < MINROWS? MINROWS : geom.ws_row);
 	ncols = (geom.ws_col < MINCOLS? MINCOLS : geom.ws_col);

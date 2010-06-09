@@ -58,11 +58,16 @@ enum {
 	CLUSTER_NUMA_MEMINFO,	/* 36 /sys/devices/system/node* NUMA memory */
 	CLUSTER_CGROUP_SUBSYS,	/* 37 /proc/cgroups control group subsystems */
 	CLUSTER_CGROUP_MOUNTS,	/* 38 /proc/mounts active control groups */
-	CLUSTER_CGROUP_CPUSET,	/* 39 cpuset control groups */
-	CLUSTER_CGROUP_CPUACCT,	/* 40 cpu accounting control groups */
-	CLUSTER_CGROUP_CPUSCHED,/* 41 scheduler control groups */
-	CLUSTER_CGROUP_MEMORY,	/* 42 memory control groups */
-	CLUSTER_CGROUP_NET_CLS,	/* 43 network classification control groups */
+	CLUSTER_CPUSET_GROUPS,	/* 39 cpuset control groups */
+	CLUSTER_CPUSET_PROCS,	/* 40 cpuset control group processes */
+	CLUSTER_CPUACCT_GROUPS,	/* 41 cpu accounting control groups */
+	CLUSTER_CPUACCT_PROCS,	/* 42 cpu accounting group processes */
+	CLUSTER_CPUSCHED_GROUPS,/* 43 scheduler control groups */
+	CLUSTER_CPUSCHED_PROCS,	/* 44 scheduler group processes */
+	CLUSTER_MEMORY_GROUPS,	/* 45 memory control groups */
+	CLUSTER_MEMORY_PROCS,	/* 46 memory group processes */
+	CLUSTER_NET_CLS_GROUPS,	/* 47 network classification control groups */
+	CLUSTER_NET_CLS_PROCS,	/* 48 network classification group processes */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

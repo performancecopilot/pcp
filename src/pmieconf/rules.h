@@ -94,7 +94,6 @@ extern rule_t		*rulelist;
 extern unsigned int	rulecount;
 extern rule_t		*globals;
 
-extern int		errno;
 extern char		errmsg[];	/* error message buffer */
 
 

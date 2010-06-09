@@ -16,8 +16,6 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include "pmapi.h"
-#include "impl.h"
 #include "logger.h"
 
 /*
@@ -173,7 +171,6 @@ setavail(pmResult *resp)
 		PMLC_SET_AVAIL(ihp->ih_flags, 1);
 	    }
 	    if ((j = __pmHashAdd(pmid, (void *)php, &hist_hash)) < 0) {
-		extern void die(char *, int);
 		die("setavail: __pmHashAdd(hist_hash)", j);
 	    }
 	    
@@ -376,15 +373,6 @@ log_callback(int afid, void *data)
     char		**namelist;
     __pmTimeval		tmp;
     __pmTimeval		resp_tval;
-    extern int		exit_samples;
-    extern int		vol_switch_samples;
-    extern long		vol_switch_bytes;
-    extern int		vol_samples_counter;
-    extern int		parse_done;
-    extern long		exit_bytes;
-    extern long		vol_bytes;
-    extern int		archive_version;
-    extern int		rflag;
 
     if (!parse_done)
 	/* ignore callbacks until all of the config file has been parsed */

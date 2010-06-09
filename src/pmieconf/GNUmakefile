@@ -19,24 +19,24 @@ MKFILE_SUBDIRS = cpu filesys memory percpu pernetif
 
 SUBDIRS	= global $(MKFILE_SUBDIRS)
 
-TARGET = pmieconf
+CMDTARGET = pmieconf$(EXECSUFFIX)
 CFILES = pmieconf.c rules.c io.c
 HFILES = rules.h
 
 LSRCFILES = GNUmakefile.rules check-rules pmie_email xtractnames $(RFILES)
 
 LLDLIBS = -lpcp
-LDIRT = rules local $(TARGET) rate-syscalls \
+LDIRT = rules local $(CMDTARGET) rate-syscalls \
 	pmlogger.tmp pmlogger.config \
 	cpu/GNUmakefile filesys/GNUmakefile memory/GNUmakefile \
 	percpu/GNUmakefile pernetif/GNUmakefile
 
-default_pcp: $(TARGET) makefiles rules pmlogger.config
+default_pcp: $(CMDTARGET) makefiles rules pmlogger.config
 
 # for src-link-pcp target from buildrules
 $(SUBDIRS):	makefiles
 
-$(TARGET) : $(OBJECTS)
+$(CMDTARGET) : $(OBJECTS)
 
 pmieconf.o rules.o:    rules.h
 
@@ -67,7 +67,7 @@ install_pcp: install
 
 install: default_pcp $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 755 $(TARGET) $(PCP_BIN_DIR)/$(TARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 pmie_email $(PCP_BINADM_DIR)/pmie_email
 	$(INSTALL) -m 644 pmlogger.config $(PCP_VAR_DIR)/config/pmlogger/config.pmieconf
 
