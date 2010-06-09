@@ -47,7 +47,7 @@ do
     echo "=== $i values for sample.dodgey.value ==="
     pmstore sample.dodgey.control $i >/dev/null
     pminfo -f sample.dodgey.value >>$seq.full
-    pmie -t 0.3 -T 1.1 <$tmp.pmie 2>&1 | _filter
+    pmie -t 0.3 -T 1.3 <$tmp.pmie 2>&1 | _filter
 done
 
 pmstore sample.dodgey.control 5 >/dev/null
