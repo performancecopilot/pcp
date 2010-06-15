@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+force	include
+ident	load average and number of logins
+	kernel.all.load
+	kernel.all.users

@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+force	available
+ident	all available TCP data
+	network.tcp

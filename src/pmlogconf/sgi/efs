@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+probe	efs.attempts exists ? available : exclude
+ident	EFS activity
+	efs

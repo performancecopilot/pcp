@@ -1,0 +1,6 @@
+#pmlogconf-setup 2.0
+probe	hinv.xvm.nvolumes exists ? available : exclude
+ident	XVM stripe, mirror and concat volume stats
+	xvm.ve.concat
+	xvm.ve.mirror
+	xvm.ve.stripe

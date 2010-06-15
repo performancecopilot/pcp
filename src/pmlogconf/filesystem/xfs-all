@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+probe	xfs.read_bytes exists ? available : exclude
+ident	all available XFS information
+	xfs

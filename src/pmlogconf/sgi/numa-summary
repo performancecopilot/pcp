@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+probe	origin.numa.migr.intr.total exists ? available : exclude
+ident	NUMA migration stats
+	origin.numa.migr.intr.total

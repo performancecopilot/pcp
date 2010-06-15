@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+probe	origin.numa.routerload exists ? available : exclude
+ident	all NUMA stats
+	origin.numa

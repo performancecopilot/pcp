@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+probe	network.socket.type exists ? available : exclude
+ident	socket stats (counts by type and state) [Irix]
+	network.socket

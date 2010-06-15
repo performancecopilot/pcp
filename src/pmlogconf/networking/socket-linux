@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+probe	network.sockstat.raw.inuse exists ? available : exclude
+ident	socket stats (in use, high-water mark, etc.) [Linux]
+	network.sockstat

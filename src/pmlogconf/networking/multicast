@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+probe	network.mcr.mfc_lookups exists ? available : exclude
+ident	multicast routing stats
+	network.mcr

@@ -1,0 +1,7 @@
+#pmlogconf-setup 2.0
+probe	kernel.all.runque exists ? available : exclude
+ident	run and swap queues [Irix]
+	kernel.all.runque
+	kernel.all.runocc
+	kernel.all.swap.swpque
+	kernel.all.swap.swpocc

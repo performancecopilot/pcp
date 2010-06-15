@@ -1,0 +1,8 @@
+#pmlogconf-setup 2.0
+probe	xfs.log_writes exists ? include : exclude
+ident	XFS data and log I/O traffic [Irix]
+	xfs.log_writes
+	xfs.log_blocks
+	xfs.log_noiclogs
+	xfs.read_bytes
+	xfs.write_bytes

@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	platform and hardware configuration
+force	include
+delta	once
+	hinv

@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+probe	mem.lpage.enabled exists ? available : exclude
+ident	"large" page and Origin node-based allocations and activity
+	mem.lpage
+	origin.node

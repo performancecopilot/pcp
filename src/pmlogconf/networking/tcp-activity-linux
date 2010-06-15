@@ -1,0 +1,7 @@
+#pmlogconf-setup 2.0
+probe	network.tcp.insegs exists ? available : exclude
+ident	TCP packets (in and out), errors and retransmits [Linux]
+	network.tcp.insegs
+	network.tcp.outsegs
+	network.tcp.retranssegs
+	network.tcp.inerrs

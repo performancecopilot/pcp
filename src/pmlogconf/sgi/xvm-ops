@@ -1,0 +1,7 @@
+#pmlogconf-setup 2.0
+probe	hinv.xvm.nvolumes exists ? available : exclude
+ident	XVM operations and bytes per volume
+	xvm.ve.read
+	xvm.ve.write
+	xvm.ve.read_bytes
+	xvm.ve.write_bytes

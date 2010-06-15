@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+probe	mem.tlb.flush
+ident	address translation (faults and TLB activity) [Irix version]
+	mem.tlb

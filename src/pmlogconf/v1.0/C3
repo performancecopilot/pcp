@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+force	available
+ident	per CPU contributions to wait time
+	kernel.percpu.wait

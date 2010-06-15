@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+probe	network.udp.indatagrams exists ? available : exclude
+ident	UDP packets in and out [Linux]
+	network.udp.indatagrams
+	network.udp.outdatagrams

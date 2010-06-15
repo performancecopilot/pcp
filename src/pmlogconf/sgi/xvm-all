@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+probe	hinv.xvm.nvolumes exists ? available : exclude
+ident	all available XVM data
+	xvm

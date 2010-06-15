@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+probe	resource.nstream_queue exists ? available : exclude
+ident	SVR5 streams activity
+	resource.nstream_queue
+	resource.nstream_head

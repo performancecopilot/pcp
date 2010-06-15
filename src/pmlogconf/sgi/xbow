@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+probe	xbow.nports exists ? available : exclude
+ident	XBOW activity
+	xbow

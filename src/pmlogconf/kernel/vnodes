@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+probe	vnodes.alloc exists ? available : exclude
+ident	vnode activity
+	vnodes

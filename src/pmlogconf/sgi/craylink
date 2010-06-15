@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+probe	hw.router.rev_id exists ? available : exclude
+ident	CrayLink routers
+	hw.router
