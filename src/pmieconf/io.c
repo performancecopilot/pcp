@@ -167,14 +167,14 @@ pprintf(char *format, ...)
 {
     char		*p;
     va_list		args;
-#ifdef HAVE_TIOCGWINSZ
+#ifdef TIOCGWINSZ
     struct winsize	geom;
 #endif
     static int		first = 1;
 
     if (first == 1) {	/* first time thru */
 	first = 0;
-#ifdef HAVE_TIOCGWINSZ
+#ifdef TIOCGWINSZ
 	ioctl(0, TIOCGWINSZ, &geom);
 	nrows = (geom.ws_row < MINROWS? MINROWS : geom.ws_row);
 	ncols = (geom.ws_col < MINCOLS? MINCOLS : geom.ws_col);
