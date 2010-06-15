@@ -46,13 +46,10 @@ makefiles:
 	    cp GNUmakefile.rules $$d/GNUmakefile; \
 	done
 
-# setting PATH below before running ./pmieconf is needed in the MinGW world
-# as an alternative to LD_LIBRARY_PATH
-#
 rules: $(SUBDIRS)
 	rm -fr rules local; mkdir rules; exit 0
 	$(SUBDIRS_MAKERULE)
-	LD_LIBRARY_PATH=../libpcp/src PATH=$$PATH:../libpcp/src ./pmieconf -F -r rules -f local
+	$(RUN_IN_BUILD_ENV) ./pmieconf -F -r rules -f local
 
 pmlogger.config: $(SUBDIRS)
 	@rm -f pmlogger.config

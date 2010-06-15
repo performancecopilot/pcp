@@ -861,18 +861,7 @@ AC_TRY_COMPILE(
 ], AC_DEFINE(HAVE_PR_SET_PDEATHSIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 fi
 
-dnl check for TIOCGWINSZ in <sys/ioctl.h>
-if test "$ac_cv_func_ioctl" = "yes"
-then
-AC_MSG_CHECKING([for TIOCGWINSZ constant in sys/ioctl.h])
-AC_TRY_COMPILE(
-[
-    #include <sys/ioctl.h>
-],
-[
-    int i = TIOCGWINSZ;
-], AC_DEFINE(HAVE_TIOCGWINSZ) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
-fi
+AC_HEADER_TIOCGWINSZ
 
 dnl check if linker needs -rdynamic for dynamically loaded shared
 dnl libraries to see the symbols in the process loading them.
