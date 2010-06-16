@@ -1,3 +1,7 @@
+pcp-gui 1.4.7 (16 June 2010)
+    - Fix pcp-gui qt rpm package dependencies for modern SuSE variants.
+    - Resolve installation issues on Mac OS X 10.6 and later.
+
 pcp-gui 1.4.6 (24 February 2010)
     - Fix saving of Views with instance names containing embedded
       double quote characters (more common on Windows servers).

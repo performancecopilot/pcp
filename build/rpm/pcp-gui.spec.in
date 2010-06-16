@@ -15,8 +15,8 @@ Group: System Environment/Base
 Requires: pcp >= 2.0
 BuildRequires: pcp >= 2.0
 %if "%{_vendor}" == "suse"
-Requires: libqt4 >= 4.2
-BuildRequires: libqt4-devel >= 4.2
+Requires: qt >= 4.2
+BuildRequires: qt-devel >= 4.2
 %else
 Requires: qt4 >= 4.2
 BuildRequires: qt4-devel >= 4.2

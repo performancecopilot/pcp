@@ -32,17 +32,23 @@ default: iconlinks wrappers
 include $(BUILDRULES)
 
 ifeq ($(WINDOW),mac)
-MACBUILD = $(COMMAND).app/Contents
+MACBUILD = build/Default/$(COMMAND).app/Contents
 PKG_MAC_DIR = /Library/PCP/$(COMMAND).app/Contents
 wrappers: $(WRAPPER)
+copies: Info.plist PkgInfo
 else
 wrappers:
+copies:
 endif
 
 $(WRAPPER): $(WRAPPER).IN
 	$(SED) -e '/\# .*/b' -e 's;PKG_MAC_DIR;$(PKG_MAC_DIR);g' < $< > $@
+Info.plist: default
+	@ cp -f $(MACBUILD)/Info.plist Info.plist
+PkgInfo: default
+	@ cp -f $(MACBUILD)/PkgInfo PkgInfo
 
-install: default
+install: default copies
 	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
 ifeq ($(WINDOW),x11)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
@@ -56,10 +62,10 @@ ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 755 -d /Library/PCP
 	$(INSTALL) -m 755 -d /Library/PCP/$(COMMAND).app
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)
-	$(INSTALL) -m 644 $(MACBUILD)/Info.plist $(PKG_MAC_DIR)/Info.plist
-	$(INSTALL) -m 644 $(MACBUILD)/PkgInfo $(PKG_MAC_DIR)/PkgInfo
+	$(INSTALL) -m 644 Info.plist $(PKG_MAC_DIR)/Info.plist
+	$(INSTALL) -m 644 PkgInfo $(PKG_MAC_DIR)/PkgInfo
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/MacOS
 	$(INSTALL) -m 755 $(BINARY) $(PKG_MAC_DIR)/MacOS/$(COMMAND)
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/Resources
-	$(INSTALL) -m 644 $(MACBUILD)/Resources/$(ICNFILE) $(PKG_MAC_DIR)/Resources/$(ICNFILE)
+	$(INSTALL) -m 644 $(ICNFILE) $(PKG_MAC_DIR)/Resources/$(ICNFILE)
 endif
