@@ -354,7 +354,7 @@ namespace(__pmnsTree *pmns, cgroup_subsys_t *subsys,
 	metrics->prepare(pmns, cgrouppath, subsys, group, i, id, domain);
     }
     process_prepare(pmns, cgrouppath, subsys, group, id, domain);
-    return 0;
+    return id;
 }
 
 int
@@ -436,25 +436,29 @@ valid_pmns_name(char *name)
     return 1;
 }
 
-static void
+static int
 cgroup_namespace(__pmnsTree *pmns, const char *options,
 		const char *cgrouppath, const char *cgroupname, int domain)
 {
-    int i;
+    int i, sts, maxid = 0;
 
     /* use options to tell which cgroup controller(s) are active here */
     for (i = 0; i < sizeof(controllers)/sizeof(controllers[0]); i++) {
-	if (scan_filesys_options(options, controllers[i].name) == NULL)
+	cgroup_subsys_t *subsys = &controllers[i];
+	if (scan_filesys_options(options, subsys->name) == NULL)
 	    continue;
-	namespace(pmns, &controllers[i], cgrouppath, cgroupname, domain);
+	sts = namespace(pmns, subsys, cgrouppath, cgroupname, domain);
+	if (sts > maxid)
+	    maxid = sts;
     }
+    return maxid;
 }
 
 static int
 cgroup_scan(const char *mnt, const char *path, const char *options,
 		int domain, __pmnsTree *pmns, int root)
 {
-    int length;
+    int sts, length, maxid = 0;
     DIR *dirp;
     struct stat sbuf;
     struct dirent *dp;
@@ -472,7 +476,9 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
     length = strlen(cgrouppath);
     cgroupname = &cgrouppath[length];
 
-    cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain);
+    sts = cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain);
+    if (sts > maxid)
+	maxid = sts;
 
     /*
      * readdir - descend into directories to find all cgroups, then
@@ -493,19 +499,24 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
 	if (!(S_ISDIR(sbuf.st_mode)))
 	    continue;
 
-        cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain);
+        sts = cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain);
+	if (sts > maxid)
+	    maxid = sts;
 
 	/* also scan for any child cgroups */
-        cgroup_scan(mnt, cgrouppath, options, domain, pmns, 0);
+        sts = cgroup_scan(mnt, cgrouppath, options, domain, pmns, 0);
+	if (sts > maxid)
+	    maxid = sts;
     }
     closedir(dirp);
-    return 0;
+    return maxid;
 }
 
 void
 refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 {
-    int i, j, k, a, sts, domain = pmda->e_domain;
+    int i, j, k, a;
+    int sts, maxid = 0, domain = pmda->e_domain;
     filesys_t *fs;
     __pmnsTree *tree = pmns ? *pmns : NULL;
 
@@ -545,7 +556,13 @@ refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 	if (!pmdaCacheLookup(mounts, sts, NULL, (void **)&fs))
 	    continue;
 	/* walk this cgroup mount finding groups (subdirs) */
-	cgroup_scan(fs->path, "", fs->options, domain, tree, 1);
+	sts = cgroup_scan(fs->path, "", fs->options, domain, tree, 1);
+	if (sts > maxid)
+	    maxid = sts;
+    }
+
+    if (maxid) {
+	/* TODO: need to reallocate metric table with dup cgroup metrics */
     }
 
     if (pmns)
@@ -609,8 +626,8 @@ cgroup_procs_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
 
 	    if (group->id != gid)
 		continue;
-	    
-	    /* TODO */
+
+	    /* TODO: return values for process metrics */
 	}
     }
     return PM_ERR_PMID;
