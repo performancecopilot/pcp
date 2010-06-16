@@ -53,7 +53,7 @@ main(int argc, char **argv)
 	}
 	if (read(f, &ps, sizeof(ps)) != sizeof(ps)) {
 	    fprintf(stderr, "%s: cannot read %ld bytes from %s\n",
-		    pmProgname, sizeof(ps), argv[i]);
+		    pmProgname, (long)sizeof(ps), argv[i]);
 	    continue;
 	}
 

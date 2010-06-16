@@ -23,16 +23,16 @@
 #include <strings.h>
 #include <ctype.h>
 
-/* Add namespace entries and prepare values for one cgroup filesystem directory entry */
+/* Add namespace entries and prepare values for one cgroupfs directory entry */
 struct cgroup_subsys;
-typedef int (*cgroup_prepare_t)(__pmnsTree *, const char *, struct cgroup_subsys *, const char *,
-				int, int, int);
-static int prepare_ull(__pmnsTree *, const char *, struct cgroup_subsys *, const char *,
-				int, int, int);
-static int prepare_string(__pmnsTree *, const char *, struct cgroup_subsys *, const char *,
-				int, int, int);
-static int prepare_named_ull(__pmnsTree *, const char *, struct cgroup_subsys *, const char *,
-				int, int, int);
+typedef int (*cgroup_prepare_t)(__pmnsTree *, const char *,
+		struct cgroup_subsys *, const char *, int, int, int);
+static int prepare_ull(__pmnsTree *, const char *,
+		struct cgroup_subsys *, const char *, int, int, int);
+static int prepare_string(__pmnsTree *, const char *,
+		struct cgroup_subsys *, const char *, int, int, int);
+static int prepare_named_ull(__pmnsTree *, const char *,
+		struct cgroup_subsys *, const char *, int, int, int);
 
 /*
  * Critical data structures for cgroup subsystem in pmdalinux...
@@ -43,7 +43,8 @@ static int prepare_named_ull(__pmnsTree *, const char *, struct cgroup_subsys *,
 
 typedef struct { /* contents depends on individual kernel cgroups */
     int			item;		/* PMID == domain:cluster:[id:item] */
-    cgroup_prepare_t	prepare;	/* metric name(s) and value(s) for this */
+    int			dynamic;	/* do we need an extra free (string) */
+    cgroup_prepare_t	prepare;	/* setup metric name(s) and value(s) */
     char		*suffix;	/* cpus/mems/rss/... */
 } cgroup_metrics_t;
 
@@ -71,7 +72,7 @@ typedef struct cgroup_subsys { /* contents covers the known kernel cgroups */
 } cgroup_subsys_t;
 
 static cgroup_metrics_t cpusched_metrics[] = {
-    { .item = 0, .suffix = "shares", .prepare = prepare_ull, },
+    { .item = 0, .suffix = "shares", .prepare = prepare_ull },
 };
 
 static cgroup_metrics_t cpuacct_metrics[] = {
@@ -82,8 +83,8 @@ static cgroup_metrics_t cpuacct_metrics[] = {
 };
 
 static cgroup_metrics_t cpuset_metrics[] = {
-    { .item = 0, .suffix = "cpus", .prepare = prepare_string },
-    { .item = 1, .suffix = "mems", .prepare = prepare_string },
+    { .item = 0, .suffix = "cpus", .prepare = prepare_string, .dynamic = 1 },
+    { .item = 1, .suffix = "mems", .prepare = prepare_string, .dynamic = 1 },
 };
 
 static cgroup_metrics_t memory_metrics[] = {
@@ -137,7 +138,8 @@ static cgroup_subsys_t controllers[] = {
 };
 
 static int
-read_values(char *buffer, int size, const char *path, const char *subsys, const char *metric)
+read_values(char *buffer, int size, const char *path, const char *subsys,
+		const char *metric)
 {
     int fd, count;
 
@@ -153,7 +155,8 @@ read_values(char *buffer, int size, const char *path, const char *subsys, const 
 }
 
 static void
-update_pmns(__pmnsTree *pmns, cgroup_subsys_t *subsys, const char *name, cgroup_metrics_t *metrics, int group, int domain)
+update_pmns(__pmnsTree *pmns, cgroup_subsys_t *subsys, const char *name,
+		cgroup_metrics_t *metrics, int group, int domain)
 {
     char entry[MAXPATHLEN];
     pmID pmid;
@@ -165,7 +168,8 @@ update_pmns(__pmnsTree *pmns, cgroup_subsys_t *subsys, const char *name, cgroup_
 }
 
 static int
-prepare_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys, const char *name, int metric, int group, int domain)
+prepare_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
+		const char *name, int metric, int group, int domain)
 {
     int count = 0;
     unsigned long long value;
@@ -189,6 +193,7 @@ prepare_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys, const c
 	while (p && isspace(*p))
 	    p++;
     }
+
     groups->metric_values[metric].item = metric;
     groups->metric_values[metric].atoms = atoms;
     groups->metric_values[metric].atom_count = count;
@@ -197,7 +202,8 @@ prepare_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys, const c
 }
 
 static int
-prepare_named_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys, const char *name, int metric, int group, int domain)
+prepare_named_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
+		const char *name, int metric, int group, int domain)
 {
     int i, count;
     unsigned long long value;
@@ -257,7 +263,8 @@ prepare_named_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys, c
 }
 
 static int
-prepare_string(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys, const char *name, int metric, int group, int domain)
+prepare_string(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
+		const char *name, int metric, int group, int domain)
 {
     char buffer[MAXPATHLEN];
     cgroup_group_t *groups = &subsys->groups[group];
@@ -295,7 +302,7 @@ translate(char *dest, const char *src, size_t size)
 
 static int
 namespace(__pmnsTree *pmns, cgroup_subsys_t *subsys,
-	  const char *cgrouppath, const char *cgroupname, int domain)
+		const char *cgrouppath, const char *cgroupname, int domain)
 {
     int i, id, sts;
     cgroup_values_t *cvp;
@@ -307,18 +314,22 @@ namespace(__pmnsTree *pmns, cgroup_subsys_t *subsys,
 
     /* allocate space for this group */
     sts = (subsys->group_count + 1) * sizeof(cgroup_group_t);
-    if ((subsys->groups = (cgroup_group_t *)realloc(subsys->groups, sts)) == NULL)
+    subsys->groups = (cgroup_group_t *)realloc(subsys->groups, sts);
+    if (subsys->groups == NULL)
 	return -errno;
     /* allocate space for all values up-front */
     sts = subsys->metric_count * sizeof(cgroup_values_t);
     if ((cvp = (cgroup_values_t *)calloc(1, sts)) == NULL)
 	return -errno;
     id = subsys->group_count;
+    subsys->groups[id].id = id;
     subsys->groups[id].metric_values = cvp;
     subsys->group_count++;
 
-    for (i = 0; i < subsys->metric_count; i++)
-	subsys->metrics[i].prepare(pmns, cgrouppath, subsys, group, i, id, domain);
+    for (i = 0; i < subsys->metric_count; i++) {
+	cgroup_metrics_t *metrics = &subsys->metrics[i];
+	metrics->prepare(pmns, cgrouppath, subsys, group, i, id, domain);
+    }
 
     /* subsys->process_list = ... ; */
 
@@ -346,7 +357,8 @@ refresh_cgroup_subsys(pmInDom indom)
 	/* skip lines starting with hash (header) */
 	if (buf[0] == '#')
 	    continue;
-	if (sscanf(buf, "%s %u %u %u", &name[0], &hierarchy, &numcgroups, &enabled) != 4)
+	if (sscanf(buf, "%s %u %u %u", &name[0],
+			&hierarchy, &numcgroups, &enabled) != 4)
 	    continue;
 	sts = pmdaCacheLookupName(indom, name, NULL, (void **)&data);
 	if (sts == PMDA_CACHE_ACTIVE)
@@ -425,7 +437,7 @@ cgroup_namespace(__pmnsTree *pmns, const char *options,
 
 static int
 cgroup_scan(const char *mnt, const char *path, const char *options,
-	    int domain, __pmnsTree *pmns, int root)
+		int domain, __pmnsTree *pmns, int root)
 {
     int length;
     DIR *dirp;
@@ -454,7 +466,11 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
     while ((dp = readdir(dirp)) != NULL) {
 	if (!valid_pmns_name(dp->d_name))
 	    continue;
-	snprintf(cgrouppath, sizeof(cgrouppath), "%s/%s/%s",
+	if (path[0] == '\0')
+	    snprintf(cgrouppath, sizeof(cgrouppath), "%s/%s",
+			mnt, dp->d_name);
+	else
+	    snprintf(cgrouppath, sizeof(cgrouppath), "%s/%s/%s",
 			mnt, path, dp->d_name);
 	cgroupname = &cgrouppath[length];
 	if (stat(cgrouppath, &sbuf) < 0)
@@ -474,8 +490,8 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
 void
 refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 {
+    int i, j, k, a, sts, domain = pmda->e_domain;
     filesys_t *fs;
-    int i, j, sts, domain = pmda->e_domain;
     __pmnsTree *tree = pmns ? *pmns : NULL;
 
     if (tree)
@@ -491,10 +507,18 @@ refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 
     /* reset our view of subsystems and groups */
     for (i = 0; i < sizeof(controllers)/sizeof(controllers[0]); i++) {
-	for (j = 0; j < controllers[i].group_count; j++) {
-	    /* TODO: free strings also */
-	    free(controllers[i].groups[j].metric_values);
-	    controllers[i].groups[j].refreshed = 0;
+	cgroup_subsys_t *subsys = &controllers[i];
+	for (j = 0; j < subsys->group_count; j++) {
+	    cgroup_group_t *group = &subsys->groups[j];
+	    for (k = 0; k < subsys->metric_count; k++) {
+		pmAtomValue *atoms = group->metric_values[k].atoms;
+		if (subsys->metrics[k].dynamic)
+		    for (a = 0; a < group->metric_values[k].atom_count; a++)
+			free(atoms[a].cp);
+		free(atoms);
+	    }
+	    free(group->metric_values);
+	    group->refreshed = 0;
 	    /* TODO: free process_list */
 	}
 	controllers[i].group_count = 0;
@@ -518,28 +542,32 @@ int
 cgroup_group_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
 {
     int i, j, k, gid;
-    cgroup_values_t *cvp;
 
     gid = cgroup_pmid_group(item);
     item = cgroup_pmid_metric(item);
 
     for (i = 0; i < sizeof(controllers)/sizeof(controllers[0]); i++) {
-	if (controllers[i].cluster != cluster)
+ 	cgroup_subsys_t *subsys = &controllers[i];
+
+	if (subsys->cluster != cluster)
 	    continue;
-	for (j = 0; j < controllers[i].group_count; j++) {
-	    if (controllers[i].groups[j].id != gid)
+	for (j = 0; j < subsys->group_count; j++) {
+	    cgroup_group_t *group = &subsys->groups[j];
+
+	    if (group->id != gid)
 		continue;
-	    cvp = controllers[i].groups[j].metric_values;
-	    for (k = 0; k < controllers[i].metric_count; k++) {
-		if (cvp[k].item != item)
+	    for (k = 0; k < subsys->metric_count; k++) {
+		cgroup_values_t *cvp = &group->metric_values[k];
+
+		if (cvp->item != item)
 		    continue;
 		if (cvp->atom_count <= 0)
 		    return PM_ERR_VALUE;
 		if (inst == PM_IN_NULL)
 		    inst = 0;
-		else if (inst < cvp->atom_count)
+		else if (inst >= cvp->atom_count)
 		    return PM_ERR_INST;
-		*atom = cvp[k].atoms[inst];
+		*atom = cvp->atoms[inst];
 		return 1;
 	    }
 	}

@@ -4077,7 +4077,7 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	 * Note that although format %06d is used here and in proc_pid.c,
 	 *      the pid could be longer than this (in which case there
 	 *      are no leading zeroes.  The size of newname[] is chosen
-	 *	to compfortably accommodate a 32-bit pid (Linux maximum),
+	 *	to comfortably accommodate a 32-bit pid (Linux maximum),
 	 *      or max value of 4294967295 (10 digits)
 	 */
 	char *p;
