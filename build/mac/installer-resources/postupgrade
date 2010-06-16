@@ -49,7 +49,7 @@ then
 	exit 1
     fi
 else
-    echo "$prog: Package detected previous install of pcp but /usr/share/pcp/bin/idb does not exist."
+    echo "$prog: Package detected previous install of pcp-gui but /usr/share/pcp/bin/idb-pcp-gui does not exist."
     echo "$prog: Attempting to remove existing files using new idb."
     if ./install-pcp-gui -v -r -l /var/log/pcp-gui-inst.log idb-pcp-gui
     then
