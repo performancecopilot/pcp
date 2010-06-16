@@ -345,16 +345,15 @@ namespace(__pmnsTree *pmns, cgroup_subsys_t *subsys,
     if ((cvp = (cgroup_values_t *)calloc(1, sts)) == NULL)
 	return -errno;
     id = subsys->group_count++;
+    memset(&subsys->groups[id], 0, sizeof(cgroup_group_t));
     subsys->groups[id].id = id;
-    subsys->groups[id].process_list.count = 0;
     subsys->groups[id].metric_values = cvp;
 
     for (i = 0; i < subsys->metric_count; i++) {
 	cgroup_metrics_t *metrics = &subsys->metrics[i];
 	metrics->prepare(pmns, cgrouppath, subsys, group, i, id, domain);
     }
-
-    // TODO: process_prepare(pmns, cgrouppath, subsys, group, id, domain);
+    process_prepare(pmns, cgrouppath, subsys, group, id, domain);
     return 0;
 }
 
@@ -534,8 +533,9 @@ refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 		free(atoms);
 	    }
 	    free(group->metric_values);
-	    group->refreshed = 0;
-	    group->process_list.count = 0;
+	    if (group->process_list.size)
+		free(group->process_list.pids);
+	    memset(group, 0, sizeof(cgroup_group_t));
 	}
 	controllers[i].group_count = 0;
     }
