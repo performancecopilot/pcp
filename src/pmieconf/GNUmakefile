@@ -49,7 +49,7 @@ makefiles:
 rules: $(SUBDIRS)
 	rm -fr rules local; mkdir rules; exit 0
 	$(SUBDIRS_MAKERULE)
-	$(RUN_IN_BUILD_ENV) ./pmieconf -F -r rules -f local
+	$(RUN_IN_BUILD_ENV) ./$(CMDTARGET) -F -r rules -f local
 
 pmlogger.config: $(SUBDIRS)
 	@rm -f pmlogger.config
