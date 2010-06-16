@@ -601,7 +601,7 @@ cgroup_procs_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
 
     for (i = 0; i < sizeof(controllers)/sizeof(controllers[0]); i++) {
  	cgroup_subsys_t *subsys = &controllers[i];
-	if (subsys->cluster != cluster)
+	if (subsys->process_cluster != cluster)
 	    continue;
 
 	for (j = 0; j < subsys->group_count; j++) {
