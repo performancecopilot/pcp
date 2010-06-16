@@ -154,6 +154,31 @@ read_values(char *buffer, int size, const char *path, const char *subsys,
     return 0;
 }
 
+static int
+process_prepare(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
+		const char *name, int group, int domain)
+{
+    FILE *fp;
+    pmID pmid;
+    char process[64];
+    char taskpath[MAXPATHLEN];
+    proc_pid_list_t *list = &subsys->groups[group].process_list;
+
+    snprintf(taskpath, sizeof(taskpath), "%s/tasks", path);
+    if ((fp = fopen(taskpath, "r")) == NULL)
+	return -errno;
+    while (fgets(process, sizeof(process), fp) != NULL)
+	pidlist_append(list, process);
+    fclose(fp);
+    qsort(list->pids, list->count, sizeof(int), compare_pid);
+
+    pmid = cgroup_pmid_build(domain, subsys->process_cluster, group, 0);
+    snprintf(taskpath, sizeof(taskpath), "cgroup.groups.%s%s.tasks.pid",
+			subsys->name, name);
+    __pmAddPMNSNode(pmns, pmid, taskpath);
+    return 0;
+}
+
 static void
 update_pmns(__pmnsTree *pmns, cgroup_subsys_t *subsys, const char *name,
 		cgroup_metrics_t *metrics, int group, int domain)
@@ -306,9 +331,7 @@ namespace(__pmnsTree *pmns, cgroup_subsys_t *subsys,
 {
     int i, id, sts;
     cgroup_values_t *cvp;
-    pmID pmid;
     char group[128];
-    char name[MAXPATHLEN];
 
     translate(&group[0], cgroupname, sizeof(group));
 
@@ -321,24 +344,17 @@ namespace(__pmnsTree *pmns, cgroup_subsys_t *subsys,
     sts = subsys->metric_count * sizeof(cgroup_values_t);
     if ((cvp = (cgroup_values_t *)calloc(1, sts)) == NULL)
 	return -errno;
-    id = subsys->group_count;
+    id = subsys->group_count++;
     subsys->groups[id].id = id;
+    subsys->groups[id].process_list.count = 0;
     subsys->groups[id].metric_values = cvp;
-    subsys->group_count++;
 
     for (i = 0; i < subsys->metric_count; i++) {
 	cgroup_metrics_t *metrics = &subsys->metrics[i];
 	metrics->prepare(pmns, cgrouppath, subsys, group, i, id, domain);
     }
 
-    /* subsys->process_list = ... ; */
-
-    /* Any proc.* metric subset could be added here.  Just PIDs for now */
-    i = -1;	/* proc metric item */
-    pmid = cgroup_pmid_build(domain, subsys->process_cluster, 0, ++i);
-    snprintf(name, sizeof(name), "cgroup.groups.%s%s.tasks.pid", subsys->name, group);
-    __pmAddPMNSNode(pmns, pmid, name);
-    
+    // TODO: process_prepare(pmns, cgrouppath, subsys, group, id, domain);
     return 0;
 }
 
@@ -519,7 +535,7 @@ refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 	    }
 	    free(group->metric_values);
 	    group->refreshed = 0;
-	    /* TODO: free process_list */
+	    group->process_list.count = 0;
 	}
 	controllers[i].group_count = 0;
     }
@@ -578,14 +594,24 @@ cgroup_group_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
 int
 cgroup_procs_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
 {
-    int i;
+    int i, j, gid;
+
+    gid = cgroup_pmid_group(item);
+    item = cgroup_pmid_metric(item);
 
     for (i = 0; i < sizeof(controllers)/sizeof(controllers[0]); i++) {
-	if (controllers[i].cluster != cluster)
+ 	cgroup_subsys_t *subsys = &controllers[i];
+	if (subsys->cluster != cluster)
 	    continue;
 
-	/* TODO: subsys->process_list ... ; */
+	for (j = 0; j < subsys->group_count; j++) {
+	    cgroup_group_t *group = &subsys->groups[j];
 
+	    if (group->id != gid)
+		continue;
+	    
+	    /* TODO */
+	}
     }
     return PM_ERR_PMID;
 }

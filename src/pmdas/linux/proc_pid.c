@@ -25,7 +25,7 @@
 
 static proc_pid_list_t allpids;
 
-static int
+int
 compare_pid(const void *pa, const void *pb)
 {
     int a = *(int *)pa;
@@ -33,7 +33,7 @@ compare_pid(const void *pa, const void *pb)
     return a - b;
 }
 
-static void
+void
 pidlist_append(proc_pid_list_t *list, const char *pidname)
 {
     if (list->count >= list->size) {

@@ -220,6 +220,12 @@ typedef struct {
 /* refresh the proc indom, reset all "fetched" flags */
 extern int refresh_proc_pid(proc_pid_t *);
 
+/* add a process onto a process list */
+extern void pidlist_append(proc_pid_list_t *, const char *);
+
+/* comparator routine for sorting a process list */
+extern int compare_pid(const void *, const void *);
+
 /* refresh a proc indom (subset), reset all "fetched" flags */
 extern int refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *);
 
