@@ -921,3 +921,7 @@ derive		pcpqa
 1233 pmsnap local sgi
 1234 pmchart local sgi
 1236 #935639 pmchart local sgi
+362 pmlogconf local oss
+364 pmlogconf local oss
+366 pmlogconf local oss
+368 pmlogconf local oss

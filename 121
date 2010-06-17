@@ -67,7 +67,7 @@ cat <<End-of-File >>$tmp.ref
 End-of-File
 
 $PCP_AWK_PROG <$tmp.ref >$tmp.tmp '
-/^\#\+ D2/		{ state = 1; next }
+/^\#\+ disk\/summary/	{ state = 1; next }
 state == 1 && /^\#----/	{ state = 0; next }
 /^\#\+ K6/		{ state = 2; next }
 state == 2 && /^\#\+ M3/{ state = 1; next }
@@ -81,14 +81,16 @@ cat $tmp.in >>$seq.full
 #
 echo >>$seq.full
 echo "--- pmlogconf ---" >>$seq.full
-( echo q; echo y ) | pmlogconf $tmp.in >>$seq.full 2>&1
+( echo q; echo y ) | pmlogconf -v $tmp.in >>$seq.full 2>&1
 
 echo >>$seq.full
 echo "--- final config ---" >>$seq.full
 cat $tmp.in >>$seq.full
 
 echo "Expect few differences ..."
-diff $tmp.ref $tmp.in
+LC_COLLATE=POSIX sort $tmp.ref >$tmp.ref.sort
+LC_COLLATE=POSIX sort $tmp.in >$tmp.in.sort
+diff $tmp.ref.sort $tmp.in.sort
 
 # success, all done
 exit
