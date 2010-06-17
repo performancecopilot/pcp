@@ -50,8 +50,8 @@ echo "--- default config ---" >>$seq.full
 cat $tmp.in >>$seq.full
 
 # strip comments, empty lines and then strip the groups:
-#	D2
-#	K6 to M3
+#	disk/summary
+#	kernel/bufcache-all to memory/swap
 sed <$tmp.in >$tmp.ref \
     -e '/^#$/d' \
     -e '/^# /d' \
@@ -69,8 +69,8 @@ End-of-File
 $PCP_AWK_PROG <$tmp.ref >$tmp.tmp '
 /^\#\+ disk\/summary/	{ state = 1; next }
 state == 1 && /^\#----/	{ state = 0; next }
-/^\#\+ K6/		{ state = 2; next }
-state == 2 && /^\#\+ M3/{ state = 1; next }
+/^\#\+ kernel\/bufcache-all/		{ state = 2; next }
+state == 2 && /^\#\+ memory\/swap/{ state = 1; next }
 state == 0		{ print }'
 cp $tmp.tmp $tmp.in
 echo >>$seq.full
