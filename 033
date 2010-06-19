@@ -18,7 +18,12 @@ else
     #
     if [ $PCP_EOE_VER -ge 2300 ]
     then
-	ln $seq.out.1 $seq.out
+	if pmprobe filesys.readonly >/dev/null
+	then
+	    ln $seq.out.3 $seq.out
+	else
+	    ln $seq.out.1 $seq.out
+	fi
     else
 	ln $seq.out.0 $seq.out
     fi
