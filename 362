@@ -226,5 +226,17 @@ probe	sample.bin > 899 ? include : exclude
 End-of-File
 _doit
 
+cat <<'End-of-File' >$tmp.grp
+#pmlogconf-setup 2.0
+ident	Example from pmlogconf(1) man page
+ident	... more descripton
+delta	1 minute
+probe	sample.secret.foo.one values ? include : exclude
+	sample.secret.foo.one
+	sample.secret.foo.bar	# non-leaf in the PMNS
+	sample.colour [ red green ]
+End-of-File
+_doit
+
 # success, all done
 exit

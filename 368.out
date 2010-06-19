@@ -39,10 +39,10 @@ log advisory on default {
 #
 
 --- end initial config file ---
-need to add new tag=00 after last_tag=
+need to add new group tag=00
 TMP/00: 
 force include -> probe=success action=include
-need to add new tag=05 after last_tag=00
+need to add new group tag=05
 TMP/05: 
 force available -> probe=success action=available
 
@@ -99,7 +99,7 @@ Differences ...
   ## qa group three
 Keep changes? [y] 
 Group: qa group one
-Log this group? [y] .....
+Log this group? [y] ......
 Differences ...
 *** TMP.orig ...
 --- TMP.new ...
@@ -123,6 +123,23 @@ Differences ...
   }
   #----
   #+ 03:y:default:
+***************
+*** 40,45 ****
+--- 40,53 ----
+  #+ 05:n:default:
+  ## qa group five
+  #----
++ #+ 99:y:1 minute:
++ ## Example from pmlogconf(1) man page ... more descripton
++ log advisory on 1 minute {
++ 	sample.secret.foo.one
++ 	sample.secret.foo.bar	# non-leaf in the PMNS
++ 	sample.colour [ red green ]
++ }
++ #----
+  # DO NOT UPDATE THE FILE ABOVE THIS LINE
+  # Otherwise any changes may be lost the next time pmlogconf is
+  # used on this file.
 Keep changes? [y] --- start final config file ---
 #pmlogconf 2.0
 #
@@ -165,6 +182,14 @@ log advisory on default {
 #----
 #+ 05:n:default:
 ## qa group five
+#----
+#+ 99:y:1 minute:
+## Example from pmlogconf(1) man page ... more descripton
+log advisory on 1 minute {
+	sample.secret.foo.one
+	sample.secret.foo.bar	# non-leaf in the PMNS
+	sample.colour [ red green ]
+}
 #----
 # DO NOT UPDATE THE FILE ABOVE THIS LINE
 # Otherwise any changes may be lost the next time pmlogconf is

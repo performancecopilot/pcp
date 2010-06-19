@@ -13,7 +13,7 @@ probe	no.such.metric
 ident	Good metric name - default everything
 probe	sample.secret.foo.bar.three
 --- pmlogconf-setup stdout ---
-#+ TMP.grp:y:default:
+#+ TMP.grp:n:default:
 --- exit status=0 ---
 
 --- group file ---
@@ -29,7 +29,7 @@ probe	sample.noinst values
 ident	Good metric name - has values
 probe	sample.secret.foo.bar.three values
 --- pmlogconf-setup stdout ---
-#+ TMP.grp:y:default:
+#+ TMP.grp:n:default:
 --- exit status=0 ---
 
 --- group file ---
@@ -53,7 +53,7 @@ probe	sample.secret.foo.bar.three values ? include : exclude
 ident	Good metric name - exists and regex
 probe	sample.secret.foo.bar.three ~ 3
 --- pmlogconf-setup stdout ---
-#+ TMP.grp:y:default:
+#+ TMP.grp:n:default:
 --- exit status=0 ---
 
 --- group file ---
@@ -140,7 +140,7 @@ force	available
 ident	Good - regex match and include
 probe	sample.string.hullo ~ ^h[eu]llo.world!$
 --- pmlogconf-setup stdout ---
-#+ TMP.grp:y:default:
+#+ TMP.grp:n:default:
 --- exit status=0 ---
 
 --- group file ---
@@ -205,4 +205,17 @@ ident	Good - include
 probe	sample.bin > 899 ? include : exclude
 --- pmlogconf-setup stdout ---
 #+ TMP.grp:y:default:
+--- exit status=0 ---
+
+--- group file ---
+#pmlogconf-setup 2.0
+ident	Example from pmlogconf(1) man page
+ident	... more descripton
+delta	1 minute
+probe	sample.secret.foo.one values ? include : exclude
+	sample.secret.foo.one
+	sample.secret.foo.bar	# non-leaf in the PMNS
+	sample.colour [ red green ]
+--- pmlogconf-setup stdout ---
+#+ TMP.grp:y:1 minute:
 --- exit status=0 ---

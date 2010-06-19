@@ -273,6 +273,8 @@ cp $tmp.conf $tmp.orig
 echo q \
 | $PCP_BINADM_DIR/pmlogconf $tmp.conf >/dev/null
 
+cat $tmp.conf >$seq.full
+
 diff $tmp.orig $tmp.conf \
 | sed -e '/^[0-9]/d'
 

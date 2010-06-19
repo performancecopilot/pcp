@@ -9,9 +9,13 @@ QA output created by 366
 < ## pmchart:Overview]
 ---
 > #+ platform/hinv:y:once:
-> ## platform and hardware configuration
+> ## platform, filesystem and hardware configuration
 > log advisory on once {
 > 	hinv
+> 	kernel.uname
+> 	filesys.mountdir
+> 	filesys.blocksize
+> 	filesys.capacity
 > }
 < #+ D0:n:default:
 < ## activity (IOPs and bytes for both reads and writes) over all disks
@@ -121,12 +125,8 @@ QA output created by 366
 < #+ M0:n:default:
 < ## pages in and out (severe VM demand) [pmstat, pmchart:Paging]
 ---
-> #+ memory/swap-activity:y:default:
+> #+ memory/swap-activity:n:default:
 > ## pages in and out (severe VM demand)
-> log advisory on default {
-> 	swap.pagesin
-> 	swap.pagesout
-> }
 < #+ M1:n:default:
 < ## address translation (faults and TLB activity)
 ---
@@ -161,7 +161,7 @@ QA output created by 366
 < ## [clustervis, osvis, pmchart:NetBytes, pmchart:Overview, pmie:per_netif]
 ---
 > #+ networking/interface-summary:y:default:
-> ## bytes, packets and errors (in and out) and bandwidth per network interface
+> ## bytes, packets and errors (in and out) per network interface
 > log advisory on default {
 > 	network.interface.in.bytes
 > 	network.interface.in.packets
@@ -169,11 +169,7 @@ QA output created by 366
 > 	network.interface.out.bytes
 > 	network.interface.out.packets
 > 	network.interface.out.errors
-> 	network.interface.total.bytes
-> 	network.interface.total.packets
-> 	network.interface.total.errors
 > 	network.interface.collisions
-> 	network.interface.baudrate
 > }
 < #+ N1:n:default:
 ---
@@ -219,13 +215,13 @@ QA output created by 366
 < #+ S0:n:default:
 < ## NFS2 stats [nfsvis, pmchart:NFS2]
 ---
-> #+ networking/nfs2:n:default:
-> ## NFS v2 stats
+> #+ v1.0/S0:n:default:
+> ## NFS2 stats
 < #+ S1:n:default:
 < ## NFS3 stats [nfsvis, pmchart:NFS3]
 ---
-> #+ networking/nfs3:n:default:
-> ## NFS v3 stats
+> #+ v1.0/S1:n:default:
+> ## NFS3 stats
 < #+ S2:n:default:
 < ## RPC stats [pmie:rpc]
 ---
@@ -286,24 +282,74 @@ QA output created by 366
 < ## XBOW activity [xbowvis]
 ---
 > #+ sgi/xbow:x::
+> #+ apache/processes:x::
+> #----
+> #+ apache/summary:x::
+> #----
+> #+ apache/uptime:x::
+> #----
+> #+ filesystem/summary:y:default:
+> ## filesystem size and fullness
+> log advisory on default {
+> 	filesys.full
+> 	filesys.used
+> 	filesys.free
+> 	filesys.avail		# for Linux
+> }
+> #----
 > #+ filesystem/xfs-io-linux:n:default:
 > ## XFS data and log I/O traffic [Linux]
 > #----
-> #+ kernel/load:y:default:
+> #+ kernel/load:n:default:
 > ## load average
-> log advisory on default {
-> 	kernel.all.load
-> }
 > #----
 > #+ kernel/memory-linux:n:default:
 > ## kernel memory allocation [Linux]
 > #----
-> #+ kernel/syscalls-linux:y:default:
-> ## context switches and fork system calls over all CPUs [Linux]
+> #+ kernel/summary-linux:y:default:
+> ## summary kernel performance data [Linux]
 > log advisory on default {
+> 	mem.util
+> 	swap.pagesin
+> 	swap.pagesout
+> 	swap.free
+> 	swap.used
 > 	kernel.all.pswitch
-> 	kernel.all.sysfork
+> 	kernel.all.intr
+> 	kernel.all.load
+> 	kernel.all.runnable
+> 	network.interface.collisions
+> 	network.interface.in.drops
+> 	network.interface.out.drops
+> 	disk.dev.avactive
+> 	mem.slabinfo.objects.active [ ext3_inode_cache dentry_cache buffer_head ]
+> 	mem.slabinfo.objects.total [ ext3_inode_cache dentry_cache buffer_head ]
 > }
+> #----
+> #+ kernel/summary-windows:x::
+> #----
+> #+ kernel/syscalls-linux:n:default:
+> ## context switches and fork system calls over all CPUs [Linux]
+> #----
+> #+ mailq/summary:x::
+> #----
+> #+ mysql/summary:x::
+> #----
+> #+ netfilter/config:x::
+> #----
+> #+ netfilter/summary:x::
+> #----
+> #+ networking/nfs2-client:n:default:
+> ## NFS v2 client stats
+> #----
+> #+ networking/nfs2-server:n:default:
+> ## NFS v2 server stats
+> #----
+> #+ networking/nfs3-client:n:default:
+> ## NFS v3 client stats
+> #----
+> #+ networking/nfs3-server:n:default:
+> ## NFS v3 server stats
 > #----
 > #+ networking/socket-linux:n:default:
 > ## socket stats (in use, high-water mark, etc.) [Linux]
@@ -313,4 +359,21 @@ QA output created by 366
 > #----
 > #+ networking/udp-packets-linux:n:default:
 > ## UDP packets in and out [Linux]
+> #----
+> #+ platform/linux:y:once:
+> ## Linux swap, cache and networking configuration
+> log advisory on once {
+> 	swap.length
+> 	mem.slabinfo.objects.size [ ext3_inode_cache dentry_cache buffer_head ]
+> 	network.interface.mtu
+> 	network.interface.speed
+> 	network.interface.duplex
+> 	network.interface.inet_addr
+> }
+> #----
+> #+ shping/summary:x::
+> #----
+> #+ sqlserver/summary:x::
+> #----
+> #+ zimbra/all:x::
 > #----

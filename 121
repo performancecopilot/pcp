@@ -83,6 +83,8 @@ echo >>$seq.full
 echo "--- pmlogconf ---" >>$seq.full
 ( echo q; echo y ) | pmlogconf -v $tmp.in >>$seq.full 2>&1
 
+grep Error: $seq.full
+
 echo >>$seq.full
 echo "--- final config ---" >>$seq.full
 cat $tmp.in >>$seq.full
