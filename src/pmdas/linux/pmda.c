@@ -1371,7 +1371,7 @@ static pmdaMetric metrictab[] = {
 
 /* filesys.readonly */
   { NULL,
-    { PMDA_PMID(CLUSTER_FILESYS,10), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_INSTANT,
+    { PMDA_PMID(CLUSTER_FILESYS,11), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /*
