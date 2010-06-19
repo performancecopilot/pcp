@@ -26,7 +26,8 @@ TARGETS	= $(IAM)$(EXECSUFFIX)
 CFILES	= apache.c
 SCRIPTS	= Install Remove
 DFILES	= README
-LSRCFILES= $(SCRIPTS) pmns help root Apache.pmchart $(DFILES)
+LSRCFILES= $(SCRIPTS) pmns help root Apache.pmchart $(DFILES) \
+	pmlogconf.summary pmlogconf.processes pmlogconf.uptime
 
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart
@@ -49,6 +50,10 @@ install: build-me
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
 	$(INSTALL) -m 644 Apache.pmchart $(PMCHART)/Apache
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
+	$(INSTALL) -m 644 pmlogconf.processes $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/processes
+	$(INSTALL) -m 644 pmlogconf.uptime $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/uptime
 else
 build-me:
 install:

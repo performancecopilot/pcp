@@ -1,0 +1,8 @@
+#pmlogconf-setup 2.0
+ident	filesystem size and fullness
+force	include
+	filesys.full
+	filesys.used
+	filesys.free
+	filesys.avail		# for Linux
+

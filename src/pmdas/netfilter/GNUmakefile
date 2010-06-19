@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= netfilter
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmda$(IAM).pl
+LSRCFILES = Install Remove pmda$(IAM).pl pmlogconf.config pmlogconf.summary
 LDIRT	= domain.h root pmns *.log $(MAN_PAGES)
 
 ifneq ($(POD2MAN),)
@@ -42,6 +42,9 @@ install: default
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
 	@$(INSTALL_MAN)
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
+	$(INSTALL) -m 644 pmlogconf.config $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/config
 else
 install:
 endif

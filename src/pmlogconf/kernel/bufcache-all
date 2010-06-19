@@ -1,5 +1,4 @@
-probe	buffer_cache.flush exists ? available : exclude
 #pmlogconf-setup 2.0
-force	available
-ident	all available buffer cache data
+ident	all available kernel buffer cache data
+probe	buffer_cache.flush
 	buffer_cache

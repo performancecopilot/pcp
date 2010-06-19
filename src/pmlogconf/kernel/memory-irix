@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
-probe	mem.chunkpages exists ? available : exclude
 ident	kernel memory allocation [Irix]
+probe	mem.chunkpages
 	mem.system
 	mem.util
 	mem.freemem

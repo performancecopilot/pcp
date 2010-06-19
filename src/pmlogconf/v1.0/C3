@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
-force	available
 ident	per CPU contributions to wait time
+force	available
 	kernel.percpu.wait

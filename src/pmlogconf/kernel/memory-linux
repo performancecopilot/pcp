@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
-probe	mem.util.anonpages exists ? available : exclude
 ident	kernel memory allocation [Linux]
+probe	mem.util.used
 	mem.util

@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
-force	available
 ident	per spindle disk activity
+force	available
 	disk.dev.read
 	disk.dev.write
 	disk.dev.total

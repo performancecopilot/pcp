@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
-force	available
 ident	all available data per disk spindle
+force	available
 	disk.dev

@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
-force	available
 ident	swap configuration
+force	available
 	swapdev

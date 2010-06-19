@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
-probe	hw.r10kevctr.state exists ? available : exclude
 ident	global CPU hardware event counters (enable first with ecadmin(1))
+probe	hw.r10kevctr.state
 	hw.r10kevctr

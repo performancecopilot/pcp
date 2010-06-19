@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
-force	include
 ident	summary disk activity (IOPs and bytes for both reads and writes over all disks).
+force	include
 	disk.all.read
 	disk.all.write
 	disk.all.total

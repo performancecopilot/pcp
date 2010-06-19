@@ -1,4 +1,0 @@
-#pmlogconf-setup 2.0
-probe	nfs3.client.reqs exists ? available : exclude
-ident	NFS v3 stats
-	nfs3

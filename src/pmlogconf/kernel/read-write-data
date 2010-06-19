@@ -1,5 +1,5 @@
 #pmlogconf-setup 2.0
-probe	kernel.all.readch exists ? available : exclude
 ident	bytes across the read() and write() syscall interfaces
+probe	kernel.all.readch
 	kernel.all.readch
 	kernel.all.writech

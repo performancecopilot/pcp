@@ -1,5 +1,5 @@
 #pmlogconf-setup 2.0
-probe	network.udp.ipackets exists ? available : exclude
 ident	UDP packets in and out [Irix]
+probe	network.udp.ipackets
 	network.udp.ipackets
 	network.udp.opackets

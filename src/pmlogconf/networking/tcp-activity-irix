@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
-probe	network.tcp.accepts exists ? available : exclude
 ident	TCP bytes and packets (in and out), connects, accepts, drops and closes [Irix]
+probe	network.tcp.accepts
 	network.tcp.accepts
 	network.tcp.connattempt
 	network.tcp.connects

@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
-force	available
 ident	all available data for other protocols (ip, icmp, igmp, udplite)
+force	available
 	network.ip
 	network.icmp
 	network.igmp	# for Irix

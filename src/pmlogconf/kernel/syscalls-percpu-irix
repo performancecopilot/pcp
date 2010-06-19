@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
-probe	kernel.percpu.pswitch exists ? available : exclude
 ident	per CPU context switches, total syscalls and counts for selected calls [Irix]
+probe	kernel.percpu.pswitch
 	kernel.percpu.pswitch
 	kernel.percpu.syscall
 	kernel.percpu.sysexec

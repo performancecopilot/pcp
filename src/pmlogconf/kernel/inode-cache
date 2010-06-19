@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
-probe	kernel.all.io.namei exists ? available : exclude
-ident	name cache (namei, iget, etc) activity
+ident	kernel name cache (namei, iget, etc) activity
+probe	kernel.all.io.namei
 	kernel.all.io.iget
 	kernel.all.io.namei
 	kernel.all.io.dirblk

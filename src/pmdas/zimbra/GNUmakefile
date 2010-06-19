@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= zimbra
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmda$(IAM).pl zimbraprobe.sh
+LSRCFILES = Install Remove pmda$(IAM).pl zimbraprobe.sh pmlogconf.all
 LDIRT	= domain.h root pmns *.log $(MAN_PAGES)
 
 ifneq ($(POD2MAN),)
@@ -42,6 +42,8 @@ install: default
 	$(INSTALL) -m 755 zimbraprobe.sh $(PMDADIR)/zimbraprobe
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
 	@$(INSTALL_MAN)
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+	$(INSTALL) -m 644 pmlogconf.all $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/all
 
 default_pcp : default
 

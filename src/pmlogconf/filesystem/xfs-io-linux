@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
-probe	xfs.log.writes exists ? available : exclude
 ident	XFS data and log I/O traffic [Linux]
+probe	xfs.log.writes
 	xfs.log.writes
 	xfs.log.blocks
 	xfs.log.noiclogs

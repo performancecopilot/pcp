@@ -1,5 +1,9 @@
 #pmlogconf-setup 2.0
-ident	platform and hardware configuration
+ident	platform, filesystem and hardware configuration
 force	include
 delta	once
 	hinv
+	kernel.uname
+	filesys.mountdir
+	filesys.blocksize
+	filesys.capacity

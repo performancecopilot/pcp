@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
-force	include
 ident	utilization (usr, sys, idle, ...) over all CPUs
+force	include
 	kernel.all.cpu

@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
-probe	xlv.read exists ? available : exclude
 ident	XLV operations and bytes per volume
+probe	xlv.read
 	xlv.read
 	xlv.write
 	xlv.read_bytes

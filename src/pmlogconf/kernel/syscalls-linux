@@ -1,5 +1,5 @@
 #pmlogconf-setup 2.0
-probe	kernel.all.sysfork values ? include : exclude
 ident	context switches and fork system calls over all CPUs [Linux]
+probe	kernel.all.sysfork values ? available : exclude
 	kernel.all.pswitch
 	kernel.all.sysfork

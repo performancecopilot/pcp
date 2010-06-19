@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
-probe	kernel.all.io.bread exists ? available : exclude
-ident	buffer cache reads, writes, hits and misses
+ident	kernel buffer cache reads, writes, hits and misses
+probe	kernel.all.io.bread
 	kernel.all.io.bread
 	kernel.all.io.bwrite
 	kernel.all.io.lread

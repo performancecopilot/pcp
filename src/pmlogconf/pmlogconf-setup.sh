@@ -64,7 +64,7 @@ trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 #debug# tmp=`pwd`/tmp-setup
 rm -f $tmp.*
 
-# find "probe metric [condition] [state rules]" line to determine action
+# find "probe metric [condition] [state_rule]" line to determine action
 # or
 # find "force state" line
 #
@@ -134,12 +134,18 @@ s/ //
 }' \
 | $PCP_AWK_PROG -F '
 BEGIN		{ # conditions
-	      exists = 1; condition[exists] = "exists"
-	      values = 2; condition[values] = "values"
-	      regexp = 3; condition[regexp] = "~" 
-	      force = 4; conditon[force] = "-"
-	      gt = 5; condition[gt] = ">";
-	      # TODO - here and below, support all of: !~, ==, !=, >=, <=, <
+	      i = 0
+	      exists = ++i; condition[i] = "exists"
+	      values = ++i; condition[i] = "values"
+	      force = ++i; conditon[i] = "-"
+	      regexp = ++i; condition[i] = "~" 
+	      notregexp = ++i; condition[i] = "!~" 
+	      gt = ++i; condition[i] = ">";
+	      ge = ++i; condition[i] = ">=";
+	      eq = ++i; condition[i] = "==";
+	      neq = ++i; condition[i] = "!=";
+	      le = ++i; condition[i] = "<=";
+	      lt = ++i; condition[i] = "<";
 	      # states
 	      include = 100; state[include] = "include"
 	      exclude = 101; state[exclude] = "exclude"
@@ -162,8 +168,8 @@ NR == 1 && $1 == "force" && NF == 2 {
 	      exit
 	    }
 NR == 1		{ if (NF == 0) {
-		op = exists		# default predicate
-		yes = include	# default success action
+		op = exists	# default predicate
+		yes = available	# default success action
 		no = exclude	# default failure action
 	      }
 	      else {
@@ -171,7 +177,7 @@ NR == 1		{ if (NF == 0) {
 		for (i in condition) {
 		    if ($1 == condition[i]) {
 			op = i
-			yes = include	# default success action
+			yes = available	# default success action
 			no = exclude	# default failure action
 			break
 		    }
@@ -248,7 +254,6 @@ NR == 2		{ #debug# printf "op: %d %s pmprobe: %s",op, condition[op],$0
 	      else {
 		if (op == exists) {
 		    probe = 1
-		    ptr = 2
 		}
 		else if (op == values) {
 		    if ($2 > 0) probe = 1
@@ -261,9 +266,57 @@ NR == 2		{ #debug# printf "op: %d %s pmprobe: %s",op, condition[op],$0
 			}
 		    }
 		}
+		else if (op == notregexp) {
+		    for (i = 3; i <= NF; i++) {
+			if ($i !~ oprnd) {
+			    probe = 1
+			    break
+			}
+		    }
+		}
 		else if (op == gt) {
 		    for (i = 3; i <= NF; i++) {
 			if ($i > oprnd) {
+			    probe = 1
+			    break
+			}
+		    }
+		}
+		else if (op == ge) {
+		    for (i = 3; i <= NF; i++) {
+			if ($i >= oprnd) {
+			    probe = 1
+			    break
+			}
+		    }
+		}
+		else if (op == eq) {
+		    for (i = 3; i <= NF; i++) {
+			if ($i == oprnd) {
+			    probe = 1
+			    break
+			}
+		    }
+		}
+		else if (op == neq) {
+		    for (i = 3; i <= NF; i++) {
+			if ($i != oprnd) {
+			    probe = 1
+			    break
+			}
+		    }
+		}
+		else if (op == le) {
+		    for (i = 3; i <= NF; i++) {
+			if ($i <= oprnd) {
+			    probe = 1
+			    break
+			}
+		    }
+		}
+		else if (op == lt) {
+		    for (i = 3; i <= NF; i++) {
+			if ($i < oprnd) {
 			    probe = 1
 			    break
 			}

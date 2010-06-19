@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
-probe	kaio.reads exists ? available : exclude
 ident	asynchronous I/O activity
+probe	kaio.reads
 	kaio

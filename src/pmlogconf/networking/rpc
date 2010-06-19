@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
-force	available
 ident	RPC stats
+force	available
 	rpc

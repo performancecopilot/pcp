@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
-probe	network.mbuf.alloc exists ? available : exclude
 ident	mbuf stats (alloc, failed, waited, etc)
+probe	network.mbuf.alloc
 	network.mbuf

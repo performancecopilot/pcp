@@ -1,4 +1,4 @@
 #pmlogconf-setup 2.0
-force	available
 ident	current swap allocation and all swap activity
+force	available
 	swap

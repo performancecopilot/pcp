@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
-probe	disk.ctl.total exists ? available : exclude
 ident	per controller disk activity
+probe	disk.ctl.total
 	disk.ctl.read
 	disk.ctl.write
 	disk.ctl.total

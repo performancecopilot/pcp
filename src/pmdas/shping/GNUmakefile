@@ -30,7 +30,7 @@ OTHERS	= README root help pmns sample.conf
 CHARTS	= shping.CPUTime.pmchart shping.RealTime.pmchart
 PMIECS	= shping.status.pmie shping.response.pmie
 
-LSRCFILES = $(OTHERS) $(CHARTS) $(PMIECS) Install Remove
+LSRCFILES = $(OTHERS) $(CHARTS) $(PMIECS) Install Remove pmlogconf.summary
 LLDLIBS	= -lpcp_pmda -lpcp $(PTHREAD_LIB)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
@@ -55,6 +55,8 @@ install:	build-me
 	$(INSTALL) -m 755 -d $(PMIE)
 	$(INSTALL) -m 644 shping.status.pmie $(PMIE)/status
 	$(INSTALL) -m 644 shping.response.pmie $(PMIE)/response
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
 else
 build-me:
 install:

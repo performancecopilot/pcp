@@ -26,7 +26,7 @@ DOMAIN	= MAILQ
 CMDTARGET = $(IAM)$(EXECSUFFIX)
 CFILES	= mailq.c
 DFILES	= README
-LSRCFILES = Install Remove root help pmns $(DFILES)
+LSRCFILES = Install Remove root help pmns $(DFILES) pmlogconf.summary
 LLDLIBS	= -lpcp_pmda -lpcp $(LIB_FOR_REGEX)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
@@ -41,6 +41,8 @@ install:	default
 	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/pmda$(CMDTARGET)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
 
 mailq.o:	domain.h
 
