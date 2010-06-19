@@ -3834,24 +3834,28 @@ static pmdaMetric metrictab[] = {
     { NULL, {PMDA_PMID(CLUSTER_MEMORY_GROUPS,3), PM_TYPE_U64,
     PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-    /* cgroup.groups.memory.[<group>.]stat.active_anon */
+    /* cgroup.groups.memory.[<group>.]stat.swap */
     { NULL, {PMDA_PMID(CLUSTER_MEMORY_GROUPS,4), PM_TYPE_U64,
     PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-    /* cgroup.groups.memory.[<group>.]stat.inactive_anon */
+    /* cgroup.groups.memory.[<group>.]stat.active_anon */
     { NULL, {PMDA_PMID(CLUSTER_MEMORY_GROUPS,5), PM_TYPE_U64,
     PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-    /* cgroup.groups.memory.[<group>.]stat.active_file */
+    /* cgroup.groups.memory.[<group>.]stat.inactive_anon */
     { NULL, {PMDA_PMID(CLUSTER_MEMORY_GROUPS,6), PM_TYPE_U64,
     PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-    /* cgroup.groups.memory.[<group>.]stat.inactive_file */
+    /* cgroup.groups.memory.[<group>.]stat.active_file */
     { NULL, {PMDA_PMID(CLUSTER_MEMORY_GROUPS,7), PM_TYPE_U64,
     PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-    /* cgroup.groups.memory.[<group>.]stat.unevictable */
+    /* cgroup.groups.memory.[<group>.]stat.inactive_file */
     { NULL, {PMDA_PMID(CLUSTER_MEMORY_GROUPS,8), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* cgroup.groups.memory.[<group>.]stat.unevictable */
+    { NULL, {PMDA_PMID(CLUSTER_MEMORY_GROUPS,9), PM_TYPE_U64,
     PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
     /* cgroup.groups.netclass.[<group>.]tasks.pid */
@@ -4073,7 +4077,7 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	 * Note that although format %06d is used here and in proc_pid.c,
 	 *      the pid could be longer than this (in which case there
 	 *      are no leading zeroes.  The size of newname[] is chosen
-	 *	to compfortably accommodate a 32-bit pid (Linux maximum),
+	 *	to comfortably accommodate a 32-bit pid (Linux maximum),
 	 *      or max value of 4294967295 (10 digits)
 	 */
 	char *p;
@@ -6102,13 +6106,18 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_CPUSET_GROUPS:
+    case CLUSTER_CPUACCT_GROUPS:
+    case CLUSTER_CPUSCHED_GROUPS:
+    case CLUSTER_MEMORY_GROUPS:
+    case CLUSTER_NET_CLS_GROUPS:
+	return cgroup_group_fetch(idp->cluster, idp->item, inst, atom);
+
     case CLUSTER_CPUSET_PROCS:
     case CLUSTER_CPUACCT_PROCS:
     case CLUSTER_CPUSCHED_PROCS:
     case CLUSTER_MEMORY_PROCS:
     case CLUSTER_NET_CLS_PROCS:
-	/* TODO */
-	return PM_ERR_PMID;
+	return cgroup_procs_fetch(idp->cluster, idp->item, inst, atom);
 
     default: /* unknown cluster */
 	return PM_ERR_PMID;

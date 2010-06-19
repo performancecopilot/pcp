@@ -21,13 +21,13 @@
 
 static inline pmID
 cgroup_pmid_build(unsigned int domain, unsigned int cluster,
-		  unsigned int item, unsigned int id)
+		  unsigned int gid, unsigned int metric)
 {
-    return pmid_build(domain, cluster, (item << 5) | id);
+    return pmid_build(domain, cluster, (gid << 5) | metric);
 }
 
 static inline unsigned int
-cgroup_pmid_item(pmID id)
+cgroup_pmid_group(pmID id)
 {
     return pmid_item(id) >> 5;
 }
@@ -39,7 +39,11 @@ cgroup_pmid_metric(pmID id)
 }
 
 extern void cgroup_init();
-extern void refresh_cgroups(pmdaExt *pmda, __pmnsTree **);
-extern int refresh_cgroup_subsys(pmInDom subsys);
-extern char *cgroup_find_subsys(pmInDom subsys, const char *);
-extern void refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **);
+extern char *cgroup_find_subsys(pmInDom, const char *);
+
+extern void refresh_cgroups(pmdaExt *, __pmnsTree **);
+extern int refresh_cgroup_subsys(pmInDom);
+extern void refresh_cgroup_groups(pmdaExt *, pmInDom, __pmnsTree **);
+
+extern int cgroup_group_fetch(int, int, unsigned int, pmAtomValue *);
+extern int cgroup_procs_fetch(int, int, unsigned int, pmAtomValue *);

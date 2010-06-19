@@ -31,7 +31,7 @@ MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 endif
 
-mydomain = $(shell sed -n pmda$(IAM).pl -e '/PCP::PMDA->new/s/[^0-9]*$$//' -e '/PCP::PMDA->new/s/^[^0-9]*//p')
+mydomain = $(shell sed -n -e '/PCP::PMDA->new/s/[^0-9]*$$//' -e '/PCP::PMDA->new/s/^[^0-9]*//p' pmda$(IAM).pl)
 
 default: check_domain $(MAN_PAGES)
 

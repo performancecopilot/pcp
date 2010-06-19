@@ -33,7 +33,7 @@ endif
 
 LDIRT = domain.h root pmns *.log $(MAN_PAGES)
 
-mydomain = $(shell sed -n pmda$(IAM).pl -e '/PCP::PMDA->new/s/[^0-9]*$$//' -e '/PCP::PMDA->new/s/^[^0-9]*//p')
+mydomain = $(shell sed -n -e '/PCP::PMDA->new/s/[^0-9]*$$//' -e '/PCP::PMDA->new/s/^[^0-9]*//p' pmda$(IAM).pl)
 
 default: check_domain $(MAN_PAGES)
 

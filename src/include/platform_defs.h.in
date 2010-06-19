@@ -231,7 +231,7 @@ extern "C" {
 #undef HAVE_SIGHOLD
 #undef HAVE_SIGRELSE
 #undef HAVE_TCGETATTR
-#undef HAVE_TIOCGWINSZ
+#undef GWINSZ_IN_SYS_IOCTL
 
 #undef HAVE_REGEX
 #undef HAVE_REGCMP
