@@ -28,15 +28,13 @@ cat <<End-of-File >$tmp.config
 bad_in_pkts = network.interface.in.errors + network.interface.in.drops
 End-of-File
 
-export PCP_DERIVED_CONFIG=$tmp.config
-
 _filter()
 {
     _filter_pmie_log \
     | sed \
 	-e '/^\[TIMESTAMP]/'"s/ `hostname`/ HOST/" \
 	-e '/expr_1:.*?/d' \
-	-e '/expr_1: .[0-9].*/s/ .*/ value(s)/' \
+	-e '/expr_1: [0-9. ]*/s/ .*/ value(s)/' \
     | $PCP_AWK_PROG '
 skip == 0 && /expr_1/	{ print; print "..."; print ""; skip = 1; next }
 skip == 1 && /expr_1/	{ next }
@@ -46,15 +44,18 @@ skip == 1 &&  NF == 0	{ next }
 
 # real QA test starts here
 
+export PCP_DERIVED_CONFIG=$tmp.config
 echo "bad_in_pkts;" | pmie -t 1 -T+12 -v >$tmp.out 2>&1 &
 
 sleep 3
 
+unset PCP_DERIVED_CONFIG
 $sudo /etc/init.d/pcp start \
 | _filter_pcp_start
 
 wait
 
+cat $tmp.out >$seq.full
 _filter <$tmp.out
 
 # success, all done

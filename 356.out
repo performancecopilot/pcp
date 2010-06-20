@@ -3,7 +3,7 @@ Waiting for PMCD to terminate ...
 Performance Co-Pilot starting PMCD (logfile is $PCP_LOG_DIR/pmcd.log) ...
 Performance Co-Pilot starting archive loggers ...
 
-expr_1: 0 0 0 0 0 0
+expr_1: value(s)
 ...
 
 [TIMESTAMP] pmie(PID) Error: pmFetch from HOST failed: IPC protocol failure
@@ -16,7 +16,7 @@ expr_1: 0 0 0 0 0 0
 
 [TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd on host HOST
 
-expr_1: 0 0 0 0 0 0
+expr_1: value(s)
 ...
 
 [TIMESTAMP] pmie(PID) Info: evaluator exiting

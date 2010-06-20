@@ -33,6 +33,13 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+_filter()
+{
+    sed \
+	-e '/swap.in .* Metric not supported/d' \
+	-e '/swap.out .* Metric not supported/d'
+}
+
 # real QA test starts here
 pmlogconf $tmp.conf >$tmp.out 2>&1
 cat $tmp.out >$seq.full
@@ -54,6 +61,7 @@ p
 | uniq \
 | tee -a $seq.full \
 | xargs pmprobe \
+| _filter \
 | $PCP_AWK_PROG '
 $2 >= 0		{ next }
 		{ print }'
