@@ -11,4 +11,5 @@ probe	mem.pool.paged_bytes exists ? include : exclude
 	mem.pages_total
 	disk.dev.idle
 	disk.dev.queue_len
+	filesys.full
 
