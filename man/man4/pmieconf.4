@@ -150,8 +150,8 @@ changes should be made.
 To see how this all works, you can generate this file as follows:
 .sp
 .nf
-    # cat - | pmieconf -f /tmp/pmieconf.out \\
-        -r $PCP_VAR_DIR/config/pmieconf/memory:$PCP_VAR_DIR/config/pmieconf/global
+    # cat \- | pmieconf \-f /tmp/pmieconf.out \\
+        \-r $PCP_VAR_DIR/config/pmieconf/memory:$PCP_VAR_DIR/config/pmieconf/global
     modify memory.exhausted delta "4 minutes"
     modify memory.exhausted enabled yes
     modify memory.exhausted pcplog_action yes
@@ -164,7 +164,7 @@ Then verify that the generated file is a valid
 configuration file using:
 .sp
 .nf
-    # pmie -C /tmp/pmieconf.out
+    # pmie \-C /tmp/pmieconf.out
 .fi
 .sp
 This parses the file, and then exits after reporting any syntax errors.
