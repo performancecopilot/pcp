@@ -440,25 +440,23 @@ static int
 cgroup_namespace(__pmnsTree *pmns, const char *options,
 		const char *cgrouppath, const char *cgroupname, int domain)
 {
-    int i, sts, maxid = 0;
+    int i, sts = 0;
 
     /* use options to tell which cgroup controller(s) are active here */
     for (i = 0; i < sizeof(controllers)/sizeof(controllers[0]); i++) {
 	cgroup_subsys_t *subsys = &controllers[i];
 	if (scan_filesys_options(options, subsys->name) == NULL)
 	    continue;
-	sts = namespace(pmns, subsys, cgrouppath, cgroupname, domain);
-	if (sts > maxid)
-	    maxid = sts;
+	sts |= namespace(pmns, subsys, cgrouppath, cgroupname, domain);
     }
-    return maxid;
+    return sts;
 }
 
 static int
 cgroup_scan(const char *mnt, const char *path, const char *options,
 		int domain, __pmnsTree *pmns, int root)
 {
-    int sts, length, maxid = 0;
+    int sts, length;
     DIR *dirp;
     struct stat sbuf;
     struct dirent *dp;
@@ -477,8 +475,6 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
     cgroupname = &cgrouppath[length];
 
     sts = cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain);
-    if (sts > maxid)
-	maxid = sts;
 
     /*
      * readdir - descend into directories to find all cgroups, then
@@ -499,24 +495,20 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
 	if (!(S_ISDIR(sbuf.st_mode)))
 	    continue;
 
-        sts = cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain);
-	if (sts > maxid)
-	    maxid = sts;
+	sts |= cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain);
 
 	/* also scan for any child cgroups */
-        sts = cgroup_scan(mnt, cgrouppath, options, domain, pmns, 0);
-	if (sts > maxid)
-	    maxid = sts;
+        sts |= cgroup_scan(mnt, cgrouppath, options, domain, pmns, 0);
     }
     closedir(dirp);
-    return maxid;
+    return sts;
 }
 
 void
 refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 {
     int i, j, k, a;
-    int sts, maxid = 0, domain = pmda->e_domain;
+    int sts, mtab = 0, domain = pmda->e_domain;
     filesys_t *fs;
     __pmnsTree *tree = pmns ? *pmns : NULL;
 
@@ -556,14 +548,11 @@ refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 	if (!pmdaCacheLookup(mounts, sts, NULL, (void **)&fs))
 	    continue;
 	/* walk this cgroup mount finding groups (subdirs) */
-	sts = cgroup_scan(fs->path, "", fs->options, domain, tree, 1);
-	if (sts > maxid)
-	    maxid = sts;
+	mtab |= cgroup_scan(fs->path, "", fs->options, domain, tree, 1);
     }
 
-    if (maxid) {
-	/* TODO: need to reallocate metric table with dup cgroup metrics */
-    }
+    if (mtab)
+	linux_dynamic_metrictable(pmda);
 
     if (pmns)
 	*pmns = tree;
@@ -628,9 +617,58 @@ cgroup_procs_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
 		continue;
 
 	    /* TODO: return values for process metrics */
+	    return PM_ERR_NYI;
 	}
     }
     return PM_ERR_PMID;
+}
+
+/*
+ * Needs to answer the question: how much extra space needs to be allocated
+ * in the metric table for (dynamic) cgroup metrics"?  We have static entries
+ * for group ID zero - if we have any non-zero group IDs, we need entries to
+ * cover those.  Return value is the number of additional entries needed.
+ */
+static void
+size_metrictable(int *total, int *trees)
+{
+    int i, j, maxid = 0, count = 0;
+
+    for (i = 0; i < sizeof(controllers)/sizeof(controllers[0]); i++) {
+	cgroup_subsys_t *subsys = &controllers[i];
+	for (j = 0; j < subsys->group_count; j++) {
+	    cgroup_group_t *group = &subsys->groups[j];
+	    if (group->id > maxid)
+		maxid = group->id;
+	}
+	count += subsys->metric_count + 1;	/* +1 for task.pid */
+    }
+
+    *total = count;
+    *trees = maxid;
+}
+
+/*
+ * Create new metric table entry for a group based on an existing one.
+ */
+static void
+refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
+{
+    int domain = pmid_domain(source->m_desc.pmid);
+    int cluster = pmid_cluster(source->m_desc.pmid);
+    int item = pmid_item(source->m_desc.pmid);
+
+    memcpy(dest, source, sizeof(pmdaMetric));
+    dest->m_desc.pmid = cgroup_pmid_build(domain, cluster, id, item);
+
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	fprintf(stderr, "cgroup refresh_metrictable: "
+			"metric ID dup: %d.%d.%d.%d -> %d.%d.%d.%d\n",
+		domain, cluster, cgroup_pmid_group(source->m_desc.pmid),
+		cgroup_pmid_metric(source->m_desc.pmid),
+		pmid_domain(dest->m_desc.pmid), pmid_cluster(dest->m_desc.pmid),
+		cgroup_pmid_group(dest->m_desc.pmid),
+		cgroup_pmid_metric(dest->m_desc.pmid));
 }
 
 void
@@ -643,5 +681,6 @@ cgroup_init(void)
 		  CLUSTER_NET_CLS_GROUPS, CLUSTER_NET_CLS_PROCS,
 		};
 
-    linux_dynamic_pmns("cgroup.groups", set, sizeof(set), refresh_cgroups);
+    linux_dynamic_pmns("cgroup.groups", set, sizeof(set)/sizeof(int),
+		refresh_cgroups, refresh_metrictable, size_metrictable);
 }
