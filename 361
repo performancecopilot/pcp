@@ -39,7 +39,7 @@ mkdir $grp || _fail "Cannot create cgroup mount point"
 
 # TODO: remove, debug only
 pmda="-Kclear -Kadd,60,/source/git/pcp/src/pmdas/linux/pmda_linux.so,linux_init"
-pmda=
+#pmda=
 
 # real test starts here
 echo "initial fetch, starting with a clean slate"
@@ -53,6 +53,15 @@ $sudo umount $grp || _fail "cpuset umount"
 echo "cpuacct and cpuset fetch, no user groups defined, dual controllers"
 $sudo mount -t cgroup -o cpuacct,cpuset none $grp || _fail "cpu,cpuacct mount"
 pminfo -L $pmda -m cgroup.mounts cgroup.groups
+$sudo umount $grp || _fail "cpu,cpuacct cgroup umount"
+
+echo "cpuacct and cpuset fetch, one user group defined, dual controllers"
+$sudo mount -t cgroup -o cpuacct,cpuset none $grp || _fail "cpu,cpuacct mount"
+$sudo mkdir $grp/pcpqa
+pminfo -L -d $pmda -m cgroup.mounts cgroup.groups
+$sudo rmdir $grp/pcpqa
+echo "cpuacct and cpuset fetch, one user group removed, dual controllers"
+pminfo -L -d $pmda -m cgroup.mounts cgroup.groups
 $sudo umount $grp || _fail "cpu,cpuacct cgroup umount"
 
 # success, all done
