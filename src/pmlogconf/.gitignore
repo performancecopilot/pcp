@@ -1,0 +1,10 @@
+cpu/GNUmakefile
+disk/GNUmakefile
+filesystem/GNUmakefile
+kernel/GNUmakefile
+memory/GNUmakefile
+networking/GNUmakefile
+platform/GNUmakefile
+sgi/GNUmakefile
+sqlserver/GNUmakefile
+v1.0/GNUmakefile
