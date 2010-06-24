@@ -3969,7 +3969,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
     if (need_refresh[CLUSTER_SCSI])
 	refresh_proc_scsi(&proc_scsi);
 
-    if (need_refresh[CLUSTER_XFS])
+    if (need_refresh[CLUSTER_XFS] || need_refresh[CLUSTER_XFSBUF])
     	refresh_proc_fs_xfs(&proc_fs_xfs);
 
     if (need_refresh[CLUSTER_NET_TCP])
@@ -4141,7 +4141,8 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	return 0; /* no values available */
 	}
 	else
-	if (idp->cluster == CLUSTER_XFS && proc_fs_xfs.errcode != 0) {
+	if ((idp->cluster == CLUSTER_XFS || idp->cluster == CLUSTER_XFSBUF) &&
+	    proc_fs_xfs.errcode != 0) {
 	    /* no values available for XFS metrics */
 	    return 0;
 	}
