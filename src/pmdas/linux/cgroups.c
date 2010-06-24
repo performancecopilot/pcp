@@ -362,7 +362,8 @@ refresh_cgroup_subsys(pmInDom indom)
 {
     char buf[4096];
     char name[MAXPATHLEN];
-    int hierarchy, numcgroups, enabled, data, sts;
+    int numcgroups, enabled, data, sts;
+    long hierarchy;
     FILE *fp;
 
     if ((fp = fopen("/proc/cgroups", "r")) == NULL)
@@ -372,19 +373,20 @@ refresh_cgroup_subsys(pmInDom indom)
 	/* skip lines starting with hash (header) */
 	if (buf[0] == '#')
 	    continue;
-	if (sscanf(buf, "%s %u %u %u", &name[0],
+	if (sscanf(buf, "%s %lu %u %u", &name[0],
 			&hierarchy, &numcgroups, &enabled) != 4)
 	    continue;
 	sts = pmdaCacheLookupName(indom, name, NULL, (void **)&data);
-	if (sts == PMDA_CACHE_ACTIVE)
+	if (sts == PMDA_CACHE_ACTIVE) {
+	    if (data != hierarchy)
+		pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)hierarchy);
 	    continue;
+	}
 	if (sts != PMDA_CACHE_INACTIVE) {
 	    char *n = strdup(name);
 	    if (n == NULL)
 		continue;
 	    pmdaCacheStore(indom, PMDA_CACHE_ADD, n, (void *)hierarchy);
-	} else if (data != hierarchy) {
-	    pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)hierarchy);
 	}
     }
     fclose(fp);
@@ -504,6 +506,27 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
     return sts;
 }
 
+static void
+cgroup_regulars(__pmnsTree *pmns, int domain)
+{
+    int i;
+    static struct {
+	int	item;
+	int	cluster;
+	char	*name;
+    } regulars[] = {
+	{ 0, CLUSTER_CGROUP_SUBSYS, "cgroup.subsys.hierarchy" },
+	{ 1, CLUSTER_CGROUP_SUBSYS, "cgroup.subsys.count" },
+	{ 0, CLUSTER_CGROUP_MOUNTS, "cgroup.mounts.subsys" },
+	{ 1, CLUSTER_CGROUP_MOUNTS, "cgroup.mounts.count" },
+    };
+
+    for (i = 0; i < 4; i++) {
+	pmID pmid = pmid_build(domain, regulars[i].cluster, regulars[i].item);
+	__pmAddPMNSNode(pmns, pmid, regulars[i].name);
+    }
+}
+
 void
 refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 {
@@ -522,6 +545,8 @@ refresh_cgroup_groups(pmdaExt *pmda, pmInDom mounts, __pmnsTree **pmns)
 	    *pmns = NULL;
 	return;
     }
+
+    cgroup_regulars(tree, domain);
 
     /* reset our view of subsystems and groups */
     for (i = 0; i < sizeof(controllers)/sizeof(controllers[0]); i++) {
@@ -681,6 +706,6 @@ cgroup_init(void)
 		  CLUSTER_NET_CLS_GROUPS, CLUSTER_NET_CLS_PROCS,
 		};
 
-    linux_dynamic_pmns("cgroup.groups", set, sizeof(set)/sizeof(int),
+    linux_dynamic_pmns("cgroup", set, sizeof(set)/sizeof(int),
 		refresh_cgroups, refresh_metrictable, size_metrictable);
 }

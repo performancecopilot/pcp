@@ -1377,8 +1377,3 @@ If non-zero, stop collecting perf stats this many secs after last fetch
 @ quota.project.files.time_left when soft limit is exceeded, seconds until it is enacted
 
 @ sysfs.kernel.uevent_seqnum counter of the number of uevents processed by the udev subsystem
-
-@ cgroup.subsys.hierarchy Hierarchy IDs for all known control group subsystems
-@ cgroup.subsys.count Count of all known (active+inactive) control groups
-@ cgroup.mounts.subsys Mounted control groups and their subsystems
-@ cgroup.mounts.count Count of control group subsystem mount points

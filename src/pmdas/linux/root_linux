@@ -35,7 +35,7 @@ root {
     quota
     tmpfs
     sysfs
-    cgroup
+    cgroup		60:*:*
 }
 
 hinv {
@@ -1140,18 +1140,3 @@ sysfs.kernel {
     uevent_seqnum	60:35:0
 }
 
-cgroup {
-    subsys
-    mounts
-    groups		60:*:*
-}
-
-cgroup.subsys {
-    hierarchy		60:37:0
-    count		60:37:1
-}
-
-cgroup.mounts {
-    subsys		60:38:0
-    count		60:38:1
-}
