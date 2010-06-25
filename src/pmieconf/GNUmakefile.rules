@@ -14,40 +14,42 @@
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
+
+# localdefs needs to set ALL_RULES (all the rules files to be included
+# in the builds and tar balls) and set LOCAL_RULES (the subset of the
+# rules that will work on the TARGET_OS platform)
+#
 include localdefs
 
 WORKDIR	:= $(shell pwd)
 GROUP	:= $(shell basename $(WORKDIR))
-RULES	= $(PCP_VAR_DIR)/config/pmieconf
+RULESDIR	= $(PCP_VAR_DIR)/config/pmieconf
 
 LDIRT	= GNUmakefile
 
-ifeq ($(TARGET_OS), linux)
-DEFAULT	= $(LINUX_RFILES)
-else
-DEFAULT	= $(RFILES)
-endif
+LSRCFILES = localdefs $(ALL_RULES)
 
-LSRCFILES = localdefs $(DEFAULT)
+CONFIGS	= $(subst "./","",$(LOCAL_RULES))
 
-CONFIGS	= $(subst "./","",$(DEFAULT))
-
-default_pcp: $(DEFAULT)
+default_pcp: $(LOCAL_RULES)
 
 install_pcp: install
 
 install: default_pcp
-	$(INSTALL) -d $(RULES)/$(GROUP)
+	$(INSTALL) -d $(RULESDIR)/$(GROUP)
 	@for f in $(CONFIGS); do \
-	    $(INSTALL) -m 644 $$f $(RULES)/$(GROUP)/$$f; \
+	    $(INSTALL) -m 644 $$f $(RULESDIR)/$(GROUP)/$$f; \
 	done
 
 rules:
 	@test ! -d ../rules/$(GROUP) && mkdir ../rules/$(GROUP); exit 0
 	@rm -f ../rules/$(GROUP)/*
-	@for f in IGNORE_DUMMY_RULE $(DEFAULT); do \
+	@for f in IGNORE_DUMMY_RULE $(LOCAL_RULES); do \
 	    [ $$f = IGNORE_DUMMY_RULE ] && continue; \
 	    cp ../$(GROUP)/$$f ../rules/$(GROUP)/$$f; \
+	    sed -e's|/usr/pcp/lib/pmie_email|$(PCP_BINADM_DIR)/pmie_email|' \
+		-e's|/usr/pcp/bin/pmpost|$(PCP_BINADM_DIR)/pmpost|' <$$f \
+		 >../rules/$(GROUP)/$$f; \
 	done
 
 pmlogger.config:

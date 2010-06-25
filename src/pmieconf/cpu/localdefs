@@ -1,3 +1,25 @@
-RFILES = util syscall context_switch system load_average \
+ALL_RULES = util syscall context_switch system load_average \
 	excess_fpe low_util
-LINUX_RFILES = $(RFILES)
+
+LOCAL_RULES = $(ALL_RULES)
+
+# Metrics missing from Mac OS X
+#
+# rule: util
+#   kernel.all.cpu.intr -12357 Unknown metric name
+#
+# rule: syscall
+#   kernel.all.syscall -12357 Unknown metric name
+#
+# rule: context_switch
+#   kernel.all.pswitch -12357 Unknown metric name
+#
+# rule: excess_fpe
+#   kernel.percpu.syscall -12357 Unknown metric name
+#
+# rule: low_util
+#   kernel.all.cpu.intr -12357 Unknown metric name
+#
+ifeq ($(TARGET_OS), darwin)
+LOCAL_RULES = system load_average
+endif

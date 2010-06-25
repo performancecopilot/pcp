@@ -1,5 +1,6 @@
 cpu/GNUmakefile
 filesys/GNUmakefile
+global/GNUmakefile
 local
 memory/GNUmakefile
 percpu/GNUmakefile
