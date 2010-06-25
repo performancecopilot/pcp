@@ -59,7 +59,6 @@ void setio(int reset)	{ neols = 0; skiprest = reset; }
 void setscroll(void)	{ needscroll = 1; }
 int  resized(void)	{ return needresize; }
 
-#ifdef HAVE_SYS_IOCTL_H
 /* looks after window resizing for the printing routine */
 void
 onwinch(int dummy)
@@ -69,7 +68,6 @@ onwinch(int dummy)
 #endif
     needresize = 1;
 }
-#endif
 
 /* in interactive mode scrolling, if no more wanted skiprest is set */
 static void

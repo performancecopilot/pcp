@@ -15,9 +15,9 @@
 TOPDIR = ../..
 include	$(TOPDIR)/src/include/builddefs
 
-MKFILE_SUBDIRS = cpu filesys memory percpu pernetif
+MKFILE_SUBDIRS = cpu filesys memory percpu pernetif global
 
-SUBDIRS	= global $(MKFILE_SUBDIRS)
+SUBDIRS	= $(MKFILE_SUBDIRS)
 
 CMDTARGET = pmieconf$(EXECSUFFIX)
 CFILES = pmieconf.c rules.c io.c
@@ -43,7 +43,9 @@ pmieconf.o rules.o:    rules.h
 makefiles:
 	@for d in $(MKFILE_SUBDIRS); do \
 	    rm -f $$d/GNUmakefile; \
-	    cp GNUmakefile.rules $$d/GNUmakefile; \
+	    cd $$d; \
+	    $(LN_S) ../GNUmakefile.rules GNUmakefile; \
+	    cd ..; \
 	done
 
 rules: $(SUBDIRS)
