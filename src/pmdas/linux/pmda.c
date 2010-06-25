@@ -5323,43 +5323,43 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if ((f = _pm_getfield(entry->io_lines.rchar, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 	case PROC_PID_IO_WCHAR:
 	    if ((f = _pm_getfield(entry->io_lines.wchar, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 	case PROC_PID_IO_SYSCR:
 	    if ((f = _pm_getfield(entry->io_lines.syscr, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 	case PROC_PID_IO_SYSCW:
 	    if ((f = _pm_getfield(entry->io_lines.syscw, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 	case PROC_PID_IO_READ_BYTES:
 	    if ((f = _pm_getfield(entry->io_lines.readb, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 	case PROC_PID_IO_WRITE_BYTES:
 	    if ((f = _pm_getfield(entry->io_lines.writeb, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 	case PROC_PID_IO_CANCELLED_BYTES:
 	    if ((f = _pm_getfield(entry->io_lines.cancel, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 
 	default:
