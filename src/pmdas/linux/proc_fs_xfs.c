@@ -29,7 +29,6 @@ refresh_proc_fs_xfs(proc_fs_xfs_t *proc_fs_xfs)
 {
     char buf[4096];
     FILE *fp;
-    int try_pagebuf = 1;	/* backward compatibility */
 
     memset(proc_fs_xfs, 0, sizeof(proc_fs_xfs_t));
 
@@ -160,7 +159,6 @@ refresh_proc_fs_xfs(proc_fs_xfs_t *proc_fs_xfs)
 		    &proc_fs_xfs->xs_buf_page_retries,
 		    &proc_fs_xfs->xs_buf_page_found,
 		    &proc_fs_xfs->xs_buf_get_read);		    
-		try_pagebuf = 0;
 	    } else
 	    if (strncmp(buf, "vnodes", 6) == 0)
 		sscanf(buf, "vnodes %u %u %u %u %u %u %u %u",
@@ -203,23 +201,6 @@ refresh_proc_fs_xfs(proc_fs_xfs_t *proc_fs_xfs)
 			&proc_fs_xfs->xs_qm_dqwants,
 			&proc_fs_xfs->xs_qm_dqshake_reclaims,
 			&proc_fs_xfs->xs_qm_dqinact_reclaims);
-	    }
-	    fclose(fp);
-	}
-	if (try_pagebuf &&
-	    (fp = fopen("/proc/fs/pagebuf/stat", "r")) != (FILE *)NULL) {
-	    while (fgets(buf, sizeof(buf), fp) != NULL) {
-		if (strncmp(buf, "pagebuf", 7) == 0)
-		    sscanf(buf, "pagebuf %u %u %u %u %u %u %u %u %u",
-			&proc_fs_xfs->xs_buf_get,
-			&proc_fs_xfs->xs_buf_create,
-			&proc_fs_xfs->xs_buf_get_locked,
-			&proc_fs_xfs->xs_buf_get_locked_waited,
-			&proc_fs_xfs->xs_buf_busy_locked,
-			&proc_fs_xfs->xs_buf_miss_locked,
-			&proc_fs_xfs->xs_buf_page_retries,
-			&proc_fs_xfs->xs_buf_page_found,
-			&proc_fs_xfs->xs_buf_get_read);		    
 	    }
 	    fclose(fp);
 	}

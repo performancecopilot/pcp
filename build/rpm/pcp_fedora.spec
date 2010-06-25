@@ -157,9 +157,6 @@ fi
 %dir %{_localstatedir}/run/pcp
 %dir %{_localstatedir}/lib/pcp
 %dir %{_localstatedir}/lib/pcp/config
-%dir %{_localstatedir}/lib/pcp/config/*
-%dir %{_localstatedir}/lib/pcp/config/pmie/cisco
-%dir %{_localstatedir}/lib/pcp/config/pmieconf/shping
 
 %{_bindir}/*
 %{_libexecdir}/pcp
@@ -176,26 +173,14 @@ fi
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmcd/pmcd.conf
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmcd/pmcd.options
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmcd/rc.local
-%{_localstatedir}/lib/pcp/config/pmchart/*
-%{_localstatedir}/lib/pcp/config/pmafm/*
-%{_localstatedir}/lib/pcp/config/pmie/cisco/in_util
-%{_localstatedir}/lib/pcp/config/pmie/cisco/out_util
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmie/config.default
-%{_localstatedir}/lib/pcp/config/pmieconf/shping/response
-%{_localstatedir}/lib/pcp/config/pmieconf/shping/status
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmie/control
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmie/crontab
-%{_localstatedir}/lib/pcp/config/pmie/stomp
-%{_localstatedir}/lib/pcp/config/pmlogger/config.base
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmlogger/config.default
-%{_localstatedir}/lib/pcp/config/pmlogger/config.pcp
-%{_localstatedir}/lib/pcp/config/pmlogger/config.pmclient
-%{_localstatedir}/lib/pcp/config/pmlogger/config.pmstat
-%{_localstatedir}/lib/pcp/config/pmlogger/config.sar
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmlogger/control
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmlogger/crontab
-%{_localstatedir}/lib/pcp/config/pmlogger/Makefile
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmproxy/pmproxy.options
+%{_localstatedir}/lib/pcp/config/*
 
 %files libs
 %defattr(-,root,root)

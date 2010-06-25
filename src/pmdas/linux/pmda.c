@@ -3969,7 +3969,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
     if (need_refresh[CLUSTER_SCSI])
 	refresh_proc_scsi(&proc_scsi);
 
-    if (need_refresh[CLUSTER_XFS])
+    if (need_refresh[CLUSTER_XFS] || need_refresh[CLUSTER_XFSBUF])
     	refresh_proc_fs_xfs(&proc_fs_xfs);
 
     if (need_refresh[CLUSTER_NET_TCP])
@@ -4141,7 +4141,8 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	return 0; /* no values available */
 	}
 	else
-	if (idp->cluster == CLUSTER_XFS && proc_fs_xfs.errcode != 0) {
+	if ((idp->cluster == CLUSTER_XFS || idp->cluster == CLUSTER_XFSBUF) &&
+	    proc_fs_xfs.errcode != 0) {
 	    /* no values available for XFS metrics */
 	    return 0;
 	}
@@ -5322,43 +5323,43 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if ((f = _pm_getfield(entry->io_lines.rchar, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 	case PROC_PID_IO_WCHAR:
 	    if ((f = _pm_getfield(entry->io_lines.wchar, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 	case PROC_PID_IO_SYSCR:
 	    if ((f = _pm_getfield(entry->io_lines.syscr, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 	case PROC_PID_IO_SYSCW:
 	    if ((f = _pm_getfield(entry->io_lines.syscw, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 	case PROC_PID_IO_READ_BYTES:
 	    if ((f = _pm_getfield(entry->io_lines.readb, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 	case PROC_PID_IO_WRITE_BYTES:
 	    if ((f = _pm_getfield(entry->io_lines.writeb, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 	case PROC_PID_IO_CANCELLED_BYTES:
 	    if ((f = _pm_getfield(entry->io_lines.cancel, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", &atom->ull);
+		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
 	    break;
 
 	default:
