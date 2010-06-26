@@ -225,7 +225,7 @@ fi
 %defattr(-,root,root)
 
 %changelog
-* Wed Jun 23 2010 Mark Goodwin - 3.3.0-1
+* Fri Jun 25 2010 Mark Goodwin - 3.3.0-1
 - Update to latest PCP sources.
 
 * Thu Mar 18 2010 Mark Goodwin - 3.1.2-1
