@@ -62,10 +62,10 @@ typedef struct {
 static MetricInfo	metricInfoTable[] = {
 
     { "countd.processes",
-      { PMID ( COUNTD,0,0 ) , PM_TYPE_U32, PM_INDOM_PROC, PM_SEM_INSTANT, {0,0,1,0,0,PM_COUNT_ONE} } },
+      { PMID ( PMIMPORT,0,0 ) , PM_TYPE_U32, PM_INDOM_PROC, PM_SEM_INSTANT, {0,0,1,0,0,PM_COUNT_ONE} } },
 
     { "countd.total.processes",
-      { PMID ( COUNTD,0,1 ) , PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, {0,0,1,0,0,PM_COUNT_ONE} } }
+      { PMID ( PMIMPORT,0,1 ) , PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, {0,0,1,0,0,PM_COUNT_ONE} } }
 
 };
 
@@ -198,7 +198,7 @@ getPmResult ( const int infile, pmResult **result )
 
 	    switch( metricInfoTable[i].desc.pmid ) {
 
-	    case PMID(COUNTD,0,0):	/* countd.processes */
+	    case PMID(PMIMPORT,0,0):	/* countd.processes */
 		switch(j) {
 		case 0:		/* 'daemon' instance */
 		    atom.ul = processStats.daemon;
@@ -211,7 +211,7 @@ getPmResult ( const int infile, pmResult **result )
 		}
 		break;
 
-	    case PMID(COUNTD,0,1):	/* countd.total.processes */
+	    case PMID(PMIMPORT,0,1):	/* countd.total.processes */
 		atom.ul = processStats.daemon + processStats.other;
 		break;
 

@@ -21,7 +21,7 @@ include $(TOPDIR)/src/include/builddefs
 
 LIBTARGET = countd.$(DSOSUFFIX)
 
-DOMAIN  = COUNTD
+DOMAIN  = PMIMPORT
 STDPMID = $(TOPDIR)/src/pmns/stdpmid
 LDIRT = domain.h
 
