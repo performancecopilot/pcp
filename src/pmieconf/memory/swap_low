@@ -1,0 +1,78 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+#
+# Based on a rule originally developed by Kevin Wang at Silicon Graphics
+#
+
+rule	memory.swap_low
+	summary	= "$rule$"
+	predicate =
+"some_host (
+    ( 100 * ( swap.free $hosts$ / swap.length $hosts$ ) )
+	< $threshold$
+    && swap.length $hosts$ > 0	// ensure swap in use
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"There is only threshold percent swap space remaining - the system
+may soon run out of virtual memory.  Reduce the number and size of
+the running programs or add more swap(1) space before it completely
+runs out.";
+
+percent	threshold
+	default	= 10
+	help	=
+"Threshold percent of total swap space which is free, in the range
+0 (none free) to 100 (all swap is unused).";
+
+string	rule
+	default	= "Low free swap space"
+	modify	= no
+	display	= no;
+
+string	action_expand
+	default	= "%v%free@%h"
+	modify	= no
+	display	= no;
+
+string	email_expand
+	default	= "host: %h free swap space: %v%"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x20004C"
+	display	= no
+	modify	= no;
+
+# for HP OpenView integration:
+string	ov_severity
+	display	= no
+	default	= "Critical";
+
+# for CA/Unicenter TNG integration:
+string	tngfw_color
+	display	= no
+	default	= "Red";
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= memory.swap_low
+	display	= no
+	modify = no;
+string	enln_units
+	default	= %free
+	display	= no
+	modify = no;
+unsigned	enln_severity
+	display = no
+	default = 5;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

@@ -20,6 +20,7 @@
 #define _LOGGER_H
 
 #include "pmapi.h"
+#include "impl.h"
 
 /*
  * a task is a bundle of fetches to be done together
@@ -44,8 +45,9 @@ extern __pmLogCtl	logctl;		/* global log control */
 #define GLOBAL  0
 #define INSPEC  1
 
-/* generic error message buffer */
-extern char     emess[];
+/* generic error messages */
+extern char	*chk_emess[];
+extern void die(char *, int);
 
 /*
  * hash control for per-metric (really per-metric per-log specification)
@@ -102,6 +104,9 @@ extern struct timeval	epoch;
 
 /* yylex() gets input from here ... */
 extern FILE		*fconfig;
+extern FILE		*yyin;
+extern char		*configfile;
+extern int		lineno;
 
 extern int myFetch(int, pmID *, __pmPDU **);
 extern void yyerror(char *);
@@ -133,9 +138,30 @@ extern char pmlc_host[];
 #define LOG_DELTA_DEFAULT	-2
 
 /* command line parameters */
-extern char    	*archBase;		/* base name for log files */
-extern char	*pmcd_host;		/* collecting from PMCD on this host */
-extern int	primary;		/* Non-zero for primary logger */
+extern char	    	*archBase;		/* base name for log files */
+extern char		*pmcd_host;		/* collecting from PMCD on this host */
+extern int		primary;		/* Non-zero for primary logger */
+extern int		rflag;
+extern struct timeval	delta;			/* default logging interval */
+extern int		ctlport;		/* pmlogger control port number */
+
+/* pmlc support */
+extern void init_ports(void);
+extern int control_req(void);
+extern int client_req(void);
+extern __pmHashCtl	hist_hash;
+extern unsigned int	clientops;	/* access control (deny ops) */
+extern struct timeval	last_stamp;
+extern int		clientfd;
+extern int		ctlfd;
+extern int		exit_samples;
+extern int		vol_switch_samples;
+extern long		vol_switch_bytes;
+extern int		vol_samples_counter;
+extern int		archive_version; 
+extern int		parse_done;
+extern long		exit_bytes;
+extern long		vol_bytes;
 
 /* QA testing and error injection support ... see do_request() */
 extern int	qa_case;

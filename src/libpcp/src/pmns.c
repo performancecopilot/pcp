@@ -2172,8 +2172,14 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 			    char	**x_offspring = NULL;
 			    int		*x_statuslist = NULL;
 			    int		x_num;
-			    x_num = dp->dispatch.version.four.children(name, 0, &x_offspring, &x_statuslist, dp->dispatch.version.four.ext);
-			    stitch_list(&num, offspring, statuslist, x_num, x_offspring, x_statuslist);
+			    x_num = dp->dispatch.version.four.children(
+					name, 0, &x_offspring, &x_statuslist,
+					dp->dispatch.version.four.ext);
+			    if (x_num < 0)
+				num = x_num;
+			    else
+				stitch_list(&num, offspring, statuslist,
+					    x_num, x_offspring, x_statuslist);
 			    free(xname);
 			    goto check;
 			}
@@ -2211,8 +2217,14 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 			char	**x_offspring = NULL;
 			int	*x_statuslist = NULL;
 			int	x_num;
-			x_num = dp->dispatch.version.four.children(name, 0, &x_offspring, &x_statuslist, dp->dispatch.version.four.ext);
-			stitch_list(&num, offspring, statuslist, x_num, x_offspring, x_statuslist);
+			x_num = dp->dispatch.version.four.children(name, 0,
+					&x_offspring, &x_statuslist,
+					dp->dispatch.version.four.ext);
+			if (x_num < 0)
+			    num = x_num;
+			else
+			    stitch_list(&num, offspring, statuslist,
+					x_num, x_offspring, x_statuslist);
 			goto check;
 		    }
 		    else {

@@ -37,7 +37,7 @@ LSRCFILES = Make.stdpmid GNUmakefile.install Rebuild ReplacePmnsSubtree \
 	    $(STDPMID) $(SCRIPTS) $(LOCKERS)
 
 LLDLIBS = -lpcp
-LDIRT	= *.log *.pmns stdpmid .NeedRebuild $(TARGETS)
+LDIRT	= *.log *.pmns stdpmid .NeedRebuild build.script $(TARGETS)
 
 default:	$(SCRIPTS) $(LOCKERS) $(TARGETS) \
 		GNUmakefile.install .NeedRebuild Rebuild ReplacePmnsSubtree stdpmid
@@ -66,9 +66,11 @@ install:	default
 	$(INSTALL) -m 644 .NeedRebuild $(STDPMID) $(PMNS_VAR_DIR)
 
 stdpmid:	$(STDPMID)
-	PCP_CONF=$(TOPDIR)/src/include/pcp.conf export PCP_CONF; \
-	sed -e 's/\$PCP_DIR\/etc\/pcp\.env/\.\.\/\.\.\/src\/include\/pcp.env/' <Make.stdpmid >run; \
-	sh ./run; rm -f run
+	rm -f build.script
+	$(PCP_AWK_PROG) <Make.stdpmid >build.script '\
+/^. \$$PCP_DIR/	{ print "PCP_CONF=../include/pcp.conf"; print "unset PCP_CONFIG"; print ". ../include/pcp.env"; next }\
+		{ print }'
+	sh ./build.script
 
 default_pcp:	default
 

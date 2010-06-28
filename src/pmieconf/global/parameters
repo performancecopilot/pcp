@@ -1,0 +1,35 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# 
+
+# variable definitions applicable to all rules
+# (unless overridden at the level of an individual rule or group)
+# 
+
+string		global.delta
+		default = "2 min"
+		help	=
+"Sample interval between evaluations of this rule.  Default units
+are seconds and common units are \"second\", \"sec\", \"minute\",
+\"min\" and \"hour\".";
+
+string		global.holdoff
+		default	= "10 min"
+		help	=
+"Once the predicate is true and the action is executed, this
+variable allows suppression of further action execution until the
+specified interval has elapsed.  A value of zero enables execution
+of the action if the rule predicate is true at the next sample.
+Default units are seconds and common units are \"second\", \"sec\",
+\"minute\", \"min\" and \"hour\".";
+
+hostlist	global.hosts
+		default	= ""
+		help	=
+"May be set to a list of host names for which the rules will be
+evaluated.  Multiple hostnames should be separated by white space.
+If the list is empty, the host will be the host named in the -h
+option to pmie(1) if specified, else the local host.";
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

@@ -120,6 +120,7 @@ extern "C" {
 #undef HAVE_STDINT_H
 #undef HAVE_PWD_H
 #undef HAVE_REGEX_H
+#undef HAVE_TERMIO_H
 #undef HAVE_TERMIOS_H
 #undef HAVE_SYS_TERMIOS_H
 #undef HAVE_SYS_IOCTL_H
@@ -230,6 +231,7 @@ extern "C" {
 #undef HAVE_SIGHOLD
 #undef HAVE_SIGRELSE
 #undef HAVE_TCGETATTR
+#undef GWINSZ_IN_SYS_IOCTL
 
 #undef HAVE_REGEX
 #undef HAVE_REGCMP
@@ -501,12 +503,16 @@ typedef void (*SIG_PF) (int);
 
 extern void setlinebuf(FILE *);
 extern const char *hstrerror(int);
-extern const char *index(const char *, int);
-extern const char *rindex(const char *, int);
+extern char *index(const char *, int);
+extern char *rindex(const char *, int);
 extern long int lrand48(void);
 extern void srand48(long int);
 
+#ifndef _TIMESPEC_DEFINED
+#define _TIMESPEC_DEFINED
 struct timespec { time_t tv_sec; long tv_nsec; };
+struct itimerspec { struct timespec it_interval; struct timespec it_value; };
+#endif
 extern int nanosleep(const struct timespec *, struct timespec *);
 extern unsigned int sleep(unsigned int);
 

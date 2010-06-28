@@ -19,10 +19,13 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "pmiestats.h"
 #include "pmcd/src/pmcd.h"
 #include "pmcd/src/client.h"
-#include "pmie/src/pmiestats.h"
 #include <sys/stat.h>
+#if defined(IS_SOLARIS)
+#include <sys/systeminfo.h>
+#endif
 
 /*
  * Note: strange numbering for pmcd.pdu_{in,out}.total for
@@ -911,7 +914,7 @@ vset_resize(pmResult *rp, int i, int onumval, int numval)
 static char *
 simabi()
 {
-#if defined(__linux__) 
+#if defined(__linux__)
 # if defined(__i386__)
     return "ia32";
 # elif defined(__ia64__) || defined(__ia64)
@@ -919,7 +922,14 @@ simabi()
 # else
     return SIM_ABI;	/* SIM_ABI is defined in the linux Makefile */
 # endif /* __linux__ */
-#elif defined(IS_SOLARIS) || defined(IS_FREEBSD)
+#elif defined(IS_SOLARIS)
+    static char abi[32];
+    if (sysinfo(SI_ARCHITECTURE_NATIVE, abi, sizeof(abi)) < 0) {
+	return "unknown";
+    } else {
+	return abi;
+    }
+#elif defined(IS_FREEBSD)
     return "elf";
 #elif defined(IS_DARWIN)
     return "Mach-O";

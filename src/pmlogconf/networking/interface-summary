@@ -1,0 +1,10 @@
+#pmlogconf-setup 2.0
+ident	bytes, packets and errors (in and out) per network interface
+force	include
+	network.interface.in.bytes
+	network.interface.in.packets
+	network.interface.in.errors
+	network.interface.out.bytes
+	network.interface.out.packets
+	network.interface.out.errors
+	network.interface.collisions

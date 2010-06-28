@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	all available XVM data
+probe	hinv.xvm.nvolumes
+	xvm

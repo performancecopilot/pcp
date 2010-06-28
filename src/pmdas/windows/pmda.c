@@ -392,7 +392,8 @@ pdh_metric_t metricdesc[] = {
     },
 /* disk.dev.idle */
     { { PMDA_PMID(0,68), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER, 
-	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0) }, M_REDO, 0, 0, 0, NULL,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0)
+      }, M_REDO | M_AUTO64, 0, 0, 0, NULL,
       "\\PhysicalDisk(*)\\% Idle Time"
     },
 /* sqlserver.locks.all.requests */

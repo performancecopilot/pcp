@@ -75,13 +75,13 @@ windows_help(int ident, int type, char **buf, pmdaExt *pmda)
     if (type & PM_TEXT_ONELINE) {
 	if (metricdesc[i].pat[0] == '\0')
 	    return PM_ERR_TEXT;
-	*buf = windows_fmt(strncpy(texts, sizeof(texts), &metricdesc[i].pat[0]));
+	*buf = windows_fmt(strncpy(texts, &metricdesc[i].pat[0], sizeof(texts)));
     } else {
 	text = NULL;
 	windows_visit_metric(&metricdesc[i], windows_helptext_callback);
 	if (!text)
 	    return -ESRCH;
-	*buf = windows_fmt(strncpy(texts, sizeof(texts), text));
+	*buf = windows_fmt(strncpy(texts, text, sizeof(texts)));
     }
     return 0;
 }

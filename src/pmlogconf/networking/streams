@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	SVR5 streams activity
+probe	resource.nstream_queue
+	resource.nstream_queue
+	resource.nstream_head

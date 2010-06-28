@@ -35,6 +35,7 @@ root {
     quota
     tmpfs
     sysfs
+    cgroup		60:*:*
 }
 
 hinv {
@@ -51,6 +52,7 @@ hinv {
 hinv.map {
     scsi		60:15:0
     cpu_num		60:18:6
+    cpu_node		60:18:8
 }
 
 hinv.cpu {
@@ -65,6 +67,7 @@ hinv.cpu {
 kernel {
     all
     percpu
+    pernode
     uname
 }
 
@@ -130,6 +133,31 @@ kernel.percpu.cpu.wait {
 kernel.percpu.cpu.irq {
     soft		60:0:56
     hard		60:0:57
+}
+
+kernel.pernode {
+    cpu
+}
+
+kernel.pernode.cpu {
+    user		60:0:62
+    nice		60:0:63
+    sys			60:0:64
+    idle		60:0:65
+    intr		60:0:66
+    wait
+    irq
+    steal		60:0:67
+    guest		60:0:68
+}
+
+kernel.pernode.cpu.wait {
+    total		60:0:69
+}
+
+kernel.pernode.cpu.irq {
+    soft		60:0:70
+    hard		60:0:71
 }
 
 kernel.uname {
@@ -532,6 +560,7 @@ filesys {
     full		60:5:8
     blocksize           60:5:9
     avail               60:5:10
+    readonly            60:5:11
 }
 
 tmpfs {
@@ -786,6 +815,7 @@ xfs {
     buffer
     vnodes
     control
+    btree
 }
 
 xfs.allocs {
@@ -918,6 +948,85 @@ xfs.buffer {
     page_retries        60:17:6
     page_found          60:17:7
     get_read            60:17:8
+}
+
+xfs.btree {
+    alloc_blocks
+    alloc_contig
+    block_map
+    inode
+}
+
+xfs.btree.alloc_blocks {
+    lookup		60:16:80
+    compare		60:16:81
+    insrec		60:16:82
+    delrec		60:16:83
+    newroot		60:16:84
+    killroot		60:16:85
+    increment		60:16:86
+    decrement		60:16:87
+    lshift		60:16:88
+    rshift		60:16:89
+    split		60:16:90
+    join		60:16:91
+    alloc		60:16:92
+    free		60:16:93
+    moves		60:16:94
+}
+
+xfs.btree.alloc_contig {
+    lookup		60:16:95
+    compare		60:16:96
+    insrec		60:16:97
+    delrec		60:16:98
+    newroot		60:16:99
+    killroot		60:16:100
+    increment		60:16:101
+    decrement		60:16:102
+    lshift		60:16:103
+    rshift		60:16:104
+    split		60:16:105
+    join		60:16:106
+    alloc		60:16:107
+    free		60:16:108
+    moves		60:16:109
+}
+
+xfs.btree.block_map {
+    lookup		60:16:110
+    compare		60:16:111
+    insrec		60:16:112
+    delrec		60:16:113
+    newroot		60:16:114
+    killroot		60:16:115
+    increment		60:16:116
+    decrement		60:16:117
+    lshift		60:16:118
+    rshift		60:16:119
+    split		60:16:120
+    join		60:16:121
+    alloc		60:16:122
+    free		60:16:123
+    moves		60:16:124
+}
+
+xfs.btree.inode {
+    lookup		60:16:125
+    compare		60:16:126
+    insrec		60:16:127
+    delrec		60:16:128
+    newroot		60:16:129
+    killroot		60:16:130
+    increment		60:16:131
+    decrement		60:16:132
+    lshift		60:16:133
+    rshift		60:16:134
+    split		60:16:135
+    join		60:16:136
+    alloc		60:16:137
+    free		60:16:138
+    moves		60:16:139
 }
 
 network.tcpconn {
@@ -1110,3 +1219,4 @@ sysfs {
 sysfs.kernel {
     uevent_seqnum	60:35:0
 }
+

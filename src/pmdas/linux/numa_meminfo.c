@@ -84,34 +84,7 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo)
 
     /* First time only */
     if (!started) {
-	DIR *ndir;
-	struct dirent *dep;
-	int max_node = -1;
-
-	/* count number of nodes */
-	if ((ndir = opendir("/sys/devices/system/node/")) == NULL) {
-	   /* No NUMA statistics available */
-	    return -1;
-	}
-
-	while ((dep = readdir(ndir))) {
-	    int node_num;
-
-	    if (sscanf(dep->d_name, "node%d", &node_num) == 1) {
-		if (node_num >max_node)
-		    max_node = node_num;
-	    }
-	}
-	closedir(ndir);
-
-	numa_meminfo->node_indom->it_numinst = max_node + 1;
-	numa_meminfo->node_indom->it_set =
-	    (pmdaInstid *)malloc(max_node * sizeof(pmdaInstid));
-	if (!numa_meminfo->node_indom->it_set) {
-	    fprintf(stderr, "%s: error allocating numa_indom: %s\n",
-		__FUNCTION__, strerror(errno));
-	    return -1;
-	}
+	int max_node = idp->it_numinst;
 
 	numa_meminfo->node_info = (nodeinfo_t *)malloc(max_node * sizeof(nodeinfo_t));
 	if (!numa_meminfo->node_info) {
@@ -120,19 +93,8 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo)
 	    return -1;
 	}
 	memset(numa_meminfo->node_info, 0, max_node * sizeof(nodeinfo_t));
-   
-	/* Nodes are always zero-indexed and contiguous */
+
 	for (i = 0; i <= max_node; i++) {
-	    char node_name[256];
-
-	    sprintf(node_name, "node%d", i);
-	    numa_meminfo->node_indom->it_set[i].i_inst = i;
-	    numa_meminfo->node_indom->it_set[i].i_name = strdup(node_name);
-	    if (pmDebug & DBG_TRACE_APPL2) {
-		fprintf(stderr, "%s: inst=%d, name=%s\n", __FUNCTION__, i,
-				node_name);
-	    }
-
 	    numa_meminfo->node_info[i].meminfo = linux_table_clone(numa_meminfo_table);
 	    if (!numa_meminfo->node_info[i].meminfo) {
 		fprintf(stderr, "%s: error allocating meminfo: %s\n",
@@ -147,6 +109,7 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo)
 	    }
 	}
 
+	numa_meminfo->node_indom = idp;
 	started = 1;
     }
 

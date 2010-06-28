@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	mailq PMDA summary information
+probe	mailq.length exists ? include : exclude
+	mailq.length
+	mailq.deferred

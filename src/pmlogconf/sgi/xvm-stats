@@ -1,0 +1,6 @@
+#pmlogconf-setup 2.0
+ident	XVM stripe, mirror and concat volume stats
+probe	hinv.xvm.nvolumes
+	xvm.ve.concat
+	xvm.ve.mirror
+	xvm.ve.stripe

@@ -26,7 +26,7 @@ DOMAIN	= MAILQ
 CMDTARGET = $(IAM)$(EXECSUFFIX)
 CFILES	= mailq.c
 DFILES	= README
-LSRCFILES = Install Remove root help pmns $(DFILES)
+LSRCFILES = Install Remove root help pmns $(DFILES) pmlogconf.summary
 LLDLIBS	= -lpcp_pmda -lpcp $(LIB_FOR_REGEX)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
@@ -41,15 +41,22 @@ install:	default
 	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/pmda$(CMDTARGET)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
 
 mailq.o:	domain.h
 
-domain.h:	../../pmns/stdpmid
+domain.h: ../../pmns/stdpmid
 	rm -f domain.h
-	echo "/*" >domain.h
-	echo " * built from $(TOPDIR)/src/pmns/stdpmid" >>domain.h
-	echo " */" >>domain.h
-	$(PCP_AWK_PROG) < $< >> $@ '$$1=="#define" && $$2=="$(DOMAIN)" { print "#define $(DOMAIN) " $$3 }'
+	@echo "/*" >domain.h
+	@echo " * built from $<" >>domain.h
+	@echo " */" >>domain.h
+	@$(PCP_AWK_PROG) <$< '\
+$$1=="#define" && $$2 == "$(DOMAIN)" { print "#define $(DOMAIN) " $$3 >>"$@"; found++ }\
+END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  exit(1) }\
+          if (found > 1) { print "Botch: multiple #defines for domain $(DOMAIN) in $<"; print "... see $@ for details"; exit(1) }\
+	  exit(0)\
+	}'
 
 default_pcp:	default
 

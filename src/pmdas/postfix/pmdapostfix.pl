@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2009 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+# Copyright (c) 2009-2010 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,10 +19,35 @@ use Time::HiRes qw ( time );
 
 use vars qw( $pmda );
 use vars qw( %caches );
+use vars qw( %logstats );
+my $logfile = '/var/log/mail.log';
 my $qshape = 'qshape -b 10 -t 5';
-my $refresh = 5.0; # 5 seconds between refreshes
+my $refresh = 5.0; # 5 seconds between qshape refreshes
 
 my $cached = 0;
+
+my $postfix_queues_indom = 0;
+my @postfix_queues_dom = (    0 => 'total',
+		1 => '0-5 mins',
+		2 => '5-10 mins',
+		3 => '10-20 mins',
+		4 => '20-40 mins',
+		5 => '40-80 mins',
+		6 => '80-160 mins',
+		7 => '160-320 mins',
+		8 => '320-640 mins',
+		9 => '640-1280 mins',
+		10=> '1280+ mins',
+	     );
+
+my $postfix_sent_indom = 1;
+my @postfix_sent_dom = (       0 => 'smtp',
+	     );
+
+my $postfix_received_indom = 2;
+my @postfix_received_dom = (   0 => 'local',
+		1 => 'smtp',
+	     );
 
 sub postfix_do_refresh
 {
@@ -61,6 +86,47 @@ sub postfix_do_refresh
     }
 }
 
+sub postfix_log_parser
+{
+    ( undef, $_ ) = @_;
+
+    if (/status=sent/) {
+	return unless (/ postfix\//);
+
+	my $relay = "";
+
+	if (/relay=([^,]+)/o) {
+	    $relay = $1;
+	}
+
+	if ($relay !~ /\[/o) {
+	    # if we are about to define a new instance, let's add it to the
+	    # domain as well
+	    my $idx = 0;
+	    my $key;
+	    my %tmp = @postfix_sent_dom;
+
+	    foreach $key (sort keys %tmp) {
+		last if ($relay eq $tmp{$key});
+		$idx += 1;
+	    }
+
+	    if ((2 * $idx) == @postfix_sent_dom) {
+		push(@postfix_sent_dom, $idx=>$relay);
+		$pmda->replace_indom($postfix_sent_indom, \@postfix_sent_dom);
+	    }
+
+	    $logstats{"sent"}{$idx} += 1;
+	} else {
+	    $logstats{"sent"}{0} += 1;
+	}
+    } elsif (/smtpd.*client=/) {
+	$logstats{"received"}{1} += 1;
+    } elsif (/pickup.*(sender|uid)=/) {
+	$logstats{"received"}{0} += 1;
+    }
+}
+
 sub postfix_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
@@ -72,37 +138,30 @@ sub postfix_fetch_callback
 
     if (!defined($metric_name))    { return (PM_ERR_PMID, 0); }
 
-    if ($now - $cached > $refresh) {
-	postfix_do_refresh();
-	$cached = $now;
-    }
-
     if ($cluster == 0) {
 	my $qname;
+
+	if ($now - $cached > $refresh) {
+	    postfix_do_refresh();
+	    $cached = $now;
+	}
 
 	$qname = $metric_name;
 	$qname =~ s/^postfix\.queues\.//;
 
 	return (PM_ERR_AGAIN, 0) unless defined($caches{$qname});
 	return ($caches{$qname}{$inst}, 1);
+    } elsif ($cluster == 1) {
+	my $dir = $metric_name;
+	$dir =~ s/^postfix\.//;
+
+	return (PM_ERR_AGAIN, 0) unless defined($logstats{$dir});
+	return (PM_ERR_AGAIN, 0) unless defined($logstats{$dir}{$inst});
+	return ($logstats{$dir}{$inst}, 1);
     }
 
     return (PM_ERR_PMID, 0);
 }
-
-my $postfix_queues_indom = 0;
-my @postfix_queues_dom = (    0 => 'total',
-		1 => '0-5 mins',
-		2 => '5-10 mins',
-		3 => '10-20 mins',
-		4 => '20-40 mins',
-		5 => '40-80 mins',
-		6 => '80-160 mins',
-		7 => '160-320 mins',
-		8 => '320-640 mins',
-		9 => '640-1280 mins',
-		10=> '1280+ mins',
-	     );
 
 $pmda = PCP::PMDA->new('postfix', 103);
 
@@ -122,7 +181,21 @@ $pmda->add_metric(pmda_pmid(0,4), PM_TYPE_U32, $postfix_queues_indom,
 	PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	"postfix.queues.deferred", '', '');
 
+$pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, $postfix_sent_indom,
+	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+	"postfix.sent", '', '');
+$pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U32, $postfix_received_indom,
+	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+	"postfix.received", '', '');
+
+$logstats{"sent"}{0} = 0;
+$logstats{"received"}{0} = 0;
+$logstats{"received"}{1} = 0;
+
 $pmda->add_indom($postfix_queues_indom, \@postfix_queues_dom, '', '');
+$pmda->add_indom($postfix_sent_indom, \@postfix_sent_dom, '', '');
+$pmda->add_indom($postfix_received_indom, \@postfix_received_dom, '', '');
+$pmda->add_tail($logfile, \&postfix_log_parser, 0);
 $pmda->set_fetch_callback(\&postfix_fetch_callback);
 $pmda->run;
 
@@ -135,7 +208,8 @@ pmdapostfix - Postfix performance metrics domain agent (PMDA)
 =head1 DESCRIPTION
 
 B<pmdapostfix> is a Performance Metrics Domain Agent (PMDA) which exports
-mail queue sizes as reported by qshape(1).
+mail queue sizes as reported by qshape(1), as well as aggregate statistics
+collected from mail.log.
 
 =head1 INSTALLATION
 

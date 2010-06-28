@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	EFS activity
+probe	efs.attempts
+	efs

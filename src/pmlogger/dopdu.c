@@ -16,11 +16,7 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include "pmapi.h"
-#include "impl.h"
 #include "logger.h"
-
-extern int		clientfd;
 
 
 /* return one of these when a status request is made from a PCP 1.x pmlc */
@@ -792,7 +788,6 @@ find_task(int state, int delta, task_t **result)
 static int
 gethistflags(pmID pmid, int inst)
 {
-    extern __pmHashCtl	hist_hash;
     __pmHashNode		*hp;
     pmidhist_t		*php;
     insthist_t		*ihp;
@@ -988,7 +983,6 @@ do_control(__pmPDU *pb)
     task_t		*tp;
     time_t		now;
     int			reqstate = 0;
-    extern unsigned int	clientops;	/* access control (deny ops) */
 
     /*
      * TODO	- encoding for logging interval in requests and results?
@@ -1272,7 +1266,6 @@ sendstatus(void)
     int				version;
     static int			firsttime = 1;
     static char			*tzlogger;
-    extern struct timeval	last_stamp;
     struct timeval		now;
     struct hostent		*hep = NULL;
 

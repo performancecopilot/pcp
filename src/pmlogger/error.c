@@ -16,11 +16,7 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-
-extern char	*configfile;
-extern int	lineno;
+#include "logger.h"
 
 void
 yywarn(char *s)

@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	NUMA migration stats
+probe	origin.numa.migr.intr.total
+	origin.numa.migr.intr.total

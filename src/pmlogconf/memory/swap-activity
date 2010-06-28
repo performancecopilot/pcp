@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	pages in and out (severe VM demand)
+force	available
+	swap.pagesin
+	swap.pagesout

@@ -22,7 +22,7 @@
 #include "pmda.h"
 
 #include <ctype.h>
-#ifdef HAVE_SYS_IOCTL_H
+#ifdef GWINSZ_IN_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
 #ifdef HAVE_SYS_TERMIOS_H
@@ -314,7 +314,7 @@ static void timeposition(struct timeval position)
     header = 1;
 }
 
-#ifdef HAVE_SYS_IOCTL_H
+#ifdef TIOCGWINSZ
 static void
 resize(int sig)
 {
@@ -374,7 +374,7 @@ main(int argc, char *argv[])
 
     setlinebuf(stdout);
     __pmSetProgname(argv[0]);
-#ifdef SIGWINCH
+#if defined SIGWINCH && defined TIOCGWINSZ
     __pmSetSignalHandler(SIGWINCH, resize);
 #endif
 

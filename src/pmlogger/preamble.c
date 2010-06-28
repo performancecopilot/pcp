@@ -16,14 +16,8 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
 #include "logger.h"
-
-extern char	    	*archBase;	/* base name for log files */
-extern int		ctlport;	/* pmlogger control port number */
-extern int		archive_version; 
+#include "pmda.h"
 
 /*
  * this routine creates the "fake" pmResult to be added to the
@@ -74,7 +68,6 @@ do_preamble(void)
     __pmTimeval	tmp;
     char	path[MAXPATHLEN];
     char	host[MAXHOSTNAMELEN];
-    extern struct timeval       last_stamp;
 
     /* start to build the pmResult */
     res = (pmResult *)malloc(sizeof(pmResult) + (n_metric - 1) * sizeof(pmValueSet *));

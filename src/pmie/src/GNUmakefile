@@ -30,7 +30,7 @@ TARGET = pmie$(EXECSUFFIX)
 CFILES	= pmie.c symbol.c dstruct.c lexicon.c syntax.c pragmatics.c eval.c \
        	  show.c match_inst.c syslog.c stomp.c andor.c
 
-HFILES  = fun.h dstruct.h eval.h lexicon.h pmiestats.h pragmatics.h \
+HFILES  = fun.h dstruct.h eval.h lexicon.h pragmatics.h \
 	  show.h symbol.h syntax.h syslog.h stomp.h andor.h
 
 SKELETAL = hdr.sk fetch.sk misc.sk aggregate.sk unary.sk binary.sk \
@@ -53,7 +53,6 @@ pmie$(EXECSUFFIX):	$(OBJECTS) fun.o
 
 install:	default
 	$(INSTALL) -m 755 $(TARGET) $(PCP_BIN_DIR)/$(TARGET)
-	$(INSTALL) -m 644 pmiestats.h $(PCP_INC_DIR)/pmiestats.h
 
 lexicon.o syntax.o:	grammar.h
 

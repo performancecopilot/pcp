@@ -1,0 +1,73 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+#
+
+rule	cpu.excess_fpe
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_host (
+    some_inst (
+	( 100 * kernel.percpu.cpu.sys $hosts$ > $systime_util$ )
+	     && kernel.percpu.syscall $hosts$ < $syscall_rate$
+    )
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"This predicate attempts to detect processes generating very large
+numbers of floating point exceptions (FPEs).  Characteristic of
+this situation is heavy system time coupled with low system call
+rates (exceptions are delivered through the kernel to the process,
+taking some system time, but no system call is serviced on the
+application's behalf).";
+
+string	rule
+	default	= "Possible high floating point exception rate"
+	modify	= no
+	display	= no;
+
+percent	systime_util
+	default	= 50
+	help	=
+"Threshold percentage for kernel CPU utilization, in the range 0
+(idle) to 100 (completely busy)";
+
+double	syscall_rate
+	default	= 100
+	help	=
+"Threshold system call rate (calls per second) below which something
+is deemed amiss.";
+
+string	action_expand
+	default	= %v%sys[%i]@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h CPU: %i system mode: %v% and low syscall rate"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x200041"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= cpu.excess_fpe
+	display	= no
+	modify = no;
+string	enln_units
+	default	= %sys[%i]
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

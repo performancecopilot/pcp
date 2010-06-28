@@ -124,9 +124,10 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	__pmContext	*ctxp = __pmHandleToPtr(n);
 	int		newcnt;
 	pmID		*newlist;
+	int		have_dm;
 
 	/* for derived metrics, may need to rewrite the pmidlist */
-	newcnt = __dmprefetch(ctxp, numpmid, pmidlist, &newlist);
+	have_dm = newcnt = __dmprefetch(ctxp, numpmid, pmidlist, &newlist);
 	if (newcnt > numpmid) {
 	    /* replace args passed into pmFetch */
 	    numpmid = newcnt;
@@ -162,9 +163,12 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	}
 
 	/* process derived metrics, if any */
-	__dmpostfetch(ctxp, result);
-	if (newlist != NULL)
-	    free(newlist);
+	if (have_dm) {
+	    if (n >= 0)
+		__dmpostfetch(ctxp, result);
+	    if (newlist != NULL)
+		free(newlist);
+	}
     }
 
 #ifdef PCP_DEBUG

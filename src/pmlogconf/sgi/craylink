@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	CrayLink routers
+probe	hw.router.rev_id
+	hw.router

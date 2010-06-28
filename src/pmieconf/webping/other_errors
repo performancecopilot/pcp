@@ -1,0 +1,51 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# 
+
+rule	webping.other_errors
+	default	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_inst (
+    60 * webping.errors.othererr $hosts$
+	> 60 * $threshold$ count/minute
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"The webping agent encountered more than threshold errors (cause
+unknown) per minute communicating with web servers in the last sample
+interval.";
+
+string	rule
+	default	= "High webping error rate, cause unknown"
+	display	= no
+	modify	= no;
+
+double	threshold
+	default	= 3
+	help	=
+"Threshold webping errors of unknown cause, per minute.";
+
+string	action_expand
+	default	= "%verrs@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default = "host: %h high errors of unknown cause: %verrs"
+	display = no
+	modify  = no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string  esp_type
+	default	= "0x2000A9"
+	display	= no
+	modify	= no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

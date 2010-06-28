@@ -99,6 +99,7 @@ extern int		metrictab_sz;
 #define ZPOOL_PERDISK_INDOM	5
 #define NETLINK_INDOM	6
 #define ZFS_SNAP_INDOM	7
+#define LOADAVG_INDOM	8
 
 extern pmdaIndom	indomtab[];
 extern int		indomtab_sz;

@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	NFS2 stats
+force	available
+	nfs

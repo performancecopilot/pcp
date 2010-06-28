@@ -40,7 +40,7 @@ PACKAGE_DISTRIBUTION ?= @PACKAGE_DISTRIBUTION@
 SGI_CHROOT_BUILD ?= 0
 SGI_ISSP_BUILD ?= 0
 
-BUILDRULES=$(TOPDIR)/src/include/buildrules
+BUILDRULES = $(TOPDIR)/src/include/buildrules
 
 TARGET_OS = @target_os@
 TARGET_VENDOR = @target_vendor@
@@ -60,7 +60,7 @@ PACKAGE_BUILDER = @package_builder@
 # turn on all warnings by default
 WARN_OFF = -Wall
 
-PTHREAD_LIB=@ac_cv_pthread_lib@
+PTHREAD_LIB = @ac_cv_pthread_lib@
 LIBPCP_ABIDIR ?= src
 PCP_LIBS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
 	   -L$(TOPDIR)/src/libpcp_pmda/$(LIBPCP_ABIDIR)
@@ -116,18 +116,19 @@ PLDFLAGS = -brtl -bnoipath
 WARN_OFF =
 endif
 
-CFLAGS += $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -g -DPCP_DEBUG \
-	-DPCP_VERSION=\"$(PCP_VERSION)\" -I$(TOPDIR)/src/include 
+CFLAGS_ABI = @cflags_abi@
+CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -g -DPCP_DEBUG \
+	-DPCP_VERSION=\"$(PCP_VERSION)\" -I$(TOPDIR)/src/include
 
-LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
+LDFLAGS += $(CFLAGS_ABI) $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
-SRCFILES= GNUmakefile $(HFILES) $(CFILES) $(MFILES) \
+SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(MFILES) \
 	$(LSRCFILES) $(LFILES) $(YFILES)
 
 LDLIBS = $(LLDLIBS) $(PLDLIBS)
 MAKEOPTS = --no-print-directory
 DIRT = $(LDIRT) dep dep.bak $(OBJECTS) $(CMDTARGET) $(LIBTARGET) \
-	$(STATICLIBTARGET) *.[1-9].gz
+	$(STATICLIBTARGET) *.[1-9].gz *.[1-9].tmp
 DIRDIRT = $(LDIRDIRT)
 
 OBJECTS = $(ASFILES:.s=.o) \
@@ -142,17 +143,19 @@ LD	= @ld@
 AWK	= @awk@
 SED	= @sed@
 CPP	= @cpp@
-INSTALL	= $(TOPDIR)/install-sh -o @pcp_owner@ -g @pcp_group@
 LEX	= @lex@
 YACC	= @yacc@
 ECHO	= @echo@
 LN_S	= @LN_S@
 GREP    = @grep@
 
+INSTALL_SH = $(TOPDIR)/install-sh
+INSTALL	= $(INSTALL_SH) -o @pcp_owner@ -g @pcp_group@
+
 CCF	= $(CC) $(CFLAGS)
 MAKEF	= $(MAKE) $(MAKEOPTS)
 LDF	= $(LD) $(LDFLAGS)
-MAKEDEPEND= @makedepend@
+MAKEDEPEND = @makedepend@
 
 ZIP	= @gzip@
 BZIP2	= @bzip2@

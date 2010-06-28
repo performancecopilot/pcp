@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	all available UDP data
+force	available
+	network.udp

@@ -5,10 +5,11 @@
 # control lines have this format
 # #+ tag:on-off:delta
 # where
-#	tag	matches [A-Z][0-9a-z] and is unique
-#	on-off	y or n to enable or disable this group
+#	tag	is arbitrary (no embedded :'s) and unique
+#	on-off	y or n to enable or disable this group, else
+#		x for groups excluded by probing from pmlogconf-setup
+#		when the group was added to the configuration file
 #	delta	delta argument for pmlogger "logging ... on delta" clause
-#	
 #
 # Copyright (c) 1998,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -33,25 +34,47 @@ prog=`basename $0`
 
 _usage()
 {
-    echo "Usage: $prog [-q] configfile"
+    echo "Usage: $prog [-qrv] [-d groupsdir] [-h hostname] configfile"
     exit 1
 }
 
 quick=false
 pat=''
 prompt=true
+reprobe=false
+BASE=''
+HOST=''
+verbose=false
+setupflags=''
 
-while getopts q? c
+while getopts d:h:qrv? c
 do
     case $c
     in
+	d)	# base directory for the group files
+		BASE="$OPTARG"
+		;;
+
+	h)	# host to contact for "probe" tests
+		HOST=$OPTARG
+		;;
+
 	q)	# "quick" mode, don't change logging intervals
-		#
 		quick=true
+		;;
+
+	r)	# reprobe
+		reprobe=true
+		;;
+
+	v)	# verbose
+		verbose=true
+		setupflags="$setupflags -v"
 		;;
 
 	?)	# eh?
 		_usage
+		# NOTREACHED
 		;;
     esac
 done
@@ -60,22 +83,35 @@ shift `expr $OPTIND - 1`
 if [ $# -ne 1 ]
 then
     _usage
+    # NOTREACHED
+fi
+
+if [ ! -d $BASE ]
+then
+    echo "$prog: Error: base directory ($BASE) for group files does not exist"
+    exit 1
 fi
 
 config=$1
 
 tmp=/var/tmp/$$
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+#debug# tmp=`pwd`/tmp
 rm -f $tmp.*
 
-# split $tmp.ctl at the line containing the unprocessed tag
+# split $tmp.ctl at the line containing the unprocessed tag to
+# produce
+# 	$tmp.head
+# 	$tmp.tag	- one line
+# 	$tmp.tail
 #
 _split()
 {
     rm -f $tmp.head $tmp.tag $tmp.tail
     $PCP_AWK_PROG <$tmp.ctl '
 BEGIN						{ out = "'"$tmp.head"'" }
-seen == 0 && /^#\? [A-Z][0-9a-z]:[yn]:/		{ print >"'"$tmp.tag"'"
+/DO NOT UPDATE THE FILE ABOVE/			{ seen = 1 }
+seen == 0 && /^#\? [^:]*:[ynx]:/		{ print >"'"$tmp.tag"'"
 						  out = "'"$tmp.tail"'"
 						  seen = 1
 						  next
@@ -91,47 +127,50 @@ _update()
     # and the control lines
     #
 
-    $PCP_AWK_PROG <$tmp.in '
+    $PCP_AWK_PROG <$tmp.in >$tmp.ctl '
 /DO NOT UPDATE THE FILE ABOVE/	{ tail = 1 }
 tail == 1			{ print; next }
-/^\#\+ [A-Z][0-9a-z]:[yn]:/	{ print; skip = 1; next }
+/^\#\+ [^:]*:[ynx]:/		{ sub(/+/, "?", $1); print; skip = 1; next }
 skip == 1 && /^\#----/		{ skip = 0; next }
 skip == 1			{ next }
-				{ print }' \
-    | sed -e '/^#+ [A-Z][0-9a-z]:[yn]:/s/+/?/' >$tmp.ctl
+				{ print }'
 
     # now need to be a little smarter ... tags may have appeared or
     # disappeared from the shipped defaults, so need to munge the contents
     # of $tmp.ctl to reflect this
     #
-    last_tag=''
-    sed -n -e '/^#+ [A-Z][0-9a-z]:[yn]:/p' $tmp.skel \
-    | while read line
+    find $BASE -type f \
+    | sed \
+	-e "s;$BASE/;;" \
+	-e '/^v1.0\//d' \
+    | LC_COLLATE=POSIX sort \
+    | while read tag
     do
-	tag=`echo "$line" | sed -e 's/^#+ \([A-Z][0-9a-z]\):.*/\1/'`
+	if sed 1q <$BASE/"$tag" | grep '^#pmlogconf-setup 2.0' >/dev/null
+	then
+	    :
+	else
+	    # not one of our group files, skip it ...
+	    continue
+	fi
 	if grep "^#? $tag:" $tmp.ctl >/dev/null
 	then
 	    :
 	else
-	    #DEBUG# echo "need to add tag=$tag after last_tag=$last_tag"
+	    $verbose && echo "need to add new group tag=$tag"
 	    rm -f $tmp.pre $tmp.post
-	    if [ -z "$last_tag" ]
-	    then
-		$PCP_AWK_PROG <$tmp.ctl '
+	    $PCP_AWK_PROG <$tmp.ctl '
 BEGIN						{ out = "'"$tmp.pre"'" }
-						{ print >out }
-NF == 0						{ out = "'"$tmp.post"'" }'
-	    else
-		$PCP_AWK_PROG <$tmp.ctl '
-BEGIN						{ out = "'"$tmp.pre"'" }
-						{ print >out }
-/^#\? '"$last_tag"':/				{ out = "'"$tmp.post"'" }'
-	    fi
+/DO NOT UPDATE THE FILE ABOVE/			{ out = "'"$tmp.post"'" }
+						{ print >out }'
 	    mv $tmp.pre $tmp.ctl
-	    echo "$line" | sed -e 's/+/?/' >>$tmp.ctl
+	    [ -z "$HOST" ] && HOST=localhost
+	    $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp.err \
+	    | sed -e "s;$BASE/;;" >$tmp.tmp
+	    [ -s $tmp.err ] && cat $tmp.err
+	    sed -e '/^#+/s/+/?/' <$tmp.tmp >>$tmp.ctl
 	    cat $tmp.post >>$tmp.ctl
 	fi
-	last_tag="$tag"
     done
 
     while true
@@ -141,380 +180,95 @@ BEGIN						{ out = "'"$tmp.pre"'" }
 	eval `sed <$tmp.tag -e 's/^#? /tag="/' -e 's/:/" onoff="/' -e 's/:/" delta="/' -e 's/:.*/"/'`
 	[ -z "$delta" ] && delta=default
 
+	if $reprobe
+	then
+	    [ -z "$HOST" ] && HOST=localhost
+	    $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp.err \
+	    | sed -e "s;$BASE/;;" >$tmp.tmp
+	    [ -s $tmp.err ] && cat $tmp.err
+	    if [ -s $tmp.tmp ]
+	    then
+		eval `sed <$tmp.tmp -e 's/^#+ /tag_r="/' -e 's/:/" onoff_r="/' -e 's/:/" delta_r="/' -e 's/:.*/"/'`
+		[ -z "$delta_r" ] && delta_r=default
+		if [ "$tag" != "$tag_r" ]
+		then
+		    echo "Botch: reprobe for $tag found new tag ${tag_r}, no change"
+		    cat $tmp.tmp
+		else
+		    if [ "$onoff" = y ]
+		    then
+			# existing y takes precedence
+			if [ "$onoff_r" = x ]
+			then
+			    echo "Warning: reprobe for $tag suggests exclude, keeping current include status"
+			fi
+		    else
+			onoff=$onoff_r
+			[ "$delta" != "default" ] && delta=$delta_r
+		    fi
+		fi
+	    fi
+	fi
+
 	case $onoff
 	in
-	    y|n)	;;
+	    y|n)    ;;
+	    x)      # excluded group from setup
+		    cat $tmp.head >$tmp.ctl
+		    echo "#+ $tag:x::" >>$tmp.ctl
+		    echo "#----" >>$tmp.ctl
+		    cat $tmp.tail >>$tmp.ctl
+		    continue
+		    ;;
 	    *)	echo "Warning: tag=$tag onoff is illegal ($onoff) ... setting to \"n\""
 		    onoff=n
 		    ;;
 	esac
 
-	desc="Unknown group, tag \"$tag\""
-	metrics=""
-	metrics_a=""
-	case $tag
-	in
+	if [ -f $BASE/$tag ]
+	then
+	    eval `$PCP_AWK_PROG <$BASE/$tag '
+BEGIN		{ desc = ""; metrics = "" }
+$1 == "ident"	{ if (desc != "") desc = desc "\n"
+		  for (i = 2; i <= NF; i++) {
+		      if (i == 2) desc = desc $2
+		      else desc = desc " " $i
+		  }
+		  next
+		}
+END		{ printf "desc='"'"'%s'"'"'\n",desc }'`
 
-	    I0)	desc="hardware configuration [nodevis, osvis, oview, routervis, pmchart:Overview]"
-		    metrics="hinv"
-		    ;;
-
-	    D0)	desc="activity (IOPs and bytes for both reads and writes) over all disks [osvis, pmstat, pmchart:Disk, pmchart:Overview]"
-		    metrics="disk.all.read
-			    disk.all.write
-			    disk.all.total
-			    disk.all.read_bytes
-			    disk.all.write_bytes
-			    disk.all.bytes
-			    disk.all.avg_disk.active"
-		    ;;
-
-	    D1)	desc="per controller disk activity [pmchart:DiskCntrls]"
-		    metrics="disk.ctl.read
-			    disk.ctl.write
-			    disk.ctl.total
-			    disk.ctl.read_bytes
-			    disk.ctl.write_bytes
-			    disk.ctl.bytes"
-		    ;;
-
-	    D2)	desc="per spindle disk activity [dkvis, pmie:per_disk]"
-		    metrics="disk.dev.read
-			    disk.dev.write
-			    disk.dev.total
-			    disk.dev.read_bytes
-			    disk.dev.write_bytes
-			    disk.dev.bytes
-			    disk.dev.active"
-		    ;;
-
-	    D3)	desc="all available data per disk spindle"
-		    metrics="disk.dev"
-		    ;;
-
-	    C0)	desc="utilization (usr, sys, idle, ...) over all CPUs [osvis, pmstat, pmchart:CPU, pmchart:Overview, pmie:cpu]"
-		    metrics="kernel.all.cpu.idle
-			    kernel.all.cpu.nice
-			    kernel.all.cpu.intr
-			    kernel.all.cpu.sys
-			    kernel.all.cpu.sxbrk
-			    kernel.all.cpu.user
-			    kernel.all.cpu.wait.total"
-		    ;;
-
-	    C2) desc="contributions to CPU wait time"
-	            metrics="kernel.all.wait"
-		    ;;
-
-	    C1)	desc="utilization per CPU [clustervis, mpvis, nodevis, oview, pmie:cpu, pmie:per_cpu]"
-		    metrics="kernel.percpu.cpu.idle
-			    kernel.percpu.cpu.nice
-			    kernel.percpu.cpu.intr
-			    kernel.percpu.cpu.sys
-			    kernel.percpu.cpu.sxbrk
-			    kernel.percpu.cpu.user
-			    kernel.percpu.cpu.wait.total"
-		    ;;
-
-	    C3) desc="per CPU contributions to wait time"
-	            metrics="kernel.percpu.wait"
-		    ;;
-
-	    K0)	desc="load average and number of logins [osvis, pmstat, pmchart:LoadAvg, pmchart:Overview, pmie:cpu]"
-		    metrics="kernel.all.load
-			    kernel.all.users"
-
-		    ;;
-
-	    K1)	desc="context switches, total syscalls and counts for selected calls (e.g. read, write, fork, exec, select) over all CPUs [pmstat, pmchart:Syscalls, pmie:cpu]"
-		    metrics="kernel.all.pswitch
-			    kernel.all.syscall
-			    kernel.all.sysexec
-			    kernel.all.sysfork
-			    kernel.all.sysread
-			    kernel.all.syswrite"
-		    metrics_a="kernel.all.kswitch
-			    kernel.all.kpreempt
-			    kernel.all.sysioctl"
-		    ;;
-
-	    K2)	desc="per CPU context switches, total syscalls and counts for selected calls [pmie:per_cpu]"
-		    metrics="kernel.percpu.pswitch
-			    kernel.percpu.syscall
-			    kernel.percpu.sysexec
-			    kernel.percpu.sysfork
-			    kernel.percpu.sysread
-			    kernel.percpu.syswrite"
-		    metrics_a="kernel.percpu.kswitch
-			    kernel.percpu.kpreempt
-			    kernel.percpu.sysioctl"
-		    ;;
-
-	    K3)	desc="bytes across the read() and write() syscall interfaces"
-		    metrics="kernel.all.readch kernel.all.writech"
-		    ;;
-
-	    K4)	desc="interrupts [pmkstat]"
-		    metrics="kernel.all.intr.vme
-			    kernel.all.intr.non_vme
-			    kernel.all.tty.recvintr
-			    kernel.all.tty.xmitintr
-			    kernel.all.tty.mdmintr"
-		    ;;
-
-	    K5)	desc="buffer cache reads, writes, hits and misses [pmchart:BufferCache, pmie:filesys]"
-		    metrics="kernel.all.io.bread
-			    kernel.all.io.bwrite
-			    kernel.all.io.lread
-			    kernel.all.io.lwrite
-			    kernel.all.io.phread
-			    kernel.all.io.phwrite
-			    kernel.all.io.wcancel"
-		    ;;
-
-	    K6)	desc="all available buffer cache data"
-		    metrics="buffer_cache"
-		    ;;
-
-	    K7)	desc="vnode activity"
-		    metrics="vnodes"
-		    ;;
-
-	    K8)	desc="name cache (namei, iget, etc) activity [pmchart:DNLC, pmie:filesys]"
-		    metrics="kernel.all.io.iget
-			    kernel.all.io.namei
-			    kernel.all.io.dirblk
-			    name_cache"
-		    ;;
-
-	    K9)	desc="asynchronous I/O activity"
-		    metrics="kaio"
-		    ;;
-
-	    Ka)	desc="run and swap queues [pmkstat]"
-		    metrics="kernel.all.runque
-			    kernel.all.runocc
-			    kernel.all.swap.swpque
-			    kernel.all.swap.swpocc"
-		    ;;
-
-	    M0)	desc="pages in and out (severe VM demand) [pmstat, pmchart:Paging]"
-		    metrics="swap.pagesin
-			    swap.pagesout"
-		    ;;
-
-	    M1)	desc="address translation (faults and TLB activity)"
-		    metrics="mem.fault mem.tlb"
-		    ;;
-
-	    M2)	desc="kernel memory allocation [osvis, pmstat, pmchart:Memory, pmchart:Overview]"
-		    metrics="mem.system
-			    mem.util
-			    mem.freemem
-			    mem.availsmem
-			    mem.availrmem
-			    mem.bufmem
-			    mem.physmem
-			    mem.dchunkpages
-			    mem.pmapmem
-			    mem.strmem
-			    mem.chunkpages
-			    mem.dpages
-			    mem.emptymem
-			    mem.freeswap
-			    mem.halloc
-			    mem.heapmem
-			    mem.hfree
-			    mem.hovhd
-			    mem.hunused
-			    mem.zfree
-			    mem.zonemem
-			    mem.zreq
-			    mem.iclean
-			    mem.bsdnet
-			    mem.palloc
-			    mem.unmodfl
-			    mem.unmodsw
-			    mem.paging.reclaim"
-		    ;;
-
-	    M3)	desc="current swap allocation and all swap activity [pmchart:Swap, pmie:memory]"
-		    metrics="swap"
-		    ;;
-
-	    M4)	desc="swap configuration"
-		    metrics="swapdev"
-		    ;;
-
-	    M5)	desc="\"large\" page and Origin node-based allocations and activity [nodevis, oview]"
-		    metrics="mem.lpage"
-		    metrics_a="origin.node"
-		    ;;
-
-	    M6)	desc="all NUMA stats"
-		    metrics="origin.numa"
-		    ;;
-
-	    M7)	desc="NUMA migration stats [nodevis, oview]"
-		    metrics="origin.numa.migr.intr.total"
-		    ;;
-
-	    N0)	desc="bytes and packets (in and out) and bandwidth per network interface [clustervis, osvis, pmchart:NetBytes, pmchart:Overview, pmie:per_netif]"
-		    metrics="network.interface.in.bytes
-			    network.interface.in.packets
-			    network.interface.in.errors
-			    network.interface.out.bytes
-			    network.interface.out.packets
-			    network.interface.out.errors
-			    network.interface.total.bytes
-			    network.interface.total.packets
-			    network.interface.total.errors
-			    network.interface.collisions
-			    network.interface.baudrate"
-		    ;;
-
-	    N1)	desc="all available data per network interface"
-		    metrics="network.interface"
-		    ;;
-
-	    N2)	desc="TCP bytes and packets (in and out), connects, accepts, drops and closes [pmchart:NetConnDrop, pmchart:NetPackets, pmie:network]"
-		    metrics="network.tcp.accepts
-			    network.tcp.connattempt
-			    network.tcp.connects
-			    network.tcp.drops
-			    network.tcp.conndrops
-			    network.tcp.timeoutdrop
-			    network.tcp.closed
-			    network.tcp.sndtotal
-			    network.tcp.sndpack
-			    network.tcp.sndbyte
-			    network.tcp.rcvtotal
-			    network.tcp.rcvpack
-			    network.tcp.rcvbyte
-			    network.tcp.rexmttimeo
-			    network.tcp.sndrexmitpack"
-		    ;;
-
-	    N3)	desc="all available TCP data [pmchart:NetTCPCongestion]"
-		    metrics="network.tcp"
-		    ;;
-
-	    N4)	desc="UDP packets in and out [pmchart:NetPackets]"
-		    metrics="network.udp.ipackets network.udp.opackets"
-		    ;;
-
-	    N5)	desc="all available UDP data"
-		    metrics="network.udp"
-		    ;;
-
-	    N6)	desc="socket stats (counts by type and state)"
-		    metrics="network.socket"
-		    ;;
-
-	    N7)	desc="all available data for other protocols (IP, ICMP, IGMP)"
-		    metrics="network.ip
-			    network.icmp
-			    network.igmp"
-		    ;;
-
-	    N8)	desc="mbuf stats (alloc, failed, waited, etc) [pmie:network]"
-		    metrics="network.mbuf"
-		    ;;
-
-	    N9)	desc="multicast routing stats"
-		    metrics="network.mcr"
-		    ;;
-
-	    Na)	desc="SVR5 streams activity"
-		    metrics="resource.nstream_queue
-			    resource.nstream_head"
-		    ;;
-
-	    S0)	desc="NFS2 stats [nfsvis, pmchart:NFS2]"
-		    metrics="nfs"
-		    ;;
-
-	    S1)	desc="NFS3 stats [nfsvis, pmchart:NFS3]"
-		    metrics="nfs3"
-		    ;;
-
-	    S2)	desc="RPC stats [pmie:rpc]"
-		    metrics="rpc"
-		    ;;
-
-	    F0)	desc="Filesystem fullness [pmchart:FileSystem, pmie:filesys]"
-		    metrics="filesys"
-		    ;;
-
-	    F1)	desc="XFS data and log traffic"
-		    metrics="xfs.log_writes
-			    xfs.log_blocks
-			    xfs.log_noiclogs
-			    xfs.read_bytes
-			    xfs.write_bytes"
-		    ;;
-
-	    F2)	desc="all available XFS data"
-		    metrics="xfs"
-		    ;;
-
-	    F3)	desc="XLV operations and bytes per volume [xlv_vis]"
-		    metrics="xlv.read
-			    xlv.write
-			    xlv.read_bytes
-			    xlv.write_bytes"
-		    ;;
-
-	    F4)	desc="XLV striped volume stats [xlv_vis]"
-		    metrics="xlv.stripe_ops
-			    xlv.stripe_units
-			    xlv.aligned
-			    xlv.unaligned
-			    xlv.largest_io"
-		    ;;
-
-	    F5)	desc="EFS activity"
-		    metrics="efs"
-		    ;;
-
-	    F6)	desc="XVM operations and bytes per volume"
-		    metrics="xvm.ve.read
-			    xvm.ve.write
-			    xvm.ve.read_bytes
-			    xvm.ve.write_bytes"
-		    ;;
-
-	    F7)	desc="XVM stripe, mirror and concat volume stats [pmie:xvm]"
-		    metrics="xvm.ve.concat
-			    xvm.ve.mirror
-			    xvm.ve.stripe"
-		    ;;
-
-	    F8)	desc="all available XVM data"
-		    metrics="xvm"
-		    ;;
-
-	    H0)	desc="NUMALink routers [nodevis, oview, routervis, pmchart:NUMALinks, pmie:craylink]"
-		    metrics="hw.router"
-		    ;;
-
-	    H1)	desc="Origin hubs [pmie:craylink]"
-		    metrics="hw.hub"
-		    ;;
-
-	    H2)	desc="global MIPS CPU event counters (enable first with ecadmin(1))"
-		    metrics="hw.r10kevctr"
-		    ;;
-
-	    H3)	desc="XBOW activity [xbowvis]"
-		    metrics="xbow"
-		    ;;
-
-	esac
+	    sed -n <$BASE/$tag >$tmp.metrics \
+		-e '/^[ 	]/s/[ 	]*//p'
+	    #debug# echo $tag:
+	    #debug# echo "desc: $desc"
+	else
+	    case "$tag"
+	    in
+		v1.0/*)
+			# from migration, silently do nothing
+			;;
+		*)
+			echo "Warning: cannot find group file ($tag) ... no change is possible"
+			;;
+	    esac
+	    $PCP_AWK_PROG <"$config" >>$tmp.head '
+BEGIN			{ tag="'"$tag"'" }
+$1 == "#+" && $2 ~ tag	{ want = 1 }
+want == 1		{ print }
+want == 1 && /^#----/	{ exit }'
+	    cat $tmp.head $tmp.tail >$tmp.ctl
+	    continue
+	fi
 
 	if [ ! -z "$pat" ]
 	then
-	    if echo "$desc" "$metrics" "$metrics_a" | grep "$pat" >/dev/null
+	    if echo "$desc" | grep "$pat" >/dev/null
+	    then
+		pat=''
+		prompt=true
+	    fi
+	    if grep "$pat" $tmp.metrics >/dev/null
 	    then
 		pat=''
 		prompt=true
@@ -545,11 +299,7 @@ y         log this group
 		if [ "$ans" = m ]
 		then
 		    echo "Metrics in this group ($tag):"
-		    echo $metrics $metrics_a \
-		    | sed -e 's/[ 	][ 	]*/ /g' \
-		    | tr ' ' '\012' \
-		    | sed -e 's/^/    /' \
-		    | sort
+		    sed -e 's/^/    /' $tmp.metrics
 		    continue
 		fi
 		if [ "$ans" = q ]
@@ -597,7 +347,7 @@ y         log this group
 			    #
 			    ok=`echo "$ans" \
 			        | sed -e 's/^every //' \
-				| awk '
+				| $PCP_AWK_PROG '
 /^once$/			{ print "true"; exit }
 /^default$/			{ print "true"; exit }
 /^[0-9][0-9]* *msec$/		{ print "true"; exit }
@@ -637,22 +387,10 @@ y         log this group
 	echo "$desc" | fmt | sed -e 's/^/## /' >>$tmp.head
 	if [ "$onoff" = y ]
 	then
-	    if [ ! -z "$metrics" ]
+	    if [ -s $tmp.metrics ]
 	    then
 		echo "log advisory on $delta {" >>$tmp.head
-		for m in $metrics
-		do
-		    echo "	$m" >>$tmp.head
-		done
-		echo "}" >>$tmp.head
-	    fi
-	    if [ ! -z "$metrics_a" ]
-	    then
-		echo "log advisory on $delta {" >>$tmp.head
-		for m in $metrics_a
-		do
-		    echo "	$m" >>$tmp.head
-		done
+		sed -e 's/^/	/' <$tmp.metrics >>$tmp.head
 		echo "}" >>$tmp.head
 	    fi
 	fi
@@ -662,160 +400,58 @@ y         log this group
     done
 }
 
-# the current version of the skeletal control file
-# see below for tag explanations
+if [ ! -f "$config" ]
+then
+    # create a new config file
+    #
+    touch "$config"
+    if [ ! -f "$config" ]
+    then
+	echo "$prog: Error: config file \"$config\" does not exist and cannot be created"
+	exit 1
+    fi
+
+    $PCP_ECHO_PROG "Creating config file \"$config\" using default settings ..."
+    prompt=false
+    new=true
+    [ -z "$HOST" ] && HOST=localhost
+    [ -z "$BASE" ] && BASE=$PCP_VAR_DIR/config/pmlogconf
+
+    cat <<End-of-File >$tmp.in
+#pmlogconf 2.0
 #
-cat <<End-of-File >>$tmp.skel
-#pmlogconf 1.0
-# $prog control file version
+# pmlogger(1) config file created and updated by pmlogconf
 #
-# pmlogger(1) config file created and updated by
-# $prog(1).
-#
-# DO NOT UPDATE THE INTITIAL SECTION OF THIS FILE.
-# Any changes may be lost the next time $prog is used
+# DO NOT UPDATE THE INITIAL SECTION OF THIS FILE.
+# Any changes may be lost the next time pmlogconf is used
 # on this file.
 #
-
-# System configuration
+#+ groupdir $BASE
 #
-#+ I0:y:once:
-#----
+End-of-File
 
-# Disk activity
-#
-#+ D0:y:default:
-#----
-#+ D1:n:default:
-#----
-#+ D2:n:default:
-#----
-#+ D3:n:default:
-#----
+    find $BASE -type f \
+    | sed \
+	-e '/\/v1.0\//d' \
+    | LC_COLLATE=POSIX sort \
+    | while read tag
+    do
+	if sed 1q <"$tag" | grep '^#pmlogconf-setup 2.0' >/dev/null
+	then
+	    :
+	else
+	    # not one of our group files, skip it ...
+	    continue
+	fi
+	$PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags "$tag" 2>$tmp.err \
+	| sed -e "s;$BASE/;;" >>$tmp.in
+	[ -s $tmp.err ] && cat $tmp.err
+    done
 
-# CPU activity
-#
-#+ C0:y:default:
-#----
-#+ C2:n:default:
-#----
-#+ C1:n:default:
-#----
-#+ C3:n:default:
-#----
-
-# Kernel activity
-#
-#+ K0:y:default:
-#----
-#+ Ka:n:default:
-#----
-#+ K1:y:default:
-#----
-#+ K2:n:default:
-#----
-#+ K3:n:default:
-#----
-#+ K4:n:default:
-#----
-#+ K5:n:default:
-#----
-#+ K6:n:default:
-#----
-#+ K7:n:default:
-#----
-#+ K8:n:default:
-#----
-#+ K9:n:default:
-#----
-
-# Memory
-#
-#+ M0:y:default:
-#----
-#+ M1:n:default:
-#----
-#+ M2:n:default:
-#----
-#+ M3:n:default:
-#----
-#+ M4:n:default:
-#----
-#+ M5:n:default:
-#----
-#+ M7:n:default:
-#----
-#+ M6:n:default:
-#----
-
-# Network
-#
-#+ N0:y:default:
-#----
-#+ N1:n:default:
-#----
-#+ N2:n:default:
-#----
-#+ N3:n:default:
-#----
-#+ N4:n:default:
-#----
-#+ N5:n:default:
-#----
-#+ N6:n:default:
-#----
-#+ N7:n:default:
-#----
-#+ N8:n:default:
-#----
-#+ N9:n:default:
-#----
-#+ Na:n:default:
-#----
-
-# Services
-#
-#+ S0:n:default:
-#----
-#+ S1:n:default:
-#----
-#+ S2:n:default:
-#----
-
-# Filesystems and Volumes
-#
-#+ F0:n:default:
-#----
-#+ F1:y:default:
-#----
-#+ F2:n:default:
-#----
-#+ F3:n:default:
-#----
-#+ F4:n:default:
-#----
-#+ F6:n:default:
-#----
-#+ F7:n:default:
-#----
-#+ F8:n:default:
-#----
-#+ F5:n:default:
-#----
-
-# Hardware event counters
-#
-#+ H0:n:default:
-#----
-#+ H1:n:default:
-#----
-#+ H2:n:default:
-#----
-#+ H3:n:default:
-#----
+    cat <<End-of-File >>$tmp.in
 
 # DO NOT UPDATE THE FILE ABOVE THIS LINE
-# Otherwise any changes may be lost the next time $prog is
+# Otherwise any changes may be lost the next time pmlogconf is
 # used on this file.
 #
 # It is safe to make additions from here on ...
@@ -823,30 +459,86 @@ cat <<End-of-File >>$tmp.skel
 
 End-of-File
 
-if [ ! -f $config ]
-then
-    touch $config
-    if [ ! -f $config ]
-    then
-	echo "$prog: Error: config file \"$config\" does not exist and cannot be created"
-	exit 1
-    fi
-
-    $PCP_ECHO_PROG $PCP_ECHO_N "Creating config file \"$config\" using default settings ""$PCP_ECHO_C"
-    prompt=false
-    new=true
-    touch $config
-    cp $tmp.skel $tmp.in
-
 else
+    # updating an existing config file
+    #
     new=false
-    magic=`sed 1q $config`
+    magic=`sed 1q "$config"`
     if echo "$magic" | grep "^#pmlogconf" >/dev/null
     then
 	version=`echo $magic | sed -e "s/^#pmlogconf//" -e 's/^  *//'`
 	if [ "$version" = "1.0" ]
 	then
-	    :
+	    echo "$prog: migrating \"$config\" from version 1.0 to 2.0 ..."
+	    [ -z "$BASE" ] && BASE=$PCP_VAR_DIR/config/pmlogconf
+	    sed <"$config" >$tmp.in \
+		-e '1s/1\.0/2.0/' \
+		-e "/# on this file./a\\
+#\\
+#+ groupdir $BASE" \
+		-e '/^#\+/{
+s; C0:; cpu/summary:;
+s; C1:; cpu/percpu:;
+s; C2:; v1.0/C2:;
+s; C3:; v1.0/C3:;
+s; D0:; disk/summary:;
+s; D1:; disk/percontroller:;
+s; D2:; disk/perdisk:;
+s; D3:; v1.0/D3:;
+s; F0:; filesystem/all:;
+s; F1:; filesystem/xfs-io-irix:;
+s; F2:; filesystem/xfs-all:;
+s; F3:; sgi/xlv-activity:;
+s; F4:; sgi/xlv-stripe-io:;
+s; F5:; sgi/efs:;
+s; F6:; sgi/xvm-ops:;
+s; F7:; sgi/xvm-stats:;
+s; F8:; sgi/xvm-all:;
+s; H0:; sgi/craylink:;
+s; H1:; sgi/hub:;
+s; H2:; sgi/cpu-evctr:;
+s; H3:; sgi/xbow:;
+s; I0:; platform/hinv:;
+s; K0:; v1.0/K0:;
+s; K1:; kernel/syscalls-irix:;
+s; K2:; kernel/syscalls-percpu-irix:;
+s; K3:; kernel/read-write-data:;
+s; K4:; kernel/interrupts-irix:;
+s; K5:; kernel/bufcache-activity:;
+s; K6:; kernel/bufcache-all:;
+s; K7:; kernel/vnodes:;
+s; K8:; kernel/inode-cache:;
+s; K9:; sgi/kaio:;
+s; Ka:; kernel/queues-irix:;
+s; M0:; memory/swap-activity:;
+s; M1:; memory/tlb-irix:;
+s; M2:; kernel/memory-irix:;
+s; M3:; memory/swap-all:;
+s; M4:; memory/swap-config:;
+s; M5:; sgi/node-memory:;
+s; M6:; sgi/numa:;
+s; M7:; sgi/numa-summary:;
+s; N0:; networking/interface-summary:;
+s; N1:; networking/interface-all:;
+s; N2:; networking/tcp-activity-irix:;
+s; N3:; networking/tcp-all:;
+s; N4:; networking/udp-packets-irix:;
+s; N5:; networking/udp-all:;
+s; N6:; networking/socket-irix:;
+s; N7:; networking/other-protocols:;
+s; N8:; networking/mbufs:;
+s; N9:; networking/multicast:;
+s; Na:; networking/streams:;
+s; S0:; v1.0/S0:;
+s; S1:; v1.0/S1:;
+s; S2:; networking/rpc:;
+}'
+	    reprobe=true
+	elif [ "$version" = "2.0" ]
+	then
+	    # start with existing config file
+	    #
+	    cp "$config" $tmp.in
 	else
 	    echo "$prog: Error: existing config file \"$config\" is wrong version ($version)"
 	    exit 1
@@ -855,18 +547,24 @@ else
 	echo "$prog: Error: existing \"$config\" is not a $prog control file"
 	exit 1
     fi
-    if [ ! -w $config ]
+    if [ ! -w "$config" ]
     then
 	echo "$prog: Error: existing config file \"$config\" is not writeable"
 	exit 1
     fi
 
-    # use as-is, but may have to re-map for some bogus tags that escaped in
-    # earlier versions of the tool, e.g. K10 which should have been Ka (as
-    # tags are restricted to 2 letters)
-    #
-    sed <$config >$tmp.in \
-	-e '/^#+ K10/s/K10/Ka/'
+    [ -n "$HOST" ] && echo "$prog: Warning: existing config file, -h $HOST will be ignored"
+
+    CBASE=`sed -n -e '/^#+ groupdir /s///p' <$tmp.in`
+    if [ -z "$BASE" ]
+    then
+	BASE="$CBASE"
+    else
+	if [ "$BASE" != "$CBASE" ]
+	then
+	    echo "$prog: Warning: using base directory for group files from command line ($BASE) which is different from that in $config ($CBASE)"
+	fi
+    fi
 fi
 
 while true
@@ -894,19 +592,18 @@ do
     fi
 done
 
-
 if $new
 then
     echo
-    cp $tmp.ctl $config
+    cp $tmp.ctl "$config"
 else
     echo
-    if diff $config $tmp.ctl >/dev/null
+    if diff "$config" $tmp.ctl >/dev/null
     then
 	echo "No changes"
     else
 	echo "Differences ..."
-	${DIFF-diff} -c $config $tmp.ctl
+	${DIFF-diff} -c "$config" $tmp.ctl
 	while true
 	do
 	    $PCP_ECHO_PROG $PCP_ECHO_N "Keep changes? [y] ""$PCP_ECHO_C"
@@ -915,7 +612,7 @@ else
 	    [ "$ans" = y -o "$ans" = n ] && break
 	    echo "Error: you must answer \"y\" or \"n\" ... try again"
 	done
-	[ "$ans" = y ] && cp $tmp.ctl $config
+	[ "$ans" = y ] && cp $tmp.ctl "$config"
     fi
 fi
 

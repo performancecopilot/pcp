@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	mbuf stats (alloc, failed, waited, etc)
+probe	network.mbuf.alloc
+	network.mbuf

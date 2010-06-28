@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	kernel memory allocation [Linux]
+probe	mem.util.used
+	mem.util

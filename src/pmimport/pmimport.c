@@ -13,10 +13,13 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+#include <stdarg.h>
+#include <sys/stat.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#include <stdarg.h>
+#if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
+#endif
 #include "pmimport.h"
 
 #define MAX_FLUSHSIZE 100000
@@ -129,7 +132,7 @@ main(int argc, char *argv[])
 
 		__debugMsg( DBG_TRACE_APPL2,
 			    "got RS_Reset: %s",
-			    asctime ( localtime ( ( clock_t * ) &tmp.tv_sec ) ) ) ;
+			    asctime ( localtime ( (time_t *) &tmp.tv_sec ) ) ) ;
 
 		rval = putMark ( tmp ) ;
 		if ( rval < 0 ) {
@@ -296,7 +299,7 @@ putResult ( pmResult *result )
 
 	__debugMsg( DBG_TRACE_APPL2,
 		    "pmLogPutIndex: %s",
-		    asctime ( localtime ( ( clock_t * ) &tmptime.tv_sec ) ) ) ;
+		    asctime ( localtime ( (time_t *) &tmptime.tv_sec ) ) ) ;
     
 	__pmLogPutIndex ( &logctl, &tmptime );
 	/*
@@ -372,7 +375,7 @@ putMark ( __pmTimeval timestamp )
 
     __debugMsg( DBG_TRACE_APPL2,
 		"putMark: %s",
-		asctime ( localtime ( ( clock_t * ) &timestamp.tv_sec ) ) ) ;
+		asctime ( localtime ( (time_t *) &timestamp.tv_sec ) ) ) ;
     
     mark.hdr = htonl ( ( int ) sizeof ( mark ) ) ;
     mark.tail = mark.hdr;

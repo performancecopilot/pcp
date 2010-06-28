@@ -22,7 +22,7 @@ include $(TOPDIR)/src/include/builddefs
 
 MAN_SECTION	= 4
 
-MAN_PAGES	= pcp.conf.4 pcp.env.4 pmns.4 mmv.4
+MAN_PAGES	= pcp.conf.4 pcp.env.4 pmieconf.4 pmns.4 mmv.4
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 LSRCFILES	= $(MAN_PAGES)
 
