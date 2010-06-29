@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	current swap allocation and all swap activity
+force	available
+	swap

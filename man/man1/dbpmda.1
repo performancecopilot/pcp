@@ -54,7 +54,21 @@ in the current working directory can contain a list of commands that will be
 executed by
 .B dbpmda
 on startup, before the user is prompted to enter further commands
-interactively.
+interactively.  While processing the
+.I .dbpmdarc
+file, interactive mode and command echoing are enabled and then
+reset at the end of the
+.I .dbpmdarc
+file (see the
+.I \-i
+and
+.I \-e
+command line arguments below).
+.PP
+If the system supports
+.BR readline (3)
+then this will be used to read commands when input is from a tty
+device, so history and command line editing are available.
 .PP
 .B dbpmda
 accepts the following command line arguments:

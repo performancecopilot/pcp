@@ -70,32 +70,42 @@ then
     exit
 fi
 
-if [ ! -f $1 ]
+if [ ! -f "$1" ]
 then
     echo "$prog: cannot find input file \"$1\""
     exit
 fi
 
-# Find PMNS pathname for base of new subtree (subroot), construct upper
-# levels of PMNS as required and hand-off to pmnsmerge
-#
-subroot=`$PCP_AWK_PROG <$1 'NF >= 2 && $2 == "{" { print $1 ; exit }'`
-
-echo 'root {' >$tmp.tmp
-path=""
-for name in `echo "$subroot" | tr '.' ' '`
-do
-    [ ! -z "$path" ] && echo "$path {" >>$tmp.tmp
-    echo "	$name" >>$tmp.tmp
-    echo "}" >>$tmp.tmp
-    if [ -z "$path" ]
-    then
-	path="$name"
-    else
-	path="$path.$name"
-    fi
-done
-cat $1 >>$tmp.tmp
+if grep '^root {' "$1" >/dev/null
+then
+    # Special case ... if the PMDA only supplies metrics at the root of
+    # the PMNS, e.g. the MMV PMDA with all dynamic metrics, the input
+    # PMNS contains 'root {' already, so just use that without any need
+    # to construct the upper levels of the PMNS
+    #
+    cp "$1" $tmp.tmp
+else
+    # Normal case ... find PMNS pathname for base of new subtree
+    # (subroot), construct upper levels of PMNS as required and hand-off
+    # to pmnsmerge
+    #
+    subroot=`$PCP_AWK_PROG <"$1" 'NF >= 2 && $2 == "{" { print $1 ; exit }'`
+    echo 'root {' >$tmp.tmp
+    path=""
+    for name in `echo "$subroot" | tr '.' ' '`
+    do
+	[ ! -z "$path" ] && echo "$path {" >>$tmp.tmp
+	echo "	$name" >>$tmp.tmp
+	echo "}" >>$tmp.tmp
+	if [ -z "$path" ]
+	then
+	    path="$name"
+	else
+	    path="$path.$name"
+	fi
+    done
+    cat "$1" >>$tmp.tmp
+fi
 
 # try to preserve mode, owner and group for the new output files
 #

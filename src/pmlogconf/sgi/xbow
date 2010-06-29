@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	XBOW activity
+probe	xbow.nports
+	xbow

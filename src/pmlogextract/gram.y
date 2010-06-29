@@ -39,7 +39,6 @@ static char	**extlist;	/* instance names (external list) */
 static int	warn = 1;
 
 extern int	lineno;
-extern int	errno;
 
 static void buildinst(int *, int **, char ***, int , char *);
 static void freeinst(int *, int *, char **);

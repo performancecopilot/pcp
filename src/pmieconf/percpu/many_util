@@ -1,0 +1,85 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+#
+
+rule	per_cpu.many_util
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_host (
+    $pct$ %_inst (
+	100 * ( kernel.percpu.cpu.user $hosts$ +
+		kernel.percpu.cpu.sys $hosts$ +
+		kernel.percpu.cpu.intr $hosts$ )
+	    > $threshold$
+    )
+    && hinv.ncpu $hosts$ > $min_cpu_count$
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"The processor utilization for at least pct percent of the CPUs
+exceeded threshold percent during the last sample interval.  Only
+applies to multi-processor systems having more than min_cpu_count
+processors - for single-processor systems refer to the cpu.util
+rule, for multi-processor systems with less than min_cpu_count
+processors refer to the per_cpu.some_util rule.";
+
+string	rule
+	default	= "High number of saturated processors"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 95
+	help	=
+"Threshold percentage for CPU saturation, in the range 0 (idle)
+to 100 (completely busy)";
+
+percent	pct
+	default	= 80
+	help	=
+"Percentage of the processors which must be utilized greater
+than threshold percent, in the range 0 (no processors utilized)
+to 100 (all processors).";
+
+unsigned	min_cpu_count
+	default	= 4
+	help	=
+"Lower limit on number of processors for this rule - this rule will
+apply to configurations of greater than min_cpu_count CPUs.
+For smaller processor counts, the per_cpu.some_util rule may be more
+appropriate.";
+
+string	action_expand
+	default	= "\\\\>$pct$%cpus@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h more than $pct$% of the processors are saturated"
+	display	= no
+	modify	= no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string	esp_type
+	default	= "0x20005F"
+	display	= no
+	modify	= no;
+
+# for EnlightenDSM integration:
+string	enln_test
+	default	= per_cpu.many_util
+	display	= no
+	modify = no;
+string	enln_units
+	default	= "busy_CPUs"
+	display	= no
+	modify = no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

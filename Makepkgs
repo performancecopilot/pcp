@@ -36,27 +36,49 @@ do
 	verbose=true
 	shift
 	;;
-    -*)
-	echo "Unknown option $opt"
-	echo "Usage: Makepkgs [-clean] [-verbose] products..."
-	echo "products may be one or more of \"pcp pro\""
-	exit 1
-	;;
     *)
 	break
 	;;
     esac
 done
 
-if [ $# = 0 ] ; then
-    set -- pcp
-fi
-
 test ! -d $LOGDIR && mkdir $LOGDIR
 rm -rf $LOGDIR/* 
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*;" 0 1 2 3 15
+
+# Sanity checks ... this is sick, but I'm really tired of QA failing
+# because of bad binaries being built from the Ubuntu toolchain.
+# - Ken McDonell Apr 2010
+#
+if false #[ -f /etc/lsb-release ]
+then
+    if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
+    then
+	if [ -f /usr/bin/dpkg-buildpackage ]
+	then
+	    ok=true
+	    if grep -q '^my $default_flags .*O2' /usr/bin/dpkg-buildpackage
+	    then
+		echo '/usr/bin/dpkg-buildpackage: need to remove O2 from $default_flags'
+		ok=false
+	    fi
+	    if grep -q '^[ 	]*LDFLAGS.*-Bsymbolic-functions' /usr/bin/dpkg-buildpackage
+	    then
+		echo '/usr/bin/dpkg-buildpackage: need to remove -Bsymbolic-function from LDFLAGS'
+		ok=false
+	    fi
+	    if $ok
+	    then
+		:
+	    else
+		echo "Refer to Ubuntu notes in PCP's ./INSTALL"
+		exit 1
+	    fi
+	fi
+    fi
+fi
 
 if $clean; then
     echo "== cleaning, log is in $LOGDIR/clean"
@@ -84,111 +106,86 @@ fi
 ARCH=`uname -m | sed -e 's/i.86/ia32/'`
 VERS=`uname -s | cut -c-5`
 
-for prod ; do
-    LOGF=$LOGDIR/$prod
-    echo
-    echo "== Building $prod, log is in $LOGF"
+LOGF=$LOGDIR/pcp
+echo
+echo "== Building pcp, log is in $LOGF"
 
-    . ./VERSION.$prod
+. ./VERSION.pcp
 
-    if [ "$prod" = "pro" ]
-    then
-    	if [ ! -f src/libpcp/src/libpcp.so.2 -o ! -f src/pmns/stdpmid ]
-	then
-	    echo "Error: \"pcp\" must be built before (or with) \"pro\""
-	    exit 1
-	fi
-
-	#
-	# unpack the root for the pcp-pro build
-	[ -z "$ROOT" ] && export ROOT=`pwd`/root-$ARCH
-	if [ ! -d $ROOT/include -o ! -d $ROOT/lib ]; then make -C $ROOT; fi
-    else
-	if [ -n "$SGI_PROPACK_BUILD" ] ; then
-	    PACKAGE_NAME=${prod}-open
-	else
-	    PACKAGE_NAME=${prod}
-	fi
-	export PACKAGE_NAME
-    fi
-
-    special=false
-    [ "$VERS" = MINGW ] && special=windows
-    [ -f /etc/debian_version ] && special=debian
+special=false
+[ "$VERS" = MINGW ] && special=windows
+[ -f /etc/debian_version ] && special=debian
     
-    if [ $special != false ]
-    then
-	LOGF=`pwd`/$LOGF
-
-	if $verbose ; then
-	    $MAKE -j 1 configure_$prod 2>&1 | tee -a $LOGF
-	else
-	    $MAKE -j 1 configure_$prod 2>&1 >> $LOGF
-	fi
-
-	echo
-	echo "== src-link, log is in $LOGF" | tee -a $LOGF
-
-	VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
-	SRCLINK_ROOT=`pwd`/pcp-$VERSION
-	if [ $special = debian ] ; then
-	    SRCLINK_ROOT=`pwd`/build/deb/pcp-$VERSION
-	fi
-	export SRCLINK_ROOT
-
-	rm -fr $SRCLINK_ROOT
-	mkdir -p $SRCLINK_ROOT || exit 1
-	$MAKE -j 1 src-link-pcp || exit 1
-	cd $SRCLINK_ROOT
-	[ ! -f .census ] && touch .census
-
-	if [ $special = debian ]
-	then
-	    SUDO=${SUDO:-fakeroot}
-	    if $verbose ; then
-		dpkg-buildpackage -r$SUDO | tee -a $LOGF
-	    else
-		dpkg-buildpackage -r$SUDO >> $LOGF || exit 1
-	    fi
-	    exit 0
-	fi
-	# Fall through for MinGW (Win32) builds
-    fi
+if [ $special != false ]
+then
+    LOGF=`pwd`/$LOGF
 
     if $verbose ; then
-	st=`(($MAKE -j 1 default_$prod 2>&1; echo $? >&3) | tee $LOGF 1>&2) 3>&1`
+	$MAKE -j 1 configure_pcp 2>&1 | tee -a $LOGF
     else
-	$MAKE -j 1 default_$prod > $LOGF 2>&1; st=$? 
-    fi
-    if [ $st -ne 0 ] ; then
-	if ! $verbose ; then
-	    echo \"$MAKE default_$prod\" failed, see log in $LOGF
-	    tail $LOGF
-	fi
-	exit 1
+	$MAKE -j 1 configure_pcp 2>&1 >> $LOGF
     fi
 
-    rm -f files.rpm
     echo
-    echo "== Packaging $prod, log is in $LOGF" | tee -a $LOGF
-    [ ! -f .census ] && touch .census
-    if $verbose ; then
-	($MAKE -j 1 -C build pack_$prod 2>&1 || touch $tmp.failed) | tee -a $LOGF
-    else
-	($MAKE -j 1 -C build pack_$prod 2>&1 || touch $tmp.failed) >> $LOGF
+    echo "== src-link, log is in $LOGF" | tee -a $LOGF
+
+    VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+    SRCLINK_ROOT=`pwd`/pcp-$VERSION
+    if [ $special = debian ] ; then
+	SRCLINK_ROOT=`pwd`/build/deb/pcp-$VERSION
     fi
-    if [ -f $tmp.failed ] ; then
-	if ! $verbose ; then
-	    echo Packaging failed, see log in $LOGF
-	    tail $LOGF
+    export SRCLINK_ROOT
+
+    rm -fr $SRCLINK_ROOT
+    mkdir -p $SRCLINK_ROOT || exit 1
+    $MAKE -j 1 src-link-pcp || exit 1
+    cd $SRCLINK_ROOT
+
+    if [ $special = debian ]
+    then
+	SUDO=${SUDO:-fakeroot}
+	if $verbose ; then
+	    dpkg-buildpackage -r$SUDO | tee -a $LOGF
+	else
+	    dpkg-buildpackage -r$SUDO >> $LOGF || exit 1
 	fi
-	exit 1
-    else
-	if ! $verbose ; then
-	    grep '^Wrote:' $LOGF | sed -e 's/\.\.\/\.\.\///'
-	fi
+	exit 0
     fi
-done
+fi
+
+# Fall through for MinGW (Win32) builds
+if $verbose ; then
+    st=`(($MAKE -j 1 default_pcp 2>&1; echo $? >&3) | tee $LOGF 1>&2) 3>&1`
+else
+    $MAKE -j 1 default_pcp > $LOGF 2>&1; st=$?
+fi
+if [ $st -ne 0 ] ; then
+    if ! $verbose ; then
+	echo \"$MAKE default_pcp\" failed, see log in $LOGF
+	tail $LOGF
+    fi
+    exit 1
+fi
+
+rm -f files.rpm
+echo
+echo "== Packaging pcp, log is in $LOGF" | tee -a $LOGF
+if $verbose ; then
+    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp.failed) | tee -a $LOGF
+else
+    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp.failed) >> $LOGF
+fi
+if [ -f $tmp.failed ] ; then
+    if ! $verbose ; then
+	echo Packaging failed, see log in $LOGF
+	tail $LOGF
+    fi
+    exit 1
+else
+    if ! $verbose ; then
+	grep '^Wrote:' $LOGF | sed -e 's/\.\.\/\.\.\///'
+    fi
+fi
 
 rm -f $tmp.failed
 exit 0

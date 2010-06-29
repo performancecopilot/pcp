@@ -35,7 +35,8 @@ CFILES		= pmda.c proc_stat.c proc_meminfo.c proc_loadavg.c \
 		  proc_cpuinfo.c proc_net_tcp.c \
 		  proc_slabinfo.c sem_limits.c msg_limits.c shm_limits.c \
 		  proc_uptime.c ksym.c proc_sys_fs.c proc_vmstat.c \
-		  sysfs_kernel.c
+		  sysfs_kernel.c linux_table.c numa_meminfo.c \
+		  dynamic.c cgroups.c
 
 HFILES		= proc_stat.h proc_meminfo.h proc_loadavg.h \
 		  proc_net_dev.h proc_interrupts.h filesys.h swapdev.h \
@@ -45,9 +46,10 @@ HFILES		= proc_stat.h proc_meminfo.h proc_loadavg.h \
 		  proc_cpuinfo.h proc_net_tcp.h proc_slabinfo.h \
 		  sem_limits.h msg_limits.h shm_limits.h proc_uptime.h \
 		  ksym.h proc_sys_fs.h proc_vmstat.h clusters.h indom.h \
-		  convert.h sysfs_kernel.h
+		  convert.h sysfs_kernel.h linux_table.h numa_meminfo.h \
+		  dynamic.h cgroups.h
 
-LSRCFILES 	= help root_linux root_irix
+LSRCFILES 	= help root_linux
 LDIRT		= help.dir help.pag domain.h
 
 LLDLIBS		= -lpcp_pmda -lpcp
@@ -85,8 +87,12 @@ install_pcp : install
 
 domain.h: ../../pmns/stdpmid
 	rm -f domain.h
-	echo "/*" >domain.h
-	echo " * built from $(PCP_VAR_DIR)/pmns/stdpmid" >>domain.h
-	echo " */" >>domain.h
-	$(PCP_AWK_PROG) <../../pmns/stdpmid >>domain.h \
-	    '/#define[  ][      ]*$(DOMAIN)[	]/ { print "#define $(DOMAIN) " $$3 }'
+	@echo "/*" >domain.h
+	@echo " * built from $<" >>domain.h
+	@echo " */" >>domain.h
+	@$(PCP_AWK_PROG) <$< '\
+$$1=="#define" && $$2 == "$(DOMAIN)" { print "#define $(DOMAIN) " $$3 >>"$@"; found++ }\
+END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  exit(1) }\
+          if (found > 1) { print "Botch: multiple #defines for domain $(DOMAIN) in $<"; print "... see $@ for details"; exit(1) }\
+	  exit(0)\
+	}'

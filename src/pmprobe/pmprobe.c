@@ -71,6 +71,8 @@ lookup(pmInDom indom)
     return numinst;
 }
 
+extern int do_local_spec(const char *);
+
 int
 main(int argc, char **argv)
 {
@@ -100,11 +102,7 @@ main(int argc, char **argv)
     pmResult	*result;
     pmValueSet	*vsp;
     pmDesc	desc;
-#ifdef PM_USE_CONTEXT_LOCAL
-    char        *opts = "a:D:fh:IiLn:O:VvZ:z?";
-#else
-    char        *opts = "a:D:fh:Iin:O:VvZ:z?";
-#endif
+    char        *opts = "a:D:fh:IiK:Ln:O:VvZ:z?";
 
     __pmSetProgname(argv[0]);
 
@@ -113,11 +111,7 @@ main(int argc, char **argv)
 
 	case 'a':	/* archive name */
 	    if (type != 0) {
-#ifdef PM_USE_CONTEXT_LOCAL
 		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
-#else
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
-#endif
 		errflag++;
 	    }
 	    type = PM_CONTEXT_ARCHIVE;
@@ -141,11 +135,7 @@ main(int argc, char **argv)
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
-#ifdef PM_USE_CONTEXT_LOCAL
 		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
-#else
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
-#endif
 		errflag++;
 	    }
 	    host = optarg;
@@ -168,8 +158,14 @@ main(int argc, char **argv)
 	    Iflag++;
 	    break;
 
-#ifdef PM_USE_CONTEXT_LOCAL
-	case 'L':	/* LOCAL, no PMCD */
+	case 'K':	/* update local PMDA table */
+	    if ((msg = __pmSpecLocalPMDA(optarg)) != NULL) {
+		fprintf(stderr, "%s: __pmSpecLocalPMDA failed\n%s\n", pmProgname, msg);
+		errflag++;
+	    }
+	    break;
+
+	case 'L':	/* local PMDA connection, no PMCD */
 	    if (type != 0) {
 		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
 		errflag++;
@@ -177,7 +173,6 @@ main(int argc, char **argv)
 	    host = NULL;
 	    type = PM_CONTEXT_LOCAL;
 	    break;
-#endif
 
 	case 'n':	/* alternative name space file */
 	    pmnsfile = optarg;
@@ -244,11 +239,11 @@ Options:\n\
                [default is to report instances from pmFetch]\n\
   -h host      metrics source is PMCD on host\n\
   -I           list external instance names\n\
-  -i           list internal instance numbers\n"
-#ifdef PM_USE_CONTEXT_LOCAL
-"  -L           use local context instead of PMCD\n"
-#endif
-"  -n pmnsfile  use an alternative PMNS\n\
+  -i           list internal instance numbers\n\
+  -K spec      optional additional PMDA spec for local connection\n\
+               spec is of the form op,domain,dso-path,init-routine\n\
+  -L           metrics source is local connection to PMDA, no PMCD\n\
+  -n pmnsfile  use an alternative PMNS\n\
   -O time      origin for a fetch from the archive\n\
   -V           report PDU operations (verbose)\n\
   -v           list metric values\n\
@@ -275,11 +270,9 @@ Options:\n\
 	if (type == PM_CONTEXT_HOST)
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
 		pmProgname, host, pmErrStr(sts));
-#ifdef PM_USE_CONTEXT_LOCAL
 	else if (type == PM_CONTEXT_LOCAL)
 	    fprintf(stderr, "%s: Cannot make standalone connection on localhost: %s\n",
 		    pmProgname, pmErrStr(sts));
-#endif
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
 		pmProgname, host, pmErrStr(sts));

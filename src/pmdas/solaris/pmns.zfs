@@ -1,10 +1,16 @@
 zfs {
 	used
+	snapshot
 	available	SOLARIS:0:69
 	quota		SOLARIS:0:70
 	reservation	SOLARIS:0:71
 	compression	SOLARIS:0:72
 	copies		SOLARIS:0:73
+	recordsize	SOLARIS:0:126
+	refquota	SOLARIS:0:127
+	refreservation	SOLARIS:0:128
+	referenced	SOLARIS:0:130
+	nsnapshots	SOLARIS:0:131
 }
 
 zfs.used {
@@ -12,4 +18,11 @@ zfs.used {
 	byme		SOLARIS:0:74
 	bysnapshots	SOLARIS:0:75
 	bychildren	SOLARIS:0:76
+	byrefreservation SOLARIS:0:129
+}
+
+zfs.snapshot {
+	used		SOLARIS:0:132
+	referenced	SOLARIS:0:133
+	compression	SOLARIS:0:134
 }

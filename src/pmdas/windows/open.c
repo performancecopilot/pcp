@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Parts of this file contributed by Ken McDonell
  * (kenj At internode DoT on DoT net)
@@ -24,7 +24,8 @@ char *windows_uname;
 char *windows_build;
 char *windows_machine;
 unsigned long windows_pagesize;
-int windows_indom_setup[NUMINDOMS];
+int windows_indom_setup[NUMINDOMS];	/* initial setup done on instance */
+int windows_indom_reset[NUMINDOMS];	/* instances changed on refresh */
 
 /*
  * This block of functionality is required to map counter types from
@@ -735,11 +736,17 @@ windows_visit_metric(pdh_metric_t *pmp, pdh_metric_visitor_t visitor)
 }
 
 void
-windows_open(void)
+windows_open(int domain)
 {
     int i;
 
     windows_setup_globals();
+
+    for (i = 0; i < NUMINDOMS; i++) {
+	if (windows_indom_fixed(i))
+	    pmdaCacheOp(INDOM(domain, i), PMDA_CACHE_LOAD);
+	windows_indom_reset[i] = 0;
+    }
 
     /*
      * This initialisation can take a long time - we have many metrics
@@ -752,5 +759,11 @@ windows_open(void)
     for (i = 0; i < metricdesc_sz; i++) {
 	if ((metricdesc[i].flags & M_AUTO64) || (pmDebug & DBG_TRACE_LIBPMDA))
 	    windows_visit_metric(&metricdesc[i], windows_verify_callback);
+    }
+
+    for (i = 0; i < NUMINDOMS; i++) {
+	/* Do we want to persist this instance domain to disk? */
+	if (windows_indom_reset[i] && windows_indom_fixed(i))
+	    pmdaCacheOp(INDOM(domain, i), PMDA_CACHE_SAVE);
     }
 }

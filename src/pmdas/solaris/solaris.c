@@ -37,11 +37,8 @@ solaris_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int		i;
 
-    /* TODO: this should only fetch values in pmidlist */
     for (i = 0; i < methodtab_sz; i++) {
-	if (methodtab[i].m_prefetch) {
-	    methodtab[i].m_prefetch();
-	}
+	methodtab[i].fetched = 0;
     }
 
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
@@ -53,10 +50,14 @@ solaris_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static int
 solaris_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    metricdesc_t	*mdp;
+    metricdesc_t *mdp = (metricdesc_t *)mdesc->m_user;
+    method_t *m = methodtab + mdp->md_method;
 
-    mdp = (metricdesc_t *)mdesc->m_user;
-    return methodtab[mdp->md_method].m_fetch(mdesc, inst, atom);
+    if (!m->fetched && m->m_prefetch) {
+	m->m_prefetch();
+	m->fetched = 1;
+    }
+    return m->m_fetch(mdesc, inst, atom);
 }
 
 /*

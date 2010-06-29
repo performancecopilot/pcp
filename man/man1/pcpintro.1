@@ -639,12 +639,59 @@ or a PCP archive.
 Thus in PCP version 2, the version number is used to determine if
 the PMNS to use is from the default local file or from the actual
 current source of the metrics.
+.SH PMCD HOSTNAME SPECIFICATION
+Since PCP version 3, the
+.BR pmcd (1)
+hostname specification has been extended to allow an optional
+.B pmcd
+port number, and also optional
+.BR pmproxy (1)
+hostname and port number.
+These supercede (and override) the old-style PMCD_PORT, PMPROXY_HOST
+and PMPROXY_PORT environment variables.
+.PP
+The following are valid hostname specifications that specify connections to
+.B pmcd
+on host
+.I nas1.servers.com
+with/without a list of ports and with/without a
+.BR pmproxy (1)
+connection through a firewall.
+.PP
+.in +0.5i
+.nf
+.ft CW
+$ pcp \-h nas1.servers.com:44321,4321@firewall.servers.com:44322
+$ pcp \-h nas1.servers.com:44321@firewall.servers.com:44322
+$ pcp \-h nas1.servers.com:44321@firewall.servers.com
+$ pcp \-h nas1.servers.com@firewall.servers.com
+$ pcp \-h nas1.servers.com:44321
+.ft R
+.fi
+.in
 .SH ENVIRONMENT
 In addition to the PCP run-time environment and configuration variables
 described in the 
 .B "PCP ENVIRONMENT"
 section below,
 the following environment variables apply to all installations.
+.TP
+.B PCP_DERIVED_CONFIG
+When set, this variable defines the path to a file that contains
+definitions of derived metrics as per the syntax described in
+.BR pmLoadDerivedConfig (3).
+Derived metrics may be used to extend the available metrics with
+new (derived) metrics using simple arithmetic expressions.
+.RS
+.PP
+If 
+.B PCP_DERIVED_CONFIG
+is set, the derived metric definitions are processed automatically
+as each new source of performance metrics is established (i.e. each
+time a
+.BR pmNewContext (3)
+is called) or when requests are made against the PMNS.
+.RE
 .TP
 .B PCP_STDERR
 Many PCP tools support the environment variable
@@ -888,20 +935,42 @@ environment variables are relevant to the Performance Metrics
 Domain Agents (PMDAs).
 .TP
 .B PMDA_LOCAL_PROC
-If set, then a context established with the
+Use this variable has been deprecated and it is now ignored.
+If the ``proc'' PMDA is configured as a DSO for use with
+.BR pmcd (1)
+on the local host then all of the ``proc'' metrics will be
+available to applications using a
+.B PM_CONTEXT_LOCAL
+context.
+.RS
+.PP
+The previous behaviour was that
+if this variable was set, then a context established with the
 .I type
 of
 .B PM_CONTEXT_LOCAL
 will have access to the ``proc'' PMDA to retrieve performance metrics
 about individual processes.
+.RE
 .TP
 .B PMDA_LOCAL_SAMPLE
-If set, then a context established with the
+Use this variable has been deprecated and it is now ignored.
+If the ``sample'' PMDA is configured as a DSO for use with
+.BR pmcd (1)
+on the local host then all of the ``sample'' metrics will be
+available to applications using a
+.B PM_CONTEXT_LOCAL
+context.
+.RS
+.PP
+The previous behaviour was that
+if this variable was set, then a context established with the
 .I type
 of
 .B PM_CONTEXT_LOCAL
 will have access to the ``sample'' PMDA if this optional PMDA has
 been installed locally.
+.RE
 .TP
 .B PMIECONF_PATH
 If set,

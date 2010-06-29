@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	swap configuration
+force	available
+	swapdev

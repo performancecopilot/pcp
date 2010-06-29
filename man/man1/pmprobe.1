@@ -18,9 +18,10 @@
 \f3pmprobe\f1 \- lightweight probe for performance metrics
 .SH SYNOPSIS
 \f3pmprobe\f1
-[\f3\-fIiVvz\f1]
+[\f3\-fIiLVvz\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-h\f1 \f2hostname\f1]
+[\f3\-K\f1 \f2spec\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-O\f1 \f2time\f1]
 [\f3\-Z\f1 \f2timezone\f1]
@@ -72,6 +73,18 @@ and
 .B \-h
 options are mutually exclusive.
 .PP
+The
+.B \-L
+option causes
+.B pmprobe
+to use a local context to collect metrics from PMDAs on the local host
+without PMCD.  Only some metrics are available in this mode.
+The
+.BR \-a , \-h
+and
+.B \-L
+options are mutually exclusive.
+.PP
 Normally
 .B pmprobe
 operates on the distributed Performance Metrics Name Space (PMNS),
@@ -106,6 +119,20 @@ in decimal and prefixed by ``?''.  As a special case, the literal
 string
 .B PM_IN_NULL
 is reported for singular metrics.
+.TP
+.B \-K
+When using the
+.B \-L
+option to fetch metrics from a local context, the
+.B \-K
+option may be used to control the DSO PMDAs that should be
+made accessible.  The
+.I spec
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA (3).
+More than one
+.B \-K
+option may be used.
 .TP
 .B \-O
 When used in conjunction with an archive source of metrics and
@@ -233,6 +260,7 @@ as described in
 .BR pminfo (1),
 .BR PMAPI (3),
 .BR pmErrStr (3),
+.BR __pmSpecLocalPMDA (3),
 .BR pcp.conf (4),
 .BR pcp.env (4)
 and

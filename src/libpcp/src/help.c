@@ -101,14 +101,20 @@ again_local:
 		    n = dp->dispatch.version.one.text(ident, type, buffer);
 		if (n == 0 && (*buffer)[0] == '\0' && (type & PM_TEXT_HELP)) {
 		    /* fall back to oneline, if possible */
-		    free(*buffer);
 		    type &= ~PM_TEXT_HELP;
 		    type |= PM_TEXT_ONELINE;
 		    goto again_local;
 		}
-		if (n < 0 &&
-		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1)
+		if (n == 0 && dp->dispatch.comm.pmda_interface != PMDA_INTERFACE_1) {
+		    /*
+		     * PMDAs after PMDA_INTERFACE_1 don't malloc the buffer
+		     * but the caller will free it, so malloc and copy
+		     */
+		    *buffer = strdup(*buffer);
+		} else if (n < 0 &&
+		    dp->dispatch.comm.pmapi_version == PMAPI_VERSION_1) {
 			n = XLATE_ERR_1TO2(n);
+		}
 	    }
 	}
 	else {

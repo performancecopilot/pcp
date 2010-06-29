@@ -1,0 +1,7 @@
+ALL_RULES = enln_actions tngfw_actions parameters ov_actions pcp_actions
+
+LOCAL_RULES = $(ALL_RULES)
+
+ifneq ($(TARGET_OS), irix)
+LOCAL_RULES = parameters pcp_actions
+endif

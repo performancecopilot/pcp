@@ -23,6 +23,13 @@ AC_INIT(src/include/pmapi.h)
 dnl Irix build issue ... use the tools from the local filesystems
 unset ROOT TOOLROOT
 
+AC_ARG_WITH(
+    [64bit],
+    [AS_HELP_STRING(
+	    [--with-64bit],
+	    [turn on 64 bit compilation node (default is platform dependent)])],
+    [use_64bit=$withval])
+
 #
 # Note: the following environment variables may be
 # set to override the defaults.
@@ -71,6 +78,7 @@ then
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS)
+    export PATH="$PATH:/opt/SunStudioExpress/bin"
 elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN)
@@ -170,15 +178,41 @@ dnl output header with cpp defs HAVE_*, etc
 AC_CONFIG_HEADER(src/include/platform_defs.h)
 
 dnl check if user wants their own C compiler
-AC_PROG_CC
-cc=$CC
+cflags_abi=
+AC_PROG_CC(suncc gcc cc)
+if test $target_os = solaris
+then
+    AC_PATH_PROG(CCPATH,$CC,$CC)
+    cc=$CCPATH
+    if test "$use_64bit" = "no"
+    then
+	:
+    else
+	AC_MSG_CHECKING([for 64 bit Solaris host])
+	case `isainfo -k`
+	in
+	    amd64|sparcv9)
+		cflags_abi=-m64
+		CFLAGS="$CFLAGS -m64"
+		LDFLAGS="$LDFLAGS -m64"
+		AC_MSG_RESULT(yes)
+		;;
+	    *)
+		AC_MSG_RESULT(no)
+		;;
+	esac
+    fi
+else
+    cc=$CC
+fi
 AC_SUBST(cc)
 cc_is_gcc=$GCC
 AC_SUBST(cc_is_gcc)
+AC_SUBST(cflags_abi)
 
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax
-if test -z "$MAKE" 
+if test -z "$MAKE"
 then
     AC_PATH_PROG(MAKE, gmake)
     if test -z "$MAKE" 
@@ -209,7 +243,7 @@ then
 	    fi
 	fi
 	AC_MSG_RESULT($MAKE)
-    fi            
+    fi 
 fi
 make=$MAKE
 AC_SUBST(make)
@@ -660,7 +694,8 @@ AC_CHECK_HEADERS(unistd.h stddef.h sched.h dlfcn.h dl.h ieeefp.h)
 AC_CHECK_HEADERS(sys/time.h sys/times.h sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h pthread.h getopt.h)
 AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
-AC_CHECK_HEADERS(pwd.h regex.h termios.h sys/termios.h sys/ioctl.h sys/wait.h)
+AC_CHECK_HEADERS(pwd.h regex.h sys/wait.h)
+AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
@@ -720,19 +755,14 @@ AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(gettimeofday mktime nanosleep unsetenv)
 AC_CHECK_FUNCS(gethostname hstrerror select socket)
-AC_CHECK_FUNCS(uname syslog __clone fcntl)
+AC_CHECK_FUNCS(uname syslog __clone fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown getcwd scandir mkstemp getpwnam)
 AC_CHECK_FUNCS(brk sbrk memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strerror strtod strtol strtoll strtoull)
-
-dnl sysinfo() is not everywhere, and not necessarily useful even when
-dnl it is there
-if test $target_os != solaris; then
-    AC_CHECK_FUNCS(sysinfo)
-fi
+AC_CHECK_FUNCS(sysinfo)
 
 dnl only define readdir64 on non-linux platforms that support it
 if test $target_os != linux -a $target_os != freebsd; then
@@ -810,9 +840,7 @@ AC_TRY_LINK(
     char **x = _environ;
 ], AC_DEFINE(HAVE_UNDERBAR_ENVIRON))
 
-dnl check for PR_TERMCHILD and PR_SET_PDEATHSIG in prctl
-dnl since autconf like to be unreasonable, it's going to be cut&paste
-dnl programming
+dnl check for PR_TERMCHILD and PR_SET_PDEATHSIG in <sys/prctl.h>
 if test "$ac_cv_func_prctl" = "yes"
 then
 AC_MSG_CHECKING([for PR_TERMCHILD constants in sys/prctl.h])
@@ -832,6 +860,8 @@ AC_TRY_COMPILE(
     int i = PR_SET_PDEATHSIG;
 ], AC_DEFINE(HAVE_PR_SET_PDEATHSIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 fi
+
+AC_HEADER_TIOCGWINSZ
 
 dnl check if linker needs -rdynamic for dynamically loaded shared
 dnl libraries to see the symbols in the process loading them.
@@ -1419,6 +1449,8 @@ AC_SUBST(pcp_x11_appdefs_dir)
 dnl man pages (source)
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
+need_old_tbl_header=false
+man_header=
 pcp_man_dir=`eval echo $mandir`
 pcp_man_dir=`eval echo $pcp_man_dir`
 if test "`echo $pcp_man_dir | sed 's;/.*\$;;'`" = NONE
@@ -1443,33 +1475,41 @@ then
 	then
 	    have_gzipped_manpages=true
 	    pcp_man_dir=$d
+	    man_header=`$ZIP -d < $d/man1/man.1.gz | head -1`
 	    break
 	elif test -f $d/man1/man.1.bz2
 	then
 	    have_bzip2ed_manpages=true
 	    pcp_man_dir=$d
+	    man_header=`$BZIP2 -d < $d/man1/man.1.bz2 | head -1`
 	    break
 	elif test -f $d/man1/man.1
 	then
 	    pcp_man_dir=$d
+	    man_header=`head -1 $d/man1/man.1`
 	    break
 	elif test -f $d/sman1/man.1.gz
 	then
 	    have_gzipped_manpages=true
 	    pcp_man_dir=$d
+	    man_header=`$ZIP -d < $d/sman1/man.1.gz | head -1`
 	    break
 	elif test -f $d/sman1/man.1.bz2
 	then
 	    have_bzip2ed_manpages=true
 	    pcp_man_dir=$d
+	    man_header=`$BZIP2 -d < $d/sman1/man.1.bz2 | head -1`
 	    break
 	elif test -f $d/sman1/man.1
 	then
 	    pcp_man_dir=$d
+	    man_header=`head -1 $d/sman1/man.1`
 	    break
 	elif test -f $d/cat1/man.1
 	then
 	    pcp_man_dir=$d
+	    # cannot deduce troff meta control from formatted man
+	    # pages, so leave $man_header empty
 	    break
 	fi
     done
@@ -1484,9 +1524,13 @@ then
     echo "FATAL ERROR: could not find pcp_man_dir directory."
     exit 1
 fi
+if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
+    need_old_tbl_header=true
+fi
 AC_SUBST(pcp_man_dir)
 AC_SUBST(have_gzipped_manpages)
 AC_SUBST(have_bzip2ed_manpages)
+AC_SUBST(need_old_tbl_header)
 
 dnl public binaries
 pcp_bin_dir=`eval echo $bindir`
@@ -1523,7 +1567,7 @@ dnl rc/startup files
 if test $target_os = darwin
 then
     pcp_rc_dir=/Library/StartupItems/pcp
-elif test $target_distro = suse
+elif test $target_distro = suse -o $target_distro = debian
 then
     pcp_rc_dir=/etc/init.d
 else
@@ -1725,6 +1769,41 @@ int main () {
     return (0);
 }
 ], AC_DEFINE(HAVE_STRFTIME_z) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no),  0)
+
+dnl first check for readline on its own then with curses
+savedLIBS=$LIBS
+LIBS=
+lib_for_curses=
+lib_for_readline=
+AC_CHECK_FUNC(readline,,
+    [
+	AC_CHECK_LIB(readline, readline,,
+	    [
+		dnl AC seems to cache lib/func results
+		dnl so use another readline func here
+		AC_CHECK_LIB(readline, add_history,,,[-lcurses])
+	    ])
+    ])
+if test $ac_cv_func_readline = yes
+then
+    AC_DEFINE(HAVE_READLINE)
+elif test $ac_cv_lib_readline_readline = yes
+then
+    AC_DEFINE(HAVE_READLINE)
+    lib_for_readline=-lreadline
+elif test $ac_cv_lib_readline_add_history = yes
+then
+    AC_DEFINE(HAVE_READLINE)
+    lib_for_curses=-lcurses
+    lib_for_readline=-lreadline
+fi
+AC_SUBST(lib_for_readline)
+AC_SUBST(lib_for_curses)
+LIBS=$savedLIBS
+
+dnl Do you have git installed?
+AC_CHECK_PROGS(GIT,git)
+AC_SUBST(GIT)
 
 dnl
 dnl output files

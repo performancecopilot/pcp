@@ -1,0 +1,14 @@
+#pmlogconf-setup 2.0
+ident	Apache process state information
+probe	apache.sb_waiting
+	apache.sb_waiting
+	apache.sb_starting
+	apache.sb_reading
+	apache.sb_writing_reply
+	apache.sb_keepalive
+	apache.sb_dns_lookup
+	apache.sb_logging
+	apache.sb_finishing
+	apache.sb_open_slot
+	apache.sb_closing
+	apache.sb_idle_cleanup

@@ -1,0 +1,42 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# 
+
+shell	global.enln_action
+	enabled	= no
+	default	= "$enln_bin$/EventsCli -q -s '$enln_severity$' -S N/A -T N/A -n 'pmie/$enln_test$ - $rule$' -h '%h' -v '%v' -u '$enln_units$'"
+	help	=
+"Provides a mechanism for sending local pmie-generated events into
+the local Enlighten DSM management framework.
+This action requires the \"EventsCli\" program which is part of the
+Enlighten DSM framework (refer to the enln_bin variable description
+also).";
+
+string	global.enln_bin
+	default	= "/opt/enlighten/bin"
+	help	=
+"The full path to the Enlighten DSM \"EventsCli\" program, which is used
+to propagate external events into the Enlighten DSM Framework.";
+
+unsigned	global.enln_severity
+	default	= 2
+	display	= no
+	help	=
+"The severity is a number between a low of 1 and a high of 5 (1=OK,
+2=Informational, 3=Warning, 4=Error, 5=Severe). The default value is 2.";
+
+string	global.enln_test
+	default	= "Unknown"
+	display	= no
+	help	=
+"The brief name of the pmie event being sent to Enlighten DSM, typically
+the name of an individual rule.";
+
+string	global.enln_units
+	default	= "N/A"
+	display	= no
+	help	=
+"The units value specifies the unit of measure for the value measured.";
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

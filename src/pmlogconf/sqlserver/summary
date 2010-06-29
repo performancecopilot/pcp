@@ -1,0 +1,24 @@
+#pmlogconf-setup 2.0
+ident	SQLServer summary
+probe	sqlserver.locks
+	sqlserver.access
+	sqlserver.buf_mgr
+	sqlserver.mem_mgr
+	sqlserver.locks
+	sqlserver.connections
+	sqlserver.sql.batch_requests
+	sqlserver.sql.compilations
+	sqlserver.sql.re_compilations
+	sqlserver.databases.all.transactions
+	sqlserver.databases.all.active_transactions
+	sqlserver.databases.all.data_file_size
+	sqlserver.databases.all.log_file_size
+	sqlserver.databases.all.log_file_used
+	sqlserver.databases.db.transactions
+	sqlserver.databases.db.active_transactions
+	sqlserver.databases.db.data_file_size
+	sqlserver.databases.db.log_file_size
+	sqlserver.databases.db.log_file_used
+	sqlserver.latches.waits
+	sqlserver.latches.wait_time
+	sqlserver.latches.avg_wait_time

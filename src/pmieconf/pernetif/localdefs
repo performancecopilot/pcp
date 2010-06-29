@@ -1,0 +1,3 @@
+ALL_RULES = collisions errors packets util
+
+LOCAL_RULES = $(ALL_RULES)

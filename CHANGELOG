@@ -1,3 +1,92 @@
+pcp-3.3.0 (25 June 2010)
+    - Rework pmlogconf utility - version 2.0 ondisk format.
+    - Initial support for Linux kernel cgroup subsystem, using dynamic
+      metrics (cpu sets, cpu sched, cpu acct, memory, ...)
+    - Fix per-process I/O (proc.io.*) metric values.
+    - Fix potential SEGV in derived metrics when pmcd connection lost.
+    - Fix to allow pmlogger to log derived metrics.
+    - Fix open file descriptor leak in Linux disk scheduler code.
+    - Postfix PMDA updated to report aggregate stats from mail.log parsing.
+    - Add per-node CPU metrics to Linux kernel agent.
+    - Integrate pmieconf into the build, modernisation and porting work.
+    - Add install-sh to the set of pcp-internal programs for external code.
+    - Improved checking of PMDA domain numbers.
+    - Allow use of SunStudio compiler on Solaris.
+    - Add load average metrics to Solaris kernel agent.
+    - Windows 7 porting work.
+    - Make Win32 build work with more recent versions of gcc and Perl.
+    - Fix pmie [no]match_inst botch, tweak sleepTight reporting.
+    - Allow \$ for pmie regular expressions.
+    - Ensure pmlogger doesn't write extended pmcd host syntax as hostname.
+    - Switch over to not using local context for bash completion.
+    - Improve Lustre agent metric help text.
+    - Added a readonly filesystems metric into Linux kernel agent.
+    - Ensure xfs.buffer metrics are always properly refreshed.
+    - Add Linux kernel statistics related to XFS btree operations.
+
+pcp-3.2.1 (3 May 2010)
+    - Export information about ZFS snapshots
+    - Correct accounting of PMNS size in a libpcp_pmda helper routine.
+
+pcp-3.2.0 (29 April 2010)
+    - Change how PM_CONTEXT_LOCAL determines available PMDAs:
+      rework local context code to retire $PMDA_LOCAL_*, build DSO table
+      from pmcd.conf at run-time, new __pmLocalPMDA and __pmSpecLocalPMDA
+      routines in libpcp, -K options for pminfo, pmval and pmprobe.
+    - Make some pmda dynamic name operations take (const char *) args.
+    - Fix bash completion so dynamic names expanded, and stderr culled
+      (culling DSO agent initialisation messages).
+    - Improve pmlogger handling of alias names (same PMID, different names).
+    - Honour the -T command line option in pmlogreduce.
+    - Resolve an MMV issue evident in the Mac OS X installer, which resulted
+      in failed dmg (binary) installation attempts.
+    - Solaris startup script improvements.
+    - Add details of the extended hostname syntax to pcpintro(1).
+    - Fix a memory leak in pmdawindows help text handling.
+    - Fix a memory leak in pmdammv help text handling.
+    - Add anonymous huge page Linux memory utilisation metric.
+    - Fix local context reporting of help text.
+    - Solaris man page build changes.
+    - Clean up diagnostic messages in pmlogextract.
+    - Teach pmdaproc about Solaris' ping.
+    - If pmstat fails to connect to local pmcd, fallback to local context.
+    - Mark as const the final (requested units) pmConvScale argument
+    - Clean out SGI-isms from build related files (no longer used by SGI).
+    - Fix mem.numa.util.NFS_Unstable metric.
+    - Removed pmdajstat, this has long been superceded by the capabilities
+      of the Parfait package for instrumenting Java applications with PCP.
+
+pcp-3.1.2 (22 March 2010)
+    - Add indom save and restore logic into Windows PMDA.
+    - Fix a typo in the Postfix PMDA.
+    - Update and extend /proc/meminfo stats on Linux.
+    - Improve handling of monitored process in pmdammv, especially
+      when the monitored process exits (pmns not cleaned up before).
+
+pcp-3.1.1 (23 February 2010)
+    - Use a better MMV generation number, using all bits available.
+    - Fix a metric count calculation error in pmdammv.
+    - Add precision argument (-p) to pmwtf.
+    - Added an open socket sockname command to dbpmda.
+    - Remove use of grep -q, unavailable on OpenSolaris.
+    - Couple of trivial build fixes for the Win32 platform.
+
+pcp-3.1.0 (28 January 2010)
+    - Derived metric support.
+    - Fix a memory leak in the Solaris kernel PMDA.
+    - Extract information about network links on Solaris.
+    - MMV PMDA (DSO) is now installed and enabled by default.
+    - Reintroduced MMV support for cross-(mmap-)file instances.
+    - Bug fix in pmdammv which was capable of causing SIGSEGV.
+    - Add dbpmda readline support (and packaging dependencies).
+    - Add in -Z option to pmwtf, to pass through to pmlogsummary.
+    - Export NUMA memory statistics from the linux kernel.
+    - Make pmie_check work on Solaris.
+    - Make perdisk stats part of the zpool hierarchy.
+    - dbpmda fix for name lookup and dynamic metrics.
+    - Add a new PMDA exporting the Postfix queue lengths.
+    - BuildRequires initscripts for %{_vendor} == redhat.
+
 pcp-3.0.2 (2 December 2009)
     - Improvements and fixes to PCP::PMDA perl module.
     - Added the SQL Server dtsrun log file parser PMDA.

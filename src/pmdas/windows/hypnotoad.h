@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #include "domain.h"
 
 #define MAX_M_PATH_LEN	80	/* pattern passed to PdhExpandCounterPath */
+#define MAX_M_TEXT_LEN	512	/* longest long-text string that we allow */
 #define INDOM(x,y)	(((x)<<22)|(y))	/* pmdaCache interfaces use indom */
 
 enum {
@@ -76,13 +77,14 @@ extern char *windows_uname;
 extern char *windows_build;
 extern char *windows_machine;
 extern int windows_indom_setup[];
+extern int windows_indom_reset[];
 extern unsigned long windows_pagesize;
 extern MEMORYSTATUSEX windows_memstat;
 extern void windows_fetch_memstat(void);
 
-extern void windows_open();
+extern void windows_open(int);
+extern int windows_indom_fixed(int);
 extern char *pdherrstr(int);
-extern pmInDom windows_indom(int, int);
 
 typedef void (*pdh_metric_inform_t)(pdh_metric_t *, PDH_COUNTER_INFO_A *);
 typedef void (*pdh_metric_visitor_t)(pdh_metric_t *, LPSTR, pdh_value_t *);
@@ -92,7 +94,7 @@ extern int windows_inform_metric(pdh_metric_t *, LPTSTR, pdh_value_t *,
 
 extern void windows_instance_refresh(pmInDom);
 extern int windows_lookup_instance(char *, pdh_metric_t *);
-extern void windows_fetch_refresh(int numpmid, pmID pmidlist[]);
+extern void windows_fetch_refresh(int numpmid, pmID pmidlist[], pmdaExt *);
 extern void windows_verify_callback(pdh_metric_t *, LPSTR, pdh_value_t *);
 
 extern int windows_help(int, int, char **, pmdaExt *);

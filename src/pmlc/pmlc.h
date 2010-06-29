@@ -19,8 +19,6 @@
 #ifndef _PMLC_H
 #define _PMLC_H
 
-extern int pmDebug;
-
 /* config file parser states (bit field values) */
 #define GLOBAL  	0
 #define INSPEC  	1

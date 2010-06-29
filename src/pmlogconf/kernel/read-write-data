@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	bytes across the read() and write() syscall interfaces
+probe	kernel.all.readch
+	kernel.all.readch
+	kernel.all.writech

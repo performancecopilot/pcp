@@ -32,7 +32,12 @@ cc ... \-lpcp
 accepts a
 .B string
 specifying the location of a PCP performance metric collector daemon.
-.B
+The syntax of the various formats of this
+.B string
+is described in
+.BR PCPIntro (1)
+where several examples are also presented.
+.PP
 The syntax allows the initial
 .BR pmcd (1)
 hostname to be optionally followed by a list of port numbers,
@@ -111,27 +116,6 @@ is undefined.
 In the case of success,
 .B errmsg
 is undefined.
-.SH EXAMPLES
-.PP
-The following are valid host specifications that specify connections to
-.B pmcd
-on host
-.I app1.aconex.com
-with/without a list of ports and with/without a
-.B pmproxy
-connection through a firewall.
-.PP
-.in +0.5i
-.nf
-.ft CW
-$ pcp -h app1.aconex.com:44321,4321@firewall.aconex.com:44322
-$ pcp -h app1.aconex.com:44321@firewall.aconex.com:44322
-$ pcp -h app1.aconex.com:44321@firewall.aconex.com
-$ pcp -h app1.aconex.com@firewall.aconex.com
-$ pcp -h app1.aconex.com:44321
-.ft R
-.fi
-.in
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pmproxy (1),

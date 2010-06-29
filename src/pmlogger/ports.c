@@ -19,8 +19,6 @@
 #include <math.h>
 #include <ctype.h>
 #include <sys/stat.h>
-#include "pmapi.h"
-#include "impl.h"
 #include "logger.h"
 
 #if !defined(SIGRTMAX)

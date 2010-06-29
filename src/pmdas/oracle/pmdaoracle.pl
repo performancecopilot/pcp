@@ -202,7 +202,7 @@ sub oracle_fetch_callback
 }
 
 
-$pmda = PCP::PMDA->new("oracle/$sid", $domain);
+$pmda = PCP::PMDA->new("oracle", $domain);
 
 
 ## block contention stats from v$waitstat
@@ -226,6 +226,7 @@ from the TIME column of the V$WAITSTAT view.');
 
 $pmda->add_metric(pmda_pmid($CL_VERSION,0), PM_TYPE_STRING, PM_INDOM_NULL,
 	PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+	"oracle.$sid.version",
 	'ORACLE component name and version number', '');
 
 
@@ -255,7 +256,7 @@ converted to units of milliseconds.');
 
 $pmda->add_metric(pmda_pmid($CL_SYSEVENT,3), PM_TYPE_FLOAT, $sysevents_indom,
 	PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-	"oracle.$sid.event.average_wait".
+	"oracle.$sid.event.average_wait",
 	'Average time waited for various system events',
 'The average time waited for various system events.  This value is
 obtained from the AVERAGE_WAIT column of the V$SYSTEM_EVENT view

@@ -27,9 +27,10 @@ CMDTARGET = pmdasolaris
 LIBTARGET = pmda_solaris.so
 CONF_LINE = "solaris	75	dso	solaris_init	$(PMDADIR)/$(LIBTARGET)"
 
-CFILES	= solaris.c data.c sysinfo.c disk.c zpool.c zfs.c netmib2.c
+CFILES	= solaris.c data.c sysinfo.c disk.c zpool.c zfs.c \
+	 zpool_perdisk.c netmib2.c netlink.c
 
-BARE_NS = disk kernel mem network hinv zpool zfs
+BARE_NS = disk kernel mem network hinv zpool zfs zpool_perdisk
 PMNS	= $(BARE_NS:%=pmns.%)
 LSRCFILES = $(PMNS) help root common.h
 LDIRT	= domain.h *.log *.dir *.pag root_solaris
@@ -67,12 +68,16 @@ help.dir help.pag: help root_solaris
 
 root_solaris: ../../pmns/stdpmid $(PMNS)
 	rm -f root_solaris
-	cpp -I../../pmns < root | sed -e '/^#/d' > root_solaris
+	$(CPP_SIMPLE) -I../../pmns < root | sed -e '/^#/d' > root_solaris
 
-domain.h:	../../pmns/stdpmid
+domain.h: ../../pmns/stdpmid
 	rm -f domain.h
-	echo "/*" >domain.h
-	echo " * built from $(PCP_VAR_DIR)/pmns/stdpmid" >>domain.h
-	echo " */" >>domain.h
-	$(PCP_AWK_PROG) <../../pmns/stdpmid >>domain.h \
-	    '/#define[ 	][ 	]*$(DOMAIN)[ 	]/ { print "#define $(DOMAIN) " $$3 }'
+	@echo "/*" >domain.h
+	@echo " * built from $<" >>domain.h
+	@echo " */" >>domain.h
+	@$(PCP_AWK_PROG) <$< '\
+$$1=="#define" && $$2 == "$(DOMAIN)" { print "#define $(DOMAIN) " $$3 >>"$@"; found++ }\
+END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  exit(1) }\
+          if (found > 1) { print "Botch: multiple #defines for domain $(DOMAIN) in $<"; print "... see $@ for details"; exit(1) }\
+	  exit(0)\
+	}'

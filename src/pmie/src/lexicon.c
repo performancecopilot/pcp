@@ -409,6 +409,7 @@ int
 yylex(void)
 {
     int		c, d;			/* current character */
+    int		esc = 0;		/* for escape processing */
     static int	ahead = 0;		/* lookahead token */
     int		behind = 0;		/* lookbehind token */
     LexEntry1	*lt1;			/* scans through lexbuf1 */
@@ -681,6 +682,7 @@ yylex(void)
 
 		/* escape character */
 		if (c == '\\') {
+		    esc = 1;
 		    c = nextc();
 		    switch (c) {
 		    case 'n':
@@ -706,9 +708,11 @@ yylex(void)
 			break;
 		    }
 		}
+		else
+		    esc = 0;
 
 		/* macro embedded in string */
-		else if (c == '$') {
+		if (c == '$' && !esc) {
 		    int		sts;
 		    if (!get_ident(nbuf))
 			return EOF;

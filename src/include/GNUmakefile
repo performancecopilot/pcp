@@ -20,7 +20,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-HFILES = pmapi.h impl.h pmda.h pmtime.h pmafm.h \
+HFILES = pmapi.h impl.h pmda.h pmtime.h pmafm.h pmiestats.h \
 	 trace.h trace_dev.h trace_hash.h mmv_stats.h mmv_dev.h
 IMPORT = pmimport.h
 GENERATED_HFILES = pmdbg.h platform_defs.h
@@ -45,8 +45,12 @@ install_pcp : default_pcp
 	$(INSTALL) -m 644 $(HFILES) $(GENERATED_HFILES) buildrules $(PCP_INC_DIR)
 	$(INSTALL) -m 644 builddefs.install $(PCP_INC_DIR)/builddefs
 
-pmdbg.h : pmapi.h
+pmdbg.h : pmapi.h impl.h
 	./mk_pmdbg
 
 builddefs.install : builddefs
-	sed -e 's;^include .*pcp.conf;include /etc/pcp.conf;' <builddefs >builddefs.install
+	sed -e 's;^include .*pcp.conf;include /etc/pcp.conf;' \
+	    -e 's;^BUILDRULES.*=.*buildrules;BUILDRULES = $$\(PCP_INC_DIR\)/buildrules;' \
+	    -e 's;^INSTALL_SH.*=.*install-sh;INSTALL_SH = $$\(PCP_BINADM_DIR\)/install-sh;' \
+	    -e 's;^GENPMDA.*=.*genpmda;GENPMDA = $$\(PCP_BIN_DIR\)/genpmda;' \
+	        < builddefs > builddefs.install

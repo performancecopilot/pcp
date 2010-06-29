@@ -17,6 +17,8 @@
  */
 
 #include "common.h"
+#include <sys/utsname.h>
+#include <sys/loadavg.h>
 
 typedef struct {
     int		fetched;
@@ -26,8 +28,12 @@ typedef struct {
 
 static int		ncpu;
 static int		hz;
+static long		pagesize;
 static cpu_stat_t	*cpustat;
 static ctl_t		*ctl;
+static char		uname_full[SYS_NMLN * 5];
+static int		nloadavgs;
+static double		loadavgs[3];
 
 void
 sysinfo_init(int first)
@@ -69,6 +75,7 @@ sysinfo_init(int first)
     }
 
     hz = (int)sysconf(_SC_CLK_TCK);
+    pagesize = sysconf(_SC_PAGESIZE);
 
 #ifdef PCP_DEBUG
     if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
@@ -111,7 +118,7 @@ sysinfo_derived(pmdaMetric *mdesc, int inst)
 	    pmIDStr(mdesc->m_desc.pmid), inst, val);
     }
 #endif
-    
+
     return val;
 }
 
@@ -120,6 +127,7 @@ sysinfo_prefetch(void)
 {
     int		i;
 
+    nloadavgs = -1;
     for (i = 0; i < ncpu; i++)
 	ctl[i].fetched = 0;
 }
@@ -131,6 +139,73 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
     int			i;
     int			ok;
     int			offset;
+    kstat_t		*ks;
+    struct utsname	u;
+
+    /* Special processing of metrics which notionally belong
+     * to sysinfo category */
+    switch (pmid_item(mdesc->m_desc.pmid)) {
+    case 109: /* hinv.physmem */
+	if ((ks = kstat_lookup(kc, "unix", -1, "system_pages")) != NULL) {
+	    kstat_named_t *kn;
+
+	    kstat_read(kc, ks, NULL);
+
+	    if ((kn = kstat_data_lookup(ks, "physmem")) != NULL) {
+		switch (kn->data_type) {
+		case KSTAT_DATA_UINT64:
+		    atom->ull = kn->value.ui64;
+		    break;
+		case KSTAT_DATA_INT64:
+		    atom->ull = kn->value.i64;
+		    break;
+		case KSTAT_DATA_UINT32:
+		    atom->ull = kn->value.ui32;
+		    break;
+		case KSTAT_DATA_INT32:
+		    atom->ull = kn->value.i32;
+		    break;
+		default:
+		    return 0;
+		}
+
+		atom->ull = (atom->ull * pagesize) >> 20;
+		return 1;
+	    }
+	}
+	return 0;
+
+    case 108: /* hinv.pagesize */
+	atom->ul = pagesize;
+	return 1;
+
+    case 107: /* pmda.uname */
+	if (uname(&u) < 0)
+	    return 0;
+
+	snprintf(uname_full, sizeof(uname_full), "%s %s %s %s %s",
+		 u.sysname, u.nodename, u.release, u.version, u.machine);
+	atom->cp = uname_full;
+	return 1;
+    case 135: /* kernel.all.load */
+	if (nloadavgs < 0) {
+		if ((nloadavgs = getloadavg(loadavgs, 3)) < 0)
+			return 0;
+	}
+
+	switch (inst) {
+	case 1:
+		atom->f = (float)loadavgs[LOADAVG_1MIN];
+		return nloadavgs > LOADAVG_1MIN;
+	case 5:
+		atom->f = (float)loadavgs[LOADAVG_5MIN];
+		return nloadavgs > LOADAVG_5MIN;
+	case 15:
+		atom->f = (float)loadavgs[LOADAVG_15MIN];
+		return nloadavgs > LOADAVG_15MIN;
+	}
+	return PM_ERR_INST;
+    }
 
     ok = 1;
     for (i = 0; i < ncpu; i++) {

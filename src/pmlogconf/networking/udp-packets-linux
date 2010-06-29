@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	UDP packets in and out [Linux]
+probe	network.udp.indatagrams
+	network.udp.indatagrams
+	network.udp.outdatagrams

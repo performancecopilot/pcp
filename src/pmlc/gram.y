@@ -43,8 +43,6 @@ static int	sts;
 extern int	port;
 extern int	pid;
 
-extern int	errno;
-
 %}
 
 %union {

@@ -23,8 +23,6 @@
 #include "impl.h"
 #include "pmda.h"
 
-extern int	errno;
-
 int
 __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 {
@@ -77,7 +75,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 	    return -errno;
 	}
     }
-		
+
     ans->numpmid = numpmid;
     gettimeofday(&ans->timestamp, NULL);
     for (j = 0; j < numpmid; j++)
@@ -155,6 +153,7 @@ __pmFetchLocal(int numpmid, pmID pmidlist[], pmResult **result)
 		    if (ans->vset[k] == NULL)
 			return -errno;
 		    ans->vset[k]->numval = sts;
+		    ans->vset[k]->pmid = pmidlist[k];
 		}
 		else {
 		    ans->vset[k] = tmp_ans->vset[n];

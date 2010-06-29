@@ -22,7 +22,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM = mysql
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmda$(IAM).pl
+LSRCFILES = Install Remove pmda$(IAM).pl pmlogconf.summary
 
 ifneq ($(POD2MAN),)
 MAN_SECTION = 1
@@ -32,7 +32,9 @@ endif
 
 LDIRT = domain.h root pmns *.log $(MAN_PAGES)
 
-default: $(MAN_PAGES)
+mydomain = $(shell sed -n -e '/PCP::PMDA->new/s/[^0-9]*$$//' -e '/PCP::PMDA->new/s/^[^0-9]*//p' pmda$(IAM).pl)
+
+default: check_domain $(MAN_PAGES)
 
 pmda$(IAM).1: pmda$(IAM).pl
 	$(POD_MAKERULE)  
@@ -44,7 +46,19 @@ install: default
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
 	@$(INSTALL_MAN)
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
 
 default_pcp : default
 
 install_pcp : install
+
+check_domain:	../../pmns/stdpmid
+	@$(PCP_AWK_PROG) <$< '\
+BEGIN	{ domain = toupper("$(IAM)") }\
+$$1=="#define" && $$2 == domain { pmd=$$3; found++ }\
+END	{ if (found == 0) { print "Botch: no #define for domain " domain " in $<";  exit(1) }\
+          if (found > 1) { print "Botch: multiple #defines for domain " domain " in $<"; exit(1) }\
+	  if (pmd != $(mydomain)) { print "Botch: domain number in ../../pmns/stdpmid (" pmd ") does not match domain number in Perl source ($(mydomain))"; exit(1) }\
+	  exit(0)\
+	}'

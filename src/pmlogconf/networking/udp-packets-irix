@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	UDP packets in and out [Irix]
+probe	network.udp.ipackets
+	network.udp.ipackets
+	network.udp.opackets

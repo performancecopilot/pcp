@@ -35,6 +35,7 @@ root {
     quota
     tmpfs
     sysfs
+    cgroup		60:*:*
 }
 
 hinv {
@@ -51,6 +52,7 @@ hinv {
 hinv.map {
     scsi		60:15:0
     cpu_num		60:18:6
+    cpu_node		60:18:8
 }
 
 hinv.cpu {
@@ -65,6 +67,7 @@ hinv.cpu {
 kernel {
     all
     percpu
+    pernode
     uname
 }
 
@@ -130,6 +133,31 @@ kernel.percpu.cpu.wait {
 kernel.percpu.cpu.irq {
     soft		60:0:56
     hard		60:0:57
+}
+
+kernel.pernode {
+    cpu
+}
+
+kernel.pernode.cpu {
+    user		60:0:62
+    nice		60:0:63
+    sys			60:0:64
+    idle		60:0:65
+    intr		60:0:66
+    wait
+    irq
+    steal		60:0:67
+    guest		60:0:68
+}
+
+kernel.pernode.cpu.wait {
+    total		60:0:69
+}
+
+kernel.pernode.cpu.irq {
+    soft		60:0:70
+    hard		60:0:71
 }
 
 kernel.uname {
@@ -239,6 +267,7 @@ mem {
     physmem		60:1:0
     freemem		60:1:10
     util
+    numa
     slabinfo
     vmstat
 }
@@ -247,8 +276,8 @@ mem.util {
     used		60:1:1
     free		60:1:2
     shared		60:1:3
-    cached		60:1:5
     bufmem		60:1:4
+    cached		60:1:5
     other		60:1:12
     swapCached		60:1:13
     active		60:1:14
@@ -273,7 +302,77 @@ mem.util {
     NFS_Unstable	60:1:33
     slabReclaimable	60:1:34
     slabUnreclaimable	60:1:35
+    active_anon		60:1:36
+    inactive_anon	60:1:37
+    active_file		60:1:38
+    inactive_file	60:1:39
+    unevictable		60:1:40
+    mlocked		60:1:41
+    shmem		60:1:42
+    kernelStack		60:1:43
+    hugepagesTotal	60:1:44
+    hugepagesFree	60:1:45
+    hugepagesRsvd	60:1:46
+    hugepagesSurp	60:1:47
+    directMap4k		60:1:48
+    directMap2M		60:1:49
+    vmallocTotal	60:1:50
+    vmallocUsed		60:1:51
+    vmallocChunk	60:1:52
+    mmap_copy		60:1:53
+    quicklists		60:1:54
+    corrupthardware	60:1:55
+    anonhugepages	60:1:56
 }
+
+mem.numa {
+    util
+    alloc
+}
+
+mem.numa.util {
+    total		60:36:0
+    free		60:36:1
+    used		60:36:2
+    active		60:36:3
+    inactive		60:36:4
+    active_anon		60:36:5
+    inactive_anon	60:36:6
+    active_file		60:36:7
+    inactive_file	60:36:8
+    highTotal		60:36:9
+    highFree		60:36:10
+    lowTotal		60:36:11
+    lowFree		60:36:12
+    unevictable		60:36:13
+    mlocked		60:36:14
+    dirty		60:36:15
+    writeback		60:36:16
+    filePages		60:36:17
+    mapped		60:36:18
+    anonpages		60:36:19
+    shmem		60:36:20
+    kernelStack		60:36:21
+    pageTables		60:36:22
+    NFS_Unstable	60:36:23
+    bounce		60:36:24
+    writebackTmp	60:36:25
+    slab		60:36:26
+    slabReclaimable	60:36:27
+    slabUnreclaimable	60:36:28
+    hugepagesTotal	60:36:29
+    hugepagesFree	60:36:30
+    hugepagesSurp	60:36:31
+}
+
+mem.numa.alloc {
+    hit			60:36:32
+    miss		60:36:33
+    foreign		60:36:34
+    interleave_hit	60:36:35
+    local_node		60:36:36
+    other_node		60:36:37
+} 
 
 swap {
     pagesin		60:0:8
@@ -461,6 +560,7 @@ filesys {
     full		60:5:8
     blocksize           60:5:9
     avail               60:5:10
+    readonly            60:5:11
 }
 
 tmpfs {
@@ -715,6 +815,7 @@ xfs {
     buffer
     vnodes
     control
+    btree
 }
 
 xfs.allocs {
@@ -847,6 +948,85 @@ xfs.buffer {
     page_retries        60:17:6
     page_found          60:17:7
     get_read            60:17:8
+}
+
+xfs.btree {
+    alloc_blocks
+    alloc_contig
+    block_map
+    inode
+}
+
+xfs.btree.alloc_blocks {
+    lookup		60:16:80
+    compare		60:16:81
+    insrec		60:16:82
+    delrec		60:16:83
+    newroot		60:16:84
+    killroot		60:16:85
+    increment		60:16:86
+    decrement		60:16:87
+    lshift		60:16:88
+    rshift		60:16:89
+    split		60:16:90
+    join		60:16:91
+    alloc		60:16:92
+    free		60:16:93
+    moves		60:16:94
+}
+
+xfs.btree.alloc_contig {
+    lookup		60:16:95
+    compare		60:16:96
+    insrec		60:16:97
+    delrec		60:16:98
+    newroot		60:16:99
+    killroot		60:16:100
+    increment		60:16:101
+    decrement		60:16:102
+    lshift		60:16:103
+    rshift		60:16:104
+    split		60:16:105
+    join		60:16:106
+    alloc		60:16:107
+    free		60:16:108
+    moves		60:16:109
+}
+
+xfs.btree.block_map {
+    lookup		60:16:110
+    compare		60:16:111
+    insrec		60:16:112
+    delrec		60:16:113
+    newroot		60:16:114
+    killroot		60:16:115
+    increment		60:16:116
+    decrement		60:16:117
+    lshift		60:16:118
+    rshift		60:16:119
+    split		60:16:120
+    join		60:16:121
+    alloc		60:16:122
+    free		60:16:123
+    moves		60:16:124
+}
+
+xfs.btree.inode {
+    lookup		60:16:125
+    compare		60:16:126
+    insrec		60:16:127
+    delrec		60:16:128
+    newroot		60:16:129
+    killroot		60:16:130
+    increment		60:16:131
+    decrement		60:16:132
+    lshift		60:16:133
+    rshift		60:16:134
+    split		60:16:135
+    join		60:16:136
+    alloc		60:16:137
+    free		60:16:138
+    moves		60:16:139
 }
 
 network.tcpconn {
@@ -1039,3 +1219,4 @@ sysfs {
 sysfs.kernel {
     uevent_seqnum	60:35:0
 }
+

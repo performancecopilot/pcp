@@ -55,7 +55,7 @@ _pminfo_complete ()
             && ! [[ "${COMP_WORDS[$((COMP_CWORD-1))]}" =~ $opt_regex ]] 
         )
     then
-        COMPREPLY=(`compgen -W '$(command pminfo -L)' $cur`)
+        COMPREPLY=(`compgen -W '$(command pminfo)' 2>/dev/null $cur`)
     fi 
 
 }    # ----------  end of function _pminfo_complete  ----------

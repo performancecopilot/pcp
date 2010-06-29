@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2000-2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2009 Aconex.  All Rights Reserved.
+# Copyright (c) 2009-2010 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,44 +21,54 @@ DOMAIN		= MMV
 CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 TARGETS		= $(CMDTARGET) $(LIBTARGET) mmvdump$(EXECSUFFIX)
+DUMPDIRT	= mmvdump$(EXECSUFFIX) mmvdump.o
+LDIRT		= domain.h *.log *.dir *.pag so_locations $(DUMPDIRT) pmns pcp
 
 CFILES		= mmv.c
-LSRCFILES	= pmns Install Remove README root mmvdump.c
+LSRCFILES	= Install Remove mmvdump.c root_mmv
 
 LCFLAGS		= -I.
 LLDFLAGS	= -L$(TOPDIR)/src/libpcp_mmv/src
 LLDLIBS		= -lpcp_pmda -lpcp
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
-LDIRT	= *.o $(TARGETS) domain.h *.log *.dir *.pag \
-	  so_locations a.out parse.? pcp
+CONF_LINE = "mmv	70	dso	mmv_init	$(PCP_PMDAS_DIR)/mmv/pmda_mmv.$(DSOSUFFIX)"
 
-default: $(TARGETS)
+default_pcp default: $(TARGETS) pmns
+	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	fi
 
 include $(BUILDRULES)
 
-install: default
+install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 	$(INSTALL) -m 755 $(TARGETS) Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 README root pmns domain.h $(PMDADIR)
+	$(INSTALL) -m 644 pmns $(PMDADIR)/root_mmv
+	$(INSTALL) -m 644 root_mmv $(PCP_VAR_DIR)/pmns/root_mmv
 
 $(CMDTARGET):	$(OBJECTS)
 
 $(IAM).o : domain.h pcp
 
-domain.h:	../../pmns/stdpmid
-	rm -f $@
-	echo "/*" >$@
-	echo " * built from $(PCP_VAR_DIR)/pmns/stdpmid" >>$@
-	echo " */" >>$@
-	$(PCP_AWK_PROG) <$< >>$@ '$$1=="#define" && $$2=="$(DOMAIN)" { print "#define $(DOMAIN) " $$3 }'
-
-default_pcp: default
-
-install_pcp: install
+domain.h: ../../pmns/stdpmid
+	rm -f domain.h
+	@echo "/*" >domain.h
+	@echo " * built from $<" >>domain.h
+	@echo " */" >>domain.h
+	@$(PCP_AWK_PROG) <$< '\
+$$1=="#define" && $$2 == "$(DOMAIN)" { print "#define $(DOMAIN) " $$3 >>"$@"; found++ }\
+END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  exit(1) }\
+          if (found > 1) { print "Botch: multiple #defines for domain $(DOMAIN) in $<"; print "... see $@ for details"; exit(1) }\
+	  exit(0)\
+	}'
 
 pcp :
 	$(LN_S) -f $(TOPDIR)/src/include pcp
+
+pmns :
+	$(LN_S) -f root_mmv pmns
 
 mmvdump$(EXECSUFFIX):    mmvdump.o
 	$(CCF) -o $@ mmvdump.o $(LDFLAGS) -lpcp -lpcp_mmv

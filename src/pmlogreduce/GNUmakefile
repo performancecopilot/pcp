@@ -22,14 +22,10 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES	= pmlogreduce.c logio.c util.c dometric.c rewrite.c indom.c scan.c
 HFILES	= pmlogreduce.h
-LFILES  =
-YFILES  =
-LCFLAGS	= -g
 
-CMDTARGET = pmlogreduce
+CMDTARGET = pmlogreduce$(EXECSUFFIX)
 
 LLDLIBS	= -lpcp
-LDIRT	= $(YFILES:%.y=%.tab.?)
 
 default: $(CMDTARGET)
 

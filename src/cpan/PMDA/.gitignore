@@ -1,7 +1,11 @@
+blib
 COPYING
+dll.base
+dll.exp
 Makefile
+META.yml
 PCP-PMDA-*.tar.gz
 PMDA.bs
 PMDA.c
-blib
+PMDA.def
 pm_to_blib

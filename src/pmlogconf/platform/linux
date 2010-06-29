@@ -1,0 +1,11 @@
+#pmlogconf-setup 2.0
+ident	Linux swap, cache and networking configuration
+probe	kernel.uname.sysname ~ Linux ? include : exclude
+delta	once
+	swap.length
+	mem.slabinfo.objects.size
+	network.interface.mtu
+	network.interface.speed
+	network.interface.duplex
+	network.interface.inet_addr
+

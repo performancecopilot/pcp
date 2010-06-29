@@ -101,6 +101,18 @@ for the default PMNS, and this would typically imply running
 .B pmnsadd
 as root.
 .PP
+As a special case, if
+.I file
+contains a line that begins
+.ft CW
+root {
+.ft R
+then it is assumed to be a complete PMNS that needs to be
+merged, so none of the subtree extraction and rewriting is performed and
+.I file
+is handed directly to
+.BR pmnsmerge (1).
+.PP
 Provided some initial integrity checks are satisfied,
 .B pmnsadd
 will update the PMNS using

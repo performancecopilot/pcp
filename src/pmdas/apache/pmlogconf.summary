@@ -1,0 +1,10 @@
+#pmlogconf-setup 2.0
+ident	Apache summary information
+probe	apache.total_accesses exists ? include : exclude
+	apache.total_accesses
+	apache.total_kbytes
+	apache.requests_per_sec
+	apache.bytes_per_sec
+	apache.bytes_per_requests
+	apache.busy_servers
+	apache.idle_servers

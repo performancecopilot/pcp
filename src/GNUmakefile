@@ -24,12 +24,12 @@ SUBDIRS = include \
 	  libpcp libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
 	  libpcp_mmv \
 	  pmconfig pmns newhelp pminfo pmnscomp pmcd pmerr pmdbg \
-	  pmdate pmie pmpost pmprobe pmcdctl pmlock pmval pmlogger \
+	  pmdate pmie pmieconf pmpost pmprobe pmcdctl pmlock pmval pmlogger \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmlogctl \
 	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
 	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
 	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
-	  autofsd-probe telnet-probe cpan win32ctl bashrc
+	  autofsd-probe telnet-probe cpan win32ctl bashrc pmiestatus
 
 default :: default_pcp
 

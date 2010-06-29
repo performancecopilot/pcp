@@ -447,8 +447,66 @@ you will get real memory on demand, and just as much as you use.
 @ mem.util.NFS_Unstable Kbytes in NFS unstable memory, from /proc/meminfo
 @ mem.util.slabReclaimable Kbytes in reclaimable slab pages, from /proc/meminfo
 @ mem.util.slabUnreclaimable Kbytes in unreclaimable slab pages, from /proc/meminfo
+@ mem.util.active_anon anonymous Active list LRU memory
+@ mem.util.inactive_anon anonymous Inactive list LRU memory
+@ mem.util.active_file file-backed Active list LRU memory
+@ mem.util.inactive_file file-backed Inactive list LRU memory
+@ mem.util.unevictable kbytes of memory that is unevictable
+@ mem.util.mlocked kbytes of memory that is pinned via mlock()
+@ mem.util.shmem kbytes of shmem
+@ mem.util.kernelStack kbytes of memory used for kernel stacks
+@ mem.util.hugepagesTotal a count of total hugepages
+@ mem.util.hugepagesFree a count of free hugepages
+@ mem.util.hugepagesSurp a count of surplus hugepages
+@ mem.util.directMap4k amount of memory that is directly mapped in 4kB pages
+@ mem.util.directMap2M amount of memory that is directly mapped in 2MB pages
+@ mem.util.vmallocTotal amount of kernel memory allocated via vmalloc
+@ mem.util.vmallocUsed amount of used vmalloc memory
+@ mem.util.vmallocChunk amount of vmalloc chunk memory
+@ mem.util.mmap_copy amount of mmap_copy space (non-MMU kernels only)
+@ mem.util.quicklists amount of memory in the per-CPU quicklists
+@ mem.util.corrupthardware amount of memory in hardware corrupted pages
+@ mem.util.anonhugepages amount of memory in anonymous huge pages
 
 User memory (Kbytes) in pages not backed by files, e.g. from malloc()
+@ mem.numa.util.total per-node total memory
+@ mem.numa.util.free per-node free memory
+@ mem.numa.util.used per-node used memory
+@ mem.numa.util.active per-node Active list LRU memory
+@ mem.numa.util.inactive per-node Inactive list LRU memory
+@ mem.numa.util.active_anon per-node anonymous Active list LRU memory
+@ mem.numa.util.inactive_anon per-node anonymous Inactive list LRU memory
+@ mem.numa.util.active_file per-node file-backed Active list LRU memory
+@ mem.numa.util.inactive_file per-node file-backed Inactive list LRU memory
+@ mem.numa.util.highTotal per-node highmem total
+@ mem.numa.util.highFree per-node highmem free
+@ mem.numa.util.lowTotal per-node lowmem total
+@ mem.numa.util.lowFree per-node lowmem free
+@ mem.numa.util.unevictable per-node Unevictable memory
+@ mem.numa.util.mlocked per-node count of Mlocked memory
+@ mem.numa.util.dirty per-node dirty memory
+@ mem.numa.util.writeback per-node count of memory locked for writeback to stable storage
+@ mem.numa.util.filePages per-node count of memory backed by files
+@ mem.numa.util.mapped per-node mapped memory
+@ mem.numa.util.anonpages per-node anonymous memory
+@ mem.numa.util.shmem per-node amount of shared memory
+@ mem.numa.util.kernelStack per-node memory used as kernel stacks
+@ mem.numa.util.pageTables per-node memory used for pagetables
+@ mem.numa.util.NFS_Unstable per-node memory holding NFS data that needs writeback
+@ mem.numa.util.bounce per-node memory used for bounce buffers
+@ mem.numa.util.writebackTmp per-node temporary memory used for writeback
+@ mem.numa.util.slab per-node memory used for slab objects
+@ mem.numa.util.slabReclaimable per-node memory used for slab objects that can be reclaimed
+@ mem.numa.util.slabUnreclaimable per-node memory used for slab objects that is unreclaimable
+@ mem.numa.util.hugepagesTotal per-node total count of hugepages
+@ mem.numa.util.hugepagesFree per-node count of free hugepages
+@ mem.numa.util.hugepagesSurp per-node count of surplus hugepages
+@ mem.numa.alloc.hit per-node count of times a task wanted alloc on local node and succeeded
+@ mem.numa.alloc.miss per-node count of times a task wanted alloc on local node but got another node
+@ mem.numa.alloc.foreign count of times a task on another node alloced on that node, but got this node
+@ mem.numa.alloc.interleave_hit count of times interleaving wanted to allocate on this node and succeeded
+@ mem.numa.alloc.local_node count of times a process ran on this node and got memory on this node
+@ mem.numa.alloc.other_node count of times a process ran on this node and got memory from another node
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat
 @ mem.vmstat.nr_writeback number of pages in writeback state
@@ -642,6 +700,7 @@ are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
 @ filesys.full Percentage of filesystem in use
 @ filesys.blocksize Size of each block on mounted filesystem (Bytes)
 @ filesys.avail Total space free to non-superusers on mounted filesystem (Kbytes)
+@ filesys.readonly Indicates whether a filesystem is mounted readonly
 @ tmpfs.capacity Total capacity of mounted tmpfs filesystem (Kbytes)
 @ tmpfs.used Total space used on mounted tmpfs filesystem (Kbytes)
 @ tmpfs.free Total space free on mounted tmpfs filesystem (Kbytes)
@@ -1317,4 +1376,150 @@ If non-zero, stop collecting perf stats this many secs after last fetch
 @ quota.project.files.used file count for this project and filesys
 @ quota.project.files.time_left when soft limit is exceeded, seconds until it is enacted
 
-@sysfs.kernel.uevent_seqnum counter of the number of uevents processed by the udev subsystem
+@ sysfs.kernel.uevent_seqnum counter of the number of uevents processed by the udev subsystem
+
+@ xfs.btree.alloc_blocks.lookup
+Number of free-space-by-block-number btree record lookups
+@ xfs.btree.alloc_blocks.compare
+Number of free-space-by-block-number btree record compares
+@ xfs.btree.alloc_blocks.insrec
+Number of free-space-by-block-number btree insert record operations executed
+@ xfs.btree.alloc_blocks.delrec
+Number of free-space-by-block-number btree delete record operations executed
+@ xfs.btree.alloc_blocks.newroot
+Number of times a new level is added to a free-space-by-block-number btree
+@ xfs.btree.alloc_blocks.killroot
+Number of times a level is removed from a free-space-by-block-number btree
+@ xfs.btree.alloc_blocks.increment
+Number of times a cursor has been moved forward one free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.decrement
+Number of times a cursor has been moved backward one free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.lshift
+Left shift block operations to make space for a new free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.rshift
+Right shift block operations to make space for a new free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.split
+Split block operations to make space for a new free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.join
+Merge block operations when deleting free-space-by-block-number btree records
+@ xfs.btree.alloc_blocks.alloc
+Btree block allocations during free-space-by-block-number btree operations
+@ xfs.btree.alloc_blocks.free
+Btree blocks freed during free-space-by-block-number btree operations
+@ xfs.btree.alloc_blocks.moves
+Records moved inside blocks during free-space-by-block-number btree operations
+
+
+@ xfs.btree.alloc_contig.lookup
+Number of free-space-by-size btree record lookups
+@ xfs.btree.alloc_contig.compare
+Number of free-space-by-size btree btree record compares
+@ xfs.btree.alloc_contig.insrec
+Number of free-space-by-size btree insert record operations executed
+@ xfs.btree.alloc_contig.delrec
+Number of free-space-by-size btree delete record operations executed
+@ xfs.btree.alloc_contig.newroot
+Number of times a new level is added to a free-space-by-size btree tree
+@ xfs.btree.alloc_contig.killroot
+Number of times a level is removed from a free-space-by-size btree tree
+@ xfs.btree.alloc_contig.increment
+Number of times a free-space-by-size btree cursor has been moved forward
+one record
+@ xfs.btree.alloc_contig.decrement
+Number of times a free-space-by-size btree cursor has been moved backward
+one record
+@ xfs.btree.alloc_contig.lshift
+Left shift block operations to make space for a new free-space-by-size
+btree record
+@ xfs.btree.alloc_contig.rshift
+Right shift block operations to make space for a new free-space-by-size
+btree record
+@ xfs.btree.alloc_contig.split
+Split block operations to make space for a new free-space-by-size btree
+record
+@ xfs.btree.alloc_contig.join
+Merge block operations when deleting free-space-by-size btree records
+@ xfs.btree.alloc_contig.alloc
+Btree block allocations during free-space-by-size btree operations
+@ xfs.btree.alloc_contig.free
+Btree blocks freed during free-space-by-size btree operations
+@ xfs.btree.alloc_contig.moves
+Records moved inside blocks during free-space-by-size btree operations
+
+@ xfs.btree.block_map.lookup
+Number of inode-block-map/extent btree record lookups
+@ xfs.btree.block_map.compare
+Number of inode-block-map/extent btree record compares
+@ xfs.btree.block_map.insrec
+Number of inode-block-map/extent btree insert record operations executed
+@ xfs.btree.block_map.delrec
+Number of inode-block-map/extent btree delete record operations executed
+@ xfs.btree.block_map.newroot
+Number of times a new level is added to an inode-block-map/extent btree
+@ xfs.btree.block_map.killroot
+Number of times a level is removed from an inode-block-map/extent btree
+@ xfs.btree.block_map.increment
+Number of times an inode-block-map/extent btree cursor has been moved
+forward one record
+@ xfs.btree.block_map.decrement
+Number of times an inode-block-map/extent btree cursor has been moved
+backward one record
+@ xfs.btree.block_map.lshift
+Left shift block operations to make space for a new inode-block-map/extent
+btree record
+@ xfs.btree.block_map.rshift
+Right shift block operations to make space for a new inode-block-map/extent
+btree record
+@ xfs.btree.block_map.split
+Split block operations to make space for a new inode-block-map/extent
+btree record
+@ xfs.btree.block_map.join
+Merge block operations when deleting inode-block-map/extent btree records
+@ xfs.btree.block_map.alloc
+Btree block allocations during inode-block-map/extent btree operations
+@ xfs.btree.block_map.free
+Btree blocks freed during inode-block-map/extent btree operations
+@ xfs.btree.block_map.moves
+Records moved inside blocks during inode-block-map/extent btree operations
+
+@ xfs.btree.inode.lookup
+Number of inode-allocation btree record lookups
+@ xfs.btree.inode.compare
+Number of inode-allocation btree record compares
+@ xfs.btree.inode.insrec
+Number of inode-allocation btree insert record operations executed
+@ xfs.btree.inode.delrec
+Number of inode-allocation btree delete record operations executed
+@ xfs.btree.inode.newroot
+Number of times a new level is added to an inode-allocation btree
+@ xfs.btree.inode.killroot
+Number of times a level is removed from an inode-allocation btree
+@ xfs.btree.inode.increment
+Number of times a cursor has been moved forward one inode-allocation
+btree record
+@ xfs.btree.inode.decrement
+Number of times a cursor has been moved backward one inode-allocation
+btree record
+@ xfs.btree.inode.lshift
+Left shift block operations to make space for a new inode-allocation
+btree record
+@ xfs.btree.inode.rshift
+Right shift block operations to make space for a new inode-allocation
+btree record
+@ xfs.btree.inode.split
+Split block operations to make space for a new inode-allocation btree record
+@ xfs.btree.inode.join
+Merge block operations when deleting inode-allocation btree records
+@ xfs.btree.inode.alloc
+Btree block allocations during inode-allocation btree operations
+@ xfs.btree.inode.free
+Btree blocks freed during inode-allocation btree operations
+@ xfs.btree.inode.moves
+Records moved inside blocks during inode-allocation btree operations
+
+

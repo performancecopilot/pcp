@@ -1359,12 +1359,35 @@ again:
     return 0;
 }
 
+static int
+check_all_derived(int numpmid, pmID pmidlist[])
+{
+    int	i;
+
+    /*
+     * Special case ... if we ONLY have derived metrics in the input
+     * pmidlist then all the derived metrics must be constant
+     * expressions, so skip all the processing.
+     * Derived metrics have domain == DYNAMIC_PMID and item != 0.
+     * This rare, but avoids reading to the end of an archive
+     * for no good reason.
+     */
+
+    for (i = 0; i < numpmid; i++) {
+	if (pmid_domain(pmidlist[i]) != DYNAMIC_PMID ||
+	    pmid_item(pmidlist[i]) == 0)
+	    return 0;
+    }
+    return 1;
+}
+
 int
 __pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
 {
     int		i;
     int		j;
     int		u;
+    int		all_derived;
     int		sts = 0;
     int		found;
     double	tdiff;
@@ -1380,6 +1403,8 @@ __pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
     if (ctxp_mode == PM_MODE_INTERP) {
 	return __pmLogFetchInterp(ctxp, numpmid, pmidlist, result);
     }
+
+    all_derived = check_all_derived(numpmid, pmidlist);
 
     /* re-establish position */
     __pmLogChangeVol(ctxp->c_archctl->ac_log, ctxp->c_archctl->ac_vol);
@@ -1548,7 +1573,7 @@ more:
 		    newres->vset[j] = (pmValueSet *)pcp;
 		}
 	    }
-	    if (u == 0) {
+	    if (u == 0 && !all_derived) {
 		/*
 		 * not one of our pmids was in the log record, try
 		 * another log record ...

@@ -138,12 +138,8 @@
 #define PROC_PID_IO_READ_BYTES		4
 #define PROC_PID_IO_WRITE_BYTES		5
 #define PROC_PID_IO_CANCELLED_BYTES	6
-/* Depending on kernel build options (CONFIG_TASK_[IO_ACCOUNTING|XACCT]),
- * these /proc/<pid>/io files have either the last three or seven fields. */
-#define NR_PROC_PID_IO_MINIMUM		3
-#define NR_PROC_PID_IO			7
 
-typedef struct {
+typedef struct {	/* /proc/<pid>/status */
     char *uid;
     char *gid;
     char *sigpnd;
@@ -158,6 +154,16 @@ typedef struct {
     char *vmexe;
     char *vmlib;
 } status_lines_t;
+
+typedef struct {	/* /proc/<pid>/io */
+    char *rchar;
+    char *wchar;
+    char *syscr;
+    char *syscw;
+    char *readb;
+    char *writeb;
+    char *cancel;
+} io_lines_t;
 
 typedef struct {
     int			id;	/* pid, hash key and internal instance id */
@@ -192,6 +198,7 @@ typedef struct {
     int			io_fetched;
     int			io_buflen;
     char		*io_buf;
+    io_lines_t		io_lines;
 
     /* /proc/<pid>/wchan cluster */
     int			wchan_fetched;
@@ -204,8 +211,23 @@ typedef struct {
     pmdaIndom		*indom;		/* instance domain table */
 } proc_pid_t;
 
+typedef struct {
+    int			count;		/* number of processes in the list */
+    int			size;		/* size of the buffer (pids) allocated */
+    int			*pids;		/* array of process identifiers */
+} proc_pid_list_t;
+
 /* refresh the proc indom, reset all "fetched" flags */
 extern int refresh_proc_pid(proc_pid_t *);
+
+/* add a process onto a process list */
+extern void pidlist_append(proc_pid_list_t *, const char *);
+
+/* comparator routine for sorting a process list */
+extern int compare_pid(const void *, const void *);
+
+/* refresh a proc indom (subset), reset all "fetched" flags */
+extern int refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *);
 
 /* fetch a proc/<pid>/stat entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_stat(int, proc_pid_t *);

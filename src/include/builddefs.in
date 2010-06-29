@@ -40,7 +40,7 @@ PACKAGE_DISTRIBUTION ?= @PACKAGE_DISTRIBUTION@
 SGI_CHROOT_BUILD ?= 0
 SGI_ISSP_BUILD ?= 0
 
-BUILDRULES=$(TOPDIR)/src/include/buildrules
+BUILDRULES = $(TOPDIR)/src/include/buildrules
 
 TARGET_OS = @target_os@
 TARGET_VENDOR = @target_vendor@
@@ -60,7 +60,7 @@ PACKAGE_BUILDER = @package_builder@
 # turn on all warnings by default
 WARN_OFF = -Wall
 
-PTHREAD_LIB=@ac_cv_pthread_lib@
+PTHREAD_LIB = @ac_cv_pthread_lib@
 LIBPCP_ABIDIR ?= src
 PCP_LIBS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
 	   -L$(TOPDIR)/src/libpcp_pmda/$(LIBPCP_ABIDIR)
@@ -116,18 +116,20 @@ PLDFLAGS = -brtl -bnoipath
 WARN_OFF =
 endif
 
-CFLAGS += $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -g -DPCP_DEBUG \
-	-DPCP_VERSION=\"$(PCP_VERSION)\" -I$(TOPDIR)/src/include 
+CFLAGS_ABI = @cflags_abi@
+CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -g -DPCP_DEBUG \
+	-DPCP_VERSION=\"$(PCP_VERSION)\" -I$(TOPDIR)/src/include
 
-LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
+LDFLAGS += $(CFLAGS_ABI) $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
-SRCFILES= GNUmakefile $(HFILES) $(CFILES) $(MFILES) \
+SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(MFILES) \
 	$(LSRCFILES) $(LFILES) $(YFILES)
 
 LDLIBS = $(LLDLIBS) $(PLDLIBS)
 MAKEOPTS = --no-print-directory
 DIRT = $(LDIRT) dep dep.bak $(OBJECTS) $(CMDTARGET) $(LIBTARGET) \
-	$(STATICLIBTARGET) *.[1-9].gz
+	$(STATICLIBTARGET) *.[1-9].gz *.[1-9].tmp
+DIRDIRT = $(LDIRDIRT)
 
 OBJECTS = $(ASFILES:.s=.o) \
           $(CFILES:.c=.o) \
@@ -141,17 +143,19 @@ LD	= @ld@
 AWK	= @awk@
 SED	= @sed@
 CPP	= @cpp@
-INSTALL	= $(TOPDIR)/install-sh -o @pcp_owner@ -g @pcp_group@
 LEX	= @lex@
 YACC	= @yacc@
 ECHO	= @echo@
 LN_S	= @LN_S@
 GREP    = @grep@
 
+INSTALL_SH = $(TOPDIR)/install-sh
+INSTALL	= $(INSTALL_SH) -o @pcp_owner@ -g @pcp_group@
+
 CCF	= $(CC) $(CFLAGS)
 MAKEF	= $(MAKE) $(MAKEOPTS)
 LDF	= $(LD) $(LDFLAGS)
-MAKEDEPEND= @makedepend@
+MAKEDEPEND = @makedepend@
 
 ZIP	= @gzip@
 BZIP2	= @bzip2@
@@ -172,6 +176,7 @@ MD5SUM	= @md5sum@
 
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
+NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 CPP_SIMPLE = @cpp_simple@
 CPP_SIMPLE_ARGS = @cpp_simple_args@
 RDYNAMIC_FLAG = @rdynamic_flag@
@@ -181,6 +186,8 @@ LIB_FOR_BASENAME = @lib_for_basename@
 LIB_FOR_DLOPEN = @lib_for_dlopen@
 LIB_FOR_REGEX = @lib_for_regex@
 LIB_FOR_MATH = @lib_for_math@
+LIB_FOR_READLINE = @lib_for_readline@
+LIB_FOR_CURSES = @lib_for_curses@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images
@@ -239,15 +246,19 @@ INSTALL_MAN = \
 	    [ -z "$$m" -o "$$m" = "\\" ] && continue; \
 	    t=$(MAN_DEST)/$$m.$(MAN_SECTION); \
 	    if $$first; then \
+		_tfx= ;\
+		if $(NEED_OLD_TBL_HEADER) ; then \
+		    $(SED) -e "1s/^'\\\\\"! tbl.*/'\\\\\" t/" $$d > $$d.tmp; _tfx=.tmp; \
+		fi; \
 		if $(HAVE_GZIPPED_MANPAGES) ; then \
-		    $(ZIP) -c $$d > $$d.gz; _sfx=.gz; \
+		    $(ZIP) -c $$d$$_tfx > $$d.gz; _tfx=.gz; _sfx=.gz; \
 		fi; \
 		if $(HAVE_BZIP2ED_MANPAGES) ; then \
-		    $(BZIP2) -c $$d > $$d.bz2; _sfx=.bz2; \
+		    $(BZIP2) -c $$d$$_tfx > $$d.bz2; _tfx=.bz2; _sfx=.bz2; \
 		fi; \
 		u=$$m.$(MAN_SECTION)$$_sfx; \
-		echo $(INSTALL) -m 644 $${d}$$_sfx $${t}$$_sfx; \
-		$(INSTALL) -m 644 $${d}$$_sfx $${t}$$_sfx; \
+		echo $(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
+		$(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 	    else \
 		if test ! -z $(CASE_INSENSITIVE_FS) -a $(CASE_INSENSITIVE_FS); then \
 		    if test "`echo $$u | tr 'a-z' 'A-Z'`" != "`basename $${t}$$_sfx | tr 'a-z' 'A-Z'`"; then \
@@ -278,7 +289,7 @@ ifeq ($(PCP_LIB_DIR),$(PCP_LIB32_DIR))
 PCP_ALTLIBS =
 else
 ifneq "$(findstring $(MAKECMDGOALS),clean clobber src-pcp)" ""
-PCP_ALTLIBS = 
+PCP_ALTLIBS =
 endif
 endif
 endif
@@ -290,8 +301,6 @@ PCP_X11_EXTRALIBS = @pcp_x11_extra@
 PCP_X11_PRELIBS = @pcp_x11_pre@
 PCP_X11_APPDEFS_DIR = @pcp_x11_appdefs_dir@
 
-PCP_LIBIBMAD = @LIBIBMAD@
-PCP_LIBIBCOMMON = @LIBIBCOMMON@
-PCP_LIBIBUMAD = @LIBIBUMAD@
+GIT=@GIT@
 
 endif # _BUILDDEFS_INCLUDED_

@@ -82,7 +82,7 @@ main(int argc, char **argv)
 	    break;
 
 	case 'i':		/* be interactive */
-	    iflag++;
+	    iflag = 1;
 	    break;
 
 	case 'n':		/* alternative name space file */
@@ -94,7 +94,7 @@ main(int argc, char **argv)
 	        int val = (int)strtol(optarg, &endnum, 10);
 		if (*endnum != '\0' || val <= 0.0) {
 		    fprintf(stderr,
-			    "pmcd: -q requires a postive numeric argument\n");
+			    "pmcd: -q requires a positive numeric argument\n");
 		    errflag++;
 		}
 		else

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,25 +16,32 @@
 #ifndef _INDOM_H
 #define _INDOM_H
 
-#define CPU_INDOM		0
-#define DISK_INDOM		1
-#define LOADAVG_INDOM		2
-#define NET_DEV_INDOM		3
-#define PROC_INTERRUPTS_INDOM	4
-#define FILESYS_INDOM		5
-#define SWAPDEV_INDOM		6
-#define NFS_INDOM		7
-#define NFS3_INDOM		8
-#define PROC_INDOM		9
-#define PARTITIONS_INDOM 	10
-#define SCSI_INDOM		11
-#define SLAB_INDOM		12
-#define IB_INDOM		13	/* deprecated: do not re-use */
-#define NFS4_CLI_INDOM		14
-#define NFS4_SVR_INDOM		15
-#define QUOTA_PRJ_INDOM		16
-#define NET_INET_INDOM		17
-#define TMPFS_INDOM		18
+enum {
+	CPU_INDOM = 0,		/* 0 - percpu */
+	DISK_INDOM,		/* 1 - disks */
+	LOADAVG_INDOM,		/* 2 - 1, 5, 15 minute load averages */
+	NET_DEV_INDOM,		/* 3 - network interfaces */
+	PROC_INTERRUPTS_INDOM,	/* 4 - interrupt lines */
+	FILESYS_INDOM,		/* 5 - mounted bdev filesystems */
+	SWAPDEV_INDOM,		/* 6 - swap devices */
+	NFS_INDOM,		/* 7 - nfs operations */
+	NFS3_INDOM,		/* 8 - nfs v3 operations */
+	PROC_INDOM,		/* 9 - processes */
+	PARTITIONS_INDOM, 	/* 10 - disk partitions */
+	SCSI_INDOM,		/* 11 - scsi devices */
+	SLAB_INDOM,		/* 12 - kernel slabs */
+	IB_INDOM,		/* 13 - deprecated: do not re-use */
+	NFS4_CLI_INDOM,		/* 14 - nfs v4 client operations */
+	NFS4_SVR_INDOM,		/* 15 - nfs n4 server operations */
+	QUOTA_PRJ_INDOM,	/* 16 - project quota */
+	NET_INET_INDOM,		/* 17 - inet addresses */
+	TMPFS_INDOM,		/* 18 - tmpfs mounts */
+	NODE_INDOM,		/* 19 - NUMA nodes */
+	CGROUP_SUBSYS_INDOM,	/* 20 - control group subsystems */
+	CGROUP_MOUNTS_INDOM,	/* 21 - control group mounts */
+
+	NUM_INDOMS		/* one more than highest numbered cluster */
+};
 
 #define INDOM(x) (indomtab[x].it_indom)
 extern pmdaIndom indomtab[];

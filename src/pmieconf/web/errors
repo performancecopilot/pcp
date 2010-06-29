@@ -1,0 +1,60 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# 
+
+rule	web.errors
+	default	= "$rule$"
+	predicate =
+"some_host (
+    100 * web.allservers.errors $hosts$
+	/ web.allservers.requests.total $hosts$ > $threshold$
+    &&
+    web.allservers.requests.total > $min_requests$ count/minute
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"Across all web servers on the target host, there is some web serving
+activity (at least min_requests per minute), but more than threshold
+percent of the requests are resulting in errors being reported in the
+activity logs.";
+
+string	rule
+	default	= "Excessive aggregate web server errors"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 20
+	help	=
+"Maximum acceptable percentage of web requests that may result in
+errors.";
+
+double	min_requests
+	default	= 2
+	help	= 
+"Minimum number of requests per minute before considering the error
+rate as significant.";
+
+string	action_expand
+	default	= "%v%errs@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default = "host: %h web server errors: %v% of all requests"
+	display = no
+	modify  = no;
+
+
+# Configuration info specific to non-PCP tools follows...
+# 
+
+# for SGI Embedded Support Partner integration:
+string  esp_type
+	default	= "0x2000A3"
+	display	= no
+	modify	= no;
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

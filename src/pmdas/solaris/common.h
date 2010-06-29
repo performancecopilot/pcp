@@ -39,11 +39,14 @@
 #define M_NETIF		2
 #define M_ZPOOL		3
 #define M_ZFS		4
+#define M_ZPOOL_PERDISK	5
+#define M_NETLINK	6
 
 typedef struct {
     void	(*m_init)(int);
     void	(*m_prefetch)(void);
     int		(*m_fetch)(pmdaMetric *, int, pmAtomValue *);
+    int		fetched;
 } method_t;
 
 extern method_t		methodtab[];
@@ -67,6 +70,14 @@ void zfs_init(int);
 void zfs_refresh(void);
 int zfs_fetch(pmdaMetric *, int, pmAtomValue *);
 
+void zpool_perdisk_init(int);
+void zpool_perdisk_refresh(void);
+int zpool_perdisk_fetch(pmdaMetric *, int, pmAtomValue *);
+
+void netlink_init(int);
+void netlink_refresh(void);
+int netlink_fetch(pmdaMetric *, int, pmAtomValue *);
+
 /*
  * metric descriptions
  */
@@ -85,6 +96,10 @@ extern int		metrictab_sz;
 #define NETIF_INDOM	2
 #define ZPOOL_INDOM	3
 #define ZFS_INDOM	4
+#define ZPOOL_PERDISK_INDOM	5
+#define NETLINK_INDOM	6
+#define ZFS_SNAP_INDOM	7
+#define LOADAVG_INDOM	8
 
 extern pmdaIndom	indomtab[];
 extern int		indomtab_sz;

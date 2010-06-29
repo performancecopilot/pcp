@@ -22,7 +22,7 @@
 #include "pmda.h"
 
 #include <ctype.h>
-#ifdef HAVE_SYS_IOCTL_H
+#ifdef GWINSZ_IN_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
 #ifdef HAVE_SYS_TERMIOS_H
@@ -113,7 +113,7 @@ void usage()
 	"  -h name	read metrics from PMCD on named host\n"
 	"  -H file	read host's names from the file\n"
 	"  -l		print last 7 charcters of the host name\n"
-	"  -L		use standalone connection to localhost\n"
+	"  -L		metrics source is local connection to PMDA, no PMCD\n"
 	"  -n pmnsfile	use an alternative PMNS\n"
 	"  -O offset	initial offset into the time window\n"
 	"  -P		pause between updates for archive replay\n"
@@ -155,15 +155,16 @@ long long cntDiff(pmDesc * d, pmValueSet * now, pmValueSet * was)
 }
 
 struct statsrc_t *
-getNewContext (int type, char * host)
+getNewContext (int type, char * host, int quiet)
 {
     struct statsrc_t * s;
 
     if ((s = (struct statsrc_t *)malloc(sizeof (struct statsrc_t))) != NULL) {
 	if ((s->ctx = pmNewContext (type, host)) < 0 ) {
-	    fprintf(stderr, 
-		    "%s: Cannot create context to get data from %s: %s\n",
-		    pmProgname, host, pmErrStr(s->ctx));
+	    if (!quiet)
+		fprintf(stderr, 
+			"%s: Cannot create context to get data from %s: %s\n",
+			pmProgname, host, pmErrStr(s->ctx));
 	    free (s);
 	    s = NULL;
 	} else {
@@ -313,7 +314,7 @@ static void timeposition(struct timeval position)
     header = 1;
 }
 
-#ifdef HAVE_SYS_IOCTL_H
+#ifdef TIOCGWINSZ
 static void
 resize(int sig)
 {
@@ -373,7 +374,7 @@ main(int argc, char *argv[])
 
     setlinebuf(stdout);
     __pmSetProgname(argv[0]);
-#ifdef SIGWINCH
+#if defined SIGWINCH && defined TIOCGWINSZ
     __pmSetSignalHandler(SIGWINCH, resize);
 #endif
 
@@ -492,7 +493,7 @@ main(int argc, char *argv[])
 	    printTail++;
 	    break;
 
-	case 'L':	/* standalone, no PMCD */
+	case 'L':	/* local PMDA connection, no PMCD */
 	    if (ctxType) {
 		fprintf(stderr, "%s: -a, -h and -L are mutually exclusive\n",
 			pmProgname);
@@ -638,9 +639,8 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    if ( ! ctxType ) { /* Default is to talk to PMCD */
+    if ( ! ctxType )
 	ctxType = PM_CONTEXT_HOST;
-    }
 
     if (nsFile != PM_NS_DEFAULT) { 
 	int sts;
@@ -660,7 +660,7 @@ main(int argc, char *argv[])
 	    double late = 0;
 
 	    for (ct=0; ct < namecnt; ct++ ) {
-		if ((pd = getNewContext (ctxType, namelst[ct])) != NULL) {
+		if ((pd = getNewContext (ctxType, namelst[ct], 0)) != NULL) {
 		    int sts;
 
 		    /* tzh is used as an initialization flag */
@@ -748,11 +748,18 @@ main(int argc, char *argv[])
     } else {
 	/* Read metrics from the local host. Note, that ctxType can be 
 	 * either PM_CONTEXT_LOCAL or PM_CONTEXT_HOST, but not 
-	 * PM_CONTEXT_ARCHIVE */
+	 * PM_CONTEXT_ARCHIVE.  If we fail to talk to pmcd we fallback
+	 * to local context mode automagically.
+	 */
 	char local[MAXHOSTNAMELEN];
 	gethostname (local, MAXHOSTNAMELEN);
 	local[MAXHOSTNAMELEN-1] = '\0';
-	if ((pd = getNewContext (ctxType, local)) == NULL ) {
+
+	if ((pd = getNewContext (ctxType, local, 1)) == NULL) {
+	    ctxType = PM_CONTEXT_LOCAL;
+	    pd = getNewContext (ctxType, local, 0);
+	}
+	if (!pd) {
 	    exit (1);
 	} else {
 	    gettimeofday (&start, NULL);

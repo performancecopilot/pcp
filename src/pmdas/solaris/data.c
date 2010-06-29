@@ -23,6 +23,12 @@
 #include <ctype.h>
 #include <libzfs.h>
 
+static pmdaInstid loadavg_insts[] = {
+	{1, "1 minute"},
+	{5, "5 minutes"},
+	{15, "15 minutes"}
+};
+
 /*
  * List of instance domains ... we expect the *_INDOM macros
  * to index into this table.
@@ -32,8 +38,13 @@ pmdaIndom indomtab[] = {
     { CPU_INDOM, 0, NULL },
     { NETIF_INDOM, 0, NULL },
     { ZPOOL_INDOM, 0, NULL },
-    { ZFS_INDOM, 0, NULL }
+    { ZFS_INDOM, 0, NULL },
+    { ZPOOL_PERDISK_INDOM, 0, NULL },
+    { NETLINK_INDOM},
+    { ZFS_SNAP_INDOM },
+    { LOADAVG_INDOM, 3, loadavg_insts}
 };
+
 int indomtab_sz = sizeof(indomtab) / sizeof(indomtab[0]);
 
 pmdaMetric *metrictab;
@@ -43,7 +54,9 @@ method_t methodtab[] = {
     { disk_init, disk_prefetch, disk_fetch },		// M_DISK
     { netmib2_init, netmib2_refresh, netmib2_fetch },
     { zpool_init, zpool_refresh, zpool_fetch },
-    { zfs_init, zfs_refresh, zfs_fetch }
+    { zfs_init, zfs_refresh, zfs_fetch },
+    { zpool_perdisk_init, zpool_perdisk_refresh, zpool_perdisk_fetch },
+    { netlink_init, netlink_refresh, netlink_fetch }
 };
 int methodtab_sz = sizeof(methodtab) / sizeof(methodtab[0]);
 
@@ -347,6 +360,22 @@ metricdesc_t metricdesc[] = {
     { { PMDA_PMID(0,57), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
       }, M_DISK, -1 /* derived */ },
+
+/* pmda.uname */
+    { { PMDA_PMID(0,107), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_SYSINFO, -1 /* derived */ },
+
+/* hinv.pagesize */
+    { { PMDA_PMID(0,108), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_SYSINFO, -1 /* derived */ },
+
+/* hinv.physmem */
+    { { PMDA_PMID(0,109), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_MBYTE, 0, 0)
+      }, M_SYSINFO, -1 /* derived */ },
+
 /* zpool.capacity */
     { { PMDA_PMID(0,58), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
@@ -387,6 +416,8 @@ metricdesc_t metricdesc[] = {
     { { PMDA_PMID(0,67), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
       }, M_ZPOOL, VDEV_OFFSET(vs_self_healed) },
+/* zpool continued at 97 */
+
 /* zfs.used.total */
     { { PMDA_PMID(0,68), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
@@ -504,13 +535,155 @@ metricdesc_t metricdesc[] = {
 /* network.udp.overflows */
     { { PMDA_PMID(0,96), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, M_NETIF, NM2_UDP_OFFSET(overflows) }
+      }, M_NETIF, NM2_UDP_OFFSET(overflows) },
+
+/* zpool.state */
+    { { PMDA_PMID(0,97), PM_TYPE_STRING, ZPOOL_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ZPOOL, 0 },
+
+/* zpool.state_combined */
+    { { PMDA_PMID(0,98), PM_TYPE_U32, ZPOOL_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ZPOOL, 0 },
+
+/* zpool.perdisk.state */
+    { { PMDA_PMID(0,99), PM_TYPE_STRING, ZPOOL_PERDISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ZPOOL_PERDISK, VDEV_OFFSET(vs_state) },
+/* zpool.perdisk.state_int */
+    { { PMDA_PMID(0,100), PM_TYPE_U32, ZPOOL_PERDISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ZPOOL_PERDISK, 0 },
+/* zpool.perdisk.checksum_errors */
+    { { PMDA_PMID(0,101), PM_TYPE_U64, ZPOOL_PERDISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_ZPOOL_PERDISK, VDEV_OFFSET(vs_checksum_errors) },
+/* zpool.perdisk.self_healed */
+    { { PMDA_PMID(0,102), PM_TYPE_U64, ZPOOL_PERDISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZPOOL_PERDISK, VDEV_OFFSET(vs_self_healed) },
+/* zpool.perdisk.in.errors */
+    { { PMDA_PMID(0,103), PM_TYPE_U64, ZPOOL_PERDISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_ZPOOL_PERDISK, VDEV_OFFSET(vs_read_errors) },
+/* zpool.perdisk.out.errors */
+    { { PMDA_PMID(0,104), PM_TYPE_U64, ZPOOL_PERDISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_ZPOOL_PERDISK, VDEV_OFFSET(vs_write_errors) },
+
+/* network.link.in.errors */
+    { { PMDA_PMID(0,114), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"ierrors" },
+/* network.link.in.packets */
+    { { PMDA_PMID(0,115), PM_TYPE_U64, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"ipackets64" },
+/* network.link.in.bytes */
+    { { PMDA_PMID(0,116), PM_TYPE_U64, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_NETLINK, (ptrdiff_t)"rbytes64" },
+/* network.link.in.bcasts */
+    { { PMDA_PMID(0,117), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"brdcstrcv" },
+/* network.link.in.mcasts */
+    { { PMDA_PMID(0,118), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"multircv" },
+/* network.link.in.nobufs */
+    { { PMDA_PMID(0,119), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"norcvbuf" },
+/* network.link.out.errors */
+    { { PMDA_PMID(0,120), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"oerrors" },
+/* network.link.out.packets */
+    { { PMDA_PMID(0,121), PM_TYPE_U64, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"opackets64" },
+/* network.link.out.bytes */
+    { { PMDA_PMID(0,122), PM_TYPE_U64, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_NETLINK, (ptrdiff_t)"obytes64" },
+/* network.link.out.bcasts */
+    { { PMDA_PMID(0,123), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"brdcstxmt" },
+/* network.link.out.mcasts */
+    { { PMDA_PMID(0,124), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"multixmt" },
+/* network.link.out.nobufs */
+    { { PMDA_PMID(0,125), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"noxmtbuf" },
+/* network.link.collisions */
+    { { PMDA_PMID(0,110), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"collisions" },
+/* network.link.state */
+    { { PMDA_PMID(0,111), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"link_state" },
+/* network.link.duplex */
+    { { PMDA_PMID(0,112), PM_TYPE_U32, NETLINK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"link_duplex" },
+/* network.link.speed */
+    { { PMDA_PMID(0,113), PM_TYPE_U64, NETLINK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
+      }, M_NETLINK, (ptrdiff_t)"ifspeed" },
+
+/* zfs.recordsize */
+    { { PMDA_PMID(0,126), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_RECORDSIZE },
+/* zfs.refquota */
+    { { PMDA_PMID(0,127), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_REFQUOTA },
+/* zfs.refreservation */
+    { { PMDA_PMID(0,128), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_REFRESERVATION },
+/* zfs.used.byrefreservation */
+    { { PMDA_PMID(0,129), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_USEDREFRESERV },
+/* zfs.referenced */
+    { { PMDA_PMID(0,130), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_REFERENCED },
+
+/* zfs.nsnapshots */
+    { { PMDA_PMID(0,131), PM_TYPE_U64, ZFS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
+      }, M_ZFS,  -1 },
+/* zfs.snapshot.used */
+    { { PMDA_PMID(0,132), PM_TYPE_U64, ZFS_SNAP_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_USED },
+/* zfs.snapshot.referenced */
+    { { PMDA_PMID(0,133), PM_TYPE_U64, ZFS_SNAP_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ZFS,  ZFS_PROP_REFERENCED },
+/* zfs.snapshot.compression */
+    { { PMDA_PMID(0,134), PM_TYPE_DOUBLE, ZFS_SNAP_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ZFS, ZFS_PROP_COMPRESSRATIO },
+/* kernel.all.load */
+    { { PMDA_PMID(0,135), PM_TYPE_FLOAT, LOADAVG_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_SYSINFO, 0 }
 
 /* remember to add trailing comma before adding more entries ... */
 };
 int metrictab_sz = sizeof(metricdesc) / sizeof(metricdesc[0]);
 
-kstat_ctl_t 		*kc;
+kstat_ctl_t		*kc;
 
 void
 init_data(int domain)

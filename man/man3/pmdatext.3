@@ -89,12 +89,11 @@ for the full help text.
 .PP
 The
 .I buffer
-is allocated using
-.BR malloc (3)
-and should be released by the caller of
-.B pmdaText
-with a call to
-.BR free (3).
+is managed internally (usually it is cached),
+and it should
+.B not
+be released or freed by the caller of
+.BR pmdaText .
 .SH DIAGNOSTICS
 If the requested help text
 could not be obtained, 

@@ -89,6 +89,9 @@ main(int argc, char **argv)
     pmResult	*orp;		/* output pmResult */
     __pmPDU	*pb;		/* pdu buffer */
     struct timeval	unused;
+#ifdef DESPERATE
+    char	buf[26];
+#endif
 
     __pmSetProgname(argv[0]);
 
@@ -174,6 +177,12 @@ main(int argc, char **argv)
 		pmProgname, msg);
 	exit(1);
     }
+#ifdef DESPERATE
+    pmCtime((const time_t *)&winstart_tval.tv_sec, buf);
+    fprintf(stderr, "Start time: %s", buf);
+    pmCtime((const time_t *)&winend_tval.tv_sec, buf);
+    fprintf(stderr, "End time: %s", buf);
+#endif
 
     if ((sts = pmSetMode(PM_MODE_INTERP | PM_XTB_SET(PM_TIME_SEC),
                          &winstart_tval, (int)targ)) < 0) {
@@ -241,6 +250,12 @@ main(int argc, char **argv)
 	    fprintf(stderr,
 		"%s: Error: pmFetch failed: %s\n", pmProgname, pmErrStr(sts));
 	    exit(1);
+	}
+	if (irp->timestamp.tv_sec > winend_tval.tv_sec ||
+	    (irp->timestamp.tv_sec == winend_tval.tv_sec &&
+	     irp->timestamp.tv_usec > winend_tval.tv_usec)) {
+	    /* past end time as per -T */
+	    break;
 	}
 #if PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL2) {

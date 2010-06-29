@@ -517,7 +517,7 @@ extern void pmPrintValue(FILE *, int, int, const pmValue *, int);
 
 /* Scale conversion, based on value format, value type and scale */
 extern int pmConvScale(int, const pmAtomValue *, const pmUnits *, pmAtomValue *, 
-		       pmUnits *);
+		       const pmUnits *);
 
 /* Sort instances for each metric within a pmResult */
 extern void pmSortInstances(pmResult *);
@@ -617,6 +617,13 @@ void pmLoopStop(void);
 int pmLoopMain(void);
 
 extern int pmLoopDebug;
+
+/*
+ * Derived Metrics support
+ */
+int pmLoadDerivedConfig(char *);
+char *pmRegisterDerived(char *, char *);
+char *pmDerivedErrStr(void);
 
 /*
  * Asynchronous versions of main pmapi client routines - each one

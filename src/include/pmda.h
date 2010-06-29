@@ -13,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <stdarg.h>
@@ -192,9 +188,9 @@ typedef struct {
 	    int	    (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
 	    int	    (*store)(pmResult *, pmdaExt *);
-	    int     (*pmid)(char *, pmID *, pmdaExt *);
+	    int     (*pmid)(const char *, pmID *, pmdaExt *);
 	    int     (*name)(pmID, char ***, pmdaExt *);
-	    int     (*children)(char *, int, char ***, int **, pmdaExt *);
+	    int     (*children)(const char *, int, char ***, int **, pmdaExt *);
 	} four;
 
     } version;
@@ -342,9 +338,9 @@ extern int pmdaInstance(pmInDom, int, char *, __pmInResult **, pmdaExt *);
 extern int pmdaDesc(pmID, pmDesc *, pmdaExt *);
 extern int pmdaText(int, int, char **, pmdaExt *);
 extern int pmdaStore(pmResult *, pmdaExt *);
-extern int pmdaPMID(char *, pmID *, pmdaExt *);
+extern int pmdaPMID(const char *, pmID *, pmdaExt *);
 extern int pmdaName(pmID, char ***, pmdaExt *);
-extern int pmdaChildren(char *, int, char ***, int **, pmdaExt *);
+extern int pmdaChildren(const char *, int, char ***, int **, pmdaExt *);
 
 /*
  * PMDA "help" text manipulation
@@ -353,6 +349,34 @@ extern int pmdaOpenHelp(char *);
 extern void pmdaCloseHelp(int);
 extern char *pmdaGetHelp(int, pmID, int);
 extern char *pmdaGetInDomHelp(int, pmInDom, int);
+
+/*
+ * Dynamic names interface (version 4) helper routines.
+ *
+ * pmdaTreePMID
+ *	when a __pmnsTree implementation is being used, this provides
+ *	an implementation for the four.pmid() interface.
+ *
+ * pmdaTreeName
+ *	when a __pmnsTree implementation is being used, this provides
+ *	an implementation for the four.name() interface.
+ *
+ * pmdaTreeChildren
+ *	when a __pmnsTree implementation is being used, this provides
+ *	an implementation for the four.children() interface.
+ *
+ * pmdaTreeRebuildHash
+ *	iterate over a pmns tree and (re)build the hash table for any
+ *	subsequent PMID -> name (reverse) lookups
+ *
+ * pmdaTreeSize
+ *	returns the numbers of entries in a __pmnsTree.
+ */
+extern int pmdaTreePMID(__pmnsTree *, const char *, pmID *);
+extern int pmdaTreeName(__pmnsTree *, pmID, char ***);
+extern int pmdaTreeChildren(__pmnsTree *, const char *, int, char ***, int **);
+extern void pmdaTreeRebuildHash(__pmnsTree *, int);
+extern int pmdaTreeSize(__pmnsTree *);
 
 /*
  * PMDA instance domain cache support
@@ -374,9 +398,9 @@ extern char *pmdaGetInDomHelp(int, pmInDom, int);
  * pmdaCachePurge
  *	cull inactive entries
  */
-extern int pmdaCacheStore(pmInDom, int, char *, void *);
+extern int pmdaCacheStore(pmInDom, int, const char *, void *);
 extern int pmdaCacheLookup(pmInDom, int, char **, void **);
-extern int pmdaCacheLookupName(pmInDom, char *, int *, void **);
+extern int pmdaCacheLookupName(pmInDom, const char *, int *, void **);
 extern int pmdaCacheOp(pmInDom, int);
 extern int pmdaCachePurge(pmInDom, time_t);
 
@@ -397,6 +421,7 @@ extern int pmdaCachePurge(pmInDom, time_t);
 #define PMDA_CACHE_CHECK		16
 #define PMDA_CACHE_REORG		17
 #define PMDA_CACHE_SYNC			18
+#define PMDA_CACHE_DUMP			19
 
 /*
  * Internal libpcp_pmda routines.

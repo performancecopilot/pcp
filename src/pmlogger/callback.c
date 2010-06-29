@@ -16,8 +16,6 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include "pmapi.h"
-#include "impl.h"
 #include "logger.h"
 
 /*
@@ -173,7 +171,6 @@ setavail(pmResult *resp)
 		PMLC_SET_AVAIL(ihp->ih_flags, 1);
 	    }
 	    if ((j = __pmHashAdd(pmid, (void *)php, &hist_hash)) < 0) {
-		extern void die(char *, int);
 		die("setavail: __pmHashAdd(hist_hash)", j);
 	    }
 	    
@@ -294,6 +291,56 @@ check_inst(pmValueSet *vsp, int hint, pmResult *lrp)
     return 0;
 }
 
+/*
+ * Lookup the first cache index associated with a given PMID in a given task.
+ */
+static int
+lookupTaskCacheIndex(task_t *tp, pmID pmid)
+{
+    int i;
+
+    for (i = 0; i < tp->t_numpmid; i++)
+	if (tp->t_pmidlist[i] == pmid)
+	    return i;
+    return -1;
+}
+
+/*
+ * Iterate over *all* tasks and return all names for a given PMID.
+ * Returns the number of names found, and nameset allocated in a
+ * single allocation call (which the caller must free).
+ */
+static int
+lookupTaskCacheNames(pmID pmid, char ***namesptr)
+{
+    int i, numnames = 0, len = 0;
+    char *data, **names = NULL;
+    task_t *tp;
+
+    for (tp = tasklist; tp != NULL; tp = tp->t_next) {
+	for (i = 0; i < tp->t_numpmid; i++) {
+	    if (tp->t_pmidlist[i] != pmid || tp->t_namelist[i] == NULL)
+		continue;
+	    len += strlen(tp->t_namelist[i]) + 1;
+	    numnames++;
+	}
+    }
+
+    names = (char **)malloc(numnames * sizeof(names[0]) + len);
+    data = (char *)names + (numnames * sizeof(names[0]));
+    for (tp = tasklist, len = 0; tp != NULL; tp = tp->t_next) {
+	for (i = 0; i < tp->t_numpmid; i++) {
+	    if (tp->t_pmidlist[i] != pmid || tp->t_namelist[i] == NULL)
+		continue;
+	    names[len++] = data;
+	    strcpy(data, tp->t_namelist[i]);
+	    data += (strlen(tp->t_namelist[i]) + 1);
+	}
+    }
+
+    *namesptr = names;
+    return numnames;
+}
 
 void
 log_callback(int afid, void *data)
@@ -326,15 +373,6 @@ log_callback(int afid, void *data)
     char		**namelist;
     __pmTimeval		tmp;
     __pmTimeval		resp_tval;
-    extern int		exit_samples;
-    extern int		vol_switch_samples;
-    extern long		vol_switch_bytes;
-    extern int		vol_samples_counter;
-    extern int		parse_done;
-    extern long		exit_bytes;
-    extern long		vol_bytes;
-    extern int		archive_version;
-    extern int		rflag;
 
     if (!parse_done)
 	/* ignore callbacks until all of the config file has been parsed */
@@ -468,25 +506,27 @@ log_callback(int afid, void *data)
 	    pmDesc	desc;
 	    char	**names = NULL;
 	    int		numnames = 0;
+
 	    sts = __pmLogLookupDesc(&logctl, vsp->pmid, &desc);
 	    if (sts < 0) {
-		if (archive_version == PM_LOG_VERS02) {
-		    if ((numnames = pmNameAll(vsp->pmid, &names)) < 0) {
-		        fprintf(stderr, "pmNameAll: %s\n", pmErrStr(numnames));
-		        exit(1);
-		    }
-		}
-		if ((sts = pmLookupDesc(vsp->pmid, &desc)) < 0) {
-		    fprintf(stderr, "pmLookupDesc: %s\n", pmErrStr(sts));
+		/* lookup name and descriptor in task cache */
+		int taskindex = lookupTaskCacheIndex(tp, vsp->pmid);
+		if (taskindex == -1) {
+		    fprintf(stderr, "lookupTaskCacheIndex cannot find PMID %s\n",
+				pmIDStr(vsp->pmid));
 		    exit(1);
+		}
+		desc = tp->t_desclist[taskindex];
+		if (archive_version == PM_LOG_VERS02) {
+		    numnames = lookupTaskCacheNames(vsp->pmid, &names);
 		}
 		if ((sts = __pmLogPutDesc(&logctl, &desc, numnames, names)) < 0) {
 		    fprintf(stderr, "__pmLogPutDesc: %s\n", pmErrStr(sts));
 		    exit(1);
 		}
-		if (names != NULL) {
+		if (numnames) {
 		    free(names);
-                }
+		}
 	    }
 	    if (desc.indom != PM_INDOM_NULL && vsp->numval > 0) {
 		/*
@@ -605,7 +645,7 @@ log_callback(int afid, void *data)
     }
 
     if (rflag && tp->t_size == 0 && pdu_metrics > 0) {
-	char	**names = NULL;
+	char	*name = NULL;
 
 	tp->t_size = pdu_bytes;
 
@@ -614,30 +654,22 @@ log_callback(int afid, void *data)
 	else
 	    fprintf(stderr, "\nMetric ");
 	if (archive_version == PM_LOG_VERS02) {
-	    if (pmNameAll(pdu_first_pmid, &names) < 0)
-		names = NULL;
+	    int taskindex = lookupTaskCacheIndex(tp, pdu_first_pmid);
+	    if (taskindex >= 0)
+		name = tp->t_namelist[taskindex];
 	}
-	if (names != NULL) {
-	    fprintf(stderr, "%s", names[0]);
-	    free(names);
-	}
-	else
-	    fprintf(stderr, "%s", pmIDStr(pdu_first_pmid));
+	fprintf(stderr, "%s", name ? name : pmIDStr(pdu_first_pmid));
 	if (pdu_metrics > 1) {
 	    fprintf(stderr, "\n\t");
 	    if (pdu_metrics > 2)
 		fprintf(stderr, "...\n\t");
+	    name = NULL;
 	    if (archive_version == PM_LOG_VERS02) {
-		if (pmNameAll(pdu_last_pmid, &names) < 0)
-		    names = NULL;
+		int taskindex = lookupTaskCacheIndex(tp, pdu_last_pmid);
+		if (taskindex >= 0)
+		    name = tp->t_namelist[taskindex];
 	    }
-	    if (names != NULL) {
-		fprintf(stderr, "%s", names[0]);
-		free(names);
-	    }
-	    else
-		fprintf(stderr, "%s", pmIDStr(pdu_last_pmid));
-	    fprintf(stderr, "\n}");
+	    fprintf(stderr, "%s\n}", name ? name : pmIDStr(pdu_last_pmid));
 	}
 	fprintf(stderr, " logged ");
 

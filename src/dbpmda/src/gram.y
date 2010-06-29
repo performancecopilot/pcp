@@ -40,6 +40,46 @@ static char	warnStr[80];
 
 param_t	param;
 
+/*
+ * pmidp may contain a dynamic PMID ... if so, ask the PMDA to
+ * translate name if possible
+ */
+static int
+fix_dynamic_pmid(char *name, pmID *pmidp)
+{
+    int		sts;
+    __pmPDU	*pb;
+    extern int	outfd;
+    extern int	infd;
+    extern pmdaInterface	dispatch;
+
+    if (((__pmID_int *)pmidp)->domain == DYNAMIC_PMID) {
+	if (connmode == PDU_DSO) {
+	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_4) {
+		sts = dispatch.version.four.pmid(name, pmidp, dispatch.version.four.ext);
+		if (sts < 0) return sts;
+	    }
+	}
+	else if (connmode == PDU_BINARY) {
+	    sts = __pmSendNameList(outfd, PDU_BINARY, 1, &name, NULL);
+	    if (sts < 0) return sts;
+	    sts = __pmGetPDU(infd, PDU_BINARY, TIMEOUT_NEVER, &pb);
+	    if (sts < 0) return sts;
+	    if (sts == PDU_PMNS_IDS) {
+		int	xsts;
+		sts = __pmDecodeIDList(pb, PDU_BINARY, 1, pmidp, &xsts);
+		if (sts < 0) return sts;
+		return xsts;
+	    }
+	    else if (sts == PDU_ERROR) {
+		__pmDecodeError(pb, PDU_BINARY, &sts);
+		return sts;
+	    }
+	}
+    }
+    return 0;
+}
+
 
 %}
 
@@ -71,7 +111,7 @@ param_t	param;
 	OPEN CLOSE DESC GETDESC FETCH INSTANCE PROFILE HELP 
 	WATCH DBG QUIT STATUS STORE INFO TIMER NAMESPACE WAIT
 	PMNS_NAME PMNS_PMID PMNS_CHILDREN PMNS_TRAVERSE
-	DSO PIPE
+	DSO PIPE SOCK
 	ADD DEL ALL NONE INDOM ON OFF
 	PLUS EOL
 
@@ -99,6 +139,10 @@ stmt	: OPEN EOL				{
 	    }
 	| OPEN PIPE fname arglist EOL		{
 		openpmda($3);
+		stmt_type = OPEN; YYACCEPT;
+	    }
+	| OPEN SOCK fname			{
+		opensocket($3);
 		stmt_type = OPEN; YYACCEPT;
 	    }
 	| CLOSE EOL				{ 
@@ -449,6 +493,11 @@ metric	: NUMBER				{
 	    }
 	| NAME					{
 		sts = pmLookupName(1, &$1, &pmid.whole);
+		if (sts < 0) {
+		    yyerror(pmErrStr(sts));
+		    YYERROR;
+		}
+		sts = fix_dynamic_pmid($1, &pmid.whole);
 		if (sts < 0) {
 		    yyerror(pmErrStr(sts));
 		    YYERROR;
