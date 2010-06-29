@@ -1,0 +1,4 @@
+*.so
+*.dll
+*.dylib
+domain.h
