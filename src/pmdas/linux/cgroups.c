@@ -20,6 +20,7 @@
 #include "dynamic.h"
 #include "clusters.h"
 #include "proc_pid.h"
+#include <sys/stat.h>
 #include <strings.h>
 #include <ctype.h>
 
