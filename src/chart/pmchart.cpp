@@ -406,9 +406,13 @@ void PmChart::setupAssistant()
 		QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
     connect(my.assistant, SIGNAL(error(const QString &)),
     		    this, SLOT(assistantError(const QString &)));
-    QStringList arguments;
+
     QString documents = HTMLDIR;
-    arguments << "-profile" << documents.append("/pmchart.adp");
+    documents.append(QChar(__pmPathSeparator()));
+    documents.append("pmchart.adp");
+
+    QStringList arguments;
+    arguments << "-profile" << documents;
     my.assistant->setArguments(arguments);
 }
 

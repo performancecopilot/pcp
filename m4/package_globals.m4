@@ -54,19 +54,14 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     pkg_doc_dir=`eval echo $pkg_doc_dir/doc/$pkg_name`
     if test "`echo $pkg_doc_dir | sed 's;/.*\$;;'`" = NONE
     then
-	if test -d /usr/share
+	if test -d /usr/share/doc
 	then
-	    pkg_doc_dir=/usr/share/$pkg_name
-	elif test -d /usr/local
-	then
-	    pkg_doc_dir=/usr/local/$pkg_name
+	    pkg_doc_dir=/usr/share/doc/$pkg_name
 	else
-	    pkg_doc_dir=
+	    pkg_doc_dir=/usr/share/$pkg_name
 	fi
     fi
-    AC_SUBST(pkg_doc_dir)
-
-    pkg_html_dir="$pkg_doc_dir/html"
+    pkg_html_dir=`eval echo $pkg_doc_dir/html`
     test -z "$HTMLDIR" || pkg_html_dir="$HTMLDIR"
     AC_SUBST(pkg_html_dir)
   ])

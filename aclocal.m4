@@ -1,7 +1,7 @@
-# generated automatically by aclocal 1.10.1 -*- Autoconf -*-
+# generated automatically by aclocal 1.11.1 -*- Autoconf -*-
 
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-# 2005, 2006, 2007, 2008  Free Software Foundation, Inc.
+# 2005, 2006, 2007, 2008, 2009  Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -85,19 +85,14 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     pkg_doc_dir=`eval echo $pkg_doc_dir/doc/$pkg_name`
     if test "`echo $pkg_doc_dir | sed 's;/.*\$;;'`" = NONE
     then
-	if test -d /usr/share
+	if test -d /usr/share/doc
 	then
-	    pkg_doc_dir=/usr/share/$pkg_name
-	elif test -d /usr/local
-	then
-	    pkg_doc_dir=/usr/local/$pkg_name
+	    pkg_doc_dir=/usr/share/doc/$pkg_name
 	else
-	    pkg_doc_dir=
+	    pkg_doc_dir=/usr/share/$pkg_name
 	fi
     fi
-    AC_SUBST(pkg_doc_dir)
-
-    pkg_html_dir="$pkg_doc_dir/html"
+    pkg_html_dir=`eval echo $pkg_doc_dir/html`
     test -z "$HTMLDIR" || pkg_html_dir="$HTMLDIR"
     AC_SUBST(pkg_html_dir)
   ])
