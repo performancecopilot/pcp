@@ -13,19 +13,19 @@ copy setup.bat %PACKAGE%
 copy prerm.bat %PACKAGE%
 copy postinst.bat %PACKAGE%
 copy pcp.profile %PACKAGE%
-copy ..\images\pcp.ico %PACKAGE%
-copy ..\images\chart.ico %PACKAGE%
-copy ..\images\pcp.ico %PACKAGE%\pcpsh.ico
-copy ..\images\pcp.ico %PACKAGE%\GliderPCP.ico
-copy ..\images\chart.ico %PACKAGE%\pmchart.ico
-copy ..\images\GliderBanner.bmp %PACKAGE%
-copy ..\images\GliderDialog.bmp %PACKAGE%
+copy pcp.ico %PACKAGE%
+copy chart.ico %PACKAGE%
+copy pcp.ico %PACKAGE%\pcpsh.ico
+copy pcp.ico %PACKAGE%\GliderPCP.ico
+copy chart.ico %PACKAGE%\pmchart.ico
+copy GliderBanner.bmp %PACKAGE%
+copy GliderDialog.bmp %PACKAGE%
 
 copy Glider.pm C:\Strawberry\perl\site\lib\Perl\Dist\Glider.pm
 copy LaunchExe.pm C:\Strawberry\perl\site\lib\Perl\Dist\Glider\LaunchExe.pm
 copy LaunchScript.pm C:\Strawberry\perl\site\lib\Perl\Dist\Glider\LaunchScript.pm
-copy ..\images\pcp.ico C:\Strawberry\perl\site\lib\auto\share\dist\Perl-Dist-Strawberry\icons\pcpsh.ico
-copy ..\images\chart.ico C:\Strawberry\perl\site\lib\auto\share\dist\Perl-Dist-Strawberry\icons\pmchart.ico
+copy pcp.ico C:\Strawberry\perl\site\lib\auto\share\dist\Perl-Dist-Strawberry\icons\pcpsh.ico
+copy chart.ico C:\Strawberry\perl\site\lib\auto\share\dist\Perl-Dist-Strawberry\icons\pmchart.ico
 
 set TOOLKIT=C:\strawberry
 set PATH=%TOOLKIT%\c\bin;%TOOLKIT%\perl\bin;%PATH%

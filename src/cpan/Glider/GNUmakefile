@@ -16,7 +16,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IMAGES = GliderBanner.bmp GliderDialog.bmp
+IMAGES = GliderBanner.bmp GliderDialog.bmp pcp.ico chart.ico
 CONFIGS = pcp.fstab pcp.profile
 BATFILES = pcpsh.bat postinst.bat prerm.bat setup.bat Glider.bat
 PERLFILES = Glider.pm LaunchExe.pm LaunchScript.pm
