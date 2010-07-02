@@ -79,7 +79,7 @@ END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  e
 $(OBJECTS):	hypnotoad.h domain.h libpdh.a
 
 libpdh.a:	libpdh.def
-	$(DLLTOOL) -d libpdh.def -k -l libpdh.a
+	sh -c "$(DLLTOOL) -d libpdh.def -k -l libpdh.a"
 
 pdhlist.exe:	pdhlist.o error.o
 	$(CCF) -o pdhlist.exe pdhlist.o error.o libpdh.a

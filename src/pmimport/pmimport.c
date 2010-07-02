@@ -13,11 +13,14 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <stdarg.h>
-#include <dlfcn.h>
+#include <sys/stat.h>
+#include "pmapi.h"
+#include "impl.h"
 #include "pmimport.h"
+#if defined(HAVE_DLFCN_H)
+#include <dlfcn.h>
+#endif
 
 #define MAX_FLUSHSIZE 100000
 
@@ -38,18 +41,13 @@ static void __errorMsg ( int status, char *format, ... ) ;
 /* Global variables */
 static char           *plugin; /* filename of plugin */
 static char	      pluginPath[MAXPATHLEN];
-static char           *archBase = NULL;/* base names for archive */
-static char           *infilename = NULL; /* input filename */
-static char           *host = NULL; /* hostname */
-static char           *tz = NULL; /* timezone */
+static char           *archBase; /* base names for archive */
+static char           *infilename; /* input filename */
+static char           *host; /* hostname */
+static char           *tz; /* timezone */
 static const int      archive_version = PM_LOG_VERS02; /* Type of archive */
 static __pmLogCtl     logctl;
 static struct timeval last_stamp;
-
-/* Externs */
-extern int pmDebug;
-extern int optind;
-extern int errno;
 
 /* API function pointers */
 typedef int ( * primeImportFile_t ) ( const char *file,
@@ -129,7 +127,7 @@ main(int argc, char *argv[])
 
 		__debugMsg( DBG_TRACE_APPL2,
 			    "got RS_Reset: %s",
-			    asctime ( localtime ( ( clock_t * ) &tmp.tv_sec ) ) ) ;
+			    asctime ( localtime ( (time_t *) &tmp.tv_sec ) ) ) ;
 
 		rval = putMark ( tmp ) ;
 		if ( rval < 0 ) {
@@ -296,7 +294,7 @@ putResult ( pmResult *result )
 
 	__debugMsg( DBG_TRACE_APPL2,
 		    "pmLogPutIndex: %s",
-		    asctime ( localtime ( ( clock_t * ) &tmptime.tv_sec ) ) ) ;
+		    asctime ( localtime ( (time_t *) &tmptime.tv_sec ) ) ) ;
     
 	__pmLogPutIndex ( &logctl, &tmptime );
 	/*
@@ -372,7 +370,7 @@ putMark ( __pmTimeval timestamp )
 
     __debugMsg( DBG_TRACE_APPL2,
 		"putMark: %s",
-		asctime ( localtime ( ( clock_t * ) &timestamp.tv_sec ) ) ) ;
+		asctime ( localtime ( (time_t *) &timestamp.tv_sec ) ) ) ;
     
     mark.hdr = htonl ( ( int ) sizeof ( mark ) ) ;
     mark.tail = mark.hdr;
@@ -437,24 +435,7 @@ parseCommandLine ( int argc, char *argv[] )
 
     /* if timezone is not set, set it to $TZ */
     if ( tz == NULL ) {
-#if defined(IRIX6_5)
-	if ( _MIPS_SYMBOL_PRESENT ( __pmTimezone ) ) {
-		tz = __pmTimezone();
-	}
-	else {
-	    if ( ( tz = getenv ( "TZ" ) ) == NULL ) {
-		if ( ( tz = strdup ( "UTC" ) ) == NULL ) {
-		    __errorMsg ( 1,
-				 "%s: strdup(%d) failed: %s",
-				 "parseCommandLine",
-				 strlen ( "UTC" ) ,
-				 strerror ( oserror() ) ) ;
-		}
-	    }
-	}
-#else
 	tz = __pmTimezone();
-#endif
     }
 
     if ( optind != argc - 3 ) {
@@ -524,7 +505,7 @@ openPlugin ( char *plugin )
     void  *handle;
     char  *p = NULL;
 
-    if ( strchr ( plugin, '/' ) == NULL ) {
+    if ( strchr ( plugin, sep ) == NULL ) {
 	p = __e_malloc ( MAXNAMLEN, "openPlugin" );
 	sprintf ( p, "%s%c%s", pluginPath, sep, plugin );
 	plugin = p;

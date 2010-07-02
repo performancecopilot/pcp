@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
 ident	summary kernel performance data [Linux]
-probe	mem.slabinfo.objects.total exists ? include : exclude
+probe	kernel.uname.sysname ~ Linux ? include : exclude
 	mem.util
 	swap.pagesin
 	swap.pagesout
@@ -14,5 +14,4 @@ probe	mem.slabinfo.objects.total exists ? include : exclude
 	network.interface.in.drops
 	network.interface.out.drops
 	disk.dev.avactive
-	mem.slabinfo.objects.active [ ext3_inode_cache dentry_cache buffer_head ]
-	mem.slabinfo.objects.total [ ext3_inode_cache dentry_cache buffer_head ]
+	filesys.full

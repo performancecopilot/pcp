@@ -522,7 +522,6 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 		if sed 1q $configfile | grep '^#pmieconf-rules [0-9]' >/dev/null
 		then
 		    # pmieconf file, see if re-generation is needed
-		    # Note that pmieconf is in the pcp-pro product (not open source)
 		    #
 		    cp $configfile $tmp.pmie
 		    if $have_pmieconf
@@ -555,7 +554,6 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 		fi
 	    else
 		# file does not exist, generate it, if possible
-		# Note that pmieconf is in the pcp-pro product (not open source)
 		# 
 		if $have_pmieconf
 		then

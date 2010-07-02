@@ -48,11 +48,15 @@ rm -rf $LOGDIR/*
 tmp=/tmp/$$
 trap "rm -f $tmp.*;" 0 1 2 3 15
 
+ARCH=`uname -m | sed -e 's/i.86/ia32/'`
+VERS=`uname -s | cut -c-5`
+
 # Sanity checks ... this is sick, but I'm really tired of QA failing
-# because of bad binaries being built from the Ubuntu toolchain.
+# because of bad binaries being built from the Ubuntu toolchain for
+# i?86 platforms
 # - Ken McDonell Apr 2010
 #
-if [ -f /etc/lsb-release ]
+if [ -f /etc/lsb-release -a "$ARCH" = "ia32" ]
 then
     if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
     then
@@ -102,9 +106,6 @@ then
     echo "== autoconf, log is in $LOGDIR/autoconf"
     autoconf 2>&1 >$LOGDIR/autoconf
 fi
-
-ARCH=`uname -m | sed -e 's/i.86/ia32/'`
-VERS=`uname -s | cut -c-5`
 
 LOGF=$LOGDIR/pcp
 echo

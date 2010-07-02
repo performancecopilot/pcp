@@ -16,8 +16,14 @@
 
 /* function to refresh a specific subtree */
 typedef void (*pmnsUpdate)(pmdaExt *, __pmnsTree **);
+typedef void (*mtabUpdate)(pmdaMetric *, pmdaMetric *, int);
+typedef void (*mtabCounts)(int *, int *);
 
-extern void linux_dynamic_pmns(const char *, int *, int, pmnsUpdate);
+extern pmdaMetric linux_metrictab[];	/* default metric table */
+extern int linux_metrictable_size();
+
+extern void linux_dynamic_pmns(const char *, int *, int,
+				pmnsUpdate, mtabUpdate, mtabCounts);
 extern __pmnsTree *linux_dynamic_lookup_name(pmdaExt *, const char *);
 extern __pmnsTree *linux_dynamic_lookup_pmid(pmdaExt *, pmID);
-
+extern void linux_dynamic_metrictable(pmdaExt *);

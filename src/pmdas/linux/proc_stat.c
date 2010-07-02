@@ -194,8 +194,6 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 			    &proc_stat->p_steal[cpunum],
 			    &proc_stat->p_guest[cpunum]);
 			if ((node = proc_cpuinfo->cpuinfo[cpunum].node) != -1) {
-			    fprintf(stderr, "Adding cpu %d totals to node %d\n",
-				    cpunum, node);
 			    proc_stat->n_user[node] += proc_stat->p_user[cpunum];
 			    proc_stat->n_nice[node] += proc_stat->p_nice[cpunum];
 			    proc_stat->n_sys[node] += proc_stat->p_sys[cpunum];

@@ -17,7 +17,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmimport.c
-CMDTARGET = pmimport
+CMDTARGET = pmimport$(EXECSUFFIX)
 LLDLIBS = -lpcp
 SUBDIRS = demos
 

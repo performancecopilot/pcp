@@ -1378,7 +1378,148 @@ If non-zero, stop collecting perf stats this many secs after last fetch
 
 @ sysfs.kernel.uevent_seqnum counter of the number of uevents processed by the udev subsystem
 
-@ cgroup.subsys.hierarchy Hierarchy IDs for all known control group subsystems
-@ cgroup.subsys.count Count of all known (active+inactive) control groups
-@ cgroup.mounts.subsys Mounted control groups and their subsystems
-@ cgroup.mounts.count Count of control group subsystem mount points
+@ xfs.btree.alloc_blocks.lookup
+Number of free-space-by-block-number btree record lookups
+@ xfs.btree.alloc_blocks.compare
+Number of free-space-by-block-number btree record compares
+@ xfs.btree.alloc_blocks.insrec
+Number of free-space-by-block-number btree insert record operations executed
+@ xfs.btree.alloc_blocks.delrec
+Number of free-space-by-block-number btree delete record operations executed
+@ xfs.btree.alloc_blocks.newroot
+Number of times a new level is added to a free-space-by-block-number btree
+@ xfs.btree.alloc_blocks.killroot
+Number of times a level is removed from a free-space-by-block-number btree
+@ xfs.btree.alloc_blocks.increment
+Number of times a cursor has been moved forward one free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.decrement
+Number of times a cursor has been moved backward one free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.lshift
+Left shift block operations to make space for a new free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.rshift
+Right shift block operations to make space for a new free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.split
+Split block operations to make space for a new free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.join
+Merge block operations when deleting free-space-by-block-number btree records
+@ xfs.btree.alloc_blocks.alloc
+Btree block allocations during free-space-by-block-number btree operations
+@ xfs.btree.alloc_blocks.free
+Btree blocks freed during free-space-by-block-number btree operations
+@ xfs.btree.alloc_blocks.moves
+Records moved inside blocks during free-space-by-block-number btree operations
+
+
+@ xfs.btree.alloc_contig.lookup
+Number of free-space-by-size btree record lookups
+@ xfs.btree.alloc_contig.compare
+Number of free-space-by-size btree btree record compares
+@ xfs.btree.alloc_contig.insrec
+Number of free-space-by-size btree insert record operations executed
+@ xfs.btree.alloc_contig.delrec
+Number of free-space-by-size btree delete record operations executed
+@ xfs.btree.alloc_contig.newroot
+Number of times a new level is added to a free-space-by-size btree tree
+@ xfs.btree.alloc_contig.killroot
+Number of times a level is removed from a free-space-by-size btree tree
+@ xfs.btree.alloc_contig.increment
+Number of times a free-space-by-size btree cursor has been moved forward
+one record
+@ xfs.btree.alloc_contig.decrement
+Number of times a free-space-by-size btree cursor has been moved backward
+one record
+@ xfs.btree.alloc_contig.lshift
+Left shift block operations to make space for a new free-space-by-size
+btree record
+@ xfs.btree.alloc_contig.rshift
+Right shift block operations to make space for a new free-space-by-size
+btree record
+@ xfs.btree.alloc_contig.split
+Split block operations to make space for a new free-space-by-size btree
+record
+@ xfs.btree.alloc_contig.join
+Merge block operations when deleting free-space-by-size btree records
+@ xfs.btree.alloc_contig.alloc
+Btree block allocations during free-space-by-size btree operations
+@ xfs.btree.alloc_contig.free
+Btree blocks freed during free-space-by-size btree operations
+@ xfs.btree.alloc_contig.moves
+Records moved inside blocks during free-space-by-size btree operations
+
+@ xfs.btree.block_map.lookup
+Number of inode-block-map/extent btree record lookups
+@ xfs.btree.block_map.compare
+Number of inode-block-map/extent btree record compares
+@ xfs.btree.block_map.insrec
+Number of inode-block-map/extent btree insert record operations executed
+@ xfs.btree.block_map.delrec
+Number of inode-block-map/extent btree delete record operations executed
+@ xfs.btree.block_map.newroot
+Number of times a new level is added to an inode-block-map/extent btree
+@ xfs.btree.block_map.killroot
+Number of times a level is removed from an inode-block-map/extent btree
+@ xfs.btree.block_map.increment
+Number of times an inode-block-map/extent btree cursor has been moved
+forward one record
+@ xfs.btree.block_map.decrement
+Number of times an inode-block-map/extent btree cursor has been moved
+backward one record
+@ xfs.btree.block_map.lshift
+Left shift block operations to make space for a new inode-block-map/extent
+btree record
+@ xfs.btree.block_map.rshift
+Right shift block operations to make space for a new inode-block-map/extent
+btree record
+@ xfs.btree.block_map.split
+Split block operations to make space for a new inode-block-map/extent
+btree record
+@ xfs.btree.block_map.join
+Merge block operations when deleting inode-block-map/extent btree records
+@ xfs.btree.block_map.alloc
+Btree block allocations during inode-block-map/extent btree operations
+@ xfs.btree.block_map.free
+Btree blocks freed during inode-block-map/extent btree operations
+@ xfs.btree.block_map.moves
+Records moved inside blocks during inode-block-map/extent btree operations
+
+@ xfs.btree.inode.lookup
+Number of inode-allocation btree record lookups
+@ xfs.btree.inode.compare
+Number of inode-allocation btree record compares
+@ xfs.btree.inode.insrec
+Number of inode-allocation btree insert record operations executed
+@ xfs.btree.inode.delrec
+Number of inode-allocation btree delete record operations executed
+@ xfs.btree.inode.newroot
+Number of times a new level is added to an inode-allocation btree
+@ xfs.btree.inode.killroot
+Number of times a level is removed from an inode-allocation btree
+@ xfs.btree.inode.increment
+Number of times a cursor has been moved forward one inode-allocation
+btree record
+@ xfs.btree.inode.decrement
+Number of times a cursor has been moved backward one inode-allocation
+btree record
+@ xfs.btree.inode.lshift
+Left shift block operations to make space for a new inode-allocation
+btree record
+@ xfs.btree.inode.rshift
+Right shift block operations to make space for a new inode-allocation
+btree record
+@ xfs.btree.inode.split
+Split block operations to make space for a new inode-allocation btree record
+@ xfs.btree.inode.join
+Merge block operations when deleting inode-allocation btree records
+@ xfs.btree.inode.alloc
+Btree block allocations during inode-allocation btree operations
+@ xfs.btree.inode.free
+Btree blocks freed during inode-allocation btree operations
+@ xfs.btree.inode.moves
+Records moved inside blocks during inode-allocation btree operations
+
+
