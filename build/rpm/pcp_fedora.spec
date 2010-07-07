@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.3.0
+Version: 3.3.1
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -225,6 +225,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Tue Jun 29 2010 Mark Goodwin - 3.3.1-1
+- Update to latest PCP sources.
+
 * Fri Jun 25 2010 Mark Goodwin - 3.3.0-1
 - Update to latest PCP sources.
 

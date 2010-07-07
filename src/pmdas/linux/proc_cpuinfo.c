@@ -118,7 +118,6 @@ cpu_name(proc_cpuinfo_t *proc_cpuinfo, int c)
 
     if (!started) {
 	refresh_proc_cpuinfo(proc_cpuinfo);
-	map_cpu_nodes(proc_cpuinfo);
 
 	proc_cpuinfo->machine = NULL;
 	if ((f = fopen("/proc/sgi_prominfo/node0/version", "r")) != NULL) {
@@ -224,6 +223,8 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
     for (cpunum=1; cpunum < proc_cpuinfo->cpuindom->it_numinst; cpunum++)
 	memcpy(&proc_cpuinfo->cpuinfo[cpunum], info, sizeof(cpuinfo_t));
 #endif
+
+    map_cpu_nodes(proc_cpuinfo);
 
     /* success */
     return 0;

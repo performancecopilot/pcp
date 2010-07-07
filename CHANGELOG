@@ -1,3 +1,9 @@
+pcp-3.3.1 (29 June 2010)
+    - Fix a sigsegv in pmdalinux in the kernel.pernode.cpu metrics.
+    - Don't kill dbpmda if namespace cannot be loaded.
+    - Resolve a Windows build error under latest toolchain.
+    - Some minor pmieconf and pmimport related cleanups.
+
 pcp-3.3.0 (25 June 2010)
     - Rework pmlogconf utility - version 2.0 ondisk format.
     - Initial support for Linux kernel cgroup subsystem, using dynamic

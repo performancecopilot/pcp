@@ -126,8 +126,7 @@ primeImportFile ( const char *file, int *infile, char **host, char **timezone )
 	exit(1);
     }
 
-    /* 40 is the size specified in pcp/impl.h */
-    if( strlen( *timezone ) >= 40 ) {
+    if( strlen( *timezone ) >= PM_TZ_MAXLEN ) {
 	fprintf( stderr,
 		 "%s: Timezone too long: %s\n",
 		 pmProgname,
