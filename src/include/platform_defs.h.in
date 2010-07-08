@@ -104,6 +104,7 @@ extern "C" {
 #undef HAVE_DL_H
 #undef HAVE_IEEEFP_H
 #undef HAVE_SYS_TIME_H
+#undef HAVE_SYS_TIMEB_H
 #undef HAVE_SYS_TIMES_H
 #undef HAVE_SYS_RESOURCE_H
 #undef HAVE_SYS_PRCTL_H
@@ -157,6 +158,9 @@ extern "C" {
 #endif
 #if defined(HAVE_WS2TCPIP_H)
 #include <ws2tcpip.h>
+#endif
+#if defined(HAVE_SYS_TIMEB_H)
+#include <sys/timeb.h>
 #endif
 
 /* HAVE_NETWORK_BYTEORDER for big endian systems (not Intel) */
@@ -508,11 +512,6 @@ extern char *rindex(const char *, int);
 extern long int lrand48(void);
 extern void srand48(long int);
 
-#ifndef _TIMESPEC_DEFINED
-#define _TIMESPEC_DEFINED
-struct timespec { time_t tv_sec; long tv_nsec; };
-struct itimerspec { struct timespec it_interval; struct timespec it_value; };
-#endif
 extern int nanosleep(const struct timespec *, struct timespec *);
 extern unsigned int sleep(unsigned int);
 
