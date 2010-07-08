@@ -156,6 +156,15 @@ AC_DEFUN([AC_PACKAGE_HAVE_PM_PATH_SEPARATOR],
   ])
 
 #
+# Check if we have the __pmtimevalNow routine in libpcp
+#
+AC_DEFUN([AC_PACKAGE_HAVE_PM_TIMEVAL_NOW],
+  [ AC_CHECK_LIB(pcp, __pmtimevalNow,
+    [ have_pm_timeval_now=1 ], [ have_pm_timeval_now=0 ])
+    AC_SUBST(have_pm_timeval_now)
+  ])
+
+#
 # Check if we have the pmdaMain routine in libpcp_pmda
 #
 AC_DEFUN([AC_PACKAGE_NEED_LIBPCP_PMDA],

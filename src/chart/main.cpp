@@ -475,7 +475,7 @@ main(int argc, char ** argv)
     QString		tzString;
     static const char	*options = "A:a:Cc:D:g:h:Lo:n:O:p:s:S:T:t:Vv:WzZ:?";
 
-    gettimeofday(&origin, NULL);
+    __pmtimevalNow(&origin);
     __pmSetProgname(argv[0]);
     QApplication a(argc, argv);
     setupEnvironment();
@@ -724,7 +724,7 @@ main(int argc, char ** argv)
     }
     else {
 	liveGroup->defaultTZ(tzLabel, tzString);
-	gettimeofday(&logStartTime, NULL);
+	__pmtimevalNow(&logStartTime);
 	logEndTime.tv_sec = logEndTime.tv_usec = INT_MAX;
 	if ((sts = pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag,
 					&logStartTime, &logEndTime,

@@ -714,7 +714,7 @@ sleeptill(struct timeval sched)
     struct timespec delay;	/* interval to sleep */
     struct timespec left;	/* remaining sleep time */
 
-    gettimeofday(&curr, NULL);
+    __pmtimevalNow(&curr);
     tospec(tsub(sched, curr), &delay);
     for (;;) {		/* loop to catch early wakeup by nanosleep */
 	sts = nanosleep(&delay, &left);
@@ -1260,7 +1260,7 @@ main(int argc, char *argv[])
     }
 
     if (isLive) {
-	gettimeofday(&logStartTime, NULL);
+	__pmtimevalNow(&logStartTime);
 	logEndTime.tv_sec = INT_MAX;
 	logEndTime.tv_usec = INT_MAX;
     }

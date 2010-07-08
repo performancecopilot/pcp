@@ -33,4 +33,9 @@ static inline void __pmSetProgname(char *p) { pmProgname = basename(p); }
 static inline void __pmPathSeparator(void) { return '/'; }
 #endif
 
+#define HAVE_PM_TIMEVAL_NOW @have_pm_timeval_now@
+#if HAVE_PM_TIMEVAL_NOW == 0
+static inline void __pmtimevalNow(struct timeval *t) { gettimeofday(t, NULL); }
+#endif
+
 #endif // VERSION_H

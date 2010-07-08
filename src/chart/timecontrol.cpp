@@ -93,7 +93,7 @@ void TimeControl::init(int port, bool live,
 	memset(&my.archivePacket->start, 0, sizeof(struct timeval));
 	memset(&my.archivePacket->end, 0, sizeof(struct timeval));
     } else {
-	gettimeofday(&now, NULL);
+	__pmtimevalNow(&now);
 	my.archivePacket->position = *position;
 	my.archivePacket->start = *starttime;
 	my.archivePacket->end = *endtime;

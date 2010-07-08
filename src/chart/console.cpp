@@ -48,7 +48,7 @@ void Console::post(const char *fmt, ...)
 	return;
 
     if (!(my.level & PmChart::DebugTimeless)) {
-	gettimeofday(&now, NULL);
+	__pmtimevalNow(&now);
 	sprintf(buffer, "%6.2f: ", tosec(now) - my.origin);
 	offset = 8;
     }
@@ -80,7 +80,7 @@ void Console::post(int level, const char *fmt, ...)
 	return;
 
     if (!(my.level & PmChart::DebugTimeless)) {
-	gettimeofday(&now, NULL);
+	__pmtimevalNow(&now);
 	sprintf(buffer, "%6.2f: ", tosec(now) - my.origin);
 	offset = 8;
     }
