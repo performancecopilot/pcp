@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <stdio.h>
@@ -21,7 +17,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#include "platform_defs.h"
+#include "pmapi.h"
+#include "impl.h"
 #include "trace.h"
 
 typedef enum { UNKNOWN, COUNTER, OBSERVE, TRANSACT } trace_t;
@@ -46,8 +43,8 @@ main(int argc, char **argv)
 	} arg;
     } api;
 
-    for (p = me = argv[0]; *p; p++)	/* trim command name */
-	if (*p == '/') me = p+1;
+    __pmSetProgname(argv[0]);
+    me = pmProgname;
 
     memset(&api, 0, sizeof(api));
 

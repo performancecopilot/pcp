@@ -133,7 +133,7 @@ pmTimeStateSetup(
 	pmtime->end = last;
     } else {
 	pmtime->source = PM_SOURCE_HOST;
-	gettimeofday(&pmtime->position, NULL);
+	__pmtimevalNow(&pmtime->position);
     }
     if (tz == NULL) {
 	tz = __pmTimezone();

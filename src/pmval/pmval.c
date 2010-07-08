@@ -1087,7 +1087,7 @@ getargs(int		argc,		/* in - command line argument count */
 	    exit(EXIT_FAILURE);
 	}
 	cntxt->host = msp->source;
-	gettimeofday(&logStart, NULL);
+	__pmtimevalNow(&logStart);
     }
 
     if (zflag) {

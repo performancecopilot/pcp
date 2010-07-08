@@ -11,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 /*
@@ -241,7 +237,8 @@ enqueue(qelt *qp)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_AF) {
 	struct timeval	now;
-	gettimeofday(&now, NULL);
+
+	__pmtimevalNow(&now);
 	printstamp(&now);
 	fprintf(stderr, " AFenqueue " PRINTF_P_PFX "%p(%d, " PRINTF_P_PFX "%p) for ",
 		qp->q_func, qp->q_afid, qp->q_data);
@@ -278,7 +275,7 @@ onalarm(int dummy)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_AF) {
-	gettimeofday(&now, NULL);
+	__pmtimevalNow(&now);
 	printstamp(&now);
 	fprintf(stderr, " AFonalarm(%d)\n", dummy);
     }
@@ -287,7 +284,7 @@ onalarm(int dummy)
 	/* something to do ... */
 	while (root != NULL) {
 	    /* compute difference between scheduled time and now */
-	    gettimeofday(&now, NULL);
+	    __pmtimevalNow(&now);
 	    tmp = root->q_when;
 	    tsub(&tmp, &now);
 	    if (tmp.tv_sec == 0 && tmp.tv_usec <= 10000) {
@@ -330,7 +327,7 @@ onalarm(int dummy)
 		     *      		   |               +-- now
 		     *      		   +-- now - q_delta
 		     */
-		    gettimeofday(&now, NULL);
+		    __pmtimevalNow(&now);
 		    for ( ; ; ) {
 			tadd(&qp->q_when, &qp->q_delta);
 			tmp = qp->q_when;
@@ -365,7 +362,7 @@ onalarm(int dummy)
 	else {
 	    /* set itimer for head of queue */
 	    interval = root->q_when;
-	    gettimeofday(&now, NULL);
+	    __pmtimevalNow(&now);
 	    tsub(&interval, &now);
 	    if (interval.tv_sec == 0 && interval.tv_usec < MIN_ITIMER_USEC)
 		/* use minimal delay (platform dependent) */
@@ -405,14 +402,14 @@ __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *
     qp->q_data = data;
     qp->q_delta = *delta;
     qp->q_func = func;
-    gettimeofday(&qp->q_when, NULL);
+    __pmtimevalNow(&qp->q_when);
     tadd(&qp->q_when, &qp->q_delta);
 
     enqueue(qp);
     if (root == qp) {
 	/* we ended up at the head of the list, set itimer */
 	interval = qp->q_when;
-	gettimeofday(&now, NULL);
+	__pmtimevalNow(&now);
 	tsub(&interval, &now);
 
 	if (interval.tv_sec == 0 && interval.tv_usec < MIN_ITIMER_USEC)
@@ -462,7 +459,7 @@ __pmAFunregister(int afid)
 	     * new head of queue
 	     */
 	    interval = root->q_when;
-	    gettimeofday(&now, NULL);
+	    __pmtimevalNow(&now);
 	    tsub(&interval, &now);
 	    if (interval.tv_sec == 0 && interval.tv_usec == 0)
 		/* arbitrary 0.1 msec as minimal delay */

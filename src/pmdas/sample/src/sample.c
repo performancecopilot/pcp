@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmapi.h"
@@ -1686,7 +1682,7 @@ doit:
 		    atom.ul = time(NULL) - _start;
 		    break;
 		case 3:
-		    gettimeofday(&now, NULL);
+		    __pmtimevalNow(&now);
 		    atom.d = 1000 * __pmtimevalSub(&now, &_then);
 		    break;
 		case 4:
@@ -2065,7 +2061,7 @@ doit:
 		    }
 		    break;
 		case 72: /* const_rate.value */
-		    gettimeofday(&now, NULL);
+		    __pmtimevalNow(&now);
 		    atom.ul = const_rate_value + const_rate_gradient * __pmtimevalSub(&now, &const_rate_timestamp);
 		    const_rate_timestamp = now;
 		    const_rate_value = atom.ul;
@@ -2573,7 +2569,7 @@ void sample_init(pmdaInterface *dp)
 
     pmdaInit(dp, NULL, 0, NULL, 0);	/* don't use indomtab or metrictab */
 
-    gettimeofday(&_then, NULL);
+    __pmtimevalNow(&_then);
     _start = time(NULL);
     init_tables(dp->domain);
     redo_mirage();

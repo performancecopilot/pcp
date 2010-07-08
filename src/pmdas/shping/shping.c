@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <ctype.h>
@@ -231,7 +227,7 @@ refresh(void *dummy)
 
     for ( ; ; ) {
 	cycles++;
-	gettimeofday(&startcycle, NULL);
+	__pmtimevalNow(&startcycle);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL1)
 	    fprintf(stderr, "\nStart cycle @ %s", ctime(&startcycle.tv_sec));
@@ -242,7 +238,7 @@ refresh(void *dummy)
 		fprintf(stderr, "[%s] %s ->\n", cmdlist[i].tag, cmdlist[i].cmd);
 #endif
 	    getrusage(RUSAGE_CHILDREN, &cpu_then);
-	    gettimeofday(&then, NULL);
+	    __pmtimevalNow(&then);
 	    fflush(stderr);
 	    fflush(stdout);
 	    shpid = fork();
@@ -283,7 +279,7 @@ refresh(void *dummy)
 	    timedout = 0;
 	    alarm(timeout);
 	    waitpid(shpid, &sts, 0);
-	    gettimeofday(&now, NULL);
+	    __pmtimevalNow(&now);
 	    getrusage(RUSAGE_CHILDREN, &cpu_now);
 	    alarm(0);
 
@@ -355,7 +351,7 @@ refresh(void *dummy)
 		break;
 	 }
 
-	gettimeofday(&now, NULL);
+	__pmtimevalNow(&now);
 	if (cycletime) {
 	    waittime = (int)cycletime - now.tv_sec + startcycle.tv_sec;
 	    if (waittime < 0) {

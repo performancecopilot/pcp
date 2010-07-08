@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <unistd.h>
@@ -535,7 +531,7 @@ refresh_proc_list(void)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
-	gettimeofday(&ts);
+	__pmtimevalNow(&ts);
 	curr_time = utime2double(ts);
         fprintf(stderr, "refresh_proc_list():\n");
         __pmProcessRunTimes(&pre_usr, &pre_sys); 
@@ -562,7 +558,7 @@ refresh_proc_list(void)
 	    continue;
 	(void)sscanf(directp->d_name, proc_fmt, &pid);
 
-	(void)gettimeofday(&p_timestamp);
+	__pmtimevalNow(&p_timestamp);
 
         if (psinfo_getbuf_file(pid, &psinfo) != 0)
             continue;
@@ -734,7 +730,7 @@ refresh_proc_list(void)
 
     numprocs[current] = np;
 
-    (void)gettimeofday(&ts);
+    __pmtimevalNow(&ts);
     refresh_time[current] = utime2double(ts);
 
     refresh_count++;

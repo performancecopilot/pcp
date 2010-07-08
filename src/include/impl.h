@@ -864,6 +864,7 @@ extern double __pmtimevalToReal(const struct timeval *);
 extern void __pmtimevalFromReal(double, struct timeval *);
 extern void __pmtimevalSleep(struct timeval);
 extern void __pmtimevalPause(struct timeval);
+extern void __pmtimevalNow(struct timeval *);
 
 typedef struct {
     char		*label;		/* label to name tz */

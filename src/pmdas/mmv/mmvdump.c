@@ -222,7 +222,7 @@ dump_values(void *addr, int idx, long base, __uint64_t offset, __int32_t count)
 	    struct timeval tv;
 	    long long t;
 
-	    gettimeofday(&tv, NULL);
+	    __pmtimevalNow(&tv);
 	    t = vals[i].value.ll;
 	    if (vals[i].extra < 0)
 		t += ((tv.tv_sec*1e6 + tv.tv_usec) + vals[i].extra);
