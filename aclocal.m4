@@ -189,6 +189,31 @@ AC_DEFUN([AC_PACKAGE_NEED_QT_QMAKE],
     AC_PACKAGE_NEED_UTILITY($1, "$qmake", qmake, [Qt make])
   ])
 
+AC_DEFUN([AC_PACKAGE_NEED_QT_VERSION4],
+  [ AC_MSG_CHECKING([Qt version])
+    eval `$qmake --version | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
+    if test "$QT_MAJOR" -lt 4 ; then
+	echo
+	echo FATAL ERROR: Qt version 4 does not seem to be installed.
+	echo Cannot proceed with the Qt $QT_MAJOR installation found.
+	exit 1
+    fi
+    if test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 2 ; then
+	echo
+	echo FATAL ERROR: Qt version 4.$QT_MINOR is too old.
+	echo Qt version 4.2 or later is required.
+	exit 1
+    fi
+    AC_MSG_RESULT([$QT_MAJOR.$QT_MINOR.$QT_POINT])
+  ])
+
+AC_DEFUN([AC_PACKAGE_NEED_QT_ASSISTANT],
+  [ qt_assistant=""
+    test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 && qt_assistant=assistant
+    test -z "$QT_ASSISTANT" || qt_assistant="$QT_ASSISTANT"
+    AC_SUBST(qt_assistant)
+  ])
+
 AC_DEFUN([AC_PACKAGE_NEED_QT_UIC],
   [ if test -z "$UIC"; then
 	AC_PATH_PROGS(UIC, [uic-qt4 uic],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])

@@ -4,6 +4,13 @@ AC_PREFIX_DEFAULT(/usr)
 AC_PACKAGE_GLOBALS(pcp-gui)
 AC_PACKAGE_UTILITIES(pcp-gui)
 AC_PACKAGE_NEED_QT_QMAKE
+AC_PACKAGE_NEED_QT_VERSION4
+AC_PACKAGE_NEED_QT_ASSISTANT
+
+dnl Debug/release style build? (non-debug by default)
+qt_release=release
+test -z "$QT_RELEASE" || qt_release="$QT_RELEASE"
+AC_SUBST(qt_release)
 
 pcp_dir=""
 if test -n "$PCP_DIR"; then
@@ -22,19 +29,6 @@ AC_PACKAGE_HAVE_PM_SET_PROGNAME
 AC_PACKAGE_HAVE_PM_PATH_SEPARATOR
 
 AC_MANUAL_FORMAT
-
-dnl calculate Qt version using qmake binary
-eval `$QMAKE --version | awk '{ print $4 }' | awk -F. \
-    'END { printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$1,$2,$3 }'`
-
-qt_assistant=""		# no longer need this set since 4.4.0
-test $QT_MAJOR -lt 4 && qt_assistant=assistant
-test -z "$QT_ASSISTANT" || qt_assistant="$QT_ASSISTANT"
-AC_SUBST(qt_assistant)
-
-qt_release=release
-test -z "$QT_RELEASE" || qt_release="$QT_RELEASE"
-AC_SUBST(qt_release)
 
 AC_OUTPUT( \
 	src/include/builddefs \
