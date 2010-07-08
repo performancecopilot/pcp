@@ -21,7 +21,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES	= trace.c hash.c pdu.c pdubuf.c p_ack.c p_data.c ftrace.c
 LCFLAGS = -DPMTRACE_DEBUG
-LLDLIBS = $(PTHREAD_LIB)
+LLDLIBS = $(PTHREAD_LIB) -lpcp
 
 STATICLIBTARGET = libpcp_trace.a
 
