@@ -82,6 +82,7 @@ public:
 
     void setSelectable(bool selectable);
     void setExpandable(bool expandable);
+    void setFailed(bool failed);
 
 private:
     void expandMetricNames(QString, bool);

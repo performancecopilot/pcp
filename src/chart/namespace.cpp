@@ -209,6 +209,20 @@ static char *namedup(const char *name, const char *suffix)
     return n;
 }
 
+void NameSpace::setFailed(bool failed)
+{
+    bool selectable = (failed == false &&
+		      (my.type == LeafNullIndom || my.type == InstanceName));
+    setSelectable(selectable);
+    bool expandable = (failed == false && 
+		      (my.type != LeafNullIndom && my.type != InstanceName));
+    setExpandable(expandable);
+
+    QFont font = QTreeWidgetItem::font(0);
+    font.setStrikeOut(failed);
+    setFont(0, font);
+}
+
 void NameSpace::expandMetricNames(QString parent, bool show)
 {
     char	**offspring = NULL;
@@ -218,7 +232,8 @@ void NameSpace::expandMetricNames(QString parent, bool show)
     int		sts, noffspring;
     NameSpace	*m, **leaflist = NULL;
     char	*name = strdup(parent.toAscii());
-    int		sort_done;
+    int		sort_done, fail_count = 0;
+    QString	failmsg;
 
     sts = pmGetChildrenStatus(name, &offspring, &status);
     if (sts < 0) {
@@ -299,19 +314,20 @@ void NameSpace::expandMetricNames(QString parent, bool show)
     if ((sts = pmLookupName(nleaf, offspring, pmidlist)) < 0) {
 	if (!show)
 	    goto done;
-	QString msg = QString();
-	msg.sprintf("Cannot find PMIDs: %s.\nMetrics:\n", pmErrStr(sts));
+	failmsg.sprintf("Cannot find PMIDs: %s.\n", pmErrStr(sts));
 	for (i = 0; i < nleaf; i++) {
+	    leaflist[i]->setFailed(true);
 	    if (pmidlist[i] == PM_ID_NULL) {
-		msg.append("  ");
-		msg.append(offspring[i]);
-		msg.append("\n");
+		if (fail_count == 0)
+		    failmsg.append("Metrics:\n");
+		if (fail_count < 5)
+		    failmsg.append("  ").append(offspring[i]).append("\n");
+		else if (fail_count == 5)
+		    failmsg.append("... (further metrics omitted).\n");
+		fail_count++;
 	    }
 	}
-	QMessageBox::warning(NULL, pmProgname, msg,
-		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
-		QMessageBox::NoButton, QMessageBox::NoButton);
-	goto done;
+	fail_count = fail_count ? fail_count : 1;
     }
     else {
 	for (i = 0; i < nleaf; i++) {
@@ -320,16 +336,18 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 	    if (sts < 0) {
 		if (!show)
 		    goto done;
-		QString msg = QString();
-		msg.sprintf("Cannot find metric descriptor at \"%s\".\n%s.\n\n",
-			offspring[i], pmErrStr(sts));
-		QMessageBox::warning(NULL, pmProgname, msg,
-			QMessageBox::Ok | QMessageBox::Default |
-				QMessageBox::Escape,
-			QMessageBox::NoButton, QMessageBox::NoButton);
-		goto done;
+		if (fail_count < 3) {
+		    failmsg.append("Cannot find metric descriptor at \"");
+		    failmsg.append(offspring[i]).append("\":\n  ");
+		    failmsg.append(pmErrStr(sts)).append(".\n\n");
+		}
+		else if (fail_count == 3) {
+		    failmsg.append("... (further errors omitted).\n");
+		}
+		m->setFailed(true);
+		fail_count++;
 	    }
-	    if (m->my.desc.indom == PM_INDOM_NULL) {
+	    else if (m->my.desc.indom == PM_INDOM_NULL) {
 		m->my.type = LeafNullIndom;
 		m->setExpandable(false);
 		m->setSelectable(true);
@@ -344,6 +362,10 @@ void NameSpace::expandMetricNames(QString parent, bool show)
     }
 
 done:
+    if (fail_count)
+	QMessageBox::warning(NULL, pmProgname, failmsg,
+		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
+		QMessageBox::NoButton, QMessageBox::NoButton);
     if (pmidlist)
 	free(pmidlist);
     if (leaflist)
