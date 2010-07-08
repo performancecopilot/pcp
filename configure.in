@@ -12,10 +12,6 @@ dnl WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 dnl or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 dnl for more details.
 dnl 
-dnl You should have received a copy of the GNU General Public License along
-dnl with this program; if not, write to the Free Software Foundation, Inc.,
-dnl 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-dnl 
 
 dnl unpacking check - this file must exist
 AC_INIT(src/include/pmapi.h)
@@ -754,7 +750,7 @@ dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(gettimeofday mktime nanosleep unsetenv)
+AC_CHECK_FUNCS(mktime nanosleep unsetenv)
 AC_CHECK_FUNCS(gethostname hstrerror select socket)
 AC_CHECK_FUNCS(uname syslog __clone fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
