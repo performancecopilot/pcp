@@ -10,7 +10,8 @@ Package: pcp-gui
 Provides: kmchart
 Replaces: kmchart
 Conflicts: kmchart
-Depends: pcp, xvfb, ${shlibs:Depends}
+Depends: pcp, ${shlibs:Depends}
+Suggests: xvfb
 Architecture: any
 Description: Visualisation tools for the Performance Co-Pilot toolkit
  The PCP GUI package primarily includes visualisation tools for
