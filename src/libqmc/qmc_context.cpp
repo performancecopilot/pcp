@@ -8,8 +8,8 @@
  * (at your option) any later version.
  */
 
-#include "qmc_context.h"
-#include "qmc_metric.h"
+#include <qmc_context.h>
+#include <qmc_metric.h>
 #include <assert.h>
 #include <limits.h>
 #include <qvector.h>

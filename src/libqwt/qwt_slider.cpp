@@ -13,7 +13,7 @@
 #include <qevent.h>
 #include <qdrawutil.h>
 #include <qpainter.h>
-#include <qwt_painter.h>
+#include "qwt_painter.h"
 #include "qwt_paint_buffer.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_map.h"
