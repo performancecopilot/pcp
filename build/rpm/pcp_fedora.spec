@@ -207,7 +207,7 @@ fi
 %{_libdir}/libpcp_pmda.so.2
 %{_libdir}/libpcp_trace.so
 %{_includedir}/pcp/*.h
-%{_mandir}/man3/*
+%{_mandir}/man3/*.3.gz
 %{_datadir}/pcp/demos
 %{_datadir}/pcp/examples
 
