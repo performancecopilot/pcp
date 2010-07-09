@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IMAGES = GliderBanner.bmp GliderDialog.bmp pcp.ico chart.ico
 CONFIGS = pcp.fstab pcp.profile
-BATFILES = pcpsh.bat postinst.bat prerm.bat setup.bat Glider.bat
+BATFILES = pcpsh.bat postinst.bat prerm.bat Glider.bat
 PERLFILES = Glider.pm LaunchExe.pm LaunchScript.pm
 LSRCFILES = $(IMAGES) $(BATFILES) $(PERLFILES) $(CONFIGS) README WiX.patch
 

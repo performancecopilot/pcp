@@ -276,7 +276,6 @@ sub install_run_scripts
 
     $self->trace_line(1, "Installing run scripts\n");
 
-    $self->custom_file('Setup_Script', 'setup.bat', 'scripts/setup.bat');
     $self->custom_file('Post_Install_Script', 'postinst.bat', 'scripts/postinst.bat');
     $self->custom_file('Pre_Remove_Script', 'prerm.bat', 'scripts/prerm.bat');
 
