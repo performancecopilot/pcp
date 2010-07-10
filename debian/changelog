@@ -3,7 +3,7 @@ pcp (3.3.2) unstable; urgency=low
   * New release (full details in CHANGELOG).
   * Fix up inter-package dependencies (closes: #586466)
 
- -- Nathan Scott <nathans@debian.org>  Fri, 09 Jul 2010 09:45:25 +1000
+ -- Nathan Scott <nathans@debian.org>  Sat, 10 Jul 2010 12:29:15 +1000
 
 pcp (3.3.1) unstable; urgency=low
 
