@@ -2,6 +2,7 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
 LSRCFILES = changelog compat control copyright rules
+SUBDIRS = source
 
 default:
 
