@@ -15,9 +15,8 @@ LSRCFILES = $(SVGFILES) $(PNGFILES) $(ICNFILES) $(HTMLDOC_ICONS)
 # use checked in files by default, so no default build rule
 default:
 
-pngfiles: $(PNGFILES)
-
-%.png:	%.svg
+#%.png:	%.svg
+%.png:	
 	$(INKSCAPE) -z -e $@ $<
 
 include $(BUILDRULES)
