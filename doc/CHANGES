@@ -1,3 +1,7 @@
+pcp-gui 1.4.8 (12 July 2010)
+    - Fix path issues for online html docs.
+    - Fix metric selector failure to handle metric lookup errors.
+
 pcp-gui 1.4.7 (16 June 2010)
     - Fix pcp-gui qt rpm package dependencies for modern SuSE variants.
     - Resolve installation issues on Mac OS X 10.6 and later.
