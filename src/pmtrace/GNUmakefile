@@ -11,17 +11,13 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-#
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmtrace.c
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_trace/src
-LLDLIBS = -lpcp_trace
+LLDLIBS = -lpcp_trace -lpcp
 LCFLAGS = -I.
 
 CMDTARGET = pmtrace$(EXECSUFFIX)

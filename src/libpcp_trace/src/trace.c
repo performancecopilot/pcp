@@ -174,8 +174,7 @@ pmtracebegin(const char *tag)
 	hash.pad = 0;
 	if ((hash.tag = strdup(tag)) == NULL)
 	    b_sts = -TRACE_ERRNO;
-	if (b_sts >= 0 && gettimeofday(&hash.start, NULL) < 0)
-	    b_sts = -TRACE_ERRNO;
+	__pmtimevalNow(&hash.start);
 	if (b_sts >= 0) {
 	    hash.inprogress = 1;
 	    b_sts = __pmhashinsert(&_pmtable, tag, &hash);
@@ -193,10 +192,8 @@ pmtracebegin(const char *tag)
 	fprintf(stderr, "pmtracebegin: updating transaction '%s' (id=0x%llx)\n",
 		tag, (unsigned long long)hash.id);
 #endif
-	if (gettimeofday(&hptr->start, NULL) < 0)
-	    b_sts = -TRACE_ERRNO;
-	else
-	    hptr->inprogress = 1;
+	__pmtimevalNow(&hptr->start);
+	hptr->inprogress = 1;
     }
 
     /* unlock hash table */
@@ -222,8 +219,7 @@ pmtraceend(const char *tag)
     if ((len = strlen(tag)+1) >= MAXTAGNAMELEN)
 	return PMTRACE_ERR_TAGLENGTH;
 
-    if (gettimeofday(&now, NULL) < 0)
-	return -TRACE_ERRNO;
+    __pmtimevalNow(&now);
 
     /* give just enough info for comparison routine */
     hash.tag = (char *)tag;

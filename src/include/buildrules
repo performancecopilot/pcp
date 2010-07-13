@@ -49,7 +49,7 @@ ifeq ($(TARGET_OS), aix)
 _SHAREDOPTS	= -qmkshrobj
 endif
 ifeq ($(TARGET_OS), freebsd)
-_SHAREDOPTS	= -shared -Wl'-soname $(LIBTARGET)'
+_SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
 endif
 $(LIBTARGET) : $(SUBDIRS) $(OBJECTS)
 	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $(LIBTARGET) $(OBJECTS) $(LDLIBS) $(LIB_FOR_DLOPEN) $(LIB_FOR_BASENAME)

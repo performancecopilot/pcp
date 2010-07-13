@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "weblog.h"
@@ -2317,7 +2313,7 @@ probe(void)
     WebSproc		*sprocData = (WebSproc*)0;
     struct timeval	theTime;
 
-    gettimeofday(&theTime, NULL);
+    __pmtimevalNow(&theTime);
 
     wl_timeOfRefresh = theTime.tv_sec;
 
@@ -2473,10 +2469,10 @@ refreshAll(void)
     }
 #endif
 
-    gettimeofday(&before, NULL);
+    __pmtimevalNow(&before);
     probe();
 
-    gettimeofday(&after, NULL);
+    __pmtimevalNow(&after);
     wl_catchupTime = (after.tv_sec - before.tv_sec) * 1000;
     wl_catchupTime += (after.tv_usec - before.tv_usec) / 1000;
 

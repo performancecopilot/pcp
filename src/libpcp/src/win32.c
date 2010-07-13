@@ -10,19 +10,17 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 #include "pmapi.h"
 #include "impl.h"
 #include <winbase.h>
 #include <psapi.h>
 
+#define FILETIME_1970		116444736000000000ull	/* 1/1/1601-1/1/1970 */
+#define HECTONANOSEC_PER_SEC	10000000ull
 #define MILLISEC_PER_SEC	1000
-#define NANOSEC_PER_MILLISEC	1000000
-#define NANOSEC_BOUND		(1000000000-1)
+#define NANOSEC_PER_MILLISEC	1000000ull
+#define NANOSEC_BOUND		(1000000000ull - 1)
 #define MAX_SIGNALS		3	/* HUP, USR1, TERM */
 
 static struct {
@@ -405,6 +403,23 @@ __pmProcessRunTimes(double *usr, double *sys)
     }
     CloseHandle(ph);
     return sts;
+}
+
+void
+__pmtimevalNow(struct timeval *tv)
+{
+    struct timespec ts;
+    union {
+	unsigned long long ns100; /*time since 1 Jan 1601 in 100ns units */
+	FILETIME ft;
+    } now;
+
+    GetSystemTimeAsFileTime(&now.ft);
+    now.ns100 -= FILETIME_1970;
+    ts.tv_sec = now.ns100 / HECTONANOSEC_PER_SEC;
+    ts.tv_nsec = (long)(now.ns100 % HECTONANOSEC_PER_SEC) * 100;
+    tv->tv_sec = ts.tv_sec;
+    tv->tv_usec = (ts.tv_nsec / 1000);
 }
 
 int

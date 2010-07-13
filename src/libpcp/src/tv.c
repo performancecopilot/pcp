@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -102,6 +98,14 @@ tospec(struct timeval tv, struct timespec *ts)
     return ts;
 }
 
+#if !defined(IS_MINGW)
+void
+__pmtimevalNow(struct timeval *tv)
+{
+    gettimeofday(tv, NULL);
+}
+#endif
+
 /* sleep until given timeval */
 void
 __pmtimevalPause(struct timeval sched)
@@ -111,7 +115,7 @@ __pmtimevalPause(struct timeval sched)
     struct timespec delay;	/* interval to sleep */
     struct timespec left;	/* remaining sleep time */
 
-    gettimeofday(&curr, NULL);
+    __pmtimevalNow(&curr);
     tospec(tsub(sched, curr), &delay);
     for (;;) {		/* loop to catch early wakeup by nanosleep */
 	sts = nanosleep(&delay, &left);

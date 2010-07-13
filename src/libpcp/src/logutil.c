@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include <sys/stat.h>
@@ -819,7 +815,8 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 
     if (tp == NULL) {
 	struct timeval	tmp;
-	gettimeofday(&tmp, NULL);
+
+	__pmtimevalNow(&tmp);
 	ti.ti_stamp.tv_sec = (__int32_t)tmp.tv_sec;
 	ti.ti_stamp.tv_usec = (__int32_t)tmp.tv_usec;
     }

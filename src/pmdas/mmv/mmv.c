@@ -587,7 +587,7 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		atom->ll = v->value.ll;
 		if (v->extra < 0) {	/* inside a timed section */
 		    struct timeval tv; 
-		    gettimeofday(&tv, NULL); 
+		    __pmtimevalNow(&tv); 
 		    atom->ll += (tv.tv_sec * 1e6 + tv.tv_usec) + v->extra;
 		}
 		break;
