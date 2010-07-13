@@ -61,7 +61,7 @@ CFILES = pducheck.c disk_test.c exercise.c context_test.c chkoptfetch.c \
 	matchInstanceName.c torture_pmns.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
-	pmdacache.c
+	pmdacache.c check_import.c
 
 POSIXFILES = \
 	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \
@@ -70,10 +70,13 @@ POSIXFILES = \
 TRACEFILES = \
 	obs.c tstate.c tabort.c 
 
+PERLFILES = \
+	check_import.pl
+
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += $(POSIXFILES) $(TRACEFILES)
 else
-LSRCFILES += $(POSIXFILES) $(TRACEFILES)
+LSRCFILES += $(POSIXFILES) $(TRACEFILES) $(PERLFILES)
 endif
 
 CFILES_TARGETS = $(CFILES)
@@ -411,6 +414,13 @@ tstate:	tstate.c
 tabort:	tabort.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ tabort.c $(TRACELIB) 
+
+# --- need libpcp_import
+#
+
+check_import:	check_import.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_import $(LDLIBS)
 
 # --- binary format dependencies
 #
