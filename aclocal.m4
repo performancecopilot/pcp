@@ -82,17 +82,30 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     AC_SUBST(pkg_distribution)
 
     pkg_doc_dir=`eval echo $datadir`
-    pkg_doc_dir=`eval echo $pkg_doc_dir/doc/$pkg_name`
+    pkg_doc_dir=`eval echo $pkg_doc_dir/doc/pcp-gui`
     if test "`echo $pkg_doc_dir | sed 's;/.*\$;;'`" = NONE
     then
 	if test -d /usr/share/doc
 	then
-	    pkg_doc_dir=/usr/share/doc/$pkg_name
+	    pkg_doc_dir=/usr/share/doc/pcp-gui
 	else
-	    pkg_doc_dir=/usr/share/$pkg_name
+	    pkg_doc_dir=/usr/share/pcp-gui
 	fi
     fi
-    pkg_html_dir=`eval echo $pkg_doc_dir/html`
+    test -z "$DOCDIR" || pkg_doc_dir="$DOCDIR"
+    AC_SUBST(pkg_doc_dir)
+
+    pkg_html_dir=`eval echo $datadir`
+    pkg_html_dir=`eval echo $pkg_html_dir/doc/pcp-doc`
+    if test "`echo $pkg_html_dir | sed 's;/.*\$;;'`" = NONE
+    then
+	if test -d /usr/share/doc
+	then
+	    pkg_html_dir=/usr/share/doc/pcp-doc
+	else
+	    pkg_html_dir=/usr/share/pcp-doc
+	fi
+    fi
     test -z "$HTMLDIR" || pkg_html_dir="$HTMLDIR"
     AC_SUBST(pkg_html_dir)
   ])

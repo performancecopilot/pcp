@@ -10,10 +10,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write the Free Software Foundation,
-# Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-#
 # @configure_input@
 #
 
@@ -43,8 +39,8 @@ PKG_PLATFORM	= $(PCP_PLATFORM)
 PKG_DISTRIBUTION= @pkg_distribution@
 PKG_BIN_DIR	= $(PCP_BIN_DIR)
 PKG_MAN_DIR	= $(PCP_MAN_DIR)
-PKG_DOC_DIR	= $(datadir)/doc/@pkg_name@
-PKG_HTML_DIR	= $(PKG_DOC_DIR)/html
+PKG_DOC_DIR	= @pkg_doc_dir@
+PKG_HTML_DIR	= @pkg_html_dir@
 PKG_ICON_DIR	= $(datadir)/pixmaps
 PKG_DESKTOP_DIR	= $(datadir)/applications
 

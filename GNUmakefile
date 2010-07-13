@@ -11,10 +11,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-#
 
 ifneq (,)
 This makefile requires GNU Make.
@@ -28,7 +24,8 @@ LSRCFILES = Makepkgs aclocal.m4 install-sh README VERSION \
 	    configure.in pcp-gui.lsm.in
 
 LDIRT = config.log .dep config.status config.cache confdefs.h conftest* \
-	Logs/* built .census install.* install-dev.* *.gz
+	Logs/* built .census install.* install-dev.* *.gz \
+	install.manifest base_files.rpm docs_files.rpm conf_files
 LDIRDIRT = pcp-gui-*
 
 SUBDIRS = src m4 images doc man debian build

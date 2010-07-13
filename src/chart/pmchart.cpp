@@ -408,8 +408,9 @@ void PmChart::setupAssistant()
     		    this, SLOT(assistantError(const QString &)));
 
     QString documents = HTMLDIR;
-    documents.append(QChar(__pmPathSeparator()));
-    documents.append("pmchart.adp");
+    QString separator = QString(__pmPathSeparator());
+    documents.append(separator).append("html");
+    documents.append(separator).append("pmchart.adp");
 
     QStringList arguments;
     arguments << "-profile" << documents;
@@ -420,8 +421,9 @@ void PmChart::helpManual()
 {
     setupAssistant();
     QString documents = HTMLDIR;
-    documents.append(QChar(__pmPathSeparator()));
-    documents.append("index.html");
+    QString separator = QString(__pmPathSeparator());
+    documents.append(separator).append("html");
+    documents.append(separator).append("index.html");
     my.assistant->showPage(documents);
 }
 
@@ -429,8 +431,9 @@ void PmChart::helpTutorial()
 {
     setupAssistant();
     QString documents = HTMLDIR;
-    documents.append(QChar(__pmPathSeparator()));
-    documents.append("tutorial.html");
+    QString separator = QString(__pmPathSeparator());
+    documents.append(separator).append("html");
+    documents.append(separator).append("tutorial.html");
     my.assistant->showPage(documents);
 }
 

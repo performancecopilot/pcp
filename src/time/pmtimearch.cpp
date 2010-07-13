@@ -772,7 +772,10 @@ void PmTimeArch::setupAssistant()
 		    this, SLOT(assistantError(const QString &)));
     QStringList arguments;
     QString documents = HTMLDIR;
-    arguments << "-profile" << documents.append("/pmtime.adp");
+    QString separator = QString(__pmPathSeparator());
+    documents.append(separator).append("html");
+    documents.append(separator).append("pmtime.adp");
+    arguments << "-profile" << documents;
     my.assistant->setArguments(arguments);
 }
 
@@ -780,5 +783,8 @@ void PmTimeArch::helpManual()
 {
     setupAssistant();
     QString documents = HTMLDIR;
-    my.assistant->showPage(documents.append("/timecontrol.html"));
+    QString separator = QString(__pmPathSeparator());
+    documents.append(separator).append("html");
+    documents.append(separator).append("timecontrol.html");
+    my.assistant->showPage(documents);
 }

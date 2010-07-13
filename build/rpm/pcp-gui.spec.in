@@ -9,10 +9,12 @@ Obsoletes: kmchart
 Conflicts: pcp-pro
 Prereq: /sbin/ldconfig
 Source: @pkg_name@-@pkg_version@.src.tar.gz
-License: GPL
+License: GPLv2
+Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp
-Group: System Environment/Base
+Group: Applications/System
 Requires: pcp >= 2.0
+Requires: pcp-gui >= 1.5.0
 BuildRequires: pcp >= 2.0
 %if "%{_vendor}" == "suse"
 Requires: qt >= 4.2
@@ -31,30 +33,85 @@ may not be installed on server machines, so PCP GUI is delivered,
 managed and maintained as a separate (source and binary) package
 to the core PCP infrastructure.
 
+%package -n pcp-doc
+License: GPLv2
+BuildArch: noarch
+Group: Documentation
+Conflicts: pcp-gui < 1.5.0
+Summary: Performance Co-Pilot documentation and tutorials
+Vendor: Silicon Graphics, Inc.
+URL: http://oss.sgi.com/projects/pcp/
+
+%description -n pcp-doc
+The pcp-doc package provides useful information on using and
+configuring the Performance Co-Pilot (PCP) toolkit for system
+level performance management.  It includes tutorials, HOWTOs,
+and other detailed documentation about the internals of core
+PCP utilities and daemons, and the PCP graphical tools.
+
 %prep
-if [ -f .census ] ; then
-   if [ ! -d ${RPM_PACKAGE_NAME}-${RPM_PACKAGE_VERSION} ] ; then
-      ln -s . ${RPM_PACKAGE_NAME}-${RPM_PACKAGE_VERSION}
-   fi
-else
-%setup
-INSTALL_USER=root
-INSTALL_GROUP=root
-export INSTALL_USER INSTALL_GROUP
-@make@ configure
-fi
-
-%build
-@make@
-
-%install
-DIST_ROOT="$RPM_BUILD_ROOT"
-DIST_INSTALL=`pwd`/install.manifest
-export DIST_ROOT DIST_INSTALL
-@make@ install DIST_MANIFEST="$DIST_INSTALL"
-@make@ -C build/rpm rpmfiles DIST_MANIFEST="$DIST_INSTALL"
+%setup -q
+@make@ configure-pcp-gui
 
 %clean
+[ ! -z "$DIST_ROOT" ] && rm -rf $DIST_ROOT
 rm -rf $RPM_BUILD_ROOT
 
-%files -f build/rpm/rpmfiles
+%build
+@make@ default-pcp-gui
+
+%install
+BACKDIR=`pwd`;
+DIST_ROOT="$RPM_BUILD_ROOT"
+DIST_MANIFEST=`pwd`/install.manifest
+export DIST_ROOT DIST_MANIFEST
+@make@ install-pcp-gui
+
+set +x
+PCP_CONF=$BACKDIR/src/include/pcp.conf
+export PCP_CONF
+. $BACKDIR/src/include/pcp.env
+DOCFILELIST=`ls -1 $BACKDIR/debian/pcp-doc.{install,dirs}`
+sed -e 's/^/\//' $DOCFILELIST >docs_files
+
+# Patterns for files to be marked %config(noreplace).
+cat >conf_files <<EOFEOF
+pmsnap/control
+pmsnap/crontab
+EOFEOF
+
+rm -f docs_files.rpm base_files.rpm
+sort -u $DIST_MANIFEST | $PCP_AWK_PROG '
+BEGIN {
+    while( getline < "docs_files") doc[$0]=1;
+    while( getline < "conf_files") conf[nconf++]=$0;
+}
+{
+    if (doc[$NF]) f="docs_files.rpm";
+    else f="base_files.rpm"
+}
+$1 == "d" { printf ("%%%%dir %%%%attr(%s,root,root) %s\n", $2, $5) >> f }
+$1 == "f" {
+            for (i=0; i < nconf; i++) {
+                if ($6 ~ conf[i]) {
+                    printf ("%%%%config(noreplace) ") >> f;
+                    break;
+                }
+            }
+            if (match ($6, "'$PCP_MAN_DIR'") || match ($6, "'$PCP_DOC_DIR'")) {
+                printf ("%%%%doc ") >> f;
+            }
+            printf ("%%%%attr(%s,root,root) %s\n", $2, $6) >> f }
+$1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
+
+set -x
+
+%files -f base_files.rpm
+%defattr(-,root,root)
+
+%files -n pcp-doc -f docs_files.rpm
+%defattr(-,root,root)
+
+%changelog
+* Tue Jul 13 2010 Nathan Scott <nathans@aconex.com>
+- Rework spec file to produce a separate pcp-doc package as well.

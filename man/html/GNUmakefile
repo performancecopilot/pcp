@@ -13,6 +13,6 @@ default: $(HTMLPAGES)
 include $(BUILDRULES)
 
 install install-dev: default
-	$(INSTALL) -m 755 -d $(PKG_DOC_DIR)/html
-	$(INSTALL) -m 644 $(CONFFILES) $(HTMLPAGES) $(PKG_DOC_DIR)/html
+	$(INSTALL) -m 755 -d $(PKG_HTML_DIR)/html
+	$(INSTALL) -m 644 $(CONFFILES) $(HTMLPAGES) $(PKG_HTML_DIR)/html
 	$(SUBDIRS_MAKERULE)

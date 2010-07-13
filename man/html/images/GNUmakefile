@@ -33,5 +33,5 @@ endif
 include $(BUILDRULES)
 
 install: default
-	$(INSTALL) -m 755 -d $(PKG_DOC_DIR)/html/images
-	$(INSTALL) -m 644 $(INSTFILES) $(PKG_DOC_DIR)/html/images
+	$(INSTALL) -m 755 -d $(PKG_HTML_DIR)/html/images
+	$(INSTALL) -m 644 $(INSTFILES) $(PKG_HTML_DIR)/html/images

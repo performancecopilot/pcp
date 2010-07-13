@@ -1,0 +1,9 @@
+Document: pcp-doc
+Title: Performance Co-Pilot Documentation and Tutorials
+Author: Performance Co-Pilot Development Team
+Abstract: Performance Co-Pilot documentation and tutorials.
+Section: System/Monitoring
+
+Format: HTML
+Index: /usr/share/doc/pcp-doc/html/index.html
+Files: /usr/share/doc/pcp-doc/html/*.html

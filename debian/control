@@ -22,3 +22,17 @@ Description: Visualisation tools for the Performance Co-Pilot toolkit
  may not be installed on server machines, so PCP GUI is delivered,
  managed and maintained as a separate (source and binary) package
  to the core PCP infrastructure.
+
+Package: pcp-doc
+Section: doc
+Depends: ${misc:Depends}
+Conflicts: pcp-gui (<< 1.5.0)
+Recommends: pcp, pcp-gui
+Architecture: all
+Description: Documentation and tutorial for the Performance Co-Pilot
+ The pcp-doc package provides useful information on using and
+ configuring the Performance Co-Pilot (PCP) toolkit for system
+ level performance management.  It includes tutorials, HOWTOs,
+ and other detailed documentation about the internals of core
+ PCP utilities and daemons, and the PCP graphical tools.
+
