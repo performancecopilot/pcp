@@ -22,8 +22,8 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 PERLMOD   = LogImport.pm
-INTERFACE = LogImport.xs
-TESTCODE  = test.pl cvalue.c
+INTERFACE = LogImport.xs typemap
+TESTCODE  = 
 PERLDOCS  = Changes MANIFEST
 LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 

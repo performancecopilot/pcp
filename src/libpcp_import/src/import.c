@@ -368,7 +368,7 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
 	/*NOTREACHED*/
     }
     if (pmid == PM_ID_NULL)
-	mp->pmid = pmid_build(PMIMPORT, 0, current->nmetric);
+	mp->pmid = pmid_build(LOGIMPORT, 0, current->nmetric);
     else
 	mp->pmid = pmid;
     mp->desc.pmid = mp->pmid;

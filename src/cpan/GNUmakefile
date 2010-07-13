@@ -15,7 +15,7 @@
 TOPDIR	= ../..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS	= PMDA LogSummary MMV
+SUBDIRS	= PMDA LogSummary MMV LogImport
 
 default: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
