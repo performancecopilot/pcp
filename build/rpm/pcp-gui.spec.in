@@ -68,9 +68,6 @@ export DIST_ROOT DIST_MANIFEST
 @make@ install-pcp-gui
 
 set +x
-PCP_CONF=$BACKDIR/src/include/pcp.conf
-export PCP_CONF
-. $BACKDIR/src/include/pcp.env
 DOCFILELIST=`ls -1 $BACKDIR/debian/pcp-doc.{install,dirs}`
 sed -e 's/^/\//' $DOCFILELIST >docs_files
 
@@ -81,7 +78,7 @@ pmsnap/crontab
 EOFEOF
 
 rm -f docs_files.rpm base_files.rpm
-sort -u $DIST_MANIFEST | $PCP_AWK_PROG '
+sort -u $DIST_MANIFEST | awk '
 BEGIN {
     while( getline < "docs_files") doc[$0]=1;
     while( getline < "conf_files") conf[nconf++]=$0;
@@ -98,7 +95,7 @@ $1 == "f" {
                     break;
                 }
             }
-            if (match ($6, "'$PCP_MAN_DIR'") || match ($6, "'$PCP_DOC_DIR'")) {
+            if (match ($6, "'$PKG_MAN_DIR'") || match ($6, "'$PKG_DOC_DIR'")) {
                 printf ("%%%%doc ") >> f;
             }
             printf ("%%%%attr(%s,root,root) %s\n", $2, $6) >> f }
