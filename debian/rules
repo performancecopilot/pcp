@@ -6,6 +6,7 @@ libpcpdev = libpcp3-dev
 libpcp_pmda = libpcp-pmda3
 libpcp_pmdadev = libpcp-pmda3-dev
 libpcp_pmda_perl = libpcp-pmda-perl
+libpcp_import_perl = libpcp-import-perl
 pcp_logsummary_perl = libpcp-logsummary-perl
 libpcp_gui = libpcp-gui2
 libpcp_guidev = libpcp-gui2-dev
@@ -14,6 +15,8 @@ libpcp_mmvdev = libpcp-mmv1-dev
 libpcp_mmv_perl = libpcp-mmv-perl
 libpcp_trace = libpcp-trace2
 libpcp_tracedev = libpcp-trace2-dev
+libpcp_import = libpcp-import1
+libpcp_importdev = libpcp-import1-dev
 
 dirpcp = debian/$(pcp)
 dirlibpcp = debian/$(libpcp)
@@ -21,6 +24,7 @@ dirlibpcpdev = debian/$(libpcpdev)
 dirlibpcp_pmda = debian/$(libpcp_pmda)
 dirlibpcp_pmdadev = debian/$(libpcp_pmdadev)
 dirlibpcp_pmda_perl = debian/$(libpcp_pmda_perl)
+dirlibpcp_import_perl = debian/$(libpcp_import_perl)
 dirpcp_logsummary_perl = debian/$(pcp_logsummary_perl)
 dirlibpcp_gui = debian/$(libpcp_gui)
 dirlibpcp_guidev = debian/$(libpcp_guidev)
@@ -29,10 +33,14 @@ dirlibpcp_mmvdev = debian/$(libpcp_mmvdev)
 dirlibpcp_mmv_perl = debian/$(libpcp_mmv_perl)
 dirlibpcp_trace = debian/$(libpcp_trace)
 dirlibpcp_tracedev = debian/$(libpcp_tracedev)
+dirlibpcp_import = debian/$(libpcp_import)
+dirlibpcp_importdev = debian/$(libpcp_importdev)
 alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) \
 		$(dirlibpcp_pmda) $(dirlibpcp_pmdadev) $(dirlibpcp_pmda_perl) \
 		$(dirlibpcp_trace) $(dirlibpcp_tracedev) \
 		$(dirlibpcp_gui) $(dirlibpcp_guidev) \
+		$(dirlibpcp_import) $(dirlibpcp_importdev) \
+		$(dirlibpcp_import_perl) \
 		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) $(dirlibpcp_mmv_perl) \
 		$(dirpcp_logsummary_perl)
 
@@ -43,8 +51,10 @@ pkglibpcp_gui = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_gui);
 pkglibpcp_mmv = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_mmv);
 pkglibpcp_pmda = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
 pkglibpcp_trace = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_trace);
+pkglibpcp_import = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_import);
 pkglibpcp_mmv_perl = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_mmv_perl);
 pkglibpcp_pmda_perl = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda_perl);
+pkglibpcp_import_perl = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_import_perl);
 pkgpcp_logsummary_perl = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_logsummary_perl);
 
 options = export DEBUG=-DNDEBUG AWK=gawk;
@@ -83,6 +93,7 @@ binary-arch: checkroot built
 	$(pkgpcp) $(MAKE) -C build pcp.src
 	$(pkglibpcp_mmv_perl) $(MAKE) -C src/cpan/MMV install_perl
 	$(pkglibpcp_pmda_perl) $(MAKE) -C src/cpan/PMDA install_perl
+	$(pkglibpcp_import_perl) $(MAKE) -C src/cpan/LogImport install_perl
 	$(pkgpcp_logsummary_perl) $(MAKE) -C src/cpan/LogSummary install_perl
 
 	dh_installdocs
@@ -100,12 +111,15 @@ binary-arch: checkroot built
 	dh_makeshlibs --package $(libpcp_pmda)
 	dh_makeshlibs -N $(libpcp_trace)
 	dh_makeshlibs --package $(libpcp_trace)
+	dh_makeshlibs -N $(libpcp_import)
+	dh_makeshlibs --package $(libpcp_import)
 	dh_makeshlibs -N $(libpcp_gui)
 	dh_makeshlibs --package $(libpcp_gui)
 	dh_makeshlibs -N $(libpcp_mmv)
 	dh_makeshlibs --package $(libpcp_mmv)
 	dh_perl -p $(libpcp_mmv_perl)
 	dh_perl -p $(libpcp_pmda_perl)
+	dh_perl -p $(libpcp_import_perl)
 	dh_perl -p $(pcp_logsummary_perl)
 	dh_installdeb
 	dh_shlibdeps 2>/dev/null	# squash bogus and harmless warnings

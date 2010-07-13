@@ -11,7 +11,7 @@ Package: pcp
 Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf, cpp
 Suggests: tsocks
 Conflicts: pgpool2
-Recommends: libpcp-pmda-perl, pcp-gui
+Recommends: libpcp-pmda-perl, pcp-gui, libpcp-import-perl
 Architecture: any
 Description: System level performance monitoring and performance management
  Performance Co-Pilot (PCP) is a framework and services to
@@ -164,6 +164,36 @@ Description: Performance Co-Pilot application tracing library
  client applications to easily retrieve and process any subset of
  that data.
 
+Package: libpcp-import1-dev
+Section: libdevel
+Depends: ${misc:Depends}, libpcp3-dev
+Architecture: any
+Description: Performance Co-Pilot data import library and headers
+ The libpcp-import-dev package contains the library and header files
+ needed to build an application that imports performance data from
+ a file or real-time source and creates a Performance Co-Pilot (PCP)
+ archive suitable for use with the PCP tools.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-import1
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Section: libs
+Architecture: any
+Description: Performance Co-Pilot data import library
+ The libpcp-import package contains the runtime environment required
+ by an application that imports performance data from a file or
+ real-time source and creates a Performance Co-Pilot (PCP) archive
+ suitable for use with the PCP tools.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
 Package: libpcp-pmda-perl
 Section: perl
 Priority: optional
@@ -175,6 +205,22 @@ Description: Performance Co-Pilot Domain Agent Perl module
  Each PMDA exports performance data for one specific domain, for
  example the operating system kernel, Cisco routers, a database,
  an application, etc.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-import-perl
+Section: perl
+Priority: optional
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, libpcp-import1
+Description: Performance Co-Pilot log import Perl module
+ The PCP::LogImport Perl module contains the language bindings for
+ building Perl applications that import performance data from a file
+ or real-time source and create a Performance Co-Pilot (PCP) archive
+ suitable for use with the PCP tools.
  .
  The Performance Co-Pilot provides a unifying abstraction for
  all of the interesting performance data in a system, and allows
