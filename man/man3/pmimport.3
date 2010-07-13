@@ -12,22 +12,8 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-.\" You should have received a copy of the GNU General Public License along
-.\" with this program; if not, write to the Free Software Foundation, Inc.,
-.\" 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 .\"
-.ie \(.g \{\
-.\" ... groff (hack for khelpcenter, man2html, etc.)
 .TH PMIMPORT 3 "SGI" "Performance Co-Pilot"
-\}
-.el \{\
-.if \nX=0 .ds x} PMIMPORT 3 "SGI" "Performance Co-Pilot"
-.if \nX=1 .ds x} PMIMPORT 3 "Performance Co-Pilot"
-.if \nX=2 .ds x} PMIMPORT 3 "" "\&"
-.if \nX=3 .ds x} PMIMPORT "" "" "\&"
-.TH \*(x}
-.rr X
-\}
 .SH NAME
 \f3pmimport\f1 \- introduction to the pmimport plugin Application Programming Interface
 .\" literals use .B or \f3
@@ -271,24 +257,8 @@ return a PCP error code.
 .SH COMPILING AND LINKING
 The plugin code should be compiled in the normal way to produce an
 object file. A shared library should then be created based on this
-file. 
-.B pmimport
-is an n32 application, and therefore plugins must be compliled and linked
-with the -n32 option. For example, to create a plugin:
-.PP
-.ft CW
-.nf
-.in +0.25i
-$ cc -n32 -c my_plugin.c
-$ ld -n32 -shared -o my_plugin my_plugin.o
-.in
-.fi
-.ft 1
-.PP
-The file
-.I my_plugin
-can then be used with
-.BR pmimport .
+file. Refer to the demonstration makefiles and programs shipped in
+.B $PCP_DEMOS_DIR/pmimport/
 .SH USING A CUSTOM PLUGIN WITH PMIMPORT
 To use a custom plugin with
 .B pmimport
@@ -327,8 +297,6 @@ using the
 .IR pmGetConfig (3)
 function.
 .SH SEE ALSO
-.BR cc (1),
-.BR ld (1),
 .BR PCPIntro (1),
 .BR pmimport (1),
 .BR PMAPI (3)

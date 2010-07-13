@@ -1,0 +1,605 @@
+#include "pmapi.h"
+#include "impl.h"
+#include "import.h"
+#include "domain.h"
+#include "private.h"
+
+static pmi_context *context_tab = NULL;
+static int ncontext = 0;
+static pmi_context *current = NULL;
+
+void
+pmiDump(void)
+{
+    FILE	*f = stderr;
+
+    fprintf(f, "pmiDump: context %d of %d", current-context_tab, ncontext);
+    if (current == NULL) {
+	fprintf(f, " Error: current context is not defined.\n");
+	return;
+    }
+    else {
+	fprintf(f, " archive: %s\n", 
+	    current->archive == NULL ? "<undefined>" : current->archive);
+    }
+    fprintf(f, "  state: %d ", current->state);
+    switch (current->state) {
+	case CONTEXT_START:
+	    fprintf(f, "(start)");
+	    break;
+	case CONTEXT_ACTIVE:
+	    fprintf(f, "(active)");
+	    break;
+	case CONTEXT_END:
+	    fprintf(f, "(end)");
+	    break;
+	default:
+	    fprintf(f, "(BAD)");
+	    break;
+    }
+    fprintf(f, " hostname: %s timezone: %s\n", 
+	current->hostname == NULL ? "<undefined>" : current->hostname,
+	current->timezone == NULL ? "<undefined>" : current->timezone);
+    if (current->nmetric == 0)
+	fprintf(f, "  No metrics.\n");
+    else {
+	int	m;
+	for (m = 0; m < current->nmetric; m++) {
+	    fprintf(f, "  metric[%d] name=%s pmid=%s\n",
+		m, current->metric[m].name,
+		pmIDStr(current->metric[m].pmid));
+	    __pmPrintDesc(f, &current->metric[m].desc);
+	}
+    }
+    if (current->nindom == 0)
+	fprintf(f, "  No indoms.\n");
+    else {
+	int	i;
+	for (i = 0; i < current->nindom; i++) {
+	    fprintf(f, "  indom[%d] indom=%s",
+		i, pmInDomStr(current->indom[i].indom));
+	    if (current->indom[i].ninstance == 0) {
+		fprintf(f, "   No instances.\n");
+	    }
+	    else {
+		int	j;
+		fputc('\n', f);
+		for (j = 0; j < current->indom[i].ninstance; j++) {
+		    fprintf(f, "   instance[%d] %s (%d)\n",
+			j, current->indom[i].name[j],
+			current->indom[i].inst[j]);
+		}
+	    }
+	}
+    }
+    if (current->nhandle == 0)
+	fprintf(f, "  No handles.\n");
+    else {
+	int	h;
+	for (h = 0; h < current->nhandle; h++) {
+	    fprintf(f, "  handle[%d] metric=%s (%s) instance=%d\n",
+		h, current->metric[current->handle[h].midx].name,
+		pmIDStr(current->metric[current->handle[h].midx].pmid),
+		current->handle[h].inst);
+	}
+    }
+    if (current->result == NULL)
+	fprintf(f, "  No pmResult.\n");
+    else
+	__pmDumpResult(f, current->result);
+}
+
+pmUnits
+pmiUnits(int dimSpace, int dimTime, int dimCount, int scaleSpace, int scaleTime, int scaleCount)
+{
+    static pmUnits units;
+    units.dimSpace = dimSpace;
+    units.dimTime = dimTime;
+    units.dimCount = dimCount;
+    units.scaleSpace = scaleSpace;
+    units.scaleTime = scaleTime;
+    units.scaleCount = scaleCount;
+
+    return units;
+}
+
+const char *
+pmiErrStr(int sts)
+{
+    const char *msg;
+    switch (sts) {
+	case PMI_ERR_DUPMETRICNAME:
+	    msg = "Metric name already defined";
+	    break;
+	case PMI_ERR_DUPMETRICID:
+	    msg = "Metric pmID already defined";
+	    break;
+	case PMI_ERR_DUPINSTNAME:
+	    msg = "External instance name already defined";
+	    break;
+	case PMI_ERR_DUPINSTID:
+	    msg = "Internal instance identifer already defined";
+	    break;
+	case PMI_ERR_INSTNOTNULL:
+	    msg = "Null instance expected for a singular metric";
+	    break;
+	case PMI_ERR_INSTNULL:
+	    msg = "Null instance not allowed for a non-singular metric";
+	    break;
+	case PMI_ERR_BADHANDLE:
+	    msg = "Illegal handle";
+	    break;
+	case PMI_ERR_DUPVALUE:
+	    msg = "Value already assigned for singular metric";
+	    break;
+	case PMI_ERR_BADTYPE:
+	    msg = "Illegal metric type";
+	    break;
+	case PMI_ERR_BADSEM:
+	    msg = "Illegal metric semantics";
+	    break;
+	case PMI_ERR_NODATA:
+	    msg = "No data to output";
+	    break;
+	default:
+	    msg = pmErrStr(sts);
+	    break;
+    }
+    return msg;
+}
+
+int
+pmiStart(const char *archive, int inherit)
+{
+    pmi_context	*old_current;
+    char	*np;
+    int		c = current - context_tab;
+
+    ncontext++;
+    context_tab = (pmi_context *)realloc(context_tab, ncontext*sizeof(context_tab[0]));
+    if (context_tab == NULL) {
+	__pmNoMem("pmiStart: context_tab", ncontext*sizeof(context_tab[0]), PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    old_current = &context_tab[c];
+    current = &context_tab[ncontext-1];
+
+    current->state = CONTEXT_START;
+    current->archive = strdup(archive);
+    if (current->archive == NULL) {
+	__pmNoMem("pmiStart", strlen(archive)+1, PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    current->hostname = NULL;
+    current->timezone = NULL;
+    current->result = NULL;
+    memset((void *)&current->logctl, 0, sizeof(current->logctl));
+    if (inherit && old_current != NULL) {
+	current->nmetric = old_current->nmetric;
+	if (old_current->metric != NULL) {
+	    int		m;
+	    current->metric = (pmi_metric *)malloc(current->nmetric*sizeof(pmi_metric));
+	    if (current->metric == NULL) {
+		__pmNoMem("pmiStart: pmi_metric", current->nmetric*sizeof(pmi_metric), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    for (m = 0; m < current->nmetric; m++) {
+		current->metric[m].name = old_current->metric[m].name;
+		current->metric[m].pmid = old_current->metric[m].pmid;
+		current->metric[m].desc = old_current->metric[m].desc;
+		current->metric[m].meta_done = 0;
+	    }
+	}
+	else
+	    current->metric = NULL;
+	current->nindom = old_current->nindom;
+	if (old_current->indom != NULL) {
+	    int		i;
+	    current->indom = (pmi_indom *)malloc(current->nindom*sizeof(pmi_indom));
+	    if (current->indom == NULL) {
+		__pmNoMem("pmiStart: pmi_indom", current->nindom*sizeof(pmi_indom), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    for (i = 0; i < current->nindom; i++) {
+		int		j;
+		current->indom[i].indom = old_current->indom[i].indom;
+		current->indom[i].ninstance = old_current->indom[i].ninstance;
+		current->indom[i].meta_done = 0;
+		if (old_current->indom[i].ninstance > 0) {
+		    current->indom[i].name = (char **)malloc(current->indom[i].ninstance*sizeof(char *));
+		    if (current->indom[i].name == NULL) {
+			__pmNoMem("pmiStart: name", current->indom[i].ninstance*sizeof(char *), PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    current->indom[i].inst = (int *)malloc(current->indom[i].ninstance*sizeof(int));
+		    if (current->indom[i].inst == NULL) {
+			__pmNoMem("pmiStart: inst", current->indom[i].ninstance*sizeof(int), PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    current->indom[i].namebuflen = old_current->indom[i].namebuflen;
+		    current->indom[i].namebuf = (char *)malloc(old_current->indom[i].namebuflen);
+		    if (current->indom[i].namebuf == NULL) {
+			__pmNoMem("pmiStart: namebuf", old_current->indom[i].namebuflen, PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    np = current->indom[i].namebuf;
+		    for (j = 0; j < current->indom[i].ninstance; j++) {
+			strcpy(np, old_current->indom[i].name[j]);
+			current->indom[i].name[j] = np;
+			np += strlen(np)+1;
+			current->indom[i].inst[j] = old_current->indom[i].inst[j];
+		    }
+		}
+		else {
+		    current->indom[i].name = NULL;
+		    current->indom[i].inst = NULL;
+		    current->indom[i].namebuflen = 0;
+		    current->indom[i].namebuf = NULL;
+		}
+	    }
+	}
+	else
+	    current->indom = NULL;
+	current->nhandle = old_current->nhandle;
+	if (old_current->handle != NULL) {
+	    int		h;
+	    current->handle = (pmi_handle *)malloc(current->nhandle*sizeof(pmi_handle));
+	    if (current->handle == NULL) {
+		__pmNoMem("pmiStart: pmi_handle", current->nhandle*sizeof(pmi_handle), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    for (h = 0; h < current->nhandle; h++) {
+		current->handle[h].midx = old_current->handle[h].midx;
+		current->handle[h].inst = old_current->handle[h].inst;
+	    }
+	}
+	else
+	    current->handle = NULL;
+    }
+    else {
+	current->nmetric = 0;
+	current->metric = NULL;
+	current->nindom = 0;
+	current->indom = NULL;
+	current->nhandle = 0;
+	current->handle = NULL;
+    }
+    return ncontext;
+}
+
+int
+pmiUseContext(int context)
+{
+    if (context < 1 || context > ncontext)
+	return PM_ERR_NOCONTEXT;
+    current = &context_tab[context-1];
+    return 0;
+}
+
+int
+pmiEnd(void)
+{
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    return _pmi_end(current);
+}
+
+int
+pmiSetHostname(const char *value)
+{
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+    current->hostname = strdup(value);
+    if (current->hostname == NULL) {
+	__pmNoMem("pmiSetHostname", strlen(value)+1, PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    return 0;
+}
+
+int
+pmiSetTimezone(const char *value)
+{
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+    current->timezone = strdup(value);
+    if (current->timezone == NULL) {
+	__pmNoMem("pmiSetTimezone", strlen(value)+1, PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    return 0;
+}
+
+int
+pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUnits units)
+{
+    int		m;
+    pmi_metric	*mp;
+
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    for (m = 0; m < current->nmetric; m++) {
+	if (strcmp(name, current->metric[m].name) == 0) {
+	    // duplicate metric name is not good
+	    return PMI_ERR_DUPMETRICNAME;
+	}
+	if (pmid == current->metric[m].pmid) {
+	    // duplicate metric pmID is not good
+	    return PMI_ERR_DUPMETRICID;
+	}
+    }
+
+    // basic sanity check of metadata ... we do not check later so this
+    // needs to be robust
+    //
+    switch (type) {
+	case PM_TYPE_32:
+	case PM_TYPE_U32:
+	case PM_TYPE_64:
+	case PM_TYPE_U64:
+	case PM_TYPE_FLOAT:
+	case PM_TYPE_DOUBLE:
+	case PM_TYPE_STRING:
+	    break;
+	default:
+	    return PMI_ERR_BADTYPE;
+    }
+    switch (sem) {
+	case PM_SEM_INSTANT:
+	case PM_SEM_COUNTER:
+	case PM_SEM_DISCRETE:
+	    break;
+	default:
+	    return PMI_ERR_BADSEM;
+    }
+
+    current->nmetric++;
+    current->metric = (pmi_metric *)realloc(current->metric, current->nmetric*sizeof(pmi_metric));
+    if (current->metric == NULL) {
+	__pmNoMem("pmiAddMetric: pmi_metric", current->nmetric*sizeof(pmi_metric), PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    mp = &current->metric[current->nmetric-1];
+    mp->name = strdup(name);
+    if (mp->name == NULL) {
+	__pmNoMem("pmiAddMetric: name", strlen(name)+1, PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    if (pmid == PM_ID_NULL)
+	mp->pmid = pmid_build(PMIMPORT, 0, current->nmetric);
+    else
+	mp->pmid = pmid;
+    mp->desc.pmid = mp->pmid;
+    mp->desc.type = type;
+    mp->desc.indom = indom;
+    mp->desc.sem = sem;
+    mp->desc.units = units;
+    mp->meta_done = 0;
+
+    return 0;
+}
+
+int
+pmiAddInstance(pmInDom indom, const char *instance, int inst)
+{
+    pmi_indom	*idp;
+    const char	*p;
+    char	*np;
+    int		ilen;
+    int		i;
+    int		j;
+
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    for (i = 0; i < current->nindom; i++) {
+	if (current->indom[i].indom == indom)
+	    break;
+    }
+    if (i == current->nindom) {
+	// extend indom table
+	current->nindom++;
+	current->indom = (pmi_indom *)realloc(current->indom, current->nindom*sizeof(pmi_indom));
+	if (current->indom == NULL) {
+	    __pmNoMem("pmiAddInstance: pmi_indom", current->nindom*sizeof(pmi_indom), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	current->indom[i].indom = indom;
+	current->indom[i].ninstance = 0;
+	current->indom[i].name = NULL;
+	current->indom[i].inst = NULL;
+	current->indom[i].namebuflen = 0;
+	current->indom[i].namebuf = NULL;
+    }
+    idp = &current->indom[i];
+    // duplicate external instance identifier would be bad, but need
+    // to honour unique to first space rule ...
+    // duplicate instance internal identifier is also not allowed
+    for (p = instance; *p && *p != ' '; p++)
+	;
+    ilen = p - instance;
+    for (j = 0; j < idp->ninstance; j++) {
+	if (strncmp(instance, idp->name[j], ilen) == 0) {
+	    return PMI_ERR_DUPINSTNAME;
+	}
+	if (inst == idp->inst[j]) {
+	    return PMI_ERR_DUPINSTID;
+	}
+    }
+    idp->meta_done = 0;	// add instance marks whole indom as needing to be written
+    idp->ninstance++;
+    idp->name = (char **)realloc(idp->name, idp->ninstance*sizeof(char *));
+    if (idp->name == NULL) {
+	__pmNoMem("pmiAddInstance: name", idp->ninstance*sizeof(char *), PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    idp->inst = (int *)realloc(idp->inst, idp->ninstance*sizeof(int));
+    if (idp->inst == NULL) {
+	__pmNoMem("pmiAddInstance: inst", idp->ninstance*sizeof(int), PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    idp->namebuf = (char *)realloc(idp->namebuf, idp->namebuflen+strlen(instance)+1);
+    if (idp->namebuf == NULL) {
+	__pmNoMem("pmiAddInstance: namebuf", idp->namebuflen+strlen(instance)+1, PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    strcpy(&idp->namebuf[idp->namebuflen], instance);
+    idp->namebuflen += strlen(instance)+1;
+    idp->inst[idp->ninstance-1] = inst;
+    // in case namebuf moves, need to redo name[] pointers
+    //
+    np = idp->namebuf;
+    for (j = 0; j < current->indom[i].ninstance; j++) {
+	idp->name[j] = np;
+	np += strlen(np)+1;
+    }
+
+    return 0;
+}
+
+static int
+make_handle(const char *name, const char *instance, pmi_handle *hp)
+{
+    int		m;
+    int		i;
+    int		j;
+    int		ilen;
+    const char	*p;
+    pmi_indom	*idp;
+
+    if (instance != NULL && instance[0] == '\0')
+	// map "" to NULL to help Perl callers
+	instance = NULL;
+
+    for (m = 0; m < current->nmetric; m++) {
+	if (strcmp(name, current->metric[m].name) == 0)
+	    break;
+    }
+    if (m == current->nmetric)
+	return PM_ERR_NAME;
+    hp->midx = m;
+
+    if (current->metric[hp->midx].desc.indom == PM_INDOM_NULL) {
+	if (instance != NULL) {
+	    // expect "instance" to be NULL
+	    return PMI_ERR_INSTNOTNULL;
+	}
+	hp->inst = PM_IN_NULL;
+    }
+    else {
+	if (instance == NULL)
+	    // don't expect "instance" to be NULL
+	    return PMI_ERR_INSTNULL;
+	for (i = 0; i < current->nindom; i++) {
+	    if (current->metric[hp->midx].desc.indom == current->indom[i].indom)
+		break;
+	}
+	if (i == current->nindom)
+	    return PM_ERR_INDOM;
+	idp = &current->indom[i];
+
+	// match to first space rule
+	for (p = instance; *p && *p != ' '; p++)
+	    ;
+	ilen = p - instance;
+	for (j = 0; j < idp->ninstance; j++) {
+	    if (strncmp(instance, idp->name[j], ilen) == 0)
+		break;
+	}
+	if (j == idp->ninstance)
+	    return PM_ERR_INST;
+	hp->inst = idp->inst[j];
+    }
+
+    return 0;
+}
+
+int
+pmiPutValue(const char *name, const char *instance, const char *value)
+{
+    pmi_handle	tmp;
+    int		sts;
+
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    sts = make_handle(name, instance, &tmp);
+    if (sts != 0)
+	return sts;
+
+    return _pmi_stuff_value(current, &tmp, value);
+}
+
+int
+pmiGetHandle(const char *name, const char *instance)
+{
+    int		sts;
+    pmi_handle	tmp;
+    pmi_handle	*hp;
+
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    sts = make_handle(name, instance, &tmp);
+    if (sts != 0)
+	return sts;
+
+    current->nhandle++;
+    current->handle = (pmi_handle *)realloc(current->handle, current->nhandle*sizeof(pmi_handle));
+    if (current->handle == NULL) {
+	__pmNoMem("pmiGetHandle: pmi_handle", current->nhandle*sizeof(pmi_handle), PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    hp = &current->handle[current->nhandle-1];
+    hp->midx = tmp.midx;
+    hp->inst = tmp.inst;
+
+    return current->nhandle;
+}
+
+int
+pmiPutValueHandle(int handle, const char *value)
+{
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+    if (handle <= 0 || handle > current->nhandle)
+	return PMI_ERR_BADHANDLE;
+
+    return _pmi_stuff_value(current, &current->handle[handle-1], value);
+}
+
+int
+pmiWrite(int sec, int usec)
+{
+    int		sts;
+
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+    if (current->result == NULL)
+	return PMI_ERR_NODATA;
+
+    if (sec < 0) {
+	gettimeofday(&current->result->timestamp, NULL);
+    }
+    else {
+	current->result->timestamp.tv_sec = sec;
+	current->result->timestamp.tv_usec = usec;
+    }
+    sts = _pmi_put_result(current, current->result);
+
+    pmFreeResult(current->result);
+    current->result = NULL;
+
+    return sts;
+}
+
+int
+pmiPutResult(const pmResult *result)
+{
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    return  _pmi_put_result(current, current->result);
+}

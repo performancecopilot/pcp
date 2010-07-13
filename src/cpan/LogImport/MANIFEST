@@ -1,0 +1,7 @@
+COPYING
+Makefile.PL
+MANIFEST
+LogImport.pm
+LogImport.xs
+local.h
+local.c
