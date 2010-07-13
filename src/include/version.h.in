@@ -35,6 +35,7 @@ static inline int __pmPathSeparator(void) { return '/'; }
 
 #define HAVE_PM_TIMEVAL_NOW @have_pm_timeval_now@
 #if HAVE_PM_TIMEVAL_NOW == 0
+#include <sys/time.h>
 static inline void __pmtimevalNow(struct timeval *t) { gettimeofday(t, NULL); }
 #endif
 
