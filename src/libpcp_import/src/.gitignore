@@ -2,3 +2,6 @@ domain.h
 libpcp_import.a
 libpcp_import.so
 libpcp_import.so.1
+libpcp_import.1.dylib
+libpcp.dylib
+libpcp.dll
