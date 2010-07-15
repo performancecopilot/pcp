@@ -97,7 +97,7 @@ map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
 
     /* initialize node indom */
     idp->it_numinst = max_node + 1;
-    idp->it_set = calloc(max_node, sizeof(pmdaInstid));
+    idp->it_set = calloc(max_node + 1, sizeof(pmdaInstid));
     for (i = 0; i <= max_node; i++) {
 	char node_name[256];
 
