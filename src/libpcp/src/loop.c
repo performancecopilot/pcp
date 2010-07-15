@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
  */
 
 #include "pmapi.h"
@@ -128,11 +124,6 @@ tv_sub(const struct timeval *a, const struct timeval *b)
     return (t.tv_sec * 1000 + t.tv_usec / 1000);
 }
 
-static void
-tv_now(struct timeval *tv)
-{
-    gettimeofday(tv, NULL);
-}
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
 
 int
@@ -559,7 +550,7 @@ pmLoopUnregisterTimeout(int tag)
 static int
 loop_setup_timeouts(void)
 {
-    tv_now(&poll_start);
+    __pmtimevalNow(&poll_start);
 
     if (idle_list != NULL)
 	return 0;   /* poll() returns immediately */
@@ -606,7 +597,7 @@ loop_adjust_timeout(void)
     if (timeout_list == NULL)
 	return;
 
-    tv_now(&now);
+    __pmtimevalNow(&now);
     spent = tv_sub(&now, &poll_start);
     if (spent >= timeout_list->delay) {
 	timeout_list->delay = 0;

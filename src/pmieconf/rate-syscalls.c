@@ -10,30 +10,16 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-
-#include <sys/time.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <netdb.h>
-#include <limits.h>
+#include "pmapi.h"
+#include "impl.h"
 
 /*
  * test program to calibrate system call rates ... just compile
  * and run:
- *	$ cc rate-syscalls.c
- *	$ ./a.out
+ *	$ make rate-syscalls
+ *	$ ./rate-syscalls
  *
  * useful for *cpu/syscall rules
  */
@@ -55,21 +41,21 @@ main()
     struct linger	noLinger = {1, 0};
     int			scale = 2;
 
-    gettimeofday(&then, NULL);
+    __pmtimevalNow(&then);
     n = 600000 * scale;
     for (i = 0; i < n; i++)
 	getpid();
-    gettimeofday(&now, NULL);
+    __pmtimevalNow(&now);
     delta = now.tv_sec - then.tv_sec +
 		(double)(now.tv_usec - then.tv_usec) / 1000000;
     printf("getpid()\t\t\t- %9d syscalls/sec [%.2f sec]\n",
 	(int)(0.5 + n / delta), delta);
 
-    gettimeofday(&then, NULL);
+    __pmtimevalNow(&then);
     n = 300000 * scale;
     for (i = 0; i < n; i++)
-	gettimeofday(&eek, NULL);
-    gettimeofday(&now, NULL);
+	__pmtimevalNow(&eek);
+    __pmtimevalNow(&now);
     delta = now.tv_sec - then.tv_sec +
 		(double)(now.tv_usec - then.tv_usec) / 1000000;
     printf("gettimeofday()\t\t\t- %9d syscalls/sec [%.2f sec]\n",
@@ -77,12 +63,12 @@ main()
 
     fd = open("/dev/null", 0);
     n = 150000 * scale;
-    gettimeofday(&then, NULL);
+    __pmtimevalNow(&then);
     for (i = 0; i < n; i++) {
 	/* expect EOF */
 	read(fd, &c, 1);
     }
-    gettimeofday(&now, NULL);
+    __pmtimevalNow(&now);
     delta = now.tv_sec - then.tv_sec +
 		(double)(now.tv_usec - then.tv_usec) / 1000000;
     printf("read() at end of file\t\t- %9d syscalls/sec [%.2f sec]\n",
@@ -91,11 +77,11 @@ main()
 
     fd = open("/dev/null", 0);
     n = 400000 * scale;
-    gettimeofday(&then, NULL);
+    __pmtimevalNow(&then);
     for (i = 0; i < n; i++) {
 	lseek(fd, 0L, 0);
     }
-    gettimeofday(&now, NULL);
+    __pmtimevalNow(&now);
     delta = now.tv_sec - then.tv_sec +
 		(double)(now.tv_usec - then.tv_usec) / 1000000;
     printf("lseek() to start of file\t- %9d syscalls/sec [%.2f sec]\n",
@@ -104,7 +90,7 @@ main()
 
     unlink("/tmp/creat-clo");
     n = 20000 * scale;
-    gettimeofday(&then, NULL);
+    __pmtimevalNow(&then);
     for (i = 0; i < n; i++) {
 	if ((fd = creat("/tmp/creat-clo", 0644)) < 0) {
 	    perror("creat");
@@ -112,7 +98,7 @@ main()
 	}
 	close(fd);
     }
-    gettimeofday(&now, NULL);
+    __pmtimevalNow(&now);
     delta = now.tv_sec - then.tv_sec +
 		(double)(now.tv_usec - then.tv_usec) / 1000000;
     printf("file creat() and close()\t- %9d syscalls/sec [%.2f sec]\n",
@@ -125,7 +111,7 @@ main()
     memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
     myAddr.sin_port = htons(80);
     n = 4000 * scale;
-    gettimeofday(&then, NULL);
+    __pmtimevalNow(&then);
     for (i = 0; i < n; i++) {
 
 	if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -144,7 +130,7 @@ main()
 	}
 	close(s);
     }
-    gettimeofday(&now, NULL);
+    __pmtimevalNow(&now);
     delta = now.tv_sec - then.tv_sec +
 		(double)(now.tv_usec - then.tv_usec) / 1000000;
     printf("socket(), connect() and close()\t- %9d syscalls/sec [%.2f sec]\n",

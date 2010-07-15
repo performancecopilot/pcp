@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "logger.h"
@@ -1285,7 +1281,7 @@ sendstatus(void)
 	else
 	    memcpy(&ls.ls_start, &logctl.l_label.ill_start, sizeof(ls.ls_start));
 	memcpy(&ls.ls_last, &last_stamp, sizeof(ls.ls_last));
-	gettimeofday(&now, NULL);
+	__pmtimevalNow(&now);
 	ls.ls_timenow.tv_sec = (__int32_t)now.tv_sec;
 	ls.ls_timenow.tv_usec = (__int32_t)now.tv_usec;
 	ls.ls_vol = logctl.l_curvol;

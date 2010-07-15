@@ -1,3 +1,10 @@
+pcp-3.3.2 (10 July 2010)
+    - Fix FreeBSD build and packaging issues affecting Debian.
+    - Move PCP::Glider Perl code into core PCP with other Perl modules.
+    - Avoid a mingw64-compiler-runtime bug in gettimeofday.
+    - Fix spec file issue in Fedora/RHEL builds.
+    - Add in the gpsd PMDA.
+
 pcp-3.3.1 (29 June 2010)
     - Fix a sigsegv in pmdalinux in the kernel.pernode.cpu metrics.
     - Don't kill dbpmda if namespace cannot be loaded.

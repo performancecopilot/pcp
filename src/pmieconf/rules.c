@@ -1199,9 +1199,9 @@ static char *
 read_all_rules(FILE *f)
 {
     rule_t	*rule = NULL;	/* current rule */
-    char	*name;
-    int		type;
-    int		global;
+    char	*name = NULL;
+    int		type = 0;
+    int		global = 0;
 
     /* rule files have quite a simple grammar, along these lines:
 	    TYPE identifier [ ATTRIB '=' value ]* ';'
@@ -1493,7 +1493,7 @@ static char *
 write_rule(FILE *f, rule_t *rule)
 {
     atom_t	*aptr;
-    char	*dgen;		/* holds generated "delta" */
+    char	*dgen = NULL;	/* holds generated "delta" */
     char	*pgen;		/* holds generated "predicate" */
     int		actions = 0;
 

@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <string.h>
@@ -213,7 +209,7 @@ dodso(int pdu)
     pmDesc		desc;
     pmDesc		*desc_list = NULL;	/* initialize to pander to gcc */
     pmResult		*result;
-    __pmInResult		*inresult;
+    __pmInResult	*inresult;
     int			i;
     int			j;
     char		*buffer;
@@ -224,7 +220,7 @@ dodso(int pdu)
     pmID		pmid;
 
     if (timer != 0)
-	gettimeofday(&start, NULL);
+	__pmtimevalNow(&start);
 
     switch (pdu) {
 
@@ -571,7 +567,7 @@ dodso(int pdu)
     }
 	   
     if (sts >= 0 && timer != 0) {
-	gettimeofday(&end, NULL);
+	__pmtimevalNow(&end);
 	printf("Timer: %f seconds\n", __pmtimevalSub(&end, &start));
     }
 }

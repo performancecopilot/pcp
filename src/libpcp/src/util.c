@@ -696,7 +696,7 @@ __pmEventTrace(const char *event)
     struct timeval tv;
     double now;
 
-    gettimeofday(&tv, NULL);
+    __pmtimevalNow(&tv);
     now = (double)tv.tv_sec + (double)tv.tv_usec / 1000000.0;
     if (!first)
         sum += now - last;

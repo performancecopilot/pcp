@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include <ctype.h>
@@ -777,7 +773,7 @@ Options:\n\
 	pmID		pmid;
 	pmResult	*resp;
 
-	gettimeofday(&epoch, NULL);
+	__pmtimevalNow(&epoch);
 	sts = pmUseContext(ctx);
 	if (sts >= 0)
 	    sts = pmLookupName(1, &name, &pmid);
@@ -1034,7 +1030,7 @@ newvolume(int vol_switch_type)
 	    /*
 	     * nothing has been logged as yet, force out the label records
 	     */
-	    gettimeofday(&last_stamp, NULL);
+	    __pmtimevalNow(&last_stamp);
 	    logctl.l_label.ill_start.tv_sec = (__int32_t)last_stamp.tv_sec;
 	    logctl.l_label.ill_start.tv_usec = (__int32_t)last_stamp.tv_usec;
 	    logctl.l_label.ill_vol = PM_LOG_VOL_TI;

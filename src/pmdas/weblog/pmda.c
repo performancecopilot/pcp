@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "weblog.h"
@@ -320,7 +316,7 @@ receivePDUs(pmdaInterface *dispatch)
     for (;;) {
 
 	FD_SET(fileno(stdin), &rfds);
-	gettimeofday(&timeout, NULL);
+	__pmtimevalNow(&timeout);
 	timeout.tv_usec = 0;
 	interval = (time_t)wl_refreshDelay - (timeout.tv_sec % (time_t)wl_refreshDelay);
 	timeout.tv_sec = interval;
@@ -472,7 +468,7 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
 
 #ifdef PCP_DEBUG
-    gettimeofday(&start, NULL);
+    __pmtimevalNow(&start);
 #endif
 
     wl_isDSO = 0;
@@ -1183,7 +1179,7 @@ main(int argc, char **argv)
     }
 
 #ifdef PCP_DEBUG
-    gettimeofday(&end, NULL);
+    __pmtimevalNow(&end);
     startTime = (end.tv_sec - start.tv_sec) + 
 	        ((end.tv_usec - start.tv_usec) / 1000000.0);
     if (pmDebug & DBG_TRACE_APPL0)

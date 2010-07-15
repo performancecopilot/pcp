@@ -1,4 +1,6 @@
 /*
+ * Memory Mapped Values PMDA Client API
+ *
  * Copyright (C) 2001,2009 Silicon Graphics, Inc.  All rights reserved.
  * Copyright (C) 2009 Aconex.  All rights reserved.
  *
@@ -11,8 +13,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- *
- * Memory Mapped Values PMDA Client API
  */
 #include "pmapi.h"
 #include <sys/stat.h>
@@ -87,7 +87,7 @@ mmv_generation(void)
     struct timeval now;
     __uint32_t gen1, gen2;
 
-    gettimeofday(&now, NULL);
+    __pmtimevalNow(&now);
     gen1 = now.tv_sec;
     gen2 = now.tv_usec;
     return (((__uint64_t)gen1 << 32) | (__uint64_t)gen2);
@@ -582,7 +582,7 @@ mmv_stats_interval_start(void *addr, pmAtomValue *value,
 	    value = mmv_lookup_value_desc(addr, metric, instance);
 	if (value) {
 	    struct timeval tv;
-	    gettimeofday(&tv, NULL);
+	    __pmtimevalNow(&tv);
 	    mmv_inc_value(addr, value, -(tv.tv_sec*1e6 + tv.tv_usec));
 	}
     }
@@ -594,7 +594,7 @@ mmv_stats_interval_end(void *addr, pmAtomValue *value)
 {
     if (value && addr) {
 	struct timeval tv;
-	gettimeofday(&tv, NULL);
+	__pmtimevalNow(&tv);
 	mmv_inc_value(addr, value, (tv.tv_sec*1e6 + tv.tv_usec));
     }
 }

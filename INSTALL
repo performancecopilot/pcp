@@ -21,7 +21,7 @@ If you are using a RPM based distribution and have the binary rpm:
 	# rpm -Uvh pcp-*.rpm
 ... and skip to the final section (below) - "Post-install steps".
 
-Special note for Ubuntu 8.04, 8.10, 9.04 and 9.10
+Special note for Ubuntu 8.04, 8.10, 9.04, 9.10 and 10.04
 
 I've had to make the changes below to /usr/bin/dpkg-buildpackage.
 Without these two changes, my pcp builds produce bad binaries with a
@@ -37,6 +37,10 @@ my %flags = ( CPPFLAGS => '',
               #kenj# LDFLAGS  => '-Wl,-Bsymbolic-functions',
               LDFLAGS  => '',
     );
+
+Without these changes, we see QA failures for 039, 061, 072, 091, 135,
+147 and 151 ... and the QA 166 goes into a loop until it fills up the
+root filesystem.
 
 -- Ken
 
