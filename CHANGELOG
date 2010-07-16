@@ -1,3 +1,9 @@
+pcp-3.3.3 (16 July 2010)
+    - Fix two off-by-one errors in NUMA metrics in Linux PMDA.
+    - Rework timezone environment variable handling to be able to
+      coexist more peacefully with Perl.
+    - Remove Fedora specfile now that this is in Fedora CVS.
+
 pcp-3.3.2 (10 July 2010)
     - Fix FreeBSD build and packaging issues affecting Debian.
     - Move PCP::Glider Perl code into core PCP with other Perl modules.

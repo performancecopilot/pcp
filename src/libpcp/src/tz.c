@@ -70,7 +70,7 @@ _popTZ(void)
  * Assumes TZ= is in the start of tzbuffer and this is not touched.
  * And finally set TZ in the environment.
  */
-static char *
+void
 __pmSquashTZ(char *tzbuffer)
 {
     time_t	now = time(NULL);
@@ -124,7 +124,7 @@ __pmSquashTZ(char *tzbuffer)
 	tzbuffer[PM_TZ_MAXLEN+4-1] = '\0';
     }
     putenv(tzbuffer);
-    return tzbuffer+3;
+    return;
 
 #else	/* IS_MINGW */
     /*
@@ -221,7 +221,7 @@ __pmSquashTZ(char *tzbuffer)
     snprintf(tzbuffer+3, PM_TZ_MAXLEN+4, "%s%s", tzn, tzoff);
     putenv(tzbuffer);
 
-    return tzbuffer+3;
+    return;
 #endif
 }
 
@@ -231,22 +231,36 @@ __pmSquashTZ(char *tzbuffer)
 char *
 __pmTimezone(void)
 {
-    static char tzbuffer[PM_TZ_MAXLEN+4] = "TZ=";
-    char * tz = getenv("TZ");
+    static char *tzbuffer = NULL;
+    char *tz = getenv("TZ");
+
+    if (tzbuffer == NULL) {
+	/*
+	 * size is PM_TZ_MAXLEN + length of "TZ=" + null byte terminator
+	 */
+	tzbuffer = (char *)malloc(PM_TZ_MAXLEN+4);
+	if (tzbuffer == NULL) {
+	    /* not much we can do here ... */
+	    return NULL;
+	}
+	strcpy(tzbuffer, "TZ=");
+    }
 
     if (tz == NULL || tz[0] == ':') {
 	/* NO TZ in the environment - invent one. If TZ starts with a colon,
 	 * it's an Olson-style TZ and it does not supported on all IRIXes, so
 	 * squash it into a simple one (pv#788431). */
-	tz = __pmSquashTZ(tzbuffer);
+	__pmSquashTZ(tzbuffer);
+	tz = &tzbuffer[3];
     } else if (strlen(tz) > PM_TZ_MAXLEN) {
 	/* TZ is too long to fit into the internal PCP timezone structs
 	 * let's try to sqash it a bit */
 	char *tb;
 
 	if ((tb = strdup(tz)) == NULL) {
-	    /* sorry state of affairs, go squash w/out malloc */
-	    tz = __pmSquashTZ(tzbuffer);
+	    /* sorry state of affairs, go squash w/out copying buffer */
+	    __pmSquashTZ(tzbuffer);
+	    tz = &tzbuffer[3];
 	}
 	else {
 	    char *ptz = tz;
@@ -254,7 +268,7 @@ __pmTimezone(void)
 	    char *end = tb;
 
 	    while ((zeros = strstr(ptz, ":00")) != NULL) {
-		strncpy (end, ptz, zeros-ptz);
+		strncpy(end, ptz, zeros-ptz);
 		end += zeros-ptz;
 		*end = '\0';
 		ptz = zeros+3;
@@ -262,14 +276,15 @@ __pmTimezone(void)
 
 	    if (strlen(tb) > PM_TZ_MAXLEN) { 
 		/* Still too long - let's pretend it's Olson */
-		tz=__pmSquashTZ(tzbuffer);
+		__pmSquashTZ(tzbuffer);
+		tz = &tzbuffer[3];
 	    } else {
-		strcpy (tzbuffer+3, tb);
-		putenv (tzbuffer);
+		strcpy(tzbuffer+3, tb);
+		putenv(tzbuffer);
 		tz = tzbuffer+3;
 	    }
 
-	    free (tb);
+	    free(tb);
 	}
     }
 

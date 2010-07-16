@@ -84,8 +84,10 @@ map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
 	sprintf(path, "%s/%s/cpumap", node_path, de->d_name);
 	if ((f = fopen(path, "r")) == NULL)
 	    continue;
-	fscanf(f, "%s", cpumap);
+	i = fscanf(f, "%s", cpumap);
 	fclose(f);
+	if (i != 1)
+	    continue;
 
 	for (j = 0; (cp = strrchr(cpumap, ',')); j++) {
 	    decode_map(proc_cpuinfo, cp+1, node, j);
