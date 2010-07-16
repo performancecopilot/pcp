@@ -399,7 +399,7 @@ metricdesc_t metricdesc[] = {
 /* zpool.out.ops */
     { { PMDA_PMID(0,63), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
-      }, M_ZPOOL, VDEV_OFFSET(vs_bytes[ZIO_TYPE_WRITE]) },
+      }, M_ZPOOL, VDEV_OFFSET(vs_ops[ZIO_TYPE_WRITE]) },
 /* zpool.in.errors */
     { { PMDA_PMID(0,64), PM_TYPE_U64, ZPOOL_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
