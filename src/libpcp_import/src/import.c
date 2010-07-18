@@ -107,6 +107,7 @@ const char *
 pmiErrStr(int sts)
 {
     const char *msg;
+    if (sts == -1 && current != NULL) sts = current->last_sts;
     switch (sts) {
 	case PMI_ERR_DUPMETRICNAME:
 	    msg = "Metric name already defined";
@@ -130,7 +131,7 @@ pmiErrStr(int sts)
 	    msg = "Illegal handle";
 	    break;
 	case PMI_ERR_DUPVALUE:
-	    msg = "Value already assigned for singular metric";
+	    msg = "Value already assigned for this metric-instance";
 	    break;
 	case PMI_ERR_BADTYPE:
 	    msg = "Illegal metric type";
@@ -270,10 +271,12 @@ pmiStart(const char *archive, int inherit)
 int
 pmiUseContext(int context)
 {
-    if (context < 1 || context > ncontext)
+    if (context < 1 || context > ncontext) {
+	if (current != NULL) current->last_sts = PM_ERR_NOCONTEXT;
 	return PM_ERR_NOCONTEXT;
+    }
     current = &context_tab[context-1];
-    return 0;
+    return current->last_sts = 0;
 }
 
 int
@@ -282,7 +285,7 @@ pmiEnd(void)
     if (current == NULL)
 	return PM_ERR_NOCONTEXT;
 
-    return _pmi_end(current);
+    return current->last_sts = _pmi_end(current);
 }
 
 int
@@ -295,7 +298,7 @@ pmiSetHostname(const char *value)
 	__pmNoMem("pmiSetHostname", strlen(value)+1, PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
-    return 0;
+    return current->last_sts = 0;
 }
 
 int
@@ -308,7 +311,7 @@ pmiSetTimezone(const char *value)
 	__pmNoMem("pmiSetTimezone", strlen(value)+1, PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
-    return 0;
+    return current->last_sts = 0;
 }
 
 int
@@ -323,11 +326,11 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
     for (m = 0; m < current->nmetric; m++) {
 	if (strcmp(name, current->metric[m].name) == 0) {
 	    // duplicate metric name is not good
-	    return PMI_ERR_DUPMETRICNAME;
+	    return current->last_sts = PMI_ERR_DUPMETRICNAME;
 	}
 	if (pmid == current->metric[m].pmid) {
 	    // duplicate metric pmID is not good
-	    return PMI_ERR_DUPMETRICID;
+	    return current->last_sts = PMI_ERR_DUPMETRICID;
 	}
     }
 
@@ -344,7 +347,7 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
 	case PM_TYPE_STRING:
 	    break;
 	default:
-	    return PMI_ERR_BADTYPE;
+	    return current->last_sts = PMI_ERR_BADTYPE;
     }
     switch (sem) {
 	case PM_SEM_INSTANT:
@@ -352,7 +355,7 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
 	case PM_SEM_DISCRETE:
 	    break;
 	default:
-	    return PMI_ERR_BADSEM;
+	    return current->last_sts = PMI_ERR_BADSEM;
     }
 
     current->nmetric++;
@@ -368,7 +371,7 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
 	/*NOTREACHED*/
     }
     if (pmid == PM_ID_NULL)
-	mp->pmid = pmid_build(LOGIMPORT, 0, current->nmetric);
+	mp->pmid = pmid_build(PMI_DOMAIN, 0, current->nmetric);
     else
 	mp->pmid = pmid;
     mp->desc.pmid = mp->pmid;
@@ -378,7 +381,7 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
     mp->desc.units = units;
     mp->meta_done = 0;
 
-    return 0;
+    return current->last_sts = 0;
 }
 
 int
@@ -422,10 +425,10 @@ pmiAddInstance(pmInDom indom, const char *instance, int inst)
     ilen = p - instance;
     for (j = 0; j < idp->ninstance; j++) {
 	if (strncmp(instance, idp->name[j], ilen) == 0) {
-	    return PMI_ERR_DUPINSTNAME;
+	    return current->last_sts = PMI_ERR_DUPINSTNAME;
 	}
 	if (inst == idp->inst[j]) {
-	    return PMI_ERR_DUPINSTID;
+	    return current->last_sts = PMI_ERR_DUPINSTID;
 	}
     }
     idp->meta_done = 0;	// add instance marks whole indom as needing to be written
@@ -456,7 +459,7 @@ pmiAddInstance(pmInDom indom, const char *instance, int inst)
 	np += strlen(np)+1;
     }
 
-    return 0;
+    return current->last_sts = 0;
 }
 
 static int
@@ -478,26 +481,26 @@ make_handle(const char *name, const char *instance, pmi_handle *hp)
 	    break;
     }
     if (m == current->nmetric)
-	return PM_ERR_NAME;
+	return current->last_sts = PM_ERR_NAME;
     hp->midx = m;
 
     if (current->metric[hp->midx].desc.indom == PM_INDOM_NULL) {
 	if (instance != NULL) {
 	    // expect "instance" to be NULL
-	    return PMI_ERR_INSTNOTNULL;
+	    return current->last_sts = PMI_ERR_INSTNOTNULL;
 	}
 	hp->inst = PM_IN_NULL;
     }
     else {
 	if (instance == NULL)
 	    // don't expect "instance" to be NULL
-	    return PMI_ERR_INSTNULL;
+	    return current->last_sts = PMI_ERR_INSTNULL;
 	for (i = 0; i < current->nindom; i++) {
 	    if (current->metric[hp->midx].desc.indom == current->indom[i].indom)
 		break;
 	}
 	if (i == current->nindom)
-	    return PM_ERR_INDOM;
+	    return current->last_sts = PM_ERR_INDOM;
 	idp = &current->indom[i];
 
 	// match to first space rule
@@ -509,11 +512,11 @@ make_handle(const char *name, const char *instance, pmi_handle *hp)
 		break;
 	}
 	if (j == idp->ninstance)
-	    return PM_ERR_INST;
+	    return current->last_sts = PM_ERR_INST;
 	hp->inst = idp->inst[j];
     }
 
-    return 0;
+    return current->last_sts = 0;
 }
 
 int
@@ -527,9 +530,9 @@ pmiPutValue(const char *name, const char *instance, const char *value)
 
     sts = make_handle(name, instance, &tmp);
     if (sts != 0)
-	return sts;
+	return current->last_sts = sts;
 
-    return _pmi_stuff_value(current, &tmp, value);
+    return current->last_sts = _pmi_stuff_value(current, &tmp, value);
 }
 
 int
@@ -544,7 +547,7 @@ pmiGetHandle(const char *name, const char *instance)
 
     sts = make_handle(name, instance, &tmp);
     if (sts != 0)
-	return sts;
+	return current->last_sts = sts;
 
     current->nhandle++;
     current->handle = (pmi_handle *)realloc(current->handle, current->nhandle*sizeof(pmi_handle));
@@ -556,7 +559,7 @@ pmiGetHandle(const char *name, const char *instance)
     hp->midx = tmp.midx;
     hp->inst = tmp.inst;
 
-    return current->nhandle;
+    return current->last_sts = current->nhandle;
 }
 
 int
@@ -565,9 +568,9 @@ pmiPutValueHandle(int handle, const char *value)
     if (current == NULL)
 	return PM_ERR_NOCONTEXT;
     if (handle <= 0 || handle > current->nhandle)
-	return PMI_ERR_BADHANDLE;
+	return current->last_sts = PMI_ERR_BADHANDLE;
 
-    return _pmi_stuff_value(current, &current->handle[handle-1], value);
+    return current->last_sts = _pmi_stuff_value(current, &current->handle[handle-1], value);
 }
 
 int
@@ -578,7 +581,7 @@ pmiWrite(int sec, int usec)
     if (current == NULL)
 	return PM_ERR_NOCONTEXT;
     if (current->result == NULL)
-	return PMI_ERR_NODATA;
+	return current->last_sts = PMI_ERR_NODATA;
 
     if (sec < 0) {
 	gettimeofday(&current->result->timestamp, NULL);
@@ -592,7 +595,7 @@ pmiWrite(int sec, int usec)
     pmFreeResult(current->result);
     current->result = NULL;
 
-    return sts;
+    return current->last_sts = sts;
 }
 
 int
@@ -601,5 +604,5 @@ pmiPutResult(const pmResult *result)
     if (current == NULL)
 	return PM_ERR_NOCONTEXT;
 
-    return  _pmi_put_result(current, current->result);
+    return  current->last_sts = _pmi_put_result(current, current->result);
 }

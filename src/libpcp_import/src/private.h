@@ -33,6 +33,7 @@ typedef struct {
     pmi_indom	*indom;
     int		nhandle;
     pmi_handle	*handle;
+    int		last_sts;
 } pmi_context;
 
 #define CONTEXT_START	1
