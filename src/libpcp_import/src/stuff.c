@@ -61,6 +61,12 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	vsp->numval = 1;
     }
     else {
+	int		j;
+	for (j = 0; j < rp->vset[i]->numval; j++) {
+	    if (rp->vset[i]->vlist[j].inst == hp->inst)
+		// each metric-instance can appear at most once per pmResult
+		return PMI_ERR_DUPVALUE;
+	}
 	rp->vset[i]->numval++;
 	vsp = rp->vset[i] = (pmValueSet *)realloc(rp->vset[i], sizeof(pmValueSet) + (rp->vset[i]->numval-1)*sizeof(pmValue));
 	if (rp->vset[i] == NULL) {
