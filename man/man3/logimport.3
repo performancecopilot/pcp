@@ -1,0 +1,110 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH LOGIMPORT 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3LOGIMPORT\f1 \- introduction to the library for importing data and creating a PCP archive
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/import.h>
+.sp
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH "Perl SYNOPSIS"
+.ft 3
+use PCP::LogImport;
+.ft 1
+.SH DESCRIPTION
+The Performance Co-Pilot Log Import (LOGIMPORT) API is a library (and Perl wrapper)
+that supports the creation of PCP archives from external sources of
+performance data, either in the form of historical logs and spreadsheets
+or from real-time sources that are
+.B not
+integrated as a Performance Metrics
+Domain Agent (PMDA) under the control of
+.BR pmcd (1).
+.PP
+The typical usage for LOGIMPORT would involve:
+.IP \(bu 3n
+An initial call to
+.BR pmiStart (3).
+.IP \(bu 3n
+Optional calls to
+.BR pmiSetHostname (3)
+and/or
+.BR pmiSetTimezone (3)
+to set the hostname and timezone for the source of the performance data.
+.IP \(bu 3n
+One or more calls to
+.BR pmiAddMetric (3)
+to define performance metrics.
+.IP \(bu 3n
+One or more calls to
+.BR pmiAddInstance (3)
+to define instances associated with the metrics.
+.IP \(bu 3n
+Optional calls to
+.BR pmiGetHandle (3)
+to defined convenience handles for metric-instance pairs.
+.IP \(bu 3n
+A main loop in which performance data is injested and for each
+sample time interval, the PCP archive record is constructed by calls
+to
+.BR pmiPutValue (3)
+and/or
+.BR pmiPutValueHandle (3),
+followed by a call to
+.BR pmiWrite (3)
+to flush all data and any associated new metadata
+to the PCP archive.  Alternatively,
+.BR pmiPutResult (3)
+could be used to package and process all the data for one sample time
+interval.
+.IP \(bu 3n
+Once the input source of data has been consumed, calling
+.BR pmiEnd (3)
+to complete the PCP archive creation and close all open files.
+.PP
+If new metrics and/or instances are discovered during the data
+injestion, these can be added by subsequent calls to
+.BR pmiAddMetric (3)
+and/or
+.BR pmiAddInstance (3),
+provided all the metrics and instances have been defined before
+a call to
+.BR pmiGetHandle (3),
+.BR pmiPutValue (3) or
+.BR pmiPutResult (3)
+that references those metrics and instances.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmlogger (1),
+.BR pmiGetHandle (3),
+.BR pmiAddInstance (3),
+.BR pmiAddMetric (3),
+.BR pmiEnd (3),
+.BR pmiErrStr (3),
+.BR pmiPutResult (3),
+.BR pmiPutValue (3),
+.BR pmiPutValueHandle (3),
+.BR pmiSetHostname (3),
+.BR pmiSetTimezone (3),
+.BR pmiStart (3)
+and
+.BR pmiWrite (3).
