@@ -1,20 +1,23 @@
 /*
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
+
+#ifndef __PMDASOLARIS_COMMON_H
+#define __PMDASOLARIS_COMMON_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,6 +44,7 @@
 #define M_ZFS		4
 #define M_ZPOOL_PERDISK	5
 #define M_NETLINK	6
+#define M_KVM		7
 
 typedef struct {
     void	(*m_init)(int);
@@ -78,6 +82,10 @@ void netlink_init(int);
 void netlink_refresh(void);
 int netlink_fetch(pmdaMetric *, int, pmAtomValue *);
 
+void kvm_init(int);
+void kvm_refresh(void);
+int kvm_fetch(pmdaMetric *, int, pmAtomValue *);
+
 /*
  * metric descriptions
  */
@@ -107,4 +115,18 @@ extern int		indomtab_sz;
 /*
  * kstat() control
  */
-extern kstat_ctl_t 		*kc;
+extern kstat_ctl_t		*kc;
+
+/* Snarfed from usr/src/uts/common/fs/fsflush.c in OpenSolaris source tree */
+typedef struct {
+        ulong_t fsf_scan;       /* number of pages scanned */
+        ulong_t fsf_examined;   /* number of page_t's actually examined, can */
+                                /* be less than fsf_scan due to large pages */
+        ulong_t fsf_locked;     /* pages we actually page_lock()ed */
+        ulong_t fsf_modified;   /* number of modified pages found */
+        ulong_t fsf_coalesce;   /* number of page coalesces done */
+        ulong_t fsf_time;       /* nanoseconds of run time */
+        ulong_t fsf_releases;   /* number of page_release() done */
+} fsf_stat_t;
+
+#endif

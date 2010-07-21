@@ -56,7 +56,8 @@ method_t methodtab[] = {
     { zpool_init, zpool_refresh, zpool_fetch },
     { zfs_init, zfs_refresh, zfs_fetch },
     { zpool_perdisk_init, zpool_perdisk_refresh, zpool_perdisk_fetch },
-    { netlink_init, netlink_refresh, netlink_fetch }
+    { netlink_init, netlink_refresh, netlink_fetch },
+    { kvm_init, kvm_refresh, kvm_fetch }
 };
 int methodtab_sz = sizeof(methodtab) / sizeof(methodtab[0]);
 
@@ -65,6 +66,7 @@ int methodtab_sz = sizeof(methodtab) / sizeof(methodtab[0]);
 #define VDEV_OFFSET(field) ((ptrdiff_t)&((vdev_stat_t *)0)->field)
 #define NM2_UDP_OFFSET(field) ((ptrdiff_t)&(nm2_udp.field))
 #define NM2_NETIF_OFFSET(field) ((ptrdiff_t)&((nm2_netif_stats_t *)0)->field)
+#define FSF_STAT_OFFSET(field) ((ptrdiff_t)&((fsf_stat_t *)0)->field)
 
 /*
  * all metrics supported in this PMDA - one table entry for each metric
@@ -677,7 +679,36 @@ metricdesc_t metricdesc[] = {
 /* kernel.all.load */
     { { PMDA_PMID(0,135), PM_TYPE_FLOAT, LOADAVG_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
-      }, M_SYSINFO, 0 }
+      }, M_SYSINFO, 0 },
+
+/* kernel.fsflush.scaned */
+    { { PMDA_PMID(1,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_KVM, FSF_STAT_OFFSET(fsf_scan) },
+/* kernel.fsflush.examined */
+    { { PMDA_PMID(1,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_KVM, FSF_STAT_OFFSET(fsf_examined) },
+/* kernel.fsflush.locked */
+    { { PMDA_PMID(1,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_KVM, FSF_STAT_OFFSET(fsf_locked) },
+/* kernel.fsflush.modified */
+    { { PMDA_PMID(1,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_KVM, FSF_STAT_OFFSET(fsf_modified) },
+/* kernel.fsflush.coalesced */
+    { { PMDA_PMID(1,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_KVM, FSF_STAT_OFFSET(fsf_coalesce) },
+/* kernel.fsflush.released */
+    { { PMDA_PMID(1,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_KVM, FSF_STAT_OFFSET(fsf_releases) },
+/* kernel.fsflush.time */
+    { { PMDA_PMID(1,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_NSEC, 0)
+      }, M_KVM, FSF_STAT_OFFSET(fsf_time) }
 
 /* remember to add trailing comma before adding more entries ... */
 };

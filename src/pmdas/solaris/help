@@ -233,3 +233,14 @@ boundary
 @pmda.uname identity and type of current system
 Identity and type of current system.  The concatenation of the values
 returned from utsname(2), also similar to uname -a.
+@kernel.fsflush.scanned Number of pages scanned by fsflush daemon
+@kernel.fsflush.examined Number of pages examined by fsflush daemon
+@kernel.fsflush.coalesced Number of pages coalesced into larger page
+@kernel.fsflush.modified Number of modified pages written to disk
+@kernel.fsflush.locked Number of pages locked by fsflush daemon
+Pages which were considered to be on interest for further examination
+are locked before deciding if they could be coalesced, released or flushed
+to disk.
+@kernel.fsflush.released Number of free pages released by fsflush daemon
+@kernel.fsflush.time Amount of time fsflush daemon spent doing its work
+

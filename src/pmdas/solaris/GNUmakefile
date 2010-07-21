@@ -28,20 +28,20 @@ LIBTARGET = pmda_solaris.so
 CONF_LINE = "solaris	75	dso	solaris_init	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES	= solaris.c data.c sysinfo.c disk.c zpool.c zfs.c \
-	 zpool_perdisk.c netmib2.c netlink.c
+	 zpool_perdisk.c netmib2.c netlink.c kvm.c
 
 BARE_NS = disk kernel mem network hinv zpool zfs zpool_perdisk
 PMNS	= $(BARE_NS:%=pmns.%)
 LSRCFILES = $(PMNS) help root common.h
 LDIRT	= domain.h *.log *.dir *.pag root_solaris
 
-LLDLIBS = -lpcp -lpcp_pmda -lkstat -lzfs -lnvpair
+LLDLIBS = -lpcp -lpcp_pmda -lkstat -lzfs -lnvpair -lkvm
 
 default: build-me
 
 include $(BUILDRULES)
 
-ifeq "$(TARGET_OS)" "solaris" 
+ifeq "$(TARGET_OS)" "solaris"
 build-me: root_solaris domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
 	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \

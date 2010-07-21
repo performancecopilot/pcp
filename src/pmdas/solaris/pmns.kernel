@@ -1,6 +1,7 @@
 kernel {
     all
     percpu
+    fsflush
 }
 
 kernel.all {
@@ -76,4 +77,14 @@ kernel.percpu.io {
     phread		SOLARIS:0:29
     phwrite		SOLARIS:0:30
     intr		SOLARIS:0:31
+}
+
+kernel.fsflush {
+	scanned		SOLARIS:1:0
+	examined	SOLARIS:1:1
+	locked		SOLARIS:1:2
+	modified	SOLARIS:1:3
+	coalesced	SOLARIS:1:4
+	released	SOLARIS:1:5
+	time		SOLARIS:1:6
 }
