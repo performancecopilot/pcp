@@ -15,7 +15,7 @@
 .\"
 .TH PMIPUTRESULT 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmiPutResult\f1 \- TODO
+\f3pmiPutResult\f1 \- add a data record to a LOGIMPORT archive
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -53,6 +53,12 @@ must have been defined by prior calls to
 .BR pmiAddMetric (3)
 and
 .BR pmiAddInstance (3).
+.PP
+.B pmiPutResult
+will arrange for any new metadata (metrics and/or instance domain changes)
+covered by
+.I result
+to be also written to the PCP archive.
 .PP
 Because of the complexity of the
 .B pmResult
