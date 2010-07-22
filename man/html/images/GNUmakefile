@@ -3,7 +3,7 @@ include $(TOPDIR)/src/include/builddefs
 
 PNGFILES = $(shell echo *.png)
 LSRCFILES = $(PNGFILES)
-ICONLINKS = pmcharticon.png pmtimeicon.png stepfwd_on.png
+ICONLINKS = pcpicon.png pmcharticon.png pmtimeicon.png stepfwd_on.png
 WINDOWLINKS = \
 	pmchart_blank_canvas.png \
 	pmchart_open_view.png \
@@ -22,7 +22,6 @@ WINDOWLINKS = \
 INSTFILES = $(ICONLINKS) $(WINDOWLINKS)
 LDIRT = $(ICONLINKS) $(WINDOWLINKS)
 
-# TODO: generate images for Win32 and rejig LN_S use here
 ifneq ($(PKG_PLATFORM),mingw)
 default: iconlinks windowlinks
 else

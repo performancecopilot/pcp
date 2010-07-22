@@ -1,0 +1,303 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--
+ (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+    <TITLE>Performance Co-Pilot Tutorial - pmview</TITLE>
+</HEAD>
+<BODY BGCOLOR="#ffffff">
+<H1>
+<IMG SRC="images/CorpID.gif" ALIGN="MIDDLE">
+<IMG SRC="images/smallpcp.gif" ALIGN="RIGHT">
+</H1>
+<H1>
+PCP Tutorial</H1>
+<HR>
+<H2>
+Using the tools based on <I>pmview</I> </H2>
+<P>
+<B>URL</B>: file:/var/pcp/demos/Tutorial/pmview.html </P>
+<HR>
+<P>
+This chapter of the Performance Co-Pilot Tutorial the 3-D visualization 
+tools that are based on <I>pmview</I>. </P>
+<P>
+For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+<H4>
+Chapter Contents</H4>
+<UL>
+    <LI>
+    <A HREF="#3D">3-D Performance Visualization</A> 
+    <LI>
+    <A HREF="#mpvis"><I>mpvis</I> - CPU utilization</A> 
+    <LI>
+    <A HREF="#display">The pmview Display</A> 
+    <LI>
+    <A HREF="#drill">Drill-down</A> 
+    <LI>
+    <A HREF="#record">Creating a PCP archive from <I>pmview</I></A> 
+    <LI>
+    <A HREF="#customize">Customization</A> 
+</UL>
+<HR>
+<H3>
+<A NAME="3D">3-D</A> Performance Visualization</H3>
+<UL>
+    <LI>
+    Traditional performance measurement tools require expertise and much 
+    analysis - some of this can be simplified with pictures. 
+    <LI>
+    Visual tools take advantage of common cognitive skills, especially for 
+    visual pattern matching and scene change discrimination. 
+    <LI>
+    The motivation for visualization of performance data is very similar to 
+    that used for engineering visualization, visual simulation, and 
+    database mining through visualization - visually rich representations 
+    of complex data sets are powerful aids to understanding and detection 
+    of unexpected relationships.
+    <LI>
+    Understanding is enhanced when the user can pan, zoom, rotate, animate, 
+    drill-down, walk or fly through the performance landscape. 
+    <LI>
+    The expectation is that the user will use some of the provided 
+    visualization applications, but then go on to use the PCP toolkit to 
+    build their own hierarchies of performance scenes. 
+</UL>
+<P>
+The most frequently encountered 3-D visualization PCP tools are all 
+based on a common scene constructor and animator, <I>pmview</I>.</P>
+<P>
+The following PCP tools are built on <I>pmview</I> and they are all <I>sh</I>(1) 
+scripts:</P>
+<CENTER>
+<TABLE BORDER="1">
+    <TR>
+        <TD><I>dkvis</I></TD>
+        <TD>visualize disk I/O rates and performance</TD>
+    </TR>
+    <TR>
+        <TD><I>mpvis</I></TD>
+        <TD>visualize cpu utilization/performance</TD>
+    </TR>
+    <TR>
+        <TD><I>nfsvis</I></TD>
+        <TD>visualize performance of NFS statistics</TD>
+    </TR>
+    <TR>
+        <TD><I>nodevis</I></TD>
+        <TD>visualize node statistics on Origin2000 systems</TD>
+    </TR>
+    <TR>
+        <TD><I>osvis</I></TD>
+        <TD>visualize high-level system activity </TD>
+    </TR>
+    <TR>
+        <TD><I>routervis</I></TD>
+        <TD>visualize Craylink router utilization on Origin2000 systems</TD>
+    </TR>
+    <TR>
+        <TD><I>xbowvis</I></TD>
+        <TD>visualize Crossbow (XBow) activity</TD>
+    </TR>
+</TABLE>
+</CENTER>
+<HR>
+<P>
+<A NAME="mpvis"><I>mpvis</I></A> - CPU utilization</P>
+<P>
+One of the most basic resources to be monitored is CPU utilization at 
+the per-CPU level.</P>
+<P>
+This is shown with the <I>mpvis</I> tool.</P>
+<P>
+Starting pmchart from a shell window</P>
+<PRE>
+    $ mpvis -h $pmcd_host
+</PRE>
+<P>
+or create a host icon for <TT>$pmcd_host</TT> and drag-n-drop this onto 
+the <I>mpvis</I> icon <IMG SRC="images/pmview.icon.gif"
+ ALIGN="ABSMIDDLE"> in 
+the PerfTools page of the Icon Catalog, or from this page of the 
+Icon Catalog, launch the <I>mpvis</I> icon using Alt-double-click (this 
+will start the <I>pmrun</I> dialog, enter <B><I>pmcd_host</I></B> in 
+the text box below <B><I>Source</I></B>: and select <B><I>OK)</I></B>.</P>
+<P>
+In this scene there is one column of blocks per CPU, and within a row 
+the height of the blocks reflects the percentage of time that CPU has 
+spent in user mode (blue), system mode (red), processing interrupts 
+(yellow), waiting for I/O of some sort (aqua) and idle (green).</P>
+<HR>
+<H3>
+<A NAME="display">The</A> pmview Display</H3>
+<P>
+The <I>pmview</I> display consists of 3 parts:</P>
+<UL>
+    <LI>
+    The main window is a 3-D Inventor scene in which objects are modulated 
+    based on the specific performance metrics. 
+    <LI>
+    Above the scene are some controls and some information text boxes as 
+    shown below: 
+</UL>
+<CENTER><P ALIGN="CENTER">
+<IMG SRC="images/pmview_buttons.gif"></P>
+</CENTER><UL>
+    <LI>
+    Around the other sides of the scene are various controls for the 
+    Inventor viewer, most of which are intuitive. Of special interest are 
+    the buttons labeled <IMG SRC="images/iv_point.gif"
+     ALIGN="ABSMIDDLE">
+     and <IMG SRC="images/iv_hand.gif" ALIGN="ABSMIDDLE">
+     that respectively change the mode of the left mouse button mode from 
+    selecting objects in the scene to moving and rotating the whole scene. 
+</UL>
+<H4>
+<FONT COLOR="#ff0000">Show Me</FONT></H4>
+<PRE>
+   $ dkvis -h $pmcd_host
+</PRE>
+<UL>
+    <LI>
+    In this scene there is one block per disk (or more accurately per 
+    disk-like device) and the height of the block represents how busy the 
+    disk is in terms of I/O operations per second. The base geometry of the 
+    scene represents the controller configuration with disks on the same 
+    controller appearing in the same row and with the same color. 
+    <LI>
+    Move the mouse over the first block in the front row of the main scene 
+    -- the Metric Information text box above the scene reports the I/O rate 
+    and identifies the disk.   Move the mouse about 
+    the scene and notice that the Metric Information text box is updated to 
+    report on the object under the cursor, if any. 
+    <LI>
+    Click the left mouse button on any block - the block is highlighted 
+    with a red wire frame. Move the mouse about the scene and notice that 
+    the Metric Information text box continues to report on the selected 
+    object. 
+    <LI>
+    Deselect the wire framed object by clicking the left mouse button when 
+    the cursor is outside the baseplane (in the black region of the scene). 
+    <LI>
+    Use the <B><I>Dolly</I></B> and <B><I>Rotx</I></B> control icons to 
+    make the display closer and more horizontal. Now use the <B><I>Roty</I></B>
+     control to spin the display around the vertical axis ... this may make 
+    it easier to differentiate the active disks, and shows that these <I>pmview</I>
+     scenes can always be moved to resolve obstruction. You may experiment 
+    with mouse-based movement in the scene window by selecting <IMG
+     SRC="images/iv_hand.gif" ALIGN="ABSMIDDLE">
+     from the button panel to the right of the scene and using the left 
+    mouse button, the middle mouse button and Ctrl-middle mouse button.
+</UL>
+<P>
+The <A HREF="howto.diskperf.html"><I>How to understand measures of disk 
+performance</I></A> tutorial document may be helpful if you are having 
+trouble deciphering what the <I>dkvis</I> scene is really displaying.</P>
+<HR>
+<H3>
+<A NAME="drill">Drill</A>-down</H3>
+<P>
+The <B><I>Launch</I></B> option from the menu bar presents a list of 
+tools that can be launched from <I>pmview</I>.</P>
+<P>
+The launched tools inherit the metrics source (and in the case of 
+replay from a PCP archive, the current time). If any objects are 
+selected in the scene, these may be used to further refine the set of 
+metrics displayed by the launched tool.</P>
+<P>
+This navigational drill-down provides additional detail for interesting 
+metrics.</P>
+<H4>
+<FONT COLOR="#ff0000">Show Me</FONT></H4>
+<PRE>
+   $ osvis -h $pmcd_host
+</PRE>
+<UL>
+    <LI>
+    In this scene the blocks represent activity in a number of 
+    performance-critical areas (CPU, memory, disk, network).
+    <LI>
+    Select the base plane below the <B>Mem</B> stack (all of the blocks 
+    in the stack should be selected with a red wireframe), and launch <I>pmdumptext</I>
+     from the <B><I>Launch</I></B> menu.
+    <LI>
+    Select one of the <B>Network</B> or <B>Disk</B> bars (preferably 
+    one that is bouncing a bit) and launch <I>pmchart</I> from the <B><I>Launch</I></B>
+     menu. <I>pmchart</I> is launched with the host, metric and 
+    instance corresponding to the locked bar. 
+    <P>
+    Note that the launched <I>pmchart</I> is independent of <I>osvis</I>, 
+    so additional (or related) metrics can be monitored using the <I>pmchart</I>
+     <B><I>Views</I></B> and/or <B><I>Edit</I></B> menus.</P>
+    <LI>
+    Select one or more of the blocks in the <B>CPU</B> bar, and <B><I>Launch</I></B>
+    <I>mpvis</I>. In this case the launched tool has used only the 
+    host for the selected metrics, as the <I>mpvis</I> metrics are 
+    different to the ones in the <I>osvis</I> scene.
+</UL>
+<P>
+The options in the <B><I>Launch</I></B> menu may be customized at the 
+system or user levels. New options can be added to the menu for your 
+favorite tools. Refer to the <I>pmlaunch</I>(1) man page.</P>
+<HR>
+<H3>
+<A NAME="record">Creating</A> a PCP archive from <I>pmview</I></H3>
+<P>
+For any tool based on <I>pmview</I>, use <B><I>File -&gt; Record</I></B>
+ from the menu bar to create a PCP archive that contains all of the 
+metrics for the current <I>pmview</I> scene.</P>
+<P>
+The procedure is very similar to that described for <I>pmchart</I> in 
+the <A HREF="pmchart.html#record">Creating a PCP archive from <I>pmchart</I></A>
+ section of the <I>pmchart</I> chapter of the PCP tutorial.</P>
+<HR>
+<H3>
+<A NAME="customize">Customization</A></H3>
+<P>
+The information flow when generating a 3-D performance visualization 
+using <I>pmview</I> is shown below:</P>
+<CENTER><P ALIGN="CENTER">
+<IMG SRC="images/pmview.flow.gif"></P>
+</CENTER><P>
+So the task of customization to build a new 3-D performance monitor 
+reduces to creating a new front-end shell script.</P>
+<P>
+The scene description language used by <I>pmview</I> is fully described 
+in the man page, but briefly:</P>
+<UL>
+    <LI>
+    The layout model is a hierarchy of grid elements, populated with 
+    objects.
+    <LI>
+    There are a small number of object types: block (one metric-instance), 
+    set of blocks (one metric, multiple instances), stacked bar (multiple 
+    metric-instance pairs).
+    <LI>
+    Objects may have labels and orientation.
+    <LI>
+    Object modulation: uses the value of a performance metric to change the 
+    height, color, or both.
+    <LI>
+    A &quot;block&quot; may be rectangular or cylindrical.
+    <LI>
+    Drill-down via <I>pmlaunch</I>.
+</UL>
+<P>
+Use the <B>-V</B> option to <I>mpvis</I> (or any other PCP 3-D 
+visualization tool) to see the configuration file that will be used. 
+This is a quick way to create &quot;scenes by example&quot;, based on 
+the supplied front-end shell scripts.</P>
+<HR>
+<P>
+This chapter is complete, you may return to the <A
+ HREF="index.html#contents">Tutorial Contents</A> in the introductory 
+chapter. </P>
+</BODY>
+</HTML>

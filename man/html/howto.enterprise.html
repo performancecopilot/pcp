@@ -1,0 +1,857 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--
+ (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+<TITLE>How to integrate PCP into an Enterprise Management Strategy</TITLE>
+</HEAD>
+<BODY BGCOLOR="#ffffff">
+<IMG SRC="images/CorpID.gif" ALIGN="MIDDLE">
+<IMG SRC="images/smallpcp.gif" ALIGN="RIGHT">
+<H1>
+Performance Co-Pilot</H1>
+<HR>
+<H2>
+How to integrate PCP into an Enterprise Management Strategy</H2>
+<B>URL</B>: file:/var/pcp/Tutorial/howto.enterprise.html </P>
+<HR>
+<P>
+This chapter of the Performance Co-Pilot Tutorial discusses the steps
+required to integrate PCP into the various management frameworks available.
+It takes into consideration the distributed nature of both the management
+frameworks and of the PCP tools, and how best to combine the functionality
+they offer.</P>
+<P>
+For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+<H4>
+Chapter Contents</H4>
+<UL>
+<LI>
+<A HREF="#point">Points of Integration</A> 
+    <UL>
+    <LI> Data
+    <LI> Events
+    <LI> User Interface
+    </UL>
+<LI>
+<A HREF="#freq">Event Generation Frequency</A> 
+<LI>
+<A HREF="#cai">CA/Unicenter TNG (Computer Associates)</A> 
+    <UL>
+    <LI> Step-by-step
+    <LI> Configuration options
+    </UL>
+<LI>
+<A HREF="#hpov">HP OpenView (Hewlett-Packard)</A>
+    <UL>
+    <LI> Step-by-step
+    <LI> Configuration options
+    </UL>
+<LI>
+<A HREF="#enln">EnlightenDSM (Enlighten Software Solutions)</A>
+    <UL>
+    <LI> Step-by-step
+    <LI> Configuration options
+    </UL>
+<LI>
+<A HREF="#other">Extending to Other Frameworks</A>
+</UL>
+<HR>
+<H3>
+<A NAME="point">Points</A> of Integration</H3>
+<P>
+Following is a brief description on how PCP is best integrated in terms of
+some of the aligned features of PCP and the typical management framework.
+<H4>Data</H4>
+<P>
+The PCP archive logging utility <I>pmlogger</I>
+generates performance data files in the PCP archive format,
+which is specifically designed for optimal fetch latency
+when retrieving data from the archive for replay and when seeking to
+random time points in the archive.&nbsp;
+This format is specific to the PCP tools and the PMAPI, and clearly
+external interfaces are necessary for non-PCP tools to read the data.
+<P>
+The pmimport(1) utility (from pcp_gifts.sw.import) provides a way of 
+importing data into a PCP archive. 
+It currently converts sar(3) data files but
+can be extended to convert other data formats by writing custom
+plug-ins (see pmimport(3)).
+<P>
+There are a number of PCP tools which have specifically been developed with 
+the aim of producing a format which is easily incorporated into an external
+framework, database, or spreadsheet application - for example, the
+<I>pmdumptext</I> and <I>pmlogsummary</I> tools both provide options to
+output data in a time-stamped, tab-delimited or comma-separated form, which
+is easily incorporated into other tools.&nbsp;
+PCP also provides daily log rotation, merging and culling facilities for
+multiple collector hosts from a single monitor host, as well as the
+automated <I>pmchart/cron/pmsnap</I> performance graph image generation
+facility.
+</P>
+<P>
+Due to the unlimited potential consumers of this historical performance data, 
+it is left as an exercise for the reader to figure out how best to incorporate
+this data into their own environment.
+</P>
+<P>
+Note that all of the PCP tools are &quot;timezone-aware&quot; and can switch
+between the timezone of the monitoring machine and the timezone of the
+collector machine for which the archive was generated (this information is
+stored in the archive).  Also, PCP archives can be generated on a machine
+of one operating system version, architecture or byte-order, and replayed
+on a completely different machine.
+</P>
+<H4>Events</H4>
+<P>
+Among the more compelling reasons for making use of a management framework
+to administer an enterprise are the distributed monitoring and centralized
+analysis aspects.&nbsp;
+All frameworks provide event monitoring facilities, of varying complexity.&nbsp;
+Some provide simple point to point event generation, others have proxy event
+servers which allow events to be filtered and then potentially passed upstream
+to another event monitor.&nbsp;
+To allow the framework to be extended, the frameworks will typically provide
+a mechanism for external applications to push their own events into the
+framework, and it is this feature which we wish to exploit in our PCP
+integration efforts.&nbsp;
+</P>
+<P>
+Although PCP does provide a powerful inference engine in <I>pmie</I> (as well
+as a far richer set of performance metrics than the more generic frameworks can
+provide, and low latency protocols designed specifically for transporting
+performance data quickly), no attempt is made to provide an event
+&quot;sink&quot; - some application which will display and filter
+performance events for the user.&nbsp;
+From an enterprise management point of view, an event monitoring
+facility specifically for performance events would be exactly the wrong
+thing to do from within PCP - system administrators managing a wide array of
+different machines should expect to see all system-wide events coming to a
+single point for their notification.
+</P>
+<P>
+So, the integration point must be from <I>pmie</I> - when it detects an
+abnormal performance situation, it must pass it on in the most appropriate
+manner possible.&nbsp;Unfortunately, the various event management frameworks
+have widely differing mechanisms for receiving events, so each framework
+must be handled separately in order to make best use of their event viewing
+and filtering capabilities.
+</P>
+<CENTER>
+<IMG SRC="images/rattle.gif" ALIGN="MIDDLE" WIDTH="430" HEIGHT="340">
+</CENTER>
+<P>
+The diagram shows a typical <I>pmie</I> setup - <B>rattle.melbourne.sgi.com</B>
+running <I>pmie</I>, fetching performance data from a variety of sources, then
+evaluating its set of performance rules and generating events into whichever
+event &quot;sinks&quot; have been specified.&nbsp;
+Specifying how to generate an event, which rules to use, how frequently to
+evaluate each of the rules, which hosts to monitor, etc, is performed by 
+the <I>pmieconf</I> utility, which can be extended to allow new frameworks
+to be incorporated.
+</P>
+<H4>User Interface</H4>
+<P>
+A number of the enterprise management frameworks have the ability to provide
+closer integration between the tools themselves, for example starting PCP
+tools from a menu option of some of the framework's tools, or by installing
+additional on-line help for the performance events which PCP generates.&nbsp;
+This level of integration is not attempted, and is not seen as providing
+much value in practice.&nbsp;
+The <I>pmieconf</I> utility is the definitive
+source of help text for the performance events generated by <I>pmie</I> -
+it describes the rules and each of the customizable variables affecting
+the rules (including the &quot;global&quot; variables affecting all of the
+rules, such as where to send events when a performance event is generated).
+</P>
+<HR>
+<H3>
+<A NAME="freq">Event</A> Generation Frequency</H3>
+<P>
+In order to provide a feel for what a &quot;normal&quot; <I>pmie</I> alarm
+rate might be, the following tables provide, firstly, some information about
+a few of the hosts which were used in developing and tuning the
+original set of <I>pmieconf</I> rules:
+</P>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 1: Configurations of Monitored Hosts (Thu Apr 8 1999 - Thu Apr 15 1999)</B></CAPTION>
+    <TR VALIGN="TOP">
+        <TH>Host</TH>
+        <TH>Hardware</TH>
+        <TH>Platform</TH>
+        <TH>Primary Function</TH>
+        <TH>Notes</TH>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><B>rattle.melbourne</B></TD>
+        <TD>1 R5000 cpu, 1 disk, 64MB RAM</TD>
+        <TD>IRIX 6.3, IP32, o32 kernel</TD>
+        <TD>Performance monitoring (desktop)</TD>
+        <TD>Cisco router rules being evaluated here also</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><B>techpubs.sgi.com</B></TD>
+        <TD>2 R10000 cpus, 10 disks, 1 node, 128MB RAM</TD>
+        <TD>IRIX 6.5.2, IP27, n64 kernel</TD>
+        <TD>Web server</TD>
+        <TD>&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><B>fido.engr</B></TD>
+        <TD>4 R4400 cpus, 12 disks, 896MB RAM</TD>
+        <TD>IRIX 6.5, IP19, n64 kernel</TD>
+        <TD>News server</TD>
+        <TD>&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><B>dist.engr</B></TD>
+        <TD>4 R10000 cpus, 46 disks, 2 nodes, 2 routers, 2 xbows, 512MB RAM</TD>
+        <TD>IRIX 6.5.4(alpha), IP27, n64 kernel</TD>
+        <TD>File server</TD>
+        <TD>&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><B>bonnie.engr</B></TD>
+        <TD>12 R4400 cpus, 67 disks, 2304MB RAM</TD>
+        <TD>IRIX6.5.4(alpha), IP19, n64 kernel</TD>
+        <TD>File server</TD>
+        <TD>&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><B>feather.engr</B></TD>
+        <TD>16 R10000 cpus, 7 disks, 8 nodes, 4 routers, 4 xbows, 3072MB RAM</TD>
+        <TD>IRIX 6.5, IP27, n64 kernel</TD>
+        <TD>Compute server</TD>
+        <TD>Switched off cpu.util and per_cpu.util (inappropriate here)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><B>info.engr</B></TD>
+        <TD>4 R10000 cpus, 15 disks, 2 nodes, 2 xbows, 896MB RAM</TD>
+        <TD>IRIX 6.5.4(alpha), IP27, n64 kernel</TD>
+        <TD>Web server</TD>
+        <TD>&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><B>brutus.corp</B></TD>
+        <TD>24 R10000 cpus, 102 disks, 12 nodes, 6 routers, 6 xbows, 6144MB RAM</TD>
+        <TD>IRIX 6.4, IP27, n64 kernel</TD>
+        <TD>ORACLE Database server</TD>
+        <TD>&nbsp;</TD>
+    </TR>
+</TABLE>
+<BR>
+<I>Note: this is not the complete set of hosts used in our rule evaluation
+process - we also covered functions such as mail serving, video serving,
+network routing, and others.</I>
+<BR> <BR>
+<P>
+And secondly, for each rule and each monitored host, the average rate at
+which <I>pmie</I> events were generated per day (sample period of two weeks):
+</P>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 2: Event Generation Frequency (Thu Apr 8 1999 - Thu Apr 15 1999)</B></CAPTION>
+    <TR VALIGN="TOP">
+        <TH>Rule</TH>
+        <TH>rattle</TH>
+        <TH>techpubs</TH>
+        <TH>fido</TH>
+        <TH>dist</TH>
+        <TH>bonnie</TH>
+        <TH>feather</TH>
+        <TH>info</TH>
+        <TH>brutus</TH>
+        <TH></TH>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>cpu.context_switch</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>cpu.load_average</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.14</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.13</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">36.71</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>cpu.syscall</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT"><font color=980517>111.57</font></TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.43</TD>
+        <TD ALIGN="RIGHT"><font color=980517>26.29</font></TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>cpu.system</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">9.86</TD>
+        <TD ALIGN="RIGHT">0.14</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.28</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>cpu.util</TD>
+        <TD ALIGN="RIGHT">0.14</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.43</TD>
+        <TD ALIGN="RIGHT">43.00</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">1.29</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>craylink.node_cb_errs</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>craylink.router_cb_errs</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">9.29</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>filesys.buffer_cache</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>filesys.filling</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">2.71</TD>
+        <TD ALIGN="RIGHT">1.86</TD>
+        <TD ALIGN="RIGHT">0.57</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>memory.exhausted</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT"><font color=980517>14.57</font></TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.29</TD>
+        <TD ALIGN="RIGHT"><font color=980517>13.71</font></TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>network.buffers</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>network.tcp_drop_connects</TD>
+        <TD ALIGN="RIGHT">0.57</TD>
+        <TD ALIGN="RIGHT">9.14</TD>
+        <TD ALIGN="RIGHT">0.57</TD>
+        <TD ALIGN="RIGHT">0.14</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.43</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.14</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>network.tcp_retransmit</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>per_cpu.context_switch</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">7.00</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.29</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>per_cpu.many_util</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.28</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>per_cpu.some_util</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.14</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>per_cpu.syscall</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.86</TD>
+        <TD ALIGN="RIGHT"><font color=980517>136.14</font></TD>
+        <TD ALIGN="RIGHT">7.71</TD>
+        <TD ALIGN="RIGHT">7.29</TD>
+        <TD ALIGN="RIGHT">16.00</TD>
+        <TD ALIGN="RIGHT"><font color=980517>13.14</font></TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>per_cpu.system</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>per_disk.util</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">3.14</TD>
+        <TD ALIGN="RIGHT"><font color=980517>20.43</font></TD>
+        <TD ALIGN="RIGHT">2.86</TD>
+        <TD ALIGN="RIGHT">13.29</TD>
+        <TD ALIGN="RIGHT">2.00</TD>
+        <TD ALIGN="RIGHT">15.86</TD>
+        <TD ALIGN="RIGHT">1.14</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>per_netif.collisions</TD>
+        <TD ALIGN="RIGHT">0.49</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>per_netif.errors</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>per_netif.util</TD>
+        <TD ALIGN="RIGHT">N/A</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.57</TD>
+        <TD ALIGN="RIGHT">4.14</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">N/A</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>rpc.bad_network</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">0.29</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT"><font color=980517>91.86</font></TD>
+        <TD ALIGN="RIGHT">0.14</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD>rpc.slow_response</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+</TABLE>
+<P>
+<I>Note: this is not the complete set of available rules - it contains only
+those which are switched on by default.  Cases where rules which fired
+very frequently (due to real performance problems on the monitored machine)
+have been highlighted.</P>
+<P>
+Also, it's important to note that
+the maximum value for any column above is 144 - if a a rule had fired every
+time it was evaluated, this is the maximum rate at which that rule could have
+evaluated as true.  This is because every rule has a 10 minute holdoff, by
+default, until it is reevaluated (after being true) - 24hrs * 60mins / 10 mins
+gives a maximum of 144 possible truthful evaluations each day.  </P>
+<P>
+Finally, the network utilization rule is dependent on availability of the
+network interface bandwidth metric, which is only exported through 6.5 and
+later IRIX kernels - this rule is thus not applicable to <B>rattle</B> and
+<B>brutus</B>.
+</P>
+</I>
+</P>
+<BR>
+<HR>
+<H3>
+<A NAME="cai">CA/Unicenter</A> TNG (Computer Associates)</H3>
+<P>
+<B>Step-by-step</B> - how to setup and ensure <I>pmie</I> can talk to the
+Unicenter TNG Framework:
+</P>
+<UL>
+<LI>
+Start CCI services on the monitor node, i.e. the node where <I>pmie</I>
+events should be propagated to (a Windows machine - &quot;hugh&quot; - in
+this example).
+For a Windows monitoring node, refer to the &quot;Services&quot; window
+from the &quot;Control Panel&quot;.
+</P>
+<LI>
+Start CCI services on the monitored node, i.e. the node where <I>pmie</I>
+is running (an IRIX machine - &quot;wobbly&quot; - in this example).
+<PRE>
+wobbly# $CAIGLBL0000/bin/unicntrl start cci
+wobbly# 
+</PRE>
+</P>
+<LI>
+Ensure the connection between the two nodes is active.  For UNIX machines:
+<PRE>
+wobbly# $CAIGLBL0000/cci/bin/rmt status
+
+  Sysid  State                 Last Send Time  Last Receive Time
+--------|---------------------|---------------|-----------------
+hugh     ACTIVE                041099 17:54:37 041199 13:42:01
+
+wobbly#
+</PRE>
+For Windows machines:
+<PRE>
+C:\TNGFW\BIN>rmtcntrl status
+SUCCESS: information returned
+Sysid    State                 Last Send Time  Last Receive time
+--------|---------------------|---------------|-----------------
+HUGH     ACTIVE
+WOBBLY   ACTIVE                Apr-10-99 17:58:25 Apr-10-99 17:58:25
+
+C:\TNGFW\BIN>
+</PRE>
+</P>
+<LI>
+Send a test event to the monitoring node from the node where <I>pmie</I>
+will be running
+<PRE>
+wobbly# $CAIGLBL0000/bin/cawto -n hugh -g Performance -s wobbly test event
+</PRE>
+</P>
+<LI>
+To verify that the event is successfully received on a Windows NT monitoring
+host, use the Event Console, which lists events as they arrive.
+</P>
+<P>There are several tools which ship with the TNG Framework for examining
+and verifying the connection between two nodes - such as <I>oprping</I> -
+refer to the Unicenter TNG documentation for full details.
+<LI>
+Once the test event propagates successfully, enable <I>pmie</I> event generation
+into the TNG Framework:
+<PRE>
+wobbly# pmieconf modify global tngfw_action yes
+wobbly# /etc/init.d/pmie start
+</PRE>
+</UL>
+<B>Configuration options</B> - how to customize the setup for different
+environments:
+<UL>
+<LI>
+The node to which events are sent is identified by the tngfw_node
+<I>pmieconf</I> variable, so to setup event propagation from <I>pmie</I>
+on rattle to TNG on hugh as described above:
+<PRE>
+wobbly# pmieconf modify global tngfw_node hugh
+wobbly# /etc/init.d/pmie start
+</PRE>
+<LI>
+Other parameters associated with TNG events can also be specified - these
+include the color and category of each individual event, a group of events,
+or globally for all events:
+<PRE>
+wobbly# pmieconf modify global tngfw_color Yellow
+wobbly# pmieconf modify global tngfw_category "PMIE Events"
+wobbly# pmieconf modify cisco tngfw_color Red
+wobbly# /etc/init.d/pmie start
+</PRE>
+</UL>
+</P>
+<IMG SRC="images/tngconsole.gif" ALIGN="MIDDLE" WIDTH="699" HEIGHT="444">
+<BR>
+<HR>
+<H3>
+<A NAME="hpov">HP</A> OpenView (Hewlett-Packard)</H3>
+<P>
+<B>Step-by-step</B> on how to setup and ensure <I>pmie</I> can talk to OpenView:
+</P>
+<UL>
+<LI>
+Start the <I>pmd</I>(1) daemon on the node which will receive <I>pmie</I>
+events - &quot;wobbly&quot; in this example.
+<PRE>
+wobbly# /etc/init.d/snmp start
+wobbly# /etc/init.d/ovnnm start
+</PRE>
+</P>
+<LI>
+Send a test event to the monitoring node from the node where <I>pmie</I>
+will be running (OV_BIN is typically /usr/OV/bin):
+<PRE>
+rattle# cd $OV_BIN
+rattle# ./ovevent -c "Status Events" -s Normal \
+.1.3.6.1.4.1.11.2.17.1.0.58916872 \
+.1.3.6.1.4.1.11.2.17.2.1.0 Integer 14 \
+.1.3.6.1.4.1.11.2.17.2.2.0 OctetString "rattle" \
+.1.3.6.1.4.1.11.2.17.2.4.0 OctetString "test event"
+</PRE>
+<LI>
+To verify that the event is successfully received, run the OpenView event
+monitoring program (pictured here):
+<PRE>
+wobbly# cd $OV_BIN
+wobbly# ./xnmevents &
+</PRE>
+<LI>
+If this event propagates successfully, enable <I>pmie</I> event generation
+into OpenView:
+<PRE>
+rattle# pmieconf modify global ov_action yes
+rattle# /etc/init.d/pmie start
+</PRE>
+</UL>
+<P>
+<CENTER>
+<IMG SRC="images/xnmevents.gif" ALIGN="RIGHT" WIDTH="247" HEIGHT="210">
+</CENTER>
+The <I>xnmevents</I> GUI connects to the <I>pmd</I> daemon on the monitoring
+node which supplies any new events which arrive while <I>xnmevents</I> is
+running.
+</P>
+The image to the right shows the <I>xnmevents</I> main window.
+On receipt of a new <I>pmie</I> event, the &quot;Threshold Events&quot;
+toggle button changes
+color according to the event severity, indicating that there are new events
+- clicking on the toggle button brings up the viewer window (shown below).
+</P>
+<P>
+The viewer lets you view, filter, and
+acknowledge events (once all events are acknowledged, the &quot;Threshold
+Events&quot; button becomes white - until the next event arrives).
+</P>
+<B>Configuration options</B> - using <I>pmieconf</I> to customize the setup
+for different environments:
+<UL>
+<LI>
+The node to which events are sent is identified by the ov_node <I>pmieconf</I>
+variable, so to setup event transferral from rattle to wobbly as described
+above, I ran:
+<PRE>
+# pmieconf modify global ov_node wobbly
+# /etc/init.d/pmie start
+</PRE>
+<LI>
+Other parameters associated with OpenView events can also be specified - these
+include the category and severity of each individual event, a group
+of events, or globally for all events:
+<PRE>
+rattle# pmieconf modify filesys.filling ov_severity Critical
+rattle# pmieconf modify filesys.filling ov_category "Status Events"
+rattle# pmieconf modify cisco ov_severity Major
+rattle# /etc/init.d/pmie start
+</PRE>
+</UL>
+<CENTER>
+<IMG SRC="images/ovevents.gif" ALIGN="MIDDLE" WIDTH="697" HEIGHT="373">
+</CENTER>
+<P>
+<HR>
+<H3>
+<A NAME="enln">EnlightenDSM</A> (Enlighten Software Solutions)</H3>
+<P>
+<B>Step-by-step</B> on how to setup and ensure <I>pmie</I> can talk to
+EnlightenDSM:
+</P>
+<UL>
+<LI>
+Start the <I>EnlightenDSM</I>(1) daemons on the host being monitored by
+<I>pmie</I> - &quot;wobbly&quot; in this example.
+<PRE>
+wobbly# /opt/enlighten/bin/start_enl_daemons -r
+...
+start_emdd: Invoking /opt/emd/bin/emdd...
+start_enl_daemons: Invoking /opt/enlighten/bin/pep...
+start_enl_daemons: Invoking /opt/enlighten/bin/renld...
+start_enl_daemons: Invoking /opt/enlighten/bin/AgentMon...
+</PRE>
+</P>
+<LI>
+Start up the Enlighten GUI to verify that events can be received.  Go into
+the "Events" -> "Status Map" window:
+<PRE>
+wobbly# /opt/enlighten/bin/xenln &
+</PRE>
+<LI>
+Send a test event to the Enlighten GUI, and verify that the scrolling event
+list at the bottom of the "Status Map" window updates after the event has
+been sent:
+<PRE>
+wobbly# /opt/enlighten/bin/EventsCli -n Test -u tps -v 12345 -s 5 -q
+</PRE>
+<LI>
+If this event propagates successfully, enable pmie event generation into Enlighten:
+<PRE>
+wobbly# pmieconf modify global enln_action yes
+wobbly# /etc/init.d/pmie start
+</PRE>
+</UL>
+
+<B>Configuration options</B> - using <I>pmieconf</I> to customize the setup:
+<P>
+The only configurable option of note for Enlighten DSM is the ability
+to change the severity setting for individual events, event groups, or
+globally for all events (where severity is a number between a low of 1 and
+a high of 5, and the default severity value for <i>pmie</i> events is 2):
+<PRE>
+wobbly# pmieconf modify filesys.filling enln_severity 4
+wobbly# pmieconf modify cisco enln_severity 5
+wobbly# /etc/init.d/pmie start
+</PRE>
+<P>
+<CENTER>
+<IMG SRC="images/xenln.gif" ALIGN="MIDDLE" WIDTH="581" HEIGHT="505">
+</CENTER>
+<P>
+<HR>
+<H3>
+<A NAME="other">Extending</A> to Other Frameworks</H3>
+<P>
+All of the enterprise management frameworks we've come across provide some
+mechanism for generating events from outside the framework.&nbsp;
+This is usually in the form of a stand-alone utility, but could also be an
+API, which packages the attributes associated with an event (these attributes
+are usually things like severity, source host, message text, etc) and sends
+this to the monitoring host.
+</P>
+<P>
+Since <I>pmie</I> supports running an arbitrary command upon detection of
+a performance event (in addition to its other native actions, such as writing
+an entry in the system log file), this is the hook we'll use to add support for
+additional frameworks.
+</P>
+<P>
+Steps involved when integrating other frameworks with PCP:
+</P>
+<UL>
+    <LI>
+    find or create a utility to generate events into the framework;
+    <LI>
+    familiarize yourself with the command line options for this utility,
+    and decide which options are of interest from a performance-event
+    perspective;
+    <LI>
+    test the utility by hand - ensure that you can run the utility from
+    the command line and that the framework's monitoring software
+    successfully receives the event;
+    <LI>
+    using the files in <TT>/var/pcp/config/pmieconf/global</TT> as a
+    guide, create a <I>pmieconf</I> file containing &quot;global&quot;
+    variables for use in <I>pmieconf</I> - one of these is always an
+    &quot;action&quot; variable, which allows the framework utility to
+    be run when <I>pmie</I> generates an event;
+    <LI>
+    using <I>pmieconf</I>, ensure that the syntax of your created file
+    is correct, and that the new variables are visible in the
+    &quot;global&quot; group;
+<PRE>
+	# pmieconf -r newfile list global
+</PRE>
+    <LI>
+    finally, install the new file into the
+    <TT>/var/pcp/config/pmieconf/global</TT> subdirectory
+    and switch on your new framework action for all of the rules;
+<PRE>
+	# pmieconf modify global new_action yes
+	# /etc/init.d/pmie start
+</PRE>
+</UL>
+<P>
+If the framework is sufficiently common that other people may wish to
+use your new <I>pmieconf</I> &quot;action&quot;, feel free to contact
+us to discuss incorporating it into future PCP releases.
+</P>
+<HR>
+<P> This chapter is complete, you may return to the <A
+ HREF="index.html#contents">Tutorial Contents</A> in the introductory 
+chapter. </P>
+</BODY>
+</HTML>

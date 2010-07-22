@@ -1,0 +1,280 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--
+ (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+    <TITLE>Performance Co-Pilot Tutorial - pmview Lab</TITLE>
+</HEAD>
+<BODY BGCOLOR="#ffffff">
+<P>
+</P>
+<H1>
+<IMG SRC="images/CorpID.gif" ALIGN="MIDDLE">
+<IMG SRC="images/smallpcp.gif" ALIGN="RIGHT">
+</H1>
+<H1>
+PCP Tutorial</H1>
+<HR>
+<H2>
+Lab - <I>pmview</I></H2>
+<P>
+<B>URL</B>: file:/var/pcp/Tutorial/lab-pmview.html </P>
+<HR>
+<P>
+This &quot;lab&quot; is part of the Performance Co-Pilot Tutorial and 
+covers the <I>pmview</I> tools and the performance monitoring tools 
+constructed as front-ends to <I>pmview</I>.</P>
+<P>
+For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+
+<H4>
+<FONT COLOR="purple">NOTE:</FONT></H4>
+
+<p>
+This tutorial uses platform independent pathnames to identify
+control files and scripts, typically shown with a  &quot;$PCP_&quot;
+prefix.  To enable the correct translations for your local
+installation:
+<ul>
+  <li><i>sh</i> or <i>ksh</i> or <i>bash</i> users should
+      <PRE>
+<B>$</B> . /etc/pcp.conf
+</PRE>
+  <li><i>csh</i> or <i>tcsh</i> users should
+      <PRE>
+<B>%</B> sed -n -e '/=/s/^/set /p' /etc/pcp.conf >/tmp/foo
+<B>%</B> source /tmp/foo
+</PRE>
+</ul>
+
+<P>
+Before you start working through this lab make sure the following 
+prerequisites have been satisfied: </P>
+<UL>
+    <LI>
+    the products <B>pcp_eoe</B> and <B>pcp</B> are installed on the 
+    local workstation 
+    <LI>
+    a PCP Monitor License is installed on the local workstation 
+    <LI>
+    the shell variable <TT>$pmcd_host</TT> is set to the name of the 
+    host which has a PCP Collector License and where <I>pmcd</I>(1) is 
+    running (this is only necessary if you intend to use cut-n-paste to run 
+    the examples) 
+    <LI>
+    if <I>pmcd</I> is running on the local system, then either omit the <TT>-h 
+    $pmcd_host</TT> part of the command lines in the examples, or set <TT>$pmcd_host</TT>
+     to <B>localhost</B> or the host name of your workstation 
+    <LI>
+    the shell variable <TT>$archive_dir</TT> is set to <I>$PCP_VAR_DIR/Tutorial/Archives</I>
+     (this is only necessary if you intend to use cut-n-paste to run the 
+    examples), e.g. use one of the following:
+<BR>
+<TT><B>$</B> export archive_dir=$PCP_VAR_DIR/Tutorial/Archives</TT>
+<BR>
+<TT><B>%</B> setenv archive_dir $PCP_VAR_DIR/Tutorial/Archives</TT>
+    <LI>
+    the shell variable <TT>$script_dir</TT> is set to <I>$PCP_VAR_DIR/Tutorial/Scripts</I>
+     (this is only necessary if you intend to use cut-n-paste to run the 
+    examples), e.g. use one of the following:
+<BR>
+<TT><B>$</B> export script_dir=$PCP_VAR_DIR/Tutorial/Scripts</TT>
+<BR>
+<TT><B>%</B> setenv script_dir $PCP_VAR_DIR/Tutorial/Scripts</TT>
+</UL>
+<P>
+For more information about the prerequisites mentioned above see the <A
+ HREF="index.html">Introduction</A> chapter of the PCP tutorial. </P>
+<H4>
+Chapter Contents</H4>
+<UL>
+    <LI>
+    <A HREF="#real-time">Real-time monitoring and user interface 
+    concepts</A> 
+    <LI>
+    <A HREF="#archive">Retrospective monitoring and tool drill-down</A> 
+    <LI>
+    <A HREF="#vis">The &quot;*vis&quot; tools</A> 
+    <LI>
+    <A HREF="#simple">Simple scene construction</A> 
+</UL>
+<HR>
+<H3>
+<A NAME="real-time">Real</A>-time monitoring and user interface concepts</H3>
+<OL>
+    <LI>
+    The <I>mpvis</I> command monitors the CPU utilization for each CPU:
+    <PRE>
+<B>$</B> mpvis -h $pmcd_host
+</PRE>
+    <P>
+    </P>
+    <LI>
+    Move the cursor over each block in the scene. Take time to read the 
+    (changed) text box above the 3D scene and understand what it is telling 
+    you. In particular, identify the source of the metric, the name of the 
+    metric, the instance of the metric, the current value ... can you 
+    explain what &quot;millisec / second&quot; really means? 
+    <P>
+    </P>
+    <LI>
+    Click the left mouse over one block in the scene. How is this 
+    different? 
+    <P>
+    </P>
+    <LI>
+    Click on the &quot;Live&quot; button or Ctrl-T or <B><I>Options-&gt;Show 
+    Time Control</I></B> from the menu bar. In the <B>PCP Live Time 
+    Control</B> dialog, experiment with changing the update <B><I>Interval</I></B>
+     (this is the interval at which new metric values are fetched from <I>pmcd</I>). 
+    <P>
+    </P>
+    <LI>
+    Quit with <B><I>File-&gt;Quit</I></B> or Ctrl-Q. 
+</OL>
+<HR>
+<H3>
+<A NAME="archive">Retrospective</A> monitoring and tool drill-down</H3>
+<OL>
+    <LI>
+    The <I>dkvis</I> command monitors the per-disk I/O activity: 
+    <PRE>
+<B>$</B> dkvis -a $archive_dir/babylon.perdisk
+</PRE>
+    <P>
+    </P>
+    <LI>
+    In the <I>dkvis</I> window (above the top left-hand corner of the 
+    scene) change the <B><I>Scale</I></B> to be 5 using either the 
+    thumbwheel or the text box to the right of the thumbwheel. 
+    <P>
+    </P>
+    <LI>
+    In the associated <B>PCP Archive Time Control</B> dialog, changing 
+    the update <B><I>Interval</I></B> to 2 minutes (remember to Enter 
+    after you have changed the <B><I>Interval</I></B> text box).
+    <P>
+    </P>
+    <LI>
+    Double click the <B><I>Play</I></B> button. When the replay 
+    finished, drag the slider in the <B>PCP Archive Time Control</B>
+     dialog back to near the middle of the range and release the 
+    slider. 
+    <P>
+    </P>
+    <LI>
+    Back in the <I>dkvis</I> window, move the cursor over each block in 
+    the scene. Take time to read the (changed) text box above the 3D scene 
+    and understand what it's telling you. In particular, identify the 
+    source of the metric, the name of the metric, the instance of the 
+    metric, the current value ... can you explain what &quot;count / 
+    second&quot; really means? 
+    <P>
+    </P>
+    <LI>
+    Select all of the blocks for controller <B>dks1</B> (use 
+    &quot;Shift-select&quot; to do multiple selections), and then <B><I>Launch-&gt;pmchart</I></B>
+     from the main menu. In the pmchart window use <B><I>File-&gt;Open 
+    View</I></B> from the menu bar to add the <B>LoadAvg</B> view. 
+    This is a &quot;drill-down&quot; example. 
+    <P>
+    </P>
+    <LI>
+    Use the <B>PCP Archive Time Control</B> dialog again - this time 
+    notice that you're controlling movement through both <I>dkvis</I>
+     and <I>pmchart</I> using the same time control window (that's 
+    because <I>pmchart</I> was launched from <I>dkvis</I>). 
+    <P>
+    </P>
+    <LI>
+    Quit from <I>dkvis</I>. Notice that <I>pmchart</I> and the <I>pmtime</I>
+     dialog remain. Quit from <I>pmchart</I>.
+</OL>
+<HR>
+<H3>
+<A NAME="vis">The</A> &quot;*vis&quot; tools</H3>
+<OL>
+    <LI>
+    Try some of the other &quot;*vis&quot; tools. All of these are 
+    "front-ends" to <I>pmview</I> as shown in this diagram:
+<CENTER>
+<IMG SRC="images/pmview.flow.gif" ALIGN="MIDDLE" WIDTH="444" HEIGHT="227">
+</CENTER>
+    <PRE>
+<B>$</B> osvis -h $pmcd_host
+</PRE>
+    <P>
+    and move the cursor over each baseplane for more information. Now try:</P>
+    <PRE>
+<B>$</B> pmafm $archive_dir/godzillaweb replay
+</PRE>
+    <P>
+    <I>pmafm</I> is a folio manager which allows you to work with a folio of archives for
+    many visualisation tools; in this case, with the folio <TT>godzillaweb</TT>.
+    </P>
+    <LI>
+    Other <I>pmview</I> front-ends include: <I>osvis</I>, <I>nfsvis</I>, <I>routervis</I>,
+    <I>xbowvis</I>, <I>webvis</I>... take an opportunity to browse around the available
+    front-end *vis scripts in the <B>PerfTools</B> category of the <B>Icon Catalog</B>
+    (use the <B>Find</B> menu of the <B>Toolchest</B>) and review their manual pages.
+</OL>
+<HR>
+<H3>
+<A NAME="simple">Simple</A> scene construction</H3>
+<OL>
+    <LI>
+    The text file <i>$PCP_VAR_DIR/Tutorial/Scripts/pmview.lab</i>
+     specifies a <I>pmview</I> configuration has one baseplane with 
+    one bar containing three metrics (5, 10, and 15 minute load averages), 
+    and separate bars for each of the disk read and disk write metrics. 
+    <P>
+    </P>
+    <LI>
+    To display this scene, run: 
+    <PRE>
+<B>$</B> pmview -h $pmcd_host &lt;$script_dir/pmview.lab
+</PRE>
+    <P>
+    </P>
+    <LI>
+    The exercise is to copy pmview.lab and modify the configuration so that 
+    instead of having the disk metrics as two separate blocks (bars), they 
+    appear as a single stacked bar showing both metrics in top of on 
+    another. 
+    <P>
+    </P>
+</OL>
+<H4>
+Hints</H4>
+<UL>
+    <LI>
+    The <I>osvis</I> tool we saw earlier uses stacked bars for memory 
+    and CPU utilization. 
+    <LI>
+    The configuration generated by <B>any</B> <I>pmview </I>front-end 
+    script can be viewed using a <B>-V</B> option to the front-end 
+    tool, and a <B>-C</B> option means quit after generating the 
+    configuration (do not launch <I>pmview</I>). So the following may 
+    be helpful: 
+    <PRE>
+ <I> </I><B>$</B><I> </I>osvis -V -C<I> </I>-h $pmcd_host
+    
+</PRE>
+    <LI>
+    The <I>pmview(1)</I> man page describes the <I>pmview </I>configuration 
+    format in detail. Look for the <B><TT>_stack</TT></B> object. 
+</UL>
+<HR>
+<P>
+This chapter is complete, you may return to the <A
+ HREF="index.html#contents">Tutorial Contents</A> in the introductory 
+chapter. </P>
+</BODY>
+</HTML>

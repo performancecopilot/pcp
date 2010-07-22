@@ -1,0 +1,352 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--
+ (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+    <TITLE>Performance Co-Pilot Tutorial - pmie Lab</TITLE>
+</HEAD>
+<BODY BGCOLOR="#ffffff">
+<P>
+</P>
+<H1>
+<IMG SRC="images/CorpID.gif" ALIGN="MIDDLE">
+<IMG SRC="images/smallpcp.gif" ALIGN="RIGHT">
+</H1>
+<H1>
+PCP Tutorial</H1>
+<HR>
+<H2>
+Lab - <I>pmie</I></H2>
+<P>
+<B>URL</B>: file:/var/pcp/Tutorial/lab-pmie.html </P>
+<HR>
+<P>
+This &quot;lab&quot; is part of the Performance Co-Pilot Tutorial and 
+covers the <I>pmie</I> tool for automated performance monitoring.</P>
+<P>
+For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+<H4>
+<FONT COLOR="purple">NOTE:</FONT></H4>
+
+<p>
+This tutorial uses platform independent pathnames to identify
+control files and scripts, typically shown with a  &quot;$PCP_&quot;
+prefix.  To enable the correct translations for your local
+installation:
+<ul>
+  <li><i>sh</i> or <i>ksh</i> or <i>bash</i> users should
+      <PRE>
+<B>$</B> . /etc/pcp.conf
+</PRE>
+  <li><i>csh</i> or <i>tcsh</i> users should
+      <PRE>
+<B>%</B> sed -n -e '/=/s/^/set /p' /etc/pcp.conf >/tmp/foo
+<B>%</B> source /tmp/foo
+</PRE>
+</ul>
+
+<P>
+Before you start working through this lab make sure the following 
+prerequisites have been satisfied: </P>
+<UL>
+    <LI>
+    the products <B>pcp_eoe</B> and <B>pcp</B> are installed on the 
+    local workstation 
+    <LI>
+    a PCP Monitor License is installed on the local workstation 
+    <LI>
+    the shell variable <TT>$pmcd_host</TT> is set to the name of the 
+    host which has a PCP Collector License and where <I>pmcd</I>(1) is 
+    running (this is only necessary if you intend to use cut-n-paste to run 
+    the examples) 
+    <LI>
+    if <I>pmcd</I> is running on the local system, then either omit the <TT>-h 
+    $pmcd_host</TT> part of the command lines in the examples, or set <TT>$pmcd_host</TT>
+     to <B>localhost</B> or the host name of your workstation 
+    <LI>
+    you will need to be able to open a login window for <B><I>pmcd_host</I></B>
+	 and execute commands there as a normal user 
+    <LI>
+    the shell variable <TT>$archive_dir</TT> is set to <I>$PCP_VAR_DIR/Tutorial/Archives</I>
+     (this is only necessary if you intend to use cut-n-paste to run the 
+    examples), e.g. use one of the following:
+<BR>
+<TT><B>$</B> export archive_dir=$PCP_VAR_DIR/Tutorial/Archives</TT>
+<BR>
+<TT><B>%</B> setenv archive_dir $PCP_VAR_DIR/Tutorial/Archives</TT>
+    <LI>
+    the shell variable <TT>$script_dir</TT> is set to <I>$PCP_VAR_DIR/Tutorial/Scripts</I>
+     (this is only necessary if you intend to use cut-n-paste to run the 
+    examples), e.g. use one of the following:
+<BR>
+<TT><B>$</B> export script_dir=$PCP_VAR_DIR/Tutorial/Scripts</TT>
+<BR>
+<TT><B>%</B> setenv script_dir $PCP_VAR_DIR/Tutorial/Scripts</TT>
+</UL>
+<P>
+For more information about the prerequisites mentioned above see the <A
+ HREF="index.html">Introduction</A> chapter of the PCP tutorial. </P>
+<H4>
+Chapter Contents</H4>
+<UL>
+    <LI>
+    <A HREF="#real">Real-time alarms with synthetic workloads</A> 
+    <LI>
+    <A HREF="#audit">Performance audit using archives</A> 
+    <LI>
+    <A HREF="#interval">Influence of the update interval</A> 
+</UL>
+<HR>
+<H3>
+<A NAME="real">Real</A>-time alarms with synthetic workloads</H3>
+<P>
+This exercise involves system call activity monitoring.</P>
+<OL>
+    <LI>
+    Start <I>pmchart</I> and <I>mpvis</I> in the background to monitor 
+    system calls on <B><I>pmcd_host</I></B>: 
+    <PRE>
+<B>$</B> pmchart -h $pmcd_host -c Syscalls &amp;
+<B>$</B> mpvis -h $pmcd_host &amp;
+</PRE>
+    <P>
+    </P>
+    <LI>
+    A <I>pmie</I> configuration file containing two simple rules can be 
+    found at <i>$PCP_VAR_DIR/Tutorial/Scripts/simple.pmie</i>. 
+    <P>
+    </P>
+    <LI>
+    Start <I>pmie</I> running in <B>diagnostic</B> mode (<B>-v</B> on 
+    the command line) as follows: 
+    <PRE>
+<B>$</B> pmie -v -t 1sec -h $pmcd_host &lt;$script_dir/simple.pmie
+</PRE>
+    <P>
+    The output is the value of the two rules every second.</P>
+    <P>
+    </P>
+    <LI>
+    A sample extension of this example produces the <I>pmie</I>
+     configuration file that may be found at
+     <i>$PCP_VAR_DIR/Tutorial/Scripts/syscall.pmie</i>. 
+    <P>
+    This file contains a <I>pmie</I> rule which is equivalent to the 
+    English expression:</P>
+    <P>
+    <I>&quot;If the syscall rate exceeds 2000 calls per second, then 
+    activate an alarm notifier. Evaluate this every five seconds.&quot;</I></P>
+    <P>
+    <IMG SRC="images/pmie.rule1.gif" WIDTH="495" HEIGHT="199"></P>
+    <P>
+    </P>
+    <LI>
+    Start <I>pmie</I> in monitoring mode (no <B>-v</B>) in the 
+    background with the sample interval specified in the rules via the 
+    variable <TT>delta</TT>. 
+    <PRE>
+<B>$ </B>pmie -h $pmcd_host &lt;$script_dir/syscall.pmie &amp;
+</PRE>
+    <P>
+    <I>pmie</I> is now running, evaluating the given rules every five 
+    seconds based on metric values which it fetches from <I>pmcd</I> on <B><I>pmcd_host</I></B>.</P>
+    <P>
+    </P>
+    <LI>
+    Now run a synthetic workload to trigger the <I>pmie </I>rule. 
+    <P>
+    The <I>$PCP_VAR_DIR/Tutorial/Scripts/syscall</I> application sleeps for 
+    15 seconds, then generates lots of system calls for 30 seconds, and 
+    then exits. The source may be inspected at
+     <i>$PCP_VAR_DIR/Tutorial/Scripts/syscall.c</i></P>
+    <P>
+    If <B><I>pmcd_host </I></B>is not the local host and <I>syscall</I>
+     is <B>not</B> installed on <B><I>pmcd_host</I></B> then copy the 
+    application from the local system to <B><I>pmcd_host</I></B>, i.e. 
+    something like:</P>
+    <PRE>
+<B>$</B> rcp $script_dir/syscall $pmcd_host:/tmp/syscall
+</PRE>
+    <P>
+    On <B><I>pmcd_host </I></B>run the command:</P>
+    <PRE>
+<B>$</B> $script_dir/syscall
+</PRE>
+    <P>
+    or</P>
+    <PRE>
+<B>$</B> /var/tmp/syscall
+</PRE>
+    <P>
+    We expect the system call rate reported by <I>pmchart</I> to rise 
+    once <I>syscall</I> starts to have some effect. Also observe the 
+    CPU utilization as reported by <I>mpvis</I> becomes predominantly 
+    red on one CPU, indicating a very high ratio of system time to user, 
+    idle, interrupt, or waitio time. At about the same time that these 
+    changes occur, <I>pmie</I> will evaluate the rule as being true and 
+    the action will be executed. </P>
+</OL>
+<HR>
+<H3>
+<A NAME="audit">Performance</A> audit using archives</H3>
+<P>
+In this task, we shall use <I>pmie</I> to investigate performance from 
+a PCP archive.</P>
+<P>
+Use <I>pmdumplog</I> to report the details of when the archive was created
+and from which host the archive was created:
+<PRE>
+<B>$</B> pmdumplog -L $archive_dir/babylon.perdisk
+</PRE>
+<P>
+From running the command: </P>
+<PRE>
+<B>$</B> dkvis -a $archive_dir/babylon.perdisk &amp;
+</PRE>
+<P>
+we can visually determine which disks and which controllers are active. 
+This is easy, which is good. </P>
+<P>
+However, consider the situation where we have a large number of 
+separate archives, possibly collected from different machines and with 
+different disk configurations. We'd like to be able to quickly process 
+these archives, and filter out the extraneous information, to focus on 
+those times at which the disks were busy, how busy they were, etc. </P>
+<OL>
+    <LI>
+    Using the <I>pmie</I> configuration file in
+     <i>$PCP_VAR_DIR/Tutorial/Scripts/pmie.lab</i>
+     as a starting point, run this against the archive: 
+    <P>
+    </P>
+    <PRE>
+<B>$</B> pmie -t 5min -a $archive_dir/babylon.perdisk &lt;$script_dir/pmie.lab
+</PRE>
+    <LI>
+    Copy the configuration file and extend it by adding new rules to report 
+    different messages for each of the following: 
+    <UL>
+        <LI>
+        some disk is doing more than 30 reads per second (make use of the <B><TT>disk.dev.read</TT></B>
+         metric) 
+        <LI>
+        some disk is doing more than 30 writes per second (make use of the <B><TT>disk.dev.write</TT></B>
+         metric) 
+        <LI>
+        some disk has a high I/O rate (consider a high I/O rate to be when the 
+        transfers are greater than 40 per second), and where reads contribute 
+        greater than ninety-five percent of the total transfers 
+        <LI>
+        some disk has a high I/O rate (as defined above) and the system's 1 
+        minute load average is greater than 5 (make use of the &quot;1 
+        minute&quot; instance for the <B><TT>kernel.all.load</TT></B>
+         metric). 
+    </UL>
+    <P>
+    Use the <I>$PCP_VAR_DIR/Tutorial/Archives/babylon.perdisk</I> archive 
+    to cross check your rules as you add each one. </P>
+</OL>
+<H4>
+<I>Hints:</I> </H4>
+<UL>
+    <LI>
+    Make sure you sample the archive every 5 minutes (<B>-t 5min</B> on 
+    the command line). 
+    <LI>
+    You'll need to use existential quantification (the <B>some_inst</B>
+    keyword) in all of the rules. 
+    <LI>
+    When producing the final rule, start with the load average metric using the
+    command:
+    <BR>
+<TT><B>$</B> pminfo -f kernel.all.load</TT>
+    <BR>
+    Notice there are three values corresponding to the 1, 5 and 15 minute
+    load average.
+    <BR>
+    For <I>pmie</I> the metric <TT><B>kernel.all.load</B></TT>
+    is a set of <B>three</B> values, one for each instance at each point
+    of time.  To choose <B>one</B> instance append the <B><TT>#</B></TT>
+    qualifier to the name of the metric and the name of a particular instance,
+    e.g. <TT><B>kernel.all.load #'1 minute'</B></TT>.
+    <LI>
+    The <I>pmie(1)</I> man page describes the <I>pmie</I> language in 
+    detail. 
+    <LI>
+    You may find it helpful to use <I>dkvis</I> to visually predict 
+    when the rules should be triggered. Using the <B>PCP Archive Time 
+    Control</B> dialog, you can position the <I>dkvis</I> display at 
+    the time where <I>pmie</I> i<I>s</I> reporting interesting activity.
+    <LI>
+    The PCP Tutorial contains a <A HREF="pmie.html">chapter on <I>pmie</I></A>.
+</UL>
+<P>
+When all else fails, the solution is at <i>$PCP_VAR_DIR/Tutorial/Scripts/pmie.answer</i>.</P>
+<HR>
+<H3>
+<A NAME="interval">Influence</A> of the update interval </H3>
+<P>
+As a final exercise, investigate the effects of using different update 
+intervals on the <I>pmie</I> command line (the <B>-t</B> option) with 
+the initial configuration file and archive from the previous exercise.</P>
+<OL>
+    <LI>
+    Try each of the following: 
+    <PRE>
+<B>$</B> pmie -t 5min -a $archive_dir/babylon.perdisk &lt;$script_dir/pmie.lab
+<B>$</B> pmie -t 6min -a $archive_dir/babylon.perdisk &lt;$script_dir/pmie.lab
+<B>$</B> pmie -t 10min -a $archive_dir/babylon.perdisk &lt;$script_dir/pmie.lab
+</PRE>
+    <P>
+    Why does the number of reported incidents decline as the rule evaluation
+    interval increases?</P>
+    <P>
+    </P>
+    <LI>
+    Repeat the exercise but use <I>pmchart</I>:
+    <PRE>
+<B>$</B> pmchart -t 5min -a $archive_dir/babylon.perdisk
+</PRE>
+    <P>and use the <B>New Plot...</B> command of the <B>File</B> menu to plot
+    the <B><TT>disk.dev.total</TT></B> metric for the disk <B>jag3d5</B>:<P>
+    <UL>
+    	<LI>
+	enter the path <TT>disk.dev.total</TT> in the Path field of the Metric Selection
+	dialog box.
+	<LI>
+	There should be 54 instances of the metric listed in the Metric Instance list.
+	Find the instance <B>jag3d5</B> and select it.
+	<LI>
+	Ensure that the <B>Create New Chart</B> radio button is selected,
+	select your preferred chart style using the <B>Style</B> pop-up menu, and
+	click on <B>Apply</B>.
+    </UL>
+    <P>
+    Use the PCP Archive Time Control dialog to change the <B><I>Interval</I></B>.</P>
+    <P>
+    By using <B>smaller</B> values of the update interval, can you 
+    deduce the sampling rate of the data in the PCP archive?</P>
+</OL>
+<H4>
+<I>Hint:</I> </H4>
+From a PCP archive you can
+get a dump of the raw data and timestamps when the data for
+a particular metric was collected
+using the command:
+    <PRE>
+<B>$</B> pmdumplog $archive_dir/babylon.perdisk disk.dev.total | more
+</PRE>
+<HR>
+<P>
+This chapter is complete, you may return to the <A
+ HREF="index.html#contents">Tutorial Contents</A> in the introductory 
+chapter. </P>
+</BODY>
+</HTML>

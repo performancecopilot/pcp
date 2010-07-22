@@ -1,0 +1,274 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--
+ (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<html>
+<head>
+    <title>Performance Co-Pilot Tutorial - pmieconf Lab</title>
+</head>
+<body bgcolor=#ffffff>
+<p>
+</p>
+<h1>
+<img src="images/CorpID.gif" align=middle>
+ <img src="images/smallpcp.gif" align=right>
+ </h1>
+<h1>
+PCP Tutorial</h1>
+<hr>
+<h2>
+Lab - rule customization with <i>pmieconf</i></h2>
+<p>
+<b>URL</b>: file:/var/pcp/Tutorial/lab-pmieconf.html </p>
+<hr>
+<p>
+This &quot;lab&quot; is part of the Performance Co-Pilot Tutorial and 
+covers customization of <i>pmie</i> rules using <i>pmieconf</i>.</p>
+<p>
+For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <a href="glossary.html">PCP glossary</a>.</p>
+<H4>
+<font color=purple>NOTE:</font></H4>
+
+<p>
+This tutorial uses platform independent pathnames to identify
+control files and scripts, typically shown with a  &quot;$PCP_&quot;
+prefix.  To enable the correct translations for your local
+installation:
+<ul>
+  <li><i>sh</i> or <i>ksh</i> or <i>bash</i> users should
+      <PRE>
+<B>$</B> . /etc/pcp.conf
+</PRE>
+  <li><i>csh</i> or <i>tcsh</i> users should
+      <PRE>
+<B>%</B> sed -n -e '/=/s/^/set /p' /etc/pcp.conf >/tmp/foo
+<B>%</B> source /tmp/foo
+</PRE>
+</ul>
+
+<p>
+Before you start working through this lab make sure the following 
+prerequisites have been satisfied: </p>
+<ul>
+    <li>
+    the products <b>pcp_eoe</b> and <b>pcp</b> are installed on the 
+    local workstation 
+    <li>
+    a PCP Monitor License is installed on the local workstation 
+    <li>
+    the shell variable <tt>$pmcd_host</tt> is set to the name of the 
+    host which has a PCP Collector License and where <i>pmcd</i>(1) is 
+    running (this is only necessary if you intend to use cut-n-paste to run 
+    the examples) 
+    <li>
+    if <i>pmcd</i> is running on the local system, then either omit the <tt>-h 
+    $pmcd_host</tt> part of the command lines in the examples, or set <tt>$pmcd_host</tt>
+     to <b>localhost</b> or the host name of your workstation 
+    <li>
+    the shell variable <tt>$script_dir</tt> is set to <i>$PCP_VAR_DIR/Tutorial/Scripts</i>
+     (this is only necessary if you intend to use cut-n-paste to run the 
+    examples), e.g. use one of the following:
+<br>
+<tt><b>$</b> export script_dir=$PCP_VAR_DIR/Tutorial/Scripts</tt>
+<br>
+<tt><b>%</b> setenv script_dir $PCP_VAR_DIR/Tutorial/Scripts</tt>
+</ul>
+<p>
+For more information about the prerequisites mentioned above see the <a
+ href="index.html">Introduction</a> chapter of the PCP tutorial. </p>
+<H4>
+Chapter Contents</H4>
+<ul>
+    <li>
+    <a href="#start">Initial setup</a> 
+    <li>
+    <a href="#pmieconf">Using <i>pmieconf</i> and <i>pmie</i></a>
+    <li>
+    <a href="#shping">Monitoring state with the <i>shping</i> PMDA</a>
+    <li>
+    <a href="#pmieconf-2">Localization of <i>pmieconf</i></a></h3>
+</ul>
+<p>
+</p>
+<hr>
+<h3>
+<a name="start">Initial Setup</a></h3>
+<p>
+In this lab you will run a process which creates an interesting load 
+that would be of concern in a production environment.  You will then use 
+several PCP tools to detect, identify and understand the process.</p>
+<ol>
+    <li>
+    Run an interesting program: 
+    <PRE>
+<b>$</b> $PCP_VAR_DIR/Tutorial/Scripts/piggie &amp;
+<br>
+</PRE>
+    <p><b>Important</b> &quot;piggie&quot; is very intrusive, so remember
+    to kill it off when you've finished this lab session.  However you
+    should leave it running throughout all of the tests in this lab.
+    <li>
+    Have a look at what it is doing: 
+    <PRE>
+<b>$</b> pmchart -c CPU &amp;
+</PRE>
+    <p>
+    And add the <b>Syscalls</b> view to the <i>pmchart</i> display.
+    <p>
+    </p>
+</ol>
+
+<hr>
+<h3>
+<a name="pmieconf">Using <i>pmieconf</i> and <i>pmie</i></a></h3>
+<p>
+<ol>
+    <li>
+    Create your own <i>pmie</i> rules using <i>pmieconf</i>.
+    <PRE>
+<b>$</b> pmieconf -f myrules
+<b>pmieconf&gt;</b> disable all
+<b>pmieconf&gt;</b> enable cpu.syscall
+<b>pmieconf&gt;</b> modify global delta "5 sec"
+<b>pmieconf&gt;</b> modify global holdoff ""
+<b>pmieconf&gt;</b> modify global syslog_action no
+<b>pmieconf&gt;</b> modify global user_action yes
+<b>pmieconf&gt;</b> quit
+<br>
+</PRE>
+    <li>
+    Determine what this command sequence has done by:
+    <ul>
+	<li>inspecting the created file <i>myrules</i>
+	<li>reference to the <i>pmieconf</i> man page
+	<li>exploring other<i>pmieconf</i> commands (&quot;help&quot; and
+    &quot;list&quot; are useful in this context)
+    </ul>
+    <p>
+    <li>
+    Run <i>pmie</i> rules using <i>pmieconf</i>, and see if the alarm
+    messages appear on standard output.
+    <PRE>
+<b>$</b> pmie -c myrules
+<br>
+</PRE>
+    <li>
+    Kill off <i>pmie</i>, and use the reported values from <i>pmchart</i>
+    to determine what the average rate of system calls is.  Then
+    re-run <i>pmieconf</i> to adjust the
+    threshold level up or down to alter the behaviour of <i>pmie</i>.
+    Re-run <i>pmie</i>.
+    <PRE>
+<b>$</b> pmieconf -f myrules
+<b>pmieconf&gt;</b> modify cpu.syscall threshold 25000 <-- suitable value here
+<b>pmieconf&gt;</b> quit
+<b>$</b> pmie -c myrules
+<br>
+</pre>
+</ol>
+
+<hr>
+<h3>
+<a name="shping">Monitoring state with the <i>shping</i> PMDA</h3>
+<p>
+<ol>
+    <li>
+    Using <i>pmdashping</i> to record system state.
+    <ul>
+        <li>
+        The default <i>shping</i> configuration is <i>$PCP_PMDAS_DIR/shping/sample.conf</i>. 
+        The comments explain the syntax.
+	<p>
+        <li>
+	As <b>root</b>,
+	create a new configuration file, say <i>$PCP_PMDAS_DIR/shping/my.conf</i>, with shell tag and command of the form:
+<pre>
+no-pmie	test ! -f /tmp/no-pmie
+<br>
+</pre>
+	<li>
+	As <b>root</b>,
+        Install <i>pmdashping</i>
+        <pre>
+<b>#</b> cd $PCP_PMDAS_DIR/shping
+<b>#</b> ./Install
+<br>
+</pre>
+        Mostly take the defaults, other than specifying your own
+	configuration file (<i>my.conf</i>) and setting the cycle
+	time to 5 (seconds); don't worry about the timeout period, as
+	timeouts are not going to happen in this configuration of the
+	agent.
+    </ul>
+    <p>
+    <li>
+    In one window, use <i>pmval</i> to monitor shping.status, i.e.
+    <pre>
+<b>$</b> pmval -t 5 shping.status
+<br>
+</pre>
+    <li>
+    In another window, first create the file <i>/tmp/no-pmie</i>,
+    wait ten seconds, and then remove the file.  Observe what <i>pmval</i>
+    reports in the other window.  Terminate <i>pmval</i>.
+</ol>
+
+<hr>
+<h3>
+<a name="pmieconf-2">Localization of <i>pmieconf</i></a></h3>
+<p>
+<ol>
+    <li>
+    Using your editor of choice, edit the <i>pmieconf</i> output
+    file created earlier, i.e. <i>myrules</i>.  Append a new
+    rule at the end (after the <b>END GENERATED SECTION</b> line),
+    that is a <u>copy</u> of the <b>cpu.syscall</b> rule.
+    <p>
+    <li>
+    To this new rule, add the following conjunct before the
+    action line (containing ->), modify the message in the
+    new rule's action to be different to the standard rule,
+    make sure the threshold is low enough for the predicate
+    to be true, and then save the file.
+    <pre>
+    && shping.status #'no-pmie' == 0
+<br>
+</pre>
+    <li>
+    Re-run <i>pmieconf</i> to disable the standard rule.
+    <pre>
+<b>$</b> pmieconf -f myrules
+<b>pmieconf&gt;</b> disable cpu.syscall
+<b>pmieconf&gt;</b> quit
+<br>
+</pre>
+    <li>
+    Inspect the re-created file <i>myrules</i>.  Check your new rule is still
+    there and the standard rule has been removed.
+    <p>
+    <li>
+    Run <i>pmie</i> rules using <i>myrules</i>, and verify that your
+    new alarm messages appear on standard output.
+    In another window, create the file <i>/tmp/no-pmie</i>;
+    wait a while;
+    remove the file.
+    <p>
+    <li>
+    Notice there may be some delay between the creation or removal of
+    <i>/tmp/no-pmie</i> and the change in <i>pmie</i> behaviour.
+    Can you explain this?
+</ol>
+
+<hr>
+<p>
+This chapter is complete, you may return to the <a
+ href="index.html#contents">Tutorial Contents</a> in the introductory 
+chapter. </p>
+</body>
+</html>

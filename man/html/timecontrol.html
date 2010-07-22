@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
-	<TITLE>PCP Strip Charts Manual</TITLE>
+	<TITLE>PCP Manual</TITLE>
 	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Linux)">
 	<META NAME="CREATED" CONTENT="20071020;12372700">
 	<META NAME="CHANGEDBY" CONTENT="Nathan Scott">
@@ -21,13 +21,21 @@
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
 	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pmtimeicon.png" NAME="pmtimeicon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
-	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#ff6600">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tutorial.html#views"><FONT COLOR="#ff6600">Views</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="tutorial.html#charts"><FONT COLOR="#ff6600">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#ff6600">Time Control</FONT></A></P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Time Control</FONT></H1>
 <P>The graphical time control utility, pmtime, is used to coordinate all aspects of time synchonisation in pmchart.  Most importantly, this means the current sample time is set by pmtime, but also includes things like the update delta, update speed, and the timezone.  It presents a VCR model which can be used to stop time, play forwards, rewind, and fast forward through time.
-<P>It operates in either live or archive mode, depending on the data source.  In archive mode, there is additional functionality available, as both forward and backward movement is possible, and it is can speed up or slow down the time updates relative to real time.  Some functionality is common between the two modes, however.  The sample interval (and units) can always be set using the <I>Interval</I>.  The current time position is always displayed in the <I>Position</I> text box (this equates to the rightmost time point in the pmchart window).  And when hosts or archives from different timezones to the monitoring host are used, a drop-down list of available timezones is available from the options menu, which allows you to change the reporting timezone in the monitoring tools (this always defaults to localtime on the monitoring host - <B>not</B> the monitored host).
-<P><CENTER><IMG ALIGN=CENTER SRC="images/pmtime_clients.png" BORDER=0></CENTER></P>
+</P>
+<P><BR></P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Main Window</B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+        <TR><TD><P><BR>pmtime operates in either live or archive mode, depending on the data source.  In archive mode, there is additional functionality available, as both forward and backward movement is possible, and it is can speed up or slow down the time updates relative to real time.  Some functionality is common between the two modes, however.  The sample interval (and units) can always be set using the <I>Interval</I>.  The current time position is always displayed in the <I>Position</I> text box (this equates to the rightmost time point in the pmchart window).  And when hosts or archives from different timezones to the monitoring host are used, a drop-down list of available timezones is available from the options menu, which allows you to change the reporting timezone in the monitoring tools (this always defaults to localtime on the monitoring host - <B>not</B> the monitored host).</P>
+	<TD WIDTH=430><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmtime_clients.png" BORDER=0></CENTER></P></TD>
+</TABLE>
 <P>pmtime can actually coordinate the flow of time to multiple client programs.  For example, if a second pmchart is started via the <I>Options</I> menu, it will share the time control process with the original pmchart and both will be updated in lock-step.  This is true for both Live and Archive monitoring, and there is even support for controlling time for other PCP clients (like pmval) as well.</P>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
@@ -63,7 +71,7 @@
 <HR>
 <CENTER>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2009 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
+	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
 	<TD WIDTH=50%><P ALIGN=RIGHT>PCP GUI</P></TD> </TR>
 </TABLE>
 </CENTER>
