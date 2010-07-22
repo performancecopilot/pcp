@@ -253,3 +253,77 @@ If freemem fails below the lostfree threshold then paging out daemon
 starts its activity. Default value for lotsfree is 1/64 of physical memory
 or 512K (which ever is larger).
 @mem.availrmem Amount of resident memory in the system
+
+@kernel.all.io.bread Physical block reads across all CPUs
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.all.io.bwrite Physical block writes across all CPUs
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.all.io.lread Logical block reads across all CPUs
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.all.io.lwrite Logical block writes across all CPUs
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.all.io.phread Raw I/O reads across all CPUs
+@kernel.all.io.phwrite Raw I/O writes across all CPUs
+@kernel.all.io.intr Device interrupts across all CPUs
+
+@kernel.percpu.io.bread Physical block reads
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.percpu.io.bwrite Physical block writes
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.percpu.io.lread Logical block reads
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.percpu.io.lwrite Logical block writes
+This metric is only updated if reading or writing to UFS mounted filesystems,
+reads and writes to ZFS do not update this metric.
+@kernel.percpu.io.phread Raw I/O reads
+@kernel.percpu.io.phwrite Raw I/O writes
+@kernel.percpu.io.intr Device interrupts
+
+@hinv.ncpu Number of CPUs in the system
+@hinv.ndisk Number of disks in the system
+
+@kernel.all.trap Traps across all CPUs
+@kernel.all.pswitch Context switches across all CPUs
+@kernel.all.syscall Total number of system calls across all CPUs
+@kernel.all.sysexec Total number of calls from exec(2) family across all CPUs
+@kernel.all.sysfork Total number of new processes created across all CPUs
+@kernel.all.sysvfork Total number of new processes created across all CPUs
+Unlike fork vfork does not copy all the virtual memory of the parent
+process into the child process and is mostly used to create new system context
+for execve(2). vfork(2) calls are not counted towards kernel.all.sysfork.
+@kernel.all.sysread Total number of system calls from read(2) family across all CPUs
+@kernel.all.syswrite Total number of system calls from write (2) family across all CPUs
+
+@kernel.percpu.trap Traps on each CPUs
+@kernel.percpu.pswitch Context switches on each CPUs
+@kernel.percpu.syscall Total number of system calls on each CPU
+@kernel.percpu.sysexec Total number of calls from exec(2) family on each CPU
+@kernel.percpu.sysfork Total number of new processes created on each CPU
+@kernel.percpu.sysvfork Total number of new processes created on each CPU
+Unlike fork vfork does not copy all the virtual memory of the parent
+process into the child process and is mostly used to create new system context
+for execve(2). vfork(2) calls are not counted towards kernel.percpu.sysfork.
+@kernel.percpu.sysread Total number of system calls from read(2) family on each CPU
+@kernel.percpu.syswrite Total number of system calls from write (2) family on each CPU
+
+@kernel.all.load Classic load avergage in 1, 5 and 15 minutes intervals
+
+@kernel.all.cpu.wait.io	Time spent waiting for I/O across all CPUs
+This metric is not updated by OpenSolaris kernel.
+@kernel.all.cpu.wait.pio Time spent wait for polled I/O across all CPUs
+This metric is not updated by OpenSolaris kernel.
+@kernel.all.cpu.wait.swap Time spent wait for swap across all CPUs
+This metric is not updated by OpenSolaris kernel.
+@kernel.percpu.cpu.wait.io Time spent waiting for I/O on per-CPU basis
+This metric is not updated by OpenSolaris kernel.
+@kernel.percpu.cpu.wait.pio Time spent waiting for polled I/O on per-CPU basis
+This metric is not updated by OpenSolaris kernel.
+@kernel.percpu.cpu.wait.swap Time spent waiting swap on per-CPU basis
+This metric is not updated by OpenSolaris kernel.
