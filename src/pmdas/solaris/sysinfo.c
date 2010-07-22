@@ -1,16 +1,17 @@
 /*
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ * Copyright (c) 2010 Max Matveev.  All Rights Reserved.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
@@ -132,6 +133,41 @@ sysinfo_prefetch(void)
 	ctl[i].fetched = 0;
 }
 
+static int
+kstat_fetch_named(pmAtomValue *atom, char *metric, int shift_bits)
+{
+    kstat_t *ks;
+
+    if ((ks = kstat_lookup(kc, "unix", -1, "system_pages")) != NULL) {
+	kstat_named_t *kn;
+
+	kstat_read(kc, ks, NULL);
+
+	if ((kn = kstat_data_lookup(ks, metric)) != NULL) {
+	    switch (kn->data_type) {
+	    case KSTAT_DATA_UINT64:
+		atom->ull = kn->value.ui64;
+		break;
+	    case KSTAT_DATA_INT64:
+		atom->ull = kn->value.i64;
+		break;
+	    case KSTAT_DATA_UINT32:
+		atom->ull = kn->value.ui32;
+		break;
+	    case KSTAT_DATA_INT32:
+		atom->ull = kn->value.i32;
+		break;
+	    default:
+		return 0;
+	    }
+
+	    atom->ull = (atom->ull * pagesize) >> shift_bits;
+	    return 1;
+	}
+    }
+    return 0;
+}
+
 int
 sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 {
@@ -139,41 +175,21 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
     int			i;
     int			ok;
     int			offset;
-    kstat_t		*ks;
     struct utsname	u;
 
     /* Special processing of metrics which notionally belong
      * to sysinfo category */
     switch (pmid_item(mdesc->m_desc.pmid)) {
     case 109: /* hinv.physmem */
-	if ((ks = kstat_lookup(kc, "unix", -1, "system_pages")) != NULL) {
-	    kstat_named_t *kn;
-
-	    kstat_read(kc, ks, NULL);
-
-	    if ((kn = kstat_data_lookup(ks, "physmem")) != NULL) {
-		switch (kn->data_type) {
-		case KSTAT_DATA_UINT64:
-		    atom->ull = kn->value.ui64;
-		    break;
-		case KSTAT_DATA_INT64:
-		    atom->ull = kn->value.i64;
-		    break;
-		case KSTAT_DATA_UINT32:
-		    atom->ull = kn->value.ui32;
-		    break;
-		case KSTAT_DATA_INT32:
-		    atom->ull = kn->value.i32;
-		    break;
-		default:
-		    return 0;
-		}
-
-		atom->ull = (atom->ull * pagesize) >> 20;
-		return 1;
-	    }
-	}
-	return 0;
+	return kstat_fetch_named(atom, "physmem", 20);
+    case 136: /* mem.physmem */
+	return kstat_fetch_named(atom, "physmem", 10);
+    case 137: /* mem.freemem */
+	return kstat_fetch_named(atom, "freemem", 10);
+    case 138: /* mem.lotsfree */
+	return kstat_fetch_named(atom, "lotsfree", 10);
+    case 139: /* mem.availrmem */
+	return kstat_fetch_named(atom, "availrmem", 10);
 
     case 108: /* hinv.pagesize */
 	atom->ul = pagesize;

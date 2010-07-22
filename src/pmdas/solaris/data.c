@@ -708,7 +708,24 @@ metricdesc_t metricdesc[] = {
 /* kernel.fsflush.time */
     { { PMDA_PMID(1,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_NSEC, 0)
-      }, M_KVM, FSF_STAT_OFFSET(fsf_time) }
+      }, M_KVM, FSF_STAT_OFFSET(fsf_time) },
+
+/* mem.physmem */
+    { { PMDA_PMID(0,136), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+      }, M_SYSINFO, -1 /* derived */ },
+/* mem.freemem */
+    { { PMDA_PMID(0,137), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+      }, M_SYSINFO, -1 /* derived */ },
+/* mem.lotsfree */
+    { { PMDA_PMID(0,138), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+      }, M_SYSINFO, -1 /* derived */ },
+/* mem.availrmem */
+    { { PMDA_PMID(0,139), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+      }, M_SYSINFO, -1 /* derived */ }
 
 /* remember to add trailing comma before adding more entries ... */
 };

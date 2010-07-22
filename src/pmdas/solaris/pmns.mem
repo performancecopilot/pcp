@@ -81,4 +81,8 @@
  */
 
 mem {
+	physmem		SOLARIS:0:136
+	freemem		SOLARIS:0:137
+	lotsfree	SOLARIS:0:138
+	availrmem	SOLARIS:0:139
 }

@@ -243,4 +243,13 @@ are locked before deciding if they could be coalesced, released or flushed
 to disk.
 @kernel.fsflush.released Number of free pages released by fsflush daemon
 @kernel.fsflush.time Amount of time fsflush daemon spent doing its work
-
+@mem.physmem Total physical system memory
+Total physical system memory size rounded down to the nearest page size
+boundary. This metric is the same as hinv.physmem but uses different
+units.
+@mem.freemem Amount of free memory in the system
+@mem.lotsfree Paging theshold
+If freemem fails below the lostfree threshold then paging out daemon
+starts its activity. Default value for lotsfree is 1/64 of physical memory
+or 512K (which ever is larger).
+@mem.availrmem Amount of resident memory in the system
