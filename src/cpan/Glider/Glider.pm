@@ -67,7 +67,7 @@ BEGIN {
 	$PKGNAME = 'pcp-glider';
 	$PKGURLS = 'file://D|/packages/',
 	$PKGCPAN = 'file://D|/minicpan/',
-	$VERSION = '0.9.6';
+	$VERSION = '0.9.7';
 	@ISA     = 'Perl::Dist::Strawberry';
 }
 
@@ -143,11 +143,11 @@ my %PKG = (
 	'vim'		=> 'PCP-vim-7.1-MSYS-1.0.11-1-bin.tar.gz',
 	'zlib'		=> 'PCP-zlib-1.2.3-MSYS-1.0.11-1.tar.gz',
 
-	'qt'		=> 'PCP-qt-4.3.4-lib.tar.gz',
+	'qt'		=> 'PCP-qt-4.6.3-lib.tar.gz',
 	'coin'		=> 'PCP-coin-2.5.0-lib.tar.gz',
 
-	'pcp'		=> 'pcp-3.3.0-1.tar.gz',
-	'pcp_gui'	=> 'pcp-gui-1.4.6.tar.gz',
+	'pcp'		=> 'pcp-3.3.3-1.tar.gz',
+	'pcp_gui'	=> 'pcp-gui-1.4.9.tar.gz',
 );
 
 sub output_fragment_name
