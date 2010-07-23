@@ -1,4 +1,5 @@
 zfs {
+	arc
 	used
 	snapshot
 	available	SOLARIS:0:69
@@ -25,4 +26,35 @@ zfs.snapshot {
 	used		SOLARIS:0:132
 	referenced	SOLARIS:0:133
 	compression	SOLARIS:0:134
+}
+
+zfs.arc {
+	size		SOLARIS:2:0
+	min_size	SOLARIS:2:1
+	max_size	SOLARIS:2:2
+	mru_size	SOLARIS:2:3
+	target_size	SOLARIS:2:4
+	hits
+	misses
+
+}
+
+zfs.arc.misses {
+	total			SOLARIS:2:5
+	demand_data		SOLARIS:2:6
+	demand_metadata		SOLARIS:2:7
+	prefetch_data		SOLARIS:2:8
+	prefetch_metadata	SOLARIS:2:9
+}
+
+zfs.arc.hits {
+	total			SOLARIS:2:10
+	mfu			SOLARIS:2:11
+	mru			SOLARIS:2:12
+	mfu_ghost		SOLARIS:2:13
+	mru_ghost		SOLARIS:2:14
+	demand_data		SOLARIS:2:15
+	demand_metadata		SOLARIS:2:16
+	prefetch_data		SOLARIS:2:17
+	prefetch_metadata	SOLARIS:2:18
 }

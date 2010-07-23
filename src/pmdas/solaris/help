@@ -327,3 +327,60 @@ This metric is not updated by OpenSolaris kernel.
 This metric is not updated by OpenSolaris kernel.
 @kernel.percpu.cpu.wait.swap Time spent waiting swap on per-CPU basis
 This metric is not updated by OpenSolaris kernel.
+
+@zfs.arc.size Total amount of memory used by ZFS ARC
+@zfs.arc.min_size Lower limit of them amount of memory for ZFS ARC
+@zfs.arc.max_size Upper limit of the amount of memory for ZFS ARC
+The default is to use 7/8 of total physical memory.
+@zfs.arc.mru_size Amount of memory used by the most recently used pages
+@zfs.arc.target_size "Ideal" size of the cached based on aging
+@zfs.arc.hits.total Number of times data is found in the cache
+@zfs.arc.hits.mfu Number of times data is found in the most frequently used buffers
+@zfs.arc.hits.mru Number of times data is found in the most recently used buffers
+@zfs.arc.hits.mfu_ghost Number of times MFU ghost buffer is accessed
+A ghost buffer is a buffer which is no longer cached but is still
+linked into the hash.
+@zfs.arc.hits.mru_ghost Number of times MRU ghost buffer is accessed
+A ghost buffer is a buffer which is no longer cached but is still
+linked into the hash.
+@zfs.arc.hits.demand_data Number of times file data is found in the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.hits.demand_metadata Number of times filesystem metadata is found in the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.hits.prefetch_data Number of times speculative request for data is satisfied from the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.hits.prefetch_metadata Number of times speculative request for metadata is satisfied from the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.misses.total Number of times the data is not found in the cache
+@zfs.arc.misses.demand_data Number of times file data is not found in the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.misses.demand_metadata Number of times filesystem metadata is not found in the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.misses.prefetch_data Number of times speculatively accessed file data is not found in the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.
+@zfs.arc.misses.prefetch_metadata Number of times speculatively accessed filesystem metadata is not found in the cache
+ARC statistics provide separate counters for demand vs prefetch
+and data vs metadata accesses: demand is a result of the direct
+request for a particular data, prefetch is a result of speculative
+request for a particular data.

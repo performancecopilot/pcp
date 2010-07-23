@@ -133,6 +133,27 @@ sysinfo_prefetch(void)
 	ctl[i].fetched = 0;
 }
 
+int
+kstat_named_to_pmAtom( const kstat_named_t *kn, pmAtomValue *atom)
+{
+    switch (kn->data_type) {
+    case KSTAT_DATA_UINT64:
+	atom->ull = kn->value.ui64;
+	return 1;
+    case KSTAT_DATA_INT64:
+	atom->ull = kn->value.i64;
+	return 1;
+    case KSTAT_DATA_UINT32:
+	atom->ull = kn->value.ui32;
+	return 1;
+    case KSTAT_DATA_INT32:
+	atom->ull = kn->value.i32;
+	return 1;
+    default:
+	return 0;
+    }
+}
+
 static int
 kstat_fetch_named(pmAtomValue *atom, char *metric, int shift_bits)
 {
@@ -141,28 +162,13 @@ kstat_fetch_named(pmAtomValue *atom, char *metric, int shift_bits)
     if ((ks = kstat_lookup(kc, "unix", -1, "system_pages")) != NULL) {
 	kstat_named_t *kn;
 
-	kstat_read(kc, ks, NULL);
+	if (kstat_read(kc, ks, NULL) == -1)
+	    return 0;
 
-	if ((kn = kstat_data_lookup(ks, metric)) != NULL) {
-	    switch (kn->data_type) {
-	    case KSTAT_DATA_UINT64:
-		atom->ull = kn->value.ui64;
-		break;
-	    case KSTAT_DATA_INT64:
-		atom->ull = kn->value.i64;
-		break;
-	    case KSTAT_DATA_UINT32:
-		atom->ull = kn->value.ui32;
-		break;
-	    case KSTAT_DATA_INT32:
-		atom->ull = kn->value.i32;
-		break;
-	    default:
-		return 0;
-	    }
-
-	    atom->ull = (atom->ull * pagesize) >> shift_bits;
-	    return 1;
+	if (((kn = kstat_data_lookup(ks, metric)) != NULL) &&
+	    kstat_named_to_pmAtom(kn, atom)) {
+		atom->ull = (atom->ull * pagesize) >> shift_bits;
+		return 1;
 	}
     }
     return 0;

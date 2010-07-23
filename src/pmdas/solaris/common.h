@@ -45,6 +45,7 @@
 #define M_ZPOOL_PERDISK	5
 #define M_NETLINK	6
 #define M_KVM		7
+#define M_ARCSTATS	8
 
 typedef struct {
     void	(*m_init)(int);
@@ -86,6 +87,9 @@ void kvm_init(int);
 void kvm_refresh(void);
 int kvm_fetch(pmdaMetric *, int, pmAtomValue *);
 
+void arcstats_refresh(void);
+int arcstats_fetch(pmdaMetric *, int, pmAtomValue *);
+
 /*
  * metric descriptions
  */
@@ -116,6 +120,7 @@ extern int		indomtab_sz;
  * kstat() control
  */
 extern kstat_ctl_t		*kc;
+int kstat_named_to_pmAtom(const kstat_named_t *, pmAtomValue *);
 
 /* Snarfed from usr/src/uts/common/fs/fsflush.c in OpenSolaris source tree */
 typedef struct {

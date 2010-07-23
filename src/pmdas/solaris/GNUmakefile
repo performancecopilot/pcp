@@ -28,7 +28,7 @@ LIBTARGET = pmda_solaris.so
 CONF_LINE = "solaris	75	dso	solaris_init	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES	= solaris.c data.c sysinfo.c disk.c zpool.c zfs.c \
-	 zpool_perdisk.c netmib2.c netlink.c kvm.c
+	 zpool_perdisk.c netmib2.c netlink.c kvm.c arcstats.c
 
 BARE_NS = disk kernel mem network hinv zpool zfs zpool_perdisk
 PMNS	= $(BARE_NS:%=pmns.%)

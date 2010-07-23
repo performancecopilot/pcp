@@ -57,7 +57,8 @@ method_t methodtab[] = {
     { zfs_init, zfs_refresh, zfs_fetch },
     { zpool_perdisk_init, zpool_perdisk_refresh, zpool_perdisk_fetch },
     { netlink_init, netlink_refresh, netlink_fetch },
-    { kvm_init, kvm_refresh, kvm_fetch }
+    { kvm_init, kvm_refresh, kvm_fetch },
+    { NULL, arcstats_refresh, arcstats_fetch }
 };
 int methodtab_sz = sizeof(methodtab) / sizeof(methodtab[0]);
 
@@ -725,7 +726,84 @@ metricdesc_t metricdesc[] = {
 /* mem.availrmem */
     { { PMDA_PMID(0,139), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
-      }, M_SYSINFO, -1 /* derived */ }
+      }, M_SYSINFO, -1 /* derived */ },
+
+/* zfs.arc.size */
+    { { PMDA_PMID(2,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"size"},
+/* zfs.arc.min_size */
+    { { PMDA_PMID(2,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"c_min"},
+/* zfs.arc.max_size */
+    { { PMDA_PMID(2,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"c_max"},
+/* zfs.arc.mru_size */
+    { { PMDA_PMID(2,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"p"},
+/* zfs.arc.target_size */
+    { { PMDA_PMID(2,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"c"},
+/* zfs.arc.misses.total */
+    { { PMDA_PMID(2,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"misses"},
+/* zfs.arc.misses.demand_data */
+    { { PMDA_PMID(2,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"demand_data_misses"},
+/* zfs.arc.misses.demand_metadata */
+    { { PMDA_PMID(2,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"demand_metadata_misses"},
+/* zfs.arc.misses.prefetch_data */
+    { { PMDA_PMID(2,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"prefetch_data_misses"},
+/* zfs.arc.misses.prefetch_metadata */
+    { { PMDA_PMID(2,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"prefetch_metadata_misses"},
+/* zfs.arc.hits.total */
+    { { PMDA_PMID(2,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"hits"},
+/* zfs.arc.hits.mfu */
+    { { PMDA_PMID(2,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"mfu_hits"},
+/* zfs.arc.hits.mru */
+    { { PMDA_PMID(2,12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"mru_hits"},
+/* zfs.arc.hits.mfu_ghost */
+    { { PMDA_PMID(2,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"mfu_ghost_hits"},
+/* zfs.arc.hits.mru_ghost */
+    { { PMDA_PMID(2,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"mru_ghost_hits"},
+/* zfs.arc.hits.demand_data */
+    { { PMDA_PMID(2,15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"demand_data_hits"},
+/* zfs.arc.hits.demand_metadata */
+    { { PMDA_PMID(2,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"demand_metadata_hits"},
+/* zfs.arc.hits.prefetch_data */
+    { { PMDA_PMID(2,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"prefetch_data_hits"},
+/* zfs.arc.hits.prefetch_metadata */
+    { { PMDA_PMID(2,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_ARCSTATS, (ptrdiff_t)"prefetch_metadata_hits"}
 
 /* remember to add trailing comma before adding more entries ... */
 };
