@@ -7,6 +7,7 @@ HEADERS = $(shell echo qwt*.h)
 SOURCES = $(shell echo qwt*.cpp)
 CONFFILES = $(PROJECT)
 LSRCFILES = $(PROJECT).in $(SOURCES) $(HEADERS)
+LDIRT = Makefile*
 
 default: $(PROJECT)
 	$(QTMAKE)

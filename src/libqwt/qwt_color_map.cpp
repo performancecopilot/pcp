@@ -354,10 +354,15 @@ QColor QwtLinearColorMap::color2() const
   \param interval Range for all values
   \param value Value to map into a rgb value
 */
-QRgb QwtLinearColorMap::rgb(const QwtDoubleInterval &interval,
-    double value) const
+QRgb QwtLinearColorMap::rgb(
+    const QwtDoubleInterval &interval, double value) const
 {
-    const double ratio = (value - interval.minValue()) / interval.width();
+    const double width = interval.width();
+
+    double ratio = 0.0;
+    if ( width > 0.0 )
+        ratio = (value - interval.minValue()) / width;
+
     return d_data->colorStops.rgb(d_data->mode, ratio);
 }
 
@@ -370,13 +375,15 @@ QRgb QwtLinearColorMap::rgb(const QwtDoubleInterval &interval,
 unsigned char QwtLinearColorMap::colorIndex(
     const QwtDoubleInterval &interval, double value) const
 {
-    if ( !interval.isValid() || value <= interval.minValue() )
+    const double width = interval.width();
+
+    if ( width <= 0.0 || value <= interval.minValue() )
         return 0;
 
     if ( value >= interval.maxValue() )
         return (unsigned char)255;
 
-    const double ratio = (value - interval.minValue()) / interval.width();
+    const double ratio = (value - interval.minValue()) / width;
     
     unsigned char index;
     if ( d_data->mode == FixedColors )
@@ -479,9 +486,10 @@ QColor QwtAlphaColorMap::color() const
 QRgb QwtAlphaColorMap::rgb(const QwtDoubleInterval &interval,
     double value) const
 {
-    if ( interval.isValid() )
+    const double width = interval.width();
+    if ( width >= 0.0 )
     {
-        const double ratio = (value - interval.minValue()) / interval.width();
+        const double ratio = (value - interval.minValue()) / width;
         int alpha = qRound(255 * ratio);
         if ( alpha < 0 )
             alpha = 0;

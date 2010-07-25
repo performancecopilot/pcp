@@ -82,12 +82,13 @@ public:
     */
 
     /*! 
-      \sa QwtDblRange::isValid
+      \sa QwtDblRange::isValid()
     */
     bool isValid() const { return QwtDoubleRange::isValid(); }
 
     /*! 
-      \sa QwtDblRange::isValid
+      \param valid true/false
+      \sa QwtDblRange::isValid()
     */
     void setValid(bool valid) { QwtDoubleRange::setValid(valid); }
 

@@ -51,7 +51,7 @@ public:
       - Qt::Horizonal combines with NoScale, TopScale and BottomScale
       - Qt::Vertical combines with NoScale, LeftScale and RightScale
 
-      \sa QwtSlider::QwtSlider
+      \sa QwtSlider()
      */
     enum ScalePos 
     { 
@@ -65,7 +65,7 @@ public:
 
     /*! 
       Background style.
-      \sa QwtSlider::QwtSlider
+      \sa QwtSlider()
      */
     enum BGSTYLE 
     { 

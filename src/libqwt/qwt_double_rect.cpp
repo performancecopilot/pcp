@@ -17,7 +17,7 @@
 /*! 
     Constructs a null point.
 
-    \sa QwtDoublePoint::isNull
+    \sa QwtDoublePoint::isNull()
 */
 QwtDoublePoint::QwtDoublePoint():
     d_x(0.0),
@@ -330,6 +330,19 @@ QwtDoubleRect::QwtDoubleRect(
     d_top(p.y()),
     d_bottom(p.y() + size.height())
 {
+}
+
+QwtDoubleRect::QwtDoubleRect(const QRect &rect):
+    d_left(rect.left()),
+    d_right(rect.right()),
+    d_top(rect.top()),
+    d_bottom(rect.bottom())
+{
+}
+
+QRect QwtDoubleRect::toRect() const
+{
+    return QRect(qRound(x()), qRound(y()), qRound(width()), qRound(height()));
 }
 
 /*! 

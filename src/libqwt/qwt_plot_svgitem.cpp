@@ -19,9 +19,9 @@
 #if QT_VERSION < 0x040000
 #include <qpaintdevicemetrics.h>
 #endif
-#include <qwt_scale_map.h>
-#include <qwt_legend.h>
-#include <qwt_legend_item.h>
+#include "qwt_scale_map.h"
+#include "qwt_legend.h"
+#include "qwt_legend_item.h"
 #include "qwt_plot_svgitem.h"
 
 class QwtPlotSvgItem::PrivateData
@@ -179,8 +179,8 @@ void QwtPlotSvgItem::draw(QPainter *painter,
         if ( bRect.contains(cRect) )
             rect = cRect;
 
-        render(painter, viewBox(rect),
-            transform(xMap, yMap, rect) );
+        const QRect r = transform(xMap, yMap, rect);
+        render(painter, viewBox(rect), r);
     }
 }
 

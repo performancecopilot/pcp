@@ -24,7 +24,7 @@ class QWT_EXPORT QwtSymbol
 public:
     /*!
         Style
-        \sa QwtSymbol::setStyle, QwtSymbol::style
+        \sa setStyle(), style()
      */
     enum Style 
     { 
@@ -55,7 +55,9 @@ public:
     virtual ~QwtSymbol();
     
     bool operator!=(const QwtSymbol &) const;
-    bool operator==(const QwtSymbol &) const;
+    virtual bool operator==(const QwtSymbol &) const;
+
+    virtual QwtSymbol *clone() const;
 
     void setSize(const QSize &s);
     void setSize(int a, int b = -1);

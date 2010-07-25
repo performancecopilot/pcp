@@ -149,7 +149,9 @@ void QwtWheel::setColorArray()
   The number of grooves is limited to 6 <= cnt <= 50.
   Values outside this range will be clipped.
   The default value is 10.
+
   \param cnt Number of grooves per 360 degrees
+  \sa tickCnt()
 */
 void QwtWheel::setTickCnt(int cnt)
 {
@@ -157,6 +159,10 @@ void QwtWheel::setTickCnt(int cnt)
     update();
 }
 
+/*!
+  \return Number of grooves in the wheel's surface.
+  \sa setTickCnt()
+*/
 int QwtWheel::tickCnt() const 
 {
     return d_data->tickCnt;
@@ -178,9 +184,11 @@ double QwtWheel::mass() const
   Values outside the allowed range will be clipped.
 
   The internal border defaults to 2.
+
   \param w border width
+  \sa internalBorder()
 */
-void QwtWheel::setInternalBorder( int w )
+void QwtWheel::setInternalBorder(int w)
 {
     const int d = qwtMin( width(), height() ) / 3;
     w = qwtMin( w, d );
@@ -188,15 +196,24 @@ void QwtWheel::setInternalBorder( int w )
     layoutWheel();
 }
 
+/*!
+   \return Internal border width of the wheel.
+   \sa setInternalBorder()
+*/
 int QwtWheel::internalBorder() const 
 {
     return d_data->intBorder;
 }
 
-//! Draw the Wheel's background gradient
-void QwtWheel::drawWheelBackground( QPainter *p, const QRect &r )
+/*! 
+   Draw the Wheel's background gradient
+
+   \param painter Painter
+   \param r Bounding rectangle
+*/
+void QwtWheel::drawWheelBackground(QPainter *painter, const QRect &r )
 {
-    p->save();
+    painter->save();
 
     //
     // initialize pens
@@ -239,21 +256,23 @@ void QwtWheel::drawWheelBackground( QPainter *p, const QRect &r )
         for (int i = 1; i < nFields; i++ )
         {
             const int x2 = rx + (rw * i) / nFields;
-            p->fillRect(x1, ry, x2-x1 + 1 ,rh, d_data->colors[qwtAbs(i-hiPos)]);
+            painter->fillRect(x1, ry, x2-x1 + 1 ,rh, 
+                d_data->colors[qwtAbs(i-hiPos)]);
             x1 = x2 + 1;
         }
-        p->fillRect(x1, ry, rw - (x1 - rx), rh, d_data->colors[NUM_COLORS - 1]);
+        painter->fillRect(x1, ry, rw - (x1 - rx), rh, 
+            d_data->colors[NUM_COLORS - 1]);
 
         //
         // draw internal border
         //
-        p->setPen(lightPen);
+        painter->setPen(lightPen);
         ry = r.y() + d_data->intBorder / 2;
-        p->drawLine(r.x(), ry, r.x() + r.width() , ry);
+        painter->drawLine(r.x(), ry, r.x() + r.width() , ry);
 
-        p->setPen(darkPen);
+        painter->setPen(darkPen);
         ry = r.y() + r.height() - (d_data->intBorder - d_data->intBorder / 2);
-        p->drawLine(r.x(), ry , r.x() + r.width(), ry);
+        painter->drawLine(r.x(), ry , r.x() + r.width(), ry);
     }
     else // Qt::Vertical
     {
@@ -269,24 +288,26 @@ void QwtWheel::drawWheelBackground( QPainter *p, const QRect &r )
         for ( int i = 1; i < nFields; i++ )
         {
             const int y2 = ry + (rh * i) / nFields;
-            p->fillRect(rx, y1, rw, y2-y1 + 1, d_data->colors[qwtAbs(i-hiPos)]);
+            painter->fillRect(rx, y1, rw, y2-y1 + 1, 
+                d_data->colors[qwtAbs(i-hiPos)]);
             y1 = y2 + 1;
         }
-        p->fillRect(rx, y1, rw, rh - (y1 - ry), d_data->colors[NUM_COLORS - 1]);
+        painter->fillRect(rx, y1, rw, rh - (y1 - ry), 
+            d_data->colors[NUM_COLORS - 1]);
 
         //
         //  draw internal borders
         //
-        p->setPen(lightPen);
+        painter->setPen(lightPen);
         rx = r.x() + d_data->intBorder / 2;
-        p->drawLine(rx, r.y(), rx, r.y() + r.height());
+        painter->drawLine(rx, r.y(), rx, r.y() + r.height());
 
-        p->setPen(darkPen);
+        painter->setPen(darkPen);
         rx = r.x() + r.width() - (d_data->intBorder - d_data->intBorder / 2);
-        p->drawLine(rx, r.y(), rx , r.y() + r.height());
+        painter->drawLine(rx, r.y(), rx , r.y() + r.height());
     }
 
-    p->restore();
+    painter->restore();
 }
 
 
@@ -299,7 +320,9 @@ void QwtWheel::drawWheelBackground( QPainter *p, const QRect &r )
   to get from the minimum value to the maximum value.
 
   The default setting of the total angle is 360 degrees.
+
   \param angle total angle in degrees
+  \sa totalAngle()
 */
 void QwtWheel::setTotalAngle(double angle)
 {
@@ -310,6 +333,10 @@ void QwtWheel::setTotalAngle(double angle)
     update();
 }
 
+/*!
+  \return Total angle which the wheel can be turned.
+  \sa setTotalAngle()
+*/
 double QwtWheel::totalAngle() const 
 {
     return d_data->totalAngle;
@@ -354,7 +381,9 @@ void QwtWheel::setOrientation(Qt::Orientation o)
   You may use this function for fine-tuning the appearance of
   the wheel. The default value is 175 degrees. The value is
   limited from 10 to 175 degrees.
+
   \param angle Visible angle in degrees
+  \sa viewAngle(), setTotalAngle()
 */
 void QwtWheel::setViewAngle(double angle)
 {
@@ -362,6 +391,10 @@ void QwtWheel::setViewAngle(double angle)
     update();
 }
 
+/*!
+  \return Visible portion of the wheel
+  \sa setViewAngle(), totalAngle()
+*/
 double QwtWheel::viewAngle() const 
 {
     return d_data->viewAngle;
@@ -369,15 +402,15 @@ double QwtWheel::viewAngle() const
 
 /*!
   \brief Redraw the wheel
-  \param p painter
+  \param painter painter
   \param r contents rectangle
 */
-void QwtWheel::drawWheel( QPainter *p, const QRect &r )
+void QwtWheel::drawWheel( QPainter *painter, const QRect &r )
 {
     //
     // draw background gradient
     //
-    drawWheelBackground( p, r );
+    drawWheelBackground( painter, r );
 
     if ( maxValue() == minValue() || d_data->totalAngle == 0.0 )
         return;
@@ -438,10 +471,10 @@ void QwtWheel::drawWheel( QPainter *p, const QRect &r )
             //
             if ( (tickPos <= maxpos) && (tickPos > minpos) )
             {
-                p->setPen(dark);
-                p->drawLine(tickPos -1 , l1, tickPos - 1,  l2 );  
-                p->setPen(light);
-                p->drawLine(tickPos, l1, tickPos, l2);  
+                painter->setPen(dark);
+                painter->drawLine(tickPos -1 , l1, tickPos - 1,  l2 );  
+                painter->setPen(light);
+                painter->drawLine(tickPos, l1, tickPos, l2);  
             }
         }
     }
@@ -480,10 +513,10 @@ void QwtWheel::drawWheel( QPainter *p, const QRect &r )
             //
             if ( (tickPos <= maxpos) && (tickPos > minpos) )
             {
-                p->setPen(dark);
-                p->drawLine(l1, tickPos - 1 ,l2, tickPos - 1);  
-                p->setPen(light);
-                p->drawLine(l1, tickPos, l2, tickPos);  
+                painter->setPen(dark);
+                painter->drawLine(l1, tickPos - 1 ,l2, tickPos - 1);  
+                painter->setPen(light);
+                painter->drawLine(l1, tickPos, l2, tickPos);  
             }
         }
     }
@@ -560,7 +593,10 @@ void QwtWheel::paintEvent(QPaintEvent *e)
     }
 }
 
-//! Redraw panel and wheel
+/*! 
+   Redraw panel and wheel
+   \param painter Painter
+*/
 void QwtWheel::draw(QPainter *painter, const QRect&)
 {
     qDrawShadePanel( painter, rect().x(), rect().y(),

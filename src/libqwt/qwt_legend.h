@@ -21,7 +21,7 @@
 #endif
 
 class QScrollBar;
-class QwtPlotItem;
+class QwtLegendItemManager;
 
 /*!
   \brief The legend widget
@@ -30,7 +30,7 @@ class QwtPlotItem;
   items might be any type of widget, but in general they will be
   a QwtLegendItem.
 
-  \sa QwtLegendItem, QwtPlot
+  \sa QwtLegendItem, QwtLegendItemManager QwtPlot
 */
 
 class QWT_EXPORT QwtLegend : public QFrame
@@ -66,7 +66,24 @@ public:
         AutoIdentifier = 2
     };
 
-    //!  Interaction mode for the legend items
+    /*!
+      \brief Interaction mode for the legend items
+
+       - ReadOnlyItem\n
+         The legend item is not interactive, like a label
+
+       - ClickableItem\n
+         The legend item is clickable, like a push button
+
+       - CheckableItem\n
+         The legend item is checkable, like a checkable button
+
+       Default is ReadOnlyItem.
+       \sa setItemMode(), itemMode(), QwtLegendItem::IdentifierMode
+           QwtLegendItem::clicked(), QwtLegendItem::checked(),
+           QwtPlot::legendClicked(), QwtPlot::legendChecked()
+     */
+
     enum LegendItemMode
     {
         ReadOnlyItem,
@@ -88,11 +105,11 @@ public:
     QWidget *contentsWidget();
     const QWidget *contentsWidget() const;
 
-    void insert(const QwtPlotItem *, QWidget *);
-    void remove(const QwtPlotItem *);
+    void insert(const QwtLegendItemManager *, QWidget *);
+    void remove(const QwtLegendItemManager *);
 
-    QWidget *find(const QwtPlotItem *) const;
-    QwtPlotItem *find(const QWidget *) const;
+    QWidget *find(const QwtLegendItemManager *) const;
+    QwtLegendItemManager *find(const QWidget *) const;
 
 #if QT_VERSION < 0x040000
     virtual QValueList<QWidget *> legendItems() const;

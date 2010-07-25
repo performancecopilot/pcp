@@ -33,7 +33,7 @@ public:
 
   \param canvas Plot canvas to pan, also the parent object
 
-  \sa setAxisEnabled
+  \sa setAxisEnabled()
 */
 QwtPlotPanner::QwtPlotPanner(QwtPlotCanvas *canvas):
     QwtPanner(canvas)
@@ -59,7 +59,7 @@ QwtPlotPanner::~QwtPlotPanner()
    \param axis Axis, see QwtPlot::Axis
    \param on On/Off
 
-   \sa isAxisEnabled, moveCanvas
+   \sa isAxisEnabled(), moveCanvas()
 */
 void QwtPlotPanner::setAxisEnabled(int axis, bool on)
 {
@@ -73,7 +73,7 @@ void QwtPlotPanner::setAxisEnabled(int axis, bool on)
    \param axis Axis, see QwtPlot::Axis
    \return True, if the axis is enabled
    
-   \sa setAxisEnabled, moveCanvas
+   \sa setAxisEnabled(), moveCanvas()
 */
 bool QwtPlotPanner::isAxisEnabled(int axis) const
 {
@@ -125,7 +125,7 @@ const QwtPlot *QwtPlotPanner::plot() const
    \param dx Pixel offset in x direction
    \param dy Pixel offset in y direction
 
-   \sa QwtPanner::panned
+   \sa QwtPanner::panned()
 */
 void QwtPlotPanner::moveCanvas(int dx, int dy)
 {
@@ -146,8 +146,8 @@ void QwtPlotPanner::moveCanvas(int dx, int dy)
 
         const QwtScaleMap map = plot->canvasMap(axis);
 
-        const int i1 = map.transform(plot->axisScaleDiv(axis)->lBound());
-        const int i2 = map.transform(plot->axisScaleDiv(axis)->hBound());
+        const int i1 = map.transform(plot->axisScaleDiv(axis)->lowerBound());
+        const int i2 = map.transform(plot->axisScaleDiv(axis)->upperBound());
 
         double d1, d2;
         if ( axis == QwtPlot::xBottom || axis == QwtPlot::xTop )

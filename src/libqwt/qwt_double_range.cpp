@@ -7,6 +7,7 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include <cfloat>
 #include "qwt_double_range.h"
 #include "qwt_math.h"
 
@@ -76,7 +77,7 @@ void QwtDoubleRange::setNewValue(double x, bool align)
     if (x < vmin)
     {
         if ((d_periodic) && (vmin != vmax))
-           d_value = x + ceil( (vmin - x) / (vmax - vmin ) ) 
+           d_value = x + ::ceil( (vmin - x) / (vmax - vmin ) ) 
               * (vmax - vmin);
         else
            d_value = vmin;
@@ -84,7 +85,7 @@ void QwtDoubleRange::setNewValue(double x, bool align)
     else if (x > vmax)
     {
         if ((d_periodic) && (vmin != vmax))
-           d_value = x - ceil( ( x - vmax) / (vmax - vmin )) 
+           d_value = x - ::ceil( ( x - vmax) / (vmax - vmin )) 
               * (vmax - vmin);
         else
            d_value = vmax;
@@ -99,18 +100,20 @@ void QwtDoubleRange::setNewValue(double x, bool align)
     if (align)
     {
         if (d_step != 0.0)
+        {
            d_value = d_minValue +
-             qRound((d_value - d_minValue) / d_step) * d_step;
+             qwtRound((d_value - d_minValue) / d_step) * d_step;
+        }
         else
-           d_value = d_minValue;
+            d_value = d_minValue;
         
         // correct rounding error at the border
         if (fabs(d_value - d_maxValue) < MinEps * qwtAbs(d_step))
-           d_value = d_maxValue;
+            d_value = d_maxValue;
 
         // correct rounding error if value = 0
-        if (fabs(d_value) < MinEps * qwtAbs(d_step))
-           d_value = 0.0;
+        if (::fabs(d_value) < MinEps * qwtAbs(d_step))
+            d_value = 0.0;
     }
 
     if (!d_isValid || d_prevValue != d_value)
@@ -214,7 +217,7 @@ void QwtDoubleRange::setStep(double vstep)
        newStep = intv * DefaultRelStep;
     else
     {
-        if ((intv > 0 && vstep < 0) || (intv < 0 && vstep > 0))
+        if ( (intv > 0 && vstep < 0) || (intv < 0 && vstep > 0) )
            newStep = -vstep;
         else
            newStep = vstep;
@@ -308,7 +311,7 @@ void QwtDoubleRange::stepChange()
 
 /*!
   \return the step size
-  \sa QwtDoubleRange::setStep, QwtDoubleRange::setRange
+  \sa setStep(), setRange()
 */
 double QwtDoubleRange::step() const
 {
@@ -321,7 +324,7 @@ double QwtDoubleRange::step() const
   maxValue returns the value which has been specified
   as the second parameter in  QwtDoubleRange::setRange.
     
-  \sa QwtDoubleRange::setRange()
+  \sa setRange()
 */  
 double QwtDoubleRange::maxValue() const
 {   
@@ -334,7 +337,7 @@ double QwtDoubleRange::maxValue() const
   minValue returns the value which has been specified
   as the first parameter in  setRange().
     
-  \sa QwtDoubleRange::setRange()
+  \sa setRange()
 */
 double QwtDoubleRange::minValue() const 
 {
@@ -343,7 +346,7 @@ double QwtDoubleRange::minValue() const
 
 /*!
   \brief Returns true if the range is periodic
-  \sa QwtDoubleRange::setPeriodic()
+  \sa setPeriodic()
 */
 bool QwtDoubleRange::periodic() const 
 { 

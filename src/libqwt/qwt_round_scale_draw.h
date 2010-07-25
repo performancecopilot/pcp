@@ -60,6 +60,7 @@ private:
     PrivateData *d_data;
 };
 
+//! Move the center of the scale draw, leaving the radius unchanged
 inline void QwtRoundScaleDraw::moveCenter(int x, int y)
 {
     moveCenter(QPoint(x, y));

@@ -51,20 +51,15 @@ class QwtPlotPrintFilter;
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 
-QwtPlot *myPlot;
-double x[100], y1[100], y2[100];        // x and y values
-
-myPlot = new QwtPlot("Two Curves", parent);
+QwtPlot *myPlot = new QwtPlot("Two Curves", parent);
 
 // add curves
 QwtPlotCurve *curve1 = new QwtPlotCurve("Curve 1");
 QwtPlotCurve *curve2 = new QwtPlotCurve("Curve 2");
 
-getSomeValues(x, y1, y2);
-
 // copy the data into the curves
-curve1->setData(x, y1, 100);
-curve2->setData(x, y2, 100);
+curve1->setData(...);
+curve2->setData(...);
 
 curve1->attach(myPlot);
 curve2->attach(myPlot);
@@ -76,14 +71,19 @@ myPlot->replot();
 
 class QWT_EXPORT QwtPlot: public QFrame, public QwtPlotDict
 {
-    friend class QwtPlotCanvas;
-
     Q_OBJECT
     Q_PROPERTY( QString propertiesDocument 
         READ grabProperties WRITE applyProperties )
 
 public:
-    //! Axis index
+    /*! 
+      Axis index
+
+      - yLeft\n
+      - yRight\n
+      - xBottom\n
+      - xTop\n
+     */
     enum Axis 
     { 
         yLeft, 
@@ -95,12 +95,26 @@ public:
     };
 
     /*! 
-        \brief Position of the legend, relative to the canvas.
+        Position of the legend, relative to the canvas.
 
-        ExternalLegend means that only the content of the legend 
-        will be handled by QwtPlot, but not its geometry. 
-        This might be interesting if an application wants to
-        have a legend in an external window.
+        - LeftLegend\n
+          The legend will be left from the yLeft axis.
+        - RightLegend\n
+          The legend will be right from the yLeft axis.
+        - BottomLegend\n
+          The legend will be right below the xBottom axis.
+        - TopLegend\n
+          The legend will be between xTop axis and the title.
+        - ExternalLegend\n
+          External means that only the content of the legend 
+          will be handled by QwtPlot, but not its geometry. 
+          This might be interesting if an application wants to
+          have a legend in an external window ( or on the canvas ).
+
+        \note In case of ExternalLegend, the legend is not 
+              printed by print().
+
+        \sa insertLegend()
      */
     enum LegendPosition 
     {
@@ -186,6 +200,8 @@ public:
     void setAxisScaleDiv(int axisId, const QwtScaleDiv &);
     void setAxisScaleDraw(int axisId, QwtScaleDraw *);
 
+    double axisStepSize(int axisId) const;
+
     const QwtScaleDiv *axisScaleDiv(int axisId) const;
     QwtScaleDiv *axisScaleDiv(int axisId);
 
@@ -226,6 +242,9 @@ public:
     virtual QSize minimumSizeHint() const;
 
     virtual void updateLayout();
+    virtual void drawCanvas(QPainter *);
+
+    void updateAxes();
 
     virtual bool event(QEvent *);
 
@@ -238,7 +257,7 @@ signals:
                  selected legend item
 
       \note clicks are disabled as default
-      \sa QwtLegend::setItemMode, QwtLegend::itemMode
+      \sa QwtLegend::setItemMode(), QwtLegend::itemMode()
      */
     void legendClicked(QwtPlotItem *plotItem);
 
@@ -251,13 +270,13 @@ signals:
       \param on True when the legen item is checked
 
       \note clicks are disabled as default
-      \sa QwtLegend::setItemMode, QwtLegend::itemMode
+      \sa QwtLegend::setItemMode(), QwtLegend::itemMode()
      */
 
     void legendChecked(QwtPlotItem *plotItem, bool on);
 
 public slots:
-    void clear();
+    virtual void clear();
 
     virtual void replot();
     void autoRefresh();
@@ -269,14 +288,11 @@ protected slots:
 protected:
     static bool axisValid(int axisId);
 
-    virtual void drawCanvas(QPainter *);
     virtual void drawItems(QPainter *, const QRect &,
         const QwtScaleMap maps[axisCnt],
         const QwtPlotPrintFilter &) const;
 
     virtual void updateTabOrder();
-
-    void updateAxes();
 
     virtual void resizeEvent(QResizeEvent *e);
 
@@ -284,10 +300,14 @@ protected:
         const QWidget *, const QRect &) const;
 
     virtual void printTitle(QPainter *, const QRect &) const;
+
     virtual void printScale(QPainter *, int axisId, int startDist, int endDist,
         int baseDist, const QRect &) const;
-    virtual void printCanvas(QPainter *, const QRect &,
+
+    virtual void printCanvas(QPainter *, 
+        const QRect &boundingRect, const QRect &canvasRect,
         const QwtScaleMap maps[axisCnt], const QwtPlotPrintFilter &) const;
+
     virtual void printLegend(QPainter *, const QRect &) const;
 
 private:

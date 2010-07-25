@@ -223,13 +223,44 @@ void QwtSlider::setOrientation(Qt::Orientation o)
 */
 void QwtSlider::setScalePosition(ScalePos s)
 {
+    if ( d_data->scalePos == s )
+        return;
+
     d_data->scalePos = s;
-    if ((s == BottomScale) || (s == TopScale))
-        setOrientation(Qt::Horizontal);
-    else if ((s == LeftScale) || (s == RightScale))
-        setOrientation(Qt::Vertical);
-    else
-        layoutSlider();
+
+    switch(d_data->scalePos)
+    {
+        case BottomScale:
+        {
+            setOrientation(Qt::Horizontal);
+            scaleDraw()->setAlignment(QwtScaleDraw::BottomScale);
+            break;
+        }
+        case TopScale:
+        {
+            setOrientation(Qt::Horizontal);
+            scaleDraw()->setAlignment(QwtScaleDraw::TopScale);
+            break;
+        }
+        case LeftScale:
+        {
+            setOrientation(Qt::Vertical);
+            scaleDraw()->setAlignment(QwtScaleDraw::LeftScale);
+            break;
+        }
+        case RightScale:
+        {
+            setOrientation(Qt::Vertical);
+            scaleDraw()->setAlignment(QwtScaleDraw::RightScale);
+            break;
+        }
+        default:
+        {
+            // nothing
+        }
+    }
+
+    layoutSlider();
 }
 
 //! Return the scale position.
@@ -286,16 +317,43 @@ void QwtSlider::setThumbWidth(int w)
     }
 }
 
+/*!
+  \brief Set a scale draw
+
+  For changing the labels of the scales, it
+  is necessary to derive from QwtScaleDraw and
+  overload QwtScaleDraw::label().
+
+  \param scaleDraw ScaleDraw object, that has to be created with 
+                   new and will be deleted in ~QwtSlider or the next 
+                   call of setScaleDraw().
+*/
 void QwtSlider::setScaleDraw(QwtScaleDraw *scaleDraw)
 {
+    const QwtScaleDraw *previousScaleDraw = this->scaleDraw();
+    if ( scaleDraw == NULL || scaleDraw == previousScaleDraw )
+        return;
+
+    if ( previousScaleDraw )
+        scaleDraw->setAlignment(previousScaleDraw->alignment());
+
     setAbstractScaleDraw(scaleDraw);
+    layoutSlider();
 }
 
+/*!
+  \return the scale draw of the slider
+  \sa setScaleDraw()
+*/
 const QwtScaleDraw *QwtSlider::scaleDraw() const
 {
     return (QwtScaleDraw *)abstractScaleDraw();
 }
 
+/*!
+  \return the scale draw of the slider
+  \sa setScaleDraw()
+*/
 QwtScaleDraw *QwtSlider::scaleDraw()
 {
     return (QwtScaleDraw *)abstractScaleDraw();
@@ -315,14 +373,19 @@ void QwtSlider::fontChange(const QFont &f)
     layoutSlider();
 }
 
-//! Draw the slider into the specified rectangle.
-void QwtSlider::drawSlider(QPainter *p, const QRect &r)
+/*! 
+   Draw the slider into the specified rectangle.
+
+   \param painter Painter
+   \param r Rectangle
+*/
+void QwtSlider::drawSlider(QPainter *painter, const QRect &r)
 {
     QRect cr(r);
 
     if (d_data->bgStyle & BgTrough)
     {
-        qDrawShadePanel(p, r.x(), r.y(),
+        qDrawShadePanel(painter, r.x(), r.y(),
             r.width(), r.height(),
 #if QT_VERSION < 0x040000
             colorGroup(), 
@@ -336,7 +399,7 @@ void QwtSlider::drawSlider(QPainter *p, const QRect &r)
             r.width() - 2 * d_data->borderWidth,
             r.height() - 2 * d_data->borderWidth);
 
-        p->fillRect(cr.x(), cr.y(), cr.width(), cr.height(), 
+        painter->fillRect(cr.x(), cr.y(), cr.width(), cr.height(), 
 #if QT_VERSION < 0x040000
             colorGroup().brush(QColorGroup::Mid)
 #else
@@ -369,14 +432,14 @@ void QwtSlider::drawSlider(QPainter *p, const QRect &r)
                     cr.y() + ds,
                     ws, cr.height() - 2 * ds);
         }
-        p->fillRect(rSlot.x(), rSlot.y(), rSlot.width(), rSlot.height(),
+        painter->fillRect(rSlot.x(), rSlot.y(), rSlot.width(), rSlot.height(),
 #if QT_VERSION < 0x040000
             colorGroup().brush(QColorGroup::Dark)
 #else
             palette().brush(QPalette::Dark)
 #endif
         );
-        qDrawShadePanel(p, rSlot.x(), rSlot.y(),
+        qDrawShadePanel(painter, rSlot.x(), rSlot.y(),
             rSlot.width(), rSlot.height(), 
 #if QT_VERSION < 0x040000
             colorGroup(), 
@@ -388,16 +451,22 @@ void QwtSlider::drawSlider(QPainter *p, const QRect &r)
     }
 
     if ( isValid() )
-        drawThumb(p, cr, xyPosition(value()));
+        drawThumb(painter, cr, xyPosition(value()));
 }
 
-//! Draw the thumb at a position
-void QwtSlider::drawThumb(QPainter *p, const QRect &sliderRect, int pos)
+/*! 
+  Draw the thumb at a position
+
+  \param painter Painter
+  \param sliderRect Bounding rectangle of the slider 
+  \param pos Position of the slider thumb
+*/
+void QwtSlider::drawThumb(QPainter *painter, const QRect &sliderRect, int pos)
 {
     pos++; // shade line points one pixel below
     if (orientation() == Qt::Horizontal)
     {
-        qDrawShadePanel(p, pos - d_data->thumbLength / 2, 
+        qDrawShadePanel(painter, pos - d_data->thumbLength / 2, 
             sliderRect.y(), d_data->thumbLength, sliderRect.height(),
 #if QT_VERSION < 0x040000
             colorGroup(), 
@@ -412,7 +481,7 @@ void QwtSlider::drawThumb(QPainter *p, const QRect &sliderRect, int pos)
 #endif
         );
 
-        qDrawShadeLine(p, pos, sliderRect.y(), 
+        qDrawShadeLine(painter, pos, sliderRect.y(), 
             pos, sliderRect.y() + sliderRect.height() - 2, 
 #if QT_VERSION < 0x040000
             colorGroup(), 
@@ -423,7 +492,7 @@ void QwtSlider::drawThumb(QPainter *p, const QRect &sliderRect, int pos)
     }
     else // Vertical
     {
-        qDrawShadePanel(p,sliderRect.x(), pos - d_data->thumbLength / 2, 
+        qDrawShadePanel(painter, sliderRect.x(), pos - d_data->thumbLength / 2, 
             sliderRect.width(), d_data->thumbLength,
 #if QT_VERSION < 0x040000
             colorGroup(),
@@ -438,7 +507,7 @@ void QwtSlider::drawThumb(QPainter *p, const QRect &sliderRect, int pos)
 #endif
         );
 
-        qDrawShadeLine(p, sliderRect.x(), pos,
+        qDrawShadeLine(painter, sliderRect.x(), pos,
             sliderRect.x() + sliderRect.width() - 2, pos, 
 #if QT_VERSION < 0x040000
             colorGroup(), 
@@ -449,19 +518,24 @@ void QwtSlider::drawThumb(QPainter *p, const QRect &sliderRect, int pos)
     }
 }
 
-//! Find the x/y position for a given value v
-int QwtSlider::xyPosition(double v) const
+/*! 
+   Find the x/y position for a given value v
+   \param value Value
+*/
+int QwtSlider::xyPosition(double value) const
 {
-    return d_data->map.transform(v);
+    return d_data->map.transform(value);
 }
 
-//! Determine the value corresponding to a specified mouse location.
-double QwtSlider::getValue(const QPoint &p)
+/*! 
+   Determine the value corresponding to a specified mouse location.
+   \param pos Mouse position
+*/
+double QwtSlider::getValue(const QPoint &pos)
 {
     return d_data->map.invTransform(
-        orientation() == Qt::Horizontal ? p.x() : p.y());
+        orientation() == Qt::Horizontal ? pos.x() : pos.y());
 }
-
 
 /*!
   \brief Determine scrolling mode and direction
@@ -497,10 +571,13 @@ void QwtSlider::getScrollMode(const QPoint &p,
         direction = -direction;
 }
 
-//! Qt paint event
-void QwtSlider::paintEvent(QPaintEvent *e)
+/*! 
+   Qt paint event
+   \param event Paint event
+*/
+void QwtSlider::paintEvent(QPaintEvent *event)
 {
-    const QRect &ur = e->rect();
+    const QRect &ur = event->rect();
     if ( ur.isValid() )
     {
 #if QT_VERSION < 0x040000

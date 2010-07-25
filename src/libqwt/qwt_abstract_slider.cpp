@@ -143,7 +143,10 @@ void QwtAbstractSlider::setUpdateTime(int t)
 }
 
 
-//! Mouse press event handler
+/*! 
+   Mouse press event handler
+   \param e Mouse event
+*/
 void QwtAbstractSlider::mousePressEvent(QMouseEvent *e) 
 {
     if ( isReadOnly() )
@@ -192,7 +195,10 @@ void QwtAbstractSlider::buttonReleased()
 }
 
 
-//! Mouse Release Event handler
+/*! 
+   Mouse Release Event handler
+   \param e Mouse event
+*/
 void QwtAbstractSlider::mouseReleaseEvent(QMouseEvent *e)
 {
     if ( isReadOnly() )
@@ -544,7 +550,7 @@ void QwtAbstractSlider::setValue(double val)
   \brief Set the slider's value to the nearest integer multiple
          of the step size.
 
-   \param valeu Value
+   \param value Value
    \sa setValue(), incValue()
 */
 void QwtAbstractSlider::fitValue(double value)

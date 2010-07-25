@@ -44,7 +44,10 @@ public:
     QwtText title;
 };
 
-//! Constructor
+/*! 
+   Constructor
+   \param title Title of the item
+*/
 QwtPlotItem::QwtPlotItem(const QwtText &title)
 {
     d_data = new PrivateData;
@@ -59,7 +62,15 @@ QwtPlotItem::~QwtPlotItem()
 }
 
 /*! 
-  Attach the item to a plot
+  \brief Attach the item to a plot.
+
+  This method will attach a QwtPlotItem to the QwtPlot argument. It will first
+  detach the QwtPlotItem from any plot from a previous call to attach (if
+  necessary). If a NULL argument is passed, it will detach from any QwtPlot it
+  was attached to.
+
+  \param plot Plot widget
+  \sa QwtPlotItem::detach()
 */
 void QwtPlotItem::attach(QwtPlot *plot)
 {
@@ -94,6 +105,18 @@ void QwtPlotItem::attach(QwtPlot *plot)
     }
 }
 
+/*! 
+   Return rtti for the specific class represented. QwtPlotItem is simply
+   a virtual interface class, and base classes will implement this method
+   with specific rtti values so a user can differentiate them.
+
+   The rtti value is useful for environments, where the 
+   runtime type information is disabled and it is not possible
+   to do a dynamic_cast<...>.
+   
+   \return rtti value
+   \sa RttiValues
+*/
 int QwtPlotItem::rtti() const
 {
     return Rtti_PlotItem;
@@ -197,7 +220,7 @@ void QwtPlotItem::setItemAttribute(ItemAttribute attribute, bool on)
 /*!
    Test an item attribute
 
-   \param ItemAttribute Attribute type
+   \param attribute Attribute type
    \return true/false
    \sa setItemAttribute(), ItemAttribute
 */
@@ -243,11 +266,13 @@ bool QwtPlotItem::testRenderHint(RenderHint hint) const
 
 #endif
 
+//! Show the item
 void QwtPlotItem::show()
 {
     setVisible(true);
 }
 
+//! Hide the item
 void QwtPlotItem::hide()
 {
     setVisible(false);
@@ -394,6 +419,8 @@ QWidget *QwtPlotItem::legendItem() const
    QwtLegendItem(), but an item could be represented by any type of widget,
    by overloading legendItem() and updateLegend().
 
+   \param legend Legend
+
    \sa legendItem(), itemChanged(), QwtLegend()
 */
 void QwtPlotItem::updateLegend(QwtLegend *legend) const
@@ -511,7 +538,7 @@ QRect QwtPlotItem::transform(const QwtScaleMap &xMap,
     if ( y2 < y1 )
         qSwap(y1, y2);
 
-    return QRect(x1, y1, x2 - x1 - 1, y2 - y1 - 1);
+    return QRect(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
 }
 
 /*!
@@ -526,11 +553,11 @@ QRect QwtPlotItem::transform(const QwtScaleMap &xMap,
 QwtDoubleRect QwtPlotItem::invTransform(const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap, const QRect& rect) const
 {
-    const double x1 = xMap.invTransform(rect.x());
-    const double x2 = xMap.invTransform(rect.x() + rect.width() + 1);
-    const double y1 = yMap.invTransform(rect.y());
-    const double y2 = yMap.invTransform(rect.y() + rect.height() + 1);
-
+    const double x1 = xMap.invTransform(rect.left());
+    const double x2 = xMap.invTransform(rect.right());
+    const double y1 = yMap.invTransform(rect.top());
+    const double y2 = yMap.invTransform(rect.bottom());
+        
     const QwtDoubleRect r(x1, y1, x2 - x1, y2 - y1);
 
     return r.normalized();

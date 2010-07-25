@@ -171,23 +171,34 @@ QRect QwtMetricsMap::layoutToDevice(const QRect &rect,
     if ( isIdentity() )
         return rect;
 
+    int dx = 0;
+    int dy = 0;
+
     QRect mappedRect(rect);
 #ifndef QT_NO_TRANSFORMATIONS
     if ( painter )
-        mappedRect = translate(matrix(painter), mappedRect);
+    {
+        // only translations, but this code doesn't need to be perfect
+        // as it used for printing of stuff only, that is not on the canvas.
+        // Here we know we have translations only.
+        // As soon as Qt3 support is dropped, Qwt will use a floating point
+        // based layout and this class can die completely.
+
+        dx = qRound(matrix(painter).dx());
+        dy = qRound(matrix(painter).dy());
+
+        mappedRect = QRect(mappedRect.x() + dx, mappedRect.y() + dy,
+            mappedRect.width(), mappedRect.height() );
+    }
 #endif
 
     mappedRect = QRect(
-        layoutToDeviceX(mappedRect.x()), 
-        layoutToDeviceY(mappedRect.y()),
-        layoutToDeviceX(mappedRect.width()), 
-        layoutToDeviceY(mappedRect.height())
+        layoutToDevice(mappedRect.topLeft()), 
+        layoutToDevice(mappedRect.bottomRight())
     );
 
-#ifndef QT_NO_TRANSFORMATIONS
-    if ( painter )
-        mappedRect = translate(invMatrix(painter), mappedRect);
-#endif
+    mappedRect = QRect(mappedRect.x() - dx, mappedRect.y() - dy,
+        mappedRect.width(), mappedRect.height() );
 
     return mappedRect;
 }
@@ -210,10 +221,8 @@ QRect QwtMetricsMap::deviceToLayout(const QRect &rect,
 #endif
 
     mappedRect = QRect(
-        deviceToLayoutX(mappedRect.x()), 
-        deviceToLayoutY(mappedRect.y()),
-        deviceToLayoutX(mappedRect.width()), 
-        deviceToLayoutY(mappedRect.height())
+        deviceToLayout(mappedRect.topLeft()), 
+        deviceToLayout(mappedRect.bottomRight())
     );
 
 #ifndef QT_NO_TRANSFORMATIONS

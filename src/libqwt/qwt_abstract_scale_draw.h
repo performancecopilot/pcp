@@ -43,10 +43,9 @@ public:
 
         - Backbone
         - Ticks
-        - Label
+        - Labels
 
-        \sa QwtAbstractScaleDraw::enableComponent, 
-            QwtAbstractScaleDraw::hasComponent
+        \sa enableComponent(), hasComponent
     */
 
     enum ScaleComponent

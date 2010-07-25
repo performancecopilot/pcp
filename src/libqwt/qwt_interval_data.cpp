@@ -10,10 +10,12 @@
 #include "qwt_math.h"
 #include "qwt_interval_data.h"
 
+//! Constructor
 QwtIntervalData::QwtIntervalData()
 {
 }
 
+//! Constructor
 QwtIntervalData::QwtIntervalData(
         const QwtArray<QwtDoubleInterval> &intervals, 
         const QwtArray<double> &values):
@@ -22,6 +24,12 @@ QwtIntervalData::QwtIntervalData(
 {
 }
     
+//! Destructor
+QwtIntervalData::~QwtIntervalData()
+{
+}
+
+//! Assign samples
 void QwtIntervalData::setData(
     const QwtArray<QwtDoubleInterval> &intervals,
     const QwtArray<double> &values)
@@ -30,6 +38,14 @@ void QwtIntervalData::setData(
     d_values = values;
 }
 
+/*! 
+   Calculate the bounding rectangle of the samples
+
+   The x coordinates of the rectangle are built from the intervals,
+   the y coordinates from the values.
+   
+   \return Bounding rectangle
+*/
 QwtDoubleRect QwtIntervalData::boundingRect() const
 {
     double minX, maxX, minY, maxY;

@@ -27,6 +27,18 @@ class QPaintDevice;
 
 /*!
   \brief A Map to translate between layout, screen and paint device metrics
+
+  Qt3 supports painting in integer coordinates only. Therefore it is not
+  possible to scale the layout in screen coordinates to layouts in higher
+  resolutions ( f.e printing ) without losing the higher precision.
+  QwtMetricsMap is used to incorporate the various widget attributes
+  ( always in screen resolution ) into the layout/printing code of QwtPlot.
+
+  Qt4 is able to paint floating point based coordinates, what makes it
+  possible always to render in screen coordinates 
+  ( with a common scale factor ).
+  QwtMetricsMap will be obsolete as soon as Qt3 support has been
+  dropped ( Qwt 6.x ).
 */
 class QWT_EXPORT QwtMetricsMap
 {

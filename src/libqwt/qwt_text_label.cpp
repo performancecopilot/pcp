@@ -20,14 +20,12 @@ class QwtTextLabel::PrivateData
 public:
     PrivateData():
         indent(4),
-        margin(0),
-	active(true)
+        margin(0)
     {
     }
 
     int indent;
     int margin;
-    bool active;
     QwtText text;
 };
 
@@ -118,21 +116,6 @@ void QwtTextLabel::clear()
 
     update();
     updateGeometry();
-}
-
-//! Return label's text enabled state
-bool QwtTextLabel::active() const
-{
-    return d_data->active;
-}
-
-/*!
-  Set label's text active state
-  \param active Text represents active or inactive state
-*/
-void QwtTextLabel::setActive(bool active)
-{
-    d_data->active = active;
 }
 
 //! Return label's text indent in pixels
@@ -231,7 +214,10 @@ int QwtTextLabel::heightForWidth(int width) const
     return height;
 }
 
-//! Qt paint event
+/*! 
+   Qt paint event
+   \param event Paint event
+*/
 void QwtTextLabel::paintEvent(QPaintEvent *event)
 {
 #if QT_VERSION >= 0x040000
@@ -263,11 +249,9 @@ void QwtTextLabel::drawContents(QPainter *painter)
 
     painter->setFont(font());
 #if QT_VERSION < 0x040000
-    painter->setPen(palette().color(active() ?
-		QPalette::Active : QPalette::Inactive, QColorGroup::Text));
+    painter->setPen(palette().color(QPalette::Active, QColorGroup::Text));
 #else
-    painter->setPen(palette().color(active() ?
-		QPalette::Active : QPalette::Inactive, QPalette::Text));
+    painter->setPen(palette().color(QPalette::Active, QPalette::Text));
 #endif
 
     drawText(painter, r);

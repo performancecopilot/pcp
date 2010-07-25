@@ -226,6 +226,9 @@ void QwtAbstractScale::setAbstractScaleDraw(QwtAbstractScaleDraw *scaleDraw)
     if ( scaleDraw == NULL || scaleDraw == d_data->scaleDraw )
         return;
 
+    if ( d_data->scaleDraw != NULL )
+        scaleDraw->setScaleDiv(d_data->scaleDraw->scaleDiv());
+
     delete d_data->scaleDraw;
     d_data->scaleDraw = scaleDraw;
 } 
@@ -250,8 +253,8 @@ const QwtAbstractScaleDraw *QwtAbstractScale::abstractScaleDraw() const
 
 void QwtAbstractScale::updateScaleDraw()
 {
-    rescale( d_data->scaleDraw->scaleDiv().lBound(), 
-        d_data->scaleDraw->scaleDiv().hBound(), d_data->stepSize);
+    rescale( d_data->scaleDraw->scaleDiv().lowerBound(), 
+        d_data->scaleDraw->scaleDiv().upperBound(), d_data->stepSize);
 }
 
 /*!

@@ -21,14 +21,11 @@ class QPixmap;
 
 /*!
   \brief Canvas of a QwtPlot. 
-
-  \sa  QwtPlot 
+  \sa QwtPlot 
 */
-
 class QWT_EXPORT QwtPlotCanvas : public QFrame
 {
     Q_OBJECT
-    friend class QwtPlot;
 
 public:
 
@@ -84,6 +81,12 @@ public:
         ItemFocusIndicator
     };
 
+    explicit QwtPlotCanvas(QwtPlot *);
+    virtual ~QwtPlotCanvas();
+
+    QwtPlot *plot();
+    const QwtPlot *plot() const;
+
     void setFocusIndicator(FocusIndicator);
     FocusIndicator focusIndicator() const;
 
@@ -94,10 +97,9 @@ public:
     const QPixmap *paintCache() const;
     void invalidatePaintCache();
 
-protected:
-    explicit QwtPlotCanvas(QwtPlot *);
-    virtual ~QwtPlotCanvas();
+    void replot();
 
+protected:
     virtual void hideEvent(QHideEvent *);
 
     virtual void paintEvent(QPaintEvent *);

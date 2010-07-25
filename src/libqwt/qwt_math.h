@@ -13,6 +13,7 @@
 #include <math.h>
 #include <qpoint.h>
 #include "qwt_global.h"
+#include "qwt_double_rect.h"
 
 #if QT_VERSION < 0x040000
 
@@ -152,19 +153,40 @@ T qwtLim(const T& x, const T& x1, const T& x2)
     return rv;
 }
 
-inline QPoint qwtPolar2Pos(const QPoint &center,
+inline QPoint qwtPolar2Pos(const QPoint &pole,
     double radius, double angle)
 {
-    const double x = center.x() + radius * cos(angle);
-    const double y = center.y() - radius * sin(angle);
+    const double x = pole.x() + radius * ::cos(angle);
+    const double y = pole.y() - radius * ::sin(angle);
 
     return QPoint(qRound(x), qRound(y));
 }
 
-inline QPoint qwtDegree2Pos(const QPoint &center,
+inline QPoint qwtDegree2Pos(const QPoint &pole,
     double radius, double angle)
 {
-    return qwtPolar2Pos(center, radius, angle / 180.0 * M_PI);
+    return qwtPolar2Pos(pole, radius, angle / 180.0 * M_PI);
+}
+
+inline QwtDoublePoint qwtPolar2Pos(const QwtDoublePoint &pole,
+    double radius, double angle)
+{
+    const double x = pole.x() + radius * ::cos(angle);
+    const double y = pole.y() - radius * ::sin(angle);
+
+    return QPoint(qRound(x), qRound(y));
+}
+
+inline QwtDoublePoint qwtDegree2Pos(const QwtDoublePoint &pole,
+    double radius, double angle)
+{
+    return qwtPolar2Pos(pole, radius, angle / 180.0 * M_PI);
+}
+
+//! Rounding of doubles, like qRound for integers
+inline double qwtRound(double value)
+{
+    return ::floor(value + 0.5); // MSVC has no ::round().
 }
 
 #endif

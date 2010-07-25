@@ -203,7 +203,7 @@ QwtText::~QwtText()
     delete d_layoutCache;
 }
 
-//! Assignement operator
+//! Assignment operator
 QwtText &QwtText::operator=(const QwtText &other)
 {
     *d_data = *other.d_data;
@@ -211,6 +211,7 @@ QwtText &QwtText::operator=(const QwtText &other)
     return *this;
 }
     
+//! Relational operator
 int QwtText::operator==(const QwtText &other) const
 {
     return d_data->renderFlags == other.d_data->renderFlags &&
@@ -223,6 +224,7 @@ int QwtText::operator==(const QwtText &other) const
         d_data->textEngine == other.d_data->textEngine;
 }
 
+//! Relational operator
 int QwtText::operator!=(const QwtText &other) const // invalidate
 {
    return !(other == *this);
@@ -233,6 +235,8 @@ int QwtText::operator!=(const QwtText &other) const // invalidate
 
    \param text Text content
    \param textFormat Text format
+
+   \sa text()
 */
 void QwtText::setText(const QString &text, 
     QwtText::TextFormat textFormat) 
@@ -244,7 +248,7 @@ void QwtText::setText(const QString &text,
 
 /*! 
    Return the text.
-   \sa setText
+   \sa setText()
 */
 QString QwtText::text() const 
 { 
@@ -258,7 +262,7 @@ QString QwtText::text() const
 
    \param renderFlags Bitwise OR of the flags used like in QPainter::drawText
 
-   \sa renderFlags, QwtTextEngine::draw
+   \sa renderFlags(), QwtTextEngine::draw()
    \note Some renderFlags might have no effect, depending on the text format.
 */
 void QwtText::setRenderFlags(int renderFlags) 
@@ -272,7 +276,7 @@ void QwtText::setRenderFlags(int renderFlags)
 
 /*!
    \return Render flags
-   \sa setRenderFlags
+   \sa setRenderFlags()
 */
 int QwtText::renderFlags() const 
 { 
@@ -303,7 +307,7 @@ QFont QwtText::font() const
   Otherwise return defaultFont.
 
   \param defaultFont Default font
-  \sa setFont, font, PaintAttributes
+  \sa setFont(), font(), PaintAttributes
 */
 QFont QwtText::usedFont(const QFont &defaultFont) const
 {
@@ -337,7 +341,7 @@ QColor QwtText::color() const
   Otherwise return defaultColor.
 
   \param defaultColor Default color
-  \sa setColor, color, PaintAttributes
+  \sa setColor(), color(), PaintAttributes
 */
 QColor QwtText::usedColor(const QColor &defaultColor) const
 {
@@ -351,7 +355,7 @@ QColor QwtText::usedColor(const QColor &defaultColor) const
    Set the background pen
 
    \param pen Background pen
-   \sa backgroundPen, setBackgroundBrush
+   \sa backgroundPen(), setBackgroundBrush()
 */
 void QwtText::setBackgroundPen(const QPen &pen) 
 { 
@@ -361,7 +365,7 @@ void QwtText::setBackgroundPen(const QPen &pen)
 
 /*! 
    \return Background pen
-   \sa setBackgroundPen, backgroundBrush
+   \sa setBackgroundPen(), backgroundBrush()
 */
 QPen QwtText::backgroundPen() const 
 { 
@@ -372,7 +376,7 @@ QPen QwtText::backgroundPen() const
    Set the background brush
 
    \param brush Background brush
-   \sa backgroundBrush, setBackgroundPen
+   \sa backgroundBrush(), setBackgroundPen()
 */
 void QwtText::setBackgroundBrush(const QBrush &brush) 
 { 
@@ -382,7 +386,7 @@ void QwtText::setBackgroundBrush(const QBrush &brush)
 
 /*! 
    \return Background brush
-   \sa setBackgroundBrush, backgroundPen
+   \sa setBackgroundBrush(), backgroundPen()
 */
 QBrush QwtText::backgroundBrush() const 
 { 
@@ -395,8 +399,9 @@ QBrush QwtText::backgroundBrush() const
    \param attribute Paint attribute
    \param on On/Off
 
-   \note Used by setFont, setColor, setBackgroundPen and setBackgroundBrush
-   \sa testPaintAttribute
+   \note Used by setFont(), setColor(), 
+         setBackgroundPen() and setBackgroundBrush()
+   \sa testPaintAttribute()
 */
 void QwtText::setPaintAttribute(PaintAttribute attribute, bool on)
 {
@@ -412,7 +417,7 @@ void QwtText::setPaintAttribute(PaintAttribute attribute, bool on)
    \param attribute Paint attribute
    \return true, if attribute is enabled
 
-   \sa setPaintAttribute
+   \sa setPaintAttribute()
 */
 bool QwtText::testPaintAttribute(PaintAttribute attribute) const
 {
@@ -424,7 +429,7 @@ bool QwtText::testPaintAttribute(PaintAttribute attribute) const
 
    \param attribute Layout attribute
    \param on On/Off
-   \sa testLayoutAttribute
+   \sa testLayoutAttribute()
 */ 
 void QwtText::setLayoutAttribute(LayoutAttribute attribute, bool on)
 {
@@ -440,7 +445,7 @@ void QwtText::setLayoutAttribute(LayoutAttribute attribute, bool on)
    \param attribute Layout attribute
    \return true, if attribute is enabled
 
-   \sa setLayoutAttribute
+   \sa setLayoutAttribute()
 */
 bool QwtText::testLayoutAttribute(LayoutAttribute attribute) const
 {
@@ -536,17 +541,19 @@ QSize QwtText::textSize(const QFont &defaultFont) const
         d_data->textEngine->textMargins(font, d_data->text,
             left, right, top, bottom);
         sz -= QSize(left + right, top + bottom);
+
 #if QT_VERSION >= 0x040000
         if ( !map.isIdentity() )
         {
 #ifdef __GNUC__
+#warning Too small text size, when printing in high resolution
 #endif
             /*
                 When printing in high resolution, the tick labels
                 of are cut of. We need to find out why, but for
                 the moment we add a couple of pixels instead.
              */
-            sz += QSize(3, 0);
+            sz += QSize(3, 2);
         }
 #endif
     }
@@ -569,9 +576,15 @@ void QwtText::draw(QPainter *painter, const QRect &rect) const
             d_data->backgroundBrush != Qt::NoBrush )
         {
             painter->save();
-            painter->setPen(d_data->backgroundPen);
+            painter->setPen(QwtPainter::scaledPen(d_data->backgroundPen));
             painter->setBrush(d_data->backgroundBrush);
+#if QT_VERSION < 0x040000
             QwtPainter::drawRect(painter, rect);
+#else
+            const QRect r(rect.x(), rect.y(), 
+                rect.width() - 1, rect.height() - 1);
+            QwtPainter::drawRect(painter, r);
+#endif
             painter->restore();
         }
     }
@@ -641,7 +654,15 @@ const QwtTextEngine *QwtText::textEngine(const QString &text,
     QwtText::TextFormat format)
 {
     if ( engineDict == NULL )
+    {
+        /*
+          Note: engineDict is allocated, the first time it is used, 
+                but never deleted, because there is no known last access time.
+                So don't be irritated, if it is reported as a memory leak
+                from your memory profiler.
+         */
         engineDict = new QwtTextEngineDict();
+    }
 
     return engineDict->textEngine(text, format);
 }

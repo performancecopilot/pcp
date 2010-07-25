@@ -26,7 +26,7 @@ class QwtScaleDiv;
   A coordinate grid consists of major and minor vertical
   and horizontal gridlines. The locations of the gridlines
   are determined by the X and Y scale divisions which can
-  be assigned with QwtPlotGrid::setXDiv and QwtPlotGrid::setYDiv()
+  be assigned with setXDiv() and setYDiv().
   The draw() member draws the grid within a bounding
   rectangle.
 */
@@ -69,8 +69,8 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRect &rect) const;
 
-    virtual void updateScaleDiv(const QwtScaleDiv&,
-        const QwtScaleDiv&);
+    virtual void updateScaleDiv(const QwtScaleDiv &xMap,
+        const QwtScaleDiv &yMap);
 
 private:
     void drawLines(QPainter *painter, const QRect &,

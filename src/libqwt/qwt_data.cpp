@@ -113,6 +113,7 @@ double QwtPolygonFData::y(size_t i) const
     return d_data[int(i)].y(); 
 }
 
+//! \return Point array
 #if QT_VERSION >= 0x040000
 const QPolygonF &QwtPolygonFData::data() const
 #else
@@ -136,7 +137,7 @@ QwtData *QwtPolygonFData::copy() const
   \param x Array of x values
   \param y Array of y values
   
-  \sa QwtPlotCurve::setData
+  \sa QwtPlotCurve::setData()
 */
 QwtArrayData::QwtArrayData(
         const QwtArray<double> &x, const QwtArray<double> &y): 
@@ -151,7 +152,7 @@ QwtArrayData::QwtArrayData(
   \param x Array of x values
   \param y Array of y values
   \param size Size of the x and y arrays
-  \sa QwtPlotCurve::setData
+  \sa QwtPlotCurve::setData()
 */
 QwtArrayData::QwtArrayData(const double *x, const double *y, size_t size)
 {

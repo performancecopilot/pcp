@@ -7,6 +7,7 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+/*! \file */
 #ifndef QWT_DOUBLE_RECT_H
 #define QWT_DOUBLE_RECT_H 1
 
@@ -19,8 +20,28 @@
 #include <QSizeF>
 #include <QRectF>
 
+/*! 
+  \typedef QPointF QwtDoublePoint
+  \brief This is a typedef, see Trolltech Documentation for QPointF
+         in QT assistant 4.x. As soon as Qt3 compatibility is dropped
+         this typedef will disappear.
+*/
 typedef QPointF QwtDoublePoint;
+
+/*! 
+   \typedef QSizeF QwtDoubleSize
+   \brief This is a typedef, see Trolltech Documentation for QSizeF
+          in QT assistant 4.x. As soon as Qt3 compatibility is dropped
+         this typedef will disappear.
+*/
 typedef QSizeF QwtDoubleSize;
+
+/*! 
+   \typedef QRectF QwtDoubleRect
+   \brief This is a typedef, see Trolltech Documentation for QRectF
+          in QT assistant 4.x. As soon as Qt3 compatibility is dropped
+         this typedef will disappear.
+*/
 typedef QRectF QwtDoubleRect;
 
 #else
@@ -30,7 +51,7 @@ typedef QRectF QwtDoubleRect;
 #include <qrect.h>
 
 /*!
-  The QwtDoublePoint class defines a point in double coordinates
+  \brief The QwtDoublePoint class defines a point in double coordinates
 */
 
 class QWT_EXPORT QwtDoublePoint
@@ -125,6 +146,9 @@ public:
     QwtDoubleRect(double left, double top, double width, double height);
     QwtDoubleRect(const QwtDoublePoint&, const QwtDoubleSize &);
 
+    QwtDoubleRect(const QRect &);
+    QRect toRect() const;
+
     bool isNull()    const;
     bool isEmpty()   const;
     bool isValid()   const;
@@ -183,6 +207,11 @@ public:
     QwtDoubleRect unite(const QwtDoubleRect &) const;
     QwtDoubleRect intersect(const QwtDoubleRect &) const;
     bool intersects(const QwtDoubleRect &) const;
+
+    QwtDoublePoint bottomRight() const;
+    QwtDoublePoint topRight() const;
+    QwtDoublePoint topLeft() const;
+    QwtDoublePoint bottomLeft() const;
 
 private:
     double d_left;
@@ -303,7 +332,7 @@ inline void QwtDoubleSize::setHeight(double height)
     A null rectangle has both the width and the height set to 0.
     A null rectangle is also empty and invalid.
 
-    \sa QwtDoubleRect::isEmpty, QwtDoubleRect::isValid
+    \sa isEmpty(), isValid()
 */
 inline bool QwtDoubleRect::isNull() const
 { 
@@ -315,7 +344,7 @@ inline bool QwtDoubleRect::isNull() const
     An empty rectangle has a width() <= 0 or height() <= 0.
     An empty rectangle is not valid. isEmpty() == !isValid()
 
-    \sa QwtDoubleRect::isNull, QwtDoubleRect::isValid
+    \sa isNull(), isValid()
 */
 inline bool QwtDoubleRect::isEmpty() const
 { 
@@ -445,6 +474,27 @@ inline void QwtDoubleRect::moveTo(const QwtDoublePoint &p)
 {
     moveTo(p.x(), p.y());
 }
+
+inline QwtDoublePoint QwtDoubleRect::bottomRight() const
+{
+    return QwtDoublePoint(bottom(), right());
+}
+
+inline QwtDoublePoint QwtDoubleRect::topRight() const
+{
+    return QwtDoublePoint(top(), right());
+}
+
+inline QwtDoublePoint QwtDoubleRect::topLeft() const
+{
+    return QwtDoublePoint(top(), left());
+}
+
+inline QwtDoublePoint QwtDoubleRect::bottomLeft() const
+{
+    return QwtDoublePoint(bottom(), left());
+}
+
 
 #endif // QT_VERSION < 0x040000
 

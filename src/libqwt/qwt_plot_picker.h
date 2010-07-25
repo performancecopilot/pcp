@@ -32,6 +32,7 @@ class QWT_EXPORT QwtPlotPicker: public QwtPicker
 
 public:
     explicit QwtPlotPicker(QwtPlotCanvas *);
+    virtual ~QwtPlotPicker();
 
     explicit QwtPlotPicker(int xAxis, int yAxis,
         QwtPlotCanvas *);

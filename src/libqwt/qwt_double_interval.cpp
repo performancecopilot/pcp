@@ -20,29 +20,39 @@
 /*!
    \brief Normalize the limits of the interval
 
-   If maxValue() > minValue() the limits will be inverted.
+   If maxValue() < minValue() the limits will be inverted.
    \return Normalized interval
 
-   \sa isValid, inverted
+   \sa isValid(), inverted()
 */
 QwtDoubleInterval QwtDoubleInterval::normalized() const
 {
-    if ( !isValid() )
+    if ( d_minValue > d_maxValue )
     {
-        return QwtDoubleInterval(d_maxValue, d_minValue);
+        return inverted();
     }
-    else
-        return *this;
+    if ( d_minValue == d_maxValue && d_borderFlags == ExcludeMinimum )
+    {
+        return inverted();
+    }
+
+    return *this;
 }
 
 /*!
    Invert the limits of the interval
    \return Inverted interval
-   \sa normalized
+   \sa normalized()
 */
 QwtDoubleInterval QwtDoubleInterval::inverted() const
 {
-    return QwtDoubleInterval(d_maxValue, d_minValue);
+    int borderFlags = 0;
+    if ( d_borderFlags & ExcludeMinimum )
+        borderFlags |= ExcludeMaximum;
+    if ( d_borderFlags & ExcludeMaximum )
+        borderFlags |= ExcludeMinimum;
+
+    return QwtDoubleInterval(d_maxValue, d_minValue, borderFlags);
 }
 
 /*!
@@ -56,49 +66,141 @@ bool QwtDoubleInterval::contains(double value) const
     if ( !isValid() )
         return false;
 
-    return (value >= d_minValue) && (value <= d_maxValue);
+    if ( value < d_minValue || value > d_maxValue )
+        return false;
+
+    if ( value == d_minValue && d_borderFlags & ExcludeMinimum )
+        return false;
+
+    if ( value == d_maxValue && d_borderFlags & ExcludeMaximum )
+        return false;
+
+    return true;
 }
 
 //! Unite 2 intervals
 QwtDoubleInterval QwtDoubleInterval::unite(
-    const QwtDoubleInterval &interval) const
+    const QwtDoubleInterval &other) const
 {
+    /*
+     If one of the intervals is invalid return the other one.
+     If both are invalid return an invalid default interval
+     */
     if ( !isValid() )
     {
-        if ( !interval.isValid() )
+        if ( !other.isValid() )
             return QwtDoubleInterval();
         else
-            return interval;
+            return other;
     }
-    if ( !interval.isValid() )
+    if ( !other.isValid() )
         return *this;
 
-    const double minValue = qwtMin(d_minValue, interval.minValue());
-    const double maxValue = qwtMax(d_maxValue, interval.maxValue());
+    QwtDoubleInterval united;
+    int flags = 0;
 
-    return QwtDoubleInterval(minValue, maxValue);
+    // minimum
+    if ( d_minValue < other.minValue() )
+    {
+        united.setMinValue(d_minValue);
+        flags &= d_borderFlags & ExcludeMinimum;
+    }
+    else if ( other.minValue() < d_minValue )
+    {
+        united.setMinValue(other.minValue());
+        flags &= other.borderFlags() & ExcludeMinimum;
+    }
+    else // d_minValue == other.minValue()
+    {
+        united.setMinValue(d_minValue);
+        flags &= (d_borderFlags & other.borderFlags()) & ExcludeMinimum;
+    }
+
+    // maximum
+    if ( d_maxValue > other.maxValue() )
+    {
+        united.setMaxValue(d_maxValue);
+        flags &= d_borderFlags & ExcludeMaximum;
+    }
+    else if ( other.maxValue() > d_maxValue )
+    {
+        united.setMaxValue(other.maxValue());
+        flags &= other.borderFlags() & ExcludeMaximum;
+    }
+    else // d_maxValue == other.maxValue() )
+    {
+        united.setMaxValue(d_maxValue);
+        flags &= d_borderFlags & other.borderFlags() & ExcludeMaximum;
+    }
+
+    united.setBorderFlags(flags);
+    return united;
 }
 
 //! Intersect 2 intervals
 QwtDoubleInterval QwtDoubleInterval::intersect(
-    const QwtDoubleInterval &interval) const
+    const QwtDoubleInterval &other) const
 {
-    if ( !interval.isValid() || !isValid() )
+    if ( !other.isValid() || !isValid() )
         return QwtDoubleInterval();
 
     QwtDoubleInterval i1 = *this;
-    QwtDoubleInterval i2 = interval;
+    QwtDoubleInterval i2 = other;
 
-    if ( i1.minValue() > i2.minValue() )
+    // swap i1/i2, so that the minimum of i1
+    // is smaller then the minimum of i2
+
+    if ( i1.minValue() > i2.minValue() ) 
+    {
         qSwap(i1, i2);
+    }
+    else if ( i1.minValue() == i2.minValue() )
+    {
+        if ( i1.borderFlags() & ExcludeMinimum )
+            qSwap(i1, i2);
+    }
 
     if ( i1.maxValue() < i2.minValue() )
+    {
         return QwtDoubleInterval();
+    }
 
-    return QwtDoubleInterval(i2.minValue(), 
-                qwtMin(i1.maxValue(), i2.maxValue()));
+    if ( i1.maxValue() == i2.minValue() )
+    {
+        if ( i1.borderFlags() & ExcludeMaximum ||
+            i2.borderFlags() & ExcludeMinimum )
+        {
+            return QwtDoubleInterval();
+        }
+    }
+
+    QwtDoubleInterval intersected;
+    int flags = 0;
+
+    intersected.setMinValue(i2.minValue());
+    flags |= i2.borderFlags() & ExcludeMinimum;
+
+    if ( i1.maxValue() < i2.maxValue() )
+    {
+        intersected.setMaxValue(i1.maxValue());
+        flags |= i1.borderFlags() & ExcludeMaximum;
+    }
+    else if ( i2.maxValue() < i1.maxValue() )
+    {
+        intersected.setMaxValue(i2.maxValue());
+        flags |= i2.borderFlags() & ExcludeMaximum;
+    }
+    else // i1.maxValue() == i2.maxValue()
+    {
+        intersected.setMaxValue(i1.maxValue() );
+        flags |= i1.borderFlags() & i2.borderFlags() & ExcludeMaximum;
+    }
+
+    intersected.setBorderFlags(flags);
+    return intersected;
 }
 
+//! Unites this interval with the given interval.
 QwtDoubleInterval& QwtDoubleInterval::operator|=(
     const QwtDoubleInterval &interval)
 {
@@ -106,6 +208,7 @@ QwtDoubleInterval& QwtDoubleInterval::operator|=(
     return *this;
 }
 
+//! Intersects this interval with the given interval.
 QwtDoubleInterval& QwtDoubleInterval::operator&=(
     const QwtDoubleInterval &interval) 
 {
@@ -116,18 +219,37 @@ QwtDoubleInterval& QwtDoubleInterval::operator&=(
 /*!
    Test if two intervals overlap
 */
-bool QwtDoubleInterval::intersects(const QwtDoubleInterval &interval) const
+bool QwtDoubleInterval::intersects(const QwtDoubleInterval &other) const
 {
-    if ( !isValid() || !interval.isValid() )
+    if ( !isValid() || !other.isValid() )
         return false;
 
     QwtDoubleInterval i1 = *this;
-    QwtDoubleInterval i2 = interval;
+    QwtDoubleInterval i2 = other;
 
-    if ( i1.minValue() > i2.minValue() )
+    // swap i1/i2, so that the minimum of i1
+    // is smaller then the minimum of i2
+
+    if ( i1.minValue() > i2.minValue() ) 
+    {
         qSwap(i1, i2);
+    }
+    else if ( i1.minValue() == i2.minValue() &&
+            i1.borderFlags() & ExcludeMinimum )
+    {
+        qSwap(i1, i2);
+    }
 
-    return i1.maxValue() >= i2.minValue();
+    if ( i1.maxValue() > i2.minValue() )
+    {
+        return true;
+    }
+    if ( i1.maxValue() == i2.minValue() )
+    {
+        return !( (i1.borderFlags() & ExcludeMaximum) || 
+            (i2.borderFlags() & ExcludeMinimum) );
+    }
+    return false;
 }
 
 /*!
@@ -149,26 +271,26 @@ QwtDoubleInterval QwtDoubleInterval::symmetrize(double value) const
 }
 
 /*!
-   Limit the interval
+   Limit the interval, keeping the border modes
 
-   \param lBound Lower limit
-   \param hBound Upper limit
+   \param lowerBound Lower limit
+   \param upperBound Upper limit
 
    \return Limited interval
 */
 QwtDoubleInterval QwtDoubleInterval::limited(
-    double lBound, double hBound) const
+    double lowerBound, double upperBound) const
 {
-    if ( !isValid() || lBound > hBound )
+    if ( !isValid() || lowerBound > upperBound )
         return QwtDoubleInterval();
 
-    double minValue = qwtMax(d_minValue, lBound);
-    minValue = qwtMin(minValue, hBound);
+    double minValue = qwtMax(d_minValue, lowerBound);
+    minValue = qwtMin(minValue, upperBound);
 
-    double maxValue = qwtMax(d_maxValue, lBound);
-    maxValue = qwtMin(maxValue, hBound);
+    double maxValue = qwtMax(d_maxValue, lowerBound);
+    maxValue = qwtMin(maxValue, upperBound);
 
-    return QwtDoubleInterval(minValue, maxValue);
+    return QwtDoubleInterval(minValue, maxValue, d_borderFlags);
 }
 
 /*!
@@ -180,15 +302,15 @@ QwtDoubleInterval QwtDoubleInterval::limited(
    extend has no effect for invalid intervals
 
    \param value Value
-   \sa isValid
+   \sa isValid()
 */
 QwtDoubleInterval QwtDoubleInterval::extend(double value) const
 {
     if ( !isValid() )
         return *this;
 
-    return QwtDoubleInterval(
-        qwtMin(value, d_minValue), qwtMax(value, d_maxValue) );
+    return QwtDoubleInterval( qwtMin(value, d_minValue), 
+        qwtMax(value, d_maxValue), d_borderFlags );
 }
 
 QwtDoubleInterval& QwtDoubleInterval::operator|=(double value)

@@ -50,7 +50,22 @@ public:
 class QWT_EXPORT QwtScaleEngine
 {
 public:
-    //! see QwtScaleEngine::setOption, testOption
+    /*!
+       - IncludeReference\n
+         Build a scale which includes the reference() value.
+       - Symmetric\n
+         Build a scale which is symmetric to the reference() value.
+       - Floating\n
+         The endpoints of the scale are supposed to be equal the 
+         outmost included values plus the specified margins (see setMargins()).          If this attribute is *not* set, the endpoints of the scale will 
+         be integer multiples of the step size.
+       - Inverted\n
+         Turn the scale upside down.
+
+       \sa setAttribute(), testAttribute(), reference(), 
+           lowerMargin(), upperMargin()
+     */
+
     enum Attribute
     {
         NoAttribute = 0,
@@ -72,9 +87,9 @@ public:
     void setReference(double reference);
     double reference() const;
 
-    void setMargins(double m1, double m2);
-    double loMargin() const;
-    double hiMargin() const;
+    void setMargins(double lower, double upper);
+    double lowerMargin() const;
+    double upperMargin() const;
 
     /*!
       Align and divide an interval 

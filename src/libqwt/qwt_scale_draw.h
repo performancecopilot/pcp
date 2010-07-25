@@ -43,7 +43,7 @@ public:
 
     QwtScaleDraw &operator=(const QwtScaleDraw &other);
 
-    virtual void getBorderDistHint(const QFont &, int &start, int &end) const;
+    void getBorderDistHint(const QFont &, int &start, int &end) const;
     int minLabelDist(const QFont &) const;
 
     int minLength(const QPen &, const QFont &) const;
@@ -80,6 +80,8 @@ public:
     QRect labelRect(const QFont &, double val) const;
     QSize labelSize(const QFont &, double val) const;
 
+    QRect boundingLabelRect(const QFont &, double val) const;
+
 protected:
 
 #if QT_VERSION < 0x040000
@@ -99,6 +101,10 @@ private:
     PrivateData *d_data;
 };
 
+/*! 
+   Move the position of the scale
+   \sa move(const QPoint &)
+*/
 inline void QwtScaleDraw::move(int x, int y)
 {
     move(QPoint(x, y));

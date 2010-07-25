@@ -51,6 +51,15 @@ public:
     void setCursor(const QCursor &);
     const QCursor cursor() const;
 
+#if QT_VERSION >= 0x040000
+    void setOrientations(Qt::Orientations);
+    Qt::Orientations orientations() const;
+#else
+    void enableOrientation(Qt::Orientation, bool enable);
+#endif
+
+    bool isOrientationEnabled(Qt::Orientation) const;
+
     virtual bool eventFilter(QObject *, QEvent *);
 
 signals:

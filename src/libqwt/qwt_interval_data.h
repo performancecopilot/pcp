@@ -28,8 +28,11 @@ template class QWT_EXPORT QwtArray<double>;
 #endif
 
 /*!
-  \brief Interval data class.
+  \brief Series of samples of a value and an interval
 
+  QwtIntervalData is a series of samples of a value and an interval.
+  F.e. error bars are built from samples [x, y1-y2], while a 
+  histogram might consist of [x1-x2, y] samples.
 */
 class QWT_EXPORT QwtIntervalData
 {
@@ -37,6 +40,8 @@ public:
     QwtIntervalData();
     QwtIntervalData(const QwtArray<QwtDoubleInterval> &, 
         const QwtArray<double> &);
+
+    ~QwtIntervalData();
     
     void setData(const QwtArray<QwtDoubleInterval> &, 
         const QwtArray<double> &);
@@ -52,16 +57,31 @@ private:
     QwtArray<double> d_values;
 };
 
+//! \return Number of samples
 inline size_t QwtIntervalData::size() const
 {
     return qwtMin(d_intervals.size(), d_values.size());
 }
 
+/*! 
+  Interval of a sample
+
+  \param i Sample index
+  \return Interval
+  \sa value(), size()
+*/
 inline const QwtDoubleInterval &QwtIntervalData::interval(size_t i) const
 {
     return d_intervals[int(i)];
 }
 
+/*! 
+  Value of a sample
+
+  \param i Sample index
+  \return Value
+  \sa interval(), size()
+*/
 inline double QwtIntervalData::value(size_t i) const
 {
     return d_values[int(i)];

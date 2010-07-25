@@ -14,14 +14,34 @@
 #include "qwt_plot.h"
 
 /*!
-  \brief Layout class for QwtPlot.
+  \brief Layout engine for QwtPlot.
 
-  Organizes the geometry for the different QwtPlot components.
+  It is used by the QwtPlot widget to organize its internal widgets
+  or by QwtPlot::print() to render its content to a QPaintDevice like
+  a QPrinter, QPixmap/QImage or QSvgRenderer.
 */
 
 class QWT_EXPORT QwtPlotLayout
 {
 public:
+    /*!
+      Options to configure the plot layout engine
+
+      - AlignScales\n
+        Unused
+      - IgnoreScrollbars\n
+        Ignore the dimension of the scrollbars. There are no
+        scrollbars, when the plot is rendered to a paint device 
+        (QwtPlot::print() ).
+      - IgnoreFrames\n
+        Ignore all frames. QwtPlot::print() doesn't paint them.
+      - IgnoreMargin\n
+        Ignore the margin().
+      - IgnoreLegend\n
+        Ignore the legend. 
+
+      \sa activate()
+     */
     enum Options
     {
         AlignScales = 1,

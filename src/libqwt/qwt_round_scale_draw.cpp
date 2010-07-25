@@ -24,16 +24,16 @@ public:
     PrivateData():
         center(50, 50),
         radius(50),
-        minAngle(-135 * 16),
-        maxAngle(135 * 16)
+        startAngle(-135 * 16),
+        endAngle(135 * 16)
     {
     }
 
     QPoint center;
     int radius; 
 
-    int minAngle;
-    int maxAngle;
+    int startAngle;
+    int endAngle;
 };
 
 /*!
@@ -48,7 +48,7 @@ QwtRoundScaleDraw::QwtRoundScaleDraw()
     d_data = new QwtRoundScaleDraw::PrivateData;
 
     setRadius(50);
-    scaleMap().setPaintInterval(d_data->minAngle, d_data->maxAngle);
+    scaleMap().setPaintInterval(d_data->startAngle, d_data->endAngle);
 }
 
 //! Copy constructor
@@ -79,7 +79,7 @@ QwtRoundScaleDraw &QwtRoundScaleDraw::operator=(const QwtRoundScaleDraw &other)
   Radius is the radius of the backbone without ticks and labels.
 
   \param radius New Radius
-  \sa moveCenter
+  \sa moveCenter()
 */
 void QwtRoundScaleDraw::setRadius(int radius)
 {
@@ -102,7 +102,7 @@ int QwtRoundScaleDraw::radius() const
    Move the center of the scale draw, leaving the radius unchanged
 
    \param center New center
-   \sa setRadius
+   \sa setRadius()
 */
 void QwtRoundScaleDraw::moveCenter(const QPoint &center)
 {
@@ -137,18 +137,16 @@ void QwtRoundScaleDraw::setAngleRange(double angle1, double angle2)
     angle1 = qwtLim(angle1, -360.0, 360.0);
     angle2 = qwtLim(angle2, -360.0, 360.0);
 
-    int amin = qRound(qwtMin(angle1, angle2) * 16.0);
-    int amax = qRound(qwtMax(angle1, angle2) * 16.0); 
+    d_data->startAngle = qRound(angle1 * 16.0);
+    d_data->endAngle = qRound(angle2 * 16.0); 
  
-    if (amin == amax)
+    if (d_data->startAngle == d_data->endAngle)
     {
-        amin -= 1;
-        amax += 1;
+        d_data->startAngle -= 1;
+        d_data->endAngle += 1;
     }
  
-    d_data->minAngle = amin;
-    d_data->maxAngle = amax;
-    scaleMap().setPaintInterval(d_data->minAngle, d_data->maxAngle);
+    scaleMap().setPaintInterval(d_data->startAngle, d_data->endAngle);
 }
 
 /*!
@@ -166,8 +164,8 @@ void QwtRoundScaleDraw::drawLabel(QPainter *painter, double value) const
         return; 
 
     const int tval = map().transform(value);
-    if ((tval > d_data->minAngle + 359 * 16)
-        || (tval < d_data->minAngle - 359 * 16))
+    if ((tval > d_data->startAngle + 359 * 16)
+        || (tval < d_data->startAngle - 359 * 16))
     {
        return; 
     }
@@ -215,8 +213,8 @@ void QwtRoundScaleDraw::drawTick(QPainter *painter, double value, int len) const
     const int cy = d_data->center.y();
     const int radius = d_data->radius;
 
-    if ((tval <= d_data->minAngle + 359 * 16)
-        || (tval >= d_data->minAngle - 359 * 16))
+    if ((tval <= d_data->startAngle + 359 * 16)
+        || (tval >= d_data->startAngle - 359 * 16))
     {
         const double arc = double(tval) / 16.0 * M_PI / 180.0;
 
@@ -285,8 +283,8 @@ int QwtRoundScaleDraw::extent(const QPen &pen, const QFont &font) const
                 continue;
                 
             const int tval = map().transform(value);
-            if ((tval < d_data->minAngle + 360 * 16)
-                && (tval > d_data->minAngle - 360 * 16))
+            if ((tval < d_data->startAngle + 360 * 16)
+                && (tval > d_data->startAngle - 360 * 16))
             {
                 const double arc = tval / 16.0 / 360.0 * 2 * M_PI;
 

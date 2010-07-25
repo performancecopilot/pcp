@@ -59,7 +59,7 @@ void QwtPlot::initAxesData()
         d.scaleWidget->setFont(fscl);
         d.scaleWidget->setMargin(2);
 
-        QwtText text;
+        QwtText text = d.scaleWidget->title();
         text.setFont(fttl);
         d.scaleWidget->setTitle(text);
 
@@ -117,6 +117,14 @@ QwtScaleWidget *QwtPlot::axisWidget(int axisId)
     return NULL;
 }
 
+/*!
+   Change the scale engine for an axis
+
+  \param axisId axis index
+  \param scaleEngine Scale engine
+
+  \sa axisScaleEngine()
+*/
 void QwtPlot::setAxisScaleEngine(int axisId, QwtScaleEngine *scaleEngine)
 {
     if (axisValid(axisId) && scaleEngine != NULL )
@@ -132,6 +140,10 @@ void QwtPlot::setAxisScaleEngine(int axisId, QwtScaleEngine *scaleEngine)
     }
 }
 
+/*! 
+  \param axisId axis index
+  \return Scale engine for a specific axis
+*/
 QwtScaleEngine *QwtPlot::axisScaleEngine(int axisId)
 {
     if (axisValid(axisId))
@@ -140,6 +152,10 @@ QwtScaleEngine *QwtPlot::axisScaleEngine(int axisId)
         return NULL;
 }
 
+/*! 
+  \param axisId axis index
+  \return Scale engine for a specific axis
+*/
 const QwtScaleEngine *QwtPlot::axisScaleEngine(int axisId) const
 {
     if (axisValid(axisId))
@@ -188,6 +204,7 @@ QFont QwtPlot::axisFont(int axisId) const
 /*!
   \return the maximum number of major ticks for a specified axis
   \param axisId axis index
+  sa setAxisMaxMajor()
 */
 int QwtPlot::axisMaxMajor(int axisId) const
 {
@@ -200,6 +217,7 @@ int QwtPlot::axisMaxMajor(int axisId) const
 /*!
   \return the maximum number of minor ticks for a specified axis
   \param axisId axis index
+  sa setAxisMaxMinor()
 */
 int QwtPlot::axisMaxMinor(int axisId) const
 {
@@ -212,13 +230,13 @@ int QwtPlot::axisMaxMinor(int axisId) const
 /*!
   \brief Return the scale division of a specified axis
 
-  axisScaleDiv(axisId)->lBound(), axisScaleDiv(axisId)->hBound()
+  axisScaleDiv(axisId)->lowerBound(), axisScaleDiv(axisId)->upperBound()
   are the current limits of the axis scale.
 
   \param axisId axis index
   \return Scale division 
 
-  \sa QwtScaleDiv, setAxisScaleDiv
+  \sa QwtScaleDiv, setAxisScaleDiv()
 */
 const QwtScaleDiv *QwtPlot::axisScaleDiv(int axisId) const
 {
@@ -231,13 +249,13 @@ const QwtScaleDiv *QwtPlot::axisScaleDiv(int axisId) const
 /*!
   \brief Return the scale division of a specified axis
 
-  axisScaleDiv(axisId)->lBound(), axisScaleDiv(axisId)->hBound()
+  axisScaleDiv(axisId)->lowerBound(), axisScaleDiv(axisId)->upperBound()
   are the current limits of the axis scale.
 
   \param axisId axis index
   \return Scale division 
 
-  \sa QwtScaleDiv, setAxisScaleDiv
+  \sa QwtScaleDiv, setAxisScaleDiv()
 */
 QwtScaleDiv *QwtPlot::axisScaleDiv(int axisId) 
 {
@@ -273,6 +291,24 @@ QwtScaleDraw *QwtPlot::axisScaleDraw(int axisId)
         return NULL;
 
     return axisWidget(axisId)->scaleDraw();
+}
+
+/*!
+   Return the step size parameter, that has been set
+   in setAxisScale. This doesn't need to be the step size 
+   of the current scale.
+
+  \param axisId axis index
+  \return step size parameter value
+
+   \sa setAxisScale()
+*/ 
+double QwtPlot::axisStepSize(int axisId) const
+{
+    if (!axisValid(axisId))
+        return 0;
+
+    return d_axisData[axisId]->stepSize;
 }
 
 /*!
@@ -379,7 +415,7 @@ void QwtPlot::setAxisAutoScale(int axisId)
   \param max minimum and maximum of the scale
   \param stepSize Major step size. If <code>step == 0</code>, the step size is
             calculated automatically using the maxMajor setting.
-  \sa QwtPlot::setAxisMaxMajor(), QwtPlot::setAxisAutoScale()
+  \sa setAxisMaxMajor(), setAxisAutoScale()
 */
 void QwtPlot::setAxisScale(int axisId, double min, double max, double stepSize)
 {
@@ -402,7 +438,7 @@ void QwtPlot::setAxisScale(int axisId, double min, double max, double stepSize)
   \brief Disable autoscaling and specify a fixed scale for a selected axis.
   \param axisId axis index
   \param scaleDiv Scale division
-  \sa QwtPlot::setAxisScale(), QwtPlot::setAxisAutoScale()
+  \sa setAxisScale(), setAxisAutoScale()
 */
 void QwtPlot::setAxisScaleDiv(int axisId, const QwtScaleDiv &scaleDiv)
 {
@@ -427,7 +463,7 @@ void QwtPlot::setAxisScaleDiv(int axisId, const QwtScaleDiv &scaleDiv)
   that scaleDraw has to be created with new and will be deleted
   by the corresponding QwtScale member ( like a child object ).
 
-  \sa QwtScaleDraw, QwtScale
+  \sa QwtScaleDraw, QwtScaleWidget
   \warning The attributes of scaleDraw will be overwritten by those of the  
            previous QwtScaleDraw. 
 */
@@ -462,7 +498,7 @@ void QwtPlot::setAxisLabelAlignment(int axisId, Qt::Alignment alignment)
   \param axisId axis index
   \param rotation Angle in degrees. When changing the label rotation,
                   the label alignment might be adjusted too.
-  \sa QwtScaleDraw::setLabelRotation(), QwtPlot::setAxisLabelAlignment
+  \sa QwtScaleDraw::setLabelRotation(), setAxisLabelAlignment()
 */
 void QwtPlot::setAxisLabelRotation(int axisId, double rotation)
 {
@@ -471,10 +507,11 @@ void QwtPlot::setAxisLabelRotation(int axisId, double rotation)
 }
 
 /*!
-  \brief Set the maximum number of minor scale intervals for a specified axis
+  Set the maximum number of minor scale intervals for a specified axis
+
   \param axisId axis index
   \param maxMinor maximum number of minor steps
-  \sa QwtAutoScale::setMaxMinor
+  \sa axisMaxMinor()
 */
 void QwtPlot::setAxisMaxMinor(int axisId, int maxMinor)
 {
@@ -497,10 +534,11 @@ void QwtPlot::setAxisMaxMinor(int axisId, int maxMinor)
 }
 
 /*!
-  \brief Set the maximum number of major scale intervals for a specified axis
+  Set the maximum number of major scale intervals for a specified axis
+
   \param axisId axis index
   \param maxMajor maximum number of major steps
-  \sa QwtAutoScale::setMaxMajor
+  \sa axisMaxMajor()
 */
 void QwtPlot::setAxisMaxMajor(int axisId, int maxMajor)
 {
@@ -512,7 +550,7 @@ void QwtPlot::setAxisMaxMajor(int axisId, int maxMajor)
             maxMajor = 10000;
             
         AxisData &d = *d_axisData[axisId];
-        if ( maxMajor != d.maxMinor )
+        if ( maxMajor != d.maxMajor )
         {
             d.maxMajor = maxMajor;
             d.scaleDiv.invalidate();
@@ -543,7 +581,7 @@ void QwtPlot::setAxisTitle(int axisId, const QwtText &title)
         axisWidget(axisId)->setTitle(title);
 }
 
-//! Rebuild the scales and maps
+//! Rebuild the scales
 void QwtPlot::updateAxes() 
 {
     // Find bounding interval of the item data

@@ -19,8 +19,8 @@
 
 // QWT_VERSION is (major << 16) + (minor << 8) + patch.
 
-#define QWT_VERSION       0x050002
-#define QWT_VERSION_STR   "5.0.2"
+#define QWT_VERSION       0x050201
+#define QWT_VERSION_STR   "5.2.1"
 
 #if defined(Q_WS_WIN)
 

@@ -12,16 +12,18 @@
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMin = 1.0e-150;
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMax = 1.0e150;
 
-//!  Constructor for a linear transformation
+//! Constructor for a linear transformation
 QwtScaleTransformation::QwtScaleTransformation(Type type):
     d_type(type)
 {
 }
 
+//! Destructor
 QwtScaleTransformation::~QwtScaleTransformation()
 {
 }
 
+//! Create a clone of the transformation
 QwtScaleTransformation *QwtScaleTransformation::copy() const
 {
     return new QwtScaleTransformation(d_type);
@@ -92,6 +94,7 @@ QwtScaleMap::QwtScaleMap():
         QwtScaleTransformation::Linear);
 }
 
+//! Copy constructor
 QwtScaleMap::QwtScaleMap(const QwtScaleMap& other):
     d_s1(other.d_s1),
     d_s2(other.d_s2),
@@ -110,6 +113,7 @@ QwtScaleMap::~QwtScaleMap()
     delete d_transformation;
 }
 
+//! Assignment operator
 QwtScaleMap &QwtScaleMap::operator=(const QwtScaleMap &other)
 {
     d_s1 = other.d_s1;

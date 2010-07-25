@@ -196,7 +196,7 @@ QwtPlotRasterItem::CachePolicy QwtPlotRasterItem::cachePolicy() const
 
 /*!
    Invalidate the paint cache
-   \sa setCachePolicy
+   \sa setCachePolicy()
 */
 void QwtPlotRasterItem::invalidateCache()
 {

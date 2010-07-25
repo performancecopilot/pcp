@@ -75,11 +75,19 @@ QwtSpline::QwtSpline()
     d_data = new PrivateData;
 }
 
+/*! 
+   Copy constructor
+   \param other Spline used for initilization
+*/
 QwtSpline::QwtSpline(const QwtSpline& other)
 {
     d_data = new PrivateData(*other.d_data);
 }
 
+/*! 
+   Assignment operator
+   \param other Spline used for initilization
+*/
 QwtSpline &QwtSpline::operator=( const QwtSpline &other)
 {
     *d_data = *other.d_data;
@@ -92,17 +100,25 @@ QwtSpline::~QwtSpline()
     delete d_data;
 }
 
+/*!
+   Select the algorithm used for calculating the spline
+
+   \param splineType Spline type
+   \sa splineType()
+*/
 void QwtSpline::setSplineType(SplineType splineType)
 {
     d_data->splineType = splineType;
 }
 
+/*!
+   \return the spline type
+   \sa setSplineType()
+*/
 QwtSpline::SplineType QwtSpline::splineType() const
 {
     return d_data->splineType;
 }
-
-//! Determine the function table index corresponding to a value x
 
 /*!
   \brief Calculate the spline coefficients
@@ -165,6 +181,24 @@ QPolygonF QwtSpline::points() const
 #endif
 {
     return d_data->points;
+}
+
+//! \return A coefficients
+const QwtArray<double> &QwtSpline::coefficientsA() const
+{
+    return d_data->a;
+}
+
+//! \return B coefficients
+const QwtArray<double> &QwtSpline::coefficientsB() const
+{
+    return d_data->b;
+}
+
+//! \return C coefficients
+const QwtArray<double> &QwtSpline::coefficientsC() const
+{
+    return d_data->c;
 }
 
 

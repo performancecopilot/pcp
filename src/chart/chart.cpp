@@ -318,7 +318,7 @@ void Chart::redoScale(void)
     // the upper bound of the y-axis range (hBound()) drives the choice
     // of appropriate units scaling.
     //
-    if (my.autoScale && axisScaleDiv(QwtPlot::yLeft)->hBound() > 1000) {
+    if (my.autoScale && axisScaleDiv(QwtPlot::yLeft)->upperBound() > 1000) {
 	if (my.units.dimSpace == 1) {
 	    switch (my.units.scaleSpace) {
 		case PM_SPACE_BYTE:
@@ -373,7 +373,8 @@ void Chart::redoScale(void)
 	}
     }
 
-    if (rescale == false && my.autoScale && axisScaleDiv(QwtPlot::yLeft)->hBound() < 0.1) {
+    if (rescale == false && my.autoScale &&
+	axisScaleDiv(QwtPlot::yLeft)->upperBound() < 0.1) {
 	if (my.units.dimSpace == 1) {
 	    switch (my.units.scaleSpace) {
 		case PM_SPACE_KBYTE:
@@ -1095,8 +1096,7 @@ void Chart::print(QPainter *qp, QRect &rect)
     QwtPlotPrintFilter filter;
 
     filter.setOptions(QwtPlotPrintFilter::PrintAll &
-	~QwtPlotPrintFilter::PrintCanvasBackground &
-	~QwtPlotPrintFilter::PrintWidgetBackground &
+	~QwtPlotPrintFilter::PrintBackground &
 	~QwtPlotPrintFilter::PrintGrid);
     QwtPlot::print(qp, rect, filter);
 }

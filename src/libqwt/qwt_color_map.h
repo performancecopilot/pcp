@@ -63,7 +63,7 @@ public:
     QwtColorMap(Format = QwtColorMap::RGB );
     virtual ~QwtColorMap();
 
-    inline Format format() const;
+    Format format() const;
 
     //! Clone the color map
     virtual QwtColorMap *copy() const = 0;

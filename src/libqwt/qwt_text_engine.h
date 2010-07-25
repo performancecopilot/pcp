@@ -32,7 +32,7 @@ class QPainter;
   needs the MathML renderer of the Qt solutions package. Unfortunately
   it is only available with a commercial Qt license.
 
-  \sa QwtText::setTextEngine
+  \sa QwtText::setTextEngine()
 */
 
 class QWT_EXPORT QwtTextEngine

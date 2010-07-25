@@ -20,7 +20,6 @@
 #include "qwt_plot.h"
 #include "qwt_plot_dict.h"
 #include "qwt_plot_layout.h"
-#include "qwt_rect.h"
 #include "qwt_scale_widget.h"
 #include "qwt_scale_engine.h"
 #include "qwt_text_label.h"
@@ -162,10 +161,7 @@ bool QwtPlot::event(QEvent *e)
     return ok;
 }
 
-/*!
-  \brief Replots the plot if QwtPlot::autoReplot() is \c true.
-*/
-
+//! Replots the plot if QwtPlot::autoReplot() is \c true.
 void QwtPlot::autoRefresh()
 {
     if (d_data->autoReplot)
@@ -174,6 +170,7 @@ void QwtPlot::autoRefresh()
 
 /*!
   \brief Set or reset the autoReplot option
+
   If the autoReplot option is set, the plot will be
   updated implicitly by manipulating member functions.
   Since this may be time-consuming, it is recommended
@@ -191,9 +188,7 @@ void QwtPlot::setAutoReplot(bool tf)
     d_data->autoReplot = tf;
 }
 
-/*!
-    \return true if the autoReplot option is set.
-*/
+//! \return true if the autoReplot option is set.
 bool QwtPlot::autoReplot() const
 {
     return d_data->autoReplot; 
@@ -234,46 +229,37 @@ void QwtPlot::setTitle(const QString &t)
 }
 
 /*!
-  \brief Change the plot's title
-  \param t new title
+  Change the plot's title
+  \param title New title
 */
-void QwtPlot::setTitle(const QwtText &t)
+void QwtPlot::setTitle(const QwtText &title)
 {
-    if ( t != d_data->lblTitle->text() )
+    if ( title != d_data->lblTitle->text() )
     {
-        d_data->lblTitle->setText(t);
+        d_data->lblTitle->setText(title);
         updateLayout();
     }
 }
 
-/*!
-  \return the plot's title
-*/
-
+//! \return the plot's title
 QwtText QwtPlot::title() const
 {
     return d_data->lblTitle->text();
 }
 
-/*!
-  \return the plot's layout
-*/
+//! \return the plot's title
 QwtPlotLayout *QwtPlot::plotLayout()
 {
     return d_data->layout;
 }
 
-/*!
-  \return the plot's layout
-*/
+//! \return the plot's titel label.
 const QwtPlotLayout *QwtPlot::plotLayout() const
 {
     return d_data->layout;
 }
 
-/*!
-  \return the plot's titel label.
-*/
+//! \return the plot's titel label.
 QwtTextLabel *QwtPlot::titleLabel()
 {
     return d_data->lblTitle;
@@ -289,7 +275,7 @@ const QwtTextLabel *QwtPlot::titleLabel() const
 
 /*!
   \return the plot's legend
-  \sa printLegendItem()
+  \sa insertLegend()
 */
 QwtLegend *QwtPlot::legend()
 { 
@@ -298,7 +284,7 @@ QwtLegend *QwtPlot::legend()
 
 /*!
   \return the plot's legend
-  \sa printLegendItem()
+  \sa insertLegend()
 */
 const QwtLegend *QwtPlot::legend() const
 { 
@@ -322,6 +308,7 @@ const QwtPlotCanvas *QwtPlot::canvas() const
     return d_data->canvas;
 }
 
+//! Polish
 void QwtPlot::polish()
 {
     replot();
@@ -333,7 +320,7 @@ void QwtPlot::polish()
 
 /*!  
   Return sizeHint
-  \sa QwtPlot::minimumSizeHint()
+  \sa minimumSizeHint()
 */
 
 QSize QwtPlot::sizeHint() const
@@ -379,7 +366,10 @@ QSize QwtPlot::minimumSizeHint() const
     return hint;
 }
 
-//! Resize and update internal layout
+/*! 
+  Resize and update internal layout
+  \param e Resize event
+*/
 void QwtPlot::resizeEvent(QResizeEvent *e)
 {
     QFrame::resizeEvent(e);
@@ -414,37 +404,14 @@ void QwtPlot::replot()
     QApplication::sendPostedEvents(this, QEvent::LayoutHint);
 #endif
 
-    QwtPlotCanvas &canvas = *d_data->canvas;
-
-    canvas.invalidatePaintCache();
-
-    /*
-      In case of cached or packed painting the canvas
-      is repainted completely and doesn't need to be erased.
-     */
-    const bool erase = 
-        !canvas.testPaintAttribute(QwtPlotCanvas::PaintPacked) 
-        && !canvas.testPaintAttribute(QwtPlotCanvas::PaintCached);
-
-#if QT_VERSION >= 0x040000
-    const bool noBackgroundMode = canvas.testAttribute(Qt::WA_NoBackground);
-    if ( !erase && !noBackgroundMode )
-        canvas.setAttribute(Qt::WA_NoBackground, true);
-
-    canvas.repaint(canvas.contentsRect());
-
-    if ( !erase && !noBackgroundMode )
-        canvas.setAttribute(Qt::WA_NoBackground, false);
-#else
-    canvas.repaint(canvas.contentsRect(), erase);
-#endif
+    d_data->canvas->replot();
 
     setAutoReplot(doAutoReplot);
 }
 
 /*!
   \brief Adjust plot content to its current size.
-  \sa QwtPlot::resizeEvent
+  \sa resizeEvent()
 */
 void QwtPlot::updateLayout()
 {
@@ -588,12 +555,11 @@ void QwtPlot::updateTabOrder()
   Redraw the canvas.
   \param painter Painter used for drawing
 
-  \warning drawCanvas calls drawCanvasItems what is also used
+  \warning drawCanvas calls drawItems what is also used
            for printing. Applications that like to add individual
-           plot items better overload QwtPlot::drawCanvasItems
-  \sa QwtPlot::drawItems
+           plot items better overload drawItems()
+  \sa drawItems()
 */
-
 void QwtPlot::drawCanvas(QPainter *painter)
 {
     QwtScaleMap maps[axisCnt];
@@ -649,7 +615,7 @@ void QwtPlot::drawItems(QPainter *painter, const QRect &rect,
   \param axisId Axis
   \return Map for the axis on the canvas. With this map pixel coordinates can
           translated to plot coordinates and vice versa.
-  \sa QwtScaleMap, QwtPlot::transform, QwtPlot::invTransform
+  \sa QwtScaleMap, transform(), invTransform()
   
 */
 QwtScaleMap QwtPlot::canvasMap(int axisId) const
@@ -661,7 +627,7 @@ QwtScaleMap QwtPlot::canvasMap(int axisId) const
     map.setTransformation(axisScaleEngine(axisId)->transformation());
 
     const QwtScaleDiv *sd = axisScaleDiv(axisId);
-    map.setScaleInterval(sd->lBound(), sd->hBound());
+    map.setScaleInterval(sd->lowerBound(), sd->upperBound());
 
     if ( axisEnabled(axisId) )
     {
@@ -670,13 +636,13 @@ QwtScaleMap QwtPlot::canvasMap(int axisId) const
         {
             int y = s->y() + s->startBorderDist() - d_data->canvas->y();
             int h = s->height() - s->startBorderDist() - s->endBorderDist();
-            map.setPaintInterval(y + h - 1, y);
+            map.setPaintInterval(y + h, y);
         }
         else
         {
             int x = s->x() + s->startBorderDist() - d_data->canvas->x();
             int w = s->width() - s->startBorderDist() - s->endBorderDist();
-            map.setPaintInterval(x, x + w - 1);
+            map.setPaintInterval(x, x + w);
         }
     }
     else
@@ -703,7 +669,7 @@ QwtScaleMap QwtPlot::canvasMap(int axisId) const
   around all components.
 
   \param margin new margin
-  \sa QwtPlotLayout::setMargin(), QwtPlot::margin(), QwtPlot::plotLayout()
+  \sa QwtPlotLayout::setMargin(), margin(), plotLayout()
 */
 void QwtPlot::setMargin(int margin)
 {
@@ -719,7 +685,7 @@ void QwtPlot::setMargin(int margin)
 
 /*!
     \return margin
-    \sa QwtPlot::setMargin(), QwtPlotLayout::margin(), QwtPlot::plotLayout()
+    \sa setMargin(), QwtPlotLayout::margin(), plotLayout()
 */
 int QwtPlot::margin() const
 {
@@ -802,28 +768,36 @@ bool QwtPlot::axisValid(int axisId)
   Called internally when the legend has been clicked on.
   Emits a legendClicked() signal.
 */
-
 void QwtPlot::legendItemClicked()
 {
     if ( d_data->legend && sender()->isWidgetType() )
     {
-        QwtPlotItem *plotItem = d_data->legend->find((QWidget *)sender());
+        QwtPlotItem *plotItem = 
+            (QwtPlotItem*)d_data->legend->find((QWidget *)sender());
         if ( plotItem )
             emit legendClicked(plotItem);
     }
 }
 
+/*!
+  Called internally when the legend has been checked
+  Emits a legendClicked() signal.
+*/
 void QwtPlot::legendItemChecked(bool on)
 {
     if ( d_data->legend && sender()->isWidgetType() )
     {
-        QwtPlotItem *plotItem = d_data->legend->find((QWidget *)sender());
+        QwtPlotItem *plotItem = 
+            (QwtPlotItem*)d_data->legend->find((QWidget *)sender());
         if ( plotItem )
             emit legendChecked(plotItem, on);
     }
 }
 
-//! Remove all curves and markers
+/*! 
+   Remove all curves and markers
+   \deprecated Use QwtPlotDeict::detachItems instead
+*/
 void QwtPlot::clear()
 {
     detachItems(QwtPlotItem::Rtti_PlotCurve);
@@ -835,7 +809,7 @@ void QwtPlot::clear()
 
   If the position legend is \c QwtPlot::LeftLegend or \c QwtPlot::RightLegend
   the legend will be organized in one column from top to down. 
-  Otherwise the legend items will be placed be placed in a table 
+  Otherwise the legend items will be placed in a table 
   with a best fit number of columns from left to right.
 
   If pos != QwtPlot::ExternalLegend the plot widget will become 
@@ -854,7 +828,8 @@ void QwtPlot::clear()
                it will be reset to the default ratio.
                The default vertical/horizontal ratio is 0.33/0.5.
 
-  \sa QwtPlotLayout::legendPosition(), QwtPlotLayout::setLegendPosition()
+  \sa legend(), QwtPlotLayout::legendPosition(), 
+      QwtPlotLayout::setLegendPosition()
 */
 void QwtPlot::insertLegend(QwtLegend *legend, 
     QwtPlot::LegendPosition pos, double ratio)

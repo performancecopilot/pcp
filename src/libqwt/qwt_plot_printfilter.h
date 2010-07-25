@@ -37,10 +37,10 @@ public:
         PrintTitle = 2,
         PrintLegend = 4,
         PrintGrid = 8,
-        PrintCanvasBackground = 16,
-        PrintWidgetBackground = 32,
+        PrintBackground = 16,
+        PrintFrameWithScales = 32,
 
-        PrintAll = ~PrintWidgetBackground
+        PrintAll = ~PrintFrameWithScales
     }; 
 
     //! Print items

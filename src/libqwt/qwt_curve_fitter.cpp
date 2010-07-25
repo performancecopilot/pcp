@@ -35,21 +35,33 @@ public:
     int splineSize;
 };
 
+//! Constructor
 QwtSplineCurveFitter::QwtSplineCurveFitter()
 {
     d_data = new PrivateData;
 }
 
+//! Destructor
 QwtSplineCurveFitter::~QwtSplineCurveFitter()
 {
     delete d_data;
 }
 
+/*!
+  Select the algorithm used for building the spline
+
+  \param mode Mode representing a spline algorithm
+  \sa fitMode()
+*/
 void QwtSplineCurveFitter::setFitMode(FitMode mode)
 {
     d_data->fitMode = mode;
 }
 
+/*!
+  \return Mode representing a spline algorithm
+  \sa setFitMode()
+*/
 QwtSplineCurveFitter::FitMode QwtSplineCurveFitter::fitMode() const
 {
     return d_data->fitMode;
@@ -81,12 +93,17 @@ int QwtSplineCurveFitter::splineSize() const
     return d_data->splineSize;
 }
 
+/*!
+  Find a curve which has the best fit to a series of data points
+
+  \param points Series of data points
+  \return Curve points
+*/
 #if QT_VERSION < 0x040000
 QwtArray<QwtDoublePoint> QwtSplineCurveFitter::fitCurve(
     const QwtArray<QwtDoublePoint> & points) const
 #else
-QPolygonF QwtSplineCurveFitter::fitCurve(
-    const QPolygonF &points) const
+QPolygonF QwtSplineCurveFitter::fitCurve(const QPolygonF &points) const
 #endif
 {
     const int size = (int)points.size();

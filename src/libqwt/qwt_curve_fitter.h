@@ -48,7 +48,13 @@ public:
     virtual QwtArray<QwtDoublePoint> fitCurve(
         const QwtArray<QwtDoublePoint>&) const = 0;
 #else
-    virtual QPolygonF fitCurve(const QPolygonF &) const = 0;
+    /*!
+        Find a curve which has the best fit to a series of data points
+
+        \param polygon Series of data points
+        \return Curve points
+     */
+    virtual QPolygonF fitCurve(const QPolygonF &polygon) const = 0;
 #endif
 
 protected:

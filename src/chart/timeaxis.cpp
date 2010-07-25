@@ -75,8 +75,7 @@ void TimeAxis::print(QPainter *qp, QRect &rect)
     QwtPlotPrintFilter filter;
 
     filter.setOptions(QwtPlotPrintFilter::PrintAll &
-        ~QwtPlotPrintFilter::PrintCanvasBackground &
-        ~QwtPlotPrintFilter::PrintWidgetBackground &
+        ~QwtPlotPrintFilter::PrintBackground &
         ~QwtPlotPrintFilter::PrintGrid);
     QwtPlot::print(qp, rect, filter);
 }

@@ -12,6 +12,7 @@
 
 #include <qpoint.h>
 #include <qrect.h>
+#include <qpen.h>
 #include "qwt_global.h"
 #include "qwt_layout_metrics.h"
 #include "qwt_polygon.h"
@@ -70,6 +71,7 @@ public:
 
     static void setDeviceClipping(bool);
     static bool deviceClipping();
+    static const QRect &deviceClipRect();
 
     static void setClipRect(QPainter *, const QRect &);
 
@@ -115,8 +117,6 @@ public:
     static void drawFocusRect(QPainter *, QWidget *);
     static void drawFocusRect(QPainter *, QWidget *, const QRect &);
 
-    static QwtPolygon clip(const QwtPolygon &);
-
     static void drawColorBar(QPainter *painter, 
         const QwtColorMap &, const QwtDoubleInterval &,
         const QwtScaleMap &, Qt::Orientation, const QRect &);
@@ -126,11 +126,11 @@ public:
     static bool isSVGMode();
 #endif
 
+    static QPen scaledPen(const QPen &);
+
 private:
     static void drawColoredArc(QPainter *, const QRect &,
         int peak, int arc, int intervall, const QColor &c1, const QColor &c2);
-
-    static const QRect &deviceClipRect();
 
     static bool d_deviceClipping;
     static QwtMetricsMap d_metricsMap;
@@ -144,6 +144,16 @@ inline void QwtPainter::drawLine(QPainter *painter,
     const QPoint &p1, const QPoint &p2)
 {
     drawLine(painter, p1.x(), p1.y(), p2.x(), p2.y());
+}
+
+/*!
+  Returns whether device clipping is enabled. On X11 the default
+  is enabled, otherwise it is disabled.
+  \sa QwtPainter::setDeviceClipping()
+*/
+inline bool QwtPainter::deviceClipping()
+{
+    return d_deviceClipping;
 }
 
 #endif

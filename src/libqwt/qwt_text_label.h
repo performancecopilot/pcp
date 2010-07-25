@@ -47,9 +47,6 @@ public slots:
 public:
     const QwtText &text() const;
 
-    bool active() const;
-    void setActive(bool);
-
     int indent() const;
     void setIndent(int);
 

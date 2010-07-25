@@ -77,6 +77,26 @@ QwtPlotCanvas::~QwtPlotCanvas()
     delete d_data;
 }
 
+//! Return parent plot widget
+QwtPlot *QwtPlotCanvas::plot()
+{
+    QWidget *w = parentWidget();
+    if ( w && w->inherits("QwtPlot") )
+        return (QwtPlot *)w;
+
+    return NULL;
+}
+
+//! Return parent plot widget
+const QwtPlot *QwtPlotCanvas::plot() const
+{
+    const QWidget *w = parentWidget();
+    if ( w && w->inherits("QwtPlot") )
+        return (QwtPlot *)w;
+
+    return NULL;
+}
+
 /*!
   \brief Changing the paint attributes
 
@@ -142,6 +162,7 @@ void QwtPlotCanvas::setPaintAttribute(PaintAttribute attribute, bool on)
 
   \param attribute Paint attribute
   \return true if the attribute is enabled
+  \sa setPaintAttribute()
 */
 bool QwtPlotCanvas::testPaintAttribute(PaintAttribute attribute) const
 {
@@ -170,7 +191,7 @@ void QwtPlotCanvas::invalidatePaintCache()
 /*!
   Set the focus indicator
 
-  \sa FocusIndicator, focusIndicator
+  \sa FocusIndicator, focusIndicator()
 */
 void QwtPlotCanvas::setFocusIndicator(FocusIndicator focusIndicator)
 {
@@ -180,16 +201,20 @@ void QwtPlotCanvas::setFocusIndicator(FocusIndicator focusIndicator)
 /*!
   \return Focus indicator
   
-  \sa FocusIndicator, setFocusIndicator
+  \sa FocusIndicator, setFocusIndicator()
 */
 QwtPlotCanvas::FocusIndicator QwtPlotCanvas::focusIndicator() const
 {
     return d_data->focusIndicator;
 }
 
-void QwtPlotCanvas::hideEvent(QHideEvent *e)
+/*!
+  Hide event
+  \param event Hide event
+*/
+void QwtPlotCanvas::hideEvent(QHideEvent *event)
 {
-    QFrame::hideEvent(e);
+    QFrame::hideEvent(event);
 
     if ( d_data->paintAttributes & PaintPacked )
     {
@@ -200,6 +225,10 @@ void QwtPlotCanvas::hideEvent(QHideEvent *e)
     }
 }
 
+/*!
+  Paint event
+  \param event Paint event
+*/
 void QwtPlotCanvas::paintEvent(QPaintEvent *event)
 {
 #if QT_VERSION >= 0x040000
@@ -224,7 +253,10 @@ void QwtPlotCanvas::paintEvent(QPaintEvent *event)
         setSystemBackground(false);
 }
 
-//! Redraw the canvas, and focus rect
+/*! 
+  Redraw the canvas, and focus rect
+  \param painter Painter
+*/
 void QwtPlotCanvas::drawContents(QPainter *painter)
 {
     if ( d_data->paintAttributes & PaintCached && d_data->cache 
@@ -236,7 +268,7 @@ void QwtPlotCanvas::drawContents(QPainter *painter)
     {
         QwtPlot *plot = ((QwtPlot *)parent());
         const bool doAutoReplot = plot->autoReplot();
-            plot->setAutoReplot(false);
+        plot->setAutoReplot(false);
 
         drawCanvas(painter);
 
@@ -253,9 +285,10 @@ void QwtPlotCanvas::drawContents(QPainter *painter)
   Paints all plot items to the contentsRect(), using QwtPlot::drawCanvas
   and updates the paint cache.
 
-  \sa QwtPlot::drawCanvas, setPaintAttributes(), testPaintAttributes()
-*/
+  \param painter Painter
 
+  \sa QwtPlot::drawCanvas(), setPaintAttributes(), testPaintAttributes()
+*/
 void QwtPlotCanvas::drawCanvas(QPainter *painter)
 {
     if ( !contentsRect().isValid() )
@@ -324,7 +357,10 @@ void QwtPlotCanvas::drawCanvas(QPainter *painter)
     }
 }
 
-//! Draw the focus indication
+/*! 
+  Draw the focus indication
+  \param painter Painter
+*/
 void QwtPlotCanvas::drawFocusIndicator(QPainter *painter)
 {
     const int margin = 1;
@@ -352,5 +388,35 @@ void QwtPlotCanvas::setSystemBackground(bool on)
 #else
     if ( testAttribute(Qt::WA_NoSystemBackground) == on )
         setAttribute(Qt::WA_NoSystemBackground, !on);
+#endif
+}
+
+/*!
+   Invalidate the paint cache and repaint the canvas
+   \sa invalidatePaintCache()
+*/
+void QwtPlotCanvas::replot()
+{
+    invalidatePaintCache();
+
+    /*
+      In case of cached or packed painting the canvas
+      is repainted completely and doesn't need to be erased.
+     */
+    const bool erase =
+        !testPaintAttribute(QwtPlotCanvas::PaintPacked)
+        && !testPaintAttribute(QwtPlotCanvas::PaintCached);
+
+#if QT_VERSION >= 0x040000
+    const bool noBackgroundMode = testAttribute(Qt::WA_NoBackground);
+    if ( !erase && !noBackgroundMode )
+        setAttribute(Qt::WA_NoBackground, true);
+
+    repaint(contentsRect());
+
+    if ( !erase && !noBackgroundMode )
+        setAttribute(Qt::WA_NoBackground, false);
+#else
+    repaint(contentsRect(), erase);
 #endif
 }

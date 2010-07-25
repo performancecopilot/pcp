@@ -49,49 +49,68 @@ QwtSymbol::~QwtSymbol()
 }
 
 /*!
+  Allocate and return a symbol with the same attributes
+  \return Cloned symbol
+*/
+QwtSymbol *QwtSymbol::clone() const
+{
+    QwtSymbol *other = new QwtSymbol;
+    *other = *this;
+
+    return other;
+}
+
+/*!
   \brief Specify the symbol's size
 
   If the 'h' parameter is left out or less than 0,
   and the 'w' parameter is greater than or equal to 0,
   the symbol size will be set to (w,w).
-  \param w width
-  \param h height (defaults to -1)
+  \param width Width
+  \param height Height (defaults to -1)
 */
-void QwtSymbol::setSize(int w, int h)
+void QwtSymbol::setSize(int width, int height)
 {
-    if ((w >= 0) && (h < 0)) 
-        h = w;
-    d_size = QSize(w,h);
+    if ((width >= 0) && (height < 0)) 
+        height = width;
+    d_size = QSize(width, height);
 }
 
-//! Set the symbol's size
-void QwtSymbol::setSize(const QSize &s)
+/*! 
+   Set the symbol's size
+   \param size Size
+*/
+void QwtSymbol::setSize(const QSize &size)
 {
-    if (s.isValid()) 
-        d_size = s;
+    if (size.isValid()) 
+        d_size = size;
 }
 
 /*!
   \brief Assign a brush
 
   The brush is used to draw the interior of the symbol.
-  \param br brush
+  \param brush Brush
 */
-void QwtSymbol::setBrush(const QBrush &br)
+void QwtSymbol::setBrush(const QBrush &brush)
 {
-    d_brush = br;
+    d_brush = brush;
 }
 
 /*!
-  \brief Assign a pen
+  Assign a pen
 
   The pen is used to draw the symbol's outline.
 
-  \param pn pen
+  The width of non cosmetic pens is scaled according to the resolution
+  of the paint device.
+
+  \param pen Pen
+  \sa pen(), setBrush(), QwtPainter::scaledPen()
 */
-void QwtSymbol::setPen(const QPen &pn)
+void QwtSymbol::setPen(const QPen &pen)
 {
-    d_pen = pn;
+    d_pen = pen;
 }
 
 /*!
@@ -236,7 +255,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         {
             const int w = r.width();
             const int side = (int)(((double)r.width() * (1.0 - 0.866025)) /
-                2.0);  // 0.866025 = cos(30°)
+                2.0);  // 0.866025 = cos(30Â°)
             const int h4 = r.height() / 4;
             const int h2 = r.height() / 2;
             const int h34 = (r.height() * 3) / 4;
@@ -267,7 +286,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         {
             const int w2 = r.width() / 2;
             const int side = (int)(((double)r.width() * (1.0 - 0.866025)) /
-                2.0);  // 0.866025 = cos(30°)
+                2.0);  // 0.866025 = cos(30Â°)
             const int h4 = r.height() / 4;
             const int h34 = (r.height() * 3) / 4;
 
@@ -298,7 +317,7 @@ void QwtSymbol::draw(QPainter *painter, const QPoint &pos) const
     rect.moveCenter(pos);
 
     painter->setBrush(d_brush);
-    painter->setPen(d_pen);
+    painter->setPen(QwtPainter::scaledPen(d_pen));
     
     draw(painter, rect);
 }

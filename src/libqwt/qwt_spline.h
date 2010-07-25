@@ -77,6 +77,7 @@ QPolygonF interpolate(const QPolygonF& points, int numValues)
 class QWT_EXPORT QwtSpline
 {
 public:
+    //! Spline type
     enum SplineType
     {
         Natural,
@@ -105,6 +106,10 @@ public:
 
     bool isValid() const;
     double value(double x) const;
+
+    const QwtArray<double> &coefficientsA() const;
+    const QwtArray<double> &coefficientsB() const;
+    const QwtArray<double> &coefficientsC() const;
 
 protected:
 

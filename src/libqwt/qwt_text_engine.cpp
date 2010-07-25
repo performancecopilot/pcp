@@ -18,6 +18,30 @@
 #include "qwt_painter.h"
 #include "qwt_text_engine.h"
 
+static QString taggedRichText(const QString &text, int flags)
+{
+    QString richText = text;
+
+    // By default QSimpleRichText is Qt::AlignLeft
+    if (flags & Qt::AlignJustify)
+    {
+        richText.prepend(QString::fromLatin1("<div align=\"justify\">"));
+        richText.append(QString::fromLatin1("</div>"));
+    }
+    else if (flags & Qt::AlignRight)
+    {
+        richText.prepend(QString::fromLatin1("<div align=\"right\">"));
+        richText.append(QString::fromLatin1("</div>"));
+    }
+    else if (flags & Qt::AlignHCenter)
+    {
+        richText.prepend(QString::fromLatin1("<div align=\"center\">"));
+        richText.append(QString::fromLatin1("</div>"));
+    }
+
+    return richText;
+}
+
 #if QT_VERSION < 0x040000
 
 #include <qsimplerichtext.h>
@@ -26,37 +50,59 @@
 class QwtRichTextDocument: public QSimpleRichText
 {
 public:
-    QwtRichTextDocument(const QString &text, const QFont &font):
-        QSimpleRichText(text, font)
+    QwtRichTextDocument(const QString &text, int flags, const QFont &font):
+        QSimpleRichText(taggedRichText(text, flags), font)
     {
     }
 };
 
 #else // QT_VERSION >= 0x040000
 
-#if QT_VERSION < 0x040200
-#define USE_LABEL 1
-#endif
-
-#ifdef USE_LABEL
-#include <qlabel.h>
-#else
 #include <qtextobject.h>
-#endif
 #include <qtextdocument.h>
 #include <qabstracttextdocumentlayout.h>
+
+#if QT_VERSION < 0x040200
+#include <qlabel.h>
+#endif
 
 class QwtRichTextDocument: public QTextDocument
 {
 public:
-    QwtRichTextDocument(const QString &text, const QFont &font)
+    QwtRichTextDocument(const QString &text, int flags, const QFont &font)
     {
         setUndoRedoEnabled(false);
         setDefaultFont(font);
+#if QT_VERSION >= 0x040300
         setHtml(text);
+#else
+        setHtml(taggedRichText(text, flags));
+#endif
 
         // make sure we have a document layout
         (void)documentLayout();
+
+#if QT_VERSION >= 0x040300
+        QTextOption option = defaultTextOption();
+        if ( flags & Qt::TextWordWrap )
+            option.setWrapMode(QTextOption::WordWrap);
+        else
+            option.setWrapMode(QTextOption::NoWrap);
+
+        option.setAlignment((Qt::Alignment) flags);
+        setDefaultTextOption(option);
+
+        QTextFrame *root = rootFrame();
+        QTextFrameFormat fm = root->frameFormat();
+        fm.setBorder(0);
+        fm.setMargin(0);
+        fm.setPadding(0);
+        fm.setBottomMargin(0);
+        fm.setLeftMargin(0);
+        root->setFrameFormat(fm);
+
+        adjustSize();
+#endif
     }
 };
 
@@ -95,11 +141,11 @@ private:
         p.drawText(0, 0,  pm.width(), pm.height(), 0, dummy);
         p.end();
 
-    #if QT_VERSION < 0x040000
+#if QT_VERSION < 0x040000
         const QImage img = pm.convertToImage();
-    #else
+#else
         const QImage img = pm.toImage();
-    #endif
+#endif
 
         int row = 0;
         for ( row = 0; row < img.height(); row++ )
@@ -245,7 +291,7 @@ QwtRichTextEngine::QwtRichTextEngine()
 int QwtRichTextEngine::heightForWidth(const QFont& font, int flags,
         const QString& text, int width) const
 {
-    QwtRichTextDocument doc(taggedText(text, flags), font);
+    QwtRichTextDocument doc(text, flags, font);
 
 #if QT_VERSION < 0x040000
     doc.setWidth(width);
@@ -270,22 +316,25 @@ int QwtRichTextEngine::heightForWidth(const QFont& font, int flags,
 QSize QwtRichTextEngine::textSize(const QFont &font,
     int flags, const QString& text) const
 {
-    QwtRichTextDocument doc(taggedText(text, flags), font);
+    QwtRichTextDocument doc(text, flags, font);
 
 #if QT_VERSION < 0x040000
     doc.setWidth(QWIDGETSIZE_MAX);
 
-    int w = doc.widthUsed();
-    int h = doc.height();
-#else
-#if USE_LABEL 
+    const int w = doc.widthUsed();
+    const int h = doc.height();
+    return QSize(w, h);
+
+#else // QT_VERSION >= 0x040000
+
+#if QT_VERSION < 0x040200
     /*
       Unfortunately offering the bounding rect calculation in the
       API of QTextDocument has been forgotten in Qt <= 4.1.x. It
       is planned to come with Qt 4.2.x.
       In the meantime we need a hack with a temporary QLabel,
       to reengineer the internal calculations.
-     */
+    */
 
     static int off = 0;
     static QLabel *label = NULL;
@@ -306,30 +355,25 @@ QSize QwtRichTextEngine::textSize(const QFont &font,
 
     int w = qwtMax(label->sizeHint().width() - off, 0);
     doc.setPageSize(QSize(w, QWIDGETSIZE_MAX));
-    
+
     int h = qRound(doc.documentLayout()->documentSize().height());
-#else
-    QTextLayout *layout = doc.begin().layout();
-    layout->beginLayout();
-    for(qreal y = 0;;)  
-    {
-        QTextLine line = layout->createLine();
-        if (!line.isValid())
-            break;
-        line.setPosition(QPointF(0, y));
-        y += line.height();
-    }
-    layout->endLayout();
-
-    int w = qRound(layout->maximumWidth());
-    int h = qRound(layout->boundingRect().height());
-
-    h += QFontMetrics(font).descent() + 4;
-    w += 2 * 4;
-#endif
-#endif
-
     return QSize(w, h);
+
+#else // QT_VERSION >= 0x040200
+
+#if QT_VERSION >= 0x040300
+    QTextOption option = doc.defaultTextOption();
+    if ( option.wrapMode() != QTextOption::NoWrap )
+    {
+        option.setWrapMode(QTextOption::NoWrap);
+        doc.setDefaultTextOption(option);
+        doc.adjustSize();
+    }
+#endif
+
+    return doc.size().toSize();
+#endif
+#endif
 }
 
 /*!
@@ -343,7 +387,7 @@ QSize QwtRichTextEngine::textSize(const QFont &font,
 void QwtRichTextEngine::draw(QPainter *painter, const QRect &rect,
     int flags, const QString& text) const
 {
-    QwtRichTextDocument doc(taggedText(text, flags), painter->font());
+    QwtRichTextDocument doc(text, flags, painter->font());
     QwtPainter::drawSimpleRichText(painter, rect, flags, doc);
 }
 
@@ -357,26 +401,7 @@ void QwtRichTextEngine::draw(QPainter *painter, const QRect &rect,
 */
 QString QwtRichTextEngine::taggedText(const QString &text, int flags) const
 {
-    QString richText = text;
-
-    // By default QSimpleRichText is Qt::AlignLeft
-    if (flags & Qt::AlignJustify)
-    {
-        richText.prepend(QString::fromLatin1("<div align=\"justify\">"));
-        richText.append(QString::fromLatin1("</div>"));
-    }
-    else if (flags & Qt::AlignRight)
-    {
-        richText.prepend(QString::fromLatin1("<div align=\"right\">"));
-        richText.append(QString::fromLatin1("</div>"));
-    }
-    else if (flags & Qt::AlignHCenter)
-    {
-        richText.prepend(QString::fromLatin1("<div align=\"center\">"));
-        richText.append(QString::fromLatin1("</div>"));
-    }
-
-    return richText;
+    return taggedRichText(text, flags);
 }
 
 /*!

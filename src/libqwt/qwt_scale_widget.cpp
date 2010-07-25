@@ -27,7 +27,6 @@ public:
         scaleDraw(NULL)
     {
         colorBar.colorMap = NULL;
-        colorBar.width = 10;
     }
 
     ~PrivateData()
@@ -148,6 +147,12 @@ void QwtScaleWidget::initScale(QwtScaleDraw::Alignment align)
 
 }
 
+/*!
+  Give title new text contents
+
+  \param title New title
+  \sa title(), setTitle(const QwtText &);
+*/
 void QwtScaleWidget::setTitle(const QString &title)
 {
     if ( d_data->title.text() != title )
@@ -158,9 +163,10 @@ void QwtScaleWidget::setTitle(const QString &title)
 }
 
 /*!
-  \brief Give title new text contents
+  Give title new text contents
+
   \param title New title
-  \sa QwtScaleWidget::title
+  \sa title()
   \warning The title flags are interpreted in
                direction of the label, AlignTop, AlignBottom can't be set
                as the title will always be aligned to the scale.
@@ -182,7 +188,7 @@ void QwtScaleWidget::setTitle(const QwtText &title)
   Change the alignment
 
   \param alignment New alignment
-  \sa QwtScaleWidget::alignment
+  \sa alignment()
 */
 void QwtScaleWidget::setAlignment(QwtScaleDraw::Alignment alignment)
 {
@@ -213,7 +219,7 @@ void QwtScaleWidget::setAlignment(QwtScaleDraw::Alignment alignment)
         
 /*! 
     \return position 
-    \sa QwtScaleWidget::setPosition
+    \sa setPosition()
 */
 QwtScaleDraw::Alignment QwtScaleWidget::alignment() const 
 {
@@ -229,7 +235,7 @@ QwtScaleDraw::Alignment QwtScaleWidget::alignment() const
   than minimum border distance.
   \param dist1 Left or top Distance
   \param dist2 Right or bottom distance
-  \sa QwtScaleWidget::borderDist
+  \sa borderDist()
 */
 void QwtScaleWidget::setBorderDist(int dist1, int dist2)
 {
@@ -244,7 +250,7 @@ void QwtScaleWidget::setBorderDist(int dist1, int dist2)
 /*!
   \brief Specify the margin to the colorBar/base line.
   \param margin Margin
-  \sa QwtScaleWidget::margin
+  \sa margin()
 */
 void QwtScaleWidget::setMargin(int margin)
 {
@@ -259,7 +265,7 @@ void QwtScaleWidget::setMargin(int margin)
 /*!
   \brief Specify the distance between color bar, scale and title
   \param spacing Spacing
-  \sa QwtScaleWidget::spacing
+  \sa spacing()
 */
 void QwtScaleWidget::setSpacing(int spacing)
 {
@@ -274,7 +280,7 @@ void QwtScaleWidget::setSpacing(int spacing)
 /*!
   \brief Specify the width of the scale pen
   \param width Pen width
-  \sa QwtScaleWidget::penWidth
+  \sa penWidth()
 */
 void QwtScaleWidget::setPenWidth(int width)
 {
@@ -291,7 +297,7 @@ void QwtScaleWidget::setPenWidth(int width)
 /*!
   \brief Change the alignment for the labels.
 
-  \sa QwtScaleDraw::setLabelAlignment(), QwtScaleWidget::setLabelRotation()
+  \sa QwtScaleDraw::setLabelAlignment(), setLabelRotation()
 */
 #if QT_VERSION < 0x040000
 void QwtScaleWidget::setLabelAlignment(int alignment)
@@ -306,7 +312,9 @@ void QwtScaleWidget::setLabelAlignment(Qt::Alignment alignment)
 /*!
   \brief Change the rotation for the labels.
   See QwtScaleDraw::setLabelRotation().
-  \sa QwtScaleDraw::setLabelRotation(), QwtScaleWidget::setLabelFlags()
+
+  \para, rotation Rotation
+  \sa QwtScaleDraw::setLabelRotation(), setLabelFlags()
 */
 void QwtScaleWidget::setLabelRotation(double rotation)
 {
@@ -315,9 +323,12 @@ void QwtScaleWidget::setLabelRotation(double rotation)
 }
 
 /*!
-  \brief Set a scale draw
+  Set a scale draw
   sd has to be created with new and will be deleted in
-  QwtScaleWidget::~QwtScale or the next call of QwtScaleWidget::setScaleDraw.
+  ~QwtScaleWidget() or the next call of setScaleDraw().
+
+  \param sd ScaleDraw object
+  \sa scaleDraw()
 */
 void QwtScaleWidget::setScaleDraw(QwtScaleDraw *sd)
 {
@@ -335,7 +346,7 @@ void QwtScaleWidget::setScaleDraw(QwtScaleDraw *sd)
 
 /*! 
     scaleDraw of this scale
-    \sa QwtScaleDraw::setScaleDraw
+    \sa setScaleDraw(), QwtScaleDraw::setScaleDraw()
 */
 const QwtScaleDraw *QwtScaleWidget::scaleDraw() const 
 { 
@@ -344,7 +355,7 @@ const QwtScaleDraw *QwtScaleWidget::scaleDraw() const
 
 /*! 
     scaleDraw of this scale
-    \sa QwtScaleDraw::setScaleDraw
+    \sa QwtScaleDraw::setScaleDraw()
 */
 QwtScaleDraw *QwtScaleWidget::scaleDraw() 
 { 
@@ -353,7 +364,7 @@ QwtScaleDraw *QwtScaleWidget::scaleDraw()
 
 /*! 
     \return title 
-    \sa QwtScaleWidget::setTitle
+    \sa setTitle()
 */
 QwtText QwtScaleWidget::title() const 
 {
@@ -362,7 +373,7 @@ QwtText QwtScaleWidget::title() const
 
 /*! 
     \return start border distance 
-    \sa QwtScaleWidget::setBorderDist
+    \sa setBorderDist()
 */
 int QwtScaleWidget::startBorderDist() const 
 { 
@@ -371,7 +382,7 @@ int QwtScaleWidget::startBorderDist() const
 
 /*! 
     \return end border distance 
-    \sa QwtScaleWidget::setBorderDist
+    \sa setBorderDist()
 */
 int QwtScaleWidget::endBorderDist() const 
 { 
@@ -380,7 +391,7 @@ int QwtScaleWidget::endBorderDist() const
 
 /*! 
     \return margin
-    \sa QwtScaleWidget::setMargin
+    \sa setMargin()
 */
 int QwtScaleWidget::margin() const 
 { 
@@ -389,7 +400,7 @@ int QwtScaleWidget::margin() const
 
 /*! 
     \return distance between scale and title
-    \sa QwtScaleWidget::setMargin
+    \sa setMargin()
 */
 int QwtScaleWidget::spacing() const 
 { 
@@ -398,7 +409,7 @@ int QwtScaleWidget::spacing() const
 
 /*! 
     \return Scale pen width
-    \sa QwtScaleWidget::setPenWidth
+    \sa setPenWidth()
 */
 int QwtScaleWidget::penWidth() const
 {
@@ -492,12 +503,12 @@ QRect QwtScaleWidget::colorBarRect(const QRect& rect) const
     if ( d_data->scaleDraw->orientation() == Qt::Horizontal )
     {
         cr.setLeft(cr.left() + d_data->borderDist[0]);
-        cr.setWidth(cr.width() - d_data->borderDist[1]);
+        cr.setWidth(cr.width() - d_data->borderDist[1] + 1);
     }
     else
     {
         cr.setTop(cr.top() + d_data->borderDist[0]);
-        cr.setHeight(cr.height() - d_data->borderDist[1]);
+        cr.setHeight(cr.height() - d_data->borderDist[1] + 1);
     }
 
     switch(d_data->scaleDraw->alignment())
@@ -660,6 +671,11 @@ void QwtScaleWidget::drawTitle(QPainter *painter,
     painter->setPen(palette().color(QPalette::Text));
 #endif
 
+    const QwtMetricsMap metricsMap = QwtPainter::metricsMap();
+    QwtPainter::resetMetricsMap();
+
+    r = metricsMap.layoutToDevice(r);
+
     painter->translate(r.x(), r.y());
     if (angle != 0.0)
         painter->rotate(angle);
@@ -667,6 +683,8 @@ void QwtScaleWidget::drawTitle(QPainter *painter,
     QwtText title = d_data->title;
     title.setRenderFlags(flags);
     title.draw(painter, QRect(0, 0, r.width(), r.height()));
+
+    QwtPainter::setMetricsMap(metricsMap); // restore metrics map
 
     painter->restore();
 }
@@ -789,6 +807,8 @@ void QwtScaleWidget::getBorderDistHint(int &start, int &end) const
   are "jumping", when the tick labels or their positions change 
   often.
 
+  \param start Minimum for the start border
+  \param end Minimum for the end border
   \sa getMinBorderDist(), getBorderDistHint()
 */
 void QwtScaleWidget::setMinBorderDist(int start, int end)
