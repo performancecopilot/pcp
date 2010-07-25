@@ -48,14 +48,17 @@
 #define M_ARCSTATS	8
 
 typedef struct {
+    const char	*m_name;
     void	(*m_init)(int);
     void	(*m_prefetch)(void);
     int		(*m_fetch)(pmdaMetric *, int, pmAtomValue *);
-    int		fetched;
+    int		m_fetched;
+    uint64_t	m_elapsed;
+    uint64_t	m_hits;
 } method_t;
 
 extern method_t		methodtab[];
-extern int		methodtab_sz;
+extern const int	methodtab_sz;
 
 extern void init_data(int);
 
@@ -94,9 +97,12 @@ int arcstats_fetch(pmdaMetric *, int, pmAtomValue *);
  * metric descriptions
  */
 typedef struct {
+    const char	*md_name;
     pmDesc	md_desc;	// PMDA's idea of the semantics
     int		md_method;	// specific kstat method
     ptrdiff_t	md_offset;	// offset into kstat stats structure
+    uint64_t	md_elapsed;
+    uint64_t	md_hits;
 } metricdesc_t;
 
 extern metricdesc_t	metricdesc[];
@@ -112,6 +118,8 @@ extern int		metrictab_sz;
 #define NETLINK_INDOM	6
 #define ZFS_SNAP_INDOM	7
 #define LOADAVG_INDOM	8
+#define PREFETCH_INDOM	9
+#define METRIC_INDOM	10
 
 extern pmdaIndom	indomtab[];
 extern int		indomtab_sz;

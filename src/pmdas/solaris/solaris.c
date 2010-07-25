@@ -22,6 +22,7 @@
  */
 
 #include <time.h>
+#include <sys/time.h>
 #include "common.h"
 
 static int	_isDSO = 1;
@@ -38,7 +39,7 @@ solaris_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int		i;
 
     for (i = 0; i < methodtab_sz; i++) {
-	methodtab[i].fetched = 0;
+	methodtab[i].m_fetched = 0;
     }
 
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
@@ -52,12 +53,49 @@ solaris_fetch_callback(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     metricdesc_t *mdp = (metricdesc_t *)mdesc->m_user;
     method_t *m = methodtab + mdp->md_method;
+    hrtime_t start;
+    int rv;
+    __pmID_int *id = __pmid_int(&mdesc->m_desc.pmid);
 
-    if (!m->fetched && m->m_prefetch) {
-	m->m_prefetch();
-	m->fetched = 1;
+    if (id->cluster == 4095) {
+	switch (id->item) {
+	case 0:
+		if ((inst <= 0) || (inst > methodtab_sz+1))
+			return PM_ERR_INST;
+		atom->ull = methodtab[inst-1].m_elapsed;
+		return 1;
+	case 1:
+		if ((inst <= 0) || (inst > methodtab_sz+1))
+			return PM_ERR_INST;
+		atom->ull = methodtab[inst-1].m_hits;
+		return 1;
+	case 2:
+		if ((inst <= 0) || (inst > metrictab_sz+1))
+			return PM_ERR_INST;
+		atom->ull = metricdesc[inst-1].md_elapsed;
+		return 1;
+	case 3:
+		if ((inst <= 0) || (inst > metrictab_sz+1))
+			return PM_ERR_INST;
+		atom->ull = metricdesc[inst-1].md_hits;
+		return 1;
+	default:
+		return PM_ERR_PMID;
+	}
     }
-    return m->m_fetch(mdesc, inst, atom);
+
+    if (!m->m_fetched && m->m_prefetch) {
+	start = gethrtime();
+	m->m_prefetch();
+	m->m_elapsed = gethrtime() - start;
+	m->m_hits++;
+	m->m_fetched = 1;
+    }
+    start = gethrtime();
+    rv = m->m_fetch(mdesc, inst, atom);
+    mdp->md_elapsed = gethrtime() - start;
+    mdp->md_hits++;
+    return rv;
 }
 
 /*

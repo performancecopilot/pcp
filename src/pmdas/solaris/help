@@ -384,3 +384,15 @@ ARC statistics provide separate counters for demand vs prefetch
 and data vs metadata accesses: demand is a result of the direct
 request for a particular data, prefetch is a result of speculative
 request for a particular data.
+@pmda.prefetch.time Amount of time spent extracting information about a group of metrics
+Each metric belongs to a prefetch group. When a client asks for the metric
+to be fetched the information for the group must be extracted from the kernel.
+@pmda.prefetch.count Number of times each group of metrics was updated
+
+@pmda.metric.time Amount of time spent extracting information about individual metrics
+Requesting multiple instances of the same metrics counts against the metric
+itself and not against the individual instances
+@pmda.metric.count Number of times individual metrics have been fetched
+Requesting multiple instances of the same metrics counts as multiple hits
+against the metric itself
+

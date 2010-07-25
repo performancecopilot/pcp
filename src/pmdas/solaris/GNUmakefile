@@ -66,7 +66,7 @@ $(OBJECTS):	common.h
 help.dir help.pag: help root_solaris
 	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_solaris -v 2 -o help < help
 
-root_solaris: ../../pmns/stdpmid $(PMNS)
+root_solaris: ../../pmns/stdpmid $(PMNS) root
 	rm -f root_solaris
 	$(CPP_SIMPLE) -I../../pmns < root | sed -e '/^#/d' > root_solaris
 
