@@ -26,7 +26,8 @@ Description: Visualisation tools for the Performance Co-Pilot toolkit
 Package: pcp-doc
 Section: doc
 Depends: ${misc:Depends}
-Conflicts: pcp-gui (<< 1.5.0)
+Breaks: pcp-gui (<< 1.5.0)
+Replaces: pcp-gui (<< 1.5.0)
 Recommends: pcp, pcp-gui
 Architecture: all
 Description: Documentation and tutorial for the Performance Co-Pilot
