@@ -84,8 +84,10 @@ map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
 	sprintf(path, "%s/%s/cpumap", node_path, de->d_name);
 	if ((f = fopen(path, "r")) == NULL)
 	    continue;
-	fscanf(f, "%s", cpumap);
+	i = fscanf(f, "%s", cpumap);
 	fclose(f);
+	if (i != 1)
+	    continue;
 
 	for (j = 0; (cp = strrchr(cpumap, ',')); j++) {
 	    decode_map(proc_cpuinfo, cp+1, node, j);
@@ -97,7 +99,7 @@ map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
 
     /* initialize node indom */
     idp->it_numinst = max_node + 1;
-    idp->it_set = calloc(max_node, sizeof(pmdaInstid));
+    idp->it_set = calloc(max_node + 1, sizeof(pmdaInstid));
     for (i = 0; i <= max_node; i++) {
 	char node_name[256];
 

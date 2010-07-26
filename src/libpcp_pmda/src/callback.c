@@ -449,7 +449,10 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	}
 	
 	if (dp == NULL) {
-	    __pmNotifyErr(LOG_ERR, "pmdaFetch: Requested metric %s is not defined",
+	    /* dynamic name metrics may often vanish, avoid log spam */
+	    if (extp->pmda_interface < PMDA_INTERFACE_4)
+		__pmNotifyErr(LOG_ERR,
+			"pmdaFetch: Requested metric %s is not defined",
 			 pmIDStr(pmidlist[i]));
 	    numval = PM_ERR_PMID;
 	}

@@ -422,6 +422,8 @@ char *
 validate(int type, char *name, char *value)
 {
     int	    x;
+    long    l;
+    unsigned long ul;
     char    *s;
     double  d;
 
@@ -437,21 +439,21 @@ validate(int type, char *name, char *value)
 	    return errmsg;
 	break;
     case TYPE_DOUBLE:
-	strtod(value, &s);
+	d = strtod(value, &s);
 	if (*s != '\0') {
 	    type_error(name, "be a real number");
 	    return errmsg;
 	}
 	break;
     case TYPE_INTEGER:
-	strtol(value, &s, 10);
+	l = strtol(value, &s, 10);
 	if (*s != '\0') {
 	    type_error(name, "be an integer number");
 	    return errmsg;
 	}
 	break;
     case TYPE_UNSIGNED:
-	strtoul(value, &s, 10);
+	ul = strtoul(value, &s, 10);
 	if (*s != '\0') {
 	    type_error(name, "be a positive integer number");
 	    return errmsg;

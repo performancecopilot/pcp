@@ -12,7 +12,6 @@ set TEMP=D:\tmp
 set PACKAGE=D:\packages
 copy pcp.fstab %PACKAGE%
 copy pcpsh.bat %PACKAGE%
-copy setup.bat %PACKAGE%
 copy prerm.bat %PACKAGE%
 copy postinst.bat %PACKAGE%
 copy pcp.profile %PACKAGE%

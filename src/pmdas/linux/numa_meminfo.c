@@ -94,7 +94,7 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo)
 	}
 	memset(numa_meminfo->node_info, 0, max_node * sizeof(nodeinfo_t));
 
-	for (i = 0; i <= max_node; i++) {
+	for (i = 0; i < max_node; i++) {
 	    numa_meminfo->node_info[i].meminfo = linux_table_clone(numa_meminfo_table);
 	    if (!numa_meminfo->node_info[i].meminfo) {
 		fprintf(stderr, "%s: error allocating meminfo: %s\n",

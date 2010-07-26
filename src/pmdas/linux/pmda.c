@@ -5709,12 +5709,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		int		r, fd = -1, len = 0;
 		char		prefix[16];
 		char *rfiles[] = {
+			"/etc/lsb-release",
 			"/etc/debian_version",
 			"/etc/fedora-release",
 			"/etc/redhat-release",
 			"/etc/slackware-version",
 			"/etc/SuSE-release",
-			"/etc/lsb-release",
 			NULL
 		};
 		for (r = 0; rfiles[r] != NULL; r++) {
@@ -5747,8 +5747,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			    if (r == 0) { /* LSB, skip DISTRIB_ID */
 				if (!strncmp(distro_name, "DISTRIB_ID = ", 13))
 				    distro_name += 13;	/* ick */
+				if (!strncmp(distro_name, "DISTRIB_ID=", 11))
+				    distro_name += 11;	/* more ick */
 			    }
-			    distro_name[r + len] = '\0';
+			    distro_name[sts + len] = '\0';
 			    if ((nl = strchr(distro_name, '\n')) != NULL)
 				*nl = '\0';
 			}
