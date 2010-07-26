@@ -807,8 +807,40 @@ metricdesc_t metricdesc[] = {
     { "pmda.prefetch.count",
       { PMDA_PMID(4095,3), PM_TYPE_U64, METRIC_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
-      }, -1, -1 }
+      }, -1, -1 },
+    { "disk.dev.wait.time",
+      { PMDA_PMID(0,140), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_NSEC, 0)
+      }, M_DISK,  KSTAT_IO_OFF(wtime)},
+    { "disk.dev.wait.count",
+      { PMDA_PMID(0,141), PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_DISK,  KSTAT_IO_OFF(wcnt)},
+    { "disk.dev.run.time",
+      { PMDA_PMID(0,142), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_NSEC, 0)
+      }, M_DISK,  KSTAT_IO_OFF(rtime)},
+    { "disk.dev.run.count",
+      { PMDA_PMID(0,143), PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_DISK,  KSTAT_IO_OFF(rcnt)},
 
+    { "disk.all.wait.time",
+      { PMDA_PMID(0,144), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_NSEC, 0)
+      }, M_DISK, -1},
+    { "disk.all.wait.count",
+      { PMDA_PMID(0,145), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_DISK, -1},
+    { "disk.all.run.time",
+      { PMDA_PMID(0,146), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_NSEC, 0)
+      }, M_DISK, -1},
+    { "disk.all.run.count",
+      { PMDA_PMID(0,147), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_DISK, -1},
     /* remember to add trailing comma before adding more entries ... */
 };
 int metrictab_sz = ARRAY_SIZE(metricdesc);

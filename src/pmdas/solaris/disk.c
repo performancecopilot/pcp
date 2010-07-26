@@ -22,10 +22,11 @@ typedef struct {
     int		fetched;
     int		err;
     kstat_t	*ksp;
+    kstat_io_t	iostat;
+    const char	*diskname;
 } ctl_t;
 
 static int		ndisk;
-static kstat_io_t	*iostat;
 static ctl_t		*ctl;
 
 void
@@ -48,22 +49,19 @@ disk_init(int first)
 	if (strcmp(ksp->ks_class, "disk") != 0) continue;
 	if (ksp->ks_type != KSTAT_TYPE_IO) continue;
 	if ((ctl = (ctl_t *)realloc(ctl, (ndisk+1) * sizeof(ctl_t))) == NULL) {
-	    fprintf(stderr, "disk_init: ctl realloc[%d] @ disk=%d failed: %s\n",
-		(int)((ndisk+1) * sizeof(ctl_t)), ndisk, strerror(errno));
-	    exit(1);
-	}
-	if ((iostat = (kstat_io_t *)realloc(iostat, (ndisk+1) * sizeof(kstat_io_t))) == NULL) {
-	    fprintf(stderr, "disk_init: iostat realloc[%d] @ disk=%d failed: %s\n",
-		(int)((ndisk+1) * sizeof(kstat_io_t)), ndisk, strerror(errno));
+	    fprintf(stderr, "disk_init: ctl realloc[%d] @ disk=%s failed: %s\n",
+		    (int)((ndisk+1) * sizeof(ctl_t)), ksp->ks_name,
+		    strerror(errno));
 	    exit(1);
 	}
 	ctl[ndisk].ksp = ksp;
 	ctl[ndisk].err = 0;
+	ctl[ndisk].diskname = strdup(ksp->ks_name);
 	indomtab[DISK_INDOM].it_numinst = ndisk+1;
 	indomtab[DISK_INDOM].it_set = (pmdaInstid *)realloc(indomtab[DISK_INDOM].it_set, (ndisk+1) * sizeof(pmdaInstid));
 	/* TODO check? */
 	indomtab[DISK_INDOM].it_set[ndisk].i_inst = ndisk;
-	indomtab[DISK_INDOM].it_set[ndisk].i_name = strdup(ksp->ks_name);
+	indomtab[DISK_INDOM].it_set[ndisk].i_name = (char *)ctl[ndisk].diskname;
 	/* TODO check? */
 	ndisk++;
     }
@@ -86,7 +84,7 @@ disk_prefetch(void)
 }
 
 static __uint64_t
-disk_derived(pmdaMetric *mdesc, int inst)
+disk_derived(pmdaMetric *mdesc, int inst, const kstat_io_t *iostat)
 {
     pmID	pmid;
     __pmID_int	*ip = (__pmID_int *)&pmid;
@@ -106,12 +104,25 @@ disk_derived(pmdaMetric *mdesc, int inst)
     switch (pmid) {
 	case PMDA_PMID(0,46):	/* disk.all.total */
 	case PMDA_PMID(0,52):	/* disk.dev.total */
-	    val = iostat[inst].reads + iostat[inst].writes;
+	    val = iostat->reads + iostat->writes;
 	    break;
 
 	case PMDA_PMID(0,49):	/* disk.all.total_bytes */
 	case PMDA_PMID(0,55):	/* disk.dev.total_bytes */
-	    val = iostat[inst].nread + iostat[inst].nwritten;
+	    val = iostat->nread + iostat->nwritten;
+	    break;
+
+	case PMDA_PMID(0,144): /* disk.all.wait.time */
+	    val = iostat->wtime;
+	    break;
+	case PMDA_PMID(0,145): /* disk.all.wait.count */
+	    val = iostat->wcnt;
+	    break;
+	case PMDA_PMID(0,146): /* disk.all.run.time */
+	    val = iostat->rtime;
+	    break;
+	case PMDA_PMID(0,147): /* disk.all.run.time */
+	    val = iostat->rcnt;
 	    break;
 
 	case PMDA_PMID(0,57):	/* hinv.ndisk */
@@ -153,10 +164,13 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	if (inst == PM_IN_NULL || inst == i) {
 	    if (ctl[i].fetched == 1)
 		continue;
-	    if (kstat_read(kc, ctl[i].ksp, &iostat[i]) == -1) {
+	    if (kstat_read(kc, ctl[i].ksp, &ctl[i].iostat) == -1) {
 		if (ctl[i].err == 0) {
-		    fprintf(stderr, "Error: disk_fetch(pmid=%s disk=%d ...)\n", pmIDStr(mdesc->m_desc.pmid), i);
-		    fprintf(stderr, "kstat_read(kc=%p, ksp=%p, ...) failed: %s\n", kc, ctl[i].ksp, strerror(errno));
+		    int e = errno;
+		    fprintf(stderr, "Error: disk_fetch(pmid=%s disk=%s ...)\n",
+			    pmIDStr(mdesc->m_desc.pmid), ctl[i].diskname);
+		    fprintf(stderr, "kstat_read(kc=%p, ksp=%p, ...) failed: "
+				    "%s\n", kc, ctl[i].ksp, strerror(e));
 		}
 		ctl[i].err++;
 		ctl[i].fetched = -1;
@@ -165,8 +179,10 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    else {
 		ctl[i].fetched = 1;
 		if (ctl[i].err != 0) {
-		    fprintf(stderr, "Success: disk_fetch(pmid=%s disk=%d ...) after %d errors as previously reported\n",
-			pmIDStr(mdesc->m_desc.pmid), i, ctl[i].err);
+		    fprintf(stderr, "Success: disk_fetch(pmid=%s disk=%s ...) "
+				    "after %d errors as previously reported\n",
+			    pmIDStr(mdesc->m_desc.pmid), ctl[i].diskname,
+			    ctl[i].err);
 		    ctl[i].err = 0;
 		}
 	    }
@@ -181,12 +197,12 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	if (inst == PM_IN_NULL || inst == i) {
 	    offset = ((metricdesc_t *)mdesc->m_user)->md_offset;
 	    if (offset < 0) {
-		ull += disk_derived(mdesc, i);
+		ull += disk_derived(mdesc, i, &ctl[i].iostat);
 	    }
 	    else {
 		if (mdesc->m_desc.type == PM_TYPE_U64) {
 		    __uint64_t		*ullp;
-		    ullp = (__uint64_t *)&((char *)&iostat[i])[offset];
+		    ullp = (__uint64_t *)&((char *)&ctl[i].iostat)[offset];
 		    ull += *ullp;
 #ifdef PCP_DEBUG
 		    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {
@@ -199,7 +215,7 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 		}
 		else {
 		    __uint32_t		*ulp;
-		    ulp = (__uint32_t *)&((char *)&iostat[i])[offset];
+		    ulp = (__uint32_t *)&((char *)&ctl[i].iostat)[offset];
 		    ull += *ulp;
 #ifdef PCP_DEBUG
 		    if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {

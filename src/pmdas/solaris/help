@@ -396,3 +396,29 @@ itself and not against the individual instances
 Requesting multiple instances of the same metrics counts as multiple hits
 against the metric itself
 
+@disk.all.wait.time	Amount of time IO requests spent waiting for service
+Amount of time IO transactions spent waiting to be serviced, i.e. the
+transaction has been accepted for processing but for which the processing
+has not yet begun. Each transaction waiting for processing adds to
+to the total time which means that if multiple transactions are waiting then
+total time for the sampling interval may be larger then the interval.
+
+@disk.dev.wait.time	Amount of time IO requests spent waiting for service
+Amount of time IO transactions spent waiting to be serviced, i.e. the
+transaction has been accepted for processing but for which the processing
+has not yet begun. Each transaction waiting for processing adds to
+to the total time which means that if multiple transactions are waiting then
+total time for the sampling interval may be larger then the interval.
+
+@disk.all.wait.count	Number of transactions waiting to be serviced
+Number of transactions accepted for processing but for which the processing
+has not yet begun.
+@disk.dev.wait.count	Number of transactions waiting to be serviced
+Number of transactions accepted for processing but for which the processing
+has not yet begun.
+
+@disk.all.run.time	Amount of time spent processing IO requests
+@disk.dev.run.time	Amount of time spent processing IO requests
+@disk.all.run.count	Number of transactions being processed
+@disk.dev.run.count	Number of transactions being processed
+
