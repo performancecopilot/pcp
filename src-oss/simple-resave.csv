@@ -1,0 +1,5 @@
+"DATE","Metric A","Metric B","Metric C","Metric D","Metric E"
+26/01/10 01:02,100,200,300,1,"foo bar first"
+26/01/10 05:02,110,200,290,2,"foo bar second"
+26/01/10 09:02,120,200,280,3,"foo bar third"
+26/01/10 13:02,130,200,270,4,"foo bar last"

@@ -36,7 +36,7 @@ pmiPutValue: OK
 pmiPutValue: OK
 pmiGetHandle: OK ->1
 pmiGetHandle: Error: Unknown metric name
-pmiPutValueHandle: Error: Value already assigned for singular metric
+pmiPutValueHandle: Error: Value already assigned for this metric-instance
 pmiPutValueHandle: Error: Illegal handle
 pmiDump: context 0 of 1 archive: myarchive
   state: 1 (start) hostname: somehost.com timezone: GMT-12
@@ -210,6 +210,8 @@ PM_TIME_SEC
 *PCP::LogImport::PM_TIME_SEC
 PM_TIME_USEC
 *PCP::LogImport::PM_TIME_USEC
+PMI_DOMAIN
+*PCP::LogImport::PMI_DOMAIN
 PM_ID_NULL
 *PCP::LogImport::PM_ID_NULL
 PM_TYPE_STRING
@@ -339,7 +341,7 @@ pmiPutValue: OK
 pmiPutValue: OK
 pmiGetHandle: OK ->1
 pmiGetHandle: Error: Unknown metric name
-pmiPutValueHandle: Error: Value already assigned for singular metric
+pmiPutValueHandle: Error: Value already assigned for this metric-instance
 pmiPutValueHandle: Error: Illegal handle
 pmiDump: context 0 of 1 archive: myarchive
   state: 1 (start) hostname: somehost.com timezone: GMT-12

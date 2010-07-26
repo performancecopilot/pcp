@@ -926,3 +926,6 @@ derive		pcpqa
 366 pmlogconf local oss
 368 pmlogconf local oss
 369 pmimport local oss
+370 pmimport local oss derive
+371 pmimport local oss
+372 pmimport local oss
