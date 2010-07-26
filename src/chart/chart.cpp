@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2008, Aconex.  All Rights Reserved.
+ * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -31,10 +31,54 @@
 #include <qwt_legend_item.h>
 #include <qwt_scale_draw.h>
 #include <qwt_scale_widget.h>
+#include <qwt_scale_engine.h>
 #include <qwt_text.h>
 #include <qwt_text_label.h>
 
 #define DESPERATE 0
+
+//
+// *Always* clamp minimum metric value at zero when positive -
+// preventing confusion when values silently change up towards
+// the maximum over time (for pmchart, our users are expecting
+// a constant zero baseline at all times, or so we're told).
+//
+class ValueScaleEngine : public QwtLinearScaleEngine
+{
+public:
+    ValueScaleEngine() : QwtLinearScaleEngine()
+    {
+	my.autoScale = true;
+	my.minimum = -1;
+	my.maximum = -1;
+    }
+
+    double minimum() const { return my.minimum; }
+    double maximum() const { return my.maximum; }
+    bool autoScale() const { return my.autoScale; }
+    void setAutoScale(bool autoScale) { my.autoScale = autoScale; }
+    void setScale(bool autoScale, double minimum, double maximum)
+    {
+	my.autoScale = autoScale;
+	my.minimum = minimum;
+	my.maximum = maximum;
+    }
+
+    virtual void autoScale(int maxSteps, double &minValue,
+			   double &maxValue, double &stepSize) const
+    {
+	if (my.autoScale && minValue > 0)
+	    minValue = 0.0;
+	QwtLinearScaleEngine::autoScale(maxSteps, minValue, maxValue, stepSize);
+    }
+
+private:
+    struct {
+	bool autoScale;
+	double minimum;
+	double maximum;
+    } my;
+};
 
 Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
 {
@@ -55,19 +99,18 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
 	    SLOT(showCurve(QwtPlotItem *, bool)));
 
     // start with autoscale y axis
+    my.engine = new ValueScaleEngine();
     setAxisAutoScale(QwtPlot::yLeft);
+    setAxisScaleEngine(QwtPlot::yLeft, my.engine);
     setAxisFont(QwtPlot::yLeft, *globalFont);
 
     my.tab = chartTab;
     my.title = NULL;
-    my.autoScale = true;
     my.rateConvert = true;
     my.antiAliasing = true;
     my.style = NoStyle;
     my.scheme = QString::null;
     my.sequence = 0;
-    my.yMin = -1;
-    my.yMax = -1;
     my.picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
 			QwtPicker::PointSelection | QwtPicker::DragSelection,
 			QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOff,
@@ -95,6 +138,8 @@ Chart::~Chart()
 	    free(plot->plotData);
 	free(plot);
     }
+    delete my.picker;
+    delete my.engine;
 }
 
 void Chart::setCurrent(bool enable)
@@ -318,7 +363,8 @@ void Chart::redoScale(void)
     // the upper bound of the y-axis range (hBound()) drives the choice
     // of appropriate units scaling.
     //
-    if (my.autoScale && axisScaleDiv(QwtPlot::yLeft)->upperBound() > 1000) {
+    if (my.engine->autoScale() &&
+	axisScaleDiv(QwtPlot::yLeft)->upperBound() > 1000) {
 	if (my.units.dimSpace == 1) {
 	    switch (my.units.scaleSpace) {
 		case PM_SPACE_BYTE:
@@ -373,7 +419,7 @@ void Chart::redoScale(void)
 	}
     }
 
-    if (rescale == false && my.autoScale &&
+    if (rescale == false && my.engine->autoScale() &&
 	axisScaleDiv(QwtPlot::yLeft)->upperBound() < 0.1) {
 	if (my.units.dimSpace == 1) {
 	    switch (my.units.scaleSpace) {
@@ -818,7 +864,7 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
 	    plot->curve->setStyle(QwtPlotCurve::Sticks);
 	    if (my.style == UtilisationStyle)
-		setScale(true, my.yMin, my.yMax);
+		my.engine->setAutoScale(true);
 	    break;
 
 	case AreaStyle:
@@ -827,14 +873,14 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setStyle(isStepped(plot) ?
 				  QwtPlotCurve::Steps : QwtPlotCurve::Lines);
 	    if (my.style == UtilisationStyle)
-		setScale(true, my.yMin, my.yMax);
+		my.engine->setAutoScale(true);
 	    break;
 
 	case UtilisationStyle:
 	    plot->curve->setPen(QColor(Qt::black));
 	    plot->curve->setStyle(QwtPlotCurve::Steps);
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
-	    setScale(false, 0.0, 100.0);
+	    my.engine->setScale(false, 0.0, 100.0);
 	    break;
 
 	case LineStyle:
@@ -843,7 +889,7 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setStyle(isStepped(plot) ?
 				  QwtPlotCurve::Steps : QwtPlotCurve::Lines);
 	    if (my.style == UtilisationStyle)
-		setScale(true, my.yMin, my.yMax);
+		my.engine->setAutoScale(true);
 	    break;
 
 	case StackStyle:
@@ -851,7 +897,7 @@ void Chart::setStroke(Plot *plot, Style style, QColor color)
 	    plot->curve->setBrush(QBrush(color, Qt::SolidPattern));
 	    plot->curve->setStyle(QwtPlotCurve::Steps);
 	    if (my.style == UtilisationStyle)
-		setScale(true, my.yMin, my.yMax);
+		my.engine->setAutoScale(true);
 	    break;
 
 	case NoStyle:
@@ -980,17 +1026,15 @@ void Chart::setLabel(int m, QString s)
 
 void Chart::scale(bool *autoScale, double *yMin, double *yMax)
 {
-    *autoScale = my.autoScale;
-    *yMin = my.yMin;
-    *yMax = my.yMax;
+    *autoScale = my.engine->autoScale();
+    *yMin = my.engine->minimum();
+    *yMax = my.engine->maximum();
 }
 
 void Chart::setScale(bool autoScale, double yMin, double yMax)
 {
-    my.yMin = yMin;
-    my.yMax = yMax;
-    my.autoScale = autoScale;
-    if (my.autoScale)
+    my.engine->setScale(autoScale, yMin, yMin);
+    if (autoScale)
 	setAxisAutoScale(QwtPlot::yLeft);
     else
 	setAxisScale(QwtPlot::yLeft, yMin, yMax);

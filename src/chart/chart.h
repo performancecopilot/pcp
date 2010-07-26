@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,6 +28,7 @@
 
 class Tab;
 class Curve;
+class ValueScaleEngine;
 
 class Chart : public QwtPlot, public Gadget
 {
@@ -147,13 +148,11 @@ private:
 	Style style;
 	QString scheme;
 	int sequence;
-	bool autoScale;
 	bool rateConvert;
 	bool antiAliasing;
-	double yMin;
-	double yMax;
-	QwtPlotPicker *picker;
 	pmUnits units;
+	QwtPlotPicker *picker;
+	ValueScaleEngine *engine;
     } my;
 };
 

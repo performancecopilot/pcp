@@ -26,7 +26,7 @@
 class TimeScaleDraw: public QwtScaleDraw
 {
 public:
-    TimeScaleDraw(void) { }
+    TimeScaleDraw(void) :QwtScaleDraw() { }
     virtual QwtText label(double v) const
     {
 	struct tm tm;
