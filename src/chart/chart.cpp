@@ -67,8 +67,13 @@ public:
     virtual void autoScale(int maxSteps, double &minValue,
 			   double &maxValue, double &stepSize) const
     {
-	if (my.autoScale && minValue > 0)
-	    minValue = 0.0;
+	if (my.autoScale) {
+	    if (minValue > 0)
+		minValue = 0.0;
+	} else {
+	    minValue = my.minimum;
+	    maxValue = my.maximum;
+	}
 	QwtLinearScaleEngine::autoScale(maxSteps, minValue, maxValue, stepSize);
     }
 
