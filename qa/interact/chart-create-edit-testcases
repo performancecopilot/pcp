@@ -145,6 +145,13 @@ Live Edit
       the Available Metrics list, add it to the Chart Plots list, and then
       press OK.  Verify that the chart is now displaying only sample.load.
 
+[ ] Check handling of instance names with spaces
+    - Run: pmchart -a archives/spotinstance -c views/SpotInstances
+    - Edit -> Chart
+      + Verify that the list of existing chart metrics shows the instance
+	name correctly - i.e. "kernel.all.cpu.wait.total" is listed as an
+	instance name and not part of the metric name.
+
 [ ] Check the conversion of plot style in live mode
     - Run: pmchart -c CPU -c CPU 
       (yes, the view appears twice)

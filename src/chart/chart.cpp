@@ -1222,20 +1222,29 @@ void Chart::setupTree(QTreeWidget *tree)
 void Chart::addToTree(QTreeWidget *treeview, QString metric,
 	const QmcContext *context, bool isInst, QColor &color, QString &label)
 {
-    QRegExp regex(tr("\\.|\\[|\\]"));
+    QRegExp regexInstance("\\[(.*)\\]$");
+    QRegExp regexNameNode(tr("\\."));
     QString source = context->source().source();
-    QStringList	baselist;
+    QString inst, name = metric;
+    QStringList	namelist;
     int depth;
 
     console->post("Chart::addToTree src=%s metric=%s, isInst=%d",
 		(const char *)source.toAscii(), (const char *)metric.toAscii(),
 		isInst);
 
-    baselist = metric.split(regex);
-    baselist.prepend(source);	// add the host/archive root as well.
-    depth = baselist.size();
-    if (baselist.at(depth-1).isEmpty())	// regex side-effect on ']'.
-	depth--;
+    depth = name.indexOf(regexInstance);
+    if (depth > 0) {
+	inst = name.mid(depth+1);	// after '['
+	inst.chop(1);			// final ']'
+	name = name.mid(0, depth);	// prior '['
+    }
+
+    namelist = name.split(regexNameNode);
+    namelist.prepend(source);	// add the host/archive root as well.
+    if (depth > 0)
+	namelist.append(inst);
+    depth = namelist.size();
 
     // Walk through each component of this name, creating them in the
     // target tree (if not there already), right down to the leaf.
@@ -1244,7 +1253,7 @@ void Chart::addToTree(QTreeWidget *treeview, QString metric,
     NameSpace *item = NULL;
 
     for (int b = 0; b < depth; b++) {
-	QString text = baselist.at(b);
+	QString text = namelist.at(b);
 	bool foundMatchingName = false;
 	for (int i = 0; i < tree->childCount(); i++) {
 	    item = (NameSpace *)tree->child(i);
