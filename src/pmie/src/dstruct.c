@@ -113,6 +113,11 @@ static double	month;			/* month of the year 1..12 */
 static double	year;			/* year 1996.. */
 static double	weekday;		/* days since Sunday 0..6 */
 
+/***********************************************************************
+ * process creation control
+ ***********************************************************************/
+int		need_wait;
+
 
 /* return real time */
 RealTime
@@ -185,62 +190,103 @@ unrealizenano(RealTime rt, struct timespec *ts)
     ts->tv_nsec = (int)(1000000000 * (rt - ts->tv_sec));
 }
 
+#define SLEEP_EVAL	0
+#define SLEEP_RETRY	1
 
-/* sleep until given RealTime */
+/* sleep until eval or retry RealTime */
 void
-sleepTight(RealTime sched)
+sleepTight(Task *t, int type)
 {
+    RealTime	sched;
     RealTime	delay;	/* interval to sleep */
     int		sts;
+    RealTime	cur_entry = getReal();
 #ifdef HAVE_WAITPID
     pid_t	pid;
 
-    /* harvest terminated children */
-    while ((pid = waitpid(-1, &sts, WNOHANG)) > (pid_t)0) {
+    if (need_wait) {
+	/* harvest terminated children */
+	while ((pid = waitpid(-1, &sts, WNOHANG)) > (pid_t)0) {
 #if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
-	    fprintf(stderr, "sleepTight: wait: pid=%d done status=0x%x", (int)pid, sts);
-	    if (WIFEXITED(sts))
-		fprintf(stderr, " exit=%d", WEXITSTATUS(sts));
-	    if (WIFSIGNALED(sts))
-		fprintf(stderr, " signal=%d", WTERMSIG(sts));
-	    fprintf(stderr, "\n");
-	}
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "sleepTight: wait: pid=%d done status=0x%x", (int)pid, sts);
+		if (WIFEXITED(sts))
+		    fprintf(stderr, " exit=%d", WEXITSTATUS(sts));
+		if (WIFSIGNALED(sts))
+		    fprintf(stderr, " signal=%d", WTERMSIG(sts));
+		fprintf(stderr, "\n");
+	    }
 #endif
-	;
+	    ;
+	}
+	need_wait = 0;
     }
 #endif
 
     if (!archives) {
 	struct timespec ts, tleft;
+	static RealTime	last_sched = -1;
+	static Task *last_t;
+	static int last_type;
 	RealTime cur = getReal();
 
+	sched = type == SLEEP_EVAL ? t->eval : t->retry;
+
 	delay = sched - cur;
-	if (delay <= -1) {
-	    fprintf(stderr, "sleepTight: negative delay (%f). sched=%f, cur=%f\n",
-			delay, sched, cur);
-	}
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
-	    if (delay < 0 && delay > -1) {
-		fprintf(stderr, "sleepTight: small negative delay (%f). sched=%f, cur=%f\n",
+	if (delay < 0) {
+	    int		show_detail = 0;
+	    if (delay <= -1) {
+		fprintf(stderr, "sleepTight: negative delay (%f). sched=%f, cur=%f\n",
 			    delay, sched, cur);
+		show_detail = 1;
 	    }
-	}
+#if PCP_DEBUG
+	    else {
+		if (pmDebug & DBG_TRACE_APPL2) {
+		    fprintf(stderr, "sleepTight: small negative delay (%f). sched=%f, cur=%f\n",
+			    delay, sched, cur);
+		    show_detail = 1;
+		}
+	    }
 #endif
-	
-	unrealizenano(delay, &ts);
-	for (;;) {	/* loop to catch early wakeup from nanosleep */
-	    if (ts.tv_sec < 0 || ts.tv_nsec > 999999999) {
-		fprintf(stderr, "sleepTight: invalid args: %ld %ld\n",
-			ts.tv_sec, ts.tv_nsec);
-		break;
+	    if (show_detail) {
+		if (last_sched > 0) {
+		    fprintf(stderr, "Last sleepTight (%s) until: ", last_type == SLEEP_EVAL ? "eval" : "retry");
+		    showFullTime(stderr, last_sched);
+		    fputc('\n', stderr);
+		    fprintf(stderr, "Last ");
+		    dumpTask(last_t);
+		}
+		fprintf(stderr, "This sleepTight() entry: ");
+		showFullTime(stderr, cur_entry);
+		fputc('\n', stderr);
+		fprintf(stderr, "Harvest children done: ");
+		showFullTime(stderr, cur);
+		fputc('\n', stderr);
+		fprintf(stderr, "Want sleepTight (%s) until: ", type == SLEEP_EVAL ? "eval" : "retry");
+		showFullTime(stderr, sched);
+		fputc('\n', stderr);
+		fprintf(stderr, "This ");
+		dumpTask(t);
 	    }
-	    sts = nanosleep(&ts, &tleft);
-	    if (sts == 0 || (sts < 0 && errno != EINTR))
-		break;
-	    ts = tleft;
 	}
+	else {
+	    unrealizenano(delay, &ts);
+	    for (;;) {	/* loop to catch early wakeup from nanosleep */
+		if (ts.tv_sec < 0 || ts.tv_nsec > 999999999) {
+		    fprintf(stderr, "sleepTight: invalid args: %ld %ld\n",
+			    ts.tv_sec, ts.tv_nsec);
+		    break;
+		}
+		sts = nanosleep(&ts, &tleft);
+		if (sts == 0 || (sts < 0 && errno != EINTR))
+		    break;
+		ts = tleft;
+	    }
+	}
+	last_t = t;
+	last_type = type;
+	last_sched = sched;
     }
 }
 
@@ -1196,3 +1242,21 @@ dumpMetric(Metric *m)
     __dumpMetric(0, m);
 }
 
+void
+dumpTask(Task *t)
+{
+    int	i;
+    fprintf(stderr, "Task dump @ " PRINTF_P_PFX "%p\n", t);
+    fprintf(stderr, "  nth=%d delta=%.3f tick=%d next=" PRINTF_P_PFX "%p prev=" PRINTF_P_PFX "%p\n", t->nth, t->delta, t->tick, t->next, t->prev);
+    fprintf(stderr, "  eval time: ");
+    showFullTime(stderr, t->eval);
+    fputc('\n', stderr);
+    fprintf(stderr, "  retry time: ");
+    showFullTime(stderr, t->retry);
+    fputc('\n', stderr);
+    fprintf(stderr, "  host=%s (%s)\n", symName(t->hosts->name), t->hosts->down ? "down" : "up");
+    fprintf(stderr, "  rules:\n");
+    for (i = 0; i < t->nrules; i++) {
+	fprintf(stderr, "    %s\n", symName(t->rules[i]));
+    }
+}
