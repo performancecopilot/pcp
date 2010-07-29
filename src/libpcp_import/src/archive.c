@@ -18,6 +18,13 @@ _pmi_put_result(pmi_context *current, pmResult *result)
     int		m;
     int		needti;
 
+    /*
+     * some front-end tools use lazy discovery of instances and/or process
+     * data in non-deterministic order ... it is simpler for everyone if
+     * we sort the values into ascending instance order.
+     */
+    pmSortInstances(result);
+
     stamp.tv_sec = result->timestamp.tv_sec;
     stamp.tv_usec = result->timestamp.tv_usec;
 
