@@ -5,7 +5,7 @@ HTMLPAGES = $(shell echo *.html)
 CONFFILES = pmchart.adp pmtime.adp
 CONFIGURE = pmchart.adp.in pmtime.adp.in
 LSRCFILES = $(HTMLPAGES) $(CONFIGURE)
-SUBDIRS = images
+SUBDIRS = images diskmodel
 
 default: $(HTMLPAGES)
 	$(SUBDIRS_MAKERULE)

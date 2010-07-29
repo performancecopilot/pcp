@@ -1,5 +1,6 @@
-#!/usr/bin/perl
-
+#
+# Script generating a summary spreadsheet from production data
+#
 use strict;
 use warnings;
 use PCP::LogSummary;

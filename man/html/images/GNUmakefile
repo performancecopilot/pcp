@@ -3,7 +3,9 @@ include $(TOPDIR)/src/include/builddefs
 
 PNGFILES = $(shell echo *.png)
 LSRCFILES = $(PNGFILES)
-ICONLINKS = pcpicon.png pmcharticon.png pmtimeicon.png stepfwd_on.png
+ICONLINKS = pcpicon.png pmcharticon.png pmtimeicon.png \
+	stepfwd_on.png \
+	system-search.png
 WINDOWLINKS = \
 	pmchart_blank_canvas.png \
 	pmchart_open_view.png \

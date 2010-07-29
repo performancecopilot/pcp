@@ -39,6 +39,7 @@ PKG_PLATFORM	= $(PCP_PLATFORM)
 PKG_DISTRIBUTION= @pkg_distribution@
 PKG_BIN_DIR	= $(PCP_BIN_DIR)
 PKG_MAN_DIR	= $(PCP_MAN_DIR)
+PKG_DEMOS_DIR	= $(PCP_DEMOS_DIR)
 PKG_DOC_DIR	= @pkg_doc_dir@
 PKG_HTML_DIR	= @pkg_html_dir@
 PKG_ICON_DIR	= $(datadir)/pixmaps
