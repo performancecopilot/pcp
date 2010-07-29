@@ -812,9 +812,8 @@ _setup()
     dso_entry=${iam}_init
     pmda_dir=`__strip_pcp_dir "${PCP_PMDAS_DIR}/${iam}"`
 
-    # check the user is root 
-    #
     _check_userroot
+    _check_directory
 
     # automatically generate files for those lazy Perl programmers
     #
@@ -1233,6 +1232,20 @@ _check_userroot()
 	echo "Error: You must be root (uid 0) to update the PCP collector configuration."
 	exit 1
     fi
+}
+
+_check_directory()
+{
+    case "$__here"
+    in
+	*/pmdas/$iam)
+	    ;;
+	*)
+	    echo "Error: expect current directory to be .../pmdas/$iam, not $__here"
+	    echo "       (typical location is $PCP_PMDAS_DIR/$iam on this platform)"
+	    exit 1
+	    ;;
+    esac
 }
 
 # preferred public interfaces
