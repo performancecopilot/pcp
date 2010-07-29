@@ -46,6 +46,7 @@
 #define M_NETLINK	6
 #define M_KVM		7
 #define M_ARCSTATS	8
+#define M_FILESYS	9
 
 typedef struct {
     const char	*m_name;
@@ -93,6 +94,10 @@ int kvm_fetch(pmdaMetric *, int, pmAtomValue *);
 void arcstats_refresh(void);
 int arcstats_fetch(pmdaMetric *, int, pmAtomValue *);
 
+void vnops_init(int);
+void vnops_refresh(void);
+int vnops_fetch(pmdaMetric *, int, pmAtomValue *);
+
 /*
  * metric descriptions
  */
@@ -120,6 +125,7 @@ extern int		metrictab_sz;
 #define LOADAVG_INDOM	8
 #define PREFETCH_INDOM	9
 #define METRIC_INDOM	10
+#define FILESYS_INDOM	11
 
 extern pmdaIndom	indomtab[];
 extern int		indomtab_sz;

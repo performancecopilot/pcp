@@ -36,7 +36,8 @@ method_t methodtab[] = {
     { "zpool_vdev", zpool_perdisk_init, zpool_perdisk_refresh, zpool_perdisk_fetch },
     { "netlink", netlink_init, netlink_refresh, netlink_fetch },
     { "kvm", kvm_init, kvm_refresh, kvm_fetch },
-    { "zfs_arc", NULL, arcstats_refresh, arcstats_fetch }
+    { "zfs_arc", NULL, arcstats_refresh, arcstats_fetch },
+    { "filesystem", vnops_init, vnops_refresh, vnops_fetch }
 };
 
 const int methodtab_sz = ARRAY_SIZE(methodtab);
@@ -841,6 +842,195 @@ metricdesc_t metricdesc[] = {
       { PMDA_PMID(0,147), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
       }, M_DISK, -1},
+    { "kernel.fs.read_bytes",
+      { PMDA_PMID(3,0), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"read_bytes"},
+    { "kernel.fs.readdir_bytes",
+      { PMDA_PMID(3,1), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"readdir_bytes"},
+    { "kernel.fs.write_bytes",
+      { PMDA_PMID(3,2), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"write_bytes"},
+    { "kernel.fs.vnops.access",
+      { PMDA_PMID(3,4), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"naccess"},
+    { "kernel.fs.vnops.addmap",
+      {PMDA_PMID(3, 5), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"naddmap"},
+    { "kernel.fs.vnops.close",
+      {PMDA_PMID(3, 6), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nclose"},
+    { "kernel.fs.vnops.cmp",
+      {PMDA_PMID(3, 7), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"ncmp"},
+    { "kernel.fs.vnops.create",
+      {PMDA_PMID(3, 8), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"ncreate"},
+    { "kernel.fs.vnops.delmap",
+      {PMDA_PMID(3, 9), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"ndelmap"},
+    { "kernel.fs.vnops.dispose",
+      {PMDA_PMID(3, 10), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"ndispose"},
+    { "kernel.fs.vnops.dump",
+      {PMDA_PMID(3, 11), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"ndump"},
+    { "kernel.fs.vnops.dumpctl",
+      {PMDA_PMID(3, 12), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"ndumpctl"},
+    { "kernel.fs.vnops.fid",
+      {PMDA_PMID(3, 13), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nfid"},
+    { "kernel.fs.vnops.frlock",
+      {PMDA_PMID(3, 14), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nfrlock"},
+    { "kernel.fs.vnops.fsync",
+      {PMDA_PMID(3, 15), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nfsync"},
+    { "kernel.fs.vnops.getattr",
+      {PMDA_PMID(3, 16), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"ngetattr"},
+    { "kernel.fs.vnops.getpage",
+      {PMDA_PMID(3, 17), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"ngetpage"},
+    { "kernel.fs.vnops.getsecattr",
+      {PMDA_PMID(3, 18), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"ngetsecattr"},
+    { "kernel.fs.vnops.inactive",
+      {PMDA_PMID(3, 19), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"ninactive"},
+    { "kernel.fs.vnops.ioctl",
+      {PMDA_PMID(3, 20), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nioctl"},
+    { "kernel.fs.vnops.link",
+      {PMDA_PMID(3, 21), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nlink"},
+    { "kernel.fs.vnops.lookup",
+      {PMDA_PMID(3, 22), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nlookup"},
+    { "kernel.fs.vnops.map",
+      {PMDA_PMID(3, 23), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nmap"},
+    { "kernel.fs.vnops.mkdir",
+      {PMDA_PMID(3, 24), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nmkdir"},
+    { "kernel.fs.vnops.open",
+      {PMDA_PMID(3, 25), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nopen"},
+    { "kernel.fs.vnops.pageio",
+      {PMDA_PMID(3, 26), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"npageio"},
+    { "kernel.fs.vnops.pathconf",
+      {PMDA_PMID(3, 27), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"npathconf"},
+    { "kernel.fs.vnops.poll",
+      {PMDA_PMID(3, 28), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"npoll"},
+    { "kernel.fs.vnops.putpage",
+      {PMDA_PMID(3, 29), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nputpage"},
+    { "kernel.fs.vnops.read",
+      {PMDA_PMID(3, 30), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nread"},
+    { "kernel.fs.vnops.readdir",
+      {PMDA_PMID(3, 31), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nreaddir"},
+    { "kernel.fs.vnops.readlink",
+      {PMDA_PMID(3, 32), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nreadlink"},
+    { "kernel.fs.vnops.realvp",
+      {PMDA_PMID(3, 33), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nrealvp"},
+    { "kernel.fs.vnops.remove",
+      {PMDA_PMID(3, 34), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nremove"},
+    { "kernel.fs.vnops.rename",
+      {PMDA_PMID(3, 35), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nrename"},
+    { "kernel.fs.vnops.rmdir",
+      {PMDA_PMID(3, 36), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nrmdir"},
+    { "kernel.fs.vnops.rwlock",
+      {PMDA_PMID(3, 37), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nrwlock"},
+    { "kernel.fs.vnops.rwunlock",
+      {PMDA_PMID(3, 38), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nrwunlock"},
+    { "kernel.fs.vnops.seek",
+      {PMDA_PMID(3, 39), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nseek"},
+    { "kernel.fs.vnops.setattr",
+      {PMDA_PMID(3, 40), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nsetattr"},
+    { "kernel.fs.vnops.setfl",
+      {PMDA_PMID(3, 41), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nsetfl"},
+    { "kernel.fs.vnops.setsecattr",
+      {PMDA_PMID(3, 42), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nsetsecattr"},
+    { "kernel.fs.vnops.shrlock",
+      {PMDA_PMID(3, 43), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nshrlock"},
+    { "kernel.fs.vnops.space",
+      {PMDA_PMID(3, 44), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nspace"},
+    { "kernel.fs.vnops.symlink",
+      {PMDA_PMID(3, 45), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nsymlink"},
+    { "kernel.fs.vnops.vnevent",
+      {PMDA_PMID(3, 46), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nvnevent"},
+    { "kernel.fs.vnops.write",
+      {PMDA_PMID(3, 47), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_FILESYS, (ptrdiff_t)"nwrite"}
+
     /* remember to add trailing comma before adding more entries ... */
 };
 int metrictab_sz = ARRAY_SIZE(metricdesc);
@@ -862,7 +1052,8 @@ pmdaIndom indomtab[] = {
     { ZFS_SNAP_INDOM },
     { LOADAVG_INDOM, ARRAY_SIZE(loadavg_insts), loadavg_insts},
     { PREFETCH_INDOM, ARRAY_SIZE(prefetch_insts), prefetch_insts},
-    { METRIC_INDOM, ARRAY_SIZE(metric_insts), metric_insts}
+    { METRIC_INDOM, ARRAY_SIZE(metric_insts), metric_insts},
+    { FILESYS_INDOM }
 };
 
 int indomtab_sz = sizeof(indomtab) / sizeof(indomtab[0]);

@@ -2,6 +2,7 @@ kernel {
     all
     percpu
     fsflush
+    fs
 }
 
 kernel.all {
@@ -87,4 +88,58 @@ kernel.fsflush {
 	coalesced	SOLARIS:1:4
 	released	SOLARIS:1:5
 	time		SOLARIS:1:6
+}
+
+kernel.fs {
+	vnops
+	read_bytes	SOLARIS:3:0
+	readdir_bytes	SOLARIS:3:1
+	write_bytes	SOLARIS:3:2
+}
+
+kernel.fs.vnops {
+	access		SOLARIS:3:4
+	addmap		SOLARIS:3:5
+	close		SOLARIS:3:6
+	cmp		SOLARIS:3:7
+	create		SOLARIS:3:8
+	delmap		SOLARIS:3:9
+	dispose		SOLARIS:3:10
+	dump		SOLARIS:3:11
+	dumpctl		SOLARIS:3:12
+	fid		SOLARIS:3:13
+	frlock		SOLARIS:3:14
+	fsync		SOLARIS:3:15
+	getattr		SOLARIS:3:16
+	getpage		SOLARIS:3:17
+	getsecattr	SOLARIS:3:18
+	inactive	SOLARIS:3:19
+	ioctl		SOLARIS:3:20
+	link		SOLARIS:3:21
+	lookup		SOLARIS:3:22
+	map		SOLARIS:3:23
+	mkdir		SOLARIS:3:24
+	open		SOLARIS:3:25
+	pageio		SOLARIS:3:26
+	pathconf	SOLARIS:3:27
+	poll		SOLARIS:3:28
+	putpage		SOLARIS:3:29
+	read		SOLARIS:3:30
+	readdir		SOLARIS:3:31
+	readlink	SOLARIS:3:32
+	realvp		SOLARIS:3:33
+	remove		SOLARIS:3:34
+	rename		SOLARIS:3:35
+	rmdir		SOLARIS:3:36
+	rwlock		SOLARIS:3:37
+	rwunlock	SOLARIS:3:38
+	seek		SOLARIS:3:39
+	setattr		SOLARIS:3:40
+	setfl		SOLARIS:3:41
+	setsecattr	SOLARIS:3:42
+	shrlock		SOLARIS:3:43
+	space		SOLARIS:3:44
+	symlink		SOLARIS:3:45
+	vnevent		SOLARIS:3:46
+	write		SOLARIS:3:47
 }
