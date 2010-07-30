@@ -563,7 +563,7 @@ while (defined(my $token = $parser->get_token())) {
 		print "Warning: XML tag <" . $token->tag . "> not handled\n";
 	    }
 	}
-	$putsts == 0 or die "pmiPutValue: Failed @ $stamp: " . pmiErrStr(-1) . "\n";
+	$putsts == 0 or die "pmiPutValue: Failed @ $stamp: " . pmiErrStr($putsts) . "\n";
 	next;
     }
     elsif ($token->is_end_tag) {

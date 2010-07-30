@@ -34,13 +34,16 @@ my @handle = ();	# pmi* handles, one per metric-instance pair
 my $sheet;
 
 my $zone = "UTC";	# default timezone
+my $label_zone;
 my $datefmt = "DMY";	# default order of date fields
 
 sub dodate($)
 {
-    # convert datetime format DD[/-]MM[/-]YY[YY] HH:MM[:SS] from spreadsheer parsers
-    # into the format DD-Mmm-YYYY HH:MM:SS that Date::Parse seems to be able
-    # to parse correctly
+    # convert datetime format DD[/-]MM[/-]YY[YY] HH:MM[:SS] from spreadsheet
+    # parsers into the ISO-8601 dates that Date::Parse
+    # seems to be able to parse correctly ... this would appear to
+    # have to be YYYY-MM-DDTHH:MM:SS.000000 and then pass the timezone
+    # as the second parameter to str2time()
     #
     my ($datetime) = @_;
     # date separators may be - or /, space separates date from time, time
@@ -49,12 +52,6 @@ sub dodate($)
     my $mm;
     my $yy;
     my $dd;
-    my %mm_map = (
-	"01" => "Jan", "02" => "Feb", "03" => "Mar", "04" => "Apr",
-	"05" => "May", "06" => "Jun", "07" => "Jul", "08" => "Aug",
-	"09" => "Sep", "10" => "Oct", "11" => "Nov", "12" => "Dec",
-    );
-    my $ans;
 
     if ($#field == 4) {
 	# assume :SS is missing, set seconds to 00
@@ -87,15 +84,7 @@ sub dodate($)
 	else { $yy += 1900; }
     }
 
-    # do MM->Mmm mapping first
-    #
-    defined($mm_map{$mm}) or die "dodate: bad month in datetime: \"$datetime\"\n";
-
-    $ans = $dd . "-" . $mm_map{$mm} . "-" . $yy . " " . $field[3] . ":" . $field[4] . ":" . $field[5];
-
-    #debug# print "datetime: in=\"" . $datetime . "\" out=\"" . $ans . "\"\n";
-
-    return $ans;
+    return $yy . "-" . $mm . "-" . $dd . "T" . $field[3] . ":" . $field[4] . ":" . $field[5];
 }
 
 # process the mapfile and set up the metadata and handles needed
@@ -444,8 +433,28 @@ pmiStart($ARGV[2], 0);
 #
 domap($ARGV[1]);
 
-if (pmiSetTimezone($zone) < 0) {
-    print "Mapfile Warning: failed to set timezone \"" . $zone . "\": " . pmiErrStr(-1) . "\n";
+# Serious strangeness here ...
+# the Perl Date::Parse and Date::Format routines appear to
+# only work with timezones of the format +NNNN or -NNNN
+# ("UTC" is an exception)
+#
+# PCP expects a $TZ style timezone in the archive label, so
+# we have to make up a PCP-xx:xx timezone ... note this
+# invloves a sign reversal!
+#
+$label_zone = $zone;
+if ($zone =~ /^[-+][0-9][0-9][0-9][0-9]/) {
+    $label_zone =~ s/^\+/PCP-/;
+    $label_zone =~ s/^-/PCP+/;
+    $label_zone =~ s/(..)$/:$1/;
+}
+elsif ($zone ne "UTC") {
+    print "sheet2pcp: Warning: unexpected timezone ($zone), reverting to UTC\n";
+    $zone = "UTC";
+    $label_zone = "UTC";
+}
+if (pmiSetTimezone($label_zone) < 0) {
+    print "Mapfile Warning: failed to set timezone \"" . $label_zone . "\": " . pmiErrStr(-1) . "\n";
 }
 
 if ($ARGV[0] =~ /\.csv$/) {
@@ -454,16 +463,24 @@ if ($ARGV[0] =~ /\.csv$/) {
     $sheet = ReadData($ARGV[0]);
 }
 elsif ($ARGV[0] =~ /\.ods$/ || $ARGV[0] =~ /\.sxc$/) {
+    system("perl -MArchive::Zip -e 1 >/dev/null 2>&1") == 0 or
+	die "Perl Archive::Zip module not installed";
     system("perl -MSpreadsheet::ReadSXC -e 1 >/dev/null 2>&1") == 0 or
 	die "Perl Spreadsheet::ReadSXC module not installed";
     $sheet = ReadData($ARGV[0], dtfmt => "yyyy-mm-dd");
 }
 elsif ($ARGV[0] =~ /\.xls$/) {
+    system("perl -MOLE::Storage_Lite -e 1 >/dev/null 2>&1") == 0 or
+	die "Perl OLE::Storage_Lite module not installed";
     system("perl -MSpreadsheet::ParseExcel -e 1 >/dev/null 2>&1") == 0 or
 	die "Perl Spreadsheet::ParseExcel module not installed";
     $sheet = ReadData($ARGV[0], dtfmt => "yyyy-mm-dd");
 }
 elsif ($ARGV[0] =~ /\.xlsx$/) {
+    system("perl -MOLE::Storage_Lite -e 1 >/dev/null 2>&1") == 0 or
+	die "Perl OLE::Storage_Lite module not installed";
+    system("perl -MSpreadsheet::ParseExcel -e 1 >/dev/null 2>&1") == 0 or
+	die "Perl Spreadsheet::ParseExcel module not installed";
     system("perl -MSpreadsheet::XLSX -e 1 >/dev/null 2>&1") == 0 or
 	die "Perl Spreadsheet::XLSX module not installed";
     $sheet = ReadData($ARGV[0], dtfmt => "yyyy-mm-dd");
@@ -506,6 +523,7 @@ for (my $row = 1; $row <= $sheet->[1]{maxrow}; $row++) {
 	else {
 	    if ($col == $stamp_idx+1) {
 		$stamp = dodate($sheet->[1]{$cell});
+		#debug# print $sheet->[1]{$cell} . " -> " . $stamp . "\n";
 	    }
 	    elsif ($handle[$col-1] != -1) {
 		pmiPutValueHandle($handle[$col-1], $sheet->[1]{$cell}) >= 0
@@ -554,7 +572,7 @@ the PCP inference engine B<pmie>(1), etc.
 
 The I<mapfile> controls the import process and defines the data
 mapping from the spreadsheet columns onto the PCP data model.  The file
-is written in XML (Version 1.0) and conforms to the syntax defined in the
+is written in XML and conforms to the syntax defined in the
 B<MAPPING CONFIGURATION> section below.
 
 A series of physical files will be created with the prefix I<outfile>.
@@ -563,9 +581,7 @@ I<outfile>B<.meta> (the metadata that describes the performance data) and
 I<outfile>B<.index> (a temporal index to improve efficiency of replay
 operations for the archive).  If any of these files exists already,
 then B<sheet2pcp> will B<not> overwrite them and will exit with an error
-message of the form
-
-__pmLogNewFile: "blah.0" already exists, not over-written
+message.
 
 B<sheet2pcp> is a Perl script that uses the PCP::LogImport Perl wrapper
 around the PCP I<libpcp_import>
@@ -574,7 +590,7 @@ tools to import other types of performance data and create PCP archives.
 
 =head1 MAPPING CONFIGURATION
 
-The I<mapfile> contains specifications in standard XML 1.0 format.
+The I<mapfile> contains specifications in standard XML format.
 
 The whole specification is wrapped in a B<E<lt>sheetE<gt>> ... B<E<lt>/sheetE<gt>>
 element.
@@ -597,7 +613,11 @@ Example: hostname="some.where.com".
 =item B<timezone>
 
 Set the source timezone in the PCP archive (the
-default is to use UTC).
+default is to use UTC).  The timezone must have the
+format +HHMM (for hours and minutes East of UTC) or -HHMM (for hours
+and minutes West of UTC).  Note in particular that B<neither> the B<zoneinfo>
+(aka Olson) format, e.g. Europe/Paris, nor the Posix B<TZ> format, e.g.
+EST+5 is allowed.
 Example: timezone="+1100".
 
 =item B<datefmt>
@@ -612,7 +632,8 @@ Example: datefmt="YMD".
 
 =back
 
-Thereafter follow one or more metric specifications of
+A B<E<lt>sheetE<gt>> element contains
+one or more metric specifications of
 the form B<E<lt>metricE<gt>>I<metricname>B<E<lt>/metricE<gt>>.  The B<metric>
 tag supports the following optional attributes:
 
@@ -624,7 +645,7 @@ The Performance Metrics Identifier (PMID), specified as 3 numbers
 separated by a periods (.) to
 set the B<domain>, B<cluster> and B<item> fields of the PMID, see B<PMNS>(4)
 for more details of PMIDs.  If omitted, the PMID will be automatically
-assigned by B<pmiAddMetric>(3) and this would be the most common case.
+assigned by B<pmiAddMetric>(3).
 The value B<PM_ID_NULL> may be used to explicitly nominate
 the default behaviour.
 Examples: pmid="60.0.2", pmid="PM_ID_NULL".
@@ -632,10 +653,13 @@ Examples: pmid="60.0.2", pmid="PM_ID_NULL".
 =item B<indom>
 
 Each metric may have one or more values associated with it.  If there is only
-ever one value, the metric is singular and B<indom> should be set to B<PM_INDOM_NULL>
+one value, the metric is singular and B<indom> should be set to B<PM_INDOM_NULL>
 which is the default case when the B<indom> attribute is omitted.
 Otherwise B<indom> should be specified as 2 numbers separated by periods (.)
-to set the B<domain> and B<ordinal> fields of the Instance Domain.  More than
+to set the B<domain> and B<ordinal> fields of the Instance Domain, see
+the B<__pmInDom_int> typedef in I<E<lt>pcp/impl.hE<gt>>.
+see 
+More than
 one metric can share the same Instance Domain when the metrics have defined
 values over similar sets of instances, e.g. all the metrics for each network
 interface.  It is standard practice for the B<domain> field to be the
@@ -690,6 +714,12 @@ e.g. <data>hinv.ncpu</data>, <data>kernel.all.load[1 minute]</data>.
 
 The B<skip> tag defines the column that should be skipped when preparing
 data for the PCP archive.
+
+The order of the B<E<lt>datetimeE<gt>>, B<E<lt>dataE<gt>> and
+B<E<lt>skip<gt>> elements matches the order of columns in the
+spreadsheet.  If the number of elements is not the same as the number
+of columns a warning is issued, and extra elements or columns
+generate no metric values in the output archive.
 
 =head2 EXAMPLE
 

@@ -1,0 +1,123 @@
+Converting a iostat output to a PCP archive
+
+This example uses the PCP::LogImport Perl wrapper around the libpcp_import
+library to convert a sadc datafile into a PCP archive.
+
+The version of iostat that is supported here is the one from
+http://freshmeat.net/projects/sysstat and provides the following
+reporting options:
+
+-t	Add timestamps like 27/07/10 12:47:34 ahead of each sample.
+	If $S_TIME_FORMAT=ISO in the environment, then the format changes
+	to 2010-07-27T12:46:07+1000
+
+	The default is to not include any timestamps.
+
+	Start date is on first line
+	Linux 2.6.32-23-generic (bozo) 	27/07/10 	_i686_	(1 CPU)
+
+-z	supress activity for idle devices
+
+-k	Disk activity in Kilobytes not blocks
+	Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
+
+-m	Disk activity in megabytes not blocks
+	Device:            tps    MB_read/s    MB_wrtn/s    MB_read    MB_wrtn
+
+-c	CPU utilization
+	avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+	          75.00    0.00   25.00    0.00    0.00    0.00
+
+-d	Disk activity
+	Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+	sda               9.27        42.38       135.10        128        408
+	sdb              83.44       182.78      1634.44        552       4936
+	scd0              0.00         0.00         0.00          0          0
+
+-n	NFS report
+	Filesystem:              rBlk_nor/s   wBlk_nor/s   rBlk_dir/s   wBlk_dir/s   rBlk_svr/s   wBlk_svr/s    rops/s    wops/s
+
+-x	Extended disk activity
+	Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util
+	sda               0.00    10.30    0.00    4.32     0.00   116.94    27.08     0.00    0.31   0.31   0.13
+	sdb               0.00    83.39    0.33   10.63     2.66   754.82    69.09     0.05    4.36   0.85   0.93
+	scd0              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00   0.00   0.00
+
+-p	like -d but for partitions (example below is with -z)
+	Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+	sda               2.99         0.00        77.08          0        232
+	sda1              2.99         0.00        77.08          0        232
+	sdb              20.60         2.66       890.37          8       2680
+	sdb6             20.60         2.66       890.37          8       2680
+
+Usage: iostat2pcp infile archive
+
+The translation currently supports the following PCP metrics:
+    disk.all.read
+    disk.all.read_bytes
+    disk.all.total
+    disk.all.total_bytes
+    disk.all.write
+    disk.all.write_bytes
+    disk.dev.avactive
+    disk.dev.read_bytes
+    disk.dev.total
+    disk.dev.total_bytes
+    disk.dev.write_bytes
+    kernel.all.cpu.idle
+    kernel.all.cpu.intr
+    kernel.all.cpu.nice
+    kernel.all.cpu.sys
+    kernel.all.cpu.user
+    kernel.all.cpu.wait.total
+    kernel.all.intr
+    kernel.all.load
+    kernel.all.pswitch
+    kernel.percpu.cpu.idle
+    kernel.percpu.cpu.intr
+    kernel.percpu.cpu.nice
+    kernel.percpu.cpu.sys
+    kernel.percpu.cpu.user
+    kernel.percpu.cpu.wait.total
+    mem.util.bufmem
+    mem.util.cached
+    mem.util.free
+    mem.util.swapCached
+    mem.util.swapFree
+    mem.util.used
+    mem.vmstat.pgfault
+    mem.vmstat.pgfree
+    mem.vmstat.pgmajfault
+    mem.vmstat.pgpgin
+    mem.vmstat.pgpgout
+    network.interface.collisions
+    network.interface.in.bytes
+    network.interface.in.drops
+    network.interface.in.errors
+    network.interface.in.fifo
+    network.interface.in.frame
+    network.interface.in.packets
+    network.interface.out.bytes
+    network.interface.out.carrier
+    network.interface.out.drops
+    network.interface.out.errors
+    network.interface.out.fifo
+    network.interface.out.packets
+    proc.runq.runnable
+    swap.pagesin
+    swap.pagesout
+    vfs.dentry.count
+    vfs.files.count
+    vfs.inodes.count
+
+This is sufficient to support the following standard pmchart views:
+    CPU
+    Disk
+    Diskbytes
+    Loadavg
+    Memory
+    Netbytes
+    Netpackets
+    Overview (except for a lesser memory stats)
+    Paging
+
