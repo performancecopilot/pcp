@@ -376,7 +376,7 @@ _run()
 	done
     elif echo "$_MULTI " | grep " $tool_basename " >/dev/null
     then
-	$tool -a `_fix_arch_path "," $archlist` $*
+	$tool -a `_fix_arch_path " -a " $archlist` $*
     elif [ "X$tool" = "X_show_me_" ]
     then
 	for arch in $archlist
