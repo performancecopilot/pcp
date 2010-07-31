@@ -23,7 +23,19 @@ do
 
     if [ -s $tmp.out ]
     then
-	echo "`basename $arch .0`:"
+	pmdumplog -l $arch >$tmp.info
+	vers=`sed -n <$tmp.info -e '/Log Format Version/{
+s/.*Version //
+s/)//
+p
+}'`
+	host=`sed -n <$tmp.info -e '/ from host /{
+s/.* from host //
+p
+}'`
+	echo "`basename $arch .0` (V.$vers) host: $host"
+	grep commencing $tmp.info
+	grep ending $tmp.info
 	sed -e 's/^/    /' <$tmp.out
     fi
 done
