@@ -1,0 +1,17 @@
+Linux 2.6.32-23-generic (bozo) 	27/07/10 	_i686_	(1 CPU)
+
+Device:            tps    MB_read/s    MB_wrtn/s    MB_read    MB_wrtn
+sda               0.53         0.00         0.00       9482       8302
+sdb               1.39         0.01         0.00      28468       9672
+scd0              0.00         0.00         0.00         10          0
+
+Device:            tps    MB_read/s    MB_wrtn/s    MB_read    MB_wrtn
+sda              98.01         0.59         0.05          1          0
+sdb               0.00         0.00         0.00          0          0
+scd0              0.00         0.00         0.00          0          0
+
+Device:            tps    MB_read/s    MB_wrtn/s    MB_read    MB_wrtn
+sda             113.33         0.73         0.00          2          0
+sdb               1.00         0.00         0.01          0          0
+scd0              0.00         0.00         0.00          0          0
+

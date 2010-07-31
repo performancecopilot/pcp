@@ -1,0 +1,29 @@
+Linux 2.6.32-23-generic (bozo) 	2010-07-27 	_i686_	(1 CPU)
+
+2010-07-27T12:46:07+1000
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           3.30    0.09    0.94    0.53    0.00   95.14
+
+Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+sda               0.52         8.84         7.78   19267823   16953677
+sdb               1.39        26.74         9.00   58263070   19610200
+scd0              0.00         0.01         0.00      21528          0
+
+2010-07-27T12:46:10+1000
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           3.99    0.00    3.99    0.66    0.00   91.36
+
+Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+sda              93.02      1427.24        10.63       4296         32
+sdb               0.00         0.00         0.00          0          0
+scd0              0.00         0.00         0.00          0          0
+
+2010-07-27T12:46:13+1000
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           1.33    0.00    1.33   35.67    0.00   61.67
+
+Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+sda             121.00      1701.33       464.00       5104       1392
+sdb               1.67         2.67        24.00          8         72
+scd0              0.00         0.00         0.00          0          0
+

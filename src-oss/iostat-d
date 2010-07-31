@@ -1,0 +1,17 @@
+Linux 2.6.32-23-generic (bozo) 	27/07/10 	_i686_	(1 CPU)
+
+Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+sda               0.53         8.89         7.79   19382231   16986485
+sdb               1.39        26.74         9.02   58292750   19660048
+scd0              0.00         0.01         0.00      21528          0
+
+Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+sda               3.34        10.70        77.59         32        232
+sdb              10.03       243.48         0.00        728          0
+scd0              0.00         0.00         0.00          0          0
+
+Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+sda               9.27        42.38       135.10        128        408
+sdb              83.44       182.78      1634.44        552       4936
+scd0              0.00         0.00         0.00          0          0
+
