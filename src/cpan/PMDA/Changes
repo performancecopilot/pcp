@@ -1,5 +1,8 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.09  Sun Aug  1 09:04:38 EST 2010
+	- Fix memory leak in fetch routine string handling.
+
 1.08  Thu Nov 19 10:37:26 EST 2009
 	- Fix typo on name export for pmda_inst_name.
 	- Add a fast path lookup in pmda_inst_name for direct
