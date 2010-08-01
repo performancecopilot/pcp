@@ -4,9 +4,9 @@
 	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
 	<TITLE>Comparing Storage Performance</TITLE>
 	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Linux)">
-	<META NAME="CREATED" CONTENT="20071020;12372700">
+	<META NAME="CREATED" CONTENT="20100801;12372700">
 	<META NAME="CHANGEDBY" CONTENT="Nathan Scott">
-	<META NAME="CHANGED" CONTENT="20071022;11365400">
+	<META NAME="CHANGED" CONTENT="20100801;12372700">
 	<META NAME="qrichtext" CONTENT="1">
 	<STYLE TYPE="text/css">
 	<!--
@@ -77,13 +77,12 @@ This command will provide the interactive charts seen here...
 </TABLE>
 <P>Next we use the <i><b>pmlogsummary</b></i> utility to extract a statistical summary of key disk metrics.&nbsp;&nbsp;We do this indirectly, in this example, using the <i>PCP::LogSummary</i> Perl module and a custom wrapper script (<A HREF="diskmodel/model.pl">model.pl</A>).&nbsp;&nbsp;This generates a spreadsheet with all of the key aspects of performance that our model must aim to reproduce.
 </P>
-<P>
-As part of this phase of analysis, we must identify the key aspects of
+<P>As part of this phase of analysis, we must identify the key aspects of
 the workload we are analysing and break it down into its components,
 using information we know about the modelled environment.&nbsp;&nbsp;This
 level of breakdown is useful, as it lets us make informed statements later
 about how well the model simulates each component.
-
+</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=10>
 <TR>
 <TD><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/model_nasload.png" BORDER=0></CENTER></P></TD>
@@ -124,6 +123,7 @@ If you have the PCP::LogSummary and SpreadSheet::WriteExcel Perl modules install
 </TD></TR>
 </TABLE>
 <CENTER><IMG SRC="images/model_spreadsheet.png" WIDTH=912 HEIGHT=552 BORDER=1></CENTER>
+
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Step 3 - Simulation</B></FONT></P></TD></TR>
@@ -149,6 +149,7 @@ If you have the PCP::LogSummary and SpreadSheet::WriteExcel Perl modules install
     bw (KB/s) : min=   34, max= 4486, per=25.12%, avg=1239.08, stdev=178.78
 </PRE>
 </TABLE>
+
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Step 4 - Profit!</B></FONT></P></TD></TR>
@@ -159,12 +160,13 @@ If you have the PCP::LogSummary and SpreadSheet::WriteExcel Perl modules install
 us are excellent indicators - if we did not have these, we could make use
 of the device utilisation PCP metrics (<i>disk.dev.avactive</i> or
 <i>disk.dev.idle</i>) as alternate comparison points.</P>
+
 <P><BR></P>
 <HR>
 <CENTER>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT>PCP GUI</P></TD> </TR>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc.</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>
