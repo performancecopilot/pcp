@@ -4,7 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 HTMLPAGES = $(shell echo *.html)
 CONFFILES = pmchart.adp pmtime.adp
 CONFIGURE = pmchart.adp.in pmtime.adp.in
-LSRCFILES = $(HTMLPAGES) $(CONFIGURE)
+LSRCFILES = $(HTMLPAGES) $(CONFIGURE) template
 SUBDIRS = images diskmodel
 
 default: $(HTMLPAGES)
