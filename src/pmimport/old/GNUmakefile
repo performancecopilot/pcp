@@ -1,5 +1,6 @@
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,35 +13,22 @@
 # for more details.
 #
 
-#
-# countd pmimport sample plugin
-#
-
-TOPDIR = ../../..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-LIBTARGET = countd.$(DSOSUFFIX)
+CFILES = pmimport.c
+CMDTARGET = pmimport$(EXECSUFFIX)
+LLDLIBS = -lpcp
+SUBDIRS = demos
 
-DOMAIN  = COUNTD
-STDPMID = $(TOPDIR)/src/pmns/stdpmid
-LDIRT = domain.h
-
-default: $(LIBTARGET) countd.c domain.h
+default: $(CMDTARGET)
+	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
 
-domain.h: $(STDPMID)
-	rm -f domain.h
-	echo "/*" >domain.h
-	echo " * Built from $(STDPMID)" >>domain.h
-	echo " */" >>domain.h
-	$(PCP_AWK_PROG) < $(STDPMID) >> domain.h '/#define[  ][ 	]*$(DOMAIN)[ 	]/ { print "#define $(DOMAIN) " $$3 }'
-
-install: default
-	# $(INSTALL) -m 755 $(DEMO_DIR)
-	# $(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
-	# $(INSTALL) -m 644 countd.c countproc $(DEMO_DIR)
-	# $(INSTALL) -m 644 GNUmakefile.install $(DEMO_DIR)/GNUmakefile
+install:	default
+	# $(INSTALL) -m 755 pmimport $(PCP_BIN_DIR)/pmimport
+	$(SUBDIRS_MAKERULE)
 
 default_pcp:
 

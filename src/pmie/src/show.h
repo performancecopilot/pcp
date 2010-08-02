@@ -28,4 +28,5 @@ void showValue(FILE *, Expr *);
 void showAnnotatedValue(FILE *, Expr *);
 void showSatisfyingValue(FILE *, Expr *);
 void showTime(FILE *, RealTime);
+void showFullTime(FILE *, RealTime);
 size_t formatSatisfyingValue(char *, size_t, char **);

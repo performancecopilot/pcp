@@ -33,16 +33,24 @@ DEVTRACE_FILES = libpcp-trace2-dev.dirs libpcp-trace2-dev.install
 LIBTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2
 DEVTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2-dev
 
+LIBIMPORTPCP = libpcp-import1
+LIBIMPORT_FILES = libpcp-import1.install
+DEVIMPORT_FILES = libpcp-import1-dev.dirs libpcp-import1-dev.install
+LIBIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1
+DEVIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1-dev
+
 SUBDIRS = source
 LDIRT = *.debhelper *.substvars *.log pcp files $(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
-	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev
+	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
+	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev
 LSRCFILES = changelog compat control copyright rules \
 		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) shlibs.local \
 		$(LIBGUI_FILES) $(DEVGUI_FILES) \
 		$(LIBMMV_FILES) $(DEVMMV_FILES) \
 		$(LIBPMDA_FILES) $(DEVPMDA_FILES) \
-		$(LIBTRACE_FILES) $(DEVTRACE_FILES)
+		$(LIBTRACE_FILES) $(DEVTRACE_FILES) \
+		$(LIBIMPORT_FILES) $(DEVIMPORT_FILES)
 
 default:
 
@@ -126,4 +134,18 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(DEVTRACE_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(DEVTRACE_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(DEVTRACE_DOC_DIR)/changelog.Debian
+endif
+
+install-libimport: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(LIBIMPORT_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(LIBIMPORT_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(LIBIMPORT_DOC_DIR)/changelog.Debian
+endif
+
+install-devimport: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(DEVIMPORT_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(DEVIMPORT_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(DEVIMPORT_DOC_DIR)/changelog.Debian
 endif

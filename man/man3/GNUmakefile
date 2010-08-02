@@ -48,7 +48,11 @@ MAN_PAGES	= \
 	pmdaname.3 pmdachildren.3 pmdapmid.3 \
 	mmv_inc_value.3 mmv_lookup_value_desc.3 mmv_stats_init.3 \
 	pmloadderivedconfig.3 pmregisterderived.3 pmderivederrstr.3 \
-	pmparsehostspec.3 pmlocalpmda.3 pmspeclocalpmda.3
+	pmparsehostspec.3 pmlocalpmda.3 pmspeclocalpmda.3 \
+	logimport.3 pmistart.3 pmisethostname.3 pmisettimezone.3 \
+	pmiusecontext.3 pmiunits.3 pmigethandle.3 pmiaddmetric.3 \
+	pmiaddinstance.3 pmiend.3 pmierrstr.3 \
+	pmiputresult.3 pmiputvalue.3 pmiputvaluehandle.3 pmiwrite.3
 
 # IMPL_MANPAGES from IRIX
 MAN_PAGES += \

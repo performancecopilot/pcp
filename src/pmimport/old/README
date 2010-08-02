@@ -1,0 +1,7 @@
+This is the old (SGI and Irix) pmimport code.
+
+It is not used any more, and is maintained here only as a historical
+curiosity.
+
+A much more interesting "import data to PCP" mechanism is provided by
+libpcp_import, PCP::LogImport and the ../*2pcp tools.

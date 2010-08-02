@@ -21,13 +21,13 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 HFILES = pmapi.h impl.h pmda.h pmtime.h pmafm.h pmiestats.h \
-	 trace.h trace_dev.h trace_hash.h mmv_stats.h mmv_dev.h
-IMPORT = pmimport.h
+	 trace.h trace_dev.h trace_hash.h mmv_stats.h mmv_dev.h \
+	 import.h
 GENERATED_HFILES = pmdbg.h platform_defs.h
 CONFFILES = platform_defs.h builddefs pcp.conf
 
 LSRCFILES = platform_defs.h.in builddefs.in buildrules pcp.conf.in \
-	    pcp.env mk_pmdbg $(IMPORT)
+	    pcp.env mk_pmdbg
 
 LDIRT = builddefs.install
 

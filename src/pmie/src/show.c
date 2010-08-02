@@ -705,6 +705,18 @@ showTime(FILE *f, RealTime rt)
 
 
 void
+showFullTime(FILE *f, RealTime rt)
+{
+    time_t t = (time_t)rt;
+    char   bfr[26];
+
+    pmCtime(&t, bfr);
+    bfr[24] = '\0';
+    fprintf(f, "%s.%06d", bfr, (int)((rt-t)*1000000));
+}
+
+
+void
 showSatisfyingValue(FILE *f, Expr *x)
 {
     char    *string = NULL;
