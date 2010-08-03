@@ -102,6 +102,36 @@ This mechanism allows arbitrary values to be exported from an
 instrumented script into the PCP infrastructure for monitoring
 and analysis with pmchart, pmie, pmlogger and other PCP tools.
 
+#
+# perl-PCP-LogImport
+#
+%package -n perl-PCP-LogImport
+License: GPLv2
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp >= @package_version@
+
+%description -n perl-PCP-LogImport
+The PCP::LogImport module contains the Perl language bindings for
+importing data in various 3rd party formats into PCP archives so
+they can be replayed with standard PCP monitoring tools.
+
+#
+# pcp-import
+#
+%package import
+License: LGPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for importing 3rd party data into PCP archive logs
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@ sysstat
+
+%description import
+Performance Co-Pilot (PCP) front-end tools for importing 3rd party data
+into standard PCP archive logs for replay with any PCP monitoring tool.
+Currently imports data from sar, iostat and generic spreadsheets.
+
 %prep
 %setup -q
 autoconf
@@ -131,8 +161,8 @@ LIBFILELIST=`ls -1 $BACKDIR/debian/*.{install,dirs} | fgrep -v -- -dev.`
 DEVFILELIST=`ls -1 $BACKDIR/debian/*-dev.{install,dirs}`
 
 #
-# Package split: pcp, pcp-libs, pcp-libs-devel
-# -libs gets first pick, then libs-devel.
+# Package split: pcp, pcp-libs, pcp-libs-devel, pcp-import.
+# -libs gets first pick, then libs-devel, then pcp-import.
 # The base package catches-all remaining.
 #
 sed -e 's/^/\//' $LIBFILELIST >libs_files
@@ -166,16 +196,24 @@ pmproxy/pmproxy.options
 bash_completion.d/pcp
 EOFEOF
 
-rm -f devel_files.rpm libs_files.rpm base_files.rpm
+#
+# Files for the pcp-import subpackage. We use this sub-package
+# to isolate the (somwhat exotic) dependencies for these tools
+awk '{print $NF}' $DIST_MANIFEST |\
+egrep '(sar|iostat|sheet)2pcp' >import_files
+
+rm -f devel_files.rpm libs_files.rpm base_files.rpm import_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
 BEGIN {
     while( getline < "libs_files") lib[$0]=1;
     while( getline < "devel_files") dev[$0]=1;
+    while( getline < "import_files") import[$0]=1;
     while( getline < "conf_files") conf[nconf++]=$0;
 }
 {
     if (lib[$NF]) f="libs_files.rpm";
     else if (dev[$NF]) f="devel_files.rpm";
+    else if (import[$NF]) f="import_files.rpm";
     else f="base_files.rpm"
 }
 $1 == "d" { printf ("%%%%dir %%%%attr(%s,root,root) %s\n", $2, $5) >> f } 
@@ -228,13 +266,22 @@ fi
 %files libs-devel -f devel_files.rpm
 %defattr(-,root,root)
 
+%files import -f import_files.rpm
+%defattr(-,root,root)
+
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
 %defattr(-,root,root)
 
 %files -n perl-PCP-MMV -f perl-pcp-mmv.list
 %defattr(-,root,root)
 
+%files -n perl-PCP-LogImport -f perl-pcp-logimport.list
+%defattr(-,root,root)
+
 %changelog
+* Mon Aug  2 2010 Mark Goodwin <mgoodwin@redhat.com>
+- bump to 3.4.0, add the perl-PCP-LogImport sub-package
+
 * Thu Feb 25 2010 Martin Hicks <mort@sgi.com>
 - Remove SGI cruft from specfile.
 
