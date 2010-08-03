@@ -62,8 +62,8 @@ include $(BUILDRULES)
 install: default
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
 	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT
-	find $$DIST_ROOT -name .packlist -exec mv '{}' $(TOPDIR)/perl-pcp-pmda.list ';'
-	sed -e s@$$DIST_ROOT@@ -e 's/\.[0-9]pm$$/&.gz/' -e '/\.bs$$/d' -i.tmp $(TOPDIR)/perl-pcp-pmda.list
+	find $$DIST_ROOT -name .packlist -exec mv '{}' $(TOPDIR)/perl-pcp-logimport.list ';'
+	sed -e s@$$DIST_ROOT@@ -e 's/\.[0-9]pm$$/&.gz/' -e '/\.bs$$/d' -i.tmp $(TOPDIR)/perl-pcp-logimport.list
 	find $$DIST_ROOT -name perllocal.pod -exec rm -f '{}' ';'
 	find $$DIST_ROOT -name \*.bs  -exec rm -f '{}' ';'
 	find $$DIST_ROOT -name LogImport.so -exec chmod 755 '{}' ';'
