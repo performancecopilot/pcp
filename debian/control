@@ -5,7 +5,7 @@ Homepage: http://oss.sgi.com/projects/pcp
 Maintainer: Nathan Scott <nathans@debian.org>
 Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
 Build-Depends: autoconf, bison, flex, gawk, procps, debhelper (>= 5), perl (>= 5.6), libreadline-dev
-Standards-Version: 3.8.4
+Standards-Version: 3.9.0
 
 Package: pcp
 Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf, cpp
@@ -39,7 +39,8 @@ Description: Performance Co-Pilot library and headers
 
 Package: libpcp3
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Conflicts: pgpool2, pcp (<< 2.8.0), libpcp3-dev (<< 2.8.5)
+Conflicts: pgpool2
+Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 2.8.5)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot library
@@ -110,7 +111,7 @@ Description: Performance Co-Pilot Memory Mapped Value client library
 Package: libpcp-pmda3-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp3 (= ${binary:Version})
-Conflicts: pcp (<< 2.8.0)
+Breaks: pcp (<< 2.8.0)
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library and headers
  The libpcp-pmda-dev package contains the Performance Co-Pilot (PCP)
@@ -137,7 +138,7 @@ Description: Performance Co-Pilot Domain Agent library
 Package: libpcp-trace2-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp3 (= ${binary:Version})
-Conflicts: pcp (<< 2.8.0)
+Breaks: pcp (<< 2.8.0)
 Architecture: any
 Description: Performance Co-Pilot application tracing library and headers
  The libpcp-trace-dev package contains the Performance Co-Pilot (PCP)
@@ -215,7 +216,7 @@ Package: libpcp-import-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, libpcp-import1
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, libpcp-import1 (= ${binary:Version})
 Description: Performance Co-Pilot log import Perl module
  The PCP::LogImport Perl module contains the language bindings for
  building Perl applications that import performance data from a file
@@ -259,3 +260,10 @@ Description: Performance Co-Pilot Memory Mapped Value Perl module
  instrumented script into the PCP infrastructure for monitoring
  and analysis with pmchart, pmie, pmlogger and other PCP tools.
 
+Package: pcp-import
+Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl, libxml-tokeparser-perl, libspreadsheet-read-perl
+Architecture: all
+Description: Tools for importing 3rd party data into PCP archive logs
+ Performance Co-Pilot (PCP) front-end tools for importing 3rd party data
+ into standard PCP archive logs for replay with any PCP monitoring tool.
+ Currently imports data from sar, iostat and generic spreadsheets.

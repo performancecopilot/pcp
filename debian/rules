@@ -15,6 +15,7 @@ libpcp_mmvdev = libpcp-mmv1-dev
 libpcp_mmv_perl = libpcp-mmv-perl
 libpcp_trace = libpcp-trace2
 libpcp_tracedev = libpcp-trace2-dev
+pcp_import = pcp-import
 libpcp_import = libpcp-import1
 libpcp_importdev = libpcp-import1-dev
 
@@ -33,6 +34,7 @@ dirlibpcp_mmvdev = debian/$(libpcp_mmvdev)
 dirlibpcp_mmv_perl = debian/$(libpcp_mmv_perl)
 dirlibpcp_trace = debian/$(libpcp_trace)
 dirlibpcp_tracedev = debian/$(libpcp_tracedev)
+dirpcp_import = debian/$(pcp_import)
 dirlibpcp_import = debian/$(libpcp_import)
 dirlibpcp_importdev = debian/$(libpcp_importdev)
 alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) \
@@ -40,13 +42,14 @@ alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) \
 		$(dirlibpcp_trace) $(dirlibpcp_tracedev) \
 		$(dirlibpcp_gui) $(dirlibpcp_guidev) \
 		$(dirlibpcp_import) $(dirlibpcp_importdev) \
-		$(dirlibpcp_import_perl) \
+		$(dirlibpcp_import_perl) $(dirpcp_import) \
 		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) $(dirlibpcp_mmv_perl) \
 		$(dirpcp_logsummary_perl)
 
 zip = @export GZIP=-9q
 pkgpcp = $(zip); export DIST_ROOT=`pwd`/$(dirpcp);
 pkglibpcp = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp);
+pkgpcp_import = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import);
 pkglibpcp_gui = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_gui);
 pkglibpcp_mmv = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_mmv);
 pkglibpcp_pmda = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
@@ -91,6 +94,7 @@ binary-arch: checkroot built
 	-rm -rf $(alldir)
 	$(pkgpcp) $(MAKE) -C . install
 	$(pkgpcp) $(MAKE) -C build pcp.src
+	$(pkgpcp_import) $(MAKE) -C src/pmimport install
 	$(pkglibpcp_mmv_perl) $(MAKE) -C src/cpan/MMV install_perl
 	$(pkglibpcp_pmda_perl) $(MAKE) -C src/cpan/PMDA install_perl
 	$(pkglibpcp_import_perl) $(MAKE) -C src/cpan/LogImport install_perl
@@ -117,6 +121,7 @@ binary-arch: checkroot built
 	dh_makeshlibs --package $(libpcp_gui)
 	dh_makeshlibs -N $(libpcp_mmv)
 	dh_makeshlibs --package $(libpcp_mmv)
+	dh_perl -p $(pcp_import)
 	dh_perl -p $(libpcp_mmv_perl)
 	dh_perl -p $(libpcp_pmda_perl)
 	dh_perl -p $(libpcp_import_perl)
