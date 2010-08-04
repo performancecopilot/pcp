@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
  Permission is granted to copy, distribute, and/or modify this document
@@ -9,55 +9,55 @@
 -->
 <HTML>
 <HEAD>
-    <TITLE>PCP How to understand system-level processor performance</TITLE>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE>Understanding system-level processor performance</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Linux)">
+	<META NAME="CREATED" CONTENT="20100801;12372700">
+	<META NAME="CHANGEDBY" CONTENT="Nathan Scott">
+	<META NAME="CHANGED" CONTENT="20100801;12372700">
+	<META NAME="qrichtext" CONTENT="1">
+	<STYLE TYPE="text/css">
+	<!--
+		H1 { color: #000060; font-family: "Lucida Grande"; font-size: 48pt; font-style: bold; font-weight: medium }
+		TD P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+		UL { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+		P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+	-->
+	</STYLE>
 </HEAD>
-<BODY BGCOLOR="#ffffff">
-<H1>
-<IMG SRC="images/CorpID.gif" ALIGN="MIDDLE">
-<IMG SRC="images/smallpcp.gif" ALIGN="RIGHT">
-</H1>
-<H1>
-PCP Tutorial</H1>
-<HR>
-<H2>
-How to understand measures of system-level processor performance</H2>
-<P>
-<B>URL</B>: file:/var/pcp/Tutorial/howto.cpuperf.html </P>
-<HR>
-<P>
-This chapter of the Performance Co-Pilot Tutorial provides some hints 
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Understanding measures of system-level processor performance</FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+pmchart
+mpvis
+sar
+</PRE></TD></TR>
+</TABLE>
+<P>This chapter of the Performance Co-Pilot tutorial provides some hints 
 on how to interpret and understand the various measures of system-level 
 processor (CPU) performance.</P>
-<P>
-IRIX collects processor resource utilization at both the <B>process</B>-level 
-and the <B>system</B>-level. These notes relate only to the <B>system</B>-level 
-metrics.</P>
-<P>
-For an explanation of Performance Co-Pilot terms and acronyms, consult 
+<P>All modern operating systems collect processor resource utilization at both
+the <B>process</B>-level and the <B>system</B>-level.&nbsp;&nbsp;This tutorial relate specifically to the <B>system</B>-level metrics.</P>
+<P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
 the <A HREF="glossary.html">PCP glossary</A>.</P>
-<H4>
-Chapter Contents</H4>
-<UL>
-    <LI>
-    <A HREF="#collect">How the system-level CPU time is computed in IRIX</A>
-     
-    <LI>
-    <A HREF="#percpu">The per-CPU variants</A> 
-    <LI>
-    <A HREF="#sar">Reconciling sar -u and PCP CPU performance metrics</A>
-     
-    <LI>
-    <A HREF="#loadavg">The load average</A> 
-</UL>
-<HR>
-<H3>
-<A NAME="collect">How</A> the system-level CPU time is computed in IRIX</H3>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>How the system-level CPU time is computed</B></FONT></P></TD></TR>
+</TABLE>
 <P>
 Both <I>sar</I> and Performance Co-Pilot (PCP) use a common collection 
-of system-level CPU performance instrumentation from the IRIX kernel. 
+of system-level CPU performance instrumentation from the kernel. 
 This instrumentation is based upon statistical sampling of the state of <B>each</B>
- CPU in the kernel's software clock interrupt routine which is called 
-100 times per second on every CPU for current IRIXes.</P>
+ CPU in the kernel's software clock interrupt routine which is commonly
+called 100 times (HZ) per second on every CPU.</P>
 <P>
 At each observation a CPU is attributed a quantum of 10 milliseconds of 
 elapsed time to one of several counters based on the current state of 
@@ -67,9 +67,9 @@ This sort of statistical sampling is subject to some anomalies,
 particularly when activity is strongly correlated with the clock 
 interrupts, however the distribution of observations over several 
 seconds or minutes is often an accurate reflection of the true 
-distribution of CPU time. The kernel profiling mechanisms (e.g. refer 
-to the <I>profiler</I>(1) manual page) offer higher resolution should 
-that be required, however that is beyond the scope of this document.</P>
+distribution of CPU time. The kernel profiling mechanisms offer higher
+resolution should that be required, however that is beyond the scope
+of this document.</P>
 <P>
 The CPU state is determined by considering what the CPU was doing just 
 before the clock interrupt, as follows:</P>
@@ -98,7 +98,7 @@ before the clock interrupt, as follows:</P>
 These states are mutually exclusive and complete, so exactly one state 
 is assigned for each CPU at each clock interrupt.</P>
 <P>
-The IRIX agent for PCP exports the following metrics:</P>
+The kernel agent for PCP exports the following metrics:</P>
 <TABLE BORDER="1">
     <CAPTION ALIGN="BOTTOM"><B>Table 1: Raw PCP CPU metrics</B></CAPTION>
     <TR VALIGN="TOP">
@@ -119,11 +119,11 @@ The IRIX agent for PCP exports the following metrics:</P>
     </TR>
     <TR VALIGN="TOP">
         <TD><I><TT>kernel.all.cpu.sxbrk</TT></I></TD>
-        <TD>Time counted when in CPU_SXBRK state.</TD>
+        <TD>Time counted when in CPU_SXBRK state (IRIX only).</TD>
     </TR>
     <TR VALIGN="TOP">
         <TD><I><TT>kernel.all.cpu.wait.total</TT></I></TD>
-        <TD>Time counted when in CPU_WAIT state.</TD>
+        <TD>Time counted when in CPU_WAIT state (UNIX only).</TD>
     </TR>
     <TR VALIGN="TOP">
         <TD><I><TT>kernel.all.cpu.idle</TT></I></TD>
@@ -140,32 +140,20 @@ raw values are aggregated across all CPUs, the time utilization for any
 of the metrics above is in the range 0 to N*1000 for an N CPU system; 
 for some PCP tools this is reported as a percentage in the range 0 to 
 N*100 percent.</P>
-<HR>
-<H4>
-<FONT COLOR="#ff0000">Show Me</FONT><FONT COLOR="purple">:</FONT></H4>
-<P>
-Before you try this example make sure the following prerequisites have 
-been satisfied: </P>
-<UL>
-    <LI>
-    the products <B>pcp_eoe</B> and <B>pcp</B> are installed on the 
-    local workstation 
-    <LI>
-    a PCP Monitor License is installed on the local workstation 
-</UL>
-<P>
-For more information about the prerequisites mentioned above see the <A
- HREF="index.html">Introduction</A> chapter of the tutorial. </P>
-<P>
-This example uses <I>pmchart</I> to display CPU activity (aggregated 
-over all CPUs).</P>
-<PRE>
-   $ pmchart -c CPU -S -0 \
-       -a /var/pcp/Tutorial/Archives/moomba.pmkstat
-</PRE>
-<HR>
-<P>
-The CPU_WAIT state is further subdivided into components describing 
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using <I>pmchart</I> to display CPU activity (aggregated over all CPUs).<BR>
+<PRE><B>
+$ source /etc/pcp.conf
+$ tar xzf $PCP_DEMOS_DIR/tutorials/cpuperf.tgz
+$ pmchart -c CPU -O -0 -a cpuperf/moomba.pmkstat
+</B></PRE>
+<BR>
+This command will provide the interactive charts described here.
+</TD></TR>
+</TABLE>
+
+<P>On IRIX, the CPU_WAIT state is further subdivided into components describing 
 different types of &quot;waiting&quot;:</P>
 <OL>
     <LI>
@@ -286,11 +274,13 @@ These metrics may be used with PCP tools as follows:</P>
     conditional upon the queue not being empty. This value is reported as <I><TT>wioq-sz</TT></I>
      by the <B>-q</B> option of <I>sar.</I> 
 </UL>
-<HR>
-<H3>
-<A NAME="percpu">The</A> per-CPU variants</H3>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>The per-CPU variants</B></FONT></P></TD></TR>
+</TABLE>
 <P>
-Within the IRIX kernel, most of the metrics described above are 
+Inside the kernel, most of the metrics described above are 
 accumulated per-CPU for reasons of efficiency (to reduce the locking 
 overheads and minimize dirty cache-line traffic).</P>
 <P>
@@ -298,23 +288,20 @@ PCP exports the per-CPU versions of the system-wide metrics with metric
 names formed by replacing <B><I><TT>all</TT></I></B> by <B><I><TT>percpu</TT></I></B>, 
 e.g. <I><TT>kernel.percpu.cpu.user</TT></I>.</P>
 <P>
-The <I>mpvis</I> tool provides 3-D visualization of these per-CPU 
-metrics.</P>
-<H4>
-<FONT COLOR="#ff0000">Show Me</FONT><FONT COLOR="purple">:</FONT></H4>
-<PRE>
-   $ mpvis -a /var/pcp/Tutorial/Archives/babylon.percpu
-</PRE>
-<P>
-When the window is shown, use the <B><I>PCP Archive Time Control</I></B>
- dialog to scroll through the archive (Fast Fwd).</P>
-<P>
-Because <I><TT>kernel.all.cpu.sxbrk</TT> </I>is zero most of the 
-time, we have removed this metric from the <I>mpvis</I> scene to reduce 
-the clutter.</P>
-<HR>
-<H3>
-<A NAME="sar">Reconciling</A> sar -u and PCP CPU performance metrics</H3>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;The <I>mpvis</I> tool provides 3-D visualization of these per-CPU metrics.<PRE><B>
+$ mpvis -a cpuperf/babylon.percpu
+</B></PRE>
+<BR>
+When the window is shown, use the <A HREF="timecontrol.html">PCP Archive Time Control</A> dialog to scroll through the archive (Fast Forward).
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Reconciling sar -u and PCP CPU performance metrics</B></FONT></P></TD></TR>
+</TABLE>
 <P>
 The <I>sar</I> metrics are scaled based on the number of CPUs and 
 expressed in percentages, PCP metrics are in units of milliseconds per 
@@ -380,9 +367,11 @@ When run with a <B>-u</B> option, <I>sar</I> reports the following:</P>
         <TD>100 * <I><TT>kernel.all.cpu.wait.gfxf</TT></I> / <I><TT>kernel.all.cpu.wait.total</TT></I></TD>
     </TR>
 </TABLE>
-<HR>
-<H3>
-<A NAME="loadavg">The</A> load average</H3>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>The load average</B></FONT></P></TD></TR>
+</TABLE>
 <P>
 The &quot;load average&quot; is reported by <I>uptime</I>, <I>top</I>, 
 etc. and the PCP metric <I><TT>kernel.all.load</TT></I>.</P>
@@ -393,11 +382,11 @@ and the number of currently runnable processes (<I>nrun</I>) and an
 exponential dampening expression, e.g. for the &quot;1 minute&quot; 
 average, the expression is:</P>
 <PRE>
-load = exp(-4/60) * load + (1 - exp(-4/60)) * nrun
+load = exp(-5/60) * load + (1 - exp(-5/60)) * nrun
 </PRE>
 <P>
 The three load averages use different exponential constants and are all 
-re-computed every 4 seconds.</P>
+re-computed every 5 seconds.</P>
 <P>
 <I>nrun</I> is computed as follows:</P>
 <OL>
@@ -438,10 +427,14 @@ a similar, but not identical algorithm:</P>
     <LI>
     Otherwise increment the &quot;run queue length&quot;.
 </OL>
+
+<P><BR></P>
 <HR>
-<P>
-This chapter is complete, you may return to the <A
- HREF="index.html#contents">Tutorial Contents</A> in the introductory 
-chapter. </P>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc.</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
 </BODY>
 </HTML>
