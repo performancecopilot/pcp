@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
  Permission is granted to copy, distribute, and/or modify this document
@@ -9,48 +9,52 @@
 -->
 <HTML>
 <HEAD>
-    <TITLE>PCP How to understand disk performance</TITLE>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE>How to understand disk performance</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Linux)">
+	<META NAME="CREATED" CONTENT="20100801;12372700">
+	<META NAME="CHANGEDBY" CONTENT="Nathan Scott">
+	<META NAME="CHANGED" CONTENT="20100801;12372700">
+	<META NAME="qrichtext" CONTENT="1">
+	<STYLE TYPE="text/css">
+	<!--
+		H1 { color: #000060; font-family: "Lucida Grande"; font-size: 48pt; font-style: bold; font-weight: medium }
+		TD P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+		UL { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+		P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+	-->
+	</STYLE>
 </HEAD>
-<BODY BGCOLOR="#ffffff">
-<H1>
-<IMG SRC="images/CorpID.gif" ALIGN="MIDDLE">
-<IMG SRC="images/smallpcp.gif" ALIGN="RIGHT">
-</H1>
-<H1>
-PCP Tutorial</H1>
-<HR>
-<H2>
-How to understand measures of disk performance</H2>
-<P>
-<B>URL</B>: file:/var/pcp/Tutorial/howto.diskperf.html </P>
-<HR>
-<P>
-This chapter of the Performance Co-Pilot Tutorial provides some hints 
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>How to understand measures of disk performance</FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+pmchart
+sar
+</PRE></TD></TR>
+</TABLE>
+<P>This chapter of the Performance Co-Pilot tutorial provides some hints 
 on how to interpret and understand the various measures of disk 
 performance.</P>
-<P>
-For an explanation of Performance Co-Pilot terms and acronyms, consult 
+<P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
 the <A HREF="glossary.html">PCP glossary</A>.</P>
-<H4>
-Chapter Contents</H4>
-<UL>
-    <LI>
-    <A HREF="#sar">Reconciling sar -d and PCP disk performance metrics</A>
-     
-    <LI>
-    <A HREF="#example">A real example</A> 
-    <LI>
-    <A HREF="#waitio">Beware of Wait I/O</A> 
-</UL>
-<HR>
-<H3>
-<A NAME="sar">Reconciling</A> sar -d and PCP disk performance metrics</H3>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Reconciling sar -d and PCP disk performance metrics</B></FONT></P></TD></TR>
+</TABLE>
 <P>
 Both <I>sar</I> and Performance Co-Pilot (PCP) use a common collection 
-of disk performance instrumentation from the device drivers in the IRIX 
-kernel, however the disk performance metrics provided by <I>sar</I> and 
-PCP differ in their derivation and semantics. This document is an 
-attempt to explain these differences. </P>
+of disk performance instrumentation from the block layer in the kernel,
+however the disk performance metrics provided by <I>sar</I> and PCP
+differ in their derivation and semantics.&nbsp;&nbsp;This document
+is an attempt to explain these differences. </P>
 <P>
 It is convenient to define the ``response time'' to be the time to 
 complete a disk operation as the sum of the time spent:</P>
@@ -80,8 +84,7 @@ when the system-wide I/O rate is high (and it could be tens of
 thousands of I/Os per second on a very large configuration), the <B>aggregate</B>
  CPU demand to support this I/O activity may be significant.</P>
 <P>
-The IRIX agent for PCP exports the following metrics for each disk 
-spindle:</P>
+The kernel agents for PCP export the following metrics for each disk spindle:</P>
 <TABLE BORDER="1">
     <CAPTION ALIGN="BOTTOM"><B>Table 1: Raw PCP disk metrics</B></CAPTION>
     <TR VALIGN="TOP">
@@ -243,7 +246,7 @@ simplified to be a multiple of 10 milliseconds for each I/O operation
 over a 100 millisecond sample interval (this is an unlikely 
 simplification, but makes the arithmetic easier).</P>
 <CENTER><P ALIGN="CENTER">
-<IMG SRC="images/sar-d.gif" WIDTH="529" HEIGHT="152"></P>
+<IMG SRC="images/sar-d.png" WIDTH="529" HEIGHT="152"></P>
 </CENTER><P>
 Each green block represents a 4 Kbyte read. Each red block represents a 
 16Kbyte write.</P>
@@ -615,9 +618,11 @@ directly.</P>
 <TT>avg_resp = 1000 * disk.dev.response / disk.dev.total;</TT>
 </PRE>
 </UL>
-<HR>
-<H3>
-<A NAME="example">A</A> real example</H3>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>A real example</B></FONT></P></TD></TR>
+</TABLE>
 <P>
 Consider this data from<B> sar -d</B> with a <B>10 minute</B> update 
 interval:</P>
@@ -691,9 +696,11 @@ There are also <B>hybrid</B> scenarios in which a small number of
 synchronous reads are seriously slowed down during the bursts of 
 asynchronous writes. In the example above, a read could have the 
 misfortune of being queued behind 300 writes (or delayed for 3 seconds).</P>
-<HR>
-<H3>
-<A NAME="waitio">Beware</A> of Wait I/O</H3>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Beware of Wait I/O</B></FONT></P></TD></TR>
+</TABLE>
 <P>
 PCP (and <I>sar</I> and <I>osview</I> and ...) all report CPU 
 utilization broken down into:</P>
@@ -701,7 +708,7 @@ utilization broken down into:</P>
     <LI>
     user 
     <LI>
-    system (sys, sxbrk, intr) 
+    system (sys, intr) 
     <LI>
     idle 
     <LI>
@@ -714,7 +721,7 @@ cases may not &quot;belong&quot; to any current process), a CPU that is
 &quot;idle CPU while at least one I/O is outstanding&quot;.</P>
 <P>
 Anomalous Wait I/O time occurs under light load when a small number of <B>processes</B>
- are waiting for I/O but many <B>CPUs</B> are otherwise idle, but 
+are waiting for I/O but many <B>CPUs</B> are otherwise idle, but 
 appear in the &quot;Wait for I/O&quot; state. When the number of CPUs 
 increases to 30, 60 or 120 then 1 process doing I/O can make all of the 
 CPUs except 1 look like they are all waiting for I/O, but clearly no 
@@ -722,34 +729,16 @@ amount of I/O bandwidth increase is going to make any difference to
 these CPUs. And if that one process is doing asynchronous I/O and not 
 blocking, then additional I/O bandwidth will not make it run faster 
 either.</P>
-<H4>
-<FONT COLOR="#ff0000">Show Me</FONT><FONT COLOR="purple">:</FONT></H4>
-<P>
-Before you try this example make sure the following prerequisites have 
-been satisfied: </P>
-<UL>
-    <LI>
-    the products <B>pcp_eoe</B> and <B>pcp</B> are installed on the 
-    local workstation 
-    <LI>
-    a PCP Monitor License is installed on the local workstation 
-</UL>
-<P>
-For more information about the prerequisites mentioned above see the <A
- HREF="index.html">Introduction</A> chapter of the tutorial. </P>
-<P>
-This example uses <I>pmchart</I> to display concurrent disk and CPU 
-activity (aggregated over all CPUs and all disks respectively).</P>
-<PRE>
-   $ pmchart -S -0sec  \
-          -a /var/pcp/Tutorial/Archives/waitio \
-          -c /var/pcp/Tutorial/Scripts/pmchart.waitio
-</PRE>
-<P>
-The system has 4 CPUs, several disks and only 1 process really doing 
-I/O.</P>
-<P>
-Note that over time:</P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using <I>pmchart</I> to display concurrent disk and CPU activity (aggregated over all CPUs and all disks respectively).<BR>
+<PRE><B>
+$ source /etc/pcp.conf
+$ tar xzf $PCP_DEMOS_DIR/tutorials/cpuperf.tgz
+$ $ pmchart -O -0sec -a diskperf/waitio -c disperf/waitio.view
+</B></PRE>
+<P>The system has 4 CPUs, several disks and only 1 process really doing I/O.</P>
+<P>Note that over time:</P>
 <UL>
     <LI>
     in the top chart as the CPU user (blue) and system (red) time 
@@ -760,10 +749,17 @@ Note that over time:</P>
     in the bursts where the I/O rate falls, the Wait I/O time becomes CPU 
     idle (green) time 
 </UL>
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
 <HR>
-<P>
-This chapter is complete, you may return to the <A
- HREF="index.html#contents">Tutorial Contents</A> in the introductory 
-chapter. </P>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc.</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
 </BODY>
+</HTML>
 </HTML>
