@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
  Permission is granted to copy, distribute, and/or modify this document
@@ -9,20 +9,40 @@
 -->
 <HTML>
 <HEAD>
-<TITLE>How to integrate PCP into an Enterprise Management Strategy</TITLE>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE>Integrating PCP into an Enterprise Management Strategy</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Linux)">
+	<META NAME="CREATED" CONTENT="20100801;12372700">
+	<META NAME="CHANGEDBY" CONTENT="Nathan Scott">
+	<META NAME="CHANGED" CONTENT="20100801;12372700">
+	<META NAME="qrichtext" CONTENT="1">
+	<STYLE TYPE="text/css">
+	<!--
+		H1 { color: #000060; font-family: "Lucida Grande"; font-size: 48pt; font-style: bold; font-weight: medium }
+		TD P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+		UL { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+		P { color: #000060; font-family: "Sans Serif"; font-size: 12pt; font-style: normal; font-weight: medium }
+	-->
+	</STYLE>
 </HEAD>
-<BODY BGCOLOR="#ffffff">
-<IMG SRC="images/CorpID.gif" ALIGN="MIDDLE">
-<IMG SRC="images/smallpcp.gif" ALIGN="RIGHT">
-<H1>
-Performance Co-Pilot</H1>
-<HR>
-<H2>
-How to integrate PCP into an Enterprise Management Strategy</H2>
-<B>URL</B>: file:/var/pcp/Tutorial/howto.enterprise.html </P>
-<HR>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Integrating PCP into an Enterprise Management Strategy</FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+pmie
+pmieconf
+pmlogger
+pmlogconf
+</PRE></TD></TR>
+</TABLE>
 <P>
-This chapter of the Performance Co-Pilot Tutorial discusses the steps
+This chapter of the Performance Co-Pilot tutorial discusses the steps
 required to integrate PCP into the various management frameworks available.
 It takes into consideration the distributed nature of both the management
 frameworks and of the PCP tools, and how best to combine the functionality
@@ -30,44 +50,13 @@ they offer.</P>
 <P>
 For an explanation of Performance Co-Pilot terms and acronyms, consult 
 the <A HREF="glossary.html">PCP glossary</A>.</P>
-<H4>
-Chapter Contents</H4>
-<UL>
-<LI>
-<A HREF="#point">Points of Integration</A> 
-    <UL>
-    <LI> Data
-    <LI> Events
-    <LI> User Interface
-    </UL>
-<LI>
-<A HREF="#freq">Event Generation Frequency</A> 
-<LI>
-<A HREF="#cai">CA/Unicenter TNG (Computer Associates)</A> 
-    <UL>
-    <LI> Step-by-step
-    <LI> Configuration options
-    </UL>
-<LI>
-<A HREF="#hpov">HP OpenView (Hewlett-Packard)</A>
-    <UL>
-    <LI> Step-by-step
-    <LI> Configuration options
-    </UL>
-<LI>
-<A HREF="#enln">EnlightenDSM (Enlighten Software Solutions)</A>
-    <UL>
-    <LI> Step-by-step
-    <LI> Configuration options
-    </UL>
-<LI>
-<A HREF="#other">Extending to Other Frameworks</A>
-</UL>
-<HR>
-<H3>
-<A NAME="point">Points</A> of Integration</H3>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Points of Integration</B></FONT></P></TD></TR>
+</TABLE>
 <P>
-Following is a brief description on how PCP is best integrated in terms of
+Following is a brief description on how PCP can be integrated in terms of
 some of the aligned features of PCP and the typical management framework.
 <H4>Data</H4>
 <P>
@@ -75,15 +64,16 @@ The PCP archive logging utility <I>pmlogger</I>
 generates performance data files in the PCP archive format,
 which is specifically designed for optimal fetch latency
 when retrieving data from the archive for replay and when seeking to
-random time points in the archive.&nbsp;
+random time points in the archive.&nbsp;&nbsp;
 This format is specific to the PCP tools and the PMAPI, and clearly
 external interfaces are necessary for non-PCP tools to read the data.
 <P>
-The pmimport(1) utility (from pcp_gifts.sw.import) provides a way of 
-importing data into a PCP archive. 
-It currently converts sar(3) data files but
-can be extended to convert other data formats by writing custom
-plug-ins (see pmimport(3)).
+The pmimport(1) utility (and APIs) provide a mechanism for
+importing data into a PCP archive.
+It currently converts common tools output, like sar(1) and iostat(1),
+and data files but
+It can easily be extended to convert other data formats by writing custom
+plug-ins (see pmiStart(3) and PCP::LogImport(3)) as well.
 <P>
 There are a number of PCP tools which have specifically been developed with 
 the aim of producing a format which is easily incorporated into an external
@@ -105,7 +95,7 @@ this data into their own environment.
 Note that all of the PCP tools are &quot;timezone-aware&quot; and can switch
 between the timezone of the monitoring machine and the timezone of the
 collector machine for which the archive was generated (this information is
-stored in the archive).  Also, PCP archives can be generated on a machine
+stored in the archive).&nbsp;&nbsp;Also, PCP archives can be generated on a machine
 of one operating system version, architecture or byte-order, and replayed
 on a completely different machine.
 </P>
@@ -145,7 +135,7 @@ must be handled separately in order to make best use of their event viewing
 and filtering capabilities.
 </P>
 <CENTER>
-<IMG SRC="images/rattle.gif" ALIGN="MIDDLE" WIDTH="430" HEIGHT="340">
+<IMG SRC="images/rattle.png" ALIGN="MIDDLE" WIDTH="430" HEIGHT="340">
 </CENTER>
 <P>
 The diagram shows a typical <I>pmie</I> setup - <B>rattle.melbourne.sgi.com</B>
@@ -171,393 +161,11 @@ it describes the rules and each of the customizable variables affecting
 the rules (including the &quot;global&quot; variables affecting all of the
 rules, such as where to send events when a performance event is generated).
 </P>
-<HR>
-<H3>
-<A NAME="freq">Event</A> Generation Frequency</H3>
-<P>
-In order to provide a feel for what a &quot;normal&quot; <I>pmie</I> alarm
-rate might be, the following tables provide, firstly, some information about
-a few of the hosts which were used in developing and tuning the
-original set of <I>pmieconf</I> rules:
-</P>
-<TABLE BORDER="1">
-    <CAPTION ALIGN="BOTTOM"><B>Table 1: Configurations of Monitored Hosts (Thu Apr 8 1999 - Thu Apr 15 1999)</B></CAPTION>
-    <TR VALIGN="TOP">
-        <TH>Host</TH>
-        <TH>Hardware</TH>
-        <TH>Platform</TH>
-        <TH>Primary Function</TH>
-        <TH>Notes</TH>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD><B>rattle.melbourne</B></TD>
-        <TD>1 R5000 cpu, 1 disk, 64MB RAM</TD>
-        <TD>IRIX 6.3, IP32, o32 kernel</TD>
-        <TD>Performance monitoring (desktop)</TD>
-        <TD>Cisco router rules being evaluated here also</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD><B>techpubs.sgi.com</B></TD>
-        <TD>2 R10000 cpus, 10 disks, 1 node, 128MB RAM</TD>
-        <TD>IRIX 6.5.2, IP27, n64 kernel</TD>
-        <TD>Web server</TD>
-        <TD>&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD><B>fido.engr</B></TD>
-        <TD>4 R4400 cpus, 12 disks, 896MB RAM</TD>
-        <TD>IRIX 6.5, IP19, n64 kernel</TD>
-        <TD>News server</TD>
-        <TD>&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD><B>dist.engr</B></TD>
-        <TD>4 R10000 cpus, 46 disks, 2 nodes, 2 routers, 2 xbows, 512MB RAM</TD>
-        <TD>IRIX 6.5.4(alpha), IP27, n64 kernel</TD>
-        <TD>File server</TD>
-        <TD>&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD><B>bonnie.engr</B></TD>
-        <TD>12 R4400 cpus, 67 disks, 2304MB RAM</TD>
-        <TD>IRIX6.5.4(alpha), IP19, n64 kernel</TD>
-        <TD>File server</TD>
-        <TD>&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD><B>feather.engr</B></TD>
-        <TD>16 R10000 cpus, 7 disks, 8 nodes, 4 routers, 4 xbows, 3072MB RAM</TD>
-        <TD>IRIX 6.5, IP27, n64 kernel</TD>
-        <TD>Compute server</TD>
-        <TD>Switched off cpu.util and per_cpu.util (inappropriate here)</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD><B>info.engr</B></TD>
-        <TD>4 R10000 cpus, 15 disks, 2 nodes, 2 xbows, 896MB RAM</TD>
-        <TD>IRIX 6.5.4(alpha), IP27, n64 kernel</TD>
-        <TD>Web server</TD>
-        <TD>&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD><B>brutus.corp</B></TD>
-        <TD>24 R10000 cpus, 102 disks, 12 nodes, 6 routers, 6 xbows, 6144MB RAM</TD>
-        <TD>IRIX 6.4, IP27, n64 kernel</TD>
-        <TD>ORACLE Database server</TD>
-        <TD>&nbsp;</TD>
-    </TR>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>CA/Unicenter TNG (Computer Associates)</B></FONT></P></TD></TR>
 </TABLE>
-<BR>
-<I>Note: this is not the complete set of hosts used in our rule evaluation
-process - we also covered functions such as mail serving, video serving,
-network routing, and others.</I>
-<BR> <BR>
-<P>
-And secondly, for each rule and each monitored host, the average rate at
-which <I>pmie</I> events were generated per day (sample period of two weeks):
-</P>
-<TABLE BORDER="1">
-    <CAPTION ALIGN="BOTTOM"><B>Table 2: Event Generation Frequency (Thu Apr 8 1999 - Thu Apr 15 1999)</B></CAPTION>
-    <TR VALIGN="TOP">
-        <TH>Rule</TH>
-        <TH>rattle</TH>
-        <TH>techpubs</TH>
-        <TH>fido</TH>
-        <TH>dist</TH>
-        <TH>bonnie</TH>
-        <TH>feather</TH>
-        <TH>info</TH>
-        <TH>brutus</TH>
-        <TH></TH>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>cpu.context_switch</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>cpu.load_average</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.14</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.13</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">36.71</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>cpu.syscall</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT"><font color=980517>111.57</font></TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.43</TD>
-        <TD ALIGN="RIGHT"><font color=980517>26.29</font></TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>cpu.system</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">9.86</TD>
-        <TD ALIGN="RIGHT">0.14</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.28</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>cpu.util</TD>
-        <TD ALIGN="RIGHT">0.14</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.43</TD>
-        <TD ALIGN="RIGHT">43.00</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">1.29</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>craylink.node_cb_errs</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>craylink.router_cb_errs</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">9.29</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>filesys.buffer_cache</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>filesys.filling</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">2.71</TD>
-        <TD ALIGN="RIGHT">1.86</TD>
-        <TD ALIGN="RIGHT">0.57</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>memory.exhausted</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT"><font color=980517>14.57</font></TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.29</TD>
-        <TD ALIGN="RIGHT"><font color=980517>13.71</font></TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>network.buffers</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>network.tcp_drop_connects</TD>
-        <TD ALIGN="RIGHT">0.57</TD>
-        <TD ALIGN="RIGHT">9.14</TD>
-        <TD ALIGN="RIGHT">0.57</TD>
-        <TD ALIGN="RIGHT">0.14</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.43</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.14</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>network.tcp_retransmit</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>per_cpu.context_switch</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">7.00</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.29</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>per_cpu.many_util</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.28</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>per_cpu.some_util</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.14</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>per_cpu.syscall</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.86</TD>
-        <TD ALIGN="RIGHT"><font color=980517>136.14</font></TD>
-        <TD ALIGN="RIGHT">7.71</TD>
-        <TD ALIGN="RIGHT">7.29</TD>
-        <TD ALIGN="RIGHT">16.00</TD>
-        <TD ALIGN="RIGHT"><font color=980517>13.14</font></TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>per_cpu.system</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>per_disk.util</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">3.14</TD>
-        <TD ALIGN="RIGHT"><font color=980517>20.43</font></TD>
-        <TD ALIGN="RIGHT">2.86</TD>
-        <TD ALIGN="RIGHT">13.29</TD>
-        <TD ALIGN="RIGHT">2.00</TD>
-        <TD ALIGN="RIGHT">15.86</TD>
-        <TD ALIGN="RIGHT">1.14</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>per_netif.collisions</TD>
-        <TD ALIGN="RIGHT">0.49</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>per_netif.errors</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>per_netif.util</TD>
-        <TD ALIGN="RIGHT">N/A</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.57</TD>
-        <TD ALIGN="RIGHT">4.14</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">N/A</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>rpc.bad_network</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">0.29</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT"><font color=980517>91.86</font></TD>
-        <TD ALIGN="RIGHT">0.14</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-    <TR VALIGN="TOP">
-        <TD>rpc.slow_response</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-        <TD ALIGN="RIGHT">&nbsp;</TD>
-    </TR>
-</TABLE>
-<P>
-<I>Note: this is not the complete set of available rules - it contains only
-those which are switched on by default.  Cases where rules which fired
-very frequently (due to real performance problems on the monitored machine)
-have been highlighted.</P>
-<P>
-Also, it's important to note that
-the maximum value for any column above is 144 - if a a rule had fired every
-time it was evaluated, this is the maximum rate at which that rule could have
-evaluated as true.  This is because every rule has a 10 minute holdoff, by
-default, until it is reevaluated (after being true) - 24hrs * 60mins / 10 mins
-gives a maximum of 144 possible truthful evaluations each day.  </P>
-<P>
-Finally, the network utilization rule is dependent on availability of the
-network interface bandwidth metric, which is only exported through 6.5 and
-later IRIX kernels - this rule is thus not applicable to <B>rattle</B> and
-<B>brutus</B>.
-</P>
-</I>
-</P>
-<BR>
-<HR>
-<H3>
-<A NAME="cai">CA/Unicenter</A> TNG (Computer Associates)</H3>
 <P>
 <B>Step-by-step</B> - how to setup and ensure <I>pmie</I> can talk to the
 Unicenter TNG Framework:
@@ -579,7 +187,7 @@ wobbly#
 </PRE>
 </P>
 <LI>
-Ensure the connection between the two nodes is active.  For UNIX machines:
+Ensure the connection between the two nodes is active.&nbsp;&nbsp;For UNIX machines:
 <PRE>
 wobbly# $CAIGLBL0000/cci/bin/rmt status
 
@@ -646,11 +254,14 @@ wobbly# /etc/init.d/pmie start
 </PRE>
 </UL>
 </P>
-<IMG SRC="images/tngconsole.gif" ALIGN="MIDDLE" WIDTH="699" HEIGHT="444">
-<BR>
-<HR>
-<H3>
-<A NAME="hpov">HP</A> OpenView (Hewlett-Packard)</H3>
+<CENTER>
+<IMG SRC="images/tngconsole.png" ALIGN="MIDDLE" WIDTH="699" HEIGHT="444">
+</CENTER>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>HP OpenView (Hewlett-Packard)</B></FONT></P></TD></TR>
+</TABLE>
 <P>
 <B>Step-by-step</B> on how to setup and ensure <I>pmie</I> can talk to OpenView:
 </P>
@@ -691,7 +302,7 @@ rattle# /etc/init.d/pmie start
 </UL>
 <P>
 <CENTER>
-<IMG SRC="images/xnmevents.gif" ALIGN="RIGHT" WIDTH="247" HEIGHT="210">
+<IMG SRC="images/xnmevents.png" ALIGN="RIGHT" WIDTH="247" HEIGHT="210">
 </CENTER>
 The <I>xnmevents</I> GUI connects to the <I>pmd</I> daemon on the monitoring
 node which supplies any new events which arrive while <I>xnmevents</I> is
@@ -731,12 +342,13 @@ rattle# /etc/init.d/pmie start
 </PRE>
 </UL>
 <CENTER>
-<IMG SRC="images/ovevents.gif" ALIGN="MIDDLE" WIDTH="697" HEIGHT="373">
+<IMG SRC="images/ovevents.png" ALIGN="MIDDLE" WIDTH="697" HEIGHT="373">
 </CENTER>
-<P>
-<HR>
-<H3>
-<A NAME="enln">EnlightenDSM</A> (Enlighten Software Solutions)</H3>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>EnlightenDSM (Enlighten Software Solutions)</B></FONT></P></TD></TR>
+</TABLE>
 <P>
 <B>Step-by-step</B> on how to setup and ensure <I>pmie</I> can talk to
 EnlightenDSM:
@@ -755,8 +367,8 @@ start_enl_daemons: Invoking /opt/enlighten/bin/AgentMon...
 </PRE>
 </P>
 <LI>
-Start up the Enlighten GUI to verify that events can be received.  Go into
-the "Events" -> "Status Map" window:
+Start up the Enlighten GUI to verify that events can be received.
+Go into the "Events" -> "Status Map" window:
 <PRE>
 wobbly# /opt/enlighten/bin/xenln &
 </PRE>
@@ -788,12 +400,13 @@ wobbly# /etc/init.d/pmie start
 </PRE>
 <P>
 <CENTER>
-<IMG SRC="images/xenln.gif" ALIGN="MIDDLE" WIDTH="581" HEIGHT="505">
+<IMG SRC="images/xenln.png" ALIGN="MIDDLE" WIDTH="581" HEIGHT="505">
 </CENTER>
-<P>
-<HR>
-<H3>
-<A NAME="other">Extending</A> to Other Frameworks</H3>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Extending</A> to Other Frameworks</B></FONT></P></TD></TR>
+</TABLE>
 <P>
 All of the enterprise management frameworks we've come across provide some
 mechanism for generating events from outside the framework.&nbsp;
@@ -844,14 +457,19 @@ Steps involved when integrating other frameworks with PCP:
 	# /etc/init.d/pmie start
 </PRE>
 </UL>
-<P>
-If the framework is sufficiently common that other people may wish to
-use your new <I>pmieconf</I> &quot;action&quot;, feel free to contact
-us to discuss incorporating it into future PCP releases.
-</P>
+<P>If the framework is sufficiently common that other people may wish
+to use your new <I>pmieconf</I> &quot;action&quot;, feel free to
+<A HREF="contacts.html">share it</A> and we'll incorporate it into
+future PCP release.</P>
+
+<P><BR></P>
 <HR>
-<P> This chapter is complete, you may return to the <A
- HREF="index.html#contents">Tutorial Contents</A> in the introductory 
-chapter. </P>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc.</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
 </BODY>
+</HTML>
 </HTML>
