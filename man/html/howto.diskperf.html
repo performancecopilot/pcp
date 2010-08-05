@@ -734,8 +734,8 @@ either.</P>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using <I>pmchart</I> to display concurrent disk and CPU activity (aggregated over all CPUs and all disks respectively).<BR>
 <PRE><B>
 $ source /etc/pcp.conf
-$ tar xzf $PCP_DEMOS_DIR/tutorials/cpuperf.tgz
-$ $ pmchart -O -0sec -a diskperf/waitio -c disperf/waitio.view
+$ tar xzf $PCP_DEMOS_DIR/tutorials/diskperf.tgz
+$ pmchart -t 2sec -O -0sec -a diskperf/waitio -c diskperf/waitio.view
 </B></PRE>
 <P>The system has 4 CPUs, several disks and only 1 process really doing I/O.</P>
 <P>Note that over time:</P>
