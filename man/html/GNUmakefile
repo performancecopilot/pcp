@@ -5,7 +5,7 @@ HTMLPAGES = $(shell echo *.html)
 CONFFILES = pmchart.adp pmtime.adp
 CONFIGURE = pmchart.adp.in pmtime.adp.in
 LSRCFILES = $(HTMLPAGES) $(CONFIGURE) template
-SUBDIRS = images diskmodel
+SUBDIRS = images diskmodel diskperf cpuperf
 
 default: $(HTMLPAGES)
 	$(SUBDIRS_MAKERULE)
