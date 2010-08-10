@@ -12,8 +12,7 @@ pkgdoc = $(zip); export DIST_ROOT=`pwd`/$(dirdoc);
 options = export DEBUG=-DNDEBUG DISTRIBUTION=debian;
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcpgui)/," | xargs rm -f
-uninstalld = rmdir debian/$(pcpgui)/usr/share/doc/pcp-doc{/html/images,/html,} \
-                   debian/$(pcpgui)/usr/share/doc-base
+uninstalld = rmdir debian/$(pcpgui)/usr/share/doc/pcp-doc{/html/images,/html/diskmodel,/html,} debian/$(pcpgui)/usr/share/doc-base
 
 build: built
 built: config
@@ -47,13 +46,13 @@ binary-arch: checkroot built
 
 	dh_installdocs
 	dh_installchangelogs
-	dh_strip
-	dh_compress
-	dh_fixperms
 	dh_installdirs
 	dh_install --sourcedir=debian/$(pcpgui)
 	@$(uninstall)
 	@$(uninstalld)
+	dh_strip
+	dh_compress
+	dh_fixperms
 	dh_makeshlibs -N $(pcpgui)
 	dh_makeshlibs --package $(pcpgui)
 	dh_installdeb

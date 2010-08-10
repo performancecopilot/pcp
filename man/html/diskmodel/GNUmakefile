@@ -6,6 +6,7 @@ BINTAR = $(BUNDLE).tar.gz
 PCPLOGS = $(shell echo *.0 *.meta *.index)
 CONFIGS = model.fio model.folio model.view
 MODELS = model.pl model.xls nasread.out naswrite.out
+LSRCFILES = $(PCPLOGS) $(CONFIGS) $(MODELS)
 LDIRT = $(BINTAR) manifest
 
 default: $(BINTAR)
@@ -22,6 +23,6 @@ include $(BUILDRULES)
 
 install install-dev: default
 	$(INSTALL) -m 755 -d $(PKG_DEMOS_DIR)/tutorials
-	$(INSTALL) -m 644 $(BINTAR) $(PKG_DEMOS_DIR)/tutorials
-	$(INSTALL) -m 755 -d $(PKG_HTML_DIR)/$(BUNDLE)
-	$(INSTALL) -m 644 $(MODELS) $(CONFIGS) $(PKG_HTML_DIR)/(BUNDLE)
+	$(INSTALL) -m 644 $(BINTAR) $(PKG_DEMOS_DIR)/tutorials/$(BINTAR)
+	$(INSTALL) -m 755 -d $(PKG_HTML_DIR)/html/$(BUNDLE)
+	$(INSTALL) -m 644 $(MODELS) $(CONFIGS) $(PKG_HTML_DIR)/html/$(BUNDLE)

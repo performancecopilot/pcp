@@ -3,33 +3,11 @@ include $(TOPDIR)/src/include/builddefs
 
 PNGFILES = $(shell echo *.png)
 LSRCFILES = $(PNGFILES)
-ICONLINKS = pcpicon.png pmcharticon.png pmtimeicon.png \
-	stepfwd_on.png \
-	system-search.png
-WINDOWLINKS = \
-	pmchart_blank_canvas.png \
-	pmchart_open_view.png \
-	pmchart_cpu_disk.png \
-	pmchart_edit_chart.png \
-	pmchart_new_chart.png \
-	pmchart_new_chart_select.png \
-	pmchart_new_chart_colors.png \
-	pmchart_cpu_disk_load.png \
-	pmchart_stop_recording.png \
-	pmchart_cpu_disk_record.png \
-	pmtime_live.png \
-	pmtime_archive.png \
-	pmtime_clients.png \
-	pmtime_bounds.png
-INSTFILES = $(ICONLINKS) $(WINDOWLINKS)
-LDIRT = $(ICONLINKS) $(WINDOWLINKS)
+ICONLINKS = pcpicon.png pmcharticon.png pmtimeicon.png stepfwd_on.png system-search.png
+INSTFILES = $(ICONLINKS) $(PNGFILES)
+LDIRT = $(ICONLINKS)
 
-ifneq ($(PKG_PLATFORM),mingw)
-default: iconlinks windowlinks
-else
-default:
-	touch $(INSTFILES)
-endif
+default: iconlinks
 
 include $(BUILDRULES)
 

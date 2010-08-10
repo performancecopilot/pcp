@@ -5,6 +5,7 @@ BUNDLE = diskperf
 BINTAR = $(BUNDLE).tar.gz
 PCPLOGS = $(shell echo *.0 *.meta *.index)
 CONFIGS = waitio.view
+LSRCFILES = $(PCPLOGS) $(CONFIGS)
 LDIRT = $(BINTAR) manifest
 
 default: $(BINTAR)
@@ -21,4 +22,4 @@ include $(BUILDRULES)
 
 install install-dev: default
 	$(INSTALL) -m 755 -d $(PKG_DEMOS_DIR)/tutorials
-	$(INSTALL) -m 644 $(BINTAR) $(PKG_DEMOS_DIR)/tutorials
+	$(INSTALL) -m 644 $(BINTAR) $(PKG_DEMOS_DIR)/tutorials/$(BINTAR)
