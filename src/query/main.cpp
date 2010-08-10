@@ -219,7 +219,7 @@ int main(int argc, char ** argv)
     }
 
     if (errflag) {
-	fprintf(stderr, usage);
+	fprintf(stderr, "%s", usage);
 	exit(1);
     }
 

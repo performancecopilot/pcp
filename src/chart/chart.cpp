@@ -1140,13 +1140,19 @@ void Chart::save(FILE *f, bool hostDynamic)
     SaveViewDialog::saveChart(f, this, hostDynamic);
 }
 
-void Chart::print(QPainter *qp, QRect &rect)
+void Chart::print(QPainter *qp, QRect &rect, bool transparent)
 {
     QwtPlotPrintFilter filter;
 
-    filter.setOptions(QwtPlotPrintFilter::PrintAll &
-	~QwtPlotPrintFilter::PrintBackground &
-	~QwtPlotPrintFilter::PrintGrid);
+    if (transparent)
+	filter.setOptions(QwtPlotPrintFilter::PrintAll &
+	    ~QwtPlotPrintFilter::PrintBackground &
+	    ~QwtPlotPrintFilter::PrintGrid);
+    else
+	filter.setOptions(QwtPlotPrintFilter::PrintAll &
+	    ~QwtPlotPrintFilter::PrintGrid);
+
+    console->post("Chart::print: options=%d", filter.options());
     QwtPlot::print(qp, rect, filter);
 }
 

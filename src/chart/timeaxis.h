@@ -31,7 +31,7 @@ public:
     void clearScaleCache();
     double scaleValue(double delta, int count);
     void noArchiveSources();
-    void print(QPainter *, QRect &);
+    void print(QPainter *, QRect &, bool);
 
 protected:
     void resizeEvent(QResizeEvent *);

@@ -80,7 +80,7 @@ public:
     void setAntiAliasing(bool);
 
     virtual void save(FILE *, bool);
-    virtual void print(QPainter *, QRect &);
+    virtual void print(QPainter *, QRect &, bool);
 
     virtual void updateTimeAxis(double, double, double);
     virtual void updateValues(bool, bool);

@@ -70,13 +70,18 @@ void TimeAxis::init()
     setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignHCenter | Qt::AlignBottom);
 }
 
-void TimeAxis::print(QPainter *qp, QRect &rect)
+void TimeAxis::print(QPainter *qp, QRect &rect, bool transparent)
 {
     QwtPlotPrintFilter filter;
 
-    filter.setOptions(QwtPlotPrintFilter::PrintAll &
-        ~QwtPlotPrintFilter::PrintBackground &
-        ~QwtPlotPrintFilter::PrintGrid);
+    if (transparent)
+	filter.setOptions(QwtPlotPrintFilter::PrintAll &
+	    ~QwtPlotPrintFilter::PrintBackground &
+	    ~QwtPlotPrintFilter::PrintGrid);
+    else
+	filter.setOptions(QwtPlotPrintFilter::PrintAll &
+	    ~QwtPlotPrintFilter::PrintGrid);
+
     QwtPlot::print(qp, rect, filter);
 }
 
