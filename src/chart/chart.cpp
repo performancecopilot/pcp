@@ -370,6 +370,7 @@ void Chart::redoScale(void)
     //
     if (my.engine->autoScale() &&
 	axisScaleDiv(QwtPlot::yLeft)->upperBound() > 1000) {
+	double scaled_max = axisScaleDiv(QwtPlot::yLeft)->upperBound();
 	if (my.units.dimSpace == 1) {
 	    switch (my.units.scaleSpace) {
 		case PM_SPACE_BYTE:
@@ -397,35 +398,63 @@ void Chart::redoScale(void)
 		    rescale = true;
 		    break;
 	    }
+	    if (rescale) {
+		// logic here depends on PM_SPACE_* values being consecutive
+		// integer values as the scale increases
+		scaled_max /= 1024;
+		while (scaled_max > 1000) {
+		    my.units.scaleSpace++;
+		    scaled_max /= 1024;
+		    if (my.units.scaleSpace == PM_SPACE_EBYTE) break;
+		}
+	    }
 	}
 	else if (my.units.dimTime == 1) {
 	    switch (my.units.scaleTime) {
 		case PM_TIME_NSEC:
 		    my.units.scaleTime = PM_TIME_USEC;
 		    rescale = true;
+		    scaled_max /= 1000;
 		    break;
 		case PM_TIME_USEC:
 		    my.units.scaleTime = PM_TIME_MSEC;
 		    rescale = true;
+		    scaled_max /= 1000;
 		    break;
 		case PM_TIME_MSEC:
 		    my.units.scaleTime = PM_TIME_SEC;
 		    rescale = true;
+		    scaled_max /= 1000;
 		    break;
 		case PM_TIME_SEC:
 		    my.units.scaleTime = PM_TIME_MIN;
 		    rescale = true;
+		    scaled_max /= 60;
 		    break;
 		case PM_TIME_MIN:
 		    my.units.scaleTime = PM_TIME_HOUR;
 		    rescale = true;
+		    scaled_max /= 60;
 		    break;
+	    }
+	    if (rescale) {
+		// logic here depends on PM_TIME* values being consecutive
+		// integer values as the scale increases
+		while (scaled_max > 1000) {
+		    my.units.scaleTime++;
+		    if (my.units.scaleTime <= PM_TIME_SEC)
+			scaled_max /= 1000;
+		    else
+			scaled_max /= 60;
+		    if (my.units.scaleTime == PM_TIME_HOUR) break;
+		}
 	    }
 	}
     }
 
     if (rescale == false && my.engine->autoScale() &&
 	axisScaleDiv(QwtPlot::yLeft)->upperBound() < 0.1) {
+	double scaled_max = axisScaleDiv(QwtPlot::yLeft)->upperBound();
 	if (my.units.dimSpace == 1) {
 	    switch (my.units.scaleSpace) {
 		case PM_SPACE_KBYTE:
@@ -453,29 +482,56 @@ void Chart::redoScale(void)
 		    rescale = true;
 		    break;
 	    }
+	    if (rescale) {
+		// logic here depends on PM_SPACE_* values being consecutive
+		// integer values (in reverse) as the scale decreases
+		scaled_max *= 1024;
+		while (scaled_max < 0.1) {
+		    my.units.scaleSpace--;
+		    scaled_max *= 1024;
+		    if (my.units.scaleSpace == PM_SPACE_BYTE) break;
+		}
+	    }
 	}
 	else if (my.units.dimTime == 1) {
 	    switch (my.units.scaleTime) {
 		case PM_TIME_USEC:
 		    my.units.scaleTime = PM_TIME_NSEC;
 		    rescale = true;
+		    scaled_max *= 1000;
 		    break;
 		case PM_TIME_MSEC:
 		    my.units.scaleTime = PM_TIME_USEC;
 		    rescale = true;
+		    scaled_max *= 1000;
 		    break;
 		case PM_TIME_SEC:
 		    my.units.scaleTime = PM_TIME_MSEC;
 		    rescale = true;
+		    scaled_max *= 1000;
 		    break;
 		case PM_TIME_MIN:
 		    my.units.scaleTime = PM_TIME_SEC;
 		    rescale = true;
+		    scaled_max *= 60;
 		    break;
 		case PM_TIME_HOUR:
 		    my.units.scaleTime = PM_TIME_MIN;
 		    rescale = true;
+		    scaled_max *= 60;
 		    break;
+	    }
+	    if (rescale) {
+		// logic here depends on PM_TIME* values being consecutive
+		// integer values (in reverse) as the scale decreases
+		while (scaled_max < 0.1) {
+		    my.units.scaleTime--;
+		    if (my.units.scaleTime < PM_TIME_SEC)
+			scaled_max *= 1000;
+		    else
+			scaled_max *= 60;
+		    if (my.units.scaleTime == PM_TIME_NSEC) break;
+		}
 	    }
 	}
     }
