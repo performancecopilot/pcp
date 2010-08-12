@@ -10,6 +10,7 @@ usr/share/doc/pcp-doc/html/howto.cpuperf.html
 usr/share/doc/pcp-doc/html/howto.diskmodel.html
 usr/share/doc/pcp-doc/html/howto.diskperf.html
 usr/share/doc/pcp-doc/html/howto.enterprise.html
+usr/share/doc/pcp-doc/html/howto.importdata.html
 usr/share/doc/pcp-doc/html/index.html
 usr/share/doc/pcp-doc/html/installation.html
 usr/share/doc/pcp-doc/html/lab.mmapvalues.html
@@ -17,12 +18,13 @@ usr/share/doc/pcp-doc/html/lab.pmchart.html
 usr/share/doc/pcp-doc/html/lab.pmdas.html
 usr/share/doc/pcp-doc/html/lab.pmieconf.html
 usr/share/doc/pcp-doc/html/lab.pmie.html
-usr/share/doc/pcp-doc/html/lab.pmimport.html
 usr/share/doc/pcp-doc/html/lab.pmlogconf.html
 usr/share/doc/pcp-doc/html/lab.pmlogger.html
 usr/share/doc/pcp-doc/html/lab.pmview.html
 usr/share/doc/pcp-doc/html/lab.trace.html
+usr/share/doc/pcp-doc/html/mover2pcp
 usr/share/doc/pcp-doc/html/overview.html
+usr/share/doc/pcp-doc/html/pcpdoc.css
 usr/share/doc/pcp-doc/html/pcpgui.whatsnew.html
 usr/share/doc/pcp-doc/html/pcpintro.html
 usr/share/doc/pcp-doc/html/pcp.whatsnew.html
@@ -43,6 +45,13 @@ usr/share/doc/pcp-doc/html/images/model_biload.png
 usr/share/doc/pcp-doc/html/images/model_dbload.png
 usr/share/doc/pcp-doc/html/images/model_nasload.png
 usr/share/doc/pcp-doc/html/images/model_spreadsheet.png
+usr/share/doc/pcp-doc/html/images/mover.nfile.counter.3min.png
+usr/share/doc/pcp-doc/html/images/mover.nfile.counter.png
+usr/share/doc/pcp-doc/html/images/mover.nfile.instant.3min.png
+usr/share/doc/pcp-doc/html/images/mover.nfile.instant.png
+usr/share/doc/pcp-doc/html/images/mover.nfile.step.png
+usr/share/doc/pcp-doc/html/images/mover.png
+usr/share/doc/pcp-doc/html/images/mover.v3.png
 usr/share/doc/pcp-doc/html/images/ovevents.png
 usr/share/doc/pcp-doc/html/images/pcpicon.png
 usr/share/doc/pcp-doc/html/images/pmcharticon.png

@@ -1,0 +1,277 @@
+#!/usr/bin/perl
+#
+# Import mover.log data and create a PCP archive
+#
+# mover.log lines ...
+# 2010-07-04 13:50:32 54 files (24, 28, 2) 4097068 bytes (1451420)
+# date
+#            time
+#                     number of files moved
+#                               number with size <= 1K
+#                                    number with size <= 1M
+#                                        number with size >1M
+#                                           aggregate size of moved files
+#                                                         max file size
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+use strict;
+use warnings;
+
+use Getopt::Std;
+use Date::Parse;
+use Date::Format;
+use PCP::LogImport;
+
+my $line = 0;		# input line number
+my $basedate = undef;
+my $basetime = "00:00:00";
+my $host = undef;
+my $zone = "UTC";	# default timezone unless -Z on command line
+my $sts;
+my %options;		# for command line arguments
+my @handle = ();	# pmi* handles, one per metric-instance pair
+my $h = 0;		# index into handle[]
+my %inst_map = ();	# key=indom value=last_inst_assigned, and
+			# key=indom.instance value=inst
+my $putsts = 0;		# pmiPutValue() errors are only checked @ end of loop
+my $sz_indom = pmInDom_build(PMI_DOMAIN, 0);
+my $nfile = 0;
+my $nbyte = 0;
+my @nfile_by_size = (0,0,0);
+
+# Initialize the PCP archive label fields
+#
+# PCP expects a $TZ style timezone in the archive label, so we have
+# to make up a PCP-xx:xx timezone.
+# Note this involves a sign reversal!
+#
+sub do_label()
+{
+    my $label_zone = $zone;
+    if ($zone =~ /^[-+][0-9][0-9][0-9][0-9]/) {
+	$label_zone =~ s/^\+/PCP-/;
+	$label_zone =~ s/^-/PCP+/;
+	$label_zone =~ s/(..)$/:$1/;
+    }
+    elsif ($zone ne "UTC") {
+	print "mover2pcp: Warning: unexpected timezone ($zone), reverting to UTC\n";
+	$zone = "UTC";
+	$label_zone = "UTC";
+    }
+    pmiSetTimezone($label_zone) >= 0
+	or die "pmiSetTimezone($label_zone): " . pmiErrStr(-1) . "\n";
+
+    if (defined($host)) {
+	pmiSetHostname($host) >= 0
+	    or die "pmiSetHostname($host): " . pmiErrStr(-1) . "\n";
+    }
+}
+
+# Handle metrics with the a singular value, calling pmiAddMetric() and
+# pmiGetHandle()
+#
+sub def_single($)
+{
+    my ($name) = @_;
+    my $sts;
+    my $type = PM_TYPE_U32;
+    my $sem = PM_SEM_COUNTER;
+    my $units = pmiUnits(1,0,0,PM_SPACE_BYTE,0,0);
+    if ($name eq "mover.nfile") {
+	$units = pmiUnits(0,0,1,0,0,PM_COUNT_ONE);
+    }
+    elsif ($name eq "mover.nbyte") {
+	$type = PM_TYPE_U64;
+    }
+    elsif ($name eq "mover.max_file_size") {
+	$type = PM_TYPE_U64;
+	$sem = PM_SEM_INSTANT;
+    }
+    if (pmiAddMetric($name, PM_ID_NULL, $type, PM_INDOM_NULL, $sem, $units) < 0) {
+	pmiDump();
+	die "pmiAddMetric($name, ...): " . pmiErrStr(-1) . "\n";
+    }
+    $sts = pmiGetHandle($name, "");
+    if ($sts < 0) {
+	pmiDump();
+	die "pmiGetHandle($name, ...): " . pmiErrStr($sts) . "\n";
+    }
+    push(@handle, $sts);
+}
+
+# Handle metrics with multiple values, calling pmiAddMetric().
+# Defer to pmiGetHandle() to def_metric_inst().
+#
+sub def_multi($$)
+{
+    my ($name,$indom) = @_;
+    my $type = PM_TYPE_U32;
+    my $sem = PM_SEM_COUNTER;
+    my $units = pmiUnits(0,0,1,0,0,PM_COUNT_ONE);
+    if (pmiAddMetric($name, PM_ID_NULL, $type, $indom, $sem, $units) < 0) {
+	pmiDump();
+	die "pmiAddMetric($name, ...): " . pmiErrStr(-1) . "\n";
+    }
+}
+
+# Deal with metric-instance pairs.
+# If first time this instance has been seen for this indom, add it to
+# the instance domain.
+# Get a handle and add it to handle[].
+#
+sub def_metric_inst($$$)
+{
+    my ($name,$indom,$instance) = @_;
+    my $sts;
+    # inst_map{} holds the last allocated inst number with $indom as the
+    # key, and marks the instance as known with $indom . $instance as the
+    # key
+    if (!exists($inst_map{$indom . $instance})) {
+	my $inst;
+	if (exists($inst_map{$indom})) {
+	    $inst_map{$indom}++;
+	    $inst = $inst_map{$indom};
+	}
+	else {
+	    $inst_map{$indom} = 0;
+	    $inst = 0;
+	}
+	if (pmiAddInstance($indom, $instance, $inst) < 0) {
+	    pmiDump();
+	    die "pmiAddInstance([$name], $instance, $inst): " . pmiErrStr(-1) . "\n";
+	}
+	$inst_map{$indom . $instance} = $inst;
+    }
+    $sts = pmiGetHandle($name, $instance);
+    if ($sts < 0) {
+	pmiDump();
+	die "pmiGetHandle($name, $instance): " . pmiErrStr($sts) . "\n";
+    }
+    push(@handle, $sts);
+}
+
+# wrapper for pmiPutValueHandle(), using @handle
+#
+sub put($)
+{
+    my ($value) = @_;
+    my $sts;
+    if (!exists($handle[$h])) {
+	pmiDump();
+	die <<EOF
+put($value): No handle[] entry for index $h.
+Check Handles in dump above.
+EOF
+    }
+    $sts = pmiPutValueHandle($handle[$h], $value);
+    if ($sts < 0 && $putsts == 0) { $putsts = $sts };
+    $h++;
+}
+
+$sts = getopts('h:Z:', \%options);
+
+if (!defined($sts) || $#ARGV != 1) {
+    print "Usage: mover2pcp [-h host] [-Z timezone] infile outfile\n";
+    exit(1);
+}
+
+exists($options{h}) and $host = $options{t};
+if (exists($options{Z})) {
+    $zone = $options{Z};
+    if ($zone !~ /^[-+][0-9][0-9][0-9][0-9]$/ && $zone ne "UTC")  {
+	print "mover2pcp: Illegal -Z value, must be +NNNN or -NNNN or UTC\n";
+	exit(1);
+    }
+}
+
+pmiStart($ARGV[1], 0);
+do_label();
+
+open(INFILE, "<" . $ARGV[0])
+    or die "mover2pcp: Failed to open infile \"$ARGV[0]\"\n";
+
+# define metadata
+def_single("mover.nfile");
+def_multi("mover.nfile_by_size", $sz_indom);
+def_metric_inst("mover.nfile_by_size", $sz_indom, "<=1Kbyte");
+def_metric_inst("mover.nfile_by_size", $sz_indom, "<=1Mbyte");
+def_metric_inst("mover.nfile_by_size", $sz_indom, ">1Mbyte");
+def_single("mover.nbyte");
+def_single("mover.max_file_size");
+
+while (<INFILE>) {
+    my @part;
+    chomp;
+    $line++;
+    print "[" . $line . "] $_\n";
+
+    # 2010-07-04 13:47:59 49 files (40, 9, 0) 118418 bytes (70669)
+    s/[(),]//g;		# remove all (, ) and ,
+
+    @part = split(/\s+/, $_);
+    if ($#part != 9) {
+	print "[$line] $_\n";
+	die "Number of values? expected 10, found " . ($#part+1) . "\n";
+    }
+
+    $nfile += $part[2];
+    put($nfile);
+    $nfile_by_size[0] += $part[4];
+    put($nfile_by_size[0]);
+    $nfile_by_size[1] += $part[5];
+    put($nfile_by_size[1]);
+    $nfile_by_size[2] += $part[6];
+    put($nfile_by_size[2]);
+    $nbyte += $part[7];
+    put($nbyte);
+    put($part[9]);
+
+    if ($putsts < 0) {
+	pmiDump();
+	die "pmiPutValue: Failed @ $part[0] $part[1]: " . pmiErrStr($putsts) . "\n";
+    }
+    if (pmiWrite(str2time($part[0] . "T" . $part[1], $zone), 0) < 0) {
+	pmiDump();
+	die "pmiWrite: @ $part[0] $part[1]: " . pmiErrStr(-1) . "\n";
+    }
+    $h = 0;
+    $putsts = 0;
+}
+
+pmiEnd();
+
+exit(0);
+
+=pod
+
+=head1 NAME
+
+mover2pcp - Import mover.log and create a PCP archive
+
+=head1 SYNOPSIS
+
+B<mover2pcp> [B<-Z> I<timezone>] I<infile> I<outfile>
+
+=head1 DESCRIPTION
+
+Add description here.
+
+=head1 SEE ALSO
+
+B<LOGIMPORT>(3),
+B<PCP::LogImport>(3pm),
+B<pmchart>(1),
+B<pmie>(1) and
+B<pmlogger>(1).
