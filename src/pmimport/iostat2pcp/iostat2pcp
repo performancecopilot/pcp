@@ -267,27 +267,27 @@ sub sample_done()
 		put(0);			# read_bytes
 		put(0);			# write_bytes
 		put(0);			# avactive
+	    }
+	}
+	else {
+	    $dev_seen{$instance} = 0;
 	}
     }
-    else {
-	$dev_seen{$instance} = 0;
+    if ($putsts < 0) {
+	pmiDump();
+	die "pmiPutValue: Failed @ $stamp: " . pmiErrStr($putsts) . "\n";
     }
-}
-if ($putsts < 0) {
-    pmiDump();
-    die "pmiPutValue: Failed @ $stamp: " . pmiErrStr($putsts) . "\n";
-}
-if ($vflag) {
-    print "End of sample $sample";
-    if (defined($now) && defined($stamp)) { print " @ $now $stamp"; }
-    print "\n";
-}
-if (pmiWrite($now, 0) < 0) {
-    pmiDump();
-    die "pmiWrite: @ $stamp: " . pmiErrStr(-1) . "\n";
-}
-$h = 0;
-$putsts = 0;
+    if ($vflag) {
+	print "End of sample $sample";
+	if (defined($now) && defined($stamp)) { print " @ $now $stamp"; }
+	print "\n";
+    }
+    if (pmiWrite($now, 0) < 0) {
+	pmiDump();
+	die "pmiWrite: @ $stamp: " . pmiErrStr(-1) . "\n";
+    }
+    $h = 0;
+    $putsts = 0;
 }
 
 $sts = getopts('S:t:vZ:', \%options);
@@ -785,7 +785,7 @@ than a technical limitation.
 B<Date::Format>(3pm),
 B<Date::Parse>(3pm),
 B<iostat>(1),
-B<logimport>(3),
+B<LOGIMPORT>(3),
 B<PCP::LogImport>(3pm),
 B<pmchart>(1),
 B<pmie>(1),
