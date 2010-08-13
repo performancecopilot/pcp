@@ -317,6 +317,10 @@ metricdesc_t metricdesc[] = {
       { PMDA_PMID(0,50), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)
       }, M_DISK, KSTAT_IO_OFF(reads) },
+    { "disk.dev.model",
+      { PMDA_PMID(0,500), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_DISK, (ptrdiff_t)"Product" },
 
     { "disk.dev.write",
       { PMDA_PMID(0,51), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER,

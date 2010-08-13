@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2010 Max Matveev.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,6 +25,7 @@ typedef struct {
     kstat_t	*ksp;
     kstat_io_t	iostat;
     const char	*diskname;
+    kstat_t	*sderr;
 } ctl_t;
 
 static int		ndisk;
@@ -46,8 +48,12 @@ disk_init(int first)
 
     ndisk = 0;
     for (ksp = kc->kc_chain; ksp != NULL; ksp = ksp->ks_next) {
-	if (strcmp(ksp->ks_class, "disk") != 0) continue;
-	if (ksp->ks_type != KSTAT_TYPE_IO) continue;
+	char errmod[32];
+	char errname[32];
+	if (strcmp(ksp->ks_class, "disk") != 0)
+		 continue;
+	if (ksp->ks_type != KSTAT_TYPE_IO)
+		continue;
 	if ((ctl = (ctl_t *)realloc(ctl, (ndisk+1) * sizeof(ctl_t))) == NULL) {
 	    fprintf(stderr, "disk_init: ctl realloc[%d] @ disk=%s failed: %s\n",
 		    (int)((ndisk+1) * sizeof(ctl_t)), ksp->ks_name,
@@ -57,6 +63,15 @@ disk_init(int first)
 	ctl[ndisk].ksp = ksp;
 	ctl[ndisk].err = 0;
 	ctl[ndisk].diskname = strdup(ksp->ks_name);
+	/* cmdk uses 'error', sd uses 'err' */
+	/* cmdk uses different names of the fields from sd */
+	snprintf(errmod, sizeof(errmod), "%serr", ksp->ks_module);
+	snprintf(errname, sizeof(errmod), "%s,err", ksp->ks_name);
+	ctl[ndisk].sderr = kstat_lookup(kc, errmod, ksp->ks_instance, errname);
+	if (ctl[ndisk].sderr == NULL) {
+		fprintf(stderr, "Cannot find module %s, instance %d, name %s\n",
+			errmod, ksp->ks_instance, errname);
+	}
 	indomtab[DISK_INDOM].it_numinst = ndisk+1;
 	indomtab[DISK_INDOM].it_set = (pmdaInstid *)realloc(indomtab[DISK_INDOM].it_set, (ndisk+1) * sizeof(pmdaInstid));
 	/* TODO check? */
@@ -157,7 +172,7 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
     __uint64_t		ull;
     int			i;
     int			ok;
-    int			offset;
+    ptrdiff_t		offset;
 
     ok = 1;
     for (i = 0; i < ndisk; i++) {
@@ -177,6 +192,8 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 		ok = 0;
 	    }
 	    else {
+		if (ctl[i].sderr)
+			kstat_read(kc,ctl[i].sderr, NULL);
 		ctl[i].fetched = 1;
 		if (ctl[i].err != 0) {
 		    fprintf(stderr, "Success: disk_fetch(pmid=%s disk=%s ...) "
@@ -198,8 +215,32 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    offset = ((metricdesc_t *)mdesc->m_user)->md_offset;
 	    if (offset < 0) {
 		ull += disk_derived(mdesc, i, &ctl[i].iostat);
-	    }
-	    else {
+	    } else if (offset > sizeof(ctl[i].iostat)) { /* device_error */
+		if (ctl[i].sderr) {
+			char * m = (char *)offset;
+			kstat_named_t *kn = kstat_data_lookup(ctl[i].sderr, m);
+			static char chardat[sizeof(kn->value.c) + 1];
+
+			if (kn == NULL) {
+				fprintf(stderr, "No %s in %s\n",
+					 m, ctl[i].diskname);
+				return 0;
+			}
+
+			switch(kn->data_type) {
+			case KSTAT_DATA_STRING:
+				atom->cp = kn->value.str.addr.ptr;
+				return 1;
+			case KSTAT_DATA_CHAR:
+				memcpy(chardat, kn->value.c,
+					sizeof(kn->value.c));
+				chardat[sizeof(chardat)] = '\0';
+				atom->cp = chardat;
+				return 1;
+			}
+		}
+		return 0;
+	    } else {
 		if (mdesc->m_desc.type == PM_TYPE_U64) {
 		    __uint64_t		*ullp;
 		    ullp = (__uint64_t *)&((char *)&ctl[i].iostat)[offset];
