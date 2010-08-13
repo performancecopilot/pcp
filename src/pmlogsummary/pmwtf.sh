@@ -172,7 +172,7 @@ a1=`basename "$1"`
 a2=`basename "$2"`
 echo "$thres" | awk '
     { printf "Ratio Threshold: > %.2f or < %.3f\n",'"$thres"',1/'"$thres"'
-      printf "%12s %12s   Ratio  Metric-Instance\n",'"$a1"','"$a2"' }'
+      printf "%12s %12s   Ratio  Metric-Instance\n","'"$a1"'","'"$a2"'" }'
 join -t\| $tmp.1 $tmp.2 \
 | awk -F\| '
 function doval(v)
