@@ -300,7 +300,10 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
 	return;
     }
 
-    if (dispatch->version.two.fetch == pmdaFetch && 
+    if ((HAVE_V_FOUR(dispatch->comm.pmda_interface) &&
+	 dispatch->version.four.fetch == pmdaFetch) ||
+	((HAVE_V_TWO(dispatch->comm.pmda_interface) &&
+	 dispatch->version.two.fetch == pmdaFetch))
 	pmda->e_fetchCallBack == (pmdaFetchCallBack)0) {
 	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: using pmdaFetch() but fetch call back not set", pmda->e_name);
 	dispatch->status = PM_ERR_GENERIC;
