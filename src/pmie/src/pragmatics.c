@@ -495,11 +495,12 @@ initArchive(Archive *a)
     b = archives;
     while (b) {
 	if (strcmp(a->hname, b->hname) == 0) {
-	    fprintf(stderr, "%s: archive %s ignored - archive %s is already open "
-		    "for host %s\n", pmProgname, a->fname, b->fname, a->hname);
+	    fprintf(stderr, "%s: Error: archive %s not legal - archive %s is already open "
+		    "for host %s\n", pmProgname, a->fname, b->fname, b->hname);
 	    pmDestroyContext(handle);
 	    return 0;
 	}
+	b = b->next;
     }
 
     /* put archive record on the archives list */
