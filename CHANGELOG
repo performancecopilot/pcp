@@ -1,3 +1,12 @@
+pcp-3.4.0 (under development)
+    - Add new libpcp_import C API library to pcp-libs
+    - Add perl-PCP-LogImport RPM sub-package for libpcp_import perl binding
+    - Add pcp-import RPM sub-package containing front-end tools for importing
+      data from sar, iostat and generic speadsheets
+    - Fix a memory leak in Perl PMDA wrapper string handling
+    - Use correct structure to extrace zpool write counters in Solaris PMDA 
+    - pmafm now supports multiple -a arguments 
+
 pcp-3.3.3 (16 July 2010)
     - Fix two off-by-one errors in NUMA metrics in Linux PMDA.
     - Rework timezone environment variable handling to be able to

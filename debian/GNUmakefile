@@ -3,6 +3,10 @@ include $(TOPDIR)/src/include/builddefs
 
 PCP_FILES = pcp.prerm pcp.postinst pcp.postrm
 
+PCPIMPORT = pcp-import
+PCPIMPORT_FILES = pcp-import.install
+PCPIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import
+
 LIBPCPPCP = libpcp3
 LIBPCP_FILES = libpcp3.dirs libpcp3.install
 DEVPCP_FILES = libpcp3-dev.dirs libpcp3-dev.install
@@ -43,14 +47,14 @@ SUBDIRS = source
 LDIRT = *.debhelper *.substvars *.log pcp files $(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
-	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev
+	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev $(PCPIMPORT)
 LSRCFILES = changelog compat control copyright rules \
 		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) shlibs.local \
 		$(LIBGUI_FILES) $(DEVGUI_FILES) \
 		$(LIBMMV_FILES) $(DEVMMV_FILES) \
 		$(LIBPMDA_FILES) $(DEVPMDA_FILES) \
 		$(LIBTRACE_FILES) $(DEVTRACE_FILES) \
-		$(LIBIMPORT_FILES) $(DEVIMPORT_FILES)
+		$(LIBIMPORT_FILES) $(DEVIMPORT_FILES) $(PCPIMPORT_FILES)
 
 default:
 
@@ -148,4 +152,11 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(DEVIMPORT_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(DEVIMPORT_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(DEVIMPORT_DOC_DIR)/changelog.Debian
+endif
+
+install-pcpimport: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPIMPORT_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPIMPORT_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPIMPORT_DOC_DIR)/changelog.Debian
 endif

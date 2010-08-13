@@ -1,0 +1,6 @@
+usr/bin/sar2pcp
+usr/bin/sheet2pcp
+usr/bin/iostat2pcp
+usr/share/man/man1/sar2pcp.1.gz
+usr/share/man/man1/sheet2pcp.1.gz
+usr/share/man/man1/iostat2pcp.1.gz
