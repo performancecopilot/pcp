@@ -311,11 +311,11 @@ void PmChart::filePrint()
     QPrintDialog print(&printer, (QWidget *)this);
     if (print.exec()) {
 	QPainter qp(&printer);
-	painter(&qp, printer.width(), printer.height(), false);
+	painter(&qp, printer.width(), printer.height(), false, false);
     }
 }
 
-void PmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
+void PmChart::painter(QPainter *qp, int pw, int ph, bool transparent, bool currentOnly)
 {
     double scale_h = 0;
     double scale_w = 0;
@@ -331,14 +331,21 @@ void PmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
 	if (currentOnly && gadget != activeTab()->currentGadget())
 	    continue;
 	size = gadget->size();
+	console->post("  [%d] w=%d h=%d", i, size.width(), size.height());
 	if (size.width() > scale_w) scale_w = size.width();
 	scale_h += size.height();
-	console->post("  scale_w=%.2f scale_h=%.2f", scale_w, scale_h);
     }
+    console->post("  final_w=%d final_h=%d", (int)scale_w, (int)scale_h);
+    // timeaxis is _always_ less narrow than the plot(s)
+    // datelabel is _never_ wider than the timeaxis
+    // so width calculation is done, just need to consider the heights
     size = my.statusBar->timeAxis()->size();
     console->post("  timeaxis w=%d h=%d", size.width(), size.height());
-    if (size.width() > scale_w) scale_w = size.width();
+    scale_h += size.height() - TIMEAXISFUDGE;
+    size = my.statusBar->dateLabel()->size();
+    console->post("  datelabel w=%d h=%d", size.width(), size.height());
     scale_h += size.height();
+    console->post("  final_w=%d final_h=%d", (int)scale_w, (int)scale_h);
     if (scale_w/pw > scale_h/ph) {
 	// window width drives scaling
 	scale_w = pw / scale_w;
@@ -359,33 +366,28 @@ void PmChart::painter(QPainter *qp, int pw, int ph, bool currentOnly)
 	size = gadget->size();
 	rect.setWidth((int)(size.width()*scale_w+0.5));
 	rect.setHeight((int)(size.height()*scale_h+0.5));
-	gadget->print(qp, rect);
+	console->post("  [%d] @ (%d,%d) w=%d h=%d", i, rect.x(), rect.y(), rect.width(), rect.height());
+	gadget->print(qp, rect, transparent);
 	rect.setY(rect.y()+rect.height());
     }
 
-    // timeButton icon -- not actually painted, just shift coords
-    size = my.statusBar->timeButton()->size();
-    console->post("  timebutton w=%d h=%d", size.width(), size.height());
-    rect.setWidth((int)(size.width()*scale_w+0.5));
-    rect.setHeight((int)(size.height()*scale_h+0.5));
-    rect.setX(rect.width()-5);	// timeframe layout margin adjustment (5)
-
     // time axis
+    rect.setY(rect.y() - TIMEAXISFUDGE);
     size = my.statusBar->timeAxis()->size();
-    console->post("  timeaxis w=%d h=%d", size.width(), size.height());
+    rect.setX(pw-(int)(size.width()*scale_w+0.5));
     rect.setWidth((int)(size.width()*scale_w+0.5));
     rect.setHeight((int)(size.height()*scale_h+0.5));
-    my.statusBar->timeAxis()->print(qp, rect);
+    console->post("  timeaxis @ (%d,%d) w=%d h=%d", rect.x(), rect.y(), rect.width(), rect.height());
+    my.statusBar->timeAxis()->print(qp, rect, transparent);
     rect.setY(rect.y()+rect.height());
 
     // date label below time axis
     size = my.statusBar->dateLabel()->size();
-    size.setWidth(size.width());
-    rect.setX(rect.x()+rect.width()-(int)(size.width()*scale_w+0.5));
-    console->post("  datelabel w=%d h=%d", size.width(), size.height());
+    rect.setX(pw-(int)(size.width()*scale_w+0.5));
     rect.setWidth((int)(size.width()*scale_w+0.5));
     rect.setHeight((int)(size.height()*scale_h+0.5));
-    qp->drawText(rect, Qt::AlignLeft, my.statusBar->dateText());
+    console->post("  datelabel @ (%d,%d) w=%d h=%d", rect.x(), rect.y(), rect.width(), rect.height());
+    qp->drawText(rect, Qt::AlignRight, my.statusBar->dateText());
 }
 
 void PmChart::fileQuit()

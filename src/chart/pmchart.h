@@ -65,6 +65,7 @@ public:
     bool isTabRecording();
     TabWidget *tabWidget() { return chartTabWidget; }
     TimeAxis *timeAxis() { return my.statusBar->timeAxis(); }
+    QLabel *dateLabel() { return my.statusBar->dateLabel(); }
 
     virtual void step(bool livemode, PmTime::Packet *pmtime);
     virtual void VCRMode(bool livemode, PmTime::Packet *pmtime, bool drag);
@@ -94,7 +95,7 @@ public:
     virtual void newScheme(QString);	// reply back to requesting dialog(s)
     virtual void updateBackground();
 
-    void painter(QPainter *, int w, int h, bool);
+    void painter(QPainter *qp, int pw, int ph, bool transparent, bool currentOnly);
 
     // Adjusted height for exporting images (without UI elements)
     int exportHeight()

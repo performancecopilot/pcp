@@ -91,4 +91,10 @@ extern char *timeString(double);
 extern char *timeHiResString(double);
 extern void nomem(void);
 
+/*
+ * number of Y pixels to move the time axis up when exporting to
+ * an image or printing
+ */
+#define TIMEAXISFUDGE 0
+
 #endif	// MAIN_H

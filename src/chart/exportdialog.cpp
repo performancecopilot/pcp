@@ -153,7 +153,8 @@ QSize ExportDialog::imageSize()
 	width = qMax(width, gadget->width());
 	height += gadget->height();
     }
-    height += pmchart->timeAxis()->height();
+    height += pmchart->timeAxis()->height() + pmchart->dateLabel()->height();
+    height -= TIMEAXISFUDGE;
 
     return QSize(width, height);
 }
@@ -182,11 +183,19 @@ bool ExportDialog::exportFile(QString &file, const char *format, int quality,
     enum QImage::Format rgbFormat = transparent ?
 				QImage::Format_ARGB32 : QImage::Format_RGB32;
     QImage image(width, height, rgbFormat);
-    if (transparent == false)
-	image.invertPixels();	// white background
     QPainter qp(&image);
 
-    pmchart->painter(&qp, width, height, everything == false);
+    console->post("ExportDialog::exportFile file=%s fmt=%s qual=%d w=%d h=%d trans=%d every=%d\n",
+	(const char *)file.toAscii(), format, quality, width, height, transparent, everything);
+
+    if (transparent) {
+	image.fill(qRgba(255, 255, 255, 0));
+    }
+    else {
+	image.fill(qRgba(255, 255, 255, 255));
+    }
+
+    pmchart->painter(&qp, width, height, transparent, everything == false);
     QImageWriter writer(file, format);
     writer.setQuality(quality);
     bool sts = writer.write(image);
