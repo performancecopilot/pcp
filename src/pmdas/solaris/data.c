@@ -1029,7 +1029,20 @@ metricdesc_t metricdesc[] = {
     { "kernel.fs.vnops.write",
       {PMDA_PMID(3, 47), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_COUNTER,
         PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
-      }, M_FILESYS, (ptrdiff_t)"nwrite"}
+      }, M_FILESYS, (ptrdiff_t)"nwrite"},
+
+    { "hinv.cpu.maxclock",
+      {PMDA_PMID(3, 147), PM_TYPE_64, CPU_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, -1, 1, 0, PM_TIME_SEC, 6)
+      }, M_SYSINFO, (ptrdiff_t)"clock_MHz"},
+    { "hinv.cpu.clock",
+      {PMDA_PMID(3, 148), PM_TYPE_U64, CPU_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, -1, 1, 0, PM_TIME_SEC, 0)
+      }, M_SYSINFO, (ptrdiff_t)"current_clock_Hz"},
+    { "hinv.cpu.brand",
+      {PMDA_PMID(3, 149), PM_TYPE_STRING, CPU_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+      }, M_SYSINFO, (ptrdiff_t)"brand"}
 
     /* remember to add trailing comma before adding more entries ... */
 };

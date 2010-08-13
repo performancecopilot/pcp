@@ -25,12 +25,13 @@ typedef struct {
     int		fetched;
     int		err;
     kstat_t	*ksp;
+    cpu_stat_t	cpustat;
+    kstat_t	*info;
 } ctl_t;
 
 static int		ncpu;
 static int		hz;
 static long		pagesize;
-static cpu_stat_t	*cpustat;
 static ctl_t		*ctl;
 static char		uname_full[SYS_NMLN * 5];
 static int		nloadavgs;
@@ -55,11 +56,7 @@ sysinfo_init(int first)
 		(int)((ncpu+1) * sizeof(ctl_t)), ncpu, strerror(errno));
 	    exit(1);
 	}
-	if ((cpustat = (cpu_stat_t *)realloc(cpustat, (ncpu+1) * sizeof(cpu_stat_t))) == NULL) {
-	    fprintf(stderr, "sysinfo_init: cpustat realloc[%d] @ cpu=%d failed: %s\n",
-		(int)((ncpu+1) * sizeof(cpu_stat_t)), ncpu, strerror(errno));
-	    exit(1);
-	}
+	ctl[ncpu].info = kstat_lookup(kc, "cpu_info", ncpu, NULL);
 	ctl[ncpu].ksp = ksp;
 	ctl[ncpu].err = 0;
     }
@@ -149,6 +146,12 @@ kstat_named_to_pmAtom( const kstat_named_t *kn, pmAtomValue *atom)
     case KSTAT_DATA_INT32:
 	atom->ull = kn->value.i32;
 	return 1;
+    case KSTAT_DATA_STRING:
+	atom->cp = kn->value.str.addr.ptr;
+	return 1;
+    case KSTAT_DATA_CHAR:
+	atom->cp = (char *)kn->value.c;
+	return 1;
     default:
 	return 0;
     }
@@ -180,7 +183,7 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
     __uint64_t		ull;
     int			i;
     int			ok;
-    int			offset;
+    ptrdiff_t		offset;
     struct utsname	u;
 
     /* Special processing of metrics which notionally belong
@@ -234,7 +237,7 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	if (inst == PM_IN_NULL || inst == i) {
 	    if (ctl[i].fetched == 1)
 		continue;
-	    if (kstat_read(kc, ctl[i].ksp, &cpustat[i]) == -1) {
+	    if (kstat_read(kc, ctl[i].ksp, &ctl[i].cpustat) == -1) {
 		if (ctl[i].err == 0) {
 		    fprintf(stderr, "Error: sysinfo_fetch(pmid=%s cpu=%d ...)\n", pmIDStr(mdesc->m_desc.pmid), i);
 		    fprintf(stderr, "kstat_read(kc=%p, ksp=%p, ...) failed: %s\n", kc, ctl[i].ksp, strerror(errno));
@@ -244,6 +247,7 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 		ok = 0;
 	    }
 	    else {
+	kstat_read(kc, ctl[i].info, NULL);
 		ctl[i].fetched = 1;
 		if (ctl[i].err != 0) {
 		    fprintf(stderr, "Success: sysinfo_fetch(pmid=%s cpu=%d ...) after %d errors as previously reported\n",
@@ -263,11 +267,56 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    offset = ((metricdesc_t *)mdesc->m_user)->md_offset;
 	    if (offset < 0) {
 		ull += sysinfo_derived(mdesc, i);
-	    }
-	    else {
+	    } else if (offset > sizeof(ctl[i].cpustat)) {
+		char *stat = (char *)offset;
+                kstat_named_t *kn = kstat_data_lookup(ctl[i].info, stat);
+
+                if (kn == NULL) {
+		    fprintf(stderr, "No kstat called %s for CPU %d\n", stat, i);
+		    return 0;
+		}
+
+		switch (mdesc->m_desc.type) {
+		case PM_TYPE_32:
+		    if (kn->data_type == KSTAT_DATA_INT32) {
+			atom->l = kn->value.i32;
+			return 1;
+		    }
+		    break;
+		case PM_TYPE_U32:
+		    if (kn->data_type == KSTAT_DATA_UINT32) {
+			atom->ul = kn->value.ui32;
+			return 1;
+		    }
+		    break;
+		case PM_TYPE_64:
+		    if (kn->data_type == KSTAT_DATA_INT64) {
+			atom->ll = kn->value.i64;
+			return 1;
+		    }
+		    break;
+		case PM_TYPE_U64:
+		    if (kn->data_type == KSTAT_DATA_UINT64) {
+			atom->ull = kn->value.ui64;
+			return 1;
+		    }
+		    break;
+		case PM_TYPE_STRING:
+		    switch(kn->data_type) {
+		    case KSTAT_DATA_STRING:
+			atom->cp = kn->value.str.addr.ptr;
+			return 1;
+		    case KSTAT_DATA_CHAR:
+			atom->cp = kn->value.c;
+			return 1;
+		    }
+		    break;
+		}
+		return 0;
+	    } else {
 		/* all the kstat fields are 32-bit unsigned */
 		__uint32_t		*ulp;
-		ulp = (__uint32_t *)&((char *)&cpustat[i])[offset];
+		ulp = (__uint32_t *)&((char *)&ctl[i].cpustat)[offset];
 		ull += *ulp;
 #ifdef PCP_DEBUG
 		if ((pmDebug & (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) == (DBG_TRACE_APPL0|DBG_TRACE_APPL2)) {

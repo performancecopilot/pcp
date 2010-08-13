@@ -422,3 +422,34 @@ has not yet begun.
 @disk.all.run.count	Number of transactions being processed
 @disk.dev.run.count	Number of transactions being processed
 
+
+# from i86pc/os/cpuid.c
+#                /*
+#                 * 8bit APIC IDs on dual core Pentiums
+#                 * look like this:
+#                 *
+#                 * +-----------------------+------+------+
+#                 * | Physical Package ID   |  MC  |  HT  |
+#                 * +-----------------------+------+------+
+#                 * <------- chipid -------->
+#                 * <------- coreid --------------->
+#                 *                         <--- clogid -->
+#                 *                         <------>
+#                 *                         pkgcoreid
+#                 *
+#                 * Where the number of bits necessary to
+#                 * represent MC and HT fields together equals
+#                 * to the minimum number of bits necessary to
+#                 * store the value of cpi->cpi_ncpu_per_chip.
+#                 * Of those bits, the MC part uses the number
+#                 * of bits necessary to store the value of
+#                 * cpi->cpi_ncore_per_chip.
+#                 */
+#
+@hinv.cpu.brand Marketing name of CPU
+@hinv.cpu.clock Current CPU clock frequency
+On CPUs which support dynamic clock frequency changes current clock frequency
+could differ from the nominal ("maximum") clock frequency specified by
+the manufacturer.
+@hinv.cpu.maxclock Maximum clock frequency supported by CPU
+Nominal CPU clock frequency as specified by the manufacturer.

@@ -3,4 +3,11 @@ hinv {
     ndisk	SOLARIS:0:57
     pagesize	SOLARIS:0:108
     physmem	SOLARIS:0:109
+    cpu
+}
+
+hinv.cpu {
+	brand		SOLARIS:3:149
+	maxclock	SOLARIS:3:147
+	clock		SOLARIS:3:148
 }
