@@ -81,8 +81,8 @@
  */
 
 mem {
-	physmem		SOLARIS:0:136
-	freemem		SOLARIS:0:137
-	lotsfree	SOLARIS:0:138
-	availrmem	SOLARIS:0:139
+	physmem		SOLARIS:SCLR_SYSINFO:136
+	freemem		SOLARIS:SCLR_SYSINFO:137
+	lotsfree	SOLARIS:SCLR_SYSINFO:138
+	availrmem	SOLARIS:SCLR_SYSINFO:139
 }

@@ -27,26 +27,10 @@
 #include "impl.h"
 #include "pmda.h"
 #include "domain.h"
+#include "clusters.h"
 
 #include <kstat.h>
 #include <sys/sysinfo.h>
-
-/*
- * kstat method controls
- *
- * md_method choices (see below) ... must be contiguous integers so
- * we can index directly into method[]
- */
-#define M_SYSINFO	0
-#define M_DISK		1
-#define M_NETIF		2
-#define M_ZPOOL		3
-#define M_ZFS		4
-#define M_ZPOOL_PERDISK	5
-#define M_NETLINK	6
-#define M_KVM		7
-#define M_ARCSTATS	8
-#define M_FILESYS	9
 
 typedef struct {
     const char	*m_name;
@@ -104,7 +88,6 @@ int vnops_fetch(pmdaMetric *, int, pmAtomValue *);
 typedef struct {
     const char	*md_name;
     pmDesc	md_desc;	// PMDA's idea of the semantics
-    int		md_method;	// specific kstat method
     ptrdiff_t	md_offset;	// offset into kstat stats structure
     uint64_t	md_elapsed;
     uint64_t	md_hits;

@@ -1,23 +1,31 @@
 zpool {
-	state		SOLARIS:0:97
-	state_int	SOLARIS:0:98
-	capacity	SOLARIS:0:58
-	used		SOLARIS:0:59
-	checksum_errors	SOLARIS:0:66
-	self_healed	SOLARIS:0:67
+	state		SOLARIS:SCLR_ZPOOL:0
+	state_int	SOLARIS:SCLR_ZPOOL:1
+	capacity	SOLARIS:SCLR_ZPOOL:2
+	used		SOLARIS:SCLR_ZPOOL:3
+	checksum_errors	SOLARIS:SCLR_ZPOOL:4
+	self_healed	SOLARIS:SCLR_ZPOOL:5
 	perdisk
 	in
 	out
+	ops
 }
 
 zpool.in {
-	bytes		SOLARIS:0:60
-	ops		SOLARIS:0:62
-	errors		SOLARIS:0:64
+	bytes		SOLARIS:SCLR_ZPOOL:6
+	ops		SOLARIS:SCLR_ZPOOL:7
+	errors		SOLARIS:SCLR_ZPOOL:8
 }
 
 zpool.out {
-	bytes		SOLARIS:0:61
-	ops		SOLARIS:0:63
-	errors		SOLARIS:0:65
+	bytes		SOLARIS:SCLR_ZPOOL:9
+	ops		SOLARIS:SCLR_ZPOOL:10
+	errors		SOLARIS:SCLR_ZPOOL:11
+}
+
+zpool.ops {
+	noops		SOLARIS:SCLR_ZPOOL:12
+	ioctls		SOLARIS:SCLR_ZPOOL:13
+	claims		SOLARIS:SCLR_ZPOOL:14
+	frees		SOLARIS:SCLR_ZPOOL:15
 }

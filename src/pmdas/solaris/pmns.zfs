@@ -2,59 +2,59 @@ zfs {
 	arc
 	used
 	snapshot
-	available	SOLARIS:0:69
-	quota		SOLARIS:0:70
-	reservation	SOLARIS:0:71
-	compression	SOLARIS:0:72
-	copies		SOLARIS:0:73
-	recordsize	SOLARIS:0:126
-	refquota	SOLARIS:0:127
-	refreservation	SOLARIS:0:128
-	referenced	SOLARIS:0:130
-	nsnapshots	SOLARIS:0:131
+	available	SOLARIS:SCLR_ZFS:0
+	quota		SOLARIS:SCLR_ZFS:1
+	reservation	SOLARIS:SCLR_ZFS:2
+	compression	SOLARIS:SCLR_ZFS:3
+	copies		SOLARIS:SCLR_ZFS:4
+	recordsize	SOLARIS:SCLR_ZFS:5
+	refquota	SOLARIS:SCLR_ZFS:6
+	refreservation	SOLARIS:SCLR_ZFS:7
+	referenced	SOLARIS:SCLR_ZFS:8
+	nsnapshots	SOLARIS:SCLR_ZFS:9
 }
 
 zfs.used {
-	total		SOLARIS:0:68
-	byme		SOLARIS:0:74
-	bysnapshots	SOLARIS:0:75
-	bychildren	SOLARIS:0:76
-	byrefreservation SOLARIS:0:129
+	total		SOLARIS:SCLR_ZFS:10
+	byme		SOLARIS:SCLR_ZFS:11
+	bysnapshots	SOLARIS:SCLR_ZFS:12
+	bychildren	SOLARIS:SCLR_ZFS:13
+	byrefreservation SOLARIS:SCLR_ZFS:14
 }
 
 zfs.snapshot {
-	used		SOLARIS:0:132
-	referenced	SOLARIS:0:133
-	compression	SOLARIS:0:134
+	used		SOLARIS:SCLR_ZFS:15
+	referenced	SOLARIS:SCLR_ZFS:16
+	compression	SOLARIS:SCLR_ZFS:17
 }
 
 zfs.arc {
-	size		SOLARIS:2:0
-	min_size	SOLARIS:2:1
-	max_size	SOLARIS:2:2
-	mru_size	SOLARIS:2:3
-	target_size	SOLARIS:2:4
+	size		SOLARIS:SCLR_ARCSTATS:0
+	min_size	SOLARIS:SCLR_ARCSTATS:1
+	max_size	SOLARIS:SCLR_ARCSTATS:2
+	mru_size	SOLARIS:SCLR_ARCSTATS:3
+	target_size	SOLARIS:SCLR_ARCSTATS:4
 	hits
 	misses
 
 }
 
 zfs.arc.misses {
-	total			SOLARIS:2:5
-	demand_data		SOLARIS:2:6
-	demand_metadata		SOLARIS:2:7
-	prefetch_data		SOLARIS:2:8
-	prefetch_metadata	SOLARIS:2:9
+	total			SOLARIS:SCLR_ARCSTATS:5
+	demand_data		SOLARIS:SCLR_ARCSTATS:6
+	demand_metadata		SOLARIS:SCLR_ARCSTATS:7
+	prefetch_data		SOLARIS:SCLR_ARCSTATS:8
+	prefetch_metadata	SOLARIS:SCLR_ARCSTATS:9
 }
 
 zfs.arc.hits {
-	total			SOLARIS:2:10
-	mfu			SOLARIS:2:11
-	mru			SOLARIS:2:12
-	mfu_ghost		SOLARIS:2:13
-	mru_ghost		SOLARIS:2:14
-	demand_data		SOLARIS:2:15
-	demand_metadata		SOLARIS:2:16
-	prefetch_data		SOLARIS:2:17
-	prefetch_metadata	SOLARIS:2:18
+	total			SOLARIS:SCLR_ARCSTATS:10
+	mfu			SOLARIS:SCLR_ARCSTATS:11
+	mru			SOLARIS:SCLR_ARCSTATS:12
+	mfu_ghost		SOLARIS:SCLR_ARCSTATS:13
+	mru_ghost		SOLARIS:SCLR_ARCSTATS:14
+	demand_data		SOLARIS:SCLR_ARCSTATS:15
+	demand_metadata		SOLARIS:SCLR_ARCSTATS:16
+	prefetch_data		SOLARIS:SCLR_ARCSTATS:17
+	prefetch_metadata	SOLARIS:SCLR_ARCSTATS:18
 }

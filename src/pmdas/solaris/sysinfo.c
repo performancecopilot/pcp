@@ -86,16 +86,15 @@ sysinfo_init(int first)
 static __uint32_t
 sysinfo_derived(pmdaMetric *mdesc, int inst)
 {
-    pmID	pmid;
+    pmID	pmid = mdesc->m_desc.pmid;
     __pmID_int	*ip = (__pmID_int *)&pmid;
     __uint32_t	val;
 
-    pmid = mdesc->m_desc.pmid;
     ip->domain = 0;
 
     switch (pmid) {
 
-	case PMDA_PMID(0,56):	/* hinv.ncpu */
+	case PMDA_PMID(SCLR_SYSINFO,56):	/* hinv.ncpu */
 	    if (inst == 0)
 		val = ncpu;
 	    else
@@ -265,7 +264,8 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
     for (i = 0; i < ncpu; i++) {
 	if (inst == PM_IN_NULL || inst == i) {
 	    offset = ((metricdesc_t *)mdesc->m_user)->md_offset;
-	    if (offset < 0) {
+
+	    if (offset == -1) {
 		ull += sysinfo_derived(mdesc, i);
 	    } else if (offset > sizeof(ctl[i].cpustat)) {
 		char *stat = (char *)offset;

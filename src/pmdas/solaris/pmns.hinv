@@ -1,13 +1,13 @@
 hinv {
-    ncpu	SOLARIS:0:56
-    ndisk	SOLARIS:0:57
-    pagesize	SOLARIS:0:108
-    physmem	SOLARIS:0:109
+    ncpu	SOLARIS:SCLR_SYSINFO:56
+    ndisk	SOLARIS:SCLR_DISK:20
+    pagesize	SOLARIS:SCLR_SYSINFO:108
+    physmem	SOLARIS:SCLR_SYSINFO:109
     cpu
 }
 
 hinv.cpu {
-	brand		SOLARIS:3:149
-	maxclock	SOLARIS:3:147
-	clock		SOLARIS:3:148
+    brand	SOLARIS:0:149
+    maxclock	SOLARIS:0:147
+    clock	SOLARIS:0:148
 }

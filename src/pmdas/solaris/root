@@ -3,6 +3,7 @@
  */
 
 #include <stdpmid>
+#include "clusters.h"
 
 root {
 	kernel

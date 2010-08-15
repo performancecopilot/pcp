@@ -117,30 +117,30 @@ disk_derived(pmdaMetric *mdesc, int inst, const kstat_io_t *iostat)
 //
 
     switch (pmid) {
-	case PMDA_PMID(0,46):	/* disk.all.total */
-	case PMDA_PMID(0,52):	/* disk.dev.total */
+	case PMDA_PMID(SCLR_DISK,2):	/* disk.all.total */
+	case PMDA_PMID(SCLR_DISK,12):	/* disk.dev.total */
 	    val = iostat->reads + iostat->writes;
 	    break;
 
-	case PMDA_PMID(0,49):	/* disk.all.total_bytes */
-	case PMDA_PMID(0,55):	/* disk.dev.total_bytes */
+	case PMDA_PMID(SCLR_DISK,5):	/* disk.all.total_bytes */
+	case PMDA_PMID(SCLR_DISK,15):	/* disk.dev.total_bytes */
 	    val = iostat->nread + iostat->nwritten;
 	    break;
 
-	case PMDA_PMID(0,144): /* disk.all.wait.time */
+	case PMDA_PMID(SCLR_DISK,6): /* disk.all.wait.time */
 	    val = iostat->wtime;
 	    break;
-	case PMDA_PMID(0,145): /* disk.all.wait.count */
+	case PMDA_PMID(SCLR_DISK,7): /* disk.all.wait.count */
 	    val = iostat->wcnt;
 	    break;
-	case PMDA_PMID(0,146): /* disk.all.run.time */
+	case PMDA_PMID(SCLR_DISK,8): /* disk.all.run.time */
 	    val = iostat->rtime;
 	    break;
-	case PMDA_PMID(0,147): /* disk.all.run.time */
+	case PMDA_PMID(SCLR_DISK,9): /* disk.all.run.time */
 	    val = iostat->rcnt;
 	    break;
 
-	case PMDA_PMID(0,57):	/* hinv.ndisk */
+	case PMDA_PMID(SCLR_DISK,20):	/* hinv.ndisk */
 	    if (inst == 0)
 		val = ndisk;
 	    else
@@ -213,7 +213,7 @@ disk_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
     for (i = 0; i < ndisk; i++) {
 	if (inst == PM_IN_NULL || inst == i) {
 	    offset = ((metricdesc_t *)mdesc->m_user)->md_offset;
-	    if (offset < 0) {
+	    if (offset == -1) {
 		ull += disk_derived(mdesc, i, &ctl[i].iostat);
 	    } else if (offset > sizeof(ctl[i].iostat)) { /* device_error */
 		if (ctl[i].sderr) {

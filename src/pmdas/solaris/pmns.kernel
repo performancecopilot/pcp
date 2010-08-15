@@ -8,138 +8,138 @@ kernel {
 kernel.all {
     cpu
     io
-    trap		SOLARIS:0:32
-    pswitch		SOLARIS:0:23
-    syscall		SOLARIS:0:22
-    sysexec		SOLARIS:0:33
-    sysfork		SOLARIS:0:34
-    sysvfork		SOLARIS:0:35
-    sysread		SOLARIS:0:36
-    syswrite		SOLARIS:0:37
-    load		SOLARIS:0:135
+    trap		SOLARIS:SCLR_SYSINFO:32
+    pswitch		SOLARIS:SCLR_SYSINFO:23
+    syscall		SOLARIS:SCLR_SYSINFO:22
+    sysexec		SOLARIS:SCLR_SYSINFO:33
+    sysfork		SOLARIS:SCLR_SYSINFO:34
+    sysvfork		SOLARIS:SCLR_SYSINFO:35
+    sysread		SOLARIS:SCLR_SYSINFO:36
+    syswrite		SOLARIS:SCLR_SYSINFO:37
+    load		SOLARIS:SCLR_SYSINFO:135
 }
 
 kernel.all.cpu {
-    idle		SOLARIS:0:0
-    user		SOLARIS:0:1
-    sys			SOLARIS:0:2
+    idle		SOLARIS:SCLR_SYSINFO:0
+    user		SOLARIS:SCLR_SYSINFO:1
+    sys			SOLARIS:SCLR_SYSINFO:2
     wait
 }
 
 kernel.all.cpu.wait {
-    total		SOLARIS:0:3
-    io			SOLARIS:0:8
-    pio			SOLARIS:0:9
-    swap		SOLARIS:0:10
+    total		SOLARIS:SCLR_SYSINFO:3
+    io			SOLARIS:SCLR_SYSINFO:8
+    pio			SOLARIS:SCLR_SYSINFO:9
+    swap		SOLARIS:SCLR_SYSINFO:10
 }
 
 kernel.all.io {
-    bread		SOLARIS:0:14
-    bwrite		SOLARIS:0:15
-    lread		SOLARIS:0:16
-    lwrite		SOLARIS:0:17
-    phread		SOLARIS:0:26
-    phwrite		SOLARIS:0:27
-    intr		SOLARIS:0:28
+    bread		SOLARIS:SCLR_SYSINFO:14
+    bwrite		SOLARIS:SCLR_SYSINFO:15
+    lread		SOLARIS:SCLR_SYSINFO:16
+    lwrite		SOLARIS:SCLR_SYSINFO:17
+    phread		SOLARIS:SCLR_SYSINFO:26
+    phwrite		SOLARIS:SCLR_SYSINFO:27
+    intr		SOLARIS:SCLR_SYSINFO:28
 }
 
 kernel.percpu {
     cpu
     io
-    trap		SOLARIS:0:38
-    pswitch		SOLARIS:0:25
-    syscall		SOLARIS:0:24
-    sysexec		SOLARIS:0:39
-    sysfork		SOLARIS:0:40
-    sysvfork		SOLARIS:0:41
-    sysread		SOLARIS:0:42
-    syswrite		SOLARIS:0:43
+    trap		SOLARIS:SCLR_SYSINFO:38
+    pswitch		SOLARIS:SCLR_SYSINFO:25
+    syscall		SOLARIS:SCLR_SYSINFO:24
+    sysexec		SOLARIS:SCLR_SYSINFO:39
+    sysfork		SOLARIS:SCLR_SYSINFO:40
+    sysvfork		SOLARIS:SCLR_SYSINFO:41
+    sysread		SOLARIS:SCLR_SYSINFO:42
+    syswrite		SOLARIS:SCLR_SYSINFO:43
 }
 
 kernel.percpu.cpu {
-    idle		SOLARIS:0:4
-    user		SOLARIS:0:5
-    sys			SOLARIS:0:6
+    idle		SOLARIS:SCLR_SYSINFO:4
+    user		SOLARIS:SCLR_SYSINFO:5
+    sys			SOLARIS:SCLR_SYSINFO:6
     wait
 }
 
 kernel.percpu.cpu.wait {
-    total		SOLARIS:0:7
-    io			SOLARIS:0:11
-    pio			SOLARIS:0:12
-    swap		SOLARIS:0:13
+    total		SOLARIS:SCLR_SYSINFO:7
+    io			SOLARIS:SCLR_SYSINFO:11
+    pio			SOLARIS:SCLR_SYSINFO:12
+    swap		SOLARIS:SCLR_SYSINFO:13
 }
 
 kernel.percpu.io {
-    bread		SOLARIS:0:18
-    bwrite		SOLARIS:0:19
-    lread		SOLARIS:0:20
-    lwrite		SOLARIS:0:21
-    phread		SOLARIS:0:29
-    phwrite		SOLARIS:0:30
-    intr		SOLARIS:0:31
+    bread		SOLARIS:SCLR_SYSINFO:18
+    bwrite		SOLARIS:SCLR_SYSINFO:19
+    lread		SOLARIS:SCLR_SYSINFO:20
+    lwrite		SOLARIS:SCLR_SYSINFO:21
+    phread		SOLARIS:SCLR_SYSINFO:29
+    phwrite		SOLARIS:SCLR_SYSINFO:30
+    intr		SOLARIS:SCLR_SYSINFO:31
 }
 
 kernel.fsflush {
-	scanned		SOLARIS:1:0
-	examined	SOLARIS:1:1
-	locked		SOLARIS:1:2
-	modified	SOLARIS:1:3
-	coalesced	SOLARIS:1:4
-	released	SOLARIS:1:5
-	time		SOLARIS:1:6
+	scanned		SOLARIS:SCLR_FSFLUSH:0
+	examined	SOLARIS:SCLR_FSFLUSH:1
+	locked		SOLARIS:SCLR_FSFLUSH:2
+	modified	SOLARIS:SCLR_FSFLUSH:3
+	coalesced	SOLARIS:SCLR_FSFLUSH:4
+	released	SOLARIS:SCLR_FSFLUSH:5
+	time		SOLARIS:SCLR_FSFLUSH:6
 }
 
 kernel.fs {
 	vnops
-	read_bytes	SOLARIS:3:0
-	readdir_bytes	SOLARIS:3:1
-	write_bytes	SOLARIS:3:2
+	read_bytes	SOLARIS:SCLR_FILESYS:0
+	readdir_bytes	SOLARIS:SCLR_FILESYS:1
+	write_bytes	SOLARIS:SCLR_FILESYS:2
 }
 
 kernel.fs.vnops {
-	access		SOLARIS:3:4
-	addmap		SOLARIS:3:5
-	close		SOLARIS:3:6
-	cmp		SOLARIS:3:7
-	create		SOLARIS:3:8
-	delmap		SOLARIS:3:9
-	dispose		SOLARIS:3:10
-	dump		SOLARIS:3:11
-	dumpctl		SOLARIS:3:12
-	fid		SOLARIS:3:13
-	frlock		SOLARIS:3:14
-	fsync		SOLARIS:3:15
-	getattr		SOLARIS:3:16
-	getpage		SOLARIS:3:17
-	getsecattr	SOLARIS:3:18
-	inactive	SOLARIS:3:19
-	ioctl		SOLARIS:3:20
-	link		SOLARIS:3:21
-	lookup		SOLARIS:3:22
-	map		SOLARIS:3:23
-	mkdir		SOLARIS:3:24
-	open		SOLARIS:3:25
-	pageio		SOLARIS:3:26
-	pathconf	SOLARIS:3:27
-	poll		SOLARIS:3:28
-	putpage		SOLARIS:3:29
-	read		SOLARIS:3:30
-	readdir		SOLARIS:3:31
-	readlink	SOLARIS:3:32
-	realvp		SOLARIS:3:33
-	remove		SOLARIS:3:34
-	rename		SOLARIS:3:35
-	rmdir		SOLARIS:3:36
-	rwlock		SOLARIS:3:37
-	rwunlock	SOLARIS:3:38
-	seek		SOLARIS:3:39
-	setattr		SOLARIS:3:40
-	setfl		SOLARIS:3:41
-	setsecattr	SOLARIS:3:42
-	shrlock		SOLARIS:3:43
-	space		SOLARIS:3:44
-	symlink		SOLARIS:3:45
-	vnevent		SOLARIS:3:46
-	write		SOLARIS:3:47
+	access		SOLARIS:SCLR_FILESYS:4
+	addmap		SOLARIS:SCLR_FILESYS:5
+	close		SOLARIS:SCLR_FILESYS:6
+	cmp		SOLARIS:SCLR_FILESYS:7
+	create		SOLARIS:SCLR_FILESYS:8
+	delmap		SOLARIS:SCLR_FILESYS:9
+	dispose		SOLARIS:SCLR_FILESYS:10
+	dump		SOLARIS:SCLR_FILESYS:11
+	dumpctl		SOLARIS:SCLR_FILESYS:12
+	fid		SOLARIS:SCLR_FILESYS:13
+	frlock		SOLARIS:SCLR_FILESYS:14
+	fsync		SOLARIS:SCLR_FILESYS:15
+	getattr		SOLARIS:SCLR_FILESYS:16
+	getpage		SOLARIS:SCLR_FILESYS:17
+	getsecattr	SOLARIS:SCLR_FILESYS:18
+	inactive	SOLARIS:SCLR_FILESYS:19
+	ioctl		SOLARIS:SCLR_FILESYS:20
+	link		SOLARIS:SCLR_FILESYS:21
+	lookup		SOLARIS:SCLR_FILESYS:22
+	map		SOLARIS:SCLR_FILESYS:23
+	mkdir		SOLARIS:SCLR_FILESYS:24
+	open		SOLARIS:SCLR_FILESYS:25
+	pageio		SOLARIS:SCLR_FILESYS:26
+	pathconf	SOLARIS:SCLR_FILESYS:27
+	poll		SOLARIS:SCLR_FILESYS:28
+	putpage		SOLARIS:SCLR_FILESYS:29
+	read		SOLARIS:SCLR_FILESYS:30
+	readdir		SOLARIS:SCLR_FILESYS:31
+	readlink	SOLARIS:SCLR_FILESYS:32
+	realvp		SOLARIS:SCLR_FILESYS:33
+	remove		SOLARIS:SCLR_FILESYS:34
+	rename		SOLARIS:SCLR_FILESYS:35
+	rmdir		SOLARIS:SCLR_FILESYS:36
+	rwlock		SOLARIS:SCLR_FILESYS:37
+	rwunlock	SOLARIS:SCLR_FILESYS:38
+	seek		SOLARIS:SCLR_FILESYS:39
+	setattr		SOLARIS:SCLR_FILESYS:40
+	setfl		SOLARIS:SCLR_FILESYS:41
+	setsecattr	SOLARIS:SCLR_FILESYS:42
+	shrlock		SOLARIS:SCLR_FILESYS:43
+	space		SOLARIS:SCLR_FILESYS:44
+	symlink		SOLARIS:SCLR_FILESYS:45
+	vnevent		SOLARIS:SCLR_FILESYS:46
+	write		SOLARIS:SCLR_FILESYS:47
 }
