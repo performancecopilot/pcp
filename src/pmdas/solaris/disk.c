@@ -127,14 +127,12 @@ disk_derived(pmdaMetric *mdesc, int inst, const kstat_io_t *iostat)
 	    val = iostat->nread + iostat->nwritten;
 	    break;
 
-	case PMDA_PMID(SCLR_DISK,6): /* disk.all.wait.time */
-	    val = iostat->wtime;
-	    break;
+	/* iostat->wcnt and iostat->rcnt are 32 bit intergers,
+	 * these two metrics must be derived because the metrics
+	 * are using 64 bit integers to avoid overflows during
+	 * accumultion */
 	case PMDA_PMID(SCLR_DISK,7): /* disk.all.wait.count */
 	    val = iostat->wcnt;
-	    break;
-	case PMDA_PMID(SCLR_DISK,8): /* disk.all.run.time */
-	    val = iostat->rtime;
 	    break;
 	case PMDA_PMID(SCLR_DISK,9): /* disk.all.run.time */
 	    val = iostat->rcnt;

@@ -847,7 +847,7 @@ metricdesc_t metricdesc[] = {
     { "disk.all.wait.time",
       { PMDA_PMID(SCLR_DISK,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_NSEC, 0)
-      }, -1},
+      }, KSTAT_IO_OFF(wtime)},
     { "disk.all.wait.count",
       { PMDA_PMID(SCLR_DISK,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
@@ -855,7 +855,7 @@ metricdesc_t metricdesc[] = {
     { "disk.all.run.time",
       { PMDA_PMID(SCLR_DISK,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_NSEC, 0)
-      }, -1},
+      }, KSTAT_IO_OFF(rtime)},
     { "disk.all.run.count",
       { PMDA_PMID(SCLR_DISK,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
