@@ -79,7 +79,7 @@ sub new {
 		app_publisher_url => 'http://oss.sgi.com/projects/pcp',
 		image_dir         => 'C:\\Glider',
 		output_dir        => 'D:\\msi',
-		download_dir      => 'D:\\packages',
+		download_dir      => 'C:\\packages',
 		temp_dir          => 'D:\\tmp',
 		offline           => 1,
 		cpan              => new URI($PKGCPAN),
@@ -94,9 +94,9 @@ sub new {
 		zip               => 0,
 		msi               => 1,
 		msi_help_url      => 'http://oss.sgi.com/projects/pcp',
-		msi_banner_top    => 'D:\\packages\\GliderBanner.bmp',
-		msi_banner_side   => 'D:\\packages\\GliderDialog.bmp',
-		msi_product_icon  => 'D:\\packages\\GliderPCP.ico',
+		msi_banner_top    => 'C:\\packages\\GliderBanner.bmp',
+		msi_banner_side   => 'C:\\packages\\GliderDialog.bmp',
+		msi_product_icon  => 'C:\\packages\\GliderPCP.ico',
 
 		msm_to_use => 'file://D|/packages/strawberry-perl-5.12.0.1.msm',
 		msm_zip    => 'file://D|/packages/strawberry-perl-5.12.0.1.zip',
@@ -263,6 +263,9 @@ sub install_environment
 
     $self->add_path( 'local', 'bin' );
 
+    # It would be good to get this to just the one variable
+    # (i.e. PCP_DIR).  Require PCP changes to support that.
+
     $self->add_env( PCP_DIR	=> '[INSTALLDIR]' );
     $self->add_env( PCP_CONF	=> '[INSTALLDIR]etc\\pcp.conf' );
     $self->add_env( PCP_CONFIG	=> '[INSTALLDIR]local\\bin\\pmconfig.exe' );
@@ -278,6 +281,9 @@ sub install_run_scripts
 
     $self->custom_file('Post_Install_Script', 'postinst.bat', 'scripts/postinst.bat');
     $self->custom_file('Pre_Remove_Script', 'prerm.bat', 'scripts/prerm.bat');
+
+    # These should be run automatically (however that is done,
+    # scripts might not be the right approach).
 
 #    $self->add_run(
 #	filename	=> 'scripts\\postinst.bat'
@@ -310,12 +316,12 @@ sub install_glider_modules_2
 
     $self->install_distribution_from_file(
 	mod_name => 'PCP::PMDA',
-	file	=> 'D:\\packages\\PCP-PMDA-1.07.tar.gz',
+	file	=> 'C:\\packages\\PCP-PMDA-1.07.tar.gz',
 	buildpl_param => [ '--installdirs', 'vendor' ],
     );
     $self->install_distribution_from_file(
 	mod_name	=> 'PCP::MMV',
-	file	=> 'D:\\packages\\PCP-MMV-1.00.tar.gz',
+	file	=> 'C:\\packages\\PCP-MMV-1.00.tar.gz',
 	buildpl_param => [ '--installdirs', 'vendor' ],
     );
 
