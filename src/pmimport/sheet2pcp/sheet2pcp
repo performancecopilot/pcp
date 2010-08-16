@@ -36,6 +36,7 @@ my $sheet;
 my $zone = "UTC";	# default timezone
 my $label_zone;
 my $datefmt = "DMY";	# default order of date fields
+my %options;		# for command line arguments
 
 sub dodate($)
 {
@@ -420,14 +421,30 @@ sub domap($)
     }
 }
 
-if ($#ARGV != 2) {
-    print "Usage: sheet2pcp infile mapfile outfile\n";
+$sts = getopts('h:Z:', \%options);
+
+if (!defined($sts) || $#ARGV != 2) {
+    print "Usage: sheet2pcp [-h host] [-Z timezone] infile mapfile outfile\n";
     exit(1);
+}
+
+if (exists($options{Z})) {
+    $zone = $options{Z};
+    if ($zone !~ /^[-+][0-9][0-9][0-9][0-9]$/) {
+	print "sheet2pcp: Illegal -Z value, must be +NNNN or -NNNN\n";
+	exit(1);
+    }
 }
 
 # initialize the output archive so we can add the metadata from the mapfile
 #
 pmiStart($ARGV[2], 0);
+
+if (exists($options{h})) {
+    if (pmiSetHostname($options{h}) < 0) {
+	print "sheet2pcp: Warning: failed to set hostname from -h " . $options{h} . ": " . pmiErrStr(-1) . "\n";
+    }
+}
 
 # all the hard work is done here ...
 #
@@ -550,7 +567,7 @@ sheet2pcp - Import spreadsheet data and create a PCP archive
 
 =head1 SYNOPSIS
 
-B<sheet2pcp> I<infile> I<mapfile> I<outfile>
+B<sheet2pcp> [B<-h> I<host>] [B<-Z> I<timezone>] I<infile> I<mapfile> I<outfile>
 
 =head1 DESCRIPTION
 
@@ -582,6 +599,16 @@ I<outfile>B<.index> (a temporal index to improve efficiency of replay
 operations for the archive).  If any of these files exists already,
 then B<sheet2pcp> will B<not> overwrite them and will exit with an error
 message.
+
+The B<-h> option is an alternate to the 
+B<hostname> attribute of the B<E<lt>sheetE<gt>> element in I<mapfile>
+described below.  If both are specified, the value from I<mapfile> is
+used.
+
+The B<-Z> option is an alternate to the 
+B<timezone> attribute of the B<E<lt>sheetE<gt>> element in I<mapfile>
+described below.  If both are specified, the value from I<mapfile> is
+used.
 
 B<sheet2pcp> is a Perl script that uses the PCP::LogImport Perl wrapper
 around the PCP I<libpcp_import>
@@ -652,13 +679,14 @@ Examples: pmid="60.0.2", pmid="PM_ID_NULL".
 
 =item B<indom>
 
-Each metric may have one or more values associated with it.  If there is only
-one value, the metric is singular and B<indom> should be set to B<PM_INDOM_NULL>
-which is the default case when the B<indom> attribute is omitted.
-Otherwise B<indom> should be specified as 2 numbers separated by periods (.)
+Each metric may have one or more values.  If a metric B<always>
+has one value, it is singular and the Instance Domain should be set to
+B<PM_INDOM_NULL>.
+Otherwise B<indom> should be specified as 2 numbers separated by a period (.)
 to set the B<domain> and B<ordinal> fields of the Instance Domain, see
 the B<__pmInDom_int> typedef in I<E<lt>pcp/impl.hE<gt>>.
-see 
+Examples: indom="PM_INDOM_NULL", indom="60.3", indom="PMI_DOMAIN.4".
+
 More than
 one metric can share the same Instance Domain when the metrics have defined
 values over similar sets of instances, e.g. all the metrics for each network
@@ -666,7 +694,9 @@ interface.  It is standard practice for the B<domain> field to be the
 same for the B<pmid> and the B<indom>; if the B<pmid> attribute is missing,
 then the B<domain> field for the B<indom> should be the reserved domain
 B<PMI_DOMAIN>.
-Examples: indom="PM_INDOM_NULL", indom="60.3", indom="PMI_DOMAIN.4".
+
+If the B<indom> attribute is omitted then the default Instance Domain for
+the metric is B<PM_INDOM_NULL>.
 
 =item B<units>
 
@@ -716,9 +746,9 @@ The B<skip> tag defines the column that should be skipped when preparing
 data for the PCP archive.
 
 The order of the B<E<lt>datetimeE<gt>>, B<E<lt>dataE<gt>> and
-B<E<lt>skip<gt>> elements matches the order of columns in the
+B<E<lt>skipE<gt>> elements matches the order of columns in the
 spreadsheet.  If the number of elements is not the same as the number
-of columns a warning is issued, and extra elements or columns
+of columns a warning is issued, and the extra elements or columns
 generate no metric values in the output archive.
 
 =head2 EXAMPLE
@@ -780,7 +810,7 @@ does not appear to work with OpenXML documents saved from OpenOffice.
 B<Archive::Zip>(3pm),
 B<Date::Format>(3pm),
 B<Date::Parse>(3pm),
-B<logimport>(3),
+B<LOGIMPORT>(3),
 B<OLE::Storage_Lite>(3pm),
 B<PCP::LogImport>(3pm),
 B<pmchart>(1),

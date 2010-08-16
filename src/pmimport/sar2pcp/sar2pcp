@@ -666,7 +666,7 @@ XML into a PCP archive.
 
 B<Date::Parse>(3pm),
 B<Date::Format>(3pm),
-B<logimport>(3),
+B<LOGIMPORT>(3),
 B<PCP::LogImport>(3pm),
 B<pmchart>(1),
 B<pmie>(1)
